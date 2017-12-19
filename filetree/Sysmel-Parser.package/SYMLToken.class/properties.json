@@ -1,0 +1,13 @@
+{
+	"commentStamp" : "",
+	"super" : "PPToken",
+	"category" : "Sysmel-Parser",
+	"classinstvars" : [ ],
+	"pools" : [ ],
+	"classvars" : [ ],
+	"instvars" : [
+		"previousComments"
+	],
+	"name" : "SYMLToken",
+	"type" : "normal"
+}

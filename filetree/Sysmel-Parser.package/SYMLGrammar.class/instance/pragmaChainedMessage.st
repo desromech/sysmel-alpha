@@ -1,0 +1,3 @@
+accessing
+pragmaChainedMessage
+	^ pragmaChainKeywordMessage / chainUnaryMessage

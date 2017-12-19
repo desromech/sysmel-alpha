@@ -1,0 +1,3 @@
+accessing
+anyChainExpression
+	^ implicitContextChainExpression / chainExpression

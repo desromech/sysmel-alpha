@@ -1,0 +1,13 @@
+{
+	"commentStamp" : "",
+	"super" : "SYMLGrammar",
+	"category" : "Sysmel-Phanide",
+	"classinstvars" : [ ],
+	"pools" : [ ],
+	"classvars" : [ ],
+	"instvars" : [
+		"commands"
+	],
+	"name" : "SYMLSyntaxHighlighter",
+	"type" : "normal"
+}

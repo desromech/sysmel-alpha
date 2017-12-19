@@ -1,0 +1,11 @@
+{
+	"commentStamp" : "",
+	"super" : "SYMLGrammar",
+	"category" : "Sysmel-Parser",
+	"classinstvars" : [ ],
+	"pools" : [ ],
+	"classvars" : [ ],
+	"instvars" : [ ],
+	"name" : "SYMLParser",
+	"type" : "normal"
+}

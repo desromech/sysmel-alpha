@@ -1,0 +1,3 @@
+accessing
+chainedMessage
+	^ chainKeywordMessage / chainUnaryMessage
