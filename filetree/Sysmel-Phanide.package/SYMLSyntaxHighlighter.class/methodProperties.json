@@ -1,11 +1,23 @@
 {
 	"instance" : {
-		"singleLineComment" : "RonieSalgado 12/15/2017 22:15",
+		"multiLineComment" : "RonieSalgado 12/15/2017 22:04",
+		"symbolLiteral" : "RonieSalgado 12/20/2017 01:31",
+		"operator:" : "RonieSalgado 12/20/2017 01:43",
+		"chainKeywordMessage" : "RonieSalgado 12/20/2017 01:38",
+		"pragmaChainUnaryMessage" : "RonieSalgado 12/20/2017 01:30",
+		"pragma" : "RonieSalgado 12/20/2017 01:27",
+		"unaryExpressionSuffixCall" : "RonieSalgado 12/20/2017 01:33",
 		"commands" : "RonieSalgado 12/15/2017 22:03",
+		"pragmaChainKeywordMessage" : "RonieSalgado 12/20/2017 01:29",
+		"chainUnaryMessage" : "RonieSalgado 12/20/2017 01:52",
+		"singleLineComment" : "RonieSalgado 12/15/2017 22:15",
 		"keyword:" : "RonieSalgado 12/15/2017 22:03",
-		"multiLineComment" : "RonieSalgado 12/15/2017 22:04"
+		"unaryExpressionSuffixMessage" : "RonieSalgado 12/20/2017 01:51",
+		"number" : "RonieSalgado 12/20/2017 01:27",
+		"identifierExpression" : "RonieSalgado 12/20/2017 01:48"
 	},
 	"class" : {
-		"ignoredNames" : "RonieSalgado 12/15/2017 22:16"
+		"ignoredNames" : "RonieSalgado 12/15/2017 22:16",
+		"initialize" : "RonieSalgado 12/20/2017 01:48"
 	}
 }

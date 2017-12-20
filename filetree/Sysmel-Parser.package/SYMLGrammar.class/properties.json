@@ -5,7 +5,7 @@
 	"classinstvars" : [ ],
 	"pools" : [ ],
 	"classvars" : [
-		"Keywords"
+		"SpecialOperators"
 	],
 	"instvars" : [
 		"expression",
@@ -35,7 +35,6 @@
 		"keyword",
 		"chainUnaryMessage",
 		"unaryExpression",
-		"binaryOperator",
 		"primaryExpression",
 		"unaryExpressionSuffix",
 		"unaryExpressionSuffixMessage",
@@ -57,9 +56,6 @@
 		"integerNumber",
 		"number",
 		"literals",
-		"trueLiteral",
-		"falseLiteral",
-		"nilLiteral",
 		"commaExpression",
 		"pragmaChainKeywordMessage",
 		"lbracketbracket",
@@ -70,7 +66,10 @@
 		"symbolOperatorLiteral",
 		"symbolIdentifierLiteral",
 		"symbolStringLiteral",
-		"symbolLiteral"
+		"symbolLiteral",
+		"pragmaChainUnaryMessage",
+		"anyBinaryOperator",
+		"genericBinaryOperator"
 	],
 	"name" : "SYMLGrammar",
 	"type" : "normal"

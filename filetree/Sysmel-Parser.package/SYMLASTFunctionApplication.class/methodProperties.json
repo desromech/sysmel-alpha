@@ -1,4 +1,11 @@
 {
-	"instance" : { },
+	"instance" : {
+		"withReceiver:" : "RonieSalgado 12/20/2017 02:58",
+		"arguments:" : "RonieSalgado 12/20/2017 01:24",
+		"arguments" : "RonieSalgado 12/20/2017 01:24",
+		"children" : "RonieSalgado 12/20/2017 03:05",
+		"function" : "RonieSalgado 12/20/2017 01:24",
+		"function:" : "RonieSalgado 12/20/2017 01:24"
+	},
 	"class" : { }
 }

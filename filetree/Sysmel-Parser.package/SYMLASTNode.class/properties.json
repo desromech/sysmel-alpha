@@ -5,7 +5,10 @@
 	"classinstvars" : [ ],
 	"pools" : [ ],
 	"classvars" : [ ],
-	"instvars" : [ ],
+	"instvars" : [
+		"position",
+		"tokens"
+	],
 	"name" : "SYMLASTNode",
 	"type" : "normal"
 }

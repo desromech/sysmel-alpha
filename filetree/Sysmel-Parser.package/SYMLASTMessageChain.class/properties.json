@@ -1,0 +1,14 @@
+{
+	"commentStamp" : "",
+	"super" : "SYMLASTNode",
+	"category" : "Sysmel-Parser",
+	"classinstvars" : [ ],
+	"pools" : [ ],
+	"classvars" : [ ],
+	"instvars" : [
+		"receiver",
+		"messages"
+	],
+	"name" : "SYMLASTMessageChain",
+	"type" : "normal"
+}

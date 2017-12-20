@@ -1,0 +1,3 @@
+*Sysmel-Parser
+isSYMLASTNode
+	^ false

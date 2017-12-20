@@ -4,7 +4,9 @@
 	"category" : "Sysmel-Phanide",
 	"classinstvars" : [ ],
 	"pools" : [ ],
-	"classvars" : [ ],
+	"classvars" : [
+		"Keywords"
+	],
 	"instvars" : [
 		"commands"
 	],
