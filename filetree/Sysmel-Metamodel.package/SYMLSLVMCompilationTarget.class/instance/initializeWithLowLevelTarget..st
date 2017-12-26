@@ -29,9 +29,12 @@ initializeWithLowLevelTarget: aLowLevelCompilationTarget
 		characterType := SYMLAliasType for: uint8Type name: #Char.
 	
 		astNodeType := SYMLASTNodeType new target: self.
+		apsgNodeType := SYMLAPSGNodeType new target: self.
 		compilerObjectType := SYMLCompilerObjectType new target: self.
 		
 		literalIntegerType := SYMLLiteralIntegerType new target: self.
 		literalFloatType := SYMLLiteralFloatType new target: self.
 		literalCharacterType := SYMLLiteralCharacterType new target: self.
+		literalStringType := SYMLLiteralStringType new target: self.
+		literalSymbolType := SYMLLiteralSymbolType new target: self.
 	}	

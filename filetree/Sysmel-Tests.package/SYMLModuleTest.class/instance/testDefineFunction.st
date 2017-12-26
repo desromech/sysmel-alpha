@@ -5,4 +5,4 @@ testDefineFunction
 	
 	self assert: function type isReferenceType.
 	self assert: function type referenced isFunctionType.
-	self assert: function value definition isSYMLASTNode.
+	self assert: function value definition isSYMLAPSGNode.

@@ -1,0 +1,15 @@
+{
+	"commentStamp" : "",
+	"super" : "SYMLAPSGNode",
+	"category" : "Sysmel-Metamodel-APSG",
+	"classinstvars" : [ ],
+	"pools" : [ ],
+	"classvars" : [ ],
+	"instvars" : [
+		"selector",
+		"receiver",
+		"arguments"
+	],
+	"name" : "SYMLAPSGMessageSend",
+	"type" : "normal"
+}

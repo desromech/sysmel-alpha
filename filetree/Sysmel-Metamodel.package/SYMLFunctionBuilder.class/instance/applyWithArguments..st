@@ -5,8 +5,15 @@ applyWithArguments: argumentNodes
 	
 	| evaluationEnvironment argumentName argumentType |
 	evaluationEnvironment := argumentNodes environment.
-	argumentNodes type isAPSGNode ifFalse: [ self error: 'Expected an APSG/AST node.' ].
-	arguments := argumentNodes value asList collect: [ :arg |
+	argumentNodes type isAPSGNode ifFalse: [
+		self error: 'Expected an APSG node.'
+	].
+
+	argumentNodes value isTupleNode ifFalse: [ 
+		self error: 'Expected an APSG tuple.'
+	].
+
+	arguments := argumentNodes value elements collect: [ :arg |
 		arg isMessageNode ifFalse: [
 			self error: 'Expected a message send to describe a function argument.' at: arg.
 		].

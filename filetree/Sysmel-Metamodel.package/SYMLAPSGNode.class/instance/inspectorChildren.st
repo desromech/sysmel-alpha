@@ -1,0 +1,3 @@
+accessing
+inspectorChildren
+	^ self children

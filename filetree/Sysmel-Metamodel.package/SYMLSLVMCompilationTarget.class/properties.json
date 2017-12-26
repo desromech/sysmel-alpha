@@ -31,7 +31,10 @@
 		"referenceTypes",
 		"volatileTypes",
 		"voidType",
-		"functionTypes"
+		"functionTypes",
+		"apsgNodeType",
+		"literalStringType",
+		"literalSymbolType"
 	],
 	"name" : "SYMLSLVMCompilationTarget",
 	"type" : "normal"

@@ -1,0 +1,3 @@
+testing
+asSysmelValueInEnvironment: anEnvironment
+	^ self sysmelValueWithType: anEnvironment compilationTarget apsgNodeType inEnvironment: anEnvironment

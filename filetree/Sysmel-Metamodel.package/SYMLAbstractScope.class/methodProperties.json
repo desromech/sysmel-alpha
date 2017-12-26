@@ -1,5 +1,6 @@
 {
 	"instance" : {
+		"wrapAPSGNode:" : "RonieSalgado 12/25/2017 23:10",
 		"evaluateIdentifier:at:" : "RonieSalgado 12/23/2017 23:12",
 		"lookSymbol:ifPresent:" : "RonieSalgado 12/23/2017 22:52",
 		"addSymbol:withValue:" : "RonieSalgado 12/24/2017 21:36",
@@ -9,9 +10,11 @@
 		"lookSymbolRecursively:ifAbsent:" : "RonieSalgado 12/23/2017 22:51",
 		"metaMethodForSelector:receiver:arguments:inEnvironment:at:" : "RonieSalgado 12/24/2017 02:26",
 		"parent:" : "RonieSalgado 12/23/2017 21:54",
+		"wrapAPSGNodes:" : "RonieSalgado 12/25/2017 23:11",
 		"findProgramEntityDefinitionScope" : "RonieSalgado 12/24/2017 21:41",
 		"wrapASTNode:" : "RonieSalgado 12/24/2017 03:14",
 		"module" : "RonieSalgado 12/24/2017 21:30",
+		"apsgBuilder" : "RonieSalgado 12/25/2017 23:53",
 		"wrapASTNodes:" : "RonieSalgado 12/24/2017 03:15",
 		"compilationTarget" : "RonieSalgado 12/23/2017 22:07",
 		"send:toReceiver:withArguments:inEnvironment:at:" : "RonieSalgado 12/24/2017 02:26",

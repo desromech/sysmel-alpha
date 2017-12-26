@@ -1,6 +1,6 @@
 {
 	"commentStamp" : "",
-	"super" : "SYMLAPSGNodeType",
+	"super" : "SYMLCompilationTimeType",
 	"category" : "Sysmel-Metamodel-Types",
 	"classinstvars" : [ ],
 	"pools" : [ ],
