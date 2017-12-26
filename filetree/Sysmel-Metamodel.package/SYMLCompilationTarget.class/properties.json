@@ -1,0 +1,13 @@
+{
+	"commentStamp" : "",
+	"super" : "Object",
+	"category" : "Sysmel-Metamodel-Types",
+	"classinstvars" : [ ],
+	"pools" : [ ],
+	"classvars" : [
+		"CurrentImageCompilationTarget"
+	],
+	"instvars" : [ ],
+	"name" : "SYMLCompilationTarget",
+	"type" : "normal"
+}

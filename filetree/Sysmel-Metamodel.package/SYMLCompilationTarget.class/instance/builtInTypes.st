@@ -1,0 +1,3 @@
+class initialization
+builtInTypes
+	self subclassResponsibility

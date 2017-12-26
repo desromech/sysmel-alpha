@@ -1,0 +1,15 @@
+{
+	"classtraitcomposition" : "TSYMLType classTrait",
+	"classvars" : [ ],
+	"instvars" : [
+		"compilationTarget"
+	],
+	"name" : "SYMLMetaBuilder",
+	"commentStamp" : "",
+	"super" : "SYMLProgramEntity",
+	"traitcomposition" : "TSYMLType",
+	"type" : "normal",
+	"classinstvars" : [ ],
+	"pools" : [ ],
+	"category" : "Sysmel-Metamodel-MetaBuilders"
+}

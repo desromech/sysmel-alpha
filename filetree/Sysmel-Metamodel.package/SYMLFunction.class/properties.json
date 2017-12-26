@@ -1,0 +1,17 @@
+{
+	"commentStamp" : "",
+	"super" : "SYMLProgramEntity",
+	"category" : "Sysmel-Metamodel-Program",
+	"classinstvars" : [ ],
+	"pools" : [ ],
+	"classvars" : [ ],
+	"instvars" : [
+		"module",
+		"name",
+		"functionType",
+		"argumentNames",
+		"definition"
+	],
+	"name" : "SYMLFunction",
+	"type" : "normal"
+}

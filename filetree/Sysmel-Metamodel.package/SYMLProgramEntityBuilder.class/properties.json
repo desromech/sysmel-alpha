@@ -1,0 +1,14 @@
+{
+	"commentStamp" : "",
+	"super" : "SYMLObject",
+	"category" : "Sysmel-Metamodel-MetaBuilders",
+	"classinstvars" : [ ],
+	"pools" : [ ],
+	"classvars" : [ ],
+	"instvars" : [
+		"definitionEnvironment",
+		"flags"
+	],
+	"name" : "SYMLProgramEntityBuilder",
+	"type" : "normal"
+}

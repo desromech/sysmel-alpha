@@ -1,0 +1,18 @@
+{
+	"instance" : {
+		"isFunctionType" : "RonieSalgado 12/25/2017 22:07",
+		"callingConvention:" : "RonieSalgado 12/24/2017 21:09",
+		"variadic:" : "RonieSalgado 12/24/2017 21:09",
+		"callingConvention" : "RonieSalgado 12/24/2017 21:09",
+		"returnType" : "RonieSalgado 12/24/2017 21:09",
+		"=" : "RonieSalgado 12/24/2017 21:22",
+		"arguments" : "RonieSalgado 12/24/2017 21:09",
+		"initialize" : "RonieSalgado 12/24/2017 21:11",
+		"arguments:" : "RonieSalgado 12/24/2017 21:09",
+		"printOn:" : "RonieSalgado 12/24/2017 21:26",
+		"variadic" : "RonieSalgado 12/24/2017 21:09",
+		"hash" : "RonieSalgado 12/24/2017 21:22",
+		"returnType:" : "RonieSalgado 12/24/2017 21:09"
+	},
+	"class" : { }
+}

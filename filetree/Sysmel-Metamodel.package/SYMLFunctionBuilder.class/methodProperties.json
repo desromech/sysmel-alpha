@@ -1,0 +1,20 @@
+{
+	"instance" : {
+		"name" : "RonieSalgado 12/24/2017 00:22",
+		"function" : "RonieSalgado 12/24/2017 21:05",
+		"isExternC" : "RonieSalgado 12/24/2017 21:07",
+		"applyWithArguments:" : "RonieSalgado 12/25/2017 22:04",
+		"initialize" : "RonieSalgado 12/24/2017 21:12",
+		"name:" : "RonieSalgado 12/24/2017 00:22",
+		"buildFunction" : "RonieSalgado 12/25/2017 22:21",
+		"CVariadic" : "RonieSalgado 12/24/2017 04:11",
+		"buildFunctionType" : "RonieSalgado 12/25/2017 22:20",
+		"isCVariadic" : "RonieSalgado 12/24/2017 21:06",
+		"->" : "RonieSalgado 12/24/2017 21:28",
+		"type" : "RonieSalgado 12/25/2017 22:20",
+		"externC" : "RonieSalgado 12/24/2017 04:10",
+		"functionType" : "RonieSalgado 12/25/2017 22:20",
+		"assignValue:" : "RonieSalgado 12/25/2017 22:05"
+	},
+	"class" : { }
+}

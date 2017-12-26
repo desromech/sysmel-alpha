@@ -1,0 +1,13 @@
+{
+	"commentStamp" : "",
+	"super" : "SYMLObject",
+	"category" : "Sysmel-Metamodel-Program",
+	"classinstvars" : [ ],
+	"pools" : [ ],
+	"classvars" : [ ],
+	"instvars" : [
+		"flags"
+	],
+	"name" : "SYMLProgramEntity",
+	"type" : "normal"
+}

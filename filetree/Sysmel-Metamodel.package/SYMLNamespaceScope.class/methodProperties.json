@@ -1,0 +1,13 @@
+{
+	"instance" : {
+		"compilationTarget" : "RonieSalgado 12/23/2017 22:58",
+		"hasSupportForOverloadedFunctions" : "RonieSalgado 12/24/2017 21:48",
+		"lookSymbol:ifPresent:" : "RonieSalgado 12/23/2017 22:57",
+		"metaMethodForSelector:receiver:arguments:inEnvironment:at:" : "RonieSalgado 12/24/2017 02:26",
+		"findProgramEntityDefinitionScopeFrom:" : "RonieSalgado 12/24/2017 21:36",
+		"namespace:" : "RonieSalgado 12/23/2017 22:57",
+		"lookSymbol:ifPresent:ifAbsentPut:" : "RonieSalgado 12/24/2017 21:46",
+		"namespace" : "RonieSalgado 12/23/2017 22:57"
+	},
+	"class" : { }
+}

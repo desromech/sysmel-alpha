@@ -1,0 +1,3 @@
+accessing
+compilerObjectType
+	self subclassResponsibility

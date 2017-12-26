@@ -1,0 +1,16 @@
+{
+	"commentStamp" : "",
+	"super" : "SYMLAbstractScope",
+	"category" : "Sysmel-Metamodel-Semantic",
+	"classinstvars" : [ ],
+	"pools" : [ ],
+	"classvars" : [ ],
+	"instvars" : [
+		"module",
+		"symbols",
+		"implicitContextMetaMethods",
+		"fallbackToReceiver"
+	],
+	"name" : "SYMLTopLevelScope",
+	"type" : "normal"
+}

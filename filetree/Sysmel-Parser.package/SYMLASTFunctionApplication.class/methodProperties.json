@@ -1,11 +1,13 @@
 {
 	"instance" : {
+		"function:" : "RonieSalgado 12/20/2017 01:24",
 		"withReceiver:" : "RonieSalgado 12/20/2017 02:58",
 		"arguments:" : "RonieSalgado 12/20/2017 01:24",
+		"printOn:" : "RonieSalgado 12/23/2017 19:11",
 		"arguments" : "RonieSalgado 12/20/2017 01:24",
-		"children" : "RonieSalgado 12/20/2017 03:05",
+		"children" : "RonieSalgado 12/23/2017 19:10",
 		"function" : "RonieSalgado 12/20/2017 01:24",
-		"function:" : "RonieSalgado 12/20/2017 01:24"
+		"evaluateInEnvironment:" : "RonieSalgado 12/24/2017 20:59"
 	},
 	"class" : { }
 }

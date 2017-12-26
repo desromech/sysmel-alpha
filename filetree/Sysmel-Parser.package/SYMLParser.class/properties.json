@@ -1,10 +1,12 @@
 {
 	"commentStamp" : "",
 	"super" : "SYMLGrammar",
-	"category" : "Sysmel-Parser",
+	"category" : "Sysmel-Parser-Parser",
 	"classinstvars" : [ ],
 	"pools" : [ ],
-	"classvars" : [ ],
+	"classvars" : [
+		"CScapeCharacter"
+	],
 	"instvars" : [ ],
 	"name" : "SYMLParser",
 	"type" : "normal"

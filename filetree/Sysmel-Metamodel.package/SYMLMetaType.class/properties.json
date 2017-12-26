@@ -1,0 +1,13 @@
+{
+	"commentStamp" : "",
+	"super" : "SYMLCompilationTimeType",
+	"category" : "Sysmel-Metamodel-Types",
+	"classinstvars" : [ ],
+	"pools" : [ ],
+	"classvars" : [ ],
+	"instvars" : [
+		"instanceType"
+	],
+	"name" : "SYMLMetaType",
+	"type" : "normal"
+}

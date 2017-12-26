@@ -1,7 +1,7 @@
 {
 	"commentStamp" : "",
 	"super" : "SYMLASTNode",
-	"category" : "Sysmel-Parser",
+	"category" : "Sysmel-Parser-AST",
 	"classinstvars" : [ ],
 	"pools" : [ ],
 	"classvars" : [ ],

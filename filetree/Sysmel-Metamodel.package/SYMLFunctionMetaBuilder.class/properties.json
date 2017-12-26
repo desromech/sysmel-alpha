@@ -1,0 +1,11 @@
+{
+	"commentStamp" : "",
+	"super" : "SYMLDefaultMetaBuilder",
+	"category" : "Sysmel-Metamodel-MetaBuilders",
+	"classinstvars" : [ ],
+	"pools" : [ ],
+	"classvars" : [ ],
+	"instvars" : [ ],
+	"name" : "SYMLFunctionMetaBuilder",
+	"type" : "normal"
+}

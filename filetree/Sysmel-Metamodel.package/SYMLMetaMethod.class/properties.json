@@ -1,0 +1,13 @@
+{
+	"commentStamp" : "",
+	"super" : "SYMLProgramEntity",
+	"category" : "Sysmel-Metamodel-MetaMethods",
+	"classinstvars" : [ ],
+	"pools" : [ ],
+	"classvars" : [ ],
+	"instvars" : [
+		"compilationTarget"
+	],
+	"name" : "SYMLMetaMethod",
+	"type" : "normal"
+}

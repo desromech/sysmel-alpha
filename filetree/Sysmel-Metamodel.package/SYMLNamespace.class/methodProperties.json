@@ -1,0 +1,14 @@
+{
+	"instance" : {
+		"compilationTarget" : "RonieSalgado 12/23/2017 22:58",
+		"module" : "RonieSalgado 12/23/2017 22:56",
+		"initialize" : "RonieSalgado 12/25/2017 22:13",
+		"lookSymbol:ifPresent:" : "RonieSalgado 12/23/2017 23:09",
+		"metaMethodForSelector:receiver:arguments:inEnvironment:at:" : "RonieSalgado 12/24/2017 02:27",
+		"isNamespace" : "RonieSalgado 12/24/2017 21:51",
+		"lookSymbol:" : "RonieSalgado 12/24/2017 20:57",
+		"lookSymbol:ifPresent:ifAbsentPut:" : "RonieSalgado 12/25/2017 22:13",
+		"module:" : "RonieSalgado 12/23/2017 22:56"
+	},
+	"class" : { }
+}

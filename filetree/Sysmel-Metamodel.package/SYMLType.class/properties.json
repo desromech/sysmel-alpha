@@ -1,0 +1,15 @@
+{
+	"classtraitcomposition" : "TSYMLType classTrait",
+	"classvars" : [ ],
+	"instvars" : [
+		"target"
+	],
+	"name" : "SYMLType",
+	"commentStamp" : "",
+	"super" : "Object",
+	"traitcomposition" : "TSYMLType",
+	"type" : "normal",
+	"classinstvars" : [ ],
+	"pools" : [ ],
+	"category" : "Sysmel-Metamodel-Types"
+}

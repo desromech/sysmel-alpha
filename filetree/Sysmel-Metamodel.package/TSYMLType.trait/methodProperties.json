@@ -1,0 +1,24 @@
+{
+	"instance" : {
+		"findMetaMethodForSelector:inImageReceiver:accessor:at:" : "RonieSalgado 12/24/2017 03:28",
+		"pointer" : "RonieSalgado 12/24/2017 03:33",
+		"isAPSGNode" : "RonieSalgado 12/25/2017 21:50",
+		"evaluateValue:inEnvironment:" : "RonieSalgado 12/24/2017 02:51",
+		"metaType" : "RonieSalgado 12/23/2017 23:57",
+		"isFunctionType" : "RonieSalgado 12/25/2017 22:07",
+		"isDecoratorType" : "RonieSalgado 12/24/2017 03:37",
+		"isConstant" : "RonieSalgado 12/24/2017 03:35",
+		"metaMethodForSelector:receiver:arguments:inEnvironment:at:" : "RonieSalgado 12/24/2017 02:27",
+		"asSysmelValueInEnvironment:" : "RonieSalgado 12/24/2017 03:46",
+		"const" : "RonieSalgado 12/24/2017 03:33",
+		"isReferenceType" : "RonieSalgado 12/25/2017 22:06",
+		"findMetaMethodForSelector:inImageReceiver:at:" : "RonieSalgado 12/24/2017 03:27",
+		"isVolatile" : "RonieSalgado 12/24/2017 03:41",
+		"isPointerType" : "RonieSalgado 12/25/2017 22:06",
+		"evaluateReferenceAt:" : "RonieSalgado 12/24/2017 03:17",
+		"isMetaType" : "RonieSalgado 12/24/2017 03:49",
+		"isASTNode" : "RonieSalgado 12/24/2017 00:06",
+		"ref" : "RonieSalgado 12/24/2017 03:53"
+	},
+	"class" : { }
+}

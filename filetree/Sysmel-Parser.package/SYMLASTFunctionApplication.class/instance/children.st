@@ -2,5 +2,5 @@ accessing
 children
 	^ { 
 		function.
-		#arguments -> arguments .
+		#arguments -> {arguments} .
 	}

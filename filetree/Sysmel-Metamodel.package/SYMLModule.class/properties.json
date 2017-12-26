@@ -1,0 +1,16 @@
+{
+	"commentStamp" : "",
+	"super" : "SYMLProgramEntity",
+	"category" : "Sysmel-Metamodel-Program",
+	"classinstvars" : [ ],
+	"pools" : [ ],
+	"classvars" : [ ],
+	"instvars" : [
+		"compilationTarget",
+		"currentDirectory",
+		"globalNamespace",
+		"topLevelScope"
+	],
+	"name" : "SYMLModule",
+	"type" : "normal"
+}

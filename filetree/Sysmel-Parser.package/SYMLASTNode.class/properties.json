@@ -1,7 +1,7 @@
 {
 	"commentStamp" : "",
-	"super" : "Object",
-	"category" : "Sysmel-Parser",
+	"super" : "SYMLObject",
+	"category" : "Sysmel-Parser-AST",
 	"classinstvars" : [ ],
 	"pools" : [ ],
 	"classvars" : [ ],

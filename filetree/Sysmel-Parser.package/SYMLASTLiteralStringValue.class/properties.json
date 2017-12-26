@@ -1,0 +1,11 @@
+{
+	"commentStamp" : "",
+	"super" : "SYMLASTLiteralValue",
+	"category" : "Sysmel-Parser-AST",
+	"classinstvars" : [ ],
+	"pools" : [ ],
+	"classvars" : [ ],
+	"instvars" : [ ],
+	"name" : "SYMLASTLiteralStringValue",
+	"type" : "normal"
+}

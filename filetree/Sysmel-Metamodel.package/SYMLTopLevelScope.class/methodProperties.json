@@ -1,0 +1,13 @@
+{
+	"instance" : {
+		"module" : "RonieSalgado 12/23/2017 23:05",
+		"initialize" : "RonieSalgado 12/23/2017 23:10",
+		"lookSymbol:ifPresent:" : "RonieSalgado 12/23/2017 23:13",
+		"fillWithMetaMethods" : "RonieSalgado 12/24/2017 02:42",
+		"metaMethodForSelector:receiver:arguments:inEnvironment:at:" : "RonieSalgado 12/24/2017 02:26",
+		"fillWithBuiltInTypes" : "RonieSalgado 12/23/2017 23:54",
+		"module:" : "RonieSalgado 12/24/2017 02:43",
+		"fillWithMetaBuilders" : "RonieSalgado 12/24/2017 02:42"
+	},
+	"class" : { }
+}

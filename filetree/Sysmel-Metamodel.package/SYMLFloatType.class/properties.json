@@ -1,0 +1,11 @@
+{
+	"commentStamp" : "",
+	"super" : "SYMLPrimitiveType",
+	"category" : "Sysmel-Metamodel-Types",
+	"classinstvars" : [ ],
+	"pools" : [ ],
+	"classvars" : [ ],
+	"instvars" : [ ],
+	"name" : "SYMLFloatType",
+	"type" : "normal"
+}

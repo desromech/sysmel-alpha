@@ -1,0 +1,11 @@
+{
+	"commentStamp" : "",
+	"super" : "SYMLImplicitContextMetaMethod",
+	"category" : "Sysmel-Metamodel-MetaMethods",
+	"classinstvars" : [ ],
+	"pools" : [ ],
+	"classvars" : [ ],
+	"instvars" : [ ],
+	"name" : "SYMLIfThenElseMetaMethod",
+	"type" : "normal"
+}

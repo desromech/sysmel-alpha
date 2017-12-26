@@ -1,0 +1,3 @@
+instance creation
+for: aLowLevelCompilationTarget
+	^ self basicNew initializeWithLowLevelTarget: aLowLevelCompilationTarget

@@ -1,0 +1,11 @@
+{
+	"commentStamp" : "",
+	"super" : "SYMLError",
+	"category" : "Sysmel-Metamodel-Exceptions",
+	"classinstvars" : [ ],
+	"pools" : [ ],
+	"classvars" : [ ],
+	"instvars" : [ ],
+	"name" : "SYMLParseError",
+	"type" : "normal"
+}

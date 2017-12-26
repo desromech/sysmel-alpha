@@ -1,0 +1,18 @@
+{
+	"commentStamp" : "",
+	"super" : "SYMLProgramEntityBuilder",
+	"category" : "Sysmel-Metamodel-MetaBuilders",
+	"classinstvars" : [ ],
+	"pools" : [ ],
+	"classvars" : [ ],
+	"instvars" : [
+		"name",
+		"arguments",
+		"returnType",
+		"function",
+		"callingConvention",
+		"functionType"
+	],
+	"name" : "SYMLFunctionBuilder",
+	"type" : "normal"
+}

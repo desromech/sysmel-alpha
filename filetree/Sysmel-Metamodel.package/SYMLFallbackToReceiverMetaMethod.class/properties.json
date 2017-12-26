@@ -1,0 +1,11 @@
+{
+	"commentStamp" : "",
+	"super" : "SYMLMetaMethod",
+	"category" : "Sysmel-Metamodel-MetaMethods",
+	"classinstvars" : [ ],
+	"pools" : [ ],
+	"classvars" : [ ],
+	"instvars" : [ ],
+	"name" : "SYMLFallbackToReceiverMetaMethod",
+	"type" : "normal"
+}

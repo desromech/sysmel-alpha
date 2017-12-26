@@ -1,0 +1,14 @@
+{
+	"commentStamp" : "",
+	"super" : "SYMLError",
+	"category" : "Sysmel-Metamodel-Exceptions",
+	"classinstvars" : [ ],
+	"pools" : [ ],
+	"classvars" : [ ],
+	"instvars" : [
+		"sourcePosition",
+		"environment"
+	],
+	"name" : "SYMLSemanticError",
+	"type" : "normal"
+}

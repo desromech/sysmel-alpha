@@ -1,7 +1,7 @@
 {
 	"commentStamp" : "",
 	"super" : "PPCompositeParser",
-	"category" : "Sysmel-Parser",
+	"category" : "Sysmel-Parser-Parser",
 	"classinstvars" : [ ],
 	"pools" : [ ],
 	"classvars" : [
@@ -69,7 +69,9 @@
 		"symbolLiteral",
 		"pragmaChainUnaryMessage",
 		"anyBinaryOperator",
-		"genericBinaryOperator"
+		"genericBinaryOperator",
+		"stringLiteral",
+		"characterLiteral"
 	],
 	"name" : "SYMLGrammar",
 	"type" : "normal"
