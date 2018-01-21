@@ -1,0 +1,13 @@
+{
+	"commentStamp" : "",
+	"super" : "SYMLAPSGSequence",
+	"category" : "Sysmel-Metamodel-APSG",
+	"classinstvars" : [ ],
+	"pools" : [ ],
+	"classvars" : [ ],
+	"instvars" : [
+		"valueType"
+	],
+	"name" : "SYMLAPSGSequenceWithType",
+	"type" : "normal"
+}

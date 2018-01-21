@@ -17,7 +17,9 @@ assignValue: aDefinition
 		]
 	].
 
+
 	^ self function
 		definition: aDefinition value;
+		definitionEnvironment: (aDefinition environment ifNil: [definitionEnvironment ]);
 		yourself
 	

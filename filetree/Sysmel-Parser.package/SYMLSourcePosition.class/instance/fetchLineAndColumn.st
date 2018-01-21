@@ -1,7 +1,7 @@
 accessing
 fetchLineAndColumn
 	| lineColumn |
-	collection ifNil: [
+	(collection isNil or: [collection isString]) ifTrue: [
 		line := 0.
 		column := 0.
 		^ self

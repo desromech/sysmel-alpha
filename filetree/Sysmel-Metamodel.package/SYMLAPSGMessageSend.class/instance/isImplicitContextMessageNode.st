@@ -1,0 +1,3 @@
+testing
+isImplicitContextMessageNode
+	^ receiver isNil

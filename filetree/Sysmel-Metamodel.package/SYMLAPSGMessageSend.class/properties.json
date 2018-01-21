@@ -8,7 +8,10 @@
 	"instvars" : [
 		"selector",
 		"receiver",
-		"arguments"
+		"arguments",
+		"metaMethod",
+		"valueType",
+		"coercionType"
 	],
 	"name" : "SYMLAPSGMessageSend",
 	"type" : "normal"

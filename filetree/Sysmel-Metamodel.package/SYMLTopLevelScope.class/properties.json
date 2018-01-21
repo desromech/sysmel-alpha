@@ -9,7 +9,8 @@
 		"module",
 		"symbols",
 		"implicitContextMetaMethods",
-		"fallbackToReceiver"
+		"fallbackToReceiver",
+		"genericMetaMethods"
 	],
 	"name" : "SYMLTopLevelScope",
 	"type" : "normal"

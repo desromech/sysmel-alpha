@@ -1,0 +1,11 @@
+{
+	"commentStamp" : "",
+	"super" : "SYMLMetaMethodRuleParser",
+	"category" : "Sysmel-Metamodel-MetaBuilders",
+	"classinstvars" : [ ],
+	"pools" : [ ],
+	"classvars" : [ ],
+	"instvars" : [ ],
+	"name" : "SYMLMetaMethodConditionRuleParser",
+	"type" : "normal"
+}

@@ -1,3 +1,3 @@
 accessing
 primaryExpression
-	^ parentExpression / identifierExpression / blockExpression / literals
+	^ languageScapeExpression / parentExpression / identifierExpression / blockExpression / literals

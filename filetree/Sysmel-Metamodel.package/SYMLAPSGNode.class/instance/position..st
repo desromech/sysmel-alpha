@@ -1,3 +1,3 @@
 accessing
 position: anObject
-	position := anObject
+	position := anObject asSysmelSourcePosition

@@ -10,7 +10,10 @@
 		"name",
 		"functionType",
 		"argumentNames",
-		"definition"
+		"definition",
+		"definitionEnvironment",
+		"hasSemanticAnalysis",
+		"ssaValue"
 	],
 	"name" : "SYMLFunction",
 	"type" : "normal"

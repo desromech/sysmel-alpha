@@ -1,0 +1,3 @@
+accessing
+isUnsigned
+	^ signed not

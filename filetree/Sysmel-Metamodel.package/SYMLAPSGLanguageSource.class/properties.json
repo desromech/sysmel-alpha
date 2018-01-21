@@ -1,0 +1,16 @@
+{
+	"commentStamp" : "",
+	"super" : "SYMLAPSGNode",
+	"category" : "Sysmel-Metamodel-APSG",
+	"classinstvars" : [ ],
+	"pools" : [ ],
+	"classvars" : [ ],
+	"instvars" : [
+		"language",
+		"sourceCode",
+		"sourceCodePosition",
+		"withDelimiters"
+	],
+	"name" : "SYMLAPSGLanguageSource",
+	"type" : "normal"
+}

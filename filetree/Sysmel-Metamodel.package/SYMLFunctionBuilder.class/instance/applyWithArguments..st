@@ -27,7 +27,7 @@ applyWithArguments: argumentNodes
 		].
 	
 		argumentName := arg selector allButLast asSymbol.
-		argumentType := arg arguments first evaluateInEnvironment: evaluationEnvironment.
+		argumentType := arg arguments first analyzeAndEvaluateInEnvironment: evaluationEnvironment.
 		argumentType type isMetaType ifFalse: [
 			self error: 'Expected a type for argument {1}' format: { argumentName } at: arg arguments first
 		].

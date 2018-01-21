@@ -1,0 +1,15 @@
+{
+	"commentStamp" : "",
+	"super" : "SYMLMetaMethod",
+	"category" : "Sysmel-Metamodel-MetaMethods",
+	"classinstvars" : [ ],
+	"pools" : [ ],
+	"classvars" : [ ],
+	"instvars" : [
+		"evaluationFunction",
+		"semanticAnalysisFunction",
+		"codeGenerationFunction"
+	],
+	"name" : "SYMLDelegatedMetaMethod",
+	"type" : "normal"
+}

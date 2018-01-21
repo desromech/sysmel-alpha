@@ -1,0 +1,13 @@
+{
+	"commentStamp" : "",
+	"super" : "SYMLMetaMethod",
+	"category" : "Sysmel-Metamodel-MetaMethods",
+	"classinstvars" : [ ],
+	"pools" : [ ],
+	"classvars" : [ ],
+	"instvars" : [
+		"rules"
+	],
+	"name" : "SYMLRuleBasedMetaMethod",
+	"type" : "normal"
+}

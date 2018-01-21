@@ -1,0 +1,13 @@
+{
+	"commentStamp" : "",
+	"super" : "SYMLObject",
+	"category" : "Sysmel-Metamodel-MetaBuilders",
+	"classinstvars" : [ ],
+	"pools" : [ ],
+	"classvars" : [
+		"ParserForSelectors"
+	],
+	"instvars" : [ ],
+	"name" : "SYMLMetaMethodRuleParser",
+	"type" : "normal"
+}

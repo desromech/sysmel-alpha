@@ -1,0 +1,15 @@
+{
+	"commentStamp" : "",
+	"super" : "SYMLASTNode",
+	"category" : "Sysmel-Parser-AST",
+	"classinstvars" : [ ],
+	"pools" : [ ],
+	"classvars" : [ ],
+	"instvars" : [
+		"languageName",
+		"sourceCode",
+		"sourceCodePosition"
+	],
+	"name" : "SYMLASTLanguageScape",
+	"type" : "normal"
+}

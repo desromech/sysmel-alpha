@@ -1,0 +1,13 @@
+{
+	"commentStamp" : "",
+	"super" : "Object",
+	"category" : "Sysmel-Metamodel-APSG",
+	"classinstvars" : [ ],
+	"pools" : [ ],
+	"classvars" : [
+		"CompilersForLanguages"
+	],
+	"instvars" : [ ],
+	"name" : "SYMLScapedLanguageCompiler",
+	"type" : "normal"
+}

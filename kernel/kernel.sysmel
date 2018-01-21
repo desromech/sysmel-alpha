@@ -1,0 +1,49 @@
+metaMethod selectors: #(+ - * / %) rules: {
+
+// Number (+ - * / % ) Number
+when: $$Pharo [:message :environment :position |
+    | leftType rightType |
+    leftType := message receiver evaluateCleanValueTypeInEnvironment: environment.
+    rightType := message arguments first evaluateCleanValueTypeInEnvironment: environment.
+    leftType isNumberType and: [ rightType isNumberType ]
+] doOn: {
+    // Compile time evaluation
+    evaluation: $$Pharo {
+        node: node environment: environment
+            | left right |
+            coercionType := node coercionType.
+            left := coercionType coerceImplicitlyValue: (node receiver evaluateInEnvironment: environment) at: node.
+            right := coercionType coerceImplicitlyValue: (node arguments first evaluateInEnvironment: environment) at: node.
+            ^ (left value perform: node selector with: right value) sysmelValueWithType: coercionType inEnvironment: environment
+    }.
+
+    // Semantic analysis
+    semanticAnalysis: $$Pharo {
+        node: node environment: environment position: aSourcePosition
+	        | left right leftType rightType coercionType |
+	        left := node receiver semanticAnalysisInEnvironment: environment.
+	        right := node arguments first semanticAnalysisInEnvironment: environment.
+            leftType := left evaluateCleanValueTypeInEnvironment: environment.
+            rightType := right evaluateCleanValueTypeInEnvironment: environment.
+            coercionType := leftType arithmeticCoerceWith: rightType at: aSourcePosition.
+            coercionType isLiteralType ifTrue: [
+                ^ node buildLiteralWithValue: ((left value value perform: node selector with: right value value) sysmelValueWithType: coercionType inEnvironment: environment)
+            ].
+
+            ^ node copy
+                metaMethod: self;
+                receiver: left;
+                arguments: {right};
+                coercionType: coercionType;
+                valueType: coercionType;
+                yourself
+    }.
+
+    // Code generation
+    codeGeneration: $$Pharo {
+        node: node environment: environment
+            self halt
+    }.
+}.
+
+}.

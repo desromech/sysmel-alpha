@@ -1,18 +1,27 @@
 {
 	"instance" : {
-		"isFunction" : "RonieSalgado 12/24/2017 21:51",
-		"module" : "RonieSalgado 12/24/2017 21:04",
+		"definitionEnvironment:" : "RonieSalgado 1/20/2018 23:32",
+		"generateSSACode" : "RonieSalgado 1/21/2018 16:38",
+		"definition:" : "RonieSalgado 1/20/2018 23:32",
+		"initialize" : "RonieSalgado 1/20/2018 23:49",
+		"ssaValue" : "RonieSalgado 1/21/2018 01:18",
+		"module:" : "RonieSalgado 12/24/2017 21:04",
 		"functionType:" : "RonieSalgado 12/24/2017 21:04",
 		"name" : "RonieSalgado 12/24/2017 21:04",
-		"module:" : "RonieSalgado 12/24/2017 21:04",
-		"argumentNames" : "RonieSalgado 12/25/2017 22:21",
-		"name:" : "RonieSalgado 12/24/2017 21:04",
-		"initialize" : "RonieSalgado 12/25/2017 22:21",
-		"definition" : "RonieSalgado 12/25/2017 21:57",
-		"definition:" : "RonieSalgado 12/25/2017 21:57",
+		"isExternC" : "RonieSalgado 1/21/2018 01:33",
+		"returnType" : "RonieSalgado 1/20/2018 23:41",
 		"type" : "RonieSalgado 12/25/2017 22:02",
+		"definitionEnvironment" : "RonieSalgado 1/20/2018 23:32",
+		"mangledName" : "RonieSalgado 1/21/2018 01:38",
 		"functionType" : "RonieSalgado 12/24/2017 21:04",
-		"argumentNames:" : "RonieSalgado 12/25/2017 22:21"
+		"argumentNames:" : "RonieSalgado 12/25/2017 22:21",
+		"isFunction" : "RonieSalgado 12/24/2017 21:51",
+		"name:" : "RonieSalgado 12/24/2017 21:04",
+		"createSSAValue" : "RonieSalgado 1/21/2018 01:46",
+		"argumentNames" : "RonieSalgado 12/25/2017 22:21",
+		"module" : "RonieSalgado 12/24/2017 21:04",
+		"definition" : "RonieSalgado 1/20/2018 23:32",
+		"semanticAnalysis" : "RonieSalgado 1/20/2018 23:49"
 	},
 	"class" : { }
 }

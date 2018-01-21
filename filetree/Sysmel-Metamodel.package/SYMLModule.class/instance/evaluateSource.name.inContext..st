@@ -8,4 +8,4 @@ evaluateSource: aSourceString name: aSourceName inContext: context
 	ast := SYMLParser parse: contents.
 	self convertParseFailure: ast collection: contents.
 	apsg := ast buildAPSG: (SYMLAPSGBuilder new environment: context).
-	^ apsg evaluateInEnvironment: context
+	^ apsg analyzeAndEvaluateInEnvironment: context

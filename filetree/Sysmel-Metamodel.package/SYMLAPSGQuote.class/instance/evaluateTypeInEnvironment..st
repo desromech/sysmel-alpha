@@ -1,0 +1,3 @@
+meta evaluation
+evaluateTypeInEnvironment: anEnvironment
+	^ anEnvironment compilationTarget apsgNodeType

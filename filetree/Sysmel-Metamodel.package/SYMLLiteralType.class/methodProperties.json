@@ -1,7 +1,9 @@
 {
 	"instance" : {
+		"generateSSAValue:withBuilder:" : "RonieSalgado 1/21/2018 16:38",
 		"name" : "RonieSalgado 12/23/2017 23:52",
-		"printOn:" : "RonieSalgado 12/23/2017 23:52"
+		"printOn:" : "RonieSalgado 12/23/2017 23:52",
+		"isLiteralType" : "RonieSalgado 1/1/2018 20:58"
 	},
 	"class" : { }
 }

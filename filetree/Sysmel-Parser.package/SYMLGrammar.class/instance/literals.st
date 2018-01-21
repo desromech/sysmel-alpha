@@ -1,3 +1,3 @@
 accessing
 literals
-	^ number / stringLiteral / characterLiteral / symbolLiteral
+	^ number / stringLiteral / characterLiteral / literalArray / symbolLiteral

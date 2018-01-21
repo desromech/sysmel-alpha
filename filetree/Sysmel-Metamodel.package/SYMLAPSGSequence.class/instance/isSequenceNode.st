@@ -1,3 +1,3 @@
 testing
 isSequenceNode
-	^ false
+	^ true

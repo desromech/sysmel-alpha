@@ -1,13 +1,18 @@
 {
 	"instance" : {
-		"module" : "RonieSalgado 12/23/2017 23:05",
-		"initialize" : "RonieSalgado 12/23/2017 23:10",
-		"lookSymbol:ifPresent:" : "RonieSalgado 12/23/2017 23:13",
+		"lookSymbol:ifPresent:ifAbsentPut:" : "RonieSalgado 1/1/2018 21:09",
+		"lookMetaMethod:hasReceiver:ifPresent:" : "RonieSalgado 1/2/2018 01:12",
+		"findProgramEntityDefinitionScopeFrom:" : "RonieSalgado 1/1/2018 21:08",
 		"fillWithMetaMethods" : "RonieSalgado 12/24/2017 02:42",
-		"metaMethodForSelector:receiver:arguments:inEnvironment:at:" : "RonieSalgado 12/24/2017 02:26",
-		"fillWithBuiltInTypes" : "RonieSalgado 12/23/2017 23:54",
+		"module" : "RonieSalgado 12/23/2017 23:05",
 		"module:" : "RonieSalgado 12/24/2017 02:43",
-		"fillWithMetaBuilders" : "RonieSalgado 12/24/2017 02:42"
+		"compilationTarget" : "RonieSalgado 1/1/2018 21:07",
+		"fillWithBuiltInTypes" : "RonieSalgado 12/23/2017 23:54",
+		"initialize" : "RonieSalgado 1/2/2018 01:10",
+		"lookMetaMethod:hasReceiver:ifPresent:ifAbsentPut:" : "RonieSalgado 1/2/2018 01:13",
+		"fillWithMetaBuilders" : "RonieSalgado 12/24/2017 02:42",
+		"lookSymbol:ifPresent:" : "RonieSalgado 12/23/2017 23:13",
+		"metaMethodForSelector:receiver:arguments:inEnvironment:at:" : "RonieSalgado 1/2/2018 01:14"
 	},
 	"class" : { }
 }

@@ -1,0 +1,3 @@
+meta evaluation
+cleanType
+	^ self

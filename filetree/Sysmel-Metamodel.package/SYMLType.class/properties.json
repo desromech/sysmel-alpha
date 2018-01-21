@@ -2,11 +2,12 @@
 	"classtraitcomposition" : "TSYMLType classTrait",
 	"classvars" : [ ],
 	"instvars" : [
-		"target"
+		"target",
+		"ssaType"
 	],
 	"name" : "SYMLType",
 	"commentStamp" : "",
-	"super" : "Object",
+	"super" : "SYMLObject",
 	"traitcomposition" : "TSYMLType",
 	"type" : "normal",
 	"classinstvars" : [ ],

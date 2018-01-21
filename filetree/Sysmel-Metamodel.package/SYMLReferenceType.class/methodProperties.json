@@ -1,9 +1,12 @@
 {
 	"instance" : {
-		"isReferenceType" : "RonieSalgado 12/25/2017 22:06",
-		"referenced:" : "RonieSalgado 12/24/2017 03:40",
 		"referenced" : "RonieSalgado 12/24/2017 03:40",
-		"printOn:" : "RonieSalgado 12/24/2017 03:52"
+		"printOn:" : "RonieSalgado 12/24/2017 03:52",
+		"referenced:" : "RonieSalgado 12/24/2017 03:40",
+		"isReferenceType" : "RonieSalgado 12/25/2017 22:06",
+		"evaluateValueWithoutReferences:inEnvironment:" : "RonieSalgado 1/20/2018 02:31",
+		"canBeNode:coercedImplicitlyInto:at:" : "RonieSalgado 1/20/2018 23:54",
+		"valueType" : "RonieSalgado 1/20/2018 19:58"
 	},
 	"class" : { }
 }

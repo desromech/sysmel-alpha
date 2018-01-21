@@ -1,3 +1,3 @@
-as yet unclassified
+meta evaluation
 evaluateInEnvironment: anEnvironment
-	^ self evaluateInEnvironment: anEnvironment withReceiver: (anEnvironment wrapAPSGNode: receiver)
+	^ metaMethod evaluateMessage: self inEnvironment: anEnvironment

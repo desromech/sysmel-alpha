@@ -1,0 +1,3 @@
+meta methods
+evaluateMessage: messageNode inEnvironment: anEnvironment
+	self subclassResponsibility

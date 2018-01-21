@@ -34,7 +34,8 @@
 		"functionTypes",
 		"apsgNodeType",
 		"literalStringType",
-		"literalSymbolType"
+		"literalSymbolType",
+		"literalArrayType"
 	],
 	"name" : "SYMLSLVMCompilationTarget",
 	"type" : "normal"

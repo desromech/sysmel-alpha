@@ -71,7 +71,18 @@
 		"anyBinaryOperator",
 		"genericBinaryOperator",
 		"stringLiteral",
-		"characterLiteral"
+		"characterLiteral",
+		"litLParent",
+		"literalArrayLiteral",
+		"literalArrayIdentifier",
+		"literalArrayBinaryOperator",
+		"innerLiteralArrayLiteral",
+		"literalArray",
+		"languageScapeExpression",
+		"languageScapeOperator",
+		"scapedLanguageContent",
+		"lbracket",
+		"rbracket"
 	],
 	"name" : "SYMLGrammar",
 	"type" : "normal"

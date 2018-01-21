@@ -4,14 +4,19 @@
 		"evaluateSource:name:" : "RonieSalgado 12/23/2017 21:59",
 		"evaluateFileNamed:inContext:" : "RonieSalgado 12/23/2017 21:58",
 		"evaluateSource:" : "RonieSalgado 12/23/2017 21:58",
+		"ssaModule" : "RonieSalgado 1/21/2018 01:34",
 		"compilationTarget" : "RonieSalgado 12/23/2017 22:07",
 		"moduleScope" : "RonieSalgado 12/23/2017 23:06",
 		"globalNamespace" : "RonieSalgado 12/24/2017 21:03",
 		"topLevelScope" : "RonieSalgado 12/23/2017 23:06",
+		"buildSSAModule" : "RonieSalgado 1/21/2018 01:17",
 		"newEvaluationEnvironment" : "RonieSalgado 12/23/2017 21:59",
-		"evaluateSource:name:inContext:" : "RonieSalgado 12/25/2017 23:03",
+		"evaluateLanguageKernelFileNamed:" : "RonieSalgado 1/1/2018 21:22",
+		"evaluateSource:name:inContext:" : "RonieSalgado 1/20/2018 18:16",
+		"newLanguageKernelEnvironment" : "RonieSalgado 1/1/2018 21:22",
+		"semanticAnalysis" : "RonieSalgado 1/20/2018 23:28",
 		"convertParseFailure:collection:" : "RonieSalgado 12/23/2017 21:51",
-		"initializeWithCompilationTarget:" : "RonieSalgado 12/23/2017 22:56"
+		"initializeWithCompilationTarget:" : "RonieSalgado 1/21/2018 01:41"
 	},
 	"class" : {
 		"new" : "RonieSalgado 12/23/2017 20:56",

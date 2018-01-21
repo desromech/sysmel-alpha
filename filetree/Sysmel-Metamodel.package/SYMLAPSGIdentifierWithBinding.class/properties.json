@@ -1,0 +1,13 @@
+{
+	"commentStamp" : "",
+	"super" : "SYMLAPSGIdentifier",
+	"category" : "Sysmel-Metamodel-APSG",
+	"classinstvars" : [ ],
+	"pools" : [ ],
+	"classvars" : [ ],
+	"instvars" : [
+		"binding"
+	],
+	"name" : "SYMLAPSGIdentifierWithBinding",
+	"type" : "normal"
+}

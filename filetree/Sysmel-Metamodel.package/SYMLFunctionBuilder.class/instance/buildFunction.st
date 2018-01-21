@@ -15,12 +15,13 @@ buildFunction
 				existing isFunctionGroup ifFalse: [ 
 					self error: 'Cannot override program entity {1} with function.' format: { name }
 				].
-			
 				functionGroup := existing
 			] ifAbsentPut: [
 				functionGroup := SYMLFunctionGroup new
 					module: definitionEnvironment module;
-					name: name.
+					parent: definitionEnvironment findDefinitionProgramEntity;
+					name: name;
+					yourself
 			].
 		
 			function := functionGroup findWithType: functionType ifAbsentPut: [function].
@@ -35,6 +36,6 @@ buildFunction
 				].
 			
 				function := existing
-			] ifAbsentPut: [ function ].
+			] ifAbsentPut: [ function parent: definitionEnvironment findDefinitionProgramEntity; yourself ].
 		].
 	].

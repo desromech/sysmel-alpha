@@ -1,0 +1,13 @@
+{
+	"commentStamp" : "",
+	"super" : "SYMLCompileTimeFunction",
+	"category" : "Sysmel-Metamodel-Program",
+	"classinstvars" : [ ],
+	"pools" : [ ],
+	"classvars" : [ ],
+	"instvars" : [
+		"blockClosure"
+	],
+	"name" : "SYMLBlockClosureWrapper",
+	"type" : "normal"
+}

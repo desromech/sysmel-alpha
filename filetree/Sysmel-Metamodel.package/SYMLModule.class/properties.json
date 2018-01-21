@@ -9,7 +9,8 @@
 		"compilationTarget",
 		"currentDirectory",
 		"globalNamespace",
-		"topLevelScope"
+		"topLevelScope",
+		"ssaModule"
 	],
 	"name" : "SYMLModule",
 	"type" : "normal"
