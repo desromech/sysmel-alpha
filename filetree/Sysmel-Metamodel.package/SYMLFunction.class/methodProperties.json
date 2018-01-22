@@ -1,7 +1,7 @@
 {
 	"instance" : {
 		"definitionEnvironment:" : "RonieSalgado 1/20/2018 23:32",
-		"generateSSACode" : "RonieSalgado 1/21/2018 21:33",
+		"generateSSACode" : "RonieSalgado 1/22/2018 03:10",
 		"definition:" : "RonieSalgado 1/20/2018 23:32",
 		"initialize" : "RonieSalgado 1/20/2018 23:49",
 		"ssaValue" : "RonieSalgado 1/21/2018 01:18",
@@ -13,17 +13,20 @@
 		"type" : "RonieSalgado 12/25/2017 22:02",
 		"definitionEnvironment" : "RonieSalgado 1/20/2018 23:32",
 		"mangledName" : "RonieSalgado 1/21/2018 01:38",
+		"argumentNodes:" : "RonieSalgado 1/22/2018 03:06",
 		"functionType" : "RonieSalgado 12/24/2017 21:04",
 		"argumentNames:" : "RonieSalgado 12/25/2017 22:21",
 		"isFunction" : "RonieSalgado 12/24/2017 21:51",
+		"arguments" : "RonieSalgado 1/22/2018 03:01",
 		"name:" : "RonieSalgado 12/24/2017 21:04",
 		"createSSAValue" : "RonieSalgado 1/21/2018 21:41",
 		"argumentNames" : "RonieSalgado 12/25/2017 22:21",
 		"module" : "RonieSalgado 12/24/2017 21:04",
 		"generateSSAReferenceWith:" : "RonieSalgado 1/21/2018 21:06",
 		"evaluateTypeAt:" : "RonieSalgado 1/21/2018 18:05",
+		"argumentNodes" : "RonieSalgado 1/22/2018 03:06",
 		"definition" : "RonieSalgado 1/20/2018 23:32",
-		"semanticAnalysis" : "RonieSalgado 1/20/2018 23:49"
+		"semanticAnalysis" : "RonieSalgado 1/22/2018 03:07"
 	},
 	"class" : { }
 }

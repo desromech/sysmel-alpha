@@ -8,6 +8,11 @@ generateSSACode
 		^ self
 	].
 	
+	"Set the arguments"
+	arguments doWithIndex: [ :arg :index |
+		arg ssaValue: (self ssaValue arguments at: index)
+	].
+
 	"Create a builder for the allocas and another for the function body."
 	allocaBuilder := SLVMBuilder on: self ssaValue.
 	allocaBuilder newBasicBlockHere: #entry.

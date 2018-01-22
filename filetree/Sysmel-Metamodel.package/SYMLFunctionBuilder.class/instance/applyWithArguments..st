@@ -32,5 +32,5 @@ applyWithArguments: argumentNodes
 			self error: 'Expected a type for argument {1}' format: { argumentName } at: arg arguments first
 		].
 		
-		argumentName -> argumentType value
+		{argumentName . argumentType value . arg }
 	].

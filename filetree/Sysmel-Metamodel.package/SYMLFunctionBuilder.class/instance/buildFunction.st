@@ -5,7 +5,8 @@ buildFunction
 		name: name;
 		module: definitionEnvironment module;
 		functionType: self functionType;
-		argumentNames: (arguments collect: #key);
+		argumentNames: (arguments collect: #first);
+		argumentNodes: (arguments collect: #third);
 		flags: flags;
 		yourself.
 		

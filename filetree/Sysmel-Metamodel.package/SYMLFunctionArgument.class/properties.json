@@ -6,17 +6,11 @@
 	"pools" : [ ],
 	"classvars" : [ ],
 	"instvars" : [
-		"module",
 		"name",
-		"functionType",
-		"argumentNames",
-		"argumentNodes",
-		"definition",
-		"definitionEnvironment",
-		"hasSemanticAnalysis",
+		"type",
 		"ssaValue",
-		"arguments"
+		"node"
 	],
-	"name" : "SYMLFunction",
+	"name" : "SYMLFunctionArgument",
 	"type" : "normal"
 }
