@@ -8,6 +8,7 @@ initializeWithLowLevelTarget: aLowLevelCompilationTarget
 	pointerTypes := IdentityDictionary new.
 	referenceTypes := IdentityDictionary new.
 	functionTypes := WeakValueDictionary new.
+	tupleTypes := WeakValueDictionary new.
 	
 	builtInTypes := {
 		voidType := SYMLVoidType new target: self.

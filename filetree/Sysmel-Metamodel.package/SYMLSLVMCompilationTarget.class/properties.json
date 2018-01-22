@@ -35,7 +35,8 @@
 		"apsgNodeType",
 		"literalStringType",
 		"literalSymbolType",
-		"literalArrayType"
+		"literalArrayType",
+		"tupleTypes"
 	],
 	"name" : "SYMLSLVMCompilationTarget",
 	"type" : "normal"

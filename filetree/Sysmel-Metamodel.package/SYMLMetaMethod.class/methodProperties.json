@@ -1,9 +1,10 @@
 {
 	"instance" : {
-		"generateMessage:ssaCodeWith:" : "RonieSalgado 1/21/2018 01:57",
 		"compilationTarget" : "RonieSalgado 12/24/2017 02:43",
+		"canAnalyzeMessage:inEnvironment:at:" : "RonieSalgado 1/21/2018 17:57",
 		"evaluateMessage:inEnvironment:" : "RonieSalgado 1/20/2018 19:43",
 		"analyzeMessage:inEnvironment:at:" : "RonieSalgado 1/20/2018 22:54",
+		"generateMessage:ssaCodeWith:" : "RonieSalgado 1/21/2018 01:57",
 		"isRuleBasedMetaMethod" : "RonieSalgado 1/2/2018 01:07",
 		"compilationTarget:" : "RonieSalgado 12/24/2017 02:43"
 	},

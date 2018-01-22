@@ -1,16 +1,20 @@
 metaMethod selectors: #(+ - * / %) rules: {
 
 // Number (+ - * / % ) Number
-when: $$Pharo [:message :environment :position |
+when: $$Pharo {matchesMessage: message inEnvironment: environment at: position
     | leftType rightType |
     leftType := message receiver evaluateCleanValueTypeInEnvironment: environment.
     rightType := message arguments first evaluateCleanValueTypeInEnvironment: environment.
-    leftType isNumberType and: [ rightType isNumberType ]
-] doOn: {
+
+	leftType ifNil: [^ false].
+	rightType ifNil: [^ false].
+	
+    ^ leftType isNumberType and: [ rightType isNumberType ]
+} doOn: {
     // Compile time evaluation
     evaluation: $$Pharo {
         node: node environment: environment
-            | left right |
+            | left right coercionType |
             coercionType := node coercionType.
             left := coercionType coerceImplicitlyValue: (node receiver evaluateInEnvironment: environment) at: node.
             right := coercionType coerceImplicitlyValue: (node arguments first evaluateInEnvironment: environment) at: node.
@@ -45,5 +49,101 @@ when: $$Pharo [:message :environment :position |
             self halt
     }.
 }.
+
+}.
+
+// Function evaluation
+metaMethod selectors: #(applyWithArguments:) rules: {
+when: $$Pharo {matchesMessage: message inEnvironment: environment at: position
+    | receiverType |
+    receiverType := message receiver evaluateCleanValueTypeInEnvironment: environment.
+  
+	receiverType ifNil: [^ false ].
+    ^ receiverType isFunctionType or:
+    [ receiverType isFunctionGroupType or:
+    [ (receiverType isPointerType and: [ receiverType pointed isFunctionType ]) ] ]
+	
+} doOn: {
+    // Compile time evaluation
+    evaluation: $$Pharo {
+        node: node environment: environment
+            self halt.
+    }.
+
+    // Semantic analysis
+    semanticAnalysis: $$Pharo {
+        node: node environment: environment position: aSourcePosition
+			| function argumentsTuple functionType argumentsType argument |
+			function := node receiver semanticAnalysisInEnvironment: environment.
+			argumentsTuple := node arguments first semanticAnalysisInEnvironment: environment.
+
+            functionType := function evaluateCleanValueTypeInEnvironment: environment.
+            argumentsType := argumentsTuple evaluateCleanValueTypeInEnvironment: environment.
+
+			"Check the receiver type"
+			functionType isFunctionType ifFalse: [
+				self error: 'Expected a function type instead of {1}.' format: { functionType asString }
+			].
+		
+			"Check the arguments type"
+			argumentsType isTupleType ifFalse: [
+				self error: 'Expected a tuple for the function application arguments.'
+			].
+
+			argumentsType types size < functionType arguments size ifTrue: [
+				self error: 'Fewer arguments than the required ones for function application.'
+			].
+		
+			(argumentsType types size > functionType arguments size and: [functionType variadic not]) ifTrue: [
+				self error: 'More arguments than the required ones for function application.'
+			].
+		
+			argumentsType types doWithIndex: [:argumentType :index |
+                argument := argumentsTuple elements at: index.
+
+                index > functionType arguments size ifTrue: [
+                    argumentType coercedImplicitlyNode: argument intoCVariadicAt: argument
+                ] ifFalse: [
+                    argumentType coercedImplicitlyNode: argument into: (functionType arguments at: index) at: argument
+                ]
+			].
+
+            ^ node copy
+                metaMethod: self;
+                receiver: function;
+                arguments: {argumentsTuple};
+                coercionType: functionType;
+                valueType: functionType returnType;
+                yourself
+    }.
+
+    // Code generation
+    codeGeneration: $$Pharo {
+        node: messageNode builder: builder
+            | function rawFunctionType functionType argumentsTuple expectedArgumentTypes functionType argumentValues argumentType |
+
+			"Get the function"
+			rawFunctionType := messageNode receiver type.
+			functionType := messageNode coercionType.
+			function := rawFunctionType ssaCoerceImplicitly: (messageNode receiver generateSSACodeWith: builder) to: functionType with: builder at: messageNode.
+
+            "Convert the arguments"
+            argumentsTuple := messageNode arguments first.
+            expectedArgumentTypes := functionType arguments.
+
+            argumentValues := argumentsTuple elements collectWithIndex: [:argumentNode :index |
+                argumentType := argumentNode type.
+
+                index > expectedArgumentTypes size ifTrue: [
+                    argumentType ssaCoerceImplicitly: (argumentNode generateSSACodeWith: builder) toCVariadicWith: builder at: argumentNode.
+                ] ifFalse: [
+                    argumentType ssaCoerceImplicitly: (argumentNode generateSSACodeWith: builder) to: (expectedArgumentTypes at: index) with: builder at: argumentNode.
+                ].
+            ].
+
+            "Call the function"
+            ^ builder call: function arguments: argumentValues
+    }.
+}
 
 }.

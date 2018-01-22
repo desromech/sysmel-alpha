@@ -1,12 +1,16 @@
 {
 	"instance" : {
-		"ssaType" : "RonieSalgado 1/21/2018 01:19",
-		"printOn:" : "RonieSalgado 12/23/2017 23:49",
-		"metaMethodForSelector:receiver:arguments:inEnvironment:at:" : "RonieSalgado 12/24/2017 02:27",
-		"aliased" : "RonieSalgado 12/23/2017 23:46",
-		"aliased:" : "RonieSalgado 12/23/2017 23:46",
+		"doesNotUnderstand:" : "RonieSalgado 1/21/2018 20:58",
+		"target:" : "RonieSalgado 1/21/2018 20:58",
 		"name" : "RonieSalgado 12/23/2017 23:46",
-		"name:" : "RonieSalgado 12/23/2017 23:46"
+		"ssaType" : "RonieSalgado 1/21/2018 01:19",
+		"name:" : "RonieSalgado 12/23/2017 23:46",
+		"printOn:" : "RonieSalgado 12/23/2017 23:49",
+		"aliased:" : "RonieSalgado 12/23/2017 23:46",
+		"target" : "RonieSalgado 1/21/2018 20:58",
+		"cleanType" : "RonieSalgado 1/21/2018 21:26",
+		"aliased" : "RonieSalgado 12/23/2017 23:46",
+		"metaMethodForMessage:inEnvironment:at:" : "RonieSalgado 1/21/2018 18:11"
 	},
 	"class" : {
 		"for:name:" : "RonieSalgado 12/23/2017 23:50"

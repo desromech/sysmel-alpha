@@ -1,0 +1,7 @@
+// Main function
+function printf externC CVariadic (format: Char const pointer) -> Int32.
+
+function main externC (argc: Int32, argv: Char const pointer) -> Int32 := {
+    printf("Hello World: %d\n", 42).
+    return: 1+1.
+}.

@@ -1,6 +1,6 @@
 meta methods
 analyzeMessage: theMessageNode inEnvironment: anEnvironment at: aSourcePosition
-	| receiverType messageNode receiver arguments metaMethod receiverValue |
+	| receiverType messageNode receiver arguments metaMethod |
 
 	messageNode := theMessageNode.
 	receiver := messageNode receiver.
@@ -14,7 +14,7 @@ analyzeMessage: theMessageNode inEnvironment: anEnvironment at: aSourcePosition
 
 	"Try evaluating with just the AST nodes."
 	arguments := messageNode arguments.
-	metaMethod := receiverType metaMethodForSelector: theMessageNode selector receiver: receiver arguments: arguments inEnvironment: anEnvironment at: aSourcePosition.
+	metaMethod := receiverType metaMethodForMessage: messageNode inEnvironment: anEnvironment at: aSourcePosition.
 	metaMethod ifNotNil: [
 		^ metaMethod analyzeMessage: messageNode inEnvironment: anEnvironment at: aSourcePosition
 	].
@@ -25,7 +25,7 @@ analyzeMessage: theMessageNode inEnvironment: anEnvironment at: aSourcePosition
 	].
 	messageNode := messageNode copy arguments: arguments.
 	
-	metaMethod := receiverType metaMethodForSelector: theMessageNode selector receiver: receiver arguments: arguments inEnvironment: anEnvironment at: aSourcePosition.
+	metaMethod := receiverType metaMethodForMessage: messageNode inEnvironment: anEnvironment at: aSourcePosition.
 	metaMethod ifNotNil: [
 		^ metaMethod analyzeMessage: messageNode inEnvironment: anEnvironment at: aSourcePosition
 	].

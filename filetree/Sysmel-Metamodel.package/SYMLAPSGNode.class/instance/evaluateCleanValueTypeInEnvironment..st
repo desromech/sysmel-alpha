@@ -1,3 +1,3 @@
 meta evaluation
 evaluateCleanValueTypeInEnvironment: anEnvironment
-	^ (self evaluateTypeInEnvironment: anEnvironment) valueType cleanType
+	^ (self evaluateTypeInEnvironment: anEnvironment) ifNotNil: [:type | type valueType cleanType]

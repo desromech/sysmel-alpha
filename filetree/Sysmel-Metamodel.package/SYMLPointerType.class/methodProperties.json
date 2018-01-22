@@ -1,7 +1,8 @@
 {
 	"instance" : {
+		"isPointerType" : "RonieSalgado 1/21/2018 20:56",
 		"printOn:" : "RonieSalgado 12/24/2017 03:52",
-		"isReferenceType" : "RonieSalgado 12/25/2017 22:06",
+		"cleanType" : "RonieSalgado 1/21/2018 20:34",
 		"pointed" : "RonieSalgado 12/24/2017 03:39",
 		"pointed:" : "RonieSalgado 12/24/2017 03:39",
 		"buildSSAType" : "RonieSalgado 1/21/2018 01:30"

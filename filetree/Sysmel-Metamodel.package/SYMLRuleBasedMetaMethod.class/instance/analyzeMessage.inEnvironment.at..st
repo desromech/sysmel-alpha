@@ -5,3 +5,4 @@ analyzeMessage: messageNode inEnvironment: anEnvironment at: aSourcePosition
 			^ rule analyzeMessage: messageNode inEnvironment: anEnvironment at: aSourcePosition
 		]
 	].
+	self error: 'Failed to analyze message.'

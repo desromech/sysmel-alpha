@@ -1,7 +1,12 @@
 semantic analysis
 generateSSACode
 	| allocaBuilder builder returnType bodyBlock |
-	definition ifNil: [ ^ self ].
+	definition ifNil: [
+		name ifNotNil: [
+			self ssaValue makeExternal
+		].
+		^ self
+	].
 	
 	"Create a builder for the allocas and another for the function body."
 	allocaBuilder := SLVMBuilder on: self ssaValue.

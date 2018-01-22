@@ -1,0 +1,3 @@
+accessing
+evaluateTypeInEnvironment: anEnvironment
+	^ type

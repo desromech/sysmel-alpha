@@ -1,4 +1,4 @@
-testing
+coercion
 canBeNode: node coercedImplicitlyInto: targetType at: aSourcePosition
 	| literalValue |
 	(super canBeNode: node coercedImplicitlyInto: targetType at: aSourcePosition) ifTrue: [ ^ true ].

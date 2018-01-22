@@ -1,4 +1,6 @@
 {
-	"instance" : { },
+	"instance" : {
+		"canBeNode:coercedImplicitlyIntoCVariadicAt:" : "RonieSalgado 1/21/2018 21:01"
+	},
 	"class" : { }
 }

@@ -1,3 +1,3 @@
-as yet unclassified
+meta evaluation
 semanticAnalysisInEnvironment: anEnvironment
 	^ self

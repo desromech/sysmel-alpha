@@ -82,7 +82,8 @@
 		"languageScapeOperator",
 		"scapedLanguageContent",
 		"lbracket",
-		"rbracket"
+		"rbracket",
+		"literalArrayKeyword"
 	],
 	"name" : "SYMLGrammar",
 	"type" : "normal"

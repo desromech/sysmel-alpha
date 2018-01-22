@@ -1,6 +1,6 @@
 {
 	"commentStamp" : "RonieSalgado 12/25/2017 22:52",
-	"super" : "Object",
+	"super" : "SYMLObject",
 	"category" : "Sysmel-Metamodel-APSG",
 	"classinstvars" : [ ],
 	"pools" : [ ],

@@ -15,7 +15,7 @@
 		"functionArguments:returnType:callingConvention:variadic:" : "RonieSalgado 12/25/2017 22:05",
 		"literalStringType" : "RonieSalgado 12/26/2017 00:01",
 		"int16Type" : "RonieSalgado 12/23/2017 23:40",
-		"initializeWithLowLevelTarget:" : "RonieSalgado 1/21/2018 01:29",
+		"initializeWithLowLevelTarget:" : "RonieSalgado 1/21/2018 18:20",
 		"builtInTypes" : "RonieSalgado 12/23/2017 23:48",
 		"metaTypeFor:" : "RonieSalgado 12/24/2017 00:01",
 		"uint64Type" : "RonieSalgado 12/23/2017 23:40",
@@ -23,14 +23,17 @@
 		"int64Type" : "RonieSalgado 12/23/2017 23:40",
 		"literalArrayType" : "RonieSalgado 1/1/2018 21:32",
 		"compilerObjectType" : "RonieSalgado 12/24/2017 02:29",
-		"voidType" : "RonieSalgado 12/24/2017 21:01",
+		"tuple:" : "RonieSalgado 1/21/2018 18:20",
 		"uint16Type" : "RonieSalgado 12/23/2017 23:40",
+		"voidType" : "RonieSalgado 12/24/2017 21:01",
 		"constOfType:" : "RonieSalgado 12/24/2017 03:38",
 		"referenceTo:" : "RonieSalgado 12/25/2017 22:05",
 		"literalFloatType" : "RonieSalgado 12/23/2017 23:42",
+		"pie" : "RonieSalgado 1/21/2018 21:51",
 		"lowLevelTarget" : "RonieSalgado 12/23/2017 20:57",
 		"float64Type" : "RonieSalgado 12/23/2017 23:40",
-		"literalCharacterType" : "RonieSalgado 12/23/2017 23:42"
+		"literalCharacterType" : "RonieSalgado 12/23/2017 23:42",
+		"pic" : "RonieSalgado 1/21/2018 21:50"
 	},
 	"class" : {
 		"for:" : "RonieSalgado 12/23/2017 23:43"

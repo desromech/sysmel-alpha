@@ -1,11 +1,12 @@
 {
 	"commentStamp" : "",
-	"super" : "SYMLType",
+	"super" : "SYMLObject",
 	"category" : "Sysmel-Metamodel-Types",
 	"classinstvars" : [ ],
 	"pools" : [ ],
 	"classvars" : [ ],
 	"instvars" : [
+		"target",
 		"name",
 		"aliased"
 	],

@@ -1,3 +1,3 @@
 accessing
 literalArrayLiteral
-	^ literalArrayIdentifier / literalArrayBinaryOperator / innerLiteralArrayLiteral / literals
+	^ literalArrayKeyword / literalArrayIdentifier / literalArrayBinaryOperator / innerLiteralArrayLiteral / literals

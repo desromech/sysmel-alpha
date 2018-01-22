@@ -27,8 +27,8 @@
 		"symbolIdentifierLiteral" : "RonieSalgado 1/1/2018 21:01",
 		"parseCString:" : "RonieSalgado 12/23/2017 20:44",
 		"literalArrayBinaryOperator" : "RonieSalgado 1/1/2018 21:30",
-		"chainKeywordMessage" : "RonieSalgado 12/20/2017 02:30",
 		"symbolStringLiteral" : "RonieSalgado 1/1/2018 21:02",
+		"chainKeywordMessage" : "RonieSalgado 12/20/2017 02:30",
 		"literalArray" : "RonieSalgado 1/1/2018 21:35",
 		"singleLineComment" : "RonieSalgado 12/15/2017 22:27",
 		"assignmentExpression" : "RonieSalgado 12/20/2017 02:30",
@@ -38,6 +38,7 @@
 		"parentExpression" : "RonieSalgado 12/20/2017 03:08",
 		"chainUnaryMessage" : "RonieSalgado 12/20/2017 02:36",
 		"chainExpression" : "RonieSalgado 12/20/2017 02:28",
+		"literalArrayKeyword" : "RonieSalgado 1/21/2018 18:28",
 		"spaces" : "RonieSalgado 12/15/2017 22:27"
 	},
 	"class" : {

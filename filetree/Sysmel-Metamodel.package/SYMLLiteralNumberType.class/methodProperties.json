@@ -1,7 +1,9 @@
 {
 	"instance" : {
 		"isNumberType" : "RonieSalgado 1/1/2018 20:58",
-		"ssaCoerceImplicitly:to:with:at:" : "RonieSalgado 1/21/2018 02:55"
+		"ssaCoerceImplicitly:to:with:at:" : "RonieSalgado 1/21/2018 02:55",
+		"canBeNode:coercedImplicitlyInto:at:" : "RonieSalgado 1/21/2018 20:53",
+		"canBeNode:coercedImplicitlyIntoCVariadicAt:" : "RonieSalgado 1/21/2018 21:00"
 	},
 	"class" : { }
 }
