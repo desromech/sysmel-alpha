@@ -1,3 +1,3 @@
 testing
-isVolatile
+isVolatileType
 	^ true

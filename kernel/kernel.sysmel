@@ -167,13 +167,44 @@ when: $$Pharo {matchesMessage: message inEnvironment: environment at: position
     // Semantic analysis
     semanticAnalysis: $$Pharo {
         node: node environment: environment position: aSourcePosition
-			self halt.
+			| reference referenceType value valueType |
+			reference := node receiver semanticAnalysisInEnvironment: environment.
+			value := node arguments first semanticAnalysisInEnvironment: environment.
+			
+			referenceType  := reference evaluateTypeInEnvironment: environment.
+			valueType := value evaluateTypeInEnvironment: environment.
+			self assert: referenceType isReferenceType.
+			
+			referenceType referenced isConstantType ifTrue: [
+				self error: 'Cannot assign to constant.' at: aSourcePosition.
+			].
+		
+			valueType coercedImplicitlyNode: value into: referenceType referenced at: node.
+			^ node copy
+                metaMethod: self;
+                receiver: reference;
+                arguments: {value};
+				coercionType: referenceType referenced;
+                valueType: referenceType;
+                yourself
 	}.
 
     // Code generation
     codeGeneration: $$Pharo {
         node: messageNode builder: builder
-            self halt
+			| value coercionType valueNode valueType reference instruction |
+			valueNode := messageNode arguments first.
+			valueType := valueNode type.
+			value := valueNode generateSSACodeWith: builder.
+			
+			coercionType := messageNode coercionType.
+			value := valueType ssaCoerceImplicitly: (valueNode generateSSACodeWith: builder) to: coercionType with: builder at: messageNode.
+
+			reference := messageNode receiver generateSSACodeWith: builder.
+			instruction := builder store: value in: reference.
+			instruction volatile: coercionType isVolatileType.
+			
+			^ reference
     }.
 }
 
