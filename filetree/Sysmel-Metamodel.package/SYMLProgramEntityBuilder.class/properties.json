@@ -7,7 +7,8 @@
 	"classvars" : [ ],
 	"instvars" : [
 		"definitionEnvironment",
-		"flags"
+		"flags",
+		"sourcePosition"
 	],
 	"name" : "SYMLProgramEntityBuilder",
 	"type" : "normal"

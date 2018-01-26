@@ -1,12 +1,11 @@
 meta methods
 analyzeMessage: messageNode inEnvironment: anEnvironment at: aSourcePosition
-	| receiver receiverType evaluatedValue |
+	| receiver receiverType |
 	receiver := messageNode receiver.
 	receiverType := receiver evaluateTypeInEnvironment: anEnvironment.
 	
 	(receiverType isCompilerObjectType or: [receiverType isMetaType]) ifTrue: [
-		evaluatedValue := self evaluateMessage: messageNode inEnvironment: anEnvironment.
-		^ messageNode buildLiteralWithValue: evaluatedValue
+		^ self evaluateCompileTimeMessage: messageNode inEnvironment: anEnvironment at: aSourcePosition	
 	].
 
 	^ messageNode copy

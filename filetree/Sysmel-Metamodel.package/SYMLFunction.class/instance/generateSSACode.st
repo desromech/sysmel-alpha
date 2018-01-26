@@ -21,6 +21,9 @@ generateSSACode
 	builder allocaBuilder: allocaBuilder.
 	bodyBlock := builder newBasicBlockHere: #body.
 	
+	"Generate the local variables"
+	locals do: [ :local | local generateSSALocalWithBuilder: builder ].
+	
 	"Generate the function body"
 	definition generateSSACodeWith: builder.
 	

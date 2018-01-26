@@ -1,14 +1,16 @@
 {
 	"instance" : {
-		"valueType" : "RonieSalgado 1/20/2018 19:58",
-		"referenced" : "RonieSalgado 12/24/2017 03:40",
-		"printOn:" : "RonieSalgado 12/24/2017 03:52",
-		"referenced:" : "RonieSalgado 12/24/2017 03:40",
+		"ssaCoerceImplicitly:toCVariadicWith:at:" : "RonieSalgado 1/25/2018 23:07",
+		"ssaCoerceImplicitly:to:with:at:" : "RonieSalgado 1/21/2018 21:18",
 		"isReferenceType" : "RonieSalgado 12/25/2017 22:06",
-		"cleanType" : "RonieSalgado 1/21/2018 20:34",
 		"evaluateValueWithoutReferences:inEnvironment:" : "RonieSalgado 1/20/2018 02:31",
+		"printOn:" : "RonieSalgado 12/24/2017 03:52",
+		"canBeNode:coercedImplicitlyIntoCVariadicAt:" : "RonieSalgado 1/25/2018 23:07",
+		"valueType" : "RonieSalgado 1/20/2018 19:58",
+		"cleanType" : "RonieSalgado 1/21/2018 20:34",
 		"canBeNode:coercedImplicitlyInto:at:" : "RonieSalgado 1/20/2018 23:54",
-		"ssaCoerceImplicitly:to:with:at:" : "RonieSalgado 1/21/2018 21:18"
+		"referenced:" : "RonieSalgado 12/24/2017 03:40",
+		"referenced" : "RonieSalgado 12/24/2017 03:40"
 	},
 	"class" : { }
 }

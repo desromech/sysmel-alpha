@@ -1,8 +1,11 @@
 {
 	"instance" : {
 		"receiverAccessor" : "RonieSalgado 12/24/2017 03:28",
+		"rewrite" : "RonieSalgado 1/25/2018 22:00",
+		"analyzeMessage:inEnvironment:at:" : "RonieSalgado 1/25/2018 21:58",
 		"receiverAccessor:" : "RonieSalgado 12/24/2017 03:28",
-		"analyzeMessage:inEnvironment:at:" : "RonieSalgado 1/20/2018 23:21"
+		"evaluateCompileTimeMessage:inEnvironment:at:" : "RonieSalgado 1/25/2018 22:01",
+		"rewrite:" : "RonieSalgado 1/25/2018 22:00"
 	},
 	"class" : { }
 }

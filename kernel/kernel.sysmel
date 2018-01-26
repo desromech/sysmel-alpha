@@ -147,3 +147,34 @@ when: $$Pharo {matchesMessage: message inEnvironment: environment at: position
 }
 
 }.
+
+// Value assignment
+metaMethod selectors: #(assignValue:) rules: {
+when: $$Pharo {matchesMessage: message inEnvironment: environment at: position
+    | receiverType |
+    receiverType := message receiver evaluateTypeInEnvironment: environment.
+  
+	receiverType ifNil: [^ false ].
+    ^ receiverType isReferenceType
+	
+} doOn: {
+    // Compile time evaluation
+    evaluation: $$Pharo {
+        node: node environment: environment
+            self halt.
+    }.
+
+    // Semantic analysis
+    semanticAnalysis: $$Pharo {
+        node: node environment: environment position: aSourcePosition
+			self halt.
+	}.
+
+    // Code generation
+    codeGeneration: $$Pharo {
+        node: messageNode builder: builder
+            self halt
+    }.
+}
+
+}.

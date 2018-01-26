@@ -16,10 +16,12 @@ findMetaMethodForSelector: aSelector inImageReceiver: aReceiver accessor: aRecei
 		SYMLLazyMessageSendMetaMethod new
 			compilationTarget: self compilationTarget;
 			receiverAccessor: aReceiverAccessor;
+			rewrite: (compiledMethod hasPragmaNamed: #rewrite);
 			yourself
 	] ifFalse: [ 
 		SYMLNormalMessageSendMetaMethod new
 			compilationTarget: self compilationTarget;
-			receiverAccessor: aReceiverAccessor
+			receiverAccessor: aReceiverAccessor;
+			rewrite: (compiledMethod hasPragmaNamed: #rewrite);
 			yourself
 	]

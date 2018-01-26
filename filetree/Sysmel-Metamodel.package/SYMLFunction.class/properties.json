@@ -15,7 +15,8 @@
 		"definitionEnvironment",
 		"hasSemanticAnalysis",
 		"ssaValue",
-		"arguments"
+		"arguments",
+		"locals"
 	],
 	"name" : "SYMLFunction",
 	"type" : "normal"

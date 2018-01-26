@@ -1,0 +1,3 @@
+accessing
+findLocalDefinitionScopeFrom: startingPoint
+	^ parent findLocalDefinitionScopeFrom: startingPoint

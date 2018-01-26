@@ -1,0 +1,3 @@
+converting
+asNodeForTupleElementIn: anEnvironment
+	^ self

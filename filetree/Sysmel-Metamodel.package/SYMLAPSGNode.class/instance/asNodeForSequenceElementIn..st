@@ -1,0 +1,3 @@
+converting
+asNodeForSequenceElementIn: anEnvironment
+	^ self

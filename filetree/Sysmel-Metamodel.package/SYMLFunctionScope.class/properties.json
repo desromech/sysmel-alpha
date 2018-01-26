@@ -1,6 +1,6 @@
 {
 	"commentStamp" : "",
-	"super" : "SYMLAbstractScope",
+	"super" : "SYMLLexicalScope",
 	"category" : "Sysmel-Metamodel-Semantic",
 	"classinstvars" : [ ],
 	"pools" : [ ],
