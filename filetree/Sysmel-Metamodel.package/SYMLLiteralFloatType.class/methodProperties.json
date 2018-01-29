@@ -1,7 +1,8 @@
 {
 	"instance" : {
 		"name" : "RonieSalgado 12/23/2017 23:51",
-		"ssaCoerceImplicitly:toCVariadicWith:at:" : "RonieSalgado 1/21/2018 21:30"
+		"ssaCoerceImplicitly:toCVariadicWith:at:" : "RonieSalgado 1/21/2018 21:30",
+		"resultTypeForArithmeticMessage:at:" : "RonieSalgado 1/28/2018 21:12"
 	},
 	"class" : { }
 }

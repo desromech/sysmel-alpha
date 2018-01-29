@@ -1,7 +1,8 @@
 {
 	"instance" : {
+		"canBeNode:coercedImplicitlyIntoCVariadicAt:" : "RonieSalgado 1/21/2018 21:00",
 		"isNumberType" : "RonieSalgado 1/20/2018 02:18",
-		"canBeNode:coercedImplicitlyIntoCVariadicAt:" : "RonieSalgado 1/21/2018 21:00"
+		"arithmeticCoerceWith:" : "RonieSalgado 1/28/2018 20:52"
 	},
 	"class" : { }
 }

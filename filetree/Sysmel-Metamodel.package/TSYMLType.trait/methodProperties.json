@@ -1,10 +1,11 @@
 {
 	"instance" : {
 		"asSysmelValueInEnvironment:" : "RonieSalgado 12/24/2017 03:46",
-		"coercedImplicitlyInto:at:" : "RonieSalgado 1/20/2018 23:46",
+		"generateArithmeticMessage:withBuilder:operand:at:" : "RonieSalgado 1/28/2018 21:21",
 		"isScalarType" : "RonieSalgado 1/21/2018 00:00",
 		"evaluateReferenceAt:" : "RonieSalgado 12/24/2017 03:17",
 		"isFunctionType" : "RonieSalgado 12/25/2017 22:07",
+		"coercedImplicitlyInto:at:" : "RonieSalgado 1/20/2018 23:46",
 		"coercedImplicitlyNode:intoCVariadicAt:" : "RonieSalgado 1/21/2018 20:52",
 		"evaluateValue:inEnvironment:" : "RonieSalgado 12/24/2017 02:51",
 		"generateSSAValue:withBuilder:" : "RonieSalgado 1/21/2018 02:48",
@@ -18,6 +19,7 @@
 		"isFloatType" : "RonieSalgado 1/20/2018 23:59",
 		"isCompilerObjectType" : "RonieSalgado 1/20/2018 22:47",
 		"value:coercedImplicitlyInto:at:" : "RonieSalgado 1/20/2018 23:47",
+		"generateArithmeticMessage:withBuilder:left:right:at:" : "RonieSalgado 1/28/2018 21:21",
 		"coercedImplicitlyNode:into:at:" : "RonieSalgado 1/20/2018 23:53",
 		"canBeNode:coercedImplicitlyIntoCVariadicAt:" : "RonieSalgado 1/21/2018 20:52",
 		"evaluateValueType:inEnvironment:" : "RonieSalgado 1/20/2018 02:25",
@@ -28,6 +30,7 @@
 		"ref" : "RonieSalgado 12/24/2017 03:53",
 		"isTupleType" : "RonieSalgado 1/21/2018 20:45",
 		"evaluateTypeAt:" : "RonieSalgado 1/20/2018 19:13",
+		"resultTypeForArithmeticMessage:at:" : "RonieSalgado 1/28/2018 21:07",
 		"isVoidType" : "RonieSalgado 1/21/2018 02:57",
 		"ssaCoerceImplicitly:toCVariadicWith:at:" : "RonieSalgado 1/21/2018 21:26",
 		"const" : "RonieSalgado 12/24/2017 03:33",

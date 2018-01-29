@@ -1,7 +1,8 @@
 {
 	"instance" : {
 		"ssaCoerceImplicitly:toCVariadicWith:at:" : "RonieSalgado 1/22/2018 03:14",
-		"isFloatType" : "RonieSalgado 1/21/2018 00:00"
+		"isFloatType" : "RonieSalgado 1/21/2018 00:00",
+		"resultTypeForArithmeticMessage:at:" : "RonieSalgado 1/28/2018 21:12"
 	},
 	"class" : { }
 }

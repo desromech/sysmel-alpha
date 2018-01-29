@@ -3,9 +3,10 @@
 		"isPointerType" : "RonieSalgado 1/21/2018 20:56",
 		"printOn:" : "RonieSalgado 12/24/2017 03:52",
 		"cleanType" : "RonieSalgado 1/21/2018 20:34",
+		"buildSSAType" : "RonieSalgado 1/21/2018 01:30",
 		"pointed" : "RonieSalgado 12/24/2017 03:39",
-		"pointed:" : "RonieSalgado 12/24/2017 03:39",
-		"buildSSAType" : "RonieSalgado 1/21/2018 01:30"
+		"arithmeticCoerceWith:" : "RonieSalgado 1/28/2018 20:52",
+		"pointed:" : "RonieSalgado 12/24/2017 03:39"
 	},
 	"class" : { }
 }

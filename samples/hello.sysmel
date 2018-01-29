@@ -2,9 +2,9 @@
 function printf externC CVariadic (format: Char const pointer) -> Int32.
 
 function main externC (argc: Int32, argv: Char const pointer pointer) -> Int32 := {
-    let x := argc.
+    let x := argc + 2.
 
     printf("Hello World: %d\n", x).
-    return: 1+1.
+    return: argc + 10.
 }.
 

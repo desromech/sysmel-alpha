@@ -7,5 +7,9 @@
 		"target:" : "RonieSalgado 12/23/2017 23:44",
 		"ssaType" : "RonieSalgado 1/21/2018 01:20"
 	},
-	"class" : { }
+	"class" : {
+		"initialize" : "RonieSalgado 1/28/2018 21:09",
+		"buildCoercionRuleTable:" : "RonieSalgado 1/28/2018 20:45",
+		"buildCoercionTables" : "RonieSalgado 1/28/2018 20:34"
+	}
 }

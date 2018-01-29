@@ -1,0 +1,11 @@
+{
+	"commentStamp" : "",
+	"super" : "SYMLTypeCoercionRules",
+	"category" : "Sysmel-Metamodel-Types",
+	"classinstvars" : [ ],
+	"pools" : [ ],
+	"classvars" : [ ],
+	"instvars" : [ ],
+	"name" : "SYMLArithmeticCoercionRules",
+	"type" : "normal"
+}

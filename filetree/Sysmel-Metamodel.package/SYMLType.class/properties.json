@@ -1,13 +1,17 @@
 {
 	"classtraitcomposition" : "TSYMLType classTrait",
-	"classvars" : [ ],
+	"classvars" : [
+		"ArithmeticCoercionTable",
+		"ArithmeticSelectors",
+		"BitwiseSelectors",
+		"ComparisonSelectors"
+	],
 	"instvars" : [
-		"target",
 		"ssaType"
 	],
 	"name" : "SYMLType",
 	"commentStamp" : "",
-	"super" : "SYMLObject",
+	"super" : "SYMLTypeBase",
 	"traitcomposition" : "TSYMLType",
 	"type" : "normal",
 	"classinstvars" : [ ],

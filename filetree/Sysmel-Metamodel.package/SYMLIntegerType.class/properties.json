@@ -4,7 +4,10 @@
 	"category" : "Sysmel-Metamodel-Types",
 	"classinstvars" : [ ],
 	"pools" : [ ],
-	"classvars" : [ ],
+	"classvars" : [
+		"SignedIntegerOperationMap",
+		"UnsignedIntegerOperationMap"
+	],
 	"instvars" : [
 		"signed"
 	],
