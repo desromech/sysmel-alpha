@@ -4,6 +4,7 @@ module: anObject
 	self
 		fillWithBuiltInTypes;
 		fillWithMetaBuilders;
-		fillWithMetaMethods.
+		fillWithMetaMethods;
+		fillWithObjects.
 		
 	fallbackToReceiver := SYMLFallbackToReceiverMetaMethod new compilationTarget: module compilationTarget

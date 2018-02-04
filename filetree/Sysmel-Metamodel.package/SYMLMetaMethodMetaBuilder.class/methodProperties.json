@@ -1,9 +1,11 @@
 {
 	"instance" : {
 		"selector:rules:" : "RonieSalgado 1/2/2018 01:15",
+		"selectorsWithoutReceiver:rules:" : "RonieSalgado 2/4/2018 19:33",
 		"addRules:toSelectors:hasReceiver:in:" : "RonieSalgado 1/2/2018 01:15",
 		"selectors:rules:" : "RonieSalgado 1/2/2018 01:15",
 		"parseRules:in:" : "RonieSalgado 1/1/2018 23:42",
+		"selectorWithoutReceiver:rules:" : "RonieSalgado 2/4/2018 19:33",
 		"name" : "RonieSalgado 1/1/2018 21:03",
 		"parseRule:in:" : "RonieSalgado 1/1/2018 23:42"
 	},

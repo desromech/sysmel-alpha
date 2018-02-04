@@ -5,5 +5,5 @@ semanticAnalysisInEnvironment: anEnvironment
 	^ SYMLAPSGSequenceWithType new
 		position: self;
 		elements: analyzedElements;
-		valueType: (analyzedElements last evaluateTypeInEnvironment: anEnvironment);
+		valueType: (analyzedElements ifEmpty: [anEnvironment compilationTarget voidType] ifNotEmpty: [analyzedElements last evaluateTypeInEnvironment: anEnvironment]);
 		yourself

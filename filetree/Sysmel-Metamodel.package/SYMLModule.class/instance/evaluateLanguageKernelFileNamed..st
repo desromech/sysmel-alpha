@@ -1,5 +1,6 @@
 evaluating
 evaluateLanguageKernelFileNamed: aFileName
+	<compileTime>
 	| fileEnvironment |
 	fileEnvironment := self newLanguageKernelEnvironment.
-	^ self evaluateFileNamed: aFileName inContext: fileEnvironment
+	^ self evaluateFileNamed: aFileName value inContext: fileEnvironment

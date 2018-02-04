@@ -1,0 +1,50 @@
+// Value return
+metaMethod selectorsWithoutReceiver: #(return:) rules: {
+when: $$Pharo {matchesMessage: message inEnvironment: environment at: position
+    ^ message receiver isNil
+	
+} doOn: {
+    // Compile time evaluation
+    evaluation: $$Pharo {
+        node: node environment: environment
+            self halt.
+    }.
+
+    // Semantic analysis
+    semanticAnalysis: $$Pharo {
+        node: messageNode environment: anEnvironment position: aSourcePosition
+			| returnValue returnValueType expectedReturnValue |
+	        self assert: messageNode arguments size = 1.
+	        
+	        "Check the return type."
+	        returnValue := 	messageNode arguments first semanticAnalysisInEnvironment: anEnvironment.
+	        returnValueType := returnValue evaluateCleanValueTypeInEnvironment: anEnvironment.
+	        expectedReturnValue := anEnvironment returnType.
+	        returnValueType coercedImplicitlyNode: returnValue into: expectedReturnValue at: aSourcePosition.
+	        
+	        ^ messageNode copy
+		        metaMethod: self;
+		        arguments: { returnValue };
+		        coercionType: expectedReturnValue;
+		        valueType: anEnvironment compilationTarget voidType;
+		        yourself
+	}.
+
+    // Code generation
+    codeGeneration: $$Pharo {
+        node: messageNode builder: builder
+	        | value valueNode valueType returnType |
+	        valueNode := messageNode arguments first.
+	        valueType := valueNode type.
+	        returnType := messageNode coercionType.
+	        value := valueType ssaCoerceImplicitly: (valueNode generateSSACodeWith: builder) to: returnType with: builder at: messageNode.
+	        ^ returnType isVoidType ifTrue: [ 
+		        builder returnVoid
+	        ] ifFalse: [
+		        builder return: value
+	        ]
+    }.
+}
+
+}.
+

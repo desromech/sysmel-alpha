@@ -1,3 +1,0 @@
-accessing
-selector
-	^ #if:then:

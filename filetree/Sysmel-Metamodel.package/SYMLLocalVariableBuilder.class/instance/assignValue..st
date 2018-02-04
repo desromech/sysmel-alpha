@@ -9,7 +9,7 @@ assignValue: theInitialValue
 	environment := theInitialValue environment.
 	initialValue := theInitialValue value semanticAnalysisInEnvironment: theInitialValue environment.
 	type ifNil: [
-		type := (initialValue evaluateTypeInEnvironment: environment) valueType cleanType.
+		type := (initialValue evaluateTypeInEnvironment: environment) valueType cleanType concreteTypeForNode: initialValue.
 	].
 
 	^ self createInitialValueNodeAt: initialValue position inEnvironment: theInitialValue environment

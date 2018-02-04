@@ -1,0 +1,3 @@
+converting
+asSysmelValueInEnvironment: anEnvironment
+	^ self
