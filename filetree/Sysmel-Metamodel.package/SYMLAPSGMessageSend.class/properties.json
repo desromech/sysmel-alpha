@@ -11,7 +11,8 @@
 		"arguments",
 		"metaMethod",
 		"valueType",
-		"coercionType"
+		"coercionType",
+		"argumentsAreAnalyzed"
 	],
 	"name" : "SYMLAPSGMessageSend",
 	"type" : "normal"

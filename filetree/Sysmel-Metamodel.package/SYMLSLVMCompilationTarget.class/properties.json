@@ -36,7 +36,8 @@
 		"literalStringType",
 		"literalSymbolType",
 		"literalArrayType",
-		"tupleTypes"
+		"tupleTypes",
+		"literalBooleanType"
 	],
 	"name" : "SYMLSLVMCompilationTarget",
 	"type" : "normal"

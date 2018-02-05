@@ -1,5 +1,7 @@
 {
 	"instance" : {
+		"isBooleanType" : "RonieSalgado 2/4/2018 22:41",
+		"generateArithmeticMessage:withBuilder:operand:at:" : "RonieSalgado 2/4/2018 22:48",
 		"canBeNode:coercedImplicitlyIntoCVariadicAt:" : "RonieSalgado 1/21/2018 21:01"
 	},
 	"class" : { }

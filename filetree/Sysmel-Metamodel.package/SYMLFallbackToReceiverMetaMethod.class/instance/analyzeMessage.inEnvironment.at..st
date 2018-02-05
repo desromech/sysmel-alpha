@@ -19,11 +19,11 @@ analyzeMessage: theMessageNode inEnvironment: anEnvironment at: aSourcePosition
 		^ metaMethod analyzeMessage: messageNode inEnvironment: anEnvironment at: aSourcePosition
 	].
 
-	"Now try by evaluating the arguments"
-	arguments := arguments collect: [ :arg |
-		arg semanticAnalysisInEnvironment: anEnvironment
+	"Now try with the evaluated arguments"
+	messageNode hasAnalyzedArguments ifFalse: [ 
+		messageNode := messageNode analyzeArgumentsInEnvironment: anEnvironment.
+		^ anEnvironment semanticAnalyzeMessage: messageNode at: aSourcePosition
 	].
-	messageNode := messageNode copy arguments: arguments.
 	
 	metaMethod := receiverType metaMethodForMessage: messageNode inEnvironment: anEnvironment at: aSourcePosition.
 	metaMethod ifNotNil: [

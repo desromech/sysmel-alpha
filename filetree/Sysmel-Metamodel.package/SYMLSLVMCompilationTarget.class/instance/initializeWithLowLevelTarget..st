@@ -35,6 +35,7 @@ initializeWithLowLevelTarget: aLowLevelCompilationTarget
 		
 		literalIntegerType := SYMLLiteralIntegerType new target: self.
 		literalFloatType := SYMLLiteralFloatType new target: self.
+		literalBooleanType := SYMLLiteralBooleanType new target: self.
 		literalCharacterType := SYMLLiteralCharacterType new target: self.
 		literalStringType := SYMLLiteralStringType new target: self.
 		literalSymbolType := SYMLLiteralSymbolType new target: self.

@@ -20,7 +20,9 @@ initialize
 		>> shiftrightarithmetic
 		
 		== ieq
+		= ieq
 		~= ine
+		~~ ine
 
 		< ilt
 		<= ile
@@ -46,7 +48,9 @@ initialize
 		>> shiftrightarithmetic
 		
 		== ieq
+		= ieq
 		~= ine
+		~~ ine
 
 		< ult
 		<= ule

@@ -1,0 +1,14 @@
+{
+	"commentStamp" : "",
+	"super" : "SLVMBuilder",
+	"category" : "Sysmel-Metamodel-CodeGeneration",
+	"classinstvars" : [ ],
+	"pools" : [ ],
+	"classvars" : [ ],
+	"instvars" : [
+		"breakBlock",
+		"continueBlock"
+	],
+	"name" : "SYMLSLVMBuilder",
+	"type" : "normal"
+}

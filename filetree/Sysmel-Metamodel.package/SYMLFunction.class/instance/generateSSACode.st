@@ -14,10 +14,10 @@ generateSSACode
 	].
 
 	"Create a builder for the allocas and another for the function body."
-	allocaBuilder := SLVMBuilder on: self ssaValue.
+	allocaBuilder := SYMLSLVMBuilder on: self ssaValue.
 	allocaBuilder newBasicBlockHere: #entry.
 	
-	builder := SLVMBuilder on: self ssaValue.
+	builder := SYMLSLVMBuilder on: self ssaValue.
 	builder allocaBuilder: allocaBuilder.
 	bodyBlock := builder newBasicBlockHere: #body.
 	

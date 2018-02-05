@@ -48,3 +48,266 @@ when: $$Pharo {matchesMessage: message inEnvironment: environment at: position
 
 }.
 
+// If/then/else
+metaMethod selectorsWithoutReceiver: #(if:then: if:then:else: ) rules: {
+when: $$Pharo {matchesMessage: message inEnvironment: environment at: position
+    ^ message receiver isNil
+	
+} doOn: {
+    // Compile time evaluation
+    evaluation: $$Pharo {
+        node: node environment: environment
+            self halt.
+    }.
+
+    // Semantic analysis
+    semanticAnalysis: $$Pharo {
+        node: messageNode environment: environment position: aSourcePosition
+            | conditionNode thenNode thenType elseNode elseType analyzedArguments coercionType resultType |
+            conditionNode := messageNode arguments first semanticAnalysisInEnvironment: environment.
+            thenNode := messageNode arguments second inlineBlockSemanticAnalysisInEnvironment: environment.
+            thenType := thenNode evaluateCleanValueTypeInEnvironment: environment.
+            analyzedArguments := {conditionNode . thenNode}.
+
+            elseNode := nil.
+            elseType := nil.
+            messageNode arguments size >= 3 ifTrue: [
+                elseNode := messageNode arguments third inlineBlockSemanticAnalysisInEnvironment: environment.
+                elseType := elseNode evaluateCleanValueTypeInEnvironment: environment.
+                analyzedArguments := analyzedArguments , { elseNode }.
+            ].
+
+            "Check the condition type"
+            coercionType := environment compilationTarget booleanType.
+            (conditionNode evaluateTypeInEnvironment: environment) coercedImplicitlyNode: conditionNode into: coercionType at: aSourcePosition.
+
+            "Try to select a proper result type instead of void"
+            resultType := nil.
+            elseType ifNotNil: [
+                resultType := thenType arithmeticCoerceWith: elseType.
+            ].
+
+            resultType ifNil: [
+                resultType := environment compilationTarget voidType.
+            ].
+
+	        ^ messageNode copy
+		        metaMethod: self;
+		        arguments: analyzedArguments;
+		        coercionType: coercionType;
+		        valueType: resultType;
+		        yourself
+	}.
+
+    // Code generation
+    codeGeneration: $$Pharo {
+        node: messageNode builder: builder
+            | conditionNode thenNode elseNode coercionType resultType condition result thenBlock elseBlock mergeBlock thenValue elseValue |
+            conditionNode := messageNode arguments first.
+            thenNode := messageNode arguments second.
+
+            coercionType := messageNode coercionType.
+            resultType := messageNode valueType.
+
+            elseNode := nil.
+            messageNode arguments size >= 3 ifTrue: [
+                elseNode := messageNode arguments third.
+            ].
+
+            "Blocks"
+            thenBlock := builder newBasicBlock: #ifThen.
+            mergeBlock := builder newBasicBlock: #ifMerge.
+            elseBlock := elseNode ifNil: [mergeBlock] ifNotNil: [ builder newBasicBlock: #ifElse ].
+
+            "Generate the condition."
+            condition := conditionNode type ssaCoerceImplicitly: (conditionNode generateSSACodeWith: builder) to: coercionType with: builder at: messageNode.
+            builder branch: condition ifTrue: thenBlock ifFalse: elseBlock.
+
+            "Generate the result."
+            result := nil.
+            resultType isVoidType ifFalse: [
+                builder currentBlock: mergeBlock.
+                result := builder phi: resultType ssaType
+            ].
+
+            "Then block"
+            builder currentBlock: thenBlock.
+            thenValue := thenNode generateSSACodeWith: builder.
+            builder isLastTerminator ifFalse: [
+                resultType isVoidType ifFalse: [
+                    result addValue: (thenNode type ssaCoerceImplicitly: thenValue to: resultType with: builder at: messageNode) from: builder currentBlock
+                ].
+                builder jump: mergeBlock
+            ].
+
+            "Else block"
+            elseNode ifNotNil: [
+                builder currentBlock: elseBlock.
+                elseValue := elseNode generateSSACodeWith: builder.
+                builder isLastTerminator ifFalse: [
+                    resultType isVoidType ifFalse: [
+                        result addValue: (elseNode type ssaCoerceImplicitly: elseValue to: resultType with: builder at: messageNode) from: builder currentBlock
+                    ].
+                    builder jump: mergeBlock
+                ].
+            ].
+
+            builder currentBlock: mergeBlock.
+            ^ result.
+    }.
+}
+
+}.
+
+// while:do:continueWith:
+metaMethod selectorsWithoutReceiver: #(while:do: while:do:continueWith: ) rules: {
+when: $$Pharo {matchesMessage: message inEnvironment: environment at: position
+    ^ message receiver isNil
+	
+} doOn: {
+    // Compile time evaluation
+    evaluation: $$Pharo {
+        node: node environment: environment
+            self halt.
+    }.
+
+    // Semantic analysis
+    semanticAnalysis: $$Pharo {
+        node: messageNode environment: environment position: aSourcePosition
+            | conditionNode bodyNode continueNode analyzedArguments coercionType |
+            conditionNode := messageNode arguments first semanticAnalysisInEnvironment: environment.
+            bodyNode := messageNode arguments second inlineBlockSemanticAnalysisInEnvironment: environment.
+            analyzedArguments := {conditionNode . bodyNode}.
+
+            continueNode := nil.
+            messageNode arguments size >= 3 ifTrue: [
+                continueNode := messageNode arguments third inlineBlockSemanticAnalysisInEnvironment: environment.
+                analyzedArguments := analyzedArguments , { continueNode }.
+            ].
+
+            "Check the condition type"
+            coercionType := environment compilationTarget booleanType.
+            (conditionNode evaluateTypeInEnvironment: environment) coercedImplicitlyNode: conditionNode into: coercionType at: aSourcePosition.
+
+	        ^ messageNode copy
+		        metaMethod: self;
+		        arguments: analyzedArguments;
+		        coercionType: coercionType;
+		        valueType: environment compilationTarget voidType;
+		        yourself
+	}.
+
+    // Code generation
+    codeGeneration: $$Pharo {
+        node: messageNode builder: builder
+            | conditionNode bodyNode continueNode coercionType conditionBlock bodyBlock continueBlock mergeBlock condition |
+            conditionNode := messageNode arguments first.
+            bodyNode := messageNode arguments second.
+
+            coercionType := messageNode coercionType.
+
+            continueNode := nil.
+            messageNode arguments size >= 3 ifTrue: [
+                continueNode := messageNode arguments third.
+            ].
+
+            "Loop block"
+            conditionBlock := builder newBasicBlock: #loopCondition.
+            bodyBlock := builder newBasicBlock: #loopBody.
+            mergeBlock := builder newBasicBlock: #loopMerge.
+
+            continueBlock := continueNode ifNil: [ conditionBlock ] ifNotNil: [ builder newBasicBlock: #loopContinue ].
+
+            "Enter into the loop"
+            builder
+                jump: conditionBlock;
+                currentBlock: conditionBlock.
+
+            "Generate the condition."
+            condition := conditionNode type ssaCoerceImplicitly: (conditionNode generateSSACodeWith: builder) to: coercionType with: builder at: messageNode.
+            builder
+                branch: condition ifTrue: bodyBlock ifFalse: mergeBlock.
+
+            builder withBreak: mergeBlock continue: continueBlock do: [
+                builder
+                    currentBlock: bodyBlock.
+
+                bodyNode generateSSACodeWith: builder.
+
+                builder isLastTerminator ifFalse: [
+                    builder jump: continueBlock
+                ]
+            ].
+
+            "Generate the continue block, if it exists."
+            continueNode ifNotNil: [
+                builder
+                    currentBlock: continueBlock.
+                
+                continueNode generateSSACodeWith: builder.
+
+                builder isLastTerminator ifFalse: [
+                    builder jump: conditionBlock
+                ]
+            ].
+
+            "Continue with the normal control flow."
+            builder currentBlock: mergeBlock.
+            ^ nil
+    }.
+}
+
+}.
+
+// until:do:continueWith:
+metaMethod selectorsWithoutReceiver: #(until:do: until:do:continueWith: ) rules: {
+when: $$Pharo {matchesMessage: message inEnvironment: environment at: position
+    ^ message receiver isNil
+	
+} doOn: {
+    // Semantic analysis
+    semanticAnalysis: $$Pharo {
+        node: messageNode environment: environment position: aSourcePosition
+            | newArguments |
+            newArguments := messageNode arguments copy.
+            newArguments at: 1 put:
+                ((environment apsgBuilder send: #not to: newArguments first withArguments: #())
+                    position: aSourcePosition).
+
+            ^ (messageNode copy
+                selector: (messageNode arguments size = 3 ifTrue: [#while:do:continueWith:] ifFalse: [#while:do:]);
+                arguments: newArguments;
+                yourself) semanticAnalysisInEnvironment: environment
+
+	}.
+}
+
+}.
+
+// Do:while:continueWith:
+metaMethod selectorsWithoutReceiver: #(do:while: do:while:continueWith: ) rules: {
+when: $$Pharo {matchesMessage: message inEnvironment: environment at: position
+    ^ message receiver isNil
+	
+} doOn: {
+    // Compile time evaluation
+    evaluation: $$Pharo {
+        node: node environment: environment
+            self halt.
+    }.
+
+    // Semantic analysis
+    semanticAnalysis: $$Pharo {
+        node: messageNode environment: environment position: aSourcePosition
+			self halt
+	}.
+
+    // Code generation
+    codeGeneration: $$Pharo {
+        node: messageNode builder: builder
+			self halt
+    }.
+}
+
+}.
+
