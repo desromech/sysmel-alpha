@@ -1,6 +1,6 @@
 Metacello new
   baseline: 'Sysmel';
-  repository: 'filetree://filetree';
+  repository: 'tonel://tonel';
   load.
 
 "Save the image"
