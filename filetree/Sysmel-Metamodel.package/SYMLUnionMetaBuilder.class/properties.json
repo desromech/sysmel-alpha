@@ -1,0 +1,11 @@
+{
+	"commentStamp" : "",
+	"super" : "SYMLStructMetaBuilder",
+	"category" : "Sysmel-Metamodel-MetaBuilders",
+	"classinstvars" : [ ],
+	"pools" : [ ],
+	"classvars" : [ ],
+	"instvars" : [ ],
+	"name" : "SYMLUnionMetaBuilder",
+	"type" : "normal"
+}

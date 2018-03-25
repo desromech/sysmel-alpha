@@ -1,4 +1,3 @@
-decorators
+accessing
 metaType
-	<compileTime>
-	^ self explicitRequirement
+	^ self target metaTypeFor: self

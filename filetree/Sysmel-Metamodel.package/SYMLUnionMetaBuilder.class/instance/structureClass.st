@@ -1,0 +1,3 @@
+meta methods
+structureClass
+	^ SYMLUnion

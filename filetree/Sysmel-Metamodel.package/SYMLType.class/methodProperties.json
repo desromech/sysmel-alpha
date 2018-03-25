@@ -1,11 +1,9 @@
 {
 	"instance" : {
-		"compilationTarget" : "RonieSalgado 12/24/2017 03:23",
 		"target" : "RonieSalgado 12/23/2017 23:44",
-		"metaType" : "RonieSalgado 12/23/2017 23:58",
-		"buildSSAType" : "RonieSalgado 1/21/2018 01:20",
 		"target:" : "RonieSalgado 12/23/2017 23:44",
-		"ssaType" : "RonieSalgado 1/21/2018 01:20"
+		"ssaType" : "RonieSalgado 1/21/2018 01:20",
+		"buildSSAType" : "RonieSalgado 1/21/2018 01:20"
 	},
 	"class" : {
 		"initialize" : "RonieSalgado 2/4/2018 22:59",

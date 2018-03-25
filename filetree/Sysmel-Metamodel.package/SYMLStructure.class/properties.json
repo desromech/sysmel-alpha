@@ -1,0 +1,17 @@
+{
+	"classtraitcomposition" : "TSYMLType classTrait",
+	"classvars" : [ ],
+	"instvars" : [
+		"name",
+		"module",
+		"symbols"
+	],
+	"name" : "SYMLStructure",
+	"commentStamp" : "",
+	"super" : "SYMLProgramEntity",
+	"traitcomposition" : "TSYMLType",
+	"type" : "normal",
+	"classinstvars" : [ ],
+	"pools" : [ ],
+	"category" : "Sysmel-Metamodel-Program"
+}

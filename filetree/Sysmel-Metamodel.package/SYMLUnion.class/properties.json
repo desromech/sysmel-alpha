@@ -1,0 +1,11 @@
+{
+	"commentStamp" : "",
+	"super" : "SYMLStructure",
+	"category" : "Sysmel-Metamodel-Program",
+	"classinstvars" : [ ],
+	"pools" : [ ],
+	"classvars" : [ ],
+	"instvars" : [ ],
+	"name" : "SYMLUnion",
+	"type" : "normal"
+}
