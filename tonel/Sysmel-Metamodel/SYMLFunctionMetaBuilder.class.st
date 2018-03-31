@@ -8,7 +8,6 @@ Class {
 SYMLFunctionMetaBuilder >> analyzeMessage: messageNode inEnvironment: anEnvironment at: aSourcePosition [
 	| functionBuilder |
 	self assert: messageNode arguments isEmpty.
-	
 	functionBuilder := SYMLFunctionBuilder new
 		definitionEnvironment: anEnvironment findProgramEntityDefinitionScope;
 		sourcePosition: aSourcePosition;

@@ -29,6 +29,11 @@ SYMLAliasType >> cleanType [
 	^ aliased cleanType
 ]
 
+{ #category : #accessing }
+SYMLAliasType >> concreteSSAType [
+	^ aliased concreteSSAType
+]
+
 { #category : #'meta evaluation' }
 SYMLAliasType >> concreteTypeForNode: aNode [
 	^ aliased concreteTypeForNode: aNode

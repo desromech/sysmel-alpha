@@ -179,6 +179,7 @@ SYMLFunction >> mangledName [
 	^ ByteString streamContents: [ :out |
 		out
 			nextPutAll: self parentMangledName;
+			nextPut: $F;
 			print: name size;
 			nextPutAll: name.
 	]

@@ -22,7 +22,7 @@ SYMLNamespace >> generateSSACode [
 { #category : #variables }
 SYMLNamespace >> initialize [
 	super initialize.
-	symbols := Dictionary new.
+	symbols := SYMLOrderedDictionary new.
 	
 ]
 

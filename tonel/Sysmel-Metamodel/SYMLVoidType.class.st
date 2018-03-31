@@ -6,7 +6,12 @@ Class {
 
 { #category : #'as yet unclassified' }
 SYMLVoidType >> buildSSAType [
-	^ target lowLevelTarget voidType
+	^ target lowLevelTarget void
+]
+
+{ #category : #testing }
+SYMLVoidType >> isVoidType [
+	^ true
 ]
 
 { #category : #accessing }

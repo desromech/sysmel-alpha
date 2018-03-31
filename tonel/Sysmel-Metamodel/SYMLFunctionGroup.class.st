@@ -28,7 +28,7 @@ SYMLFunctionGroup >> functions [
 
 { #category : #'semantic analysis' }
 SYMLFunctionGroup >> generateSSACode [
-	self halt
+	functions do: #generateSSACode
 ]
 
 { #category : #initialization }
@@ -64,5 +64,5 @@ SYMLFunctionGroup >> name: anObject [
 
 { #category : #'semantic analysis' }
 SYMLFunctionGroup >> semanticAnalysis [
-	self halt
+	functions do: #semanticAnalysis
 ]

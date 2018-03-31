@@ -8,9 +8,23 @@ Class {
 	#category : #Sysmel-Metamodel-Program
 }
 
+{ #category : #'adding notifications' }
+SYMLProgramEntity >> addedFunction: aFunction [
+	aFunction parent: self
+]
+
+{ #category : #'adding notifications' }
+SYMLProgramEntity >> addedFunctionGroup: aFunctionGroup [
+]
+
 { #category : #converting }
 SYMLProgramEntity >> asSysmelValueInEnvironment: anEnvironment [
 	^ self sysmelValueWithType: self type inEnvironment: anEnvironment
+]
+
+{ #category : #'object building' }
+SYMLProgramEntity >> createFieldVariableBinding: fieldVariableBuilder [
+	self error: 'Cannot define field {1} at this place.' format: { fieldVariableBuilder name }
 ]
 
 { #category : #'object building' }
@@ -69,7 +83,17 @@ SYMLProgramEntity >> isFunctionGroup [
 ]
 
 { #category : #testing }
+SYMLProgramEntity >> isMethod [
+	^ false
+]
+
+{ #category : #testing }
 SYMLProgramEntity >> isNamespace [
+	^ false
+]
+
+{ #category : #testing }
+SYMLProgramEntity >> isStructure [
 	^ false
 ]
 

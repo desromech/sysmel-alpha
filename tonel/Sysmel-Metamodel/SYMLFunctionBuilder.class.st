@@ -97,17 +97,11 @@ SYMLFunctionBuilder >> assignValue: aDefinition [
 
 { #category : #private }
 SYMLFunctionBuilder >> buildFunction [
-	| functionGroup |
-	function := SYMLFunction new
-		name: name;
-		module: definitionEnvironment module;
-		functionType: self functionType;
-		argumentNames: (arguments collect: #first);
-		argumentNodes: (arguments collect: #third);
-		flags: flags;
-		yourself.
+	| functionGroup targetProgramEntity |
+	function := self constructFunction.
 		
 	name ifNotNil: [
+		targetProgramEntity := definitionEnvironment findDefinitionProgramEntity.
 		(definitionEnvironment hasSupportForOverloadedFunctions and: [self isExternC not]) ifTrue: [ 
 			definitionEnvironment lookSymbol: name ifPresent: [ :existing |
 				existing isFunctionGroup ifFalse: [ 
@@ -117,12 +111,19 @@ SYMLFunctionBuilder >> buildFunction [
 			] ifAbsentPut: [
 				functionGroup := SYMLFunctionGroup new
 					module: definitionEnvironment module;
-					parent: definitionEnvironment findDefinitionProgramEntity;
+					parent: targetProgramEntity;
 					name: name;
-					yourself
+					yourself.
+					
+				targetProgramEntity addedFunctionGroup: functionGroup.
+				functionGroup
 			].
 		
-			function := functionGroup findWithType: functionType ifAbsentPut: [function].
+			function := functionGroup findWithType: functionType ifAbsentPut: [
+				targetProgramEntity addedFunction: function.
+				function
+			].
+			
 		] ifFalse: [
 			definitionEnvironment lookSymbol: name ifPresent: [ :existing |
 				existing isFunction ifFalse: [ 
@@ -134,7 +135,11 @@ SYMLFunctionBuilder >> buildFunction [
 				].
 			
 				function := existing
-			] ifAbsentPut: [ function parent: definitionEnvironment findDefinitionProgramEntity; yourself ].
+			] ifAbsentPut: [
+				function parent: targetProgramEntity.
+				targetProgramEntity addedFunction: function.
+				function
+			].
 		].
 	].
 
@@ -150,6 +155,18 @@ SYMLFunctionBuilder >> buildFunctionType [
 	
 	functionType := self compilationTarget functionArguments: argumentTypes returnType: returnType callingConvention: callingConvention variadic: self isCVariadic.
 
+]
+
+{ #category : #private }
+SYMLFunctionBuilder >> constructFunction [
+	^ SYMLFunction new
+		name: name;
+		module: definitionEnvironment module;
+		functionType: self functionType;
+		argumentNames: (arguments collect: #first);
+		argumentNodes: (arguments collect: #third);
+		flags: flags;
+		yourself.
 ]
 
 { #category : #'meta methods' }

@@ -67,6 +67,11 @@ TSYMLType >> compilationTarget [
 	^ self target
 ]
 
+{ #category : #accessing }
+TSYMLType >> concreteSSAType [
+	^ self ssaType
+]
+
 { #category : #'meta evaluation' }
 TSYMLType >> concreteTypeForNode: aNode [
 	^ self
