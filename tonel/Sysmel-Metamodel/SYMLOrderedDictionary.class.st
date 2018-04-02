@@ -1,7 +1,7 @@
 Class {
 	#name : #SYMLOrderedDictionary,
 	#superclass : #OrderedDictionary,
-	#category : #Sysmel-Metamodel
+	#category : #'Sysmel-Metamodel'
 }
 
 { #category : #accessing }

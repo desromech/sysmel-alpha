@@ -1,5 +1,5 @@
 Class {
 	#name : #SYMLParseError,
 	#superclass : #SYMLError,
-	#category : #Sysmel-Metamodel-Exceptions
+	#category : #'Sysmel-Metamodel-Exceptions'
 }

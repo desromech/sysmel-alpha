@@ -5,16 +5,15 @@ Class {
 		'receiver',
 		'messages'
 	],
-	#category : #Sysmel-Metamodel-APSG
+	#category : #'Sysmel-Metamodel-APSG'
 }
 
-{ #category : #'as yet unclassified' }
+{ #category : #'meta evaluation' }
 SYMLAPSGMessageChain >> evaluateInEnvironment: anEnvironment [
-	| result receiverValue |
+	| result |
 	result := nil.
-	receiverValue := anEnvironment wrapAPSGNode: receiver.
 	messages do: [ :message |
-		result := message evaluateInEnvironment: anEnvironment withReceiver: receiverValue
+		result := message evaluateInEnvironment: anEnvironment
 	].
 
 	^ result
@@ -55,4 +54,26 @@ SYMLAPSGMessageChain >> receiver [
 { #category : #accessing }
 SYMLAPSGMessageChain >> receiver: anObject [
 	receiver := anObject
+]
+
+{ #category : #'meta evaluation' }
+SYMLAPSGMessageChain >> semanticAnalysisInEnvironment: anEnvironment [
+	| result myReceiverReference |
+	result := self copy.
+	result receiver: (receiver semanticAnalysisInEnvironment: anEnvironment).
+
+	result receiver isMetaObjectInstance ifTrue: [ 
+		myReceiverReference := result receiver.
+	] ifFalse: [ 
+		myReceiverReference := SYMLAPSGMessageChainReceiverReference new
+			chain: self;
+			position: receiver position;
+			yourself.
+	].
+	
+	result messages: (messages collect: [ :message |
+		(message copy receiver: myReceiverReference) semanticAnalysisInEnvironment: anEnvironment
+	]).
+
+	^ result
 ]

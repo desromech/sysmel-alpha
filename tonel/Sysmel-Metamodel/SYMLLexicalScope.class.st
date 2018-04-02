@@ -4,26 +4,25 @@ Class {
 	#instVars : [
 		'symbols'
 	],
-	#category : #Sysmel-Metamodel-Semantic
+	#category : #'Sysmel-Metamodel-Scope'
 }
 
-{ #category : #accessing }
-SYMLLexicalScope >> findLocalDefinitionScopeFrom: startingPoint [
-	^ self
+{ #category : #adding }
+SYMLLexicalScope >> addSymbol: symbol value: value [
+	symbols at: symbol ifPresent: [ :existent |
+		self error: 'Trying to override top-level symbol {1} with value {2}.' format: { symbol printString . value }
+	] ifAbsentPut: [ value ]
 ]
 
 { #category : #initialization }
 SYMLLexicalScope >> initialize [
 	super initialize.
 	symbols := Dictionary new.
+	
 ]
 
-{ #category : #variables }
-SYMLLexicalScope >> lookSymbol: identifier ifPresent: aBlock [
-	^ symbols at: identifier ifPresent: aBlock
-]
-
-{ #category : #variables }
-SYMLLexicalScope >> lookSymbol: identifier ifPresent: ifPresentBlock ifAbsentPut: ifAbsentBlock [
-	^ symbols at: identifier ifPresent: ifPresentBlock ifAbsentPut: ifAbsentBlock
+{ #category : #'as yet unclassified' }
+SYMLLexicalScope >> lookSymbol: symbol ifPresent: ifPresentBlock [
+	symbols at: symbol ifPresent: ifPresentBlock
+	
 ]

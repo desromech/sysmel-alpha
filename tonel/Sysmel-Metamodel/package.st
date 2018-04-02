@@ -1,1 +1,1 @@
-Package { #name : #Sysmel-Metamodel }
+Package { #name : #'Sysmel-Metamodel' }

@@ -1,7 +1,7 @@
 Class {
 	#name : #SYMLPharoLanguageCompiler,
 	#superclass : #SYMLScapedLanguageCompiler,
-	#category : #Sysmel-Metamodel-APSG
+	#category : #'Sysmel-Metamodel-APSG'
 }
 
 { #category : #accessing }

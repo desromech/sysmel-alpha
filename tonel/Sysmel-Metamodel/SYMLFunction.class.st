@@ -1,246 +1,157 @@
 Class {
 	#name : #SYMLFunction,
-	#superclass : #SYMLProgramEntity,
+	#superclass : #SYMLNamedProgramEntity,
 	#instVars : [
-		'module',
-		'name',
-		'functionType',
-		'argumentNames',
-		'argumentNodes',
-		'definition',
-		'definitionEnvironment',
-		'hasSemanticAnalysis',
-		'ssaValue',
+		'hasArguments',
 		'arguments',
-		'locals'
+		'returnType',
+		'body',
+		'bodyEnvironment',
+		'callingConvention',
+		'functionType'
 	],
-	#category : #Sysmel-Metamodel-Program
+	#category : #'Sysmel-Metamodel-Program'
 }
 
-{ #category : #adding }
-SYMLFunction >> addLocal: aLocalVariable [
-	locals add: aLocalVariable.
-	^ aLocalVariable
-]
-
-{ #category : #accessing }
-SYMLFunction >> argumentNames [
-	^ argumentNames
-]
-
-{ #category : #accessing }
-SYMLFunction >> argumentNames: anObject [
-	argumentNames := anObject
-]
-
-{ #category : #accessing }
-SYMLFunction >> argumentNodes [
-	^ argumentNodes
-]
-
-{ #category : #accessing }
-SYMLFunction >> argumentNodes: anObject [
-	argumentNodes := anObject
-]
-
-{ #category : #accessing }
-SYMLFunction >> arguments [
-	^ arguments
-]
-
-{ #category : #'object building' }
-SYMLFunction >> createLocalVariableBinding: localVariableBuilder [
-	^self addLocal: (SYMLFunctionLocalVariable new
-		name: localVariableBuilder name;
-		valueType: localVariableBuilder type;
-		function: self;
-		yourself)
-]
-
-{ #category : #'semantic analysis' }
-SYMLFunction >> createSSAValue [
-	ssaValue := SLVMFunction module: self module ssaModule name: self mangledName functionType: functionType ssaType.
-	ssaValue unmangledName: name.
-	
-	ssaValue arguments doWithIndex: [ :arg :index |
-		arg name: (argumentNames at: index)
+{ #category : #associating }
+SYMLFunction >> -> returnTypeValue [
+	<compileTime>
+	<lazy>
+	returnType ifNotNil: [ 
+		self error: 'Cannot override function {1} return type.' format: {self validName} at: returnTypeValue node
 	].
 
+	returnTypeValue value isType ifFalse: [
+		self error: 'Expected a return type for function {1}.' format: {self validName} at: returnTypeValue node
+	].
+
+	hasArguments := true.
+	returnType := returnTypeValue value.
+	self buildFunctionType.
 ]
 
-{ #category : #accessing }
-SYMLFunction >> definition [
-	^ definition
+{ #category : #'as yet unclassified' }
+SYMLFunction >> CVariadic [
+	<compileTime>
+	self addFlag: #cvariadic
 ]
 
-{ #category : #accessing }
-SYMLFunction >> definition: anObject [
-	definition := anObject
+{ #category : #'as yet unclassified' }
+SYMLFunction >> analyzeAndEvaluateMessage: message toReceiver: aReceiver inEnvironment: environment at: aPosition [
+	self halt.
 ]
 
-{ #category : #accessing }
-SYMLFunction >> definitionEnvironment [
-	^ definitionEnvironment
-]
+{ #category : #'as yet unclassified' }
+SYMLFunction >> applyWithArguments: argumentNodes [
+	<compileTime>
+	<lazy>
+	| evaluationEnvironment argumentName argumentType |
+	
+	hasArguments ifTrue: [ 
+		self halt
+	].
 
-{ #category : #accessing }
-SYMLFunction >> definitionEnvironment: anObject [
-	definitionEnvironment := anObject
-]
+	hasArguments := true.
 
-{ #category : #accessing }
-SYMLFunction >> evaluateTypeAt: position [
-	^ functionType const ref
-]
+	evaluationEnvironment := argumentNodes environment.
+	argumentNodes node isTupleNode ifFalse: [ 
+		self error: 'Expected an APSG tuple.'
+	].
 
-{ #category : #accessing }
-SYMLFunction >> functionType [
-	^ functionType
-]
-
-{ #category : #accessing }
-SYMLFunction >> functionType: anObject [
-	functionType := anObject
-]
-
-{ #category : #'semantic analysis' }
-SYMLFunction >> generateSSACode [
-	| allocaBuilder builder returnType bodyBlock |
-	definition ifNil: [
-		name ifNotNil: [
-			self ssaValue makeExternal
+	arguments := argumentNodes node elements collect: [ :arg |
+		arg isMessageNode ifFalse: [
+			self error: 'Expected a message send to describe a function argument.' at: arg.
 		].
-		^ self
-	].
 	
-	"Set the arguments"
-	arguments doWithIndex: [ :arg :index |
-		arg ssaValue: (self ssaValue arguments at: index)
-	].
-
-	"Create a builder for the allocas and another for the function body."
-	allocaBuilder := SYMLSLVMBuilder on: self ssaValue.
-	allocaBuilder newBasicBlockHere: #entry.
-	
-	builder := SYMLSLVMBuilder on: self ssaValue.
-	builder allocaBuilder: allocaBuilder.
-	bodyBlock := builder newBasicBlockHere: #body.
-	
-	"Generate the local variables"
-	locals do: [ :local | local generateSSALocalWithBuilder: builder ].
-	
-	"Generate the function body"
-	definition generateSSACodeWith: builder.
-	
-	"Make sure we are returning something at the end."
-	builder isLastTerminator ifFalse: [ 
-		returnType := functionType returnType.
-		returnType isVoidType ifFalse: [ 
-			self error: 'Not all of the execution paths are returning something.' at: definition
+		arg receiver ifNotNil: [ 
+			self error: 'Function argument description must not have a receiver.' at: arg.
 		].
-		builder returnVoid
-	].
+
+		arg arguments size ~= 1 ifTrue: [ 
+			self error: 'Function argument description must have only a single keyword.' at: arg.
+		].
 	
-	allocaBuilder jump: bodyBlock.
+		argumentName := arg selector allButLast asSymbol.
+		argumentType := arg arguments first analyzeAndEvaluateInEnvironment: evaluationEnvironment.
+		argumentType value isType ifFalse: [
+			self error: 'Expected a type for argument {1}' format: { argumentName } at: arg arguments first
+		].
+		
+		SYMLFunctionArgument new
+			parent: self;
+			name: argumentName;
+			type: argumentType value;
+			definitionNode: arg;
+			yourself
+	].
 
 ]
 
-{ #category : #'meta evaluation' }
-SYMLFunction >> generateSSAReferenceWith: builder [
-	^ self ssaValue
+{ #category : #definition }
+SYMLFunction >> assignValue: bodyLazyValue [
+	<compileTime>
+	<lazy>
+	
+	bodyLazyValue type ~~ self compilationTarget apsgNodeType ifTrue: [
+		self error: 'Expected an APSG node for the definition of the function {1}.' format: { self validName } at: bodyLazyValue node
+	].
+
+	body := bodyLazyValue value.
+	bodyEnvironment := bodyLazyValue environment.
+]
+
+{ #category : #associating }
+SYMLFunction >> buildFunctionType [
+	| argumentTypes |
+	returnType ifNil: [
+		self error: 'Cannot build a function without a return type. You can use Void.'
+	].
+	argumentTypes := arguments collect: #type.
+	
+	functionType := self compilationTarget functionArguments: argumentTypes returnType: returnType callingConvention: callingConvention variadic: self isCVariadic.
+
+]
+
+{ #category : #'as yet unclassified' }
+SYMLFunction >> externC [
+	<compileTime>
+	self addFlag: #'extern-c'
 ]
 
 { #category : #initialization }
 SYMLFunction >> initialize [
 	super initialize.
-	argumentNames := #().
-	hasSemanticAnalysis := false.
-	locals := OrderedCollection new.
+	hasArguments := false.
+	arguments := #().
+	callingConvention := #cdecl.
+	
+]
+
+{ #category : #testing }
+SYMLFunction >> isCVariadic [
+	<compileTime>
+	^ self hasFlag: #'cvariadic'
 ]
 
 { #category : #testing }
 SYMLFunction >> isExternC [
-	^ self hasFlag: #externC
+	<compileTime>
+	^ self hasFlag: #'extern-c'
 ]
 
 { #category : #testing }
-SYMLFunction >> isFunction [
-	^ true
+SYMLFunction >> isMetaObject [
+	^ false
 ]
 
-{ #category : #accessing }
-SYMLFunction >> locals [
-	^ locals
-]
-
-{ #category : #'semantic analysis' }
-SYMLFunction >> mangledName [
-	self isExternC ifTrue: [ ^ name ].
-	^ ByteString streamContents: [ :out |
-		out
-			nextPutAll: self parentMangledName;
-			nextPut: $F;
-			print: name size;
-			nextPutAll: name.
-	]
-]
-
-{ #category : #accessing }
-SYMLFunction >> module [
-	^ module
-]
-
-{ #category : #accessing }
-SYMLFunction >> module: anObject [
-	module := anObject
-]
-
-{ #category : #accessing }
-SYMLFunction >> name [
-	^ name
-]
-
-{ #category : #accessing }
-SYMLFunction >> name: anObject [
-	name := anObject
-]
-
-{ #category : #accessing }
-SYMLFunction >> returnType [
-	^ functionType returnType
-]
-
-{ #category : #'semantic analysis' }
-SYMLFunction >> semanticAnalysis [
-	| scope argument |
-	(definition isNil or: [hasSemanticAnalysis]) ifTrue: [ ^ self ].
-
-	scope := (SYMLFunctionScope parent: definitionEnvironment) function: self.
-	scope := SYMLLexicalScope parent: scope.
-	
-	arguments := functionType arguments collectWithIndex: [ :argumentType :index |
-		argument := SYMLFunctionArgument new
-			name: (argumentNames at: index);
-			type: argumentType;
-			node: (argumentNodes at: index);
-			yourself.
-		scope lookSymbol: argument name ifPresent: [:existent |
-			self error: 'Duplicated argument name {1}.' format:  { argument name } at:  argument node
-		] ifAbsentPut: [ argument ].
-		argument
+{ #category : #'as yet unclassified' }
+SYMLFunction >> semanticAnalyzeMessageToYou: message inEnvironment: environment at: aPosition [
+	(name isNil and: [hasArguments not ]) ifTrue: [
+		message selector numArgs = 0 ifTrue: [
+			self name: message selector.
+			^ message receiver
+		].
 	].
 
-	hasSemanticAnalysis := true.
-	definition := definition semanticAnalysisInEnvironment: scope
-]
-
-{ #category : #'semantic analysis' }
-SYMLFunction >> ssaValue [
-	ssaValue ifNil: [ self createSSAValue ].
-	^ ssaValue
-]
-
-{ #category : #accessing }
-SYMLFunction >> type [
-	^ functionType ref
+	^ super semanticAnalyzeMessageToYou: message inEnvironment: environment at: aPosition
 ]

@@ -1,5 +1,6 @@
-Compiler evaluateLanguageKernelFileNamed: "arithmetic.sysmel".
-Compiler evaluateLanguageKernelFileNamed: "variables.sysmel".
-Compiler evaluateLanguageKernelFileNamed: "controlFlow.sysmel".
-Compiler evaluateLanguageKernelFileNamed: "functional.sysmel".
+Compiler
+    evaluateLanguageKernelFileNamed: "arithmetic.sysmel";
+    evaluateLanguageKernelFileNamed: "variables.sysmel";
+    evaluateLanguageKernelFileNamed: "controlFlow.sysmel";
+    evaluateLanguageKernelFileNamed: "functional.sysmel".
 

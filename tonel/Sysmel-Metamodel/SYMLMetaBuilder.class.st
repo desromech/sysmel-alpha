@@ -1,43 +1,51 @@
 Class {
 	#name : #SYMLMetaBuilder,
-	#superclass : #SYMLProgramEntity,
-	#traits : 'TSYMLType',
-	#classTraits : 'TSYMLType classTrait',
+	#superclass : #SYMLObject,
 	#instVars : [
-		'compilationTarget'
+		'metaObjectClass',
+		'module'
 	],
-	#category : #Sysmel-Metamodel-MetaBuilders
+	#category : #'Sysmel-Metamodel-Program'
 }
 
-{ #category : #'meta methods' }
-SYMLMetaBuilder >> analyzeMessage: messageNode inEnvironment: anEnvironment at: aSourcePosition [
-	self subclassResponsibility
+{ #category : #'as yet unclassified' }
+SYMLMetaBuilder class >> for: metaObjectClass module: module [
+	^ self new
+		metaObjectClass: metaObjectClass;
+		module: module;
+		yourself
+]
+
+{ #category : #testing }
+SYMLMetaBuilder >> isMetaBuilder [
+	^ true
 ]
 
 { #category : #accessing }
-SYMLMetaBuilder >> compilationTarget [
-	^ compilationTarget
+SYMLMetaBuilder >> metaObjectClass [
+	^ metaObjectClass
 ]
 
 { #category : #accessing }
-SYMLMetaBuilder >> compilationTarget: anObject [
-	compilationTarget := anObject
-]
-
-{ #category : #'meta methods' }
-SYMLMetaBuilder >> metaMethodForMessage: messageNode inEnvironment: anEnvironment at: aSourcePosition [
-	| metaMethod |
-	(messageNode receiver evaluateTypeInEnvironment: anEnvironment) ~~ self ifTrue: [ ^ nil ].
-	
-	metaMethod := self findMetaMethodForSelector: messageNode selector inImageReceiver: self at: aSourcePosition.
-	metaMethod ifNotNil: [ ^ metaMethod ].
-	
-	messageNode arguments ifNotEmpty: [ ^ nil ].
-	
-	^ self
+SYMLMetaBuilder >> metaObjectClass: anObject [
+	metaObjectClass := anObject
 ]
 
 { #category : #accessing }
-SYMLMetaBuilder >> metaType [
-	^ self
+SYMLMetaBuilder >> module [
+	^ module
+]
+
+{ #category : #accessing }
+SYMLMetaBuilder >> module: anObject [
+	module := anObject
+]
+
+{ #category : #'instance creation' }
+SYMLMetaBuilder >> newInstanceInEnvironment: anEnvironment [
+	^ metaObjectClass new
+		module: module;
+		definitionEnvironment: anEnvironment;
+		parent: anEnvironment definitionProgramEntity;
+		yourself
 ]

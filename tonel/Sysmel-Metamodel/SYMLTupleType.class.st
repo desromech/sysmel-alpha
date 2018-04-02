@@ -1,10 +1,11 @@
 Class {
 	#name : #SYMLTupleType,
-	#superclass : #SYMLType,
+	#superclass : #SYMLAbstractType,
 	#instVars : [
+		'compilationTarget',
 		'types'
 	],
-	#category : #Sysmel-Metamodel-Types
+	#category : #'Sysmel-Metamodel-Program'
 }
 
 { #category : #comparing }
@@ -13,22 +14,29 @@ SYMLTupleType >> = other [
 	[ types = other types ]
 ]
 
+{ #category : #accessing }
+SYMLTupleType >> compilationTarget [
+	^ compilationTarget
+]
+
+{ #category : #accessing }
+SYMLTupleType >> compilationTarget: anObject [
+	compilationTarget := anObject
+]
+
 { #category : #comparing }
 SYMLTupleType >> hash [
 	^ self class identityHash bitXor: types hash
 ]
 
-{ #category : #testing }
-SYMLTupleType >> isTupleType [
-	^ true
-]
-
 { #category : #accessing }
 SYMLTupleType >> types [
+	<compileTime>
 	^ types
 ]
 
 { #category : #accessing }
 SYMLTupleType >> types: anObject [
+	<compileTime>
 	types := anObject
 ]

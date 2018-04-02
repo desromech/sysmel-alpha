@@ -4,7 +4,7 @@ Class {
 	#classVars : [
 		'CompilersForLanguages'
 	],
-	#category : #Sysmel-Metamodel-APSG
+	#category : #'Sysmel-Metamodel-APSG'
 }
 
 { #category : #'as yet unclassified' }

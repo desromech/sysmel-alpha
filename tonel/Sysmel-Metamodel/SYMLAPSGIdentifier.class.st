@@ -4,7 +4,7 @@ Class {
 	#instVars : [
 		'value'
 	],
-	#category : #Sysmel-Metamodel-APSG
+	#category : #'Sysmel-Metamodel-APSG'
 }
 
 { #category : #printing }
@@ -19,6 +19,20 @@ SYMLAPSGIdentifier >> semanticAnalysisInEnvironment: anEnvironment [
 		self error: 'Failed to find identifier {1}.' format: { value } at: position
 	].
 
+	binding isMetaBuilder ifTrue: [ 
+		^ SYMLAPSGMetaObjectInstance new
+			position: self;
+			metaObject: (binding newInstanceInEnvironment: anEnvironment);
+			yourself
+	].
+
+	binding isMetaObject ifTrue: [ 
+		^ SYMLAPSGMetaObjectInstance new
+			position: self;
+			metaObject: binding;
+			yourself
+	].
+	
 	^ SYMLAPSGIdentifierWithBinding new
 		position: self;
 		value: value;

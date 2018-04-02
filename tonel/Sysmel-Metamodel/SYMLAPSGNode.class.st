@@ -10,7 +10,7 @@ Class {
 	#instVars : [
 		'position'
 	],
-	#category : #Sysmel-Metamodel-APSG
+	#category : #'Sysmel-Metamodel-APSG'
 }
 
 { #category : #'meta evaluation' }
@@ -126,6 +126,11 @@ SYMLAPSGNode >> isLiteralNode [
 
 { #category : #testing }
 SYMLAPSGNode >> isMessageNode [
+	^ false
+]
+
+{ #category : #testing }
+SYMLAPSGNode >> isMetaObjectInstance [
 	^ false
 ]
 

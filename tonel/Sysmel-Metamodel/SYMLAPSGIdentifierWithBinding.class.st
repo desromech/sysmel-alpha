@@ -4,7 +4,7 @@ Class {
 	#instVars : [
 		'binding'
 	],
-	#category : #Sysmel-Metamodel-APSG
+	#category : #'Sysmel-Metamodel-APSG'
 }
 
 { #category : #accessing }

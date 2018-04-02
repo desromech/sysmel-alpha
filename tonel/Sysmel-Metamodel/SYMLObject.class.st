@@ -1,8 +1,16 @@
 Class {
 	#name : #SYMLObject,
 	#superclass : #Object,
-	#category : #Sysmel-Metamodel-Program
+	#classVars : [
+		'SelectorWhitelist'
+	],
+	#category : #'Sysmel-Metamodel-Program'
 }
+
+{ #category : #initialization }
+SYMLObject class >> initialize [
+	SelectorWhitelist := Set newFrom: #(yourself)
+]
 
 { #category : #converting }
 SYMLObject >> convertNodeForSequenceElement: aNode inEnvironment: anEnvironment [
@@ -31,4 +39,65 @@ SYMLObject >> error: anErrorString format: formatArguments [
 { #category : #errors }
 SYMLObject >> error: anErrorString format: formatArguments at: aSourcePosition [
 	^ self error: (anErrorString format: formatArguments) at: aSourcePosition
+]
+
+{ #category : #testing }
+SYMLObject >> isMetaBuilder [
+	^ false
+]
+
+{ #category : #testing }
+SYMLObject >> isMetaObject [
+	^ false
+]
+
+{ #category : #testing }
+SYMLObject >> isType [
+	^ false
+]
+
+{ #category : #'as yet unclassified' }
+SYMLObject >> semanticAnalyzeMessageToYou: message inEnvironment: environment at: aPosition [
+	^ self sendCompileTimeMessage: message inEnvironment: environment at: aPosition.
+]
+
+{ #category : #'as yet unclassified' }
+SYMLObject >> sendCompileTimeMessage: message inEnvironment: environment at: aPosition [
+	| compiledMethod isLazy isRewrite arguments result |
+	compiledMethod := self class lookupSelector: message selector.
+	compiledMethod ifNil: [ 
+		self error: 'Cannot send unexistent message {1} to compile time object {2}.' format: { message selector printString . self printString } at: aPosition
+	].
+
+	((compiledMethod hasPragmaNamed: #compileTime) or: [ SelectorWhitelist includes: message selector ]) ifFalse: [
+		self error: 'Cannot send message {1} to compile time object {2}.' format: { message selector printString . self printString } at: aPosition
+	].
+
+	isLazy := compiledMethod hasPragmaNamed: #lazy.
+	isRewrite := compiledMethod hasPragmaNamed: #rewrite.
+	
+	arguments := isLazy ifTrue: [
+		message arguments collect: [ :arg | SYMLLazyValue new node: arg; environment: environment ]
+	] ifFalse: [
+		message arguments collect: [ :arg | (arg analyzeAndEvaluateInEnvironment: environment) value ]
+	].
+
+	result := self perform: message selector withArguments: arguments.
+
+	
+	^ isRewrite ifTrue: [
+		result
+	] ifFalse: [
+		result isSysmelValue ifTrue: [
+			SYMLAPSGLiteral new
+				position: message position;
+				value: result;
+				yourself
+		] ifFalse: [
+			SYMLAPSGMetaObjectInstance new
+				position: message position;
+				metaObject: result;
+				yourself
+		]
+	]
 ]

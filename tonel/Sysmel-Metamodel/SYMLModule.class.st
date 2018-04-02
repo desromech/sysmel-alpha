@@ -8,7 +8,7 @@ Class {
 		'topLevelScope',
 		'ssaModule'
 	],
-	#category : #Sysmel-Metamodel-Program
+	#category : #'Sysmel-Metamodel-Program'
 }
 
 { #category : #'instance creation' }
@@ -41,14 +41,14 @@ SYMLModule class >> x86_64 [
 	^ self for: SYMLCompilationTarget x86_64
 ]
 
-{ #category : #'as yet unclassified' }
-SYMLModule >> buildSSAModule [
-	globalNamespace generateSSACode.
-	^ self ssaModule
+{ #category : #adding }
+SYMLModule >> addSymbol: symbol value: value [
+	^ topLevelScope addSymbol: symbol value: value
 ]
 
 { #category : #accessing }
 SYMLModule >> compilationTarget [
+	<compileTime>
 	^ compilationTarget
 ]
 
@@ -88,11 +88,6 @@ SYMLModule >> evaluateLanguageKernelFileNamed: aFileName [
 	^ self evaluateFileNamed: aFileName value inContext: fileEnvironment
 ]
 
-{ #category : #'meta evaluation' }
-SYMLModule >> evaluateReferenceAt: position [
-	^ self
-]
-
 { #category : #evaluating }
 SYMLModule >> evaluateSource: aSourceString [
 	^ self evaluateSource: aSourceString name: 'unnamed string'
@@ -119,13 +114,9 @@ SYMLModule >> evaluateSource: aSourceString name: aSourceName inContext: context
 
 ]
 
-{ #category : #'meta evaluation' }
-SYMLModule >> evaluateTypeAt: position [
-	^ compilationTarget compilerObjectType
-]
-
 { #category : #accessing }
 SYMLModule >> globalNamespace [
+	<compileTime>
 	^ globalNamespace
 ]
 
@@ -140,7 +131,7 @@ SYMLModule >> initializeWithCompilationTarget: aCompilationTarget [
 SYMLModule >> moduleScope [
 	^ SYMLNamespaceScope new
 		parent: self topLevelScope;
-		namespace: globalNamespace;
+		programEntity: globalNamespace;
 		yourself
 ]
 
@@ -152,11 +143,6 @@ SYMLModule >> newEvaluationEnvironment [
 { #category : #evaluating }
 SYMLModule >> newLanguageKernelEnvironment [
 	^ SYMLLexicalScope parent: self topLevelScope
-]
-
-{ #category : #'semantic analysis' }
-SYMLModule >> semanticAnalysis [
-	globalNamespace semanticAnalysis
 ]
 
 { #category : #accessing }

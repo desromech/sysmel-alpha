@@ -8,18 +8,27 @@ Class {
 		'metaMethod',
 		'valueType',
 		'coercionType',
-		'argumentsAreAnalyzed'
+		'argumentsAreAnalyzed',
+		'isReceiverAnalyzed'
 	],
-	#category : #Sysmel-Metamodel-APSG
+	#category : #'Sysmel-Metamodel-APSG'
 }
 
-{ #category : #'as yet unclassified' }
+{ #category : #'meta evaluation' }
 SYMLAPSGMessageSend >> analyzeArgumentsInEnvironment: anEnvironment [
 	^ self copy
 		arguments: (arguments collect: [ :arg |
 			arg semanticAnalysisInEnvironment: anEnvironment
 		]);
 		argumentsAreAnalyzed: true;
+		yourself.
+]
+
+{ #category : #'meta evaluation' }
+SYMLAPSGMessageSend >> analyzeReceiverInEnvironment: anEnvironment [
+	^ self copy
+		receiver: (receiver semanticAnalysisInEnvironment: anEnvironment);
+		isReceiverAnalyzed: true;
 		yourself.
 ]
 
@@ -71,7 +80,8 @@ SYMLAPSGMessageSend >> hasAnalyzedArguments [
 { #category : #initialization }
 SYMLAPSGMessageSend >> initialize [
 	super initialize.
-	argumentsAreAnalyzed := false
+	argumentsAreAnalyzed := false.
+	isReceiverAnalyzed := false.
 ]
 
 { #category : #accessing }
@@ -90,6 +100,16 @@ SYMLAPSGMessageSend >> isImplicitContextMessageNode [
 { #category : #testing }
 SYMLAPSGMessageSend >> isMessageNode [
 	^ true
+]
+
+{ #category : #accessing }
+SYMLAPSGMessageSend >> isReceiverAnalyzed [
+	^ isReceiverAnalyzed
+]
+
+{ #category : #accessing }
+SYMLAPSGMessageSend >> isReceiverAnalyzed: anObject [
+	isReceiverAnalyzed := anObject
 ]
 
 { #category : #accessing }

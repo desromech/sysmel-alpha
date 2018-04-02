@@ -1,14 +1,10 @@
 Class {
 	#name : #SYMLTopLevelScope,
-	#superclass : #SYMLAbstractScope,
+	#superclass : #SYMLLexicalScope,
 	#instVars : [
-		'module',
-		'symbols',
-		'implicitContextMetaMethods',
-		'fallbackToReceiver',
-		'genericMetaMethods'
+		'module'
 	],
-	#category : #Sysmel-Metamodel-Semantic
+	#category : #'Sysmel-Metamodel-Scope'
 }
 
 { #category : #accessing }
@@ -16,94 +12,32 @@ SYMLTopLevelScope >> compilationTarget [
 	^ module compilationTarget
 ]
 
-{ #category : #accessing }
-SYMLTopLevelScope >> fillWithBuiltInTypes [
-	module compilationTarget builtInTypes do: [ :type |
-		symbols at: type name put: type
-	]
+{ #category : #'as yet unclassified' }
+SYMLTopLevelScope >> definitionProgramEntity [
+	^ module
 ]
 
 { #category : #accessing }
-SYMLTopLevelScope >> fillWithMetaBuilders [
-	| builder |
-	SYMLDefaultMetaBuilder allSubclassesDo: [ :sc |
-		builder := sc new compilationTarget: module compilationTarget.
-		symbols at: builder name put: builder
-	]
+SYMLTopLevelScope >> fillSymbols [
+	symbols
+		at: #Compiler put: module;
+		at: #function put: (SYMLMetaBuilder for: SYMLFunction module: module);
+		at: #trait put: (SYMLMetaBuilder for: SYMLTrait module: module);
+		at: #type put: (SYMLMetaBuilder for: SYMLSimpleType module: module);
+		at: #namespace put: (SYMLMetaBuilder for: SYMLNamespace module: module);
+		at: #template put: (SYMLMetaBuilder for: SYMLTemplate module: module);
+		
+		at: #structure put: (SYMLMetaBuilder for: SYMLStructure module: module);
+		at: #class put: (SYMLMetaBuilder for: SYMLClass module: module);
+		at: #union put: (SYMLMetaBuilder for: SYMLUnion module: module);
+		yourself
+	
 ]
 
-{ #category : #accessing }
-SYMLTopLevelScope >> fillWithMetaMethods [
-	| metaMethod |
-	SYMLImplicitContextMetaMethod allSubclassesDo: [ :sc |
-		metaMethod := sc new compilationTarget: module compilationTarget.
-		implicitContextMetaMethods at: metaMethod selector put: metaMethod
-	]
-]
-
-{ #category : #accessing }
-SYMLTopLevelScope >> fillWithObjects [
-	symbols at: #Compiler put: module
-]
-
-{ #category : #accessing }
-SYMLTopLevelScope >> findProgramEntityDefinitionScopeFrom: startingPoint [
-	^ self
-]
-
-{ #category : #accessing }
+{ #category : #initialization }
 SYMLTopLevelScope >> initialize [
 	super initialize.
 	symbols := Dictionary new.
-	implicitContextMetaMethods := Dictionary new.
-	genericMetaMethods := Dictionary new.
-]
-
-{ #category : #'meta methods' }
-SYMLTopLevelScope >> lookMetaMethod: identifier hasReceiver: hasReceiver ifPresent: aBlock [
-	hasReceiver ifTrue: [
-		^ genericMetaMethods at: identifier ifPresent: aBlock
-	] ifFalse: [
-		^ implicitContextMetaMethods at: identifier ifPresent: aBlock
-	]
-	
-]
-
-{ #category : #'meta methods' }
-SYMLTopLevelScope >> lookMetaMethod: identifier hasReceiver: hasReceiver ifPresent: ifPresentBlock ifAbsentPut: ifAbsentBlock [
-	hasReceiver ifTrue: [
-		^ genericMetaMethods at: identifier ifPresent: ifPresentBlock ifAbsentPut: ifAbsentBlock
-	] ifFalse: [
-		^ implicitContextMetaMethods at: identifier ifPresent: ifPresentBlock ifAbsentPut: ifAbsentBlock
-	]
-
-	
-]
-
-{ #category : #symbols }
-SYMLTopLevelScope >> lookSymbol: identifier ifPresent: aBlock [
-	^ symbols at: identifier ifPresent: aBlock
-]
-
-{ #category : #symbols }
-SYMLTopLevelScope >> lookSymbol: identifier ifPresent: ifPresentBlock ifAbsentPut: ifAbsentBlock [
-	^ symbols at: identifier ifPresent: ifPresentBlock ifAbsentPut: ifAbsentBlock
-]
-
-{ #category : #accessing }
-SYMLTopLevelScope >> metaMethodForMessage: messageNode inEnvironment: anEnvironment at: aSourcePosition [
-	messageNode receiver ifNil: [
-		^ implicitContextMetaMethods at: messageNode selector ifAbsent: [ nil ]
-	] ifNotNil: [ 
-		genericMetaMethods at: messageNode selector ifPresent: [ :metaMethod |
-			(metaMethod canAnalyzeMessage: messageNode inEnvironment: anEnvironment at: aSourcePosition) ifTrue: [ 
-				^ metaMethod
-			]
-		].
-	].
-	
-	"Lets try to use the receiver meta method"
-	^ fallbackToReceiver
 ]
 
 { #category : #accessing }
@@ -114,11 +48,6 @@ SYMLTopLevelScope >> module [
 { #category : #accessing }
 SYMLTopLevelScope >> module: anObject [
 	module := anObject.
-	self
-		fillWithBuiltInTypes;
-		fillWithMetaBuilders;
-		fillWithMetaMethods;
-		fillWithObjects.
-		
-	fallbackToReceiver := SYMLFallbackToReceiverMetaMethod new compilationTarget: module compilationTarget
+	self fillSymbols
+	
 ]

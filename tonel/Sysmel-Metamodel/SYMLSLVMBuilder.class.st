@@ -5,7 +5,7 @@ Class {
 		'breakBlock',
 		'continueBlock'
 	],
-	#category : #Sysmel-Metamodel-CodeGeneration
+	#category : #'Sysmel-Metamodel-CodeGeneration'
 }
 
 { #category : #accessing }

@@ -1,0 +1,161 @@
+// Create and set the basic types. Some of these types are used everywhere by the
+// compiler, so their declaration must be the first thing done.
+Compiler compilationTarget 
+    tupleTypeTrait: trait TupleType;
+    functionTypeTrait: trait FunctionType;
+
+    apsgNodeType: type _APSGNodeType;
+    compilerObjectType: type _CompilerObjectType;
+
+    literalSymbolType: type _LiteralSymbol;
+
+
+    voidType: type Void;
+    booleanType: type Boolean;
+
+    yourself.
+
+// A generic type
+trait Type
+definition: {
+    method isType -> Boolean := {
+        return: true
+    }.
+
+    method isCompilerObjectType -> Boolean := {
+        return: false
+    }.
+
+    method isLiteralType -> Boolean := {
+        return: false
+    }.
+
+    method isPrimitiveType -> Boolean := {
+        return: false
+    }.
+
+    method isOpaqueType -> Boolean := {
+        return: false
+    }.
+
+    method isNumericalType -> Boolean := {
+        return: false
+    }.
+
+    method isFloatingPointType -> Boolean := {
+        return: false
+    }.
+    
+    method isPointerType -> Boolean := {
+        return: false
+    }.
+
+    method isTupleType -> Boolean := {
+        return: false
+    }.
+
+    method isFunctionType -> Boolean := {
+        return: false
+    }.
+}.
+
+// A literal type
+trait LiteralType
+    uses: Type;
+definition: {
+    method isLiteralType -> Boolean := {
+        return: true
+    }.
+}.
+
+// A primitive type
+trait PrimitiveType
+    uses: Type;
+definition: {
+    method isPrimitiveType -> Boolean := {
+        return: true
+    }.
+}.
+
+// An opaque type
+trait OpaqueType
+    uses: Type;
+definition: {
+    method isOpaqueType -> Boolean := {
+        return: true
+    }
+}.
+
+// A numerical type
+trait NumericalType uses: Type;
+definition: {
+    method isNumericalType -> Boolean := {
+        return: true
+    }
+}.
+
+// An integer type
+trait IntegerType uses: NumericalType;
+definition: {
+    method isIntegerType -> Boolean := {
+        return: true
+    }
+}.
+
+// A floating point type
+trait FloatingPointType uses: NumericalType;
+definition: {
+    method isFloatingPointType -> Boolean := {
+        return: true
+    }
+}.
+
+// Pointer type
+trait PointerType
+    uses: Type;
+definition: {
+    method isPointerType -> Boolean := {
+        return: true
+    }
+}.
+
+// Type composition
+// Pointer type
+template PointerTypeTemplate(P: Type)
+    := type uses: PointerType;
+definition: {
+    method pointed -> _CompilerObjectType := {
+        return: P
+    }
+}.
+
+Type extend: {
+    method pointer -> _CompilerObjectType := {
+        return: PointerType(self)
+    }
+}.
+
+// Tuple type
+TupleType uses: Type;
+definition: {
+    method isTupleType -> Boolean := {
+        return: true
+    }
+}.
+
+// Function type
+FunctionType uses: Type;
+definition: {
+    method isFunctionType -> Boolean := {
+        return: true
+    }
+}.
+
+// Definition of some types
+_LiteralSymbol uses: LiteralType.
+_CompilerObjectType uses: Type.
+_APSGNodeType uses: Type.
+
+Boolean uses: PrimitiveType.
+Void uses: OpaqueType.
+

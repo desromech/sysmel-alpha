@@ -2,23 +2,21 @@ Class {
 	#name : #SYMLFunctionArgument,
 	#superclass : #SYMLProgramEntity,
 	#instVars : [
+		'definitionNode',
 		'name',
-		'type',
-		'ssaValue',
-		'node'
+		'type'
 	],
-	#category : #Sysmel-Metamodel-Program
+	#category : #'Sysmel-Metamodel-Program'
 }
 
-{ #category : #'meta evaluation' }
-SYMLFunctionArgument >> evaluateTypeAt: position [
-	^ type
+{ #category : #accessing }
+SYMLFunctionArgument >> definitionNode [
+	^ definitionNode
 ]
 
-{ #category : #'meta evaluation' }
-SYMLFunctionArgument >> generateSSAReferenceWith: builder [
-	self assert: ssaValue isNotNil.
-	^ ssaValue
+{ #category : #accessing }
+SYMLFunctionArgument >> definitionNode: anObject [
+	definitionNode := anObject
 ]
 
 { #category : #accessing }
@@ -29,26 +27,6 @@ SYMLFunctionArgument >> name [
 { #category : #accessing }
 SYMLFunctionArgument >> name: anObject [
 	name := anObject
-]
-
-{ #category : #accessing }
-SYMLFunctionArgument >> node [
-	^ node
-]
-
-{ #category : #accessing }
-SYMLFunctionArgument >> node: anObject [
-	node := anObject
-]
-
-{ #category : #accessing }
-SYMLFunctionArgument >> ssaValue [
-	^ ssaValue
-]
-
-{ #category : #accessing }
-SYMLFunctionArgument >> ssaValue: anObject [
-	ssaValue := anObject
 ]
 
 { #category : #accessing }

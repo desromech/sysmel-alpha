@@ -4,12 +4,12 @@ Class {
 	#instVars : [
 		'type'
 	],
-	#category : #Sysmel-Metamodel-APSG
+	#category : #'Sysmel-Metamodel-APSG'
 }
 
 { #category : #'meta evaluation' }
 SYMLAPSGTupleWithType >> evaluateInEnvironment: anEnvironment [
-	^ (elements collect: [ :el | el evaluateInEnvironment: anEnvironment ]) sysmelValueWithType: type
+	^ (elements collect: [ :el | el evaluateInEnvironment: anEnvironment ]) sysmelValueWithType: type inEnvironment: anEnvironment
 ]
 
 { #category : #accessing }

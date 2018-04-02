@@ -1,13 +1,14 @@
 Class {
 	#name : #SYMLFunctionType,
-	#superclass : #SYMLType,
+	#superclass : #SYMLAbstractType,
 	#instVars : [
+		'compilationTarget',
 		'arguments',
 		'returnType',
 		'callingConvention',
 		'variadic'
 	],
-	#category : #Sysmel-Metamodel-Types
+	#category : #'Sysmel-Metamodel-Program'
 }
 
 { #category : #comparing }
@@ -21,32 +22,38 @@ SYMLFunctionType >> = other [
 
 { #category : #accessing }
 SYMLFunctionType >> arguments [
+	<compileTime>
 	^ arguments
 ]
 
 { #category : #accessing }
 SYMLFunctionType >> arguments: anObject [
+	<compileTime>
 	arguments := anObject
-]
-
-{ #category : #'as yet unclassified' }
-SYMLFunctionType >> buildSSAType [
-	| argumentTypes returnSSAType |
-	argumentTypes := arguments collect: #ssaType.
-	returnSSAType := returnType ssaType.
-	^ (SLVMFunctionType callingConvention: callingConvention arguments: argumentTypes returnType: returnSSAType)
-		variadic: variadic;
-		yourself
 ]
 
 { #category : #accessing }
 SYMLFunctionType >> callingConvention [
+	<compileTime>
 	^ callingConvention
 ]
 
 { #category : #accessing }
 SYMLFunctionType >> callingConvention: anObject [
+	<compileTime>
 	callingConvention := anObject
+]
+
+{ #category : #accessing }
+SYMLFunctionType >> compilationTarget [
+	<compileTime>
+	^ compilationTarget
+]
+
+{ #category : #accessing }
+SYMLFunctionType >> compilationTarget: anObject [
+	<compileTime>
+	compilationTarget := anObject
 ]
 
 { #category : #comparing }
@@ -56,18 +63,6 @@ SYMLFunctionType >> hash [
 	( returnType hash bitXor:
 	( variadic hash bitXor:
 	( callingConvention identityHash))))
-]
-
-{ #category : #initialization }
-SYMLFunctionType >> initialize [
-	super initialize.
-	variadic := false.
-	callingConvention := #cdecl.
-]
-
-{ #category : #testing }
-SYMLFunctionType >> isFunctionType [
-	^ true
 ]
 
 { #category : #printing }
@@ -84,20 +79,24 @@ SYMLFunctionType >> printOn: aStream [
 
 { #category : #accessing }
 SYMLFunctionType >> returnType [
+	<compileTime>
 	^ returnType
 ]
 
 { #category : #accessing }
 SYMLFunctionType >> returnType: anObject [
+	<compileTime>
 	returnType := anObject
 ]
 
 { #category : #accessing }
 SYMLFunctionType >> variadic [
+	<compileTime>
 	^ variadic
 ]
 
 { #category : #accessing }
 SYMLFunctionType >> variadic: anObject [
+	<compileTime>
 	variadic := anObject
 ]

@@ -5,7 +5,7 @@ Class {
 		'sourcePosition',
 		'environment'
 	],
-	#category : #Sysmel-Metamodel-Exceptions
+	#category : #'Sysmel-Metamodel-Exceptions'
 }
 
 { #category : #accessing }

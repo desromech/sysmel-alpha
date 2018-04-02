@@ -1,58 +1,144 @@
 Class {
 	#name : #SYMLCompilationTarget,
-	#superclass : #Object,
-	#classVars : [
-		'CurrentImageCompilationTarget'
+	#superclass : #SYMLObject,
+	#instVars : [
+		'apsgNodeType',
+		'compilerObjectType',
+		'literalSymbolType',
+		'booleanType',
+		'voidType',
+		'functionTypeTrait',
+		'tupleTypeTrait',
+		'functionTypeCache',
+		'tupleTypeCache'
 	],
-	#category : #Sysmel-Metamodel-Types
+	#category : #'Sysmel-Metamodel-CompilationTarget'
 }
-
-{ #category : #'as yet unclassified' }
-SYMLCompilationTarget class >> forCurrentImage [
-	^ CurrentImageCompilationTarget ifNil: [ CurrentImageCompilationTarget := SYMLSLVMCompilationTarget for: SLVMCompilationTarget forCurrentImage ]
-]
 
 { #category : #construction }
 SYMLCompilationTarget class >> x86 [
-	^ SYMLSLVMCompilationTarget for: SLVMCompilationTarget x86
+	^ SYMLSLVMCompilationTarget  target: SLVMCompilationTarget x86
 ]
 
 { #category : #construction }
 SYMLCompilationTarget class >> x86_64 [
-	^ SYMLSLVMCompilationTarget for: SLVMCompilationTarget x86_64
+	^ SYMLSLVMCompilationTarget  target: SLVMCompilationTarget x86_64
 ]
 
 { #category : #accessing }
-SYMLCompilationTarget >> astNodeType [
-	self subclassResponsibility
+SYMLCompilationTarget >> apsgNodeType [
+	<compileTime>
+	^ apsgNodeType
 ]
 
-{ #category : #'class initialization' }
-SYMLCompilationTarget >> builtInTypes [
-	self subclassResponsibility
+{ #category : #accessing }
+SYMLCompilationTarget >> apsgNodeType: anObject [
+	<compileTime>
+	apsgNodeType := anObject
+]
+
+{ #category : #accessing }
+SYMLCompilationTarget >> booleanType [
+	<compileTime>
+	^ booleanType
+]
+
+{ #category : #accessing }
+SYMLCompilationTarget >> booleanType: anObject [
+	<compileTime>
+	booleanType := anObject
 ]
 
 { #category : #accessing }
 SYMLCompilationTarget >> compilerObjectType [
-	self subclassResponsibility
+	<compileTime>
+	^ compilerObjectType
 ]
 
-{ #category : #'primitive types' }
-SYMLCompilationTarget >> literalArrayType [
-	self subclassResponsibility
+{ #category : #accessing }
+SYMLCompilationTarget >> compilerObjectType: anObject [
+	<compileTime>
+	compilerObjectType := anObject
 ]
 
-{ #category : #'primitive types' }
-SYMLCompilationTarget >> literalCharacterType [
-	self subclassResponsibility
+{ #category : #'builder methods' }
+SYMLCompilationTarget >> functionArguments: argumentTypes returnType: returnType callingConvention: callingConvention variadic: variadic [
+	| functionType |
+	functionType := SYMLFunctionType new
+		compilationTarget: self;
+		addTrait: functionTypeTrait;
+		arguments: argumentTypes;
+		returnType: returnType;
+		callingConvention: callingConvention;
+		variadic: variadic;
+		yourself.
+	^ functionTypeCache at: functionType ifAbsentPut: [ functionType ]
+	
+
 ]
 
-{ #category : #'primitive types' }
-SYMLCompilationTarget >> literalFloatType [
-	self subclassResponsibility
+{ #category : #accessing }
+SYMLCompilationTarget >> functionTypeTrait [
+	<compileTime>
+	^ functionTypeTrait
 ]
 
-{ #category : #'primitive types' }
-SYMLCompilationTarget >> literalIntegerType [
-	self subclassResponsibility
+{ #category : #accessing }
+SYMLCompilationTarget >> functionTypeTrait: anObject [
+	<compileTime>
+	functionTypeTrait := anObject
+]
+
+{ #category : #initialization }
+SYMLCompilationTarget >> initialize [
+	super initialize.
+	functionTypeCache := Dictionary new.
+	tupleTypeCache := Dictionary new.
+]
+
+{ #category : #accessing }
+SYMLCompilationTarget >> literalSymbolType [
+	<compileTime>
+	^ literalSymbolType
+]
+
+{ #category : #accessing }
+SYMLCompilationTarget >> literalSymbolType: anObject [
+	<compileTime>
+	literalSymbolType := anObject
+]
+
+{ #category : #'builder methods' }
+SYMLCompilationTarget >> tuple: aCollectionOfTypes [
+	| tuple |
+	tuple := SYMLTupleType new
+		compilationTarget: self;
+		addTrait: tupleTypeTrait;
+		types: aCollectionOfTypes asArray;
+		yourself.
+	^ tupleTypeCache at: tuple ifAbsentPut: [ tuple ]
+]
+
+{ #category : #accessing }
+SYMLCompilationTarget >> tupleTypeTrait [
+	<compileTime>
+	^ tupleTypeTrait
+]
+
+{ #category : #accessing }
+SYMLCompilationTarget >> tupleTypeTrait: anObject [
+	<compileTime>
+	tupleTypeTrait := anObject
+]
+
+{ #category : #accessing }
+SYMLCompilationTarget >> voidType [
+	<compileTime>
+	^ voidType
+]
+
+{ #category : #accessing }
+SYMLCompilationTarget >> voidType: anObject [
+	<compileTime>
+	voidType := anObject
 ]

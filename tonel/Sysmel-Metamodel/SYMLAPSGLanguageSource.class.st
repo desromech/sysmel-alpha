@@ -7,7 +7,7 @@ Class {
 		'sourceCodePosition',
 		'withDelimiters'
 	],
-	#category : #Sysmel-Metamodel-APSG
+	#category : #'Sysmel-Metamodel-APSG'
 }
 
 { #category : #converting }

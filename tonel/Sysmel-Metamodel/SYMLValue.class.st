@@ -1,17 +1,33 @@
 Class {
 	#name : #SYMLValue,
-	#superclass : #Object,
+	#superclass : #SYMLObject,
 	#instVars : [
 		'value',
 		'type',
 		'environment'
 	],
-	#category : #Sysmel-Metamodel-Types
+	#category : #'Sysmel-Metamodel-Program'
 }
 
+{ #category : #comparing }
+SYMLValue >> = other [
+	^ self class == other class and:
+	[ type == other type and: 
+	[ value = other value ] ]
+]
+
 { #category : #converting }
-SYMLValue >> asSysmelValueInEnvironment: anEnvironment [
-	^ self
+SYMLValue >> asFunctionActivationValueAt: aPosition [
+	self type isMetaObjectType ifTrue: [ 
+		^ self value
+	].
+
+	self halt
+]
+
+{ #category : #'as yet unclassified' }
+SYMLValue >> coercedIntoType: targetType at: coercionPosition. [
+	^ type coerceValue: self into: targetType at: coercionPosition
 ]
 
 { #category : #accessing }
@@ -24,29 +40,14 @@ SYMLValue >> environment: anObject [
 	environment := anObject
 ]
 
-{ #category : #'public access' }
-SYMLValue >> evaluate [
-	^ environment ifNotNil: [ self evaluateInEnvironment: environment ] ifNil: [ self ]
+{ #category : #comparing }
+SYMLValue >> hash [
+	^ (self class identityHash bitXor: type identityHash) bitXor: value hash
 ]
 
-{ #category : #'meta evaluation' }
-SYMLValue >> evaluateInEnvironment: anEnvironment [
-	^ type evaluateValue: self inEnvironment: anEnvironment
-]
-
-{ #category : #'meta evaluation' }
-SYMLValue >> evaluateValueWithoutReferencesIn: anEnvironment [
-	^ type evaluateValueWithoutReferences: self inEnvironment: anEnvironment
-]
-
-{ #category : #'meta evaluation' }
-SYMLValue >> generateSSACodeWith: aBuilder [
-	^ type generateSSAValue: value withBuilder: aBuilder
-]
-
-{ #category : #printing }
-SYMLValue >> printOn: aStream [
-	aStream print: value; nextPutAll: ' sysmelValueWithType: '; print: type
+{ #category : #testing }
+SYMLValue >> isSysmelValue [
+	^ true
 ]
 
 { #category : #accessing }
@@ -67,9 +68,4 @@ SYMLValue >> value [
 { #category : #accessing }
 SYMLValue >> value: anObject [
 	value := anObject
-]
-
-{ #category : #'meta evaluation' }
-SYMLValue >> valueTypeIn: evaluationEnvironment [
-	^ type evaluateType: self inEnvironment: evaluationEnvironment
 ]
