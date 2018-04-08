@@ -131,16 +131,6 @@ SYMLObject >> sendCompileTimeMessage: message inEnvironment: environment at: aPo
 	^ isRewrite ifTrue: [
 		result
 	] ifFalse: [
-		result isSysmelValue ifTrue: [
-			SYMLAPSGLiteral new
-				position: message position;
-				value: result;
-				yourself
-		] ifFalse: [
-			SYMLAPSGMetaObjectInstance new
-				position: message position;
-				metaObject: result;
-				yourself
-		]
+		result asAPSGNodeInEnvironment: environment at: message position
 	]
 ]

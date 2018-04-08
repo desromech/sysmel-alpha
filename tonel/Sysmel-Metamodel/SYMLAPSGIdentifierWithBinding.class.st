@@ -34,6 +34,11 @@ SYMLAPSGIdentifierWithBinding >> evaluateTypeInEnvironment: environment [
 	^ type
 ]
 
+{ #category : #'meta evaluation' }
+SYMLAPSGIdentifierWithBinding >> generateSSACodeWith: aBuilder [
+	^ binding generateSSAReferenceWith: aBuilder
+]
+
 { #category : #accessing }
 SYMLAPSGIdentifierWithBinding >> semanticAnalysisInEnvironment: anEnvironment [
 	self halt

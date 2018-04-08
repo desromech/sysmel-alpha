@@ -14,6 +14,11 @@ SYMLNamespace >> addSymbol: aSymbol value: newValue [
 	] ifAbsentPut: [ newValue ]
 ]
 
+{ #category : #'as yet unclassified' }
+SYMLNamespace >> generateSSACode [
+	symbols valuesDo: #generateSSACode
+]
+
 { #category : #initialization }
 SYMLNamespace >> initialize [
 	super initialize.
@@ -29,4 +34,9 @@ SYMLNamespace >> lookSymbol: symbol ifPresent: ifPresentBlock [
 { #category : #accessing }
 SYMLNamespace >> name: anObject [
 	name := anObject
+]
+
+{ #category : #'as yet unclassified' }
+SYMLNamespace >> semanticAnalysis [
+	symbols valuesDo: #semanticAnalysis
 ]

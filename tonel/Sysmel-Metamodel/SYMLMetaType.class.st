@@ -8,9 +8,15 @@ Class {
 }
 
 { #category : #testing }
-SYMLMetaType >> canBeCoercedImplicitlyInto: targetType [
-	targetType == self compilationTarget compilerObjectType ifTrue: [ ^ true ].
-	^ super canBeCoercedImplicitlyInto: targetType
+SYMLMetaType >> coercedImplicitlyInto: targetType [
+	targetType == self compilationTarget compilerObjectType ifTrue: [ ^ SYMLIdentityTypeConversionRule new ].
+	^ super coercedImplicitlyInto: targetType targetType
+]
+
+{ #category : #testing }
+SYMLMetaType >> convertedExplicitlyInto: targetType [
+	targetType == self compilationTarget compilerObjectType ifTrue: [ ^ SYMLIdentityTypeConversionRule new ].
+	^ super convertedExplicitlyInto: targetType
 ]
 
 { #category : #accessing }
@@ -26,6 +32,18 @@ SYMLMetaType >> instanceType: anObject [
 { #category : #testing }
 SYMLMetaType >> isMetaType [
 	^ true
+]
+
+{ #category : #testing }
+SYMLMetaType >> node: node coercedImplicitlyInto: targetType [
+	targetType == self compilationTarget compilerObjectType ifTrue: [ ^ SYMLIdentityTypeConversionRule new ].
+	^ super node: node coercedImplicitlyInto: targetType
+]
+
+{ #category : #testing }
+SYMLMetaType >> node: node convertedExplicitlyInto: targetType [
+	targetType == self compilationTarget compilerObjectType ifTrue: [ ^ SYMLIdentityTypeConversionRule new ].
+	^ super node: node convertedExplicitlyInto: targetType
 ]
 
 { #category : #printing }

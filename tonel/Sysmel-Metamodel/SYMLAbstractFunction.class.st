@@ -10,7 +10,9 @@ Class {
 		'functionType',
 		'callingConvention',
 		'receiverType',
-		'receiver'
+		'receiver',
+		'locals',
+		'ssaValue'
 	],
 	#category : #'Sysmel-Metamodel-Program'
 }
@@ -28,33 +30,15 @@ SYMLAbstractFunction >> addedToAbstractType: anAbstractType [
 ]
 
 { #category : #'as yet unclassified' }
+SYMLAbstractFunction >> analyzeAPSGIdentifierToMe: identifier inEnvironment: anEnvironment [
+	^ identifier copyWithBinding: self andType: self type
+]
+
+{ #category : #'as yet unclassified' }
 SYMLAbstractFunction >> analyzeAndEvaluateMessage: message toReceiver: aReceiver inEnvironment: environment at: aPosition [
-	| activationScope result hasResult |
 	self analyzedBody.
-	
-	activationScope := SYMLFunctionActivationScope parent: bodyEnvironment.
-	activationScope function: self.
-	
-	receiver ifNotNil: [ 
-		activationScope addSymbol: receiver name value: (aReceiver asSysmelValueInEnvironment: environment)
-	].
+	^ self evaluateWithReceiver: aReceiver arguments: (message arguments collect: [:arg | arg analyzeAndEvaluateInEnvironment: environment]) inEnvironment: environment at: aPosition
 
-	"TODO: Set the arguments"
-	
-	result := nil.
-	hasResult := false.
-	[ 
-		analyzedBody evaluateInEnvironment: activationScope
-	] on: SYMLValueReturnException do: [ :exception |
-		hasResult := true.
-		result := exception value
-	].
-
-	(hasResult not and: [ returnType ~~ self compilationTarget voidType ]) ifTrue: [ 
-		self error: 'Compile time called function {1} did not return a required value.' format: {self validName printString} at: aPosition
-	].
-
-	^ result
 ]
 
 { #category : #accessing }
@@ -81,10 +65,112 @@ SYMLAbstractFunction >> createAnalysisScope [
 	^ analysisScope
 ]
 
+{ #category : #'code generation' }
+SYMLAbstractFunction >> createSSAValue [
+	ssaValue := SLVMFunction module: self module ssaModule name: self mangledName functionType: functionType ssaType.
+	ssaValue unmangledName: name.
+	
+	ssaValue arguments doWithIndex: [ :arg :index |
+		arg name: (arguments at: index) name
+	].
+
+]
+
+{ #category : #'as yet unclassified' }
+SYMLAbstractFunction >> evaluateWithReceiver: aReceiver arguments: activationArguments inEnvironment: environment at: aPosition [
+	| activationScope result hasResult providedArgument convertedArgument |
+	self analyzedBody.
+	
+	activationScope := SYMLFunctionActivationScope parent: bodyEnvironment.
+	activationScope function: self.
+	
+	receiver ifNotNil: [ 
+		activationScope addSymbol: receiver name value: (aReceiver asSysmelValueInEnvironment: environment)
+	].
+
+	(arguments size ~= activationArguments size and: [ self isCVariadic not or: [ activationArguments size < arguments size ] ]) ifTrue: [ 
+		self error: 'Mismatching number of arguments.' at: aPosition
+	].
+
+	arguments doWithIndex: [:expectedArgument :index |
+		providedArgument := activationArguments at: index.
+		convertedArgument := providedArgument coercedIntoType: expectedArgument type at: aPosition.
+		activationScope addSymbol: expectedArgument name value: convertedArgument.
+	].
+	
+	result := nil.
+	hasResult := false.
+	[ 
+		analyzedBody evaluateInEnvironment: activationScope
+	] on: SYMLValueReturnException do: [ :exception |
+		hasResult := true.
+		result := exception value
+	].
+
+	(hasResult not and: [ returnType ~~ self compilationTarget voidType ]) ifTrue: [ 
+		self error: 'Compile time called function {1} did not return a required value.' format: {self validName printString} at: aPosition
+	].
+
+	^ result
+]
+
+{ #category : #accessing }
+SYMLAbstractFunction >> functionType [
+	functionType ifNil: [ self buildFunctionType ].
+	^ functionType
+]
+
+{ #category : #'code generation' }
+SYMLAbstractFunction >> generateSSACode [
+	| allocaBuilder builder bodyBlock |
+	body ifNil: [
+		name ifNotNil: [
+			self ssaValue makeExternal
+		].
+		^ self
+	].
+	
+	"Set the arguments"
+	arguments doWithIndex: [ :arg :index |
+		arg ssaValue: (self ssaValue arguments at: index)
+	].
+
+	"Create a builder for the allocas and another for the function body."
+	allocaBuilder := SYMLSLVMBuilder on: self ssaValue.
+	allocaBuilder newBasicBlockHere: #entry.
+	
+	builder := SYMLSLVMBuilder on: self ssaValue.
+	builder allocaBuilder: allocaBuilder.
+	bodyBlock := builder newBasicBlockHere: #body.
+	
+	"Generate the local variables"
+	locals do: [ :local | local generateSSALocalWithBuilder: builder ].
+	
+	"Generate the function body"
+	analyzedBody generateSSACodeWith: builder.
+	
+	"Make sure we are returning something at the end."
+	builder isLastTerminator ifFalse: [ 
+		returnType isVoidType ifFalse: [ 
+			self error: 'Not all of the execution paths are returning something.' at: analyzedBody
+		].
+		builder returnVoid
+	].
+	
+	allocaBuilder jump: bodyBlock.
+
+]
+
+{ #category : #'code generation' }
+SYMLAbstractFunction >> generateSSAReferenceWith: builder [
+	^ self ssaValue
+]
+
 { #category : #initialization }
 SYMLAbstractFunction >> initialize [
 	super initialize.
 	callingConvention := #cdecl.
+	locals := OrderedCollection new.
 	
 ]
 
@@ -104,6 +190,18 @@ SYMLAbstractFunction >> isMethod [
 	^ false
 ]
 
+{ #category : #'as yet unclassified' }
+SYMLAbstractFunction >> mangledName [
+	self isExternC ifTrue: [ ^ name ].
+	^ ByteString streamContents: [ :out |
+		out
+			nextPutAll: self parentMangledName;
+			nextPut: $F;
+			print: name size;
+			nextPutAll: name.
+	]
+]
+
 { #category : #accessing }
 SYMLAbstractFunction >> receiverType [
 	<compileTime>
@@ -114,4 +212,26 @@ SYMLAbstractFunction >> receiverType [
 SYMLAbstractFunction >> returnType [
 	<compileTime>
 	^ returnType
+]
+
+{ #category : #'semantic analysis' }
+SYMLAbstractFunction >> semanticAnalysis [
+	body ifNil: [ ^ self ].
+	self analyzedBody
+]
+
+{ #category : #'as yet unclassified' }
+SYMLAbstractFunction >> semanticAnalyzeMessage: message inEnvironment: environment at: aPosition [
+	self halt
+]
+
+{ #category : #'code generation' }
+SYMLAbstractFunction >> ssaValue [
+	ssaValue ifNil: [ self createSSAValue ].
+	^ ssaValue
+]
+
+{ #category : #accessing }
+SYMLAbstractFunction >> type [
+	^ self functionType ref
 ]

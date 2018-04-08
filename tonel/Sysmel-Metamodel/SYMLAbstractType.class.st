@@ -7,7 +7,11 @@ Class {
 		'methodDictionary',
 		'metaType',
 		'flattenedTraits',
-		'traitUsers'
+		'traitUsers',
+		'implicitConversionRules',
+		'explicitConversionRules',
+		'ssaType',
+		'cachedValues'
 	],
 	#classVars : [
 		'SpecialMetaSymbols'
@@ -20,6 +24,7 @@ SYMLAbstractType class >> initialize [
 	super initialize.
 	SpecialMetaSymbols := Dictionary newFromPairs: { 
 		#meta . [ :programEntity :module | programEntity type ].
+		#macro . [ :programEntity :module | SYMLMetaBuilder for: SYMLMacroBuilder module: module parent: programEntity ].
 		#method . [ :programEntity :module | SYMLMetaBuilder for: SYMLMethod module: module parent: programEntity ].
 		#message . [ :programEntity :module | SYMLMetaBuilder for: SYMLMessageMethod module: module parent: programEntity ]
 	}.
@@ -78,20 +83,106 @@ SYMLAbstractType >> assignValue: aDefinitionBlock [
 	^ self definition: aDefinitionBlock
 ]
 
-{ #category : #testing }
-SYMLAbstractType >> canBeCoercedImplicitlyInto: targetType [
-	self == targetType ifTrue: [ ^ true ].
-	usedTraits do: [ :trait |
-		(trait canBeCoercedImplicitlyInto: targetType) ifTrue: [ ^ true ]
-	].
-
-	^ false
+{ #category : #'code generation' }
+SYMLAbstractType >> buildSSAType [
+	| result |
+	result := (self sysmelPerform: #buildSSAType withArguments: #()) unwrapSysmelValue.
+	result ifNil: [ self error: 'Cannot instantiate type {1}.' format: self printString ].
+	^ result
 ]
 
-{ #category : #'as yet unclassified' }
+{ #category : #'type composition' }
+SYMLAbstractType >> cachedNullary: selector [
+	^ cachedValues at: selector ifAbsentPut: [(self sysmelPerform: selector withArguments: #()) unwrapSysmelValue]
+]
+
+{ #category : #conversions }
+SYMLAbstractType >> canBeCoercedImplicitlyInto: targetType [
+	^ (self coercedImplicitlyInto: targetType) isNotNil
+]
+
+{ #category : #conversions }
+SYMLAbstractType >> canBeConvertedExplicitlyInto: targetType [
+	^ (self convertedExplicitlyInto: targetType) isNotNil
+]
+
+{ #category : #conversions }
+SYMLAbstractType >> canNode: node beCoercedImplicitlyInto: targetType [
+	^ (self node: node coercedImplicitlyInto: targetType) isNotNil
+]
+
+{ #category : #conversions }
+SYMLAbstractType >> canNode: node beConvertedExplicitlyInto: targetType [
+	^ (self node: node convertedExplicitlyInto: targetType) isNotNil
+]
+
+{ #category : #'type composition' }
+SYMLAbstractType >> cleanType [
+	^ self cachedNullary: #cleanType
+]
+
+{ #category : #'type composition' }
+SYMLAbstractType >> cleanValueType [
+	^ cachedValues at: #cleanValueType ifAbsentPut: [self cleanType valueType]
+]
+
+{ #category : #conversions }
 SYMLAbstractType >> coerceValue: value into: targetType at: coercionPosition [
-	(self isSysmelKindOf: targetType) ifTrue: [ ^ value ].
-	self halt
+	(self coercedImplicitlyInto: targetType) ifNil: [
+		self error: 'Failed to find implicit conversion from {1} into {2}.' format: { self asString . targetType asString } at: coercionPosition
+	] ifNotNil: [ :rule |
+		^ rule convertValue: value into: targetType at: coercionPosition
+	]
+]
+
+{ #category : #conversions }
+SYMLAbstractType >> coercedImplicitlyInto: targetType [
+	self == targetType ifTrue: [ ^ SYMLIdentityTypeConversionRule new ].
+	implicitConversionRules do: [ :rule |
+		(rule canBeUsedToConvertFrom: self into: targetType) ifTrue: [ ^ rule ].
+	].
+
+	usedTraits do: [ :trait |
+		(trait coercedImplicitlyInto: targetType) ifNotNil: [ :rule |
+			^ rule
+		]
+	].
+
+	^ nil
+]
+
+{ #category : #conversions }
+SYMLAbstractType >> conversionTo: targetTypeKindLazyValue doOn: actionRules [
+	<compileTime>
+	<lazy>
+	| targetTypeKind conversionRule |
+	targetTypeKind := targetTypeKindLazyValue value.
+	conversionRule := SYMLTypeKindConversionRule new targetTypeKind: targetTypeKind;
+					parse: actionRules;
+					yourself.
+	implicitConversionRules add: conversionRule.
+	explicitConversionRules add: conversionRule.
+]
+
+{ #category : #conversions }
+SYMLAbstractType >> convertedExplicitlyInto: targetType [
+	self == targetType ifTrue: [ ^ SYMLIdentityTypeConversionRule new ].
+	explicitConversionRules do: [ :rule |
+		(rule canBeUsedToConvertFrom: self into: targetType) ifTrue: [ ^ rule ].
+	].
+
+	usedTraits do: [ :trait |
+		(trait convertedExplicitlyInto: targetType) ifNotNil: [ :rule |
+			^ rule
+		]
+	].
+
+	^ nil
+]
+
+{ #category : #'type composition' }
+SYMLAbstractType >> cvariadicCoercionType [
+	^ self cachedNullary: #cvariadicCoercionType
 ]
 
 { #category : #definition }
@@ -110,6 +201,18 @@ SYMLAbstractType >> definition: aDefinitionBlock [
 { #category : #definition }
 SYMLAbstractType >> definitionScopeClass [
 	^ SYMLAbstractTypeScope
+]
+
+{ #category : #conversions }
+SYMLAbstractType >> explicitConversionTo: targetTypeKindLazyValue doOn: actionRules [
+	<compileTime>
+	<lazy>
+	| targetTypeKind conversionRule |
+	targetTypeKind := targetTypeKindLazyValue value.
+	conversionRule := SYMLTypeKindConversionRule new targetTypeKind: targetTypeKind;
+					parse: actionRules;
+					yourself.
+	explicitConversionRules add: conversionRule.
 ]
 
 { #category : #definition }
@@ -138,6 +241,25 @@ SYMLAbstractType >> flattenedTraits [
 	^ flattenedTraits
 ]
 
+{ #category : #'code generation' }
+SYMLAbstractType >> generateSSAValue: value withBuilder: aBuilder [
+	| result |
+	result := self sysmelPerform: #generateSSAValue:withBuilder: withArguments:  { value . aBuilder }.
+	^ result unwrapSysmelValue
+]
+
+{ #category : #conversions }
+SYMLAbstractType >> implicitConversionTo: targetTypeKindLazyValue doOn: actionRules [
+	<compileTime>
+	<lazy>
+	| targetTypeKind conversionRule |
+	targetTypeKind := targetTypeKindLazyValue value.
+	conversionRule := SYMLTypeKindConversionRule new targetTypeKind: targetTypeKind;
+					parse: actionRules;
+					yourself.
+	implicitConversionRules add: conversionRule.
+]
+
 { #category : #initialization }
 SYMLAbstractType >> initialize [
 	super initialize.
@@ -145,12 +267,20 @@ SYMLAbstractType >> initialize [
 	traitUsers := WeakSet new.
 	symbols := SYMLOrderedDictionary new.
 	methodDictionary := SYMLOrderedDictionary new.
+	implicitConversionRules := OrderedCollection new.
+	explicitConversionRules := OrderedCollection new.
+	cachedValues := Dictionary new.
 ]
 
 { #category : #accessing }
 SYMLAbstractType >> invalidateFlattenedTraits [
 	flattenedTraits := nil.
 	traitUsers do: #invalidateFlattenedTraits
+]
+
+{ #category : #testing }
+SYMLAbstractType >> isFunctionType [
+	^ false
 ]
 
 { #category : #testing }
@@ -164,6 +294,16 @@ SYMLAbstractType >> isMetaType [
 ]
 
 { #category : #testing }
+SYMLAbstractType >> isPointerType [
+	^ self cachedNullary: #isPointerType
+]
+
+{ #category : #testing }
+SYMLAbstractType >> isReferenceType [
+	^ self cachedNullary: #isReferenceType
+]
+
+{ #category : #testing }
 SYMLAbstractType >> isSysmelKindOf: anotherType [
 	self == anotherType ifTrue: [ ^ true ].
 	usedTraits do: [ :used |
@@ -174,8 +314,18 @@ SYMLAbstractType >> isSysmelKindOf: anotherType [
 ]
 
 { #category : #testing }
+SYMLAbstractType >> isTupleType [
+	^ false
+]
+
+{ #category : #testing }
 SYMLAbstractType >> isType [
 	^ true
+]
+
+{ #category : #testing }
+SYMLAbstractType >> isVoidType [
+	^ self == self compilationTarget voidType
 ]
 
 { #category : #'as yet unclassified' }
@@ -200,6 +350,83 @@ SYMLAbstractType >> lookupSelector: selector [
 { #category : #accessing }
 SYMLAbstractType >> methodDictionary [
 	^ methodDictionary
+]
+
+{ #category : #conversions }
+SYMLAbstractType >> node: node coercedImplicitlyInto: targetType [
+	self == targetType ifTrue: [ ^ SYMLIdentityTypeConversionRule new ].
+	implicitConversionRules do: [ :rule |
+		(rule canBeUsedToConvertNode: node from: self into: targetType) ifTrue: [ ^ rule ].
+	].
+
+	usedTraits do: [ :trait |
+		(trait node: node coercedImplicitlyInto: targetType) ifNotNil: [ :rule |
+			^ rule
+		]
+	].
+
+	^ nil
+]
+
+{ #category : #conversions }
+SYMLAbstractType >> node: node coercedImplicitlyInto: targetType at: aPosition [
+	| coercionRule |
+	coercionRule := self node: node coercedImplicitlyInto: targetType.
+	coercionRule ifNil: [
+		self error: 'Cannot coerce value of {1} into {2}.' format: {self asString . targetType asString} at: aPosition
+	].
+	^ coercionRule
+]
+
+{ #category : #conversions }
+SYMLAbstractType >> node: node convertedExplicitlyInto: targetType [
+	self == targetType ifTrue: [ ^ SYMLIdentityTypeConversionRule new ].
+	explicitConversionRules do: [ :rule |
+		(rule canBeUsedToConvertNode: node from: self into: targetType) ifTrue: [ ^ rule ].
+	].
+
+	usedTraits do: [ :trait |
+		(trait node: node convertedExplicitlyInto: targetType) ifNotNil: [ :rule |
+			^ rule
+		]
+	].
+
+	^ nil
+]
+
+{ #category : #conversions }
+SYMLAbstractType >> node: node convertedExplicitlyInto: targetType at: aPosition [
+	| coercionRule |
+	coercionRule := self node: node convertedExplicitlyInto: targetType.
+	coercionRule ifNil: [
+		self error: 'Cannot convert value of {1} into {2}.' format: {self asString . targetType asString} at: aPosition
+	].
+	^ coercionRule
+]
+
+{ #category : #'type composition' }
+SYMLAbstractType >> pointer [
+	^ self cachedNullary: #pointer
+]
+
+{ #category : #'type composition' }
+SYMLAbstractType >> ref [
+	^ self cachedNullary: #ref
+]
+
+{ #category : #'as yet unclassified' }
+SYMLAbstractType >> semanticAnalyzeMessage: message inEnvironment: environment at: aPosition [
+	| method |
+	method := self lookupSelector: message selector.
+	method ifNotNil: [
+		^ method semanticAnalyzeMessage: message inEnvironment: environment at: aPosition
+	].
+
+	self isReferenceType ifTrue: [
+		^ self valueType semanticAnalyzeMessage: message inEnvironment: environment at: aPosition
+	].
+
+	self error: 'Cannot send message {1} to value of type {2}.' format: { message selector printString . self asString } at: aPosition
 ]
 
 { #category : #'as yet unclassified' }
@@ -227,8 +454,27 @@ SYMLAbstractType >> semanticAnalyzeMessageToYou: message inEnvironment: environm
 ]
 
 { #category : #accessing }
+SYMLAbstractType >> ssaType [
+	<compileTime>
+	ssaType ifNil: [ ssaType := self buildSSAType].
+	^ ssaType
+]
+
+{ #category : #accessing }
 SYMLAbstractType >> symbols [
 	^ symbols
+]
+
+{ #category : #'as yet unclassified' }
+SYMLAbstractType >> sysmelPerform: aSelector withArguments: arguments [
+	| method result |
+	method := (self type lookupSelector: aSelector).
+	method ifNil: [
+		self error: 'Cannot perform sysmel method {1} with receiver of type {2}.' format: { aSelector printString  . self asString }
+	].
+
+	result := method evaluateWithReceiver: self arguments: (arguments collect: [ :arg | arg asSysmelValueInEnvironment: definitionEnvironment ]) inEnvironment: definitionEnvironment at: (SYMLSourcePosition new).
+	^ result
 ]
 
 { #category : #accessing }
@@ -261,4 +507,9 @@ SYMLAbstractType >> uses: usedTraitOrTraits [
 	] ifFalse: [
 		self addTrait: usedTraitOrTraits
 	]
+]
+
+{ #category : #'type composition' }
+SYMLAbstractType >> valueType [
+	^ self cachedNullary: #valueType
 ]

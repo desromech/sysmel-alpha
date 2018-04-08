@@ -53,6 +53,11 @@ SYMLValue >> coercedIntoType: targetType at: coercionPosition. [
 ]
 
 { #category : #'as yet unclassified' }
+SYMLValue >> coercedWithRule: coercionRule intoType: targetType at: coercionPosition. [
+	^ coercionRule convertValue: self into: targetType at: coercionPosition
+]
+
+{ #category : #'as yet unclassified' }
 SYMLValue >> concretizeInEnvironment: concreteEnvironment [
 	^ self
 ]
@@ -65,6 +70,11 @@ SYMLValue >> environment [
 { #category : #accessing }
 SYMLValue >> environment: anObject [
 	environment := anObject
+]
+
+{ #category : #'meta evaluation' }
+SYMLValue >> generateSSACodeWith: aBuilder [
+	^ type generateSSAValue: value withBuilder: aBuilder
 ]
 
 { #category : #comparing }

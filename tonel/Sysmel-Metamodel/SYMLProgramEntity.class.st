@@ -19,6 +19,15 @@ SYMLProgramEntity >> evaluateReferenceAt: position [
 	^ self sysmelValueWithType: self module compilationTarget compilerObjectType inEnvironment: nil
 ]
 
+{ #category : #'code generation' }
+SYMLProgramEntity >> generateSSACode [
+]
+
+{ #category : #'code generation' }
+SYMLProgramEntity >> generateSSAReferenceWith: builder [
+	self error: 'Cannot generate program entity ssa reference.'
+]
+
 { #category : #flags }
 SYMLProgramEntity >> hasFlag: aFlag [
 	<compileTime>
@@ -43,6 +52,12 @@ SYMLProgramEntity >> lookupSelector: selector [
 ]
 
 { #category : #accessing }
+SYMLProgramEntity >> mangledName [
+	self subclassResponsibility
+
+]
+
+{ #category : #accessing }
 SYMLProgramEntity >> parent [
 	^ parent
 ]
@@ -52,10 +67,20 @@ SYMLProgramEntity >> parent: anObject [
 	parent := anObject
 ]
 
+{ #category : #accessing }
+SYMLProgramEntity >> parentMangledName [
+	^ parent ifNil: [ '_S' ] ifNotNil: [ parent mangledName ]
+]
+
 { #category : #flags }
 SYMLProgramEntity >> removeFlag: aFlag [
 	<compileTime>
 	flags := flags copyWithout: aFlag
+]
+
+{ #category : #'semantic analysis' }
+SYMLProgramEntity >> semanticAnalysis [
+	
 ]
 
 { #category : #'accessing method dictionary' }

@@ -38,12 +38,18 @@ SYMLModule class >> x86 [
 
 { #category : #'instance creation' }
 SYMLModule class >> x86_64 [
-	^ self for: SYMLCompilationTarget x86_64
+	^ self for: SYMLCompilationTarget x86_64 pic
 ]
 
 { #category : #adding }
 SYMLModule >> addSymbol: symbol value: value [
 	^ topLevelScope addSymbol: symbol value: value
+]
+
+{ #category : #'code generation' }
+SYMLModule >> buildSSAModule [
+	globalNamespace generateSSACode.
+	^ self ssaModule
 ]
 
 { #category : #accessing }
@@ -112,7 +118,7 @@ SYMLModule >> evaluateSource: aSourceString name: aSourceName inContext: context
 	apsg := ast buildAPSG: (SYMLAPSGBuilder new environment: context).
 	[
 		result := apsg analyzeAndEvaluateInEnvironment: context
-	] on: SYMLReturnMetaCompilationMethod do: [ :returnException |
+	] on: SYMLReturnMacro do: [ :returnException |
 		self halt.
 	].
 	^ result
@@ -150,10 +156,15 @@ SYMLModule >> newLanguageKernelEnvironment [
 	^ SYMLLexicalScope parent: self topLevelScope
 ]
 
+{ #category : #'semantic analysis' }
+SYMLModule >> semanticAnalysis [
+	globalNamespace semanticAnalysis
+]
+
 { #category : #accessing }
 SYMLModule >> ssaModule [
 	ssaModule ifNil: [ 
-		ssaModule := SLVMModule new compilationTarget: compilationTarget lowLevelTarget
+		ssaModule := SLVMModule new compilationTarget: compilationTarget target
 	].
 	^ ssaModule
 ]

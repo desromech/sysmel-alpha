@@ -32,6 +32,16 @@ SYMLFunctionType >> arguments: anObject [
 	arguments := anObject
 ]
 
+{ #category : #'code generation' }
+SYMLFunctionType >> buildSSAType [
+	| argumentSSAType returnSSAType |
+	argumentSSAType := arguments collect: #ssaType.
+	returnSSAType := returnType ssaType.
+	^ (SLVMFunctionType callingConvention: callingConvention arguments: argumentSSAType returnType: returnSSAType)
+		variadic: variadic;
+		yourself
+]
+
 { #category : #accessing }
 SYMLFunctionType >> callingConvention [
 	<compileTime>
@@ -53,7 +63,8 @@ SYMLFunctionType >> compilationTarget [
 { #category : #accessing }
 SYMLFunctionType >> compilationTarget: anObject [
 	<compileTime>
-	compilationTarget := anObject
+	compilationTarget := anObject.
+	definitionEnvironment := compilationTarget fakeEnvironment
 ]
 
 { #category : #comparing }
@@ -63,6 +74,11 @@ SYMLFunctionType >> hash [
 	( returnType hash bitXor:
 	( variadic hash bitXor:
 	( callingConvention identityHash))))
+]
+
+{ #category : #testing }
+SYMLFunctionType >> isFunctionType [
+	^ true
 ]
 
 { #category : #printing }

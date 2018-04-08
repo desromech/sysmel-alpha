@@ -8,6 +8,7 @@ Class {
 		'metaMethod',
 		'valueType',
 		'coercionType',
+		'coercionRule',
 		'argumentsAreAnalyzed',
 		'isReceiverAnalyzed',
 		'hasIncompleteSemanticAnalysis'
@@ -46,6 +47,16 @@ SYMLAPSGMessageSend >> arguments: anObject [
 { #category : #accessing }
 SYMLAPSGMessageSend >> argumentsAreAnalyzed: anObject [
 	argumentsAreAnalyzed := anObject
+]
+
+{ #category : #accessing }
+SYMLAPSGMessageSend >> coercionRule [
+	^ coercionRule
+]
+
+{ #category : #accessing }
+SYMLAPSGMessageSend >> coercionRule: anObject [
+	coercionRule := anObject
 ]
 
 { #category : #accessing }

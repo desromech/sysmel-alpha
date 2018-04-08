@@ -1,5 +1,5 @@
 Class {
 	#name : #SYMLFunctionReceiver,
-	#superclass : #SYMLAbstractVariable,
+	#superclass : #SYMLFunctionVariable,
 	#category : #'Sysmel-Metamodel-Program'
 }

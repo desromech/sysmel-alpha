@@ -21,7 +21,7 @@ SYMLFunction >> -> returnTypeValue [
 
 	hasArguments := true.
 	returnType := returnTypeValue value.
-	self buildFunctionType.
+	self functionType.
 ]
 
 { #category : #'as yet unclassified' }

@@ -1,6 +1,6 @@
 Class {
 	#name : #SYMLFunctionArgument,
-	#superclass : #SYMLAbstractVariable,
+	#superclass : #SYMLFunctionVariable,
 	#instVars : [
 		'definitionNode'
 	],

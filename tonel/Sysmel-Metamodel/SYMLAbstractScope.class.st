@@ -83,8 +83,9 @@ SYMLAbstractScope >> semanticAnalyzeMessage: message at: aPosition [
 	message isReceiverAnalyzed ifFalse: [ 
 		^ (message analyzeReceiverInEnvironment: self) semanticAnalysisInEnvironment: self
 	].
-	
-	self halt
+
+	"Ask the receiver type to analyze the message"
+	^ message receiver type semanticAnalyzeMessage: message inEnvironment: self at: aPosition
 ]
 
 { #category : #'as yet unclassified' }

@@ -31,7 +31,7 @@ SYMLMessageMethod >> assignValue: bodyLazyValue [
 		self error: 'Expected an APSG node for the definition of the function {1}.' format: { self validName } at: bodyLazyValue node
 	].
 
-	self buildFunctionType.
+	self functionType.
 
 	body := bodyLazyValue value.
 	bodyEnvironment := bodyLazyValue environment.
@@ -49,6 +49,30 @@ SYMLMessageMethod >> buildFunctionType [
 
 { #category : #initialization }
 SYMLMessageMethod >> createArgumentFromTemplate: argumentNode inEnvironment: environment [
+	| argumentName argumentType |
+	argumentNode isMessageNode ifTrue: [
+		argumentNode receiver ifNotNil: [
+			self error: 'Expected a message without receiver for the argument name.' at: argumentNode
+		].
+
+		(argumentNode selector numArgs ~= 1 or: [ (argumentNode selector includes: $:) not ]) ifTrue: [
+			self error: 'Expected an unary selector for the argument {1} name' format: { argumentNode selector printString } at: argumentNode
+		].
+	
+		argumentName := argumentNode selector allButLast asSymbol.
+		argumentType := argumentNode arguments first analyzeAndEvaluateInEnvironment: environment.
+		argumentType value isType ifFalse: [ 
+			self error: 'Expected a type for the argument {1}' format: { argumentNode selector printString } at: argumentNode arguments first
+		].
+		
+		^ SYMLFunctionArgument new
+			parent: self;
+			name: argumentName;
+			type: argumentType value;
+			definitionNode: argumentNode;
+			yourself
+	].
+
 	self halt
 ]
 
@@ -61,6 +85,18 @@ SYMLMessageMethod >> initialize [
 { #category : #testing }
 SYMLMessageMethod >> isMethod [
 	^ true
+]
+
+{ #category : #'as yet unclassified' }
+SYMLMessageMethod >> mangledName [
+	self isExternC ifTrue: [ ^ name ].
+	^ ByteString streamContents: [ :out |
+		out
+			nextPutAll: self parentMangledName;
+			nextPut: $M;
+			print: name size;
+			nextPutAll: name.
+	]
 ]
 
 { #category : #'as yet unclassified' }

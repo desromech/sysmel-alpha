@@ -1,6 +1,14 @@
 Extension { #name : #Object }
 
 { #category : #'*Sysmel-Metamodel' }
+Object >> asAPSGNodeInEnvironment: anEnvironment at: position [
+	^ SYMLAPSGLiteral new
+		position: position;
+		value: (self asSysmelValueInEnvironment: anEnvironment);
+		yourself
+]
+
+{ #category : #'*Sysmel-Metamodel' }
 Object >> asSysmelValueInEnvironment: anEnvironment [
 	^ self sysmelValueWithType: anEnvironment compilationTarget compilerObjectType inEnvironment: anEnvironment
 ]

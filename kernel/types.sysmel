@@ -11,6 +11,7 @@ Compiler compilationTarget
     incompleteType: type _IncompleteType;
 
     literalSymbolType: type _LiteralSymbol;
+    literalStringType: type _LiteralString;
     literalIntegerType: type _LiteralInteger;
     literalFractionType: type _LiteralFraction;
     literalFloatType: type _LiteralFloat;
@@ -77,6 +78,10 @@ definition: {
         return: false
     }.
 
+    meta message isReferenceType -> Boolean := {
+        return: false
+    }.
+
     meta message isTupleType -> Boolean := {
         return: false
     }.
@@ -96,6 +101,15 @@ definition: {
     meta message alignment -> _LiteralInteger := {
         return: 1
     }.
+
+    meta message cleanType -> _CompilerObjectType := {
+        return: self
+    }.
+
+    meta message valueType -> _CompilerObjectType := {
+        return: self
+    }.
+
 }.
 
 // A literal type
@@ -104,6 +118,10 @@ trait LiteralType
 definition: {
     meta message isLiteralType -> Boolean := {
         return: true
+    }.
+
+    (meta message generateSSAValue: (value: _CompilerObjectType) withBuilder: (builder: _CompilerObjectType)) -> _CompilerObjectType := {
+        return: value
     }.
 }.
 
@@ -145,6 +163,21 @@ definition: {
         return: true
     }.
 
+    meta message isSigned -> Boolean := {
+        return: false
+    }.
+
+    meta message isUnsigned -> Boolean := {
+        return: false
+    }.
+}.
+
+trait SignedIntegerType uses: IntegerType;
+definition: {
+    meta message isSigned -> Boolean := {
+        return: true
+    }.
+
     meta message isUnsigned -> Boolean := {
         return: false
     }.
@@ -152,8 +185,8 @@ definition: {
 
 trait UnsignedIntegerType uses: IntegerType;
 definition: {
-    meta message isIntegerType -> Boolean := {
-        return: true
+    meta message isSigned -> Boolean := {
+        return: false
     }.
 
     meta message isUnsigned -> Boolean := {
@@ -161,6 +194,9 @@ definition: {
     }.
 }.
 
+trait PrimitiveIntegerType uses: (PrimitiveType, IntegerType).
+trait PrimitiveUnsignedIntegerType uses: (PrimitiveIntegerType, UnsignedIntegerType).
+trait PrimitiveSignedIntegerType uses: (PrimitiveIntegerType, SignedIntegerType).
 
 // A floating point type
 trait FractionalType uses: NumericalType;
@@ -187,6 +223,15 @@ definition: {
     }
 }.
 
+// Reference type
+trait ReferenceType
+    uses: Type;
+definition: {
+    meta message isReferenceType -> Boolean := {
+        return: true
+    }
+}.
+
 // Type composition
 
 // Pointer type
@@ -195,12 +240,79 @@ template PointerTypeTemplate(P: Type)
 definition: {
     meta message pointed -> _CompilerObjectType := {
         return: P
-    }
+    }.
+
+    meta message alignment -> _LiteralInteger := {
+        return: Compiler compilationTarget pointerAlignment
+    }.
+
+    meta message size -> _LiteralInteger := {
+        return: Compiler compilationTarget pointerSize
+    }.
+
+    meta message buildSSAType -> _CompilerObjectType := {
+        return: (Compiler compilationTarget ssaPointerTo: P ssaType)
+    }.
+
+    meta message cleanType -> _CompilerObjectType := {
+        return: P cleanType pointer
+    }.
 }.
 
 Type extend: {
     meta message pointer -> _CompilerObjectType := {
         return: PointerTypeTemplate(self)
+    }
+}.
+
+// Reference type
+template ReferenceTypeTemplate(R: Type)
+    := type uses: ReferenceType;
+definition: {
+    meta message referenced -> _CompilerObjectType := {
+        return: R
+    }.
+
+    meta message alignment -> _LiteralInteger := {
+        return: Compiler compilationTarget pointerAlignment
+    }.
+
+    meta message size -> _LiteralInteger := {
+        return: Compiler compilationTarget pointerSize
+    }.
+
+    meta message buildSSAType -> _CompilerObjectType := {
+        return: (Compiler compilationTarget ssaPointerTo: P ssaType)
+    }.
+
+    meta message valueType -> _CompilerObjectType := {
+        return: R
+    }.
+
+    meta message cleanType -> _CompilerObjectType := {
+        return: R cleanType ref
+    }.
+
+    // Reference evaluation
+    SelfType conversionTo: R cleanType doOn: {
+        evaluation: $$Pharo {
+            value: value environment: environment
+                self halt.
+        }.
+        codeGeneration: $$Pharo {
+            convertSSAValue: sourceValue to: targetType with: builder at: messageNode
+                targetType isFunctionType ifTrue: [
+                    ^ sourceValue
+                ].
+
+                self halt.
+        }.
+    }.
+}.
+
+Type extend: {
+    meta message ref -> _CompilerObjectType := {
+        return: ReferenceTypeTemplate(self)
     }
 }.
 
@@ -218,6 +330,14 @@ definition: {
 
     meta message const -> _CompilerObjectType := {
         return: self
+    }.
+
+    meta message buildSSAType -> _CompilerObjectType := {
+        return: D ssaType
+    }.
+
+    meta message cleanType -> _CompilerObjectType := {
+        return: D
     }.
 }.
 
@@ -241,14 +361,119 @@ FunctionType uses: Type;
 definition: {
     meta message isFunctionType -> Boolean := {
         return: true
-    }
+    }.
+
+    macro selector: #applyWithArguments: doOn: {
+        semanticAnalysis: $$Pharo {
+            node: node environment: environment at: aPosition
+                | function argumentsTuple functionType argumentsType functionCoercionRule argument coercionType coercionTypes coercionRules |
+                function := node receiver.
+                argumentsTuple := node arguments first semanticAnalysisInEnvironment: environment.
+
+                functionType := function evaluateCleanValueTypeInEnvironment: environment.
+                argumentsType := argumentsTuple evaluateCleanValueTypeInEnvironment: environment.
+
+                "Check the receiver type"
+            	functionType isFunctionType ifFalse: [
+            		self error: 'Expected a function type instead of {1}.' format: { functionType asString }
+            	].
+
+                functionCoercionRule := function type node: function coercedImplicitlyInto: functionType at: node.
+
+            	"Check the arguments type"
+            	argumentsType isTupleType ifFalse: [
+            		self error: 'Expected a tuple for the function application arguments.'
+            	].
+
+            	argumentsType types size < functionType arguments size ifTrue: [
+            		self error: 'Fewer arguments than the required ones for function application.'
+            	].
+
+            	(argumentsType types size > functionType arguments size and: [functionType variadic not]) ifTrue: [
+            		self error: 'More arguments than the required ones for function application.'
+            	].
+
+                coercionRules := Array new: argumentsType types size.
+                coercionTypes := Array new: argumentsType types size.
+            	argumentsType types doWithIndex: [:argumentType :index |
+                    argument := argumentsTuple elements at: index.
+
+                    index > functionType arguments size ifTrue: [
+                        coercionType := argumentType cvariadicCoercionType.
+                    ] ifFalse: [
+                        coercionType := functionType arguments at: index.
+                    ].
+
+                    coercionTypes at: index put: coercionType.
+                    coercionRules at: index put: (argumentType node: argument coercedImplicitlyInto: coercionType at: argument).
+            	].
+
+                ^ node copy
+                    metaMethod: self;
+                    receiver: function;
+                    arguments: {argumentsTuple};
+                    coercionRule: {functionCoercionRule . coercionRules};
+                    coercionType: {functionType . coercionTypes};
+                    valueType: functionType returnType;
+                    yourself
+        }.
+
+        codeGeneration: $$Pharo {
+            node: messageNode builder: builder
+            | function rawFunctionType functionType argumentsTuple expectedArgumentTypes functionType argumentValues argumentType coercionRules coercionTypes |
+
+			"Get the function"
+			rawFunctionType := messageNode receiver type.
+			functionType := messageNode coercionType first.
+            function := messageNode coercionRule first
+                convertSSAValue: (messageNode receiver generateSSACodeWith: builder)
+                to: functionType
+                with: builder at: messageNode.
+
+            "Convert the arguments"
+            argumentsTuple := messageNode arguments first.
+            expectedArgumentTypes := functionType arguments.
+
+            coercionRules := messageNode coercionRule second.
+            coercionTypes := messageNode coercionType second.
+            argumentValues := argumentsTuple elements collectWithIndex: [:argumentNode :index |
+                argumentType := argumentNode type.
+                (coercionRules at: index) convertSSAValue: (argumentNode generateSSACodeWith: builder)
+                    to: (coercionTypes at: index)
+                    with: builder at: messageNode.
+
+            ].
+
+            "Call the function"
+            ^ builder call: function arguments: argumentValues
+        }
+    }.
 }.
 
 // Definition of some types
 _LiteralSymbol uses: LiteralType.
-_LiteralInteger uses: (LiteralType, IntegerType).
-_LiteralFraction uses: (LiteralType, FractionalType).
-_LiteralFloat uses: (LiteralType, FloatingPointType).
+_LiteralString uses: LiteralType.
+
+_LiteralInteger uses: (LiteralType, IntegerType);
+definition: {
+    meta message cvariadicCoercionType -> _CompilerObjectType := {
+        return: Int32
+    }.
+}.
+
+_LiteralFraction uses: (LiteralType, FractionalType);
+definition: {
+    meta message cvariadicCoercionType -> _CompilerObjectType := {
+        return: Float64
+    }.
+}.
+
+_LiteralFloat uses: (LiteralType, FloatingPointType);
+definition: {
+    meta message cvariadicCoercionType -> _CompilerObjectType := {
+        return: Float64
+    }.
+}.
 
 _CompilerObjectType uses: Type.
 _APSGNodeType uses: Type.
@@ -256,25 +481,194 @@ _APSGNodeType uses: Type.
 Boolean uses: PrimitiveType.
 Void uses: OpaqueType.
 
-Int8 uses: (PrimitiveType, IntegerType);
+// Int8
+Int8 uses: PrimitiveSignedIntegerType;
 definition: {
     meta message size -> _LiteralInteger := {
         return: 1
     }.
+
+    meta message buildSSAType -> _CompilerObjectType := {
+        return: Compiler compilationTarget ssaInt8
+    }.
+
+    meta message cvariadicCoercionType -> _CompilerObjectType := {
+        return: Int32
+    }.
+
 }.
 
-UInt8 uses: (Int8, UnsignedIntegerType).
+UInt8 uses: PrimitiveUnsignedIntegerType;
+definition: {
+    meta message size -> _LiteralInteger := {
+        return: 1
+    }.
 
-Int16 uses: (PrimitiveType, IntegerType).
-UInt16 uses: (Int16, UnsignedIntegerType).
+    meta message buildSSAType -> _CompilerObjectType := {
+        return: Compiler compilationTarget ssaUInt8
+    }.
 
-Int32 uses: (PrimitiveType, IntegerType).
-UInt32 uses: (Int32, UnsignedIntegerType).
+    meta message cvariadicCoercionType -> _CompilerObjectType := {
+        return: Int32
+    }.
+}.
 
-Int64 uses: (PrimitiveType, IntegerType).
-UInt64 uses: (Int64, UnsignedIntegerType).
+// Int16
+Int16 uses: PrimitiveSignedIntegerType;
+definition: {
+    meta message size -> _LiteralInteger := {
+        return: 2
+    }.
 
-Float32 uses: (PrimitiveType, FloatingPointType).
-Float64 uses: (PrimitiveType, FloatingPointType).
+    meta message buildSSAType -> _CompilerObjectType := {
+        return: Compiler compilationTarget ssaInt16
+    }.
+
+    meta message cvariadicCoercionType -> _CompilerObjectType := {
+        return: Int32
+    }.
+}.
+
+UInt16 uses: PrimitiveUnsignedIntegerType;
+definition: {
+    meta message size -> _LiteralInteger := {
+        return: 2
+    }.
+
+    meta message buildSSAType -> _CompilerObjectType := {
+        return: Compiler compilationTarget ssaUInt16
+    }.
+
+    meta message cvariadicCoercionType -> _CompilerObjectType := {
+        return: Int32
+    }.
+
+}.
+
+// Int32
+Int32 uses: PrimitiveSignedIntegerType;
+definition: {
+    meta message size -> _LiteralInteger := {
+        return: 4
+    }.
+
+    meta message buildSSAType -> _CompilerObjectType := {
+        return: Compiler compilationTarget ssaInt32
+    }.
+
+    meta message cvariadicCoercionType -> _CompilerObjectType := {
+        return: self
+    }.
+}.
+
+UInt32 uses: PrimitiveUnsignedIntegerType;
+definition: {
+    meta message size -> _LiteralInteger := {
+        return: 4
+    }.
+
+    meta message buildSSAType -> _CompilerObjectType := {
+        return: Compiler compilationTarget ssaUInt32
+    }.
+
+    meta message cvariadicCoercionType -> _CompilerObjectType := {
+        return: self
+    }.
+}.
+
+// Int64
+Int64 uses: PrimitiveSignedIntegerType;
+definition: {
+    meta message size -> _LiteralInteger := {
+        return: 8
+    }.
+
+    meta message buildSSAType -> _CompilerObjectType := {
+        return: Compiler compilationTarget ssaInt64
+    }.
+
+    meta message cvariadicCoercionType -> _CompilerObjectType := {
+        return: self
+    }.
+}.
+
+UInt64 uses: PrimitiveUnsignedIntegerType;
+definition: {
+    meta message size -> _LiteralInteger := {
+        return: 8
+    }.
+
+    meta message buildSSAType -> _CompilerObjectType := {
+        return: Compiler compilationTarget ssaUInt64
+    }.
+
+    meta message cvariadicCoercionType -> _CompilerObjectType := {
+        return: self
+    }.
+}.
+
+Float32 uses: (PrimitiveType, FloatingPointType);
+definition: {
+    meta message size -> _LiteralInteger := {
+        return: 4
+    }.
+
+    meta message buildSSAType -> _CompilerObjectType := {
+        return: Compiler compilationTarget ssaFloat32
+    }.
+
+    meta message cvariadicCoercionType -> _CompilerObjectType := {
+        return: Float64
+    }.
+}.
+
+Float64 uses: (PrimitiveType, FloatingPointType);
+definition: {
+    meta message size -> _LiteralInteger := {
+        return: 8
+    }.
+
+    meta message buildSSAType -> _CompilerObjectType := {
+        return: Compiler compilationTarget ssaFloat64
+    }.
+
+    meta message cvariadicCoercionType -> _CompilerObjectType := {
+        return: Float64
+    }.
+}.
 
 Char uses: UInt8.
+
+// Primitive type implicit conversions
+_LiteralInteger conversionTo: PrimitiveIntegerType doOn: {
+    evaluation: $$Pharo {
+        value: value into: targetType at: coercionPosition
+            self halt.
+    }.
+    codeGeneration: $$Pharo {
+        convertSSAValue: sourceValue to: targetType with: builder at: messageNode
+            ^ SLVMConstant type: targetType ssaType value: sourceValue
+    }.
+}.
+
+_LiteralInteger conversionTo: _CompilerObjectType doOn: {
+    evaluation: $$Pharo {
+        value: value environment: environment
+            ^ value
+    }.
+    codeGeneration: $$Pharo {
+        convertSSAValue: sourceValue to: targetType with: builder at: messageNode
+            self halt.
+    }.
+}.
+
+_LiteralString conversionTo: Char const pointer doOn: {
+    evaluation: $$Pharo {
+        value: value environment: environment
+            self halt
+    }.
+    codeGeneration: $$Pharo {
+        convertSSAValue: sourceValue to: targetType with: builder at: messageNode
+            ^ builder constCString: sourceValue
+    }.
+}.

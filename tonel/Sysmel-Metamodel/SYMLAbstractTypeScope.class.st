@@ -31,6 +31,7 @@ SYMLAbstractTypeScope >> initialize [
 
 { #category : #'as yet unclassified' }
 SYMLAbstractTypeScope >> lookSymbol: symbol ifPresent: ifPresentBlock [
+	symbol == #SelfType ifTrue: [ ^ ifPresentBlock value: programEntity ].
 	symbols at: symbol ifPresent: [ :existent | ^ ifPresentBlock value: existent ].
 	programEntity lookSymbol: symbol ifPresent: ifPresentBlock
 ]

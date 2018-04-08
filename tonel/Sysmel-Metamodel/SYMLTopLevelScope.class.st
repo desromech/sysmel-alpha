@@ -35,7 +35,7 @@ SYMLTopLevelScope >> fillSymbols [
 		at: #false put: (SYMLBooleanConstant new value: false; module: module);
 		
 		yourself.
-	metaMethodDictionary at: #return: put: (SYMLReturnMetaCompilationMethod module: module)
+	metaMethodDictionary at: #return: put: (SYMLReturnMacro module: module)
 	
 ]
 

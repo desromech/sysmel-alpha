@@ -6,6 +6,8 @@ Class {
 		'compilerObjectType',
 		'incompleteType',
 		'literalSymbolType',
+		'literalStringType',
+		'literalCharacterType',
 		'literalIntegerType',
 		'literalFloatType',
 		'literalFractionType',
@@ -105,6 +107,11 @@ SYMLCompilationTarget >> dynamicObjectType [
 SYMLCompilationTarget >> dynamicObjectType: anObject [
 	<compileTime>
 	dynamicObjectType := anObject
+]
+
+{ #category : #'as yet unclassified' }
+SYMLCompilationTarget >> fakeEnvironment [
+	^ SYMLCompilationTargetFakeScope new compilationTarget: self
 ]
 
 { #category : #accessing }
@@ -227,6 +234,18 @@ SYMLCompilationTarget >> int8Type: anObject [
 ]
 
 { #category : #accessing }
+SYMLCompilationTarget >> literalCharacterType [
+	<compileTime>
+	^ literalCharacterType
+]
+
+{ #category : #accessing }
+SYMLCompilationTarget >> literalCharacterType: anObject [
+	<compileTime>
+	literalCharacterType := anObject
+]
+
+{ #category : #accessing }
 SYMLCompilationTarget >> literalFloatType [
 	<compileTime>
 	^ literalFloatType
@@ -260,6 +279,18 @@ SYMLCompilationTarget >> literalIntegerType [
 SYMLCompilationTarget >> literalIntegerType: anObject [
 	<compileTime>
 	literalIntegerType := anObject
+]
+
+{ #category : #accessing }
+SYMLCompilationTarget >> literalStringType [
+	<compileTime>
+	^ literalStringType
+]
+
+{ #category : #accessing }
+SYMLCompilationTarget >> literalStringType: anObject [
+	<compileTime>
+	literalStringType := anObject
 ]
 
 { #category : #accessing }

@@ -21,12 +21,18 @@ SYMLTupleType >> compilationTarget [
 
 { #category : #accessing }
 SYMLTupleType >> compilationTarget: anObject [
-	compilationTarget := anObject
+	compilationTarget := anObject.
+	definitionEnvironment := compilationTarget fakeEnvironment
 ]
 
 { #category : #comparing }
 SYMLTupleType >> hash [
 	^ self class identityHash bitXor: types hash
+]
+
+{ #category : #testing }
+SYMLTupleType >> isTupleType [
+	^ true
 ]
 
 { #category : #accessing }
