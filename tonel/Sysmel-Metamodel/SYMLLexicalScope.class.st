@@ -2,10 +2,18 @@ Class {
 	#name : #SYMLLexicalScope,
 	#superclass : #SYMLAbstractScope,
 	#instVars : [
-		'symbols'
+		'symbols',
+		'metaMethodDictionary'
 	],
 	#category : #'Sysmel-Metamodel-Scope'
 }
+
+{ #category : #adding }
+SYMLLexicalScope >> addMetaMethod: selector value: value [
+	metaMethodDictionary at: selector ifPresent: [ :existent |
+		self error: 'Trying to override meta method {1} with value {2}.' format: { selector printString . value }
+	] ifAbsentPut: [ value ]
+]
 
 { #category : #adding }
 SYMLLexicalScope >> addSymbol: symbol value: value [
@@ -18,6 +26,14 @@ SYMLLexicalScope >> addSymbol: symbol value: value [
 SYMLLexicalScope >> initialize [
 	super initialize.
 	symbols := Dictionary new.
+	metaMethodDictionary := Dictionary new.
+	
+]
+
+{ #category : #'as yet unclassified' }
+SYMLLexicalScope >> lookMetaMethodSelector: selector [
+	metaMethodDictionary at: selector ifPresent: [ :metaMethod | ^ metaMethod ].
+	^ super lookMetaMethodSelector: selector
 	
 ]
 

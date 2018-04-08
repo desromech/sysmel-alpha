@@ -42,6 +42,16 @@ SYMLAPSGBuilder >> literal: aValue [
 ]
 
 { #category : #'builder methods' }
+SYMLAPSGBuilder >> literal: aValue typeSelector: typeSelector [
+	<compileTime>
+	| literalType |
+	literalType := environment compilationTarget perform: typeSelector.
+	^ literalType
+		ifNil: [ SYMLAPSGLiteralWithLazyType new value: aValue; typeSelector: typeSelector; environment: environment ]
+		ifNotNil: [ SYMLAPSGLiteral new value: (aValue sysmelValueWithType: literalType inEnvironment: environment) ]
+]
+
+{ #category : #'builder methods' }
 SYMLAPSGBuilder >> send: selector to: aReceiver withArguments: arguments [
 	<compileTime>
 	<compileTime>

@@ -4,7 +4,7 @@ Class {
 	#classVars : [
 		'CScapeCharacter'
 	],
-	#category : #Sysmel-Parser-Parser
+	#category : #'Sysmel-Parser-Parser'
 }
 
 { #category : #initialization }

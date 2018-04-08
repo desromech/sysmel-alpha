@@ -5,7 +5,7 @@ Class {
 		'function',
 		'arguments'
 	],
-	#category : #Sysmel-Parser-AST
+	#category : #'Sysmel-Parser-AST'
 }
 
 { #category : #accessing }

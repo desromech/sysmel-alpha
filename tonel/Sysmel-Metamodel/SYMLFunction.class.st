@@ -1,14 +1,8 @@
 Class {
 	#name : #SYMLFunction,
-	#superclass : #SYMLNamedProgramEntity,
+	#superclass : #SYMLAbstractFunction,
 	#instVars : [
-		'hasArguments',
-		'arguments',
-		'returnType',
-		'body',
-		'bodyEnvironment',
-		'callingConvention',
-		'functionType'
+		'hasArguments'
 	],
 	#category : #'Sysmel-Metamodel-Program'
 }
@@ -28,17 +22,6 @@ SYMLFunction >> -> returnTypeValue [
 	hasArguments := true.
 	returnType := returnTypeValue value.
 	self buildFunctionType.
-]
-
-{ #category : #'as yet unclassified' }
-SYMLFunction >> CVariadic [
-	<compileTime>
-	self addFlag: #cvariadic
-]
-
-{ #category : #'as yet unclassified' }
-SYMLFunction >> analyzeAndEvaluateMessage: message toReceiver: aReceiver inEnvironment: environment at: aPosition [
-	self halt.
 ]
 
 { #category : #'as yet unclassified' }
@@ -123,25 +106,12 @@ SYMLFunction >> initialize [
 	super initialize.
 	hasArguments := false.
 	arguments := #().
-	callingConvention := #cdecl.
-	
-]
-
-{ #category : #testing }
-SYMLFunction >> isCVariadic [
-	<compileTime>
-	^ self hasFlag: #'cvariadic'
 ]
 
 { #category : #testing }
 SYMLFunction >> isExternC [
 	<compileTime>
 	^ self hasFlag: #'extern-c'
-]
-
-{ #category : #testing }
-SYMLFunction >> isMetaObject [
-	^ false
 ]
 
 { #category : #'as yet unclassified' }

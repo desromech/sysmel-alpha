@@ -1,5 +1,5 @@
 Class {
 	#name : #SYMLASTSpecialLiteralFunction,
 	#superclass : #SYMLASTNode,
-	#category : #Sysmel-Parser-AST
+	#category : #'Sysmel-Parser-AST'
 }

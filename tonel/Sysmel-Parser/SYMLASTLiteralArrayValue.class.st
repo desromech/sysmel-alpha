@@ -4,7 +4,7 @@ Class {
 	#instVars : [
 		'elements'
 	],
-	#category : #Sysmel-Parser-AST
+	#category : #'Sysmel-Parser-AST'
 }
 
 { #category : #accessing }
@@ -18,8 +18,8 @@ SYMLASTLiteralArrayValue >> elements: anObject [
 ]
 
 { #category : #'as yet unclassified' }
-SYMLASTLiteralArrayValue >> evaluateInEnvironment: anEnvironment [
-	^ self value sysmelValueWithType: anEnvironment compilationTarget literalArrayType inEnvironment: anEnvironment
+SYMLASTLiteralArrayValue >> literalTypeSelector [
+	^ #literalArrayType
 ]
 
 { #category : #'as yet unclassified' }

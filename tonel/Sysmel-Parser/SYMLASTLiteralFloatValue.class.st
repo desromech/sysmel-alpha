@@ -1,12 +1,12 @@
 Class {
 	#name : #SYMLASTLiteralFloatValue,
 	#superclass : #SYMLASTLiteralValue,
-	#category : #Sysmel-Parser-AST
+	#category : #'Sysmel-Parser-AST'
 }
 
 { #category : #'as yet unclassified' }
-SYMLASTLiteralFloatValue >> evaluateInEnvironment: anEnvironment [
-	^ value sysmelValueWithType: anEnvironment compilationTarget literalFloatType inEnvironment: anEnvironment
+SYMLASTLiteralFloatValue >> literalTypeSelector [
+	^ #literalFloatType
 ]
 
 { #category : #printing }

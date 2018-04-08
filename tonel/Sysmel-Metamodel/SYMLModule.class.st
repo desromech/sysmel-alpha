@@ -102,7 +102,7 @@ SYMLModule >> evaluateSource: aSourceString name: aSourceName [
 
 { #category : #evaluating }
 SYMLModule >> evaluateSource: aSourceString name: aSourceName inContext: context [
-	| ast contents apsg |
+	| ast contents apsg result |
 
 	contents := aSourceString asSysmelCollectionWithContext.
 	contents name: aSourceName.
@@ -110,7 +110,12 @@ SYMLModule >> evaluateSource: aSourceString name: aSourceName inContext: context
 	ast := SYMLParser parse: contents.
 	self convertParseFailure: ast collection: contents.
 	apsg := ast buildAPSG: (SYMLAPSGBuilder new environment: context).
-	^ apsg analyzeAndEvaluateInEnvironment: context
+	[
+		result := apsg analyzeAndEvaluateInEnvironment: context
+	] on: SYMLReturnMetaCompilationMethod do: [ :returnException |
+		self halt.
+	].
+	^ result
 
 ]
 

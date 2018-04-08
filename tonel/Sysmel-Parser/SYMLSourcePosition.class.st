@@ -10,7 +10,7 @@ Class {
 		'endLine',
 		'endColumn'
 	],
-	#category : #Sysmel-Parser-AST
+	#category : #'Sysmel-Parser-AST'
 }
 
 { #category : #requirements }

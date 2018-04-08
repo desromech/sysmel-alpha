@@ -5,7 +5,7 @@ Class {
 		'reference',
 		'value'
 	],
-	#category : #Sysmel-Parser-AST
+	#category : #'Sysmel-Parser-AST'
 }
 
 { #category : #converting }

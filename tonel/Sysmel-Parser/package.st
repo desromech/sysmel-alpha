@@ -1,1 +1,1 @@
-Package { #name : #Sysmel-Parser }
+Package { #name : #'Sysmel-Parser' }

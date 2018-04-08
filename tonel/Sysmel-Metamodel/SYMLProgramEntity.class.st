@@ -37,6 +37,11 @@ SYMLProgramEntity >> isMetaObject [
 	^ true
 ]
 
+{ #category : #'accessing method dictionary' }
+SYMLProgramEntity >> lookupSelector: selector [
+	^ nil
+]
+
 { #category : #accessing }
 SYMLProgramEntity >> parent [
 	^ parent
@@ -51,4 +56,12 @@ SYMLProgramEntity >> parent: anObject [
 SYMLProgramEntity >> removeFlag: aFlag [
 	<compileTime>
 	flags := flags copyWithout: aFlag
+]
+
+{ #category : #'accessing method dictionary' }
+SYMLProgramEntity >> sendCompileTimeMessage: message inEnvironment: environment at: aPosition [
+	| method |
+	method := self lookupSelector: message selector.
+	method ifNotNil: [ self halt ].
+	^ super sendCompileTimeMessage: message inEnvironment: environment at: aPosition
 ]

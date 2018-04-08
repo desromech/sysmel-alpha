@@ -1,61 +1,100 @@
 // Create and set the basic types. Some of these types are used everywhere by the
 // compiler, so their declaration must be the first thing done.
-Compiler compilationTarget 
+Compiler compilationTarget
     tupleTypeTrait: trait TupleType;
     functionTypeTrait: trait FunctionType;
 
     apsgNodeType: type _APSGNodeType;
     compilerObjectType: type _CompilerObjectType;
+    dynamicObjectType: type _DynamicObject;
+    metaType: type _MetaType;
+    incompleteType: type _IncompleteType;
 
     literalSymbolType: type _LiteralSymbol;
-
+    literalIntegerType: type _LiteralInteger;
+    literalFractionType: type _LiteralFraction;
+    literalFloatType: type _LiteralFloat;
 
     voidType: type Void;
     booleanType: type Boolean;
+    charType: type Char;
+
+    // Integer types
+    int8Type: type Int8;
+    uint8Type: type UInt8;
+
+    int16Type: type Int16;
+    uint16Type: type UInt16;
+
+    int32Type: type Int32;
+    uint32Type: type UInt32;
+
+    int64Type: type Int64;
+    uint64Type: type UInt64;
+
+    // Floating point types
+    float32Type: type Float32;
+    float64Type: type Float64;
 
     yourself.
 
 // A generic type
 trait Type
 definition: {
-    method isType -> Boolean := {
+    meta message isType -> Boolean := {
         return: true
     }.
 
-    method isCompilerObjectType -> Boolean := {
+    meta message isCompilerObjectType -> Boolean := {
         return: false
     }.
 
-    method isLiteralType -> Boolean := {
+    meta message isLiteralType -> Boolean := {
         return: false
     }.
 
-    method isPrimitiveType -> Boolean := {
+    meta message isPrimitiveType -> Boolean := {
         return: false
     }.
 
-    method isOpaqueType -> Boolean := {
+    meta message isOpaqueType -> Boolean := {
         return: false
     }.
 
-    method isNumericalType -> Boolean := {
+    meta message isNumericalType -> Boolean := {
         return: false
     }.
 
-    method isFloatingPointType -> Boolean := {
-        return: false
-    }.
-    
-    method isPointerType -> Boolean := {
+    meta message isFractionalType -> Boolean := {
         return: false
     }.
 
-    method isTupleType -> Boolean := {
+    meta message isFloatingPointType -> Boolean := {
         return: false
     }.
 
-    method isFunctionType -> Boolean := {
+    meta message isPointerType -> Boolean := {
         return: false
+    }.
+
+    meta message isTupleType -> Boolean := {
+        return: false
+    }.
+
+    meta message isFunctionType -> Boolean := {
+        return: false
+    }.
+
+    meta message isConstant -> Boolean := {
+        return: false
+    }.
+
+    meta message size -> _LiteralInteger := {
+        return: 0
+    }.
+
+    meta message alignment -> _LiteralInteger := {
+        return: 1
     }.
 }.
 
@@ -63,7 +102,7 @@ definition: {
 trait LiteralType
     uses: Type;
 definition: {
-    method isLiteralType -> Boolean := {
+    meta message isLiteralType -> Boolean := {
         return: true
     }.
 }.
@@ -72,16 +111,21 @@ definition: {
 trait PrimitiveType
     uses: Type;
 definition: {
-    method isPrimitiveType -> Boolean := {
+    meta message isPrimitiveType -> Boolean := {
         return: true
     }.
+
+    meta message alignment -> _LiteralInteger := {
+        return: self size
+    }.
+
 }.
 
 // An opaque type
 trait OpaqueType
     uses: Type;
 definition: {
-    method isOpaqueType -> Boolean := {
+    meta message isOpaqueType -> Boolean := {
         return: true
     }
 }.
@@ -89,7 +133,7 @@ definition: {
 // A numerical type
 trait NumericalType uses: Type;
 definition: {
-    method isNumericalType -> Boolean := {
+    meta message isNumericalType -> Boolean := {
         return: true
     }
 }.
@@ -97,7 +141,31 @@ definition: {
 // An integer type
 trait IntegerType uses: NumericalType;
 definition: {
-    method isIntegerType -> Boolean := {
+    meta message isIntegerType -> Boolean := {
+        return: true
+    }.
+
+    meta message isUnsigned -> Boolean := {
+        return: false
+    }.
+}.
+
+trait UnsignedIntegerType uses: IntegerType;
+definition: {
+    meta message isIntegerType -> Boolean := {
+        return: true
+    }.
+
+    meta message isUnsigned -> Boolean := {
+        return: true
+    }.
+}.
+
+
+// A floating point type
+trait FractionalType uses: NumericalType;
+definition: {
+    meta message isFractionalType -> Boolean := {
         return: true
     }
 }.
@@ -105,7 +173,7 @@ definition: {
 // A floating point type
 trait FloatingPointType uses: NumericalType;
 definition: {
-    method isFloatingPointType -> Boolean := {
+    meta message isFloatingPointType -> Boolean := {
         return: true
     }
 }.
@@ -114,31 +182,56 @@ definition: {
 trait PointerType
     uses: Type;
 definition: {
-    method isPointerType -> Boolean := {
+    meta message isPointerType -> Boolean := {
         return: true
     }
 }.
 
 // Type composition
+
 // Pointer type
 template PointerTypeTemplate(P: Type)
     := type uses: PointerType;
 definition: {
-    method pointed -> _CompilerObjectType := {
+    meta message pointed -> _CompilerObjectType := {
         return: P
     }
 }.
 
 Type extend: {
-    method pointer -> _CompilerObjectType := {
-        return: PointerType(self)
+    meta message pointer -> _CompilerObjectType := {
+        return: PointerTypeTemplate(self)
     }
 }.
+
+// Constant type type
+template ConstantTypeTemplate(D: Type)
+    := type uses: D;
+definition: {
+    meta message isConstant -> Boolean := {
+        return: true
+    }.
+
+    meta message undecoratedType -> _CompilerObjectType := {
+        return: D
+    }.
+
+    meta message const -> _CompilerObjectType := {
+        return: self
+    }.
+}.
+
+Type extend: {
+    meta message const -> _CompilerObjectType := {
+        return: ConstantTypeTemplate(self)
+    }
+}.
+
 
 // Tuple type
 TupleType uses: Type;
 definition: {
-    method isTupleType -> Boolean := {
+    meta message isTupleType -> Boolean := {
         return: true
     }
 }.
@@ -146,16 +239,42 @@ definition: {
 // Function type
 FunctionType uses: Type;
 definition: {
-    method isFunctionType -> Boolean := {
+    meta message isFunctionType -> Boolean := {
         return: true
     }
 }.
 
 // Definition of some types
 _LiteralSymbol uses: LiteralType.
+_LiteralInteger uses: (LiteralType, IntegerType).
+_LiteralFraction uses: (LiteralType, FractionalType).
+_LiteralFloat uses: (LiteralType, FloatingPointType).
+
 _CompilerObjectType uses: Type.
 _APSGNodeType uses: Type.
 
 Boolean uses: PrimitiveType.
 Void uses: OpaqueType.
 
+Int8 uses: (PrimitiveType, IntegerType);
+definition: {
+    meta message size -> _LiteralInteger := {
+        return: 1
+    }.
+}.
+
+UInt8 uses: (Int8, UnsignedIntegerType).
+
+Int16 uses: (PrimitiveType, IntegerType).
+UInt16 uses: (Int16, UnsignedIntegerType).
+
+Int32 uses: (PrimitiveType, IntegerType).
+UInt32 uses: (Int32, UnsignedIntegerType).
+
+Int64 uses: (PrimitiveType, IntegerType).
+UInt64 uses: (Int64, UnsignedIntegerType).
+
+Float32 uses: (PrimitiveType, FloatingPointType).
+Float64 uses: (PrimitiveType, FloatingPointType).
+
+Char uses: UInt8.

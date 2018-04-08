@@ -23,6 +23,12 @@ SYMLAbstractScope >> definitionProgramEntity [
 ]
 
 { #category : #'as yet unclassified' }
+SYMLAbstractScope >> lookMetaMethodSelector: selector [
+	parent ifNotNil: [ ^ parent lookMetaMethodSelector: selector ].
+	^ nil
+]
+
+{ #category : #'as yet unclassified' }
 SYMLAbstractScope >> lookSymbol: symbol ifPresent: ifPresentBlock [
 	^ nil
 	
@@ -46,8 +52,27 @@ SYMLAbstractScope >> parent: anObject [
 ]
 
 { #category : #'as yet unclassified' }
+SYMLAbstractScope >> receiverType [
+	parent ifNotNil: [ ^ parent ].
+	^ self compilationTarget voidType
+]
+
+{ #category : #accessing }
+SYMLAbstractScope >> returnType [
+	parent ifNotNil: [ ^ parent returnType ].
+	^ self compilationTarget dynamicObjectType
+]
+
+{ #category : #'as yet unclassified' }
 SYMLAbstractScope >> semanticAnalyzeMessage: message at: aPosition [
-	"TODO: Support global meta methods."
+	"Support global meta methods."
+	message receiver ifNil: [ 
+		(self lookMetaMethodSelector: message selector) ifNil: [ 
+			self error: 'Failed to find meta-method {1}.' format: { message selector printString } at: aPosition
+		] ifNotNil: [ :metaMethod |
+			^ metaMethod semanticAnalyzeMessage: message inEnvironment: self at: aPosition
+		]
+	].
 
 	"Send into the meta objects."
 	message receiver isMetaObjectInstance ifTrue: [

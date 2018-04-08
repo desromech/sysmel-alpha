@@ -6,7 +6,7 @@ Class {
 		'name',
 		'newlines'
 	],
-	#category : #Sysmel-Parser-Parser
+	#category : #'Sysmel-Parser-Parser'
 }
 
 { #category : #converting }

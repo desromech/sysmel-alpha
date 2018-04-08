@@ -5,7 +5,7 @@ Class {
 		'position',
 		'tokens'
 	],
-	#category : #Sysmel-Parser-AST
+	#category : #'Sysmel-Parser-AST'
 }
 
 { #category : #'as yet unclassified' }

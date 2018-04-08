@@ -1,10 +1,8 @@
 Class {
 	#name : #SYMLFunctionArgument,
-	#superclass : #SYMLProgramEntity,
+	#superclass : #SYMLAbstractVariable,
 	#instVars : [
-		'definitionNode',
-		'name',
-		'type'
+		'definitionNode'
 	],
 	#category : #'Sysmel-Metamodel-Program'
 }
@@ -17,24 +15,4 @@ SYMLFunctionArgument >> definitionNode [
 { #category : #accessing }
 SYMLFunctionArgument >> definitionNode: anObject [
 	definitionNode := anObject
-]
-
-{ #category : #accessing }
-SYMLFunctionArgument >> name [
-	^ name
-]
-
-{ #category : #accessing }
-SYMLFunctionArgument >> name: anObject [
-	name := anObject
-]
-
-{ #category : #accessing }
-SYMLFunctionArgument >> type [
-	^ type
-]
-
-{ #category : #accessing }
-SYMLFunctionArgument >> type: anObject [
-	type := anObject
 ]

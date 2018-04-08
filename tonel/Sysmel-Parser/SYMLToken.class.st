@@ -4,7 +4,7 @@ Class {
 	#instVars : [
 		'previousComments'
 	],
-	#category : #Sysmel-Parser-Parser
+	#category : #'Sysmel-Parser-Parser'
 }
 
 { #category : #accessing }

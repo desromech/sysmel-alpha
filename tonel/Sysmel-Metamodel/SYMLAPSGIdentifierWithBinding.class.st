@@ -2,7 +2,8 @@ Class {
 	#name : #SYMLAPSGIdentifierWithBinding,
 	#superclass : #SYMLAPSGIdentifier,
 	#instVars : [
-		'binding'
+		'binding',
+		'type'
 	],
 	#category : #'Sysmel-Metamodel-APSG'
 }
@@ -19,20 +20,31 @@ SYMLAPSGIdentifierWithBinding >> binding: anObject [
 
 { #category : #'meta evaluation' }
 SYMLAPSGIdentifierWithBinding >> evaluateInEnvironment: anEnvironment [
-	^ binding evaluateReferenceAt: position
+	| evaluatedBinding |
+	evaluatedBinding := anEnvironment lookSymbolRecursively: value ifAbsent: [
+		self error: 'Failed to find identifier {1}.' format: { value } at: position
+	].
+
+	evaluatedBinding isSysmelValue ifFalse: [ ^ evaluatedBinding asIncompleteValue ].
+	^ evaluatedBinding
 ]
 
-{ #category : #'meta evaluation' }
-SYMLAPSGIdentifierWithBinding >> evaluateTypeInEnvironment: anEnvironment [
-	^ binding evaluateTypeAt: position
+{ #category : #accessing }
+SYMLAPSGIdentifierWithBinding >> evaluateTypeInEnvironment: environment [
+	^ type
 ]
 
-{ #category : #'meta evaluation' }
-SYMLAPSGIdentifierWithBinding >> generateSSACodeWith: aBuilder [
-	^ binding generateSSAReferenceWith: aBuilder
-]
-
-{ #category : #'meta evaluation' }
+{ #category : #accessing }
 SYMLAPSGIdentifierWithBinding >> semanticAnalysisInEnvironment: anEnvironment [
-	^ self
+	self halt
+]
+
+{ #category : #accessing }
+SYMLAPSGIdentifierWithBinding >> type [
+	^ type
+]
+
+{ #category : #accessing }
+SYMLAPSGIdentifierWithBinding >> type: anObject [
+	type := anObject
 ]

@@ -9,13 +9,13 @@ Class {
 
 { #category : #converting }
 SYMLAPSGLiteral >> asNodeForSequenceElementIn: anEnvironment [
-	value type isCompilerObjectType ifTrue: [ ^ value value convertNodeForSequenceElement: self inEnvironment: anEnvironment ].
+	value type isMetaObjectType ifTrue: [ ^ value value convertNodeForSequenceElement: self inEnvironment: anEnvironment ].
 	^ self
 ]
 
 { #category : #converting }
 SYMLAPSGLiteral >> asNodeForTupleElementIn: anEnvironment [
-	value type isCompilerObjectType ifTrue: [ ^ value value convertNodeForTupleElement: self inEnvironment: anEnvironment ].
+	value type isMetaObjectType ifTrue: [ ^ value value convertNodeForTupleElement: self inEnvironment: anEnvironment ].
 	^ self
 ]
 

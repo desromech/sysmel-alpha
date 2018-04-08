@@ -5,7 +5,7 @@ Class {
 		'pragmas',
 		'expressions'
 	],
-	#category : #Sysmel-Parser-AST
+	#category : #'Sysmel-Parser-AST'
 }
 
 { #category : #converting }

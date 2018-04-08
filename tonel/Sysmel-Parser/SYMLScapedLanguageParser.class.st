@@ -5,7 +5,7 @@ Class {
 		'openCharacter',
 		'closeCharacter'
 	],
-	#category : #Sysmel-Parser-Parser
+	#category : #'Sysmel-Parser-Parser'
 }
 
 { #category : #accessing }

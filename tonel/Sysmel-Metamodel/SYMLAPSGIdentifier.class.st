@@ -7,6 +7,16 @@ Class {
 	#category : #'Sysmel-Metamodel-APSG'
 }
 
+{ #category : #copying }
+SYMLAPSGIdentifier >> copyWithBinding: binding andType: type [
+	^ SYMLAPSGIdentifierWithBinding new
+		position: position;
+		value: value;
+		binding: binding;
+		type: type;
+		yourself
+]
+
 { #category : #printing }
 SYMLAPSGIdentifier >> printOn: aStream [
 	aStream nextPutAll: 'identifier '; print: value
@@ -19,25 +29,7 @@ SYMLAPSGIdentifier >> semanticAnalysisInEnvironment: anEnvironment [
 		self error: 'Failed to find identifier {1}.' format: { value } at: position
 	].
 
-	binding isMetaBuilder ifTrue: [ 
-		^ SYMLAPSGMetaObjectInstance new
-			position: self;
-			metaObject: (binding newInstanceInEnvironment: anEnvironment);
-			yourself
-	].
-
-	binding isMetaObject ifTrue: [ 
-		^ SYMLAPSGMetaObjectInstance new
-			position: self;
-			metaObject: binding;
-			yourself
-	].
-	
-	^ SYMLAPSGIdentifierWithBinding new
-		position: self;
-		value: value;
-		binding: binding;
-		yourself
+	^ binding analyzeAPSGIdentifierToMe: self inEnvironment: anEnvironment
 ]
 
 { #category : #accessing }

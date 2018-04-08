@@ -3,7 +3,8 @@ Class {
 	#superclass : #SYMLObject,
 	#instVars : [
 		'metaObjectClass',
-		'module'
+		'module',
+		'parent'
 	],
 	#category : #'Sysmel-Metamodel-Program'
 }
@@ -14,6 +15,23 @@ SYMLMetaBuilder class >> for: metaObjectClass module: module [
 		metaObjectClass: metaObjectClass;
 		module: module;
 		yourself
+]
+
+{ #category : #'as yet unclassified' }
+SYMLMetaBuilder class >> for: metaObjectClass module: module parent: parent [
+	^ self new
+		metaObjectClass: metaObjectClass;
+		module: module;
+		parent: parent;
+		yourself
+]
+
+{ #category : #'as yet unclassified' }
+SYMLMetaBuilder >> analyzeAPSGIdentifierToMe: identifier inEnvironment: anEnvironment [
+	^ SYMLAPSGMetaObjectInstance new
+			position: identifier;
+			metaObject: (self newInstanceInEnvironment: anEnvironment);
+			yourself
 ]
 
 { #category : #testing }
@@ -46,6 +64,16 @@ SYMLMetaBuilder >> newInstanceInEnvironment: anEnvironment [
 	^ metaObjectClass new
 		module: module;
 		definitionEnvironment: anEnvironment;
-		parent: anEnvironment definitionProgramEntity;
+		parent: (parent ifNil: [anEnvironment definitionProgramEntity]);
 		yourself
+]
+
+{ #category : #accessing }
+SYMLMetaBuilder >> parent [
+	^ parent
+]
+
+{ #category : #accessing }
+SYMLMetaBuilder >> parent: anObject [
+	parent := anObject
 ]

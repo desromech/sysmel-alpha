@@ -5,7 +5,7 @@ Class {
 		'receiver',
 		'messages'
 	],
-	#category : #Sysmel-Parser-AST
+	#category : #'Sysmel-Parser-AST'
 }
 
 { #category : #converting }

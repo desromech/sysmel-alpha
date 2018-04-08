@@ -1,5 +1,5 @@
 Class {
 	#name : #SYMLStructureScope,
-	#superclass : #SYMLTraitableScope,
+	#superclass : #SYMLAbstractTypeScope,
 	#category : #'Sysmel-Metamodel-Scope'
 }

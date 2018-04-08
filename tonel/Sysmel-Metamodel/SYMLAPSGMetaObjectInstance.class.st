@@ -9,7 +9,13 @@ Class {
 
 { #category : #'meta evaluation' }
 SYMLAPSGMetaObjectInstance >> evaluateInEnvironment: anEnvironment [
-	^ metaObject sysmelValueWithType: anEnvironment compilationTarget compilerObjectType inEnvironment: anEnvironment
+	^ metaObject asSysmelValueInEnvironment: anEnvironment
+]
+
+{ #category : #'meta evaluation' }
+SYMLAPSGMetaObjectInstance >> evaluateTypeInEnvironment: anEnvironment [
+	^ anEnvironment compilationTarget compilerObjectType
+
 ]
 
 { #category : #testing }
@@ -30,4 +36,9 @@ SYMLAPSGMetaObjectInstance >> metaObject: anObject [
 { #category : #printing }
 SYMLAPSGMetaObjectInstance >> printOn: aStream [
 	aStream nextPutAll: 'metaObject '; print: metaObject
+]
+
+{ #category : #'meta evaluation' }
+SYMLAPSGMetaObjectInstance >> semanticAnalysisInEnvironment: environment [
+	^ self
 ]

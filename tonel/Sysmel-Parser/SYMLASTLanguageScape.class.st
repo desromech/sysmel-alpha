@@ -6,7 +6,7 @@ Class {
 		'sourceCode',
 		'sourceCodePosition'
 	],
-	#category : #Sysmel-Parser-AST
+	#category : #'Sysmel-Parser-AST'
 }
 
 { #category : #converting }

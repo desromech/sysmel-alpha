@@ -12,6 +12,22 @@ SYMLObject class >> initialize [
 	SelectorWhitelist := Set newFrom: #(yourself)
 ]
 
+{ #category : #'as yet unclassified' }
+SYMLObject >> analyzeAPSGIdentifierToMe: identifier inEnvironment: anEnvironment [
+	^ SYMLAPSGMetaObjectInstance new
+			position: identifier;
+			metaObject: self;
+			yourself
+]
+
+{ #category : #converting }
+SYMLObject >> asAPSGNodeInEnvironment: newEnvironment at: aPosition [
+	^ SYMLAPSGMetaObjectInstance new
+			position: aPosition;
+			metaObject: self;
+			yourself
+]
+
 { #category : #converting }
 SYMLObject >> convertNodeForSequenceElement: aNode inEnvironment: anEnvironment [
 	^ aNode
@@ -42,13 +58,38 @@ SYMLObject >> error: anErrorString format: formatArguments at: aSourcePosition [
 ]
 
 { #category : #testing }
+SYMLObject >> hasIncompleteSemanticAnalysis [
+	^ false
+]
+
+{ #category : #testing }
+SYMLObject >> isAbstractFunction [
+	^ false
+]
+
+{ #category : #testing }
+SYMLObject >> isIncompleteValue [
+	^ false
+]
+
+{ #category : #testing }
 SYMLObject >> isMetaBuilder [
+	^ false
+]
+
+{ #category : #testing }
+SYMLObject >> isMetaMethod [
 	^ false
 ]
 
 { #category : #testing }
 SYMLObject >> isMetaObject [
 	^ false
+]
+
+{ #category : #testing }
+SYMLObject >> isSysmelObject [
+	^ true
 ]
 
 { #category : #testing }
@@ -61,7 +102,7 @@ SYMLObject >> semanticAnalyzeMessageToYou: message inEnvironment: environment at
 	^ self sendCompileTimeMessage: message inEnvironment: environment at: aPosition.
 ]
 
-{ #category : #'as yet unclassified' }
+{ #category : #'accessing method dictionary' }
 SYMLObject >> sendCompileTimeMessage: message inEnvironment: environment at: aPosition [
 	| compiledMethod isLazy isRewrite arguments result |
 	compiledMethod := self class lookupSelector: message selector.
@@ -79,11 +120,13 @@ SYMLObject >> sendCompileTimeMessage: message inEnvironment: environment at: aPo
 	arguments := isLazy ifTrue: [
 		message arguments collect: [ :arg | SYMLLazyValue new node: arg; environment: environment ]
 	] ifFalse: [
-		message arguments collect: [ :arg | (arg analyzeAndEvaluateInEnvironment: environment) value ]
+		message arguments collect: [ :arg | (arg analyzeAndEvaluateInEnvironment: environment) unwrapSysmelValue ]
 	].
 
 	result := self perform: message selector withArguments: arguments.
-
+	result isSysmelObject ifTrue: [
+		result hasIncompleteSemanticAnalysis ifTrue: [ ^ result ].
+	].
 	
 	^ isRewrite ifTrue: [
 		result

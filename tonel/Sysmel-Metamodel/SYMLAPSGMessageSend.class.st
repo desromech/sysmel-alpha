@@ -9,7 +9,8 @@ Class {
 		'valueType',
 		'coercionType',
 		'argumentsAreAnalyzed',
-		'isReceiverAnalyzed'
+		'isReceiverAnalyzed',
+		'hasIncompleteSemanticAnalysis'
 	],
 	#category : #'Sysmel-Metamodel-APSG'
 }
@@ -57,8 +58,29 @@ SYMLAPSGMessageSend >> coercionType: anObject [
 	coercionType := anObject
 ]
 
+{ #category : #'as yet unclassified' }
+SYMLAPSGMessageSend >> concretizeSemanticAnalysisInEnvironment: anEnvironment [
+	| result |
+	hasIncompleteSemanticAnalysis ifTrue: [ 
+		result := self copy
+			receiver: (receiver ifNotNil: [receiver concretizeSemanticAnalysisInEnvironment: anEnvironment]);
+			arguments: (arguments collect: [:arg | arg concretizeSemanticAnalysisInEnvironment: anEnvironment]);
+			hasIncompleteSemanticAnalysis: false.
+		^ result metaMethod
+			ifNotNil: [ metaMethod semanticAnalyzeMessage: result inEnvironment: anEnvironment at: result ]
+			ifNil: [ result semanticAnalysisInEnvironment: anEnvironment ]
+			
+	].
+
+	^ self
+]
+
 { #category : #'meta evaluation' }
 SYMLAPSGMessageSend >> evaluateInEnvironment: anEnvironment [
+	hasIncompleteSemanticAnalysis ifTrue: [
+		^ (self concretizeSemanticAnalysisInEnvironment: anEnvironment) evaluateInEnvironment: anEnvironment
+	].
+
 	^ metaMethod evaluateMessage: self inEnvironment: anEnvironment
 ]
 
@@ -77,11 +99,22 @@ SYMLAPSGMessageSend >> hasAnalyzedArguments [
 	^ argumentsAreAnalyzed
 ]
 
+{ #category : #accessing }
+SYMLAPSGMessageSend >> hasIncompleteSemanticAnalysis [
+	^ hasIncompleteSemanticAnalysis
+]
+
+{ #category : #accessing }
+SYMLAPSGMessageSend >> hasIncompleteSemanticAnalysis: anObject [
+	hasIncompleteSemanticAnalysis := anObject
+]
+
 { #category : #initialization }
 SYMLAPSGMessageSend >> initialize [
 	super initialize.
 	argumentsAreAnalyzed := false.
 	isReceiverAnalyzed := false.
+	hasIncompleteSemanticAnalysis := false.
 ]
 
 { #category : #accessing }

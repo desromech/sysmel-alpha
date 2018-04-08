@@ -7,7 +7,7 @@ Class {
 		'isEvaluated',
 		'cachedValue'
 	],
-	#category : #'Sysmel-Metamodel-Program'
+	#category : #'Sysmel-Metamodel-Values'
 }
 
 { #category : #evaluating }

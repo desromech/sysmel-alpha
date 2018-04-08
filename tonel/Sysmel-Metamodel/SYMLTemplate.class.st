@@ -67,22 +67,44 @@ SYMLTemplate >> assignValue: theDefinition [
 
 { #category : #'as yet unclassified' }
 SYMLTemplate >> evaluateTemplate: theRawArguments [
-	| activationArguments activationScope expectedArgument coercedArgument result incompleteResult |
+	| activationArguments |
 	activationArguments := theRawArguments value.
 
 	activationArguments size ~= arguments size ifTrue: [ 
 		self error: 'Mismatching arguments for template {1}. Expected {2} argument(s).' format: { self validName . arguments size asString } at: theRawArguments position
 	].
+	activationArguments detect: #isIncompleteValue ifFound: [
+		^ SYMLAPSGIncompleteSemanticAnalysis new
+			position: theRawArguments position;
+			action: [ :concreteEnvironment | self evaluateTemplateIncompleteArguments: activationArguments concreteEnvironment: concreteEnvironment at: theRawArguments position
+			];
+			yourself
+	].
+
+	^ self evaluateTemplateWithActivationArguments: activationArguments at: theRawArguments position
+]
+
+{ #category : #'as yet unclassified' }
+SYMLTemplate >> evaluateTemplateIncompleteArguments: activationArguments concreteEnvironment: concreteEnvironment at: position [
+	| concreteActivationArguments result |
+	concreteActivationArguments := activationArguments collect: [ :arg | arg concretizeInEnvironment: concreteEnvironment ].
+	result := self evaluateTemplateWithActivationArguments: concreteActivationArguments at: position.
+	^ result asAPSGNodeInEnvironment: concreteEnvironment at: position
+]
+
+{ #category : #'as yet unclassified' }
+SYMLTemplate >> evaluateTemplateWithActivationArguments: activationArguments at: aPosition [
+	| activationScope expectedArgument coercedArgument result incompleteResult |
 
 	incompleteResult := cachedResults at: activationArguments ifPresent: [ :existent |
-		^ activationArguments
-	] ifAbsentPut: [SYMLIncompleteValue new].
+		^ existent
+	] ifAbsentPut: [SYMLRecursiveValue new].
 
 	activationScope := SYMLTemplateActivationScope parent: bodyEnvironment.
 	activationArguments doWithIndex: [ :argument :index |
 		expectedArgument := arguments at: index.
-		coercedArgument := argument coercedIntoType: expectedArgument type at: theRawArguments position.
-		activationScope addSymbol: expectedArgument name value: (coercedArgument asFunctionActivationValueAt: theRawArguments position).
+		coercedArgument := argument coercedIntoType: expectedArgument type at: aPosition.
+		activationScope addSymbol: expectedArgument name value: (coercedArgument asFunctionActivationValueAt: aPosition).
 	].
 
 	result := body copy analyzeAndEvaluateInEnvironment: activationScope.

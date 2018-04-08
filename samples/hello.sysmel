@@ -1,5 +1,5 @@
 // Main function
-function printf externC CVariadic (format: Char const pointer) -> Int32.
+/*function printf externC CVariadic (format: Char const pointer) -> Int32.
 
 struct SomeStruct := {
     field first type: Float32.
@@ -32,5 +32,9 @@ function main externC (argc: Int32, argv: Char const pointer pointer) -> Int32 :
 
     printf("Hello World\n").
     return: 0.
+}.
+*/
+function main externC (argc: Int32, argv: Char const pointer pointer) -> Int32 := {
+    return: 0
 }.
 

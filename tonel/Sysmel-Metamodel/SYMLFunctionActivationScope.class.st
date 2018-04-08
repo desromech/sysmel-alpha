@@ -16,3 +16,13 @@ SYMLFunctionActivationScope >> function [
 SYMLFunctionActivationScope >> function: anObject [
 	function := anObject
 ]
+
+{ #category : #accessing }
+SYMLFunctionActivationScope >> receiverType [
+	^ function receiverType
+]
+
+{ #category : #accessing }
+SYMLFunctionActivationScope >> returnType [
+	^ function returnType
+]

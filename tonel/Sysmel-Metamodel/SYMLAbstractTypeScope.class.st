@@ -1,5 +1,5 @@
 Class {
-	#name : #SYMLTraitableScope,
+	#name : #SYMLAbstractTypeScope,
 	#superclass : #SYMLProgramEntityScope,
 	#instVars : [
 		'symbols'
@@ -8,34 +8,35 @@ Class {
 }
 
 { #category : #'as yet unclassified' }
-SYMLTraitableScope >> definitionProgramEntity [
+SYMLAbstractTypeScope >> definitionProgramEntity [
 	^ programEntity
 ]
 
 { #category : #accessing }
-SYMLTraitableScope >> fillSymbols [
+SYMLAbstractTypeScope >> fillSymbols [
 	| module |
 	module := programEntity module.
-	symbols
-		at: #method put: (SYMLMetaBuilder for: SYMLMethod module: module);
-		yourself
+	programEntity class specialMetaSymbols associationsDo: [ :assoc |
+		symbols at: assoc key put: (assoc value value: programEntity value: module)
+	].
+
 	
 ]
 
 { #category : #initialization }
-SYMLTraitableScope >> initialize [
+SYMLAbstractTypeScope >> initialize [
 	super initialize.
 	symbols := Dictionary new.
 ]
 
 { #category : #'as yet unclassified' }
-SYMLTraitableScope >> lookSymbol: symbol ifPresent: ifPresentBlock [
+SYMLAbstractTypeScope >> lookSymbol: symbol ifPresent: ifPresentBlock [
 	symbols at: symbol ifPresent: [ :existent | ^ ifPresentBlock value: existent ].
 	programEntity lookSymbol: symbol ifPresent: ifPresentBlock
 ]
 
 { #category : #accessing }
-SYMLTraitableScope >> programEntity: anObject [
+SYMLAbstractTypeScope >> programEntity: anObject [
 	programEntity := anObject.
 	self fillSymbols
 ]

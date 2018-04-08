@@ -11,6 +11,11 @@ Object >> isSYMLAPSGNode [
 ]
 
 { #category : #'*Sysmel-Metamodel' }
+Object >> isSysmelObject [
+	^ false
+]
+
+{ #category : #'*Sysmel-Metamodel' }
 Object >> isSysmelValue [
 	^ false
 ]
@@ -22,4 +27,9 @@ Object >> sysmelValueWithType: aType inEnvironment: anEnvironment [
 		type: aType;
 		environment: anEnvironment;
 		yourself
+]
+
+{ #category : #'*Sysmel-Metamodel' }
+Object >> unwrapSysmelValue [
+	^ self
 ]

@@ -30,14 +30,13 @@ SYMLTopLevelScope >> fillSymbols [
 		at: #structure put: (SYMLMetaBuilder for: SYMLStructure module: module);
 		at: #class put: (SYMLMetaBuilder for: SYMLClass module: module);
 		at: #union put: (SYMLMetaBuilder for: SYMLUnion module: module);
-		yourself
-	
-]
 
-{ #category : #initialization }
-SYMLTopLevelScope >> initialize [
-	super initialize.
-	symbols := Dictionary new.
+		at: #true put: (SYMLBooleanConstant new value: true; module: module);
+		at: #false put: (SYMLBooleanConstant new value: false; module: module);
+		
+		yourself.
+	metaMethodDictionary at: #return: put: (SYMLReturnMetaCompilationMethod module: module)
+	
 ]
 
 { #category : #accessing }

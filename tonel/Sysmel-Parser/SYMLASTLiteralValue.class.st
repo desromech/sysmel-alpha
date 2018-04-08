@@ -4,13 +4,14 @@ Class {
 	#instVars : [
 		'value'
 	],
-	#category : #Sysmel-Parser-AST
+	#category : #'Sysmel-Parser-AST'
 }
 
 { #category : #converting }
 SYMLASTLiteralValue >> buildAPSG: builder [
-	^ (builder literal: (self evaluateInEnvironment: builder environment))
-		position: self
+	^ (builder literal: value typeSelector: self literalTypeSelector)
+			position: self
+
 ]
 
 { #category : #'as yet unclassified' }

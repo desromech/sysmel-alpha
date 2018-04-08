@@ -82,7 +82,7 @@ Class {
 	#classVars : [
 		'SpecialOperators'
 	],
-	#category : #Sysmel-Parser-Parser
+	#category : #'Sysmel-Parser-Parser'
 }
 
 { #category : #initialization }

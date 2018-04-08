@@ -48,6 +48,11 @@ SYMLAPSGNode >> children [
 	^ #()
 ]
 
+{ #category : #'as yet unclassified' }
+SYMLAPSGNode >> concretizeSemanticAnalysisInEnvironment: anEnvironment [
+	^ self
+]
+
 { #category : #'meta evaluation' }
 SYMLAPSGNode >> evaluateCleanTypeInEnvironment: anEnvironment [
 	^ (self evaluateTypeInEnvironment: anEnvironment) cleanType

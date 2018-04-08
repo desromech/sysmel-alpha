@@ -1,12 +1,12 @@
 Class {
 	#name : #SYMLASTLiteralCharacterValue,
 	#superclass : #SYMLASTLiteralValue,
-	#category : #Sysmel-Parser-AST
+	#category : #'Sysmel-Parser-AST'
 }
 
 { #category : #'as yet unclassified' }
-SYMLASTLiteralCharacterValue >> evaluateInEnvironment: anEnvironment [
-	^ value sysmelValueWithType: anEnvironment compilationTarget literalCharacterType inEnvironment: anEnvironment
+SYMLASTLiteralCharacterValue >> literalTypeSelector [
+	^ #literalCharacterType
 ]
 
 { #category : #printing }
