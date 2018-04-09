@@ -9,7 +9,7 @@ Class {
 
 { #category : #converting }
 SYMLASTLiteralValue >> buildAPSG: builder [
-	^ (builder literal: value typeSelector: self literalTypeSelector)
+	^ (builder literal: self value typeSelector: self literalTypeSelector)
 			position: self
 
 ]

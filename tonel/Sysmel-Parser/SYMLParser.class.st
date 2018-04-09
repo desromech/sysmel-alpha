@@ -265,6 +265,24 @@ SYMLParser >> literalArrayKeyword [
 ]
 
 { #category : #accessing }
+SYMLParser >> lowPrecedenceExpression [
+	^ super lowPrecedenceExpression ==> [ :list |
+		| result|
+		result := list first.
+		list second do: [ :nextExpression |
+			result := SYMLASTMessageSend new
+				position: nextExpression first;
+				selector: (nextExpression first inputValue allButFirst: 2) asSymbol;
+				receiver: result;
+				arguments: { nextExpression second };
+				yourself.
+		].
+	
+		result
+	]
+]
+
+{ #category : #accessing }
 SYMLParser >> multiLineComment [
 	^ super multiLineComment flatten ==> [ :data | data copyFrom: 3 to: data size - 2 ]
 ]

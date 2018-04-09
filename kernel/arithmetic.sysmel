@@ -1,71 +1,92 @@
+// Arithmetic coercions
+PrimitiveSignedIntegerType meta message
+    generateArithmeticMessage: (messageNode: _CompilerObjectType) withBuilder: (builder: _CompilerObjectType)
+        left: (left: _CompilerObjectType) right: (right: _CompilerObjectType)
+        at: (aPosition: _CompilerObjectType)  ::-> _CompilerObjectType := {
+    return: (self generatePrimitiveSignedIntegerArithmeticMessage: messageNode withBuilder: builder left: left right: right at: messageNode)
+}.
+
+PrimitiveUnsignedIntegerType meta message
+    generateArithmeticMessage: (messageNode: _CompilerObjectType) withBuilder: (builder: _CompilerObjectType)
+        left: (left: _CompilerObjectType) right: (right: _CompilerObjectType)
+        at: (aPosition: _CompilerObjectType)  ::-> _CompilerObjectType := {
+    return: (self generatePrimitiveUnsignedIntegerArithmeticMessage: messageNode withBuilder: builder left: left right: right at: messageNode)
+}.
+
+_LiteralInteger arithmeticCoercionWith: PrimitiveIntegerType do: $$Pharo {
+coerce: left with: right
+    right size >= 4 ifTrue: [
+        ^ right
+    ] ifFalse: [
+        self halt
+    ]
+}.
+
 // Binary operators
-metaMethod selectors: #(+ - * / % < > <= >= = ~= == ~~) rules: {
+NumericalType macro selectors: #(+ - * / % < > <= >= = ~= == ~~) doOn: {
+evaluation: $$Pharo {
+    node: node environment: environment
+        | left right coercionType valueType |
+        self halt.
+        coercionType := node coercionType.
+        valueType := node valueType.
+        left := coercionType coerceImplicitlyValue: (node receiver evaluateInEnvironment: environment) at: node.
+        right := coercionType coerceImplicitlyValue: (node arguments first evaluateInEnvironment: environment) at: node.
+        ^ (left value perform: node selector with: right value) sysmelValueWithType: valueType inEnvironment: environment
+}.
 
-// Number (+ - * / % < > <= >= == ~=) Number
-when: $$Pharo {matchesMessage: message inEnvironment: environment at: position
-    | leftType rightType |
-    leftType := message receiver evaluateCleanValueTypeInEnvironment: environment.
-    rightType := message arguments first evaluateCleanValueTypeInEnvironment: environment.
+semanticAnalysis: $$Pharo {
+    node: node environment: environment position: aSourcePosition
+        | left right leftType rightType coercionType resultType coercionRules |
+        left := node receiver semanticAnalysisInEnvironment: environment.
+        right := node arguments first semanticAnalysisInEnvironment: environment.
+        leftType := left evaluateTypeInEnvironment: environment.
+        rightType := right evaluateTypeInEnvironment: environment.
 
-	leftType ifNil: [^ false].
-	rightType ifNil: [^ false].
-	
-    ^ leftType isNumberType and: [ rightType isNumberType ]
-} doOn: {
-    // Compile time evaluation
-    evaluation: $$Pharo {
-        node: node environment: environment
-            | left right coercionType valueType |
-            coercionType := node coercionType.
-            valueType := node valueType.
-            left := coercionType coerceImplicitlyValue: (node receiver evaluateInEnvironment: environment) at: node.
-            right := coercionType coerceImplicitlyValue: (node arguments first evaluateInEnvironment: environment) at: node.
-            ^ (left value perform: node selector with: right value) sysmelValueWithType: valueType inEnvironment: environment
-    }.
+        coercionType := leftType cleanValueType arithmeticCoerceWith: rightType cleanValueType at: aSourcePosition.
+        coercionType isLiteralType ifTrue: [
+            ^ node buildLiteralWithValue: ((left value value perform: node selector with: right value value) sysmelValueWithType: coercionType inEnvironment: environment)
+        ].
 
-    // Semantic analysis
-    semanticAnalysis: $$Pharo {
-        node: node environment: environment position: aSourcePosition
-	        | left right leftType rightType coercionType resultType |
-	        left := node receiver semanticAnalysisInEnvironment: environment.
-	        right := node arguments first semanticAnalysisInEnvironment: environment.
-            leftType := left evaluateCleanValueTypeInEnvironment: environment.
-            rightType := right evaluateCleanValueTypeInEnvironment: environment.
-            coercionType := leftType arithmeticCoerceWith: rightType at: aSourcePosition.
-            coercionType isLiteralType ifTrue: [
-                ^ node buildLiteralWithValue: ((left value value perform: node selector with: right value value) sysmelValueWithType: coercionType inEnvironment: environment)
-            ].
+        resultType := (#(< > <= >= = ~= == ~~) includes: node selector)
+            ifTrue: [ self compilationTarget booleanType ]
+            ifFalse: [ coercionType ].
 
-			resultType := coercionType resultTypeForArithmeticMessage: node selector at: node.
+        coercionRules := {
+            leftType node: left coercedImplicitlyInto: coercionType at: node.
+            rightType node: right coercedImplicitlyInto: coercionType at: node.
+        }.
 
-            ^ node copy
-                metaMethod: self;
-                receiver: left;
-                arguments: {right};
-                coercionType: coercionType;
-                valueType: resultType;
-                yourself
-    }.
+        ^ node copy
+            metaMethod: self;
+            receiver: left;
+            arguments: {right};
+            coercionType: coercionType;
+            coercionRule: coercionRules;
+            valueType: resultType;
+            yourself
 
-    // Code generation
-    codeGeneration: $$Pharo {
-        node: messageNode builder: builder
-			| coercionType leftNode leftValue rightNode rightValue |
-			"Convert the arguments"
-			coercionType := messageNode coercionType.
-			leftNode := messageNode receiver.
-			leftValue := leftNode type ssaCoerceImplicitly: (leftNode generateSSACodeWith: builder) to: coercionType with: builder at: messageNode.
-			
-			rightNode := messageNode arguments first.
-			rightValue := rightNode type ssaCoerceImplicitly: (rightNode generateSSACodeWith: builder) to: coercionType with: builder at: messageNode.
+}.
 
-            ^ coercionType generateArithmeticMessage: messageNode selector withBuilder: builder left: leftValue right: rightValue at: messageNode
-    }.
+// Code generation
+codeGeneration: $$Pharo {
+    node: messageNode builder: builder
+        | coercionType leftNode leftValue rightNode rightValue |
+        "Convert the arguments"
+        coercionType := messageNode coercionType.
+        leftNode := messageNode receiver.
+        leftValue := messageNode coercionRule first convertSSAValue: (leftNode generateSSACodeWith: builder) to: coercionType with: builder at: messageNode.
+
+        rightNode := messageNode arguments first.
+        rightValue := messageNode coercionRule second convertSSAValue: (rightNode generateSSACodeWith: builder) to: coercionType with: builder at: messageNode.
+
+        ^ (coercionType __sysmel generateArithmeticMessage: messageNode selector withBuilder: builder left: leftValue right: rightValue at: messageNode)
+            unwrapSysmelValue
 }.
 
 }.
 
-// Logical negation
+/*// Logical negation
 metaMethod selectors: #(not) rules: {
 
 when: $$Pharo {matchesMessage: message inEnvironment: environment at: position
@@ -73,7 +94,7 @@ when: $$Pharo {matchesMessage: message inEnvironment: environment at: position
     receiverType := message receiver evaluateCleanValueTypeInEnvironment: environment.
 
 	receiverType ifNil: [^ false].
-	
+
     ^ receiverType isBooleanType
 } doOn: {
     // Compile time evaluation
@@ -123,3 +144,4 @@ when: $$Pharo {matchesMessage: message inEnvironment: environment at: position
 
 }.
 
+*/

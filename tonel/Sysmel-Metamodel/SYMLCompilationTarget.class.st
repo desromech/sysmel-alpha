@@ -5,6 +5,7 @@ Class {
 		'apsgNodeType',
 		'compilerObjectType',
 		'incompleteType',
+		'literalArrayType',
 		'literalSymbolType',
 		'literalStringType',
 		'literalCharacterType',
@@ -231,6 +232,18 @@ SYMLCompilationTarget >> int8Type [
 SYMLCompilationTarget >> int8Type: anObject [
 	<compileTime>
 	int8Type := anObject
+]
+
+{ #category : #accessing }
+SYMLCompilationTarget >> literalArrayType [
+	<compileTime>
+	^ literalArrayType
+]
+
+{ #category : #accessing }
+SYMLCompilationTarget >> literalArrayType: anObject [
+	<compileTime>
+	literalArrayType := anObject
 ]
 
 { #category : #accessing }

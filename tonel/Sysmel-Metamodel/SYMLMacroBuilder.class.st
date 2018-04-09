@@ -11,6 +11,7 @@ SYMLMacroBuilder >> selector: selectorLazyValue doOn: actionRules [
 	| selector macro |
 	selector := selectorLazyValue value.
 	macro := SYMLDeferredMacro new
+			module: module;
 			parse: actionRules;
 			yourself.
 
@@ -18,8 +19,17 @@ SYMLMacroBuilder >> selector: selectorLazyValue doOn: actionRules [
 ]
 
 { #category : #'as yet unclassified' }
-SYMLMacroBuilder >> selectors: selector doOn: rules [
+SYMLMacroBuilder >> selectors: selectorsLazyValue doOn: actionRules [
 	<compileTime>
 	<lazy>
-	self halt
+	| selectors macro |
+	selectors := selectorsLazyValue value.
+	macro := SYMLDeferredMacro new
+			module: module;
+			parse: actionRules;
+			yourself.
+			
+	selectors do: [ :selector |
+		parent addMethod: macro withSelector: selector
+	]
 ]

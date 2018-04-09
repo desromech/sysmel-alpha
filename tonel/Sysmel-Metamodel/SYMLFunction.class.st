@@ -70,6 +70,11 @@ SYMLFunction >> applyWithArguments: argumentNodes [
 
 ]
 
+{ #category : #converting }
+SYMLFunction >> asSysmelCompileTimeFunction [
+	^ SYMLInterpretedFunctionWrapper new function: self
+]
+
 { #category : #definition }
 SYMLFunction >> assignValue: bodyLazyValue [
 	<compileTime>

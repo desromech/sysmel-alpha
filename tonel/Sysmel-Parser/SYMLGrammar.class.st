@@ -77,7 +77,9 @@ Class {
 		'scapedLanguageContent',
 		'lbracket',
 		'rbracket',
-		'literalArrayKeyword'
+		'literalArrayKeyword',
+		'lowPrecedenceBinaryOperator',
+		'lowPrecedenceExpression'
 	],
 	#classVars : [
 		'SpecialOperators'
@@ -141,7 +143,7 @@ SYMLGrammar >> assignOperator [
 
 { #category : #accessing }
 SYMLGrammar >> assignmentExpression [
-	^ anyChainExpression , (assignOperator , assignmentExpression) optional
+	^ lowPrecedenceExpression , (assignOperator , assignmentExpression) optional
 ]
 
 { #category : #accessing }
@@ -399,6 +401,16 @@ SYMLGrammar >> literalArrayLiteral [
 { #category : #accessing }
 SYMLGrammar >> literals [
 	^ number / stringLiteral / characterLiteral / literalArray / symbolLiteral
+]
+
+{ #category : #'as yet unclassified' }
+SYMLGrammar >> lowPrecedenceBinaryOperator [
+	^ self operator: '::' asParser , (PPPredicateObjectParser anyOf: '+-/\*~<>=@,%|&?!') plus
+]
+
+{ #category : #'as yet unclassified' }
+SYMLGrammar >> lowPrecedenceExpression [
+	^ anyChainExpression , (lowPrecedenceBinaryOperator , anyChainExpression) star
 ]
 
 { #category : #tokens }

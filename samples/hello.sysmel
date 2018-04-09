@@ -11,7 +11,7 @@ struct Vector3 := {
     field y type: Float32.
     field z type: Float32.
 
-    method add (o: Vector3) -> Void := {
+    message + (o: Vector3) ::-> Vector3 := {
         //return: (Vector3 value x: x + o x; y: y + o y z: z + o z; yourself)
         //return: Vector3 value.
     }
@@ -39,7 +39,7 @@ function printf externC CVariadic (format: Char const pointer) -> Int32.
 
 function main externC (argc: Int32, argv: Char const pointer pointer) -> Int32 := {
     let count := argc.
-    printf("Hello World: %d\n", count).
+    printf("Hello World: %d %d\n", count, count + 10).
     return: 0
 }.
 

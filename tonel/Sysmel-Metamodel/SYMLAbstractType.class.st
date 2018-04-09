@@ -11,7 +11,8 @@ Class {
 		'implicitConversionRules',
 		'explicitConversionRules',
 		'ssaType',
-		'cachedValues'
+		'cachedValues',
+		'arithmeticCoercionRules'
 	],
 	#classVars : [
 		'SpecialMetaSymbols'
@@ -33,6 +34,11 @@ SYMLAbstractType class >> initialize [
 { #category : #initialization }
 SYMLAbstractType class >> specialMetaSymbols [
 	^ SpecialMetaSymbols
+]
+
+{ #category : #adding }
+SYMLAbstractType >> addArithmeticCoercionRule: aRule [
+	arithmeticCoercionRules add: aRule
 ]
 
 { #category : #adding }
@@ -79,6 +85,64 @@ SYMLAbstractType >> addTraitUser: aTraitUser [
 { #category : #accessing }
 SYMLAbstractType >> addTraits: aCollectionOfTraits [
 	aCollectionOfTraits do: [ :trait | self addTrait: trait ].
+]
+
+{ #category : #accessing }
+SYMLAbstractType >> alignment [
+	^ self cachedNullary: #alignment
+]
+
+{ #category : #conversions }
+SYMLAbstractType >> arithmeticCoerceWith: rightType at: aSourcePosition [
+	self == rightType ifTrue: [ ^ self ].
+	self flattenedTraits do: [ :trait |
+		trait arithmeticCoercionRules do: [ :rule |
+			(rule coerce: self with: rightType) ifNotNil: [ :result | ^ result ]
+		].
+	].
+
+	^ nil
+	
+]
+
+{ #category : #accessing }
+SYMLAbstractType >> arithmeticCoercionRules [
+	^ arithmeticCoercionRules
+]
+
+{ #category : #conversions }
+SYMLAbstractType >> arithmeticCoercionWith: otherTypeValue do: actionValue [
+	<compileTime>
+	<lazy>
+	| otherType action coercionRule |
+	otherType := otherTypeValue value.
+	action := actionValue value asSysmelCompileTimeFunction.
+	
+	coercionRule := SYMLTypeCoercionFunctionalRule new
+		leftType: self;
+		rightType: otherType;
+		action: action;
+		compilationTarget: self compilationTarget;
+		yourself.
+	self addArithmeticCoercionRule: coercionRule.
+	otherType addArithmeticCoercionRule: coercionRule reversed
+]
+
+{ #category : #conversions }
+SYMLAbstractType >> arithmeticCoercionWith: otherTypeValue into: resultTypeValue [
+	<compileTime>
+	<lazy>
+	| otherType resultType coercionRule |
+	otherType := otherTypeValue value.
+	resultType := resultTypeValue value.
+	
+	coercionRule := SYMLTypeCoercionSimpleRule new
+		leftType: self;
+		rightType: otherType;
+		resultType: resultType;
+		yourself.
+	self addArithmeticCoercionRule: coercionRule.
+	otherType addArithmeticCoercionRule: coercionRule reversed
 ]
 
 { #category : #definition }
@@ -274,6 +338,7 @@ SYMLAbstractType >> initialize [
 	methodDictionary := SYMLOrderedDictionary new.
 	implicitConversionRules := OrderedCollection new.
 	explicitConversionRules := OrderedCollection new.
+	arithmeticCoercionRules := OrderedCollection new.
 	cachedValues := Dictionary new.
 ]
 
@@ -291,6 +356,11 @@ SYMLAbstractType >> isConstantType [
 { #category : #testing }
 SYMLAbstractType >> isFunctionType [
 	^ false
+]
+
+{ #category : #testing }
+SYMLAbstractType >> isLiteralType [
+	^ self cachedNullary: #isLiteralType
 ]
 
 { #category : #testing }
@@ -439,7 +509,7 @@ SYMLAbstractType >> referenced [
 	^ self cachedNullary: #referenced
 ]
 
-{ #category : #'as yet unclassified' }
+{ #category : #'macro compilation' }
 SYMLAbstractType >> semanticAnalyzeMessage: message inEnvironment: environment at: aPosition [
 	| method |
 	method := self lookupSelector: message selector.
@@ -449,6 +519,10 @@ SYMLAbstractType >> semanticAnalyzeMessage: message inEnvironment: environment a
 
 	self isReferenceType ifTrue: [
 		^ self valueType semanticAnalyzeMessage: message inEnvironment: environment at: aPosition
+	].
+
+	(self isMetaObjectType or: [ self isMetaType ]) ifTrue: [
+		^ SYMLSendToHost new semanticAnalyzeMessage: message inEnvironment: environment at: aPosition
 	].
 
 	self error: 'Cannot send message {1} to value of type {2}.' format: { message selector printString . self asString } at: aPosition
@@ -476,6 +550,11 @@ SYMLAbstractType >> semanticAnalyzeMessageToYou: message inEnvironment: environm
 	].
 
 	^ super semanticAnalyzeMessageToYou: message inEnvironment: environment at: aPosition
+]
+
+{ #category : #accessing }
+SYMLAbstractType >> size [
+	^ self cachedNullary: #size
 ]
 
 { #category : #accessing }
@@ -508,6 +587,7 @@ SYMLAbstractType >> type [
 	metaType ifNil: [ 
 		metaType := SYMLMetaType new
 			module: module;
+			definitionEnvironment: definitionEnvironment;
 			instanceType: self;
 			yourself
 	].

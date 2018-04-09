@@ -1,6 +1,7 @@
 Compiler
     evaluateLanguageKernelFileNamed: "bootstrap.sysmel";
     evaluateLanguageKernelFileNamed: "variables.sysmel";
+    evaluateLanguageKernelFileNamed: "arithmetic.sysmel";
     yourself
 
 

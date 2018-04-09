@@ -22,7 +22,7 @@ SYMLASTLiteralArrayValue >> literalTypeSelector [
 	^ #literalArrayType
 ]
 
-{ #category : #'as yet unclassified' }
+{ #category : #accessing }
 SYMLASTLiteralArrayValue >> value [
 	^ value ifNil: [ value := elements collect: #evaluateLiteralArrayElement ]
 ]

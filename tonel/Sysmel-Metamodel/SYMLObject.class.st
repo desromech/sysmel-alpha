@@ -13,6 +13,11 @@ SYMLObject class >> initialize [
 ]
 
 { #category : #'as yet unclassified' }
+SYMLObject >> __sysmel [
+	^ SYMLProxy new __interpreterObject: self
+]
+
+{ #category : #'as yet unclassified' }
 SYMLObject >> analyzeAPSGIdentifierToMe: identifier inEnvironment: anEnvironment [
 	^ SYMLAPSGMetaObjectInstance new
 			position: identifier;
