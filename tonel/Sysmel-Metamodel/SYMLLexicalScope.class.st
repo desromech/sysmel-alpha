@@ -9,6 +9,13 @@ Class {
 }
 
 { #category : #adding }
+SYMLLexicalScope >> addLocalVariable: aLocalVariable at: aPosition [
+	symbols at: aLocalVariable name ifPresent: [ :existent |
+		self error: 'Local variable {1} overrides an existent symbol in the scope.' format: { aLocalVariable name } at: aPosition
+	] ifAbsentPut: [ aLocalVariable ]
+]
+
+{ #category : #adding }
 SYMLLexicalScope >> addMetaMethod: selector value: value [
 	metaMethodDictionary at: selector ifPresent: [ :existent |
 		self error: 'Trying to override meta method {1} with value {2}.' format: { selector printString . value }

@@ -7,18 +7,6 @@ Class {
 	#category : #'Sysmel-Metamodel-APSG'
 }
 
-{ #category : #converting }
-SYMLAPSGLiteral >> asNodeForSequenceElementIn: anEnvironment [
-	value type isMetaObjectType ifTrue: [ ^ value value convertNodeForSequenceElement: self inEnvironment: anEnvironment ].
-	^ self
-]
-
-{ #category : #converting }
-SYMLAPSGLiteral >> asNodeForTupleElementIn: anEnvironment [
-	value type isMetaObjectType ifTrue: [ ^ value value convertNodeForTupleElement: self inEnvironment: anEnvironment ].
-	^ self
-]
-
 { #category : #'as yet unclassified' }
 SYMLAPSGLiteral >> evaluateInEnvironment: anEnvironment [
 	^ value

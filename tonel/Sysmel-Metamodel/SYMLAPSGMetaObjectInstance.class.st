@@ -7,6 +7,16 @@ Class {
 	#category : #'Sysmel-Metamodel-APSG'
 }
 
+{ #category : #converting }
+SYMLAPSGMetaObjectInstance >> asNodeForSequenceElementIn: anEnvironment [
+	^ metaObject convertNodeForSequenceElement: self inEnvironment: anEnvironment
+]
+
+{ #category : #converting }
+SYMLAPSGMetaObjectInstance >> asNodeForTupleElementIn: anEnvironment [
+	^ metaObject convertNodeForTupleElement: self inEnvironment: anEnvironment
+]
+
 { #category : #'meta evaluation' }
 SYMLAPSGMetaObjectInstance >> evaluateInEnvironment: anEnvironment [
 	^ metaObject asSysmelValueInEnvironment: anEnvironment

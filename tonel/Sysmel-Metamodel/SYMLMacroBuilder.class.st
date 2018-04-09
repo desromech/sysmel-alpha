@@ -14,7 +14,7 @@ SYMLMacroBuilder >> selector: selectorLazyValue doOn: actionRules [
 			parse: actionRules;
 			yourself.
 
-	parent methodDictionary at: selector put: macro
+	parent addMethod: macro withSelector: selector
 ]
 
 { #category : #'as yet unclassified' }

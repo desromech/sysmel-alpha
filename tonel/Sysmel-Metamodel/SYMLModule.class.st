@@ -42,6 +42,11 @@ SYMLModule class >> x86_64 [
 ]
 
 { #category : #adding }
+SYMLModule >> addMethod: method withSelector: selector [
+	topLevelScope addMethod: method withSelector: selector
+]
+
+{ #category : #adding }
 SYMLModule >> addSymbol: symbol value: value [
 	^ topLevelScope addSymbol: symbol value: value
 ]
@@ -118,7 +123,7 @@ SYMLModule >> evaluateSource: aSourceString name: aSourceName inContext: context
 	apsg := ast buildAPSG: (SYMLAPSGBuilder new environment: context).
 	[
 		result := apsg analyzeAndEvaluateInEnvironment: context
-	] on: SYMLReturnMacro do: [ :returnException |
+	] on: SYMLValueReturnException do: [ :returnException |
 		self halt.
 	].
 	^ result

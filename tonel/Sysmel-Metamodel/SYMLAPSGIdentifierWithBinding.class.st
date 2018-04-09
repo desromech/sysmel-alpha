@@ -41,7 +41,7 @@ SYMLAPSGIdentifierWithBinding >> generateSSACodeWith: aBuilder [
 
 { #category : #accessing }
 SYMLAPSGIdentifierWithBinding >> semanticAnalysisInEnvironment: anEnvironment [
-	self halt
+	^ self
 ]
 
 { #category : #accessing }

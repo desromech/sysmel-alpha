@@ -7,6 +7,12 @@ Class {
 	#category : #'Sysmel-Metamodel-Scope'
 }
 
+{ #category : #adding }
+SYMLFunctionAnalysisScope >> addLocalVariable: aLocalVariable at: aPosition [
+	super addLocalVariable: aLocalVariable at: aPosition.
+	function addLocal: aLocalVariable
+]
+
 { #category : #accessing }
 SYMLFunctionAnalysisScope >> function [
 	^ function

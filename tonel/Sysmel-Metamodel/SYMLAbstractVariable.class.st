@@ -1,8 +1,7 @@
 Class {
 	#name : #SYMLAbstractVariable,
-	#superclass : #SYMLProgramEntity,
+	#superclass : #SYMLNamedProgramEntity,
 	#instVars : [
-		'name',
 		'type'
 	],
 	#category : #'Sysmel-Metamodel-Program'
@@ -10,7 +9,17 @@ Class {
 
 { #category : #'as yet unclassified' }
 SYMLAbstractVariable >> analyzeAPSGIdentifierToMe: identifier inEnvironment: anEnvironment [
-	^ identifier copyWithBinding: self andType: type
+	^ identifier copyWithBinding: self andType: self referenceType
+]
+
+{ #category : #converting }
+SYMLAbstractVariable >> asIdentifierWithBindingAt: aPosition [
+	^ SYMLAPSGIdentifierWithBinding new
+		position: aPosition;
+		value: self validName asSymbol;
+		binding: self;
+		type: self referenceType;
+		yourself
 ]
 
 { #category : #converting }
@@ -26,22 +35,31 @@ SYMLAbstractVariable >> concretizeIncompleteValue: value inEnvironment: concrete
 	^ concreteEnvironment lookSymbolRecursively: name ifAbsent: [ self error ]
 ]
 
-{ #category : #accessing }
-SYMLAbstractVariable >> name [
-	^ name
+{ #category : #converting }
+SYMLAbstractVariable >> convertNodeForSequenceElement: aNode inEnvironment: anEnvironment [
+	^ self asIdentifierWithBindingAt: aNode position
 ]
 
 { #category : #accessing }
-SYMLAbstractVariable >> name: anObject [
-	name := anObject
+SYMLAbstractVariable >> name: aNewName [
+	<compileTime>
+	name := aNewName.
+
+]
+
+{ #category : #'as yet unclassified' }
+SYMLAbstractVariable >> referenceType [
+	^ self type
 ]
 
 { #category : #accessing }
 SYMLAbstractVariable >> type [
+	<compileTime>
 	^ type
 ]
 
 { #category : #accessing }
 SYMLAbstractVariable >> type: anObject [
+	<compileTime>
 	type := anObject
 ]

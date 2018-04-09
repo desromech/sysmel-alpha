@@ -1,6 +1,13 @@
 Compiler
+    evaluateLanguageKernelFileNamed: "bootstrap.sysmel";
+    evaluateLanguageKernelFileNamed: "variables.sysmel";
+    yourself
+
+
+/*Compiler
     evaluateLanguageKernelFileNamed: "arithmetic.sysmel";
     evaluateLanguageKernelFileNamed: "variables.sysmel";
     evaluateLanguageKernelFileNamed: "controlFlow.sysmel";
     evaluateLanguageKernelFileNamed: "functional.sysmel".
 
+*/

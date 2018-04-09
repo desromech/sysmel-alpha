@@ -39,6 +39,69 @@ Compiler compilationTarget
 
     yourself.
 
+// The return macro is used extensively by the language.
+macro selector: #return: doOn: {
+    evaluation: $$Pharo {
+        evaluateMessage: message inEnvironment: anEnvironment
+        	| result convertedResult |
+        	result := message arguments first evaluateInEnvironment: anEnvironment.
+        	convertedResult := result coercedWithRule: message coercionRule intoType: message coercionType at: message.
+        	SYMLValueReturnException new
+        		value: convertedResult;
+        		signal
+    }.
+
+    semanticAnalysis: $$Pharo {
+        semanticAnalyzeMessage: message inEnvironment: environment at: aPosition
+        	| expectedReturnType returnValue returnValueType coercionRule |
+        	message arguments size ~= 1 ifTrue: [
+        		self error: '#return: meta-method requires at least one argument.' at: aPosition
+        	].
+
+        	"Get the expected return type."
+        	expectedReturnType := environment returnType.
+
+        	"Get the return value"
+        	returnValue := message arguments first semanticAnalysisInEnvironment: environment.
+        	returnValue hasIncompleteSemanticAnalysis ifTrue: [
+        		^ message copy
+        			arguments: { returnValue };
+        			metaMethod: self;
+        			hasIncompleteSemanticAnalysis: true;
+        			yourself
+        	].
+
+        	returnValueType := returnValue evaluateTypeInEnvironment: environment.
+
+        	"Check the type of the return value."
+        	coercionRule := returnValueType node: returnValue coercedImplicitlyInto: expectedReturnType at: aPosition.
+        	^ message copy
+        		arguments: { returnValue };
+        		metaMethod: self;
+        		coercionType: expectedReturnType;
+        		coercionRule: coercionRule;
+        		valueType: environment compilationTarget voidType;
+        		yourself
+    }.
+
+    codeGeneration: $$Pharo {
+        generateMessage: messageNode ssaCodeWith: builder
+        	| value valueNode valueType returnType rawValue |
+        	valueNode := messageNode arguments first.
+        	valueType := valueNode type.
+
+        	returnType := messageNode coercionType.
+        	rawValue := valueNode generateSSACodeWith: builder.
+
+        	^ returnType isVoidType ifTrue: [
+        		builder returnVoid
+        	] ifFalse: [
+        		value := messageNode coercionRule convertSSAValue: rawValue to: returnType with: builder at: messageNode.
+        		builder return: value
+        	]
+    }.
+}.
+
 // A generic type
 trait Type
 definition: {
@@ -90,7 +153,11 @@ definition: {
         return: false
     }.
 
-    meta message isConstant -> Boolean := {
+    meta message isConstantType -> Boolean := {
+        return: false
+    }.
+
+    meta message isVolatileType -> Boolean := {
         return: false
     }.
 
@@ -293,6 +360,10 @@ definition: {
         return: R cleanType ref
     }.
 
+    meta message cvariadicCoercionType -> _CompilerObjectType := {
+        return: R cvariadicCoercionType
+    }.
+
     // Reference evaluation
     SelfType conversionTo: R cleanType doOn: {
         evaluation: $$Pharo {
@@ -305,7 +376,7 @@ definition: {
                     ^ sourceValue
                 ].
 
-                self halt.
+                ^ builder load: sourceValue
         }.
     }.
 }.
@@ -320,7 +391,7 @@ Type extend: {
 template ConstantTypeTemplate(D: Type)
     := type uses: D;
 definition: {
-    meta message isConstant -> Boolean := {
+    meta message isConstantType -> Boolean := {
         return: true
     }.
 
@@ -338,6 +409,10 @@ definition: {
 
     meta message cleanType -> _CompilerObjectType := {
         return: D
+    }.
+
+    meta message cvariadicCoercionType -> _CompilerObjectType := {
+        return: D cvariadicCoercionType
     }.
 }.
 

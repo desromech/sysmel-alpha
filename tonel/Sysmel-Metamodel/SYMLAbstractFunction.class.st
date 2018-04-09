@@ -23,6 +23,11 @@ SYMLAbstractFunction >> CVariadic [
 	self addFlag: #cvariadic
 ]
 
+{ #category : #adding }
+SYMLAbstractFunction >> addLocal: aLocalVariable [
+	locals add: aLocalVariable
+]
+
 { #category : #'as yet unclassified' }
 SYMLAbstractFunction >> addedToAbstractType: anAbstractType [
 	receiverType := anAbstractType.

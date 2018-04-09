@@ -8,6 +8,11 @@ Class {
 }
 
 { #category : #accessing }
+SYMLTopLevelScope >> addMethod: method withSelector: selector [
+	metaMethodDictionary at: selector put: method
+]
+
+{ #category : #accessing }
 SYMLTopLevelScope >> compilationTarget [
 	^ module compilationTarget
 ]
@@ -21,9 +26,12 @@ SYMLTopLevelScope >> definitionProgramEntity [
 SYMLTopLevelScope >> fillSymbols [
 	symbols
 		at: #Compiler put: module;
+		at: #let put: (SYMLMetaBuilder for: SYMLLocalVariable module: module);
+		
 		at: #function put: (SYMLMetaBuilder for: SYMLFunction module: module);
 		at: #trait put: (SYMLMetaBuilder for: SYMLTrait module: module);
 		at: #type put: (SYMLMetaBuilder for: SYMLSimpleType module: module);
+		at: #macro put: (SYMLMetaBuilder for: SYMLMacroBuilder module: module);
 		at: #namespace put: (SYMLMetaBuilder for: SYMLNamespace module: module);
 		at: #template put: (SYMLMetaBuilder for: SYMLTemplate module: module);
 		
@@ -35,7 +43,6 @@ SYMLTopLevelScope >> fillSymbols [
 		at: #false put: (SYMLBooleanConstant new value: false; module: module);
 		
 		yourself.
-	metaMethodDictionary at: #return: put: (SYMLReturnMacro module: module)
 	
 ]
 

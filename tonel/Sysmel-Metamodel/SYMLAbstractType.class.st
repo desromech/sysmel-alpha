@@ -36,6 +36,11 @@ SYMLAbstractType class >> specialMetaSymbols [
 ]
 
 { #category : #adding }
+SYMLAbstractType >> addMethod: method withSelector: selector [
+	methodDictionary at: selector put: method
+]
+
+{ #category : #adding }
 SYMLAbstractType >> addSymbol: aSymbol value: newValue [
 	newValue isAbstractFunction ifTrue: [
 		methodDictionary at: aSymbol ifPresent: [ :existent |
@@ -279,6 +284,11 @@ SYMLAbstractType >> invalidateFlattenedTraits [
 ]
 
 { #category : #testing }
+SYMLAbstractType >> isConstantType [
+	^ self cachedNullary: #isConstantType
+]
+
+{ #category : #testing }
 SYMLAbstractType >> isFunctionType [
 	^ false
 ]
@@ -326,6 +336,11 @@ SYMLAbstractType >> isType [
 { #category : #testing }
 SYMLAbstractType >> isVoidType [
 	^ self == self compilationTarget voidType
+]
+
+{ #category : #testing }
+SYMLAbstractType >> isVolatileType [
+	^ self cachedNullary: #isVolatileType
 ]
 
 { #category : #'as yet unclassified' }
@@ -404,6 +419,11 @@ SYMLAbstractType >> node: node convertedExplicitlyInto: targetType at: aPosition
 	^ coercionRule
 ]
 
+{ #category : #testing }
+SYMLAbstractType >> pointed [
+	^ self cachedNullary: #pointed
+]
+
 { #category : #'type composition' }
 SYMLAbstractType >> pointer [
 	^ self cachedNullary: #pointer
@@ -412,6 +432,11 @@ SYMLAbstractType >> pointer [
 { #category : #'type composition' }
 SYMLAbstractType >> ref [
 	^ self cachedNullary: #ref
+]
+
+{ #category : #testing }
+SYMLAbstractType >> referenced [
+	^ self cachedNullary: #referenced
 ]
 
 { #category : #'as yet unclassified' }
