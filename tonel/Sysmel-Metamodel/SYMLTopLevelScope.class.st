@@ -35,7 +35,7 @@ SYMLTopLevelScope >> fillSymbols [
 		at: #namespace put: (SYMLMetaBuilder for: SYMLNamespace module: module);
 		at: #template put: (SYMLMetaBuilder for: SYMLTemplate module: module);
 		
-		at: #structure put: (SYMLMetaBuilder for: SYMLStructure module: module);
+		at: #struct put: (SYMLMetaBuilder for: SYMLStructure module: module);
 		at: #class put: (SYMLMetaBuilder for: SYMLClass module: module);
 		at: #union put: (SYMLMetaBuilder for: SYMLUnion module: module);
 

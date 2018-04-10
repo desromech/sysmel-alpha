@@ -83,6 +83,11 @@ SYMLMessageMethod >> initialize [
 ]
 
 { #category : #testing }
+SYMLMessageMethod >> isExternC [
+	^ false
+]
+
+{ #category : #testing }
 SYMLMessageMethod >> isMethod [
 	^ true
 ]

@@ -12,6 +12,12 @@ SYMLAbstractScope class >> parent: aParent [
 	^ self new parent: aParent; yourself
 ]
 
+{ #category : #adding }
+SYMLAbstractScope >> addFieldVariable: field at: aPosition [
+	parent ifNotNil: [ ^ parent addFieldVariable: field at: aPosition ].
+	self error: 'Cannot add field {1} at this scope.' format: { field name } at: aPosition
+]
+
 { #category : #'as yet unclassified' }
 SYMLAbstractScope >> apsgBuilder [
 	^ SYMLAPSGBuilder new environment: self

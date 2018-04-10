@@ -5,6 +5,12 @@ Class {
 }
 
 { #category : #testing }
+SYMLMethod >> isExternC [
+	<compileTime>
+	^ false
+]
+
+{ #category : #testing }
 SYMLMethod >> isMethod [
 	^ true
 ]
