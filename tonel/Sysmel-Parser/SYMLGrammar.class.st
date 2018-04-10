@@ -79,7 +79,8 @@ Class {
 		'rbracket',
 		'literalArrayKeyword',
 		'lowPrecedenceBinaryOperator',
-		'lowPrecedenceExpression'
+		'lowPrecedenceExpression',
+		'unarySuffixSubscript'
 	],
 	#classVars : [
 		'SpecialOperators'
@@ -611,7 +612,7 @@ SYMLGrammar >> unaryExpression [
 
 { #category : #accessing }
 SYMLGrammar >> unaryExpressionSuffix [
-	^ unaryExpressionSuffixMessage / unaryExpressionSuffixCall
+	^ unaryExpressionSuffixMessage / unaryExpressionSuffixCall / unarySuffixSubscript
 ]
 
 { #category : #accessing }
@@ -622,6 +623,11 @@ SYMLGrammar >> unaryExpressionSuffixCall [
 { #category : #accessing }
 SYMLGrammar >> unaryExpressionSuffixMessage [
 	^ anyIdentifier
+]
+
+{ #category : #accessing }
+SYMLGrammar >> unarySuffixSubscript [
+	^ lbracket , expression , rbracket
 ]
 
 { #category : #white }

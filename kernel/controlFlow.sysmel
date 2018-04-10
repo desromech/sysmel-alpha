@@ -1,19 +1,13 @@
-// If/then/else
-metaMethod selectorsWithoutReceiver: #(if:then: if:then:else: ) rules: {
-when: $$Pharo {matchesMessage: message inEnvironment: environment at: position
-    ^ message receiver isNil
-
-} doOn: {
-    // Compile time evaluation
+macro selectors: #(if:then: if:then:else:) doOn: {
     evaluation: $$Pharo {
         node: node environment: environment
             self halt.
     }.
 
-    // Semantic analysis
     semanticAnalysis: $$Pharo {
         node: messageNode environment: environment position: aSourcePosition
-            | conditionNode thenNode thenType elseNode elseType analyzedArguments coercionType resultType |
+            | conditionNode thenNode thenType elseNode elseType analyzedArguments conditionCoercionType conditionCoercionRule thenCoercionRule elseCoercionRule resultType |
+
             conditionNode := messageNode arguments first semanticAnalysisInEnvironment: environment.
             thenNode := messageNode arguments second inlineBlockSemanticAnalysisInEnvironment: environment.
             thenType := thenNode evaluateCleanValueTypeInEnvironment: environment.
@@ -28,23 +22,29 @@ when: $$Pharo {matchesMessage: message inEnvironment: environment at: position
             ].
 
             "Check the condition type"
-            coercionType := environment compilationTarget booleanType.
-            (conditionNode evaluateTypeInEnvironment: environment) coercedImplicitlyNode: conditionNode into: coercionType at: aSourcePosition.
+            conditionCoercionType := environment compilationTarget booleanType.
+            conditionCoercionRule := (conditionNode evaluateTypeInEnvironment: environment) node: conditionNode coercedImplicitlyInto: conditionCoercionType at: aSourcePosition.
 
             "Try to select a proper result type instead of void"
             resultType := nil.
             elseType ifNotNil: [
-                resultType := thenType arithmeticCoerceWith: elseType.
+                resultType := thenType arithmeticCoerceWith: elseType at: aSourcePosition.
             ].
 
+            thenCoercionRule := nil.
+            elseCoercionRule := nil.
             resultType ifNil: [
                 resultType := environment compilationTarget voidType.
+            ] ifNotNil: [
+                thenCoercionRule := (thenNode evaluateTypeInEnvironment: environment) node: thenNode coercedImplicitlyInto: resultType at: aSourcePosition.
+                elseCoercionRule := (elseNode evaluateTypeInEnvironment: environment) node: elseNode coercedImplicitlyInto: resultType at: aSourcePosition.
             ].
 
 	        ^ messageNode copy
 		        metaMethod: self;
 		        arguments: analyzedArguments;
-		        coercionType: coercionType;
+		        coercionType: {conditionCoercionType . resultType . resultType };
+                coercionRule: {conditionCoercionRule . thenCoercionRule . elseCoercionRule };
 		        valueType: resultType;
 		        yourself
 	}.
@@ -52,11 +52,10 @@ when: $$Pharo {matchesMessage: message inEnvironment: environment at: position
     // Code generation
     codeGeneration: $$Pharo {
         node: messageNode builder: builder
-            | conditionNode thenNode elseNode coercionType resultType condition result thenBlock elseBlock mergeBlock thenValue elseValue |
+            | conditionNode thenNode elseNode  resultType condition result thenBlock elseBlock mergeBlock thenValue elseValue |
             conditionNode := messageNode arguments first.
             thenNode := messageNode arguments second.
 
-            coercionType := messageNode coercionType.
             resultType := messageNode valueType.
 
             elseNode := nil.
@@ -70,7 +69,7 @@ when: $$Pharo {matchesMessage: message inEnvironment: environment at: position
             elseBlock := elseNode ifNil: [mergeBlock] ifNotNil: [ builder newBasicBlock: #ifElse ].
 
             "Generate the condition."
-            condition := conditionNode type ssaCoerceImplicitly: (conditionNode generateSSACodeWith: builder) to: coercionType with: builder at: messageNode.
+            condition := messageNode coercionRule first convertSSAValue: (conditionNode generateSSACodeWith: builder) to: messageNode coercionType first with: builder at: messageNode.
             builder branch: condition ifTrue: thenBlock ifFalse: elseBlock.
 
             "Generate the result."
@@ -85,7 +84,8 @@ when: $$Pharo {matchesMessage: message inEnvironment: environment at: position
             thenValue := thenNode generateSSACodeWith: builder.
             builder isLastTerminator ifFalse: [
                 resultType isVoidType ifFalse: [
-                    result addValue: (thenNode type ssaCoerceImplicitly: thenValue to: resultType with: builder at: messageNode) from: builder currentBlock
+                    result addValue: (messageNode coercionRule second convertSSAValue: thenValue to: messageNode coercionType second with: builder at: messageNode)
+                        from: builder currentBlock
                 ].
                 builder jump: mergeBlock
             ].
@@ -96,7 +96,8 @@ when: $$Pharo {matchesMessage: message inEnvironment: environment at: position
                 elseValue := elseNode generateSSACodeWith: builder.
                 builder isLastTerminator ifFalse: [
                     resultType isVoidType ifFalse: [
-                        result addValue: (elseNode type ssaCoerceImplicitly: elseValue to: resultType with: builder at: messageNode) from: builder currentBlock
+                        result addValue: (messageNode coercionRule third convertSSAValue: elseValue to: messageNode coercionType third with: builder at: messageNode)
+                            from: builder currentBlock
                     ].
                     builder jump: mergeBlock
                 ].
@@ -105,16 +106,11 @@ when: $$Pharo {matchesMessage: message inEnvironment: environment at: position
             builder currentBlock: mergeBlock.
             ^ result.
     }.
-}
 
 }.
 
 // while:do:continueWith:
-metaMethod selectorsWithoutReceiver: #(while:do: while:do:continueWith: ) rules: {
-when: $$Pharo {matchesMessage: message inEnvironment: environment at: position
-    ^ message receiver isNil
-
-} doOn: {
+macro selectors: #(while:do: while:do:continueWith: ) doOn: {
     // Compile time evaluation
     evaluation: $$Pharo {
         node: node environment: environment
@@ -124,7 +120,7 @@ when: $$Pharo {matchesMessage: message inEnvironment: environment at: position
     // Semantic analysis
     semanticAnalysis: $$Pharo {
         node: messageNode environment: environment position: aSourcePosition
-            | conditionNode bodyNode continueNode analyzedArguments coercionType |
+            | conditionNode bodyNode continueNode analyzedArguments coercionType coercionRule |
             conditionNode := messageNode arguments first semanticAnalysisInEnvironment: environment.
             bodyNode := messageNode arguments second inlineBlockSemanticAnalysisInEnvironment: environment.
             analyzedArguments := {conditionNode . bodyNode}.
@@ -137,12 +133,13 @@ when: $$Pharo {matchesMessage: message inEnvironment: environment at: position
 
             "Check the condition type"
             coercionType := environment compilationTarget booleanType.
-            (conditionNode evaluateTypeInEnvironment: environment) coercedImplicitlyNode: conditionNode into: coercionType at: aSourcePosition.
+            coercionRule := (conditionNode evaluateTypeInEnvironment: environment) node: conditionNode coercedImplicitlyInto: coercionType at: aSourcePosition.
 
 	        ^ messageNode copy
 		        metaMethod: self;
 		        arguments: analyzedArguments;
 		        coercionType: coercionType;
+                coercionRule: coercionRule;
 		        valueType: environment compilationTarget voidType;
 		        yourself
 	}.
@@ -174,7 +171,7 @@ when: $$Pharo {matchesMessage: message inEnvironment: environment at: position
                 currentBlock: conditionBlock.
 
             "Generate the condition."
-            condition := conditionNode type ssaCoerceImplicitly: (conditionNode generateSSACodeWith: builder) to: coercionType with: builder at: messageNode.
+            condition := messageNode coercionRule convertSSAValue: (conditionNode generateSSACodeWith: builder) to: messageNode coercionType with: builder at: messageNode.
             builder
                 branch: condition ifTrue: bodyBlock ifFalse: mergeBlock.
 
@@ -205,16 +202,10 @@ when: $$Pharo {matchesMessage: message inEnvironment: environment at: position
             builder currentBlock: mergeBlock.
             ^ nil
     }.
-}
-
 }.
 
 // until:do:continueWith:
-metaMethod selectorsWithoutReceiver: #(until:do: until:do:continueWith: ) rules: {
-when: $$Pharo {matchesMessage: message inEnvironment: environment at: position
-    ^ message receiver isNil
-
-} doOn: {
+macro selectors: #(until:do: until:do:continueWith: ) doOn: {
     // Semantic analysis
     semanticAnalysis: $$Pharo {
         node: messageNode environment: environment position: aSourcePosition
@@ -230,16 +221,10 @@ when: $$Pharo {matchesMessage: message inEnvironment: environment at: position
                 yourself) semanticAnalysisInEnvironment: environment
 
 	}.
-}
-
 }.
 
 // Do:while:continueWith:
-metaMethod selectorsWithoutReceiver: #(do:while: do:while:continueWith: ) rules: {
-when: $$Pharo {matchesMessage: message inEnvironment: environment at: position
-    ^ message receiver isNil
-
-} doOn: {
+macro selectors: #(do:while: do:while:continueWith:) doOn: {
     // Compile time evaluation
     evaluation: $$Pharo {
         node: node environment: environment
@@ -257,6 +242,4 @@ when: $$Pharo {matchesMessage: message inEnvironment: environment at: position
         node: messageNode builder: builder
 			self halt
     }.
-}
-
 }.

@@ -126,6 +126,10 @@ definition: {
         return: false
     }.
 
+    meta message isBooleanType -> Boolean := {
+        return: false
+    }.
+
     meta message isNumericalType -> Boolean := {
         return: false
     }.
@@ -268,6 +272,14 @@ definition: {
 trait PrimitiveIntegerType uses: (PrimitiveType, IntegerType).
 trait PrimitiveUnsignedIntegerType uses: (PrimitiveIntegerType, UnsignedIntegerType).
 trait PrimitiveSignedIntegerType uses: (PrimitiveIntegerType, SignedIntegerType).
+
+// A boolean type
+trait BooleanType uses: Type;
+definition: {
+    meta message isBooleanType -> Boolean := {
+        return: true
+    }.
+}.
 
 // A floating point type
 trait FractionalType uses: NumericalType;
@@ -539,11 +551,20 @@ definition: {
     meta message cvariadicCoercionType -> _CompilerObjectType := {
         return: Int32
     }.
+
+    meta message valueType -> _CompilerObjectType := {
+        return: Int32
+    }.
+
 }.
 
 _LiteralFraction uses: (LiteralType, FractionalType);
 definition: {
     meta message cvariadicCoercionType -> _CompilerObjectType := {
+        return: Float64
+    }.
+
+    meta message valueType -> _CompilerObjectType := {
         return: Float64
     }.
 }.
@@ -553,12 +574,16 @@ definition: {
     meta message cvariadicCoercionType -> _CompilerObjectType := {
         return: Float64
     }.
+
+    meta message valueType -> _CompilerObjectType := {
+        return: Float64
+    }.
 }.
 
 _CompilerObjectType uses: Type.
 _APSGNodeType uses: Type.
 
-Boolean uses: PrimitiveType.
+Boolean uses: (BooleanType, PrimitiveType).
 Void uses: OpaqueType.
 
 // Int8

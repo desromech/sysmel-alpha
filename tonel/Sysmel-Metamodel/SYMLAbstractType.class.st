@@ -439,18 +439,7 @@ SYMLAbstractType >> methodDictionary [
 
 { #category : #conversions }
 SYMLAbstractType >> node: node coercedImplicitlyInto: targetType [
-	self == targetType ifTrue: [ ^ SYMLIdentityTypeConversionRule new ].
-	implicitConversionRules do: [ :rule |
-		(rule canBeUsedToConvertNode: node from: self into: targetType) ifTrue: [ ^ rule ].
-	].
-
-	usedTraits do: [ :trait |
-		(trait node: node coercedImplicitlyInto: targetType) ifNotNil: [ :rule |
-			^ rule
-		]
-	].
-
-	^ nil
+	^ self node: node coercedImplicitlyInto: targetType visited: IdentitySet new
 ]
 
 { #category : #conversions }
@@ -461,6 +450,34 @@ SYMLAbstractType >> node: node coercedImplicitlyInto: targetType at: aPosition [
 		self error: 'Cannot coerce value of {1} into {2}.' format: {self asString . targetType asString} at: aPosition
 	].
 	^ coercionRule
+]
+
+{ #category : #conversions }
+SYMLAbstractType >> node: node coercedImplicitlyInto: targetType visited: visitedSet [
+	| chainedRule |
+	self == targetType ifTrue: [ ^ SYMLIdentityTypeConversionRule new ].
+	(visitedSet includes: self) ifTrue: [ ^ nil ].
+	visitedSet add: self.
+	
+	implicitConversionRules do: [ :rule |
+		(rule canBeUsedToConvertNode: node from: self into: targetType) ifTrue: [ ^ rule ].
+		rule isTypeKindConversion ifTrue: [ 
+			(visitedSet includes: rule targetTypeKind) ifFalse: [ 
+				chainedRule := rule targetTypeKind node: node coercedImplicitlyInto: targetType visited: visitedSet.
+				chainedRule ifNotNil: [ 
+					^ rule intermediateConversion: rule targetTypeKind chainedWith: chainedRule
+				]
+			].
+		]
+	].
+
+	usedTraits do: [ :trait |
+		(trait node: node coercedImplicitlyInto: targetType visited: visitedSet) ifNotNil: [ :rule |
+			^ rule
+		]
+	].
+
+	^ nil
 ]
 
 { #category : #conversions }
@@ -487,6 +504,34 @@ SYMLAbstractType >> node: node convertedExplicitlyInto: targetType at: aPosition
 		self error: 'Cannot convert value of {1} into {2}.' format: {self asString . targetType asString} at: aPosition
 	].
 	^ coercionRule
+]
+
+{ #category : #conversions }
+SYMLAbstractType >> node: node convertedExplicitlyInto: targetType visited: visitedSet [
+	| chainedRule |
+	self == targetType ifTrue: [ ^ SYMLIdentityTypeConversionRule new ].
+	(visitedSet includes: self) ifTrue: [ ^ nil ].
+	visitedSet add: self.
+	
+	explicitConversionRules do: [ :rule |
+		(rule canBeUsedToConvertNode: node from: self into: targetType) ifTrue: [ ^ rule ].
+		rule isTypeKindConversion ifTrue: [ 
+			(visitedSet includes: rule targetTypeKind) ifFalse: [ 
+				chainedRule := rule targetTypeKind node: node coercedImplicitlyInto: targetType visited: visitedSet.
+				chainedRule ifNotNil: [ 
+					^ rule intermediateConversion: rule targetTypeKind chainedWith: chainedRule
+				]
+			].
+		]
+	].
+
+	usedTraits do: [ :trait |
+		(trait node: node convertedExplicitlyInto: targetType visited: visitedSet) ifNotNil: [ :rule |
+			^ rule
+		]
+	].
+
+	^ nil
 ]
 
 { #category : #testing }

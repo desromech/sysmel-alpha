@@ -86,17 +86,8 @@ codeGeneration: $$Pharo {
 
 }.
 
-/*// Logical negation
-metaMethod selectors: #(not) rules: {
-
-when: $$Pharo {matchesMessage: message inEnvironment: environment at: position
-    | receiverType |
-    receiverType := message receiver evaluateCleanValueTypeInEnvironment: environment.
-
-	receiverType ifNil: [^ false].
-
-    ^ receiverType isBooleanType
-} doOn: {
+// Logical negation
+BooleanType macro selector: #not doOn: {
     // Compile time evaluation
     evaluation: $$Pharo {
         node: node environment: environment
@@ -118,6 +109,7 @@ when: $$Pharo {matchesMessage: message inEnvironment: environment at: position
                 ^ node buildLiteralWithValue: ((operand value value perform: node selector) sysmelValueWithType: coercionType inEnvironment: environment)
             ].
 
+            coercionRule := (operand evaluateTypeInEnvironment: environment) node: operan coercedImplicitlyInto: coercionType at: node.
 			resultType := coercionType.
 
             ^ node copy
@@ -125,6 +117,7 @@ when: $$Pharo {matchesMessage: message inEnvironment: environment at: position
                 receiver: operand;
                 arguments: #();
                 coercionType: coercionType;
+                coercionRule: coercionRule;
                 valueType: resultType;
                 yourself
     }.
@@ -136,12 +129,7 @@ when: $$Pharo {matchesMessage: message inEnvironment: environment at: position
 			"Convert the arguments"
 			coercionType := messageNode coercionType.
 			operandNode := messageNode receiver.
-			operandValue := operandNode type ssaCoerceImplicitly: (operandNode generateSSACodeWith: builder) to: coercionType with: builder at: messageNode.
-
-            ^ coercionType generateArithmeticMessage: messageNode selector withBuilder: builder operand: operandValue at: messageNode
+			operandValue := messageNode coercionRule convertSSAValue: (operandNode generateSSACodeWith: builder) to: coercionType with: builder at: messageNode.
+            ^ builder lnot: operandValue
     }.
 }.
-
-}.
-
-*/

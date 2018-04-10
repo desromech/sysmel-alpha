@@ -1,7 +1,7 @@
 // Main function
-/*function printf externC CVariadic (format: Char const pointer) -> Int32.
+function printf externC CVariadic (format: Char const pointer) -> Int32.
 
-struct SomeStruct := {
+/*struct SomeStruct := {
     field first type: Float32.
     field second type: Float64.
 }.
@@ -16,13 +16,13 @@ struct Vector3 := {
         //return: Vector3 value.
     }
 }.
-
+*/
 
 function main externC (argc: Int32, argv: Char const pointer pointer) -> Int32 := {
     let i := 1.
     until: i >= argc do: {
         if: i = 1 then: {
-            //printf("First ").
+            printf("First ").
         } else: {
             printf("Not first ").
         }.
@@ -33,13 +33,3 @@ function main externC (argc: Int32, argv: Char const pointer pointer) -> Int32 :
     printf("Hello World\n").
     return: 0.
 }.
-*/
-
-function printf externC CVariadic (format: Char const pointer) -> Int32.
-
-function main externC (argc: Int32, argv: Char const pointer pointer) -> Int32 := {
-    let count := argc.
-    printf("Hello World: %d %d\n", count, count + 10).
-    return: 0
-}.
-

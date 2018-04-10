@@ -23,3 +23,16 @@ SYMLTypeConversionRule >> convertSSAValue: rawValue to: targetType with: builder
 SYMLTypeConversionRule >> convertValue: value into: targetType at: coercionPosition [
 	self subclassResponsibility
 ]
+
+{ #category : #'as yet unclassified' }
+SYMLTypeConversionRule >> intermediateConversion: intermediateType chainedWith: nextRule [
+	^ SYMLChainedTypeConversionRule new
+		intermediateType: intermediateType;
+		nextRule: nextRule;
+		yourself
+]
+
+{ #category : #testing }
+SYMLTypeConversionRule >> isTypeKindConversion [
+	^ false
+]

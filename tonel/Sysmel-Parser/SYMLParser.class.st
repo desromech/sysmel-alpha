@@ -505,3 +505,14 @@ SYMLParser >> unaryExpressionSuffixMessage [
 			yourself
 	]
 ]
+
+{ #category : #accessing }
+SYMLParser >> unarySuffixSubscript [
+	^ super unarySuffixSubscript ==> [ :tokens |
+		SYMLASTSubscriptExpression new
+			position: tokens first;
+			tokens: { tokens first . tokens last };
+			index: tokens second;
+			yourself
+	]
+]

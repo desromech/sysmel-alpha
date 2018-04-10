@@ -12,6 +12,12 @@ SYMLAbstractScope class >> parent: aParent [
 	^ self new parent: aParent; yourself
 ]
 
+{ #category : #'as yet unclassified' }
+SYMLAbstractScope >> apsgBuilder [
+	^ SYMLAPSGBuilder new environment: self
+	
+]
+
 { #category : #accessing }
 SYMLAbstractScope >> compilationTarget [
 	^ parent compilationTarget

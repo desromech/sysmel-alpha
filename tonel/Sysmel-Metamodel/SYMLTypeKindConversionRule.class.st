@@ -12,6 +12,11 @@ SYMLTypeKindConversionRule >> canBeUsedToConvertFrom: sourceType into: targetTyp
 	^ targetType isSysmelKindOf: targetTypeKind
 ]
 
+{ #category : #testing }
+SYMLTypeKindConversionRule >> isTypeKindConversion [
+	^ true
+]
+
 { #category : #accessing }
 SYMLTypeKindConversionRule >> targetTypeKind [
 	^ targetTypeKind
