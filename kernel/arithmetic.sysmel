@@ -100,7 +100,7 @@ BooleanType macro selector: #not doOn: {
     // Semantic analysis
     semanticAnalysis: $$Pharo {
         node: node environment: environment position: aSourcePosition
-	        | operand operandType coercionType resultType |
+	        | operand operandType coercionType resultType coercionRule |
 	        operand := node receiver semanticAnalysisInEnvironment: environment.
             operandType := operand evaluateCleanValueTypeInEnvironment: environment.
 
