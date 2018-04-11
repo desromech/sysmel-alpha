@@ -7,7 +7,7 @@ Class {
 	#classVars : [
 		'Keywords'
 	],
-	#category : #Sysmel-Phanide
+	#category : #'Sysmel-Phanide'
 }
 
 { #category : #'as yet unclassified' }
@@ -175,6 +175,13 @@ SYMLSyntaxHighlighter >> pragmaChainUnaryMessage [
 SYMLSyntaxHighlighter >> singleLineComment [
 	^ super singleLineComment token ==> [ :token |
 		self commands add: (PhanideHighlightCommandStyle singleLineComment token: token)
+	]
+]
+
+{ #category : #accessing }
+SYMLSyntaxHighlighter >> stringLiteral [
+	^ super stringLiteral ==> [ :token |
+		self commands add: (PhanideHighlightCommandStyle string token: token)
 	]
 ]
 

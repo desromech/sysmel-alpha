@@ -1,1 +1,1 @@
-Package { #name : #Sysmel-Phanide }
+Package { #name : #'Sysmel-Phanide' }
