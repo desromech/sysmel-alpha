@@ -1,3 +1,0 @@
-meta evaluation
-concreteTypeForNode: aNode
-	self subclassResponsibility

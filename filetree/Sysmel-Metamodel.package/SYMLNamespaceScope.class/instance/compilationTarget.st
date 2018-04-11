@@ -1,3 +1,0 @@
-accessing
-compilationTarget
-	^ namespace compilationTarget

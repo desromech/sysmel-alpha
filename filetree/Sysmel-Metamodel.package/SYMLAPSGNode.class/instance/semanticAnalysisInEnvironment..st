@@ -1,3 +1,0 @@
-meta evaluation
-semanticAnalysisInEnvironment: anEnvironment
-	self subclassResponsibility

@@ -1,3 +1,0 @@
-converting
-asSysmelCollectionWithContext
-	^ self

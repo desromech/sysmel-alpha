@@ -1,3 +1,0 @@
-meta evaluation
-evaluateInEnvironment: anEnvironment
-	self subclassResponsibility

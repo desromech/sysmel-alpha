@@ -1,3 +1,0 @@
-as yet unclassified
-buildCoercionTables
-	ArithmeticCoercionTable := self buildCoercionRuleTable: SYMLArithmeticCoercionRules

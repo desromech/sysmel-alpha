@@ -1,3 +1,0 @@
-accessing
-isUnsigned
-	^ signed not

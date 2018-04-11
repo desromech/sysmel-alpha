@@ -1,3 +1,0 @@
-accessing
-returnType
-	^ function returnType

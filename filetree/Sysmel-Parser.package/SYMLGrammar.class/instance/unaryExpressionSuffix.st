@@ -1,3 +1,0 @@
-accessing
-unaryExpressionSuffix
-	^ unaryExpressionSuffixMessage / unaryExpressionSuffixCall

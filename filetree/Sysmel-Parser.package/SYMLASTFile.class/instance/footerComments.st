@@ -1,3 +1,0 @@
-accessing
-footerComments
-	^ footerComments

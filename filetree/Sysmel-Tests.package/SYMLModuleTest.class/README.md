@@ -1,1 +1,0 @@
-A SYMLModuleTest is a test class for testing the behavior of SYMLModule

@@ -1,9 +1,0 @@
-{
-	"instance" : {
-		"initialize" : "RonieSalgado 12/23/2017 22:54",
-		"lookSymbol:ifPresent:" : "RonieSalgado 12/23/2017 22:54",
-		"lookSymbol:ifPresent:ifAbsentPut:" : "RonieSalgado 12/24/2017 21:46",
-		"findLocalDefinitionScopeFrom:" : "RonieSalgado 1/24/2018 01:37"
-	},
-	"class" : { }
-}

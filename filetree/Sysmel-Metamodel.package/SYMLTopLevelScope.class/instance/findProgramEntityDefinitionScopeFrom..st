@@ -1,3 +1,0 @@
-accessing
-findProgramEntityDefinitionScopeFrom: startingPoint
-	^ self

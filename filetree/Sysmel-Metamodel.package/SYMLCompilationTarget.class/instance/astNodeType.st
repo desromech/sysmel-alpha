@@ -1,3 +1,0 @@
-accessing
-astNodeType
-	self subclassResponsibility

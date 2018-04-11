@@ -1,3 +1,0 @@
-semantic analysis
-mangledName
-	self subclassResponsibility

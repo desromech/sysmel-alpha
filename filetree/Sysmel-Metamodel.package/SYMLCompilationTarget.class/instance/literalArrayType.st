@@ -1,3 +1,0 @@
-primitive types
-literalArrayType
-	self subclassResponsibility

@@ -1,3 +1,0 @@
-primitive types
-literalIntegerType
-	self subclassResponsibility

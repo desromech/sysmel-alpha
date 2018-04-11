@@ -1,3 +1,0 @@
-primitive types
-literalCharacterType
-	self subclassResponsibility

@@ -1,3 +1,0 @@
-semantic analysis
-semanticAnalysis
-	globalNamespace semanticAnalysis

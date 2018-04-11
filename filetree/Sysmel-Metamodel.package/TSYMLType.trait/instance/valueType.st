@@ -1,3 +1,0 @@
-meta evaluation
-valueType
-	^ self

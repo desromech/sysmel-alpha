@@ -1,3 +1,0 @@
-accessing
-findDefinitionProgramEntity
-	^ self findProgramEntityDefinitionScope programEntity

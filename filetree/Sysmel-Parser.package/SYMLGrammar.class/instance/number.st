@@ -1,3 +1,0 @@
-accessing
-number
-	^ floatNumber / integerNumber

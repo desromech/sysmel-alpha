@@ -1,3 +1,0 @@
-accessing
-argumentNodes
-	^ argumentNodes

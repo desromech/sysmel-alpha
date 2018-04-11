@@ -1,3 +1,0 @@
-white
-whites
-	^ white star

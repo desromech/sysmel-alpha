@@ -1,3 +1,0 @@
-flags
-pic
-	lowLevelTarget pic

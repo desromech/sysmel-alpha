@@ -1,3 +1,0 @@
-accessing
-chainUnaryMessage
-	^ anyIdentifier

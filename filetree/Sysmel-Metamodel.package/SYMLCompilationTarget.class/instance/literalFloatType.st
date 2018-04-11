@@ -1,3 +1,0 @@
-primitive types
-literalFloatType
-	self subclassResponsibility

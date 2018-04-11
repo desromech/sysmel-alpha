@@ -1,3 +1,0 @@
-accessing
-languageName
-	self subclassResponsibility

@@ -1,3 +1,0 @@
-testing
-isFunctionGroupType
-	^ false

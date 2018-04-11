@@ -1,9 +1,0 @@
-{
-	"instance" : {
-		"coerceLiteralIntegerType:withIntegerType:" : "RonieSalgado 1/28/2018 20:51",
-		"coerceLiteralIntegerType:withLiteralFloatType:" : "RonieSalgado 1/28/2018 20:33",
-		"coerceIntegerType:withIntegerType:" : "RonieSalgado 1/28/2018 20:56",
-		"coerceIntegerType:withFloatType:" : "RonieSalgado 1/28/2018 20:54"
-	},
-	"class" : { }
-}

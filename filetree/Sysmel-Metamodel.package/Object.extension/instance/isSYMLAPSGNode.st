@@ -1,3 +1,0 @@
-*Sysmel-Metamodel
-isSYMLAPSGNode
-	^ false
