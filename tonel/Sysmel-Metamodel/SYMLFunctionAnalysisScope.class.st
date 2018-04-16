@@ -2,7 +2,8 @@ Class {
 	#name : #SYMLFunctionAnalysisScope,
 	#superclass : #SYMLLexicalScope,
 	#instVars : [
-		'function'
+		'function',
+		'receiver'
 	],
 	#category : #'Sysmel-Metamodel-Scope'
 }
@@ -21,6 +22,22 @@ SYMLFunctionAnalysisScope >> function [
 { #category : #accessing }
 SYMLFunctionAnalysisScope >> function: anObject [
 	function := anObject
+]
+
+{ #category : #'as yet unclassified' }
+SYMLFunctionAnalysisScope >> lookSymbol: symbol ifPresent: ifPresentBlock [
+	super lookSymbol: symbol ifPresent: [:found | ^ ifPresentBlock value: found ].
+	^ self receiverType lookReceiver: receiver symbol: symbol ifPresent: ifPresentBlock
+]
+
+{ #category : #accessing }
+SYMLFunctionAnalysisScope >> receiver [
+	^ receiver
+]
+
+{ #category : #accessing }
+SYMLFunctionAnalysisScope >> receiver: anObject [
+	receiver := anObject
 ]
 
 { #category : #'as yet unclassified' }

@@ -64,6 +64,17 @@ SYMLStructure >> initializeSSAVariable: ssaVariable builder: builder [
 	]
 ]
 
+{ #category : #'symbol lookup' }
+SYMLStructure >> lookReceiver: receiver symbol: symbol ifPresent: ifPresentBlock [
+	<compileTime>
+	symbols at: symbol ifPresent: [ :binding |
+		binding isFieldVariable ifTrue: [
+			^ ifPresentBlock value: (binding bindingForReceiver: receiver symbol: symbol)
+		].
+	].
+	^ super lookReceiver: receiver symbol: symbol ifPresent: ifPresentBlock
+]
+
 { #category : #'semantic analysis' }
 SYMLStructure >> mangledName [
 	^ ByteString streamContents: [ :out |

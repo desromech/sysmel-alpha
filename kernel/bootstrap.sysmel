@@ -192,6 +192,10 @@ definition: {
     meta message defaultSSAValueWith: (builder: _CompilerObjectType) ::-> _CompilerObjectType := {
         self error: "Cannot generate default value of {1}" format: (self,self)
     }.
+
+    meta message isReturnedThroughFirstArgument ::-> Boolean := {
+        return: false
+    }.
 }.
 
 // Meta type
@@ -402,6 +406,11 @@ definition: {
 
     meta message cvariadicCoercionType -> _CompilerObjectType := {
         return: R cvariadicCoercionType
+    }.
+
+    meta message lookReceiver: (receiver: _CompilerObjectType) symbol: (symbol: _CompilerObjectType) ifPresent: (ifPresentBlock: _CompilerObjectType)
+        ::-> _CompilerObjectType := {
+        return: (R lookReceiver: receiver symbol: symbol ifPresent: ifPresentBlock)
     }.
 
     // Reference evaluation

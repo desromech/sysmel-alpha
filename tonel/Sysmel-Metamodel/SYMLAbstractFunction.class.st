@@ -69,7 +69,10 @@ SYMLAbstractFunction >> analyzedBody [
 { #category : #accessing }
 SYMLAbstractFunction >> createAnalysisScope [
 	| analysisScope |
-	analysisScope := (SYMLFunctionAnalysisScope parent: bodyEnvironment) function: self.
+	analysisScope := (SYMLFunctionAnalysisScope parent: bodyEnvironment)
+		function: self;
+		receiver: self receiver;
+		yourself.
 	receiver ifNotNil: [ 
 		analysisScope addSymbol: receiver name value: receiver
 	].
@@ -82,11 +85,16 @@ SYMLAbstractFunction >> createAnalysisScope [
 
 { #category : #'code generation' }
 SYMLAbstractFunction >> createSSAValue [
-	| argumentsOffset ssaArgument |
+	| argumentsOffset ssaArgument receiverOffset |
 	ssaValue := SLVMFunction module: self module ssaModule name: self mangledName functionType: functionType ssaType.
 	ssaValue unmangledName: name.
 	
-	argumentsOffset := self receiverType isVoidType ifTrue: [0] ifFalse: [1].
+	receiverOffset := self returnType isReturnedThroughFirstArgument ifTrue: [1] ifFalse: [0].
+	
+	argumentsOffset := receiverOffset + (self receiverType isVoidType ifTrue: [0] ifFalse: [1]).
+	argumentsOffset > 0 ifTrue: [ 
+		(ssaValue arguments at: receiverOffset + 1) name: #receiver
+	].
 
 	arguments doWithIndex: [ :arg :index |
 		ssaArgument := ssaValue arguments at: index + argumentsOffset..
@@ -141,7 +149,7 @@ SYMLAbstractFunction >> functionType [
 
 { #category : #'code generation' }
 SYMLAbstractFunction >> generateSSACode [
-	| allocaBuilder builder bodyBlock |
+	| allocaBuilder builder bodyBlock argumentsOffset receiverOffset |
 	body ifNil: [
 		name ifNotNil: [
 			self ssaValue makeExternal
@@ -149,9 +157,17 @@ SYMLAbstractFunction >> generateSSACode [
 		^ self
 	].
 	
+	"Set the receiver"
+	receiverOffset := self returnType isReturnedThroughFirstArgument ifTrue: [1] ifFalse: [0].
+	argumentsOffset := receiverOffset.
+	self receiverType isVoidType ifFalse: [ 
+		receiver ssaValue: (self ssaValue arguments at: receiverOffset + 1).
+		argumentsOffset := receiverOffset + 1.
+	].
+
 	"Set the arguments"
 	arguments doWithIndex: [ :arg :index |
-		arg ssaValue: (self ssaValue arguments at: index)
+		arg ssaValue: (self ssaValue arguments at: index + argumentsOffset)
 	].
 
 	"Create a builder for the allocas and another for the function body."
@@ -224,6 +240,12 @@ SYMLAbstractFunction >> mangledName [
 			print: name size;
 			nextPutAll: name.
 	]
+]
+
+{ #category : #accessing }
+SYMLAbstractFunction >> receiver [
+	<compileTime>
+	^ receiver
 ]
 
 { #category : #accessing }

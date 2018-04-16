@@ -11,9 +11,9 @@ struct Vector3 := {
     field y type: Float32.
     field z type: Float32.
 
-    /*message getX ::-> Float32 := {
+    message getX ::-> Float32 := {
         return: x.
-    }.*/
+    }.
 
     message + (o: SelfType) ::-> SelfType := {
         //return: (Vector3 value x: x + o x; y: y + o y z: z + o z; yourself)

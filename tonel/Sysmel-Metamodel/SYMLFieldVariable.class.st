@@ -7,6 +7,14 @@ Class {
 	#category : #'Sysmel-Metamodel-Program'
 }
 
+{ #category : #'as yet unclassified' }
+SYMLFieldVariable >> bindingForReceiver: receiver symbol: symbol [
+	^ SYMLReceiverFieldVariable new
+		field: self;
+		receiver: receiver;
+		yourself
+]
+
 { #category : #converting }
 SYMLFieldVariable >> convertNodeForSequenceElement: aNode inEnvironment: anEnvironment [
 	^ aNode
@@ -17,6 +25,16 @@ SYMLFieldVariable >> initializeSSAVariable: ssaVariable builder: builder [
 	| fieldPointer |
 	fieldPointer := builder getReference: ssaVariable element: (builder constInt: slotIndex).
 	builder store: (type defaultSSAValueWith: builder) in: fieldPointer
+]
+
+{ #category : #testing }
+SYMLFieldVariable >> isFieldVariable [
+	^ true
+]
+
+{ #category : #'as yet unclassified' }
+SYMLFieldVariable >> referenceType [
+	^ self type ref
 ]
 
 { #category : #'as yet unclassified' }
@@ -40,4 +58,9 @@ SYMLFieldVariable >> slotIndex [
 { #category : #accessing }
 SYMLFieldVariable >> slotIndex: anObject [
 	slotIndex := anObject
+]
+
+{ #category : #initialization }
+SYMLFieldVariable >> ssaReferenceForReceiverValue: receiverValue builder: builder [
+	^ builder getReference: receiverValue element: (builder constInt: slotIndex)
 ]

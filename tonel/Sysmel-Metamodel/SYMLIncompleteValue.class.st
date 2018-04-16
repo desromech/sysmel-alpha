@@ -28,6 +28,11 @@ SYMLIncompleteValue >> isIncompleteValue [
 	^ true
 ]
 
+{ #category : #testing }
+SYMLIncompleteValue >> isSysmelIncompleteValue [
+	^ true
+]
+
 { #category : #accessing }
 SYMLIncompleteValue >> type [
 	^ type

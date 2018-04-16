@@ -15,6 +15,7 @@ Class {
 SYMLTemplate >> applyWithArguments: argumentNodes [
 	<compileTime>
 	<lazy>
+	<allowIncomplete>
 	| evaluationEnvironment argumentName argumentType |
 	hasArguments ifTrue: [
 		^ self evaluateTemplate: argumentNodes

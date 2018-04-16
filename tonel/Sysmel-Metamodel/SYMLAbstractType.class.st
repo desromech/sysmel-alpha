@@ -420,6 +420,11 @@ SYMLAbstractType >> isReferenceType [
 ]
 
 { #category : #testing }
+SYMLAbstractType >> isReturnedThroughFirstArgument [
+	^ self cachedNullary: #isReturnedThroughFirstArgument
+]
+
+{ #category : #testing }
 SYMLAbstractType >> isSysmelKindOf: anotherType [
 	self == anotherType ifTrue: [ ^ true ].
 	usedTraits do: [ :used |
@@ -449,7 +454,13 @@ SYMLAbstractType >> isVolatileType [
 	^ self cachedNullary: #isVolatileType
 ]
 
-{ #category : #'as yet unclassified' }
+{ #category : #'symbol lookup' }
+SYMLAbstractType >> lookReceiver: receiver symbol: symbol ifPresent: ifPresentBlock [
+	<compileTime>
+	^ self sysmelPerform: #lookReceiver:symbol:ifPresent: withArguments: { receiver . symbol . ifPresentBlock } fallbackWith: [ nil ]
+]
+
+{ #category : #'symbol lookup' }
 SYMLAbstractType >> lookSymbol: symbol ifPresent: ifPresentBlock [
 	| resultBlock |
 	resultBlock := [ :existent | ^ ifPresentBlock value: existent ].
@@ -598,6 +609,7 @@ SYMLAbstractType >> semanticAnalyzeMessage: message inEnvironment: environment a
 		^ method semanticAnalyzeMessage: message inEnvironment: environment at: aPosition
 	].
 
+	self flag: 'TODO: Remove this reference check.'.
 	self isReferenceType ifTrue: [
 		^ self valueType semanticAnalyzeMessage: message inEnvironment: environment at: aPosition
 	].
@@ -611,7 +623,6 @@ SYMLAbstractType >> semanticAnalyzeMessage: message inEnvironment: environment a
 
 { #category : #'as yet unclassified' }
 SYMLAbstractType >> semanticAnalyzeMessageToYou: message inEnvironment: environment at: aPosition [
-	| result |
 	(name isNil and: [message selector numArgs = 0 and: [self isMetaType not] ]) ifTrue: [
 		self name: message selector.
 		^ message receiver
@@ -651,10 +662,18 @@ SYMLAbstractType >> symbols [
 
 { #category : #'as yet unclassified' }
 SYMLAbstractType >> sysmelPerform: aSelector withArguments: arguments [
+	^ self sysmelPerform: aSelector withArguments: arguments fallbackWith: [
+		self error: 'Cannot perform sysmel method {1} with receiver of type {2}.' format: { aSelector printString  . self asString }
+	]
+
+]
+
+{ #category : #'as yet unclassified' }
+SYMLAbstractType >> sysmelPerform: aSelector withArguments: arguments fallbackWith: fallbackBlock [
 	| method result |
 	method := (self type lookupSelector: aSelector).
 	method ifNil: [
-		self error: 'Cannot perform sysmel method {1} with receiver of type {2}.' format: { aSelector printString  . self asString }
+		^ fallbackBlock value
 	].
 
 	result := method evaluateWithReceiver: self arguments: (arguments collect: [ :arg | arg asSysmelValueInEnvironment: definitionEnvironment ]) inEnvironment: definitionEnvironment at: (SYMLSourcePosition new).

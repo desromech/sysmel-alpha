@@ -73,6 +73,11 @@ SYMLObject >> isAbstractFunction [
 ]
 
 { #category : #testing }
+SYMLObject >> isFieldVariable [
+	^ false
+]
+
+{ #category : #testing }
 SYMLObject >> isIncompleteValue [
 	^ false
 ]
@@ -109,7 +114,7 @@ SYMLObject >> semanticAnalyzeMessageToYou: message inEnvironment: environment at
 
 { #category : #'accessing method dictionary' }
 SYMLObject >> sendCompileTimeMessage: message inEnvironment: environment at: aPosition [
-	| compiledMethod isLazy isRewrite arguments result |
+	| compiledMethod isLazy isRewrite arguments result allowIncomplete analyzedArguments |
 	compiledMethod := self class lookupSelector: message selector.
 	compiledMethod ifNil: [ 
 		self error: 'Cannot send unexistent message {1} to compile time object {2}.' format: { message selector printString . self printString } at: aPosition
@@ -121,11 +126,19 @@ SYMLObject >> sendCompileTimeMessage: message inEnvironment: environment at: aPo
 
 	isLazy := compiledMethod hasPragmaNamed: #lazy.
 	isRewrite := compiledMethod hasPragmaNamed: #rewrite.
+	allowIncomplete := compiledMethod hasPragmaNamed: #allowIncomplete.
 	
 	arguments := isLazy ifTrue: [
 		message arguments collect: [ :arg | SYMLLazyValue new node: arg; environment: environment ]
 	] ifFalse: [
-		message arguments collect: [ :arg | (arg analyzeAndEvaluateInEnvironment: environment) unwrapSysmelValue ]
+		analyzedArguments := message arguments collect: [ :arg | arg semanticAnalysisInEnvironment: environment ].
+		analyzedArguments collect: [ :arg | (arg evaluateInEnvironment: environment) unwrapSysmelValue ]
+	].
+
+	(isLazy not and: [isRewrite not and: [allowIncomplete not ]]) ifTrue: [ 
+		arguments detect: #isSysmelIncompleteValue ifFound: [
+			^ SYMLSendToHost new semanticAnalyzeMessage: (message copy arguments: analyzedArguments) inEnvironment: environment at: aPosition
+		].
 	].
 
 	result := self perform: message selector withArguments: arguments.
