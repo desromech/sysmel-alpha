@@ -22,7 +22,8 @@ SYMLTupleType >> compilationTarget [
 { #category : #accessing }
 SYMLTupleType >> compilationTarget: anObject [
 	compilationTarget := anObject.
-	definitionEnvironment := compilationTarget fakeEnvironment
+	definitionEnvironment := compilationTarget fakeEnvironment.
+	self addTypeKindBaseTrait
 ]
 
 { #category : #comparing }
@@ -33,6 +34,11 @@ SYMLTupleType >> hash [
 { #category : #testing }
 SYMLTupleType >> isTupleType [
 	^ true
+]
+
+{ #category : #accessing }
+SYMLTupleType >> typeKindBaseTrait [
+	^ compilationTarget tupleTypeTrait
 ]
 
 { #category : #accessing }

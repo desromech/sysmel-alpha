@@ -64,7 +64,8 @@ SYMLFunctionType >> compilationTarget [
 SYMLFunctionType >> compilationTarget: anObject [
 	<compileTime>
 	compilationTarget := anObject.
-	definitionEnvironment := compilationTarget fakeEnvironment
+	definitionEnvironment := compilationTarget fakeEnvironment.
+	self addTypeKindBaseTrait
 ]
 
 { #category : #comparing }
@@ -103,6 +104,11 @@ SYMLFunctionType >> returnType [
 SYMLFunctionType >> returnType: anObject [
 	<compileTime>
 	returnType := anObject
+]
+
+{ #category : #'as yet unclassified' }
+SYMLFunctionType >> typeKindBaseTrait [
+	^ self compilationTarget functionTypeTrait
 ]
 
 { #category : #accessing }

@@ -102,6 +102,12 @@ SYMLSLVMCompilationTarget >> ssaUInt8 [
 	^ target uint8
 ]
 
+{ #category : #'target platform querying' }
+SYMLSLVMCompilationTarget >> ssaVoidType [
+	<compileTime>
+	^ target void
+]
+
 { #category : #accessing }
 SYMLSLVMCompilationTarget >> target [
 	<compileTime>

@@ -6,10 +6,16 @@ Class {
 	#instVars : [
 		'evaluation',
 		'semanticAnalysis',
-		'codeGeneration'
+		'codeGeneration',
+		'metaMessageAnalysis'
 	],
 	#category : #'Sysmel-Metamodel-Macro'
 }
+
+{ #category : #'as yet unclassified' }
+SYMLDeferredMacro >> analyzeMetaMessage: message toReceiver: receiverValue inEnvironment: environment at: aPosition [
+	^ metaMessageAnalysis  valueWithReceiver: self arguments: { message . receiverValue . environment . aPosition}
+]
 
 { #category : #accessing }
 SYMLDeferredMacro >> codeGeneration [
@@ -39,6 +45,16 @@ SYMLDeferredMacro >> evaluation: anObject [
 { #category : #'macro compilation' }
 SYMLDeferredMacro >> generateMessage: messageNode ssaCodeWith: builder [
 	^ codeGeneration valueWithReceiver: self arguments: { messageNode . builder }
+]
+
+{ #category : #accessing }
+SYMLDeferredMacro >> metaMessageAnalysis [
+	^ metaMessageAnalysis
+]
+
+{ #category : #accessing }
+SYMLDeferredMacro >> metaMessageAnalysis: anObject [
+	metaMessageAnalysis := anObject
 ]
 
 { #category : #accessing }

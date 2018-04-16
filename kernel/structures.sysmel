@@ -1,0 +1,48 @@
+StructureType meta macro selectors: #(basicNewValue basicNewValue: newValue newValue: applyWithArguments: ) doOn: {
+// Compile time evaluation
+evaluation: $$Pharo {
+    node: node environment: environment
+        self halt.
+}.
+
+// Semantic analysis
+metaMessageAnalysis: $$Pharo {
+    node: node type: type environment: environment position: aSourcePosition
+    | arguments |
+    arguments := node arguments.
+    node selector == #applyWithArguments: ifTrue: [
+        arguments := arguments first elements.
+    ].
+
+    arguments ifNotEmpty: [
+        self error: 'Structure value constructor arguments not supported.'
+    ].
+
+    ^ node copy
+        metaMethod: self;
+        coercionType: type;
+        valueType: type ref;
+        yourself
+}.
+
+// Code generation
+codeGeneration: $$Pharo {
+    node: messageNode builder: builder
+    | structureType structureVariable valueType |
+    structureType := messageNode coercionType.
+    valueType := messageNode valueType.
+    structureType ensureConcreteSSAType.
+
+    structureVariable := builder allocaBuilder alloca: structureType ssaType.
+    structureType initializeSSAVariable: structureVariable builder: builder.
+
+    messageNode selector == #newValue ifTrue: [
+
+    ].
+
+    ^ valueType isReferenceType
+        ifTrue: [ structureVariable ]
+        ifFalse: [ builder load: structureVariable ]
+}.
+
+}

@@ -7,6 +7,11 @@ Class {
 	#category : #'Sysmel-Metamodel-Program'
 }
 
+{ #category : #converting }
+SYMLMetaType >> asReceiverType [
+	^ self
+]
+
 { #category : #testing }
 SYMLMetaType >> coercedImplicitlyInto: targetType [
 	targetType == self compilationTarget compilerObjectType ifTrue: [ ^ SYMLIdentityTypeConversionRule new ].

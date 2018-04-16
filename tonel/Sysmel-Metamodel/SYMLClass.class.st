@@ -8,3 +8,8 @@ Class {
 SYMLClass >> printOn: aStream [
 	aStream nextPutAll: 'class '; nextPutAll: self validName
 ]
+
+{ #category : #'as yet unclassified' }
+SYMLClass >> typeKindBaseTrait [
+	^ self compilationTarget classTypeTrait
+]

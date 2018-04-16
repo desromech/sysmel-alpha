@@ -32,6 +32,13 @@ SYMLNamespace >> lookSymbol: symbol ifPresent: ifPresentBlock [
 ]
 
 { #category : #accessing }
+SYMLNamespace >> mangledName [
+	(parent isNil and: [ name = #__global ]) ifTrue: [ ^ self parentMangledName ].
+	^ self parentMangledName , name size asString , name
+
+]
+
+{ #category : #accessing }
 SYMLNamespace >> name: anObject [
 	name := anObject
 ]

@@ -30,8 +30,11 @@ SYMLAbstractFunction >> addLocal: aLocalVariable [
 
 { #category : #'as yet unclassified' }
 SYMLAbstractFunction >> addedToAbstractType: anAbstractType [
-	receiverType := anAbstractType.
-	receiver := SYMLFunctionReceiver new name: #self; type: receiverType; yourself
+	receiverType := anAbstractType asReceiverType.
+	receiver := SYMLFunctionReceiver new 
+		name: #self;
+		type: receiverType;
+		yourself.
 ]
 
 { #category : #'as yet unclassified' }
@@ -44,6 +47,13 @@ SYMLAbstractFunction >> analyzeAndEvaluateMessage: message toReceiver: aReceiver
 	self analyzedBody.
 	^ self evaluateWithReceiver: aReceiver arguments: (message arguments collect: [:arg | arg analyzeAndEvaluateInEnvironment: environment]) inEnvironment: environment at: aPosition
 
+]
+
+{ #category : #'as yet unclassified' }
+SYMLAbstractFunction >> analyzeMetaMessage: message toReceiver: receiverValue inEnvironment: environment at: aPosition [
+	| result |
+	result := self analyzeAndEvaluateMessage: message toReceiver: receiverValue inEnvironment: environment at: aPosition.
+	^ result asAPSGNodeInEnvironment: environment at: aPosition
 ]
 
 { #category : #accessing }
@@ -72,11 +82,15 @@ SYMLAbstractFunction >> createAnalysisScope [
 
 { #category : #'code generation' }
 SYMLAbstractFunction >> createSSAValue [
+	| argumentsOffset ssaArgument |
 	ssaValue := SLVMFunction module: self module ssaModule name: self mangledName functionType: functionType ssaType.
 	ssaValue unmangledName: name.
 	
-	ssaValue arguments doWithIndex: [ :arg :index |
-		arg name: (arguments at: index) name
+	argumentsOffset := self receiverType isVoidType ifTrue: [0] ifFalse: [1].
+
+	arguments doWithIndex: [ :arg :index |
+		ssaArgument := ssaValue arguments at: index + argumentsOffset..
+		ssaArgument name: arg name
 	].
 
 ]
@@ -191,6 +205,11 @@ SYMLAbstractFunction >> isCVariadic [
 ]
 
 { #category : #testing }
+SYMLAbstractFunction >> isMessageMethod [
+	^ false
+]
+
+{ #category : #testing }
 SYMLAbstractFunction >> isMethod [
 	^ false
 ]
@@ -225,7 +244,7 @@ SYMLAbstractFunction >> semanticAnalysis [
 	self analyzedBody
 ]
 
-{ #category : #'as yet unclassified' }
+{ #category : #'macro compilation' }
 SYMLAbstractFunction >> semanticAnalyzeMessage: message inEnvironment: environment at: aPosition [
 	self halt
 ]

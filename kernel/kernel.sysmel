@@ -3,4 +3,5 @@ Compiler
     evaluateLanguageKernelFileNamed: "controlFlow.sysmel";
     evaluateLanguageKernelFileNamed: "variables.sysmel";
     evaluateLanguageKernelFileNamed: "arithmetic.sysmel";
+    evaluateLanguageKernelFileNamed: "structures.sysmel";
     yourself

@@ -12,7 +12,8 @@ Class {
 		'explicitConversionRules',
 		'ssaType',
 		'cachedValues',
-		'arithmeticCoercionRules'
+		'arithmeticCoercionRules',
+		'children'
 	],
 	#classVars : [
 		'SpecialMetaSymbols'
@@ -48,17 +49,19 @@ SYMLAbstractType >> addMethod: method withSelector: selector [
 
 { #category : #adding }
 SYMLAbstractType >> addSymbol: aSymbol value: newValue [
-	newValue isAbstractFunction ifTrue: [
+	(newValue isAbstractFunction and: [ newValue isMessage ]) ifTrue: [
+		
 		methodDictionary at: aSymbol ifPresent: [ :existent |
 			self error: 'Trying to override selector {1} with {2}.' format: { aSymbol printString . newValue printString }
 		] ifAbsentPut: [ newValue ].
-		newValue addedToAbstractType: self.
-		^ self.
+	] ifFalse: [ 
+		symbols at: aSymbol ifPresent: [ :existent |
+			self error: 'Trying to override symbol {1} with {2}.' format: { aSymbol printString . newValue printString }
+		] ifAbsentPut: [ newValue ].
 	].
 
-	symbols at: aSymbol ifPresent: [ :existent |
-		self error: 'Trying to override symbol {1} with {2}.' format: { aSymbol printString . newValue printString }
-	] ifAbsentPut: [ newValue ]
+	newValue addedToAbstractType: self.
+	children add: newValue.
 ]
 
 { #category : #accessing }
@@ -85,6 +88,14 @@ SYMLAbstractType >> addTraitUser: aTraitUser [
 { #category : #accessing }
 SYMLAbstractType >> addTraits: aCollectionOfTraits [
 	aCollectionOfTraits do: [ :trait | self addTrait: trait ].
+]
+
+{ #category : #adding }
+SYMLAbstractType >> addTypeKindBaseTrait [
+	self typeKindBaseTrait ifNotNil: [ :trait |
+		self addTrait: trait.
+	]
+
 ]
 
 { #category : #accessing }
@@ -143,6 +154,11 @@ SYMLAbstractType >> arithmeticCoercionWith: otherTypeValue into: resultTypeValue
 		yourself.
 	self addArithmeticCoercionRule: coercionRule.
 	otherType addArithmeticCoercionRule: coercionRule reversed
+]
+
+{ #category : #converting }
+SYMLAbstractType >> asReceiverType [
+	^ self cachedNullary: #asReceiverType
 ]
 
 { #category : #definition }
@@ -254,6 +270,13 @@ SYMLAbstractType >> cvariadicCoercionType [
 	^ self cachedNullary: #cvariadicCoercionType
 ]
 
+{ #category : #'code generation' }
+SYMLAbstractType >> defaultSSAValueWith: builder [
+	| result |
+	result := self sysmelPerform: #defaultSSAValueWith: withArguments:  { builder }.
+	^ result unwrapSysmelValue
+]
+
 { #category : #definition }
 SYMLAbstractType >> definition: aDefinitionBlock [
 	<compileTime>
@@ -265,6 +288,14 @@ SYMLAbstractType >> definition: aDefinitionBlock [
 	
 	aDefinitionBlock value analyzeAndEvaluateInEnvironment: traitScope.
 
+]
+
+{ #category : #accessing }
+SYMLAbstractType >> definitionEnvironment: anEnvironment [
+	super definitionEnvironment: anEnvironment.
+	anEnvironment ifNotNil: [
+		self addTypeKindBaseTrait
+	]
 ]
 
 { #category : #definition }
@@ -339,7 +370,12 @@ SYMLAbstractType >> initialize [
 	implicitConversionRules := OrderedCollection new.
 	explicitConversionRules := OrderedCollection new.
 	arithmeticCoercionRules := OrderedCollection new.
+	children := OrderedCollection new.
 	cachedValues := Dictionary new.
+]
+
+{ #category : #initialization }
+SYMLAbstractType >> initializeSSAVariable: ssaVariable builder: builder [
 ]
 
 { #category : #accessing }
@@ -586,8 +622,7 @@ SYMLAbstractType >> semanticAnalyzeMessageToYou: message inEnvironment: environm
 	].
 
 	(self type lookupSelector: message selector) ifNotNil: [ :method |
-		result := method analyzeAndEvaluateMessage: message toReceiver: self inEnvironment: environment at: aPosition.
-		^ result asAPSGNodeInEnvironment: environment at: aPosition
+		^ method analyzeMetaMessage: message toReceiver: self inEnvironment: environment at: aPosition
 	].
 
 	self type lookSymbol: message selector ifPresent: [ :symbol |
@@ -637,6 +672,11 @@ SYMLAbstractType >> type [
 			yourself
 	].
 	^ metaType
+]
+
+{ #category : #'as yet unclassified' }
+SYMLAbstractType >> typeKindBaseTrait [
+	^ nil
 ]
 
 { #category : #accessing }

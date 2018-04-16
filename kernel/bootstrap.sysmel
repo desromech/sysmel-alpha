@@ -3,6 +3,9 @@
 Compiler compilationTarget
     tupleTypeTrait: trait TupleType;
     functionTypeTrait: trait FunctionType;
+    structureTypeTrait: trait StructureType;
+    unionTypeTrait: trait UnionType;
+    classTypeTrait: trait ClassType;
 
     apsgNodeType: type _APSGNodeType;
     compilerObjectType: type _CompilerObjectType;
@@ -182,6 +185,13 @@ definition: {
         return: self
     }.
 
+    meta message asReceiverType -> _CompilerObjectType := {
+        return: self
+    }.
+
+    meta message defaultSSAValueWith: (builder: _CompilerObjectType) ::-> _CompilerObjectType := {
+        self error: "Cannot generate default value of {1}" format: (self,self)
+    }.
 }.
 
 // Meta type
@@ -269,7 +279,13 @@ definition: {
     }.
 }.
 
-trait PrimitiveIntegerType uses: (PrimitiveType, IntegerType).
+trait PrimitiveIntegerType uses: (PrimitiveType, IntegerType);
+definition: {
+    meta message defaultSSAValueWith: (builder: _CompilerObjectType) ::-> _CompilerObjectType := {
+        return: (builder const: 0 type: self ssaType)
+    }.
+}.
+
 trait PrimitiveUnsignedIntegerType uses: (PrimitiveIntegerType, UnsignedIntegerType).
 trait PrimitiveSignedIntegerType uses: (PrimitiveIntegerType, SignedIntegerType).
 
@@ -281,7 +297,7 @@ definition: {
     }.
 }.
 
-// A floating point type
+// A fraction type
 trait FractionalType uses: NumericalType;
 definition: {
     meta message isFractionalType -> Boolean := {
@@ -295,6 +311,14 @@ definition: {
     meta message isFloatingPointType -> Boolean := {
         return: true
     }
+}.
+
+// Primitive floating point
+trait PrimitiveFloatingPointType uses: (PrimitiveType, FloatingPointType);
+definition: {
+    meta message defaultSSAValueWith: (builder: _CompilerObjectType) ::-> _CompilerObjectType := {
+        return: (builder const: 0.0 type: self ssaType)
+    }.
 }.
 
 // Pointer type
@@ -365,7 +389,7 @@ definition: {
     }.
 
     meta message buildSSAType -> _CompilerObjectType := {
-        return: (Compiler compilationTarget ssaPointerTo: P ssaType)
+        return: (Compiler compilationTarget ssaPointerTo: R ssaType)
     }.
 
     meta message valueType -> _CompilerObjectType := {
@@ -541,6 +565,17 @@ definition: {
     }.
 }.
 
+// Structure type
+StructureType uses: Type;
+definition: {
+    meta message asReceiverType -> _CompilerObjectType := {
+        return: self ref
+    }.
+}.
+
+UnionType uses: StructureType.
+ClassType uses: StructureType.
+
 // Definition of some types
 _LiteralArray uses: LiteralType.
 _LiteralSymbol uses: LiteralType.
@@ -584,7 +619,12 @@ _CompilerObjectType uses: Type.
 _APSGNodeType uses: Type.
 
 Boolean uses: (BooleanType, PrimitiveType).
-Void uses: OpaqueType.
+Void uses: OpaqueType;
+definition: {
+    meta message buildSSAType -> _CompilerObjectType := {
+        return: Compiler compilationTarget ssaVoidType
+    }.
+}.
 
 // Int8
 Int8 uses: PrimitiveSignedIntegerType;
@@ -712,7 +752,7 @@ definition: {
     }.
 }.
 
-Float32 uses: (PrimitiveType, FloatingPointType);
+Float32 uses: PrimitiveFloatingPointType;
 definition: {
     meta message size -> _LiteralInteger := {
         return: 4
@@ -727,7 +767,7 @@ definition: {
     }.
 }.
 
-Float64 uses: (PrimitiveType, FloatingPointType);
+Float64 uses: PrimitiveFloatingPointType;
 definition: {
     meta message size -> _LiteralInteger := {
         return: 8

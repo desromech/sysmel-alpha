@@ -9,6 +9,11 @@ SYMLMacro class >> module: aModule [
 	^ self new module: aModule
 ]
 
+{ #category : #'as yet unclassified' }
+SYMLMacro >> analyzeMetaMessage: message toReceiver: receiverValue inEnvironment: environment at: aPosition [
+	self subclassResponsibility
+]
+
 { #category : #'macro compilation' }
 SYMLMacro >> evaluateMessage: message inEnvironment: anEnvironment [
 	self subclassResponsibility

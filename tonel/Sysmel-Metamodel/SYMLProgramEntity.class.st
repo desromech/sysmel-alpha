@@ -14,6 +14,10 @@ SYMLProgramEntity >> addFlag: aFlag [
 	flags := (flags copyWithout: aFlag) copyWith: aFlag
 ]
 
+{ #category : #'as yet unclassified' }
+SYMLProgramEntity >> addedToAbstractType: anAbstractType [
+]
+
 { #category : #accessing }
 SYMLProgramEntity >> evaluateReferenceAt: position [
 	^ self sysmelValueWithType: self module compilationTarget compilerObjectType inEnvironment: nil
@@ -87,6 +91,8 @@ SYMLProgramEntity >> semanticAnalysis [
 SYMLProgramEntity >> sendCompileTimeMessage: message inEnvironment: environment at: aPosition [
 	| method |
 	method := self lookupSelector: message selector.
-	method ifNotNil: [ self halt ].
+	method ifNotNil: [
+		^ method semanticAnalyzeMessage: message inEnvironment: environment at: aPosition
+	].
 	^ super sendCompileTimeMessage: message inEnvironment: environment at: aPosition
 ]

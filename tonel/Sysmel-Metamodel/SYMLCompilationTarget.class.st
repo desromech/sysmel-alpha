@@ -16,6 +16,9 @@ Class {
 		'voidType',
 		'functionTypeTrait',
 		'tupleTypeTrait',
+		'structureTypeTrait',
+		'unionTypeTrait',
+		'classTypeTrait',
 		'functionTypeCache',
 		'tupleTypeCache',
 		'dynamicObjectType',
@@ -82,6 +85,18 @@ SYMLCompilationTarget >> charType: anObject [
 ]
 
 { #category : #accessing }
+SYMLCompilationTarget >> classTypeTrait [
+	<compileTime>
+	^ classTypeTrait
+]
+
+{ #category : #accessing }
+SYMLCompilationTarget >> classTypeTrait: anObject [
+	<compileTime>
+	classTypeTrait := anObject
+]
+
+{ #category : #accessing }
 SYMLCompilationTarget >> compilerObjectType [
 	<compileTime>
 	^ compilerObjectType
@@ -144,7 +159,6 @@ SYMLCompilationTarget >> functionArguments: argumentTypes returnType: returnType
 	| functionType |
 	functionType := SYMLFunctionType new
 		compilationTarget: self;
-		addTrait: functionTypeTrait;
 		arguments: argumentTypes;
 		returnType: returnType;
 		callingConvention: callingConvention;
@@ -340,12 +354,23 @@ SYMLCompilationTarget >> pointerSize [
 	self subclassResponsibility
 ]
 
+{ #category : #accessing }
+SYMLCompilationTarget >> structureTypeTrait [
+	<compileTime>
+	^ structureTypeTrait
+]
+
+{ #category : #accessing }
+SYMLCompilationTarget >> structureTypeTrait: anObject [
+	<compileTime>
+	structureTypeTrait := anObject
+]
+
 { #category : #'builder methods' }
 SYMLCompilationTarget >> tuple: aCollectionOfTypes [
 	| tuple |
 	tuple := SYMLTupleType new
 		compilationTarget: self;
-		addTrait: tupleTypeTrait;
 		types: aCollectionOfTypes asArray;
 		yourself.
 	^ tupleTypeCache at: tuple ifAbsentPut: [ tuple ]
@@ -409,6 +434,18 @@ SYMLCompilationTarget >> uint8Type [
 SYMLCompilationTarget >> uint8Type: anObject [
 	<compileTime>
 	uint8Type := anObject
+]
+
+{ #category : #accessing }
+SYMLCompilationTarget >> unionTypeTrait [
+	<compileTime>
+	^ unionTypeTrait
+]
+
+{ #category : #accessing }
+SYMLCompilationTarget >> unionTypeTrait: anObject [
+	<compileTime>
+	unionTypeTrait := anObject
 ]
 
 { #category : #accessing }

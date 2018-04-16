@@ -213,6 +213,21 @@ SYMLAPSGMessageSend >> valueType: anObject [
 	valueType := anObject
 ]
 
+{ #category : #testing }
+SYMLAPSGMessageSend >> withAnalyzedReceiverAndArgumentsInEnvironment: anEnvironment [
+	(self isReceiverAnalyzed and: [ self hasAnalyzedArguments ]) ifTrue: [ ^ self ].
+	^ self copy
+		receiver: (isReceiverAnalyzed
+			ifTrue: [ receiver ]
+			ifFalse: [ receiver semanticAnalysisInEnvironment: anEnvironment]);
+		isReceiverAnalyzed: true;
+		arguments: (argumentsAreAnalyzed
+			ifTrue: [ arguments ]
+			ifFalse: [ arguments collect: [ :arg | arg semanticAnalysisInEnvironment: anEnvironment]]);
+		argumentsAreAnalyzed: true;
+		yourself
+]
+
 { #category : #annotations }
 SYMLAPSGMessageSend >> withMetaMethod: aMetaMethod [
 	^ self copy metaMethod: aMetaMethod; yourself

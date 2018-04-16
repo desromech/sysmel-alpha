@@ -43,6 +43,10 @@ SYMLMessageMethod >> buildFunctionType [
 	returnType ifNil: [ returnType := self compilationTarget dynamicObjectType ].
 	argumentTypes := arguments collect: #type.
 	
+	self receiverType isVoidType ifFalse: [
+		argumentTypes := {receiverType} , argumentTypes.
+	].
+	
 	functionType := self compilationTarget functionArguments: argumentTypes returnType: returnType callingConvention: #cdecl variadic: self isCVariadic.
 
 ]
@@ -88,6 +92,16 @@ SYMLMessageMethod >> isExternC [
 ]
 
 { #category : #testing }
+SYMLMessageMethod >> isMessage [
+	^ true
+]
+
+{ #category : #testing }
+SYMLMessageMethod >> isMessageMethod [
+	^ true
+]
+
+{ #category : #testing }
 SYMLMessageMethod >> isMethod [
 	^ true
 ]
@@ -102,6 +116,14 @@ SYMLMessageMethod >> mangledName [
 			print: name size;
 			nextPutAll: name.
 	]
+]
+
+{ #category : #'macro compilation' }
+SYMLMessageMethod >> semanticAnalyzeMessage: message inEnvironment: environment at: aPosition [
+	^ SYMLSendMessageMacro new
+		messageMethod: self;
+		semanticAnalyzeMessage: message inEnvironment: environment at: aPosition
+
 ]
 
 { #category : #'as yet unclassified' }
