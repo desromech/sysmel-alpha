@@ -23,7 +23,7 @@ SYMLSyntaxHighlighter class >> initialize [
 		#true #false #nil
 		thisContext self super
 		
-		let namespace struct function template method field
+		let namespace struct function template macro message method field 
 	).
 ]
 
