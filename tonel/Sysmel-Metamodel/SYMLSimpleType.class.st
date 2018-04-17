@@ -2,6 +2,7 @@ Class {
 	#name : #SYMLSimpleType,
 	#superclass : #SYMLAbstractType,
 	#classVars : [
+		'FloatingPointOperationMap',
 		'SignedIntegerOperationMap',
 		'UnsignedIntegerOperationMap'
 	],
@@ -66,11 +67,38 @@ SYMLSimpleType class >> initialize [
 		> ugt
 		>= uge
 	).
+	
+	FloatingPointOperationMap := Dictionary newFromPairs: #(
+		+ fadd
+		- fsub
+		* fmul
+		/ fdiv
+		% frem
+
+		< uflt
+		<= ufle
+		= ufeq
+		~= ufne
+		> ufgt
+		>= ufge
+
+		== ufeq
+		~~ ufne
+	)
 ]
 
 { #category : #definition }
 SYMLSimpleType >> definitionScopeClass [
 	^ SYMLTypeScope
+]
+
+{ #category : #'primitive types' }
+SYMLSimpleType >> generatePrimitiveFloatingPointArithmeticMessage: messageNode withBuilder: builder left: left right: right at: aPosition [
+	FloatingPointOperationMap at: messageNode ifPresent: [ :binop |
+		^ builder addOperation: binop left: left right: right
+	].
+
+	self error: 'Unsupported arithmetic operation {1} with coerced values of type {2}.' format: { messageNode selector . self name } at: aPosition
 ]
 
 { #category : #'primitive types' }

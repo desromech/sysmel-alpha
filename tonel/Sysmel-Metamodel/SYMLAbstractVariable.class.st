@@ -40,11 +40,22 @@ SYMLAbstractVariable >> convertNodeForSequenceElement: aNode inEnvironment: anEn
 	^ self asIdentifierWithBindingAt: aNode position
 ]
 
+{ #category : #testing }
+SYMLAbstractVariable >> isReadOnly [
+	^ self hasFlag: #readOnly
+]
+
 { #category : #accessing }
 SYMLAbstractVariable >> name: aNewName [
 	<compileTime>
 	name := aNewName.
 
+]
+
+{ #category : #accessing }
+SYMLAbstractVariable >> readOnly [
+	<compileTime>
+	self addFlag: #readOnly
 ]
 
 { #category : #'as yet unclassified' }

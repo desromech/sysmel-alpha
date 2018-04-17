@@ -7,17 +7,17 @@ struct SomeStruct := {
 }.
 
 struct Vector3 := {
-    field x type: Float32.
-    field y type: Float32.
-    field z type: Float32.
-
-    message getX ::-> Float32 := {
-        return: x.
-    }.
+    field x public type: Float32.
+    field y public type: Float32.
+    field z public type: Float32.
 
     message + (o: SelfType) ::-> SelfType := {
-        //return: (Vector3 value x: x + o x; y: y + o y z: z + o z; yourself)
-        return: SelfType().
+        return: (SelfType newValue
+            x: x + o x;
+            x: y + o y;
+            x: z + o z;
+            yourself
+        )
     }.
 }.
 

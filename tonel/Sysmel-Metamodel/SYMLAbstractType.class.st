@@ -410,6 +410,11 @@ SYMLAbstractType >> isMetaType [
 ]
 
 { #category : #testing }
+SYMLAbstractType >> isPointerOrReferenceType [
+	^ self cachedNullary: #isPointerOrReferenceType
+]
+
+{ #category : #testing }
 SYMLAbstractType >> isPointerType [
 	^ self cachedNullary: #isPointerType
 ]
@@ -634,10 +639,6 @@ SYMLAbstractType >> semanticAnalyzeMessageToYou: message inEnvironment: environm
 
 	(self type lookupSelector: message selector) ifNotNil: [ :method |
 		^ method analyzeMetaMessage: message toReceiver: self inEnvironment: environment at: aPosition
-	].
-
-	self type lookSymbol: message selector ifPresent: [ :symbol |
-		self halt
 	].
 
 	^ super semanticAnalyzeMessageToYou: message inEnvironment: environment at: aPosition

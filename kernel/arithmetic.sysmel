@@ -13,6 +13,13 @@ PrimitiveUnsignedIntegerType meta message
     return: (self generatePrimitiveUnsignedIntegerArithmeticMessage: messageNode withBuilder: builder left: left right: right at: messageNode)
 }.
 
+PrimitiveFloatingPointType meta message
+    generateArithmeticMessage: (messageNode: _CompilerObjectType) withBuilder: (builder: _CompilerObjectType)
+        left: (left: _CompilerObjectType) right: (right: _CompilerObjectType)
+        at: (aPosition: _CompilerObjectType)  ::-> _CompilerObjectType := {
+    return: (self generatePrimitiveFloatingPointArithmeticMessage: messageNode withBuilder: builder left: left right: right at: messageNode)
+}.
+
 _LiteralInteger arithmeticCoercionWith: PrimitiveIntegerType do: $$Pharo {
 coerce: left with: right
     right size >= 4 ifTrue: [

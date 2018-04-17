@@ -153,6 +153,10 @@ definition: {
         return: false
     }.
 
+    meta message isPointerOrReferenceType -> Boolean := {
+        return: false
+    }.
+
     meta message isTupleType -> Boolean := {
         return: false
     }.
@@ -195,6 +199,14 @@ definition: {
 
     meta message isReturnedThroughFirstArgument ::-> Boolean := {
         return: false
+    }.
+
+    // Add the yourself macro to rewrite to the receiver by default.
+    macro selector: #yourself doOn: {
+        semanticAnalysis: $$Pharo {
+            semanticAnalyzeMessage: message inEnvironment: environment at: aPosition
+                ^ message receiver semanticAnalysisInEnvironment: environment
+        }.
     }.
 }.
 
@@ -331,7 +343,11 @@ trait PointerType
 definition: {
     meta message isPointerType -> Boolean := {
         return: true
-    }
+    }.
+
+    meta message isPointerOrReferenceType -> Boolean := {
+        return: true
+    }.
 }.
 
 // Reference type
@@ -340,7 +356,11 @@ trait ReferenceType
 definition: {
     meta message isReferenceType -> Boolean := {
         return: true
-    }
+    }.
+
+    meta message isPointerOrReferenceType -> Boolean := {
+        return: true
+    }.
 }.
 
 // Type composition

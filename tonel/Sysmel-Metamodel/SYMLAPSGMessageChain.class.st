@@ -59,20 +59,26 @@ SYMLAPSGMessageChain >> receiver: anObject [
 { #category : #'meta evaluation' }
 SYMLAPSGMessageChain >> semanticAnalysisInEnvironment: anEnvironment [
 	| result myReceiverReference |
-	result := self copy.
+	result := SYMLAPSGAnalyzedMessageChain new.
 	result receiver: (receiver semanticAnalysisInEnvironment: anEnvironment).
 
 	result receiver isMetaObjectInstance ifTrue: [ 
 		myReceiverReference := result receiver.
-	] ifFalse: [ 
+	] ifFalse: [
+		result receiver: (SYMLAPSGMessageChainReceiverValue new
+			chain: self;
+			position: receiver position;
+			receiver: result receiver;
+			yourself).
 		myReceiverReference := SYMLAPSGMessageChainReceiverReference new
 			chain: self;
 			position: receiver position;
+			receiverValue: result receiver;
 			yourself.
 	].
 	
 	result messages: (messages collect: [ :message |
-		(message copy receiver: myReceiverReference) semanticAnalysisInEnvironment: anEnvironment
+		(message copy receiver: (message receiver ifNil: [myReceiverReference])) semanticAnalysisInEnvironment: anEnvironment
 	]).
 
 	^ result
