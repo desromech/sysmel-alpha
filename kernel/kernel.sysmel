@@ -4,4 +4,5 @@ Compiler
     evaluateLanguageKernelFileNamed: "variables.sysmel";
     evaluateLanguageKernelFileNamed: "arithmetic.sysmel";
     evaluateLanguageKernelFileNamed: "structures.sysmel";
+    evaluateLanguageKernelFileNamed: "pointer.sysmel";
     yourself

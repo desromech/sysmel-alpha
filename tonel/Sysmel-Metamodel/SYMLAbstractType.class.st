@@ -390,8 +390,18 @@ SYMLAbstractType >> isConstantType [
 ]
 
 { #category : #testing }
+SYMLAbstractType >> isFloatingPointType [
+	^ self cachedNullary: #isFloatingPointType
+]
+
+{ #category : #testing }
 SYMLAbstractType >> isFunctionType [
 	^ false
+]
+
+{ #category : #testing }
+SYMLAbstractType >> isIntegerType [
+	^ self cachedNullary: #isIntegerType
 ]
 
 { #category : #testing }

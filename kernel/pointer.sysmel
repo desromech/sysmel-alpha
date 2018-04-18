@@ -1,0 +1,127 @@
+ReferenceType macro selector: #address doOn: {
+// Semantic analysis
+semanticAnalysis: $$Pharo {
+    node: node environment: environment position: aSourcePosition
+        | reference referenceType pointerType|
+
+        "Check and coerce the pointer"
+        reference := node receiver semanticAnalysisInEnvironment: environment.
+        referenceType := reference evaluateTypeInEnvironment: environment.
+        self assert: referenceType isReferenceType.
+
+        pointerType := referenceType asPointerType.
+
+        "Create the analyzed message"
+        ^ node copy
+            metaMethod: self;
+            receiver: reference;
+            valueType: pointerType;
+            yourself
+}.
+
+// Code generation
+codeGeneration: $$Pharo {
+    node: messageNode builder: builder
+        "Just evaluate the receiver"
+        ^ messageNode receiver generateSSACodeWith: builder
+}.
+}.
+
+PointerType macro selector: #value doOn: {
+// Semantic analysis
+semanticAnalysis: $$Pharo {
+    node: node environment: environment position: aSourcePosition
+        | pointer rawPointerType pointerType pointerCoercionRule referenceType |
+
+        "Check and coerce the pointer"
+        pointer := node receiver semanticAnalysisInEnvironment: environment.
+        rawPointerType := pointer evaluateTypeInEnvironment: environment.
+        pointerType := rawPointerType valueType.
+        self assert: pointerType isPointerType.
+
+        pointerCoercionRule := rawPointerType node: pointer coercedImplicitlyInto: pointerType at: node.
+        referenceType := pointerType asReferenceType.
+
+        "Create the analyzed message"
+        ^ node copy
+            metaMethod: self;
+            receiver: pointer;
+            arguments: {index};
+            coercionType: pointerType;
+            coercionRule: pointerCoercionRule;
+            valueType: referenceType;
+            yourself
+}.
+
+// Code generation
+codeGeneration: $$Pharo {
+    node: messageNode builder: builder
+        "Just convert the pointer"
+        ^ messageNode coercionRule convertSSAValue: (messageNode receiver generateSSACodeWith: builder)
+            to: messageNode coercionType
+            with: builder at: messageNode.
+}.
+}.
+
+PointerType macro selectors: #(+ at: subscriptAt:) doOn: {
+
+// Semantic analysis
+semanticAnalysis: $$Pharo {
+    node: node environment: environment position: aSourcePosition
+        | pointer rawPointerType pointerType pointerCoercionRule resultType index indexType coercionType coercionRule |
+
+        "Check and coerce the pointer"
+        pointer := node receiver semanticAnalysisInEnvironment: environment.
+        rawPointerType := pointer evaluateTypeInEnvironment: environment.
+        pointerType := rawPointerType valueType.
+        self assert: pointerType isPointerType.
+
+        pointerCoercionRule := rawPointerType node: pointer coercedImplicitlyInto: pointerType at: node.
+        resultType := (#(+ -) includes: node selector)
+            ifTrue: [ pointerType ]
+            ifFalse: [ pointerType asReferenceType ].
+
+        "Check the index type."
+        index := node arguments first semanticAnalysisInEnvironment: environment.
+        indexType := index evaluateTypeInEnvironment: environment.
+        coercionType := indexType cleanValueType.
+
+        coercionType isIntegerType ifFalse: [
+            self error: 'Expected an integer for pointer element accessing.' at: aSourcePosition.
+        ].
+        coercionRule := indexType node: index coercedImplicitlyInto: coercionType at: node.
+
+        "Create the analyzed message"
+        ^ node copy
+            metaMethod: self;
+            receiver: pointer;
+            arguments: {index};
+            coercionType: {pointerType . coercionType};
+            coercionRule: {pointerCoercionRule . coercionRule};
+            valueType: resultType;
+            yourself
+}.
+
+// Code generation
+codeGeneration: $$Pharo {
+    node: messageNode builder: builder
+        | pointer index |
+        "Convert the pointer"
+        pointer := messageNode coercionRule first convertSSAValue: (messageNode receiver generateSSACodeWith: builder)
+            to: messageNode coercionType first
+            with: builder at: messageNode.
+
+        "Convert the index"
+        index := messageNode coercionRule second convertSSAValue: (messageNode arguments first generateSSACodeWith: builder)
+            to: messageNode coercionType second
+            with: builder at: messageNode.
+
+        "One based indices into zero based"
+        messageNode selector == #at: ifTrue: [
+            index := builder sub: index with: (builder const: 1 type: index type)
+        ].
+
+        ^ builder getPointer: pointer element: {index}
+}.
+
+}.

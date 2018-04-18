@@ -10,7 +10,7 @@ Class {
 
 { #category : #converting }
 SYMLASTSubscriptExpression >> buildAPSG: builder [
-	^ (builder send: #subscript:
+	^ (builder send: #subscriptAt:
 		to: (container buildAPSG: builder)
 		withArguments: {index buildAPSG: builder})
 		position: self;
