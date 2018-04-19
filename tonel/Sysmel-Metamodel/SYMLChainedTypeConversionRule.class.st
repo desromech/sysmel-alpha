@@ -3,10 +3,28 @@ Class {
 	#superclass : #SYMLTypeConversionRule,
 	#instVars : [
 		'intermediateType',
+		'intermediateRule',
 		'nextRule'
 	],
 	#category : #'Sysmel-Metamodel-Program'
 }
+
+{ #category : #'as yet unclassified' }
+SYMLChainedTypeConversionRule >> convertSSAValue: sourceValue to: targetType with: builder at: messageNode [
+	| intermediateValue |
+	intermediateValue := intermediateRule convertSSAValue: sourceValue to: intermediateType with: builder at: messageNode.
+	^ nextRule convertSSAValue: intermediateValue to: targetType with: builder at: messageNode
+]
+
+{ #category : #accessing }
+SYMLChainedTypeConversionRule >> intermediateRule [
+	^ intermediateRule
+]
+
+{ #category : #accessing }
+SYMLChainedTypeConversionRule >> intermediateRule: anObject [
+	intermediateRule := anObject
+]
 
 { #category : #accessing }
 SYMLChainedTypeConversionRule >> intermediateType [

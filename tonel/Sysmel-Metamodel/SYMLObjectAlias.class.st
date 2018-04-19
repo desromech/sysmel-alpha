@@ -7,6 +7,11 @@ Class {
 	#category : #'Sysmel-Metamodel-Program'
 }
 
+{ #category : #'as yet unclassified' }
+SYMLObjectAlias >> analyzeAPSGIdentifierToMe: identifier inEnvironment: anEnvironment [
+	^ value analyzeAPSGIdentifierToMe: identifier inEnvironment: anEnvironment
+]
+
 { #category : #definition }
 SYMLObjectAlias >> assignValue: bodyLazyValue [
 	<compileTime>

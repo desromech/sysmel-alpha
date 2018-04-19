@@ -1,0 +1,106 @@
+// Explicit cast
+Type macro selector: #castTo: doOn: {
+    evaluation: $$Pharo {
+        evaluateMessage: message inEnvironment: anEnvironment
+            self halt
+    }.
+
+    semanticAnalysis: $$Pharo {
+        semanticAnalyzeMessage: message inEnvironment: environment at: aPosition
+            | targetType receiverType conversionRule |
+            targetType := message arguments first analyzeAndEvaluateInEnvironment: environment.
+            targetType type isMetaObjectType ifFalse: [
+                self error: 'Expected compiler object as the target type.'at: aPosition.
+            ].
+
+            targetType := targetType value.
+            targetType isType ifFalse: [
+                self error: 'Expected a type instead of value {1}.' format: {targetType value printString } at: aPosition.
+            ].
+
+            receiverType := message receiver evaluateTypeInEnvironment: environment.
+            conversionRule := receiverType node: message receiver convertedExplicitlyInto: targetType at: aPosition.
+            ^ message copy
+        		arguments: #();
+        		metaMethod: self;
+        		coercionType: targetType;
+        		coercionRule: conversionRule;
+        		valueType: targetType;
+        		yourself
+    }.
+
+    codeGeneration: $$Pharo {
+        generateMessage: messageNode ssaCodeWith: builder
+            ^  messageNode coercionRule
+                convertSSAValue: (messageNode receiver generateSSACodeWith: builder)
+                to: messageNode coercionType with: builder at: messageNode
+    }.
+}.
+
+// Literal type conversions.
+_LiteralInteger conversionTo: PrimitiveIntegerType doOn: {
+    evaluation: $$Pharo {
+        value: value into: targetType at: coercionPosition
+            self halt.
+    }.
+    codeGeneration: $$Pharo {
+        convertSSAValue: sourceValue to: targetType with: builder at: messageNode
+            ^ SLVMConstant type: targetType ssaType value: sourceValue
+    }.
+}.
+
+LiteralType conversionTo: _CompilerObjectType doOn: {
+    evaluation: $$Pharo {
+        value: value environment: environment
+            ^ value
+    }.
+    codeGeneration: $$Pharo {
+        convertSSAValue: sourceValue to: targetType with: builder at: messageNode
+            self halt.
+    }.
+}.
+
+_APSGNodeType conversionTo: _CompilerObjectType doOn: {
+    evaluation: $$Pharo {
+        value: value environment: environment
+            ^ value
+    }.
+    codeGeneration: $$Pharo {
+        convertSSAValue: sourceValue to: targetType with: builder at: messageNode
+            self halt.
+    }.
+}.
+
+_LiteralString conversionTo: Char const pointer doOn: {
+    evaluation: $$Pharo {
+        value: value environment: environment
+            self halt
+    }.
+    codeGeneration: $$Pharo {
+        convertSSAValue: sourceValue to: targetType with: builder at: messageNode
+            ^ builder constCString: sourceValue
+    }.
+}.
+
+// Floating point conversions
+Float32 conversionTo: Float64 doOn: {
+    evaluation: $$Pharo {
+        value: value environment: environment
+            self halt
+    }.
+    codeGeneration: $$Pharo {
+        convertSSAValue: sourceValue to: targetType with: builder at: messageNode
+            ^ builder floatingPointCast: sourceValue target: targetType ssaType
+    }.
+}.
+
+Float64 explicitConversionTo: Float32 doOn: {
+    evaluation: $$Pharo {
+        value: value environment: environment
+            self halt
+    }.
+    codeGeneration: $$Pharo {
+        convertSSAValue: sourceValue to: targetType with: builder at: messageNode
+            ^ builder floatingPointCast: sourceValue target: targetType ssaType
+    }.
+}.

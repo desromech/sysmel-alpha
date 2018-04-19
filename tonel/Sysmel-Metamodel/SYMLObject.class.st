@@ -98,6 +98,11 @@ SYMLObject >> isMetaObject [
 ]
 
 { #category : #testing }
+SYMLObject >> isRecursiveValue [
+	^ false
+]
+
+{ #category : #testing }
 SYMLObject >> isSysmelObject [
 	^ true
 ]

@@ -121,5 +121,5 @@ SYMLSimpleType >> generatePrimitiveUnsignedIntegerArithmeticMessage: messageNode
 
 { #category : #printing }
 SYMLSimpleType >> printOn: aStream [
-	aStream nextPutAll: 'type '; nextPutAll: self validName
+	aStream nextPutAll: 'type '; nextPutAll: self printingName
 ]

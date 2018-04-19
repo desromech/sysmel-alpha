@@ -5,7 +5,8 @@ Class {
 		'children',
 		'arguments',
 		'mangledName',
-		'mangledArguments'
+		'mangledArguments',
+		'recursiveValue'
 	],
 	#classVars : [
 		'SpecialMetaSymbols'
@@ -15,7 +16,11 @@ Class {
 
 { #category : #accessing }
 SYMLTemplateInstance >> addedChild: aChild [
-	children add: aChild
+	children add: aChild.
+	(recursiveValue isNotNil and: [recursiveValue isRecursiveValue]) ifTrue: [ 
+		recursiveValue becomeForward: aChild.
+		recursiveValue := nil
+	]
 ]
 
 { #category : #accessing }
@@ -64,6 +69,16 @@ SYMLTemplateInstance >> mangledName [
 			nextPutAll: self mangledArguments.
 		]
 	]
+]
+
+{ #category : #accessing }
+SYMLTemplateInstance >> recursiveValue [
+	^ recursiveValue
+]
+
+{ #category : #accessing }
+SYMLTemplateInstance >> recursiveValue: anObject [
+	recursiveValue := anObject
 ]
 
 { #category : #'code generation' }

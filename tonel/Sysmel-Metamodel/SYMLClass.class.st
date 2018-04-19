@@ -6,7 +6,7 @@ Class {
 
 { #category : #printing }
 SYMLClass >> printOn: aStream [
-	aStream nextPutAll: 'class '; nextPutAll: self validName
+	aStream nextPutAll: 'class '; nextPutAll: self printingName
 ]
 
 { #category : #'as yet unclassified' }

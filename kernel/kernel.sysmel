@@ -3,6 +3,7 @@ Compiler
     evaluateLanguageKernelFileNamed: "controlFlow.sysmel";
     evaluateLanguageKernelFileNamed: "variables.sysmel";
     evaluateLanguageKernelFileNamed: "arithmetic.sysmel";
+    evaluateLanguageKernelFileNamed: "conversions.sysmel";
     evaluateLanguageKernelFileNamed: "structures.sysmel";
     evaluateLanguageKernelFileNamed: "pointer.sysmel";
     yourself

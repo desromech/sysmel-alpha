@@ -28,7 +28,7 @@ SYMLFieldSetter >> semanticAnalyzeMessage: message inEnvironment: environment at
 	^ message copy
 		receiver: receiver;
 		arguments: { value };
-		coercionType: valueType;
+		coercionType: field type;
 		coercionRule: coercionRule;
 		metaMethod: self;
 		valueType: (message receiver evaluateTypeInEnvironment: environment);

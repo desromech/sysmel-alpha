@@ -88,7 +88,7 @@ SYMLStructure >> mangledName [
 
 { #category : #printing }
 SYMLStructure >> printOn: aStream [
-	aStream nextPutAll: 'structure '; nextPutAll: self validName
+	aStream nextPutAll: 'structure '; nextPutAll: self printingName
 ]
 
 { #category : #'semantic analysis' }

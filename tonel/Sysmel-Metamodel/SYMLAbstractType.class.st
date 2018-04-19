@@ -15,7 +15,8 @@ Class {
 		'arithmeticCoercionRules',
 		'children',
 		'hasDefinition',
-		'mangledName'
+		'mangledName',
+		'printingName'
 	],
 	#classVars : [
 		'SpecialMetaSymbols'
@@ -570,18 +571,7 @@ SYMLAbstractType >> node: node coercedImplicitlyInto: targetType visited: visite
 
 { #category : #conversions }
 SYMLAbstractType >> node: node convertedExplicitlyInto: targetType [
-	self == targetType ifTrue: [ ^ SYMLIdentityTypeConversionRule new ].
-	explicitConversionRules do: [ :rule |
-		(rule canBeUsedToConvertNode: node from: self into: targetType) ifTrue: [ ^ rule ].
-	].
-
-	usedTraits do: [ :trait |
-		(trait node: node convertedExplicitlyInto: targetType) ifNotNil: [ :rule |
-			^ rule
-		]
-	].
-
-	^ nil
+	^ self node: node convertedExplicitlyInto: targetType visited: IdentitySet new
 ]
 
 { #category : #conversions }
@@ -605,7 +595,7 @@ SYMLAbstractType >> node: node convertedExplicitlyInto: targetType visited: visi
 		(rule canBeUsedToConvertNode: node from: self into: targetType) ifTrue: [ ^ rule ].
 		rule isTypeKindConversion ifTrue: [ 
 			(visitedSet includes: rule targetTypeKind) ifFalse: [ 
-				chainedRule := rule targetTypeKind node: node coercedImplicitlyInto: targetType visited: visitedSet.
+				chainedRule := rule targetTypeKind node: node convertedExplicitlyInto: targetType visited: visitedSet.
 				chainedRule ifNotNil: [ 
 					^ rule intermediateConversion: rule targetTypeKind chainedWith: chainedRule
 				]
@@ -630,6 +620,16 @@ SYMLAbstractType >> pointed [
 { #category : #'type composition' }
 SYMLAbstractType >> pointer [
 	^ self cachedNullary: #pointer
+]
+
+{ #category : #accessing }
+SYMLAbstractType >> printingName [
+	^ printingName ifNil: [self validName]
+]
+
+{ #category : #accessing }
+SYMLAbstractType >> printingName: aPrintingName [
+	printingName := aPrintingName
 ]
 
 { #category : #'type composition' }

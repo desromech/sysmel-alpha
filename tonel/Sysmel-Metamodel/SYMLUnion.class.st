@@ -11,7 +11,7 @@ SYMLUnion >> buildSSAType [
 
 { #category : #printing }
 SYMLUnion >> printOn: aStream [
-	aStream nextPutAll: 'union '; nextPutAll: self validName
+	aStream nextPutAll: 'union '; nextPutAll: self printingName
 ]
 
 { #category : #'as yet unclassified' }

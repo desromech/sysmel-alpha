@@ -28,6 +28,7 @@ SYMLTypeConversionRule >> convertValue: value into: targetType at: coercionPosit
 SYMLTypeConversionRule >> intermediateConversion: intermediateType chainedWith: nextRule [
 	^ SYMLChainedTypeConversionRule new
 		intermediateType: intermediateType;
+		intermediateRule: self;
 		nextRule: nextRule;
 		yourself
 ]

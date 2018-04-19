@@ -111,6 +111,7 @@ SYMLTemplate >> evaluateTemplateWithActivationArguments: activationArguments at:
 		module: module;
 		parent: self;
 		arguments: coercedArguments;
+		recursiveValue: incompleteResult;
 		yourself.
 		
 	activationScope := SYMLTemplateActivationScope parent: bodyEnvironment.
@@ -125,7 +126,22 @@ SYMLTemplate >> evaluateTemplateWithActivationArguments: activationArguments at:
 
 
 	result := body copy analyzeAndEvaluateInEnvironment: activationScope.
-	incompleteResult becomeForward: result value.
+	incompleteResult isRecursiveValue ifTrue: [ 
+		incompleteResult becomeForward: result value.
+	].
+
+	result type isMetaObjectType ifTrue: [ 
+		result value printingName: (ByteString streamContents: [:out |
+			out nextPutAll: self validName; nextPutAll: '('.
+			activationArguments doWithIndex: [ :arg :index |
+				index > 1 ifTrue:[
+					out nextPut: $,
+				].
+			out print: arg value
+			].
+			out nextPut: $).
+		]).
+	].
 	instances add: instance.
 	^ result value
 ]

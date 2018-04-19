@@ -138,6 +138,7 @@ SYMLModule >> globalNamespace [
 
 { #category : #initialization }
 SYMLModule >> initializeWithCompilationTarget: aCompilationTarget [
+	self initialize.
 	compilationTarget := aCompilationTarget.
 	currentDirectory := FileSystem workingDirectory.
 	globalNamespace := SYMLNamespace new name: #__global; module: self.
