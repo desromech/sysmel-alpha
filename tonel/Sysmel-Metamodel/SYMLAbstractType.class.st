@@ -157,8 +157,18 @@ SYMLAbstractType >> arithmeticCoercionWith: otherTypeValue into: resultTypeValue
 ]
 
 { #category : #converting }
+SYMLAbstractType >> asPointerType [
+	^ self cachedNullary: #asReferenceType
+]
+
+{ #category : #converting }
 SYMLAbstractType >> asReceiverType [
 	^ self cachedNullary: #asReceiverType
+]
+
+{ #category : #converting }
+SYMLAbstractType >> asReferenceType [
+	^ self cachedNullary: #asReferenceType
 ]
 
 { #category : #definition }
