@@ -33,6 +33,11 @@ SYMLIncompleteValue >> isSysmelIncompleteValue [
 	^ true
 ]
 
+{ #category : #'as yet unclassified' }
+SYMLIncompleteValue >> sysmelMangledValue [
+	^ #u
+]
+
 { #category : #accessing }
 SYMLIncompleteValue >> type [
 	^ type

@@ -103,6 +103,11 @@ SYMLValue >> printOn: aStream [
 ]
 
 { #category : #'as yet unclassified' }
+SYMLValue >> sysmelMangledValue [
+	^ value sysmelMangledValue
+]
+
+{ #category : #'as yet unclassified' }
 SYMLValue >> sysmelValueWithType: aType inEnvironment: anEnvironment [
 	self halt
 ]

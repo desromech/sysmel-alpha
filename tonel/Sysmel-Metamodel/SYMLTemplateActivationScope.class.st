@@ -2,10 +2,21 @@ Class {
 	#name : #SYMLTemplateActivationScope,
 	#superclass : #SYMLLexicalScope,
 	#instVars : [
-		'template'
+		'template',
+		'instance'
 	],
 	#category : #'Sysmel-Metamodel-Scope'
 }
+
+{ #category : #accessing }
+SYMLTemplateActivationScope >> definitionProgramEntity [
+	^ instance
+]
+
+{ #category : #accessing }
+SYMLTemplateActivationScope >> instance: anObject [
+	instance := anObject
+]
 
 { #category : #accessing }
 SYMLTemplateActivationScope >> template [

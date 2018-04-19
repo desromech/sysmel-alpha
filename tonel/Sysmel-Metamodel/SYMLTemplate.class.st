@@ -6,7 +6,8 @@ Class {
 		'body',
 		'bodyEnvironment',
 		'arguments',
-		'cachedResults'
+		'cachedResults',
+		'instances'
 	],
 	#category : #'Sysmel-Metamodel-Program'
 }
@@ -95,35 +96,43 @@ SYMLTemplate >> evaluateTemplateIncompleteArguments: activationArguments concret
 
 { #category : #'as yet unclassified' }
 SYMLTemplate >> evaluateTemplateWithActivationArguments: activationArguments at: aPosition [
-	| activationScope expectedArgument coercedArgument result incompleteResult |
+	| activationScope expectedArgument result incompleteResult instance coercedArguments |
 
 	incompleteResult := cachedResults at: activationArguments ifPresent: [ :existent |
 		^ existent
 	] ifAbsentPut: [SYMLRecursiveValue new].
 
-	activationScope := SYMLTemplateActivationScope parent: bodyEnvironment.
-	activationArguments doWithIndex: [ :argument :index |
+	coercedArguments := activationArguments collectWithIndex: [ :argument :index |
 		expectedArgument := arguments at: index.
-		coercedArgument := argument coercedIntoType: expectedArgument type at: aPosition.
+		argument coercedIntoType: expectedArgument type at: aPosition.
+	].
+
+	instance := SYMLTemplateInstance new
+		module: module;
+		parent: self;
+		arguments: coercedArguments;
+		yourself.
+		
+	activationScope := SYMLTemplateActivationScope parent: bodyEnvironment.
+	activationScope template: self;
+		instance: instance;
+		yourself.
+
+	coercedArguments doWithIndex: [ :coercedArgument :index |
+		expectedArgument := arguments at: index.
 		activationScope addSymbol: expectedArgument name value: (coercedArgument asFunctionActivationValueAt: aPosition).
 	].
 
-	result := body copy analyzeAndEvaluateInEnvironment: activationScope.
-	result type isMetaObjectType ifTrue: [ 
-		result value name: (ByteString streamContents: [:out |
-			out nextPutAll: self validName; nextPutAll: ' instance ('.
-			activationArguments doWithIndex: [ :arg :index |
-				index > 1 ifTrue:[
-					out nextPut: $,
-				].
-			out print: arg value
-			].
-			out nextPut: $).
-		]).
-	].
 
+	result := body copy analyzeAndEvaluateInEnvironment: activationScope.
 	incompleteResult becomeForward: result value.
+	instances add: instance.
 	^ result value
+]
+
+{ #category : #'code generation' }
+SYMLTemplate >> generateSSACode [
+	instances do: #generateSSACode
 ]
 
 { #category : #initialization }
@@ -131,6 +140,23 @@ SYMLTemplate >> initialize [
 	super initialize.
 	hasArguments := false.
 	cachedResults := SYMLOrderedDictionary new.
+	instances := OrderedCollection new.
+]
+
+{ #category : #accessing }
+SYMLTemplate >> mangledName [
+	^ ByteString streamContents: [ :out |
+		out
+			nextPutAll: self parentMangledName;
+			nextPut: $T;
+			print: name size;
+			nextPutAll: name.
+	]
+]
+
+{ #category : #'semantic analysis' }
+SYMLTemplate >> semanticAnalysis [
+	instances do: #semanticAnalysis
 ]
 
 { #category : #'as yet unclassified' }

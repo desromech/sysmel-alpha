@@ -81,8 +81,8 @@ SYMLStructure >> mangledName [
 		out
 			nextPutAll: self parentMangledName;
 			nextPut: $S;
-			print: name size;
-			nextPutAll: name.
+			print: self validName size;
+			nextPutAll: self validName.
 	]
 ]
 

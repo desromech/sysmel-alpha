@@ -13,7 +13,9 @@ Class {
 		'ssaType',
 		'cachedValues',
 		'arithmeticCoercionRules',
-		'children'
+		'children',
+		'hasDefinition',
+		'mangledName'
 	],
 	#classVars : [
 		'SpecialMetaSymbols'
@@ -293,6 +295,7 @@ SYMLAbstractType >> definition: aDefinitionBlock [
 	<lazy>
 	
 	| traitScope |
+	hasDefinition := true.
 	traitScope := self definitionScopeClass parent: aDefinitionBlock environment.
 	traitScope programEntity: self.
 	
@@ -382,6 +385,7 @@ SYMLAbstractType >> initialize [
 	arithmeticCoercionRules := OrderedCollection new.
 	children := OrderedCollection new.
 	cachedValues := Dictionary new.
+	hasDefinition := false.
 ]
 
 { #category : #initialization }
@@ -502,6 +506,18 @@ SYMLAbstractType >> lookupSelector: selector [
 		trait methodDictionary at: selector ifPresent: [ :method | ^ method ].
 	].
 	^ nil
+]
+
+{ #category : #accessing }
+SYMLAbstractType >> mangledName [
+	^ mangledName ifNil: [mangledName := ByteString streamContents: [ :out |
+			out
+				nextPutAll: self parentMangledName;
+				nextPut: $t;
+				print: name size;
+				nextPutAll: name.
+		]
+	]
 ]
 
 { #category : #accessing }
@@ -648,7 +664,7 @@ SYMLAbstractType >> semanticAnalyzeMessage: message inEnvironment: environment a
 
 { #category : #'as yet unclassified' }
 SYMLAbstractType >> semanticAnalyzeMessageToYou: message inEnvironment: environment at: aPosition [
-	(name isNil and: [message selector numArgs = 0 and: [self isMetaType not] ]) ifTrue: [
+	(name isNil and: [message selector numArgs = 0 and: [self isMetaType not and: [hasDefinition not] ]]) ifTrue: [
 		self name: message selector.
 		^ message receiver
 	].

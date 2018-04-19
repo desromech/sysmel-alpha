@@ -143,6 +143,12 @@ SYMLModule >> initializeWithCompilationTarget: aCompilationTarget [
 	globalNamespace := SYMLNamespace new name: #__global; module: self.
 ]
 
+{ #category : #accessing }
+SYMLModule >> mangledName [
+	^ self parentMangledName 
+
+]
+
 { #category : #evaluating }
 SYMLModule >> moduleScope [
 	^ SYMLNamespaceScope new

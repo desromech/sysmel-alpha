@@ -3,7 +3,8 @@ Class {
 	#superclass : #SYMLObject,
 	#instVars : [
 		'parent',
-		'flags'
+		'flags',
+		'anonNameAllocation'
 	],
 	#category : #'Sysmel-Metamodel-Program'
 }
@@ -14,8 +15,21 @@ SYMLProgramEntity >> addFlag: aFlag [
 	flags := (flags copyWithout: aFlag) copyWith: aFlag
 ]
 
+{ #category : #accessing }
+SYMLProgramEntity >> addedChild: aChild [
+]
+
 { #category : #'as yet unclassified' }
 SYMLProgramEntity >> addedToAbstractType: anAbstractType [
+]
+
+{ #category : #'as yet unclassified' }
+SYMLProgramEntity >> allocateAnonName [
+	| result |
+	result := ('__anon' , anonNameAllocation asString) asSymbol.
+	anonNameAllocation := anonNameAllocation + 1.
+	^ result
+	
 ]
 
 { #category : #accessing }
@@ -42,6 +56,7 @@ SYMLProgramEntity >> hasFlag: aFlag [
 SYMLProgramEntity >> initialize [
 	super initialize.
 	flags := #().
+	anonNameAllocation := 0.
 	
 ]
 
@@ -68,7 +83,8 @@ SYMLProgramEntity >> parent [
 
 { #category : #accessing }
 SYMLProgramEntity >> parent: anObject [
-	parent := anObject
+	parent := anObject.
+	parent ifNotNil: [ parent addedChild: self ]
 ]
 
 { #category : #accessing }

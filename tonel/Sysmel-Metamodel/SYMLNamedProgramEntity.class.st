@@ -4,7 +4,8 @@ Class {
 	#instVars : [
 		'name',
 		'module',
-		'definitionEnvironment'
+		'definitionEnvironment',
+		'sysmelMangledValue'
 	],
 	#category : #'Sysmel-Metamodel-Program'
 }
@@ -44,13 +45,28 @@ SYMLNamedProgramEntity >> name [
 SYMLNamedProgramEntity >> name: aNewName [
 	<compileTime>
 	parent ifNotNil: [
-		parent addSymbol: aNewName value: self.
+		self tryToAddToParentWithName: aNewName
 	].
 	name := aNewName.
 
 ]
 
 { #category : #accessing }
+SYMLNamedProgramEntity >> sysmelMangledValue [
+	^ sysmelMangledValue ifNil: [sysmelMangledValue := ByteString streamContents: [:out |
+			out nextPut: $n;
+				print: self mangledName size;
+				nextPutAll: self mangledName
+		]
+	]
+]
+
+{ #category : #accessing }
+SYMLNamedProgramEntity >> tryToAddToParentWithName: aNewName [
+	parent addSymbol: aNewName value: self.
+]
+
+{ #category : #accessing }
 SYMLNamedProgramEntity >> validName [
-	^ name ifNil: [ 'anon' ]
+	^ name ifNil: [ parent allocateAnonName ]
 ]
