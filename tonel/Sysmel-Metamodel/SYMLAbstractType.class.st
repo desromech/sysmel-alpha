@@ -161,7 +161,7 @@ SYMLAbstractType >> arithmeticCoercionWith: otherTypeValue into: resultTypeValue
 
 { #category : #converting }
 SYMLAbstractType >> asPointerType [
-	^ self cachedNullary: #asReferenceType
+	^ self cachedNullary: #asPointerType
 ]
 
 { #category : #converting }
