@@ -39,6 +39,16 @@ Class {
 }
 
 { #category : #construction }
+SYMLCompilationTarget class >> llvm_x86 [
+	^ SYMLSLVMCompilationTarget target: SLVMLLVMCompilationTarget x86
+]
+
+{ #category : #construction }
+SYMLCompilationTarget class >> llvm_x86_64 [
+	^ SYMLSLVMCompilationTarget target: SLVMLLVMCompilationTarget x86_64
+]
+
+{ #category : #construction }
 SYMLCompilationTarget class >> x86 [
 	^ SYMLSLVMCompilationTarget  target: SLVMCompilationTarget x86
 ]

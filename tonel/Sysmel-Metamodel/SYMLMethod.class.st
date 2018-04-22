@@ -15,14 +15,16 @@ SYMLMethod >> isMethod [
 	^ true
 ]
 
-{ #category : #'as yet unclassified' }
+{ #category : #accessing }
 SYMLMethod >> mangledName [
+	| escapedName |
 	self isExternC ifTrue: [ ^ name ].
 	^ ByteString streamContents: [ :out |
+		escapedName := name sysmelEscapeForMangling.
 		out
 			nextPutAll: self parentMangledName;
 			nextPut: $M;
-			print: name size;
-			nextPutAll: name.
+			print: escapedName size;
+			nextPutAll: escapedName.
 	]
 ]

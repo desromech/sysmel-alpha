@@ -27,6 +27,16 @@ SYMLModule class >> forCurrentImage [
 ]
 
 { #category : #'instance creation' }
+SYMLModule class >> llvm_x86 [
+	^ self for: SYMLCompilationTarget llvm_x86
+]
+
+{ #category : #'instance creation' }
+SYMLModule class >> llvm_x86_64 [
+	^ self for: SYMLCompilationTarget llvm_x86_64
+]
+
+{ #category : #'instance creation' }
 SYMLModule class >> new [
 	^ self compilationTarget: SYMLCompilationTarget default.
 ]
