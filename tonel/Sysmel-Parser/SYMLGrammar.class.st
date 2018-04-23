@@ -251,7 +251,7 @@ SYMLGrammar >> comma [
 
 { #category : #accessing }
 SYMLGrammar >> commaExpression [
-	^ assignmentExpression , (comma, assignmentExpression) star
+	^ assignmentExpression , (comma, assignmentExpression) star, comma optional
 ]
 
 { #category : #tokens }

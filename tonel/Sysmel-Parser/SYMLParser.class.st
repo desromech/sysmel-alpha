@@ -131,7 +131,8 @@ SYMLParser >> characterLiteral [
 { #category : #accessing }
 SYMLParser >> commaExpression [
 	^ super commaExpression ==> [ :list |
-		list second ifEmpty: [ list first ] ifNotEmpty: [
+		(list second isEmpty and: [list last isNil]) ifTrue: [ list first ]
+		ifFalse: [
 			SYMLASTCommaSeparatedList new
 				position: list first;
 				expressions: {list first} , (list second collect: #second);
