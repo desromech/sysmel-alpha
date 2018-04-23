@@ -143,6 +143,7 @@ SYMLTemplate >> evaluateTemplateWithActivationArguments: activationArguments at:
 		]).
 	].
 	instances add: instance.
+	self module addPendingSemanticAnalysis: instance.
 	^ result value
 ]
 
@@ -168,11 +169,6 @@ SYMLTemplate >> mangledName [
 			print: name size;
 			nextPutAll: name.
 	]
-]
-
-{ #category : #'semantic analysis' }
-SYMLTemplate >> semanticAnalysis [
-	instances do: #semanticAnalysis
 ]
 
 { #category : #'as yet unclassified' }

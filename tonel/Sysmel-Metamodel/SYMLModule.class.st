@@ -6,7 +6,8 @@ Class {
 		'currentDirectory',
 		'globalNamespace',
 		'topLevelScope',
-		'ssaModule'
+		'ssaModule',
+		'pendingSemanticAnalysis'
 	],
 	#category : #'Sysmel-Metamodel-Program'
 }
@@ -54,6 +55,12 @@ SYMLModule class >> x86_64 [
 { #category : #adding }
 SYMLModule >> addMethod: method withSelector: selector [
 	topLevelScope addMethod: method withSelector: selector
+]
+
+{ #category : #'semantic analysis' }
+SYMLModule >> addPendingSemanticAnalysis: aNode [
+	pendingSemanticAnalysis add: aNode.
+
 ]
 
 { #category : #adding }
@@ -152,6 +159,8 @@ SYMLModule >> initializeWithCompilationTarget: aCompilationTarget [
 	compilationTarget := aCompilationTarget.
 	currentDirectory := FileSystem workingDirectory.
 	globalNamespace := SYMLNamespace new name: #__global; module: self.
+	pendingSemanticAnalysis := SLVMOrderedInsertionSet new.
+	pendingSemanticAnalysis add: globalNamespace
 ]
 
 { #category : #accessing }
@@ -180,7 +189,17 @@ SYMLModule >> newLanguageKernelEnvironment [
 
 { #category : #'semantic analysis' }
 SYMLModule >> semanticAnalysis [
-	globalNamespace semanticAnalysis
+	| extraToAnalyze |
+	extraToAnalyze := OrderedCollection new.
+	
+	[ pendingSemanticAnalysis isNotEmpty  ] whileTrue: [ 
+		extraToAnalyze addAll: pendingSemanticAnalysis.
+		pendingSemanticAnalysis removeAll.
+		
+		extraToAnalyze do: #semanticAnalysis.		
+		extraToAnalyze removeAll
+	]
+	
 ]
 
 { #category : #accessing }

@@ -2,14 +2,16 @@ Class {
 	#name : #SYMLObjectAlias,
 	#superclass : #SYMLNamedProgramEntity,
 	#instVars : [
-		'value'
+		'value',
+		'lazyValue',
+		'hasEvaluatedValue'
 	],
 	#category : #'Sysmel-Metamodel-Program'
 }
 
 { #category : #'as yet unclassified' }
 SYMLObjectAlias >> analyzeAPSGIdentifierToMe: identifier inEnvironment: anEnvironment [
-	^ value analyzeAPSGIdentifierToMe: identifier inEnvironment: anEnvironment
+	^ self evaluatedValue analyzeAPSGIdentifierToMe: identifier inEnvironment: anEnvironment
 ]
 
 { #category : #definition }
@@ -17,10 +19,28 @@ SYMLObjectAlias >> assignValue: bodyLazyValue [
 	<compileTime>
 	<lazy>
 	
-	value := bodyLazyValue value.
+	hasEvaluatedValue := false.
+	lazyValue := bodyLazyValue.
 	name ifNotNil: [ 
 		parent addSymbol: name value: self.
 	].
+	
+]
+
+{ #category : #'as yet unclassified' }
+SYMLObjectAlias >> evaluatedValue [
+	hasEvaluatedValue ifFalse: [
+		hasEvaluatedValue := true.
+		value := lazyValue value
+	].
+
+	^ value
+]
+
+{ #category : #initialization }
+SYMLObjectAlias >> initialize [
+	super initialize.
+	hasEvaluatedValue := false
 	
 ]
 

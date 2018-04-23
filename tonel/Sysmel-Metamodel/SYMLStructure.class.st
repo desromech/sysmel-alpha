@@ -3,7 +3,8 @@ Class {
 	#superclass : #SYMLAbstractType,
 	#instVars : [
 		'fields',
-		'hasConcretedSSAType'
+		'hasConcretedSSAType',
+		'analyzed'
 	],
 	#category : #'Sysmel-Metamodel-Program'
 }
@@ -55,6 +56,7 @@ SYMLStructure >> initialize [
 	super initialize.
 	fields := OrderedCollection new.
 	hasConcretedSSAType := false.
+	analyzed := false.
 ]
 
 { #category : #initialization }
@@ -93,6 +95,9 @@ SYMLStructure >> printOn: aStream [
 
 { #category : #'semantic analysis' }
 SYMLStructure >> semanticAnalysis [
+	analyzed ifTrue: [ ^ self ].
+	analyzed := true.
+	
 	self buildLayout.
 	children do: #semanticAnalysis
 ]

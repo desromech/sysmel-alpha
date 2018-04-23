@@ -1,6 +1,9 @@
 Class {
 	#name : #SYMLAPSGAnalyzedMessageChain,
 	#superclass : #SYMLAPSGMessageChain,
+	#instVars : [
+		'hasReceiverValue'
+	],
 	#category : #'Sysmel-Metamodel-APSG'
 }
 
@@ -17,6 +20,31 @@ SYMLAPSGAnalyzedMessageChain >> generateSSACodeWith: aBuilder [
 		result := message generateSSACodeWith: aBuilder
 	].
 	^ result
+]
+
+{ #category : #accessing }
+SYMLAPSGAnalyzedMessageChain >> hasReceiverValue [
+	^ hasReceiverValue
+]
+
+{ #category : #accessing }
+SYMLAPSGAnalyzedMessageChain >> hasReceiverValue: anObject [
+	hasReceiverValue := anObject
+]
+
+{ #category : #initialization }
+SYMLAPSGAnalyzedMessageChain >> initialize [
+	super initialize.
+	hasReceiverValue := false.
+]
+
+{ #category : #copying }
+SYMLAPSGAnalyzedMessageChain >> postCopy [
+	super postCopy.
+	self flag: 'TODO: Handle the case with deeper changes.'.
+	hasReceiverValue ifTrue: [ 
+		messages do: [ :message | message receiver receiverValue: receiver ]
+	]
 ]
 
 { #category : #'meta evaluation' }
