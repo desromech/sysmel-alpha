@@ -33,7 +33,7 @@ metaMessageAnalysis: $$Pharo {
 // Code generation
 codeGeneration: $$Pharo {
     node: messageNode builder: builder
-    | structureType structureVariable valueType |
+    | structureType structureVariable valueType initializerMethod |
     structureType := messageNode coercionType.
     valueType := messageNode valueType.
     structureType ensureConcreteSSAType.
