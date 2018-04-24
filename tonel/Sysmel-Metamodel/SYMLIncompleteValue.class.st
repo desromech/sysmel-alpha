@@ -24,11 +24,6 @@ SYMLIncompleteValue >> concretizeInEnvironment: concreteEnvironment [
 ]
 
 { #category : #testing }
-SYMLIncompleteValue >> isIncompleteValue [
-	^ true
-]
-
-{ #category : #testing }
 SYMLIncompleteValue >> isSysmelIncompleteValue [
 	^ true
 ]

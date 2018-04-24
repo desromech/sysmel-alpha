@@ -39,9 +39,20 @@ SYMLMetaType >> isMetaType [
 	^ true
 ]
 
+{ #category : #accessing }
+SYMLMetaType >> mangledName [
+	^ mangledName ifNil: [mangledName := ByteString streamContents: [ :out |
+			out
+				nextPutAll: instanceType mangledName;
+				nextPutAll: '_meta'.
+		]
+	]
+]
+
 { #category : #testing }
 SYMLMetaType >> node: node coercedImplicitlyInto: targetType [
 	targetType == self compilationTarget compilerObjectType ifTrue: [ ^ SYMLIdentityTypeConversionRule new ].
+
 	^ super node: node coercedImplicitlyInto: targetType
 ]
 

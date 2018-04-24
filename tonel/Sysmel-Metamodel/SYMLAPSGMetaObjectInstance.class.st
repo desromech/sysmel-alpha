@@ -24,8 +24,13 @@ SYMLAPSGMetaObjectInstance >> evaluateInEnvironment: anEnvironment [
 
 { #category : #'meta evaluation' }
 SYMLAPSGMetaObjectInstance >> evaluateTypeInEnvironment: anEnvironment [
-	^ anEnvironment compilationTarget compilerObjectType
+	^ metaObject evaluateMetaObjectTypeInEnvironment: anEnvironment
 
+]
+
+{ #category : #'meta evaluation' }
+SYMLAPSGMetaObjectInstance >> generateSSACodeWith: aBuilder [
+	^ metaObject generateSSAReferenceWith: aBuilder
 ]
 
 { #category : #testing }

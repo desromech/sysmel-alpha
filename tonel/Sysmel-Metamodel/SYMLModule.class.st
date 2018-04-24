@@ -7,7 +7,8 @@ Class {
 		'globalNamespace',
 		'topLevelScope',
 		'ssaModule',
-		'pendingSemanticAnalysis'
+		'pendingSemanticAnalysis',
+		'pendingSSACodeGeneration'
 	],
 	#category : #'Sysmel-Metamodel-Program'
 }
@@ -58,6 +59,12 @@ SYMLModule >> addMethod: method withSelector: selector [
 ]
 
 { #category : #'semantic analysis' }
+SYMLModule >> addPendingSSACodeGeneration: aNode [
+	pendingSSACodeGeneration add: aNode.
+
+]
+
+{ #category : #'semantic analysis' }
 SYMLModule >> addPendingSemanticAnalysis: aNode [
 	pendingSemanticAnalysis add: aNode.
 
@@ -70,7 +77,17 @@ SYMLModule >> addSymbol: symbol value: value [
 
 { #category : #'code generation' }
 SYMLModule >> buildSSAModule [
-	globalNamespace generateSSACode.
+	| extraToGenerate |
+	extraToGenerate := OrderedCollection new.
+	
+	[ pendingSSACodeGeneration isNotEmpty  ] whileTrue: [ 
+		extraToGenerate addAll: pendingSSACodeGeneration.
+		pendingSSACodeGeneration removeAll.
+		
+		extraToGenerate do: #generateSSACode.		
+		extraToGenerate removeAll
+	].
+
 	^ self ssaModule
 ]
 
@@ -160,7 +177,10 @@ SYMLModule >> initializeWithCompilationTarget: aCompilationTarget [
 	currentDirectory := FileSystem workingDirectory.
 	globalNamespace := SYMLNamespace new name: #__global; module: self.
 	pendingSemanticAnalysis := SLVMOrderedInsertionSet new.
-	pendingSemanticAnalysis add: globalNamespace
+	pendingSemanticAnalysis add: globalNamespace.
+
+	pendingSSACodeGeneration := SLVMOrderedInsertionSet new.
+	pendingSSACodeGeneration add: globalNamespace.
 ]
 
 { #category : #accessing }

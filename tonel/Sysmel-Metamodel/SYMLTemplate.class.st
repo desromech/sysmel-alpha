@@ -75,7 +75,7 @@ SYMLTemplate >> evaluateTemplate: theRawArguments [
 	activationArguments size ~= arguments size ifTrue: [ 
 		self error: 'Mismatching arguments for template {1}. Expected {2} argument(s).' format: { self validName . arguments size asString } at: theRawArguments position
 	].
-	activationArguments detect: #isIncompleteValue ifFound: [
+	activationArguments detect: #isSysmelIncompleteValue ifFound: [
 		^ SYMLAPSGIncompleteSemanticAnalysis new
 			position: theRawArguments position;
 			action: [ :concreteEnvironment | self evaluateTemplateIncompleteArguments: activationArguments concreteEnvironment: concreteEnvironment at: theRawArguments position

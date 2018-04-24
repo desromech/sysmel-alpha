@@ -12,7 +12,8 @@ Class {
 		'receiverType',
 		'receiver',
 		'locals',
-		'ssaValue'
+		'ssaValue',
+		'bindedFunctionType'
 	],
 	#category : #'Sysmel-Metamodel-Program'
 }
@@ -51,9 +52,7 @@ SYMLAbstractFunction >> analyzeAndEvaluateMessage: message toReceiver: aReceiver
 
 { #category : #'as yet unclassified' }
 SYMLAbstractFunction >> analyzeMetaMessage: message toReceiver: receiverValue inEnvironment: environment at: aPosition [
-	| result |
-	result := self analyzeAndEvaluateMessage: message toReceiver: receiverValue inEnvironment: environment at: aPosition.
-	^ result asAPSGNodeInEnvironment: environment at: aPosition
+	self halt
 ]
 
 { #category : #accessing }
@@ -64,6 +63,12 @@ SYMLAbstractFunction >> analyzedBody [
 	analysisScope := self createAnalysisScope.
 	analyzedBody := body semanticAnalysisInEnvironment: analysisScope.
 	^ analyzedBody
+]
+
+{ #category : #accessing }
+SYMLAbstractFunction >> bindedFunctionType [
+	bindedFunctionType ifNil: [ self buildFunctionType ].
+	^ bindedFunctionType
 ]
 
 { #category : #accessing }
@@ -101,6 +106,13 @@ SYMLAbstractFunction >> createSSAValue [
 		ssaArgument name: arg name
 	].
 
+	self module addPendingSSACodeGeneration: self
+]
+
+{ #category : #'semantic analysis' }
+SYMLAbstractFunction >> ensureSemanticAnalysis [
+	analyzedBody ifNotNil: [ ^ self ].
+	self module addPendingSemanticAnalysis: self
 ]
 
 { #category : #'as yet unclassified' }
@@ -156,6 +168,8 @@ SYMLAbstractFunction >> generateSSACode [
 		].
 		^ self
 	].
+	
+	self ssaValue isNotEmpty ifTrue: [ ^ self ].
 	
 	"Set the receiver"
 	receiverOffset := self returnType isReturnedThroughFirstArgument ifTrue: [1] ifFalse: [0].
@@ -275,6 +289,7 @@ SYMLAbstractFunction >> semanticAnalyzeMessage: message inEnvironment: environme
 
 { #category : #'code generation' }
 SYMLAbstractFunction >> ssaValue [
+	self assert: (body isNil or: [analyzedBody isNotNil]).
 	ssaValue ifNil: [ self createSSAValue ].
 	^ ssaValue
 ]

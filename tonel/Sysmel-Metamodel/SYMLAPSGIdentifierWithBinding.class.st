@@ -39,6 +39,11 @@ SYMLAPSGIdentifierWithBinding >> generateSSACodeWith: aBuilder [
 	^ binding generateSSAReferenceWith: aBuilder
 ]
 
+{ #category : #testing }
+SYMLAPSGIdentifierWithBinding >> isSysmelIncompleteValueInEnvironment: anEnvironment [
+	^ binding isSysmelIncompleteValueInEnvironment: anEnvironment
+]
+
 { #category : #accessing }
 SYMLAPSGIdentifierWithBinding >> semanticAnalysisInEnvironment: anEnvironment [
 	^ self

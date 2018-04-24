@@ -49,3 +49,8 @@ SYMLLexicalScope >> lookSymbol: symbol ifPresent: ifPresentBlock [
 	symbols at: symbol ifPresent: ifPresentBlock
 	
 ]
+
+{ #category : #initialization }
+SYMLLexicalScope >> setSymbol: symbol value: value [
+	symbols at: symbol put: value
+]

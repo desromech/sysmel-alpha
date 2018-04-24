@@ -21,7 +21,9 @@ SYMLAPSGMessageChainReceiverValue >> chain: anObject [
 
 { #category : #'meta evaluation' }
 SYMLAPSGMessageChainReceiverValue >> evaluateInEnvironment: anEnvironment [
-	self halt
+	| activationValue |
+	activationValue := receiver evaluateInEnvironment: anEnvironment.
+	anEnvironment setSymbol: self value: activationValue
 ]
 
 { #category : #'meta evaluation' }

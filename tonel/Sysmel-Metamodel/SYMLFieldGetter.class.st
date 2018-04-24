@@ -5,6 +5,13 @@ Class {
 }
 
 { #category : #'macro compilation' }
+SYMLFieldGetter >> evaluateMessage: message inEnvironment: anEnvironment [
+	| receiver |
+	receiver := message receiver evaluateInEnvironment: anEnvironment.
+	self halt
+]
+
+{ #category : #'macro compilation' }
 SYMLFieldGetter >> generateMessage: messageNode ssaCodeWith: builder [
 	| receiverValue |
 	receiverValue := messageNode receiver generateSSACodeWith: builder.

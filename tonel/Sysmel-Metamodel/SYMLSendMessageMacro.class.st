@@ -15,6 +15,30 @@ SYMLSendMessageMacro >> evaluateMessage: message inEnvironment: anEnvironment [
 	^ receiver value sysmelPerform: message selector withArguments: arguments
 ]
 
+{ #category : #'macro compilation' }
+SYMLSendMessageMacro >> generateMessage: messageNode ssaCodeWith: builder [
+	| receiverValue arguments allArguments expectedReceiverType |
+	allArguments := #().
+	expectedReceiverType := messageNode coercionType first.
+	expectedReceiverType isVoidType ifFalse: [ 
+		receiverValue := messageNode coercionRule first
+			convertSSAValue: (messageNode receiver generateSSACodeWith: builder)
+			to: expectedReceiverType with: builder at: messageNode.
+
+		allArguments := { receiverValue }.
+	].
+	
+	arguments := messageNode arguments collectWithIndex: [ :arg :index |
+		(messageNode coercionRule second at: index)
+			convertSSAValue: (arg generateSSACodeWith: builder)
+			to: (messageNode coercionType second at: index) with: builder at: messageNode.
+	].
+	allArguments := allArguments , arguments.
+	
+	self flag: 'TODO: Support virtual/looked up calls.'.
+	^ builder call: messageMethod ssaValue arguments: allArguments
+]
+
 { #category : #accessing }
 SYMLSendMessageMacro >> messageMethod [
 	^ messageMethod
@@ -27,8 +51,34 @@ SYMLSendMessageMacro >> messageMethod: anObject [
 
 { #category : #'macro compilation' }
 SYMLSendMessageMacro >> semanticAnalyzeMessage: message inEnvironment: environment at: aPosition [
-	^ (message withAnalyzedReceiverAndArgumentsInEnvironment: environment)
+	| analyzedMessage expectedReceiverType expectedArgumentTypes receiverCoercionRule argumentsCoercionRule |
+	analyzedMessage := message withAnalyzedReceiverAndArgumentsInEnvironment: environment.
+	messageMethod ifNil: [
+		expectedReceiverType := nil.
+		expectedArgumentTypes := nil.
+		self halt.
+	] ifNotNil: [
+		messageMethod ensureSemanticAnalysis.
+		expectedReceiverType := messageMethod receiverType.
+		expectedArgumentTypes := messageMethod bindedFunctionType arguments.
+	].
+
+	receiverCoercionRule:= nil.
+	expectedReceiverType isVoidType ifFalse: [ 
+		receiverCoercionRule := (analyzedMessage receiver evaluateTypeInEnvironment: environment)
+			node: analyzedMessage receiver coercedImplicitlyInto: expectedReceiverType at: message.
+	].
+
+	argumentsCoercionRule := (analyzedMessage arguments collectWithIndex: [:argument :index |
+		(argument evaluateTypeInEnvironment: environment)
+			node: analyzedMessage receiver coercedImplicitlyInto: (expectedArgumentTypes at: index) at: message.
+	]).
+	"message selector == #x:y:z: ifTrue: [ self halt ]."
+
+	^ analyzedMessage copy
 		metaMethod: self;
 		valueType: (messageMethod ifNotNil: [messageMethod returnType] ifNil: [message receiver receiverType]);
+		coercionType: { expectedReceiverType . expectedArgumentTypes };
+		coercionRule: { receiverCoercionRule . argumentsCoercionRule };
 		yourself
 ]

@@ -19,6 +19,11 @@ SYMLAPSGMessageChainReceiverReference >> chain: anObject [
 ]
 
 { #category : #'meta evaluation' }
+SYMLAPSGMessageChainReceiverReference >> evaluateInEnvironment: anEnvironment [
+	^ anEnvironment lookSymbolRecursively: receiverValue ifAbsent: [ self error: 'Cannot evaluate chained receiver.' ]
+]
+
+{ #category : #'meta evaluation' }
 SYMLAPSGMessageChainReceiverReference >> evaluateTypeInEnvironment: anEnvironment [
 	^ receiverValue evaluateTypeInEnvironment: anEnvironment
 ]

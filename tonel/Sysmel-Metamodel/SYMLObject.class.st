@@ -62,6 +62,11 @@ SYMLObject >> error: anErrorString format: formatArguments at: aSourcePosition [
 	^ self error: (anErrorString format: formatArguments) at: aSourcePosition
 ]
 
+{ #category : #'as yet unclassified' }
+SYMLObject >> evaluateMetaObjectTypeInEnvironment: anEnvironment [
+	^ anEnvironment compilationTarget compilerObjectType
+]
+
 { #category : #testing }
 SYMLObject >> hasIncompleteSemanticAnalysis [
 	^ false
@@ -100,6 +105,11 @@ SYMLObject >> isMetaObject [
 { #category : #testing }
 SYMLObject >> isRecursiveValue [
 	^ false
+]
+
+{ #category : #testing }
+SYMLObject >> isSysmelIncompleteValue [
+	^ self hasIncompleteSemanticAnalysis
 ]
 
 { #category : #testing }

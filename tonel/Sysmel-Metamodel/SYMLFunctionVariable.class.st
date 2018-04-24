@@ -12,6 +12,13 @@ SYMLFunctionVariable >> generateSSAReferenceWith: builder [
 	^ ssaValue
 ]
 
+{ #category : #testing }
+SYMLFunctionVariable >> isSysmelIncompleteValueInEnvironment: environment [
+	| currentBinding |
+	currentBinding := environment lookSymbolRecursively: name ifAbsent: [ ^ false ].
+	^ self == currentBinding
+]
+
 { #category : #accessing }
 SYMLFunctionVariable >> ssaValue [
 	^ ssaValue

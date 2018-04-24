@@ -49,6 +49,11 @@ SYMLFieldVariable >> createSetter [
 	parent addMethod: (SYMLFieldSetter new field: self) withSelector: self setterSelector
 ]
 
+{ #category : #defaults }
+SYMLFieldVariable >> defaultValue [
+	^ type defaultValue
+]
+
 { #category : #accessing }
 SYMLFieldVariable >> getterSelector [
 	^ self name

@@ -24,6 +24,11 @@ Object >> isSysmelIncompleteValue [
 ]
 
 { #category : #'*Sysmel-Metamodel' }
+Object >> isSysmelIncompleteValueInEnvironment: anEnvironment [
+	^ self isSysmelIncompleteValue
+]
+
+{ #category : #'*Sysmel-Metamodel' }
 Object >> isSysmelObject [
 	^ false
 ]

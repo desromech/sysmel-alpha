@@ -5,6 +5,17 @@ Class {
 }
 
 { #category : #'macro compilation' }
+SYMLFieldSetter >> evaluateMessage: message inEnvironment: anEnvironment [
+	| receiver value coercedValue receiverValue |
+	receiverValue := message receiver evaluateInEnvironment: anEnvironment.
+	receiver := receiverValue unwrapSysmelValue.
+	value := (message arguments first evaluateInEnvironment: anEnvironment) unwrapSysmelValue.
+	coercedValue := message coercionRule convertValue: value into: message coercionType at: message position.
+	receiver slots at: field slotIndex + 1 put: coercedValue.
+	^ receiverValue
+]
+
+{ #category : #'macro compilation' }
 SYMLFieldSetter >> generateMessage: messageNode ssaCodeWith: builder [
 	| receiverValue newFieldValue |
 	receiverValue := messageNode receiver generateSSACodeWith: builder.

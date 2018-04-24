@@ -215,7 +215,16 @@ definition: {
 }.
 
 // Meta type
-_MetaType uses: Type type.
+_MetaType uses: Type type;
+definition: {
+    message buildSSAType -> _CompilerObjectType := {
+        return: (Compiler compilationTarget ssaPointerTo: Compiler compilationTarget int8Type ssaType)
+    }.
+
+    message generateSSAValue: (value: _CompilerObjectType) withBuilder: (builder: _CompilerObjectType) ::-> _CompilerObjectType := {
+        return: value ssaValue
+    }.
+}.
 
 // A literal type
 trait LiteralType
@@ -304,6 +313,14 @@ definition: {
     meta message defaultSSAValueWith: (builder: _CompilerObjectType) ::-> _CompilerObjectType := {
         return: (builder const: 0 type: self ssaType)
     }.
+
+    meta message defaultValue -> _CompilerObjectType := {
+        return: 0
+    }.
+
+    meta message generateSSAValue: (value: _CompilerObjectType) withBuilder: (builder: _CompilerObjectType) ::-> _CompilerObjectType := {
+        return: (builder const: value unwrapSysmelValue type: self ssaType)
+    }.
 }.
 
 trait PrimitiveUnsignedIntegerType uses: (PrimitiveIntegerType, UnsignedIntegerType).
@@ -338,6 +355,14 @@ trait PrimitiveFloatingPointType uses: (PrimitiveType, FloatingPointType);
 definition: {
     meta message defaultSSAValueWith: (builder: _CompilerObjectType) ::-> _CompilerObjectType := {
         return: (builder const: 0.0 type: self ssaType)
+    }.
+
+    meta message generateSSAValue: (value: _CompilerObjectType) withBuilder: (builder: _CompilerObjectType) ::-> _CompilerObjectType := {
+        return: (builder const: value unwrapSysmelValue type: self ssaType)
+    }.
+
+    meta message defaultValue -> _CompilerObjectType := {
+        return: 0.0
     }.
 }.
 
@@ -461,7 +486,8 @@ definition: {
     SelfType conversionTo: R cleanType doOn: {
         evaluation: $$Pharo {
             value: value environment: environment
-                self halt.
+                "Reference evaluation"
+                ^ value value
         }.
         codeGeneration: $$Pharo {
             convertSSAValue: sourceValue to: targetType with: builder at: messageNode

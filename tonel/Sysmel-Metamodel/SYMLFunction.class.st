@@ -90,17 +90,23 @@ SYMLFunction >> assignValue: bodyLazyValue [
 
 { #category : #associating }
 SYMLFunction >> buildFunctionType [
-	| argumentTypes |
+	| argumentTypes bindedArgumentTypes |
 	returnType ifNil: [
 		self error: 'Cannot build a function without a return type. You can use Void.'
 	].
 
-	argumentTypes := (arguments collect: #type).
+	bindedArgumentTypes := (arguments collect: #type).
+	argumentTypes := bindedArgumentTypes.
 	self receiverType isVoidType ifFalse: [
 		argumentTypes := {receiverType} , argumentTypes.
 	].
 	
-	functionType := self compilationTarget functionArguments: argumentTypes returnType: returnType callingConvention: callingConvention variadic: self isCVariadic.
+	functionType := self compilationTarget
+		functionArguments: argumentTypes returnType: returnType
+		callingConvention: callingConvention variadic: self isCVariadic.
+	bindedFunctionType := self compilationTarget
+		functionArguments: bindedArgumentTypes returnType: returnType
+		callingConvention: callingConvention variadic: self isCVariadic.
 
 ]
 

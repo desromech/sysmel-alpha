@@ -290,6 +290,11 @@ SYMLAbstractType >> defaultSSAValueWith: builder [
 	^ result unwrapSysmelValue
 ]
 
+{ #category : #defaults }
+SYMLAbstractType >> defaultValue [
+	^ self sysmelPerform: #defaultValue withArguments: #()
+]
+
 { #category : #definition }
 SYMLAbstractType >> definition: aDefinitionBlock [
 	<compileTime>
@@ -353,6 +358,11 @@ SYMLAbstractType >> flattenedTraits [
 	self flattenTraitsInto: flattenedTraits visited: IdentitySet new.
 	flattenedTraits := flattenedTraits asArray.
 	^ flattenedTraits
+]
+
+{ #category : #'code generation' }
+SYMLAbstractType >> generateSSAReferenceWith: builder [
+	^ self type generateSSAValue: self withBuilder: builder
 ]
 
 { #category : #'code generation' }
@@ -528,6 +538,11 @@ SYMLAbstractType >> methodDictionary [
 
 { #category : #conversions }
 SYMLAbstractType >> node: node coercedImplicitlyInto: targetType [
+	(node isNotNil and: [node isMetaObjectInstance]) ifTrue: [ 
+		self flag: 'FIXME: Remove this case.'.
+		node metaObject type == targetType ifTrue: [ ^ SYMLIdentityTypeConversionRule new ]
+	].
+
 	^ self node: node coercedImplicitlyInto: targetType visited: IdentitySet new
 ]
 
@@ -690,6 +705,11 @@ SYMLAbstractType >> ssaType [
 	<compileTime>
 	ssaType ifNil: [ ssaType := self buildSSAType].
 	^ ssaType
+]
+
+{ #category : #accessing }
+SYMLAbstractType >> ssaValue [
+	^ SLVMConstant type: self type ssaType value: 0
 ]
 
 { #category : #accessing }

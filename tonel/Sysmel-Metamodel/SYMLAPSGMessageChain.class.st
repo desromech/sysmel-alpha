@@ -12,6 +12,8 @@ Class {
 SYMLAPSGMessageChain >> evaluateInEnvironment: anEnvironment [
 	| result |
 	result := nil.
+	receiver ifNotNil: [ receiver evaluateInEnvironment: anEnvironment ].
+	
 	messages do: [ :message |
 		result := message evaluateInEnvironment: anEnvironment
 	].

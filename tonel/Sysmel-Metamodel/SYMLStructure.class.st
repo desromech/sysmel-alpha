@@ -45,6 +45,11 @@ SYMLStructure >> ensureConcreteSSAType [
 
 ]
 
+{ #category : #accessing }
+SYMLStructure >> fields [
+	^ fields
+]
+
 { #category : #'semantic analysis' }
 SYMLStructure >> generateSSACode [
 	self ensureConcreteSSAType.
@@ -75,6 +80,14 @@ SYMLStructure >> lookReceiver: receiver symbol: symbol ifPresent: ifPresentBlock
 		].
 	].
 	^ super lookReceiver: receiver symbol: symbol ifPresent: ifPresentBlock
+]
+
+{ #category : #'as yet unclassified' }
+SYMLStructure >> makeInstance [
+	self semanticAnalysis.
+	^ SYMLStructureInstance new type: self;
+		slots: (fields collect: [:field | field defaultValue unwrapSysmelValue ]);
+		yourself
 ]
 
 { #category : #'semantic analysis' }

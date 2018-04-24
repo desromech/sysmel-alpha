@@ -22,6 +22,20 @@ SYMLMessageMethod >> -> returnTypeValue [
 	returnType := returnTypeValue value.
 ]
 
+{ #category : #'as yet unclassified' }
+SYMLMessageMethod >> analyzeMetaMessage: message toReceiver: receiverValue inEnvironment: environment at: aPosition [
+	| result analyzedMessage |
+	analyzedMessage := message withAnalyzedReceiverAndArgumentsInEnvironment: environment.
+	analyzedMessage arguments detect: [ :arg | arg isSysmelIncompleteValueInEnvironment: environment ] ifFound: [ 
+		^ SYMLSendMessageMacro new
+			messageMethod: self;
+			semanticAnalyzeMessage: analyzedMessage inEnvironment: environment at: aPosition
+	].
+	
+	result := self analyzeAndEvaluateMessage: analyzedMessage toReceiver: receiverValue inEnvironment: environment at: aPosition.
+	^ result asAPSGNodeInEnvironment: environment at: aPosition
+]
+
 { #category : #associating }
 SYMLMessageMethod >> assignValue: bodyLazyValue [
 	<compileTime>
@@ -39,15 +53,19 @@ SYMLMessageMethod >> assignValue: bodyLazyValue [
 
 { #category : #associating }
 SYMLMessageMethod >> buildFunctionType [
-	| argumentTypes |
+	| argumentTypes bindedArgumentTypes |
 	returnType ifNil: [ returnType := self compilationTarget dynamicObjectType ].
-	argumentTypes := arguments collect: #type.
+	bindedArgumentTypes := arguments collect: #type.
+	argumentTypes := bindedArgumentTypes.
 	
 	self receiverType isVoidType ifFalse: [
 		argumentTypes := {receiverType} , argumentTypes.
 	].
 	
-	functionType := self compilationTarget functionArguments: argumentTypes returnType: returnType callingConvention: #cdecl variadic: self isCVariadic.
+	functionType := self compilationTarget functionArguments: argumentTypes
+		returnType: returnType callingConvention: #cdecl variadic: self isCVariadic.
+	bindedFunctionType := self compilationTarget functionArguments: bindedArgumentTypes
+		returnType: returnType callingConvention: #cdecl variadic: self isCVariadic.
 
 ]
 
