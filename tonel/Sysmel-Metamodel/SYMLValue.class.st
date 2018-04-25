@@ -104,6 +104,7 @@ SYMLValue >> printOn: aStream [
 
 { #category : #'as yet unclassified' }
 SYMLValue >> sysmelMangledValue [
+	<compileTime>
 	^ value sysmelMangledValue
 ]
 

@@ -429,6 +429,10 @@ definition: {
     meta message asReferenceType ->_CompilerObjectType := {
         return: P ref
     }.
+
+    meta message sysmelMangledValue -> _CompilerObjectType := {
+        return: P sysmelMangledValue -- #p
+    }.
 }.
 
 Type extend: {
@@ -478,8 +482,12 @@ definition: {
         return: R pointer
     }.
 
-    meta message asReferenceType ->_CompilerObjectType := {
+    meta message asReferenceType -> _CompilerObjectType := {
         return: self
+    }.
+
+    meta message sysmelMangledValue -> _CompilerObjectType := {
+        return: R sysmelMangledValue -- #r
     }.
 
     // Reference evaluation
@@ -548,6 +556,10 @@ definition: {
 
     meta message cvariadicCoercionType -> _CompilerObjectType := {
         return: D cvariadicCoercionType
+    }.
+
+    meta message sysmelMangledValue -> _CompilerObjectType := {
+        return: D sysmelMangledValue -- #c
     }.
 }.
 
@@ -713,12 +725,22 @@ definition: {
 _CompilerObjectType uses: Type.
 _APSGNodeType uses: Type.
 
-Boolean uses: (BooleanType, PrimitiveType).
+Boolean uses: (BooleanType, PrimitiveType);
+definition: {
+    meta message buildSSAType -> _CompilerObjectType := {
+        return: Compiler compilationTarget ssaBoolType
+    }.
+
+    SelfType sysmelMangledValue: #b.
+}.
+
 Void uses: OpaqueType;
 definition: {
     meta message buildSSAType -> _CompilerObjectType := {
         return: Compiler compilationTarget ssaVoidType
     }.
+
+    SelfType sysmelMangledValue: #v.
 }.
 
 // Int8
@@ -736,6 +758,7 @@ definition: {
         return: Int32
     }.
 
+    SelfType sysmelMangledValue: #s1.
 }.
 
 UInt8 uses: PrimitiveUnsignedIntegerType;
@@ -751,6 +774,8 @@ definition: {
     meta message cvariadicCoercionType -> _CompilerObjectType := {
         return: Int32
     }.
+
+    SelfType sysmelMangledValue: #u1.
 }.
 
 // Int16
@@ -767,6 +792,8 @@ definition: {
     meta message cvariadicCoercionType -> _CompilerObjectType := {
         return: Int32
     }.
+
+    SelfType sysmelMangledValue: #s2.
 }.
 
 UInt16 uses: PrimitiveUnsignedIntegerType;
@@ -783,6 +810,7 @@ definition: {
         return: Int32
     }.
 
+    SelfType sysmelMangledValue: #u2.
 }.
 
 // Int32
@@ -799,6 +827,8 @@ definition: {
     meta message cvariadicCoercionType -> _CompilerObjectType := {
         return: self
     }.
+
+    SelfType sysmelMangledValue: #s8.
 }.
 
 UInt32 uses: PrimitiveUnsignedIntegerType;
@@ -814,6 +844,8 @@ definition: {
     meta message cvariadicCoercionType -> _CompilerObjectType := {
         return: self
     }.
+
+    SelfType sysmelMangledValue: #u4.
 }.
 
 // Int64
@@ -830,6 +862,8 @@ definition: {
     meta message cvariadicCoercionType -> _CompilerObjectType := {
         return: self
     }.
+
+    SelfType sysmelMangledValue: #s8.
 }.
 
 UInt64 uses: PrimitiveUnsignedIntegerType;
@@ -845,6 +879,8 @@ definition: {
     meta message cvariadicCoercionType -> _CompilerObjectType := {
         return: self
     }.
+
+    SelfType sysmelMangledValue: #u8.
 }.
 
 Float32 uses: PrimitiveFloatingPointType;
@@ -860,6 +896,8 @@ definition: {
     meta message cvariadicCoercionType -> _CompilerObjectType := {
         return: Float64
     }.
+
+    SelfType sysmelMangledValue: #f4.
 }.
 
 Float64 uses: PrimitiveFloatingPointType;
@@ -875,6 +913,8 @@ definition: {
     meta message cvariadicCoercionType -> _CompilerObjectType := {
         return: Float64
     }.
+
+    SelfType sysmelMangledValue: #f8.
 }.
 
 Char uses: UInt8.

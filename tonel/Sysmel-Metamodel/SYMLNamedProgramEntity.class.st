@@ -53,12 +53,22 @@ SYMLNamedProgramEntity >> name: aNewName [
 
 { #category : #accessing }
 SYMLNamedProgramEntity >> sysmelMangledValue [
-	^ sysmelMangledValue ifNil: [sysmelMangledValue := ByteString streamContents: [:out |
-			out nextPut: $n;
-				print: self mangledName size;
-				nextPutAll: self mangledName
-		]
+	<compileTime>
+	^ sysmelMangledValue ifNil: [sysmelMangledValue := (self sysmelPerform: #sysmelMangledValue fallbackWith: [
+			ByteString streamContents: [:out |
+				out nextPut: $n;
+					print: self mangledName size;
+					nextPutAll: self mangledName
+			]
+		]) unwrapSysmelValue
 	]
+]
+
+{ #category : #accessing }
+SYMLNamedProgramEntity >> sysmelMangledValue: aValue [
+	<compileTime>
+	self assert: sysmelMangledValue isNil.
+	sysmelMangledValue := aValue
 ]
 
 { #category : #accessing }

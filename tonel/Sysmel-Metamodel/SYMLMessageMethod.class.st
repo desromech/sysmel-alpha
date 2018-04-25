@@ -124,20 +124,6 @@ SYMLMessageMethod >> isMethod [
 	^ true
 ]
 
-{ #category : #accessing }
-SYMLMessageMethod >> mangledName [
-	| escapedName |
-	self isExternC ifTrue: [ ^ name ].
-	^ ByteString streamContents: [ :out |
-		escapedName := name sysmelEscapeForMangling.
-		out
-			nextPutAll: self parentMangledName;
-			nextPut: $M;
-			print: escapedName size;
-			nextPutAll: escapedName.
-	]
-]
-
 { #category : #'macro compilation' }
 SYMLMessageMethod >> semanticAnalyzeMessage: message inEnvironment: environment at: aPosition [
 	^ SYMLSendMessageMacro new

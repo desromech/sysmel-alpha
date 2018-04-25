@@ -2,6 +2,10 @@ Extension { #name : #String }
 
 { #category : #'*Sysmel-Metamodel' }
 String >> sysmelEscapeForMangling [
+	(self beginsWith: '__anon') ifTrue: [
+		^ '_a' , (self allButFirst: '__anon' size) sysmelEscapeForMangling
+	].
+
 	^ ByteString streamContents: [ :out |
 		self do: [ :c |
 			c = $_ ifTrue: [ out nextPutAll: '__' ] ifFalse: [

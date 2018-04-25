@@ -6,7 +6,8 @@ Class {
 		'arguments',
 		'returnType',
 		'callingConvention',
-		'variadic'
+		'variadic',
+		'argumentsMangledName'
 	],
 	#category : #'Sysmel-Metamodel-Program'
 }
@@ -30,6 +31,16 @@ SYMLFunctionType >> arguments [
 SYMLFunctionType >> arguments: anObject [
 	<compileTime>
 	arguments := anObject
+]
+
+{ #category : #accessing }
+SYMLFunctionType >> argumentsMangledName [
+	^ argumentsMangledName ifNil: [ argumentsMangledName := ByteString streamContents: [ :out |
+			arguments do: [ :arg |
+				out nextPutAll: arg sysmelMangledValue
+			]
+		]
+	]
 ]
 
 { #category : #'code generation' }

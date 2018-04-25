@@ -249,13 +249,19 @@ SYMLAbstractFunction >> mangledName [
 	| escapedName |
 	self isExternC ifTrue: [ ^ name ].
 	^ ByteString streamContents: [ :out |
-		escapedName := name sysmelEscapeForMangling.
+		escapedName := self validName sysmelEscapeForMangling.
 		out
 			nextPutAll: self parentMangledName;
 			nextPut: $F;
 			print: escapedName size;
-			nextPutAll: escapedName.
+			nextPutAll: escapedName;
+			nextPutAll: self functionType argumentsMangledName.
 	]
+]
+
+{ #category : #accessing }
+SYMLAbstractFunction >> manglingCharacter [
+	^ $F
 ]
 
 { #category : #accessing }

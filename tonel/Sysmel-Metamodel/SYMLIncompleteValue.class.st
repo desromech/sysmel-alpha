@@ -30,6 +30,7 @@ SYMLIncompleteValue >> isSysmelIncompleteValue [
 
 { #category : #'as yet unclassified' }
 SYMLIncompleteValue >> sysmelMangledValue [
+	<compileTime>
 	^ #u
 ]
 

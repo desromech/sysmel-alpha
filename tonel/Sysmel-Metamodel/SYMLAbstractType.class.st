@@ -521,12 +521,14 @@ SYMLAbstractType >> lookupSelector: selector [
 
 { #category : #accessing }
 SYMLAbstractType >> mangledName [
+	| escapedName |
 	^ mangledName ifNil: [mangledName := ByteString streamContents: [ :out |
+			escapedName := self validName sysmelEscapeForMangling.
 			out
 				nextPutAll: self parentMangledName;
 				nextPut: $t;
-				print: name size;
-				nextPutAll: name.
+				print: escapedName size;
+				nextPutAll: escapedName.
 		]
 	]
 ]

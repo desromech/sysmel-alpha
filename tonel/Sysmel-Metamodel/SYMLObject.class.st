@@ -167,3 +167,13 @@ SYMLObject >> sendCompileTimeMessage: message inEnvironment: environment at: aPo
 		result asAPSGNodeInEnvironment: environment at: message position
 	]
 ]
+
+{ #category : #'as yet unclassified' }
+SYMLObject >> sysmelPerform: aSelector fallbackWith: fallbackBlock [
+	^ self sysmelPerform: aSelector withArguments: #() fallbackWith: fallbackBlock
+]
+
+{ #category : #'as yet unclassified' }
+SYMLObject >> sysmelPerform: aSelector withArguments: arguments fallbackWith: fallbackBlock [
+	^ fallbackBlock value
+]

@@ -92,12 +92,14 @@ SYMLStructure >> makeInstance [
 
 { #category : #'semantic analysis' }
 SYMLStructure >> mangledName [
+	| escapedName |
 	^ ByteString streamContents: [ :out |
+		escapedName := self validName sysmelEscapeForMangling.
 		out
 			nextPutAll: self parentMangledName;
 			nextPut: $S;
-			print: self validName size;
-			nextPutAll: self validName.
+			print: escapedName size;
+			nextPutAll: escapedName.
 	]
 ]
 

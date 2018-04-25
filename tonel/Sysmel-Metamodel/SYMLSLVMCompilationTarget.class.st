@@ -37,6 +37,12 @@ SYMLSLVMCompilationTarget >> pointerSize [
 ]
 
 { #category : #'target platform querying' }
+SYMLSLVMCompilationTarget >> ssaBoolType [
+	<compileTime>
+	^ target bool
+]
+
+{ #category : #'target platform querying' }
 SYMLSLVMCompilationTarget >> ssaFloat32 [
 	<compileTime>
 	^ target float32
