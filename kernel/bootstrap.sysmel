@@ -507,11 +507,10 @@ definition: {
         }.
     }.
 
-
     SelfType conversionTo: R doOn: {
         evaluation: $$Pharo {
             value: value environment: environment
-                self halt.
+                ^ value value
         }.
         codeGeneration: $$Pharo {
             convertSSAValue: sourceValue to: targetType with: builder at: messageNode
@@ -551,7 +550,7 @@ definition: {
     }.
 
     meta message cleanType -> _CompilerObjectType := {
-        return: D
+        return: D cleanType
     }.
 
     meta message cvariadicCoercionType -> _CompilerObjectType := {
@@ -561,6 +560,18 @@ definition: {
     meta message sysmelMangledValue -> _CompilerObjectType := {
         return: D sysmelMangledValue -- #c
     }.
+
+    // Allow automatic conversion forom const -> non-const values.
+    SelfType conversionTo: D doOn: {
+        evaluation: $$Pharo {
+            value: value environment: environment
+                ^ value
+        }.
+        codeGeneration: $$Pharo {
+            convertSSAValue: sourceValue to: targetType with: builder at: messageNode
+                ^ sourceValue
+        }.
+    }.
 }.
 
 Type extend: {
@@ -569,6 +580,71 @@ Type extend: {
     }
 }.
 
+// Volatile type type
+template VolatileTypeTemplate(D: Type)
+    := type uses: D;
+definition: {
+    meta message isVolatileType -> Boolean := {
+        return: true
+    }.
+
+    meta message undecoratedType -> _CompilerObjectType := {
+        return: D
+    }.
+
+    meta message const -> _CompilerObjectType := {
+        return: D volatile const
+    }.
+
+    meta message volatile -> _CompilerObjectType := {
+        return: self
+    }.
+
+    meta message buildSSAType -> _CompilerObjectType := {
+        return: D ssaType
+    }.
+
+    meta message cleanType -> _CompilerObjectType := {
+        return: D cleanType
+    }.
+
+    meta message cvariadicCoercionType -> _CompilerObjectType := {
+        return: D cvariadicCoercionType
+    }.
+
+    meta message sysmelMangledValue -> _CompilerObjectType := {
+        return: D sysmelMangledValue -- #v
+    }.
+
+    // Perform a bidirectional identity conversion for volatile types.
+    D conversionTo: SelfType doOn: {
+        evaluation: $$Pharo {
+            value: value environment: environment
+                ^ value
+        }.
+        codeGeneration: $$Pharo {
+            convertSSAValue: sourceValue to: targetType with: builder at: messageNode
+                ^ sourceValue
+        }.
+    }.
+
+    SelfType conversionTo: D doOn: {
+        evaluation: $$Pharo {
+            value: value environment: environment
+                ^ value
+        }.
+        codeGeneration: $$Pharo {
+            convertSSAValue: sourceValue to: targetType with: builder at: messageNode
+                ^ sourceValue
+        }.
+    }.
+}.
+
+Type extend: {
+    meta message volatile -> _CompilerObjectType := {
+        return: VolatileTypeTemplate(self)
+    }
+}.
 
 // Tuple type
 TupleType uses: Type;
