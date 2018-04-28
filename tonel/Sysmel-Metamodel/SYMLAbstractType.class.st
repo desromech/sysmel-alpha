@@ -641,11 +641,13 @@ SYMLAbstractType >> pointer [
 
 { #category : #accessing }
 SYMLAbstractType >> printingName [
-	^ printingName ifNil: [self validName]
+	<compileTime>
+	^ printingName ifNil: [printingName := (self sysmelPerform: #createPrintingName withArguments: #() fallbackWith: [self validName]) unwrapSysmelValue]
 ]
 
 { #category : #accessing }
 SYMLAbstractType >> printingName: aPrintingName [
+	<compileTime>
 	printingName := aPrintingName
 ]
 
@@ -682,8 +684,7 @@ SYMLAbstractType >> semanticAnalyzeMessage: message inEnvironment: environment a
 { #category : #'as yet unclassified' }
 SYMLAbstractType >> semanticAnalyzeMessageToYou: message inEnvironment: environment at: aPosition [
 	(name isNil and: [message selector numArgs = 0 and: [self isMetaType not and: [hasDefinition not] ]]) ifTrue: [
-		self name: message selector.
-		^ message receiver
+		^ self setName: message selector ifNewReturnNode: message receiver
 	].
 
 	SpecialMetaSymbols at: message selector ifPresent: [ :specialSymbol |

@@ -130,7 +130,7 @@ SYMLTemplate >> evaluateTemplateWithActivationArguments: activationArguments at:
 		incompleteResult becomeForward: result value.
 	].
 
-	result type isMetaObjectType ifTrue: [ 
+	(result type isMetaObjectType and: [ (result value type lookupSelector: #createPrintingName) isNil ]) ifTrue: [
 		result value printingName: (ByteString streamContents: [:out |
 			out nextPutAll: self validName; nextPutAll: '('.
 			activationArguments doWithIndex: [ :arg :index |
@@ -175,8 +175,7 @@ SYMLTemplate >> mangledName [
 SYMLTemplate >> semanticAnalyzeMessageToYou: message inEnvironment: environment at: aPosition [
 	(name isNil and: [hasArguments not ]) ifTrue: [
 		message selector numArgs = 0 ifTrue: [
-			self name: message selector.
-			^ message receiver
+			^ self setName: message selector ifNewReturnNode: message receiver
 		].
 	].
 

@@ -1,5 +1,5 @@
 Class {
-	#name : #SYMLBooleanConstant,
+	#name : #SYMLTopLevelConstant,
 	#superclass : #SYMLConstant,
 	#instVars : [
 		'module'
@@ -8,11 +8,11 @@ Class {
 }
 
 { #category : #accessing }
-SYMLBooleanConstant >> module [
+SYMLTopLevelConstant >> module [
 	^ module
 ]
 
 { #category : #accessing }
-SYMLBooleanConstant >> module: anObject [
+SYMLTopLevelConstant >> module: anObject [
 	module := anObject
 ]

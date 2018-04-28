@@ -40,8 +40,9 @@ SYMLTopLevelScope >> fillSymbols [
 		at: #class put: (SYMLMetaBuilder for: SYMLClass module: module);
 		at: #union put: (SYMLMetaBuilder for: SYMLUnion module: module);
 
-		at: #true put: (SYMLBooleanConstant new value: true; module: module);
-		at: #false put: (SYMLBooleanConstant new value: false; module: module);
+		at: #true put: (SYMLTopLevelConstant new value: true; module: module);
+		at: #false put: (SYMLTopLevelConstant new value: false; module: module);
+		at: #nil put: (SYMLTopLevelConstant new value: nil; module: module);
 		
 		yourself.
 	
