@@ -1,3 +1,5 @@
+namespace SysmelKernel definition: {
+
 ReferenceType macro selector: #address doOn: {
 // Semantic analysis
 semanticAnalysis: $$Pharo {
@@ -31,7 +33,7 @@ PointerType macro selector: #value doOn: {
 // Semantic analysis
 semanticAnalysis: $$Pharo {
     node: node environment: environment position: aSourcePosition
-        | pointer rawPointerType pointerType pointerCoercionRule referenceType |
+        | pointer rawPointerType pointerType pointerCoercionRule referenceType index |
 
         "Check and coerce the pointer"
         pointer := node receiver semanticAnalysisInEnvironment: environment.
@@ -125,3 +127,4 @@ codeGeneration: $$Pharo {
 }.
 
 }.
+}. // End of namespace SysmelKernel

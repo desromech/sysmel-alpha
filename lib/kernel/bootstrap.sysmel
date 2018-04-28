@@ -1,3 +1,7 @@
+Compiler topLevelScope useNamespace: namespace SysmelKernel.
+
+namespace SysmelKernel definition: {
+
 // Create and set the basic types. Some of these types are used everywhere by the
 // compiler, so their declaration must be the first thing done.
 Compiler compilationTarget
@@ -22,7 +26,6 @@ Compiler compilationTarget
 
     voidType: type Void;
     booleanType: type Boolean;
-    charType: type Char;
 
     // Integer types
     int8Type: type Int8;
@@ -36,6 +39,8 @@ Compiler compilationTarget
 
     int64Type: type Int64;
     uint64Type: type UInt64;
+
+    charType: UInt8;
 
     // Floating point types
     float32Type: type Float32;
@@ -993,4 +998,6 @@ definition: {
     SelfType sysmelMangledValue: #f8.
 }.
 
-Char uses: UInt8.
+alias Char := UInt8.
+
+} // End of namespace SysmelKernel

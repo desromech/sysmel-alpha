@@ -36,6 +36,9 @@ SYMLAbstractScope >> definitionProgramEntity [
 
 { #category : #'as yet unclassified' }
 SYMLAbstractScope >> lookMetaMethodSelector: selector [
+	self usedNamespacesDo: [ :namespace |
+		(namespace lookMetaMethodSelector: selector) ifNotNil: [ :result | ^ result ].
+	].
 	parent ifNotNil: [ ^ parent lookMetaMethodSelector: selector ].
 	^ nil
 ]
@@ -49,6 +52,10 @@ SYMLAbstractScope >> lookSymbol: symbol ifPresent: ifPresentBlock [
 { #category : #'as yet unclassified' }
 SYMLAbstractScope >> lookSymbolRecursively: symbol ifAbsent: ifAbsentBlock [
 	self lookSymbol: symbol ifPresent: [ :existent | ^ existent ].
+	self usedNamespacesDo: [ :namespace |
+		namespace lookSymbol: symbol ifPresent: [ :existent | ^ existent ].
+	].
+
 	parent ifNil: [ ifAbsentBlock value ].
 	^ parent lookSymbolRecursively: symbol ifAbsent: ifAbsentBlock
 ]
@@ -98,6 +105,10 @@ SYMLAbstractScope >> semanticAnalyzeMessage: message at: aPosition [
 
 	"Ask the receiver type to analyze the message"
 	^ message receiver type semanticAnalyzeMessage: message inEnvironment: self at: aPosition
+]
+
+{ #category : #enumerating }
+SYMLAbstractScope >> usedNamespacesDo: aBlock [
 ]
 
 { #category : #'as yet unclassified' }

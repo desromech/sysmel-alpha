@@ -65,6 +65,11 @@ SYMLProgramEntity >> isMetaObject [
 	^ true
 ]
 
+{ #category : #'as yet unclassified' }
+SYMLProgramEntity >> lookMetaMethodSelector: selector [
+	^ nil
+]
+
 { #category : #'accessing method dictionary' }
 SYMLProgramEntity >> lookupSelector: selector [
 	^ nil

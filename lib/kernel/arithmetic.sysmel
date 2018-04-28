@@ -116,7 +116,7 @@ BooleanType macro selector: #not doOn: {
                 ^ node buildLiteralWithValue: ((operand value value perform: node selector) sysmelValueWithType: coercionType inEnvironment: environment)
             ].
 
-            coercionRule := (operand evaluateTypeInEnvironment: environment) node: operan coercedImplicitlyInto: coercionType at: node.
+            coercionRule := (operand evaluateTypeInEnvironment: environment) node: operand coercedImplicitlyInto: coercionType at: node.
 			resultType := coercionType.
 
             ^ node copy

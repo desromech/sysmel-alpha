@@ -1,3 +1,5 @@
+namespace SysmelKernel definition: {
+
 StructureType meta macro selectors: #(basicNewValue basicNewValue: newValue newValue: applyWithArguments: ) doOn: {
 // Compile time evaluation
 evaluation: $$Pharo {
@@ -54,3 +56,5 @@ codeGeneration: $$Pharo {
 }.
 
 }
+
+}. // End of namespace SysmelKernel

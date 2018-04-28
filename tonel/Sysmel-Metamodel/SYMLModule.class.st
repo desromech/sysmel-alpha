@@ -8,7 +8,8 @@ Class {
 		'topLevelScope',
 		'ssaModule',
 		'pendingSemanticAnalysis',
-		'pendingSSACodeGeneration'
+		'pendingSSACodeGeneration',
+		'optimizationLevel'
 	],
 	#category : #'Sysmel-Metamodel-Program'
 }
@@ -107,6 +108,7 @@ SYMLModule >> convertParseFailure: aFailure collection: collection [
 
 { #category : #evaluating }
 SYMLModule >> evaluateFileNamed: aFileName [
+	<compileTime>
 	| fileEnvironment |
 	fileEnvironment := self newEvaluationEnvironment.
 	^ self evaluateFileNamed: aFileName inContext: fileEnvironment
@@ -123,14 +125,6 @@ SYMLModule >> evaluateFileNamed: aFileName inContext: context [
 		^ self evaluateSource: fileReference contents name: fileReference fullName inContext: context
 	] ensure: [  currentDirectory := oldDirectory ]
 
-]
-
-{ #category : #evaluating }
-SYMLModule >> evaluateLanguageKernelFileNamed: aFileName [
-	<compileTime>
-	| fileEnvironment |
-	fileEnvironment := self newLanguageKernelEnvironment.
-	^ self evaluateFileNamed: aFileName value inContext: fileEnvironment
 ]
 
 { #category : #evaluating }
@@ -174,6 +168,7 @@ SYMLModule >> globalNamespace [
 SYMLModule >> initializeWithCompilationTarget: aCompilationTarget [
 	self initialize.
 	compilationTarget := aCompilationTarget.
+	optimizationLevel := 0.
 	currentDirectory := FileSystem workingDirectory.
 	globalNamespace := SYMLNamespace new name: #__global; module: self.
 	pendingSemanticAnalysis := SLVMOrderedInsertionSet new.
@@ -207,6 +202,16 @@ SYMLModule >> newLanguageKernelEnvironment [
 	^ SYMLLexicalScope parent: self topLevelScope
 ]
 
+{ #category : #accessing }
+SYMLModule >> optimizationLevel [
+	^ optimizationLevel
+]
+
+{ #category : #accessing }
+SYMLModule >> optimizationLevel: anObject [
+	optimizationLevel := anObject
+]
+
 { #category : #'semantic analysis' }
 SYMLModule >> semanticAnalysis [
 	| extraToAnalyze |
@@ -232,5 +237,37 @@ SYMLModule >> ssaModule [
 
 { #category : #evaluating }
 SYMLModule >> topLevelScope [
+	<compileTime>
 	^ topLevelScope ifNil: [topLevelScope := SYMLTopLevelScope new module: self]
+]
+
+{ #category : #writing }
+SYMLModule >> writeMode: writeMode ToFileNamed: outputFileName [
+	| lowLevelModule |
+	self semanticAnalysis;
+		buildSSAModule.
+	
+	optimizationLevel > 0 ifTrue: [ 
+		ssaModule optimizeGlobalVariables
+	].
+
+	lowLevelModule := ssaModule asLowLevelModuleWithOptimizationLevel: optimizationLevel.
+	writeMode == #assembly ifTrue: [
+		^ lowLevelModule writeAssemblyToFileNamed: outputFileName
+	].
+
+	writeMode == #object ifTrue: [
+		^ lowLevelModule writeObjectToFileNamed: outputFileName
+	].
+
+	writeMode == #executable ifTrue: [
+		^ lowLevelModule writeExecutableToFileNamed: outputFileName
+	].
+
+	writeMode == #shared ifTrue: [
+		^ lowLevelModule writeSharedToFileNamed: outputFileName
+	].
+
+	self error: 'Writing mode ' , writeMode printString , ' not yet implemented'
+
 ]

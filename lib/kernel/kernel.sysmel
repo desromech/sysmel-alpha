@@ -1,9 +1,9 @@
 Compiler
-    evaluateLanguageKernelFileNamed: "bootstrap.sysmel";
-    evaluateLanguageKernelFileNamed: "controlFlow.sysmel";
-    evaluateLanguageKernelFileNamed: "variables.sysmel";
-    evaluateLanguageKernelFileNamed: "arithmetic.sysmel";
-    evaluateLanguageKernelFileNamed: "conversions.sysmel";
-    evaluateLanguageKernelFileNamed: "structures.sysmel";
-    evaluateLanguageKernelFileNamed: "pointer.sysmel";
+    evaluateFileNamed: "bootstrap.sysmel";
+    evaluateFileNamed: "controlFlow.sysmel";
+    evaluateFileNamed: "variables.sysmel";
+    evaluateFileNamed: "arithmetic.sysmel";
+    evaluateFileNamed: "conversions.sysmel";
+    evaluateFileNamed: "structures.sysmel";
+    evaluateFileNamed: "pointer.sysmel";
     yourself

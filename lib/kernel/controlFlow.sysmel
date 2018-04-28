@@ -1,3 +1,5 @@
+namespace SysmelKernel definition: {
+
 macro selectors: #(if:then: if:then:else:) doOn: {
     evaluation: $$Pharo {
         node: node environment: environment
@@ -243,3 +245,5 @@ macro selectors: #(do:while: do:while:continueWith:) doOn: {
 			self halt
     }.
 }.
+
+}. // End of namespace SysmelKernel

@@ -52,6 +52,20 @@ SYMLNamedProgramEntity >> name: aNewName [
 ]
 
 { #category : #accessing }
+SYMLNamedProgramEntity >> setName: newName ifNewReturnNode: newReturnedNode [
+	parent ifNotNil: [ 
+		parent lookSymbol: newName ifPresent: [ :existent |
+			existent class == self class ifTrue: [ 
+				^ existent asAPSGNodeInEnvironment: definitionEnvironment at: newReturnedNode position
+			].
+		].
+	].
+
+	self name: newName.
+	^ newReturnedNode
+]
+
+{ #category : #accessing }
 SYMLNamedProgramEntity >> sysmelMangledValue [
 	<compileTime>
 	^ sysmelMangledValue ifNil: [sysmelMangledValue := (self sysmelPerform: #sysmelMangledValue fallbackWith: [

@@ -1,0 +1,46 @@
+{
+    "name": "Bootstrap Environment",
+    "arguments": [
+        "-nolangkernel",
+        "-nostdlib"
+    ],
+
+    "cases": [
+        {
+            "name": "Literal integer",
+            "eval": "1",
+            "expected": "1"
+        },
+
+        {
+            "name": "Literal float",
+            "eval": "1.0",
+            "expected": "1.0"
+        },
+
+        {
+            "name": "Literal Symbol",
+            "eval": "#symbol",
+            "expected": "#symbol"
+        },
+
+        {
+            "name": "Named trait",
+            "eval": "trait Type",
+            "expected": "trait Type"
+        },
+
+        {
+            "name": "Anon Trait",
+            "eval": "trait",
+            "expected": "trait __anon0"
+        },
+
+        {
+            "name": "Anon Type",
+            "eval": "type",
+            "expected": "type __anon0"
+        }
+
+    ]
+}

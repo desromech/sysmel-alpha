@@ -3,7 +3,8 @@ Class {
 	#superclass : #SYMLAbstractScope,
 	#instVars : [
 		'symbols',
-		'metaMethodDictionary'
+		'metaMethodDictionary',
+		'usedNamespaces'
 	],
 	#category : #'Sysmel-Metamodel-Scope'
 }
@@ -34,6 +35,7 @@ SYMLLexicalScope >> initialize [
 	super initialize.
 	symbols := Dictionary new.
 	metaMethodDictionary := Dictionary new.
+
 	
 ]
 
@@ -53,4 +55,20 @@ SYMLLexicalScope >> lookSymbol: symbol ifPresent: ifPresentBlock [
 { #category : #initialization }
 SYMLLexicalScope >> setSymbol: symbol value: value [
 	symbols at: symbol put: value
+]
+
+{ #category : #'as yet unclassified' }
+SYMLLexicalScope >> useNamespace: aNamespace [
+	<compileTime>
+	self usedNamespaces add: aNamespace
+]
+
+{ #category : #accessing }
+SYMLLexicalScope >> usedNamespaces [
+	^ usedNamespaces ifNil: [ usedNamespaces := SLVMOrderedInsertionSet new. ]
+]
+
+{ #category : #enumerating }
+SYMLLexicalScope >> usedNamespacesDo: aBlock [
+	usedNamespaces ifNotNil: [ usedNamespaces do: aBlock ]
 ]

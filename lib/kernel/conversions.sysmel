@@ -1,3 +1,5 @@
+namespace SysmelKernel definition: {
+
 // Explicit cast
 Type macro selector: #castTo: doOn: {
     evaluation: $$Pharo {
@@ -127,3 +129,4 @@ PrimitiveIntegerType conversionTo: PrimitiveFloatingPointType doOn: {
             ^ builder intToFloatCast: sourceValue target: targetType ssaType
     }.
 }.
+}. // End of namespace SysmelKernel
