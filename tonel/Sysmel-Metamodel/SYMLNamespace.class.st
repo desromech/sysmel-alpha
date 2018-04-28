@@ -95,6 +95,7 @@ SYMLNamespace >> semanticAnalysis [
 
 { #category : #'as yet unclassified' }
 SYMLNamespace >> semanticAnalyzeMessageToYou: message inEnvironment: environment at: aPosition [
+	| identifier |
 	name ifNil: [
 		message selector numArgs = 0 ifTrue: [
 			^ self setName: message selector ifNewReturnNode: message receiver
@@ -102,7 +103,11 @@ SYMLNamespace >> semanticAnalyzeMessageToYou: message inEnvironment: environment
 	].
 
 	symbols at: message selector ifPresent: [ :value |
-		^ value asAPSGNodeInEnvironment: environment at: aPosition
+		identifier := SYMLAPSGIdentifier new
+			position: message;
+			value: message selector;
+			yourself.
+		^ value analyzeAPSGIdentifierToMe: identifier inEnvironment: environment
 	].
 
 	^ super semanticAnalyzeMessageToYou: message inEnvironment: environment at: aPosition

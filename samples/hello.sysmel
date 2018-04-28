@@ -1,6 +1,4 @@
 // Main function
-function printf externC CVariadic (format: Char const pointer) -> Int32.
-
 struct SomeStruct := {
     field first type: Float32.
     field second type: Float64.
@@ -53,23 +51,23 @@ alias Vector3D := Vector3(Float64).
 
 function main externC (argc: Int32, argv: Char const pointer pointer) -> Int32 := {
     let v3f := Math Vector3F x: 1.0 y: 2.0 z: 3.0.
-    printf("v3f %f %f %f\n", v3f x, v3f y, v3f z).
+    CStdLib printf("v3f %f %f %f\n", v3f x, v3f y, v3f z).
 
     let v3d := v3f asVector3D.
-    printf("v3d %f %f %f\n", v3d x, v3d y, v3d z).
+    CStdLib printf("v3d %f %f %f\n", v3d x, v3d y, v3d z).
 
     let i := 1.
-    printf("i address: %p\n", i address).
+    CStdLib printf("i address: %p\n", i address).
     until: i >= argc do: {
         if: i = 1 then: {
-            printf("First ").
+            CStdLib printf("First ").
         } else: {
-            printf("Not first ").
+            CStdLib printf("Not first ").
         }.
 
-        printf("argv %d %p %p: %s\n", i, argv[i] address, argv + i, argv[i]).
+        CStdLib printf("argv %d %p %p: %s\n", i, argv[i] address, argv + i, argv[i]).
     } continueWith: {i := i + 1}.
 
-    printf("Hello World: %s\n", argv value).
+    CStdLib printf("Hello World: %s\n", argv value).
     return: 0.
 }.

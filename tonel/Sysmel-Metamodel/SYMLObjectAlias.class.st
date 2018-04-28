@@ -14,11 +14,6 @@ SYMLObjectAlias >> analyzeAPSGIdentifierToMe: identifier inEnvironment: anEnviro
 	^ self evaluatedValue analyzeAPSGIdentifierToMe: identifier inEnvironment: anEnvironment
 ]
 
-{ #category : #converting }
-SYMLObjectAlias >> asAPSGNodeInEnvironment: newEnvironment at: aPosition [
-	^ self evaluatedValue asAPSGNodeInEnvironment: newEnvironment at: aPosition
-]
-
 { #category : #definition }
 SYMLObjectAlias >> assignValue: bodyLazyValue [
 	<compileTime>

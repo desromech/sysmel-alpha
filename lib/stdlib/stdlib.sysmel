@@ -1,0 +1,3 @@
+Compiler
+    evaluateFileNamed: "cstdlib/cstdlib.sysmel";
+    yourself
