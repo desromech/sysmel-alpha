@@ -52,6 +52,18 @@
             "name": "Char pointer",
             "eval": "Char pointer",
             "expected": "type UInt8 pointer"
+        },
+
+        {
+            "name": "Integer Addition",
+            "eval": "1+1",
+            "expected": "2"
+        },
+
+        {
+            "name": "Float addition",
+            "eval": "1.0+1.0",
+            "expected": "2.0"
         }
     ]
 }
