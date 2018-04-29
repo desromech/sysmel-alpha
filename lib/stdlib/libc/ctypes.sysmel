@@ -1,0 +1,27 @@
+namespace LibC definition: {
+    // CTypes
+    alias Char := UInt8.
+    alias String := Char pointer.
+    alias ConstString := Char const pointer.
+
+    alias Short := Int16.
+    alias UShort := UInt16.
+
+    alias Int := Int32.
+    alias UInt := UInt32.
+
+    alias LongLong := Int64.
+    alias ULongLong := UInt64.
+
+    // Select the correct long type according to the target platform."
+    if: Compiler compilationTarget isWin32 then: {
+        alias Long := Int32.
+        alias ULong := UInt32.
+    } else: {
+        alias Long := IntPointer.
+        alias ULong := UIntPointer.
+    }.
+
+    alias Float := Float32.
+    alias Double := Float64.
+}.

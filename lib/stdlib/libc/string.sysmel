@@ -1,0 +1,16 @@
+// Bindings for Stdlib
+namespace LibC definition: {
+    // Bytes
+    function memchr externC (ptr: Void const pointer, value: Int, num: SizeT) -> Int.
+    function memcmp externC (left: Void const pointer, right: Void const pointer, num: SizeT) -> Int.
+    function memcpy externC (destination: Void pointer, source: Void const pointer, num: SizeT) -> Void pointer.
+    function memmove externC (destination: Void pointer, source: Void const pointer, num: SizeT) -> Void pointer.
+    function memset externC (ptr: Void pointer, value: Int, num: SizeT) -> Void pointer.
+
+    // Strings
+    function strlen externC (string: ConstString) -> SizeT.
+    function strcpy externC (destination: String, source: ConstString) -> Void pointer.
+    function strcmp externC (left: ConstString, right: ConstString) -> Int.
+    function strncmp externC (left: ConstString, right: ConstString, num: SizeT) -> Int.
+    function strncpy externC (destination: String, source: ConstString, num: SizeT) -> Void pointer.
+}.

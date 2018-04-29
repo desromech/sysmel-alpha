@@ -8,9 +8,28 @@ macro selectors: #(if:then: if:then:else:) doOn: {
 
     semanticAnalysis: $$Pharo {
         node: messageNode environment: environment position: aSourcePosition
-            | conditionNode thenNode thenType elseNode elseType analyzedArguments conditionCoercionType conditionCoercionRule thenCoercionRule elseCoercionRule resultType |
+            | conditionNode conditionValue thenNode thenType elseNode elseType analyzedArguments conditionCoercionType conditionCoercionRule thenCoercionRule elseCoercionRule resultType |
 
+            "Check the condition type"
             conditionNode := messageNode arguments first semanticAnalysisInEnvironment: environment.
+            conditionCoercionType := environment compilationTarget booleanType.
+            conditionCoercionRule := (conditionNode evaluateTypeInEnvironment: environment) node: conditionNode coercedImplicitlyInto: conditionCoercionType at: aSourcePosition.
+
+            "On immediate environment we have to evaluate as soon as possible."
+            environment isImmediateEnvironment ifTrue: [
+                conditionValue := conditionCoercionRule convertValue: (conditionNode evaluateInEnvironment: environment) into: conditionCoercionType at: messageNode.
+                ^ conditionValue value ifTrue: [
+                    messageNode arguments seconds inlineSemanticAnalysisInEnvironment: environment
+                ] ifFalse: [
+                    messageNode arguments size >= 3 ifTrue: [
+                        messageNode arguments third inlineSemanticAnalysisInEnvironment: environment
+                    ] ifFalse: [
+                        self halt
+                    ]
+                ].
+            ].
+
+            "Check the rest of the message."
             thenNode := messageNode arguments second inlineBlockSemanticAnalysisInEnvironment: environment.
             thenType := thenNode evaluateCleanValueTypeInEnvironment: environment.
             analyzedArguments := {conditionNode . thenNode}.
@@ -23,9 +42,6 @@ macro selectors: #(if:then: if:then:else:) doOn: {
                 analyzedArguments := analyzedArguments , { elseNode }.
             ].
 
-            "Check the condition type"
-            conditionCoercionType := environment compilationTarget booleanType.
-            conditionCoercionRule := (conditionNode evaluateTypeInEnvironment: environment) node: conditionNode coercedImplicitlyInto: conditionCoercionType at: aSourcePosition.
 
             "Try to select a proper result type instead of void"
             resultType := nil.

@@ -1,0 +1,4 @@
+namespace LibC definition: {
+    alias SizeT := UIntPointer.
+    alias PtrdiffT := IntPointer.
+}.

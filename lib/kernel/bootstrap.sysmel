@@ -442,7 +442,7 @@ definition: {
         return: P ref
     }.
 
-    meta message sysmelMangledValue -> _CompilerObjectType := {
+    meta message createSysmelMangledValue -> _CompilerObjectType := {
         return: P sysmelMangledValue -- #p
     }.
 
@@ -502,7 +502,7 @@ definition: {
         return: self
     }.
 
-    meta message sysmelMangledValue -> _CompilerObjectType := {
+    meta message createSysmelMangledValue -> _CompilerObjectType := {
         return: R sysmelMangledValue -- #r
     }.
 
@@ -578,7 +578,7 @@ definition: {
         return: D cvariadicCoercionType
     }.
 
-    meta message sysmelMangledValue -> _CompilerObjectType := {
+    meta message createSysmelMangledValue -> _CompilerObjectType := {
         return: D sysmelMangledValue -- #c
     }.
 
@@ -637,7 +637,7 @@ definition: {
         return: D cvariadicCoercionType
     }.
 
-    meta message sysmelMangledValue -> _CompilerObjectType := {
+    meta message createSysmelMangledValue -> _CompilerObjectType := {
         return: D sysmelMangledValue -- #v
     }.
 

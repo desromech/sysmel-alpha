@@ -6,4 +6,5 @@ Compiler
     evaluateFileNamed: "conversions.sysmel";
     evaluateFileNamed: "structures.sysmel";
     evaluateFileNamed: "pointer.sysmel";
+    evaluateFileNamed: "platformSpecific.sysmel";
     yourself
