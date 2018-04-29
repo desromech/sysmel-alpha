@@ -14,8 +14,13 @@ SYMLMetaType >> asReceiverType [
 
 { #category : #testing }
 SYMLMetaType >> coercedImplicitlyInto: targetType [
-	targetType == self compilationTarget compilerObjectType ifTrue: [ ^ SYMLIdentityTypeConversionRule new ].
-	^ super coercedImplicitlyInto: targetType targetType
+	(targetType == self compilationTarget compilerObjectType or: [ self isSysmelKindOf: targetType ]) ifTrue: [ ^ SYMLIdentityTypeConversionRule new ].
+	^ super coercedImplicitlyInto: targetType
+]
+
+{ #category : #accessing }
+SYMLMetaType >> compilationTarget [
+	^ instanceType compilationTarget
 ]
 
 { #category : #testing }
@@ -32,6 +37,11 @@ SYMLMetaType >> instanceType [
 { #category : #accessing }
 SYMLMetaType >> instanceType: anObject [
 	instanceType := anObject
+]
+
+{ #category : #testing }
+SYMLMetaType >> isMetaObjectType [
+	^ true
 ]
 
 { #category : #testing }

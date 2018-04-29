@@ -11,5 +11,5 @@ SYMLIdentityTypeConversionRule >> convertSSAValue: sourceValue to: targetType wi
 
 { #category : #'as yet unclassified' }
 SYMLIdentityTypeConversionRule >> convertValue: value into: targetType at: coercionPosition [
-	^ value
+	^ value sameValueButWithType: targetType
 ]

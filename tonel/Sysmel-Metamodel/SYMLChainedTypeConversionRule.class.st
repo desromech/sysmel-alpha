@@ -16,6 +16,13 @@ SYMLChainedTypeConversionRule >> convertSSAValue: sourceValue to: targetType wit
 	^ nextRule convertSSAValue: intermediateValue to: targetType with: builder at: messageNode
 ]
 
+{ #category : #'as yet unclassified' }
+SYMLChainedTypeConversionRule >> convertValue: value into: targetType at: coercionPosition [
+	| intermediateValue |
+	intermediateValue := intermediateRule convertValue: value into: intermediateType at: coercionPosition.
+	^ nextRule convertValue: intermediateValue into: targetType at: coercionPosition
+]
+
 { #category : #accessing }
 SYMLChainedTypeConversionRule >> intermediateRule [
 	^ intermediateRule

@@ -166,12 +166,17 @@ SYMLAbstractType >> asPointerType [
 
 { #category : #converting }
 SYMLAbstractType >> asReceiverType [
-	^ self cachedNullary: #asReceiverType
+	^ self cachedNullary: #asReceiverType fallbackWith: [ self ]
 ]
 
 { #category : #converting }
 SYMLAbstractType >> asReferenceType [
 	^ self cachedNullary: #asReferenceType
+]
+
+{ #category : #converting }
+SYMLAbstractType >> asSysmelValueInEnvironment: anEnvironment [
+	^ self sysmelValueWithType: self type inEnvironment: anEnvironment
 ]
 
 { #category : #definition }
@@ -192,6 +197,11 @@ SYMLAbstractType >> buildSSAType [
 { #category : #'type composition' }
 SYMLAbstractType >> cachedNullary: selector [
 	^ cachedValues at: selector ifAbsentPut: [(self sysmelPerform: selector withArguments: #()) unwrapSysmelValue]
+]
+
+{ #category : #'type composition' }
+SYMLAbstractType >> cachedNullary: selector fallbackWith: absentBlock [
+	^ cachedValues at: selector ifAbsentPut: [(self sysmelPerform: selector withArguments: #() fallbackWith: [ ^ absentBlock value ]) unwrapSysmelValue]
 ]
 
 { #category : #conversions }
@@ -322,6 +332,16 @@ SYMLAbstractType >> definitionScopeClass [
 	^ SYMLAbstractTypeScope
 ]
 
+{ #category : #accessing }
+SYMLAbstractType >> evaluateMetaObjectTypeInEnvironment: anEnvironment [
+	^ self type
+]
+
+{ #category : #testing }
+SYMLAbstractType >> evaluateReferenceAt: position [
+	^ self sysmelValueWithType: self type inEnvironment: nil
+]
+
 { #category : #conversions }
 SYMLAbstractType >> explicitConversionTo: targetTypeKindLazyValue doOn: actionRules [
 	<compileTime>
@@ -436,7 +456,7 @@ SYMLAbstractType >> isLiteralType [
 
 { #category : #testing }
 SYMLAbstractType >> isMetaObjectType [
-	^ self == self compilationTarget compilerObjectType
+	^ self == self compilationTarget compilerObjectType or: [ self isSysmelKindOf: self compilationTarget typeTrait ]
 ]
 
 { #category : #testing }
@@ -674,7 +694,7 @@ SYMLAbstractType >> semanticAnalyzeMessage: message inEnvironment: environment a
 		^ self valueType semanticAnalyzeMessage: message inEnvironment: environment at: aPosition
 	].
 
-	(self isMetaObjectType or: [ self isMetaType ]) ifTrue: [
+	self isMetaObjectType ifTrue: [
 		^ SYMLSendToHost new semanticAnalyzeMessage: message inEnvironment: environment at: aPosition
 	].
 

@@ -33,7 +33,9 @@ Class {
 		'uint64Type',
 		'float32Type',
 		'float64Type',
-		'metaType'
+		'metaType',
+		'anyValueTrait',
+		'typeTrait'
 	],
 	#category : #'Sysmel-Metamodel-CompilationTarget'
 }
@@ -56,6 +58,18 @@ SYMLCompilationTarget class >> x86 [
 { #category : #construction }
 SYMLCompilationTarget class >> x86_64 [
 	^ SYMLSLVMCompilationTarget  target: SLVMCompilationTarget x86_64
+]
+
+{ #category : #accessing }
+SYMLCompilationTarget >> anyValueTrait [
+	<compileTime>
+	^ anyValueTrait
+]
+
+{ #category : #accessing }
+SYMLCompilationTarget >> anyValueTrait: anObject [
+	<compileTime>
+	anyValueTrait := anObject
 ]
 
 { #category : #accessing }
@@ -396,6 +410,18 @@ SYMLCompilationTarget >> tupleTypeTrait [
 SYMLCompilationTarget >> tupleTypeTrait: anObject [
 	<compileTime>
 	tupleTypeTrait := anObject
+]
+
+{ #category : #accessing }
+SYMLCompilationTarget >> typeTrait [
+	<compileTime>
+	^ typeTrait
+]
+
+{ #category : #accessing }
+SYMLCompilationTarget >> typeTrait: anObject [
+	<compileTime>
+	typeTrait := anObject
 ]
 
 { #category : #accessing }

@@ -56,6 +56,11 @@ SYMLStructure >> generateSSACode [
 	children do: #generateSSACode
 ]
 
+{ #category : #'code generation' }
+SYMLStructure >> generateSSAValue: value withBuilder: aBuilder [
+	^ value generateSSAReferenceWith: aBuilder
+]
+
 { #category : #initialization }
 SYMLStructure >> initialize [
 	super initialize.

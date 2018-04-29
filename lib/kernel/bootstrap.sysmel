@@ -5,6 +5,9 @@ namespace SysmelKernel definition: {
 // Create and set the basic types. Some of these types are used everywhere by the
 // compiler, so their declaration must be the first thing done.
 Compiler compilationTarget
+    metaType: type _MetaType;
+    anyValueTrait: trait AnyValue;
+    typeTrait: trait Type;
     tupleTypeTrait: trait TupleType;
     functionTypeTrait: trait FunctionType;
     structureTypeTrait: trait StructureType;
@@ -14,7 +17,6 @@ Compiler compilationTarget
     apsgNodeType: type _APSGNodeType;
     compilerObjectType: type _CompilerObjectType;
     dynamicObjectType: type _DynamicObject;
-    metaType: type _MetaType;
     incompleteType: type _IncompleteType;
 
     literalArrayType: type _LiteralArray;
@@ -112,104 +114,8 @@ macro selector: #return: doOn: {
 }.
 
 // A generic type
-trait Type
+trait AnyValue
 definition: {
-    meta message isType -> Boolean := {
-        return: true
-    }.
-
-    meta message isCompilerObjectType -> Boolean := {
-        return: false
-    }.
-
-    meta message isLiteralType -> Boolean := {
-        return: false
-    }.
-
-    meta message isPrimitiveType -> Boolean := {
-        return: false
-    }.
-
-    meta message isOpaqueType -> Boolean := {
-        return: false
-    }.
-
-    meta message isBooleanType -> Boolean := {
-        return: false
-    }.
-
-    meta message isNumericalType -> Boolean := {
-        return: false
-    }.
-
-    meta message isIntegerType -> Boolean := {
-        return: false
-    }.
-
-    meta message isFractionalType -> Boolean := {
-        return: false
-    }.
-
-    meta message isFloatingPointType -> Boolean := {
-        return: false
-    }.
-
-    meta message isPointerType -> Boolean := {
-        return: false
-    }.
-
-    meta message isReferenceType -> Boolean := {
-        return: false
-    }.
-
-    meta message isPointerOrReferenceType -> Boolean := {
-        return: false
-    }.
-
-    meta message isTupleType -> Boolean := {
-        return: false
-    }.
-
-    meta message isFunctionType -> Boolean := {
-        return: false
-    }.
-
-    meta message isConstantType -> Boolean := {
-        return: false
-    }.
-
-    meta message isVolatileType -> Boolean := {
-        return: false
-    }.
-
-    meta message size -> _LiteralInteger := {
-        return: 0
-    }.
-
-    meta message alignment -> _LiteralInteger := {
-        return: 1
-    }.
-
-    meta message cleanType -> _CompilerObjectType := {
-        return: self
-    }.
-
-    meta message valueType -> _CompilerObjectType := {
-        return: self
-    }.
-
-    meta message asReceiverType -> _CompilerObjectType := {
-        return: self
-    }.
-
-    meta message defaultSSAValueWith: (builder: _CompilerObjectType) ::-> _CompilerObjectType := {
-        self error: "Cannot generate default value of {1}" format: (self,self)
-    }.
-
-    meta message isReturnedThroughFirstArgument ::-> Boolean := {
-        return: false
-    }.
-
     // Add the yourself macro to rewrite to the receiver by default.
     macro selector: #yourself doOn: {
         semanticAnalysis: $$Pharo {
@@ -219,8 +125,109 @@ definition: {
     }.
 }.
 
+// The type meta type
+trait Type definition: {
+    message asReceiverType -> SelfType := {
+        return: self
+    }.
+
+    message isType -> Boolean := {
+        return: true
+    }.
+
+    message isCompilerObjectType -> Boolean := {
+        return: false
+    }.
+
+    message isLiteralType -> Boolean := {
+        return: false
+    }.
+
+    message isPrimitiveType -> Boolean := {
+        return: false
+    }.
+
+    message isOpaqueType -> Boolean := {
+        return: false
+    }.
+
+    message isBooleanType -> Boolean := {
+        return: false
+    }.
+
+    message isNumericalType -> Boolean := {
+        return: false
+    }.
+
+    message isIntegerType -> Boolean := {
+        return: false
+    }.
+
+    message isFractionalType -> Boolean := {
+        return: false
+    }.
+
+    message isFloatingPointType -> Boolean := {
+        return: false
+    }.
+
+    message isPointerType -> Boolean := {
+        return: false
+    }.
+
+    message isReferenceType -> Boolean := {
+        return: false
+    }.
+
+    message isPointerOrReferenceType -> Boolean := {
+        return: false
+    }.
+
+    message isTupleType -> Boolean := {
+        return: false
+    }.
+
+    message isFunctionType -> Boolean := {
+        return: false
+    }.
+
+    message isConstantType -> Boolean := {
+        return: false
+    }.
+
+    message isVolatileType -> Boolean := {
+        return: false
+    }.
+
+    message size -> _LiteralInteger := {
+        return: 0
+    }.
+
+    message alignment -> _LiteralInteger := {
+        return: 1
+    }.
+
+    message cleanType -> SelfType := {
+        return: self
+    }.
+
+    message valueType -> SelfType := {
+        return: self
+    }.
+
+    message defaultSSAValueWith: (builder: _CompilerObjectType) ::-> _CompilerObjectType := {
+        self error: "Cannot generate default value of {1}" format: (self,self)
+    }.
+
+    message isReturnedThroughFirstArgument ::-> Boolean := {
+        return: false
+    }.
+}.
+
+AnyValue type uses: Type.
+
 // Meta type
-_MetaType uses: Type type;
+_MetaType uses: AnyValue type;
 definition: {
     message buildSSAType -> _CompilerObjectType := {
         return: (Compiler compilationTarget ssaPointerTo: Compiler compilationTarget int8Type ssaType)
@@ -233,7 +240,7 @@ definition: {
 
 // A literal type
 trait LiteralType
-    uses: Type;
+    uses: AnyValue;
 definition: {
     meta message isLiteralType -> Boolean := {
         return: true
@@ -246,7 +253,7 @@ definition: {
 
 // A primitive type
 trait PrimitiveType
-    uses: Type;
+    uses: AnyValue;
 definition: {
     meta message isPrimitiveType -> Boolean := {
         return: true
@@ -260,7 +267,7 @@ definition: {
 
 // An opaque type
 trait OpaqueType
-    uses: Type;
+    uses: AnyValue;
 definition: {
     meta message isOpaqueType -> Boolean := {
         return: true
@@ -268,7 +275,7 @@ definition: {
 }.
 
 // A numerical type
-trait NumericalType uses: Type;
+trait NumericalType uses: AnyValue;
 definition: {
     meta message isNumericalType -> Boolean := {
         return: true
@@ -332,7 +339,7 @@ trait PrimitiveUnsignedIntegerType uses: (PrimitiveIntegerType, UnsignedIntegerT
 trait PrimitiveSignedIntegerType uses: (PrimitiveIntegerType, SignedIntegerType).
 
 // A boolean type
-trait BooleanType uses: Type;
+trait BooleanType uses: AnyValue;
 definition: {
     meta message isBooleanType -> Boolean := {
         return: true
@@ -373,7 +380,7 @@ definition: {
 
 // Pointer type
 trait PointerType
-    uses: Type;
+    uses: AnyValue;
 definition: {
     meta message isPointerType -> Boolean := {
         return: true
@@ -390,7 +397,7 @@ definition: {
 
 // Reference type
 trait ReferenceType
-    uses: Type;
+    uses: AnyValue;
 definition: {
     meta message isReferenceType -> Boolean := {
         return: true
@@ -401,7 +408,7 @@ definition: {
     }.
 }.
 
-// Type composition
+// AnyValue composition
 
 // Pointer type
 template PointerTypeTemplate(P: Type)
@@ -444,7 +451,7 @@ definition: {
     }.
 }.
 
-Type extend: {
+AnyValue extend: {
     meta message pointer -> _CompilerObjectType := {
         return: PointerTypeTemplate(self)
     }
@@ -506,9 +513,9 @@ definition: {
     // Reference evaluation
     SelfType conversionTo: R cleanType doOn: {
         evaluation: $$Pharo {
-            value: value environment: environment
+            value: value targetType: targetType at: position
                 "Reference evaluation"
-                ^ value value
+                ^ value value value sysmelValueWithType: targetType inEnvironment: value environment
         }.
         codeGeneration: $$Pharo {
             convertSSAValue: sourceValue to: targetType with: builder at: messageNode
@@ -522,8 +529,9 @@ definition: {
 
     SelfType conversionTo: R doOn: {
         evaluation: $$Pharo {
-            value: value environment: environment
-                ^ value value
+            value: value targetType: targetType at: position
+                "Reference evaluation"
+                ^ value value value sysmelValueWithType: targetType inEnvironment: value environment
         }.
         codeGeneration: $$Pharo {
             convertSSAValue: sourceValue to: targetType with: builder at: messageNode
@@ -536,7 +544,7 @@ definition: {
     }.
 }.
 
-Type extend: {
+AnyValue extend: {
     meta message ref -> _CompilerObjectType := {
         return: ReferenceTypeTemplate(self)
     }
@@ -578,11 +586,11 @@ definition: {
         return: (D printingName -- " const")
     }.
 
-    // Allow automatic conversion forom const -> non-const values.
+    // Allow automatic conversion from const -> non-const values.
     SelfType conversionTo: D doOn: {
         evaluation: $$Pharo {
-            value: value environment: environment
-                ^ value
+            value: value targetType: targetType at: position
+                ^ value sameValueButWithType: targetType
         }.
         codeGeneration: $$Pharo {
             convertSSAValue: sourceValue to: targetType with: builder at: messageNode
@@ -591,7 +599,7 @@ definition: {
     }.
 }.
 
-Type extend: {
+AnyValue extend: {
     meta message const -> _CompilerObjectType := {
         return: ConstantTypeTemplate(self)
     }
@@ -640,8 +648,8 @@ definition: {
     // Perform a bidirectional identity conversion for volatile types.
     D conversionTo: SelfType doOn: {
         evaluation: $$Pharo {
-            value: value environment: environment
-                ^ value
+            value: value targetType: targetType at: position
+                ^ value sameValueButWithType: targetType
         }.
         codeGeneration: $$Pharo {
             convertSSAValue: sourceValue to: targetType with: builder at: messageNode
@@ -651,8 +659,8 @@ definition: {
 
     SelfType conversionTo: D doOn: {
         evaluation: $$Pharo {
-            value: value environment: environment
-                ^ value
+            value: value targetType: targetType at: position
+                ^ value sameValueButWithType: targetType
         }.
         codeGeneration: $$Pharo {
             convertSSAValue: sourceValue to: targetType with: builder at: messageNode
@@ -661,14 +669,14 @@ definition: {
     }.
 }.
 
-Type extend: {
+AnyValue extend: {
     meta message volatile -> _CompilerObjectType := {
         return: VolatileTypeTemplate(self)
     }
 }.
 
 // Tuple type
-TupleType uses: Type;
+TupleType uses: AnyValue;
 definition: {
     meta message isTupleType -> Boolean := {
         return: true
@@ -676,7 +684,7 @@ definition: {
 }.
 
 // Function type
-FunctionType uses: Type;
+FunctionType uses: AnyValue;
 definition: {
     meta message isFunctionType -> Boolean := {
         return: true
@@ -770,7 +778,7 @@ definition: {
 }.
 
 // Structure type
-StructureType uses: Type;
+StructureType uses: AnyValue;
 definition: {
     meta message asReceiverType -> _CompilerObjectType := {
         return: self ref
@@ -819,8 +827,8 @@ definition: {
     }.
 }.
 
-_CompilerObjectType uses: Type.
-_APSGNodeType uses: Type.
+_CompilerObjectType uses: AnyValue.
+_APSGNodeType uses: AnyValue.
 
 Boolean uses: (BooleanType, PrimitiveType);
 definition: {

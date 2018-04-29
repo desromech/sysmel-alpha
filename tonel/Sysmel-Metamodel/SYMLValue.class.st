@@ -103,6 +103,11 @@ SYMLValue >> printOn: aStream [
 ]
 
 { #category : #'as yet unclassified' }
+SYMLValue >> sameValueButWithType: aNewType [
+	^ self copy type: aNewType
+]
+
+{ #category : #'as yet unclassified' }
 SYMLValue >> sysmelMangledValue [
 	<compileTime>
 	^ value sysmelMangledValue
@@ -110,7 +115,7 @@ SYMLValue >> sysmelMangledValue [
 
 { #category : #'as yet unclassified' }
 SYMLValue >> sysmelValueWithType: aType inEnvironment: anEnvironment [
-	self halt
+	^ type coerceValue: self into: aType at: nil
 ]
 
 { #category : #accessing }

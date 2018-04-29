@@ -33,13 +33,17 @@ coerce: left with: right
 NumericalType macro selectors: #(+ - * / % < > <= >= = ~= == ~~) doOn: {
 evaluation: $$Pharo {
     node: node environment: environment
-        | left right coercionType valueType |
-        self halt.
+        | left right coercionType valueType selector |
         coercionType := node coercionType.
         valueType := node valueType.
-        left := coercionType coerceImplicitlyValue: (node receiver evaluateInEnvironment: environment) at: node.
-        right := coercionType coerceImplicitlyValue: (node arguments first evaluateInEnvironment: environment) at: node.
-        ^ (left value perform: node selector with: right value) sysmelValueWithType: valueType inEnvironment: environment
+        left := node coercionRule first convertValue: (node receiver evaluateInEnvironment: environment) into: coercionType at: node.
+        right := node coercionRule second convertValue: (node arguments first evaluateInEnvironment: environment) into: coercionType at: node.
+        selector := node selector.
+        (selector == #/ and: [ valueType isIntegerType]) ifTrue: [
+            selector := #//
+        ].
+
+        ^ (left value perform: selector with: right value) sysmelValueWithType: valueType inEnvironment: environment
 }.
 
 semanticAnalysis: $$Pharo {
@@ -100,7 +104,7 @@ BooleanType macro selector: #not doOn: {
         node: node environment: environment
             | operand coercionType |
             coercionType := node coercionType.
-            operand := coercionType coerceImplicitlyValue: (node receiver evaluateInEnvironment: environment) at: node.
+            operand := node coercionRule convertValue: (node receiver evaluateInEnvironment: environment) into: coercionType at: node.
             ^ (operand value perform: node selector) sysmelValueWithType: coercionType inEnvironment: environment
     }.
 
