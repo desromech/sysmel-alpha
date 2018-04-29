@@ -36,7 +36,9 @@ SYMLAPSGIdentifierWithBinding >> evaluateTypeInEnvironment: environment [
 
 { #category : #'meta evaluation' }
 SYMLAPSGIdentifierWithBinding >> generateSSACodeWith: aBuilder [
-	^ binding generateSSAReferenceWith: aBuilder
+	aBuilder withDebugPosition: self position do: [
+		^ binding generateSSAReferenceWith: aBuilder
+	]
 ]
 
 { #category : #testing }

@@ -34,6 +34,11 @@ SYMLAbstractScope >> definitionProgramEntity [
 	^ parent definitionProgramEntity
 ]
 
+{ #category : #testing }
+SYMLAbstractScope >> isImmediateEnvironment [
+	^ parent ifNotNil: [ parent isImmediateEnvironment ] ifNil: [ ^ true ]
+]
+
 { #category : #'as yet unclassified' }
 SYMLAbstractScope >> lookMetaMethodSelector: selector [
 	self usedNamespacesDo: [ :namespace |
@@ -58,6 +63,11 @@ SYMLAbstractScope >> lookSymbolRecursively: symbol ifAbsent: ifAbsentBlock [
 
 	parent ifNil: [ ifAbsentBlock value ].
 	^ parent lookSymbolRecursively: symbol ifAbsent: ifAbsentBlock
+]
+
+{ #category : #'instance creation' }
+SYMLAbstractScope >> newLexicalScope [
+	^ SYMLLexicalScope parent: self
 ]
 
 { #category : #accessing }

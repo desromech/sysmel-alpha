@@ -34,6 +34,8 @@ SYMLAbstractFunction >> addedToAbstractType: anAbstractType [
 	receiverType := anAbstractType asReceiverType.
 	receiver := SYMLFunctionReceiver new 
 		name: #self;
+		parent: self;
+		module: module;
 		type: receiverType;
 		yourself.
 ]
@@ -92,8 +94,14 @@ SYMLAbstractFunction >> createAnalysisScope [
 SYMLAbstractFunction >> createSSAValue [
 	| argumentsOffset ssaArgument receiverOffset |
 	ssaValue := SLVMFunction module: self module ssaModule name: self mangledName functionType: functionType ssaType.
-	ssaValue unmangledName: name.
+	ssaValue unmangledName: self fullUnmangledName.
 	
+	self module isEmittingDebugInformation ifTrue: [
+		self properDefinitionPosition ifNotNil: [ :definitionPosition |
+			ssaValue debugSourceLocation: (self module convertDebugPosition: definitionPosition).
+		]
+	].
+
 	receiverOffset := self returnType isReturnedThroughFirstArgument ifTrue: [1] ifFalse: [0].
 	
 	argumentsOffset := receiverOffset + (self receiverType isVoidType ifTrue: [0] ifFalse: [1]).
@@ -163,9 +171,6 @@ SYMLAbstractFunction >> functionType [
 SYMLAbstractFunction >> generateSSACode [
 	| allocaBuilder builder bodyBlock argumentsOffset receiverOffset |
 	body ifNil: [
-		name ifNotNil: [
-			self ssaValue makeExternal
-		].
 		^ self
 	].
 	
@@ -176,19 +181,23 @@ SYMLAbstractFunction >> generateSSACode [
 	argumentsOffset := receiverOffset.
 	self receiverType isVoidType ifFalse: [ 
 		receiver ssaValue: (self ssaValue arguments at: receiverOffset + 1).
+		receiver setupSSADebugInformation.
 		argumentsOffset := receiverOffset + 1.
 	].
 
 	"Set the arguments"
 	arguments doWithIndex: [ :arg :index |
-		arg ssaValue: (self ssaValue arguments at: index + argumentsOffset)
+		arg ssaValue: (self ssaValue arguments at: index + argumentsOffset).
+		arg setupSSADebugInformation
 	].
 
 	"Create a builder for the allocas and another for the function body."
 	allocaBuilder := SYMLSLVMBuilder on: self ssaValue.
+	allocaBuilder sysmelModule: self module.
 	allocaBuilder newBasicBlockHere: #entry.
 	
 	builder := SYMLSLVMBuilder on: self ssaValue.
+	builder sysmelModule: self module.
 	builder allocaBuilder: allocaBuilder.
 	bodyBlock := builder newBasicBlockHere: #body.
 	
@@ -262,6 +271,11 @@ SYMLAbstractFunction >> mangledName [
 { #category : #accessing }
 SYMLAbstractFunction >> manglingCharacter [
 	^ $F
+]
+
+{ #category : #'code generation' }
+SYMLAbstractFunction >> properDefinitionPosition [
+	^ body ifNotNil: [ body position ]
 ]
 
 { #category : #accessing }

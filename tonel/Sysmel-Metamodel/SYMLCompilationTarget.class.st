@@ -272,6 +272,12 @@ SYMLCompilationTarget >> int8Type: anObject [
 	int8Type := anObject
 ]
 
+{ #category : #testing }
+SYMLCompilationTarget >> isWin32 [
+	<compileTime>
+	^ self operatingSystemName == #win32
+]
+
 { #category : #accessing }
 SYMLCompilationTarget >> literalArrayType [
 	<compileTime>

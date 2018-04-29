@@ -15,10 +15,12 @@ SYMLAPSGAnalyzedMessageChain >> evaluateTypeInEnvironment: anEnvironment [
 { #category : #'meta evaluation' }
 SYMLAPSGAnalyzedMessageChain >> generateSSACodeWith: aBuilder [
 	| result |
-	result := receiver generateSSACodeWith: aBuilder.
-	messages do: [ :message |
-		result := message generateSSACodeWith: aBuilder
-	].
+	aBuilder withDebugPosition: self position do: [ 
+		result := receiver generateSSACodeWith: aBuilder.
+		messages do: [ :message |
+			result := message generateSSACodeWith: aBuilder
+		].
+ 	].
 	^ result
 ]
 

@@ -30,7 +30,9 @@ SYMLAPSGMetaObjectInstance >> evaluateTypeInEnvironment: anEnvironment [
 
 { #category : #'meta evaluation' }
 SYMLAPSGMetaObjectInstance >> generateSSACodeWith: aBuilder [
-	^ metaObject generateSSAReferenceWith: aBuilder
+	aBuilder withDebugPosition: self position do: [
+		^ metaObject generateSSAReferenceWith: aBuilder
+	]
 ]
 
 { #category : #testing }

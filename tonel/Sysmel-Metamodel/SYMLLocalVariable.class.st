@@ -31,7 +31,9 @@ SYMLLocalVariable >> assignValue: initialValue [
 
 { #category : #'as yet unclassified' }
 SYMLLocalVariable >> generateSSALocalWithBuilder: builder [
-	ssaValue := builder allocaBuilder alloca: type ssaType name: self validName
+	ssaValue := builder allocaBuilder alloca: type ssaType name: self validName.
+	self setupSSADebugInformation
+
 ]
 
 { #category : #'code generation' }
@@ -56,6 +58,16 @@ SYMLLocalVariable >> semanticAnalyzeMessageToYou: message inEnvironment: environ
 	].
 
 	^ super semanticAnalyzeMessageToYou: message inEnvironment: environment at: aPosition
+]
+
+{ #category : #'as yet unclassified' }
+SYMLLocalVariable >> setupSSADebugInformation [
+	| debugVar |
+	self module isEmittingDebugInformation ifTrue: [ 
+		debugVar := SLVMDebugVariable scope: nil name: self validName.
+		ssaValue debugInformation: debugVar.
+	].
+
 ]
 
 { #category : #accessing }

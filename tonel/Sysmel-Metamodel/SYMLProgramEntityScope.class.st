@@ -7,6 +7,11 @@ Class {
 	#category : #'Sysmel-Metamodel-Scope'
 }
 
+{ #category : #testing }
+SYMLProgramEntityScope >> isImmediateEnvironment [
+	^ true
+]
+
 { #category : #'as yet unclassified' }
 SYMLProgramEntityScope >> lookSymbol: symbol ifPresent: ifPresentBlock [
 	programEntity lookSymbol: symbol ifPresent: ifPresentBlock

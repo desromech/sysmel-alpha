@@ -26,6 +26,11 @@ SYMLAPSGQuote >> inlineBlockSemanticAnalysisInEnvironment: environment [
 	
 ]
 
+{ #category : #'meta evaluation' }
+SYMLAPSGQuote >> inlineSemanticAnalysisInEnvironment: anEnvironment [
+	^ node semanticAnalysisInEnvironment: anEnvironment
+]
+
 { #category : #accessing }
 SYMLAPSGQuote >> node [
 	^ node

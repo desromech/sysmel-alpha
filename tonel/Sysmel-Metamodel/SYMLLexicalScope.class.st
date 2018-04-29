@@ -52,11 +52,6 @@ SYMLLexicalScope >> lookSymbol: symbol ifPresent: ifPresentBlock [
 	
 ]
 
-{ #category : #'instance creation' }
-SYMLLexicalScope >> newLexicalScope [
-	^ SYMLLexicalScope parent: self
-]
-
 { #category : #initialization }
 SYMLLexicalScope >> setSymbol: symbol value: value [
 	symbols at: symbol put: value

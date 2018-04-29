@@ -37,6 +37,12 @@ SYMLProgramEntity >> evaluateReferenceAt: position [
 	^ self sysmelValueWithType: self module compilationTarget compilerObjectType inEnvironment: nil
 ]
 
+{ #category : #accessing }
+SYMLProgramEntity >> fullUnmangledName [
+	self subclassResponsibility
+
+]
+
 { #category : #'code generation' }
 SYMLProgramEntity >> generateSSACode [
 ]
@@ -90,6 +96,11 @@ SYMLProgramEntity >> parent [
 SYMLProgramEntity >> parent: anObject [
 	parent := anObject.
 	parent ifNotNil: [ parent addedChild: self ]
+]
+
+{ #category : #accessing }
+SYMLProgramEntity >> parentFullUnmangledName [
+	^ parent ifNil: [ '' ] ifNotNil: [ parent parentFullUnmangledName ]
 ]
 
 { #category : #accessing }

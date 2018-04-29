@@ -24,6 +24,11 @@ SYMLFunctionAnalysisScope >> function: anObject [
 	function := anObject
 ]
 
+{ #category : #testing }
+SYMLFunctionAnalysisScope >> isImmediateEnvironment [
+	^ false
+]
+
 { #category : #'as yet unclassified' }
 SYMLFunctionAnalysisScope >> lookSymbol: symbol ifPresent: ifPresentBlock [
 	super lookSymbol: symbol ifPresent: [:found | ^ ifPresentBlock value: found ].

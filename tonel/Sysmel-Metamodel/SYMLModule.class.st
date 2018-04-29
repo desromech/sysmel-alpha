@@ -9,7 +9,9 @@ Class {
 		'ssaModule',
 		'pendingSemanticAnalysis',
 		'pendingSSACodeGeneration',
-		'optimizationLevel'
+		'optimizationLevel',
+		'debugLocationDictionary',
+		'debugSourceFileDictionary'
 	],
 	#category : #'Sysmel-Metamodel-Program'
 }
@@ -98,12 +100,47 @@ SYMLModule >> compilationTarget [
 	^ compilationTarget
 ]
 
+{ #category : #'code generation' }
+SYMLModule >> convertDebugPosition: aPosition [
+	^ self debugLocationDictionary at: aPosition ifAbsentPut: [ SLVMDebugLocation new
+			sourceFile: (self convertDebugSourceFile: aPosition collection);
+			start: aPosition start;
+			stop: aPosition stop;
+			startLine: aPosition line;
+			startColumn: aPosition column;
+			endLine: aPosition endLine;
+			endColumn: aPosition endColumn;
+			collection: aPosition collection;
+			yourself ]
+]
+
+{ #category : #'code generation' }
+SYMLModule >> convertDebugSourceFile: aSourceCollection [
+	| sourceRef |
+	^ self debugSourceFileDictionary at: aSourceCollection ifAbsentPut: [ 
+		sourceRef := (aSourceCollection ifNil: ['generated'] ifNotNil: [aSourceCollection name]) asFileReference.
+		SLVMDebugSourceFile new
+			directory: sourceRef parent fullName;
+			name: sourceRef basename
+	]
+]
+
 { #category : #evaluating }
 SYMLModule >> convertParseFailure: aFailure collection: collection [
 	| position |
 	aFailure isPetitFailure ifFalse: [ ^ self ].
 	position := SYMLSourcePosition new collection: collection; start: aFailure position; stop: aFailure position.
 	SYMLParseError new signal: position asString , ': ' , aFailure message.
+]
+
+{ #category : #'code generation' }
+SYMLModule >> debugLocationDictionary [
+	^ debugLocationDictionary ifNil: [debugLocationDictionary := Dictionary new]
+]
+
+{ #category : #'code generation' }
+SYMLModule >> debugSourceFileDictionary [
+	^ debugSourceFileDictionary ifNil: [debugSourceFileDictionary := Dictionary new]
 ]
 
 { #category : #evaluating }
@@ -178,6 +215,11 @@ SYMLModule >> initializeWithCompilationTarget: aCompilationTarget [
 	pendingSSACodeGeneration add: globalNamespace.
 ]
 
+{ #category : #testing }
+SYMLModule >> isEmittingDebugInformation [
+	^ compilationTarget emittingDebugInformation
+]
+
 { #category : #accessing }
 SYMLModule >> mangledName [
 	^ self parentMangledName 
@@ -200,6 +242,12 @@ SYMLModule >> newEvaluationEnvironment [
 { #category : #evaluating }
 SYMLModule >> newLanguageKernelEnvironment [
 	^ SYMLLexicalScope parent: self topLevelScope
+]
+
+{ #category : #accessing }
+SYMLModule >> operatingSystemName [
+	<compileTime>
+	^ compilationTarget operatingSystemName
 ]
 
 { #category : #accessing }
@@ -239,6 +287,11 @@ SYMLModule >> ssaModule [
 SYMLModule >> topLevelScope [
 	<compileTime>
 	^ topLevelScope ifNil: [topLevelScope := SYMLTopLevelScope new module: self]
+]
+
+{ #category : #'compilation options' }
+SYMLModule >> withDebugInformation [
+	compilationTarget withDebugInformation
 ]
 
 { #category : #writing }

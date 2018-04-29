@@ -5,7 +5,8 @@ Class {
 		'name',
 		'module',
 		'definitionEnvironment',
-		'sysmelMangledValue'
+		'sysmelMangledValue',
+		'fullUnmangledName'
 	],
 	#category : #'Sysmel-Metamodel-Program'
 }
@@ -23,6 +24,17 @@ SYMLNamedProgramEntity >> definitionEnvironment [
 { #category : #accessing }
 SYMLNamedProgramEntity >> definitionEnvironment: anObject [
 	definitionEnvironment := anObject
+]
+
+{ #category : #accessing }
+SYMLNamedProgramEntity >> fullUnmangledName [
+	| parentName |
+	^ fullUnmangledName ifNil: [fullUnmangledName := ByteString streamContents: [:out |
+			parentName := self parentFullUnmangledName.
+			parentName ifNotEmpty: [ out nextPutAll: parentName; nextPutAll: '::' ].
+			out nextPutAll: self validName
+		]
+	]
 ]
 
 { #category : #accessing }
@@ -68,7 +80,7 @@ SYMLNamedProgramEntity >> setName: newName ifNewReturnNode: newReturnedNode [
 { #category : #accessing }
 SYMLNamedProgramEntity >> sysmelMangledValue [
 	<compileTime>
-	^ sysmelMangledValue ifNil: [sysmelMangledValue := (self sysmelPerform: #sysmelMangledValue fallbackWith: [
+	^ sysmelMangledValue ifNil: [sysmelMangledValue := (self sysmelPerform: #createSysmelMangledValue fallbackWith: [
 			ByteString streamContents: [:out |
 				out nextPut: $n;
 					print: self mangledName size;

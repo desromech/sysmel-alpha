@@ -19,6 +19,16 @@ SYMLFunctionVariable >> isSysmelIncompleteValueInEnvironment: environment [
 	^ self == currentBinding
 ]
 
+{ #category : #'as yet unclassified' }
+SYMLFunctionVariable >> setupSSADebugInformation [
+	| debugVar |
+	self module isEmittingDebugInformation ifTrue: [ 
+		debugVar := SLVMDebugVariable scope: nil name: self validName.
+		ssaValue debugInformation: debugVar.
+	].
+
+]
+
 { #category : #accessing }
 SYMLFunctionVariable >> ssaValue [
 	^ ssaValue

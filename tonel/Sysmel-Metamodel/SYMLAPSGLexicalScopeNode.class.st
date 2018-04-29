@@ -22,7 +22,9 @@ SYMLAPSGLexicalScopeNode >> evaluateTypeInEnvironment: anEnvironment [
 
 { #category : #'meta evaluation' }
 SYMLAPSGLexicalScopeNode >> generateSSACodeWith: aBuilder [
-	^ node generateSSACodeWith: aBuilder
+	aBuilder withDebugPosition: self position do: [ 
+		^ node generateSSACodeWith: aBuilder
+	]
 ]
 
 { #category : #accessing }

@@ -62,6 +62,7 @@ SYMLFunction >> applyWithArguments: argumentNodes [
 		
 		SYMLFunctionArgument new
 			parent: self;
+			module: module;
 			name: argumentName;
 			type: argumentType value;
 			definitionNode: arg;

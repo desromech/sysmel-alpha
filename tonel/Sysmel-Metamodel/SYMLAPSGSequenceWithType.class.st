@@ -24,7 +24,9 @@ SYMLAPSGSequenceWithType >> evaluateTypeInEnvironment: anEnvironment [
 SYMLAPSGSequenceWithType >> generateSSACodeWith: builder [
 	| result |
 	result := nil.
-	elements do: [ :expr | result := expr generateSSACodeWith: builder ].
+	builder withDebugPosition: self position do: [
+		elements do: [ :expr | result := expr generateSSACodeWith: builder ].
+	].
 	^ result
 ]
 

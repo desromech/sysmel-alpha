@@ -114,6 +114,11 @@ SYMLAPSGNode >> inlineBlockSemanticAnalysisInEnvironment: environment [
 	
 ]
 
+{ #category : #'meta evaluation' }
+SYMLAPSGNode >> inlineSemanticAnalysisInEnvironment: anEnvironment [
+	^ self semanticAnalysisInEnvironment: anEnvironment
+]
+
 { #category : #accessing }
 SYMLAPSGNode >> inspectorChildren [
 	^ self children

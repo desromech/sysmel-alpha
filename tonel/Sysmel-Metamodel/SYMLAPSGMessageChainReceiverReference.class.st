@@ -30,7 +30,9 @@ SYMLAPSGMessageChainReceiverReference >> evaluateTypeInEnvironment: anEnvironmen
 
 { #category : #'meta evaluation' }
 SYMLAPSGMessageChainReceiverReference >> generateSSACodeWith: builder [
-	^ receiverValue ssaValue
+	builder withDebugPosition: self position do: [
+		^ receiverValue ssaValue
+	]
 ]
 
 { #category : #accessing }

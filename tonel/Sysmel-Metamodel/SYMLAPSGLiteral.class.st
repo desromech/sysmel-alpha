@@ -19,7 +19,9 @@ SYMLAPSGLiteral >> evaluateTypeInEnvironment: anEnvironment [
 
 { #category : #'meta evaluation' }
 SYMLAPSGLiteral >> generateSSACodeWith: aBuilder [
-	^ value generateSSACodeWith: aBuilder
+	aBuilder withDebugPosition: self position do: [
+		^ value generateSSACodeWith: aBuilder
+	]
 ]
 
 { #category : #testing }

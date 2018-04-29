@@ -102,7 +102,9 @@ SYMLAPSGMessageSend >> evaluateTypeInEnvironment: anEnvironment [
 
 { #category : #'meta evaluation' }
 SYMLAPSGMessageSend >> generateSSACodeWith: builder [
-	^ metaMethod generateMessage: self ssaCodeWith: builder
+	builder withDebugPosition: self position do: [
+		^ metaMethod generateMessage: self ssaCodeWith: builder
+	]
 ]
 
 { #category : #testing }

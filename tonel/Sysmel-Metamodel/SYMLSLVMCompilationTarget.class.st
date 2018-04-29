@@ -18,6 +18,17 @@ SYMLSLVMCompilationTarget >> doubleAlignment [
 	^ target double alignment
 ]
 
+{ #category : #options }
+SYMLSLVMCompilationTarget >> emittingDebugInformation [
+	^ target emittingDebugInformation
+]
+
+{ #category : #accessing }
+SYMLSLVMCompilationTarget >> operatingSystemName [
+	<compileTime>
+	^ target operatingSystemName
+]
+
 { #category : #'position indepence code' }
 SYMLSLVMCompilationTarget >> pic [
 	<compileTime>
@@ -124,4 +135,9 @@ SYMLSLVMCompilationTarget >> target [
 SYMLSLVMCompilationTarget >> target: anObject [
 	<compileTime>
 	target := anObject
+]
+
+{ #category : #options }
+SYMLSLVMCompilationTarget >> withDebugInformation [
+	target withDebugInformation
 ]
