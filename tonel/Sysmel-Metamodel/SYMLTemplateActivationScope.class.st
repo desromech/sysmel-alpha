@@ -18,6 +18,11 @@ SYMLTemplateActivationScope >> instance: anObject [
 	instance := anObject
 ]
 
+{ #category : #testing }
+SYMLTemplateActivationScope >> isTemplateInstance [
+	^ true
+]
+
 { #category : #accessing }
 SYMLTemplateActivationScope >> template [
 	^ template

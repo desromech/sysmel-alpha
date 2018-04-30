@@ -39,6 +39,11 @@ SYMLAbstractScope >> isImmediateEnvironment [
 	^ parent ifNotNil: [ parent isImmediateEnvironment ] ifNil: [ ^ true ]
 ]
 
+{ #category : #testing }
+SYMLAbstractScope >> isTemplateInstance [
+	^ parent ifNotNil: [ parent isTemplateInstance ] ifNil: [ false ]
+]
+
 { #category : #'as yet unclassified' }
 SYMLAbstractScope >> lookMetaMethodSelector: selector [
 	self usedNamespacesDo: [ :namespace |

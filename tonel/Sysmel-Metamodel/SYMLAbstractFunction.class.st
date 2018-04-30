@@ -96,7 +96,14 @@ SYMLAbstractFunction >> createSSAValue [
 	| argumentsOffset ssaArgument receiverOffset |
 	ssaValue := SLVMFunction module: self module ssaModule name: self mangledName functionType: functionType ssaType.
 	ssaValue unmangledName: self fullUnmangledName.
-	body ifNil: [ ssaValue makeExternal ].
+	body ifNil: [
+		ssaValue makeExternal
+	] ifNotNil: [
+		bodyEnvironment isTemplateInstance ifTrue: [
+			ssaValue makeLinkOnceODR
+		].
+
+	].
 	
 	self module isEmittingDebugInformation ifTrue: [
 		self properDefinitionPosition ifNotNil: [ :position |
