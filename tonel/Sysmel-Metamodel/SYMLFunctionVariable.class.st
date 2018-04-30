@@ -7,6 +7,13 @@ Class {
 	#category : #'Sysmel-Metamodel-Program'
 }
 
+{ #category : #'as yet unclassified' }
+SYMLFunctionVariable >> doCreateSSADebugInformation [
+	^ (SLVMDebugVariable scope: nil name: self validName)
+		type: self type ssaType;
+		yourself
+]
+
 { #category : #'code generation' }
 SYMLFunctionVariable >> generateSSAReferenceWith: builder [
 	^ ssaValue
@@ -20,11 +27,19 @@ SYMLFunctionVariable >> isSysmelIncompleteValueInEnvironment: environment [
 ]
 
 { #category : #'as yet unclassified' }
-SYMLFunctionVariable >> setupSSADebugInformation [
-	| debugVar |
+SYMLFunctionVariable >> setupSSADebugInformationWith: builder [
+	| debugVar varDeclaration convertedPosition |
 	self module isEmittingDebugInformation ifTrue: [ 
-		debugVar := SLVMDebugVariable scope: nil name: self validName.
+		debugVar := self createSSADebugInformation.
 		ssaValue debugInformation: debugVar.
+	
+		varDeclaration := builder debugSetVariable: debugVar value: ssaValue.
+		
+		definitionPosition ifNotNil: [
+			convertedPosition := module convertDebugPosition: definitionPosition.
+			ssaValue debugSourceLocation: convertedPosition.
+			varDeclaration debugSourceLocation: convertedPosition.
+		].
 	].
 
 ]

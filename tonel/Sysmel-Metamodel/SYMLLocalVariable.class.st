@@ -21,18 +21,41 @@ SYMLLocalVariable >> assignValue: initialValue [
 		self type: initialValueType cleanValueType.
 	].
 
-	^ (SYMLAPSGMessageSend new
-		position: initialValueNode position;
-		selector: #assignValue:;
-		receiver: (self asIdentifierWithBindingAt: initialValueNode position);
-		arguments: { initialValueNode };
-		yourself) semanticAnalysisInEnvironment: initialValue environment.
+	^ SYMLAPSGLocalInitialization new
+		position: definitionPosition;
+		local: self;
+		initialization: ((SYMLAPSGMessageSend new
+			position: initialValueNode position;
+			selector: #assignValue:;
+			receiver: (self asIdentifierWithBindingAt: initialValueNode position);
+			arguments: { initialValueNode };
+			yourself) semanticAnalysisInEnvironment: initialValue environment);
+		yourself.
+		
+]
+
+{ #category : #definition }
+SYMLLocalVariable >> convertNodeForSequenceElement: aNode inEnvironment: anEnvironment [
+	^ SYMLAPSGLocalInitialization new
+		position: definitionPosition;
+		local: self;
+		yourself.
+		
+]
+
+{ #category : #'as yet unclassified' }
+SYMLLocalVariable >> doCreateSSADebugInformation [
+	^ (SLVMDebugVariable scope: nil name: self validName)
+		type: self type ssaType;
+		yourself
 ]
 
 { #category : #'as yet unclassified' }
 SYMLLocalVariable >> generateSSALocalWithBuilder: builder [
 	ssaValue := builder allocaBuilder alloca: type ssaType name: self validName.
-	self setupSSADebugInformation
+	builder compilationTarget emittingDebugInformation ifTrue: [ 
+		ssaValue debugInformation: self createSSADebugInformation
+	].
 
 ]
 
@@ -58,16 +81,6 @@ SYMLLocalVariable >> semanticAnalyzeMessageToYou: message inEnvironment: environ
 	].
 
 	^ super semanticAnalyzeMessageToYou: message inEnvironment: environment at: aPosition
-]
-
-{ #category : #'as yet unclassified' }
-SYMLLocalVariable >> setupSSADebugInformation [
-	| debugVar |
-	self module isEmittingDebugInformation ifTrue: [ 
-		debugVar := SLVMDebugVariable scope: nil name: self validName.
-		ssaValue debugInformation: debugVar.
-	].
-
 ]
 
 { #category : #accessing }

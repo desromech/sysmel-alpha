@@ -89,6 +89,7 @@ SYMLMessageMethod >> createArgumentFromTemplate: argumentNode inEnvironment: env
 		
 		^ SYMLFunctionArgument new
 			parent: self;
+			module: module;
 			name: argumentName;
 			type: argumentType value;
 			definitionNode: argumentNode;

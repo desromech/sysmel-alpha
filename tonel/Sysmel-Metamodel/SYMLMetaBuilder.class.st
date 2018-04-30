@@ -27,10 +27,10 @@ SYMLMetaBuilder class >> for: metaObjectClass module: module parent: parent [
 ]
 
 { #category : #'as yet unclassified' }
-SYMLMetaBuilder >> analyzeAPSGIdentifierToMe: identifier inEnvironment: anEnvironment [
+SYMLMetaBuilder >> analyzeAPSGIdentifierToMe: node inEnvironment: anEnvironment [
 	^ SYMLAPSGMetaObjectInstance new
-			position: identifier;
-			metaObject: (self newInstanceInEnvironment: anEnvironment);
+			position: node;
+			metaObject: (self newInstanceInEnvironment: anEnvironment node: node);
 			yourself
 ]
 
@@ -60,10 +60,11 @@ SYMLMetaBuilder >> module: anObject [
 ]
 
 { #category : #'instance creation' }
-SYMLMetaBuilder >> newInstanceInEnvironment: anEnvironment [
+SYMLMetaBuilder >> newInstanceInEnvironment: anEnvironment node: node [
 	^ metaObjectClass new
 		module: module;
 		definitionEnvironment: anEnvironment;
+		definitionNode: node;
 		parent: (parent ifNil: [anEnvironment definitionProgramEntity]);
 		yourself
 ]

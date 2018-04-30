@@ -37,6 +37,7 @@ SYMLAbstractFunction >> addedToAbstractType: anAbstractType [
 		parent: self;
 		module: module;
 		type: receiverType;
+		definitionPosition: definitionPosition;
 		yourself.
 ]
 
@@ -95,10 +96,11 @@ SYMLAbstractFunction >> createSSAValue [
 	| argumentsOffset ssaArgument receiverOffset |
 	ssaValue := SLVMFunction module: self module ssaModule name: self mangledName functionType: functionType ssaType.
 	ssaValue unmangledName: self fullUnmangledName.
+	body ifNil: [ ssaValue makeExternal ].
 	
 	self module isEmittingDebugInformation ifTrue: [
-		self properDefinitionPosition ifNotNil: [ :definitionPosition |
-			ssaValue debugSourceLocation: (self module convertDebugPosition: definitionPosition).
+		self properDefinitionPosition ifNotNil: [ :position |
+			ssaValue debugSourceLocation: (self module convertDebugPosition: position).
 		]
 	].
 
@@ -175,21 +177,6 @@ SYMLAbstractFunction >> generateSSACode [
 	].
 	
 	self ssaValue isNotEmpty ifTrue: [ ^ self ].
-	
-	"Set the receiver"
-	receiverOffset := self returnType isReturnedThroughFirstArgument ifTrue: [1] ifFalse: [0].
-	argumentsOffset := receiverOffset.
-	self receiverType isVoidType ifFalse: [ 
-		receiver ssaValue: (self ssaValue arguments at: receiverOffset + 1).
-		receiver setupSSADebugInformation.
-		argumentsOffset := receiverOffset + 1.
-	].
-
-	"Set the arguments"
-	arguments doWithIndex: [ :arg :index |
-		arg ssaValue: (self ssaValue arguments at: index + argumentsOffset).
-		arg setupSSADebugInformation
-	].
 
 	"Create a builder for the allocas and another for the function body."
 	allocaBuilder := SYMLSLVMBuilder on: self ssaValue.
@@ -200,7 +187,22 @@ SYMLAbstractFunction >> generateSSACode [
 	builder sysmelModule: self module.
 	builder allocaBuilder: allocaBuilder.
 	bodyBlock := builder newBasicBlockHere: #body.
-	
+
+	"Set the receiver"
+	receiverOffset := self returnType isReturnedThroughFirstArgument ifTrue: [1] ifFalse: [0].
+	argumentsOffset := receiverOffset.
+	self receiverType isVoidType ifFalse: [ 
+		receiver ssaValue: (self ssaValue arguments at: receiverOffset + 1).
+		receiver setupSSADebugInformationWith: builder.
+		argumentsOffset := receiverOffset + 1.
+	].
+
+	"Set the arguments"
+	arguments doWithIndex: [ :arg :index |
+		arg ssaValue: (self ssaValue arguments at: index + argumentsOffset).
+		arg setupSSADebugInformationWith: builder
+	].
+
 	"Generate the local variables"
 	locals do: [ :local | local generateSSALocalWithBuilder: builder ].
 	

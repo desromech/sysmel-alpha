@@ -2,7 +2,8 @@ Class {
 	#name : #SYMLAbstractVariable,
 	#superclass : #SYMLNamedProgramEntity,
 	#instVars : [
-		'type'
+		'type',
+		'ssaDebugInformation'
 	],
 	#category : #'Sysmel-Metamodel-Program'
 }
@@ -38,6 +39,17 @@ SYMLAbstractVariable >> concretizeIncompleteValue: value inEnvironment: concrete
 { #category : #converting }
 SYMLAbstractVariable >> convertNodeForSequenceElement: aNode inEnvironment: anEnvironment [
 	^ self asIdentifierWithBindingAt: aNode position
+]
+
+{ #category : #'as yet unclassified' }
+SYMLAbstractVariable >> createSSADebugInformation [
+	^ ssaDebugInformation ifNil: [ssaDebugInformation := self doCreateSSADebugInformation
+	]
+]
+
+{ #category : #'as yet unclassified' }
+SYMLAbstractVariable >> doCreateSSADebugInformation [
+	self subclassResponsibility
 ]
 
 { #category : #testing }

@@ -4,6 +4,8 @@ Class {
 	#instVars : [
 		'name',
 		'module',
+		'definitionPosition',
+		'definitionNode',
 		'definitionEnvironment',
 		'sysmelMangledValue',
 		'fullUnmangledName'
@@ -24,6 +26,27 @@ SYMLNamedProgramEntity >> definitionEnvironment [
 { #category : #accessing }
 SYMLNamedProgramEntity >> definitionEnvironment: anObject [
 	definitionEnvironment := anObject
+]
+
+{ #category : #accessing }
+SYMLNamedProgramEntity >> definitionNode [
+	^ definitionNode
+]
+
+{ #category : #accessing }
+SYMLNamedProgramEntity >> definitionNode: anObject [
+	definitionNode := anObject.
+	definitionNode ifNotNil: [ self definitionPosition: definitionNode position ]
+]
+
+{ #category : #accessing }
+SYMLNamedProgramEntity >> definitionPosition [
+	^ definitionPosition
+]
+
+{ #category : #accessing }
+SYMLNamedProgramEntity >> definitionPosition: anObject [
+	definitionPosition := anObject
 ]
 
 { #category : #accessing }

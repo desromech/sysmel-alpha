@@ -1,7 +1,7 @@
 // Main function
 struct SomeStruct := {
-    field first type: Float32.
-    field second type: Float64.
+    field first public type: Float32.
+    field second public type: Float64.
 }.
 
 namespace Math definition: {
@@ -50,12 +50,13 @@ alias Vector3D := Vector3(Float64).
 }.
 
 function main externC (argc: Int32, argv: Char const pointer pointer) -> Int32 := {
-    /*let v3f := Math Vector3F x: 1.0 y: 2.0 z: 3.0.
+    //let s type: SomeStruct.
+
+    let v3f := Math Vector3F x: 1.0 y: 2.0 z: 3.0.
     LibC printf("v3f %f %f %f\n", v3f x, v3f y, v3f z).
 
     let v3d := v3f asVector3D.
     LibC printf("v3d %f %f %f\n", v3d x, v3d y, v3d z).
-    */
 
     let i := 1.
     LibC printf("i address: %p\n", i address).
