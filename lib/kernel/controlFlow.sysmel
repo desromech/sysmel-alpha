@@ -19,7 +19,7 @@ macro selectors: #(if:then: if:then:else:) doOn: {
             environment isImmediateEnvironment ifTrue: [
                 conditionValue := conditionCoercionRule convertValue: (conditionNode evaluateInEnvironment: environment) into: conditionCoercionType at: messageNode.
                 ^ conditionValue value ifTrue: [
-                    messageNode arguments seconds inlineSemanticAnalysisInEnvironment: environment
+                    messageNode arguments second inlineSemanticAnalysisInEnvironment: environment
                 ] ifFalse: [
                     messageNode arguments size >= 3 ifTrue: [
                         messageNode arguments third inlineSemanticAnalysisInEnvironment: environment

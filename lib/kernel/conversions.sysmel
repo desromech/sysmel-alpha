@@ -98,7 +98,7 @@ _LiteralString conversionTo: Char const pointer doOn: {
 // Floating point conversions
 Float32 conversionTo: Float64 doOn: {
     evaluation: $$Pharo {
-        value: value environment: environment
+        value: value targetType: targetType at: position
             ^ value sameValueButWithType: targetType
     }.
     codeGeneration: $$Pharo {
@@ -109,7 +109,7 @@ Float32 conversionTo: Float64 doOn: {
 
 Float64 explicitConversionTo: Float32 doOn: {
     evaluation: $$Pharo {
-        value: value environment: environment
+        value: value targetType: targetType at: position
             self halt
     }.
     codeGeneration: $$Pharo {
@@ -121,7 +121,7 @@ Float64 explicitConversionTo: Float32 doOn: {
 // Integer to float
 PrimitiveIntegerType conversionTo: PrimitiveFloatingPointType doOn: {
     evaluation: $$Pharo {
-        value: value environment: environment
+        value: value targetType: targetType at: position
             self halt
     }.
     codeGeneration: $$Pharo {
