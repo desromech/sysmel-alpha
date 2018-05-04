@@ -24,7 +24,7 @@ macro selectors: #(if:then: if:then:else:) doOn: {
                     messageNode arguments size >= 3 ifTrue: [
                         messageNode arguments third inlineSemanticAnalysisInEnvironment: environment
                     ] ifFalse: [
-                        self halt
+                        ^ nil asAPSGNodeInEnvironment: environment at: aSourcePosition
                     ]
                 ].
             ].

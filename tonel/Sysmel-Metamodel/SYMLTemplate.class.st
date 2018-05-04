@@ -125,7 +125,6 @@ SYMLTemplate >> evaluateTemplateWithActivationArguments: activationArguments at:
 		activationScope addSymbol: expectedArgument name value: (coercedArgument asFunctionActivationValueAt: aPosition).
 	].
 
-
 	result := body copy analyzeAndEvaluateInEnvironment: activationScope.
 	incompleteResult isRecursiveValue ifTrue: [ 
 		incompleteResult becomeForward: result value.

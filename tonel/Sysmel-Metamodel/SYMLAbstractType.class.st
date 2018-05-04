@@ -204,6 +204,11 @@ SYMLAbstractType >> cachedNullary: selector fallbackWith: absentBlock [
 	^ cachedValues at: selector ifAbsentPut: [(self sysmelPerform: selector withArguments: #() fallbackWith: [ ^ absentBlock value ]) unwrapSysmelValue]
 ]
 
+{ #category : #'type composition' }
+SYMLAbstractType >> cachedUnary: selector arg: argument [
+	^ cachedValues at: {selector . argument} ifAbsentPut: [(self sysmelPerform: selector withArguments: {argument}) unwrapSysmelValue]
+]
+
 { #category : #conversions }
 SYMLAbstractType >> canBeCoercedImplicitlyInto: targetType [
 	^ (self coercedImplicitlyInto: targetType) isNotNil
@@ -270,6 +275,13 @@ SYMLAbstractType >> conversionTo: targetTypeKindLazyValue doOn: actionRules [
 					yourself.
 	implicitConversionRules add: conversionRule.
 	explicitConversionRules add: conversionRule.
+]
+
+{ #category : #'as yet unclassified' }
+SYMLAbstractType >> convertValueToFunctionActivationValue: value at: aPosition [
+	^ self sysmelPerform: #convertValueToFunctionActivationValue:at: withArguments: { value . aPosition } fallbackWith: [
+		self isMetaObjectType ifTrue: [ value value ] ifFalse: [ value ]
+	]
 ]
 
 { #category : #conversions }
@@ -659,6 +671,11 @@ SYMLAbstractType >> pointer [
 	^ self cachedNullary: #pointer
 ]
 
+{ #category : #'type composition' }
+SYMLAbstractType >> pointerFor: addressSpace [
+	^ self cachedUnary: #pointerFor: arg: addressSpace
+]
+
 { #category : #accessing }
 SYMLAbstractType >> printingName [
 	<compileTime>
@@ -674,6 +691,11 @@ SYMLAbstractType >> printingName: aPrintingName [
 { #category : #'type composition' }
 SYMLAbstractType >> ref [
 	^ self cachedNullary: #ref
+]
+
+{ #category : #'type composition' }
+SYMLAbstractType >> refFor: addressSpace [
+	^ self cachedUnary: #refFor: arg: addressSpace
 ]
 
 { #category : #testing }
@@ -694,7 +716,7 @@ SYMLAbstractType >> semanticAnalyzeMessage: message inEnvironment: environment a
 		^ self valueType semanticAnalyzeMessage: message inEnvironment: environment at: aPosition
 	].
 
-	self isMetaObjectType ifTrue: [
+	(self isMetaObjectType or: [ self isLiteralType ]) ifTrue: [
 		^ SYMLSendToHost new semanticAnalyzeMessage: message inEnvironment: environment at: aPosition
 	].
 

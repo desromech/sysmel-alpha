@@ -1,15 +1,14 @@
 Class {
-	#name : #SYMLLocalVariable,
-	#superclass : #SYMLAbstractVariable,
+	#name : #SYMLFunctionLocalVariable,
+	#superclass : #SYMLFunctionVariable,
 	#instVars : [
-		'refererenceType',
-		'ssaValue'
+		'referenceType'
 	],
 	#category : #'Sysmel-Metamodel-Program'
 }
 
 { #category : #definition }
-SYMLLocalVariable >> assignValue: initialValue [
+SYMLFunctionLocalVariable >> assignValue: initialValue [
 	<compileTime>
 	<lazy>
 	<rewrite>
@@ -35,7 +34,7 @@ SYMLLocalVariable >> assignValue: initialValue [
 ]
 
 { #category : #definition }
-SYMLLocalVariable >> convertNodeForSequenceElement: aNode inEnvironment: anEnvironment [
+SYMLFunctionLocalVariable >> convertNodeForSequenceElement: aNode inEnvironment: anEnvironment [
 	^ SYMLAPSGLocalInitialization new
 		position: definitionPosition;
 		local: self;
@@ -44,14 +43,14 @@ SYMLLocalVariable >> convertNodeForSequenceElement: aNode inEnvironment: anEnvir
 ]
 
 { #category : #'as yet unclassified' }
-SYMLLocalVariable >> doCreateSSADebugInformation [
+SYMLFunctionLocalVariable >> doCreateSSADebugInformation [
 	^ (SLVMDebugVariable scope: nil name: self validName)
 		type: self type ssaType;
 		yourself
 ]
 
 { #category : #'as yet unclassified' }
-SYMLLocalVariable >> generateSSALocalWithBuilder: builder [
+SYMLFunctionLocalVariable >> generateSSALocalWithBuilder: builder [
 	ssaValue := builder allocaBuilder alloca: type ssaType name: self validName.
 	builder compilationTarget emittingDebugInformation ifTrue: [ 
 		ssaValue debugInformation: self createSSADebugInformation
@@ -60,18 +59,18 @@ SYMLLocalVariable >> generateSSALocalWithBuilder: builder [
 ]
 
 { #category : #'code generation' }
-SYMLLocalVariable >> generateSSAReferenceWith: builder [
+SYMLFunctionLocalVariable >> generateSSAReferenceWith: builder [
 	self assert: ssaValue isNotNil.
 	^ ssaValue
 ]
 
 { #category : #'as yet unclassified' }
-SYMLLocalVariable >> referenceType [
-	^ refererenceType
+SYMLFunctionLocalVariable >> referenceType [
+	^ referenceType
 ]
 
 { #category : #'as yet unclassified' }
-SYMLLocalVariable >> semanticAnalyzeMessageToYou: message inEnvironment: environment at: aPosition [
+SYMLFunctionLocalVariable >> semanticAnalyzeMessageToYou: message inEnvironment: environment at: aPosition [
 	name ifNil: [
 		message selector numArgs = 0 ifTrue: [
 			self name: message selector.
@@ -84,18 +83,8 @@ SYMLLocalVariable >> semanticAnalyzeMessageToYou: message inEnvironment: environ
 ]
 
 { #category : #accessing }
-SYMLLocalVariable >> ssaValue [
-	^ ssaValue
-]
-
-{ #category : #accessing }
-SYMLLocalVariable >> ssaValue: anObject [
-	ssaValue := anObject
-]
-
-{ #category : #accessing }
-SYMLLocalVariable >> type: aType [
+SYMLFunctionLocalVariable >> type: aType [
 	<compileTime>
 	super type: aType.
-	refererenceType := aType ref
+	referenceType := aType refFor: #function
 ]

@@ -16,6 +16,10 @@ SYMLSendToHost >> evaluateMessage: message inEnvironment: anEnvironment [
 SYMLSendToHost >> semanticAnalyzeMessage: message inEnvironment: environment at: aPosition [
 	^ (message analyzeArgumentsInEnvironment: environment)
 		metaMethod: self;
-		valueType: environment compilationTarget compilerObjectType;
+		valueType: (
+			(#(< <= > >= = == ~= ~~ and: or: not includes:) includes: message selector)
+				ifTrue: [ environment compilationTarget booleanType ]
+				ifFalse: [ environment compilationTarget compilerObjectType ]
+			);
 		yourself
 ]

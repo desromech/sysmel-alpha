@@ -411,11 +411,18 @@ definition: {
 // AnyValue composition
 
 // Pointer type
-template PointerTypeTemplate(P: Type)
+template PointerTypeTemplate(P: Type, AS: _LiteralSymbol)
     := type uses: PointerType;
 definition: {
+    alias PointedType := P.
+    alias AddressSpaceName := AS.
+
     meta message pointed -> _CompilerObjectType := {
-        return: P
+        return: PointedType
+    }.
+
+    meta message addressSpaceName -> _LiteralSymbol := {
+        return: AddressSpaceName
     }.
 
     meta message alignment -> _LiteralInteger := {
@@ -427,11 +434,11 @@ definition: {
     }.
 
     meta message buildSSAType -> _CompilerObjectType := {
-        return: (Compiler compilationTarget ssaPointerTo: P ssaType)
+        return: (Compiler compilationTarget ssaPointerTo: P ssaType forAddressSpace: AddressSpaceName)
     }.
 
     meta message cleanType -> _CompilerObjectType := {
-        return: P cleanType pointer
+        return: (P cleanType pointerFor: AddressSpaceName)
     }.
 
     meta message asPointerType ->_CompilerObjectType := {
@@ -439,7 +446,7 @@ definition: {
     }.
 
     meta message asReferenceType ->_CompilerObjectType := {
-        return: P ref
+        return: (P refFor: AddressSpaceName)
     }.
 
     meta message createSysmelMangledValue -> _CompilerObjectType := {
@@ -449,20 +456,56 @@ definition: {
     meta message createPrintingName -> _CompilerObjectType := {
         return: (P printingName -- " pointer")
     }.
+
+    // Address space conversion.
+    if: (#(function workgroup crossWorkgroup) includes: AddressSpaceName) then: {
+        SelfType conversionTo: (P cleanType pointerFor: #generic) doOn: {
+            evaluation: $$Pharo {
+                value: value targetType: targetType at: position
+                    ^ value
+            }.
+            codeGeneration: $$Pharo {
+                convertSSAValue: sourceValue to: targetType with: builder at: messageNode
+                    ^ sourceValue
+            }.
+        }.
+
+        SelfType conversionTo: (P pointerFor: #generic) doOn: {
+            evaluation: $$Pharo {
+                value: value targetType: targetType at: position
+                    ^ value
+            }.
+            codeGeneration: $$Pharo {
+                convertSSAValue: sourceValue to: targetType with: builder at: messageNode
+                    ^ sourceValue
+            }.
+        }.
+    }.
 }.
 
 AnyValue extend: {
     meta message pointer -> _CompilerObjectType := {
-        return: PointerTypeTemplate(self)
-    }
+        return: PointerTypeTemplate(self, #generic)
+    }.
+
+    meta message pointerFor: (addressSpace: _LiteralSymbol) ::-> _CompilerObjectType := {
+        return: PointerTypeTemplate(self, addressSpace)
+    }.
 }.
 
 // Reference type
-template ReferenceTypeTemplate(R: Type)
+template ReferenceTypeTemplate(R: Type, AS: _LiteralSymbol)
     := type uses: ReferenceType;
 definition: {
+    alias ReferencedType := R.
+    alias AddressSpaceName := AS.
+
     meta message referenced -> _CompilerObjectType := {
-        return: R
+        return: ReferencedType
+    }.
+
+    meta message addressSpaceName -> _LiteralSymbol := {
+        return: AddressSpaceName
     }.
 
     meta message alignment -> _LiteralInteger := {
@@ -474,7 +517,7 @@ definition: {
     }.
 
     meta message buildSSAType -> _CompilerObjectType := {
-        return: (Compiler compilationTarget ssaPointerTo: R ssaType)
+        return: (Compiler compilationTarget ssaPointerTo: R ssaType forAddressSpace: AddressSpaceName)
     }.
 
     meta message valueType -> _CompilerObjectType := {
@@ -482,7 +525,7 @@ definition: {
     }.
 
     meta message cleanType -> _CompilerObjectType := {
-        return: R cleanType ref
+        return: (R cleanType refFor: AddressSpaceName)
     }.
 
     meta message cvariadicCoercionType -> _CompilerObjectType := {
@@ -495,7 +538,7 @@ definition: {
     }.
 
     meta message asPointerType ->_CompilerObjectType := {
-        return: R pointer
+        return: (R pointerFor: AddressSpaceName)
     }.
 
     meta message asReferenceType -> _CompilerObjectType := {
@@ -542,12 +585,44 @@ definition: {
                 ^ builder load: sourceValue
         }.
     }.
+
+    // Address space conversion.
+    if: (#(function workgroup crossWorkgroup) includes: AddressSpaceName) then: {
+        SelfType conversionTo: (R cleanType refFor: #generic) doOn: {
+            evaluation: $$Pharo {
+                value: value targetType: targetType at: position
+                    "Reference evaluation"
+                    ^ value
+            }.
+            codeGeneration: $$Pharo {
+                convertSSAValue: sourceValue to: targetType with: builder at: messageNode
+                    ^ sourceValue
+            }.
+        }.
+
+        SelfType conversionTo: (R refFor: #generic) doOn: {
+            evaluation: $$Pharo {
+                value: value targetType: targetType at: position
+                    "Reference evaluation"
+                    ^ value
+            }.
+            codeGeneration: $$Pharo {
+                convertSSAValue: sourceValue to: targetType with: builder at: messageNode
+                    ^ sourceValue
+            }.
+        }.
+    }.
+
 }.
 
 AnyValue extend: {
     meta message ref -> _CompilerObjectType := {
-        return: ReferenceTypeTemplate(self)
-    }
+        return: ReferenceTypeTemplate(self, #generic)
+    }.
+
+    meta message refFor: (addressSpaceName: _LiteralSymbol) ::-> _CompilerObjectType := {
+        return: ReferenceTypeTemplate(self, addressSpaceName)
+    }.
 }.
 
 // Constant type type

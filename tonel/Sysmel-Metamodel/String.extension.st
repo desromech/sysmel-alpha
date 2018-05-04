@@ -1,6 +1,11 @@
 Extension { #name : #String }
 
 { #category : #'*Sysmel-Metamodel' }
+String >> asSysmelValueInEnvironment: anEnvironment [
+	^ self sysmelValueWithType: anEnvironment compilationTarget literalStringType inEnvironment: anEnvironment
+]
+
+{ #category : #'*Sysmel-Metamodel' }
 String >> sysmelEscapeForMangling [
 	(self beginsWith: '__anon') ifTrue: [
 		^ '_a' , (self allButFirst: '__anon' size) sysmelEscapeForMangling
@@ -15,4 +20,9 @@ String >> sysmelEscapeForMangling [
 			]
 		]
 	]
+]
+
+{ #category : #'*Sysmel-Metamodel' }
+String >> unwrapSysmelValue [
+	^ self
 ]

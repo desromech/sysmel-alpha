@@ -24,6 +24,11 @@ SYMLValue >> = other [
 	[ value = other value ] ]
 ]
 
+{ #category : #'as yet unclassified' }
+SYMLValue >> analyzeAPSGIdentifierToMe: identifier inEnvironment: anEnvironment [
+	^ self asAPSGNodeInEnvironment: anEnvironment at: identifier position
+]
+
 { #category : #converting }
 SYMLValue >> asAPSGNodeInEnvironment: newEnvironment at: aPosition [
 	self isMetaObjectValue ifTrue: [ 
@@ -44,7 +49,12 @@ SYMLValue >> asFunctionActivationValueAt: aPosition [
 		^ self value
 	].
 
-	self halt
+	^ self type convertValueToFunctionActivationValue: self at: aPosition
+]
+
+{ #category : #converting }
+SYMLValue >> asSysmelValueInEnvironment: anEnvironment [
+	^ self
 ]
 
 { #category : #'as yet unclassified' }

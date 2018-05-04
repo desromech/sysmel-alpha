@@ -31,7 +31,7 @@ SYMLObjectAlias >> assignValue: bodyLazyValue [
 SYMLObjectAlias >> evaluatedValue [
 	hasEvaluatedValue ifFalse: [
 		hasEvaluatedValue := true.
-		value := lazyValue value
+		value := lazyValue evaluateForAlias
 	].
 
 	^ value

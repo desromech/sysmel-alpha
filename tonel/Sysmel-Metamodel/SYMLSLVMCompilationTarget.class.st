@@ -90,9 +90,9 @@ SYMLSLVMCompilationTarget >> ssaInt8 [
 ]
 
 { #category : #'accesing ssa types' }
-SYMLSLVMCompilationTarget >> ssaPointerTo: targetType [
+SYMLSLVMCompilationTarget >> ssaPointerTo: targetType forAddressSpace: addressSpaceName [
 	<compileTime>
-	^ target pointerTo: targetType
+	^ target pointerTo: targetType storage: addressSpaceName
 ]
 
 { #category : #'target platform querying' }

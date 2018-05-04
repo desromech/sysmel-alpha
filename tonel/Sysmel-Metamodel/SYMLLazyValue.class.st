@@ -28,6 +28,12 @@ SYMLLazyValue >> environment: anObject [
 	environment := anObject
 ]
 
+{ #category : #evaluating }
+SYMLLazyValue >> evaluateForAlias [
+	self ensureEvaluation.
+	^ cachedValue type isMetaObjectType ifTrue: [ cachedValue value ] ifFalse: [ cachedValue ]
+]
+
 { #category : #initialization }
 SYMLLazyValue >> initialize [
 	super initialize.
