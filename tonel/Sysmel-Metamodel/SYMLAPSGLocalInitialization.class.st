@@ -52,6 +52,13 @@ SYMLAPSGLocalInitialization >> local: anObject [
 ]
 
 { #category : #'meta evaluation' }
+SYMLAPSGLocalInitialization >> macroExpansionInEnvironment: anEnvironment [
+	^ self shallowCopy
+		initialization: (initialization ifNotNil: [initialization macroExpansionInEnvironment: anEnvironment]);
+		yourself
+]
+
+{ #category : #'meta evaluation' }
 SYMLAPSGLocalInitialization >> semanticAnalysisInEnvironment: anEnvironment [
 	^ self
 ]

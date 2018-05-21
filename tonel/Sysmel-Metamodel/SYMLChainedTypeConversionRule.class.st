@@ -6,7 +6,7 @@ Class {
 		'intermediateRule',
 		'nextRule'
 	],
-	#category : #'Sysmel-Metamodel-Program'
+	#category : #'Sysmel-Metamodel-Type'
 }
 
 { #category : #'as yet unclassified' }

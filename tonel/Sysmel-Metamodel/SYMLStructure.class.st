@@ -6,7 +6,7 @@ Class {
 		'hasConcretedSSAType',
 		'analyzed'
 	],
-	#category : #'Sysmel-Metamodel-Program'
+	#category : #'Sysmel-Metamodel-Type'
 }
 
 { #category : #adding }

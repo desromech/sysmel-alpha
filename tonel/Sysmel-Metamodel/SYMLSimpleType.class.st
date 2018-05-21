@@ -6,7 +6,7 @@ Class {
 		'SignedIntegerOperationMap',
 		'UnsignedIntegerOperationMap'
 	],
-	#category : #'Sysmel-Metamodel-Program'
+	#category : #'Sysmel-Metamodel-Type'
 }
 
 { #category : #initialization }

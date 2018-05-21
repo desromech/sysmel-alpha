@@ -158,6 +158,29 @@ SYMLAPSGMessageSend >> isReceiverAnalyzed: anObject [
 	isReceiverAnalyzed := anObject
 ]
 
+{ #category : #'meta evaluation' }
+SYMLAPSGMessageSend >> macroExpansionEvaluateInEnvironment: anEnvironment [
+	| expandedValue |
+	expandedValue := receiver analyzeAndEvaluateInEnvironment: anEnvironment.
+	expandedValue type isAPSGNodeType ifFalse: [ 
+		self error: 'Macro expansion expression does not evaluate into an APSG node' at: self
+	].
+
+	^ expandedValue value
+]
+
+{ #category : #'meta evaluation' }
+SYMLAPSGMessageSend >> macroExpansionInEnvironment: anEnvironment [
+	selector == #macroExpand ifTrue: [ 
+		^ self macroExpansionEvaluateInEnvironment: anEnvironment
+	].
+	
+	^ self shallowCopy
+		receiver: (receiver ifNotNil: [receiver macroExpansionInEnvironment: anEnvironment]);
+		arguments: (arguments collect: [:arg | arg macroExpansionInEnvironment: anEnvironment]);
+		yourself
+]
+
 { #category : #accessing }
 SYMLAPSGMessageSend >> metaMethod [
 	^ metaMethod

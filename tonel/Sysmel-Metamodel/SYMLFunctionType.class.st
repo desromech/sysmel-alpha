@@ -9,7 +9,7 @@ Class {
 		'variadic',
 		'argumentsMangledName'
 	],
-	#category : #'Sysmel-Metamodel-Program'
+	#category : #'Sysmel-Metamodel-Type'
 }
 
 { #category : #comparing }

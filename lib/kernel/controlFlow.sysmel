@@ -223,22 +223,12 @@ macro selectors: #(while:do: while:do:continueWith: ) doOn: {
 }.
 
 // until:do:continueWith:
-macro selectors: #(until:do: until:do:continueWith: ) doOn: {
-    // Semantic analysis
-    semanticAnalysis: $$Pharo {
-        node: messageNode environment: environment position: aSourcePosition
-            | newArguments |
-            newArguments := messageNode arguments copy.
-            newArguments at: 1 put:
-                ((environment apsgBuilder send: #not to: newArguments first withArguments: #())
-                    position: aSourcePosition).
+macro expansionRule until: condition do: body := {
+	while: condition macroExpand not do: body macroExpand
+}.
 
-            ^ (messageNode copy
-                selector: (messageNode arguments size = 3 ifTrue: [#while:do:continueWith:] ifFalse: [#while:do:]);
-                arguments: newArguments;
-                yourself) semanticAnalysisInEnvironment: environment
-
-	}.
+macro expansionRule until: condition do: body continueWith: continueAction := {
+	while: condition macroExpand not do: body macroExpand continueWith: continueAction macroExpand
 }.
 
 // Do:while:continueWith:

@@ -29,6 +29,11 @@ SYMLAPSGLiteral >> isLiteralNode [
 	^ true
 ]
 
+{ #category : #'meta evaluation' }
+SYMLAPSGLiteral >> macroExpansionInEnvironment: anEnvironment [
+	^ self
+]
+
 { #category : #printing }
 SYMLAPSGLiteral >> printOn: aStream [
 	aStream print: value

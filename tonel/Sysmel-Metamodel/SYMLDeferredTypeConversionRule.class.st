@@ -7,7 +7,7 @@ Class {
 		'evaluation',
 		'codeGeneration'
 	],
-	#category : #'Sysmel-Metamodel-Program'
+	#category : #'Sysmel-Metamodel-Type'
 }
 
 { #category : #accessing }

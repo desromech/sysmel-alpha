@@ -27,6 +27,13 @@ SYMLAPSGTuple >> isTupleNode [
 	^ true
 ]
 
+{ #category : #'meta evaluation' }
+SYMLAPSGTuple >> macroExpansionInEnvironment: anEnvironment [
+	^ self shallowCopy
+		elements: (elements collect: [ :element | element macroExpansionInEnvironment: anEnvironment ]);
+		yourself
+]
+
 { #category : #copying }
 SYMLAPSGTuple >> postCopy [
 	elements := elements collect: #copy

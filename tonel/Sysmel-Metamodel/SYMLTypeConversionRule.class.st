@@ -1,7 +1,7 @@
 Class {
 	#name : #SYMLTypeConversionRule,
 	#superclass : #SYMLObject,
-	#category : #'Sysmel-Metamodel-Program'
+	#category : #'Sysmel-Metamodel-Type'
 }
 
 { #category : #testing }

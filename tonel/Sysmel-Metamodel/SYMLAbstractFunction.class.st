@@ -1,6 +1,6 @@
 Class {
 	#name : #SYMLAbstractFunction,
-	#superclass : #SYMLNamedProgramEntity,
+	#superclass : #SYMLAbstractFunctionOrMacro,
 	#instVars : [
 		'returnType',
 		'body',
@@ -15,7 +15,7 @@ Class {
 		'ssaValue',
 		'bindedFunctionType'
 	],
-	#category : #'Sysmel-Metamodel-Program'
+	#category : #'Sysmel-Metamodel-Function'
 }
 
 { #category : #'as yet unclassified' }
@@ -168,6 +168,11 @@ SYMLAbstractFunction >> evaluateWithReceiver: aReceiver arguments: activationArg
 	].
 
 	^ result
+]
+
+{ #category : #accessing }
+SYMLAbstractFunction >> functionBodyEnvironment [
+	^ bodyEnvironment
 ]
 
 { #category : #accessing }

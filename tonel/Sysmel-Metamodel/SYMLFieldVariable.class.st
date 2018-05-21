@@ -5,7 +5,7 @@ Class {
 		'slotIndex',
 		'visibility'
 	],
-	#category : #'Sysmel-Metamodel-Program'
+	#category : #'Sysmel-Metamodel-Variable'
 }
 
 { #category : #'as yet unclassified' }

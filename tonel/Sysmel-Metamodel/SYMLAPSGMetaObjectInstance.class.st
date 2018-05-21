@@ -40,6 +40,11 @@ SYMLAPSGMetaObjectInstance >> isMetaObjectInstance [
 	^ true
 ]
 
+{ #category : #'meta evaluation' }
+SYMLAPSGMetaObjectInstance >> macroExpansionInEnvironment: anEnvironment [
+	^ self
+]
+
 { #category : #accessing }
 SYMLAPSGMetaObjectInstance >> metaObject [
 	^ metaObject

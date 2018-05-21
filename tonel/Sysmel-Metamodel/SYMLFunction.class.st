@@ -4,7 +4,7 @@ Class {
 	#instVars : [
 		'hasArguments'
 	],
-	#category : #'Sysmel-Metamodel-Program'
+	#category : #'Sysmel-Metamodel-Function'
 }
 
 { #category : #associating }
@@ -81,7 +81,7 @@ SYMLFunction >> assignValue: bodyLazyValue [
 	<compileTime>
 	<lazy>
 	
-	bodyLazyValue type ~~ self compilationTarget apsgNodeType ifTrue: [
+	bodyLazyValue type isAPSGNodeType ifFalse: [
 		self error: 'Expected an APSG node for the definition of the function {1}.' format: { self validName } at: bodyLazyValue node
 	].
 

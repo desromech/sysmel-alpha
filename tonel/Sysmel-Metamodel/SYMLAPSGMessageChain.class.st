@@ -26,6 +26,14 @@ SYMLAPSGMessageChain >> inspectorChildren [
 	^ { receiver . #messages -> messages }
 ]
 
+{ #category : #'meta evaluation' }
+SYMLAPSGMessageChain >> macroExpansionInEnvironment: anEnvironment [
+	^ self shallowCopy
+		receiver: (receiver ifNotNil: [receiver macroExpansionInEnvironment: anEnvironment]);
+		messages: (messages ifNotNil: [messages collect: [:message | message macroExpansionInEnvironment: anEnvironment]]);
+		yourself
+]
+
 { #category : #accessing }
 SYMLAPSGMessageChain >> messages [
 	^ messages

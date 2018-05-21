@@ -8,7 +8,7 @@ TSYMLInterpretedCompilationObject >> parse: lazyNodeValue [
 	| environment actions actionValue |
 	environment := lazyNodeValue environment.
 	actions := lazyNodeValue value.
-	lazyNodeValue type ~~ environment compilationTarget apsgNodeType ifTrue: [
+	lazyNodeValue type isAPSGNodeType ifFalse: [
 		self error: 'Expected an apsg node with the rules.' at: lazyNodeValue position
 	].
 

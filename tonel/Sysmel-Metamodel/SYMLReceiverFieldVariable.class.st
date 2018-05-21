@@ -5,7 +5,7 @@ Class {
 		'receiver',
 		'field'
 	],
-	#category : #'Sysmel-Metamodel-Program'
+	#category : #'Sysmel-Metamodel-Variable'
 }
 
 { #category : #accessing }

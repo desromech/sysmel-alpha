@@ -5,7 +5,7 @@ Class {
 		'action',
 		'compilationTarget'
 	],
-	#category : #'Sysmel-Metamodel-Program'
+	#category : #'Sysmel-Metamodel-Type'
 }
 
 { #category : #accessing }

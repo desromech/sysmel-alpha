@@ -37,3 +37,8 @@ SYMLAPSGIncompleteSemanticAnalysis >> evaluateTypeInEnvironment: anEnvironment [
 SYMLAPSGIncompleteSemanticAnalysis >> hasIncompleteSemanticAnalysis [
 	^ true
 ]
+
+{ #category : #'meta evaluation' }
+SYMLAPSGIncompleteSemanticAnalysis >> macroExpansionInEnvironment: anEnvironment [
+	^ self
+]

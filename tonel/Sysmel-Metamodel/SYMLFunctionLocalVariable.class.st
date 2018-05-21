@@ -4,7 +4,7 @@ Class {
 	#instVars : [
 		'referenceType'
 	],
-	#category : #'Sysmel-Metamodel-Program'
+	#category : #'Sysmel-Metamodel-Variable'
 }
 
 { #category : #definition }

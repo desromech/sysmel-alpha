@@ -35,6 +35,11 @@ SYMLAPSGMessageChainReceiverReference >> generateSSACodeWith: builder [
 	]
 ]
 
+{ #category : #'meta evaluation' }
+SYMLAPSGMessageChainReceiverReference >> macroExpansionInEnvironment: anEnvironment [
+	^ self
+]
+
 { #category : #accessing }
 SYMLAPSGMessageChainReceiverReference >> receiverValue [
 	^ receiverValue

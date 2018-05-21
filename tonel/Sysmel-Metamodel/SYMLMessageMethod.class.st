@@ -1,10 +1,12 @@
 Class {
 	#name : #SYMLMessageMethod,
 	#superclass : #SYMLAbstractFunction,
+	#traits : 'TSYMLMessageMethod',
+	#classTraits : 'TSYMLMessageMethod classTrait',
 	#instVars : [
 		'hasSelector'
 	],
-	#category : #'Sysmel-Metamodel-Program'
+	#category : #'Sysmel-Metamodel-Function'
 }
 
 { #category : #associating }
@@ -41,7 +43,7 @@ SYMLMessageMethod >> assignValue: bodyLazyValue [
 	<compileTime>
 	<lazy>
 	
-	bodyLazyValue type ~~ self compilationTarget apsgNodeType ifTrue: [
+	bodyLazyValue type isAPSGNodeType ifFalse: [
 		self error: 'Expected an APSG node for the definition of the function {1}.' format: { self validName } at: bodyLazyValue node
 	].
 
@@ -70,33 +72,8 @@ SYMLMessageMethod >> buildFunctionType [
 ]
 
 { #category : #initialization }
-SYMLMessageMethod >> createArgumentFromTemplate: argumentNode inEnvironment: environment [
-	| argumentName argumentType |
-	argumentNode isMessageNode ifTrue: [
-		argumentNode receiver ifNotNil: [
-			self error: 'Expected a message without receiver for the argument name.' at: argumentNode
-		].
-
-		(argumentNode selector numArgs ~= 1 or: [ (argumentNode selector includes: $:) not ]) ifTrue: [
-			self error: 'Expected an unary selector for the argument {1} name' format: { argumentNode selector printString } at: argumentNode
-		].
-	
-		argumentName := argumentNode selector allButLast asSymbol.
-		argumentType := argumentNode arguments first analyzeAndEvaluateInEnvironment: environment.
-		argumentType value isType ifFalse: [ 
-			self error: 'Expected a type for the argument {1}' format: { argumentNode selector printString } at: argumentNode arguments first
-		].
-		
-		^ SYMLFunctionArgument new
-			parent: self;
-			module: module;
-			name: argumentName;
-			type: argumentType value;
-			definitionNode: argumentNode;
-			yourself
-	].
-
-	self halt
+SYMLMessageMethod >> defaultTypeForArgument: node inEnvironment: environment [
+	self error: 'Explicit type for argument is required.' at: node
 ]
 
 { #category : #initialization }

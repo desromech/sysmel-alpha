@@ -37,6 +37,13 @@ SYMLAPSGLexicalScopeNode >> lexicalEnvironment: anObject [
 	lexicalEnvironment := anObject
 ]
 
+{ #category : #'meta evaluation' }
+SYMLAPSGLexicalScopeNode >> macroExpansionInEnvironment: anEnvironment [
+	^ self shallowCopy
+		node: (node macroExpansionInEnvironment: anEnvironment);
+		yourself
+]
+
 { #category : #accessing }
 SYMLAPSGLexicalScopeNode >> node [
 	^ node

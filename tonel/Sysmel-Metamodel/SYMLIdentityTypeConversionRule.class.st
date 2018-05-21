@@ -1,7 +1,7 @@
 Class {
 	#name : #SYMLIdentityTypeConversionRule,
 	#superclass : #SYMLTypeConversionRule,
-	#category : #'Sysmel-Metamodel-Program'
+	#category : #'Sysmel-Metamodel-Type'
 }
 
 { #category : #'as yet unclassified' }

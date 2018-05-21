@@ -1,7 +1,7 @@
 Class {
 	#name : #SYMLUnion,
 	#superclass : #SYMLStructure,
-	#category : #'Sysmel-Metamodel-Program'
+	#category : #'Sysmel-Metamodel-Type'
 }
 
 { #category : #'code generation' }

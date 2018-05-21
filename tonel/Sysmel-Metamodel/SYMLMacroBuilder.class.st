@@ -1,8 +1,19 @@
 Class {
 	#name : #SYMLMacroBuilder,
 	#superclass : #SYMLNamedProgramEntity,
-	#category : #'Sysmel-Metamodel-Program'
+	#category : #'Sysmel-Metamodel-Macro'
 }
+
+{ #category : #accessing }
+SYMLMacroBuilder >> expansionRule [
+	<compileTime>
+	^ SYMLMacroExpansionRule new
+		module: module;
+		definitionEnvironment: definitionEnvironment;
+		definitionNode: definitionNode;
+		parent: parent;
+		yourself
+]
 
 { #category : #'as yet unclassified' }
 SYMLMacroBuilder >> selector: selectorLazyValue doOn: actionRules [

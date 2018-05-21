@@ -20,6 +20,11 @@ SYMLAPSGLiteralWithLazyType >> environment: anObject [
 ]
 
 { #category : #'meta evaluation' }
+SYMLAPSGLiteralWithLazyType >> macroExpansionInEnvironment: anEnvironment [
+	^ self
+]
+
+{ #category : #'meta evaluation' }
 SYMLAPSGLiteralWithLazyType >> semanticAnalysisInEnvironment: anEnvironment [
 	^ SYMLAPSGLiteral new
 		position: position;

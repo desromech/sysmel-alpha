@@ -1,7 +1,7 @@
 Class {
 	#name : #SYMLTrait,
 	#superclass : #SYMLAbstractType,
-	#category : #'Sysmel-Metamodel-Program'
+	#category : #'Sysmel-Metamodel-Type'
 }
 
 { #category : #printing }

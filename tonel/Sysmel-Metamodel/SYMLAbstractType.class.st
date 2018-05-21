@@ -21,7 +21,7 @@ Class {
 	#classVars : [
 		'SpecialMetaSymbols'
 	],
-	#category : #'Sysmel-Metamodel-Program'
+	#category : #'Sysmel-Metamodel-Type'
 }
 
 { #category : #initialization }
@@ -439,6 +439,11 @@ SYMLAbstractType >> initializeSSAVariable: ssaVariable builder: builder [
 SYMLAbstractType >> invalidateFlattenedTraits [
 	flattenedTraits := nil.
 	traitUsers do: #invalidateFlattenedTraits
+]
+
+{ #category : #testing }
+SYMLAbstractType >> isAPSGNodeType [
+	^ self == self compilationTarget apsgNodeType
 ]
 
 { #category : #testing }

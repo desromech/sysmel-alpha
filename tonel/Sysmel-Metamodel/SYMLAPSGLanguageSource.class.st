@@ -26,6 +26,11 @@ SYMLAPSGLanguageSource >> language: anObject [
 ]
 
 { #category : #'meta evaluation' }
+SYMLAPSGLanguageSource >> macroExpansionInEnvironment: anEnvironment [
+	^ self
+]
+
+{ #category : #'meta evaluation' }
 SYMLAPSGLanguageSource >> semanticAnalysisInEnvironment: anEnvironment [
 	^ self
 ]

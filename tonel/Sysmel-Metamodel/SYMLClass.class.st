@@ -1,7 +1,7 @@
 Class {
 	#name : #SYMLClass,
 	#superclass : #SYMLStructure,
-	#category : #'Sysmel-Metamodel-Program'
+	#category : #'Sysmel-Metamodel-Type'
 }
 
 { #category : #printing }

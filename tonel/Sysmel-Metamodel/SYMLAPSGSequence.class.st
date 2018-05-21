@@ -37,6 +37,13 @@ SYMLAPSGSequence >> isSequenceNode [
 	^ true
 ]
 
+{ #category : #'meta evaluation' }
+SYMLAPSGSequence >> macroExpansionInEnvironment: anEnvironment [
+	^ self shallowCopy
+		elements: (elements collect: [ :element | element macroExpansionInEnvironment: anEnvironment ]);
+		yourself
+]
+
 { #category : #copying }
 SYMLAPSGSequence >> postCopy [
 	elements := elements collect: #copy

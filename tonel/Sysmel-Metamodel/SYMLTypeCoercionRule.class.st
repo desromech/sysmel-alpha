@@ -5,7 +5,7 @@ Class {
 		'leftType',
 		'rightType'
 	],
-	#category : #'Sysmel-Metamodel-Program'
+	#category : #'Sysmel-Metamodel-Type'
 }
 
 { #category : #'as yet unclassified' }

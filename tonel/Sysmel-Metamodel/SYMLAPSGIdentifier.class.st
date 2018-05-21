@@ -17,6 +17,16 @@ SYMLAPSGIdentifier >> copyWithBinding: binding andType: type [
 		yourself
 ]
 
+{ #category : #testing }
+SYMLAPSGIdentifier >> isIdentifierNode [
+	^ true
+]
+
+{ #category : #'meta evaluation' }
+SYMLAPSGIdentifier >> macroExpansionInEnvironment: anEnvironment [
+	^ self
+]
+
 { #category : #printing }
 SYMLAPSGIdentifier >> printOn: aStream [
 	aStream nextPutAll: 'identifier '; print: value

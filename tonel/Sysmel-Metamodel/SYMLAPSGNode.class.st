@@ -125,6 +125,11 @@ SYMLAPSGNode >> inspectorChildren [
 ]
 
 { #category : #testing }
+SYMLAPSGNode >> isIdentifierNode [
+	^ false
+]
+
+{ #category : #testing }
 SYMLAPSGNode >> isImplicitContextMessageNode [
 	^ false
 ]
@@ -157,6 +162,11 @@ SYMLAPSGNode >> isSequenceNode [
 { #category : #testing }
 SYMLAPSGNode >> isTupleNode [
 	^ false
+]
+
+{ #category : #'meta evaluation' }
+SYMLAPSGNode >> macroExpansionInEnvironment: anEnvironment [
+	self subclassResponsibility
 ]
 
 { #category : #accessing }

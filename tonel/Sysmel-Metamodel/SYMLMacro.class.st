@@ -1,6 +1,6 @@
 Class {
 	#name : #SYMLMacro,
-	#superclass : #SYMLNamedProgramEntity,
+	#superclass : #SYMLAbstractFunctionOrMacro,
 	#category : #'Sysmel-Metamodel-Macro'
 }
 
@@ -9,7 +9,7 @@ SYMLMacro class >> module: aModule [
 	^ self new module: aModule
 ]
 
-{ #category : #'as yet unclassified' }
+{ #category : #'macro compilation' }
 SYMLMacro >> analyzeMetaMessage: message toReceiver: receiverValue inEnvironment: environment at: aPosition [
 	self subclassResponsibility
 ]
@@ -32,4 +32,9 @@ SYMLMacro >> isMetaMethod [
 { #category : #'macro compilation' }
 SYMLMacro >> semanticAnalyzeMessage: message inEnvironment: environment at: aPosition [
 	self subclassResponsibility
+]
+
+{ #category : #accessing }
+SYMLMacro >> tryToAddToParentWithName: aNewName [
+	parent addMethod: self withSelector: aNewName
 ]

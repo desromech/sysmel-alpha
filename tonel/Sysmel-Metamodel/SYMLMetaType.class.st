@@ -4,7 +4,7 @@ Class {
 	#instVars : [
 		'instanceType'
 	],
-	#category : #'Sysmel-Metamodel-Program'
+	#category : #'Sysmel-Metamodel-Type'
 }
 
 { #category : #converting }

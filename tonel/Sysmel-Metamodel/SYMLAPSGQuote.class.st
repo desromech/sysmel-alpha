@@ -31,6 +31,11 @@ SYMLAPSGQuote >> inlineSemanticAnalysisInEnvironment: anEnvironment [
 	^ node semanticAnalysisInEnvironment: anEnvironment
 ]
 
+{ #category : #'meta evaluation' }
+SYMLAPSGQuote >> macroExpansionInEnvironment: anEnvironment [
+	^ self
+]
+
 { #category : #accessing }
 SYMLAPSGQuote >> node [
 	^ node
