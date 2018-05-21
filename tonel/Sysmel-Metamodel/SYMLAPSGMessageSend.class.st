@@ -144,6 +144,16 @@ SYMLAPSGMessageSend >> isImplicitContextMessageNode [
 ]
 
 { #category : #testing }
+SYMLAPSGMessageSend >> isLiteralMessage [
+	(receiver isNil or: [receiver isLiteralNode not]) ifTrue: [ ^ false ].
+	arguments do: [ :arg |
+		arg isLiteralNode ifFalse: [ ^ false ]
+	].
+
+	^ true
+]
+
+{ #category : #testing }
 SYMLAPSGMessageSend >> isMessageNode [
 	^ true
 ]

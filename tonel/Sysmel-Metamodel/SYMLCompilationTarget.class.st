@@ -51,6 +51,11 @@ SYMLCompilationTarget class >> llvm_x86_64 [
 ]
 
 { #category : #construction }
+SYMLCompilationTarget class >> spirv_logical64 [
+	^ SYMLSLVMCompilationTarget target: SLVMCompilationTarget spirv_logical64
+]
+
+{ #category : #construction }
 SYMLCompilationTarget class >> x86 [
 	^ SYMLSLVMCompilationTarget  target: SLVMCompilationTarget x86
 ]
@@ -270,6 +275,11 @@ SYMLCompilationTarget >> int8Type [
 SYMLCompilationTarget >> int8Type: anObject [
 	<compileTime>
 	int8Type := anObject
+]
+
+{ #category : #testing }
+SYMLCompilationTarget >> isSpirV [
+	^ false
 ]
 
 { #category : #testing }

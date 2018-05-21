@@ -11,7 +11,8 @@ Class {
 		'pendingSSACodeGeneration',
 		'optimizationLevel',
 		'debugLocationDictionary',
-		'debugSourceFileDictionary'
+		'debugSourceFileDictionary',
+		'evaluatedFileReferences'
 	],
 	#category : #'Sysmel-Metamodel-Program'
 }
@@ -44,6 +45,16 @@ SYMLModule class >> llvm_x86_64 [
 { #category : #'instance creation' }
 SYMLModule class >> new [
 	^ self compilationTarget: SYMLCompilationTarget default.
+]
+
+{ #category : #'instance creation' }
+SYMLModule class >> spirv [
+	^ self spirv_logical64
+]
+
+{ #category : #'instance creation' }
+SYMLModule class >> spirv_logical64 [
+	^ self for: SYMLCompilationTarget spirv_logical64
 ]
 
 { #category : #'instance creation' }
@@ -165,6 +176,27 @@ SYMLModule >> evaluateFileNamed: aFileName inContext: context [
 ]
 
 { #category : #evaluating }
+SYMLModule >> evaluateFileNamedOnce: aFileName [
+	<compileTime>
+	| fileEnvironment |
+	fileEnvironment := self newEvaluationEnvironment.
+	^ self evaluateFileNamedOnce: aFileName inContext: fileEnvironment
+]
+
+{ #category : #evaluating }
+SYMLModule >> evaluateFileNamedOnce: aFileName inContext: context [
+	| fileReference oldDirectory |
+	fileReference := currentDirectory resolve: aFileName asFileReference.	
+	oldDirectory := currentDirectory.
+	currentDirectory := fileReference parent.
+
+	[
+		^ evaluatedFileReferences at: fileReference ifAbsentPut: [self evaluateSource: fileReference contents name: fileReference fullName inContext: context]
+	] ensure: [  currentDirectory := oldDirectory ]
+
+]
+
+{ #category : #evaluating }
 SYMLModule >> evaluateSource: aSourceString [
 	^ self evaluateSource: aSourceString name: 'unnamed string'
 ]
@@ -213,6 +245,8 @@ SYMLModule >> initializeWithCompilationTarget: aCompilationTarget [
 
 	pendingSSACodeGeneration := SLVMOrderedInsertionSet new.
 	pendingSSACodeGeneration add: globalNamespace.
+	
+	evaluatedFileReferences := Dictionary new.
 ]
 
 { #category : #testing }

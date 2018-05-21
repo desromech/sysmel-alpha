@@ -7,6 +7,11 @@ Class {
 	#category : #'Sysmel-Metamodel-Macro'
 }
 
+{ #category : #'macro compilation' }
+SYMLMacroExpansionRule >> analyzeMetaMessage: message toReceiver: receiverValue inEnvironment: environment at: aPosition [
+	^ self semanticAnalyzeMessage: message inEnvironment: environment at: aPosition
+]
+
 { #category : #definition }
 SYMLMacroExpansionRule >> assignValue: aDefinitionBlock [
 	<compileTime>

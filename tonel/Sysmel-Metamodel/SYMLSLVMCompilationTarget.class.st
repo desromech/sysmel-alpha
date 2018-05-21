@@ -23,6 +23,11 @@ SYMLSLVMCompilationTarget >> emittingDebugInformation [
 	^ target emittingDebugInformation
 ]
 
+{ #category : #testing }
+SYMLSLVMCompilationTarget >> isSpirV [
+	^ target isSpirV
+]
+
 { #category : #accessing }
 SYMLSLVMCompilationTarget >> operatingSystemName [
 	<compileTime>
@@ -117,6 +122,12 @@ SYMLSLVMCompilationTarget >> ssaUInt64 [
 SYMLSLVMCompilationTarget >> ssaUInt8 [
 	<compileTime>
 	^ target uint8
+]
+
+{ #category : #'accesing ssa types' }
+SYMLSLVMCompilationTarget >> ssaVector: baseType elements: elements [
+	<compileTime>
+	^ target vector: baseType elements: elements
 ]
 
 { #category : #'target platform querying' }

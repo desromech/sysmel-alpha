@@ -18,6 +18,18 @@ SYMLAbstractScope >> addFieldVariable: field at: aPosition [
 	self error: 'Cannot add field {1} at this scope.' format: { field name } at: aPosition
 ]
 
+{ #category : #adding }
+SYMLAbstractScope >> addShaderStageVariable: variable at: aPosition [
+	parent ifNotNil: [ ^ parent addShaderStageVariable: variable at: aPosition ].
+	self error: 'Cannot add shader stage io variable {1} at this scope.' format: { variable name } at: aPosition
+]
+
+{ #category : #adding }
+SYMLAbstractScope >> addShaderVariable: variable at: aPosition [
+	parent ifNotNil: [ ^ parent addShaderVariable: variable at: aPosition ].
+	self error: 'Cannot add shader variable {1} at this scope.' format: { variable name } at: aPosition
+]
+
 { #category : #'as yet unclassified' }
 SYMLAbstractScope >> apsgBuilder [
 	^ SYMLAPSGBuilder new environment: self

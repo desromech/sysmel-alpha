@@ -52,7 +52,7 @@ SYMLAbstractType >> addMethod: method withSelector: selector [
 
 { #category : #adding }
 SYMLAbstractType >> addSymbol: aSymbol value: newValue [
-	(newValue isAbstractFunction and: [ newValue isMessage ]) ifTrue: [
+	(newValue isAbstractFunction and: [ newValue isMessageMethod ]) ifTrue: [
 		
 		methodDictionary at: aSymbol ifPresent: [ :existent |
 			self error: 'Trying to override selector {1} with {2}.' format: { aSymbol printString . newValue printString }
@@ -499,6 +499,16 @@ SYMLAbstractType >> isReferenceType [
 { #category : #testing }
 SYMLAbstractType >> isReturnedThroughFirstArgument [
 	^ self cachedNullary: #isReturnedThroughFirstArgument
+]
+
+{ #category : #testing }
+SYMLAbstractType >> isShaderStageIO [
+	^ false
+]
+
+{ #category : #testing }
+SYMLAbstractType >> isShaderType [
+	^ false
 ]
 
 { #category : #testing }

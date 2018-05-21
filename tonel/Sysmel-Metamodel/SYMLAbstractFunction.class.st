@@ -102,7 +102,6 @@ SYMLAbstractFunction >> createSSAValue [
 		bodyEnvironment isTemplateInstance ifTrue: [
 			ssaValue makeLinkOnceODR
 		].
-
 	].
 	
 	self module isEmittingDebugInformation ifTrue: [
@@ -123,7 +122,13 @@ SYMLAbstractFunction >> createSSAValue [
 		ssaArgument name: arg name
 	].
 
+	self decorateSSAValue: ssaValue.
+
 	self module addPendingSSACodeGeneration: self
+]
+
+{ #category : #'code generation' }
+SYMLAbstractFunction >> decorateSSAValue: functionSSAValue [
 ]
 
 { #category : #'semantic analysis' }

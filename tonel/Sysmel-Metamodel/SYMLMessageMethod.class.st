@@ -88,11 +88,6 @@ SYMLMessageMethod >> isExternC [
 ]
 
 { #category : #testing }
-SYMLMessageMethod >> isMessage [
-	^ true
-]
-
-{ #category : #testing }
 SYMLMessageMethod >> isMessageMethod [
 	^ true
 ]

@@ -1,0 +1,8 @@
+Compiler evaluateFileNamed: "screen.sysmel".
+
+shader SolidColor uses: ScreenRendering;
+definition: {
+    fragment main := {
+        FragmentOutput color := Float32x4 (1.0, 0.0, 0.0, 1.0).
+    }.
+}.

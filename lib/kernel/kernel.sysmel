@@ -1,10 +1,11 @@
 Compiler
-    evaluateFileNamed: "bootstrap.sysmel";
-    evaluateFileNamed: "controlFlow.sysmel";
-    evaluateFileNamed: "variables.sysmel";
-    evaluateFileNamed: "arithmetic.sysmel";
-    evaluateFileNamed: "conversions.sysmel";
-    evaluateFileNamed: "structures.sysmel";
-    evaluateFileNamed: "pointer.sysmel";
-    evaluateFileNamed: "platformSpecific.sysmel";
+    evaluateFileNamedOnce: "bootstrap.sysmel";
+    evaluateFileNamedOnce: "controlFlow.sysmel";
+    evaluateFileNamedOnce: "variables.sysmel";
+    evaluateFileNamedOnce: "arithmetic.sysmel";
+    evaluateFileNamedOnce: "conversions.sysmel";
+    evaluateFileNamedOnce: "structures.sysmel";
+    evaluateFileNamedOnce: "pointer.sysmel";
+    evaluateFileNamedOnce: "platformSpecific.sysmel";
+    evaluateFileNamedOnce: "primitiveVectors.sysmel";
     yourself

@@ -70,7 +70,7 @@ macro selectors: #(if:then: if:then:else:) doOn: {
     // Code generation
     codeGeneration: $$Pharo {
         node: messageNode builder: builder
-            | conditionNode thenNode elseNode  resultType condition result thenBlock elseBlock mergeBlock thenValue elseValue |
+            | conditionNode thenNode elseNode  resultType condition result thenBlock elseBlock mergeBlock thenValue elseValue branchInstruction |
             conditionNode := messageNode arguments first.
             thenNode := messageNode arguments second.
 
@@ -88,7 +88,8 @@ macro selectors: #(if:then: if:then:else:) doOn: {
 
             "Generate the condition."
             condition := messageNode coercionRule first convertSSAValue: (conditionNode generateSSACodeWith: builder) to: messageNode coercionType first with: builder at: messageNode.
-            builder branch: condition ifTrue: thenBlock ifFalse: elseBlock.
+            branchInstruction := builder branch: condition ifTrue: thenBlock ifFalse: elseBlock.
+            branchInstruction mergeBlock: mergeBlock.
 
             "Generate the result."
             result := nil.
@@ -122,6 +123,11 @@ macro selectors: #(if:then: if:then:else:) doOn: {
             ].
 
             builder currentBlock: mergeBlock.
+            mergeBlock predecessors ifEmpty: [
+                builder unreachable.
+                branchInstruction addUnreachableSuccessors.
+            ].
+            
             ^ result.
     }.
 

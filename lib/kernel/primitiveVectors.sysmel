@@ -1,0 +1,201 @@
+namespace SysmelKernel definition: {
+
+// Add a testing method into type about primitive vector types.
+Type extend: {
+    message isPrimitiveVectorType -> Boolean := {
+        return: false
+    }.
+}.
+
+// Common trait for primitive vectors
+trait PrimitiveVectorType
+    uses: AnyValue;
+definition: {
+    meta message isPrimitiveVectorType -> Boolean := {
+        return: true
+    }.
+}.
+
+// Primitive vector template.
+template PrimitiveVectorTypeTemplate(E: Type, N: _LiteralInteger)
+    := type uses: PrimitiveVectorType;
+definition: {
+    alias ElementType := E.
+    alias ElementCount := N.
+    alias AlignmentMultiplier := (if: N == 3 then: 4 else: N).
+
+    meta message elementType -> _CompilerObjectType := {
+        return: ElementType
+    }.
+
+    meta message elements -> _LiteralInteger := {
+        return: ElementCount
+    }.
+
+    meta message alignment -> Int32 := {
+        return: ElementType alignment * AlignmentMultiplier
+    }.
+
+    meta message size -> Int32 := {
+        return: ElementType size * ElementCount
+    }.
+
+    meta message buildSSAType -> _CompilerObjectType := {
+        return: (Compiler compilationTarget ssaVector: ElementType ssaType elements: ElementCount)
+    }.
+
+    meta message createSysmelMangledValue -> _CompilerObjectType := {
+        return: (ElementType sysmelMangledValue -- #v -- ElementCount asString)
+    }.
+
+    meta message createPrintingName -> _CompilerObjectType := {
+        return: (ElementType printingName -- "x" -- ElementCount printString)
+    }.
+
+    meta macro selector: #applyWithArguments: doOn: {
+        evaluation: $$Pharo {
+            node: node environment: environment
+            "Evaluate V4"
+            self halt
+        }.
+
+        metaMessageAnalysis: $$Pharo {
+            node: node type: type environment: environment position: aSourcePosition
+                | arguments elements vectorElements argumentsArity argumentType expectedElementType expectedArgumentType coercionTypes coercionRules arity |
+                arguments := node arguments first elements.
+
+                "Analyze the arguments"
+                arguments := arguments collect: [:arg | arg semanticAnalysisInEnvironment: environment ].
+
+                "Compute the arguments arity."
+                argumentsArity := 0.
+                expectedElementType := type cachedNullary: #elementType.
+
+                coercionTypes := arguments collect: [:arg |
+                    argumentType := arg evaluateCleanTypeInEnvironment: environment.
+                    argumentType isReferenceType ifTrue: [argumentType := argumentType referenced].
+
+                    "Is the argument a scalar?"
+                    (argumentType cachedNullary: #isPrimitiveOrPrimitiveLiteralType) ifTrue: [
+                        argumentsArity := argumentsArity + 1.
+                        expectedArgumentType := expectedElementType.
+                    ] ifFalse: [
+                        "Is the argument a vector?"
+                        (argumentType cachedNullary: #isPrimitiveVectorType) ifTrue: [
+                            arity := argumentType cachedNullary: #elements.
+                            argumentsArity := argumentsArity + arity.
+                            expectedArgumentType := expectedElementType cachedUnary: #vector: arg: arity.
+                        ] ifFalse: [
+                            self error: 'Invalid argument type {1} for construction vector of type {2}.'
+                                format: {argumentType printString . type printString } at: arg.
+                        ]
+                    ].
+
+                    expectedArgumentType
+                ].
+
+                "Check the arguments arity."
+                vectorElements := type cachedNullary: #elements.
+                argumentsArity > vectorElements ifTrue: [
+                    self error: 'Cannot construct vector that requires {1} elements with {2} elements.'
+                        format: {vectorElements printString . argumentsArity printString } at: aSourcePosition
+                ].
+
+                "Compute the coercion rules."
+                coercionRules := arguments collectWithIndex: [:arg :index |
+                    argumentType := arg evaluateTypeInEnvironment: environment.
+                    expectedArgumentType := coercionTypes at: index.
+                    argumentType node: node coercedImplicitlyInto: expectedArgumentType at: node.
+                ].
+
+                ^ node shallowCopy
+                    arguments: arguments;
+                    metaMethod: self;
+                    coercionType: coercionTypes;
+                    coercionRule: coercionRules;
+                    valueType: type;
+                    yourself
+        }.
+
+        codeGeneration: $$Pharo {
+            node: messageNode builder: builder
+                | coercionTypes coercionRules arguments resultType resultElementType argumentsArity argumentType extraValues |
+                coercionTypes := messageNode coercionType.
+                coercionRules := messageNode coercionRule.
+
+                arguments := messageNode arguments collectWithIndex: [:arg :index |
+                    (coercionRules at: index) convertSSAValue: (arg generateSSACodeWith: builder) to: (coercionTypes at: index) with: builder at: messageNode.
+                ].
+
+                "Get the result type"
+                resultType := messageNode valueType ssaType.
+                resultElementType := resultType baseType.
+
+                "Compute the arity of the arguments"
+                argumentsArity := 0.
+                arguments do: [:arg |
+                    argumentType := arg type.
+                    argumentsArity := argumentsArity + (argumentType isVectorType ifTrue: [ argumentType elements ] ifFalse: [1])
+                ].
+
+                self assert: argumentsArity <= resultType elements.
+                extraValues := (1 to: resultType elements - argumentsArity) collect: [:i | resultElementType defaultConstant ].
+
+                "Build the vector"
+                ^ builder makeVector: resultType arguments: arguments , extraValues
+        }.
+    }.
+
+    meta macro expansionRule x: x := {
+        self macroExpand (x macroExpand)
+    }.
+
+    if: N >= 2 then: {
+        meta macro expansionRule x: x y: y := {
+            self macroExpand (x macroExpand, y macroExpand)
+        }.
+
+        meta macro expansionRule y: y := {
+            self macroExpand (0.0, y macroExpand)
+        }.
+    }.
+
+    if: N >= 3 then: {
+        meta macro expansionRule x: x y: y z: z := {
+            self macroExpand (x macroExpand, y macroExpand, z macroExpand)
+        }.
+
+        meta macro expansionRule z: z := {
+            self macroExpand (0.0, 0.0, z macroExpand)
+        }.
+
+    }.
+
+    if: N >= 4 then: {
+        meta macro expansionRule x: x y: y z: z w: w := {
+            self macroExpand (x macroExpand, y macroExpand, z macroExpand, w macroExpand)
+        }.
+
+        meta macro expansionRule w: w := {
+        	self macroExpand (0.0, 0.0, 0.0, w macroExpand)
+        }.
+    }.
+}.
+
+PrimitiveType extend: {
+    meta message vector: (elementCount: _LiteralInteger) ::-> _CompilerObjectType := {
+        return: PrimitiveVectorTypeTemplate(self, elementCount)
+    }.
+}.
+
+// Float32 based vectors.
+alias Float32x2 := Float32 vector: 2.
+alias Float32x3 := Float32 vector: 3.
+alias Float32x4 := Float32 vector: 4.
+
+// Float64 based vectors.
+alias Float64x2 := Float64 vector: 2.
+alias Float64x3 := Float64 vector: 3.
+alias Float64x4 := Float64 vector: 4.
+
+}

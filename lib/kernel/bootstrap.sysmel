@@ -147,6 +147,14 @@ trait Type definition: {
         return: false
     }.
 
+    message isPrimitiveLiteralType -> Boolean := {
+        return: false
+    }.
+
+    message isPrimitiveOrPrimitiveLiteralType -> Boolean := {
+        return: false
+    }.
+
     message isOpaqueType -> Boolean := {
         return: false
     }.
@@ -251,11 +259,28 @@ definition: {
     }.
 }.
 
+// Primitive literal type
+trait PrimitiveLiteralType
+    uses: LiteralType;
+definition: {
+    meta message isPrimitiveLiteralType -> Boolean := {
+        return: true
+    }.
+
+    meta message isPrimitiveOrPrimitiveLiteralType -> Boolean := {
+        return: true
+    }.
+}.
+
 // A primitive type
 trait PrimitiveType
     uses: AnyValue;
 definition: {
     meta message isPrimitiveType -> Boolean := {
+        return: true
+    }.
+
+    meta message isPrimitiveOrPrimitiveLiteralType -> Boolean := {
         return: true
     }.
 
@@ -868,7 +893,7 @@ _LiteralArray uses: LiteralType.
 _LiteralSymbol uses: LiteralType.
 _LiteralString uses: LiteralType.
 
-_LiteralInteger uses: (LiteralType, IntegerType);
+_LiteralInteger uses: (PrimitiveLiteralType, IntegerType);
 definition: {
     meta message cvariadicCoercionType -> _CompilerObjectType := {
         return: Int32
@@ -880,7 +905,7 @@ definition: {
 
 }.
 
-_LiteralFraction uses: (LiteralType, FractionalType);
+_LiteralFraction uses: (PrimitiveLiteralType, FractionalType);
 definition: {
     meta message cvariadicCoercionType -> _CompilerObjectType := {
         return: Float64
@@ -891,7 +916,7 @@ definition: {
     }.
 }.
 
-_LiteralFloat uses: (LiteralType, FloatingPointType);
+_LiteralFloat uses: (PrimitiveLiteralType, FloatingPointType);
 definition: {
     meta message cvariadicCoercionType -> _CompilerObjectType := {
         return: Float64

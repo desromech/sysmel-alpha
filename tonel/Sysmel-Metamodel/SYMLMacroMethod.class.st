@@ -28,7 +28,8 @@ SYMLMacroMethod >> createActivationEnvironmentForMessage: message inEnvironment:
 	activationScope function: self.
 
 	message receiver ifNotNil: [
-		self halt
+		self flag: 'Allow evaluation self'.
+		activationScope addSymbol: #self value: message receiver
 	].
 
 	activationArguments := message arguments.

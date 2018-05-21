@@ -49,6 +49,10 @@ SYMLNamedProgramEntity >> definitionPosition: anObject [
 	definitionPosition := anObject
 ]
 
+{ #category : #dummy }
+SYMLNamedProgramEntity >> ensureShaderInterfaceIsGenerated [
+]
+
 { #category : #accessing }
 SYMLNamedProgramEntity >> fullUnmangledName [
 	| parentName |

@@ -14,7 +14,7 @@ semanticAnalysis: $$Pharo {
         reference := node receiver semanticAnalysisInEnvironment: environment.
         value := node arguments first semanticAnalysisInEnvironment: environment.
 
-        referenceType  := reference evaluateTypeInEnvironment: environment.
+        referenceType := reference evaluateTypeInEnvironment: environment.
         valueType := value evaluateTypeInEnvironment: environment.
         self assert: referenceType isReferenceType.
 

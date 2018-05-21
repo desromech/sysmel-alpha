@@ -73,7 +73,6 @@ SYMLSendMessageMacro >> semanticAnalyzeMessage: message inEnvironment: environme
 		(argument evaluateTypeInEnvironment: environment)
 			node: analyzedMessage receiver coercedImplicitlyInto: (expectedArgumentTypes at: index) at: message.
 	]).
-	"message selector == #x:y:z: ifTrue: [ self halt ]."
 
 	^ analyzedMessage copy
 		metaMethod: self;
