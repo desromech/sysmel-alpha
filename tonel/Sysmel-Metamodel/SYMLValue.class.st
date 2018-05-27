@@ -58,7 +58,7 @@ SYMLValue >> asSysmelValueInEnvironment: anEnvironment [
 ]
 
 { #category : #'as yet unclassified' }
-SYMLValue >> coercedIntoType: targetType at: coercionPosition. [
+SYMLValue >> coercedIntoType: targetType at: coercionPosition [
 	^ type coerceValue: self into: targetType at: coercionPosition
 ]
 

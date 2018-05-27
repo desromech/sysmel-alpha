@@ -148,7 +148,7 @@ SYMLFieldVariable >> slotIndex: anObject [
 SYMLFieldVariable >> ssaReferenceForReceiverValue: receiverValue builder: builder [
 	receiverValue type isPointerType ifFalse: [
 		receiverValue type isVectorType ifTrue: [
-			^ builder extractVector: receiverValue element: slotIndex
+			^ builder extractVector: receiverValue element: (builder constInt: slotIndex)
 		].
 		^ builder extractValue: receiverValue indices: {slotIndex}
 	].

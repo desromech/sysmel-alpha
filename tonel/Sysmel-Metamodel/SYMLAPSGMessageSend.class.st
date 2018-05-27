@@ -184,10 +184,27 @@ SYMLAPSGMessageSend >> macroExpansionInEnvironment: anEnvironment [
 	selector == #macroExpand ifTrue: [ 
 		^ self macroExpansionEvaluateInEnvironment: anEnvironment
 	].
+	(selector beginsWith: #macroSend:) ifTrue: [
+		^ self macroSendExpansionEvaluateInEnvironment: anEnvironment
+	].
 	
 	^ self shallowCopy
 		receiver: (receiver ifNotNil: [receiver macroExpansionInEnvironment: anEnvironment]);
 		arguments: (arguments collect: [:arg | arg macroExpansionInEnvironment: anEnvironment]);
+		yourself
+]
+
+{ #category : #'meta evaluation' }
+SYMLAPSGMessageSend >> macroSendExpansionEvaluateInEnvironment: anEnvironment [
+	| messageSelector |
+	messageSelector := arguments first analyzeAndEvaluateInEnvironment: anEnvironment.
+	messageSelector type isLiteralSymbol ifFalse: [ 
+		self error: 'Macro send expansion selector does not evaluate into a selector.' at: self
+	].
+	^ self shallowCopy
+		selector: messageSelector value;
+		receiver: (receiver ifNotNil: [receiver macroExpansionInEnvironment: anEnvironment]);
+		arguments: (arguments allButFirst collect: [:arg | arg macroExpansionInEnvironment: anEnvironment]);
 		yourself
 ]
 

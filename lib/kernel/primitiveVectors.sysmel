@@ -146,6 +146,24 @@ definition: {
         }.
     }.
 
+    // Implicit conversion from scalar into vector.
+    ElementType conversionTo: SelfType doOn: {
+        evaluation: $$Pharo {
+            value: value targetType: targetType at: position
+                "Construct vector"
+                self halt
+        }.
+        codeGeneration: $$Pharo {
+            convertSSAValue: sourceValue to: targetType with: builder at: messageNode
+                "Construct vector"
+                | vectorElements |
+                vectorElements := targetType cachedNullary: #elements.
+                ^ builder
+                    makeVector: targetType ssaType
+                    arguments: ((1 to: vectorElements) collect: [:i | sourceValue])
+        }.
+    }.
+
     meta macro expansionRule x: x := {
         self macroExpand (x macroExpand)
     }.
@@ -156,6 +174,7 @@ definition: {
         public;
         createAccessors.
 
+    // Common methods for at least two elements.
     if: N >= 2 then: {
         (SelfType addIntrinsicField: #y slotIndex: 1)
             type: ElementType;
@@ -171,6 +190,7 @@ definition: {
         }.
     }.
 
+    // Common methods for at least three elements.
     if: N >= 3 then: {
         (SelfType addIntrinsicField: #z slotIndex: 2)
             type: ElementType;
@@ -187,6 +207,7 @@ definition: {
 
     }.
 
+    // Common methods for at least four elements.
     if: N >= 4 then: {
         (SelfType addIntrinsicField: #w slotIndex: 3)
             type: ElementType;
@@ -201,6 +222,64 @@ definition: {
         	self macroExpand (0.0, 0.0, 0.0, w macroExpand)
         }.
     }.
+
+    // Macros for implementing element - element operations.
+    if: N = 2 then: {
+        macro expansionRule _binaryOperation: (selector: _LiteralSymbol) with: other := {
+            SelfType (
+                self macroExpand x macroSend: selector with: other macroExpand x,
+                self macroExpand y macroSend: selector with: other macroExpand y
+            )
+        }.
+    }.
+
+    if: N = 3 then: {
+        macro expansionRule _binaryOperation: (selector: _LiteralSymbol) with: other := {
+            SelfType (
+                self macroExpand x macroSend: selector with: other macroExpand x,
+                self macroExpand y macroSend: selector with: other macroExpand y,
+                self macroExpand z macroSend: selector with: other macroExpand z
+            )
+        }.
+    }.
+
+    if: N = 4 then: {
+        macro expansionRule _binaryOperation: (selector: _LiteralSymbol) with: other := {
+            SelfType (
+                self macroExpand x macroSend: selector with: other macroExpand x,
+                self macroExpand y macroSend: selector with: other macroExpand y,
+                self macroExpand z macroSend: selector with: other macroExpand z,
+                self macroExpand w macroSend: selector with: other macroExpand w,
+            )
+        }.
+    }.
+
+    // Vector arithmetic
+    message + (other: SelfType) -> SelfType := {
+        [[intrinsic: #"vector.add"]]
+        return: (self _binaryOperation: #+ with: other)
+    }.
+
+    message - (other: SelfType) -> SelfType := {
+        [[intrinsic: #"vector.subtract"]]
+        return: (self _binaryOperation: #- with: other)
+    }.
+
+    message * (other: SelfType) -> SelfType := {
+        [[intrinsic: #"vector.multiply"]]
+        return: (self _binaryOperation: #* with: other)
+    }.
+
+    message / (other: SelfType) -> SelfType := {
+        [[intrinsic: #"vector.divide"]]
+        return: (self _binaryOperation: #/ with: other)
+    }.
+
+    message % (other: SelfType) -> SelfType := {
+        [[intrinsic: #"vector.remainder"]]
+        return: (self _binaryOperation: #% with: other)
+    }.
+
 }.
 
 PrimitiveType extend: {

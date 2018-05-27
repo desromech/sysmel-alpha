@@ -17,8 +17,12 @@ SYMLMacroMethod >> bodyEnvironment [
 
 { #category : #'macro methods' }
 SYMLMacroMethod >> convertMacroArgument: providedArgument into: expectedArgumentType in: environment [
+	| evaluatedArgument coercedArgument |
 	expectedArgumentType isAPSGNodeType ifTrue: [ ^ providedArgument ].
-	self halt
+	
+	evaluatedArgument := providedArgument analyzeAndEvaluateInEnvironment: environment.
+	coercedArgument := evaluatedArgument coercedIntoType: expectedArgumentType at: providedArgument position.
+	^ coercedArgument
 ]
 
 { #category : #'macro methods' }

@@ -480,6 +480,11 @@ SYMLAbstractType >> isIntegerType [
 ]
 
 { #category : #testing }
+SYMLAbstractType >> isLiteralSymbol [
+	^ self == self compilationTarget literalSymbolType
+]
+
+{ #category : #testing }
 SYMLAbstractType >> isLiteralType [
 	^ self cachedNullary: #isLiteralType
 ]
@@ -633,10 +638,12 @@ SYMLAbstractType >> node: node coercedImplicitlyInto: targetType visited: visite
 	implicitConversionRules do: [ :rule |
 		(rule canBeUsedToConvertNode: node from: self into: targetType) ifTrue: [ ^ rule ].
 		rule isTypeKindConversion ifTrue: [ 
-			(visitedSet includes: rule targetTypeKind) ifFalse: [ 
-				chainedRule := rule targetTypeKind node: node coercedImplicitlyInto: targetType visited: visitedSet.
-				chainedRule ifNotNil: [ 
-					^ rule intermediateConversion: rule targetTypeKind chainedWith: chainedRule
+			(visitedSet includes: rule targetTypeKind) ifFalse: [
+				rule targetTypeKind withAllTraitUsersDo: [ :intermediateType |
+					chainedRule := intermediateType node: node coercedImplicitlyInto: targetType visited: visitedSet.
+					chainedRule ifNotNil: [ 
+						^ rule intermediateConversion: intermediateType chainedWith: chainedRule
+					]
 				]
 			].
 		]
@@ -677,9 +684,11 @@ SYMLAbstractType >> node: node convertedExplicitlyInto: targetType visited: visi
 		(rule canBeUsedToConvertNode: node from: self into: targetType) ifTrue: [ ^ rule ].
 		rule isTypeKindConversion ifTrue: [ 
 			(visitedSet includes: rule targetTypeKind) ifFalse: [ 
-				chainedRule := rule targetTypeKind node: node convertedExplicitlyInto: targetType visited: visitedSet.
-				chainedRule ifNotNil: [ 
-					^ rule intermediateConversion: rule targetTypeKind chainedWith: chainedRule
+				rule targetTypeKind withAllTraitUsersDo: [ :intermediateType |
+					chainedRule := intermediateType node: node coercedImplicitlyInto: targetType visited: visitedSet.
+					chainedRule ifNotNil: [ 
+						^ rule intermediateConversion: intermediateType chainedWith: chainedRule
+					]
 				]
 			].
 		]
@@ -856,4 +865,10 @@ SYMLAbstractType >> uses: usedTraitOrTraits [
 { #category : #'type composition' }
 SYMLAbstractType >> valueType [
 	^ self cachedNullary: #valueType
+]
+
+{ #category : #enumerating }
+SYMLAbstractType >> withAllTraitUsersDo: aBlock [
+	aBlock value: self.
+	traitUsers do: aBlock
 ]
