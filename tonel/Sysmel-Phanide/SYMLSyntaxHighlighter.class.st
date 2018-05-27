@@ -19,11 +19,14 @@ SYMLSyntaxHighlighter class >> ignoredNames [
 SYMLSyntaxHighlighter class >> initialize [
 	super initialize.
 	
+	"In Sysmel we do not have keywords. We fake them here."
 	Keywords := Set newFrom: #(
 		#true #false #nil
 		thisContext self super
 		
-		let namespace struct function template macro message method field 
+		let namespace struct union function template macro message method field
+		type trait
+		shader descriptorSet stageio vertex fragment compute geometry tesseval tesscontrol
 	).
 ]
 
