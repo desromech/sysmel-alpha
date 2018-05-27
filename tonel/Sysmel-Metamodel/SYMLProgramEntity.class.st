@@ -15,6 +15,34 @@ SYMLProgramEntity >> addFlag: aFlag [
 	flags := (flags copyWithout: aFlag) copyWith: aFlag
 ]
 
+{ #category : #methods }
+SYMLProgramEntity >> addMacroMethodPattern: macroMethodPattern withSelector: selector [
+	| group |
+	^ self methodWithSelector: selector ifPresent: [ :existentGroup |
+		existentGroup isMacroPatternGroup ifFalse: [ 
+			self error: 'Cannot add macro pattern into non-macro group {1}.' format: { selector printString } at: macroMethodPattern definitionPosition.
+		].
+	
+		macroMethodPattern addToPatternGroup: existentGroup
+	] ifAbsentPut: [
+		group := SYMLMacroMethodPatternGroup new
+			parent: parent;
+			module: self module;
+			definitionNode: macroMethodPattern definitionNode;
+			definitionEnvironment: macroMethodPattern definitionEnvironment;
+			yourself.
+		macroMethodPattern addToPatternGroup: group.
+		group
+	]
+]
+
+{ #category : #methods }
+SYMLProgramEntity >> addMethod: value withSelector: selector [
+	self methodWithSelector: selector ifPresent: [ :existent |
+		self error: 'Trying to override method {1} with value {2}.' format: { selector printString . value }
+	] ifAbsentPut: [ value ]
+]
+
 { #category : #accessing }
 SYMLProgramEntity >> addedChild: aChild [
 ]
@@ -85,6 +113,11 @@ SYMLProgramEntity >> lookupSelector: selector [
 SYMLProgramEntity >> mangledName [
 	self subclassResponsibility
 
+]
+
+{ #category : #methods }
+SYMLProgramEntity >> methodWithSelector: selector ifPresent: presentBlock ifAbsentPut: absentBlock [
+	self subclassResponsibility
 ]
 
 { #category : #accessing }

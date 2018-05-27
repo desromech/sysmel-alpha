@@ -8,11 +8,6 @@ Class {
 }
 
 { #category : #accessing }
-SYMLTopLevelScope >> addMethod: method withSelector: selector [
-	metaMethodDictionary at: selector put: method
-]
-
-{ #category : #accessing }
 SYMLTopLevelScope >> compilationTarget [
 	^ module compilationTarget
 ]
@@ -48,6 +43,11 @@ SYMLTopLevelScope >> fillSymbols [
 
 		yourself.
 	
+]
+
+{ #category : #accessing }
+SYMLTopLevelScope >> methodWithSelector: selector ifPresent: presentBlock ifAbsentPut: absentBlock [
+	^ metaMethodDictionary at: selector ifPresent: presentBlock ifAbsentPut: absentBlock
 ]
 
 { #category : #accessing }

@@ -13,3 +13,8 @@ SYMLShaderStageInputVariable >> getSpirVShaderInterfaceBlock [
 SYMLShaderStageInputVariable >> isInput [
 	^ true
 ]
+
+{ #category : #'as yet unclassified' }
+SYMLShaderStageInputVariable >> spirvStorage [
+	^ SLVMType inputStorage
+]

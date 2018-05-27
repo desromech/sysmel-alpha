@@ -56,12 +56,6 @@ SYMLShaderStageIO >> createInterfaceSSAVariableSuffix: suffix type: interfaceTyp
 	^ result
 ]
 
-{ #category : #'shader interface' }
-SYMLShaderStageIO >> createSpirVInterfaceVariables [
-	spvInputVariable := self createInterfaceSSAVariableSuffix: #_input type: inputInterfaceType storage: SLVMType inputStorage.
-	spvOutputVariable := self createInterfaceSSAVariableSuffix: #_output type: outputInterfaceType storage: SLVMType outputStorage.
-]
-
 { #category : #definition }
 SYMLShaderStageIO >> definitionScopeClass [
 	^ SYMLShaderStageIOScope
@@ -69,17 +63,9 @@ SYMLShaderStageIO >> definitionScopeClass [
 
 { #category : #'shader interface' }
 SYMLShaderStageIO >> ensureShaderInterfaceIsGenerated [
-	shaderInterfaceGenerated ifTrue: [ ^ self ].
-	shaderInterfaceGenerated := true.
-	
-	inputInterfaceType := self generateInterfaceSSAType: inputStageVariables suffix: #_input kind: SLVMStructureType builtInBlockKind.
-	outputInterfaceType := self generateInterfaceSSAType: outputStageVariables suffix: #_output kind: SLVMStructureType builtInBlockKind.
-	
-	self compilationTarget isSpirV ifTrue: [
-		self createSpirVInterfaceVariables.
-	] ifFalse: [
-		self flag: 'TODO: Support the case without SpirV'.
-	]
+	self compilationTarget isSpirV ifFalse: [ self error: 'Shader stage variable access is not yet implemented here.' ].
+	inputStageVariables do: #generateSpirVVariable.
+	outputStageVariables do: #generateSpirVVariable.
 	
 	
 ]

@@ -29,6 +29,11 @@ SYMLAbstractFunction >> addLocal: aLocalVariable [
 	locals add: aLocalVariable
 ]
 
+{ #category : #adding }
+SYMLAbstractFunction >> addToPatternGroup: patternGroup [
+	patternGroup addPatternAlternative: self
+]
+
 { #category : #'as yet unclassified' }
 SYMLAbstractFunction >> addedToAbstractType: anAbstractType [
 	receiverType := anAbstractType asReceiverType.

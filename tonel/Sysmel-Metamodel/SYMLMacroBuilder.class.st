@@ -26,7 +26,7 @@ SYMLMacroBuilder >> selector: selectorLazyValue doOn: actionRules [
 			parse: actionRules;
 			yourself.
 
-	parent addMethod: macro withSelector: selector
+	parent addMacroMethodPattern: macro withSelector: selector
 ]
 
 { #category : #'as yet unclassified' }
@@ -39,8 +39,8 @@ SYMLMacroBuilder >> selectors: selectorsLazyValue doOn: actionRules [
 			module: module;
 			parse: actionRules;
 			yourself.
-			
+
 	selectors do: [ :selector |
-		parent addMethod: macro withSelector: selector
+		parent addMacroMethodPattern: macro withSelector: selector
 	]
 ]

@@ -9,6 +9,15 @@ SYMLMacro class >> module: aModule [
 	^ self new module: aModule
 ]
 
+{ #category : #adding }
+SYMLMacro >> addToPatternGroup: patternGroup [
+	patternGroup fallbackPattern ifNotNil: [ 
+		self error: 'Cannot add conflicting macro {1}.' format: { self name printString } at: self definitionPosition
+	].
+
+	patternGroup fallbackPattern: self
+]
+
 { #category : #'macro compilation' }
 SYMLMacro >> analyzeMetaMessage: message toReceiver: receiverValue inEnvironment: environment at: aPosition [
 	self subclassResponsibility
@@ -36,5 +45,5 @@ SYMLMacro >> semanticAnalyzeMessage: message inEnvironment: environment at: aPos
 
 { #category : #accessing }
 SYMLMacro >> tryToAddToParentWithName: aNewName [
-	parent addMethod: self withSelector: aNewName
+	parent addMacroMethodPattern: self withSelector: aNewName
 ]

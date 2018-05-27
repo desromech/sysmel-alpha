@@ -28,6 +28,7 @@ SYMLFieldVariable >> convertNodeForSequenceElement: aNode inEnvironment: anEnvir
 
 { #category : #transforming }
 SYMLFieldVariable >> createAccessors [
+	<compileTime>
 	name ifNil: [ ^ self ].
 	
 	self isPublic ifTrue: [
@@ -146,6 +147,9 @@ SYMLFieldVariable >> slotIndex: anObject [
 { #category : #initialization }
 SYMLFieldVariable >> ssaReferenceForReceiverValue: receiverValue builder: builder [
 	receiverValue type isPointerType ifFalse: [
+		receiverValue type isVectorType ifTrue: [
+			^ builder extractVector: receiverValue element: slotIndex
+		].
 		^ builder extractValue: receiverValue indices: {slotIndex}
 	].
 	^ builder getReference: receiverValue element: (builder constInt: slotIndex)

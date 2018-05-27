@@ -67,11 +67,6 @@ SYMLModule class >> x86_64 [
 	^ self for: SYMLCompilationTarget x86_64 pic
 ]
 
-{ #category : #adding }
-SYMLModule >> addMethod: method withSelector: selector [
-	topLevelScope addMethod: method withSelector: selector
-]
-
 { #category : #'semantic analysis' }
 SYMLModule >> addPendingSSACodeGeneration: aNode [
 	pendingSSACodeGeneration add: aNode.
@@ -258,6 +253,11 @@ SYMLModule >> isEmittingDebugInformation [
 SYMLModule >> mangledName [
 	^ self parentMangledName 
 
+]
+
+{ #category : #adding }
+SYMLModule >> methodWithSelector: selector ifPresent: presentBlock ifAbsentPut: absentBlock [
+	^ topLevelScope methodWithSelector: selector ifPresent: presentBlock ifAbsentPut: absentBlock
 ]
 
 { #category : #evaluating }

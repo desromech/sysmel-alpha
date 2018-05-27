@@ -45,23 +45,36 @@ SYMLAbstractType >> addArithmeticCoercionRule: aRule [
 	arithmeticCoercionRules add: aRule
 ]
 
+{ #category : #intrinsics }
+SYMLAbstractType >> addIntrinsicField: fieldName slotIndex: slotIndex [
+	<compileTime>
+	| field |
+	field := SYMLFieldVariable new
+		module: self module;
+		definitionEnvironment: definitionEnvironment;
+		definitionNode: self definitionNode;
+		parent: self;
+		slotIndex: slotIndex;
+		yourself.
+	field name: fieldName.
+	^ field
+]
+
 { #category : #adding }
-SYMLAbstractType >> addMethod: method withSelector: selector [
-	methodDictionary at: selector put: method
+SYMLAbstractType >> addMacroMethodPattern: macroMethodPattern withSelector: selector [
+	| group |
+	group := super addMacroMethodPattern: macroMethodPattern withSelector: selector.
+	
+	macroMethodPattern addedToAbstractType: self.
+	children add: macroMethodPattern.
+	^ group
 ]
 
 { #category : #adding }
 SYMLAbstractType >> addSymbol: aSymbol value: newValue [
-	(newValue isAbstractFunction and: [ newValue isMessageMethod ]) ifTrue: [
-		
-		methodDictionary at: aSymbol ifPresent: [ :existent |
-			self error: 'Trying to override selector {1} with {2}.' format: { aSymbol printString . newValue printString }
-		] ifAbsentPut: [ newValue ].
-	] ifFalse: [ 
-		symbols at: aSymbol ifPresent: [ :existent |
-			self error: 'Trying to override symbol {1} with {2}.' format: { aSymbol printString . newValue printString }
-		] ifAbsentPut: [ newValue ].
-	].
+	symbols at: aSymbol ifPresent: [ :existent |
+		self error: 'Trying to override symbol {1} with {2}.' format: { aSymbol printString . newValue printString }
+	] ifAbsentPut: [ newValue ].
 
 	newValue addedToAbstractType: self.
 	children add: newValue.
@@ -583,6 +596,11 @@ SYMLAbstractType >> mangledName [
 { #category : #accessing }
 SYMLAbstractType >> methodDictionary [
 	^ methodDictionary
+]
+
+{ #category : #adding }
+SYMLAbstractType >> methodWithSelector: selector ifPresent: presentBlock ifAbsentPut: absentBlock [
+	^ methodDictionary at: selector ifPresent: presentBlock ifAbsentPut: absentBlock
 ]
 
 { #category : #conversions }

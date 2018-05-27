@@ -3,7 +3,8 @@ Class {
 	#superclass : #SYMLAbstractVariable,
 	#instVars : [
 		'location',
-		'slotIndex'
+		'slotIndex',
+		'spirVVariable'
 	],
 	#category : #'Sysmel-Metamodel-Shader'
 }
@@ -16,7 +17,22 @@ SYMLAbstractShaderStageVariable >> generateSSAReferenceWith: builder [
 
 { #category : #'code generation' }
 SYMLAbstractShaderStageVariable >> generateSpirVSSAReferenceWith: builder [
-	^ builder getReference: self getSpirVShaderInterfaceBlock element: (builder constUInt: slotIndex)
+	^ spirVVariable
+]
+
+{ #category : #'as yet unclassified' }
+SYMLAbstractShaderStageVariable >> generateSpirVVariable [
+	| variable |
+	spirVVariable ifNotNil: [ ^ self ].
+	variable := SLVMGlobalVariable module: self module ssaModule
+		name: self mangledName
+		valueType: self type ssaType
+		storage: self spirvStorage.
+	location ifNotNil: [ 
+		variable propertyAt: #location put: location.
+	].
+	
+	spirVVariable := variable
 ]
 
 { #category : #'code generation' }
@@ -77,4 +93,9 @@ SYMLAbstractShaderStageVariable >> slotIndex [
 { #category : #accessing }
 SYMLAbstractShaderStageVariable >> slotIndex: anObject [
 	slotIndex := anObject
+]
+
+{ #category : #'as yet unclassified' }
+SYMLAbstractShaderStageVariable >> spirvStorage [
+	self subclassResponsibility
 ]

@@ -3,7 +3,8 @@ Class {
 	#superclass : #SYMLNamedProgramEntity,
 	#instVars : [
 		'type',
-		'ssaDebugInformation'
+		'ssaDebugInformation',
+		'mangledName'
 	],
 	#category : #'Sysmel-Metamodel-Variable'
 }
@@ -55,6 +56,20 @@ SYMLAbstractVariable >> doCreateSSADebugInformation [
 { #category : #testing }
 SYMLAbstractVariable >> isReadOnly [
 	^ self hasFlag: #readOnly
+]
+
+{ #category : #accessing }
+SYMLAbstractVariable >> mangledName [
+	| escapedName |
+	^ mangledName ifNil: [mangledName := ByteString streamContents: [ :out |
+			escapedName := self validName sysmelEscapeForMangling.
+			out
+				nextPutAll: self parentMangledName;
+				nextPut: $v;
+				print: escapedName size;
+				nextPutAll: escapedName.
+		]
+	]
 ]
 
 { #category : #accessing }

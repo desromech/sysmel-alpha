@@ -117,8 +117,13 @@ SYMLMessageMethod >> semanticAnalyzeMessageToYou: message inEnvironment: environ
 
 { #category : #initialization }
 SYMLMessageMethod >> setSelectorWithTemplate: message inEnvironment: environment at: aPosition [
+	arguments := message arguments collect: [ :arg | self createArgumentFromTemplate: arg inEnvironment: environment ].
 	self name: message selector.
 	hasSelector := true.
-	arguments := message arguments collect: [ :arg | self createArgumentFromTemplate: arg inEnvironment: environment ].
 	
+]
+
+{ #category : #accessing }
+SYMLMessageMethod >> tryToAddToParentWithName: aNewName [
+	parent addMacroMethodPattern: self withSelector: aNewName
 ]

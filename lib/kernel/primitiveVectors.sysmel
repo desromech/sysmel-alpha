@@ -150,7 +150,18 @@ definition: {
         self macroExpand (x macroExpand)
     }.
 
+    // Accessors
+    (SelfType addIntrinsicField: #x slotIndex: 0)
+        type: ElementType;
+        public;
+        createAccessors.
+
     if: N >= 2 then: {
+        (SelfType addIntrinsicField: #y slotIndex: 1)
+            type: ElementType;
+            public;
+            createAccessors.
+
         meta macro expansionRule x: x y: y := {
             self macroExpand (x macroExpand, y macroExpand)
         }.
@@ -161,6 +172,11 @@ definition: {
     }.
 
     if: N >= 3 then: {
+        (SelfType addIntrinsicField: #z slotIndex: 2)
+            type: ElementType;
+            public;
+            createAccessors.
+
         meta macro expansionRule x: x y: y z: z := {
             self macroExpand (x macroExpand, y macroExpand, z macroExpand)
         }.
@@ -172,6 +188,11 @@ definition: {
     }.
 
     if: N >= 4 then: {
+        (SelfType addIntrinsicField: #w slotIndex: 3)
+            type: ElementType;
+            public;
+            createAccessors.
+
         meta macro expansionRule x: x y: y z: z w: w := {
             self macroExpand (x macroExpand, y macroExpand, z macroExpand, w macroExpand)
         }.

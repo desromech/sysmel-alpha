@@ -1,5 +1,6 @@
 // Screen rendering shader interface.
-shader ScreenRendering interface uses: GPU GraphicsPipeline; definition: {
+shader ScreenRendering interface uses: GPU GraphicsPipeline;
+definition: {
     descriptorSet Parameters maxBindings: 1000 := {
     }.
 

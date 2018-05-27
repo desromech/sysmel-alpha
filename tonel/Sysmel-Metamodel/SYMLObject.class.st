@@ -88,6 +88,11 @@ SYMLObject >> isIncompleteValue [
 ]
 
 { #category : #testing }
+SYMLObject >> isMacroPatternGroup [
+	^ false
+]
+
+{ #category : #testing }
 SYMLObject >> isMetaBuilder [
 	^ false
 ]

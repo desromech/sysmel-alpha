@@ -1,4 +1,4 @@
-Compiler evaluateFileNamed: "screen.sysmel".
+Compiler evaluateFileNamedOnce: "screen.sysmel".
 
 shader SolidColor uses: ScreenRendering;
 definition: {

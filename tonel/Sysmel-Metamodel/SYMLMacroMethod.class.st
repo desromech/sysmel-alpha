@@ -87,8 +87,9 @@ SYMLMacroMethod >> semanticAnalyzeMessageToYou: message inEnvironment: environme
 
 { #category : #initialization }
 SYMLMacroMethod >> setSelectorWithTemplate: message inEnvironment: environment at: aPosition [
+	arguments := message arguments collect: [ :arg | self createArgumentFromTemplate: arg inEnvironment: environment ].
+
 	self name: message selector.
 	hasSelector := true.
-	arguments := message arguments collect: [ :arg | self createArgumentFromTemplate: arg inEnvironment: environment ].
 	
 ]

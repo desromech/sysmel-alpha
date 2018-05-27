@@ -10,13 +10,6 @@ Class {
 }
 
 { #category : #adding }
-SYMLNamespace >> addMethod: value withSelector: selector [
-	metaMethodDictionary at: selector ifPresent: [ :existent |
-		self error: 'Trying to override meta method {1} with value {2}.' format: { selector printString . value }
-	] ifAbsentPut: [ value ]
-]
-
-{ #category : #adding }
 SYMLNamespace >> addSymbol: aSymbol value: newValue [
 	symbols at: aSymbol ifPresent: [ :existent |
 		self error: 'Trying to override symbol {1} with {2}.' format: { aSymbol printString . newValue printString }
@@ -86,6 +79,11 @@ SYMLNamespace >> mangledName [
 { #category : #accessing }
 SYMLNamespace >> metaMethodDictionary [
 	^ metaMethodDictionary
+]
+
+{ #category : #adding }
+SYMLNamespace >> methodWithSelector: selector ifPresent: presentBlock ifAbsentPut: absentBlock [
+	metaMethodDictionary at: selector ifPresent: presentBlock ifAbsentPut: absentBlock
 ]
 
 { #category : #'as yet unclassified' }
