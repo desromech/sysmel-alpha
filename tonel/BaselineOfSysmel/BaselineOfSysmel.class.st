@@ -16,13 +16,19 @@ BaselineOfSysmel >> baseline: spec [
 					loads: #('Core' );
 					repository: 'http://smalltalkhub.com/mc/Moose/PetitParser/main/'
 		].
+		spec project: 'Slovim' with: [
+				spec
+					className: #ConfigurationOfSlovim;
+					versionString: #'bleedingEdge';
+					repository: 'http://smalltalkhub.com/mc/ronsaldo/Slovim/main/' ].
+
 		spec
 			package: 'Sysmel-Parser' with: [
-				spec requires: #('PetitParser')
+				spec requires: #('PetitParser' 'Sysmel-Metamodel')
 			].
 		spec
 			package: 'Sysmel-Metamodel' with: [
-				spec requires: #('Sysmel-Parser')
+				spec requires: #('Slovim')
 			].
 	].
 ]

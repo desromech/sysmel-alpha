@@ -7,6 +7,14 @@ Class {
 	#category : #'Sysmel-Metamodel-APSG'
 }
 
+{ #category : #'meta evaluation' }
+SYMLAPSGSequence >> analyzeAndEvaluateInEnvironment: anEnvironment [
+	| result |
+	result := nil.
+	elements do: [ :el | result := el analyzeAndEvaluateInEnvironment: anEnvironment ].
+	^ result
+]
+
 { #category : #accessing }
 SYMLAPSGSequence >> children [
 	^ elements

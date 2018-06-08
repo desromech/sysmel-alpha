@@ -13,6 +13,11 @@ SYMLTopLevelScope >> compilationTarget [
 ]
 
 { #category : #'as yet unclassified' }
+SYMLTopLevelScope >> currentSourceCodeParser [
+	^ module defaultSourceCodeParser
+]
+
+{ #category : #'as yet unclassified' }
 SYMLTopLevelScope >> definitionProgramEntity [
 	^ module
 ]

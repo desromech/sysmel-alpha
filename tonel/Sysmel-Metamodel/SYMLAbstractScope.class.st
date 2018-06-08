@@ -42,6 +42,11 @@ SYMLAbstractScope >> compilationTarget [
 ]
 
 { #category : #'as yet unclassified' }
+SYMLAbstractScope >> currentSourceCodeParser [
+	^ parent currentSourceCodeParser
+]
+
+{ #category : #'as yet unclassified' }
 SYMLAbstractScope >> definitionProgramEntity [
 	^ parent definitionProgramEntity
 ]

@@ -1,0 +1,20 @@
+"GPU"
+module := SYMLModule spirv "withDebugInformation".
+ssaModule := module
+	evaluateFileNamedOnce: 'lib/gpu.sysmel';
+	evaluateFileNamedOnce: 'samples/gpu/screen/solidColor.sysmel';
+	semanticAnalysis;
+	buildSSAModule.
+ssaModule asLowLevelModule saveTo: 'screen.spv'
+
+"CPU"
+module := SYMLModule llvm_x86_64 withDebugInformation.
+ssaModule := module
+	evaluateFileNamedOnce: 'lib/kernel/kernel.sysmel';
+	evaluateFileNamedOnce: 'lib/stdlib/stdlib.sysmel';
+	evaluateFileNamedOnce: 'samples/cpu/hello.sysmel';
+	semanticAnalysis;
+	buildSSAModule.
+ssaModule asLowLevelModule writeTextToFileNamed: 'test.ll'; asString
+"ssaModule asLowLevelModule asOptimizedBinaryObject writeObjectToFileNamed: 'test.o'"
+

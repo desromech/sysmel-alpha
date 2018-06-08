@@ -47,6 +47,21 @@ SYMLModule class >> new [
 	^ self compilationTarget: SYMLCompilationTarget default.
 ]
 
+{ #category : #'multiple parsers' }
+SYMLModule class >> parserRegistry [
+	^ GlobalParserRegistry ifNil: [ GlobalParserRegistry := Dictionary new ]
+]
+
+{ #category : #'as yet unclassified' }
+SYMLModule class >> registerParser: aParser forExtension: anExtension [
+	^ self registerParser: aParser forExtensions: { anExtension }
+]
+
+{ #category : #'multiple parsers' }
+SYMLModule class >> registerParser: aParser forExtensions: aCollectionOfExtensions [
+	aCollectionOfExtensions do: [ :extension | self parserRegistry at: extension put: aParser]
+]
+
 { #category : #'instance creation' }
 SYMLModule class >> spirv [
 	^ self spirv_logical64
@@ -149,6 +164,16 @@ SYMLModule >> debugSourceFileDictionary [
 	^ debugSourceFileDictionary ifNil: [debugSourceFileDictionary := Dictionary new]
 ]
 
+{ #category : #'multiple parsers' }
+SYMLModule >> defaultSourceCodeParser [
+	^ defaultSourceCodeParser ifNil: [ defaultSourceCodeParser := self parserForSourceExtension: 'sysmel' ]
+]
+
+{ #category : #'multiple parsers' }
+SYMLModule >> defaultSourceCodeParser: aParser [
+	defaultSourceCodeParser := aParser
+]
+
 { #category : #evaluating }
 SYMLModule >> evaluateFileNamed: aFileName [
 	<compileTime>
@@ -210,7 +235,7 @@ SYMLModule >> evaluateSource: aSourceString name: aSourceName inContext: context
 	contents := aSourceString asSysmelCollectionWithContext.
 	contents name: aSourceName.
 
-	ast := SYMLParser parse: contents.
+	ast := (self parserForSourceNamed: aSourceName inContext: context) parse: contents.
 	self convertParseFailure: ast collection: contents.
 	apsg := ast buildAPSG: (SYMLAPSGBuilder new environment: context).
 	[
@@ -292,6 +317,25 @@ SYMLModule >> optimizationLevel [
 { #category : #accessing }
 SYMLModule >> optimizationLevel: anObject [
 	optimizationLevel := anObject
+]
+
+{ #category : #'multiple parsers' }
+SYMLModule >> parserForSourceExtension: extension [
+	| lowerExtension |
+	lowerExtension := extension asLowercase.
+	self class parserRegistry at: lowerExtension ifPresent: [ :found | ^ found ].
+	^ nil
+]
+
+{ #category : #'multiple parsers' }
+SYMLModule >> parserForSourceNamed: sourceName inContext: aContext [
+	| extension |
+	extension := sourceName asFileReference extension.
+	(extension isNotNil and: [ extension isNotEmpty ]) ifTrue: [
+		(self parserForSourceExtension: extension) ifNotNil: [ :parser | ^ parser ]
+	].
+
+	^ aContext currentSourceCodeParser
 ]
 
 { #category : #'semantic analysis' }

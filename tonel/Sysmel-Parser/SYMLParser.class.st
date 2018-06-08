@@ -22,6 +22,8 @@ SYMLParser class >> initialize [
 		$\ . $\.
 	}.
 	
+	SYMLModule registerParser: self forExtension: 'sysmel'.
+	
 ]
 
 { #category : #accessing }
