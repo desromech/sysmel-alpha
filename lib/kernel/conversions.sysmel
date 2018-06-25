@@ -95,6 +95,18 @@ _LiteralString conversionTo: Char const pointer doOn: {
     }.
 }.
 
+// Widening casts
+Int16 conversionTo: Int32 doOn: {
+    evaluation: $$Pharo {
+        value: value targetType: targetType at: position
+            ^ value sameValueButWithType: targetType
+    }.
+    codeGeneration: $$Pharo {
+        convertSSAValue: sourceValue to: targetType with: builder at: messageNode
+            ^ builder intCast: sourceValue target: targetType ssaType
+    }.
+}.
+
 // Floating point conversions
 Float32 conversionTo: Float64 doOn: {
     evaluation: $$Pharo {

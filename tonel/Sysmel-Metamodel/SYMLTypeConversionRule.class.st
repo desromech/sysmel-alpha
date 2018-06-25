@@ -15,6 +15,11 @@ SYMLTypeConversionRule >> canBeUsedToConvertNode: node from: sourceType into: ta
 ]
 
 { #category : #'as yet unclassified' }
+SYMLTypeConversionRule >> coercionCost [
+	^ self subclassResponsibility
+]
+
+{ #category : #'as yet unclassified' }
 SYMLTypeConversionRule >> convertSSAValue: rawValue to: targetType with: builder at: messageNode [
 	self subclassResponsibility
 ]

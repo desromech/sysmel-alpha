@@ -21,6 +21,11 @@ SYMLDeferredTypeConversionRule >> codeGeneration: anObject [
 ]
 
 { #category : #'as yet unclassified' }
+SYMLDeferredTypeConversionRule >> coercionCost [
+	^ 1
+]
+
+{ #category : #'as yet unclassified' }
 SYMLDeferredTypeConversionRule >> convertSSAValue: rawValue to: targetType with: builder at: messageNode [
 	^ codeGeneration cull: rawValue cull: targetType cull: builder cull: messageNode
 ]

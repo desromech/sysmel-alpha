@@ -108,6 +108,11 @@ SYMLObject >> isMetaObject [
 ]
 
 { #category : #testing }
+SYMLObject >> isNamespace [
+	^ false
+]
+
+{ #category : #testing }
 SYMLObject >> isRecursiveValue [
 	^ false
 ]

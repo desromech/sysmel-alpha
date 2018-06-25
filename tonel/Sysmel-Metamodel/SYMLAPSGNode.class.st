@@ -39,6 +39,11 @@ SYMLAPSGNode >> asSysmelValueInEnvironment: anEnvironment [
 ]
 
 { #category : #'as yet unclassified' }
+SYMLAPSGNode >> bindIntoOverloadedAlternative: anAlternative inEnvironment: environment [
+	self error: 'Cannot bind node of type {1} into overloaded alternative.' format: {self class name} at: position
+]
+
+{ #category : #'as yet unclassified' }
 SYMLAPSGNode >> buildLiteralWithValue: aValue [
 	^ SYMLAPSGLiteral new position: position; value: aValue; yourself
 ]

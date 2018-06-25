@@ -24,6 +24,11 @@ SYMLAbstractFunction >> CVariadic [
 	self addFlag: #cvariadic
 ]
 
+{ #category : #'as yet unclassified' }
+SYMLAbstractFunction >> abstractFunctionKind [
+	self subclassResponsibility
+]
+
 { #category : #adding }
 SYMLAbstractFunction >> addLocal: aLocalVariable [
 	locals add: aLocalVariable
@@ -31,7 +36,7 @@ SYMLAbstractFunction >> addLocal: aLocalVariable [
 
 { #category : #adding }
 SYMLAbstractFunction >> addToPatternGroup: patternGroup [
-	patternGroup addPatternAlternative: self
+	patternGroup addPatternAlternative: self withFunctionType: self functionType
 ]
 
 { #category : #'as yet unclassified' }
@@ -94,6 +99,19 @@ SYMLAbstractFunction >> createAnalysisScope [
 	].
 
 	^ analysisScope
+]
+
+{ #category : #'as yet unclassified' }
+SYMLAbstractFunction >> createReceiverTypeForParent [
+	parent isType ifFalse: [ ^ self ].
+	receiverType := parent asReceiverType.
+	receiver := SYMLFunctionReceiver new 
+		name: #self;
+		parent: self;
+		module: module;
+		type: receiverType;
+		definitionPosition: definitionPosition;
+		yourself.
 ]
 
 { #category : #'code generation' }

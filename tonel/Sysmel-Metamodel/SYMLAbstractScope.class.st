@@ -30,6 +30,13 @@ SYMLAbstractScope >> addShaderVariable: variable at: aPosition [
 	self error: 'Cannot add shader variable {1} at this scope.' format: { variable name } at: aPosition
 ]
 
+{ #category : #adding }
+SYMLAbstractScope >> addSymbol: aSymbolName value: aValue [
+	^ self symbol: aSymbolName ifPresent: [ :existent |
+		self error: 'Trying to override symbol {1} with {2}.' format: { aSymbolName printString . aValue printString }
+	] ifAbsentPut: [ aValue ]
+]
+
 { #category : #'as yet unclassified' }
 SYMLAbstractScope >> apsgBuilder [
 	^ SYMLAPSGBuilder new environment: self

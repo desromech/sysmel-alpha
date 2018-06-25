@@ -5,6 +5,11 @@ Class {
 }
 
 { #category : #'as yet unclassified' }
+SYMLIdentityTypeConversionRule >> coercionCost [
+	^ 0
+]
+
+{ #category : #'as yet unclassified' }
 SYMLIdentityTypeConversionRule >> convertSSAValue: sourceValue to: targetType with: builder at: aPosition [
 	^ sourceValue
 ]

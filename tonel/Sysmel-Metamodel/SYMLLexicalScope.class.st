@@ -23,13 +23,6 @@ SYMLLexicalScope >> addMetaMethod: selector value: value [
 	] ifAbsentPut: [ value ]
 ]
 
-{ #category : #adding }
-SYMLLexicalScope >> addSymbol: symbol value: value [
-	symbols at: symbol ifPresent: [ :existent |
-		self error: 'Trying to override top-level symbol {1} with value {2}.' format: { symbol printString . value }
-	] ifAbsentPut: [ value ]
-]
-
 { #category : #initialization }
 SYMLLexicalScope >> initialize [
 	super initialize.
@@ -55,6 +48,12 @@ SYMLLexicalScope >> lookSymbol: symbol ifPresent: ifPresentBlock [
 { #category : #initialization }
 SYMLLexicalScope >> setSymbol: symbol value: value [
 	symbols at: symbol put: value
+]
+
+{ #category : #adding }
+SYMLLexicalScope >> symbol: aSymbol ifPresent: ifPresentBlock ifAbsentPut: ifAbsentBlock [
+	^ symbols at: aSymbol ifPresent: ifPresentBlock ifAbsentPut: ifAbsentBlock
+
 ]
 
 { #category : #'as yet unclassified' }

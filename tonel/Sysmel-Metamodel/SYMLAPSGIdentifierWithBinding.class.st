@@ -21,10 +21,7 @@ SYMLAPSGIdentifierWithBinding >> binding: anObject [
 { #category : #'meta evaluation' }
 SYMLAPSGIdentifierWithBinding >> evaluateInEnvironment: anEnvironment [
 	| evaluatedBinding |
-	evaluatedBinding := anEnvironment lookSymbolRecursively: value ifAbsent: [
-		self error: 'Failed to find identifier {1}.' format: { value } at: position
-	].
-
+	evaluatedBinding := binding evaluateBoundIdentifierToMe: self inEnvironment: anEnvironment.
 	evaluatedBinding isSysmelValue ifFalse: [ ^ evaluatedBinding asIncompleteValue ].
 	^ evaluatedBinding
 ]

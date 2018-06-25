@@ -4,10 +4,16 @@ Class {
 	#instVars : [
 		'intermediateType',
 		'intermediateRule',
-		'nextRule'
+		'nextRule',
+		'coercionCost'
 	],
 	#category : #'Sysmel-Metamodel-Type'
 }
+
+{ #category : #accessing }
+SYMLChainedTypeConversionRule >> coercionCost [
+	^ coercionCost ifNil: [ coercionCost := intermediateRule coercionCost + nextRule coercionCost ]
+]
 
 { #category : #'as yet unclassified' }
 SYMLChainedTypeConversionRule >> convertSSAValue: sourceValue to: targetType with: builder at: messageNode [

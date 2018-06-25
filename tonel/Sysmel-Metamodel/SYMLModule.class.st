@@ -94,11 +94,6 @@ SYMLModule >> addPendingSemanticAnalysis: aNode [
 
 ]
 
-{ #category : #adding }
-SYMLModule >> addSymbol: symbol value: value [
-	^ topLevelScope addSymbol: symbol value: value
-]
-
 { #category : #'code generation' }
 SYMLModule >> buildSSAModule [
 	| extraToGenerate |
@@ -359,6 +354,11 @@ SYMLModule >> ssaModule [
 		ssaModule := SLVMModule new compilationTarget: compilationTarget target
 	].
 	^ ssaModule
+]
+
+{ #category : #adding }
+SYMLModule >> symbol: aSymbol ifPresent: ifPresentBlock ifAbsent: ifAbsentBlock [
+	^ topLevelScope symbol: aSymbol ifPresent: ifPresentBlock ifAbsent: ifAbsentBlock
 ]
 
 { #category : #evaluating }

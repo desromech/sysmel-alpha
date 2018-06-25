@@ -16,6 +16,28 @@ SYMLProgramEntity >> addFlag: aFlag [
 ]
 
 { #category : #methods }
+SYMLProgramEntity >> addMacroFunctionPattern: macroFunctionPattern withSelector: selector [
+	| group |
+	^ self symbol: selector ifPresent: [ :existentGroup |
+		existentGroup isMacroPatternGroup ifFalse: [ 
+			self error: 'Cannot add macro/function pattern into non-macro group {1}.' format: { selector printString } at: macroFunctionPattern definitionPosition.
+		].
+	
+		macroFunctionPattern addToPatternGroup: existentGroup.
+	] ifAbsentPut: [
+		group := SYMLMacroFunctionPatternGroup new
+			name: macroFunctionPattern name;
+			parent: self;
+			module: self module;
+			definitionNode: macroFunctionPattern definitionNode;
+			definitionEnvironment: macroFunctionPattern definitionEnvironment;
+			yourself.
+		macroFunctionPattern addToPatternGroup: group.
+		group
+	]
+]
+
+{ #category : #methods }
 SYMLProgramEntity >> addMacroMethodPattern: macroMethodPattern withSelector: selector [
 	| group |
 	^ self methodWithSelector: selector ifPresent: [ :existentGroup |
@@ -26,7 +48,7 @@ SYMLProgramEntity >> addMacroMethodPattern: macroMethodPattern withSelector: sel
 		macroMethodPattern addToPatternGroup: existentGroup
 	] ifAbsentPut: [
 		group := SYMLMacroMethodPatternGroup new
-			parent: parent;
+			parent: self;
 			module: self module;
 			definitionNode: macroMethodPattern definitionNode;
 			definitionEnvironment: macroMethodPattern definitionEnvironment;
@@ -43,12 +65,15 @@ SYMLProgramEntity >> addMethod: value withSelector: selector [
 	] ifAbsentPut: [ value ]
 ]
 
-{ #category : #accessing }
-SYMLProgramEntity >> addedChild: aChild [
+{ #category : #adding }
+SYMLProgramEntity >> addSymbol: aSymbolName value: aValue [
+	^ self symbol: aSymbolName ifPresent: [ :existent |
+		self error: 'Trying to override symbol {1} with {2}.' format: { aSymbolName printString . aValue printString }
+	] ifAbsentPut: [ aValue ]
 ]
 
-{ #category : #'as yet unclassified' }
-SYMLProgramEntity >> addedToAbstractType: anAbstractType [
+{ #category : #accessing }
+SYMLProgramEntity >> addedChild: aChild [
 ]
 
 { #category : #'as yet unclassified' }
@@ -58,6 +83,13 @@ SYMLProgramEntity >> allocateAnonName [
 	anonNameAllocation := anonNameAllocation + 1.
 	^ result
 	
+]
+
+{ #category : #'as yet unclassified' }
+SYMLProgramEntity >> evaluateBoundIdentifierToMe: identifier inEnvironment: anEnvironment [
+	^ anEnvironment lookSymbolRecursively: identifier value ifAbsent: [
+		self error: 'Failed to find identifier {1}.' format: { identifier value } at: identifier position
+	].
 ]
 
 { #category : #accessing }
@@ -160,4 +192,9 @@ SYMLProgramEntity >> sendCompileTimeMessage: message inEnvironment: environment 
 		^ method semanticAnalyzeMessage: message inEnvironment: environment at: aPosition
 	].
 	^ super sendCompileTimeMessage: message inEnvironment: environment at: aPosition
+]
+
+{ #category : #adding }
+SYMLProgramEntity >> symbol: aSymbol ifPresent: ifPresentBlock ifAbsentPut: ifAbsentBlock [
+	self subclassResponsibility
 ]

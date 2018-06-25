@@ -25,11 +25,16 @@ SYMLFunction >> -> returnTypeValue [
 ]
 
 { #category : #'as yet unclassified' }
+SYMLFunction >> abstractFunctionKind [
+	^ #function
+]
+
+{ #category : #'as yet unclassified' }
 SYMLFunction >> applyWithArguments: argumentNodes [
 	<compileTime>
 	<lazy>
 	| evaluationEnvironment argumentName argumentType |
-	
+
 	hasArguments ifTrue: [ 
 		self halt
 	].
@@ -108,6 +113,8 @@ SYMLFunction >> buildFunctionType [
 	bindedFunctionType := self compilationTarget
 		functionArguments: bindedArgumentTypes returnType: returnType
 		callingConvention: callingConvention variadic: self isCVariadic.
+		
+	name ifNotNil: [ self tryToAddToParentWithName: name ].
 
 ]
 
@@ -130,6 +137,13 @@ SYMLFunction >> isExternC [
 	^ self hasFlag: #'extern-c'
 ]
 
+{ #category : #printing }
+SYMLFunction >> printOn: aStream [
+	aStream nextPutAll: self abstractFunctionKind.
+	name ifNotNil: [ aStream space; nextPutAll: name ].
+	aStream space print: functionType 
+]
+
 { #category : #'as yet unclassified' }
 SYMLFunction >> semanticAnalyzeMessageToYou: message inEnvironment: environment at: aPosition [
 	(name isNil and: [hasArguments not ]) ifTrue: [
@@ -140,4 +154,10 @@ SYMLFunction >> semanticAnalyzeMessageToYou: message inEnvironment: environment 
 	].
 
 	^ super semanticAnalyzeMessageToYou: message inEnvironment: environment at: aPosition
+]
+
+{ #category : #accessing }
+SYMLFunction >> tryToAddToParentWithName: aNewName [
+	functionType ifNil: [ ^ self ].
+	parent addMacroFunctionPattern: self withSelector: aNewName
 ]

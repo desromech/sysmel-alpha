@@ -4,6 +4,11 @@ Class {
 	#category : #'Sysmel-Metamodel-Function'
 }
 
+{ #category : #'as yet unclassified' }
+SYMLMethod >> abstractFunctionKind [
+	^ #method
+]
+
 { #category : #testing }
 SYMLMethod >> isExternC [
 	<compileTime>

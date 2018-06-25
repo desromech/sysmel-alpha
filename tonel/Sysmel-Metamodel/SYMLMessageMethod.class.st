@@ -25,6 +25,11 @@ SYMLMessageMethod >> -> returnTypeValue [
 ]
 
 { #category : #'as yet unclassified' }
+SYMLMessageMethod >> abstractFunctionKind [
+	^ #message
+]
+
+{ #category : #'as yet unclassified' }
 SYMLMessageMethod >> analyzeMetaMessage: message toReceiver: receiverValue inEnvironment: environment at: aPosition [
 	| result analyzedMessage |
 	analyzedMessage := message withAnalyzedReceiverAndArgumentsInEnvironment: environment.
@@ -68,6 +73,7 @@ SYMLMessageMethod >> buildFunctionType [
 		returnType: returnType callingConvention: #cdecl variadic: self isCVariadic.
 	bindedFunctionType := self compilationTarget functionArguments: bindedArgumentTypes
 		returnType: returnType callingConvention: #cdecl variadic: self isCVariadic.
+	name ifNotNil: [ self tryToAddToParentWithName: name ]
 
 ]
 
@@ -125,5 +131,6 @@ SYMLMessageMethod >> setSelectorWithTemplate: message inEnvironment: environment
 
 { #category : #accessing }
 SYMLMessageMethod >> tryToAddToParentWithName: aNewName [
+	functionType ifNil: [ ^ self ].
 	parent addMacroMethodPattern: self withSelector: aNewName
 ]

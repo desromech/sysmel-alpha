@@ -7,6 +7,11 @@ Class {
 	#category : #'Sysmel-Metamodel-APSG'
 }
 
+{ #category : #accessing }
+SYMLAPSGIdentifier >> bindIntoOverloadedAlternative: anAlternative inEnvironment: environment [
+	^ anAlternative analyzeAPSGIdentifierToMe: self inEnvironment: environment
+]
+
 { #category : #copying }
 SYMLAPSGIdentifier >> copyWithBinding: binding andType: type [
 	^ SYMLAPSGIdentifierWithBinding new

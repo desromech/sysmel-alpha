@@ -9,13 +9,6 @@ Class {
 	#category : #'Sysmel-Metamodel-Program'
 }
 
-{ #category : #adding }
-SYMLNamespace >> addSymbol: aSymbol value: newValue [
-	symbols at: aSymbol ifPresent: [ :existent |
-		self error: 'Trying to override symbol {1} with {2}.' format: { aSymbol printString . newValue printString }
-	] ifAbsentPut: [ newValue ]
-]
-
 { #category : #definition }
 SYMLNamespace >> assignValue: aDefinitionBlock [
 	<compileTime>
@@ -46,6 +39,11 @@ SYMLNamespace >> initialize [
 	super initialize.
 	symbols := SYMLOrderedDictionary new.
 	metaMethodDictionary := SYMLOrderedDictionary new.
+]
+
+{ #category : #testing }
+SYMLNamespace >> isNamespace [
+	^ true
 ]
 
 { #category : #accessing }
@@ -109,4 +107,10 @@ SYMLNamespace >> semanticAnalyzeMessageToYou: message inEnvironment: environment
 	].
 
 	^ super semanticAnalyzeMessageToYou: message inEnvironment: environment at: aPosition
+]
+
+{ #category : #adding }
+SYMLNamespace >> symbol: aSymbol ifPresent: ifPresentBlock ifAbsentPut: ifAbsentBlock [
+	^ symbols at: aSymbol ifPresent: ifPresentBlock ifAbsentPut: ifAbsentBlock
+
 ]

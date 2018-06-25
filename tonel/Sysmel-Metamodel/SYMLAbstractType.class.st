@@ -61,23 +61,21 @@ SYMLAbstractType >> addIntrinsicField: fieldName slotIndex: slotIndex [
 ]
 
 { #category : #adding }
-SYMLAbstractType >> addMacroMethodPattern: macroMethodPattern withSelector: selector [
+SYMLAbstractType >> addMacroFunctionPattern: macroMethodPattern withSelector: selector [
 	| group |
-	group := super addMacroMethodPattern: macroMethodPattern withSelector: selector.
+	group := super addMacroFunctionPattern: macroMethodPattern withSelector: selector.
 	
-	macroMethodPattern addedToAbstractType: self.
 	children add: macroMethodPattern.
 	^ group
 ]
 
 { #category : #adding }
-SYMLAbstractType >> addSymbol: aSymbol value: newValue [
-	symbols at: aSymbol ifPresent: [ :existent |
-		self error: 'Trying to override symbol {1} with {2}.' format: { aSymbol printString . newValue printString }
-	] ifAbsentPut: [ newValue ].
-
-	newValue addedToAbstractType: self.
-	children add: newValue.
+SYMLAbstractType >> addMacroMethodPattern: macroMethodPattern withSelector: selector [
+	| group |
+	group := super addMacroMethodPattern: macroMethodPattern withSelector: selector.
+	
+	children add: macroMethodPattern.
+	^ group
 ]
 
 { #category : #accessing }
@@ -797,6 +795,16 @@ SYMLAbstractType >> ssaType [
 { #category : #accessing }
 SYMLAbstractType >> ssaValue [
 	^ SLVMConstant type: self type ssaType value: 0
+]
+
+{ #category : #adding }
+SYMLAbstractType >> symbol: aSymbol ifPresent: ifPresentBlock ifAbsentPut: ifAbsentBlock [
+	| newValue |
+	^ symbols at: aSymbol ifPresent: ifPresentBlock ifAbsentPut: [
+		newValue := ifAbsentBlock value.
+		children add: newValue.
+		newValue
+	].
 ]
 
 { #category : #accessing }

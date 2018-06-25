@@ -19,6 +19,7 @@ Class {
 		'structureTypeTrait',
 		'unionTypeTrait',
 		'classTypeTrait',
+		'functionGroupType',
 		'functionTypeCache',
 		'tupleTypeCache',
 		'dynamicObjectType',
@@ -199,6 +200,18 @@ SYMLCompilationTarget >> functionArguments: argumentTypes returnType: returnType
 ]
 
 { #category : #accessing }
+SYMLCompilationTarget >> functionGroupType [
+	<compileTime>
+	^ functionGroupType
+]
+
+{ #category : #accessing }
+SYMLCompilationTarget >> functionGroupType: aFunctionGroupType [
+	<compileTime>
+	functionGroupType := aFunctionGroupType
+]
+
+{ #category : #accessing }
 SYMLCompilationTarget >> functionTypeTrait [
 	<compileTime>
 	^ functionTypeTrait
@@ -370,6 +383,17 @@ SYMLCompilationTarget >> literalSymbolType [
 SYMLCompilationTarget >> literalSymbolType: anObject [
 	<compileTime>
 	literalSymbolType := anObject
+]
+
+{ #category : #'builder methods' }
+SYMLCompilationTarget >> macroCallingConvention [
+	^ #cdecl
+]
+
+{ #category : #'builder methods' }
+SYMLCompilationTarget >> macroFunctionArguments: argumentTypes [
+	^ self functionArguments: argumentTypes returnType: self apsgNodeType callingConvention: self macroCallingConvention variadic: false
+
 ]
 
 { #category : #accessing }

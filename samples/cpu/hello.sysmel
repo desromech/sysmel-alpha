@@ -1,5 +1,13 @@
 // Main function
 
+function printValue(value: Int32) -> Void := {
+    LibC printf("printValue Int32: %d\n", value).
+}.
+
+function printValue(value: Float32) -> Void := {
+    LibC printf("printValue Float32: %f\n", value).
+}.
+
 function main externC (argc: Int32, argv: Char const pointer pointer) -> Int32 := {
     //let s type: SomeStruct.
 
@@ -14,6 +22,9 @@ function main externC (argc: Int32, argv: Char const pointer pointer) -> Int32 :
 
     let v3d := Float64x3 x: v3f x y: v3f y z: v3f z.
     LibC printf("v3d %f %f %f\n", v3d x, v3d y, v3d z).
+
+    printValue(1).
+    printValue(1.0).
 
     let i := 1.
     LibC printf("i address: %p\n", i address).

@@ -11,11 +11,18 @@ SYMLMacro class >> module: aModule [
 
 { #category : #adding }
 SYMLMacro >> addToPatternGroup: patternGroup [
-	patternGroup fallbackPattern ifNotNil: [ 
-		self error: 'Cannot add conflicting macro {1}.' format: { self name printString } at: self definitionPosition
+	| macroFunctionType |
+	macroFunctionType := self macroFunctionType.
+	macroFunctionType ifNil: [ 
+		patternGroup fallbackPattern ifNotNil: [ 
+			self error: 'Cannot add conflicting macro {1}.' format: { self name printString } at: self definitionPosition
+		].
+
+		patternGroup fallbackPattern: self
+	] ifNotNil: [
+		patternGroup addPatternAlternative: self withFunctionType: macroFunctionType
 	].
 
-	patternGroup fallbackPattern: self
 ]
 
 { #category : #'macro compilation' }
@@ -36,6 +43,11 @@ SYMLMacro >> generateMessage: messageNode ssaCodeWith: builder [
 { #category : #testing }
 SYMLMacro >> isMetaMethod [
 	^ true
+]
+
+{ #category : #accessing }
+SYMLMacro >> macroFunctionType [
+	^ nil
 ]
 
 { #category : #'macro compilation' }

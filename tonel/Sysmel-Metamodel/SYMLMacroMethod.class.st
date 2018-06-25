@@ -5,7 +5,8 @@ Class {
 	#classTraits : 'TSYMLMessageMethod classTrait',
 	#instVars : [
 		'hasSelector',
-		'arguments'
+		'arguments',
+		'macroFunctionType'
 	],
 	#category : #'Sysmel-Metamodel-Macro'
 }
@@ -50,6 +51,11 @@ SYMLMacroMethod >> createActivationEnvironmentForMessage: message inEnvironment:
 	^ activationScope
 ]
 
+{ #category : #'as yet unclassified' }
+SYMLMacroMethod >> createMacroFunctionType [
+	macroFunctionType := self compilationTarget macroFunctionArguments: (arguments collect: #type).
+]
+
 { #category : #'argument parsing' }
 SYMLMacroMethod >> defaultTypeForArgument: node inEnvironment: environment [
 	^ self compilationTarget apsgNodeType
@@ -64,6 +70,11 @@ SYMLMacroMethod >> initialize [
 { #category : #'macro methods' }
 SYMLMacroMethod >> isVariadic [
 	^ false
+]
+
+{ #category : #accessing }
+SYMLMacroMethod >> macroFunctionType [
+	^ macroFunctionType
 ]
 
 { #category : #'as yet unclassified' }
@@ -92,7 +103,8 @@ SYMLMacroMethod >> semanticAnalyzeMessageToYou: message inEnvironment: environme
 { #category : #initialization }
 SYMLMacroMethod >> setSelectorWithTemplate: message inEnvironment: environment at: aPosition [
 	arguments := message arguments collect: [ :arg | self createArgumentFromTemplate: arg inEnvironment: environment ].
-
+	
+	self createMacroFunctionType.
 	self name: message selector.
 	hasSelector := true.
 	

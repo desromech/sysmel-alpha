@@ -14,6 +14,7 @@ Compiler compilationTarget
     unionTypeTrait: trait UnionType;
     classTypeTrait: trait ClassType;
 
+    functionGroupType: type _FunctionGroupType;
     apsgNodeType: type _APSGNodeType;
     compilerObjectType: type _CompilerObjectType;
     dynamicObjectType: type _DynamicObject;
@@ -196,6 +197,10 @@ trait Type definition: {
     }.
 
     message isFunctionType -> Boolean := {
+        return: false
+    }.
+
+    message isFunctionGroupType -> Boolean := {
         return: false
     }.
 
@@ -783,6 +788,24 @@ definition: {
     }
 }.
 
+// Function group type
+_FunctionGroupType uses: AnyValue;
+definition: {
+    meta message isFunctionGroupType -> Boolean := {
+        return: true
+    }.
+
+    macro selector: #applyWithArguments: doOn: {
+        semanticAnalysis: $$Pharo {
+            node: node environment: environment at: aPosition
+                | functionGroup |
+                functionGroup := node receiver analyzeAndEvaluateInEnvironment: environment.
+                ^ functionGroup value
+                    semanticAnalyzeApplication: node inEnvironment: environment at: aPosition
+        }
+    }.
+}.
+
 // Function type
 FunctionType uses: AnyValue;
 definition: {
@@ -1033,7 +1056,7 @@ definition: {
         return: self
     }.
 
-    SelfType sysmelMangledValue: #s8.
+    SelfType sysmelMangledValue: #s4.
 }.
 
 UInt32 uses: PrimitiveUnsignedIntegerType;
