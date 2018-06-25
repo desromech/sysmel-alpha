@@ -19,10 +19,10 @@ macro selectors: #(if:then: if:then:else:) doOn: {
             environment isImmediateEnvironment ifTrue: [
                 conditionValue := conditionCoercionRule convertValue: (conditionNode evaluateInEnvironment: environment) into: conditionCoercionType at: messageNode.
                 ^ conditionValue value ifTrue: [
-                    messageNode arguments second inlineSemanticAnalysisInEnvironment: environment
+                    messageNode arguments second inlineBlockSemanticAnalysisInEnvironment: environment
                 ] ifFalse: [
                     messageNode arguments size >= 3 ifTrue: [
-                        messageNode arguments third inlineSemanticAnalysisInEnvironment: environment
+                        messageNode arguments third inlineBlockSemanticAnalysisInEnvironment: environment
                     ] ifFalse: [
                         ^ nil asAPSGNodeInEnvironment: environment at: aSourcePosition
                     ]
@@ -127,7 +127,7 @@ macro selectors: #(if:then: if:then:else:) doOn: {
                 builder unreachable.
                 branchInstruction addUnreachableSuccessors.
             ].
-            
+
             ^ result.
     }.
 

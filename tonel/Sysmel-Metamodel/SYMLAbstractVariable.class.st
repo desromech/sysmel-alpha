@@ -90,6 +90,16 @@ SYMLAbstractVariable >> referenceType [
 	^ self type
 ]
 
+{ #category : #initialization }
+SYMLAbstractVariable >> sysmelEvaluateReference [
+	self subclassResponsibility
+]
+
+{ #category : #initialization }
+SYMLAbstractVariable >> sysmelSetReferencedValue: coercedValue [
+	self subclassResponsibility
+]
+
 { #category : #accessing }
 SYMLAbstractVariable >> type [
 	<compileTime>

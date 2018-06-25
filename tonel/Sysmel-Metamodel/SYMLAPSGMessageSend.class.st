@@ -172,11 +172,7 @@ SYMLAPSGMessageSend >> isReceiverAnalyzed: anObject [
 SYMLAPSGMessageSend >> macroExpansionEvaluateInEnvironment: anEnvironment [
 	| expandedValue |
 	expandedValue := receiver analyzeAndEvaluateInEnvironment: anEnvironment.
-	expandedValue type isAPSGNodeType ifFalse: [ 
-		self error: 'Macro expansion expression does not evaluate into an APSG node' at: self
-	].
-
-	^ expandedValue value
+	^ expandedValue asAPSGNodeValueWithError: 'Macro expansion expression does not evaluate into an APSG node.' at: self
 ]
 
 { #category : #'meta evaluation' }

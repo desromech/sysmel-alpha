@@ -48,13 +48,13 @@ SYMLMessageMethod >> assignValue: bodyLazyValue [
 	<compileTime>
 	<lazy>
 	
-	bodyLazyValue type isAPSGNodeType ifFalse: [
-		self error: 'Expected an APSG node for the definition of the function {1}.' format: { self validName } at: bodyLazyValue node
-	].
+	| bodyValue |
+	bodyValue := bodyLazyValue asAPSGNodeValueWithError: 
+		('Expected an APSG node for the definition of the function {1}.' format: { self validName }).
 
 	self functionType.
 
-	body := bodyLazyValue value.
+	body := bodyValue.
 	bodyEnvironment := bodyLazyValue environment.
 ]
 

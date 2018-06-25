@@ -9,6 +9,15 @@ Class {
 }
 
 { #category : #'meta evaluation' }
+SYMLAPSGLocalInitialization >> evaluateInEnvironment: anEnvironment [
+	local definitionEnvironment == anEnvironment ifFalse: [ 
+		self halt
+	].
+
+	^ initialization evaluateInEnvironment: anEnvironment
+]
+
+{ #category : #'meta evaluation' }
 SYMLAPSGLocalInitialization >> evaluateTypeInEnvironment: anEnvironment [
 	^ local referenceType
 ]

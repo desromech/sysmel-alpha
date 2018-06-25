@@ -23,6 +23,7 @@ SYMLMacroBuilder >> selector: selectorLazyValue doOn: actionRules [
 	selector := selectorLazyValue value.
 	macro := SYMLDeferredMacro new
 			module: module;
+			definitionPosition: selectorLazyValue node position;
 			parse: actionRules;
 			yourself.
 
@@ -37,6 +38,7 @@ SYMLMacroBuilder >> selectors: selectorsLazyValue doOn: actionRules [
 	selectors := selectorsLazyValue value.
 	macro := SYMLDeferredMacro new
 			module: module;
+			definitionPosition: selectorsLazyValue node position;
 			parse: actionRules;
 			yourself.
 

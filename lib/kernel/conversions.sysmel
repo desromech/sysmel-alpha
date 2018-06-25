@@ -95,8 +95,8 @@ _LiteralString conversionTo: Char const pointer doOn: {
     }.
 }.
 
-// Widening casts
-Int16 conversionTo: Int32 doOn: {
+// Generic integer cast.
+let intCastConversionAction := {
     evaluation: $$Pharo {
         value: value targetType: targetType at: position
             ^ value sameValueButWithType: targetType
@@ -107,8 +107,33 @@ Int16 conversionTo: Int32 doOn: {
     }.
 }.
 
+// Signed integer widening casts
+Int8 conversionTo: Int16 | Int32 | Int64 doOn: intCastConversionAction.
+Int16 conversionTo: Int32 | Int64 doOn: intCastConversionAction.
+Int32 conversionTo: Int64 doOn: intCastConversionAction.
+
+// Unsigned integer widening casts
+UInt8 conversionTo: UInt16 | Int16 | UInt32 | Int32 | UInt64 | Int64 doOn: intCastConversionAction.
+UInt16 conversionTo: UInt32 | Int32 | UInt64 | Int64 doOn: intCastConversionAction.
+UInt32 conversionTo: UInt64 | Int64 doOn: intCastConversionAction.
+
+// Explicit integer narrowing conversions
+UInt64 | Int64 explicitConversionTo: Int32 | Int16 | Int8 doOn: intCastConversionAction.
+UInt32 | Int32 explicitConversionTo: Int16 | Int8 doOn: intCastConversionAction.
+UInt16 | Int16 explicitConversionTo: Int8 doOn: intCastConversionAction.
+
+// Explicit integer signed conversions.
+UInt64 explicitConversionTo: Int64 doOn: intCastConversionAction.
+Int64 explicitConversionTo: UInt64 doOn: intCastConversionAction.
+UInt32 explicitConversionTo: Int32 doOn: intCastConversionAction.
+Int32 explicitConversionTo: UInt32 doOn: intCastConversionAction.
+UInt16 explicitConversionTo: Int16 doOn: intCastConversionAction.
+Int16 explicitConversionTo: UInt16 doOn: intCastConversionAction.
+UInt8 explicitConversionTo: Int8 doOn: intCastConversionAction.
+Int8 explicitConversionTo: UInt8 doOn: intCastConversionAction.
+
 // Floating point conversions
-Float32 conversionTo: Float64 doOn: {
+let floatingPointCastAction := {
     evaluation: $$Pharo {
         value: value targetType: targetType at: position
             ^ value sameValueButWithType: targetType
@@ -119,16 +144,8 @@ Float32 conversionTo: Float64 doOn: {
     }.
 }.
 
-Float64 explicitConversionTo: Float32 doOn: {
-    evaluation: $$Pharo {
-        value: value targetType: targetType at: position
-            self halt
-    }.
-    codeGeneration: $$Pharo {
-        convertSSAValue: sourceValue to: targetType with: builder at: messageNode
-            ^ builder floatingPointCast: sourceValue target: targetType ssaType
-    }.
-}.
+Float32 conversionTo: Float64 doOn: floatingPointCastAction.
+Float64 explicitConversionTo: Float32 doOn: floatingPointCastAction.
 
 // Integer to float
 PrimitiveIntegerType conversionTo: PrimitiveFloatingPointType doOn: {

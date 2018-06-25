@@ -36,7 +36,9 @@ Class {
 		'float64Type',
 		'metaType',
 		'anyValueTrait',
-		'typeTrait'
+		'typeTrait',
+		'variantTypeTrait',
+		'variantTypeCache'
 	],
 	#category : #'Sysmel-Metamodel-CompilationTarget'
 }
@@ -240,6 +242,7 @@ SYMLCompilationTarget >> initialize [
 	super initialize.
 	functionTypeCache := Dictionary new.
 	tupleTypeCache := Dictionary new.
+	variantTypeCache := Dictionary new.
 ]
 
 { #category : #accessing }
@@ -522,6 +525,30 @@ SYMLCompilationTarget >> unionTypeTrait [
 SYMLCompilationTarget >> unionTypeTrait: anObject [
 	<compileTime>
 	unionTypeTrait := anObject
+]
+
+{ #category : #accessing }
+SYMLCompilationTarget >> variantTypeTrait [
+	<compileTime>
+	^ variantTypeTrait
+]
+
+{ #category : #accessing }
+SYMLCompilationTarget >> variantTypeTrait: anObject [
+	<compileTime>
+	variantTypeTrait := anObject
+]
+
+{ #category : #'builder methods' }
+SYMLCompilationTarget >> variantTypes: variants [
+	| variantType |
+	variantType := SYMLVariantType new
+		compilationTarget: self;
+		variants: variants asIdentitySet;
+		yourself.
+	^ variantTypeCache at: variantType ifAbsentPut: [ variantType ]
+	
+
 ]
 
 { #category : #accessing }

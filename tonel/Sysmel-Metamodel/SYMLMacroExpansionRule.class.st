@@ -23,11 +23,7 @@ SYMLMacroExpansionRule >> assignValue: aDefinitionBlock [
 SYMLMacroExpansionRule >> definition: aDefinitionBlock [
 	<compileTime>
 	<lazy>
-	aDefinitionBlock type isAPSGNodeType ifFalse: [ 
-		self error: 'Expected an APSG node for the macro expansion.' at: aDefinitionBlock node
-	].
-
-	expansionTemplate := aDefinitionBlock value.
+	expansionTemplate := aDefinitionBlock asAPSGNodeValueWithError: 'Expected an APSG node for the macro expansion.' at: aDefinitionBlock node.
 	self assert: expansionTemplate isSYMLAPSGNode
 ]
 

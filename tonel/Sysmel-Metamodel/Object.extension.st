@@ -39,6 +39,16 @@ Object >> isSysmelValue [
 ]
 
 { #category : #'*Sysmel-Metamodel' }
+Object >> sysmelEvaluateReference [
+	^ self value
+]
+
+{ #category : #'*Sysmel-Metamodel' }
+Object >> sysmelSetReferenceValue: aValue [
+	^ self value: aValue
+]
+
+{ #category : #'*Sysmel-Metamodel' }
 Object >> sysmelValueWithType: aType inEnvironment: anEnvironment [
 	^ SYMLValue new
 		value: self;

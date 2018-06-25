@@ -2,7 +2,8 @@ Class {
 	#name : #SYMLFunctionLocalVariable,
 	#superclass : #SYMLFunctionVariable,
 	#instVars : [
-		'referenceType'
+		'referenceType',
+		'currentValue'
 	],
 	#category : #'Sysmel-Metamodel-Variable'
 }
@@ -42,11 +43,30 @@ SYMLFunctionLocalVariable >> convertNodeForSequenceElement: aNode inEnvironment:
 		
 ]
 
+{ #category : #accessing }
+SYMLFunctionLocalVariable >> currentValue [
+	^ currentValue
+]
+
+{ #category : #accessing }
+SYMLFunctionLocalVariable >> currentValue: anObject [
+	currentValue := anObject
+]
+
 { #category : #'as yet unclassified' }
 SYMLFunctionLocalVariable >> doCreateSSADebugInformation [
 	^ (SLVMDebugVariable scope: nil name: self validName)
 		type: self type ssaType;
 		yourself
+]
+
+{ #category : #'as yet unclassified' }
+SYMLFunctionLocalVariable >> evaluateBoundIdentifierToMe: identifier inEnvironment: anEnvironment [
+	anEnvironment == definitionEnvironment ifTrue: [ 
+		^ self sysmelValueWithType: referenceType inEnvironment: anEnvironment
+	].
+	
+	^ super evaluateBoundIdentifierToMe: identifier inEnvironment: anEnvironment
 ]
 
 { #category : #'as yet unclassified' }
@@ -80,6 +100,16 @@ SYMLFunctionLocalVariable >> semanticAnalyzeMessageToYou: message inEnvironment:
 	].
 
 	^ super semanticAnalyzeMessageToYou: message inEnvironment: environment at: aPosition
+]
+
+{ #category : #initialization }
+SYMLFunctionLocalVariable >> sysmelEvaluateReference [
+	^ currentValue
+]
+
+{ #category : #initialization }
+SYMLFunctionLocalVariable >> sysmelSetReferencedValue: coercedValue [
+	currentValue := coercedValue value
 ]
 
 { #category : #accessing }

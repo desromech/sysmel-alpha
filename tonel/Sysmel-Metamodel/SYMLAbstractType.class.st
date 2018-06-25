@@ -281,11 +281,14 @@ SYMLAbstractType >> conversionTo: targetTypeKindLazyValue doOn: actionRules [
 	<lazy>
 	| targetTypeKind conversionRule |
 	targetTypeKind := targetTypeKindLazyValue value.
-	conversionRule := SYMLTypeKindConversionRule new targetTypeKind: targetTypeKind;
-					parse: actionRules;
-					yourself.
-	implicitConversionRules add: conversionRule.
-	explicitConversionRules add: conversionRule.
+	targetTypeKind variantAlternativesDo: [ :targetVariantAlternative |
+		conversionRule := SYMLTypeKindConversionRule new targetTypeKind: targetVariantAlternative;
+						parse: actionRules;
+						yourself.
+		implicitConversionRules add: conversionRule.
+		explicitConversionRules add: conversionRule.
+	]
+
 ]
 
 { #category : #'as yet unclassified' }
@@ -333,12 +336,13 @@ SYMLAbstractType >> definition: aDefinitionBlock [
 	<compileTime>
 	<lazy>
 	
-	| traitScope |
+	| traitScope lexicalScope |
 	hasDefinition := true.
 	traitScope := self definitionScopeClass parent: aDefinitionBlock environment.
 	traitScope programEntity: self.
 	
-	aDefinitionBlock value analyzeAndEvaluateInEnvironment: traitScope.
+	lexicalScope := SYMLLexicalScope parent: traitScope.
+	aDefinitionBlock value analyzeAndEvaluateInEnvironment: lexicalScope.
 
 ]
 
@@ -371,10 +375,12 @@ SYMLAbstractType >> explicitConversionTo: targetTypeKindLazyValue doOn: actionRu
 	<lazy>
 	| targetTypeKind conversionRule |
 	targetTypeKind := targetTypeKindLazyValue value.
-	conversionRule := SYMLTypeKindConversionRule new targetTypeKind: targetTypeKind;
-					parse: actionRules;
-					yourself.
-	explicitConversionRules add: conversionRule.
+	targetTypeKind variantAlternativesDo: [ :targetVariantAlternative |
+		conversionRule := SYMLTypeKindConversionRule new targetTypeKind: targetVariantAlternative;
+						parse: actionRules;
+						yourself.
+		explicitConversionRules add: conversionRule.
+	]
 ]
 
 { #category : #definition }
@@ -421,10 +427,12 @@ SYMLAbstractType >> implicitConversionTo: targetTypeKindLazyValue doOn: actionRu
 	<lazy>
 	| targetTypeKind conversionRule |
 	targetTypeKind := targetTypeKindLazyValue value.
-	conversionRule := SYMLTypeKindConversionRule new targetTypeKind: targetTypeKind;
-					parse: actionRules;
-					yourself.
-	implicitConversionRules add: conversionRule.
+		targetTypeKind variantAlternativesDo: [ :targetVariantAlternative |
+		conversionRule := SYMLTypeKindConversionRule new targetTypeKind: targetVariantAlternative;
+						parse: actionRules;
+						yourself.
+		implicitConversionRules add: conversionRule.
+	]
 ]
 
 { #category : #initialization }
@@ -850,6 +858,12 @@ SYMLAbstractType >> typeKindBaseTrait [
 	^ nil
 ]
 
+{ #category : #'type composition' }
+SYMLAbstractType >> union: variantAlternative [
+	<compileTime>
+	^ self compilationTarget variantTypes: { self . variantAlternative }
+]
+
 { #category : #accessing }
 SYMLAbstractType >> usedTraits [
 	^ usedTraits
@@ -876,7 +890,18 @@ SYMLAbstractType >> valueType [
 ]
 
 { #category : #enumerating }
+SYMLAbstractType >> variantAlternativesDo: aBlock [
+	aBlock value: self
+]
+
+{ #category : #enumerating }
 SYMLAbstractType >> withAllTraitUsersDo: aBlock [
 	aBlock value: self.
 	traitUsers do: aBlock
+]
+
+{ #category : #'type composition' }
+SYMLAbstractType >> | variantAlternative [
+	<compileTime>
+	^ self union: variantAlternative
 ]

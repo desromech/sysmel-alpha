@@ -44,6 +44,21 @@ SYMLValue >> asAPSGNodeInEnvironment: newEnvironment at: aPosition [
 ]
 
 { #category : #converting }
+SYMLValue >> asAPSGNodeValueWithError: errorMessage at: aPosition [
+	self type isAPSGNodeType ifTrue: [ ^ self value ].
+	self type cleanValueType isAPSGNodeType ifTrue: [
+		self type isReferenceType ifTrue: [ 
+			^ self value sysmelEvaluateReference
+		] ifFalse: [
+			"This could be a const"
+			^ self value
+		]
+	].
+	
+	self error: errorMessage at: aPosition
+]
+
+{ #category : #converting }
 SYMLValue >> asFunctionActivationValueAt: aPosition [
 	self type isMetaObjectType ifTrue: [ 
 		^ self value

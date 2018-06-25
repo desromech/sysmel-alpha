@@ -10,6 +10,7 @@ Compiler compilationTarget
     typeTrait: trait Type;
     tupleTypeTrait: trait TupleType;
     functionTypeTrait: trait FunctionType;
+    variantTypeTrait: trait VariantType;
     structureTypeTrait: trait StructureType;
     unionTypeTrait: trait UnionType;
     classTypeTrait: trait ClassType;
@@ -489,18 +490,7 @@ definition: {
 
     // Address space conversion.
     if: (#(function workgroup crossWorkgroup) includes: AddressSpaceName) then: {
-        SelfType conversionTo: (P cleanType pointerFor: #generic) doOn: {
-            evaluation: $$Pharo {
-                value: value targetType: targetType at: position
-                    ^ value
-            }.
-            codeGeneration: $$Pharo {
-                convertSSAValue: sourceValue to: targetType with: builder at: messageNode
-                    ^ sourceValue
-            }.
-        }.
-
-        SelfType conversionTo: (P pointerFor: #generic) doOn: {
+        SelfType conversionTo: (P cleanType pointerFor: #generic) | (P pointerFor: #generic) doOn: {
             evaluation: $$Pharo {
                 value: value targetType: targetType at: position
                     ^ value
@@ -584,11 +574,11 @@ definition: {
     }.
 
     // Reference evaluation
-    SelfType conversionTo: R cleanType doOn: {
+    let referenceEvaluationAction := {
         evaluation: $$Pharo {
             value: value targetType: targetType at: position
                 "Reference evaluation"
-                ^ value value value sysmelValueWithType: targetType inEnvironment: value environment
+                ^ value value sysmelEvaluateReference sysmelValueWithType: targetType inEnvironment: value environment
         }.
         codeGeneration: $$Pharo {
             convertSSAValue: sourceValue to: targetType with: builder at: messageNode
@@ -600,37 +590,12 @@ definition: {
         }.
     }.
 
-    SelfType conversionTo: R doOn: {
-        evaluation: $$Pharo {
-            value: value targetType: targetType at: position
-                "Reference evaluation"
-                ^ value value value sysmelValueWithType: targetType inEnvironment: value environment
-        }.
-        codeGeneration: $$Pharo {
-            convertSSAValue: sourceValue to: targetType with: builder at: messageNode
-                targetType isFunctionType ifTrue: [
-                    ^ sourceValue
-                ].
-
-                ^ builder load: sourceValue
-        }.
-    }.
+    SelfType conversionTo: R cleanType doOn: referenceEvaluationAction.
+    SelfType conversionTo: R doOn: referenceEvaluationAction.
 
     // Address space conversion.
     if: (#(function workgroup crossWorkgroup) includes: AddressSpaceName) then: {
-        SelfType conversionTo: (R cleanType refFor: #generic) doOn: {
-            evaluation: $$Pharo {
-                value: value targetType: targetType at: position
-                    "Reference evaluation"
-                    ^ value
-            }.
-            codeGeneration: $$Pharo {
-                convertSSAValue: sourceValue to: targetType with: builder at: messageNode
-                    ^ sourceValue
-            }.
-        }.
-
-        SelfType conversionTo: (R refFor: #generic) doOn: {
+        SelfType conversionTo: (R cleanType refFor: #generic) | (R refFor: #generic) doOn: {
             evaluation: $$Pharo {
                 value: value targetType: targetType at: position
                     "Reference evaluation"
@@ -642,7 +607,6 @@ definition: {
             }.
         }.
     }.
-
 }.
 
 AnyValue extend: {
@@ -751,7 +715,7 @@ definition: {
     }.
 
     // Perform a bidirectional identity conversion for volatile types.
-    D conversionTo: SelfType doOn: {
+    let decorationIdentityAction := {
         evaluation: $$Pharo {
             value: value targetType: targetType at: position
                 ^ value sameValueButWithType: targetType
@@ -762,16 +726,8 @@ definition: {
         }.
     }.
 
-    SelfType conversionTo: D doOn: {
-        evaluation: $$Pharo {
-            value: value targetType: targetType at: position
-                ^ value sameValueButWithType: targetType
-        }.
-        codeGeneration: $$Pharo {
-            convertSSAValue: sourceValue to: targetType with: builder at: messageNode
-                ^ sourceValue
-        }.
-    }.
+    D conversionTo: SelfType doOn: decorationIdentityAction.
+    SelfType conversionTo: D doOn: decorationIdentityAction.
 }.
 
 AnyValue extend: {

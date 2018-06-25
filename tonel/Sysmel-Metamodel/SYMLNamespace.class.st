@@ -21,11 +21,12 @@ SYMLNamespace >> definition: aDefinitionBlock [
 	<compileTime>
 	<lazy>
 	
-	| namespaceScope |
+	| namespaceScope lexicalScope |
 	namespaceScope := SYMLNamespaceScope parent: aDefinitionBlock environment.
 	namespaceScope programEntity: self.
 	
-	aDefinitionBlock value analyzeAndEvaluateInEnvironment: namespaceScope.
+	lexicalScope := SYMLLexicalScope parent: namespaceScope.
+	aDefinitionBlock value analyzeAndEvaluateInEnvironment: lexicalScope.
 
 ]
 

@@ -4,7 +4,22 @@ ReferenceType macro selector: #assignValue: doOn: {
 // Compile time evaluation
 evaluation: $$Pharo {
     node: node environment: environment
-        self halt.
+        | reference rawValue coercedValue |
+
+        "Evaluate the argument first"
+        rawValue := node arguments first evaluateInEnvironment: environment.
+
+        "Coerce the argument into the expected type."
+        coercedValue := node coercionRule convertValue: rawValue into: node coercionType at: node position.
+
+        "Evaluate the reference"
+        reference := node receiver evaluateInEnvironment: environment.
+        (reference type isReferenceType not or: [reference type referenced isConstantType ]) ifTrue: [
+            self error: 'Expected a non-const reference for compile time assignation.' at: node position
+        ].
+
+        reference value sysmelSetReferencedValue: coercedValue.
+        ^ reference
 }.
 
 // Semantic analysis

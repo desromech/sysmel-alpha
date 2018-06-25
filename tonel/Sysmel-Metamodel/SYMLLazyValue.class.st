@@ -10,6 +10,33 @@ Class {
 	#category : #'Sysmel-Metamodel-Values'
 }
 
+{ #category : #converting }
+SYMLLazyValue >> asAPSGNodeValue [
+	^ self asAPSGNodeValueWithError: 'Expected an apsg node.'
+
+	
+]
+
+{ #category : #converting }
+SYMLLazyValue >> asAPSGNodeValueWithError: errorMessage [
+	^ self asAPSGNodeValueWithError: errorMessage at: node position
+]
+
+{ #category : #converting }
+SYMLLazyValue >> asAPSGNodeValueWithError: errorMessage at: aPosition [
+	self type isAPSGNodeType ifTrue: [ ^ self value ].
+	self type cleanValueType isAPSGNodeType ifTrue: [
+		self type isReferenceType ifTrue: [ 
+			^ self value sysmelEvaluateReference
+		] ifFalse: [
+			"This could be a const"
+			^ self value
+		]
+	].
+	
+	self error: errorMessage at: aPosition
+]
+
 { #category : #evaluating }
 SYMLLazyValue >> ensureEvaluation [
 	isEvaluated ifTrue: [ ^ self ].
