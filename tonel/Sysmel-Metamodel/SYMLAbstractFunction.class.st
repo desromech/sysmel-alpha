@@ -198,6 +198,12 @@ SYMLAbstractFunction >> evaluateWithReceiver: aReceiver arguments: activationArg
 	^ result
 ]
 
+{ #category : #'code generation' }
+SYMLAbstractFunction >> fetchCalledMethodValueForReceiver: receiverValue withBuilder: builder [
+	self flag: 'TODO: Support virtual/looked up calls.'.
+	^ self ssaValue
+]
+
 { #category : #accessing }
 SYMLAbstractFunction >> functionBodyEnvironment [
 	^ bodyEnvironment
@@ -207,6 +213,20 @@ SYMLAbstractFunction >> functionBodyEnvironment [
 SYMLAbstractFunction >> functionType [
 	functionType ifNil: [ self buildFunctionType ].
 	^ functionType
+]
+
+{ #category : #'as yet unclassified' }
+SYMLAbstractFunction >> generateSSACallWithReceiver: receiverValue arguments: argumentValues withBuilder: builder at: position [
+	| allArguments calledMethodValue |
+	self intrinsic ifNotNil: [ :intrinsic |
+		^ intrinsic generateSSACallWithReceiver: receiverValue arguments: argumentValues withBuilder: builder at: position
+	].
+
+	allArguments := arguments.
+	receiverValue ifNotNil: [ allArguments := {receiverValue} , argumentValues ].
+	
+	calledMethodValue := self fetchCalledMethodValueForReceiver: receiverValue withBuilder: builder.
+	^ builder call: calledMethodValue arguments: allArguments
 ]
 
 { #category : #'code generation' }
@@ -272,6 +292,18 @@ SYMLAbstractFunction >> initialize [
 	callingConvention := #cdecl.
 	locals := OrderedCollection new.
 	
+]
+
+{ #category : #'as yet unclassified' }
+SYMLAbstractFunction >> intrinsic [
+	^ self intrinsicName ifNotNil: [ :intrinsicName |
+		SYMLIntrinsicFunction fromName: intrinsicName
+	]
+]
+
+{ #category : #accessing }
+SYMLAbstractFunction >> intrinsicName [
+	^ self analyzedBody pragmaAt: #intrinsic: ifPresent: [ :pragma | pragma arguments first unwrapSysmelValue ]
 ]
 
 { #category : #testing }

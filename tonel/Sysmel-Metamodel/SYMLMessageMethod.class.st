@@ -82,6 +82,11 @@ SYMLMessageMethod >> defaultTypeForArgument: node inEnvironment: environment [
 	self error: 'Explicit type for argument is required.' at: node
 ]
 
+{ #category : #'code generation' }
+SYMLMessageMethod >> generateSSAMessageSend: messageNode withReceiver: receiverValue arguments: argumentValues withBuilder: builder [
+	^ self generateSSACallWithReceiver: receiverValue arguments: argumentValues withBuilder: builder at: messageNode
+]
+
 { #category : #initialization }
 SYMLMessageMethod >> initialize [
 	super initialize.

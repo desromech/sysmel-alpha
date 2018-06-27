@@ -500,7 +500,7 @@ SYMLGrammar >> pragmaChainKeywordMessage [
 
 { #category : #accessing }
 SYMLGrammar >> pragmaChainUnaryMessage [
-	^ chainUnaryMessage
+	^ anyIdentifier
 ]
 
 { #category : #accessing }

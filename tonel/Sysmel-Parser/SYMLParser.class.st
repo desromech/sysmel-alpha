@@ -378,6 +378,40 @@ SYMLParser >> postfix: operation operate: operand [
 ]
 
 { #category : #accessing }
+SYMLParser >> pragma [
+	^ super pragma ==> [ :tokens |
+		tokens second
+			position: tokens first;
+			yourself
+	]
+]
+
+{ #category : #accessing }
+SYMLParser >> pragmaChainKeywordMessage [
+	^ super pragmaChainKeywordMessage ==> [ :components |
+		SYMLASTPragma new
+			position: components first first;
+			selector: (ByteString streamContents: [:out |
+				components do: [ :comp | out nextPutAll: comp first inputValue ]
+			]) asSymbol;
+			arguments: (components collect: #second);
+			yourself
+
+	]
+]
+
+{ #category : #accessing }
+SYMLParser >> pragmaChainUnaryMessage [
+	^ super pragmaChainUnaryMessage ==> [ :token |
+		SYMLASTPragma new
+			position: token;
+			selector: token inputValue asSymbol;
+			arguments: #();
+			yourself
+	]
+]
+
+{ #category : #accessing }
 SYMLParser >> prefix: operation operate: operand [
 	^ SYMLASTMessageSend new
 		tokens: {operation};

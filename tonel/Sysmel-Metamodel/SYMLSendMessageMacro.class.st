@@ -17,15 +17,13 @@ SYMLSendMessageMacro >> evaluateMessage: message inEnvironment: anEnvironment [
 
 { #category : #'macro compilation' }
 SYMLSendMessageMacro >> generateMessage: messageNode ssaCodeWith: builder [
-	| receiverValue arguments allArguments expectedReceiverType |
-	allArguments := #().
+	| receiverValue arguments expectedReceiverType |
 	expectedReceiverType := messageNode coercionType first.
+	receiverValue := nil.
 	expectedReceiverType isVoidType ifFalse: [ 
 		receiverValue := messageNode coercionRule first
 			convertSSAValue: (messageNode receiver generateSSACodeWith: builder)
 			to: expectedReceiverType with: builder at: messageNode.
-
-		allArguments := { receiverValue }.
 	].
 	
 	arguments := messageNode arguments collectWithIndex: [ :arg :index |
@@ -33,10 +31,8 @@ SYMLSendMessageMacro >> generateMessage: messageNode ssaCodeWith: builder [
 			convertSSAValue: (arg generateSSACodeWith: builder)
 			to: (messageNode coercionType second at: index) with: builder at: messageNode.
 	].
-	allArguments := allArguments , arguments.
 	
-	self flag: 'TODO: Support virtual/looked up calls.'.
-	^ builder call: messageMethod ssaValue arguments: allArguments
+	^ messageMethod generateSSAMessageSend: messageNode withReceiver: receiverValue arguments: arguments withBuilder: builder
 ]
 
 { #category : #accessing }

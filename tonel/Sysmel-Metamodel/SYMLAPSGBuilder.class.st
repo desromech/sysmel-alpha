@@ -51,6 +51,24 @@ SYMLAPSGBuilder >> literal: aValue typeSelector: typeSelector [
 		ifNotNil: [ SYMLAPSGLiteral new value: (aValue sysmelValueWithType: literalType inEnvironment: environment) ]
 ]
 
+{ #category : #'as yet unclassified' }
+SYMLAPSGBuilder >> pragmaSelector: selector arguments: arguments [
+	<compileTime>
+	^ SYMLAPSGPragma new
+		selector: selector;
+		arguments: arguments;
+		yourself
+]
+
+{ #category : #'builder methods' }
+SYMLAPSGBuilder >> pragmas: aCollectionOfPragmas sequence: aCollectionOfNodes [
+	<compileTime>
+	^ SYMLAPSGSequence new
+		pragmas: aCollectionOfPragmas;
+		elements: aCollectionOfNodes;
+		yourself
+]
+
 { #category : #'builder methods' }
 SYMLAPSGBuilder >> send: selector to: aReceiver withArguments: arguments [
 	<compileTime>

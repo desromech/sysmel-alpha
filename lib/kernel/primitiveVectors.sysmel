@@ -261,22 +261,22 @@ definition: {
     }.
 
     message - (other: SelfType) -> SelfType := {
-        [[intrinsic: #"vector.subtract"]]
+        [[intrinsic: #"vector.sub"]]
         return: (self _binaryOperation: #- with: other)
     }.
 
     message * (other: SelfType) -> SelfType := {
-        [[intrinsic: #"vector.multiply"]]
+        [[intrinsic: #"vector.mul"]]
         return: (self _binaryOperation: #* with: other)
     }.
 
     message / (other: SelfType) -> SelfType := {
-        [[intrinsic: #"vector.divide"]]
+        [[intrinsic: #"vector.div"]]
         return: (self _binaryOperation: #/ with: other)
     }.
 
     message % (other: SelfType) -> SelfType := {
-        [[intrinsic: #"vector.remainder"]]
+        [[intrinsic: #"vector.rem"]]
         return: (self _binaryOperation: #% with: other)
     }.
 
