@@ -95,6 +95,12 @@ SYMLSLVMCompilationTarget >> ssaInt8 [
 ]
 
 { #category : #'accesing ssa types' }
+SYMLSLVMCompilationTarget >> ssaMatrix: baseType rows: rows columns: columns [
+	<compileTime>
+	^ target matrix: baseType rows: rows columns: columns
+]
+
+{ #category : #'accesing ssa types' }
 SYMLSLVMCompilationTarget >> ssaPointerTo: targetType forAddressSpace: addressSpaceName [
 	<compileTime>
 	^ target pointerTo: targetType storage: addressSpaceName

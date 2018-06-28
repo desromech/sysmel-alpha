@@ -361,6 +361,14 @@ definition: {
         return: 0
     }.
 
+    meta message one -> _CompilerObjectType := {
+        return: 1
+    }.
+
+    meta message zero -> _CompilerObjectType := {
+        return: 0
+    }.
+
     meta message generateSSAValue: (value: _CompilerObjectType) withBuilder: (builder: _CompilerObjectType) ::-> _CompilerObjectType := {
         return: (builder const: value unwrapSysmelValue type: self ssaType)
     }.
@@ -405,6 +413,14 @@ definition: {
     }.
 
     meta message defaultValue -> _CompilerObjectType := {
+        return: 0.0
+    }.
+
+    meta message one -> _CompilerObjectType := {
+        return: 1.0
+    }.
+
+    meta message zero -> _CompilerObjectType := {
         return: 0.0
     }.
 }.

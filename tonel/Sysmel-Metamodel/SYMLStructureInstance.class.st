@@ -1,22 +1,11 @@
 Class {
 	#name : #SYMLStructureInstance,
-	#superclass : #SYMLObject,
+	#superclass : #SYMLObjectInstance,
 	#instVars : [
-		'type',
 		'slots'
 	],
 	#category : #'Sysmel-Metamodel-Program'
 }
-
-{ #category : #converting }
-SYMLStructureInstance >> asSysmelValueInEnvironment: anEnvironment [
-	^ self sysmelValueWithType: type inEnvironment: anEnvironment
-]
-
-{ #category : #'as yet unclassified' }
-SYMLStructureInstance >> evaluateMetaObjectTypeInEnvironment: anEnvironment [
-	^ type
-]
 
 { #category : #'code generation' }
 SYMLStructureInstance >> generateSSAReferenceWith: builder [
@@ -40,14 +29,4 @@ SYMLStructureInstance >> slots [
 { #category : #accessing }
 SYMLStructureInstance >> slots: anObject [
 	slots := anObject
-]
-
-{ #category : #accessing }
-SYMLStructureInstance >> type [
-	^ type
-]
-
-{ #category : #accessing }
-SYMLStructureInstance >> type: anObject [
-	type := anObject
 ]

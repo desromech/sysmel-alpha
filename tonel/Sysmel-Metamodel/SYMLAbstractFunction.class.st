@@ -13,7 +13,9 @@ Class {
 		'receiver',
 		'locals',
 		'ssaValue',
-		'bindedFunctionType'
+		'bindedFunctionType',
+		'generator',
+		'evaluator'
 	],
 	#category : #'Sysmel-Metamodel-Function'
 }
@@ -154,6 +156,13 @@ SYMLAbstractFunction >> createSSAValue [
 SYMLAbstractFunction >> decorateSSAValue: functionSSAValue [
 ]
 
+{ #category : #accessing }
+SYMLAbstractFunction >> definition: bodyLazyValue [
+	<compileTime>
+	<lazy>
+	^ self assignValue: bodyLazyValue
+]
+
 { #category : #'semantic analysis' }
 SYMLAbstractFunction >> ensureSemanticAnalysis [
 	analyzedBody ifNotNil: [ ^ self ].
@@ -162,7 +171,14 @@ SYMLAbstractFunction >> ensureSemanticAnalysis [
 
 { #category : #'as yet unclassified' }
 SYMLAbstractFunction >> evaluateWithReceiver: aReceiver arguments: activationArguments inEnvironment: environment at: aPosition [
-	| activationScope result hasResult providedArgument convertedArgument |
+	| activationScope result hasResult providedArgument convertedArgument convertedArguments |
+	evaluator ifNotNil: [ 
+		convertedArguments := arguments collectWithIndex: [:expectedArgument :index |
+			providedArgument := activationArguments at: index.
+			providedArgument coercedIntoType: expectedArgument type at: aPosition.
+		].
+		^ evaluator cull: aReceiver cull: convertedArguments cull: environment cull: aPosition
+	].
 	self analyzedBody.
 	
 	activationScope := SYMLFunctionActivationScope parent: bodyEnvironment.
@@ -198,6 +214,12 @@ SYMLAbstractFunction >> evaluateWithReceiver: aReceiver arguments: activationArg
 	^ result
 ]
 
+{ #category : #accessing }
+SYMLAbstractFunction >> evaluator: anEvaluator [
+	<compileTime>
+	evaluator := anEvaluator asSysmelCompileTimeFunction
+]
+
 { #category : #'code generation' }
 SYMLAbstractFunction >> fetchCalledMethodValueForReceiver: receiverValue withBuilder: builder [
 	self flag: 'TODO: Support virtual/looked up calls.'.
@@ -215,9 +237,13 @@ SYMLAbstractFunction >> functionType [
 	^ functionType
 ]
 
-{ #category : #'as yet unclassified' }
+{ #category : #'code generation' }
 SYMLAbstractFunction >> generateSSACallWithReceiver: receiverValue arguments: argumentValues withBuilder: builder at: position [
 	| allArguments calledMethodValue |
+	generator ifNotNil: [ 
+		self halt.
+	].
+
 	self intrinsic ifNotNil: [ :intrinsic |
 		^ intrinsic generateSSACallWithReceiver: receiverValue arguments: argumentValues withBuilder: builder at: position
 	].
@@ -284,6 +310,12 @@ SYMLAbstractFunction >> generateSSACode [
 { #category : #'code generation' }
 SYMLAbstractFunction >> generateSSAReferenceWith: builder [
 	^ self ssaValue
+]
+
+{ #category : #accessing }
+SYMLAbstractFunction >> generator: aGenerator [
+	<compileTime>
+	generator := aGenerator asSysmelCompileTimeFunction
 ]
 
 { #category : #initialization }

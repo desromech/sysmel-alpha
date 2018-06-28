@@ -262,6 +262,7 @@ SYMLAbstractType >> coerceValue: value into: targetType at: coercionPosition [
 { #category : #conversions }
 SYMLAbstractType >> coercedImplicitlyInto: targetType [
 	self == targetType ifTrue: [ ^ SYMLIdentityTypeConversionRule new ].
+	targetType == self compilationTarget compilerObjectType ifTrue: [ ^ SYMLIdentityTypeConversionRule new ].
 	implicitConversionRules do: [ :rule |
 		(rule canBeUsedToConvertFrom: self into: targetType) ifTrue: [ ^ rule ].
 	].
@@ -838,6 +839,19 @@ SYMLAbstractType >> sysmelPerform: aSelector withArguments: arguments fallbackWi
 
 	result := method evaluateWithReceiver: self arguments: (arguments collect: [ :arg | arg asSysmelValueInEnvironment: definitionEnvironment ]) inEnvironment: definitionEnvironment at: (SYMLSourcePosition new).
 	^ result
+]
+
+{ #category : #'type composition' }
+SYMLAbstractType >> tupleOfSize: tupleSize [
+	<compileTime>
+	^ self compilationTarget tuple: ((1 to: tupleSize) collect: [ :i | self ])
+]
+
+{ #category : #'type composition' }
+SYMLAbstractType >> tupleOrScalarOfSize: tupleSize [
+	<compileTime>
+	tupleSize = 1 ifTrue: [ ^ self ].
+	^ self tupleOfSize: tupleSize
 ]
 
 { #category : #accessing }

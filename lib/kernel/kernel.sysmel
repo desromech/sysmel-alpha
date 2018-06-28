@@ -8,4 +8,5 @@ Compiler
     evaluateFileNamedOnce: "pointer.sysmel";
     evaluateFileNamedOnce: "platformSpecific.sysmel";
     evaluateFileNamedOnce: "primitiveVectors.sysmel";
+    evaluateFileNamedOnce: "primitiveMatrix.sysmel";
     yourself

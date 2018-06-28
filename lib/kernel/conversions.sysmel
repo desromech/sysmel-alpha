@@ -51,6 +51,31 @@ _LiteralInteger conversionTo: PrimitiveIntegerType doOn: {
     }.
 }.
 
+_LiteralInteger conversionTo: _LiteralFloat doOn: {
+    evaluation: $$Pharo {
+        value: value into: targetType at: coercionPosition
+            ^ value sameValueButWithType: targetType
+    }.
+    codeGeneration: $$Pharo {
+        convertSSAValue: sourceValue to: targetType with: builder at: messageNode
+            ^ SLVMConstant type: targetType ssaType value: sourceValue
+    }.
+}.
+
+_LiteralInteger conversionTo: PrimitiveFloatingPointType doOn: {
+    evaluation: $$Pharo {
+        value: value into: targetType at: coercionPosition
+            ^ value copy
+                value: value value asFloat;
+                type: targetType;
+                yourself
+    }.
+    codeGeneration: $$Pharo {
+        convertSSAValue: sourceValue to: targetType with: builder at: messageNode
+            ^ SLVMConstant type: targetType ssaType value: sourceValue asFloat
+    }.
+}.
+
 _LiteralFloat conversionTo: PrimitiveFloatingPointType doOn: {
     evaluation: $$Pharo {
         value: value into: targetType at: coercionPosition

@@ -1,5 +1,5 @@
 Class {
-	#name : #SYMLMacroMethod,
+	#name : #SYMLAbstractMacroMethod,
 	#superclass : #SYMLMacro,
 	#traits : 'TSYMLMessageMethod',
 	#classTraits : 'TSYMLMessageMethod classTrait',
@@ -12,12 +12,12 @@ Class {
 }
 
 { #category : #'as yet unclassified' }
-SYMLMacroMethod >> bodyEnvironment [
+SYMLAbstractMacroMethod >> bodyEnvironment [
 	^ definitionEnvironment
 ]
 
 { #category : #'macro methods' }
-SYMLMacroMethod >> convertMacroArgument: providedArgument into: expectedArgumentType in: environment [
+SYMLAbstractMacroMethod >> convertMacroArgument: providedArgument into: expectedArgumentType in: environment [
 	| evaluatedArgument coercedArgument |
 	expectedArgumentType isAPSGNodeType ifTrue: [ ^ providedArgument ].
 	
@@ -27,7 +27,7 @@ SYMLMacroMethod >> convertMacroArgument: providedArgument into: expectedArgument
 ]
 
 { #category : #'macro methods' }
-SYMLMacroMethod >> createActivationEnvironmentForMessage: message inEnvironment: environment at: aPosition [
+SYMLAbstractMacroMethod >> createActivationEnvironmentForMessage: message inEnvironment: environment at: aPosition [
 	| activationScope activationArguments providedArgument convertedArgument |
 	activationScope := SYMLFunctionActivationScope parent: self bodyEnvironment.
 	activationScope function: self.
@@ -52,33 +52,33 @@ SYMLMacroMethod >> createActivationEnvironmentForMessage: message inEnvironment:
 ]
 
 { #category : #'as yet unclassified' }
-SYMLMacroMethod >> createMacroFunctionType [
+SYMLAbstractMacroMethod >> createMacroFunctionType [
 	macroFunctionType := self compilationTarget macroFunctionArguments: (arguments collect: #type).
 ]
 
 { #category : #'argument parsing' }
-SYMLMacroMethod >> defaultTypeForArgument: node inEnvironment: environment [
+SYMLAbstractMacroMethod >> defaultTypeForArgument: node inEnvironment: environment [
 	^ self compilationTarget apsgNodeType
 ]
 
 { #category : #initialization }
-SYMLMacroMethod >> initialize [
+SYMLAbstractMacroMethod >> initialize [
 	super initialize.
 	hasSelector := false.
 ]
 
 { #category : #'macro methods' }
-SYMLMacroMethod >> isVariadic [
+SYMLAbstractMacroMethod >> isVariadic [
 	^ false
 ]
 
 { #category : #accessing }
-SYMLMacroMethod >> macroFunctionType [
+SYMLAbstractMacroMethod >> macroFunctionType [
 	^ macroFunctionType
 ]
 
 { #category : #'as yet unclassified' }
-SYMLMacroMethod >> sanitizeExpansion: expansion at: aPosition [
+SYMLAbstractMacroMethod >> sanitizeExpansion: expansion at: aPosition [
 	(expansion isSequenceNode and: [ expansion elements size = 1 ]) ifTrue: [
 		^ expansion elements first shallowCopy
 		position: aPosition;
@@ -91,7 +91,7 @@ SYMLMacroMethod >> sanitizeExpansion: expansion at: aPosition [
 ]
 
 { #category : #'meta object protocol' }
-SYMLMacroMethod >> semanticAnalyzeMessageToYou: message inEnvironment: environment at: aPosition [
+SYMLAbstractMacroMethod >> semanticAnalyzeMessageToYou: message inEnvironment: environment at: aPosition [
 	hasSelector ifFalse: [ 
 		self setSelectorWithTemplate: message inEnvironment: environment at: aPosition.
 		^ message receiver
@@ -101,7 +101,7 @@ SYMLMacroMethod >> semanticAnalyzeMessageToYou: message inEnvironment: environme
 ]
 
 { #category : #initialization }
-SYMLMacroMethod >> setSelectorWithTemplate: message inEnvironment: environment at: aPosition [
+SYMLAbstractMacroMethod >> setSelectorWithTemplate: message inEnvironment: environment at: aPosition [
 	arguments := message arguments collect: [ :arg | self createArgumentFromTemplate: arg inEnvironment: environment ].
 	
 	self createMacroFunctionType.

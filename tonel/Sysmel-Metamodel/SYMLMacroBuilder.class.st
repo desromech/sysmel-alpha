@@ -15,6 +15,17 @@ SYMLMacroBuilder >> expansionRule [
 		yourself
 ]
 
+{ #category : #accessing }
+SYMLMacroBuilder >> methodGenerator [
+	<compileTime>
+	^ SYMLMacroMethodGenerator new
+		module: module;
+		definitionEnvironment: definitionEnvironment;
+		definitionNode: definitionNode;
+		parent: parent;
+		yourself
+]
+
 { #category : #'as yet unclassified' }
 SYMLMacroBuilder >> selector: selectorLazyValue doOn: actionRules [
 	<compileTime>

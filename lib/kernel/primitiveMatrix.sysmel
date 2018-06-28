@@ -1,0 +1,181 @@
+namespace SysmelKernel definition: {
+
+// Add a testing method into type about primitive vector types.
+Type extend: {
+    message isPrimitiveMatrixType -> Boolean := {
+        return: false
+    }.
+}.
+
+// Common trait for primitive vectors
+trait PrimitiveMatrixType
+    uses: AnyValue;
+definition: {
+    meta message isPrimitiveMatrixType -> Boolean := {
+        return: true
+    }.
+}.
+
+// Primitive matrix template.
+template PrimitiveMatrixTypeTemplate(E: Type, R: _LiteralInteger, C: _LiteralInteger)
+    := type uses: PrimitiveMatrixType;
+definition: {
+    alias ElementType := E.
+    alias RowCount := R.
+    alias ColumnCount := C.
+
+    alias ColumnType := ElementType vector: RowCount.
+    alias RowType := ElementType vector: ColumnCount.
+
+    alias IsSquareMatrix := RowCount = ColumnCount.
+
+    alias ColumnsTuple := ColumnType tupleOrScalarOfSize: ColumnCount.
+    alias RowsTuple := RowType tupleOrScalarOfSize: RowCount.
+
+    meta message elementType -> _CompilerObjectType := {
+        return: ElementType
+    }.
+
+    meta message rows -> _LiteralInteger := {
+        return: RowCount
+    }.
+
+    meta message columns -> _LiteralInteger := {
+        return: ColumnCount
+    }.
+
+    meta message columnType -> _CompilerObjectType := {
+        return: ColumnType
+    }.
+
+    meta message rowType -> _CompilerObjectType := {
+        return: RowType
+    }.
+
+    meta message alignment -> Int32 := {
+        return: ColumnType alignment
+    }.
+
+    meta message size -> Int32 := {
+        return: ColumnType size * ColumnCount
+    }.
+
+    meta message buildSSAType -> _CompilerObjectType := {
+        return: (Compiler compilationTarget ssaMatrix: ElementType ssaType rows: RowCount columns: ColumnCount)
+    }.
+
+    meta message createSysmelMangledValue -> _CompilerObjectType := {
+        return: (ElementType sysmelMangledValue -- #m -- RowCount asString -- ColumnCount asString)
+    }.
+
+    meta message createPrintingName -> _CompilerObjectType := {
+        return: (ElementType printingName -- "x" -- RowCount printString -- "x" -- ColumnCount printString)
+    }.
+
+    (meta message withAll: (value: ElementType) ::-> SelfType)
+        definition: {};
+        evaluator: $$Pharo {
+        evaluateMessageWithReceiver: receiver arguments: arguments environment: environment at: position
+            | value |
+            value := arguments first unwrapSysmelValue.
+
+            ^ SYMLMatrixInstance forType: receiver withAll: value
+        };
+        generator: $$Pharo {
+        generateMessageWithReceiver: receiver arguments: arguments builder: builder at: position
+            self halt.
+        }.
+
+    if: IsSquareMatrix then: {
+        (meta message identity -> SelfType)
+            definition: {};
+            evaluator: $$Pharo {
+            evaluateMessageWithReceiver: receiver arguments: arguments environment: environment at: position
+                ^ SYMLMatrixInstance identityForType: receiver
+            };
+            generator: $$Pharo {
+            generateMessageWithReceiver: receiver arguments: arguments builder: builder at: position
+                ^ (SYMLMatrixInstance identityForType: receiver) generateSSAReferenceWith: builder
+            }.
+    }.
+
+    meta message generateSSAValue: (value: _CompilerObjectType) withBuilder: (builder: _CompilerObjectType) ::-> _CompilerObjectType := {
+        return: (value unwrapSysmelValue generateSSAReferenceWith: builder)
+    }.
+
+    meta macro expansionRule zeros := {
+        self macroExpand withAll: 0
+    }.
+
+    meta macro expansionRule value := {
+        self macroExpand zeros
+    }.
+
+    meta macro expansionRule ones := {
+        self macroExpand withAll: 1
+    }.
+
+    // Accessors
+    (SelfType addIntrinsicField: #firstColumn slotIndex: 0)
+        type: ColumnType;
+        public;
+        createAccessors.
+
+    if: ColumnCount >= 2 then: {
+        (SelfType addIntrinsicField: #secondColumn slotIndex: 1)
+            type: ColumnType;
+            public;
+            createAccessors.
+    }.
+
+    if: ColumnCount >= 3 then: {
+        (SelfType addIntrinsicField: #thirdColumn slotIndex: 2)
+            type: ColumnType;
+            public;
+            createAccessors.
+    }.
+
+    if: ColumnCount >= 4 then: {
+        (SelfType addIntrinsicField: #fourthColumn slotIndex: 3)
+            type: ColumnType;
+            public;
+            createAccessors.
+    }.
+
+    // Element-wise arithmetic
+    message + (other: SelfType) -> SelfType := {
+        [[intrinsic: #"matrix.add"]]
+    }.
+
+    message - (other: SelfType) -> SelfType := {
+        [[intrinsic: #"matrix.sub"]]
+    }.
+
+    // Matrix-Vector multiplication
+    message * (vector: ColumnType) -> ColumnType := {
+        [[intrinsic: #"matrix.matrixTimesVector"]]
+    }.
+
+    // Vector-Matrix multiplication
+    RowType message * (matrix: SelfType) -> RowType := {
+        [[intrinsic: #"matrix.vectorTimesMatrix"]]
+    }.
+}.
+
+PrimitiveType extend: {
+    meta message matrixRows: (rowCount: _LiteralInteger) columns: (columnCount: _LiteralInteger) ::-> _CompilerObjectType := {
+        return: PrimitiveMatrixTypeTemplate(self, rowCount, columnCount)
+    }.
+}.
+
+// Float32 based matrices.
+alias Float32x2x2 := Float32 matrixRows: 2 columns: 2.
+alias Float32x3x3 := Float32 matrixRows: 3 columns: 3.
+alias Float32x4x4 := Float32 matrixRows: 3 columns: 3.
+
+// Float64 based vectors.
+alias Float64x2x2 := Float32 matrixRows: 2 columns: 2.
+alias Float64x3x3 := Float32 matrixRows: 3 columns: 3.
+alias Float64x4x4 := Float32 matrixRows: 3 columns: 3.
+
+}

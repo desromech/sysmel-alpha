@@ -1,6 +1,6 @@
 Class {
 	#name : #SYMLMacroExpansionRule,
-	#superclass : #SYMLMacroMethod,
+	#superclass : #SYMLAbstractMacroMethod,
 	#instVars : [
 		'expansionTemplate'
 	],
