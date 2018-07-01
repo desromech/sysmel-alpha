@@ -1,6 +1,6 @@
 Class {
 	#name : #SYMLValue,
-	#superclass : #SYMLObject,
+	#superclass : #SYMLAbstractValue,
 	#instVars : [
 		'value',
 		'type',
@@ -117,6 +117,11 @@ SYMLValue >> isSysmelValue [
 	^ true
 ]
 
+{ #category : #'pattern matching' }
+SYMLValue >> matchValue: suppliedValue withMatchingContext: patternMatchingContext at: position [
+	^ suppliedValue value = value ifTrue: [ suppliedValue ] ifFalse: [ nil ]
+]
+
 { #category : #printing }
 SYMLValue >> printOn: aStream [
 	^ aStream nextPutAll: self class name;
@@ -132,7 +137,7 @@ SYMLValue >> sameValueButWithType: aNewType [
 	^ self copy type: aNewType
 ]
 
-{ #category : #'as yet unclassified' }
+{ #category : #accessing }
 SYMLValue >> sysmelMangledValue [
 	<compileTime>
 	^ value sysmelMangledValue

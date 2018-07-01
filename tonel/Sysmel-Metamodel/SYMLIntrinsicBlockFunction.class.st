@@ -18,6 +18,6 @@ SYMLIntrinsicBlockFunction >> block: anObject [
 ]
 
 { #category : #'as yet unclassified' }
-SYMLIntrinsicBlockFunction >> generateSSACallWithArguments: argumentValues builder: builder at: position [
-	^ block cull: argumentValues cull: builder cull: position
+SYMLIntrinsicBlockFunction >> generateSSACallWithArguments: argumentValues returnType: returnType  builder: builder at: position [
+	^ block cull: argumentValues cull: returnType cull: builder cull: position
 ]

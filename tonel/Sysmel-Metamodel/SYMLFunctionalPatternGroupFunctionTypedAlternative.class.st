@@ -7,17 +7,6 @@ Class {
 	#category : #'Sysmel-Metamodel-Macro'
 }
 
-{ #category : #testing }
-SYMLFunctionalPatternGroupFunctionTypedAlternative >> expandArgument: argument index: index withExpansionCache: expansionCache inEnvironment: environment [
-	| expandedArgument expandedArgumentType pair |
-	(expansionCache at: index) ifNotNil: [ :cachedExpansion | ^ cachedExpansion].
-	expandedArgument := argument semanticAnalysisInEnvironment: environment.
-	expandedArgumentType := expandedArgument evaluateTypeInEnvironment: environment.
-	pair := { expandedArgument . expandedArgumentType}.
-	expansionCache at: index put: pair.
-	^ pair
-]
-
 { #category : #accessing }
 SYMLFunctionalPatternGroupFunctionTypedAlternative >> functionType [
 	^ functionType
@@ -32,7 +21,7 @@ SYMLFunctionalPatternGroupFunctionTypedAlternative >> functionType: anObject [
 SYMLFunctionalPatternGroupFunctionTypedAlternative >> matchUnexpandedArguments: suppliedArguments withExpansionCache: expansionCache inEnvironment: environment [
 	| expectedArguments expectedArgument suppliedArgument suppliedArgumentNode suppliedArgumentType coercionCost argumentCoercionRule |
 	expectedArguments := functionType arguments.
-	suppliedArguments size ~= expectedArguments size ifTrue: [ ^ -1 ].
+	suppliedArguments size ~= expectedArguments size ifTrue: [ ^ nil ].
 	coercionCost := 0.
 	1 to: expectedArguments size do: [ :i |
 		expectedArgument := expectedArguments at: i.
@@ -43,20 +32,20 @@ SYMLFunctionalPatternGroupFunctionTypedAlternative >> matchUnexpandedArguments: 
 			suppliedArgumentNode := suppliedArgument first.
 			suppliedArgumentType := suppliedArgument second.
 			argumentCoercionRule := suppliedArgumentType node: suppliedArgumentNode coercedImplicitlyInto: expectedArgument.
-			argumentCoercionRule ifNil: [ ^ -1 ].
+			argumentCoercionRule ifNil: [ ^ nil ].
 			coercionCost := coercionCost + argumentCoercionRule coercionCost
 		].
 	].
 
-	^ coercionCost
+	^ {self . coercionCost}
 ]
 
 { #category : #testing }
 SYMLFunctionalPatternGroupFunctionTypedAlternative >> matchesSameAs: aPatternAlternative [
-	^ aPatternAlternative matchesSameAsFuncionTypedAlternative: self
+	^ aPatternAlternative matchesSameAsFunctionTypedAlternative: self
 ]
 
 { #category : #testing }
-SYMLFunctionalPatternGroupFunctionTypedAlternative >> matchesSameAsFuncionTypedAlternative: otherAlternative [
+SYMLFunctionalPatternGroupFunctionTypedAlternative >> matchesSameAsFunctionTypedAlternative: otherAlternative [
 	^ functionType arguments = otherAlternative functionType arguments
 ]

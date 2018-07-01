@@ -19,6 +19,11 @@ SYMLMacroMethodPatternGroup >> evaluateWithReceiver: aReceiver arguments: activa
 	^ pattern evaluateWithReceiver: aReceiver arguments: activationArguments inEnvironment: environment at: aPosition
 ]
 
+{ #category : #'as yet unclassified' }
+SYMLMacroMethodPatternGroup >> semanticAnalyzeApplicationAlternative: selectedAlternative message: message inEnvironment: environment at: aPosition [
+	^ selectedAlternative semanticAnalyzeMessage: message inEnvironment: environment at: aPosition
+]
+
 { #category : #'macro compilation' }
 SYMLMacroMethodPatternGroup >> semanticAnalyzeMessage: message inEnvironment: environment at: aPosition [
 	| checkedMessageAndPattern |

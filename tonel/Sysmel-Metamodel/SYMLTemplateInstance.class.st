@@ -49,6 +49,16 @@ SYMLTemplateInstance >> initialize [
 	children := OrderedCollection new.
 ]
 
+{ #category : #testing }
+SYMLTemplateInstance >> isInstanceOfTemplate: template [
+	^ parent == template
+]
+
+{ #category : #testing }
+SYMLTemplateInstance >> isTemplateInstance [
+	^ true
+]
+
 { #category : #accessing }
 SYMLTemplateInstance >> mangledArguments [
 	^ mangledArguments ifNil: [ mangledArguments := ByteString streamContents: [:out |

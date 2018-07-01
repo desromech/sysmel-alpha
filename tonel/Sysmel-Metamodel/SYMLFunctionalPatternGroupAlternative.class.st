@@ -24,6 +24,17 @@ SYMLFunctionalPatternGroupAlternative >> evaluateWithReceiver: aReceiver argumen
 	^ macroFunction evaluateWithReceiver: aReceiver arguments: activationArguments inEnvironment: environment at: aPosition
 ]
 
+{ #category : #testing }
+SYMLFunctionalPatternGroupAlternative >> expandArgument: argument index: index withExpansionCache: expansionCache inEnvironment: environment [
+	| expandedArgument expandedArgumentType pair |
+	(expansionCache at: index) ifNotNil: [ :cachedExpansion | ^ cachedExpansion].
+	expandedArgument := argument semanticAnalysisInEnvironment: environment.
+	expandedArgumentType := expandedArgument evaluateTypeInEnvironment: environment.
+	pair := { expandedArgument . expandedArgumentType}.
+	expansionCache at: index put: pair.
+	^ pair
+]
+
 { #category : #'semantic analysis' }
 SYMLFunctionalPatternGroupAlternative >> generateSSACode [
 	macroFunction generateSSACode
@@ -46,7 +57,12 @@ SYMLFunctionalPatternGroupAlternative >> matchesSameAs: aPatternAlternative [
 ]
 
 { #category : #testing }
-SYMLFunctionalPatternGroupAlternative >> matchesSameAsFuncionTypedAlternative: otherAlternative [
+SYMLFunctionalPatternGroupAlternative >> matchesSameAsFunctionTypedAlternative: otherAlternative [
+	^ false
+]
+
+{ #category : #testing }
+SYMLFunctionalPatternGroupAlternative >> matchesSameAsTemplateAlternative: otherAlternative [
 	^ false
 ]
 

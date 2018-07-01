@@ -9,6 +9,11 @@ SYMLAbstractFunctionOrMacro >> createReceiverTypeForParent [
 
 ]
 
+{ #category : #testing }
+SYMLAbstractFunctionOrMacro >> isTemplateFunctionInstance [
+	^ false
+]
+
 { #category : #accessing }
 SYMLAbstractFunctionOrMacro >> parent: aParent [
 	super parent: aParent.

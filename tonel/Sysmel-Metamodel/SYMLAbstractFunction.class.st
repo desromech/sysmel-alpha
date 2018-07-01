@@ -15,7 +15,8 @@ Class {
 		'ssaValue',
 		'bindedFunctionType',
 		'generator',
-		'evaluator'
+		'evaluator',
+		'templateFunctionOwner'
 	],
 	#category : #'Sysmel-Metamodel-Function'
 }
@@ -245,7 +246,7 @@ SYMLAbstractFunction >> generateSSACallWithReceiver: receiverValue arguments: ar
 	].
 
 	self intrinsic ifNotNil: [ :intrinsic |
-		^ intrinsic generateSSACallWithReceiver: receiverValue arguments: argumentValues withBuilder: builder at: position
+		^ intrinsic generateSSACallWithReceiver: receiverValue arguments: argumentValues returnType: returnType withBuilder: builder at: position
 	].
 
 	allArguments := arguments.
@@ -323,7 +324,6 @@ SYMLAbstractFunction >> initialize [
 	super initialize.
 	callingConvention := #cdecl.
 	locals := OrderedCollection new.
-	
 ]
 
 { #category : #'as yet unclassified' }
@@ -357,6 +357,11 @@ SYMLAbstractFunction >> isMessageMethod [
 { #category : #testing }
 SYMLAbstractFunction >> isMethod [
 	^ false
+]
+
+{ #category : #testing }
+SYMLAbstractFunction >> isTemplateFunctionInstance [
+	^ templateFunctionOwner isNotNil
 ]
 
 { #category : #accessing }
@@ -418,6 +423,16 @@ SYMLAbstractFunction >> ssaValue [
 	self assert: (body isNil or: [analyzedBody isNotNil]).
 	ssaValue ifNil: [ self createSSAValue ].
 	^ ssaValue
+]
+
+{ #category : #accessing }
+SYMLAbstractFunction >> templateFunctionOwner [
+	^ templateFunctionOwner
+]
+
+{ #category : #accessing }
+SYMLAbstractFunction >> templateFunctionOwner: anObject [
+	templateFunctionOwner := anObject
 ]
 
 { #category : #accessing }

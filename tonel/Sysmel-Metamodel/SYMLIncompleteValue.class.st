@@ -1,6 +1,6 @@
 Class {
 	#name : #SYMLIncompleteValue,
-	#superclass : #SYMLObject,
+	#superclass : #SYMLAbstractValue,
 	#instVars : [
 		'binding',
 		'type'
@@ -26,6 +26,11 @@ SYMLIncompleteValue >> concretizeInEnvironment: concreteEnvironment [
 { #category : #testing }
 SYMLIncompleteValue >> isSysmelIncompleteValue [
 	^ true
+]
+
+{ #category : #'pattern matching' }
+SYMLIncompleteValue >> matchValue: suppliedValue withMatchingContext: patternMatchingContext at: position [
+	^ patternMatchingContext matchIncompleteValue: self with: suppliedValue at: position
 ]
 
 { #category : #'as yet unclassified' }

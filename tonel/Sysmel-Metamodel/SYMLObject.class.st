@@ -83,11 +83,6 @@ SYMLObject >> isFieldVariable [
 ]
 
 { #category : #testing }
-SYMLObject >> isIncompleteValue [
-	^ false
-]
-
-{ #category : #testing }
 SYMLObject >> isMacroPatternGroup [
 	^ false
 ]
@@ -125,6 +120,16 @@ SYMLObject >> isSysmelIncompleteValue [
 { #category : #testing }
 SYMLObject >> isSysmelObject [
 	^ true
+]
+
+{ #category : #testing }
+SYMLObject >> isTemplate [
+	^ false
+]
+
+{ #category : #testing }
+SYMLObject >> isTemplateInstance [
+	^ false
 ]
 
 { #category : #testing }

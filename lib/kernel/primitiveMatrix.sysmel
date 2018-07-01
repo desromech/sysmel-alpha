@@ -86,6 +86,28 @@ definition: {
             self halt.
         }.
 
+    (meta message columnMajorIndices -> SelfType)
+        definition: {};
+        evaluator: $$Pharo {
+        evaluateMessageWithReceiver: receiver arguments: arguments environment: environment at: position
+            ^ SYMLMatrixInstance columnMajorIndicesForType: receiver
+        };
+        generator: $$Pharo {
+        generateMessageWithReceiver: receiver arguments: arguments builder: builder at: position
+            ^ (SYMLMatrixInstance columnMajorIndicesForType: receiver) generateSSAReferenceWith: builder
+        }.
+
+    (meta message rowMajorIndices -> SelfType)
+        definition: {};
+        evaluator: $$Pharo {
+        evaluateMessageWithReceiver: receiver arguments: arguments environment: environment at: position
+            ^ SYMLMatrixInstance rowMajorIndicesForType: receiver
+        };
+        generator: $$Pharo {
+        generateMessageWithReceiver: receiver arguments: arguments builder: builder at: position
+            ^ (SYMLMatrixInstance rowMajorIndicesForType: receiver) generateSSAReferenceWith: builder
+        }.
+
     if: IsSquareMatrix then: {
         (meta message identity -> SelfType)
             definition: {};
@@ -142,6 +164,11 @@ definition: {
             createAccessors.
     }.
 
+    // Matrix transposition
+    message transposed -> PrimitiveMatrixTypeTemplate(ElementType, ColumnCount, RowCount) := {
+        [[intrinsic: #"matrix.transpose"]]
+    }.
+
     // Element-wise arithmetic
     message + (other: SelfType) -> SelfType := {
         [[intrinsic: #"matrix.add"]]
@@ -149,6 +176,11 @@ definition: {
 
     message - (other: SelfType) -> SelfType := {
         [[intrinsic: #"matrix.sub"]]
+    }.
+
+    template(OtherColumns: _LiteralInteger)
+    message * (other: PrimitiveMatrixTypeTemplate(E, ColumnCount, OtherColumns)) ::-> PrimitiveMatrixTypeTemplate(ElementType, RowCount, OtherColumns):= {
+        [[intrinsic: #"matrix.matrixTimesMatrix"]]
     }.
 
     // Matrix-Vector multiplication

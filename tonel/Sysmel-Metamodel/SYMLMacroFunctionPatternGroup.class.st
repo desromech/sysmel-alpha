@@ -38,8 +38,8 @@ SYMLMacroFunctionPatternGroup >> semanticAnalyzeOverloadedApplication: message i
 	tupleArgument isTupleNode ifTrue: [
 		expansionCache := Array new: tupleArgument elements size.
 		validAlternatives := alternatives collect: [ :alternative |
-			{alternative . alternative matchUnexpandedArguments: tupleArgument elements withExpansionCache: expansionCache inEnvironment: environment}
-		] thenSelect: [:pair | pair second >= 0].
+			alternative matchUnexpandedArguments: tupleArgument elements withExpansionCache: expansionCache inEnvironment: environment
+		] thenSelect: #isNotNil.
 
 		"Select the best alternative"	
 		validAlternatives ifNotEmpty: [

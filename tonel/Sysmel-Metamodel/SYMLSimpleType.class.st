@@ -119,6 +119,13 @@ SYMLSimpleType >> generatePrimitiveUnsignedIntegerArithmeticMessage: messageNode
 	self error: 'Unsupported arithmetic operation {1} with coerced values of type {2}.' format: { messageNode selector . self name } at: aPosition
 ]
 
+{ #category : #'as yet unclassified' }
+SYMLSimpleType >> numericalConstant: value [
+	^ self isFloatingPointType
+		ifTrue: [ value asFloat sysmelValueWithType: self inEnvironment: nil ]
+		ifFalse: [ value sysmelValueWithType: self inEnvironment: nil ]
+]
+
 { #category : #printing }
 SYMLSimpleType >> printOn: aStream [
 	aStream nextPutAll: 'type '; nextPutAll: self printingName

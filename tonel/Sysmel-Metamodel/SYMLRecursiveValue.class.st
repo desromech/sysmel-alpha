@@ -1,6 +1,6 @@
 Class {
 	#name : #SYMLRecursiveValue,
-	#superclass : #SYMLObject,
+	#superclass : #SYMLAbstractValue,
 	#category : #'Sysmel-Metamodel-Values'
 }
 

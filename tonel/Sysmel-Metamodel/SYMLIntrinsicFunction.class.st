@@ -19,6 +19,15 @@ SYMLIntrinsicFunction class >> addIntrinsic: intrinsicName block: aBlock [
 			yourself)
 ]
 
+{ #category : #adding }
+SYMLIntrinsicFunction class >> addIntrinsic: intrinsicName builtInNamed: builtInName [
+	IntrinsicFunctionDictionary at: intrinsicName put:
+		(SYMLIntrinsicBuiltInFunction new
+			name: intrinsicName;
+			builtInName: builtInName;
+			yourself)
+]
+
 { #category : #'instance creation' }
 SYMLIntrinsicFunction class >> fromName: intrinsicName [
 	^ IntrinsicFunctionDictionary at: intrinsicName ifAbsent: [ nil ]
@@ -38,22 +47,52 @@ SYMLIntrinsicFunction class >> initialize [
 ]
 
 { #category : #intrinsics }
+SYMLIntrinsicFunction class >> matrixInstructions [
+	<intrinsics>
+	self
+		addIntrinsic: #'matrix.add' block: [ :arguments :returnType :builder |
+			builder matrixAdd: arguments first with: arguments second
+		];
+		addIntrinsic: #'matrix.sub' block: [ :arguments :returnType :builder |
+			builder matrixSub: arguments first with: arguments second
+		];
+		addIntrinsic: #'matrix.vectorTimesMatrix' block: [ :arguments :returnType :builder |
+			builder mulVector: arguments first withMatrix: arguments second
+		];
+		addIntrinsic: #'matrix.matrixTimesVector' block: [ :arguments :returnType :builder |
+			builder mulMatrix: arguments first withVector: arguments second
+		];
+		addIntrinsic: #'matrix.matrixTimesMatrix' block: [ :arguments :returnType :builder |
+			builder mulMatrix: arguments first withMatrix: arguments second
+		];
+		yourself
+]
+
+{ #category : #intrinsics }
+SYMLIntrinsicFunction class >> matrixOperations [
+	<intrinsics>
+	self
+		addIntrinsic: #'matrix.transpose' builtInNamed: 'matrix.transpose';
+		yourself
+]
+
+{ #category : #intrinsics }
 SYMLIntrinsicFunction class >> vectorInstructions [
 	<intrinsics>
 	self
-		addIntrinsic: #'vector.add' block: [ :arguments :builder |
+		addIntrinsic: #'vector.add' block: [ :arguments :returnType :builder |
 			builder vectorAdd: arguments first with: arguments second
 		];
-		addIntrinsic: #'vector.sub' block: [ :arguments :builder |
+		addIntrinsic: #'vector.sub' block: [ :arguments :returnType :builder |
 			builder vectorSub: arguments first with: arguments second
 		];
-		addIntrinsic: #'vector.mul' block: [ :arguments :builder |
+		addIntrinsic: #'vector.mul' block: [ :arguments :returnType :builder |
 			builder vectorMul: arguments first with: arguments second
 		];
-		addIntrinsic: #'vector.div' block: [ :arguments :builder |
+		addIntrinsic: #'vector.div' block: [ :arguments :returnType :builder |
 			builder vectorDiv: arguments first with: arguments second
 		];
-		addIntrinsic: #'vector.rem' block: [ :arguments :builder |
+		addIntrinsic: #'vector.rem' block: [ :arguments :returnType :builder |
 			builder vectorRem: arguments first with: arguments second
 		];
 
@@ -61,16 +100,16 @@ SYMLIntrinsicFunction class >> vectorInstructions [
 ]
 
 { #category : #'as yet unclassified' }
-SYMLIntrinsicFunction >> generateSSACallWithArguments: argumentValues builder: builder at: position [
+SYMLIntrinsicFunction >> generateSSACallWithArguments: argumentValues returnType: returnType  builder: builder at: position [
 	self subclassResponsibility
 ]
 
 { #category : #'as yet unclassified' }
-SYMLIntrinsicFunction >> generateSSACallWithReceiver: receiverValue arguments: argumentValues withBuilder: builder at: position [
+SYMLIntrinsicFunction >> generateSSACallWithReceiver: receiverValue arguments: argumentValues returnType: returnType withBuilder: builder at: position [
 	receiverValue ifNil: [
-		^ self generateSSACallWithArguments: argumentValues builder: builder at: position
+		^ self generateSSACallWithArguments: argumentValues returnType: returnType  builder: builder at: position
 	] ifNotNil: [ 
-		^ self generateSSACallWithArguments: {receiverValue} , argumentValues builder: builder at: position
+		^ self generateSSACallWithArguments: {receiverValue} , argumentValues returnType: returnType builder: builder at: position
 	]
 ]
 

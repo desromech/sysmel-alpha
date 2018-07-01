@@ -482,6 +482,11 @@ SYMLAbstractType >> isFunctionType [
 ]
 
 { #category : #testing }
+SYMLAbstractType >> isInstanceOfTemplate: aTemplate [
+	^ parent isNotNil and: [ parent isTemplateInstance and: [ parent isInstanceOfTemplate: aTemplate ] ]
+]
+
+{ #category : #testing }
 SYMLAbstractType >> isIntegerType [
 	^ self cachedNullary: #isIntegerType
 ]

@@ -8,6 +8,17 @@ Class {
 }
 
 { #category : #'as yet unclassified' }
+SYMLMatrixInstance class >> columnMajorIndicesForType: type [
+	| elementType columns |
+	elementType := type cachedNullary: #elementType.
+	columns := type cachedNullary: #columns.
+	
+	^ self forType: type createWithBlock: [ :i :j |
+		elementType numericalConstant: (j-1)*columns + (i-1)
+	]
+]
+
+{ #category : #'as yet unclassified' }
 SYMLMatrixInstance class >> forType: type createWithBlock: aBlock [
 	| columnCount rowCount columnType |
 	columnCount := type cachedNullary: #columns.
@@ -52,6 +63,17 @@ SYMLMatrixInstance class >> identityForType: type [
 	zero := elementType cachedNullary: #zero.
 	^ self forType: type createWithBlock: [ :i :j |
 		i = j ifTrue: [ one ] ifFalse: [ zero ]
+	]
+]
+
+{ #category : #'as yet unclassified' }
+SYMLMatrixInstance class >> rowMajorIndicesForType: type [
+	| elementType rows |
+	elementType := type cachedNullary: #elementType.
+	rows := type cachedNullary: #rows.
+	
+	^ self forType: type createWithBlock: [ :i :j |
+		elementType numericalConstant: (i-1)*rows + (j-1)
 	]
 ]
 

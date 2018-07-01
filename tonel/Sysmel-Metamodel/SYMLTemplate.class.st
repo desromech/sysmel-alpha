@@ -68,6 +68,22 @@ SYMLTemplate >> assignValue: theDefinition [
 	bodyEnvironment := theDefinition environment
 ]
 
+{ #category : #accessing }
+SYMLTemplate >> delegateIntoMetaObjectClass: metaObjectClass [
+	| metaObject |
+	metaObject := metaObjectClass new
+		module: module;
+		definitionEnvironment: definitionEnvironment;
+		definitionNode: definitionNode;
+		parent: (parent ifNil: [definitionEnvironment definitionProgramEntity]);
+		templateArguments: arguments;
+		yourself.
+	^ SYMLAPSGMetaObjectInstance new
+			position: definitionPosition ;
+			metaObject: metaObject;
+			yourself
+]
+
 { #category : #'as yet unclassified' }
 SYMLTemplate >> evaluateTemplate: theRawArguments [
 	| activationArguments |
@@ -79,6 +95,10 @@ SYMLTemplate >> evaluateTemplate: theRawArguments [
 	activationArguments detect: #isSysmelIncompleteValue ifFound: [
 		^ SYMLAPSGIncompleteSemanticAnalysis new
 			position: theRawArguments position;
+			incompleteValue: (SYMLIncompleteTemplateInstanceValue new
+				template: self;
+				arguments: activationArguments;
+				yourself);
 			action: [ :concreteEnvironment | self evaluateTemplateIncompleteArguments: activationArguments concreteEnvironment: concreteEnvironment at: theRawArguments position
 			];
 			yourself
@@ -147,6 +167,12 @@ SYMLTemplate >> evaluateTemplateWithActivationArguments: activationArguments at:
 	^ result value
 ]
 
+{ #category : #accessing }
+SYMLTemplate >> function [
+	<compileTime>
+	self halt
+]
+
 { #category : #'code generation' }
 SYMLTemplate >> generateSSACode [
 	instances do: #generateSSACode
@@ -160,6 +186,17 @@ SYMLTemplate >> initialize [
 	instances := OrderedCollection new.
 ]
 
+{ #category : #testing }
+SYMLTemplate >> isTemplate [
+	^ true
+]
+
+{ #category : #accessing }
+SYMLTemplate >> macro [
+	<compileTime>
+	self halt
+]
+
 { #category : #accessing }
 SYMLTemplate >> mangledName [
 	^ ByteString streamContents: [ :out |
@@ -169,6 +206,13 @@ SYMLTemplate >> mangledName [
 			print: name size;
 			nextPutAll: name.
 	]
+]
+
+{ #category : #accessing }
+SYMLTemplate >> message [
+	<compileTime>
+	<rewrite>
+	^ self delegateIntoMetaObjectClass: SYMLMessageMethodTemplate
 ]
 
 { #category : #'as yet unclassified' }

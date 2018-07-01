@@ -27,6 +27,15 @@ SYMLFunctionalPatternGroup >> addPatternAlternative: aMacroFunction withFunction
 	^ self addPatternAlternative: macroFunction
 ]
 
+{ #category : #adding }
+SYMLFunctionalPatternGroup >> addTemplatePatternAlternative: aMacroFunction [
+	| macroFunction |
+	macroFunction := SYMLFunctionalPatternGroupTemplateAlternative new
+		macroFunction: aMacroFunction;
+		yourself.
+	^ self addPatternAlternative: macroFunction
+]
+
 { #category : #enumerating }
 SYMLFunctionalPatternGroup >> allAlternativesDo: aBlock [
 	alternatives do: aBlock.
@@ -57,17 +66,17 @@ SYMLFunctionalPatternGroup >> findPatternForMessage: message inEnvironment: envi
 	
 	expansionCache := Array new: message arguments size.
 	validAlternatives := alternatives collect: [ :alternative |
-		{alternative . alternative matchUnexpandedArguments: message arguments withExpansionCache: expansionCache inEnvironment: environment}
-	] thenSelect: [:pair | pair second >= 0].
+		alternative matchUnexpandedArguments: message arguments withExpansionCache: expansionCache inEnvironment: environment
+	] thenSelect: #isNotNil.
 
 	validAlternatives ifNotEmpty: [
 		selectedAlternative := self selectBestMatchingAlternative: validAlternatives at: aPosition.
-		^ self semanticAnalyzeApplicationAlternative: selectedAlternative macroFunction message: message inEnvironment: environment at: aPosition
+		^ { message . selectedAlternative }
 	].
 		
 	"Use the fallback pattern"
 	fallbackPattern ifNotNil: [ 
-		^ self semanticAnalyzeApplicationAlternative: fallbackPattern message: message inEnvironment: environment at: aPosition
+		^ {message . fallbackPattern }
 	].
 	
 	self error: 'Not matching alternative for calling overloaded function {1}.' format: { name } at: aPosition

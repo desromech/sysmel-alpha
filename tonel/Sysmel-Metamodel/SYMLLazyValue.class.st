@@ -1,6 +1,6 @@
 Class {
 	#name : #SYMLLazyValue,
-	#superclass : #SYMLObject,
+	#superclass : #SYMLAbstractValue,
 	#instVars : [
 		'node',
 		'environment',
@@ -66,6 +66,14 @@ SYMLLazyValue >> initialize [
 	super initialize.
 	isEvaluated := false.
 	
+]
+
+{ #category : #'as yet unclassified' }
+SYMLLazyValue >> lazyValueForEnvironment: newEnvironment [
+	^ SYMLLazyValue new
+		node: node;
+		environment: newEnvironment;
+		yourself
 ]
 
 { #category : #accessing }

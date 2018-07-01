@@ -3,7 +3,8 @@ Class {
 	#superclass : #SYMLAPSGNode,
 	#instVars : [
 		'action',
-		'type'
+		'type',
+		'incompleteValue'
 	],
 	#category : #'Sysmel-Metamodel-APSG'
 }
@@ -25,7 +26,7 @@ SYMLAPSGIncompleteSemanticAnalysis >> concretizeSemanticAnalysisInEnvironment: a
 
 { #category : #'meta evaluation' }
 SYMLAPSGIncompleteSemanticAnalysis >> evaluateInEnvironment: anEnvironment [
-	self halt
+	^ incompleteValue
 ]
 
 { #category : #'meta evaluation' }
@@ -36,6 +37,16 @@ SYMLAPSGIncompleteSemanticAnalysis >> evaluateTypeInEnvironment: anEnvironment [
 { #category : #testing }
 SYMLAPSGIncompleteSemanticAnalysis >> hasIncompleteSemanticAnalysis [
 	^ true
+]
+
+{ #category : #accessing }
+SYMLAPSGIncompleteSemanticAnalysis >> incompleteValue [
+	^ incompleteValue
+]
+
+{ #category : #accessing }
+SYMLAPSGIncompleteSemanticAnalysis >> incompleteValue: anObject [
+	incompleteValue := anObject
 ]
 
 { #category : #'meta evaluation' }
