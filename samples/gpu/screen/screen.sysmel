@@ -28,8 +28,7 @@ definition: {
         if: VertexStage vertexID = 2 then: {position := Float32x2(-1.0, -1.0)}.
         if: VertexStage vertexID = 3 then: {position := Float32x2( 1.0, -1.0)}.
 
-        //VertexOutput texcoord := position*0.5 + 0.5.
-        VertexOutput texcoord := position.
+        VertexOutput texcoord := position*0.5 + 0.5.
         VertexStage screenPosition := Float32x4(position, 0.0, 1.0).
     }.
 }.
