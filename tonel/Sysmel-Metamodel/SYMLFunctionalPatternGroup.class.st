@@ -79,7 +79,7 @@ SYMLFunctionalPatternGroup >> findPatternForMessage: message inEnvironment: envi
 		^ {message . fallbackPattern }
 	].
 	
-	self error: 'Not matching alternative for calling overloaded function {1}.' format: { name } at: aPosition
+	self error: 'Not matching alternative for calling overloaded method {1}.' format: { name } at: aPosition
 ]
 
 { #category : #'pattern finding' }

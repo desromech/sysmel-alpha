@@ -92,6 +92,7 @@ SYMLAbstractFunctionTemplate >> matchArgument: argumentIndex type: suppliedArgum
 	| expectedArgument matchedArgumentType coercionRule |
 	expectedArgument := arguments at: argumentIndex.
 	matchedArgumentType := expectedArgument matchValueOfType: suppliedArgumentType withMatchingContext: argumentMatchingContext at: position.
+	matchedArgumentType ifNil: [ ^ -1 ].
 	
 	coercionRule := suppliedArgumentType node: suppliedArgumentNode coercedImplicitlyInto: matchedArgumentType.
 	^ coercionRule coercionCost

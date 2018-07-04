@@ -39,7 +39,7 @@ SYMLAbstractFunction >> addLocal: aLocalVariable [
 
 { #category : #adding }
 SYMLAbstractFunction >> addToPatternGroup: patternGroup [
-	patternGroup addPatternAlternative: self withFunctionType: self functionType
+	patternGroup addPatternAlternative: self withFunctionType: self bindedFunctionType
 ]
 
 { #category : #'as yet unclassified' }

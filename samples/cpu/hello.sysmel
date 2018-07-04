@@ -24,7 +24,8 @@ function main externC (argc: Int32, argv: Char const pointer pointer) -> Int32 :
     LibC printf("v3d %f %f %f\n", v3d x, v3d y, v3d z).
 
     //let matrix := Float32x3x3 identity + Float32x3x3 identity.
-    let matrix := Float32x3x3 rowMajorIndices * Float32x3x3 rowMajorIndices.
+    //let matrix := Float32x3x3 rowMajorIndices * Float32x3x3 rowMajorIndices.
+    let matrix := Float32x3x3 identity + Float32x3x3 identity.
     LibC printf(
 "zm
     %f %f %f
@@ -33,6 +34,12 @@ function main externC (argc: Int32, argv: Char const pointer pointer) -> Int32 :
     matrix firstColumn x, matrix secondColumn x, matrix thirdColumn x,
     matrix firstColumn y, matrix secondColumn y, matrix thirdColumn y,
     matrix firstColumn z, matrix secondColumn z, matrix thirdColumn z).
+
+    let mv3f := matrix * v3f.
+    LibC printf("mv3f %f %f %f\n", mv3f x, mv3f y, mv3f z).
+
+    //let v3fm := v3f * matrix.
+    //LibC printf("v3fm %f %f %f\n", v3fm x, v3fm y, v3fm z).
 
     printValue(1).
     printValue(1.0).

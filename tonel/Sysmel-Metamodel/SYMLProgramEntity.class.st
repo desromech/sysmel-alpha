@@ -50,6 +50,7 @@ SYMLProgramEntity >> addMacroMethodPattern: macroMethodPattern withSelector: sel
 		group := SYMLMacroMethodPatternGroup new
 			parent: self;
 			module: self module;
+			name: selector;
 			definitionNode: macroMethodPattern definitionNode;
 			definitionEnvironment: macroMethodPattern definitionEnvironment;
 			yourself.
