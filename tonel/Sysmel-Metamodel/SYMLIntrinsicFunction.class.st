@@ -95,6 +95,12 @@ SYMLIntrinsicFunction class >> vectorInstructions [
 		addIntrinsic: #'vector.rem' block: [ :arguments :returnType :builder |
 			builder vectorRem: arguments first with: arguments second
 		];
+		addIntrinsic: #'vector.dot' builtInNamed: 'vector.dot';
+		addIntrinsic: #'vector.cross' builtInNamed: 'vector.cross';
+		addIntrinsic: #'vector.length' builtInNamed: 'vector.length';
+		addIntrinsic: #'vector.normalize' builtInNamed: 'vector.normalize';
+		addIntrinsic: #'vector.reflect' builtInNamed: 'vector.reflect';
+		addIntrinsic: #'vector.refract' builtInNamed: 'vector.refract';
 
 		yourself
 ]

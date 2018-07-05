@@ -254,31 +254,63 @@ definition: {
         }.
     }.
 
-    // Vector arithmetic
-    message + (other: SelfType) -> SelfType := {
-        [[intrinsic: #"vector.add"]]
-        return: (self _binaryOperation: #+ with: other)
-    }.
+    if: ElementType isNumericalType then: {
+        // Vector arithmetic
+        message + (other: SelfType) -> SelfType := {
+            [[intrinsic: #"vector.add"]]
+            return: (self _binaryOperation: #+ with: other)
+        }.
 
-    message - (other: SelfType) -> SelfType := {
-        [[intrinsic: #"vector.sub"]]
-        return: (self _binaryOperation: #- with: other)
-    }.
+        message - (other: SelfType) -> SelfType := {
+            [[intrinsic: #"vector.sub"]]
+            return: (self _binaryOperation: #- with: other)
+        }.
 
-    message * (other: SelfType) -> SelfType := {
-        [[intrinsic: #"vector.mul"]]
-        return: (self _binaryOperation: #* with: other)
-    }.
+        message * (other: SelfType) -> SelfType := {
+            [[intrinsic: #"vector.mul"]]
+            return: (self _binaryOperation: #* with: other)
+        }.
 
-    message / (other: SelfType) -> SelfType := {
-        [[intrinsic: #"vector.div"]]
-        return: (self _binaryOperation: #/ with: other)
-    }.
+        message / (other: SelfType) -> SelfType := {
+            [[intrinsic: #"vector.div"]]
+            return: (self _binaryOperation: #/ with: other)
+        }.
 
-    message % (other: SelfType) -> SelfType := {
-        [[intrinsic: #"vector.rem"]]
-        return: (self _binaryOperation: #% with: other)
-    }.
+        message % (other: SelfType) -> SelfType := {
+            [[intrinsic: #"vector.rem"]]
+            return: (self _binaryOperation: #% with: other)
+        }.
+
+        // Dot product
+        message dot: (other: SelfType) ::-> ElementType := {
+            [[intrinsic: #"vector.dot"]]
+        }.
+
+        // Length2
+        message length2 ::-> ElementType := {
+            return: (self dot: self)
+        }.
+
+        // Length
+        if: ElementType isFloatingPointType then: {
+            message length ::-> ElementType := {
+                [[intrinsic: #"vector.length"]]
+            }.
+        }.
+
+        // Cross product
+        if: ElementCount = 2 then: {
+            message cross: (other: SelfType) ::-> ElementType := {
+                return: (self x * other y - other x * self y)
+            }.
+        }.
+
+        if: ElementCount = 3 then: {
+            message cross: (other: SelfType) ::-> SelfType := {
+                [[intrinsic: #"vector.cross"]]
+            }.
+        }.
+    }
 
 }.
 
