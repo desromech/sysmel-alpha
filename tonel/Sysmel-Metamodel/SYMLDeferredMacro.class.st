@@ -4,6 +4,7 @@ Class {
 	#traits : 'TSYMLInterpretedCompilationObject',
 	#classTraits : 'TSYMLInterpretedCompilationObject classTrait',
 	#instVars : [
+		'analysisAndEvaluation',
 		'evaluation',
 		'semanticAnalysis',
 		'codeGeneration',
@@ -11,6 +12,22 @@ Class {
 	],
 	#category : #'Sysmel-Metamodel-Macro'
 }
+
+{ #category : #accessing }
+SYMLDeferredMacro >> analysisAndEvaluation [
+	^ analysisAndEvaluation
+]
+
+{ #category : #accessing }
+SYMLDeferredMacro >> analysisAndEvaluation: anObject [
+	analysisAndEvaluation := anObject
+]
+
+{ #category : #'macro compilation' }
+SYMLDeferredMacro >> analyzeAndEvaluateMessage: message inEnvironment: environment at: aPosition [
+	analysisAndEvaluation ifNil: [ ^ super analyzeAndEvaluateMessage: message inEnvironment: environment at: aPosition ].
+	^ analysisAndEvaluation valueWithReceiver: self arguments: { message . environment . aPosition}
+]
 
 { #category : #'as yet unclassified' }
 SYMLDeferredMacro >> analyzeMetaMessage: message toReceiver: receiverValue inEnvironment: environment at: aPosition [

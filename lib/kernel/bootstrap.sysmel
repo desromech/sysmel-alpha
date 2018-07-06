@@ -133,6 +133,10 @@ trait Type definition: {
         return: self
     }.
 
+    message asVariableValueType -> SelfType := {
+        return: self
+    }.
+
     message isType -> Boolean := {
         return: true
     }.

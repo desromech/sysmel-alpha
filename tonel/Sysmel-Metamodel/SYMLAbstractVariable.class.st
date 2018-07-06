@@ -107,7 +107,7 @@ SYMLAbstractVariable >> type [
 ]
 
 { #category : #accessing }
-SYMLAbstractVariable >> type: anObject [
+SYMLAbstractVariable >> type: aType [
 	<compileTime>
-	type := anObject
+	type := aType asVariableValueType
 ]

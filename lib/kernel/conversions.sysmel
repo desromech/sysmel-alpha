@@ -1,7 +1,7 @@
 namespace SysmelKernel definition: {
 
 // Explicit cast
-AnyValue macro selector: #castTo: doOn: {
+AnyValue macro selector: #explicitCastTo: doOn: {
     evaluation: $$Pharo {
         evaluateMessage: message inEnvironment: anEnvironment
             self halt
@@ -37,6 +37,10 @@ AnyValue macro selector: #castTo: doOn: {
                 convertSSAValue: (messageNode receiver generateSSACodeWith: builder)
                 to: messageNode coercionType with: builder at: messageNode
     }.
+}.
+
+AnyValue macro expansionRule castTo: (targetType: Type) := {
+    self macroExpand explicitCastTo: targetType macroExpand asVariableValueType
 }.
 
 // Literal type conversions.

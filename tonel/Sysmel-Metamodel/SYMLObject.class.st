@@ -25,6 +25,11 @@ SYMLObject >> analyzeAPSGIdentifierToMe: identifier inEnvironment: anEnvironment
 			yourself
 ]
 
+{ #category : #'as yet unclassified' }
+SYMLObject >> analyzeAndEvaluateMessageToYou: message inEnvironment: environment at: aPosition [
+	^ (self semanticAnalyzeMessageToYou: message inEnvironment: environment at: aPosition) evaluateInEnvironment: environment
+]
+
 { #category : #converting }
 SYMLObject >> asAPSGNodeInEnvironment: newEnvironment at: aPosition [
 	^ SYMLAPSGMetaObjectInstance new

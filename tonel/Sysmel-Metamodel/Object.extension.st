@@ -19,6 +19,11 @@ Object >> isSYMLAPSGNode [
 ]
 
 { #category : #'*Sysmel-Metamodel' }
+Object >> isSysmelClass [
+	^ false
+]
+
+{ #category : #'*Sysmel-Metamodel' }
 Object >> isSysmelIncompleteValue [
 	^ false
 ]

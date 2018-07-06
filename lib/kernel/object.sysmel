@@ -1,0 +1,32 @@
+namespace SysmelKernel definition: {
+
+ClassType definition: {
+    meta message asVariableValueType -> _CompilerObjectType := {
+        return: (self pointerFor: #oop)
+    }.
+}.
+
+// Meta circular hierarchy
+class ProtoObject.
+class Object superclass: ProtoObject.
+class Behavior superclass: Object.
+class ClassDescription superclass: Behavior.
+class Class superclass: ClassDescription.
+class Metaclass superclass: ClassDescription.
+
+class GCLayoutRecord superclass: Object.
+
+ProtoObject definition: {
+    field __class private type: Behavior.
+}.
+
+Behavior definition: {
+    field superclass protected type: Behavior.
+    field methodDict protected type: Object.
+    field gclayout protected type: GCLayoutRecord.
+}.
+
+//ProtoObject metaClassClass: Metaclass.
+//ProtoObject metaClass superclass
+
+}.

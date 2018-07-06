@@ -4,6 +4,11 @@ Class {
 	#category : #'Sysmel-Metamodel-Function'
 }
 
+{ #category : #'macro compilation' }
+SYMLAbstractFunctionOrMacro >> analyzeAndEvaluateMessage: message inEnvironment: environment at: aPosition [
+	^ (self semanticAnalyzeMessage: message inEnvironment: environment at: aPosition) evaluateInEnvironment: environment
+]
+
 { #category : #'as yet unclassified' }
 SYMLAbstractFunctionOrMacro >> createReceiverTypeForParent [
 

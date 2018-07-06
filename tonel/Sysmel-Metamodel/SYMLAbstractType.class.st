@@ -117,6 +117,11 @@ SYMLAbstractType >> alignment [
 	^ self cachedNullary: #alignment
 ]
 
+{ #category : #'macro compilation' }
+SYMLAbstractType >> analyzeAndEvaluateMessage: message inEnvironment: environment at: aPosition [
+	^ (self semanticAnalyzeMessage: message inEnvironment: environment at: aPosition) evaluateInEnvironment: environment
+]
+
 { #category : #conversions }
 SYMLAbstractType >> arithmeticCoerceWith: rightType at: aSourcePosition [
 	self == rightType ifTrue: [ ^ self ].
@@ -188,6 +193,11 @@ SYMLAbstractType >> asReferenceType [
 { #category : #converting }
 SYMLAbstractType >> asSysmelValueInEnvironment: anEnvironment [
 	^ self sysmelValueWithType: self type inEnvironment: anEnvironment
+]
+
+{ #category : #'type composition' }
+SYMLAbstractType >> asVariableValueType [
+	^ self cachedNullary: #asVariableValueType fallbackWith: [ self ]
 ]
 
 { #category : #definition }
@@ -457,8 +467,10 @@ SYMLAbstractType >> initializeSSAVariable: ssaVariable builder: builder [
 
 { #category : #accessing }
 SYMLAbstractType >> invalidateFlattenedTraits [
+	flattenedTraits ifNil: [ ^ self ].
 	flattenedTraits := nil.
-	traitUsers do: #invalidateFlattenedTraits
+	traitUsers do: #invalidateFlattenedTraits.
+	metaType ifNotNil: [ metaType invalidateFlattenedTraits ]
 ]
 
 { #category : #testing }

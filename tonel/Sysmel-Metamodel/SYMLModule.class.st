@@ -14,6 +14,9 @@ Class {
 		'debugSourceFileDictionary',
 		'evaluatedFileReferences'
 	],
+	#classVars : [
+		'GlobalParserRegistry'
+	],
 	#category : #'Sysmel-Metamodel-Program'
 }
 

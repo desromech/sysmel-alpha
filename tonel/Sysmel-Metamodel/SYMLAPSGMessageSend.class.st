@@ -17,6 +17,12 @@ Class {
 }
 
 { #category : #'meta evaluation' }
+SYMLAPSGMessageSend >> analyzeAndEvaluateInEnvironment: anEnvironment [
+	metaMethod ifNotNil: [ ^ self ].
+	^ anEnvironment analyzeAndEvaluateMessage: self at: position
+]
+
+{ #category : #'meta evaluation' }
 SYMLAPSGMessageSend >> analyzeArgumentsInEnvironment: anEnvironment [
 	^ self copy
 		arguments: (arguments collect: [ :arg |

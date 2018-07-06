@@ -6,6 +6,26 @@ macro selectors: #(if:then: if:then:else:) doOn: {
             self halt.
     }.
 
+    analysisAndEvaluation: $$Pharo {
+        node: messageNode environment: environment position: aSourcePosition
+            | conditionNode conditionCoercionType conditionValue |
+
+            "Check the condition type"
+            conditionNode := messageNode arguments first.
+            conditionCoercionType := environment compilationTarget booleanType.
+            conditionValue := (conditionNode analyzeAndEvaluateInEnvironment: environment) coercedIntoType: conditionCoercionType at: aSourcePosition.
+
+            ^ conditionValue value ifTrue: [
+                messageNode arguments second inlineBlockAnalyzeAndEvaluateInEnvironment: environment
+            ] ifFalse: [
+                messageNode arguments size >= 3 ifTrue: [
+                    messageNode arguments third inlineBlockAnalyzeAndEvaluateInEnvironment: environment
+                ] ifFalse: [
+                    nil asSysmelValueInEnvironment: environment
+                ]
+            ]
+	}.
+
     semanticAnalysis: $$Pharo {
         node: messageNode environment: environment position: aSourcePosition
             | conditionNode conditionValue thenNode thenType elseNode elseType analyzedArguments conditionCoercionType conditionCoercionRule thenCoercionRule elseCoercionRule resultType |
@@ -15,19 +35,8 @@ macro selectors: #(if:then: if:then:else:) doOn: {
             conditionCoercionType := environment compilationTarget booleanType.
             conditionCoercionRule := (conditionNode evaluateTypeInEnvironment: environment) node: conditionNode coercedImplicitlyInto: conditionCoercionType at: aSourcePosition.
 
-            "On immediate environment we have to evaluate as soon as possible."
-            environment isImmediateEnvironment ifTrue: [
-                conditionValue := conditionCoercionRule convertValue: (conditionNode evaluateInEnvironment: environment) into: conditionCoercionType at: messageNode.
-                ^ conditionValue value ifTrue: [
-                    messageNode arguments second inlineBlockSemanticAnalysisInEnvironment: environment
-                ] ifFalse: [
-                    messageNode arguments size >= 3 ifTrue: [
-                        messageNode arguments third inlineBlockSemanticAnalysisInEnvironment: environment
-                    ] ifFalse: [
-                        ^ nil asAPSGNodeInEnvironment: environment at: aSourcePosition
-                    ]
-                ].
-            ].
+            "This should not be used on an immediate environment."
+            self assert: environment isImmediateEnvironment not.
 
             "Check the rest of the message."
             thenNode := messageNode arguments second inlineBlockSemanticAnalysisInEnvironment: environment.

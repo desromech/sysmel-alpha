@@ -42,6 +42,11 @@ SYMLFunctionalPatternGroup >> allAlternativesDo: aBlock [
 	fallbackPattern ifNotNil: [ aBlock value: fallbackPattern ].
 ]
 
+{ #category : #'macro compilation' }
+SYMLFunctionalPatternGroup >> analyzeAndEvaluateMessage: message inEnvironment: environment at: aPosition [
+	^ (self semanticAnalyzeMessage: message inEnvironment: environment at: aPosition) evaluateInEnvironment: environment
+]
+
 { #category : #'as yet unclassified' }
 SYMLFunctionalPatternGroup >> evaluateBoundIdentifierToMe: identifier inEnvironment: anEnvironment [
 	^ self asSysmelValueInEnvironment: anEnvironment

@@ -8,6 +8,11 @@ Class {
 }
 
 { #category : #'macro compilation' }
+SYMLFunctionalPatternGroupAlternative >> analyzeAndEvaluateMessage: message inEnvironment: environment at: aPosition [
+	^ (self semanticAnalyzeMessage: message inEnvironment: environment at: aPosition) evaluateInEnvironment: environment
+]
+
+{ #category : #'macro compilation' }
 SYMLFunctionalPatternGroupAlternative >> analyzeMetaMessage: message toReceiver: receiverValue inEnvironment: environment at: aPosition [
 	^ macroFunction analyzeMetaMessage: message toReceiver: receiverValue inEnvironment: environment at: aPosition
 ]

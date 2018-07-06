@@ -114,6 +114,12 @@ SYMLAPSGNode >> hasTypeInEnvironment: anEnvironment [
 ]
 
 { #category : #'as yet unclassified' }
+SYMLAPSGNode >> inlineBlockAnalyzeAndEvaluateInEnvironment: environment [
+	^ self analyzeAndEvaluateInEnvironment: environment
+	
+]
+
+{ #category : #'as yet unclassified' }
 SYMLAPSGNode >> inlineBlockSemanticAnalysisInEnvironment: environment [
 	^ self semanticAnalysisInEnvironment: environment
 	

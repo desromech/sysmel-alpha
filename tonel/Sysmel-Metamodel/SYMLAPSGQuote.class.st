@@ -18,6 +18,13 @@ SYMLAPSGQuote >> evaluateTypeInEnvironment: anEnvironment [
 ]
 
 { #category : #'as yet unclassified' }
+SYMLAPSGQuote >> inlineBlockAnalyzeAndEvaluateInEnvironment: environment [
+	| evaluationEnvironment |
+	evaluationEnvironment := environment newLexicalScope.
+	^ node analyzeAndEvaluateInEnvironment: evaluationEnvironment
+]
+
+{ #category : #'as yet unclassified' }
 SYMLAPSGQuote >> inlineBlockSemanticAnalysisInEnvironment: environment [
 	^ (SYMLAPSGLexicalScopeNode new
 		position: self;

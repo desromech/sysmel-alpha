@@ -38,6 +38,32 @@ SYMLAbstractScope >> addSymbol: aSymbolName value: aValue [
 ]
 
 { #category : #'as yet unclassified' }
+SYMLAbstractScope >> analyzeAndEvaluateMessage: message at: aPosition [
+	"Support global meta methods."
+	message receiver ifNil: [ 
+		(self lookMetaMethodSelector: message selector) ifNil: [ 
+			self error: 'Failed to find meta-method {1}.' format: { message selector printString } at: aPosition
+		] ifNotNil: [ :metaMethod |
+			^ metaMethod analyzeAndEvaluateMessage: message inEnvironment: self at: aPosition
+		]
+	].
+
+	"Send into the meta objects."
+	message receiver isMetaObjectInstance ifTrue: [
+		^ message receiver metaObject analyzeAndEvaluateMessageToYou: message inEnvironment: self at: aPosition
+	].
+
+	"Analyze the receiver"
+	message isReceiverAnalyzed ifFalse: [ 
+		self flag: 'TODO: Evaluate this properly'.
+		^ (message analyzeReceiverInEnvironment: self) analyzeAndEvaluateInEnvironment: self
+	].
+
+	"Ask the receiver type to analyze the message"
+	^ message receiver type analyzeAndEvaluateMessage: message inEnvironment: self at: aPosition
+]
+
+{ #category : #'as yet unclassified' }
 SYMLAbstractScope >> apsgBuilder [
 	^ SYMLAPSGBuilder new environment: self
 	

@@ -5,6 +5,13 @@ Class {
 }
 
 { #category : #'macro compilation' }
+SYMLMacroMethodPatternGroup >> analyzeAndEvaluateMessage: message inEnvironment: environment at: aPosition [
+	alternatives ifEmpty: [ ^ fallbackPattern analyzeAndEvaluateMessage: message inEnvironment: environment at: aPosition ].
+	(alternatives size = 1 and: [fallbackPattern isNil ]) ifTrue: [ alternatives analyzeAndEvaluateMessage: message inEnvironment: environment at: aPosition ].
+	^ super analyzeAndEvaluateMessage: message inEnvironment: environment at: aPosition
+]
+
+{ #category : #'macro compilation' }
 SYMLMacroMethodPatternGroup >> analyzeMetaMessage: message toReceiver: receiverValue inEnvironment: environment at: aPosition [
 	| checkedMessageAndPattern |
 	checkedMessageAndPattern := self findValidPatternForMessage: message inEnvironment: environment at: aPosition.

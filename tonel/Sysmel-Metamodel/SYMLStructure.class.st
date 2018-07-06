@@ -18,6 +18,23 @@ SYMLStructure >> addFieldVariable: field at: aPosition [
 ]
 
 { #category : #'semantic analysis' }
+SYMLStructure >> allFields [
+	^ fields
+]
+
+{ #category : #'semantic analysis' }
+SYMLStructure >> buildConcreteSSAType [
+	| allFields |
+	self module ssaModule addStructure: self ssaType.
+	allFields := self allFields.
+	self ssaType
+		names: (allFields collect: [ :field | field name ]);
+		types: (allFields collect: [ :field | field type ssaType ]).
+
+
+]
+
+{ #category : #'semantic analysis' }
 SYMLStructure >> buildLayout [
 	fields doWithIndex: [ :field :index|
 		field slotIndex: index - 1
@@ -38,11 +55,7 @@ SYMLStructure >> definitionScopeClass [
 SYMLStructure >> ensureConcreteSSAType [
 	hasConcretedSSAType ifTrue: [ ^ self ].
 	hasConcretedSSAType := true.
-	self module ssaModule addStructure: self ssaType.
-	self ssaType
-		names: (fields collect: [ :field | field name ]);
-		types: (fields collect: [ :field | field type ssaType ]).
-
+	self buildConcreteSSAType
 ]
 
 { #category : #accessing }

@@ -9,4 +9,6 @@ Compiler
     evaluateFileNamedOnce: "platformSpecific.sysmel";
     evaluateFileNamedOnce: "primitiveVectors.sysmel";
     evaluateFileNamedOnce: "primitiveMatrix.sysmel";
-    yourself
+
+    evaluateFileNamedOnce: "object.sysmel";
+    yourself.
