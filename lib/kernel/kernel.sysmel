@@ -10,5 +10,8 @@ Compiler
     evaluateFileNamedOnce: "primitiveVectors.sysmel";
     evaluateFileNamedOnce: "primitiveMatrix.sysmel";
 
-    evaluateFileNamedOnce: "object.sysmel";
     yourself.
+
+Compiler
+    evaluateFileNamedOnce: "gcobject.sysmel";
+    yourself

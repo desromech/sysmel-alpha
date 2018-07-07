@@ -35,7 +35,7 @@ TSYMLMessageMethod >> createArgumentFromMessageTemplate: argumentNode inEnvironm
 		parent: self;
 		module: self module;
 		name: argumentName;
-		type: argumentType value;
+		type: argumentType value asVariableValueType;
 		definitionNode: argumentNode;
 		yourself
 ]

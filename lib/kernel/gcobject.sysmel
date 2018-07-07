@@ -1,0 +1,94 @@
+namespace Smalltalk definition: {
+
+AnyValue extend: {
+    meta message oop -> _CompilerObjectType := {
+        return: (self pointerFor: #oop)
+    }.
+}.
+
+trait ManagedClassTrait uses: ClassType;
+definition: {
+    meta message asReceiverType -> _CompilerObjectType := {
+        return: self oop
+    }.
+
+    meta message asVariableValueType -> _CompilerObjectType := {
+        return: self oop
+    }.
+}.
+
+// Meta circular hierarchy
+class ProtoObject.
+class Metaclass.
+
+ProtoObject metaClassClass: Metaclass; uses: ManagedClassTrait.
+
+class Object superclass: ProtoObject.
+class Behavior superclass: Object.
+class ClassDescription superclass: Behavior.
+class Class superclass: ClassDescription.
+class Metaclass superclass: ClassDescription.
+
+class GCLayoutRecord superclass: Object.
+
+// Essential collections
+class Collection superclass: Object.
+    class HashedCollection superclass: Collection.
+        class Dictionary superclass: HashedCollection.
+        class MethodDictionary superclass: Dictionary.
+    class SequenceableCollection superclass: Collection.
+        class ArrayedCollection superclass: SequenceableCollection.
+            class Array superclass: ArrayedCollection.
+            class ByteArray superclass: ArrayedCollection.
+            class FloatArray superclass: ArrayedCollection.
+            class IntegerArray superclass: ArrayedCollection.
+            class WordArray superclass: ArrayedCollection.
+
+            class String superclass: ArrayedCollection.
+                class Symbol superclass: String.
+
+// Methods
+class CompiledMethod superclass: Object.
+
+// ProtoObject
+ProtoObject type superclass: Class.
+
+ProtoObject definition: {
+    field __class private type: Behavior.
+}.
+
+Behavior definition: {
+    field superclass public type: Behavior.
+    field methodDict public type: MethodDictionary.
+    field gclayout public type: GCLayoutRecord.
+    field slots public type: GCLayoutRecord.
+
+    field size public type: UIntPointer.
+    field alignment public type: UIntPointer.
+    field variableDataElementSize public type: UIntPointer.
+    field variableDataElementAlignment public type: UIntPointer.
+}.
+
+Metaclass definition: {
+    field thisClass protected type: Behavior.
+
+    method isMetaType -> Boolean := {
+        return: true
+    }.
+}.
+
+//-----------------------------------------------------------------------------
+ProtoObject definition: {
+    message class -> Behavior := {
+        return: __class
+    }
+}.
+
+//-----------------------------------------------------------------------------
+// Important collections
+HashedCollection definition: {
+    field tally protected type: UIntPointer.
+    field array protected type: Array.
+}.
+
+}.

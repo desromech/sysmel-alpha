@@ -521,6 +521,11 @@ definition: {
             }.
         }.
     }.
+
+    meta message lookReceiver: (receiver: _CompilerObjectType) symbol: (symbol: _CompilerObjectType) ifPresent: (ifPresentBlock: _CompilerObjectType)
+        ::-> _CompilerObjectType := {
+        return: (P lookReceiver: receiver symbol: symbol ifPresent: ifPresentBlock)
+    }.
 }.
 
 AnyValue extend: {
@@ -933,6 +938,10 @@ Boolean uses: (BooleanType, PrimitiveType);
 definition: {
     meta message buildSSAType -> _CompilerObjectType := {
         return: Compiler compilationTarget ssaBoolType
+    }.
+
+    meta message generateSSAValue: (value: _CompilerObjectType) withBuilder: (builder: _CompilerObjectType) ::-> _CompilerObjectType := {
+        return: (builder const: value unwrapSysmelValue type: self ssaType)
     }.
 
     SelfType sysmelMangledValue: #b.

@@ -21,7 +21,7 @@ SYMLMessageMethod >> -> returnTypeValue [
 		self error: 'Expected a return type for function {1}.' format: {self validName} at: returnTypeValue node
 	].
 
-	returnType := returnTypeValue value.
+	returnType := returnTypeValue value asVariableValueType.
 ]
 
 { #category : #'as yet unclassified' }

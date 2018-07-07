@@ -16,7 +16,8 @@ Class {
 		'children',
 		'hasDefinition',
 		'mangledName',
-		'printingName'
+		'printingName',
+		'metaClassClass'
 	],
 	#classVars : [
 		'SpecialMetaSymbols'
@@ -325,6 +326,28 @@ SYMLAbstractType >> convertedExplicitlyInto: targetType [
 	^ nil
 ]
 
+{ #category : #accessing }
+SYMLAbstractType >> createMetaType [
+	| newMetaType |
+	newMetaType := metaClassClass ifNil: [ 
+		SYMLSimpleMetaType new
+			module: module;
+			definitionEnvironment: definitionEnvironment;
+			instanceType: self;
+			yourself
+	] ifNotNil: [
+		metaClassClass createMetaTypeFor: self basingOf: metaType
+	].
+	self assert: newMetaType isMetaType.
+	metaType ifNil: [
+		metaType := newMetaType
+	] ifNotNil: [
+		metaType becomeForward: newMetaType
+	].
+	
+	self invalidateCachedValues
+]
+
 { #category : #'type composition' }
 SYMLAbstractType >> cvariadicCoercionType [
 	^ self cachedNullary: #cvariadicCoercionType
@@ -458,11 +481,17 @@ SYMLAbstractType >> initialize [
 	arithmeticCoercionRules := OrderedCollection new.
 	children := OrderedCollection new.
 	cachedValues := Dictionary new.
+	slots := #().
 	hasDefinition := false.
 ]
 
 { #category : #initialization }
 SYMLAbstractType >> initializeSSAVariable: ssaVariable builder: builder [
+]
+
+{ #category : #accessing }
+SYMLAbstractType >> invalidateCachedValues [
+	cachedValues removeAll
 ]
 
 { #category : #accessing }
@@ -559,6 +588,7 @@ SYMLAbstractType >> isSysmelKindOf: anotherType [
 	usedTraits do: [ :used |
 		(used isSysmelKindOf: anotherType) ifTrue: [ ^ true ].
 	].
+	self supertype ifNotNil: [:st | ^ st isSysmelKindOf: anotherType ].
 	^ false
 	
 ]
@@ -605,6 +635,8 @@ SYMLAbstractType >> lookupSelector: selector [
 	self flattenedTraits reverseDo: [ :trait |
 		trait methodDictionary at: selector ifPresent: [ :method | ^ method ].
 	].
+
+	self supertype ifNotNil: [ :st | ^ st lookupSelector: selector ].
 	^ nil
 ]
 
@@ -620,6 +652,20 @@ SYMLAbstractType >> mangledName [
 				nextPutAll: escapedName.
 		]
 	]
+]
+
+{ #category : #accessing }
+SYMLAbstractType >> metaClassClass [
+	<compileTime>
+	^ metaClassClass
+]
+
+{ #category : #accessing }
+SYMLAbstractType >> metaClassClass: aMetaClassClass [
+	<compileTime>
+	metaClassClass == aMetaClassClass ifTrue: [^ self].
+	metaClassClass := aMetaClassClass.
+	metaType ifNotNil: [ self createMetaType ]
 ]
 
 { #category : #accessing }
@@ -823,6 +869,11 @@ SYMLAbstractType >> ssaValue [
 	^ SLVMConstant type: self type ssaType value: 0
 ]
 
+{ #category : #accessing }
+SYMLAbstractType >> supertype [
+	^ nil
+]
+
 { #category : #adding }
 SYMLAbstractType >> symbol: aSymbol ifPresent: ifPresentBlock ifAbsentPut: ifAbsentBlock [
 	| newValue |
@@ -874,13 +925,7 @@ SYMLAbstractType >> tupleOrScalarOfSize: tupleSize [
 { #category : #accessing }
 SYMLAbstractType >> type [
 	<compileTime>
-	metaType ifNil: [ 
-		metaType := SYMLMetaType new
-			module: module;
-			definitionEnvironment: definitionEnvironment;
-			instanceType: self;
-			yourself
-	].
+	metaType ifNil: [ self createMetaType ].
 	^ metaType
 ]
 

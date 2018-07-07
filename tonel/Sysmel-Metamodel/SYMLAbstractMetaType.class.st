@@ -1,5 +1,5 @@
 Class {
-	#name : #SYMLMetaType,
+	#name : #SYMLAbstractMetaType,
 	#superclass : #SYMLAbstractType,
 	#instVars : [
 		'instanceType'
@@ -7,78 +7,53 @@ Class {
 	#category : #'Sysmel-Metamodel-Type'
 }
 
-{ #category : #converting }
-SYMLMetaType >> asReceiverType [
-	^ self
-]
-
 { #category : #testing }
-SYMLMetaType >> coercedImplicitlyInto: targetType [
+SYMLAbstractMetaType >> coercedImplicitlyInto: targetType [
 	(targetType == self compilationTarget compilerObjectType or: [ self isSysmelKindOf: targetType ]) ifTrue: [ ^ SYMLIdentityTypeConversionRule new ].
 	^ super coercedImplicitlyInto: targetType
 ]
 
 { #category : #accessing }
-SYMLMetaType >> compilationTarget [
+SYMLAbstractMetaType >> compilationTarget [
 	^ instanceType compilationTarget
 ]
 
 { #category : #testing }
-SYMLMetaType >> convertedExplicitlyInto: targetType [
+SYMLAbstractMetaType >> convertedExplicitlyInto: targetType [
 	targetType == self compilationTarget compilerObjectType ifTrue: [ ^ SYMLIdentityTypeConversionRule new ].
 	^ super convertedExplicitlyInto: targetType
 ]
 
+{ #category : #initialization }
+SYMLAbstractMetaType >> initializeFromOldMetaType: oldMetaType [
+	oldMetaType ifNil: [ ^ self ].
+	self addTraits: oldMetaType usedTraits
+]
+
 { #category : #accessing }
-SYMLMetaType >> instanceType [
+SYMLAbstractMetaType >> instanceType [
 	^ instanceType
 ]
 
 { #category : #accessing }
-SYMLMetaType >> instanceType: anObject [
+SYMLAbstractMetaType >> instanceType: anObject [
 	instanceType := anObject
 ]
 
 { #category : #testing }
-SYMLMetaType >> isMetaObjectType [
+SYMLAbstractMetaType >> isMetaType [
 	^ true
 ]
 
 { #category : #testing }
-SYMLMetaType >> isMetaType [
-	^ true
-]
-
-{ #category : #accessing }
-SYMLMetaType >> mangledName [
-	^ mangledName ifNil: [mangledName := ByteString streamContents: [ :out |
-			out
-				nextPutAll: instanceType mangledName;
-				nextPutAll: '_meta'.
-		]
-	]
-]
-
-{ #category : #testing }
-SYMLMetaType >> node: node coercedImplicitlyInto: targetType [
+SYMLAbstractMetaType >> node: node coercedImplicitlyInto: targetType [
 	targetType == self compilationTarget compilerObjectType ifTrue: [ ^ SYMLIdentityTypeConversionRule new ].
 
 	^ super node: node coercedImplicitlyInto: targetType
 ]
 
 { #category : #testing }
-SYMLMetaType >> node: node convertedExplicitlyInto: targetType [
+SYMLAbstractMetaType >> node: node convertedExplicitlyInto: targetType [
 	targetType == self compilationTarget compilerObjectType ifTrue: [ ^ SYMLIdentityTypeConversionRule new ].
 	^ super node: node convertedExplicitlyInto: targetType
-]
-
-{ #category : #printing }
-SYMLMetaType >> printOn: aStream [
-	instanceType printOn: aStream.
-	aStream nextPutAll: ' type'
-]
-
-{ #category : #printing }
-SYMLMetaType >> type [
-	^ self compilationTarget metaType
 ]
