@@ -1,0 +1,104 @@
+namespace Sysmel definition: {
+Compiler compilationTarget
+    managedClassTypeTrait: trait ManagedClassTrait;
+    dynamicObjectType: type Dynobject.
+
+Type extend: {
+    message gcpointer -> _CompilerObjectType := {
+        return: (self pointerFor: #gc)
+    }.
+}.
+
+ManagedClassTrait uses: AnyValue;
+definition: {
+}.
+
+}.
+
+namespace Smalltalk definition: {
+
+// Meta circular hierarchy
+gcclass ProtoObject.
+gcclass Metaclass.
+
+ProtoObject metaClassClass: Metaclass.
+
+gcclass Object superclass: ProtoObject.
+gcclass Behavior superclass: Object.
+gcclass ClassDescription superclass: Behavior.
+gcclass Class superclass: ClassDescription.
+gcclass Metaclass superclass: ClassDescription.
+
+gcclass GCLayoutRecord superclass: Object.
+
+// Essential collections
+gcclass Collection superclass: Object.
+    gcclass HashedCollection superclass: Collection.
+        gcclass Dictionary superclass: HashedCollection.
+        gcclass MethodDictionary superclass: Dictionary.
+    gcclass SequenceableCollection superclass: Collection.
+        gcclass ArrayedCollection superclass: SequenceableCollection.
+            gcclass Array superclass: ArrayedCollection.
+            gcclass ByteArray superclass: ArrayedCollection.
+            gcclass FloatArray superclass: ArrayedCollection.
+            gcclass IntegerArray superclass: ArrayedCollection.
+            gcclass WordArray superclass: ArrayedCollection.
+
+            gcclass String superclass: ArrayedCollection.
+                gcclass Symbol superclass: String.
+
+// Methods
+gcclass CompiledMethod superclass: Object.
+
+// ProtoObject
+ProtoObject type superclass: Class.
+
+ProtoObject definition: {
+    field __class private type: Behavior.
+}.
+
+Behavior uses: Type; definition: {
+    field superclass public type: Behavior.
+    field methodDict public type: MethodDictionary.
+    field gclayout public type: GCLayoutRecord.
+    field slots public type: GCLayoutRecord.
+
+    field instanceSize public type: UIntPointer.
+    field instanceAlignment public type: UIntPointer.
+
+    field variableInstanceElementSize public type: UIntPointer.
+    field variableInstanceElementAlignment public type: UIntPointer.
+
+    message asReceiverType -> SelfType := {
+        return: self
+    }.
+
+    message cvariadicCoercionType -> SelfType := {
+        return: self
+    }.
+
+}.
+
+Metaclass definition: {
+    field thisClass protected type: Behavior.
+
+    method isMetaType -> Boolean := {
+        return: true
+    }.
+}.
+
+//-----------------------------------------------------------------------------
+ProtoObject definition: {
+    message class -> Behavior := {
+        return: __class
+    }
+}.
+
+//-----------------------------------------------------------------------------
+// Important collections
+HashedCollection definition: {
+    field tally protected type: UIntPointer.
+    field array protected type: Array.
+}.
+
+}.

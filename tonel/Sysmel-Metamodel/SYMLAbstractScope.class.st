@@ -104,6 +104,13 @@ SYMLAbstractScope >> lookMetaMethodSelector: selector [
 ]
 
 { #category : #'as yet unclassified' }
+SYMLAbstractScope >> lookReceiverValueFor: aReceiverVariable [
+	parent ifNil: [ self error: 'Receiver not found.' ].
+	^ parent lookReceiverValueFor: aReceiverVariable
+	
+]
+
+{ #category : #'as yet unclassified' }
 SYMLAbstractScope >> lookSymbol: symbol ifPresent: ifPresentBlock [
 	^ nil
 	

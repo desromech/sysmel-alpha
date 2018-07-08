@@ -3,7 +3,8 @@ Class {
 	#superclass : #SYMLLexicalScope,
 	#instVars : [
 		'function',
-		'receiver'
+		'receiver',
+		'receiverVariable'
 	],
 	#category : #'Sysmel-Metamodel-Scope'
 }
@@ -16,6 +17,13 @@ SYMLFunctionActivationScope >> function [
 { #category : #accessing }
 SYMLFunctionActivationScope >> function: anObject [
 	function := anObject
+]
+
+{ #category : #'as yet unclassified' }
+SYMLFunctionActivationScope >> lookReceiverValueFor: aReceiverVariable [
+	receiverVariable == aReceiverVariable ifTrue: [ ^ receiver ].
+	^ super lookReceiverValueFor: aReceiverVariable
+	
 ]
 
 { #category : #'as yet unclassified' }
@@ -37,6 +45,16 @@ SYMLFunctionActivationScope >> receiver: anObject [
 { #category : #accessing }
 SYMLFunctionActivationScope >> receiverType [
 	^ function receiverType
+]
+
+{ #category : #accessing }
+SYMLFunctionActivationScope >> receiverVariable [
+	^ receiverVariable
+]
+
+{ #category : #accessing }
+SYMLFunctionActivationScope >> receiverVariable: anObject [
+	receiverVariable := anObject
 ]
 
 { #category : #accessing }

@@ -38,7 +38,8 @@ Class {
 		'anyValueTrait',
 		'typeTrait',
 		'variantTypeTrait',
-		'variantTypeCache'
+		'variantTypeCache',
+		'managedClassTypeTrait'
 	],
 	#category : #'Sysmel-Metamodel-CompilationTarget'
 }
@@ -397,6 +398,18 @@ SYMLCompilationTarget >> macroCallingConvention [
 SYMLCompilationTarget >> macroFunctionArguments: argumentTypes [
 	^ self functionArguments: argumentTypes returnType: self apsgNodeType callingConvention: self macroCallingConvention variadic: false
 
+]
+
+{ #category : #accessing }
+SYMLCompilationTarget >> managedClassTypeTrait [
+	<compileTime>
+	^ managedClassTypeTrait
+]
+
+{ #category : #accessing }
+SYMLCompilationTarget >> managedClassTypeTrait: anObject [
+	<compileTime>
+	managedClassTypeTrait := anObject
 ]
 
 { #category : #accessing }

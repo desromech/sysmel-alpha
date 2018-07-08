@@ -22,8 +22,7 @@ SYMLAPSGIdentifierWithBinding >> binding: anObject [
 SYMLAPSGIdentifierWithBinding >> evaluateInEnvironment: anEnvironment [
 	| evaluatedBinding |
 	evaluatedBinding := binding evaluateBoundIdentifierToMe: self inEnvironment: anEnvironment.
-	evaluatedBinding isSysmelValue ifFalse: [ ^ evaluatedBinding asIncompleteValue ].
-	^ evaluatedBinding
+	^ evaluatedBinding asIncompleteValue
 ]
 
 { #category : #accessing }

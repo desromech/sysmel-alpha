@@ -9,6 +9,21 @@ SYMLSimpleMetaType >> asReceiverType [
 	^ self
 ]
 
+{ #category : #'as yet unclassified' }
+SYMLSimpleMetaType >> createTypeInstanceSlots [
+	^ #()
+]
+
+{ #category : #'as yet unclassified' }
+SYMLSimpleMetaType >> createTypeInstanceSlotsFor: typeInstance [
+	^ #()
+]
+
+{ #category : #'code generation' }
+SYMLSimpleMetaType >> generateSSATypeInfo [
+	^ SLVMConstant type: self ssaType value: 0
+]
+
 { #category : #testing }
 SYMLSimpleMetaType >> isMetaObjectType [
 	^ true

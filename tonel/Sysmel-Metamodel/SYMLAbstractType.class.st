@@ -17,7 +17,9 @@ Class {
 		'hasDefinition',
 		'mangledName',
 		'printingName',
-		'metaClassClass'
+		'metaClassClass',
+		'slots',
+		'ssaTypeInfo'
 	],
 	#classVars : [
 		'SpecialMetaSymbols'
@@ -44,6 +46,26 @@ SYMLAbstractType class >> specialMetaSymbols [
 { #category : #adding }
 SYMLAbstractType >> addArithmeticCoercionRule: aRule [
 	arithmeticCoercionRules add: aRule
+]
+
+{ #category : #conversions }
+SYMLAbstractType >> addConversionRule: aConversionRule [
+	<compileTime>
+	self
+		addImplicitConversionRule: aConversionRule;
+		addExplicitConversionRule: aConversionRule
+]
+
+{ #category : #conversions }
+SYMLAbstractType >> addExplicitConversionRule: aConversionRule [
+	<compileTime>
+	explicitConversionRules add: aConversionRule
+]
+
+{ #category : #conversions }
+SYMLAbstractType >> addImplicitConversionRule: aConversionRule [
+	<compileTime>
+	implicitConversionRules add: aConversionRule
 ]
 
 { #category : #intrinsics }
@@ -348,6 +370,11 @@ SYMLAbstractType >> createMetaType [
 	self invalidateCachedValues
 ]
 
+{ #category : #accessing }
+SYMLAbstractType >> createTypeInfoSlots [
+	slots := self type createTypeInstanceSlotsFor: self.
+]
+
 { #category : #'type composition' }
 SYMLAbstractType >> cvariadicCoercionType [
 	^ self cachedNullary: #cvariadicCoercionType
@@ -398,6 +425,20 @@ SYMLAbstractType >> evaluateMetaObjectTypeInEnvironment: anEnvironment [
 	^ self type
 ]
 
+{ #category : #'as yet unclassified' }
+SYMLAbstractType >> evaluateReceiver: receiverValue field: field withType: fieldType at: position [
+	fieldType == field type ifTrue: [ self halt ].
+	(fieldType isReferenceType and: [ fieldType referenced == field type ]) ifTrue: [ 
+		^ (SYMLReceiverFieldReference new
+			container: receiverValue;
+			field: field;
+			type: fieldType;
+			yourself) asSysmelValueInEnvironment: definitionEnvironment
+	].
+	
+	self error: 'Cannot evaluate field {1}' format: { field name } at: position
+]
+
 { #category : #testing }
 SYMLAbstractType >> evaluateReferenceAt: position [
 	^ self sysmelValueWithType: self type inEnvironment: nil
@@ -444,8 +485,26 @@ SYMLAbstractType >> flattenedTraits [
 ]
 
 { #category : #'code generation' }
+SYMLAbstractType >> generateSSACode [
+	self ssaTypeInfo.
+	(self isMetaType not and: [ metaType isNotNil ]) ifTrue: [metaType generateSSACode]
+]
+
+{ #category : #'code generation' }
+SYMLAbstractType >> generateSSAConstant: value forModule: aModule [
+	| result |
+	result := self sysmelPerform: #generateSSAConstant:forModule: withArguments:  { value . aModule}.
+	^ result unwrapSysmelValue
+]
+
+{ #category : #'code generation' }
 SYMLAbstractType >> generateSSAReferenceWith: builder [
-	^ self type generateSSAValue: self withBuilder: builder
+	^ self ssaTypeInfo
+]
+
+{ #category : #'code generation' }
+SYMLAbstractType >> generateSSATypeInfo [
+	^ self type generateSSATypeInfoForInstance: self
 ]
 
 { #category : #'code generation' }
@@ -453,6 +512,11 @@ SYMLAbstractType >> generateSSAValue: value withBuilder: aBuilder [
 	| result |
 	result := self sysmelPerform: #generateSSAValue:withBuilder: withArguments:  { value . aBuilder }.
 	^ result unwrapSysmelValue
+]
+
+{ #category : #'as yet unclassified' }
+SYMLAbstractType >> generateSSAValueForModule: aModule [
+	^ self ssaTypeInfo
 ]
 
 { #category : #conversions }
@@ -481,7 +545,6 @@ SYMLAbstractType >> initialize [
 	arithmeticCoercionRules := OrderedCollection new.
 	children := OrderedCollection new.
 	cachedValues := Dictionary new.
-	slots := #().
 	hasDefinition := false.
 ]
 
@@ -665,7 +728,7 @@ SYMLAbstractType >> metaClassClass: aMetaClassClass [
 	<compileTime>
 	metaClassClass == aMetaClassClass ifTrue: [^ self].
 	metaClassClass := aMetaClassClass.
-	metaType ifNotNil: [ self createMetaType ]
+	(self isMetaType not and: [metaType isNotNil]) ifTrue: [ self createMetaType ]
 ]
 
 { #category : #accessing }
@@ -815,6 +878,11 @@ SYMLAbstractType >> referenced [
 	^ self cachedNullary: #referenced
 ]
 
+{ #category : #'semantic analysis' }
+SYMLAbstractType >> semanticAnalysis [
+	(self isMetaType not and: [ metaType isNotNil ]) ifTrue: [metaType semanticAnalysis]
+]
+
 { #category : #'macro compilation' }
 SYMLAbstractType >> semanticAnalyzeMessage: message inEnvironment: environment at: aPosition [
 	| method |
@@ -858,15 +926,25 @@ SYMLAbstractType >> size [
 ]
 
 { #category : #accessing }
-SYMLAbstractType >> ssaType [
-	<compileTime>
-	ssaType ifNil: [ ssaType := self buildSSAType].
-	^ ssaType
+SYMLAbstractType >> slots [
+	slots ifNil: [ self createTypeInfoSlots ].
+	^ slots
 ]
 
 { #category : #accessing }
-SYMLAbstractType >> ssaValue [
-	^ SLVMConstant type: self type ssaType value: 0
+SYMLAbstractType >> ssaType [
+	<compileTime>
+	^ ssaType ifNil: [ ssaType := self buildSSAType]
+]
+
+{ #category : #accessing }
+SYMLAbstractType >> ssaTypeInfo [
+	^ ssaTypeInfo ifNil: [ssaTypeInfo := self generateSSATypeInfo]
+]
+
+{ #category : #accessing }
+SYMLAbstractType >> ssaTypeInfo: aSSAValue [
+	ssaTypeInfo := aSSAValue
 ]
 
 { #category : #accessing }

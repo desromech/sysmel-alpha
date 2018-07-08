@@ -55,6 +55,11 @@ SYMLFieldVariable >> defaultValue [
 	^ type defaultValue
 ]
 
+{ #category : #'code generation' }
+SYMLFieldVariable >> getReceiverValue: receiver [
+	^ (receiver slots at: slotIndex + 1) sysmelValueWithType: type inEnvironment: definitionEnvironment
+]
+
 { #category : #accessing }
 SYMLFieldVariable >> getterSelector [
 	^ self name
@@ -66,7 +71,7 @@ SYMLFieldVariable >> initialize [
 	self private
 ]
 
-{ #category : #initialization }
+{ #category : #'code generation' }
 SYMLFieldVariable >> initializeSSAVariable: ssaVariable builder: builder [
 	| fieldPointer |
 	fieldPointer := builder getReference: ssaVariable element: (builder constInt: slotIndex).
@@ -119,11 +124,17 @@ SYMLFieldVariable >> semanticAnalyzeMessageToYou: message inEnvironment: environ
 	^ super semanticAnalyzeMessageToYou: message inEnvironment: environment at: aPosition
 ]
 
-{ #category : #initialization }
+{ #category : #'code generation' }
+SYMLFieldVariable >> setReceiver: receiver value: value [
+	receiver slots at: slotIndex + 1 put: value.
+	^ value
+]
+
+{ #category : #'code generation' }
 SYMLFieldVariable >> setSSAReceiver: receiverValue value: newFieldValue with: builder [
 	receiverValue type isPointerType ifTrue: [ 
 		builder store: newFieldValue in: (self ssaReferenceForReceiverValue: receiverValue builder: builder).
-		^ receiverValue
+		^ newFieldValue
 	].
 
 	self halt
@@ -144,7 +155,7 @@ SYMLFieldVariable >> slotIndex: anObject [
 	slotIndex := anObject
 ]
 
-{ #category : #initialization }
+{ #category : #'code generation' }
 SYMLFieldVariable >> ssaReferenceForReceiverValue: receiverValue builder: builder [
 	receiverValue type isPointerType ifFalse: [
 		receiverValue type isVectorType ifTrue: [

@@ -53,6 +53,11 @@ SYMLAbstractVariable >> doCreateSSADebugInformation [
 	self subclassResponsibility
 ]
 
+{ #category : #'as yet unclassified' }
+SYMLAbstractVariable >> evaluateBindingInEnvironment: environment [
+	self subclassResponsibility
+]
+
 { #category : #testing }
 SYMLAbstractVariable >> isReadOnly [
 	^ self hasFlag: #readOnly

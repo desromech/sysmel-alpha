@@ -172,7 +172,7 @@ SYMLAbstractFunction >> ensureSemanticAnalysis [
 
 { #category : #'as yet unclassified' }
 SYMLAbstractFunction >> evaluateWithReceiver: aReceiver arguments: activationArguments inEnvironment: environment at: aPosition [
-	| activationScope result hasResult providedArgument convertedArgument convertedArguments |
+	| activationScope result hasResult providedArgument convertedArgument convertedArguments receiverValue |
 	evaluator ifNotNil: [ 
 		convertedArguments := arguments collectWithIndex: [:expectedArgument :index |
 			providedArgument := activationArguments at: index.
@@ -185,8 +185,12 @@ SYMLAbstractFunction >> evaluateWithReceiver: aReceiver arguments: activationArg
 	activationScope := SYMLFunctionActivationScope parent: bodyEnvironment.
 	activationScope function: self.
 	
-	receiver ifNotNil: [ 
-		activationScope addSymbol: receiver name value: (aReceiver asSysmelValueInEnvironment: environment)
+	receiver ifNotNil: [
+		receiverValue := aReceiver asSysmelValueInEnvironment: environment.
+		activationScope
+			receiver: receiverValue;
+			receiverVariable: receiver;
+			addSymbol: receiver name value: receiverValue
 	].
 
 	(arguments size ~= activationArguments size and: [ self isCVariadic not or: [ activationArguments size < arguments size ] ]) ifTrue: [ 

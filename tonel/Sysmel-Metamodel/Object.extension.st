@@ -24,6 +24,11 @@ Object >> isSysmelClass [
 ]
 
 { #category : #'*Sysmel-Metamodel' }
+Object >> isSysmelGCClass [
+	^ false
+]
+
+{ #category : #'*Sysmel-Metamodel' }
 Object >> isSysmelIncompleteValue [
 	^ false
 ]

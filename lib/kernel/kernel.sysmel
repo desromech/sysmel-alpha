@@ -12,6 +12,6 @@ Compiler
 
     yourself.
 
-Compiler
-    evaluateFileNamedOnce: "gcobject.sysmel";
-    yourself
+if: Compiler hasRuntimeTypeInformation then: {
+    Compiler evaluateFileNamedOnce: "smalltalk/smalltalk.sysmel"
+}.

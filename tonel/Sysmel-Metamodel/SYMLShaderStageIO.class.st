@@ -90,6 +90,7 @@ SYMLShaderStageIO >> generateInterfaceSSAType: interfaceVariables suffix: suffix
 
 { #category : #'code generation' }
 SYMLShaderStageIO >> generateSSACode [
+	super generateSSACode.
 	children do: #generateSSACode
 ]
 
@@ -130,6 +131,7 @@ SYMLShaderStageIO >> mangledName [
 
 { #category : #'semantic analysis' }
 SYMLShaderStageIO >> semanticAnalysis [
+	super semanticAnalysis.
 	analyzed ifTrue: [ ^ self ].
 	analyzed := true.
 	

@@ -12,7 +12,8 @@ Class {
 		'optimizationLevel',
 		'debugLocationDictionary',
 		'debugSourceFileDictionary',
-		'evaluatedFileReferences'
+		'evaluatedFileReferences',
+		'hasNoRuntimeTypeInformation'
 	],
 	#classVars : [
 		'GlobalParserRegistry'
@@ -251,6 +252,24 @@ SYMLModule >> globalNamespace [
 	^ globalNamespace
 ]
 
+{ #category : #'compilation options' }
+SYMLModule >> hasNoRuntimeTypeInformation [
+	<compileTime>
+	^ hasNoRuntimeTypeInformation ifNil: [ hasNoRuntimeTypeInformation := false ]
+]
+
+{ #category : #'compilation options' }
+SYMLModule >> hasNoRuntimeTypeInformation: aBoolean [
+	<compileTime>
+	hasNoRuntimeTypeInformation := aBoolean
+]
+
+{ #category : #'compilation options' }
+SYMLModule >> hasRuntimeTypeInformation [
+	<compileTime>
+	^ self hasNoRuntimeTypeInformation not
+]
+
 { #category : #initialization }
 SYMLModule >> initializeWithCompilationTarget: aCompilationTarget [
 	self initialize.
@@ -301,6 +320,12 @@ SYMLModule >> newLanguageKernelEnvironment [
 	^ SYMLLexicalScope parent: self topLevelScope
 ]
 
+{ #category : #'compilation options' }
+SYMLModule >> noRTTI [
+	<compileTime>
+	self hasNoRuntimeTypeInformation: true
+]
+
 { #category : #accessing }
 SYMLModule >> operatingSystemName [
 	<compileTime>
@@ -349,6 +374,12 @@ SYMLModule >> semanticAnalysis [
 		extraToAnalyze removeAll
 	]
 	
+]
+
+{ #category : #'code generation' }
+SYMLModule >> ssaConstantPrimitiveValue: value type: type [
+	<compileTime>
+	^ SLVMConstant type: type ssaType value: value
 ]
 
 { #category : #accessing }

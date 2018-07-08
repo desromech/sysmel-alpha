@@ -248,7 +248,7 @@ AnyValue type uses: Type.
 _MetaType uses: AnyValue type;
 definition: {
     message buildSSAType -> _CompilerObjectType := {
-        return: (Compiler compilationTarget ssaPointerTo: Compiler compilationTarget int8Type ssaType)
+        return: (Compiler compilationTarget ssaPointerTo: Compiler compilationTarget int8Type ssaType forAddressSpace: #generic)
     }.
 
     message generateSSAValue: (value: _CompilerObjectType) withBuilder: (builder: _CompilerObjectType) ::-> _CompilerObjectType := {
@@ -298,6 +298,9 @@ definition: {
         return: self size
     }.
 
+    meta message generateSSAConstant: (value: _CompilerObjectType) forModule: (module: _CompilerObjectType) ::-> _CompilerObjectType := {
+        return: (module ssaConstantPrimitiveValue: value type: self)
+    }.
 }.
 
 // An opaque type
@@ -528,12 +531,12 @@ definition: {
     }.
 }.
 
-AnyValue extend: {
-    meta message pointer -> _CompilerObjectType := {
+Type extend: {
+    message pointer -> _CompilerObjectType := {
         return: PointerTypeTemplate(self, #generic)
     }.
 
-    meta message pointerFor: (addressSpace: _LiteralSymbol) ::-> _CompilerObjectType := {
+    message pointerFor: (addressSpace: _LiteralSymbol) ::-> _CompilerObjectType := {
         return: PointerTypeTemplate(self, addressSpace)
     }.
 }.
@@ -634,12 +637,12 @@ definition: {
     }.
 }.
 
-AnyValue extend: {
-    meta message ref -> _CompilerObjectType := {
+Type extend: {
+    message ref -> _CompilerObjectType := {
         return: ReferenceTypeTemplate(self, #generic)
     }.
 
-    meta message refFor: (addressSpaceName: _LiteralSymbol) ::-> _CompilerObjectType := {
+    message refFor: (addressSpaceName: _LiteralSymbol) ::-> _CompilerObjectType := {
         return: ReferenceTypeTemplate(self, addressSpaceName)
     }.
 }.
@@ -693,8 +696,8 @@ definition: {
     }.
 }.
 
-AnyValue extend: {
-    meta message const -> _CompilerObjectType := {
+Type extend: {
+    message const -> _CompilerObjectType := {
         return: ConstantTypeTemplate(self)
     }
 }.
@@ -755,8 +758,8 @@ definition: {
     SelfType conversionTo: D doOn: decorationIdentityAction.
 }.
 
-AnyValue extend: {
-    meta message volatile -> _CompilerObjectType := {
+Type extend: {
+    message volatile -> _CompilerObjectType := {
         return: VolatileTypeTemplate(self)
     }
 }.

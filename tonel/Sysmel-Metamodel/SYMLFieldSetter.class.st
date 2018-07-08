@@ -11,8 +11,7 @@ SYMLFieldSetter >> evaluateMessage: message inEnvironment: anEnvironment [
 	receiver := receiverValue unwrapSysmelValue.
 	value := message arguments first evaluateInEnvironment: anEnvironment.
 	coercedValue := message coercionRule convertValue: value into: message coercionType at: message position.
-	receiver slots at: field slotIndex + 1 put: coercedValue value.
-	^ receiverValue
+	^ field setReceiver: receiver value: coercedValue
 ]
 
 { #category : #'macro compilation' }
@@ -30,18 +29,19 @@ SYMLFieldSetter >> generateMessage: messageNode ssaCodeWith: builder [
 
 { #category : #'macro compilation' }
 SYMLFieldSetter >> semanticAnalyzeMessage: message inEnvironment: environment at: aPosition [
-	| receiver value valueType coercionRule |
+	| receiver value valueType coercionRule coercionType |
 	receiver := message receiver semanticAnalysisInEnvironment: environment.
 	value := message arguments first semanticAnalysisInEnvironment: environment.
 	valueType := value evaluateTypeInEnvironment: environment.
 	coercionRule := valueType node: value coercedImplicitlyInto: field type at: aPosition.
+	coercionType := field type.
 	
 	^ message copy
 		receiver: receiver;
 		arguments: { value };
-		coercionType: field type;
+		coercionType: coercionType;
 		coercionRule: coercionRule;
 		metaMethod: self;
-		valueType: (message receiver evaluateTypeInEnvironment: environment);
+		valueType: coercionType;
 		yourself
 ]

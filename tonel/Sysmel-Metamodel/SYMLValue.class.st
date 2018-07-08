@@ -1,6 +1,6 @@
 Class {
 	#name : #SYMLValue,
-	#superclass : #SYMLAbstractValue,
+	#superclass : #SYMLAbstractConcreteValue,
 	#instVars : [
 		'value',
 		'type',
@@ -27,20 +27,6 @@ SYMLValue >> = other [
 { #category : #'as yet unclassified' }
 SYMLValue >> analyzeAPSGIdentifierToMe: identifier inEnvironment: anEnvironment [
 	^ self asAPSGNodeInEnvironment: anEnvironment at: identifier position
-]
-
-{ #category : #converting }
-SYMLValue >> asAPSGNodeInEnvironment: newEnvironment at: aPosition [
-	self isMetaObjectValue ifTrue: [ 
-		^ SYMLAPSGMetaObjectInstance new
-			position: aPosition;
-			metaObject: value;
-			yourself
-	].
-	^ SYMLAPSGLiteral new
-		position: aPosition;
-		value: self;
-		yourself
 ]
 
 { #category : #converting }
@@ -73,16 +59,6 @@ SYMLValue >> asSysmelValueInEnvironment: anEnvironment [
 ]
 
 { #category : #'as yet unclassified' }
-SYMLValue >> coercedIntoType: targetType at: coercionPosition [
-	^ type coerceValue: self into: targetType at: coercionPosition
-]
-
-{ #category : #'as yet unclassified' }
-SYMLValue >> coercedWithRule: coercionRule intoType: targetType at: coercionPosition. [
-	^ coercionRule convertValue: self into: targetType at: coercionPosition
-]
-
-{ #category : #'as yet unclassified' }
 SYMLValue >> concretizeInEnvironment: concreteEnvironment [
 	^ self
 ]
@@ -99,7 +75,7 @@ SYMLValue >> environment: anObject [
 
 { #category : #'meta evaluation' }
 SYMLValue >> generateSSACodeWith: aBuilder [
-	^ type generateSSAValue: value withBuilder: aBuilder
+	^ type generateSSAValue: self value withBuilder: aBuilder
 ]
 
 { #category : #comparing }
@@ -117,16 +93,11 @@ SYMLValue >> isSysmelValue [
 	^ true
 ]
 
-{ #category : #'pattern matching' }
-SYMLValue >> matchValue: suppliedValue withMatchingContext: patternMatchingContext at: position [
-	^ suppliedValue value = value ifTrue: [ suppliedValue ] ifFalse: [ nil ]
-]
-
 { #category : #printing }
 SYMLValue >> printOn: aStream [
 	^ aStream nextPutAll: self class name;
 		nextPutAll: ' value: (';
-		print: value;
+		print: self value;
 		nextPutAll: ') type: (';
 		print: type;
 		nextPutAll: ')'
@@ -135,12 +106,6 @@ SYMLValue >> printOn: aStream [
 { #category : #'as yet unclassified' }
 SYMLValue >> sameValueButWithType: aNewType [
 	^ self copy type: aNewType
-]
-
-{ #category : #accessing }
-SYMLValue >> sysmelMangledValue [
-	<compileTime>
-	^ value sysmelMangledValue
 ]
 
 { #category : #'as yet unclassified' }

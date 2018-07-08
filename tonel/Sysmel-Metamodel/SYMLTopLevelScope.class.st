@@ -48,6 +48,12 @@ SYMLTopLevelScope >> fillSymbols [
 
 		yourself.
 	
+	module hasRuntimeTypeInformation ifTrue: [ 
+		symbols
+			at: #gcclass put: (SYMLMetaBuilder for: SYMLGCClass module: module);
+			yourself
+	].
+
 ]
 
 { #category : #accessing }

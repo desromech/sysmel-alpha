@@ -62,7 +62,7 @@ SYMLFunctionLocalVariable >> doCreateSSADebugInformation [
 
 { #category : #'as yet unclassified' }
 SYMLFunctionLocalVariable >> evaluateBoundIdentifierToMe: identifier inEnvironment: anEnvironment [
-	anEnvironment == definitionEnvironment ifTrue: [ 
+	anEnvironment == definitionEnvironment ifTrue: [
 		^ self sysmelValueWithType: referenceType inEnvironment: anEnvironment
 	].
 	

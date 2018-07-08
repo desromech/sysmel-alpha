@@ -8,6 +8,13 @@ Class {
 	#category : #'Sysmel-Metamodel-Variable'
 }
 
+{ #category : #'as yet unclassified' }
+SYMLReceiverFieldVariable >> evaluateBoundIdentifierToMe: identifier inEnvironment: anEnvironment [
+	| receiverValue |
+	receiverValue := receiver evaluateBindingInEnvironment: anEnvironment.
+	^ receiverValue type evaluateReceiver: receiverValue value field: field withType: identifier type at: identifier position
+]
+
 { #category : #accessing }
 SYMLReceiverFieldVariable >> field [
 	^ field

@@ -10,3 +10,8 @@ SYMLFunctionReceiver >> doCreateSSADebugInformation [
 		argumentIndex: ssaValue index;
 		yourself
 ]
+
+{ #category : #'as yet unclassified' }
+SYMLFunctionReceiver >> evaluateBindingInEnvironment: environment [
+	^ environment lookReceiverValueFor: self
+]

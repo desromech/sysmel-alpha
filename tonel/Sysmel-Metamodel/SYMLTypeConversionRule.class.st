@@ -4,6 +4,11 @@ Class {
 	#category : #'Sysmel-Metamodel-Type'
 }
 
+{ #category : #scripting }
+SYMLTypeConversionRule class >> when: aPredicate [
+	^ self new when: aPredicate
+]
+
 { #category : #testing }
 SYMLTypeConversionRule >> canBeUsedToConvertFrom: sourceType into: targetType [
 	self subclassResponsibility
@@ -41,4 +46,12 @@ SYMLTypeConversionRule >> intermediateConversion: intermediateType chainedWith: 
 { #category : #testing }
 SYMLTypeConversionRule >> isTypeKindConversion [
 	^ false
+]
+
+{ #category : #scripting }
+SYMLTypeConversionRule >> when: aPredicate [
+	^ SYMLPredicatedTypeConversionRule new
+		rule: self;
+		predicate: aPredicate;
+		yourself
 ]

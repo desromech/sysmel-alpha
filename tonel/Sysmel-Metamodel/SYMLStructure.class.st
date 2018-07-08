@@ -4,7 +4,8 @@ Class {
 	#instVars : [
 		'fields',
 		'hasConcretedSSAType',
-		'analyzed'
+		'analyzed',
+		'structureSSAType'
 	],
 	#category : #'Sysmel-Metamodel-Type'
 }
@@ -22,12 +23,12 @@ SYMLStructure >> allFields [
 	^ fields
 ]
 
-{ #category : #'semantic analysis' }
-SYMLStructure >> buildConcreteSSAType [
+{ #category : #'code generation' }
+SYMLStructure >> buildConcreteStructureSSAType [
 	| allFields |
-	self module ssaModule addStructure: self ssaType.
+	self module ssaModule addStructure: self structureSSAType.
 	allFields := self allFields.
-	self ssaType
+	self structureSSAType
 		names: (allFields collect: [ :field | field name ]);
 		types: (allFields collect: [ :field | field type ssaType ]).
 
@@ -43,6 +44,11 @@ SYMLStructure >> buildLayout [
 
 { #category : #'code generation' }
 SYMLStructure >> buildSSAType [
+	^ self structureSSAType
+]
+
+{ #category : #'code generation' }
+SYMLStructure >> buildStructureSSAType [
 	^ SLVMStructureType new name: self mangledName; kind: SLVMStructureType genericKind.
 ]
 
@@ -51,11 +57,11 @@ SYMLStructure >> definitionScopeClass [
 	^ SYMLStructureScope
 ]
 
-{ #category : #'semantic analysis' }
-SYMLStructure >> ensureConcreteSSAType [
+{ #category : #'code generation' }
+SYMLStructure >> ensureConcreteStructureSSAType [
 	hasConcretedSSAType ifTrue: [ ^ self ].
 	hasConcretedSSAType := true.
-	self buildConcreteSSAType
+	self buildConcreteStructureSSAType
 ]
 
 { #category : #accessing }
@@ -63,9 +69,10 @@ SYMLStructure >> fields [
 	^ fields
 ]
 
-{ #category : #'semantic analysis' }
+{ #category : #'code generation' }
 SYMLStructure >> generateSSACode [
-	self ensureConcreteSSAType.
+	super generateSSACode.
+	self ensureConcreteStructureSSAType.
 	children do: #generateSSACode
 ]
 
@@ -128,11 +135,19 @@ SYMLStructure >> printOn: aStream [
 
 { #category : #'semantic analysis' }
 SYMLStructure >> semanticAnalysis [
+	super semanticAnalysis.
 	analyzed ifTrue: [ ^ self ].
 	analyzed := true.
 	
 	self buildLayout.
 	children do: #semanticAnalysis
+]
+
+{ #category : #'code generation' }
+SYMLStructure >> structureSSAType [
+	<compileTime>
+	structureSSAType ifNil: [ structureSSAType := self buildStructureSSAType].
+	^ structureSSAType
 ]
 
 { #category : #'as yet unclassified' }

@@ -5,7 +5,7 @@ Class {
 }
 
 { #category : #'code generation' }
-SYMLUnion >> buildSSAType [
+SYMLUnion >> buildStructureSSAType [
 	^ SLVMUnionType new name: self mangledName; kind: SLVMStructureType genericKind.
 ]
 

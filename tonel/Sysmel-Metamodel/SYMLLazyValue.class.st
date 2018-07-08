@@ -1,6 +1,6 @@
 Class {
 	#name : #SYMLLazyValue,
-	#superclass : #SYMLAbstractValue,
+	#superclass : #SYMLAbstractConcreteValue,
 	#instVars : [
 		'node',
 		'environment',
@@ -9,6 +9,14 @@ Class {
 	],
 	#category : #'Sysmel-Metamodel-Values'
 }
+
+{ #category : #converting }
+SYMLLazyValue >> asAPSGNodeInEnvironment: newEnvironment at: aPosition [
+	^ SYMLAPSGMetaObjectInstance new
+			position: aPosition;
+			metaObject: self;
+			yourself
+]
 
 { #category : #converting }
 SYMLLazyValue >> asAPSGNodeValue [
@@ -74,6 +82,11 @@ SYMLLazyValue >> lazyValueForEnvironment: newEnvironment [
 		node: node;
 		environment: newEnvironment;
 		yourself
+]
+
+{ #category : #'pattern matching' }
+SYMLLazyValue >> matchValue: suppliedValue withMatchingContext: argumentMatchingContext at: position [
+	self subclassResponsibility
 ]
 
 { #category : #accessing }

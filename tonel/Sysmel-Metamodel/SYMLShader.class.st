@@ -30,6 +30,7 @@ SYMLShader >> ensureShaderInterfaceIsGenerated [
 
 { #category : #'code generation' }
 SYMLShader >> generateSSACode [
+	super generateSSACode.
 	self ensureShaderInterfaceIsGenerated.
 	children do: #generateSSACode
 ]
@@ -68,6 +69,7 @@ SYMLShader >> mangledName [
 
 { #category : #'semantic analysis' }
 SYMLShader >> semanticAnalysis [
+	super semanticAnalysis.
 	analyzed ifTrue: [ ^ self ].
 	analyzed := true.
 	
