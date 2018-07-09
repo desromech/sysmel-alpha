@@ -37,3 +37,7 @@ SYMLMacroMethodPatternGroup >> semanticAnalyzeMessage: message inEnvironment: en
 	checkedMessageAndPattern := self findValidPatternForMessage: message inEnvironment: environment at: aPosition.
 	^ checkedMessageAndPattern second semanticAnalyzeMessage: checkedMessageAndPattern first inEnvironment: environment at: aPosition
 ]
+
+{ #category : #accessing }
+SYMLMacroMethodPatternGroup >> tryToAddToParentWithName: aName [
+]

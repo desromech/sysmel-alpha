@@ -12,6 +12,10 @@ Compiler
 
     yourself.
 
+if: Compiler useLibC then: {
+    Compiler evaluateFileNamedOnce: "stdlib/stdlib.sysmel"
+}.
+
 if: Compiler hasRuntimeTypeInformation then: {
     Compiler evaluateFileNamedOnce: "smalltalk/smalltalk.sysmel"
 }.

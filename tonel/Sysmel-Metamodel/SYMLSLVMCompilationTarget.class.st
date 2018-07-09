@@ -52,6 +52,12 @@ SYMLSLVMCompilationTarget >> pointerSize [
 	^ target pointerSize
 ]
 
+{ #category : #'accesing ssa types' }
+SYMLSLVMCompilationTarget >> ssaArrayOf: elementType size: size [
+	<compileTime>
+	^ target arrayOf: elementType size: size
+]
+
 { #category : #'target platform querying' }
 SYMLSLVMCompilationTarget >> ssaBoolType [
 	<compileTime>

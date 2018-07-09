@@ -2,7 +2,7 @@ namespace SysmelKernel definition: {
 
 // Add a testing method into type about primitive vector types.
 Type extend: {
-    message isPrimitiveVectorType -> Boolean := {
+    message isPrimitiveVectorType -> BooleanBit := {
         return: false
     }.
 }.
@@ -11,7 +11,7 @@ Type extend: {
 trait PrimitiveVectorType
     uses: AnyValue;
 definition: {
-    meta message isPrimitiveVectorType -> Boolean := {
+    meta message isPrimitiveVectorType -> BooleanBit := {
         return: true
     }.
 }.
@@ -32,12 +32,12 @@ definition: {
         return: ElementCount
     }.
 
-    meta message alignment -> Int32 := {
-        return: ElementType alignment * AlignmentMultiplier
+    meta message instanceAlignment -> Int32 := {
+        return: ElementType instanceAlignment * AlignmentMultiplier
     }.
 
-    meta message size -> Int32 := {
-        return: ElementType size * ElementCount
+    meta message instanceSize -> Int32 := {
+        return: ElementType instanceSize * ElementCount
     }.
 
     meta message buildSSAType -> _CompilerObjectType := {

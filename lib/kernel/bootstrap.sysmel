@@ -15,6 +15,7 @@ Compiler compilationTarget
     unionTypeTrait: trait UnionType;
     classTypeTrait: trait ClassType;
 
+    undefinedType: type UndefinedType;
     functionGroupType: type _FunctionGroupType;
     apsgNodeType: type _APSGNodeType;
     compilerObjectType: type _CompilerObjectType;
@@ -29,7 +30,7 @@ Compiler compilationTarget
     literalFloatType: type _LiteralFloat;
 
     voidType: type Void;
-    booleanType: type Boolean;
+    booleanType: type BooleanBit;
 
     // Integer types
     int8Type: type Int8;
@@ -137,91 +138,103 @@ trait Type definition: {
         return: self
     }.
 
-    message isType -> Boolean := {
+    message isType -> BooleanBit := {
         return: true
     }.
 
-    message isCompilerObjectType -> Boolean := {
+    message isCompilerObjectType -> BooleanBit := {
         return: false
     }.
 
-    message isLiteralType -> Boolean := {
+    message isArrayType -> BooleanBit := {
         return: false
     }.
 
-    message isPrimitiveType -> Boolean := {
+    message isUndeterminedArrayType -> BooleanBit := {
         return: false
     }.
 
-    message isPrimitiveLiteralType -> Boolean := {
+    message isUndefinedType -> BooleanBit := {
         return: false
     }.
 
-    message isPrimitiveOrPrimitiveLiteralType -> Boolean := {
+    message isLiteralType -> BooleanBit := {
         return: false
     }.
 
-    message isOpaqueType -> Boolean := {
+    message isPrimitiveType -> BooleanBit := {
         return: false
     }.
 
-    message isBooleanType -> Boolean := {
+    message isPrimitiveLiteralType -> BooleanBit := {
         return: false
     }.
 
-    message isNumericalType -> Boolean := {
+    message isPrimitiveOrPrimitiveLiteralType -> BooleanBit := {
         return: false
     }.
 
-    message isIntegerType -> Boolean := {
+    message isOpaqueType -> BooleanBit := {
         return: false
     }.
 
-    message isFractionalType -> Boolean := {
+    message isBooleanType -> BooleanBit := {
         return: false
     }.
 
-    message isFloatingPointType -> Boolean := {
+    message isNumericalType -> BooleanBit := {
         return: false
     }.
 
-    message isPointerType -> Boolean := {
+    message isIntegerType -> BooleanBit := {
         return: false
     }.
 
-    message isReferenceType -> Boolean := {
+    message isFractionalType -> BooleanBit := {
         return: false
     }.
 
-    message isPointerOrReferenceType -> Boolean := {
+    message isFloatingPointType -> BooleanBit := {
         return: false
     }.
 
-    message isTupleType -> Boolean := {
+    message isPointerType -> BooleanBit := {
         return: false
     }.
 
-    message isFunctionType -> Boolean := {
+    message isReferenceType -> BooleanBit := {
         return: false
     }.
 
-    message isFunctionGroupType -> Boolean := {
+    message isPointerOrReferenceType -> BooleanBit := {
         return: false
     }.
 
-    message isConstantType -> Boolean := {
+    message isTupleType -> BooleanBit := {
         return: false
     }.
 
-    message isVolatileType -> Boolean := {
+    message isFunctionType -> BooleanBit := {
         return: false
     }.
 
-    message size -> _LiteralInteger := {
+    message isFunctionGroupType -> BooleanBit := {
+        return: false
+    }.
+
+    message isConstantType -> BooleanBit := {
+        return: false
+    }.
+
+    message isVolatileType -> BooleanBit := {
+        return: false
+    }.
+
+    message instanceSize -> _LiteralInteger := {
         return: 0
     }.
 
-    message alignment -> _LiteralInteger := {
+    message instanceAlignment -> _LiteralInteger := {
         return: 1
     }.
 
@@ -237,7 +250,7 @@ trait Type definition: {
         self error: "Cannot generate default value of {1}" format: (self,self)
     }.
 
-    message isReturnedThroughFirstArgument ::-> Boolean := {
+    message isReturnedThroughFirstArgument ::-> BooleanBit := {
         return: false
     }.
 }.
@@ -260,7 +273,7 @@ definition: {
 trait LiteralType
     uses: AnyValue;
 definition: {
-    meta message isLiteralType -> Boolean := {
+    meta message isLiteralType -> BooleanBit := {
         return: true
     }.
 
@@ -273,11 +286,11 @@ definition: {
 trait PrimitiveLiteralType
     uses: LiteralType;
 definition: {
-    meta message isPrimitiveLiteralType -> Boolean := {
+    meta message isPrimitiveLiteralType -> BooleanBit := {
         return: true
     }.
 
-    meta message isPrimitiveOrPrimitiveLiteralType -> Boolean := {
+    meta message isPrimitiveOrPrimitiveLiteralType -> BooleanBit := {
         return: true
     }.
 }.
@@ -286,16 +299,16 @@ definition: {
 trait PrimitiveType
     uses: AnyValue;
 definition: {
-    meta message isPrimitiveType -> Boolean := {
+    meta message isPrimitiveType -> BooleanBit := {
         return: true
     }.
 
-    meta message isPrimitiveOrPrimitiveLiteralType -> Boolean := {
+    meta message isPrimitiveOrPrimitiveLiteralType -> BooleanBit := {
         return: true
     }.
 
-    meta message alignment -> _LiteralInteger := {
-        return: self size
+    meta message instanceAlignment -> _LiteralInteger := {
+        return: self instanceSize
     }.
 
     meta message generateSSAConstant: (value: _CompilerObjectType) forModule: (module: _CompilerObjectType) ::-> _CompilerObjectType := {
@@ -307,7 +320,7 @@ definition: {
 trait OpaqueType
     uses: AnyValue;
 definition: {
-    meta message isOpaqueType -> Boolean := {
+    meta message isOpaqueType -> BooleanBit := {
         return: true
     }
 }.
@@ -315,7 +328,7 @@ definition: {
 // A numerical type
 trait NumericalType uses: AnyValue;
 definition: {
-    meta message isNumericalType -> Boolean := {
+    meta message isNumericalType -> BooleanBit := {
         return: true
     }
 }.
@@ -323,37 +336,37 @@ definition: {
 // An integer type
 trait IntegerType uses: NumericalType;
 definition: {
-    meta message isIntegerType -> Boolean := {
+    meta message isIntegerType -> BooleanBit := {
         return: true
     }.
 
-    meta message isSigned -> Boolean := {
+    meta message isSigned -> BooleanBit := {
         return: false
     }.
 
-    meta message isUnsigned -> Boolean := {
+    meta message isUnsigned -> BooleanBit := {
         return: false
     }.
 }.
 
 trait SignedIntegerType uses: IntegerType;
 definition: {
-    meta message isSigned -> Boolean := {
+    meta message isSigned -> BooleanBit := {
         return: true
     }.
 
-    meta message isUnsigned -> Boolean := {
+    meta message isUnsigned -> BooleanBit := {
         return: false
     }.
 }.
 
 trait UnsignedIntegerType uses: IntegerType;
 definition: {
-    meta message isSigned -> Boolean := {
+    meta message isSigned -> BooleanBit := {
         return: false
     }.
 
-    meta message isUnsigned -> Boolean := {
+    meta message isUnsigned -> BooleanBit := {
         return: true
     }.
 }.
@@ -387,7 +400,7 @@ trait PrimitiveSignedIntegerType uses: (PrimitiveIntegerType, SignedIntegerType)
 // A boolean type
 trait BooleanType uses: AnyValue;
 definition: {
-    meta message isBooleanType -> Boolean := {
+    meta message isBooleanType -> BooleanBit := {
         return: true
     }.
 }.
@@ -395,7 +408,7 @@ definition: {
 // A fraction type
 trait FractionalType uses: NumericalType;
 definition: {
-    meta message isFractionalType -> Boolean := {
+    meta message isFractionalType -> BooleanBit := {
         return: true
     }
 }.
@@ -403,7 +416,7 @@ definition: {
 // A floating point type
 trait FloatingPointType uses: NumericalType;
 definition: {
-    meta message isFloatingPointType -> Boolean := {
+    meta message isFloatingPointType -> BooleanBit := {
         return: true
     }
 }.
@@ -436,11 +449,11 @@ definition: {
 trait PointerType
     uses: AnyValue;
 definition: {
-    meta message isPointerType -> Boolean := {
+    meta message isPointerType -> BooleanBit := {
         return: true
     }.
 
-    meta message isPointerOrReferenceType -> Boolean := {
+    meta message isPointerOrReferenceType -> BooleanBit := {
         return: true
     }.
 
@@ -453,11 +466,20 @@ definition: {
 trait ReferenceType
     uses: AnyValue;
 definition: {
-    meta message isReferenceType -> Boolean := {
+    meta message isReferenceType -> BooleanBit := {
         return: true
     }.
 
-    meta message isPointerOrReferenceType -> Boolean := {
+    meta message isPointerOrReferenceType -> BooleanBit := {
+        return: true
+    }.
+}.
+
+// Reference type
+trait ArrayType
+    uses: AnyValue;
+definition: {
+    meta message isArrayType -> BooleanBit := {
         return: true
     }.
 }.
@@ -479,16 +501,20 @@ definition: {
         return: AddressSpaceName
     }.
 
-    meta message alignment -> _LiteralInteger := {
+    meta message instanceAlignment -> _LiteralInteger := {
         return: Compiler compilationTarget pointerAlignment
     }.
 
-    meta message size -> _LiteralInteger := {
+    meta message instanceSize -> _LiteralInteger := {
         return: Compiler compilationTarget pointerSize
     }.
 
     meta message buildSSAType -> _CompilerObjectType := {
         return: (Compiler compilationTarget ssaPointerTo: P ssaType forAddressSpace: AddressSpaceName)
+    }.
+
+    meta message defaultSSAValueWith: (builder: _CompilerObjectType) ::-> _CompilerObjectType := {
+        return: (builder const: 0 type: self ssaType)
     }.
 
     meta message cleanType -> _CompilerObjectType := {
@@ -556,11 +582,11 @@ definition: {
         return: AddressSpaceName
     }.
 
-    meta message alignment -> _LiteralInteger := {
+    meta message instanceAlignment -> _LiteralInteger := {
         return: Compiler compilationTarget pointerAlignment
     }.
 
-    meta message size -> _LiteralInteger := {
+    meta message instanceSize -> _LiteralInteger := {
         return: Compiler compilationTarget pointerSize
     }.
 
@@ -651,7 +677,7 @@ Type extend: {
 template ConstantTypeTemplate(D: Type)
     := type uses: D;
 definition: {
-    meta message isConstantType -> Boolean := {
+    meta message isConstantType -> BooleanBit := {
         return: true
     }.
 
@@ -706,7 +732,7 @@ Type extend: {
 template VolatileTypeTemplate(D: Type)
     := type uses: D;
 definition: {
-    meta message isVolatileType -> Boolean := {
+    meta message isVolatileType -> BooleanBit := {
         return: true
     }.
 
@@ -764,10 +790,68 @@ Type extend: {
     }
 }.
 
+// Array type
+template ArrayTypeTemplate(E: Type, N: _LiteralInteger)
+    := type uses: ArrayType;
+definition: {
+    alias ElementType := E.
+    alias Size := N.
+    alias InstanceAlignment := ElementType instanceAlignment.
+    alias InstanceSize := ElementType instanceSize * Size.
+
+    if: N = 0 then: {
+        meta message isUndeterminedArrayType -> BooleanBit := {
+            return: true
+        }.
+    }.
+
+    meta message size -> _LiteralInteger := {
+        return: Size
+    }.
+
+    meta message instanceSize -> Int32 := {
+        return: InstanceSize
+    }.
+
+    meta message instanceAlignment -> _LiteralInteger := {
+        return: InstanceAlignment
+    }.
+
+    meta message buildSSAType -> _CompilerObjectType := {
+        return: (Compiler compilationTarget ssaArrayOf: ElementType concreteSSAType size: Size)
+    }.
+
+    meta message valueType -> _CompilerObjectType := {
+        return: (ElementType valueType array: Size)
+    }.
+
+    meta message cleanType -> _CompilerObjectType := {
+        return: (ElementType cleanType array: Size)
+    }.
+
+    meta message createSysmelMangledValue -> _CompilerObjectType := {
+        return: ElementType sysmelMangledValue -- #A -- Size asString
+    }.
+
+    meta message createPrintingName -> _CompilerObjectType := {
+        return: (D printingName -- " array:" -- Size asString)
+    }.
+}.
+
+Type extend: {
+    message array -> _CompilerObjectType := {
+        return: ArrayTypeTemplate(self, 0)
+    }.
+
+    message array: (N: _LiteralInteger) ::-> _CompilerObjectType := {
+        return: ArrayTypeTemplate(self, N)
+    }.
+}.
+
 // Tuple type
 TupleType uses: AnyValue;
 definition: {
-    meta message isTupleType -> Boolean := {
+    meta message isTupleType -> BooleanBit := {
         return: true
     }
 }.
@@ -775,7 +859,7 @@ definition: {
 // Function group type
 _FunctionGroupType uses: AnyValue;
 definition: {
-    meta message isFunctionGroupType -> Boolean := {
+    meta message isFunctionGroupType -> BooleanBit := {
         return: true
     }.
 
@@ -793,7 +877,7 @@ definition: {
 // Function type
 FunctionType uses: AnyValue;
 definition: {
-    meta message isFunctionType -> Boolean := {
+    meta message isFunctionType -> BooleanBit := {
         return: true
     }.
 
@@ -937,7 +1021,7 @@ definition: {
 _CompilerObjectType uses: AnyValue.
 _APSGNodeType uses: AnyValue.
 
-Boolean uses: (BooleanType, PrimitiveType);
+BooleanBit uses: (BooleanType, PrimitiveType);
 definition: {
     meta message buildSSAType -> _CompilerObjectType := {
         return: Compiler compilationTarget ssaBoolType
@@ -948,6 +1032,20 @@ definition: {
     }.
 
     SelfType sysmelMangledValue: #b.
+}.
+
+// Undefined type. For nil
+UndefinedType uses: OpaqueType;
+definition: {
+    message isUndefinedType -> BooleanBit := {
+        return: true
+    }.
+
+    meta message generateSSAValue: (value: _CompilerObjectType) withBuilder: (builder: _CompilerObjectType) ::-> _CompilerObjectType := {
+        return: value
+    }.
+
+    SelfType sysmelMangledValue: #u.
 }.
 
 Void uses: OpaqueType;
@@ -962,7 +1060,7 @@ definition: {
 // Int8
 Int8 uses: PrimitiveSignedIntegerType;
 definition: {
-    meta message size -> _LiteralInteger := {
+    meta message instanceSize -> _LiteralInteger := {
         return: 1
     }.
 
@@ -979,7 +1077,7 @@ definition: {
 
 UInt8 uses: PrimitiveUnsignedIntegerType;
 definition: {
-    meta message size -> _LiteralInteger := {
+    meta message instanceSize -> _LiteralInteger := {
         return: 1
     }.
 
@@ -997,7 +1095,7 @@ definition: {
 // Int16
 Int16 uses: PrimitiveSignedIntegerType;
 definition: {
-    meta message size -> _LiteralInteger := {
+    meta message instanceSize -> _LiteralInteger := {
         return: 2
     }.
 
@@ -1014,7 +1112,7 @@ definition: {
 
 UInt16 uses: PrimitiveUnsignedIntegerType;
 definition: {
-    meta message size -> _LiteralInteger := {
+    meta message instanceSize -> _LiteralInteger := {
         return: 2
     }.
 
@@ -1032,7 +1130,7 @@ definition: {
 // Int32
 Int32 uses: PrimitiveSignedIntegerType;
 definition: {
-    meta message size -> _LiteralInteger := {
+    meta message instanceSize -> _LiteralInteger := {
         return: 4
     }.
 
@@ -1049,7 +1147,7 @@ definition: {
 
 UInt32 uses: PrimitiveUnsignedIntegerType;
 definition: {
-    meta message size -> _LiteralInteger := {
+    meta message instanceSize -> _LiteralInteger := {
         return: 4
     }.
 
@@ -1067,7 +1165,7 @@ definition: {
 // Int64
 Int64 uses: PrimitiveSignedIntegerType;
 definition: {
-    meta message size -> _LiteralInteger := {
+    meta message instanceSize -> _LiteralInteger := {
         return: 8
     }.
 
@@ -1084,7 +1182,7 @@ definition: {
 
 UInt64 uses: PrimitiveUnsignedIntegerType;
 definition: {
-    meta message size -> _LiteralInteger := {
+    meta message instanceSize -> _LiteralInteger := {
         return: 8
     }.
 
@@ -1101,7 +1199,7 @@ definition: {
 
 Float32 uses: PrimitiveFloatingPointType;
 definition: {
-    meta message size -> _LiteralInteger := {
+    meta message instanceSize -> _LiteralInteger := {
         return: 4
     }.
 
@@ -1118,7 +1216,7 @@ definition: {
 
 Float64 uses: PrimitiveFloatingPointType;
 definition: {
-    meta message size -> _LiteralInteger := {
+    meta message instanceSize -> _LiteralInteger := {
         return: 8
     }.
 

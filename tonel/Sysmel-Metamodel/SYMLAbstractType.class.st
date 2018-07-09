@@ -135,11 +135,6 @@ SYMLAbstractType >> addTypeKindBaseTrait [
 
 ]
 
-{ #category : #accessing }
-SYMLAbstractType >> alignment [
-	^ self cachedNullary: #alignment
-]
-
 { #category : #'macro compilation' }
 SYMLAbstractType >> analyzeAndEvaluateMessage: message inEnvironment: environment at: aPosition [
 	^ (self semanticAnalyzeMessage: message inEnvironment: environment at: aPosition) evaluateInEnvironment: environment
@@ -307,6 +302,12 @@ SYMLAbstractType >> coercedImplicitlyInto: targetType [
 	].
 
 	^ nil
+]
+
+{ #category : #accessing }
+SYMLAbstractType >> concreteSSAType [
+	<compileTime>
+	^ self ssaType
 ]
 
 { #category : #conversions }
@@ -553,6 +554,16 @@ SYMLAbstractType >> initializeSSAVariable: ssaVariable builder: builder [
 ]
 
 { #category : #accessing }
+SYMLAbstractType >> instanceAlignment [
+	^ self cachedNullary: #instanceAlignment
+]
+
+{ #category : #accessing }
+SYMLAbstractType >> instanceSize [
+	^ self cachedNullary: #instanceSize
+]
+
+{ #category : #accessing }
 SYMLAbstractType >> invalidateCachedValues [
 	cachedValues removeAll
 ]
@@ -664,6 +675,16 @@ SYMLAbstractType >> isTupleType [
 { #category : #testing }
 SYMLAbstractType >> isType [
 	^ true
+]
+
+{ #category : #testing }
+SYMLAbstractType >> isUndefinedType [
+	^ self cachedNullary: #isUndefinedType
+]
+
+{ #category : #testing }
+SYMLAbstractType >> isUndeterminedArrayType [
+	^ self cachedNullary: #isUndeterminedArrayType
 ]
 
 { #category : #testing }
@@ -918,11 +939,6 @@ SYMLAbstractType >> semanticAnalyzeMessageToYou: message inEnvironment: environm
 	].
 
 	^ super semanticAnalyzeMessageToYou: message inEnvironment: environment at: aPosition
-]
-
-{ #category : #accessing }
-SYMLAbstractType >> size [
-	^ self cachedNullary: #size
 ]
 
 { #category : #accessing }

@@ -39,7 +39,8 @@ Class {
 		'typeTrait',
 		'variantTypeTrait',
 		'variantTypeCache',
-		'managedClassTypeTrait'
+		'managedClassTypeTrait',
+		'undefinedType'
 	],
 	#category : #'Sysmel-Metamodel-CompilationTarget'
 }
@@ -526,6 +527,18 @@ SYMLCompilationTarget >> uint8Type [
 SYMLCompilationTarget >> uint8Type: anObject [
 	<compileTime>
 	uint8Type := anObject
+]
+
+{ #category : #accessing }
+SYMLCompilationTarget >> undefinedType [
+	<compileTime>
+	^ undefinedType
+]
+
+{ #category : #accessing }
+SYMLCompilationTarget >> undefinedType: aType [
+	<compileTime>
+	undefinedType := aType
 ]
 
 { #category : #accessing }

@@ -187,4 +187,17 @@ PrimitiveIntegerType conversionTo: PrimitiveFloatingPointType doOn: {
             ^ builder intToFloatCast: sourceValue target: targetType ssaType
     }.
 }.
+
+// Nil into pointer
+UndefinedType conversionTo: PointerType doOn: {
+    evaluation: $$Pharo {
+        value: value targetType: targetType at: position
+            ^ value sameValueButWithType: targetType
+    }.
+    codeGeneration: $$Pharo {
+        convertSSAValue: sourceValue to: targetType with: builder at: messageNode
+            ^ targetType defaultSSAValueWith: builder
+    }.
+}.
+
 }. // End of namespace SysmelKernel

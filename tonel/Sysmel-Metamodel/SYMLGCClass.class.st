@@ -1,8 +1,13 @@
 Class {
 	#name : #SYMLGCClass,
-	#superclass : #SYMLClass,
+	#superclass : #SYMLAbstractClass,
 	#instVars : [
-		'instanceType'
+		'instanceType',
+		'instanceDataSize',
+		'instanceDataAlignment',
+		'variableInstanceElementSize',
+		'variableInstanceElementAlignment',
+		'hasComputeInstanceSizes'
 	],
 	#classVars : [
 		'MetaclassInstanceSlotMap'
@@ -16,6 +21,12 @@ SYMLGCClass class >> initialize [
 	MetaclassInstanceSlotMap := Dictionary newFromPairs: #(
 		__class type
 		superclass superclass
+		
+		instanceDataSize instanceDataSize
+		instanceDataAlignment instanceDataAlignment
+		
+		variableInstanceElementSize variableInstanceElementSize
+		variableInstanceElementAlignment variableInstanceElementAlignment
 	)
 ]
 
@@ -36,6 +47,48 @@ SYMLGCClass >> addDefaultConversionRules [
 { #category : #'code generation' }
 SYMLGCClass >> buildSSAType [
 	^ self compilationTarget ssaPointerTo: self structureSSAType forAddressSpace: #gc
+]
+
+{ #category : #initialization }
+SYMLGCClass >> computeInstanceSizes [
+	| fieldType fieldSize fieldAlignment |
+	hasComputeInstanceSizes ifTrue: [ ^ self ].
+
+	instanceDataSize := 0.
+	instanceDataAlignment := 1.
+	variableInstanceElementSize := 0.
+	variableInstanceElementAlignment := 1.
+	
+	self allFields doWithIndex: [ :field :fieldIndex |
+		fieldType := field type.
+		fieldSize := fieldType instanceSize.
+		fieldAlignment := fieldType instanceAlignment.
+
+		"Apply the field alignment."
+		instanceDataAlignment := instanceDataAlignment max: fieldAlignment.
+		instanceDataSize := instanceDataSize alignedTo: fieldAlignment.
+		self assert: (field offset isNil or: [ field offset = instanceDataSize]).
+		field offset: instanceDataSize.
+
+		"Apply the field size."		
+		instanceDataSize := instanceDataSize + fieldType instanceSize.
+		fieldType isUndeterminedArrayType ifTrue: [ 
+			fieldIndex ~= self allFields size ifTrue: [
+				self error: 'Field with variable has to be the last field.'
+			].
+		
+			variableInstanceElementSize := fieldSize.
+			variableInstanceElementAlignment := fieldAlignment.
+		].
+	].
+	
+	hasComputeInstanceSizes := true.
+]
+
+{ #category : #accessing }
+SYMLGCClass >> concreteSSAType [
+	<compileTime>
+	^ self ssaType
 ]
 
 { #category : #'as yet unclassified' }
@@ -65,6 +118,11 @@ SYMLGCClass >> createTypeInstanceSlotsFor: typeInstance [
 			typeInstance perform: selector
 		] ifAbsent: [ field defaultValue unwrapSysmelValue ]
 	]
+]
+
+{ #category : #'code generation' }
+SYMLGCClass >> defaultSSAValueWith: builder [
+	^ builder const: 0 type: self ssaType
 ]
 
 { #category : #defaults }
@@ -119,6 +177,34 @@ SYMLGCClass >> generateSSATypeInfoForInstance: anInstanceType [
 SYMLGCClass >> generateSSAValue: value withBuilder: aBuilder [
 	value ifNil: [ ^ SLVMConstant type: self type ssaType value: 0 ].
 	^ value generateSSAReferenceWith: aBuilder
+]
+
+{ #category : #initialization }
+SYMLGCClass >> initialize [
+	super initialize.
+	hasComputeInstanceSizes := false
+]
+
+{ #category : #accessing }
+SYMLGCClass >> instanceAlignment [
+	^ self compilationTarget pointerAlignment
+]
+
+{ #category : #accessing }
+SYMLGCClass >> instanceDataAlignment [
+	self computeInstanceSizes.
+	^ instanceDataAlignment
+]
+
+{ #category : #accessing }
+SYMLGCClass >> instanceDataSize [
+	self computeInstanceSizes.
+	^ instanceDataSize
+]
+
+{ #category : #accessing }
+SYMLGCClass >> instanceSize [
+	^ self compilationTarget pointerSize
 ]
 
 { #category : #accessing }
@@ -185,4 +271,16 @@ SYMLGCClass >> printOn: aStream [
 { #category : #'as yet unclassified' }
 SYMLGCClass >> typeKindBaseTrait [
 	^ self compilationTarget managedClassTypeTrait
+]
+
+{ #category : #accessing }
+SYMLGCClass >> variableInstanceElementAlignment [
+	self computeInstanceSizes.
+	^ variableInstanceElementAlignment
+]
+
+{ #category : #accessing }
+SYMLGCClass >> variableInstanceElementSize [
+	self computeInstanceSizes.
+	^ variableInstanceElementSize
 ]

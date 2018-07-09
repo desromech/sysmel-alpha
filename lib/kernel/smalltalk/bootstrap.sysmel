@@ -13,6 +13,19 @@ ManagedClassTrait uses: AnyValue;
 definition: {
 }.
 
+UndefinedType conversionTo: ManagedClassTrait doOn: {
+    evaluation: $$Pharo {
+        value: value targetType: targetType at: position
+            ^ value sameValueButWithType: targetType
+    }.
+    codeGeneration: $$Pharo {
+        convertSSAValue: sourceValue to: targetType with: builder at: messageNode
+            ^ targetType defaultSSAValueWith: builder
+    }.
+}.
+
+// Variable data trait
+
 }.
 
 namespace Smalltalk definition: {
@@ -24,12 +37,33 @@ gcclass Metaclass.
 ProtoObject metaClassClass: Metaclass.
 
 gcclass Object superclass: ProtoObject.
-gcclass Behavior superclass: Object.
-gcclass ClassDescription superclass: Behavior.
-gcclass Class superclass: ClassDescription.
-gcclass Metaclass superclass: ClassDescription.
+    gcclass Behavior superclass: Object.
+        gcclass ClassDescription superclass: Behavior.
+            gcclass Class superclass: ClassDescription.
+            gcclass Metaclass superclass: ClassDescription.
 
-gcclass GCLayoutRecord superclass: Object.
+    // BooleanBit
+    gcclass Boolean superclass: Object.
+        gcclass True superclass: Boolean.
+        gcclass False superclass: Boolean.
+
+    // Undefind object
+    gcclass UndefinedObject superclass: Object.
+
+    // Numbers
+    gcclass Magnitude superclass: Object.
+        gcclass Number superclass: Magnitude.
+            gcclass Float superclass: Number.
+                gcclass BoxedFloat64 superclass: Float.
+                gcclass SmallFloat64 superclass: Float.
+            gcclass Integer superclass: Number.
+                gcclass LargeInteger superclass: Integer.
+                    gcclass LargeNegativeInteger superclass: LargeInteger.
+                    gcclass LargePositiveInteger superclass: LargeInteger.
+                gcclass SmallInteger superclass: Integer.
+
+
+    gcclass GCLayout superclass: Object.
 
 // Essential collections
 gcclass Collection superclass: Object.
@@ -60,11 +94,11 @@ ProtoObject definition: {
 Behavior uses: Type; definition: {
     field superclass public type: Behavior.
     field methodDict public type: MethodDictionary.
-    field gclayout public type: GCLayoutRecord.
-    field slots public type: GCLayoutRecord.
+    field gclayout public type: GCLayout.
+    field slots public type: Array.
 
-    field instanceSize public type: UIntPointer.
-    field instanceAlignment public type: UIntPointer.
+    field instanceDataSize public type: UIntPointer.
+    field instanceDataAlignment public type: UIntPointer.
 
     field variableInstanceElementSize public type: UIntPointer.
     field variableInstanceElementAlignment public type: UIntPointer.
@@ -77,14 +111,43 @@ Behavior uses: Type; definition: {
         return: self
     }.
 
+    message lookupSelector: (selector: Object) ::-> Object := {
+        [[staticBinding]]
+        return: nil
+    }.
+}.
+
+Class definition: {
+    field name protected type: Symbol.
+
+    message name -> Symbol := {
+        return: name
+    }.
 }.
 
 Metaclass definition: {
     field thisClass protected type: Behavior.
 
-    method isMetaType -> Boolean := {
+    message isMetaType -> BooleanBit := {
         return: true
     }.
+}.
+
+// GCLayoutRecord
+struct GCLayoutRecord definition: {
+    field type public type: UIntPointer.
+    field offset public type: UIntPointer.
+    field size public type: UIntPointer.
+}.
+
+// GCLayout
+GCLayout definition: {
+    field records public type: GCLayoutRecord array.
+}.
+
+// String
+String definition: {
+    field __data protected type: UInt8 array.
 }.
 
 //-----------------------------------------------------------------------------
@@ -99,6 +162,13 @@ ProtoObject definition: {
 HashedCollection definition: {
     field tally protected type: UIntPointer.
     field array protected type: Array.
+}.
+
+//-----------------------------------------------------------------------------
+// Normal message lookup
+
+function normalMessageLookup(object: Void pointer, selector: Object) -> Void pointer := {
+    return: nil
 }.
 
 }.

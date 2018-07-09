@@ -3,7 +3,8 @@ Class {
 	#superclass : #SYMLAbstractVariable,
 	#instVars : [
 		'slotIndex',
-		'visibility'
+		'visibility',
+		'offset'
 	],
 	#category : #'Sysmel-Metamodel-Variable'
 }
@@ -86,6 +87,16 @@ SYMLFieldVariable >> isFieldVariable [
 { #category : #testing }
 SYMLFieldVariable >> isPublic [
 	^ self visibility == #public
+]
+
+{ #category : #accessing }
+SYMLFieldVariable >> offset [
+	^ offset
+]
+
+{ #category : #accessing }
+SYMLFieldVariable >> offset: anObject [
+	offset := anObject
 ]
 
 { #category : #accessing }

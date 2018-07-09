@@ -30,7 +30,7 @@ SYMLStructure >> buildConcreteStructureSSAType [
 	allFields := self allFields.
 	self structureSSAType
 		names: (allFields collect: [ :field | field name ]);
-		types: (allFields collect: [ :field | field type ssaType ]).
+		types: (allFields collect: [ :field | field type concreteSSAType ]).
 
 
 ]
@@ -50,6 +50,13 @@ SYMLStructure >> buildSSAType [
 { #category : #'code generation' }
 SYMLStructure >> buildStructureSSAType [
 	^ SLVMStructureType new name: self mangledName; kind: SLVMStructureType genericKind.
+]
+
+{ #category : #accessing }
+SYMLStructure >> concreteSSAType [
+	<compileTime>
+	self ensureConcreteStructureSSAType.
+	^ self ssaType
 ]
 
 { #category : #definition }

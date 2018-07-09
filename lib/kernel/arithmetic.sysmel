@@ -22,7 +22,7 @@ PrimitiveFloatingPointType meta message
 
 _LiteralInteger arithmeticCoercionWith: PrimitiveIntegerType do: $$Pharo {
 coerce: left with: right
-    right size >= 4 ifTrue: [
+    right instanceSize >= 4 ifTrue: [
         ^ right
     ] ifFalse: [
         self halt

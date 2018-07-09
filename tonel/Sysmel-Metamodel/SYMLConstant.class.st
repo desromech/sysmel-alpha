@@ -11,7 +11,7 @@ Class {
 SYMLConstant >> analyzeAPSGIdentifierToMe: identifier inEnvironment: anEnvironment [
 	^ SYMLAPSGLiteral new
 		position: identifier;
-		value: (value sysmelValueWithType: anEnvironment compilationTarget booleanType inEnvironment: anEnvironment);
+		value: (value asSysmelValueInEnvironment: anEnvironment);
 		yourself
 ]
 

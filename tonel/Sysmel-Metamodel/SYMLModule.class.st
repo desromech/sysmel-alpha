@@ -13,7 +13,8 @@ Class {
 		'debugLocationDictionary',
 		'debugSourceFileDictionary',
 		'evaluatedFileReferences',
-		'hasNoRuntimeTypeInformation'
+		'hasNoRuntimeTypeInformation',
+		'useLibC'
 	],
 	#classVars : [
 		'GlobalParserRegistry'
@@ -321,6 +322,12 @@ SYMLModule >> newLanguageKernelEnvironment [
 ]
 
 { #category : #'compilation options' }
+SYMLModule >> noLibC [
+	<compileTime>
+	self useLibC: false
+]
+
+{ #category : #'compilation options' }
 SYMLModule >> noRTTI [
 	<compileTime>
 	self hasNoRuntimeTypeInformation: true
@@ -399,6 +406,18 @@ SYMLModule >> symbol: aSymbol ifPresent: ifPresentBlock ifAbsent: ifAbsentBlock 
 SYMLModule >> topLevelScope [
 	<compileTime>
 	^ topLevelScope ifNil: [topLevelScope := SYMLTopLevelScope new module: self]
+]
+
+{ #category : #'compilation options' }
+SYMLModule >> useLibC [
+	<compileTime>
+	^ useLibC ifNil: [ useLibC := true ]
+]
+
+{ #category : #'compilation options' }
+SYMLModule >> useLibC: aBoolean [
+	<compileTime>
+	useLibC := aBoolean
 ]
 
 { #category : #'compilation options' }

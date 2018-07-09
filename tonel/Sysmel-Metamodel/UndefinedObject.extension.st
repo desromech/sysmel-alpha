@@ -4,3 +4,8 @@ Extension { #name : #UndefinedObject }
 UndefinedObject >> asSysmelSourcePosition [
 	^ self
 ]
+
+{ #category : #'*Sysmel-Metamodel' }
+UndefinedObject >> asSysmelValueInEnvironment: anEnvironment [
+	^ self sysmelValueWithType: anEnvironment compilationTarget undefinedType inEnvironment: anEnvironment
+]
