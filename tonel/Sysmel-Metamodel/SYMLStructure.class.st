@@ -37,7 +37,7 @@ SYMLStructure >> buildConcreteStructureSSAType [
 
 { #category : #'semantic analysis' }
 SYMLStructure >> buildLayout [
-	fields doWithIndex: [ :field :index|
+	self allFields doWithIndex: [ :field :index|
 		field slotIndex: index - 1
 	]
 ]
