@@ -29,6 +29,12 @@ SYMLSLVMCompilationTarget >> isSpirV [
 ]
 
 { #category : #accessing }
+SYMLSLVMCompilationTarget >> objectModel [
+	<compileTime>
+	^ target objectModel
+]
+
+{ #category : #accessing }
 SYMLSLVMCompilationTarget >> operatingSystemName [
 	<compileTime>
 	^ target operatingSystemName
@@ -157,7 +163,8 @@ SYMLSLVMCompilationTarget >> target [
 { #category : #accessing }
 SYMLSLVMCompilationTarget >> target: anObject [
 	<compileTime>
-	target := anObject
+	target := anObject.
+	target objectModel: (SYMLSLVMObjectModel new target: target)
 ]
 
 { #category : #options }

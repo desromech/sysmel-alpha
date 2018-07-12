@@ -166,3 +166,17 @@ SYMLFunctionalPatternGroup >> selectBestMatchingAlternative: validAlternatives a
 SYMLFunctionalPatternGroup >> semanticAnalysis [
 	self allAlternativesDo: #semanticAnalysis
 ]
+
+{ #category : #accessing }
+SYMLFunctionalPatternGroup >> ssaValue [
+	<compileTime>
+	^ self uniqueAlternative ssaValue
+]
+
+{ #category : #'as yet unclassified' }
+SYMLFunctionalPatternGroup >> uniqueAlternative [
+	<compileTime>
+	(alternatives size = 1 and: [fallbackPattern isNil]) ifTrue: [ ^ alternatives first ].
+	alternatives ifEmpty: [ ^ fallbackPattern ].
+	self error: 'Overloaded meta object has not unique alternatives'.
+]

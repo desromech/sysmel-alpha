@@ -77,6 +77,19 @@ SYMLIntrinsicFunction class >> matrixOperations [
 ]
 
 { #category : #intrinsics }
+SYMLIntrinsicFunction class >> objectInstructions [
+	<intrinsics>
+	self
+		addIntrinsic: #'dynobject.identityEquals' block: [ :arguments :returnType :builder |
+			builder dynObjectIdentityEquals: arguments first with: arguments second
+		];
+		addIntrinsic: #'dynobject.identityNotEquals' block: [ :arguments :returnType :builder |
+			builder dynObjectIdentityNotEquals: arguments first with: arguments second
+		];
+		yourself
+]
+
+{ #category : #intrinsics }
 SYMLIntrinsicFunction class >> vectorInstructions [
 	<intrinsics>
 	self

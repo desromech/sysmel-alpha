@@ -31,9 +31,12 @@ SYMLMessageMethod >> abstractFunctionKind [
 
 { #category : #'as yet unclassified' }
 SYMLMessageMethod >> analyzeMetaMessage: message toReceiver: receiverValue inEnvironment: environment at: aPosition [
-	| result analyzedMessage |
+	| result analyzedMessage hasIncompleteArgument |
 	analyzedMessage := message withAnalyzedReceiverAndArgumentsInEnvironment: environment.
-	analyzedMessage arguments detect: [ :arg | arg isSysmelIncompleteValueInEnvironment: environment ] ifFound: [ 
+	hasIncompleteArgument := analyzedMessage arguments
+		detect: [ :arg | arg isSysmelIncompleteValueInEnvironment: environment ] ifFound: [ true ] ifNone: [ false ].
+	
+	(self isCompileTime not or: [hasIncompleteArgument]) ifTrue: [
 		^ SYMLSendMessageMacro new
 			messageMethod: self;
 			semanticAnalyzeMessage: analyzedMessage inEnvironment: environment at: aPosition
@@ -106,6 +109,11 @@ SYMLMessageMethod >> isMessageMethod [
 { #category : #testing }
 SYMLMessageMethod >> isMethod [
 	^ true
+]
+
+{ #category : #'as yet unclassified' }
+SYMLMessageMethod >> messageSendSelector [
+	^ name
 ]
 
 { #category : #'macro compilation' }

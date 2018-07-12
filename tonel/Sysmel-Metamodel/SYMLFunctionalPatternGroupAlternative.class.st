@@ -85,3 +85,8 @@ SYMLFunctionalPatternGroupAlternative >> semanticAnalyzeMessage: message inEnvir
 SYMLFunctionalPatternGroupAlternative >> semanticAnalyzeMessageToYou: message inEnvironment: environment at: aPosition [
 	^ macroFunction semanticAnalyzeMessageToYou: message inEnvironment: environment at: aPosition
 ]
+
+{ #category : #accessing }
+SYMLFunctionalPatternGroupAlternative >> ssaValue [
+	^ macroFunction ssaValue
+]

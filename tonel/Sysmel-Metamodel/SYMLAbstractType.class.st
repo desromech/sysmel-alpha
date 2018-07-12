@@ -520,6 +520,11 @@ SYMLAbstractType >> generateSSAValueForModule: aModule [
 	^ self ssaTypeInfo
 ]
 
+{ #category : #testing }
+SYMLAbstractType >> hasDynamicMessageSends [
+	^ self cachedNullary: #hasDynamicMessageSends fallbackWith: [ false ]
+]
+
 { #category : #conversions }
 SYMLAbstractType >> implicitConversionTo: targetTypeKindLazyValue doOn: actionRules [
 	<compileTime>
@@ -579,6 +584,11 @@ SYMLAbstractType >> invalidateFlattenedTraits [
 { #category : #testing }
 SYMLAbstractType >> isAPSGNodeType [
 	^ self == self compilationTarget apsgNodeType
+]
+
+{ #category : #testing }
+SYMLAbstractType >> isCompileTimeByDefault [
+	^ self isMetaType
 ]
 
 { #category : #testing }

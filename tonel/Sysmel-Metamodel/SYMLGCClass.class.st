@@ -179,6 +179,11 @@ SYMLGCClass >> generateSSAValue: value withBuilder: aBuilder [
 	^ value generateSSAReferenceWith: aBuilder
 ]
 
+{ #category : #testing }
+SYMLGCClass >> hasDynamicMessageSends [
+	^ true
+]
+
 { #category : #initialization }
 SYMLGCClass >> initialize [
 	super initialize.

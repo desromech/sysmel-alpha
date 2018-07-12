@@ -243,6 +243,23 @@ SYMLAbstractFunction >> functionType [
 ]
 
 { #category : #'code generation' }
+SYMLAbstractFunction >> generateIntrinsicFunctionBody: intrinsic [
+	| builder bodyBlock result |
+	builder := SYMLSLVMBuilder on: self ssaValue.
+	builder sysmelModule: self module.
+
+	bodyBlock := builder newBasicBlockHere: #body.
+	result := intrinsic generateSSACallWithArguments: self ssaValue arguments returnType: returnType builder: builder at: definitionPosition.
+	returnType isVoidType ifTrue: [ 
+		builder returnVoid.
+	] ifFalse: [ 
+		builder return: result
+	].
+	
+	^ self
+]
+
+{ #category : #'code generation' }
 SYMLAbstractFunction >> generateSSACallWithReceiver: receiverValue arguments: argumentValues withBuilder: builder at: position [
 	| allArguments calledMethodValue |
 	generator ifNotNil: [ 
@@ -251,6 +268,11 @@ SYMLAbstractFunction >> generateSSACallWithReceiver: receiverValue arguments: ar
 
 	self intrinsic ifNotNil: [ :intrinsic |
 		^ intrinsic generateSSACallWithReceiver: receiverValue arguments: argumentValues returnType: returnType withBuilder: builder at: position
+	].
+
+	self isCalledAsDynamicMessageSend ifTrue: [
+		self assert: receiverValue isNotNil.
+		^ builder send: (builder addDynamicLiteral: self messageSendSelector) returnType: self returnType ssaType receiver: receiverValue arguments: argumentValues
 	].
 
 	allArguments := arguments.
@@ -268,6 +290,8 @@ SYMLAbstractFunction >> generateSSACode [
 	].
 	
 	self ssaValue isNotEmpty ifTrue: [ ^ self ].
+	
+	self intrinsic ifNotNil: [ :intrinsic | ^ self generateIntrinsicFunctionBody: intrinsic ].
 
 	"Create a builder for the allocas and another for the function body."
 	allocaBuilder := SYMLSLVMBuilder on: self ssaValue.
@@ -323,6 +347,16 @@ SYMLAbstractFunction >> generator: aGenerator [
 	generator := aGenerator asSysmelCompileTimeFunction
 ]
 
+{ #category : #testing }
+SYMLAbstractFunction >> hasPragmaNamed: pragmaName [
+	^ self pragmaAt: pragmaName ifPresent: [ true ] ifAbsent: [ false ]
+]
+
+{ #category : #testing }
+SYMLAbstractFunction >> hasStaticBinding [
+	^ self hasPragmaNamed: #staticBinding
+]
+
 { #category : #initialization }
 SYMLAbstractFunction >> initialize [
 	super initialize.
@@ -339,7 +373,7 @@ SYMLAbstractFunction >> intrinsic [
 
 { #category : #accessing }
 SYMLAbstractFunction >> intrinsicName [
-	^ self analyzedBody pragmaAt: #intrinsic: ifPresent: [ :pragma | pragma arguments first unwrapSysmelValue ]
+	^ self pragmaAt: #intrinsic: ifPresent: [ :pragma | pragma arguments first unwrapSysmelValue ]
 ]
 
 { #category : #testing }
@@ -351,6 +385,24 @@ SYMLAbstractFunction >> isAbstractFunction [
 SYMLAbstractFunction >> isCVariadic [
 	<compileTime>
 	^ self hasFlag: #'cvariadic'
+]
+
+{ #category : #testing }
+SYMLAbstractFunction >> isCalledAsDynamicMessageSend [
+	^ self receiverType hasDynamicMessageSends and: [ self hasStaticBinding not ]
+]
+
+{ #category : #testing }
+SYMLAbstractFunction >> isCompileTime [
+	evaluator ifNotNil: [ ^ true ].
+
+	"A body is required for compile time evaluation"
+	body isNil ifTrue: [ ^ false ].
+	
+	(self hasPragmaNamed: #notInCompileTime) ifTrue: [ ^ false ].
+	(self hasPragmaNamed: #compileTime) ifTrue: [ ^ true ].
+	
+	^ self receiverType isCompileTimeByDefault
 ]
 
 { #category : #testing }
@@ -386,6 +438,23 @@ SYMLAbstractFunction >> mangledName [
 { #category : #accessing }
 SYMLAbstractFunction >> manglingCharacter [
 	^ $F
+]
+
+{ #category : #testing }
+SYMLAbstractFunction >> pragmaAt: selector ifAbsent: ifAbsentBlock [
+	^ self pragmaAt: selector ifPresent: nil ifAbsent: ifAbsentBlock
+]
+
+{ #category : #testing }
+SYMLAbstractFunction >> pragmaAt: selector ifPresent: ifPresentBlock [
+	^ self pragmaAt: selector ifPresent: ifPresentBlock ifAbsent: nil
+]
+
+{ #category : #testing }
+SYMLAbstractFunction >> pragmaAt: selector ifPresent: ifPresentBlock ifAbsent: ifAbsentBlock [
+	^ self analyzedBody
+		ifNil: [ ifAbsentBlock value ]
+		ifNotNil: [ :ab | ab pragmaAt: selector ifPresent: ifPresentBlock ifAbsent: ifAbsentBlock ]
 ]
 
 { #category : #'code generation' }

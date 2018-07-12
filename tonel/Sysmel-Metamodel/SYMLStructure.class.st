@@ -103,6 +103,11 @@ SYMLStructure >> initializeSSAVariable: ssaVariable builder: builder [
 	]
 ]
 
+{ #category : #testing }
+SYMLStructure >> isCompileTimeByDefault [
+	^ false
+]
+
 { #category : #'symbol lookup' }
 SYMLStructure >> lookReceiver: receiver symbol: symbol ifPresent: ifPresentBlock [
 	<compileTime>

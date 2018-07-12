@@ -80,7 +80,14 @@ SYMLAPSGSequence >> pragmaAt: selector ifAbsent: ifAbsentBlock [
 
 { #category : #accessing }
 SYMLAPSGSequence >> pragmaAt: selector ifPresent: ifPresentBlock [
-	^ (self pragmaAt: selector) ifNotNil: [ :pragma | ifPresentBlock value: pragma ]
+	^ (self pragmaAt: selector) ifNotNil: [ :pragma | ifPresentBlock cull: pragma ]
+]
+
+{ #category : #accessing }
+SYMLAPSGSequence >> pragmaAt: selector ifPresent: ifPresentBlock ifAbsent: ifAbsentBlock [
+	^ (self pragmaAt: selector)
+		ifNil: [ ifAbsentBlock value ]
+		ifNotNil: [ :pragma | ifPresentBlock cull: pragma ]
 ]
 
 { #category : #accessing }
