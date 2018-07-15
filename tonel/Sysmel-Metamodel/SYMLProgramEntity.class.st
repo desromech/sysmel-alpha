@@ -68,6 +68,8 @@ SYMLProgramEntity >> addMethod: value withSelector: selector [
 
 { #category : #adding }
 SYMLProgramEntity >> addSymbol: aSymbolName value: aValue [
+	aSymbolName = '_' ifTrue: [ ^ self ].
+	
 	^ self symbol: aSymbolName ifPresent: [ :existent |
 		self error: 'Trying to override symbol {1} with {2}.' format: { aSymbolName printString . aValue printString }
 	] ifAbsentPut: [ aValue ]

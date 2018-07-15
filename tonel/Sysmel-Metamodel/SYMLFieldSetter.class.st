@@ -11,6 +11,7 @@ SYMLFieldSetter >> evaluateMessage: message inEnvironment: anEnvironment [
 	receiver := receiverValue unwrapSysmelValue.
 	value := message arguments first evaluateInEnvironment: anEnvironment.
 	coercedValue := message coercionRule convertValue: value into: message coercionType at: message position.
+	self halt.
 	^ field setReceiver: receiver value: coercedValue
 ]
 

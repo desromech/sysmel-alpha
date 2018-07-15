@@ -5,16 +5,20 @@ Class {
 		'fields',
 		'hasConcretedSSAType',
 		'analyzed',
-		'structureSSAType'
+		'structureSSAType',
+		'slotsLayout'
 	],
 	#category : #'Sysmel-Metamodel-Type'
 }
 
 { #category : #adding }
 SYMLStructure >> addFieldVariable: field at: aPosition [
-	symbols at: field name ifPresent: [ :existent |
-		self error: 'Field {1} overrides an existent field.' format: { field name } at: aPosition
-	] ifAbsentPut: [ field ].
+	field hasDontCareName ifFalse: [ 
+		symbols at: field name ifPresent: [ :existent |
+			self error: 'Field {1} overrides an existent field.' format: { field name } at: aPosition
+		] ifAbsentPut: [ field ].
+	].
+
 	fields add: field
 ]
 
@@ -25,21 +29,23 @@ SYMLStructure >> allFields [
 
 { #category : #'code generation' }
 SYMLStructure >> buildConcreteStructureSSAType [
-	| allFields |
 	self module ssaModule addStructure: self structureSSAType.
-	allFields := self allFields.
 	self structureSSAType
-		names: (allFields collect: [ :field | field name ]);
-		types: (allFields collect: [ :field | field type concreteSSAType ]).
+		names: (slotsLayout collect: #name);
+		types: (slotsLayout collect: #concreteSSAType).
 
 
 ]
 
 { #category : #'semantic analysis' }
 SYMLStructure >> buildLayout [
-	self allFields doWithIndex: [ :field :index|
-		field slotIndex: index - 1
-	]
+	| builder |
+	slotsLayout ifNotNil: [ ^ self ].
+	
+	builder := SYMLStructureSlotsLayoutBuilder new.
+	self allFields do: [ :field | builder addField: field ].
+	builder flush.
+	slotsLayout := builder slots
 ]
 
 { #category : #'code generation' }
@@ -123,7 +129,7 @@ SYMLStructure >> lookReceiver: receiver symbol: symbol ifPresent: ifPresentBlock
 SYMLStructure >> makeInstance [
 	self semanticAnalysis.
 	^ SYMLStructureInstance new type: self;
-		slots: (fields collect: [:field | field defaultValue unwrapSysmelValue ]);
+		slots: (self slotsLayout collect: [:field | field defaultValue unwrapSysmelValue ]);
 		yourself
 ]
 
@@ -153,6 +159,11 @@ SYMLStructure >> semanticAnalysis [
 	
 	self buildLayout.
 	children do: #semanticAnalysis
+]
+
+{ #category : #'semantic analysis' }
+SYMLStructure >> slotsLayout [
+	^ slotsLayout ifNil: [ self buildLayout ]
 ]
 
 { #category : #'code generation' }

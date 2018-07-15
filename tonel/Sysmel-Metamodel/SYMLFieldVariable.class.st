@@ -2,9 +2,12 @@ Class {
 	#name : #SYMLFieldVariable,
 	#superclass : #SYMLAbstractVariable,
 	#instVars : [
+		'bits',
 		'slotIndex',
+		'bitOffset',
 		'visibility',
-		'offset'
+		'offset',
+		'bitMask'
 	],
 	#category : #'Sysmel-Metamodel-Variable'
 }
@@ -15,6 +18,29 @@ SYMLFieldVariable >> bindingForReceiver: receiver symbol: symbol [
 		field: self;
 		receiver: receiver;
 		yourself
+]
+
+{ #category : #accessing }
+SYMLFieldVariable >> bitOffset [
+	^ bitOffset
+]
+
+{ #category : #accessing }
+SYMLFieldVariable >> bitOffset: anObject [
+	bitOffset := anObject
+]
+
+{ #category : #accessing }
+SYMLFieldVariable >> bits [
+	<compileTime>
+	^ bits
+]
+
+{ #category : #accessing }
+SYMLFieldVariable >> bits: anObject [
+	<compileTime>
+	bits := anObject.
+	bitMask := (1<<bits) - 1.
 ]
 
 { #category : #converting }
@@ -58,7 +84,17 @@ SYMLFieldVariable >> defaultValue [
 
 { #category : #'code generation' }
 SYMLFieldVariable >> getReceiverValue: receiver [
-	^ (receiver slots at: slotIndex + 1) sysmelValueWithType: type inEnvironment: definitionEnvironment
+	^ self getSlots: receiver slots Value: receiver
+]
+
+{ #category : #'code generation' }
+SYMLFieldVariable >> getSlots: slots Value: receiver [
+	^ (bits ifNil: [ 
+		(slots at: slotIndex + 1)
+	] ifNotNil: [
+		((slots at: slotIndex + 1) >> bitOffset) & bitMask
+	]) sysmelValueWithType: type inEnvironment: definitionEnvironment
+	
 ]
 
 { #category : #accessing }
@@ -119,7 +155,7 @@ SYMLFieldVariable >> public [
 
 { #category : #'as yet unclassified' }
 SYMLFieldVariable >> referenceType [
-	^ self type ref
+	^ bits ifNil: [ self type ref ] ifNotNil: [ self type ]
 ]
 
 { #category : #'as yet unclassified' }
@@ -137,18 +173,38 @@ SYMLFieldVariable >> semanticAnalyzeMessageToYou: message inEnvironment: environ
 
 { #category : #'code generation' }
 SYMLFieldVariable >> setReceiver: receiver value: value [
-	receiver slots at: slotIndex + 1 put: value.
-	^ value
+	^ self setSlots: receiver slots value: value
+]
+
+{ #category : #'code generation' }
+SYMLFieldVariable >> setSSAReceiver: receiverValue bits: newFieldValue with: builder [
+	self halt
 ]
 
 { #category : #'code generation' }
 SYMLFieldVariable >> setSSAReceiver: receiverValue value: newFieldValue with: builder [
-	receiverValue type isPointerType ifTrue: [ 
+	bits ifNotNil: [ ^ self setSSAReceiver: receiverValue bits: newFieldValue with: builder ].
+	
+	receiverValue type isPointerType ifTrue: [
 		builder store: newFieldValue in: (self ssaReferenceForReceiverValue: receiverValue builder: builder).
 		^ newFieldValue
 	].
 
 	self halt
+]
+
+{ #category : #'code generation' }
+SYMLFieldVariable >> setSlots: slots value: value [
+	| sourceValue |
+	bits ifNil: [ 
+		slots at: slotIndex + 1 put: value.
+	] ifNotNil: [
+		sourceValue := slots at: slotIndex + 1.
+		sourceValue := (sourceValue & bitMask bitInvert) | ((value & bitMask) << bitOffset).
+		slots at: slotIndex + 1 put: sourceValue.
+	].
+	
+	^ value
 ]
 
 { #category : #accessing }
@@ -167,7 +223,32 @@ SYMLFieldVariable >> slotIndex: anObject [
 ]
 
 { #category : #'code generation' }
+SYMLFieldVariable >> ssaGetBitsForReceiverValue: receiverValue builder: builder [
+	"Load the slot value"
+	| slotValue |
+	slotValue := self ssaGetSlotValueForReceiverValue: receiverValue builder: builder.
+	^ builder bitAnd: (builder shiftRight: slotValue
+			with: (builder const: bitOffset type: slotValue type))
+		with: (builder const: bitMask type: slotValue type)
+]
+
+{ #category : #'code generation' }
+SYMLFieldVariable >> ssaGetSlotValueForReceiverValue: receiverValue builder: builder [
+	receiverValue type isPointerType ifFalse: [
+		receiverValue type isVectorType ifTrue: [
+			^ builder extractVector: receiverValue element: (builder constInt: slotIndex)
+		] ifFalse: [
+			^ builder extractValue: receiverValue indices: {slotIndex}
+		] 
+	].
+
+	^ builder load: (builder getReference: receiverValue element: (builder constInt: slotIndex))
+]
+
+{ #category : #'code generation' }
 SYMLFieldVariable >> ssaReferenceForReceiverValue: receiverValue builder: builder [
+	bits ifNotNil: [ ^ self ssaGetBitsForReceiverValue: receiverValue builder: builder ].
+	
 	receiverValue type isPointerType ifFalse: [
 		receiverValue type isVectorType ifTrue: [
 			^ builder extractVector: receiverValue element: (builder constInt: slotIndex)

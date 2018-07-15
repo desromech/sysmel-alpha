@@ -11,8 +11,8 @@ Class {
 SYMLStructureInstance >> generateSSAReferenceWith: builder [
 	| ssaType ssaSlots |
 	ssaType := type ssaType.
-	ssaSlots := type fields collectWithIndex: [ :field :index |
-		field type generateSSAValue: (slots at: index) withBuilder: builder
+	ssaSlots := type slotsLayout collectWithIndex: [ :slot :index |
+		slot type generateSSAValue: (slots at: index) withBuilder: builder
 	].
 
 	^ SLVMConstantStructureValue new

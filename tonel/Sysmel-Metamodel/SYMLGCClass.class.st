@@ -20,6 +20,7 @@ SYMLGCClass class >> initialize [
 	super initialize.
 	MetaclassInstanceSlotMap := Dictionary newFromPairs: #(
 		__class type
+		__identityHash identityHash
 		superclass superclass
 		
 		instanceDataSize instanceDataSize
@@ -51,7 +52,7 @@ SYMLGCClass >> buildSSAType [
 
 { #category : #initialization }
 SYMLGCClass >> computeInstanceSizes [
-	| fieldType fieldSize fieldAlignment |
+	| slotType slotSize slotAlignment |
 	hasComputeInstanceSizes ifTrue: [ ^ self ].
 
 	instanceDataSize := 0.
@@ -59,26 +60,26 @@ SYMLGCClass >> computeInstanceSizes [
 	variableInstanceElementSize := 0.
 	variableInstanceElementAlignment := 1.
 	
-	self allFields doWithIndex: [ :field :fieldIndex |
-		fieldType := field type.
-		fieldSize := fieldType instanceSize.
-		fieldAlignment := fieldType instanceAlignment.
+	self slotsLayout doWithIndex: [ :slot :slotIndex |
+		slotType := slot type.
+		slotSize := slotType instanceSize.
+		slotAlignment := slotType instanceAlignment.
 
 		"Apply the field alignment."
-		instanceDataAlignment := instanceDataAlignment max: fieldAlignment.
-		instanceDataSize := instanceDataSize alignedTo: fieldAlignment.
-		self assert: (field offset isNil or: [ field offset = instanceDataSize]).
-		field offset: instanceDataSize.
+		instanceDataAlignment := instanceDataAlignment max: slotAlignment.
+		instanceDataSize := instanceDataSize alignedTo: slotAlignment.
+		self assert: (slot offset isNil or: [ slot offset = instanceDataSize]).
+		slot offset: instanceDataSize.
 
 		"Apply the field size."		
-		instanceDataSize := instanceDataSize + fieldType instanceSize.
-		fieldType isUndeterminedArrayType ifTrue: [ 
-			fieldIndex ~= self allFields size ifTrue: [
+		instanceDataSize := instanceDataSize + slotType instanceSize.
+		slotType isGCClassVariableDataArrayType ifTrue: [ 
+			slotIndex ~= self slotsLayout size ifTrue: [
 				self error: 'Field with variable has to be the last field.'
 			].
 		
-			variableInstanceElementSize := fieldSize.
-			variableInstanceElementAlignment := fieldAlignment.
+			variableInstanceElementSize := slotSize.
+			variableInstanceElementAlignment := slotAlignment.
 		].
 	].
 	
@@ -113,11 +114,16 @@ SYMLGCClass >> createMetaTypeFor: newInstanceType basingOf: oldMetaType [
 
 { #category : #'as yet unclassified' }
 SYMLGCClass >> createTypeInstanceSlotsFor: typeInstance [
-	^ self allFields collect: [ :field |
+	| result |
+	result := self slotsLayout collect: [ :slot | slot defaultValue unwrapSysmelValue ].
+	
+	self allFields do: [ :field |
 		MetaclassInstanceSlotMap at: field name ifPresent: [ :selector |
-			typeInstance perform: selector
-		] ifAbsent: [ field defaultValue unwrapSysmelValue ]
-	]
+			field setSlots: result value: (typeInstance perform: selector)
+		]
+	].
+
+	^ result
 ]
 
 { #category : #'code generation' }
@@ -128,6 +134,11 @@ SYMLGCClass >> defaultSSAValueWith: builder [
 { #category : #defaults }
 SYMLGCClass >> defaultValue [
 	^ nil sysmelValueWithType: self inEnvironment: definitionEnvironment
+]
+
+{ #category : #accessing }
+SYMLGCClass >> fieldMetaobjectClass [
+	^ SYMLGCClassFieldVariable
 ]
 
 { #category : #'code generation' }
@@ -161,8 +172,8 @@ SYMLGCClass >> generateSSATypeInfoForInstance: anInstanceType [
 	anInstanceType ssaTypeInfo: variable.
 	
 	instanceSlots := anInstanceType slots.
-	ssaSlots := self allFields collectWithIndex: [ :field :index |
-		field type generateSSAConstant: (instanceSlots at: index) forModule: self module
+	ssaSlots := self slotsLayout collectWithIndex: [ :slot :index |
+		slot type generateSSAConstant: (instanceSlots at: index) forModule: self module
 	].
 
 	variable initialValue: (SLVMConstantStructureValue new

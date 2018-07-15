@@ -138,6 +138,10 @@ trait Type definition: {
         return: self
     }.
 
+    message asGCClassFieldType -> SelfType := {
+        return: self
+    }.
+
     message isType -> BooleanBit := {
         return: true
     }.
@@ -147,6 +151,10 @@ trait Type definition: {
     }.
 
     message isArrayType -> BooleanBit := {
+        return: false
+    }.
+
+    message isGCClassVariableDataArrayType -> BooleanBit := {
         return: false
     }.
 
@@ -475,11 +483,19 @@ definition: {
     }.
 }.
 
-// Reference type
+// Array type
 trait ArrayType
     uses: AnyValue;
 definition: {
     meta message isArrayType -> BooleanBit := {
+        return: true
+    }.
+}.
+
+trait GCClassVariableDataArrayType
+    uses: AnyValue;
+definition: {
+    meta message isGCClassVariableDataArrayType -> BooleanBit := {
         return: true
     }.
 }.
@@ -791,6 +807,43 @@ Type extend: {
 }.
 
 // Array type
+template GCClassVariableDataArrayTypeTemplate(E: Type)
+    := type uses: GCClassVariableDataArrayType;
+definition: {
+    alias ElementType := E.
+    alias InstanceAlignment := ElementType instanceAlignment.
+    alias InstanceSize := ElementType instanceSize * Size.
+
+    meta message instanceSize -> Int32 := {
+        return: 0
+    }.
+
+    meta message instanceAlignment -> _LiteralInteger := {
+        return: 1
+    }.
+
+    meta message buildSSAType -> _CompilerObjectType := {
+        return: (Compiler compilationTarget ssaArrayOf: ElementType concreteSSAType size: 0)
+    }.
+
+    meta message valueType -> _CompilerObjectType := {
+        return: GCClassVariableDataArrayTypeTemplate(ElementType valueType)
+    }.
+
+    meta message cleanType -> _CompilerObjectType := {
+        return: GCClassVariableDataArrayTypeTemplate(ElementType cleanType)
+    }.
+
+    meta message createSysmelMangledValue -> _CompilerObjectType := {
+        return: ElementType sysmelMangledValue -- #d -- Size asString
+    }.
+
+    meta message createPrintingName -> _CompilerObjectType := {
+        return: (D printingName -- " gcClassVariableDataArray")
+    }.
+}.
+
+// Array type
 template ArrayTypeTemplate(E: Type, N: _LiteralInteger)
     := type uses: ArrayType;
 definition: {
@@ -802,6 +855,10 @@ definition: {
     if: N = 0 then: {
         meta message isUndeterminedArrayType -> BooleanBit := {
             return: true
+        }.
+
+        meta message asGCClassFieldType -> Type := {
+            return: GCClassVariableDataArrayTypeTemplate(ElementType)
         }.
     }.
 

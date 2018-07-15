@@ -9,7 +9,7 @@ function printValue(value: Float32) -> Void := {
 }.
 
 function main externC (argc: Int32, argv: Char const pointer pointer) -> Int32 := {
-    /*//let s type: SomeStruct.
+    //let s type: SomeStruct.
 
     let v3f := Float32x3 x: 1.0 y: 2.0 z: 3.0.
     LibC printf("v3f %f %f %f\n", v3f x, v3f y, v3f z).
@@ -63,7 +63,7 @@ function main externC (argc: Int32, argv: Char const pointer pointer) -> Int32 :
     LibC printf("Hello World: %s\n", argv value).
 
     LibC printf("Object: %p\n", Smalltalk Object).
-    LibC printf("Object class: %p\n", Smalltalk Object class).*/
+    LibC printf("Object class: %p\n", Smalltalk Object class).
 
     let o := Smalltalk Object.
     LibC printf("o: %p\n", o).

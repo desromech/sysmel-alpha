@@ -72,7 +72,7 @@ SYMLAbstractType >> addImplicitConversionRule: aConversionRule [
 SYMLAbstractType >> addIntrinsicField: fieldName slotIndex: slotIndex [
 	<compileTime>
 	| field |
-	field := SYMLFieldVariable new
+	field := self fieldMetaobjectClass new
 		module: self module;
 		definitionEnvironment: definitionEnvironment;
 		definitionNode: self definitionNode;
@@ -191,6 +191,11 @@ SYMLAbstractType >> arithmeticCoercionWith: otherTypeValue into: resultTypeValue
 		yourself.
 	self addArithmeticCoercionRule: coercionRule.
 	otherType addArithmeticCoercionRule: coercionRule reversed
+]
+
+{ #category : #'type composition' }
+SYMLAbstractType >> asGCClassFieldType [
+	^ self cachedNullary: #asGCClassFieldType fallbackWith: [ self ]
 ]
 
 { #category : #converting }
@@ -467,6 +472,11 @@ SYMLAbstractType >> extend: aDefinitionBlock [
 ]
 
 { #category : #accessing }
+SYMLAbstractType >> fieldMetaobjectClass [
+	^ SYMLFieldVariable
+]
+
+{ #category : #accessing }
 SYMLAbstractType >> flattenTraitsInto: target visited: visited [
 	(visited includes: self) ifTrue: [ ^ self ].
 	visited add: self.
@@ -588,7 +598,7 @@ SYMLAbstractType >> isAPSGNodeType [
 
 { #category : #testing }
 SYMLAbstractType >> isCompileTimeByDefault [
-	^ self isMetaType
+	^ true
 ]
 
 { #category : #testing }
@@ -604,6 +614,11 @@ SYMLAbstractType >> isFloatingPointType [
 { #category : #testing }
 SYMLAbstractType >> isFunctionType [
 	^ false
+]
+
+{ #category : #testing }
+SYMLAbstractType >> isGCClassVariableDataArrayType [
+	^ self cachedNullary: #isGCClassVariableDataArrayType
 ]
 
 { #category : #testing }

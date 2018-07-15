@@ -64,6 +64,11 @@ SYMLNamedProgramEntity >> fullUnmangledName [
 	]
 ]
 
+{ #category : #testing }
+SYMLNamedProgramEntity >> hasDontCareName [
+	^ name = '_'
+]
+
 { #category : #accessing }
 SYMLNamedProgramEntity >> module [
 	^ module

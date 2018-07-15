@@ -20,14 +20,17 @@ SYMLFieldGetter >> generateMessage: messageNode ssaCodeWith: builder [
 
 { #category : #'macro compilation' }
 SYMLFieldGetter >> semanticAnalyzeMessage: message inEnvironment: environment at: aPosition [
-	| receiver receiverType |
+	| receiver receiverType valueType |
 	receiver := message receiver semanticAnalysisInEnvironment: environment.
 	receiverType := (receiver evaluateTypeInEnvironment: environment) cleanType.
+	valueType := ((receiverType isPointerOrReferenceType and: [field bits isNil])
+		ifTrue: [ field referenceType ]
+		ifFalse: [field type]).
 
 	^ message copy
 		receiver: receiver;
 		metaMethod: self;
 		coercionType: receiverType;
-		valueType: (receiverType isPointerOrReferenceType ifTrue: [ field referenceType ] ifFalse: [field type]);
+		valueType: valueType;
 		yourself
 ]
