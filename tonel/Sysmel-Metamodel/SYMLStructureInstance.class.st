@@ -15,10 +15,7 @@ SYMLStructureInstance >> generateSSAReferenceWith: builder [
 		slot type generateSSAValue: (slots at: index) withBuilder: builder
 	].
 
-	^ SLVMConstantStructureValue new
-		type: ssaType;
-		slots: ssaSlots;
-		yourself
+	^ SLVMConstant structure: ssaType slots: ssaSlots
 ]
 
 { #category : #accessing }

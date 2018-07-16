@@ -426,6 +426,11 @@ SYMLAbstractType >> definitionScopeClass [
 	^ SYMLAbstractTypeScope
 ]
 
+{ #category : #testing }
+SYMLAbstractType >> elementType [
+	^ self cachedNullary: #elementType
+]
+
 { #category : #accessing }
 SYMLAbstractType >> evaluateMetaObjectTypeInEnvironment: anEnvironment [
 	^ self type

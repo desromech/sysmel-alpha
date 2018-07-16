@@ -2,6 +2,8 @@ Class {
 	#name : #SYMLSLVMObjectModel,
 	#superclass : #SLVMObjectModel,
 	#instVars : [
+		'stringClass',
+		'symbolClass',
 		'sysmelSuperMessageLookupFunction',
 		'sysmelMessageLookupFunction'
 	],
@@ -43,6 +45,26 @@ SYMLSLVMObjectModel >> createDoesNotUnderstandTrampolineWithType: functionType [
 	^ function
 ]
 
+{ #category : #'as yet unclassified' }
+SYMLSLVMObjectModel >> createNonInlineLiteralConstant: aLiteral withCodeGenerator: aCodeGenerator [
+	aLiteral isSymbol ifTrue: [
+		^ self createObjectBytes: aLiteral asUTF8Bytes class: symbolClass
+	].
+	aLiteral isString ifTrue: [
+		^ self createObjectBytes: aLiteral asUTF8Bytes class: stringClass
+	].
+	
+	self error: 'Literal not yet supported.'.
+]
+
+{ #category : #'as yet unclassified' }
+SYMLSLVMObjectModel >> createObjectBytes: bytes class: class [
+	| object |
+	object := class makeInstance: bytes size.
+	object slots at: object slots size put: bytes.
+	^ object createSSAInitialValueConstant
+]
+
 { #category : #accessing }
 SYMLSLVMObjectModel >> messageLookupFunction [
 	<compileTime>
@@ -50,9 +72,33 @@ SYMLSLVMObjectModel >> messageLookupFunction [
 ]
 
 { #category : #accessing }
+SYMLSLVMObjectModel >> stringClass [
+	<compileTime>
+	^ stringClass
+]
+
+{ #category : #accessing }
+SYMLSLVMObjectModel >> stringClass: anObject [
+	<compileTime>
+	stringClass := anObject
+]
+
+{ #category : #accessing }
 SYMLSLVMObjectModel >> superMessageLookupFunction [
 	<compileTime>
 	^ sysmelSuperMessageLookupFunction ssaValue
+]
+
+{ #category : #accessing }
+SYMLSLVMObjectModel >> symbolClass [
+	<compileTime>
+	^ symbolClass
+]
+
+{ #category : #accessing }
+SYMLSLVMObjectModel >> symbolClass: anObject [
+	<compileTime>
+	symbolClass := anObject
 ]
 
 { #category : #accessing }

@@ -806,7 +806,7 @@ Type extend: {
     }
 }.
 
-// Array type
+// GCClass variable data array type
 template GCClassVariableDataArrayTypeTemplate(E: Type)
     := type uses: GCClassVariableDataArrayType;
 definition: {
@@ -822,6 +822,10 @@ definition: {
         return: 1
     }.
 
+    meta message elementType -> Type := {
+        return: ElementType
+    }.
+
     meta message buildSSAType -> _CompilerObjectType := {
         return: (Compiler compilationTarget ssaArrayOf: ElementType concreteSSAType size: 0)
     }.
@@ -834,12 +838,16 @@ definition: {
         return: GCClassVariableDataArrayTypeTemplate(ElementType cleanType)
     }.
 
+    meta message generateSSAConstant: (value: _CompilerObjectType) forModule: (module: _CompilerObjectType) ::-> _CompilerObjectType := {
+        return: (module ssaConstantVariableArrayValue: value type: self)
+    }.
+
     meta message createSysmelMangledValue -> _CompilerObjectType := {
         return: ElementType sysmelMangledValue -- #d -- Size asString
     }.
 
     meta message createPrintingName -> _CompilerObjectType := {
-        return: (D printingName -- " gcClassVariableDataArray")
+        return: (ElementType printingName -- " gcClassVariableDataArray")
     }.
 }.
 
@@ -866,6 +874,10 @@ definition: {
         return: Size
     }.
 
+    meta message elementType -> Type := {
+        return: ElementType
+    }.
+
     meta message instanceSize -> Int32 := {
         return: InstanceSize
     }.
@@ -884,6 +896,10 @@ definition: {
 
     meta message cleanType -> _CompilerObjectType := {
         return: (ElementType cleanType array: Size)
+    }.
+
+    meta message generateSSAConstant: (value: _CompilerObjectType) forModule: (module: _CompilerObjectType) ::-> _CompilerObjectType := {
+        return: (module ssaConstantArrayValue: value type: self)
     }.
 
     meta message createSysmelMangledValue -> _CompilerObjectType := {

@@ -25,9 +25,19 @@ SYMLAPSGIdentifierWithBinding >> evaluateInEnvironment: anEnvironment [
 	^ evaluatedBinding asIncompleteValue
 ]
 
+{ #category : #'meta evaluation' }
+SYMLAPSGIdentifierWithBinding >> evaluateReceiverTypeInEnvironment: environment [
+	^ binding evaluateReceiverTypeInEnvironment: environment
+]
+
 { #category : #accessing }
 SYMLAPSGIdentifierWithBinding >> evaluateTypeInEnvironment: environment [
 	^ type
+]
+
+{ #category : #'meta evaluation' }
+SYMLAPSGIdentifierWithBinding >> generateReceiverSSACodeWith: builder [
+	^ binding generateReceiverSSACodeWith: builder
 ]
 
 { #category : #'meta evaluation' }

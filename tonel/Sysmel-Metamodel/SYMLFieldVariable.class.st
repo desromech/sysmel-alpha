@@ -246,6 +246,12 @@ SYMLFieldVariable >> ssaGetSlotValueForReceiverValue: receiverValue builder: bui
 ]
 
 { #category : #'code generation' }
+SYMLFieldVariable >> ssaGetValue: receiverValue builder: builder [
+	bits ifNotNil: [ ^ self ssaGetBitsForReceiverValue: receiverValue builder: builder ].
+	^ self ssaGetSlotValueForReceiverValue: receiverValue builder: builder
+]
+
+{ #category : #'code generation' }
 SYMLFieldVariable >> ssaReferenceForReceiverValue: receiverValue builder: builder [
 	bits ifNotNil: [ ^ self ssaGetBitsForReceiverValue: receiverValue builder: builder ].
 	

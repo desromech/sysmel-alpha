@@ -15,6 +15,11 @@ SYMLReceiverFieldVariable >> evaluateBoundIdentifierToMe: identifier inEnvironme
 	^ receiverValue type evaluateReceiver: receiverValue value field: field withType: identifier type at: identifier position
 ]
 
+{ #category : #'meta evaluation' }
+SYMLReceiverFieldVariable >> evaluateReceiverTypeInEnvironment: environment [
+	^ receiver type
+]
+
 { #category : #accessing }
 SYMLReceiverFieldVariable >> field [
 	^ field
@@ -23,6 +28,11 @@ SYMLReceiverFieldVariable >> field [
 { #category : #accessing }
 SYMLReceiverFieldVariable >> field: anObject [
 	field := anObject
+]
+
+{ #category : #'code generation' }
+SYMLReceiverFieldVariable >> generateReceiverSSACodeWith: builder [
+	^ receiver generateSSAReferenceWith: builder
 ]
 
 { #category : #'code generation' }

@@ -40,7 +40,9 @@ Class {
 		'variantTypeTrait',
 		'variantTypeCache',
 		'managedClassTypeTrait',
-		'undefinedType'
+		'undefinedType',
+		'intPointerType',
+		'uintPointerType'
 	],
 	#category : #'Sysmel-Metamodel-CompilationTarget'
 }
@@ -295,6 +297,18 @@ SYMLCompilationTarget >> int8Type: anObject [
 	int8Type := anObject
 ]
 
+{ #category : #accessing }
+SYMLCompilationTarget >> intPointerType [
+	<compileTime>
+	^ intPointerType
+]
+
+{ #category : #accessing }
+SYMLCompilationTarget >> intPointerType: anObject [
+	<compileTime>
+	intPointerType := anObject
+]
+
 { #category : #testing }
 SYMLCompilationTarget >> isSpirV [
 	^ false
@@ -527,6 +541,18 @@ SYMLCompilationTarget >> uint8Type [
 SYMLCompilationTarget >> uint8Type: anObject [
 	<compileTime>
 	uint8Type := anObject
+]
+
+{ #category : #accessing }
+SYMLCompilationTarget >> uintPointerType [
+	<compileTime>
+	^ uintPointerType
+]
+
+{ #category : #accessing }
+SYMLCompilationTarget >> uintPointerType: anObject [
+	<compileTime>
+	uintPointerType := anObject
 ]
 
 { #category : #accessing }

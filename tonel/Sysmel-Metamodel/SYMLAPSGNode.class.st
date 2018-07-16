@@ -74,6 +74,11 @@ SYMLAPSGNode >> evaluateInEnvironment: anEnvironment [
 ]
 
 { #category : #'meta evaluation' }
+SYMLAPSGNode >> evaluateReceiverTypeInEnvironment: environment [
+	self error: 'This does not have an associated receiver.' at: self position
+]
+
+{ #category : #'meta evaluation' }
 SYMLAPSGNode >> evaluateTypeInEnvironment: anEnvironment [
 	^ nil
 ]
@@ -81,6 +86,11 @@ SYMLAPSGNode >> evaluateTypeInEnvironment: anEnvironment [
 { #category : #'meta evaluation' }
 SYMLAPSGNode >> evaluateValueTypeInEnvironment: anEnvironment [
 	^ (self evaluateTypeInEnvironment: anEnvironment) valueType
+]
+
+{ #category : #'meta evaluation' }
+SYMLAPSGNode >> generateReceiverSSACodeWith: aBuilder [
+	self error: 'Cannot SSA generate receiver'
 ]
 
 { #category : #'meta evaluation' }

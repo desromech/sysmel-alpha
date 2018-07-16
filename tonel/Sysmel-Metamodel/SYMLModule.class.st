@@ -384,9 +384,28 @@ SYMLModule >> semanticAnalysis [
 ]
 
 { #category : #'code generation' }
+SYMLModule >> ssaConstantArrayValue: value type: type [
+	<compileTime>
+	self halt
+]
+
+{ #category : #'code generation' }
 SYMLModule >> ssaConstantPrimitiveValue: value type: type [
 	<compileTime>
 	^ SLVMConstant type: type ssaType value: value
+]
+
+{ #category : #'code generation' }
+SYMLModule >> ssaConstantVariableArrayValue: value type: type [
+	<compileTime>
+	| elementType arrayType |
+	elementType := type elementType ssaType.
+	arrayType := SLVMArrayType baseType: elementType elements: value size.
+	value class == ByteArray ifTrue: [ 
+		^ SLVMConstant array: arrayType blob: value
+	] ifFalse: [ 
+		self halt
+	]
 ]
 
 { #category : #accessing }

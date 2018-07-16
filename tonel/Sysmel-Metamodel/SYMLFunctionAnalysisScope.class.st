@@ -35,6 +35,14 @@ SYMLFunctionAnalysisScope >> lookSymbol: symbol ifPresent: ifPresentBlock [
 	^ self receiverType lookReceiver: receiver symbol: symbol ifPresent: ifPresentBlock
 ]
 
+{ #category : #'instance creation' }
+SYMLFunctionAnalysisScope >> newLexicalScope [
+	^ (self class parent: self)
+		function: function;
+		receiver: receiver;
+		yourself
+]
+
 { #category : #accessing }
 SYMLFunctionAnalysisScope >> receiver [
 	^ receiver

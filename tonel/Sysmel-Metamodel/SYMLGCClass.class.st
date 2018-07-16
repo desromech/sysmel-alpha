@@ -7,7 +7,8 @@ Class {
 		'instanceDataAlignment',
 		'variableInstanceElementSize',
 		'variableInstanceElementAlignment',
-		'hasComputeInstanceSizes'
+		'hasComputeInstanceSizes',
+		'specificVariableDataTypes'
 	],
 	#classVars : [
 		'MetaclassInstanceSlotMap'
@@ -176,10 +177,7 @@ SYMLGCClass >> generateSSATypeInfoForInstance: anInstanceType [
 		slot type generateSSAConstant: (instanceSlots at: index) forModule: self module
 	].
 
-	variable initialValue: (SLVMConstantStructureValue new
-		type: self structureSSAType;
-		slots: ssaSlots;
-		yourself).
+	variable initialValue: (SLVMConstant structure: self structureSSAType slots: ssaSlots).
 	
 	^ variable
 ]
@@ -195,10 +193,16 @@ SYMLGCClass >> hasDynamicMessageSends [
 	^ true
 ]
 
+{ #category : #testing }
+SYMLGCClass >> hasVariableDataArray [
+	^ self slotsLayout isNotEmpty and: [ self slotsLayout last type isGCClassVariableDataArrayType ]
+]
+
 { #category : #initialization }
 SYMLGCClass >> initialize [
 	super initialize.
-	hasComputeInstanceSizes := false
+	hasComputeInstanceSizes := false.
+	specificVariableDataTypes := Dictionary new.
 ]
 
 { #category : #accessing }
@@ -248,6 +252,37 @@ SYMLGCClass >> isSysmelGCClass [
 	^ true
 ]
 
+{ #category : #'as yet unclassified' }
+SYMLGCClass >> makeInstance [
+	^ self makeInstance: 0
+]
+
+{ #category : #'as yet unclassified' }
+SYMLGCClass >> makeInstance: variableDataSize [
+	| elementType result |
+	self semanticAnalysis.
+	result := SYMLGCClassInstance new type: self;
+		slots: (self slotsLayout collect: [:slot |
+			slot type isGCClassVariableDataArrayType ifTrue: [ 
+				elementType := slot type elementType.
+				(elementType instanceSize = 1
+					ifTrue: [ ByteArray new: variableDataSize ]
+					ifFalse: [ Array new: variableDataSize ])
+					atAllPut: elementType defaultValue unwrapSysmelValue;
+					yourself
+			] ifFalse: [ 
+				slot defaultValue unwrapSysmelValue
+			]
+		]);
+		yourself.
+		
+	self flag: 'TODO: Set all of the required vtables'.
+	^ result
+		setSlot: 0 value: self;
+		yourself
+
+]
+
 { #category : #accessing }
 SYMLGCClass >> mangledName [
 	| escapedName |
@@ -285,8 +320,32 @@ SYMLGCClass >> printOn: aStream [
 ]
 
 { #category : #'as yet unclassified' }
+SYMLGCClass >> structureSSATypeForVariableDataSize: variableDataSize [
+	| genericType types names variableDataType variableDataElementType arrayType |
+	(self hasVariableDataArray not or: [variableDataSize = 0]) ifTrue: [ ^ self structureSSAType ].
+	^ specificVariableDataTypes at: variableDataSize ifAbsentPut: [ 
+		genericType := self structureSSAType.
+	
+		variableDataType := self slotsLayout last type.
+		self assert: variableDataType isGCClassVariableDataArrayType.
+	
+		variableDataElementType := variableDataType elementType ssaType.
+		arrayType := SLVMArrayType baseType: variableDataElementType elements: variableDataSize.
+	
+		types := genericType types allButLast , {arrayType}.
+		names := genericType names.
+		SLVMStructureType name: nil types: types kind: genericType kind names: names.
+	]
+]
+
+{ #category : #'as yet unclassified' }
 SYMLGCClass >> typeKindBaseTrait [
 	^ self compilationTarget managedClassTypeTrait
+]
+
+{ #category : #'as yet unclassified' }
+SYMLGCClass >> variableDataSizeField [
+	^ symbols at: #__variableDataSize ifAbsent: [ superclass variableDataSizeField ] 
 ]
 
 { #category : #accessing }

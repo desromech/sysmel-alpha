@@ -6,4 +6,9 @@ namespace SysmelKernel definition: {
         alias IntPointer := Int64.
         alias UIntPointer := UInt64.
     }.
+
+    Compiler compilationTarget
+        intPointerType: IntPointer;
+        uintPointerType: UIntPointer;
+        yourself
 } // End of namespace SysmelKernel
