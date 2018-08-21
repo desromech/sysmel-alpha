@@ -9,7 +9,7 @@ SYMLShaderStage >> assignValue: bodyLazyValue [
 	<compileTime>
 	<lazy>
 	
-	^ self definition: bodyLazyValue
+	^ self definition: bodyLazyValue asFunctionalValue
 ]
 
 { #category : #associating }

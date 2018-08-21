@@ -9,6 +9,13 @@ Class {
 }
 
 { #category : #'meta evaluation' }
+SYMLAPSGLexicalScopeNode >> analyzeAndEvaluateInEnvironment: environment [
+	| innerScope |
+	innerScope := environment newLexicalScope.
+	^ node analyzeAndEvaluateInEnvironment: innerScope
+]
+
+{ #category : #'meta evaluation' }
 SYMLAPSGLexicalScopeNode >> evaluateInEnvironment: anEnvironment [
 	| evaluationEnvironment |
 	evaluationEnvironment := anEnvironment newLexicalScope.
@@ -25,6 +32,16 @@ SYMLAPSGLexicalScopeNode >> generateSSACodeWith: aBuilder [
 	aBuilder withDebugPosition: self position do: [ 
 		^ node generateSSACodeWith: aBuilder
 	]
+]
+
+{ #category : #'as yet unclassified' }
+SYMLAPSGLexicalScopeNode >> inlineBlockAnalyzeAndEvaluateInEnvironment: environment [
+	^ node inlineBlockAnalyzeAndEvaluateInEnvironment: environment
+]
+
+{ #category : #accessing }
+SYMLAPSGLexicalScopeNode >> isLexicalScopeNode [
+	^ true
 ]
 
 { #category : #accessing }
@@ -52,6 +69,26 @@ SYMLAPSGLexicalScopeNode >> node [
 { #category : #accessing }
 SYMLAPSGLexicalScopeNode >> node: anObject [
 	node := anObject
+]
+
+{ #category : #accessing }
+SYMLAPSGLexicalScopeNode >> pragmaAt: selector [
+	^ node pragmaAt: selector
+]
+
+{ #category : #accessing }
+SYMLAPSGLexicalScopeNode >> pragmaAt: selector ifAbsent: ifAbsentBlock [
+	^ node pragmaAt: selector ifAbsent: ifAbsentBlock
+]
+
+{ #category : #accessing }
+SYMLAPSGLexicalScopeNode >> pragmaAt: selector ifPresent: ifPresentBlock [
+	^ node pragmaAt: selector ifPresent: ifPresentBlock
+]
+
+{ #category : #accessing }
+SYMLAPSGLexicalScopeNode >> pragmaAt: selector ifPresent: ifPresentBlock ifAbsent: ifAbsentBlock [
+	^ node pragmaAt: selector ifPresent: ifPresentBlock ifAbsent: ifAbsentBlock
 ]
 
 { #category : #'meta evaluation' }

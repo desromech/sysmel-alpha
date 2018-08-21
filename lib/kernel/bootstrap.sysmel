@@ -644,7 +644,7 @@ definition: {
     }.
 
     // Reference evaluation
-    let referenceEvaluationAction := {
+    let referenceEvaluationAction := `'{
         evaluation: $$Pharo {
             value: value targetType: targetType at: position
                 "Reference evaluation"

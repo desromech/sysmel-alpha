@@ -81,17 +81,6 @@ SYMLFunction >> asSysmelCompileTimeFunction [
 	^ SYMLInterpretedFunctionWrapper new function: self
 ]
 
-{ #category : #definition }
-SYMLFunction >> assignValue: bodyLazyValue [
-	<compileTime>
-	<lazy>
-	
-	body := bodyLazyValue asAPSGNodeValueWithError: ('Expected an APSG node for the definition of the function {1}.' format: { self validName }).
-
-	body := bodyLazyValue value.
-	bodyEnvironment := bodyLazyValue environment.
-]
-
 { #category : #associating }
 SYMLFunction >> buildFunctionType [
 	| argumentTypes bindedArgumentTypes |
@@ -114,6 +103,17 @@ SYMLFunction >> buildFunctionType [
 		
 	name ifNotNil: [ self tryToAddToParentWithName: name ].
 
+]
+
+{ #category : #definition }
+SYMLFunction >> definition: bodyLazyValue [
+	<compileTime>
+	<lazy>
+	
+	body := bodyLazyValue asAPSGNodeValueWithError: ('Expected an APSG node for the definition of the function {1}.' format: { self validName }).
+
+	body := bodyLazyValue value.
+	bodyEnvironment := bodyLazyValue environment.
 ]
 
 { #category : #'as yet unclassified' }

@@ -36,6 +36,11 @@ SYMLAPSGBuilder >> language: aLanguageName source: sourceCode [
 ]
 
 { #category : #'builder methods' }
+SYMLAPSGBuilder >> lexicalScope: node [
+	^ SYMLAPSGLexicalScopeNode new node: node
+]
+
+{ #category : #'builder methods' }
 SYMLAPSGBuilder >> literal: aValue [
 	<compileTime>
 	^ SYMLAPSGLiteral new value: aValue
@@ -70,6 +75,24 @@ SYMLAPSGBuilder >> pragmas: aCollectionOfPragmas sequence: aCollectionOfNodes [
 ]
 
 { #category : #'builder methods' }
+SYMLAPSGBuilder >> quasiQuote: aNode [
+	<compileTime>
+	^ SYMLAPSGQuasiQuote new node: aNode
+]
+
+{ #category : #'builder methods' }
+SYMLAPSGBuilder >> quasiUnquote: aNode [
+	<compileTime>
+	^ SYMLAPSGQuasiUnquote new node: aNode
+]
+
+{ #category : #'builder methods' }
+SYMLAPSGBuilder >> quote: aNode [
+	<compileTime>
+	^ SYMLAPSGQuote new node: aNode
+]
+
+{ #category : #'builder methods' }
 SYMLAPSGBuilder >> send: selector to: aReceiver withArguments: arguments [
 	<compileTime>
 	<compileTime>
@@ -85,6 +108,12 @@ SYMLAPSGBuilder >> send: selector to: aReceiver withArguments: arguments [
 SYMLAPSGBuilder >> sequence: aCollectionOfNodes [
 	<compileTime>
 	^ SYMLAPSGSequence new elements: aCollectionOfNodes
+]
+
+{ #category : #'builder methods' }
+SYMLAPSGBuilder >> splice: aNode [
+	<compileTime>
+	^ SYMLAPSGSplice new node: aNode
 ]
 
 { #category : #'builder methods' }

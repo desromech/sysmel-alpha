@@ -227,7 +227,7 @@ SYMLAbstractType >> asVariableValueType [
 SYMLAbstractType >> assignValue: aDefinitionBlock [
 	<compileTime>
 	<lazy>
-	^ self definition: aDefinitionBlock
+	^ self definition: aDefinitionBlock asFunctionalValue
 ]
 
 { #category : #'code generation' }
@@ -323,7 +323,7 @@ SYMLAbstractType >> conversionTo: targetTypeKindLazyValue doOn: actionRules [
 	targetTypeKind := targetTypeKindLazyValue value.
 	targetTypeKind variantAlternativesDo: [ :targetVariantAlternative |
 		conversionRule := SYMLTypeKindConversionRule new targetTypeKind: targetVariantAlternative;
-						parse: actionRules;
+						parse: actionRules asBlockDictionaryValue;
 						yourself.
 		implicitConversionRules add: conversionRule.
 		explicitConversionRules add: conversionRule.
@@ -409,7 +409,7 @@ SYMLAbstractType >> definition: aDefinitionBlock [
 	traitScope programEntity: self.
 	
 	lexicalScope := SYMLLexicalScope parent: traitScope.
-	aDefinitionBlock value analyzeAndEvaluateInEnvironment: lexicalScope.
+	aDefinitionBlock node analyzeAndEvaluateInEnvironment: lexicalScope.
 
 ]
 
@@ -463,7 +463,7 @@ SYMLAbstractType >> explicitConversionTo: targetTypeKindLazyValue doOn: actionRu
 	targetTypeKind := targetTypeKindLazyValue value.
 	targetTypeKind variantAlternativesDo: [ :targetVariantAlternative |
 		conversionRule := SYMLTypeKindConversionRule new targetTypeKind: targetVariantAlternative;
-						parse: actionRules;
+						parse: actionRules asBlockDictionaryValue;
 						yourself.
 		explicitConversionRules add: conversionRule.
 	]
@@ -548,7 +548,7 @@ SYMLAbstractType >> implicitConversionTo: targetTypeKindLazyValue doOn: actionRu
 	targetTypeKind := targetTypeKindLazyValue value.
 		targetTypeKind variantAlternativesDo: [ :targetVariantAlternative |
 		conversionRule := SYMLTypeKindConversionRule new targetTypeKind: targetVariantAlternative;
-						parse: actionRules;
+						parse: actionRules asBlockDictionaryValue;
 						yourself.
 		implicitConversionRules add: conversionRule.
 	]

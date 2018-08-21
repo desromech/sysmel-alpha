@@ -24,20 +24,6 @@ SYMLAPSGQuote >> inlineBlockAnalyzeAndEvaluateInEnvironment: environment [
 	^ node analyzeAndEvaluateInEnvironment: evaluationEnvironment
 ]
 
-{ #category : #'as yet unclassified' }
-SYMLAPSGQuote >> inlineBlockSemanticAnalysisInEnvironment: environment [
-	^ (SYMLAPSGLexicalScopeNode new
-		position: self;
-		node: node;
-		yourself) semanticAnalysisInEnvironment: environment
-	
-]
-
-{ #category : #'meta evaluation' }
-SYMLAPSGQuote >> inlineSemanticAnalysisInEnvironment: anEnvironment [
-	^ node semanticAnalysisInEnvironment: anEnvironment
-]
-
 { #category : #'meta evaluation' }
 SYMLAPSGQuote >> macroExpansionInEnvironment: anEnvironment [
 	^ self

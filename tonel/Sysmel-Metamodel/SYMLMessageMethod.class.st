@@ -47,21 +47,6 @@ SYMLMessageMethod >> analyzeMetaMessage: message toReceiver: receiverValue inEnv
 ]
 
 { #category : #associating }
-SYMLMessageMethod >> assignValue: bodyLazyValue [
-	<compileTime>
-	<lazy>
-	
-	| bodyValue |
-	bodyValue := bodyLazyValue asAPSGNodeValueWithError: 
-		('Expected an APSG node for the definition of the function {1}.' format: { self validName }).
-
-	self functionType.
-
-	body := bodyValue.
-	bodyEnvironment := bodyLazyValue environment.
-]
-
-{ #category : #associating }
 SYMLMessageMethod >> buildFunctionType [
 	| argumentTypes bindedArgumentTypes |
 	returnType ifNil: [ returnType := self compilationTarget dynamicObjectType ].
@@ -83,6 +68,21 @@ SYMLMessageMethod >> buildFunctionType [
 { #category : #initialization }
 SYMLMessageMethod >> defaultTypeForArgument: node inEnvironment: environment [
 	self error: 'Explicit type for argument is required.' at: node
+]
+
+{ #category : #associating }
+SYMLMessageMethod >> definition: bodyLazyValue [
+	<compileTime>
+	<lazy>
+	
+	| bodyValue |
+	bodyValue := bodyLazyValue asAPSGNodeValueWithError: 
+		('Expected an APSG node for the definition of the function {1}.' format: { self validName }).
+
+	self functionType.
+
+	body := bodyValue.
+	bodyEnvironment := bodyLazyValue environment.
 ]
 
 { #category : #'code generation' }

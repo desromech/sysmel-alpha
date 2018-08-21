@@ -12,7 +12,7 @@ Class {
 SYMLASTBlock >> buildAPSG: builder [
 	^ (builder pragmas: (pragmas collect: [:pragma | pragma buildAPSG: builder]) sequence: (expressions collect: [:expr | expr buildAPSG: builder] ))
 		position: self;
-		quoted
+		lexicalScoped
 ]
 
 { #category : #accessing }

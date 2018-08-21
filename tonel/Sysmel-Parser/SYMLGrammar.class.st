@@ -80,7 +80,16 @@ Class {
 		'literalArrayKeyword',
 		'lowPrecedenceBinaryOperator',
 		'lowPrecedenceExpression',
-		'unarySuffixSubscript'
+		'unarySuffixSubscript',
+		'quoteExpressions',
+		'quoteExpression',
+		'quasiquoteExpression',
+		'quote',
+		'quasiquote',
+		'unquoteExpression',
+		'spliceExpression',
+		'quasiunquote',
+		'splice'
 	],
 	#classVars : [
 		'SpecialOperators'
@@ -515,7 +524,37 @@ SYMLGrammar >> prefix: operation operate: operand [
 
 { #category : #accessing }
 SYMLGrammar >> primaryExpression [
-	^ languageScapeExpression / parentExpression / identifierExpression / blockExpression / literals
+	^ quoteExpressions / languageScapeExpression / parentExpression / identifierExpression / blockExpression / literals
+]
+
+{ #category : #tokens }
+SYMLGrammar >> quasiquote [
+	^ self token: '``' asParser
+]
+
+{ #category : #'macro operators' }
+SYMLGrammar >> quasiquoteExpression [
+	^ quasiquote , primaryExpression 
+]
+
+{ #category : #tokens }
+SYMLGrammar >> quasiunquote [
+	^ self token: '`,' asParser
+]
+
+{ #category : #tokens }
+SYMLGrammar >> quote [
+	^ self token: '`''' asParser
+]
+
+{ #category : #'macro operators' }
+SYMLGrammar >> quoteExpression [
+	^ quote , primaryExpression 
+]
+
+{ #category : #'macro operators' }
+SYMLGrammar >> quoteExpressions [
+	^ quoteExpression / quasiquoteExpression / unquoteExpression / spliceExpression
 ]
 
 { #category : #tokens }
@@ -563,6 +602,16 @@ SYMLGrammar >> singleLineComment [
 { #category : #white }
 SYMLGrammar >> spaces [
 	^ #space asParser plus
+]
+
+{ #category : #tokens }
+SYMLGrammar >> splice [
+	^ self token: '`@' asParser
+]
+
+{ #category : #'macro operators' }
+SYMLGrammar >> spliceExpression [
+	^ splice , primaryExpression
 ]
 
 { #category : #accessing }
@@ -628,6 +677,11 @@ SYMLGrammar >> unaryExpressionSuffixMessage [
 { #category : #accessing }
 SYMLGrammar >> unarySuffixSubscript [
 	^ lbracket , expression , rbracket
+]
+
+{ #category : #'macro operators' }
+SYMLGrammar >> unquoteExpression [
+	^ quasiunquote , primaryExpression
 ]
 
 { #category : #white }

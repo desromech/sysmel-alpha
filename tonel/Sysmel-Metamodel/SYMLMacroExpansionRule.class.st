@@ -16,7 +16,8 @@ SYMLMacroExpansionRule >> analyzeMetaMessage: message toReceiver: receiverValue 
 SYMLMacroExpansionRule >> assignValue: aDefinitionBlock [
 	<compileTime>
 	<lazy>
-	^ self definition: aDefinitionBlock
+	expansionTemplate := aDefinitionBlock asFunctionalValue.
+	self assert: expansionTemplate isFunctionalValue.
 ]
 
 { #category : #definition }
@@ -31,7 +32,7 @@ SYMLMacroExpansionRule >> definition: aDefinitionBlock [
 SYMLMacroExpansionRule >> semanticAnalyzeMessage: message inEnvironment: environment at: aPosition [
 	| activationEnvironment expansion |
 	activationEnvironment := self createActivationEnvironmentForMessage: message inEnvironment: environment at: aPosition.
-	expansion :=expansionTemplate macroExpansionInEnvironment: activationEnvironment.
+	expansion := (expansionTemplate analyzeAndEvaluateInEnvironment: activationEnvironment) unwrapSysmelValue.
 	^ (self sanitizeExpansion: expansion at: aPosition)
 		semanticAnalysisInEnvironment: environment
 ]

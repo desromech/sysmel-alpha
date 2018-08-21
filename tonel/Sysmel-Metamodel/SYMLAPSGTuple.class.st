@@ -30,7 +30,15 @@ SYMLAPSGTuple >> isTupleNode [
 { #category : #'meta evaluation' }
 SYMLAPSGTuple >> macroExpansionInEnvironment: anEnvironment [
 	^ self shallowCopy
-		elements: (elements collect: [ :element | element macroExpansionInEnvironment: anEnvironment ]);
+		elements: (Array streamContents: [:out |
+			elements do: [ :element |
+				element isSplice ifTrue: [ 
+					out nextPutAll: (element macroExpansionInEnvironment: anEnvironment)
+				] ifFalse: [ 
+					out nextPut: (element macroExpansionInEnvironment: anEnvironment)
+				]
+			]
+		]);
 		yourself
 ]
 

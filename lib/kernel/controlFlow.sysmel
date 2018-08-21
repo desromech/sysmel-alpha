@@ -39,14 +39,14 @@ macro selectors: #(if:then: if:then:else:) doOn: {
             self assert: environment isImmediateEnvironment not.
 
             "Check the rest of the message."
-            thenNode := messageNode arguments second inlineBlockSemanticAnalysisInEnvironment: environment.
+            thenNode := messageNode arguments second semanticAnalysisInEnvironment: environment.
             thenType := thenNode evaluateCleanValueTypeInEnvironment: environment.
             analyzedArguments := {conditionNode . thenNode}.
 
             elseNode := nil.
             elseType := nil.
             messageNode arguments size >= 3 ifTrue: [
-                elseNode := messageNode arguments third inlineBlockSemanticAnalysisInEnvironment: environment.
+                elseNode := messageNode arguments third semanticAnalysisInEnvironment: environment.
                 elseType := elseNode evaluateCleanValueTypeInEnvironment: environment.
                 analyzedArguments := analyzedArguments , { elseNode }.
             ].
@@ -155,12 +155,12 @@ macro selectors: #(while:do: while:do:continueWith: ) doOn: {
         node: messageNode environment: environment position: aSourcePosition
             | conditionNode bodyNode continueNode analyzedArguments coercionType coercionRule |
             conditionNode := messageNode arguments first semanticAnalysisInEnvironment: environment.
-            bodyNode := messageNode arguments second inlineBlockSemanticAnalysisInEnvironment: environment.
+            bodyNode := messageNode arguments second semanticAnalysisInEnvironment: environment.
             analyzedArguments := {conditionNode . bodyNode}.
 
             continueNode := nil.
             messageNode arguments size >= 3 ifTrue: [
-                continueNode := messageNode arguments third inlineBlockSemanticAnalysisInEnvironment: environment.
+                continueNode := messageNode arguments third semanticAnalysisInEnvironment: environment.
                 analyzedArguments := analyzedArguments , { continueNode }.
             ].
 
@@ -238,13 +238,13 @@ macro selectors: #(while:do: while:do:continueWith: ) doOn: {
 }.
 
 // until:do:continueWith:
-macro expansionRule until: condition do: body := {
-	while: condition macroExpand not do: body macroExpand
-}.
+macro expansionRule until: condition do: body := ``(
+	while: condition __macroExpand not do: body __macroExpand
+).
 
-macro expansionRule until: condition do: body continueWith: continueAction := {
-	while: condition macroExpand not do: body macroExpand continueWith: continueAction macroExpand
-}.
+macro expansionRule until: condition do: body continueWith: continueAction := ``(
+	while: condition __macroExpand not do: body __macroExpand continueWith: continueAction __macroExpand
+).
 
 // Do:while:continueWith:
 macro selectors: #(do:while: do:while:continueWith:) doOn: {

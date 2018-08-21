@@ -164,9 +164,9 @@ definition: {
         }.
     }.
 
-    meta macro expansionRule x: x := {
-        self macroExpand (x macroExpand)
-    }.
+    meta macro expansionRule x: x := ``(
+        self __macroExpand (x __macroExpand)
+    ).
 
     // Accessors
     (SelfType addIntrinsicField: #x slotIndex: 0)
@@ -181,13 +181,13 @@ definition: {
             public;
             createAccessors.
 
-        meta macro expansionRule x: x y: y := {
-            self macroExpand (x macroExpand, y macroExpand)
-        }.
+        meta macro expansionRule x: x y: y := ``(
+            self __macroExpand (x __macroExpand, y __macroExpand)
+        ).
 
-        meta macro expansionRule y: y := {
-            self macroExpand (0.0, y macroExpand)
-        }.
+        meta macro expansionRule y: y := ``(
+            self __macroExpand (0.0, y __macroExpand)
+        ).
     }.
 
     // Common methods for at least three elements.
@@ -197,13 +197,13 @@ definition: {
             public;
             createAccessors.
 
-        meta macro expansionRule x: x y: y z: z := {
-            self macroExpand (x macroExpand, y macroExpand, z macroExpand)
-        }.
+        meta macro expansionRule x: x y: y z: z := ``(
+            self __macroExpand (x __macroExpand, y __macroExpand, z __macroExpand)
+        ).
 
-        meta macro expansionRule z: z := {
-            self macroExpand (0.0, 0.0, z macroExpand)
-        }.
+        meta macro expansionRule z: z := ``(
+            self __macroExpand (0.0, 0.0, z __macroExpand)
+        ).
 
     }.
 
@@ -214,44 +214,44 @@ definition: {
             public;
             createAccessors.
 
-        meta macro expansionRule x: x y: y z: z w: w := {
-            self macroExpand (x macroExpand, y macroExpand, z macroExpand, w macroExpand)
-        }.
+        meta macro expansionRule x: x y: y z: z w: w := ``(
+            self __macroExpand (x __macroExpand, y __macroExpand, z __macroExpand, w __macroExpand)
+        ).
 
-        meta macro expansionRule w: w := {
-        	self macroExpand (0.0, 0.0, 0.0, w macroExpand)
-        }.
+        meta macro expansionRule w: w := ``(
+        	self __macroExpand (0.0, 0.0, 0.0, w __macroExpand)
+        ).
     }.
 
     // Macros for implementing element - element operations.
     if: N = 2 then: {
-        macro expansionRule _binaryOperation: (selector: _LiteralSymbol) with: other := {
+        macro expansionRule _binaryOperation: (selector: _LiteralSymbol) with: other := ``(
             SelfType (
-                self macroExpand x macroSend: selector with: other macroExpand x,
-                self macroExpand y macroSend: selector with: other macroExpand y
+                self __macroExpand x __macroSend: selector with: other __macroExpand x,
+                self __macroExpand y __macroSend: selector with: other __macroExpand y
             )
-        }.
+        ).
     }.
 
     if: N = 3 then: {
-        macro expansionRule _binaryOperation: (selector: _LiteralSymbol) with: other := {
+        macro expansionRule _binaryOperation: (selector: _LiteralSymbol) with: other := ``(
             SelfType (
-                self macroExpand x macroSend: selector with: other macroExpand x,
-                self macroExpand y macroSend: selector with: other macroExpand y,
-                self macroExpand z macroSend: selector with: other macroExpand z
+                self __macroExpand x __macroSend: selector with: other __macroExpand x,
+                self __macroExpand y __macroSend: selector with: other __macroExpand y,
+                self __macroExpand z __macroSend: selector with: other __macroExpand z
             )
-        }.
+        ).
     }.
 
     if: N = 4 then: {
-        macro expansionRule _binaryOperation: (selector: _LiteralSymbol) with: other := {
+        macro expansionRule _binaryOperation: (selector: _LiteralSymbol) with: other := ``(
             SelfType (
-                self macroExpand x macroSend: selector with: other macroExpand x,
-                self macroExpand y macroSend: selector with: other macroExpand y,
-                self macroExpand z macroSend: selector with: other macroExpand z,
-                self macroExpand w macroSend: selector with: other macroExpand w,
+                self __macroExpand x __macroSend: selector with: other __macroExpand x,
+                self __macroExpand y __macroSend: selector with: other __macroExpand y,
+                self __macroExpand z __macroSend: selector with: other __macroExpand z,
+                self __macroExpand w __macroSend: selector with: other __macroExpand w,
             )
-        }.
+        ).
     }.
 
     if: ElementType isNumericalType then: {

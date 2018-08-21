@@ -82,6 +82,13 @@ SYMLAbstractFunction >> analyzedBody [
 ]
 
 { #category : #accessing }
+SYMLAbstractFunction >> assignValue: aValue [
+	<compileTime>
+	<lazy>
+	^ self definition: aValue asFunctionalValue
+]
+
+{ #category : #accessing }
 SYMLAbstractFunction >> bindedFunctionType [
 	bindedFunctionType ifNil: [ self buildFunctionType ].
 	^ bindedFunctionType
@@ -159,9 +166,7 @@ SYMLAbstractFunction >> decorateSSAValue: functionSSAValue [
 
 { #category : #accessing }
 SYMLAbstractFunction >> definition: bodyLazyValue [
-	<compileTime>
-	<lazy>
-	^ self assignValue: bodyLazyValue
+	self subclassResponsibility
 ]
 
 { #category : #'semantic analysis' }

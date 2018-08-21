@@ -129,17 +129,6 @@ SYMLAPSGNode >> inlineBlockAnalyzeAndEvaluateInEnvironment: environment [
 	
 ]
 
-{ #category : #'as yet unclassified' }
-SYMLAPSGNode >> inlineBlockSemanticAnalysisInEnvironment: environment [
-	^ self semanticAnalysisInEnvironment: environment
-	
-]
-
-{ #category : #'meta evaluation' }
-SYMLAPSGNode >> inlineSemanticAnalysisInEnvironment: anEnvironment [
-	^ self semanticAnalysisInEnvironment: anEnvironment
-]
-
 { #category : #accessing }
 SYMLAPSGNode >> inspectorChildren [
 	^ self children
@@ -152,6 +141,11 @@ SYMLAPSGNode >> isIdentifierNode [
 
 { #category : #testing }
 SYMLAPSGNode >> isImplicitContextMessageNode [
+	^ false
+]
+
+{ #category : #testing }
+SYMLAPSGNode >> isLexicalScopeNode [
 	^ false
 ]
 
@@ -171,6 +165,16 @@ SYMLAPSGNode >> isMetaObjectInstance [
 ]
 
 { #category : #testing }
+SYMLAPSGNode >> isQuasiQuote [
+	^ false
+]
+
+{ #category : #testing }
+SYMLAPSGNode >> isQuasiUnquote [
+	^ false
+]
+
+{ #category : #testing }
 SYMLAPSGNode >> isSYMLAPSGNode [
 	^ true
 ]
@@ -181,13 +185,28 @@ SYMLAPSGNode >> isSequenceNode [
 ]
 
 { #category : #testing }
+SYMLAPSGNode >> isSplice [
+	^ false
+]
+
+{ #category : #testing }
 SYMLAPSGNode >> isTupleNode [
 	^ false
+]
+
+{ #category : #'as yet unclassified' }
+SYMLAPSGNode >> lexicalScoped [
+	^ SYMLAPSGLexicalScopeNode new node: self; position: self; yourself
 ]
 
 { #category : #'meta evaluation' }
 SYMLAPSGNode >> macroExpansionInEnvironment: anEnvironment [
 	self subclassResponsibility
+]
+
+{ #category : #'meta evaluation' }
+SYMLAPSGNode >> macroSemanticAnalysisInEnvironment: anEnvironment [
+	^ self
 ]
 
 { #category : #accessing }

@@ -183,16 +183,25 @@ SYMLAPSGMessageSend >> macroExpansionEvaluateInEnvironment: anEnvironment [
 
 { #category : #'meta evaluation' }
 SYMLAPSGMessageSend >> macroExpansionInEnvironment: anEnvironment [
-	selector == #macroExpand ifTrue: [ 
+	selector == #__macroExpand ifTrue: [ 
 		^ self macroExpansionEvaluateInEnvironment: anEnvironment
 	].
-	(selector beginsWith: #macroSend:) ifTrue: [
+	(selector beginsWith: #__macroSend:) ifTrue: [
 		^ self macroSendExpansionEvaluateInEnvironment: anEnvironment
 	].
 	
 	^ self shallowCopy
 		receiver: (receiver ifNotNil: [receiver macroExpansionInEnvironment: anEnvironment]);
 		arguments: (arguments collect: [:arg | arg macroExpansionInEnvironment: anEnvironment]);
+		yourself
+]
+
+{ #category : #'meta evaluation' }
+SYMLAPSGMessageSend >> macroSemanticAnalysisInEnvironment: anEnvironment [
+	self flag: 'Analyze special macro messages'.
+	^ self shallowCopy
+		receiver: (receiver ifNotNil: [receiver macroSemanticAnalysisInEnvironment: anEnvironment]);
+		arguments: (arguments collect: [:arg | arg macroSemanticAnalysisInEnvironment: anEnvironment]);
 		yourself
 ]
 

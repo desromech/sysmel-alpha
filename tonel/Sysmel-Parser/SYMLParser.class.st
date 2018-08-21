@@ -424,6 +424,28 @@ SYMLParser >> prefix: operation operate: operand [
 ]
 
 { #category : #accessing }
+SYMLParser >> quasiquoteExpression [
+	^ super quasiquoteExpression ==> [ :tokens |
+		SYMLASTQuasiQuote new
+			tokens: { tokens first };
+			position: tokens first;
+			expression: tokens second;
+			yourself
+	]
+]
+
+{ #category : #accessing }
+SYMLParser >> quoteExpression [
+	^ super quoteExpression ==> [ :tokens |
+		SYMLASTQuote new
+			tokens: { tokens first };
+			position: tokens first;
+			expression: tokens second;
+			yourself
+	]
+]
+
+{ #category : #accessing }
 SYMLParser >> singleLineComment [
 	^ super singleLineComment flatten ==> [ :data | data allButFirst: 2 ]
 ]
@@ -431,6 +453,17 @@ SYMLParser >> singleLineComment [
 { #category : #accessing }
 SYMLParser >> spaces [
 	^ super spaces ==> [ :data | nil ]
+]
+
+{ #category : #accessing }
+SYMLParser >> spliceExpression [
+	^ super unquoteExpression ==> [ :tokens |
+		SYMLASTSplice new
+			tokens: { tokens first };
+			position: tokens first;
+			expression: tokens second;
+			yourself
+	]
 ]
 
 { #category : #accessing }
@@ -550,6 +583,17 @@ SYMLParser >> unarySuffixSubscript [
 			position: tokens first;
 			tokens: { tokens first . tokens last };
 			index: tokens second;
+			yourself
+	]
+]
+
+{ #category : #accessing }
+SYMLParser >> unquoteExpression [
+	^ super unquoteExpression ==> [ :tokens |
+		SYMLASTQuasiUnquote new
+			tokens: { tokens first };
+			position: tokens first;
+			expression: tokens second;
 			yourself
 	]
 ]

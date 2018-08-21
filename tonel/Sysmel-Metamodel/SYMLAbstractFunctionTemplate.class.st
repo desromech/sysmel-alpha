@@ -32,7 +32,7 @@ SYMLAbstractFunctionTemplate >> assignValue: bodyLazyValue [
 	<compileTime>
 	<lazy>
 	
-	^ self definition: bodyLazyValue
+	^ self definition: bodyLazyValue asFunctionalValue
 ]
 
 { #category : #'as yet unclassified' }

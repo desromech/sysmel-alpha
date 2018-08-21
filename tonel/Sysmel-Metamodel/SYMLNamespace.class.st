@@ -26,7 +26,7 @@ SYMLNamespace >> definition: aDefinitionBlock [
 	namespaceScope programEntity: self.
 	
 	lexicalScope := SYMLLexicalScope parent: namespaceScope.
-	aDefinitionBlock value analyzeAndEvaluateInEnvironment: lexicalScope.
+	aDefinitionBlock asFunctionalValue analyzeAndEvaluateInEnvironment: lexicalScope.
 
 ]
 

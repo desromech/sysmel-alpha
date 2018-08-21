@@ -35,7 +35,7 @@ SYMLMacroBuilder >> selector: selectorLazyValue doOn: actionRules [
 	macro := SYMLDeferredMacro new
 			module: module;
 			definitionPosition: selectorLazyValue node position;
-			parse: actionRules;
+			parse: actionRules asBlockDictionaryValue;
 			yourself.
 
 	parent addMacroMethodPattern: macro withSelector: selector
@@ -50,7 +50,7 @@ SYMLMacroBuilder >> selectors: selectorsLazyValue doOn: actionRules [
 	macro := SYMLDeferredMacro new
 			module: module;
 			definitionPosition: selectorsLazyValue node position;
-			parse: actionRules;
+			parse: actionRules asBlockDictionaryValue;
 			yourself.
 
 	selectors do: [ :selector |

@@ -39,9 +39,9 @@ AnyValue macro selector: #explicitCastTo: doOn: {
     }.
 }.
 
-AnyValue macro expansionRule castTo: (targetType: Type) := {
-    self macroExpand explicitCastTo: targetType macroExpand asVariableValueType
-}.
+AnyValue macro expansionRule castTo: (targetType: Type) := ``(
+    self __macroExpand explicitCastTo: targetType __macroExpand asVariableValueType
+).
 
 // Literal type conversions.
 _LiteralInteger conversionTo: PrimitiveIntegerType doOn: {
@@ -125,7 +125,7 @@ _LiteralString conversionTo: Char const pointer doOn: {
 }.
 
 // Generic integer cast.
-let intCastConversionAction := {
+let intCastConversionAction := `'{
     evaluation: $$Pharo {
         value: value targetType: targetType at: position
             ^ value sameValueButWithType: targetType
@@ -162,7 +162,7 @@ UInt8 explicitConversionTo: Int8 doOn: intCastConversionAction.
 Int8 explicitConversionTo: UInt8 doOn: intCastConversionAction.
 
 // Floating point conversions
-let floatingPointCastAction := {
+let floatingPointCastAction := `'{
     evaluation: $$Pharo {
         value: value targetType: targetType at: position
             ^ value sameValueButWithType: targetType

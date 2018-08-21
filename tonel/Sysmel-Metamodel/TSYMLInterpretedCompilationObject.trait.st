@@ -7,7 +7,7 @@ Trait {
 TSYMLInterpretedCompilationObject >> parse: lazyNodeValue [
 	| environment actions actionValue |
 	environment := lazyNodeValue environment.
-	actions := lazyNodeValue asAPSGNodeValueWithError: 'Expected an apsg node with the rules.'.
+	actions := lazyNodeValue node.
 
 	actions isSequenceNode ifFalse: [ 
 		self error: 'Expected an apsg sequence node with the type conversion rules.' at: lazyNodeValue position

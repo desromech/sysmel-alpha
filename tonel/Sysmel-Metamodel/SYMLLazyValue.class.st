@@ -45,6 +45,42 @@ SYMLLazyValue >> asAPSGNodeValueWithError: errorMessage at: aPosition [
 	self error: errorMessage at: aPosition
 ]
 
+{ #category : #converting }
+SYMLLazyValue >> asBlockDictionaryValue [
+	| evaluatedValue expectedNodeValue |
+	node isSequenceNode ifTrue: [ ^ self ].
+	(node isLexicalScopeNode and: [ node node isSequenceNode ]) ifTrue: [ 
+	^ SYMLFunctionalValue new
+		node: node node;
+		environment: environment;
+		yourself
+	].
+	
+	evaluatedValue := self value.
+	expectedNodeValue := self type isReferenceType ifTrue: [ evaluatedValue value sysmelEvaluateReference ] ifFalse: [ evaluatedValue value ].
+	expectedNodeValue isSYMLAPSGNode ifFalse: [ 
+		self error: 'Expected a sequence node, or a lexically scoped sequence node.' at: node position.
+	].
+
+	expectedNodeValue isLexicalScopeNode ifTrue: [ expectedNodeValue := expectedNodeValue node ].
+	expectedNodeValue isSequenceNode ifFalse: [ 
+		self error: 'Expected a sequence node, or a lexically scoped sequence node.' at: node position.
+	].
+
+	^ SYMLFunctionalValue new
+		node: expectedNodeValue;
+		environment: environment;
+		yourself
+]
+
+{ #category : #converting }
+SYMLLazyValue >> asFunctionalValue [
+	^ SYMLFunctionalValue new
+		node: node;
+		environment: environment;
+		yourself
+]
+
 { #category : #evaluating }
 SYMLLazyValue >> ensureEvaluation [
 	isEvaluated ifTrue: [ ^ self ].

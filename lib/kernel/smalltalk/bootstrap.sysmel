@@ -360,7 +360,7 @@ MethodDictionary definition: {
 
 //-----------------------------------------------------------------------------
 // Literals
-let literalConversionRule := {
+let literalConversionRule := `'{
 
     evaluation: $$Pharo {
         value: value into: targetType at: coercionPosition

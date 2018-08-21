@@ -34,6 +34,14 @@ SYMLAPSGMessageChain >> macroExpansionInEnvironment: anEnvironment [
 		yourself
 ]
 
+{ #category : #'meta evaluation' }
+SYMLAPSGMessageChain >> macroSemanticAnalysisInEnvironment: anEnvironment [
+	^ self shallowCopy
+		receiver: (receiver ifNotNil: [receiver macroSemanticAnalysisInEnvironment: anEnvironment]);
+		messages: (messages ifNotNil: [messages collect: [:message | message macroSemanticAnalysisInEnvironment: anEnvironment]]);
+		yourself
+]
+
 { #category : #accessing }
 SYMLAPSGMessageChain >> messages [
 	^ messages
