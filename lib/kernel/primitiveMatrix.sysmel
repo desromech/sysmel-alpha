@@ -79,7 +79,7 @@ definition: {
             | value |
             value := arguments first unwrapSysmelValue.
 
-            ^ SYMLMatrixInstance forType: receiver withAll: value
+            ^ (SYMLMatrixInstance forType: receiver withAll: value) asSysmelValueInEnvironment: environment
         };
         generator: $$Pharo {
         generateMessageWithReceiver: receiver arguments: arguments builder: builder at: position
@@ -90,7 +90,7 @@ definition: {
         definition: `'{};
         evaluator: $$Pharo {
         evaluateMessageWithReceiver: receiver arguments: arguments environment: environment at: position
-            ^ SYMLMatrixInstance columnMajorIndicesForType: receiver
+            ^ (SYMLMatrixInstance columnMajorIndicesForType: receiver) asSysmelValueInEnvironment: environment
         };
         generator: $$Pharo {
         generateMessageWithReceiver: receiver arguments: arguments builder: builder at: position
@@ -101,7 +101,7 @@ definition: {
         definition: `'{};
         evaluator: $$Pharo {
         evaluateMessageWithReceiver: receiver arguments: arguments environment: environment at: position
-            ^ SYMLMatrixInstance rowMajorIndicesForType: receiver
+            ^ (SYMLMatrixInstance rowMajorIndicesForType: receiver) asSysmelValueInEnvironment: environment
         };
         generator: $$Pharo {
         generateMessageWithReceiver: receiver arguments: arguments builder: builder at: position
@@ -113,7 +113,7 @@ definition: {
             definition: `'{};
             evaluator: $$Pharo {
             evaluateMessageWithReceiver: receiver arguments: arguments environment: environment at: position
-                ^ SYMLMatrixInstance identityForType: receiver
+                ^ (SYMLMatrixInstance identityForType: receiver) asSysmelValueInEnvironment: environment
             };
             generator: $$Pharo {
             generateMessageWithReceiver: receiver arguments: arguments builder: builder at: position

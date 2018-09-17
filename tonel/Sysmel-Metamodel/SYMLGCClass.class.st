@@ -8,7 +8,8 @@ Class {
 		'variableInstanceElementSize',
 		'variableInstanceElementAlignment',
 		'hasComputeInstanceSizes',
-		'specificVariableDataTypes'
+		'specificVariableDataTypes',
+		'variableDataSizeField'
 	],
 	#classVars : [
 		'MetaclassInstanceSlotMap'
@@ -281,6 +282,7 @@ SYMLGCClass >> makeInstance: variableDataSize [
 	self flag: 'TODO: Set all of the required vtables'.
 	^ result
 		setSlot: 0 value: self;
+		setSlot: 	self variableDataSizeField slotIndex value: variableDataSize;
 		yourself
 
 ]
@@ -325,7 +327,8 @@ SYMLGCClass >> printOn: aStream [
 SYMLGCClass >> structureSSATypeForVariableDataSize: variableDataSize [
 	| genericType types names variableDataType variableDataElementType arrayType |
 	(self hasVariableDataArray not or: [variableDataSize = 0]) ifTrue: [ ^ self structureSSAType ].
-	^ specificVariableDataTypes at: variableDataSize ifAbsentPut: [ 
+	^ specificVariableDataTypes at: variableDataSize ifAbsentPut: [
+		self ensureConcreteStructureSSAType.
 		genericType := self structureSSAType.
 	
 		variableDataType := self slotsLayout last type.
@@ -345,9 +348,9 @@ SYMLGCClass >> typeKindBaseTrait [
 	^ self compilationTarget managedClassTypeTrait
 ]
 
-{ #category : #'as yet unclassified' }
+{ #category : #accessing }
 SYMLGCClass >> variableDataSizeField [
-	^ symbols at: #__variableDataSize ifAbsent: [ superclass variableDataSizeField ] 
+	^ variableDataSizeField ifNil: [variableDataSizeField := symbols at: #__variableDataSize ifAbsent: [ superclass variableDataSizeField ] ]
 ]
 
 { #category : #accessing }

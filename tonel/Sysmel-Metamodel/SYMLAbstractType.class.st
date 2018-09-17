@@ -1037,26 +1037,6 @@ SYMLAbstractType >> symbols [
 	^ symbols
 ]
 
-{ #category : #'as yet unclassified' }
-SYMLAbstractType >> sysmelPerform: aSelector withArguments: arguments [
-	^ self sysmelPerform: aSelector withArguments: arguments fallbackWith: [
-		self error: 'Cannot perform sysmel method {1} with receiver of type {2}.' format: { aSelector printString  . self asString }
-	]
-
-]
-
-{ #category : #'as yet unclassified' }
-SYMLAbstractType >> sysmelPerform: aSelector withArguments: arguments fallbackWith: fallbackBlock [
-	| method result |
-	method := (self type lookupSelector: aSelector).
-	method ifNil: [
-		^ fallbackBlock value
-	].
-
-	result := method evaluateWithReceiver: self arguments: (arguments collect: [ :arg | arg asSysmelValueInEnvironment: definitionEnvironment ]) inEnvironment: definitionEnvironment at: (SYMLSourcePosition new).
-	^ result
-]
-
 { #category : #'type composition' }
 SYMLAbstractType >> tupleOfSize: tupleSize [
 	<compileTime>

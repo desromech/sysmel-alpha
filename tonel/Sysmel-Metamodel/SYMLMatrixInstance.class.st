@@ -25,7 +25,7 @@ SYMLMatrixInstance class >> forType: type createWithBlock: aBlock [
 	rowCount := type cachedNullary: #rows.
 	columnType := type cachedNullary: #columnType.
 
-	^ (self new
+	^ self new
 		type: type;
 		slots: ((1 to: columnCount) collect: [:j |
 			SYMLVectorInstance new
@@ -35,7 +35,7 @@ SYMLMatrixInstance class >> forType: type createWithBlock: aBlock [
 				]);
 				yourself.
 		]);
-		yourself) asSysmelValueInEnvironment: environment
+		yourself
 ]
 
 { #category : #'as yet unclassified' }
@@ -49,10 +49,10 @@ SYMLMatrixInstance class >> forType: type withAll: value [
 		type: columnType;
 		slots: ((1 to: rowCount) collect: [:i | value ]);
 		yourself.
-	^ (self new
+	^ self new
 		type: type;
 		slots: ((1 to: columnCount) collect: [:i | column]);
-		yourself) asSysmelValueInEnvironment: environment
+		yourself
 ]
 
 { #category : #'as yet unclassified' }

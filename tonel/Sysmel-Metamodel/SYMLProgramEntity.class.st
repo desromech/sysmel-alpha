@@ -1,6 +1,6 @@
 Class {
 	#name : #SYMLProgramEntity,
-	#superclass : #SYMLObject,
+	#superclass : #SYMLObjectWithType,
 	#instVars : [
 		'parent',
 		'flags',

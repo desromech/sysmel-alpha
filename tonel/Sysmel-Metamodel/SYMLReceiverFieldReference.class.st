@@ -34,6 +34,11 @@ SYMLReceiverFieldReference >> field: anObject [
 	field := anObject
 ]
 
+{ #category : #initialization }
+SYMLReceiverFieldReference >> sysmelSetReferencedValue: aValue [
+	^ self value: aValue unwrapSysmelValue
+]
+
 { #category : #accessing }
 SYMLReceiverFieldReference >> type [
 	^ type

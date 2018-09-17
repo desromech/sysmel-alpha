@@ -399,13 +399,16 @@ SYMLModule >> ssaConstantPrimitiveValue: value type: type [
 SYMLModule >> ssaConstantVariableArrayValue: value type: type [
 	<compileTime>
 	| elementType arrayType |
-	elementType := type elementType ssaType.
-	arrayType := SLVMArrayType baseType: elementType elements: value size.
+	elementType := type elementType.
+	arrayType := SLVMArrayType baseType: elementType ssaType elements: value size.
 	value class == ByteArray ifTrue: [ 
 		^ SLVMConstant array: arrayType blob: value
-	] ifFalse: [ 
-		self halt
-	]
+	].
+
+	^ SLVMConstant array: arrayType slots: (value collect: [ :slot |
+		elementType generateSSAConstant: slot forModule: self ssaModule
+	]).
+
 ]
 
 { #category : #accessing }

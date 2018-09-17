@@ -3,7 +3,8 @@ Class {
 	#superclass : #SYMLObjectInstance,
 	#instVars : [
 		'slots',
-		'ssaGlobalVariable'
+		'ssaGlobalVariable',
+		'ssaGlobalVariableReference'
 	],
 	#category : #'Sysmel-Metamodel-Program'
 }
@@ -16,11 +17,7 @@ SYMLGCClassInstance >> createSSAInitialValueConstant [
 		slot type generateSSAConstant: (slots at: index) forModule: module
 	].
 
-	constantType := type hasVariableDataArray ifTrue: [
-		type structureSSATypeForVariableDataSize: slots last size.
-	] ifFalse: [
-		type structureSSAType
-	].
+	constantType := self ssaInitialValueType.
 	^ SLVMConstant structure: constantType slots: constantSlots
 ]
 
@@ -31,21 +28,17 @@ SYMLGCClassInstance >> generateSSAReferenceWith: builder [
 
 { #category : #'as yet unclassified' }
 SYMLGCClassInstance >> generateSSAValueForModule: aModule [
-	| ssaSlots |
-	ssaGlobalVariable ifNotNil: [ ^ ssaGlobalVariable ].
+	ssaGlobalVariableReference ifNotNil: [ ^ ssaGlobalVariableReference ].
 	
 	ssaGlobalVariable := SLVMGlobalVariable module: aModule ssaModule
 		name: nil
-		valueType: type structureSSAType
+		valueType: self ssaInitialValueType
 		storage: SLVMType genericStorage.
 	ssaGlobalVariable makePrivate.
+	ssaGlobalVariableReference := SLVMConstant value: ssaGlobalVariable bitcast: type ssaType.
 	
-	ssaSlots := type slotsLayout collectWithIndex: [ :slot :index |
-		slot type generateSSAConstant: (slots at: index) forModule: aModule
-	].
-
-	ssaGlobalVariable initialValue: (SLVMConstant structure: type structureSSAType slots: ssaSlots).
-	^ ssaGlobalVariable
+	ssaGlobalVariable initialValue: self createSSAInitialValueConstant.
+	^ ssaGlobalVariableReference
 ]
 
 { #category : #initialization }
@@ -71,4 +64,13 @@ SYMLGCClassInstance >> ssaGlobalVariable [
 { #category : #accessing }
 SYMLGCClassInstance >> ssaGlobalVariable: anObject [
 	ssaGlobalVariable := anObject
+]
+
+{ #category : #converting }
+SYMLGCClassInstance >> ssaInitialValueType [
+	^ type hasVariableDataArray ifTrue: [
+		type structureSSATypeForVariableDataSize: slots last size.
+	] ifFalse: [
+		type structureSSAType
+	]
 ]

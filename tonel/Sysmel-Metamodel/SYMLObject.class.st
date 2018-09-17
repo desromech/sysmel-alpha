@@ -12,11 +12,6 @@ SYMLObject class >> initialize [
 	SelectorWhitelist := Set newFrom: #(yourself)
 ]
 
-{ #category : #'compile time evaluation' }
-SYMLObject >> __sysmel [
-	^ SYMLProxy new __interpreterObject: self
-]
-
 { #category : #'semantic analysis' }
 SYMLObject >> analyzeAPSGIdentifierToMe: identifier inEnvironment: anEnvironment [
 	^ SYMLAPSGMetaObjectInstance new

@@ -1,6 +1,6 @@
 Class {
 	#name : #SYMLObjectInstance,
-	#superclass : #SYMLObject,
+	#superclass : #SYMLObjectWithType,
 	#instVars : [
 		'type'
 	],
@@ -10,6 +10,11 @@ Class {
 { #category : #converting }
 SYMLObjectInstance >> asSysmelValueInEnvironment: anEnvironment [
 	^ self sysmelValueWithType: type inEnvironment: anEnvironment
+]
+
+{ #category : #accessing }
+SYMLObjectInstance >> definitionEnvironment [
+	^ type definitionEnvironment
 ]
 
 { #category : #'semantic analysis' }

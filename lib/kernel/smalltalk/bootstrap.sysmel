@@ -224,14 +224,21 @@ Behavior uses: Type; definition: {
         }.
     }.
 
-    message basicNew -> InstanceType := {
+    (message basicNew -> InstanceType := {
+        [[notInCompileTime]]
         LibC printf ("basicNew called").
         return: nil
+    }) evaluator: $$Pharo {
+        evaluateMessageWithReceiver: receiver arguments: arguments environment: environment at: position
+            ^ receiver makeInstance asSysmelValueInEnvironment: environment
     }.
 
-    message basicNew: (initialSize: UIntPointer) ::-> InstanceType := {
+    (message basicNew: (initialSize: UIntPointer) ::-> InstanceType := {
         LibC printf ("basicNew: called").
         return: nil
+    }) evaluator: $$Pharo {
+        evaluateMessageWithReceiver: receiver arguments: arguments environment: environment at: position
+            ^ (receiver makeInstance: arguments first unwrapSysmelValue) asSysmelValueInEnvironment: environment
     }.
 
     message asReceiverType -> SelfType := {
@@ -385,7 +392,7 @@ MethodDictionary definition: {
     message atOrNil: (key: ProtoObject) ::-> ProtoObject := {
         [[staticBinding]]
         [[nogc]]
-        LibC printf("atOrNil: %p [tally %zu array %p values %p]\n", key, tally, array, values).
+        LibC printf("atOrNil: %p | tally %zu array [%d]%p values [%d]%p\n", key, tally, array basicSize, array, values basicSize, values).
 
         return: nil
     }.

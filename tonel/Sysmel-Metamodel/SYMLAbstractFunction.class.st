@@ -399,7 +399,9 @@ SYMLAbstractFunction >> isCalledAsDynamicMessageSend [
 
 { #category : #testing }
 SYMLAbstractFunction >> isCompileTime [
-	evaluator ifNotNil: [ ^ true ].
+	evaluator ifNotNil: [
+		^ (self hasPragmaNamed: #notInCompileTime) not
+	].
 
 	"A body is required for compile time evaluation"
 	body isNil ifTrue: [ ^ false ].
