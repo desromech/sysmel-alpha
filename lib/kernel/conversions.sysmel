@@ -39,12 +39,13 @@ AnyValue macro selector: #explicitCastTo: doOn: {
     }.
 }.
 
-AnyValue macro expansionRule castTo: (targetType: Type) := ``(
+AnyValue macro expansionRule castTo: targetType := ``(
     self __macroExpand explicitCastTo: targetType __macroExpand asVariableValueType
 ).
 
 // Literal type conversions.
 _LiteralInteger conversionTo: PrimitiveIntegerType doOn: {
+    coercionCost: 0.
     evaluation: $$Pharo {
         value: value into: targetType at: coercionPosition
             ^ value sameValueButWithType: targetType
@@ -81,6 +82,7 @@ _LiteralInteger conversionTo: PrimitiveFloatingPointType doOn: {
 }.
 
 _LiteralFloat conversionTo: PrimitiveFloatingPointType doOn: {
+    coercionCost: 0.
     evaluation: $$Pharo {
         value: value into: targetType at: coercionPosition
             ^ value sameValueButWithType: targetType
@@ -135,6 +137,19 @@ let intCastConversionAction := `'{
             ^ builder intCast: sourceValue target: targetType ssaType
     }.
 }.
+
+// Explicit sign conversion.
+UInt8 explicitConversionTo: Int8 doOn: intCastConversionAction.
+Int8 explicitConversionTo: UInt8 doOn: intCastConversionAction.
+
+UInt16 explicitConversionTo: Int16 doOn: intCastConversionAction.
+Int16 explicitConversionTo: UInt16 doOn: intCastConversionAction.
+
+UInt32 explicitConversionTo: Int32 doOn: intCastConversionAction.
+Int32 explicitConversionTo: UInt32 doOn: intCastConversionAction.
+
+UInt64 explicitConversionTo: Int64 doOn: intCastConversionAction.
+Int64 explicitConversionTo: UInt64 doOn: intCastConversionAction.
 
 // Signed integer widening casts
 Int8 conversionTo: Int16 | Int32 | Int64 doOn: intCastConversionAction.

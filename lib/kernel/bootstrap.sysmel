@@ -19,7 +19,6 @@ Compiler compilationTarget
     functionGroupType: type _FunctionGroupType;
     apsgNodeType: type _APSGNodeType;
     compilerObjectType: type _CompilerObjectType;
-    dynamicObjectType: type _DynamicObject;
     incompleteType: type _IncompleteType;
 
     literalArrayType: type _LiteralArray;
@@ -151,6 +150,14 @@ trait Type definition: {
     }.
 
     message isCompilerObjectType -> BooleanBit := {
+        return: false
+    }.
+
+    message isDynamicObjectType -> BooleanBit := {
+        return: false
+    }.
+
+    message isAnyDynamicObjectType -> BooleanBit := {
         return: false
     }.
 

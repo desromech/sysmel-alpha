@@ -37,6 +37,7 @@ SYMLGCClass class >> initialize [
 
 { #category : #conversions }
 SYMLGCClass >> addDefaultConversionRules [
+	super addDefaultConversionRules.
 	self
 		addConversionRule: (SYMLIdentityTypeConversionRule when: [:source :target |
 			(source isMetaType or: [ source isMetaTypeClass ]) and: [ target == self compilationTarget compilerObjectType ]

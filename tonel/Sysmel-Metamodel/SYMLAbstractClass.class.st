@@ -9,10 +9,6 @@ Class {
 	#category : #'Sysmel-Metamodel-Type'
 }
 
-{ #category : #initialization }
-SYMLAbstractClass >> addDefaultConversionRules [
-]
-
 { #category : #'semantic analysis' }
 SYMLAbstractClass >> allFields [
 	^ allFieldsCache ifNil: [ allFieldsCache :=
@@ -23,12 +19,6 @@ SYMLAbstractClass >> allFields [
 SYMLAbstractClass >> buildConcreteStructureSSAType [
 	superclass ifNotNil: [ superclass ensureConcreteStructureSSAType ].
 	^ super buildConcreteStructureSSAType
-]
-
-{ #category : #initialization }
-SYMLAbstractClass >> initialize [
-	super initialize.
-	self addDefaultConversionRules
 ]
 
 { #category : #testing }

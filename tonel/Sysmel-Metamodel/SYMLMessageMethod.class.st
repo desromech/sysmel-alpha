@@ -4,7 +4,8 @@ Class {
 	#traits : 'TSYMLMessageMethod',
 	#classTraits : 'TSYMLMessageMethod classTrait',
 	#instVars : [
-		'hasSelector'
+		'hasSelector',
+		'messageSendSelector'
 	],
 	#category : #'Sysmel-Metamodel-Function'
 }
@@ -49,7 +50,8 @@ SYMLMessageMethod >> analyzeMetaMessage: message toReceiver: receiverValue inEnv
 { #category : #associating }
 SYMLMessageMethod >> buildFunctionType [
 	| argumentTypes bindedArgumentTypes |
-	returnType ifNil: [ returnType := self compilationTarget dynamicObjectType ].
+	returnType ifNil: [returnType := self compilationTarget dynamicObjectType ].
+	returnType ifNil: [ self error: 'Return type is required.' at: definitionPosition ].
 	bindedArgumentTypes := arguments collect: #type.
 	argumentTypes := bindedArgumentTypes.
 	
@@ -62,6 +64,23 @@ SYMLMessageMethod >> buildFunctionType [
 	bindedFunctionType := self compilationTarget functionArguments: bindedArgumentTypes
 		returnType: returnType callingConvention: #cdecl variadic: self isCVariadic.
 	name ifNotNil: [ self tryToAddToParentWithName: name ]
+
+]
+
+{ #category : #accessing }
+SYMLMessageMethod >> createMessageSendSelector [
+	| concreteFunctionType |
+	concreteFunctionType := functionType asConcreteTypeForFunctionAnalysis.
+	concreteFunctionType isDynamicMessageFunctionType ifTrue: [ 
+		self halt.
+		^ name asSymbol
+	] ifFalse: [
+		^ (ByteString streamContents: [ :out |
+			out nextPutAll: name.
+			concreteFunctionType writeTypedSelectorDataInto: out omitReceiver: self receiverType isVoidType not
+		]) asSymbol
+	].
+
 
 ]
 
@@ -111,9 +130,9 @@ SYMLMessageMethod >> isMethod [
 	^ true
 ]
 
-{ #category : #'as yet unclassified' }
+{ #category : #accessing }
 SYMLMessageMethod >> messageSendSelector [
-	^ name
+	^ messageSendSelector ifNil: [messageSendSelector := self createMessageSendSelector]
 ]
 
 { #category : #'macro compilation' }

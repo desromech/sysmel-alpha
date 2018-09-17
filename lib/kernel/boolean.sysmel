@@ -1,0 +1,69 @@
+BooleanBit macro selectors: #(or: ||) doOn: {
+evaluation: $$Pharo {
+    node: node environment: environment
+        "Evaluate or: "
+        self halt
+}.
+
+semanticAnalysis: $$Pharo {
+    node: node environment: environment position: aSourcePosition
+        | left right leftType rightType resultType coercionRules |
+        left := node receiver semanticAnalysisInEnvironment: environment.
+        right := node arguments first semanticAnalysisInEnvironment: environment.
+        leftType := left evaluateTypeInEnvironment: environment.
+        rightType := right evaluateTypeInEnvironment: environment.
+
+        resultType := self compilationTarget booleanType.
+        coercionRules := {
+            leftType node: left coercedImplicitlyInto: resultType at: node.
+            rightType node: right coercedImplicitlyInto: resultType at: node.
+        }.
+
+        ^ node copy
+            metaMethod: self;
+            receiver: left;
+            arguments: {right};
+            coercionType: resultType;
+            coercionRule: coercionRules;
+            valueType: resultType;
+            yourself
+
+}.
+
+// Code generation
+codeGeneration: $$Pharo {
+    node: messageNode builder: builder
+        | coercionType leftNode leftValue leftValueBlock rightNode rightValue rightValueBlock orContinueBlock orMergeBlock result|
+
+        "Evaluate the receiver first"
+        coercionType := messageNode coercionType.
+        leftNode := messageNode receiver.
+        leftValue := messageNode coercionRule first convertSSAValue: (leftNode generateSSACodeWith: builder) to: coercionType with: builder at: messageNode.
+
+        "Create orContinue and orMerge block"
+        orContinueBlock := builder newBasicBlock: #orContinue.
+        orMergeBlock := builder newBasicBlock: #orMerge.
+        leftValueBlock := builder currentBlock.
+        builder branch: leftValue ifTrue: orMergeBlock ifFalse: orContinueBlock.
+
+        "Continue with the next condition."
+        builder currentBlock: orContinueBlock.
+        rightNode := messageNode arguments first.
+        rightValue := messageNode coercionRule second convertSSAValue: (rightNode generateSSACodeWith: builder) to: coercionType with: builder at: messageNode.
+        rightValueBlock := nil.
+        builder isLastTerminator ifFalse: [
+            rightValueBlock := builder currentBlock.
+            builder jump: orMergeBlock
+        ].
+
+        "Merge the or result"
+        builder currentBlock: orMergeBlock.
+
+        result := builder phi: messageNode valueType ssaType.
+        result addValue: leftValue from: leftValueBlock.
+        rightValueBlock ifNotNil: [
+            result addValue: rightValue from: rightValueBlock.
+        ].
+        ^ result
+}.
+}.

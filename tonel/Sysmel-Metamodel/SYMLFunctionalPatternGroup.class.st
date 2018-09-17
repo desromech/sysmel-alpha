@@ -9,6 +9,18 @@ Class {
 }
 
 { #category : #adding }
+SYMLFunctionalPatternGroup >> addAllAlternativesWithPublicSelector: publicSelector into: methodCollection [
+	alternatives ifEmpty: [
+		self halt.
+	].
+	(fallbackPattern isNil and: [ alternatives size = 1 ]) ifTrue: [ 
+		^ alternatives first addSingleAlternativeWithPublicSelector: publicSelector into: methodCollection
+	].
+
+	self halt
+]
+
+{ #category : #adding }
 SYMLFunctionalPatternGroup >> addPatternAlternative: aPatternAlternative [
 	alternatives do: [ :existentAlternative |
 		aPatternAlternative checkConflictWith: existentAlternative
@@ -45,6 +57,11 @@ SYMLFunctionalPatternGroup >> allAlternativesDo: aBlock [
 { #category : #'macro compilation' }
 SYMLFunctionalPatternGroup >> analyzeAndEvaluateMessage: message inEnvironment: environment at: aPosition [
 	^ (self semanticAnalyzeMessage: message inEnvironment: environment at: aPosition) evaluateInEnvironment: environment
+]
+
+{ #category : #converting }
+SYMLFunctionalPatternGroup >> asCompiledMethod [
+	^ nil
 ]
 
 { #category : #'as yet unclassified' }

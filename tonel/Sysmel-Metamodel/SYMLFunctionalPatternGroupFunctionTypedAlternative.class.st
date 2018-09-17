@@ -7,6 +7,16 @@ Class {
 	#category : #'Sysmel-Metamodel-Macro'
 }
 
+{ #category : #adding }
+SYMLFunctionalPatternGroupFunctionTypedAlternative >> addSingleAlternativeWithPublicSelector: publicSelector into: methodCollection [
+	methodCollection add: (macroFunction messageSendSelector -> macroFunction).
+	macroFunction messageSendSelector ~= publicSelector ifTrue: [ 
+		methodCollection add: (macroFunction messageSendSelector -> self)
+	].
+
+
+]
+
 { #category : #accessing }
 SYMLFunctionalPatternGroupFunctionTypedAlternative >> functionType [
 	^ functionType

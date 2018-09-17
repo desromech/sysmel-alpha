@@ -17,6 +17,11 @@ SYMLFunctionalPatternGroupAlternative >> analyzeMetaMessage: message toReceiver:
 	^ macroFunction analyzeMetaMessage: message toReceiver: receiverValue inEnvironment: environment at: aPosition
 ]
 
+{ #category : #converting }
+SYMLFunctionalPatternGroupAlternative >> asCompiledMethod [
+	^ nil
+]
+
 { #category : #'as yet unclassified' }
 SYMLFunctionalPatternGroupAlternative >> checkConflictWith: aPatternAlternative [
 	(self matchesSameAs: aPatternAlternative) ifTrue: [ 

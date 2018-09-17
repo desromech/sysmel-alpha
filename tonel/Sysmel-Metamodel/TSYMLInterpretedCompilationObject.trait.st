@@ -26,7 +26,8 @@ TSYMLInterpretedCompilationObject >> parse: lazyNodeValue [
 			self error: 'Expected a meta message with a single argument.' at: action
 		].
 	
-		actionValue := (action arguments first analyzeAndEvaluateInEnvironment: environment) value asSysmelCompileTimeFunction.
+		actionValue := (action arguments first analyzeAndEvaluateInEnvironment: environment) value.
+		actionValue isLiteral ifFalse: [ actionValue := actionValue asSysmelCompileTimeFunction ].
 		self perform: action selector with: actionValue
 	]
 

@@ -57,6 +57,20 @@ SYMLAbstractType >> addConversionRule: aConversionRule [
 ]
 
 { #category : #conversions }
+SYMLAbstractType >> addDefaultConversionRules [
+	self
+		addConversionRule: (SYMLIdentityTypeConversionRule when: [:source :target |
+			source == target
+		]); 
+		addConversionRule: (SYMLIdentityTypeConversionRule when: [:node :source :target |
+			node isNotNil and: [node isMetaObjectInstance and: [node metaObject type == target]]
+		]);
+		addConversionRule: (SYMLIdentityTypeConversionRule when: [:source :target |
+			target == self compilationTarget compilerObjectType
+		])
+]
+
+{ #category : #conversions }
 SYMLAbstractType >> addExplicitConversionRule: aConversionRule [
 	<compileTime>
 	explicitConversionRules add: aConversionRule
@@ -252,6 +266,23 @@ SYMLAbstractType >> buildSSAType [
 	^ result
 ]
 
+{ #category : #conversions }
+SYMLAbstractType >> buildTypeConversionChainUntil: targetType fromVisitedTypes: visitedTypes [
+	| previousTypeAndRule previousType rule previousRule |
+	previousTypeAndRule := visitedTypes at: targetType.
+	previousTypeAndRule ifNil: [ ^ nil ].
+	
+	previousType := previousTypeAndRule first.
+	rule := previousTypeAndRule second.
+	previousType == targetType ifTrue: [ ^ rule ].
+	previousType ifNil: [ ^ rule ].
+	
+	previousRule := self buildTypeConversionChainUntil: previousType fromVisitedTypes: visitedTypes.
+	previousRule ifNil: [ ^ rule ].
+	
+	^ previousRule intermediateConversion: previousType chainedWith: rule
+]
+
 { #category : #'type composition' }
 SYMLAbstractType >> cachedNullary: selector [
 	^ cachedValues at: selector ifAbsentPut: [(self sysmelPerform: selector withArguments: #()) unwrapSysmelValue]
@@ -308,19 +339,7 @@ SYMLAbstractType >> coerceValue: value into: targetType at: coercionPosition [
 
 { #category : #conversions }
 SYMLAbstractType >> coercedImplicitlyInto: targetType [
-	self == targetType ifTrue: [ ^ SYMLIdentityTypeConversionRule new ].
-	targetType == self compilationTarget compilerObjectType ifTrue: [ ^ SYMLIdentityTypeConversionRule new ].
-	implicitConversionRules do: [ :rule |
-		(rule canBeUsedToConvertFrom: self into: targetType) ifTrue: [ ^ rule ].
-	].
-
-	usedTraits do: [ :trait |
-		(trait coercedImplicitlyInto: targetType) ifNotNil: [ :rule |
-			^ rule
-		]
-	].
-
-	^ nil
+	^ self node: nil coercedImplicitlyInto: targetType
 ]
 
 { #category : #accessing }
@@ -354,18 +373,7 @@ SYMLAbstractType >> convertValueToFunctionActivationValue: value at: aPosition [
 
 { #category : #conversions }
 SYMLAbstractType >> convertedExplicitlyInto: targetType [
-	self == targetType ifTrue: [ ^ SYMLIdentityTypeConversionRule new ].
-	explicitConversionRules do: [ :rule |
-		(rule canBeUsedToConvertFrom: self into: targetType) ifTrue: [ ^ rule ].
-	].
-
-	usedTraits do: [ :trait |
-		(trait convertedExplicitlyInto: targetType) ifNotNil: [ :rule |
-			^ rule
-		]
-	].
-
-	^ nil
+	^ self node: nil convertedExplicitlyInto: targetType
 ]
 
 { #category : #accessing }
@@ -469,6 +477,11 @@ SYMLAbstractType >> evaluateReferenceAt: position [
 	^ self sysmelValueWithType: self type inEnvironment: nil
 ]
 
+{ #category : #accessing }
+SYMLAbstractType >> explicitConversionRules [
+	^ explicitConversionRules
+]
+
 { #category : #conversions }
 SYMLAbstractType >> explicitConversionTo: targetTypeKindLazyValue doOn: actionRules [
 	<compileTime>
@@ -493,6 +506,55 @@ SYMLAbstractType >> extend: aDefinitionBlock [
 { #category : #accessing }
 SYMLAbstractType >> fieldMetaobjectClass [
 	^ SYMLFieldVariable
+]
+
+{ #category : #conversions }
+SYMLAbstractType >> findConversionRuleInto: targetType node: node rulesExtractor: rulesExtractor [
+	| visitedTypes pendingTypes currentTypeFromToCheck currentType incomingTypeAndRule |
+	visitedTypes := IdentityDictionary new.
+	pendingTypes := LinkedList new.
+	
+	pendingTypes add: { self . nil }.
+	
+	[ pendingTypes isEmpty ] whileFalse: [ 
+		currentTypeFromToCheck := pendingTypes first.
+		pendingTypes removeFirst.
+		
+		currentType := currentTypeFromToCheck first.
+		incomingTypeAndRule := currentTypeFromToCheck second.
+		
+		(visitedTypes includesKey: currentType) ifTrue: [
+			(currentType == targetType and: [ incomingTypeAndRule isNotNil ]) ifTrue: [ 
+				^ self buildTypeConversionChainUntil: targetType fromVisitedTypes: visitedTypes
+			].
+		] ifFalse: [ 
+			"Ignore the types that were already visited."
+			visitedTypes at: currentType put: incomingTypeAndRule.
+		
+			(rulesExtractor value: currentType) do: [ :rule |
+				(rule canBeUsedToConvertNode: node from: currentType into: targetType) ifTrue: [
+					visitedTypes at: targetType put: {currentType . rule}.
+					^ self buildTypeConversionChainUntil: targetType fromVisitedTypes: visitedTypes
+				].
+			
+				rule isTypeKindConversion ifTrue: [
+					rule targetTypeKind withAllTraitUsersDo: [ :nextType |
+						(visitedTypes includesKey: nextType) ifFalse: [
+							pendingTypes addLast: { nextType . { currentType . rule } }.
+						]
+					]
+				]
+			].
+		
+			currentType usedTraits do: [ :trait |
+				(visitedTypes includesKey: trait) ifFalse: [
+					pendingTypes addLast: { trait . { currentType . SYMLIdentityTypeConversionRule new } }.
+				]
+			]
+		]
+	].
+
+	^ nil
 ]
 
 { #category : #accessing }
@@ -559,6 +621,11 @@ SYMLAbstractType >> hasDynamicMessageSends [
 	^ self cachedNullary: #hasDynamicMessageSends fallbackWith: [ false ]
 ]
 
+{ #category : #accessing }
+SYMLAbstractType >> implicitConversionRules [
+	^ implicitConversionRules
+]
+
 { #category : #conversions }
 SYMLAbstractType >> implicitConversionTo: targetTypeKindLazyValue doOn: actionRules [
 	<compileTime>
@@ -586,6 +653,7 @@ SYMLAbstractType >> initialize [
 	children := OrderedCollection new.
 	cachedValues := Dictionary new.
 	hasDefinition := false.
+	self addDefaultConversionRules
 ]
 
 { #category : #initialization }
@@ -621,6 +689,11 @@ SYMLAbstractType >> isAPSGNodeType [
 ]
 
 { #category : #testing }
+SYMLAbstractType >> isAnyDynamicObjectType [
+	^ self cachedNullary: #isAnyDynamicObjectType
+]
+
+{ #category : #testing }
 SYMLAbstractType >> isCompileTimeByDefault [
 	^ true
 ]
@@ -628,6 +701,11 @@ SYMLAbstractType >> isCompileTimeByDefault [
 { #category : #testing }
 SYMLAbstractType >> isConstantType [
 	^ self cachedNullary: #isConstantType
+]
+
+{ #category : #testing }
+SYMLAbstractType >> isDynamicObjectType [
+	^ self cachedNullary: #isDynamicObjectType
 ]
 
 { #category : #testing }
@@ -818,12 +896,7 @@ SYMLAbstractType >> methodWithSelector: selector ifPresent: presentBlock ifAbsen
 
 { #category : #conversions }
 SYMLAbstractType >> node: node coercedImplicitlyInto: targetType [
-	(node isNotNil and: [node isMetaObjectInstance]) ifTrue: [ 
-		self flag: 'FIXME: Remove this case.'.
-		node metaObject type == targetType ifTrue: [ ^ SYMLIdentityTypeConversionRule new ]
-	].
-
-	^ self node: node coercedImplicitlyInto: targetType visited: IdentitySet new
+	^ self findConversionRuleInto: targetType node: node rulesExtractor: #implicitConversionRules
 ]
 
 { #category : #conversions }
@@ -837,38 +910,9 @@ SYMLAbstractType >> node: node coercedImplicitlyInto: targetType at: aPosition [
 ]
 
 { #category : #conversions }
-SYMLAbstractType >> node: node coercedImplicitlyInto: targetType visited: visitedSet [
-	| chainedRule |
-	self == targetType ifTrue: [ ^ SYMLIdentityTypeConversionRule new ].
-	(visitedSet includes: self) ifTrue: [ ^ nil ].
-	visitedSet add: self.
-	
-	implicitConversionRules do: [ :rule |
-		(rule canBeUsedToConvertNode: node from: self into: targetType) ifTrue: [ ^ rule ].
-		rule isTypeKindConversion ifTrue: [ 
-			(visitedSet includes: rule targetTypeKind) ifFalse: [
-				rule targetTypeKind withAllTraitUsersDo: [ :intermediateType |
-					chainedRule := intermediateType node: node coercedImplicitlyInto: targetType visited: visitedSet.
-					chainedRule ifNotNil: [ 
-						^ rule intermediateConversion: intermediateType chainedWith: chainedRule
-					]
-				]
-			].
-		]
-	].
-
-	usedTraits do: [ :trait |
-		(trait node: node coercedImplicitlyInto: targetType visited: visitedSet) ifNotNil: [ :rule |
-			^ rule
-		]
-	].
-
-	^ nil
-]
-
-{ #category : #conversions }
 SYMLAbstractType >> node: node convertedExplicitlyInto: targetType [
-	^ self node: node convertedExplicitlyInto: targetType visited: IdentitySet new
+	^ self findConversionRuleInto: targetType node: node rulesExtractor: #explicitConversionRules
+
 ]
 
 { #category : #conversions }
@@ -879,36 +923,6 @@ SYMLAbstractType >> node: node convertedExplicitlyInto: targetType at: aPosition
 		self error: 'Cannot convert value of {1} into {2}.' format: {self asString . targetType asString} at: aPosition
 	].
 	^ coercionRule
-]
-
-{ #category : #conversions }
-SYMLAbstractType >> node: node convertedExplicitlyInto: targetType visited: visitedSet [
-	| chainedRule |
-	self == targetType ifTrue: [ ^ SYMLIdentityTypeConversionRule new ].
-	(visitedSet includes: self) ifTrue: [ ^ nil ].
-	visitedSet add: self.
-	
-	explicitConversionRules do: [ :rule |
-		(rule canBeUsedToConvertNode: node from: self into: targetType) ifTrue: [ ^ rule ].
-		rule isTypeKindConversion ifTrue: [ 
-			(visitedSet includes: rule targetTypeKind) ifFalse: [ 
-				rule targetTypeKind withAllTraitUsersDo: [ :intermediateType |
-					chainedRule := intermediateType node: node coercedImplicitlyInto: targetType visited: visitedSet.
-					chainedRule ifNotNil: [ 
-						^ rule intermediateConversion: intermediateType chainedWith: chainedRule
-					]
-				]
-			].
-		]
-	].
-
-	usedTraits do: [ :trait |
-		(trait node: node convertedExplicitlyInto: targetType visited: visitedSet) ifNotNil: [ :rule |
-			^ rule
-		]
-	].
-
-	^ nil
 ]
 
 { #category : #testing }
@@ -1102,6 +1116,23 @@ SYMLAbstractType >> variantAlternativesDo: aBlock [
 SYMLAbstractType >> withAllTraitUsersDo: aBlock [
 	aBlock value: self.
 	traitUsers do: aBlock
+]
+
+{ #category : #enumerating }
+SYMLAbstractType >> withAllUsedReverseTraitsDo: aBlock [
+	aBlock value: self.
+	self flattenedTraits reverseDo: aBlock
+]
+
+{ #category : #enumerating }
+SYMLAbstractType >> withAllUsedTraitsDo: aBlock [
+	aBlock value: self.
+	self flattenedTraits do: aBlock
+]
+
+{ #category : #writing }
+SYMLAbstractType >> writeTypedSelectorDataInto: out omitReceiver: omitReceiver [
+	out nextPutAll: self printingName
 ]
 
 { #category : #'type composition' }

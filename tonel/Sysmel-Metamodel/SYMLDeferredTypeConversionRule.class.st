@@ -5,7 +5,8 @@ Class {
 	#classTraits : 'TSYMLInterpretedCompilationObject classTrait',
 	#instVars : [
 		'evaluation',
-		'codeGeneration'
+		'codeGeneration',
+		'coercionCost'
 	],
 	#category : #'Sysmel-Metamodel-Type'
 }
@@ -20,9 +21,14 @@ SYMLDeferredTypeConversionRule >> codeGeneration: anObject [
 	codeGeneration := anObject
 ]
 
-{ #category : #'as yet unclassified' }
+{ #category : #accessing }
 SYMLDeferredTypeConversionRule >> coercionCost [
-	^ 1
+	^ coercionCost ifNil: [ coercionCost := 1 ] 
+]
+
+{ #category : #accessing }
+SYMLDeferredTypeConversionRule >> coercionCost: aCoercionCost [
+	coercionCost := aCoercionCost
 ]
 
 { #category : #'as yet unclassified' }

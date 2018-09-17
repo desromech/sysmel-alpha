@@ -81,6 +81,11 @@ SYMLAbstractFunction >> analyzedBody [
 	^ analyzedBody
 ]
 
+{ #category : #converting }
+SYMLAbstractFunction >> asCompiledMethod [
+	^ nil
+]
+
 { #category : #accessing }
 SYMLAbstractFunction >> assignValue: aValue [
 	<compileTime>

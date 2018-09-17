@@ -8,3 +8,8 @@ Class {
 SYMLReinterpretPointerTypeConversionRule >> convertSSAValue: sourceValue to: targetType with: builder at: aPosition [
 	^ builder bitCast: sourceValue target: targetType ssaType
 ]
+
+{ #category : #testing }
+SYMLReinterpretPointerTypeConversionRule >> isIdentityAction [
+	^ false
+]

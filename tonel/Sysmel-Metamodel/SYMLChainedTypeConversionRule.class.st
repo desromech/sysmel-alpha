@@ -5,7 +5,8 @@ Class {
 		'intermediateType',
 		'intermediateRule',
 		'nextRule',
-		'coercionCost'
+		'coercionCost',
+		'isTypeKindConversion'
 	],
 	#category : #'Sysmel-Metamodel-Type'
 }
@@ -50,6 +51,11 @@ SYMLChainedTypeConversionRule >> intermediateType: anObject [
 ]
 
 { #category : #accessing }
+SYMLChainedTypeConversionRule >> isTypeKindConversion [
+	^ isTypeKindConversion ifNil: [isTypeKindConversion := intermediateType isTypeKindConversion and: [ nextRule isTypeKindConversion ] ]
+]
+
+{ #category : #accessing }
 SYMLChainedTypeConversionRule >> nextRule [
 	^ nextRule
 ]
@@ -57,4 +63,10 @@ SYMLChainedTypeConversionRule >> nextRule [
 { #category : #accessing }
 SYMLChainedTypeConversionRule >> nextRule: anObject [
 	nextRule := anObject
+]
+
+{ #category : #accessing }
+SYMLChainedTypeConversionRule >> targetTypeKind [
+	self assert: self isTypeKindConversion.
+	^ nextRule targetTypeKind
 ]

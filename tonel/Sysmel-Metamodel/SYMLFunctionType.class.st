@@ -89,6 +89,12 @@ SYMLFunctionType >> compilationTarget: anObject [
 	self addTypeKindBaseTrait
 ]
 
+{ #category : #testing }
+SYMLFunctionType >> hasDynamicMessageFunctionArguments [
+	arguments do: [ :arg | arg isAnyDynamicObjectType ifFalse: [ ^ false ] ].
+	^ true
+]
+
 { #category : #comparing }
 SYMLFunctionType >> hash [
 	^ self class identityHash bitXor:
@@ -96,6 +102,12 @@ SYMLFunctionType >> hash [
 	( returnType hash bitXor:
 	( variadic hash bitXor:
 	( callingConvention identityHash))))
+]
+
+{ #category : #testing }
+SYMLFunctionType >> isDynamicMessageFunctionType [
+	returnType isAnyDynamicObjectType ifFalse: [ ^ false ].
+	^ self hasDynamicMessageFunctionArguments
 ]
 
 { #category : #testing }
@@ -142,4 +154,24 @@ SYMLFunctionType >> variadic [
 SYMLFunctionType >> variadic: anObject [
 	<compileTime>
 	variadic := anObject
+]
+
+{ #category : #writing }
+SYMLFunctionType >> writeTypedSelectorDataInto: out omitReceiver: omitReceiver [
+	| argumentsWithoutReceiver |
+	argumentsWithoutReceiver := omitReceiver ifTrue: [ arguments allButFirst ] ifFalse: [ arguments ].
+	argumentsWithoutReceiver ifNotEmpty: [ 
+		out nextPut: $(.
+		argumentsWithoutReceiver doWithIndex: [ :arg :index |
+			index > 1 ifTrue: [
+				out nextPut: $,
+			].
+			arg writeTypedSelectorDataInto: out omitReceiver: false
+		].
+		out nextPut: $).
+	].
+
+	out
+		nextPutAll: '->'.
+	returnType writeTypedSelectorDataInto: out omitReceiver: false
 ]

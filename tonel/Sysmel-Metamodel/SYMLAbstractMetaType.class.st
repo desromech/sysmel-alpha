@@ -9,6 +9,7 @@ Class {
 
 { #category : #adding }
 SYMLAbstractMetaType >> addDefaultConversionRules [
+	super addDefaultConversionRules.
 	self
 		addConversionRule: (SYMLIdentityTypeConversionRule when: [:source :target |
 			source isMetaType and: [ target == self compilationTarget compilerObjectType ]
@@ -23,12 +24,6 @@ SYMLAbstractMetaType >> compilationTarget [
 { #category : #'as yet unclassified' }
 SYMLAbstractMetaType >> generateSSATypeInfoForInstance: anInstanceType [
 	^ SLVMConstant type: self ssaType value: 0
-]
-
-{ #category : #initialization }
-SYMLAbstractMetaType >> initialize [
-	super initialize.
-	self addDefaultConversionRules
 ]
 
 { #category : #accessing }
