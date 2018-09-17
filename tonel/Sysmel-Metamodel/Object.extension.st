@@ -14,6 +14,11 @@ Object >> asSysmelValueInEnvironment: anEnvironment [
 ]
 
 { #category : #'*Sysmel-Metamodel' }
+Object >> createNonInlineLiteralConstantForSysmelObjectModel: objectModel withCodeGenerator: aCodeGenerator [
+	self subclassResponsibility
+]
+
+{ #category : #'*Sysmel-Metamodel' }
 Object >> isSYMLAPSGNode [
 	^ false
 ]

@@ -68,5 +68,5 @@ SYMLFunctionActivationScope >> receiverVariable: anObject [
 
 { #category : #accessing }
 SYMLFunctionActivationScope >> returnType [
-	^ function returnType
+	^ function returnType asConcreteTypeForFunctionAnalysis
 ]

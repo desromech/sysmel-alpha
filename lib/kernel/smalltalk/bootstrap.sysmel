@@ -1,4 +1,4 @@
-namespace Sysmel definition: {
+namespace SysmelKernel definition: {
 
 Compiler compilationTarget
     managedClassTypeTrait: trait ManagedClassTrait;
@@ -161,7 +161,7 @@ gcclass Object superclass: ProtoObject.
 gcclass Collection superclass: Object.
     gcclass HashedCollection superclass: Collection.
         gcclass Dictionary superclass: HashedCollection.
-        gcclass MethodDictionary superclass: Dictionary.
+            gcclass MethodDictionary superclass: Dictionary.
     gcclass SequenceableCollection superclass: Collection.
         gcclass ArrayedCollection superclass: SequenceableCollection.
             gcclass Array superclass: ArrayedCollection.
@@ -213,9 +213,24 @@ Behavior uses: Type; definition: {
     field variableInstanceElementSize public type: UIntPointer.
     field variableInstanceElementAlignment public type: UIntPointer.
 
-    // TODO: Suport InstanceType as the return type.
-    message basicNew -> ProtoObject := {
+    // The type of the instance is actually a dependent type because of the meta-circular hierarchy.
+    type InstanceType definition: {
+        meta message asConcreteTypeForFunctionAnalysis -> Type := {
+            return: ProtoObject
+        }.
+
+        meta message asReturnTypeForReceiverType: (receiverType: _CompilerObjectType) argumentTypes: (argumentTypes: _CompilerObjectType) ::-> _CompilerObjectType := {
+            return: receiverType instanceType
+        }.
+    }.
+
+    message basicNew -> InstanceType := {
         LibC printf ("basicNew called").
+        return: nil
+    }.
+
+    message basicNew: (initialSize: UIntPointer) ::-> InstanceType := {
+        LibC printf ("basicNew: called").
         return: nil
     }.
 
@@ -349,11 +364,29 @@ HashedCollection definition: {
 MethodDictionary definition: {
     field values protected type: Array.
 
+    message initializeForCapacity: (initialCapacity: UIntPointer) ::-> SelfType := {
+        tally := 0.
+        array := Array basicNew: initialCapacity.
+        values := Array basicNew: initialCapacity.
+        return: self
+    }.
+
+    message scanFor: (key: ProtoObject) ::-> UIntPointer := {
+        [[staticBinding]]
+        [[nogc]]
+        return: 0
+    }.
+
+    message at: (key: ProtoObject) putNoSpaceCheck: (value: ProtoObject) ::-> SelfType := {
+        [[staticBinding]]
+        return: self
+    }.
+
     message atOrNil: (key: ProtoObject) ::-> ProtoObject := {
         [[staticBinding]]
         [[nogc]]
-        LibC printf("atOrNil: %p\n", key).
-        
+        LibC printf("atOrNil: %p [tally %zu array %p values %p]\n", key, tally, array, values).
+
         return: nil
     }.
 }.
@@ -410,6 +443,10 @@ function normalMessageLookup(object: ProtoObject, selector: Object, fallbackTram
 
 Compiler compilationTarget objectModel
     sysmelMessageLookupFunction: normalMessageLookup;
+    arrayClass: Array;
+    byteArrayClass: ByteArray;
+    dictionaryClass: Dictionary;
+    methodDictionaryClass: MethodDictionary;
     symbolClass: Symbol;
     stringClass: String;
     yourself

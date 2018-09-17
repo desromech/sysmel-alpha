@@ -143,7 +143,7 @@ SYMLAbstractFunction >> createSSAValue [
 		]
 	].
 
-	receiverOffset := self returnType isReturnedThroughFirstArgument ifTrue: [1] ifFalse: [0].
+	receiverOffset := self returnType asConcreteTypeForFunctionAnalysis isReturnedThroughFirstArgument ifTrue: [1] ifFalse: [0].
 	
 	argumentsOffset := receiverOffset + (self receiverType isVoidType ifTrue: [0] ifFalse: [1]).
 	argumentsOffset > 0 ifTrue: [ 
@@ -277,7 +277,7 @@ SYMLAbstractFunction >> generateSSACallWithReceiver: receiverValue arguments: ar
 
 	self isCalledAsDynamicMessageSend ifTrue: [
 		self assert: receiverValue isNotNil.
-		^ builder send: (builder addDynamicLiteral: self messageSendSelector) returnType: self returnType ssaType receiver: receiverValue arguments: argumentValues
+		^ builder send: (builder addDynamicLiteral: self messageSendSelector) returnType: self returnType asConcreteTypeForFunctionAnalysis ssaType receiver: receiverValue arguments: argumentValues
 	].
 
 	allArguments := arguments.
@@ -309,7 +309,7 @@ SYMLAbstractFunction >> generateSSACode [
 	bodyBlock := builder newBasicBlockHere: #body.
 
 	"Set the receiver"
-	receiverOffset := self returnType isReturnedThroughFirstArgument ifTrue: [1] ifFalse: [0].
+	receiverOffset := self returnType asConcreteTypeForFunctionAnalysis isReturnedThroughFirstArgument ifTrue: [1] ifFalse: [0].
 	argumentsOffset := receiverOffset.
 	self receiverType isVoidType ifFalse: [ 
 		receiver ssaValue: (self ssaValue arguments at: receiverOffset + 1).
@@ -483,6 +483,11 @@ SYMLAbstractFunction >> receiverType [
 SYMLAbstractFunction >> returnType [
 	<compileTime>
 	^ returnType
+]
+
+{ #category : #accessing }
+SYMLAbstractFunction >> returnTypeForReceiverType: callReceiverType argumentTypes: callArgumentTypes [
+	^ returnType asReturnTypeForReceiverType: callReceiverType argumentTypes: callArgumentTypes
 ]
 
 { #category : #'semantic analysis' }

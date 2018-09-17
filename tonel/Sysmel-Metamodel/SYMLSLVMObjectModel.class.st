@@ -2,6 +2,10 @@ Class {
 	#name : #SYMLSLVMObjectModel,
 	#superclass : #SLVMObjectModel,
 	#instVars : [
+		'arrayClass',
+		'byteArrayClass',
+		'dictionaryClass',
+		'methodDictionaryClass',
 		'stringClass',
 		'symbolClass',
 		'sysmelSuperMessageLookupFunction',
@@ -9,6 +13,30 @@ Class {
 	],
 	#category : #'Sysmel-Metamodel-CompilationTarget'
 }
+
+{ #category : #accessing }
+SYMLSLVMObjectModel >> arrayClass [
+	<compileTime>
+	^ arrayClass
+]
+
+{ #category : #accessing }
+SYMLSLVMObjectModel >> arrayClass: anObject [
+	<compileTime>
+	arrayClass := anObject
+]
+
+{ #category : #accessing }
+SYMLSLVMObjectModel >> byteArrayClass [
+	<compileTime>
+	^ byteArrayClass
+]
+
+{ #category : #accessing }
+SYMLSLVMObjectModel >> byteArrayClass: anObject [
+	<compileTime>
+	byteArrayClass := anObject
+]
 
 { #category : #'code generation' }
 SYMLSLVMObjectModel >> createDoesNotUnderstandTrampolineWithType: functionType [
@@ -45,19 +73,13 @@ SYMLSLVMObjectModel >> createDoesNotUnderstandTrampolineWithType: functionType [
 	^ function
 ]
 
-{ #category : #'as yet unclassified' }
+{ #category : #'object literals' }
 SYMLSLVMObjectModel >> createNonInlineLiteralConstant: aLiteral withCodeGenerator: aCodeGenerator [
-	aLiteral isSymbol ifTrue: [
-		^ self createObjectBytes: aLiteral asUTF8Bytes class: symbolClass
-	].
-	aLiteral isString ifTrue: [
-		^ self createObjectBytes: aLiteral asUTF8Bytes class: stringClass
-	].
-	
-	self error: 'Literal not yet supported.'.
+	^ aLiteral createNonInlineLiteralConstantForSysmelObjectModel: self withCodeGenerator: aCodeGenerator
+
 ]
 
-{ #category : #'as yet unclassified' }
+{ #category : #'object literals' }
 SYMLSLVMObjectModel >> createObjectBytes: bytes class: class [
 	| object |
 	object := class makeInstance: bytes size.
@@ -66,9 +88,33 @@ SYMLSLVMObjectModel >> createObjectBytes: bytes class: class [
 ]
 
 { #category : #accessing }
+SYMLSLVMObjectModel >> dictionaryClass [
+	<compileTime>
+	^ dictionaryClass
+]
+
+{ #category : #accessing }
+SYMLSLVMObjectModel >> dictionaryClass: anObject [
+	<compileTime>
+	dictionaryClass := anObject
+]
+
+{ #category : #accessing }
 SYMLSLVMObjectModel >> messageLookupFunction [
 	<compileTime>
 	^ sysmelMessageLookupFunction ssaValue
+]
+
+{ #category : #accessing }
+SYMLSLVMObjectModel >> methodDictionaryClass [
+	<compileTime>
+	^ methodDictionaryClass
+]
+
+{ #category : #accessing }
+SYMLSLVMObjectModel >> methodDictionaryClass: anObject [
+	<compileTime>
+	methodDictionaryClass := anObject
 ]
 
 { #category : #accessing }

@@ -7,7 +7,8 @@ Class {
 		'returnType',
 		'callingConvention',
 		'variadic',
-		'argumentsMangledName'
+		'argumentsMangledName',
+		'functionAnalysisType'
 	],
 	#category : #'Sysmel-Metamodel-Type'
 }
@@ -43,9 +44,18 @@ SYMLFunctionType >> argumentsMangledName [
 	]
 ]
 
+{ #category : #accessing }
+SYMLFunctionType >> asConcreteTypeForFunctionAnalysis [
+	^ functionAnalysisType ifNil: [ functionAnalysisType := compilationTarget functionArguments: (arguments collect: #asConcreteTypeForFunctionAnalysis) returnType: returnType asConcreteTypeForFunctionAnalysis callingConvention: callingConvention variadic: variadic]
+]
+
 { #category : #'code generation' }
 SYMLFunctionType >> buildSSAType [
 	| argumentSSAType returnSSAType |
+	functionAnalysisType ~~ self ifTrue: [ 
+		^ self asConcreteTypeForFunctionAnalysis buildSSAType.
+	].
+
 	argumentSSAType := arguments collect: #ssaType.
 	returnSSAType := returnType ssaType.
 	^ (SLVMFunctionType callingConvention: callingConvention arguments: argumentSSAType returnType: returnSSAType)

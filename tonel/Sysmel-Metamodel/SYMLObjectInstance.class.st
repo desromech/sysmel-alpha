@@ -12,7 +12,7 @@ SYMLObjectInstance >> asSysmelValueInEnvironment: anEnvironment [
 	^ self sysmelValueWithType: type inEnvironment: anEnvironment
 ]
 
-{ #category : #'as yet unclassified' }
+{ #category : #'semantic analysis' }
 SYMLObjectInstance >> evaluateMetaObjectTypeInEnvironment: anEnvironment [
 	^ type
 ]

@@ -12,12 +12,12 @@ SYMLObject class >> initialize [
 	SelectorWhitelist := Set newFrom: #(yourself)
 ]
 
-{ #category : #'as yet unclassified' }
+{ #category : #'compile time evaluation' }
 SYMLObject >> __sysmel [
 	^ SYMLProxy new __interpreterObject: self
 ]
 
-{ #category : #'as yet unclassified' }
+{ #category : #'semantic analysis' }
 SYMLObject >> analyzeAPSGIdentifierToMe: identifier inEnvironment: anEnvironment [
 	^ SYMLAPSGMetaObjectInstance new
 			position: identifier;
@@ -25,7 +25,7 @@ SYMLObject >> analyzeAPSGIdentifierToMe: identifier inEnvironment: anEnvironment
 			yourself
 ]
 
-{ #category : #'as yet unclassified' }
+{ #category : #'compile time evaluation' }
 SYMLObject >> analyzeAndEvaluateMessageToYou: message inEnvironment: environment at: aPosition [
 	^ (self semanticAnalyzeMessageToYou: message inEnvironment: environment at: aPosition) evaluateInEnvironment: environment
 ]
@@ -67,7 +67,7 @@ SYMLObject >> error: anErrorString format: formatArguments at: aSourcePosition [
 	^ self error: (anErrorString format: formatArguments) at: aSourcePosition
 ]
 
-{ #category : #'as yet unclassified' }
+{ #category : #'semantic analysis' }
 SYMLObject >> evaluateMetaObjectTypeInEnvironment: anEnvironment [
 	^ anEnvironment compilationTarget compilerObjectType
 ]
@@ -147,7 +147,7 @@ SYMLObject >> isType [
 	^ false
 ]
 
-{ #category : #'as yet unclassified' }
+{ #category : #'semantic analysis' }
 SYMLObject >> semanticAnalyzeMessageToYou: message inEnvironment: environment at: aPosition [
 	^ self sendCompileTimeMessage: message inEnvironment: environment at: aPosition.
 ]
@@ -193,12 +193,12 @@ SYMLObject >> sendCompileTimeMessage: message inEnvironment: environment at: aPo
 	]
 ]
 
-{ #category : #'as yet unclassified' }
+{ #category : #'compile time evaluation' }
 SYMLObject >> sysmelPerform: aSelector fallbackWith: fallbackBlock [
 	^ self sysmelPerform: aSelector withArguments: #() fallbackWith: fallbackBlock
 ]
 
-{ #category : #'as yet unclassified' }
+{ #category : #'compile time evaluation' }
 SYMLObject >> sysmelPerform: aSelector withArguments: arguments fallbackWith: fallbackBlock [
 	^ fallbackBlock value
 ]

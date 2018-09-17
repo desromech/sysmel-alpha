@@ -60,5 +60,5 @@ SYMLFunctionAnalysisScope >> receiverType [
 
 { #category : #accessing }
 SYMLFunctionAnalysisScope >> returnType [
-	^ function returnType
+	^ function returnType asConcreteTypeForFunctionAnalysis
 ]

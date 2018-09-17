@@ -193,6 +193,11 @@ SYMLAbstractType >> arithmeticCoercionWith: otherTypeValue into: resultTypeValue
 	otherType addArithmeticCoercionRule: coercionRule reversed
 ]
 
+{ #category : #converting }
+SYMLAbstractType >> asConcreteTypeForFunctionAnalysis [
+	^ self cachedNullary: #asConcreteTypeForFunctionAnalysis fallbackWith: [ self ]
+]
+
 { #category : #'type composition' }
 SYMLAbstractType >> asGCClassFieldType [
 	^ self cachedNullary: #asGCClassFieldType fallbackWith: [ self ]
@@ -211,6 +216,15 @@ SYMLAbstractType >> asReceiverType [
 { #category : #converting }
 SYMLAbstractType >> asReferenceType [
 	^ self cachedNullary: #asReferenceType
+]
+
+{ #category : #converting }
+SYMLAbstractType >> asReturnTypeForReceiverType: callReceiverType argumentTypes: callArgumentTypes [
+	cachedValues at: #asReturnTypeForReceiverType:argumentTypes: ifPresent: [ :cached | ^ cached ].
+	^ (self sysmelPerform: #asReturnTypeForReceiverType:argumentTypes: withArguments: {callReceiverType . callArgumentTypes} fallbackWith: [
+		cachedValues at: #asReturnTypeForReceiverType:argumentTypes: put: self.
+		self
+	]) unwrapSysmelValue
 ]
 
 { #category : #converting }
@@ -500,6 +514,11 @@ SYMLAbstractType >> flattenedTraits [
 	^ flattenedTraits
 ]
 
+{ #category : #'reflection metadata proxies' }
+SYMLAbstractType >> gcLayoutReflectionProxy [
+	^ SYMLGCLayoutReflectionProxy for: self
+]
+
 { #category : #'code generation' }
 SYMLAbstractType >> generateSSACode [
 	self ssaTypeInfo.
@@ -785,6 +804,11 @@ SYMLAbstractType >> metaClassClass: aMetaClassClass [
 { #category : #accessing }
 SYMLAbstractType >> methodDictionary [
 	^ methodDictionary
+]
+
+{ #category : #'reflection metadata proxies' }
+SYMLAbstractType >> methodDictionaryReflectionProxy [
+	^ SYMLMethodDictionaryReflectionProxy for: self
 ]
 
 { #category : #adding }

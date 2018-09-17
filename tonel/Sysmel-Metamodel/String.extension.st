@@ -6,6 +6,11 @@ String >> asSysmelValueInEnvironment: anEnvironment [
 ]
 
 { #category : #'*Sysmel-Metamodel' }
+String >> createNonInlineLiteralConstantForSysmelObjectModel: objectModel withCodeGenerator: aCodeGenerator [
+	^ objectModel createObjectBytes: self asUTF8Bytes class: objectModel stringClass
+]
+
+{ #category : #'*Sysmel-Metamodel' }
 String >> sysmelEscapeForMangling [
 	(self beginsWith: '__anon') ifTrue: [
 		^ '_a' , (self allButFirst: '__anon' size) sysmelEscapeForMangling

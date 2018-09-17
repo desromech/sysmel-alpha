@@ -130,6 +130,10 @@ definition: {
 
 // The type meta type
 trait Type definition: {
+    message asConcreteTypeForFunctionAnalysis -> SelfType := {
+        return: self
+    }.
+
     message asReceiverType -> SelfType := {
         return: self
     }.

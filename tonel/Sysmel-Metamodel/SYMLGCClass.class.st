@@ -24,6 +24,8 @@ SYMLGCClass class >> initialize [
 		__identityHash identityHash
 		superclass superclass
 		
+		methodDict methodDictionaryReflectionProxy
+		
 		instanceDataSize instanceDataSize
 		instanceDataAlignment instanceDataAlignment
 		

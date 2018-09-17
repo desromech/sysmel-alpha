@@ -64,6 +64,14 @@ SYMLAbstractClass >> isSysmelClass [
 	^ true
 ]
 
+{ #category : #'symbol lookup' }
+SYMLAbstractClass >> lookReceiver: receiver symbol: symbol ifPresent: ifPresentBlock [
+	<compileTime>
+	super lookReceiver: receiver symbol: symbol ifPresent: [:binding | ^ ifPresentBlock value: binding].
+	superclass ifNotNil: [ ^ superclass lookReceiver: receiver symbol: symbol ifPresent: ifPresentBlock ].
+	^ nil
+]
+
 { #category : #accessing }
 SYMLAbstractClass >> mangledName [
 	| escapedName |
