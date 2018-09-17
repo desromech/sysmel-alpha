@@ -19,6 +19,11 @@ SYMLActivationVariableStore >> asSysmelValueInEnvironment: anEnvironment [
 	^ self sysmelValueWithType: type ref inEnvironment: anEnvironment
 ]
 
+{ #category : #'as yet unclassified' }
+SYMLActivationVariableStore >> sysmelPerform: selector withArguments: arguments [
+	^ self value sysmelPerform: selector withArguments: arguments
+]
+
 { #category : #initialization }
 SYMLActivationVariableStore >> sysmelSetReferencedValue: coercedValue [
 	value := coercedValue

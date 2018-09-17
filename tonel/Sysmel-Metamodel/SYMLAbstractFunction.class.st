@@ -83,7 +83,9 @@ SYMLAbstractFunction >> analyzedBody [
 
 { #category : #converting }
 SYMLAbstractFunction >> asCompiledMethod [
-	^ nil
+	^ (SYMLCompiledMethodProxy for: self)
+		type: self compilationTarget objectModel compiledMethodClass;
+		yourself
 ]
 
 { #category : #accessing }

@@ -406,7 +406,7 @@ SYMLModule >> ssaConstantVariableArrayValue: value type: type [
 	].
 
 	^ SLVMConstant array: arrayType slots: (value collect: [ :slot |
-		elementType generateSSAConstant: slot forModule: self ssaModule
+		elementType generateSSAConstant: slot forModule: self
 	]).
 
 ]

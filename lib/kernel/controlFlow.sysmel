@@ -15,7 +15,15 @@ macro selectors: #(if:then: if:then:else:) doOn: {
 
             "If:then:"
             conditionValue unwrapSysmelValue ifTrue: [
-                self halt.
+                resultValue := node arguments second evaluateInEnvironment: environment.
+                node coercionRule second ifNotNil: [
+                    resultValue := node coercionRule second
+                        convertValue: resultValue
+                        into: node coercionType second
+                        at: node
+                ].
+
+                ^ resultValue
             ] ifFalse: [
                 node arguments size = 2 ifTrue: [
                     ^ node valueType defaultValue

@@ -94,12 +94,11 @@ GCClassVariableDataArrayType macro selectors: #(at: subscriptAt:) doOn: {
                 index := index + 1
             ].
 
-            self halt.
-            ^ SYMLArraySlotReference new
+            ^ (SYMLArraySlotReference new
                 container: variableData value value value;
                 type: message valueType valueType;
                 slotIndex: index;
-                yourself
+                yourself) asSysmelValueInEnvironment: anEnvironment
     }.
 
     // Semantic analysis
@@ -372,11 +371,13 @@ ProtoObject definition: {
         return: __identityHash
     }.
 
-    message == (other: ProtoObject) -> BooleanBit := {
+    (message == (other: ProtoObject) -> BooleanBit := {
         [[compileTime]]
         [[staticBinding]]
         [[intrinsic: #"dynobject.identityEquals"]]
-
+    }) evaluator: $$Pharo {
+        evaluateMessageWithReceiver: receiver arguments: arguments environment: environment at: position
+            ^ (receiver unwrapSysmelValue == arguments first unwrapSysmelValue) asSysmelValueInEnvironment: environment
     }.
 
     message ~~ (other: ProtoObject) -> BooleanBit := {
@@ -384,6 +385,14 @@ ProtoObject definition: {
         [[staticBinding]]
         [[intrinsic: #"dynobject.identityNotEquals"]]
     }.
+}.
+
+//-----------------------------------------------------------------------------
+// Compiled method
+
+CompiledMethod definition: {
+    field entryPoint type: Void pointer.
+    field __literals protected type: ProtoObject array.
 }.
 
 //-----------------------------------------------------------------------------
@@ -420,7 +429,6 @@ Array definition: {
         [[nogc]]
         return: __data[index]
     }.
-
 }.
 
 HashedCollection definition: {
@@ -480,18 +488,21 @@ MethodDictionary definition: {
 
         array[slot] := key.
         values[slot] := value.
-
+        tally := tally + (1 castTo: UIntPointer).
         return: self
     }.
 
     message atOrNil: (key: ProtoObject) ::-> ProtoObject := {
         [[staticBinding]]
         [[nogc]]
-        LibC printf("atOrNil: %p | tally %zu array [%d]%p values [%d]%p\n", key, tally, array basicSize, array, values basicSize, values).
+        // LibC printf("atOrNil: %p | tally %zu array [%d]%p values [%d]%p\n", key, tally, array basicSize, array, values basicSize, values).
         let slot := self scanFor: key.
-        LibC printf("slot %d\n", slot).
+        if: slot < 0 then: {
+            return: nil
+        }.
 
-        return: nil
+        LibC printf("Found key %p in slot %d\n", array[slot], slot).
+        return: values[slot]
     }.
 }.
 
@@ -548,6 +559,7 @@ Compiler compilationTarget objectModel
     sysmelMessageLookupFunction: normalMessageLookup;
     arrayClass: Array;
     byteArrayClass: ByteArray;
+    compiledMethodClass: CompiledMethod;
     dictionaryClass: Dictionary;
     methodDictionaryClass: MethodDictionary;
     symbolClass: Symbol;

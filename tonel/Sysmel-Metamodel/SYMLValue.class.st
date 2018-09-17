@@ -108,6 +108,30 @@ SYMLValue >> sameValueButWithType: aNewType [
 	^ self copy type: aNewType
 ]
 
+{ #category : #'compile time evaluation' }
+SYMLValue >> sysmelPerform: aSelector withArguments: arguments [
+	^ self sysmelPerform: aSelector withArguments: arguments fallbackWith: [
+		self error: 'Cannot perform sysmel method {1} with receiver of type {2}.' format: { aSelector printString  . self asString }
+	]
+
+]
+
+{ #category : #'compile time evaluation' }
+SYMLValue >> sysmelPerform: aSelector withArguments: arguments fallbackWith: fallbackBlock [
+	| method result |
+	(value respondsTo: #sysmelPerform:withArguments:fallbackWith:) ifTrue: [ 
+		^ value sysmelPerform: aSelector withArguments: arguments fallbackWith: fallbackBlock
+	].
+
+	method := (self type lookupSelector: aSelector).
+	method ifNil: [
+		^ fallbackBlock value
+	].
+
+	result := method evaluateWithReceiver: value arguments: (arguments collect: [ :arg | arg asSysmelValueInEnvironment: environment ]) inEnvironment: self environment at: (SYMLSourcePosition new).
+	^ result
+]
+
 { #category : #'as yet unclassified' }
 SYMLValue >> sysmelValueWithType: aType inEnvironment: anEnvironment [
 	^ type coerceValue: self into: aType at: nil

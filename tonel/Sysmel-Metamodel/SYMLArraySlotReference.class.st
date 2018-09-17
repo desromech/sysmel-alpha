@@ -39,6 +39,16 @@ SYMLArraySlotReference >> slotIndex: anObject [
 	slotIndex := anObject
 ]
 
+{ #category : #'as yet unclassified' }
+SYMLArraySlotReference >> sysmelPerform: selector withArguments: arguments [
+	^ self value sysmelPerform: selector withArguments: arguments
+]
+
+{ #category : #initialization }
+SYMLArraySlotReference >> sysmelSetReferencedValue: aValue [
+	^ self value: aValue unwrapSysmelValue
+]
+
 { #category : #accessing }
 SYMLArraySlotReference >> type [
 	^ type
@@ -47,4 +57,14 @@ SYMLArraySlotReference >> type [
 { #category : #accessing }
 SYMLArraySlotReference >> type: anObject [
 	type := anObject
+]
+
+{ #category : #evaluating }
+SYMLArraySlotReference >> value [
+	^ (container at: slotIndex) sysmelValueWithType: type inEnvironment: type definitionEnvironment
+]
+
+{ #category : #accessing }
+SYMLArraySlotReference >> value: aNewValue [
+	^ container at: slotIndex put: aNewValue
 ]

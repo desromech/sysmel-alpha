@@ -6,6 +6,6 @@ Class {
 
 { #category : #'as yet unclassified' }
 SYMLSymbolLiteralObjectProxy >> generateObjectInstance [
-	^ type compilationTarget objectModel createSymbolObjectInstance: literal.
+	^ type compilationTarget objectModel createSymbolObjectInstance: proxiedObject
 
 ]

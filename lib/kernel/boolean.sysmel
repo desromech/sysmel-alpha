@@ -1,8 +1,16 @@
 BooleanBit macro selectors: #(or: ||) doOn: {
 evaluation: $$Pharo {
     node: node environment: environment
-        "Evaluate or: "
-        self halt
+        | leftValue rightValue |
+        leftValue := node coercionRule first convertValue: (node receiver evaluateInEnvironment: environment)
+            into: node coercionType
+            at: node position.
+        leftValue unwrapSysmelValue ifTrue: [ ^ leftValue ].
+
+        rightValue := node coercionRule second convertValue: (node arguments first evaluateInEnvironment: environment)
+            into: node coercionType
+            at: node position.
+        ^ rightValue
 }.
 
 semanticAnalysis: $$Pharo {

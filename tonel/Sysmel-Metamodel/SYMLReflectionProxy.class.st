@@ -14,6 +14,11 @@ SYMLReflectionProxy class >> for: anObject [
 	^ self new proxiedObject: anObject
 ]
 
+{ #category : #converting }
+SYMLReflectionProxy >> asSysmelValueInEnvironment: anEnvironment [
+	^ self sysmelValueWithType: self type inEnvironment: anEnvironment
+]
+
 { #category : #accessing }
 SYMLReflectionProxy >> definitionEnvironment [
 	^ self type definitionEnvironment

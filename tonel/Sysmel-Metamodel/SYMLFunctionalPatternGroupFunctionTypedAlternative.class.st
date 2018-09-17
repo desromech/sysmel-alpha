@@ -11,7 +11,7 @@ Class {
 SYMLFunctionalPatternGroupFunctionTypedAlternative >> addSingleAlternativeWithPublicSelector: publicSelector into: methodCollection [
 	methodCollection add: (macroFunction messageSendSelector -> macroFunction).
 	macroFunction messageSendSelector ~= publicSelector ifTrue: [ 
-		methodCollection add: (macroFunction messageSendSelector -> self)
+		methodCollection add: (publicSelector -> self)
 	].
 
 

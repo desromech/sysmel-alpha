@@ -4,12 +4,14 @@ Class {
 	#instVars : [
 		'arrayClass',
 		'byteArrayClass',
+		'compiledMethodClass',
 		'dictionaryClass',
 		'methodDictionaryClass',
 		'stringClass',
 		'symbolClass',
 		'sysmelSuperMessageLookupFunction',
-		'sysmelMessageLookupFunction'
+		'sysmelMessageLookupFunction',
+		'convertedLiteralDictionary'
 	],
 	#category : #'Sysmel-Metamodel-CompilationTarget'
 }
@@ -36,6 +38,18 @@ SYMLSLVMObjectModel >> byteArrayClass [
 SYMLSLVMObjectModel >> byteArrayClass: anObject [
 	<compileTime>
 	byteArrayClass := anObject
+]
+
+{ #category : #accessing }
+SYMLSLVMObjectModel >> compiledMethodClass [
+	<compileTime>
+	^ compiledMethodClass
+]
+
+{ #category : #accessing }
+SYMLSLVMObjectModel >> compiledMethodClass: anObject [
+	<compileTime>
+	compiledMethodClass := anObject
 ]
 
 { #category : #'code generation' }
@@ -80,6 +94,14 @@ SYMLSLVMObjectModel >> createNonInlineLiteralConstant: aLiteral withCodeGenerato
 ]
 
 { #category : #'object literals' }
+SYMLSLVMObjectModel >> createNonInlineLiteralUniqueGlobal: aLiteral withCodeGenerator: codeGenerator [
+	^ convertedLiteralDictionary at: aLiteral ifPresent: [ :convertedLiteral |
+		^ convertedLiteral ssaGlobalVariable
+	] ifAbsent: [ nil ]
+
+]
+
+{ #category : #'object literals' }
 SYMLSLVMObjectModel >> createObjectBytes: bytes class: class [
 	| object |
 	object := class makeInstance: bytes size.
@@ -89,16 +111,19 @@ SYMLSLVMObjectModel >> createObjectBytes: bytes class: class [
 
 { #category : #'object literals' }
 SYMLSLVMObjectModel >> createSymbolNonInlineConstant: symbol [
-	^ (self createSymbolObjectInstance: symbol) createSSAInitialValueConstant
+	^ self ssaInitialValueConstantForObjectInstance: (self createSymbolObjectInstance: symbol) 
 ]
 
 { #category : #'object literals' }
 SYMLSLVMObjectModel >> createSymbolObjectInstance: symbol [
 	| object bytes |
-	bytes := symbol asUTF8Bytes.
-	object := symbolClass makeInstance: bytes size.
-	object slots at: object slots size put: bytes.
-	^ object
+	^ convertedLiteralDictionary at: symbol ifAbsentPut: [ 
+		bytes := symbol asUTF8Bytes.
+		object := symbolClass makeInstance: bytes size.
+		object slots at: object slots size put: bytes.
+		object
+	]
+
 ]
 
 { #category : #accessing }
@@ -111,6 +136,13 @@ SYMLSLVMObjectModel >> dictionaryClass [
 SYMLSLVMObjectModel >> dictionaryClass: anObject [
 	<compileTime>
 	dictionaryClass := anObject
+]
+
+{ #category : #initialization }
+SYMLSLVMObjectModel >> initialize [
+	super initialize.
+	convertedLiteralDictionary := IdentityDictionary new.
+	
 ]
 
 { #category : #accessing }
@@ -129,6 +161,11 @@ SYMLSLVMObjectModel >> methodDictionaryClass [
 SYMLSLVMObjectModel >> methodDictionaryClass: anObject [
 	<compileTime>
 	methodDictionaryClass := anObject
+]
+
+{ #category : #'object literals' }
+SYMLSLVMObjectModel >> ssaInitialValueConstantForObjectInstance: objectInstance [
+	^ objectInstance createSSAInitialValueConstant
 ]
 
 { #category : #accessing }

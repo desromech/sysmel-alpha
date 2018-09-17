@@ -28,6 +28,11 @@ SYMLObjectInstance >> generateSSAReferenceWith: builder [
 ]
 
 { #category : #accessing }
+SYMLObjectInstance >> ssaGlobalVariable [
+	^ nil
+]
+
+{ #category : #accessing }
 SYMLObjectInstance >> type [
 	^ type
 ]
