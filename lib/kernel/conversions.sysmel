@@ -4,7 +4,12 @@ namespace SysmelKernel definition: {
 AnyValue macro selector: #explicitCastTo: doOn: {
     evaluation: $$Pharo {
         evaluateMessage: message inEnvironment: anEnvironment
-            self halt
+            | receiver conversionRule targetType |
+            "Explicit cast"
+            receiver := message receiver evaluateInEnvironment: anEnvironment.
+            conversionRule := message coercionRule.
+            targetType := message valueType.
+            ^ conversionRule convertValue: receiver into: targetType at: message position
     }.
 
     semanticAnalysis: $$Pharo {

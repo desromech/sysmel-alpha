@@ -87,6 +87,20 @@ SYMLSLVMObjectModel >> createObjectBytes: bytes class: class [
 	^ object createSSAInitialValueConstant
 ]
 
+{ #category : #'object literals' }
+SYMLSLVMObjectModel >> createSymbolNonInlineConstant: symbol [
+	^ (self createSymbolObjectInstance: symbol) createSSAInitialValueConstant
+]
+
+{ #category : #'object literals' }
+SYMLSLVMObjectModel >> createSymbolObjectInstance: symbol [
+	| object bytes |
+	bytes := symbol asUTF8Bytes.
+	object := symbolClass makeInstance: bytes size.
+	object slots at: object slots size put: bytes.
+	^ object
+]
+
 { #category : #accessing }
 SYMLSLVMObjectModel >> dictionaryClass [
 	<compileTime>

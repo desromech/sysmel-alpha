@@ -5,10 +5,10 @@ Class {
 }
 
 { #category : #'as yet unclassified' }
-SYMLMethodDictionaryReflectionProxy >> generateMetadataObjectInstance [
+SYMLMethodDictionaryReflectionProxy >> generateObjectInstance [
 	| methodDictionaryClass result methodDictionary allMethods initialCapacity |
-	methodDictionaryClass := proxiedType compilationTarget objectModel methodDictionaryClass.
-	methodDictionary := proxiedType methodDictionary.
+	methodDictionaryClass := proxiedObject compilationTarget objectModel methodDictionaryClass.
+	methodDictionary := proxiedObject methodDictionary.
 	
 	allMethods := OrderedCollection new.
 	methodDictionary keysAndValuesDo: [ :k :v |

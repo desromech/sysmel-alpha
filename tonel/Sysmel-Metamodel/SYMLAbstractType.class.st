@@ -460,7 +460,10 @@ SYMLAbstractType >> evaluateMetaObjectTypeInEnvironment: anEnvironment [
 
 { #category : #'as yet unclassified' }
 SYMLAbstractType >> evaluateReceiver: receiverValue field: field withType: fieldType at: position [
-	fieldType == field type ifTrue: [ self halt ].
+	fieldType == field type ifTrue: [ 
+		^ (receiverValue slots at: field slotIndex + 1) sysmelValueWithType: field type inEnvironment: definitionEnvironment
+	].
+
 	(fieldType isReferenceType and: [ fieldType referenced == field type ]) ifTrue: [ 
 		^ (SYMLReceiverFieldReference new
 			container: receiverValue;

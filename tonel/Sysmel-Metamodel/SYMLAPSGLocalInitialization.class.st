@@ -11,7 +11,7 @@ Class {
 { #category : #'meta evaluation' }
 SYMLAPSGLocalInitialization >> evaluateInEnvironment: anEnvironment [
 	local definitionEnvironment == anEnvironment ifFalse: [ 
-		self halt
+		local createDefinititionInActivationEnvironment: anEnvironment
 	].
 
 	^ initialization evaluateInEnvironment: anEnvironment

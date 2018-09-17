@@ -29,6 +29,19 @@ UndefinedType conversionTo: ManagedClassTrait doOn: {
 
 // Variable data trait
 GCClassVariableDataArrayType macro selectors: #(size) doOn: {
+    // Evaluation
+    evaluation: $$Pharo {
+        evaluateMessage: message inEnvironment: anEnvironment
+            | variableData receiverType sizeSlotIndex |
+            variableData := message receiver evaluateInEnvironment: anEnvironment.
+
+            receiverType := message coercionType.
+            sizeSlotIndex := receiverType variableDataSizeField slotIndex.
+
+            "Create the analyzed message"
+            ^ (variableData value container slots at: sizeSlotIndex + 1)
+                sysmelValueWithType: message valueType inEnvironment: anEnvironment
+    }.
 
     // Semantic analysis
     semanticAnalysis: $$Pharo {
@@ -64,6 +77,30 @@ GCClassVariableDataArrayType macro selectors: #(size) doOn: {
 }.
 
 GCClassVariableDataArrayType macro selectors: #(at: subscriptAt:) doOn: {
+    // Evaluation
+    evaluation: $$Pharo {
+        evaluateMessage: message inEnvironment: anEnvironment
+            | variableData indexCoercionRule indexCoercionType index |
+            variableData := message receiver evaluateInEnvironment: anEnvironment.
+
+            indexCoercionRule := message coercionRule second.
+            indexCoercionType := message coercionType second.
+            index := (indexCoercionRule convertValue: (message arguments first evaluateInEnvironment: anEnvironment)
+                    into: indexCoercionType
+                    at: message position) unwrapSysmelValue.
+
+            "Zero-based into one based"
+            message selector == #subscriptAt: ifTrue: [
+                index := index + 1
+            ].
+
+            self halt.
+            ^ SYMLArraySlotReference new
+                container: variableData value value value;
+                type: message valueType valueType;
+                slotIndex: index;
+                yourself
+    }.
 
     // Semantic analysis
     semanticAnalysis: $$Pharo {
@@ -465,8 +502,7 @@ let literalConversionRule := `'{
     evaluation: $$Pharo {
         value: value into: targetType at: coercionPosition
             "Literal -> Object eval"
-            self halt.
-            ^ value sameValueButWithType: targetType
+            ^ (value value asLiteralObjectProxyWithType: targetType) sysmelValueWithType: targetType inEnvironment: value environment
     }.
 
     codeGeneration: $$Pharo {

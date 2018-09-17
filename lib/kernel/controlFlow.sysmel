@@ -3,7 +3,26 @@ namespace SysmelKernel definition: {
 macro selectors: #(if:then: if:then:else:) doOn: {
     evaluation: $$Pharo {
         node: node environment: environment
-            self halt.
+            | conditionValue conditionCoercionType conditionCoercionRule |
+
+            "Evaluate the condition"
+            conditionCoercionType := node coercionType first.
+            conditionCoercionRule := node coercionRule first.
+            conditionValue := conditionCoercionRule
+                convertValue: (node arguments first evaluateInEnvironment: environment)
+                into: conditionCoercionType
+                at: node position.
+
+            "If:then:"
+            conditionValue unwrapSysmelValue ifTrue: [
+                self halt.
+            ] ifFalse: [
+                node arguments size = 2 ifTrue: [
+                    ^ node valueType defaultValue
+                ].
+
+                self halt.
+            ]
     }.
 
     analysisAndEvaluation: $$Pharo {
@@ -147,7 +166,27 @@ macro selectors: #(while:do: while:do:continueWith: ) doOn: {
     // Compile time evaluation
     evaluation: $$Pharo {
         node: node environment: environment
-            self halt.
+            | conditionValue conditionCoercionType conditionCoercionRule |
+
+            conditionCoercionType := node coercionType.
+            conditionCoercionRule := node coercionRule.
+
+            "Evaluate the condition"
+            [
+                (conditionCoercionRule
+                    convertValue: (node arguments first evaluateInEnvironment: environment)
+                    into: conditionCoercionType
+                    at: node position) unwrapSysmelValue
+            ] whileTrue: [
+                "Evaluate the body"
+                node arguments second evaluateInEnvironment: environment.
+
+                "Evaluate the continuation step"
+                node arguments size >= 3 ifTrue: [
+                    node arguments third evaluateInEnvironment: environment
+                ].
+            ].
+            self halt
     }.
 
     // Semantic analysis

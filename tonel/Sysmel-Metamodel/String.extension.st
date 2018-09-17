@@ -1,6 +1,11 @@
 Extension { #name : #String }
 
 { #category : #'*Sysmel-Metamodel' }
+String >> asLiteralObjectProxyWithType: type [
+	^ SYMLSymbolLiteralObjectProxy new literal: self; type: type; yourself
+]
+
+{ #category : #'*Sysmel-Metamodel' }
 String >> asSysmelValueInEnvironment: anEnvironment [
 	^ self sysmelValueWithType: anEnvironment compilationTarget literalStringType inEnvironment: anEnvironment
 ]

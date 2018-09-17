@@ -34,6 +34,11 @@ SYMLReceiverFieldReference >> field: anObject [
 	field := anObject
 ]
 
+{ #category : #'as yet unclassified' }
+SYMLReceiverFieldReference >> sysmelPerform: selector withArguments: arguments [
+	^ self value unwrapSysmelValue sysmelPerform: selector withArguments: arguments
+]
+
 { #category : #initialization }
 SYMLReceiverFieldReference >> sysmelSetReferencedValue: aValue [
 	^ self value: aValue unwrapSysmelValue

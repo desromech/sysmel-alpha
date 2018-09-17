@@ -1138,6 +1138,10 @@ definition: {
         return: Compiler compilationTarget ssaVoidType
     }.
 
+    meta message defaultValue -> _CompilerObjectType := {
+        return: nil
+    }.
+
     SelfType sysmelMangledValue: #v.
 }.
 

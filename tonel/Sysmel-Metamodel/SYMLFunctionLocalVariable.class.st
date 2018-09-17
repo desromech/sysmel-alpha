@@ -43,6 +43,18 @@ SYMLFunctionLocalVariable >> convertNodeForSequenceElement: aNode inEnvironment:
 		
 ]
 
+{ #category : #'as yet unclassified' }
+SYMLFunctionLocalVariable >> createDefinititionInActivationEnvironment: anEnvironment [
+	| storage |
+	storage := SYMLActivationVariableStore new
+		type: type;
+		value: type defaultValue;
+		variable: self;
+		yourself.
+	anEnvironment addSymbol: name  value: (storage asSysmelValueInEnvironment: anEnvironment)
+
+]
+
 { #category : #accessing }
 SYMLFunctionLocalVariable >> currentValue [
 	^ currentValue
