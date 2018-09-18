@@ -46,7 +46,7 @@ SYMLGCClass >> addDefaultConversionRules [
 			source isSysmelGCClass and: [target isSysmelGCClass ]]);
 		addConversionRule: (SYMLReinterpretPointerTypeConversionRule when: [:source :target |
 			source isSysmelGCClass and: [target isSysmelGCClass and: [ source isSubclassOf: target] ]]);
-		addConversionRule: (SYMLIdentityTypeConversionRule when: [:source :target |
+		addConversionRule: (SYMLReinterpretPointerTypeConversionRule when: [:source :target |
 			source isSysmelKindOf: target])
 ]
 
@@ -190,6 +190,13 @@ SYMLGCClass >> generateSSATypeInfoForInstance: anInstanceType [
 SYMLGCClass >> generateSSAValue: value withBuilder: aBuilder [
 	value ifNil: [ ^ SLVMConstant type: self type ssaType value: 0 ].
 	^ value generateSSAReferenceWith: aBuilder
+]
+
+{ #category : #accessing }
+SYMLGCClass >> getFieldSlotIndex: fieldName [
+	^ symbols at: fieldName
+		ifPresent: [:field | field slotIndex]
+		ifAbsent: [ superclass getFieldSlotIndex: fieldName ]
 ]
 
 { #category : #testing }
@@ -351,7 +358,9 @@ SYMLGCClass >> typeKindBaseTrait [
 
 { #category : #accessing }
 SYMLGCClass >> variableDataSizeField [
-	^ variableDataSizeField ifNil: [variableDataSizeField := symbols at: #__variableDataSize ifAbsent: [ superclass variableDataSizeField ] ]
+	^ variableDataSizeField ifNil: [
+		variableDataSizeField := symbols at: #__variableDataSize
+			ifAbsent: [ superclass variableDataSizeField ] ]
 ]
 
 { #category : #accessing }

@@ -9,7 +9,10 @@ Class {
 
 { #category : #testing }
 SYMLTypeKindConversionRule >> canBeUsedToConvertFrom: sourceType into: targetType [
-	^ targetType isSysmelKindOf: targetTypeKind
+	targetType == targetTypeKind ifTrue: [ ^ true ].
+	
+	targetTypeKind isSysmelTrait ifTrue: [ ^ targetType isSysmelKindOf: targetTypeKind ].
+	^ false
 ]
 
 { #category : #testing }

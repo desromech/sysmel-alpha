@@ -468,6 +468,10 @@ definition: {
 trait PointerType
     uses: AnyValue;
 definition: {
+    meta message defaultValue -> _CompilerObjectType := {
+        return: 0
+    }.
+
     meta message isPointerType -> BooleanBit := {
         return: true
     }.
@@ -542,6 +546,10 @@ definition: {
 
     meta message defaultSSAValueWith: (builder: _CompilerObjectType) ::-> _CompilerObjectType := {
         return: (builder const: 0 type: self ssaType)
+    }.
+
+    meta message generateSSAConstant: (value: _CompilerObjectType) forModule: (module: _CompilerObjectType) ::-> _CompilerObjectType := {
+        return: (module ssaConstantPointer: value type: self)
     }.
 
     meta message cleanType -> _CompilerObjectType := {

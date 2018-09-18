@@ -14,7 +14,7 @@ Object >> asSysmelValueInEnvironment: anEnvironment [
 ]
 
 { #category : #'*Sysmel-Metamodel' }
-Object >> createNonInlineLiteralConstantForSysmelObjectModel: objectModel withCodeGenerator: aCodeGenerator [
+Object >> createNonInlineLiteralObjectForSysmelObjectModel: objectModel [
 	self subclassResponsibility
 ]
 

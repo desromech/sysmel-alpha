@@ -528,6 +528,7 @@ SYMLAbstractType >> findConversionRuleInto: targetType node: node rulesExtractor
 		
 		(visitedTypes includesKey: currentType) ifTrue: [
 			(currentType == targetType and: [ incomingTypeAndRule isNotNil ]) ifTrue: [ 
+				targetType name = 'CompiledMethod' ifTrue: [self halt].
 				^ self buildTypeConversionChainUntil: targetType fromVisitedTypes: visitedTypes
 			].
 		] ifFalse: [ 
@@ -795,6 +796,11 @@ SYMLAbstractType >> isSysmelKindOf: anotherType [
 	self supertype ifNotNil: [:st | ^ st isSysmelKindOf: anotherType ].
 	^ false
 	
+]
+
+{ #category : #testing }
+SYMLAbstractType >> isSysmelTrait [
+	^ false
 ]
 
 { #category : #testing }

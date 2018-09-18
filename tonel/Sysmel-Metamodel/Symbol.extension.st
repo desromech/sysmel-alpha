@@ -11,6 +11,6 @@ Symbol >> asSysmelValueInEnvironment: anEnvironment [
 ]
 
 { #category : #'*Sysmel-Metamodel' }
-Symbol >> createNonInlineLiteralConstantForSysmelObjectModel: objectModel withCodeGenerator: aCodeGenerator [
-	^ objectModel createSymbolNonInlineConstant: self
+Symbol >> createNonInlineLiteralObjectForSysmelObjectModel: objectModel [
+	^ objectModel createSymbolObjectInstance: self
 ]

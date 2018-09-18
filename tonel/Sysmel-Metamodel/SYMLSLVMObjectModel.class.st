@@ -11,7 +11,8 @@ Class {
 		'symbolClass',
 		'sysmelSuperMessageLookupFunction',
 		'sysmelMessageLookupFunction',
-		'convertedLiteralDictionary'
+		'convertedLiteralDictionary',
+		'compiledMethodEntryPointSlotIndex'
 	],
 	#category : #'Sysmel-Metamodel-CompilationTarget'
 }
@@ -52,6 +53,11 @@ SYMLSLVMObjectModel >> compiledMethodClass: anObject [
 	compiledMethodClass := anObject
 ]
 
+{ #category : #visiting }
+SYMLSLVMObjectModel >> compiledMethodEntryPointSlotIndex [
+	^ compiledMethodEntryPointSlotIndex ifNil: [ compiledMethodEntryPointSlotIndex := compiledMethodClass getFieldSlotIndex: #entryPoint ]
+]
+
 { #category : #'code generation' }
 SYMLSLVMObjectModel >> createDoesNotUnderstandTrampolineWithType: functionType [
 	| function builder entryBlock boxedMessage result convertedResult |
@@ -87,9 +93,21 @@ SYMLSLVMObjectModel >> createDoesNotUnderstandTrampolineWithType: functionType [
 	^ function
 ]
 
+{ #category : #visiting }
+SYMLSLVMObjectModel >> createFunctionContextMetaData: aFunction [
+	| literals compiledMethod |
+	literals := aFunction dynamicLiterals.
+	compiledMethod := compiledMethodClass makeInstance: literals size.
+
+	compiledMethod slots
+		at: self compiledMethodEntryPointSlotIndex + 1 put: aFunction;
+		at: compiledMethod slots size put: (literals collect: [:lit | lit value createNonInlineLiteralObjectForSysmelObjectModel: self ] as: Array).
+	^ compiledMethod
+]
+
 { #category : #'object literals' }
 SYMLSLVMObjectModel >> createNonInlineLiteralConstant: aLiteral withCodeGenerator: aCodeGenerator [
-	^ aLiteral createNonInlineLiteralConstantForSysmelObjectModel: self withCodeGenerator: aCodeGenerator
+	^ self ssaInitialValueConstantForObjectInstance: (aLiteral createNonInlineLiteralObjectForSysmelObjectModel: self)
 
 ]
 
@@ -106,22 +124,13 @@ SYMLSLVMObjectModel >> createObjectBytes: bytes class: class [
 	| object |
 	object := class makeInstance: bytes size.
 	object slots at: object slots size put: bytes.
-	^ object createSSAInitialValueConstant
-]
-
-{ #category : #'object literals' }
-SYMLSLVMObjectModel >> createSymbolNonInlineConstant: symbol [
-	^ self ssaInitialValueConstantForObjectInstance: (self createSymbolObjectInstance: symbol) 
+	^ object
 ]
 
 { #category : #'object literals' }
 SYMLSLVMObjectModel >> createSymbolObjectInstance: symbol [
-	| object bytes |
 	^ convertedLiteralDictionary at: symbol ifAbsentPut: [ 
-		bytes := symbol asUTF8Bytes.
-		object := symbolClass makeInstance: bytes size.
-		object slots at: object slots size put: bytes.
-		object
+		self createObjectBytes: symbol asUTF8Bytes class: symbolClass
 	]
 
 ]

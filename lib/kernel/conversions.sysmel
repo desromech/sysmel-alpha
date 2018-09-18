@@ -27,6 +27,7 @@ AnyValue macro selector: #explicitCastTo: doOn: {
 
             receiverType := message receiver evaluateTypeInEnvironment: environment.
             conversionRule := receiverType node: message receiver convertedExplicitlyInto: targetType at: aPosition.
+            
             ^ message copy
         		arguments: #();
         		metaMethod: self;

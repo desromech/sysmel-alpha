@@ -11,7 +11,7 @@ String >> asSysmelValueInEnvironment: anEnvironment [
 ]
 
 { #category : #'*Sysmel-Metamodel' }
-String >> createNonInlineLiteralConstantForSysmelObjectModel: objectModel withCodeGenerator: aCodeGenerator [
+String >> createNonInlineLiteralObjectForSysmelObjectModel: objectModel [
 	^ objectModel createObjectBytes: self asUTF8Bytes class: objectModel stringClass
 ]
 

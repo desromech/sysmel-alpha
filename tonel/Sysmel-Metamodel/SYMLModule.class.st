@@ -390,6 +390,16 @@ SYMLModule >> ssaConstantArrayValue: value type: type [
 ]
 
 { #category : #'code generation' }
+SYMLModule >> ssaConstantPointer: value type: type [
+	<compileTime>
+	value isSLVMObject ifTrue: [
+		^ SLVMConstant value: value bitcast: type ssaType
+	].
+
+	^ SLVMConstant type: type ssaType value: value
+]
+
+{ #category : #'code generation' }
 SYMLModule >> ssaConstantPrimitiveValue: value type: type [
 	<compileTime>
 	^ SLVMConstant type: type ssaType value: value

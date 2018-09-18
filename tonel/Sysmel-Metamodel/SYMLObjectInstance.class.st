@@ -12,6 +12,11 @@ SYMLObjectInstance >> asSysmelValueInEnvironment: anEnvironment [
 	^ self sysmelValueWithType: type inEnvironment: anEnvironment
 ]
 
+{ #category : #'as yet unclassified' }
+SYMLObjectInstance >> createNonInlineLiteralObjectForSysmelObjectModel: objectModel [
+	^ self
+]
+
 { #category : #accessing }
 SYMLObjectInstance >> definitionEnvironment [
 	^ type definitionEnvironment
