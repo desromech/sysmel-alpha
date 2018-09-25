@@ -14,6 +14,16 @@ SYMLVariantType >> = other [
 	[ variants = other variants ]
 ]
 
+{ #category : #conversions }
+SYMLVariantType >> arithmeticCoercionWith: otherTypeValue into: resultTypeValue [
+	<compileTime>
+	<lazy>
+	self variantAlternativesDo: [ :sourceVariantAlternative |
+		sourceVariantAlternative arithmeticCoercionWith: otherTypeValue into: resultTypeValue
+	]
+
+]
+
 { #category : #accessing }
 SYMLVariantType >> compilationTarget [
 	^ compilationTarget
@@ -55,6 +65,16 @@ SYMLVariantType >> implicitConversionTo: targetTypeKindLazyValue doOn: actionRul
 	<lazy>
 	self variantAlternativesDo: [ :sourceVariantAlternative |
 		sourceVariantAlternative implicitConversionTo: targetTypeKindLazyValue doOn: actionRules
+	]
+
+]
+
+{ #category : #conversions }
+SYMLVariantType >> reinterpretConversionTo: targetTypeKindLazyValue doOn: actionRules [
+	<compileTime>
+	<lazy>
+	self variantAlternativesDo: [ :sourceVariantAlternative |
+		sourceVariantAlternative explicitConversionTo: targetTypeKindLazyValue doOn: actionRules
 	]
 
 ]

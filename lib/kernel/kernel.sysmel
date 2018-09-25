@@ -3,7 +3,7 @@ Compiler
     evaluateFileNamedOnce: "controlFlow.sysmel";
     evaluateFileNamedOnce: "variables.sysmel";
     evaluateFileNamedOnce: "arithmetic.sysmel";
-    evaluateFileNamedOnce: "boolean.sysmel";    
+    evaluateFileNamedOnce: "boolean.sysmel";
     evaluateFileNamedOnce: "conversions.sysmel";
     evaluateFileNamedOnce: "structures.sysmel";
     evaluateFileNamedOnce: "pointer.sysmel";

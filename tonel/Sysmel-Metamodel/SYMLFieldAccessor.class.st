@@ -7,6 +7,11 @@ Class {
 	#category : #'Sysmel-Metamodel-Macro'
 }
 
+{ #category : #converting }
+SYMLFieldAccessor >> asCompiledMethod [
+	^ nil
+]
+
 { #category : #accessing }
 SYMLFieldAccessor >> field [
 	^ field

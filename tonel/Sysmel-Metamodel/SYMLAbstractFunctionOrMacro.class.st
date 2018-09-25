@@ -4,6 +4,19 @@ Class {
 	#category : #'Sysmel-Metamodel-Function'
 }
 
+{ #category : #adding }
+SYMLAbstractFunctionOrMacro >> addAllAlternativesWithPublicSelector: publicSelector into: methodCollection [
+	self messageSendSelector ifNotNil: [ :selector |
+		methodCollection add: selector -> self.
+		selector ~= publicSelector ifTrue: [ 
+			methodCollection add: (publicSelector -> self)
+		].
+	] ifNil: [
+		methodCollection add: (publicSelector -> self)
+	].
+
+]
+
 { #category : #'macro compilation' }
 SYMLAbstractFunctionOrMacro >> analyzeAndEvaluateMessage: message inEnvironment: environment at: aPosition [
 	^ (self semanticAnalyzeMessage: message inEnvironment: environment at: aPosition) evaluateInEnvironment: environment
@@ -17,6 +30,11 @@ SYMLAbstractFunctionOrMacro >> createReceiverTypeForParent [
 { #category : #testing }
 SYMLAbstractFunctionOrMacro >> isTemplateFunctionInstance [
 	^ false
+]
+
+{ #category : #accessing }
+SYMLAbstractFunctionOrMacro >> messageSendSelector [
+	^ name
 ]
 
 { #category : #accessing }

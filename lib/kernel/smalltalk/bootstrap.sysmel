@@ -1,7 +1,6 @@
 namespace SysmelKernel definition: {
 
 Compiler compilationTarget
-    //dynamicObjectType: type Dynobject
     managedClassTypeTrait: trait ManagedClassTrait.
 
 
@@ -26,6 +25,20 @@ UndefinedType conversionTo: ManagedClassTrait doOn: {
             ^ targetType defaultSSAValueWith: builder
     }.
 }.
+
+let pointerReinterpretCast := `'{
+    evaluation: $$Pharo {
+        value: value targetType: targetType at: position
+            ^ value sameValueButWithType: targetType
+    }.
+    codeGeneration: $$Pharo {
+        convertSSAValue: sourceValue to: targetType with: builder at: messageNode
+            ^ builder bitCast: sourceValue target: targetType ssaType
+    }.
+}.
+
+ManagedClassTrait reinterpretConversionTo: PointerType doOn: pointerReinterpretCast.
+PointerType reinterpretConversionTo: ManagedClassTrait doOn: pointerReinterpretCast.
 
 // Variable data trait
 GCClassVariableDataArrayType macro selectors: #(size) doOn: {
@@ -220,6 +233,26 @@ gcclass CompiledMethod superclass: Object.
 // ProtoObject
 ProtoObject type superclass: Class.
 
+struct _ObjectHeader definition: {
+    field __class public type: Void pointer. // TODO: Point into the vtable, instead of the class.
+
+    if: UIntPointer instanceSize == 4 then: {
+        // TODO: Support big-endian.
+        field __padding public type: Behavior.
+    }.
+
+    // 32 bits: gc color, isPinned, isImmutable.
+    field _ public bits: 5; type: UInt32.
+
+    field __gcBits public type: UInt32; bits: 3.
+    field __isPinned public type: UInt32; bits: 1.
+    field __isImmutable public type: UInt32; bits: 1.
+    field __identityHash public type: UInt32; bits: 22.
+
+    // Variable data size
+    field __variableDataSize public type: UInt32.
+}.
+
 ProtoObject definition: {
     // We use a fixed 16-byte object header, to be able to use SSE instructions.
 
@@ -248,11 +281,11 @@ Behavior uses: Type; definition: {
     field gclayout public type: GCLayout.
     field slots public type: Array.
 
-    field instanceDataSize public type: UIntPointer.
-    field instanceDataAlignment public type: UIntPointer.
+    field instanceDataSize public type: UInt32.
+    field instanceDataAlignment public type: UInt32.
 
-    field variableInstanceElementSize public type: UIntPointer.
-    field variableInstanceElementAlignment public type: UIntPointer.
+    field variableInstanceElementSize public type: UInt32.
+    field variableInstanceElementAlignment public type: UInt32.
 
     // Notify about dynamic object type.
     message isDynamicObjectType -> BooleanBit := {
@@ -277,16 +310,28 @@ Behavior uses: Type; definition: {
 
     (message basicNew -> InstanceType := {
         [[notInCompileTime]]
-        LibC printf ("basicNew called\n").
-        return: nil
+        return: (self basicNew: 0)
     }) evaluator: $$Pharo {
         evaluateMessageWithReceiver: receiver arguments: arguments environment: environment at: position
             ^ receiver makeInstance asSysmelValueInEnvironment: environment
     }.
 
-    (message basicNew: (initialSize: UIntPointer) ::-> InstanceType := {
-        LibC printf ("basicNew: called\n").
-        return: nil
+    (message basicNew: (initialSize: UInt32) ::-> InstanceType := {
+        [[notInCompileTime]]
+        // Compute the object size.
+        let objectSize := instanceDataSize + initialSize*variableInstanceElementSize.
+
+        // Allocate the object memory.
+        let allocatedObject := LibC malloc(objectSize) reinterpretCastTo: _ObjectHeader pointer.
+        LibC memset(allocatedObject, 0, objectSize).
+
+        // Set the allocated object class.
+        allocatedObject value
+            __class: (self reinterpretCastTo: Void pointer);
+            __variableDataSize: (if: variableInstanceElementSize > 0 then: initialSize else: (0 castTo: UInt32)).
+
+        // Convert the allocated object.
+        return: (allocatedObject reinterpretCastTo: ProtoObject)
     }) evaluator: $$Pharo {
         evaluateMessageWithReceiver: receiver arguments: arguments environment: environment at: position
             ^ (receiver makeInstance: arguments first unwrapSysmelValue) asSysmelValueInEnvironment: environment
@@ -426,6 +471,13 @@ Array definition: {
         return: (__data at: index)
     }.
 
+    message basicAt: (index: Int32) ::-> ProtoObject := {
+        [[compileTime]]
+        [[staticBinding]]
+        [[nogc]]
+        return: (__data at: index)
+    }.
+
     message basicAt: (index: UInt32) put: (value: ProtoObject) ::-> ProtoObject := {
         [[compileTime]]
         [[staticBinding]]
@@ -434,8 +486,22 @@ Array definition: {
         return: value
     }.
 
-    // TODO: Use UInt32 here.
+    message basicAt: (index: Int32) put: (value: ProtoObject) ::-> ProtoObject := {
+        [[compileTime]]
+        [[staticBinding]]
+        [[nogc]]
+        (__data at: index) := value.
+        return: value
+    }.
+
     message subscriptAt: (index: Int32) ::-> ProtoObject ref := {
+        [[compileTime]]
+        [[staticBinding]]
+        [[nogc]]
+        return: __data[index]
+    }.
+
+    message subscriptAt: (index: UInt32) ::-> ProtoObject ref := {
         [[compileTime]]
         [[staticBinding]]
         [[nogc]]
@@ -451,7 +517,7 @@ HashedCollection definition: {
 MethodDictionary definition: {
     field values protected type: Array.
 
-    message initializeForCapacity: (initialCapacity: UIntPointer) ::-> SelfType := {
+    message initializeForCapacity: (initialCapacity: UInt32) ::-> SelfType := {
         tally := 0.
         array := Array basicNew: initialCapacity.
         values := Array basicNew: initialCapacity.
@@ -463,20 +529,20 @@ MethodDictionary definition: {
         [[nogc]]
 
         // Make sure we at least have a size.
-        let keyCount := array basicSize castTo: Int32. // TODO: Fix these casts.
+        let keyCount := array basicSize. // TODO: Fix these casts.
         if: keyCount = 0 then: {
             return: -1
         }.
 
         // Find the natural key slot.
-        let keySlot := (key identityHash % array basicSize) castTo: Int32.
+        let keySlot := key identityHash % array basicSize.
 
         // Perform linear probing.
         let i := keySlot.
         while: i < keyCount do: {
             let slotKey := array[i].
             if: slotKey == key || slotKey == nil then: {
-                return: i
+                return: (i castTo: Int32)
             }.
         } continueWith: { i := i + 1 }.
 
@@ -484,7 +550,7 @@ MethodDictionary definition: {
         while: i < keySlot do: {
             let slotKey := array[i].
             if: slotKey == key || slotKey == nil then: {
-                return: i
+                return: (i castTo: Int32)
             }.
         } continueWith: { i := i + 1 }.
 
@@ -500,7 +566,7 @@ MethodDictionary definition: {
 
         array[slot] := key.
         values[slot] := value.
-        tally := tally + (1 castTo: UIntPointer).
+        tally := tally + 1.
         return: self
     }.
 

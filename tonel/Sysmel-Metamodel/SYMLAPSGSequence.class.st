@@ -12,7 +12,7 @@ Class {
 SYMLAPSGSequence >> analyzeAndEvaluateInEnvironment: anEnvironment [
 	| result |
 	result := nil.
-	elements do: [ :el | result := el analyzeAndEvaluateInEnvironment: anEnvironment ].
+	elements do: [ :el | result := (el analyzeAndEvaluateInEnvironment: anEnvironment) asValueForSequenceEvaluation ].
 	^ result
 ]
 

@@ -8,6 +8,11 @@ Class {
 }
 
 { #category : #adding }
+SYMLFunctionalPatternGroupFunctionTypedAlternative >> addAlternativeIntoMethodCollection: methodCollection [
+	methodCollection add: (macroFunction messageSendSelector -> macroFunction)
+]
+
+{ #category : #adding }
 SYMLFunctionalPatternGroupFunctionTypedAlternative >> addSingleAlternativeWithPublicSelector: publicSelector into: methodCollection [
 	methodCollection add: (macroFunction messageSendSelector -> macroFunction).
 	macroFunction messageSendSelector ~= publicSelector ifTrue: [ 
@@ -25,6 +30,25 @@ SYMLFunctionalPatternGroupFunctionTypedAlternative >> functionType [
 { #category : #accessing }
 SYMLFunctionalPatternGroupFunctionTypedAlternative >> functionType: anObject [
 	functionType := anObject
+]
+
+{ #category : #testing }
+SYMLFunctionalPatternGroupFunctionTypedAlternative >> matchArgumentTypes: argumentTypes [
+	| expectedArguments coercionCost expectedArgument suppliedArgumentType argumentCoercionRule |
+	expectedArguments := functionType arguments.
+	argumentTypes size ~= expectedArguments size ifTrue: [ ^ nil ].
+
+	coercionCost := 0.
+	1 to: expectedArguments size do: [ :i |
+		expectedArgument := expectedArguments at: i.
+
+		suppliedArgumentType := argumentTypes at: i.
+		argumentCoercionRule := suppliedArgumentType node: nil coercedImplicitlyInto: expectedArgument.
+		argumentCoercionRule ifNil: [ ^ nil ].
+		coercionCost := coercionCost + argumentCoercionRule coercionCost
+	].
+
+	^ {self . coercionCost}
 ]
 
 { #category : #testing }

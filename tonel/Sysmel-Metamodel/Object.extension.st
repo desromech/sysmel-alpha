@@ -14,6 +14,11 @@ Object >> asSysmelValueInEnvironment: anEnvironment [
 ]
 
 { #category : #'*Sysmel-Metamodel' }
+Object >> convertSysmelValueForSequenceEvaluation: value [
+	^ value
+]
+
+{ #category : #'*Sysmel-Metamodel' }
 Object >> createNonInlineLiteralObjectForSysmelObjectModel: objectModel [
 	self subclassResponsibility
 ]

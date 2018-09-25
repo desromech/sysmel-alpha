@@ -78,7 +78,6 @@ macro selectors: #(if:then: if:then:else:) doOn: {
                 analyzedArguments := analyzedArguments , { elseNode }.
             ].
 
-
             "Try to select a proper result type instead of void"
             resultType := nil.
             elseType ifNotNil: [

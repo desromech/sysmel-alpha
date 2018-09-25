@@ -240,7 +240,7 @@ SYMLGCClass >> instanceSize [
 
 { #category : #accessing }
 SYMLGCClass >> instanceType [
-	^ instanceType
+	^ instanceType ifNil: [ self compilationTarget dynamicObjectType ]
 ]
 
 { #category : #accessing }

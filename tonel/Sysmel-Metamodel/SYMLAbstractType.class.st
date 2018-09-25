@@ -19,7 +19,8 @@ Class {
 		'printingName',
 		'metaClassClass',
 		'slots',
-		'ssaTypeInfo'
+		'ssaTypeInfo',
+		'reinterpretConversionRules'
 	],
 	#classVars : [
 		'SpecialMetaSymbols'
@@ -145,6 +146,23 @@ SYMLAbstractType >> addTraits: aCollectionOfTraits [
 SYMLAbstractType >> addTypeKindBaseTrait [
 	self typeKindBaseTrait ifNotNil: [ :trait |
 		self addTrait: trait.
+	]
+
+]
+
+{ #category : #conversions }
+SYMLAbstractType >> allConversionTo: targetTypeKindLazyValue doOn: actionRules [
+	<compileTime>
+	<lazy>
+	| targetTypeKind conversionRule |
+	targetTypeKind := targetTypeKindLazyValue value.
+	targetTypeKind variantAlternativesDo: [ :targetVariantAlternative |
+		conversionRule := SYMLTypeKindConversionRule new targetTypeKind: targetVariantAlternative;
+						parse: actionRules asBlockDictionaryValue;
+						yourself.
+		implicitConversionRules add: conversionRule.
+		explicitConversionRules add: conversionRule.
+		reinterpretConversionRules add: conversionRule.
 	]
 
 ]
@@ -328,6 +346,11 @@ SYMLAbstractType >> cleanValueType [
 	^ cachedValues at: #cleanValueType ifAbsentPut: [self cleanType valueType]
 ]
 
+{ #category : #'type composition' }
+SYMLAbstractType >> cleanValueTypeKeepLiteral [
+	^ cachedValues at: #cleanValueTypeKeepLiteral ifAbsentPut: [self cleanType valueTypeKeepLiteral]
+]
+
 { #category : #conversions }
 SYMLAbstractType >> coerceValue: value into: targetType at: coercionPosition [
 	(self coercedImplicitlyInto: targetType) ifNil: [
@@ -374,6 +397,11 @@ SYMLAbstractType >> convertValueToFunctionActivationValue: value at: aPosition [
 { #category : #conversions }
 SYMLAbstractType >> convertedExplicitlyInto: targetType [
 	^ self node: nil convertedExplicitlyInto: targetType
+]
+
+{ #category : #conversions }
+SYMLAbstractType >> convertedReinterpretingInto: targetType [
+	^ self node: nil convertedReinterpretingInto: targetType
 ]
 
 { #category : #accessing }
@@ -451,6 +479,10 @@ SYMLAbstractType >> definitionScopeClass [
 { #category : #testing }
 SYMLAbstractType >> elementType [
 	^ self cachedNullary: #elementType
+]
+
+{ #category : #accessing }
+SYMLAbstractType >> ensureConcreteStructureSSAType [
 ]
 
 { #category : #accessing }
@@ -653,6 +685,7 @@ SYMLAbstractType >> initialize [
 	methodDictionary := SYMLOrderedDictionary new.
 	implicitConversionRules := OrderedCollection new.
 	explicitConversionRules := OrderedCollection new.
+	reinterpretConversionRules := OrderedCollection new.
 	arithmeticCoercionRules := OrderedCollection new.
 	children := OrderedCollection new.
 	cachedValues := Dictionary new.
@@ -934,6 +967,22 @@ SYMLAbstractType >> node: node convertedExplicitlyInto: targetType at: aPosition
 	^ coercionRule
 ]
 
+{ #category : #conversions }
+SYMLAbstractType >> node: node convertedReinterpretingInto: targetType [
+	^ self findConversionRuleInto: targetType node: node rulesExtractor: #reinterpretConversionRules
+
+]
+
+{ #category : #conversions }
+SYMLAbstractType >> node: node convertedReinterpretingInto: targetType at: aPosition [
+	| coercionRule |
+	coercionRule := self node: node convertedReinterpretingInto: targetType.
+	coercionRule ifNil: [
+		self error: 'Cannot convert value of {1} into {2}.' format: {self asString . targetType asString} at: aPosition
+	].
+	^ coercionRule
+]
+
 { #category : #testing }
 SYMLAbstractType >> pointed [
 	^ self cachedNullary: #pointed
@@ -974,6 +1023,25 @@ SYMLAbstractType >> refFor: addressSpace [
 { #category : #testing }
 SYMLAbstractType >> referenced [
 	^ self cachedNullary: #referenced
+]
+
+{ #category : #accessing }
+SYMLAbstractType >> reinterpretConversionRules [
+	^ reinterpretConversionRules
+]
+
+{ #category : #conversions }
+SYMLAbstractType >> reinterpretConversionTo: targetTypeKindLazyValue doOn: actionRules [
+	<compileTime>
+	<lazy>
+	| targetTypeKind conversionRule |
+	targetTypeKind := targetTypeKindLazyValue value.
+	targetTypeKind variantAlternativesDo: [ :targetVariantAlternative |
+		conversionRule := SYMLTypeKindConversionRule new targetTypeKind: targetVariantAlternative;
+						parse: actionRules asBlockDictionaryValue;
+						yourself.
+		reinterpretConversionRules add: conversionRule.
+	]
 ]
 
 { #category : #'semantic analysis' }
@@ -1114,6 +1182,11 @@ SYMLAbstractType >> uses: usedTraitOrTraits [
 { #category : #'type composition' }
 SYMLAbstractType >> valueType [
 	^ self cachedNullary: #valueType
+]
+
+{ #category : #'type composition' }
+SYMLAbstractType >> valueTypeKeepLiteral [
+	^ self cachedNullary: #valueTypeKeepLiteral
 ]
 
 { #category : #enumerating }

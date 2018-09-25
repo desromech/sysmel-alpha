@@ -25,6 +25,7 @@ SYMLFieldSetter >> generateMessage: messageNode ssaCodeWith: builder [
 		with: builder
 		at: messageNode.
 	
+	field parent ensureConcreteStructureSSAType.
 	^ field setSSAReceiver: receiverValue value: newFieldValue with: builder
 ]
 

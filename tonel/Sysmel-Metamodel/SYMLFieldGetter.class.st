@@ -15,6 +15,7 @@ SYMLFieldGetter >> evaluateMessage: message inEnvironment: anEnvironment [
 SYMLFieldGetter >> generateMessage: messageNode ssaCodeWith: builder [
 	| receiverValue |
 	receiverValue := messageNode receiver generateSSACodeWith: builder.
+	field parent ensureConcreteStructureSSAType.
 	^ field ssaReferenceForReceiverValue: receiverValue builder: builder
 ]
 

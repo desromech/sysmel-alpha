@@ -1,7 +1,7 @@
 namespace SysmelKernel definition: {
 
 // Explicit cast
-AnyValue macro selector: #explicitCastTo: doOn: {
+AnyValue macro selectors: #(reinterpretCastTo: explicitCastTo:) doOn: {
     evaluation: $$Pharo {
         evaluateMessage: message inEnvironment: anEnvironment
             | receiver conversionRule targetType |
@@ -26,8 +26,15 @@ AnyValue macro selector: #explicitCastTo: doOn: {
             ].
 
             receiverType := message receiver evaluateTypeInEnvironment: environment.
-            conversionRule := receiverType node: message receiver convertedExplicitlyInto: targetType at: aPosition.
-            
+            conversionRule := nil.
+
+            message selector == #reinterpretCastTo: ifTrue: [
+                conversionRule := receiverType node: message receiver convertedReinterpretingInto: targetType at: aPosition.
+            ].
+            conversionRule ifNil: [
+                conversionRule := receiverType node: message receiver convertedExplicitlyInto: targetType at: aPosition.
+            ].
+
             ^ message copy
         		arguments: #();
         		metaMethod: self;
@@ -220,5 +227,20 @@ UndefinedType conversionTo: PointerType doOn: {
             ^ targetType defaultSSAValueWith: builder
     }.
 }.
+
+// Pointer -> Pointer
+let pointerReinterpretCast := `'{
+    evaluation: $$Pharo {
+        value: value targetType: targetType at: position
+            ^ value sameValueButWithType: targetType
+    }.
+    codeGeneration: $$Pharo {
+        convertSSAValue: sourceValue to: targetType with: builder at: messageNode
+            ^ builder bitCast: sourceValue target: targetType ssaType
+    }.
+}.
+
+PointerType reinterpretConversionTo: PointerType doOn: pointerReinterpretCast.
+PointerType conversionTo: Void pointer doOn: pointerReinterpretCast.
 
 }. // End of namespace SysmelKernel

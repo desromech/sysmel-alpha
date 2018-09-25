@@ -58,6 +58,11 @@ SYMLValue >> asSysmelValueInEnvironment: anEnvironment [
 	^ self
 ]
 
+{ #category : #converting }
+SYMLValue >> asValueForSequenceEvaluation [
+	^ value convertSysmelValueForSequenceEvaluation: self 
+]
+
 { #category : #'as yet unclassified' }
 SYMLValue >> concretizeInEnvironment: concreteEnvironment [
 	^ self

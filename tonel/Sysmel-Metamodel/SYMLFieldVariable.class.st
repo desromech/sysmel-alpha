@@ -7,7 +7,8 @@ Class {
 		'bitOffset',
 		'visibility',
 		'offset',
-		'bitMask'
+		'bitMask',
+		'hasCreatedAccessors'
 	],
 	#category : #'Sysmel-Metamodel-Variable'
 }
@@ -45,19 +46,23 @@ SYMLFieldVariable >> bits: anObject [
 
 { #category : #converting }
 SYMLFieldVariable >> convertNodeForSequenceElement: aNode inEnvironment: anEnvironment [
-	type ifNil: [ 
-		self error: 'Field {1} without mandatory type.' format: { self validName printString } at: aNode
-	].
-
-	self createAccessors.
+	self finishBuilding.
 	^ aNode
+]
+
+{ #category : #'as yet unclassified' }
+SYMLFieldVariable >> convertSysmelValueForSequenceEvaluation: aValue [
+	self finishBuilding.
+	^ aValue
 ]
 
 { #category : #transforming }
 SYMLFieldVariable >> createAccessors [
 	<compileTime>
+	hasCreatedAccessors ifTrue: [ ^ self ].
 	name ifNil: [ ^ self ].
-	
+	hasCreatedAccessors := true.
+
 	self isPublic ifTrue: [
 		self isReadOnly ifFalse: [
 			self createSetter
@@ -80,6 +85,16 @@ SYMLFieldVariable >> createSetter [
 { #category : #defaults }
 SYMLFieldVariable >> defaultValue [
 	^ type defaultValue
+]
+
+{ #category : #'as yet unclassified' }
+SYMLFieldVariable >> finishBuilding [
+	type ifNil: [ 
+		self error: 'Field {1} without mandatory type.' format: { self validName printString } at: definitionNode
+	].
+
+	self createAccessors.
+
 ]
 
 { #category : #'code generation' }
@@ -105,6 +120,7 @@ SYMLFieldVariable >> getterSelector [
 { #category : #initialization }
 SYMLFieldVariable >> initialize [
 	super initialize.
+	hasCreatedAccessors := false.
 	self private
 ]
 

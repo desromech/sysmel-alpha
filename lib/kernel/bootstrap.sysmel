@@ -265,6 +265,10 @@ trait Type definition: {
         return: self
     }.
 
+    message valueTypeKeepLiteral -> SelfType := {
+        return: self
+    }.
+
     message defaultSSAValueWith: (builder: _CompilerObjectType) ::-> _CompilerObjectType := {
         self error: "Cannot generate default value of {1}" format: (self,self)
     }.
@@ -633,6 +637,10 @@ definition: {
         return: R
     }.
 
+    meta message valueTypeKeepLiteral -> _CompilerObjectType := {
+        return: R
+    }.
+
     meta message cleanType -> _CompilerObjectType := {
         return: (R cleanType refFor: AddressSpaceName)
     }.
@@ -679,12 +687,12 @@ definition: {
         }.
     }.
 
-    SelfType conversionTo: R cleanType doOn: referenceEvaluationAction.
-    SelfType conversionTo: R doOn: referenceEvaluationAction.
+    SelfType allConversionTo: R cleanType doOn: referenceEvaluationAction.
+    SelfType allConversionTo: R doOn: referenceEvaluationAction.
 
     // Address space conversion.
     if: (#(function workgroup crossWorkgroup) includes: AddressSpaceName) then: {
-        SelfType conversionTo: (R cleanType refFor: #generic) | (R refFor: #generic) doOn: {
+        SelfType allConversionTo: (R cleanType refFor: #generic) | (R refFor: #generic) doOn: {
             evaluation: $$Pharo {
                 value: value targetType: targetType at: position
                     "Reference evaluation"
@@ -853,6 +861,10 @@ definition: {
         return: GCClassVariableDataArrayTypeTemplate(ElementType valueType)
     }.
 
+    meta message valueTypeKeepLiteral -> _CompilerObjectType := {
+        return: GCClassVariableDataArrayTypeTemplate(ElementType valueTypeKeepLiteral)
+    }.
+
     meta message cleanType -> _CompilerObjectType := {
         return: GCClassVariableDataArrayTypeTemplate(ElementType cleanType)
     }.
@@ -911,6 +923,10 @@ definition: {
 
     meta message valueType -> _CompilerObjectType := {
         return: (ElementType valueType array: Size)
+    }.
+
+    meta message valueTypeKeepLiteral -> _CompilerObjectType := {
+        return: (ElementType valueTypeKeepLiteral array: Size)
     }.
 
     meta message cleanType -> _CompilerObjectType := {

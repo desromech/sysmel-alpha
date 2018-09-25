@@ -17,7 +17,12 @@ SYMLFunctionalPatternGroup >> addAllAlternativesWithPublicSelector: publicSelect
 		^ alternatives first addSingleAlternativeWithPublicSelector: publicSelector into: methodCollection
 	].
 
-	self halt
+	alternatives do: [ :alternative |
+		alternative addAlternativeIntoMethodCollection: methodCollection
+		
+	].
+
+	self flag: 'TODO: Construct the dynamic alternative'
 ]
 
 { #category : #adding }
@@ -105,12 +110,26 @@ SYMLFunctionalPatternGroup >> findPatternForMessage: message inEnvironment: envi
 ]
 
 { #category : #'pattern finding' }
-SYMLFunctionalPatternGroup >> findPatternWithArgumentTypes: argumentTypes [
+SYMLFunctionalPatternGroup >> findPatternWithArgumentTypes: argumentTypes at: aPosition [
 	"Handle quickly the case without alternatives"
+	| validAlternatives |
 	alternatives ifEmpty: [ ^ fallbackPattern ].
 	(fallbackPattern isNil and: [ alternatives size = 1 ]) ifTrue: [ ^ alternatives first ].
 	
-	self halt
+	validAlternatives := alternatives collect: [ :alternative |
+		alternative matchArgumentTypes: argumentTypes
+	] thenSelect: #isNotNil.
+
+	validAlternatives ifNotEmpty: [
+		^ self selectBestMatchingAlternative: validAlternatives at: aPosition.
+	].
+		
+	"Use the fallback pattern"
+	fallbackPattern ifNotNil: [ 
+		^ fallbackPattern
+	].
+	
+	^ nil
 ]
 
 { #category : #'pattern finding' }
@@ -127,7 +146,7 @@ SYMLFunctionalPatternGroup >> findValidPatternForMessage: message inEnvironment:
 { #category : #'pattern finding' }
 SYMLFunctionalPatternGroup >> findValidPatternWithArgumentTypes: argumentTypes at: aPosition [
 	| pattern |
-	pattern := self findPatternWithArgumentTypes: argumentTypes.
+	pattern := self findPatternWithArgumentTypes: argumentTypes at: aPosition.
 	pattern ifNil: [
 		^ self error: 'Cannot find matching alternative of {1}.' format: { name printString } at: aPosition
 	].
