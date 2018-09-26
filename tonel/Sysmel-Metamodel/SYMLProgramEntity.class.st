@@ -201,3 +201,7 @@ SYMLProgramEntity >> sendCompileTimeMessage: message inEnvironment: environment 
 SYMLProgramEntity >> symbol: aSymbol ifPresent: ifPresentBlock ifAbsentPut: ifAbsentBlock [
 	self subclassResponsibility
 ]
+
+{ #category : #enumerating }
+SYMLProgramEntity >> usedAndExportedNamespacesDo: aBlock [
+]

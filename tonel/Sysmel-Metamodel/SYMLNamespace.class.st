@@ -4,7 +4,8 @@ Class {
 	#instVars : [
 		'symbols',
 		'metaMethodDictionary',
-		'mangledName'
+		'mangledName',
+		'usedAndExportedNamespaces'
 	],
 	#category : #'Sysmel-Metamodel-Program'
 }
@@ -114,4 +115,20 @@ SYMLNamespace >> semanticAnalyzeMessageToYou: message inEnvironment: environment
 SYMLNamespace >> symbol: aSymbol ifPresent: ifPresentBlock ifAbsentPut: ifAbsentBlock [
 	^ symbols at: aSymbol ifPresent: ifPresentBlock ifAbsentPut: ifAbsentBlock
 
+]
+
+{ #category : #'as yet unclassified' }
+SYMLNamespace >> useAndExportNamespace: aNamespace [
+	<compileTime>
+	self usedAndExportedNamespaces add: aNamespace
+]
+
+{ #category : #accessing }
+SYMLNamespace >> usedAndExportedNamespaces [
+	^ usedAndExportedNamespaces ifNil: [ usedAndExportedNamespaces := SLVMOrderedInsertionSet new. ]
+]
+
+{ #category : #enumerating }
+SYMLNamespace >> usedAndExportedNamespacesDo: aBlock [
+	usedAndExportedNamespaces ifNotNil: [ usedAndExportedNamespaces do: aBlock ]
 ]

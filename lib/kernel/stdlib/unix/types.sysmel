@@ -1,0 +1,9 @@
+namespace Unix definition: {
+    useAndExport: CTypes.
+
+    alias UID_T := UInt32.
+    alias GID_T := UInt32.
+    alias PID_T := Int32.
+    alias OFF_T := IntPointer.
+
+}.

@@ -14,7 +14,10 @@ SYMLProgramEntityScope >> isImmediateEnvironment [
 
 { #category : #'as yet unclassified' }
 SYMLProgramEntityScope >> lookSymbol: symbol ifPresent: ifPresentBlock [
-	programEntity lookSymbol: symbol ifPresent: ifPresentBlock
+	symbol == #__thisProgramEntityScope ifTrue: [ ^ ifPresentBlock value: self ].
+	symbol == #__thisProgramEntity ifTrue: [ ^ ifPresentBlock value: programEntity ].
+
+	^ programEntity lookSymbol: symbol ifPresent: ifPresentBlock
 ]
 
 { #category : #accessing }
@@ -25,4 +28,9 @@ SYMLProgramEntityScope >> programEntity [
 { #category : #accessing }
 SYMLProgramEntityScope >> programEntity: anObject [
 	programEntity := anObject
+]
+
+{ #category : #enumerating }
+SYMLProgramEntityScope >> usedNamespacesDo: aBlock [
+	programEntity usedAndExportedNamespacesDo: aBlock
 ]

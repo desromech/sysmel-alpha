@@ -1,22 +1,20 @@
-Compiler
-    evaluateFileNamedOnce: "bootstrap.sysmel";
-    evaluateFileNamedOnce: "controlFlow.sysmel";
-    evaluateFileNamedOnce: "variables.sysmel";
-    evaluateFileNamedOnce: "arithmetic.sysmel";
-    evaluateFileNamedOnce: "boolean.sysmel";
-    evaluateFileNamedOnce: "conversions.sysmel";
-    evaluateFileNamedOnce: "structures.sysmel";
-    evaluateFileNamedOnce: "pointer.sysmel";
-    evaluateFileNamedOnce: "platformSpecific.sysmel";
-    evaluateFileNamedOnce: "primitiveVectors.sysmel";
-    evaluateFileNamedOnce: "primitiveMatrix.sysmel";
+Compiler evaluateFileNamedOnce: "bootstrap.sysmel".
 
-    yourself.
+loadFileOnce: "controlFlow.sysmel".
+loadFileOnce: "variables.sysmel".
+loadFileOnce: "arithmetic.sysmel".
+loadFileOnce: "boolean.sysmel".
+loadFileOnce: "conversions.sysmel".
+loadFileOnce: "structures.sysmel".
+loadFileOnce: "pointer.sysmel".
+loadFileOnce: "platformSpecific.sysmel".
+loadFileOnce: "primitiveVectors.sysmel".
+loadFileOnce: "primitiveMatrix.sysmel".
 
 if: Compiler useLibC then: {
-    Compiler evaluateFileNamedOnce: "stdlib/stdlib.sysmel"
+    loadFileOnce: "stdlib/stdlib.sysmel"
 }.
 
 if: Compiler hasRuntimeTypeInformation then: {
-    Compiler evaluateFileNamedOnce: "smalltalk/smalltalk.sysmel"
+    loadFileOnce: "smalltalk/smalltalk.sysmel"
 }.

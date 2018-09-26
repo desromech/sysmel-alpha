@@ -1,4 +1,4 @@
-namespace LibC definition: {
+namespace CTypes definition: {
     // CTypes
     alias Char := UInt8.
     alias String := Char pointer.
@@ -24,4 +24,11 @@ namespace LibC definition: {
 
     alias Float := Float32.
     alias Double := Float64.
+
+    alias SizeT := UIntPointer.
+    alias SSizeT := IntPointer.
+}.
+
+namespace LibC definition: {
+    useAndExport: CTypes.
 }.

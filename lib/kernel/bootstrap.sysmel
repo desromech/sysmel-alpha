@@ -115,6 +115,23 @@ macro selector: #return: doOn: {
     }.
 }.
 
+// Some extra utility macros.
+macro expansionRule use: aNamespace := ``(
+    __thisLexicalScope useNamespace: aNamespace __macroExpand
+).
+
+macro expansionRule useAndExport: aNamespace := ``(
+    __thisProgramEntity useAndExportNamespace: aNamespace __macroExpand
+).
+
+macro expansionRule loadFile: aFileName := ``(
+    Compiler evaluateFileNamed: aFileName __macroExpand
+).
+
+macro expansionRule loadFileOnce: aFileName := ``(
+    Compiler evaluateFileNamedOnce: aFileName __macroExpand
+).
+
 // A generic type
 trait AnyValue
 definition: {

@@ -65,10 +65,12 @@ function main externC (argc: Int32, argv: Char const pointer pointer) -> Int32 :
     LibC printf("Object: %p\n", Smalltalk Object).
     LibC printf("Object class: %p\n", Smalltalk Object class).
 
-    let o := Smalltalk Object.
+    use: Smalltalk.
+
+    let o := Object.
     LibC printf("o: %p\n", o).
     LibC printf("o class: %p\n", o class).
-    LibC printf("Object basicNew: %p\n", Smalltalk Object basicNew).
+    LibC printf("Object basicNew: %p\n", Object basicNew).
 
     return: 0.
 }.

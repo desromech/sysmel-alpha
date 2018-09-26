@@ -1,7 +1,5 @@
-Compiler
-    evaluateFileNamed: "ctypes.sysmel";
-    evaluateFileNamed: "stddef.sysmel";
-    evaluateFileNamed: "stdlib.sysmel";
-    evaluateFileNamed: "stdio.sysmel";
-    evaluateFileNamed: "string.sysmel";
-    yourself
+loadFileOnce: "ctypes.sysmel".
+loadFileOnce: "stddef.sysmel".
+loadFileOnce: "stdlib.sysmel".
+loadFileOnce: "stdio.sysmel".
+loadFileOnce: "string.sysmel".

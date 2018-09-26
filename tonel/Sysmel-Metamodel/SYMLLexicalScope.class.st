@@ -41,7 +41,8 @@ SYMLLexicalScope >> lookMetaMethodSelector: selector [
 
 { #category : #'as yet unclassified' }
 SYMLLexicalScope >> lookSymbol: symbol ifPresent: ifPresentBlock [
-	symbols at: symbol ifPresent: ifPresentBlock
+	symbol == #__thisLexicalScope ifTrue: [ ^ ifPresentBlock value: self ].
+	^ symbols at: symbol ifPresent: ifPresentBlock
 	
 ]
 
@@ -59,7 +60,8 @@ SYMLLexicalScope >> symbol: aSymbol ifPresent: ifPresentBlock ifAbsentPut: ifAbs
 { #category : #'as yet unclassified' }
 SYMLLexicalScope >> useNamespace: aNamespace [
 	<compileTime>
-	self usedNamespaces add: aNamespace
+	self usedNamespaces add: aNamespace.
+	^ nil
 ]
 
 { #category : #accessing }
