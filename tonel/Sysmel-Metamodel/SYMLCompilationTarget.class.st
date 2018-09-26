@@ -310,8 +310,26 @@ SYMLCompilationTarget >> intPointerType: anObject [
 ]
 
 { #category : #testing }
+SYMLCompilationTarget >> isFreeBSD [
+	<compileTime>
+	^ self operatingSystemName == #freebsd
+]
+
+{ #category : #testing }
+SYMLCompilationTarget >> isLinux [
+	<compileTime>
+	^ self operatingSystemName == #linux
+]
+
+{ #category : #testing }
 SYMLCompilationTarget >> isSpirV [
 	^ false
+]
+
+{ #category : #testing }
+SYMLCompilationTarget >> isUnix [
+	<compileTime>
+	^ #(linux freebsd) includes: self operatingSystemName
 ]
 
 { #category : #testing }

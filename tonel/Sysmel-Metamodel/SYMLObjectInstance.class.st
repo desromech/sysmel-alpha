@@ -32,6 +32,16 @@ SYMLObjectInstance >> generateSSAReferenceWith: builder [
 	self subclassResponsibility
 ]
 
+{ #category : #slots }
+SYMLObjectInstance >> slotNamed: slotName [
+	^ self slots at: (type lookSymbol: slotName) slotIndex + 1
+]
+
+{ #category : #slots }
+SYMLObjectInstance >> slotNamed: slotName put: aValue [
+	^ self slots at: (type lookSymbol: slotName) slotIndex + 1 put: aValue
+]
+
 { #category : #accessing }
 SYMLObjectInstance >> ssaGlobalVariable [
 	^ nil

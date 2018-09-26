@@ -74,3 +74,8 @@ SYMLGCClassInstance >> ssaInitialValueType [
 		type structureSSAType
 	]
 ]
+
+{ #category : #'as yet unclassified' }
+SYMLGCClassInstance >> sysmelIdentityHash [
+	^ type readIdentityHashFromSlots: slots
+]

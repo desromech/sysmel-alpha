@@ -873,6 +873,11 @@ SYMLAbstractType >> lookReceiver: receiver symbol: symbol ifPresent: ifPresentBl
 ]
 
 { #category : #'symbol lookup' }
+SYMLAbstractType >> lookSymbol: symbol [
+	^ self lookSymbol: symbol ifPresent: [ :value | value ]
+]
+
+{ #category : #'symbol lookup' }
 SYMLAbstractType >> lookSymbol: symbol ifPresent: ifPresentBlock [
 	| resultBlock |
 	resultBlock := [ :existent | ^ ifPresentBlock value: existent ].

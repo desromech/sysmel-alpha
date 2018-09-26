@@ -63,3 +63,8 @@ SYMLReflectionProxy >> proxiedObject: anObject [
 SYMLReflectionProxy >> slots [
 	^ self objectInstance slots
 ]
+
+{ #category : #'as yet unclassified' }
+SYMLReflectionProxy >> sysmelIdentityHash [
+	^ self objectInstance sysmelIdentityHash
+]

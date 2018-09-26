@@ -9,7 +9,8 @@ Class {
 		'variableInstanceElementAlignment',
 		'hasComputeInstanceSizes',
 		'specificVariableDataTypes',
-		'variableDataSizeField'
+		'variableDataSizeField',
+		'identityHashField'
 	],
 	#classVars : [
 		'MetaclassInstanceSlotMap'
@@ -209,6 +210,13 @@ SYMLGCClass >> hasVariableDataArray [
 	^ self slotsLayout isNotEmpty and: [ self slotsLayout last type isGCClassVariableDataArrayType ]
 ]
 
+{ #category : #accessing }
+SYMLGCClass >> identityHashField [
+	^ identityHashField ifNil: [
+		identityHashField := symbols at: #__identityHash
+			ifAbsent: [ superclass identityHashField ] ]
+]
+
 { #category : #initialization }
 SYMLGCClass >> initialize [
 	super initialize.
@@ -329,6 +337,13 @@ SYMLGCClass >> printOn: aStream [
 		aStream nextPutAll: 'gcclass '; nextPutAll: self printingName
 	]
 	
+]
+
+{ #category : #'as yet unclassified' }
+SYMLGCClass >> readIdentityHashFromSlots: instanceSlots [
+	| field |
+	field := self identityHashField.
+	^ ((instanceSlots at: field slotIndex + 1) >> field bitOffset) & field bitMask
 ]
 
 { #category : #'as yet unclassified' }

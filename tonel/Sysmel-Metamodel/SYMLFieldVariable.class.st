@@ -22,6 +22,11 @@ SYMLFieldVariable >> bindingForReceiver: receiver symbol: symbol [
 ]
 
 { #category : #accessing }
+SYMLFieldVariable >> bitMask [
+	^ bitMask
+]
+
+{ #category : #accessing }
 SYMLFieldVariable >> bitOffset [
 	^ bitOffset
 ]

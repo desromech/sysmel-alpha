@@ -1,3 +1,12 @@
+// Evaluate the platform specific library bindings, that we depend on.
 Compiler
     evaluateFileNamed: "libc/libc.sysmel";
-    yourself
+    yourself.
+
+if: Compiler compilationTarget isUnix then: {
+    Compiler evaluateFileNamed: "unix/unix.sysmel"
+}.
+
+if: Compiler compilationTarget isWin32 then: {
+    Compiler evaluateFileNamed: "win32/win32.sysmel"
+}.

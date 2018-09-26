@@ -62,6 +62,12 @@ SYMLAbstractClass >> lookReceiver: receiver symbol: symbol ifPresent: ifPresentB
 	^ nil
 ]
 
+{ #category : #'symbol lookup' }
+SYMLAbstractClass >> lookSymbol: symbol ifPresent: ifPresentBlock [
+	super lookSymbol: symbol ifPresent: [:found | ^ ifPresentBlock value: found].
+	^ superclass ifNotNil: [ superclass lookSymbol: symbol ifPresent: ifPresentBlock ]
+]
+
 { #category : #accessing }
 SYMLAbstractClass >> mangledName [
 	| escapedName |

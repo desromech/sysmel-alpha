@@ -2,7 +2,7 @@ Extension { #name : #String }
 
 { #category : #'*Sysmel-Metamodel' }
 String >> asLiteralObjectProxyWithType: type [
-	^ SYMLSymbolLiteralObjectProxy new literal: self; type: type; yourself
+	^ (SYMLStringLiteralObjectProxy for: self) type: type; yourself
 ]
 
 { #category : #'*Sysmel-Metamodel' }
