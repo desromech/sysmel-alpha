@@ -12,7 +12,8 @@ Class {
 		'sysmelSuperMessageLookupFunction',
 		'sysmelMessageLookupFunction',
 		'convertedLiteralDictionary',
-		'compiledMethodEntryPointSlotIndex'
+		'compiledMethodEntryPointSlotIndex',
+		'identityHashRandomGenerator'
 	],
 	#category : #'Sysmel-Metamodel-CompilationTarget'
 }
@@ -56,6 +57,27 @@ SYMLSLVMObjectModel >> compiledMethodClass: anObject [
 { #category : #visiting }
 SYMLSLVMObjectModel >> compiledMethodEntryPointSlotIndex [
 	^ compiledMethodEntryPointSlotIndex ifNil: [ compiledMethodEntryPointSlotIndex := compiledMethodClass getFieldSlotIndex: #entryPoint ]
+]
+
+{ #category : #'as yet unclassified' }
+SYMLSLVMObjectModel >> computeBytesHash: data [
+	^ self computeBytesHash: data initialHash: 5381
+]
+
+{ #category : #'as yet unclassified' }
+SYMLSLVMObjectModel >> computeBytesHash: data initialHash: initialHash [
+	"
+	https://en.wikipedia.org/wiki/Universal_hashing
+	"
+	| result |
+	self flag: 'TODO: Perform a benchmark to pick these constants.'.
+	result := initialHash.
+	result := (result*33 + data size) & 16rFFFFFFFF.
+	data do: [ :x |
+		result := (result*33 + x) & 16rFFFFFFFF.
+	].
+
+	^ result
 ]
 
 { #category : #'code generation' }
@@ -121,16 +143,23 @@ SYMLSLVMObjectModel >> createNonInlineLiteralUniqueGlobal: aLiteral withCodeGene
 
 { #category : #'object literals' }
 SYMLSLVMObjectModel >> createObjectBytes: bytes class: class [
+	^ self createObjectBytes: bytes class: class identityHash: self generateIdentityHash
+]
+
+{ #category : #'object literals' }
+SYMLSLVMObjectModel >> createObjectBytes: bytes class: class identityHash: identityHash [
 	| object |
-	object := class makeInstance: bytes size.
+	object := class makeInstance: bytes size identityHash: identityHash.
 	object slots at: object slots size put: bytes.
 	^ object
 ]
 
 { #category : #'object literals' }
 SYMLSLVMObjectModel >> createSymbolObjectInstance: symbol [
-	^ convertedLiteralDictionary at: symbol ifAbsentPut: [ 
-		self createObjectBytes: symbol asUTF8Bytes class: symbolClass
+	| data |
+	^ convertedLiteralDictionary at: symbol ifAbsentPut: [
+		data := symbol asUTF8Bytes.
+		self createObjectBytes: data class: symbolClass identityHash: (self computeBytesHash: data)
 	]
 
 ]
@@ -148,10 +177,15 @@ SYMLSLVMObjectModel >> dictionaryClass: anObject [
 ]
 
 { #category : #initialization }
+SYMLSLVMObjectModel >> generateIdentityHash [
+	^ (identityHashRandomGenerator nextInt: (1<<32) + 1) - 1 
+]
+
+{ #category : #initialization }
 SYMLSLVMObjectModel >> initialize [
 	super initialize.
 	convertedLiteralDictionary := IdentityDictionary new.
-	
+	identityHashRandomGenerator := Random seed: 0.
 ]
 
 { #category : #accessing }

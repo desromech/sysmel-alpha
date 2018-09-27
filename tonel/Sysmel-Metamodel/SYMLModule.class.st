@@ -14,7 +14,8 @@ Class {
 		'debugSourceFileDictionary',
 		'evaluatedFileReferences',
 		'hasNoRuntimeTypeInformation',
-		'useLibC'
+		'useLibC',
+		'identityHashRandomGenerator'
 	],
 	#classVars : [
 		'GlobalParserRegistry'
@@ -247,6 +248,11 @@ SYMLModule >> evaluateSource: aSourceString name: aSourceName inContext: context
 
 ]
 
+{ #category : #initialization }
+SYMLModule >> generateIdentityHash [
+	^ (identityHashRandomGenerator nextInt: (1<<32) + 1) - 1 
+]
+
 { #category : #accessing }
 SYMLModule >> globalNamespace [
 	<compileTime>
@@ -285,6 +291,8 @@ SYMLModule >> initializeWithCompilationTarget: aCompilationTarget [
 	pendingSSACodeGeneration add: globalNamespace.
 	
 	evaluatedFileReferences := Dictionary new.
+	
+	identityHashRandomGenerator := Random seed: 1.
 ]
 
 { #category : #testing }

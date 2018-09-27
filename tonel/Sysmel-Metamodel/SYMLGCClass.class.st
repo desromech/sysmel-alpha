@@ -278,6 +278,11 @@ SYMLGCClass >> makeInstance [
 
 { #category : #'as yet unclassified' }
 SYMLGCClass >> makeInstance: variableDataSize [
+	^ self makeInstance: variableDataSize identityHash: (self module generateIdentityHash)
+]
+
+{ #category : #'as yet unclassified' }
+SYMLGCClass >> makeInstance: variableDataSize identityHash: identityHash [
 	| elementType result |
 	self semanticAnalysis.
 	result := SYMLGCClassInstance new type: self;
@@ -294,6 +299,9 @@ SYMLGCClass >> makeInstance: variableDataSize [
 			]
 		]);
 		yourself.
+
+	"Set the identity hash."
+	self storeIdentityHash: identityHash intoSlots: result slots.
 		
 	self flag: 'TODO: Set all of the required vtables'.
 	^ result
@@ -344,6 +352,15 @@ SYMLGCClass >> readIdentityHashFromSlots: instanceSlots [
 	| field |
 	field := self identityHashField.
 	^ ((instanceSlots at: field slotIndex + 1) >> field bitOffset) & field bitMask
+]
+
+{ #category : #'as yet unclassified' }
+SYMLGCClass >> storeIdentityHash: identityHash intoSlots: instanceSlots [
+	| field oldValue newValue |
+	field := self identityHashField.
+	oldValue := instanceSlots at: field slotIndex + 1.
+	newValue := (identityHash & field bitMask) << field bitOffset | (oldValue & (field bitMask << field bitOffset) bitInvert).
+	instanceSlots at: field slotIndex + 1 put: newValue
 ]
 
 { #category : #'as yet unclassified' }
