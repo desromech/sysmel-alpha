@@ -1,6 +1,6 @@
 {
     "arguments": [
-        "-nostdlib"
+        "-nolibc"
     ],
 
     "name": "Language Kernel",

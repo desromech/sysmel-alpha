@@ -1,7 +1,6 @@
 {
     "name": "Bootstrap Environment",
     "arguments": [
-        "-nolangkernel",
         "-nostdlib"
     ],
 
@@ -10,6 +9,12 @@
             "name": "Literal integer",
             "eval": "1",
             "expected": "1"
+        },
+
+        {
+            "name": "Literal hex integer",
+            "eval": "16r20",
+            "expected": "32"
         },
 
         {
@@ -22,6 +27,18 @@
             "name": "Literal Symbol",
             "eval": "#symbol",
             "expected": "#symbol"
+        },
+
+        {
+            "name": "Literal String",
+            "eval": "\"string\"",
+            "expected": "\"string\""
+        },
+
+        {
+            "name": "Literal Character",
+            "eval": "'H'",
+            "expected": "72"
         },
 
         {

@@ -10,7 +10,7 @@ Class {
 		'endLine',
 		'endColumn'
 	],
-	#category : #'Sysmel-Metamodel'
+	#category : #'Sysmel-Metamodel-APSG'
 }
 
 { #category : #requirements }

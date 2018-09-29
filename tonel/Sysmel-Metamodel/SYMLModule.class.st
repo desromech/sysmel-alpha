@@ -15,7 +15,8 @@ Class {
 		'evaluatedFileReferences',
 		'hasNoRuntimeTypeInformation',
 		'useLibC',
-		'identityHashRandomGenerator'
+		'identityHashRandomGenerator',
+		'defaultSourceCodeParser'
 	],
 	#classVars : [
 		'GlobalParserRegistry'
@@ -246,6 +247,13 @@ SYMLModule >> evaluateSource: aSourceString name: aSourceName inContext: context
 	].
 	^ result
 
+]
+
+{ #category : #'compilation options' }
+SYMLModule >> freestanding [
+	^ self
+		noLibC;
+		noRTTI.
 ]
 
 { #category : #initialization }

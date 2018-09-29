@@ -12,9 +12,9 @@ loadFileOnce: "primitiveVectors.sysmel".
 loadFileOnce: "primitiveMatrix.sysmel".
 
 if: Compiler useLibC then: {
-    loadFileOnce: "stdlib/stdlib.sysmel"
-}.
+    loadFileOnce: "stdlib/stdlib.sysmel".
 
-if: Compiler hasRuntimeTypeInformation then: {
-    loadFileOnce: "smalltalk/smalltalk.sysmel"
+    if: Compiler hasRuntimeTypeInformation then: {
+        loadFileOnce: "smalltalk/smalltalk.sysmel"
+    }.
 }.

@@ -264,6 +264,11 @@ SYMLGrammar >> commaExpression [
 ]
 
 { #category : #tokens }
+SYMLGrammar >> decimalIntegerNumber [
+	^ self token: numberSign optional, #digit asParser plus
+]
+
+{ #category : #tokens }
 SYMLGrammar >> dot [
 	^ self token: $. asParser
 ]
@@ -335,7 +340,7 @@ SYMLGrammar >> innerLiteralArrayLiteral [
 
 { #category : #tokens }
 SYMLGrammar >> integerNumber [
-	^ self token: numberSign optional, #digit asParser plus
+	^ self token: numberSign optional, #digit asParser plus , ($r asParser , (#letter asParser | #digit asParser) plus) optional
 ]
 
 { #category : #tokens }

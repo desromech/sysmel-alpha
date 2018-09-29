@@ -1,0 +1,5 @@
+#!/usr/bin/env bash
+DIR=`readlink "$0"` || DIR="$0";
+DIR=`dirname "$DIR"`;
+set -f
+exec "$DIR/pharo-ui" "$DIR/sysmel.image" sysmelc "$@"

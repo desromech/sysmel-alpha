@@ -243,4 +243,16 @@ let pointerReinterpretCast := `'{
 PointerType reinterpretConversionTo: PointerType doOn: pointerReinterpretCast.
 PointerType conversionTo: Void pointer doOn: pointerReinterpretCast.
 
+_LiteralInteger reinterpretConversionTo: PointerType doOn: {
+    evaluation: $$Pharo {
+        value: value into: targetType at: coercionPosition
+            ^ value sameValueButWithType: targetType
+    }.
+    codeGeneration: $$Pharo {
+        convertSSAValue: sourceValue to: targetType with: builder at: messageNode
+            ^ SLVMConstant type: targetType ssaType value: sourceValue
+    }.
+}.
+
+
 }. // End of namespace SysmelKernel

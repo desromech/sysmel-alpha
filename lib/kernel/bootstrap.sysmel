@@ -25,6 +25,7 @@ Compiler compilationTarget
     literalSymbolType: type _LiteralSymbol;
     literalStringType: type _LiteralString;
     literalIntegerType: type _LiteralInteger;
+    literalCharacterType: _LiteralInteger; // TODO: Use something different here?
     literalFractionType: type _LiteralFraction;
     literalFloatType: type _LiteralFloat;
 

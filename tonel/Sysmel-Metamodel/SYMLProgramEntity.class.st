@@ -140,6 +140,11 @@ SYMLProgramEntity >> lookMetaMethodSelector: selector [
 ]
 
 { #category : #'accessing method dictionary' }
+SYMLProgramEntity >> lookupCompileTimeSelector: selector [
+	^ nil
+]
+
+{ #category : #'accessing method dictionary' }
 SYMLProgramEntity >> lookupSelector: selector [
 	^ nil
 ]
@@ -190,7 +195,7 @@ SYMLProgramEntity >> semanticAnalysis [
 { #category : #'accessing method dictionary' }
 SYMLProgramEntity >> sendCompileTimeMessage: message inEnvironment: environment at: aPosition [
 	| method |
-	method := self lookupSelector: message selector.
+	method := self lookupCompileTimeSelector: message selector.
 	method ifNotNil: [
 		^ method semanticAnalyzeMessage: message inEnvironment: environment at: aPosition
 	].

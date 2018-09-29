@@ -3,7 +3,7 @@ namespace SysmelKernel definition: {
 macro selectors: #(if:then: if:then:else:) doOn: {
     evaluation: $$Pharo {
         node: node environment: environment
-            | conditionValue conditionCoercionType conditionCoercionRule |
+            | conditionValue conditionCoercionType conditionCoercionRule resultValue |
 
             "Evaluate the condition"
             conditionCoercionType := node coercionType first.
@@ -281,6 +281,12 @@ macro selectors: #(while:do: while:do:continueWith: ) doOn: {
             builder currentBlock: mergeBlock.
             ^ nil
     }.
+}.
+
+// For
+macro expansionRule for: declarations while: condition do: body continueWith: continueAction := ``{
+    declarations __macroExpand.
+	while: condition __macroExpand do: body __macroExpand continueWith: continueAction __macroExpand
 }.
 
 // until:do:continueWith:

@@ -1,3 +1,24 @@
+"
+Sysmel Compiler
+
+sysmelc [options] <Input files>+
+================================================================================
+== Compiler options
+================================================================================
+-o <output file> 
+-m[32,64,vulkan]                 Target machine architecture.
+-[no]emit-llvm                   Use LLVM for code generation.
+-g                               Emit debugging information.
+-S                               Emit assembly code.
+-c                               Emit object code.
+-O[0|1|2|3]                      Optimization level.
+-nostdlib                        Do not include the standard library.
+-nolibc                          Do not user libc.
+-nortti                          Do not emit runtime type information.
+-freestanding                    Freestanding mode. For OS Kernel development.
+-eval                            Eval sysmel script.
+
+"
 Class {
 	#name : #SYMLCompilerCommandLineHandler,
 	#superclass : #CommandLineHandler,
@@ -13,7 +34,7 @@ SYMLCompilerCommandLineHandler class >> commandName [
 
 { #category : #activation }
 SYMLCompilerCommandLineHandler >> activate [
-	| architecture outputFileName withDebugInformation writeObject optimizationLevel arguments argumentIndex compilationCommands arg skipCount target compiler emitLLVM writeMode noLanguageKernel noStandardLibrary |
+	| architecture outputFileName withDebugInformation arguments argumentIndex compilationCommands arg skipCount target compiler emitLLVM writeMode noStandardLibrary gpu compilationOptions |
 	self activateHelp
 		ifTrue: [  ^ self ].
 		
@@ -21,15 +42,14 @@ SYMLCompilerCommandLineHandler >> activate [
 	outputFileName := nil.
 	withDebugInformation := false.
 	writeMode := #executable.
-	emitLLVM := false.
-	noLanguageKernel := false.
+	emitLLVM := true.
 	noStandardLibrary := false.
-	
-	optimizationLevel := 0.
+	gpu := false.
 	
 	arguments := self arguments.
 	argumentIndex := 1.
 	
+	compilationOptions := OrderedCollection new.
 	compilationCommands := OrderedCollection new.
 	
 	[argumentIndex <= arguments size] whileTrue: [
@@ -42,9 +62,17 @@ SYMLCompilerCommandLineHandler >> activate [
 		arg = '-m64' ifTrue: [  
 			architecture := #x86.
 		].
+		arg = '-mvulkan' ifTrue: [  
+			architecture := #spirv_logical64.
+			gpu := true.
+		].
+		arg = '-noemit-llvm' ifTrue: [  
+			emitLLVM := false.
+		].
 		arg = '-emit-llvm' ifTrue: [  
 			emitLLVM := true.
 		].
+	
 		arg = '-g' ifTrue: [  
 			withDebugInformation := true.
 		].
@@ -54,21 +82,30 @@ SYMLCompilerCommandLineHandler >> activate [
 		arg = '-c' ifTrue: [ 
 			writeMode := #object
 		].
-		arg = '-O0' ifTrue: [ 
-			optimizationLevel := 0
+		arg = '-O0' ifTrue: [
+			compilationOptions add: [ :c | c optimizationLevel: 0 ]
 		].
-		arg = '-O1' ifTrue: [ 
-			optimizationLevel := 1
+		arg = '-O1' ifTrue: [
+			compilationOptions add: [ :c | c optimizationLevel: 1 ]
 		].
-		arg = '-O2' ifTrue: [ 
-			optimizationLevel := 2
+		arg = '-O2' ifTrue: [
+			compilationOptions add: [ :c | c optimizationLevel: 2 ]
 		].
 	
-		arg = '-nolangkernel' ifTrue: [ 
-			noLanguageKernel := true.
-		].
 		arg = '-nostdlib' ifTrue: [ 
 			noStandardLibrary := true.
+		].
+
+		arg = '-nolibc' ifTrue: [
+			compilationOptions add: [ :c | c noLibC ].
+		].
+
+		arg = '-nortti' ifTrue: [
+			compilationOptions add: [ :c | c noRTTI ].
+		].
+
+		arg = '-freestanding' ifTrue: [
+			compilationOptions add: [ :c | c freestanding ].
 		].
 
 		arg = '-o' ifTrue: [
@@ -85,7 +122,7 @@ SYMLCompilerCommandLineHandler >> activate [
 				self flag: 'TODO: Implement this case'
 			] ifFalse: [
 				compilationCommands add: [ :comp |
-					FileStream stdout nextPutAll: (comp evaluateSource: evalSource) value printString; lf.
+					Stdio stdout nextPutAll: (comp evaluateSource: evalSource) value printString; lf.
 				].
 			].
 			skipCount := 2
@@ -100,21 +137,26 @@ SYMLCompilerCommandLineHandler >> activate [
 		argumentIndex := argumentIndex + skipCount
 	].
 
+	compilationCommands ifEmpty: [ ^ self help ].
+
 	target := SYMLCompilationTarget perform: ((emitLLVM ifTrue: [ 'llvm_' ] ifFalse: ['']) , architecture) asSymbol.
 	withDebugInformation ifTrue: [
 		target withDebugInformation
 	].
 
 	compiler := SYMLModule compilationTarget: target.
-	compiler optimizationLevel: optimizationLevel.
-	
-	noLanguageKernel ifFalse: [ 
-		compiler evaluateFileNamed: 'lib/kernel/kernel.sysmel'
-	].
-	noStandardLibrary ifFalse: [
-		compiler evaluateFileNamed: 'lib/stdlib/stdlib.sysmel'
+	compilationOptions do: [ :option |
+		option value: compiler.
 	].
 
+	gpu ifTrue: [ 
+		compiler evaluateFileNamedOnce: Smalltalk imageDirectory  / 'lib' / 'gpu.sysmel'
+	] ifFalse: [ 
+		noStandardLibrary ifFalse: [
+			compiler evaluateFileNamedOnce: Smalltalk imageDirectory  / 'lib' / 'kernel' / 'kernel.sysmel'. 
+		].
+	].
+	
 	[
 		compilationCommands do: [ :cmd | cmd cull: compiler ].
 	] on: SYMLError do: [ :err |

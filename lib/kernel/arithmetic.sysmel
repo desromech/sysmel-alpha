@@ -25,7 +25,7 @@ coerce: left with: right
     right instanceSize >= 4 ifTrue: [
         ^ right
     ] ifFalse: [
-        self halt
+        ^ self compilationTarget int32Type
     ]
 }.
 
@@ -35,9 +35,9 @@ UInt8 | UInt16 arithmeticCoercionWith: UInt32 into: UInt32.
 UInt8 | UInt16 | UInt32 arithmeticCoercionWith: UInt64 into: UInt64.
 
 // Signed arithmetic coercion rules.
-Int8 arithmeticCoercionWith: Int16 into: Int32.
-Int8 | Int16 arithmeticCoercionWith: Int32 into: Int32.
-Int8 | Int16 | Int32 arithmeticCoercionWith: Int64 into: Int64.
+Int8 | UInt8 arithmeticCoercionWith: Int16 into: Int32.
+Int8 | UInt8 | Int16 | UInt16 arithmeticCoercionWith: Int32 into: Int32.
+Int8 | UInt8 | Int16 | UInt16 | Int32 | UInt32 arithmeticCoercionWith: Int64 into: Int64.
 
 // Floating point arithmetic coercion
 Int8 | Int16 | Int32 arithmeticCoercionWith: Float32 into: Float32.
@@ -51,7 +51,8 @@ Float32 arithmeticCoercionWith: Float64 into: Float64.
 // Pointer
 
 // Binary operators
-NumericalType macro selectors: #(+ - * / % < > <= >= = ~= == ~~) doOn: {
+// TODO: Only allow the bitwise operations with integer types.
+NumericalType macro selectors: #(+ - * / % < > <= >= = ~= == ~~ | & << >> ) doOn: {
 evaluation: $$Pharo {
     node: node environment: environment
         | left right coercionType valueType selector |

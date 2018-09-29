@@ -887,6 +887,11 @@ SYMLAbstractType >> lookSymbol: symbol ifPresent: ifPresentBlock [
 ]
 
 { #category : #'accessing method dictionary' }
+SYMLAbstractType >> lookupCompileTimeSelector: selector [
+	^ self type lookupSelector: selector
+]
+
+{ #category : #'accessing method dictionary' }
 SYMLAbstractType >> lookupSelector: selector [
 	(super lookupSelector: selector) ifNotNil: [ :method | ^ method ].
 
