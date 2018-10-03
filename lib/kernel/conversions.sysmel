@@ -128,17 +128,6 @@ _APSGNodeType conversionTo: _CompilerObjectType doOn: {
     }.
 }.
 
-_LiteralString conversionTo: Char const pointer doOn: {
-    evaluation: $$Pharo {
-        value: value targetType: targetType at: position
-            self halt
-    }.
-    codeGeneration: $$Pharo {
-        convertSSAValue: sourceValue to: targetType with: builder at: messageNode
-            ^ builder constCString: sourceValue
-    }.
-}.
-
 // Generic integer cast.
 let intCastConversionAction := `'{
     evaluation: $$Pharo {

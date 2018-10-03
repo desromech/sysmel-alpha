@@ -6,8 +6,9 @@ loadFileOnce: "arithmetic.sysmel".
 loadFileOnce: "boolean.sysmel".
 loadFileOnce: "conversions.sysmel".
 loadFileOnce: "structures.sysmel".
-loadFileOnce: "pointer.sysmel".
 loadFileOnce: "platformSpecific.sysmel".
+loadFileOnce: "pointer.sysmel".
+loadFileOnce: "array.sysmel".
 loadFileOnce: "primitiveVectors.sysmel".
 loadFileOnce: "primitiveMatrix.sysmel".
 

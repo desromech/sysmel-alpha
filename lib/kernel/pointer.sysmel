@@ -29,7 +29,7 @@ codeGeneration: $$Pharo {
 }.
 }.
 
-PointerType macro selector: #value doOn: {
+PointerType macro selectors: #(value _) doOn: {
 // Semantic analysis
 semanticAnalysis: $$Pharo {
     node: node environment: environment position: aSourcePosition

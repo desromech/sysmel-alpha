@@ -1,0 +1,136 @@
+namespace SysmelKernel definition: {
+
+ArrayType macro selectors: #(at: subscriptAt:) doOn: {
+    // Evaluation
+    evaluation: $$Pharo {
+        evaluateMessage: message inEnvironment: anEnvironment
+            | variableData indexCoercionRule indexCoercionType index |
+            variableData := message receiver evaluateInEnvironment: anEnvironment.
+
+            indexCoercionRule := message coercionRule second.
+            indexCoercionType := message coercionType second.
+            index := (indexCoercionRule convertValue: (message arguments first evaluateInEnvironment: anEnvironment)
+                    into: indexCoercionType
+                    at: message position) unwrapSysmelValue.
+
+            "Zero-based into one based"
+            message selector == #subscriptAt: ifTrue: [
+                index := index + 1
+            ].
+
+            ^ (SYMLArraySlotReference new
+                container: variableData value value value;
+                type: message valueType valueType;
+                slotIndex: index;
+                yourself) asSysmelValueInEnvironment: anEnvironment
+    }.
+
+    // Semantic analysis
+    semanticAnalysis: $$Pharo {
+        node: node environment: environment position: aSourcePosition
+            | variableData receiverType arrayType resultType index indexType coercionType coercionRule |
+
+            "Check and coerce the receiver"
+            variableData := node receiver semanticAnalysisInEnvironment: environment.
+            self assert: variableData type isReferenceType.
+            arrayType := variableData type referenced.
+            resultType := arrayType elementType ref.
+
+            "For "
+            receiverType := variableData type.
+            arrayType isGCClassVariableDataArrayType ifTrue: [
+                receiverType := variableData evaluateReceiverTypeInEnvironment: environment.
+            ].
+
+            "Check the index type."
+            index := node arguments first semanticAnalysisInEnvironment: environment.
+            indexType := index evaluateTypeInEnvironment: environment.
+            coercionType := indexType cleanValueType.
+
+            coercionType isIntegerType ifFalse: [
+                self error: 'Expected an integer for pointer element accessing.' at: aSourcePosition.
+            ].
+            coercionRule := indexType node: index coercedImplicitlyInto: coercionType at: node.
+
+            "Create the analyzed message"
+            ^ node copy
+                metaMethod: self;
+                receiver: variableData;
+                arguments: {index};
+                coercionType: {receiverType . coercionType};
+                coercionRule: {nil . coercionRule };
+                valueType: resultType;
+                yourself
+    }.
+
+    // Code generation
+    codeGeneration: $$Pharo {
+        node: messageNode builder: builder
+            | arrayReference index |
+            "Get the reference to the variable."
+            arrayReference := messageNode receiver generateSSACodeWith: builder.
+
+            "Convert the index"
+            index := messageNode coercionRule second convertSSAValue: (messageNode arguments first generateSSACodeWith: builder)
+                to: messageNode coercionType second
+                with: builder at: messageNode.
+
+            "One based indices into zero based"
+            messageNode selector == #at: ifTrue: [
+                index := builder sub: index with: (builder const: 1 type: index type)
+            ].
+
+            ^ builder getReference: arrayReference element: index
+    }.
+}.
+
+// Literal String -> CString
+_LiteralString conversionTo: Char const pointer doOn: {
+    evaluation: $$Pharo {
+        value: value targetType: targetType at: position
+            self halt
+    }.
+    codeGeneration: $$Pharo {
+        convertSSAValue: sourceValue to: targetType with: builder at: messageNode
+            ^ builder constCString: sourceValue
+    }.
+}.
+
+// NativeArray
+template NativeArray(ET: Type)
+	:= struct definition: {
+    alias ElementType := ET.
+
+    meta message elementType -> _CompilerObjectType := {
+        return: ElementType
+    }.
+
+	field size public type: UIntPointer.
+    field elements public type: ElementType array.
+
+    macro expansionRule at: index := ``(
+        self __macroExpand elements at: index __macroExpand
+    ).
+
+    macro expansionRule subscriptAt: index := ``(
+        self __macroExpand elements [index __macroExpand]
+    ).
+}.
+
+// Convenience method for literal strings
+alias NativeString := NativeArray(Char).
+alias NativeStringLiteral := NativeString const ref.
+
+_LiteralString conversionTo: NativeStringLiteral doOn: {
+    evaluation: $$Pharo {
+        value: value targetType: targetType at: position
+			"_LiteralString conversionTo: NativeStringLiteral"
+            self halt
+    }.
+    codeGeneration: $$Pharo {
+        convertSSAValue: sourceValue to: targetType with: builder at: messageNode
+			^ builder nativeStringLiteral: sourceValue type: targetType ssaType
+    }.
+}.
+
+}.

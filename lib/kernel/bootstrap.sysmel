@@ -505,6 +505,10 @@ definition: {
     meta message cvariadicCoercionType -> _CompilerObjectType := {
         return: self
     }.
+
+    meta message generateSSAValue: (value: _CompilerObjectType) withBuilder: (builder: _CompilerObjectType) ::-> _CompilerObjectType := {
+        return: (builder const: value type: self ssaType)
+    }.
 }.
 
 // Reference type
@@ -530,7 +534,7 @@ definition: {
 }.
 
 trait GCClassVariableDataArrayType
-    uses: AnyValue;
+    uses: ArrayType;
 definition: {
     meta message isGCClassVariableDataArrayType -> BooleanBit := {
         return: true
@@ -960,7 +964,7 @@ definition: {
     }.
 
     meta message createPrintingName -> _CompilerObjectType := {
-        return: (D printingName -- " array:" -- Size asString)
+        return: (E printingName -- " array:" -- Size asString)
     }.
 }.
 
