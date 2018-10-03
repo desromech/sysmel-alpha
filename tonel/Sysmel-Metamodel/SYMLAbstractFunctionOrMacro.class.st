@@ -47,3 +47,8 @@ SYMLAbstractFunctionOrMacro >> parent: aParent [
 SYMLAbstractFunctionOrMacro >> receiver [
 	^ nil
 ]
+
+{ #category : #accessing }
+SYMLAbstractFunctionOrMacro >> receiverType [
+	^ self compilationTarget voidType
+]

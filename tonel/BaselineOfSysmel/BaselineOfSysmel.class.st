@@ -16,11 +16,12 @@ BaselineOfSysmel >> baseline: spec [
 					loads: #('Core' );
 					repository: 'http://smalltalkhub.com/mc/Moose/PetitParser/main/'
 		].
-		spec project: 'Slovim' with: [
+		spec baseline: 'Slovim' with: [
 				spec
-					className: #ConfigurationOfSlovim;
-					versionString: #'bleedingEdge';
-					repository: 'http://smalltalkhub.com/mc/ronsaldo/Slovim/main/' ].
+					repository: 'github://ronsaldo/slovim/tonel' ].
+		spec baseline: 'Phanide' with: [
+				spec
+					repository: 'github://ronsaldo/phanide/tonel' ].
 
 		spec
 			package: 'Sysmel-Parser' with: [
@@ -29,6 +30,14 @@ BaselineOfSysmel >> baseline: spec [
 		spec
 			package: 'Sysmel-Metamodel' with: [
 				spec requires: #('Slovim')
+			].
+		spec
+			package: 'Sysmel-Tests' with: [
+				spec requires: #('Sysmel-Parser' 'Sysmel-Metamodel')
+			].
+		spec
+			package: 'Sysmel-Phanide' with: [
+				spec requires: #('Sysmel-Parser' 'Sysmel-Metamodel' 'Phanide')
 			].
 	].
 ]

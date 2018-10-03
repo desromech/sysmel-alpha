@@ -30,6 +30,24 @@ SYMLSLVMBuilder >> continueBlock: anObject [
 ]
 
 { #category : #accessing }
+SYMLSLVMBuilder >> nativeStringLiteral: string type: targetType [
+	| bytes target arrayType structType literalStruct |
+	bytes := string utf8Encoded.
+	target := self compilationTarget.
+	arrayType := target arrayOf: target uint8 size: bytes size.
+	
+	structType := target anonStructure: { target uintPointer . arrayType }.
+	
+	literalStruct := SLVMConstant structure: structType slots:  { 
+		self const: bytes size type: target uintPointer.
+		SLVMConstant array: arrayType blob: bytes
+	}.
+	
+	self assert: targetType isPointerType.
+	^ SLVMConstantPointer constant: literalStruct pointerType: targetType
+]
+
+{ #category : #accessing }
 SYMLSLVMBuilder >> sysmelModule [
 	^ sysmelModule
 ]
