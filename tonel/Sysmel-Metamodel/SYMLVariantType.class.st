@@ -74,7 +74,7 @@ SYMLVariantType >> reinterpretConversionTo: targetTypeKindLazyValue doOn: action
 	<compileTime>
 	<lazy>
 	self variantAlternativesDo: [ :sourceVariantAlternative |
-		sourceVariantAlternative explicitConversionTo: targetTypeKindLazyValue doOn: actionRules
+		sourceVariantAlternative reinterpretConversionTo: targetTypeKindLazyValue doOn: actionRules
 	]
 
 ]
