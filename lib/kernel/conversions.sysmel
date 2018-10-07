@@ -232,6 +232,7 @@ let pointerReinterpretCast := `'{
 PointerType reinterpretConversionTo: PointerType doOn: pointerReinterpretCast.
 PointerType conversionTo: Void pointer doOn: pointerReinterpretCast.
 
+// Literal integer -> Pointer
 _LiteralInteger reinterpretConversionTo: PointerType doOn: {
     evaluation: $$Pharo {
         value: value into: targetType at: coercionPosition
@@ -243,5 +244,28 @@ _LiteralInteger reinterpretConversionTo: PointerType doOn: {
     }.
 }.
 
+// Integer -> Pointer
+UIntPointer | IntPointer reinterpretConversionTo: PointerType | PointerType const doOn: `'{
+    evaluation: $$Pharo {
+        value: value targetType: targetType at: position
+            ^ value sameValueButWithType: targetType
+    }.
+    codeGeneration: $$Pharo {
+        convertSSAValue: sourceValue to: targetType with: builder at: messageNode
+            ^ builder intToPointerCast: sourceValue target: targetType ssaType
+    }.
+}.
+
+// Pointer -> Integer
+PointerType | PointerType const reinterpretConversionTo: UIntPointer | IntPointer doOn: `'{
+    evaluation: $$Pharo {
+        value: value targetType: targetType at: position
+            ^ value sameValueButWithType: targetType
+    }.
+    codeGeneration: $$Pharo {
+        convertSSAValue: sourceValue to: targetType with: builder at: messageNode
+            ^ builder pointerToIntCast: sourceValue target: targetType ssaType
+    }.
+}.
 
 }. // End of namespace SysmelKernel

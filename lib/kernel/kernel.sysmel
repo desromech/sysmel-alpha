@@ -1,12 +1,12 @@
 Compiler evaluateFileNamedOnce: "bootstrap.sysmel".
 
 loadFileOnce: "controlFlow.sysmel".
+loadFileOnce: "platformSpecific.sysmel".
 loadFileOnce: "variables.sysmel".
 loadFileOnce: "arithmetic.sysmel".
 loadFileOnce: "boolean.sysmel".
 loadFileOnce: "conversions.sysmel".
 loadFileOnce: "structures.sysmel".
-loadFileOnce: "platformSpecific.sysmel".
 loadFileOnce: "pointer.sysmel".
 loadFileOnce: "array.sysmel".
 loadFileOnce: "primitiveVectors.sysmel".
