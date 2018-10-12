@@ -27,6 +27,7 @@ SYMLTopLevelScope >> fillSymbols [
 	symbols
 		at: #Compiler put: module;
 		at: #let put: (SYMLMetaBuilder for: SYMLFunctionLocalVariable module: module);
+		at: #global put: (SYMLMetaBuilder for: SYMLGlobalVariable module: module);
 		at: #alias put: (SYMLMetaBuilder for: SYMLObjectAlias module: module);
 		
 		at: #function put: (SYMLMetaBuilder for: SYMLFunction module: module);

@@ -15,6 +15,11 @@ SYMLProgramEntity >> addFlag: aFlag [
 	flags := (flags copyWithout: aFlag) copyWith: aFlag
 ]
 
+{ #category : #adding }
+SYMLProgramEntity >> addLocal: aLocalVariable [
+	aLocalVariable isAnonymousGlobal: true
+]
+
 { #category : #methods }
 SYMLProgramEntity >> addMacroFunctionPattern: macroFunctionPattern withSelector: selector [
 	| group |

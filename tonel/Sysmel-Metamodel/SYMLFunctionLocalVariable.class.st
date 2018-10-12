@@ -3,7 +3,8 @@ Class {
 	#superclass : #SYMLFunctionVariable,
 	#instVars : [
 		'referenceType',
-		'currentValue'
+		'currentValue',
+		'isAnonymousGlobal'
 	],
 	#category : #'Sysmel-Metamodel-Variable'
 }
@@ -81,6 +82,18 @@ SYMLFunctionLocalVariable >> evaluateBoundIdentifierToMe: identifier inEnvironme
 	^ super evaluateBoundIdentifierToMe: identifier inEnvironment: anEnvironment
 ]
 
+{ #category : #'code generation' }
+SYMLFunctionLocalVariable >> generateAnonymousSSAGlobalWith: builder [
+
+	ssaValue := SLVMGlobalVariable module: module ssaModule
+		name: nil
+		valueType: type ssaType
+		storage: SLVMType genericStorage.
+	ssaValue makePrivate.
+
+	ssaValue initialValue: (type generateSSAConstant: currentValue forModule: self module).
+]
+
 { #category : #'as yet unclassified' }
 SYMLFunctionLocalVariable >> generateSSALocalWithBuilder: builder [
 	ssaValue := builder allocaBuilder alloca: type ssaType name: self validName.
@@ -92,8 +105,25 @@ SYMLFunctionLocalVariable >> generateSSALocalWithBuilder: builder [
 
 { #category : #'code generation' }
 SYMLFunctionLocalVariable >> generateSSAReferenceWith: builder [
+	(ssaValue isNil and: [ isAnonymousGlobal ]) ifTrue: [ self generateAnonymousSSAGlobalWith: builder ].
 	self assert: ssaValue isNotNil.
 	^ ssaValue
+]
+
+{ #category : #initialization }
+SYMLFunctionLocalVariable >> initialize [
+	super initialize.
+	isAnonymousGlobal := false. 
+]
+
+{ #category : #accessing }
+SYMLFunctionLocalVariable >> isAnonymousGlobal [
+	^ isAnonymousGlobal
+]
+
+{ #category : #accessing }
+SYMLFunctionLocalVariable >> isAnonymousGlobal: anObject [
+	isAnonymousGlobal := anObject
 ]
 
 { #category : #'as yet unclassified' }

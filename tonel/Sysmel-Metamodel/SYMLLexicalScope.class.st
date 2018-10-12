@@ -13,7 +13,8 @@ Class {
 SYMLLexicalScope >> addLocalVariable: aLocalVariable at: aPosition [
 	symbols at: aLocalVariable name ifPresent: [ :existent |
 		self error: 'Local variable {1} overrides an existent symbol in the scope.' format: { aLocalVariable name } at: aPosition
-	] ifAbsentPut: [ aLocalVariable ]
+	] ifAbsentPut: [ aLocalVariable ].
+	self definitionProgramEntity addLocal: aLocalVariable.
 ]
 
 { #category : #adding }

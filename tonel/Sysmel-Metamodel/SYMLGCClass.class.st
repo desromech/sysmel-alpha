@@ -148,12 +148,6 @@ SYMLGCClass >> fieldMetaobjectClass [
 ]
 
 { #category : #'code generation' }
-SYMLGCClass >> generateSSAConstant: value [
-	value ifNil: [ ^ SLVMConstant type: self ssaType value: 0   ].
-	^ value generateSSAValue
-]
-
-{ #category : #'code generation' }
 SYMLGCClass >> generateSSAConstant: value forModule: aModule [
 	| ssaValue |
 	value ifNil: [ ^ SLVMConstant type: self ssaType value: 0 ].

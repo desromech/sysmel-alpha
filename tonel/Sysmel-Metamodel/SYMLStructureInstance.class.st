@@ -7,15 +7,30 @@ Class {
 	#category : #'Sysmel-Metamodel-Program'
 }
 
-{ #category : #'code generation' }
-SYMLStructureInstance >> generateSSAReferenceWith: builder [
-	| ssaType ssaSlots |
-	ssaType := type ssaType.
-	ssaSlots := type slotsLayout collectWithIndex: [ :slot :index |
-		slot type generateSSAValue: (slots at: index) withBuilder: builder
+{ #category : #converting }
+SYMLStructureInstance >> createSSAInitialValueConstant [
+	^ self createSSAInitialValueConstantForModule: type module
+]
+
+{ #category : #converting }
+SYMLStructureInstance >> createSSAInitialValueConstantForModule: module [
+	| constantType constantSlots |
+	constantSlots := type slotsLayout collectWithIndex: [ :slot :index |
+		slot type generateSSAConstant: (slots at: index) forModule: module
 	].
 
-	^ SLVMConstant structure: ssaType slots: ssaSlots
+	constantType := self ssaInitialValueType.
+	^ SLVMConstant structure: constantType slots: constantSlots
+]
+
+{ #category : #'code generation' }
+SYMLStructureInstance >> generateSSAReferenceWith: builder [
+	^ self createSSAInitialValueConstant
+]
+
+{ #category : #'code generation' }
+SYMLStructureInstance >> generateSSAValueForModule: aModule [
+	^ self createSSAInitialValueConstantForModule: aModule
 ]
 
 { #category : #accessing }
@@ -26,4 +41,9 @@ SYMLStructureInstance >> slots [
 { #category : #accessing }
 SYMLStructureInstance >> slots: anObject [
 	slots := anObject
+]
+
+{ #category : #converting }
+SYMLStructureInstance >> ssaInitialValueType [
+	^ type ssaType
 ]

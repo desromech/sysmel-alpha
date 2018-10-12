@@ -1,25 +1,12 @@
 Class {
 	#name : #SYMLGCClassInstance,
-	#superclass : #SYMLObjectInstance,
+	#superclass : #SYMLStructureInstance,
 	#instVars : [
-		'slots',
 		'ssaGlobalVariable',
 		'ssaGlobalVariableReference'
 	],
 	#category : #'Sysmel-Metamodel-Program'
 }
-
-{ #category : #converting }
-SYMLGCClassInstance >> createSSAInitialValueConstant [
-	| constantType module constantSlots |
-	module := type module.
-	constantSlots := type slotsLayout collectWithIndex: [ :slot :index |
-		slot type generateSSAConstant: (slots at: index) forModule: module
-	].
-
-	constantType := self ssaInitialValueType.
-	^ SLVMConstant structure: constantType slots: constantSlots
-]
 
 { #category : #converting }
 SYMLGCClassInstance >> generateSSAReferenceWith: builder [
@@ -44,16 +31,6 @@ SYMLGCClassInstance >> generateSSAValueForModule: aModule [
 { #category : #initialization }
 SYMLGCClassInstance >> setSlot: slotIndex value: aValue [
 	slots at: slotIndex + 1 put: aValue
-]
-
-{ #category : #accessing }
-SYMLGCClassInstance >> slots [
-	^ slots
-]
-
-{ #category : #accessing }
-SYMLGCClassInstance >> slots: anObject [
-	slots := anObject
 ]
 
 { #category : #accessing }

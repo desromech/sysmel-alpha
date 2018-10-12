@@ -9,6 +9,11 @@ Class {
 	#category : #'Sysmel-Metamodel-Scope'
 }
 
+{ #category : #'as yet unclassified' }
+SYMLFunctionActivationScope >> definitionProgramEntity [
+	^ function
+]
+
 { #category : #accessing }
 SYMLFunctionActivationScope >> function [
 	^ function

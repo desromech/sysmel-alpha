@@ -19,6 +19,11 @@ SYMLFunctionVariable >> generateSSAReferenceWith: builder [
 	^ ssaValue
 ]
 
+{ #category : #accessing }
+SYMLFunctionVariable >> isAnonymousGlobal: aBoolean [
+	"This is ignored here."
+]
+
 { #category : #testing }
 SYMLFunctionVariable >> isSysmelIncompleteValueInEnvironment: environment [
 	| currentBinding |
