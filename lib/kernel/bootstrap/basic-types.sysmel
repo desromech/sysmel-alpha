@@ -389,6 +389,10 @@ definition: {
     meta message isPointerOrReferenceType -> BooleanBit := {
         return: true
     }.
+
+    meta message generateSSAValue: (value: _CompilerObjectType) withBuilder: (builder: _CompilerObjectType) ::-> _CompilerObjectType := {
+        return: (value generateSSAReferenceWith: builder)
+    }.
 }.
 
 // Array type

@@ -1,12 +1,15 @@
 // Evaluate the platform specific library bindings, that we depend on.
-Compiler
-    evaluateFileNamed: "libc/libc.sysmel";
-    yourself.
+if: Compiler useLibC then: {
+    loadFileOnce: "libc/libc.sysmel".
 
-if: Compiler compilationTarget isUnix then: {
-    Compiler evaluateFileNamed: "unix/unix.sysmel"
+    if: Compiler compilationTarget isUnix then: {
+        loadFileOnce: "unix/unix.sysmel".
+    }.
+
+    if: Compiler compilationTarget isWin32 then: {
+        loadFileOnce: "win32/win32.sysmel".
+    }.
 }.
 
-if: Compiler compilationTarget isWin32 then: {
-    Compiler evaluateFileNamed: "win32/win32.sysmel"
-}.
+// Evaluate the native stdlib
+loadFileOnce: "native/native.sysmel".

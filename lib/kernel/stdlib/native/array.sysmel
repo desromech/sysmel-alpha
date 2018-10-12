@@ -1,0 +1,40 @@
+namespace StdNative definition: {
+
+// Array
+template FixedArray(ET: Type)
+	:= struct definition: {
+    alias ElementType := ET.
+
+    meta message elementType -> _CompilerObjectType := {
+        return: ElementType
+    }.
+
+	field size public type: UIntPointer.
+    field elements public type: ElementType array.
+
+    macro expansionRule at: index := ``(
+        self __macroExpand elements at: index __macroExpand
+    ).
+
+    macro expansionRule subscriptAt: index := ``(
+        self __macroExpand elements [index __macroExpand]
+    ).
+}.
+
+// Convenience method for literal strings
+alias String := FixedArray(Char).
+alias StringLiteral := String const ref.
+
+_LiteralString conversionTo: StringLiteral doOn: {
+    evaluation: $$Pharo {
+        value: value targetType: targetType at: position
+			"_LiteralString conversionTo: StringLiteral"
+            self halt
+    }.
+    codeGeneration: $$Pharo {
+        convertSSAValue: sourceValue to: targetType with: builder at: messageNode
+			^ builder nativeStringLiteral: sourceValue type: targetType ssaType
+    }.
+}.
+
+} // End of namespace StdNative
