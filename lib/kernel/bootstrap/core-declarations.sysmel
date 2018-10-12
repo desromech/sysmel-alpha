@@ -1,0 +1,73 @@
+Compiler topLevelScope useNamespace: namespace SysmelKernel.
+
+namespace SysmelKernel definition: {
+
+// Create and set the basic types. Some of these types are used everywhere by the
+// compiler, so their declaration must be the first thing done.
+Compiler compilationTarget
+    metaType: type _MetaType;
+    anyValueTrait: trait AnyValue;
+    typeTrait: trait Type;
+    tupleTypeTrait: trait TupleType;
+    functionTypeTrait: trait FunctionType;
+    variantTypeTrait: trait VariantType;
+    structureTypeTrait: trait StructureType;
+    unionTypeTrait: trait UnionType;
+    classTypeTrait: trait ClassType;
+
+    undefinedType: type UndefinedType;
+    functionGroupType: type _FunctionGroupType;
+    apsgNodeType: type _APSGNodeType;
+    compilerObjectType: type _CompilerObjectType;
+    incompleteType: type _IncompleteType;
+
+    literalArrayType: type _LiteralArray;
+    literalSymbolType: type _LiteralSymbol;
+    literalStringType: type _LiteralString;
+    literalIntegerType: type _LiteralInteger;
+    literalCharacterType: _LiteralInteger; // TODO: Use something different here?
+    literalFractionType: type _LiteralFraction;
+    literalFloatType: type _LiteralFloat;
+
+    voidType: type Void;
+    booleanType: type BooleanBit;
+
+    // Integer types
+    int8Type: type Int8;
+    uint8Type: type UInt8;
+
+    int16Type: type Int16;
+    uint16Type: type UInt16;
+
+    int32Type: type Int32;
+    uint32Type: type UInt32;
+
+    int64Type: type Int64;
+    uint64Type: type UInt64;
+
+    charType: UInt8;
+
+    // Floating point types
+    float32Type: type Float32;
+    float64Type: type Float64;
+
+    yourself.
+
+// Some extra utility macros.
+macro expansionRule use: aNamespace := ``(
+    __thisLexicalScope useNamespace: aNamespace __macroExpand
+).
+
+macro expansionRule useAndExport: aNamespace := ``(
+    __thisProgramEntity useAndExportNamespace: aNamespace __macroExpand
+).
+
+macro expansionRule loadFile: aFileName := ``(
+    Compiler evaluateFileNamed: aFileName __macroExpand
+).
+
+macro expansionRule loadFileOnce: aFileName := ``(
+    Compiler evaluateFileNamedOnce: aFileName __macroExpand
+).
+
+}.

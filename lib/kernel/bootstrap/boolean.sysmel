@@ -1,0 +1,67 @@
+namespace SysmelKernel definition: {
+
+BooleanBit macro expansionRule or: orCondition := ``(
+    if: self __macroExpand then: true else: orCondition __macroExpand
+).
+
+BooleanBit macro expansionRule || orCondition := ``(
+    if: self __macroExpand then: true else: orCondition __macroExpand
+).
+
+BooleanBit macro expansionRule and: andCondition := ``(
+    if: self __macroExpand then: andCondition __macroExpand else: false
+).
+
+BooleanBit macro expansionRule && andCondition := ``(
+    if: self __macroExpand then: andCondition __macroExpand else: false
+).
+
+// Logical negation
+BooleanType macro selector: #not doOn: {
+    // Compile time evaluation
+    evaluation: $$Pharo {
+        node: node environment: environment
+            | operand coercionType |
+            coercionType := node coercionType.
+            operand := node coercionRule convertValue: (node receiver evaluateInEnvironment: environment) into: coercionType at: node.
+            ^ (operand value perform: node selector) sysmelValueWithType: coercionType inEnvironment: environment
+    }.
+
+    // Semantic analysis
+    semanticAnalysis: $$Pharo {
+        node: node environment: environment position: aSourcePosition
+	        | operand operandType coercionType resultType coercionRule |
+	        operand := node receiver semanticAnalysisInEnvironment: environment.
+            operandType := operand evaluateCleanValueTypeInEnvironment: environment.
+
+            coercionType := operandType.
+            coercionType isLiteralType ifTrue: [
+                ^ node buildLiteralWithValue: ((operand value value perform: node selector) sysmelValueWithType: coercionType inEnvironment: environment)
+            ].
+
+            coercionRule := (operand evaluateTypeInEnvironment: environment) node: operand coercedImplicitlyInto: coercionType at: node.
+			resultType := coercionType.
+
+            ^ node copy
+                metaMethod: self;
+                receiver: operand;
+                arguments: #();
+                coercionType: coercionType;
+                coercionRule: coercionRule;
+                valueType: resultType;
+                yourself
+    }.
+
+    // Code generation
+    codeGeneration: $$Pharo {
+        node: messageNode builder: builder
+			| coercionType operandNode operandValue |
+			"Convert the arguments"
+			coercionType := messageNode coercionType.
+			operandNode := messageNode receiver.
+			operandValue := messageNode coercionRule convertSSAValue: (operandNode generateSSACodeWith: builder) to: coercionType with: builder at: messageNode.
+            ^ builder lnot: operandValue
+    }.
+}.
+
+}. // End of namespace SysmelKernel

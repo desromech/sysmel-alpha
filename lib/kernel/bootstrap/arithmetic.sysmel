@@ -21,13 +21,43 @@ PrimitiveFloatingPointType meta message
 }.
 
 _LiteralInteger arithmeticCoercionWith: PrimitiveIntegerType do: $$Pharo {
-coerce: left with: right
-    right instanceSize >= 4 ifTrue: [
+coerce: left node: literalNode with: right node: valueNode
+    | literalValue |
+    literalValue := literalNode value value.
+
+    "For zero, always prefer the right type."
+    literalValue = 0 ifTrue: [
         ^ right
-    ] ifFalse: [
-        ^ self compilationTarget int32Type
-    ]
+    ].
+
+    "If the literal is positive, try to keep the signed-ness of the type"
+    literalValue > 0 ifTrue: [
+        right instanceSize >= 4 ifTrue: [
+            ^ right
+        ] ifFalse: [
+            ^ right isUnsigned
+                ifTrue: [ self compilationTarget uint32Type ]
+                ifFalse: [ self compilationTarget int32Type]
+        ]
+    ].
+
+    "If the literal is negative, into a signed type."
+    literalValue < 0 ifTrue: [
+        right instanceSize >= 4 ifTrue: [
+            right isSigned ifTrue: [ ^ right ].
+            ^ right instanceSize = 4
+                ifTrue: [self compilationTarget int32Type]
+                ifFalse: [self compilationTarget int64Type]
+        ] ifFalse: [
+            ^ self compilationTarget int32Type
+        ]
+    ].
 }.
+
+// Literal arithmetic coercion rules.
+_LiteralInteger arithmeticCoercionWith: _LiteralFraction into: _LiteralFraction.
+_LiteralFraction arithmeticCoercionWith: _LiteralFloat into: _LiteralFloat.
+_LiteralInteger arithmeticCoercionWith: _LiteralFloat into: _LiteralFloat.
 
 // Unsigned arithmetic coercion rules.
 UInt8 arithmeticCoercionWith: UInt16 into: Int32.
@@ -76,7 +106,7 @@ semanticAnalysis: $$Pharo {
         leftType := left evaluateTypeInEnvironment: environment.
         rightType := right evaluateTypeInEnvironment: environment.
 
-        coercionType := leftType cleanValueTypeKeepLiteral arithmeticCoerceWith: rightType cleanValueTypeKeepLiteral at: aSourcePosition.
+        coercionType := leftType cleanValueTypeKeepLiteral arithmeticCoerceNode: left withType: rightType cleanValueTypeKeepLiteral node: right at: aSourcePosition.
         coercionType ifNil: [
             self error: 'Failed to find coercion type for operands of type {1} and {2}.' format: {leftType printString . rightType printString} at: aSourcePosition
         ].
@@ -122,52 +152,4 @@ codeGeneration: $$Pharo {
             unwrapSysmelValue
 }.
 
-}.
-
-// Logical negation
-BooleanType macro selector: #not doOn: {
-    // Compile time evaluation
-    evaluation: $$Pharo {
-        node: node environment: environment
-            | operand coercionType |
-            coercionType := node coercionType.
-            operand := node coercionRule convertValue: (node receiver evaluateInEnvironment: environment) into: coercionType at: node.
-            ^ (operand value perform: node selector) sysmelValueWithType: coercionType inEnvironment: environment
-    }.
-
-    // Semantic analysis
-    semanticAnalysis: $$Pharo {
-        node: node environment: environment position: aSourcePosition
-	        | operand operandType coercionType resultType coercionRule |
-	        operand := node receiver semanticAnalysisInEnvironment: environment.
-            operandType := operand evaluateCleanValueTypeInEnvironment: environment.
-
-            coercionType := operandType.
-            coercionType isLiteralType ifTrue: [
-                ^ node buildLiteralWithValue: ((operand value value perform: node selector) sysmelValueWithType: coercionType inEnvironment: environment)
-            ].
-
-            coercionRule := (operand evaluateTypeInEnvironment: environment) node: operand coercedImplicitlyInto: coercionType at: node.
-			resultType := coercionType.
-
-            ^ node copy
-                metaMethod: self;
-                receiver: operand;
-                arguments: #();
-                coercionType: coercionType;
-                coercionRule: coercionRule;
-                valueType: resultType;
-                yourself
-    }.
-
-    // Code generation
-    codeGeneration: $$Pharo {
-        node: messageNode builder: builder
-			| coercionType operandNode operandValue |
-			"Convert the arguments"
-			coercionType := messageNode coercionType.
-			operandNode := messageNode receiver.
-			operandValue := messageNode coercionRule convertSSAValue: (operandNode generateSSACodeWith: builder) to: coercionType with: builder at: messageNode.
-            ^ builder lnot: operandValue
-    }.
 }.

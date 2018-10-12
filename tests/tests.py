@@ -111,7 +111,6 @@ if __name__ == "__main__":
     CompilerCommand = os.path.join(os.path.join(BaseDirectory, '..'), CompilerCommandName)
 
     runTestSuites([
-        "sysmel/bootstrap-env",
         "sysmel/kernel",
         "sysmel/runtime",
     ])

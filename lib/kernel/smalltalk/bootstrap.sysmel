@@ -248,7 +248,7 @@ Behavior uses: Type; definition: {
         // Set the allocated object class.
         allocatedObject value
             __class: (self reinterpretCastTo: Void pointer);
-            __variableDataSize: (if: variableInstanceElementSize > 0 then: initialSize else: (0 castTo: UInt32)).
+            __variableDataSize: (if: variableInstanceElementSize > 0 then: initialSize else: 0).
 
         // Convert the allocated object.
         return: (allocatedObject reinterpretCastTo: ProtoObject)
