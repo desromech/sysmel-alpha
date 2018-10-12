@@ -361,8 +361,8 @@ macro expansionRule until: condition do: body continueWith: continueAction := ``
 	while: condition __macroExpand not do: body __macroExpand continueWith: continueAction __macroExpand
 ).
 
-// Do:while:continueWith:
-macro selectors: #(do:while: do:while:continueWith:) doOn: {
+// do:continueWith:while:
+macro selectors: #(do:while: do:continueWith:while:) doOn: {
     // Compile time evaluation
     evaluation: $$Pharo {
         node: node environment: environment
@@ -372,13 +372,94 @@ macro selectors: #(do:while: do:while:continueWith:) doOn: {
     // Semantic analysis
     semanticAnalysis: $$Pharo {
         node: messageNode environment: environment position: aSourcePosition
-			self halt
+            | conditionNode bodyNode continueNode analyzedArguments coercionType coercionRule |
+            conditionNode := messageNode arguments last semanticAnalysisInEnvironment: environment.
+            bodyNode := messageNode arguments first semanticAnalysisInEnvironment: environment.
+            analyzedArguments := {bodyNode . conditionNode}.
+
+            continueNode := nil.
+            messageNode arguments size >= 3 ifTrue: [
+                continueNode := messageNode arguments second semanticAnalysisInEnvironment: environment.
+                analyzedArguments := { bodyNode . continueNode . conditionNode }.
+            ].
+
+            "Check the condition type"
+            coercionType := environment compilationTarget booleanType.
+            coercionRule := (conditionNode evaluateTypeInEnvironment: environment) node: conditionNode coercedImplicitlyInto: coercionType at: aSourcePosition.
+
+            ^ messageNode copy
+                metaMethod: self;
+                arguments: analyzedArguments;
+                coercionType: coercionType;
+                coercionRule: coercionRule;
+                valueType: environment compilationTarget voidType;
+                yourself
+
 	}.
 
     // Code generation
     codeGeneration: $$Pharo {
         node: messageNode builder: builder
-			self halt
+        | conditionNode bodyNode continueNode coercionType conditionBlock headerBlock bodyBlock continueBlock mergeBlock condition |
+        conditionNode := messageNode arguments last.
+        bodyNode := messageNode arguments first.
+
+        coercionType := messageNode coercionType.
+
+        continueNode := nil.
+        messageNode arguments size >= 3 ifTrue: [
+            continueNode := messageNode arguments second.
+        ].
+
+        "Loop block"
+        headerBlock := builder newBasicBlock: #loopHeader.
+        bodyBlock := builder newBasicBlock: #loopBody.
+        conditionBlock := builder newBasicBlock: #loopCondition.
+        mergeBlock := builder newBasicBlock: #loopMerge.
+
+        continueBlock := continueNode ifNil: [ conditionBlock ] ifNotNil: [ builder newBasicBlock: #loopContinue ].
+
+        "Enter into the loop"
+        builder jump: headerBlock.
+
+        "Create the loop header"
+        builder
+            currentBlock: headerBlock;
+            jump: bodyBlock.
+
+        builder withBreak: mergeBlock continue: continueBlock do: [
+            builder
+                currentBlock: bodyBlock.
+
+            bodyNode generateSSACodeWith: builder.
+
+            builder isLastTerminator ifFalse: [
+                builder jump: continueBlock
+            ]
+        ].
+
+        "Generate the continue block, if it exists."
+        continueNode ifNotNil: [
+            builder
+                currentBlock: continueBlock.
+
+            continueNode generateSSACodeWith: builder.
+
+            builder isLastTerminator ifFalse: [
+                builder jump: conditionBlock
+            ]
+        ].
+
+        "Generate the condition."
+        builder currentBlock: conditionBlock.
+
+        condition := messageNode coercionRule convertSSAValue: (conditionNode generateSSACodeWith: builder) to: messageNode coercionType with: builder at: messageNode.
+        builder
+            branch: condition ifTrue: bodyBlock ifFalse: mergeBlock.
+
+        "Continue with the normal control flow."
+        builder currentBlock: mergeBlock.
+        ^ nil
     }.
 }.
 
