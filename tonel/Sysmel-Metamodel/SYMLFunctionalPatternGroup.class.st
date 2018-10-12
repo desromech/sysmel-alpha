@@ -59,6 +59,11 @@ SYMLFunctionalPatternGroup >> allAlternativesDo: aBlock [
 	fallbackPattern ifNotNil: [ aBlock value: fallbackPattern ].
 ]
 
+{ #category : #accessing }
+SYMLFunctionalPatternGroup >> alternatives [
+	^ alternatives
+]
+
 { #category : #'macro compilation' }
 SYMLFunctionalPatternGroup >> analyzeAndEvaluateMessage: message inEnvironment: environment at: aPosition [
 	^ (self semanticAnalyzeMessage: message inEnvironment: environment at: aPosition) evaluateInEnvironment: environment
@@ -166,7 +171,7 @@ SYMLFunctionalPatternGroup >> initialize [
 ]
 
 { #category : #testing }
-SYMLFunctionalPatternGroup >> isMacroPatternGroup [
+SYMLFunctionalPatternGroup >> isFunctionalPatternGroup [
 	^ true
 ]
 

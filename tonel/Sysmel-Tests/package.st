@@ -1,1 +1,1 @@
-Package { #name : #Sysmel-Tests }
+Package { #name : #'Sysmel-Tests' }

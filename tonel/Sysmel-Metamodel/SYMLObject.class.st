@@ -83,12 +83,12 @@ SYMLObject >> isFieldVariable [
 ]
 
 { #category : #testing }
-SYMLObject >> isFunctionalValue [
+SYMLObject >> isFunctionalPatternGroup [
 	^ false
 ]
 
 { #category : #testing }
-SYMLObject >> isMacroPatternGroup [
+SYMLObject >> isFunctionalValue [
 	^ false
 ]
 

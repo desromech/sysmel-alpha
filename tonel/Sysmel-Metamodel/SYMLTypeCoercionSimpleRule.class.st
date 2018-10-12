@@ -8,7 +8,7 @@ Class {
 }
 
 { #category : #'as yet unclassified' }
-SYMLTypeCoercionSimpleRule >> doCoercionOf: left with: right [
+SYMLTypeCoercionSimpleRule >> doCoercionOf: left node: leftNode with: right node: rightNode [
 	^ resultType
 ]
 

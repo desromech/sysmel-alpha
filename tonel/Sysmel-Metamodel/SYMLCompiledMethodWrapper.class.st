@@ -58,6 +58,11 @@ SYMLCompiledMethodWrapper >> method: anObject [
 ]
 
 { #category : #evaluating }
+SYMLCompiledMethodWrapper >> numArgs [
+	^ method numArgs
+]
+
+{ #category : #evaluating }
 SYMLCompiledMethodWrapper >> value [
 	^ method valueWithReceiver: nil arguments: #()
 ]

@@ -173,16 +173,21 @@ SYMLAbstractType >> analyzeAndEvaluateMessage: message inEnvironment: environmen
 ]
 
 { #category : #conversions }
-SYMLAbstractType >> arithmeticCoerceWith: rightType at: aSourcePosition [
+SYMLAbstractType >> arithmeticCoerceNode: node withType: rightType node: rightNode at: aSourcePosition [
 	self == rightType ifTrue: [ ^ self ].
 	self flattenedTraits do: [ :trait |
 		trait arithmeticCoercionRules do: [ :rule |
-			(rule coerce: self with: rightType) ifNotNil: [ :result | ^ result ]
+			(rule coerce: self node: node with: rightType node: rightNode) ifNotNil: [ :result | ^ result ]
 		].
 	].
 
 	^ nil
 	
+]
+
+{ #category : #conversions }
+SYMLAbstractType >> arithmeticCoerceWith: rightType at: aSourcePosition [
+	^ self arithmeticCoerceNode: nil withType: rightType node: nil at: aSourcePosition
 ]
 
 { #category : #accessing }
@@ -736,6 +741,11 @@ SYMLAbstractType >> isCompileTimeByDefault [
 ]
 
 { #category : #testing }
+SYMLAbstractType >> isCompilerObjectType [
+	^ self == self compilationTarget compilerObjectType 
+]
+
+{ #category : #testing }
 SYMLAbstractType >> isConstantType [
 	^ self cachedNullary: #isConstantType
 ]
@@ -821,6 +831,11 @@ SYMLAbstractType >> isShaderType [
 ]
 
 { #category : #testing }
+SYMLAbstractType >> isSigned [
+	^ self cachedNullary: #isSigned
+]
+
+{ #category : #testing }
 SYMLAbstractType >> isSysmelKindOf: anotherType [
 	self == anotherType ifTrue: [ ^ true ].
 	usedTraits do: [ :used |
@@ -857,6 +872,11 @@ SYMLAbstractType >> isUndeterminedArrayType [
 ]
 
 { #category : #testing }
+SYMLAbstractType >> isUnsigned [
+	^ self cachedNullary: #isUnsigned
+]
+
+{ #category : #testing }
 SYMLAbstractType >> isVoidType [
 	^ self == self compilationTarget voidType
 ]
@@ -870,11 +890,6 @@ SYMLAbstractType >> isVolatileType [
 SYMLAbstractType >> lookReceiver: receiver symbol: symbol ifPresent: ifPresentBlock [
 	<compileTime>
 	^ self sysmelPerform: #lookReceiver:symbol:ifPresent: withArguments: { receiver . symbol . ifPresentBlock } fallbackWith: [ nil ]
-]
-
-{ #category : #'symbol lookup' }
-SYMLAbstractType >> lookSymbol: symbol [
-	^ self lookSymbol: symbol ifPresent: [ :value | value ]
 ]
 
 { #category : #'symbol lookup' }

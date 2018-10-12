@@ -55,7 +55,7 @@ SYMLNamespace >> lookMetaMethodSelector: selector [
 
 { #category : #'as yet unclassified' }
 SYMLNamespace >> lookSymbol: symbol ifPresent: ifPresentBlock [
-	symbols at: symbol ifPresent: ifPresentBlock
+	^ symbols at: symbol ifPresent: ifPresentBlock
 ]
 
 { #category : #accessing }

@@ -19,7 +19,7 @@ SYMLProgramEntity >> addFlag: aFlag [
 SYMLProgramEntity >> addMacroFunctionPattern: macroFunctionPattern withSelector: selector [
 	| group |
 	^ self symbol: selector ifPresent: [ :existentGroup |
-		existentGroup isMacroPatternGroup ifFalse: [ 
+		existentGroup isFunctionalPatternGroup ifFalse: [ 
 			self error: 'Cannot add macro/function pattern into non-macro group {1}.' format: { selector printString } at: macroFunctionPattern definitionPosition.
 		].
 	
@@ -41,7 +41,7 @@ SYMLProgramEntity >> addMacroFunctionPattern: macroFunctionPattern withSelector:
 SYMLProgramEntity >> addMacroMethodPattern: macroMethodPattern withSelector: selector [
 	| group |
 	^ self methodWithSelector: selector ifPresent: [ :existentGroup |
-		existentGroup isMacroPatternGroup ifFalse: [ 
+		existentGroup isFunctionalPatternGroup ifFalse: [ 
 			self error: 'Cannot add macro pattern into non-macro group {1}.' format: { selector printString } at: macroMethodPattern definitionPosition.
 		].
 	
@@ -136,6 +136,16 @@ SYMLProgramEntity >> isMetaObject [
 
 { #category : #'as yet unclassified' }
 SYMLProgramEntity >> lookMetaMethodSelector: selector [
+	^ nil
+]
+
+{ #category : #'symbol lookup' }
+SYMLProgramEntity >> lookSymbol: symbol [
+	^ self lookSymbol: symbol ifPresent: [ :value | value ]
+]
+
+{ #category : #accessing }
+SYMLProgramEntity >> lookSymbol: symbol ifPresent: ifPresentBlock [
 	^ nil
 ]
 

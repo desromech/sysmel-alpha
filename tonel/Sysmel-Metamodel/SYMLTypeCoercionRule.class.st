@@ -9,16 +9,21 @@ Class {
 }
 
 { #category : #'as yet unclassified' }
-SYMLTypeCoercionRule >> coerce: left with: right [
+SYMLTypeCoercionRule >> coerce: left node: leftNode with: right node: rightNode [
 	((left isSysmelKindOf: leftType) and: [ right isSysmelKindOf: rightType ]) ifTrue: [ 
-		^ self doCoercionOf: left with: right
+		^ self doCoercionOf: left node: leftNode with: right node: rightNode
 	].
 
 	^ nil
 ]
 
 { #category : #'as yet unclassified' }
-SYMLTypeCoercionRule >> doCoercionOf: left with: right [
+SYMLTypeCoercionRule >> coerce: left with: right [
+	^ self coerce: left node: nil with: right node: nil
+]
+
+{ #category : #'as yet unclassified' }
+SYMLTypeCoercionRule >> doCoercionOf: left node: leftNode with: right node: rightNode [
 	self subclassResponsibility
 ]
 
