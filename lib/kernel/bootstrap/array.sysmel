@@ -32,7 +32,10 @@ ArrayType macro selectors: #(at: subscriptAt:) doOn: {
 
             "Check and coerce the receiver"
             variableData := node receiver semanticAnalysisInEnvironment: environment.
-            self assert: variableData type isReferenceType.
+            variableData type isReferenceType ifFalse: [
+                self error: 'Expected an array reference. Hint: Check mutability.' at: aSourcePosition
+            ].
+
             arrayType := variableData type referenced.
             resultType := arrayType elementType ref.
 

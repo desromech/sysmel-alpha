@@ -159,14 +159,16 @@ SYMLCompilerCommandLineHandler >> activate [
 	
 	[
 		compilationCommands do: [ :cmd | cmd cull: compiler ].
+
+		outputFileName ifNotNil: [
+			compiler writeMode: writeMode ToFileNamed: outputFileName
+		].
 	] on: SYMLError do: [ :err |
 		stderr nextPutAll: err description; lf.
+		outputFileName asFileReference exists ifTrue: [ outputFileName asFileReference delete ].
 		^ Exit new status: 1; signal
 	].
 	
-	outputFileName ifNotNil: [
-		compiler writeMode: writeMode ToFileNamed: outputFileName
-	].
 
 	self exitSuccess.
 ]
