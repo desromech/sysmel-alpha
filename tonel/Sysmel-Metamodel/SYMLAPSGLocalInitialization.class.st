@@ -3,13 +3,37 @@ Class {
 	#superclass : #SYMLAPSGNode,
 	#instVars : [
 		'local',
-		'initialization'
+		'initialization',
+		'coercionRule'
 	],
 	#category : #'Sysmel-Metamodel-APSG'
 }
 
+{ #category : #accessing }
+SYMLAPSGLocalInitialization >> coercionRule [
+	^ coercionRule
+]
+
+{ #category : #accessing }
+SYMLAPSGLocalInitialization >> coercionRule: anObject [
+	coercionRule := anObject
+]
+
 { #category : #'meta evaluation' }
 SYMLAPSGLocalInitialization >> evaluateInEnvironment: anEnvironment [
+	| initialValue convertedValue |
+	local isReadOnly ifTrue: [
+		initialValue := initialization evaluateInEnvironment: anEnvironment.
+		convertedValue := initialValue coercedIntoType: local type at: self.
+		local definitionEnvironment == anEnvironment ifTrue: [
+			local currentValue: convertedValue value
+		] ifFalse: [ 
+			anEnvironment addSymbol: local name value: convertedValue.
+		].
+
+		^ convertedValue
+	].
+
 	local definitionEnvironment == anEnvironment ifFalse: [ 
 		local createDefinititionInActivationEnvironment: anEnvironment
 	].
@@ -24,8 +48,20 @@ SYMLAPSGLocalInitialization >> evaluateTypeInEnvironment: anEnvironment [
 
 { #category : #'meta evaluation' }
 SYMLAPSGLocalInitialization >> generateSSACodeWith: aBuilder [
-	| localReference |
+	| localReference initialValue convertedInitialValue |
 	aBuilder withDebugPosition: self position do: [
+		local isReadOnly ifTrue: [ 
+			self assert: initialization isNotNil.
+			initialValue := initialization generateSSACodeWith: aBuilder.
+			convertedInitialValue := coercionRule convertSSAValue: initialValue to: local type with: aBuilder at: self.
+			local ssaValue: convertedInitialValue.
+			aBuilder compilationTarget emittingDebugInformation ifTrue: [ 
+				aBuilder debugSetVariable: local createSSADebugInformation value: convertedInitialValue
+			].
+
+			^ convertedInitialValue
+		].
+	
 		initialization ifNotNil: [
 			initialization generateSSACodeWith: aBuilder
 		].
@@ -69,5 +105,12 @@ SYMLAPSGLocalInitialization >> macroExpansionInEnvironment: anEnvironment [
 
 { #category : #'meta evaluation' }
 SYMLAPSGLocalInitialization >> semanticAnalysisInEnvironment: anEnvironment [
+	local isReadOnly ifTrue: [ 
+		initialization ifNil: [
+			self error: 'Immutable local "{1}" requires an initial value.' format: { local name } at: self
+		].
+	].
+
+	self assert: initialization isNotNil.
 	^ self
 ]

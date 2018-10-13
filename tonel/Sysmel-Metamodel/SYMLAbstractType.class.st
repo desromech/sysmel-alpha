@@ -35,7 +35,6 @@ SYMLAbstractType class >> initialize [
 		#meta . [ :programEntity :module | programEntity type ].
 		#macro . [ :programEntity :module | SYMLMetaBuilder for: SYMLMacroBuilder module: module parent: programEntity ].
 		#method . [ :programEntity :module | SYMLMetaBuilder for: SYMLMethod module: module parent: programEntity ].
-		#message . [ :programEntity :module | SYMLMetaBuilder for: SYMLMessageMethod module: module parent: programEntity ]
 	}.
 ]
 

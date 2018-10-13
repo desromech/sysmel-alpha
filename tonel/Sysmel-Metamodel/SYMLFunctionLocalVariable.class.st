@@ -15,11 +15,23 @@ SYMLFunctionLocalVariable >> assignValue: initialValue [
 	<lazy>
 	<rewrite>
 	
-	| initialValueNode initialValueType |
+	| initialValueNode initialValueType analyzedInitialValueNode initialValueCoercionRule |
 	initialValueNode := initialValue node semanticAnalysisInEnvironment: initialValue environment.
 	initialValueType := initialValueNode evaluateTypeInEnvironment: initialValue environment.
 	type ifNil: [
 		self type: initialValueType cleanValueType.
+	].
+
+	self isReadOnly ifTrue: [ 
+		analyzedInitialValueNode := initialValueNode semanticAnalysisInEnvironment: initialValue environment.
+		initialValueCoercionRule := (analyzedInitialValueNode evaluateTypeInEnvironment: definitionEnvironment) node: analyzedInitialValueNode coercedImplicitlyInto: type.
+		
+		^ SYMLAPSGLocalInitialization new
+			position: definitionPosition;
+			local: self;
+			initialization: analyzedInitialValueNode;
+			coercionRule: initialValueCoercionRule;
+			yourself.
 	].
 
 	^ SYMLAPSGLocalInitialization new
@@ -52,7 +64,7 @@ SYMLFunctionLocalVariable >> createDefinititionInActivationEnvironment: anEnviro
 		value: type defaultValue;
 		variable: self;
 		yourself.
-	anEnvironment addSymbol: name  value: (storage asSysmelValueInEnvironment: anEnvironment)
+	anEnvironment addSymbol: name value: (storage asSysmelValueInEnvironment: anEnvironment)
 
 ]
 
@@ -76,6 +88,9 @@ SYMLFunctionLocalVariable >> doCreateSSADebugInformation [
 { #category : #'as yet unclassified' }
 SYMLFunctionLocalVariable >> evaluateBoundIdentifierToMe: identifier inEnvironment: anEnvironment [
 	anEnvironment == definitionEnvironment ifTrue: [
+		self isReadOnly ifTrue: [
+			^ currentValue sysmelValueWithType: referenceType inEnvironment: anEnvironment
+		].
 		^ self sysmelValueWithType: referenceType inEnvironment: anEnvironment
 	].
 	
@@ -96,6 +111,7 @@ SYMLFunctionLocalVariable >> generateAnonymousSSAGlobalWith: builder [
 
 { #category : #'as yet unclassified' }
 SYMLFunctionLocalVariable >> generateSSALocalWithBuilder: builder [
+	self isReadOnly ifTrue: [ ^ self ].
 	ssaValue := builder allocaBuilder alloca: type ssaType name: self validName.
 	builder compilationTarget emittingDebugInformation ifTrue: [ 
 		ssaValue debugInformation: self createSSADebugInformation
@@ -113,7 +129,7 @@ SYMLFunctionLocalVariable >> generateSSAReferenceWith: builder [
 { #category : #initialization }
 SYMLFunctionLocalVariable >> initialize [
 	super initialize.
-	isAnonymousGlobal := false. 
+	isAnonymousGlobal := false.
 ]
 
 { #category : #accessing }
@@ -158,5 +174,6 @@ SYMLFunctionLocalVariable >> sysmelSetReferencedValue: coercedValue [
 SYMLFunctionLocalVariable >> type: aType [
 	<compileTime>
 	super type: aType.
-	referenceType := aType refFor: #function
+	referenceType := self isReadOnly ifTrue: [ aType ] ifFalse: [ aType refFor: #function ].
+	
 ]

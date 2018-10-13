@@ -458,7 +458,7 @@ MethodDictionary definition: {
         let keySlot := key identityHash % array basicSize.
 
         // Perform linear probing.
-        let i := keySlot.
+        let i mutable := keySlot.
         while: i < keyCount do: {
             let slotKey := array[i].
             if: slotKey == key || slotKey == nil then: {

@@ -31,6 +31,7 @@ SYMLTopLevelScope >> fillSymbols [
 		at: #alias put: (SYMLMetaBuilder for: SYMLObjectAlias module: module);
 		
 		at: #function put: (SYMLMetaBuilder for: SYMLFunction module: module);
+		at: #message put: (SYMLMetaBuilder for: SYMLMessageMethod module: module);
 		at: #trait put: (SYMLMetaBuilder for: SYMLTrait module: module);
 		at: #type put: (SYMLMetaBuilder for: SYMLSimpleType module: module);
 		at: #macro put: (SYMLMetaBuilder for: SYMLMacroBuilder module: module);

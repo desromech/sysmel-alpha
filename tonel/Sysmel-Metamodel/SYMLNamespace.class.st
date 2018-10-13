@@ -108,6 +108,10 @@ SYMLNamespace >> semanticAnalyzeMessageToYou: message inEnvironment: environment
 		^ value analyzeAPSGIdentifierToMe: identifier inEnvironment: environment
 	].
 
+	metaMethodDictionary at: message selector ifPresent: [ :method |
+		^ method analyzeMetaMessage: message toReceiver: self inEnvironment: environment at: aPosition
+	].
+
 	^ super semanticAnalyzeMessageToYou: message inEnvironment: environment at: aPosition
 ]
 
@@ -115,6 +119,11 @@ SYMLNamespace >> semanticAnalyzeMessageToYou: message inEnvironment: environment
 SYMLNamespace >> symbol: aSymbol ifPresent: ifPresentBlock ifAbsentPut: ifAbsentBlock [
 	^ symbols at: aSymbol ifPresent: ifPresentBlock ifAbsentPut: ifAbsentBlock
 
+]
+
+{ #category : #accessing }
+SYMLNamespace >> type [
+	^ self compilationTarget compilerObjectType
 ]
 
 { #category : #'as yet unclassified' }

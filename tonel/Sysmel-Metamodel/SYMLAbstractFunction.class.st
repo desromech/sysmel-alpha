@@ -287,7 +287,7 @@ SYMLAbstractFunction >> generateSSACallWithReceiver: receiverValue arguments: ar
 		^ builder send: (builder addDynamicLiteral: self messageSendSelector) returnType: self returnType asConcreteTypeForFunctionAnalysis ssaType receiver: receiverValue arguments: argumentValues
 	].
 
-	allArguments := arguments.
+	allArguments := argumentValues.
 	receiverValue ifNotNil: [ allArguments := {receiverValue} , argumentValues ].
 	
 	calledMethodValue := self fetchCalledMethodValueForReceiver: receiverValue withBuilder: builder.

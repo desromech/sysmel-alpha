@@ -126,7 +126,9 @@ SYMLFieldVariable >> getterSelector [
 SYMLFieldVariable >> initialize [
 	super initialize.
 	hasCreatedAccessors := false.
-	self private
+	self
+		mutable;
+		private
 ]
 
 { #category : #'code generation' }

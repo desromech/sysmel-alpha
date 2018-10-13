@@ -21,7 +21,7 @@ definition: {
 shader ScreenQuadVertex uses: ScreenRendering;
 definition: {
     vertex main := {
-        let position := Float32x2().
+        let position mutable := Float32x2().
 
         if: VertexStage vertexID = 0 then: {position := Float32x2(-1.0,  1.0)}.
         if: VertexStage vertexID = 1 then: {position := Float32x2( 1.0,  1.0)}.

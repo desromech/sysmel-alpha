@@ -25,7 +25,7 @@ function main externC (argc: Int32, argv: Char const pointer pointer) -> Int32 :
 
     //let matrix := Float32x3x3 identity + Float32x3x3 identity.
     //let matrix := Float32x3x3 rowMajorIndices * Float32x3x3 rowMajorIndices.
-    let matrix := Float32x3x3 identity + Float32x3x3 identity.
+    let matrix mutable := Float32x3x3 identity + Float32x3x3 identity.
     LibC printf(
 "zm
     %f %f %f
@@ -48,7 +48,7 @@ function main externC (argc: Int32, argv: Char const pointer pointer) -> Int32 :
     printValue(1).
     printValue(1.0).
 
-    let i := 1.
+    let i mutable := 1.
     LibC printf("i address: %p\n", i address).
     until: i >= argc do: {
         if: i = 1 then: {

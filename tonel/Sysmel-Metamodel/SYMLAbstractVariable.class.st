@@ -60,7 +60,7 @@ SYMLAbstractVariable >> evaluateBindingInEnvironment: environment [
 
 { #category : #testing }
 SYMLAbstractVariable >> isReadOnly [
-	^ self hasFlag: #readOnly
+	^ (self hasFlag: #mutable) not
 ]
 
 { #category : #accessing }
@@ -78,16 +78,16 @@ SYMLAbstractVariable >> mangledName [
 ]
 
 { #category : #accessing }
+SYMLAbstractVariable >> mutable [
+	<compileTime>
+	self addFlag: #mutable
+]
+
+{ #category : #accessing }
 SYMLAbstractVariable >> name: aNewName [
 	<compileTime>
 	name := aNewName.
 
-]
-
-{ #category : #accessing }
-SYMLAbstractVariable >> readOnly [
-	<compileTime>
-	self addFlag: #readOnly
 ]
 
 { #category : #'as yet unclassified' }
