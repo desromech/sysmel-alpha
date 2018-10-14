@@ -81,6 +81,11 @@ SYMLFunctionalPatternGroupAlternative >> semanticAnalysis [
 	macroFunction semanticAnalysis
 ]
 
+{ #category : #'semantic analysis' }
+SYMLFunctionalPatternGroupAlternative >> semanticAnalyzeAddress: node inEnvironment: environment at: aPosition [
+	^ macroFunction semanticAnalyzeAddress: node inEnvironment: environment at: aPosition
+]
+
 { #category : #'macro compilation' }
 SYMLFunctionalPatternGroupAlternative >> semanticAnalyzeMessage: message inEnvironment: environment at: aPosition [
 	^ macroFunction semanticAnalyzeMessage: message inEnvironment: environment at: aPosition

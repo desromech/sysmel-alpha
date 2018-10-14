@@ -21,6 +21,17 @@ SYMLAPSGLexicalScopeNode >> analyzeAndEvaluateInEnvironment: environment [
 ]
 
 { #category : #'meta evaluation' }
+SYMLAPSGLexicalScopeNode >> appendStatement: anStatement [
+	<compileTime>
+	node appendStatement: anStatement
+]
+
+{ #category : #accessing }
+SYMLAPSGLexicalScopeNode >> children [
+	^ { node }
+]
+
+{ #category : #'meta evaluation' }
 SYMLAPSGLexicalScopeNode >> evaluateInEnvironment: anEnvironment [
 	| evaluationEnvironment result |
 	evaluationEnvironment := anEnvironment newLexicalScope.

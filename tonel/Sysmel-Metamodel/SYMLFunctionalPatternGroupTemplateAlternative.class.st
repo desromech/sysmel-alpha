@@ -38,3 +38,8 @@ SYMLFunctionalPatternGroupTemplateAlternative >> matchUnexpandedArguments: suppl
 SYMLFunctionalPatternGroupTemplateAlternative >> matchesSameAs: aPatternAlternative [
 	^ aPatternAlternative matchesSameAsTemplateAlternative: self
 ]
+
+{ #category : #'semantic analysis' }
+SYMLFunctionalPatternGroupTemplateAlternative >> semanticAnalyzeAddress: node inEnvironment: environment at: aPosition [
+	self error: 'Cannot get the address of an uninstanced template.' at: aPosition
+]

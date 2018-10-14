@@ -191,6 +191,11 @@ SYMLCompilationTarget >> float64Type: anObject [
 ]
 
 { #category : #'builder methods' }
+SYMLCompilationTarget >> functionArguments: argumentTypes returnType: returnType [
+ ^ self functionArguments: argumentTypes returnType: returnType callingConvention: #cdecl variadic: false
+]
+
+{ #category : #'builder methods' }
 SYMLCompilationTarget >> functionArguments: argumentTypes returnType: returnType callingConvention: callingConvention variadic: variadic [
 	| functionType |
 	functionType := SYMLFunctionType new

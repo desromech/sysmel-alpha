@@ -505,6 +505,17 @@ SYMLAbstractFunction >> semanticAnalysis [
 	self analyzedBody
 ]
 
+{ #category : #accessing }
+SYMLAbstractFunction >> semanticAnalyzeAddress: node inEnvironment: environment at: aPosition [
+	| newReceiver |
+	newReceiver := (self sysmelValueWithType: self type inEnvironment: environment) asAPSGNodeInEnvironment: environment at: aPosition.
+	^ (SYMLAPSGMessageSend new
+		selector: #address;
+		receiver: newReceiver;
+		arguments: #();
+		yourself) semanticAnalysisInEnvironment: environment
+]
+
 { #category : #'macro compilation' }
 SYMLAbstractFunction >> semanticAnalyzeMessage: message inEnvironment: environment at: aPosition [
 	self halt

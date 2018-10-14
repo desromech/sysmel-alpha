@@ -16,6 +16,12 @@ SYMLAPSGSequence >> analyzeAndEvaluateInEnvironment: anEnvironment [
 	^ result
 ]
 
+{ #category : #'meta evaluation' }
+SYMLAPSGSequence >> appendStatement: anStatement [
+	<compileTime>
+	elements := elements copyWith: anStatement.
+]
+
 { #category : #accessing }
 SYMLAPSGSequence >> children [
 	^ elements

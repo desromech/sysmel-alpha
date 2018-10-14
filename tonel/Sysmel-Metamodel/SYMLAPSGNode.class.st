@@ -73,6 +73,11 @@ SYMLAPSGNode >> evaluateInEnvironment: anEnvironment [
 	self subclassResponsibility
 ]
 
+{ #category : #'semantic analysis' }
+SYMLAPSGNode >> evaluateMetaObjectTypeInEnvironment: anEnvironment [
+	^ anEnvironment compilationTarget apsgNodeType
+]
+
 { #category : #'meta evaluation' }
 SYMLAPSGNode >> evaluateReceiverTypeInEnvironment: environment [
 	self error: 'This does not have an associated receiver.' at: self position

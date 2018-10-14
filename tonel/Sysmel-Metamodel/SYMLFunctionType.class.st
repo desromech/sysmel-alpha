@@ -104,6 +104,11 @@ SYMLFunctionType >> hash [
 	( callingConvention identityHash))))
 ]
 
+{ #category : #'as yet unclassified' }
+SYMLFunctionType >> isAnonymousType [
+	^ true
+]
+
 { #category : #testing }
 SYMLFunctionType >> isDynamicMessageFunctionType [
 	returnType isAnyDynamicObjectType ifFalse: [ ^ false ].
@@ -142,6 +147,23 @@ SYMLFunctionType >> returnType: anObject [
 { #category : #'as yet unclassified' }
 SYMLFunctionType >> typeKindBaseTrait [
 	^ self compilationTarget functionTypeTrait
+]
+
+{ #category : #printing }
+SYMLFunctionType >> validName [
+	^ name ifNil: [
+		name := ByteString streamContents: [ :out |
+			out nextPutAll: '(('.
+			arguments doWithIndex: [ :arg :index |
+				index > 1 ifTrue: [ out nextPutAll: ', ' ].
+				out print: arg. 
+			].
+
+			out nextPutAll: ') -> '.
+			out print: returnType.
+			out nextPut: $).
+		]
+	]
 ]
 
 { #category : #accessing }

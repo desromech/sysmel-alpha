@@ -7,6 +7,19 @@ Class {
 	#category : #'Sysmel-Metamodel-APSG'
 }
 
+{ #category : #'as yet unclassified' }
+SYMLAPSGIdentifier >> -- aSymbolOrIdentifier [
+	<compileTime>
+	| symbolValue |
+	symbolValue := aSymbolOrIdentifier isSymbol
+		ifTrue: [ aSymbolOrIdentifier ]
+		ifFalse: [ aSymbolOrIdentifier value ].
+	^ SYMLAPSGIdentifier new
+		position: position;
+		value: (value , symbolValue) asSymbol;
+		yourself
+]
+
 { #category : #accessing }
 SYMLAPSGIdentifier >> bindIntoOverloadedAlternative: anAlternative inEnvironment: environment [
 	^ anAlternative analyzeAPSGIdentifierToMe: self inEnvironment: environment
@@ -47,12 +60,27 @@ SYMLAPSGIdentifier >> semanticAnalysisInEnvironment: anEnvironment [
 	^ binding analyzeAPSGIdentifierToMe: self inEnvironment: anEnvironment
 ]
 
+{ #category : #'as yet unclassified' }
+SYMLAPSGIdentifier >> similarFor: aSymbolOrIdentifier [
+	<compileTime>
+	| symbolValue |
+	symbolValue := aSymbolOrIdentifier isSymbol
+		ifTrue: [ aSymbolOrIdentifier ]
+		ifFalse: [ aSymbolOrIdentifier value ].
+	^ SYMLAPSGIdentifier new
+		position: position;
+		value: symbolValue asSymbol;
+		yourself
+]
+
 { #category : #accessing }
 SYMLAPSGIdentifier >> value [
+	<compileTime>
 	^ value
 ]
 
 { #category : #accessing }
 SYMLAPSGIdentifier >> value: anObject [
+	<compileTime>
 	value := anObject
 ]

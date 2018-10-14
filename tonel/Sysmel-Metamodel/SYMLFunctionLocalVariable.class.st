@@ -90,7 +90,7 @@ SYMLFunctionLocalVariable >> doCreateSSADebugInformation [
 
 { #category : #'as yet unclassified' }
 SYMLFunctionLocalVariable >> evaluateBoundIdentifierToMe: identifier inEnvironment: anEnvironment [
-	anEnvironment == definitionEnvironment ifTrue: [
+	(self isAnonymousGlobal or: [anEnvironment == definitionEnvironment]) ifTrue: [
 		self isReadOnly ifTrue: [
 			^ currentValue sysmelValueWithType: referenceType inEnvironment: anEnvironment
 		].

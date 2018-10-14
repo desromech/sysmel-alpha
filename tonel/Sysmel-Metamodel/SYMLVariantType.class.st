@@ -69,6 +69,11 @@ SYMLVariantType >> implicitConversionTo: targetTypeKindLazyValue doOn: actionRul
 
 ]
 
+{ #category : #'as yet unclassified' }
+SYMLVariantType >> isAnonymousType [
+	^ true
+]
+
 { #category : #conversions }
 SYMLVariantType >> reinterpretConversionTo: targetTypeKindLazyValue doOn: actionRules [
 	<compileTime>

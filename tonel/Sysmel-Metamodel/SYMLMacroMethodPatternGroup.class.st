@@ -7,7 +7,7 @@ Class {
 { #category : #'macro compilation' }
 SYMLMacroMethodPatternGroup >> analyzeAndEvaluateMessage: message inEnvironment: environment at: aPosition [
 	alternatives ifEmpty: [ ^ fallbackPattern analyzeAndEvaluateMessage: message inEnvironment: environment at: aPosition ].
-	(alternatives size = 1 and: [fallbackPattern isNil ]) ifTrue: [ alternatives first analyzeAndEvaluateMessage: message inEnvironment: environment at: aPosition ].
+	(alternatives size = 1 and: [fallbackPattern isNil ]) ifTrue: [ ^ alternatives first analyzeAndEvaluateMessage: message inEnvironment: environment at: aPosition ].
 	^ super analyzeAndEvaluateMessage: message inEnvironment: environment at: aPosition
 ]
 

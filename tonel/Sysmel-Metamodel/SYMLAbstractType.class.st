@@ -43,6 +43,16 @@ SYMLAbstractType class >> specialMetaSymbols [
 	^ SpecialMetaSymbols
 ]
 
+{ #category : #'type composition' }
+SYMLAbstractType >> -> aReturnType [
+	<compileTime>
+	self isVoidType ifTrue: [
+		^ self compilationTarget functionArguments: #() returnType: aReturnType.
+	].
+	^ self compilationTarget functionArguments: { self } returnType: aReturnType.
+
+]
+
 { #category : #adding }
 SYMLAbstractType >> addArithmeticCoercionRule: aRule [
 	arithmeticCoercionRules add: aRule
@@ -734,6 +744,11 @@ SYMLAbstractType >> isAPSGNodeType [
 	^ self == self compilationTarget apsgNodeType
 ]
 
+{ #category : #'as yet unclassified' }
+SYMLAbstractType >> isAnonymousType [
+	^ false
+]
+
 { #category : #testing }
 SYMLAbstractType >> isAnyDynamicObjectType [
 	^ self cachedNullary: #isAnyDynamicObjectType
@@ -1091,7 +1106,7 @@ SYMLAbstractType >> semanticAnalyzeMessage: message inEnvironment: environment a
 		^ self valueType semanticAnalyzeMessage: message inEnvironment: environment at: aPosition
 	].
 
-	(self isMetaObjectType or: [ self isLiteralType ]) ifTrue: [
+	(self isMetaObjectType or: [ self isLiteralType or: [ self isAPSGNodeType ]]) ifTrue: [
 		^ SYMLSendToHost new semanticAnalyzeMessage: message inEnvironment: environment at: aPosition
 	].
 
@@ -1100,8 +1115,10 @@ SYMLAbstractType >> semanticAnalyzeMessage: message inEnvironment: environment a
 
 { #category : #'as yet unclassified' }
 SYMLAbstractType >> semanticAnalyzeMessageToYou: message inEnvironment: environment at: aPosition [
-	(name isNil and: [message selector numArgs = 0 and: [self isMetaType not and: [hasDefinition not] ]]) ifTrue: [
-		^ self setName: message selector ifNewReturnNode: message receiver
+	self isAnonymousType ifFalse: [ 
+		(name isNil and: [message selector numArgs = 0 and: [self isMetaType not and: [hasDefinition not] ]]) ifTrue: [
+			^ self setName: message selector ifNewReturnNode: message receiver
+		].
 	].
 
 	SpecialMetaSymbols at: message selector ifPresent: [ :specialSymbol |

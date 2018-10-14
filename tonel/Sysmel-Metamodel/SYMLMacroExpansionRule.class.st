@@ -31,7 +31,7 @@ SYMLMacroExpansionRule >> definition: aDefinitionBlock [
 { #category : #'macro compilation' }
 SYMLMacroExpansionRule >> semanticAnalyzeMessage: message inEnvironment: environment at: aPosition [
 	| activationEnvironment expansion |
-	activationEnvironment := self createActivationEnvironmentForMessage: message inEnvironment: environment at: aPosition.
+	activationEnvironment := self createActivationEnvironmentForMessage: message inEnvironment: definitionEnvironment at: aPosition.
 	expansion := (expansionTemplate analyzeAndEvaluateInEnvironment: activationEnvironment) unwrapSysmelValue.
 	^ (self sanitizeExpansion: expansion at: aPosition)
 		semanticAnalysisInEnvironment: environment

@@ -208,6 +208,18 @@ SYMLFunctionalPatternGroup >> semanticAnalysis [
 	self allAlternativesDo: #semanticAnalysis
 ]
 
+{ #category : #'semantic analysis' }
+SYMLFunctionalPatternGroup >> semanticAnalyzeAddress: node inEnvironment: environment at: aPosition [
+	((fallbackPattern isNotNil and: [ alternatives isNotEmpty ]) or: [ alternatives size ~= 1 ]) ifTrue: [ 
+		self error: 'Cannot get the address of an ambiguous functional group.' at: aPosition
+	].
+
+	fallbackPattern ifNotNil: [
+		^ fallbackPattern semanticAnalyzeAddress: node inEnvironment: environment at: aPosition
+	].
+	^ alternatives first semanticAnalyzeAddress: node inEnvironment: environment at: aPosition
+]
+
 { #category : #accessing }
 SYMLFunctionalPatternGroup >> ssaValue [
 	<compileTime>

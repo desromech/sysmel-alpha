@@ -9,6 +9,13 @@ Class {
 }
 
 { #category : #comparing }
+SYMLTupleType >> -> aReturnType [
+	<compileTime>
+	^ self compilationTarget functionArguments: types returnType: aReturnType.
+
+]
+
+{ #category : #comparing }
 SYMLTupleType >> = other [
 	^ self class == other class and:
 	[ types = other types ]
@@ -29,6 +36,11 @@ SYMLTupleType >> compilationTarget: anObject [
 { #category : #comparing }
 SYMLTupleType >> hash [
 	^ self class identityHash bitXor: types hash
+]
+
+{ #category : #testing }
+SYMLTupleType >> isAnonymousType [
+	^ true
 ]
 
 { #category : #testing }
