@@ -24,6 +24,16 @@ SYMLTemplateInstance >> addedChild: aChild [
 ]
 
 { #category : #accessing }
+SYMLTemplateInstance >> applyExtension: anExtension [
+	children do: [ :child | child extend: anExtension copy ]
+]
+
+{ #category : #accessing }
+SYMLTemplateInstance >> applyExtensions: extensions [
+	extensions do: [ :ext | self applyExtension: ext ]
+]
+
+{ #category : #accessing }
 SYMLTemplateInstance >> arguments [
 	^ arguments
 ]

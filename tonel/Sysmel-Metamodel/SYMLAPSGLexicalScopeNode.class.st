@@ -10,16 +10,26 @@ Class {
 
 { #category : #'meta evaluation' }
 SYMLAPSGLexicalScopeNode >> analyzeAndEvaluateInEnvironment: environment [
-	| innerScope |
+	| innerScope result |
 	innerScope := environment newLexicalScope.
-	^ node analyzeAndEvaluateInEnvironment: innerScope
+	result := node analyzeAndEvaluateInEnvironment: innerScope.
+	innerScope cleanUpActions do: [ :action |
+		self halt
+	].
+	
+	^ result
 ]
 
 { #category : #'meta evaluation' }
 SYMLAPSGLexicalScopeNode >> evaluateInEnvironment: anEnvironment [
-	| evaluationEnvironment |
+	| evaluationEnvironment result |
 	evaluationEnvironment := anEnvironment newLexicalScope.
-	^ node evaluateInEnvironment: evaluationEnvironment
+	result := node evaluateInEnvironment: evaluationEnvironment.
+	lexicalEnvironment cleanUpActions do: [ :cleanUpAction |
+		self halt.
+	].
+	
+	^ result
 ]
 
 { #category : #'meta evaluation' }
@@ -29,9 +39,19 @@ SYMLAPSGLexicalScopeNode >> evaluateTypeInEnvironment: anEnvironment [
 
 { #category : #'meta evaluation' }
 SYMLAPSGLexicalScopeNode >> generateSSACodeWith: aBuilder [
+	| result |
 	aBuilder withDebugPosition: self position do: [ 
-		^ node generateSSACodeWith: aBuilder
-	]
+		result := node generateSSACodeWith: aBuilder.
+		aBuilder isLastTerminator ifTrue: [ ^ result ].
+		lexicalEnvironment generateSSACleanUpActionsWith: aBuilder.
+		
+		^ result
+	].
+]
+
+{ #category : #accessing }
+SYMLAPSGLexicalScopeNode >> hasPragmaNamed: selector [
+	^ node hasPragmaNamed: selector
 ]
 
 { #category : #'as yet unclassified' }

@@ -402,7 +402,18 @@ SYMLModule >> semanticAnalysis [
 { #category : #'code generation' }
 SYMLModule >> ssaConstantArrayValue: value type: type [
 	<compileTime>
-	self halt
+	| elementType elements ssaType actualValue defaultElement |
+	ssaType := type ssaType.
+	elementType := type elementType.
+	elements := ssaType elements.
+	value ifNil: [
+		defaultElement := elementType generateSSAConstant: elementType defaultValue forModule: self.
+		actualValue := (1 to: elements) collect: [:i | defaultElement]
+	] ifNotNil: [
+		self halt
+	].
+
+	^ SLVMConstant array: ssaType slots: actualValue asArray.
 ]
 
 { #category : #'code generation' }

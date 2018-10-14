@@ -15,21 +15,24 @@ SYMLFunctionLocalVariable >> assignValue: initialValue [
 	<lazy>
 	<rewrite>
 	
-	| initialValueNode initialValueType analyzedInitialValueNode initialValueCoercionRule |
+	| initialValueNode initialValueType initialValueCoercionRule |
 	initialValueNode := initialValue node semanticAnalysisInEnvironment: initialValue environment.
 	initialValueType := initialValueNode evaluateTypeInEnvironment: initialValue environment.
 	type ifNil: [
-		self type: initialValueType cleanValueType.
+		self isRef ifTrue: [ 
+			self type: initialValueType cleanType.
+		] ifFalse: [
+			self type: initialValueType cleanValueType.
+		]
 	].
 
 	self isReadOnly ifTrue: [ 
-		analyzedInitialValueNode := initialValueNode semanticAnalysisInEnvironment: initialValue environment.
-		initialValueCoercionRule := (analyzedInitialValueNode evaluateTypeInEnvironment: definitionEnvironment) node: analyzedInitialValueNode coercedImplicitlyInto: type.
+		initialValueCoercionRule := initialValueType node: initialValueNode coercedImplicitlyInto: type.
 		
 		^ SYMLAPSGLocalInitialization new
 			position: definitionPosition;
 			local: self;
-			initialization: analyzedInitialValueNode;
+			initialization: initialValueNode;
 			coercionRule: initialValueCoercionRule;
 			yourself.
 	].
@@ -105,7 +108,8 @@ SYMLFunctionLocalVariable >> generateAnonymousSSAGlobalWith: builder [
 		valueType: type ssaType
 		storage: SLVMType genericStorage.
 	ssaValue makePrivate.
-
+	self setSSAGlobalDebuggingInformation: ssaValue.
+	
 	ssaValue initialValue: (type generateSSAConstant: currentValue forModule: self module).
 ]
 
@@ -123,6 +127,13 @@ SYMLFunctionLocalVariable >> generateSSALocalWithBuilder: builder [
 SYMLFunctionLocalVariable >> generateSSAReferenceWith: builder [
 	(ssaValue isNil and: [ isAnonymousGlobal ]) ifTrue: [ self generateAnonymousSSAGlobalWith: builder ].
 	self assert: ssaValue isNotNil.
+	
+	self isAnonymousGlobal ifTrue: [ 
+		(self isReadOnly and: [ referenceType ssaType ~~ ssaValue type ]) ifTrue: [
+			^ builder load: ssaValue
+		].
+	].
+
 	^ ssaValue
 ]
 

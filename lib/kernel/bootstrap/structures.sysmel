@@ -38,7 +38,7 @@ codeGeneration: $$Pharo {
     | structureType structureVariable valueType initializerMethod |
     structureType := messageNode coercionType.
     valueType := messageNode valueType.
-    structureType ensureConcreteSSAType.
+    structureType concreteSSAType.
 
     structureVariable := builder allocaBuilder alloca: structureType ssaType.
     structureType initializeSSAVariable: structureVariable builder: builder.

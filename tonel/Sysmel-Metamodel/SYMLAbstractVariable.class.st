@@ -37,6 +37,12 @@ SYMLAbstractVariable >> concretizeIncompleteValue: value inEnvironment: concrete
 	^ concreteEnvironment lookSymbolRecursively: name ifAbsent: [ self error ]
 ]
 
+{ #category : #accessing }
+SYMLAbstractVariable >> const [
+	<compileTime>
+	self addFlag: #const
+]
+
 { #category : #converting }
 SYMLAbstractVariable >> convertNodeForSequenceElement: aNode inEnvironment: anEnvironment [
 	^ self asIdentifierWithBindingAt: aNode position
@@ -59,8 +65,18 @@ SYMLAbstractVariable >> evaluateBindingInEnvironment: environment [
 ]
 
 { #category : #testing }
+SYMLAbstractVariable >> isConst [
+	^ self hasFlag: #const
+]
+
+{ #category : #testing }
 SYMLAbstractVariable >> isReadOnly [
 	^ (self hasFlag: #mutable) not
+]
+
+{ #category : #testing }
+SYMLAbstractVariable >> isRef [
+	^ self hasFlag: #ref
 ]
 
 { #category : #accessing }
@@ -90,9 +106,26 @@ SYMLAbstractVariable >> name: aNewName [
 
 ]
 
+{ #category : #accessing }
+SYMLAbstractVariable >> ref [
+	<compileTime>
+	self addFlag: #ref
+]
+
 { #category : #'as yet unclassified' }
 SYMLAbstractVariable >> referenceType [
 	^ self type
+]
+
+{ #category : #'as yet unclassified' }
+SYMLAbstractVariable >> setSSAGlobalDebuggingInformation: ssaGlobalVariable [
+	self module isEmittingDebugInformation ifTrue: [
+		definitionPosition ifNotNil: [
+			ssaGlobalVariable debugSourceLocation: (self module convertDebugPosition: definitionPosition).
+		].
+	
+		ssaGlobalVariable debugInformation: self createSSADebugInformation.
+	].
 ]
 
 { #category : #initialization }

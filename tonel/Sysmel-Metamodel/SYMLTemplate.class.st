@@ -7,7 +7,8 @@ Class {
 		'bodyEnvironment',
 		'arguments',
 		'cachedResults',
-		'instances'
+		'instances',
+		'extensions'
 	],
 	#category : #'Sysmel-Metamodel-Program'
 }
@@ -162,9 +163,18 @@ SYMLTemplate >> evaluateTemplateWithActivationArguments: activationArguments at:
 			out nextPut: $).
 		]).
 	].
+	instance applyExtensions: extensions.
 	instances add: instance.
 	self module addPendingSemanticAnalysis: instance.
 	^ result value
+]
+
+{ #category : #definition }
+SYMLTemplate >> extend: anExtension [
+	<compileTime>
+	<lazy>
+	extensions add: anExtension.
+	instances do: [ :instance | instance applyExtension: anExtension ].
 ]
 
 { #category : #accessing }
@@ -184,6 +194,7 @@ SYMLTemplate >> initialize [
 	hasArguments := false.
 	cachedResults := SYMLOrderedDictionary new.
 	instances := OrderedCollection new.
+	extensions := OrderedCollection new.
 ]
 
 { #category : #testing }

@@ -420,6 +420,7 @@ template PointerTypeTemplate(P: Type, AS: _LiteralSymbol)
 definition: {
     alias PointedType := P.
     alias AddressSpaceName := AS.
+    alias CleanPointedType := PointedType cleanType.
 
     meta message pointed -> _CompilerObjectType := {
         return: PointedType
@@ -467,6 +468,19 @@ definition: {
 
     meta message createPrintingName -> _CompilerObjectType := {
         return: (P printingName -- " pointer")
+    }.
+
+    // Pointer comparison.
+    message == (other: SelfType) -> BooleanBit := {
+        [[compileTime]]
+        [[staticBinding]]
+        [[intrinsic: #"pointer.equals"]]
+    }.
+
+    message ~~ (other: SelfType) -> BooleanBit := {
+        [[compileTime]]
+        [[staticBinding]]
+        [[intrinsic: #"pointer.notEquals"]]
     }.
 
     // Address space conversion.
@@ -705,7 +719,7 @@ definition: {
     }.
 
     // Perform a bidirectional identity conversion for volatile types.
-    let decorationIdentityAction := {
+    let decorationIdentityAction := `'{
         evaluation: $$Pharo {
             value: value targetType: targetType at: position
                 ^ value sameValueButWithType: targetType

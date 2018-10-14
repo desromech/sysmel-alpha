@@ -28,6 +28,17 @@ SYMLIntrinsicFunction class >> addIntrinsic: intrinsicName builtInNamed: builtIn
 			yourself)
 ]
 
+{ #category : #intrinsics }
+SYMLIntrinsicFunction class >> atomicInstructions [
+	<intrinsics>
+	self
+		addIntrinsic: #'atomic.compare_and_swap' builtInNamed: 'atomic.compare_and_swap';
+		addIntrinsic: #'atomic.fetch_and_add' builtInNamed: 'atomic.fetch_and_add';
+		addIntrinsic: #'atomic.fetch_and_subtract' builtInNamed: 'atomic.fetch_and_subtract';
+		addIntrinsic: #'atomic.swap_value' builtInNamed: 'atomic.compare_and_swap';
+		yourself
+]
+
 { #category : #'instance creation' }
 SYMLIntrinsicFunction class >> fromName: intrinsicName [
 	^ IntrinsicFunctionDictionary at: intrinsicName ifAbsent: [ nil ]
@@ -85,6 +96,19 @@ SYMLIntrinsicFunction class >> objectInstructions [
 		];
 		addIntrinsic: #'dynobject.identityNotEquals' block: [ :arguments :returnType :builder |
 			builder dynObjectIdentityNotEquals: arguments first with: arguments second
+		];
+		yourself
+]
+
+{ #category : #intrinsics }
+SYMLIntrinsicFunction class >> pointerInstructions [
+	<intrinsics>
+	self
+		addIntrinsic: #'pointer.equals' block: [ :arguments :returnType :builder |
+			builder ieq: arguments first with: arguments second
+		];
+		addIntrinsic: #'pointer.notEquals' block: [ :arguments :returnType :builder |
+			builder ine: arguments first with: arguments second
 		];
 		yourself
 ]

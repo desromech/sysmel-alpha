@@ -166,6 +166,7 @@ SYMLCompilerCommandLineHandler >> activate [
 	] on: SYMLError do: [ :err |
 		stderr nextPutAll: err description; lf.
 		outputFileName asFileReference exists ifTrue: [ outputFileName asFileReference delete ].
+		"err debug."
 		^ Exit new status: 1; signal
 	].
 	

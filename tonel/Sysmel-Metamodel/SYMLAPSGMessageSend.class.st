@@ -11,14 +11,25 @@ Class {
 		'coercionRule',
 		'argumentsAreAnalyzed',
 		'isReceiverAnalyzed',
-		'hasIncompleteSemanticAnalysis'
+		'hasIncompleteSemanticAnalysis',
+		'analysisEnvironment'
 	],
 	#category : #'Sysmel-Metamodel-APSG'
 }
 
+{ #category : #accessing }
+SYMLAPSGMessageSend >> analysisEnvironment [
+	^ analysisEnvironment
+]
+
+{ #category : #accessing }
+SYMLAPSGMessageSend >> analysisEnvironment: anObject [
+	analysisEnvironment := anObject
+]
+
 { #category : #'meta evaluation' }
 SYMLAPSGMessageSend >> analyzeAndEvaluateInEnvironment: anEnvironment [
-	metaMethod ifNotNil: [ ^ self ].
+	metaMethod ifNotNil: [ ^ self evaluateInEnvironment: anEnvironment ].
 	^ anEnvironment analyzeAndEvaluateMessage: self at: position
 ]
 
@@ -282,7 +293,7 @@ SYMLAPSGMessageSend >> withAnalyzedReceiverAndArgumentsInEnvironment: anEnvironm
 	^ self copy
 		receiver: (isReceiverAnalyzed
 			ifTrue: [ receiver ]
-			ifFalse: [ receiver semanticAnalysisInEnvironment: anEnvironment]);
+			ifFalse: [ receiver ifNotNil: [receiver semanticAnalysisInEnvironment: anEnvironment] ]);
 		isReceiverAnalyzed: true;
 		arguments: (argumentsAreAnalyzed
 			ifTrue: [ arguments ]

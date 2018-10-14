@@ -69,7 +69,7 @@ SYMLSendMessageMacro >> semanticAnalyzeMessage: message inEnvironment: environme
 	].
 
 	receiverCoercionRule := nil.
-	receiverType := analyzedMessage receiver evaluateTypeInEnvironment: environment.
+	receiverType := analyzedMessage receiver ifNotNil: [:receiver | receiver evaluateTypeInEnvironment: environment].
 	expectedReceiverType isVoidType ifFalse: [ 
 		receiverCoercionRule := receiverType node: analyzedMessage receiver coercedImplicitlyInto: expectedReceiverType at: message.
 	].

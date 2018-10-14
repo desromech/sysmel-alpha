@@ -12,7 +12,7 @@ Class {
 SYMLAPSGSequence >> analyzeAndEvaluateInEnvironment: anEnvironment [
 	| result |
 	result := nil.
-	elements do: [ :el | result := (el analyzeAndEvaluateInEnvironment: anEnvironment) asValueForSequenceEvaluation ].
+	elements do: [ :el | result := (el analyzeAndEvaluateInEnvironment: anEnvironment) ifNotNil: [:val | val asValueForSequenceEvaluation] ].
 	^ result
 ]
 
@@ -39,6 +39,14 @@ SYMLAPSGSequence >> elements [
 { #category : #accessing }
 SYMLAPSGSequence >> elements: anObject [
 	elements := anObject
+]
+
+{ #category : #accessing }
+SYMLAPSGSequence >> hasPragmaNamed: selector [
+	pragmas do: [ :pragma |
+		pragma selector == selector ifTrue: [ ^ true ]
+	].
+	^ false
 ]
 
 { #category : #initialization }

@@ -55,7 +55,8 @@ SYMLStructure >> buildSSAType [
 
 { #category : #'code generation' }
 SYMLStructure >> buildStructureSSAType [
-	^ SLVMStructureType new name: self mangledName; kind: SLVMStructureType genericKind.
+	^ (self isPacked ifTrue: [SLVMPackedStructureType new ] ifFalse: [SLVMStructureType new])
+		name: self mangledName; kind: SLVMStructureType genericKind.
 ]
 
 { #category : #accessing }
@@ -63,6 +64,11 @@ SYMLStructure >> concreteSSAType [
 	<compileTime>
 	self ensureConcreteStructureSSAType.
 	^ self ssaType
+]
+
+{ #category : #accessing }
+SYMLStructure >> defaultValue [
+	^ self makeInstance
 ]
 
 { #category : #definition }
@@ -125,6 +131,12 @@ SYMLStructure >> isCompileTimeByDefault [
 	^ false
 ]
 
+{ #category : #accessing }
+SYMLStructure >> isPacked [
+	<compileTime>
+	^ self hasFlag: #packed
+]
+
 { #category : #'symbol lookup' }
 SYMLStructure >> lookReceiver: receiver symbol: symbol ifPresent: ifPresentBlock [
 	<compileTime>
@@ -155,6 +167,12 @@ SYMLStructure >> mangledName [
 			print: escapedName size;
 			nextPutAll: escapedName.
 	]
+]
+
+{ #category : #accessing }
+SYMLStructure >> packed [
+	<compileTime>
+	self addFlag: #packed
 ]
 
 { #category : #printing }

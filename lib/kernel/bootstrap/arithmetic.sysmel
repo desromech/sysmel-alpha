@@ -82,7 +82,11 @@ Float32 arithmeticCoercionWith: Float64 into: Float64.
 
 // Binary operators
 // TODO: Only allow the bitwise operations with integer types.
-NumericalType macro selectors: #(+ - * / % < > <= >= = ~= == ~~ | & << >> ) doOn: {
+NumericalType macro selectors: #(
+    + - * / %
+    < > <= >= = ~= == ~~
+    | & << >>
+) doOn: {
 evaluation: $$Pharo {
     node: node environment: environment
         | left right coercionType valueType selector |
@@ -94,7 +98,6 @@ evaluation: $$Pharo {
         (selector == #/ and: [ valueType isIntegerType]) ifTrue: [
             selector := #//
         ].
-
         ^ (left value perform: selector with: right value) sysmelValueWithType: valueType inEnvironment: environment
 }.
 
@@ -154,26 +157,37 @@ codeGeneration: $$Pharo {
 
 }.
 
-NumericalType macro selector: #negated doOn: {
+NumericalType macro selectors: #(#"prefix-+" negated #"prefix--" bitInvert #"prefix-~") doOn: {
     // Compile time evaluation
     evaluation: $$Pharo {
         node: node environment: environment
             | operand coercionType |
             coercionType := node coercionType.
             operand := node coercionRule convertValue: (node receiver evaluateInEnvironment: environment) into: coercionType at: node.
+
+            "Perform with the actual selector."
             ^ (operand value perform: node selector) sysmelValueWithType: coercionType inEnvironment: environment
     }.
 
     // Semantic analysis
     semanticAnalysis: $$Pharo {
         node: node environment: environment position: aSourcePosition
-	        | operand operandType coercionType resultType coercionRule |
+	        | operand operandType coercionType resultType coercionRule actualSelector |
 	        operand := node receiver semanticAnalysisInEnvironment: environment.
-            operandType := operand evaluateCleanValueTypeInEnvironment: environment.
+            operandType := operand evaluateTypeInEnvironment: environment.
 
-            coercionType := operandType.
+            "Rewrite the prefix selectors"
+            actualSelector := node selector.
+            actualSelector = #'prefix-+' ifTrue: [actualSelector := #yourself].
+            actualSelector = #'prefix--' ifTrue: [actualSelector := #negated].
+            actualSelector = #'prefix-~' ifTrue: [actualSelector := #bitInvert].
+
+            "Nop operation."
+            actualSelector == #yourself ifTrue: [^ operand].
+
+            coercionType := operandType cleanValueTypeKeepLiteral.
             coercionType isLiteralType ifTrue: [
-                ^ node buildLiteralWithValue: ((operand value value perform: node selector) sysmelValueWithType: coercionType inEnvironment: environment)
+                ^ node buildLiteralWithValue: ((operand value value perform: actualSelector) sysmelValueWithType: coercionType inEnvironment: environment)
             ].
 
             coercionRule := (operand evaluateTypeInEnvironment: environment) node: operand coercedImplicitlyInto: coercionType at: node.
@@ -181,6 +195,7 @@ NumericalType macro selector: #negated doOn: {
 
             ^ node copy
                 metaMethod: self;
+                selector: actualSelector;
                 receiver: operand;
                 arguments: #();
                 coercionType: coercionType;
@@ -197,6 +212,18 @@ NumericalType macro selector: #negated doOn: {
 			coercionType := messageNode coercionType.
 			operandNode := messageNode receiver.
 			operandValue := messageNode coercionRule convertSSAValue: (operandNode generateSSACodeWith: builder) to: coercionType with: builder at: messageNode.
-            ^ builder lnot: operandValue
+
+            messageNode selector == #negated ifTrue: [
+                ^ coercionType isFloatingPointType ifTrue: [
+                    builder fneg: operandValue
+                ] ifFalse: [
+                    builder neg: operandValue
+                ]
+            ].
+            messageNode selector == #bitInvert ifTrue: [
+                ^ builder not: operandValue
+            ].
+
+            self error: 'Unsupported unary operation'.
     }.
 }.

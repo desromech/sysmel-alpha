@@ -140,6 +140,12 @@ SYMLLazyValue >> position [
 	^ node
 ]
 
+{ #category : #'as yet unclassified' }
+SYMLLazyValue >> sameValueButWithType: aNewType [
+	self ensureEvaluation.
+	^ cachedValue sameValueButWithType: aNewType
+]
+
 { #category : #evaluating }
 SYMLLazyValue >> type [
 	self ensureEvaluation.

@@ -375,6 +375,11 @@ SYMLAbstractType >> concreteSSAType [
 	^ self ssaType
 ]
 
+{ #category : #'type composition' }
+SYMLAbstractType >> const [
+	^ self cachedNullary: #const
+]
+
 { #category : #conversions }
 SYMLAbstractType >> conversionTo: targetTypeKindLazyValue doOn: actionRules [
 	<compileTime>

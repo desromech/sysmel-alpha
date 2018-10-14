@@ -37,6 +37,7 @@ macro selector: #return: doOn: {
         	"Check the type of the return value."
         	coercionRule := returnValueType node: returnValue coercedImplicitlyInto: expectedReturnType at: aPosition.
         	^ message copy
+                analysisEnvironment: environment;
         		arguments: { returnValue };
         		metaMethod: self;
         		coercionType: expectedReturnType;
@@ -53,6 +54,9 @@ macro selector: #return: doOn: {
 
         	returnType := messageNode coercionType.
         	rawValue := valueNode generateSSACodeWith: builder.
+
+            "Perform return cleanup"
+            messageNode analysisEnvironment generateSSACleanUpActionsRecursivelyWith: builder.
 
         	^ returnType isVoidType ifTrue: [
         		builder returnVoid

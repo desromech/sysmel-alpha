@@ -86,6 +86,21 @@ SYMLAbstractScope >> definitionProgramEntity [
 	^ parent definitionProgramEntity
 ]
 
+{ #category : #'as yet unclassified' }
+SYMLAbstractScope >> generateSSACleanUpActionsRecursivelyWith: aBuilder [
+	self generateSSACleanUpActionsWith: aBuilder.
+
+	^ parent ifNotNil: [
+		parent definitionProgramEntity ~~ self definitionProgramEntity ifTrue: [ ^ self ].
+		parent generateSSACleanUpActionsWith: aBuilder
+	]
+]
+
+{ #category : #'as yet unclassified' }
+SYMLAbstractScope >> generateSSACleanUpActionsWith: aBuilder [
+	"Do nothing by default"
+]
+
 { #category : #testing }
 SYMLAbstractScope >> isImmediateEnvironment [
 	^ parent ifNotNil: [ parent isImmediateEnvironment ] ifNil: [ ^ true ]

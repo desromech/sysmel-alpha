@@ -4,7 +4,8 @@ Class {
 	#instVars : [
 		'symbols',
 		'metaMethodDictionary',
-		'usedNamespaces'
+		'usedNamespaces',
+		'cleanUpActions'
 	],
 	#category : #'Sysmel-Metamodel-Scope'
 }
@@ -24,13 +25,26 @@ SYMLLexicalScope >> addMetaMethod: selector value: value [
 	] ifAbsentPut: [ value ]
 ]
 
+{ #category : #accessing }
+SYMLLexicalScope >> cleanUpActions [
+	^ cleanUpActions
+]
+
+{ #category : #'as yet unclassified' }
+SYMLLexicalScope >> generateSSACleanUpActionsWith: aBuilder [
+	cleanUpActions do: [ :action |
+		action generateSSACodeWith: aBuilder.
+		aBuilder isLastTerminator ifTrue: [ ^ self ].
+	].
+
+]
+
 { #category : #initialization }
 SYMLLexicalScope >> initialize [
 	super initialize.
 	symbols := Dictionary new.
 	metaMethodDictionary := Dictionary new.
-
-	
+	cleanUpActions := OrderedCollection new.
 ]
 
 { #category : #'as yet unclassified' }
@@ -45,6 +59,19 @@ SYMLLexicalScope >> lookSymbol: symbol ifPresent: ifPresentBlock [
 	symbol == #__thisLexicalScope ifTrue: [ ^ ifPresentBlock value: self ].
 	^ symbols at: symbol ifPresent: ifPresentBlock
 	
+]
+
+{ #category : #enumerating }
+SYMLLexicalScope >> onCleanupDo: aCleanupActionLazyValue [
+	<compileTime>
+	<lazy>
+	<rewrite>
+	
+	self assert: aCleanupActionLazyValue environment == self.
+	cleanUpActions add: (aCleanupActionLazyValue node semanticAnalysisInEnvironment: self).
+	
+	"Remove myself from the APSG tree."
+	^ nil asAPSGNodeInEnvironment: self at: aCleanupActionLazyValue node position
 ]
 
 { #category : #initialization }

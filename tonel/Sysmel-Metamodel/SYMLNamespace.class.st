@@ -33,7 +33,8 @@ SYMLNamespace >> definition: aDefinitionBlock [
 
 { #category : #'as yet unclassified' }
 SYMLNamespace >> generateSSACode [
-	symbols valuesDo: #generateSSACode
+	symbols valuesDo: #generateSSACode.
+	metaMethodDictionary valuesDo: #generateSSACode.
 ]
 
 { #category : #initialization }
@@ -88,7 +89,8 @@ SYMLNamespace >> methodWithSelector: selector ifPresent: presentBlock ifAbsentPu
 
 { #category : #'as yet unclassified' }
 SYMLNamespace >> semanticAnalysis [
-	symbols valuesDo: #semanticAnalysis
+	symbols valuesDo: #semanticAnalysis.
+	metaMethodDictionary valuesDo: #semanticAnalysis.
 ]
 
 { #category : #'as yet unclassified' }

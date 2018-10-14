@@ -1,5 +1,21 @@
 namespace SysmelKernel definition: {
 
+// Implement assignValue: in any value for better error reporting.
+AnyValue macro selector: #assignValue: doOn: {
+semanticAnalysis: $$Pharo {
+    node: node environment: environment position: aSourcePosition
+        | reference referenceType value valueType |
+        value := node arguments first semanticAnalysisInEnvironment: environment.
+        reference := node receiver semanticAnalysisInEnvironment: environment.
+
+        valueType := value evaluateTypeInEnvironment: environment.
+        referenceType := reference evaluateTypeInEnvironment: environment.
+        self error: 'Cannot assign value of type {1} into immutable value of type {2}' format:
+            {valueType asString . referenceType asString} at: aSourcePosition
+}.
+
+}.
+
 ReferenceType macro selector: #assignValue: doOn: {
 // Compile time evaluation
 evaluation: $$Pharo {
@@ -26,8 +42,8 @@ evaluation: $$Pharo {
 semanticAnalysis: $$Pharo {
     node: node environment: environment position: aSourcePosition
         | reference referenceType value valueType coercionType coercionRule |
-        reference := node receiver semanticAnalysisInEnvironment: environment.
         value := node arguments first semanticAnalysisInEnvironment: environment.
+        reference := node receiver semanticAnalysisInEnvironment: environment.
 
         referenceType := reference evaluateTypeInEnvironment: environment.
         valueType := value evaluateTypeInEnvironment: environment.

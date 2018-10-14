@@ -11,3 +11,4 @@ loadFileOnce: "conversions.sysmel".
 loadFileOnce: "array.sysmel".
 loadFileOnce: "structures.sysmel".
 loadFileOnce: "pointer.sysmel".
+loadFileOnce: "atomic.sysmel".
