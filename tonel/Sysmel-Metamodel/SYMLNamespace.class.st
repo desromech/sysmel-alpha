@@ -111,7 +111,7 @@ SYMLNamespace >> semanticAnalyzeMessageToYou: message inEnvironment: environment
 	].
 
 	metaMethodDictionary at: message selector ifPresent: [ :method |
-		^ method analyzeMetaMessage: message toReceiver: self inEnvironment: environment at: aPosition
+		^ method semanticAnalyzeMessage: message inEnvironment: environment at: aPosition
 	].
 
 	^ super semanticAnalyzeMessageToYou: message inEnvironment: environment at: aPosition

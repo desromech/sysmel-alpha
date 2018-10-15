@@ -107,6 +107,7 @@ SYMLFunctionLocalVariable >> generateAnonymousSSAGlobalWith: builder [
 		name: nil
 		valueType: type ssaType
 		storage: SLVMType genericStorage.
+	ssaValue minimalAlignment: alignment.
 	ssaValue makePrivate.
 	self setSSAGlobalDebuggingInformation: ssaValue.
 	

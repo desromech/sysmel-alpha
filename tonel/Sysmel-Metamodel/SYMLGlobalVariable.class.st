@@ -39,6 +39,7 @@ SYMLGlobalVariable >> ensureSSAValue [
 		name: self mangledName
 		valueType: type ssaType
 		storage: SLVMType genericStorage.
+	ssaValue minimalAlignment: alignment.
 	ssaValue unmangledName: self fullUnmangledName.
 	self setSSAGlobalDebuggingInformation: ssaValue.	
 
@@ -49,6 +50,14 @@ SYMLGlobalVariable >> ensureSSAValue [
 	].
 
 	^ ssaValue
+]
+
+{ #category : #testing }
+SYMLGlobalVariable >> evaluateBoundIdentifierToMe: identifier inEnvironment: anEnvironment [
+	self isReadOnly ifTrue: [
+		^ currentValue sysmelValueWithType: referenceType inEnvironment: anEnvironment
+	].
+	^ self sysmelValueWithType: referenceType inEnvironment: anEnvironment
 ]
 
 { #category : #testing }

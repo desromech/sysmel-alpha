@@ -820,6 +820,11 @@ SYMLAbstractType >> isMetaType [
 ]
 
 { #category : #testing }
+SYMLAbstractType >> isPODType [
+	^ self cachedNullary: #isPODType
+]
+
+{ #category : #testing }
 SYMLAbstractType >> isPointerOrReferenceType [
 	^ self cachedNullary: #isPointerOrReferenceType
 ]

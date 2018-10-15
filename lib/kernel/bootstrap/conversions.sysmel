@@ -206,7 +206,7 @@ PrimitiveIntegerType conversionTo: PrimitiveFloatingPointType doOn: {
 }.
 
 // Nil into pointer
-UndefinedType conversionTo: PointerType doOn: {
+UndefinedType conversionTo: PointerType | Void doOn: {
     evaluation: $$Pharo {
         value: value targetType: targetType at: position
             ^ value sameValueButWithType: targetType

@@ -426,6 +426,10 @@ SYMLModule >> ssaConstantArrayValue: value type: type [
 	elementType := type elementType.
 	elements := ssaType elements.
 	value ifNil: [
+		type isPODType ifTrue: [ 
+			^ SLVMConstant zeroInitializer: ssaType
+		].
+	
 		defaultElement := elementType generateSSAConstant: elementType defaultValue forModule: self.
 		actualValue := (1 to: elements) collect: [:i | defaultElement]
 	] ifNotNil: [

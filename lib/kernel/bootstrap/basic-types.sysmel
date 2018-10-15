@@ -110,6 +110,10 @@ trait Type definition: {
         return: false
     }.
 
+    message isPODType -> BooleanBit := {
+        return: false
+    }.
+
     message isPointerOrReferenceType -> BooleanBit := {
         return: false
     }.
@@ -212,6 +216,10 @@ definition: {
     }.
 
     meta message isPrimitiveOrPrimitiveLiteralType -> BooleanBit := {
+        return: true
+    }.
+
+    meta message isPODType -> BooleanBit := {
         return: true
     }.
 
@@ -366,6 +374,10 @@ definition: {
     }.
 
     meta message isPointerOrReferenceType -> BooleanBit := {
+        return: true
+    }.
+
+    meta message isPODType -> BooleanBit := {
         return: true
     }.
 
@@ -851,6 +863,11 @@ definition: {
     meta message createPrintingName -> _CompilerObjectType := {
         return: (E printingName -- " array:" -- Size asString)
     }.
+
+    meta message isPODType -> BooleanBit := {
+        return: ElementType isPODType
+    }.
+
 }.
 
 Type extend: {

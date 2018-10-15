@@ -4,10 +4,23 @@ Class {
 	#instVars : [
 		'type',
 		'ssaDebugInformation',
-		'mangledName'
+		'mangledName',
+		'alignment'
 	],
 	#category : #'Sysmel-Metamodel-Variable'
 }
+
+{ #category : #accessing }
+SYMLAbstractVariable >> alignment [
+	<compileTime>
+	^ alignment
+]
+
+{ #category : #accessing }
+SYMLAbstractVariable >> alignment: anObject [
+	<compileTime>
+	alignment := anObject
+]
 
 { #category : #'as yet unclassified' }
 SYMLAbstractVariable >> analyzeAPSGIdentifierToMe: identifier inEnvironment: anEnvironment [
