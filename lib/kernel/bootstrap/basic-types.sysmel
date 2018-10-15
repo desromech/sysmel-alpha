@@ -14,157 +14,50 @@ definition: {
 
 // The type meta type
 trait Type definition: {
-    message asConcreteTypeForFunctionAnalysis -> SelfType := {
-        return: self
-    }.
+    message asConcreteTypeForFunctionAnalysis -> SelfType := self.
+    message asReceiverType -> SelfType := self.
+    message asVariableValueType -> SelfType := self.
+    message asGCClassFieldType -> SelfType := self.
 
-    message asReceiverType -> SelfType := {
-        return: self
-    }.
+    message isType -> BooleanBit := true.
+    message isCompilerObjectType -> BooleanBit := false.
+    message isDynamicObjectType -> BooleanBit := false.
 
-    message asVariableValueType -> SelfType := {
-        return: self
-    }.
-
-    message asGCClassFieldType -> SelfType := {
-        return: self
-    }.
-
-    message isType -> BooleanBit := {
-        return: true
-    }.
-
-    message isCompilerObjectType -> BooleanBit := {
-        return: false
-    }.
-
-    message isDynamicObjectType -> BooleanBit := {
-        return: false
-    }.
-
-    message isAnyDynamicObjectType -> BooleanBit := {
-        return: false
-    }.
-
-    message isArrayType -> BooleanBit := {
-        return: false
-    }.
-
-    message isGCClassVariableDataArrayType -> BooleanBit := {
-        return: false
-    }.
-
-    message isUndeterminedArrayType -> BooleanBit := {
-        return: false
-    }.
-
-    message isUndefinedType -> BooleanBit := {
-        return: false
-    }.
-
-    message isLiteralType -> BooleanBit := {
-        return: false
-    }.
-
-    message isPrimitiveType -> BooleanBit := {
-        return: false
-    }.
-
-    message isPrimitiveLiteralType -> BooleanBit := {
-        return: false
-    }.
-
-    message isPrimitiveOrPrimitiveLiteralType -> BooleanBit := {
-        return: false
-    }.
-
-    message isOpaqueType -> BooleanBit := {
-        return: false
-    }.
-
-    message isBooleanType -> BooleanBit := {
-        return: false
-    }.
-
-    message isNumericalType -> BooleanBit := {
-        return: false
-    }.
-
-    message isIntegerType -> BooleanBit := {
-        return: false
-    }.
-
-    message isFractionalType -> BooleanBit := {
-        return: false
-    }.
-
-    message isFloatingPointType -> BooleanBit := {
-        return: false
-    }.
-
-    message isPointerType -> BooleanBit := {
-        return: false
-    }.
-
-    message isReferenceType -> BooleanBit := {
-        return: false
-    }.
-
-    message isPODType -> BooleanBit := {
-        return: false
-    }.
-
-    message isPointerOrReferenceType -> BooleanBit := {
-        return: false
-    }.
-
-    message isTupleType -> BooleanBit := {
-        return: false
-    }.
-
-    message isFunctionType -> BooleanBit := {
-        return: false
-    }.
-
-    message isFunctionGroupType -> BooleanBit := {
-        return: false
-    }.
-
-    message isConstantType -> BooleanBit := {
-        return: false
-    }.
-
-    message isVolatileType -> BooleanBit := {
-        return: false
-    }.
-
-    message instanceSize -> _LiteralInteger := {
-        return: 0
-    }.
-
-    message instanceAlignment -> _LiteralInteger := {
-        return: 1
-    }.
-
-    message cleanType -> SelfType := {
-        return: self
-    }.
-
-    message valueType -> SelfType := {
-        return: self
-    }.
-
-    message valueTypeKeepLiteral -> SelfType := {
-        return: self
-    }.
+    message isAnyDynamicObjectType -> BooleanBit := false.
+    message isArrayType -> BooleanBit := false.
+    message isGCClassVariableDataArrayType -> BooleanBit := false.
+    message isUndeterminedArrayType -> BooleanBit := false.
+    message isUndefinedType -> BooleanBit := false.
+    message isLiteralType -> BooleanBit := false.
+    message isPrimitiveType -> BooleanBit := false.
+    message isPrimitiveLiteralType -> BooleanBit := false.
+    message isPrimitiveOrPrimitiveLiteralType -> BooleanBit := false.
+    message isOpaqueType -> BooleanBit := false.
+    message isBooleanType -> BooleanBit := false.
+    message isNumericalType -> BooleanBit := false.
+    message isIntegerType -> BooleanBit := false.
+    message isFractionalType -> BooleanBit := false.
+    message isFloatingPointType -> BooleanBit := false.
+    message isPointerType -> BooleanBit := false.
+    message isReferenceType -> BooleanBit := false.
+    message isPODType -> BooleanBit := false.
+    message isPointerOrReferenceType -> BooleanBit := false.
+    message isTupleType -> BooleanBit := false.
+    message isFunctionType -> BooleanBit := false.
+    message isFunctionGroupType -> BooleanBit := false.
+    message isConstantType -> BooleanBit := false.
+    message isVolatileType -> BooleanBit := false.
+    message instanceSize -> _LiteralInteger := 0.
+    message instanceAlignment -> _LiteralInteger := 1.
+    message cleanType -> SelfType := self.
+    message valueType -> SelfType := self.
+    message valueTypeKeepLiteral -> SelfType := self.
 
     message defaultSSAValueWith: (builder: _CompilerObjectType) ::-> _CompilerObjectType := {
         self error: "Cannot generate default value of {1}" format: (self,self)
     }.
 
-    message isReturnedThroughFirstArgument ::-> BooleanBit := {
-        return: false
-    }.
+    message isReturnedThroughFirstArgument ::-> BooleanBit := false.
 }.
 
 AnyValue type uses: Type.
@@ -484,15 +377,15 @@ definition: {
 
     // Pointer comparison.
     message == (other: SelfType) -> BooleanBit := {
-        [[compileTime]]
-        [[staticBinding]]
-        [[intrinsic: #"pointer.equals"]]
+        <compileTime>
+        <staticBinding>
+        <intrinsic: #"pointer.equals">
     }.
 
     message ~~ (other: SelfType) -> BooleanBit := {
-        [[compileTime]]
-        [[staticBinding]]
-        [[intrinsic: #"pointer.notEquals"]]
+        <compileTime>
+        <staticBinding>
+        <intrinsic: #"pointer.notEquals">
     }.
 
     // Address space conversion.

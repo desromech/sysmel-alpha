@@ -1,1 +1,3 @@
 loadFileOnce: "array.sysmel".
+loadFileOnce: "string.sysmel".
+loadFileOnce: "memory-heap.sysmel".

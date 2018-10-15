@@ -122,6 +122,11 @@ SYMLAPSGNode >> gtInspectorModelNestingIn: composite [
 		]
 ]
 
+{ #category : #accessing }
+SYMLAPSGNode >> hasPragmaNamed: selector [
+	^ false
+]
+
 { #category : #testing }
 SYMLAPSGNode >> hasTypeInEnvironment: anEnvironment [
 	^ (self evaluateTypeInEnvironment: anEnvironment) isNotNil
@@ -224,6 +229,26 @@ SYMLAPSGNode >> position [
 SYMLAPSGNode >> position: anObject [
 	<compileTime>
 	position := anObject asSysmelSourcePosition
+]
+
+{ #category : #accessing }
+SYMLAPSGNode >> pragmaAt: selector [
+	^ nil
+]
+
+{ #category : #accessing }
+SYMLAPSGNode >> pragmaAt: selector ifAbsent: ifAbsentBlock [
+	^ nil
+]
+
+{ #category : #accessing }
+SYMLAPSGNode >> pragmaAt: selector ifPresent: ifPresentBlock [
+	^ nil
+]
+
+{ #category : #accessing }
+SYMLAPSGNode >> pragmaAt: selector ifPresent: ifPresentBlock ifAbsent: ifAbsentBlock [
+	^ ifAbsentBlock value
 ]
 
 { #category : #'as yet unclassified' }

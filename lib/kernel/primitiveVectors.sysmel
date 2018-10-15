@@ -257,33 +257,33 @@ definition: {
     if: ElementType isNumericalType then: {
         // Vector arithmetic
         message + (other: SelfType) -> SelfType := {
-            [[intrinsic: #"vector.add"]]
+            <intrinsic: #"vector.add">
             return: (self _binaryOperation: #+ with: other)
         }.
 
         message - (other: SelfType) -> SelfType := {
-            [[intrinsic: #"vector.sub"]]
+            <intrinsic: #"vector.sub">
             return: (self _binaryOperation: #- with: other)
         }.
 
         message * (other: SelfType) -> SelfType := {
-            [[intrinsic: #"vector.mul"]]
+            <intrinsic: #"vector.mul">
             return: (self _binaryOperation: #* with: other)
         }.
 
         message / (other: SelfType) -> SelfType := {
-            [[intrinsic: #"vector.div"]]
+            <intrinsic: #"vector.div">
             return: (self _binaryOperation: #/ with: other)
         }.
 
         message % (other: SelfType) -> SelfType := {
-            [[intrinsic: #"vector.rem"]]
+            <intrinsic: #"vector.rem">
             return: (self _binaryOperation: #% with: other)
         }.
 
         // Dot product
         message dot: (other: SelfType) ::-> ElementType := {
-            [[intrinsic: #"vector.dot"]]
+            <intrinsic: #"vector.dot">
         }.
 
         // Length2
@@ -294,7 +294,7 @@ definition: {
         // Length
         if: ElementType isFloatingPointType then: {
             message length ::-> ElementType := {
-                [[intrinsic: #"vector.length"]]
+                <intrinsic: #"vector.length">
             }.
         }.
 
@@ -307,7 +307,7 @@ definition: {
 
         if: ElementCount = 3 then: {
             message cross: (other: SelfType) ::-> SelfType := {
-                [[intrinsic: #"vector.cross"]]
+                <intrinsic: #"vector.cross">
             }.
         }.
     }

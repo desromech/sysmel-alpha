@@ -16,7 +16,8 @@ Class {
 		'bindedFunctionType',
 		'generator',
 		'evaluator',
-		'templateFunctionOwner'
+		'templateFunctionOwner',
+		'bodyReturnTypeCoercionRule'
 	],
 	#category : #'Sysmel-Metamodel-Function'
 }
@@ -73,11 +74,17 @@ SYMLAbstractFunction >> analyzeMetaMessage: message toReceiver: receiverValue in
 
 { #category : #accessing }
 SYMLAbstractFunction >> analyzedBody [
-	| analysisScope |
+	| analysisScope bodyReturnedType |
 	analyzedBody ifNotNil: [ ^ analyzedBody ].
 	body ifNil: [ self error: 'Cannot call function without a body.' ].
 	analysisScope := self createAnalysisScope.
 	analyzedBody := body semanticAnalysisInEnvironment: analysisScope.
+
+	bodyReturnedType := analyzedBody evaluateTypeInEnvironment: analysisScope.
+	(bodyReturnedType isNotNil and: [ bodyReturnedType isVoidType not and: [returnType isVoidType not]]) ifTrue: [
+		bodyReturnTypeCoercionRule := bodyReturnedType node: analyzedBody coercedImplicitlyInto: returnType at: definitionPosition
+	].
+
 	^ analyzedBody
 ]
 
@@ -184,7 +191,7 @@ SYMLAbstractFunction >> ensureSemanticAnalysis [
 
 { #category : #'as yet unclassified' }
 SYMLAbstractFunction >> evaluateWithReceiver: aReceiver arguments: activationArguments inEnvironment: environment at: aPosition [
-	| activationScope result hasResult providedArgument convertedArgument convertedArguments receiverValue |
+	| activationScope result hasResult providedArgument convertedArgument convertedArguments receiverValue bodyReturnValue |
 	evaluator ifNotNil: [ 
 		convertedArguments := arguments collectWithIndex: [:expectedArgument :index |
 			providedArgument := activationArguments at: index.
@@ -218,7 +225,11 @@ SYMLAbstractFunction >> evaluateWithReceiver: aReceiver arguments: activationArg
 	result := nil.
 	hasResult := false.
 	[ 
-		analyzedBody evaluateInEnvironment: activationScope
+		bodyReturnValue := analyzedBody evaluateInEnvironment: activationScope.
+		bodyReturnTypeCoercionRule ifNotNil: [
+			result := bodyReturnTypeCoercionRule convertValue: bodyReturnValue into: returnType at: definitionPosition.
+			hasResult := true
+		].
 	] on: SYMLValueReturnException do: [ :exception |
 		hasResult := true.
 		result := exception value
@@ -296,7 +307,7 @@ SYMLAbstractFunction >> generateSSACallWithReceiver: receiverValue arguments: ar
 
 { #category : #'code generation' }
 SYMLAbstractFunction >> generateSSACode [
-	| allocaBuilder builder bodyBlock argumentsOffset receiverOffset |
+	| allocaBuilder builder bodyBlock argumentsOffset receiverOffset bodyReturnValue |
 	body ifNil: [
 		^ self
 	].
@@ -334,7 +345,13 @@ SYMLAbstractFunction >> generateSSACode [
 	locals do: [ :local | local generateSSALocalWithBuilder: builder ].
 	
 	"Generate the function body"
-	analyzedBody generateSSACodeWith: builder.
+	bodyReturnValue := analyzedBody generateSSACodeWith: builder.
+	bodyReturnTypeCoercionRule ifNotNil: [ 
+		builder isLastTerminator ifFalse: [
+			builder return: (bodyReturnTypeCoercionRule convertSSAValue: bodyReturnValue to: returnType with: builder at: definitionPosition)
+		].
+	].
+	
 	
 	"Make sure we are returning something at the end."
 	builder isLastTerminator ifFalse: [ 

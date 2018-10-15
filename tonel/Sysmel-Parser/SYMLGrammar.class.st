@@ -52,9 +52,7 @@ Class {
 		'literals',
 		'commaExpression',
 		'pragmaChainKeywordMessage',
-		'lbracketbracket',
 		'pragmaChainedMessage',
-		'rbracketbracket',
 		'pragma',
 		'symbolKeywordLiteral',
 		'symbolOperatorLiteral',
@@ -89,7 +87,9 @@ Class {
 		'unquoteExpression',
 		'spliceExpression',
 		'quasiunquote',
-		'splice'
+		'splice',
+		'lessThan',
+		'greaterThan'
 	],
 	#classVars : [
 		'SpecialOperators'
@@ -304,6 +304,11 @@ SYMLGrammar >> genericBinaryOperator [
 ]
 
 { #category : #tokens }
+SYMLGrammar >> greaterThan [
+	^ self token: $> asParser
+]
+
+{ #category : #tokens }
 SYMLGrammar >> identStart [
 	^ #letter asParser / $_ asParser
 ]
@@ -374,13 +379,13 @@ SYMLGrammar >> lbracket [
 ]
 
 { #category : #tokens }
-SYMLGrammar >> lbracketbracket [
-	^ self token: '[[' asParser
+SYMLGrammar >> lcbracket [
+	^ self token: ${ asParser
 ]
 
 { #category : #tokens }
-SYMLGrammar >> lcbracket [
-	^ self token: ${ asParser
+SYMLGrammar >> lessThan [
+	^ self token: $< asParser
 ]
 
 { #category : #tokens }
@@ -504,7 +509,8 @@ SYMLGrammar >> postfix: operation operate: operand [
 
 { #category : #accessing }
 SYMLGrammar >> pragma [
-	^ lbracketbracket , pragmaChainedMessage, rbracketbracket
+	^ lessThan , pragmaChainedMessage , greaterThan
+	
 ]
 
 { #category : #accessing }
@@ -565,11 +571,6 @@ SYMLGrammar >> quoteExpressions [
 { #category : #tokens }
 SYMLGrammar >> rbracket [
 	^ self token: $] asParser
-]
-
-{ #category : #tokens }
-SYMLGrammar >> rbracketbracket [
-	^ self token: ']]' asParser
 ]
 
 { #category : #tokens }

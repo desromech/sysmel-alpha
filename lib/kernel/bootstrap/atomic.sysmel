@@ -1,33 +1,33 @@
 PointerTypeTemplate extend: {
     message atomicSwap: (newValue: CleanPointedType) ::-> PointedType := {
-        [[compileTime]]
-        [[staticBinding]]
-        [[intrinsic: #"atomic.swap_value"]]
+        <compileTime>
+        <staticBinding>
+        <intrinsic: #"atomic.swap_value">
     }.
 
     message atomicCompare: (comparedValue: CleanPointedType) andSet: (newValue: CleanPointedType) ::-> BooleanBit := {
-        [[compileTime]]
-        [[staticBinding]]
-        [[intrinsic: #"atomic.compare_and_swap"]]
+        <compileTime>
+        <staticBinding>
+        <intrinsic: #"atomic.compare_and_swap">
     }.
 
     message atomicCompare: (comparedValue: CleanPointedType) andSwap: (newValue: CleanPointedType) ::-> CleanPointedType := {
-        [[compileTime]]
-        [[staticBinding]]
-        [[intrinsic: #"atomic.compare_and_swap"]]
+        <compileTime>
+        <staticBinding>
+        <intrinsic: #"atomic.compare_and_swap">
     }.
 
     if: CleanPointedType isIntegerType then: {
         message atomicFetchAndAdd: (addedValue: CleanPointedType) ::-> CleanPointedType := {
-            [[compileTime]]
-            [[staticBinding]]
-            [[intrinsic: #"atomic.fetch_and_add"]]
+            <compileTime>
+            <staticBinding>
+            <intrinsic: #"atomic.fetch_and_add">
         }.
 
         message atomicFetchAndSubtract: (addedValue: CleanPointedType) ::-> CleanPointedType := {
-            [[compileTime]]
-            [[staticBinding]]
-            [[intrinsic: #"atomic.fetch_and_subtract"]]
+            <compileTime>
+            <staticBinding>
+            <intrinsic: #"atomic.fetch_and_subtract">
         }.
     }.
 

@@ -166,31 +166,31 @@ definition: {
 
     // Matrix transposition
     message transposed -> PrimitiveMatrixTypeTemplate(ElementType, ColumnCount, RowCount) := {
-        [[intrinsic: #"matrix.transpose"]]
+        <intrinsic: #"matrix.transpose">
     }.
 
     // Element-wise arithmetic
     message + (other: SelfType) -> SelfType := {
-        [[intrinsic: #"matrix.add"]]
+        <intrinsic: #"matrix.add">
     }.
 
     message - (other: SelfType) -> SelfType := {
-        [[intrinsic: #"matrix.sub"]]
+        <intrinsic: #"matrix.sub">
     }.
 
     template(OtherColumns: _LiteralInteger)
     message * (other: PrimitiveMatrixTypeTemplate(E, ColumnCount, OtherColumns)) ::-> PrimitiveMatrixTypeTemplate(ElementType, RowCount, OtherColumns):= {
-        [[intrinsic: #"matrix.matrixTimesMatrix"]]
+        <intrinsic: #"matrix.matrixTimesMatrix">
     }.
 
     // Matrix-Vector multiplication
     message * (vector: ColumnType) -> ColumnType := {
-        [[intrinsic: #"matrix.matrixTimesVector"]]
+        <intrinsic: #"matrix.matrixTimesVector">
     }.
 
     // Vector-Matrix multiplication
     RowType message * (matrix: SelfType) -> RowType := {
-        [[intrinsic: #"matrix.vectorTimesMatrix"]]
+        <intrinsic: #"matrix.vectorTimesMatrix">
     }.
 }.
 

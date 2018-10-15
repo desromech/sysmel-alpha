@@ -18,7 +18,7 @@ SYMLGlobalVariable >> assignValue: initialValue [
 	initialValueNode := initialValue node semanticAnalysisInEnvironment: initialValue environment.
 	initialValueType := initialValueNode evaluateTypeInEnvironment: initialValue environment.
 	type ifNil: [
-		self type: initialValueType cleanValueType.
+		self type: initialValueType valueType.
 	].
 	
 	currentValue := (initialValue coercedIntoType: type at: initialValue position) unwrapSysmelValue

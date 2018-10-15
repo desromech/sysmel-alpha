@@ -1,0 +1,14 @@
+namespace StdNative definition: {
+
+/**
+ * MemoryHeap
+ * A data structure for implementing malloc/free and family.
+ */
+class MemoryHeap
+definition: {
+    message allocate: (size: UIntPointer) ::-> Void pointer := nil.
+
+    message free: (pointer: Void pointer) ::-> Void := nil.
+}.
+
+}. // End of namespace StdNative

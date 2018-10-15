@@ -231,6 +231,7 @@ let pointerReinterpretCast := `'{
 
 PointerType reinterpretConversionTo: PointerType doOn: pointerReinterpretCast.
 PointerType conversionTo: Void pointer doOn: pointerReinterpretCast.
+PointerType conversionTo: Void const pointer doOn: pointerReinterpretCast.
 
 // Literal integer -> Pointer
 _LiteralInteger reinterpretConversionTo: PointerType doOn: {

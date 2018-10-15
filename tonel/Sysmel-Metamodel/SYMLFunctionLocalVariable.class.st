@@ -20,14 +20,14 @@ SYMLFunctionLocalVariable >> assignValue: initialValue [
 	initialValueType := initialValueNode evaluateTypeInEnvironment: initialValue environment.
 	type ifNil: [
 		self isRef ifTrue: [ 
-			self type: initialValueType cleanType.
+			self type: initialValueType.
 		] ifFalse: [
-			self type: initialValueType cleanValueType.
+			self type: initialValueType valueType.
 		]
 	].
 
 	self isReadOnly ifTrue: [ 
-		initialValueCoercionRule := initialValueType node: initialValueNode coercedImplicitlyInto: type.
+		initialValueCoercionRule := initialValueType node: initialValueNode coercedImplicitlyInto: type at: definitionPosition.
 		
 		^ SYMLAPSGLocalInitialization new
 			position: definitionPosition;
