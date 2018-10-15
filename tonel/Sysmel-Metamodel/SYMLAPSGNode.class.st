@@ -216,11 +216,13 @@ SYMLAPSGNode >> macroSemanticAnalysisInEnvironment: anEnvironment [
 
 { #category : #accessing }
 SYMLAPSGNode >> position [
+	<compileTime>
 	^ position asSysmelSourcePosition
 ]
 
 { #category : #accessing }
 SYMLAPSGNode >> position: anObject [
+	<compileTime>
 	position := anObject asSysmelSourcePosition
 ]
 

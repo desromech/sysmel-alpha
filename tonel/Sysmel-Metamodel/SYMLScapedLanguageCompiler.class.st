@@ -35,6 +35,11 @@ SYMLScapedLanguageCompiler >> evaluateNode: aNode inEnvironment: anEnvironment [
 	self subclassResponsibility
 ]
 
+{ #category : #'as yet unclassified' }
+SYMLScapedLanguageCompiler >> semanticAnalyzeNode: node inEnvironment: anEnvironment [
+	^ node
+]
+
 { #category : #styling }
 SYMLScapedLanguageCompiler >> style: token into: commands [
 ]

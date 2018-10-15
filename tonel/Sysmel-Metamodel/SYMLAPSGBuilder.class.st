@@ -1,6 +1,6 @@
 Class {
 	#name : #SYMLAPSGBuilder,
-	#superclass : #Object,
+	#superclass : #SYMLObject,
 	#instVars : [
 		'environment'
 	],
@@ -30,6 +30,16 @@ SYMLAPSGBuilder >> identifier: aValue [
 ]
 
 { #category : #'builder methods' }
+SYMLAPSGBuilder >> inlineAssemblyArch: architecture language: language sourceCode: sourceCode [
+	<compileTime>
+	^ SYMLAPSGInlineAssembly new
+		architecture: architecture;
+		language: language;
+		sourceCode: sourceCode;
+		yourself
+]
+
+{ #category : #'builder methods' }
 SYMLAPSGBuilder >> language: aLanguageName source: sourceCode [
 	<compileTime>
 	^ SYMLAPSGLanguageSource new language: aLanguageName; sourceCode: sourceCode; yourself
@@ -54,6 +64,12 @@ SYMLAPSGBuilder >> literal: aValue typeSelector: typeSelector [
 	^ literalType
 		ifNil: [ SYMLAPSGLiteralWithLazyType new value: aValue; typeSelector: typeSelector; environment: environment ]
 		ifNotNil: [ SYMLAPSGLiteral new value: (aValue sysmelValueWithType: literalType inEnvironment: environment) ]
+]
+
+{ #category : #'builder methods' }
+SYMLAPSGBuilder >> literalString: stringLiteral position: aPosition [
+	<compileTime>
+	^ self literal: stringLiteral typeSelector: #literalStringType
 ]
 
 { #category : #'as yet unclassified' }

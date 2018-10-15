@@ -32,7 +32,7 @@ SYMLAPSGLanguageSource >> macroExpansionInEnvironment: anEnvironment [
 
 { #category : #'meta evaluation' }
 SYMLAPSGLanguageSource >> semanticAnalysisInEnvironment: anEnvironment [
-	^ self
+	^ (SYMLScapedLanguageCompiler compilerForLanguage: language) semanticAnalyzeNode: self inEnvironment: anEnvironment
 ]
 
 { #category : #accessing }

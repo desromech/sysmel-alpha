@@ -3,6 +3,7 @@ Compiler evaluateFileNamedOnce: "core-declarations.sysmel".
 loadFileOnce: "control-flow.sysmel".
 loadFileOnce: "basic-types.sysmel".
 loadFileOnce: "platform-specific-types.sysmel".
+loadFileOnce: "assembly.sysmel".
 loadFileOnce: "variables.sysmel".
 loadFileOnce: "arithmetic.sysmel".
 loadFileOnce: "boolean.sysmel".

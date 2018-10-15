@@ -16,7 +16,8 @@ Class {
 		'hasNoRuntimeTypeInformation',
 		'useLibC',
 		'identityHashRandomGenerator',
-		'defaultSourceCodeParser'
+		'defaultSourceCodeParser',
+		'globalInlineAssemblyFragments'
 	],
 	#classVars : [
 		'GlobalParserRegistry'
@@ -87,6 +88,15 @@ SYMLModule class >> x86 [
 { #category : #'instance creation' }
 SYMLModule class >> x86_64 [
 	^ self for: SYMLCompilationTarget x86_64 pic
+]
+
+{ #category : #'code generation' }
+SYMLModule >> addArchitecture: architecture language: language inlineAssembly: inlineAssembly [
+	<compileTime>
+	globalInlineAssemblyFragments add: { architecture . language . inlineAssembly }.
+	ssaModule ifNotNil: [
+		ssaModule addArchitecture: architecture language: language inlineAssembly: inlineAssembly
+	].
 ]
 
 { #category : #'semantic analysis' }
@@ -297,6 +307,8 @@ SYMLModule >> initializeWithCompilationTarget: aCompilationTarget [
 
 	pendingSSACodeGeneration := SLVMOrderedInsertionSet new.
 	pendingSSACodeGeneration add: globalNamespace.
+
+	globalInlineAssemblyFragments := OrderedCollection new.
 	
 	evaluatedFileReferences := Dictionary new.
 	
@@ -400,6 +412,13 @@ SYMLModule >> semanticAnalysis [
 ]
 
 { #category : #'code generation' }
+SYMLModule >> setupNewSSAModule: newSSAModule [
+	globalInlineAssemblyFragments do: [ :fragment |
+		newSSAModule addArchitecture: fragment first language: fragment second inlineAssembly: fragment third
+	]
+]
+
+{ #category : #'code generation' }
 SYMLModule >> ssaConstantArrayValue: value type: type [
 	<compileTime>
 	| elementType elements ssaType actualValue defaultElement |
@@ -451,7 +470,8 @@ SYMLModule >> ssaConstantVariableArrayValue: value type: type [
 { #category : #accessing }
 SYMLModule >> ssaModule [
 	ssaModule ifNil: [ 
-		ssaModule := SLVMModule new compilationTarget: compilationTarget target
+		ssaModule := SLVMModule new compilationTarget: compilationTarget target.
+		self setupNewSSAModule: ssaModule
 	].
 	^ ssaModule
 ]
