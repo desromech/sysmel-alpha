@@ -2,21 +2,21 @@
 PrimitiveSignedIntegerType meta message
     generateArithmeticMessage: (messageNode: _CompilerObjectType) withBuilder: (builder: _CompilerObjectType)
         left: (left: _CompilerObjectType) right: (right: _CompilerObjectType)
-        at: (aPosition: _CompilerObjectType)  ::-> _CompilerObjectType := {
+        at: (aPosition: _CompilerObjectType)  ::=> _CompilerObjectType := {
     return: (self generatePrimitiveSignedIntegerArithmeticMessage: messageNode withBuilder: builder left: left right: right at: messageNode)
 }.
 
 PrimitiveUnsignedIntegerType meta message
     generateArithmeticMessage: (messageNode: _CompilerObjectType) withBuilder: (builder: _CompilerObjectType)
         left: (left: _CompilerObjectType) right: (right: _CompilerObjectType)
-        at: (aPosition: _CompilerObjectType)  ::-> _CompilerObjectType := {
+        at: (aPosition: _CompilerObjectType)  ::=> _CompilerObjectType := {
     return: (self generatePrimitiveUnsignedIntegerArithmeticMessage: messageNode withBuilder: builder left: left right: right at: messageNode)
 }.
 
 PrimitiveFloatingPointType meta message
     generateArithmeticMessage: (messageNode: _CompilerObjectType) withBuilder: (builder: _CompilerObjectType)
         left: (left: _CompilerObjectType) right: (right: _CompilerObjectType)
-        at: (aPosition: _CompilerObjectType)  ::-> _CompilerObjectType := {
+        at: (aPosition: _CompilerObjectType)  ::=> _CompilerObjectType := {
     return: (self generatePrimitiveFloatingPointArithmeticMessage: messageNode withBuilder: builder left: left right: right at: messageNode)
 }.
 

@@ -2,7 +2,7 @@ namespace SysmelKernel definition: {
 
 // Add a testing method into type about primitive vector types.
 Type extend: {
-    message isPrimitiveVectorType -> BooleanBit := {
+    message isPrimitiveVectorType => BooleanBit := {
         return: false
     }.
 }.
@@ -11,7 +11,7 @@ Type extend: {
 trait PrimitiveVectorType
     uses: AnyValue;
 definition: {
-    meta message isPrimitiveVectorType -> BooleanBit := {
+    meta message isPrimitiveVectorType => BooleanBit := {
         return: true
     }.
 }.
@@ -24,31 +24,31 @@ definition: {
     alias ElementCount := N.
     alias AlignmentMultiplier := (if: N == 3 then: 4 else: N).
 
-    meta message elementType -> _CompilerObjectType := {
+    meta message elementType => _CompilerObjectType := {
         return: ElementType
     }.
 
-    meta message elements -> _LiteralInteger := {
+    meta message elements => _LiteralInteger := {
         return: ElementCount
     }.
 
-    meta message instanceAlignment -> Int32 := {
+    meta message instanceAlignment => Int32 := {
         return: ElementType instanceAlignment * AlignmentMultiplier
     }.
 
-    meta message instanceSize -> Int32 := {
+    meta message instanceSize => Int32 := {
         return: ElementType instanceSize * ElementCount
     }.
 
-    meta message buildSSAType -> _CompilerObjectType := {
+    meta message buildSSAType => _CompilerObjectType := {
         return: (Compiler compilationTarget ssaVector: ElementType ssaType elements: ElementCount)
     }.
 
-    meta message createSysmelMangledValue -> _CompilerObjectType := {
+    meta message createSysmelMangledValue => _CompilerObjectType := {
         return: (ElementType sysmelMangledValue -- #v -- ElementCount asString)
     }.
 
-    meta message createPrintingName -> _CompilerObjectType := {
+    meta message createPrintingName => _CompilerObjectType := {
         return: (ElementType printingName -- "x" -- ElementCount printString)
     }.
 
@@ -256,57 +256,57 @@ definition: {
 
     if: ElementType isNumericalType then: {
         // Vector arithmetic
-        message + (other: SelfType) -> SelfType := {
+        message + (other: SelfType) => SelfType := {
             <intrinsic: #"vector.add">
             return: (self _binaryOperation: #+ with: other)
         }.
 
-        message - (other: SelfType) -> SelfType := {
+        message - (other: SelfType) => SelfType := {
             <intrinsic: #"vector.sub">
             return: (self _binaryOperation: #- with: other)
         }.
 
-        message * (other: SelfType) -> SelfType := {
+        message * (other: SelfType) => SelfType := {
             <intrinsic: #"vector.mul">
             return: (self _binaryOperation: #* with: other)
         }.
 
-        message / (other: SelfType) -> SelfType := {
+        message / (other: SelfType) => SelfType := {
             <intrinsic: #"vector.div">
             return: (self _binaryOperation: #/ with: other)
         }.
 
-        message % (other: SelfType) -> SelfType := {
+        message % (other: SelfType) => SelfType := {
             <intrinsic: #"vector.rem">
             return: (self _binaryOperation: #% with: other)
         }.
 
         // Dot product
-        message dot: (other: SelfType) ::-> ElementType := {
+        message dot: (other: SelfType) ::=> ElementType := {
             <intrinsic: #"vector.dot">
         }.
 
         // Length2
-        message length2 ::-> ElementType := {
+        message length2 ::=> ElementType := {
             return: (self dot: self)
         }.
 
         // Length
         if: ElementType isFloatingPointType then: {
-            message length ::-> ElementType := {
+            message length ::=> ElementType := {
                 <intrinsic: #"vector.length">
             }.
         }.
 
         // Cross product
         if: ElementCount = 2 then: {
-            message cross: (other: SelfType) ::-> ElementType := {
+            message cross: (other: SelfType) ::=> ElementType := {
                 return: (self x * other y - other x * self y)
             }.
         }.
 
         if: ElementCount = 3 then: {
-            message cross: (other: SelfType) ::-> SelfType := {
+            message cross: (other: SelfType) ::=> SelfType := {
                 <intrinsic: #"vector.cross">
             }.
         }.
@@ -315,7 +315,7 @@ definition: {
 }.
 
 PrimitiveType extend: {
-    meta message vector: (elementCount: _LiteralInteger) ::-> _CompilerObjectType := {
+    meta message vector: (elementCount: _LiteralInteger) ::=> _CompilerObjectType := {
         return: PrimitiveVectorTypeTemplate(self, elementCount)
     }.
 }.

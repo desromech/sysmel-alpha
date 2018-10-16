@@ -5,7 +5,7 @@ template FixedArray(ET: Type)
 	:= struct definition: {
     alias ElementType := ET.
 
-    meta message elementType -> _CompilerObjectType := {
+    meta message elementType => _CompilerObjectType := {
         return: ElementType
     }.
 

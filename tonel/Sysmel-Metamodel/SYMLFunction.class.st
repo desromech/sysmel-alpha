@@ -8,7 +8,7 @@ Class {
 }
 
 { #category : #associating }
-SYMLFunction >> -> returnTypeValue [
+SYMLFunction >> => returnTypeValue [
 	<compileTime>
 	<lazy>
 	returnType ifNotNil: [ 

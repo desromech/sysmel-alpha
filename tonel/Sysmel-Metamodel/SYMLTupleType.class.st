@@ -9,16 +9,16 @@ Class {
 }
 
 { #category : #comparing }
-SYMLTupleType >> -> aReturnType [
-	<compileTime>
-	^ self compilationTarget functionArguments: types returnType: aReturnType.
-
-]
-
-{ #category : #comparing }
 SYMLTupleType >> = other [
 	^ self class == other class and:
 	[ types = other types ]
+]
+
+{ #category : #comparing }
+SYMLTupleType >> => aReturnType [
+	<compileTime>
+	^ self compilationTarget functionArguments: types returnType: aReturnType.
+
 ]
 
 { #category : #accessing }

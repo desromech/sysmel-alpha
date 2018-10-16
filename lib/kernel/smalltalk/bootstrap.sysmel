@@ -6,7 +6,7 @@ Compiler compilationTarget
 
 
 Type extend: {
-    message gcpointer -> _CompilerObjectType := {
+    message gcpointer => _CompilerObjectType := {
         return: (self pointerFor: #gc)
     }.
 }.
@@ -208,27 +208,27 @@ Behavior uses: Type; definition: {
     field variableInstanceElementAlignment public type: UInt32.
 
     // Notify about dynamic object type.
-    message isDynamicObjectType -> BooleanBit := {
+    message isDynamicObjectType => BooleanBit := {
         return: true
     }.
 
-    message isAnyDynamicObjectType -> BooleanBit := {
+    message isAnyDynamicObjectType => BooleanBit := {
         return: self == Dynobject
     }.
 
     // The type of the instance is actually a dependent type because of the meta-circular hierarchy.
     type InstanceType uses: AnyValue;
         definition: {
-        meta message asConcreteTypeForFunctionAnalysis -> Type := {
+        meta message asConcreteTypeForFunctionAnalysis => Type := {
             return: Dynobject
         }.
 
-        meta message asReturnTypeForReceiverType: (receiverType: _CompilerObjectType) argumentTypes: (argumentTypes: _CompilerObjectType) ::-> _CompilerObjectType := {
+        meta message asReturnTypeForReceiverType: (receiverType: _CompilerObjectType) argumentTypes: (argumentTypes: _CompilerObjectType) ::=> _CompilerObjectType := {
             return: receiverType instanceType
         }.
     }.
 
-    (message basicNew -> InstanceType := {
+    (message basicNew => InstanceType := {
         <notInCompileTime>
         return: (self basicNew: 0)
     }) evaluator: $$Pharo {
@@ -236,7 +236,7 @@ Behavior uses: Type; definition: {
             ^ receiver makeInstance asSysmelValueInEnvironment: environment
     }.
 
-    (message basicNew: (initialSize: UInt32) ::-> InstanceType := {
+    (message basicNew: (initialSize: UInt32) ::=> InstanceType := {
         <notInCompileTime>
         // Compute the object size.
         let objectSize := instanceDataSize + initialSize*variableInstanceElementSize.
@@ -257,17 +257,17 @@ Behavior uses: Type; definition: {
             ^ (receiver makeInstance: arguments first unwrapSysmelValue) asSysmelValueInEnvironment: environment
     }.
 
-    message asReceiverType -> SelfType := {
+    message asReceiverType => SelfType := {
         <compileTime>
         return: self
     }.
 
-    message cvariadicCoercionType -> SelfType := {
+    message cvariadicCoercionType => SelfType := {
         <compileTime>
         return: self
     }.
 
-    message lookupSelector: (selector: ProtoObject) ::-> ProtoObject := {
+    message lookupSelector: (selector: ProtoObject) ::=> ProtoObject := {
         <staticBinding>
         <nogc>
         //LibC printf("Behavior %p >> lookupSelector: %p\n", self, selector).
@@ -290,7 +290,7 @@ Behavior uses: Type; definition: {
 Class definition: {
     field name protected type: Symbol.
 
-    message name -> Symbol := {
+    message name => Symbol := {
         return: name
     }.
 }.
@@ -298,7 +298,7 @@ Class definition: {
 Metaclass definition: {
     field thisClass protected type: Behavior.
 
-    message isMetaType -> BooleanBit := {
+    message isMetaType => BooleanBit := {
         return: true
     }.
 }.
@@ -322,21 +322,21 @@ String definition: {
 
 //-----------------------------------------------------------------------------
 ProtoObject definition: {
-    message class -> Behavior := {
+    message class => Behavior := {
         <compileTime>
         <staticBinding>
         <nogc>
         return: __class
     }.
 
-    message identityHash -> UInt32 := {
+    message identityHash => UInt32 := {
         <compileTime>
         <staticBinding>
         <nogc>
         return: __identityHash
     }.
 
-    (message == (other: ProtoObject) -> BooleanBit := {
+    (message == (other: ProtoObject) => BooleanBit := {
         <compileTime>
         <staticBinding>
         <intrinsic: #"dynobject.identityEquals">
@@ -345,7 +345,7 @@ ProtoObject definition: {
             ^ (receiver unwrapSysmelValue == arguments first unwrapSysmelValue) asSysmelValueInEnvironment: environment
     }.
 
-    message ~~ (other: ProtoObject) -> BooleanBit := {
+    message ~~ (other: ProtoObject) => BooleanBit := {
         <compileTime>
         <staticBinding>
         <intrinsic: #"dynobject.identityNotEquals">
@@ -359,13 +359,13 @@ CompiledMethod definition: {
     field entryPoint type: Void pointer.
     field __literals protected type: ProtoObject array.
 
-    message entryPoint -> Void pointer := {
+    message entryPoint => Void pointer := {
         <staticBinding>
         <nogc>
         return: entryPoint
     }.
 
-    message entryPoint:(newEntryPoint: Void pointer)  ::-> Void pointer := {
+    message entryPoint:(newEntryPoint: Void pointer)  ::=> Void pointer := {
         <staticBinding>
         <nogc>
         return: entryPoint
@@ -377,28 +377,28 @@ CompiledMethod definition: {
 Array definition: {
     field __data protected type: ProtoObject array.
 
-    message basicSize -> UInt32 := {
+    message basicSize => UInt32 := {
         <compileTime>
         <staticBinding>
         <nogc>
         return: __data size
     }.
 
-    message basicAt: (index: UInt32) ::-> ProtoObject := {
+    message basicAt: (index: UInt32) ::=> ProtoObject := {
         <compileTime>
         <staticBinding>
         <nogc>
         return: (__data at: index)
     }.
 
-    message basicAt: (index: Int32) ::-> ProtoObject := {
+    message basicAt: (index: Int32) ::=> ProtoObject := {
         <compileTime>
         <staticBinding>
         <nogc>
         return: (__data at: index)
     }.
 
-    message basicAt: (index: UInt32) put: (value: ProtoObject) ::-> ProtoObject := {
+    message basicAt: (index: UInt32) put: (value: ProtoObject) ::=> ProtoObject := {
         <compileTime>
         <staticBinding>
         <nogc>
@@ -406,7 +406,7 @@ Array definition: {
         return: value
     }.
 
-    message basicAt: (index: Int32) put: (value: ProtoObject) ::-> ProtoObject := {
+    message basicAt: (index: Int32) put: (value: ProtoObject) ::=> ProtoObject := {
         <compileTime>
         <staticBinding>
         <nogc>
@@ -414,14 +414,14 @@ Array definition: {
         return: value
     }.
 
-    message subscriptAt: (index: Int32) ::-> ProtoObject ref := {
+    message subscriptAt: (index: Int32) ::=> ProtoObject ref := {
         <compileTime>
         <staticBinding>
         <nogc>
         return: __data[index]
     }.
 
-    message subscriptAt: (index: UInt32) ::-> ProtoObject ref := {
+    message subscriptAt: (index: UInt32) ::=> ProtoObject ref := {
         <compileTime>
         <staticBinding>
         <nogc>
@@ -437,14 +437,14 @@ HashedCollection definition: {
 MethodDictionary definition: {
     field values protected type: Array.
 
-    message initializeForCapacity: (initialCapacity: UInt32) ::-> SelfType := {
+    message initializeForCapacity: (initialCapacity: UInt32) ::=> SelfType := {
         tally := 0.
         array := Array basicNew: initialCapacity.
         values := Array basicNew: initialCapacity.
         return: self
     }.
 
-    message scanFor: (key: ProtoObject) ::-> Int32 := {
+    message scanFor: (key: ProtoObject) ::=> Int32 := {
         <staticBinding>
         <nogc>
 
@@ -477,7 +477,7 @@ MethodDictionary definition: {
         return: -1
     }.
 
-    message at: (key: ProtoObject) putNoSpaceCheck: (value: ProtoObject) ::-> SelfType := {
+    message at: (key: ProtoObject) putNoSpaceCheck: (value: ProtoObject) ::=> SelfType := {
         <staticBinding>
         let slot := self scanFor: key.
         if: slot < 0 then: {
@@ -490,7 +490,7 @@ MethodDictionary definition: {
         return: self
     }.
 
-    message atOrNil: (key: ProtoObject) ::-> ProtoObject := {
+    message atOrNil: (key: ProtoObject) ::=> ProtoObject := {
         <staticBinding>
         <nogc>
         // LibC printf("atOrNil: %p | tally %zu array [%d]%p values [%d]%p\n", key, tally, array basicSize, array, values basicSize, values).
@@ -510,7 +510,7 @@ let literalConversionRule := `'{
 
     evaluation: $$Pharo {
         value: value into: targetType at: coercionPosition
-            "Literal -> Object eval"
+            "Literal => Object eval"
             ^ (value value asLiteralObjectProxyWithType: targetType) sysmelValueWithType: targetType inEnvironment: value environment
     }.
 
@@ -528,7 +528,7 @@ _LiteralFloat conversionTo: Float doOn: literalConversionRule.
 //-----------------------------------------------------------------------------
 // Normal message lookup
 namespace Runtime definition: {
-function messageLookupFromBehavior(behavior: Behavior, object: ProtoObject, selector: Object, fallbackTrampoline: Void pointer) -> Void pointer := {
+function messageLookupFromBehavior(behavior: Behavior, object: ProtoObject, selector: Object, fallbackTrampoline: Void pointer) => Void pointer := {
     <nogc>
     //LibC printf("messageLookupFromBehavior behavior %p object %p selector %p\n", behavior, object, selector).
     let method := behavior lookupSelector: selector.
@@ -547,7 +547,7 @@ function messageLookupFromBehavior(behavior: Behavior, object: ProtoObject, sele
     return: compiledMethod entryPoint
 }.
 
-function normalMessageLookup(object: ProtoObject, selector: Object, fallbackTrampoline: Void pointer) -> Void pointer := {
+function normalMessageLookup(object: ProtoObject, selector: Object, fallbackTrampoline: Void pointer) => Void pointer := {
     <nogc>
     //LibC printf("normalMessageLookup object %p selector %p fallbackTrampoline %p\n", object, selector, fallbackTrampoline).
     return: messageLookupFromBehavior(object class, object, selector, fallbackTrampoline).

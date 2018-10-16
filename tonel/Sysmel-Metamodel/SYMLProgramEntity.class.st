@@ -38,6 +38,7 @@ SYMLProgramEntity >> addMacroFunctionPattern: macroFunctionPattern withSelector:
 			definitionEnvironment: macroFunctionPattern definitionEnvironment;
 			yourself.
 		macroFunctionPattern addToPatternGroup: group.
+		self ensureSemanticAnalysis.
 		group
 	]
 ]
@@ -60,6 +61,7 @@ SYMLProgramEntity >> addMacroMethodPattern: macroMethodPattern withSelector: sel
 			definitionEnvironment: macroMethodPattern definitionEnvironment;
 			yourself.
 		macroMethodPattern addToPatternGroup: group.
+		self ensureSemanticAnalysis.
 		group
 	]
 ]
@@ -77,7 +79,7 @@ SYMLProgramEntity >> addSymbol: aSymbolName value: aValue [
 	
 	^ self symbol: aSymbolName ifPresent: [ :existent |
 		self error: 'Trying to override symbol {1} with {2}.' format: { aSymbolName printString . aValue printString }
-	] ifAbsentPut: [ aValue ]
+	] ifAbsentPut: [ self ensureSemanticAnalysis . aValue ]
 ]
 
 { #category : #accessing }
@@ -91,6 +93,10 @@ SYMLProgramEntity >> allocateAnonName [
 	anonNameAllocation := anonNameAllocation + 1.
 	^ result
 	
+]
+
+{ #category : #accessing }
+SYMLProgramEntity >> ensureSemanticAnalysis [
 ]
 
 { #category : #'as yet unclassified' }

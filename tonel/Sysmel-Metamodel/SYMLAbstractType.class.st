@@ -44,7 +44,7 @@ SYMLAbstractType class >> specialMetaSymbols [
 ]
 
 { #category : #'type composition' }
-SYMLAbstractType >> -> aReturnType [
+SYMLAbstractType >> => aReturnType [
 	<compileTime>
 	self isVoidType ifTrue: [
 		^ self compilationTarget functionArguments: #() returnType: aReturnType.

@@ -11,7 +11,7 @@ Class {
 }
 
 { #category : #associating }
-SYMLMessageMethod >> -> returnTypeValue [
+SYMLMessageMethod >> => returnTypeValue [
 	<compileTime>
 	<lazy>
 	returnType ifNotNil: [ 

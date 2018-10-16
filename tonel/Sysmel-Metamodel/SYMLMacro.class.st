@@ -57,5 +57,5 @@ SYMLMacro >> semanticAnalyzeMessage: message inEnvironment: environment at: aPos
 
 { #category : #accessing }
 SYMLMacro >> tryToAddToParentWithName: aNewName [
-	parent addMacroMethodPattern: self withSelector: aNewName
+	parent addMacroMethodPattern: self withSelector: aNewName.
 ]

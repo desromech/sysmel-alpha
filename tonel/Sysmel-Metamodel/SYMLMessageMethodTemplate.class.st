@@ -91,5 +91,5 @@ SYMLMessageMethodTemplate >> setSelectorWithTemplate: message inEnvironment: env
 { #category : #accessing }
 SYMLMessageMethodTemplate >> tryToAddToParentWithName: aNewName [
 	arguments ifNil: [ ^ self ].
-	parent addMacroMethodPattern: self withSelector: aNewName
+	parent addMacroMethodPattern: self withSelector: aNewName.
 ]

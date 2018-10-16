@@ -87,7 +87,7 @@ ArrayType macro selectors: #(at: subscriptAt:) doOn: {
     }.
 }.
 
-// Literal String -> CString
+// Literal String => CString
 _LiteralString conversionTo: Char const pointer doOn: {
     evaluation: $$Pharo {
         value: value targetType: targetType at: position

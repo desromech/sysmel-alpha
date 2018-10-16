@@ -2,7 +2,7 @@ namespace SysmelKernel definition: {
 
 // Add a testing method into type about primitive vector types.
 Type extend: {
-    message isPrimitiveMatrixType -> BooleanBit := {
+    message isPrimitiveMatrixType => BooleanBit := {
         return: false
     }.
 }.
@@ -11,7 +11,7 @@ Type extend: {
 trait PrimitiveMatrixType
     uses: AnyValue;
 definition: {
-    meta message isPrimitiveMatrixType -> BooleanBit := {
+    meta message isPrimitiveMatrixType => BooleanBit := {
         return: true
     }.
 }.
@@ -32,47 +32,47 @@ definition: {
     alias ColumnsTuple := ColumnType tupleOrScalarOfSize: ColumnCount.
     alias RowsTuple := RowType tupleOrScalarOfSize: RowCount.
 
-    meta message elementType -> _CompilerObjectType := {
+    meta message elementType => _CompilerObjectType := {
         return: ElementType
     }.
 
-    meta message rows -> _LiteralInteger := {
+    meta message rows => _LiteralInteger := {
         return: RowCount
     }.
 
-    meta message columns -> _LiteralInteger := {
+    meta message columns => _LiteralInteger := {
         return: ColumnCount
     }.
 
-    meta message columnType -> _CompilerObjectType := {
+    meta message columnType => _CompilerObjectType := {
         return: ColumnType
     }.
 
-    meta message rowType -> _CompilerObjectType := {
+    meta message rowType => _CompilerObjectType := {
         return: RowType
     }.
 
-    meta message instanceAlignment -> Int32 := {
+    meta message instanceAlignment => Int32 := {
         return: ColumnType instanceAlignment
     }.
 
-    meta message instanceSize -> Int32 := {
+    meta message instanceSize => Int32 := {
         return: ColumnType instanceSize * ColumnCount
     }.
 
-    meta message buildSSAType -> _CompilerObjectType := {
+    meta message buildSSAType => _CompilerObjectType := {
         return: (Compiler compilationTarget ssaMatrix: ElementType ssaType rows: RowCount columns: ColumnCount)
     }.
 
-    meta message createSysmelMangledValue -> _CompilerObjectType := {
+    meta message createSysmelMangledValue => _CompilerObjectType := {
         return: (ElementType sysmelMangledValue -- #m -- RowCount asString -- ColumnCount asString)
     }.
 
-    meta message createPrintingName -> _CompilerObjectType := {
+    meta message createPrintingName => _CompilerObjectType := {
         return: (ElementType printingName -- "x" -- RowCount printString -- "x" -- ColumnCount printString)
     }.
 
-    (meta message withAll: (value: ElementType) ::-> SelfType)
+    (meta message withAll: (value: ElementType) ::=> SelfType)
         definition: `'{};
         evaluator: $$Pharo {
         evaluateMessageWithReceiver: receiver arguments: arguments environment: environment at: position
@@ -86,7 +86,7 @@ definition: {
             self halt.
         }.
 
-    (meta message columnMajorIndices -> SelfType)
+    (meta message columnMajorIndices => SelfType)
         definition: `'{};
         evaluator: $$Pharo {
         evaluateMessageWithReceiver: receiver arguments: arguments environment: environment at: position
@@ -97,7 +97,7 @@ definition: {
             ^ (SYMLMatrixInstance columnMajorIndicesForType: receiver) generateSSAReferenceWith: builder
         }.
 
-    (meta message rowMajorIndices -> SelfType)
+    (meta message rowMajorIndices => SelfType)
         definition: `'{};
         evaluator: $$Pharo {
         evaluateMessageWithReceiver: receiver arguments: arguments environment: environment at: position
@@ -109,7 +109,7 @@ definition: {
         }.
 
     if: IsSquareMatrix then: {
-        (meta message identity -> SelfType)
+        (meta message identity => SelfType)
             definition: `'{};
             evaluator: $$Pharo {
             evaluateMessageWithReceiver: receiver arguments: arguments environment: environment at: position
@@ -121,7 +121,7 @@ definition: {
             }.
     }.
 
-    meta message generateSSAValue: (value: _CompilerObjectType) withBuilder: (builder: _CompilerObjectType) ::-> _CompilerObjectType := {
+    meta message generateSSAValue: (value: _CompilerObjectType) withBuilder: (builder: _CompilerObjectType) ::=> _CompilerObjectType := {
         return: (value unwrapSysmelValue generateSSAReferenceWith: builder)
     }.
 
@@ -165,37 +165,37 @@ definition: {
     }.
 
     // Matrix transposition
-    message transposed -> PrimitiveMatrixTypeTemplate(ElementType, ColumnCount, RowCount) := {
+    message transposed => PrimitiveMatrixTypeTemplate(ElementType, ColumnCount, RowCount) := {
         <intrinsic: #"matrix.transpose">
     }.
 
     // Element-wise arithmetic
-    message + (other: SelfType) -> SelfType := {
+    message + (other: SelfType) => SelfType := {
         <intrinsic: #"matrix.add">
     }.
 
-    message - (other: SelfType) -> SelfType := {
+    message - (other: SelfType) => SelfType := {
         <intrinsic: #"matrix.sub">
     }.
 
     template(OtherColumns: _LiteralInteger)
-    message * (other: PrimitiveMatrixTypeTemplate(E, ColumnCount, OtherColumns)) ::-> PrimitiveMatrixTypeTemplate(ElementType, RowCount, OtherColumns):= {
+    message * (other: PrimitiveMatrixTypeTemplate(E, ColumnCount, OtherColumns)) ::=> PrimitiveMatrixTypeTemplate(ElementType, RowCount, OtherColumns):= {
         <intrinsic: #"matrix.matrixTimesMatrix">
     }.
 
     // Matrix-Vector multiplication
-    message * (vector: ColumnType) -> ColumnType := {
+    message * (vector: ColumnType) => ColumnType := {
         <intrinsic: #"matrix.matrixTimesVector">
     }.
 
     // Vector-Matrix multiplication
-    RowType message * (matrix: SelfType) -> RowType := {
+    RowType message * (matrix: SelfType) => RowType := {
         <intrinsic: #"matrix.vectorTimesMatrix">
     }.
 }.
 
 PrimitiveType extend: {
-    meta message matrixRows: (rowCount: _LiteralInteger) columns: (columnCount: _LiteralInteger) ::-> _CompilerObjectType := {
+    meta message matrixRows: (rowCount: _LiteralInteger) columns: (columnCount: _LiteralInteger) ::=> _CompilerObjectType := {
         return: PrimitiveMatrixTypeTemplate(self, rowCount, columnCount)
     }.
 }.

@@ -1,25 +1,25 @@
 // Bindings for Stdlib
 namespace LibC definition: {
     // Exit points
-    function abort externC () -> Void.
-    function exit externC (exitCode: Int) -> Void.
+    function abort externC () => Void.
+    function exit externC (exitCode: Int) => Void.
 
     // String conversions
-    function atol externC (string: ConstString) -> Long.
-    function atoll externC (string: ConstString) -> LongLong.
-    function atoi externC (string: ConstString) -> Int.
-    function atof externC (string: ConstString) -> Double.
+    function atol externC (string: ConstString) => Long.
+    function atoll externC (string: ConstString) => LongLong.
+    function atoi externC (string: ConstString) => Int.
+    function atof externC (string: ConstString) => Double.
 
-    function strtod externC (str: ConstString, endptr: Char pointer pointer) -> Double.
-    function strtof externC (str: ConstString, endptr: Char pointer pointer) -> Float.
-    function strtol externC (str: ConstString, endptr: Char pointer pointer) -> Long.
-    function strtoll externC (str: ConstString, endptr: Char pointer pointer) -> LongLong.
-    function strtoul externC (str: ConstString, endptr: Char pointer pointer) -> ULong.
-    function strtoull externC (str: ConstString, endptr: Char pointer pointer) -> ULongLong.
+    function strtod externC (str: ConstString, endptr: Char pointer pointer) => Double.
+    function strtof externC (str: ConstString, endptr: Char pointer pointer) => Float.
+    function strtol externC (str: ConstString, endptr: Char pointer pointer) => Long.
+    function strtoll externC (str: ConstString, endptr: Char pointer pointer) => LongLong.
+    function strtoul externC (str: ConstString, endptr: Char pointer pointer) => ULong.
+    function strtoull externC (str: ConstString, endptr: Char pointer pointer) => ULongLong.
 
     // Memory management
-    function calloc externC (nitems: SizeT, size: SizeT) -> Void pointer.
-    function malloc externC (size: SizeT) -> Void pointer.
-    function free externC (pointer: Void pointer) -> Void.
-    function realloc externC (pointer: Void pointer, size: SizeT) -> Void pointer.
+    function calloc externC (nitems: SizeT, size: SizeT) => Void pointer.
+    function malloc externC (size: SizeT) => Void pointer.
+    function free externC (pointer: Void pointer) => Void.
+    function realloc externC (pointer: Void pointer, size: SizeT) => Void pointer.
 }.

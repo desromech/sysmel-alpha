@@ -49,6 +49,11 @@ SYMLNamedProgramEntity >> definitionPosition: anObject [
 	definitionPosition := anObject
 ]
 
+{ #category : #accessing }
+SYMLNamedProgramEntity >> ensureSemanticAnalysis [
+	self module addPendingSemanticAnalysis: self
+]
+
 { #category : #dummy }
 SYMLNamedProgramEntity >> ensureShaderInterfaceIsGenerated [
 ]
@@ -132,6 +137,7 @@ SYMLNamedProgramEntity >> sysmelMangledValue: aValue [
 { #category : #accessing }
 SYMLNamedProgramEntity >> tryToAddToParentWithName: aNewName [
 	parent addSymbol: aNewName value: self.
+	self ensureSemanticAnalysis
 ]
 
 { #category : #accessing }

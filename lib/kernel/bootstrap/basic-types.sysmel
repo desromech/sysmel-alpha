@@ -14,50 +14,50 @@ definition: {
 
 // The type meta type
 trait Type definition: {
-    message asConcreteTypeForFunctionAnalysis -> SelfType := self.
-    message asReceiverType -> SelfType := self.
-    message asVariableValueType -> SelfType := self.
-    message asGCClassFieldType -> SelfType := self.
+    message asConcreteTypeForFunctionAnalysis => SelfType := self.
+    message asReceiverType => SelfType := self.
+    message asVariableValueType => SelfType := self.
+    message asGCClassFieldType => SelfType := self.
 
-    message isType -> BooleanBit := true.
-    message isCompilerObjectType -> BooleanBit := false.
-    message isDynamicObjectType -> BooleanBit := false.
+    message isType => BooleanBit := true.
+    message isCompilerObjectType => BooleanBit := false.
+    message isDynamicObjectType => BooleanBit := false.
 
-    message isAnyDynamicObjectType -> BooleanBit := false.
-    message isArrayType -> BooleanBit := false.
-    message isGCClassVariableDataArrayType -> BooleanBit := false.
-    message isUndeterminedArrayType -> BooleanBit := false.
-    message isUndefinedType -> BooleanBit := false.
-    message isLiteralType -> BooleanBit := false.
-    message isPrimitiveType -> BooleanBit := false.
-    message isPrimitiveLiteralType -> BooleanBit := false.
-    message isPrimitiveOrPrimitiveLiteralType -> BooleanBit := false.
-    message isOpaqueType -> BooleanBit := false.
-    message isBooleanType -> BooleanBit := false.
-    message isNumericalType -> BooleanBit := false.
-    message isIntegerType -> BooleanBit := false.
-    message isFractionalType -> BooleanBit := false.
-    message isFloatingPointType -> BooleanBit := false.
-    message isPointerType -> BooleanBit := false.
-    message isReferenceType -> BooleanBit := false.
-    message isPODType -> BooleanBit := false.
-    message isPointerOrReferenceType -> BooleanBit := false.
-    message isTupleType -> BooleanBit := false.
-    message isFunctionType -> BooleanBit := false.
-    message isFunctionGroupType -> BooleanBit := false.
-    message isConstantType -> BooleanBit := false.
-    message isVolatileType -> BooleanBit := false.
-    message instanceSize -> _LiteralInteger := 0.
-    message instanceAlignment -> _LiteralInteger := 1.
-    message cleanType -> SelfType := self.
-    message valueType -> SelfType := self.
-    message valueTypeKeepLiteral -> SelfType := self.
+    message isAnyDynamicObjectType => BooleanBit := false.
+    message isArrayType => BooleanBit := false.
+    message isGCClassVariableDataArrayType => BooleanBit := false.
+    message isUndeterminedArrayType => BooleanBit := false.
+    message isUndefinedType => BooleanBit := false.
+    message isLiteralType => BooleanBit := false.
+    message isPrimitiveType => BooleanBit := false.
+    message isPrimitiveLiteralType => BooleanBit := false.
+    message isPrimitiveOrPrimitiveLiteralType => BooleanBit := false.
+    message isOpaqueType => BooleanBit := false.
+    message isBooleanType => BooleanBit := false.
+    message isNumericalType => BooleanBit := false.
+    message isIntegerType => BooleanBit := false.
+    message isFractionalType => BooleanBit := false.
+    message isFloatingPointType => BooleanBit := false.
+    message isPointerType => BooleanBit := false.
+    message isReferenceType => BooleanBit := false.
+    message isPODType => BooleanBit := false.
+    message isPointerOrReferenceType => BooleanBit := false.
+    message isTupleType => BooleanBit := false.
+    message isFunctionType => BooleanBit := false.
+    message isFunctionGroupType => BooleanBit := false.
+    message isConstantType => BooleanBit := false.
+    message isVolatileType => BooleanBit := false.
+    message instanceSize => _LiteralInteger := 0.
+    message instanceAlignment => _LiteralInteger := 1.
+    message cleanType => SelfType := self.
+    message valueType => SelfType := self.
+    message valueTypeKeepLiteral => SelfType := self.
 
-    message defaultSSAValueWith: (builder: _CompilerObjectType) ::-> _CompilerObjectType := {
+    message defaultSSAValueWith: (builder: _CompilerObjectType) ::=> _CompilerObjectType := {
         self error: "Cannot generate default value of {1}" format: (self,self)
     }.
 
-    message isReturnedThroughFirstArgument ::-> BooleanBit := false.
+    message isReturnedThroughFirstArgument ::=> BooleanBit := false.
 }.
 
 AnyValue type uses: Type.
@@ -65,11 +65,11 @@ AnyValue type uses: Type.
 // Meta type
 _MetaType uses: AnyValue type;
 definition: {
-    message buildSSAType -> _CompilerObjectType := {
+    message buildSSAType => _CompilerObjectType := {
         return: (Compiler compilationTarget ssaPointerTo: Compiler compilationTarget int8Type ssaType forAddressSpace: #generic)
     }.
 
-    message generateSSAValue: (value: _CompilerObjectType) withBuilder: (builder: _CompilerObjectType) ::-> _CompilerObjectType := {
+    message generateSSAValue: (value: _CompilerObjectType) withBuilder: (builder: _CompilerObjectType) ::=> _CompilerObjectType := {
         return: value ssaValue
     }.
 }.
@@ -78,11 +78,11 @@ definition: {
 trait LiteralType
     uses: AnyValue;
 definition: {
-    meta message isLiteralType -> BooleanBit := {
+    meta message isLiteralType => BooleanBit := {
         return: true
     }.
 
-    meta message generateSSAValue: (value: _CompilerObjectType) withBuilder: (builder: _CompilerObjectType) ::-> _CompilerObjectType := {
+    meta message generateSSAValue: (value: _CompilerObjectType) withBuilder: (builder: _CompilerObjectType) ::=> _CompilerObjectType := {
         return: value
     }.
 }.
@@ -91,11 +91,11 @@ definition: {
 trait PrimitiveLiteralType
     uses: LiteralType;
 definition: {
-    meta message isPrimitiveLiteralType -> BooleanBit := {
+    meta message isPrimitiveLiteralType => BooleanBit := {
         return: true
     }.
 
-    meta message isPrimitiveOrPrimitiveLiteralType -> BooleanBit := {
+    meta message isPrimitiveOrPrimitiveLiteralType => BooleanBit := {
         return: true
     }.
 }.
@@ -104,23 +104,23 @@ definition: {
 trait PrimitiveType
     uses: AnyValue;
 definition: {
-    meta message isPrimitiveType -> BooleanBit := {
+    meta message isPrimitiveType => BooleanBit := {
         return: true
     }.
 
-    meta message isPrimitiveOrPrimitiveLiteralType -> BooleanBit := {
+    meta message isPrimitiveOrPrimitiveLiteralType => BooleanBit := {
         return: true
     }.
 
-    meta message isPODType -> BooleanBit := {
+    meta message isPODType => BooleanBit := {
         return: true
     }.
 
-    meta message instanceAlignment -> _LiteralInteger := {
+    meta message instanceAlignment => _LiteralInteger := {
         return: self instanceSize
     }.
 
-    meta message generateSSAConstant: (value: _CompilerObjectType) forModule: (module: _CompilerObjectType) ::-> _CompilerObjectType := {
+    meta message generateSSAConstant: (value: _CompilerObjectType) forModule: (module: _CompilerObjectType) ::=> _CompilerObjectType := {
         return: (module ssaConstantPrimitiveValue: value type: self)
     }.
 }.
@@ -129,7 +129,7 @@ definition: {
 trait OpaqueType
     uses: AnyValue;
 definition: {
-    meta message isOpaqueType -> BooleanBit := {
+    meta message isOpaqueType => BooleanBit := {
         return: true
     }
 }.
@@ -137,7 +137,7 @@ definition: {
 // A numerical type
 trait NumericalType uses: AnyValue;
 definition: {
-    meta message isNumericalType -> BooleanBit := {
+    meta message isNumericalType => BooleanBit := {
         return: true
     }
 }.
@@ -145,60 +145,60 @@ definition: {
 // An integer type
 trait IntegerType uses: NumericalType;
 definition: {
-    meta message isIntegerType -> BooleanBit := {
+    meta message isIntegerType => BooleanBit := {
         return: true
     }.
 
-    meta message isSigned -> BooleanBit := {
+    meta message isSigned => BooleanBit := {
         return: false
     }.
 
-    meta message isUnsigned -> BooleanBit := {
+    meta message isUnsigned => BooleanBit := {
         return: false
     }.
 }.
 
 trait SignedIntegerType uses: IntegerType;
 definition: {
-    meta message isSigned -> BooleanBit := {
+    meta message isSigned => BooleanBit := {
         return: true
     }.
 
-    meta message isUnsigned -> BooleanBit := {
+    meta message isUnsigned => BooleanBit := {
         return: false
     }.
 }.
 
 trait UnsignedIntegerType uses: IntegerType;
 definition: {
-    meta message isSigned -> BooleanBit := {
+    meta message isSigned => BooleanBit := {
         return: false
     }.
 
-    meta message isUnsigned -> BooleanBit := {
+    meta message isUnsigned => BooleanBit := {
         return: true
     }.
 }.
 
 trait PrimitiveIntegerType uses: (PrimitiveType, IntegerType);
 definition: {
-    meta message defaultSSAValueWith: (builder: _CompilerObjectType) ::-> _CompilerObjectType := {
+    meta message defaultSSAValueWith: (builder: _CompilerObjectType) ::=> _CompilerObjectType := {
         return: (builder const: 0 type: self ssaType)
     }.
 
-    meta message defaultValue -> _CompilerObjectType := {
+    meta message defaultValue => _CompilerObjectType := {
         return: 0
     }.
 
-    meta message one -> _CompilerObjectType := {
+    meta message one => _CompilerObjectType := {
         return: 1
     }.
 
-    meta message zero -> _CompilerObjectType := {
+    meta message zero => _CompilerObjectType := {
         return: 0
     }.
 
-    meta message generateSSAValue: (value: _CompilerObjectType) withBuilder: (builder: _CompilerObjectType) ::-> _CompilerObjectType := {
+    meta message generateSSAValue: (value: _CompilerObjectType) withBuilder: (builder: _CompilerObjectType) ::=> _CompilerObjectType := {
         return: (builder const: value unwrapSysmelValue type: self ssaType)
     }.
 }.
@@ -209,7 +209,7 @@ trait PrimitiveSignedIntegerType uses: (PrimitiveIntegerType, SignedIntegerType)
 // A boolean type
 trait BooleanType uses: AnyValue;
 definition: {
-    meta message isBooleanType -> BooleanBit := {
+    meta message isBooleanType => BooleanBit := {
         return: true
     }.
 }.
@@ -217,7 +217,7 @@ definition: {
 // A fraction type
 trait FractionalType uses: NumericalType;
 definition: {
-    meta message isFractionalType -> BooleanBit := {
+    meta message isFractionalType => BooleanBit := {
         return: true
     }
 }.
@@ -225,7 +225,7 @@ definition: {
 // A floating point type
 trait FloatingPointType uses: NumericalType;
 definition: {
-    meta message isFloatingPointType -> BooleanBit := {
+    meta message isFloatingPointType => BooleanBit := {
         return: true
     }
 }.
@@ -233,23 +233,23 @@ definition: {
 // Primitive floating point
 trait PrimitiveFloatingPointType uses: (PrimitiveType, FloatingPointType);
 definition: {
-    meta message defaultSSAValueWith: (builder: _CompilerObjectType) ::-> _CompilerObjectType := {
+    meta message defaultSSAValueWith: (builder: _CompilerObjectType) ::=> _CompilerObjectType := {
         return: (builder const: 0.0 type: self ssaType)
     }.
 
-    meta message generateSSAValue: (value: _CompilerObjectType) withBuilder: (builder: _CompilerObjectType) ::-> _CompilerObjectType := {
+    meta message generateSSAValue: (value: _CompilerObjectType) withBuilder: (builder: _CompilerObjectType) ::=> _CompilerObjectType := {
         return: (builder const: value unwrapSysmelValue type: self ssaType)
     }.
 
-    meta message defaultValue -> _CompilerObjectType := {
+    meta message defaultValue => _CompilerObjectType := {
         return: 0.0
     }.
 
-    meta message one -> _CompilerObjectType := {
+    meta message one => _CompilerObjectType := {
         return: 1.0
     }.
 
-    meta message zero -> _CompilerObjectType := {
+    meta message zero => _CompilerObjectType := {
         return: 0.0
     }.
 }.
@@ -258,27 +258,27 @@ definition: {
 trait PointerType
     uses: AnyValue;
 definition: {
-    meta message defaultValue -> _CompilerObjectType := {
+    meta message defaultValue => _CompilerObjectType := {
         return: 0
     }.
 
-    meta message isPointerType -> BooleanBit := {
+    meta message isPointerType => BooleanBit := {
         return: true
     }.
 
-    meta message isPointerOrReferenceType -> BooleanBit := {
+    meta message isPointerOrReferenceType => BooleanBit := {
         return: true
     }.
 
-    meta message isPODType -> BooleanBit := {
+    meta message isPODType => BooleanBit := {
         return: true
     }.
 
-    meta message cvariadicCoercionType -> _CompilerObjectType := {
+    meta message cvariadicCoercionType => _CompilerObjectType := {
         return: self
     }.
 
-    meta message generateSSAValue: (value: _CompilerObjectType) withBuilder: (builder: _CompilerObjectType) ::-> _CompilerObjectType := {
+    meta message generateSSAValue: (value: _CompilerObjectType) withBuilder: (builder: _CompilerObjectType) ::=> _CompilerObjectType := {
         return: (builder const: value type: self ssaType)
     }.
 }.
@@ -287,15 +287,15 @@ definition: {
 trait ReferenceType
     uses: AnyValue;
 definition: {
-    meta message isReferenceType -> BooleanBit := {
+    meta message isReferenceType => BooleanBit := {
         return: true
     }.
 
-    meta message isPointerOrReferenceType -> BooleanBit := {
+    meta message isPointerOrReferenceType => BooleanBit := {
         return: true
     }.
 
-    meta message generateSSAValue: (value: _CompilerObjectType) withBuilder: (builder: _CompilerObjectType) ::-> _CompilerObjectType := {
+    meta message generateSSAValue: (value: _CompilerObjectType) withBuilder: (builder: _CompilerObjectType) ::=> _CompilerObjectType := {
         return: (value generateSSAReferenceWith: builder)
     }.
 }.
@@ -304,7 +304,7 @@ definition: {
 trait ArrayType
     uses: AnyValue;
 definition: {
-    meta message isArrayType -> BooleanBit := {
+    meta message isArrayType => BooleanBit := {
         return: true
     }.
 }.
@@ -312,7 +312,7 @@ definition: {
 trait GCClassVariableDataArrayType
     uses: ArrayType;
 definition: {
-    meta message isGCClassVariableDataArrayType -> BooleanBit := {
+    meta message isGCClassVariableDataArrayType => BooleanBit := {
         return: true
     }.
 }.
@@ -327,62 +327,62 @@ definition: {
     alias AddressSpaceName := AS.
     alias CleanPointedType := PointedType cleanType.
 
-    meta message pointed -> _CompilerObjectType := {
+    meta message pointed => _CompilerObjectType := {
         return: PointedType
     }.
 
-    meta message addressSpaceName -> _LiteralSymbol := {
+    meta message addressSpaceName => _LiteralSymbol := {
         return: AddressSpaceName
     }.
 
-    meta message instanceAlignment -> _LiteralInteger := {
+    meta message instanceAlignment => _LiteralInteger := {
         return: Compiler compilationTarget pointerAlignment
     }.
 
-    meta message instanceSize -> _LiteralInteger := {
+    meta message instanceSize => _LiteralInteger := {
         return: Compiler compilationTarget pointerSize
     }.
 
-    meta message buildSSAType -> _CompilerObjectType := {
+    meta message buildSSAType => _CompilerObjectType := {
         return: (Compiler compilationTarget ssaPointerTo: P ssaType forAddressSpace: AddressSpaceName)
     }.
 
-    meta message defaultSSAValueWith: (builder: _CompilerObjectType) ::-> _CompilerObjectType := {
+    meta message defaultSSAValueWith: (builder: _CompilerObjectType) ::=> _CompilerObjectType := {
         return: (builder const: 0 type: self ssaType)
     }.
 
-    meta message generateSSAConstant: (value: _CompilerObjectType) forModule: (module: _CompilerObjectType) ::-> _CompilerObjectType := {
+    meta message generateSSAConstant: (value: _CompilerObjectType) forModule: (module: _CompilerObjectType) ::=> _CompilerObjectType := {
         return: (module ssaConstantPointer: value type: self)
     }.
 
-    meta message cleanType -> _CompilerObjectType := {
+    meta message cleanType => _CompilerObjectType := {
         return: (P cleanType pointerFor: AddressSpaceName)
     }.
 
-    meta message asPointerType ->_CompilerObjectType := {
+    meta message asPointerType =>_CompilerObjectType := {
         return: self
     }.
 
-    meta message asReferenceType ->_CompilerObjectType := {
+    meta message asReferenceType =>_CompilerObjectType := {
         return: (P refFor: AddressSpaceName)
     }.
 
-    meta message createSysmelMangledValue -> _CompilerObjectType := {
+    meta message createSysmelMangledValue => _CompilerObjectType := {
         return: P sysmelMangledValue -- #p
     }.
 
-    meta message createPrintingName -> _CompilerObjectType := {
+    meta message createPrintingName => _CompilerObjectType := {
         return: (P printingName -- " pointer")
     }.
 
     // Pointer comparison.
-    message == (other: SelfType) -> BooleanBit := {
+    message == (other: SelfType) => BooleanBit := {
         <compileTime>
         <staticBinding>
         <intrinsic: #"pointer.equals">
     }.
 
-    message ~~ (other: SelfType) -> BooleanBit := {
+    message ~~ (other: SelfType) => BooleanBit := {
         <compileTime>
         <staticBinding>
         <intrinsic: #"pointer.notEquals">
@@ -403,17 +403,17 @@ definition: {
     }.
 
     meta message lookReceiver: (receiver: _CompilerObjectType) symbol: (symbol: _CompilerObjectType) ifPresent: (ifPresentBlock: _CompilerObjectType)
-        ::-> _CompilerObjectType := {
+        ::=> _CompilerObjectType := {
         return: (P lookReceiver: receiver symbol: symbol ifPresent: ifPresentBlock)
     }.
 }.
 
 Type extend: {
-    message pointer -> _CompilerObjectType := {
+    message pointer => _CompilerObjectType := {
         return: PointerTypeTemplate(self, #generic)
     }.
 
-    message pointerFor: (addressSpace: _LiteralSymbol) ::-> _CompilerObjectType := {
+    message pointerFor: (addressSpace: _LiteralSymbol) ::=> _CompilerObjectType := {
         return: PointerTypeTemplate(self, addressSpace)
     }.
 }.
@@ -425,60 +425,60 @@ definition: {
     alias ReferencedType := R.
     alias AddressSpaceName := AS.
 
-    meta message referenced -> _CompilerObjectType := {
+    meta message referenced => _CompilerObjectType := {
         return: ReferencedType
     }.
 
-    meta message addressSpaceName -> _LiteralSymbol := {
+    meta message addressSpaceName => _LiteralSymbol := {
         return: AddressSpaceName
     }.
 
-    meta message instanceAlignment -> _LiteralInteger := {
+    meta message instanceAlignment => _LiteralInteger := {
         return: Compiler compilationTarget pointerAlignment
     }.
 
-    meta message instanceSize -> _LiteralInteger := {
+    meta message instanceSize => _LiteralInteger := {
         return: Compiler compilationTarget pointerSize
     }.
 
-    meta message buildSSAType -> _CompilerObjectType := {
+    meta message buildSSAType => _CompilerObjectType := {
         return: (Compiler compilationTarget ssaPointerTo: R ssaType forAddressSpace: AddressSpaceName)
     }.
 
-    meta message valueType -> _CompilerObjectType := {
+    meta message valueType => _CompilerObjectType := {
         return: R
     }.
 
-    meta message valueTypeKeepLiteral -> _CompilerObjectType := {
+    meta message valueTypeKeepLiteral => _CompilerObjectType := {
         return: R
     }.
 
-    meta message cleanType -> _CompilerObjectType := {
+    meta message cleanType => _CompilerObjectType := {
         return: (R cleanType refFor: AddressSpaceName)
     }.
 
-    meta message cvariadicCoercionType -> _CompilerObjectType := {
+    meta message cvariadicCoercionType => _CompilerObjectType := {
         return: R cvariadicCoercionType
     }.
 
     meta message lookReceiver: (receiver: _CompilerObjectType) symbol: (symbol: _CompilerObjectType) ifPresent: (ifPresentBlock: _CompilerObjectType)
-        ::-> _CompilerObjectType := {
+        ::=> _CompilerObjectType := {
         return: (R lookReceiver: receiver symbol: symbol ifPresent: ifPresentBlock)
     }.
 
-    meta message asPointerType ->_CompilerObjectType := {
+    meta message asPointerType =>_CompilerObjectType := {
         return: (R pointerFor: AddressSpaceName)
     }.
 
-    meta message asReferenceType -> _CompilerObjectType := {
+    meta message asReferenceType => _CompilerObjectType := {
         return: self
     }.
 
-    meta message createSysmelMangledValue -> _CompilerObjectType := {
+    meta message createSysmelMangledValue => _CompilerObjectType := {
         return: R sysmelMangledValue -- #r
     }.
 
-    meta message createPrintingName -> _CompilerObjectType := {
+    meta message createPrintingName => _CompilerObjectType := {
         return: (R printingName -- " ref")
     }.
 
@@ -519,11 +519,11 @@ definition: {
 }.
 
 Type extend: {
-    message ref -> _CompilerObjectType := {
+    message ref => _CompilerObjectType := {
         return: ReferenceTypeTemplate(self, #generic)
     }.
 
-    message refFor: (addressSpaceName: _LiteralSymbol) ::-> _CompilerObjectType := {
+    message refFor: (addressSpaceName: _LiteralSymbol) ::=> _CompilerObjectType := {
         return: ReferenceTypeTemplate(self, addressSpaceName)
     }.
 }.
@@ -532,39 +532,39 @@ Type extend: {
 template ConstantTypeTemplate(D: Type)
     := type uses: D;
 definition: {
-    meta message isConstantType -> BooleanBit := {
+    meta message isConstantType => BooleanBit := {
         return: true
     }.
 
-    meta message undecoratedType -> _CompilerObjectType := {
+    meta message undecoratedType => _CompilerObjectType := {
         return: D
     }.
 
-    meta message const -> _CompilerObjectType := {
+    meta message const => _CompilerObjectType := {
         return: self
     }.
 
-    meta message buildSSAType -> _CompilerObjectType := {
+    meta message buildSSAType => _CompilerObjectType := {
         return: D ssaType
     }.
 
-    meta message cleanType -> _CompilerObjectType := {
+    meta message cleanType => _CompilerObjectType := {
         return: D cleanType
     }.
 
-    meta message cvariadicCoercionType -> _CompilerObjectType := {
+    meta message cvariadicCoercionType => _CompilerObjectType := {
         return: D cvariadicCoercionType
     }.
 
-    meta message createSysmelMangledValue -> _CompilerObjectType := {
+    meta message createSysmelMangledValue => _CompilerObjectType := {
         return: D sysmelMangledValue -- #c
     }.
 
-    meta message createPrintingName -> _CompilerObjectType := {
+    meta message createPrintingName => _CompilerObjectType := {
         return: (D printingName -- " const")
     }.
 
-    // Allow automatic conversion from const -> non-const values.
+    // Allow automatic conversion from const => non-const values.
     SelfType conversionTo: D doOn: {
         evaluation: $$Pharo {
             value: value targetType: targetType at: position
@@ -578,7 +578,7 @@ definition: {
 }.
 
 Type extend: {
-    message const -> _CompilerObjectType := {
+    message const => _CompilerObjectType := {
         return: ConstantTypeTemplate(self)
     }
 }.
@@ -587,39 +587,39 @@ Type extend: {
 template VolatileTypeTemplate(D: Type)
     := type uses: D;
 definition: {
-    meta message isVolatileType -> BooleanBit := {
+    meta message isVolatileType => BooleanBit := {
         return: true
     }.
 
-    meta message undecoratedType -> _CompilerObjectType := {
+    meta message undecoratedType => _CompilerObjectType := {
         return: D
     }.
 
-    meta message const -> _CompilerObjectType := {
+    meta message const => _CompilerObjectType := {
         return: D volatile const
     }.
 
-    meta message volatile -> _CompilerObjectType := {
+    meta message volatile => _CompilerObjectType := {
         return: self
     }.
 
-    meta message buildSSAType -> _CompilerObjectType := {
+    meta message buildSSAType => _CompilerObjectType := {
         return: D ssaType
     }.
 
-    meta message cleanType -> _CompilerObjectType := {
+    meta message cleanType => _CompilerObjectType := {
         return: D cleanType
     }.
 
-    meta message cvariadicCoercionType -> _CompilerObjectType := {
+    meta message cvariadicCoercionType => _CompilerObjectType := {
         return: D cvariadicCoercionType
     }.
 
-    meta message createSysmelMangledValue -> _CompilerObjectType := {
+    meta message createSysmelMangledValue => _CompilerObjectType := {
         return: D sysmelMangledValue -- #v
     }.
 
-    meta message createPrintingName -> _CompilerObjectType := {
+    meta message createPrintingName => _CompilerObjectType := {
         return: (D printingName -- " volatile")
     }.
 
@@ -640,7 +640,7 @@ definition: {
 }.
 
 Type extend: {
-    message volatile -> _CompilerObjectType := {
+    message volatile => _CompilerObjectType := {
         return: VolatileTypeTemplate(self)
     }
 }.
@@ -653,43 +653,43 @@ definition: {
     alias InstanceAlignment := ElementType instanceAlignment.
     alias InstanceSize := ElementType instanceSize * Size.
 
-    meta message instanceSize -> Int32 := {
+    meta message instanceSize => Int32 := {
         return: 0
     }.
 
-    meta message instanceAlignment -> _LiteralInteger := {
+    meta message instanceAlignment => _LiteralInteger := {
         return: 1
     }.
 
-    meta message elementType -> Type := {
+    meta message elementType => Type := {
         return: ElementType
     }.
 
-    meta message buildSSAType -> _CompilerObjectType := {
+    meta message buildSSAType => _CompilerObjectType := {
         return: (Compiler compilationTarget ssaArrayOf: ElementType concreteSSAType size: 0)
     }.
 
-    meta message valueType -> _CompilerObjectType := {
+    meta message valueType => _CompilerObjectType := {
         return: GCClassVariableDataArrayTypeTemplate(ElementType valueType)
     }.
 
-    meta message valueTypeKeepLiteral -> _CompilerObjectType := {
+    meta message valueTypeKeepLiteral => _CompilerObjectType := {
         return: GCClassVariableDataArrayTypeTemplate(ElementType valueTypeKeepLiteral)
     }.
 
-    meta message cleanType -> _CompilerObjectType := {
+    meta message cleanType => _CompilerObjectType := {
         return: GCClassVariableDataArrayTypeTemplate(ElementType cleanType)
     }.
 
-    meta message generateSSAConstant: (value: _CompilerObjectType) forModule: (module: _CompilerObjectType) ::-> _CompilerObjectType := {
+    meta message generateSSAConstant: (value: _CompilerObjectType) forModule: (module: _CompilerObjectType) ::=> _CompilerObjectType := {
         return: (module ssaConstantVariableArrayValue: value type: self)
     }.
 
-    meta message createSysmelMangledValue -> _CompilerObjectType := {
+    meta message createSysmelMangledValue => _CompilerObjectType := {
         return: ElementType sysmelMangledValue -- #d -- Size asString
     }.
 
-    meta message createPrintingName -> _CompilerObjectType := {
+    meta message createPrintingName => _CompilerObjectType := {
         return: (ElementType printingName -- " gcClassVariableDataArray")
     }.
 }.
@@ -704,71 +704,71 @@ definition: {
     alias InstanceSize := ElementType instanceSize * Size.
 
     if: N = 0 then: {
-        meta message isUndeterminedArrayType -> BooleanBit := {
+        meta message isUndeterminedArrayType => BooleanBit := {
             return: true
         }.
 
-        meta message asGCClassFieldType -> Type := {
+        meta message asGCClassFieldType => Type := {
             return: GCClassVariableDataArrayTypeTemplate(ElementType)
         }.
     }.
 
-    meta message size -> _LiteralInteger := {
+    meta message size => _LiteralInteger := {
         return: Size
     }.
 
-    meta message elementType -> Type := {
+    meta message elementType => Type := {
         return: ElementType
     }.
 
-    meta message instanceSize -> Int32 := {
+    meta message instanceSize => Int32 := {
         return: InstanceSize
     }.
 
-    meta message instanceAlignment -> _LiteralInteger := {
+    meta message instanceAlignment => _LiteralInteger := {
         return: InstanceAlignment
     }.
 
-    meta message buildSSAType -> _CompilerObjectType := {
+    meta message buildSSAType => _CompilerObjectType := {
         return: (Compiler compilationTarget ssaArrayOf: ElementType concreteSSAType size: Size)
     }.
 
-    meta message valueType -> _CompilerObjectType := {
+    meta message valueType => _CompilerObjectType := {
         return: (ElementType valueType array: Size)
     }.
 
-    meta message valueTypeKeepLiteral -> _CompilerObjectType := {
+    meta message valueTypeKeepLiteral => _CompilerObjectType := {
         return: (ElementType valueTypeKeepLiteral array: Size)
     }.
 
-    meta message cleanType -> _CompilerObjectType := {
+    meta message cleanType => _CompilerObjectType := {
         return: (ElementType cleanType array: Size)
     }.
 
-    meta message generateSSAConstant: (value: _CompilerObjectType) forModule: (module: _CompilerObjectType) ::-> _CompilerObjectType := {
+    meta message generateSSAConstant: (value: _CompilerObjectType) forModule: (module: _CompilerObjectType) ::=> _CompilerObjectType := {
         return: (module ssaConstantArrayValue: value type: self)
     }.
 
-    meta message createSysmelMangledValue -> _CompilerObjectType := {
+    meta message createSysmelMangledValue => _CompilerObjectType := {
         return: ElementType sysmelMangledValue -- #A -- Size asString
     }.
 
-    meta message createPrintingName -> _CompilerObjectType := {
+    meta message createPrintingName => _CompilerObjectType := {
         return: (E printingName -- " array:" -- Size asString)
     }.
 
-    meta message isPODType -> BooleanBit := {
+    meta message isPODType => BooleanBit := {
         return: ElementType isPODType
     }.
 
 }.
 
 Type extend: {
-    message array -> _CompilerObjectType := {
+    message array => _CompilerObjectType := {
         return: ArrayTypeTemplate(self, 0)
     }.
 
-    message array: (N: _LiteralInteger) ::-> _CompilerObjectType := {
+    message array: (N: _LiteralInteger) ::=> _CompilerObjectType := {
         return: ArrayTypeTemplate(self, N)
     }.
 }.
@@ -776,7 +776,7 @@ Type extend: {
 // Tuple type
 TupleType uses: AnyValue;
 definition: {
-    meta message isTupleType -> BooleanBit := {
+    meta message isTupleType => BooleanBit := {
         return: true
     }
 }.
@@ -784,7 +784,7 @@ definition: {
 // Function group type
 _FunctionGroupType uses: AnyValue;
 definition: {
-    meta message isFunctionGroupType -> BooleanBit := {
+    meta message isFunctionGroupType => BooleanBit := {
         return: true
     }.
 
@@ -812,7 +812,7 @@ definition: {
 // Function type
 FunctionType uses: AnyValue;
 definition: {
-    meta message isFunctionType -> BooleanBit := {
+    meta message isFunctionType => BooleanBit := {
         return: true
     }.
 
@@ -906,7 +906,7 @@ definition: {
 // Structure type
 StructureType uses: AnyValue;
 definition: {
-    meta message asReceiverType -> _CompilerObjectType := {
+    meta message asReceiverType => _CompilerObjectType := {
         return: self ref
     }.
 }.
@@ -921,11 +921,11 @@ _LiteralString uses: LiteralType.
 
 _LiteralInteger uses: (PrimitiveLiteralType, IntegerType);
 definition: {
-    meta message cvariadicCoercionType -> _CompilerObjectType := {
+    meta message cvariadicCoercionType => _CompilerObjectType := {
         return: Int32
     }.
 
-    meta message valueType -> _CompilerObjectType := {
+    meta message valueType => _CompilerObjectType := {
         return: Int32
     }.
 
@@ -933,22 +933,22 @@ definition: {
 
 _LiteralFraction uses: (PrimitiveLiteralType, FractionalType);
 definition: {
-    meta message cvariadicCoercionType -> _CompilerObjectType := {
+    meta message cvariadicCoercionType => _CompilerObjectType := {
         return: Float64
     }.
 
-    meta message valueType -> _CompilerObjectType := {
+    meta message valueType => _CompilerObjectType := {
         return: Float64
     }.
 }.
 
 _LiteralFloat uses: (PrimitiveLiteralType, FloatingPointType);
 definition: {
-    meta message cvariadicCoercionType -> _CompilerObjectType := {
+    meta message cvariadicCoercionType => _CompilerObjectType := {
         return: Float64
     }.
 
-    meta message valueType -> _CompilerObjectType := {
+    meta message valueType => _CompilerObjectType := {
         return: Float64
     }.
 }.
@@ -958,11 +958,11 @@ _APSGNodeType uses: AnyValue.
 
 BooleanBit uses: (BooleanType, PrimitiveType);
 definition: {
-    meta message buildSSAType -> _CompilerObjectType := {
+    meta message buildSSAType => _CompilerObjectType := {
         return: Compiler compilationTarget ssaBoolType
     }.
 
-    meta message generateSSAValue: (value: _CompilerObjectType) withBuilder: (builder: _CompilerObjectType) ::-> _CompilerObjectType := {
+    meta message generateSSAValue: (value: _CompilerObjectType) withBuilder: (builder: _CompilerObjectType) ::=> _CompilerObjectType := {
         return: (builder const: value unwrapSysmelValue type: self ssaType)
     }.
 
@@ -972,11 +972,11 @@ definition: {
 // Undefined type. For nil
 UndefinedType uses: OpaqueType;
 definition: {
-    message isUndefinedType -> BooleanBit := {
+    message isUndefinedType => BooleanBit := {
         return: true
     }.
 
-    meta message generateSSAValue: (value: _CompilerObjectType) withBuilder: (builder: _CompilerObjectType) ::-> _CompilerObjectType := {
+    meta message generateSSAValue: (value: _CompilerObjectType) withBuilder: (builder: _CompilerObjectType) ::=> _CompilerObjectType := {
         return: value
     }.
 
@@ -985,11 +985,11 @@ definition: {
 
 Void uses: OpaqueType;
 definition: {
-    meta message buildSSAType -> _CompilerObjectType := {
+    meta message buildSSAType => _CompilerObjectType := {
         return: Compiler compilationTarget ssaVoidType
     }.
 
-    meta message defaultValue -> _CompilerObjectType := {
+    meta message defaultValue => _CompilerObjectType := {
         return: nil
     }.
 
@@ -999,15 +999,15 @@ definition: {
 // Int8
 Int8 uses: PrimitiveSignedIntegerType;
 definition: {
-    meta message instanceSize -> _LiteralInteger := {
+    meta message instanceSize => _LiteralInteger := {
         return: 1
     }.
 
-    meta message buildSSAType -> _CompilerObjectType := {
+    meta message buildSSAType => _CompilerObjectType := {
         return: Compiler compilationTarget ssaInt8
     }.
 
-    meta message cvariadicCoercionType -> _CompilerObjectType := {
+    meta message cvariadicCoercionType => _CompilerObjectType := {
         return: Int32
     }.
 
@@ -1016,15 +1016,15 @@ definition: {
 
 UInt8 uses: PrimitiveUnsignedIntegerType;
 definition: {
-    meta message instanceSize -> _LiteralInteger := {
+    meta message instanceSize => _LiteralInteger := {
         return: 1
     }.
 
-    meta message buildSSAType -> _CompilerObjectType := {
+    meta message buildSSAType => _CompilerObjectType := {
         return: Compiler compilationTarget ssaUInt8
     }.
 
-    meta message cvariadicCoercionType -> _CompilerObjectType := {
+    meta message cvariadicCoercionType => _CompilerObjectType := {
         return: Int32
     }.
 
@@ -1034,15 +1034,15 @@ definition: {
 // Int16
 Int16 uses: PrimitiveSignedIntegerType;
 definition: {
-    meta message instanceSize -> _LiteralInteger := {
+    meta message instanceSize => _LiteralInteger := {
         return: 2
     }.
 
-    meta message buildSSAType -> _CompilerObjectType := {
+    meta message buildSSAType => _CompilerObjectType := {
         return: Compiler compilationTarget ssaInt16
     }.
 
-    meta message cvariadicCoercionType -> _CompilerObjectType := {
+    meta message cvariadicCoercionType => _CompilerObjectType := {
         return: Int32
     }.
 
@@ -1051,15 +1051,15 @@ definition: {
 
 UInt16 uses: PrimitiveUnsignedIntegerType;
 definition: {
-    meta message instanceSize -> _LiteralInteger := {
+    meta message instanceSize => _LiteralInteger := {
         return: 2
     }.
 
-    meta message buildSSAType -> _CompilerObjectType := {
+    meta message buildSSAType => _CompilerObjectType := {
         return: Compiler compilationTarget ssaUInt16
     }.
 
-    meta message cvariadicCoercionType -> _CompilerObjectType := {
+    meta message cvariadicCoercionType => _CompilerObjectType := {
         return: Int32
     }.
 
@@ -1069,15 +1069,15 @@ definition: {
 // Int32
 Int32 uses: PrimitiveSignedIntegerType;
 definition: {
-    meta message instanceSize -> _LiteralInteger := {
+    meta message instanceSize => _LiteralInteger := {
         return: 4
     }.
 
-    meta message buildSSAType -> _CompilerObjectType := {
+    meta message buildSSAType => _CompilerObjectType := {
         return: Compiler compilationTarget ssaInt32
     }.
 
-    meta message cvariadicCoercionType -> _CompilerObjectType := {
+    meta message cvariadicCoercionType => _CompilerObjectType := {
         return: self
     }.
 
@@ -1086,15 +1086,15 @@ definition: {
 
 UInt32 uses: PrimitiveUnsignedIntegerType;
 definition: {
-    meta message instanceSize -> _LiteralInteger := {
+    meta message instanceSize => _LiteralInteger := {
         return: 4
     }.
 
-    meta message buildSSAType -> _CompilerObjectType := {
+    meta message buildSSAType => _CompilerObjectType := {
         return: Compiler compilationTarget ssaUInt32
     }.
 
-    meta message cvariadicCoercionType -> _CompilerObjectType := {
+    meta message cvariadicCoercionType => _CompilerObjectType := {
         return: self
     }.
 
@@ -1104,15 +1104,15 @@ definition: {
 // Int64
 Int64 uses: PrimitiveSignedIntegerType;
 definition: {
-    meta message instanceSize -> _LiteralInteger := {
+    meta message instanceSize => _LiteralInteger := {
         return: 8
     }.
 
-    meta message buildSSAType -> _CompilerObjectType := {
+    meta message buildSSAType => _CompilerObjectType := {
         return: Compiler compilationTarget ssaInt64
     }.
 
-    meta message cvariadicCoercionType -> _CompilerObjectType := {
+    meta message cvariadicCoercionType => _CompilerObjectType := {
         return: self
     }.
 
@@ -1121,15 +1121,15 @@ definition: {
 
 UInt64 uses: PrimitiveUnsignedIntegerType;
 definition: {
-    meta message instanceSize -> _LiteralInteger := {
+    meta message instanceSize => _LiteralInteger := {
         return: 8
     }.
 
-    meta message buildSSAType -> _CompilerObjectType := {
+    meta message buildSSAType => _CompilerObjectType := {
         return: Compiler compilationTarget ssaUInt64
     }.
 
-    meta message cvariadicCoercionType -> _CompilerObjectType := {
+    meta message cvariadicCoercionType => _CompilerObjectType := {
         return: self
     }.
 
@@ -1138,15 +1138,15 @@ definition: {
 
 Float32 uses: PrimitiveFloatingPointType;
 definition: {
-    meta message instanceSize -> _LiteralInteger := {
+    meta message instanceSize => _LiteralInteger := {
         return: 4
     }.
 
-    meta message buildSSAType -> _CompilerObjectType := {
+    meta message buildSSAType => _CompilerObjectType := {
         return: Compiler compilationTarget ssaFloat32
     }.
 
-    meta message cvariadicCoercionType -> _CompilerObjectType := {
+    meta message cvariadicCoercionType => _CompilerObjectType := {
         return: Float64
     }.
 
@@ -1155,15 +1155,15 @@ definition: {
 
 Float64 uses: PrimitiveFloatingPointType;
 definition: {
-    meta message instanceSize -> _LiteralInteger := {
+    meta message instanceSize => _LiteralInteger := {
         return: 8
     }.
 
-    meta message buildSSAType -> _CompilerObjectType := {
+    meta message buildSSAType => _CompilerObjectType := {
         return: Compiler compilationTarget ssaFloat64
     }.
 
-    meta message cvariadicCoercionType -> _CompilerObjectType := {
+    meta message cvariadicCoercionType => _CompilerObjectType := {
         return: Float64
     }.
 

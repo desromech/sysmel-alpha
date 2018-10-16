@@ -12,7 +12,7 @@ Class {
 }
 
 { #category : #associating }
-SYMLAbstractFunctionTemplate >> -> returnTypeValue [
+SYMLAbstractFunctionTemplate >> => returnTypeValue [
 	<compileTime>
 	<lazy>
 	returnType ifNotNil: [ 

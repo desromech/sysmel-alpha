@@ -1,3 +1,2 @@
-Compiler
-    evaluateFileNamedOnce: "bootstrap.sysmel";
-    yourself
+loadFileOnce: "gc.sysmel".
+loadFileOnce: "bootstrap.sysmel".

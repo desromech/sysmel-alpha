@@ -6,9 +6,9 @@ namespace StdNative definition: {
  */
 class MemoryHeap
 definition: {
-    message allocate: (size: UIntPointer) ::-> Void pointer := nil.
+    message allocate: (size: UIntPointer) ::=> Void pointer := nil.
 
-    message free: (pointer: Void pointer) ::-> Void := nil.
+    message free: (pointer: Void pointer) ::=> Void := nil.
 }.
 
 }. // End of namespace StdNative

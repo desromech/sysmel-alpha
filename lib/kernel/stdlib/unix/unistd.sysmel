@@ -4,103 +4,103 @@ namespace Unix definition: {
     alias STDOUT_FILENO := 0.
     alias STDERR_FILENO := 0.
 
-    function access externC (pathname: ConstString, mode: Int) -> Int.
-    function alarm externC (seconds: UInt) -> UInt.
+    function access externC (pathname: ConstString, mode: Int) => Int.
+    function alarm externC (seconds: UInt) => UInt.
 
-    function chdir externC (path: ConstString) -> Int.
-    function chown externC (path: ConstString, owner: UID_T, group: GID_T) -> Int.
-    function close externC (fd: Int) -> Int.
-    function crypt externC (key: ConstString, salt: ConstString) -> String.
+    function chdir externC (path: ConstString) => Int.
+    function chown externC (path: ConstString, owner: UID_T, group: GID_T) => Int.
+    function close externC (fd: Int) => Int.
+    function crypt externC (key: ConstString, salt: ConstString) => String.
 
-    function dup externC (oldFd: Int) -> Int.
-    function dup2 externC (oldFd: Int, newFd: Int) -> Int.
+    function dup externC (oldFd: Int) => Int.
+    function dup2 externC (oldFd: Int, newFd: Int) => Int.
 
-    function encrypt externC (block: (UInt8 array: 64) pointer, edflags: Int) -> Void.
+    function encrypt externC (block: (UInt8 array: 64) pointer, edflags: Int) => Void.
 
-    function execl externC CVariadic (path: ConstString, arg: ConstString) -> Int.
-    function execle externC CVariadic (path: ConstString, arg: ConstString) -> Int.
-    function execlp externC CVariadic (file: ConstString, arg: ConstString) -> Int.
-    function execv externC (path: ConstString, argv: ConstString array pointer) -> Int.
-    function execve externC (path: ConstString, argv: ConstString array pointer, envp: ConstString array pointer) -> Int.
-    function execvp externC (file: ConstString, argv: ConstString array pointer) -> Int.
+    function execl externC CVariadic (path: ConstString, arg: ConstString) => Int.
+    function execle externC CVariadic (path: ConstString, arg: ConstString) => Int.
+    function execlp externC CVariadic (file: ConstString, arg: ConstString) => Int.
+    function execv externC (path: ConstString, argv: ConstString array pointer) => Int.
+    function execve externC (path: ConstString, argv: ConstString array pointer, envp: ConstString array pointer) => Int.
+    function execvp externC (file: ConstString, argv: ConstString array pointer) => Int.
 
-    function faccess externC (dirfd: Int, pathname: ConstString, mode: Int) -> Int.
-    function fchdir externC (fd: Int) -> Int.
-    function fchown externC (fd: Int, owner: UID_T, group: GID_T) -> Int.
-    function fchownat externC (dirfd: Int, pathname: ConstString, owner: UID_T, group: GID_T) -> Int.
-    function fdatasync externC (fd: Int) -> Int.
-    function fexecve externC (fd: Int, argv: ConstString array pointer, envp: ConstString array pointer) -> Int.
-    function fork externC () -> PID_T.
-    function fpathconf externC (fd: Int, name: Int) -> Long.
-    function fsync externC (fd: Int) -> Int.
-    function ftruncate externC (fd: Int, length: OFF_T) -> Int.
+    function faccess externC (dirfd: Int, pathname: ConstString, mode: Int) => Int.
+    function fchdir externC (fd: Int) => Int.
+    function fchown externC (fd: Int, owner: UID_T, group: GID_T) => Int.
+    function fchownat externC (dirfd: Int, pathname: ConstString, owner: UID_T, group: GID_T) => Int.
+    function fdatasync externC (fd: Int) => Int.
+    function fexecve externC (fd: Int, argv: ConstString array pointer, envp: ConstString array pointer) => Int.
+    function fork externC () => PID_T.
+    function fpathconf externC (fd: Int, name: Int) => Long.
+    function fsync externC (fd: Int) => Int.
+    function ftruncate externC (fd: Int, length: OFF_T) => Int.
 
-    function getcwd externC (buffer: String, size: SizeT) -> String.
-    function getegid externC () -> GID_T.
-    function geteuid externC () -> UID_T.
-    function getgid externC () -> GID_T.
-    function getgroups externC (size: Int, list: GID_T pointer) -> Int.
-    function gethostid externC () -> Long.
-    function gethostname externC (name: String, len: SizeT) -> Int.
-    function getlogin externC () -> String.
-    function getlogin_r externC (buf: String, bufsize: SizeT) -> String.
-    function getopt externC (argc: Int, argv: ConstString array pointer, opstring: ConstString) -> Int.
-    function getpgid externC (pid: PID_T) -> PID_T.
-    function getpgrp externC () -> PID_T.
-    function getpid externC () -> PID_T.
-    function getppid externC () -> PID_T.
-    function getsid externC (pid: PID_T) -> PID_T.
-    function getuid externC (pid: PID_T) -> UID_T.
+    function getcwd externC (buffer: String, size: SizeT) => String.
+    function getegid externC () => GID_T.
+    function geteuid externC () => UID_T.
+    function getgid externC () => GID_T.
+    function getgroups externC (size: Int, list: GID_T pointer) => Int.
+    function gethostid externC () => Long.
+    function gethostname externC (name: String, len: SizeT) => Int.
+    function getlogin externC () => String.
+    function getlogin_r externC (buf: String, bufsize: SizeT) => String.
+    function getopt externC (argc: Int, argv: ConstString array pointer, opstring: ConstString) => Int.
+    function getpgid externC (pid: PID_T) => PID_T.
+    function getpgrp externC () => PID_T.
+    function getpid externC () => PID_T.
+    function getppid externC () => PID_T.
+    function getsid externC (pid: PID_T) => PID_T.
+    function getuid externC (pid: PID_T) => UID_T.
 
-    function isatty externC (fd: Int) -> Int.
+    function isatty externC (fd: Int) => Int.
 
-    function lchown externC (path: ConstString, owner: UID_T, group: GID_T) -> Int.
-    function link externC (oldpath: ConstString, newpath: ConstString) -> Int.
+    function lchown externC (path: ConstString, owner: UID_T, group: GID_T) => Int.
+    function link externC (oldpath: ConstString, newpath: ConstString) => Int.
     function linkat externC (olddirfd: Int, oldpath: ConstString,
-        newdirfd: Int, newpath: ConstString, flags: Int) -> Int.
-    function lockf externC (fd: Int, cmd: Int, len: OFF_T) -> Int.
-    function lseek externC (fd: Int, offset: OFF_T, whence: Int) -> OFF_T.
-    function nice externC (inc: Int) -> Int.
+        newdirfd: Int, newpath: ConstString, flags: Int) => Int.
+    function lockf externC (fd: Int, cmd: Int, len: OFF_T) => Int.
+    function lseek externC (fd: Int, offset: OFF_T, whence: Int) => OFF_T.
+    function nice externC (inc: Int) => Int.
 
-    function pathconf externC (path: ConstString, name: Int) -> Long.
-    function pause externC () -> Int.
-    function pipe externC (pipefds: (Int array: 2) pointer) -> Int.
-    function pread externC (fd: Int, buf: Void pointer, count: SizeT, offset: OFF_T) -> SSizeT.
-    function pwrite externC (fd: Int, buf: Void const pointer, count: SizeT, offset: OFF_T) -> SSizeT.
+    function pathconf externC (path: ConstString, name: Int) => Long.
+    function pause externC () => Int.
+    function pipe externC (pipefds: (Int array: 2) pointer) => Int.
+    function pread externC (fd: Int, buf: Void pointer, count: SizeT, offset: OFF_T) => SSizeT.
+    function pwrite externC (fd: Int, buf: Void const pointer, count: SizeT, offset: OFF_T) => SSizeT.
 
-    function read externC (fd: Int, buf: Void pointer, count: SizeT,) -> SSizeT.
-    function readlink externC (pathname: ConstString, buf: String, bufsize: SizeT) -> SSizeT.
-    function readlinkat externC (dirfd: Int, pathname: ConstString, buf: String, bufsize: SizeT) -> SSizeT.
+    function read externC (fd: Int, buf: Void pointer, count: SizeT,) => SSizeT.
+    function readlink externC (pathname: ConstString, buf: String, bufsize: SizeT) => SSizeT.
+    function readlinkat externC (dirfd: Int, pathname: ConstString, buf: String, bufsize: SizeT) => SSizeT.
 
-    function rmdir externC (path: ConstString) -> Int.
+    function rmdir externC (path: ConstString) => Int.
 
-    function setegid externC (egid: GID_T) -> Int.
-    function seteuid externC (euid: UID_T) -> Int.
-    function setgid externC (gid: GID_T) -> Int.
-    function setpgid externC (pid: PID_T, pgid: UID_T) -> Int.
-    function setpgrp externC () -> PID_T.
-    function setregid externC (rgid: UID_T, egid: GID_T) -> Int.
-    function setreuid externC (ruid: UID_T, euid: UID_T) -> Int.
-    function setsid externC () -> PID_T.
-    function setuid externC (uid: UID_T) -> Int.
+    function setegid externC (egid: GID_T) => Int.
+    function seteuid externC (euid: UID_T) => Int.
+    function setgid externC (gid: GID_T) => Int.
+    function setpgid externC (pid: PID_T, pgid: UID_T) => Int.
+    function setpgrp externC () => PID_T.
+    function setregid externC (rgid: UID_T, egid: GID_T) => Int.
+    function setreuid externC (ruid: UID_T, euid: UID_T) => Int.
+    function setsid externC () => PID_T.
+    function setuid externC (uid: UID_T) => Int.
 
-    function setkey externC (key: ConstString) -> Void.
+    function setkey externC (key: ConstString) => Void.
 
-    function sleep externC (seconds: UInt) -> Int.
-    function swab externC (from: Void const pointer, to: Void pointer, n: SSizeT) -> Int.
-    function symlink externC (target: ConstString, linkpath: ConstString) -> Int.
-    function symlinkat externC (target: ConstString, newdirfd: Int, linkpath: ConstString) -> Int.
-    function sync externC () -> Void.
-    function sysconf externC (name: Int) -> Long.
+    function sleep externC (seconds: UInt) => Int.
+    function swab externC (from: Void const pointer, to: Void pointer, n: SSizeT) => Int.
+    function symlink externC (target: ConstString, linkpath: ConstString) => Int.
+    function symlinkat externC (target: ConstString, newdirfd: Int, linkpath: ConstString) => Int.
+    function sync externC () => Void.
+    function sysconf externC (name: Int) => Long.
 
-    function tcgetpgrp externC (fd: Int) -> PID_T.
-    function tcsetpgrp externC (fd: Int, pgrp: PID_T) -> Int.
-    function truncate externC (path: ConstString, length: OFF_T) -> Int.
-    function ttyname externC (fd: Int) -> String.
-    function ttyname_r externC (fd: Int, buf: String, buflen: SizeT) -> Int.
+    function tcgetpgrp externC (fd: Int) => PID_T.
+    function tcsetpgrp externC (fd: Int, pgrp: PID_T) => Int.
+    function truncate externC (path: ConstString, length: OFF_T) => Int.
+    function ttyname externC (fd: Int) => String.
+    function ttyname_r externC (fd: Int, buf: String, buflen: SizeT) => Int.
 
-    function unlink externC (path: ConstString) -> Int.
-    function unlinkat externC (dirfd: Int, path: ConstString, flags: Int) -> Int.
+    function unlink externC (path: ConstString) => Int.
+    function unlinkat externC (dirfd: Int, path: ConstString, flags: Int) => Int.
 
-    function write externC (fd: Int, buf: Void const pointer, count: SizeT,) -> SSizeT.
+    function write externC (fd: Int, buf: Void const pointer, count: SizeT,) => SSizeT.
 }.

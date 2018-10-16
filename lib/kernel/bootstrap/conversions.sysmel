@@ -217,7 +217,7 @@ UndefinedType conversionTo: PointerType | Void doOn: {
     }.
 }.
 
-// Pointer -> Pointer
+// Pointer => Pointer
 let pointerReinterpretCast := `'{
     evaluation: $$Pharo {
         value: value targetType: targetType at: position
@@ -233,7 +233,7 @@ PointerType reinterpretConversionTo: PointerType doOn: pointerReinterpretCast.
 PointerType conversionTo: Void pointer doOn: pointerReinterpretCast.
 PointerType conversionTo: Void const pointer doOn: pointerReinterpretCast.
 
-// Literal integer -> Pointer
+// Literal integer => Pointer
 _LiteralInteger reinterpretConversionTo: PointerType doOn: {
     evaluation: $$Pharo {
         value: value into: targetType at: coercionPosition
@@ -245,7 +245,7 @@ _LiteralInteger reinterpretConversionTo: PointerType doOn: {
     }.
 }.
 
-// Integer -> Pointer
+// Integer => Pointer
 UIntPointer | IntPointer reinterpretConversionTo: PointerType | PointerType const doOn: `'{
     evaluation: $$Pharo {
         value: value targetType: targetType at: position
@@ -257,7 +257,7 @@ UIntPointer | IntPointer reinterpretConversionTo: PointerType | PointerType cons
     }.
 }.
 
-// Pointer -> Integer
+// Pointer => Integer
 PointerType | PointerType const reinterpretConversionTo: UIntPointer | IntPointer doOn: `'{
     evaluation: $$Pharo {
         value: value targetType: targetType at: position

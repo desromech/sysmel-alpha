@@ -186,7 +186,7 @@ SYMLAbstractFunction >> definition: bodyLazyValue [
 { #category : #'semantic analysis' }
 SYMLAbstractFunction >> ensureSemanticAnalysis [
 	analyzedBody ifNotNil: [ ^ self ].
-	self module addPendingSemanticAnalysis: self
+	super ensureSemanticAnalysis
 ]
 
 { #category : #'as yet unclassified' }

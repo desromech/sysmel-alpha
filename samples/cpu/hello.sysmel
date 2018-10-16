@@ -2,15 +2,15 @@
 
 global testGlobal mutable := 42.
 
-function printValue(value: Int32) -> Void := {
+function printValue(value: Int32) => Void := {
     LibC printf("printValue Int32: %d\n", value).
 }.
 
-function printValue(value: Float32) -> Void := {
+function printValue(value: Float32) => Void := {
     LibC printf("printValue Float32: %f\n", value).
 }.
 
-function main externC (argc: Int32, argv: Char const pointer pointer) -> Int32 := {
+function main externC (argc: Int32, argv: Char const pointer pointer) => Int32 := {
 
     LibC printf("testGlobal %d\n", 42).
 
