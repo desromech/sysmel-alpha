@@ -8,6 +8,11 @@ Class {
 }
 
 { #category : #testing }
+SYMLAPSGQuasiUnquote >> evaluateTypeInEnvironment: anEnvironment [
+	^ anEnvironment compilationTarget apsgNodeType
+]
+
+{ #category : #testing }
 SYMLAPSGQuasiUnquote >> isQuasiUnquote [
 	^ true
 ]

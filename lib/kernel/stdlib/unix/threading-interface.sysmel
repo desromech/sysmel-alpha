@@ -1,0 +1,65 @@
+namespace StdNative definition: {
+
+/**
+ * Pthread mutex wrapper.
+ */
+class Mutex
+definition: {
+    field handle public type: Unix pthread_mutex_t.
+
+    message initialize => Void := {
+        Unix pthread_mutex_init(handle address, nil).
+    }.
+
+    message finalize => Void := {
+        Unix pthread_mutex_destroy(handle address).
+    }.
+
+    message lock => Void := {
+        Unix pthread_mutex_lock(handle address).
+    }.
+
+    message unlock => Void := {
+        Unix pthread_mutex_unlock(handle address).
+    }.
+
+    macro expansionRule heldInThisContext := ``{
+        self __macroExpand lock.
+        ensureCleanup: (self __macroExpand unlock)
+    } node.
+
+    macro expansionRule withLock: aBlock := ``{
+        self __macroExpand activateInThisContext.
+        aBlock __macroExpand.
+    }.
+}.
+
+/**
+ * Pthread condition variable wrapper.
+ */
+class ConditionVariable
+definition: {
+    field handle public type: Unix pthread_cond_t.
+
+    message initialize => Void := {
+        Unix pthread_cond_init(handle address, nil).
+    }.
+
+    message finalize => Void := {
+        Unix pthread_cond_destroy(handle address).
+    }.
+
+    message waitFor: (mutex: Mutex ref) ::=> Void := {
+        Unix pthread_cond_wait(handle address, mutex handle address).
+    }.
+
+    message notifyOne => Void := {
+        Unix pthread_cond_signal(handle address).
+    }.
+
+    message notifyAll => Void := {
+        Unix pthread_cond_broadcast(handle address).
+    }.
+}.
+
+}. // End of namespace StdNative

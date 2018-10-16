@@ -34,7 +34,7 @@ SYMLCompilerCommandLineHandler class >> commandName [
 
 { #category : #activation }
 SYMLCompilerCommandLineHandler >> activate [
-	| architecture outputFileName withDebugInformation arguments argumentIndex compilationCommands arg skipCount target compiler emitLLVM writeMode noStandardLibrary gpu compilationOptions |
+	| architecture outputFileName withDebugInformation arguments argumentIndex compilationCommands arg skipCount target compiler emitLLVM writeMode gpu compilationOptions |
 	self activateHelp
 		ifTrue: [  ^ self ].
 		
@@ -43,7 +43,6 @@ SYMLCompilerCommandLineHandler >> activate [
 	withDebugInformation := false.
 	writeMode := #executable.
 	emitLLVM := true.
-	noStandardLibrary := false.
 	gpu := false.
 	
 	arguments := self arguments.
@@ -93,7 +92,7 @@ SYMLCompilerCommandLineHandler >> activate [
 		].
 	
 		arg = '-nostdlib' ifTrue: [ 
-			noStandardLibrary := true.
+			compilationOptions add: [ :c | c noStandardLibrary ].
 		].
 
 		arg = '-nolibc' ifTrue: [
@@ -152,9 +151,7 @@ SYMLCompilerCommandLineHandler >> activate [
 	gpu ifTrue: [ 
 		compiler evaluateFileNamedOnce: Smalltalk imageDirectory  / 'lib' / 'gpu.sysmel'
 	] ifFalse: [ 
-		noStandardLibrary ifFalse: [
-			compiler evaluateFileNamedOnce: Smalltalk imageDirectory  / 'lib' / 'kernel' / 'kernel.sysmel'. 
-		].
+		compiler evaluateFileNamedOnce: Smalltalk imageDirectory  / 'lib' / 'kernel' / 'kernel.sysmel'. 
 	].
 	
 	[

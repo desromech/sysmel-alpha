@@ -46,6 +46,11 @@ SYMLSimpleMetaType >> printOn: aStream [
 ]
 
 { #category : #accessing }
+SYMLSimpleMetaType >> superclass: aSuperClass [
+	"This is ignored here."
+]
+
+{ #category : #accessing }
 SYMLSimpleMetaType >> supertype [
 	^ instanceType ifNotNil: [ instanceType supertype ifNotNil: [:ist | ist type ]]
 ]

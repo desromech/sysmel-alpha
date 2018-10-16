@@ -12,6 +12,11 @@ SYMLAPSGQuasiQuote >> evaluateInEnvironment: anEnvironment [
 	^ anEnvironment wrapAPSGNode: (node macroExpansionInEnvironment: anEnvironment)
 ]
 
+{ #category : #accessing }
+SYMLAPSGQuasiQuote >> evaluateTypeInEnvironment: anEnvironment [
+	^ anEnvironment compilationTarget apsgNodeType
+]
+
 { #category : #testing }
 SYMLAPSGQuasiQuote >> isQuasiQuote [
 	^ true

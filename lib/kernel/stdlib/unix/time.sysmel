@@ -1,0 +1,5 @@
+namespace Unix definition: {
+struct timespec definition: {
+
+}.
+}. // End of namespace Unix

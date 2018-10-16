@@ -1,0 +1,31 @@
+namespace StdNative definition: {
+
+/**
+ * Unix virtual memory interface.
+ */
+class UnixVirtualMemoryInterface
+definition: {
+    message reserveAddressSpace: (size: UIntPointer) ::=> Void pointer := {
+        // mmap
+        nil
+    }.
+
+    message commitAddressSpace: (addressSpace: Void pointer) offset: (offset: UIntPointer) size: (size: UIntPointer) ::=> BooleanBit := {
+        // mprotect
+        false
+    }.
+
+    message releaseAddressSpace: (addressSpace: Void pointer) offset: (offset: UIntPointer) size: (size: UIntPointer) ::=> BooleanBit := {
+        // mprotect/madvise
+        false
+    }.
+
+    message freeAddressSpace: (addressSpace: Void pointer) size: (size: UIntPointer) ::=> BooleanBit := {
+        // munmap
+        false
+    }.
+
+}.
+
+alias NativeVirtualMemoryInterface := UnixVirtualMemoryInterface.
+}. // End of namespace StdNative

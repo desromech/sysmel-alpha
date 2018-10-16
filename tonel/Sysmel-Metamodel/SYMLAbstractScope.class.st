@@ -62,7 +62,7 @@ SYMLAbstractScope >> analyzeAndEvaluateMessage: message at: aPosition [
 	].
 
 	"Ask the receiver type to analyze the message"
-	^ message receiver type analyzeAndEvaluateMessage: message inEnvironment: self at: aPosition
+	^ (message receiver evaluateTypeInEnvironment: self) analyzeAndEvaluateMessage: message inEnvironment: self at: aPosition
 ]
 
 { #category : #'as yet unclassified' }

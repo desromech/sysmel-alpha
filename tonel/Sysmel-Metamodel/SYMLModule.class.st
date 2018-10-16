@@ -14,6 +14,7 @@ Class {
 		'debugSourceFileDictionary',
 		'evaluatedFileReferences',
 		'hasNoRuntimeTypeInformation',
+		'hasNoStandardLibrary',
 		'useLibC',
 		'identityHashRandomGenerator',
 		'defaultSourceCodeParser',
@@ -290,9 +291,27 @@ SYMLModule >> hasNoRuntimeTypeInformation: aBoolean [
 ]
 
 { #category : #'compilation options' }
+SYMLModule >> hasNoStandardLibrary [
+	<compileTime>
+	^ hasNoStandardLibrary ifNil: [ hasNoStandardLibrary := false ]
+]
+
+{ #category : #'compilation options' }
+SYMLModule >> hasNoStandardLibrary: aBoolean [
+	<compileTime>
+	hasNoStandardLibrary := aBoolean
+]
+
+{ #category : #'compilation options' }
 SYMLModule >> hasRuntimeTypeInformation [
 	<compileTime>
 	^ self hasNoRuntimeTypeInformation not
+]
+
+{ #category : #'compilation options' }
+SYMLModule >> hasStandardLibrary [
+	<compileTime>
+	^ self hasNoStandardLibrary not
 ]
 
 { #category : #initialization }
@@ -359,6 +378,12 @@ SYMLModule >> noLibC [
 SYMLModule >> noRTTI [
 	<compileTime>
 	self hasNoRuntimeTypeInformation: true
+]
+
+{ #category : #'compilation options' }
+SYMLModule >> noStandardLibrary [
+	<compileTime>
+	self hasNoStandardLibrary: true
 ]
 
 { #category : #accessing }

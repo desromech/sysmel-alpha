@@ -1,0 +1,131 @@
+namespace Unix definition: {
+    alias pthread_t := UIntPointer.
+    alias pthread_key_t := UIntPointer.
+
+    if: Compiler compilationTarget operatingSystemName = #osx then: {
+        if: UIntPointer instanceSize = 4 then: {
+            alias pthread_attr_t := (UIntPointer array: 10). // sizeof(pthread_attr_t) = 40"
+            alias pthread_mutex_t := (UIntPointer array: 11). // sizeof(pthread_mutex_t) = 44"
+            alias pthread_mutexattr_t := (UIntPointer array: 3). // sizeof(pthread_mutexattr_t) = 12"
+            alias pthread_cond_t := (UIntPointer array: 7). // sizeof(pthread_cond_t) = 28"
+            alias pthread_condattr_t := (UIntPointer array: 2). // sizeof(pthread_condattr_t) = 8"
+            alias pthread_rwlock_t := (UIntPointer array: 32). // sizeof(pthread_rwlock_t) = 128"
+            alias pthread_rwlockattr_t := (UIntPointer array: 4). // sizeof(pthread_rwlockattr_t) = 16"
+        } else: {
+            alias pthread_attr_t := (UIntPointer array: 8). // sizeof(pthread_attr_t) = 64"
+            alias pthread_mutex_t := (UIntPointer array: 8). // sizeof(pthread_mutex_t) = 64"
+            alias pthread_mutexattr_t := (UIntPointer array: 2). // sizeof(pthread_mutexattr_t) = 16"
+            alias pthread_cond_t := (UIntPointer array: 6). // sizeof(pthread_cond_t) = 48"
+            alias pthread_condattr_t := (UIntPointer array: 2). // sizeof(pthread_condattr_t) = 16"
+            alias pthread_rwlock_t := (UIntPointer array: 25). // sizeof(pthread_rwlock_t) = 200"
+            alias pthread_rwlockattr_t := (UIntPointer array: 3). // sizeof(pthread_rwlockattr_t) = 24"
+        }.
+
+        alias PTHREAD_MUTEX_NORMAL := 0.
+        alias PTHREAD_MUTEX_ERRORCHECK := 1.
+        alias PTHREAD_MUTEX_RECURSIVE := 2.
+        alias PTHREAD_MUTEX_DEFAULT := 0.
+    }.
+
+    if: Compiler compilationTarget operatingSystemName = #linux then: {
+
+        if: UIntPointer instanceSize = 4 then: {
+            alias pthread_attr_t := (UIntPointer array: 9). // sizeof(pthread_attr_t) = 36
+            alias pthread_mutex_t := (UIntPointer array: 6). // sizeof(pthread_mutex_t) = 24"
+            alias pthread_mutexattr_t := (UIntPointer array: 1). // sizeof(pthread_mutexattr_t) = 4"
+            alias pthread_cond_t := (UIntPointer array: 12). // sizeof(pthread_cond_t) = 48"
+            alias pthread_condattr_t := (UIntPointer array: 1). // sizeof(pthread_condattr_t) = 4"
+            alias pthread_rwlock_t := (UIntPointer array: 8). // sizeof(pthread_rwlock_t) = 32"
+            alias pthread_rwlockattr_t := (UIntPointer array: 2). // sizeof(pthread_rwlockattr_t) = 8"
+
+        } else: {
+            alias pthread_attr_t := (UIntPointer array: 7). // sizeof(pthread_attr_t) = 56"
+            alias pthread_mutex_t := (UIntPointer array: 5). // sizeof(pthread_mutex_t) = 40"
+            alias pthread_mutexattr_t := (UIntPointer array: 1). // sizeof(pthread_mutexattr_t) = 4"
+            alias pthread_cond_t := (UIntPointer array: 6). // sizeof(pthread_cond_t) = 48"
+            alias pthread_condattr_t := (UIntPointer array: 1). // sizeof(pthread_condattr_t) = 4"
+            alias pthread_rwlock_t := (UIntPointer array: 7). // sizeof(pthread_rwlock_t) = 56"
+            alias pthread_rwlockattr_t := (UIntPointer array: 1). // sizeof(pthread_rwlockattr_t) = 8"
+        }.
+
+        alias PTHREAD_MUTEX_NORMAL := 0.
+        alias PTHREAD_MUTEX_ERRORCHECK := 2.
+        alias PTHREAD_MUTEX_RECURSIVE := 1.
+        alias PTHREAD_MUTEX_DEFAULT := 0.
+    }.
+
+    if: Compiler compilationTarget operatingSystemName = #freebsd then: {
+        alias pthread_attr_t := (UIntPointer array: 1). // sizeof(pthread_attr_t) = 8"
+        alias pthread_mutex_t := (UIntPointer array: 1). // sizeof(pthread_mutex_t) = 8"
+        alias pthread_mutexattr_t := (UIntPointer array: 1). // sizeof(pthread_mutexattr_t) = 8"
+        alias pthread_cond_t := (UIntPointer array: 1). // sizeof(pthread_cond_t) = 8"
+        alias pthread_condattr_t := (UIntPointer array: 1). // sizeof(pthread_condattr_t) = 8"
+        alias pthread_rwlock_t := (UIntPointer array: 1). // sizeof(pthread_rwlock_t) = 8"
+        alias pthread_rwlockattr_t := (UIntPointer array: 1). // sizeof(pthread_rwlockattr_t) = 8"
+
+        alias PTHREAD_MUTEX_NORMAL := 3.
+        alias PTHREAD_MUTEX_ERRORCHECK := 1.
+        alias PTHREAD_MUTEX_RECURSIVE := 2.
+        alias PTHREAD_MUTEX_DEFAULT := 1.
+    }.
+
+    alias pthread_start_routine_t := (Void pointer) => Void pointer.
+
+    // Posix threads
+    function pthread_create externC (pthread: pthread_t pointer, attributes: pthread_attr_t const pointer, entrypoint: pthread_start_routine_t pointer, argument: Void pointer) => Int32.
+    function pthread_cancel externC (pthread: pthread_t) => Int32.
+    function pthread_equal externC (left: pthread_t, right: pthread_t) => Int32.
+    function pthread_exit externC (returnValue: Void pointer) => Void.
+    function pthread_join externC (pthread: pthread_t, returnValue: Void pointer pointer) => Int32.
+    function pthread_kill externC (pthread: pthread_t, sig: Int32) => Int32.
+    // TODO: pthread_once"
+    function pthread_self externC () => pthread_t.
+
+    // Attribute object"
+    function pthread_attr_init externC (attributes: pthread_attr_t pointer) => Int32.
+    function pthread_attr_destroy externC (attributes: pthread_attr_t pointer) => Int32.
+
+    // Mutex"
+    function pthread_mutexattr_init externC (attributes: pthread_mutexattr_t pointer) => Int32.
+    function pthread_mutexattr_destroy externC (attributes: pthread_mutexattr_t pointer) => Int32.
+    function pthread_mutexattr_settype externC (attributes: pthread_mutexattr_t pointer, type: Int32) => Int32.
+    function pthread_mutexattr_gettype externC (attributes: pthread_mutexattr_t pointer, type: Int32 pointer) => Int32.
+
+    function pthread_mutex_init externC (mutex: pthread_mutex_t pointer, attributes: pthread_mutexattr_t const pointer) => Int32.
+    function pthread_mutex_destroy externC (mutex: pthread_mutex_t pointer) => Int32.
+    function pthread_mutex_lock externC (mutex: pthread_mutex_t pointer) => Int32.
+    function pthread_mutex_trylock externC (mutex: pthread_mutex_t pointer) => Int32.
+    function pthread_mutex_unlock externC (mutex: pthread_mutex_t pointer) => Int32.
+
+    // Condition Variable"
+    function pthread_condattr_init externC (attributes: pthread_condattr_t pointer) => Int32.
+    function pthread_condattr_destroy externC (attributes: pthread_condattr_t pointer) => Int32.
+
+    function pthread_cond_init externC (cond: pthread_cond_t pointer, attributes: pthread_condattr_t const pointer) => Int32.
+    function pthread_cond_destroy externC (cond: pthread_cond_t pointer) => Int32.
+    function pthread_cond_signal externC (cond: pthread_cond_t pointer) => Int32.
+    function pthread_cond_broadcast externC (cond: pthread_cond_t pointer) => Int32.
+    function pthread_cond_wait externC (cond: pthread_cond_t pointer, mutex: pthread_mutex_t pointer) => Int32.
+    function pthread_cond_timewait externC (cond: pthread_cond_t pointer, mutex: pthread_mutex_t pointer, abstime: timespec pointer) => Int32.
+
+    // Read/Write lock"
+    function pthread_rwlockattr_init externC (attributes: pthread_rwlockattr_t pointer) => Int32.
+    function pthread_rwlockattr_destroy externC (attributes: pthread_rwlockattr_t pointer) => Int32.
+
+    function pthread_rwlock_init externC (rwlock: pthread_rwlock_t pointer, attributes: pthread_rwlockattr_t pointer) => Int32.
+    function pthread_rwlock_destroy externC (rwlock: pthread_rwlock_t pointer) => Int32.
+
+    function pthread_rwlock_rdlock externC (rwlock: pthread_rwlock_t pointer) => Int32.
+    function pthread_rwlock_tryrdlock externC (rwlock: pthread_rwlock_t pointer) => Int32.
+    function pthread_rwlock_wrlock externC (rwlock: pthread_rwlock_t pointer) => Int32.
+    function pthread_rwlock_trwrlock externC (rwlock: pthread_rwlock_t pointer) => Int32.
+    function pthread_rwlock_unlock externC (rwlock: pthread_rwlock_t pointer) => Int32.
+
+    // Thread local storage"
+    alias pthread_key_destructor_function_t := (Void pointer) => Void.
+
+    function pthread_key_create externC (key: pthread_key_t pointer , destructor: pthread_key_destructor_function_t pointer) => Int32.
+    function pthread_key_delete externC (key: pthread_key_t) => Int32.
+    function pthread_getspecific externC (key: pthread_key_t) => Void pointer.
+    function pthread_setspecific externC (key: pthread_key_t, value: Void pointer) => Int32.
+}.

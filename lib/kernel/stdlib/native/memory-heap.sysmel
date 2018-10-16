@@ -1,14 +1,38 @@
 namespace StdNative definition: {
 
 /**
- * MemoryHeap
+ * GenericMemoryHeap
  * A data structure for implementing malloc/free and family.
  */
-class MemoryHeap
+template GenericMemoryHeap(BC: Type)
+    := class superclass: BC;
 definition: {
-    message allocate: (size: UIntPointer) ::=> Void pointer := nil.
+    field mutex private type: Mutex.
 
-    message free: (pointer: Void pointer) ::=> Void := nil.
+    message allocate: (size: UIntPointer) ::=> Void pointer := {
+        mutex heldInThisContext.
+
+        nil.
+    }.
+
+    message free: (pointer: Void pointer) ::=> Void := {
+        // Ignore null pointers.
+        if: pointer == nil then: {
+            return: nil
+        }.
+
+        mutex heldInThisContext.
+    }
 }.
+
+/**
+ * The native memory heap.
+ */
+alias NativeMemoryHeap := GenericMemoryHeap(NativeVirtualMemoryInterface).
+
+global globalNativeMemoryHeap mutable type: NativeMemoryHeap.
+
+function malloc(size: UIntPointer) => Void pointer := globalNativeMemoryHeap allocate: size.
+function free(pointer: Void pointer) => Void := globalNativeMemoryHeap free: pointer.
 
 }. // End of namespace StdNative

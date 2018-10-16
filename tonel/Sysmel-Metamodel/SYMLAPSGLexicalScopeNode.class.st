@@ -94,11 +94,13 @@ SYMLAPSGLexicalScopeNode >> macroExpansionInEnvironment: anEnvironment [
 
 { #category : #accessing }
 SYMLAPSGLexicalScopeNode >> node [
+	<compileTime>
 	^ node
 ]
 
 { #category : #accessing }
 SYMLAPSGLexicalScopeNode >> node: anObject [
+	<compileTime>
 	node := anObject
 ]
 

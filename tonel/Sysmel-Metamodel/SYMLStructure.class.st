@@ -97,10 +97,10 @@ SYMLStructure >> generateSSACode [
 
 { #category : #'code generation' }
 SYMLStructure >> generateSSAConstant: value forModule: aModule [
-	| ssaValue actualValue |
-	actualValue := value ifNil: [ self makeInstance ].
-	ssaValue := actualValue generateSSAValueForModule: aModule.
-	^ actualValue type == self
+	| ssaValue |
+	value ifNil: [ ^ SLVMConstant zeroInitializer: self ssaType ].
+	ssaValue := value generateSSAValueForModule: aModule.
+	^ value type == self
 		ifTrue: [ ssaValue ]
 		ifFalse: [ SLVMConstant value: ssaValue bitcast: self ssaType ]
 	
