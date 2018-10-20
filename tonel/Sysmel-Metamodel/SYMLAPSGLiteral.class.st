@@ -29,6 +29,11 @@ SYMLAPSGLiteral >> isLiteralNode [
 	^ true
 ]
 
+{ #category : #testing }
+SYMLAPSGLiteral >> isTrivialWithoutSideEffects [
+	^ true
+]
+
 { #category : #'meta evaluation' }
 SYMLAPSGLiteral >> macroExpansionInEnvironment: anEnvironment [
 	^ self

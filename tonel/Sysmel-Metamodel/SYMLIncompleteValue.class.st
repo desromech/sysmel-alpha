@@ -34,6 +34,11 @@ SYMLIncompleteValue >> matchValue: suppliedValue withMatchingContext: patternMat
 ]
 
 { #category : #'as yet unclassified' }
+SYMLIncompleteValue >> sameValueButWithType: aNewType [
+	^ self copy type: aNewType
+]
+
+{ #category : #'as yet unclassified' }
 SYMLIncompleteValue >> sysmelMangledValue [
 	<compileTime>
 	^ #u

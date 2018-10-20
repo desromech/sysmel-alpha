@@ -3,6 +3,12 @@ namespace StdNative definition: {
 /**
  * GenericMemoryHeap
  * A data structure for implementing malloc/free and family.
+ * Performance note: This current implementation is unefficient and it is
+ * designed with just simplicity in mind, and as an initial implementation for
+ * the language.
+ * HUGE TODO: Optimize this for multi-threading. An excellent starting point for,
+ *        this is jemalloc (A Scalable Concurrent malloc(3) Implementation for FreeBSD
+ *        -- https://www.bsdcan.org/2006/papers/jemalloc.pdf )
  */
 template GenericMemoryHeap(BC: Type)
     := class superclass: BC;

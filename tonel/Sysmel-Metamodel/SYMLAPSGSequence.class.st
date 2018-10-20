@@ -66,6 +66,12 @@ SYMLAPSGSequence >> isSequenceNode [
 	^ true
 ]
 
+{ #category : #testing }
+SYMLAPSGSequence >> isTrivialWithoutSideEffects [
+	elements do: [ :el | el isTrivialWithoutSideEffects ifFalse: [ ^ false ] ].
+	^ true
+]
+
 { #category : #'meta evaluation' }
 SYMLAPSGSequence >> macroExpansionInEnvironment: anEnvironment [
 	^ self shallowCopy

@@ -77,6 +77,16 @@ SYMLAbstractVariable >> evaluateBindingInEnvironment: environment [
 	self subclassResponsibility
 ]
 
+{ #category : #'as yet unclassified' }
+SYMLAbstractVariable >> generateSSAVariable: ssaVariable constructionWith: builder [
+	type initializeSSAVariable: ssaVariable with: builder
+]
+
+{ #category : #'as yet unclassified' }
+SYMLAbstractVariable >> generateSSAVariable: ssaVariable destructionWith: builder [
+	type finalizeSSAVariable: ssaVariable with: builder
+]
+
 { #category : #testing }
 SYMLAbstractVariable >> isConst [
 	^ self hasFlag: #const

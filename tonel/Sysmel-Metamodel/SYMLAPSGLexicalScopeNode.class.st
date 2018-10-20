@@ -75,6 +75,11 @@ SYMLAPSGLexicalScopeNode >> isLexicalScopeNode [
 	^ true
 ]
 
+{ #category : #testing }
+SYMLAPSGLexicalScopeNode >> isTrivialWithoutSideEffects [
+	^ node isTrivialWithoutSideEffects
+]
+
 { #category : #accessing }
 SYMLAPSGLexicalScopeNode >> lexicalEnvironment [
 	^ lexicalEnvironment

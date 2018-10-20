@@ -47,28 +47,37 @@ SYMLAPSGLocalInitialization >> evaluateTypeInEnvironment: anEnvironment [
 ]
 
 { #category : #'meta evaluation' }
-SYMLAPSGLocalInitialization >> generateSSACodeWith: aBuilder [
+SYMLAPSGLocalInitialization >> generateSSACodeWith: builder [
 	| localReference initialValue convertedInitialValue |
-	aBuilder withDebugPosition: self position do: [
+	builder withDebugPosition: self position do: [
 		local isReadOnly ifTrue: [ 
 			self assert: initialization isNotNil.
-			initialValue := initialization generateSSACodeWith: aBuilder.
-			convertedInitialValue := coercionRule convertSSAValue: initialValue to: local type with: aBuilder at: self.
+			initialValue := initialization generateSSACodeWith: builder.
+			convertedInitialValue := coercionRule convertSSAValue: initialValue to: local type with: builder at: self.
 			local ssaValue: convertedInitialValue.
-			aBuilder compilationTarget emittingDebugInformation ifTrue: [ 
-				aBuilder debugSetVariable: local createSSADebugInformation value: convertedInitialValue
+			builder compilationTarget emittingDebugInformation ifTrue: [ 
+				builder debugSetVariable: local createSSADebugInformation value: convertedInitialValue
 			].
 
 			^ convertedInitialValue
 		].
 	
-		initialization ifNotNil: [
-			initialization generateSSACodeWith: aBuilder
+		local type hasNonTrivialInitialization ifTrue: [ 
+			local generateSSAVariable: local ssaValue constructionWith: builder
 		].
 
-		localReference := local generateSSAReferenceWith: aBuilder.
-		aBuilder compilationTarget emittingDebugInformation ifTrue: [ 
-			(aBuilder debugDeclareVariable: localReference)
+		local type hasNonTrivialFinalization ifTrue: [
+			self halt
+			"local generateSSAVariable: local ssaValue constructionWith: builder"
+		].
+	
+		initialization ifNotNil: [
+			initialization generateSSACodeWith: builder
+		].
+
+		localReference := local generateSSAReferenceWith: builder.
+		builder compilationTarget emittingDebugInformation ifTrue: [ 
+			(builder debugDeclareVariable: localReference)
 				debugInformation: local createSSADebugInformation
 		].
 		

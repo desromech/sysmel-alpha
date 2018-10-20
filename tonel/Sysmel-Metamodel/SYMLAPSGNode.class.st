@@ -200,6 +200,11 @@ SYMLAPSGNode >> isSplice [
 ]
 
 { #category : #testing }
+SYMLAPSGNode >> isTrivialWithoutSideEffects [
+	^ false
+]
+
+{ #category : #testing }
 SYMLAPSGNode >> isTupleNode [
 	^ false
 ]

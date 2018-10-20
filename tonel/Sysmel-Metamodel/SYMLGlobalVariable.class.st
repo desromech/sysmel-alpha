@@ -49,6 +49,17 @@ SYMLGlobalVariable >> ensureSSAValue [
 		ssaValue initialValue: (type generateSSAConstant: currentValue forModule: self module).
 	].
 
+	type hasNonTrivialInitialization ifTrue: [ 
+		module createSSAGlobal: ssaValue at: definitionPosition constructorWith: [ :builder |
+			self generateSSAVariable: ssaValue constructionWith: builder
+		]
+	].
+	type hasNonTrivialFinalization ifTrue: [ 
+		module createSSAGlobal: ssaValue at: definitionPosition destructorWith: [ :builder |
+			self generateSSAVariable: ssaValue destructionWith: builder
+		].
+	].
+
 	^ ssaValue
 ]
 

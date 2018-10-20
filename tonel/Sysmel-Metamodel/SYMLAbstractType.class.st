@@ -350,6 +350,22 @@ SYMLAbstractType >> canNode: node beConvertedExplicitlyInto: targetType [
 	^ (self node: node convertedExplicitlyInto: targetType) isNotNil
 ]
 
+{ #category : #testing }
+SYMLAbstractType >> checkNonTrivialFinalization [
+	(self lookupSelector: #finalize) ifNotNil: [ :method |
+		^ method isNonTrivialConstructorOrDestructor
+	].
+	^ false
+]
+
+{ #category : #testing }
+SYMLAbstractType >> checkNonTrivialInitialization [
+	(self lookupSelector: #initialize) ifNotNil: [ :method |
+		^ method isNonTrivialConstructorOrDestructor
+	].
+	^ false
+]
+
 { #category : #'type composition' }
 SYMLAbstractType >> cleanType [
 	^ self cachedNullary: #cleanType
@@ -562,6 +578,13 @@ SYMLAbstractType >> fieldMetaobjectClass [
 	^ SYMLFieldVariable
 ]
 
+{ #category : #'code generation' }
+SYMLAbstractType >> finalizeSSAVariable: ssaVariable with: builder [
+	| result |
+	result := self sysmelPerform: #initializeSSAVariable:with: withArguments:  { ssaVariable . builder}.
+	^ result unwrapSysmelValue
+]
+
 { #category : #conversions }
 SYMLAbstractType >> findConversionRuleInto: targetType node: node rulesExtractor: rulesExtractor [
 	| visitedTypes pendingTypes currentTypeFromToCheck currentType incomingTypeAndRule |
@@ -676,6 +699,26 @@ SYMLAbstractType >> hasDynamicMessageSends [
 	^ self cachedNullary: #hasDynamicMessageSends fallbackWith: [ false ]
 ]
 
+{ #category : #testing }
+SYMLAbstractType >> hasNonTrivialFinalization [
+	^ self cachedNullary: #hasNonTrivialFinalization
+]
+
+{ #category : #testing }
+SYMLAbstractType >> hasNonTrivialGCFinalization [
+	^ self cachedNullary: #hasNonTrivialGCFinalization
+]
+
+{ #category : #testing }
+SYMLAbstractType >> hasNonTrivialGCInitialization [
+	^ self cachedNullary: #hasNonTrivialGCInitialization
+]
+
+{ #category : #testing }
+SYMLAbstractType >> hasNonTrivialInitialization [
+	^ self cachedNullary: #hasNonTrivialInitialization
+]
+
 { #category : #accessing }
 SYMLAbstractType >> implicitConversionRules [
 	^ implicitConversionRules
@@ -714,6 +757,13 @@ SYMLAbstractType >> initialize [
 
 { #category : #initialization }
 SYMLAbstractType >> initializeSSAVariable: ssaVariable builder: builder [
+]
+
+{ #category : #'code generation' }
+SYMLAbstractType >> initializeSSAVariable: ssaVariable with: builder [
+	| result |
+	result := self sysmelPerform: #initializeSSAVariable:with: withArguments:  { ssaVariable . builder }.
+	^ result unwrapSysmelValue
 ]
 
 { #category : #accessing }

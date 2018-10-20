@@ -168,6 +168,42 @@ SYMLModule >> convertParseFailure: aFailure collection: collection [
 ]
 
 { #category : #'code generation' }
+SYMLModule >> createImplicitConstructionFunctionAt: aPosition with: aBlock [
+	| ctorFunctionType ctor allocaBuilder builder bodyBlock |
+	ctorFunctionType := self compilationTarget voidType => self compilationTarget voidType.
+	ctor := SLVMFunction module: self ssaModule name: nil functionType: ctorFunctionType ssaType.
+
+	"Create a builder for the allocas and another for the function body."
+	allocaBuilder := SYMLSLVMBuilder on: ctor.
+	allocaBuilder sysmelModule: self.
+	allocaBuilder newBasicBlockHere: #entry.
+	
+	builder := SYMLSLVMBuilder on: ctor.
+	builder sysmelModule: self.
+	builder allocaBuilder: allocaBuilder.
+	bodyBlock := builder newBasicBlockHere: #body.
+	
+	aBlock value: builder.
+	
+	allocaBuilder jump: bodyBlock.
+	builder isLastTerminator ifFalse: [ builder returnVoid ].
+
+	^ ctor
+]
+
+{ #category : #'code generation' }
+SYMLModule >> createSSAGlobal: ssaValue at: aPosition constructorWith: aBlock [
+	| ctorFunction |
+	ctorFunction := self createImplicitConstructionFunctionAt: aPosition with: aBlock.
+	self halt
+]
+
+{ #category : #'code generation' }
+SYMLModule >> createSSAGlobal: ssaValue at: aPosition destructorWith: aBlock [
+	self halt
+]
+
+{ #category : #'code generation' }
 SYMLModule >> debugLocationDictionary [
 	^ debugLocationDictionary ifNil: [debugLocationDictionary := Dictionary new]
 ]
@@ -332,6 +368,7 @@ SYMLModule >> initializeWithCompilationTarget: aCompilationTarget [
 	evaluatedFileReferences := Dictionary new.
 	
 	identityHashRandomGenerator := Random seed: 1.
+
 ]
 
 { #category : #testing }

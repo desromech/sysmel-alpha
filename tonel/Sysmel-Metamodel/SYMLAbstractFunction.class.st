@@ -108,6 +108,12 @@ SYMLAbstractFunction >> bindedFunctionType [
 	^ bindedFunctionType
 ]
 
+{ #category : #'as yet unclassified' }
+SYMLAbstractFunction >> concreteBodyForActivationEnvironment: activationScope [
+	analyzedBody hasIncompleteSemanticAnalysis ifFalse: [ ^ analyzedBody ].
+	^ analyzedBody concretizeSemanticAnalysisInEnvironment: activationScope
+]
+
 { #category : #accessing }
 SYMLAbstractFunction >> createAnalysisScope [
 	| analysisScope |
@@ -191,7 +197,7 @@ SYMLAbstractFunction >> ensureSemanticAnalysis [
 
 { #category : #'as yet unclassified' }
 SYMLAbstractFunction >> evaluateWithReceiver: aReceiver arguments: activationArguments inEnvironment: environment at: aPosition [
-	| activationScope result hasResult providedArgument convertedArgument convertedArguments receiverValue bodyReturnValue |
+	| activationScope result hasResult providedArgument convertedArgument convertedArguments receiverValue bodyReturnValue activationBody |
 	evaluator ifNotNil: [ 
 		convertedArguments := arguments collectWithIndex: [:expectedArgument :index |
 			providedArgument := activationArguments at: index.
@@ -221,11 +227,13 @@ SYMLAbstractFunction >> evaluateWithReceiver: aReceiver arguments: activationArg
 		convertedArgument := providedArgument coercedIntoType: expectedArgument type at: aPosition.
 		activationScope addSymbol: expectedArgument name value: convertedArgument.
 	].
+
+	activationBody := self concreteBodyForActivationEnvironment: activationScope.
 	
 	result := nil.
 	hasResult := false.
 	[ 
-		bodyReturnValue := analyzedBody evaluateInEnvironment: activationScope.
+		bodyReturnValue := activationBody evaluateInEnvironment: activationScope.
 		bodyReturnTypeCoercionRule ifNotNil: [
 			result := bodyReturnTypeCoercionRule convertValue: bodyReturnValue into: returnType at: definitionPosition.
 			hasResult := true
@@ -447,8 +455,21 @@ SYMLAbstractFunction >> isMethod [
 ]
 
 { #category : #testing }
+SYMLAbstractFunction >> isNonTrivialConstructorOrDestructor [
+	^ self isTrivialConstructorOrDestructor not
+]
+
+{ #category : #testing }
 SYMLAbstractFunction >> isTemplateFunctionInstance [
 	^ templateFunctionOwner isNotNil
+]
+
+{ #category : #testing }
+SYMLAbstractFunction >> isTrivialConstructorOrDestructor [
+	body ifNil: [ ^ true ].
+	self analyzedBody ifNil: [ ^ self ].
+	
+	^ body isTrivialWithoutSideEffects
 ]
 
 { #category : #accessing }

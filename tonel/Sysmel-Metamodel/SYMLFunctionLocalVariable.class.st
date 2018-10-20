@@ -112,6 +112,17 @@ SYMLFunctionLocalVariable >> generateAnonymousSSAGlobalWith: builder [
 	self setSSAGlobalDebuggingInformation: ssaValue.
 	
 	ssaValue initialValue: (type generateSSAConstant: currentValue forModule: self module).
+	
+	type hasNonTrivialInitialization ifTrue: [ 
+		module createSSAGlobal: ssaValue at: definitionPosition constructorWith: [ :ctorBuilder |
+			self generateSSAVariable: ssaValue constructionWith: ctorBuilder
+		]
+	].
+	type hasNonTrivialFinalization ifTrue: [ 
+		module createSSAGlobal: ssaValue at: definitionPosition destructorWith: [ :dtorBuilder |
+			self generateSSAVariable: ssaValue destructionWith: dtorBuilder
+		].
+	].
 ]
 
 { #category : #'as yet unclassified' }

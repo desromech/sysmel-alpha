@@ -175,6 +175,13 @@ SYMLFunctionalPatternGroup >> isFunctionalPatternGroup [
 	^ true
 ]
 
+{ #category : #'semantic analysis' }
+SYMLFunctionalPatternGroup >> isNonTrivialConstructorOrDestructor [
+	self assert: fallbackPattern isNil.
+	self assert: alternatives size = 1.
+	^ alternatives first macroFunction isNonTrivialConstructorOrDestructor
+]
+
 { #category : #'as yet unclassified' }
 SYMLFunctionalPatternGroup >> selectBestMatchingAlternative: validAlternatives at: aPosition [
 	| bestCost bestAlternatives errorMessage |

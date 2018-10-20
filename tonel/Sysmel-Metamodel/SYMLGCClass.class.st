@@ -199,6 +199,18 @@ SYMLGCClass >> hasDynamicMessageSends [
 	^ true
 ]
 
+{ #category : #accessing }
+SYMLGCClass >> hasNonTrivialFinalization [
+	"I am a GC pointer in this context."
+	^ false
+]
+
+{ #category : #accessing }
+SYMLGCClass >> hasNonTrivialInitialization [
+	"I am a GC pointer in this context."
+	^ false
+]
+
 { #category : #testing }
 SYMLGCClass >> hasVariableDataArray [
 	^ self slotsLayout isNotEmpty and: [ self slotsLayout last type isGCClassVariableDataArrayType ]

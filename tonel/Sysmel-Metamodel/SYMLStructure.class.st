@@ -6,7 +6,10 @@ Class {
 		'hasConcretedSSAType',
 		'analyzed',
 		'structureSSAType',
-		'slotsLayout'
+		'slotsLayout',
+		'hasInitialization',
+		'hasFinalization',
+		'isPODType'
 	],
 	#category : #'Sysmel-Metamodel-Type'
 }
@@ -59,6 +62,39 @@ SYMLStructure >> buildStructureSSAType [
 		name: self mangledName; kind: SLVMStructureType genericKind.
 ]
 
+{ #category : #testing }
+SYMLStructure >> checkNonTrivialFinalization [
+	self supertype ifNotNil: [ :st | st hasNonTrivialGCFinalization ifTrue: [^ true]].
+	super checkNonTrivialFinalization ifTrue: [ ^ true ].
+	fields do: [ :field |
+		field type checkNonTrivialFinalization ifTrue: [ ^ true ]
+	].
+
+	^ false
+]
+
+{ #category : #testing }
+SYMLStructure >> checkNonTrivialInitialization [
+	self supertype ifNotNil: [ :st | st hasNonTrivialGCInitialization ifTrue: [^ true]].
+	super checkNonTrivialInitialization ifTrue: [ ^ true ].
+	fields do: [ :field |
+		field type hasNonTrivialGCInitialization ifTrue: [ ^ true ]
+	].
+
+	^ false
+]
+
+{ #category : #testing }
+SYMLStructure >> checkPODType [
+	self hasNonTrivialInitialization ifTrue: [ ^ false ].
+	self hasNonTrivialFinalization ifTrue: [ ^ false ].
+	self allFields do: [ :field |
+		field type isPODType ifFalse: [ ^ false ].
+	].
+
+	^ true
+]
+
 { #category : #accessing }
 SYMLStructure >> concreteSSAType [
 	<compileTime>
@@ -83,9 +119,34 @@ SYMLStructure >> ensureConcreteStructureSSAType [
 	self buildConcreteStructureSSAType
 ]
 
+{ #category : #'semantic analysis' }
+SYMLStructure >> ensureFinalizerIfNonTrivial [
+	self hasNonTrivialFinalization ifFalse: [ ^ self ].
+	(self lookupSelector: #finalize) ifNotNil: [ ^ self ].
+
+	self halt
+]
+
+{ #category : #'semantic analysis' }
+SYMLStructure >> ensureInitializerIfNonTrivial [
+	self hasNonTrivialInitialization ifFalse: [ ^ self ].
+	(self lookupSelector: #initialize) ifNotNil: [ ^ self ].
+	self halt
+]
+
 { #category : #accessing }
 SYMLStructure >> fields [
 	^ fields
+]
+
+{ #category : #'semantic analysis' }
+SYMLStructure >> finalizeSSAVariable: ssaVariable with: builder [
+	| finalizer |
+	self hasNonTrivialInitialization ifFalse: [ ^ self ].
+	finalizer := self lookupSelector: #finalizer.
+	self assert: finalizer isNotNil.
+	
+	self halt
 ]
 
 { #category : #'code generation' }
@@ -111,6 +172,28 @@ SYMLStructure >> generateSSAValue: value withBuilder: aBuilder [
 	^ value generateSSAReferenceWith: aBuilder
 ]
 
+{ #category : #testing }
+SYMLStructure >> hasNonTrivialFinalization [
+	^ self hasNonTrivialGCFinalization
+]
+
+{ #category : #testing }
+SYMLStructure >> hasNonTrivialGCFinalization [
+	hasFinalization ifNil: [ hasFinalization := self checkNonTrivialFinalization ].
+	^ hasFinalization
+]
+
+{ #category : #testing }
+SYMLStructure >> hasNonTrivialGCInitialization [
+	hasInitialization ifNil: [ hasInitialization := self checkNonTrivialInitialization ].
+	^ hasInitialization
+]
+
+{ #category : #testing }
+SYMLStructure >> hasNonTrivialInitialization [
+	^ self hasNonTrivialGCInitialization
+]
+
 { #category : #initialization }
 SYMLStructure >> initialize [
 	super initialize.
@@ -126,9 +209,25 @@ SYMLStructure >> initializeSSAVariable: ssaVariable builder: builder [
 	]
 ]
 
+{ #category : #'semantic analysis' }
+SYMLStructure >> initializeSSAVariable: ssaVariable with: builder [
+	| initializer |
+	self hasNonTrivialInitialization ifFalse: [ ^ self ].
+	initializer := self lookupSelector: #initialize.
+	self assert: initializer isNotNil.
+	
+	self halt
+]
+
 { #category : #testing }
 SYMLStructure >> isCompileTimeByDefault [
 	^ false
+]
+
+{ #category : #testing }
+SYMLStructure >> isPODType [
+	isPODType ifNil: [ isPODType := self checkPODType ].
+	^ isPODType
 ]
 
 { #category : #accessing }
@@ -187,7 +286,10 @@ SYMLStructure >> semanticAnalysis [
 	analyzed := true.
 	
 	self buildLayout.
-	children do: #semanticAnalysis
+	children do: #semanticAnalysis.
+	
+	self ensureInitializerIfNonTrivial.
+	self ensureFinalizerIfNonTrivial.
 ]
 
 { #category : #'semantic analysis' }

@@ -11,8 +11,12 @@ Class {
 
 { #category : #'semantic analysis' }
 SYMLAbstractClass >> allFields [
-	^ allFieldsCache ifNil: [ allFieldsCache :=
-		(superclass ifNil: [ #() ] ifNotNil: [ superclass allFields ]) , fields ]
+	^ allFieldsCache ifNil: [ allFieldsCache := self buildAllFieldsLayout ]
+]
+
+{ #category : #'semantic analysis' }
+SYMLAbstractClass >> buildAllFieldsLayout [
+	^ (superclass ifNil: [ #() ] ifNotNil: [ superclass allFields ]) , fields
 ]
 
 { #category : #'semantic analysis' }

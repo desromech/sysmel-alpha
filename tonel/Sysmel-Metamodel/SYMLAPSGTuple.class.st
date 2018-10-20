@@ -23,6 +23,12 @@ SYMLAPSGTuple >> elements: anObject [
 ]
 
 { #category : #testing }
+SYMLAPSGTuple >> isTrivialWithoutSideEffects [
+	elements do: [ :el | el isTrivialWithoutSideEffects ifFalse: [ ^ false ] ].
+	^ true
+]
+
+{ #category : #testing }
 SYMLAPSGTuple >> isTupleNode [
 	^ true
 ]
