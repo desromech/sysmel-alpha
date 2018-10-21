@@ -66,6 +66,13 @@ trait Type definition: {
     }.
 
     message isReturnedThroughFirstArgument ::=> BooleanBit := false.
+
+    message initializeSSAVariable: (variable: _CompilerObjectType) with: (builder: _CompilerObjectType) ::=> Void := {
+        builder store: (self defaultSSAValueWith: builder) in: variable.
+    }.
+
+    message finalizeSSAVariable: (variable: _CompilerObjectType) with: (builder: _CompilerObjectType) ::=> Void
+        := nil.
 }.
 
 AnyValue type uses: Type.
@@ -224,6 +231,14 @@ trait ArrayType
     uses: AnyValue;
 definition: {
     meta message isArrayType => BooleanBit := true.
+
+    meta message initializeSSAVariable: (variable: _CompilerObjectType) with: (builder: _CompilerObjectType) ::=> Void := {
+        Compiler initializeSSAArray: variable type: self with: builder
+    }.
+
+    meta message finalizeSSAVariable: (variable: _CompilerObjectType) with: (builder: _CompilerObjectType) ::=> Void := {
+        Compiler finalizeSSAArray: variable type: self with: builder
+    }.
 }.
 
 trait GCClassVariableDataArrayType
@@ -778,6 +793,9 @@ definition: {
         := Compiler compilationTarget ssaVoidType.
 
     meta message defaultValue => _CompilerObjectType := nil.
+    meta message generateSSAValue: (value: _CompilerObjectType) withBuilder: (builder: _CompilerObjectType) ::=> _CompilerObjectType
+        := nil.
+
 
     SelfType sysmelMangledValue: #v.
 }.

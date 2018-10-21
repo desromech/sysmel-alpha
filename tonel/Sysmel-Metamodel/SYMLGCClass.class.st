@@ -148,6 +148,11 @@ SYMLGCClass >> fieldMetaobjectClass [
 ]
 
 { #category : #'code generation' }
+SYMLGCClass >> finalizeSSAVariable: ssaVariable with: builder [
+
+]
+
+{ #category : #'code generation' }
 SYMLGCClass >> generateSSAConstant: value forModule: aModule [
 	| ssaValue |
 	value ifNil: [ ^ SLVMConstant type: self ssaType value: 0 ].
@@ -228,6 +233,11 @@ SYMLGCClass >> initialize [
 	super initialize.
 	hasComputeInstanceSizes := false.
 	specificVariableDataTypes := Dictionary new.
+]
+
+{ #category : #'code generation' }
+SYMLGCClass >> initializeSSAVariable: ssaVariable with: builder [
+	builder store: (self defaultSSAValueWith: builder) in: ssaVariable
 ]
 
 { #category : #accessing }

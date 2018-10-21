@@ -183,7 +183,9 @@ SYMLModule >> createImplicitConstructionFunctionAt: aPosition with: aBlock [
 	builder allocaBuilder: allocaBuilder.
 	bodyBlock := builder newBasicBlockHere: #body.
 	
-	aBlock value: builder.
+	builder withDebugPosition: aPosition do: [
+		aBlock value: builder.
+	].
 	
 	allocaBuilder jump: bodyBlock.
 	builder isLastTerminator ifFalse: [ builder returnVoid ].
@@ -195,12 +197,14 @@ SYMLModule >> createImplicitConstructionFunctionAt: aPosition with: aBlock [
 SYMLModule >> createSSAGlobal: ssaValue at: aPosition constructorWith: aBlock [
 	| ctorFunction |
 	ctorFunction := self createImplicitConstructionFunctionAt: aPosition with: aBlock.
-	self halt
+	ssaModule addGlobal: ssaValue constructor: ctorFunction
 ]
 
 { #category : #'code generation' }
 SYMLModule >> createSSAGlobal: ssaValue at: aPosition destructorWith: aBlock [
-	self halt
+	| dtorFunction |
+	dtorFunction := self createImplicitConstructionFunctionAt: aPosition with: aBlock.
+	ssaModule addGlobal: ssaValue destructor: dtorFunction
 ]
 
 { #category : #'code generation' }
@@ -296,6 +300,17 @@ SYMLModule >> evaluateSource: aSourceString name: aSourceName inContext: context
 
 ]
 
+{ #category : #'code generation' }
+SYMLModule >> finalizeSSAArray: variable type: arrayType with: builder [
+	<compileTime>
+	self flag: 'TODO: Implement this correctly.'.
+
+	arrayType ssaType elements = 0 ifTrue: [ ^ self ].
+	arrayType hasNonTrivialFinalization ifFalse: [ ^ self ].
+	
+	self halt
+]
+
 { #category : #'compilation options' }
 SYMLModule >> freestanding [
 	^ self
@@ -348,6 +363,20 @@ SYMLModule >> hasRuntimeTypeInformation [
 SYMLModule >> hasStandardLibrary [
 	<compileTime>
 	^ self hasNoStandardLibrary not
+]
+
+{ #category : #'code generation' }
+SYMLModule >> initializeSSAArray: variable type: arrayType with: builder [
+	<compileTime>
+	self flag: 'TODO: Implement this correctly.'.
+	
+	arrayType ssaType elements = 0 ifTrue: [ ^ self ].
+	arrayType hasNonTrivialInitialization ifFalse: [
+		builder store: arrayType ssaType defaultConstant in: variable.
+		^ self
+	].
+	
+	self halt
 ]
 
 { #category : #initialization }

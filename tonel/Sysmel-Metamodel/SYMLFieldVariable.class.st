@@ -92,6 +92,14 @@ SYMLFieldVariable >> defaultValue [
 	^ type defaultValue
 ]
 
+{ #category : #'code generation' }
+SYMLFieldVariable >> finalizeSSAVariable: ssaVariable with: builder [
+	| fieldPointer |
+	fieldPointer := builder getReference: ssaVariable element: (builder constInt: slotIndex).
+	type finalizeSSAVariable: fieldPointer with: builder.
+
+]
+
 { #category : #'as yet unclassified' }
 SYMLFieldVariable >> finishBuilding [
 	type ifNil: [ 
@@ -122,6 +130,11 @@ SYMLFieldVariable >> getterSelector [
 	^ self name
 ]
 
+{ #category : #testing }
+SYMLFieldVariable >> hasNonTrivialGCInitialization [
+	^ type hasNonTrivialGCInitialization
+]
+
 { #category : #initialization }
 SYMLFieldVariable >> initialize [
 	super initialize.
@@ -132,10 +145,11 @@ SYMLFieldVariable >> initialize [
 ]
 
 { #category : #'code generation' }
-SYMLFieldVariable >> initializeSSAVariable: ssaVariable builder: builder [
+SYMLFieldVariable >> initializeSSAVariable: ssaVariable with: builder [
 	| fieldPointer |
 	fieldPointer := builder getReference: ssaVariable element: (builder constInt: slotIndex).
-	builder store: (type defaultSSAValueWith: builder) in: fieldPointer
+	type initializeSSAVariable: fieldPointer with: builder.
+
 ]
 
 { #category : #testing }

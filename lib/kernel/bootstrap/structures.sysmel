@@ -41,7 +41,7 @@ codeGeneration: $$Pharo {
     structureType concreteSSAType.
 
     structureVariable := builder allocaBuilder alloca: structureType ssaType.
-    structureType initializeSSAVariable: structureVariable builder: builder.
+    structureType initializeSSAVariable: structureVariable with: builder.
 
     messageNode selector == #newValue ifTrue: [
         initializerMethod := structureType lookupSelector: #initialize.

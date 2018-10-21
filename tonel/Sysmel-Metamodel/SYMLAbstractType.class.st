@@ -673,6 +673,14 @@ SYMLAbstractType >> generateSSAConstant: value forModule: aModule [
 ]
 
 { #category : #'code generation' }
+SYMLAbstractType >> generateSSAImplicitFinalizationFor: receiver with: builder [
+]
+
+{ #category : #'code generation' }
+SYMLAbstractType >> generateSSAImplicitInitializationFor: receiver with: builder [
+]
+
+{ #category : #'code generation' }
 SYMLAbstractType >> generateSSAReferenceWith: builder [
 	^ self ssaTypeInfo
 ]
@@ -753,10 +761,6 @@ SYMLAbstractType >> initialize [
 	cachedValues := Dictionary new.
 	hasDefinition := false.
 	self addDefaultConversionRules
-]
-
-{ #category : #initialization }
-SYMLAbstractType >> initializeSSAVariable: ssaVariable builder: builder [
 ]
 
 { #category : #'code generation' }

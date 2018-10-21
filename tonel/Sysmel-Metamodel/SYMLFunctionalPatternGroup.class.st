@@ -229,8 +229,8 @@ SYMLFunctionalPatternGroup >> semanticAnalyzeAddress: node inEnvironment: enviro
 
 { #category : #accessing }
 SYMLFunctionalPatternGroup >> ssaValue [
-	<compileTime>
-	^ self uniqueAlternative ssaValue
+	self assert: (fallbackPattern isNil and: [ alternatives size = 1 ]).
+	^ self alternatives first macroFunction ssaValue
 ]
 
 { #category : #'as yet unclassified' }

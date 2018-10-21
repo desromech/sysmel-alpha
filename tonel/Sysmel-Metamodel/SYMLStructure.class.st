@@ -78,7 +78,7 @@ SYMLStructure >> checkNonTrivialInitialization [
 	self supertype ifNotNil: [ :st | st hasNonTrivialGCInitialization ifTrue: [^ true]].
 	super checkNonTrivialInitialization ifTrue: [ ^ true ].
 	fields do: [ :field |
-		field type hasNonTrivialGCInitialization ifTrue: [ ^ true ]
+		field hasNonTrivialGCInitialization ifTrue: [ ^ true ]
 	].
 
 	^ false
@@ -123,15 +123,32 @@ SYMLStructure >> ensureConcreteStructureSSAType [
 SYMLStructure >> ensureFinalizerIfNonTrivial [
 	self hasNonTrivialFinalization ifFalse: [ ^ self ].
 	(self lookupSelector: #finalize) ifNotNil: [ ^ self ].
-
-	self halt
+	
+	SYMLMessageMethod new
+		module: module;
+		definitionEnvironment: definitionEnvironment;
+		definitionNode: definitionNode ;
+		parent: self;
+		name: #finalize;
+		returnType: self compilationTarget voidType;
+		addTrivialDefinition;
+		semanticAnalysis.
 ]
 
 { #category : #'semantic analysis' }
 SYMLStructure >> ensureInitializerIfNonTrivial [
 	self hasNonTrivialInitialization ifFalse: [ ^ self ].
 	(self lookupSelector: #initialize) ifNotNil: [ ^ self ].
-	self halt
+	
+	SYMLMessageMethod new
+		module: module;
+		definitionEnvironment: definitionEnvironment;
+		definitionNode: definitionNode ;
+		parent: self;
+		name: #initialize;
+		returnType: self compilationTarget voidType;
+		addTrivialDefinition;
+		semanticAnalysis.
 ]
 
 { #category : #accessing }
@@ -143,10 +160,10 @@ SYMLStructure >> fields [
 SYMLStructure >> finalizeSSAVariable: ssaVariable with: builder [
 	| finalizer |
 	self hasNonTrivialInitialization ifFalse: [ ^ self ].
-	finalizer := self lookupSelector: #finalizer.
+	finalizer := self lookupSelector: #finalize.
 	self assert: finalizer isNotNil.
-	
-	self halt
+	self assert: ssaVariable type = finalizer ssaValue type baseType arguments first.
+	builder call: finalizer ssaValue arguments: {ssaVariable}
 ]
 
 { #category : #'code generation' }
@@ -165,6 +182,43 @@ SYMLStructure >> generateSSAConstant: value forModule: aModule [
 		ifTrue: [ ssaValue ]
 		ifFalse: [ SLVMConstant value: ssaValue bitcast: self ssaType ]
 	
+]
+
+{ #category : #'code generation' }
+SYMLStructure >> generateSSAImplicitFinalizationFor: receiver with: builder [
+	| superInitializer superInitializerFunction |
+	builder withDebugPosition: definitionPosition  do: [ 
+		fields do: [ :field |
+			field finalizeSSAVariable: receiver with: builder
+		].
+
+		"Call implicitly the super finalizer."
+		self supertype ifNotNil: [ :st |
+			(st hasNonTrivialInitialization and: [(superInitializer := st lookupSelector: #finalize) isNotNil]) ifTrue: [
+				superInitializerFunction := superInitializer ssaValue.
+				builder call: superInitializerFunction arguments: { builder bitCast: receiver target: superInitializerFunction baseType arguments first }
+			]
+		].	
+	]
+]
+
+{ #category : #'code generation' }
+SYMLStructure >> generateSSAImplicitInitializationFor: receiver with: builder [
+	| superInitializer superInitializerFunction |
+	builder withDebugPosition: definitionPosition  do: [ 
+		"Call implicitly the super initializer."
+		self supertype ifNotNil: [ :st |
+			(st hasNonTrivialInitialization and: [(superInitializer := st lookupSelector: #initialize) isNotNil]) ifTrue: [
+				superInitializerFunction := superInitializer ssaValue.
+				builder call: superInitializerFunction arguments: { builder bitCast: receiver target: superInitializerFunction baseType arguments first }
+			]
+		].
+	
+		fields do: [ :field |
+			field initializeSSAVariable: receiver with: builder
+		]
+	]
+
 ]
 
 { #category : #'code generation' }
@@ -202,21 +256,20 @@ SYMLStructure >> initialize [
 	analyzed := false.
 ]
 
-{ #category : #initialization }
-SYMLStructure >> initializeSSAVariable: ssaVariable builder: builder [
-	fields do: [ :field |
-		field initializeSSAVariable: ssaVariable builder: builder
-	]
-]
-
 { #category : #'semantic analysis' }
 SYMLStructure >> initializeSSAVariable: ssaVariable with: builder [
 	| initializer |
-	self hasNonTrivialInitialization ifFalse: [ ^ self ].
+	self hasNonTrivialInitialization ifFalse: [
+		self allFields do: [ :field |
+			field initializeSSAVariable: ssaVariable with: builder
+		].
+		^ self
+	].
+
 	initializer := self lookupSelector: #initialize.
 	self assert: initializer isNotNil.
-	
-	self halt
+	self assert: ssaVariable type = initializer ssaValue type baseType arguments first.
+	builder call: initializer ssaValue arguments: {ssaVariable}
 ]
 
 { #category : #testing }

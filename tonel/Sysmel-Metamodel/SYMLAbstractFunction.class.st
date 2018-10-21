@@ -43,6 +43,13 @@ SYMLAbstractFunction >> addToPatternGroup: patternGroup [
 	patternGroup addPatternAlternative: self withFunctionType: self bindedFunctionType
 ]
 
+{ #category : #adding }
+SYMLAbstractFunction >> addTrivialDefinition [
+	self functionType.
+	body := (returnType defaultValue sameValueButWithType: returnType) asAPSGNodeInEnvironment: definitionEnvironment at: definitionPosition.
+	bodyEnvironment := definitionEnvironment
+]
+
 { #category : #'as yet unclassified' }
 SYMLAbstractFunction >> addedToAbstractType: anAbstractType [
 	receiverType := anAbstractType asReceiverType.
@@ -274,6 +281,20 @@ SYMLAbstractFunction >> functionType [
 ]
 
 { #category : #'code generation' }
+SYMLAbstractFunction >> generateEntryPointInitializationsWith: aBuilder [
+	name == #initialize ifTrue: [
+		receiverType cleanValueType generateSSAImplicitInitializationFor: receiver ssaValue with: aBuilder
+	]
+]
+
+{ #category : #'code generation' }
+SYMLAbstractFunction >> generateFinalExitPointCleanupWith: aBuilder [
+	name == #finalize ifTrue: [
+		receiverType cleanValueType generateSSAImplicitFinalizationFor: receiver ssaValue with: aBuilder
+	]
+]
+
+{ #category : #'code generation' }
 SYMLAbstractFunction >> generateIntrinsicFunctionBody: intrinsic [
 	| builder bodyBlock result |
 	builder := SYMLSLVMBuilder on: self ssaValue.
@@ -315,7 +336,7 @@ SYMLAbstractFunction >> generateSSACallWithReceiver: receiverValue arguments: ar
 
 { #category : #'code generation' }
 SYMLAbstractFunction >> generateSSACode [
-	| allocaBuilder builder bodyBlock argumentsOffset receiverOffset bodyReturnValue |
+	| allocaBuilder builder bodyBlock argumentsOffset receiverOffset bodyReturnValue result |
 	body ifNil: [
 		^ self
 	].
@@ -352,11 +373,16 @@ SYMLAbstractFunction >> generateSSACode [
 	"Generate the local variables"
 	locals do: [ :local | local generateSSALocalWithBuilder: builder ].
 	
+	"Generate the entry point required initializations."
+	self generateEntryPointInitializationsWith: builder.
+	
 	"Generate the function body"
 	bodyReturnValue := analyzedBody generateSSACodeWith: builder.
 	bodyReturnTypeCoercionRule ifNotNil: [ 
 		builder isLastTerminator ifFalse: [
-			builder return: (bodyReturnTypeCoercionRule convertSSAValue: bodyReturnValue to: returnType with: builder at: definitionPosition)
+			result := bodyReturnTypeCoercionRule convertSSAValue: bodyReturnValue to: returnType with: builder at: definitionPosition.
+			self generateFinalExitPointCleanupWith: builder.
+			builder return: result
 		].
 	].
 	
@@ -366,6 +392,8 @@ SYMLAbstractFunction >> generateSSACode [
 		returnType isVoidType ifFalse: [ 
 			self error: 'Not all of the execution paths are returning something.' at: analyzedBody
 		].
+	
+		self generateFinalExitPointCleanupWith: builder.
 		builder returnVoid
 	].
 	
@@ -399,6 +427,7 @@ SYMLAbstractFunction >> initialize [
 	super initialize.
 	callingConvention := #cdecl.
 	locals := OrderedCollection new.
+	arguments := #().
 ]
 
 { #category : #'as yet unclassified' }
@@ -530,6 +559,12 @@ SYMLAbstractFunction >> receiverType [
 SYMLAbstractFunction >> returnType [
 	<compileTime>
 	^ returnType
+]
+
+{ #category : #accessing }
+SYMLAbstractFunction >> returnType: aReturnType [
+	<compileTime>
+	returnType := aReturnType
 ]
 
 { #category : #accessing }
