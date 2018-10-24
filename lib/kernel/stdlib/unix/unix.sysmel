@@ -3,6 +3,7 @@ loadFileOnce: "unistd.sysmel".
 loadFileOnce: "fcntl.sysmel".
 loadFileOnce: "time.sysmel".
 loadFileOnce: "pthreads.sysmel".
+loadFileOnce: "mmap.sysmel".
 
 loadFileOnce: "threading-interface.sysmel".
 loadFileOnce: "virtual-memory-interface.sysmel".

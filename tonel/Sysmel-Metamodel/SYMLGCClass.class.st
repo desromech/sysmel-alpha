@@ -3,11 +3,8 @@ Class {
 	#superclass : #SYMLAbstractClass,
 	#instVars : [
 		'instanceType',
-		'instanceDataSize',
-		'instanceDataAlignment',
 		'variableInstanceElementSize',
 		'variableInstanceElementAlignment',
-		'hasComputeInstanceSizes',
 		'specificVariableDataTypes',
 		'variableDataSizeField',
 		'identityHashField'
@@ -231,7 +228,6 @@ SYMLGCClass >> identityHashField [
 { #category : #initialization }
 SYMLGCClass >> initialize [
 	super initialize.
-	hasComputeInstanceSizes := false.
 	specificVariableDataTypes := Dictionary new.
 ]
 
@@ -243,18 +239,6 @@ SYMLGCClass >> initializeSSAVariable: ssaVariable with: builder [
 { #category : #accessing }
 SYMLGCClass >> instanceAlignment [
 	^ self compilationTarget pointerAlignment
-]
-
-{ #category : #accessing }
-SYMLGCClass >> instanceDataAlignment [
-	self computeInstanceSizes.
-	^ instanceDataAlignment
-]
-
-{ #category : #accessing }
-SYMLGCClass >> instanceDataSize [
-	self computeInstanceSizes.
-	^ instanceDataSize
 ]
 
 { #category : #accessing }

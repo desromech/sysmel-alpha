@@ -153,26 +153,6 @@ gcclass CompiledMethod superclass: Object.
 // ProtoObject
 ProtoObject type superclass: Class.
 
-struct _ObjectHeader definition: {
-    field __class public type: Void pointer. // TODO: Point into the vtable, instead of the class.
-
-    if: UIntPointer instanceSize == 4 then: {
-        // TODO: Support big-endian.
-        field __padding public type: Behavior.
-    }.
-
-    // 32 bits: gc color, isPinned, isImmutable.
-    field _ public bits: 5; type: UInt32.
-
-    field __gcBits public type: UInt32; bits: 3.
-    field __isPinned public type: UInt32; bits: 1.
-    field __isImmutable public type: UInt32; bits: 1.
-    field __identityHash public type: UInt32; bits: 22.
-
-    // Variable data size
-    field __variableDataSize public type: UInt32.
-}.
-
 ProtoObject definition: {
     // We use a fixed 16-byte object header, to be able to use SSE instructions.
 
@@ -242,13 +222,10 @@ Behavior uses: Type; definition: {
         let objectSize := instanceDataSize + initialSize*variableInstanceElementSize.
 
         // Allocate the object memory.
-        let allocatedObject := LibC malloc(objectSize) reinterpretCastTo: _ObjectHeader pointer.
-        LibC memset(allocatedObject, 0, objectSize).
-
-        // Set the allocated object class.
-        allocatedObject value
-            __class: (self reinterpretCastTo: Void pointer);
-            __variableDataSize: (if: variableInstanceElementSize > 0 then: initialSize else: 0).
+        let allocatedObject := globalSysmelGC
+            allocate: objectSize
+            variableDataSize: (if: variableInstanceElementSize > 0 then: initialSize else: 0)
+            withClass: (self reinterpretCastTo: _ObjectHeader pointer).
 
         // Convert the allocated object.
         return: (allocatedObject reinterpretCastTo: ProtoObject)

@@ -36,7 +36,9 @@ SYMLAbstractMacroMethod >> createActivationEnvironmentForMessage: message inEnvi
 	activationScope addSymbol: #__apsgBuilder value: (SYMLAPSGBuilder new environment: environment).
 	message receiver ifNotNil: [
 		self flag: 'Allow evaluation self'.
-		activationScope addSymbol: #self value: message receiver
+		activationScope
+			addSymbol: #self value: message receiver;
+			addSymbol: #SelfType value: (message receiver type asAPSGNodeInEnvironment: environment at:  aPosition)
 	].
 
 	activationArguments := message arguments.

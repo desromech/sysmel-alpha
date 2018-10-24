@@ -1,3 +1,4 @@
 namespace LibC definition: {
     function printf externC CVariadic (format: Char const pointer) => Int32.
+    function perror externC CVariadic (s: Char const pointer) => Int32.
 }.

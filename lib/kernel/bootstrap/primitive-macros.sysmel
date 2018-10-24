@@ -1,0 +1,30 @@
+namespace SysmelKernel definition: {
+    PrimitiveIntegerType macro expansionRule alignedTo: alignment := ``(
+        (self __macroExpand + alignment __macroExpand - 1) & (alignment __macroExpand negated castTo: SelfType __macroExpand)
+    ).
+
+    // ifTrue:ifFalse
+    BooleanType macro expansionRule ifTrue: trueAction :=
+        ``(if: self __macroExpand then: trueAction __macroExpand).
+    BooleanType macro expansionRule ifFalse: falseAction :=
+        ``(if: self __macroExpand not then: falseAction __macroExpand).
+    BooleanType macro expansionRule ifTrue: trueAction ifFalse: falseAction :=
+        ``(if: self __macroExpand then: trueAction __macroExpand else: falseAction __macroExpand).
+
+    // isNil
+    PointerType macro expansionRule isNil := ``(self __macroExpand == nil).
+    PointerType macro expansionRule isNotNil := ``(self __macroExpand ~~ nil).
+
+    // ifNil:ifNotNil
+    // TODO: Add higienic symbols.
+    PointerType macro expansionRule ifNil: nilAction :=
+        ``(if: self __macroExpand == nil then: nilAction __macroExpand).
+    PointerType macro expansionRule ifNotNil: notNilAction :=
+        ``(if: self __macroExpand ~~ nil then: notNilAction __macroExpand).
+
+    PointerType macro expansionRule ifNotNil: notNilAction ifNil: nilAction :=
+        ``(if: self __macroExpand ~~ nil then: notNilAction __macroExpand else: nilAction __macroExpand).
+    PointerType macro expansionRule ifNil: nilAction ifNotNil: notNilAction :=
+        ``(if: self __macroExpand == nil then: nilAction __macroExpand else: notNilAction __macroExpand).
+
+}.

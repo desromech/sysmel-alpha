@@ -98,12 +98,13 @@ evaluation: $$Pharo {
         (selector == #/ and: [ valueType isIntegerType]) ifTrue: [
             selector := #//
         ].
+
         ^ (left value perform: selector with: right value) sysmelValueWithType: valueType inEnvironment: environment
 }.
 
 semanticAnalysis: $$Pharo {
     node: node environment: environment position: aSourcePosition
-        | left right leftType rightType coercionType resultType coercionRules |
+        | left right leftType rightType coercionType resultType coercionRules foldSelector |
         left := node receiver semanticAnalysisInEnvironment: environment.
         right := node arguments first semanticAnalysisInEnvironment: environment.
         leftType := left evaluateTypeInEnvironment: environment.
@@ -119,7 +120,12 @@ semanticAnalysis: $$Pharo {
             ifFalse: [ coercionType ].
 
         coercionType isLiteralType ifTrue: [
-            ^ node buildLiteralWithValue: ((left value value perform: node selector with: right value value) sysmelValueWithType: resultType inEnvironment: environment)
+            foldSelector := node selector.
+            (foldSelector == #/ and: [ coercionType isIntegerType]) ifTrue: [
+                foldSelector := #//
+            ].
+
+            ^ node buildLiteralWithValue: ((left value value perform: foldSelector with: right value value) sysmelValueWithType: resultType inEnvironment: environment)
         ].
 
 

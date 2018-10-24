@@ -9,7 +9,10 @@ Class {
 		'slotsLayout',
 		'hasInitialization',
 		'hasFinalization',
-		'isPODType'
+		'isPODType',
+		'instanceDataSize',
+		'instanceDataAlignment',
+		'hasComputeInstanceSizes'
 	],
 	#category : #'Sysmel-Metamodel-Type'
 }
@@ -93,6 +96,33 @@ SYMLStructure >> checkPODType [
 	].
 
 	^ true
+]
+
+{ #category : #accessing }
+SYMLStructure >> computeInstanceSizes [
+	| slotType slotSize slotAlignment |
+	hasComputeInstanceSizes ifTrue: [ ^ self ].
+
+	instanceDataSize := 0.
+	instanceDataAlignment := 1.
+	
+	self slotsLayout doWithIndex: [ :slot :slotIndex |
+		slotType := slot type.
+		slotSize := slotType instanceSize.
+		slotAlignment := slotType instanceAlignment.
+		self isPacked ifTrue: [ slotAlignment := 1 ].
+
+		"Apply the field alignment."
+		instanceDataAlignment := instanceDataAlignment max: slotAlignment.
+		instanceDataSize := instanceDataSize alignedTo: slotAlignment.
+		self assert: (slot offset isNil or: [ slot offset = instanceDataSize]).
+		slot offset: instanceDataSize.
+
+		"Apply the field size."		
+		instanceDataSize := instanceDataSize + slotSize.
+	].
+	
+	hasComputeInstanceSizes := true.
 ]
 
 { #category : #accessing }
@@ -254,6 +284,7 @@ SYMLStructure >> initialize [
 	fields := OrderedCollection new.
 	hasConcretedSSAType := false.
 	analyzed := false.
+	hasComputeInstanceSizes := false.
 ]
 
 { #category : #'semantic analysis' }
@@ -270,6 +301,30 @@ SYMLStructure >> initializeSSAVariable: ssaVariable with: builder [
 	self assert: initializer isNotNil.
 	self assert: ssaVariable type = initializer ssaValue type baseType arguments first.
 	builder call: initializer ssaValue arguments: {ssaVariable}
+]
+
+{ #category : #accessing }
+SYMLStructure >> instanceAlignment [
+	^ self instanceDataAlignment
+]
+
+{ #category : #accessing }
+SYMLStructure >> instanceDataAlignment [
+	<compileTime>
+	self computeInstanceSizes.
+	^ instanceDataAlignment
+]
+
+{ #category : #accessing }
+SYMLStructure >> instanceDataSize [
+	<compileTime>
+	self computeInstanceSizes.
+	^ instanceDataSize
+]
+
+{ #category : #accessing }
+SYMLStructure >> instanceSize [
+	^ self instanceDataSize
 ]
 
 { #category : #testing }
@@ -347,7 +402,8 @@ SYMLStructure >> semanticAnalysis [
 
 { #category : #'semantic analysis' }
 SYMLStructure >> slotsLayout [
-	^ slotsLayout ifNil: [ self buildLayout ]
+	slotsLayout ifNil: [ self buildLayout ].
+	^ slotsLayout
 ]
 
 { #category : #'code generation' }
@@ -355,6 +411,18 @@ SYMLStructure >> structureSSAType [
 	<compileTime>
 	structureSSAType ifNil: [ structureSSAType := self buildStructureSSAType].
 	^ structureSSAType
+]
+
+{ #category : #accessing }
+SYMLStructure >> structureTypeInstanceAlignment [
+	<compileTime>
+	^ self instanceAlignment
+]
+
+{ #category : #accessing }
+SYMLStructure >> structureTypeInstanceSize [
+	<compileTime>
+	^ self instanceSize
 ]
 
 { #category : #'as yet unclassified' }

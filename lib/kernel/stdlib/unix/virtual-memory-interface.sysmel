@@ -3,26 +3,42 @@ namespace StdNative definition: {
 /**
  * Unix virtual memory interface.
  */
-class UnixVirtualMemoryInterface
-definition: {
+namespace UnixVirtualMemoryInterface definition: {
+    message reserveAndCommitAddressSpace: (size: UIntPointer) ::=> Void pointer := {
+        let result := Unix mmap(nil, size, Unix PROT_READ | Unix PROT_WRITE, Unix MAP_PRIVATE | Unix MAP_ANONYMOUS, -1, 0).
+        result == Unix MAP_FAILED ifTrue: {
+            return: nil.
+        }.
+
+        return: result
+    }.
+
     message reserveAddressSpace: (size: UIntPointer) ::=> Void pointer := {
-        // mmap
-        nil
+        let result := Unix mmap(nil, size, Unix PROT_NONE, Unix MAP_PRIVATE | Unix MAP_ANONYMOUS, -1, 0).
+        result == Unix MAP_FAILED ifTrue: {
+            return: nil.
+        }.
+
+        return: result
     }.
 
     message commitAddressSpace: (addressSpace: Void pointer) offset: (offset: UIntPointer) size: (size: UIntPointer) ::=> BooleanBit := {
-        // mprotect
-        false
+        let alignedSize := size alignedTo: 4096.
+        let startAddress := (addressSpace reinterpretCastTo: UInt8 pointer)[offset] address.
+
+        Unix mprotect(startAddress, alignedSize, Unix PROT_READ | Unix PROT_WRITE) == 0
     }.
 
     message releaseAddressSpace: (addressSpace: Void pointer) offset: (offset: UIntPointer) size: (size: UIntPointer) ::=> BooleanBit := {
+        let alignedSize := size alignedTo: 4096.
+        let startAddress := (addressSpace reinterpretCastTo: UInt8 pointer)[offset] address.
+
         // mprotect/madvise
-        false
+        Unix mprotect(startAddress, alignedSize, Unix PROT_NONE) == 0
     }.
 
     message freeAddressSpace: (addressSpace: Void pointer) size: (size: UIntPointer) ::=> BooleanBit := {
-        // munmap
-        false
+        Unix munmap (addressSpace, size) == 0
     }.
 
 }.

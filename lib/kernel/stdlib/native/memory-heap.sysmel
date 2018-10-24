@@ -1,41 +1,314 @@
 namespace StdNative definition: {
 
+template FixedSizeBuddyMemoryAllocator(MNOSB: _LiteralInteger)
+    := class definition: {
+
+    // Compute the size of the buddy bitmap.
+    alias MaxNumberOfSmallestBlocks := MNOSB.
+
+    // The size of the bitmap.
+    alias TotalBlockCount := MaxNumberOfSmallestBlocks*2.
+    alias BlockIndexType := UInt16.
+
+    // The number of levels.
+    alias LevelCount := MaxNumberOfSmallestBlocks highBit.
+
+    alias InvalidBlockIndex := -1 castTo: BlockIndexType.
+    alias InvalidAllocation := -1 castTo: UIntPointer.
+
+    field allBlocks type: (BlockIndexType array: TotalBlockCount).
+    field perLevelFreeListHeads type: (BlockIndexType array: LevelCount).
+
+    message initialize => Void := {
+        // Mark the top level as free.
+        perLevelFreeListHeads[0] := 0.
+        allBlocks[0] := InvalidBlockIndex.
+
+        // Mark the rest levels as unallocated.
+        for: (let i mutable := 1) while: (i < LevelCount) do: {
+            perLevelFreeListHeads[i] := InvalidBlockIndex
+        } continueWith: (i := i + 1)
+    }.
+
+    message blocksPerLevel: (level: UIntPointer) ::=> UIntPointer := 1<<level.
+    message totalBlocksBeforeLevel: (level: UIntPointer) ::=> UIntPointer := {
+        level == 0
+            ifTrue: (0)
+            ifFalse: (self blocksPerLevel: level - 1) * 2 - 1
+    }.
+
+    message findLevelForBlockCount: (blockCount: UIntPointer) ::=> UIntPointer := {
+        // TODO: Optimize this by using count leading zeros.
+        let result mutable type: UIntPointer := 0.
+        let currentBlockSize mutable type: UIntPointer := MaxNumberOfSmallestBlocks.
+        let nextBlockSize mutable := currentBlockSize >> 1.
+
+        while: (nextBlockSize >= blockCount) do: {
+            result := result + 1.
+            currentBlockSize := nextBlockSize.
+            nextBlockSize := nextBlockSize >> 1
+        }.
+        result
+    }.
+
+    message allocateBlocks: (blockCount: UIntPointer) ::=> UIntPointer := {
+        let targetLevel := self findLevelForBlockCount: blockCount.
+        let allocatedBlock := self allocateBlockInLevel: targetLevel.
+        allocatedBlock == InvalidBlockIndex ifTrue: {
+            InvalidAllocation
+        } ifFalse: {
+            allocatedBlock - (self totalBlocksBeforeLevel: targetLevel)
+        }
+    }.
+
+    message carveBlockInLevel: (level: UIntPointer) ::=> BlockIndexType := {
+        let freeBlock mutable := perLevelFreeListHeads[level].
+
+        freeBlock == InvalidBlockIndex ifTrue: {
+            // Did we reach the root?
+            level == 0 ifTrue: {
+                return: InvalidBlockIndex
+            }.
+
+            // Carve in the previous level.
+            freeBlock := self carveBlockInLevel: level - 1.
+            freeBlock == InvalidBlockIndex ifTrue: {
+                return: InvalidBlockIndex
+            }
+        }.
+
+        LibC printf("Carve level %zu free block: %d\n", level, freeBlock).
+
+        // Remove the block from the free list.
+        perLevelFreeListHeads[level] := allBlocks[freeBlock].
+
+        // Compute the indices of the children.
+        let leftIndex := freeBlock * 2 + 1 castTo: BlockIndexType.
+        let rightIndex := leftIndex + 1 castTo: BlockIndexType.
+
+        // Add the children into the free list of the next level.
+        allBlocks[rightIndex] := perLevelFreeListHeads[level + 1].
+        allBlocks[leftIndex] := rightIndex.
+        perLevelFreeListHeads[level + 1] := leftIndex.
+
+        // Return the left child.
+        leftIndex
+    }.
+
+    message allocateBlockInLevel: (targetLevel: UIntPointer) ::=> BlockIndexType := {
+        let freeBlock mutable := perLevelFreeListHeads[targetLevel].
+
+        freeBlock == InvalidBlockIndex ifTrue: {
+            freeBlock := self carveBlockInLevel: targetLevel - 1.
+            freeBlock == InvalidBlockIndex ifTrue: {
+                return: InvalidBlockIndex
+            }
+        }.
+
+        // We found a block.
+        LibC printf("Found free block: %d\n", freeBlock).
+
+        // Remove the block from the linked list.
+        perLevelFreeListHeads[targetLevel] := allBlocks[freeBlock].
+
+        // Return the block.
+        freeBlock
+    }.
+
+}.
+
 /**
- * GenericMemoryHeap
+ * NativeMemoryHeap
  * A data structure for implementing malloc/free and family.
- * Performance note: This current implementation is unefficient and it is
- * designed with just simplicity in mind, and as an initial implementation for
- * the language.
- * HUGE TODO: Optimize this for multi-threading. An excellent starting point for,
+ * This implementation is partially based on jemalloc:
  *        this is jemalloc (A Scalable Concurrent malloc(3) Implementation for FreeBSD
  *        -- https://www.bsdcan.org/2006/papers/jemalloc.pdf )
+ * TODO: - Per processor arenas.
+ *       - Dedicated chunk allocation.
  */
-template GenericMemoryHeap(BC: Type)
-    := class superclass: BC;
-definition: {
+class NativeMemoryHeap definition: {
+    alias MemoryChunkSize := 16r200000.
+    let HugeAllocationThreshold type: UIntPointer := MemoryChunkSize / 2.
+    let LargeAllocationThreshold type: UIntPointer := 16r1000.
+
+    alias MemoryChunkBlockSize := 16r800.
+    alias MemoryChunkBlockCount := MemoryChunkSize / MemoryChunkBlockSize.
+
+    alias ChunkBuddyMemoryAllocator := FixedSizeBuddyMemoryAllocator(MemoryChunkBlockCount).
+
+    // Allocated canary
+    alias Canary := 16rDEADBEEF.
+
+    alias AllocationType_Small := 0.
+    alias AllocationType_Large := 1.
+    alias AllocationType_Huge := 2.
+
+    /**
+     * A memory allocation chunk header.
+     */
+    struct ChunkHeader := {
+        field previousChunk public type: ChunkHeader pointer.
+        field nextChunk public type: ChunkHeader pointer.
+
+        field buddyMemoryAllocator public type: ChunkBuddyMemoryAllocator.
+    }.
+
+    /**
+     * An allocation header metadata.
+     */
+    struct AllocationHeaderMetadata := {
+        field chunkOffset public type: UInt32.
+        field size public type: UInt32.
+        field type public type: UInt32.
+        field canary public type: UInt32.
+    }.
+
     field mutex private type: Mutex.
+    field firstChunk private type: ChunkHeader pointer.
+    field lastChunk private type: ChunkHeader pointer.
 
     message allocate: (size: UIntPointer) ::=> Void pointer := {
-        mutex heldInThisContext.
-
-        nil.
+        // Is this a large allocation?
+        size >= LargeAllocationThreshold ifTrue: {
+            // Is this a huge allocation?
+            size >= HugeAllocationThreshold ifTrue: {
+                self allocateHuge: size.
+            } ifFalse: {
+                self allocateLarge: size
+            }
+        } ifFalse: {
+            self allocateSmall: size
+        }
     }.
 
     message free: (pointer: Void pointer) ::=> Void := {
         // Ignore null pointers.
-        if: pointer == nil then: {
+        pointer ifNil: {
             return: nil
         }.
 
+        // Get allocatation metadata
+        let allocationMetadata := (pointer reinterpretCastTo: AllocationHeaderMetadata pointer)[-1] address.
+
+        // Check the canary.
+        allocationMetadata _ canary == Canary ifFalse: {
+            LibC printf("Allocation canary is invalid.\n").
+            LibC abort().
+        }.
+
+        LibC printf("TODO: Free allocation of type: %d size: %d\n", allocationMetadata _ type).
+
         mutex heldInThisContext.
-    }
+    }.
+
+    /**
+     * Small allocation
+     */
+    message allocateSmall: (size: UIntPointer) ::=> Void pointer := {
+        self allocateLarge: size
+        /*mutex heldInThisContext.
+
+        LibC printf("TODO: Implement allocateSmall.\n").
+        LibC abort().
+        nil.*/
+    }.
+
+    /**
+     * Large allocation. Buddy memory allocation system.
+     */
+    message allocateLarge: (size: UIntPointer) ::=> Void pointer := {
+        mutex heldInThisContext.
+
+        // Compute the actual allocation size.
+        let allocationSize := size + AllocationHeaderMetadata instanceSize.
+
+        // Find or create the chunk.
+        let chunk := self findOrCreateChunkWithAvailableSize: allocationSize.
+        LibC printf("Allocate in chunk %p size %zu\n", chunk, allocationSize).
+
+        // Allocate the blocks
+        let blockCount := self blockCountForSize: size.
+        let allocatedBlock := chunk _ buddyMemoryAllocator allocateBlocks: blockCount.
+
+        // Get the allocation memory.
+        let chunkOffset := allocatedBlock*MemoryChunkBlockSize.
+        let allocationMemory := (chunk reinterpretCastTo: UInt8 pointer)[chunkOffset] address.
+        let allocationMetadata := allocationMemory reinterpretCastTo: AllocationHeaderMetadata pointer.
+        allocationMetadata _
+            chunkOffset: (chunkOffset castTo: UInt32);
+            size: (size castTo: UInt32);
+            type: AllocationType_Large;
+            canary: Canary.
+
+        LibC printf("Allocated block %zu pointer: %p\n", allocatedBlock, allocationMemory).
+
+        // Return a pointer into the actual allocated memory
+        allocationMemory[1] address.
+    }.
+
+    /**
+     * Huge allocation. This creates a dedicated mmap.
+     */
+    message allocateHuge: (size: UIntPointer) ::=> Void pointer := {
+        mutex heldInThisContext.
+
+        LibC printf("TODO: Implement dedicatedChunkAllocation.\n").
+        LibC abort().
+        nil.
+    }.
+
+    /**
+     * Allocates a new memory chunk.
+     */
+    message allocateNewChunk => ChunkHeader pointer := {
+        let chunk := (NativeVirtualMemoryInterface reserveAndCommitAddressSpace: MemoryChunkSize) reinterpretCastTo: ChunkHeader pointer.
+        LibC printf("Allocated memory chunk: %p\n", chunk).
+
+        chunk ifNil: {
+            return: nil
+        }.
+
+        // Put the chunk in the beginning of the double linked list.
+        firstChunk ifNil: {
+            firstChunk := lastChunk := chunk.
+        } ifNotNil: {
+            chunk _ nextChunk: firstChunk.
+            firstChunk _ previousChunk: chunk.
+            firstChunk := chunk.
+        }.
+
+        // Allocate the chunk header in the buddy memory allocator.
+        LibC printf("ChunkHeader instanceSize %zu\n", ChunkHeader instanceSize).
+        chunk _ buddyMemoryAllocator
+            initialize;
+            allocateBlocks: (self blockCountForSize: ChunkHeader instanceSize).
+
+        chunk
+    }.
+
+    /**
+     * This computes the number of required blocks for a given size.
+     */
+    message blockCountForSize: (size: UIntPointer) ::=> UIntPointer
+        := (size + MemoryChunkBlockSize - 1) / MemoryChunkBlockSize.
+
+    /**
+     * Finds a chunk with the required available size.
+     */
+    message findChunkWithAvailableSize: (requiredSize: UIntPointer) ::=> ChunkHeader pointer := {
+        nil
+    }.
+
+    /**
+     * Finds a chunk with the required available size.
+     */
+    message findOrCreateChunkWithAvailableSize: (requiredSize: UIntPointer) ::=> ChunkHeader pointer := {
+        let chunk := self findChunkWithAvailableSize: requiredSize.
+        chunk
+            ifNotNil: {chunk}
+            ifNil: {self allocateNewChunk}.
+    }.
 }.
-
-/**
- * The native memory heap.
- */
-alias NativeMemoryHeap := GenericMemoryHeap(NativeVirtualMemoryInterface).
-
 global globalNativeMemoryHeap mutable type: NativeMemoryHeap.
 
 function malloc(size: UIntPointer) => Void pointer := globalNativeMemoryHeap allocate: size.

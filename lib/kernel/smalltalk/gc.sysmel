@@ -1,0 +1,50 @@
+namespace SysmelKernel definition: {
+
+/**
+ * _ObjectHeader
+ * The header an object.
+ */
+struct _ObjectHeader definition: {
+    field __class public type: Void pointer. // TODO: Point into the vtable, instead of the class.
+
+    if: UIntPointer instanceSize == 4 then: {
+        // TODO: Support big-endian.
+        field __padding public type: Behavior.
+    }.
+
+    // 32 bits: gc color, isPinned, isImmutable.
+    field _ public bits: 5; type: UInt32.
+
+    field __gcBits public type: UInt32; bits: 3.
+    field __isPinned public type: UInt32; bits: 1.
+    field __isImmutable public type: UInt32; bits: 1.
+    field __identityHash public type: UInt32; bits: 22.
+
+    // Variable data size
+    field __variableDataSize public type: UInt32.
+}.
+
+class SysmelGC definition: {
+    field memoryHeap mutable type: StdNative NativeMemoryHeap.
+
+    message allocate: (objectSize: UIntPointer)
+        variableDataSize: (variableDataSize: UInt32)
+        withClass: (objectClass: _ObjectHeader pointer)
+          ::=> _ObjectHeader pointer := {
+
+        // Allocate the object memory.
+        let allocatedObject := (memoryHeap allocate: objectSize) reinterpretCastTo: _ObjectHeader pointer.
+        LibC memset(allocatedObject, 0, objectSize).
+
+        // Set the allocated object class.
+        allocatedObject value
+            __class: (objectClass reinterpretCastTo: Void pointer);
+            __variableDataSize: variableDataSize.
+
+        return: allocatedObject
+    }.
+}.
+
+global globalSysmelGC mutable type: SysmelGC.
+
+}.

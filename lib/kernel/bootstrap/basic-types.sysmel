@@ -261,7 +261,7 @@ definition: {
     meta message addressSpaceName => _LiteralSymbol := AddressSpaceName
 
     meta message instanceAlignment => _LiteralInteger
-        := Compiler compilationTarget pointerAlignment
+        := Compiler compilationTarget pointerAlignment.
     meta message instanceSize => _LiteralInteger
         := Compiler compilationTarget pointerSize.
 
@@ -734,6 +734,10 @@ StructureType uses: AnyValue;
 definition: {
     meta message asReceiverType => _CompilerObjectType
         := self ref.
+
+    meta message instanceSize => _CompilerObjectType := self structureTypeInstanceSize.
+    meta message instanceAlignment => _CompilerObjectType := self structureTypeInstanceAlignment.
+
 }.
 
 UnionType uses: StructureType.

@@ -13,3 +13,4 @@ loadFileOnce: "array.sysmel".
 loadFileOnce: "structures.sysmel".
 loadFileOnce: "pointer.sysmel".
 loadFileOnce: "atomic.sysmel".
+loadFileOnce: "primitive-macros.sysmel".
