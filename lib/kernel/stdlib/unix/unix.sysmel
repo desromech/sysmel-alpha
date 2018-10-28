@@ -5,5 +5,6 @@ loadFileOnce: "time.sysmel".
 loadFileOnce: "pthreads.sysmel".
 loadFileOnce: "mmap.sysmel".
 
+loadFileOnce: "file-interface.sysmel".
 loadFileOnce: "threading-interface.sysmel".
 loadFileOnce: "virtual-memory-interface.sysmel".

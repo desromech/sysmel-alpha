@@ -1,3 +1,5 @@
 loadFileOnce: "array.sysmel".
 loadFileOnce: "string.sysmel".
+loadFileOnce: "stream.sysmel".
+loadFileOnce: "fatal-error.sysmel".
 loadFileOnce: "memory-heap.sysmel".

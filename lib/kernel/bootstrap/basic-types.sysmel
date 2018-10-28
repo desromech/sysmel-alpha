@@ -212,7 +212,7 @@ definition: {
     meta message cvariadicCoercionType => _CompilerObjectType := self.
 
     meta message generateSSAValue: (value: _CompilerObjectType) withBuilder: (builder: _CompilerObjectType) ::=> _CompilerObjectType
-        := builder const: value type: self ssaType.
+        := value generateSysmelSSAPointerValueOfType: self with: builder
 }.
 
 // Reference type
@@ -272,7 +272,7 @@ definition: {
         := builder const: 0 type: self ssaType.
 
     meta message generateSSAConstant: (value: _CompilerObjectType) forModule: (module: _CompilerObjectType) ::=> _CompilerObjectType
-        := module ssaConstantPointer: value type: self.
+        := value generateSysmelSSAPointerConstantOfType: self forModule: module.
 
     meta message cleanType => _CompilerObjectType
         := P cleanType pointerFor: AddressSpaceName.

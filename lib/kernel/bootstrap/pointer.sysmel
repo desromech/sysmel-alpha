@@ -1,6 +1,13 @@
 namespace SysmelKernel definition: {
 
 ReferenceType macro selector: #address doOn: {
+evaluation: $$Pharo {
+    node: node environment: environment
+        | receiver |
+        receiver := node receiver evaluateInEnvironment: environment.
+        ^ receiver sameValueButWithType: node valueType
+}.
+
 // Semantic analysis
 semanticAnalysis: $$Pharo {
     node: node environment: environment position: aSourcePosition

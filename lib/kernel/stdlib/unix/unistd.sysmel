@@ -1,8 +1,8 @@
 // http://pubs.opengroup.org/onlinepubs/9699919799/basedefs/unistd.h.html
 namespace Unix definition: {
     alias STDIN_FILENO := 0.
-    alias STDOUT_FILENO := 0.
-    alias STDERR_FILENO := 0.
+    alias STDOUT_FILENO := 1.
+    alias STDERR_FILENO := 2.
 
     function access externC (pathname: ConstString, mode: Int) => Int.
     function alarm externC (seconds: UInt) => UInt.

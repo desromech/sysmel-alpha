@@ -77,7 +77,7 @@ template FixedSizeBuddyMemoryAllocator(MNOSB: _LiteralInteger)
             }
         }.
 
-        LibC printf("Carve level %zu free block: %d\n", level, freeBlock).
+        Stdout << "Carve level " << level << " free block: " << freeBlock; nl.
 
         // Remove the block from the free list.
         perLevelFreeListHeads[level] := allBlocks[freeBlock].
@@ -106,7 +106,7 @@ template FixedSizeBuddyMemoryAllocator(MNOSB: _LiteralInteger)
         }.
 
         // We found a block.
-        LibC printf("Found free block: %d\n", freeBlock).
+        Stdout << "Found free block: " << freeBlock; nl.
 
         // Remove the block from the linked list.
         perLevelFreeListHeads[targetLevel] := allBlocks[freeBlock].
@@ -192,11 +192,10 @@ class NativeMemoryHeap definition: {
 
         // Check the canary.
         allocationMetadata _ canary == Canary ifFalse: {
-            LibC printf("Allocation canary is invalid.\n").
-            LibC abort().
+            StdNative fatalError: "Allocation canary is invalid.".
         }.
 
-        LibC printf("TODO: Free allocation of type: %d size: %d\n", allocationMetadata _ type).
+        Stdout << "TODO: Free allocation of type: " << allocationMetadata _ type << " size:" << allocationMetadata _ size; nl.
 
         mutex heldInThisContext.
     }.
@@ -208,8 +207,7 @@ class NativeMemoryHeap definition: {
         self allocateLarge: size
         /*mutex heldInThisContext.
 
-        LibC printf("TODO: Implement allocateSmall.\n").
-        LibC abort().
+        StdNative fatalError: "TODO: Implement allocateSmall.".
         nil.*/
     }.
 
@@ -224,7 +222,7 @@ class NativeMemoryHeap definition: {
 
         // Find or create the chunk.
         let chunk := self findOrCreateChunkWithAvailableSize: allocationSize.
-        LibC printf("Allocate in chunk %p size %zu\n", chunk, allocationSize).
+        Stdout << "Allocate in chunk " << chunk << " size " << allocationSize; nl.
 
         // Allocate the blocks
         let blockCount := self blockCountForSize: size.
@@ -240,7 +238,7 @@ class NativeMemoryHeap definition: {
             type: AllocationType_Large;
             canary: Canary.
 
-        LibC printf("Allocated block %zu pointer: %p\n", allocatedBlock, allocationMemory).
+        Stdout << "Allocated block " << allocatedBlock << " pointer: " << allocationMemory; nl.
 
         // Return a pointer into the actual allocated memory
         allocationMemory[1] address.
@@ -252,8 +250,7 @@ class NativeMemoryHeap definition: {
     message allocateHuge: (size: UIntPointer) ::=> Void pointer := {
         mutex heldInThisContext.
 
-        LibC printf("TODO: Implement dedicatedChunkAllocation.\n").
-        LibC abort().
+        StdNative fatalError: "TODO: Implement dedicatedChunkAllocation.\n".
         nil.
     }.
 
@@ -262,7 +259,7 @@ class NativeMemoryHeap definition: {
      */
     message allocateNewChunk => ChunkHeader pointer := {
         let chunk := (NativeVirtualMemoryInterface reserveAndCommitAddressSpace: MemoryChunkSize) reinterpretCastTo: ChunkHeader pointer.
-        LibC printf("Allocated memory chunk: %p\n", chunk).
+        Stdout << "Allocated memory chunk: " << chunk; nl.
 
         chunk ifNil: {
             return: nil
@@ -278,7 +275,7 @@ class NativeMemoryHeap definition: {
         }.
 
         // Allocate the chunk header in the buddy memory allocator.
-        LibC printf("ChunkHeader instanceSize %zu\n", ChunkHeader instanceSize).
+        Stdout << "ChunkHeader instanceSize " << (ChunkHeader instanceSize castTo: UIntPointer); nl.
         chunk _ buddyMemoryAllocator
             initialize;
             allocateBlocks: (self blockCountForSize: ChunkHeader instanceSize).

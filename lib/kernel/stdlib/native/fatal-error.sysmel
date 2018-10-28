@@ -1,0 +1,6 @@
+namespace StdNative definition: {
+message fatalError: (message: StringLiteral) ::=> Void := {
+    Stderr << "FATAL ERROR: " << message; nl.
+    native_abort().
+}
+}.
