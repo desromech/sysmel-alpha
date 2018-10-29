@@ -43,7 +43,7 @@ class TextStreamWriter definition: {
         if: 0 <= digit && digit <= 9 then: {
             self nextPut: '0' + digit
         } else: {
-            self nextPut: 'A' + digit - 10
+            self nextPut: 'a' + digit - 10
         }
     }.
 

@@ -128,6 +128,7 @@ template FixedSizeBuddyMemoryAllocator(MNOSB: _LiteralInteger)
  */
 class NativeMemoryHeap definition: {
     alias MemoryChunkSize := 16r200000.
+    alias MemoryChunkAlignment := 16r200000.
     let HugeAllocationThreshold type: UIntPointer := MemoryChunkSize / 2.
     let LargeAllocationThreshold type: UIntPointer := 16r1000.
 
@@ -258,7 +259,7 @@ class NativeMemoryHeap definition: {
      * Allocates a new memory chunk.
      */
     message allocateNewChunk => ChunkHeader pointer := {
-        let chunk := (NativeVirtualMemoryInterface reserveAndCommitAddressSpace: MemoryChunkSize) reinterpretCastTo: ChunkHeader pointer.
+        let chunk := (NativeVirtualMemoryInterface reserveAndCommitAddressSpace: MemoryChunkSize alignment: MemoryChunkAlignment) reinterpretCastTo: ChunkHeader pointer.
         Stdout << "Allocated memory chunk: " << chunk; nl.
 
         chunk ifNil: {

@@ -27,4 +27,8 @@ namespace SysmelKernel definition: {
     PointerType macro expansionRule ifNil: nilAction ifNotNil: notNilAction :=
         ``(if: self __macroExpand == nil then: nilAction __macroExpand else: notNilAction __macroExpand).
 
+
+    // isAlignedTo:
+    PointerType macro expansionRule isAlignedTo: alignment :=
+        ``(((self __macroExpand reinterpretCastTo: UIntPointer) & (alignment - 1 castTo: UIntPointer)) == 0).
 }.

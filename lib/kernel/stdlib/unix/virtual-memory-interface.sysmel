@@ -4,6 +4,71 @@ namespace StdNative definition: {
  * Unix virtual memory interface.
  */
 namespace UnixVirtualMemoryInterface definition: {
+
+    message reserveAndCommitAddressSpace: (size: UIntPointer) alignment: (alignment: UIntPointer) ::=> Void pointer := {
+        alignment <= 4096 ifTrue: {
+            return: (UnixVirtualMemoryInterface reserveAndCommitAddressSpace: size)
+        }.
+
+        let optimisticResult := Unix mmap(nil, size, Unix PROT_READ | Unix PROT_WRITE, Unix MAP_PRIVATE | Unix MAP_ANONYMOUS, -1, 0).
+        optimisticResult == Unix MAP_FAILED ifTrue: {
+            return: nil.
+        }.
+
+        // Since we cannot specify, the alignment first just try to map hoping for the best cast.
+        // Otherwise, then map with excess and then trim the mapping.
+        // This technique is taken from the implementation in jemalloc.
+        (optimisticResult isAlignedTo: alignment) ifTrue: {
+            return: optimisticResult.
+        } ifFalse: {
+            Unix munmap(optimisticResult, size).
+            return: (UnixVirtualMemoryInterface slowReserveAndCommitAddressSpace: size alignment: alignment)
+        }
+    }.
+
+    message slowReserveAndCommitAddressSpace: (size: UIntPointer) alignment: (alignment: UIntPointer) ::=> Void pointer := {
+        // This technique is taken from the implementation in jemalloc.
+        let reservationSize := size + alignment.
+        // Guard for wrap around.
+        reservationSize < size ifTrue: {
+            return: nil
+        }.
+
+        // Allocate the pages with excess size.
+        let pages := Unix mmap(nil, reservationSize, Unix PROT_READ | Unix PROT_WRITE, Unix MAP_PRIVATE | Unix MAP_ANONYMOUS, -1, 0).
+        pages == Unix MAP_FAILED ifTrue: {
+            return: nil
+        }.
+
+        // Compute the aligned address.
+        let pagesAddress := pages reinterpretCastTo: UIntPointer.
+        let alignedAddress := pagesAddress alignedTo: alignment.
+
+        // Compute the leading size.
+        let leadingSize := alignedAddress - pagesAddress.
+
+        // Trim the leading size.
+        leadingSize > 0 ifTrue: {
+            Unix munmap(pages, leadingSize) == -1 ifTrue: {
+                LibC perror("munmap failed").
+                LibC abort().
+            }
+        }.
+
+        // Compute the trailing size and address.
+        let trailingSize := reservationSize - size - leadingSize.
+        let trailingAddress := alignedAddress + size.
+        trailingSize > 0 ifTrue: {
+            // Trim the trailing size.
+            Unix munmap(trailingAddress reinterpretCastTo: Void pointer, trailingSize) == -1 ifTrue: {
+                LibC perror("munmap failed").
+                LibC abort().
+            }
+        }.
+
+        return: (alignedAddress reinterpretCastTo: Void pointer).
+    }.
+
     message reserveAndCommitAddressSpace: (size: UIntPointer) ::=> Void pointer := {
         let result := Unix mmap(nil, size, Unix PROT_READ | Unix PROT_WRITE, Unix MAP_PRIVATE | Unix MAP_ANONYMOUS, -1, 0).
         result == Unix MAP_FAILED ifTrue: {
