@@ -225,6 +225,12 @@ SYMLAPSGNode >> macroSemanticAnalysisInEnvironment: anEnvironment [
 ]
 
 { #category : #accessing }
+SYMLAPSGNode >> originalSourceCode [
+	<compileTime>
+	^ position sourceCode
+]
+
+{ #category : #accessing }
 SYMLAPSGNode >> position [
 	<compileTime>
 	^ position asSysmelSourcePosition

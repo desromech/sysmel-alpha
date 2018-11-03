@@ -1,0 +1,51 @@
+let randomState mutable type: UInt64 := 1.
+
+function nextRandom() => UInt64 := {
+    randomState := randomState*6364136223846793005 + 1.
+}.
+
+alias AllocationCount := 1000.
+let allocationResults mutable type: (Void pointer array: AllocationCount).
+
+function freeAll() => Void := {
+    for: (let i mutable := 0) while: (i < AllocationCount) do: {
+        StdNative free(allocationResults[i])
+    } continueWith: (i := i + 1).
+}.
+
+
+/**
+ * Malloc benchmarking and testing.
+ */
+function main externC (argc: Int32, argv: Char const pointer pointer) => Int32 := {
+    // First calloc - with some fixed size
+    for: (let i mutable := 0) while: (i < AllocationCount) do: {
+        allocationResults[i] := StdNative calloc(16)
+    } continueWith: (i := i + 1).
+
+    freeAll().
+
+    // Second calloc - with quantum fixed sizes.
+    for: (let i mutable := 0) while: (i < AllocationCount) do: {
+        let size := ((i%31) + 1)*16 castTo: UIntPointer.
+        allocationResults[i] := StdNative calloc(size)
+    } continueWith: (i := i + 1).
+
+    freeAll().
+
+    // Second calloc - random with quantum fixed sizes.
+    for: (let i mutable := 0) while: (i < AllocationCount) do: {
+        let size := ((nextRandom() % 31) + 1)*16 castTo: UIntPointer.
+        allocationResults[i] := StdNative calloc(size)
+    } continueWith: (i := i + 1).
+
+    freeAll().
+
+    // Second, calloc - with random sizes
+    /*for: (let i mutable := 0) while: (i < AllocationCount) do: {
+        allocationResults[i] := StdNative calloc(nextRandom() % (2<<20))
+    } continueWith: (i := i + 1).
+    freeAll().*/
+
+    0
+}.

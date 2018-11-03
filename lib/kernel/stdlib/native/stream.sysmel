@@ -50,7 +50,7 @@ class TextStreamWriter definition: {
     // Integer formatting.
     message nextPutInteger: (value: Int64) ::=> Void := {
         // Extract the digits, in reverse order.
-        let currentValue mutable := value.
+        let currentValue mutable := value < 0 ifTrue: -value ifFalse: value.
         let digitCount mutable := 0.
         let buffer mutable type: (UInt8 array: 32).
 

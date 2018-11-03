@@ -31,4 +31,18 @@ namespace SysmelKernel definition: {
     // isAlignedTo:
     PointerType macro expansionRule isAlignedTo: alignment :=
         ``(((self __macroExpand reinterpretCastTo: UIntPointer) & (alignment - 1 castTo: UIntPointer)) == 0).
+
+    // Bitwise logarithm base 2
+    NumericalType macro expansionRule log2Floor :=
+        ``(self __macroExpand highBit - 1).
+
+    /**
+     * According to https://en.wikipedia.org/wiki/Binary_logarithm:
+     * floor(log2(n)) = ceil(log2(n + 1)) - 1
+     * => ceil(log2(n + 1)) = floor(log2(n)) + 1
+     * => ceil(log2(n)) = floor(log2(n - 1)) + 1
+     */
+    NumericalType macro expansionRule log2Ceil :=
+        ``((self __macroExpand - 1) log2Floor + 1).
+
 }.

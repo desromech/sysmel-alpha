@@ -25,12 +25,20 @@ template FixedSizeBuddyMemoryAllocator(MNOSB: _LiteralInteger)
         allBlocks[0] := InvalidBlockIndex.
 
         // Mark the rest levels as unallocated.
+        Stdout << "init buddy with levels " << (LevelCount castTo: UInt32) << " blocks " << (MaxNumberOfSmallestBlocks castTo: UInt32); nl.
         for: (let i mutable := 1) while: (i < LevelCount) do: {
             perLevelFreeListHeads[i] := InvalidBlockIndex
+        } continueWith: (i := i + 1).
+
+        // Test find findLevelForBlockCount:
+        for: (let i mutable type: UIntPointer := 1) while: (i <= MaxNumberOfSmallestBlocks) do: {
+            self findLevelForBlockCount: i
         } continueWith: (i := i + 1)
     }.
 
     message blocksPerLevel: (level: UIntPointer) ::=> UIntPointer := 1<<level.
+    message smallBlockCountPerLevel: (level: UIntPointer) ::=> UIntPointer := 1 << (LevelCount - level - 1).
+
     message totalBlocksBeforeLevel: (level: UIntPointer) ::=> UIntPointer := {
         level == 0
             ifTrue: (0)
@@ -38,6 +46,9 @@ template FixedSizeBuddyMemoryAllocator(MNOSB: _LiteralInteger)
     }.
 
     message findLevelForBlockCount: (blockCount: UIntPointer) ::=> UIntPointer := {
+        LevelCount - blockCount log2Ceil - 1
+
+        /*//blockCount highBit - 1
         // TODO: Optimize this by using count leading zeros.
         let result mutable type: UIntPointer := 0.
         let currentBlockSize mutable type: UIntPointer := MaxNumberOfSmallestBlocks.
@@ -48,7 +59,10 @@ template FixedSizeBuddyMemoryAllocator(MNOSB: _LiteralInteger)
             currentBlockSize := nextBlockSize.
             nextBlockSize := nextBlockSize >> 1
         }.
-        result
+
+        //Stdout <<" findLevelForBlockCount " << blockCount << " result: " << result << " " << LevelCount - ((blockCount - 1) highBit + 1); nl.
+        Stdout <<" findLevelForBlockCount " << blockCount << " result: " << result << " " << LevelCount - blockCount log2Ceil - 1; nl.
+        result*/
     }.
 
     message allocateBlocks: (blockCount: UIntPointer) ::=> UIntPointer := {
@@ -57,7 +71,7 @@ template FixedSizeBuddyMemoryAllocator(MNOSB: _LiteralInteger)
         allocatedBlock == InvalidBlockIndex ifTrue: {
             InvalidAllocation
         } ifFalse: {
-            allocatedBlock - (self totalBlocksBeforeLevel: targetLevel)
+            (allocatedBlock - (self totalBlocksBeforeLevel: targetLevel)) * (self smallBlockCountPerLevel: targetLevel)
         }
     }.
 
@@ -97,6 +111,7 @@ template FixedSizeBuddyMemoryAllocator(MNOSB: _LiteralInteger)
 
     message allocateBlockInLevel: (targetLevel: UIntPointer) ::=> BlockIndexType := {
         let freeBlock mutable := perLevelFreeListHeads[targetLevel].
+        //Stdout << self address << " Level:  " << targetLevel << " free list head " << freeBlock << " next free " << perLevelFreeListHeads[targetLevel + 1]; nl.
 
         freeBlock == InvalidBlockIndex ifTrue: {
             freeBlock := self carveBlockInLevel: targetLevel - 1.
@@ -106,13 +121,28 @@ template FixedSizeBuddyMemoryAllocator(MNOSB: _LiteralInteger)
         }.
 
         // We found a block.
-        Stdout << "Found free block: " << freeBlock; nl.
+        //Stdout << "Found free block: " << freeBlock << " in level " << targetLevel << " next free " << allBlocks[freeBlock]; nl.
 
         // Remove the block from the linked list.
         perLevelFreeListHeads[targetLevel] := allBlocks[freeBlock].
 
         // Return the block.
         freeBlock
+    }.
+
+    message hasFreeBlockInLevel: (targetLevel: UIntPointer) ::=> BooleanBit := {
+        let freeBlock := perLevelFreeListHeads[targetLevel].
+
+        freeBlock == InvalidBlockIndex ifTrue: {
+            // Did we reach the root?
+            targetLevel == 0 ifTrue: {
+                false
+            } ifFalse: {
+                self hasFreeBlockInLevel: targetLevel - 1
+            }
+        } ifFalse:{
+            true
+        }
     }.
 
 }.
@@ -137,17 +167,27 @@ class NativeMemoryHeap definition: {
 
     alias ChunkBuddyMemoryAllocator := FixedSizeBuddyMemoryAllocator(MemoryChunkBlockCount).
 
-    // Allocated canary
-    alias Canary := 16rDEADBEEF.
-
     alias AllocationType_Small := 0.
     alias AllocationType_Large := 1.
     alias AllocationType_Huge := 2.
+
+    alias QuantumSpacedCategories := 512 / 16.
+
+    /**
+     * A common chunk header
+     */
+    struct CommonChunkHeader := {
+        field isHugeAllocation public type: BooleanBit.
+    }.
+
+    alias HugeChunkHeaderSize := CommonChunkHeader instanceSize alignedTo: 16.
 
     /**
      * A memory allocation chunk header.
      */
     struct ChunkHeader := {
+        field commonHeader public type: CommonChunkHeader.
+
         field previousChunk public type: ChunkHeader pointer.
         field nextChunk public type: ChunkHeader pointer.
 
@@ -155,20 +195,113 @@ class NativeMemoryHeap definition: {
     }.
 
     /**
-     * An allocation header metadata.
+     * Quantum spaced category run
      */
-    struct AllocationHeaderMetadata := {
-        field chunkOffset public type: UInt32.
-        field size public type: UInt32.
-        field type public type: UInt32.
-        field canary public type: UInt32.
+    struct SlabHeader := {
+        alias MaxNumberOfElements := 256.
+        alias WordBitCount := UIntPointer instanceSize*8.
+        alias BitmapWords := MaxNumberOfElements / WordBitCount.
+        alias FullWord := -1 castTo: UIntPointer.
+
+        // Linked list between all slabs.
+        field previousSlab public type: SlabHeader pointer.
+        field nextSlab public type: SlabHeader pointer.
+
+        // Linked list between active slabs.
+        field previousActiveSlab public type: SlabHeader pointer.
+        field nextActiveSlab public type: SlabHeader pointer.
+
+        field elementSize public type: UInt16.
+        field elementCount public type: UInt16.
+        field freeCount public type: UInt16.
+        field _ type: UInt16.
+
+        field bitmap public type: (UIntPointer array: BitmapWords).
+
+        message setupForElements: (count: UIntPointer) ::=> Void := {
+            elementCount := count castTo: UInt16.
+            freeCount := count castTo: UInt16.
+
+            let bitmapWordCount := self bitmapWordCount.
+            let lastWordFreeElements := elementCount % WordBitCount.
+            lastWordFreeElements ~~ 0 ifTrue: {
+                // Mark the unused elements in the bitmap as allocated.
+                let lastWordFreeElementsMask := ((1 castTo: UIntPointer) << lastWordFreeElements) - 1.
+                let lastWordUnusedElementsMask := lastWordFreeElementsMask bitInvert.
+                bitmap[bitmapWordCount - 1] := lastWordUnusedElementsMask.
+            }.
+        }.
+
+        message bitmapWordCount => UIntPointer
+            := (elementCount + WordBitCount - 1) / WordBitCount.
+
+        message findFreeElementIndex => Int32 := {
+            let bitmapWordCount := self bitmapWordCount.
+
+            for: (let i mutable type: UIntPointer := 0) while: (i < bitmapWordCount) do: {
+                bitmap[i] ~~ FullWord ifTrue: {
+                    let freeBit := bitmap[i] bitInvert lowBit.
+                    freeBit ~= 0 ifTrue: {
+                        return: (i*WordBitCount + freeBit - 1 castTo: Int32)
+                    }.
+                }
+            } continueWith: (i := i + 1).
+
+            -1
+        }.
+
+        message markElement: (elementIndex: UIntPointer) ::=> Void := {
+            let wordIndex := elementIndex / WordBitCount.
+            let wordBitIndex := elementIndex % WordBitCount.
+            let bit := (1 castTo: UIntPointer) << wordBitIndex.
+            bitmap[wordIndex] := bitmap[wordIndex] | bit.
+
+            freeCount := freeCount - 1 castTo: UInt16
+        }.
+
+        message unmarkElement: (elementIndex: UIntPointer) ::=> Void := {
+            let wordIndex := elementIndex / WordBitCount.
+            let wordBitIndex := elementIndex % WordBitCount.
+            let bit := (1 castTo: UIntPointer) << wordBitIndex.
+            bitmap[wordIndex] := bitmap[wordIndex] & bit bitInvert.
+
+            freeCount := freeCount + 1 castTo: UInt16
+        }.
     }.
+
+    alias SlabHeaderSize := SlabHeader instanceSize alignedTo: 16.
+
+    /**
+     * Quantum space category active run state.
+     */
+    struct QuantumSpacedCategoryState := {
+        field activeSlab public type: SlabHeader pointer.
+
+        field firstSlab public type: SlabHeader pointer.
+        field lastSlab public type: SlabHeader pointer.
+    }.
+
 
     field mutex private type: Mutex.
     field firstChunk private type: ChunkHeader pointer.
     field lastChunk private type: ChunkHeader pointer.
 
+    field quantumSpacedCategoryStates type: (QuantumSpacedCategoryState array: QuantumSpacedCategories + 1).
+
+    message allocateInitializedWithZero: (size: UIntPointer) ::=> Void pointer := {
+        let result := self allocate: size.
+        result ifNotNil: {
+            StdNative memset(result, 0, size).
+        }.
+
+        result
+    }.
+
     message allocate: (size: UIntPointer) ::=> Void pointer := {
+        size == 0 ifTrue: {
+            return: nil
+        }.
+
         // Is this a large allocation?
         size >= LargeAllocationThreshold ifTrue: {
             // Is this a huge allocation?
@@ -188,16 +321,6 @@ class NativeMemoryHeap definition: {
             return: nil
         }.
 
-        // Get allocatation metadata
-        let allocationMetadata := (pointer reinterpretCastTo: AllocationHeaderMetadata pointer)[-1] address.
-
-        // Check the canary.
-        allocationMetadata _ canary == Canary ifFalse: {
-            StdNative fatalError: "Allocation canary is invalid.".
-        }.
-
-        Stdout << "TODO: Free allocation of type: " << allocationMetadata _ type << " size:" << allocationMetadata _ size; nl.
-
         mutex heldInThisContext.
     }.
 
@@ -205,11 +328,88 @@ class NativeMemoryHeap definition: {
      * Small allocation
      */
     message allocateSmall: (size: UIntPointer) ::=> Void pointer := {
-        self allocateLarge: size
-        /*mutex heldInThisContext.
+        size <= 512 ifTrue: {
+            self allocateQuantumSpaced: size
+        } ifFalse: {
+            self allocateLarge: size
+        }
+    }.
 
-        StdNative fatalError: "TODO: Implement allocateSmall.".
-        nil.*/
+    /**
+     * Quantum spaced allocations.
+     */
+    message allocateQuantumSpaced: (size: UIntPointer) ::=> Void pointer := {
+        let category := (size + 15) / 16.
+        mutex heldInThisContext.
+
+        // Make sure there is an active run in the category.
+        let categoryState ref := quantumSpacedCategoryStates[category].
+        categoryState activeSlab ifNil: {
+            categoryState activeSlab := self createSlabForQuantumSpacedCategory: category.
+        }.
+
+        // Fetch the slab and some of its pointers.
+        let slab := categoryState activeSlab.
+        let slabBytes := slab reinterpretCastTo: UInt8 pointer.
+        let slabData := slabBytes[SlabHeaderSize] address.
+
+        let freeElementIndex := slab _ findFreeElementIndex.
+        assert: freeElementIndex >= 0.
+
+        Stdout << "Allocate from active category slab: " << categoryState activeSlab << " element " << freeElementIndex; nl.
+        slab _ markElement: (freeElementIndex castTo: UIntPointer).
+
+        // If we fill the slab, make it unactive.
+        slab _ freeCount == 0 ifTrue: {
+            categoryState activeSlab: slab _ nextActiveSlab.
+        }.
+
+        // Compute the pointer into the allocated slab element.
+        let slabElementPointer := slabData[slab _ elementSize * freeElementIndex] address.
+
+        // Return the slab element pointer
+        slabElementPointer
+    }.
+
+    /**
+     * Creates a slab
+     */
+    message createSlabForQuantumSpacedCategory: (category: UIntPointer) ::=> SlabHeader pointer := {
+        let categoryElementSize := category * 16.
+        let allocationSize := SlabHeaderSize + categoryElementSize * 33 alignedTo: 4096. // Go for no more than 3 % of overheader
+
+        // Compute an initial best element count estimate.
+        let elementCount := (allocationSize - SlabHeaderSize) / categoryElementSize.
+
+        // Allocate the slab
+        let slab := (self doAllocateLarge: allocationSize) reinterpretCastTo: UInt8 pointer.
+        slab ifNil: {
+            return: nil
+        }.
+
+        // Clear the slab memory.
+        memset(slab, 0, allocationSize).
+
+        // Set the slab header.
+        let slabHeader := slab reinterpretCastTo: SlabHeader pointer.
+        slabHeader _
+            elementSize: (categoryElementSize castTo: UInt16);
+            setupForElements: elementCount.
+
+        // Put the slab in the linked list.
+        let categoryState ref := quantumSpacedCategoryStates[category].
+        categoryState firstSlab ifNil: {
+            categoryState
+                firstSlab: slabHeader;
+                lastSlab: slabHeader
+        } ifNotNil: {
+            slabHeader _ nextSlab: categoryState firstSlab.
+            categoryState firstSlab _ previousSlab: slabHeader.
+            categoryState firstSlab: slabHeader
+        }.
+
+        Stdout << "Slab category: " << category << " allocationSize " << allocationSize << " element count " << elementCount; nl.
+        slabHeader
     }.
 
     /**
@@ -218,12 +418,13 @@ class NativeMemoryHeap definition: {
     message allocateLarge: (size: UIntPointer) ::=> Void pointer := {
         mutex heldInThisContext.
 
-        // Compute the actual allocation size.
-        let allocationSize := size + AllocationHeaderMetadata instanceSize.
+        self doAllocateLarge: size
+    }.
 
+    message doAllocateLarge: (size: UIntPointer) ::=> Void pointer := {
         // Find or create the chunk.
-        let chunk := self findOrCreateChunkWithAvailableSize: allocationSize.
-        Stdout << "Allocate in chunk " << chunk << " size " << allocationSize; nl.
+        let chunk := self findOrCreateChunkWithAvailableSize: size.
+        Stdout << "Allocate in chunk " << chunk << " size " << size; nl.
 
         // Allocate the blocks
         let blockCount := self blockCountForSize: size.
@@ -232,17 +433,11 @@ class NativeMemoryHeap definition: {
         // Get the allocation memory.
         let chunkOffset := allocatedBlock*MemoryChunkBlockSize.
         let allocationMemory := (chunk reinterpretCastTo: UInt8 pointer)[chunkOffset] address.
-        let allocationMetadata := allocationMemory reinterpretCastTo: AllocationHeaderMetadata pointer.
-        allocationMetadata _
-            chunkOffset: (chunkOffset castTo: UInt32);
-            size: (size castTo: UInt32);
-            type: AllocationType_Large;
-            canary: Canary.
 
         Stdout << "Allocated block " << allocatedBlock << " pointer: " << allocationMemory; nl.
 
         // Return a pointer into the actual allocated memory
-        allocationMemory[1] address.
+        allocationMemory
     }.
 
     /**
@@ -251,8 +446,25 @@ class NativeMemoryHeap definition: {
     message allocateHuge: (size: UIntPointer) ::=> Void pointer := {
         mutex heldInThisContext.
 
-        StdNative fatalError: "TODO: Implement dedicatedChunkAllocation.\n".
-        nil.
+        // Compute the size of the allocation.
+        let allocationSize := size + HugeChunkHeaderSize alignedTo: 4096.
+        //Stdout << "Allocate large memory chunk of size " << allocationSize; nl.
+
+        // Allocate the super-chunk.
+        let largeAllocation := (NativeVirtualMemoryInterface reserveAndCommitAddressSpace: allocationSize alignment: MemoryChunkAlignment) reinterpretCastTo: UInt8 pointer.
+        largeAllocation ifNil: {
+            return: nil
+        }.
+
+        //Stdout << "Allocated large memory chunk: " << largeAllocation; nl.
+
+        // Set the header.
+        let header := largeAllocation reinterpretCastTo: CommonChunkHeader pointer.
+        header _
+            isHugeAllocation: true.
+
+        // Return the allocated memory.
+        largeAllocation[HugeChunkHeaderSize] address.
     }.
 
     /**
@@ -294,6 +506,23 @@ class NativeMemoryHeap definition: {
      * Finds a chunk with the required available size.
      */
     message findChunkWithAvailableSize: (requiredSize: UIntPointer) ::=> ChunkHeader pointer := {
+        firstChunk ifNil: {
+            return: nil
+        }.
+
+        let requiredBlocks := self blockCountForSize: requiredSize.
+        let requiredLevel := firstChunk _ buddyMemoryAllocator findLevelForBlockCount: requiredBlocks.
+        //Stdout << "findChunkWithAvailableSize level " << requiredLevel; nl.
+
+        // Linearly find a chunk with the requred size.
+        // TODO: Sort the chunks in an AVL tree.
+        let currentChunk mutable := firstChunk.
+        while: currentChunk isNotNil do: {
+            (currentChunk _ buddyMemoryAllocator hasFreeBlockInLevel: requiredLevel) ifTrue: {
+                return: currentChunk
+            }
+        } continueWith: (currentChunk := currentChunk _ nextChunk).
+
         nil
     }.
 
@@ -307,9 +536,11 @@ class NativeMemoryHeap definition: {
             ifNil: {self allocateNewChunk}.
     }.
 }.
+
 global globalNativeMemoryHeap mutable type: NativeMemoryHeap.
 
 function malloc(size: UIntPointer) => Void pointer := globalNativeMemoryHeap allocate: size.
+function calloc(size: UIntPointer) => Void pointer := globalNativeMemoryHeap allocateInitializedWithZero: size.
 function free(pointer: Void pointer) => Void := globalNativeMemoryHeap free: pointer.
 
 }. // End of namespace StdNative

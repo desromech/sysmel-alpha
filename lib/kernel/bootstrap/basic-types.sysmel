@@ -771,11 +771,19 @@ _APSGNodeType uses: AnyValue.
 
 BooleanBit uses: (BooleanType, PrimitiveType);
 definition: {
+    meta message defaultSSAValueWith: (builder: _CompilerObjectType) ::=> _CompilerObjectType
+        := builder constBool: false.
+
     meta message buildSSAType => _CompilerObjectType
         := Compiler compilationTarget ssaBoolType.
 
     meta message generateSSAValue: (value: _CompilerObjectType) withBuilder: (builder: _CompilerObjectType) ::=> _CompilerObjectType
         := builder const: value unwrapSysmelValue type: self ssaType.
+
+    meta message defaultValue => _CompilerObjectType := false.
+
+    meta message instanceSize => _LiteralInteger := 1.
+    meta message instanceAlignment => _LiteralInteger := 1.
 
     SelfType sysmelMangledValue: #b.
 }.

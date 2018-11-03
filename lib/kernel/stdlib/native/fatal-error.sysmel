@@ -1,6 +1,19 @@
 namespace StdNative definition: {
+
 message fatalError: (message: StringLiteral) ::=> Void := {
     Stderr << "FATAL ERROR: " << message; nl.
     native_abort().
-}
+}.
+
+macro expansionRule assert: condition := {
+    let position := condition position asString.
+    let expression := condition originalSourceCode.
+    let message := "Assertion " -- expression -- " FAILED in " -- position.
+    let messageNode := __apsgBuilder literalString: message position: condition position.
+
+    ``(condition __macroExpand ifFalse: {
+        StdNative fatalError: messageNode __macroExpand
+    })
+}.
+
 }.

@@ -163,7 +163,7 @@ codeGeneration: $$Pharo {
 
 }.
 
-NumericalType macro selectors: #(#"prefix-+" negated #"prefix--" bitInvert #"prefix-~") doOn: {
+NumericalType macro selectors: #(#"prefix-+" negated #"prefix--" bitInvert #"prefix-~" highBit lowBit) doOn: {
     // Compile time evaluation
     evaluation: $$Pharo {
         node: node environment: environment
@@ -228,6 +228,14 @@ NumericalType macro selectors: #(#"prefix-+" negated #"prefix--" bitInvert #"pre
             ].
             messageNode selector == #bitInvert ifTrue: [
                 ^ builder not: operandValue
+            ].
+
+            messageNode selector == #highBit ifTrue: [
+                ^ builder highBit: operandValue
+            ].
+
+            messageNode selector == #lowBit ifTrue: [
+                ^ builder lowBit: operandValue
             ].
 
             self error: 'Unsupported unary operation'.
