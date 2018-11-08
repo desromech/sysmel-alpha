@@ -45,4 +45,10 @@ namespace SysmelKernel definition: {
     NumericalType macro expansionRule log2Ceil :=
         ``((self __macroExpand - 1) log2Floor + 1).
 
+    // Some numerical testing methods.
+    IntegerType macro expansionRule isEven :=
+        ``((self __macroExpand & 1) == 0).
+    IntegerType macro expansionRule isOdd :=
+        ``((self __macroExpand & 1) == 1).
+
 }.
