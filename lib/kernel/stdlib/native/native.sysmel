@@ -1,5 +1,9 @@
+// Core definitions without a requirement on memory allocation.
 loadFileOnce: "array.sysmel".
 loadFileOnce: "string.sysmel".
 loadFileOnce: "stream.sysmel".
 loadFileOnce: "fatal-error.sysmel".
+loadFileOnce: "explicit-memory-bitmap.sysmel".
+
+// Main memory allocator.
 loadFileOnce: "memory-heap.sysmel".

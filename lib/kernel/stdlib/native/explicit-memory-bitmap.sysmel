@@ -1,0 +1,94 @@
+namespace StdNative definition: {
+
+/**
+ * ExplicitMemoryBitmap
+ * A bitmap whose data memory is managed explicitly by the user.
+ */
+struct ExplicitMemoryBitmap definition: {
+    alias BitsPerWord := UIntPointer instanceSize * 8.
+    alias BytesPerWord := UIntPointer instanceSize.
+    alias InvalidBitIndex := -1 castTo: UIntPointer.
+
+    field bitmap public type: UIntPointer pointer.
+    field wordCount public type: UIntPointer.
+
+    /**
+     * Common macro for manipulating a single bit.
+     */
+    macro expansionRule manipulateBit: index withOperation: (operation: _LiteralSymbol) := ``{
+        let wordIndex := index __macroExpand / BitsPerWord.
+        let bitIndex := index __macroExpand % BitsPerWord.
+        let bit := 1<<bitIndex castTo: UIntPointer.
+        bitmap[wordIndex] := bitmap[wordIndex] __macroSend: operation with: bit
+    }.
+
+    message clearBit: (index: UIntPointer) ::=> Void := {
+        self manipulateBit: index withOperation: #bitClear:.
+    }.
+
+    message setBit: (index: UIntPointer) ::=> Void := {
+        self manipulateBit: index withOperation: #bitOr:.
+    }.
+
+    message toggleBit: (index: UIntPointer) ::=> Void := {
+        self manipulateBit: index withOperation: #bitXor:.
+    }.
+
+    /**
+     * Common macro for manipulating a range of bits.
+     */
+    macro expansionRule manipulateBitsFrom: start until: end withOperation: (operation: _LiteralSymbol) := ``{
+        let alignedStart := start __macroExpand alignedTo: BitsPerWord.
+        let alignedEnd := end __macroExpand floorAlignedTo: BitsPerWord.
+        let startWord := start __macroExpand / BitsPerWord.
+        let currentWord mutable := startWord.
+
+        // Head - High bits
+        let unalignedStartCount := alignedStart - start __macroExpand.
+        unalignedStartCount > 0 ifTrue: {
+            let bits := (1<<(BitsPerWord - unalignedStartCount - 1)) negated castTo: UIntPointer.
+            bitmap[currentWord] := bitmap[currentWord] __macroSend: operation with: bits.
+            currentWord := currentWord + 1
+        }.
+
+        // Inner
+        for: (let i mutable := alignedStart) while: (i < alignedEnd) do: {
+            bitmap[currentWord] := -1 castTo: UIntPointer.
+            currentWord := currentWord + 1
+        } continueWith: (i := i + BitsPerWord).
+
+        // Tail
+        let unalignedEndCount := end __macroExpand - alignedEnd.
+        unalignedEndCount > 0 ifTrue: {
+            let bits := (1<<unalignedEndCount) - 1.
+            bitmap[currentWord] := bitmap[currentWord] & (~bits).
+            currentWord := currentWord + 1
+        }.
+    }.
+
+    message clearFrom: (start: UIntPointer) until: (end: UIntPointer) ::=> Void := {
+        self manipulateBitsFrom: start until: end withOperation: #bitClear:
+    }.
+
+    message clearFrom: (start: UIntPointer) count: (count: UIntPointer) ::=> Void := {
+        self clearFrom: start until: start + count
+    }.
+
+    message setFrom: (start: UIntPointer) until: (end: UIntPointer) ::=> Void := {
+        self manipulateBitsFrom: start until: end withOperation: #bitOr:
+    }.
+
+    message setFrom: (start: UIntPointer) count: (count: UIntPointer) ::=> Void := {
+        self setFrom: start until: start + count
+    }.
+
+    message toggleFrom: (start: UIntPointer) until: (end: UIntPointer) ::=> Void := {
+        self manipulateBitsFrom: start until: end withOperation: #bitXor:
+    }.
+
+    message toggleFrom: (start: UIntPointer) count: (count: UIntPointer) ::=> Void := {
+        self toggleFrom: start until: start + count
+    }.
+}.
+
+}. // End of namespace StdNative

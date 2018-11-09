@@ -1,4 +1,8 @@
 namespace SysmelKernel definition: {
+    PrimitiveIntegerType macro expansionRule floorAlignedTo: alignment := ``(
+        self __macroExpand & (alignment __macroExpand negated castTo: SelfType __macroExpand)
+    ).
+
     PrimitiveIntegerType macro expansionRule alignedTo: alignment := ``(
         (self __macroExpand + alignment __macroExpand - 1) & (alignment __macroExpand negated castTo: SelfType __macroExpand)
     ).
@@ -44,6 +48,10 @@ namespace SysmelKernel definition: {
      */
     NumericalType macro expansionRule log2Ceil :=
         ``((self __macroExpand - 1) log2Floor + 1).
+
+    // Bitwise manipulation.
+    IntegerType macro expansionRule bitClear: bits :=
+        ``(self __macroExpand & (bits __macroExpand bitInvert)).
 
     // Some numerical testing methods.
     IntegerType macro expansionRule isEven :=

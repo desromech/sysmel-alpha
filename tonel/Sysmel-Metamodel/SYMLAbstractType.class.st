@@ -1189,6 +1189,15 @@ SYMLAbstractType >> semanticAnalyzeMessageToYou: message inEnvironment: environm
 		^ method analyzeMetaMessage: message toReceiver: self inEnvironment: environment at: aPosition
 	].
 
+	symbols at: message selector ifPresent: [ :value |
+		| identifier |
+		identifier := SYMLAPSGIdentifier new
+			position: message;
+			value: message selector;
+			yourself.
+		^ value analyzeAPSGIdentifierToMe: identifier inEnvironment: environment
+	].
+
 	^ super semanticAnalyzeMessageToYou: message inEnvironment: environment at: aPosition
 ]
 

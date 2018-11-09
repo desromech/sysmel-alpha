@@ -533,7 +533,7 @@ SYMLModule >> ssaConstantArrayValue: value type: type [
 { #category : #'code generation' }
 SYMLModule >> ssaConstantPrimitiveValue: value type: type [
 	<compileTime>
-	^ SLVMConstant type: type ssaType value: value
+	^ SLVMConstant type: type ssaType value: (value ifNil: [type defaultValue unwrapSysmelValue])
 ]
 
 { #category : #'code generation' }

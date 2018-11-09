@@ -138,20 +138,6 @@ SYMLShaderStageIO >> semanticAnalysis [
 	children do: #semanticAnalysis
 ]
 
-{ #category : #'as yet unclassified' }
-SYMLShaderStageIO >> semanticAnalyzeMessageToYou: message inEnvironment: environment at: aPosition [
-	| identifier |
-	symbols at: message selector ifPresent: [ :value |
-		identifier := SYMLAPSGIdentifier new
-			position: message;
-			value: message selector;
-			yourself.
-		^ value analyzeAPSGIdentifierToMe: identifier inEnvironment: environment
-	].
-
-	^ super semanticAnalyzeMessageToYou: message inEnvironment: environment at: aPosition
-]
-
 { #category : #accessing }
 SYMLShaderStageIO >> spvInputVariable [
 	^ spvInputVariable

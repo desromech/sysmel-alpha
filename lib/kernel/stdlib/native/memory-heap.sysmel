@@ -518,7 +518,7 @@ class NativeMemoryHeap definition: {
 
         // Get the base address of the chunk.
         let pointerAddress := pointer reinterpretCastTo: UIntPointer.
-        let chunkAddress := pointerAddress & (-MemoryChunkAlignment castTo: UIntPointer).
+        let chunkAddress := pointerAddress floorAlignedTo: MemoryChunkAlignment.
         let commonChunkPointer := chunkAddress reinterpretCastTo: CommonChunkHeader pointer.
 
         // Is this a chunk for a huge allocation?.
@@ -556,7 +556,7 @@ class NativeMemoryHeap definition: {
 
         // Get the base address of the chunk.
         let pointerAddress := pointer reinterpretCastTo: UIntPointer.
-        let chunkAddress := pointerAddress & (-MemoryChunkAlignment castTo: UIntPointer).
+        let chunkAddress := pointerAddress floorAlignedTo: MemoryChunkAlignment.
         let commonChunkPointer := chunkAddress reinterpretCastTo: CommonChunkHeader pointer.
 
         // Is this a chunk for a huge allocation?.

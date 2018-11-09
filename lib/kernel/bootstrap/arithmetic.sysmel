@@ -86,6 +86,7 @@ NumericalType macro selectors: #(
     + - * / %
     < > <= >= = ~= == ~~
     | & << >>
+    bitOr: bitAnd: bitXor:
 ) doOn: {
 evaluation: $$Pharo {
     node: node environment: environment
