@@ -234,6 +234,17 @@ SYMLCompilationTarget >> functionTypeTrait: anObject [
 	functionTypeTrait := anObject
 ]
 
+{ #category : #testing }
+SYMLCompilationTarget >> hasNoOS [
+	^ self isSpirV
+]
+
+{ #category : #testing }
+SYMLCompilationTarget >> hasNoOperatingSystem [
+	<compileTime>
+	^ self isSpirV
+]
+
 { #category : #accessing }
 SYMLCompilationTarget >> incompleteType [
 	<compileTime>

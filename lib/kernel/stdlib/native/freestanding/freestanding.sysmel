@@ -1,0 +1,7 @@
+// Core definitions without a requirement on memory allocation, or an actual operating system.
+loadFileOnce: "array.sysmel".
+loadFileOnce: "string.sysmel".
+loadFileOnce: "explicit-memory-bitmap.sysmel".
+loadFileOnce: "explicit-linked-list.sysmel".
+loadFileOnce: "explicit-balanced-tree.sysmel".
+loadFileOnce: "fatal-error.sysmel".

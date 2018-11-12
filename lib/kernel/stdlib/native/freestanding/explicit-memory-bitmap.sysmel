@@ -13,6 +13,61 @@ struct ExplicitMemoryBitmap definition: {
     field wordCount public type: UIntPointer.
 
     /**
+     * Utility macro for iterating through all the words, starting from a fixed index.
+     */
+    macro expansionRule allWordsStartingFrom: startWord do: action := ``{
+        // From the word until the end.
+        for: (let wordIndex mutable type: UIntPointer := startWord __macroExpand) while: (wordIndex < wordCount) do: {
+            let word := bitmap[wordIndex].
+            action __macroExpand
+        } continueWith: (wordIndex := wordIndex + 1).
+
+        // From the begining until the word.
+        for: (let wordIndex mutable type: UIntPointer := 0) while: (wordIndex < startWord __macroExpand) do: {
+            let word := bitmap[wordIndex].
+            action __macroExpand
+        } continueWith: (wordIndex := wordIndex + 1).
+    }.
+
+    /**
+     * This finds the first setted bit in the word that belongs to the requested index.
+     */
+    message findSettedBitFrom: (startIndex: UIntPointer) ::=> UIntPointer := {
+        let startWord := startIndex / BitsPerWord.
+
+        self allWordsStartingFrom: startWord do: {
+            let bit := word lowBit.
+            bit ~~ 0 ifTrue: {
+                return: wordIndex*BitsPerWord + bit - 1
+            }
+        }.
+
+        InvalidBitIndex
+    }.
+
+    /**
+     * This finds the first cleared bit in the word that belongs to the requested index.
+     */
+    message findClearedBitFrom: (startIndex: UIntPointer) ::=> UIntPointer := {
+        let startWord := startIndex / BitsPerWord.
+
+        self allWordsStartingFrom: startWord do: {
+            let bit := ~word lowBit.
+            bit ~~ 0 ifTrue: {
+                return: wordIndex*BitsPerWord + bit - 1
+            }
+        }.
+
+        InvalidBitIndex
+    }.
+
+    message findFirstClearedBit ::=> UIntPointer
+        := self findClearedBitFrom: 0.
+
+    message findFirstSettedBit ::=> UIntPointer
+        := self findSettedBitFrom: 0.
+
+    /**
      * Common macro for manipulating a single bit.
      */
     macro expansionRule manipulateBit: index withOperation: (operation: _LiteralSymbol) := ``{
@@ -33,6 +88,24 @@ struct ExplicitMemoryBitmap definition: {
     message toggleBit: (index: UIntPointer) ::=> Void := {
         self manipulateBit: index withOperation: #bitXor:.
     }.
+
+    /**
+     * Test whether a specific bit set (i.e: is 1).
+     */
+    message isSetted: (index: UIntPointer) ::=> BooleanBit := {
+        let wordIndex := index / BitsPerWord.
+        let bitIndex := index % BitsPerWord.
+        let bit := 1<<bitIndex castTo: UIntPointer.
+
+        (bitmap[wordIndex] & bit) ~~ 0
+    }.
+
+    /**
+     * Test whether a specific bit is cleared (i.e: is 0).
+     */
+    message isCleared: (index: UIntPointer) ::=> BooleanBit
+        := (self isSetted: index) not.
+
 
     /**
      * Common macro for manipulating a range of bits.

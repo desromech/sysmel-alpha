@@ -397,6 +397,12 @@ SYMLModule >> initializeWithCompilationTarget: aCompilationTarget [
 	evaluatedFileReferences := Dictionary new.
 	
 	identityHashRandomGenerator := Random seed: 1.
+	
+	compilationTarget hasNoOS ifTrue: [
+		self
+			freestanding;
+			useLibC: false
+	].
 
 ]
 

@@ -1,0 +1,74 @@
+namespace StdNative definition: {
+
+/**
+ * I am the definition for a balanced tree node with explicit memory management semantics.
+ * AVL tree: https://en.wikipedia.org/wiki/AVL_tree
+ */
+template ExplicitMemoryBalancedTree(KT: Type, VT: Type)
+    := struct definition: {
+
+    alias Node := SelfType.
+    alias KeyType := KT.
+    alias ValueType := VT.
+
+    alias BalanceFactorMask := 3 castTo: UIntPointer.
+    alias ChildPointerMask := ~BalanceFactorMask.
+
+    field left_ type: UIntPointer. // Use the left pointer to encode the balance factor.
+    field right public type: Node pointer.
+    field key public type: KeyType.
+
+    // Having a different value is optional.
+    ValueType ~~ Void ifTrue: {
+        field value public type: ValueType.
+
+        message replaceValueWith: (otherNode: SelfType pointer) ::=> Void := {
+            value := otherNode value
+        }
+    } ifFalse: {
+        message replaceValueWith: (otherNode: SelfType pointer) ::=> Void := {
+            // Do nothing.
+        }
+    }
+
+    // Left pointer accessor.
+    message left => Node pointer
+        := left_ & ChildPointerMask.
+
+    message left: (newLeftNode: Node point) ::=> Void := {
+        left_ := (left & BalanceFactorMask) | ((newLeftNode reinterpretCastTo: UIntPointer) & ChildPointerMask)
+    }.
+
+    // Balance factor accessor.
+    message balanceFactor => Int32
+        := (left_ & BalanceFactorMask) - 1.
+
+    message balanceFactor: (newFactor: Int32) ::=> Void := {
+        left_ := (left & ChildPointerMask) | ((newFactor + 1) & BalanceFactorMask)
+    }.
+
+    // Insert node.
+    message insertOrReplace: (newNode: SelfType pointer) ::=> SelfType pointer := {
+        // If self is nil, just return the node.
+        self ifNil: {
+            return: newNode
+        }.
+
+        // Left child.
+        newNode key < key ifTrue: {
+            self left: (self left insertOrReplace: newNode)
+        } ifFalse: {
+            key < newNode key ifTrue: {
+                // Right child
+                self right: (self right insertOrReplace: newNode)
+            } ifFalse: {
+                // This is the node, replace the value.
+                self replaceValueWith: newNode.
+                return: self.
+            }
+        }
+
+    }.
+}.
+
+}. // End of namespace StdNative

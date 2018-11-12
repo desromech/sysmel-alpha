@@ -1,9 +1,5 @@
-// Core definitions without a requirement on memory allocation.
-loadFileOnce: "array.sysmel".
-loadFileOnce: "string.sysmel".
-loadFileOnce: "stream.sysmel".
-loadFileOnce: "fatal-error.sysmel".
-loadFileOnce: "explicit-memory-bitmap.sysmel".
+loadFileOnce: "freestanding/freestanding.sysmel".
 
-// Main memory allocator.
-loadFileOnce: "memory-heap.sysmel".
+if: Compiler compilationTarget hasNoOperatingSystem not then: {
+    loadFileOnce: "nofreestanding/lib.sysmel".
+}.

@@ -1,8 +1,14 @@
 namespace StdNative definition: {
 
-message fatalError: (message: StringLiteral) ::=> Void := {
-    Stderr << "FATAL ERROR: " << message; nl.
-    native_abort().
+if: Compiler compilationTarget hasNoOperatingSystem then: {
+    message fatalError: (message: StringLiteral) ::=> Void := {
+        // TODO: Use a trap instruction here.
+    }.
+} else: {
+    message fatalError: (message: StringLiteral) ::=> Void := {
+        Stderr << "FATAL ERROR: " << message; nl.
+        native_abort().
+    }.
 }.
 
 macro expansionRule assert: condition := {

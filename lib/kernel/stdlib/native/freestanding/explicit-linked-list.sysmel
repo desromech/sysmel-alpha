@@ -1,0 +1,11 @@
+namespace StdNative definition: {
+
+struct ExplicitMemoryDoubleLinkedListNode definition: {
+
+}.
+
+struct ExplicitMemoryDoubleLinkedList definition: {
+
+}.
+
+}. // End of namespace StdNative

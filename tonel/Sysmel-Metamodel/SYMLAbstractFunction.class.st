@@ -17,7 +17,8 @@ Class {
 		'generator',
 		'evaluator',
 		'templateFunctionOwner',
-		'bodyReturnTypeCoercionRule'
+		'bodyReturnTypeCoercionRule',
+		'virtualFunctionType'
 	],
 	#category : #'Sysmel-Metamodel-Function'
 }
@@ -269,6 +270,12 @@ SYMLAbstractFunction >> fetchCalledMethodValueForReceiver: receiverValue withBui
 	^ self ssaValue
 ]
 
+{ #category : #'virtual functions' }
+SYMLAbstractFunction >> final [
+	<compileTime>
+	self addFlag: #final
+]
+
 { #category : #accessing }
 SYMLAbstractFunction >> functionBodyEnvironment [
 	^ bodyEnvironment
@@ -473,6 +480,12 @@ SYMLAbstractFunction >> isCompileTime [
 	^ self receiverType isCompileTimeByDefault
 ]
 
+{ #category : #'virtual functions' }
+SYMLAbstractFunction >> isFinal [
+	<compileTime>
+	^ self hasFlag: #final
+]
+
 { #category : #testing }
 SYMLAbstractFunction >> isMessageMethod [
 	^ false
@@ -488,6 +501,12 @@ SYMLAbstractFunction >> isNonTrivialConstructorOrDestructor [
 	^ self isTrivialConstructorOrDestructor not
 ]
 
+{ #category : #'virtual functions' }
+SYMLAbstractFunction >> isOverride [
+	<compileTime>
+	^ self hasFlag: #override
+]
+
 { #category : #testing }
 SYMLAbstractFunction >> isTemplateFunctionInstance [
 	^ templateFunctionOwner isNotNil
@@ -499,6 +518,12 @@ SYMLAbstractFunction >> isTrivialConstructorOrDestructor [
 	self analyzedBody ifNil: [ ^ self ].
 	
 	^ body isTrivialWithoutSideEffects
+]
+
+{ #category : #'virtual functions' }
+SYMLAbstractFunction >> isVirtual [
+	<compileTime>
+	^ self hasFlag: #virtual
 ]
 
 { #category : #accessing }
@@ -519,6 +544,14 @@ SYMLAbstractFunction >> mangledName [
 { #category : #accessing }
 SYMLAbstractFunction >> manglingCharacter [
 	^ $F
+]
+
+{ #category : #'virtual functions' }
+SYMLAbstractFunction >> override [
+	<compileTime>
+	self
+		addFlag: #virtual;
+		addFlag: #override
 ]
 
 { #category : #testing }
@@ -614,4 +647,10 @@ SYMLAbstractFunction >> templateFunctionOwner: anObject [
 { #category : #accessing }
 SYMLAbstractFunction >> type [
 	^ self functionType ref
+]
+
+{ #category : #'virtual functions' }
+SYMLAbstractFunction >> virtual [
+	<compileTime>
+	self addFlag: #virtual
 ]
