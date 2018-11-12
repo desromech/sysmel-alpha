@@ -660,7 +660,9 @@ class NativeMemoryHeap definition: {
         let categoryState ref := quantumSpacedCategoryStates[category].
         categoryState firstActiveSlab ifNil: {
             self createSlabForQuantumSpacedCategory: category.
-            assert: categoryState firstActiveSlab isNotNil
+            categoryState firstActiveSlab ifNil: {
+                return: nil
+            }
         }.
 
         // Fetch the slab and some of its pointers.
@@ -734,6 +736,10 @@ class NativeMemoryHeap definition: {
     message doAllocateLarge: (size: UIntPointer) forSlab: (isForSlab: BooleanBit) ::=> Void pointer := {
         // Find or create the chunk.
         let chunk := self findOrCreateChunkWithAvailableSize: size.
+        chunk ifNil: {
+            return: nil
+        }.
+
         //Stdout << "Allocate in chunk " << chunk << " size " << size; nl.
 
         // Allocate the blocks

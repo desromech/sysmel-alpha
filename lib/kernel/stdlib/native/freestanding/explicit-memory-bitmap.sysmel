@@ -52,7 +52,7 @@ struct ExplicitMemoryBitmap definition: {
         let startWord := startIndex / BitsPerWord.
 
         self allWordsStartingFrom: startWord do: {
-            let bit := ~word lowBit.
+            let bit := word bitInvert lowBit.
             bit ~~ 0 ifTrue: {
                 return: wordIndex*BitsPerWord + bit - 1
             }
@@ -126,7 +126,7 @@ struct ExplicitMemoryBitmap definition: {
 
         // Inner
         for: (let i mutable := alignedStart) while: (i < alignedEnd) do: {
-            bitmap[currentWord] := -1 castTo: UIntPointer.
+            bitmap[currentWord] := bitmap[currentWord] __macroSend: operation with: (-1 castTo: UIntPointer).
             currentWord := currentWord + 1
         } continueWith: (i := i + BitsPerWord).
 
@@ -134,7 +134,7 @@ struct ExplicitMemoryBitmap definition: {
         let unalignedEndCount := end __macroExpand - alignedEnd.
         unalignedEndCount > 0 ifTrue: {
             let bits := (1<<unalignedEndCount) - 1.
-            bitmap[currentWord] := bitmap[currentWord] & (~bits).
+            bitmap[currentWord] := bitmap[currentWord] __macroSend: operation with: bits.
             currentWord := currentWord + 1
         }.
     }.

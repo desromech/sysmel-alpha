@@ -12,7 +12,10 @@ namespace SysmelKernel definition: {
         ``(if: self __macroExpand then: trueAction __macroExpand).
     BooleanType macro expansionRule ifFalse: falseAction :=
         ``(if: self __macroExpand not then: falseAction __macroExpand).
+
     BooleanType macro expansionRule ifTrue: trueAction ifFalse: falseAction :=
+        ``(if: self __macroExpand then: trueAction __macroExpand else: falseAction __macroExpand).
+    BooleanType macro expansionRule ifFalse: falseAction ifTrue: trueAction :=
         ``(if: self __macroExpand then: trueAction __macroExpand else: falseAction __macroExpand).
 
     // isNil
