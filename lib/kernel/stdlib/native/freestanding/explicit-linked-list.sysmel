@@ -1,11 +1,134 @@
 namespace StdNative definition: {
 
-struct ExplicitMemoryDoubleLinkedListNode definition: {
+struct ExplicitMemoryDoubleLinkedList.
 
+struct ExplicitMemoryDoubleLinkedListNode definition: {
+    alias Node := ExplicitMemoryDoubleLinkedListNode.
+    alias List := ExplicitMemoryDoubleLinkedList.
+
+    field list public type: List pointer.
+    field previous public type: Node pointer.
+    field next public type: Node pointer.
 }.
 
 struct ExplicitMemoryDoubleLinkedList definition: {
+    alias Node := ExplicitMemoryDoubleLinkedListNode.
 
+    field first public type: ExplicitMemoryDoubleLinkedListNode pointer.
+    field last public type: ExplicitMemoryDoubleLinkedListNode pointer.
+
+    message isEmpty => BooleanBit
+        := first isNil.
+
+    message add: (newNode: Node pointer) ::=> Void := {
+        self addLast: newNode
+    }.
+
+    message addFirst: (newNode: Node pointer) ::=> Void := {
+        assert: newNode _ list isNil.
+        assert: newNode _ previous isNil.
+        assert: newNode _ next isNil.
+
+        newNode _ next: first.
+        first ifNotNil: {
+            first _ previous: newNode.
+            first := newNode.
+        } ifNil: {
+            assert: last isNil.
+            first := last := newNode
+        }
+    }.
+
+    message addLast: (newNode: Node pointer) ::=> Void := {
+        assert: newNode _ list isNil.
+        assert: newNode _ previous isNil.
+        assert: newNode _ next isNil.
+
+        newNode _ previous: last.
+        last ifNotNil: {
+            last _ next: newNode.
+            last := newNode.
+        } ifNil: {
+            assert: last isNil.
+            first := last := newNode
+        }
+    }.
+
+    message add: (newNode: Node pointer) after: (position: Node pointer) ::=> Void := {
+        assert: newNode _ list isNil.
+        assert: newNode _ previous isNil.
+        assert: newNode _ next isNil.
+
+        position ifNil: {
+            self addFirst: newNode
+        } ifNotNil: {
+            // Link with neighbors.
+            newNode _
+                previous: position;
+                next: position _ next.
+
+            // Link next
+            newNode _ next ifNil: {
+                last := newNode
+            } ifNotNil: {
+                newNode _ next _ previous: position.
+            }.
+
+            // Link previous
+            position _ next: newNode.
+            newNode _ list: self address.
+        }.
+    }.
+
+    message add: (newNode: Node pointer) before: (position: Node pointer) ::=> Void := {
+        assert: newNode _ list isNil.
+        assert: newNode _ previous isNil.
+        assert: newNode _ next isNil.
+
+        position ifNil: {
+            self addLast: newNode
+        } ifNotNil: {
+            // Link with neighbors.
+            newNode _
+                previous: position _ previous;
+                next: position.
+
+            // Link previous
+            newNode _ previous ifNil: {
+                first := newNode
+            } ifNotNil: {
+                newNode _ previous _ next: position.
+            }.
+
+            // Link after
+            position _ previous: newNode.
+            newNode _ list: self address.
+        }.
+    }.
+
+    message remove: (node: Node pointer) ::=> Void := {
+        assert: node isNotNil.
+        assert: node _ list == self address.
+
+        // Update the previous node.
+        node _ previous ifNil: {
+            first := node _ next
+        } ifNotNil: {
+            node _ previous _ next: node _ next.
+        }.
+
+        // Update the next node.
+        node _ next ifNil: {
+            last := node _ previous.
+        } ifNotNil: {
+            node _ next _ previous: node _ previous.
+        }.
+
+        node _
+            list: nil;
+            previous: nil;
+            next: nil.
+    }
 }.
 
 }. // End of namespace StdNative
