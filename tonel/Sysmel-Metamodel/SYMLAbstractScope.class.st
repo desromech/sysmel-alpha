@@ -89,7 +89,7 @@ SYMLAbstractScope >> definitionProgramEntity [
 { #category : #'as yet unclassified' }
 SYMLAbstractScope >> generateSSACleanUpActionsRecursivelyWith: aBuilder [
 	self generateSSACleanUpActionsWith: aBuilder.
-
+	
 	^ parent ifNotNil: [
 		parent definitionProgramEntity ~~ self definitionProgramEntity ifTrue: [
 			self definitionProgramEntity ifNotNil: [:programEntity |
@@ -97,7 +97,7 @@ SYMLAbstractScope >> generateSSACleanUpActionsRecursivelyWith: aBuilder [
 			].
 			^ self
 		].
-		parent generateSSACleanUpActionsWith: aBuilder
+		parent generateSSACleanUpActionsRecursivelyWith: aBuilder
 	]
 ]
 
