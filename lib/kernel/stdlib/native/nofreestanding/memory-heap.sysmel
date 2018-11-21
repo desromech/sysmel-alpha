@@ -461,7 +461,7 @@ class NativeMemoryHeap definition: {
 
     }.
 
-    field mutex private type: Mutex.
+    field mutex private type: MemoryHeapMutex.
     field firstChunk private type: NormalChunkHeader pointer.
     field lastChunk private type: NormalChunkHeader pointer.
 

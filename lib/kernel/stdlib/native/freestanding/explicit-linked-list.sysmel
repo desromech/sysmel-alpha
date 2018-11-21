@@ -36,7 +36,9 @@ struct ExplicitMemoryDoubleLinkedList definition: {
         } ifNil: {
             assert: last isNil.
             first := last := newNode
-        }
+        }.
+
+        newNode _ list: self address.
     }.
 
     message addLast: (newNode: Node pointer) ::=> Void := {
@@ -51,7 +53,9 @@ struct ExplicitMemoryDoubleLinkedList definition: {
         } ifNil: {
             assert: last isNil.
             first := last := newNode
-        }
+        }.
+
+        newNode _ list: self address.
     }.
 
     message add: (newNode: Node pointer) after: (position: Node pointer) ::=> Void := {

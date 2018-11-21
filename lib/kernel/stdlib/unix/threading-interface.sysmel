@@ -29,7 +29,7 @@ definition: {
     } node.
 
     macro expansionRule withLock: aBlock := ``{
-        self __macroExpand activateInThisContext.
+        self __macroExpand heldInThisContext.
         aBlock __macroExpand.
     }.
 }.
@@ -49,7 +49,7 @@ definition: {
         Unix pthread_cond_destroy(handle address).
     }.
 
-    message waitFor: (mutex: Mutex ref) ::=> Void := {
+    message wait: (mutex: Mutex ref) ::=> Void := {
         Unix pthread_cond_wait(handle address, mutex handle address).
     }.
 
@@ -62,4 +62,63 @@ definition: {
     }.
 }.
 
+/**
+ * Semaphore implementation.
+ */
+class Semaphore
+definition: {
+    field mutex type: Mutex.
+    field condition type: ConditionVariable.
+    field count type: UIntPointer.
+
+    message initializeWithCount: (initialCount: UIntPointer) ::=> Void := {
+        count := initialCount.
+    }.
+
+    message lock => Void := {
+        self wait: 1
+    }.
+
+    message unlock => Void := {
+        self signal: 1
+    }.
+
+    message signal => Void
+        := self signal: 1.
+
+    message wait => Void
+        := self wait: 1.
+
+    message signal: (n: UIntPointer) ::=> Void := {
+        n == 0 ifTrue: {
+            return: nil
+        }.
+
+        mutex withLock: {
+            count := count + n.
+            n > 1 ifTrue: {
+                condition notifyAll.
+            } ifFalse: {
+                condition notifyOne.
+            }
+        }
+    }.
+
+    message wait: (n: UIntPointer) ::=> Void := {
+        n == 0 ifTrue: {
+            return: nil
+        }.
+
+        mutex withLock: {
+            while: (count < n) do: {
+                condition wait: mutex
+            }.
+
+            count := count - n
+        }.
+    }.
+
+}.
+
+alias MemoryHeapMutex := Mutex.
 }. // End of namespace StdNative
