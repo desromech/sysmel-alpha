@@ -1,20 +1,13 @@
 Class {
 	#name : #SYMLGrammar,
-	#superclass : #PPCompositeParser,
+	#superclass : #PP2CompositeNode,
 	#instVars : [
 		'expression',
 		'optionalExpression',
 		'semicolon',
-		'white',
-		'singleLineComment',
-		'multiLineComment',
-		'newline',
-		'identStart',
 		'expressionList',
 		'identifier',
 		'keywordEnd',
-		'whites',
-		'spaces',
 		'blockExpression',
 		'lcbracket',
 		'rcbracket',
@@ -38,14 +31,10 @@ Class {
 		'callExpressionArguments',
 		'rparent',
 		'comma',
-		'identifierStart',
-		'identifierInner',
 		'parentExpression',
 		'identifierExpression',
 		'anyChainExpression',
 		'implicitContextChainExpression',
-		'numberSign',
-		'numberEMark',
 		'floatNumber',
 		'integerNumber',
 		'number',
@@ -72,7 +61,6 @@ Class {
 		'literalArray',
 		'languageScapeExpression',
 		'languageScapeOperator',
-		'scapedLanguageContent',
 		'lbracket',
 		'rbracket',
 		'literalArrayKeyword',
@@ -133,7 +121,7 @@ SYMLGrammar class >> initialize [
 
 { #category : #tokens }
 SYMLGrammar >> anyBinaryOperator [
-	^ self operator: (PPPredicateObjectParser anyOf: '+-/\*~<>=@,%|&?!') plus
+	^ self operator: (PP2PredicateObjectNode anyOf: '+-/\*~<>=@,%|&?!') plus
 ]
 
 { #category : #accessing }
@@ -143,12 +131,12 @@ SYMLGrammar >> anyChainExpression [
 
 { #category : #accessing }
 SYMLGrammar >> anyIdentifier [
-	^ (self token: identifierStart ,  identifierInner star , $: asParser not)
+	^ (self token: self identifierStart , self identifierInner star , $: asPParser not)
 ]
 
 { #category : #tokens }
 SYMLGrammar >> assignOperator [
-	^ self operator: ':=' asParser
+	^ self operator: ':=' asPParser
 ]
 
 { #category : #accessing }
@@ -159,7 +147,7 @@ SYMLGrammar >> assignmentExpression [
 { #category : #accessing }
 SYMLGrammar >> binaryExpression [
 	| binExpr binOpDo prefixOpDo postfixOpDo |
-	binExpr := PPExpressionParser new.
+	binExpr := SYMLExpressionParserBuilder new.
 	binExpr term: unaryExpression.
 	binOpDo := [ :left :operation :right | self operate: left with: right do: operation. ].
 	prefixOpDo := [ :operation :operand | self prefix: operation operate: operand ].
@@ -205,7 +193,7 @@ SYMLGrammar >> binaryExpression [
 			g left: (self operatorString: '||') do: binOpDo. ];
 		group: [ :g |
 			g left: (genericBinaryOperator) do: binOpDo. ].
-	^ binExpr
+	^ binExpr finish
 ]
 
 { #category : #accessing }
@@ -245,17 +233,17 @@ SYMLGrammar >> chainedMessage [
 
 { #category : #accessing }
 SYMLGrammar >> characterLiteral [
-	^ self token: $' asParser , ($' asParser negate / ($\ asParser , #any asParser)) star , $' asParser
+	^ self token: $' asPParser , ($' asPParser negate / ($\ asPParser , #any asPParser)) star , $' asPParser
 ]
 
 { #category : #accessing }
 SYMLGrammar >> colon [
-	^ self token: $: asParser
+	^ self token: $: asPParser
 ]
 
 { #category : #tokens }
 SYMLGrammar >> comma [
-	^ self token: $, asParser
+	^ self token: $, asPParser
 ]
 
 { #category : #accessing }
@@ -265,12 +253,12 @@ SYMLGrammar >> commaExpression [
 
 { #category : #tokens }
 SYMLGrammar >> decimalIntegerNumber [
-	^ self token: numberSign optional, #digit asParser plus
+	^ self token: self numberSign optional, #digit asPParser plus
 ]
 
 { #category : #tokens }
 SYMLGrammar >> dot [
-	^ self token: $. asParser
+	^ self token: $. asPParser
 ]
 
 { #category : #accessing }
@@ -285,7 +273,7 @@ SYMLGrammar >> expressionList [
 
 { #category : #tokens }
 SYMLGrammar >> floatNumber [
-	^ self token: numberSign optional, #digit asParser plus, $. asParser , #digit asParser plus , (numberEMark , numberSign optional, #digit asParser plus) optional
+	^ self token: self numberSign optional, #digit asPParser plus, $. asPParser , #digit asPParser plus , (self numberEMark , self numberSign optional, #digit asPParser plus) optional
 ]
 
 { #category : #tokens }
@@ -294,9 +282,9 @@ SYMLGrammar >> genericBinaryOperator [
 		| result memento |
 		memento := stream remember.
 		result := continuation value.
-		(result isPetitFailure not and: [ SpecialOperators includes: result inputValue ]) ifTrue: [
+		(result isPetit2Failure not and: [ SpecialOperators includes: result inputValue ]) ifTrue: [
 			stream restore: memento.
-			PPFailure message: 'expected a generic operator, not an special.' context: stream
+			PP2Failure message: 'expected a generic operator, not an special.' context: stream
 		] ifFalse: [
 			result
 		]
@@ -305,17 +293,12 @@ SYMLGrammar >> genericBinaryOperator [
 
 { #category : #tokens }
 SYMLGrammar >> greaterThan [
-	^ self token: $> asParser
-]
-
-{ #category : #tokens }
-SYMLGrammar >> identStart [
-	^ #letter asParser / $_ asParser
+	^ self token: $> asPParser
 ]
 
 { #category : #tokens }
 SYMLGrammar >> identifier [
-	^ self token: identifierStart ,  identifierInner star , $: asParser not
+	^ self token: self identifierStart , self identifierInner star , $: asPParser not
 ]
 
 { #category : #accessing }
@@ -325,12 +308,12 @@ SYMLGrammar >> identifierExpression [
 
 { #category : #tokens }
 SYMLGrammar >> identifierInner [
-	^ #letter asParser / #digit asParser / $_ asParser
+	^ #letter asPParser / #digit asPParser / $_ asPParser
 ]
 
 { #category : #tokens }
 SYMLGrammar >> identifierStart [
-	^ #letter asParser / $_ asParser
+	^ #letter asPParser / $_ asPParser
 ]
 
 { #category : #accessing }
@@ -345,52 +328,47 @@ SYMLGrammar >> innerLiteralArrayLiteral [
 
 { #category : #tokens }
 SYMLGrammar >> integerNumber [
-	^ self token: numberSign optional, #digit asParser plus , ($r asParser , (#letter asParser | #digit asParser) plus) optional
+	^ self token: self numberSign optional, #digit asPParser plus , ($r asPParser , (#letter asPParser / #digit asPParser) plus) optional
 ]
 
 { #category : #tokens }
 SYMLGrammar >> keyword [
-	^ self token: identifierStart , identifierInner star , $: asParser
-]
-
-{ #category : #accessing }
-SYMLGrammar >> keyword: aKeyword [
-	^ (aKeyword asParser , keywordEnd) token trim: white
+	^ self token: self identifierStart , self identifierInner star , $: asPParser
 ]
 
 { #category : #tokens }
 SYMLGrammar >> keywordEnd [
-	^ (identStart / #digit asParser ) not
+	^ (self identifierStart / #digit asPParser ) not
 ]
 
 { #category : #accessing }
 SYMLGrammar >> languageScapeExpression [
-	^ languageScapeOperator , identifier , (self token: scapedLanguageContent)
+	^ languageScapeOperator , identifier , (self token: self scapedLanguageContent)
 ]
 
 { #category : #tokens }
 SYMLGrammar >> languageScapeOperator [
-	^ self token: '$$' asParser
+	^ self token: '$$' asPParser
 ]
 
 { #category : #tokens }
 SYMLGrammar >> lbracket [
-	^ self token: $[ asParser
+	^ self token: $[ asPParser
 ]
 
 { #category : #tokens }
 SYMLGrammar >> lcbracket [
-	^ self token: ${ asParser
+	^ self token: ${ asPParser
 ]
 
 { #category : #tokens }
 SYMLGrammar >> lessThan [
-	^ self token: $< asParser
+	^ self token: $< asPParser
 ]
 
 { #category : #tokens }
 SYMLGrammar >> litLParent [
-	^ self token: '#(' asParser
+	^ self token: '#(' asPParser
 ]
 
 { #category : #accessing }
@@ -410,7 +388,7 @@ SYMLGrammar >> literalArrayIdentifier [
 
 { #category : #accessing }
 SYMLGrammar >> literalArrayKeyword [
-	^ self token: (identifierStart , identifierInner star , $: asParser) plus
+	^ self token: (self identifierStart , self identifierInner star , $: asPParser) plus
 ]
 
 { #category : #accessing }
@@ -425,7 +403,7 @@ SYMLGrammar >> literals [
 
 { #category : #'as yet unclassified' }
 SYMLGrammar >> lowPrecedenceBinaryOperator [
-	^ self operator: '::' asParser , (PPPredicateObjectParser anyOf: '+-/\*~<>=@,%|&?!') plus
+	^ self operator: '::' asPParser , (PP2PredicateObjectNode anyOf: '+-/\*~<>=@,%|&?!') plus
 ]
 
 { #category : #'as yet unclassified' }
@@ -435,21 +413,21 @@ SYMLGrammar >> lowPrecedenceExpression [
 
 { #category : #tokens }
 SYMLGrammar >> lparent [
-	^ self token: $( asParser
+	^ self token: $( asPParser
 ]
 
 { #category : #white }
 SYMLGrammar >> multiLineComment [
-	^ '/*' asParser ,
-		( ($* asParser negate) /
-			($* asParser , $/ asParser negate)
+	^ '/*' asPParser ,
+		( ($* asPParser negate) /
+			($* asPParser , $/ asPParser negate)
 		) star ,
-	'*/' asParser
+	'*/' asPParser
 ]
 
 { #category : #white }
 SYMLGrammar >> newline [
-	^ String crlf asParser / String cr asParser / String lf asParser
+	^ String crlf asPParser / String cr asPParser / String lf asPParser
 ]
 
 { #category : #accessing }
@@ -459,12 +437,12 @@ SYMLGrammar >> number [
 
 { #category : #tokens }
 SYMLGrammar >> numberEMark [
-	^ $e asParser / $E asParser
+	^ $e asPParser / $E asPParser
 ]
 
 { #category : #tokens }
 SYMLGrammar >> numberSign [
-	^ $+ asParser / $- asParser
+	^ $+ asPParser / $- asPParser
 ]
 
 { #category : #operators }
@@ -483,9 +461,9 @@ SYMLGrammar >> operatorString: aString [
 		| result memento |
 		memento := stream remember.
 		result := continuation value.
-		(result isPetitFailure not and: [ result inputValue ~= aString]) ifTrue: [
+		(result isPetit2Failure not and: [ result value ~= aString]) ifTrue: [
 			stream restore: memento.
-			PPFailure message: 'expected a special operator' context: stream
+			PP2Failure message: 'expected a special operator' context: stream
 		] ifFalse: [
 			result
 		]
@@ -540,7 +518,7 @@ SYMLGrammar >> primaryExpression [
 
 { #category : #tokens }
 SYMLGrammar >> quasiquote [
-	^ self token: '``' asParser
+	^ self token: '``' asPParser
 ]
 
 { #category : #'macro operators' }
@@ -550,12 +528,12 @@ SYMLGrammar >> quasiquoteExpression [
 
 { #category : #tokens }
 SYMLGrammar >> quasiunquote [
-	^ self token: '`,' asParser
+	^ self token: '`,' asPParser
 ]
 
 { #category : #tokens }
 SYMLGrammar >> quote [
-	^ self token: '`''' asParser
+	^ self token: '`''' asPParser
 ]
 
 { #category : #'macro operators' }
@@ -570,22 +548,22 @@ SYMLGrammar >> quoteExpressions [
 
 { #category : #tokens }
 SYMLGrammar >> rbracket [
-	^ self token: $] asParser
+	^ self token: $] asPParser
 ]
 
 { #category : #tokens }
 SYMLGrammar >> rcbracket [
-	^ self token: $} asParser
+	^ self token: $} asPParser
 ]
 
 { #category : #tokens }
 SYMLGrammar >> rparent [
-	^ self token: $) asParser
+	^ self token: $) asPParser
 ]
 
 { #category : #'as yet unclassified' }
 SYMLGrammar >> scapeLanguageContentOpen: openCharacter close: closeCharacter [
-	^ SYMLScapedLanguageParser new openCharacter: openCharacter; closeCharacter: closeCharacter; yourself
+	^ SYMLScapedLanguagePP2Node new openCharacter: openCharacter; closeCharacter: closeCharacter; yourself
 ]
 
 { #category : #accessing }
@@ -597,22 +575,22 @@ SYMLGrammar >> scapedLanguageContent [
 
 { #category : #accessing }
 SYMLGrammar >> semicolon [
-	^ self token: $; asParser
+	^ self token: $; asPParser
 ]
 
 { #category : #white }
 SYMLGrammar >> singleLineComment [
-	^ '//' asParser, newline negate star, newline
+	^ '//' asPParser, self newline negate star, self newline
 ]
 
 { #category : #white }
 SYMLGrammar >> spaces [
-	^ #space asParser plus
+	^ #space asPParser plus
 ]
 
 { #category : #tokens }
 SYMLGrammar >> splice [
-	^ self token: '`@' asParser
+	^ self token: '`@' asPParser
 ]
 
 { #category : #'macro operators' }
@@ -622,22 +600,22 @@ SYMLGrammar >> spliceExpression [
 
 { #category : #accessing }
 SYMLGrammar >> start [
-	^ whites, expressionList , whites, #eof asParser
+	^ self whites, expressionList , self whites, #endOfInput asPParser
 ]
 
 { #category : #accessing }
 SYMLGrammar >> stringLiteral [
-	^ self token: $" asParser , ($" asParser negate / ($\ asParser , #any asParser)) star , $" asParser
+	^ self token: $" asPParser , ($" asPParser negate / ($\ asPParser , #any asPParser)) star , $" asPParser
 ]
 
 { #category : #accessing }
 SYMLGrammar >> symbolIdentifierLiteral [
-	^ self token: $# asParser , identifierStart , identifierInner star
+	^ self token: $# asPParser , self identifierStart , self identifierInner star
 ]
 
 { #category : #accessing }
 SYMLGrammar >> symbolKeywordLiteral [
-	^ self token: $# asParser, (identifierStart , identifierInner star , $: asParser) plus
+	^ self token: $# asPParser, (self identifierStart , self identifierInner star , $: asPParser) plus
 ]
 
 { #category : #'as yet unclassified' }
@@ -647,17 +625,22 @@ SYMLGrammar >> symbolLiteral [
 
 { #category : #accessing }
 SYMLGrammar >> symbolOperatorLiteral [
-	^ self token: $# asParser , (PPPredicateObjectParser anyOf: '+-/\*~<>=@,%|&?!') plus
+	^ self token: $# asPParser , (PP2PredicateObjectNode anyOf: '+-/\*~<>=@,%|&?!') plus
 ]
 
 { #category : #accessing }
 SYMLGrammar >> symbolStringLiteral [
-	^ self token: '#"' asParser , ($" asParser negate / ($\ asParser , #any asParser)) star , $" asParser
+	^ self token: '#"' asPParser , ($" asPParser negate / ($\ asPParser , #any asPParser)) star , $" asPParser
 ]
 
 { #category : #tokens }
 SYMLGrammar >> token: aParser [
-	^ (whites , aParser token) ==> [ :parts | parts second ]
+	^ (aParser token: SYMLToken) trim: self whites
+	"^ (self whites , (aParser token: SYMLTokenPP2)) ==> [ :parts |
+			parts second
+				previousComments: parts first;
+				yourself
+	]"
 ]
 
 { #category : #accessing }
@@ -692,10 +675,10 @@ SYMLGrammar >> unquoteExpression [
 
 { #category : #white }
 SYMLGrammar >> white [
-	^ singleLineComment / multiLineComment / spaces
+	^ self singleLineComment / self multiLineComment / self spaces
 ]
 
 { #category : #white }
 SYMLGrammar >> whites [
-	^ white star
+	^ self white star
 ]

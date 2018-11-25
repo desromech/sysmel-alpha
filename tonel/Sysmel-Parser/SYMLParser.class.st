@@ -100,9 +100,9 @@ SYMLParser >> chainKeywordMessage [
 		list do: [ :each | selector := selector , each first inputValue ].
 		SYMLASTMessageSend new
 			position: list first first;
-			tokens: (list collect: #first);
+			tokens: (list collect: #first) asArray;
 			selector: selector asSymbol;
-			arguments: (list collect: #second);
+			arguments: (list collect: #second) asArray;
 			yourself
 	]
 ]
@@ -286,11 +286,6 @@ SYMLParser >> lowPrecedenceExpression [
 ]
 
 { #category : #accessing }
-SYMLParser >> multiLineComment [
-	^ super multiLineComment flatten ==> [ :data | data copyFrom: 3 to: data size - 2 ]
-]
-
-{ #category : #accessing }
 SYMLParser >> operate: left with: right do: operation [
 	^ SYMLASTMessageSend new
 		tokens: {operation};
@@ -462,16 +457,6 @@ SYMLParser >> quoteExpression [
 ]
 
 { #category : #accessing }
-SYMLParser >> singleLineComment [
-	^ super singleLineComment flatten ==> [ :data | data allButFirst: 2 ]
-]
-
-{ #category : #accessing }
-SYMLParser >> spaces [
-	^ super spaces ==> [ :data | nil ]
-]
-
-{ #category : #accessing }
 SYMLParser >> spliceExpression [
 	^ super unquoteExpression ==> [ :tokens |
 		SYMLASTSplice new
@@ -544,15 +529,6 @@ SYMLParser >> symbolStringLiteral [
 			tokens: { token };
 			position: token;
 			value: (self parseCString: token inputValue allButFirst) asSymbol;
-			yourself
-	]
-]
-
-{ #category : #tokens }
-SYMLParser >> token: aParser [
-	^ (whites, (aParser token: SYMLToken)) ==> [ :parts |
-		parts second
-			previousComments: parts first;
 			yourself
 	]
 ]

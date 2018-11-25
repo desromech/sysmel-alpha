@@ -75,13 +75,6 @@ SYMLSyntaxHighlighter >> innerLiteralArrayLiteral [
 ]
 
 { #category : #accessing }
-SYMLSyntaxHighlighter >> keyword: aKeyword [
-	^ (super keyword: aKeyword) ==> [ :token |
-		self commands add: (PhanideHighlightCommandStyle keyword token: token)
-	]
-]
-
-{ #category : #accessing }
 SYMLSyntaxHighlighter >> languageScapeExpression [
 	^ super languageScapeExpression ==> [ :tokens |
 		self commands

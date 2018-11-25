@@ -10,6 +10,11 @@ Class {
 }
 
 { #category : #converting }
+SYMLCollectionWithContext >> asPetit2Stream [
+	^ PP2Stream on: self
+]
+
+{ #category : #converting }
 SYMLCollectionWithContext >> asPetitStream [
 	^ PPStream on: self
 ]

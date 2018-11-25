@@ -9,13 +9,9 @@ BaselineOfSysmel >> baseline: spec [
 	<baseline>
 
 	spec for: #common do: [
-		spec project: 'PetitParser' with: [
+		spec baseline: 'PetitParser2Core' with: [
 				spec
-					className: #ConfigurationOfPetitParser;
-					versionString: #'development';
-					loads: #('Core' );
-					repository: 'http://smalltalkhub.com/mc/Moose/PetitParser/main/'
-		].
+					repository: 'github://kursjan/petitparser2' ].
 		spec baseline: 'Slovim' with: [
 				spec
 					repository: 'github://ronsaldo/slovim/tonel' ].
@@ -25,7 +21,7 @@ BaselineOfSysmel >> baseline: spec [
 
 		spec
 			package: 'Sysmel-Parser' with: [
-				spec requires: #('PetitParser' 'Sysmel-Metamodel')
+				spec requires: #('PetitParser' PetitParser2Core 'Sysmel-Metamodel')
 			].
 		spec
 			package: 'Sysmel-Metamodel' with: [
