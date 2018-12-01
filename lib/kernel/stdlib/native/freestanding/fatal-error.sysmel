@@ -11,7 +11,24 @@ if: Compiler compilationTarget hasNoOperatingSystem then: {
     }.
 }.
 
+/**
+ * assert: an assertion that can be disabled in compile time.
+ */
 macro expansionRule assert: condition := {
+    let position := condition position asString.
+    let expression := condition originalSourceCode.
+    let message := "Assertion " -- expression -- " FAILED in " -- position.
+    let messageNode := __apsgBuilder literalString: message position: condition position.
+
+    ``(condition __macroExpand ifFalse: {
+        StdNative fatalError: messageNode __macroExpand
+    })
+}.
+
+/**
+ * assertAlways: An assertion that is always active.
+ */
+macro expansionRule assertAlways: condition := {
     let position := condition position asString.
     let expression := condition originalSourceCode.
     let message := "Assertion " -- expression -- " FAILED in " -- position.

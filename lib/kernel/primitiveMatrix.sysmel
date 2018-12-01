@@ -9,7 +9,7 @@ Type extend: {
 
 // Common trait for primitive vectors
 trait PrimitiveMatrixType
-    uses: AnyValue;
+    uses: PrimitiveType;
 definition: {
     meta message isPrimitiveMatrixType => BooleanBit := {
         return: true

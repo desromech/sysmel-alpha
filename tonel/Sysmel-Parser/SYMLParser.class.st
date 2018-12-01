@@ -22,7 +22,7 @@ SYMLParser class >> initialize [
 		$\ . $\.
 	}.
 	
-	SYMLModule registerParser: self forExtension: 'sysmel'.
+	SYMLModule registerParser: self new optimize forExtension: 'sysmel'.
 	
 ]
 
@@ -42,14 +42,31 @@ SYMLParser >> assignmentExpression [
 ]
 
 { #category : #accessing }
+SYMLParser >> blockClosureArguments [
+	^ super blockClosureArguments ==> [ :tokens |
+		tokens second ifNil: [SYMLASTCommaSeparatedList new expressions: #() ]
+	]
+]
+
+{ #category : #accessing }
 SYMLParser >> blockExpression [
 	^ super blockExpression ==> [ :tokens |
-		SYMLASTBlock new
-			tokens: { tokens first . tokens last };
-			position: tokens first;
-			pragmas: tokens second;
-			expressions: tokens third;
-			yourself
+		tokens second ifNotNil: [ 
+			SYMLASTBlockClosure new
+				tokens: { tokens first . tokens last };
+				position: tokens first;
+				arguments: tokens second;
+				pragmas: tokens third;
+				expressions: tokens fourth;
+				yourself
+		] ifNil: [ 
+			SYMLASTBlock new
+				tokens: { tokens first . tokens last };
+				position: tokens first;
+				pragmas: tokens third;
+				expressions: tokens fourth;
+				yourself
+		]
 	]
 ]
 

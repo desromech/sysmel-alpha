@@ -10,6 +10,10 @@ definition: {
                 ^ message receiver semanticAnalysisInEnvironment: environment
         }.
     }.
+
+    // Trivial initialization and finalization.
+    //macro expansionRule initialize := ``(self __macroExpand).
+    //macro expansionRule finalize := ``(self __macroExpand).
 }.
 
 // The type meta type
@@ -46,6 +50,7 @@ trait Type definition: {
     message isFunctionGroupType => BooleanBit := false.
     message isConstantType => BooleanBit := false.
     message isVolatileType => BooleanBit := false.
+    message isVoidType => BooleanBit := false.
     message instanceSize => _LiteralInteger := 0.
     message instanceAlignment => _LiteralInteger := 1.
     message cleanType => SelfType := self.
@@ -807,6 +812,9 @@ definition: {
     meta message defaultValue => _CompilerObjectType := nil.
     meta message generateSSAValue: (value: _CompilerObjectType) withBuilder: (builder: _CompilerObjectType) ::=> _CompilerObjectType
         := nil.
+
+
+    meta message isVoidType => BooleanBit := true.
 
 
     SelfType sysmelMangledValue: #v.

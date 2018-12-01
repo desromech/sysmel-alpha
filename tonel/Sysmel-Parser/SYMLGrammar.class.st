@@ -77,7 +77,9 @@ Class {
 		'quasiunquote',
 		'splice',
 		'lessThan',
-		'greaterThan'
+		'greaterThan',
+		'blockClosureArguments',
+		'verticalBar'
 	],
 	#classVars : [
 		'SpecialOperators'
@@ -197,8 +199,13 @@ SYMLGrammar >> binaryExpression [
 ]
 
 { #category : #accessing }
+SYMLGrammar >> blockClosureArguments [
+	^ verticalBar , expression optional, verticalBar
+]
+
+{ #category : #accessing }
 SYMLGrammar >> blockExpression [
-	^ lcbracket , pragma star, expressionList , rcbracket
+	^ lcbracket , blockClosureArguments optional , pragma star, expressionList , rcbracket
 ]
 
 { #category : #accessing }
@@ -418,11 +425,13 @@ SYMLGrammar >> lparent [
 
 { #category : #white }
 SYMLGrammar >> multiLineComment [
-	^ '/*' asPParser ,
+	^ ('/*' asPParser ,
 		( ($* asPParser negate) /
 			($* asPParser , $/ asPParser negate)
 		) star ,
-	'*/' asPParser
+	'*/' asPParser token: SYMLCommentToken) ==> [ :t |
+		t trimLeft: 2 right: 2
+	]
 ]
 
 { #category : #white }
@@ -580,12 +589,14 @@ SYMLGrammar >> semicolon [
 
 { #category : #white }
 SYMLGrammar >> singleLineComment [
-	^ '//' asPParser, self newline negate star, self newline
+	^ ('//' asPParser, self newline negate star, self newline token: SYMLCommentToken) ==> [ :t |
+		t trimLeft: 2
+	]
 ]
 
 { #category : #white }
 SYMLGrammar >> spaces [
-	^ #space asPParser plus
+	^ #space asPParser plus ==> [ :t | #() ]
 ]
 
 { #category : #tokens }
@@ -635,12 +646,12 @@ SYMLGrammar >> symbolStringLiteral [
 
 { #category : #tokens }
 SYMLGrammar >> token: aParser [
-	^ (aParser token: SYMLToken) trim: self whites
-	"^ (self whites , (aParser token: SYMLTokenPP2)) ==> [ :parts |
+	"^ (aParser token: SYMLToken) trim: self whites"
+	^ (self whites , (aParser token: SYMLToken)) ==> [ :parts |
 			parts second
 				previousComments: parts first;
 				yourself
-	]"
+	]
 ]
 
 { #category : #accessing }
@@ -671,6 +682,11 @@ SYMLGrammar >> unarySuffixSubscript [
 { #category : #'macro operators' }
 SYMLGrammar >> unquoteExpression [
 	^ quasiunquote , primaryExpression
+]
+
+{ #category : #tokens }
+SYMLGrammar >> verticalBar [
+	^ self token: $| asPParser
 ]
 
 { #category : #white }

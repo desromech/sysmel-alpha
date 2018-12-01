@@ -164,6 +164,12 @@ SYMLFunctionalPatternGroup >> generateSSACode [
 	self allAlternativesDo: #generateSSACode
 ]
 
+{ #category : #accessing }
+SYMLFunctionalPatternGroup >> generateSimpleSSACallWithArguments: ssaVariable with: builder [
+	self assert: (fallbackPattern isNil and: [ alternatives size = 1 ]).
+	^ self alternatives first macroFunction generateSimpleSSACallWithArguments: ssaVariable with: builder
+]
+
 { #category : #initialization }
 SYMLFunctionalPatternGroup >> initialize [
 	super initialize.

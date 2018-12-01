@@ -1,10 +1,11 @@
 namespace StdNative definition: {
+namespace ExplicitMemoryCollections definition: {
 
 /**
- * ExplicitMemoryBitmap
+ * Bitmap
  * A bitmap whose data memory is managed explicitly by the user.
  */
-struct ExplicitMemoryBitmap definition: {
+struct Bitmap definition: {
     alias BitsPerWord := UIntPointer instanceSize * 8.
     alias BytesPerWord := UIntPointer instanceSize.
     alias InvalidBitIndex := -1 castTo: UIntPointer.
@@ -164,4 +165,5 @@ struct ExplicitMemoryBitmap definition: {
     }.
 }.
 
+}. // End of namespaces ExplicitMemoryCollections
 }. // End of namespace StdNative

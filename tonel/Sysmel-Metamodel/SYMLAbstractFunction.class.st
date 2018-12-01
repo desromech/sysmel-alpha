@@ -413,6 +413,11 @@ SYMLAbstractFunction >> generateSSAReferenceWith: builder [
 	^ self ssaValue
 ]
 
+{ #category : #'code generation' }
+SYMLAbstractFunction >> generateSimpleSSACallWithArguments: callArguments with: builder [
+	builder call: self ssaValue arguments: callArguments
+]
+
 { #category : #accessing }
 SYMLAbstractFunction >> generator: aGenerator [
 	<compileTime>

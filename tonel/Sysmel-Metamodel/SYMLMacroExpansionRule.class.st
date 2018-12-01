@@ -28,6 +28,16 @@ SYMLMacroExpansionRule >> definition: aDefinitionBlock [
 	self assert: expansionTemplate isSYMLAPSGNode
 ]
 
+{ #category : #testing }
+SYMLMacroExpansionRule >> generateSimpleSSACallWithArguments: ssaArguments with: builder [
+
+]
+
+{ #category : #testing }
+SYMLMacroExpansionRule >> isNonTrivialConstructorOrDestructor [
+	^ false
+]
+
 { #category : #'macro compilation' }
 SYMLMacroExpansionRule >> semanticAnalyzeMessage: message inEnvironment: environment at: aPosition [
 	| activationEnvironment expansion |

@@ -120,7 +120,7 @@ SYMLSyntaxHighlighter >> literalArrayKeyword [
 
 { #category : #accessing }
 SYMLSyntaxHighlighter >> multiLineComment [
-	^ super multiLineComment token ==> [ :token |
+	^ super multiLineComment ==> [ :token |
 		self commands add: (PhanideHighlightCommandStyle multiLineComment token: token)
 	]
 ]
@@ -169,7 +169,7 @@ SYMLSyntaxHighlighter >> pragmaChainUnaryMessage [
 
 { #category : #accessing }
 SYMLSyntaxHighlighter >> singleLineComment [
-	^ super singleLineComment token ==> [ :token |
+	^ super singleLineComment ==> [ :token |
 		self commands add: (PhanideHighlightCommandStyle singleLineComment token: token)
 	]
 ]

@@ -1,21 +1,22 @@
 namespace StdNative definition: {
+namespace ExplicitMemoryCollections definition: {
 
-struct ExplicitMemoryDoubleLinkedList.
+struct DoubleLinkedList.
 
-struct ExplicitMemoryDoubleLinkedListNode definition: {
-    alias Node := ExplicitMemoryDoubleLinkedListNode.
-    alias List := ExplicitMemoryDoubleLinkedList.
+struct DoubleLinkedListNode definition: {
+    alias Node := DoubleLinkedListNode.
+    alias List := DoubleLinkedList.
 
     field list public type: List pointer.
     field previous public type: Node pointer.
     field next public type: Node pointer.
 }.
 
-struct ExplicitMemoryDoubleLinkedList definition: {
-    alias Node := ExplicitMemoryDoubleLinkedListNode.
+struct DoubleLinkedList definition: {
+    alias Node := DoubleLinkedListNode.
 
-    field first public type: ExplicitMemoryDoubleLinkedListNode pointer.
-    field last public type: ExplicitMemoryDoubleLinkedListNode pointer.
+    field first public type: DoubleLinkedListNode pointer.
+    field last public type: DoubleLinkedListNode pointer.
 
     message isEmpty => BooleanBit
         := first isNil.
@@ -135,4 +136,5 @@ struct ExplicitMemoryDoubleLinkedList definition: {
     }
 }.
 
+}. // End of namespaces ExplicitMemoryCollections
 }. // End of namespace StdNative

@@ -191,9 +191,7 @@ SYMLStructure >> finalizeSSAVariable: ssaVariable with: builder [
 	| finalizer |
 	self hasNonTrivialInitialization ifFalse: [ ^ self ].
 	finalizer := self lookupSelector: #finalize.
-	self assert: finalizer isNotNil.
-	self assert: ssaVariable type = finalizer ssaValue type baseType arguments first.
-	builder call: finalizer ssaValue arguments: {ssaVariable}
+	finalizer generateSimpleSSACallWithArguments: {ssaVariable} with: builder
 ]
 
 { #category : #'code generation' }
@@ -298,9 +296,7 @@ SYMLStructure >> initializeSSAVariable: ssaVariable with: builder [
 	].
 
 	initializer := self lookupSelector: #initialize.
-	self assert: initializer isNotNil.
-	self assert: ssaVariable type = initializer ssaValue type baseType arguments first.
-	builder call: initializer ssaValue arguments: {ssaVariable}
+	initializer generateSimpleSSACallWithArguments: {ssaVariable} with: builder.
 ]
 
 { #category : #accessing }

@@ -1,10 +1,11 @@
 namespace StdNative definition: {
+namespace ExplicitMemoryCollections definition: {
 
 /**
  * I am the definition for a balanced tree node with explicit memory management semantics.
  * AVL tree: https://en.wikipedia.org/wiki/AVL_tree
  */
-template ExplicitMemoryBalancedTree(KT: Type, VT: Type)
+template BalancedTree(KT: Type, VT: Type)
     := struct definition: {
 
     alias Node := SelfType.
@@ -19,56 +20,60 @@ template ExplicitMemoryBalancedTree(KT: Type, VT: Type)
     field key public type: KeyType.
 
     // Having a different value is optional.
-    ValueType ~~ Void ifTrue: {
+    if: ValueType isVoidType not then: {
         field value public type: ValueType.
 
         message replaceValueWith: (otherNode: SelfType pointer) ::=> Void := {
-            value := otherNode value
+            value := otherNode _ value
         }
-    } ifFalse: {
+    } else: {
         message replaceValueWith: (otherNode: SelfType pointer) ::=> Void := {
             // Do nothing.
         }
-    }
+    }.
 
     // Left pointer accessor.
     message left => Node pointer
-        := left_ & ChildPointerMask.
+        := left_ & ChildPointerMask reinterpretCastTo: Node pointer.
 
-    message left: (newLeftNode: Node point) ::=> Void := {
-        left_ := (left & BalanceFactorMask) | ((newLeftNode reinterpretCastTo: UIntPointer) & ChildPointerMask)
+    message left: (newLeftNode: Node pointer) ::=> Void := {
+        left_ := (left_ & BalanceFactorMask) | ((newLeftNode reinterpretCastTo: UIntPointer) & ChildPointerMask)
     }.
 
     // Balance factor accessor.
     message balanceFactor => Int32
-        := (left_ & BalanceFactorMask) - 1.
+        := (left_ & BalanceFactorMask castTo: Int32) - 1.
 
     message balanceFactor: (newFactor: Int32) ::=> Void := {
-        left_ := (left & ChildPointerMask) | ((newFactor + 1) & BalanceFactorMask)
+        left_ := (left_ & ChildPointerMask) | ((newFactor + 1 castTo: UIntPointer) & BalanceFactorMask)
     }.
 
     // Insert node.
     message insertOrReplace: (newNode: SelfType pointer) ::=> SelfType pointer := {
         // If self is nil, just return the node.
-        self ifNil: {
+        self address ifNil: {
             return: newNode
         }.
 
         // Left child.
-        newNode key < key ifTrue: {
-            self left: (self left insertOrReplace: newNode)
+        newNode _ key < key ifTrue: {
+            self left: (self left _ insertOrReplace: newNode)
         } ifFalse: {
-            key < newNode key ifTrue: {
+            key < newNode _ key ifTrue: {
                 // Right child
-                self right: (self right insertOrReplace: newNode)
+                self right: (self right _ insertOrReplace: newNode)
             } ifFalse: {
                 // This is the node, replace the value.
                 self replaceValueWith: newNode.
-                return: self.
+                return: self address.
             }
-        }
+        }.
 
+        // TODO. Rebalance the tree.
+
+        self address
     }.
 }.
 
+}. // End of namespace ExplicitMemoryCollections
 }. // End of namespace StdNative

@@ -901,4 +901,45 @@ function realloc(pointer: Void pointer, size: UIntPointer) => Void pointer
 function free(pointer: Void pointer) => Void
     := globalNativeMemoryHeap free: pointer.
 
+
+// basicNativeNew macro
+PrimitiveType meta macro expansionRule basicNativeNew := ``(
+    StdNative zmalloc(self __macroExpand instanceSize) reinterpretCastTo: self __macroExpand pointer
+).
+
+StructureType meta macro expansionRule basicNativeNew := ``(
+    StdNative zmalloc(self __macroExpand instanceSize) reinterpretCastTo: self __macroExpand pointer
+).
+
+// basicNativeDelete
+PointerType macro expansionRule basicNativeDelete := ``(
+    StdNative free(self __macroExpand)
+).
+
+// Pointer type initializeValue
+PointerType macro expansionRule initializeValue := ``(
+    self __macroExpand value initialize
+).
+
+// Pointer type finalizeValue
+PointerType macro expansionRule finalizeValue := ``(
+    self __macroExpand value finalize
+).
+
+// Native new
+PrimitiveType meta macro expansionRule nativeNew := ``(
+    self __macroExpand basicNativeNew initializeValue; yourself
+).
+
+StructureType meta macro expansionRule nativeNew := ``(
+    self __macroExpand basicNativeNew initializeValue; yourself
+).
+
+// nativeDelete
+PointerType macro expansionRule nativeDelete := ``(
+    self __macroExpand ifNotNil: {
+        self __macroExpand finalizeValue; nativeDelete
+    }
+).
+
 }. // End of namespace StdNative

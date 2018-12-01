@@ -162,7 +162,7 @@ SYMLModule >> convertDebugSourceFile: aSourceCollection [
 { #category : #evaluating }
 SYMLModule >> convertParseFailure: aFailure collection: collection [
 	| position |
-	aFailure isPetitFailure ifFalse: [ ^ self ].
+	aFailure isPetit2Failure ifFalse: [ ^ self ].
 	position := SYMLSourcePosition new collection: collection; start: aFailure position; stop: aFailure position.
 	SYMLParseError new signal: position asString , ': ' , aFailure message.
 ]

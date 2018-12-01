@@ -1,0 +1,3 @@
+loadFileOnce: "bitmap.sysmel".
+loadFileOnce: "linked-list.sysmel".
+loadFileOnce: "balanced-tree.sysmel".
