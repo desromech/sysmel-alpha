@@ -938,7 +938,7 @@ StructureType meta macro expansionRule nativeNew := ``(
 // nativeDelete
 PointerType macro expansionRule nativeDelete := ``(
     self __macroExpand ifNotNil: {
-        self __macroExpand finalizeValue; nativeDelete
+        self __macroExpand finalizeValue; basicNativeDelete
     }
 ).
 

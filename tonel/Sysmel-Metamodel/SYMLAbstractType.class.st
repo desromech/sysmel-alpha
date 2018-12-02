@@ -582,7 +582,7 @@ SYMLAbstractType >> fieldMetaobjectClass [
 { #category : #'code generation' }
 SYMLAbstractType >> finalizeSSAVariable: ssaVariable with: builder [
 	| result |
-	result := self sysmelPerform: #initializeSSAVariable:with: withArguments:  { ssaVariable . builder}.
+	result := self sysmelPerform: #finalizeSSAVariable:with: withArguments:  { ssaVariable . builder}.
 	^ result unwrapSysmelValue
 ]
 

@@ -48,6 +48,77 @@ template BalancedTree(KT: Type, VT: Type)
         left_ := (left_ & ChildPointerMask) | ((newFactor + 1 castTo: UIntPointer) & BalanceFactorMask)
     }.
 
+    // Binary tree search
+    message search: (searchKey: KeyType) ::=> SelfType pointer := {
+        let position mutable := self address.
+        while: position isNotNil do: {
+            searchKey < position _ key ifTrue: {
+                position := position _ left.
+            } ifFalse: {
+                position _ key < searchKey ifTrue: {
+                    position := position _ right.
+                } ifFalse: {
+                    return: position
+                }
+            }
+        }.
+
+        return: nil
+    }.
+
+    /**
+     * This finds the first element that is at least as big as the key.
+     */
+    message lowerBound: (searchKey: KeyType) ::=> SelfType pointer := {
+        let position mutable := self address.
+        let bestFound mutable type: SelfType pointer := nil.
+
+        while: position isNotNil do: {
+            searchKey < position _ key ifTrue: {
+                bestFound := position.
+                position := position _ left.
+            } ifFalse: {
+                // position <= searchKey
+                position _ key < searchKey ifTrue: {
+                    position := position _ right.
+                } ifFalse: {
+                    // Same key
+                    bestFound := position.
+                    position := position _ left
+                }
+            }
+        }.
+
+        return: bestFound
+    }.
+
+    /**
+     * This finds the first element that is at greater than the search key.
+     */
+    message upperBound: (searchKey: KeyType) ::=> SelfType pointer := {
+        let position mutable := self address.
+        let bestFound mutable type: SelfType pointer := nil.
+
+        while: position isNotNil do: {
+            searchKey < position _ key ifTrue: {
+                bestFound := position.
+                position := position _ right.
+            } ifFalse: {
+                position _ key < searchKey ifTrue: {
+                    position := position _ left
+                } ifFalse: {
+                    // Same key
+                    position := position _ right.
+                }
+            }
+        }.
+
+        return: bestFound
+    }.
+
+    message isLeaf => BooleanBit
+        := self left isNil && self right isNil.
+
     // Insert node.
     message insertOrReplace: (newNode: SelfType pointer) ::=> SelfType pointer := {
         // If self is nil, just return the node.
@@ -72,6 +143,123 @@ template BalancedTree(KT: Type, VT: Type)
         // TODO. Rebalance the tree.
 
         self address
+    }.
+
+    message insertNode: (newNode: SelfType pointer) ::=> SelfType pointer := {
+        // If self is nil, just return the node.
+        self address ifNil: {
+            return: newNode
+        }.
+
+        // Left child.
+        newNode _ key < key ifTrue: {
+            self left: (self left _ insertNode: newNode)
+        } ifFalse: {
+            key < newNode _ key ifTrue: {
+                // Right child
+                self right: (self right _ insertNode: newNode)
+            } ifFalse: {
+                // Prefer inserting on the right side.
+                self right: (self right _ insertNode: newNode)
+            }
+        }.
+
+        // TODO. Rebalance the tree.
+
+        self address
+    }.
+
+    // Remove unique node.
+    message removeUniqueNode: (oldNode: SelfType pointer) ::=> SelfType pointer := {
+        self address ifNil: {
+            return: nil
+        }.
+
+        // Left node.
+        oldNode _ key < key ifTrue: {
+            self left: (self left _ removeUniqueNode: oldNode)
+        } ifFalse: {
+            key < oldNode _ key ifTrue: {
+                // Right child
+                self right: (self right _ removeUniqueNode: oldNode)
+            } ifFalse: {
+                // Do I have one leaf? or none?
+                self right isNil ifTrue: {
+                    return: self left
+                }.
+                self left isNil ifTrue: {
+                    return: self right
+                }.
+
+                // The two leaves are valid, remove the immediate successor.
+                let successor := self right _ removeLowerLeftNode.
+                successor _ left: self left.
+                // TODO: Rebalance the successor
+                return: successor
+            }
+        }.
+
+        // TODO: Rebalance the tree.
+        self address
+    }.
+
+    // Remove node with duplicated key.
+    message removeNode: (oldNode: SelfType pointer) ::=> SelfType pointer := {
+        self address ifNil: {
+            return: nil
+        }.
+
+        // Is this the target node?
+        self address == oldNode ifTrue: {
+            // Do I have one leaf? or none?
+            self right isNil ifTrue: {
+                return: self left
+            }.
+            self left isNil ifTrue: {
+                return: self right
+            }.
+
+            // The two leaves are valid, remove the immediate successor.
+            let successor := self right _ removeLowerLeftNode.
+            successor _ left: self left.
+
+            // TODO: Rebalance the successor
+            return: successor
+        }.
+
+        // Left node.
+        oldNode _ key < key ifTrue: {
+            self left: (self left _ removeNode: oldNode)
+        } ifFalse: {
+            key < oldNode _ key ifTrue: {
+                // Right child
+                self right: (self right _ removeNode: oldNode)
+            } ifFalse: {
+                // Same key. Check the two children.
+                self left: (self left _ removeNode: oldNode).
+                self right: (self right _ removeNode: oldNode).
+            }
+        }.
+
+        // TODO: Rebalance the tree.
+        self address
+    }.
+
+    /**
+     * This removes the lower left node of the tree, and returns the old lower left node.
+     */
+    message removeLowerLeftNode ::=> SelfType pointer := {
+        self isLeaf ifTrue: {
+            self address.
+        } ifFalse: {
+            self left _ isLeaf ifTrue: {
+                let lowerLeft := self left.
+                self left: nil.
+                lowerLeft
+            } ifFalse: {
+                self left _ removeLowerLeftNode
+            }
+        }
     }.
 }.
 

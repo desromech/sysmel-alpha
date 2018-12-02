@@ -56,6 +56,15 @@ namespace SysmelKernel definition: {
     IntegerType macro expansionRule bitClear: bits :=
         ``(self __macroExpand & (bits __macroExpand bitInvert)).
 
+    IntegerType macro expansionRule allMask: mask :=
+        ``((self __macroExpand & mask __macroExpand) == bits __macroExpand).
+
+    IntegerType macro expansionRule anyMask: mask :=
+        ``((self __macroExpand & mask __macroExpand) ~~ 0).
+
+    IntegerType macro expansionRule noMask: mask :=
+        ``((self __macroExpand & mask __macroExpand) == 0).
+
     // Some numerical testing methods.
     IntegerType macro expansionRule isEven :=
         ``((self __macroExpand & 1) == 0).
