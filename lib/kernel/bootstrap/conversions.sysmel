@@ -233,6 +233,12 @@ PointerType reinterpretConversionTo: PointerType doOn: pointerReinterpretCast.
 PointerType conversionTo: Void pointer doOn: pointerReinterpretCast.
 PointerType conversionTo: Void const pointer doOn: pointerReinterpretCast.
 
+PointerTypeTemplate extend: {
+    if: PointedType isConstantType then: {
+        CleanPointerType conversionTo: SelfType doOn: pointerReinterpretCast.
+    }.
+}.
+
 // Literal integer => Pointer
 _LiteralInteger reinterpretConversionTo: PointerType doOn: {
     evaluation: $$Pharo {

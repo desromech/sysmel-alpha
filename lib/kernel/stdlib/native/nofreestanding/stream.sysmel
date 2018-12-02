@@ -39,6 +39,10 @@ class TextStreamWriter definition: {
         (stream _ write: string [0] address size: string size) == (string size castTo: IntPointer)
     }.
 
+    message write: (string: Void const pointer) size: (size: UIntPointer) ::=> BooleanBit := {
+        (stream _ write: string size: size) == (size castTo: IntPointer)
+    }.
+
     message nextPutHexDigit: (digit: Int32) ::=> Void := {
         if: 0 <= digit && digit <= 9 then: {
             self nextPut: '0' + digit

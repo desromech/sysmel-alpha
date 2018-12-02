@@ -127,6 +127,23 @@ function cstrlen (string: UInt8 const pointer) => UIntPointer := {
 }.
 
 /**
+ * Computes the length of a fixed size C-String.
+ */
+function cstrnlen (string: UInt8 const pointer, maxLength: UIntPointer) => UIntPointer := {
+    // Null C-String pointer case.
+    if: string == nil then: {
+        return: 0
+    }.
+
+    let size mutable type: UIntPointer := 0.
+    while: size < maxLength && string[size] ~= 0 do: {
+        size := size + 1
+    }.
+
+    return: size
+}.
+
+/**
  * Finds a substring in a C-string
  */
 function cstrstr (haystack: UInt8 const pointer, needle: UInt8 const pointer) => UInt8 const pointer := {

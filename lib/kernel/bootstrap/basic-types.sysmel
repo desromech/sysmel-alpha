@@ -261,6 +261,9 @@ definition: {
     alias PointedType := P.
     alias AddressSpaceName := AS.
     alias CleanPointedType := PointedType cleanType.
+    alias CleanPointerType := CleanPointedType pointerFor: AddressSpaceName.
+    alias ConstPointedType := PointedType const.
+
 
     meta message pointed => _CompilerObjectType := PointedType.
     meta message addressSpaceName => _LiteralSymbol := AddressSpaceName
