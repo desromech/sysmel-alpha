@@ -527,25 +527,26 @@ class NativeMemoryHeap definition: {
             return: hugeChunkHeader _ allocationSize.
         }.
 
-        mutex heldInThisContext.
+        mutex withLock: {
+            // We are dealing with a normal chunk.
+            let normalChunkHeader := chunkAddress reinterpretCastTo: NormalChunkHeader pointer.
+            let chunkOffset := pointerAddress - chunkAddress.
+            let buddyBlockIndex := chunkOffset / MemoryChunkBlockSize.
 
-        // We are dealing with a normal chunk.
-        let normalChunkHeader := chunkAddress reinterpretCastTo: NormalChunkHeader pointer.
-        let chunkOffset := pointerAddress - chunkAddress.
-        let buddyBlockIndex := chunkOffset / MemoryChunkBlockSize.
+            // Get the starting block of the slab.
+            let slabBlockIndex := normalChunkHeader _ buddyMemoryAllocator getSlabBlockOrInvalid: buddyBlockIndex.
 
-        // Get the starting block of the slab.
-        let slabBlockIndex := normalChunkHeader _ buddyMemoryAllocator getSlabBlockOrInvalid: buddyBlockIndex.
+            slabBlockIndex ~~ ChunkBuddyMemoryAllocator InvalidBlockIndex ifTrue: {
+                let slabAddress := chunkAddress + slabBlockIndex * MemoryChunkBlockSize.
+                let slabHeader := slabAddress reinterpretCastTo: SlabHeader pointer.
 
-        slabBlockIndex ~~ ChunkBuddyMemoryAllocator InvalidBlockIndex ifTrue: {
-            let slabAddress := chunkAddress + slabBlockIndex * MemoryChunkBlockSize.
-            let slabHeader := slabAddress reinterpretCastTo: SlabHeader pointer.
+                slabHeader _ elementSize
+            } ifFalse: {
+                // This is a large allocation, ask the buddy memory allocator about the allocated block count.
+                (normalChunkHeader _ buddyMemoryAllocator getAllocatedBlockCountAt: buddyBlockIndex) * MemoryChunkBlockSize
+            }
 
-            slabHeader _ elementSize
-        } ifFalse: {
-            // This is a large allocation, ask the buddy memory allocator about the allocated block count.
-            (normalChunkHeader _ buddyMemoryAllocator getAllocatedBlockCountAt: buddyBlockIndex) * MemoryChunkBlockSize
-        }
+        }.
     }.
 
     message free: (pointer: Void pointer) ::=> Void := {
@@ -567,34 +568,34 @@ class NativeMemoryHeap definition: {
             return: nil.
         }.
 
-        mutex heldInThisContext.
+        mutex withLock: {
+            // We are dealing with a normal chunk.
+            let normalChunkHeader := chunkAddress reinterpretCastTo: NormalChunkHeader pointer.
+            let chunkOffset := pointerAddress - chunkAddress.
+            let buddyBlockIndex := chunkOffset / MemoryChunkBlockSize.
 
-        // We are dealing with a normal chunk.
-        let normalChunkHeader := chunkAddress reinterpretCastTo: NormalChunkHeader pointer.
-        let chunkOffset := pointerAddress - chunkAddress.
-        let buddyBlockIndex := chunkOffset / MemoryChunkBlockSize.
+            // Get the starting block of the slab.
+            let slabBlockIndex := normalChunkHeader _ buddyMemoryAllocator getSlabBlockOrInvalid: buddyBlockIndex.
 
-        // Get the starting block of the slab.
-        let slabBlockIndex := normalChunkHeader _ buddyMemoryAllocator getSlabBlockOrInvalid: buddyBlockIndex.
+            //Stdout << pointer << " normalChunkHeader " << normalChunkHeader << " " << buddyBlockIndex << " " << slabBlockIndex; nl.
 
-        //Stdout << pointer << " normalChunkHeader " << normalChunkHeader << " " << buddyBlockIndex << " " << slabBlockIndex; nl.
+            slabBlockIndex ~~ ChunkBuddyMemoryAllocator InvalidBlockIndex ifTrue: {
+                let slabAddress := chunkAddress + slabBlockIndex * MemoryChunkBlockSize.
+                let slabHeader := slabAddress reinterpretCastTo: SlabHeader pointer.
+                let slabElementIndex := (pointerAddress - (slabAddress + SlabHeaderSize)) / slabHeader _ elementSize.
 
-        slabBlockIndex ~~ ChunkBuddyMemoryAllocator InvalidBlockIndex ifTrue: {
-            let slabAddress := chunkAddress + slabBlockIndex * MemoryChunkBlockSize.
-            let slabHeader := slabAddress reinterpretCastTo: SlabHeader pointer.
-            let slabElementIndex := (pointerAddress - (slabAddress + SlabHeaderSize)) / slabHeader _ elementSize.
+                //Stdout << "Slab " << slabHeader << " element size " << slabHeader _ elementSize << " index " << slabElementIndex; nl.
 
-            //Stdout << "Slab " << slabHeader << " element size " << slabHeader _ elementSize << " index " << slabElementIndex; nl.
+                // Mark the element as free in the slab.
+                slabHeader _  unmarkElement: slabElementIndex.
 
-            // Mark the element as free in the slab.
-            slabHeader _  unmarkElement: slabElementIndex.
+                // Ensure the slab is active, or it is freed.
+                self processSlabWithFreedElement: slabHeader blockIndex: slabBlockIndex inChunk: normalChunkHeader.
 
-            // Ensure the slab is active, or it is freed.
-            self processSlabWithFreedElement: slabHeader blockIndex: slabBlockIndex inChunk: normalChunkHeader.
-
-        } ifFalse: {
-            // This is a large allocation, we need to free the corresponding buddy.
-            self freeLargeAllocationBlock: buddyBlockIndex inChunk: normalChunkHeader.
+            } ifFalse: {
+                // This is a large allocation, we need to free the corresponding buddy.
+                self freeLargeAllocationBlock: buddyBlockIndex inChunk: normalChunkHeader.
+            }
         }
     }.
 
@@ -654,38 +655,39 @@ class NativeMemoryHeap definition: {
      */
     message allocateQuantumSpaced: (size: UIntPointer) ::=> Void pointer := {
         let category := (size + 15) / 16.
-        mutex heldInThisContext.
 
-        // Make sure there is an active run in the category.
-        let categoryState ref := quantumSpacedCategoryStates[category].
-        categoryState firstActiveSlab ifNil: {
-            self createSlabForQuantumSpacedCategory: category.
+        mutex withLock: {
+            // Make sure there is an active run in the category.
+            let categoryState ref := quantumSpacedCategoryStates[category].
             categoryState firstActiveSlab ifNil: {
-                return: nil
-            }
-        }.
+                self createSlabForQuantumSpacedCategory: category.
+                categoryState firstActiveSlab ifNil: {
+                    return: nil
+                }
+            }.
 
-        // Fetch the slab and some of its pointers.
-        let slab := categoryState firstActiveSlab.
-        let slabBytes := slab reinterpretCastTo: UInt8 pointer.
-        let slabData := slabBytes[SlabHeaderSize] address.
+            // Fetch the slab and some of its pointers.
+            let slab := categoryState firstActiveSlab.
+            let slabBytes := slab reinterpretCastTo: UInt8 pointer.
+            let slabData := slabBytes[SlabHeaderSize] address.
 
-        let freeElementIndex := slab _ findFreeElementIndex.
-        assert: freeElementIndex >= 0.
+            let freeElementIndex := slab _ findFreeElementIndex.
+            assert: freeElementIndex >= 0.
 
-        //Stdout << "Allocate from active category slab: " << categoryState firstActiveSlab << " element " << freeElementIndex; nl.
-        slab _ markElement: (freeElementIndex castTo: UIntPointer).
+            //Stdout << "Allocate from active category slab: " << categoryState firstActiveSlab << " element " << freeElementIndex; nl.
+            slab _ markElement: (freeElementIndex castTo: UIntPointer).
 
-        // If we fill the slab, make it unactive.
-        slab _ freeCount == 0 ifTrue: {
-            categoryState deactivateSlab: slab
-        }.
+            // If we fill the slab, make it unactive.
+            slab _ freeCount == 0 ifTrue: {
+                categoryState deactivateSlab: slab
+            }.
 
-        // Compute the pointer into the allocated slab element.
-        let slabElementPointer := slabData[slab _ elementSize * freeElementIndex] address.
+            // Compute the pointer into the allocated slab element.
+            let slabElementPointer := slabData[slab _ elementSize * freeElementIndex] address.
 
-        // Return the slab element pointer
-        slabElementPointer
+            // Return the slab element pointer
+            slabElementPointer
+        }
     }.
 
     /**
@@ -728,9 +730,9 @@ class NativeMemoryHeap definition: {
      * Large allocation. Buddy memory allocation system.
      */
     message allocateLarge: (size: UIntPointer) ::=> Void pointer := {
-        mutex heldInThisContext.
-
-        self doAllocateLarge: size forSlab: false
+        mutex withLock: {
+            self doAllocateLarge: size forSlab: false
+        }
     }.
 
     message doAllocateLarge: (size: UIntPointer) forSlab: (isForSlab: BooleanBit) ::=> Void pointer := {
@@ -761,27 +763,27 @@ class NativeMemoryHeap definition: {
      * Huge allocation. This creates a dedicated mmap.
      */
     message allocateHuge: (size: UIntPointer) ::=> Void pointer := {
-        mutex heldInThisContext.
+        mutex withLock: {
+            // Compute the size of the allocation.
+            let allocationSize := size + HugeChunkHeaderSize alignedTo: 4096.
+            //Stdout << "Allocate large memory chunk of size " << allocationSize; nl.
 
-        // Compute the size of the allocation.
-        let allocationSize := size + HugeChunkHeaderSize alignedTo: 4096.
-        //Stdout << "Allocate large memory chunk of size " << allocationSize; nl.
+            // Allocate the super-chunk.
+            let largeAllocation := (NativeVirtualMemoryInterface reserveAndCommitAddressSpace: allocationSize alignment: MemoryChunkAlignment) reinterpretCastTo: UInt8 pointer.
+            largeAllocation ifNil: {
+                return: nil
+            }.
 
-        // Allocate the super-chunk.
-        let largeAllocation := (NativeVirtualMemoryInterface reserveAndCommitAddressSpace: allocationSize alignment: MemoryChunkAlignment) reinterpretCastTo: UInt8 pointer.
-        largeAllocation ifNil: {
-            return: nil
-        }.
+            //Stdout << "Allocated large memory chunk: " << largeAllocation; nl.
 
-        //Stdout << "Allocated large memory chunk: " << largeAllocation; nl.
+            // Set the header.
+            let header := largeAllocation reinterpretCastTo: HugeChunkHeader pointer.
+            header _ commonHeader isHugeAllocation: true.
+            header _ allocationSize: size.
 
-        // Set the header.
-        let header := largeAllocation reinterpretCastTo: HugeChunkHeader pointer.
-        header _ commonHeader isHugeAllocation: true.
-        header _ allocationSize: size.
-
-        // Return the allocated memory.
-        largeAllocation[HugeChunkHeaderSize] address.
+            // Return the allocated memory.
+            largeAllocation[HugeChunkHeaderSize] address.
+        }
     }.
 
     /**
