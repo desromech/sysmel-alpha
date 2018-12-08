@@ -142,6 +142,13 @@ SYMLObject >> isType [
 	^ false
 ]
 
+{ #category : #'meta evaluation' }
+SYMLObject >> macroExpansionEvaluateInEnvironment: anEnvironment [
+	| expandedValue |
+	expandedValue := self analyzeAndEvaluateInEnvironment: anEnvironment.
+	^ expandedValue asAPSGNodeValueWithError: 'Macro expansion expression does not evaluate into an APSG node.' at: self
+]
+
 { #category : #'semantic analysis' }
 SYMLObject >> semanticAnalyzeMessageToYou: message inEnvironment: environment at: aPosition [
 	^ self sendCompileTimeMessage: message inEnvironment: environment at: aPosition.

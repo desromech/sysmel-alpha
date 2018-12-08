@@ -9,6 +9,11 @@ Object >> asAPSGNodeInEnvironment: anEnvironment at: position [
 ]
 
 { #category : #'*Sysmel-Metamodel' }
+Object >> asSysmelSelectorInEnvironment: anEnvironment at: aPosition [
+	^ anEnvironment error: 'Cannot use value {1} as a message selector.' format: { self printString } at: aPosition
+]
+
+{ #category : #'*Sysmel-Metamodel' }
 Object >> asSysmelValueInEnvironment: anEnvironment [
 	^ self sysmelValueWithType: anEnvironment compilationTarget compilerObjectType inEnvironment: anEnvironment
 ]

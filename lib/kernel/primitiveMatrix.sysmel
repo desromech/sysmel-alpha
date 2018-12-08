@@ -126,15 +126,15 @@ definition: {
     }.
 
     meta macro expansionRule zeros := ``(
-        self __macroExpand withAll: 0
+        `,self withAll: 0
     ).
 
     meta macro expansionRule value := ``(
-        self __macroExpand zeros
+        `,self zeros
     ).
 
     meta macro expansionRule ones := ``(
-        self __macroExpand withAll: 1
+        `,self withAll: 1
     ).
 
     // Accessors

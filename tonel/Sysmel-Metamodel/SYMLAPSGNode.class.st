@@ -145,6 +145,11 @@ SYMLAPSGNode >> inspectorChildren [
 ]
 
 { #category : #testing }
+SYMLAPSGNode >> isBlockClosure [
+	^ false
+]
+
+{ #category : #testing }
 SYMLAPSGNode >> isIdentifierNode [
 	^ false
 ]

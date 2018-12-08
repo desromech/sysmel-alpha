@@ -18,7 +18,9 @@ Class {
 		'useLibC',
 		'identityHashRandomGenerator',
 		'defaultSourceCodeParser',
-		'globalInlineAssemblyFragments'
+		'globalInlineAssemblyFragments',
+		'profilingCompilationTime',
+		'compilationProfilingTimes'
 	],
 	#classVars : [
 		'GlobalParserRegistry'
@@ -126,6 +128,11 @@ SYMLModule >> buildSSAModule [
 	].
 
 	^ self ssaModule
+]
+
+{ #category : #profiling }
+SYMLModule >> compilationProfilingTimes [
+	^ compilationProfilingTimes ifNil: [ compilationProfilingTimes := OrderedCollection new ]
 ]
 
 { #category : #accessing }
@@ -288,11 +295,16 @@ SYMLModule >> evaluateSource: aSourceString name: aSourceName inContext: context
 	contents := aSourceString asSysmelCollectionWithContext.
 	contents name: aSourceName.
 
-	ast := (self parserForSourceNamed: aSourceName inContext: context) parse: contents.
+	self profileSource: aSourceString name: aSourceName type: #parsing with: [ 
+		ast := (self parserForSourceNamed: aSourceName inContext: context) parse: contents.
+	].
+
 	self convertParseFailure: ast collection: contents.
 	apsg := ast buildAPSG: (SYMLAPSGBuilder new environment: context).
 	[
-		result := apsg analyzeAndEvaluateInEnvironment: context
+		self profileSource: aSourceString name: aSourceName type: #analyzeAndEval with: [ 
+			result := apsg analyzeAndEvaluateInEnvironment: context
+		].
 	] on: SYMLValueReturnException do: [ :returnException |
 		self halt.
 	].
@@ -327,6 +339,23 @@ SYMLModule >> generateIdentityHash [
 SYMLModule >> globalNamespace [
 	<compileTime>
 	^ globalNamespace
+]
+
+{ #category : #profiling }
+SYMLModule >> gtCompilationgProfilingTimesIn: composite [
+	<gtInspectorPresentationOrder: 9>
+	(compilationProfilingTimes isNil or: [ compilationProfilingTimes isEmpty ]) ifTrue: [
+		^ self
+	].
+
+	^ composite fastTable
+		title: 'Compilation Times';
+		display: [ self compilationProfilingTimes ];
+		beMultiple;
+		wantsAutomaticRefresh: true;
+		column: 'Source Name' evaluated: [ :value | value first ];
+		column: 'Stage' evaluated: [ :value | value second ];
+		column: 'Time' evaluated: [ :value | value third ]
 ]
 
 { #category : #'compilation options' }
@@ -491,6 +520,27 @@ SYMLModule >> parserForSourceNamed: sourceName inContext: aContext [
 	].
 
 	^ aContext currentSourceCodeParser
+]
+
+{ #category : #profiling }
+SYMLModule >> profileSource: aSourceString name: aSourceName type: profileType with: aBlock [
+	| result partCompileTime |
+	^ self profilingCompilationTime ifTrue: [
+		partCompileTime := [result := aBlock value] timeToRun asMilliSeconds.
+		self compilationProfilingTimes add: { aSourceName . profileType . partCompileTime }.
+		result
+	] ifFalse: [aBlock value]
+	
+]
+
+{ #category : #profiling }
+SYMLModule >> profilingCompilationTime [
+	^ profilingCompilationTime ifNil: [ profilingCompilationTime := false ]
+]
+
+{ #category : #profiling }
+SYMLModule >> profilingCompilationTime: aBoolean [
+	profilingCompilationTime := aBoolean
 ]
 
 { #category : #'semantic analysis' }

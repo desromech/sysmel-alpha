@@ -6,6 +6,11 @@ Symbol >> asLiteralObjectProxyWithType: type [
 ]
 
 { #category : #'*Sysmel-Metamodel' }
+Symbol >> asSysmelSelectorInEnvironment: anEnvironment at: aPosition [
+	^ self
+]
+
+{ #category : #'*Sysmel-Metamodel' }
 Symbol >> asSysmelValueInEnvironment: anEnvironment [
 	^ self sysmelValueWithType: anEnvironment compilationTarget literalSymbolType inEnvironment: anEnvironment
 ]

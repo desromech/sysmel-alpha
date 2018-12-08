@@ -20,8 +20,8 @@ macro expansionRule assert: condition := {
     let message := "Assertion " -- expression -- " FAILED in " -- position.
     let messageNode := __apsgBuilder literalString: message position: condition position.
 
-    ``(condition __macroExpand ifFalse: {
-        StdNative fatalError: messageNode __macroExpand
+    ``(`,condition ifFalse: {
+        StdNative fatalError: `,messageNode
     })
 }.
 
@@ -34,8 +34,8 @@ macro expansionRule assertAlways: condition := {
     let message := "Assertion " -- expression -- " FAILED in " -- position.
     let messageNode := __apsgBuilder literalString: message position: condition position.
 
-    ``(condition __macroExpand ifFalse: {
-        StdNative fatalError: messageNode __macroExpand
+    ``(`,condition ifFalse: {
+        StdNative fatalError: `,messageNode
     })
 }.
 

@@ -12,8 +12,8 @@ definition: {
     }.
 
     // Trivial initialization and finalization.
-    //macro expansionRule initialize := ``(self __macroExpand).
-    //macro expansionRule finalize := ``(self __macroExpand).
+    //macro expansionRule initialize := ``(`,self).
+    //macro expansionRule finalize := ``(`,self).
 }.
 
 // The type meta type

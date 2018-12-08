@@ -24,13 +24,13 @@ definition: {
     }.
 
     macro expansionRule heldInThisContext := ``{
-        self __macroExpand lock.
-        ensureCleanup: (self __macroExpand unlock)
+        `,self lock.
+        ensureCleanup: (`,self unlock)
     } node.
 
     macro expansionRule withLock: aBlock := ``{
-        self __macroExpand heldInThisContext.
-        aBlock __macroExpand.
+        `,self heldInThisContext.
+        aBlock __macroInlineBlock.
     }.
 }.
 

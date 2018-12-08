@@ -1,19 +1,19 @@
 namespace SysmelKernel definition: {
 
 BooleanBit macro expansionRule or: orCondition := ``(
-    if: self __macroExpand then: true else: orCondition __macroExpand
+    if: `,self then: true else: orCondition __macroInlineBlock
 ).
 
 BooleanBit macro expansionRule || orCondition := ``(
-    if: self __macroExpand then: true else: orCondition __macroExpand
+    if: `,self then: true else: orCondition __macroInlineBlock
 ).
 
 BooleanBit macro expansionRule and: andCondition := ``(
-    if: self __macroExpand then: andCondition __macroExpand else: false
+    if: `,self then: andCondition __macroInlineBlock else: false
 ).
 
 BooleanBit macro expansionRule && andCondition := ``(
-    if: self __macroExpand then: andCondition __macroExpand else: false
+    if: `,self then: andCondition __macroInlineBlock else: false
 ).
 
 // Logical negation

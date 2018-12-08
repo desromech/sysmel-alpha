@@ -79,7 +79,8 @@ Class {
 		'lessThan',
 		'greaterThan',
 		'blockClosureArguments',
-		'verticalBar'
+		'verticalBar',
+		'unaryExpressionSuffixUnquote'
 	],
 	#classVars : [
 		'SpecialOperators'
@@ -661,7 +662,7 @@ SYMLGrammar >> unaryExpression [
 
 { #category : #accessing }
 SYMLGrammar >> unaryExpressionSuffix [
-	^ unaryExpressionSuffixMessage / unaryExpressionSuffixCall / unarySuffixSubscript
+	^ unaryExpressionSuffixMessage / unaryExpressionSuffixCall / unarySuffixSubscript / unaryExpressionSuffixUnquote
 ]
 
 { #category : #accessing }
@@ -672,6 +673,11 @@ SYMLGrammar >> unaryExpressionSuffixCall [
 { #category : #accessing }
 SYMLGrammar >> unaryExpressionSuffixMessage [
 	^ anyIdentifier
+]
+
+{ #category : #accessing }
+SYMLGrammar >> unaryExpressionSuffixUnquote [
+	^ unquoteExpression
 ]
 
 { #category : #accessing }

@@ -53,7 +53,7 @@ AnyValue macro selectors: #(reinterpretCastTo: explicitCastTo:) doOn: {
 }.
 
 AnyValue macro expansionRule castTo: targetType := ``(
-    self __macroExpand explicitCastTo: targetType __macroExpand asVariableValueType
+    `,self explicitCastTo: `,targetType asVariableValueType
 ).
 
 // Literal type conversions.

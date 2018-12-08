@@ -186,25 +186,39 @@ SYMLAPSGMessageSend >> isReceiverAnalyzed: anObject [
 ]
 
 { #category : #'meta evaluation' }
-SYMLAPSGMessageSend >> macroExpansionEvaluateInEnvironment: anEnvironment [
-	| expandedValue |
-	expandedValue := receiver analyzeAndEvaluateInEnvironment: anEnvironment.
-	^ expandedValue asAPSGNodeValueWithError: 'Macro expansion expression does not evaluate into an APSG node.' at: self
-]
-
-{ #category : #'meta evaluation' }
 SYMLAPSGMessageSend >> macroExpansionInEnvironment: anEnvironment [
-	selector == #__macroExpand ifTrue: [ 
-		^ self macroExpansionEvaluateInEnvironment: anEnvironment
+	| expandedSelector |
+	selector isSYMLAPSGNode ifTrue: [
+		expandedSelector := (selector analyzeAndEvaluateInEnvironment: anEnvironment) unwrapSysmelValue  asSysmelSelectorInEnvironment: anEnvironment at: self.
+		^ (self shallowCopy
+			selector: expandedSelector)
+			macroExpansionInEnvironment: anEnvironment
 	].
+	self assert: selector isSymbol.
+	
 	(selector beginsWith: #__macroSend:) ifTrue: [
 		^ self macroSendExpansionEvaluateInEnvironment: anEnvironment
+	].
+
+	(selector beginsWith: #__macroInlineBlock) ifTrue: [
+		^ self macroInlineBlockEvaluateInEnvironment: anEnvironment
 	].
 	
 	^ self shallowCopy
 		receiver: (receiver ifNotNil: [receiver macroExpansionInEnvironment: anEnvironment]);
 		arguments: (arguments collect: [:arg | arg macroExpansionInEnvironment: anEnvironment]);
 		yourself
+]
+
+{ #category : #'meta evaluation' }
+SYMLAPSGMessageSend >> macroInlineBlockEvaluateInEnvironment: anEnvironment [
+	| blockNode |
+	blockNode := receiver macroExpansionEvaluateInEnvironment: anEnvironment.
+	blockNode isBlockClosure ifFalse: [
+		^ blockNode
+	].
+
+	self halt
 ]
 
 { #category : #'meta evaluation' }

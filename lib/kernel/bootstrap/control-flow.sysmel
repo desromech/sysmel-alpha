@@ -352,17 +352,17 @@ macro selectors: #(while:do: while:do:continueWith: ) doOn: {
 
 // For
 macro expansionRule for: declarations while: condition do: body continueWith: continueAction := ``{
-    declarations __macroExpand.
-	while: condition __macroExpand do: body __macroExpand continueWith: continueAction __macroExpand
+    `,declarations.
+	while: `,condition do: `,body continueWith: `,continueAction
 }.
 
 // until:do:continueWith:
 macro expansionRule until: condition do: body := ``(
-	while: condition __macroExpand not do: body __macroExpand
+	while: `,condition not do: `,body
 ).
 
 macro expansionRule until: condition do: body continueWith: continueAction := ``(
-	while: condition __macroExpand not do: body __macroExpand continueWith: continueAction __macroExpand
+	while: `,condition not do: `,body continueWith: `,continueAction
 ).
 
 // do:continueWith:while:

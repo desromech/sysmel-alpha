@@ -21,7 +21,9 @@ SYMLASTMessageSend >> arguments: anObject [
 
 { #category : #converting }
 SYMLASTMessageSend >> buildAPSG: builder [
-	^ (builder send: selector
+	| selectorNode |
+	selectorNode := selector isSYMLASTNode ifTrue: [ selector buildAPSG: builder] ifFalse: [ selector ].
+	^ (builder send: selectorNode
 		to: (receiver ifNotNil: [receiver buildAPSG: builder])
 		withArguments: (arguments collect: [:arg | arg buildAPSG: builder]))
 		position: self;

@@ -906,41 +906,41 @@ function free(pointer: Void pointer) => Void
 
 // basicNativeNew macro
 PrimitiveType meta macro expansionRule basicNativeNew := ``(
-    StdNative zmalloc(self __macroExpand instanceSize) reinterpretCastTo: self __macroExpand pointer
+    StdNative zmalloc(`,self instanceSize) reinterpretCastTo: `,self pointer
 ).
 
 StructureType meta macro expansionRule basicNativeNew := ``(
-    StdNative zmalloc(self __macroExpand instanceSize) reinterpretCastTo: self __macroExpand pointer
+    StdNative zmalloc(`,self instanceSize) reinterpretCastTo: `,self pointer
 ).
 
 // basicNativeDelete
 PointerType macro expansionRule basicNativeDelete := ``(
-    StdNative free(self __macroExpand)
+    StdNative free(`,self)
 ).
 
 // Pointer type initializeValue
 PointerType macro expansionRule initializeValue := ``(
-    self __macroExpand value initialize
+    `,self value initialize
 ).
 
 // Pointer type finalizeValue
 PointerType macro expansionRule finalizeValue := ``(
-    self __macroExpand value finalize
+    `,self value finalize
 ).
 
 // Native new
 PrimitiveType meta macro expansionRule nativeNew := ``(
-    self __macroExpand basicNativeNew initializeValue; yourself
+    `,self basicNativeNew initializeValue; yourself
 ).
 
 StructureType meta macro expansionRule nativeNew := ``(
-    self __macroExpand basicNativeNew initializeValue; yourself
+    `,self basicNativeNew initializeValue; yourself
 ).
 
 // nativeDelete
 PointerType macro expansionRule nativeDelete := ``(
-    self __macroExpand ifNotNil: {
-        self __macroExpand finalizeValue; basicNativeDelete
+    `,self ifNotNil: {
+        `,self finalizeValue; basicNativeDelete
     }
 ).
 

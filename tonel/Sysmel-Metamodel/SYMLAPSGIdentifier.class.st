@@ -20,6 +20,11 @@ SYMLAPSGIdentifier >> -- aSymbolOrIdentifier [
 		yourself
 ]
 
+{ #category : #converting }
+SYMLAPSGIdentifier >> asSysmelSelectorInEnvironment: anEnvironment at: aPosition [
+	^ value
+]
+
 { #category : #accessing }
 SYMLAPSGIdentifier >> bindIntoOverloadedAlternative: anAlternative inEnvironment: environment [
 	^ anAlternative analyzeAPSGIdentifierToMe: self inEnvironment: environment

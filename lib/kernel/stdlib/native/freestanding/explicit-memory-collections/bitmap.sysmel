@@ -18,15 +18,15 @@ struct Bitmap definition: {
      */
     macro expansionRule allWordsStartingFrom: startWord do: action := ``{
         // From the word until the end.
-        for: (let wordIndex mutable type: UIntPointer := startWord __macroExpand) while: (wordIndex < wordCount) do: {
+        for: (let wordIndex mutable type: UIntPointer := `,startWord) while: (wordIndex < wordCount) do: {
             let word := bitmap[wordIndex].
-            action __macroExpand
+            action __macroInlineBlock
         } continueWith: (wordIndex := wordIndex + 1).
 
         // From the begining until the word.
-        for: (let wordIndex mutable type: UIntPointer := 0) while: (wordIndex < startWord __macroExpand) do: {
+        for: (let wordIndex mutable type: UIntPointer := 0) while: (wordIndex < `,startWord) do: {
             let word := bitmap[wordIndex].
-            action __macroExpand
+            action __macroInlineBlock
         } continueWith: (wordIndex := wordIndex + 1).
     }.
 
@@ -72,8 +72,8 @@ struct Bitmap definition: {
      * Common macro for manipulating a single bit.
      */
     macro expansionRule manipulateBit: index withOperation: (operation: _LiteralSymbol) := ``{
-        let wordIndex := index __macroExpand / BitsPerWord.
-        let bitIndex := index __macroExpand % BitsPerWord.
+        let wordIndex := `,index / BitsPerWord.
+        let bitIndex := `,index % BitsPerWord.
         let bit := 1<<bitIndex castTo: UIntPointer.
         bitmap[wordIndex] := bitmap[wordIndex] __macroSend: operation with: bit
     }.
@@ -112,13 +112,13 @@ struct Bitmap definition: {
      * Common macro for manipulating a range of bits.
      */
     macro expansionRule manipulateBitsFrom: start until: end withOperation: (operation: _LiteralSymbol) := ``{
-        let alignedStart := start __macroExpand alignedTo: BitsPerWord.
-        let alignedEnd := end __macroExpand floorAlignedTo: BitsPerWord.
-        let startWord := start __macroExpand / BitsPerWord.
+        let alignedStart := `,start alignedTo: BitsPerWord.
+        let alignedEnd := `,end floorAlignedTo: BitsPerWord.
+        let startWord := `,start / BitsPerWord.
         let currentWord mutable := startWord.
 
         // Head - High bits
-        let unalignedStartCount := alignedStart - start __macroExpand.
+        let unalignedStartCount := alignedStart - `,start.
         unalignedStartCount > 0 ifTrue: {
             let bits := (1<<(BitsPerWord - unalignedStartCount - 1)) negated castTo: UIntPointer.
             bitmap[currentWord] := bitmap[currentWord] __macroSend: operation with: bits.
@@ -132,7 +132,7 @@ struct Bitmap definition: {
         } continueWith: (i := i + BitsPerWord).
 
         // Tail
-        let unalignedEndCount := end __macroExpand - alignedEnd.
+        let unalignedEndCount := `,end - alignedEnd.
         unalignedEndCount > 0 ifTrue: {
             let bits := (1<<unalignedEndCount) - 1.
             bitmap[currentWord] := bitmap[currentWord] __macroSend: operation with: bits.

@@ -165,7 +165,7 @@ definition: {
     }.
 
     meta macro expansionRule x: x := ``(
-        self __macroExpand (x __macroExpand)
+        `,self (`,x)
     ).
 
     // Accessors
@@ -182,11 +182,11 @@ definition: {
             createAccessors.
 
         meta macro expansionRule x: x y: y := ``(
-            self __macroExpand (x __macroExpand, y __macroExpand)
+            `,self (`,x, `,y)
         ).
 
         meta macro expansionRule y: y := ``(
-            self __macroExpand (0.0, y __macroExpand)
+            `,self (0.0, `,y)
         ).
     }.
 
@@ -198,11 +198,11 @@ definition: {
             createAccessors.
 
         meta macro expansionRule x: x y: y z: z := ``(
-            self __macroExpand (x __macroExpand, y __macroExpand, z __macroExpand)
+            `,self (`,x, `,y, `,z)
         ).
 
         meta macro expansionRule z: z := ``(
-            self __macroExpand (0.0, 0.0, z __macroExpand)
+            `,self (0.0, 0.0, `,z)
         ).
 
     }.
@@ -215,11 +215,11 @@ definition: {
             createAccessors.
 
         meta macro expansionRule x: x y: y z: z w: w := ``(
-            self __macroExpand (x __macroExpand, y __macroExpand, z __macroExpand, w __macroExpand)
+            `,self (`,x, `,y, `,z, `,w)
         ).
 
         meta macro expansionRule w: w := ``(
-        	self __macroExpand (0.0, 0.0, 0.0, w __macroExpand)
+        	`,self (0.0, 0.0, 0.0, `,w)
         ).
     }.
 
@@ -227,8 +227,8 @@ definition: {
     if: N = 2 then: {
         macro expansionRule _binaryOperation: (selector: _LiteralSymbol) with: other := ``(
             SelfType (
-                self __macroExpand x __macroSend: selector with: other __macroExpand x,
-                self __macroExpand y __macroSend: selector with: other __macroExpand y
+                `,self x __macroSend: selector with: `,other x,
+                `,self y __macroSend: selector with: `,other y
             )
         ).
     }.
@@ -236,9 +236,9 @@ definition: {
     if: N = 3 then: {
         macro expansionRule _binaryOperation: (selector: _LiteralSymbol) with: other := ``(
             SelfType (
-                self __macroExpand x __macroSend: selector with: other __macroExpand x,
-                self __macroExpand y __macroSend: selector with: other __macroExpand y,
-                self __macroExpand z __macroSend: selector with: other __macroExpand z
+                `,self x __macroSend: selector with: `,other x,
+                `,self y __macroSend: selector with: `,other y,
+                `,self z __macroSend: selector with: `,other z
             )
         ).
     }.
@@ -246,10 +246,10 @@ definition: {
     if: N = 4 then: {
         macro expansionRule _binaryOperation: (selector: _LiteralSymbol) with: other := ``(
             SelfType (
-                self __macroExpand x __macroSend: selector with: other __macroExpand x,
-                self __macroExpand y __macroSend: selector with: other __macroExpand y,
-                self __macroExpand z __macroSend: selector with: other __macroExpand z,
-                self __macroExpand w __macroSend: selector with: other __macroExpand w,
+                `,self x __macroSend: selector with: `,other x,
+                `,self y __macroSend: selector with: `,other y,
+                `,self z __macroSend: selector with: `,other z,
+                `,self w __macroSend: selector with: `,other w,
             )
         ).
     }.

@@ -13,11 +13,11 @@ template FixedArray(ET: Type)
     field elements public type: ElementType array.
 
     macro expansionRule at: index := ``(
-        self __macroExpand elements at: index __macroExpand
+        `,self elements at: `,index
     ).
 
     macro expansionRule subscriptAt: index := ``(
-        self __macroExpand elements [index __macroExpand]
+        `,self elements [`,index]
     ).
 }.
 

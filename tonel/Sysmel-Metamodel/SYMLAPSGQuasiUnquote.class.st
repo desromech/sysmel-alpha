@@ -7,6 +7,16 @@ Class {
 	#category : #'Sysmel-Metamodel-APSG'
 }
 
+{ #category : #'meta evaluation' }
+SYMLAPSGQuasiUnquote >> analyzeAndEvaluateInEnvironment: anEnvironment [
+	^ node analyzeAndEvaluateInEnvironment: anEnvironment
+]
+
+{ #category : #'meta evaluation' }
+SYMLAPSGQuasiUnquote >> evaluateInEnvironment: anEnvironment [
+	^ node evaluateInEnvironment: anEnvironment
+]
+
 { #category : #testing }
 SYMLAPSGQuasiUnquote >> evaluateTypeInEnvironment: anEnvironment [
 	^ anEnvironment compilationTarget apsgNodeType
@@ -30,4 +40,9 @@ SYMLAPSGQuasiUnquote >> node [
 { #category : #accessing }
 SYMLAPSGQuasiUnquote >> node: anObject [
 	node := anObject
+]
+
+{ #category : #'meta evaluation' }
+SYMLAPSGQuasiUnquote >> semanticAnalysisInEnvironment: anEnvironment [
+	^ node semanticAnalysisInEnvironment: anEnvironment
 ]

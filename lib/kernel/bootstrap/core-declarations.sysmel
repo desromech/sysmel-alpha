@@ -55,25 +55,25 @@ Compiler compilationTarget
 
 // Some extra utility macros.
 macro expansionRule use: aNamespace := ``(
-    __thisLexicalScope useNamespace: aNamespace __macroExpand
+    __thisLexicalScope useNamespace: `,aNamespace
 ).
 
 macro expansionRule useAndExport: aNamespace := ``(
-    __thisProgramEntity useAndExportNamespace: aNamespace __macroExpand
+    __thisProgramEntity useAndExportNamespace: `,aNamespace
 ).
 
 macro expansionRule loadFile: aFileName := ``(
-    Compiler evaluateFileNamed: aFileName __macroExpand
+    Compiler evaluateFileNamed: `,aFileName
 ).
 
 macro expansionRule loadFileOnce: aFileName := ``(
-    Compiler evaluateFileNamedOnce: aFileName __macroExpand
+    Compiler evaluateFileNamedOnce: `,aFileName
 ).
 
 
 // Lexical scope cleanup.
 macro expansionRule ensureCleanup: aCleanUpAction := ``(
-    __thisLexicalScope onCleanupDo: aCleanUpAction __macroExpand
+    __thisLexicalScope onCleanupDo: `,aCleanUpAction
 ).
 
 }.

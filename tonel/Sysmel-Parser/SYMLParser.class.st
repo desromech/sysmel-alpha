@@ -586,6 +586,18 @@ SYMLParser >> unaryExpressionSuffixMessage [
 ]
 
 { #category : #accessing }
+SYMLParser >> unaryExpressionSuffixUnquote [
+	^ super unaryExpressionSuffixUnquote ==> [ :unquote |
+		SYMLASTMessageSend new
+			position: unquote;
+			tokens: unquote tokens;
+			selector: unquote;
+			arguments: #();
+			yourself
+	]
+]
+
+{ #category : #accessing }
 SYMLParser >> unarySuffixSubscript [
 	^ super unarySuffixSubscript ==> [ :tokens |
 		SYMLASTSubscriptExpression new
