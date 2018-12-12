@@ -15,9 +15,9 @@ class FileStream definition: {
         := nativeFile_write(nativeFileHandle, buffer, size).
 }.
 
-global StdinFile mutable := FileStream fromNativeFileHandle: StdinNativeFileHandle.
-global StdoutFile mutable := FileStream fromNativeFileHandle: StdoutNativeFileHandle.
-global StderrFile mutable := FileStream fromNativeFileHandle: StderrNativeFileHandle.
+global stdinFile mutable := FileStream fromNativeFileHandle: stdinNativeFileHandle.
+global stdoutFile mutable := FileStream fromNativeFileHandle: stdoutNativeFileHandle.
+global stderrFile mutable := FileStream fromNativeFileHandle: stderrNativeFileHandle.
 
 /**
  * Text stream writer
@@ -165,7 +165,7 @@ class TextStreamWriter definition: {
         := self nextPutHexPointer: pointer; yourself.
 }.
 
-global Stdout mutable := TextStreamWriter for: StdoutFile address.
-global Stderr mutable := TextStreamWriter for: StderrFile address.
+global stdout mutable := TextStreamWriter for: stdoutFile address.
+global stderr mutable := TextStreamWriter for: stderrFile address.
 
 }.

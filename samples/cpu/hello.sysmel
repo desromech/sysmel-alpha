@@ -11,8 +11,7 @@ function printValue(value: Float32) => Void := {
 }.
 
 function main externC (argc: Int32, argv: Char const pointer pointer) => Int32 := {
-
-    LibC printf("testGlobal %d\n", 42).
+    StdNative stdout  << "testGlobal " << testGlobal; nl.
 
     //let s type: SomeStruct.
 

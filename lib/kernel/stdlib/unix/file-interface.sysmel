@@ -1,9 +1,9 @@
 namespace StdNative definition: {
 
 alias NativeFileHandle := Int32.
-alias StdinNativeFileHandle := Unix STDIN_FILENO.
-alias StdoutNativeFileHandle := Unix STDOUT_FILENO.
-alias StderrNativeFileHandle := Unix STDERR_FILENO.
+alias stdinNativeFileHandle := Unix STDIN_FILENO.
+alias stdoutNativeFileHandle := Unix STDOUT_FILENO.
+alias stderrNativeFileHandle := Unix STDERR_FILENO.
 
 alias NativeFile_SeekSet := LibC SEEK_SET.
 alias NativeFile_SeekCur := LibC SEEK_CUR.

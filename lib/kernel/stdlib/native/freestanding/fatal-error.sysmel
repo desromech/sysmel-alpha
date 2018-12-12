@@ -6,7 +6,7 @@ if: Compiler compilationTarget hasNoOperatingSystem then: {
     }.
 } else: {
     message fatalError: (message: StringLiteral) ::=> Void := {
-        Stderr << "FATAL ERROR: " << message; nl.
+        stderr << "FATAL ERROR: " << message; nl.
         native_abort().
     }.
 }.

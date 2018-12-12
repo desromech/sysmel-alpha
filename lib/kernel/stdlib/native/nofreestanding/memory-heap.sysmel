@@ -30,7 +30,7 @@ template FixedSizeBuddyMemoryAllocator(MNOSB: _LiteralInteger)
         allBlocks_nextFreePointer[0] := InvalidBlockIndex.
 
         // Mark the remaining levels as unallocated.
-        //Stdout << "init buddy with levels " << (LevelCount castTo: UInt32) << " blocks " << (MaxNumberOfSmallestBlocks castTo: UInt32); nl.
+        //stdout << "init buddy with levels " << (LevelCount castTo: UInt32) << " blocks " << (MaxNumberOfSmallestBlocks castTo: UInt32); nl.
         for: (let i mutable := 1) while: (i < LevelCount) do: {
             perLevelFreeListHeads[i] := InvalidBlockIndex
         } continueWith: (i := i + 1).
@@ -114,14 +114,14 @@ template FixedSizeBuddyMemoryAllocator(MNOSB: _LiteralInteger)
         let buddyBlockIndex := (levelIndex isEven ifTrue: (rawBlockIndex + 1) ifFalse: (rawBlockIndex - 1)) castTo: BlockIndexType.
 
         level > 0 && (self removeBlock: buddyBlockIndex fromFreeListInLevel: level) ifTrue: {
-            //Stdout << "TODO: freeBlock inLevel: " << level << " coalesce " << rawBlockIndex << " " << buddyBlockIndex; nl.
+            //stdout << "TODO: freeBlock inLevel: " << level << " coalesce " << rawBlockIndex << " " << buddyBlockIndex; nl.
             self freeBlock: (levelIndex / 2 castTo: BlockIndexType)inLevel: level - 1
         } ifFalse: {
             // Put the block in the level free list.
             allBlocks_nextFreePointer[rawBlockIndex] := perLevelFreeListHeads[level].
             perLevelFreeListHeads[level] := rawBlockIndex.
 
-            //Stdout << "TODO: freeBlock " << levelIndex << " inLevel: " << level << " " << levelIndex << " " << rawBlockIndex << " " << buddyBlockIndex; nl.
+            //stdout << "TODO: freeBlock " << levelIndex << " inLevel: " << level << " " << levelIndex << " " << rawBlockIndex << " " << buddyBlockIndex; nl.
         }
     }.
 
@@ -162,7 +162,7 @@ template FixedSizeBuddyMemoryAllocator(MNOSB: _LiteralInteger)
             }
         }.
 
-        //Stdout << "Carve level " << level << " free block: " << freeBlock; nl.
+        //stdout << "Carve level " << level << " free block: " << freeBlock; nl.
 
         // Remove the block from the free list.
         perLevelFreeListHeads[level] := allBlocks_nextFreePointer[freeBlock].
@@ -182,7 +182,7 @@ template FixedSizeBuddyMemoryAllocator(MNOSB: _LiteralInteger)
 
     message allocateBlockInLevel: (targetLevel: UIntPointer) ::=> BlockIndexType := {
         let freeBlock mutable := perLevelFreeListHeads[targetLevel].
-        //Stdout << self address << " Level:  " << targetLevel << " free list head " << freeBlock << " next free " << perLevelFreeListHeads[targetLevel + 1]; nl.
+        //stdout << self address << " Level:  " << targetLevel << " free list head " << freeBlock << " next free " << perLevelFreeListHeads[targetLevel + 1]; nl.
 
         freeBlock == InvalidBlockIndex ifTrue: {
             freeBlock := self carveBlockInLevel: targetLevel - 1.
@@ -192,7 +192,7 @@ template FixedSizeBuddyMemoryAllocator(MNOSB: _LiteralInteger)
         }.
 
         // We found a block.
-        //Stdout << "Found free block: " << freeBlock << " in level " << targetLevel << " next free " << allBlocks_nextFreePointer[freeBlock]; nl.
+        //stdout << "Found free block: " << freeBlock << " in level " << targetLevel << " next free " << allBlocks_nextFreePointer[freeBlock]; nl.
 
         // Remove the block from the linked list.
         perLevelFreeListHeads[targetLevel] := allBlocks_nextFreePointer[freeBlock].
@@ -219,7 +219,7 @@ template FixedSizeBuddyMemoryAllocator(MNOSB: _LiteralInteger)
 
         // Get the index of the allocated level.
         let allocatedLevel := leafBlocks_allocatedLevel[firstBlockIndex].
-        //Stdout << blockIndex << " first block " << firstBlockIndex << " allocatedLevel " << allocatedLevel; nl.
+        //stdout << blockIndex << " first block " << firstBlockIndex << " allocatedLevel " << allocatedLevel; nl.
         assert: allocatedLevel ~= 16rff.
 
         // Check the slab flag.
@@ -577,14 +577,14 @@ class NativeMemoryHeap definition: {
             // Get the starting block of the slab.
             let slabBlockIndex := normalChunkHeader _ buddyMemoryAllocator getSlabBlockOrInvalid: buddyBlockIndex.
 
-            //Stdout << pointer << " normalChunkHeader " << normalChunkHeader << " " << buddyBlockIndex << " " << slabBlockIndex; nl.
+            //stdout << pointer << " normalChunkHeader " << normalChunkHeader << " " << buddyBlockIndex << " " << slabBlockIndex; nl.
 
             slabBlockIndex ~~ ChunkBuddyMemoryAllocator InvalidBlockIndex ifTrue: {
                 let slabAddress := chunkAddress + slabBlockIndex * MemoryChunkBlockSize.
                 let slabHeader := slabAddress reinterpretCastTo: SlabHeader pointer.
                 let slabElementIndex := (pointerAddress - (slabAddress + SlabHeaderSize)) / slabHeader _ elementSize.
 
-                //Stdout << "Slab " << slabHeader << " element size " << slabHeader _ elementSize << " index " << slabElementIndex; nl.
+                //stdout << "Slab " << slabHeader << " element size " << slabHeader _ elementSize << " index " << slabElementIndex; nl.
 
                 // Mark the element as free in the slab.
                 slabHeader _  unmarkElement: slabElementIndex.
@@ -627,15 +627,15 @@ class NativeMemoryHeap definition: {
      * This frees a large allocation through the buddy memory allocator.
      */
     message freeLargeAllocationBlock: (buddyBlockIndex: UIntPointer) inChunk: (normalChunkHeader: NormalChunkHeader pointer) ::=> Void := {
-        //Stdout << normalChunkHeader << " normalChunkHeader initialFreeBlockCount " << normalChunkHeader _ initialFreeBlockCount << " " << normalChunkHeader _ buddyMemoryAllocator currentFreeLeafBlockCount; nl.
+        //stdout << normalChunkHeader << " normalChunkHeader initialFreeBlockCount " << normalChunkHeader _ initialFreeBlockCount << " " << normalChunkHeader _ buddyMemoryAllocator currentFreeLeafBlockCount; nl.
 
         normalChunkHeader _ buddyMemoryAllocator freeAtBlock: buddyBlockIndex.
 
-        //Stdout << normalChunkHeader << " normalChunkHeader initialFreeBlockCount " << normalChunkHeader _ initialFreeBlockCount << " " << normalChunkHeader _ buddyMemoryAllocator currentFreeLeafBlockCount; nl.
+        //stdout << normalChunkHeader << " normalChunkHeader initialFreeBlockCount " << normalChunkHeader _ initialFreeBlockCount << " " << normalChunkHeader _ buddyMemoryAllocator currentFreeLeafBlockCount; nl.
         normalChunkHeader _ isCompletelyFree ifTrue: {
             self removeChunk: normalChunkHeader.
             NativeVirtualMemoryInterface freeAddressSpace: normalChunkHeader size: MemoryChunkSize.
-            // Stdout << "Free chunk " << normalChunkHeader; nl.
+            // stdout << "Free chunk " << normalChunkHeader; nl.
         }.
     }.
 
@@ -674,7 +674,7 @@ class NativeMemoryHeap definition: {
             let freeElementIndex := slab _ findFreeElementIndex.
             assert: freeElementIndex >= 0.
 
-            //Stdout << "Allocate from active category slab: " << categoryState firstActiveSlab << " element " << freeElementIndex; nl.
+            //stdout << "Allocate from active category slab: " << categoryState firstActiveSlab << " element " << freeElementIndex; nl.
             slab _ markElement: (freeElementIndex castTo: UIntPointer).
 
             // If we fill the slab, make it unactive.
@@ -722,7 +722,7 @@ class NativeMemoryHeap definition: {
             addSlab: slabHeader;
             activateSlab: slabHeader.
 
-        //Stdout << "Slab category: " << category << " allocationSize " << allocationSize << " element count " << elementCount; nl.
+        //stdout << "Slab category: " << category << " allocationSize " << allocationSize << " element count " << elementCount; nl.
         slabHeader
     }.
 
@@ -742,7 +742,7 @@ class NativeMemoryHeap definition: {
             return: nil
         }.
 
-        //Stdout << "Allocate in chunk " << chunk << " size " << size; nl.
+        //stdout << "Allocate in chunk " << chunk << " size " << size; nl.
 
         // Allocate the blocks
         let blockCount := self blockCountForSize: size.
@@ -753,7 +753,7 @@ class NativeMemoryHeap definition: {
         let chunkOffset := allocatedBlock*MemoryChunkBlockSize.
         let allocationMemory := (chunk reinterpretCastTo: UInt8 pointer)[chunkOffset] address.
 
-        //Stdout << "Allocated block " << allocatedBlock << " pointer: " << allocationMemory; nl.
+        //stdout << "Allocated block " << allocatedBlock << " pointer: " << allocationMemory; nl.
 
         // Return a pointer into the actual allocated memory
         allocationMemory
@@ -766,7 +766,7 @@ class NativeMemoryHeap definition: {
         mutex withLock: {
             // Compute the size of the allocation.
             let allocationSize := size + HugeChunkHeaderSize alignedTo: 4096.
-            //Stdout << "Allocate large memory chunk of size " << allocationSize; nl.
+            //stdout << "Allocate large memory chunk of size " << allocationSize; nl.
 
             // Allocate the super-chunk.
             let largeAllocation := (NativeVirtualMemoryInterface reserveAndCommitAddressSpace: allocationSize alignment: MemoryChunkAlignment) reinterpretCastTo: UInt8 pointer.
@@ -774,7 +774,7 @@ class NativeMemoryHeap definition: {
                 return: nil
             }.
 
-            //Stdout << "Allocated large memory chunk: " << largeAllocation; nl.
+            //stdout << "Allocated large memory chunk: " << largeAllocation; nl.
 
             // Set the header.
             let header := largeAllocation reinterpretCastTo: HugeChunkHeader pointer.
@@ -791,7 +791,7 @@ class NativeMemoryHeap definition: {
      */
     message allocateNewChunk => NormalChunkHeader pointer := {
         let chunk := (NativeVirtualMemoryInterface reserveAndCommitAddressSpace: MemoryChunkSize alignment: MemoryChunkAlignment) reinterpretCastTo: NormalChunkHeader pointer.
-        //Stdout << "Allocated memory chunk: " << chunk; nl.
+        //stdout << "Allocated memory chunk: " << chunk; nl.
 
         chunk ifNil: {
             return: nil
@@ -801,7 +801,7 @@ class NativeMemoryHeap definition: {
         self addChunk: chunk.
 
         // Allocate the chunk header in the buddy memory allocator.
-        //Stdout << "NormalChunkHeader instanceSize " << (NormalChunkHeader instanceSize castTo: UIntPointer); nl.
+        //stdout << "NormalChunkHeader instanceSize " << (NormalChunkHeader instanceSize castTo: UIntPointer); nl.
         chunk _ buddyMemoryAllocator
             initialize;
             allocateBlocks: (self blockCountForSize: NormalChunkHeader instanceSize) forSlab: false.
@@ -861,7 +861,7 @@ class NativeMemoryHeap definition: {
 
         let requiredBlocks := self blockCountForSize: requiredSize.
         let requiredLevel := firstChunk _ buddyMemoryAllocator findLevelForBlockCount: requiredBlocks.
-        //Stdout << "findChunkWithAvailableSize level " << requiredLevel; nl.
+        //stdout << "findChunkWithAvailableSize level " << requiredLevel; nl.
 
         // Linearly find a chunk with the requred size.
         // TODO: Sort the chunks in an AVL tree.
