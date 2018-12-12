@@ -2,6 +2,7 @@ Class {
 	#name : #SYMLMetaBuilder,
 	#superclass : #SYMLObject,
 	#instVars : [
+		'flags',
 		'metaObjectClass',
 		'module',
 		'parent'
@@ -32,6 +33,16 @@ SYMLMetaBuilder >> analyzeAPSGIdentifierToMe: node inEnvironment: anEnvironment 
 			position: node;
 			metaObject: (self newInstanceInEnvironment: anEnvironment node: node);
 			yourself
+]
+
+{ #category : #accessing }
+SYMLMetaBuilder >> flags [
+	^ flags
+]
+
+{ #category : #accessing }
+SYMLMetaBuilder >> flags: anObject [
+	flags := anObject
 ]
 
 { #category : #testing }

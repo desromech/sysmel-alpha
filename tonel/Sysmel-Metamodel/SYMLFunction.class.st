@@ -144,6 +144,12 @@ SYMLFunction >> printOn: aStream [
 
 { #category : #'as yet unclassified' }
 SYMLFunction >> semanticAnalyzeMessageToYou: message inEnvironment: environment at: aPosition [
+	(definitionNode isNil and: [ definitionEnvironment isNil ]) ifTrue: [ 
+		self
+			definitionEnvironment: environment;
+			definitionNode: message
+	].
+
 	(name isNil and: [hasArguments not ]) ifTrue: [
 		message selector numArgs = 0 ifTrue: [
 			self name: message selector.

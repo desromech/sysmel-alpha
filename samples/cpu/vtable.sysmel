@@ -1,0 +1,71 @@
+class Expression definition: {
+    message initialize => Void := {
+
+    }.
+
+    virtual message evaluate => Int32 := {
+        StdNative fatalError: "Evaluating pure virtual method.".
+        0
+    }.
+}.
+
+class ConstantInteger superclass: Expression;
+definition: {
+    field constant public type: Int32.
+
+    override message evaluate => Int32
+        := constant.
+}.
+
+class BinaryOperation superclass: Expression;
+definition: {
+    field left public type: Expression pointer.
+    field right public type: Expression pointer.
+
+    meta macro expansionRule left: leftOperand right: rightOperand := ``(
+        `,self basicNativeNew _
+            left: `,leftOperand;
+            right: `,rightOperand;
+            asExpression
+    ).
+}.
+
+class Addition superclass: BinaryOperation;
+definition: {
+    override message evaluate => Int32
+        := left _ evaluate + right _ evaluate.
+}.
+
+class Multiplication superclass: BinaryOperation;
+definition: {
+    override message evaluate => Int32
+        := left _ evaluate * right _ evaluate.
+}.
+
+/**
+ * Simple DSL for constructing an expression tree.
+ */
+// TODO: Make this message inline.
+Expression message asExpression => Expression pointer
+    := self address.
+
+_LiteralInteger macro expansionRule asExpression := ``(
+    ConstantInteger basicNativeNew _
+        constant: `,self;
+        asExpression
+).
+
+// TODO: Add support for a namespace for macros.
+Expression pointer extend: {
+    macro expansionRule asExpression := self.
+
+    macro expansionRule * other := ``(Multiplication left: `,self right: `,other asExpression).
+    macro expansionRule + other := ``(Addition left: `,self right: `,other asExpression).
+}.
+
+function main externC (argc: Int32, argv: Char const pointer pointer) => Int32 := {
+    let expression := 5 asExpression * 2 + 4.
+
+    StdNative stdout << "Expression value " << expression _ evaluate; nl.
+    return: 0.
+}.

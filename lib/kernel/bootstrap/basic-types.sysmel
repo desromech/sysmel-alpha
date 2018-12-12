@@ -343,6 +343,7 @@ template ReferenceTypeTemplate(R: Type, AS: _LiteralSymbol)
     := type uses: ReferenceType;
 definition: {
     alias ReferencedType := R.
+    alias CleanReferencedType := ReferencedType cleanType.
     alias AddressSpaceName := AS.
 
     meta message referenced => _CompilerObjectType := ReferencedType.

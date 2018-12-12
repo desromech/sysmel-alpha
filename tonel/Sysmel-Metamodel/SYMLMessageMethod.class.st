@@ -145,6 +145,12 @@ SYMLMessageMethod >> semanticAnalyzeMessage: message inEnvironment: environment 
 
 { #category : #'as yet unclassified' }
 SYMLMessageMethod >> semanticAnalyzeMessageToYou: message inEnvironment: environment at: aPosition [
+	(definitionNode isNil and: [ definitionEnvironment isNil ]) ifTrue: [ 
+		self
+			definitionEnvironment: environment;
+			definitionNode: message
+	].
+
 	hasSelector ifFalse: [ 
 		self setSelectorWithTemplate: message inEnvironment: environment at: aPosition.
 		^ message receiver

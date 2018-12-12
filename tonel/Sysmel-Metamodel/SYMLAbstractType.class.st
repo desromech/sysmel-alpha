@@ -35,7 +35,11 @@ SYMLAbstractType class >> initialize [
 		#meta . [ :programEntity :module | programEntity type ].
 		#macro . [ :programEntity :module | SYMLMetaBuilder for: SYMLMacroBuilder module: module parent: programEntity ].
 		#method . [ :programEntity :module | SYMLMetaBuilder for: SYMLMethod module: module parent: programEntity ].
-		#message . [ :programEntity :module | SYMLMetaBuilder for: SYMLMessageMethod module: module parent: programEntity ]
+		#message . [ :programEntity :module | SYMLMetaBuilder for: SYMLMessageMethod module: module parent: programEntity ].
+		
+		#virtual . [ :programEntity :module | (SYMLMethodMetaBuilderFlags module: module parent: programEntity) virtual ].
+		#override . [ :programEntity :module | (SYMLMethodMetaBuilderFlags module: module parent: programEntity) override ].
+		#final . [ :programEntity :module | (SYMLMethodMetaBuilderFlags module: module parent: programEntity) final ].
 	}.
 ]
 
@@ -65,6 +69,16 @@ SYMLAbstractType >> addConversionRule: aConversionRule [
 	self
 		addImplicitConversionRule: aConversionRule;
 		addExplicitConversionRule: aConversionRule
+]
+
+{ #category : #hooks }
+SYMLAbstractType >> addConversionRulesToPointerTypeToMyself: referenceType [
+	<compileTime>
+]
+
+{ #category : #hooks }
+SYMLAbstractType >> addConversionRulesToReferenceTypeToMyself: referenceType [
+	<compileTime>
 ]
 
 { #category : #conversions }

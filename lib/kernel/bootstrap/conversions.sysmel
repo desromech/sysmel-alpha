@@ -234,9 +234,15 @@ PointerType conversionTo: Void pointer doOn: pointerReinterpretCast.
 PointerType conversionTo: Void const pointer doOn: pointerReinterpretCast.
 
 PointerTypeTemplate extend: {
+    CleanPointedType addConversionRulesToPointerTypeToMyself: SelfType.
+
     if: PointedType isConstantType then: {
         CleanPointerType conversionTo: SelfType doOn: pointerReinterpretCast.
     }.
+}.
+
+ReferenceTypeTemplate extend: {
+    CleanReferencedType addConversionRulesToReferenceTypeToMyself: SelfType.
 }.
 
 // Literal integer => Pointer

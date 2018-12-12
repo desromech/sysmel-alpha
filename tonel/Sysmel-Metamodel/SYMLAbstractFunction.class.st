@@ -197,6 +197,14 @@ SYMLAbstractFunction >> definition: bodyLazyValue [
 	self subclassResponsibility
 ]
 
+{ #category : #'as yet unclassified' }
+SYMLAbstractFunction >> definitionPosition: anObject [
+	super definitionPosition: anObject.
+	receiver ifNotNil: [
+		receiver definitionPosition: definitionPosition
+	]
+]
+
 { #category : #'semantic analysis' }
 SYMLAbstractFunction >> ensureSemanticAnalysis [
 	analyzedBody ifNotNil: [ ^ self ].

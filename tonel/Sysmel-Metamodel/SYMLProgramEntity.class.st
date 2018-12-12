@@ -112,6 +112,16 @@ SYMLProgramEntity >> evaluateReferenceAt: position [
 ]
 
 { #category : #accessing }
+SYMLProgramEntity >> flags [
+	^ flags
+]
+
+{ #category : #accessing }
+SYMLProgramEntity >> flags: aCollectionOfFlags [
+	flags := aCollectionOfFlags asArray
+]
+
+{ #category : #accessing }
 SYMLProgramEntity >> fullUnmangledName [
 	self subclassResponsibility
 

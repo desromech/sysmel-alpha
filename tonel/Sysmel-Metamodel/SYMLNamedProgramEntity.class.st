@@ -74,6 +74,10 @@ SYMLNamedProgramEntity >> hasDontCareName [
 	^ name = '_'
 ]
 
+{ #category : #initialization }
+SYMLNamedProgramEntity >> initializeWithValidName [
+]
+
 { #category : #accessing }
 SYMLNamedProgramEntity >> module [
 	^ module
@@ -111,6 +115,7 @@ SYMLNamedProgramEntity >> setName: newName ifNewReturnNode: newReturnedNode [
 	].
 
 	self name: newName.
+	self initializeWithValidName.
 	^ newReturnedNode
 ]
 
