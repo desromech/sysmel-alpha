@@ -21,7 +21,7 @@ BaselineOfSysmel >> baseline: spec [
 
 		spec
 			package: 'Sysmel-Parser' with: [
-				spec requires: #('PetitParser' PetitParser2Core 'Sysmel-Metamodel')
+				spec requires: #(PetitParser2Core 'Sysmel-Metamodel')
 			].
 		spec
 			package: 'Sysmel-Metamodel' with: [
