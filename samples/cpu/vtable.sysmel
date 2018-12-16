@@ -1,8 +1,4 @@
 class Expression definition: {
-    message initialize => Void := {
-
-    }.
-
     virtual message evaluate => Int32 := {
         StdNative fatalError: "Evaluating pure virtual method.".
         0

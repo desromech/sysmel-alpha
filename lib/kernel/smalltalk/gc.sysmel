@@ -5,7 +5,8 @@ namespace SysmelKernel definition: {
  * The header an object.
  */
 struct _ObjectHeader definition: {
-    field __class public type: Void pointer. // TODO: Point into the vtable, instead of the class.
+    field __vtable public type: Void pointer. // TODO: Point into the vtable, instead of the class.
+    field __class public type: Void pointer. // TODO: Remove this pointer by using the vtable.
 
     if: UIntPointer instanceSize == 4 then: {
         // TODO: Support big-endian.

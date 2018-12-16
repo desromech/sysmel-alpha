@@ -113,7 +113,7 @@ gcclass Object superclass: ProtoObject.
         gcclass True superclass: Boolean.
         gcclass False superclass: Boolean.
 
-    // Undefind object
+    // Undefined object
     gcclass UndefinedObject superclass: Object.
 
     // Numbers
