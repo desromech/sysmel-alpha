@@ -24,6 +24,7 @@ SYMLGCClass class >> initialize [
 		superclass superclass
 		
 		methodDict methodDictionaryReflectionProxy
+		basicInitializeFunctionPointer basicInitializeFunctionPointerReflectionProxy
 		
 		instanceDataSize instanceDataSize
 		instanceDataAlignment instanceDataAlignment
@@ -107,6 +108,7 @@ SYMLGCClass >> createMetaTypeFor: newInstanceType basingOf: oldMetaType [
 			module: module;
 			parent: newInstanceType;
 			definitionEnvironment: definitionEnvironment;
+			definitionNode: definitionNode;
 			instanceType: newInstanceType;
 			metaClassClass: newInstanceType metaClassClass;
 			metaType: self;
@@ -313,10 +315,7 @@ SYMLGCClass >> makeInstance: variableDataSize identityHash: identityHash [
 
 	"Set the identity hash."
 	self storeIdentityHash: identityHash intoSlots: result slots.
-		
-	self flag: 'TODO: Set all of the required vtables'.
 	^ result
-		setSlot: 1 value: self;
 		setSlot: 	self variableDataSizeField slotIndex value: variableDataSize;
 		yourself
 

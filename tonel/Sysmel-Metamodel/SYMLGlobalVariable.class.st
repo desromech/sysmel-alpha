@@ -95,8 +95,7 @@ SYMLGlobalVariable >> generateSSAReferenceWith: builder [
 
 { #category : #'code generation' }
 SYMLGlobalVariable >> generateSysmelSSAPointerConstantOfType: pointerType forModule: targetModule [
-	self assert: ssaValue isNotNil.
-	^ SLVMConstant value: ssaValue bitcast: pointerType ssaType
+	^ SLVMConstant value: self validSSAValue bitcast: pointerType ssaType
 ]
 
 { #category : #testing }

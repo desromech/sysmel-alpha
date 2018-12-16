@@ -73,6 +73,33 @@ codeGeneration: $$Pharo {
 }.
 
 PointerType macro selectors: #(+ at: subscriptAt:) doOn: {
+evaluation: $$Pharo {
+    node: node environment: environment
+        | pointer index element |
+
+        pointer := (node coercionRule first
+            convertValue: (node receiver evaluateInEnvironment: environment)
+            into: node coercionType first
+            at: node) unwrapSysmelValue.
+        index := (node coercionRule second
+            convertValue: (node arguments first evaluateInEnvironment: environment)
+            into: node coercionType second
+            at: node) unwrapSysmelValue.
+        "Zero-based into one based"
+        node selector == #subscriptAt: ifTrue: [
+            index := index + 1
+        ].
+
+        node valueType isReferenceType ifTrue: [
+            ^ (SYMLArraySlotReference new
+                container: pointer;
+                type: node valueType valueType;
+                slotIndex: index;
+                yourself) asSysmelValueInEnvironment: environment
+        ] ifFalse: [
+            (pointer perform: node selector with: index) sysmelValueWithType: node valueType inEnvironment: environment
+        ]
+}.
 
 // Semantic analysis
 semanticAnalysis: $$Pharo {

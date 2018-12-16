@@ -170,7 +170,7 @@ SYMLStructure >> definitionScopeClass [
 
 { #category : #'initialization finalization' }
 SYMLStructure >> ensureBasicInitializerIfNonTrivial [
-	self hasNonTrivialBasicInitialization ifFalse: [ ^ self ].
+	self hasNonTrivialGCBasicInitialization ifFalse: [ ^ self ].
 	(methodDictionary includesKey: #basicInitialize) ifTrue: [ ^ self ].
 	
 	SYMLMessageMethod new

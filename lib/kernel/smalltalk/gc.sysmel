@@ -1,12 +1,15 @@
 namespace SysmelKernel definition: {
 
+alias _BasicInitializeFunctionPointerType := ((Void pointer) => Void) pointer.
+
 /**
  * _ObjectHeader
  * The header an object.
  */
 struct _ObjectHeader definition: {
-    field __vtable public type: Void pointer. // TODO: Point into the vtable, instead of the class.
-    field __class public type: Void pointer. // TODO: Remove this pointer by using the vtable.
+    // Pointer towards the main virtual table. Objects that implement interfaces
+    // can have additional vtables.
+    field __vtable public type: Void pointer.
 
     if: UIntPointer instanceSize == 4 then: {
         // TODO: Support big-endian.
@@ -30,7 +33,7 @@ class SysmelGC definition: {
 
     message allocate: (objectSize: UIntPointer)
         variableDataSize: (variableDataSize: UInt32)
-        withClass: (objectClass: _ObjectHeader pointer)
+        initializingWith: (basicInitializer: _BasicInitializeFunctionPointerType)
           ::=> _ObjectHeader pointer := {
 
         // Allocate the object memory.
@@ -39,8 +42,8 @@ class SysmelGC definition: {
 
         // Set the allocated object class.
         allocatedObject value
-            __class: (objectClass reinterpretCastTo: Void pointer);
             __variableDataSize: variableDataSize.
+        basicInitializer _ (allocatedObject).
 
         return: allocatedObject
     }.

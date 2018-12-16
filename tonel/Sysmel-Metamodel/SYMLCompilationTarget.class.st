@@ -42,7 +42,8 @@ Class {
 		'managedClassTypeTrait',
 		'undefinedType',
 		'intPointerType',
-		'uintPointerType'
+		'uintPointerType',
+		'basicInitializeFunctionPointerType'
 	],
 	#category : #'Sysmel-Metamodel-CompilationTarget'
 }
@@ -94,6 +95,11 @@ SYMLCompilationTarget >> apsgNodeType [
 SYMLCompilationTarget >> apsgNodeType: anObject [
 	<compileTime>
 	apsgNodeType := anObject
+]
+
+{ #category : #accessing }
+SYMLCompilationTarget >> basicInitializeFunctionPointerType [
+	^ basicInitializeFunctionPointerType ifNil: [ basicInitializeFunctionPointerType := (self functionArguments: { self voidType pointer } returnType: self voidType) pointer ]
 ]
 
 { #category : #accessing }

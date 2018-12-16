@@ -155,8 +155,8 @@ ProtoObject type superclass: Class.
 
 ProtoObject definition: {
     // We use a fixed 16-byte object header, to be able to use SSE instructions.
-
-    field __class private type: Behavior. // TODO: Point into the vtable, instead of the class.
+    (SelfType addMainVTableFieldNamed: #__vtable)
+        private.
 
     if: UIntPointer instanceSize == 4 then: {
         // TODO: Support big-endian.
@@ -179,6 +179,7 @@ Behavior uses: Type; definition: {
     field superclass public type: Behavior.
     field methodDict public type: MethodDictionary.
     field gclayout public type: GCLayout.
+    field basicInitializeFunctionPointer public type: _BasicInitializeFunctionPointerType.
     field slots public type: Array.
 
     field instanceDataSize public type: UInt32.
@@ -225,7 +226,7 @@ Behavior uses: Type; definition: {
         let allocatedObject := globalSysmelGC
             allocate: objectSize
             variableDataSize: (if: variableInstanceElementSize > 0 then: initialSize else: 0)
-            withClass: (self reinterpretCastTo: _ObjectHeader pointer).
+            initializingWith: basicInitializeFunctionPointer.
 
         // Convert the allocated object.
         return: (allocatedObject reinterpretCastTo: ProtoObject)
@@ -303,7 +304,8 @@ ProtoObject definition: {
         <compileTime>
         <staticBinding>
         <nogc>
-        return: __class
+        //return: __class
+        __vtable[-1] reinterpretCastTo: Behavior
     }.
 
     message identityHash => UInt32 := {

@@ -318,6 +318,11 @@ SYMLAbstractType >> assignValue: aDefinitionBlock [
 	^ self definition: aDefinitionBlock asFunctionalValue
 ]
 
+{ #category : #'reflection metadata proxies' }
+SYMLAbstractType >> basicInitializeFunctionPointerReflectionProxy [
+	^ SYMLBasicInitializeFunctionPointerReflectionProxy for: self
+]
+
 { #category : #'code generation' }
 SYMLAbstractType >> basicInitializeSSAVariable: ssaVariable with: builder [
 	| result |

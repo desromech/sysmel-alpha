@@ -18,6 +18,10 @@ SYMLStructureSlotLayout >> concreteSSAType [
 
 { #category : #defaults }
 SYMLStructureSlotLayout >> defaultValue [
+	(fields size = 1 and: [ fields first isVTablePointerField ]) ifTrue: [ 
+		^ fields first defaultValue
+	].
+
 	^ type defaultValue
 ]
 

@@ -13,6 +13,28 @@ Class {
 }
 
 { #category : #'virtual table' }
+SYMLAbstractClass >> addMainVTableFieldNamed: vtableFieldName [
+	<compileTime>
+	"This is a special method used by proto-object."
+	| field |
+	field := SYMLVTablePointerFieldVariable new 
+		name: vtableFieldName;
+		module: self module;
+		definitionEnvironment: definitionEnvironment;
+		definitionNode: self definitionNode;
+		parent: self;
+		originalClassDefinition: self;
+		classDefinition: self;
+		yourself.
+	symbols at: field name ifPresent: [ :existent |
+		self error: 'VTable field {1} overrides an existent field.' format: { field name } at: self definitionNode
+	] ifAbsentPut: [ field ].
+
+	fields add: field.
+	^ field
+]
+
+{ #category : #'virtual table' }
 SYMLAbstractClass >> addVirtualTableEntry: anAbstractFunction [
 	virtualMethods add: anAbstractFunction
 ]
