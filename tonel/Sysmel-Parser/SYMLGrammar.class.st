@@ -80,7 +80,15 @@ Class {
 		'greaterThan',
 		'blockClosureArguments',
 		'verticalBar',
-		'unaryExpressionSuffixUnquote'
+		'unaryExpressionSuffixUnquote',
+		'dictionaryExpression',
+		'sharp',
+		'dictionaryElementList',
+		'dictionaryElement',
+		'dictionaryKey',
+		'optionalDictionaryElement',
+		'dictionaryExpressionKey',
+		'colon'
 	],
 	#classVars : [
 		'SpecialOperators'
@@ -262,6 +270,31 @@ SYMLGrammar >> commaExpression [
 { #category : #tokens }
 SYMLGrammar >> decimalIntegerNumber [
 	^ self token: self numberSign optional, #digit asPParser plus
+]
+
+{ #category : #accessing }
+SYMLGrammar >> dictionaryElement [
+	^ dictionaryKey , expression
+]
+
+{ #category : #accessing }
+SYMLGrammar >> dictionaryElementList [
+	^ optionalDictionaryElement , (dot , optionalDictionaryElement) star
+]
+
+{ #category : #accessing }
+SYMLGrammar >> dictionaryExpression [
+	^ sharp, lcbracket , dictionaryElementList , rcbracket
+]
+
+{ #category : #accessing }
+SYMLGrammar >> dictionaryExpressionKey [
+	^ expression , colon
+]
+
+{ #category : #accessing }
+SYMLGrammar >> dictionaryKey [
+	^ keyword / dictionaryExpressionKey
 ]
 
 { #category : #tokens }
@@ -481,6 +514,11 @@ SYMLGrammar >> operatorString: aString [
 ]
 
 { #category : #accessing }
+SYMLGrammar >> optionalDictionaryElement [
+	^ dictionaryElement optional
+]
+
+{ #category : #accessing }
 SYMLGrammar >> optionalExpression [
 	^ expression optional
 ]
@@ -523,7 +561,7 @@ SYMLGrammar >> prefix: operation operate: operand [
 
 { #category : #accessing }
 SYMLGrammar >> primaryExpression [
-	^ quoteExpressions / languageScapeExpression / parentExpression / identifierExpression / blockExpression / literals
+	^ quoteExpressions / languageScapeExpression / parentExpression / identifierExpression / blockExpression / dictionaryExpression / literals
 ]
 
 { #category : #tokens }
@@ -586,6 +624,11 @@ SYMLGrammar >> scapedLanguageContent [
 { #category : #accessing }
 SYMLGrammar >> semicolon [
 	^ self token: $; asPParser
+]
+
+{ #category : #tokens }
+SYMLGrammar >> sharp [
+	^ self token: $# asPParser 
 ]
 
 { #category : #white }

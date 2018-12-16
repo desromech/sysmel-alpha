@@ -27,8 +27,23 @@ SYMLAbstractFunctionOrMacro >> createReceiverTypeForParent [
 
 ]
 
+{ #category : #'virtual methods' }
+SYMLAbstractFunctionOrMacro >> isMatchedByOverridingMethod: derivedMethod [
+	^ false
+]
+
+{ #category : #testing }
+SYMLAbstractFunctionOrMacro >> isOverride [
+	^ false
+]
+
 { #category : #testing }
 SYMLAbstractFunctionOrMacro >> isTemplateFunctionInstance [
+	^ false
+]
+
+{ #category : #testing }
+SYMLAbstractFunctionOrMacro >> isVirtual [
 	^ false
 ]
 

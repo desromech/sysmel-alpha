@@ -89,6 +89,17 @@ SYMLFunctionalPatternGroup >> fallbackPattern: anObject [
 	fallbackPattern := anObject
 ]
 
+{ #category : #'virtual methods' }
+SYMLFunctionalPatternGroup >> findAlternativeMatchedByOverridingMethod: derivedMethod [
+	alternatives do: [ :alternative |
+		(alternative isMatchedByOverridingMethod: derivedMethod) ifTrue: [ 
+			^ alternative
+		]
+	].
+
+	^ nil
+]
+
 { #category : #'pattern finding' }
 SYMLFunctionalPatternGroup >> findPatternForMessage: message inEnvironment: environment at: aPosition [
 	"Handle quickly the case without alternatives"

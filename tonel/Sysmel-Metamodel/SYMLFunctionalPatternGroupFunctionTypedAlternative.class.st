@@ -32,6 +32,11 @@ SYMLFunctionalPatternGroupFunctionTypedAlternative >> functionType: anObject [
 	functionType := anObject
 ]
 
+{ #category : #'as yet unclassified' }
+SYMLFunctionalPatternGroupFunctionTypedAlternative >> isMatchedByOverridingMethod: derivedMethod [
+	^ macroFunction isMatchedByOverridingMethod: derivedMethod
+]
+
 { #category : #testing }
 SYMLFunctionalPatternGroupFunctionTypedAlternative >> matchArgumentTypes: argumentTypes [
 	| expectedArguments coercionCost expectedArgument suppliedArgumentType argumentCoercionRule |

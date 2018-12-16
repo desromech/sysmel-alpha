@@ -47,8 +47,9 @@ SYMLStructureSlotLayout >> offset [
 ]
 
 { #category : #accessing }
-SYMLStructureSlotLayout >> offset: anObject [
-	offset := anObject
+SYMLStructureSlotLayout >> offset: newOffset [
+	offset := newOffset.
+	fields do: [ :f | f offset: newOffset ]
 ]
 
 { #category : #accessing }

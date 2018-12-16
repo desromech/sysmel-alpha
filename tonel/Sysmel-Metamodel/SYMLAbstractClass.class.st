@@ -4,25 +4,173 @@ Class {
 	#instVars : [
 		'superclass',
 		'class',
-		'allFieldsCache'
+		'virtualMethods',
+		'allFieldsLayout',
+		'virtualTables',
+		'overridenMethods'
 	],
 	#category : #'Sysmel-Metamodel-Type'
 }
 
+{ #category : #'virtual table' }
+SYMLAbstractClass >> addVirtualTableEntry: anAbstractFunction [
+	virtualMethods add: anAbstractFunction
+]
+
 { #category : #'semantic analysis' }
 SYMLAbstractClass >> allFields [
-	^ allFieldsCache ifNil: [ allFieldsCache := self buildAllFieldsLayout ]
+	^ allFieldsLayout ifNil: [ allFieldsLayout := self buildAllFieldsLayout ]
 ]
 
 { #category : #'semantic analysis' }
 SYMLAbstractClass >> buildAllFieldsLayout [
-	^ (superclass ifNil: [ #() ] ifNotNil: [ superclass allFields ]) , fields
+	| layout |
+	layout := (superclass ifNil: [ #() ] ifNotNil: [ superclass allFields collect: #copy]) , fields.
+	layout do: [ :field | field parent: self ].
+	
+	(self isSysmelGCClass or: [virtualMethods isNotEmpty]) ifTrue: [ 
+		(layout isEmpty or: [ layout first isVTablePointerField not]) ifTrue: [ 
+			layout := {SYMLVTablePointerFieldVariable new 
+				module: self module;
+				definitionEnvironment: definitionEnvironment;
+				definitionNode: self definitionNode;
+				parent: self;
+				originalClassDefinition: self;
+				classDefinition: self;
+				yourself} , layout
+		] ifFalse: [ 
+			self assert: layout first isVTablePointerField.
+			layout first classDefinition: self
+		]
+	].
+
+	^ layout
 ]
 
 { #category : #'semantic analysis' }
 SYMLAbstractClass >> buildConcreteStructureSSAType [
 	superclass ifNotNil: [ superclass ensureConcreteStructureSSAType ].
 	^ super buildConcreteStructureSSAType
+]
+
+{ #category : #'semantic analysis' }
+SYMLAbstractClass >> buildLayout [
+	self supertype ifNotNil: [ :st | st semanticAnalysis ].
+	
+	self findOverridenMethods.
+	super buildLayout.
+	virtualTables := self allFields select: #isVTablePointerField.
+
+]
+
+{ #category : #'virtual table' }
+SYMLAbstractClass >> buildVTableFieldLayout: vtableField [
+	"Apply the existent methods."
+	| vtableMethods vtableUsedMethods derivedMethod |
+	vtableMethods := OrderedCollection new.
+	vtableUsedMethods := IdentitySet new.
+	vtableField virtualMethods do: [ :method |
+		derivedMethod := overridenMethods at: method ifAbsent: [method].
+		vtableMethods add: derivedMethod.
+		vtableUsedMethods add: derivedMethod.
+	].
+
+	"Apply the new methods"
+	vtableField classDefinition == self ifTrue: [
+		virtualMethods do: [ :newVirtualMethod |
+			(vtableUsedMethods includes: newVirtualMethod) ifFalse: [
+				vtableMethods add: newVirtualMethod.
+				vtableUsedMethods add: newVirtualMethod.
+			]
+		]
+	].
+	
+	vtableField virtualMethods: vtableMethods asArray.
+	vtableField type: self compilationTarget voidType pointer pointer.
+	
+	"Set the virtual table index, and the virtual table slot index of the methods."
+	self assert: vtableField slotIndex isNotNil.
+	vtableField virtualMethods doWithIndex: [ :vmethod :index |
+		vmethod virtualTableIndex ifNil: [
+			self assert: vmethod virtualTableSlotIndex isNil.
+			vmethod
+				virtualTableIndex: vtableField slotIndex;
+				virtualTableSlotIndex: index - 1
+		].
+	]
+]
+
+{ #category : #'semantic analysis' }
+SYMLAbstractClass >> checkNonTrivialBasicInitialization [
+	super checkNonTrivialBasicInitialization ifTrue: [ ^ true ].
+	virtualMethods ifNotEmpty: [ ^ true ].
+	^ false
+]
+
+{ #category : #'virtual table' }
+SYMLAbstractClass >> checkOverridenMethodBy: derivedMethod [
+	| baseMethods |
+	baseMethods := OrderedCollection new.
+	
+	self supertype ifNotNil: [ :st |
+		st findOverridedMethodsMatching: derivedMethod into: baseMethods.
+	].
+
+	baseMethods ifNotEmpty: [ 
+		derivedMethod isOverride ifFalse: [ 
+			self error: 'Virtual overriding method {1} requires the override qualifier. ' format: { derivedMethod printString } at: derivedMethod definitionPosition
+		].
+
+		"Store who overrides the methods."
+		baseMethods do: [ :baseMethod |
+			overridenMethods at: baseMethod put: derivedMethod
+		].
+	
+		"Store the list the of methods in the derived method."
+		derivedMethod overridenMethods: overridenMethods 	asArray.
+	] ifEmpty: [
+		derivedMethod isOverride ifTrue: [ 
+			self error: 'Cannot find the methods overriden by {1}. ' format: { derivedMethod printString } at: derivedMethod definitionPosition
+		]
+	]
+]
+
+{ #category : #accessing }
+SYMLAbstractClass >> fetchVTablePointer: virtualTableIndex of: receiverValue withBuilder: builder [
+	^ builder load: (builder getReference: receiverValue element: (builder constInt: virtualTableIndex))
+]
+
+{ #category : #'virtual table' }
+SYMLAbstractClass >> findOverridedMethodsMatching: derivedMethod into: baseMethods [
+	| group matchedAlternative |
+	group := derivedMethod isMessageMethod
+		ifTrue: [ methodDictionary at: derivedMethod name ifAbsent: [ nil ] ]
+		ifFalse: [ symbols at: derivedMethod name ifAbsent: [ nil ] ].
+	group ifNotNil: [ 
+		matchedAlternative := group findAlternativeMatchedByOverridingMethod: derivedMethod.
+		matchedAlternative ifNotNil: [ baseMethods add: matchedAlternative macroFunction ].
+	].
+	
+	self supertype ifNotNil: [ :st | st findOverridedMethodsMatching: derivedMethod into: baseMethods ].
+]
+
+{ #category : #'virtual table' }
+SYMLAbstractClass >> findOverridenMethods [
+	overridenMethods := IdentityDictionary new.
+	virtualMethods do: [ :method |
+		self checkOverridenMethodBy: method
+	].
+]
+
+{ #category : #'semantic analysis' }
+SYMLAbstractClass >> generateSSARTTI [
+	virtualTables do: #vtableSSAValue.
+]
+
+{ #category : #testing }
+SYMLAbstractClass >> initialize [
+	super initialize.
+	virtualMethods := OrderedCollection new.
 ]
 
 { #category : #testing }

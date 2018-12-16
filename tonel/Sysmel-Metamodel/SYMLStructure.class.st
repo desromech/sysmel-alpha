@@ -63,8 +63,8 @@ SYMLStructure >> buildLayout [
 	| builder |
 	slotsLayout ifNotNil: [ ^ self ].
 	
-	builder := SYMLStructureSlotsLayoutBuilder new.
-	self allFields do: [ :field | builder addField: field ].
+	builder := SYMLStructureSlotsLayoutBuilder new structure: self.
+	self allFields do: [ :field | field addToStructureLayoutBuilder: builder ].
 	builder flush.
 	slotsLayout := builder slots
 ]
@@ -240,6 +240,7 @@ SYMLStructure >> finalizeSSAVariable: ssaVariable with: builder [
 SYMLStructure >> generateSSACode [
 	super generateSSACode.
 	self ensureConcreteStructureSSAType.
+	self generateSSARTTI.
 	children do: #generateSSACode
 ]
 
@@ -256,17 +257,8 @@ SYMLStructure >> generateSSAConstant: value forModule: aModule [
 
 { #category : #'code generation' }
 SYMLStructure >> generateSSAImplicitBasicInitializationFor: receiver with: builder [
-	| superInitializer superInitializerFunction |
 	builder withDebugPosition: definitionPosition  do: [ 
-		"Call implicitly the super initializer."
-		self supertype ifNotNil: [ :st |
-			(st hasNonTrivialBasicInitialization and: [(superInitializer := st lookupSelector: #basicInitialize) isNotNil]) ifTrue: [
-				superInitializerFunction := superInitializer ssaValue.
-				builder call: superInitializerFunction arguments: { builder bitCast: receiver target: superInitializerFunction baseType arguments first }
-			]
-		].
-	
-		fields do: [ :field |
+		self allFields do: [ :field |
 			field basicInitializeSSAVariable: receiver with: builder
 		]
 	]
@@ -300,6 +292,11 @@ SYMLStructure >> generateSSAImplicitInitializationFor: receiver with: builder [
 		]
 	]
 
+]
+
+{ #category : #'code generation' }
+SYMLStructure >> generateSSARTTI [
+	
 ]
 
 { #category : #'code generation' }

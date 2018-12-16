@@ -316,7 +316,7 @@ SYMLGCClass >> makeInstance: variableDataSize identityHash: identityHash [
 		
 	self flag: 'TODO: Set all of the required vtables'.
 	^ result
-		setSlot: 0 value: self;
+		setSlot: 1 value: self;
 		setSlot: 	self variableDataSizeField slotIndex value: variableDataSize;
 		yourself
 

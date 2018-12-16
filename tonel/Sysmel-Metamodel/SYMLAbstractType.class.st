@@ -128,6 +128,10 @@ SYMLAbstractType >> addMacroFunctionPattern: macroMethodPattern withSelector: se
 	group := super addMacroFunctionPattern: macroMethodPattern withSelector: selector.
 	
 	children add: macroMethodPattern.
+	(macroMethodPattern isVirtual or: [macroMethodPattern isOverride]) ifTrue: [
+		self addVirtualTableEntry: macroMethodPattern
+	].
+
 	^ group
 ]
 
@@ -137,6 +141,10 @@ SYMLAbstractType >> addMacroMethodPattern: macroMethodPattern withSelector: sele
 	group := super addMacroMethodPattern: macroMethodPattern withSelector: selector.
 	
 	children add: macroMethodPattern.
+	(macroMethodPattern isVirtual or: [macroMethodPattern isOverride]) ifTrue: [
+		self addVirtualTableEntry: macroMethodPattern
+	].
+
 	^ group
 ]
 
@@ -172,6 +180,11 @@ SYMLAbstractType >> addTypeKindBaseTrait [
 		self addTrait: trait.
 	]
 
+]
+
+{ #category : #'virtual table' }
+SYMLAbstractType >> addVirtualTableEntry: anAbstractFunction [
+	self error: 'Cannot add virtual methods to type {1}.' format: { self printString } at: anAbstractFunction definitionPosition
 ]
 
 { #category : #conversions }
@@ -965,6 +978,15 @@ SYMLAbstractType >> isSysmelKindOf: anotherType [
 		(used isSysmelKindOf: anotherType) ifTrue: [ ^ true ].
 	].
 	self supertype ifNotNil: [:st | ^ st isSysmelKindOf: anotherType ].
+	^ false
+	
+]
+
+{ #category : #testing }
+SYMLAbstractType >> isSysmelReinterpretKindOf: anotherType [
+	self flag: 'Move this towards the language side.'.
+	self == anotherType ifTrue: [ ^ true ].
+
 	^ false
 	
 ]

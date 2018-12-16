@@ -5,7 +5,8 @@ Class {
 		'slots',
 		'currentBitFieldType',
 		'remainingBitFieldBits',
-		'currentBitFields'
+		'currentBitFields',
+		'structure'
 	],
 	#category : #'Sysmel-Metamodel-Type'
 }
@@ -41,6 +42,15 @@ SYMLStructureSlotsLayoutBuilder >> addNormalField: aField [
 		fields: {aField};
 		slotIndex: aField slotIndex;
 		yourself)
+]
+
+{ #category : #adding }
+SYMLStructureSlotsLayoutBuilder >> addVTablePointerField: vtableField [
+	self flushBitFields.
+	vtableField slotIndex: slots size.
+	structure buildVTableFieldLayout: vtableField.
+	self addNormalField: vtableField.
+
 ]
 
 { #category : #adding }
@@ -83,4 +93,14 @@ SYMLStructureSlotsLayoutBuilder >> initialize [
 { #category : #accessing }
 SYMLStructureSlotsLayoutBuilder >> slots [
 	^ slots asArray
+]
+
+{ #category : #accessing }
+SYMLStructureSlotsLayoutBuilder >> structure [
+	^ structure
+]
+
+{ #category : #accessing }
+SYMLStructureSlotsLayoutBuilder >> structure: anObject [
+	structure := anObject
 ]

@@ -143,6 +143,11 @@ SYMLObject >> isType [
 	^ false
 ]
 
+{ #category : #testing }
+SYMLObject >> isVTablePointerField [
+	^ false
+]
+
 { #category : #'meta evaluation' }
 SYMLObject >> macroExpansionEvaluateInEnvironment: anEnvironment [
 	| expandedValue |

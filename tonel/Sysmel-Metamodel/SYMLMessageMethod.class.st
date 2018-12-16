@@ -106,7 +106,7 @@ SYMLMessageMethod >> definition: bodyLazyValue [
 
 { #category : #'code generation' }
 SYMLMessageMethod >> generateSSAMessageSend: messageNode withReceiver: receiverValue arguments: argumentValues withBuilder: builder [
-	^ self generateSSACallWithReceiver: receiverValue arguments: argumentValues withBuilder: builder at: messageNode
+	^ self generateSSACallWithReceiver: receiverValue arguments: argumentValues staticBinding: false withBuilder: builder at: messageNode
 ]
 
 { #category : #initialization }

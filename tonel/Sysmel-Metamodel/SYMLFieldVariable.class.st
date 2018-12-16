@@ -13,6 +13,13 @@ Class {
 	#category : #'Sysmel-Metamodel-Variable'
 }
 
+{ #category : #adding }
+SYMLFieldVariable >> addToStructureLayoutBuilder: layoutBuilder [
+	^ bits
+		ifNil: [ layoutBuilder addNormalField: self ]
+		ifNotNil: [ layoutBuilder addBitField: self ]
+]
+
 { #category : #'code generation' }
 SYMLFieldVariable >> basicInitializeSSAVariable: ssaVariable with: builder [
 	| fieldPointer |

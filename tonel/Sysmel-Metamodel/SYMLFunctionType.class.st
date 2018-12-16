@@ -120,6 +120,22 @@ SYMLFunctionType >> isFunctionType [
 	^ true
 ]
 
+{ #category : #testing }
+SYMLFunctionType >> isMatchedByOverridingMethod: derivedFunctionType [
+	"Check the argument count."
+	(arguments size = derivedFunctionType arguments size) ifFalse: [ ^ false ].
+
+	"Check the return type."
+	(returnType isSysmelReinterpretKindOf: derivedFunctionType returnType) ifFalse: [ ^ false ].
+	
+	"Check the argument types."
+	arguments doWithIndex: [ :arg :index |
+		((derivedFunctionType arguments at: index) isSysmelReinterpretKindOf: arg) ifFalse: [ ^ false ].
+	].
+
+	^ true
+]
+
 { #category : #printing }
 SYMLFunctionType >> printOn: aStream [
 	aStream nextPut: $(.

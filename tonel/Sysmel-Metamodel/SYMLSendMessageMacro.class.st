@@ -32,7 +32,12 @@ SYMLSendMessageMacro >> generateMessage: messageNode ssaCodeWith: builder [
 			to: (messageNode coercionType second at: index) with: builder at: messageNode.
 	].
 	
-	result := messageMethod generateSSAMessageSend: messageNode withReceiver: receiverValue arguments: arguments withBuilder: builder.
+	messageMethod ifNotNil: [ 
+		result := messageMethod generateSSAMessageSend: messageNode withReceiver: receiverValue arguments: arguments withBuilder: builder.
+	] ifNil: [ 
+		self flag: 'TODO: Dynamic message send'.
+		self halt.
+	].
 	
 	"For dependent InstanceType/MetaType."
 	actuallyUsedType := messageNode valueType ssaType.

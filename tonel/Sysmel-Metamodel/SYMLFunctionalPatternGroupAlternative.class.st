@@ -50,6 +50,11 @@ SYMLFunctionalPatternGroupAlternative >> generateSSACode [
 	macroFunction generateSSACode
 ]
 
+{ #category : #'as yet unclassified' }
+SYMLFunctionalPatternGroupAlternative >> isMatchedByOverridingMethod: derivedMethod [
+	^ false
+]
+
 { #category : #accessing }
 SYMLFunctionalPatternGroupAlternative >> macroFunction [
 	^ macroFunction

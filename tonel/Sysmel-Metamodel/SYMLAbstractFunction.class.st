@@ -18,7 +18,9 @@ Class {
 		'evaluator',
 		'templateFunctionOwner',
 		'bodyReturnTypeCoercionRule',
-		'virtualFunctionType'
+		'overridenMethods',
+		'virtualTableIndex',
+		'virtualTableSlotIndex'
 	],
 	#category : #'Sysmel-Metamodel-Function'
 }
@@ -273,7 +275,19 @@ SYMLAbstractFunction >> evaluator: anEvaluator [
 ]
 
 { #category : #'code generation' }
-SYMLAbstractFunction >> fetchCalledMethodValueForReceiver: receiverValue withBuilder: builder [
+SYMLAbstractFunction >> fetchCalledMethodValueForReceiver: receiverValue staticBinding: useStaticBinding withBuilder: builder [
+	| vtablePointer functionPointer |
+	useStaticBinding ifFalse: [
+		self isVirtual ifTrue: [
+			self assert: virtualTableIndex isNotNil.
+			self assert: virtualTableSlotIndex isNotNil.
+			
+			vtablePointer := receiverType cleanValueType fetchVTablePointer: virtualTableIndex of: receiverValue withBuilder: builder.
+			functionPointer := builder load: (builder getPointer: vtablePointer element: {builder constInt: virtualTableSlotIndex}).
+			^ builder bitCast: functionPointer target: functionType pointer ssaType
+		].
+	].
+
 	self flag: 'TODO: Support virtual/looked up calls.'.
 	^ self ssaValue
 ]
@@ -333,7 +347,7 @@ SYMLAbstractFunction >> generateIntrinsicFunctionBody: intrinsic [
 ]
 
 { #category : #'code generation' }
-SYMLAbstractFunction >> generateSSACallWithReceiver: receiverValue arguments: argumentValues withBuilder: builder at: position [
+SYMLAbstractFunction >> generateSSACallWithReceiver: receiverValue arguments: argumentValues staticBinding: useStaticBinding withBuilder: builder at: position [
 	| allArguments calledMethodValue |
 	generator ifNotNil: [ 
 		self halt.
@@ -351,7 +365,7 @@ SYMLAbstractFunction >> generateSSACallWithReceiver: receiverValue arguments: ar
 	allArguments := argumentValues.
 	receiverValue ifNotNil: [ allArguments := {receiverValue} , argumentValues ].
 	
-	calledMethodValue := self fetchCalledMethodValueForReceiver: receiverValue withBuilder: builder.
+	calledMethodValue := self fetchCalledMethodValueForReceiver: receiverValue staticBinding: useStaticBinding withBuilder: builder.
 	^ builder call: calledMethodValue arguments: allArguments
 ]
 
@@ -454,6 +468,7 @@ SYMLAbstractFunction >> initialize [
 	callingConvention := #cdecl.
 	locals := OrderedCollection new.
 	arguments := #().
+	overridenMethods := #().
 ]
 
 { #category : #'as yet unclassified' }
@@ -481,7 +496,7 @@ SYMLAbstractFunction >> isCVariadic [
 
 { #category : #testing }
 SYMLAbstractFunction >> isCalledAsDynamicMessageSend [
-	^ self receiverType hasDynamicMessageSends and: [ self hasStaticBinding not ]
+	^ self receiverType hasDynamicMessageSends and: [ self hasStaticBinding not and: [self isVirtual not] ]
 ]
 
 { #category : #testing }
@@ -503,6 +518,12 @@ SYMLAbstractFunction >> isCompileTime [
 SYMLAbstractFunction >> isFinal [
 	<compileTime>
 	^ self hasFlag: #final
+]
+
+{ #category : #'virtual functions' }
+SYMLAbstractFunction >> isMatchedByOverridingMethod: derivedMethod [
+	^ bindedFunctionType isMatchedByOverridingMethod: derivedMethod bindedFunctionType.
+
 ]
 
 { #category : #testing }
@@ -571,6 +592,16 @@ SYMLAbstractFunction >> override [
 	self
 		addFlag: #virtual;
 		addFlag: #override
+]
+
+{ #category : #accessing }
+SYMLAbstractFunction >> overridenMethods [
+	^ overridenMethods
+]
+
+{ #category : #accessing }
+SYMLAbstractFunction >> overridenMethods: anArray [
+	overridenMethods := anArray
 ]
 
 { #category : #testing }
@@ -672,4 +703,24 @@ SYMLAbstractFunction >> type [
 SYMLAbstractFunction >> virtual [
 	<compileTime>
 	self addFlag: #virtual
+]
+
+{ #category : #accessing }
+SYMLAbstractFunction >> virtualTableIndex [
+	^ virtualTableIndex
+]
+
+{ #category : #accessing }
+SYMLAbstractFunction >> virtualTableIndex: anInteger [
+	virtualTableIndex := anInteger
+]
+
+{ #category : #accessing }
+SYMLAbstractFunction >> virtualTableSlotIndex [
+	^ virtualTableSlotIndex
+]
+
+{ #category : #accessing }
+SYMLAbstractFunction >> virtualTableSlotIndex: anInteger [
+	virtualTableSlotIndex := anInteger
 ]
