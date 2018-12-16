@@ -68,7 +68,7 @@ GCClassVariableDataArrayType macro selectors: #(size) doOn: {
             sizeType := receiverType variableDataSizeField type.
 
             "Create the analyzed message"
-            ^ node copy
+            ^ node copyForSemanticAnalysis
                 metaMethod: self;
                 receiver: variableData;
                 coercionType: receiverType;

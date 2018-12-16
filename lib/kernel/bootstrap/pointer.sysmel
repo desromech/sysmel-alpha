@@ -21,7 +21,7 @@ semanticAnalysis: $$Pharo {
         pointerType := referenceType asPointerType.
 
         "Create the analyzed message"
-        ^ node copy
+        ^ node copyForSemanticAnalysis
             metaMethod: self;
             receiver: reference;
             valueType: pointerType;
@@ -40,7 +40,7 @@ PointerType macro selectors: #(value _) doOn: {
 // Semantic analysis
 semanticAnalysis: $$Pharo {
     node: node environment: environment position: aSourcePosition
-        | pointer rawPointerType pointerType pointerCoercionRule referenceType index |
+        | pointer rawPointerType pointerType pointerCoercionRule referenceType |
 
         "Check and coerce the pointer"
         pointer := node receiver semanticAnalysisInEnvironment: environment.
@@ -52,10 +52,10 @@ semanticAnalysis: $$Pharo {
         referenceType := pointerType asReferenceType.
 
         "Create the analyzed message"
-        ^ node copy
+        ^ node copyForSemanticAnalysis
             metaMethod: self;
             receiver: pointer;
-            arguments: {index};
+            arguments: #();
             coercionType: pointerType;
             coercionRule: pointerCoercionRule;
             valueType: referenceType;
@@ -101,7 +101,7 @@ semanticAnalysis: $$Pharo {
         coercionRule := indexType node: index coercedImplicitlyInto: coercionType at: node.
 
         "Create the analyzed message"
-        ^ node copy
+        ^ node copyForSemanticAnalysis
             metaMethod: self;
             receiver: pointer;
             arguments: {index};

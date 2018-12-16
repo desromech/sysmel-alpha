@@ -11,6 +11,11 @@ UndefinedObject >> asSysmelValueInEnvironment: anEnvironment [
 ]
 
 { #category : #'*Sysmel-Metamodel' }
+UndefinedObject >> copyForSemanticAnalysis [
+	^ self
+]
+
+{ #category : #'*Sysmel-Metamodel' }
 UndefinedObject >> generateSysmelSSAPointerConstantOfType: pointerType forModule: module [
 	^ SLVMConstant type: pointerType ssaType value: 0
 ]

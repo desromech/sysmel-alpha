@@ -298,8 +298,14 @@ SYMLAbstractFunction >> functionType [
 { #category : #'code generation' }
 SYMLAbstractFunction >> generateEntryPointInitializationsWith: aBuilder [
 	name == #initialize ifTrue: [
-		receiverType cleanValueType generateSSAImplicitInitializationFor: receiver ssaValue with: aBuilder
-	]
+		(self hasPragmaNamed: #noImplicitFieldInitialization) ifFalse: [ 
+			receiverType cleanValueType generateSSAImplicitInitializationFor: receiver ssaValue with: aBuilder
+		]
+	].
+
+	name == #basicInitialize ifTrue: [
+		receiverType cleanValueType generateSSAImplicitBasicInitializationFor: receiver ssaValue with: aBuilder
+	].
 ]
 
 { #category : #'code generation' }

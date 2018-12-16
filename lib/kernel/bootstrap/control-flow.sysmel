@@ -25,7 +25,7 @@ macro selector: #return: doOn: {
         	"Get the return value"
         	returnValue := message arguments first semanticAnalysisInEnvironment: environment.
         	returnValue hasIncompleteSemanticAnalysis ifTrue: [
-        		^ message copy
+        		^ message copyForSemanticAnalysis
         			arguments: { returnValue };
         			metaMethod: self;
         			hasIncompleteSemanticAnalysis: true;
@@ -36,7 +36,7 @@ macro selector: #return: doOn: {
 
         	"Check the type of the return value."
         	coercionRule := returnValueType node: returnValue coercedImplicitlyInto: expectedReturnType at: aPosition.
-        	^ message copy
+        	^ message copyForSemanticAnalysis
                 analysisEnvironment: environment;
         		arguments: { returnValue };
         		metaMethod: self;
@@ -160,7 +160,7 @@ macro selectors: #(if:then: if:then:else:) doOn: {
                 elseCoercionRule := (elseNode evaluateTypeInEnvironment: environment) node: elseNode coercedImplicitlyInto: resultType at: aSourcePosition.
             ].
 
-	        ^ messageNode copy
+	        ^ messageNode copyForSemanticAnalysis
 		        metaMethod: self;
 		        arguments: analyzedArguments;
 		        coercionType: {conditionCoercionType . resultType . resultType };
@@ -281,7 +281,7 @@ macro selectors: #(while:do: while:do:continueWith: ) doOn: {
             coercionType := environment compilationTarget booleanType.
             coercionRule := (conditionNode evaluateTypeInEnvironment: environment) node: conditionNode coercedImplicitlyInto: coercionType at: aSourcePosition.
 
-	        ^ messageNode copy
+	        ^ messageNode copyForSemanticAnalysis
 		        metaMethod: self;
 		        arguments: analyzedArguments;
 		        coercionType: coercionType;
@@ -391,7 +391,7 @@ macro selectors: #(do:while: do:continueWith:while:) doOn: {
             coercionType := environment compilationTarget booleanType.
             coercionRule := (conditionNode evaluateTypeInEnvironment: environment) node: conditionNode coercedImplicitlyInto: coercionType at: aSourcePosition.
 
-            ^ messageNode copy
+            ^ messageNode copyForSemanticAnalysis
                 metaMethod: self;
                 arguments: analyzedArguments;
                 coercionType: coercionType;

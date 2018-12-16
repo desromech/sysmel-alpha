@@ -4,16 +4,13 @@ namespace SysmelKernel definition: {
 trait AnyValue
 definition: {
     // Add the yourself macro to rewrite to the receiver by default.
-    macro selector: #yourself doOn: {
-        semanticAnalysis: $$Pharo {
-            semanticAnalyzeMessage: message inEnvironment: environment at: aPosition
-                ^ message receiver semanticAnalysisInEnvironment: environment
-        }.
-    }.
+    macro expansionRule yourself := ``(`,self).
 
     // Trivial initialization and finalization.
-    //macro expansionRule initialize := ``(`,self).
-    //macro expansionRule finalize := ``(`,self).
+    // TODO: Black list those methods in reference type, so that they are delegated towards the actual value.
+    macro expansionRule basicInitialize := ``(`,self).
+    macro expansionRule initialize := ``(`,self).
+    macro expansionRule finalize := ``(`,self).
 }.
 
 // The type meta type
@@ -58,26 +55,31 @@ trait Type definition: {
     message valueTypeKeepLiteral => SelfType := self.
 
     message isPODType => BooleanBit := false.
+    message hasNonTrivialBasicInitialization => BooleanBit := false.
     message hasNonTrivialInitialization => BooleanBit := false.
     message hasNonTrivialFinalization => BooleanBit := false.
 
+    message hasNonTrivialGCBasicInitialization => BooleanBit
+        := self hasNonTrivialBasicInitialization.
     message hasNonTrivialGCInitialization => BooleanBit
         := self hasNonTrivialInitialization.
     message hasNonTrivialGCFinalization => BooleanBit
         := self hasNonTrivialFinalization.
 
     message defaultSSAValueWith: (builder: _CompilerObjectType) ::=> _CompilerObjectType := {
-        self error: "Cannot generate default value of {1}" format: (self,self)
+        Compiler error: "Cannot generate default value of {1}" format: (self,self)
     }.
 
     message isReturnedThroughFirstArgument ::=> BooleanBit := false.
 
-    message initializeSSAVariable: (variable: _CompilerObjectType) with: (builder: _CompilerObjectType) ::=> Void := {
+    message basicInitializeSSAVariable: (variable: _CompilerObjectType) with: (builder: _CompilerObjectType) ::=> Void := {
         builder store: (self defaultSSAValueWith: builder) in: variable.
     }.
 
+    message initializeSSAVariable: (variable: _CompilerObjectType) with: (builder: _CompilerObjectType) ::=> Void
+        := {}.
     message finalizeSSAVariable: (variable: _CompilerObjectType) with: (builder: _CompilerObjectType) ::=> Void
-        := nil.
+        := {}.
 }.
 
 AnyValue type uses: Type.
@@ -236,6 +238,10 @@ trait ArrayType
     uses: AnyValue;
 definition: {
     meta message isArrayType => BooleanBit := true.
+
+    meta message basicInitializeSSAVariable: (variable: _CompilerObjectType) with: (builder: _CompilerObjectType) ::=> Void := {
+        Compiler basicInitializeSSAArray: variable type: self with: builder
+    }.
 
     meta message initializeSSAVariable: (variable: _CompilerObjectType) with: (builder: _CompilerObjectType) ::=> Void := {
         Compiler initializeSSAArray: variable type: self with: builder
@@ -696,7 +702,7 @@ definition: {
                     coercionRules at: index put: (argumentType node: argument coercedImplicitlyInto: coercionType at: argument).
             	].
 
-                ^ node copy
+                ^ node copyForSemanticAnalysis
                     metaMethod: self;
                     receiver: function;
                     arguments: {argumentsTuple};

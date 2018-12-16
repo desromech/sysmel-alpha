@@ -55,7 +55,7 @@ semanticAnalysis: $$Pharo {
         ].
 
         coercionRule := valueType node: value coercedImplicitlyInto: coercionType at: node.
-        ^ node copy
+        ^ node copyForSemanticAnalysis
             metaMethod: self;
             receiver: reference;
             arguments: {value};

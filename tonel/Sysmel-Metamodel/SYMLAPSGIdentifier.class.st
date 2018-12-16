@@ -31,6 +31,11 @@ SYMLAPSGIdentifier >> bindIntoOverloadedAlternative: anAlternative inEnvironment
 ]
 
 { #category : #copying }
+SYMLAPSGIdentifier >> copyForSemanticAnalysis [
+	^ self
+]
+
+{ #category : #copying }
 SYMLAPSGIdentifier >> copyWithBinding: binding andType: type [
 	^ SYMLAPSGIdentifierWithBinding new
 		position: position;

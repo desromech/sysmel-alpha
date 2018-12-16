@@ -19,6 +19,17 @@ SYMLAPSGMessageChainReceiverValue >> chain: anObject [
 	chain := anObject
 ]
 
+{ #category : #accessing }
+SYMLAPSGMessageChainReceiverValue >> copyReplacingNode: oldNode with: newNode [
+	| newReceiver |
+	self == oldNode ifTrue: [ ^ newNode ].
+
+	newReceiver := receiver copyReplacingNode: oldNode with: newNode.
+	^ self shallowCopy
+		receiver: newReceiver;
+		yourself
+]
+
 { #category : #'meta evaluation' }
 SYMLAPSGMessageChainReceiverValue >> evaluateInEnvironment: anEnvironment [
 	| activationValue |

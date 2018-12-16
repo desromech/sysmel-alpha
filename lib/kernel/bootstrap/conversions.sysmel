@@ -35,7 +35,7 @@ AnyValue macro selectors: #(reinterpretCastTo: explicitCastTo:) doOn: {
                 conversionRule := receiverType node: message receiver convertedExplicitlyInto: targetType at: aPosition.
             ].
 
-            ^ message copy
+            ^ message copyForSemanticAnalysis
         		arguments: #();
         		metaMethod: self;
         		coercionType: targetType;
@@ -83,7 +83,7 @@ _LiteralInteger conversionTo: _LiteralFloat doOn: {
 _LiteralInteger conversionTo: PrimitiveFloatingPointType doOn: {
     evaluation: $$Pharo {
         value: value into: targetType at: coercionPosition
-            ^ value copy
+            ^ value copyForSemanticAnalysis
                 value: value value asFloat;
                 type: targetType;
                 yourself

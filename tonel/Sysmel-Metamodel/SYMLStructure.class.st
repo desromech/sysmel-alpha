@@ -12,7 +12,8 @@ Class {
 		'isPODType',
 		'instanceDataSize',
 		'instanceDataAlignment',
-		'hasComputeInstanceSizes'
+		'hasComputeInstanceSizes',
+		'hasBasicInitialization'
 	],
 	#category : #'Sysmel-Metamodel-Type'
 }
@@ -31,6 +32,20 @@ SYMLStructure >> addFieldVariable: field at: aPosition [
 { #category : #'semantic analysis' }
 SYMLStructure >> allFields [
 	^ fields
+]
+
+{ #category : #'code generation' }
+SYMLStructure >> basicInitializeSSAVariable: ssaVariable with: builder [
+	| initializer |
+	self hasNonTrivialBasicInitialization ifFalse: [
+		self allFields do: [ :field |
+			field basicInitializeSSAVariable: ssaVariable with: builder
+		].
+		^ self
+	].
+
+	initializer := self lookupSelector: #basicInitialize.
+	initializer generateSimpleSSACallWithArguments: {ssaVariable} with: builder.
 ]
 
 { #category : #'code generation' }
@@ -65,7 +80,18 @@ SYMLStructure >> buildStructureSSAType [
 		name: self mangledName; kind: SLVMStructureType genericKind.
 ]
 
-{ #category : #testing }
+{ #category : #'initialization finalization' }
+SYMLStructure >> checkNonTrivialBasicInitialization [
+	self supertype ifNotNil: [ :st | st hasNonTrivialGCBasicInitialization ifTrue: [^ true]].
+	super checkNonTrivialBasicInitialization ifTrue: [ ^ true ].
+	fields do: [ :field |
+		field hasNonTrivialGCBasicInitialization ifTrue: [ ^ true ]
+	].
+
+	^ false
+]
+
+{ #category : #'initialization finalization' }
 SYMLStructure >> checkNonTrivialFinalization [
 	self supertype ifNotNil: [ :st | st hasNonTrivialGCFinalization ifTrue: [^ true]].
 	super checkNonTrivialFinalization ifTrue: [ ^ true ].
@@ -76,7 +102,7 @@ SYMLStructure >> checkNonTrivialFinalization [
 	^ false
 ]
 
-{ #category : #testing }
+{ #category : #'initialization finalization' }
 SYMLStructure >> checkNonTrivialInitialization [
 	self supertype ifNotNil: [ :st | st hasNonTrivialGCInitialization ifTrue: [^ true]].
 	super checkNonTrivialInitialization ifTrue: [ ^ true ].
@@ -142,6 +168,22 @@ SYMLStructure >> definitionScopeClass [
 	^ SYMLStructureScope
 ]
 
+{ #category : #'initialization finalization' }
+SYMLStructure >> ensureBasicInitializerIfNonTrivial [
+	self hasNonTrivialBasicInitialization ifFalse: [ ^ self ].
+	(methodDictionary includesKey: #basicInitialize) ifTrue: [ ^ self ].
+	
+	SYMLMessageMethod new
+		module: module;
+		definitionEnvironment: definitionEnvironment;
+		definitionNode: definitionNode ;
+		parent: self;
+		name: #basicInitialize;
+		returnType: self compilationTarget voidType;
+		addTrivialDefinition;
+		semanticAnalysis.
+]
+
 { #category : #'code generation' }
 SYMLStructure >> ensureConcreteStructureSSAType [
 	hasConcretedSSAType ifTrue: [ ^ self ].
@@ -149,10 +191,10 @@ SYMLStructure >> ensureConcreteStructureSSAType [
 	self buildConcreteStructureSSAType
 ]
 
-{ #category : #'semantic analysis' }
+{ #category : #'initialization finalization' }
 SYMLStructure >> ensureFinalizerIfNonTrivial [
 	self hasNonTrivialFinalization ifFalse: [ ^ self ].
-	(self lookupSelector: #finalize) ifNotNil: [ ^ self ].
+	(methodDictionary includesKey: #finalize) ifTrue: [ ^ self ].
 	
 	SYMLMessageMethod new
 		module: module;
@@ -165,10 +207,10 @@ SYMLStructure >> ensureFinalizerIfNonTrivial [
 		semanticAnalysis.
 ]
 
-{ #category : #'semantic analysis' }
+{ #category : #'initialization finalization' }
 SYMLStructure >> ensureInitializerIfNonTrivial [
 	self hasNonTrivialInitialization ifFalse: [ ^ self ].
-	(self lookupSelector: #initialize) ifNotNil: [ ^ self ].
+	(methodDictionary includesKey: #initialize) ifTrue: [ ^ self ].
 	
 	SYMLMessageMethod new
 		module: module;
@@ -213,6 +255,25 @@ SYMLStructure >> generateSSAConstant: value forModule: aModule [
 ]
 
 { #category : #'code generation' }
+SYMLStructure >> generateSSAImplicitBasicInitializationFor: receiver with: builder [
+	| superInitializer superInitializerFunction |
+	builder withDebugPosition: definitionPosition  do: [ 
+		"Call implicitly the super initializer."
+		self supertype ifNotNil: [ :st |
+			(st hasNonTrivialBasicInitialization and: [(superInitializer := st lookupSelector: #basicInitialize) isNotNil]) ifTrue: [
+				superInitializerFunction := superInitializer ssaValue.
+				builder call: superInitializerFunction arguments: { builder bitCast: receiver target: superInitializerFunction baseType arguments first }
+			]
+		].
+	
+		fields do: [ :field |
+			field basicInitializeSSAVariable: receiver with: builder
+		]
+	]
+
+]
+
+{ #category : #'initialization finalization' }
 SYMLStructure >> generateSSAImplicitFinalizationFor: receiver with: builder [
 	| superInitializer superInitializerFunction |
 	builder withDebugPosition: definitionPosition  do: [ 
@@ -232,16 +293,8 @@ SYMLStructure >> generateSSAImplicitFinalizationFor: receiver with: builder [
 
 { #category : #'code generation' }
 SYMLStructure >> generateSSAImplicitInitializationFor: receiver with: builder [
-	| superInitializer superInitializerFunction |
 	builder withDebugPosition: definitionPosition  do: [ 
-		"Call implicitly the super initializer."
-		self supertype ifNotNil: [ :st |
-			(st hasNonTrivialInitialization and: [(superInitializer := st lookupSelector: #initialize) isNotNil]) ifTrue: [
-				superInitializerFunction := superInitializer ssaValue.
-				builder call: superInitializerFunction arguments: { builder bitCast: receiver target: superInitializerFunction baseType arguments first }
-			]
-		].
-	
+		"Call implicitly the field initializer."
 		fields do: [ :field |
 			field initializeSSAVariable: receiver with: builder
 		]
@@ -254,24 +307,35 @@ SYMLStructure >> generateSSAValue: value withBuilder: aBuilder [
 	^ value generateSSAReferenceWith: aBuilder
 ]
 
-{ #category : #testing }
+{ #category : #'initialization finalization' }
+SYMLStructure >> hasNonTrivialBasicInitialization [
+	^ self hasNonTrivialGCBasicInitialization
+]
+
+{ #category : #'initialization finalization' }
 SYMLStructure >> hasNonTrivialFinalization [
 	^ self hasNonTrivialGCFinalization
 ]
 
-{ #category : #testing }
+{ #category : #'initialization finalization' }
+SYMLStructure >> hasNonTrivialGCBasicInitialization [
+	hasBasicInitialization ifNil: [ hasBasicInitialization := self checkNonTrivialBasicInitialization ].
+	^ hasBasicInitialization
+]
+
+{ #category : #'initialization finalization' }
 SYMLStructure >> hasNonTrivialGCFinalization [
 	hasFinalization ifNil: [ hasFinalization := self checkNonTrivialFinalization ].
 	^ hasFinalization
 ]
 
-{ #category : #testing }
+{ #category : #'initialization finalization' }
 SYMLStructure >> hasNonTrivialGCInitialization [
 	hasInitialization ifNil: [ hasInitialization := self checkNonTrivialInitialization ].
 	^ hasInitialization
 ]
 
-{ #category : #testing }
+{ #category : #'initialization finalization' }
 SYMLStructure >> hasNonTrivialInitialization [
 	^ self hasNonTrivialGCInitialization
 ]
@@ -285,16 +349,9 @@ SYMLStructure >> initialize [
 	hasComputeInstanceSizes := false.
 ]
 
-{ #category : #'semantic analysis' }
+{ #category : #'code generation' }
 SYMLStructure >> initializeSSAVariable: ssaVariable with: builder [
 	| initializer |
-	self hasNonTrivialInitialization ifFalse: [
-		self allFields do: [ :field |
-			field initializeSSAVariable: ssaVariable with: builder
-		].
-		^ self
-	].
-
 	initializer := self lookupSelector: #initialize.
 	initializer generateSimpleSSACallWithArguments: {ssaVariable} with: builder.
 ]
@@ -392,8 +449,10 @@ SYMLStructure >> semanticAnalysis [
 	self buildLayout.
 	children do: #semanticAnalysis.
 	
-	self ensureInitializerIfNonTrivial.
-	self ensureFinalizerIfNonTrivial.
+	self
+		ensureBasicInitializerIfNonTrivial;
+		ensureInitializerIfNonTrivial;
+		ensureFinalizerIfNonTrivial.
 ]
 
 { #category : #'semantic analysis' }

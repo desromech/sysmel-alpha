@@ -56,7 +56,7 @@ ArrayType macro selectors: #(at: subscriptAt:) doOn: {
             coercionRule := indexType node: index coercedImplicitlyInto: coercionType at: node.
 
             "Create the analyzed message"
-            ^ node copy
+            ^ node copyForSemanticAnalysis
                 metaMethod: self;
                 receiver: variableData;
                 arguments: {index};

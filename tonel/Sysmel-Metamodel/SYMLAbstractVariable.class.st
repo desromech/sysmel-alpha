@@ -79,7 +79,9 @@ SYMLAbstractVariable >> evaluateBindingInEnvironment: environment [
 
 { #category : #'as yet unclassified' }
 SYMLAbstractVariable >> generateSSAVariable: ssaVariable constructionWith: builder [
-	type initializeSSAVariable: ssaVariable with: builder
+	type
+		basicInitializeSSAVariable: ssaVariable with: builder;
+		initializeSSAVariable: ssaVariable with: builder
 ]
 
 { #category : #'as yet unclassified' }

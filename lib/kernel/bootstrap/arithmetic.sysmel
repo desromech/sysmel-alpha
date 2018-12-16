@@ -135,7 +135,7 @@ semanticAnalysis: $$Pharo {
             rightType node: right coercedImplicitlyInto: coercionType at: node.
         }.
 
-        ^ node copy
+        ^ node copyForSemanticAnalysis
             metaMethod: self;
             receiver: left;
             arguments: {right};
@@ -200,7 +200,7 @@ NumericalType macro selectors: #(#"prefix-+" negated #"prefix--" bitInvert #"pre
             coercionRule := (operand evaluateTypeInEnvironment: environment) node: operand coercedImplicitlyInto: coercionType at: node.
 			resultType := coercionType.
 
-            ^ node copy
+            ^ node copyForSemanticAnalysis
                 metaMethod: self;
                 selector: actualSelector;
                 receiver: operand;

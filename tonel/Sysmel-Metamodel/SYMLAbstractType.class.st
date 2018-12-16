@@ -306,6 +306,13 @@ SYMLAbstractType >> assignValue: aDefinitionBlock [
 ]
 
 { #category : #'code generation' }
+SYMLAbstractType >> basicInitializeSSAVariable: ssaVariable with: builder [
+	| result |
+	result := self sysmelPerform: #basicInitializeSSAVariable:with: withArguments:  { ssaVariable . builder }.
+	^ result unwrapSysmelValue
+]
+
+{ #category : #'code generation' }
 SYMLAbstractType >> buildSSAType [
 	| result |
 	result := (self sysmelPerform: #buildSSAType withArguments: #()) unwrapSysmelValue.
@@ -365,20 +372,25 @@ SYMLAbstractType >> canNode: node beConvertedExplicitlyInto: targetType [
 	^ (self node: node convertedExplicitlyInto: targetType) isNotNil
 ]
 
-{ #category : #testing }
-SYMLAbstractType >> checkNonTrivialFinalization [
-	(self lookupSelector: #finalize) ifNotNil: [ :method |
-		^ method isNonTrivialConstructorOrDestructor
-	].
-	^ false
+{ #category : #'initialization finalization' }
+SYMLAbstractType >> checkNonTrivialBasicInitialization [
+	^ methodDictionary at: #basicInitialize
+		ifPresent: #isNonTrivialConstructorOrDestructor
+		ifAbsent: [ false ]
 ]
 
-{ #category : #testing }
+{ #category : #'initialization finalization' }
+SYMLAbstractType >> checkNonTrivialFinalization [
+	^ methodDictionary at: #finalize
+		ifPresent: #isNonTrivialConstructorOrDestructor
+		ifAbsent: [ false ]
+]
+
+{ #category : #'initialization finalization' }
 SYMLAbstractType >> checkNonTrivialInitialization [
-	(self lookupSelector: #initialize) ifNotNil: [ :method |
-		^ method isNonTrivialConstructorOrDestructor
-	].
-	^ false
+	^ methodDictionary at: #initialize
+		ifPresent: #isNonTrivialConstructorOrDestructor
+		ifAbsent: [ false ]
 ]
 
 { #category : #'type composition' }
@@ -656,6 +668,9 @@ SYMLAbstractType >> flattenTraitsInto: target visited: visited [
 	visited add: self.
 	
 	usedTraits do: [ :trait | trait flattenTraitsInto: target visited: visited ].
+	self supertype ifNotNil: [ :st |
+		st flattenTraitsInto: target visited: visited
+	].
 	target add: self.
 	
 ]
@@ -665,6 +680,7 @@ SYMLAbstractType >> flattenedTraits [
 	flattenedTraits ifNotNil: [ ^ flattenedTraits ].
 	flattenedTraits := OrderedCollection new.
 	self flattenTraitsInto: flattenedTraits visited: IdentitySet new.
+	self assert: flattenedTraits last == self.
 	flattenedTraits := flattenedTraits asArray.
 	^ flattenedTraits
 ]
@@ -685,6 +701,10 @@ SYMLAbstractType >> generateSSAConstant: value forModule: aModule [
 	| result |
 	result := self sysmelPerform: #generateSSAConstant:forModule: withArguments:  { value . aModule}.
 	^ result unwrapSysmelValue
+]
+
+{ #category : #'code generation' }
+SYMLAbstractType >> generateSSAImplicitBasicInitializationFor: receiver with: builder [
 ]
 
 { #category : #'code generation' }
@@ -722,12 +742,22 @@ SYMLAbstractType >> hasDynamicMessageSends [
 	^ self cachedNullary: #hasDynamicMessageSends fallbackWith: [ false ]
 ]
 
-{ #category : #testing }
+{ #category : #'initialization finalization' }
+SYMLAbstractType >> hasNonTrivialBasicInitialization [
+	^ self cachedNullary: #hasNonTrivialBasicInitialization
+]
+
+{ #category : #'initialization finalization' }
 SYMLAbstractType >> hasNonTrivialFinalization [
 	^ self cachedNullary: #hasNonTrivialFinalization
 ]
 
-{ #category : #testing }
+{ #category : #'initialization finalization' }
+SYMLAbstractType >> hasNonTrivialGCBasicInitialization [
+	^ self cachedNullary: #hasNonTrivialGCBasicInitialization
+]
+
+{ #category : #'initialization finalization' }
 SYMLAbstractType >> hasNonTrivialGCFinalization [
 	^ self cachedNullary: #hasNonTrivialGCFinalization
 ]
@@ -737,7 +767,7 @@ SYMLAbstractType >> hasNonTrivialGCInitialization [
 	^ self cachedNullary: #hasNonTrivialGCInitialization
 ]
 
-{ #category : #testing }
+{ #category : #'initialization finalization' }
 SYMLAbstractType >> hasNonTrivialInitialization [
 	^ self cachedNullary: #hasNonTrivialInitialization
 ]
@@ -1170,9 +1200,13 @@ SYMLAbstractType >> semanticAnalysis [
 { #category : #'macro compilation' }
 SYMLAbstractType >> semanticAnalyzeMessage: message inEnvironment: environment at: aPosition [
 	| method |
-	method := self lookupSelector: message selector.
-	method ifNotNil: [
-		^ method semanticAnalyzeMessage: message inEnvironment: environment at: aPosition
+	method := nil.
+	self flag: 'TODO: Remove this hack'.
+	((#(basicInitialize initialize finalize) includes: message selector) and: [self isReferenceType]) ifFalse: [ 
+		method := self lookupSelector: message selector.
+		method ifNotNil: [
+			^ method semanticAnalyzeMessage: message inEnvironment: environment at: aPosition
+		].
 	].
 
 	self flag: 'TODO: Remove this reference check.'.

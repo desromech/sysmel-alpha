@@ -13,6 +13,14 @@ Class {
 	#category : #'Sysmel-Metamodel-Variable'
 }
 
+{ #category : #'code generation' }
+SYMLFieldVariable >> basicInitializeSSAVariable: ssaVariable with: builder [
+	| fieldPointer |
+	fieldPointer := builder getReference: ssaVariable element: (builder constInt: slotIndex).
+	type basicInitializeSSAVariable: fieldPointer with: builder.
+
+]
+
 { #category : #'as yet unclassified' }
 SYMLFieldVariable >> bindingForReceiver: receiver symbol: symbol [
 	^ SYMLReceiverFieldVariable new
@@ -128,6 +136,11 @@ SYMLFieldVariable >> getSlots: slots Value: receiver [
 { #category : #accessing }
 SYMLFieldVariable >> getterSelector [
 	^ self name
+]
+
+{ #category : #testing }
+SYMLFieldVariable >> hasNonTrivialGCBasicInitialization [
+	^ type hasNonTrivialGCBasicInitialization
 ]
 
 { #category : #testing }

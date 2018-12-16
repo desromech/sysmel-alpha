@@ -25,7 +25,7 @@ metaMessageAnalysis: $$Pharo {
         self error: 'Structure value constructor arguments not supported.'
     ].
 
-    ^ node copy
+    ^ node copyForSemanticAnalysis
         metaMethod: self;
         coercionType: type;
         valueType: type ref;
@@ -35,19 +35,16 @@ metaMessageAnalysis: $$Pharo {
 // Code generation
 codeGeneration: $$Pharo {
     node: messageNode builder: builder
-    | structureType structureVariable valueType initializerMethod |
+    | structureType structureVariable valueType basicInitializeMethod initializeMethod |
     structureType := messageNode coercionType.
     valueType := messageNode valueType.
     structureType concreteSSAType.
 
     structureVariable := builder allocaBuilder alloca: structureType ssaType.
-    structureType initializeSSAVariable: structureVariable with: builder.
+    structureType basicInitializeSSAVariable: structureVariable with: builder.
 
     messageNode selector == #newValue ifTrue: [
-        initializerMethod := structureType lookupSelector: #initialize.
-        initializerMethod ifNotNil: [
-            self halt
-        ].
+        structureType initializeSSAVariable: structureVariable with: builder.
     ].
 
     ^ valueType isReferenceType

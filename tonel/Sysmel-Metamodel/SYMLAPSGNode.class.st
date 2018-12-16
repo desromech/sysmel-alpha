@@ -58,6 +58,17 @@ SYMLAPSGNode >> concretizeSemanticAnalysisInEnvironment: anEnvironment [
 	^ self
 ]
 
+{ #category : #copying }
+SYMLAPSGNode >> copyForSemanticAnalysis [
+	"By default, just copy."
+	^ self copy
+]
+
+{ #category : #accessing }
+SYMLAPSGNode >> copyReplacingNode: oldNode with: newNode [
+	^ self == oldNode ifTrue: [ newNode ] ifFalse: [ self copy ]
+]
+
 { #category : #'meta evaluation' }
 SYMLAPSGNode >> evaluateCleanTypeInEnvironment: anEnvironment [
 	^ (self evaluateTypeInEnvironment: anEnvironment) cleanType

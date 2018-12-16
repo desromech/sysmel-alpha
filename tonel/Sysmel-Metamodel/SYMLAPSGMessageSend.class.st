@@ -58,6 +58,7 @@ SYMLAPSGMessageSend >> arguments [
 
 { #category : #accessing }
 SYMLAPSGMessageSend >> arguments: anObject [
+	self assert: anObject ~= #(nil).
 	arguments := anObject
 ]
 
@@ -101,6 +102,23 @@ SYMLAPSGMessageSend >> concretizeSemanticAnalysisInEnvironment: anEnvironment [
 	].
 
 	^ self
+]
+
+{ #category : #'meta evaluation' }
+SYMLAPSGMessageSend >> copyForSemanticAnalysis [
+	metaMethod ifNotNil: [ ^ self ].
+	^ self shallowCopy
+		receiver: receiver copyForSemanticAnalysis;
+		arguments: (arguments collect: #copyForSemanticAnalysis);
+		yourself
+]
+
+{ #category : #copying }
+SYMLAPSGMessageSend >> copyReplacingNode: oldNode with: newNode [
+	^ self shallowCopy
+		receiver: (receiver copyReplacingNode: oldNode with: newNode);
+		arguments: (arguments collect: [:arg | arg copyReplacingNode: oldNode with: newNode]);
+		yourself
 ]
 
 { #category : #'meta evaluation' }

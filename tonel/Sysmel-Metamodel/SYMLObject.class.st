@@ -54,6 +54,7 @@ SYMLObject >> error: anErrorString at: aSourcePosition [
 
 { #category : #errors }
 SYMLObject >> error: anErrorString format: formatArguments [
+	<compileTime>
 	^ self error: (anErrorString format: formatArguments)
 ]
 

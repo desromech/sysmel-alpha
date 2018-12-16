@@ -42,7 +42,7 @@ BooleanType macro selector: #not doOn: {
             coercionRule := (operand evaluateTypeInEnvironment: environment) node: operand coercedImplicitlyInto: coercionType at: node.
 			resultType := coercionType.
 
-            ^ node copy
+            ^ node copyForSemanticAnalysis
                 metaMethod: self;
                 receiver: operand;
                 arguments: #();

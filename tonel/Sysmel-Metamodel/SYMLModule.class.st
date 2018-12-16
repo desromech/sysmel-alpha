@@ -115,6 +115,20 @@ SYMLModule >> addPendingSemanticAnalysis: aNode [
 ]
 
 { #category : #'code generation' }
+SYMLModule >> basicInitializeSSAArray: variable type: arrayType with: builder [
+	<compileTime>
+	self flag: 'TODO: Implement this correctly.'.
+	
+	arrayType ssaType elements = 0 ifTrue: [ ^ self ].
+	arrayType hasNonTrivialBasicInitialization ifFalse: [
+		builder store: arrayType ssaType defaultConstant in: variable.
+		^ self
+	].
+	
+	self halt
+]
+
+{ #category : #'code generation' }
 SYMLModule >> buildSSAModule [
 	| extraToGenerate |
 	extraToGenerate := OrderedCollection new.
@@ -400,10 +414,7 @@ SYMLModule >> initializeSSAArray: variable type: arrayType with: builder [
 	self flag: 'TODO: Implement this correctly.'.
 	
 	arrayType ssaType elements = 0 ifTrue: [ ^ self ].
-	arrayType hasNonTrivialInitialization ifFalse: [
-		builder store: arrayType ssaType defaultConstant in: variable.
-		^ self
-	].
+	arrayType hasNonTrivialInitialization ifFalse: [ ^ self ].
 	
 	self halt
 ]

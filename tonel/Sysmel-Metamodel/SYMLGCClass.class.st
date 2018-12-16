@@ -49,6 +49,11 @@ SYMLGCClass >> addDefaultConversionRules [
 ]
 
 { #category : #'code generation' }
+SYMLGCClass >> basicInitializeSSAVariable: ssaVariable with: builder [
+	builder store: (self defaultSSAValueWith: builder) in: ssaVariable
+]
+
+{ #category : #'code generation' }
 SYMLGCClass >> buildSSAType [
 	^ self compilationTarget ssaPointerTo: self structureSSAType forAddressSpace: #gc
 ]
@@ -199,6 +204,12 @@ SYMLGCClass >> getFieldSlotIndex: fieldName [
 { #category : #testing }
 SYMLGCClass >> hasDynamicMessageSends [
 	^ true
+]
+
+{ #category : #accessing }
+SYMLGCClass >> hasNonTrivialBasicInitialization [
+	"I am a GC pointer in this context."
+	^ false
 ]
 
 { #category : #accessing }

@@ -18,6 +18,18 @@ SYMLAPSGMessageChainReceiverReference >> chain: anObject [
 	chain := anObject
 ]
 
+{ #category : #accessing }
+SYMLAPSGMessageChainReceiverReference >> copyReplacingNode: oldNode with: newNode [
+	| newReceiver |
+	self == oldNode ifTrue: [ ^ newNode ].
+
+	newReceiver := receiverValue == oldNode ifTrue: [ newNode ] ifFalse: [ receiverValue ].
+	^ self shallowCopy
+		receiverValue: newReceiver;
+		chain: newReceiver chain;
+		yourself
+]
+
 { #category : #'meta evaluation' }
 SYMLAPSGMessageChainReceiverReference >> evaluateInEnvironment: anEnvironment [
 	^ anEnvironment lookSymbolRecursively: receiverValue ifAbsent: [ self error: 'Cannot evaluate chained receiver.' ]

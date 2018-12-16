@@ -8,6 +8,23 @@ Class {
 	#category : #'Sysmel-Metamodel-APSG'
 }
 
+{ #category : #copying }
+SYMLAPSGMessageChain >> copyForSemanticAnalysis [
+	^ self shallowCopy
+		receiver: receiver copyForSemanticAnalysis;
+		messages: (messages collect: #copyForSemanticAnalysis);
+		yourself.
+]
+
+{ #category : #accessing }
+SYMLAPSGMessageChain >> copyReplacingNode: oldNode with: newNode [
+	self == oldNode ifTrue: [ ^ newNode ].
+	^ self shallowCopy
+		receiver: (receiver copyReplacingNode: oldNode with: newNode);
+		messages: (messages collect: [:message | message copyReplacingNode: oldNode with: newNode]);
+		yourself
+]
+
 { #category : #'meta evaluation' }
 SYMLAPSGMessageChain >> evaluateInEnvironment: anEnvironment [
 	| result |

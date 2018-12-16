@@ -7,6 +7,29 @@ Class {
 	#category : #'Sysmel-Metamodel-APSG'
 }
 
+{ #category : #copying }
+SYMLAPSGAnalyzedMessageChain >> copyForSemanticAnalysis [
+	^ self
+]
+
+{ #category : #copying }
+SYMLAPSGAnalyzedMessageChain >> copyReplacingNode: oldNode with: newNode [
+	| result originalReceiver newReceiver |
+	result := self copy.
+	self assert: result messages last receiver receiverValue == result receiver.
+	
+	originalReceiver := result receiver.
+	newReceiver := result receiver copyReplacingNode: oldNode with: newNode.
+	
+	result
+		receiver: newReceiver;
+		messages: (result messages collect: [:message | (message copyReplacingNode: oldNode with: newNode)
+				copyReplacingNode: originalReceiver with: newReceiver]).
+	self assert: result messages last receiver receiverValue == result receiver.
+
+	^ result
+]
+
 { #category : #'meta evaluation' }
 SYMLAPSGAnalyzedMessageChain >> evaluateTypeInEnvironment: anEnvironment [
 	^ messages last evaluateTypeInEnvironment: anEnvironment
@@ -42,10 +65,15 @@ SYMLAPSGAnalyzedMessageChain >> initialize [
 
 { #category : #copying }
 SYMLAPSGAnalyzedMessageChain >> postCopy [
-	super postCopy.
-	self flag: 'TODO: Handle the case with deeper changes.'.
-	hasReceiverValue ifTrue: [ 
-		messages do: [ :message | message receiver receiverValue: receiver ]
+	| newReceiver |
+	hasReceiverValue ifTrue: [
+		newReceiver := receiver copy chain: self; yourself.
+		self assert: messages last receiver receiverValue == receiver.
+		messages := messages collect: [ :message | message copyReplacingNode: receiver with: newReceiver ].
+		receiver := newReceiver.
+		self assert: messages last receiver receiverValue == receiver.
+	] ifFalse: [ 
+		super postCopy
 	]
 ]
 
