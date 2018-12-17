@@ -13,7 +13,7 @@ function nativeFile_seek(fd: NativeFileHandle, offset: Unix OFF_T, whence: Int32
     Unix lseek(fd, offset, whence) ~= (-1 castTo: Unix OFF_T)
 }.
 
-function nativeFile_tell(fd: NativeFileHandle, offset: Unix OFF_T, whence: Int32) => IntPointer := {
+function nativeFile_tell(fd: NativeFileHandle) => Int64 := {
     Unix lseek(fd, 0, NativeFile_SeekCur)
 }.
 

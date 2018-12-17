@@ -1,9 +1,52 @@
 namespace StdNative definition: {
 
 /**
+ * This is a generic byte oriented stream
+ */
+class BinaryStream definition: {
+    /**
+     * Tells the current position of the stream in the file.
+     * Negative for error or not supported.
+     */
+    virtual message position => Int64
+        := -1.
+
+    /**
+     * This sets the current file position.
+     */
+    virtual message position: (newPosition: Int64) ::=> BooleanBit
+        := false.
+
+    /**
+     * This sets the current file position, from the end of the file.
+     */
+    virtual message positionFromEnd: (newPosition: Int64) ::=> BooleanBit
+        := false.
+
+    /**
+     * This moves the file pointer the requested amount.
+     */
+    virtual message skip: (byteCount: Int64) ::=> BooleanBit
+        := false.
+
+    /**
+     * Writes the content of a buffer into the file.
+     */
+    virtual message write: (buffer: Void const pointer) size: (size: UIntPointer) ::=> IntPointer
+        := -1.
+
+    /**
+     * Read the content of a file towards a buffer.
+     */
+     virtual message read: (buffer: Void pointer) size: (size: UIntPointer) ::=> IntPointer
+         := -1.
+}.
+
+/**
  * File stream class.
  */
-class FileStream definition: {
+class BinaryFileStream superclass: BinaryStream;
+definition: {
     field nativeFileHandle public type: NativeFileHandle.
 
     meta message fromNativeFileHandle: (handle: NativeFileHandle) ::=> SelfType
@@ -11,161 +54,27 @@ class FileStream definition: {
             nativeFileHandle: handle;
             yourself.
 
-    message write: (buffer: Void const pointer) size: (size: UIntPointer) ::=> IntPointer
+    override message position => Int64
+        := nativeFile_tell(nativeFileHandle).
+
+    override message position: (newPosition: Int64) ::=> BooleanBit
+        := nativeFile_seek(nativeFileHandle, newPosition, NativeFile_SeekSet).
+
+    override message positionFromEnd: (newPosition: Int64) ::=> BooleanBit
+        := nativeFile_seek(nativeFileHandle, newPosition, NativeFile_SeekEnd).
+
+    override message skip: (byteCount: Int64) ::=> BooleanBit
+        := nativeFile_seek(nativeFileHandle, byteCount, NativeFile_SeekCur).
+
+    override message write: (buffer: Void const pointer) size: (size: UIntPointer) ::=> IntPointer
         := nativeFile_write(nativeFileHandle, buffer, size).
+
+    override message read: (buffer: Void pointer) size: (size: UIntPointer) ::=> IntPointer
+        := nativeFile_read(nativeFileHandle, buffer, size).
 }.
 
-global stdinFile mutable := FileStream fromNativeFileHandle: stdinNativeFileHandle.
-global stdoutFile mutable := FileStream fromNativeFileHandle: stdoutNativeFileHandle.
-global stderrFile mutable := FileStream fromNativeFileHandle: stderrNativeFileHandle.
-
-/**
- * Text stream writer
- */
-class TextStreamWriter definition: {
-    field stream public type: FileStream pointer.
-
-    meta message for: (stream: FileStream pointer) ::=> SelfType
-        := SelfType newValue
-            stream: stream;
-            yourself.
-
-    message nextPut: (character: Int32) ::=> BooleanBit := {
-        let buffer mutable type: UInt8 := character castTo: UInt8.
-        (stream _ write: buffer address size: 1) == 1
-    }.
-
-    message nextPutAll: (string: StdNative StringLiteral) ::=> BooleanBit := {
-        (stream _ write: string [0] address size: string size) == (string size castTo: IntPointer)
-    }.
-
-    message write: (string: Void const pointer) size: (size: UIntPointer) ::=> BooleanBit := {
-        (stream _ write: string size: size) == (size castTo: IntPointer)
-    }.
-
-    message nextPutHexDigit: (digit: Int32) ::=> Void := {
-        if: 0 <= digit && digit <= 9 then: {
-            self nextPut: '0' + digit
-        } else: {
-            self nextPut: 'a' + digit - 10
-        }
-    }.
-
-    // Integer formatting.
-    message nextPutInteger: (value: Int64) ::=> Void := {
-        // Extract the digits, in reverse order.
-        let currentValue mutable := value < 0 ifTrue: -value ifFalse: value.
-        let digitCount mutable := 0.
-        let buffer mutable type: (UInt8 array: 32).
-
-        do: {
-            let digit := '0' + currentValue % 10.
-            buffer[digitCount] := digit castTo: UInt8.
-
-            digitCount := digitCount + 1.
-            currentValue := currentValue / 10
-        } while: (currentValue ~= 0).
-
-        // Put the sign.
-        if: value < 0 then: {
-            self nextPut: '-'
-        }.
-
-        // Print the digits in the correct order
-        while: (digitCount > 0) do: {
-            digitCount := digitCount - 1.
-            self nextPut: buffer[digitCount]
-        }.
-    }.
-
-    message nextPutUnsignedInteger: (value: UInt64) ::=> Void := {
-        // Extract the digits, in reverse order.
-        let currentValue mutable := value.
-        let digitCount mutable := 0.
-        let buffer mutable type: (UInt8 array: 32).
-
-        do: {
-            let digit := '0' + currentValue % 10.
-            buffer[digitCount] := digit castTo: UInt8.
-
-            digitCount := digitCount + 1.
-
-            currentValue := currentValue / 10
-        } while: (currentValue ~= 0).
-
-        // Print the digits in the correct order
-        while: (digitCount > 0) do: {
-            digitCount := digitCount - 1.
-            self nextPut: buffer[digitCount]
-        }.
-    }.
-
-    // Pointer formatting.
-    message nextPutHexPointer: (address: UInt32) ::=> Void := {
-        for: (let i mutable type: Int32 := 28) while: i >= 0 do: {
-            self nextPutHexDigit: ((address >> (i castTo: UInt32)) & 16rF castTo: Int32)
-        } continueWith: (i := i - 4).
-    }.
-
-    message nextPutHexPointer: (address: UInt64) ::=> Void := {
-        for: (let i mutable type: Int32 := 60) while: i >= 0 do: {
-            self nextPutHexDigit: ((address >> (i castTo: UInt64)) & 16rF castTo: Int32)
-        } continueWith: (i := i - 4).
-    }.
-
-    message nextPutHexPointer: (pointer: Void pointer) ::=> Void := {
-        self nextPutHexPointer: (pointer reinterpretCastTo: UIntPointer).
-    }.
-
-    // Special characters
-    message tab => SelfType ref
-        := self nextPut: '\t'; yourself.
-
-    message lf => SelfType ref
-        := self nextPut: '\n'; yourself.
-
-    message cr => SelfType ref
-        := self nextPut: '\r'; yourself.
-
-    message crlf => SelfType ref
-        := self nextPutAll: "\r\n"; yourself.
-
-    message nl => SelfType ref
-        := self lf; yourself.
-
-    // Convenience printing methods.
-    message << (string: StdNative StringLiteral) => SelfType ref
-        := self nextPutAll: string; yourself.
-
-    message << (integer: Int8) => SelfType ref
-        := self nextPutInteger: integer; yourself.
-
-    message << (integer: Int16) => SelfType ref
-        := self nextPutInteger: integer; yourself.
-
-    message << (integer: Int32) => SelfType ref
-        := self nextPutInteger: integer; yourself.
-
-    message << (integer: Int64) => SelfType ref
-        := self nextPutInteger: integer; yourself.
-
-    message << (integer: UInt8) => SelfType ref
-        := self nextPutUnsignedInteger: integer; yourself.
-
-    message << (integer: UInt16) => SelfType ref
-        := self nextPutUnsignedInteger: integer; yourself.
-
-    message << (integer: UInt32) => SelfType ref
-        := self nextPutUnsignedInteger: integer; yourself.
-
-    message << (integer: UInt64) => SelfType ref
-        := self nextPutUnsignedInteger: integer; yourself.
-
-    message << (pointer: Void pointer) => SelfType ref
-        := self nextPutHexPointer: pointer; yourself.
-}.
-
-global stdout mutable := TextStreamWriter for: stdoutFile address.
-global stderr mutable := TextStreamWriter for: stderrFile address.
+global stdinFile mutable := BinaryFileStream fromNativeFileHandle: stdinNativeFileHandle.
+global stdoutFile mutable := BinaryFileStream fromNativeFileHandle: stdoutNativeFileHandle.
+global stderrFile mutable := BinaryFileStream fromNativeFileHandle: stderrNativeFileHandle.
 
 }.

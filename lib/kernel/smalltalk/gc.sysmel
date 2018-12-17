@@ -43,6 +43,8 @@ class SysmelGC definition: {
         // Set the allocated object class.
         allocatedObject value
             __variableDataSize: variableDataSize.
+
+        // Perform the basic initialization. This sets the vtable pointers.
         basicInitializer _ (allocatedObject).
 
         return: allocatedObject
