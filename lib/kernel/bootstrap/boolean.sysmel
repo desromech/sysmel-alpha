@@ -17,7 +17,7 @@ BooleanBit macro expansionRule && andCondition := ``(
 ).
 
 // Logical negation
-BooleanType macro selector: #not doOn: {
+BooleanType macro selector: #not doOn: #{
     // Compile time evaluation
     evaluation: $$Pharo {
         node: node environment: environment

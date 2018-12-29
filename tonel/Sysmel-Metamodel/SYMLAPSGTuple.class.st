@@ -8,6 +8,18 @@ Class {
 }
 
 { #category : #accessing }
+SYMLAPSGTuple >> associationKey [
+	self assert: elements size = 2.
+	^ elements first
+]
+
+{ #category : #accessing }
+SYMLAPSGTuple >> associationValue [
+	self assert: elements size = 2.
+	^ elements second
+]
+
+{ #category : #accessing }
 SYMLAPSGTuple >> children [
 	^ elements
 ]

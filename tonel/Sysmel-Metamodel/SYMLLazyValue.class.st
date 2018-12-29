@@ -49,11 +49,12 @@ SYMLLazyValue >> asAPSGNodeValueWithError: errorMessage at: aPosition [
 SYMLLazyValue >> asBlockDictionaryValue [
 	| evaluatedValue expectedNodeValue |
 	node isSequenceNode ifTrue: [ ^ self ].
+	node isDictionaryConstructionNode ifTrue: [ ^ self ].
 	(node isLexicalScopeNode and: [ node node isSequenceNode ]) ifTrue: [ 
-	^ SYMLFunctionalValue new
-		node: node node;
-		environment: environment;
-		yourself
+		^ SYMLFunctionalValue new
+			node: node node;
+			environment: environment;
+			yourself
 	].
 	
 	evaluatedValue := self value.
@@ -79,6 +80,12 @@ SYMLLazyValue >> asFunctionalValue [
 		node: node;
 		environment: environment;
 		yourself
+]
+
+{ #category : #converting }
+SYMLLazyValue >> asImmediateValue [
+	self ensureEvaluation.
+	^ cachedValue
 ]
 
 { #category : #evaluating }

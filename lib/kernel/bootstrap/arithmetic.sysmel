@@ -87,7 +87,7 @@ NumericalType macro selectors: #(
     < > <= >= = ~= == ~~
     | & << >>
     bitOr: bitAnd: bitXor:
-) doOn: {
+) doOn: #{
 evaluation: $$Pharo {
     node: node environment: environment
         | left right coercionType valueType selector |
@@ -164,7 +164,7 @@ codeGeneration: $$Pharo {
 
 }.
 
-NumericalType macro selectors: #(#"prefix-+" negated #"prefix--" bitInvert #"prefix-~" highBit lowBit) doOn: {
+NumericalType macro selectors: #(#"prefix-+" negated #"prefix--" bitInvert #"prefix-~" highBit lowBit) doOn: #{
     // Compile time evaluation
     evaluation: $$Pharo {
         node: node environment: environment

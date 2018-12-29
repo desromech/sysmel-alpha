@@ -164,6 +164,7 @@ SYMLFunction >> semanticAnalyzeMessageToYou: message inEnvironment: environment 
 SYMLFunction >> tryToAddToParentWithName: aNewName [
 	functionType ifNil: [ ^ self ].
 	self isTemplateFunctionInstance ifFalse: [
-		parent addMacroFunctionPattern: self withSelector: aNewName
+		parent addMacroFunctionPattern: self withSelector: aNewName.
+		self ensureSemanticAnalysis
 	]
 ]

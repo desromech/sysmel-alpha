@@ -4,31 +4,28 @@ Trait {
 }
 
 { #category : #parsing }
-TSYMLInterpretedCompilationObject >> parse: lazyNodeValue [
-	| environment actions actionValue |
-	environment := lazyNodeValue environment.
-	actions := lazyNodeValue node.
+TSYMLInterpretedCompilationObject >> parse: actionsDictionary [
+	^ self parse: actionsDictionary at: SYMLSourcePosition empty
+]
 
-	actions isSequenceNode ifFalse: [ 
-		self error: 'Expected an apsg sequence node with the type conversion rules.' at: lazyNodeValue position
+{ #category : #parsing }
+TSYMLInterpretedCompilationObject >> parse: actionsDictionary at: aPosition [
+	| actions key value selector |
+	actions := actionsDictionary unwrapSysmelValue.
+	actions isDictionary ifFalse: [ 
+		self error: 'Expected a literal dictionary.' at: aPosition
 	].
 
-	actions do: [ :action |
-		action isMessageNode ifFalse: [ 
-			self error: 'Expected a message node' at: action
-		].
-
-		action receiver ifNotNil: [ 
-			self error: 'Expected a meta message (message without receiver)' at: action
-		].
-
-		action arguments size ~= 1 ifTrue: [ 
-			self error: 'Expected a meta message with a single argument.' at: action
+	actions keysAndValuesDo: [ :keyValue : valueValue |
+		key := keyValue unwrapSysmelValue.
+		value := valueValue unwrapSysmelValue.
+		
+		key isSymbol ifFalse: [ 
+			self error: 'Expected a symbol instead of key {1}.' format: { keyValue printString } at: aPosition
 		].
 	
-		actionValue := (action arguments first analyzeAndEvaluateInEnvironment: environment) value.
-		actionValue isLiteral ifFalse: [ actionValue := actionValue asSysmelCompileTimeFunction ].
-		self perform: action selector with: actionValue
+		selector := (key , ':') asSymbol.
+		value isLiteral ifFalse: [ value := value asSysmelCompileTimeFunction ].
+		self perform: selector with: value
 	]
-
 ]

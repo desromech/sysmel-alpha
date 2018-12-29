@@ -15,7 +15,7 @@ ManagedClassTrait uses: AnyValue;
 definition: {
 }.
 
-UndefinedType conversionTo: ManagedClassTrait doOn: {
+UndefinedType conversionTo: ManagedClassTrait doOn: #{
     evaluation: $$Pharo {
         value: value targetType: targetType at: position
             ^ value sameValueButWithType: targetType
@@ -26,7 +26,7 @@ UndefinedType conversionTo: ManagedClassTrait doOn: {
     }.
 }.
 
-let pointerReinterpretCast := `'{
+let pointerReinterpretCast := #{
     evaluation: $$Pharo {
         value: value targetType: targetType at: position
             ^ value sameValueButWithType: targetType
@@ -41,7 +41,7 @@ ManagedClassTrait reinterpretConversionTo: PointerType doOn: pointerReinterpretC
 PointerType reinterpretConversionTo: ManagedClassTrait doOn: pointerReinterpretCast.
 
 // Variable data trait
-GCClassVariableDataArrayType macro selectors: #(size) doOn: {
+GCClassVariableDataArrayType macro selectors: #(size) doOn: #{
     // Evaluation
     evaluation: $$Pharo {
         evaluateMessage: message inEnvironment: anEnvironment
@@ -485,8 +485,7 @@ MethodDictionary definition: {
 
 //-----------------------------------------------------------------------------
 // Literals
-let literalConversionRule := `'{
-
+let literalConversionRule := #{
     evaluation: $$Pharo {
         value: value into: targetType at: coercionPosition
             "Literal => Object eval"

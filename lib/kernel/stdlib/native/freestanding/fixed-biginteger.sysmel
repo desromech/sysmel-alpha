@@ -1,0 +1,82 @@
+namespace StdNative definition: {
+
+/**
+ * I am a big integer with a maximum fixed length. I am used to implement
+ * conversions between floating point numbers and integers, and some
+ * cryptography primitives.
+ * My length is specified in terms of 32 bits words.
+ */
+template FixedBigInteger(WC: _LiteralInteger)
+    := struct definition: {
+    alias WordCount := WC.
+    alias BitCount := WordCount*32.
+
+    field words public type: (UInt32 array: WordCount).
+
+    message assignValue: (other: SelfType const ref) ::=> SelfType ref := {
+        for: (let i mutable type: UIntPointer := 0) while: (i < WordCount) do: {
+            words[i] := other words[i].
+        } continueWith: (i := i + 1).
+
+        self
+    }.
+
+    message assignValue: (value: UInt32) ::=> SelfType ref := {
+        words[0] := value.
+        for: (let i mutable type: UIntPointer := 1) while: (i < WordCount) do: {
+            words[i] := 0.
+        } continueWith: (i := i + 1).
+
+        self
+    }.
+
+    if: WordCount > 1 then: {
+        message assignValue: (value: UInt64) ::=> SelfType ref := {
+            words[0] := value castTo: UInt32.
+            words[1] := value >> 32 castTo: UInt32.
+            for: (let i mutable type: UIntPointer := 2) while: (i < WordCount) do: {
+                words[i] := 0.
+            } continueWith: (i := i + 1).
+
+            self
+        }.
+    }.
+
+    message add: (other: SelfType const ref) into: (result: SelfType ref) ::=> Void := {
+        let carry mutable type: UInt64 := 0.
+
+        for: (let i mutable type: UIntPointer := 0) while: (i < WordCount) do: {
+            let left := words[i] castTo: UInt64.
+            let right := other words[i] castTo: UInt64.
+            let sum := left + right + carry.
+
+            carry := (sum >> 32) castTo: UInt32.
+            result words[i] := sum & 16rFFFFFFFF castTo: UInt32.
+        } continueWith: (i := i + 1)
+    }.
+
+    message subtract: (other: SelfType const ref) into: (result: SelfType ref) ::=> Void := {
+        let carry mutable type: UInt64 := 1. // For two-complement negation.
+
+        for: (let i mutable type: UIntPointer := 0) while: (i < WordCount) do: {
+            let left := words[i] castTo: UInt64.
+            let right := other words[i] bitInvert castTo: UInt64.
+            let sum := left + right + carry.
+
+            carry := (sum >> 32) castTo: UInt32.
+            result words[i] := sum & 16rFFFFFFFF castTo: UInt32.
+        } continueWith: (i := i + 1)
+    }.
+
+    message unsignedMultiplyWith: (other: SelfType const ref) into: (result: SelfType ref) ::=> Void := {
+
+    }.
+
+    message divide: (other: SelfType const ref) into: (result: SelfType ref) ::=> Void := {
+
+    }.
+
+}.
+
+alias FloatStringConversionBigInteger := FixedBigInteger(32). // 1024 bits big integer.
+}. // End of namespace StdNative

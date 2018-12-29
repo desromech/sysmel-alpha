@@ -1,7 +1,7 @@
 namespace SysmelKernel definition: {
 
 // The return macro is used extensively by the language.
-macro selector: #return: doOn: {
+macro selector: #return: doOn: #{
     evaluation: $$Pharo {
         evaluateMessage: message inEnvironment: anEnvironment
         	| result convertedResult |
@@ -67,7 +67,7 @@ macro selector: #return: doOn: {
     }.
 }.
 
-macro selectors: #(if:then: if:then:else:) doOn: {
+macro selectors: #(if:then: if:then:else:) doOn: #{
     evaluation: $$Pharo {
         node: node environment: environment
             | conditionValue conditionCoercionType conditionCoercionRule resultValue |
@@ -96,7 +96,15 @@ macro selectors: #(if:then: if:then:else:) doOn: {
                     ^ node valueType defaultValue
                 ].
 
-                self halt.
+                resultValue := node arguments third evaluateInEnvironment: environment.
+                node coercionRule third ifNotNil: [
+                    resultValue := node coercionRule third
+                        convertValue: resultValue
+                        into: node coercionType third
+                        at: node
+                ].
+
+                ^ resultValue
             ]
     }.
 
@@ -236,7 +244,7 @@ macro selectors: #(if:then: if:then:else:) doOn: {
 }.
 
 // while:do:continueWith:
-macro selectors: #(while:do: while:do:continueWith: ) doOn: {
+macro selectors: #(while:do: while:do:continueWith: ) doOn: #{
     // Compile time evaluation
     evaluation: $$Pharo {
         node: node environment: environment
@@ -366,7 +374,7 @@ macro expansionRule until: condition do: body continueWith: continueAction := ``
 ).
 
 // do:continueWith:while:
-macro selectors: #(do:while: do:continueWith:while:) doOn: {
+macro selectors: #(do:while: do:continueWith:while:) doOn: #{
     // Compile time evaluation
     evaluation: $$Pharo {
         node: node environment: environment

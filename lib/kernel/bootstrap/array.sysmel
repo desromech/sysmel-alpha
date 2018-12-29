@@ -1,6 +1,6 @@
 namespace SysmelKernel definition: {
 
-ArrayType macro selectors: #(at: subscriptAt:) doOn: {
+ArrayType macro selectors: #(at: subscriptAt:) doOn: #{
     // Evaluation
     evaluation: $$Pharo {
         evaluateMessage: message inEnvironment: anEnvironment
@@ -88,7 +88,7 @@ ArrayType macro selectors: #(at: subscriptAt:) doOn: {
 }.
 
 // Literal String => CString
-_LiteralString conversionTo: Char const pointer doOn: {
+_LiteralString conversionTo: Char const pointer doOn: #{
     evaluation: $$Pharo {
         value: value targetType: targetType at: position
             self halt

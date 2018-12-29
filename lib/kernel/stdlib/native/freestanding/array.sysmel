@@ -25,7 +25,7 @@ template FixedArray(ET: Type)
 alias String := FixedArray(Char).
 alias StringLiteral := String const ref.
 
-_LiteralString conversionTo: StringLiteral doOn: {
+_LiteralString conversionTo: StringLiteral doOn: #{
     evaluation: $$Pharo {
         value: value targetType: targetType at: position
 			"_LiteralString conversionTo: StringLiteral"

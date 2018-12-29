@@ -52,7 +52,7 @@ definition: {
         return: (ElementType printingName -- "x" -- ElementCount printString)
     }.
 
-    meta macro selector: #applyWithArguments: doOn: {
+    meta macro selector: #applyWithArguments: doOn: #{
         evaluation: $$Pharo {
             node: node environment: environment
             "Evaluate V4"
@@ -147,7 +147,7 @@ definition: {
     }.
 
     // Implicit conversion from scalar into vector.
-    ElementType conversionTo: SelfType doOn: {
+    ElementType conversionTo: SelfType doOn: #{
         evaluation: $$Pharo {
             value: value targetType: targetType at: position
                 "Construct vector"

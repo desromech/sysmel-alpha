@@ -88,7 +88,8 @@ Class {
 		'dictionaryKey',
 		'optionalDictionaryElement',
 		'dictionaryExpressionKey',
-		'colon'
+		'colon',
+		'dictionaryKeywordKey'
 	],
 	#classVars : [
 		'SpecialOperators'
@@ -294,7 +295,12 @@ SYMLGrammar >> dictionaryExpressionKey [
 
 { #category : #accessing }
 SYMLGrammar >> dictionaryKey [
-	^ keyword / dictionaryExpressionKey
+	^ dictionaryKeywordKey / dictionaryExpressionKey
+]
+
+{ #category : #accessing }
+SYMLGrammar >> dictionaryKeywordKey [
+	^ keyword
 ]
 
 { #category : #tokens }

@@ -54,6 +54,11 @@ SYMLValue >> asFunctionActivationValueAt: aPosition [
 ]
 
 { #category : #converting }
+SYMLValue >> asImmediateValue [
+	^ self
+]
+
+{ #category : #converting }
 SYMLValue >> asSysmelValueInEnvironment: anEnvironment [
 	^ self
 ]

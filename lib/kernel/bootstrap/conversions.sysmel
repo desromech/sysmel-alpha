@@ -1,7 +1,7 @@
 namespace SysmelKernel definition: {
 
 // Explicit cast
-AnyValue macro selectors: #(reinterpretCastTo: explicitCastTo:) doOn: {
+AnyValue macro selectors: #(reinterpretCastTo: explicitCastTo:) doOn: #{
     evaluation: $$Pharo {
         evaluateMessage: message inEnvironment: anEnvironment
             | receiver conversionRule targetType |
@@ -57,7 +57,7 @@ AnyValue macro expansionRule castTo: targetType := ``(
 ).
 
 // Literal type conversions.
-_LiteralInteger conversionTo: PrimitiveIntegerType doOn: {
+_LiteralInteger conversionTo: PrimitiveIntegerType doOn: #{
     coercionCost: 0.
     evaluation: $$Pharo {
         value: value into: targetType at: coercionPosition
@@ -69,7 +69,7 @@ _LiteralInteger conversionTo: PrimitiveIntegerType doOn: {
     }.
 }.
 
-_LiteralInteger conversionTo: _LiteralFloat doOn: {
+_LiteralInteger conversionTo: _LiteralFloat doOn: #{
     evaluation: $$Pharo {
         value: value into: targetType at: coercionPosition
             ^ value sameValueButWithType: targetType
@@ -80,7 +80,7 @@ _LiteralInteger conversionTo: _LiteralFloat doOn: {
     }.
 }.
 
-_LiteralInteger conversionTo: PrimitiveFloatingPointType doOn: {
+_LiteralInteger conversionTo: PrimitiveFloatingPointType doOn: #{
     evaluation: $$Pharo {
         value: value into: targetType at: coercionPosition
             ^ value copyForSemanticAnalysis
@@ -94,7 +94,7 @@ _LiteralInteger conversionTo: PrimitiveFloatingPointType doOn: {
     }.
 }.
 
-_LiteralFloat conversionTo: PrimitiveFloatingPointType doOn: {
+_LiteralFloat conversionTo: PrimitiveFloatingPointType doOn: #{
     coercionCost: 0.
     evaluation: $$Pharo {
         value: value into: targetType at: coercionPosition
@@ -106,7 +106,7 @@ _LiteralFloat conversionTo: PrimitiveFloatingPointType doOn: {
     }.
 }.
 
-LiteralType conversionTo: _CompilerObjectType doOn: {
+LiteralType conversionTo: _CompilerObjectType doOn: #{
     evaluation: $$Pharo {
         value: value targetType: targetType at: position
             ^ value sameValueButWithType: targetType
@@ -117,7 +117,7 @@ LiteralType conversionTo: _CompilerObjectType doOn: {
     }.
 }.
 
-_APSGNodeType conversionTo: _CompilerObjectType doOn: {
+_APSGNodeType conversionTo: _CompilerObjectType doOn: #{
     evaluation: $$Pharo {
         value: value targetType: targetType at: position
             ^ value sameValueButWithType: targetType
@@ -129,7 +129,7 @@ _APSGNodeType conversionTo: _CompilerObjectType doOn: {
 }.
 
 // Generic integer cast.
-let intCastConversionAction := `'{
+let intCastConversionAction := #{
     evaluation: $$Pharo {
         value: value targetType: targetType at: position
             ^ value sameValueButWithType: targetType
@@ -179,7 +179,7 @@ UInt8 explicitConversionTo: Int8 doOn: intCastConversionAction.
 Int8 explicitConversionTo: UInt8 doOn: intCastConversionAction.
 
 // Floating point conversions
-let floatingPointCastAction := `'{
+let floatingPointCastAction := #{
     evaluation: $$Pharo {
         value: value targetType: targetType at: position
             ^ value sameValueButWithType: targetType
@@ -194,7 +194,7 @@ Float32 conversionTo: Float64 doOn: floatingPointCastAction.
 Float64 explicitConversionTo: Float32 doOn: floatingPointCastAction.
 
 // Integer to float
-PrimitiveIntegerType conversionTo: PrimitiveFloatingPointType doOn: {
+PrimitiveIntegerType conversionTo: PrimitiveFloatingPointType doOn: #{
     evaluation: $$Pharo {
         value: value targetType: targetType at: position
             self halt
@@ -206,7 +206,7 @@ PrimitiveIntegerType conversionTo: PrimitiveFloatingPointType doOn: {
 }.
 
 // Nil into pointer
-UndefinedType conversionTo: PointerType | Void doOn: {
+UndefinedType conversionTo: PointerType | Void doOn: #{
     evaluation: $$Pharo {
         value: value targetType: targetType at: position
             ^ value sameValueButWithType: targetType
@@ -218,7 +218,7 @@ UndefinedType conversionTo: PointerType | Void doOn: {
 }.
 
 // Pointer => Pointer
-let pointerReinterpretCast := `'{
+let pointerReinterpretCast := #{
     evaluation: $$Pharo {
         value: value targetType: targetType at: position
             ^ value sameValueButWithType: targetType
@@ -246,7 +246,7 @@ ReferenceTypeTemplate extend: {
 }.
 
 // Literal integer => Pointer
-_LiteralInteger reinterpretConversionTo: PointerType doOn: {
+_LiteralInteger reinterpretConversionTo: PointerType doOn: #{
     evaluation: $$Pharo {
         value: value into: targetType at: coercionPosition
             ^ value sameValueButWithType: targetType
@@ -258,7 +258,7 @@ _LiteralInteger reinterpretConversionTo: PointerType doOn: {
 }.
 
 // Integer => Pointer
-UIntPointer | IntPointer reinterpretConversionTo: PointerType | PointerType const doOn: `'{
+UIntPointer | IntPointer reinterpretConversionTo: PointerType | PointerType const doOn: #{
     evaluation: $$Pharo {
         value: value targetType: targetType at: position
             ^ value sameValueButWithType: targetType
@@ -270,7 +270,7 @@ UIntPointer | IntPointer reinterpretConversionTo: PointerType | PointerType cons
 }.
 
 // Pointer => Integer
-PointerType | PointerType const reinterpretConversionTo: UIntPointer | IntPointer doOn: `'{
+PointerType | PointerType const reinterpretConversionTo: UIntPointer | IntPointer doOn: #{
     evaluation: $$Pharo {
         value: value targetType: targetType at: position
             ^ value sameValueButWithType: targetType

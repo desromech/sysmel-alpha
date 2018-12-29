@@ -1,6 +1,6 @@
 namespace SysmelKernel definition: {
 
-StructureType meta macro selectors: #(basicNewValue basicNewValue: newValue newValue: applyWithArguments: ) doOn: {
+StructureType meta macro selectors: #(basicNewValue basicNewValue: newValue newValue: applyWithArguments: ) doOn: #{
 // Compile time evaluation
 evaluation: $$Pharo {
     node: node environment: environment

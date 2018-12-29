@@ -318,7 +318,7 @@ definition: {
 
     // Address space conversion.
     if: (#(function workgroup crossWorkgroup) includes: AddressSpaceName) then: {
-        SelfType conversionTo: (P cleanType pointerFor: #generic) | (P pointerFor: #generic) doOn: {
+        SelfType conversionTo: (P cleanType pointerFor: #generic) | (P pointerFor: #generic) doOn: #{
             evaluation: $$Pharo {
                 value: value targetType: targetType at: position
                     ^ value
@@ -389,7 +389,7 @@ definition: {
         := ReferencedType printingName -- " ref".
 
     // Reference evaluation
-    let referenceEvaluationAction := `'{
+    let referenceEvaluationAction := #{
         evaluation: $$Pharo {
             value: value targetType: targetType at: position
                 "Reference evaluation"
@@ -410,7 +410,7 @@ definition: {
 
     // Address space conversion.
     if: (#(function workgroup crossWorkgroup) includes: AddressSpaceName) then: {
-        SelfType allConversionTo: (R cleanType refFor: #generic) | (R refFor: #generic) doOn: {
+        SelfType allConversionTo: (R cleanType refFor: #generic) | (R refFor: #generic) doOn: #{
             evaluation: $$Pharo {
                 value: value targetType: targetType at: position
                     "Reference evaluation"
@@ -460,7 +460,7 @@ definition: {
         DecoratedType printingName -- " const".
 
     // Allow automatic conversion from const => non-const values.
-    SelfType conversionTo: DecoratedType doOn: {
+    SelfType conversionTo: DecoratedType doOn: #{
         evaluation: $$Pharo {
             value: value targetType: targetType at: position
                 ^ value sameValueButWithType: targetType
@@ -505,7 +505,7 @@ definition: {
         := DecoratedType printingName -- " volatile".
 
     // Perform a bidirectional identity conversion for volatile types.
-    let decorationIdentityAction := `'{
+    let decorationIdentityAction := #{
         evaluation: $$Pharo {
             value: value targetType: targetType at: position
                 ^ value sameValueButWithType: targetType
@@ -631,7 +631,7 @@ _FunctionGroupType uses: AnyValue;
 definition: {
     meta message isFunctionGroupType => BooleanBit := true.
 
-    macro selector: #applyWithArguments: doOn: {
+    macro selector: #applyWithArguments: doOn: #{
         semanticAnalysis: $$Pharo {
             node: node environment: environment at: aPosition
                 | functionGroup |
@@ -641,7 +641,7 @@ definition: {
         }
     }.
 
-    macro selector: #address doOn: {
+    macro selector: #address doOn: #{
         semanticAnalysis: $$Pharo {
             node: node environment: environment at: aPosition
                 | functionGroup |
@@ -657,7 +657,7 @@ FunctionType uses: AnyValue;
 definition: {
     meta message isFunctionType => BooleanBit := true.
 
-    macro selector: #applyWithArguments: doOn: {
+    macro selector: #applyWithArguments: doOn: #{
         semanticAnalysis: $$Pharo {
             node: node environment: environment at: aPosition
                 | function argumentsTuple functionType argumentsType functionCoercionRule argument coercionType coercionTypes coercionRules |
@@ -762,6 +762,7 @@ ClassType uses: StructureType.
 _LiteralArray uses: LiteralType.
 _LiteralSymbol uses: LiteralType.
 _LiteralString uses: LiteralType.
+_LiteralAnyDictionary uses: LiteralType.
 
 _LiteralInteger uses: (PrimitiveLiteralType, IntegerType);
 definition: {

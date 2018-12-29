@@ -1,7 +1,7 @@
 namespace SysmelKernel definition: {
 
 // Implement assignValue: in any value for better error reporting.
-AnyValue macro selector: #assignValue: doOn: {
+AnyValue macro selector: #assignValue: doOn: #{
 semanticAnalysis: $$Pharo {
     node: node environment: environment position: aSourcePosition
         | reference referenceType value valueType |
@@ -16,7 +16,7 @@ semanticAnalysis: $$Pharo {
 
 }.
 
-ReferenceType macro selector: #assignValue: doOn: {
+ReferenceType macro selector: #assignValue: doOn: #{
 // Compile time evaluation
 evaluation: $$Pharo {
     node: node environment: environment
@@ -41,11 +41,20 @@ evaluation: $$Pharo {
 // Semantic analysis
 semanticAnalysis: $$Pharo {
     node: node environment: environment position: aSourcePosition
-        | reference referenceType value valueType coercionType coercionRule |
-        value := node arguments first semanticAnalysisInEnvironment: environment.
-        reference := node receiver semanticAnalysisInEnvironment: environment.
+        | reference referenceType referencedType value valueType coercionType coercionRule |
 
+        reference := node receiver semanticAnalysisInEnvironment: environment.
         referenceType := reference evaluateTypeInEnvironment: environment.
+
+        "Allow overriding assignValue:"
+        referencedType := referenceType referenced.
+        (referencedType lookupSelector: #assignValue:) ifNotNil: [ :method |
+            method parent name ~= #AnyValue ifTrue: [
+                ^ method semanticAnalyzeMessage: node inEnvironment: environment at: aSourcePosition
+            ].
+        ].
+
+        value := node arguments first semanticAnalysisInEnvironment: environment.
         valueType := value evaluateTypeInEnvironment: environment.
         self assert: referenceType isReferenceType.
 

@@ -8,9 +8,21 @@ Class {
 }
 
 { #category : #'builder methods' }
+SYMLAPSGBuilder >> associationKey: key value: value [
+	<compileTime>
+	^ SYMLAPSGTuple new elements: { key . value }
+]
+
+{ #category : #'builder methods' }
 SYMLAPSGBuilder >> chain: receiver messages: messages [
 	<compileTime>
 	^ SYMLAPSGMessageChain new receiver: receiver; messages: messages
+]
+
+{ #category : #'builder methods' }
+SYMLAPSGBuilder >> contructDictionaryWith: associations [
+	<compileTime>
+	^ SYMLAPSGDictionaryConstruction new associations: associations
 ]
 
 { #category : #accessing }

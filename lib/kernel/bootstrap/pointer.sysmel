@@ -1,6 +1,6 @@
 namespace SysmelKernel definition: {
 
-ReferenceType macro selector: #address doOn: {
+ReferenceType macro selector: #address doOn: #{
 evaluation: $$Pharo {
     node: node environment: environment
         | receiver |
@@ -36,7 +36,7 @@ codeGeneration: $$Pharo {
 }.
 }.
 
-PointerType macro selectors: #(value _) doOn: {
+PointerType macro selectors: #(value _) doOn: #{
 // Semantic analysis
 semanticAnalysis: $$Pharo {
     node: node environment: environment position: aSourcePosition
@@ -72,7 +72,7 @@ codeGeneration: $$Pharo {
 }.
 }.
 
-PointerType macro selectors: #(+ at: subscriptAt:) doOn: {
+PointerType macro selectors: #(+ at: subscriptAt:) doOn: #{
 evaluation: $$Pharo {
     node: node environment: environment
         | pointer index element |

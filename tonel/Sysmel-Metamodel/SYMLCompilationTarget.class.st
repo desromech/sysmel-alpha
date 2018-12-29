@@ -43,7 +43,8 @@ Class {
 		'undefinedType',
 		'intPointerType',
 		'uintPointerType',
-		'basicInitializeFunctionPointerType'
+		'basicInitializeFunctionPointerType',
+		'literalAnyDictionaryType'
 	],
 	#category : #'Sysmel-Metamodel-CompilationTarget'
 }
@@ -358,6 +359,18 @@ SYMLCompilationTarget >> isUnix [
 SYMLCompilationTarget >> isWin32 [
 	<compileTime>
 	^ self operatingSystemName == #win32
+]
+
+{ #category : #accessing }
+SYMLCompilationTarget >> literalAnyDictionaryType [
+	<compileTime>
+	^ literalAnyDictionaryType
+]
+
+{ #category : #accessing }
+SYMLCompilationTarget >> literalAnyDictionaryType: aType [
+	<compileTime>
+	literalAnyDictionaryType := aType
 ]
 
 { #category : #accessing }

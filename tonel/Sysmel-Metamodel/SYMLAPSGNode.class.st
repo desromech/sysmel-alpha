@@ -161,6 +161,11 @@ SYMLAPSGNode >> isBlockClosure [
 ]
 
 { #category : #testing }
+SYMLAPSGNode >> isDictionaryConstructionNode [
+	^ false
+]
+
+{ #category : #testing }
 SYMLAPSGNode >> isIdentifierNode [
 	^ false
 ]

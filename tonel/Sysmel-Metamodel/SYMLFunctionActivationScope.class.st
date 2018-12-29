@@ -24,6 +24,11 @@ SYMLFunctionActivationScope >> function: anObject [
 	function := anObject
 ]
 
+{ #category : #accessing }
+SYMLFunctionActivationScope >> isImmediateEnvironment [
+	^ false
+]
+
 { #category : #'as yet unclassified' }
 SYMLFunctionActivationScope >> lookReceiverValueFor: aReceiverVariable [
 	receiverVariable == aReceiverVariable ifTrue: [ ^ receiver ].

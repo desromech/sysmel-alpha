@@ -195,7 +195,7 @@ SYMLAbstractType >> allConversionTo: targetTypeKindLazyValue doOn: actionRules [
 	targetTypeKind := targetTypeKindLazyValue value.
 	targetTypeKind variantAlternativesDo: [ :targetVariantAlternative |
 		conversionRule := SYMLTypeKindConversionRule new targetTypeKind: targetVariantAlternative;
-						parse: actionRules asBlockDictionaryValue;
+						parse: actionRules asImmediateValue at: actionRules position;
 						yourself.
 		implicitConversionRules add: conversionRule.
 		explicitConversionRules add: conversionRule.
@@ -459,7 +459,7 @@ SYMLAbstractType >> conversionTo: targetTypeKindLazyValue doOn: actionRules [
 	targetTypeKind := targetTypeKindLazyValue value.
 	targetTypeKind variantAlternativesDo: [ :targetVariantAlternative |
 		conversionRule := SYMLTypeKindConversionRule new targetTypeKind: targetVariantAlternative;
-						parse: actionRules asBlockDictionaryValue;
+						parse: actionRules asImmediateValue at: actionRules position;
 						yourself.
 		implicitConversionRules add: conversionRule.
 		explicitConversionRules add: conversionRule.
@@ -605,7 +605,7 @@ SYMLAbstractType >> explicitConversionTo: targetTypeKindLazyValue doOn: actionRu
 	targetTypeKind := targetTypeKindLazyValue value.
 	targetTypeKind variantAlternativesDo: [ :targetVariantAlternative |
 		conversionRule := SYMLTypeKindConversionRule new targetTypeKind: targetVariantAlternative;
-						parse: actionRules asBlockDictionaryValue;
+						parse: actionRules asImmediateValue at: actionRules position;
 						yourself.
 		explicitConversionRules add: conversionRule.
 	]
@@ -803,7 +803,7 @@ SYMLAbstractType >> implicitConversionTo: targetTypeKindLazyValue doOn: actionRu
 	targetTypeKind := targetTypeKindLazyValue value.
 		targetTypeKind variantAlternativesDo: [ :targetVariantAlternative |
 		conversionRule := SYMLTypeKindConversionRule new targetTypeKind: targetVariantAlternative;
-						parse: actionRules asBlockDictionaryValue;
+						parse: actionRules asImmediateValue at: actionRules position;
 						yourself.
 		implicitConversionRules add: conversionRule.
 	]
@@ -1213,7 +1213,7 @@ SYMLAbstractType >> reinterpretConversionTo: targetTypeKindLazyValue doOn: actio
 	targetTypeKind := targetTypeKindLazyValue value.
 	targetTypeKind variantAlternativesDo: [ :targetVariantAlternative |
 		conversionRule := SYMLTypeKindConversionRule new targetTypeKind: targetVariantAlternative;
-						parse: actionRules asBlockDictionaryValue;
+						parse: actionRules asImmediateValue at: actionRules position;
 						yourself.
 		reinterpretConversionRules add: conversionRule.
 	]

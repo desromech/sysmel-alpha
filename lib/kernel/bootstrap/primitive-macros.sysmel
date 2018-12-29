@@ -73,4 +73,11 @@ namespace SysmelKernel definition: {
     IntegerType macro expansionRule isOdd :=
         ``((`,self & 1) == 1).
 
+    // Compile time if.
+    macro expansionRule compileTimeIf: (condition: BooleanBit) then: thenNode
+        := condition ifTrue: thenNode ifFalse: ``nil.
+
+    macro expansionRule compileTimeIf: (condition: BooleanBit) then: thenNode else: elseNode
+        := condition ifTrue: thenNode ifFalse: elseNode.
+
 }.

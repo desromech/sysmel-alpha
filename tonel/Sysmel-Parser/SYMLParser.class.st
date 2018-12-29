@@ -161,6 +161,55 @@ SYMLParser >> commaExpression [
 ]
 
 { #category : #accessing }
+SYMLParser >> dictionaryElement [
+	^ super dictionaryElement ==> [ :tokens |
+		SYMLASTDictionaryKeyAndValue new
+			tokens: tokens;
+			position: tokens first;
+			key: tokens first;
+			value: tokens second;
+			yourself
+	]
+]
+
+{ #category : #accessing }
+SYMLParser >> dictionaryElementList [
+	^ super dictionaryElementList ==> [ :tokens |
+		(tokens first
+			ifNil: [ #() ]
+			ifNotNil: [ {tokens first} ]) ,
+			(tokens second collect: #second thenSelect: #isNotNil)
+	]
+]
+
+{ #category : #accessing }
+SYMLParser >> dictionaryExpression [
+	^ super dictionaryExpression ==> [ :tokens |
+		SYMLASTDictionaryConstruction new
+			position: tokens first;
+			tokens: { tokens first . tokens last };
+			associations: tokens third;
+			yourself
+	]
+]
+
+{ #category : #accessing }
+SYMLParser >> dictionaryExpressionKey [
+	^ super dictionaryExpressionKey ==> [ :tokens | tokens first ]
+]
+
+{ #category : #accessing }
+SYMLParser >> dictionaryKeywordKey [
+	^ super dictionaryKeywordKey ==> [ :token |
+		SYMLASTLiteralSymbolValue new
+			tokens: { token };
+			position: token;
+			value: (token inputValue allButLast asSymbol);
+			yourself
+	]
+]
+
+{ #category : #accessing }
 SYMLParser >> expressionList [
 	^ super expressionList ==> [ :list |
 		({ list first } , (list second collect: #second)) select: #isNotNil

@@ -81,6 +81,34 @@ class TextStreamWriter definition: {
         }.
     }.
 
+    // Floating point formatting
+    message nextPutDouble: (double: Float64) ::=> Void := {
+        let doubleMemory mutable := double.
+        let ieee754Double := (doubleMemory address reinterpretCastTo: UInt64 pointer) value.
+
+        let negative := (ieee754Double >> 63) ~= 0.
+        let exponent := (ieee754Double >> 52) & ((1<<11) - 1).
+        let mantissa := ieee754Double & ((1<<52) - 1).
+
+        exponent == 0 && mantissa == 0 ifTrue: {
+            negative ifTrue: {
+                self << "-0.0".
+            } ifFalse: {
+                self << "0.0".
+            }.
+
+            return: nil
+        }.
+
+        negative ifTrue: {
+            self nextPut: '-'.
+        }.
+
+        let decimalPart mutable type: FloatStringConversionBigInteger := mantissa.
+        self << "e" << exponent << "m" << mantissa << "dp" << decimalPart words[0] << ":" << decimalPart words[1] << ":" << decimalPart words[2].
+
+    }.
+
     // Pointer formatting.
     message nextPutHexPointer: (address: UInt32) ::=> Void := {
         for: (let i mutable type: Int32 := 28) while: i >= 0 do: {
@@ -144,7 +172,37 @@ class TextStreamWriter definition: {
 
     message << (pointer: Void pointer) => SelfType ref
         := self nextPutHexPointer: pointer; yourself.
+
+    message << (float: Float32) => SelfType ref
+        := self nextPutDouble: float; yourself.
+
+    message << (double: Float64) => SelfType ref
+        := self nextPutDouble: double; yourself.
 }.
+
+/*PrimitiveVectorTypeTemplate extend: {
+    let VectorType := SelfType.
+
+    TextStreamWriter extend: {
+        message << (vector: VectorType) => SelfType ref := {
+            self << vector x.
+            compileTimeIf: ElementCount > 1 then: {
+                self nextPut: ' '.
+                self << vector y.
+                compileTimeIf: ElementCount > 2 then: {
+                    self nextPut: ' '.
+                    self << vector z.
+                    compileTimeIf: ElementCount > 3 then: {
+                        self nextPut: ' '.
+                        self << vector w.
+                    }
+                }
+            }.
+
+            self
+        }.
+    }.
+}.*/
 
 global stdout mutable := TextStreamWriter for: stdoutFile address.
 global stderr mutable := TextStreamWriter for: stderrFile address.
