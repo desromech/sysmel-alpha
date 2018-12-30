@@ -45,6 +45,7 @@ SYMLObject >> convertNodeForTupleElement: aNode inEnvironment: anEnvironment [
 
 { #category : #errors }
 SYMLObject >> error: anErrorString at: aSourcePosition [
+	<compileTime>
 	^ SYMLSemanticError new
 		messageText: anErrorString;
 		sourcePosition: aSourcePosition;
@@ -91,6 +92,12 @@ SYMLObject >> isFunctionalPatternGroup [
 { #category : #testing }
 SYMLObject >> isFunctionalValue [
 	^ false
+]
+
+{ #category : #testing }
+SYMLObject >> isImmediateMetaObject [
+	^ false
+	
 ]
 
 { #category : #testing }
@@ -157,7 +164,24 @@ SYMLObject >> macroExpansionEvaluateInEnvironment: anEnvironment [
 
 { #category : #'semantic analysis' }
 SYMLObject >> semanticAnalyzeMessageToYou: message inEnvironment: environment at: aPosition [
-	^ self sendCompileTimeMessage: message inEnvironment: environment at: aPosition.
+	| method |
+	(environment isImmediateEnvironment or: [self isImmediateMetaObject]) ifTrue: [ 
+		^ self sendCompileTimeMessage: message inEnvironment: environment at: aPosition.
+	].
+
+	method := self class lookupSelector: message selector.
+	method ifNotNil: [
+		(method hasPragmaNamed: #rewrite) ifTrue: [
+			^ self sendCompileTimeMessage: message inEnvironment: environment at: aPosition.
+		].
+	].
+
+	environment compilationTarget compilerObjectType ifNotNil: [ :compilerObjectType |
+		^ compilerObjectType semanticAnalyzeMessage: message inEnvironment: environment at: aPosition
+	].
+
+	"^ self sendCompileTimeMessage: message inEnvironment: environment at: aPosition."
+	^ SYMLSendToHost new semanticAnalyzeMessage: message inEnvironment: environment at: aPosition
 ]
 
 { #category : #'accessing method dictionary' }

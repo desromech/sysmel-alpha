@@ -83,7 +83,7 @@ SYMLFunctionLocalVariable >> currentValue: anObject [
 
 { #category : #'as yet unclassified' }
 SYMLFunctionLocalVariable >> doCreateSSADebugInformation [
-	^ (SLVMDebugVariable scope: nil name: self validName)
+	^ (SLVMDebugVariable scope: nil name: self validName asSymbol)
 		type: self type ssaType;
 		yourself
 ]
@@ -128,7 +128,7 @@ SYMLFunctionLocalVariable >> generateAnonymousSSAGlobalWith: builder [
 { #category : #'as yet unclassified' }
 SYMLFunctionLocalVariable >> generateSSALocalWithBuilder: builder [
 	self isReadOnly ifTrue: [ ^ self ].
-	ssaValue := builder allocaBuilder alloca: type ssaType name: self validName.
+	ssaValue := builder allocaBuilder alloca: type ssaType name: self validName asSymbol.
 	builder compilationTarget emittingDebugInformation ifTrue: [ 
 		ssaValue debugInformation: self createSSADebugInformation
 	].

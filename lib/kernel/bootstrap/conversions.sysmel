@@ -217,6 +217,19 @@ UndefinedType conversionTo: PointerType | Void doOn: #{
     }.
 }.
 
+// _CompilerObjectType => BooleanBit
+_CompilerObjectType conversionTo: BooleanBit doOn: #{
+    evaluation: $$Pharo {
+        value: value targetType: targetType at: position
+            ^ value sameValueButWithType: targetType
+    }.
+    codeGeneration: $$Pharo {
+        convertSSAValue: sourceValue to: targetType with: builder at: messageNode
+            "_CompilerObjectType => BooleanBit"
+            self halt
+    }.
+}.
+
 // Pointer => Pointer
 let pointerReinterpretCast := #{
     evaluation: $$Pharo {

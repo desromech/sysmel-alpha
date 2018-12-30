@@ -157,76 +157,91 @@ SYMLAPSGNode >> inspectorChildren [
 
 { #category : #testing }
 SYMLAPSGNode >> isBlockClosure [
+	<compileTime>
 	^ false
 ]
 
 { #category : #testing }
 SYMLAPSGNode >> isDictionaryConstructionNode [
+	<compileTime>
 	^ false
 ]
 
 { #category : #testing }
 SYMLAPSGNode >> isIdentifierNode [
+	<compileTime>
 	^ false
 ]
 
 { #category : #testing }
 SYMLAPSGNode >> isImplicitContextMessageNode [
+	<compileTime>
 	^ false
 ]
 
 { #category : #testing }
 SYMLAPSGNode >> isLexicalScopeNode [
+	<compileTime>
 	^ false
 ]
 
 { #category : #testing }
 SYMLAPSGNode >> isLiteralNode [
+	<compileTime>
 	^ false
 ]
 
 { #category : #testing }
 SYMLAPSGNode >> isMessageNode [
+	<compileTime>
 	^ false
 ]
 
 { #category : #testing }
 SYMLAPSGNode >> isMetaObjectInstance [
+	<compileTime>
 	^ false
 ]
 
 { #category : #testing }
 SYMLAPSGNode >> isQuasiQuote [
+	<compileTime>
 	^ false
 ]
 
 { #category : #testing }
 SYMLAPSGNode >> isQuasiUnquote [
+	<compileTime>
 	^ false
 ]
 
 { #category : #testing }
 SYMLAPSGNode >> isSYMLAPSGNode [
+	<compileTime>
 	^ true
 ]
 
 { #category : #testing }
 SYMLAPSGNode >> isSequenceNode [
+	<compileTime>
 	^ false
 ]
 
 { #category : #testing }
 SYMLAPSGNode >> isSplice [
+	<compileTime>
 	^ false
 ]
 
 { #category : #testing }
 SYMLAPSGNode >> isTrivialWithoutSideEffects [
+	<compileTime>
 	^ false
 ]
 
 { #category : #testing }
 SYMLAPSGNode >> isTupleNode [
+	<compileTime>
 	^ false
 ]
 

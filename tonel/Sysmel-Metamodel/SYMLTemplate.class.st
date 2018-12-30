@@ -198,6 +198,11 @@ SYMLTemplate >> initialize [
 ]
 
 { #category : #testing }
+SYMLTemplate >> isImmediateMetaObject [
+	^ true
+]
+
+{ #category : #testing }
 SYMLTemplate >> isTemplate [
 	^ true
 ]

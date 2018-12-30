@@ -54,6 +54,11 @@ Object >> isSysmelIncompleteValueInEnvironment: anEnvironment [
 ]
 
 { #category : #'*Sysmel-Metamodel' }
+Object >> isSysmelLocalSymbol [
+	^ false
+]
+
+{ #category : #'*Sysmel-Metamodel' }
 Object >> isSysmelNativeClass [
 	^ false
 ]

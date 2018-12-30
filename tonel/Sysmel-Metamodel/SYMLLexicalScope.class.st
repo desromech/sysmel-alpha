@@ -11,6 +11,13 @@ Class {
 }
 
 { #category : #adding }
+SYMLLexicalScope >> addClosureArgumentVariable: variable at: aPosition [
+	symbols at: variable name ifPresent: [ :existent |
+		self error: 'Closure argument {1} overrides an existent argument in the scope.' format: { variable name } at: aPosition
+	] ifAbsentPut: [ variable ].
+]
+
+{ #category : #adding }
 SYMLLexicalScope >> addLocalVariable: aLocalVariable at: aPosition [
 	symbols at: aLocalVariable name ifPresent: [ :existent |
 		self error: 'Local variable {1} overrides an existent symbol in the scope.' format: { aLocalVariable name } at: aPosition

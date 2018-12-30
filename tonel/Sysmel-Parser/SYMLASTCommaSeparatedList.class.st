@@ -44,6 +44,11 @@ SYMLASTCommaSeparatedList >> expressions: anObject [
 	expressions := anObject
 ]
 
+{ #category : #testing }
+SYMLASTCommaSeparatedList >> isCommaSeparatedList [
+	^ true
+]
+
 { #category : #'as yet unclassified' }
 SYMLASTCommaSeparatedList >> isEmpty [
 	^ expressions isEmpty

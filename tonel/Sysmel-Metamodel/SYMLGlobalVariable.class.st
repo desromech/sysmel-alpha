@@ -26,7 +26,7 @@ SYMLGlobalVariable >> assignValue: initialValue [
 
 { #category : #'as yet unclassified' }
 SYMLGlobalVariable >> doCreateSSADebugInformation [
-	^ (SLVMDebugVariable scope: nil name: self validName)
+	^ (SLVMDebugVariable scope: nil name: self validName asSymbol)
 		type: self type ssaType;
 		yourself
 ]

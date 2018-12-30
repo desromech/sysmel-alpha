@@ -10,6 +10,7 @@ Compiler compilationTarget
     typeTrait: trait Type;
     tupleTypeTrait: trait TupleType;
     functionTypeTrait: trait FunctionType;
+    closureTypeTrait: trait ClosureType;
     variantTypeTrait: trait VariantType;
     structureTypeTrait: trait StructureType;
     unionTypeTrait: trait UnionType;
@@ -54,23 +55,26 @@ Compiler compilationTarget
 
     yourself.
 
+// Compile time eval
+macro expansionRule compileTimeEval: aNodeToEval
+    := __apsgBuilder compileTimeEval: aNodeToEval.
+
 // Some extra utility macros.
 macro expansionRule use: aNamespace := ``(
-    __thisLexicalScope useNamespace: `,aNamespace
+    compileTimeEval: (__thisLexicalScope useNamespace: `,aNamespace)
 ).
 
 macro expansionRule useAndExport: aNamespace := ``(
-    __thisProgramEntity useAndExportNamespace: `,aNamespace
+    compileTimeEval: (__thisProgramEntity useAndExportNamespace: `,aNamespace)
 ).
 
 macro expansionRule loadFile: aFileName := ``(
-    Compiler evaluateFileNamed: `,aFileName
+    compileTimeEval: (Compiler evaluateFileNamed: `,aFileName)
 ).
 
 macro expansionRule loadFileOnce: aFileName := ``(
-    Compiler evaluateFileNamedOnce: `,aFileName
+    compileTimeEval: (Compiler evaluateFileNamedOnce: `,aFileName)
 ).
-
 
 // Lexical scope cleanup.
 macro expansionRule ensureCleanup: aCleanUpAction := ``(

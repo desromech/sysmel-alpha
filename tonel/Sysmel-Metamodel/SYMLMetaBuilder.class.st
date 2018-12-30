@@ -46,6 +46,11 @@ SYMLMetaBuilder >> flags: anObject [
 ]
 
 { #category : #testing }
+SYMLMetaBuilder >> isImmediateMetaObject [
+	^ true
+]
+
+{ #category : #testing }
 SYMLMetaBuilder >> isMetaBuilder [
 	^ true
 ]

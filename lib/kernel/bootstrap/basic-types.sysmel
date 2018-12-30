@@ -45,6 +45,7 @@ trait Type definition: {
     message isTupleType => BooleanBit := false.
     message isFunctionType => BooleanBit := false.
     message isFunctionGroupType => BooleanBit := false.
+    message isClosureType => BooleanBit := false.
     message isConstantType => BooleanBit := false.
     message isVolatileType => BooleanBit := false.
     message isVoidType => BooleanBit := false.
@@ -83,6 +84,8 @@ trait Type definition: {
 }.
 
 AnyValue type uses: Type.
+_CompilerObjectType uses: AnyValue.
+_APSGNodeType uses: AnyValue.
 
 // Meta type
 _MetaType uses: AnyValue type;
@@ -275,9 +278,9 @@ definition: {
     meta message addressSpaceName => _LiteralSymbol := AddressSpaceName
 
     meta message instanceAlignment => _LiteralInteger
-        := Compiler compilationTarget pointerAlignment.
+        := (compileTimeEval: Compiler compilationTarget pointerAlignment).
     meta message instanceSize => _LiteralInteger
-        := Compiler compilationTarget pointerSize.
+        := (compileTimeEval: Compiler compilationTarget pointerSize).
 
     meta message buildSSAType => _CompilerObjectType
         := Compiler compilationTarget ssaPointerTo: P ssaType forAddressSpace: AddressSpaceName.
@@ -744,6 +747,43 @@ definition: {
     }.
 }.
 
+// Closure type
+ClosureType uses: AnyValue;
+definition: {
+    meta message isClosureType => BooleanBit := true.
+
+    macro selector: #applyWithArguments: doOn: #{
+        semanticAnalysis: $$Pharo {
+            node: node environment: environment at: aPosition
+                |argumentsTuple argumentsType|
+
+                argumentsTuple := node arguments first semanticAnalysisInEnvironment: environment.
+
+                "Is this an inline block activation?"
+                (node receiver isBlockClosure and: [argumentsTuple isTupleNode]) ifTrue: [
+                	node arguments size = argumentsTuple elements size ifFalse: [
+                        self error: 'Argument count mismatch. Expected {1} arguments.' format: {node arguments size asString} at: aPosition
+                    ].
+
+                    ^ (SYMLAPSGBlockClosureInlineActivation new
+                        position: aPosition;
+                        blockClosure: node receiver;
+                        arguments: argumentsTuple elements;
+                        yourself) semanticAnalysisInEnvironment: environment
+                ].
+
+                argumentsType := argumentsTuple evaluateCleanValueTypeInEnvironment: environment.
+
+                "Check the arguments type"
+                argumentsType isTupleType ifFalse: [
+                    self error: 'Expected a tuple for the function application arguments.' at: aPosition
+                ].
+
+                self error: 'Closures are not yet completely implemented.' at: aPosition.
+        }
+    }.
+}.
+
 // Structure type
 StructureType uses: AnyValue;
 definition: {
@@ -781,9 +821,6 @@ definition: {
     meta message cvariadicCoercionType => _CompilerObjectType := Float64.
     meta message valueType => _CompilerObjectType := Float64.
 }.
-
-_CompilerObjectType uses: AnyValue.
-_APSGNodeType uses: AnyValue.
 
 BooleanBit uses: (BooleanType, PrimitiveType);
 definition: {

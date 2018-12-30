@@ -33,7 +33,10 @@ SYMLAbstractMacroMethod >> createActivationEnvironmentForMessage: message inEnvi
 	activationScope function: self.
 
 	"Add the apsgBuilder"
-	activationScope addSymbol: #__apsgBuilder value: (SYMLAPSGBuilder new environment: environment).
+	activationScope addSymbol: #__apsgBuilder value: (SYMLAPSGBuilder new
+		environment: environment;
+		gensymEnvironment: activationScope;
+		yourself).
 	message receiver ifNotNil: [
 		self flag: 'Allow evaluation self'.
 		activationScope
@@ -42,7 +45,7 @@ SYMLAbstractMacroMethod >> createActivationEnvironmentForMessage: message inEnvi
 	].
 
 	activationArguments := message arguments.
-	(arguments size ~= activationArguments size and: [ self isVariadic not or: [ activationArguments size < arguments size ] ]) ifTrue: [ 
+	(arguments size ~= activationArguments size and: [ self isVariadic not or: [ activationArguments size < arguments size ] ]) ifTrue: [
 		self error: 'Mismatching number of arguments.' at: aPosition
 	].
 

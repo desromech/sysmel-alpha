@@ -44,7 +44,8 @@ Class {
 		'intPointerType',
 		'uintPointerType',
 		'basicInitializeFunctionPointerType',
-		'literalAnyDictionaryType'
+		'literalAnyDictionaryType',
+		'closureTypeTrait'
 	],
 	#category : #'Sysmel-Metamodel-CompilationTarget'
 }
@@ -137,6 +138,31 @@ SYMLCompilationTarget >> classTypeTrait [
 SYMLCompilationTarget >> classTypeTrait: anObject [
 	<compileTime>
 	classTypeTrait := anObject
+]
+
+{ #category : #'builder methods' }
+SYMLCompilationTarget >> closureArguments: argumentTypes returnType: returnType [
+	| functionType |
+	functionType := SYMLClosureType new
+		compilationTarget: self;
+		arguments: argumentTypes;
+		returnType: returnType;
+		yourself.
+	^ functionTypeCache at: functionType ifAbsentPut: [ functionType ]
+	
+
+]
+
+{ #category : #accessing }
+SYMLCompilationTarget >> closureTypeTrait [
+	<compileTime>
+	^ closureTypeTrait
+]
+
+{ #category : #accessing }
+SYMLCompilationTarget >> closureTypeTrait: anObject [
+	<compileTime>
+	closureTypeTrait := anObject
 ]
 
 { #category : #accessing }

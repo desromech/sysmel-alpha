@@ -55,7 +55,7 @@ SYMLParser >> blockExpression [
 			SYMLASTBlockClosure new
 				tokens: { tokens first . tokens last };
 				position: tokens first;
-				arguments: tokens second;
+				signature: tokens second;
 				pragmas: tokens third;
 				expressions: tokens fourth;
 				yourself

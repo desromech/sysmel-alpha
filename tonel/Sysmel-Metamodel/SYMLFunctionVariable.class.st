@@ -9,7 +9,7 @@ Class {
 
 { #category : #'as yet unclassified' }
 SYMLFunctionVariable >> doCreateSSADebugInformation [
-	^ (SLVMDebugVariable scope: nil name: self validName)
+	^ (SLVMDebugVariable scope: nil name: self validName asSymbol)
 		type: self type ssaType;
 		yourself
 ]

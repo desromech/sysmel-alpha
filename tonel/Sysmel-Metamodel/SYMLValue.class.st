@@ -32,6 +32,7 @@ SYMLValue >> analyzeAPSGIdentifierToMe: identifier inEnvironment: anEnvironment 
 { #category : #converting }
 SYMLValue >> asAPSGNodeValueWithError: errorMessage at: aPosition [
 	self type isAPSGNodeType ifTrue: [ ^ self value ].
+	(self type isCompilerObjectType and: [ self value isSYMLAPSGNode ]) ifTrue: [ ^ self value ].
 	self type cleanValueType isAPSGNodeType ifTrue: [
 		self type isReferenceType ifTrue: [ 
 			^ self value sysmelEvaluateReference
@@ -40,7 +41,8 @@ SYMLValue >> asAPSGNodeValueWithError: errorMessage at: aPosition [
 			^ self value
 		]
 	].
-	
+
+
 	self error: errorMessage at: aPosition
 ]
 
@@ -169,5 +171,6 @@ SYMLValue >> value [
 
 { #category : #accessing }
 SYMLValue >> value: anObject [
+	self assert: anObject class ~~ SYMLValue.
 	value := anObject
 ]

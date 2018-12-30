@@ -8,12 +8,28 @@ BooleanBit macro expansionRule || orCondition := ``(
     if: `,self then: true else: orCondition __macroInlineBlock
 ).
 
+_CompilerObjectType macro expansionRule or: orCondition := ``(
+    if: `,self then: true else: (orCondition __macroInlineBlock castTo: BooleanBit)
+).
+
+_CompilerObjectType macro expansionRule || orCondition := ``(
+    if: `,self then: true else: (orCondition __macroInlineBlock castTo: BooleanBit)
+).
+
 BooleanBit macro expansionRule and: andCondition := ``(
     if: `,self then: andCondition __macroInlineBlock else: false
 ).
 
 BooleanBit macro expansionRule && andCondition := ``(
     if: `,self then: andCondition __macroInlineBlock else: false
+).
+
+_CompilerObjectType macro expansionRule and: andCondition := ``(
+    if: `,self then: (andCondition __macroInlineBlock castTo: BooleanBit) else: false
+).
+
+_CompilerObjectType macro expansionRule && andCondition := ``(
+    if: `,self then: (andCondition __macroInlineBlock castTo: BooleanBit) else: false
 ).
 
 // Logical negation

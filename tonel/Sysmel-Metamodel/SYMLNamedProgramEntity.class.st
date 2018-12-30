@@ -1,53 +1,13 @@
 Class {
 	#name : #SYMLNamedProgramEntity,
-	#superclass : #SYMLProgramEntity,
+	#superclass : #SYMLProgramEntityWithLocation,
 	#instVars : [
 		'name',
-		'module',
-		'definitionPosition',
-		'definitionNode',
-		'definitionEnvironment',
 		'sysmelMangledValue',
 		'fullUnmangledName'
 	],
 	#category : #'Sysmel-Metamodel-Program'
 }
-
-{ #category : #accessing }
-SYMLNamedProgramEntity >> compilationTarget [
-	^ module compilationTarget
-]
-
-{ #category : #accessing }
-SYMLNamedProgramEntity >> definitionEnvironment [
-	^ definitionEnvironment
-]
-
-{ #category : #accessing }
-SYMLNamedProgramEntity >> definitionEnvironment: anObject [
-	definitionEnvironment := anObject
-]
-
-{ #category : #accessing }
-SYMLNamedProgramEntity >> definitionNode [
-	^ definitionNode
-]
-
-{ #category : #accessing }
-SYMLNamedProgramEntity >> definitionNode: anObject [
-	definitionNode := anObject.
-	definitionNode ifNotNil: [ self definitionPosition: definitionNode position ]
-]
-
-{ #category : #accessing }
-SYMLNamedProgramEntity >> definitionPosition [
-	^ definitionPosition
-]
-
-{ #category : #accessing }
-SYMLNamedProgramEntity >> definitionPosition: anObject [
-	definitionPosition := anObject
-]
 
 { #category : #accessing }
 SYMLNamedProgramEntity >> ensureSemanticAnalysis [
@@ -76,16 +36,6 @@ SYMLNamedProgramEntity >> hasDontCareName [
 
 { #category : #initialization }
 SYMLNamedProgramEntity >> initializeWithValidName [
-]
-
-{ #category : #accessing }
-SYMLNamedProgramEntity >> module [
-	^ module
-]
-
-{ #category : #accessing }
-SYMLNamedProgramEntity >> module: anObject [
-	module := anObject
 ]
 
 { #category : #accessing }

@@ -907,6 +907,11 @@ SYMLAbstractType >> isGCClassVariableDataArrayType [
 ]
 
 { #category : #testing }
+SYMLAbstractType >> isImmediateMetaObject [
+	^ true
+]
+
+{ #category : #testing }
 SYMLAbstractType >> isInstanceOfTemplate: aTemplate [
 	^ parent isNotNil and: [ parent isTemplateInstance and: [ parent isInstanceOfTemplate: aTemplate ] ]
 ]
@@ -1237,8 +1242,10 @@ SYMLAbstractType >> semanticAnalyzeMessage: message inEnvironment: environment a
 	].
 
 	self flag: 'TODO: Remove this reference check.'.
-	self isReferenceType ifTrue: [
-		^ self valueType semanticAnalyzeMessage: message inEnvironment: environment at: aPosition
+	self isMetaObjectType ifFalse: [ 
+		self isReferenceType ifTrue: [
+			^ self valueType semanticAnalyzeMessage: message inEnvironment: environment at: aPosition
+		].
 	].
 
 	(self isMetaObjectType or: [ self isLiteralType or: [ self isAPSGNodeType ]]) ifTrue: [

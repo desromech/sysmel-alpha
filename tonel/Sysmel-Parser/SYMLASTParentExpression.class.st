@@ -27,6 +27,11 @@ SYMLASTParentExpression >> expression: anObject [
 	expression := anObject
 ]
 
+{ #category : #testing }
+SYMLASTParentExpression >> isParentExpression [
+	^ true
+]
+
 { #category : #printing }
 SYMLASTParentExpression >> printOn: aStream [
 	aStream nextPutAll: 'parenthesis'

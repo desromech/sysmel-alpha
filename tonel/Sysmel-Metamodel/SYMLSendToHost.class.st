@@ -28,9 +28,23 @@ SYMLSendToHost >> evaluateLiteralMessage: message inEnvironment: environment at:
 
 { #category : #'macro compilation' }
 SYMLSendToHost >> evaluateMessage: message inEnvironment: anEnvironment [
-	| receiver arguments |
+	| receiver arguments method |
 	receiver := (message receiver evaluateInEnvironment: anEnvironment) unwrapSysmelValue .
-	arguments := message arguments collect: [ :arg | (arg evaluateInEnvironment: anEnvironment) unwrapSysmelValue ].
+	method := receiver class lookupSelector: message selector asSymbol.
+	arguments := nil.
+	method ifNotNil: [ 
+		(method hasPragmaNamed: #compileTime) ifTrue: [ 
+			self assert: (method hasPragmaNamed: #rewrite) not.
+			(method hasPragmaNamed: #lazy) ifTrue: [ 
+				arguments := message arguments collect: [ :arg | SYMLLazyValue new node: arg; environment: anEnvironment ].
+			].
+		].
+	].
+
+	arguments ifNil: [ 
+		arguments := message arguments collect: [ :arg | (arg evaluateInEnvironment: anEnvironment) unwrapSysmelValue ].
+	].
+
 	^ (receiver perform: message selector withArguments: arguments) asSysmelValueInEnvironment: anEnvironment
 ]
 

@@ -20,6 +20,10 @@ TSYMLInterpretedCompilationObject >> parse: actionsDictionary at: aPosition [
 		key := keyValue unwrapSysmelValue.
 		value := valueValue unwrapSysmelValue.
 		
+		key isSysmelLocalSymbol ifTrue: [ 
+			key := key value.
+		].
+		
 		key isSymbol ifFalse: [ 
 			self error: 'Expected a symbol instead of key {1}.' format: { keyValue printString } at: aPosition
 		].

@@ -106,6 +106,13 @@ SYMLAbstractScope >> generateSSACleanUpActionsWith: aBuilder [
 	"Do nothing by default"
 ]
 
+{ #category : #accessing }
+SYMLAbstractScope >> gensym: symbol [
+	^ SYMLLocalSymbol new environment: self;
+		value: symbol;
+		yourself
+]
+
 { #category : #testing }
 SYMLAbstractScope >> isImmediateEnvironment [
 	^ parent ifNotNil: [ parent isImmediateEnvironment ] ifNil: [ ^ true ]
@@ -198,7 +205,7 @@ SYMLAbstractScope >> semanticAnalyzeMessage: message at: aPosition [
 	].
 
 	"Ask the receiver type to analyze the message"
-	^ message receiver type semanticAnalyzeMessage: message inEnvironment: self at: aPosition
+	^ (message receiver evaluateTypeInEnvironment: self) semanticAnalyzeMessage: message inEnvironment: self at: aPosition
 ]
 
 { #category : #enumerating }

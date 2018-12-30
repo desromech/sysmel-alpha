@@ -11,7 +11,7 @@ Class {
 { #category : #'meta evaluation' }
 SYMLAPSGDictionaryConstruction >> analyzeAndEvaluateInEnvironment: anEnvironment [
 	| result association associationType associationContent associationKey associationValue |
-	result := Dictionary new.
+	result := OrderedDictionary new.
 	associations do: [ :assoc |
 		association := assoc analyzeAndEvaluateInEnvironment: anEnvironment.
 		associationType := association type.
@@ -51,7 +51,7 @@ SYMLAPSGDictionaryConstruction >> dictionaryType: anObject [
 { #category : #'meta evaluation' }
 SYMLAPSGDictionaryConstruction >> evaluateInEnvironment: anEnvironment [
 	| result association associationType associationContent associationKey associationValue |
-	result := Dictionary new.
+	result := OrderedDictionary new.
 	associations do: [ :assoc |
 		association := assoc analyzeAndEvaluateInEnvironment: anEnvironment.
 		associationType := association type.

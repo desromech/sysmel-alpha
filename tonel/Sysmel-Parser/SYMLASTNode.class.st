@@ -70,7 +70,22 @@ SYMLASTNode >> initialize [
 ]
 
 { #category : #testing }
+SYMLASTNode >> isCommaSeparatedList [
+	^ false
+]
+
+{ #category : #testing }
+SYMLASTNode >> isIdentifierReference [
+	^ false
+]
+
+{ #category : #testing }
 SYMLASTNode >> isMessageNode [
+	^ false
+]
+
+{ #category : #testing }
+SYMLASTNode >> isParentExpression [
 	^ false
 ]
 

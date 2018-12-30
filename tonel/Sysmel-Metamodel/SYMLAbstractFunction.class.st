@@ -236,7 +236,7 @@ SYMLAbstractFunction >> evaluateWithReceiver: aReceiver arguments: activationArg
 			addSymbol: receiver name value: receiverValue
 	].
 
-	(arguments size ~= activationArguments size and: [ self isCVariadic not or: [ activationArguments size < arguments size ] ]) ifTrue: [ 
+	(arguments size ~= activationArguments size and: [ self isCVariadic not or: [ activationArguments size < arguments size ] ]) ifTrue: [
 		self error: 'Mismatching number of arguments.' at: aPosition
 	].
 

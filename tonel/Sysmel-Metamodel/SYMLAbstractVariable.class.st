@@ -95,6 +95,11 @@ SYMLAbstractVariable >> isConst [
 ]
 
 { #category : #testing }
+SYMLAbstractVariable >> isImmediateMetaObject [
+	^ true
+]
+
+{ #category : #testing }
 SYMLAbstractVariable >> isReadOnly [
 	^ (self hasFlag: #mutable) not
 ]

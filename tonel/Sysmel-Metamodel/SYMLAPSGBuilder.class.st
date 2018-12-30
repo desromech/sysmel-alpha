@@ -2,10 +2,19 @@ Class {
 	#name : #SYMLAPSGBuilder,
 	#superclass : #SYMLObject,
 	#instVars : [
-		'environment'
+		'environment',
+		'gensymEnvironment'
 	],
 	#category : #'Sysmel-Metamodel-APSG'
 }
+
+{ #category : #'builder methods' }
+SYMLAPSGBuilder >> argumentName: name typeExpression: typeExpression [
+	^ SYMLAPSGArgumentDefinition new
+		name: name;
+		typeExpression: typeExpression;
+		yourself
+]
 
 { #category : #'builder methods' }
 SYMLAPSGBuilder >> associationKey: key value: value [
@@ -14,9 +23,26 @@ SYMLAPSGBuilder >> associationKey: key value: value [
 ]
 
 { #category : #'builder methods' }
+SYMLAPSGBuilder >> blockClosure: body arguments: arguments returnTypeExpression: returnTypeExpression [
+	^ SYMLAPSGBlockClosureNode new
+		body: body;
+		arguments: arguments;
+		returnTypeExpression: returnTypeExpression;
+		yourself
+]
+
+{ #category : #'builder methods' }
 SYMLAPSGBuilder >> chain: receiver messages: messages [
 	<compileTime>
 	^ SYMLAPSGMessageChain new receiver: receiver; messages: messages
+]
+
+{ #category : #testing }
+SYMLAPSGBuilder >> compileTimeEval: aNodeToEval [
+	<compileTime>
+	| value |
+	value := aNodeToEval analyzeAndEvaluateInEnvironment: environment.
+	^ value asAPSGNodeInEnvironment: environment at: aNodeToEval
 ]
 
 { #category : #'builder methods' }
@@ -32,7 +58,26 @@ SYMLAPSGBuilder >> environment [
 
 { #category : #accessing }
 SYMLAPSGBuilder >> environment: anObject [
-	environment := anObject
+	environment := anObject.
+	gensymEnvironment := environment.
+]
+
+{ #category : #'as yet unclassified' }
+SYMLAPSGBuilder >> gensym: symbol [
+	<compileTime>
+	^ SYMLAPSGIdentifier new
+		value: (gensymEnvironment gensym: symbol);
+		yourself
+]
+
+{ #category : #accessing }
+SYMLAPSGBuilder >> gensymEnvironment [
+	^ gensymEnvironment
+]
+
+{ #category : #accessing }
+SYMLAPSGBuilder >> gensymEnvironment: anObject [
+	gensymEnvironment := anObject
 ]
 
 { #category : #'builder methods' }

@@ -12,6 +12,11 @@ SYMLASTIdentifierReference >> buildAPSG: builder [
 	^ (builder identifier: value) position: self
 ]
 
+{ #category : #testing }
+SYMLASTIdentifierReference >> isIdentifierReference [
+	^ true
+]
+
 { #category : #printing }
 SYMLASTIdentifierReference >> printOn: aStream [
 	aStream nextPutAll: 'identifier  '; print: value

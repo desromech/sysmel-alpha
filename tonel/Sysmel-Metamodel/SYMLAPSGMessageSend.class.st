@@ -212,14 +212,16 @@ SYMLAPSGMessageSend >> macroExpansionInEnvironment: anEnvironment [
 			selector: expandedSelector)
 			macroExpansionInEnvironment: anEnvironment
 	].
-	self assert: selector isSymbol.
+	selector isSysmelLocalSymbol ifFalse: [ 
+		self assert: selector isSymbol.
 	
-	(selector beginsWith: #__macroSend:) ifTrue: [
-		^ self macroSendExpansionEvaluateInEnvironment: anEnvironment
-	].
+		(selector beginsWith: #__macroSend:) ifTrue: [
+			^ self macroSendExpansionEvaluateInEnvironment: anEnvironment
+		].
 
-	(selector beginsWith: #__macroInlineBlock) ifTrue: [
-		^ self macroInlineBlockEvaluateInEnvironment: anEnvironment
+		(selector beginsWith: #__macroInlineBlock) ifTrue: [
+			^ self macroInlineBlockEvaluateInEnvironment: anEnvironment
+		].
 	].
 	
 	^ self shallowCopy
@@ -230,13 +232,23 @@ SYMLAPSGMessageSend >> macroExpansionInEnvironment: anEnvironment [
 
 { #category : #'meta evaluation' }
 SYMLAPSGMessageSend >> macroInlineBlockEvaluateInEnvironment: anEnvironment [
-	| blockNode |
+	| blockNode argumentsTuple |
 	blockNode := receiver macroExpansionEvaluateInEnvironment: anEnvironment.
 	blockNode isBlockClosure ifFalse: [
 		^ blockNode
 	].
 
-	self halt
+	argumentsTuple := SYMLAPSGTuple new
+		position: position;
+		elements: (arguments collect: [:arg | arg macroExpansionInEnvironment: anEnvironment]);
+		yourself.
+	
+	^ SYMLAPSGMessageSend new
+		position: position;
+		selector: #applyWithArguments:;
+		receiver: blockNode;
+		arguments: { argumentsTuple };
+		yourself
 ]
 
 { #category : #'meta evaluation' }
@@ -250,13 +262,22 @@ SYMLAPSGMessageSend >> macroSemanticAnalysisInEnvironment: anEnvironment [
 
 { #category : #'meta evaluation' }
 SYMLAPSGMessageSend >> macroSendExpansionEvaluateInEnvironment: anEnvironment [
-	| messageSelector |
+	| messageSelector newSelector |
 	messageSelector := arguments first analyzeAndEvaluateInEnvironment: anEnvironment.
-	messageSelector type isLiteralSymbol ifFalse: [ 
-		self error: 'Macro send expansion selector does not evaluate into a selector.' at: self
+	newSelector := messageSelector value.
+
+	messageSelector type isMetaObjectType ifTrue: [ 
+		(newSelector isSymbol or: [ newSelector isSysmelLocalSymbol ]) ifFalse: [ 
+			self error: 'Macro send expansion selector does not evaluate into a selector.' at: self
+		].
+	] ifFalse: [ 
+		messageSelector type isLiteralSymbol ifFalse: [
+			self error: 'Macro send expansion selector does not evaluate into a selector.' at: self
+		].
 	].
+
 	^ self shallowCopy
-		selector: messageSelector value;
+		selector: newSelector;
 		receiver: (receiver ifNotNil: [receiver macroExpansionInEnvironment: anEnvironment]);
 		arguments: (arguments allButFirst collect: [:arg | arg macroExpansionInEnvironment: anEnvironment]);
 		yourself

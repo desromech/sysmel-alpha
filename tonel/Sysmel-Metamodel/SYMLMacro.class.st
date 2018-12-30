@@ -41,6 +41,11 @@ SYMLMacro >> generateMessage: messageNode ssaCodeWith: builder [
 ]
 
 { #category : #testing }
+SYMLMacro >> isImmediateMetaObject [
+	^ true
+]
+
+{ #category : #testing }
 SYMLMacro >> isMetaMethod [
 	^ true
 ]
