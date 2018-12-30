@@ -12,6 +12,11 @@ AnyValue macro selectors: #(reinterpretCastTo: explicitCastTo:) doOn: #{
             ^ conversionRule convertValue: receiver into: targetType at: message position
     }.
 
+    metaMessageAnalysis: $$Pharo {
+        analyzeMetaMessage: message toReceiver: receiverValue inEnvironment: environment at: aPosition
+            ^ self semanticAnalyzeMessage: message inEnvironment: environment at: aPosition
+    }.
+
     semanticAnalysis: $$Pharo {
         semanticAnalyzeMessage: message inEnvironment: environment at: aPosition
             | targetType receiverType conversionRule |

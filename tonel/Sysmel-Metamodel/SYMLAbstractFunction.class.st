@@ -37,6 +37,10 @@ SYMLAbstractFunction >> abstractFunctionKind [
 ]
 
 { #category : #adding }
+SYMLAbstractFunction >> addInlinedBlockClosure: anInlinedBlockClosure [
+]
+
+{ #category : #adding }
 SYMLAbstractFunction >> addLocal: aLocalVariable [
 	locals add: aLocalVariable
 ]

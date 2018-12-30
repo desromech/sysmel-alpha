@@ -41,7 +41,9 @@ SYMLClass >> addConversionRulesToReferenceTypeToMyself: referenceType [
 			source referenced isSubclassOf: target referenced ]]]]]);
 
 		addConversionRule: (SYMLReinterpretPointerTypeConversionRule when: [:source :target |
-			source referenced isSysmelKindOf: target referenced]).
+			source isReferenceType and: [
+			target isReferenceType and: [
+			source referenced isSysmelKindOf: target referenced ]]]).
 	^ super addConversionRulesToReferenceTypeToMyself: referenceType.
 ]
 

@@ -64,7 +64,7 @@ SYMLAPSGBlockClosureNode >> returnTypeExpression: anObject [
 
 { #category : #accessing }
 SYMLAPSGBlockClosureNode >> semanticAnalysisInEnvironment: environment [
-	| closureEnvironment analyzedArguments analyzedReturnType blockClosure |
+	| closureEnvironment analyzedArguments analyzedReturnType blockClosure analyzedBody returnTypeCoercionRule |
 	blockClosure := SYMLBlockClosure new
 		parent: environment definitionProgramEntity;
 		module: environment definitionProgramEntity module;
@@ -77,11 +77,17 @@ SYMLAPSGBlockClosureNode >> semanticAnalysisInEnvironment: environment [
 	"Analyze the arguments."
 	analyzedArguments := arguments collect: [ :arg | arg semanticAnalysisInEnvironment: closureEnvironment ].
 
+	"Analyze the body."
+	analyzedBody := body semanticAnalysisInEnvironment: closureEnvironment.
+
 	"Analyze the return type"
 	analyzedReturnType := returnType.
 	analyzedReturnType ifNil: [ 
 		returnTypeExpression ifNotNil: [ 
 			analyzedReturnType := (returnTypeExpression analyzeAndEvaluateInEnvironment: environment) unwrapSysmelValue.
+		] ifNil: [ 
+			"Infer the return type from the analyzed block body."
+			analyzedReturnType := (analyzedBody evaluateTypeInEnvironment: environment) valueType 
 		].
 	
 		analyzedReturnType ifNil: [ 
@@ -89,11 +95,16 @@ SYMLAPSGBlockClosureNode >> semanticAnalysisInEnvironment: environment [
 		]
 	].
 
+	returnTypeCoercionRule := analyzedReturnType isVoidType
+		ifTrue: [ nil ]
+		ifFalse: [ (analyzedBody evaluateTypeInEnvironment: closureEnvironment)
+			node: body coercedImplicitlyInto: analyzedReturnType at: self ].
+	
 	blockClosure
 		arguments: analyzedArguments;
 		returnType: analyzedReturnType;
-		body: (body semanticAnalysisInEnvironment: closureEnvironment);
-		yourself.
+		body: analyzedBody;
+		returnTypeCoercionRule: returnTypeCoercionRule.
 	
 	^ SYMLAPSGAnalyzedBlockClosureNode new
 		position: position;

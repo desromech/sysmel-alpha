@@ -113,4 +113,36 @@ namespace SysmelKernel definition: {
 
     IntegerType macro expansionRule to: stop do: aBlock := ``(`,self to: `,stop by: 1 do: `,aBlock).
 
+    IntegerType macro expansionRule until: stop by: increment do: aBlock := {
+        let index := __apsgBuilder gensym: #index.
+        let stopValue := __apsgBuilder gensym: #stopValue.
+        let incrementValue := __apsgBuilder gensym: #incrementValue.
+
+        aBlock isBlockClosure && aBlock arguments size = 1 ifTrue: {
+            let indexType := aBlock arguments first typeExpression.
+
+            ``{
+                let `,index mutable type: `,indexType := `,self.
+                let `,stopValue type: `,indexType := `,stop.
+                let `,incrementValue type: `,indexType := `,increment.
+
+                while: (`,index < `,stopValue) do: {
+                    aBlock  __macroInlineBlock: `,index
+                } continueWith: (`,index := `,index + `,incrementValue)
+            }
+        } ifFalse: {
+            ``{
+                let `,index mutable := `,self.
+                let `,stopValue := `,stop.
+                let `,incrementValue := `,increment.
+
+                while: (`,index < `,stopValue) do: {
+                    aBlock __macroInlineBlock: `,index
+                } continueWith: (`,index := `,index + `,incrementValue)
+            }
+        }
+    }.
+
+    IntegerType macro expansionRule until: stop do: aBlock := ``(`,self until: `,stop by: 1 do: `,aBlock).
+
 }.

@@ -126,6 +126,15 @@ class TextStreamWriter definition: {
         self nextPutHexPointer: (pointer reinterpretCastTo: UIntPointer).
     }.
 
+    message nextPutCString:(cstring: UInt8 const pointer) ::=> BooleanBit := {
+        cstring ifNil: {
+            true
+        } ifNotNil: {
+            let length := cstrlen(cstring).
+            (stream _ write: cstring size: length) == (length castTo: IntPointer)
+        }
+    }.
+
     // Special characters
     message tab => SelfType ref
         := self nextPut: '\t'; yourself.

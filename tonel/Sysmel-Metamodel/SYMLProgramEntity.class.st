@@ -16,6 +16,11 @@ SYMLProgramEntity >> addFlag: aFlag [
 ]
 
 { #category : #adding }
+SYMLProgramEntity >> addInlinedBlockClosure: anInlinedBlockClosure [
+
+]
+
+{ #category : #adding }
 SYMLProgramEntity >> addLocal: aLocalVariable [
 	aLocalVariable isAnonymousGlobal: true
 ]
@@ -231,6 +236,13 @@ SYMLProgramEntity >> sendCompileTimeMessage: message inEnvironment: environment 
 		^ method semanticAnalyzeMessage: message inEnvironment: environment at: aPosition
 	].
 	^ super sendCompileTimeMessage: message inEnvironment: environment at: aPosition
+]
+
+{ #category : #flags }
+SYMLProgramEntity >> setFlag: flag value: aBoolean [
+	aBoolean
+		ifTrue: [ self addFlag: flag ]
+		ifFalse: [ self removeFlag: flag ]
 ]
 
 { #category : #adding }

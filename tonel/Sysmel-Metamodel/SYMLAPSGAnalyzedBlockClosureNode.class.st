@@ -27,6 +27,11 @@ SYMLAPSGAnalyzedBlockClosureNode >> evaluateTypeInEnvironment: anEnvironment [
 	^ blockClosure type
 ]
 
+{ #category : #'as yet unclassified' }
+SYMLAPSGAnalyzedBlockClosureNode >> generateSSAInlineCall: argumentValues with: builder [
+	^ blockClosure generateSSAInlineCall: argumentValues with: builder
+]
+
 { #category : #testing }
 SYMLAPSGAnalyzedBlockClosureNode >> isBlockClosure [
 	<compileTime>

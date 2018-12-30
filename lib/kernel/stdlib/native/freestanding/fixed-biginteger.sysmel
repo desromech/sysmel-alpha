@@ -14,18 +14,18 @@ template FixedBigInteger(WC: _LiteralInteger)
     field words public type: (UInt32 array: WordCount).
 
     message assignValue: (other: SelfType const ref) ::=> SelfType ref := {
-        for: (let i mutable type: UIntPointer := 0) while: (i < WordCount) do: {
+        0 until: WordCount do: {|(i: UIntPointer) => Void|.
             words[i] := other words[i].
-        } continueWith: (i := i + 1).
+        }.
 
         self
     }.
 
     message assignValue: (value: UInt32) ::=> SelfType ref := {
         words[0] := value.
-        for: (let i mutable type: UIntPointer := 1) while: (i < WordCount) do: {
+        1 until: WordCount do: {|(i: UIntPointer) => Void|.
             words[i] := 0.
-        } continueWith: (i := i + 1).
+        }.
 
         self
     }.
@@ -34,9 +34,9 @@ template FixedBigInteger(WC: _LiteralInteger)
         message assignValue: (value: UInt64) ::=> SelfType ref := {
             words[0] := value castTo: UInt32.
             words[1] := value >> 32 castTo: UInt32.
-            for: (let i mutable type: UIntPointer := 2) while: (i < WordCount) do: {
+            2 until: WordCount do: {|(i: UIntPointer) => Void|.
                 words[i] := 0.
-            } continueWith: (i := i + 1).
+            }.
 
             self
         }.
@@ -45,27 +45,27 @@ template FixedBigInteger(WC: _LiteralInteger)
     message add: (other: SelfType const ref) into: (result: SelfType ref) ::=> Void := {
         let carry mutable type: UInt64 := 0.
 
-        for: (let i mutable type: UIntPointer := 0) while: (i < WordCount) do: {
+        0 until: WordCount do: {|(i: UIntPointer) => Void|.
             let left := words[i] castTo: UInt64.
             let right := other words[i] castTo: UInt64.
             let sum := left + right + carry.
 
             carry := (sum >> 32) castTo: UInt32.
             result words[i] := sum & 16rFFFFFFFF castTo: UInt32.
-        } continueWith: (i := i + 1)
+        }.
     }.
 
     message subtract: (other: SelfType const ref) into: (result: SelfType ref) ::=> Void := {
         let carry mutable type: UInt64 := 1. // For two-complement negation.
 
-        for: (let i mutable type: UIntPointer := 0) while: (i < WordCount) do: {
+        0 until: WordCount do: {|(i: UIntPointer) => Void|.
             let left := words[i] castTo: UInt64.
             let right := other words[i] bitInvert castTo: UInt64.
             let sum := left + right + carry.
 
             carry := (sum >> 32) castTo: UInt32.
             result words[i] := sum & 16rFFFFFFFF castTo: UInt32.
-        } continueWith: (i := i + 1)
+        }.
     }.
 
     message unsignedMultiplyWith: (other: SelfType const ref) into: (result: SelfType ref) ::=> Void := {
