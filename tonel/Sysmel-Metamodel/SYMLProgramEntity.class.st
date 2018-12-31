@@ -156,6 +156,11 @@ SYMLProgramEntity >> initialize [
 ]
 
 { #category : #testing }
+SYMLProgramEntity >> isInlined [
+	^ false
+]
+
+{ #category : #testing }
 SYMLProgramEntity >> isMetaObject [
 	^ true
 ]

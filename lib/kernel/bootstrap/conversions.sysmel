@@ -260,6 +260,11 @@ PointerTypeTemplate extend: {
 }.
 
 ReferenceTypeTemplate extend: {
+
+    if: ReferencedType isConstantType then: {
+        CleanReferenceType conversionTo: SelfType doOn: pointerReinterpretCast.
+    }.
+
     CleanReferencedType addConversionRulesToReferenceTypeToMyself: SelfType.
 }.
 

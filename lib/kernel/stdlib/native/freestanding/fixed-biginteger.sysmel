@@ -10,6 +10,8 @@ template FixedBigInteger(WC: _LiteralInteger)
     := struct definition: {
     alias WordCount := WC.
     alias BitCount := WordCount*32.
+    alias MaxNumberOfDecimalDigits := (WordCount * 3.3219280948873626) ceiling.
+    alias WordMask := 16rFFFFFFFF.
 
     field words public type: (UInt32 array: WordCount).
 
@@ -42,6 +44,34 @@ template FixedBigInteger(WC: _LiteralInteger)
         }.
     }.
 
+    message nonZeroWordCount => UIntPointer := {
+        let result mutable type: UIntPointer := 0.
+
+        0 until: WordCount do: {|(i: UIntPointer) => Void|.
+            words[i] ~~ 0 ifTrue: {
+                result := i
+            }
+        }.
+
+        result
+    }.
+
+    message clearToZero => Void := {
+        0 until: WordCount do: {|(i: UIntPointer) => Void|.
+            words[i] := 0
+        }.
+    }.
+
+    message isZero => BooleanBit := {
+        0 until: WordCount do: {|(i: UIntPointer) => Void|.
+            words[i] ~~ 0 ifTrue: {
+                return: false
+            }
+        }.
+
+        true
+    }.
+
     message add: (other: SelfType const ref) into: (result: SelfType ref) ::=> Void := {
         let carry mutable type: UInt64 := 0.
 
@@ -51,7 +81,7 @@ template FixedBigInteger(WC: _LiteralInteger)
             let sum := left + right + carry.
 
             carry := (sum >> 32) castTo: UInt32.
-            result words[i] := sum & 16rFFFFFFFF castTo: UInt32.
+            result words[i] := sum & WordMask castTo: UInt32.
         }.
     }.
 
@@ -69,13 +99,57 @@ template FixedBigInteger(WC: _LiteralInteger)
     }.
 
     message unsignedMultiplyWith: (other: SelfType const ref) into: (result: SelfType ref) ::=> Void := {
+        result clearToZero.
+        let leftWordCount mutable := self nonZeroWordCount + 1.
+        leftWordCount > WordCount ifTrue: {
+            leftWordCount := WordCount
+        }.
 
+        0 until: WordCount do: {|(i: UIntPointer) => Void|.
+            let rightFactor type: UInt64 := result words[i].
+            rightFactor ~~ 0 ifTrue: {
+                let carry mutable type: UInt64 := 0.
+
+                i until: leftWordCount do: {|(j: UIntPointer) => Void|.
+                    let leftFactor type: UInt64 := words[j].
+                    let product := leftFactor * rightFactor.
+
+                    // The previous carry and the current result always fit in an UInt64.
+                    carry := carry + result words[j].
+
+                    // The top bits of the multiplication always goes to the next carry.
+                    let nextCarry := (carry >> 32) + (product >> 32).
+                    let sum := (carry & WordMask) + (product & WordMask).
+
+                    // Store the lower 32 bits of the sum in the result.
+                    result words[j] := sum & WordMask castTo: UInt32.
+
+                    // Set the next carry
+                    carry := nextCarry + (sum >> 32)
+                }
+            }.
+        }.
     }.
+
+    message smallModulo: (modulo: UInt32) ::=> UInt32 := {
+        let exponentModulo mutable := (1 castTo: UInt64) % modulo.
+        let exponentIncreaseModulo := (1<<32 castTo: UInt64) % modulo.
+        let result mutable type: UInt64 := 0.
+
+        0 until: self nonZeroWordCount do: {|(i: UIntPointer) => Void|.
+            result := result + (words[i] % modulo) * (exponentModulo % modulo).
+            exponentModulo := (exponentModulo * exponentIncreaseModulo) % modulo
+        }.
+
+        result % modulo castTo: UInt32
+    }.
+
+    message modulo10 => UInt32
+        := self smallModulo: 10.
 
     message divide: (other: SelfType const ref) into: (result: SelfType ref) ::=> Void := {
 
     }.
-
 }.
 
 alias FloatStringConversionBigInteger := FixedBigInteger(32). // 1024 bits big integer.

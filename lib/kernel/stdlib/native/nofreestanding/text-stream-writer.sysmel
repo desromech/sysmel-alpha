@@ -81,6 +81,12 @@ class TextStreamWriter definition: {
         }.
     }.
 
+    message nextPutBigInteger: (bigInteger: FloatStringConversionBigInteger const ref) ::=> Void := {
+        0 to: FloatStringConversionBigInteger WordCount do: {|(i: UIntPointer) => Void|.
+            self nextPutLittleUInt32: bigInteger words[i]
+        }
+    }.
+
     // Floating point formatting
     message nextPutDouble: (double: Float64) ::=> Void := {
         let doubleMemory mutable := double.
@@ -88,9 +94,9 @@ class TextStreamWriter definition: {
 
         let negative := (ieee754Double >> 63) ~= 0.
         let exponent := (ieee754Double >> 52) & ((1<<11) - 1).
-        let mantissa := ieee754Double & ((1<<52) - 1).
+        let rawMantissa := ieee754Double & ((1<<52) - 1).
 
-        exponent == 0 && mantissa == 0 ifTrue: {
+        exponent == 0 && rawMantissa == 0 ifTrue: {
             negative ifTrue: {
                 self << "-0.0".
             } ifFalse: {
@@ -100,16 +106,45 @@ class TextStreamWriter definition: {
             return: nil
         }.
 
+        exponent == 16r7FF ifTrue: {
+            rawMantissa == 0 ifTrue: {
+                negative ifTrue: {
+                    self << "-inf".
+                } ifFalse: {
+                    self << "inf".
+                }.
+
+            } ifFalse: {
+                self << "nan"
+            }.
+
+            return: nil
+        }.
+
         negative ifTrue: {
             self nextPut: '-'.
         }.
 
-        let decimalPart mutable type: FloatStringConversionBigInteger := mantissa.
-        self << "e" << exponent << "m" << mantissa << "dp" << decimalPart words[0] << ":" << decimalPart words[1] << ":" << decimalPart words[2].
+        let mantissa := rawMantissa | (1 <<52).
 
+        let numerator mutable type: FloatStringConversionBigInteger.
+        let denominator mutable type: FloatStringConversionBigInteger.
+        exponent == 0 ifTrue: {
+        } ifFalse: {
+        }.
+
+        self << "e" << exponent << "m" << mantissa.
+        //let decimalPart mutable type: FloatStringConversionBigInteger := mantissa.
+        //self << "e" << exponent << "m" << mantissa << "dp" << decimalPart words[0] << ":" << decimalPart words[1] << ":" << decimalPart words[2] << ":"; nextPutBigInteger: decimalPart.
     }.
 
     // Pointer formatting.
+    message nextPutLittleUInt32: (value: UInt32) ::=> Void := {
+        0 until: 32 by: 4 do: {|(i: UInt32) => Void|.
+            self nextPutHexDigit: ((value >> i) & 16rF castTo: Int32)
+        }.
+    }.
+
     message nextPutHexPointer: (address: UInt32) ::=> Void := {
         for: (let i mutable type: Int32 := 28) while: i >= 0 do: {
             self nextPutHexDigit: ((address >> (i castTo: UInt32)) & 16rF castTo: Int32)

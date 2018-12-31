@@ -475,4 +475,13 @@ macro selectors: #(do:while: do:continueWith:while:) doOn: #{
     }.
 }.
 
+// do:until:
+macro expansionRule do: body until: condition := ``(
+	do: `,body while: `,condition not
+).
+
+macro expansionRule do: body continueWith: continueAction until: condition := ``(
+	do: `,body continueWith: `,continueAction while: `,condition not
+).
+
 }.

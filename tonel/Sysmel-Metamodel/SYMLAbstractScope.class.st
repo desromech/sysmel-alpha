@@ -92,10 +92,12 @@ SYMLAbstractScope >> generateSSACleanUpActionsRecursivelyWith: aBuilder [
 	
 	^ parent ifNotNil: [
 		parent definitionProgramEntity ~~ self definitionProgramEntity ifTrue: [
-			self definitionProgramEntity ifNotNil: [:programEntity |
-				programEntity generateFinalExitPointCleanupWith: aBuilder
+			self definitionProgramEntity isInlined ifFalse: [ 
+				self definitionProgramEntity ifNotNil: [:programEntity |
+					programEntity generateFinalExitPointCleanupWith: aBuilder
+				].
+				^ self
 			].
-			^ self
 		].
 		parent generateSSACleanUpActionsRecursivelyWith: aBuilder
 	]
