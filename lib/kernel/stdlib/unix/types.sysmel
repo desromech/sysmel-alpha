@@ -5,5 +5,6 @@ namespace Unix definition: {
     alias GID_T := UInt32.
     alias PID_T := Int32.
     alias OFF_T := IntPointer.
+    alias OFF64_T := Int64.
 
 }.

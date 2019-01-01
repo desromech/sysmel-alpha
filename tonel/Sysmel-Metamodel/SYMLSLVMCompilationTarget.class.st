@@ -12,6 +12,24 @@ SYMLSLVMCompilationTarget class >> target: target [
 	^ self new target: target
 ]
 
+{ #category : #accessing }
+SYMLSLVMCompilationTarget >> abiName [
+	<compileTime>
+	^ target abiName
+]
+
+{ #category : #accessing }
+SYMLSLVMCompilationTarget >> architecture [
+	<compileTime>
+	^ target architecture
+]
+
+{ #category : #accessing }
+SYMLSLVMCompilationTarget >> canonicalOperatingSystem [
+	<compileTime>
+	^ target canonicalOperatingSystem
+]
+
 { #category : #'target platform querying' }
 SYMLSLVMCompilationTarget >> doubleAlignment [
 	<compileTime>
@@ -38,6 +56,13 @@ SYMLSLVMCompilationTarget >> objectModel [
 SYMLSLVMCompilationTarget >> operatingSystemName [
 	<compileTime>
 	^ target operatingSystemName
+]
+
+{ #category : #accessing }
+SYMLSLVMCompilationTarget >> operatingSystemName: osName [
+	<compileTime>
+	^ target operatingSystemName: osName
+
 ]
 
 { #category : #'position indepence code' }
@@ -155,6 +180,25 @@ SYMLSLVMCompilationTarget >> ssaVoidType [
 ]
 
 { #category : #accessing }
+SYMLSLVMCompilationTarget >> subarchitecture [
+	<compileTime>
+	^ target subarchitecture
+]
+
+{ #category : #accessing }
+SYMLSLVMCompilationTarget >> systemVendor [
+	<compileTime>
+	^ target systemVendor
+]
+
+{ #category : #accessing }
+SYMLSLVMCompilationTarget >> systemVendor: osName [
+	<compileTime>
+	^ target systemVendor: osName
+
+]
+
+{ #category : #accessing }
 SYMLSLVMCompilationTarget >> target [
 	<compileTime>
 	^ target
@@ -165,6 +209,12 @@ SYMLSLVMCompilationTarget >> target: anObject [
 	<compileTime>
 	target := anObject.
 	target objectModel: (SYMLSLVMObjectModel new target: target)
+]
+
+{ #category : #accessing }
+SYMLSLVMCompilationTarget >> targetTriple [
+	<compileTime>
+	^ target targetTriple
 ]
 
 { #category : #options }

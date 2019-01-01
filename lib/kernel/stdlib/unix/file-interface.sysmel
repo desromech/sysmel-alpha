@@ -9,12 +9,12 @@ alias NativeFile_SeekSet := LibC SEEK_SET.
 alias NativeFile_SeekCur := LibC SEEK_CUR.
 alias NativeFile_SeekEnd := LibC SEEK_END.
 
-function nativeFile_seek(fd: NativeFileHandle, offset: Unix OFF_T, whence: Int32) => BooleanBit := {
-    Unix lseek(fd, offset, whence) ~= (-1 castTo: Unix OFF_T)
+function nativeFile_seek(fd: NativeFileHandle, offset: Unix OFF64_T, whence: Int32) => BooleanBit := {
+    Unix lseek64(fd, offset, whence) ~= (-1 castTo: Unix OFF_T)
 }.
 
 function nativeFile_tell(fd: NativeFileHandle) => Int64 := {
-    Unix lseek(fd, 0, NativeFile_SeekCur)
+    Unix lseek64(fd, 0, NativeFile_SeekCur)
 }.
 
 function nativeFile_write(fd: NativeFileHandle, buffer: Void const pointer, size: UIntPointer) => IntPointer := {

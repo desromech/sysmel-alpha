@@ -34,11 +34,14 @@ SYMLCompilerCommandLineHandler class >> commandName [
 
 { #category : #activation }
 SYMLCompilerCommandLineHandler >> activate [
-	| architecture outputFileName withDebugInformation arguments argumentIndex compilationCommands arg skipCount target compiler emitLLVM writeMode gpu compilationOptions |
+	| architecture outputFileName withDebugInformation arguments argumentIndex compilationCommands arg skipCount target compiler emitLLVM writeMode gpu compilationOptions targetVendor targetOS targetAttributes |
 	self activateHelp
 		ifTrue: [  ^ self ].
 		
 	architecture := #x86.
+	targetVendor := nil.
+	targetOS := nil.
+	targetAttributes := nil.
 	outputFileName := nil.
 	withDebugInformation := false.
 	writeMode := #executable.
@@ -55,16 +58,32 @@ SYMLCompilerCommandLineHandler >> activate [
 		arg := arguments at: argumentIndex.
 		skipCount := 1.
 		
-		arg = '-m32' ifTrue: [ 
+		(arg = '-m32' or: [arg = '-mx86']) ifTrue: [ 
 			architecture := #x86.
 		].
-		arg = '-m64' ifTrue: [  
+		(arg = '-m32' or: [arg = '-mx86_64']) ifTrue: [  
 			architecture := #x86.
 		].
 		arg = '-mvulkan' ifTrue: [  
 			architecture := #spirv_logical64.
 			gpu := true.
 		].
+		arg = '-mvendor' ifTrue: [
+			argumentIndex + 1 > arguments size ifTrue: [ self error: 'Expected an argument after -mvendor' ].
+			targetVendor := arguments at: argumentIndex + 1.
+			skipCount := 2
+		].
+		arg = '-mos' ifTrue: [
+			argumentIndex + 1 > arguments size ifTrue: [ self error: 'Expected an argument after -mos' ].
+			targetOS := arguments at: argumentIndex + 1.
+			skipCount := 2
+		].
+		arg = '-mattr' ifTrue: [
+			argumentIndex + 1 > arguments size ifTrue: [ self error: 'Expected an argument after -mattr' ].
+			targetAttributes := arguments at: argumentIndex + 1.
+			skipCount := 2
+		].
+
 		arg = '-noemit-llvm' ifTrue: [  
 			emitLLVM := false.
 		].
@@ -139,6 +158,10 @@ SYMLCompilerCommandLineHandler >> activate [
 	compilationCommands ifEmpty: [ ^ self help ].
 
 	target := SYMLCompilationTarget perform: ((emitLLVM ifTrue: [ 'llvm_' ] ifFalse: ['']) , architecture) asSymbol.
+	targetOS ifNotNil: [ target operatingSystemName: targetOS asSymbol ].
+	targetVendor ifNotNil: [ target systemVendor: targetVendor asSymbol].
+	targetAttributes ifNotNil: [ target machineAttributes: targetAttributes ].
+	
 	withDebugInformation ifTrue: [
 		target withDebugInformation
 	].

@@ -13,7 +13,7 @@ struct _ObjectHeader definition: {
 
     if: UIntPointer instanceSize == 4 then: {
         // TODO: Support big-endian.
-        field __padding public type: Behavior.
+        field __padding public type: UInt32.
     }.
 
     // 32 bits: gc color, isPinned, isImmutable.

@@ -367,7 +367,7 @@ SYMLCompilationTarget >> isFreeBSD [
 { #category : #testing }
 SYMLCompilationTarget >> isLinux [
 	<compileTime>
-	^ self operatingSystemName == #linux
+	^ self operatingSystemName = #linux
 ]
 
 { #category : #testing }
@@ -538,6 +538,11 @@ SYMLCompilationTarget >> structureTypeTrait [
 SYMLCompilationTarget >> structureTypeTrait: anObject [
 	<compileTime>
 	structureTypeTrait := anObject
+]
+
+{ #category : #accessing }
+SYMLCompilationTarget >> targetTriple [
+	^ self subclassResponsibility
 ]
 
 { #category : #'builder methods' }
