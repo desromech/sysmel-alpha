@@ -47,6 +47,13 @@ SYMLSLVMCompilationTarget >> isSpirV [
 ]
 
 { #category : #accessing }
+SYMLSLVMCompilationTarget >> machineAttributes: osName [
+	<compileTime>
+	^ target machineAttributes: osName
+
+]
+
+{ #category : #accessing }
 SYMLSLVMCompilationTarget >> objectModel [
 	<compileTime>
 	^ target objectModel
