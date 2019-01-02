@@ -35,6 +35,7 @@ class SysmelGC definition: {
         variableDataSize: (variableDataSize: UInt32)
         initializingWith: (basicInitializer: _BasicInitializeFunctionPointerType)
           ::=> _ObjectHeader pointer := {
+        <nogc>
 
         // Allocate the object memory.
         let allocatedObject := (memoryHeap allocate: objectSize) reinterpretCastTo: _ObjectHeader pointer.

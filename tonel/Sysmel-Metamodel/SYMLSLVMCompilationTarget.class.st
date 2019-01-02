@@ -19,6 +19,22 @@ SYMLSLVMCompilationTarget >> abiName [
 ]
 
 { #category : #accessing }
+SYMLSLVMCompilationTarget >> addSysmelLLVMGCPlugin [
+	| path |
+	#(
+		'SysmelGCPlugin.so'
+		'SysmelGCPlugin.dylib'
+		'SysmelGCPlugin.dll'
+	) do: [ :pluginName |
+		path := Smalltalk imageDirectory / pluginName.
+		path exists ifTrue: [
+			^ self compilationPlugins: { path fullName }
+		]
+	]
+
+]
+
+{ #category : #accessing }
 SYMLSLVMCompilationTarget >> architecture [
 	<compileTime>
 	^ target architecture
@@ -28,6 +44,20 @@ SYMLSLVMCompilationTarget >> architecture [
 SYMLSLVMCompilationTarget >> canonicalOperatingSystem [
 	<compileTime>
 	^ target canonicalOperatingSystem
+]
+
+{ #category : #accessing }
+SYMLSLVMCompilationTarget >> compilationPlugins [
+	<compileTime>
+	^ target compilationPlugins
+
+]
+
+{ #category : #accessing }
+SYMLSLVMCompilationTarget >> compilationPlugins: nameOfCompilationPlugins [
+	<compileTime>
+	^ target compilationPlugins: nameOfCompilationPlugins
+
 ]
 
 { #category : #'target platform querying' }
@@ -215,7 +245,9 @@ SYMLSLVMCompilationTarget >> target [
 SYMLSLVMCompilationTarget >> target: anObject [
 	<compileTime>
 	target := anObject.
-	target objectModel: (SYMLSLVMObjectModel new target: target)
+	target objectModel: (SYMLSLVMObjectModel new target: target).
+	target isLLVMCompilationTarget ifTrue: [ self addSysmelLLVMGCPlugin ].
+	
 ]
 
 { #category : #accessing }

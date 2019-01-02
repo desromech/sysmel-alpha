@@ -193,6 +193,9 @@ SYMLModule >> createImplicitConstructionFunctionAt: aPosition with: aBlock [
 	| ctorFunctionType ctor allocaBuilder builder bodyBlock |
 	ctorFunctionType := self compilationTarget voidType => self compilationTarget voidType.
 	ctor := SLVMFunction module: self ssaModule name: nil functionType: ctorFunctionType ssaType.
+	ctor
+		propertyAt: #implicitConstructionDestruction put: true;
+		gcStrategy: #sysmel.
 
 	"Create a builder for the allocas and another for the function body."
 	allocaBuilder := SYMLSLVMBuilder on: ctor.
@@ -567,6 +570,11 @@ SYMLModule >> semanticAnalysis [
 		extraToAnalyze removeAll
 	]
 	
+]
+
+{ #category : #'code generation' }
+SYMLModule >> setSSAFunctionGCStrategy: ssaFunction [
+	ssaFunction gcStrategy: #sysmel
 ]
 
 { #category : #'code generation' }

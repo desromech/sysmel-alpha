@@ -163,6 +163,10 @@ SYMLAbstractFunction >> createSSAValue [
 	| argumentsOffset ssaArgument receiverOffset |
 	ssaValue := SLVMFunction module: self module ssaModule name: self mangledName functionType: functionType ssaType.
 	ssaValue unmangledName: self fullUnmangledName.
+	(self hasPragmaNamed: #nogc) ifFalse: [ 
+		self module setSSAFunctionGCStrategy: ssaValue
+	].
+	
 	body ifNil: [
 		ssaValue makeExternal
 	] ifNotNil: [
@@ -620,6 +624,7 @@ SYMLAbstractFunction >> pragmaAt: selector ifPresent: ifPresentBlock [
 
 { #category : #testing }
 SYMLAbstractFunction >> pragmaAt: selector ifPresent: ifPresentBlock ifAbsent: ifAbsentBlock [
+	body ifNil: [ ^ ifAbsentBlock value ].
 	^ self analyzedBody
 		ifNil: [ ifAbsentBlock value ]
 		ifNotNil: [ :ab | ab pragmaAt: selector ifPresent: ifPresentBlock ifAbsent: ifAbsentBlock ]

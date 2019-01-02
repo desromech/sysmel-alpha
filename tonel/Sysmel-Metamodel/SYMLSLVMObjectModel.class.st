@@ -84,8 +84,12 @@ SYMLSLVMObjectModel >> computeBytesHash: data initialHash: initialHash [
 SYMLSLVMObjectModel >> createDoesNotUnderstandTrampolineWithType: functionType [
 	| function builder entryBlock boxedMessage result convertedResult |
 	function := SLVMFunction pointerSize: target pointerSize functionType: functionType.
-	function compilationTarget: target.
-	function propertyAt: #omitDebugInformation put: true.
+	function
+		compilationTarget: target;
+		propertyAt: #omitDebugInformation put: true;
+		propertyAt: #dnuTrampoline put: true;
+		gcStrategy: #sysmel.
+	
 	
 	builder := SLVMBuilder on: function.
 	
