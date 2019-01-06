@@ -2,6 +2,42 @@ namespace SysmelKernel definition: {
 
 alias _BasicInitializeFunctionPointerType := ((Void pointer) => Void) pointer.
 
+struct GCFunctionStackMapEntry definition: {
+    field stackFrameSize public type: UInt32.
+    field _ public type: UInt32.
+
+    field safePointCount public type: UInt32.
+    field rootCount public type: UInt32.
+
+    field compiledMethod public type: UIntPointer. // Can be null
+
+    // Safe points
+    message safePoints => UIntPointer pointer
+        := (self address [1]) address reinterpretCastTo: UIntPointer pointer.
+
+    // The root count with extra padding, if needed.
+    if: UIntPointer instanceSize == 4 then: {
+        message paddedRootCount => UInt32
+            := rootCount.
+    } else: {
+        message paddedRootCount => UInt32
+            := (rootCount & 1) == 0
+                ifTrue: {rootCount}
+                ifFalse: {rootCount + 1}.
+    }.
+
+    // Roots
+    message roots => Int32 pointer
+        := self safePoints[safePointCount] address reinterpretCastTo: Int32 pointer.
+
+    // Next stack map entry address.
+    message next => GCFunctionStackMapEntry pointer
+        := self roots[self paddedRootCount] address reinterpretCastTo: GCFunctionStackMapEntry pointer.
+}.
+
+global __sysmel_gc_section_start external externC mutable type: GCFunctionStackMapEntry.
+global __sysmel_gc_section_end external externC mutable type: GCFunctionStackMapEntry.
+
 /**
  * _ObjectHeader
  * The header an object.
@@ -30,12 +66,25 @@ struct _ObjectHeader definition: {
 
 class SysmelGC definition: {
     field memoryHeap mutable type: StdNative NativeMemoryHeap.
+    message printStackMap => Void := {
+        <nogc>
+
+        let start := __sysmel_gc_section_start address.
+        let end := __sysmel_gc_section_end address.
+        StdNative stdout << "Stack map start " << start << " end " << end; nl.
+
+        for: (let position mutable := start) while: (position ~~ end) do: {
+            StdNative stdout << "position " << position << " roots " << position _ rootCount << " safePoints " << position _ safePointCount; nl.
+        } continueWith: (position := position _ next).
+    }.
 
     message allocate: (objectSize: UIntPointer)
         variableDataSize: (variableDataSize: UInt32)
         initializingWith: (basicInitializer: _BasicInitializeFunctionPointerType)
           ::=> _ObjectHeader pointer := {
         <nogc>
+
+        //self printStackMap.
 
         // Allocate the object memory.
         let allocatedObject := (memoryHeap allocate: objectSize) reinterpretCastTo: _ObjectHeader pointer.

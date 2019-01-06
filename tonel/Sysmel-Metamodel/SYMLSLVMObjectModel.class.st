@@ -13,7 +13,8 @@ Class {
 		'sysmelMessageLookupFunction',
 		'convertedLiteralDictionary',
 		'compiledMethodEntryPointSlotIndex',
-		'identityHashRandomGenerator'
+		'identityHashRandomGenerator',
+		'gcrootIntrinsic'
 	],
 	#category : #'Sysmel-Metamodel-CompilationTarget'
 }
@@ -178,6 +179,14 @@ SYMLSLVMObjectModel >> dictionaryClass [
 SYMLSLVMObjectModel >> dictionaryClass: anObject [
 	<compileTime>
 	dictionaryClass := anObject
+]
+
+{ #category : #accessing }
+SYMLSLVMObjectModel >> gcrootIntrinsic [
+	^ gcrootIntrinsic ifNil: [
+		gcrootIntrinsic := SLVMConstantBuiltInFunction pointerSize: target pointerSize
+			name: #'gc.root'
+			functionType: (SLVMFunctionType callingConvention: #cdecl arguments: { target voidPointerPointerType . target voidPointerType } returnType: target void) ]
 ]
 
 { #category : #initialization }

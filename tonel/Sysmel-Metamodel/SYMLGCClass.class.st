@@ -54,7 +54,7 @@ SYMLGCClass >> basicInitializeSSAVariable: ssaVariable with: builder [
 	builder store: (self defaultSSAValueWith: builder) in: ssaVariable
 ]
 
-{ #category : #'code generation' }
+{ #category : #'as yet unclassified' }
 SYMLGCClass >> buildSSAType [
 	^ self compilationTarget ssaPointerTo: self structureSSAType forAddressSpace: #gc
 ]

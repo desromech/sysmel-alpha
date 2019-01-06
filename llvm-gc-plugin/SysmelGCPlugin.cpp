@@ -65,10 +65,62 @@ void SysmelGCPrinter::finishAssembly(Module &M, GCModuleInfo &Info, AsmPrinter &
 
     // Put this in a custom elf section.
     Out->SwitchSection(
-        Context.getELFSection(".sysmel.gc", ELF::SHT_PROGBITS, 0)
+        Context.getELFSection(".data.sysmel.gc", ELF::SHT_PROGBITS, 0)
     );
 
-    AP.EmitInt32(42);
+    auto StartSymbol = Context.getOrCreateSymbol("__sysmel_gc_section_start");
+    Out->EmitLabel(StartSymbol);
+
+    // Align to pointer size.
+    AP.EmitAlignment(IntPtrSize == 4 ? 2 : 3);
+
+    // Iterate on the functions.
+    for(auto fit = Info.funcinfo_begin(); fit != Info.funcinfo_end(); ++fit)
+    {
+        auto &FunctionInfo = *fit;
+        auto SafePointCount = FunctionInfo->size();
+        auto RootCount = FunctionInfo->roots_size();
+        auto StackFrameSize = FunctionInfo->getFrameSize();
+
+        AP.EmitInt32(StackFrameSize / IntPtrSize); // In words.
+        AP.EmitInt32(0); // Reserved.
+
+        AP.EmitInt32(SafePointCount);
+        AP.EmitInt32(RootCount);
+
+        // TODO: Here goes the compiled method object.
+        if(IntPtrSize == 4)
+        {
+            AP.EmitInt32(0);
+        }
+        else
+        {
+            AP.EmitInt32(0);
+            AP.EmitInt32(0);
+        }
+
+        // Emit the safe points.
+        for(auto &SafePoint : *FunctionInfo)
+        {
+            AP.EmitLabelPlusOffset(SafePoint.Label, 0, IntPtrSize);
+        }
+
+        // Emit all of the the roots.
+        for(auto rit = FunctionInfo->roots_begin(); rit != FunctionInfo->roots_end(); ++rit)
+        {
+            auto &Root = *rit;
+            AP.EmitInt32(Root.StackOffset);
+        }
+
+        // Padding member
+        if(IntPtrSize != 4 && (RootCount & 1))
+        {
+            AP.EmitInt32(0);
+        }
+    }
+
+    auto EndSymbol = Context.getOrCreateSymbol("__sysmel_gc_section_end");
+    Out->EmitLabel(EndSymbol);
 }
 
 }
