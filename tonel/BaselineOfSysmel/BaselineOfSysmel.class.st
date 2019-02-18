@@ -24,8 +24,12 @@ BaselineOfSysmel >> baseline: spec [
 				spec requires: #(PetitParser2Core 'Sysmel-Metamodel')
 			].
 		spec
+			package: 'Sysmel-ImageFormat' with: [
+				spec requires: #(Slovim)
+			].
+		spec
 			package: 'Sysmel-Metamodel' with: [
-				spec requires: #('Slovim')
+				spec requires: #('Slovim' 'Sysmel-ImageFormat')
 			].
 		spec
 			package: 'Sysmel-Tests' with: [
