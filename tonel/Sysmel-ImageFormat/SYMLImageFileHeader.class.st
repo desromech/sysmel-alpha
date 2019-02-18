@@ -2,7 +2,6 @@ Class {
 	#name : #SYMLImageFileHeader,
 	#superclass : #SAsmBinaryFileComponent,
 	#instVars : [
-		'pointerSize',
 		'littleEndian',
 		'platform',
 		'version',
@@ -39,7 +38,6 @@ SYMLImageFileHeader >> globalSymbolTable: anObject [
 { #category : #initialization }
 SYMLImageFileHeader >> initialize [
 	super initialize.
-	pointerSize := 4.
 	littleEndian := true.
 	platform := 'none' asByteArray.
 	version := '0000' asByteArray.
@@ -80,12 +78,7 @@ SYMLImageFileHeader >> platform: anObject [
 
 { #category : #accessing }
 SYMLImageFileHeader >> pointerSize [
-	^ pointerSize
-]
-
-{ #category : #accessing }
-SYMLImageFileHeader >> pointerSize: anObject [
-	pointerSize := anObject
+	self subclassResponsibility
 ]
 
 { #category : #accessing }
@@ -111,7 +104,7 @@ SYMLImageFileHeader >> version: anObject [
 SYMLImageFileHeader >> writeOn: aStream [
 	aStream
 		nextPutAll: "'SYIF' asByteArray" #[83 89 73 70];
-		nextPutAll: (pointerSize = 4
+		nextPutAll: (self pointerSize = 4
 			ifTrue: [ "'32' asByteArray" #[51 50] ]
 			ifFalse: [ "'64' asByteArray" #[54 52] ]);
 		nextPutAll: (littleEndian

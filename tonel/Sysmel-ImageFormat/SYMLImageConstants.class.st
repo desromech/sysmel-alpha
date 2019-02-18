@@ -3,6 +3,12 @@ Class {
 	#superclass : #SharedPool,
 	#classVars : [
 		'SAsmRelocationTypeMap',
+		'SectionMemoryFlags_Debugging',
+		'SectionMemoryFlags_Executable',
+		'SectionMemoryFlags_Loaded',
+		'SectionMemoryFlags_ObjectWithFilePointers',
+		'SectionMemoryFlags_Readable',
+		'SectionMemoryFlags_Writeable',
 		'VTable_Array',
 		'VTable_Rela_AbsoluteOffset16',
 		'VTable_Rela_AbsoluteOffset32',
@@ -32,6 +38,14 @@ Class {
 { #category : #'class initialization' }
 SYMLImageConstants class >> initialize [
 
+	SectionMemoryFlags_Readable := 1<<0.
+	SectionMemoryFlags_Writeable := 1<<1.
+	SectionMemoryFlags_Executable := 1<<2.
+
+	SectionMemoryFlags_Loaded := 1<<3.
+	SectionMemoryFlags_Debugging := 1<<4.
+	SectionMemoryFlags_ObjectWithFilePointers := 1<<5.
+	
 	"These values are used to identify some special loader specific vtable object."
 	VTable_Array := -1.
 	VTable_Symbol := -2.

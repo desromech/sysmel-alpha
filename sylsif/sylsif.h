@@ -24,6 +24,17 @@
 
 #define SYLSIF_VERSION "0000"
 
+typedef enum sylsif_section_memory_flags_e
+{
+    SYLSIF_SECTION_MEMORY_FLAGS_READABLE = 1<<0, /* Can the section be readed? */
+    SYLSIF_SECTION_MEMORY_FLAGS_WRITEABLE = 1<<1, /* Can the section be written? */
+    SYLSIF_SECTION_MEMORY_FLAGS_EXECUTABLE = 1<<2, /* Can the section be executed? */
+
+    SYLSIF_SECTION_MEMORY_FLAGS_LOADED = 1<<3, /* Is the section loaded from disk? */
+    SYLSIF_SECTION_MEMORY_FLAGS_DEBUGGING = 1<<4, /*Is the section used for debugging? */
+    SYLSIF_SECTION_MEMORY_FLAGS_OBJECTS_WITH_FILE_POINTERS = 1<<5, /*This section holds object with file offset based pointers*/
+} sylsif_section_memory_flags_t;
+
 typedef enum sylsif_special_vtable_e
 {
     SYLSIF_SPECIAL_VTABLE_ARRAY = -1,
@@ -33,6 +44,7 @@ typedef enum sylsif_special_vtable_e
     SYLSIF_SPECIAL_VTABLE_SECTION_DESCRIPTOR = -4,
     SYLSIF_SPECIAL_VTABLE_SYMBOL_TABLE = -5,
     SYLSIF_SPECIAL_VTABLE_SYMBOL_TABLE_ENTRY = -6,
+    SYLSIF_SPECIAL_VTABLE_IMAGE_METADATA = -7,
 
     SYLSIF_SPECIAL_VTABLE_RELA_ABSOLUTE_OFFSET8 = -100,
     SYLSIF_SPECIAL_VTABLE_RELA_ABSOLUTE_OFFSET16 = -101,
@@ -121,8 +133,6 @@ typedef struct sylsif32_section_descriptor_s
     uint32_t memorySize;
     uint32_t memoryAlignment;
     uint32_t memoryFlags;
-
-    uint32_t relocationTable;
 } sylsif32_section_descriptor_t;
 
 /**
@@ -143,8 +153,6 @@ typedef struct sylsif64_section_descriptor_s
     uint64_t memorySize;
     uint64_t memoryAlignment;
     uint64_t memoryFlags;
-
-    uint64_t relocationTable;
 } sylsif64_section_descriptor_t;
 
 /**
@@ -186,7 +194,7 @@ typedef struct sylsif32_symbol_table_entry_s
 } sylsif32_symbol_table_entry_t;
 
 /**
- * SYLSIF64 Symbol Table
+ * SYLSIF64 Symbol Table Entry
  */
 typedef struct sylsif64_symbol_table_entry_s
 {
@@ -234,6 +242,7 @@ typedef struct sylsif64_relocation_with_addend_s
  */
 #if defined(SYLSIF_CURRENT_PLATFORM_32_BITS)
 
+typedef sylsif32_object_header_t sylsif_object_header_t;
 typedef sylsif32_section_descriptor_t sylsif_section_descriptor_t;
 typedef sylsif32_symbol_table_t sylsif_symbol_table_t;
 typedef sylsif32_symbol_table_entry_t sylsif_symbol_table_entry_t;
@@ -241,11 +250,22 @@ typedef sylsif32_relocation_with_addend_t sylsif_relocation_with_addend_t;
 
 #elif defined(SYLSIF_CURRENT_PLATFORM_64_BITS)
 
+typedef sylsif64_object_header_t sylsif_object_header_t;
 typedef sylsif64_section_descriptor_t sylsif_section_descriptor_t;
 typedef sylsif64_symbol_table_t sylsif_symbol_table_t;
 typedef sylsif64_symbol_table_entry_t sylsif_symbol_table_entry_t;
 typedef sylsif64_relocation_with_addend_t sylsif_relocation_with_addend_t;
 
 #endif
+
+typedef struct sylsif_loaded_image_metadata_s
+{
+    sylsif_object_header_t objectHeader;
+
+    uintptr_t numberOfSections;
+    sylsif_section_descriptor_t *sectionDescriptors;
+    sylsif_symbol_table_t *globalSymbolTable;
+    sylsif_object_header_t *entryPointObject;
+} sylsif_loaded_image_metadata_t;
 
 #endif /* SYLSIF_H_ */

@@ -19,12 +19,23 @@ Class {
 
 { #category : #adding }
 SYMLImageFileBuilder >> addBinaryObjectSection: originalSection [
-	| descriptor |
+	| descriptor flags debuggingSection |
 	descriptor := self sectionDescriptorClass new.
 	descriptor
 		nameSymbol: (self internSymbol: originalSection name);
 		originalSection: originalSection;
 		yourself.
+		
+	flags := 0.
+	originalSection readable ifTrue: [ flags := flags | SectionMemoryFlags_Readable ].
+	originalSection writeable ifTrue: [ flags := flags | SectionMemoryFlags_Writeable ].
+	originalSection executable ifTrue: [ flags := flags | SectionMemoryFlags_Executable ].
+
+	originalSection loaded ifTrue: [ flags := flags | SectionMemoryFlags_Loaded ].
+	debuggingSection := (originalSection debugging isNotNil and: [originalSection debugging])
+		or: [ originalSection name beginsWith: '.debug' ].
+	debuggingSection ifTrue: [ flags := flags | SectionMemoryFlags_Debugging ].
+	descriptor memoryFlags: flags.
 	
 	originalSectionToDescriptorDictionary at: originalSection put: descriptor.
 	
@@ -119,6 +130,7 @@ SYMLImageFileBuilder >> initialize [
 	loadingObjectSection := SYMLImageLoadingObjectSection new.
 	sectionDescriptors add: (self sectionDescriptorClass new
 		content: loadingObjectSection;
+		memoryFlags: (SectionMemoryFlags_Loaded | SectionMemoryFlags_Readable | SectionMemoryFlags_Writeable | SectionMemoryFlags_ObjectWithFilePointers);
 		yourself
 	).
 	sectionDescriptors first nameSymbol: (self internSymbol: #'.sylsif.objects').
