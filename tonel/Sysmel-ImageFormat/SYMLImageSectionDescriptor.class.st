@@ -133,7 +133,8 @@ SYMLImageSectionDescriptor >> prepareForWritingToFile [
 	content ifNil: [ ^ self ].
 	
 	sectionFileOffset := content fileOffset.
-	sectionFileSize := content size.
+	sectionFileSize := content fileSize.
+	memorySize := content size.
 
 ]
 

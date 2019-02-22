@@ -31,11 +31,12 @@ SYMLImageFileBuilder >> addBinaryObjectSection: originalSection [
 	originalSection writeable ifTrue: [ flags := flags | SectionMemoryFlags_Writeable ].
 	originalSection executable ifTrue: [ flags := flags | SectionMemoryFlags_Executable ].
 
-	originalSection loaded ifTrue: [ flags := flags | SectionMemoryFlags_Loaded ].
+	originalSection loaded ifTrue: [flags := flags | SectionMemoryFlags_Loaded ].
 	debuggingSection := (originalSection debugging isNotNil and: [originalSection debugging])
 		or: [ originalSection name beginsWith: '.debug' ].
 	debuggingSection ifTrue: [ flags := flags | SectionMemoryFlags_Debugging ].
-	descriptor memoryFlags: flags.
+	descriptor
+		memoryFlags: flags.
 	
 	originalSectionToDescriptorDictionary at: originalSection put: descriptor.
 	

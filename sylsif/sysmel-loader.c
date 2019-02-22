@@ -5,6 +5,9 @@
 #include <sys/mman.h>
 #include <malloc.h>
 
+typedef struct sylsif_loading_class_s sylsif_loading_class_t;
+static sylsif_loading_class_t *getLoadingObjectClass(sylsif_object_header_t *header);
+
 static size_t alignSizeTo(size_t size, size_t alignment);
 static size_t sizeOfImageMetadataSectionFor(size_t numberOfSections);
 static sylsif_loaded_image_metadata_t *allocateLoadedImage(size_t numberOfSections);
@@ -13,11 +16,106 @@ static int loadImageSectionFrom(sylsif_section_descriptor_t *sectionDescriptor, 
 static void freeImageSection(sylsif_section_descriptor_t *sectionDescriptor);
 
 /* Fake VTable for objects required by the loader. */
-typedef struct sylsif_loading_vtable_s
+typedef struct sylsif_loading_class_s
 {
-    void (*convertFilePointers) (sylsif_object_header_t *self);
-} sylsif_loading_vtable_t;
+    size_t fixedObjectSize;
+    size_t variableElementSize;
 
+    const uintptr_t *filePointerMembers;
+    size_t filePointerMemberCount;
+} sylsif_loading_class_t;
+
+#define dispatch(self, method, ...) getLoadingObjectClass(&(self)->objectHeader)->method(&(self)->objectHeader, __VA_ARGS__)
+#define dispatchIfNotNil(self, ...) if(self != 0) dispatch(self, __VA_ARGS__)
+#define convertFilePointer(pointer) if(pointer != 0) printf("TODO: Convert file pointer %p\n", (void*)pointer)
+
+#define expandMacroParents(...) __VA_ARGS__
+
+#define beginClass(typedefName, filePointers) \
+static const size_t typedefName ## _filePointers[] = {expandMacroParents filePointers}; \
+static sylsif_loading_class_t typedefName ## _ClassDefinition = {\
+    .fixedObjectSize = sizeof(typedefName), \
+    .filePointerMembers = typedefName ## _filePointers, \
+    .filePointerMemberCount = sizeof(typedefName ## _filePointers) / sizeof(typedefName ## _filePointers [0]), \
+
+#define endClass() }
+#define classFor(typedefName) (&typedefName ## _ClassDefinition)
+
+/**
+ * sylsif_image_memory_object_t is any generic object with direct memory pointers.
+ * This class is used as a fallback.
+ */
+typedef sylsif_object_t sylsif_image_memory_object_t;
+
+beginClass(sylsif_image_memory_object_t, ())
+endClass();
+
+
+/**
+ * sylsif_unsupported_object_t
+ */
+typedef sylsif_object_t sylsif_unsupported_object_t;
+
+beginClass(sylsif_unsupported_object_t, ())
+endClass();
+
+/**
+ * sylsif_loaded_image_metadata_t
+ */
+beginClass(sylsif_loaded_image_metadata_t, ())
+endClass();
+
+/**
+ * sylsif_section_descriptor_t
+ */
+beginClass(sylsif_section_descriptor_t, ( \
+    offsetof(sylsif_section_descriptor_t, nameSymbol), \
+    offsetof(sylsif_section_descriptor_t, relocations), \
+))
+endClass();
+
+/***
+ * This maps a vtable pointer into a loading time only virtual vtable.
+ */
+static sylsif_loading_class_t *getLoadingObjectClass(sylsif_object_header_t *header)
+{
+    intptr_t vtableIndex = (intptr_t)header->vtable;
+    if(vtableIndex >= 0)
+        return classFor(sylsif_image_memory_object_t);
+
+    if(vtableIndex)
+    switch(header->vtable)
+    {
+    case SYLSIF_SPECIAL_VTABLE_ARRAY: return classFor(sylsif_unsupported_object_t);
+    case SYLSIF_SPECIAL_VTABLE_SYMBOL: return classFor(sylsif_unsupported_object_t);
+    case SYLSIF_SPECIAL_VTABLE_STRING: return classFor(sylsif_unsupported_object_t);
+
+    case SYLSIF_SPECIAL_VTABLE_SECTION_DESCRIPTOR: return classFor(sylsif_section_descriptor_t);
+    case SYLSIF_SPECIAL_VTABLE_SYMBOL_TABLE: return classFor(sylsif_unsupported_object_t);
+    case SYLSIF_SPECIAL_VTABLE_SYMBOL_TABLE_ENTRY: return classFor(sylsif_unsupported_object_t);
+    case SYLSIF_SPECIAL_VTABLE_IMAGE_METADATA: return classFor(sylsif_loaded_image_metadata_t);
+
+    case SYLSIF_SPECIAL_VTABLE_RELA_ABSOLUTE_OFFSET8: return classFor(sylsif_unsupported_object_t);
+    case SYLSIF_SPECIAL_VTABLE_RELA_ABSOLUTE_OFFSET16: return classFor(sylsif_unsupported_object_t);
+    case SYLSIF_SPECIAL_VTABLE_RELA_ABSOLUTE_OFFSET32: return classFor(sylsif_unsupported_object_t);
+    case SYLSIF_SPECIAL_VTABLE_RELA_ABSOLUTE_SIGNED_OFFSET32: return classFor(sylsif_unsupported_object_t);
+    case SYLSIF_SPECIAL_VTABLE_RELA_ABSOLUTE_OFFSET64: return classFor(sylsif_unsupported_object_t);
+
+    case SYLSIF_SPECIAL_VTABLE_RELA_SECTION_RELATIVE_OFFSET32: return classFor(sylsif_unsupported_object_t);
+    case SYLSIF_SPECIAL_VTABLE_RELA_SECTION_RELATIVE_OFFSET64: return classFor(sylsif_unsupported_object_t);
+
+    case SYLSIF_SPECIAL_VTABLE_RELA_RELATIVE_SIGNED_OFFSET8: return classFor(sylsif_unsupported_object_t);
+    case SYLSIF_SPECIAL_VTABLE_RELA_RELATIVE_SIGNED_OFFSET16: return classFor(sylsif_unsupported_object_t);
+    case SYLSIF_SPECIAL_VTABLE_RELA_RELATIVE_SIGNED_OFFSET32: return classFor(sylsif_unsupported_object_t);
+    case SYLSIF_SPECIAL_VTABLE_RELA_RELATIVE_SIGNED_OFFSET64: return classFor(sylsif_unsupported_object_t);
+
+    case SYLSIF_SPECIAL_VTABLE_RELA_RELATIVE_SIGNED_OFFSET32_AT_GOT: return classFor(sylsif_unsupported_object_t);
+    case SYLSIF_SPECIAL_VTABLE_RELA_RELATIVE_SIGNED_OFFSET32_GOT_OFFSET: return classFor(sylsif_unsupported_object_t);
+    case SYLSIF_SPECIAL_VTABLE_RELA_RELATIVE_SIGNED_OFFSET32_GLOBAL_OFFSET_TABLE: return classFor(sylsif_unsupported_object_t);
+    case SYLSIF_SPECIAL_VTABLE_RELA_RELATIVE_BRANCH_32: return classFor(sylsif_unsupported_object_t);
+    default: return classFor(sylsif_unsupported_object_t);
+    }
+}
 
 static size_t alignSizeTo(size_t size, size_t alignment)
 {
@@ -118,6 +216,75 @@ static void freeImageSection(sylsif_section_descriptor_t *sectionDescriptor)
     munmap((void*)sectionDescriptor->memoryLoadingAddress, actualMemorySize);
 }
 
+static int mapImageFilePointerToMemoryPointer(sylsif_loaded_image_metadata_t *image, uintptr_t *pointer)
+{
+    uintptr_t filePointer = *pointer;
+    if(filePointer == 0)
+        return 1;
+
+    // TODO: Use a lower bound binary search here
+    for(uint32_t i = 0; i < image->numberOfSections; ++i)
+    {
+        sylsif_section_descriptor_t *section = &image->sectionDescriptors[i];
+        if(section->memoryLoadingAddress == 0)
+            continue;
+
+        if(section->fileOffset <= filePointer && filePointer <= section->fileOffset + section->memorySize)
+        {
+            *pointer = filePointer - section->fileOffset + section->memoryLoadingAddress;
+            return 1;
+        }
+    }
+
+    fprintf(stderr, "Cannot convert file pointer %p\n", (void*)filePointer);
+
+    return 0;
+}
+
+static int convertImageObjectFilePointers(sylsif_loaded_image_metadata_t *image, sylsif_object_header_t *object)
+{
+    if(!object)
+        return 1;
+
+    /* Get the loading object class. */
+    sylsif_loading_class_t *class = getLoadingObjectClass(object);
+    uint8_t *basePointer = (uint8_t*)object;
+
+    for(size_t i = 0; i < class->filePointerMemberCount; ++i)
+    {
+        uintptr_t *memberPointer = (uintptr_t*)(basePointer + class->filePointerMembers[i]);
+        if(!mapImageFilePointerToMemoryPointer(image, memberPointer))
+            return 0;
+    }
+
+    return 1;
+}
+static int convertImageFilePointers(sylsif_loaded_image_metadata_t *image)
+{
+    for(uint32_t i = 0; i <= image->numberOfSections; ++i)
+    {
+        sylsif64_section_descriptor_t *section = &image->sectionDescriptors[i];
+
+        /* Convert the section object descriptor file pointer. */
+        if(!convertImageObjectFilePointers(image, &section->objectHeader))
+            return 0;
+
+        /* Convert the content of some sections. */
+        if(section->memoryFlags & SYLSIF_SECTION_MEMORY_FLAGS_OBJECTS_WITH_FILE_POINTERS)
+        {
+            printf("TODO: convert content of section %d: [%zu]%p\n", i, section->memorySize, (void*)section->memoryLoadingAddress);
+        }
+    }
+
+    /* Convert the global symbol table address. */
+    mapImageFilePointerToMemoryPointer(image, (uintptr_t*)&image->globalSymbolTable);
+
+    /* Convert the entry point object address. */
+    mapImageFilePointerToMemoryPointer(image, (uintptr_t*)&image->entryPointObject);
+
+    return 1;
+}
+
 int main(int argc, const char *argv[])
 {
     /* Make sure that we at least have the image file name. */
@@ -188,13 +355,18 @@ int main(int argc, const char *argv[])
     /* Close the image file. */
     fclose(imageFile);
 
-    /* TODO: Convert file pointers, into direct pointers. */
+    /* Convert the file pointers. */
+    if(!convertImageFilePointers(imageMetadata))
+    {
+        freeLoadedImage(imageMetadata);
+        return 1;
+    }
 
     /* TODO: Apply the relocation. */
 
     /* TODO: Apply the permissions required to the sections. */
 
-    printf("Image loading succeded\n.");
+    printf("Image loading succeded.\n");
     return 0;
 
 }

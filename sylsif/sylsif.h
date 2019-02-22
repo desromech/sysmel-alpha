@@ -116,6 +116,22 @@ typedef struct sylsif64_object_header_t
 } sylsif64_object_header_t;
 
 /**
+ * SYLSIF32 Generic Object
+ */
+typedef struct sylsif32_object_s
+{
+    sylsif32_object_header_t objectHeader;
+} sylsif32_object_t;
+
+/**
+ * SYLSIF64 Generic Object
+ */
+typedef struct sylsif64_object_s
+{
+    sylsif64_object_header_t objectHeader;
+} sylsif64_object_t;
+
+/**
  * SYLSIF32 Section Descriptor
  */
 typedef struct sylsif32_section_descriptor_s
@@ -243,6 +259,7 @@ typedef struct sylsif64_relocation_with_addend_s
 #if defined(SYLSIF_CURRENT_PLATFORM_32_BITS)
 
 typedef sylsif32_object_header_t sylsif_object_header_t;
+typedef sylsif32_object_t sylsif_object_t;
 typedef sylsif32_section_descriptor_t sylsif_section_descriptor_t;
 typedef sylsif32_symbol_table_t sylsif_symbol_table_t;
 typedef sylsif32_symbol_table_entry_t sylsif_symbol_table_entry_t;
@@ -251,6 +268,7 @@ typedef sylsif32_relocation_with_addend_t sylsif_relocation_with_addend_t;
 #elif defined(SYLSIF_CURRENT_PLATFORM_64_BITS)
 
 typedef sylsif64_object_header_t sylsif_object_header_t;
+typedef sylsif64_object_t sylsif_object_t;
 typedef sylsif64_section_descriptor_t sylsif_section_descriptor_t;
 typedef sylsif64_symbol_table_t sylsif_symbol_table_t;
 typedef sylsif64_symbol_table_entry_t sylsif_symbol_table_entry_t;
@@ -265,7 +283,7 @@ typedef struct sylsif_loaded_image_metadata_s
     uintptr_t numberOfSections;
     sylsif_section_descriptor_t *sectionDescriptors;
     sylsif_symbol_table_t *globalSymbolTable;
-    sylsif_object_header_t *entryPointObject;
+    sylsif_object_t *entryPointObject;
 } sylsif_loaded_image_metadata_t;
 
 #endif /* SYLSIF_H_ */
