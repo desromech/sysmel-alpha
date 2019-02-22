@@ -126,7 +126,7 @@ static size_t sizeOfImageMetadataSectionFor(size_t numberOfSections)
 {
     return alignSizeTo(
         sizeof(sylsif_loaded_image_metadata_t) +
-        (1 + numberOfSections) * sizeof(sylsif64_section_descriptor_t),
+        (1 + numberOfSections) * sizeof(sylsif_section_descriptor_t),
         4096);
 }
 
@@ -259,20 +259,75 @@ static int convertImageObjectFilePointers(sylsif_loaded_image_metadata_t *image,
 
     return 1;
 }
+
+static size_t sizeOfObjectWithLoadingClass(sylsif_object_header_t *object, sylsif_loading_class_t *class)
+{
+    return alignSizeTo(class->fixedObjectSize + class->variableElementSize*object->variableDataSize, 16);
+}
+static int convertFilePointersOfSection(sylsif_loaded_image_metadata_t *image, sylsif_section_descriptor_t *section)
+{
+    uint8_t *currentAddress = (uint8_t*)section->memoryLoadingAddress;
+    uint8_t *endAddress = currentAddress + section->memorySize;
+
+    /* Process all the objects in the section, in a sequential order. */
+    while(currentAddress < endAddress)
+    {
+        sylsif_object_header_t *currentObjectHeader = (sylsif_object_header_t*)currentAddress;
+
+        /* Perform a sanity check on the class. */
+        sylsif_loading_class_t *objectClass = getLoadingObjectClass(currentObjectHeader);
+        if(objectClass == classFor(sylsif_image_memory_object_t))
+        {
+            fprintf(stderr, "Object %p with invalid non-loading class in section with file pointers.\n", currentObjectHeader);
+            return 0;
+
+        }
+        if(objectClass == classFor(sylsif_unsupported_object_t))
+        {
+            fprintf(stderr, "Object %p with unsupported loading class: %d\n", currentObjectHeader, (int)currentObjectHeader->vtable);
+            return 0;
+        }
+
+        /* Compute the object size. */
+        size_t objectSize = sizeOfObjectWithLoadingClass(currentObjectHeader, objectClass);
+        uint8_t *nextAddress = currentAddress + objectSize;
+        if(nextAddress > endAddress)
+        {
+            fprintf(stderr, "Object %p with loading class %d has invalid size.\n", currentObjectHeader, (int)currentObjectHeader->vtable);
+            return 0;
+        }
+
+        /* Convert the object file pointers. */
+        convertImageObjectFilePointers(image, currentObjectHeader);
+
+        /* Advance according to the object size. */
+        currentAddress += objectSize;
+    }
+
+    if(currentAddress != endAddress)
+    {
+        fprintf(stderr, "Failed to process section with file pointer. Mismatching sizes of processed objects.\n");
+        return 0;
+    }
+
+    return 1;
+}
+
 static int convertImageFilePointers(sylsif_loaded_image_metadata_t *image)
 {
     for(uint32_t i = 0; i <= image->numberOfSections; ++i)
     {
-        sylsif64_section_descriptor_t *section = &image->sectionDescriptors[i];
+        sylsif_section_descriptor_t *section = &image->sectionDescriptors[i];
 
         /* Convert the section object descriptor file pointer. */
         if(!convertImageObjectFilePointers(image, &section->objectHeader))
             return 0;
 
         /* Convert the content of some sections. */
-        if(section->memoryFlags & SYLSIF_SECTION_MEMORY_FLAGS_OBJECTS_WITH_FILE_POINTERS)
+        if((section->memoryFlags & SYLSIF_SECTION_MEMORY_FLAGS_OBJECTS_WITH_FILE_POINTERS) != 0)
         {
-            printf("TODO: convert content of section %d: [%zu]%p\n", i, section->memorySize, (void*)section->memoryLoadingAddress);
+            if(!convertFilePointersOfSection(image, section))
+                return 0;
         }
     }
 

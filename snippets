@@ -18,3 +18,7 @@ ssaModule := module
 ssaModule asLowLevelModule writeTextToFileNamed: 'test.ll'; asString
 "ssaModule asLowLevelModule asOptimizedBinaryObject writeObjectToFileNamed: 'test.o'"
 
+"image loader
+gcc -o sysmel-loader sylsif/sysmel-loader.c && ./sysmel-loader test.sylsif
+"
+
