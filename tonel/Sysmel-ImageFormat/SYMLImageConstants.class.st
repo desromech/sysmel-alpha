@@ -3,12 +3,23 @@ Class {
 	#superclass : #SharedPool,
 	#classVars : [
 		'SAsmRelocationTypeMap',
+		'SAsmSymbolTypeMap',
+		'SAsmSymbolVisibilityMap',
 		'SectionMemoryFlags_Debugging',
 		'SectionMemoryFlags_Executable',
 		'SectionMemoryFlags_Loaded',
 		'SectionMemoryFlags_ObjectWithFilePointers',
 		'SectionMemoryFlags_Readable',
 		'SectionMemoryFlags_Writeable',
+		'SymbolType_Function',
+		'SymbolType_GlobalVariable',
+		'SymbolType_None',
+		'SymbolVisibility_DLLExport',
+		'SymbolVisibility_DLLImport',
+		'SymbolVisibility_External',
+		'SymbolVisibility_Private',
+		'SymbolVisibility_Public',
+		'SymbolVisibility_Weak',
 		'VTable_Array',
 		'VTable_Rela_AbsoluteOffset16',
 		'VTable_Rela_AbsoluteOffset32',
@@ -37,7 +48,17 @@ Class {
 
 { #category : #'class initialization' }
 SYMLImageConstants class >> initialize [
+	SymbolType_None := 0.
+	SymbolType_Function := 1.
+	SymbolType_GlobalVariable := 2.
 
+	SymbolVisibility_External := 0.
+	SymbolVisibility_Private := 1.
+	SymbolVisibility_Public := 2.
+	SymbolVisibility_Weak := 3.
+	SymbolVisibility_DLLExport := 4.
+	SymbolVisibility_DLLImport := 5.
+	
 	SectionMemoryFlags_Readable := 1<<0.
 	SectionMemoryFlags_Writeable := 1<<1.
 	SectionMemoryFlags_Executable := 1<<2.
@@ -95,6 +116,20 @@ SYMLImageConstants class >> initialize [
 		#'relative-soffset32-global-offset-table' . VTable_Rela_RelativeSOffset32GlobalOffsetTable.
 		#'relative-branch32' . VTable_Rela_RelativeBranch32.
 	}.
+	
+	SAsmSymbolVisibilityMap := Dictionary newFromPairs: {
+		#external . SymbolVisibility_External.
+		#private . SymbolVisibility_Private.
+		#public . SymbolVisibility_Public.
+		#weak . SymbolVisibility_Weak.
+		#dllexport . SymbolVisibility_DLLExport.
+		#dllimport . SymbolVisibility_DLLImport.
+	}.
 
+	SAsmSymbolTypeMap := Dictionary newFromPairs: {
+		#unknown . SymbolType_None.
+		#function . SymbolType_Function.
+		#variable . SymbolType_GlobalVariable.
+	}.
 
 ]

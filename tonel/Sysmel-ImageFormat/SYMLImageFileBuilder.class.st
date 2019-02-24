@@ -53,7 +53,10 @@ SYMLImageFileBuilder >> addBinaryObjectSymbol: originalSymbol [
 	symbolEntry := loadingObjectSection add: self symbolTableEntryClass new.
 	symbolEntry
 		name: (self internSymbol: originalSymbol name);
-		symbolSize: originalSymbol size.
+		symbolSize: originalSymbol size;
+		type: (SAsmSymbolTypeMap at: originalSymbol type);
+		visibility: (SAsmSymbolVisibilityMap at: originalSymbol visibility).
+
 	convertedSymbols at: originalSymbol put: symbolEntry.
 	
 	originalSymbol section ifNil: [
@@ -65,6 +68,10 @@ SYMLImageFileBuilder >> addBinaryObjectSymbol: originalSymbol [
 	].
 	
 	symbolTable addEntry: symbolEntry.
+	
+	originalSymbol name = #__sylsif_entryPoint ifTrue: [ 
+		header entryPointObject: symbolEntry.
+	]
 ]
 
 { #category : #writing }
@@ -141,6 +148,7 @@ SYMLImageFileBuilder >> initialize [
 			(self arrayClass new value: OrderedCollection new)
 			)
 		).
+	header globalSymbolTable: symbolTable.
 
 ]
 

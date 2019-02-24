@@ -21,7 +21,7 @@ SYMLImageLoadingObjectSection >> fileOffset: newOffset [
 	currentOffset := newOffset.
 	objects do: [ :object |
 		object fileOffset: currentOffset.
-		currentOffset := currentOffset + object size.
+		currentOffset := currentOffset + (object size alignedTo: 16).
 	].
 
 	self assert: (currentOffset - newOffset) = self size
@@ -49,7 +49,7 @@ SYMLImageLoadingObjectSection >> size [
 	size ifNotNil: [ ^ size ].
 	size := 0.
 	objects do: [ :object |
-		size := size + object size
+		size := size + (object size alignedTo: 16).
 	].
 	
 	^ size
@@ -57,7 +57,15 @@ SYMLImageLoadingObjectSection >> size [
 
 { #category : #writing }
 SYMLImageLoadingObjectSection >> writeOn: aStream [
+	| objectSize padding |
 	objects do: [ :object |
-		object writeOn: aStream
+		self assert: (object fileOffset = aStream position).
+		object writeOn: aStream.
+		
+		objectSize := object size.
+		padding := (objectSize alignedTo: 16) - objectSize.
+		padding ~= 0 ifTrue: [ 
+			aStream nextPutAll: (ByteArray new: padding)
+		]
 	]
 ]

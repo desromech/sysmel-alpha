@@ -10,6 +10,7 @@ Class {
 		'symbolSize',
 		'value',
 		'type',
+		'visibility',
 		'flags'
 	],
 	#category : #'Sysmel-ImageFormat'
@@ -35,6 +36,7 @@ SYMLImageSymbolTableEntry >> initialize [
 	symbolSize := 0.
 	value := 0.
 	type := 0.
+	visibility := 0.
 	flags := 0.
 ]
 
@@ -134,6 +136,16 @@ SYMLImageSymbolTableEntry >> value: anObject [
 	value := anObject
 ]
 
+{ #category : #accessing }
+SYMLImageSymbolTableEntry >> visibility [
+	^ visibility
+]
+
+{ #category : #accessing }
+SYMLImageSymbolTableEntry >> visibility: anObject [
+	visibility := anObject
+]
+
 { #category : #writing }
 SYMLImageSymbolTableEntry >> vtableValue [
 	^ VTable_SymbolTableEntry
@@ -142,6 +154,8 @@ SYMLImageSymbolTableEntry >> vtableValue [
 { #category : #writing }
 SYMLImageSymbolTableEntry >> writeNonPointerData: aStream [
 	aStream
-		nextPutInt32: type;
+		nextPutInt8: type;
+		nextPutInt8: visibility;
+		nextPutInt16: 0;
 		nextPutInt32: flags
 ]
