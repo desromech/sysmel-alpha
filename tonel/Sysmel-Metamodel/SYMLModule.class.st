@@ -317,7 +317,7 @@ SYMLModule >> evaluateSource: aSourceString name: aSourceName inContext: context
 	].
 
 	self convertParseFailure: ast collection: contents.
-	apsg := ast buildAPSG: (SYMLAPSGBuilder new environment: context).
+	apsg := ast buildMoebiusAST: (SYMLAPSGBuilder new environment: context).
 	[
 		self profileSource: aSourceString name: aSourceName type: #analyzeAndEval with: [ 
 			result := apsg analyzeAndEvaluateInEnvironment: context

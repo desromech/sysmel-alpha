@@ -1,10 +1,10 @@
 Class {
-	#name : #MbndLiteralIntegerType,
+	#name : #MbndLiteralCharacterType,
 	#superclass : #MbndLiteralValueType,
 	#category : #'MoebiusBandMetamodel-Core-Type'
 }
 
 { #category : #'as yet unclassified' }
-MbndLiteralIntegerType class >> typeName [
-	^ #_LiteralInteger
+MbndLiteralCharacterType class >> typeName [
+	^ #_LiteralCharacter
 ]

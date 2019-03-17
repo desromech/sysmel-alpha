@@ -114,7 +114,7 @@ SYMLAPSGBuilder >> literal: aValue [
 ]
 
 { #category : #'builder methods' }
-SYMLAPSGBuilder >> literal: aValue typeSelector: typeSelector [
+SYMLAPSGBuilder >> literal: aValue typeName: typeSelector [
 	<compileTime>
 	| literalType |
 	literalType := environment compilationTarget perform: typeSelector.
@@ -126,7 +126,7 @@ SYMLAPSGBuilder >> literal: aValue typeSelector: typeSelector [
 { #category : #'builder methods' }
 SYMLAPSGBuilder >> literalString: stringLiteral position: aPosition [
 	<compileTime>
-	^ self literal: stringLiteral typeSelector: #literalStringType
+	^ self literal: stringLiteral typeName: #literalStringType
 ]
 
 { #category : #'as yet unclassified' }

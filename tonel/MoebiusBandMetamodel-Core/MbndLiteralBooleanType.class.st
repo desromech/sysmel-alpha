@@ -3,3 +3,8 @@ Class {
 	#superclass : #MbndLiteralValueType,
 	#category : #'MoebiusBandMetamodel-Core-Type'
 }
+
+{ #category : #'as yet unclassified' }
+MbndLiteralBooleanType class >> typeName [
+	^ #_LiteralBoolean
+]

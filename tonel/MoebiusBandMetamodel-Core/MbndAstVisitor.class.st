@@ -8,5 +8,57 @@ Class {
 }
 
 { #category : #visiting }
-MbndAstVisitor >> visitLiteralValue: node [
+MbndAstVisitor >> visitBreakStatementNode: node [
+]
+
+{ #category : #visiting }
+MbndAstVisitor >> visitCasesOfCaseNode: node [
+]
+
+{ #category : #visiting }
+MbndAstVisitor >> visitCasesOfNode: node [
+]
+
+{ #category : #visiting }
+MbndAstVisitor >> visitContinueStatementNode: node [
+]
+
+{ #category : #visiting }
+MbndAstVisitor >> visitDoWhileLoopNode: node [
+]
+
+{ #category : #visiting }
+MbndAstVisitor >> visitExpandedMessageSendNode: node [
+]
+
+{ #category : #visiting }
+MbndAstVisitor >> visitFunctionCallNode: node [
+]
+
+{ #category : #visiting }
+MbndAstVisitor >> visitIfConditionNode: node [
+]
+
+{ #category : #visiting }
+MbndAstVisitor >> visitLiteralValueNode: node [
+]
+
+{ #category : #visiting }
+MbndAstVisitor >> visitMessageChainMessageNode: node [
+]
+
+{ #category : #visiting }
+MbndAstVisitor >> visitMessageChainNode: node [
+]
+
+{ #category : #visiting }
+MbndAstVisitor >> visitSequenceNode: node [
+]
+
+{ #category : #visiting }
+MbndAstVisitor >> visitUnexpandedMessageSendNode: node [
+]
+
+{ #category : #visiting }
+MbndAstVisitor >> visitWhileLoopNode: node [
 ]
