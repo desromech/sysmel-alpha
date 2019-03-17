@@ -15,6 +15,12 @@ MbndAstNode >> accept: aVisitor [
 	self subclassResponsibility
 ]
 
+{ #category : #initialization }
+MbndAstNode >> initialize [
+	super initialize.
+	position := MbndSourcePosition empty.
+]
+
 { #category : #testing }
 MbndAstNode >> isBreakStatementNode [
 	^ false
@@ -22,6 +28,11 @@ MbndAstNode >> isBreakStatementNode [
 
 { #category : #testing }
 MbndAstNode >> isCasesOfCaseNode [
+	^ false
+]
+
+{ #category : #testing }
+MbndAstNode >> isCasesOfDefaultCaseNode [
 	^ false
 ]
 

@@ -6,7 +6,82 @@ Trait {
 	#category : #'MoebiusBandMetamodel-Core-Type'
 }
 
-{ #category : #'as yet unclassified' }
+{ #category : #sizes }
+TMbndAbstractType >> instanceAlignment [
+	^ self explicitRequirement
+]
+
+{ #category : #sizes }
+TMbndAbstractType >> instanceSize [
+	^ self explicitRequirement
+]
+
+{ #category : #'testing methods' }
+TMbndAbstractType >> isLiteralArrayType [
+	^ false
+]
+
+{ #category : #'testing methods' }
+TMbndAbstractType >> isLiteralBooleanType [
+	^ false
+]
+
+{ #category : #'testing methods' }
+TMbndAbstractType >> isLiteralCharacterType [
+	^ false
+]
+
+{ #category : #'testing methods' }
+TMbndAbstractType >> isLiteralFloatType [
+	^ false
+]
+
+{ #category : #'testing methods' }
+TMbndAbstractType >> isLiteralIntegerType [
+	^ false
+]
+
+{ #category : #'testing methods' }
+TMbndAbstractType >> isLiteralStringType [
+	^ false
+]
+
+{ #category : #'testing methods' }
+TMbndAbstractType >> isLiteralSymbolType [
+	^ false
+]
+
+{ #category : #'testing methods' }
+TMbndAbstractType >> isLiteralValueType [
+	^ false
+]
+
+{ #category : #'testing methods' }
+TMbndAbstractType >> isPrimitiveBooleanType [
+	^ false
+]
+
+{ #category : #'testing methods' }
+TMbndAbstractType >> isPrimitiveFloatType [
+	^ false
+]
+
+{ #category : #'testing methods' }
+TMbndAbstractType >> isPrimitiveIntegerType [
+	^ false
+]
+
+{ #category : #'testing methods' }
+TMbndAbstractType >> isPrimitiveType [
+	^ false
+]
+
+{ #category : #'testing methods' }
+TMbndAbstractType >> isVoidType [
+	^ false
+]
+
+{ #category : #'macro expansion' }
 TMbndAbstractType >> lookupMacroSelector: aSelector [
 	^ self supertype ifNotNil: [ :st | st lookupMacroSelector: aSelector ]
 ]
@@ -21,4 +96,14 @@ TMbndAbstractType >> supertype [
 TMbndAbstractType >> type [
 	"I answer a meta type."
 	^ nil
+]
+
+{ #category : #sizes }
+TMbndAbstractType >> valueAlignment [
+	^ self instanceAlignment
+]
+
+{ #category : #sizes }
+TMbndAbstractType >> valueSize [
+	^ self instanceSize
 ]

@@ -13,6 +13,11 @@ MbndAstMessageChainNode >> accept: aVisitor [
 	^ aVisitor visitMessageChainNode: self
 ]
 
+{ #category : #testing }
+MbndAstMessageChainNode >> isMessageChainNode [
+	^ true
+]
+
 { #category : #accessing }
 MbndAstMessageChainNode >> messages [
 	^ messages

@@ -8,3 +8,8 @@ Class {
 MbndLiteralFloatType class >> typeName [
 	^ #_LiteralFloat
 ]
+
+{ #category : #'testing methods' }
+MbndLiteralFloatType >> isLiteralFloatType [
+	^ true
+]

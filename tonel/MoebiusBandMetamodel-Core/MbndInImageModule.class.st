@@ -1,5 +1,5 @@
 Class {
 	#name : #MbndInImageModule,
-	#superclass : #Object,
+	#superclass : #MbndAbstractModule,
 	#category : #'MoebiusBandMetamodel-Core-In-Image'
 }

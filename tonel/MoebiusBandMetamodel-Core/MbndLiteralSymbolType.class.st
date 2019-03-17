@@ -8,3 +8,8 @@ Class {
 MbndLiteralSymbolType class >> typeName [
 	^ #_LiteralSymbol
 ]
+
+{ #category : #'testing methods' }
+MbndLiteralSymbolType >> isLiteralSymbolType [
+	^ true
+]

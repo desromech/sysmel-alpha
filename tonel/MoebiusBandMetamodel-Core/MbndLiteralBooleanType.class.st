@@ -8,3 +8,8 @@ Class {
 MbndLiteralBooleanType class >> typeName [
 	^ #_LiteralBoolean
 ]
+
+{ #category : #'testing methods' }
+MbndLiteralBooleanType >> isLiteralBooleanType [
+	^ true
+]

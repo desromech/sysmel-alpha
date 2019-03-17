@@ -8,3 +8,8 @@ Class {
 MbndLiteralArrayType class >> typeName [
 	^ #_LiteralArray
 ]
+
+{ #category : #'testing methods' }
+MbndLiteralArrayType >> isLiteralArrayType [
+	^ true
+]

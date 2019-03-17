@@ -5,3 +5,8 @@ Trait {
 	],
 	#category : #'MoebiusBandMetamodel-Core-Module'
 }
+
+{ #category : #accessing }
+TMbndModule >> compilationTarget [
+	self explicitRequirement
+]

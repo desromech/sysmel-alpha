@@ -8,3 +8,8 @@ Class {
 MbndAstUnexpandedMessageSendNode >> accept: aVisitor [
 	^ aVisitor visitUnexpandedMessageSendNode: self
 ]
+
+{ #category : #testing }
+MbndAstUnexpandedMessageSendNode >> isUnexpandedMessageSendNode [
+	^ true
+]

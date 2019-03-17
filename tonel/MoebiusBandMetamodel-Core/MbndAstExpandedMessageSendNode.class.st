@@ -8,3 +8,8 @@ Class {
 MbndAstExpandedMessageSendNode >> accept: aVisitor [
 	^ aVisitor visitExpandedMessageSendNode: self
 ]
+
+{ #category : #testing }
+MbndAstExpandedMessageSendNode >> isExpandedMessageSendNode [
+	^ true
+]

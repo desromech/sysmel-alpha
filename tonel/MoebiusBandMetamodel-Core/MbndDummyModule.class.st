@@ -1,0 +1,13 @@
+Class {
+	#name : #MbndDummyModule,
+	#superclass : #MbndAbstractModule,
+	#instVars : [
+		'compilationTarget'
+	],
+	#category : #'MoebiusBandMetamodel-Core-Module'
+}
+
+{ #category : #accessing }
+MbndDummyModule >> compilationTarget [
+	^ compilationTarget ifNil: [ compilationTarget := MbndDummyCompilationTarget new coreDefinitionsModule: self ]
+]

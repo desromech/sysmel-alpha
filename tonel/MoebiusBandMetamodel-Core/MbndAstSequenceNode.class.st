@@ -24,3 +24,8 @@ MbndAstSequenceNode >> elements [
 MbndAstSequenceNode >> elements: anObject [
 	elements := anObject
 ]
+
+{ #category : #testing }
+MbndAstSequenceNode >> isSequenceNode [
+	^ true
+]

@@ -16,6 +16,10 @@ MbndAstVisitor >> visitCasesOfCaseNode: node [
 ]
 
 { #category : #visiting }
+MbndAstVisitor >> visitCasesOfDefaultCaseNode: node [
+]
+
+{ #category : #visiting }
 MbndAstVisitor >> visitCasesOfNode: node [
 ]
 

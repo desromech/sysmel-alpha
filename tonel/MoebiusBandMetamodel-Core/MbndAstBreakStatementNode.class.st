@@ -8,3 +8,8 @@ Class {
 MbndAstBreakStatementNode >> accept: aVisitor [
 	^ aVisitor visitBreakStatementNode: self
 ]
+
+{ #category : #testing }
+MbndAstBreakStatementNode >> isBreakStatementNode [
+	^ true
+]

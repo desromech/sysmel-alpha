@@ -8,3 +8,13 @@ Class {
 	#classTraits : 'TMbndBasicType classTrait',
 	#category : #'MoebiusBandMetamodel-Core-Type'
 }
+
+{ #category : #'as yet unclassified' }
+MbndBasicType class >> typeName [
+	^ nil
+]
+
+{ #category : #accessing }
+MbndBasicType >> name [
+	^ self class typeName
+]

@@ -23,6 +23,11 @@ MbndAstMessageChainMessageNode >> arguments: anObject [
 	arguments := anObject
 ]
 
+{ #category : #testing }
+MbndAstMessageChainMessageNode >> isMessageChainMessageNode [
+	^ true
+]
+
 { #category : #accessing }
 MbndAstMessageChainMessageNode >> selector [
 	^ selector

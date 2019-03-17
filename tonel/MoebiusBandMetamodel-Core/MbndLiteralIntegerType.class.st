@@ -8,3 +8,8 @@ Class {
 MbndLiteralIntegerType class >> typeName [
 	^ #_LiteralInteger
 ]
+
+{ #category : #'testing methods' }
+MbndLiteralIntegerType >> isLiteralIntegerType [
+	^ true
+]

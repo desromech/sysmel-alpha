@@ -8,3 +8,8 @@ Class {
 MbndLiteralStringType class >> typeName [
 	^ #_LiteralString
 ]
+
+{ #category : #'testing methods' }
+MbndLiteralStringType >> isLiteralStringType [
+	^ true
+]

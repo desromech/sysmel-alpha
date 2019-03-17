@@ -8,3 +8,8 @@ Class {
 MbndAstContinueStatementNode >> accept: aVisitor [
 	^ aVisitor visitContinueStatementNode: self
 ]
+
+{ #category : #testing }
+MbndAstContinueStatementNode >> isContinueStatementNode [
+	^ true
+]

@@ -9,12 +9,23 @@ Trait {
 	#name : #TMbndType,
 	#instVars : [
 		'definitionModule',
+		'compilationTarget',
 		'macroMethodDict'
 	],
 	#traits : 'TMbndAbstractType',
 	#classTraits : 'TMbndAbstractType classTrait',
 	#category : #'MoebiusBandMetamodel-Core-Type'
 }
+
+{ #category : #accessing }
+TMbndType >> compilationTarget [
+	^ compilationTarget
+]
+
+{ #category : #accessing }
+TMbndType >> compilationTarget: anObject [
+	compilationTarget := anObject
+]
 
 { #category : #accessing }
 TMbndType >> definitionModule [
