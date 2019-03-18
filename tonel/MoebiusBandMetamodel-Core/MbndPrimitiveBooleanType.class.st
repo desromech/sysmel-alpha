@@ -4,6 +4,11 @@ Class {
 	#category : #'MoebiusBandMetamodel-Core-Type'
 }
 
+{ #category : #'as yet unclassified' }
+MbndPrimitiveBooleanType class >> typeName [
+	^ #_PrimitiveBooleanType
+]
+
 { #category : #initialization }
 MbndPrimitiveBooleanType >> initialize [
 	super initialize.

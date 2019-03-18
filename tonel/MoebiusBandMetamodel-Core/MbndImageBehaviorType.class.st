@@ -19,12 +19,12 @@ MbndImageBehaviorType >> behavior: aBehavior [
 	behavior := aBehavior
 ]
 
-{ #category : #accessing }
+{ #category : #'type hierarchy' }
 MbndImageBehaviorType >> supertype [
 	^ behavior superclass ifNotNil: [ :st | st asMoebiusType ]
 ]
 
-{ #category : #accessing }
+{ #category : #'type hierarchy' }
 MbndImageBehaviorType >> type [
 	^ behavior class ifNotNil: [ :st | st asMoebiusType ]
 ]

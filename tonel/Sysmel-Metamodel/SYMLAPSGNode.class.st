@@ -246,7 +246,7 @@ SYMLAPSGNode >> isTupleNode [
 ]
 
 { #category : #'as yet unclassified' }
-SYMLAPSGNode >> lexicalScoped [
+SYMLAPSGNode >> lexicallyScoped [
 	^ SYMLAPSGLexicalScopeNode new node: self; position: self; yourself
 ]
 

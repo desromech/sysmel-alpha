@@ -5,12 +5,16 @@ Class {
 	#name : #MbndPrimitiveType,
 	#superclass : #MbndNativeType,
 	#instVars : [
-		'name',
 		'instanceSize',
 		'instanceAlignment'
 	],
 	#category : #'MoebiusBandMetamodel-Core-Type'
 }
+
+{ #category : #'as yet unclassified' }
+MbndPrimitiveType class >> typeName [
+	^ #_PrimitiveType
+]
 
 { #category : #accessing }
 MbndPrimitiveType >> instanceAlignment [
@@ -35,14 +39,4 @@ MbndPrimitiveType >> instanceSize: anObject [
 { #category : #'testing methods' }
 MbndPrimitiveType >> isPrimitiveType [
 	^ true
-]
-
-{ #category : #accessing }
-MbndPrimitiveType >> name [
-	^ name
-]
-
-{ #category : #accessing }
-MbndPrimitiveType >> name: anObject [
-	name := anObject
 ]

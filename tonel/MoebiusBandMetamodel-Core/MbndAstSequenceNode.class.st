@@ -5,6 +5,7 @@ Class {
 	#name : #MbndAstSequenceNode,
 	#superclass : #MbndAstNode,
 	#instVars : [
+		'pragmas',
 		'elements'
 	],
 	#category : #'MoebiusBandMetamodel-Core-AST'
@@ -25,7 +26,24 @@ MbndAstSequenceNode >> elements: anObject [
 	elements := anObject
 ]
 
+{ #category : #initialization }
+MbndAstSequenceNode >> initialize [
+	super initialize.
+	pragmas := #().
+	
+]
+
 { #category : #testing }
 MbndAstSequenceNode >> isSequenceNode [
 	^ true
+]
+
+{ #category : #accessing }
+MbndAstSequenceNode >> pragmas [
+	^ pragmas
+]
+
+{ #category : #accessing }
+MbndAstSequenceNode >> pragmas: anObject [
+	pragmas := anObject
 ]

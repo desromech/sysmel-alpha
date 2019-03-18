@@ -12,7 +12,7 @@ Class {
 SYMLASTBlock >> buildMoebiusAST: builder [
 	^ (builder pragmas: (pragmas collect: [:pragma | pragma buildMoebiusAST: builder]) sequence: (expressions collect: [:expr | expr buildMoebiusAST: builder] ))
 		position: self;
-		lexicalScoped
+		lexicallyScoped
 ]
 
 { #category : #accessing }

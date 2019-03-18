@@ -4,7 +4,7 @@ Class {
 	#category : #'MoebiusBandMetamodel-Core-Type'
 }
 
-{ #category : #'as yet unclassified' }
+{ #category : #accessing }
 MbndLiteralIntegerType class >> typeName [
 	^ #_LiteralInteger
 ]

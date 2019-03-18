@@ -10,7 +10,8 @@ Trait {
 	#instVars : [
 		'definitionModule',
 		'compilationTarget',
-		'macroMethodDict'
+		'macroMethodDict',
+		'subtypes'
 	],
 	#traits : 'TMbndAbstractType',
 	#classTraits : 'TMbndAbstractType classTrait',
@@ -45,4 +46,19 @@ TMbndType >> macroMethodDict [
 { #category : #accessing }
 TMbndType >> macroMethodDict: aDictionary [
 	macroMethodDict := aDictionary
+]
+
+{ #category : #'type hierarchy' }
+TMbndType >> subtypeAdded: aSubtype [
+	^ subtypes := (self subtypes copyWithout: aSubtype) copyWith: aSubtype
+]
+
+{ #category : #'type hierarchy' }
+TMbndType >> subtypeRemoved: aSubtype [
+	^ subtypes := self subtypes copyWithout: aSubtype
+]
+
+{ #category : #accessing }
+TMbndType >> subtypes [
+	^ subtypes ifNil: [ subtypes := #() ]
 ]

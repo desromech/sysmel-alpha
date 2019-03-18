@@ -6,15 +6,39 @@ Class {
 	#superclass : #Object,
 	#traits : 'TMbndBasicType',
 	#classTraits : 'TMbndBasicType classTrait',
+	#instVars : [
+		'name'
+	],
 	#category : #'MoebiusBandMetamodel-Core-Type'
 }
 
-{ #category : #'as yet unclassified' }
+{ #category : #accessing }
 MbndBasicType class >> typeName [
-	^ nil
+	^ self == MbndBasicType ifTrue: [ #_BasicType ] ifFalse: [ nil ]
+]
+
+{ #category : #initialization }
+MbndBasicType >> initialize [
+	super initialize.
+	name := self class typeName.
 ]
 
 { #category : #accessing }
 MbndBasicType >> name [
-	^ self class typeName
+	^ name
+]
+
+{ #category : #accessing }
+MbndBasicType >> name: anObject [
+	name := anObject
+]
+
+{ #category : #printing }
+MbndBasicType >> printOn: aStream [
+	self name ifNotNil: [ :name |
+		aStream nextPutAll: name
+	] ifNil: [
+		^ super printOn: aStream
+	]
+	
 ]

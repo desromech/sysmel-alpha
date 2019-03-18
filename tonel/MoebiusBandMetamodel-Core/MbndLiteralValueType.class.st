@@ -7,6 +7,11 @@ Class {
 	#category : #'MoebiusBandMetamodel-Core-Type'
 }
 
+{ #category : #accessing }
+MbndLiteralValueType class >> typeName [
+	^ #_LiteralValueType
+]
+
 { #category : #testing }
 MbndLiteralValueType >> isLiteralValueType [
 	^ true

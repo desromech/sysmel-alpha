@@ -10,3 +10,18 @@ Trait {
 TMbndModule >> compilationTarget [
 	self explicitRequirement
 ]
+
+{ #category : #parsing }
+TMbndModule >> parseFileNamed: fileName [
+	| language fileReference |
+	fileReference := fileName asFileReference.
+	language := MbndLanguageInterface languageForFileExtension: fileReference extension.
+	^ language parseFromFileReference: fileReference forModule: self
+]
+
+{ #category : #parsing }
+TMbndModule >> parseLanguage: languageName source: sourceString [
+	| language |
+	language := MbndLanguageInterface languageNamed: languageName.
+	^ language parseSourceString: sourceString forModule: self
+]

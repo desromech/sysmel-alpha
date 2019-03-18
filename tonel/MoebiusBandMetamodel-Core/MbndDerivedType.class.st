@@ -1,15 +1,15 @@
 Class {
-	#name : #MbndAggregateType,
+	#name : #MbndDerivedType,
 	#superclass : #MbndNativeType,
 	#category : #'MoebiusBandMetamodel-Core-Type'
 }
 
 { #category : #accessing }
-MbndAggregateType class >> typeName [
-	^ #_AggregateType
+MbndDerivedType class >> typeName [
+	^ #_DerivedType
 ]
 
 { #category : #'testing methods' }
-MbndAggregateType >> isAggregateType [
+MbndDerivedType >> isDerivedType [
 	^ true
 ]

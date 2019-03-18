@@ -7,6 +7,11 @@ Class {
 	#category : #'MoebiusBandMetamodel-Core-Type'
 }
 
+{ #category : #'as yet unclassified' }
+MbndPrimitiveIntegerType class >> typeName [
+	^ #_PrimitiveIntegerType
+]
+
 { #category : #'testing methods' }
 MbndPrimitiveIntegerType >> isPrimitiveIntegerType [
 	^ true

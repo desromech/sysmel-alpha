@@ -10,8 +10,8 @@ Class {
 
 { #category : #converting }
 SYMLASTMessageChain >> buildMoebiusAST: builder [
-	^ (builder chain: (receiver buildMoebiusAST: builder)
-		messages: (messages collect: [:message | message buildMoebiusAST: builder]))
+	^ (builder messageChainReceiver: (receiver buildMoebiusAST: builder)
+		messages: (messages collect: [:message | message buildMoebiusMessageChainMessageAST: builder]))
 		position: self;
 		yourself
 ]

@@ -44,6 +44,10 @@ MbndAstVisitor >> visitIfConditionNode: node [
 ]
 
 { #category : #visiting }
+MbndAstVisitor >> visitLexicalScopeNode: node [
+]
+
+{ #category : #visiting }
 MbndAstVisitor >> visitLiteralValueNode: node [
 ]
 
@@ -56,7 +60,27 @@ MbndAstVisitor >> visitMessageChainNode: node [
 ]
 
 { #category : #visiting }
+MbndAstVisitor >> visitPragmaNode: node [
+]
+
+{ #category : #visiting }
+MbndAstVisitor >> visitQuasiQuoteNode: node [
+]
+
+{ #category : #visiting }
+MbndAstVisitor >> visitQuasiUnquoteNode: node [
+]
+
+{ #category : #visiting }
+MbndAstVisitor >> visitQuoteNode: node [
+]
+
+{ #category : #visiting }
 MbndAstVisitor >> visitSequenceNode: node [
+]
+
+{ #category : #visiting }
+MbndAstVisitor >> visitSpliceNode: node [
 ]
 
 { #category : #visiting }

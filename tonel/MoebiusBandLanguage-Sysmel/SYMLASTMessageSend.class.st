@@ -30,6 +30,19 @@ SYMLASTMessageSend >> buildMoebiusAST: builder [
 		yourself
 ]
 
+{ #category : #converting }
+SYMLASTMessageSend >> buildMoebiusMessageChainMessageAST: builder [
+	| selectorNode |
+	selectorNode := selector isSYMLASTNode
+		ifTrue: [ selector buildMoebiusAST: builder]
+		ifFalse: [ selector ].
+		
+	^ (builder messageChainMessageSelector: selector
+		arguments: (arguments collect: [:arg | arg buildMoebiusAST: builder]))
+		position: self;
+		yourself
+]
+
 { #category : #accessing }
 SYMLASTMessageSend >> children [
 	^ { selector .

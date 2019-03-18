@@ -6,6 +6,19 @@ Trait {
 	#category : #'MoebiusBandMetamodel-Core-Type'
 }
 
+{ #category : #'type hierarchy' }
+TMbndAbstractType >> allSubtypes [
+	| result |
+	result := OrderedCollection new.
+	self allSubtypesDo: [ :st | result add: st ].
+	^ result
+]
+
+{ #category : #'type hierarchy' }
+TMbndAbstractType >> allSubtypesDo: aBlock [
+	self subtypes do: [ :st | st withAllSubtypesDo: aBlock ]
+]
+
 { #category : #sizes }
 TMbndAbstractType >> instanceAlignment [
 	^ self explicitRequirement
@@ -17,7 +30,32 @@ TMbndAbstractType >> instanceSize [
 ]
 
 { #category : #'testing methods' }
+TMbndAbstractType >> isAggregateType [
+	^ false
+]
+
+{ #category : #'testing methods' }
+TMbndAbstractType >> isArrayType [
+	^ false
+]
+
+{ #category : #'testing methods' }
+TMbndAbstractType >> isDerivedType [
+	^ false
+]
+
+{ #category : #'testing methods' }
 TMbndAbstractType >> isLiteralArrayType [
+	^ false
+]
+
+{ #category : #'testing methods' }
+TMbndAbstractType >> isLiteralBooleanFalseType [
+	^ false
+]
+
+{ #category : #'testing methods' }
+TMbndAbstractType >> isLiteralBooleanTrueType [
 	^ false
 ]
 
@@ -57,6 +95,11 @@ TMbndAbstractType >> isLiteralValueType [
 ]
 
 { #category : #'testing methods' }
+TMbndAbstractType >> isPointerType [
+	^ false
+]
+
+{ #category : #'testing methods' }
 TMbndAbstractType >> isPrimitiveBooleanType [
 	^ false
 ]
@@ -77,6 +120,21 @@ TMbndAbstractType >> isPrimitiveType [
 ]
 
 { #category : #'testing methods' }
+TMbndAbstractType >> isReferenceType [
+	^ false
+]
+
+{ #category : #'testing methods' }
+TMbndAbstractType >> isStructureType [
+	^ false
+]
+
+{ #category : #'testing methods' }
+TMbndAbstractType >> isUnionType [
+	^ false
+]
+
+{ #category : #'testing methods' }
 TMbndAbstractType >> isVoidType [
 	^ false
 ]
@@ -86,13 +144,31 @@ TMbndAbstractType >> lookupMacroSelector: aSelector [
 	^ self supertype ifNotNil: [ :st | st lookupMacroSelector: aSelector ]
 ]
 
-{ #category : #accessing }
+{ #category : #'type hierarchy' }
+TMbndAbstractType >> subtypeAdded: aSubtype [
+]
+
+{ #category : #'type hierarchy' }
+TMbndAbstractType >> subtypeRemoved: aSubtype [
+]
+
+{ #category : #'type hierarchy' }
+TMbndAbstractType >> subtypes [
+	^ #()
+]
+
+{ #category : #'type hierarchy' }
+TMbndAbstractType >> subtypesDo: aBlock [
+	self subtypes do: aBlock
+]
+
+{ #category : #'type hierarchy' }
 TMbndAbstractType >> supertype [
 	"I answer a supertype." 
 	^ nil
 ]
 
-{ #category : #accessing }
+{ #category : #'type hierarchy' }
 TMbndAbstractType >> type [
 	"I answer a meta type."
 	^ nil
@@ -106,4 +182,24 @@ TMbndAbstractType >> valueAlignment [
 { #category : #sizes }
 TMbndAbstractType >> valueSize [
 	^ self instanceSize
+]
+
+{ #category : #'type hierarchy' }
+TMbndAbstractType >> withAllSubtypes [
+	| result |
+	result := OrderedCollection new.
+	self withAllSubtypesDo: [ :st | result add: st ].
+	^ result
+]
+
+{ #category : #'type hierarchy' }
+TMbndAbstractType >> withAllSubtypesDo: aBlock [
+	aBlock value: self.
+	self allSubtypesDo: aBlock
+]
+
+{ #category : #'type hierarchy' }
+TMbndAbstractType >> withSubtypesDo: aBlock [
+	aBlock value: self.
+	self subtypesDo: aBlock
 ]

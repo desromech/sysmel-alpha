@@ -1,13 +1,10 @@
-"
-I represent a native C style type.
-"
 Class {
-	#name : #MbndNativeType,
+	#name : #MbndFunctionType,
 	#superclass : #MbndBasicType,
 	#category : #'MoebiusBandMetamodel-Core-Type'
 }
 
 { #category : #accessing }
-MbndNativeType class >> typeName [
-	^ #_NativeType
+MbndFunctionType class >> typeName [
+	^ #_FunctionType
 ]

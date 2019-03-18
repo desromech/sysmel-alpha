@@ -72,6 +72,11 @@ MbndAstNode >> isIfConditionNode [
 ]
 
 { #category : #testing }
+MbndAstNode >> isLexicalScopeNode [
+	^ false
+]
+
+{ #category : #testing }
 MbndAstNode >> isLiteralValueNode [
 	^ false
 ]
@@ -87,7 +92,32 @@ MbndAstNode >> isMessageChainNode [
 ]
 
 { #category : #testing }
+MbndAstNode >> isPragmaNode [
+	^ false
+]
+
+{ #category : #testing }
+MbndAstNode >> isQuasiQuoteNode [
+	^ false
+]
+
+{ #category : #testing }
+MbndAstNode >> isQuasiUnquoteNode [
+	^ false
+]
+
+{ #category : #testing }
+MbndAstNode >> isQuoteNode [
+	^ false
+]
+
+{ #category : #testing }
 MbndAstNode >> isSequenceNode [
+	^ false
+]
+
+{ #category : #testing }
+MbndAstNode >> isSpliceNode [
 	^ false
 ]
 
@@ -104,6 +134,14 @@ MbndAstNode >> isUnexpandedMessageSendNode [
 { #category : #testing }
 MbndAstNode >> isWhileLoopNode [
 	^ false
+]
+
+{ #category : #'as yet unclassified' }
+MbndAstNode >> lexicallyScoped [
+	^ MbndAstLexicalScopeNode new
+		position: position;
+		expression: self;
+		yourself
 ]
 
 { #category : #accessing }

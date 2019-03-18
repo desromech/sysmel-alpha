@@ -1,5 +1,5 @@
 "
-I am a MoebiusBand proxy type. I am enforce to enfoce module level isolation.
+I am a MoebiusBand proxy type. I am used to enforce module level isolation.
 "
 Class {
 	#name : #MbndProxyType,
