@@ -20,6 +20,11 @@ MbndSmalltalkImageModuleTest >> tearDown [
 ]
 
 { #category : #tests }
+MbndSmalltalkImageModuleTest >> testCompilationTarget [
+	self assert: Smalltalk moebiusBandModule compilationTarget isNotNil.
+]
+
+{ #category : #tests }
 MbndSmalltalkImageModuleTest >> testMoebiusBandModule [
 	self assert: Smalltalk moebiusBandModule isNotNil
 ]

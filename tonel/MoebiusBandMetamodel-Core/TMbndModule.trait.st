@@ -12,6 +12,18 @@ TMbndModule >> compilationTarget [
 ]
 
 { #category : #parsing }
+TMbndModule >> evaluateAST: ast [
+	self halt
+]
+
+{ #category : #parsing }
+TMbndModule >> evaluateLanguage: languageName source: sourceString [
+	| ast |
+	ast := self parseLanguage: languageName source: sourceString.
+	^ self evaluateAST: ast
+]
+
+{ #category : #parsing }
 TMbndModule >> parseFileNamed: fileName [
 	| language fileReference |
 	fileReference := fileName asFileReference.

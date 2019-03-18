@@ -32,3 +32,8 @@ MbndAstWhileLoopNode >> condition [
 MbndAstWhileLoopNode >> condition: anObject [
 	condition := anObject
 ]
+
+{ #category : #testing }
+MbndAstWhileLoopNode >> isWhileLoopNode [
+	^ true
+]

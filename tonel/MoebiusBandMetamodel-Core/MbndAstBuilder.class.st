@@ -26,6 +26,14 @@ MbndAstBuilder >> call: function arguments: arguments [
 ]
 
 { #category : #'builder methods' }
+MbndAstBuilder >> casesOf: matchedExpression cases: cases [
+	^ MbndAstCasesOfNode new
+		matchedExpression: matchedExpression;
+		cases: cases;
+		yourself
+]
+
+{ #category : #'builder methods' }
 MbndAstBuilder >> casesOfCase: pattern do: action [
 	^ MbndAstCasesOfCaseNode new
 		pattern: pattern;
@@ -110,6 +118,11 @@ MbndAstBuilder >> literalFloat: literalValue [
 { #category : #'builder methods' }
 MbndAstBuilder >> literalInteger: literalValue [
 	^ self literal: literalValue typeName: #_LiteralInteger
+]
+
+{ #category : #'builder methods' }
+MbndAstBuilder >> literalSymbol: literalValue [
+	^ self literal: literalValue typeName: #_LiteralSymbol
 ]
 
 { #category : #'builder methods' }

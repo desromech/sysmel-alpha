@@ -7,6 +7,11 @@ Class {
 	#category : #'MoebiusBandMetamodel-Core-AST'
 }
 
+{ #category : #visiting }
+MbndAstIdentifierReferenceNode >> accept: aVisitor [
+	^ aVisitor visitIdentifierReferenceNode: self
+]
+
 { #category : #testing }
 MbndAstIdentifierReferenceNode >> isIdentifierReferenceNode [
 	^ true

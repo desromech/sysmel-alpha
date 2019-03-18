@@ -26,10 +26,12 @@ MbndAstNodeTest >> testTestingMethods [
 	self deny: node isContinueStatementNode.
 	self deny: node isDoWhileLoopNode.
 	self deny: node isExpandedMessageSendNode.
+	self deny: node isFunctionCallNode.
 	self deny: node isIdentifierReferenceNode.
 	self deny: node isIfConditionNode.
 	self deny: node isLexicalScopeNode.
 	self deny: node isLiteralValueNode.
+	self deny: node isMessageChainNode.
 	self deny: node isMessageChainMessageNode.
 	self deny: node isPragmaNode.
 	self deny: node isQuasiQuoteNode.

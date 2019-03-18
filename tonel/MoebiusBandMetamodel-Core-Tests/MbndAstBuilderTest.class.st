@@ -18,14 +18,14 @@ MbndAstBuilderTest >> setUp [
 	
 ]
 
-{ #category : #running }
+{ #category : #tests }
 MbndAstBuilderTest >> testBreakStatementNode [
 	| node |
 	node := builder breakStatement.
 	self assert: node isBreakStatementNode.
 ]
 
-{ #category : #running }
+{ #category : #tests }
 MbndAstBuilderTest >> testCasesOfCaseNode [
 	| node action pattern |
 	action := builder literalInteger: 1.
@@ -37,7 +37,7 @@ MbndAstBuilderTest >> testCasesOfCaseNode [
 	self assert: node action equals: action.
 ]
 
-{ #category : #running }
+{ #category : #tests }
 MbndAstBuilderTest >> testCasesOfDefaultCaseNode [
 	| node action |
 	action := builder literalInteger: 1.
@@ -47,30 +47,58 @@ MbndAstBuilderTest >> testCasesOfDefaultCaseNode [
 	self assert: node action equals: action.
 ]
 
-{ #category : #running }
+{ #category : #tests }
+MbndAstBuilderTest >> testCasesOfNode [
+	| node firstCase secondCase matchedExpression |
+	firstCase := builder casesOfCase: (builder literalInteger: 1) do: (builder literalInteger: 2).
+	secondCase := builder casesOfCase: (builder literalInteger: 3) do: (builder literalInteger: 4).
+	matchedExpression := builder identifier: #someElement.
+	
+	node := builder casesOf: matchedExpression cases: { firstCase . secondCase }.
+
+	self assert: node isCasesOfNode.
+	self assert: node matchedExpression equals: matchedExpression.
+	self assert: node cases first equals: firstCase.
+	self assert: node cases second equals: secondCase.
+]
+
+{ #category : #tests }
 MbndAstBuilderTest >> testContinueStatementNode [
 	| node |
 	node := builder continueStatement.
 	self assert: node isContinueStatementNode.
 ]
 
-{ #category : #running }
+{ #category : #tests }
+MbndAstBuilderTest >> testDoWhileLoopNode [
+	| node condition action |
+	condition := builder identifier: #predicate.
+	action := builder literalInteger: 1.
+	node := builder do: action while: condition.
+	
+	self assert: node isDoWhileLoopNode.
+	self assert: node condition equals: condition.
+	self assert: node action equals: action.
+]
+
+{ #category : #tests }
 MbndAstBuilderTest >> testExpandedMessageNode [
-	| node receiver arguments |
+	| node receiver arguments selector |
 	receiver := builder literalInteger: 1.
 	arguments := { 
 		builder literalInteger: 4.
 		builder literalInteger: 2
 	}.
 
-	node := builder send: #to:by: to: receiver withArguments: arguments.
+	selector := builder literalSymbol: #to:by:.
+	node := builder send: selector to: receiver withArguments: arguments.
 	self assert: node isExpandedMessageSendNode .
 	self deny: node isUnexpandedMessageSendNode .
 	self assert: node receiver equals: receiver.
 	self assert: node arguments equals: arguments.
 ]
 
-{ #category : #running }
+{ #category : #tests }
 MbndAstBuilderTest >> testFunctionCallNode [
 	| node function arguments |
 	function := builder identifier: #sqrt.
@@ -84,7 +112,7 @@ MbndAstBuilderTest >> testFunctionCallNode [
 	self assert: node arguments equals: arguments.
 ]
 
-{ #category : #running }
+{ #category : #tests }
 MbndAstBuilderTest >> testIdentifier [
 	| node |
 	node := builder identifier: #symbol.
@@ -92,7 +120,7 @@ MbndAstBuilderTest >> testIdentifier [
 	self assert: node symbol equals: #symbol.
 ]
 
-{ #category : #running }
+{ #category : #tests }
 MbndAstBuilderTest >> testIfConditionNode [
 	| node condition trueValue falseValue |
 	condition := builder identifier: #predicate.
@@ -106,7 +134,7 @@ MbndAstBuilderTest >> testIfConditionNode [
 	self assert: node falseValue equals: falseValue.
 ]
 
-{ #category : #running }
+{ #category : #tests }
 MbndAstBuilderTest >> testLexicalScope2Node [
 	| node expression |
 	expression := builder identifier: #hello.
@@ -116,7 +144,7 @@ MbndAstBuilderTest >> testLexicalScope2Node [
 	self assert: node expression equals: expression.
 ]
 
-{ #category : #running }
+{ #category : #tests }
 MbndAstBuilderTest >> testLexicalScopeNode [
 	| node expression |
 	expression := builder identifier: #hello.
@@ -126,7 +154,7 @@ MbndAstBuilderTest >> testLexicalScopeNode [
 	self assert: node expression equals: expression.
 ]
 
-{ #category : #running }
+{ #category : #tests }
 MbndAstBuilderTest >> testLiteralBoolean [
 	| node |
 	node := builder literalBoolean: true.
@@ -136,7 +164,7 @@ MbndAstBuilderTest >> testLiteralBoolean [
 	self assert: node type isLiteralBooleanTrueType.
 ]
 
-{ #category : #running }
+{ #category : #tests }
 MbndAstBuilderTest >> testLiteralBoolean2 [
 	| node |
 	node := builder literalBoolean: false.
@@ -146,7 +174,7 @@ MbndAstBuilderTest >> testLiteralBoolean2 [
 	self assert: node type isLiteralBooleanFalseType.
 ]
 
-{ #category : #running }
+{ #category : #tests }
 MbndAstBuilderTest >> testLiteralFalse [
 	| node |
 	node := builder literalBooleanFalse.
@@ -156,7 +184,7 @@ MbndAstBuilderTest >> testLiteralFalse [
 	self assert: node type isLiteralBooleanFalseType.
 ]
 
-{ #category : #running }
+{ #category : #tests }
 MbndAstBuilderTest >> testLiteralFloat [
 	| node |
 	node := builder literalFloat: 1.5.
@@ -165,7 +193,7 @@ MbndAstBuilderTest >> testLiteralFloat [
 	self assert: node type isLiteralFloatType.
 ]
 
-{ #category : #running }
+{ #category : #tests }
 MbndAstBuilderTest >> testLiteralInteger [
 	| node |
 	node := builder literalInteger: 1.
@@ -174,7 +202,16 @@ MbndAstBuilderTest >> testLiteralInteger [
 	self assert: node type isLiteralIntegerType.
 ]
 
-{ #category : #running }
+{ #category : #tests }
+MbndAstBuilderTest >> testLiteralSymbol [
+	| node |
+	node := builder literalSymbol: #a.
+	self assert: node isLiteralValueNode.
+	self assert: node value equals: #a.
+	self assert: node type isLiteralSymbolType.
+]
+
+{ #category : #tests }
 MbndAstBuilderTest >> testLiteralTrue [
 	| node |
 	node := builder literalBooleanTrue.
@@ -184,30 +221,31 @@ MbndAstBuilderTest >> testLiteralTrue [
 	self assert: node type isLiteralBooleanTrueType.
 ]
 
-{ #category : #running }
+{ #category : #tests }
 MbndAstBuilderTest >> testMessageChainMessageNode [
-	| node arguments |
+	| node arguments selector |
 	arguments := { 
 		builder literalInteger: 1.
 		builder literalInteger: 2.
 	}.
-	node := builder messageChainMessageSelector: #by:to: arguments: arguments.
+	selector := builder literalSymbol: #selector.
+	node := builder messageChainMessageSelector: selector arguments: arguments.
 	
 	self assert: node isMessageChainMessageNode.
-	self assert: node selector equals: #by:to:.
+	self assert: node selector equals: selector.
 	self assert: node arguments equals: arguments.
 ]
 
-{ #category : #running }
+{ #category : #tests }
 MbndAstBuilderTest >> testMessageChainNode [
 	| node chainedMessages receiver |
 	chainedMessages := { 
-		builder messageChainMessageSelector: #by:to: arguments: {
+		builder messageChainMessageSelector: (builder literalSymbol: #by:to:) arguments: {
 			builder literalInteger: 1.
 			builder literalInteger: 2.
 		}.
 		
-		builder messageChainMessageSelector: #yourself: arguments: #()
+		builder messageChainMessageSelector: (builder literalSymbol: #yourself:) arguments: #()
 	}.
 	
 	receiver := builder literalInteger: 1.
@@ -217,7 +255,12 @@ MbndAstBuilderTest >> testMessageChainNode [
 	self assert: node messages equals: chainedMessages.
 ]
 
-{ #category : #running }
+{ #category : #tests }
+MbndAstBuilderTest >> testModule [
+	self assert: builder module equals: module
+]
+
+{ #category : #tests }
 MbndAstBuilderTest >> testPragmaNode [
 	| node arguments |
 	arguments := {
@@ -232,7 +275,7 @@ MbndAstBuilderTest >> testPragmaNode [
 	self assert: node arguments equals: arguments.
 ]
 
-{ #category : #running }
+{ #category : #tests }
 MbndAstBuilderTest >> testQuasiQuoteNode [
 	| node quoted |
 	quoted := builder literalInteger: 1.
@@ -242,7 +285,7 @@ MbndAstBuilderTest >> testQuasiQuoteNode [
 	self assert: node expression equals: quoted.
 ]
 
-{ #category : #running }
+{ #category : #tests }
 MbndAstBuilderTest >> testQuasiUnquoteNode [
 	| node expression |
 	expression := builder literalInteger: 1.
@@ -252,7 +295,7 @@ MbndAstBuilderTest >> testQuasiUnquoteNode [
 	self assert: node expression equals: expression.
 ]
 
-{ #category : #running }
+{ #category : #tests }
 MbndAstBuilderTest >> testQuoteNode [
 	| node quoted |
 	quoted := builder literalInteger: 1.
@@ -262,7 +305,7 @@ MbndAstBuilderTest >> testQuoteNode [
 	self assert: node expression equals: quoted.
 ]
 
-{ #category : #running }
+{ #category : #tests }
 MbndAstBuilderTest >> testSequenceNode [
 	| node one two |
 	one := builder literalInteger: 1.
@@ -273,7 +316,7 @@ MbndAstBuilderTest >> testSequenceNode [
 	self assert: node elements equals: {one . two}.
 ]
 
-{ #category : #running }
+{ #category : #tests }
 MbndAstBuilderTest >> testSequenceWithPragmaNode [
 	| pragmas expressions node |
 	pragmas := { 
@@ -295,7 +338,7 @@ MbndAstBuilderTest >> testSequenceWithPragmaNode [
 	self assert: node elements equals: expressions.
 ]
 
-{ #category : #running }
+{ #category : #tests }
 MbndAstBuilderTest >> testSpliceNode [
 	| node expression |
 	expression := builder literalInteger: 1.
@@ -305,18 +348,31 @@ MbndAstBuilderTest >> testSpliceNode [
 	self assert: node expression equals: expression.
 ]
 
-{ #category : #running }
+{ #category : #tests }
 MbndAstBuilderTest >> testUnexpandedMessageNode [
-	| node receiver arguments |
+	| node receiver arguments selector |
 	receiver := builder literalInteger: 1.
 	arguments := { 
 		builder literalInteger: 4.
 		builder literalInteger: 2
 	}.
 
-	node := builder unexpandedSend: #to:by: to: receiver withArguments: arguments.
+	selector := builder literalSymbol: #to:by:.
+	node := builder unexpandedSend: #selector to: receiver withArguments: arguments.
 	self assert: node isUnexpandedMessageSendNode .
 	self deny: node isExpandedMessageSendNode .
 	self assert: node receiver equals: receiver.
 	self assert: node arguments equals: arguments.
+]
+
+{ #category : #tests }
+MbndAstBuilderTest >> testWhileLoopNode [
+	| node condition action |
+	condition := builder identifier: #predicate.
+	action := builder literalInteger: 1.
+	node := builder while: condition do: action.
+	
+	self assert: node isWhileLoopNode.
+	self assert: node condition equals: condition.
+	self assert: node action equals: action.
 ]

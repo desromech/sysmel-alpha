@@ -4,7 +4,8 @@ Class {
 	#traits : 'TMbndModule',
 	#classTraits : 'TMbndModule classTrait',
 	#instVars : [
-		'typesForBehaviors'
+		'typesForBehaviors',
+		'compilationTarget'
 	],
 	#classInstVars : [
 		'uniqueInstance',
@@ -40,13 +41,25 @@ MbndSmalltalkImageModule class >> uniqueInstance [
 	^ uniqueInstance ifNil: [ uniqueInstance := super new ]
 ]
 
+{ #category : #accessing }
+MbndSmalltalkImageModule >> compilationTarget [
+	compilationTarget ifNil: [
+		compilationTarget := MbndInImageCompilationTarget basicNew.
+		compilationTarget
+			coreDefinitionsModule: self;
+			initialize
+	].
+
+	^ compilationTarget
+]
+
 { #category : #initialization }
 MbndSmalltalkImageModule >> initialize [
 	super initialize.
 	typesForBehaviors := WeakKeyDictionary new.
 ]
 
-{ #category : #'as yet unclassified' }
+{ #category : #accessing }
 MbndSmalltalkImageModule >> typeForBehavior: aBehavior [
 	^ typesForBehaviors at: aBehavior ifAbsentPut: [ MbndImageBehaviorType new
 			definitionModule: self;

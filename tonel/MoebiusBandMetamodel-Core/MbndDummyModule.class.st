@@ -9,5 +9,12 @@ Class {
 
 { #category : #accessing }
 MbndDummyModule >> compilationTarget [
-	^ compilationTarget ifNil: [ compilationTarget := MbndDummyCompilationTarget new coreDefinitionsModule: self ]
+	compilationTarget ifNil: [
+		compilationTarget := MbndDummyCompilationTarget basicNew.
+		compilationTarget
+			coreDefinitionsModule: self;
+			initialize
+	].
+
+	^ compilationTarget
 ]

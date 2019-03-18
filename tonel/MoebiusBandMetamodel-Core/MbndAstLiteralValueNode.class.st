@@ -10,7 +10,7 @@ Class {
 
 { #category : #visiting }
 MbndAstLiteralValueNode >> accept: aVisitor [
-	^ aVisitor visitLiteralNode: self
+	^ aVisitor visitLiteralValueNode: self
 ]
 
 { #category : #testing }
