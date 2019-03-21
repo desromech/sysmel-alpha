@@ -1,4 +1,11 @@
 Trait {
 	#name : #TMbndNamespace,
-	#category : #'MoebiusBandMetamodel-Core-Module'
+	#traits : 'TMbndProgramEntity',
+	#classTraits : 'TMbndProgramEntity classTrait',
+	#category : #'MoebiusBandMetamodel-Core-ProgramEntity'
 }
+
+{ #category : #scope }
+TMbndNamespace >> programEntityScopeClass [
+	^ MbndNamespaceScope
+]

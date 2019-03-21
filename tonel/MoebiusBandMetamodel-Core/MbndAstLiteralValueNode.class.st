@@ -13,6 +13,14 @@ MbndAstLiteralValueNode >> accept: aVisitor [
 	^ aVisitor visitLiteralValueNode: self
 ]
 
+{ #category : #'as yet unclassified' }
+MbndAstLiteralValueNode >> evaluateMbndValue [
+	^ MbndValue new
+		value: value;
+		type: type;
+		yourself
+]
+
 { #category : #testing }
 MbndAstLiteralValueNode >> isLiteralValueNode [
 	^ true

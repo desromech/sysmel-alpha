@@ -7,11 +7,6 @@ Class {
 	#category : #'MoebiusBandMetamodel-Core-AST'
 }
 
-{ #category : #'visitor utilties' }
-MbndAstVisitor >> visitAndCollectNodes: nodes [
-	^ nodes collect: [ :node | node accept: self ]
-]
-
 { #category : #visiting }
 MbndAstVisitor >> visitBreakStatementNode: node [
 	self subclassResponsibility
@@ -90,6 +85,11 @@ MbndAstVisitor >> visitNode: node [
 { #category : #'visitor utilties' }
 MbndAstVisitor >> visitNodes: nodes [
 	nodes do: [ :node | node accept: self ]
+]
+
+{ #category : #'visitor utilties' }
+MbndAstVisitor >> visitNodesAndCollect: nodes [
+	^ nodes collect: [ :node | node accept: self ]
 ]
 
 { #category : #visiting }

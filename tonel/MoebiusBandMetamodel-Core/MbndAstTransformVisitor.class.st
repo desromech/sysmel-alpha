@@ -30,7 +30,7 @@ MbndAstTransformVisitor >> visitCasesOfDefaultCaseNode: node [
 { #category : #visiting }
 MbndAstTransformVisitor >> visitCasesOfNode: node [
 	^ node copy
-		cases: (self visitAndCollectNodes: node cases);
+		cases: (self visitNodesAndCollect: node cases);
 		yourself
 ]
 
@@ -52,7 +52,7 @@ MbndAstTransformVisitor >> visitExpandedMessageSendNode: node [
 	^ node copy
 		receiver: (self visitNode: node receiver);
 		selector: (self visitNode: node selector);
-		arguments: (self visitAndCollectNodes: node arguments);
+		arguments: (self visitNodesAndCollect: node arguments);
 		yourself
 ]
 
@@ -60,7 +60,7 @@ MbndAstTransformVisitor >> visitExpandedMessageSendNode: node [
 MbndAstTransformVisitor >> visitFunctionCallNode: node [
 	^ node copy
 		function: (self visitNode: node function);
-		arguments: (self visitAndCollectNodes: node arguments);
+		arguments: (self visitNodesAndCollect: node arguments);
 		yourself
 ]
 
@@ -94,7 +94,7 @@ MbndAstTransformVisitor >> visitLiteralValueNode: node [
 MbndAstTransformVisitor >> visitMessageChainMessageNode: node [
 	^ node copy
 		selector: (self visitNode: node selector);
-		arguments: (self visitAndCollectNodes: node arguments);
+		arguments: (self visitNodesAndCollect: node arguments);
 		yourself
 ]
 
@@ -102,7 +102,7 @@ MbndAstTransformVisitor >> visitMessageChainMessageNode: node [
 MbndAstTransformVisitor >> visitMessageChainNode: node [
 	^ node copy
 		receiver: (self visitNode: node receiver);
-		messages: (self visitAndCollectNodes: node messages);
+		messages: (self visitNodesAndCollect: node messages);
 		yourself
 ]
 
@@ -110,7 +110,7 @@ MbndAstTransformVisitor >> visitMessageChainNode: node [
 MbndAstTransformVisitor >> visitPragmaNode: node [
 	^ node copy
 		selector: (node selector);
-		arguments: (self visitAndCollectNodes: node arguments);
+		arguments: (self visitNodesAndCollect: node arguments);
 		yourself
 ]
 
@@ -138,8 +138,8 @@ MbndAstTransformVisitor >> visitQuoteNode: node [
 { #category : #visiting }
 MbndAstTransformVisitor >> visitSequenceNode: node [
 	^ node copy
-		pragmas: (self visitAndCollectNodes: node pragmas);
-		elements: (self visitAndCollectNodes: node elements);
+		pragmas: (self visitNodesAndCollect: node pragmas);
+		elements: (self visitNodesAndCollect: node elements);
 		yourself
 ]
 
@@ -155,7 +155,7 @@ MbndAstTransformVisitor >> visitUnexpandedMessageSendNode: node [
 	^ node copy
 		receiver: (self visitNode: node receiver);
 		selector: (self visitNode: node selector);
-		arguments: (self visitAndCollectNodes: node arguments);
+		arguments: (self visitNodesAndCollect: node arguments);
 		yourself
 ]
 

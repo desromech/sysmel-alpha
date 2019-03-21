@@ -29,11 +29,6 @@ TMbndType >> compilationTarget: anObject [
 ]
 
 { #category : #accessing }
-TMbndType >> definitionModule [
-	^ definitionModule
-]
-
-{ #category : #accessing }
 TMbndType >> definitionModule: aModule [
 	definitionModule := aModule
 ]

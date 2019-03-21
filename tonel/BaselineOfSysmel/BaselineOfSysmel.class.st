@@ -20,24 +20,12 @@ BaselineOfSysmel >> baseline: spec [
 					repository: 'github://ronsaldo/phanide/tonel' ].
 
 		spec
-			package: 'Sysmel-Parser' with: [
-				spec requires: #(PetitParser2Core 'Sysmel-Metamodel')
+			package: 'MoebiusBandMetamodel-Core' with: [
+				spec requires: #(#Slovim #PetitParser2Core)
 			].
 		spec
-			package: 'Sysmel-ImageFormat' with: [
-				spec requires: #(Slovim)
-			].
-		spec
-			package: 'Sysmel-Metamodel' with: [
-				spec requires: #('Slovim' 'Sysmel-ImageFormat')
-			].
-		spec
-			package: 'Sysmel-Tests' with: [
-				spec requires: #('Sysmel-Parser' 'Sysmel-Metamodel')
-			].
-		spec
-			package: 'Sysmel-Phanide' with: [
-				spec requires: #('Sysmel-Parser' 'Sysmel-Metamodel' 'Phanide')
+			package: 'SysmelLanguage' with: [
+				spec requires: #(PetitParser2Core 'MoebiusBandMetamodel-Core')
 			].
 	].
 ]

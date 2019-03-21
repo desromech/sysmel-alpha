@@ -3,6 +3,8 @@ I provide the fundamental protocol for the MoebiusBand type system. I am the cor
 "
 Trait {
 	#name : #TMbndAbstractType,
+	#traits : 'TMbndProgramEntity',
+	#classTraits : 'TMbndProgramEntity classTrait',
 	#category : #'MoebiusBandMetamodel-Core-Type'
 }
 

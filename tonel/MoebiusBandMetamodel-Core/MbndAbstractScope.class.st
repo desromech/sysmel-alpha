@@ -1,0 +1,33 @@
+Class {
+	#name : #MbndAbstractScope,
+	#superclass : #Object,
+	#instVars : [
+		'parent'
+	],
+	#category : #'MoebiusBandMetamodel-Core-Scope'
+}
+
+{ #category : #accessing }
+MbndAbstractScope class >> empty [
+	^ self new
+]
+
+{ #category : #accessing }
+MbndAbstractScope class >> parent: aParent [
+	^ self new parent: aParent
+]
+
+{ #category : #'instance creation' }
+MbndAbstractScope >> newLexicalScope [
+	^ MbndLexicalScope parent: self
+]
+
+{ #category : #accessing }
+MbndAbstractScope >> parent [
+	^ parent
+]
+
+{ #category : #accessing }
+MbndAbstractScope >> parent: anObject [
+	parent := anObject
+]

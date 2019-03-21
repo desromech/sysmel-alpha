@@ -1,0 +1,24 @@
+Trait {
+	#name : #TMbndProgramEntity,
+	#category : #'MoebiusBandMetamodel-Core-ProgramEntity'
+}
+
+{ #category : #accessing }
+TMbndProgramEntity >> module [
+	self explicitRequirement
+]
+
+{ #category : #accessing }
+TMbndProgramEntity >> name [
+	^ self explicitRequirement
+]
+
+{ #category : #scope }
+TMbndProgramEntity >> programEntityScope [
+	^ self programEntityScopeClass new programEntity: self
+]
+
+{ #category : #scope }
+TMbndProgramEntity >> programEntityScopeClass [
+	^ MbndProgramEntityScope
+]
