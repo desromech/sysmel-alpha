@@ -12,5 +12,4 @@ MbndLexicalScopeTest >> testNew [
 	| scope |
 	scope := MbndLexicalScope empty.
 	self assert: scope symbols isEmpty.
-	self assert: scope metaMethods isEmpty.
 ]

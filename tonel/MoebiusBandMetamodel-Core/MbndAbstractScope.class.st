@@ -22,6 +22,11 @@ MbndAbstractScope >> compilationTarget [
 	^ parent compilationTarget
 ]
 
+{ #category : #'macro expansion' }
+MbndAbstractScope >> lookupMacroSelector: selector [
+	^ parent ifNotNil: [ parent lookupMacroSelector: selector ]
+]
+
 { #category : #'instance creation' }
 MbndAbstractScope >> newLexicalScope [
 	^ MbndLexicalScope parent: self

@@ -84,15 +84,23 @@ MbndAstSemanticAnalyzer >> visitSequenceNode: node [
 
 { #category : #visiting }
 MbndAstSemanticAnalyzer >> visitUnexpandedMessageSendNode: node [
-	| result |
+	| result selector macroMethod |
 	result := node copy
 		receiver: (node receiver ifNotNil: [self analyzeNodeIfNeeded: node receiver]);
 		selector: (self analyzeNodeIfNeeded: node selector);
 		yourself.
 
-	result selector isLiteralSymbolValueNode ifTrue: [ 
-		self flag: 'TODO: Perform macro lookup.'.
-		self flag: 'TODO: Analyze the macro arguments if needed.'.
+	result selector isLiteralSymbolValueNode ifTrue: [
+		"Perform macro lookup."
+		selector := result selector value.
+		macroMethod := result receiver
+			ifNil: [ scope lookupMacroSelector: selector ]
+			ifNotNil: [ :receiver | receiver type lookupMacroSelector: selector ].
+
+		"TODO: Apply the macro method."
+		macroMethod ifNotNil: [
+			self halt.
+		].
 	].
 
 	"No macro found, analyze the node as a normal message send."	

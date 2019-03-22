@@ -2,7 +2,6 @@ Class {
 	#name : #MbndLexicalScope,
 	#superclass : #MbndAbstractScope,
 	#instVars : [
-		'metaMethods',
 		'symbols'
 	],
 	#category : #'MoebiusBandMetamodel-Core-Scope'
@@ -12,12 +11,6 @@ Class {
 MbndLexicalScope >> initialize [
 	super initialize.
 	symbols := Dictionary new.
-	metaMethods := Dictionary new.
-]
-
-{ #category : #accessing }
-MbndLexicalScope >> metaMethods [
-	^ metaMethods
 ]
 
 { #category : #accessing }

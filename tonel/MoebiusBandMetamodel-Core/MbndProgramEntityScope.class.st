@@ -12,6 +12,15 @@ MbndProgramEntityScope >> compilationTarget [
 	^ programEntity compilationTarget
 ]
 
+{ #category : #'macro expansion' }
+MbndProgramEntityScope >> lookupMacroSelector: selector [
+	(programEntity lookupMacroSelector: selector) ifNotNil: [ :macroMethod |
+		^ macroMethod
+	].
+
+	^ super lookupMacroSelector: selector
+]
+
 { #category : #accessing }
 MbndProgramEntityScope >> programEntity [
 	^ programEntity
