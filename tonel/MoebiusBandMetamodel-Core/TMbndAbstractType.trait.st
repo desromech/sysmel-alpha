@@ -166,7 +166,7 @@ TMbndAbstractType >> lookupMacroSelector: aSelector [
 	^ self supertype ifNotNil: [ :st | st lookupMacroSelector: aSelector ]
 ]
 
-{ #category : #'macro expansion' }
+{ #category : #methods }
 TMbndAbstractType >> lookupSelector: selector [
 	^ nil
 ]

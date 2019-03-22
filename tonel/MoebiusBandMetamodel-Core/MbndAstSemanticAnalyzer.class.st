@@ -97,9 +97,9 @@ MbndAstSemanticAnalyzer >> visitUnexpandedMessageSendNode: node [
 			ifNil: [ scope lookupMacroSelector: selector ]
 			ifNotNil: [ :receiver | receiver type lookupMacroSelector: selector ].
 
-		"TODO: Apply the macro method."
+		"Apply the macro method."
 		macroMethod ifNotNil: [
-			self halt.
+			^ macroMethod expandMessageNode: node with: self
 		].
 	].
 

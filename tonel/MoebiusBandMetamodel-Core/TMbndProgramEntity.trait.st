@@ -5,6 +5,11 @@ Trait {
 	#category : #'MoebiusBandMetamodel-Core-ProgramEntity'
 }
 
+{ #category : #accessing }
+TMbndProgramEntity >> compilationTarget [
+	^ self module compilationTarget
+]
+
 { #category : #'macro expansion' }
 TMbndProgramEntity >> lookupMacroSelector: aSelector [
 	^ nil

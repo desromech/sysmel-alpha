@@ -10,6 +10,14 @@ Trait {
 	#category : #'MoebiusBandMetamodel-Core-Type'
 }
 
+{ #category : #'macro expansion' }
+TMbndBasicType >> lookupMacroSelector: aSelector [
+	| macro |
+	macro := self macroMethodDict at: aSelector ifAbsent: [ nil ]..
+	macro ifNotNil: [ ^ macro ].
+	^ self supertype ifNotNil: [ :st | st lookupMacroSelector: aSelector ]
+]
+
 { #category : #accessing }
 TMbndBasicType >> overloadedMethodDict [
 	^ overloadedMethodDict ifNil: [ overloadedMethodDict := Dictionary new ]

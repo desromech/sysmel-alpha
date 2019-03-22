@@ -15,6 +15,16 @@ MbndLiteralIntegerType >> bestConcreteTypeForLiteralValueNode: literalValueNode 
 	^ compilationTarget int32Type
 ]
 
+{ #category : #initialization }
+MbndLiteralIntegerType >> initialize [
+	super initialize.
+	self addLiteralHostDelegationMacrosFor: #(
+		// \\
+		<< >> & |
+		bitXor: bitAnd: bitInvert
+	).
+]
+
 { #category : #'testing methods' }
 MbndLiteralIntegerType >> isLiteralIntegerType [
 	^ true

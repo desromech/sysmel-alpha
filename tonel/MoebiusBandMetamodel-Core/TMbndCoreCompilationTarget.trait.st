@@ -176,6 +176,41 @@ TMbndCoreCompilationTarget >> linkMetaHierarchy [
 	]
 ]
 
+{ #category : #'convenience type accessors' }
+TMbndCoreCompilationTarget >> literalBooleanFalseType [
+	^ self getBasicTypeNamed: #_LiteralBooleanFalse
+]
+
+{ #category : #'convenience type accessors' }
+TMbndCoreCompilationTarget >> literalBooleanTrueType [
+	^ self getBasicTypeNamed: #_LiteralBooleanTrue
+]
+
+{ #category : #'convenience type accessors' }
+TMbndCoreCompilationTarget >> literalBooleanType [
+	^ self getBasicTypeNamed: #_LiteralBoolean
+]
+
+{ #category : #'convenience type accessors' }
+TMbndCoreCompilationTarget >> literalFloatType [
+	^ self getBasicTypeNamed: #_LiteralFloat
+]
+
+{ #category : #'convenience type accessors' }
+TMbndCoreCompilationTarget >> literalIntegerType [
+	^ self getBasicTypeNamed: #_LiteralInteger
+]
+
+{ #category : #'convenience type accessors' }
+TMbndCoreCompilationTarget >> literalStringType [
+	^ self getBasicTypeNamed: #_LiteralString
+]
+
+{ #category : #'convenience type accessors' }
+TMbndCoreCompilationTarget >> literalSymbolType [
+	^ self getBasicTypeNamed: #_LiteralSymbol
+]
+
 { #category : #'builder methods' }
 TMbndCoreCompilationTarget >> lookupTypeWithName: typeName [
 	^ basicTypes at: typeName ifAbsent: [ nil ]

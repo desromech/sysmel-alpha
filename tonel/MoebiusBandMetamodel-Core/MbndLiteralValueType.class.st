@@ -12,6 +12,15 @@ MbndLiteralValueType class >> typeName [
 	^ #_LiteralValueType
 ]
 
+{ #category : #adding }
+MbndLiteralValueType >> addLiteralHostDelegationMacrosFor: selectors [
+	| macro |
+	macro := MbndLiteralHostDelegation new.
+	selectors do: [ :selector |
+		self macroMethodDict at: selector put: macro
+	].
+]
+
 { #category : #'semantic analysis' }
 MbndLiteralValueType >> analyzeUnboundExpandedMessageSendNode: node with: analyzer [
 	| bestConcreteType |

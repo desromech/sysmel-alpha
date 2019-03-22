@@ -22,7 +22,10 @@ SYMLASTMessageSend >> arguments: anObject [
 { #category : #converting }
 SYMLASTMessageSend >> buildMoebiusAST: builder [
 	| selectorNode |
-	selectorNode := selector isSYMLASTNode ifTrue: [ selector buildMoebiusAST: builder] ifFalse: [ selector ].
+	selectorNode := selector isSYMLASTNode
+		ifTrue: [ selector buildMoebiusAST: builder]
+		ifFalse: [ (builder literalSymbol: selector)
+				position: position].
 	^ (builder unexpandedSend: selectorNode
 		to: (receiver ifNotNil: [receiver buildMoebiusAST: builder])
 		withArguments: (arguments collect: [:arg | arg buildMoebiusAST: builder]))
@@ -35,7 +38,7 @@ SYMLASTMessageSend >> buildMoebiusMessageChainMessageAST: builder [
 	| selectorNode |
 	selectorNode := selector isSYMLASTNode
 		ifTrue: [ selector buildMoebiusAST: builder]
-		ifFalse: [ selector ].
+		ifFalse: [ (builder literalSymbol: selector) position: position ].
 		
 	^ (builder messageChainMessageSelector: selector
 		arguments: (arguments collect: [:arg | arg buildMoebiusAST: builder]))

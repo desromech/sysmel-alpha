@@ -11,6 +11,11 @@ Class {
 	#category : #'MoebiusBandMetamodel-Core-Values'
 }
 
+{ #category : #printing }
+MbndValue >> printOn: aStream [
+	aStream nextPut: $(; print: type; nextPut: $); print: value
+]
+
 { #category : #accessing }
 MbndValue >> type [
 	^ type

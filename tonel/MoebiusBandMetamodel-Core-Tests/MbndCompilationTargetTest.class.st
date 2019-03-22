@@ -101,6 +101,55 @@ MbndCompilationTargetTest >> testInt8Type [
 ]
 
 { #category : #tests }
+MbndCompilationTargetTest >> testLiteralFalseType [
+	self assert: compilationTarget literalBooleanFalseType isLiteralBooleanType.
+	self assert: compilationTarget literalBooleanFalseType isLiteralBooleanFalseType.
+	self assert: (false mbndLiteralTypeWithTarget: compilationTarget) equals: compilationTarget literalBooleanFalseType.
+	
+	
+]
+
+{ #category : #tests }
+MbndCompilationTargetTest >> testLiteralFloatType [
+	self assert: compilationTarget literalFloatType isLiteralFloatType.
+	self assert: (42.0 mbndLiteralTypeWithTarget: compilationTarget) equals: compilationTarget literalFloatType.
+	
+	
+]
+
+{ #category : #tests }
+MbndCompilationTargetTest >> testLiteralIntegerType [
+	self assert: compilationTarget literalIntegerType isLiteralIntegerType.
+	self assert: (42 mbndLiteralTypeWithTarget: compilationTarget) equals: compilationTarget literalIntegerType.
+	
+	
+]
+
+{ #category : #tests }
+MbndCompilationTargetTest >> testLiteralStringType [
+	self assert: compilationTarget literalStringType isLiteralStringType.
+	self assert: ('string' mbndLiteralTypeWithTarget: compilationTarget) equals: compilationTarget literalStringType.
+	
+	
+]
+
+{ #category : #tests }
+MbndCompilationTargetTest >> testLiteralSymbolType [
+	self assert: compilationTarget literalSymbolType isLiteralSymbolType.
+	self assert: (#symbol mbndLiteralTypeWithTarget: compilationTarget) equals: compilationTarget literalSymbolType.
+	
+	
+]
+
+{ #category : #tests }
+MbndCompilationTargetTest >> testLiteralTrueType [
+	self assert: compilationTarget literalBooleanTrueType isLiteralBooleanType.
+	self assert: compilationTarget literalBooleanTrueType isLiteralBooleanTrueType.
+	self assert: (true mbndLiteralTypeWithTarget: compilationTarget) equals: compilationTarget literalBooleanTrueType.
+	
+]
+
+{ #category : #tests }
 MbndCompilationTargetTest >> testNew [
 	
 ]
