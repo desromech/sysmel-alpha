@@ -2,8 +2,7 @@ Class {
 	#name : #MbndAstLiteralValueNode,
 	#superclass : #MbndAstNode,
 	#instVars : [
-		'value',
-		'type'
+		'value'
 	],
 	#category : #'MoebiusBandMetamodel-Core-AST'
 }
@@ -22,18 +21,18 @@ MbndAstLiteralValueNode >> evaluateMbndValue [
 ]
 
 { #category : #testing }
+MbndAstLiteralValueNode >> isLiteralSymbolValueNode [
+	^ type isLiteralSymbolType
+]
+
+{ #category : #testing }
 MbndAstLiteralValueNode >> isLiteralValueNode [
 	^ true
 ]
 
-{ #category : #accessing }
-MbndAstLiteralValueNode >> type [
-	^ type
-]
-
-{ #category : #accessing }
-MbndAstLiteralValueNode >> type: anObject [
-	type := anObject
+{ #category : #printing }
+MbndAstLiteralValueNode >> printValueString [
+	^ value printString
 ]
 
 { #category : #accessing }

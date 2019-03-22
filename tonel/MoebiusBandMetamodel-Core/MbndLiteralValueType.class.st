@@ -12,6 +12,24 @@ MbndLiteralValueType class >> typeName [
 	^ #_LiteralValueType
 ]
 
+{ #category : #'semantic analysis' }
+MbndLiteralValueType >> analyzeUnboundExpandedMessageSendNode: node with: analyzer [
+	| bestConcreteType |
+	self assert: node receiver isLiteralValueNode.
+	bestConcreteType := self bestConcreteTypeForLiteralValueNode: node receiver inScope: analyzer scope.
+	
+	"Apply the concrete literal type, and analyze again. Allow a second oppotunity for doing macro expansion."
+	analyzer visitNode: (node asUnexpandedMessageSend
+		receiver: (node receiver copy type: bestConcreteType);
+		yourself)
+]
+
+{ #category : #'semantic analysis' }
+MbndLiteralValueType >> bestConcreteTypeForLiteralValueNode: literalValueNode inScope: scope [
+	"This should find the best concrete type for a specific literal value node"
+	self subclassResponsibility
+]
+
 { #category : #testing }
 MbndLiteralValueType >> isLiteralValueType [
 	^ true

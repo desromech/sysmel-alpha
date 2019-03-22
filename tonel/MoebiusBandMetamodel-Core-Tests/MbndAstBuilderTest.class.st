@@ -207,6 +207,7 @@ MbndAstBuilderTest >> testLiteralSymbol [
 	| node |
 	node := builder literalSymbol: #a.
 	self assert: node isLiteralValueNode.
+	self assert: node isLiteralSymbolValueNode.
 	self assert: node value equals: #a.
 	self assert: node type isLiteralSymbolType.
 ]

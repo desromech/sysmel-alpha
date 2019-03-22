@@ -17,6 +17,11 @@ MbndBasicType class >> typeName [
 	^ self == MbndBasicType ifTrue: [ #_BasicType ] ifFalse: [ nil ]
 ]
 
+{ #category : #accessing }
+MbndBasicType >> fullName [
+	^ name
+]
+
 { #category : #initialization }
 MbndBasicType >> initialize [
 	super initialize.

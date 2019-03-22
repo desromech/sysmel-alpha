@@ -21,6 +21,21 @@ TMbndAbstractType >> allSubtypesDo: aBlock [
 	self subtypes do: [ :st | st withAllSubtypesDo: aBlock ]
 ]
 
+{ #category : #'semantic analysis' }
+TMbndAbstractType >> analyzeMessageSendNodeWithDynamicSelector: node with: analyzer [
+	self error: 'Cannout perform message to value of type {1}.' format: {self fullName} at: node
+]
+
+{ #category : #'semantic analysis' }
+TMbndAbstractType >> analyzeUnboundExpandedMessageSendNode: node with: analyzer [
+	self error: 'Cannout send unknown message {1} to value of type {2}.' format: {node selector printValueString. self fullName} at: node
+]
+
+{ #category : #accessing }
+TMbndAbstractType >> fullName [
+	self explicitRequirement
+]
+
 { #category : #sizes }
 TMbndAbstractType >> instanceAlignment [
 	^ self explicitRequirement
@@ -78,6 +93,11 @@ TMbndAbstractType >> isLiteralFloatType [
 
 { #category : #'testing methods' }
 TMbndAbstractType >> isLiteralIntegerType [
+	^ false
+]
+
+{ #category : #'testing methods' }
+TMbndAbstractType >> isLiteralNumberType [
 	^ false
 ]
 
@@ -144,6 +164,11 @@ TMbndAbstractType >> isVoidType [
 { #category : #'macro expansion' }
 TMbndAbstractType >> lookupMacroSelector: aSelector [
 	^ self supertype ifNotNil: [ :st | st lookupMacroSelector: aSelector ]
+]
+
+{ #category : #'macro expansion' }
+TMbndAbstractType >> lookupSelector: selector [
+	^ nil
 ]
 
 { #category : #'type hierarchy' }

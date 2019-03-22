@@ -17,6 +17,11 @@ MbndAbstractScope class >> parent: aParent [
 	^ self new parent: aParent
 ]
 
+{ #category : #accessing }
+MbndAbstractScope >> compilationTarget [
+	^ parent compilationTarget
+]
+
 { #category : #'instance creation' }
 MbndAbstractScope >> newLexicalScope [
 	^ MbndLexicalScope parent: self

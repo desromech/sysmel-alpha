@@ -1,5 +1,7 @@
 Trait {
 	#name : #TMbndProgramEntity,
+	#traits : 'TMbndObject',
+	#classTraits : 'TMbndObject classTrait',
 	#category : #'MoebiusBandMetamodel-Core-ProgramEntity'
 }
 

@@ -23,7 +23,8 @@ MbndCompileTimeEvaluationTest >> testAddInteger [
 		}.
 	result := module analyzeAndEvaluateAST: ast.
 	
-	self assert: result unwrapMbndValue equals: 4
+	self assert: result value equals: 4.
+	self assert: result type isLiteralIntegerType.
 ]
 
 { #category : #tests }
@@ -35,13 +36,49 @@ MbndCompileTimeEvaluationTest >> testAddInteger2 [
 		}.
 	result := module analyzeAndEvaluateAST: ast.
 	
-	self assert: result unwrapMbndValue equals: 4
+	self assert: result value equals: 4.
+	self assert: result type isIntegerType.
 ]
 
 { #category : #tests }
 MbndCompileTimeEvaluationTest >> testLiteralInteger [
 	| ast result |
 	ast := builder literalInteger: 42.
+	result := module analyzeAndEvaluateAST: ast.
+	
+	self assert: result unwrapMbndValue equals: 42
+]
+
+{ #category : #tests }
+MbndCompileTimeEvaluationTest >> testNegateInteger [
+	| ast result |
+	ast := builder unexpandedSend: (builder literalSymbol: #negated) to:
+		(builder literalInteger: 42) withArguments: #().
+	result := module analyzeAndEvaluateAST: ast.
+	
+	self assert: result value equals: -42.
+	self assert: result type isLiteralIntegerType
+]
+
+{ #category : #tests }
+MbndCompileTimeEvaluationTest >> testNegateInteger2 [
+	| ast result |
+	ast := builder send: (builder literalSymbol: #negated) to:
+		(builder literalInteger: 42) withArguments: #().
+	result := module analyzeAndEvaluateAST: ast.
+	
+	self assert: result value equals: -42.
+	self assert: result type isIntegerType.
+]
+
+{ #category : #tests }
+MbndCompileTimeEvaluationTest >> testSequenceOfLiterals [
+	| ast result |
+	ast := builder sequence: {
+		builder literalInteger: 1.
+		builder literalInteger: 2.
+		builder literalInteger: 42.
+	}.
 	result := module analyzeAndEvaluateAST: ast.
 	
 	self assert: result unwrapMbndValue equals: 42

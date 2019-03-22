@@ -19,6 +19,26 @@ MbndAstAbstractMessageSendNode >> arguments: anObject [
 	arguments := anObject
 ]
 
+{ #category : #converting }
+MbndAstAbstractMessageSendNode >> asExpandedMessageSend [
+	^ MbndAstExpandedMessageSendNode new
+		position: position;
+		receiver: receiver;
+		selector: selector;
+		arguments: arguments;
+		yourself
+]
+
+{ #category : #converting }
+MbndAstAbstractMessageSendNode >> asUnexpandedMessageSend [
+	^ MbndAstUnexpandedMessageSendNode new
+		position: position;
+		receiver: receiver;
+		selector: selector;
+		arguments: arguments;
+		yourself
+]
+
 { #category : #accessing }
 MbndAstAbstractMessageSendNode >> receiver [
 	^ receiver

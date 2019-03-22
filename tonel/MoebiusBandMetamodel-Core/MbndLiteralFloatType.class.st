@@ -1,6 +1,6 @@
 Class {
 	#name : #MbndLiteralFloatType,
-	#superclass : #MbndLiteralValueType,
+	#superclass : #MbndLiteralNumberType,
 	#category : #'MoebiusBandMetamodel-Core-Type'
 }
 

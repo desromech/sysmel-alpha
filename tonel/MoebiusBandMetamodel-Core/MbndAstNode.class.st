@@ -5,7 +5,8 @@ Class {
 	#name : #MbndAstNode,
 	#superclass : #Object,
 	#instVars : [
-		'position'
+		'position',
+		'type'
 	],
 	#category : #'MoebiusBandMetamodel-Core-AST'
 }
@@ -73,6 +74,11 @@ MbndAstNode >> isIfConditionNode [
 
 { #category : #testing }
 MbndAstNode >> isLexicalScopeNode [
+	^ false
+]
+
+{ #category : #testing }
+MbndAstNode >> isLiteralSymbolValueNode [
 	^ false
 ]
 
@@ -152,4 +158,19 @@ MbndAstNode >> position [
 { #category : #accessing }
 MbndAstNode >> position: anObject [
 	position := anObject
+]
+
+{ #category : #printing }
+MbndAstNode >> printValueString [
+	^ self printString
+]
+
+{ #category : #accessing }
+MbndAstNode >> type [
+	^ type
+]
+
+{ #category : #accessing }
+MbndAstNode >> type: anObject [
+	type := anObject
 ]

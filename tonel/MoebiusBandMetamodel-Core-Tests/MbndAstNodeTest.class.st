@@ -31,6 +31,7 @@ MbndAstNodeTest >> testTestingMethods [
 	self deny: node isIfConditionNode.
 	self deny: node isLexicalScopeNode.
 	self deny: node isLiteralValueNode.
+	self deny: node isLiteralSymbolValueNode.
 	self deny: node isMessageChainNode.
 	self deny: node isMessageChainMessageNode.
 	self deny: node isPragmaNode.
