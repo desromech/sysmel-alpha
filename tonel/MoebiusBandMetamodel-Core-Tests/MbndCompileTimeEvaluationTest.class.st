@@ -41,6 +41,15 @@ MbndCompileTimeEvaluationTest >> testAddInteger2 [
 ]
 
 { #category : #tests }
+MbndCompileTimeEvaluationTest >> testLexicallyScopedLiteral [
+	| ast result |
+	ast := (builder literalInteger: 42) lexicallyScoped.
+	result := module analyzeAndEvaluateAST: ast.
+	
+	self assert: result unwrapMbndValue equals: 42
+]
+
+{ #category : #tests }
 MbndCompileTimeEvaluationTest >> testLiteralInteger [
 	| ast result |
 	ast := builder literalInteger: 42.
@@ -77,6 +86,21 @@ MbndCompileTimeEvaluationTest >> testSequenceOfLiterals [
 	ast := builder sequence: {
 		builder literalInteger: 1.
 		builder literalInteger: 2.
+		builder literalInteger: 42.
+	}.
+	result := module analyzeAndEvaluateAST: ast.
+	
+	self assert: result unwrapMbndValue equals: 42
+]
+
+{ #category : #tests }
+MbndCompileTimeEvaluationTest >> testSequenceOfSequenceLiterals [
+	| ast result |
+	ast := builder sequence: {
+		builder sequence: { 
+			builder literalInteger: 1.
+			builder literalInteger: 2.
+		}.
 		builder literalInteger: 42.
 	}.
 	result := module analyzeAndEvaluateAST: ast.

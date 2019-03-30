@@ -8,8 +8,17 @@ Class {
 }
 
 { #category : #tests }
+MbndLexicalScopeTest >> testEmptyLookup [
+	| scope |
+	scope := MbndLexicalScope empty.
+	self assert: (scope lookupMacroSelector: #return:) equals: nil.
+	self assert: (scope lookupSymbol: #undefined) equals: nil.
+	self assert: (scope lookupSymbolRecursively: #undefined ifAbsent: [nil] ) equals: nil.
+]
+
+{ #category : #tests }
 MbndLexicalScopeTest >> testNew [
 	| scope |
 	scope := MbndLexicalScope empty.
-	self assert: scope symbols isEmpty.
+	self assert: scope symbolTable isEmpty.
 ]

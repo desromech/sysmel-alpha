@@ -188,6 +188,11 @@ MbndAstBuilder >> quote: expression [
 ]
 
 { #category : #'builder methods' }
+MbndAstBuilder >> return: expression [
+	^ MbndAstReturnStatementNode new expression: expression
+]
+
+{ #category : #'builder methods' }
 MbndAstBuilder >> send: selector to: aReceiver withArguments: arguments [
 	<compileTime>
 	^ MbndAstExpandedMessageSendNode new

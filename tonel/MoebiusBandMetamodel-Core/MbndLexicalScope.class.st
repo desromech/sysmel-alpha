@@ -2,7 +2,7 @@ Class {
 	#name : #MbndLexicalScope,
 	#superclass : #MbndAbstractScope,
 	#instVars : [
-		'symbols'
+		'symbolTable'
 	],
 	#category : #'MoebiusBandMetamodel-Core-Scope'
 }
@@ -10,10 +10,15 @@ Class {
 { #category : #initialization }
 MbndLexicalScope >> initialize [
 	super initialize.
-	symbols := Dictionary new.
+	symbolTable := Dictionary new.
+]
+
+{ #category : #'macro expansion' }
+MbndLexicalScope >> lookupSymbol: aSymbol [
+	^ symbolTable at: aSymbol ifAbsent: [ nil ]
 ]
 
 { #category : #accessing }
-MbndLexicalScope >> symbols [
-	^ symbols
+MbndLexicalScope >> symbolTable [
+	^ symbolTable
 ]

@@ -15,6 +15,11 @@ TMbndProgramEntity >> lookupMacroSelector: aSelector [
 	^ nil
 ]
 
+{ #category : #'macro expansion' }
+TMbndProgramEntity >> lookupSymbol: aSymbol [
+	^ nil
+]
+
 { #category : #accessing }
 TMbndProgramEntity >> module [
 	self explicitRequirement

@@ -88,6 +88,11 @@ MbndAstNode >> isLiteralValueNode [
 ]
 
 { #category : #testing }
+MbndAstNode >> isMbndAstNode [
+	^ true
+]
+
+{ #category : #testing }
 MbndAstNode >> isMessageChainMessageNode [
 	^ false
 ]
@@ -114,6 +119,11 @@ MbndAstNode >> isQuasiUnquoteNode [
 
 { #category : #testing }
 MbndAstNode >> isQuoteNode [
+	^ false
+]
+
+{ #category : #testing }
+MbndAstNode >> isReturnStatementNode [
 	^ false
 ]
 

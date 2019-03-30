@@ -19,6 +19,8 @@ MbndAstNodeTest >> testTestingMethods [
 	| node |
 	node := MbndAstNode new.
 	
+	self deny: 1 isMbndAstNode.
+	self assert: node isMbndAstNode.
 	self deny: node isBreakStatementNode.
 	self deny: node isCasesOfCaseNode.
 	self deny: node isCasesOfDefaultCaseNode.
@@ -38,6 +40,7 @@ MbndAstNodeTest >> testTestingMethods [
 	self deny: node isQuasiQuoteNode.
 	self deny: node isQuasiUnquoteNode.
 	self deny: node isQuoteNode.
+	self deny: node isReturnStatementNode.
 	self deny: node isSequenceNode.
 	self deny: node isSpliceNode.
 	self deny: node isStatementNode.

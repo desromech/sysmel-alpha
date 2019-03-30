@@ -27,6 +27,21 @@ MbndAbstractScope >> lookupMacroSelector: selector [
 	^ parent ifNotNil: [ parent lookupMacroSelector: selector ]
 ]
 
+{ #category : #'macro expansion' }
+MbndAbstractScope >> lookupSymbol: aSymbol [
+	^ nil
+]
+
+{ #category : #'macro expansion' }
+MbndAbstractScope >> lookupSymbolRecursively: aSymbol ifAbsent: aBlock [
+	(self lookupSymbol: aSymbol) ifNotNil: [ :result | ^ result ].
+	parent ifNil: [
+		^ aBlock value
+	] ifNotNil: [
+		^ parent lookupSymbolRecursively: aSymbol ifAbsent: aBlock
+	]
+]
+
 { #category : #'instance creation' }
 MbndAbstractScope >> newLexicalScope [
 	^ MbndLexicalScope parent: self

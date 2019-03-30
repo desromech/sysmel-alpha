@@ -103,6 +103,11 @@ MbndAstDelegationVisitor >> visitQuoteNode: node [
 ]
 
 { #category : #visiting }
+MbndAstDelegationVisitor >> visitReturnStatementNode: node [
+	^ self delegateNodeVisit: node
+]
+
+{ #category : #visiting }
 MbndAstDelegationVisitor >> visitSequenceNode: node [
 	^ self delegateNodeVisit: node
 ]

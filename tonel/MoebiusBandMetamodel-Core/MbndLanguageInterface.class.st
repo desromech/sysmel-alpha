@@ -78,3 +78,8 @@ MbndLanguageInterface >> parseSourceString: sourceString forModule: aTargetModul
 	targetModule := aTargetModule.
 	^ self parse: sourceString asMoebiusBandCollectionWithContext
 ]
+
+{ #category : #scope }
+MbndLanguageInterface >> topLevelLanguageScope [
+	self subclassResponsibility
+]

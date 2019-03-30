@@ -1,3 +1,6 @@
+"
+I am a macro implementation that is used for implementing compile time evaluation of literal expressions.
+"
 Class {
 	#name : #MbndLiteralHostDelegation,
 	#superclass : #MbndAbstractMacro,

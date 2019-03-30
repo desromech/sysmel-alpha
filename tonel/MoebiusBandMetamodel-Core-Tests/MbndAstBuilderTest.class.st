@@ -307,6 +307,16 @@ MbndAstBuilderTest >> testQuoteNode [
 ]
 
 { #category : #tests }
+MbndAstBuilderTest >> testReturnNode [
+	| node expression |
+	expression := builder identifier: #predicate.
+	node := builder return: expression.
+	
+	self assert: node isReturnStatementNode.
+	self assert: node expression equals: expression.
+]
+
+{ #category : #tests }
 MbndAstBuilderTest >> testSequenceNode [
 	| node one two |
 	one := builder literalInteger: 1.

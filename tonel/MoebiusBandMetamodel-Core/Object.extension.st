@@ -1,6 +1,11 @@
 Extension { #name : #Object }
 
 { #category : #'*MoebiusBandMetamodel-Core' }
+Object >> isMbndAstNode [
+	^ false
+]
+
+{ #category : #'*MoebiusBandMetamodel-Core' }
 Object >> mbndLiteralTypeWithTarget: compilationTarget [
 	self subclassResponsibility
 ]

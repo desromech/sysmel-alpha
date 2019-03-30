@@ -8,17 +8,28 @@ Trait {
 	#category : #'MoebiusBandMetamodel-Core-Module'
 }
 
-{ #category : #parsing }
+{ #category : #evaluation }
 TMbndModule >> analyzeAndEvaluateAST: ast [
-	^ self analyzeAndEvaluateAST: ast inScope: self newSourceEvaluationScope
+	| parsedSource |
+	parsedSource := MbndLanguageParsedSource new
+		ast: ast;
+		language: MbndGenericMacroLanguageInterface new.
+	^ self analyzeAndEvaluateParsedSource: parsedSource
 ]
 
-{ #category : #parsing }
+{ #category : #evaluation }
 TMbndModule >> analyzeAndEvaluateAST: ast inScope: scope [
 	| analyzerAndEvaluator |
-	analyzerAndEvaluator := MbndAstSemanticAnalyzerAndEvaluator new scope: scope.
+	analyzerAndEvaluator := MbndAstSemanticAnalyzerAndEvaluator new
+		module: self;
+		scope: scope.
 	^ analyzerAndEvaluator visitNode: ast
 
+]
+
+{ #category : #evaluation }
+TMbndModule >> analyzeAndEvaluateParsedSource: parsedSource [
+	^ self analyzeAndEvaluateAST: parsedSource ast inScope: (self newSourceEvaluationScopeForLanguage: parsedSource language)
 ]
 
 { #category : #accessing }
@@ -26,11 +37,11 @@ TMbndModule >> compilationTarget [
 	self explicitRequirement
 ]
 
-{ #category : #parsing }
+{ #category : #evaluation }
 TMbndModule >> evaluateLanguage: languageName source: sourceString [
-	| ast |
-	ast := self parseLanguage: languageName source: sourceString.
-	^ self analyzeAndEvaluateAST: ast
+	| parsedSource |
+	parsedSource := self parseLanguage: languageName source: sourceString.
+	^ self analyzeAndEvaluateParsedSource: parsedSource
 ]
 
 { #category : #accessing }
@@ -42,10 +53,11 @@ TMbndModule >> globalNamespace [
 	]
 ]
 
-{ #category : #parsing }
-TMbndModule >> newSourceEvaluationScope [
-	| moduleScope namespaceScope |
-	moduleScope := self programEntityScope.
+{ #category : #scope }
+TMbndModule >> newSourceEvaluationScopeForLanguage: aLanguage [
+	| languageScope moduleScope namespaceScope  |
+	languageScope := aLanguage topLevelLanguageScope.
+	moduleScope := self programEntityScope parent: languageScope.
 	namespaceScope := self globalNamespace programEntityScope parent: moduleScope.
 	^ namespaceScope newLexicalScope
 	

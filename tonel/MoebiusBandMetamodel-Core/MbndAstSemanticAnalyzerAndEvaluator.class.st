@@ -39,6 +39,12 @@ MbndAstSemanticAnalyzerAndEvaluator >> evaluator: anObject [
 ]
 
 { #category : #accessing }
+MbndAstSemanticAnalyzerAndEvaluator >> module: aModule [
+	self semanticAnalyzer scope: aModule.
+	self evaluator scope: aModule.
+]
+
+{ #category : #accessing }
 MbndAstSemanticAnalyzerAndEvaluator >> scope: aScope [
 	self semanticAnalyzer scope: aScope.
 	self evaluator scope: aScope.
@@ -55,12 +61,41 @@ MbndAstSemanticAnalyzerAndEvaluator >> semanticAnalyzer: anObject [
 ]
 
 { #category : #delegate }
+MbndAstSemanticAnalyzerAndEvaluator >> visitLexicalScopeNode: node [
+	| newScope |
+	newScope := evaluator scope newLexicalScope.
+	^ self withScope: newScope do: [
+		self visitNode: node expression
+	]
+]
+
+{ #category : #delegate }
 MbndAstSemanticAnalyzerAndEvaluator >> visitSequenceNode: aNode [
 	| result |
 	result := nil.
 	aNode elements do: [ :element |
-		result := self analyzeAndEvaluateNode: element
+		result := self visitNode: element
 	].
 
 	^ result
+]
+
+{ #category : #accessing }
+MbndAstSemanticAnalyzerAndEvaluator >> withAnalysisScope: newAnalysisScope evaluationScope: newEvaluationScope do: aBlock [
+	| oldAnalysisScope oldEvaluationScope |
+	oldAnalysisScope := semanticAnalyzer scope.
+	oldEvaluationScope := evaluator scope.
+
+	semanticAnalyzer scope: newAnalysisScope.
+	evaluator scope: newEvaluationScope.
+	
+	^ aBlock ensure: [ 
+		semanticAnalyzer scope: oldAnalysisScope.
+		evaluator scope: oldEvaluationScope
+	]
+]
+
+{ #category : #accessing }
+MbndAstSemanticAnalyzerAndEvaluator >> withScope: newScope do: aBlock [
+	^ self withAnalysisScope: newScope evaluationScope: newScope do: aBlock
 ]

@@ -136,6 +136,13 @@ MbndAstTransformVisitor >> visitQuoteNode: node [
 ]
 
 { #category : #visiting }
+MbndAstTransformVisitor >> visitReturnStatementNode: node [
+	^ node copy
+		expression: (self visitNode: node expression);
+		yourself
+]
+
+{ #category : #visiting }
 MbndAstTransformVisitor >> visitSequenceNode: node [
 	^ node copy
 		pragmas: (self visitNodesAndCollect: node pragmas);

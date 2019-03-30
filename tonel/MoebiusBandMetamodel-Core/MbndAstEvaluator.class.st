@@ -2,10 +2,21 @@ Class {
 	#name : #MbndAstEvaluator,
 	#superclass : #MbndAstVisitor,
 	#instVars : [
+		'module',
 		'scope'
 	],
 	#category : #'MoebiusBandMetamodel-Core-Evaluation'
 }
+
+{ #category : #accessing }
+MbndAstEvaluator >> module [
+	^ module
+]
+
+{ #category : #accessing }
+MbndAstEvaluator >> module: anObject [
+	module := anObject
+]
 
 { #category : #accessing }
 MbndAstEvaluator >> scope [

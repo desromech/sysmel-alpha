@@ -6,6 +6,7 @@ Class {
 	#superclass : #MbndAstTransformVisitor,
 	#instVars : [
 		'scope',
+		'module',
 		'compilationTarget'
 	],
 	#category : #'MoebiusBandMetamodel-Core-SemanticAnalysis'
@@ -37,6 +38,16 @@ MbndAstSemanticAnalyzer >> error: anErrorString at: aSourcePosition [
 		sourcePosition: aSourcePosition;
 		environment: self;
 		signal
+]
+
+{ #category : #accessing }
+MbndAstSemanticAnalyzer >> module [
+	^ module
+]
+
+{ #category : #accessing }
+MbndAstSemanticAnalyzer >> module: anObject [
+	module := anObject
 ]
 
 { #category : #accessing }

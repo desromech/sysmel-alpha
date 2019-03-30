@@ -41,6 +41,15 @@ MbndSmalltalkImageModule class >> uniqueInstance [
 	^ uniqueInstance ifNil: [ uniqueInstance := super new ]
 ]
 
+{ #category : #evaluation }
+MbndSmalltalkImageModule >> analyzeAndEvaluateAST: ast [
+	| parsedSource |
+	parsedSource := MbndLanguageParsedSource new
+		ast: ast;
+		language: MbndGenericMacroLanguageInterface new.
+	^ self analyzeAndEvaluateParsedSource: parsedSource
+]
+
 { #category : #accessing }
 MbndSmalltalkImageModule >> compilationTarget [
 	compilationTarget ifNil: [

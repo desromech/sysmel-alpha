@@ -21,6 +21,11 @@ MbndProgramEntityScope >> lookupMacroSelector: selector [
 	^ super lookupMacroSelector: selector
 ]
 
+{ #category : #'macro expansion' }
+MbndProgramEntityScope >> lookupSymbol: aSymbol [
+	^ programEntity lookupSymbol: aSymbol
+]
+
 { #category : #accessing }
 MbndProgramEntityScope >> programEntity [
 	^ programEntity

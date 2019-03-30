@@ -1,6 +1,6 @@
 Class {
 	#name : #MbndSysmelLanguage,
-	#superclass : #MbndLanguageInterface,
+	#superclass : #MbndGenericMacroLanguageInterface,
 	#category : #'SysmelLanguage-Parser'
 }
 
@@ -29,5 +29,8 @@ MbndSysmelLanguage >> parse: sourceCollectionWithContext [
 			signal: astOrFailure message.
 	].
 
-	^ astOrFailure buildMoebiusAST: (MbndAstBuilder forModule: targetModule)
+	^ MbndLanguageParsedSource new
+		ast: (astOrFailure buildMoebiusAST: (MbndAstBuilder forModule: targetModule));
+		language: self;
+		yourself
 ]

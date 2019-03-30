@@ -115,6 +115,11 @@ MbndAstVisitor >> visitQuoteNode: node [
 ]
 
 { #category : #visiting }
+MbndAstVisitor >> visitReturnStatementNode: node [
+	self subclassResponsibility
+]
+
+{ #category : #visiting }
 MbndAstVisitor >> visitSequenceNode: node [
 	self subclassResponsibility
 ]
