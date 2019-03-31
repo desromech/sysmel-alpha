@@ -81,6 +81,19 @@ MbndCompileTimeEvaluationTest >> testNegateInteger2 [
 ]
 
 { #category : #tests }
+MbndCompileTimeEvaluationTest >> testReturn [
+	| ast result |
+	ast := builder sequence: {
+		builder return: (builder literalInteger: 42).
+		builder literalInteger: 0
+	}.
+	result := module analyzeAndEvaluateAST: ast.
+	
+	self assert: result value equals: 42.
+	self assert: result type isLiteralIntegerType.
+]
+
+{ #category : #tests }
 MbndCompileTimeEvaluationTest >> testSequenceOfLiterals [
 	| ast result |
 	ast := builder sequence: {

@@ -33,6 +33,14 @@ TMbndType >> definitionModule: aModule [
 	definitionModule := aModule
 ]
 
+{ #category : #'macro expansion' }
+TMbndType >> lookupMacroSelector: aSelector [
+	| macro |
+	macro := self macroMethodDict at: aSelector ifAbsent: [ nil ]..
+	macro ifNotNil: [ ^ macro ].
+	^ self supertype ifNotNil: [ :st | st lookupMacroSelector: aSelector ]
+]
+
 { #category : #accessing }
 TMbndType >> macroMethodDict [
 	^ macroMethodDict ifNil: [ macroMethodDict := Dictionary new ]
@@ -41,6 +49,14 @@ TMbndType >> macroMethodDict [
 { #category : #accessing }
 TMbndType >> macroMethodDict: aDictionary [
 	macroMethodDict := aDictionary
+]
+
+{ #category : #'macro expansion' }
+TMbndType >> onMacroSelector: aSelector do: aBlock [
+	self macroMethodDict at: aSelector
+		ifPresent: [ self error: 'Duplicated macro selector.' ]
+		ifAbsentPut: (MbndBlockClosureMacro new block: aBlock)
+
 ]
 
 { #category : #'type hierarchy' }

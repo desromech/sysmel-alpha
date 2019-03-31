@@ -147,6 +147,11 @@ TMbndAbstractType >> isReferenceType [
 ]
 
 { #category : #'testing methods' }
+TMbndAbstractType >> isReturnType [
+	^ false
+]
+
+{ #category : #'testing methods' }
 TMbndAbstractType >> isStructureType [
 	^ false
 ]

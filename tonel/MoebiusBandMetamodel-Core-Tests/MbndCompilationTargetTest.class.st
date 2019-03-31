@@ -160,6 +160,13 @@ MbndCompilationTargetTest >> testPointerSize [
 ]
 
 { #category : #tests }
+MbndCompilationTargetTest >> testReturnType [
+	self assert: compilationTarget returnType isVoidType.
+	self assert: compilationTarget returnType isReturnType.
+	
+]
+
+{ #category : #tests }
 MbndCompilationTargetTest >> testUInt16Type [
 	| type |
 	type := compilationTarget uint16Type.

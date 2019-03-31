@@ -145,7 +145,7 @@ TMbndCoreCompilationTarget >> int8Type [
 { #category : #initialization }
 TMbndCoreCompilationTarget >> linkMetaHierarchy [
 	| simpleMetaType |
-	simpleMetaType := basicTypes at: #_SimpleMetaType.
+	simpleMetaType := basicTypes at: MbndSimpleMetaType typeName.
 	
 	basicTypes valuesDo: [ :bt |
 		"Link with the super type."
@@ -215,6 +215,11 @@ TMbndCoreCompilationTarget >> literalSymbolType [
 TMbndCoreCompilationTarget >> lookupTypeWithName: typeName [
 	^ basicTypes at: typeName ifAbsent: [ nil ]
 
+]
+
+{ #category : #'convenience type accessors' }
+TMbndCoreCompilationTarget >> returnType [
+	^ self getBasicTypeNamed: #_ReturnType
 ]
 
 { #category : #'convenience type accessors' }

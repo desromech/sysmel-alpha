@@ -23,7 +23,7 @@ TMbndModule >> analyzeAndEvaluateAST: ast inScope: scope [
 	analyzerAndEvaluator := MbndAstSemanticAnalyzerAndEvaluator new
 		module: self;
 		scope: scope.
-	^ analyzerAndEvaluator visitNode: ast
+	^ analyzerAndEvaluator analyzeAndEvaluateFunctionContent: ast
 
 ]
 
@@ -59,7 +59,7 @@ TMbndModule >> newSourceEvaluationScopeForLanguage: aLanguage [
 	languageScope := aLanguage topLevelLanguageScope.
 	moduleScope := self programEntityScope parent: languageScope.
 	namespaceScope := self globalNamespace programEntityScope parent: moduleScope.
-	^ namespaceScope newLexicalScope
+	^ namespaceScope newReturnContextScope newLexicalScope
 	
 ]
 

@@ -22,5 +22,8 @@ MbndBlockClosureMacro >> expandMessageNode: node with: analyzer [
 	| result |
 	result := block cull: node cull: (MbndAstBuilder new module: analyzer module) cull: analyzer.
 	self assert: result isMbndAstNode.
+	block numArgs >= 3 ifFalse: [
+		^ analyzer visitNode: result
+	].
 	^ result
 ]

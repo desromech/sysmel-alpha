@@ -40,6 +40,16 @@ MbndAstEvaluator >> visitLiteralValueNode: node [
 ]
 
 { #category : #visiting }
+MbndAstEvaluator >> visitReturnStatementNode: node [
+	| result |
+	result := self visitNode: node expression.
+	^ MbndEvaluationReturn new
+		returnValue: result;
+		targetReturnContext: scope returnContextScope;
+		signal
+]
+
+{ #category : #visiting }
 MbndAstEvaluator >> visitUnexpandedMessageSendNode: node [
 	self compilerBugError: 'Macro that should have been expanded is not expanded' at: node
 ]

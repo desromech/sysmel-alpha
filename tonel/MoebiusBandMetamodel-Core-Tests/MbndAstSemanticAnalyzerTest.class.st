@@ -17,8 +17,10 @@ Class {
 MbndAstSemanticAnalyzerTest >> setUp [
 	module := MbndDummyModule new.
 	builder := MbndAstBuilder forModule: module.
-	scope := MbndLexicalScope empty.
-	visitor := MbndAstSemanticAnalyzer new scope: scope.
+	scope := MbndLexicalScope parent: (module programEntityScope parent: MbndGenericMacroLanguageTopLevelScope new).
+	visitor := MbndAstSemanticAnalyzer new
+		scope: scope;
+		module: module
 ]
 
 { #category : #tests }
@@ -32,4 +34,16 @@ MbndAstSemanticAnalyzerTest >> testLiteral [
 { #category : #running }
 MbndAstSemanticAnalyzerTest >> testNew [
 	self assert: visitor scope equals: scope
+]
+
+{ #category : #running }
+MbndAstSemanticAnalyzerTest >> testReturnMacroExpansion [
+	| value node analyzedNode |
+	value := builder literalInteger: 42.
+	node := builder unexpandedSend: (builder literalSymbol: #return:)
+		to: nil withArguments: {value}.
+	analyzedNode := visitor visitNode: node.
+	self assert: analyzedNode isReturnStatementNode.
+	self assert: analyzedNode expression equals: value.
+	self assert: analyzedNode type isReturnType.
 ]

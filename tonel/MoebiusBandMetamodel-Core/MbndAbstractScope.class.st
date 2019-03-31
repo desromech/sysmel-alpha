@@ -47,6 +47,11 @@ MbndAbstractScope >> newLexicalScope [
 	^ MbndLexicalScope parent: self
 ]
 
+{ #category : #'instance creation' }
+MbndAbstractScope >> newReturnContextScope [
+	^ MbndReturnContextScope parent: self
+]
+
 { #category : #accessing }
 MbndAbstractScope >> parent [
 	^ parent
@@ -55,4 +60,14 @@ MbndAbstractScope >> parent [
 { #category : #accessing }
 MbndAbstractScope >> parent: anObject [
 	parent := anObject
+]
+
+{ #category : #'as yet unclassified' }
+MbndAbstractScope >> returnContextScope [
+	^ parent ifNotNil: #returnContextScope
+]
+
+{ #category : #accessing }
+MbndAbstractScope >> returnType [
+	^ parent ifNotNil: #returnType
 ]

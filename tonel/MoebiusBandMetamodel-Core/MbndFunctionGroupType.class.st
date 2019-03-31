@@ -1,10 +1,10 @@
 Class {
-	#name : #MbndFunctionType,
+	#name : #MbndFunctionGroupType,
 	#superclass : #MbndFunctionalType,
 	#category : #'MoebiusBandMetamodel-Core-Type'
 }
 
 { #category : #accessing }
-MbndFunctionType class >> typeName [
-	^ #_FunctionType
+MbndFunctionGroupType class >> typeName [
+	^ #_FunctionGroupType
 ]

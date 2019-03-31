@@ -8,16 +8,19 @@ Class {
 		'module',
 		'builder',
 		'scope',
-		'visitor'
+		'visitor',
+		'returnContext'
 	],
 	#category : #'MoebiusBandMetamodel-Core-Tests-Evaluation'
 }
 
 { #category : #running }
 MbndAstEvaluatorTest >> setUp [
+	super setUp.
 	module := MbndDummyModule new.
 	builder := MbndAstBuilder forModule: module.
-	scope := MbndLexicalScope empty.
+	returnContext := MbndReturnContextScope empty.
+	scope := MbndLexicalScope parent: returnContext.
 	visitor := MbndAstEvaluator new scope: scope.
 ]
 
@@ -32,4 +35,17 @@ MbndAstEvaluatorTest >> testLiteral [
 { #category : #running }
 MbndAstEvaluatorTest >> testNew [
 	self assert: visitor scope equals: scope
+]
+
+{ #category : #running }
+MbndAstEvaluatorTest >> testReturn [
+	| node |
+	node := builder return: (builder literalInteger: 42).
+	[
+		visitor visitNode: node
+	] on: MbndEvaluationReturn do: [ :e |
+		self assert: e targetReturnContext equals: returnContext.
+		self assert: e returnValue unwrapMbndValue equals: 42
+	].
+	
 ]

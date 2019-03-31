@@ -21,4 +21,6 @@ MbndLexicalScopeTest >> testNew [
 	| scope |
 	scope := MbndLexicalScope empty.
 	self assert: scope symbolTable isEmpty.
+	self assert: scope returnType isNil.
+	self assert: scope returnContextScope isNil.
 ]

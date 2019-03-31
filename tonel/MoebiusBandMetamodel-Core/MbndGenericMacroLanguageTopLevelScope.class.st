@@ -25,36 +25,36 @@ MbndGenericMacroLanguageTopLevelScope >> addTopLevelMacros [
 	super addTopLevelMacros.
 	
 	self
-		macroSelector: #return: do: [ :node :builder |
+		onMacroSelector: #return: do: [ :node :builder |
 			(builder return: node arguments first)
 				position: node
 		];
 	
-		macroSelector: #if:then: do: [ :node :builder |
+		onMacroSelector: #if:then: do: [ :node :builder |
 			(builder if: node arguments first trueValue: node arguments second falseValue: nil)
 				position: node
 		];
-		macroSelector: #if:then:else: do: [ :node :builder |
+		onMacroSelector: #if:then:else: do: [ :node :builder |
 			(builder if: node arguments first trueValue: node arguments second falseValue: node arguments third)
 				position: node
 		];
 	
-		macroSelector: #while:do: do: [ :node :builder |
+		onMacroSelector: #while:do: do: [ :node :builder |
 			(builder while: node arguments first do: node arguments second)
 				position: node
 		];
-		macroSelector: #do:while: do: [ :node :builder |
+		onMacroSelector: #do:while: do: [ :node :builder |
 			(builder do: node arguments first while: node arguments second)
 				position: node
 		];
-		macroSelector: #until:do: do: [ :node :builder |
+		onMacroSelector: #until:do: do: [ :node :builder |
 			(builder while:
 				((builder unexpandedSend: #not to: node arguments first withArguments: #())
 					position: node arguments first)
 				do: node arguments second)
 				position: node
 		];
-		macroSelector: #do:until: do: [ :node :builder |
+		onMacroSelector: #do:until: do: [ :node :builder |
 			(builder do: node arguments first
 				while: ((node unexpandedSend: #not to: node arguments second withArguments: #())
 					position: node arguments second))

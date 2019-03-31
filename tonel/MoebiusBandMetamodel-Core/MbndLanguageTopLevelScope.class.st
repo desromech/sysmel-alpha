@@ -43,7 +43,7 @@ MbndLanguageTopLevelScope >> lookupSymbol: aSymbol [
 ]
 
 { #category : #'macro addition' }
-MbndLanguageTopLevelScope >> macroSelector: aSelector do: aBlock [
+MbndLanguageTopLevelScope >> onMacroSelector: aSelector do: aBlock [
 	topLevelMacros at: aSelector
 		ifPresent: [ self error: 'Duplicated macro selector.' ]
 		ifAbsentPut: (MbndBlockClosureMacro new block: aBlock)

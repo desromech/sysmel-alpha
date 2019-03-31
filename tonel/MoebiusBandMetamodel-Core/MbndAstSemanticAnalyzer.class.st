@@ -12,6 +12,11 @@ Class {
 	#category : #'MoebiusBandMetamodel-Core-SemanticAnalysis'
 }
 
+{ #category : #'implicit casting' }
+MbndAstSemanticAnalyzer >> addImplicitCastFor: nodeRequiringCasting to: expectedReturnType [
+	self halt
+]
+
 { #category : #visiting }
 MbndAstSemanticAnalyzer >> analyzeNodeIfNeeded: node [
 	"Visit the node only if it does not have a type value."
@@ -81,6 +86,20 @@ MbndAstSemanticAnalyzer >> visitExpandedMessageSendNode: node [
 	].
 
 	^ receiverType analyzeMessageSendNodeWithDynamicSelector: node with: self
+]
+
+{ #category : #visiting }
+MbndAstSemanticAnalyzer >> visitReturnStatementNode: node [
+	| result |
+	result := node copy
+		expression: (self visitNode: node expression);
+		type: self compilationTarget returnType.
+
+	scope returnType ifNotNil: [ :expectedReturnType |
+		result expression: (self addImplicitCastFor: result expression to: expectedReturnType)
+	].
+
+	^ result
 ]
 
 { #category : #visiting }

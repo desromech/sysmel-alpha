@@ -247,12 +247,22 @@ MbndAstTransformVisitorTest >> testQuoteNode [
 
 { #category : #tests }
 MbndAstTransformVisitorTest >> testReturnStatementNode [
-	| node transformedNode expression |
-	expression := builder literalInteger: 1.
-	node := builder return: expression.
+	| node transformedNode pragmaNode elements |
+	pragmaNode := builder pragmaSelector: #pragma:withArg arguments: {
+		builder literalInteger: -1.
+		builder literalInteger: -2.
+	}.
+	elements := {
+		builder literalInteger: 1.
+		builder literalInteger: 2.
+	}.
+	
+	node := builder pragmas: { pragmaNode } sequence: elements.
 	transformedNode := visitor visitNode: node.
 	self assert: transformedNode ~~ node.
-	self assert: transformedNode expression equals: expression.
+	self assert: transformedNode pragmas first selector equals: pragmaNode selector.
+	self assert: transformedNode pragmas first arguments equals: pragmaNode arguments.
+	self assert: transformedNode elements equals: elements.
 ]
 
 { #category : #tests }

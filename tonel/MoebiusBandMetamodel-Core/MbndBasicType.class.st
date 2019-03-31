@@ -14,7 +14,7 @@ Class {
 
 { #category : #accessing }
 MbndBasicType class >> typeName [
-	^ self == MbndBasicType ifTrue: [ #_BasicType ] ifFalse: [ nil ]
+	^ self == MbndBasicType ifTrue: [ #AnyValue ] ifFalse: [ nil ]
 ]
 
 { #category : #accessing }

@@ -8,6 +8,21 @@ Class {
 	#category : #'MoebiusBandMetamodel-Core-Evaluation'
 }
 
+{ #category : #'as yet unclassified' }
+MbndAstSemanticAnalyzerAndEvaluator >> analyzeAndEvaluateFunctionContent: ast [
+	| returnContext |
+	returnContext := evaluator scope returnContextScope.
+	
+	[ 
+		^ self visitNode: ast
+	] on: MbndEvaluationReturn do: [ :e |
+		e targetReturnContext == returnContext
+			ifTrue: [ ^ e returnValue ]
+			ifFalse: [ ^ e pass ]
+	]
+	
+]
+
 { #category : #delegate }
 MbndAstSemanticAnalyzerAndEvaluator >> analyzeAndEvaluateNode: aNode [
 	^ self evaluateNode: (self analyzeNode: aNode)
