@@ -155,12 +155,19 @@ MbndCompilationTargetTest >> testNew [
 ]
 
 { #category : #tests }
+MbndCompilationTargetTest >> testOpaqueType [
+	self assert: compilationTarget opaqueType isOpaqueType.
+	
+]
+
+{ #category : #tests }
 MbndCompilationTargetTest >> testPointerSize [
 	self assert: compilationTarget pointerSize isInteger.
 ]
 
 { #category : #tests }
 MbndCompilationTargetTest >> testReturnType [
+	self assert: compilationTarget returnType isOpaqueType.
 	self assert: compilationTarget returnType isVoidType.
 	self assert: compilationTarget returnType isReturnType.
 	
@@ -215,7 +222,15 @@ MbndCompilationTargetTest >> testUInt8Type [
 ]
 
 { #category : #tests }
+MbndCompilationTargetTest >> testUndefinedType [
+	self assert: compilationTarget undefinedType isOpaqueType.
+	self assert: compilationTarget undefinedType isUndefinedType.
+	
+]
+
+{ #category : #tests }
 MbndCompilationTargetTest >> testVoidType [
+	self assert: compilationTarget voidType isOpaqueType.
 	self assert: compilationTarget voidType isVoidType.
 	
 ]

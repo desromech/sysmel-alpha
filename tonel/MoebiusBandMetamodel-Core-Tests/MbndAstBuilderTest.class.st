@@ -223,6 +223,24 @@ MbndAstBuilderTest >> testLiteralTrue [
 ]
 
 { #category : #tests }
+MbndAstBuilderTest >> testLiteralUndefined [
+	| node |
+	node := builder literalUndefined.
+	self assert: node isLiteralValueNode.
+	self assert: node value equals: nil.
+	self assert: node type isUndefinedType.
+]
+
+{ #category : #tests }
+MbndAstBuilderTest >> testLiteralVoid [
+	| node |
+	node := builder literalVoid.
+	self assert: node isLiteralValueNode.
+	self assert: node value equals: nil.
+	self assert: node type isVoidType.
+]
+
+{ #category : #tests }
 MbndAstBuilderTest >> testMessageChainMessageNode [
 	| node arguments selector |
 	arguments := { 

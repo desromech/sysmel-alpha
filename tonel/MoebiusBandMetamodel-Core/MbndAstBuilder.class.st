@@ -126,6 +126,16 @@ MbndAstBuilder >> literalSymbol: literalValue [
 ]
 
 { #category : #'builder methods' }
+MbndAstBuilder >> literalUndefined [
+	^ self literal: nil typeName: MbndUndefinedType typeName
+]
+
+{ #category : #'builder methods' }
+MbndAstBuilder >> literalVoid [
+	^ self literal: nil typeName: MbndVoidType typeName
+]
+
+{ #category : #'builder methods' }
 MbndAstBuilder >> lookupTypeWithName: typeSelector [
 	^ self compilationTarget lookupTypeWithName: typeSelector
 ]

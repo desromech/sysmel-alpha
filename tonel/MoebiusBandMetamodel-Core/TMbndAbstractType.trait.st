@@ -117,6 +117,11 @@ TMbndAbstractType >> isLiteralValueType [
 ]
 
 { #category : #'testing methods' }
+TMbndAbstractType >> isOpaqueType [
+	^ false
+]
+
+{ #category : #'testing methods' }
 TMbndAbstractType >> isPointerType [
 	^ false
 ]
@@ -153,6 +158,11 @@ TMbndAbstractType >> isReturnType [
 
 { #category : #'testing methods' }
 TMbndAbstractType >> isStructureType [
+	^ false
+]
+
+{ #category : #'testing methods' }
+TMbndAbstractType >> isUndefinedType [
 	^ false
 ]
 

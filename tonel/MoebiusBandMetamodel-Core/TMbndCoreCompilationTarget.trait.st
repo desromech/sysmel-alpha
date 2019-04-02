@@ -218,6 +218,11 @@ TMbndCoreCompilationTarget >> lookupTypeWithName: typeName [
 ]
 
 { #category : #'convenience type accessors' }
+TMbndCoreCompilationTarget >> opaqueType [
+	^ self getBasicTypeNamed: MbndOpaqueType typeName
+]
+
+{ #category : #'convenience type accessors' }
 TMbndCoreCompilationTarget >> returnType [
 	^ self getBasicTypeNamed: #_ReturnType
 ]
@@ -243,6 +248,11 @@ TMbndCoreCompilationTarget >> uint8Type [
 ]
 
 { #category : #'convenience type accessors' }
+TMbndCoreCompilationTarget >> undefinedType [
+	^ self getBasicTypeNamed: MbndUndefinedType typeName
+]
+
+{ #category : #'convenience type accessors' }
 TMbndCoreCompilationTarget >> voidType [
-	^ self getBasicTypeNamed: #Void
+	^ self getBasicTypeNamed: MbndVoidType typeName
 ]

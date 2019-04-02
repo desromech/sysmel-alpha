@@ -7,6 +7,19 @@ Class {
 	#category : #'MoebiusBandMetamodel-Core-Scope'
 }
 
+{ #category : #adding }
+MbndLexicalScope >> addSymbol: symbol binding: binding [
+	^ self addSymbol: symbol binding: binding ifPresent: [:existent |
+		self error: 'Overriding local symbol {1} binding with {2}.' format: { symbol . binding }
+	]
+]
+
+{ #category : #adding }
+MbndLexicalScope >> addSymbol: symbol binding: binding ifPresent: aBlock [
+	self assert: binding isMbndSymbolBinding.
+	^ symbolTable at: symbol ifPresent: aBlock ifAbsentPut: [ binding ]
+]
+
 { #category : #initialization }
 MbndLexicalScope >> initialize [
 	super initialize.

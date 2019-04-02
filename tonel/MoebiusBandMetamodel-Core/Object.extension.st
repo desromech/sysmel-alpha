@@ -6,6 +6,11 @@ Object >> isMbndAstNode [
 ]
 
 { #category : #'*MoebiusBandMetamodel-Core' }
+Object >> isMbndSymbolBinding [
+	^ false
+]
+
+{ #category : #'*MoebiusBandMetamodel-Core' }
 Object >> mbndLiteralTypeWithTarget: compilationTarget [
 	self subclassResponsibility
 ]

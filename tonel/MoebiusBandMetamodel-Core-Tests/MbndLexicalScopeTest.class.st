@@ -8,6 +8,38 @@ Class {
 }
 
 { #category : #tests }
+MbndLexicalScopeTest >> testAddInvalidSymbolBinding [
+	| scope |
+	scope := MbndLexicalScope empty.
+	self should: [
+		scope addSymbol: #test binding: 42 ifPresent: nil
+	] raise: Error
+]
+
+{ #category : #tests }
+MbndLexicalScopeTest >> testAddParentSymbol [
+	| scope binding parentScope |
+	binding := MbndValue new value: 42.
+	parentScope := MbndLexicalScope empty
+		addSymbol: #test binding: binding;
+		yourself.
+
+	scope := MbndLexicalScope parent: parentScope.
+	self assert: (scope lookupSymbol: #test) equals: nil.
+	self assert: (scope lookupSymbolRecursively: #test ifAbsent: [self error]) equals: binding.
+]
+
+{ #category : #tests }
+MbndLexicalScopeTest >> testAddSymbol [
+	| scope binding |
+	scope := MbndLexicalScope empty.
+	binding := MbndValue new value: 42.
+	scope addSymbol: #test binding: binding.
+	self assert: (scope lookupSymbol: #test) equals: binding.
+	self assert: (scope lookupSymbolRecursively: #test ifAbsent: [self error]) equals: binding.
+]
+
+{ #category : #tests }
 MbndLexicalScopeTest >> testEmptyLookup [
 	| scope |
 	scope := MbndLexicalScope empty.

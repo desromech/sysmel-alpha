@@ -1,6 +1,8 @@
 Class {
 	#name : #MbndAbstractScope,
 	#superclass : #Object,
+	#traits : 'TMbndObject',
+	#classTraits : 'TMbndObject classTrait',
 	#instVars : [
 		'parent'
 	],
@@ -62,7 +64,7 @@ MbndAbstractScope >> parent: anObject [
 	parent := anObject
 ]
 
-{ #category : #'as yet unclassified' }
+{ #category : #accessing }
 MbndAbstractScope >> returnContextScope [
 	^ parent ifNotNil: #returnContextScope
 ]

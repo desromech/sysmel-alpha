@@ -1,6 +1,6 @@
 Class {
 	#name : #MbndVoidType,
-	#superclass : #MbndNativeType,
+	#superclass : #MbndOpaqueType,
 	#category : #'MoebiusBandMetamodel-Core-Type'
 }
 

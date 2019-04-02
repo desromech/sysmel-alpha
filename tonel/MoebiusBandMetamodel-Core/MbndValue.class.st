@@ -4,6 +4,8 @@ I am a concrete value that is augmented with type information.
 Class {
 	#name : #MbndValue,
 	#superclass : #MbndAbstractValue,
+	#traits : 'TMbndSymbolBinding',
+	#classTraits : 'TMbndSymbolBinding classTrait',
 	#instVars : [
 		'value',
 		'type'
