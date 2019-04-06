@@ -10,7 +10,7 @@ Class {
 { #category : #adding }
 MbndLexicalScope >> addSymbol: symbol binding: binding [
 	^ self addSymbol: symbol binding: binding ifPresent: [:existent |
-		self error: 'Overriding local symbol {1} binding with {2}.' format: { symbol . binding }
+		self error: 'Overriding local binding for {1} with {2}.' format: { symbol asPrettySymbolName . binding }
 	]
 ]
 

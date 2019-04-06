@@ -9,6 +9,11 @@ MbndLiteralBooleanType class >> typeName [
 	^ #_LiteralBoolean
 ]
 
+{ #category : #'semantic analysis' }
+MbndLiteralBooleanType >> bestConcreteTypeForLiteralValueNode: literalValueNode inScope: scope [
+	^ compilationTarget booleanType
+]
+
 { #category : #'testing methods' }
 MbndLiteralBooleanType >> isLiteralBooleanType [
 	^ true

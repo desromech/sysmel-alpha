@@ -80,6 +80,6 @@ MbndLanguageInterface >> parseSourceString: sourceString forModule: aTargetModul
 ]
 
 { #category : #scope }
-MbndLanguageInterface >> topLevelLanguageScope [
+MbndLanguageInterface >> topLevelLanguageScopeFor: aModule [
 	self subclassResponsibility
 ]

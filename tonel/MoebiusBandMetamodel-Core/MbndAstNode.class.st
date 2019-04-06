@@ -176,6 +176,11 @@ MbndAstNode >> printValueString [
 ]
 
 { #category : #accessing }
+MbndAstNode >> sourceTextPosition [
+	^ position sourceTextPosition
+]
+
+{ #category : #accessing }
 MbndAstNode >> type [
 	^ type
 ]

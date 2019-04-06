@@ -23,6 +23,11 @@ MbndSimpleMetaType >> instanceType: anObject [
 	name := nil.
 ]
 
+{ #category : #'testing methods' }
+MbndSimpleMetaType >> isMetaType [
+	^ true
+]
+
 { #category : #accessing }
 MbndSimpleMetaType >> printOn: aStream [
 	instanceType ifNil: [ ^ super printOn: aStream ].

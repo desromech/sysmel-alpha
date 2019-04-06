@@ -6,10 +6,17 @@ Class {
 	#superclass : #MbndAbstractScope,
 	#instVars : [
 		'topLevelMacros',
-		'topLevelSymbols'
+		'topLevelSymbols',
+		'module',
+		'compilationTarget'
 	],
 	#category : #'MoebiusBandMetamodel-Core-Scope'
 }
+
+{ #category : #'instance creation' }
+MbndLanguageTopLevelScope class >> for: aModule [
+	^ self new initializeWithModule: aModule
+]
 
 { #category : #initialization }
 MbndLanguageTopLevelScope >> addTopLevelMacros [
@@ -22,8 +29,9 @@ MbndLanguageTopLevelScope >> addTopLevelSymbols [
 ]
 
 { #category : #initialization }
-MbndLanguageTopLevelScope >> initialize [
-	super initialize.
+MbndLanguageTopLevelScope >> initializeWithModule: aModule [
+	module := aModule.
+	compilationTarget := module compilationTarget.
 	topLevelMacros := Dictionary new.
 	topLevelSymbols := Dictionary new.
 	self

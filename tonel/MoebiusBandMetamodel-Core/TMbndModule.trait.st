@@ -56,7 +56,7 @@ TMbndModule >> globalNamespace [
 { #category : #scope }
 TMbndModule >> newSourceEvaluationScopeForLanguage: aLanguage [
 	| languageScope moduleScope namespaceScope  |
-	languageScope := aLanguage topLevelLanguageScope.
+	languageScope := aLanguage topLevelLanguageScopeFor: self.
 	moduleScope := self programEntityScope parent: languageScope.
 	namespaceScope := self globalNamespace programEntityScope parent: moduleScope.
 	^ namespaceScope newReturnContextScope newLexicalScope

@@ -13,6 +13,26 @@ Class {
 	#category : #'MoebiusBandMetamodel-Core-Values'
 }
 
+{ #category : #'instance creation' }
+MbndValue class >> value: aValue type: aType [
+	^ self new value: aValue; type: aType; yourself
+]
+
+{ #category : #'semantic analysis' }
+MbndValue >> analyzeReferenceNode: referenceNode with: analyzer [
+	^ self asLiteralValueNode 
+		position: referenceNode;
+		yourself
+]
+
+{ #category : #converting }
+MbndValue >> asLiteralValueNode [
+	^ MbndAstLiteralValueNode new
+		value: value;
+		type: type;
+		yourself
+]
+
 { #category : #printing }
 MbndValue >> printOn: aStream [
 	aStream nextPut: $(; print: type; nextPut: $); print: value

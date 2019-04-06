@@ -41,7 +41,7 @@ MbndAstSemanticAnalyzer >> error: anErrorString at: aSourcePosition [
 	^ MbndSemanticError new
 		messageText: anErrorString;
 		sourcePosition: aSourcePosition;
-		environment: self;
+		environment: scope;
 		signal
 ]
 
@@ -76,16 +76,26 @@ MbndAstSemanticAnalyzer >> visitExpandedMessageSendNode: node [
 	"Find the method in order to perform a typed message send."
 	receiverType := result receiver type.
 	result selector isLiteralSymbolValueNode ifTrue: [ 
-		method := receiverType lookupSelector: node selector value.
+		method := receiverType lookupSelector: result selector value.
 		method ifNotNil: [
 			self halt
 		].
 	
 		"We failed to find the method, then ask the receiver type to interpret this message."
-		^ receiverType analyzeUnboundExpandedMessageSendNode: node with: self
+		^ receiverType analyzeUnboundExpandedMessageSendNode: result with: self
 	].
 
-	^ receiverType analyzeMessageSendNodeWithDynamicSelector: node with: self
+	^ receiverType analyzeMessageSendNodeWithDynamicSelector: result with: self
+]
+
+{ #category : #visiting }
+MbndAstSemanticAnalyzer >> visitIdentifierReferenceNode: node [
+	| binding |
+	binding := scope lookupSymbolRecursively: node symbol ifAbsent: [
+		self error: 'Failed to find binding for {1}.' format: { node symbol asPrettySymbolName } at: node
+	].
+
+	^ binding analyzeReferenceNode: node with: self
 ]
 
 { #category : #visiting }
@@ -120,19 +130,20 @@ MbndAstSemanticAnalyzer >> visitUnexpandedMessageSendNode: node [
 		selector: (self analyzeNodeIfNeeded: node selector);
 		yourself.
 
-	result selector isLiteralSymbolValueNode ifTrue: [
-		"Perform macro lookup."
-		selector := result selector value.
-		macroMethod := result receiver
-			ifNil: [ scope lookupMacroSelector: selector ]
-			ifNotNil: [ :receiver | receiver type lookupMacroSelector: selector ].
-
-		"Apply the macro method."
-		macroMethod ifNotNil: [
-			^ macroMethod expandMessageNode: node with: self
-		].
+	result receiver ifNotNil: [
+		^ result receiver type analyzeUnexpandedMessageSendNode: node with: self
 	].
 
-	"No macro found, analyze the node as a normal message send."	
-	^ self visitNode: result asExpandedMessageSend
+	result selector isLiteralSymbolValueNode ifFalse: [
+		^ self error: 'Invalid message send without receiver. The selector must be a constant.' at: node
+	].
+
+	selector := result selector value.
+	macroMethod := scope lookupMacroSelector: selector.
+	macroMethod ifNil: [
+		^ self error: 'Cannot lookup macro method with selector {1}.' format: {selector printString} at: node
+	].
+
+	"Apply the macro method."
+	^ macroMethod expandMessageNode: node with: self
 ]

@@ -5,6 +5,6 @@ Class {
 }
 
 { #category : #scope }
-MbndGenericLanguageInterface >> topLevelLanguageScope [
-	^ MbndGenericLanguageTopLevelScope new
+MbndGenericLanguageInterface >> topLevelLanguageScopeFor: aModule [
+	^ MbndGenericLanguageTopLevelScope for: aModule
 ]

@@ -110,6 +110,11 @@ SYMLASTNode >> semanticAnalysisInEnvironment: anEnvironment [
 ]
 
 { #category : #accessing }
+SYMLASTNode >> sourceTextPosition [
+	^ position sourceTextPosition
+]
+
+{ #category : #accessing }
 SYMLASTNode >> tokens [
 	^ tokens
 ]

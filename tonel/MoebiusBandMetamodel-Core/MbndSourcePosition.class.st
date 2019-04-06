@@ -130,6 +130,11 @@ MbndSourcePosition >> sourceCode [
 	^ collection copyFrom: start to: stop
 ]
 
+{ #category : #converting }
+MbndSourcePosition >> sourceTextPosition [
+	^ self
+]
+
 { #category : #accessing }
 MbndSourcePosition >> start [
 	^ start

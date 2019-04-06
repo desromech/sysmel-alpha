@@ -17,7 +17,7 @@ Class {
 MbndAstSemanticAnalyzerTest >> setUp [
 	module := MbndDummyModule new.
 	builder := MbndAstBuilder forModule: module.
-	scope := MbndLexicalScope parent: (module programEntityScope parent: MbndGenericMacroLanguageTopLevelScope new).
+	scope := MbndLexicalScope parent: (module programEntityScope parent: (MbndGenericMacroLanguageTopLevelScope for: module)).
 	visitor := MbndAstSemanticAnalyzer new
 		scope: scope;
 		module: module

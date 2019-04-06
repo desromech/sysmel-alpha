@@ -27,8 +27,31 @@ TMbndAbstractType >> analyzeMessageSendNodeWithDynamicSelector: node with: analy
 ]
 
 { #category : #'semantic analysis' }
+TMbndAbstractType >> analyzeReferenceNode: referenceNode with: analyzer [
+	^ MbndAstLiteralValueNode new
+		value: self;
+		type: self type;
+		position: referenceNode;
+		yourself
+]
+
+{ #category : #'semantic analysis' }
 TMbndAbstractType >> analyzeUnboundExpandedMessageSendNode: node with: analyzer [
-	self error: 'Cannout send unknown message {1} to value of type {2}.' format: {node selector printValueString. self fullName} at: node
+	self error: 'Cannot send unknown message {1} to value of type {2}.' format: {node selector printValueString. self fullName} at: node
+]
+
+{ #category : #'semantic analysis' }
+TMbndAbstractType >> analyzeUnexpandedMessageSendNode: node with: analyzer [
+	| selector macroMethod |
+	node selector isLiteralSymbolValueNode ifTrue: [
+		selector := node selector value.
+		macroMethod := self lookupMacroSelector: selector.
+		macroMethod ifNotNil: [
+			^ macroMethod expandMessageNode: node with: analyzer
+		].
+	].
+
+	^ analyzer visitNode: node asExpandedMessageSend
 ]
 
 { #category : #accessing }
@@ -113,6 +136,11 @@ TMbndAbstractType >> isLiteralSymbolType [
 
 { #category : #'testing methods' }
 TMbndAbstractType >> isLiteralValueType [
+	^ false
+]
+
+{ #category : #'testing methods' }
+TMbndAbstractType >> isMetaType [
 	^ false
 ]
 

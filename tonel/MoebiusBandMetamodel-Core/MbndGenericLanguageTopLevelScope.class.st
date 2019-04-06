@@ -19,3 +19,19 @@ Class {
 	#superclass : #MbndLanguageTopLevelScope,
 	#category : #'MoebiusBandMetamodel-Core-Scope'
 }
+
+{ #category : #initialization }
+MbndGenericLanguageTopLevelScope >> addTopLevelSymbols [
+	super addTopLevelSymbols.
+	topLevelSymbols
+		at: #nil put: (MbndValue value: nil type: compilationTarget undefinedType);
+		at: #true put: (MbndValue value: true type: compilationTarget literalBooleanTrueType);
+		at: #false put: (MbndValue value: false type: compilationTarget literalBooleanFalseType);
+		yourself
+]
+
+{ #category : #'macro expansion' }
+MbndGenericLanguageTopLevelScope >> lookupSymbol: aSymbol [
+	(super lookupSymbol: aSymbol) ifNotNil: [ :found | ^ found ].
+	^ compilationTarget lookupTypeWithName: aSymbol
+]

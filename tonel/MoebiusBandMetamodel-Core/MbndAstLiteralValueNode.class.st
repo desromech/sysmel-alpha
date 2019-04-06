@@ -14,10 +14,7 @@ MbndAstLiteralValueNode >> accept: aVisitor [
 
 { #category : #'as yet unclassified' }
 MbndAstLiteralValueNode >> evaluateMbndValue [
-	^ MbndValue new
-		value: value;
-		type: type;
-		yourself
+	^ MbndValue value: value type: type
 ]
 
 { #category : #testing }
