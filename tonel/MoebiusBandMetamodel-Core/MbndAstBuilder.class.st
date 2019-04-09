@@ -58,6 +58,15 @@ MbndAstBuilder >> continueStatement [
 	^ MbndAstContinueStatementNode new
 ]
 
+{ #category : #'as yet unclassified' }
+MbndAstBuilder >> defineLocalVariable: name withValueType: valueType withInitialValue: initialValue [
+	^ MbndAstLocalVariableDefinition new
+		name: name;
+		valueType: valueType;
+		initialValue: initialValue;
+		yourself
+]
+
 { #category : #'builder methods' }
 MbndAstBuilder >> do: action while: condition [
 	^ MbndAstDoWhileLoopNode new

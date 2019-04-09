@@ -150,6 +150,11 @@ MbndCompilationTargetTest >> testLiteralTrueType [
 ]
 
 { #category : #tests }
+MbndCompilationTargetTest >> testMetaBuilderInstanceType [
+	self assert: compilationTarget metaBuilderInstanceType isMetaBuilderInstanceType.
+]
+
+{ #category : #tests }
 MbndCompilationTargetTest >> testMetaType [
 	self assert: compilationTarget voidType type isMetaType.
 	self assert: compilationTarget voidType type instanceType equals: compilationTarget voidType.

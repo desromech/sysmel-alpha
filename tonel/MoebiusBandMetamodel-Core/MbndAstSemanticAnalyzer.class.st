@@ -7,14 +7,23 @@ Class {
 	#instVars : [
 		'scope',
 		'module',
-		'compilationTarget'
+		'compilationTarget',
+		'astBuilder'
 	],
 	#category : #'MoebiusBandMetamodel-Core-SemanticAnalysis'
 }
 
 { #category : #'implicit casting' }
-MbndAstSemanticAnalyzer >> addImplicitCastFor: nodeRequiringCasting to: expectedReturnType [
-	self halt
+MbndAstSemanticAnalyzer >> addImplicitCastFor: nodeRequiringCasting to: expectedTargetType [
+	| sourceType |
+	sourceType := nodeRequiringCasting type.
+
+	"Omit the cast if not needed."
+	sourceType = expectedTargetType ifTrue: [
+		^ nodeRequiringCasting
+	].
+
+	^ sourceType createNode: nodeRequiringCasting implicitCastTo: expectedTargetType with: self
 ]
 
 { #category : #visiting }
@@ -30,6 +39,19 @@ MbndAstSemanticAnalyzer >> analyzeNodesIfNeeded: nodes [
 	^ nodes collect: [ :node | self analyzeNodeIfNeeded: node ]
 ]
 
+{ #category : #visiting }
+MbndAstSemanticAnalyzer >> analyzeNonConcreteNodeIfNeeded: node [
+	"Visit the node only if it does not have a type value."
+	^ node type
+		ifNil: [ self visitNonConcreteNode: node ]
+		ifNotNil: [ node ]
+]
+
+{ #category : #accessing }
+MbndAstSemanticAnalyzer >> astBuilder [
+	^ astBuilder ifNil: [ astBuilder := MbndAstBuilder forModule: module ]
+]
+
 { #category : #accessing }
 MbndAstSemanticAnalyzer >> compilationTarget [
 	^ compilationTarget ifNil: [ compilationTarget := scope compilationTarget ]
@@ -43,6 +65,34 @@ MbndAstSemanticAnalyzer >> error: anErrorString at: aSourcePosition [
 		sourcePosition: aSourcePosition;
 		environment: scope;
 		signal
+]
+
+{ #category : #'compile time evaluation' }
+MbndAstSemanticAnalyzer >> evaluateCompileTimeExpression: compileTimeExpression [
+	| returnContext evaluator |
+	returnContext := MbndReturnContextScope parent: scope.
+	
+	evaluator := MbndAstEvaluator new
+		scope: returnContext newLexicalScope.
+		
+	[
+		^ evaluator visitNode: compileTimeExpression
+	] on: MbndEvaluationReturn do: [ :e |
+		e targetReturnContext == returnContext
+			ifTrue: [ ^ e returnValue ]
+			ifFalse: [ ^ e pass ]
+	]
+]
+
+{ #category : #'compile time evaluation' }
+MbndAstSemanticAnalyzer >> evaluateTypeExpression: typeExpression [
+	| evaluationResult |
+	evaluationResult := self evaluateCompileTimeExpression: typeExpression.
+	evaluationResult type isMetaType ifFalse: [
+		^ self error: 'Expected a type expression, instead of an expression evaluated to {1}.' format: { evaluationResult printString } at: typeExpression
+	].
+
+	^ evaluationResult value
 ]
 
 { #category : #accessing }
@@ -99,6 +149,16 @@ MbndAstSemanticAnalyzer >> visitIdentifierReferenceNode: node [
 ]
 
 { #category : #visiting }
+MbndAstSemanticAnalyzer >> visitNode: node [
+	^ (node accept: self) concretizeNodeWithAnalyzer: self
+]
+
+{ #category : #visiting }
+MbndAstSemanticAnalyzer >> visitNonConcreteNode: node [
+	^ node accept: self
+]
+
+{ #category : #visiting }
 MbndAstSemanticAnalyzer >> visitReturnStatementNode: node [
 	| result |
 	result := node copy
@@ -126,12 +186,12 @@ MbndAstSemanticAnalyzer >> visitSequenceNode: node [
 MbndAstSemanticAnalyzer >> visitUnexpandedMessageSendNode: node [
 	| result selector macroMethod |
 	result := node copy
-		receiver: (node receiver ifNotNil: [self analyzeNodeIfNeeded: node receiver]);
+		receiver: (node receiver ifNotNil: [self analyzeNonConcreteNodeIfNeeded: node receiver]);
 		selector: (self analyzeNodeIfNeeded: node selector);
 		yourself.
 
 	result receiver ifNotNil: [
-		^ result receiver type analyzeUnexpandedMessageSendNode: node with: self
+		^ result receiver type analyzeUnexpandedMessageSendNode: result with: self
 	].
 
 	result selector isLiteralSymbolValueNode ifFalse: [

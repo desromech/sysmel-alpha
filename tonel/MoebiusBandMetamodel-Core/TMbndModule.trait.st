@@ -54,9 +54,29 @@ TMbndModule >> globalNamespace [
 ]
 
 { #category : #scope }
+TMbndModule >> newGenericAnalysisScope [
+	^ self newSourceEvaluationScopeForLanguageScope: (MbndGenericMacroLanguageTopLevelScope for: self)
+]
+
+{ #category : #scope }
+TMbndModule >> newGenericSemanticAnalyzer [
+	^ MbndAstSemanticAnalyzer new
+		scope: self newGenericAnalysisScope;
+		module: self;
+		yourself
+]
+
+{ #category : #scope }
 TMbndModule >> newSourceEvaluationScopeForLanguage: aLanguage [
-	| languageScope moduleScope namespaceScope  |
+	| languageScope |
 	languageScope := aLanguage topLevelLanguageScopeFor: self.
+	^ self newSourceEvaluationScopeForLanguageScope: languageScope
+	
+]
+
+{ #category : #scope }
+TMbndModule >> newSourceEvaluationScopeForLanguageScope: languageScope [
+	| moduleScope namespaceScope |
 	moduleScope := self programEntityScope parent: languageScope.
 	namespaceScope := self globalNamespace programEntityScope parent: moduleScope.
 	^ namespaceScope newReturnContextScope newLexicalScope

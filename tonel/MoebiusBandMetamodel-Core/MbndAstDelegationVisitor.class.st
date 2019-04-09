@@ -73,12 +73,22 @@ MbndAstDelegationVisitor >> visitLiteralValueNode: node [
 ]
 
 { #category : #visiting }
+MbndAstDelegationVisitor >> visitLocalVariableDefinition: node [
+	^ self delegateNodeVisit: node
+]
+
+{ #category : #visiting }
 MbndAstDelegationVisitor >> visitMessageChainMessageNode: node [
 	^ self delegateNodeVisit: node
 ]
 
 { #category : #visiting }
 MbndAstDelegationVisitor >> visitMessageChainNode: node [
+	^ self delegateNodeVisit: node
+]
+
+{ #category : #visiting }
+MbndAstDelegationVisitor >> visitMetaBuilderInstanceNode: node [
 	^ self delegateNodeVisit: node
 ]
 

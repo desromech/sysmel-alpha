@@ -91,6 +91,13 @@ MbndAstTransformVisitor >> visitLiteralValueNode: node [
 ]
 
 { #category : #visiting }
+MbndAstTransformVisitor >> visitLocalVariableDefinition: node [
+	^ node copy
+		initialValue: (node initialValue ifNotNil: [:initialValue | self visitNode: initialValue]);
+		yourself
+]
+
+{ #category : #visiting }
 MbndAstTransformVisitor >> visitMessageChainMessageNode: node [
 	^ node copy
 		selector: (self visitNode: node selector);
@@ -104,6 +111,11 @@ MbndAstTransformVisitor >> visitMessageChainNode: node [
 		receiver: (self visitNode: node receiver);
 		messages: (self visitNodesAndCollect: node messages);
 		yourself
+]
+
+{ #category : #visiting }
+MbndAstTransformVisitor >> visitMetaBuilderInstanceNode: node [
+	^ node
 ]
 
 { #category : #visiting }

@@ -26,8 +26,13 @@ MbndGenericLanguageTopLevelScope >> addTopLevelSymbols [
 	topLevelSymbols
 		at: #nil put: (MbndValue value: nil type: compilationTarget undefinedType);
 		at: #true put: (MbndValue value: true type: compilationTarget literalBooleanTrueType);
-		at: #false put: (MbndValue value: false type: compilationTarget literalBooleanFalseType);
-		yourself
+		at: #false put: (MbndValue value: false type: compilationTarget literalBooleanFalseType).
+		
+	MbndMetaBuilder withAllSubclassesDo: [ :sc |
+		sc globalBindingName ifNotNil: [ :symbol |
+			topLevelSymbols at: symbol put: sc metaBuilderFactory
+		]
+	].
 ]
 
 { #category : #'macro expansion' }

@@ -12,6 +12,11 @@ MbndPrimitiveIntegerType class >> typeName [
 	^ #_PrimitiveIntegerType
 ]
 
+{ #category : #testing }
+MbndPrimitiveIntegerType >> isAcceptableLiteralValue: literalValue [
+	^ literalValue isInteger
+]
+
 { #category : #'testing methods' }
 MbndPrimitiveIntegerType >> isPrimitiveIntegerType [
 	^ true
@@ -25,6 +30,11 @@ MbndPrimitiveIntegerType >> isSigned [
 { #category : #'testing methods' }
 MbndPrimitiveIntegerType >> isUnsigned [
 	^ signed not
+]
+
+{ #category : #testing }
+MbndPrimitiveIntegerType >> legalizeLiteralValue: literalValue [
+	^ literalValue asInteger
 ]
 
 { #category : #accessing }

@@ -15,6 +15,11 @@ MbndAstNodeTest >> testEmptyPosition [
 ]
 
 { #category : #tests }
+MbndAstNodeTest >> testMetaBuilderInstanceNode [
+	self assert: MbndAstMetaBuilderInstanceNode new isMetaBuilderInstanceNode
+]
+
+{ #category : #tests }
 MbndAstNodeTest >> testTestingMethods [
 	| node |
 	node := MbndAstNode new.
@@ -34,6 +39,8 @@ MbndAstNodeTest >> testTestingMethods [
 	self deny: node isLexicalScopeNode.
 	self deny: node isLiteralValueNode.
 	self deny: node isLiteralSymbolValueNode.
+	self deny: node isLocalVariableDefinitionNode.
+	self deny: node isMetaBuilderInstanceNode.
 	self deny: node isMessageChainNode.
 	self deny: node isMessageChainMessageNode.
 	self deny: node isPragmaNode.

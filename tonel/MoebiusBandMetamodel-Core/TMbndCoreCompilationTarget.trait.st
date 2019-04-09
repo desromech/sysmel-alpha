@@ -39,7 +39,12 @@ TMbndCoreCompilationTarget >> addBasicIntegerTypeWithSize: size signed: signed n
 { #category : #initialization }
 TMbndCoreCompilationTarget >> addBasicType: basicType [
 	basicType name ~= basicType class typeName ifTrue: [
-		
+		self assert: basicType type isNil.
+		basicType type: (MbndSimpleMetaType new
+			instanceType: basicType;
+			type: self simpleMetaType;
+			supertype: (basicTypes at: basicType class typeName) type;
+			yourself)
 	].
 
 	basicTypes at: basicType name put: basicType.
@@ -218,6 +223,11 @@ TMbndCoreCompilationTarget >> lookupTypeWithName: typeName [
 ]
 
 { #category : #'convenience type accessors' }
+TMbndCoreCompilationTarget >> metaBuilderInstanceType [
+	^ self getBasicTypeNamed: MbndMetaBuilderInstanceType typeName
+]
+
+{ #category : #'convenience type accessors' }
 TMbndCoreCompilationTarget >> opaqueType [
 	^ self getBasicTypeNamed: MbndOpaqueType typeName
 ]
@@ -225,6 +235,11 @@ TMbndCoreCompilationTarget >> opaqueType [
 { #category : #'convenience type accessors' }
 TMbndCoreCompilationTarget >> returnType [
 	^ self getBasicTypeNamed: #_ReturnType
+]
+
+{ #category : #'convenience type accessors' }
+TMbndCoreCompilationTarget >> simpleMetaType [
+	^ self getBasicTypeNamed: MbndSimpleMetaType typeName
 ]
 
 { #category : #'convenience type accessors' }

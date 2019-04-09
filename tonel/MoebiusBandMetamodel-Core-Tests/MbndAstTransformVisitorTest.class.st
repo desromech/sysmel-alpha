@@ -164,6 +164,19 @@ MbndAstTransformVisitorTest >> testLiteralValueNode [
 ]
 
 { #category : #tests }
+MbndAstTransformVisitorTest >> testLocalVariableDefinition [
+	| node valueType initialValue transformedNode |
+	valueType := module compilationTarget int32Type.
+	initialValue := builder literalInteger: 42.
+	node := builder defineLocalVariable: #var withValueType: valueType withInitialValue: initialValue.
+	transformedNode := visitor visitNode: node.
+	self assert: transformedNode ~~ node.
+	self assert: transformedNode name equals: node name.
+	self assert: transformedNode valueType equals: valueType.
+	self assert: transformedNode initialValue equals: initialValue.
+]
+
+{ #category : #tests }
 MbndAstTransformVisitorTest >> testMessageChainMessageNode [
 	| node transformedNode selector arguments |
 	selector := builder literalSymbol: #to:by:.
@@ -197,6 +210,14 @@ MbndAstTransformVisitorTest >> testMessageChainNode [
 	self assert: transformedNode receiver equals: receiver.
 	self assert: transformedNode messages first selector equals: chainedMessage selector.
 	self assert: transformedNode messages first arguments equals: chainedMessage arguments.
+]
+
+{ #category : #tests }
+MbndAstTransformVisitorTest >> testMetaBuilderInstanceNode [
+	| node transformedNode |
+	node := MbndAstMetaBuilderInstanceNode new instance: 42.
+	transformedNode := visitor visitNode: node.
+	self assert: transformedNode == node.
 ]
 
 { #category : #tests }

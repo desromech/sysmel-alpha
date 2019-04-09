@@ -241,6 +241,18 @@ MbndAstBuilderTest >> testLiteralVoid [
 ]
 
 { #category : #tests }
+MbndAstBuilderTest >> testLocalVariableDefinition [
+	| node valueType initialValue |
+	valueType := module compilationTarget int32Type.
+	initialValue := builder literalInteger: 42.
+	node := builder defineLocalVariable: #var withValueType: valueType withInitialValue: initialValue.
+	self assert: node isLocalVariableDefinitionNode.
+	self assert: node name equals: #var.
+	self assert: node valueType equals: valueType.
+	self assert: node initialValue equals: initialValue.
+]
+
+{ #category : #tests }
 MbndAstBuilderTest >> testMessageChainMessageNode [
 	| node arguments selector |
 	arguments := { 

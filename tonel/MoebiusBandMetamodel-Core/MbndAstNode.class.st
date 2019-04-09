@@ -16,6 +16,11 @@ MbndAstNode >> accept: aVisitor [
 	self subclassResponsibility
 ]
 
+{ #category : #'as yet unclassified' }
+MbndAstNode >> concretizeNodeWithAnalyzer: analyzer [
+	^ self
+]
+
 { #category : #initialization }
 MbndAstNode >> initialize [
 	super initialize.
@@ -88,6 +93,11 @@ MbndAstNode >> isLiteralValueNode [
 ]
 
 { #category : #testing }
+MbndAstNode >> isLocalVariableDefinitionNode [
+	^ false
+]
+
+{ #category : #testing }
 MbndAstNode >> isMbndAstNode [
 	^ true
 ]
@@ -99,6 +109,11 @@ MbndAstNode >> isMessageChainMessageNode [
 
 { #category : #testing }
 MbndAstNode >> isMessageChainNode [
+	^ false
+]
+
+{ #category : #testing }
+MbndAstNode >> isMetaBuilderInstanceNode [
 	^ false
 ]
 

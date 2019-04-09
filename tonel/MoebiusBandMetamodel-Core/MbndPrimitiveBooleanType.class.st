@@ -17,6 +17,11 @@ MbndPrimitiveBooleanType >> initialize [
 		instanceAlignment: 1
 ]
 
+{ #category : #testing }
+MbndPrimitiveBooleanType >> isAcceptableLiteralValue: literalValue [
+	^ literalValue == true or: [ literalValue == false ]
+]
+
 { #category : #'testing methods' }
 MbndPrimitiveBooleanType >> isPrimitiveBooleanType [
 	^ true

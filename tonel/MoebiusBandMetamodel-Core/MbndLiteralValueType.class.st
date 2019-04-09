@@ -39,6 +39,40 @@ MbndLiteralValueType >> bestConcreteTypeForLiteralValueNode: literalValueNode in
 	self subclassResponsibility
 ]
 
+{ #category : #casting }
+MbndLiteralValueType >> createNode: node explicitCastTo: target with: analyzer [
+	node isLiteralValueNode ifTrue: [
+		(target isAcceptableLiteralValue: node value) ifTrue: [
+			^ node copy
+				value: (target legalizeLiteralValue: node value);
+				type: target;
+				yourself
+		]
+	].
+
+	^ super createNode: node explicitCastTo: target with: analyzer
+]
+
+{ #category : #casting }
+MbndLiteralValueType >> createNode: node implicitCastTo: target with: analyzer [
+	node isLiteralValueNode ifTrue: [
+		(target isAcceptableLiteralValue: node value) ifTrue: [
+			^ node copy
+				value: (target legalizeLiteralValue: node value);
+				type: target;
+				yourself
+		]
+	].
+
+	^ super createNode: node implicitCastTo: target with: analyzer
+]
+
+{ #category : #'type inference' }
+MbndLiteralValueType >> inferValueTypeForNode: initialValueNode inScope: scope [
+	self assert: initialValueNode isLiteralValueNode.
+	^ self bestConcreteTypeForLiteralValueNode: initialValueNode inScope: scope
+]
+
 { #category : #testing }
 MbndLiteralValueType >> isLiteralValueType [
 	^ true

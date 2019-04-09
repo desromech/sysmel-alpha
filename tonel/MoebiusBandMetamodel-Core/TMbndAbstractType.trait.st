@@ -28,9 +28,7 @@ TMbndAbstractType >> analyzeMessageSendNodeWithDynamicSelector: node with: analy
 
 { #category : #'semantic analysis' }
 TMbndAbstractType >> analyzeReferenceNode: referenceNode with: analyzer [
-	^ MbndAstLiteralValueNode new
-		value: self;
-		type: self type;
+	^ self asLiteralValueNode
 		position: referenceNode;
 		yourself
 ]
@@ -54,9 +52,34 @@ TMbndAbstractType >> analyzeUnexpandedMessageSendNode: node with: analyzer [
 	^ analyzer visitNode: node asExpandedMessageSend
 ]
 
+{ #category : #'semantic analysis' }
+TMbndAbstractType >> asLiteralValueNode [
+	^ MbndAstLiteralValueNode new
+		value: self;
+		type: self type;
+		yourself
+]
+
+{ #category : #casting }
+TMbndAbstractType >> createNode: node explicitCastTo: target with: analyzer [
+	self == target ifTrue: [ ^ node ].
+	^ analyzer error: 'Cannot perform implicit cast from type {1} to type {2}.' format: { self printString . target printString} at: node
+]
+
+{ #category : #casting }
+TMbndAbstractType >> createNode: node implicitCastTo: target with: analyzer [
+	self == target ifTrue: [ ^ node ].
+	^ analyzer error: 'Cannot perform implicit cast from type {1} to type {2}.' format: { self printString . target printString} at: node
+]
+
 { #category : #accessing }
 TMbndAbstractType >> fullName [
 	self explicitRequirement
+]
+
+{ #category : #'type inference' }
+TMbndAbstractType >> inferValueTypeForNode: initialValueNode inScope: scope [
+	^ self
 ]
 
 { #category : #sizes }
@@ -67,6 +90,11 @@ TMbndAbstractType >> instanceAlignment [
 { #category : #sizes }
 TMbndAbstractType >> instanceSize [
 	^ self explicitRequirement
+]
+
+{ #category : #testing }
+TMbndAbstractType >> isAcceptableLiteralValue: literalValue [
+	^ false
 ]
 
 { #category : #'testing methods' }
@@ -140,6 +168,11 @@ TMbndAbstractType >> isLiteralValueType [
 ]
 
 { #category : #'testing methods' }
+TMbndAbstractType >> isMetaBuilderInstanceType [
+	^ false
+]
+
+{ #category : #'testing methods' }
 TMbndAbstractType >> isMetaType [
 	^ false
 ]
@@ -202,6 +235,11 @@ TMbndAbstractType >> isUnionType [
 { #category : #'testing methods' }
 TMbndAbstractType >> isVoidType [
 	^ false
+]
+
+{ #category : #testing }
+TMbndAbstractType >> legalizeLiteralValue: literalValue [
+	^ literalValue
 ]
 
 { #category : #'macro expansion' }

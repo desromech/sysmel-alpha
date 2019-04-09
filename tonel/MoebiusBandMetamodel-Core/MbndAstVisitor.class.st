@@ -70,12 +70,22 @@ MbndAstVisitor >> visitLiteralValueNode: node [
 ]
 
 { #category : #visiting }
+MbndAstVisitor >> visitLocalVariableDefinition: node [
+	self subclassResponsibility
+]
+
+{ #category : #visiting }
 MbndAstVisitor >> visitMessageChainMessageNode: node [
 	self subclassResponsibility
 ]
 
 { #category : #visiting }
 MbndAstVisitor >> visitMessageChainNode: node [
+	self subclassResponsibility
+]
+
+{ #category : #visiting }
+MbndAstVisitor >> visitMetaBuilderInstanceNode: node [
 	self subclassResponsibility
 ]
 
