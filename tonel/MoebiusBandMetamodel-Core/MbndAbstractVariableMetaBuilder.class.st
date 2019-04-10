@@ -10,26 +10,26 @@ Class {
 
 { #category : #definition }
 MbndAbstractVariableMetaBuilder >> assignValue: newInitialValueNode [
-	initialValueNode := currentAnalyzer visitNode: newInitialValueNode.
-	valueType ifNil: [
-		valueType := initialValueNode type inferValueTypeForNode: initialValueNode inScope: currentAnalyzer scope.
-	].
+	initialValueNode := newInitialValueNode
+]
 
-	self assert: valueType isNotNil.
-	initialValueNode := currentAnalyzer addImplicitCastFor: initialValueNode to: valueType
+{ #category : #mutability }
+MbndAbstractVariableMetaBuilder >> inmutable [
+	self removeFlag: #mutable
 ]
 
 { #category : #mutability }
 MbndAbstractVariableMetaBuilder >> mutable [
+	self addFlag: #mutable
+]
 
+{ #category : #mutability }
+MbndAbstractVariableMetaBuilder >> ref [
+	self removeFlag: #ref
 ]
 
 { #category : #accessing }
 MbndAbstractVariableMetaBuilder >> type: typeExpression [
-	initialValueNode ifNotNil: [ 
-		currentAnalyzer error: 'The variable type must be specified before the initial value.' at: typeExpression
-	].
-
-	valueType := currentAnalyzer evaluateTypeExpression: typeExpression.
+	valueType := typeExpression.
 
 ]

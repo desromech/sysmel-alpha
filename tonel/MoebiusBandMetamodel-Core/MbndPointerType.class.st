@@ -1,6 +1,6 @@
 Class {
 	#name : #MbndPointerType,
-	#superclass : #MbndDerivedType,
+	#superclass : #MbndPointerLikeType,
 	#category : #'MoebiusBandMetamodel-Core-Type'
 }
 

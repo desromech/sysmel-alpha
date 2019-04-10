@@ -2,12 +2,14 @@ Trait {
 	#name : #TMbndCoreCompilationTarget,
 	#instVars : [
 		'coreDefinitionsModule',
-		'basicTypes'
+		'basicTypes',
+		'pointerTypes',
+		'referenceTypes'
 	],
 	#category : #'MoebiusBandMetamodel-Core-CompilationTarget'
 }
 
-{ #category : #initialization }
+{ #category : #'basic types' }
 TMbndCoreCompilationTarget >> addBasicFloatTypeWithSize: size alignment: alignment name: name [
 	^ self addBasicType: (MbndPrimitiveFloatType new
 		name: name;
@@ -16,12 +18,12 @@ TMbndCoreCompilationTarget >> addBasicFloatTypeWithSize: size alignment: alignme
 		yourself)
 ]
 
-{ #category : #initialization }
+{ #category : #'basic types' }
 TMbndCoreCompilationTarget >> addBasicFloatTypeWithSize: size name: name [
 	^ self addBasicFloatTypeWithSize: size alignment: size name: name
 ]
 
-{ #category : #initialization }
+{ #category : #'basic types' }
 TMbndCoreCompilationTarget >> addBasicIntegerTypeWithSize: size alignment: alignment signed: signed name: name [
 	^ self addBasicType: (MbndPrimitiveIntegerType new
 		name: name;
@@ -31,22 +33,14 @@ TMbndCoreCompilationTarget >> addBasicIntegerTypeWithSize: size alignment: align
 		yourself)
 ]
 
-{ #category : #initialization }
+{ #category : #'basic types' }
 TMbndCoreCompilationTarget >> addBasicIntegerTypeWithSize: size signed: signed name: name [
 	^ self addBasicIntegerTypeWithSize: size alignment: size signed: signed name: name
 ]
 
-{ #category : #initialization }
+{ #category : #'basic types' }
 TMbndCoreCompilationTarget >> addBasicType: basicType [
-	basicType name ~= basicType class typeName ifTrue: [
-		self assert: basicType type isNil.
-		basicType type: (MbndSimpleMetaType new
-			instanceType: basicType;
-			type: self simpleMetaType;
-			supertype: (basicTypes at: basicType class typeName) type;
-			yourself)
-	].
-
+	self ensureBasicTypeIsLinkedToTheHierarchy: basicType.
 	basicTypes at: basicType name put: basicType.
 	^ basicType
 ]
@@ -64,6 +58,31 @@ TMbndCoreCompilationTarget >> coreDefinitionsModule [
 { #category : #accessing }
 TMbndCoreCompilationTarget >> coreDefinitionsModule: anObject [
 	coreDefinitionsModule := anObject
+]
+
+{ #category : #'basic types' }
+TMbndCoreCompilationTarget >> ensureBasicTypeIsLinkedToTheHierarchy: basicType [
+	basicType module ifNil: [ 
+		basicType definitionModule: coreDefinitionsModule.
+	].
+
+	basicType name ~= basicType class typeName ifTrue: [ 
+		basicType supertype: (basicTypes at: basicType class typeName)
+	].
+	self ensureTypeHasSimpleMetaType: basicType.
+
+]
+
+{ #category : #'basic types' }
+TMbndCoreCompilationTarget >> ensureTypeHasSimpleMetaType: type [
+	type type ifNotNil: [ ^ self ].
+	
+	type type: (MbndSimpleMetaType new
+		definitionModule: coreDefinitionsModule;
+		instanceType: type;
+		type: self simpleMetaType;
+		supertype: type supertype type;
+		yourself)
 ]
 
 { #category : #'convenience type accessors' }
@@ -91,13 +110,13 @@ TMbndCoreCompilationTarget >> getBasicTypeNamed: typeName [
 	^ basicTypes at: typeName
 ]
 
-{ #category : #initialization }
+{ #category : #'basic types' }
 TMbndCoreCompilationTarget >> initializeBasicTypes [
-	| basicType |
+	| basicType | 
 	basicTypes := Dictionary new.
 	MbndBasicType withAllSubclassesDo: [ :sc |
 		sc typeName ifNotNil: [ 
-			basicType := sc new compilationTarget: self.
+			basicType := sc new definitionModule: coreDefinitionsModule.
 			basicTypes at: basicType name put: basicType
 		]
 	].
@@ -120,6 +139,19 @@ TMbndCoreCompilationTarget >> initializeBasicTypes [
 		addBasicFloatTypeWithSize: 8 alignment: self float64Alignment name: #Float64;
 		yourself
 
+]
+
+{ #category : #'basic types' }
+TMbndCoreCompilationTarget >> initializeDerivedTypeCaches [
+	pointerTypes := WeakValueDictionary new.
+	referenceTypes := WeakValueDictionary new.
+]
+
+{ #category : #'basic types' }
+TMbndCoreCompilationTarget >> initializeTypeSystem [
+	self
+		initializeDerivedTypeCaches;
+		initializeBasicTypes
 ]
 
 { #category : #'convenience type accessors' }
@@ -147,7 +179,7 @@ TMbndCoreCompilationTarget >> int8Type [
 	^ self getBasicTypeNamed: #Int8
 ]
 
-{ #category : #initialization }
+{ #category : #'basic types' }
 TMbndCoreCompilationTarget >> linkMetaHierarchy [
 	| simpleMetaType |
 	simpleMetaType := basicTypes at: MbndSimpleMetaType typeName.
@@ -165,6 +197,7 @@ TMbndCoreCompilationTarget >> linkMetaHierarchy [
 		"Create the meta type."
 		bt type ifNil: [ 
 			bt type: (MbndSimpleMetaType new
+				definitionModule: coreDefinitionsModule;
 				instanceType: bt;
 				type: simpleMetaType;
 				yourself).
@@ -230,6 +263,44 @@ TMbndCoreCompilationTarget >> metaBuilderInstanceType [
 { #category : #'convenience type accessors' }
 TMbndCoreCompilationTarget >> opaqueType [
 	^ self getBasicTypeNamed: MbndOpaqueType typeName
+]
+
+{ #category : #'derived types' }
+TMbndCoreCompilationTarget >> pointerFor: addressSpace to: baseType [
+	^ referenceTypes at: { baseType . addressSpace } ifAbsentPut: [
+		| result |
+		result := MbndPointerType new
+			name: nil;
+			addressSpace: addressSpace;
+			baseType: baseType;
+			yourself.
+		self ensureBasicTypeIsLinkedToTheHierarchy: result.
+		result
+	]
+]
+
+{ #category : #'derived types' }
+TMbndCoreCompilationTarget >> pointerTo: baseType [
+	^ self pointerFor: MbndPointerLikeType genericAddressSpace to: baseType
+]
+
+{ #category : #'derived types' }
+TMbndCoreCompilationTarget >> referenceFor: addressSpace to: baseType [
+	^ referenceTypes at: { baseType . addressSpace } ifAbsentPut: [
+		| result |
+		result := MbndReferenceType new
+			name: nil;
+			addressSpace: addressSpace;
+			baseType: baseType;
+			yourself.
+		self ensureBasicTypeIsLinkedToTheHierarchy: result.
+		result
+	]
+]
+
+{ #category : #'derived types' }
+TMbndCoreCompilationTarget >> referenceTo: baseType [
+	^ self referenceFor: MbndPointerLikeType genericAddressSpace to: baseType
 ]
 
 { #category : #'convenience type accessors' }

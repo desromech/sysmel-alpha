@@ -9,7 +9,6 @@ Trait {
 	#name : #TMbndType,
 	#instVars : [
 		'definitionModule',
-		'compilationTarget',
 		'macroMethodDict',
 		'subtypes'
 	],
@@ -17,16 +16,6 @@ Trait {
 	#classTraits : 'TMbndAbstractType classTrait',
 	#category : #'MoebiusBandMetamodel-Core-Type'
 }
-
-{ #category : #accessing }
-TMbndType >> compilationTarget [
-	^ compilationTarget
-]
-
-{ #category : #accessing }
-TMbndType >> compilationTarget: anObject [
-	compilationTarget := anObject
-]
 
 { #category : #accessing }
 TMbndType >> definitionModule: aModule [
@@ -49,6 +38,11 @@ TMbndType >> macroMethodDict [
 { #category : #accessing }
 TMbndType >> macroMethodDict: aDictionary [
 	macroMethodDict := aDictionary
+]
+
+{ #category : #accessing }
+TMbndType >> module [
+	^ definitionModule
 ]
 
 { #category : #'macro expansion' }

@@ -5,7 +5,8 @@ Class {
 		'position',
 		'metaBuilderAnalyzer',
 		'metaBuilderScope',
-		'currentAnalyzer'
+		'currentAnalyzer',
+		'flags'
 	],
 	#category : #'MoebiusBandMetamodel-Core-MetaBuilder'
 }
@@ -18,6 +19,11 @@ MbndMetaBuilder class >> globalBindingName [
 { #category : #'as yet unclassified' }
 MbndMetaBuilder class >> metaBuilderFactory [
 	^ MbndMetaBuilderFactory new metaBuilderClass: self
+]
+
+{ #category : #flags }
+MbndMetaBuilder >> addFlag: aFlag [
+	flags := (flags copyWithout: aFlag) copyWith: aFlag
 ]
 
 { #category : #'semantic analysis' }
@@ -52,6 +58,17 @@ MbndMetaBuilder >> concretizeUnexpandedMessageSendNode: node thenAnalyzerWith: a
 		yourself)
 ]
 
+{ #category : #flags }
+MbndMetaBuilder >> hasFlag: aFlags [
+	^ flags includes: aFlags
+]
+
+{ #category : #initialization }
+MbndMetaBuilder >> initialize [
+	super initialize.
+	flags := #().
+]
+
 { #category : #accessing }
 MbndMetaBuilder >> metaBuilderAnalyzer [
 	^ metaBuilderAnalyzer
@@ -81,4 +98,9 @@ MbndMetaBuilder >> position [
 { #category : #accessing }
 MbndMetaBuilder >> position: anObject [
 	position := anObject
+]
+
+{ #category : #flags }
+MbndMetaBuilder >> removeFlag: aFlag [
+	flags := (flags copyWithout: aFlag) copyWith: aFlag
 ]

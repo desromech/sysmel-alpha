@@ -12,7 +12,7 @@ MbndDummyCompilationTarget >> float64Alignment [
 { #category : #initialization }
 MbndDummyCompilationTarget >> initialize [
 	super initialize.
-	self initializeBasicTypes
+	self initializeTypeSystem
 ]
 
 { #category : #accessing }

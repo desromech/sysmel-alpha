@@ -177,6 +177,30 @@ MbndCompilationTargetTest >> testPointerSize [
 ]
 
 { #category : #tests }
+MbndCompilationTargetTest >> testPointerType [
+	| type baseType |
+	baseType := compilationTarget uint8Type.
+	type := baseType pointer.
+	self assert: type isDerivedType.
+	self assert: type isPointerType.
+	self assert: type baseType equals: baseType.
+	self assert: baseType pointer equals: type.
+
+]
+
+{ #category : #tests }
+MbndCompilationTargetTest >> testReferenceType [
+	| type baseType |
+	baseType := compilationTarget uint8Type.
+	type := baseType ref.
+	self assert: type isDerivedType.
+	self assert: type isReferenceType.
+	self assert: type baseType equals: baseType.
+	self assert: baseType ref equals: type.
+
+]
+
+{ #category : #tests }
 MbndCompilationTargetTest >> testReturnType [
 	self assert: compilationTarget returnType isOpaqueType.
 	self assert: compilationTarget returnType isVoidType.

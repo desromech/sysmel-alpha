@@ -10,7 +10,7 @@ Class {
 { #category : #initialization }
 MbndSlovimCompilationTarget >> initialize [
 	super initialize.
-	self initializeBasicTypes.
+	self initializeTypeSystem.
 ]
 
 { #category : #accessing }

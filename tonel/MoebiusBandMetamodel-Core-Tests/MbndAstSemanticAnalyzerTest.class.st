@@ -52,9 +52,7 @@ MbndAstSemanticAnalyzerTest >> testLetMacroBuilderExpansion [
 	analyzedNode := visitor visitNode: node.
 	self assert: analyzedNode isLocalVariableDefinitionNode.
 	self assert: analyzedNode initialValue equals: nil.
-	self assert: analyzedNode type isReferenceType.
-	self assert: analyzedNode type baseType equals: compilationTarget int32Type.
-
+	self assert: analyzedNode type equals: compilationTarget int32Type.
 ]
 
 { #category : #running }
@@ -70,7 +68,8 @@ MbndAstSemanticAnalyzerTest >> testLetMutableAutoMacroBuilderExpansion [
 	self assert: analyzedNode isLocalVariableDefinitionNode.
 	self assert: analyzedNode initialValue isLiteralValueNode.
 	self assert: analyzedNode initialValue type equals: compilationTarget int32Type.
-	self assert: analyzedNode type equals: compilationTarget int32Type.
+	self assert: analyzedNode type isReferenceType.
+	self assert: analyzedNode type baseType equals: compilationTarget int32Type.
 
 ]
 
@@ -86,7 +85,9 @@ MbndAstSemanticAnalyzerTest >> testLetMutableMacroBuilderExpansion [
 	analyzedNode := visitor visitNode: node.
 	self assert: analyzedNode isLocalVariableDefinitionNode.
 	self assert: analyzedNode initialValue equals: nil.
-	self assert: analyzedNode type equals: compilationTarget int32Type.
+	self assert: analyzedNode type isReferenceType.
+	self assert: analyzedNode type baseType equals: compilationTarget int32Type.
+
 
 ]
 

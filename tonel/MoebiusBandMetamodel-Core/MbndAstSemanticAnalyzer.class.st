@@ -149,6 +149,65 @@ MbndAstSemanticAnalyzer >> visitIdentifierReferenceNode: node [
 ]
 
 { #category : #visiting }
+MbndAstSemanticAnalyzer >> visitLocalVariableDefinition: node [
+	| result valueType |
+	result := node copy.
+	
+	"Make sure the value type is evaluated."
+	result valueType isMbndAstNode ifTrue: [ 
+		result valueType: (self evaluateTypeExpression: node valueType)
+	].
+
+	"Analyze the initial value."
+	result initialValue ifNotNil: [
+		result initialValue: (self analyzeNodeIfNeeded: result initialValue)
+	].
+	
+	"Infer the value type, if needed"
+	result valueType ifNil: [
+		result initialValue ifNil: [
+			self error: 'Variable {1} without an explicit type, or an initial value.' format: { node name asPrettySymbolName } at: node
+		].
+	
+		result valueType: (result initialValue type inferValueTypeForNode: result initialValue inScope: scope).
+	].
+
+	"Cast implicitly the initial value."
+	valueType := result valueType.
+	result initialValue ifNotNil: [ :valueNode |
+		result initialValue: (self addImplicitCastFor: valueNode to: valueType)
+	].
+
+	"Compute the variable reference type"
+	self assert: valueType isNotNil.
+	result isMutable ifTrue: [
+		result type: valueType ref
+	] ifFalse: [
+		result isAccessedByReference ifTrue: [ 
+			result type: valueType const ref
+		] ifFalse: [ 
+			result type: valueType
+		]
+	].
+
+	"Create a matching variable"
+	result binding: (MbndFunctionLocalVariable new
+		definitionNode: result;
+		name: node name;
+		valueType: valueType;
+		type: result type;
+		yourself
+	).
+
+	"Add the variable to the current scope."
+	scope addSymbol: result name binding: result binding ifPresent: [ :previousDefinition |
+		self error: 'Variable {1} overrides a previous definition in the same scope.' format: { result name asPrettySymbolName } at: { result }
+	].
+
+	^ result
+]
+
+{ #category : #visiting }
 MbndAstSemanticAnalyzer >> visitNode: node [
 	^ (node accept: self) concretizeNodeWithAnalyzer: self
 ]

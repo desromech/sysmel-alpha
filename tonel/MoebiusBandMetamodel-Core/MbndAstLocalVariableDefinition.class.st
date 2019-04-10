@@ -24,8 +24,18 @@ MbndAstLocalVariableDefinition >> initialValue: anObject [
 ]
 
 { #category : #testing }
+MbndAstLocalVariableDefinition >> isAccessedByReference [
+	^ self hasFlag: #ref
+]
+
+{ #category : #testing }
 MbndAstLocalVariableDefinition >> isLocalVariableDefinitionNode [
 	^ true
+]
+
+{ #category : #testing }
+MbndAstLocalVariableDefinition >> isMutable [
+	^ self hasFlag: #mutable
 ]
 
 { #category : #accessing }

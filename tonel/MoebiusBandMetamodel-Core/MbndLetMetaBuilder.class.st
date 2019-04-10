@@ -15,6 +15,7 @@ MbndLetMetaBuilder >> concretizeNode: node withAnalyzer: analyzer [
 	result := (analyzer astBuilder
 		defineLocalVariable: name withValueType: valueType withInitialValue: initialValueNode)
 		position: position;
+		flags: flags;
 		yourself.
 	^ analyzer visitNode: result
 ]

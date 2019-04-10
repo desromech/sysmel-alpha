@@ -12,7 +12,7 @@ MbndLiteralIntegerType class >> typeName [
 { #category : #'semantic analysis' }
 MbndLiteralIntegerType >> bestConcreteTypeForLiteralValueNode: literalValueNode inScope: scope [
 	self flag: 'TODO: Use the number range for selecting this.'.
-	^ compilationTarget int32Type
+	^ self compilationTarget int32Type
 ]
 
 { #category : #initialization }

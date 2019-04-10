@@ -252,6 +252,26 @@ TMbndAbstractType >> lookupSelector: selector [
 	^ nil
 ]
 
+{ #category : #'type composition' }
+TMbndAbstractType >> pointer [
+	^ self compilationTarget pointerTo: self
+]
+
+{ #category : #'type composition' }
+TMbndAbstractType >> pointerFor: addressSpace [
+	^ self compilationTarget pointerFor: addressSpace to: self
+]
+
+{ #category : #'type composition' }
+TMbndAbstractType >> ref [
+	^ self compilationTarget referenceTo: self
+]
+
+{ #category : #'type composition' }
+TMbndAbstractType >> refFor: addressSpace [
+	^ self compilationTarget referenceFor: addressSpace to: self
+]
+
 { #category : #'type hierarchy' }
 TMbndAbstractType >> subtypeAdded: aSubtype [
 ]
