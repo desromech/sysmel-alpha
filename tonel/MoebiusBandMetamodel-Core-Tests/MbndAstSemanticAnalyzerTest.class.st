@@ -100,6 +100,37 @@ MbndAstSemanticAnalyzerTest >> testLiteral [
 ]
 
 { #category : #running }
+MbndAstSemanticAnalyzerTest >> testLocalVariableMutableReference [
+	| node analyzedNode |
+	node := builder sequence: { 
+		(builder defineLocalVariable: #x withValueType: nil withInitialValue:
+			(builder literalInteger: 5))
+			mutable.
+		builder identifier: #x
+	}.
+	analyzedNode := visitor visitNode: node.
+	self assert: analyzedNode isSequenceNode.
+	self assert: analyzedNode type isReferenceType.
+	self assert: analyzedNode type baseType isIntegerType.
+	self assert: analyzedNode elements last isBoundIdentifierReferenceNode.
+
+]
+
+{ #category : #running }
+MbndAstSemanticAnalyzerTest >> testLocalVariableReference [
+	| node analyzedNode |
+	node := builder sequence: { 
+		builder defineLocalVariable: #x withValueType: nil withInitialValue: (builder literalInteger: 5).
+		builder identifier: #x
+	}.
+	analyzedNode := visitor visitNode: node.
+	self assert: analyzedNode isSequenceNode.
+	self assert: analyzedNode type isIntegerType.
+	self assert: analyzedNode elements last isBoundIdentifierReferenceNode.
+
+]
+
+{ #category : #running }
 MbndAstSemanticAnalyzerTest >> testNew [
 	self assert: visitor scope equals: scope
 ]
@@ -113,5 +144,32 @@ MbndAstSemanticAnalyzerTest >> testReturnMacroExpansion [
 	analyzedNode := visitor visitNode: node.
 	self assert: analyzedNode isReturnStatementNode.
 	self assert: analyzedNode expression equals: value.
+	self assert: analyzedNode type isReturnType.
+]
+
+{ #category : #running }
+MbndAstSemanticAnalyzerTest >> testSequence [
+	| node analyzedNode |
+	node := builder sequence: { 
+		builder literalInteger: 1.
+		builder literalFloat: 42.
+	}.
+	analyzedNode := visitor visitNode: node.
+	self assert: analyzedNode isSequenceNode .
+	self assert: analyzedNode elements size equals: 2.
+	self assert: analyzedNode type isLiteralFloatType.
+]
+
+{ #category : #running }
+MbndAstSemanticAnalyzerTest >> testSequenceWithReturn [
+	| node analyzedNode |
+	node := builder sequence: { 
+		builder literalInteger: 1.
+		builder return: (builder literalInteger: 42).
+		builder literalInteger: 30.
+	}.
+	analyzedNode := visitor visitNode: node.
+	self assert: analyzedNode isSequenceNode .
+	self assert: analyzedNode elements size equals: 2.
 	self assert: analyzedNode type isReturnType.
 ]

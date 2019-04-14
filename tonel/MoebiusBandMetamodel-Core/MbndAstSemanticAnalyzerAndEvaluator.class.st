@@ -55,8 +55,8 @@ MbndAstSemanticAnalyzerAndEvaluator >> evaluator: anObject [
 
 { #category : #accessing }
 MbndAstSemanticAnalyzerAndEvaluator >> module: aModule [
-	self semanticAnalyzer scope: aModule.
-	self evaluator scope: aModule.
+	self semanticAnalyzer module: aModule.
+	self evaluator module: aModule.
 ]
 
 { #category : #accessing }

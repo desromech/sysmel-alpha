@@ -10,7 +10,7 @@ Class {
 
 { #category : #converting }
 SYMLASTAssignment >> buildMoebiusAST: builder [
-	^ (builder unexpandedSend: #assignValue:
+	^ (builder unexpandedSend: (builder literalSymbol: #assignValue:)
 		to: (reference buildMoebiusAST: builder)
 		withArguments: {value buildMoebiusAST: builder})
 		position: self;

@@ -54,7 +54,7 @@ MbndAstSemanticAnalyzer >> astBuilder [
 
 { #category : #accessing }
 MbndAstSemanticAnalyzer >> compilationTarget [
-	^ compilationTarget ifNil: [ compilationTarget := scope compilationTarget ]
+	^ compilationTarget ifNil: [ compilationTarget := module compilationTarget ]
 ]
 
 { #category : #errors }
@@ -233,12 +233,20 @@ MbndAstSemanticAnalyzer >> visitReturnStatementNode: node [
 
 { #category : #visiting }
 MbndAstSemanticAnalyzer >> visitSequenceNode: node [
-	| result |
+	| result explicitReturnIndex |
 	result := super visitSequenceNode: node.
-	result elements
-		ifEmpty: [ result type: self compilationTarget voidType ]
-		ifNotEmpty: [ result type: result elements last type ].
-	self halt
+	result elements ifEmpty: [
+		result type: self compilationTarget voidType
+	] ifNotEmpty: [
+		"If there is an explicit return, cut the analyzer elements."
+		explicitReturnIndex := result elements detectIndex: [ :el | el type isReturnType ] ifNone: [ result elements size + 1 ].
+		explicitReturnIndex < result elements size ifTrue: [ 
+			result elements: (result elements first: explicitReturnIndex).
+		].
+	
+		result type: result elements last type
+	].
+	^ result
 ]
 
 { #category : #visiting }

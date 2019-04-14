@@ -50,6 +50,20 @@ MbndAstEvaluator >> visitReturnStatementNode: node [
 ]
 
 { #category : #visiting }
+MbndAstEvaluator >> visitSequenceNode: node [
+	| result |
+	node elements ifEmpty: [
+		^ MbndValue value: nil type: node type
+	].
+
+	result := nil.
+	node elements do: [ :element |
+		result := self visitNode: element 
+	].
+	^ result
+]
+
+{ #category : #visiting }
 MbndAstEvaluator >> visitUnexpandedMessageSendNode: node [
 	self compilerBugError: 'Macro that should have been expanded is not expanded' at: node
 ]
