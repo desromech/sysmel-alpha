@@ -1,7 +1,7 @@
 Class {
 	#name : #MbndCompileTimeVariableTest,
 	#superclass : #MbndAbstractVariableTest,
-	#category : #'MoebiusBandMetamodel-Core-Tests-Variables'
+	#category : #'SysmelMoebiusMetamodel-Core-Tests-Variables'
 }
 
 { #category : #running }

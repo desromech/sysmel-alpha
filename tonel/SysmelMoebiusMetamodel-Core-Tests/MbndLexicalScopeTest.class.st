@@ -4,7 +4,7 @@ A MbndLexicalScopeTest is a test class for testing the behavior of MbndLexicalSc
 Class {
 	#name : #MbndLexicalScopeTest,
 	#superclass : #TestCase,
-	#category : #'MoebiusBandMetamodel-Core-Tests-Scope'
+	#category : #'SysmelMoebiusMetamodel-Core-Tests-Scope'
 }
 
 { #category : #tests }

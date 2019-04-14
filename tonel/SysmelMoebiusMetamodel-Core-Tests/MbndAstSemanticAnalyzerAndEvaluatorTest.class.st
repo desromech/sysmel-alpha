@@ -4,7 +4,7 @@ A MbndAstSemanticAnalyzerAndEvaluatorTest is a test class for testing the behavi
 Class {
 	#name : #MbndAstSemanticAnalyzerAndEvaluatorTest,
 	#superclass : #TestCase,
-	#category : #'MoebiusBandMetamodel-Core-Tests-Evaluation'
+	#category : #'SysmelMoebiusMetamodel-Core-Tests-Evaluation'
 }
 
 { #category : #tests }

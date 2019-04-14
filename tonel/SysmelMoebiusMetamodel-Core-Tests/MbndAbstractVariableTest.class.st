@@ -8,7 +8,7 @@ Class {
 		'module',
 		'compilationTarget'
 	],
-	#category : #'MoebiusBandMetamodel-Core-Tests-Variables'
+	#category : #'SysmelMoebiusMetamodel-Core-Tests-Variables'
 }
 
 { #category : #testing }

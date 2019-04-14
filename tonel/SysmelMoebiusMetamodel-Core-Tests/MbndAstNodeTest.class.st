@@ -4,7 +4,7 @@ A MbndAstNodeTest is a test class for testing the behavior of MbndAstNode
 Class {
 	#name : #MbndAstNodeTest,
 	#superclass : #TestCase,
-	#category : #'MoebiusBandMetamodel-Core-Tests-AST'
+	#category : #'SysmelMoebiusMetamodel-Core-Tests-AST'
 }
 
 { #category : #tests }

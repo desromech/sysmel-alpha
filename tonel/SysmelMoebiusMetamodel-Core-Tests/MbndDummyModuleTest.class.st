@@ -7,7 +7,7 @@ Class {
 	#instVars : [
 		'module'
 	],
-	#category : #'MoebiusBandMetamodel-Core-Tests-Module'
+	#category : #'SysmelMoebiusMetamodel-Core-Tests-Module'
 }
 
 { #category : #running }

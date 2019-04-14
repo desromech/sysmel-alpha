@@ -9,7 +9,7 @@ Class {
 		'builder',
 		'visitor'
 	],
-	#category : #'MoebiusBandMetamodel-Core-Tests-AST'
+	#category : #'SysmelMoebiusMetamodel-Core-Tests-AST'
 }
 
 { #category : #running }

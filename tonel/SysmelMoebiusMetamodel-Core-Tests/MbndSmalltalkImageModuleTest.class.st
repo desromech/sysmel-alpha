@@ -4,7 +4,7 @@ A MbndSmalltalkImageModuleTest is a test class for testing the behavior of MbndS
 Class {
 	#name : #MbndSmalltalkImageModuleTest,
 	#superclass : #TestCase,
-	#category : #'MoebiusBandMetamodel-Core-Tests-Module'
+	#category : #'SysmelMoebiusMetamodel-Core-Tests-Module'
 }
 
 { #category : #running }

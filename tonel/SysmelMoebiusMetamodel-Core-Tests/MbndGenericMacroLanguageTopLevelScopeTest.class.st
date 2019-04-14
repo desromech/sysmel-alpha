@@ -11,7 +11,7 @@ Class {
 		'analyzer',
 		'compilationTarget'
 	],
-	#category : #'MoebiusBandMetamodel-Core-Tests-Scope'
+	#category : #'SysmelMoebiusMetamodel-Core-Tests-Scope'
 }
 
 { #category : #tests }

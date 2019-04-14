@@ -11,7 +11,7 @@ Class {
 		'visitor',
 		'compilationTarget'
 	],
-	#category : #'MoebiusBandMetamodel-Core-Tests-SemanticAnalysis'
+	#category : #'SysmelMoebiusMetamodel-Core-Tests-SemanticAnalysis'
 }
 
 { #category : #running }

@@ -4,7 +4,7 @@ A MbndMetaBuilderFactoryTest is a test class for testing the behavior of MbndMet
 Class {
 	#name : #MbndMetaBuilderFactoryTest,
 	#superclass : #TestCase,
-	#category : #'MoebiusBandMetamodel-Core-Tests-MetaBuilder'
+	#category : #'SysmelMoebiusMetamodel-Core-Tests-MetaBuilder'
 }
 
 { #category : #tests }

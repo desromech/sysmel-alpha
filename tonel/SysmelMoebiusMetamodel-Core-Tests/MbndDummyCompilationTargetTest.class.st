@@ -1,7 +1,7 @@
 Class {
 	#name : #MbndDummyCompilationTargetTest,
 	#superclass : #MbndCompilationTargetTest,
-	#category : #'MoebiusBandMetamodel-Core-Tests-CompilationTarget'
+	#category : #'SysmelMoebiusMetamodel-Core-Tests-CompilationTarget'
 }
 
 { #category : #running }

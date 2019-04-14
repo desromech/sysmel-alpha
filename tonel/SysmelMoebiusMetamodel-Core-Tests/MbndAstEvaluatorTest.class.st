@@ -13,7 +13,7 @@ Class {
 		'analyzer',
 		'evaluator'
 	],
-	#category : #'MoebiusBandMetamodel-Core-Tests-Evaluation'
+	#category : #'SysmelMoebiusMetamodel-Core-Tests-Evaluation'
 }
 
 { #category : #running }

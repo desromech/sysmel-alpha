@@ -4,7 +4,7 @@ A MbndReturnContextScopeTest is a test class for testing the behavior of MbndRet
 Class {
 	#name : #MbndReturnContextScopeTest,
 	#superclass : #TestCase,
-	#category : #'MoebiusBandMetamodel-Core-Tests-Scope'
+	#category : #'SysmelMoebiusMetamodel-Core-Tests-Scope'
 }
 
 { #category : #tests }

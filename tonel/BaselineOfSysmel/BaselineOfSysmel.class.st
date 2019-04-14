@@ -9,23 +9,30 @@ BaselineOfSysmel >> baseline: spec [
 	<baseline>
 
 	spec for: #common do: [
-		spec baseline: 'PetitParser2Core' with: [
+		spec baseline: #'PetitParser2Core' with: [
 				spec
 					repository: 'github://kursjan/petitparser2' ].
-		spec baseline: 'Slovim' with: [
+		spec baseline: #'Slovim' with: [
 				spec
 					repository: 'github://ronsaldo/slovim/tonel' ].
-		spec baseline: 'Phanide' with: [
+		spec baseline: #'Phanide' with: [
 				spec
 					repository: 'github://ronsaldo/phanide/tonel' ].
-
 		spec
-			package: 'MoebiusBandMetamodel-Core' with: [
+			package: #'SysmelMoebiusMetamodel-Core' with: [
 				spec requires: #(#Slovim #PetitParser2Core)
 			].
 		spec
-			package: 'SysmelLanguage' with: [
-				spec requires: #(PetitParser2Core 'MoebiusBandMetamodel-Core')
+			package: #'SysmelMoebiusMetamodel-Core-Tests' with: [
+				spec requires: #(#'SysmelMoebiusMetamodel-Core')
+			].
+		spec
+			package: #'SysmelLanguage-Sysmel' with: [
+				spec requires: #(#PetitParser2Core #'SysmelMoebiusMetamodel-Core')
+			].
+		spec
+			package: 'SysmelLanguage-SysmelPhanide' with: [
+				spec requires: #('SysmelLanguage-Sysmel' 'Phanide')
 			].
 	].
 ]

@@ -4,7 +4,7 @@ A MbndCollectionWithContextTest is a test class for testing the behavior of Mbnd
 Class {
 	#name : #MbndCollectionWithContextTest,
 	#superclass : #TestCase,
-	#category : #'MoebiusBandMetamodel-Core-Tests-Parsing'
+	#category : #'SysmelMoebiusMetamodel-Core-Tests-Parsing'
 }
 
 { #category : #tests }
