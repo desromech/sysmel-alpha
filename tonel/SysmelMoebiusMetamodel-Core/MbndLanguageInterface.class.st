@@ -30,7 +30,7 @@ MbndLanguageInterface class >> initialize [
 
 { #category : #accessing }
 MbndLanguageInterface class >> languageFileExtensions [
-	^ nil
+	^ #()
 ]
 
 { #category : #accessing }
