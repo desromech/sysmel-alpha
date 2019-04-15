@@ -1,6 +1,6 @@
 Class {
 	#name : #SYMLASTNode,
-	#superclass : #AnObsoleteSYMLObject,
+	#superclass : #Object,
 	#instVars : [
 		'position',
 		'tokens'

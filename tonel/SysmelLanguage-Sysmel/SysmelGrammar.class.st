@@ -157,7 +157,7 @@ SysmelGrammar >> assignmentExpression [
 { #category : #accessing }
 SysmelGrammar >> binaryExpression [
 	| binExpr binOpDo prefixOpDo postfixOpDo |
-	binExpr := SYMLExpressionParserBuilder new.
+	binExpr := SysmelExpressionParserBuilder new.
 	binExpr term: unaryExpression.
 	binOpDo := [ :left :operation :right | self operate: left with: right do: operation. ].
 	prefixOpDo := [ :operation :operand | self prefix: operation operate: operand ].
@@ -673,7 +673,7 @@ SysmelGrammar >> symbolStringLiteral [
 { #category : #tokens }
 SysmelGrammar >> token: aParser [
 	"^ (aParser token: SYMLToken) trim: self whites"
-	^ (self whites , (aParser token: SYMLToken)) ==> [ :parts |
+	^ (self whites , (aParser token: SysmelToken)) ==> [ :parts |
 			parts second
 				previousComments: parts first;
 				yourself
