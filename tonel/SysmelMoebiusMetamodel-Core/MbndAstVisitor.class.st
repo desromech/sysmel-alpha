@@ -70,7 +70,7 @@ MbndAstVisitor >> visitLiteralValueNode: node [
 ]
 
 { #category : #visiting }
-MbndAstVisitor >> visitLocalVariableDefinition: node [
+MbndAstVisitor >> visitLocalVariableDefinitionNode: node [
 	self subclassResponsibility
 ]
 
@@ -141,6 +141,11 @@ MbndAstVisitor >> visitSpliceNode: node [
 
 { #category : #visiting }
 MbndAstVisitor >> visitUnexpandedMessageSendNode: node [
+	self subclassResponsibility
+]
+
+{ #category : #visiting }
+MbndAstVisitor >> visitVariableReferenceNode: node [
 	self subclassResponsibility
 ]
 

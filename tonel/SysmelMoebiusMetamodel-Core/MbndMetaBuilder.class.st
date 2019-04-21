@@ -1,12 +1,13 @@
 Class {
 	#name : #MbndMetaBuilder,
 	#superclass : #Object,
+	#traits : 'TMbndObjectWithFlags',
+	#classTraits : 'TMbndObjectWithFlags classTrait',
 	#instVars : [
 		'position',
 		'metaBuilderAnalyzer',
 		'metaBuilderScope',
-		'currentAnalyzer',
-		'flags'
+		'currentAnalyzer'
 	],
 	#category : #'SysmelMoebiusMetamodel-Core-MetaBuilder'
 }
@@ -19,11 +20,6 @@ MbndMetaBuilder class >> globalBindingName [
 { #category : #'as yet unclassified' }
 MbndMetaBuilder class >> metaBuilderFactory [
 	^ MbndMetaBuilderFactory new metaBuilderClass: self
-]
-
-{ #category : #flags }
-MbndMetaBuilder >> addFlag: aFlag [
-	flags := (flags copyWithout: aFlag) copyWith: aFlag
 ]
 
 { #category : #'semantic analysis' }
@@ -56,11 +52,6 @@ MbndMetaBuilder >> concretizeUnexpandedMessageSendNode: node thenAnalyzerWith: a
 	^ analyzer visitNode: (node copy
 		receiver: (self concretizeNode: node receiver withAnalyzer: analyzer);
 		yourself)
-]
-
-{ #category : #flags }
-MbndMetaBuilder >> hasFlag: aFlags [
-	^ flags includes: aFlags
 ]
 
 { #category : #initialization }
@@ -98,9 +89,4 @@ MbndMetaBuilder >> position [
 { #category : #accessing }
 MbndMetaBuilder >> position: anObject [
 	position := anObject
-]
-
-{ #category : #flags }
-MbndMetaBuilder >> removeFlag: aFlag [
-	flags := (flags copyWithout: aFlag) copyWith: aFlag
 ]

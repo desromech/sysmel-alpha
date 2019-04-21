@@ -24,6 +24,11 @@ MbndAbstractScope >> compilationTarget [
 	^ parent compilationTarget
 ]
 
+{ #category : #storage }
+MbndAbstractScope >> lookBindingStorageRecursively: binding [
+	^ parent ifNotNil: [ parent lookBindingStorageRecursively: binding ]
+]
+
 { #category : #'macro expansion' }
 MbndAbstractScope >> lookupMacroSelector: selector [
 	^ parent ifNotNil: [ parent lookupMacroSelector: selector ]

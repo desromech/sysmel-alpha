@@ -28,6 +28,11 @@ MbndAstNode >> initialize [
 ]
 
 { #category : #testing }
+MbndAstNode >> isBoundIdentifierReferenceNode [
+	^ false
+]
+
+{ #category : #testing }
 MbndAstNode >> isBreakStatementNode [
 	^ false
 ]
@@ -160,6 +165,12 @@ MbndAstNode >> isStatementNode [
 { #category : #testing }
 MbndAstNode >> isUnexpandedMessageSendNode [
 	^ false
+]
+
+{ #category : #testing }
+MbndAstNode >> isVariableReferenceNode [
+	^ false
+
 ]
 
 { #category : #testing }

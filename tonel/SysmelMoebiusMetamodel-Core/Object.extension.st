@@ -11,6 +11,11 @@ Object >> isMbndSymbolBinding [
 ]
 
 { #category : #'*SysmelMoebiusMetamodel-Core' }
+Object >> isMbndType [
+	^ false
+]
+
+{ #category : #'*SysmelMoebiusMetamodel-Core' }
 Object >> mbndLiteralTypeWithTarget: compilationTarget [
 	self subclassResponsibility
 ]

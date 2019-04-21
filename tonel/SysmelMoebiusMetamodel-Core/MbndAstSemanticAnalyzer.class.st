@@ -72,7 +72,8 @@ MbndAstSemanticAnalyzer >> evaluateCompileTimeExpression: compileTimeExpression 
 	| returnContext evaluator |
 	returnContext := MbndReturnContextScope parent: scope.
 	
-	evaluator := MbndAstEvaluator new
+	evaluator := MbndAstSemanticAnalyzerAndEvaluator new
+		module: module;
 		scope: returnContext newLexicalScope.
 		
 	[
@@ -87,6 +88,9 @@ MbndAstSemanticAnalyzer >> evaluateCompileTimeExpression: compileTimeExpression 
 { #category : #'compile time evaluation' }
 MbndAstSemanticAnalyzer >> evaluateTypeExpression: typeExpression [
 	| evaluationResult |
+	typeExpression isMbndType ifTrue: [ ^ typeExpression ].
+	self assert: typeExpression isMbndAstNode.
+	
 	evaluationResult := self evaluateCompileTimeExpression: typeExpression.
 	evaluationResult type isMetaType ifFalse: [
 		^ self error: 'Expected a type expression, instead of an expression evaluated to {1}.' format: { evaluationResult printString } at: typeExpression
@@ -149,13 +153,13 @@ MbndAstSemanticAnalyzer >> visitIdentifierReferenceNode: node [
 ]
 
 { #category : #visiting }
-MbndAstSemanticAnalyzer >> visitLocalVariableDefinition: node [
+MbndAstSemanticAnalyzer >> visitLocalVariableDefinitionNode: node [
 	| result valueType |
 	result := node copy.
 	
 	"Make sure the value type is evaluated."
-	result valueType isMbndAstNode ifTrue: [ 
-		result valueType: (self evaluateTypeExpression: node valueType)
+	result valueType ifNotNil: [ 
+		result valueType: (self evaluateTypeExpression: node valueType).
 	].
 
 	"Analyze the initial value."
@@ -176,6 +180,13 @@ MbndAstSemanticAnalyzer >> visitLocalVariableDefinition: node [
 	valueType := result valueType.
 	result initialValue ifNotNil: [ :valueNode |
 		result initialValue: (self addImplicitCastFor: valueNode to: valueType)
+	].
+
+	"Make sure there is always an initial value."
+	result initialValue ifNil: [ 
+		result initialValue: (result valueType defaultValueASTNode
+			position: result;
+			yourself)
 	].
 
 	"Compute the variable reference type"

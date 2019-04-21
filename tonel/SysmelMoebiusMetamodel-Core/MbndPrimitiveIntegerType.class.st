@@ -12,6 +12,11 @@ MbndPrimitiveIntegerType class >> typeName [
 	^ #_PrimitiveIntegerType
 ]
 
+{ #category : #'default values' }
+MbndPrimitiveIntegerType >> defaultValue [
+	^ MbndValue value: 0 type: self
+]
+
 { #category : #testing }
 MbndPrimitiveIntegerType >> isAcceptableLiteralValue: literalValue [
 	^ literalValue isInteger

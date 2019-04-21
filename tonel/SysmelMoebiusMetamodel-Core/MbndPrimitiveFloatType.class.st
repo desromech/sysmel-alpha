@@ -9,6 +9,11 @@ MbndPrimitiveFloatType class >> typeName [
 	^ #_PrimitiveFloatType
 ]
 
+{ #category : #'default values' }
+MbndPrimitiveFloatType >> defaultValue [
+	^ MbndValue value: 0.0 type: self
+]
+
 { #category : #testing }
 MbndPrimitiveFloatType >> isAcceptableLiteralValue: literalValue [
 	^ literalValue isNumber

@@ -51,7 +51,7 @@ MbndAstSemanticAnalyzerTest >> testLetMacroBuilderExpansion [
 	}.
 	analyzedNode := visitor visitNode: node.
 	self assert: analyzedNode isLocalVariableDefinitionNode.
-	self assert: analyzedNode initialValue equals: nil.
+	self assert: analyzedNode initialValue isLiteralValueNode.
 	self assert: analyzedNode type equals: compilationTarget int32Type.
 ]
 
@@ -84,7 +84,7 @@ MbndAstSemanticAnalyzerTest >> testLetMutableMacroBuilderExpansion [
 	}.
 	analyzedNode := visitor visitNode: node.
 	self assert: analyzedNode isLocalVariableDefinitionNode.
-	self assert: analyzedNode initialValue equals: nil.
+	self assert: analyzedNode initialValue isLiteralValueNode.
 	self assert: analyzedNode type isReferenceType.
 	self assert: analyzedNode type baseType equals: compilationTarget int32Type.
 
@@ -100,6 +100,23 @@ MbndAstSemanticAnalyzerTest >> testLiteral [
 ]
 
 { #category : #running }
+MbndAstSemanticAnalyzerTest >> testLocalVariableMutableDefaultInitialValue [
+	| node analyzedNode |
+	node := builder sequence: { 
+		(builder defineLocalVariable: #x withValueType: compilationTarget int32Type withInitialValue: nil)
+			mutable.
+		builder identifier: #x
+	}.
+	analyzedNode := visitor visitNode: node.
+	self assert: analyzedNode isSequenceNode.
+	self assert: analyzedNode type isReferenceType.
+	self assert: analyzedNode type baseType isPrimitiveIntegerType.
+	self assert: analyzedNode elements first initialValue isLiteralValueNode.
+	self assert: analyzedNode elements last isBoundIdentifierReferenceNode.
+
+]
+
+{ #category : #running }
 MbndAstSemanticAnalyzerTest >> testLocalVariableMutableReference [
 	| node analyzedNode |
 	node := builder sequence: { 
@@ -111,21 +128,7 @@ MbndAstSemanticAnalyzerTest >> testLocalVariableMutableReference [
 	analyzedNode := visitor visitNode: node.
 	self assert: analyzedNode isSequenceNode.
 	self assert: analyzedNode type isReferenceType.
-	self assert: analyzedNode type baseType isIntegerType.
-	self assert: analyzedNode elements last isBoundIdentifierReferenceNode.
-
-]
-
-{ #category : #running }
-MbndAstSemanticAnalyzerTest >> testLocalVariableReference [
-	| node analyzedNode |
-	node := builder sequence: { 
-		builder defineLocalVariable: #x withValueType: nil withInitialValue: (builder literalInteger: 5).
-		builder identifier: #x
-	}.
-	analyzedNode := visitor visitNode: node.
-	self assert: analyzedNode isSequenceNode.
-	self assert: analyzedNode type isIntegerType.
+	self assert: analyzedNode type baseType isPrimitiveIntegerType.
 	self assert: analyzedNode elements last isBoundIdentifierReferenceNode.
 
 ]
@@ -172,4 +175,18 @@ MbndAstSemanticAnalyzerTest >> testSequenceWithReturn [
 	self assert: analyzedNode isSequenceNode .
 	self assert: analyzedNode elements size equals: 2.
 	self assert: analyzedNode type isReturnType.
+]
+
+{ #category : #running }
+MbndAstSemanticAnalyzerTest >> testVariableReference [
+	| node analyzedNode |
+	node := builder sequence: { 
+		builder defineLocalVariable: #x withValueType: nil withInitialValue: (builder literalInteger: 5).
+		builder identifier: #x
+	}.
+	analyzedNode := visitor visitNode: node.
+	self assert: analyzedNode isSequenceNode.
+	self assert: analyzedNode type isPrimitiveIntegerType.
+	self assert: analyzedNode elements last isBoundIdentifierReferenceNode.
+
 ]

@@ -27,6 +27,8 @@ MbndAstNodeTest >> testTestingMethods [
 	self deny: 1 isMbndAstNode.
 	self assert: node isMbndAstNode.
 	self deny: node isBreakStatementNode.
+	self deny: node isBoundIdentifierReferenceNode.
+	self deny: node isVariableReferenceNode.
 	self deny: node isCasesOfCaseNode.
 	self deny: node isCasesOfDefaultCaseNode.
 	self deny: node isCasesOfNode.

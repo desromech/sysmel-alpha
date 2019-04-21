@@ -407,6 +407,19 @@ MbndAstBuilderTest >> testUnexpandedMessageNode [
 ]
 
 { #category : #tests }
+MbndAstBuilderTest >> testVariableReference [
+	| node dummyBinding |
+	dummyBinding := MbndFunctionLocalVariable new
+		valueType: module compilationTarget int32Type;
+		type: module compilationTarget int32Type ref;
+		yourself.
+	node := builder variableReference: dummyBinding.
+	self assert: node isBoundIdentifierReferenceNode.
+	self assert: node isVariableReferenceNode.
+	self assert: node type equals: dummyBinding type.
+]
+
+{ #category : #tests }
 MbndAstBuilderTest >> testWhileLoopNode [
 	| node condition action |
 	condition := builder identifier: #predicate.

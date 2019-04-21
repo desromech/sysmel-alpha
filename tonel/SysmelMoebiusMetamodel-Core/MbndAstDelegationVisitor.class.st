@@ -73,7 +73,7 @@ MbndAstDelegationVisitor >> visitLiteralValueNode: node [
 ]
 
 { #category : #visiting }
-MbndAstDelegationVisitor >> visitLocalVariableDefinition: node [
+MbndAstDelegationVisitor >> visitLocalVariableDefinitionNode: node [
 	^ self delegateNodeVisit: node
 ]
 
@@ -129,6 +129,11 @@ MbndAstDelegationVisitor >> visitSpliceNode: node [
 
 { #category : #visiting }
 MbndAstDelegationVisitor >> visitUnexpandedMessageSendNode: node [
+	^ self delegateNodeVisit: node
+]
+
+{ #category : #visiting }
+MbndAstDelegationVisitor >> visitVariableReferenceNode: node [
 	^ self delegateNodeVisit: node
 ]
 

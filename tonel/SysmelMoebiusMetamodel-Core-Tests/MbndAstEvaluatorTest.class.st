@@ -63,7 +63,7 @@ MbndAstEvaluatorTest >> testLocalDeclaration [
 	}.
 	
 	value := self analyzeAndEvaluateAST: node.
-	self assert: value type isIntegerType.
+	self assert: value type isPrimitiveIntegerType.
 	self assert: value value equals: 5.
 
 ]

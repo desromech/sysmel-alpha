@@ -40,6 +40,14 @@ MbndAstEvaluator >> visitLiteralValueNode: node [
 ]
 
 { #category : #visiting }
+MbndAstEvaluator >> visitLocalVariableDefinitionNode: node [
+	self assert: node binding isNotNil.
+	self assert: node initialValue isNotNil.
+	^ node binding evaluateLocalDefinition: node withEvaluator: self
+
+]
+
+{ #category : #visiting }
 MbndAstEvaluator >> visitReturnStatementNode: node [
 	| result |
 	result := self visitNode: node expression.
@@ -66,4 +74,10 @@ MbndAstEvaluator >> visitSequenceNode: node [
 { #category : #visiting }
 MbndAstEvaluator >> visitUnexpandedMessageSendNode: node [
 	self compilerBugError: 'Macro that should have been expanded is not expanded' at: node
+]
+
+{ #category : #visiting }
+MbndAstEvaluator >> visitVariableReferenceNode: node [
+	self assert: node binding isNotNil.
+	^ node binding asCompileTimeValueReferenceOfType: node type withEvaluator: self at: node
 ]

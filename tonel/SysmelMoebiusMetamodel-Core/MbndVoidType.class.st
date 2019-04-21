@@ -9,6 +9,11 @@ MbndVoidType class >> typeName [
 	^ #Void
 ]
 
+{ #category : #'default values' }
+MbndVoidType >> defaultValue [
+	^ MbndValue value: nil type: self
+]
+
 { #category : #testing }
 MbndVoidType >> isVoidType [
 	^ true

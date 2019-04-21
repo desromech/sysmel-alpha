@@ -335,6 +335,18 @@ MbndAstTransformVisitorTest >> testUnexpandedMessageSendNode [
 ]
 
 { #category : #tests }
+MbndAstTransformVisitorTest >> testVariableReference [
+	| node transformedNode dummyBinding |
+	dummyBinding := MbndFunctionLocalVariable new
+		valueType: module compilationTarget int32Type;
+		type: module compilationTarget int32Type ref;
+		yourself.
+	node := builder variableReference: dummyBinding.
+	transformedNode := visitor visitNode: node.
+	self assert: transformedNode binding equals: node binding.
+]
+
+{ #category : #tests }
 MbndAstTransformVisitorTest >> testWhileLoopNode [
 	| node transformedNode condition action |
 	condition := builder identifier: #predicate.

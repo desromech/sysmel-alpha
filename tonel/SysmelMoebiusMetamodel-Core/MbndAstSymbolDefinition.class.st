@@ -1,9 +1,10 @@
 Class {
 	#name : #MbndAstSymbolDefinition,
 	#superclass : #MbndAstNode,
+	#traits : 'TMbndObjectWithFlags',
+	#classTraits : 'TMbndObjectWithFlags classTrait',
 	#instVars : [
 		'name',
-		'flags',
 		'binding'
 	],
 	#category : #'SysmelMoebiusMetamodel-Core-AST'
@@ -17,21 +18,6 @@ MbndAstSymbolDefinition >> binding [
 { #category : #accessing }
 MbndAstSymbolDefinition >> binding: anObject [
 	binding := anObject
-]
-
-{ #category : #accessing }
-MbndAstSymbolDefinition >> flags [
-	^ flags
-]
-
-{ #category : #accessing }
-MbndAstSymbolDefinition >> flags: anObject [
-	flags := anObject
-]
-
-{ #category : #testing }
-MbndAstSymbolDefinition >> hasFlag: aFlag [
-	^ flags includes: aFlag
 ]
 
 { #category : #initialization }

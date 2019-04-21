@@ -91,7 +91,7 @@ MbndAstTransformVisitor >> visitLiteralValueNode: node [
 ]
 
 { #category : #visiting }
-MbndAstTransformVisitor >> visitLocalVariableDefinition: node [
+MbndAstTransformVisitor >> visitLocalVariableDefinitionNode: node [
 	^ node copy
 		initialValue: (node initialValue ifNotNil: [:initialValue | self visitNode: initialValue]);
 		yourself
@@ -176,6 +176,11 @@ MbndAstTransformVisitor >> visitUnexpandedMessageSendNode: node [
 		selector: (self visitNode: node selector);
 		arguments: (self visitNodesAndCollect: node arguments);
 		yourself
+]
+
+{ #category : #visiting }
+MbndAstTransformVisitor >> visitVariableReferenceNode: node [
+	^ node
 ]
 
 { #category : #visiting }

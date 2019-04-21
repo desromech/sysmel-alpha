@@ -9,6 +9,11 @@ MbndPrimitiveBooleanType class >> typeName [
 	^ #_PrimitiveBooleanType
 ]
 
+{ #category : #'default values' }
+MbndPrimitiveBooleanType >> defaultValue [
+	^ MbndValue value: false type: self
+]
+
 { #category : #initialization }
 MbndPrimitiveBooleanType >> initialize [
 	super initialize.

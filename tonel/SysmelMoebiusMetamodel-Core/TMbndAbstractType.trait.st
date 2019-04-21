@@ -72,6 +72,18 @@ TMbndAbstractType >> createNode: node implicitCastTo: target with: analyzer [
 	^ analyzer error: 'Cannot perform implicit cast from type {1} to type {2}.' format: { self printString . target printString} at: node
 ]
 
+{ #category : #'default values' }
+TMbndAbstractType >> defaultValue [
+	self explicitRequirement
+
+]
+
+{ #category : #'default values' }
+TMbndAbstractType >> defaultValueASTNode [
+	^ self defaultValue asLiteralValueNode
+
+]
+
 { #category : #accessing }
 TMbndAbstractType >> fullName [
 	self explicitRequirement
@@ -165,6 +177,11 @@ TMbndAbstractType >> isLiteralSymbolType [
 { #category : #'testing methods' }
 TMbndAbstractType >> isLiteralValueType [
 	^ false
+]
+
+{ #category : #'testing methods' }
+TMbndAbstractType >> isMbndType [
+	^ true
 ]
 
 { #category : #'testing methods' }

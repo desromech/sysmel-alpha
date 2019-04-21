@@ -60,7 +60,7 @@ MbndAstBuilder >> continueStatement [
 
 { #category : #'as yet unclassified' }
 MbndAstBuilder >> defineLocalVariable: name withValueType: valueType withInitialValue: initialValue [
-	^ MbndAstLocalVariableDefinition new
+	^ MbndAstLocalVariableDefinitionNode new
 		name: name;
 		valueType: valueType;
 		initialValue: initialValue;
@@ -241,6 +241,11 @@ MbndAstBuilder >> unexpandedSend: selector to: aReceiver withArguments: argument
 		arguments: arguments;
 		yourself
 		
+]
+
+{ #category : #'builder methods' }
+MbndAstBuilder >> variableReference: binding [
+	^ MbndAstVariableReference new binding: binding
 ]
 
 { #category : #'builder methods' }

@@ -23,6 +23,7 @@ MbndCompilationTargetTest >> testBooleanType [
 	self assert: type isPrimitiveType.
 	self assert: type isPrimitiveBooleanType.
 	self assert: type valueSize equals: 1.
+	self assert: type defaultValue unwrapMbndValue equals: false.
 ]
 
 { #category : #tests }
@@ -32,6 +33,7 @@ MbndCompilationTargetTest >> testFloat16Type [
 	self assert: type isPrimitiveType.
 	self assert: type isPrimitiveFloatType.
 	self assert: type valueSize equals: 2.
+	self assert: type defaultValue unwrapMbndValue equals: 0.0.
 ]
 
 { #category : #tests }
@@ -41,6 +43,7 @@ MbndCompilationTargetTest >> testFloat32Type [
 	self assert: type isPrimitiveType.
 	self assert: type isPrimitiveFloatType.
 	self assert: type valueSize equals: 4.
+	self assert: type defaultValue unwrapMbndValue equals: 0.0.
 ]
 
 { #category : #tests }
@@ -50,6 +53,7 @@ MbndCompilationTargetTest >> testFloat64Type [
 	self assert: type isPrimitiveType.
 	self assert: type isPrimitiveFloatType.
 	self assert: type valueSize equals: 8.
+	self assert: type defaultValue unwrapMbndValue equals: 0.0.
 ]
 
 { #category : #tests }
@@ -61,6 +65,7 @@ MbndCompilationTargetTest >> testInt16Type [
 	self assert: type valueSize equals: 2.
 	self assert: type isSigned.
 	self deny: type isUnsigned.
+	self assert: type defaultValue unwrapMbndValue equals: 0.
 	
 ]
 
@@ -73,6 +78,7 @@ MbndCompilationTargetTest >> testInt32Type [
 	self assert: type valueSize equals: 4.
 	self assert: type isSigned.
 	self deny: type isUnsigned.
+	self assert: type defaultValue unwrapMbndValue equals: 0.
 	
 ]
 
@@ -85,6 +91,7 @@ MbndCompilationTargetTest >> testInt64Type [
 	self assert: type valueSize equals: 8.
 	self assert: type isSigned.
 	self deny: type isUnsigned.
+	self assert: type defaultValue unwrapMbndValue equals: 0.
 	
 ]
 
@@ -97,6 +104,7 @@ MbndCompilationTargetTest >> testInt8Type [
 	self assert: type valueSize equals: 1.
 	self assert: type isSigned.
 	self deny: type isUnsigned.
+	self assert: type defaultValue unwrapMbndValue equals: 0.
 	
 ]
 
@@ -185,6 +193,7 @@ MbndCompilationTargetTest >> testPointerType [
 	self assert: type isPointerType.
 	self assert: type baseType equals: baseType.
 	self assert: baseType pointer equals: type.
+	self assert: type defaultValue unwrapMbndValue equals: nil.
 
 ]
 
@@ -217,6 +226,7 @@ MbndCompilationTargetTest >> testUInt16Type [
 	self assert: type valueSize equals: 2.
 	self deny: type isSigned.
 	self assert: type isUnsigned.
+	self assert: type defaultValue unwrapMbndValue equals: 0.
 	
 ]
 
@@ -229,6 +239,7 @@ MbndCompilationTargetTest >> testUInt32Type [
 	self assert: type valueSize equals: 4.
 	self deny: type isSigned.
 	self assert: type isUnsigned.
+	self assert: type defaultValue unwrapMbndValue equals: 0.
 	
 ]
 
@@ -241,6 +252,7 @@ MbndCompilationTargetTest >> testUInt64Type [
 	self assert: type valueSize equals: 8.
 	self deny: type isSigned.
 	self assert: type isUnsigned.
+	self assert: type defaultValue unwrapMbndValue equals: 0.
 	
 ]
 
@@ -253,6 +265,7 @@ MbndCompilationTargetTest >> testUInt8Type [
 	self assert: type valueSize equals: 1.
 	self deny: type isSigned.
 	self assert: type isUnsigned.
+	self assert: type defaultValue unwrapMbndValue equals: 0.
 	
 ]
 
@@ -260,6 +273,7 @@ MbndCompilationTargetTest >> testUInt8Type [
 MbndCompilationTargetTest >> testUndefinedType [
 	self assert: compilationTarget undefinedType isOpaqueType.
 	self assert: compilationTarget undefinedType isUndefinedType.
+	self assert: compilationTarget undefinedType defaultValue unwrapMbndValue equals: nil.
 	
 ]
 
