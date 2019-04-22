@@ -8,6 +8,14 @@ Class {
 }
 
 { #category : #visiting }
+MbndAstTransformVisitor >> visitArgumentDefinitionNode: node [
+	^ node copy
+		valueType: (node valueType ifNotNil: [:vt | self visitNode: vt]);
+		initialValue: (node initialValue ifNotNil: [:iv | self visitNode: iv]);
+		yourself
+]
+
+{ #category : #visiting }
 MbndAstTransformVisitor >> visitBreakStatementNode: node [
 	^ node
 ]
@@ -166,6 +174,13 @@ MbndAstTransformVisitor >> visitSequenceNode: node [
 MbndAstTransformVisitor >> visitSpliceNode: node [
 	^ node copy
 		expression: (self visitNode: node expression);
+		yourself
+]
+
+{ #category : #visiting }
+MbndAstTransformVisitor >> visitTupleNode: node [
+	^ node copy
+		elements: (self visitNodesAndCollect: node elements);
 		yourself
 ]
 

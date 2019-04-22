@@ -22,6 +22,11 @@ MbndMetaBuilder class >> metaBuilderFactory [
 	^ MbndMetaBuilderFactory new metaBuilderClass: self
 ]
 
+{ #category : #'meta builder finalization' }
+MbndMetaBuilder >> abortMetaBuilding [
+	^ MbndMetaBuilderAbortException new signal
+]
+
 { #category : #'semantic analysis' }
 MbndMetaBuilder >> analyzeUnexpandedMessageSendNode: node with: analyzer [
 	| selector result |
@@ -30,10 +35,16 @@ MbndMetaBuilder >> analyzeUnexpandedMessageSendNode: node with: analyzer [
 		
 		(self class lookupSelector: selector) ifNotNil: [ :method |
 			currentAnalyzer := analyzer.
-			result := self perform: selector withArguments: node arguments.
-			^ result == self
-				ifTrue: [ node receiver ]
-				ifFalse: [ result ]
+			[ 
+				result := self perform: selector withArguments: node arguments.
+				^ result == self
+					ifTrue: [ node receiver ]
+					ifFalse: [ result ]
+			] on: MbndMetaBuilderAbortException do: [ :e |
+				"This reception means we are not accept more meta
+				building invokations. Concretize the final node"
+				^ self concretizeUnexpandedMessageSendNode: node thenAnalyzerWith: analyzer
+			].
 		]
 	].
 
@@ -52,6 +63,11 @@ MbndMetaBuilder >> concretizeUnexpandedMessageSendNode: node thenAnalyzerWith: a
 	^ analyzer visitNode: (node copy
 		receiver: (self concretizeNode: node receiver withAnalyzer: analyzer);
 		yourself)
+]
+
+{ #category : #'meta builder finalization' }
+MbndMetaBuilder >> finishMetaBuilding [
+	^ MbndMetaBuilderAbortException new signal
 ]
 
 { #category : #initialization }

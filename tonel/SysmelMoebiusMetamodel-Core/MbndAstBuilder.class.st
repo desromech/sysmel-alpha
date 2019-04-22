@@ -12,6 +12,14 @@ MbndAstBuilder class >> forModule: aModule [
 	^ self new module: aModule; yourself
 ]
 
+{ #category : #'as yet unclassified' }
+MbndAstBuilder >> argument: name type: valueType [
+	^ MbndAstArgumentDefinitionNode new
+		name: name;
+		valueType: valueType;
+		yourself
+]
+
 { #category : #'builder methods' }
 MbndAstBuilder >> breakStatement [
 	^ MbndAstBreakStatementNode new
@@ -72,6 +80,15 @@ MbndAstBuilder >> do: action while: condition [
 	^ MbndAstDoWhileLoopNode new
 		action: action;
 		condition: condition;
+		yourself
+]
+
+{ #category : #'as yet unclassified' }
+MbndAstBuilder >> functionPrototypeNamed: name arguments: arguments returnType: returnType [
+	^ MbndAstFunctionPrototypeNode new
+		name: name;
+		arguments: arguments;
+		returnType: returnType;
 		yourself
 ]
 
@@ -165,6 +182,15 @@ MbndAstBuilder >> messageChainReceiver: receiver messages: chainedMessages [
 		yourself
 ]
 
+{ #category : #'as yet unclassified' }
+MbndAstBuilder >> messagePrototypeSelector: selector arguments: arguments returnType: returnType [
+	^ MbndAstMessagePrototypeNode new
+		selector: selector;
+		arguments: arguments;
+		returnType: returnType;
+		yourself
+]
+
 { #category : #accessing }
 MbndAstBuilder >> module [
 	^ module
@@ -230,6 +256,11 @@ MbndAstBuilder >> sequence: aSequenceOfNodes [
 { #category : #'builder methods' }
 MbndAstBuilder >> splice: expression [
 	^ MbndAstSpliceNode new expression: expression
+]
+
+{ #category : #'builder methods' }
+MbndAstBuilder >> tuple: aSequenceOfNodes [
+	^ MbndAstTupleNode new elements: aSequenceOfNodes; yourself
 ]
 
 { #category : #'builder methods' }

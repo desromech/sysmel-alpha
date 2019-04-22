@@ -10,6 +10,7 @@ Class {
 
 { #category : #definition }
 MbndAbstractVariableMetaBuilder >> assignValue: newInitialValueNode [
+	initialValueNode ifNotNil: [ self abortMetaBuilding ].
 	initialValueNode := newInitialValueNode
 ]
 

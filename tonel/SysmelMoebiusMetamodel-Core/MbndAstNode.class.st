@@ -4,6 +4,8 @@ I represent a generic AST node in the MoebiusBand meta model. I am used to imple
 Class {
 	#name : #MbndAstNode,
 	#superclass : #Object,
+	#traits : 'TMbndObject',
+	#classTraits : 'TMbndObject classTrait',
 	#instVars : [
 		'position',
 		'type'
@@ -25,6 +27,11 @@ MbndAstNode >> concretizeNodeWithAnalyzer: analyzer [
 MbndAstNode >> initialize [
 	super initialize.
 	position := MbndSourcePosition empty.
+]
+
+{ #category : #testing }
+MbndAstNode >> isArgumentDefinitionNode [
+	^ false
 ]
 
 { #category : #testing }
@@ -69,6 +76,16 @@ MbndAstNode >> isExpandedMessageSendNode [
 
 { #category : #testing }
 MbndAstNode >> isFunctionCallNode [
+	^ false
+]
+
+{ #category : #testing }
+MbndAstNode >> isFunctionDefinitionNode [
+	^ false
+]
+
+{ #category : #testing }
+MbndAstNode >> isFunctionPrototypeNode [
 	^ false
 ]
 
@@ -118,6 +135,16 @@ MbndAstNode >> isMessageChainNode [
 ]
 
 { #category : #testing }
+MbndAstNode >> isMessageDefinitionNode [
+	^ false
+]
+
+{ #category : #testing }
+MbndAstNode >> isMessagePrototypeNode [
+	^ false
+]
+
+{ #category : #testing }
 MbndAstNode >> isMetaBuilderInstanceNode [
 	^ false
 ]
@@ -163,6 +190,11 @@ MbndAstNode >> isStatementNode [
 ]
 
 { #category : #testing }
+MbndAstNode >> isTupleNode [
+	^ false
+]
+
+{ #category : #testing }
 MbndAstNode >> isUnexpandedMessageSendNode [
 	^ false
 ]
@@ -184,6 +216,16 @@ MbndAstNode >> lexicallyScoped [
 		position: position;
 		expression: self;
 		yourself
+]
+
+{ #category : #parsing }
+MbndAstNode >> parseAsArgumentDefinition [
+	self error: 'Expected an argument definition.' at: self
+]
+
+{ #category : #parsing }
+MbndAstNode >> parseAsFunctionArgumentsPrototype [
+	self error: 'Expected a function arguments prototype.' at: self
 ]
 
 { #category : #accessing }

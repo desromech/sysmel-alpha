@@ -20,6 +20,18 @@ MbndAstTransformVisitorTest >> setUp [
 ]
 
 { #category : #tests }
+MbndAstTransformVisitorTest >> testArgumentDefinition [
+	| node type transformedNode |
+	type := builder identifier: #Int32.
+	node := builder argument: #x type: type.
+	transformedNode := visitor visitNode: node.
+	self assert: transformedNode isArgumentDefinitionNode.
+	self assert: transformedNode name equals: #x.
+	self assert: transformedNode valueType equals: type.
+
+]
+
+{ #category : #tests }
 MbndAstTransformVisitorTest >> testBreakStatement [
 	| node transformedNode |
 	node := builder breakStatement.
@@ -314,6 +326,20 @@ MbndAstTransformVisitorTest >> testSpliceNode [
 	transformedNode := visitor visitNode: node.
 	self assert: transformedNode ~~ node.
 	self assert: transformedNode expression equals: expression.
+]
+
+{ #category : #tests }
+MbndAstTransformVisitorTest >> testTupleNode [
+	| node transformedNode elements |
+	elements := {
+		builder literalInteger: 1.
+		builder literalInteger: 2.
+	}.
+	
+	node := builder tuple: elements.
+	transformedNode := visitor visitNode: node.
+	self assert: transformedNode ~~ node.
+	self assert: transformedNode elements equals: elements.
 ]
 
 { #category : #tests }

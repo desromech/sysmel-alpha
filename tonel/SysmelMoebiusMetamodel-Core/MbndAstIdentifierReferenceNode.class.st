@@ -17,6 +17,19 @@ MbndAstIdentifierReferenceNode >> isIdentifierReferenceNode [
 	^ true
 ]
 
+{ #category : #parsing }
+MbndAstIdentifierReferenceNode >> parseAsArgumentDefinition [
+	^ MbndAstArgumentDefinitionNode new
+		position: self;
+		name: symbol;
+		yourself
+]
+
+{ #category : #parsing }
+MbndAstIdentifierReferenceNode >> parseAsFunctionArgumentsPrototype [
+	^ { self parseAsArgumentDefinition }
+]
+
 { #category : #accessing }
 MbndAstIdentifierReferenceNode >> symbol [
 	^ symbol

@@ -13,6 +13,11 @@ MbndAstDelegationVisitor >> delegateNodeVisit: aNode [
 ]
 
 { #category : #visiting }
+MbndAstDelegationVisitor >> visitArgumentDefinitionNode: node [
+	^ self delegateNodeVisit: node
+]
+
+{ #category : #visiting }
 MbndAstDelegationVisitor >> visitBreakStatementNode: node [
 	^ self delegateNodeVisit: node
 ]
@@ -53,6 +58,16 @@ MbndAstDelegationVisitor >> visitFunctionCallNode: node [
 ]
 
 { #category : #visiting }
+MbndAstDelegationVisitor >> visitFunctionDefinitionNode: node [
+	^ self delegateNodeVisit: node
+]
+
+{ #category : #visiting }
+MbndAstDelegationVisitor >> visitFunctionPrototypeNode: node [
+	^ self delegateNodeVisit: node
+]
+
+{ #category : #visiting }
 MbndAstDelegationVisitor >> visitIdentifierReferenceNode: node [
 	^ self delegateNodeVisit: node
 ]
@@ -84,6 +99,16 @@ MbndAstDelegationVisitor >> visitMessageChainMessageNode: node [
 
 { #category : #visiting }
 MbndAstDelegationVisitor >> visitMessageChainNode: node [
+	^ self delegateNodeVisit: node
+]
+
+{ #category : #visiting }
+MbndAstDelegationVisitor >> visitMessageDefinitionNode: node [
+	^ self delegateNodeVisit: node
+]
+
+{ #category : #visiting }
+MbndAstDelegationVisitor >> visitMessagePrototypeNode: node [
 	^ self delegateNodeVisit: node
 ]
 
@@ -124,6 +149,11 @@ MbndAstDelegationVisitor >> visitSequenceNode: node [
 
 { #category : #visiting }
 MbndAstDelegationVisitor >> visitSpliceNode: node [
+	^ self delegateNodeVisit: node
+]
+
+{ #category : #visiting }
+MbndAstDelegationVisitor >> visitTupleNode: node [
 	^ self delegateNodeVisit: node
 ]
 

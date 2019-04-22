@@ -20,7 +20,7 @@ SYMLASTFunctionApplication >> arguments: anObject [
 
 { #category : #converting }
 SYMLASTFunctionApplication >> buildMoebiusAST: builder [
-	^ (builder unexpandedSend: #applyWithArguments:
+	^ (builder unexpandedSend: (builder literalSymbol: #applyWithArguments:)
 		to: (function buildMoebiusAST: builder)
 		withArguments: {builder tuple: (arguments asList collect: [:arg | arg buildMoebiusAST: builder])})
 		position: self;

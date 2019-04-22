@@ -453,11 +453,11 @@ SysmelGrammar >> lparent [
 
 { #category : #white }
 SysmelGrammar >> multiLineComment [
-	^ ('/*' asPParser ,
+	^ ('#*' asPParser ,
 		( ($* asPParser negate) /
-			($* asPParser , $/ asPParser negate)
+			($* asPParser , $# asPParser negate)
 		) star ,
-	'*/' asPParser token: SYMLCommentToken) ==> [ :t |
+	'*#' asPParser token: SysmelCommentToken) ==> [ :t |
 		t trimLeft: 2 right: 2
 	]
 ]
@@ -615,7 +615,7 @@ SysmelGrammar >> sharp [
 
 { #category : #white }
 SysmelGrammar >> singleLineComment [
-	^ ('//' asPParser, self newline negate star, self newline token: SYMLCommentToken) ==> [ :t |
+	^ ('##' asPParser, self newline negate star, self newline token: SysmelCommentToken) ==> [ :t |
 		t trimLeft: 2
 	]
 ]

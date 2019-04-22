@@ -10,6 +10,11 @@ Class {
 }
 
 { #category : #visiting }
+MbndAstVisitor >> visitArgumentDefinitionNode: node [
+	self subclassResponsibility
+]
+
+{ #category : #visiting }
 MbndAstVisitor >> visitBreakStatementNode: node [
 	self subclassResponsibility
 ]
@@ -50,6 +55,16 @@ MbndAstVisitor >> visitFunctionCallNode: node [
 ]
 
 { #category : #visiting }
+MbndAstVisitor >> visitFunctionDefinitionNode: node [
+	self subclassResponsibility
+]
+
+{ #category : #visiting }
+MbndAstVisitor >> visitFunctionPrototypeNode: node [
+	self subclassResponsibility
+]
+
+{ #category : #visiting }
 MbndAstVisitor >> visitIdentifierReferenceNode: node [
 	self subclassResponsibility
 ]
@@ -81,6 +96,16 @@ MbndAstVisitor >> visitMessageChainMessageNode: node [
 
 { #category : #visiting }
 MbndAstVisitor >> visitMessageChainNode: node [
+	self subclassResponsibility
+]
+
+{ #category : #visiting }
+MbndAstVisitor >> visitMessageDefinitionNode: node [
+	self subclassResponsibility
+]
+
+{ #category : #visiting }
+MbndAstVisitor >> visitMessagePrototypeNode: node [
 	self subclassResponsibility
 ]
 
@@ -136,6 +161,11 @@ MbndAstVisitor >> visitSequenceNode: node [
 
 { #category : #visiting }
 MbndAstVisitor >> visitSpliceNode: node [
+	self subclassResponsibility
+]
+
+{ #category : #visiting }
+MbndAstVisitor >> visitTupleNode: node [
 	self subclassResponsibility
 ]
 

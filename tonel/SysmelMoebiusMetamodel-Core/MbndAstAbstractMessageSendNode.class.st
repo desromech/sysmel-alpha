@@ -39,6 +39,26 @@ MbndAstAbstractMessageSendNode >> asUnexpandedMessageSend [
 		yourself
 ]
 
+{ #category : #parsing }
+MbndAstAbstractMessageSendNode >> parseAsArgumentDefinition [
+	| argumentName |
+	selector isLiteralSymbolValueNode ifFalse: [ ^ super parseAsArgumentDefinition].
+	receiver ifNotNil: [ ^ super parseAsArgumentDefinition].
+	selector value numArgs ~= 1 ifTrue: [ ^ super parseAsArgumentDefinition ].
+
+	argumentName := selector value allButLast asSymbol.
+	^ MbndAstArgumentDefinitionNode new
+		position: self;
+		name: argumentName;
+		valueType: arguments first;
+		yourself
+]
+
+{ #category : #parsing }
+MbndAstAbstractMessageSendNode >> parseAsFunctionArgumentsPrototype [
+	^ { self parseAsArgumentDefinition }
+]
+
 { #category : #accessing }
 MbndAstAbstractMessageSendNode >> receiver [
 	^ receiver

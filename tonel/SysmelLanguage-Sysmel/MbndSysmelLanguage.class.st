@@ -19,7 +19,7 @@ MbndSysmelLanguage >> parse: sourceCollectionWithContext [
 	| astOrFailure position |
 	astOrFailure := SysmelParser parse: sourceCollectionWithContext.
 	astOrFailure isPetit2Failure ifTrue: [
-		position := SYMLSourcePosition new
+		position := MbndSourcePosition new
 			collection: sourceCollectionWithContext;
 			start: astOrFailure position + 1;
 			stop: astOrFailure position + 1;
