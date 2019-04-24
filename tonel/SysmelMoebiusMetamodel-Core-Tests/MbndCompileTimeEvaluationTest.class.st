@@ -24,7 +24,7 @@ MbndCompileTimeEvaluationTest >> testAddInteger [
 	result := module analyzeAndEvaluateAST: ast.
 	
 	self assert: result value equals: 4.
-	self assert: result type isIntegerType.
+	self assert: result type isPrimitiveIntegerType.
 ]
 
 { #category : #tests }
@@ -37,7 +37,7 @@ MbndCompileTimeEvaluationTest >> testDivideInteger [
 	result := module analyzeAndEvaluateAST: ast.
 	
 	self assert: result value equals: -2.
-	self assert: result type isLiteralIntegerType.
+	self assert: result type isPrimitiveIntegerType.
 ]
 
 { #category : #tests }
@@ -68,7 +68,7 @@ MbndCompileTimeEvaluationTest >> testMultiplyInteger [
 	result := module analyzeAndEvaluateAST: ast.
 	
 	self assert: result value equals: -6.
-	self assert: result type isLiteralIntegerType.
+	self assert: result type isPrimitiveIntegerType.
 ]
 
 { #category : #tests }
@@ -79,7 +79,7 @@ MbndCompileTimeEvaluationTest >> testNegateInteger [
 	result := module analyzeAndEvaluateAST: ast.
 	
 	self assert: result value equals: -42.
-	self assert: result type isIntegerType.
+	self assert: result type isPrimitiveIntegerType.
 ]
 
 { #category : #tests }
@@ -133,7 +133,7 @@ MbndCompileTimeEvaluationTest >> testSubtractInteger [
 	result := module analyzeAndEvaluateAST: ast.
 	
 	self assert: result value equals: -2.
-	self assert: result type isLiteralIntegerType.
+	self assert: result type isPrimitiveIntegerType.
 ]
 
 { #category : #tests }

@@ -57,6 +57,18 @@ MbndCompilationTargetTest >> testFloat64Type [
 ]
 
 { #category : #tests }
+MbndCompilationTargetTest >> testFunctionType [
+	| type argumentTypes returnType |
+	argumentTypes := {compilationTarget uint8Type . compilationTarget float32Type}.
+	returnType := compilationTarget voidType.
+	type := compilationTarget functionTypeWithArguments: argumentTypes returnType: returnType.
+	self assert: type isFunctionalType.
+	self assert: type isFunctionType.
+	self assert: type argumentTypes equals: argumentTypes.
+	self assert: type returnType equals: returnType.
+]
+
+{ #category : #tests }
 MbndCompilationTargetTest >> testInt16Type [
 	| type |
 	type := compilationTarget int16Type.

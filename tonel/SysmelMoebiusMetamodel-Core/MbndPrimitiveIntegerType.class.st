@@ -1,6 +1,6 @@
 Class {
 	#name : #MbndPrimitiveIntegerType,
-	#superclass : #MbndPrimitiveType,
+	#superclass : #MbndPrimitiveNumberType,
 	#instVars : [
 		'signed'
 	],

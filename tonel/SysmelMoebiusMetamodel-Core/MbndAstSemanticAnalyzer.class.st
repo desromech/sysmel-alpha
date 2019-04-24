@@ -47,6 +47,12 @@ MbndAstSemanticAnalyzer >> analyzeNonConcreteNodeIfNeeded: node [
 		ifNotNil: [ node ]
 ]
 
+{ #category : #coercing }
+MbndAstSemanticAnalyzer >> arithmeticCoercionTypeFor: leftType with: rightType at: position [
+	leftType == rightType ifTrue: [ ^ leftType ].
+	self halt
+]
+
 { #category : #accessing }
 MbndAstSemanticAnalyzer >> astBuilder [
 	^ astBuilder ifNil: [ astBuilder := MbndAstBuilder forModule: module ]
@@ -130,9 +136,9 @@ MbndAstSemanticAnalyzer >> visitExpandedMessageSendNode: node [
 	"Find the method in order to perform a typed message send."
 	receiverType := result receiver type.
 	result selector isLiteralSymbolValueNode ifTrue: [ 
-		method := receiverType lookupSelector: result selector value.
+		method := receiverType lookupOverloadedSelector: result selector value.
 		method ifNotNil: [
-			self halt
+			^ method analyzeExpandedMessageNode: node with: self
 		].
 	
 		"We failed to find the method, then ask the receiver type to interpret this message."

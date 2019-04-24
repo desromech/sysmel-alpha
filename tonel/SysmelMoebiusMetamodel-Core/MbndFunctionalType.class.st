@@ -18,3 +18,8 @@ MbndFunctionalType >> initialize [
 			position: node
 	]
 ]
+
+{ #category : #testing }
+MbndFunctionalType >> isFunctionalType [
+	^ true
+]

@@ -9,11 +9,10 @@ Trait {
 	#name : #TMbndType,
 	#instVars : [
 		'definitionModule',
-		'macroMethodDict',
 		'subtypes'
 	],
-	#traits : 'TMbndAbstractType',
-	#classTraits : 'TMbndAbstractType classTrait',
+	#traits : 'TMbndAbstractType + TMbndMacroMethodContainer',
+	#classTraits : 'TMbndAbstractType classTrait + TMbndMacroMethodContainer classTrait',
 	#category : #'SysmelMoebiusMetamodel-Core-Type'
 }
 
@@ -31,26 +30,8 @@ TMbndType >> lookupMacroSelector: aSelector [
 ]
 
 { #category : #accessing }
-TMbndType >> macroMethodDict [
-	^ macroMethodDict ifNil: [ macroMethodDict := Dictionary new ]
-]
-
-{ #category : #accessing }
-TMbndType >> macroMethodDict: aDictionary [
-	macroMethodDict := aDictionary
-]
-
-{ #category : #accessing }
 TMbndType >> module [
 	^ definitionModule
-]
-
-{ #category : #'macro expansion' }
-TMbndType >> onMacroSelector: aSelector do: aBlock [
-	self macroMethodDict at: aSelector
-		ifPresent: [ self error: 'Duplicated macro selector.' ]
-		ifAbsentPut: (MbndBlockClosureMacro new block: aBlock)
-
 ]
 
 { #category : #'type hierarchy' }

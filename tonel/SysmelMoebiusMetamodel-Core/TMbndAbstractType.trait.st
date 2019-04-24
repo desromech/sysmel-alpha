@@ -60,6 +60,11 @@ TMbndAbstractType >> asLiteralValueNode [
 		yourself
 ]
 
+{ #category : #'semantic analysis' }
+TMbndAbstractType >> bestConcreteTypeForLiteralValueNode: literalValueNode inScope: scope [
+	^ self
+]
+
 { #category : #casting }
 TMbndAbstractType >> createNode: node explicitCastTo: target with: analyzer [
 	self == target ifTrue: [ ^ node ].
@@ -104,7 +109,7 @@ TMbndAbstractType >> instanceSize [
 	^ self explicitRequirement
 ]
 
-{ #category : #testing }
+{ #category : #'testing methods' }
 TMbndAbstractType >> isAcceptableLiteralValue: literalValue [
 	^ false
 ]
@@ -121,6 +126,16 @@ TMbndAbstractType >> isArrayType [
 
 { #category : #'testing methods' }
 TMbndAbstractType >> isDerivedType [
+	^ false
+]
+
+{ #category : #'testing methods' }
+TMbndAbstractType >> isFunctionType [
+	^ false
+]
+
+{ #category : #'testing methods' }
+TMbndAbstractType >> isFunctionalType [
 	^ false
 ]
 
@@ -220,6 +235,11 @@ TMbndAbstractType >> isPrimitiveIntegerType [
 ]
 
 { #category : #'testing methods' }
+TMbndAbstractType >> isPrimitiveNumberType [
+	^ false
+]
+
+{ #category : #'testing methods' }
 TMbndAbstractType >> isPrimitiveType [
 	^ false
 ]
@@ -265,8 +285,13 @@ TMbndAbstractType >> lookupMacroSelector: aSelector [
 ]
 
 { #category : #methods }
-TMbndAbstractType >> lookupSelector: selector [
-	^ nil
+TMbndAbstractType >> lookupOverloadedSelector: selector [
+	^ self supertype ifNotNil: [ :st | st lookupOverloadedSelector: selector ]
+]
+
+{ #category : #methods }
+TMbndAbstractType >> lookupSelector: aSelector [
+	^ self supertype ifNotNil: [ :st | st lookupSelector: aSelector ]
 ]
 
 { #category : #'type composition' }

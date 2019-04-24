@@ -4,14 +4,15 @@ Trait {
 		'coreDefinitionsModule',
 		'basicTypes',
 		'pointerTypes',
-		'referenceTypes'
+		'referenceTypes',
+		'functionTypes'
 	],
 	#category : #'SysmelMoebiusMetamodel-Core-CompilationTarget'
 }
 
 { #category : #'basic types' }
 TMbndCoreCompilationTarget >> addBasicFloatTypeWithSize: size alignment: alignment name: name [
-	^ self addBasicType: (MbndPrimitiveFloatType new
+	^ self addBasicType: (MbndPrimitiveFloatType basicNew
 		name: name;
 		instanceSize: size;
 		instanceAlignment: alignment;
@@ -25,7 +26,7 @@ TMbndCoreCompilationTarget >> addBasicFloatTypeWithSize: size name: name [
 
 { #category : #'basic types' }
 TMbndCoreCompilationTarget >> addBasicIntegerTypeWithSize: size alignment: alignment signed: signed name: name [
-	^ self addBasicType: (MbndPrimitiveIntegerType new
+	^ self addBasicType: (MbndPrimitiveIntegerType basicNew
 		name: name;
 		instanceSize: size;
 		instanceAlignment: alignment;
@@ -58,6 +59,11 @@ TMbndCoreCompilationTarget >> coreDefinitionsModule [
 { #category : #accessing }
 TMbndCoreCompilationTarget >> coreDefinitionsModule: anObject [
 	coreDefinitionsModule := anObject
+]
+
+{ #category : #'calling conventions' }
+TMbndCoreCompilationTarget >> defaultCallingConvention [
+	^ #cdecl
 ]
 
 { #category : #'basic types' }
@@ -105,6 +111,26 @@ TMbndCoreCompilationTarget >> float64Type [
 	^ self getBasicTypeNamed: #Float64
 ]
 
+{ #category : #'derived types' }
+TMbndCoreCompilationTarget >> functionTypeWithArguments: argumentTypes returnType: returnType [
+	^ self functionTypeWithArguments: argumentTypes returnType: returnType callingConvention: self defaultCallingConvention
+]
+
+{ #category : #'derived types' }
+TMbndCoreCompilationTarget >> functionTypeWithArguments: argumentTypes returnType: returnType callingConvention: callingConvention [
+	^ functionTypes at: { argumentTypes . returnType . callingConvention } ifAbsentPut: [
+		| result |
+		result := MbndFunctionType new
+			name: nil;
+			argumentTypes: argumentTypes;
+			returnType: returnType;
+			callingConvention: callingConvention;
+			yourself.
+		self ensureBasicTypeIsLinkedToTheHierarchy: result.
+		result
+	]
+]
+
 { #category : #accessing }
 TMbndCoreCompilationTarget >> getBasicTypeNamed: typeName [
 	^ basicTypes at: typeName
@@ -116,8 +142,10 @@ TMbndCoreCompilationTarget >> initializeBasicTypes [
 	basicTypes := Dictionary new.
 	MbndBasicType withAllSubclassesDo: [ :sc |
 		sc typeName ifNotNil: [ 
-			basicType := sc new definitionModule: coreDefinitionsModule.
-			basicTypes at: basicType name put: basicType
+			basicType := sc basicNew
+				initializeBasicTypeTrait;
+				definitionModule: coreDefinitionsModule.
+			basicTypes at: sc typeName put: basicType
 		]
 	].
 
@@ -137,7 +165,9 @@ TMbndCoreCompilationTarget >> initializeBasicTypes [
 		addBasicFloatTypeWithSize: 2 name: #Float16;
 		addBasicFloatTypeWithSize: 4 name: #Float32;
 		addBasicFloatTypeWithSize: 8 alignment: self float64Alignment name: #Float64;
-		yourself
+		yourself.
+		
+	basicTypes valuesDo: #initializeNonTraitType.
 
 ]
 
@@ -145,6 +175,7 @@ TMbndCoreCompilationTarget >> initializeBasicTypes [
 TMbndCoreCompilationTarget >> initializeDerivedTypeCaches [
 	pointerTypes := WeakValueDictionary new.
 	referenceTypes := WeakValueDictionary new.
+	functionTypes := WeakValueDictionary new.
 ]
 
 { #category : #'basic types' }
@@ -267,7 +298,7 @@ TMbndCoreCompilationTarget >> opaqueType [
 
 { #category : #'derived types' }
 TMbndCoreCompilationTarget >> pointerFor: addressSpace to: baseType [
-	^ referenceTypes at: { baseType . addressSpace } ifAbsentPut: [
+	^ pointerTypes at: { baseType . addressSpace } ifAbsentPut: [
 		| result |
 		result := MbndPointerType new
 			name: nil;

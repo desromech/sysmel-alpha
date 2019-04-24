@@ -1,18 +1,28 @@
 Trait {
 	#name : #TMbndBasicType,
 	#instVars : [
-		'overloadedMethodDict',
 		'supertype',
 		'type'
 	],
-	#traits : 'TMbndType',
-	#classTraits : 'TMbndType classTrait',
+	#traits : 'TMbndType + TMbndMethodContainer + TMbndObjectWithFlags',
+	#classTraits : 'TMbndType classTrait + TMbndMethodContainer classTrait + TMbndObjectWithFlags classTrait',
 	#category : #'SysmelMoebiusMetamodel-Core-Type'
 }
 
-{ #category : #accessing }
-TMbndBasicType >> overloadedMethodDict [
-	^ overloadedMethodDict ifNil: [ overloadedMethodDict := Dictionary new ]
+{ #category : #'macro expansion' }
+TMbndBasicType >> lookupOverloadedSelector: aSelector [
+	| method |
+	method := self overloadedMethodDict at: aSelector ifAbsent: [ nil ].
+	method ifNotNil: [ ^ method ].
+	^ self supertype ifNotNil: [ :st | st lookupOverloadedSelector: aSelector ]
+]
+
+{ #category : #'macro expansion' }
+TMbndBasicType >> lookupSelector: aSelector [
+	| method |
+	method := self methodDict at: aSelector ifAbsent: [ nil ].
+	method ifNotNil: [ ^ method ].
+	^ self supertype ifNotNil: [ :st | st lookupSelector: aSelector ]
 ]
 
 { #category : #'type hierarchy' }

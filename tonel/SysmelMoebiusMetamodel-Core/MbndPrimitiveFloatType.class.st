@@ -1,6 +1,6 @@
 Class {
 	#name : #MbndPrimitiveFloatType,
-	#superclass : #MbndPrimitiveType,
+	#superclass : #MbndPrimitiveNumberType,
 	#category : #'SysmelMoebiusMetamodel-Core-Type'
 }
 

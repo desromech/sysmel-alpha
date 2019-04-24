@@ -23,9 +23,19 @@ MbndBasicType >> fullName [
 ]
 
 { #category : #initialization }
-MbndBasicType >> initialize [
+MbndBasicType >> initializeBasicTypeTrait [
 	super initialize.
 	name := self class typeName.
+	flags := #(trait).
+]
+
+{ #category : #initialization }
+MbndBasicType >> initializeNonTraitType [
+	flags ifNil: [ flags := #() ].
+	self isTrait ifFalse: [ 
+		self initialize
+	].
+	
 ]
 
 { #category : #accessing }

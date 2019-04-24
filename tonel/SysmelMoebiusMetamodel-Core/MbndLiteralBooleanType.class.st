@@ -11,7 +11,7 @@ MbndLiteralBooleanType class >> typeName [
 
 { #category : #'semantic analysis' }
 MbndLiteralBooleanType >> bestConcreteTypeForLiteralValueNode: literalValueNode inScope: scope [
-	^ compilationTarget booleanType
+	^ self compilationTarget booleanType
 ]
 
 { #category : #'testing methods' }

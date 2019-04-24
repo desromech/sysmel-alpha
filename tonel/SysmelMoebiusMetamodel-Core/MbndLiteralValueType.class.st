@@ -28,7 +28,7 @@ MbndLiteralValueType >> analyzeUnboundExpandedMessageSendNode: node with: analyz
 	bestConcreteType := self bestConcreteTypeForLiteralValueNode: node receiver inScope: analyzer scope.
 	
 	"Apply the concrete literal type, and analyze again. Allow a second oppotunity for doing macro expansion."
-	analyzer visitNode: (node asUnexpandedMessageSend
+	^ analyzer visitNode: (node asUnexpandedMessageSend
 		receiver: (node receiver copy type: bestConcreteType);
 		yourself)
 ]

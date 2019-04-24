@@ -30,8 +30,12 @@ MbndAstEvaluator >> scope: anObject [
 
 { #category : #visiting }
 MbndAstEvaluator >> visitExpandedMessageSendNode: node [
+	| receiver arguments |
 	self assert: node type isNotNil.
-	self halt
+	self assert: node method isNotNil.
+	receiver := node receiver ifNotNil: [ self visitNode: node receiver ].
+	arguments := self visitNodesAndCollect: node arguments.
+	^ node method evaluateWithReceiver: receiver arguments: arguments withEvaluator: self at: node
 ]
 
 { #category : #visiting }

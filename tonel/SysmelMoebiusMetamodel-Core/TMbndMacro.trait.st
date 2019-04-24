@@ -1,7 +1,7 @@
 Trait {
 	#name : #TMbndMacro,
-	#traits : 'TMbndObject',
-	#classTraits : 'TMbndObject classTrait',
+	#traits : 'TMbndProgramEntity',
+	#classTraits : 'TMbndProgramEntity classTrait',
 	#category : #'SysmelMoebiusMetamodel-Core-Macro'
 }
 
