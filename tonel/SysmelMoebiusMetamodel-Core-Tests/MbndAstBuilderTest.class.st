@@ -93,16 +93,6 @@ MbndAstBuilderTest >> testDoWhileLoopNode [
 ]
 
 { #category : #tests }
-MbndAstBuilderTest >> testEmptyTupleParseAsFunctionArgumentsPrototype [
-	| tuple arguments |
-	tuple := builder tuple: #().
-	arguments := tuple parseAsFunctionArgumentsPrototype.
-	self assert: arguments isSequenceable.
-	self assert: arguments isEmpty.
-
-]
-
-{ #category : #tests }
 MbndAstBuilderTest >> testExpandedMessageNode [
 	| node receiver arguments selector |
 	receiver := builder literalInteger: 1.
@@ -134,7 +124,21 @@ MbndAstBuilderTest >> testFunctionCallNode [
 ]
 
 { #category : #tests }
-MbndAstBuilderTest >> testFunctionPrototype [
+MbndAstBuilderTest >> testFunctionDefinitionNode [
+	| returnType definition prototype body |
+	returnType := builder identifier: #Int32.
+	prototype := builder functionPrototypeNamed: #zero arguments: #() returnType: returnType.
+	body := builder literalInteger: 0.
+	definition := builder functionPrototype: prototype definitionBody: body.
+	self assert: definition isFunctionDefinitionNode.
+	self assert: definition prototype equals: prototype.
+	self assert: definition name equals: #zero.
+	self assert: definition arguments equals: #().
+	self assert: definition returnType equals: returnType.
+]
+
+{ #category : #tests }
+MbndAstBuilderTest >> testFunctionPrototypeNode [
 	| arguments returnType prototype |
 	arguments := { 
 		builder argument: #x type: (builder identifier: #Int32).
@@ -149,22 +153,24 @@ MbndAstBuilderTest >> testFunctionPrototype [
 ]
 
 { #category : #tests }
+MbndAstBuilderTest >> testFunctionShortDefinition [
+	| returnType definition body |
+	returnType := builder identifier: #Int32.
+	body := builder literalInteger: 0.
+	definition := builder functionNamed: #zero arguments: #() returnType: returnType definitionBody: body.
+	self assert: definition isFunctionDefinitionNode.
+	self assert: definition prototype isNotNil.
+	self assert: definition name equals: #zero.
+	self assert: definition arguments equals: #().
+	self assert: definition returnType equals: returnType.
+]
+
+{ #category : #tests }
 MbndAstBuilderTest >> testIdentifier [
 	| node |
 	node := builder identifier: #symbol.
 	self assert: node isIdentifierReferenceNode.
 	self assert: node symbol equals: #symbol.
-]
-
-{ #category : #tests }
-MbndAstBuilderTest >> testIdentifierParseAsFunctionArgumentsPrototype [
-	| identifier arguments |
-	identifier := builder identifier: #x.
-	
-	arguments := identifier parseAsFunctionArgumentsPrototype.
-	self assert: arguments size equals: 1.
-	self assert: arguments first name equals: #x.
-	self assert: arguments first valueType equals: nil.
 ]
 
 { #category : #tests }
@@ -334,7 +340,21 @@ MbndAstBuilderTest >> testMessageChainNode [
 ]
 
 { #category : #tests }
-MbndAstBuilderTest >> testMessagePrototype [
+MbndAstBuilderTest >> testMessageDefinitionNode [
+	| returnType definition prototype body |
+	returnType := builder identifier: #Int32.
+	prototype := builder messagePrototypeSelector: #zero arguments: #() returnType: returnType.
+	body := builder literalInteger: 0.
+	definition := builder messagePrototype: prototype definitionBody: body.
+	self assert: definition isMessageDefinitionNode.
+	self assert: definition prototype equals: prototype.
+	self assert: definition selector equals: #zero.
+	self assert: definition arguments equals: #().
+	self assert: definition returnType equals: returnType.
+]
+
+{ #category : #tests }
+MbndAstBuilderTest >> testMessagePrototypeNode [
 	| arguments returnType prototype |
 	arguments := { 
 		builder argument: #x type: (builder identifier: #Int32).
@@ -349,27 +369,21 @@ MbndAstBuilderTest >> testMessagePrototype [
 ]
 
 { #category : #tests }
-MbndAstBuilderTest >> testMessageSendParseAsFunctionArgumentsPrototype [
-	| message arguments |
-	message := builder unexpandedSend: (builder literalSymbol: #x:) to: nil withArguments: {
-			builder identifier: #Int32
-		}.
-	arguments := message parseAsFunctionArgumentsPrototype.
-	self assert: arguments size equals: 1.
-	self assert: arguments first name equals: #x.
-	self assert: arguments first valueType isIdentifierReferenceNode.
-	self assert: arguments first valueType symbol equals: #Int32.
-
+MbndAstBuilderTest >> testMessageShortDefinition [
+	| returnType definition body |
+	returnType := builder identifier: #Int32.
+	body := builder literalInteger: 0.
+	definition := builder messageSelector: #zero arguments: #() returnType: returnType definitionBody: body.
+	self assert: definition isMessageDefinitionNode.
+	self assert: definition prototype isNotNil.
+	self assert: definition selector equals: #zero.
+	self assert: definition arguments equals: #().
+	self assert: definition returnType equals: returnType.
 ]
 
 { #category : #tests }
 MbndAstBuilderTest >> testModule [
 	self assert: builder module equals: module
-]
-
-{ #category : #tests }
-MbndAstBuilderTest >> testParseAsFunctionArgumentsPrototype [
-	self should: [ MbndAstNode new parseAsFunctionArgumentsPrototype ] raise: Error.
 ]
 
 { #category : #tests }
@@ -471,23 +485,6 @@ MbndAstBuilderTest >> testSpliceNode [
 ]
 
 { #category : #tests }
-MbndAstBuilderTest >> testTupleIdentifiersParseAsFunctionArgumentsPrototype [
-	| tuple arguments |
-	tuple := builder tuple: {
-		builder identifier: #x.
-		builder identifier: #y.
-	}.
-	arguments := tuple parseAsFunctionArgumentsPrototype.
-	self assert: arguments size equals: 2.
-	self assert: arguments first name equals: #x.
-	self assert: arguments first valueType equals: nil.
-
-	self assert: arguments second name equals: #y.
-	self assert: arguments second valueType equals: nil.
-
-]
-
-{ #category : #tests }
 MbndAstBuilderTest >> testTupleNode [
 	| node one two |
 	one := builder literalInteger: 1.
@@ -496,29 +493,6 @@ MbndAstBuilderTest >> testTupleNode [
 	
 	self assert: node isTupleNode.
 	self assert: node elements equals: {one . two}.
-]
-
-{ #category : #tests }
-MbndAstBuilderTest >> testTupleSendsParseAsFunctionArgumentsPrototype [
-	| tuple arguments |
-	tuple := builder tuple: {
-		builder unexpandedSend: (builder literalSymbol: #x:) to: nil withArguments: {
-			builder identifier: #Int32
-		}.
-		builder unexpandedSend: (builder literalSymbol: #y:) to: nil withArguments: {
-			builder identifier: #Int64
-		}.
-	}.
-	arguments := tuple parseAsFunctionArgumentsPrototype.
-	self assert: arguments size equals: 2.
-	self assert: arguments first name equals: #x.
-	self assert: arguments first valueType isIdentifierReferenceNode.
-	self assert: arguments first valueType symbol equals: #Int32.
-
-	self assert: arguments second name equals: #y.
-	self assert: arguments second valueType isIdentifierReferenceNode.
-	self assert: arguments second valueType symbol equals: #Int64.
-
 ]
 
 { #category : #tests }

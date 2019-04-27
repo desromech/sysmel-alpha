@@ -4,6 +4,7 @@ Class {
 	#traits : 'TMbndMethod',
 	#classTraits : 'TMbndMethod classTrait',
 	#instVars : [
+		'parent',
 		'name'
 	],
 	#category : #'SysmelMoebiusMetamodel-Core-Method'
@@ -20,6 +21,11 @@ MbndAbstractMethod >> evaluateWithReceiver: receiver arguments: arguments withEv
 ]
 
 { #category : #accessing }
+MbndAbstractMethod >> module [
+	^ parent module
+]
+
+{ #category : #accessing }
 MbndAbstractMethod >> name [
 	^ name
 ]
@@ -27,4 +33,14 @@ MbndAbstractMethod >> name [
 { #category : #accessing }
 MbndAbstractMethod >> name: anObject [
 	name := anObject
+]
+
+{ #category : #accessing }
+MbndAbstractMethod >> parent [
+	^ parent
+]
+
+{ #category : #accessing }
+MbndAbstractMethod >> parent: anObject [
+	parent := anObject
 ]

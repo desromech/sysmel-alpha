@@ -18,3 +18,9 @@ MbndPointerType >> defaultValue [
 MbndPointerType >> isPointerType [
 	^ true
 ]
+
+{ #category : #printing }
+MbndPointerType >> printOn: aStream [
+	baseType printOn: aStream.
+	aStream nextPutAll: ' pointer'
+]

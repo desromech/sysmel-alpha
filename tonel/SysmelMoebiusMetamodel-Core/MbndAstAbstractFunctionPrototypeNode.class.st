@@ -5,7 +5,9 @@ Class {
 	#classTraits : 'TMbndObjectWithFlags classTrait',
 	#instVars : [
 		'arguments',
-		'returnType'
+		'returnType',
+		'functionType',
+		'concreteMethod'
 	],
 	#category : #'SysmelMoebiusMetamodel-Core-AST'
 }
@@ -18,6 +20,26 @@ MbndAstAbstractFunctionPrototypeNode >> arguments [
 { #category : #accessing }
 MbndAstAbstractFunctionPrototypeNode >> arguments: anObject [
 	arguments := anObject
+]
+
+{ #category : #accessing }
+MbndAstAbstractFunctionPrototypeNode >> concreteMethod [
+	^ concreteMethod
+]
+
+{ #category : #accessing }
+MbndAstAbstractFunctionPrototypeNode >> concreteMethod: anObject [
+	concreteMethod := anObject
+]
+
+{ #category : #accessing }
+MbndAstAbstractFunctionPrototypeNode >> functionType [
+	^ functionType
+]
+
+{ #category : #accessing }
+MbndAstAbstractFunctionPrototypeNode >> functionType: anObject [
+	functionType := anObject
 ]
 
 { #category : #initialization }

@@ -4,7 +4,9 @@ Trait {
 		'overloadedMethodDict',
 		'methodDict'
 	],
-	#category : #'SysmelMoebiusMetamodel-Core-Method'
+	#traits : 'TMbndAbstractMethodContainer',
+	#classTraits : 'TMbndAbstractMethodContainer classTrait',
+	#category : #'SysmelMoebiusMetamodel-Core-ProgramEntity'
 }
 
 { #category : #adding }
@@ -16,26 +18,9 @@ TMbndMethodContainer >> addOverloadedMethod: method [
 	] ifAbsentPut: [ method ]
 ]
 
-{ #category : #adding }
-TMbndMethodContainer >> addOverloadedMethod: method argumentTypes: argumentTypes returnType: returnType [
-	| functionType |
-	functionType := self compilationTarget functionTypeWithArguments: argumentTypes returnType: returnType.
-	^ self addOverloadedMethod: (method copy
-		type: functionType;
-		boundType: functionType;
-		yourself)
-]
-
-{ #category : #adding }
-TMbndMethodContainer >> addOverloadedMethod: method receiverType: receiverType argumentTypes: argumentTypes returnType: returnType [
-	| functionType boundFunctionType |
-	boundFunctionType := self compilationTarget functionTypeWithArguments: argumentTypes returnType: returnType.
-	functionType := self compilationTarget functionTypeWithArguments: {receiverType} , argumentTypes returnType: returnType.
-	^ self addOverloadedMethod: (method copy
-		receiverType: receiverType;
-		type: functionType;
-		boundType: boundFunctionType;
-		yourself)
+{ #category : #methods }
+TMbndMethodContainer >> lookupLocalOverloadedSelector: aSelector [
+	^ self methodDict at: aSelector ifAbsent: [ nil ].
 ]
 
 { #category : #methods }

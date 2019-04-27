@@ -66,5 +66,6 @@ MbndAbstractFunctionMetaBuilder >> ensureFunctionPrototype [
 		position: position;
 		name: name;
 		arguments: functionArguments;
+		returnType: returnTypeNode;
 		yourself
 ]

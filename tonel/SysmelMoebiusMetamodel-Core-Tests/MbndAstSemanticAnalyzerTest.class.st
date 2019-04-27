@@ -26,6 +26,86 @@ MbndAstSemanticAnalyzerTest >> setUp [
 ]
 
 { #category : #running }
+MbndAstSemanticAnalyzerTest >> testIdentityFunctionDefinition [
+	| arguments node analyzedNode body concreteMethod |
+	arguments := {
+		builder argument: #x type: compilationTarget int32Type
+	}.
+	body := builder identifier: #x.
+	node := builder functionNamed: #identity arguments: arguments returnType: compilationTarget int32Type definitionBody: body.
+	analyzedNode := visitor visitNode: node.
+	self assert: analyzedNode isFunctionDefinitionNode.
+	self assert: analyzedNode arguments first valueType isPrimitiveIntegerType.
+	self assert: analyzedNode returnType isPrimitiveIntegerType.
+	self assert: analyzedNode type isReferenceType.
+	self assert: analyzedNode type baseType isFunctionType.
+	self assert: analyzedNode concreteMethod isNotNil.
+	
+	concreteMethod := analyzedNode concreteMethod.
+	concreteMethod ensureSemanticAnalysis.
+	
+	self assert: concreteMethod analyzedBody isNotNil.
+	self assert: concreteMethod analyzedBody type isPrimitiveIntegerType.
+]
+
+{ #category : #running }
+MbndAstSemanticAnalyzerTest >> testIdentityFunctionPrototype [
+	| arguments node analyzedNode |
+	arguments := {
+		builder argument: #x type: compilationTarget int32Type
+	}.
+	node := builder functionPrototypeNamed: #identity arguments: arguments returnType: compilationTarget int32Type.
+	analyzedNode := visitor visitNode: node.
+	self assert: analyzedNode isFunctionPrototypeNode.
+	self assert: analyzedNode arguments first valueType isPrimitiveIntegerType.
+	self assert: analyzedNode returnType isPrimitiveIntegerType.
+	self assert: analyzedNode type isReferenceType.
+	self assert: analyzedNode type baseType isFunctionType.
+	self assert: analyzedNode concreteMethod isNotNil.
+
+]
+
+{ #category : #running }
+MbndAstSemanticAnalyzerTest >> testIdentityMessageDefinition [
+	| arguments node analyzedNode body concreteMethod |
+	arguments := {
+		builder argument: #x type: compilationTarget int32Type
+	}.
+	body := builder identifier: #x.
+	node := builder messageSelector: #identity arguments: arguments returnType: compilationTarget int32Type definitionBody: body.
+	analyzedNode := visitor visitNode: node.
+	self assert: analyzedNode isMessageDefinitionNode.
+	self assert: analyzedNode arguments first valueType isPrimitiveIntegerType.
+	self assert: analyzedNode returnType isPrimitiveIntegerType.
+	self assert: analyzedNode type isReferenceType.
+	self assert: analyzedNode type baseType isFunctionType.
+	self assert: analyzedNode concreteMethod isNotNil.
+	
+	concreteMethod := analyzedNode concreteMethod.
+	concreteMethod ensureSemanticAnalysis.
+	
+	self assert: concreteMethod analyzedBody isNotNil.
+	self assert: concreteMethod analyzedBody type isPrimitiveIntegerType.
+]
+
+{ #category : #running }
+MbndAstSemanticAnalyzerTest >> testIdentityMessagePrototype [
+	| arguments node analyzedNode |
+	arguments := {
+		builder argument: #x type: compilationTarget int32Type
+	}.
+	node := builder messagePrototypeSelector: #identity arguments: arguments returnType: compilationTarget int32Type.
+	analyzedNode := visitor visitNode: node.
+	self assert: analyzedNode isMessagePrototypeNode.
+	self assert: analyzedNode arguments first valueType isPrimitiveIntegerType.
+	self assert: analyzedNode returnType isPrimitiveIntegerType.
+	self assert: analyzedNode type isReferenceType.
+	self assert: analyzedNode type baseType isFunctionType.
+	self assert: analyzedNode concreteMethod isNotNil.
+
+]
+
+{ #category : #running }
 MbndAstSemanticAnalyzerTest >> testLetAutoMacroBuilderExpansion [
 	| node analyzedNode |
 	node := builder identifier: #let.
@@ -189,4 +269,23 @@ MbndAstSemanticAnalyzerTest >> testVariableReference [
 	self assert: analyzedNode type isPrimitiveIntegerType.
 	self assert: analyzedNode elements last isBoundIdentifierReferenceNode.
 
+]
+
+{ #category : #running }
+MbndAstSemanticAnalyzerTest >> testZeroFunctionDefinition [
+	| node analyzedNode body concreteMethod |
+	body := builder literalInteger: 0.
+	node := builder functionNamed: #zero arguments: #() returnType: compilationTarget int32Type definitionBody: body.
+	analyzedNode := visitor visitNode: node.
+	self assert: analyzedNode isFunctionDefinitionNode.
+	self assert: analyzedNode returnType isPrimitiveIntegerType.
+	self assert: analyzedNode type isReferenceType.
+	self assert: analyzedNode type baseType isFunctionType.
+	self assert: analyzedNode concreteMethod isNotNil.
+	
+	concreteMethod := analyzedNode concreteMethod.
+	concreteMethod ensureSemanticAnalysis.
+	
+	self assert: concreteMethod analyzedBody isNotNil.
+	self assert: concreteMethod analyzedBody type isPrimitiveIntegerType.
 ]

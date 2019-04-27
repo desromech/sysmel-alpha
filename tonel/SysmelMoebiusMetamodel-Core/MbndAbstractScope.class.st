@@ -34,6 +34,11 @@ MbndAbstractScope >> lookupMacroSelector: selector [
 	^ parent ifNotNil: [ parent lookupMacroSelector: selector ]
 ]
 
+{ #category : #'as yet unclassified' }
+MbndAbstractScope >> lookupProgramEntityForNewDefinitions [
+	^ parent ifNotNil: [ parent lookupProgramEntityForNewDefinitions ]
+]
+
 { #category : #'macro expansion' }
 MbndAbstractScope >> lookupSymbol: aSymbol [
 	^ nil

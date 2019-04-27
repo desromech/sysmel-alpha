@@ -39,6 +39,17 @@ MbndAstEvaluator >> visitExpandedMessageSendNode: node [
 ]
 
 { #category : #visiting }
+MbndAstEvaluator >> visitFunctionDefinitionNode: node [
+	^ self visitNode: node prototype
+]
+
+{ #category : #visiting }
+MbndAstEvaluator >> visitFunctionPrototypeNode: node [
+	self assert: node concreteMethod isNotNil.
+	^ MbndValue value: node concreteMethod type: node type
+]
+
+{ #category : #visiting }
 MbndAstEvaluator >> visitLiteralValueNode: node [
 	^ node evaluateMbndValue
 ]
@@ -49,6 +60,17 @@ MbndAstEvaluator >> visitLocalVariableDefinitionNode: node [
 	self assert: node initialValue isNotNil.
 	^ node binding evaluateLocalDefinition: node withEvaluator: self
 
+]
+
+{ #category : #visiting }
+MbndAstEvaluator >> visitMessageDefinitionNode: node [
+	^ self visitNode: node prototype
+]
+
+{ #category : #visiting }
+MbndAstEvaluator >> visitMessagePrototypeNode: node [
+	self assert: node concreteMethod isNotNil.
+	^ MbndValue value: node concreteMethod type: node type
 ]
 
 { #category : #visiting }

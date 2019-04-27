@@ -21,6 +21,11 @@ MbndProgramEntityScope >> lookupMacroSelector: selector [
 	^ super lookupMacroSelector: selector
 ]
 
+{ #category : #'as yet unclassified' }
+MbndProgramEntityScope >> lookupProgramEntityForNewDefinitions [
+	^ programEntity
+]
+
 { #category : #'macro expansion' }
 MbndProgramEntityScope >> lookupSymbol: aSymbol [
 	^ programEntity lookupSymbol: aSymbol

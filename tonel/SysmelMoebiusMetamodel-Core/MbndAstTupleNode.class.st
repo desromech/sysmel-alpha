@@ -22,6 +22,12 @@ MbndAstTupleNode >> elements: anObject [
 	elements := anObject
 ]
 
+{ #category : #initialization }
+MbndAstTupleNode >> initialize [
+	super initialize.
+	elements := #().
+]
+
 { #category : #'as yet unclassified' }
 MbndAstTupleNode >> isTupleNode [
 	^ true

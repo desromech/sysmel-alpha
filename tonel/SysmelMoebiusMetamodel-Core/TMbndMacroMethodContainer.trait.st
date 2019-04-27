@@ -3,7 +3,9 @@ Trait {
 	#instVars : [
 		'macroMethodDict'
 	],
-	#category : #'SysmelMoebiusMetamodel-Core-Macro'
+	#traits : 'TMbndAbstractMacroMethodContainer',
+	#classTraits : 'TMbndAbstractMacroMethodContainer classTrait',
+	#category : #'SysmelMoebiusMetamodel-Core-ProgramEntity'
 }
 
 { #category : #'macro expansion' }

@@ -47,6 +47,62 @@ MbndAstEvaluatorTest >> testEmptySequence [
 ]
 
 { #category : #running }
+MbndAstEvaluatorTest >> testIdentityFunctionDefinitionNode [
+	| node value arguments body |
+	arguments := {
+		builder argument: #x type: compilationTarget int32Type
+	}.
+	body := builder identifier: #x.
+	node := builder functionNamed: #identity arguments: arguments returnType: compilationTarget int32Type definitionBody: body.
+	
+	value := self analyzeAndEvaluateAST: node.
+	self assert: value type isReferenceType.
+	self assert: value type baseType isFunctionType.
+
+]
+
+{ #category : #running }
+MbndAstEvaluatorTest >> testIdentityFunctionPrototypeNode [
+	| node value arguments |
+	arguments := {
+		builder argument: #x type: compilationTarget int32Type
+	}.
+	node := builder functionPrototypeNamed: #identity arguments: arguments returnType: compilationTarget int32Type.
+	
+	value := self analyzeAndEvaluateAST: node.
+	self assert: value type isReferenceType.
+	self assert: value type baseType isFunctionType.
+]
+
+{ #category : #running }
+MbndAstEvaluatorTest >> testIdentityMessageDefinitionNode [
+	| node value arguments body |
+	arguments := {
+		builder argument: #x type: compilationTarget int32Type
+	}.
+	body := builder identifier: #x.
+	node := builder messageSelector: #identity arguments: arguments returnType: compilationTarget int32Type definitionBody: body.
+	
+	value := self analyzeAndEvaluateAST: node.
+	self assert: value type isReferenceType.
+	self assert: value type baseType isFunctionType.
+
+]
+
+{ #category : #running }
+MbndAstEvaluatorTest >> testIdentityMessagePrototypeNode [
+	| node value arguments |
+	arguments := {
+		builder argument: #x type: compilationTarget int32Type
+	}.
+	node := builder messagePrototypeSelector: #identity arguments: arguments returnType: compilationTarget int32Type.
+	
+	value := self analyzeAndEvaluateAST: node.
+	self assert: value type isReferenceType.
+	self assert: value type baseType isFunctionType.
+]
+
+{ #category : #running }
 MbndAstEvaluatorTest >> testLiteral [
 	| literal value |
 	literal := builder literalInteger: 42.

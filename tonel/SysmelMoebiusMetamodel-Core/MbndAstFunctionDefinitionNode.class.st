@@ -11,5 +11,10 @@ MbndAstFunctionDefinitionNode >> accept: aVisitor [
 
 { #category : #testing }
 MbndAstFunctionDefinitionNode >> isFunctionDefinitionNode [
-	^ false
+	^ true
+]
+
+{ #category : #accessing }
+MbndAstFunctionDefinitionNode >> name [
+	^ prototype name
 ]

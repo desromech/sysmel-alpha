@@ -13,3 +13,8 @@ MbndAstMessageDefinitionNode >> accept: aVisitor [
 MbndAstMessageDefinitionNode >> isMessageDefinitionNode [
 	^ true
 ]
+
+{ #category : #accessing }
+MbndAstMessageDefinitionNode >> selector [
+	^ prototype selector
+]

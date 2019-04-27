@@ -99,6 +99,6 @@ TMbndModule >> parseLanguage: languageName source: sourceString [
 ]
 
 { #category : #scope }
-TMbndModule >> programEntityScopeClass [
-	^ MbndModuleScope
+TMbndModule >> programEntityScope [
+	^ self globalNamespace programEntityScope
 ]

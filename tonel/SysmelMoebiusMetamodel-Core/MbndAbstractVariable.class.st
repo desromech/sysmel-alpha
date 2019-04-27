@@ -4,6 +4,7 @@ Class {
 	#traits : 'TMbndVariable',
 	#classTraits : 'TMbndVariable classTrait',
 	#instVars : [
+		'parent',
 		'name',
 		'definitionNode',
 		'valueType'
@@ -58,6 +59,16 @@ MbndAbstractVariable >> name [
 { #category : #accessing }
 MbndAbstractVariable >> name: anObject [
 	name := anObject
+]
+
+{ #category : #accessing }
+MbndAbstractVariable >> parent [
+	^ parent
+]
+
+{ #category : #accessing }
+MbndAbstractVariable >> parent: anObject [
+	parent := anObject
 ]
 
 { #category : #accessing }

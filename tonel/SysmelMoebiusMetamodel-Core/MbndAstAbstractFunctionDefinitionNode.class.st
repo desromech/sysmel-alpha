@@ -11,6 +11,11 @@ Class {
 }
 
 { #category : #accessing }
+MbndAstAbstractFunctionDefinitionNode >> arguments [
+	^ prototype arguments
+]
+
+{ #category : #accessing }
 MbndAstAbstractFunctionDefinitionNode >> body [
 	^ body
 ]
@@ -21,6 +26,11 @@ MbndAstAbstractFunctionDefinitionNode >> body: aBody [
 ]
 
 { #category : #accessing }
+MbndAstAbstractFunctionDefinitionNode >> concreteMethod [
+	^ prototype concreteMethod
+]
+
+{ #category : #accessing }
 MbndAstAbstractFunctionDefinitionNode >> prototype [
 	^ prototype
 ]
@@ -28,4 +38,9 @@ MbndAstAbstractFunctionDefinitionNode >> prototype [
 { #category : #accessing }
 MbndAstAbstractFunctionDefinitionNode >> prototype: aPrototype [
 	prototype := aPrototype
+]
+
+{ #category : #accessing }
+MbndAstAbstractFunctionDefinitionNode >> returnType [
+	^ prototype returnType
 ]

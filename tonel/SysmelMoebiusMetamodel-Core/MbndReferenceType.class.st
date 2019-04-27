@@ -13,3 +13,9 @@ MbndReferenceType class >> typeName [
 MbndReferenceType >> isReferenceType [
 	^ true
 ]
+
+{ #category : #printing }
+MbndReferenceType >> printOn: aStream [
+	baseType printOn: aStream.
+	aStream nextPutAll: ' ref'
+]

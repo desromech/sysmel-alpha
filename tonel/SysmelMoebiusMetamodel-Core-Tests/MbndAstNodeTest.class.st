@@ -15,8 +15,50 @@ MbndAstNodeTest >> testEmptyPosition [
 ]
 
 { #category : #tests }
+MbndAstNodeTest >> testEmptyTupleParseAsFunctionArgumentsPrototype [
+	| tuple arguments |
+	tuple := MbndAstTupleNode new.
+	arguments := tuple parseAsFunctionArgumentsPrototype.
+	self assert: arguments isSequenceable.
+	self assert: arguments isEmpty.
+
+]
+
+{ #category : #tests }
+MbndAstNodeTest >> testIdentifierParseAsFunctionArgumentsPrototype [
+	| identifier arguments |
+	identifier := MbndAstIdentifierReferenceNode new symbol: #x.
+	
+	arguments := identifier parseAsFunctionArgumentsPrototype.
+	self assert: arguments size equals: 1.
+	self assert: arguments first name equals: #x.
+	self assert: arguments first valueType equals: nil.
+]
+
+{ #category : #tests }
+MbndAstNodeTest >> testMessageSendParseAsFunctionArgumentsPrototype [
+	| message arguments builder module |
+	module := MbndDummyModule new.
+	builder := MbndAstBuilder forModule: module.
+	message := builder unexpandedSend: (builder literalSymbol: #x:) to: nil withArguments: {
+			builder identifier: #Int32
+		}.
+	arguments := message parseAsFunctionArgumentsPrototype.
+	self assert: arguments size equals: 1.
+	self assert: arguments first name equals: #x.
+	self assert: arguments first valueType isIdentifierReferenceNode.
+	self assert: arguments first valueType symbol equals: #Int32.
+
+]
+
+{ #category : #tests }
 MbndAstNodeTest >> testMetaBuilderInstanceNode [
 	self assert: MbndAstMetaBuilderInstanceNode new isMetaBuilderInstanceNode
+]
+
+{ #category : #tests }
+MbndAstNodeTest >> testParseAsFunctionArgumentsPrototype [
+	self should: [ MbndAstNode new parseAsFunctionArgumentsPrototype ] raise: Error.
 ]
 
 { #category : #tests }
@@ -61,4 +103,47 @@ MbndAstNodeTest >> testTestingMethods [
 	self deny: node isTupleNode.
 	self deny: node isUnexpandedMessageSendNode.
 	self deny: node isWhileLoopNode.
+]
+
+{ #category : #tests }
+MbndAstNodeTest >> testTupleIdentifiersParseAsFunctionArgumentsPrototype [
+	| tuple arguments builder |
+	builder := MbndAstBuilder new.
+	tuple := builder tuple: {
+		builder identifier: #x.
+		builder identifier: #y.
+	}.
+	arguments := tuple parseAsFunctionArgumentsPrototype.
+	self assert: arguments size equals: 2.
+	self assert: arguments first name equals: #x.
+	self assert: arguments first valueType equals: nil.
+
+	self assert: arguments second name equals: #y.
+	self assert: arguments second valueType equals: nil.
+
+]
+
+{ #category : #tests }
+MbndAstNodeTest >> testTupleSendsParseAsFunctionArgumentsPrototype [
+	| tuple arguments module builder |
+	module := MbndDummyModule new.
+	builder := MbndAstBuilder forModule: module.
+	tuple := builder tuple: {
+		builder unexpandedSend: (builder literalSymbol: #x:) to: nil withArguments: {
+			builder identifier: #Int32
+		}.
+		builder unexpandedSend: (builder literalSymbol: #y:) to: nil withArguments: {
+			builder identifier: #Int64
+		}.
+	}.
+	arguments := tuple parseAsFunctionArgumentsPrototype.
+	self assert: arguments size equals: 2.
+	self assert: arguments first name equals: #x.
+	self assert: arguments first valueType isIdentifierReferenceNode.
+	self assert: arguments first valueType symbol equals: #Int32.
+
+	self assert: arguments second name equals: #y.
+	self assert: arguments second valueType isIdentifierReferenceNode.
+	self assert: arguments second valueType symbol equals: #Int64.
+
 ]

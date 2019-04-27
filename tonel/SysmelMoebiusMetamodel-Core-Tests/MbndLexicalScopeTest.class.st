@@ -55,4 +55,5 @@ MbndLexicalScopeTest >> testNew [
 	self assert: scope symbolTable isEmpty.
 	self assert: scope returnType isNil.
 	self assert: scope returnContextScope isNil.
+	self assert: scope lookupProgramEntityForNewDefinitions isNil.
 ]

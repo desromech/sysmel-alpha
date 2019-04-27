@@ -73,6 +73,22 @@ MbndAstTransformVisitor >> visitFunctionCallNode: node [
 ]
 
 { #category : #visiting }
+MbndAstTransformVisitor >> visitFunctionDefinitionNode: node [
+	^ node copy
+		prototype: (self visitNode: node prototype);
+		body: (self visitNode: node body);
+		yourself
+]
+
+{ #category : #visiting }
+MbndAstTransformVisitor >> visitFunctionPrototypeNode: node [
+	^ node copy
+		arguments: (self visitNodesAndCollect: node arguments);
+		returnType: (node returnType ifNotNil: [self visitNode: node returnType]);
+		yourself
+]
+
+{ #category : #visiting }
 MbndAstTransformVisitor >> visitIdentifierReferenceNode: node [
 	^ node
 ]
@@ -118,6 +134,22 @@ MbndAstTransformVisitor >> visitMessageChainNode: node [
 	^ node copy
 		receiver: (self visitNode: node receiver);
 		messages: (self visitNodesAndCollect: node messages);
+		yourself
+]
+
+{ #category : #visiting }
+MbndAstTransformVisitor >> visitMessageDefinitionNode: node [
+	^ node copy
+		prototype: (self visitNode: node prototype);
+		body: (self visitNode: node body);
+		yourself
+]
+
+{ #category : #visiting }
+MbndAstTransformVisitor >> visitMessagePrototypeNode: node [
+	^ node copy
+		arguments: (self visitNodesAndCollect: node arguments);
+		returnType: (node returnType ifNotNil: [self visitNode: node returnType]);
 		yourself
 ]
 

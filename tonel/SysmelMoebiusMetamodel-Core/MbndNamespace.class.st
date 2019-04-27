@@ -1,14 +1,20 @@
 Class {
 	#name : #MbndNamespace,
 	#superclass : #MbndAbstractNamespace,
-	#traits : 'TMbndNamespace',
-	#classTraits : 'TMbndNamespace classTrait',
+	#traits : 'TMbndNamespaceLikeSymbolContainer',
+	#classTraits : 'TMbndNamespaceLikeSymbolContainer classTrait',
 	#instVars : [
 		'name',
 		'module'
 	],
 	#category : #'SysmelMoebiusMetamodel-Core-ProgramEntity'
 }
+
+{ #category : #'member symbols' }
+MbndNamespace >> lookupSymbol: aSymbol [
+	methodDict ifNil: [ ^ nil ].
+	^ methodDict at: aSymbol ifAbsent: [ nil ]
+]
 
 { #category : #accessing }
 MbndNamespace >> module [

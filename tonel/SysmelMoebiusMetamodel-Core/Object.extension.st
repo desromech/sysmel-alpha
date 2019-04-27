@@ -1,6 +1,11 @@
 Extension { #name : #Object }
 
 { #category : #'*SysmelMoebiusMetamodel-Core' }
+Object >> isMbndAnonymousSymbol [
+	^ false
+]
+
+{ #category : #'*SysmelMoebiusMetamodel-Core' }
 Object >> isMbndAstNode [
 	^ false
 ]

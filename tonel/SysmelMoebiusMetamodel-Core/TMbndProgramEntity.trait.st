@@ -1,23 +1,13 @@
 Trait {
 	#name : #TMbndProgramEntity,
-	#traits : 'TMbndObject + TMbndSymbolBinding',
-	#classTraits : 'TMbndObject classTrait + TMbndSymbolBinding classTrait',
+	#traits : 'TMbndObject + TMbndSymbolBinding + TMbndAbstractMacroMethodContainer + TMbndAbstractMethodContainer + TMbndAbstractSymbolContainer',
+	#classTraits : 'TMbndObject classTrait + TMbndSymbolBinding classTrait + TMbndAbstractMacroMethodContainer classTrait + TMbndAbstractMethodContainer classTrait + TMbndAbstractSymbolContainer classTrait',
 	#category : #'SysmelMoebiusMetamodel-Core-ProgramEntity'
 }
 
 { #category : #accessing }
 TMbndProgramEntity >> compilationTarget [
 	^ self module compilationTarget
-]
-
-{ #category : #'macro expansion' }
-TMbndProgramEntity >> lookupMacroSelector: aSelector [
-	^ nil
-]
-
-{ #category : #'macro expansion' }
-TMbndProgramEntity >> lookupSymbol: aSymbol [
-	^ nil
 ]
 
 { #category : #accessing }

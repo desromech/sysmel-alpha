@@ -39,6 +39,17 @@ MbndFunctionType >> isFunctionType [
 	^ true
 ]
 
+{ #category : #printing }
+MbndFunctionType >> printOn: aStream [
+	aStream nextPut: $(.
+	argumentTypes doWithIndex: [ :arg :index |
+		index > 1 ifTrue: [ aStream nextPutAll: ', ' ].
+		arg printOn: aStream
+	].
+	aStream nextPutAll: ') => '.
+	returnType printOn: aStream.
+]
+
 { #category : #accessing }
 MbndFunctionType >> returnType [
 	^ returnType

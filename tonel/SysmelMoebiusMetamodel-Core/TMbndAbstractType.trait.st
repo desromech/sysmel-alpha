@@ -279,7 +279,7 @@ TMbndAbstractType >> legalizeLiteralValue: literalValue [
 	^ literalValue
 ]
 
-{ #category : #'macro expansion' }
+{ #category : #'as yet unclassified' }
 TMbndAbstractType >> lookupMacroSelector: aSelector [
 	^ self supertype ifNotNil: [ :st | st lookupMacroSelector: aSelector ]
 ]

@@ -84,6 +84,19 @@ MbndAstBuilder >> do: action while: condition [
 ]
 
 { #category : #'as yet unclassified' }
+MbndAstBuilder >> functionNamed: name arguments: arguments returnType: returnType definitionBody: definitionBody [
+	^ self functionPrototype: (self functionPrototypeNamed: name arguments: arguments returnType: returnType) definitionBody: definitionBody
+]
+
+{ #category : #'as yet unclassified' }
+MbndAstBuilder >> functionPrototype: prototype definitionBody: definitionBody [
+	^ MbndAstFunctionDefinitionNode new
+		prototype: prototype;
+		body: definitionBody;
+		yourself
+]
+
+{ #category : #'as yet unclassified' }
 MbndAstBuilder >> functionPrototypeNamed: name arguments: arguments returnType: returnType [
 	^ MbndAstFunctionPrototypeNode new
 		name: name;
@@ -183,12 +196,26 @@ MbndAstBuilder >> messageChainReceiver: receiver messages: chainedMessages [
 ]
 
 { #category : #'as yet unclassified' }
+MbndAstBuilder >> messagePrototype: prototype definitionBody: definitionBody [
+	^ MbndAstMessageDefinitionNode new
+		prototype: prototype;
+		body: definitionBody;
+		yourself
+]
+
+{ #category : #'as yet unclassified' }
 MbndAstBuilder >> messagePrototypeSelector: selector arguments: arguments returnType: returnType [
 	^ MbndAstMessagePrototypeNode new
 		selector: selector;
 		arguments: arguments;
 		returnType: returnType;
 		yourself
+]
+
+{ #category : #'as yet unclassified' }
+MbndAstBuilder >> messageSelector: selector arguments: arguments returnType: returnType definitionBody: definitionBody [
+	^ self messagePrototype: (self messagePrototypeSelector: selector arguments: arguments returnType: returnType)
+		definitionBody: definitionBody
 ]
 
 { #category : #accessing }

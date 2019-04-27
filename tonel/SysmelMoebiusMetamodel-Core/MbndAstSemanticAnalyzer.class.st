@@ -126,6 +126,28 @@ MbndAstSemanticAnalyzer >> scope: anObject [
 ]
 
 { #category : #visiting }
+MbndAstSemanticAnalyzer >> visitArgumentDefinitionNode: node [
+	| result |
+	result := node copy.
+	
+	result valueType ifNotNil: [ 
+		result valueType: (self evaluateTypeExpression: node valueType)
+	].
+
+	result initialValue ifNil: [
+		result valueType ifNil: [
+			self error: 'function argument {1} requires an explicit type.' format: { result name asPrettySymbolName } at: result
+		]
+	] ifNotNil: [ 
+		result initialValue: node initialValue.
+		self halt
+	].
+
+	^ result
+
+]
+
+{ #category : #visiting }
 MbndAstSemanticAnalyzer >> visitExpandedMessageSendNode: node [
 	| result receiverType method |
 	result := node copy
@@ -146,6 +168,47 @@ MbndAstSemanticAnalyzer >> visitExpandedMessageSendNode: node [
 	].
 
 	^ receiverType analyzeMessageSendNodeWithDynamicSelector: result with: self
+]
+
+{ #category : #visiting }
+MbndAstSemanticAnalyzer >> visitFunctionDefinitionNode: node [
+	| result |
+	result := node copy.
+	result prototype: (self visitNode: node prototype).
+	result concreteMethod definitionNode ifNil: [ 
+		result concreteMethod
+			declarationPosition: node prototype;
+			definitionNode: node;
+			definitionScope: scope;
+			enqueueDelayedSemanticAnalysis
+	] ifNotNil: [ 
+		self error: 'multiples definitions for method {1}.' format: { node name asPrettySymbolName } at: node
+	].
+	
+	result type: result prototype type.
+	^ result
+]
+
+{ #category : #visiting }
+MbndAstSemanticAnalyzer >> visitFunctionPrototypeNode: node [
+	| result |
+	result := node copy.
+	result
+		arguments: (self visitNodesAndCollect: result arguments);
+		returnType: (self evaluateTypeExpression: result returnType).
+		
+	result functionType: (self compilationTarget
+		functionTypeWithArguments: (result arguments collect: #valueType)
+		returnType: result returnType).
+	result type: result functionType ref.
+	
+	result name isMbndAnonymousSymbol ifFalse: [
+		scope lookupProgramEntityForNewDefinitions ifNotNil: [ :newOwner |
+			newOwner findOrAddOverloadedFunctionPrototype: result
+		].
+	].
+	
+	^ result
 ]
 
 { #category : #visiting }
@@ -221,6 +284,45 @@ MbndAstSemanticAnalyzer >> visitLocalVariableDefinitionNode: node [
 		self error: 'Variable {1} overrides a previous definition in the same scope.' format: { result name asPrettySymbolName } at: { result }
 	].
 
+	^ result
+]
+
+{ #category : #visiting }
+MbndAstSemanticAnalyzer >> visitMessageDefinitionNode: node [
+	| result |
+	result := node copy.
+	result prototype: (self visitNode: node prototype).
+	result concreteMethod definitionNode ifNil: [ 
+		result concreteMethod
+			declarationPosition: node prototype;
+			definitionNode: node;
+			definitionScope: scope;
+			enqueueDelayedSemanticAnalysis
+	] ifNotNil: [ 
+		self error: 'multiples definitions for method with selector {1}.' format: { node selector asPrettySymbolName } at: node
+	].
+	
+	result type: result prototype type.
+	^ result
+]
+
+{ #category : #visiting }
+MbndAstSemanticAnalyzer >> visitMessagePrototypeNode: node [
+	| result |
+	result := node copy.
+	result
+		arguments: (self visitNodesAndCollect: result arguments);
+		returnType: (self evaluateTypeExpression: result returnType).
+		
+	result functionType: (self compilationTarget
+		functionTypeWithArguments: (result arguments collect: #valueType)
+		returnType: result returnType).
+	result type: result functionType ref.
+	
+	scope lookupProgramEntityForNewDefinitions ifNotNil: [ :newOwner |
+		newOwner findOrAddOverloadedSelectorPrototype: result
+	].
+	
 	^ result
 ]
 

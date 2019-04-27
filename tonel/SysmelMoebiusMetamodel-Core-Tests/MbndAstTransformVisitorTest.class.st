@@ -134,6 +134,48 @@ MbndAstTransformVisitorTest >> testFunctionCallNode [
 ]
 
 { #category : #tests }
+MbndAstTransformVisitorTest >> testFunctionDefinitionNode [
+	| returnType definition body transformedNode |
+	returnType := builder identifier: #Int32.
+	body := builder literalInteger: 0.
+	definition := builder functionNamed: #zero arguments: #() returnType: returnType definitionBody: body.
+	transformedNode := visitor visitNode: definition.
+	self assert: transformedNode ~~ definition.
+	self assert: transformedNode prototype ~~ definition prototype.
+	self assert: transformedNode isFunctionDefinitionNode.
+	self assert: transformedNode prototype isFunctionPrototypeNode.
+	self assert: transformedNode name equals: #zero.
+	self assert: transformedNode arguments equals: #().
+	self assert: transformedNode returnType equals: returnType.
+]
+
+{ #category : #tests }
+MbndAstTransformVisitorTest >> testFunctionPrototypeNode [
+	| arguments returnType prototype transformedNode |
+	arguments := { 
+		builder argument: #x type: (builder identifier: #Int32).
+		builder argument: #y type: (builder identifier: #Int32).
+	}.
+	returnType := (builder identifier: #Int32).
+	prototype := builder functionPrototypeNamed: #add arguments: arguments returnType: returnType.
+	transformedNode := visitor visitNode: prototype.
+	self assert: transformedNode ~~ prototype.
+	self assert: transformedNode isFunctionPrototypeNode.
+	self assert: transformedNode name equals: prototype name.
+
+	self assert: transformedNode arguments first ~~ arguments first.
+	self assert: transformedNode arguments first name equals: arguments first name.
+	self assert: transformedNode arguments first type equals: arguments first type.
+
+	self assert: transformedNode arguments second ~~ arguments second.
+	self assert: transformedNode arguments second name equals: arguments second name.
+	self assert: transformedNode arguments second type equals: arguments second type.
+
+	self assert: transformedNode returnType equals: returnType.
+	
+]
+
+{ #category : #tests }
 MbndAstTransformVisitorTest >> testIdentifierReference [
 	| node transformedNode |
 	node := builder identifier: #ident.
@@ -222,6 +264,48 @@ MbndAstTransformVisitorTest >> testMessageChainNode [
 	self assert: transformedNode receiver equals: receiver.
 	self assert: transformedNode messages first selector equals: chainedMessage selector.
 	self assert: transformedNode messages first arguments equals: chainedMessage arguments.
+]
+
+{ #category : #tests }
+MbndAstTransformVisitorTest >> testMessageDefinitionNode [
+	| returnType definition body transformedNode |
+	returnType := builder identifier: #Int32.
+	body := builder literalInteger: 0.
+	definition := builder messageSelector: #zero arguments: #() returnType: returnType definitionBody: body.
+	transformedNode := visitor visitNode: definition.
+	self assert: transformedNode ~~ definition.
+	self assert: transformedNode prototype ~~ definition prototype.
+	self assert: transformedNode isMessageDefinitionNode.
+	self assert: transformedNode prototype isMessagePrototypeNode.
+	self assert: transformedNode selector equals: #zero.
+	self assert: transformedNode arguments equals: #().
+	self assert: transformedNode returnType equals: returnType.
+]
+
+{ #category : #tests }
+MbndAstTransformVisitorTest >> testMessagePrototypeNode [
+	| arguments returnType prototype transformedNode |
+	arguments := { 
+		builder argument: #x type: (builder identifier: #Int32).
+		builder argument: #y type: (builder identifier: #Int32).
+	}.
+	returnType := (builder identifier: #Int32).
+	prototype := builder messagePrototypeSelector: #+ arguments: arguments returnType: returnType.
+	transformedNode := visitor visitNode: prototype.
+	self assert: transformedNode ~~ prototype.
+	self assert: transformedNode isMessagePrototypeNode.
+	self assert: transformedNode selector equals: prototype selector.
+
+	self assert: transformedNode arguments first ~~ arguments first.
+	self assert: transformedNode arguments first name equals: arguments first name.
+	self assert: transformedNode arguments first type equals: arguments first type.
+
+	self assert: transformedNode arguments second ~~ arguments second.
+	self assert: transformedNode arguments second name equals: arguments second name.
+	self assert: transformedNode arguments second type equals: arguments second type.
+
+	self assert: transformedNode returnType equals: returnType.
+	
 ]
 
 { #category : #tests }

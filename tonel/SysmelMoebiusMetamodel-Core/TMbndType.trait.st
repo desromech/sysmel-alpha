@@ -21,7 +21,7 @@ TMbndType >> definitionModule: aModule [
 	definitionModule := aModule
 ]
 
-{ #category : #'macro expansion' }
+{ #category : #'as yet unclassified' }
 TMbndType >> lookupMacroSelector: aSelector [
 	| macro |
 	macro := self macroMethodDict at: aSelector ifAbsent: [ nil ]..
