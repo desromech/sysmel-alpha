@@ -170,11 +170,13 @@ MbndAstSemanticAnalyzer >> visitCompileTimeConstantDefinitionNode: node [
 
 	alias := MbndCompileTimeConstant new
 		name: aliasName;
-		parent: owner;
 		valueNode: node value;
 		valueScope: scope;
 		yourself.
-	owner setLocalSymbol: aliasName value: alias.
+	owner
+		addChild: alias;
+		setLocalSymbol: aliasName value: alias;
+		enqueueDelayedSemanticAnalysis.
 
 	^ self astBuilder literalVoid
 ]
@@ -261,7 +263,8 @@ MbndAstSemanticAnalyzer >> visitFunctionPrototypeNode: node [
 		
 	result functionType: (self compilationTarget
 		functionTypeWithArguments: (result arguments collect: #valueType)
-		returnType: result returnType).
+		returnType: result returnType
+		cvariadic: node isCVariadic).
 	result type: result functionType ref.
 	
 	result ownerProgramEntity ifNil: [

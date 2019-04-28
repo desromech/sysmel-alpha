@@ -15,12 +15,13 @@ MbndSimpleMetaType class >> typeName [
 { #category : #'semantic analysis' }
 MbndSimpleMetaType >> analyzeUnboundExpandedMessageSendNode: node with: analyzer [
 	| arguments selector result |
-	node selector isLiteralSymbolValueNode ifTrue: [
+	(node receiver isLiteralValueNode and:
+	[ node selector isLiteralSymbolValueNode ]) ifTrue: [
 		selector := node selector value.
 		(self class lookupSelector: selector) ifNotNil: [ :method |
 			(method hasPragmaNamed: #compileTime) ifTrue: [
 				arguments := node arguments collect: [ :arg | (analyzer evaluateCompileTimeExpression: arg) unwrapMbndValue ].
-				result := self perform: selector withArguments: arguments.
+				result := node receiver value perform: selector withArguments: arguments.
 				^ analyzer visitNode: (result asMoebiusLiteralValueNodeWithTarget: self compilationTarget)
 			]
 		]

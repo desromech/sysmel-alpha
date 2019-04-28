@@ -12,6 +12,12 @@ Class {
 { #category : #'semantic analysis' }
 MbndAbstractConcreteMethod >> analyzeExpandedMessageSendNode: node with: analyzer [
 	| newReceiverNode argumentTypes newArgumentNodes |
+	node receiver ifNotNil: [ :receiverNode |
+		receiverNode type isNamespaceType ifTrue: [
+			^ self analyzeExpandedMessageSendNode: (node copy receiver: nil) with: analyzer
+		].
+	].
+
 	self receiverType isVoidType ~= node receiver isNil ifTrue: [
 		self error: 'analyzing message send {1} with mismatching presence or lack of receiver types.'
 			format: {self name asPrettySymbolName} at: node

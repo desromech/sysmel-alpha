@@ -6,6 +6,11 @@ Trait {
 }
 
 { #category : #testing }
+TMbndNamespace >> canHaveNamespaces [
+	^ true
+]
+
+{ #category : #testing }
 TMbndNamespace >> isNamespace [
 	^ true
 ]

@@ -127,6 +127,24 @@ MbndAstSemanticAnalyzerTest >> testIdentityFunctionCall [
 ]
 
 { #category : #tests }
+MbndAstSemanticAnalyzerTest >> testIdentityFunctionCallInNamespace [
+	| node analyzedNode |
+	node := builder sequence: {
+		builder namespace: #TestNamespace definition: self identityFunctionDefinitionNode.
+		builder call: (builder unexpandedSend: (builder literalSymbol: #identity)
+				to: (builder identifier: #TestNamespace)
+				withArguments: #()) arguments: { 
+			builder literalInteger: 5
+		}
+	}.
+	
+	analyzedNode := visitor visitNode: node.
+	self assert: analyzedNode isSequenceNode.
+	self assert: analyzedNode type isPrimitiveIntegerType.
+
+]
+
+{ #category : #tests }
 MbndAstSemanticAnalyzerTest >> testIdentityFunctionDefinition [
 	| arguments node analyzedNode body concreteMethod |
 	arguments := {

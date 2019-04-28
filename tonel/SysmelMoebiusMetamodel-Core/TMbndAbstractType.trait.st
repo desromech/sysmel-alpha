@@ -161,6 +161,11 @@ TMbndAbstractType >> isCompilerObjectType [
 ]
 
 { #category : #'testing methods' }
+TMbndAbstractType >> isConstantType [
+	^ false
+]
+
+{ #category : #'testing methods' }
 TMbndAbstractType >> isDerivedType [
 	^ false
 ]
@@ -315,6 +320,11 @@ TMbndAbstractType >> isVoidType [
 	^ false
 ]
 
+{ #category : #'testing methods' }
+TMbndAbstractType >> isVolatileType [
+	^ false
+]
+
 { #category : #testing }
 TMbndAbstractType >> legalizeLiteralValue: literalValue [
 	^ literalValue
@@ -431,7 +441,12 @@ TMbndAbstractType >> withSubtypesDo: aBlock [
 	self subtypesDo: aBlock
 ]
 
-{ #category : #'as yet unclassified' }
+{ #category : #'type composition' }
+TMbndAbstractType >> withoutDecorations [
+	^ self
+]
+
+{ #category : #'type composition' }
 TMbndAbstractType >> withoutReferences [
 	^ self
 ]

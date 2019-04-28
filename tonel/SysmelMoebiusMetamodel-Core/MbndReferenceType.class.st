@@ -32,6 +32,11 @@ MbndReferenceType >> printOn: aStream [
 	aStream nextPutAll: ' ref'
 ]
 
+{ #category : #'type composition' }
+MbndReferenceType >> withoutDecorations [
+	^ baseType withoutDecorations refFor: addressSpace
+]
+
 { #category : #'as yet unclassified' }
 MbndReferenceType >> withoutReferences [
 	^ baseType

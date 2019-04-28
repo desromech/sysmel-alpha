@@ -112,10 +112,6 @@ MbndConcreteMethod >> definitionScope: anObject [
 ]
 
 { #category : #'semantic analysis' }
-MbndConcreteMethod >> enqueueDelayedSemanticAnalysis [
-]
-
-{ #category : #'semantic analysis' }
 MbndConcreteMethod >> ensureSemanticAnalysis [
 	| analyzer analysisScope |
 	definitionNode ifNil: [ ^ self ].

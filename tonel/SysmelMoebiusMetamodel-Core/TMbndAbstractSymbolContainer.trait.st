@@ -12,7 +12,6 @@ TMbndAbstractSymbolContainer >> createFunctionEntityForPrototype: functionProtot
 TMbndAbstractSymbolContainer >> createFunctionEntityForPrototype: functionPrototype withReceiverType: receiverType [
 	| method |
 	method := MbndConcreteMethod new
-		parent: self;
 		name: functionPrototype name;
 		declarationPosition: functionPrototype;
 		receiverType: receiverType;
@@ -24,6 +23,7 @@ TMbndAbstractSymbolContainer >> createFunctionEntityForPrototype: functionProtot
 		self halt
 	].
 
+	self addChild: method.
 	functionPrototype concreteMethod: method.
 	^ method
 ]
@@ -31,13 +31,18 @@ TMbndAbstractSymbolContainer >> createFunctionEntityForPrototype: functionProtot
 { #category : #'member symbols' }
 TMbndAbstractSymbolContainer >> ensureSymbolIsNamespace: namespaceName at: position [
 	| namespace |
+	self canHaveNamespaces ifFalse: [
+		self error: 'Cannot define a namespace in this context.' at: position
+	].
+
 	(self lookupLocalSymbol: namespaceName) ifNil: [
 		namespace := MbndNamespace new
-			parent: self;
 			name: namespaceName;
 			module: self module;
 			yourself.
-		self setLocalSymbol: namespaceName value: namespace.
+		self
+			setLocalSymbol: namespaceName value: namespace;
+			addChild: namespace.
 	] ifNotNil: [ :previousDefinition |
 		previousDefinition isNamespace ifFalse: [
 			self error: 'Cannot create namespace with name {1} because it overrides previously defined symbol {2}.'

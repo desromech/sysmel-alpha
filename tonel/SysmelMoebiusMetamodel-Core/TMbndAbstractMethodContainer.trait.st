@@ -39,7 +39,6 @@ TMbndAbstractMethodContainer >> createMethodEntityForPrototype: functionPrototyp
 TMbndAbstractMethodContainer >> createMethodEntityForPrototype: methodPrototype withReceiverType: receiverType [
 	| method |
 	method := MbndConcreteMethod new
-		parent: self;
 		name: methodPrototype selector;
 		declarationPosition: methodPrototype;
 		receiverType: receiverType;
@@ -51,6 +50,7 @@ TMbndAbstractMethodContainer >> createMethodEntityForPrototype: methodPrototype 
 		self halt
 	].
 
+	self addChild: method.
 	methodPrototype concreteMethod: method.
 	^ method
 ]

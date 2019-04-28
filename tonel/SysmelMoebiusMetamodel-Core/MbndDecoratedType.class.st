@@ -27,3 +27,27 @@ MbndDecoratedType >> initialize [
 	super initialize.
 	decorations := #().
 ]
+
+{ #category : #'testing methods' }
+MbndDecoratedType >> isConstantType [
+	^ decorations includes: #const
+]
+
+{ #category : #'testing methods' }
+MbndDecoratedType >> isVolatileType [
+	^ decorations includes: #volatile
+]
+
+{ #category : #printing }
+MbndDecoratedType >> printOn: aStream [
+	baseType printOn: aStream.
+	decorations do: [ :decoration |
+		aStream space; nextPutAll: decoration
+	].
+
+]
+
+{ #category : #'testing methods' }
+MbndDecoratedType >> withoutDecorations [
+	^ baseType withoutDecorations
+]

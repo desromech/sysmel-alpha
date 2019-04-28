@@ -2,7 +2,8 @@ Trait {
 	#name : #TMbndModule,
 	#instVars : [
 		'globalNamespace',
-		'evaluatedFileSet'
+		'evaluatedFileSet',
+		'pendingDelayedSemanticAnalysisSet'
 	],
 	#traits : 'TMbndProgramEntity',
 	#classTraits : 'TMbndProgramEntity classTrait',
@@ -46,8 +47,22 @@ TMbndModule >> analyzeReferenceNode: referenceNode with: analyzer [
 ]
 
 { #category : #accessing }
+TMbndModule >> children [
+	^ { self globalNamespace }
+]
+
+{ #category : #accessing }
 TMbndModule >> compilationTarget [
 	self explicitRequirement
+]
+
+{ #category : #'semantic analysis' }
+TMbndModule >> enqueueDelayedSemanticAnalysis [
+]
+
+{ #category : #'semantic analysis' }
+TMbndModule >> enqueueProgramEntityWithDelayedSemanticAnalysis: programEntity [
+	self pendingDelayedSemanticAnalysisSet add: programEntity
 ]
 
 { #category : #evaluation }
@@ -81,6 +96,17 @@ TMbndModule >> evaluatedFileSet [
 	^ evaluatedFileSet ifNil: [ evaluatedFileSet := Set new ]
 ]
 
+{ #category : #'semantic analysis' }
+TMbndModule >> finishSemanticAnalysis [
+	| toAnalyze |
+	[ self pendingDelayedSemanticAnalysisSet isNotEmpty ] whileTrue: [
+		toAnalyze := self pendingDelayedSemanticAnalysisSet asArray.
+		self pendingDelayedSemanticAnalysisSet removeAll.
+		
+		toAnalyze do: #ensureSemanticAnalysis
+	]
+]
+
 { #category : #accessing }
 TMbndModule >> globalNamespace [
 	^ globalNamespace ifNil: [ globalNamespace := MbndNamespace new
@@ -94,6 +120,11 @@ TMbndModule >> globalNamespace [
 TMbndModule >> lookupSymbol: aSymbol [
 	aSymbol = #Compiler ifTrue: [ ^ self ].
 	^ nil
+]
+
+{ #category : #accessing }
+TMbndModule >> module [
+	^ self
 ]
 
 { #category : #scope }
@@ -143,6 +174,11 @@ TMbndModule >> newSourceEvaluationScopeForLanguageScope: languageScope withWorki
 	
 ]
 
+{ #category : #accessing }
+TMbndModule >> parent [
+	^ nil
+]
+
 { #category : #parsing }
 TMbndModule >> parseFileNamed: fileName [
 	| language fileReference |
@@ -156,6 +192,11 @@ TMbndModule >> parseLanguage: languageName source: sourceString [
 	| language |
 	language := MbndLanguageInterface languageNamed: languageName.
 	^ language parseSourceString: sourceString forModule: self
+]
+
+{ #category : #'semantic analysis' }
+TMbndModule >> pendingDelayedSemanticAnalysisSet [
+	^ pendingDelayedSemanticAnalysisSet ifNil: [ pendingDelayedSemanticAnalysisSet := SLVMOrderedInsertionSet new ]
 ]
 
 { #category : #scope }

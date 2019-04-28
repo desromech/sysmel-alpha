@@ -4,7 +4,8 @@ Class {
 	#instVars : [
 		'argumentTypes',
 		'returnType',
-		'callingConvention'
+		'callingConvention',
+		'cvariadic'
 	],
 	#category : #'SysmelMoebiusMetamodel-Core-Type'
 }
@@ -47,6 +48,23 @@ MbndFunctionType >> callingConvention [
 { #category : #accessing }
 MbndFunctionType >> callingConvention: anObject [
 	callingConvention := anObject
+]
+
+{ #category : #accessing }
+MbndFunctionType >> cvariadic [
+	^ cvariadic
+]
+
+{ #category : #accessing }
+MbndFunctionType >> cvariadic: anObject [
+	cvariadic := anObject
+]
+
+{ #category : #initialization }
+MbndFunctionType >> initialize [
+	super initialize.
+	callingConvention := #cdecl.
+	cvariadic := false.
 ]
 
 { #category : #testing }

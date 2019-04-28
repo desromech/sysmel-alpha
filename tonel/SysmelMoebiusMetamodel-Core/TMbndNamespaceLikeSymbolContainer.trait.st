@@ -3,16 +3,10 @@ Trait {
 	#instVars : [
 		'usedNamespaces'
 	],
-	#traits : 'TMbndMacroMethodContainer + TMbndMethodContainer + TMbndAbstractSymbolContainer',
-	#classTraits : 'TMbndMacroMethodContainer classTrait + TMbndMethodContainer classTrait + TMbndAbstractSymbolContainer classTrait',
+	#traits : 'TMbndMacroMethodContainer + TMbndMethodContainer + TMbndSymbolContainer',
+	#classTraits : 'TMbndMacroMethodContainer classTrait + TMbndMethodContainer classTrait + TMbndSymbolContainer classTrait',
 	#category : #'SysmelMoebiusMetamodel-Core-ProgramEntity'
 }
-
-{ #category : #'member symbols' }
-TMbndNamespaceLikeSymbolContainer >> lookupLocalSymbol: aSymbol [
-	overloadedMethodDict ifNil: [ ^ nil ].
-	^ self overloadedMethodDict at: aSymbol ifAbsent: [ nil ]
-]
 
 { #category : #methods }
 TMbndNamespaceLikeSymbolContainer >> lookupOverloadedSelector: aSelector [
@@ -42,12 +36,6 @@ TMbndNamespaceLikeSymbolContainer >> lookupSymbol: aSymbol [
 	].
 
 	^ nil
-]
-
-{ #category : #'member symbols' }
-TMbndNamespaceLikeSymbolContainer >> setLocalSymbol: aSymbol value: aValue [
-	self overloadedMethodDict at: aSymbol put: aValue.
-	self methodDict at: aSymbol put: aValue
 ]
 
 { #category : #'as yet unclassified' }

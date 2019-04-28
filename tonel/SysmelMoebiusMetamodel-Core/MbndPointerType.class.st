@@ -24,3 +24,8 @@ MbndPointerType >> printOn: aStream [
 	baseType printOn: aStream.
 	aStream nextPutAll: ' pointer'
 ]
+
+{ #category : #'type composition' }
+MbndPointerType >> withoutDecorations [
+	^ baseType withoutDecorations pointerFor: addressSpace
+]

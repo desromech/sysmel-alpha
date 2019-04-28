@@ -124,17 +124,28 @@ TMbndCoreCompilationTarget >> functionTypeWithArguments: argumentTypes returnTyp
 
 { #category : #'derived types' }
 TMbndCoreCompilationTarget >> functionTypeWithArguments: argumentTypes returnType: returnType callingConvention: callingConvention [
-	^ functionTypes at: { argumentTypes . returnType . callingConvention } ifAbsentPut: [
+	^ self functionTypeWithArguments: argumentTypes returnType: returnType callingConvention: callingConvention cvariadic: false
+]
+
+{ #category : #'derived types' }
+TMbndCoreCompilationTarget >> functionTypeWithArguments: argumentTypes returnType: returnType callingConvention: callingConvention cvariadic: cvariadic [
+	^ functionTypes at: { argumentTypes . returnType . callingConvention . cvariadic} ifAbsentPut: [
 		| result |
 		result := MbndFunctionType new
 			name: nil;
 			argumentTypes: argumentTypes;
 			returnType: returnType;
 			callingConvention: callingConvention;
+			cvariadic: cvariadic;
 			yourself.
 		self ensureBasicTypeIsLinkedToTheHierarchy: result.
 		result
 	]
+]
+
+{ #category : #'derived types' }
+TMbndCoreCompilationTarget >> functionTypeWithArguments: argumentTypes returnType: returnType cvariadic: cvariadic [
+	^ self functionTypeWithArguments: argumentTypes returnType: returnType callingConvention: self defaultCallingConvention cvariadic: cvariadic
 ]
 
 { #category : #accessing }

@@ -5,11 +5,19 @@ Class {
 	#classTraits : 'TMbndNamespaceLikeSymbolContainer classTrait',
 	#instVars : [
 		'parent',
+		'children',
 		'name',
 		'module'
 	],
 	#category : #'SysmelMoebiusMetamodel-Core-ProgramEntity'
 }
+
+{ #category : #accessing }
+MbndNamespace >> addChild: aChild [
+	self assert: aChild parent isNil.
+	aChild parent: self.
+	self children add: aChild.
+]
 
 { #category : #'semantic analysis' }
 MbndNamespace >> analyzeReferenceNode: referenceNode with: analyzer [
@@ -22,6 +30,11 @@ MbndNamespace >> asLiteralValueNode [
 		value: self;
 		type: self type;
 		yourself
+]
+
+{ #category : #accessing }
+MbndNamespace >> children [
+	^ children ifNil: [ children := SLVMOrderedInsertionSet new ]
 ]
 
 { #category : #accessing }

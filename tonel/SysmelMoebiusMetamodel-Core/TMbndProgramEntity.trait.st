@@ -5,9 +5,38 @@ Trait {
 	#category : #'SysmelMoebiusMetamodel-Core-ProgramEntity'
 }
 
+{ #category : #adding }
+TMbndProgramEntity >> addChild: aChild [
+	self error: 'Cannot have child program entities here.'
+]
+
+{ #category : #testing }
+TMbndProgramEntity >> canHaveNamespaces [
+	^ false
+]
+
+{ #category : #accessing }
+TMbndProgramEntity >> children [ 
+	^ #()
+]
+
 { #category : #accessing }
 TMbndProgramEntity >> compilationTarget [
 	^ self module compilationTarget
+]
+
+{ #category : #'semantic analysis' }
+TMbndProgramEntity >> enqueueDelayedSemanticAnalysis [
+	self module enqueueProgramEntityWithDelayedSemanticAnalysis: self
+]
+
+{ #category : #'semantic analysis' }
+TMbndProgramEntity >> ensureSemanticAnalysis [
+]
+
+{ #category : #accessing }
+TMbndProgramEntity >> fullName [
+	^ self name
 ]
 
 { #category : #testing }

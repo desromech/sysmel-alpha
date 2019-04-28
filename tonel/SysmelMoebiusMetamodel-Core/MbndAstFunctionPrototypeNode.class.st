@@ -7,6 +7,11 @@ Class {
 	#category : #'SysmelMoebiusMetamodel-Core-AST'
 }
 
+{ #category : #flags }
+MbndAstFunctionPrototypeNode >> CVariadic [
+	self addFlag: #cvariadic
+]
+
 { #category : #visiting }
 MbndAstFunctionPrototypeNode >> accept: aVisitor [
 	^ aVisitor visitFunctionPrototypeNode: self
@@ -15,6 +20,11 @@ MbndAstFunctionPrototypeNode >> accept: aVisitor [
 { #category : #flags }
 MbndAstFunctionPrototypeNode >> externC [
 	^ self addFlag: #externC
+]
+
+{ #category : #flags }
+MbndAstFunctionPrototypeNode >> isCVariadic [
+	^ self hasFlag: #cvariadic
 ]
 
 { #category : #flags }
