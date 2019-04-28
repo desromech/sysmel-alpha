@@ -151,23 +151,53 @@ MbndAstSemanticAnalyzer >> visitArgumentDefinitionNode: node [
 MbndAstSemanticAnalyzer >> visitExpandedMessageSendNode: node [
 	| result receiverType method |
 	result := node copy
-		receiver: (self analyzeNodeIfNeeded: node receiver);
+		receiver: (node receiver ifNotNil: [:receiver | self analyzeNodeIfNeeded: node receiver]);
 		selector: (self analyzeNodeIfNeeded: node selector);
 		arguments: (self analyzeNodesIfNeeded: node arguments).
 		
 	"Find the method in order to perform a typed message send."
-	receiverType := result receiver type.
-	result selector isLiteralSymbolValueNode ifTrue: [ 
-		method := receiverType lookupOverloadedSelector: result selector value.
-		method ifNotNil: [
-			^ method analyzeExpandedMessageNode: node with: self
+	result receiver ifNil: [ 
+		result selector isLiteralSymbolValueNode ifFalse: [ 
+			self error: 'Message send without a receiver cannot have non-constant selector.' at: result
 		].
 	
-		"We failed to find the method, then ask the receiver type to interpret this message."
-		^ receiverType analyzeUnboundExpandedMessageSendNode: result with: self
+		method := scope lookupOverloadedSelector: result selector value.
+		method ifNil: [
+			self error: 'Failed to find definition for scoped selector {1}.' format: { result selector value printString } at: result
+		].
+	
+		^ method analyzeExpandedMessageSendNode: result with: self
+	].
+
+	receiverType := result receiver type.
+	result selector isLiteralSymbolValueNode ifTrue: [
+		^ receiverType analyzeExpandedMessageSendNode: result with: self
 	].
 
 	^ receiverType analyzeMessageSendNodeWithDynamicSelector: result with: self
+]
+
+{ #category : #visiting }
+MbndAstSemanticAnalyzer >> visitFunctionCallNode: node [
+	| result functionalType |
+	result := node copy.
+	result arguments isMbndAstNode ifTrue: [
+		"Rewrite the node by removing the tuple object."
+		result arguments isTupleNode ifTrue: [
+			^ self visitNode: (result arguments: result arguments elements)
+		] ifFalse: [
+			self flag: 'TODO: Generate code for unwrapping the tuple.'.
+			self halt
+		]
+	].
+
+	result
+		function: (self analyzeNodeIfNeeded: node function);
+		arguments: (self visitNodesAndCollect: result arguments).
+		
+	functionalType := result function type withoutReferences.
+	self assert: functionalType isFunctionalType.
+	^ functionalType analyzeFunctionCallNode: result with: self
 ]
 
 { #category : #visiting }
@@ -177,8 +207,8 @@ MbndAstSemanticAnalyzer >> visitFunctionDefinitionNode: node [
 	result prototype: (self visitNode: node prototype).
 	result concreteMethod definitionNode ifNil: [ 
 		result concreteMethod
-			declarationPosition: node prototype;
-			definitionNode: node;
+			declarationPosition: result prototype;
+			definitionNode: result;
 			definitionScope: scope;
 			enqueueDelayedSemanticAnalysis
 	] ifNotNil: [ 
@@ -202,8 +232,12 @@ MbndAstSemanticAnalyzer >> visitFunctionPrototypeNode: node [
 		returnType: result returnType).
 	result type: result functionType ref.
 	
+	result ownerProgramEntity ifNil: [
+		result ownerProgramEntity: scope lookupProgramEntityForNewDefinitions
+	].
+	
 	result name isMbndAnonymousSymbol ifFalse: [
-		scope lookupProgramEntityForNewDefinitions ifNotNil: [ :newOwner |
+		result ownerProgramEntity ifNotNil: [ :newOwner |
 			newOwner findOrAddOverloadedFunctionPrototype: result
 		].
 	].
@@ -319,7 +353,11 @@ MbndAstSemanticAnalyzer >> visitMessagePrototypeNode: node [
 		returnType: result returnType).
 	result type: result functionType ref.
 	
-	scope lookupProgramEntityForNewDefinitions ifNotNil: [ :newOwner |
+	result ownerProgramEntity ifNil: [
+		result ownerProgramEntity: scope lookupProgramEntityForNewDefinitions
+	].
+
+	result ownerProgramEntity ifNotNil: [ :newOwner |
 		newOwner findOrAddOverloadedSelectorPrototype: result
 	].
 	
@@ -387,9 +425,9 @@ MbndAstSemanticAnalyzer >> visitUnexpandedMessageSendNode: node [
 	selector := result selector value.
 	macroMethod := scope lookupMacroSelector: selector.
 	macroMethod ifNil: [
-		^ self error: 'Cannot lookup macro method with selector {1}.' format: {selector printString} at: node
+		^ self visitNode: result asExpandedMessageSend
 	].
 
 	"Apply the macro method."
-	^ macroMethod expandMessageNode: node with: self
+	^ macroMethod expandMessageNode: result with: self
 ]

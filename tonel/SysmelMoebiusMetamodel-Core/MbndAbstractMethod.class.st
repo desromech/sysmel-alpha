@@ -11,7 +11,27 @@ Class {
 }
 
 { #category : #'semantic analysis' }
-MbndAbstractMethod >> analyzeExpandedMessageNode: node with: analyzer [
+MbndAbstractMethod >> analyzeExpandedMessageSendNode: node with: analyzer [
+	self subclassResponsibility
+]
+
+{ #category : #'semantic analysis' }
+MbndAbstractMethod >> analyzeReferenceNode: referenceNode with: analyzer [
+	^ MbndAstMethodReference new
+		binding: self;
+		position: referenceNode;
+		type: self type ref;
+		yourself
+]
+
+{ #category : #evaluation }
+MbndAbstractMethod >> evaluateApplicationWithArguments: arguments withEvaluator: evaluator at: node [
+	self assert: self receiverType isVoidType.
+	^ self evaluateApplicationWithReceiver: nil arguments: arguments withEvaluator: evaluator at: node
+]
+
+{ #category : #evaluation }
+MbndAbstractMethod >> evaluateApplicationWithReceiver: receiver arguments: arguments withEvaluator: evaluator at: node [
 	self subclassResponsibility
 ]
 

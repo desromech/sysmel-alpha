@@ -7,7 +7,7 @@ Trait {
 
 { #category : #'member symbols' }
 TMbndNamespaceLikeSymbolContainer >> lookupLocalSymbol: aSymbol [
-	^ self methodDict at: aSymbol ifAbsent: [ nil ]
+	^ self overloadedMethodDict at: aSymbol ifAbsent: [ nil ]
 ]
 
 { #category : #'member symbols' }
@@ -17,5 +17,6 @@ TMbndNamespaceLikeSymbolContainer >> lookupSymbol: aSymbol [
 
 { #category : #'member symbols' }
 TMbndNamespaceLikeSymbolContainer >> setLocalSymbol: aSymbol value: aValue [
-	^ self methodDict at: aSymbol put: aValue
+	self overloadedMethodDict at: aSymbol put: aValue.
+	self methodDict at: aSymbol put: aValue
 ]

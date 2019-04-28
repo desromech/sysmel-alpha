@@ -16,6 +16,24 @@ MbndConcreteMethod >> analyzedBody [
 	^ analyzedBody
 ]
 
+{ #category : #evaluation }
+MbndConcreteMethod >> constructEvaluationScopeWithReceiver: receiverValue arguments: argumentValues [
+	| evaluationScope argumentDefinition |
+	evaluationScope := MbndFunctionEvaluationScope parent: definitionScope.
+	evaluationScope := evaluationScope newReturnContextScope newLexicalScope.
+	
+	receiverType isVoidType ifFalse: [ 
+		self halt
+	].
+	
+	argumentValues doWithIndex: [ :argumentValue :index |
+		argumentDefinition := arguments at: index.
+		argumentDefinition createStorageInFunctionActivationScope: evaluationScope withValue: argumentValue
+	].
+
+	^ evaluationScope
+]
+
 { #category : #'semantic analysis' }
 MbndConcreteMethod >> createSemanticAnalysisScope [
 	| analysisScope |
@@ -111,6 +129,7 @@ MbndConcreteMethod >> ensureSemanticAnalysis [
 		module: self module;
 		scope: analysisScope;
 		yourself.
+		
 	analyzedBody := analyzer visitNode: definitionNode body.
 
 	"Cast the result into the required return type."
@@ -120,4 +139,26 @@ MbndConcreteMethod >> ensureSemanticAnalysis [
 		].
 	].
 
+]
+
+{ #category : #evaluation }
+MbndConcreteMethod >> evaluateApplicationWithReceiver: receiverValue arguments: argumentValues withEvaluator: evaluator at: node [
+	^ self evaluateWithReceiver: receiverValue arguments: argumentValues withEvaluator: evaluator at: node
+]
+
+{ #category : #evaluation }
+MbndConcreteMethod >> evaluateWithReceiver: receiverValue arguments: argumentValues withEvaluator: evaluator at: position [
+	| evaluationScope callEvaluator |
+	definitionNode ifNil: [
+		self error: 'Cannot evaluate in compile time external function/method {1}.'
+			format: {name asPrettySymbolName} at: position
+	].
+
+	self ensureSemanticAnalysis.
+	self assert: argumentValues size = arguments size.
+
+	evaluationScope := self constructEvaluationScopeWithReceiver: receiverValue arguments: argumentValues.
+	callEvaluator := MbndAstEvaluator new scope: evaluationScope.
+
+	^ callEvaluator evaluateFunctionContent: analyzedBody.
 ]

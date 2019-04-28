@@ -8,6 +8,21 @@ Class {
 	#category : #'SysmelMoebiusMetamodel-Core-Evaluation'
 }
 
+{ #category : #'as yet unclassified' }
+MbndAstEvaluator >> evaluateFunctionContent: ast [
+	| returnContext |
+	returnContext := self scope returnContextScope.
+	
+	[ 
+		^ self visitNode: ast
+	] on: MbndEvaluationReturn do: [ :e |
+		e targetReturnContext == returnContext
+			ifTrue: [ ^ e returnValue ]
+			ifFalse: [ ^ e pass ]
+	]
+	
+]
+
 { #category : #accessing }
 MbndAstEvaluator >> module [
 	^ module
@@ -36,6 +51,15 @@ MbndAstEvaluator >> visitExpandedMessageSendNode: node [
 	receiver := node receiver ifNotNil: [ self visitNode: node receiver ].
 	arguments := self visitNodesAndCollect: node arguments.
 	^ node method evaluateWithReceiver: receiver arguments: arguments withEvaluator: self at: node
+]
+
+{ #category : #visiting }
+MbndAstEvaluator >> visitFunctionCallNode: node [
+	| function arguments |
+	self assert: node type isNotNil.
+	function := self visitNode: node function.
+	arguments := self visitNodesAndCollect: node arguments.
+	^ function unwrapMbndValue evaluateApplicationWithArguments: arguments withEvaluator: self at: node
 ]
 
 { #category : #visiting }
@@ -71,6 +95,12 @@ MbndAstEvaluator >> visitMessageDefinitionNode: node [
 MbndAstEvaluator >> visitMessagePrototypeNode: node [
 	self assert: node concreteMethod isNotNil.
 	^ MbndValue value: node concreteMethod type: node type
+]
+
+{ #category : #visiting }
+MbndAstEvaluator >> visitMethodReferenceNode: node [
+	self assert: node binding isNotNil.
+	^ MbndValue value: node binding type: node type
 ]
 
 { #category : #visiting }

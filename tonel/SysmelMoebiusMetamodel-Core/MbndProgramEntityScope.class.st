@@ -21,6 +21,15 @@ MbndProgramEntityScope >> lookupMacroSelector: selector [
 	^ super lookupMacroSelector: selector
 ]
 
+{ #category : #'macro expansion' }
+MbndProgramEntityScope >> lookupOverloadedSelector: selector [
+	(programEntity lookupOverloadedSelector: selector) ifNotNil: [ :method |
+		^ method
+	].
+
+	^ super lookupOverloadedSelector: selector
+]
+
 { #category : #'as yet unclassified' }
 MbndProgramEntityScope >> lookupProgramEntityForNewDefinitions [
 	^ programEntity

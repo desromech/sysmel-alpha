@@ -7,7 +7,8 @@ Class {
 		'arguments',
 		'returnType',
 		'functionType',
-		'concreteMethod'
+		'concreteMethod',
+		'ownerProgramEntity'
 	],
 	#category : #'SysmelMoebiusMetamodel-Core-AST'
 }
@@ -47,6 +48,16 @@ MbndAstAbstractFunctionPrototypeNode >> initialize [
 	super initialize.
 	arguments := #().
 	flags := #().
+]
+
+{ #category : #accessing }
+MbndAstAbstractFunctionPrototypeNode >> ownerProgramEntity [
+	^ ownerProgramEntity
+]
+
+{ #category : #accessing }
+MbndAstAbstractFunctionPrototypeNode >> ownerProgramEntity: anObject [
+	ownerProgramEntity := anObject
 ]
 
 { #category : #accessing }

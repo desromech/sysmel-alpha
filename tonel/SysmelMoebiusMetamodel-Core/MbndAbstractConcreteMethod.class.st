@@ -10,14 +10,16 @@ Class {
 }
 
 { #category : #'semantic analysis' }
-MbndAbstractConcreteMethod >> analyzeExpandedMessageNode: node with: analyzer [
+MbndAbstractConcreteMethod >> analyzeExpandedMessageSendNode: node with: analyzer [
 	| newReceiverNode argumentTypes newArgumentNodes |
-	self receiverType isNil ~= node receiver isNil ifTrue: [
-		self halt
+	self receiverType isVoidType ~= node receiver isNil ifTrue: [
+		self error: 'analyzing message send {1} with mismatching presence or lack of receiver types.'
+			format: {self name asPrettySymbolName} at: node
 	].
 
 	self boundType argumentTypes size ~= node arguments size ifTrue: [ 
-		self halt
+		self error: 'message send {1} with mismatching number of arguments. Expected {2} arguments.'
+			format: {self name asPrettySymbolName . self boundType argumentTypes size asString} at: node
 	].
 
 	newReceiverNode := node receiver ifNotNil: [ :receiver |

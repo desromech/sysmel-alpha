@@ -34,6 +34,11 @@ MbndAbstractScope >> lookupMacroSelector: selector [
 	^ parent ifNotNil: [ parent lookupMacroSelector: selector ]
 ]
 
+{ #category : #'macro expansion' }
+MbndAbstractScope >> lookupOverloadedSelector: selector [
+	^ parent ifNotNil: [ parent lookupOverloadedSelector: selector ]
+]
+
 { #category : #'as yet unclassified' }
 MbndAbstractScope >> lookupProgramEntityForNewDefinitions [
 	^ parent ifNotNil: [ parent lookupProgramEntityForNewDefinitions ]

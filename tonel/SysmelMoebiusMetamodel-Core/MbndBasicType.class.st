@@ -17,6 +17,19 @@ MbndBasicType class >> typeName [
 	^ self == MbndBasicType ifTrue: [ #AnyValue ] ifFalse: [ nil ]
 ]
 
+{ #category : #'as yet unclassified' }
+MbndBasicType >> analyzeExpandedMessageNode: node with: analyzer [
+	| method |
+	method := self lookupOverloadedSelector: node selector value.
+	method ifNotNil: [
+		^ method analyzeExpandedMessageSendNode: node with: analyzer
+	].
+	
+	"We failed to find the method, then ask the receiver type to interpret this message."
+	^ self analyzeUnboundExpandedMessageSendNode: node with: analyzer
+
+]
+
 { #category : #accessing }
 MbndBasicType >> fullName [
 	^ name

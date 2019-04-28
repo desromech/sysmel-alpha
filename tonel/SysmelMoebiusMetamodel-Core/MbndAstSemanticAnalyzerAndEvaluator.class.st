@@ -85,10 +85,14 @@ MbndAstSemanticAnalyzerAndEvaluator >> visitLexicalScopeNode: node [
 ]
 
 { #category : #delegate }
-MbndAstSemanticAnalyzerAndEvaluator >> visitSequenceNode: aNode [
+MbndAstSemanticAnalyzerAndEvaluator >> visitSequenceNode: node [
 	| result |
+	node elements ifEmpty: [
+		^ MbndValue value: nil type: node type
+	].
+
 	result := nil.
-	aNode elements do: [ :element |
+	node elements do: [ :element |
 		result := self visitNode: element
 	].
 

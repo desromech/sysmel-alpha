@@ -21,6 +21,39 @@ MbndAstEvaluatorTest >> analyzeAndEvaluateAST: node [
 	^ evaluator visitNode: (analyzer visitNode: node)
 ]
 
+{ #category : #tests }
+MbndAstEvaluatorTest >> identityFunctionDefinitionNode [
+	| arguments body |
+	arguments := {
+		builder argument: #x type: compilationTarget int32Type
+	}.
+	body := builder identifier: #x.
+	^ builder functionNamed: #identity arguments: arguments returnType: compilationTarget int32Type definitionBody: body
+]
+
+{ #category : #running }
+MbndAstEvaluatorTest >> identityMessageDefinitionNode [
+	| arguments body |
+	arguments := {
+		builder argument: #x type: compilationTarget int32Type
+	}.
+	body := builder identifier: #x.
+	^ builder messageSelector: #identity: arguments: arguments returnType: compilationTarget int32Type definitionBody: body
+]
+
+{ #category : #tests }
+MbndAstEvaluatorTest >> returnSquareFunctionDefinitionNode [
+	| arguments body |
+	arguments := {
+		builder argument: #x type: compilationTarget int32Type
+	}.
+	body := builder return: (
+		builder unexpandedSend: (builder literalSymbol: #*)
+			to: (builder identifier: #x)
+			withArguments: {builder identifier: #x}).
+	^ builder functionNamed: #square arguments: arguments returnType: compilationTarget int32Type definitionBody: body
+]
+
 { #category : #running }
 MbndAstEvaluatorTest >> setUp [
 	super setUp.
@@ -43,6 +76,40 @@ MbndAstEvaluatorTest >> testEmptySequence [
 	value := self analyzeAndEvaluateAST: node.
 	self assert: value type isVoidType.
 	self assert: value value equals: nil.
+
+]
+
+{ #category : #running }
+MbndAstEvaluatorTest >> testIdentityFunctionApplySend [
+	| node value |
+	node := builder sequence: {
+		self identityFunctionDefinitionNode.
+		builder unexpandedSend: (builder literalSymbol: #applyWithArguments:)
+			to: (builder identifier: #identity)
+			withArguments: {builder tuple: { 
+				builder literalInteger: 5
+			}}
+	}.
+		
+	value := self analyzeAndEvaluateAST: node.
+	self assert: value type isPrimitiveIntegerType.
+	self assert: value value equals: 5.
+
+]
+
+{ #category : #running }
+MbndAstEvaluatorTest >> testIdentityFunctionCall [
+	| node value |
+	node := builder sequence: {
+		self identityFunctionDefinitionNode.
+		builder call: (builder identifier: #identity) arguments: { 
+			builder literalInteger: 5
+		}
+	}.
+		
+	value := self analyzeAndEvaluateAST: node.
+	self assert: value type isPrimitiveIntegerType.
+	self assert: value value equals: 5.
 
 ]
 
@@ -75,6 +142,19 @@ MbndAstEvaluatorTest >> testIdentityFunctionPrototypeNode [
 ]
 
 { #category : #running }
+MbndAstEvaluatorTest >> testIdentityFunctionReference [
+	| node value |
+	node := builder sequence: {
+		self identityFunctionDefinitionNode.
+		builder identifier: #identity
+	}.
+	
+	value := self analyzeAndEvaluateAST: node.
+	self assert: value type isReferenceType.
+	self assert: value type baseType isFunctionType.
+]
+
+{ #category : #running }
 MbndAstEvaluatorTest >> testIdentityMessageDefinitionNode [
 	| node value arguments body |
 	arguments := {
@@ -100,6 +180,22 @@ MbndAstEvaluatorTest >> testIdentityMessagePrototypeNode [
 	value := self analyzeAndEvaluateAST: node.
 	self assert: value type isReferenceType.
 	self assert: value type baseType isFunctionType.
+]
+
+{ #category : #running }
+MbndAstEvaluatorTest >> testIdentityMessageSend [
+	| node value |
+	node := builder sequence: {
+		self identityMessageDefinitionNode.
+		builder unexpandedSend: (builder literalSymbol: #identity:) to: nil withArguments: { 
+			builder literalInteger: 5
+		}
+	}.
+		
+	value := self analyzeAndEvaluateAST: node.
+	self assert: value type isPrimitiveIntegerType.
+	self assert: value value equals: 5.
+
 ]
 
 { #category : #running }
@@ -154,5 +250,21 @@ MbndAstEvaluatorTest >> testSequence [
 	value := evaluator visitNode: node.
 	self assert: value type isLiteralIntegerType.
 	self assert: value value equals: 42.
+
+]
+
+{ #category : #running }
+MbndAstEvaluatorTest >> testSquareFunctionCall [
+	| node value |
+	node := builder sequence: {
+		self returnSquareFunctionDefinitionNode.
+		builder call: (builder identifier: #square) arguments: { 
+			builder literalInteger: 5
+		}
+	}.
+		
+	value := self analyzeAndEvaluateAST: node.
+	self assert: value type isPrimitiveIntegerType.
+	self assert: value value equals: 25.
 
 ]

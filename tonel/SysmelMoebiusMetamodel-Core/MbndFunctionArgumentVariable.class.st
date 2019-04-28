@@ -3,3 +3,14 @@ Class {
 	#superclass : #MbndFunctionVariable,
 	#category : #'SysmelMoebiusMetamodel-Core-Variables'
 }
+
+{ #category : #'compile time evaluation' }
+MbndFunctionArgumentVariable >> asCompileTimeValueReferenceOfType: referenceType withEvaluator: evaluator at: node [
+	self assert: referenceType = self type.
+	^ evaluator scope lookBindingStorageRecursively: self
+]
+
+{ #category : #'as yet unclassified' }
+MbndFunctionArgumentVariable >> createStorageInFunctionActivationScope: scope withValue: activationValue [
+	^ scope setBinding: self storage: activationValue
+]

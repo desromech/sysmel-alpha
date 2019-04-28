@@ -22,6 +22,19 @@ TMbndAbstractType >> allSubtypesDo: aBlock [
 ]
 
 { #category : #'semantic analysis' }
+TMbndAbstractType >> analyzeExpandedMessageSendNode: node with: analyzer [
+	| method |
+	method := self lookupOverloadedSelector: node selector value.
+	method ifNotNil: [
+		^ method analyzeExpandedMessageSendNode: node with: analyzer
+	].
+	
+	"We failed to find the method, then ask the receiver type to interpret this message."
+	^ self analyzeUnboundExpandedMessageSendNode: node with: analyzer
+
+]
+
+{ #category : #'semantic analysis' }
 TMbndAbstractType >> analyzeMessageSendNodeWithDynamicSelector: node with: analyzer [
 	self error: 'Cannout perform message to value of type {1}.' format: {self fullName} at: node
 ]
@@ -39,6 +52,11 @@ TMbndAbstractType >> analyzeUnboundExpandedMessageSendNode: node with: analyzer 
 ]
 
 { #category : #'semantic analysis' }
+TMbndAbstractType >> analyzeUnboundUnexpandedMessageSendNode: node with: analyzer [
+	^ analyzer visitNode: node asExpandedMessageSend
+]
+
+{ #category : #'semantic analysis' }
 TMbndAbstractType >> analyzeUnexpandedMessageSendNode: node with: analyzer [
 	| selector macroMethod |
 	node selector isLiteralSymbolValueNode ifTrue: [
@@ -47,6 +65,8 @@ TMbndAbstractType >> analyzeUnexpandedMessageSendNode: node with: analyzer [
 		macroMethod ifNotNil: [
 			^ macroMethod expandMessageNode: node with: analyzer
 		].
+	
+		^ self analyzeUnboundUnexpandedMessageSendNode: node with: analyzer
 	].
 
 	^ analyzer visitNode: node asExpandedMessageSend
@@ -372,4 +392,9 @@ TMbndAbstractType >> withAllSubtypesDo: aBlock [
 TMbndAbstractType >> withSubtypesDo: aBlock [
 	aBlock value: self.
 	self subtypesDo: aBlock
+]
+
+{ #category : #'as yet unclassified' }
+TMbndAbstractType >> withoutReferences [
+	^ self
 ]

@@ -118,6 +118,11 @@ MbndAstDelegationVisitor >> visitMetaBuilderInstanceNode: node [
 ]
 
 { #category : #visiting }
+MbndAstDelegationVisitor >> visitMethodReferenceNode: node [
+	^ self delegateNodeVisit: node
+]
+
+{ #category : #visiting }
 MbndAstDelegationVisitor >> visitPragmaNode: node [
 	^ self delegateNodeVisit: node
 ]

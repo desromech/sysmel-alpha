@@ -14,6 +14,26 @@ Class {
 	#category : #'SysmelMoebiusMetamodel-Core-Tests-SemanticAnalysis'
 }
 
+{ #category : #tests }
+MbndAstSemanticAnalyzerTest >> identityFunctionDefinitionNode [
+	| arguments body |
+	arguments := {
+		builder argument: #x type: compilationTarget int32Type
+	}.
+	body := builder identifier: #x.
+	^ builder functionNamed: #identity arguments: arguments returnType: compilationTarget int32Type definitionBody: body
+]
+
+{ #category : #tests }
+MbndAstSemanticAnalyzerTest >> identityMessageDefinitionNode [
+	| arguments body |
+	arguments := {
+		builder argument: #x type: compilationTarget int32Type
+	}.
+	body := builder identifier: #x.
+	^ builder messageSelector: #identity: arguments: arguments returnType: compilationTarget int32Type definitionBody: body
+]
+
 { #category : #running }
 MbndAstSemanticAnalyzerTest >> setUp [
 	module := MbndDummyModule new.
@@ -25,7 +45,41 @@ MbndAstSemanticAnalyzerTest >> setUp [
 		module: module
 ]
 
-{ #category : #running }
+{ #category : #tests }
+MbndAstSemanticAnalyzerTest >> testIdentityFunctionApplySend [
+	| node analyzedNode |
+	node := builder sequence: {
+		self identityFunctionDefinitionNode.
+		builder unexpandedSend: (builder literalSymbol: #applyWithArguments:)
+			to: (builder identifier: #identity)
+			withArguments: {builder tuple: { 
+				builder literalInteger: 5
+			}}
+	}.
+	
+	analyzedNode := visitor visitNode: node.
+	self assert: analyzedNode isSequenceNode.
+	self assert: analyzedNode type isPrimitiveIntegerType.
+
+]
+
+{ #category : #tests }
+MbndAstSemanticAnalyzerTest >> testIdentityFunctionCall [
+	| node analyzedNode |
+	node := builder sequence: {
+		self identityFunctionDefinitionNode.
+		builder call: (builder identifier: #identity) arguments: { 
+			builder literalInteger: 5
+		}
+	}.
+	
+	analyzedNode := visitor visitNode: node.
+	self assert: analyzedNode isSequenceNode.
+	self assert: analyzedNode type isPrimitiveIntegerType.
+
+]
+
+{ #category : #tests }
 MbndAstSemanticAnalyzerTest >> testIdentityFunctionDefinition [
 	| arguments node analyzedNode body concreteMethod |
 	arguments := {
@@ -48,7 +102,7 @@ MbndAstSemanticAnalyzerTest >> testIdentityFunctionDefinition [
 	self assert: concreteMethod analyzedBody type isPrimitiveIntegerType.
 ]
 
-{ #category : #running }
+{ #category : #tests }
 MbndAstSemanticAnalyzerTest >> testIdentityFunctionPrototype [
 	| arguments node analyzedNode |
 	arguments := {
@@ -65,7 +119,22 @@ MbndAstSemanticAnalyzerTest >> testIdentityFunctionPrototype [
 
 ]
 
-{ #category : #running }
+{ #category : #tests }
+MbndAstSemanticAnalyzerTest >> testIdentityFunctionReference [
+	| node analyzedNode |
+	node := builder sequence: {
+		self identityFunctionDefinitionNode.
+		builder identifier: #identity
+	}.
+	
+	analyzedNode := visitor visitNode: node.
+	self assert: analyzedNode isSequenceNode.
+	self assert: analyzedNode type isReferenceType.
+	self assert: analyzedNode type baseType isFunctionType.
+
+]
+
+{ #category : #tests }
 MbndAstSemanticAnalyzerTest >> testIdentityMessageDefinition [
 	| arguments node analyzedNode body concreteMethod |
 	arguments := {
@@ -88,7 +157,7 @@ MbndAstSemanticAnalyzerTest >> testIdentityMessageDefinition [
 	self assert: concreteMethod analyzedBody type isPrimitiveIntegerType.
 ]
 
-{ #category : #running }
+{ #category : #tests }
 MbndAstSemanticAnalyzerTest >> testIdentityMessagePrototype [
 	| arguments node analyzedNode |
 	arguments := {
@@ -105,7 +174,23 @@ MbndAstSemanticAnalyzerTest >> testIdentityMessagePrototype [
 
 ]
 
-{ #category : #running }
+{ #category : #tests }
+MbndAstSemanticAnalyzerTest >> testIdentityMessageSend [
+	| node analyzedNode |
+	node := builder sequence: {
+		self identityMessageDefinitionNode.
+		builder unexpandedSend: (builder literalSymbol: #identity:) to: nil withArguments: { 
+			builder literalInteger: 5
+		}
+	}.
+	
+	analyzedNode := visitor visitNode: node.
+	self assert: analyzedNode isSequenceNode.
+	self assert: analyzedNode type isPrimitiveIntegerType.
+
+]
+
+{ #category : #tests }
 MbndAstSemanticAnalyzerTest >> testLetAutoMacroBuilderExpansion [
 	| node analyzedNode |
 	node := builder identifier: #let.
@@ -121,7 +206,7 @@ MbndAstSemanticAnalyzerTest >> testLetAutoMacroBuilderExpansion [
 
 ]
 
-{ #category : #running }
+{ #category : #tests }
 MbndAstSemanticAnalyzerTest >> testLetMacroBuilderExpansion [
 	| node analyzedNode |
 	node := builder identifier: #let.
@@ -135,7 +220,7 @@ MbndAstSemanticAnalyzerTest >> testLetMacroBuilderExpansion [
 	self assert: analyzedNode type equals: compilationTarget int32Type.
 ]
 
-{ #category : #running }
+{ #category : #tests }
 MbndAstSemanticAnalyzerTest >> testLetMutableAutoMacroBuilderExpansion [
 	| node analyzedNode |
 	node := builder identifier: #let.
@@ -153,7 +238,7 @@ MbndAstSemanticAnalyzerTest >> testLetMutableAutoMacroBuilderExpansion [
 
 ]
 
-{ #category : #running }
+{ #category : #tests }
 MbndAstSemanticAnalyzerTest >> testLetMutableMacroBuilderExpansion [
 	| node analyzedNode |
 	node := builder identifier: #let.
@@ -179,7 +264,7 @@ MbndAstSemanticAnalyzerTest >> testLiteral [
 	self assert: analyzedNode equals: literal
 ]
 
-{ #category : #running }
+{ #category : #tests }
 MbndAstSemanticAnalyzerTest >> testLocalVariableMutableDefaultInitialValue [
 	| node analyzedNode |
 	node := builder sequence: { 
@@ -196,7 +281,7 @@ MbndAstSemanticAnalyzerTest >> testLocalVariableMutableDefaultInitialValue [
 
 ]
 
-{ #category : #running }
+{ #category : #tests }
 MbndAstSemanticAnalyzerTest >> testLocalVariableMutableReference [
 	| node analyzedNode |
 	node := builder sequence: { 
@@ -213,12 +298,12 @@ MbndAstSemanticAnalyzerTest >> testLocalVariableMutableReference [
 
 ]
 
-{ #category : #running }
+{ #category : #tests }
 MbndAstSemanticAnalyzerTest >> testNew [
 	self assert: visitor scope equals: scope
 ]
 
-{ #category : #running }
+{ #category : #tests }
 MbndAstSemanticAnalyzerTest >> testReturnMacroExpansion [
 	| value node analyzedNode |
 	value := builder literalInteger: 42.
@@ -230,7 +315,7 @@ MbndAstSemanticAnalyzerTest >> testReturnMacroExpansion [
 	self assert: analyzedNode type isReturnType.
 ]
 
-{ #category : #running }
+{ #category : #tests }
 MbndAstSemanticAnalyzerTest >> testSequence [
 	| node analyzedNode |
 	node := builder sequence: { 
@@ -243,7 +328,7 @@ MbndAstSemanticAnalyzerTest >> testSequence [
 	self assert: analyzedNode type isLiteralFloatType.
 ]
 
-{ #category : #running }
+{ #category : #tests }
 MbndAstSemanticAnalyzerTest >> testSequenceWithReturn [
 	| node analyzedNode |
 	node := builder sequence: { 
@@ -257,7 +342,7 @@ MbndAstSemanticAnalyzerTest >> testSequenceWithReturn [
 	self assert: analyzedNode type isReturnType.
 ]
 
-{ #category : #running }
+{ #category : #tests }
 MbndAstSemanticAnalyzerTest >> testVariableReference [
 	| node analyzedNode |
 	node := builder sequence: { 
@@ -271,7 +356,7 @@ MbndAstSemanticAnalyzerTest >> testVariableReference [
 
 ]
 
-{ #category : #running }
+{ #category : #tests }
 MbndAstSemanticAnalyzerTest >> testZeroFunctionDefinition [
 	| node analyzedNode body concreteMethod |
 	body := builder literalInteger: 0.

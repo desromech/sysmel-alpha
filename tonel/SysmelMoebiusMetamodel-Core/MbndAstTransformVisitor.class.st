@@ -159,6 +159,11 @@ MbndAstTransformVisitor >> visitMetaBuilderInstanceNode: node [
 ]
 
 { #category : #visiting }
+MbndAstTransformVisitor >> visitMethodReferenceNode: node [
+	^ node
+]
+
+{ #category : #visiting }
 MbndAstTransformVisitor >> visitPragmaNode: node [
 	^ node copy
 		selector: (node selector);

@@ -114,6 +114,11 @@ MbndAstVisitor >> visitMetaBuilderInstanceNode: node [
 	self subclassResponsibility
 ]
 
+{ #category : #visiting }
+MbndAstVisitor >> visitMethodReferenceNode: node [
+	self subclassResponsibility
+]
+
 { #category : #'visitor utilties' }
 MbndAstVisitor >> visitNode: node [
 	^ node accept: self

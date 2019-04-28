@@ -9,6 +9,11 @@ MbndFunctionalType class >> typeName [
 	^ #_FunctionalType
 ]
 
+{ #category : #'as yet unclassified' }
+MbndFunctionalType >> analyzeFunctionCallNode: node with: analyzer [
+	self subclassResponsibility
+]
+
 { #category : #initialization }
 MbndFunctionalType >> initialize [
 	super initialize.

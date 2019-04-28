@@ -6,7 +6,7 @@ Trait {
 }
 
 { #category : #'semantic analysis' }
-TMbndMethod >> analyzeExpandedMessageNode: node with: analyzer [
+TMbndMethod >> analyzeExpandedMessageSendNode: node with: analyzer [
 	self explicitRequirement
 ]
 

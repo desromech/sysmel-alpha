@@ -150,6 +150,12 @@ MbndAstNode >> isMetaBuilderInstanceNode [
 ]
 
 { #category : #testing }
+MbndAstNode >> isMethodReferenceNode [
+	^ false
+
+]
+
+{ #category : #testing }
 MbndAstNode >> isPragmaNode [
 	^ false
 ]

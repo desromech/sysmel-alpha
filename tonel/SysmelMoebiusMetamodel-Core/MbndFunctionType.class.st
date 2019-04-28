@@ -14,6 +14,21 @@ MbndFunctionType class >> typeName [
 	^ #_FunctionType
 ]
 
+{ #category : #'as yet unclassified' }
+MbndFunctionType >> analyzeFunctionCallNode: node with: analyzer [
+	node arguments size ~= argumentTypes size ifTrue: [ 
+		self error: 'Mismatching number of arguments for function call. Expected {1} arguments.'
+			format: { node arguments size asString } at: node
+	].
+
+	node arguments: (node arguments collectWithIndex: [:arg :index |
+		analyzer addImplicitCastFor: arg to: (argumentTypes at: index)
+	]).
+
+	node type: returnType.
+	^ node
+]
+
 { #category : #accessing }
 MbndFunctionType >> argumentTypes [
 	^ argumentTypes
