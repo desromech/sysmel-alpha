@@ -33,6 +33,11 @@ MbndValue >> asLiteralValueNode [
 		yourself
 ]
 
+{ #category : #converting }
+MbndValue >> asMoebiusLiteralValueNodeWithTarget: compilationTarget [
+	^ self asLiteralValueNode
+]
+
 { #category : #printing }
 MbndValue >> printOn: aStream [
 	aStream nextPut: $(; print: type; nextPut: $); print: value

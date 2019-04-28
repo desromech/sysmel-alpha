@@ -5,7 +5,8 @@ Trait {
 		'basicTypes',
 		'pointerTypes',
 		'referenceTypes',
-		'functionTypes'
+		'functionTypes',
+		'decoratedTypes'
 	],
 	#category : #'SysmelMoebiusMetamodel-Core-CompilationTarget'
 }
@@ -49,6 +50,11 @@ TMbndCoreCompilationTarget >> addBasicType: basicType [
 { #category : #'convenience type accessors' }
 TMbndCoreCompilationTarget >> booleanType [
 	^ self getBasicTypeNamed: #BooleanBit
+]
+
+{ #category : #'convenience type accessors' }
+TMbndCoreCompilationTarget >> compilerObjectType [
+	^ self getBasicTypeNamed: MbndCompilerObjectType typeName
 ]
 
 { #category : #accessing }
@@ -176,6 +182,7 @@ TMbndCoreCompilationTarget >> initializeDerivedTypeCaches [
 	pointerTypes := WeakValueDictionary new.
 	referenceTypes := WeakValueDictionary new.
 	functionTypes := WeakValueDictionary new.
+	decoratedTypes := WeakValueDictionary new.
 ]
 
 { #category : #'basic types' }
@@ -208,6 +215,16 @@ TMbndCoreCompilationTarget >> int64Type [
 { #category : #'convenience type accessors' }
 TMbndCoreCompilationTarget >> int8Type [
 	^ self getBasicTypeNamed: #Int8
+]
+
+{ #category : #'platform testing' }
+TMbndCoreCompilationTarget >> isUnix [
+	^ false
+]
+
+{ #category : #'platform testing' }
+TMbndCoreCompilationTarget >> isWin32 [
+	^ false
 ]
 
 { #category : #'basic types' }
@@ -292,6 +309,11 @@ TMbndCoreCompilationTarget >> metaBuilderInstanceType [
 ]
 
 { #category : #'convenience type accessors' }
+TMbndCoreCompilationTarget >> namespaceType [
+	^ self getBasicTypeNamed: MbndNamespaceType typeName
+]
+
+{ #category : #'convenience type accessors' }
 TMbndCoreCompilationTarget >> opaqueType [
 	^ self getBasicTypeNamed: MbndOpaqueType typeName
 ]
@@ -342,6 +364,20 @@ TMbndCoreCompilationTarget >> returnType [
 { #category : #'convenience type accessors' }
 TMbndCoreCompilationTarget >> simpleMetaType [
 	^ self getBasicTypeNamed: MbndSimpleMetaType typeName
+]
+
+{ #category : #'derived types' }
+TMbndCoreCompilationTarget >> type: baseType withDecorations: decorations [
+	^ decoratedTypes at: { baseType . decorations } ifAbsentPut: [
+		| result |
+		result := MbndDecoratedType new
+			name: nil;
+			baseType: baseType;
+			decorations: decorations;
+			yourself.
+		self ensureBasicTypeIsLinkedToTheHierarchy: result.
+		result
+	]
 ]
 
 { #category : #'convenience type accessors' }

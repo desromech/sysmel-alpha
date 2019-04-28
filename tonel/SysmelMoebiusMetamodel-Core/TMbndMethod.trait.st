@@ -26,6 +26,11 @@ TMbndMethod >> evaluateWithReceiver: receiver arguments: arguments withEvaluator
 ]
 
 { #category : #testing }
+TMbndMethod >> isMethod [
+	^ true
+]
+
+{ #category : #testing }
 TMbndMethod >> isMethodGroup [
 	^ false
 ]

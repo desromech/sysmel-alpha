@@ -81,8 +81,19 @@ TMbndAbstractType >> asLiteralValueNode [
 ]
 
 { #category : #'semantic analysis' }
+TMbndAbstractType >> asMoebiusLiteralValueNodeWithTarget: compilationTarget [
+	^ self asLiteralValueNode
+]
+
+{ #category : #'semantic analysis' }
 TMbndAbstractType >> bestConcreteTypeForLiteralValueNode: literalValueNode inScope: scope [
 	^ self
+]
+
+{ #category : #'type composition' }
+TMbndAbstractType >> const [
+	<compileTime>
+	^ self withDecoration: #const
 ]
 
 { #category : #casting }
@@ -141,6 +152,11 @@ TMbndAbstractType >> isAggregateType [
 
 { #category : #'testing methods' }
 TMbndAbstractType >> isArrayType [
+	^ false
+]
+
+{ #category : #'testing methods' }
+TMbndAbstractType >> isCompilerObjectType [
 	^ false
 ]
 
@@ -226,6 +242,11 @@ TMbndAbstractType >> isMetaBuilderInstanceType [
 
 { #category : #'testing methods' }
 TMbndAbstractType >> isMetaType [
+	^ false
+]
+
+{ #category : #'testing methods' }
+TMbndAbstractType >> isNamespaceType [
 	^ false
 ]
 
@@ -316,21 +337,25 @@ TMbndAbstractType >> lookupSelector: aSelector [
 
 { #category : #'type composition' }
 TMbndAbstractType >> pointer [
+	<compileTime>
 	^ self compilationTarget pointerTo: self
 ]
 
 { #category : #'type composition' }
 TMbndAbstractType >> pointerFor: addressSpace [
+	<compileTime>
 	^ self compilationTarget pointerFor: addressSpace to: self
 ]
 
 { #category : #'type composition' }
 TMbndAbstractType >> ref [
+	<compileTime>
 	^ self compilationTarget referenceTo: self
 ]
 
 { #category : #'type composition' }
 TMbndAbstractType >> refFor: addressSpace [
+	<compileTime>
 	^ self compilationTarget referenceFor: addressSpace to: self
 ]
 
@@ -374,6 +399,12 @@ TMbndAbstractType >> valueSize [
 	^ self instanceSize
 ]
 
+{ #category : #'type composition' }
+TMbndAbstractType >> volatile [
+	<compileTime>
+	^ self withDecoration: #volatile
+]
+
 { #category : #'type hierarchy' }
 TMbndAbstractType >> withAllSubtypes [
 	| result |
@@ -386,6 +417,12 @@ TMbndAbstractType >> withAllSubtypes [
 TMbndAbstractType >> withAllSubtypesDo: aBlock [
 	aBlock value: self.
 	self allSubtypesDo: aBlock
+]
+
+{ #category : #'type composition' }
+TMbndAbstractType >> withDecoration: decoration [
+	<compileTime>
+	^ self compilationTarget type: self withDecorations: {decoration}
 ]
 
 { #category : #'type hierarchy' }

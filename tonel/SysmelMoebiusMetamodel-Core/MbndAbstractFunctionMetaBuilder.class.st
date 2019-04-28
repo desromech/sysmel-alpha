@@ -64,6 +64,7 @@ MbndAbstractFunctionMetaBuilder >> ensureFunctionPrototype [
 	functionPrototype ifNotNil: [ ^ self ].
 	functionPrototype := MbndAstFunctionPrototypeNode new
 		position: position;
+		flags: flags;
 		name: name;
 		arguments: functionArguments;
 		returnType: returnTypeNode;

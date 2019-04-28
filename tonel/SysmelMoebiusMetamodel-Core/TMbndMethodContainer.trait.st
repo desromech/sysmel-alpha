@@ -20,17 +20,22 @@ TMbndMethodContainer >> addOverloadedMethod: method [
 
 { #category : #methods }
 TMbndMethodContainer >> lookupLocalOverloadedSelector: aSelector [
+	^ self overloadedMethodDict at: aSelector ifAbsent: [ nil ].
+]
+
+{ #category : #methods }
+TMbndMethodContainer >> lookupLocalSelector: aSelector [
 	^ self methodDict at: aSelector ifAbsent: [ nil ].
 ]
 
 { #category : #methods }
 TMbndMethodContainer >> lookupOverloadedSelector: aSelector [
-	^ self overloadedMethodDict at: aSelector ifAbsent: [ nil ].
+	^ self lookupLocalOverloadedSelector: aSelector
 ]
 
 { #category : #methods }
 TMbndMethodContainer >> lookupSelector: aSelector [
-	^ self methodDict at: aSelector ifAbsent: [ nil ].
+	^ self lookupLocalSelector: aSelector
 ]
 
 { #category : #accessing }

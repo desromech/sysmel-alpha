@@ -9,7 +9,7 @@ Class {
 
 { #category : #'as yet unclassified' }
 MbndLiteralHostDelegation >> expandMessageNode: node with: analyzer [
-	| receiver arguments result resultType |
+	| receiver arguments result |
 	self assert: node receiver isLiteralValueNode.
 	
 	"Make sure the arguments are also a literal."
@@ -26,10 +26,7 @@ MbndLiteralHostDelegation >> expandMessageNode: node with: analyzer [
 	
 	"Compute the result."
 	result := receiver perform: node selector value withArguments: arguments.
-	resultType := result mbndLiteralTypeWithTarget: analyzer compilationTarget.
-	^ MbndAstLiteralValueNode new
+	^ (result asMoebiusLiteralValueNodeWithTarget: analyzer compilationTarget)
 		position: node;
-		value: result;
-		type: resultType;
 		yourself
 ]

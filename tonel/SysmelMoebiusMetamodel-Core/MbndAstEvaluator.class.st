@@ -74,6 +74,13 @@ MbndAstEvaluator >> visitFunctionPrototypeNode: node [
 ]
 
 { #category : #visiting }
+MbndAstEvaluator >> visitLexicalScopeNode: node [
+	^ self withScope: scope newLexicalScope do: [
+		self visitNode: node expression
+	]
+]
+
+{ #category : #visiting }
 MbndAstEvaluator >> visitLiteralValueNode: node [
 	^ node evaluateMbndValue
 ]
@@ -136,4 +143,15 @@ MbndAstEvaluator >> visitUnexpandedMessageSendNode: node [
 MbndAstEvaluator >> visitVariableReferenceNode: node [
 	self assert: node binding isNotNil.
 	^ node binding asCompileTimeValueReferenceOfType: node type withEvaluator: self at: node
+]
+
+{ #category : #visiting }
+MbndAstEvaluator >> withScope: newEvaluationScope do: aBlock [
+	| oldEvaluationScope |
+	oldEvaluationScope := scope.
+	scope := newEvaluationScope.
+	
+	^ aBlock ensure: [ 
+		scope := oldEvaluationScope
+	]
 ]

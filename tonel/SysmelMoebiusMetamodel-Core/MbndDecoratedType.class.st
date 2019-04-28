@@ -17,6 +17,11 @@ MbndDecoratedType >> decorations [
 	^ decorations
 ]
 
+{ #category : #accessing }
+MbndDecoratedType >> decorations: anObject [
+	decorations := anObject
+]
+
 { #category : #initialization }
 MbndDecoratedType >> initialize [
 	super initialize.

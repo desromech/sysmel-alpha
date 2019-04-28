@@ -38,6 +38,11 @@ MbndAstDelegationVisitor >> visitCasesOfNode: node [
 ]
 
 { #category : #visiting }
+MbndAstDelegationVisitor >> visitCompileTimeConstantDefinitionNode: node [
+	^ self delegateNodeVisit: node
+]
+
+{ #category : #visiting }
 MbndAstDelegationVisitor >> visitContinueStatementNode: node [
 	^ self delegateNodeVisit: node
 ]
@@ -119,6 +124,11 @@ MbndAstDelegationVisitor >> visitMetaBuilderInstanceNode: node [
 
 { #category : #visiting }
 MbndAstDelegationVisitor >> visitMethodReferenceNode: node [
+	^ self delegateNodeVisit: node
+]
+
+{ #category : #visiting }
+MbndAstDelegationVisitor >> visitNamespaceDefinitionNode: node [
 	^ self delegateNodeVisit: node
 ]
 

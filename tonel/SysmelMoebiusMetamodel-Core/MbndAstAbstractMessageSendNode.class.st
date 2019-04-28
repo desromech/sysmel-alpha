@@ -39,6 +39,20 @@ MbndAstAbstractMessageSendNode >> asUnexpandedMessageSend [
 		yourself
 ]
 
+{ #category : #testing }
+MbndAstAbstractMessageSendNode >> hasOnlyLiterals [
+	receiver ifNotNil: [ 
+		receiver isLiteralValueNode ifFalse: [ ^ false ]
+	].
+
+	arguments do: [ :arg |
+		arg isLiteralValueNode ifFalse: [ ^ false ]
+	].
+
+	^ true
+	
+]
+
 { #category : #parsing }
 MbndAstAbstractMessageSendNode >> parseAsArgumentDefinition [
 	| argumentName |

@@ -5,6 +5,11 @@ Trait {
 	#category : #'SysmelMoebiusMetamodel-Core-ProgramEntity'
 }
 
+{ #category : #testing }
+TMbndNamespace >> isNamespace [
+	^ true
+]
+
 { #category : #scope }
 TMbndNamespace >> programEntityScopeClass [
 	^ MbndNamespaceScope

@@ -63,6 +63,13 @@ MbndAstSemanticAnalyzer >> compilationTarget [
 	^ compilationTarget ifNil: [ compilationTarget := module compilationTarget ]
 ]
 
+{ #category : #'implicit casting' }
+MbndAstSemanticAnalyzer >> ensureLiteralIsConcreted: node [
+	node type isLiteralValueType ifFalse: [ ^ node ].
+	self assert: node isLiteralValueNode.
+	^ self addImplicitCastFor: node to: (node type bestConcreteTypeForLiteralValueNode: node inScope: scope)
+]
+
 { #category : #errors }
 MbndAstSemanticAnalyzer >> error: anErrorString at: aSourcePosition [
 	<compileTime>
@@ -145,6 +152,31 @@ MbndAstSemanticAnalyzer >> visitArgumentDefinitionNode: node [
 
 	^ result
 
+]
+
+{ #category : #visiting }
+MbndAstSemanticAnalyzer >> visitCompileTimeConstantDefinitionNode: node [
+	| aliasName owner alias |
+	aliasName := node name.
+	aliasName isMbndAnonymousSymbol ifTrue: [ 
+		self error: 'Anonymous aliases are not supported, yet.' at: node
+	].
+	
+	owner := scope lookupProgramEntityForNewDefinitions.
+	(owner lookupLocalSymbol: aliasName) ifNotNil: [ :previousDefintion |
+		self error: 'Alias {1} definition overrides previous definition {2}.'
+			format: {aliasName asPrettySymbolName . previousDefintion} at: node
+	].
+
+	alias := MbndCompileTimeConstant new
+		name: aliasName;
+		parent: owner;
+		valueNode: node value;
+		valueScope: scope;
+		yourself.
+	owner setLocalSymbol: aliasName value: alias.
+
+	^ self astBuilder literalVoid
 ]
 
 { #category : #visiting }
@@ -253,6 +285,54 @@ MbndAstSemanticAnalyzer >> visitIdentifierReferenceNode: node [
 	].
 
 	^ binding analyzeReferenceNode: node with: self
+]
+
+{ #category : #visiting }
+MbndAstSemanticAnalyzer >> visitIfConditionNode: node [
+	| result |
+	result := node copy.
+	result condition: (self visitNode: result condition).
+
+	result condition isLiteralValueNode ifTrue: [
+		result condition type isLiteralBooleanTrueType ifTrue: [
+			^ result trueValue
+				ifNotNil: [ :child | self visitNode: child ]
+				ifNil: [ self astBuilder literalUndefined ]
+		].
+	
+		result condition type isLiteralBooleanFalseType ifTrue: [
+			^ result falseValue
+				ifNotNil: [ :child | self visitNode: child ]
+				ifNil: [ self astBuilder literalUndefined ]
+		].
+	].
+	
+	result trueValue ifNil: [
+		result trueValue: self astBuilder literalUndefined
+	].
+
+	result falseValue ifNil: [
+		result falseValue: self astBuilder literalUndefined
+	].
+
+	self halt
+]
+
+{ #category : #visiting }
+MbndAstSemanticAnalyzer >> visitLexicalScopeNode: node [
+	| result analyzedContent |
+	result := node copy.
+	
+	self withScope: scope newLexicalScope do: [
+		analyzedContent := self visitNode: result expression.
+		analyzedContent isLiteralValueNode ifTrue: [ ^ analyzedContent ].
+		
+		result
+			expression: analyzedContent;
+			type: analyzedContent type.
+	].
+
+	^ result
 ]
 
 { #category : #visiting }
@@ -365,6 +445,25 @@ MbndAstSemanticAnalyzer >> visitMessagePrototypeNode: node [
 ]
 
 { #category : #visiting }
+MbndAstSemanticAnalyzer >> visitNamespaceDefinitionNode: node [
+	| namespaceName owner namespace |
+	namespaceName := node name.
+	namespaceName isMbndAnonymousSymbol ifTrue: [ 
+		self error: 'Anonymous namespace are not supported, yet.' at: node
+	].
+	
+	owner := scope lookupProgramEntityForNewDefinitions.
+	namespace := owner ensureSymbolIsNamespace: namespaceName at: node.
+	self assert: namespace isNotNil.
+	
+	self withScope: (namespace programEntityScope parent: scope) newLexicalScope do: [ 
+		self visitNode: node body
+	].
+
+	^ self astBuilder literalVoid
+]
+
+{ #category : #visiting }
 MbndAstSemanticAnalyzer >> visitNode: node [
 	^ (node accept: self) concretizeNodeWithAnalyzer: self
 ]
@@ -395,12 +494,16 @@ MbndAstSemanticAnalyzer >> visitSequenceNode: node [
 	result elements ifEmpty: [
 		result type: self compilationTarget voidType
 	] ifNotEmpty: [
+		"Remove sequences with a single element."
+		result elements size = 1 ifTrue: [ ^ result elements first ].
+		
 		"If there is an explicit return, cut the analyzer elements."
 		explicitReturnIndex := result elements detectIndex: [ :el | el type isReturnType ] ifNone: [ result elements size + 1 ].
 		explicitReturnIndex < result elements size ifTrue: [ 
 			result elements: (result elements first: explicitReturnIndex).
 		].
 	
+		result elements at: result elements size put: (self ensureLiteralIsConcreted: result elements last).
 		result type: result elements last type
 	].
 	^ result
@@ -430,4 +533,15 @@ MbndAstSemanticAnalyzer >> visitUnexpandedMessageSendNode: node [
 
 	"Apply the macro method."
 	^ macroMethod expandMessageNode: result with: self
+]
+
+{ #category : #accessing }
+MbndAstSemanticAnalyzer >> withScope: newAnalysisScope do: aBlock [
+	| oldAnalysisScope |
+	oldAnalysisScope := scope.
+	scope := newAnalysisScope.
+	
+	^ aBlock ensure: [ 
+		scope := oldAnalysisScope
+	]
 ]

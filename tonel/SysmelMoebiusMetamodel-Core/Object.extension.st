@@ -1,6 +1,14 @@
 Extension { #name : #Object }
 
 { #category : #'*SysmelMoebiusMetamodel-Core' }
+Object >> asMoebiusLiteralValueNodeWithTarget: compilationTarget [
+	^ MbndAstLiteralValueNode new
+		value: self;
+		type: (self mbndLiteralTypeWithTarget: compilationTarget);
+		yourself
+]
+
+{ #category : #'*SysmelMoebiusMetamodel-Core' }
 Object >> isMbndAnonymousSymbol [
 	^ false
 ]
@@ -22,7 +30,7 @@ Object >> isMbndType [
 
 { #category : #'*SysmelMoebiusMetamodel-Core' }
 Object >> mbndLiteralTypeWithTarget: compilationTarget [
-	self subclassResponsibility
+	^ compilationTarget compilerObjectType
 ]
 
 { #category : #'*SysmelMoebiusMetamodel-Core' }

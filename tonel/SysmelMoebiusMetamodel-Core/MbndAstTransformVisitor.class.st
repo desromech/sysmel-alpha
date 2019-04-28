@@ -43,6 +43,13 @@ MbndAstTransformVisitor >> visitCasesOfNode: node [
 ]
 
 { #category : #visiting }
+MbndAstTransformVisitor >> visitCompileTimeConstantDefinitionNode: node [
+	^ node copy
+		value: (self visitNode: node value);
+		yourself
+]
+
+{ #category : #visiting }
 MbndAstTransformVisitor >> visitContinueStatementNode: node [
 	^ node
 ]
@@ -161,6 +168,13 @@ MbndAstTransformVisitor >> visitMetaBuilderInstanceNode: node [
 { #category : #visiting }
 MbndAstTransformVisitor >> visitMethodReferenceNode: node [
 	^ node
+]
+
+{ #category : #visiting }
+MbndAstTransformVisitor >> visitNamespaceDefinitionNode: node [
+	^ node copy
+		body: (self visitNode: node body);
+		yourself
 ]
 
 { #category : #visiting }

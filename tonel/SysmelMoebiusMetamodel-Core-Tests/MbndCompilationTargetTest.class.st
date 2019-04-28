@@ -27,6 +27,12 @@ MbndCompilationTargetTest >> testBooleanType [
 ]
 
 { #category : #tests }
+MbndCompilationTargetTest >> testCompilerObjectType [
+	self assert: compilationTarget compilerObjectType isOpaqueType.
+	self assert: compilationTarget compilerObjectType isCompilerObjectType.
+]
+
+{ #category : #tests }
 MbndCompilationTargetTest >> testFloat16Type [
 	| type |
 	type := compilationTarget float16Type.

@@ -79,6 +79,19 @@ MbndAstTransformVisitorTest >> testCasesOfNode [
 ]
 
 { #category : #tests }
+MbndAstTransformVisitorTest >> testCompileTimeConstantDefinition [
+	| node transformedNode value |
+	value := builder identifier: #Int32.
+	node := builder alias: #Int definition: value.
+	transformedNode := visitor visitNode: node.
+	self assert: transformedNode ~~ node.
+	self assert: transformedNode isCompileTimeConstantDefinitionNode.
+	self assert: transformedNode name equals: #Int.
+	self assert: transformedNode value equals: value.
+
+]
+
+{ #category : #tests }
 MbndAstTransformVisitorTest >> testContinueStatement [
 	| node transformedNode |
 	node := builder continueStatement.
@@ -314,6 +327,19 @@ MbndAstTransformVisitorTest >> testMetaBuilderInstanceNode [
 	node := MbndAstMetaBuilderInstanceNode new instance: 42.
 	transformedNode := visitor visitNode: node.
 	self assert: transformedNode == node.
+]
+
+{ #category : #tests }
+MbndAstTransformVisitorTest >> testNamespaceDefinition [
+	| node transformedNode body |
+	body := builder literalInteger: 42.
+	node := builder namespace: #HelloNamespace definition: body.
+	transformedNode := visitor visitNode: node.
+	self assert: transformedNode ~~ node.
+	self assert: transformedNode isNamespaceDefinitionNode.
+	self assert: transformedNode name equals: #HelloNamespace.
+	self assert: transformedNode body equals: body.
+
 ]
 
 { #category : #tests }

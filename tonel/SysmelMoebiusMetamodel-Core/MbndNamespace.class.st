@@ -4,16 +4,24 @@ Class {
 	#traits : 'TMbndNamespaceLikeSymbolContainer',
 	#classTraits : 'TMbndNamespaceLikeSymbolContainer classTrait',
 	#instVars : [
+		'parent',
 		'name',
 		'module'
 	],
 	#category : #'SysmelMoebiusMetamodel-Core-ProgramEntity'
 }
 
-{ #category : #'member symbols' }
-MbndNamespace >> lookupSymbol: aSymbol [
-	methodDict ifNil: [ ^ nil ].
-	^ methodDict at: aSymbol ifAbsent: [ nil ]
+{ #category : #'semantic analysis' }
+MbndNamespace >> analyzeReferenceNode: referenceNode with: analyzer [
+	^ self asLiteralValueNode
+]
+
+{ #category : #'semantic analysis' }
+MbndNamespace >> asLiteralValueNode [
+	^ MbndAstLiteralValueNode new
+		value: self;
+		type: self type;
+		yourself
 ]
 
 { #category : #accessing }
@@ -34,4 +42,19 @@ MbndNamespace >> name [
 { #category : #accessing }
 MbndNamespace >> name: anObject [
 	name := anObject
+]
+
+{ #category : #accessing }
+MbndNamespace >> parent [
+	^ parent
+]
+
+{ #category : #accessing }
+MbndNamespace >> parent: anObject [
+	parent := anObject
+]
+
+{ #category : #'semantic analysis' }
+MbndNamespace >> type [
+	^ self compilationTarget namespaceType
 ]

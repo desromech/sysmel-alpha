@@ -28,6 +28,28 @@ TMbndAbstractSymbolContainer >> createFunctionEntityForPrototype: functionProtot
 	^ method
 ]
 
+{ #category : #'member symbols' }
+TMbndAbstractSymbolContainer >> ensureSymbolIsNamespace: namespaceName at: position [
+	| namespace |
+	(self lookupLocalSymbol: namespaceName) ifNil: [
+		namespace := MbndNamespace new
+			parent: self;
+			name: namespaceName;
+			module: self module;
+			yourself.
+		self setLocalSymbol: namespaceName value: namespace.
+	] ifNotNil: [ :previousDefinition |
+		previousDefinition isNamespace ifFalse: [
+			self error: 'Cannot create namespace with name {1} because it overrides previously defined symbol {2}.'
+				format: { namespaceName asPrettySymbolName . previousDefinition } at: position
+		].
+	
+		namespace := previousDefinition
+	].
+
+	^ namespace
+]
+
 { #category : #'overloaded methods' }
 TMbndAbstractSymbolContainer >> findOrAddOverloadedFunctionPrototype: functionPrototype [
 	| localSymbolDefinition |

@@ -10,6 +10,26 @@ TMbndProgramEntity >> compilationTarget [
 	^ self module compilationTarget
 ]
 
+{ #category : #testing }
+TMbndProgramEntity >> isCompileTimeConstant [
+	^ false
+]
+
+{ #category : #testing }
+TMbndProgramEntity >> isMethod [
+	^ false
+]
+
+{ #category : #testing }
+TMbndProgramEntity >> isNamespace [
+	^ false
+]
+
+{ #category : #testing }
+TMbndProgramEntity >> isVariable [
+	^ false
+]
+
 { #category : #accessing }
 TMbndProgramEntity >> module [
 	self explicitRequirement
@@ -18,6 +38,11 @@ TMbndProgramEntity >> module [
 { #category : #accessing }
 TMbndProgramEntity >> name [
 	^ self explicitRequirement
+]
+
+{ #category : #accessing }
+TMbndProgramEntity >> parent [
+	^ nil
 ]
 
 { #category : #scope }

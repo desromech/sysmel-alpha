@@ -19,3 +19,8 @@ MbndDummyModuleTest >> setUp [
 MbndDummyModuleTest >> testCompilationTarget [
 	self assert: module compilationTarget isNotNil
 ]
+
+{ #category : #running }
+MbndDummyModuleTest >> testCompilerLookup [
+	self assert: (module lookupSymbol: #Compiler) equals: module
+]

@@ -5,6 +5,11 @@ Trait {
 	#category : #'SysmelMoebiusMetamodel-Core-Variables'
 }
 
+{ #category : #testing }
+TMbndVariable >> isVariable [
+	^ true
+]
+
 { #category : #accessing }
 TMbndVariable >> name [
 	self explicitRequirement

@@ -68,6 +68,7 @@ MbndAstNodeTest >> testTestingMethods [
 	
 	self deny: 1 isMbndAstNode.
 	self assert: node isMbndAstNode.
+	self deny: node isCompileTimeConstantDefinitionNode.
 	self deny: node isArgumentDefinitionNode.
 	self deny: node isBreakStatementNode.
 	self deny: node isBoundIdentifierReferenceNode.
@@ -88,6 +89,7 @@ MbndAstNodeTest >> testTestingMethods [
 	self deny: node isLiteralValueNode.
 	self deny: node isLiteralSymbolValueNode.
 	self deny: node isLocalVariableDefinitionNode.
+	self deny: node isNamespaceDefinitionNode.
 	self deny: node isMetaBuilderInstanceNode.
 	self deny: node isMessageChainNode.
 	self deny: node isMessageChainMessageNode.

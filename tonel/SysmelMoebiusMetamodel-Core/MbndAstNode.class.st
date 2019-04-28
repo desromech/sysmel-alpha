@@ -60,6 +60,11 @@ MbndAstNode >> isCasesOfNode [
 ]
 
 { #category : #testing }
+MbndAstNode >> isCompileTimeConstantDefinitionNode [
+	^ false
+]
+
+{ #category : #testing }
 MbndAstNode >> isContinueStatementNode [
 	^ false
 ]
@@ -153,6 +158,11 @@ MbndAstNode >> isMetaBuilderInstanceNode [
 MbndAstNode >> isMethodReferenceNode [
 	^ false
 
+]
+
+{ #category : #testing }
+MbndAstNode >> isNamespaceDefinitionNode [
+	^ false
 ]
 
 { #category : #testing }

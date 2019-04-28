@@ -12,6 +12,14 @@ MbndAstBuilder class >> forModule: aModule [
 	^ self new module: aModule; yourself
 ]
 
+{ #category : #'builder methods' }
+MbndAstBuilder >> alias: name definition: value [
+	^ MbndAstCompileTimeConstantDefinitionNode new
+		name: name;
+		value: value;
+		yourself
+]
+
 { #category : #'as yet unclassified' }
 MbndAstBuilder >> argument: name type: valueType [
 	^ MbndAstArgumentDefinitionNode new
@@ -226,6 +234,14 @@ MbndAstBuilder >> module [
 { #category : #accessing }
 MbndAstBuilder >> module: aModule [
 	module := aModule
+]
+
+{ #category : #'builder methods' }
+MbndAstBuilder >> namespace: name definition: body [
+	^ MbndAstNamespaceDefinitionNode new
+		name: name;
+		body: body;
+		yourself
 ]
 
 { #category : #'builder methods' }

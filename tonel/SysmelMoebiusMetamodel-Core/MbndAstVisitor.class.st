@@ -35,6 +35,11 @@ MbndAstVisitor >> visitCasesOfNode: node [
 ]
 
 { #category : #visiting }
+MbndAstVisitor >> visitCompileTimeConstantDefinitionNode: node [
+	self subclassResponsibility
+]
+
+{ #category : #visiting }
 MbndAstVisitor >> visitContinueStatementNode: node [
 	self subclassResponsibility
 ]
@@ -119,6 +124,11 @@ MbndAstVisitor >> visitMethodReferenceNode: node [
 	self subclassResponsibility
 ]
 
+{ #category : #visiting }
+MbndAstVisitor >> visitNamespaceDefinitionNode: node [
+	self subclassResponsibility
+]
+
 { #category : #'visitor utilties' }
 MbndAstVisitor >> visitNode: node [
 	^ node accept: self
@@ -131,7 +141,7 @@ MbndAstVisitor >> visitNodes: nodes [
 
 { #category : #'visitor utilties' }
 MbndAstVisitor >> visitNodesAndCollect: nodes [
-	^ nodes collect: [ :node | node accept: self ]
+	^ nodes collect: [ :node | self visitNode: node ]
 ]
 
 { #category : #visiting }

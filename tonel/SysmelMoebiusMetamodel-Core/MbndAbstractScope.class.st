@@ -88,3 +88,10 @@ MbndAbstractScope >> returnContextScope [
 MbndAbstractScope >> returnType [
 	^ parent ifNotNil: #returnType
 ]
+
+{ #category : #'as yet unclassified' }
+MbndAbstractScope >> workingDirectory [
+	^ parent
+		ifNil: [ FileSystem workingDirectory ]
+		ifNotNil: [ parent workingDirectory ]
+]

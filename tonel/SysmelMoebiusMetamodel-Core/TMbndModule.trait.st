@@ -1,7 +1,8 @@
 Trait {
 	#name : #TMbndModule,
 	#instVars : [
-		'globalNamespace'
+		'globalNamespace',
+		'evaluatedFileSet'
 	],
 	#traits : 'TMbndProgramEntity',
 	#classTraits : 'TMbndProgramEntity classTrait',
@@ -29,12 +30,43 @@ TMbndModule >> analyzeAndEvaluateAST: ast inScope: scope [
 
 { #category : #evaluation }
 TMbndModule >> analyzeAndEvaluateParsedSource: parsedSource [
-	^ self analyzeAndEvaluateAST: parsedSource ast inScope: (self newSourceEvaluationScopeForLanguage: parsedSource language)
+	^ self analyzeAndEvaluateParsedSource: parsedSource withWorkingDirectory: nil
+]
+
+{ #category : #evaluation }
+TMbndModule >> analyzeAndEvaluateParsedSource: parsedSource withWorkingDirectory: workingDirectory [
+	^ self analyzeAndEvaluateAST: parsedSource ast inScope: (self newSourceEvaluationScopeForLanguage: parsedSource language withWorkingDirectory: workingDirectory)
+]
+
+{ #category : #'semantic analysis' }
+TMbndModule >> analyzeReferenceNode: referenceNode with: analyzer [
+	^ (self asMoebiusLiteralValueNodeWithTarget: self compilationTarget)
+		position: referenceNode;
+		yourself
 ]
 
 { #category : #accessing }
 TMbndModule >> compilationTarget [
 	self explicitRequirement
+]
+
+{ #category : #evaluation }
+TMbndModule >> evaluateFileNamed: fileName [
+	| parsedSource fileReference |
+	fileReference := fileName asFileReference.
+	parsedSource := self parseFileNamed: fileReference.
+	^ self analyzeAndEvaluateParsedSource: parsedSource	withWorkingDirectory: fileReference parent
+]
+
+{ #category : #evaluation }
+TMbndModule >> evaluateFileNamedOnce: fileName [
+	| fileReference parsedSource |
+	fileReference := fileName asFileReference asAbsolute.
+	(self evaluatedFileSet includes: fileReference) ifTrue: [ ^ self ].
+	
+	self evaluatedFileSet add: fileReference.
+	parsedSource := self parseFileNamed: fileReference.
+	self analyzeAndEvaluateParsedSource: parsedSource	 withWorkingDirectory: fileReference parent
 ]
 
 { #category : #evaluation }
@@ -44,6 +76,11 @@ TMbndModule >> evaluateLanguage: languageName source: sourceString [
 	^ self analyzeAndEvaluateParsedSource: parsedSource
 ]
 
+{ #category : #evaluation }
+TMbndModule >> evaluatedFileSet [
+	^ evaluatedFileSet ifNil: [ evaluatedFileSet := Set new ]
+]
+
 { #category : #accessing }
 TMbndModule >> globalNamespace [
 	^ globalNamespace ifNil: [ globalNamespace := MbndNamespace new
@@ -51,6 +88,12 @@ TMbndModule >> globalNamespace [
 			module: self;
 			yourself
 	]
+]
+
+{ #category : #'member symbols' }
+TMbndModule >> lookupSymbol: aSymbol [
+	aSymbol = #Compiler ifTrue: [ ^ self ].
+	^ nil
 ]
 
 { #category : #scope }
@@ -68,17 +111,34 @@ TMbndModule >> newGenericSemanticAnalyzer [
 
 { #category : #scope }
 TMbndModule >> newSourceEvaluationScopeForLanguage: aLanguage [
+	^ self newSourceEvaluationScopeForLanguage: aLanguage withWorkingDirectory: nil
+]
+
+{ #category : #scope }
+TMbndModule >> newSourceEvaluationScopeForLanguage: aLanguage withWorkingDirectory: workingDirectory [
 	| languageScope |
 	languageScope := aLanguage topLevelLanguageScopeFor: self.
-	^ self newSourceEvaluationScopeForLanguageScope: languageScope
+	^ self newSourceEvaluationScopeForLanguageScope: languageScope withWorkingDirectory: workingDirectory
 	
 ]
 
 { #category : #scope }
 TMbndModule >> newSourceEvaluationScopeForLanguageScope: languageScope [
+	^ self newSourceEvaluationScopeForLanguageScope: languageScope withWorkingDirectory: nil
+]
+
+{ #category : #scope }
+TMbndModule >> newSourceEvaluationScopeForLanguageScope: languageScope withWorkingDirectory: workingDirectory [
 	| moduleScope namespaceScope |
 	moduleScope := self programEntityScope parent: languageScope.
+	workingDirectory ifNotNil: [ 
+		moduleScope := (MbndWorkingDirectoryScope parent: moduleScope)
+			workingDirectory: workingDirectory;
+			yourself
+	].
+
 	namespaceScope := self globalNamespace programEntityScope parent: moduleScope.
+	
 	^ namespaceScope newReturnContextScope newLexicalScope
 	
 ]
@@ -99,6 +159,11 @@ TMbndModule >> parseLanguage: languageName source: sourceString [
 ]
 
 { #category : #scope }
-TMbndModule >> programEntityScope [
-	^ self globalNamespace programEntityScope
+TMbndModule >> programEntityScopeClass [
+	^ MbndNamespaceScope 
+]
+
+{ #category : #parameters }
+TMbndModule >> useLibC [
+	^ true
 ]

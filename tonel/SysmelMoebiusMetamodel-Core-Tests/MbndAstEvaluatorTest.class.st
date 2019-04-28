@@ -61,11 +61,23 @@ MbndAstEvaluatorTest >> setUp [
 	compilationTarget := module compilationTarget.
 	builder := MbndAstBuilder forModule: module.
 
-	returnContext := MbndReturnContextScope parent: module programEntityScope.
-	scope := MbndLexicalScope parent: returnContext.
+	scope := module newGenericAnalysisScope.
+	returnContext := scope returnContextScope.
 
 	analyzer := MbndAstSemanticAnalyzer new scope: scope; module: module.
 	evaluator := MbndAstEvaluator new scope: scope.
+]
+
+{ #category : #tests }
+MbndAstEvaluatorTest >> testDummyLexicalScopeNode [
+	| node result |
+	node := builder lexicalScope: (builder sequence: {
+		builder literalInteger: 1.
+		builder literalInteger: 42
+	}).
+	result := self analyzeAndEvaluateAST: node.
+	self assert: result value equals: 42.
+	self assert: result type isPrimitiveIntegerType.
 ]
 
 { #category : #running }

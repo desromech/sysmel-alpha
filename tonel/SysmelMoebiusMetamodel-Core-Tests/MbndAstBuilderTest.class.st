@@ -74,6 +74,16 @@ MbndAstBuilderTest >> testCasesOfNode [
 ]
 
 { #category : #tests }
+MbndAstBuilderTest >> testCompileTimeConstantDefinition [
+	| node |
+	node := builder alias: #Zero definition: (builder literalInteger: 0).	
+		
+	self assert: node isCompileTimeConstantDefinitionNode.
+	self assert: node name equals: #Zero.
+	self assert: node value isLiteralValueNode.
+]
+
+{ #category : #tests }
 MbndAstBuilderTest >> testContinueStatementNode [
 	| node |
 	node := builder continueStatement.
@@ -384,6 +394,17 @@ MbndAstBuilderTest >> testMessageShortDefinition [
 { #category : #tests }
 MbndAstBuilderTest >> testModule [
 	self assert: builder module equals: module
+]
+
+{ #category : #tests }
+MbndAstBuilderTest >> testNamespaceDefinition [
+	| node body |
+	body := builder sequence: #().
+	node := builder namespace: #HelloNamespace definition: body.
+	
+	self assert: node isNamespaceDefinitionNode.
+	self assert: node name equals: #HelloNamespace.
+	self assert: node body equals: body.
 ]
 
 { #category : #tests }

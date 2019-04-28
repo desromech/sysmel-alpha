@@ -39,10 +39,57 @@ MbndAstSemanticAnalyzerTest >> setUp [
 	module := MbndDummyModule new.
 	compilationTarget := module compilationTarget.
 	builder := MbndAstBuilder forModule: module.
-	scope := MbndLexicalScope parent: (module programEntityScope parent: (MbndGenericMacroLanguageTopLevelScope for: module)).
+	scope := module newGenericAnalysisScope.
 	visitor := MbndAstSemanticAnalyzer new
 		scope: scope;
 		module: module
+]
+
+{ #category : #tests }
+MbndAstSemanticAnalyzerTest >> testCompileTimeConstantDefinition [
+	| node analyzedNode |
+	node := builder alias: #int definition: (builder identifier: #Int32).
+
+	self assert: (module globalNamespace lookupSymbol: #int) isNil.
+	
+	analyzedNode := visitor visitNode: node.
+	self assert: analyzedNode type isVoidType.
+	self assert: (module globalNamespace lookupSymbol: #int) isCompileTimeConstant.
+
+]
+
+{ #category : #tests }
+MbndAstSemanticAnalyzerTest >> testCompileTimeConstantReference [
+	| node analyzedNode |
+	node := builder sequence: {
+		builder alias: #int definition: (builder identifier: #Int32).
+		builder identifier: #int
+	}.
+
+	analyzedNode := visitor visitNode: node.
+	self assert: analyzedNode type isMetaType.
+	self assert: analyzedNode elements last isLiteralValueNode.
+	self assert: analyzedNode elements last value isPrimitiveIntegerType.
+]
+
+{ #category : #tests }
+MbndAstSemanticAnalyzerTest >> testDummyLexicalScopeNode [
+	| node analyzedNode |
+	node := builder lexicalScope: (builder sequence: {
+		builder literalInteger: 1.
+		builder literalInteger: 42
+	}).
+	analyzedNode := visitor visitNode: node.
+	self assert: analyzedNode type isPrimitiveIntegerType.
+]
+
+{ #category : #tests }
+MbndAstSemanticAnalyzerTest >> testDummyLexicalScopeWithSingleLiteral [
+	| node analyzedNode literalNode |
+	literalNode := builder literalInteger: 42.
+	node := builder lexicalScope: literalNode.
+	analyzedNode := visitor visitNode: node.
+	self assert: analyzedNode equals: literalNode.
 ]
 
 { #category : #tests }
@@ -87,7 +134,12 @@ MbndAstSemanticAnalyzerTest >> testIdentityFunctionDefinition [
 	}.
 	body := builder identifier: #x.
 	node := builder functionNamed: #identity arguments: arguments returnType: compilationTarget int32Type definitionBody: body.
+	
+	self assert: (module globalNamespace lookupSymbol: #identity) isNil.
+		
 	analyzedNode := visitor visitNode: node.
+	self assert: (module globalNamespace lookupSymbol: #identity) isMethod.
+	self deny: (module globalNamespace lookupSymbol: #identity) isMethodGroup.
 	self assert: analyzedNode isFunctionDefinitionNode.
 	self assert: analyzedNode arguments first valueType isPrimitiveIntegerType.
 	self assert: analyzedNode returnType isPrimitiveIntegerType.
@@ -98,6 +150,7 @@ MbndAstSemanticAnalyzerTest >> testIdentityFunctionDefinition [
 	concreteMethod := analyzedNode concreteMethod.
 	concreteMethod ensureSemanticAnalysis.
 	
+	self assert: (module globalNamespace lookupSymbol: #identity) equals: concreteMethod.
 	self assert: concreteMethod analyzedBody isNotNil.
 	self assert: concreteMethod analyzedBody type isPrimitiveIntegerType.
 ]
@@ -191,6 +244,30 @@ MbndAstSemanticAnalyzerTest >> testIdentityMessageSend [
 ]
 
 { #category : #tests }
+MbndAstSemanticAnalyzerTest >> testIfLiteralFalse [
+	| node analyzedNode trueNode falseNode |
+	trueNode := builder literalInteger: 42.
+	falseNode := builder literalInteger: 0.
+	node := builder if: (builder literalBooleanTrue)
+		trueValue: trueNode
+		falseValue: falseNode.
+	analyzedNode := visitor visitNode: node.
+	self assert: analyzedNode equals: trueNode.
+]
+
+{ #category : #tests }
+MbndAstSemanticAnalyzerTest >> testIfLiteralTrue [
+	| node analyzedNode trueNode falseNode |
+	trueNode := builder literalInteger: 42.
+	falseNode := builder literalInteger: 0.
+	node := builder if: (builder literalBooleanTrue)
+		trueValue: trueNode
+		falseValue: falseNode.
+	analyzedNode := visitor visitNode: node.
+	self assert: analyzedNode equals: trueNode.
+]
+
+{ #category : #tests }
 MbndAstSemanticAnalyzerTest >> testLetAutoMacroBuilderExpansion [
 	| node analyzedNode |
 	node := builder identifier: #let.
@@ -199,6 +276,7 @@ MbndAstSemanticAnalyzerTest >> testLetAutoMacroBuilderExpansion [
 		builder literalInteger: 42
 	}.
 	analyzedNode := visitor visitNode: node.
+	self assert: (scope lookupSymbol: #x) isNotNil.
 	self assert: analyzedNode isLocalVariableDefinitionNode.
 	self assert: analyzedNode initialValue isLiteralValueNode.
 	self assert: analyzedNode initialValue type equals: compilationTarget int32Type.
@@ -215,6 +293,7 @@ MbndAstSemanticAnalyzerTest >> testLetMacroBuilderExpansion [
 		compilationTarget int32Type asLiteralValueNode
 	}.
 	analyzedNode := visitor visitNode: node.
+	self assert: (scope lookupSymbol: #x) isNotNil.
 	self assert: analyzedNode isLocalVariableDefinitionNode.
 	self assert: analyzedNode initialValue isLiteralValueNode.
 	self assert: analyzedNode type equals: compilationTarget int32Type.
@@ -230,6 +309,7 @@ MbndAstSemanticAnalyzerTest >> testLetMutableAutoMacroBuilderExpansion [
 		builder literalInteger: 42
 	}.
 	analyzedNode := visitor visitNode: node.
+	self assert: (scope lookupSymbol: #x) isNotNil.
 	self assert: analyzedNode isLocalVariableDefinitionNode.
 	self assert: analyzedNode initialValue isLiteralValueNode.
 	self assert: analyzedNode initialValue type equals: compilationTarget int32Type.
@@ -248,6 +328,7 @@ MbndAstSemanticAnalyzerTest >> testLetMutableMacroBuilderExpansion [
 		compilationTarget int32Type asLiteralValueNode
 	}.
 	analyzedNode := visitor visitNode: node.
+	self assert: (scope lookupSymbol: #x) isNotNil.
 	self assert: analyzedNode isLocalVariableDefinitionNode.
 	self assert: analyzedNode initialValue isLiteralValueNode.
 	self assert: analyzedNode type isReferenceType.
@@ -273,6 +354,7 @@ MbndAstSemanticAnalyzerTest >> testLocalVariableMutableDefaultInitialValue [
 		builder identifier: #x
 	}.
 	analyzedNode := visitor visitNode: node.
+	self assert: (scope lookupSymbol: #x) isNotNil.
 	self assert: analyzedNode isSequenceNode.
 	self assert: analyzedNode type isReferenceType.
 	self assert: analyzedNode type baseType isPrimitiveIntegerType.
@@ -291,6 +373,7 @@ MbndAstSemanticAnalyzerTest >> testLocalVariableMutableReference [
 		builder identifier: #x
 	}.
 	analyzedNode := visitor visitNode: node.
+	self assert: (scope lookupSymbol: #x) isNotNil.
 	self assert: analyzedNode isSequenceNode.
 	self assert: analyzedNode type isReferenceType.
 	self assert: analyzedNode type baseType isPrimitiveIntegerType.
@@ -299,8 +382,82 @@ MbndAstSemanticAnalyzerTest >> testLocalVariableMutableReference [
 ]
 
 { #category : #tests }
+MbndAstSemanticAnalyzerTest >> testLocalVariableScopeReference [
+	| node analyzedNode |
+	node := builder lexicalScope: (builder sequence: { 
+		(builder defineLocalVariable: #x withValueType: nil withInitialValue:
+			(builder literalInteger: 5))
+			mutable.
+		builder identifier: #x
+	}).
+	
+	analyzedNode := visitor visitNode: node.
+	self assert: (scope lookupSymbol: #x) equals: nil.
+	self assert: analyzedNode isLexicalScopeNode.
+	self assert: analyzedNode type isReferenceType.
+	self assert: analyzedNode type baseType isPrimitiveIntegerType.
+	self assert: analyzedNode expression elements last isBoundIdentifierReferenceNode.
+
+]
+
+{ #category : #tests }
+MbndAstSemanticAnalyzerTest >> testLocalVariableScopeReferenceError [
+	| node |
+	node := builder sequence: {
+			builder lexicalScope: (builder sequence: { 
+				(builder defineLocalVariable: #x withValueType: nil withInitialValue:
+				(builder literalInteger: 5))
+				mutable.
+		}) .
+		builder identifier: #x
+	}.
+	self should: [ visitor visitNode: node ] raise: Error
+]
+
+{ #category : #tests }
+MbndAstSemanticAnalyzerTest >> testNamespaceDefinition [
+	| node analyzedNode |
+	node := builder namespace: #HelloNamespace definition: (builder literalInteger: 42).
+
+	self assert: (module globalNamespace lookupSymbol: #HelloNamespace) isNil.
+	
+	analyzedNode := visitor visitNode: node.
+	self assert: analyzedNode type isVoidType.
+	self assert: (module globalNamespace lookupSymbol: #HelloNamespace) isNamespace.
+
+]
+
+{ #category : #tests }
+MbndAstSemanticAnalyzerTest >> testNamespaceReference [
+	| node analyzedNode |
+	node := builder sequence: {
+		builder namespace: #HelloNamespace definition: (builder literalInteger: 42).
+		builder identifier: #HelloNamespace
+	}.
+
+	analyzedNode := visitor visitNode: node.
+	self assert: analyzedNode type isNamespaceType.
+	self assert: analyzedNode elements last value equals: (module globalNamespace lookupSymbol: #HelloNamespace).
+
+]
+
+{ #category : #tests }
 MbndAstSemanticAnalyzerTest >> testNew [
 	self assert: visitor scope equals: scope
+]
+
+{ #category : #tests }
+MbndAstSemanticAnalyzerTest >> testPointerTypeConstruction [
+	| node analyzedNode |
+	node := builder unexpandedSend: (builder literalSymbol: #pointer)
+		to: (builder identifier: #Int32)
+		withArguments: #().
+	
+	analyzedNode := visitor visitNode: node.
+	self assert: analyzedNode isLiteralValueNode.
+	self assert: analyzedNode value isPointerType.
+	self assert: analyzedNode type isMetaType.
+
 ]
 
 { #category : #tests }
@@ -325,7 +482,7 @@ MbndAstSemanticAnalyzerTest >> testSequence [
 	analyzedNode := visitor visitNode: node.
 	self assert: analyzedNode isSequenceNode .
 	self assert: analyzedNode elements size equals: 2.
-	self assert: analyzedNode type isLiteralFloatType.
+	self assert: analyzedNode type isPrimitiveFloatType.
 ]
 
 { #category : #tests }
