@@ -11,7 +11,7 @@ Class {
 { #category : #converting }
 MbndCompileTimeVariable >> asCompileTimeValueReferenceOfType: referenceType withEvaluator: evaluator at: node [
 	valueType = referenceType ifTrue: [ ^ value ].
-	type = referenceType ifTrue: [ ^ self ].
+	type = referenceType ifTrue: [ ^ MbndValue value: self type: referenceType ].
 	evaluator error: 'Invalid compile time variable reference.' at: node
 ]
 
