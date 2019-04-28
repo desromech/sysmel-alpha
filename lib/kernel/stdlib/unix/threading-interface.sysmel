@@ -1,8 +1,8 @@
 namespace StdNative definition: {
 
-/**
+#**
  * Pthread mutex wrapper.
- */
+ *#
 class Mutex
 definition: {
     field handle public type: Unix pthread_mutex_t.
@@ -34,9 +34,9 @@ definition: {
     }.
 }.
 
-/**
+#**
  * Pthread condition variable wrapper.
- */
+ *#
 class ConditionVariable
 definition: {
     field handle public type: Unix pthread_cond_t.
@@ -62,9 +62,9 @@ definition: {
     }.
 }.
 
-/**
+#**
  * Semaphore implementation.
- */
+ *#
 class Semaphore
 definition: {
     field mutex type: Mutex.
@@ -120,5 +120,5 @@ definition: {
 
 }.
 
-alias MemoryHeapMutex := Mutex.
-}. // End of namespace StdNative
+compileTimeConstant MemoryHeapMutex := Mutex.
+}. ## End of namespace StdNative

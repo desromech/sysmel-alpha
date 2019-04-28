@@ -1,6 +1,6 @@
 namespace SysmelKernel definition: {
 
-// Explicit cast
+## Explicit cast
 AnyValue macro selectors: #(reinterpretCastTo: explicitCastTo:) doOn: #{
     evaluation: $$Pharo {
         evaluateMessage: message inEnvironment: anEnvironment
@@ -61,7 +61,7 @@ AnyValue macro expansionRule castTo: targetType := ``(
     `,self explicitCastTo: `,targetType asVariableValueType
 ).
 
-// Literal type conversions.
+## Literal type conversions.
 _LiteralInteger conversionTo: PrimitiveIntegerType doOn: #{
     coercionCost: 0.
     evaluation: $$Pharo {
@@ -133,7 +133,7 @@ _APSGNodeType conversionTo: _CompilerObjectType doOn: #{
     }.
 }.
 
-// Generic integer cast.
+## Generic integer cast.
 let intCastConversionAction := #{
     evaluation: $$Pharo {
         value: value targetType: targetType at: position
@@ -145,7 +145,7 @@ let intCastConversionAction := #{
     }.
 }.
 
-// Explicit sign conversion.
+## Explicit sign conversion.
 UInt8 explicitConversionTo: Int8 doOn: intCastConversionAction.
 Int8 explicitConversionTo: UInt8 doOn: intCastConversionAction.
 
@@ -158,22 +158,22 @@ Int32 explicitConversionTo: UInt32 doOn: intCastConversionAction.
 UInt64 explicitConversionTo: Int64 doOn: intCastConversionAction.
 Int64 explicitConversionTo: UInt64 doOn: intCastConversionAction.
 
-// Signed integer widening casts
+## Signed integer widening casts
 Int8 conversionTo: Int16 | Int32 | Int64 doOn: intCastConversionAction.
 Int16 conversionTo: Int32 | Int64 doOn: intCastConversionAction.
 Int32 conversionTo: Int64 doOn: intCastConversionAction.
 
-// Unsigned integer widening casts
+## Unsigned integer widening casts
 UInt8 conversionTo: UInt16 | Int16 | UInt32 | Int32 | UInt64 | Int64 doOn: intCastConversionAction.
 UInt16 conversionTo: UInt32 | Int32 | UInt64 | Int64 doOn: intCastConversionAction.
 UInt32 conversionTo: UInt64 | Int64 doOn: intCastConversionAction.
 
-// Explicit integer narrowing conversions
+## Explicit integer narrowing conversions
 UInt64 | Int64 explicitConversionTo: Int32 | Int16 | Int8 doOn: intCastConversionAction.
 UInt32 | Int32 explicitConversionTo: Int16 | Int8 doOn: intCastConversionAction.
 UInt16 | Int16 explicitConversionTo: Int8 doOn: intCastConversionAction.
 
-// Explicit integer signed conversions.
+## Explicit integer signed conversions.
 UInt64 explicitConversionTo: Int64 doOn: intCastConversionAction.
 Int64 explicitConversionTo: UInt64 doOn: intCastConversionAction.
 UInt32 explicitConversionTo: Int32 doOn: intCastConversionAction.
@@ -183,7 +183,7 @@ Int16 explicitConversionTo: UInt16 doOn: intCastConversionAction.
 UInt8 explicitConversionTo: Int8 doOn: intCastConversionAction.
 Int8 explicitConversionTo: UInt8 doOn: intCastConversionAction.
 
-// Floating point conversions
+## Floating point conversions
 let floatingPointCastAction := #{
     evaluation: $$Pharo {
         value: value targetType: targetType at: position
@@ -198,7 +198,7 @@ let floatingPointCastAction := #{
 Float32 conversionTo: Float64 doOn: floatingPointCastAction.
 Float64 explicitConversionTo: Float32 doOn: floatingPointCastAction.
 
-// Integer to float
+## Integer to float
 PrimitiveIntegerType conversionTo: PrimitiveFloatingPointType doOn: #{
     evaluation: $$Pharo {
         value: value targetType: targetType at: position
@@ -210,7 +210,7 @@ PrimitiveIntegerType conversionTo: PrimitiveFloatingPointType doOn: #{
     }.
 }.
 
-// Nil into pointer
+## Nil into pointer
 UndefinedType conversionTo: PointerType | Void doOn: #{
     evaluation: $$Pharo {
         value: value targetType: targetType at: position
@@ -222,7 +222,7 @@ UndefinedType conversionTo: PointerType | Void doOn: #{
     }.
 }.
 
-// _CompilerObjectType => BooleanBit
+## _CompilerObjectType => BooleanBit
 _CompilerObjectType conversionTo: BooleanBit doOn: #{
     evaluation: $$Pharo {
         value: value targetType: targetType at: position
@@ -235,7 +235,7 @@ _CompilerObjectType conversionTo: BooleanBit doOn: #{
     }.
 }.
 
-// Pointer => Pointer
+## Pointer => Pointer
 let pointerReinterpretCast := #{
     evaluation: $$Pharo {
         value: value targetType: targetType at: position
@@ -268,7 +268,7 @@ ReferenceTypeTemplate extend: {
     CleanReferencedType addConversionRulesToReferenceTypeToMyself: SelfType.
 }.
 
-// Literal integer => Pointer
+## Literal integer => Pointer
 _LiteralInteger reinterpretConversionTo: PointerType doOn: #{
     evaluation: $$Pharo {
         value: value into: targetType at: coercionPosition
@@ -280,7 +280,7 @@ _LiteralInteger reinterpretConversionTo: PointerType doOn: #{
     }.
 }.
 
-// Integer => Pointer
+## Integer => Pointer
 UIntPointer | IntPointer reinterpretConversionTo: PointerType | PointerType const doOn: #{
     evaluation: $$Pharo {
         value: value targetType: targetType at: position
@@ -292,7 +292,7 @@ UIntPointer | IntPointer reinterpretConversionTo: PointerType | PointerType cons
     }.
 }.
 
-// Pointer => Integer
+## Pointer => Integer
 PointerType | PointerType const reinterpretConversionTo: UIntPointer | IntPointer doOn: #{
     evaluation: $$Pharo {
         value: value targetType: targetType at: position
@@ -304,4 +304,4 @@ PointerType | PointerType const reinterpretConversionTo: UIntPointer | IntPointe
     }.
 }.
 
-}. // End of namespace SysmelKernel
+}. ## End of namespace SysmelKernel

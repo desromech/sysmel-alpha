@@ -4,7 +4,7 @@ function nextRandom() => UInt64 := {
     randomState := randomState*6364136223846793005 + 1.
 }.
 
-alias AllocationCount := 1000.
+compileTimeConstant AllocationCount := 1000.
 let allocationResults mutable type: (Void pointer array: AllocationCount).
 
 function freeAll() => Void := {
@@ -15,18 +15,18 @@ function freeAll() => Void := {
 }.
 
 
-/**
+#**
  * malloc benchmarking and testing.
- */
+ *#
 function main externC (argc: Int32, argv: Char const pointer pointer) => Int32 := {
-    // First zmalloc - with some fixed size
+    ## First zmalloc - with some fixed size
     for: (let i mutable := 0) while: (i < AllocationCount) do: {
         allocationResults[i] := StdNative zmalloc(16)
     } continueWith: (i := i + 1).
 
     freeAll().
 
-    // Second zmalloc - with quantum fixed sizes.
+    ## Second zmalloc - with quantum fixed sizes.
     for: (let i mutable := 0) while: (i < AllocationCount) do: {
         let size := ((i%31) + 1)*16 castTo: UIntPointer.
         allocationResults[i] := StdNative zmalloc(size)
@@ -34,7 +34,7 @@ function main externC (argc: Int32, argv: Char const pointer pointer) => Int32 :
 
     freeAll().
 
-    // Second zmalloc - random with quantum fixed sizes.
+    ## Second zmalloc - random with quantum fixed sizes.
     for: (let i mutable := 0) while: (i < AllocationCount) do: {
         let size := ((nextRandom() % 31) + 1)*16 castTo: UIntPointer.
         allocationResults[i] := StdNative zmalloc(size)
@@ -42,11 +42,11 @@ function main externC (argc: Int32, argv: Char const pointer pointer) => Int32 :
 
     freeAll().
 
-    // Second, zmalloc - with random sizes
-    /*for: (let i mutable := 0) while: (i < AllocationCount) do: {
+    ## Second, zmalloc - with random sizes
+    #*for: (let i mutable := 0) while: (i < AllocationCount) do: {
         allocationResults[i] := StdNative zmalloc(nextRandom() % (2<<20))
     } continueWith: (i := i + 1).
-    freeAll().*/
+    freeAll().*#
 
     StdNative stdout << "UInt32 basicNativeNew value " << UInt32 basicNativeNew value; nl.
     UInt32 basicNativeNew basicNativeDelete.

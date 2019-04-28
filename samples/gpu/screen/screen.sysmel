@@ -1,4 +1,4 @@
-// Screen rendering shader interface.
+## Screen rendering shader interface.
 shader ScreenRendering interface uses: GPU GraphicsPipeline;
 definition: {
     descriptorSet Parameters maxBindings: 1000 := {
@@ -17,7 +17,7 @@ definition: {
     }.
 }.
 
-// Screen quad vertex vertex shader.
+## Screen quad vertex vertex shader.
 shader ScreenQuadVertex uses: ScreenRendering;
 definition: {
     vertex main := {

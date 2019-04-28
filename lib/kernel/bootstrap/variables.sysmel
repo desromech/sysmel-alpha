@@ -1,6 +1,6 @@
 namespace SysmelKernel definition: {
 
-// Implement assignValue: in any value for better error reporting.
+## Implement assignValue: in any value for better error reporting.
 AnyValue macro selector: #assignValue: doOn: #{
 semanticAnalysis: $$Pharo {
     node: node environment: environment position: aSourcePosition
@@ -17,7 +17,7 @@ semanticAnalysis: $$Pharo {
 }.
 
 ReferenceType macro selector: #assignValue: doOn: #{
-// Compile time evaluation
+## Compile time evaluation
 evaluation: $$Pharo {
     node: node environment: environment
         | reference rawValue coercedValue |
@@ -38,7 +38,7 @@ evaluation: $$Pharo {
         ^ reference
 }.
 
-// Semantic analysis
+## Semantic analysis
 semanticAnalysis: $$Pharo {
     node: node environment: environment position: aSourcePosition
         | reference referenceType referencedType value valueType coercionType coercionRule |
@@ -74,7 +74,7 @@ semanticAnalysis: $$Pharo {
             yourself
 }.
 
-// Code generation
+## Code generation
 codeGeneration: $$Pharo {
     node: messageNode builder: builder
         | value coercionType valueNode valueType reference instruction |
@@ -94,4 +94,4 @@ codeGeneration: $$Pharo {
 
 }.
 
-}. // End of namespace SysmelKernel
+}. ## End of namespace SysmelKernel

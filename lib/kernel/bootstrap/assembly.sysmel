@@ -4,4 +4,4 @@ macro expansionRule x86_gas: sourceCode
         position: sourceCode position;
         yourself.
 
-}. // End of namespace SysmelKernel
+}. ## End of namespace SysmelKernel

@@ -1,6 +1,6 @@
 namespace SysmelKernel definition: {
 
-// The return macro is used extensively by the language.
+## The return macro is used extensively by the language.
 macro selector: #return: doOn: #{
     evaluation: $$Pharo {
         evaluateMessage: message inEnvironment: anEnvironment
@@ -177,7 +177,7 @@ macro selectors: #(if:then: if:then:else:) doOn: #{
 		        yourself
 	}.
 
-    // Code generation
+    ## Code generation
     codeGeneration: $$Pharo {
         node: messageNode builder: builder
             | conditionNode thenNode elseNode  resultType condition result thenBlock elseBlock mergeBlock thenValue elseValue branchInstruction |
@@ -243,9 +243,9 @@ macro selectors: #(if:then: if:then:else:) doOn: #{
 
 }.
 
-// while:do:continueWith:
+## while:do:continueWith:
 macro selectors: #(while:do: while:do:continueWith: ) doOn: #{
-    // Compile time evaluation
+    ## Compile time evaluation
     evaluation: $$Pharo {
         node: node environment: environment
             | conditionValue conditionCoercionType conditionCoercionRule |
@@ -271,7 +271,7 @@ macro selectors: #(while:do: while:do:continueWith: ) doOn: #{
             self halt
     }.
 
-    // Semantic analysis
+    ## Semantic analysis
     semanticAnalysis: $$Pharo {
         node: messageNode environment: environment position: aSourcePosition
             | conditionNode bodyNode continueNode analyzedArguments coercionType coercionRule |
@@ -298,7 +298,7 @@ macro selectors: #(while:do: while:do:continueWith: ) doOn: #{
 		        yourself
 	}.
 
-    // Code generation
+    ## Code generation
     codeGeneration: $$Pharo {
         node: messageNode builder: builder
             | conditionNode bodyNode continueNode coercionType conditionBlock bodyBlock continueBlock mergeBlock condition |
@@ -358,13 +358,13 @@ macro selectors: #(while:do: while:do:continueWith: ) doOn: #{
     }.
 }.
 
-// For
+## For
 macro expansionRule for: declarations while: condition do: body continueWith: continueAction := ``{
     `,declarations.
 	while: `,condition do: `,body continueWith: `,continueAction
 }.
 
-// until:do:continueWith:
+## until:do:continueWith:
 macro expansionRule until: condition do: body := ``(
 	while: `,condition not do: `,body
 ).
@@ -373,15 +373,15 @@ macro expansionRule until: condition do: body continueWith: continueAction := ``
 	while: `,condition not do: `,body continueWith: `,continueAction
 ).
 
-// do:continueWith:while:
+## do:continueWith:while:
 macro selectors: #(do:while: do:continueWith:while:) doOn: #{
-    // Compile time evaluation
+    ## Compile time evaluation
     evaluation: $$Pharo {
         node: node environment: environment
             self halt.
     }.
 
-    // Semantic analysis
+    ## Semantic analysis
     semanticAnalysis: $$Pharo {
         node: messageNode environment: environment position: aSourcePosition
             | conditionNode bodyNode continueNode analyzedArguments coercionType coercionRule |
@@ -409,7 +409,7 @@ macro selectors: #(do:while: do:continueWith:while:) doOn: #{
 
 	}.
 
-    // Code generation
+    ## Code generation
     codeGeneration: $$Pharo {
         node: messageNode builder: builder
         | conditionNode bodyNode continueNode coercionType conditionBlock headerBlock bodyBlock continueBlock mergeBlock condition |
@@ -475,7 +475,7 @@ macro selectors: #(do:while: do:continueWith:while:) doOn: #{
     }.
 }.
 
-// do:until:
+## do:until:
 macro expansionRule do: body until: condition := ``(
 	do: `,body while: `,condition not
 ).

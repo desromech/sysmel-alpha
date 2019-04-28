@@ -1,4 +1,4 @@
-// Evaluate the platform specific library bindings, that we depend on.
+## Evaluate the platform specific library bindings, that we depend on.
 if: Compiler useLibC then: {
     loadFileOnce: "libc/libc.sysmel".
 
@@ -11,5 +11,5 @@ if: Compiler useLibC then: {
     }.
 }.
 
-// Evaluate the native stdlib
-loadFileOnce: "native/native.sysmel".
+## Evaluate the native stdlib
+##loadFileOnce: "native/native.sysmel".

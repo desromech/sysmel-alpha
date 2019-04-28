@@ -1,10 +1,10 @@
 namespace Unix definition: {
     useAndExport: CTypes.
 
-    alias UID_T := UInt32.
-    alias GID_T := UInt32.
-    alias PID_T := Int32.
-    alias OFF_T := IntPointer.
-    alias OFF64_T := Int64.
+    compileTimeConstant UID_T := UInt32.
+    compileTimeConstant GID_T := UInt32.
+    compileTimeConstant PID_T := Int32.
+    compileTimeConstant OFF_T := IntPointer.
+    compileTimeConstant OFF64_T := Int64.
 
 }.

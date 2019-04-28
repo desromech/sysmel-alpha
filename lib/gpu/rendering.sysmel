@@ -1,9 +1,9 @@
 namespace GPU definition: {
 
-// GPU Graphics pipeline common interface
+## GPU Graphics pipeline common interface
 shader GraphicsPipeline interface definition: {
 
-    // Vertex Stage intrinsics
+    ## Vertex Stage intrinsics
     stageio VertexStage vertex definition: {
         output screenPosition type: Float32x4; location: -1.
 
@@ -12,4 +12,4 @@ shader GraphicsPipeline interface definition: {
     }.
 }.
 
-} // End of namespace GPU
+} ## End of namespace GPU

@@ -40,9 +40,9 @@ let pointerReinterpretCast := #{
 ManagedClassTrait reinterpretConversionTo: PointerType doOn: pointerReinterpretCast.
 PointerType reinterpretConversionTo: ManagedClassTrait doOn: pointerReinterpretCast.
 
-// Variable data trait
+## Variable data trait
 GCClassVariableDataArrayType macro selectors: #(size) doOn: #{
-    // Evaluation
+    ## Evaluation
     evaluation: $$Pharo {
         evaluateMessage: message inEnvironment: anEnvironment
             | variableData receiverType sizeSlotIndex |
@@ -56,7 +56,7 @@ GCClassVariableDataArrayType macro selectors: #(size) doOn: #{
                 sysmelValueWithType: message valueType inEnvironment: anEnvironment
     }.
 
-    // Semantic analysis
+    ## Semantic analysis
     semanticAnalysis: $$Pharo {
         node: node environment: environment position: aSourcePosition
             | variableData receiverType sizeType |
@@ -76,7 +76,7 @@ GCClassVariableDataArrayType macro selectors: #(size) doOn: #{
                 yourself
     }.
 
-    // Code generation
+    ## Code generation
     codeGeneration: $$Pharo {
         node: messageNode builder: builder
             | receiverType actualReceiver sizeField |
@@ -89,18 +89,18 @@ GCClassVariableDataArrayType macro selectors: #(size) doOn: #{
     }.
 }.
 
-}. // End of namespace Sysmel
+}. ## End of namespace Sysmel
 
 namespace Smalltalk definition: {
 
-// Meta circular hierarchy
+## Meta circular hierarchy
 gcclass ProtoObject.
 gcclass Metaclass.
 
 ProtoObject metaClassClass: Metaclass.
 
 Compiler compilationTarget dynamicObjectType: ProtoObject.
-alias Dynobject := ProtoObject.
+compileTimeConstant Dynobject := ProtoObject.
 
 gcclass Object superclass: ProtoObject.
     gcclass Behavior superclass: Object.
@@ -108,15 +108,15 @@ gcclass Object superclass: ProtoObject.
             gcclass Class superclass: ClassDescription.
             gcclass Metaclass superclass: ClassDescription.
 
-    // BooleanBit
+    ## BooleanBit
     gcclass Boolean superclass: Object.
         gcclass True superclass: Boolean.
         gcclass False superclass: Boolean.
 
-    // Undefined object
+    ## Undefined object
     gcclass UndefinedObject superclass: Object.
 
-    // Numbers
+    ## Numbers
     gcclass Magnitude superclass: Object.
         gcclass Number superclass: Magnitude.
             gcclass Float superclass: Number.
@@ -131,7 +131,7 @@ gcclass Object superclass: ProtoObject.
 
     gcclass GCLayout superclass: Object.
 
-// Essential collections
+## Essential collections
 gcclass Collection superclass: Object.
     gcclass HashedCollection superclass: Collection.
         gcclass Dictionary superclass: HashedCollection.
@@ -147,23 +147,23 @@ gcclass Collection superclass: Object.
             gcclass String superclass: ArrayedCollection.
                 gcclass Symbol superclass: String.
 
-// Methods
+## Methods
 gcclass CompiledMethod superclass: Object.
 
-// ProtoObject
+## ProtoObject
 ProtoObject type superclass: Class.
 
 ProtoObject definition: {
-    // We use a fixed 16-byte object header, to be able to use SSE instructions.
+    ## We use a fixed 16-byte object header, to be able to use SSE instructions.
     (SelfType addMainVTableFieldNamed: #__vtable)
         private.
 
     if: UIntPointer instanceSize == 4 then: {
-        // TODO: Support big-endian.
+        ## TODO: Support big-endian.
         field __padding private type: Behavior.
     }.
 
-    // 32 bits: gc color, isPinned, isImmutable.
+    ## 32 bits: gc color, isPinned, isImmutable.
     field _ private bits: 5; type: UInt32.
 
     field __gcBits private type: UInt32; bits: 3.
@@ -171,7 +171,7 @@ ProtoObject definition: {
     field __isImmutable private type: UInt32; bits: 1.
     field __identityHash private type: UInt32; bits: 22.
 
-    // Variable data size
+    ## Variable data size
     field __variableDataSize private type: UInt32.
 }.
 
@@ -188,7 +188,7 @@ Behavior uses: Type; definition: {
     field variableInstanceElementSize public type: UInt32.
     field variableInstanceElementAlignment public type: UInt32.
 
-    // Notify about dynamic object type.
+    ## Notify about dynamic object type.
     message isDynamicObjectType => BooleanBit := {
         return: true
     }.
@@ -197,7 +197,7 @@ Behavior uses: Type; definition: {
         return: self == Dynobject
     }.
 
-    // The type of the instance is actually a dependent type because of the meta-circular hierarchy.
+    ## The type of the instance is actually a dependent type because of the meta-circular hierarchy.
     type InstanceType uses: AnyValue;
         definition: {
         meta message asConcreteTypeForFunctionAnalysis => Type := {
@@ -219,16 +219,16 @@ Behavior uses: Type; definition: {
 
     (message basicNew: (initialSize: UInt32) ::=> InstanceType := {
         <notInCompileTime>
-        // Compute the object size.
+        ## Compute the object size.
         let objectSize := instanceDataSize + initialSize*variableInstanceElementSize.
 
-        // Allocate the object memory.
+        ## Allocate the object memory.
         let allocatedObject := globalSysmelGC
             allocate: objectSize
             variableDataSize: (if: variableInstanceElementSize > 0 then: initialSize else: 0)
             initializingWith: basicInitializeFunctionPointer.
 
-        // Convert the allocated object.
+        ## Convert the allocated object.
         return: (allocatedObject reinterpretCastTo: ProtoObject)
     }) evaluator: $$Pharo {
         evaluateMessageWithReceiver: receiver arguments: arguments environment: environment at: position
@@ -248,7 +248,7 @@ Behavior uses: Type; definition: {
     message lookupSelector: (selector: ProtoObject) ::=> ProtoObject := {
         <staticBinding>
         <nogc>
-        //LibC printf("Behavior %p >> lookupSelector: %p\n", self, selector).
+        ##LibC printf("Behavior %p >> lookupSelector: %p\n", self, selector).
 
         if: methodDict ~~ nil then: {
             let method := methodDict atOrNil: selector.
@@ -281,30 +281,30 @@ Metaclass definition: {
     }.
 }.
 
-// GCLayoutRecord
+## GCLayoutRecord
 struct GCLayoutRecord definition: {
     field type public type: UIntPointer.
     field offset public type: UIntPointer.
     field size public type: UIntPointer.
 }.
 
-// GCLayout
+## GCLayout
 GCLayout definition: {
     field records public type: GCLayoutRecord array.
 }.
 
-// String
+## String
 String definition: {
     field __data protected type: UInt8 array.
 }.
 
-//-----------------------------------------------------------------------------
+##-----------------------------------------------------------------------------
 ProtoObject definition: {
     message class => Behavior := {
         <compileTime>
         <staticBinding>
         <nogc>
-        //return: __class
+        ##return: __class
         __vtable[-1] reinterpretCastTo: Behavior
     }.
 
@@ -331,8 +331,8 @@ ProtoObject definition: {
     }.
 }.
 
-//-----------------------------------------------------------------------------
-// Compiled method
+##-----------------------------------------------------------------------------
+## Compiled method
 
 CompiledMethod definition: {
     field entryPoint type: Void pointer.
@@ -351,8 +351,8 @@ CompiledMethod definition: {
     }.
 }.
 
-//-----------------------------------------------------------------------------
-// Important collections
+##-----------------------------------------------------------------------------
+## Important collections
 Array definition: {
     field __data protected type: ProtoObject array.
 
@@ -427,16 +427,16 @@ MethodDictionary definition: {
         <staticBinding>
         <nogc>
 
-        // Make sure we at least have a size.
-        let keyCount := array basicSize. // TODO: Fix these casts.
+        ## Make sure we at least have a size.
+        let keyCount := array basicSize. ## TODO: Fix these casts.
         if: keyCount = 0 then: {
             return: -1
         }.
 
-        // Find the natural key slot.
+        ## Find the natural key slot.
         let keySlot := key identityHash % array basicSize.
 
-        // Perform linear probing.
+        ## Perform linear probing.
         let i mutable := keySlot.
         while: i < keyCount do: {
             let slotKey := array[i].
@@ -472,19 +472,19 @@ MethodDictionary definition: {
     message atOrNil: (key: ProtoObject) ::=> ProtoObject := {
         <staticBinding>
         <nogc>
-        // LibC printf("atOrNil: %p | tally %zu array [%d]%p values [%d]%p\n", key, tally, array basicSize, array, values basicSize, values).
+        ## LibC printf("atOrNil: %p | tally %zu array [%d]%p values [%d]%p\n", key, tally, array basicSize, array, values basicSize, values).
         let slot := self scanFor: key.
         if: slot < 0 then: {
             return: nil
         }.
 
-        //LibC printf("Found key %p in slot %d\n", array[slot], slot).
+        ##LibC printf("Found key %p in slot %d\n", array[slot], slot).
         return: values[slot]
     }.
 }.
 
-//-----------------------------------------------------------------------------
-// Literals
+##-----------------------------------------------------------------------------
+## Literals
 let literalConversionRule := #{
     evaluation: $$Pharo {
         value: value into: targetType at: coercionPosition
@@ -503,12 +503,12 @@ _LiteralString conversionTo: String doOn: literalConversionRule.
 _LiteralInteger conversionTo: Integer doOn: literalConversionRule.
 _LiteralFloat conversionTo: Float doOn: literalConversionRule.
 
-//-----------------------------------------------------------------------------
-// Normal message lookup
+##-----------------------------------------------------------------------------
+## Normal message lookup
 namespace Runtime definition: {
 function messageLookupFromBehavior(behavior: Behavior, object: ProtoObject, selector: Object, fallbackTrampoline: Void pointer) => Void pointer := {
     <nogc>
-    //LibC printf("messageLookupFromBehavior behavior %p object %p selector %p\n", behavior, object, selector).
+    ##LibC printf("messageLookupFromBehavior behavior %p object %p selector %p\n", behavior, object, selector).
     let method := behavior lookupSelector: selector.
 
     if: method == nil then: {
@@ -521,13 +521,13 @@ function messageLookupFromBehavior(behavior: Behavior, object: ProtoObject, sele
     }.
 
     let compiledMethod := method castTo: CompiledMethod.
-    //LibC printf("Found method: %p entryPoint: %p\n", compiledMethod, compiledMethod entryPoint).
+    ##LibC printf("Found method: %p entryPoint: %p\n", compiledMethod, compiledMethod entryPoint).
     return: compiledMethod entryPoint
 }.
 
 function normalMessageLookup(object: ProtoObject, selector: Object, fallbackTrampoline: Void pointer) => Void pointer := {
     <nogc>
-    //LibC printf("normalMessageLookup object %p selector %p fallbackTrampoline %p\n", object, selector, fallbackTrampoline).
+    ##LibC printf("normalMessageLookup object %p selector %p fallbackTrampoline %p\n", object, selector, fallbackTrampoline).
     return: messageLookupFromBehavior(object class, object, selector, fallbackTrampoline).
 }.
 

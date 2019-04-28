@@ -1,13 +1,13 @@
 namespace SysmelKernel definition: {
 
-// Add a testing method into type about primitive vector types.
+## Add a testing method into type about primitive vector types.
 Type extend: {
     message isPrimitiveMatrixType => BooleanBit := {
         return: false
     }.
 }.
 
-// Common trait for primitive vectors
+## Common trait for primitive vectors
 trait PrimitiveMatrixType
     uses: PrimitiveType;
 definition: {
@@ -16,21 +16,21 @@ definition: {
     }.
 }.
 
-// Primitive matrix template.
+## Primitive matrix template.
 template PrimitiveMatrixTypeTemplate(E: Type, R: _LiteralInteger, C: _LiteralInteger)
     := type uses: PrimitiveMatrixType;
 definition: {
-    alias ElementType := E.
-    alias RowCount := R.
-    alias ColumnCount := C.
+    compileTimeConstant ElementType := E.
+    compileTimeConstant RowCount := R.
+    compileTimeConstant ColumnCount := C.
 
-    alias ColumnType := ElementType vector: RowCount.
-    alias RowType := ElementType vector: ColumnCount.
+    compileTimeConstant ColumnType := ElementType vector: RowCount.
+    compileTimeConstant RowType := ElementType vector: ColumnCount.
 
-    alias IsSquareMatrix := RowCount = ColumnCount.
+    compileTimeConstant IsSquareMatrix := RowCount = ColumnCount.
 
-    alias ColumnsTuple := ColumnType tupleOrScalarOfSize: ColumnCount.
-    alias RowsTuple := RowType tupleOrScalarOfSize: RowCount.
+    compileTimeConstant ColumnsTuple := ColumnType tupleOrScalarOfSize: ColumnCount.
+    compileTimeConstant RowsTuple := RowType tupleOrScalarOfSize: RowCount.
 
     meta message elementType => _CompilerObjectType := {
         return: ElementType
@@ -137,7 +137,7 @@ definition: {
         `,self withAll: 1
     ).
 
-    // Accessors
+    ## Accessors
     (SelfType addIntrinsicField: #firstColumn slotIndex: 0)
         type: ColumnType;
         public;
@@ -164,12 +164,12 @@ definition: {
             createAccessors.
     }.
 
-    // Matrix transposition
+    ## Matrix transposition
     message transposed => PrimitiveMatrixTypeTemplate(ElementType, ColumnCount, RowCount) := {
         <intrinsic: #"matrix.transpose">
     }.
 
-    // Element-wise arithmetic
+    ## Element-wise arithmetic
     message + (other: SelfType) => SelfType := {
         <intrinsic: #"matrix.add">
     }.
@@ -183,12 +183,12 @@ definition: {
         <intrinsic: #"matrix.matrixTimesMatrix">
     }.
 
-    // Matrix-Vector multiplication
+    ## Matrix-Vector multiplication
     message * (vector: ColumnType) => ColumnType := {
         <intrinsic: #"matrix.matrixTimesVector">
     }.
 
-    // Vector-Matrix multiplication
+    ## Vector-Matrix multiplication
     RowType message * (matrix: SelfType) => RowType := {
         <intrinsic: #"matrix.vectorTimesMatrix">
     }.
@@ -200,14 +200,14 @@ PrimitiveType extend: {
     }.
 }.
 
-// Float32 based matrices.
-alias Float32x2x2 := Float32 matrixRows: 2 columns: 2.
-alias Float32x3x3 := Float32 matrixRows: 3 columns: 3.
-alias Float32x4x4 := Float32 matrixRows: 3 columns: 3.
+## Float32 based matrices.
+compileTimeConstant Float32x2x2 := Float32 matrixRows: 2 columns: 2.
+compileTimeConstant Float32x3x3 := Float32 matrixRows: 3 columns: 3.
+compileTimeConstant Float32x4x4 := Float32 matrixRows: 3 columns: 3.
 
-// Float64 based vectors.
-alias Float64x2x2 := Float32 matrixRows: 2 columns: 2.
-alias Float64x3x3 := Float32 matrixRows: 3 columns: 3.
-alias Float64x4x4 := Float32 matrixRows: 3 columns: 3.
+## Float64 based vectors.
+compileTimeConstant Float64x2x2 := Float32 matrixRows: 2 columns: 2.
+compileTimeConstant Float64x3x3 := Float32 matrixRows: 3 columns: 3.
+compileTimeConstant Float64x4x4 := Float32 matrixRows: 3 columns: 3.
 
 }

@@ -1,5 +1,5 @@
 namespace SysmelKernel definition: {
-    // ifTrue:ifFalse
+    ## ifTrue:ifFalse
     BooleanType macro expansionRule ifTrue: trueAction :=
         ``(if: `,self then: `,trueAction).
     BooleanType macro expansionRule ifFalse: falseAction :=
@@ -10,12 +10,12 @@ namespace SysmelKernel definition: {
     BooleanType macro expansionRule ifFalse: falseAction ifTrue: trueAction :=
         ``(if: `,self then: `,trueAction else: `,falseAction).
 
-    // isNil
+    ## isNil
     PointerType macro expansionRule isNil := ``(`,self == nil).
     PointerType macro expansionRule isNotNil := ``(`,self ~~ nil).
 
-    // ifNil:ifNotNil
-    // TODO: Add higienic symbols.
+    ## ifNil:ifNotNil
+    ## TODO: Add higienic symbols.
     PointerType macro expansionRule ifNil: nilAction :=
         ``(if: `,self == nil then: `,nilAction).
     PointerType macro expansionRule ifNotNil: notNilAction :=
@@ -27,34 +27,34 @@ namespace SysmelKernel definition: {
         ``(if: `,self == nil then: `,nilAction else: `,notNilAction).
 
 
-    // floorAlignedTo:
+    ## floorAlignedTo:
     PrimitiveIntegerType macro expansionRule floorAlignedTo: alignment := ``(
         `,self & (`,alignment negated castTo: `,SelfType)
     ).
 
-    // alignedTo:
+    ## alignedTo:
     PrimitiveIntegerType macro expansionRule alignedTo: alignment := ``(
         (`,self + `,alignment - 1) & (`,alignment negated castTo: `,SelfType)
     ).
 
-    // isAlignedTo:
+    ## isAlignedTo:
     PointerType macro expansionRule isAlignedTo: alignment :=
         ``(((`,self reinterpretCastTo: UIntPointer) & (`,alignment - 1 castTo: UIntPointer)) == 0).
 
-    // Bitwise logarithm base 2
+    ## Bitwise logarithm base 2
     NumericalType macro expansionRule log2Floor :=
         ``(`,self highBit - 1).
 
-    /**
-     * According to https://en.wikipedia.org/wiki/Binary_logarithm:
+    #**
+     * According to https:##en.wikipedia.org/wiki/Binary_logarithm:
      * floor(log2(n)) = ceil(log2(n + 1)) - 1
      * => ceil(log2(n + 1)) = floor(log2(n)) + 1
      * => ceil(log2(n)) = floor(log2(n - 1)) + 1
-     */
+     *#
     NumericalType macro expansionRule log2Ceil :=
         ``((`,self - 1) log2Floor + 1).
 
-    // Bitwise manipulation.
+    ## Bitwise manipulation.
     IntegerType macro expansionRule bitClear: bits :=
         ``(`,self & (`,bits bitInvert)).
 
@@ -67,20 +67,20 @@ namespace SysmelKernel definition: {
     IntegerType macro expansionRule noMask: mask :=
         ``((`,self & `,mask) == 0).
 
-    // Some numerical testing methods.
+    ## Some numerical testing methods.
     IntegerType macro expansionRule isEven :=
         ``((`,self & 1) == 0).
     IntegerType macro expansionRule isOdd :=
         ``((`,self & 1) == 1).
 
-    // Compile time if.
+    ## Compile time if.
     macro expansionRule compileTimeIf: (condition: BooleanBit) then: thenNode
         := condition ifTrue: thenNode ifFalse: ``nil.
 
     macro expansionRule compileTimeIf: (condition: BooleanBit) then: thenNode else: elseNode
         := condition ifTrue: thenNode ifFalse: elseNode.
 
-    // Range loop macro
+    ## Range loop macro
     IntegerType macro expansionRule to: stop by: increment do: aBlock := {
         let index := __apsgBuilder gensym: #index.
         let stopValue := __apsgBuilder gensym: #stopValue.

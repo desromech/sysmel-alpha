@@ -8,7 +8,7 @@ evaluation: $$Pharo {
         ^ receiver sameValueButWithType: node valueType
 }.
 
-// Semantic analysis
+## Semantic analysis
 semanticAnalysis: $$Pharo {
     node: node environment: environment position: aSourcePosition
         | reference referenceType pointerType|
@@ -28,7 +28,7 @@ semanticAnalysis: $$Pharo {
             yourself
 }.
 
-// Code generation
+## Code generation
 codeGeneration: $$Pharo {
     node: messageNode builder: builder
         "Just evaluate the receiver"
@@ -37,7 +37,7 @@ codeGeneration: $$Pharo {
 }.
 
 PointerType macro selectors: #(value _) doOn: #{
-// Semantic analysis
+## Semantic analysis
 semanticAnalysis: $$Pharo {
     node: node environment: environment position: aSourcePosition
         | pointer rawPointerType pointerType pointerCoercionRule referenceType |
@@ -62,7 +62,7 @@ semanticAnalysis: $$Pharo {
             yourself
 }.
 
-// Code generation
+## Code generation
 codeGeneration: $$Pharo {
     node: messageNode builder: builder
         "Just convert the pointer"
@@ -101,7 +101,7 @@ evaluation: $$Pharo {
         ]
 }.
 
-// Semantic analysis
+## Semantic analysis
 semanticAnalysis: $$Pharo {
     node: node environment: environment position: aSourcePosition
         | pointer rawPointerType pointerType pointerCoercionRule resultType index indexType coercionType coercionRule |
@@ -138,7 +138,7 @@ semanticAnalysis: $$Pharo {
             yourself
 }.
 
-// Code generation
+## Code generation
 codeGeneration: $$Pharo {
     node: messageNode builder: builder
         | pointer index |
@@ -161,4 +161,4 @@ codeGeneration: $$Pharo {
 }.
 
 }.
-}. // End of namespace SysmelKernel
+}. ## End of namespace SysmelKernel

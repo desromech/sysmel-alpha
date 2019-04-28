@@ -1,6 +1,6 @@
 namespace SysmelKernel definition: {
 
-alias _BasicInitializeFunctionPointerType := ((Void pointer) => Void) pointer.
+compileTimeConstant _BasicInitializeFunctionPointerType := ((Void pointer) => Void) pointer.
 
 struct GCFunctionStackMapEntry definition: {
     field stackFrameSize public type: UInt32.
@@ -9,13 +9,13 @@ struct GCFunctionStackMapEntry definition: {
     field safePointCount public type: UInt32.
     field rootCount public type: UInt32.
 
-    field compiledMethod public type: UIntPointer. // Can be null
+    field compiledMethod public type: UIntPointer. ## Can be null
 
-    // Safe points
+    ## Safe points
     message safePoints => UIntPointer pointer
         := (self address [1]) address reinterpretCastTo: UIntPointer pointer.
 
-    // The root count with extra padding, if needed.
+    ## The root count with extra padding, if needed.
     if: UIntPointer instanceSize == 4 then: {
         message paddedRootCount => UInt32
             := rootCount.
@@ -26,11 +26,11 @@ struct GCFunctionStackMapEntry definition: {
                 ifFalse: {rootCount + 1}.
     }.
 
-    // Roots
+    ## Roots
     message roots => Int32 pointer
         := self safePoints[safePointCount] address reinterpretCastTo: Int32 pointer.
 
-    // Next stack map entry address.
+    ## Next stack map entry address.
     message next => GCFunctionStackMapEntry pointer
         := self roots[self paddedRootCount] address reinterpretCastTo: GCFunctionStackMapEntry pointer.
 }.
@@ -38,21 +38,21 @@ struct GCFunctionStackMapEntry definition: {
 global __sysmel_gc_section_start external externC mutable type: GCFunctionStackMapEntry.
 global __sysmel_gc_section_end external externC mutable type: GCFunctionStackMapEntry.
 
-/**
+#**
  * _ObjectHeader
  * The header an object.
- */
+ *#
 struct _ObjectHeader definition: {
-    // Pointer towards the main virtual table. Objects that implement interfaces
-    // can have additional vtables.
+    ## Pointer towards the main virtual table. Objects that implement interfaces
+    ## can have additional vtables.
     field __vtable public type: Void pointer.
 
     if: UIntPointer instanceSize == 4 then: {
-        // TODO: Support big-endian.
+        ## TODO: Support big-endian.
         field __padding public type: UInt32.
     }.
 
-    // 32 bits: gc color, isPinned, isImmutable.
+    ## 32 bits: gc color, isPinned, isImmutable.
     field _ public bits: 5; type: UInt32.
 
     field __gcBits public type: UInt32; bits: 3.
@@ -60,7 +60,7 @@ struct _ObjectHeader definition: {
     field __isImmutable public type: UInt32; bits: 1.
     field __identityHash public type: UInt32; bits: 22.
 
-    // Variable data size
+    ## Variable data size
     field __variableDataSize public type: UInt32.
 }.
 
@@ -84,17 +84,17 @@ class SysmelGC definition: {
           ::=> _ObjectHeader pointer := {
         <nogc>
 
-        //self printStackMap.
+        ##self printStackMap.
 
-        // Allocate the object memory.
+        ## Allocate the object memory.
         let allocatedObject := (memoryHeap allocate: objectSize) reinterpretCastTo: _ObjectHeader pointer.
         LibC memset(allocatedObject, 0, objectSize).
 
-        // Set the allocated object class.
+        ## Set the allocated object class.
         allocatedObject value
             __variableDataSize: variableDataSize.
 
-        // Perform the basic initialization. This sets the vtable pointers.
+        ## Perform the basic initialization. This sets the vtable pointers.
         basicInitializer _ (allocatedObject).
 
         return: allocatedObject
@@ -105,9 +105,9 @@ global globalSysmelGC mutable type: SysmelGC.
 
 }.
 
-/**
+#**
  * This is the entry point for a sysmel image.
- */
+ *#
 function __sylsif_entryPoint externC(sysmelImageMetadata: Void pointer, argc: Int32, argv: Char const pointer pointer) => Int32 := {
     LibC printf("__sylsif_entryPoint executed. Image metadata: %p\n", sysmelImageMetadata).
     return: 0.

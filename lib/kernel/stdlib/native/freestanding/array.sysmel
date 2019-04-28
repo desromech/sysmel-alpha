@@ -1,9 +1,9 @@
 namespace StdNative definition: {
 
-// Array
+## Array
 template FixedArray(ET: Type)
 	:= struct definition: {
-    alias ElementType := ET.
+    compileTimeConstant ElementType := ET.
 
     meta message elementType => _CompilerObjectType := {
         return: ElementType
@@ -21,9 +21,9 @@ template FixedArray(ET: Type)
     ).
 }.
 
-// Convenience method for literal strings
-alias String := FixedArray(Char).
-alias StringLiteral := String const ref.
+## Convenience method for literal strings
+compileTimeConstant String := FixedArray(Char).
+compileTimeConstant StringLiteral := String const ref.
 
 _LiteralString conversionTo: StringLiteral doOn: #{
     evaluation: $$Pharo {
@@ -37,4 +37,4 @@ _LiteralString conversionTo: StringLiteral doOn: #{
     }.
 }.
 
-} // End of namespace StdNative
+} ## End of namespace StdNative

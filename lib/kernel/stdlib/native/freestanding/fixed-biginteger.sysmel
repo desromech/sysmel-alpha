@@ -1,17 +1,17 @@
 namespace StdNative definition: {
 
-/**
+#**
  * I am a big integer with a maximum fixed length. I am used to implement
  * conversions between floating point numbers and integers, and some
  * cryptography primitives.
  * My length is specified in terms of 32 bits words.
- */
+ *#
 template FixedBigInteger(WC: _LiteralInteger)
     := struct definition: {
-    alias WordCount := WC.
-    alias BitCount := WordCount*32.
-    alias MaxNumberOfDecimalDigits := (WordCount * 3.3219280948873626) ceiling.
-    alias WordMask := 16rFFFFFFFF.
+    compileTimeConstant WordCount := WC.
+    compileTimeConstant BitCount := WordCount*32.
+    compileTimeConstant MaxNumberOfDecimalDigits := (WordCount * 3.3219280948873626) ceiling.
+    compileTimeConstant WordMask := 16rFFFFFFFF.
 
     field words public type: (UInt32 array: WordCount).
 
@@ -86,7 +86,7 @@ template FixedBigInteger(WC: _LiteralInteger)
     }.
 
     message subtract: (other: SelfType const ref) into: (result: SelfType ref) ::=> Void := {
-        let carry mutable type: UInt64 := 1. // For two-complement negation.
+        let carry mutable type: UInt64 := 1. ## For two-complement negation.
 
         0 until: WordCount do: {|(i: UIntPointer) => Void|.
             let left := words[i] castTo: UInt64.
@@ -114,17 +114,17 @@ template FixedBigInteger(WC: _LiteralInteger)
                     let leftFactor type: UInt64 := words[j].
                     let product := leftFactor * rightFactor.
 
-                    // The previous carry and the current result always fit in an UInt64.
+                    ## The previous carry and the current result always fit in an UInt64.
                     carry := carry + result words[j].
 
-                    // The top bits of the multiplication always goes to the next carry.
+                    ## The top bits of the multiplication always goes to the next carry.
                     let nextCarry := (carry >> 32) + (product >> 32).
                     let sum := (carry & WordMask) + (product & WordMask).
 
-                    // Store the lower 32 bits of the sum in the result.
+                    ## Store the lower 32 bits of the sum in the result.
                     result words[j] := sum & WordMask castTo: UInt32.
 
-                    // Set the next carry
+                    ## Set the next carry
                     carry := nextCarry + (sum >> 32)
                 }
             }.
@@ -152,5 +152,5 @@ template FixedBigInteger(WC: _LiteralInteger)
     }.
 }.
 
-alias FloatStringConversionBigInteger := FixedBigInteger(32). // 1024 bits big integer.
-}. // End of namespace StdNative
+compileTimeConstant FloatStringConversionBigInteger := FixedBigInteger(32). ## 1024 bits big integer.
+}. ## End of namespace StdNative

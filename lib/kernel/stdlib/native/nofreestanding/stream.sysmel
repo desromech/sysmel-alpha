@@ -1,50 +1,50 @@
 namespace StdNative definition: {
 
-/**
+#**
  * This is a generic byte oriented stream
- */
+ *#
 class BinaryStream definition: {
-    /**
+    #**
      * Tells the current position of the stream in the file.
      * Negative for error or not supported.
-     */
+     *#
     virtual message position => Int64
         := -1.
 
-    /**
+    #**
      * This sets the current file position.
-     */
+     *#
     virtual message position: (newPosition: Int64) ::=> BooleanBit
         := false.
 
-    /**
+    #**
      * This sets the current file position, from the end of the file.
-     */
+     *#
     virtual message positionFromEnd: (newPosition: Int64) ::=> BooleanBit
         := false.
 
-    /**
+    #**
      * This moves the file pointer the requested amount.
-     */
+     *#
     virtual message skip: (byteCount: Int64) ::=> BooleanBit
         := false.
 
-    /**
+    #**
      * Writes the content of a buffer into the file.
-     */
+     *#
     virtual message write: (buffer: Void const pointer) size: (size: UIntPointer) ::=> IntPointer
         := -1.
 
-    /**
+    #**
      * Read the content of a file towards a buffer.
-     */
+     *#
      virtual message read: (buffer: Void pointer) size: (size: UIntPointer) ::=> IntPointer
          := -1.
 }.
 
-/**
+#**
  * File stream class.
- */
+ *#
 class BinaryFileStream superclass: BinaryStream;
 definition: {
     field nativeFileHandle public type: NativeFileHandle.

@@ -1,7 +1,7 @@
 namespace SysmelKernel definition: {
 
 ArrayType macro selectors: #(at: subscriptAt:) doOn: #{
-    // Evaluation
+    ## Evaluation
     evaluation: $$Pharo {
         evaluateMessage: message inEnvironment: anEnvironment
             | variableData indexCoercionRule indexCoercionType index |
@@ -25,7 +25,7 @@ ArrayType macro selectors: #(at: subscriptAt:) doOn: #{
                 yourself) asSysmelValueInEnvironment: anEnvironment
     }.
 
-    // Semantic analysis
+    ## Semantic analysis
     semanticAnalysis: $$Pharo {
         node: node environment: environment position: aSourcePosition
             | variableData receiverType arrayType resultType index indexType coercionType coercionRule |
@@ -66,7 +66,7 @@ ArrayType macro selectors: #(at: subscriptAt:) doOn: #{
                 yourself
     }.
 
-    // Code generation
+    ## Code generation
     codeGeneration: $$Pharo {
         node: messageNode builder: builder
             | arrayReference index |
@@ -87,7 +87,7 @@ ArrayType macro selectors: #(at: subscriptAt:) doOn: #{
     }.
 }.
 
-// Literal String => CString
+## Literal String => CString
 _LiteralString conversionTo: Char const pointer doOn: #{
     evaluation: $$Pharo {
         value: value targetType: targetType at: position

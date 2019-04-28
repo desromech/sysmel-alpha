@@ -1,8 +1,8 @@
 namespace StdNative definition: {
 
-/**
+#**
  * Text stream writer
- */
+ *#
 class TextStreamWriter definition: {
     field stream public type: BinaryStream pointer.
 
@@ -32,9 +32,9 @@ class TextStreamWriter definition: {
         }
     }.
 
-    // Integer formatting.
+    ## Integer formatting.
     message nextPutInteger: (value: Int64) ::=> Void := {
-        // Extract the digits, in reverse order.
+        ## Extract the digits, in reverse order.
         let currentValue mutable := value < 0 ifTrue: -value ifFalse: value.
         let digitCount mutable := 0.
         let buffer mutable type: (UInt8 array: 32).
@@ -47,12 +47,12 @@ class TextStreamWriter definition: {
             currentValue := currentValue / 10
         } while: (currentValue ~= 0).
 
-        // Put the sign.
+        ## Put the sign.
         if: value < 0 then: {
             self nextPut: '-'
         }.
 
-        // Print the digits in the correct order
+        ## Print the digits in the correct order
         while: (digitCount > 0) do: {
             digitCount := digitCount - 1.
             self nextPut: buffer[digitCount]
@@ -60,7 +60,7 @@ class TextStreamWriter definition: {
     }.
 
     message nextPutUnsignedInteger: (value: UInt64) ::=> Void := {
-        // Extract the digits, in reverse order.
+        ## Extract the digits, in reverse order.
         let currentValue mutable := value.
         let digitCount mutable := 0.
         let buffer mutable type: (UInt8 array: 32).
@@ -74,7 +74,7 @@ class TextStreamWriter definition: {
             currentValue := currentValue / 10
         } while: (currentValue ~= 0).
 
-        // Print the digits in the correct order
+        ## Print the digits in the correct order
         while: (digitCount > 0) do: {
             digitCount := digitCount - 1.
             self nextPut: buffer[digitCount]
@@ -87,7 +87,7 @@ class TextStreamWriter definition: {
         }
     }.
 
-    // Floating point formatting
+    ## Floating point formatting
     message nextPutDouble: (double: Float64) ::=> Void := {
         let doubleMemory mutable := double.
         let ieee754Double := (doubleMemory address reinterpretCastTo: UInt64 pointer) value.
@@ -134,11 +134,11 @@ class TextStreamWriter definition: {
         }.
 
         self << "e" << exponent << "m" << mantissa.
-        //let decimalPart mutable type: FloatStringConversionBigInteger := mantissa.
-        //self << "e" << exponent << "m" << mantissa << "dp" << decimalPart words[0] << ":" << decimalPart words[1] << ":" << decimalPart words[2] << ":"; nextPutBigInteger: decimalPart.
+        ##let decimalPart mutable type: FloatStringConversionBigInteger := mantissa.
+        ##self << "e" << exponent << "m" << mantissa << "dp" << decimalPart words[0] << ":" << decimalPart words[1] << ":" << decimalPart words[2] << ":"; nextPutBigInteger: decimalPart.
     }.
 
-    // Pointer formatting.
+    ## Pointer formatting.
     message nextPutLittleUInt32: (value: UInt32) ::=> Void := {
         0 until: 32 by: 4 do: {|(i: UInt32) => Void|.
             self nextPutHexDigit: ((value >> i) & 16rF castTo: Int32)
@@ -170,7 +170,7 @@ class TextStreamWriter definition: {
         }
     }.
 
-    // Special characters
+    ## Special characters
     message tab => SelfType ref
         := self nextPut: '\t'; yourself.
 
@@ -186,7 +186,7 @@ class TextStreamWriter definition: {
     message nl => SelfType ref
         := self lf; yourself.
 
-    // Convenience printing methods.
+    ## Convenience printing methods.
     message << (string: StdNative StringLiteral) => SelfType ref
         := self nextPutAll: string; yourself.
 
@@ -224,7 +224,7 @@ class TextStreamWriter definition: {
         := self nextPutDouble: double; yourself.
 }.
 
-/*PrimitiveVectorTypeTemplate extend: {
+#*PrimitiveVectorTypeTemplate extend: {
     let VectorType := SelfType.
 
     TextStreamWriter extend: {
@@ -246,7 +246,7 @@ class TextStreamWriter definition: {
             self
         }.
     }.
-}.*/
+}.*#
 
 global stdout mutable := TextStreamWriter for: stdoutFile address.
 global stderr mutable := TextStreamWriter for: stderrFile address.

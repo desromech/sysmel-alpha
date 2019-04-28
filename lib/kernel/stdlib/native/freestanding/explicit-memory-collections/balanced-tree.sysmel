@@ -1,26 +1,26 @@
 namespace StdNative definition: {
 namespace ExplicitMemoryCollections definition: {
 
-/**
+#**
  * I am the definition for a balanced tree node with explicit memory management semantics.
- * AVL tree: https://en.wikipedia.org/wiki/AVL_tree
- */
+ * AVL tree: https:##en.wikipedia.org/wiki/AVL_tree
+ *#
 template BalancedTree(KT: Type, VT: Type)
     := struct definition: {
 
-    alias Node := SelfType.
-    alias KeyType := KT.
-    alias ValueType := VT.
+    compileTimeConstant Node := SelfType.
+    compileTimeConstant KeyType := KT.
+    compileTimeConstant ValueType := VT.
 
-    alias BalanceFactorMask := 3 castTo: UIntPointer.
-    alias ChildPointerMask := ~BalanceFactorMask.
+    compileTimeConstant BalanceFactorMask := 3 castTo: UIntPointer.
+    compileTimeConstant ChildPointerMask := ~BalanceFactorMask.
 
-    field left_ type: UIntPointer. // Use the left pointer to encode the balance factor.
+    field left_ type: UIntPointer. ## Use the left pointer to encode the balance factor.
     field parent public type: Node pointer.
     field right public type: Node pointer.
     field key public type: KeyType.
 
-    // Having a different value is optional.
+    ## Having a different value is optional.
     if: ValueType isVoidType not then: {
         field value public type: ValueType.
 
@@ -29,11 +29,11 @@ template BalancedTree(KT: Type, VT: Type)
         }
     } else: {
         message replaceValueWith: (otherNode: SelfType pointer) ::=> Void := {
-            // Do nothing.
+            ## Do nothing.
         }
     }.
 
-    // Left pointer accessor.
+    ## Left pointer accessor.
     message left => Node pointer
         := left_ & ChildPointerMask reinterpretCastTo: Node pointer.
 
@@ -41,7 +41,7 @@ template BalancedTree(KT: Type, VT: Type)
         left_ := (left_ & BalanceFactorMask) | ((newLeftNode reinterpretCastTo: UIntPointer) & ChildPointerMask)
     }.
 
-    // Balance factor accessor.
+    ## Balance factor accessor.
     message balanceFactor => Int32
         := (left_ & BalanceFactorMask castTo: Int32) - 1.
 
@@ -49,7 +49,7 @@ template BalancedTree(KT: Type, VT: Type)
         left_ := (left_ & ChildPointerMask) | ((newFactor + 1 castTo: UIntPointer) & BalanceFactorMask)
     }.
 
-    // Binary tree search
+    ## Binary tree search
     message search: (searchKey: KeyType) ::=> SelfType pointer := {
         let position mutable := self address.
         while: position isNotNil do: {
@@ -67,9 +67,9 @@ template BalancedTree(KT: Type, VT: Type)
         return: nil
     }.
 
-    /**
+    #**
      * This finds the first element that is at least as big as the key.
-     */
+     *#
     message lowerBound: (searchKey: KeyType) ::=> SelfType pointer := {
         let position mutable := self address.
         let bestFound mutable type: SelfType pointer := nil.
@@ -79,11 +79,11 @@ template BalancedTree(KT: Type, VT: Type)
                 bestFound := position.
                 position := position _ left.
             } ifFalse: {
-                // position <= searchKey
+                ## position <= searchKey
                 position _ key < searchKey ifTrue: {
                     position := position _ right.
                 } ifFalse: {
-                    // Same key
+                    ## Same key
                     bestFound := position.
                     position := position _ left
                 }
@@ -93,9 +93,9 @@ template BalancedTree(KT: Type, VT: Type)
         return: bestFound
     }.
 
-    /**
+    #**
      * This finds the first element that is at greater than the search key.
-     */
+     *#
     message upperBound: (searchKey: KeyType) ::=> SelfType pointer := {
         let position mutable := self address.
         let bestFound mutable type: SelfType pointer := nil.
@@ -122,27 +122,27 @@ template BalancedTree(KT: Type, VT: Type)
             return: nil
         }.
 
-        // If the left node is not nil, the last element that subtree.
+        ## If the left node is not nil, the last element that subtree.
         self left ifNotNil: {
             return: self left _ last
         }.
 
-        // We need to look on the parent.
+        ## We need to look on the parent.
         let position mutable := self address.
         let nextPosition mutable := parent.
         while: nextPosition isNotNil do: {
             position == nextPosition _ right ifTrue: {
-                // Comming from the right: next position is the predecessor
+                ## Comming from the right: next position is the predecessor
                 return: nextPosition
             } ifFalse: {
-                // Comming from the left: We need to keep going up.
+                ## Comming from the left: We need to keep going up.
             }.
 
             position := nextPosition.
             nextPosition := position _ parent
         }.
 
-        // I am the first node, so I do not have a predecessors.
+        ## I am the first node, so I do not have a predecessors.
         return: nil.
     }.
 
@@ -165,14 +165,14 @@ template BalancedTree(KT: Type, VT: Type)
     message isLeaf => BooleanBit
         := self left isNil && self right isNil.
 
-    // Insert node.
+    ## Insert node.
     message insertOrReplace: (newNode: SelfType pointer) ::=> SelfType pointer := {
-        // If self is nil, just return the node.
+        ## If self is nil, just return the node.
         self address ifNil: {
             return: newNode
         }.
 
-        // Left child.
+        ## Left child.
         newNode _ key < key ifTrue: {
             self left: (self left _ insertOrReplace: newNode).
             self left ifNotNil: {
@@ -180,56 +180,56 @@ template BalancedTree(KT: Type, VT: Type)
             }.
         } ifFalse: {
             key < newNode _ key ifTrue: {
-                // Right child
+                ## Right child
                 self right: (self right _ insertOrReplace: newNode).
                 self right ifNotNil: {
                     self right _ parent: self address
                 }.
             } ifFalse: {
-                // This is the node, replace the value.
+                ## This is the node, replace the value.
                 self replaceValueWith: newNode.
                 return: self address.
             }
         }.
 
-        // TODO. Rebalance the tree.
+        ## TODO. Rebalance the tree.
 
         self address
     }.
 
     message insertNode: (newNode: SelfType pointer) ::=> SelfType pointer := {
-        // If self is nil, just return the node.
+        ## If self is nil, just return the node.
         self address ifNil: {
             return: newNode
         }.
 
-        // Left child.
+        ## Left child.
         newNode _ key < key ifTrue: {
             self left: (self left _ insertNode: newNode).
             self left ifNotNil: {
                 self left _ parent: self address
             }.
         } ifFalse: {
-            //key < = newNode _ key ifTrue: {
-            // Right child
+            ##key < = newNode _ key ifTrue: {
+            ## Right child
             self right: (self right _ insertNode: newNode).
             self right ifNotNil: {
                 self right _ parent: self address
             }.
         }.
 
-        // TODO. Rebalance the tree.
+        ## TODO. Rebalance the tree.
 
         self address
     }.
 
-    // Remove unique node.
+    ## Remove unique node.
     message removeUniqueNode: (oldNode: SelfType pointer) ::=> SelfType pointer := {
         self address ifNil: {
             return: nil
         }.
 
-        // Left node.
+        ## Left node.
         oldNode _ key < key ifTrue: {
             self left: (self left _ removeUniqueNode: oldNode).
             self left ifNotNil: {
@@ -237,13 +237,13 @@ template BalancedTree(KT: Type, VT: Type)
             }.
         } ifFalse: {
             key < oldNode _ key ifTrue: {
-                // Right child
+                ## Right child
                 self right: (self right _ removeUniqueNode: oldNode).
                 self right ifNotNil: {
                     self right _ parent: self address
                 }.
             } ifFalse: {
-                // Do I have one leaf? or none?
+                ## Do I have one leaf? or none?
                 self right isNil ifTrue: {
                     return: self left
                 }.
@@ -254,27 +254,27 @@ template BalancedTree(KT: Type, VT: Type)
                     return: self right
                 }.
 
-                // The two leaves are valid, remove the immediate successor.
+                ## The two leaves are valid, remove the immediate successor.
                 let successor := self right _ removeLowerLeftNode.
                 successor _ left: self left.
-                // TODO: Rebalance the successor
+                ## TODO: Rebalance the successor
                 return: successor
             }
         }.
 
-        // TODO: Rebalance the tree.
+        ## TODO: Rebalance the tree.
         self address
     }.
 
-    // Remove node with duplicated key.
+    ## Remove node with duplicated key.
     message removeNode: (oldNode: SelfType pointer) ::=> SelfType pointer := {
         self address ifNil: {
             return: nil
         }.
 
-        // Is this the target node?
+        ## Is this the target node?
         self address == oldNode ifTrue: {
-            // Do I have one leaf? or none?
+            ## Do I have one leaf? or none?
             self right isNil ifTrue: {
                 return: self left
             }.
@@ -282,15 +282,15 @@ template BalancedTree(KT: Type, VT: Type)
                 return: self right
             }.
 
-            // The two leaves are valid, remove the immediate successor.
+            ## The two leaves are valid, remove the immediate successor.
             let successor := self right _ removeLowerLeftNode.
             successor _ left: self left.
 
-            // TODO: Rebalance the successor
+            ## TODO: Rebalance the successor
             return: successor
         }.
 
-        // Left node.
+        ## Left node.
         oldNode _ key < key ifTrue: {
             self left: (self left _ removeNode: oldNode).
             self left ifNotNil: {
@@ -298,13 +298,13 @@ template BalancedTree(KT: Type, VT: Type)
             }.
         } ifFalse: {
             key < oldNode _ key ifTrue: {
-                // Right child
+                ## Right child
                 self right: (self right _ removeNode: oldNode).
                 self right ifNotNil: {
                     self right _ parent: self address
                 }.
             } ifFalse: {
-                // Same key. Check the two children.
+                ## Same key. Check the two children.
                 self left: (self left _ removeNode: oldNode).
                 self left ifNotNil: {
                     self left _ parent: self address
@@ -317,13 +317,13 @@ template BalancedTree(KT: Type, VT: Type)
             }
         }.
 
-        // TODO: Rebalance the tree.
+        ## TODO: Rebalance the tree.
         self address
     }.
 
-    /**
+    #**
      * This removes the lower left node of the tree, and returns the old lower left node.
-     */
+     *#
     message removeLowerLeftNode ::=> SelfType pointer := {
         self isLeaf ifTrue: {
             self address.
@@ -339,5 +339,5 @@ template BalancedTree(KT: Type, VT: Type)
     }.
 }.
 
-}. // End of namespace ExplicitMemoryCollections
-}. // End of namespace StdNative
+}. ## End of namespace ExplicitMemoryCollections
+}. ## End of namespace StdNative

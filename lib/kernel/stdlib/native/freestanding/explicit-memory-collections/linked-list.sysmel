@@ -4,8 +4,8 @@ namespace ExplicitMemoryCollections definition: {
 struct DoubleLinkedList.
 
 struct DoubleLinkedListNode definition: {
-    alias Node := DoubleLinkedListNode.
-    alias List := DoubleLinkedList.
+    compileTimeConstant Node := DoubleLinkedListNode.
+    compileTimeConstant List := DoubleLinkedList.
 
     field list public type: List pointer.
     field previous public type: Node pointer.
@@ -13,7 +13,7 @@ struct DoubleLinkedListNode definition: {
 }.
 
 struct DoubleLinkedList definition: {
-    alias Node := DoubleLinkedListNode.
+    compileTimeConstant Node := DoubleLinkedListNode.
 
     field first public type: DoubleLinkedListNode pointer.
     field last public type: DoubleLinkedListNode pointer.
@@ -67,19 +67,19 @@ struct DoubleLinkedList definition: {
         position ifNil: {
             self addFirst: newNode
         } ifNotNil: {
-            // Link with neighbors.
+            ## Link with neighbors.
             newNode _
                 previous: position;
                 next: position _ next.
 
-            // Link next
+            ## Link next
             newNode _ next ifNil: {
                 last := newNode
             } ifNotNil: {
                 newNode _ next _ previous: position.
             }.
 
-            // Link previous
+            ## Link previous
             position _ next: newNode.
             newNode _ list: self address.
         }.
@@ -93,19 +93,19 @@ struct DoubleLinkedList definition: {
         position ifNil: {
             self addLast: newNode
         } ifNotNil: {
-            // Link with neighbors.
+            ## Link with neighbors.
             newNode _
                 previous: position _ previous;
                 next: position.
 
-            // Link previous
+            ## Link previous
             newNode _ previous ifNil: {
                 first := newNode
             } ifNotNil: {
                 newNode _ previous _ next: position.
             }.
 
-            // Link after
+            ## Link after
             position _ previous: newNode.
             newNode _ list: self address.
         }.
@@ -115,14 +115,14 @@ struct DoubleLinkedList definition: {
         assert: node isNotNil.
         assert: node _ list == self address.
 
-        // Update the previous node.
+        ## Update the previous node.
         node _ previous ifNil: {
             first := node _ next
         } ifNotNil: {
             node _ previous _ next: node _ next.
         }.
 
-        // Update the next node.
+        ## Update the next node.
         node _ next ifNil: {
             last := node _ previous.
         } ifNotNil: {
@@ -136,5 +136,5 @@ struct DoubleLinkedList definition: {
     }
 }.
 
-}. // End of namespaces ExplicitMemoryCollections
-}. // End of namespace StdNative
+}. ## End of namespaces ExplicitMemoryCollections
+}. ## End of namespace StdNative

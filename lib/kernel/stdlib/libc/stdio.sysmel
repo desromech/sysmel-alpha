@@ -1,7 +1,7 @@
 namespace LibC definition: {
-    alias SEEK_SET := 0.
-    alias SEEK_CUR := 1.
-    alias SEEK_END := 2.
+    compileTimeConstant SEEK_SET := 0.
+    compileTimeConstant SEEK_CUR := 1.
+    compileTimeConstant SEEK_END := 2.
 
     function printf externC CVariadic (format: Char const pointer) => Int32.
     function perror externC CVariadic (s: Char const pointer) => Int32.

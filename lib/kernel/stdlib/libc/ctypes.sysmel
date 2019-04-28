@@ -1,32 +1,32 @@
 namespace CTypes definition: {
-    // CTypes
-    alias Char := UInt8.
-    alias String := Char pointer.
-    alias ConstString := Char const pointer.
+    ## CTypes
+    compileTimeConstant Char := UInt8.
+    compileTimeConstant String := Char pointer.
+    compileTimeConstant ConstString := Char const pointer.
 
-    alias Short := Int16.
-    alias UShort := UInt16.
+    compileTimeConstant Short := Int16.
+    compileTimeConstant UShort := UInt16.
 
-    alias Int := Int32.
-    alias UInt := UInt32.
+    compileTimeConstant Int := Int32.
+    compileTimeConstant UInt := UInt32.
 
-    alias LongLong := Int64.
-    alias ULongLong := UInt64.
+    compileTimeConstant LongLong := Int64.
+    compileTimeConstant ULongLong := UInt64.
 
-    // Select the correct long type according to the target platform."
+    ## Select the correct long type according to the target platform."
     if: Compiler compilationTarget isWin32 then: {
-        alias Long := Int32.
-        alias ULong := UInt32.
+        compileTimeConstant Long := Int32.
+        compileTimeConstant ULong := UInt32.
     } else: {
-        alias Long := IntPointer.
-        alias ULong := UIntPointer.
+        compileTimeConstant Long := IntPointer.
+        compileTimeConstant ULong := UIntPointer.
     }.
 
-    alias Float := Float32.
-    alias Double := Float64.
+    compileTimeConstant Float := Float32.
+    compileTimeConstant Double := Float64.
 
-    alias SizeT := UIntPointer.
-    alias SSizeT := IntPointer.
+    compileTimeConstant SizeT := UIntPointer.
+    compileTimeConstant SSizeT := IntPointer.
 }.
 
 namespace LibC definition: {

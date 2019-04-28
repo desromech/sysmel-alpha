@@ -2,7 +2,7 @@ namespace StdNative definition: {
 
 if: Compiler compilationTarget hasNoOperatingSystem then: {
     message fatalError: (message: StringLiteral) ::=> Void := {
-        // TODO: Use a trap instruction here.
+        ## TODO: Use a trap instruction here.
     }.
 } else: {
     message fatalError: (message: StringLiteral) ::=> Void := {
@@ -11,9 +11,9 @@ if: Compiler compilationTarget hasNoOperatingSystem then: {
     }.
 }.
 
-/**
+#**
  * assert: an assertion that can be disabled in compile time.
- */
+ *#
 macro expansionRule assert: condition := {
     let position := condition position asString.
     let expression := condition originalSourceCode.
@@ -25,9 +25,9 @@ macro expansionRule assert: condition := {
     })
 }.
 
-/**
+#**
  * assertAlways: An assertion that is always active.
- */
+ *#
 macro expansionRule assertAlways: condition := {
     let position := condition position asString.
     let expression := condition originalSourceCode.

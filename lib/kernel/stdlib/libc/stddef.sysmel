@@ -1,4 +1,4 @@
 namespace LibC definition: {
-    alias SizeT := UIntPointer.
-    alias PtrdiffT := IntPointer.
+    compileTimeConstant SizeT := UIntPointer.
+    compileTimeConstant PtrdiffT := IntPointer.
 }.

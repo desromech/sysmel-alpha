@@ -1,4 +1,4 @@
-// Arithmetic coercions
+## Arithmetic coercions
 PrimitiveSignedIntegerType meta message
     generateArithmeticMessage: (messageNode: _CompilerObjectType) withBuilder: (builder: _CompilerObjectType)
         left: (left: _CompilerObjectType) right: (right: _CompilerObjectType)
@@ -54,22 +54,22 @@ coerce: left node: literalNode with: right node: valueNode
     ].
 }.
 
-// Literal arithmetic coercion rules.
+## Literal arithmetic coercion rules.
 _LiteralInteger arithmeticCoercionWith: _LiteralFraction into: _LiteralFraction.
 _LiteralFraction arithmeticCoercionWith: _LiteralFloat into: _LiteralFloat.
 _LiteralInteger arithmeticCoercionWith: _LiteralFloat into: _LiteralFloat.
 
-// Unsigned arithmetic coercion rules.
+## Unsigned arithmetic coercion rules.
 UInt8 arithmeticCoercionWith: UInt16 into: Int32.
 UInt8 | UInt16 arithmeticCoercionWith: UInt32 into: UInt32.
 UInt8 | UInt16 | UInt32 arithmeticCoercionWith: UInt64 into: UInt64.
 
-// Signed arithmetic coercion rules.
+## Signed arithmetic coercion rules.
 Int8 | UInt8 arithmeticCoercionWith: Int16 into: Int32.
 Int8 | UInt8 | Int16 | UInt16 arithmeticCoercionWith: Int32 into: Int32.
 Int8 | UInt8 | Int16 | UInt16 | Int32 | UInt32 arithmeticCoercionWith: Int64 into: Int64.
 
-// Floating point arithmetic coercion
+## Floating point arithmetic coercion
 Int8 | Int16 | Int32 arithmeticCoercionWith: Float32 into: Float32.
 UInt8 | UInt16 | UInt32 arithmeticCoercionWith: Float32 into: Float32.
 
@@ -78,10 +78,10 @@ UInt8 | UInt16 | UInt32 | UInt64  arithmeticCoercionWith: Float64 into: Float64.
 
 Float32 arithmeticCoercionWith: Float64 into: Float64.
 
-// Pointer
+## Pointer
 
-// Binary operators
-// TODO: Only allow the bitwise operations with integer types.
+## Binary operators
+## TODO: Only allow the bitwise operations with integer types.
 NumericalType macro selectors: #(
     + - * / %
     < > <= >= = ~= == ~~
@@ -97,7 +97,7 @@ evaluation: $$Pharo {
         right := node coercionRule second convertValue: (node arguments first evaluateInEnvironment: environment) into: coercionType at: node.
         selector := node selector.
         (selector == #/ and: [ valueType isIntegerType]) ifTrue: [
-            selector := #//
+            selector := ###
         ].
 
         ^ (left value perform: selector with: right value) sysmelValueWithType: valueType inEnvironment: environment
@@ -123,7 +123,7 @@ semanticAnalysis: $$Pharo {
         coercionType isLiteralType ifTrue: [
             foldSelector := node selector.
             (foldSelector == #/ and: [ coercionType isIntegerType]) ifTrue: [
-                foldSelector := #//
+                foldSelector := ###
             ].
 
             ^ node buildLiteralWithValue: ((left value value perform: foldSelector with: right value value) sysmelValueWithType: resultType inEnvironment: environment)
@@ -146,7 +146,7 @@ semanticAnalysis: $$Pharo {
 
 }.
 
-// Code generation
+## Code generation
 codeGeneration: $$Pharo {
     node: messageNode builder: builder
         | coercionType leftNode leftValue rightNode rightValue |
@@ -165,7 +165,7 @@ codeGeneration: $$Pharo {
 }.
 
 NumericalType macro selectors: #(#"prefix-+" negated #"prefix--" bitInvert #"prefix-~" highBit lowBit) doOn: #{
-    // Compile time evaluation
+    ## Compile time evaluation
     evaluation: $$Pharo {
         node: node environment: environment
             | operand coercionType |
@@ -176,7 +176,7 @@ NumericalType macro selectors: #(#"prefix-+" negated #"prefix--" bitInvert #"pre
             ^ (operand value perform: node selector) sysmelValueWithType: coercionType inEnvironment: environment
     }.
 
-    // Semantic analysis
+    ## Semantic analysis
     semanticAnalysis: $$Pharo {
         node: node environment: environment position: aSourcePosition
 	        | operand operandType coercionType resultType coercionRule actualSelector |
@@ -211,7 +211,7 @@ NumericalType macro selectors: #(#"prefix-+" negated #"prefix--" bitInvert #"pre
                 yourself
     }.
 
-    // Code generation
+    ## Code generation
     codeGeneration: $$Pharo {
         node: messageNode builder: builder
 			| coercionType operandNode operandValue |

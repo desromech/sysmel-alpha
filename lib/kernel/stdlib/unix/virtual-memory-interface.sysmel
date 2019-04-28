@@ -1,8 +1,8 @@
 namespace StdNative definition: {
 
-/**
+#**
  * Unix virtual memory interface.
- */
+ *#
 namespace UnixVirtualMemoryInterface definition: {
 
     message reserveAndCommitAddressSpace: (size: UIntPointer) alignment: (alignment: UIntPointer) ::=> Void pointer := {
@@ -15,9 +15,9 @@ namespace UnixVirtualMemoryInterface definition: {
             return: nil.
         }.
 
-        // Since we cannot specify, the alignment first just try to map hoping for the best cast.
-        // Otherwise, then map with excess and then trim the mapping.
-        // This technique is taken from the implementation in jemalloc.
+        ## Since we cannot specify, the alignment first just try to map hoping for the best cast.
+        ## Otherwise, then map with excess and then trim the mapping.
+        ## This technique is taken from the implementation in jemalloc.
         (optimisticResult isAlignedTo: alignment) ifTrue: {
             return: optimisticResult.
         } ifFalse: {
@@ -27,27 +27,27 @@ namespace UnixVirtualMemoryInterface definition: {
     }.
 
     message slowReserveAndCommitAddressSpace: (size: UIntPointer) alignment: (alignment: UIntPointer) ::=> Void pointer := {
-        // This technique is taken from the implementation in jemalloc.
+        ## This technique is taken from the implementation in jemalloc.
         let reservationSize := size + alignment.
-        // Guard for wrap around.
+        ## Guard for wrap around.
         reservationSize < size ifTrue: {
             return: nil
         }.
 
-        // Allocate the pages with excess size.
+        ## Allocate the pages with excess size.
         let pages := Unix mmap(nil, reservationSize, Unix PROT_READ | Unix PROT_WRITE, Unix MAP_PRIVATE | Unix MAP_ANONYMOUS, -1, 0).
         pages == Unix MAP_FAILED ifTrue: {
             return: nil
         }.
 
-        // Compute the aligned address.
+        ## Compute the aligned address.
         let pagesAddress := pages reinterpretCastTo: UIntPointer.
         let alignedAddress := pagesAddress alignedTo: alignment.
 
-        // Compute the leading size.
+        ## Compute the leading size.
         let leadingSize := alignedAddress - pagesAddress.
 
-        // Trim the leading size.
+        ## Trim the leading size.
         leadingSize > 0 ifTrue: {
             Unix munmap(pages, leadingSize) == -1 ifTrue: {
                 LibC perror("munmap failed").
@@ -55,11 +55,11 @@ namespace UnixVirtualMemoryInterface definition: {
             }
         }.
 
-        // Compute the trailing size and address.
+        ## Compute the trailing size and address.
         let trailingSize := reservationSize - size - leadingSize.
         let trailingAddress := alignedAddress + size.
         trailingSize > 0 ifTrue: {
-            // Trim the trailing size.
+            ## Trim the trailing size.
             Unix munmap(trailingAddress reinterpretCastTo: Void pointer, trailingSize) == -1 ifTrue: {
                 LibC perror("munmap failed").
                 LibC abort().
@@ -98,7 +98,7 @@ namespace UnixVirtualMemoryInterface definition: {
         let alignedSize := size alignedTo: 4096.
         let startAddress := (addressSpace reinterpretCastTo: UInt8 pointer)[offset] address.
 
-        // mprotect/madvise
+        ## mprotect/madvise
         Unix mprotect(startAddress, alignedSize, Unix PROT_NONE) == 0
     }.
 
@@ -108,5 +108,5 @@ namespace UnixVirtualMemoryInterface definition: {
 
 }.
 
-alias NativeVirtualMemoryInterface := UnixVirtualMemoryInterface.
-}. // End of namespace StdNative
+compileTimeConstant NativeVirtualMemoryInterface := UnixVirtualMemoryInterface.
+}. ## End of namespace StdNative

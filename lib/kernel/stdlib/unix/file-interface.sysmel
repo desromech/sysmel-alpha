@@ -1,13 +1,13 @@
 namespace StdNative definition: {
 
-alias NativeFileHandle := Int32.
-alias stdinNativeFileHandle := Unix STDIN_FILENO.
-alias stdoutNativeFileHandle := Unix STDOUT_FILENO.
-alias stderrNativeFileHandle := Unix STDERR_FILENO.
+compileTimeConstant NativeFileHandle := Int32.
+compileTimeConstant stdinNativeFileHandle := Unix STDIN_FILENO.
+compileTimeConstant stdoutNativeFileHandle := Unix STDOUT_FILENO.
+compileTimeConstant stderrNativeFileHandle := Unix STDERR_FILENO.
 
-alias NativeFile_SeekSet := LibC SEEK_SET.
-alias NativeFile_SeekCur := LibC SEEK_CUR.
-alias NativeFile_SeekEnd := LibC SEEK_END.
+compileTimeConstant NativeFile_SeekSet := LibC SEEK_SET.
+compileTimeConstant NativeFile_SeekCur := LibC SEEK_CUR.
+compileTimeConstant NativeFile_SeekEnd := LibC SEEK_END.
 
 function nativeFile_seek(fd: NativeFileHandle, offset: Unix OFF64_T, whence: Int32) => BooleanBit := {
     Unix lseek64(fd, offset, whence) ~= (-1 castTo: Unix OFF_T)
@@ -28,4 +28,4 @@ function nativeFile_read(fd: NativeFileHandle, buffer: Void pointer, size: UIntP
 function native_abort() => Void
     := LibC abort().
 
-}. // End of namespace StdNative
+}. ## End of namespace StdNative

@@ -1,13 +1,13 @@
 namespace SysmelKernel definition: {
 
-// Add a testing method into type about primitive vector types.
+## Add a testing method into type about primitive vector types.
 Type extend: {
     message isPrimitiveVectorType => BooleanBit := {
         return: false
     }.
 }.
 
-// Common trait for primitive vectors
+## Common trait for primitive vectors
 trait PrimitiveVectorType
     uses: PrimitiveType;
 definition: {
@@ -16,13 +16,13 @@ definition: {
     }.
 }.
 
-// Primitive vector template.
+## Primitive vector template.
 template PrimitiveVectorTypeTemplate(E: Type, N: _LiteralInteger)
     := type uses: PrimitiveVectorType;
 definition: {
-    alias ElementType := E.
-    alias ElementCount := N.
-    alias AlignmentMultiplier := (if: N == 3 then: 4 else: N).
+    compileTimeConstant ElementType := E.
+    compileTimeConstant ElementCount := N.
+    compileTimeConstant AlignmentMultiplier := (if: N == 3 then: 4 else: N).
 
     meta message elementType => _CompilerObjectType := {
         return: ElementType
@@ -146,7 +146,7 @@ definition: {
         }.
     }.
 
-    // Implicit conversion from scalar into vector.
+    ## Implicit conversion from scalar into vector.
     ElementType conversionTo: SelfType doOn: #{
         evaluation: $$Pharo {
             value: value targetType: targetType at: position
@@ -168,13 +168,13 @@ definition: {
         `,self (`,x)
     ).
 
-    // Accessors
+    ## Accessors
     (SelfType addIntrinsicField: #x slotIndex: 0)
         type: ElementType;
         public;
         createAccessors.
 
-    // Common methods for at least two elements.
+    ## Common methods for at least two elements.
     if: N >= 2 then: {
         (SelfType addIntrinsicField: #y slotIndex: 1)
             type: ElementType;
@@ -190,7 +190,7 @@ definition: {
         ).
     }.
 
-    // Common methods for at least three elements.
+    ## Common methods for at least three elements.
     if: N >= 3 then: {
         (SelfType addIntrinsicField: #z slotIndex: 2)
             type: ElementType;
@@ -207,7 +207,7 @@ definition: {
 
     }.
 
-    // Common methods for at least four elements.
+    ## Common methods for at least four elements.
     if: N >= 4 then: {
         (SelfType addIntrinsicField: #w slotIndex: 3)
             type: ElementType;
@@ -223,7 +223,7 @@ definition: {
         ).
     }.
 
-    // Macros for implementing element - element operations.
+    ## Macros for implementing element - element operations.
     if: N = 2 then: {
         macro expansionRule _binaryOperation: (selector: _LiteralSymbol) with: other := ``(
             SelfType (
@@ -255,7 +255,7 @@ definition: {
     }.
 
     if: ElementType isNumericalType then: {
-        // Vector arithmetic
+        ## Vector arithmetic
         message + (other: SelfType) => SelfType := {
             <intrinsic: #"vector.add">
             return: (self _binaryOperation: #+ with: other)
@@ -281,24 +281,24 @@ definition: {
             return: (self _binaryOperation: #% with: other)
         }.
 
-        // Dot product
+        ## Dot product
         message dot: (other: SelfType) ::=> ElementType := {
             <intrinsic: #"vector.dot">
         }.
 
-        // Length2
+        ## Length2
         message length2 ::=> ElementType := {
             return: (self dot: self)
         }.
 
-        // Length
+        ## Length
         if: ElementType isFloatingPointType then: {
             message length ::=> ElementType := {
                 <intrinsic: #"vector.length">
             }.
         }.
 
-        // Cross product
+        ## Cross product
         if: ElementCount = 2 then: {
             message cross: (other: SelfType) ::=> ElementType := {
                 return: (self x * other y - other x * self y)
@@ -320,14 +320,14 @@ PrimitiveType extend: {
     }.
 }.
 
-// Float32 based vectors.
-alias Float32x2 := Float32 vector: 2.
-alias Float32x3 := Float32 vector: 3.
-alias Float32x4 := Float32 vector: 4.
+## Float32 based vectors.
+compileTimeConstant Float32x2 := Float32 vector: 2.
+compileTimeConstant Float32x3 := Float32 vector: 3.
+compileTimeConstant Float32x4 := Float32 vector: 4.
 
-// Float64 based vectors.
-alias Float64x2 := Float64 vector: 2.
-alias Float64x3 := Float64 vector: 3.
-alias Float64x4 := Float64 vector: 4.
+## Float64 based vectors.
+compileTimeConstant Float64x2 := Float64 vector: 2.
+compileTimeConstant Float64x3 := Float64 vector: 3.
+compileTimeConstant Float64x4 := Float64 vector: 4.
 
 }

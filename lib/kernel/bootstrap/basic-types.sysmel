@@ -1,19 +1,19 @@
 namespace SysmelKernel definition: {
 
-// A generic type
+## A generic type
 trait AnyValue
 definition: {
-    // Add the yourself macro to rewrite to the receiver by default.
+    ## Add the yourself macro to rewrite to the receiver by default.
     macro expansionRule yourself := ``(`,self).
 
-    // Trivial initialization and finalization.
-    // TODO: Black list those methods in reference type, so that they are delegated towards the actual value.
+    ## Trivial initialization and finalization.
+    ## TODO: Black list those methods in reference type, so that they are delegated towards the actual value.
     macro expansionRule basicInitialize := ``(`,self).
     macro expansionRule initialize := ``(`,self).
     macro expansionRule finalize := ``(`,self).
 }.
 
-// The type meta type
+## The type meta type
 trait Type definition: {
     message asConcreteTypeForFunctionAnalysis => SelfType := self.
     message asReceiverType => SelfType := self.
@@ -87,7 +87,7 @@ AnyValue type uses: Type.
 _CompilerObjectType uses: AnyValue.
 _APSGNodeType uses: AnyValue.
 
-// Meta type
+## Meta type
 _MetaType uses: AnyValue type;
 definition: {
     message buildSSAType => _CompilerObjectType := {
@@ -98,7 +98,7 @@ definition: {
         := value ssaValue.
 }.
 
-// A literal type
+## A literal type
 trait LiteralType
     uses: AnyValue;
 definition: {
@@ -107,7 +107,7 @@ definition: {
     meta message generateSSAValue: (value: _CompilerObjectType) withBuilder: (builder: _CompilerObjectType) ::=> _CompilerObjectType := value.
 }.
 
-// Primitive literal type
+## Primitive literal type
 trait PrimitiveLiteralType
     uses: LiteralType;
 definition: {
@@ -115,7 +115,7 @@ definition: {
     meta message isPrimitiveOrPrimitiveLiteralType => BooleanBit := true.
 }.
 
-// A primitive type
+## A primitive type
 trait PrimitiveType
     uses: AnyValue;
 definition: {
@@ -130,20 +130,20 @@ definition: {
         := module ssaConstantPrimitiveValue: value type: self.
 }.
 
-// An opaque type
+## An opaque type
 trait OpaqueType
     uses: AnyValue;
 definition: {
     meta message isOpaqueType => BooleanBit := true.
 }.
 
-// A numerical type
+## A numerical type
 trait NumericalType uses: AnyValue;
 definition: {
     meta message isNumericalType => BooleanBit := true.
 }.
 
-// An integer type
+## An integer type
 trait IntegerType uses: NumericalType;
 definition: {
     meta message isIntegerType => BooleanBit := true.
@@ -179,25 +179,25 @@ definition: {
 trait PrimitiveUnsignedIntegerType uses: (PrimitiveIntegerType, UnsignedIntegerType).
 trait PrimitiveSignedIntegerType uses: (PrimitiveIntegerType, SignedIntegerType).
 
-// A boolean type
+## A boolean type
 trait BooleanType uses: AnyValue;
 definition: {
     meta message isBooleanType => BooleanBit := true.
 }.
 
-// A fraction type
+## A fraction type
 trait FractionalType uses: NumericalType;
 definition: {
     meta message isFractionalType => BooleanBit := true.
 }.
 
-// A floating point type
+## A floating point type
 trait FloatingPointType uses: NumericalType;
 definition: {
     meta message isFloatingPointType => BooleanBit := true.
 }.
 
-// Primitive floating point
+## Primitive floating point
 trait PrimitiveFloatingPointType uses: (PrimitiveType, FloatingPointType);
 definition: {
     meta message defaultSSAValueWith: (builder: _CompilerObjectType) ::=> _CompilerObjectType
@@ -211,7 +211,7 @@ definition: {
     meta message zero => _CompilerObjectType := 0.0.
 }.
 
-// Pointer type
+## Pointer type
 trait PointerType
     uses: AnyValue;
 definition: {
@@ -225,7 +225,7 @@ definition: {
         := value generateSysmelSSAPointerValueOfType: self with: builder
 }.
 
-// Reference type
+## Reference type
 trait ReferenceType
     uses: AnyValue;
 definition: {
@@ -236,7 +236,7 @@ definition: {
         := value generateSSAReferenceWith: builder.
 }.
 
-// Array type
+## Array type
 trait ArrayType
     uses: AnyValue;
 definition: {
@@ -261,17 +261,17 @@ definition: {
     meta message isGCClassVariableDataArrayType => BooleanBit := true.
 }.
 
-// AnyValue composition
+## AnyValue composition
 
-// Pointer type
+## Pointer type
 template PointerTypeTemplate(P: Type, AS: _LiteralSymbol)
     := type uses: PointerType;
 definition: {
-    alias PointedType := P.
-    alias AddressSpaceName := AS.
-    alias CleanPointedType := PointedType cleanType.
-    alias CleanPointerType := CleanPointedType pointerFor: AddressSpaceName.
-    alias ConstPointedType := PointedType const.
+    compileTimeConstant PointedType := P.
+    compileTimeConstant AddressSpaceName := AS.
+    compileTimeConstant CleanPointedType := PointedType cleanType.
+    compileTimeConstant CleanPointerType := CleanPointedType pointerFor: AddressSpaceName.
+    compileTimeConstant ConstPointedType := PointedType const.
 
 
     meta message pointed => _CompilerObjectType := PointedType.
@@ -306,7 +306,7 @@ definition: {
     meta message createPrintingName => _CompilerObjectType
         := P printingName -- " pointer".
 
-    // Pointer comparison.
+    ## Pointer comparison.
     message == (other: SelfType) => BooleanBit := {
         <compileTime>
         <staticBinding>
@@ -319,7 +319,7 @@ definition: {
         <intrinsic: #"pointer.notEquals">
     }.
 
-    // Address space conversion.
+    ## Address space conversion.
     if: (#(function workgroup crossWorkgroup) includes: AddressSpaceName) then: {
         SelfType conversionTo: (P cleanType pointerFor: #generic) | (P pointerFor: #generic) doOn: #{
             evaluation: $$Pharo {
@@ -347,14 +347,14 @@ Type extend: {
         := PointerTypeTemplate(self, addressSpace).
 }.
 
-// Reference type
+## Reference type
 template ReferenceTypeTemplate(R: Type, AS: _LiteralSymbol)
     := type uses: ReferenceType;
 definition: {
-    alias ReferencedType := R.
-    alias AddressSpaceName := AS.
-    alias CleanReferencedType := ReferencedType cleanType.
-    alias CleanReferenceType := ReferenceTypeTemplate(CleanReferencedType, AddressSpaceName).
+    compileTimeConstant ReferencedType := R.
+    compileTimeConstant AddressSpaceName := AS.
+    compileTimeConstant CleanReferencedType := ReferencedType cleanType.
+    compileTimeConstant CleanReferenceType := ReferenceTypeTemplate(CleanReferencedType, AddressSpaceName).
 
     meta message referenced => _CompilerObjectType := ReferencedType.
     meta message addressSpaceName => _LiteralSymbol := AddressSpaceName.
@@ -392,7 +392,7 @@ definition: {
     meta message createPrintingName => _CompilerObjectType
         := ReferencedType printingName -- " ref".
 
-    // Reference evaluation
+    ## Reference evaluation
     let referenceEvaluationAction := #{
         evaluation: $$Pharo {
             value: value targetType: targetType at: position
@@ -412,7 +412,7 @@ definition: {
     SelfType allConversionTo: R cleanType doOn: referenceEvaluationAction.
     SelfType allConversionTo: R doOn: referenceEvaluationAction.
 
-    // Address space conversion.
+    ## Address space conversion.
     if: (#(function workgroup crossWorkgroup) includes: AddressSpaceName) then: {
         SelfType allConversionTo: (R cleanType refFor: #generic) | (R refFor: #generic) doOn: #{
             evaluation: $$Pharo {
@@ -436,11 +436,11 @@ Type extend: {
         := ReferenceTypeTemplate(self, addressSpaceName).
 }.
 
-// Constant type type
+## Constant type type
 template ConstantTypeTemplate(D: Type)
     := type uses: D;
 definition: {
-    alias DecoratedType := D.
+    compileTimeConstant DecoratedType := D.
 
     meta message isConstantType => BooleanBit := true.
 
@@ -463,7 +463,7 @@ definition: {
     meta message createPrintingName => _CompilerObjectType :=
         DecoratedType printingName -- " const".
 
-    // Allow automatic conversion from const => non-const values.
+    ## Allow automatic conversion from const => non-const values.
     SelfType conversionTo: DecoratedType doOn: #{
         evaluation: $$Pharo {
             value: value targetType: targetType at: position
@@ -481,11 +481,11 @@ Type extend: {
         := ConstantTypeTemplate(self).
 }.
 
-// Volatile type type
+## Volatile type type
 template VolatileTypeTemplate(D: Type)
     := type uses: D;
 definition: {
-    alias DecoratedType := D.
+    compileTimeConstant DecoratedType := D.
 
     meta message isVolatileType => BooleanBit := true.
     meta message undecoratedType => _CompilerObjectType := return: DecoratedType.
@@ -508,7 +508,7 @@ definition: {
     meta message createPrintingName => _CompilerObjectType
         := DecoratedType printingName -- " volatile".
 
-    // Perform a bidirectional identity conversion for volatile types.
+    ## Perform a bidirectional identity conversion for volatile types.
     let decorationIdentityAction := #{
         evaluation: $$Pharo {
             value: value targetType: targetType at: position
@@ -529,13 +529,13 @@ Type extend: {
         := VolatileTypeTemplate(self).
 }.
 
-// GCClass variable data array type
+## GCClass variable data array type
 template GCClassVariableDataArrayTypeTemplate(E: Type)
     := type uses: GCClassVariableDataArrayType;
 definition: {
-    alias ElementType := E.
-    alias InstanceAlignment := ElementType instanceAlignment.
-    alias InstanceSize := ElementType instanceSize * Size.
+    compileTimeConstant ElementType := E.
+    compileTimeConstant InstanceAlignment := ElementType instanceAlignment.
+    compileTimeConstant InstanceSize := ElementType instanceSize * Size.
 
     meta message instanceSize => Int32 :=  0.
     meta message instanceAlignment => _LiteralInteger := ElementType instanceAlignment.
@@ -564,14 +564,14 @@ definition: {
         := ElementType printingName -- " gcClassVariableDataArray".
 }.
 
-// Array type
+## Array type
 template ArrayTypeTemplate(E: Type, N: _LiteralInteger)
     := type uses: ArrayType;
 definition: {
-    alias ElementType := E.
-    alias Size := N.
-    alias InstanceAlignment := ElementType instanceAlignment.
-    alias InstanceSize := ElementType instanceSize * Size.
+    compileTimeConstant ElementType := E.
+    compileTimeConstant Size := N.
+    compileTimeConstant InstanceAlignment := ElementType instanceAlignment.
+    compileTimeConstant InstanceSize := ElementType instanceSize * Size.
 
     if: N = 0 then: {
         meta message isUndeterminedArrayType => BooleanBit
@@ -624,13 +624,13 @@ Type extend: {
         := ArrayTypeTemplate(self, N).
 }.
 
-// Tuple type
+## Tuple type
 TupleType uses: AnyValue;
 definition: {
     meta message isTupleType => BooleanBit := true.
 }.
 
-// Function group type
+## Function group type
 _FunctionGroupType uses: AnyValue;
 definition: {
     meta message isFunctionGroupType => BooleanBit := true.
@@ -656,7 +656,7 @@ definition: {
     }.
 }.
 
-// Function type
+## Function type
 FunctionType uses: AnyValue;
 definition: {
     meta message isFunctionType => BooleanBit := true.
@@ -748,7 +748,7 @@ definition: {
     }.
 }.
 
-// Closure type
+## Closure type
 ClosureType uses: AnyValue;
 definition: {
     meta message isClosureType => BooleanBit := true.
@@ -785,7 +785,7 @@ definition: {
     }.
 }.
 
-// Structure type
+## Structure type
 StructureType uses: AnyValue;
 definition: {
     meta message asReceiverType => _CompilerObjectType
@@ -799,7 +799,7 @@ definition: {
 UnionType uses: StructureType.
 ClassType uses: StructureType.
 
-// Definition of some types
+## Definition of some types
 _LiteralArray uses: LiteralType.
 _LiteralSymbol uses: LiteralType.
 _LiteralString uses: LiteralType.
@@ -842,7 +842,7 @@ definition: {
     SelfType sysmelMangledValue: #b.
 }.
 
-// Undefined type. For nil
+## Undefined type. For nil
 UndefinedType uses: OpaqueType;
 definition: {
     message isUndefinedType => BooleanBit := true.
@@ -869,7 +869,7 @@ definition: {
     SelfType sysmelMangledValue: #v.
 }.
 
-// Int8
+## Int8
 Int8 uses: PrimitiveSignedIntegerType;
 definition: {
     meta message instanceSize => _LiteralInteger := 1.
@@ -894,7 +894,7 @@ definition: {
     SelfType sysmelMangledValue: #u1.
 }.
 
-// Int16
+## Int16
 Int16 uses: PrimitiveSignedIntegerType;
 definition: {
     meta message instanceSize => _LiteralInteger := 2.
@@ -920,7 +920,7 @@ definition: {
     SelfType sysmelMangledValue: #u2.
 }.
 
-// Int32
+## Int32
 Int32 uses: PrimitiveSignedIntegerType;
 definition: {
     meta message instanceSize => _LiteralInteger := 4.
@@ -945,7 +945,7 @@ definition: {
     SelfType sysmelMangledValue: #u4.
 }.
 
-// Int64
+## Int64
 Int64 uses: PrimitiveSignedIntegerType;
 definition: {
     meta message instanceSize => _LiteralInteger := 8.
@@ -994,6 +994,6 @@ definition: {
     SelfType sysmelMangledValue: #f8.
 }.
 
-alias Char := UInt8.
+compileTimeConstant Char := UInt8.
 
-} // End of namespace SysmelKernel
+} ## End of namespace SysmelKernel

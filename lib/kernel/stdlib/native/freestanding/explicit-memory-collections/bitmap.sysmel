@@ -1,38 +1,38 @@
 namespace StdNative definition: {
 namespace ExplicitMemoryCollections definition: {
 
-/**
+#**
  * Bitmap
  * A bitmap whose data memory is managed explicitly by the user.
- */
+ *#
 struct Bitmap definition: {
-    alias BitsPerWord := UIntPointer instanceSize * 8.
-    alias BytesPerWord := UIntPointer instanceSize.
-    alias InvalidBitIndex := -1 castTo: UIntPointer.
+    compileTimeConstant BitsPerWord := UIntPointer instanceSize * 8.
+    compileTimeConstant BytesPerWord := UIntPointer instanceSize.
+    compileTimeConstant InvalidBitIndex := -1 castTo: UIntPointer.
 
     field bitmap public type: UIntPointer pointer.
     field wordCount public type: UIntPointer.
 
-    /**
+    #**
      * Utility macro for iterating through all the words, starting from a fixed index.
-     */
+     *#
     macro expansionRule allWordsStartingFrom: startWord do: action := ``{
-        // From the word until the end.
+        ## From the word until the end.
         for: (let wordIndex mutable type: UIntPointer := `,startWord) while: (wordIndex < wordCount) do: {
             let word := bitmap[wordIndex].
             action __macroInlineBlock
         } continueWith: (wordIndex := wordIndex + 1).
 
-        // From the begining until the word.
+        ## From the begining until the word.
         for: (let wordIndex mutable type: UIntPointer := 0) while: (wordIndex < `,startWord) do: {
             let word := bitmap[wordIndex].
             action __macroInlineBlock
         } continueWith: (wordIndex := wordIndex + 1).
     }.
 
-    /**
+    #**
      * This finds the first setted bit in the word that belongs to the requested index.
-     */
+     *#
     message findSettedBitFrom: (startIndex: UIntPointer) ::=> UIntPointer := {
         let startWord := startIndex / BitsPerWord.
 
@@ -46,9 +46,9 @@ struct Bitmap definition: {
         InvalidBitIndex
     }.
 
-    /**
+    #**
      * This finds the first cleared bit in the word that belongs to the requested index.
-     */
+     *#
     message findClearedBitFrom: (startIndex: UIntPointer) ::=> UIntPointer := {
         let startWord := startIndex / BitsPerWord.
 
@@ -68,9 +68,9 @@ struct Bitmap definition: {
     message findFirstSettedBit ::=> UIntPointer
         := self findSettedBitFrom: 0.
 
-    /**
+    #**
      * Common macro for manipulating a single bit.
-     */
+     *#
     macro expansionRule manipulateBit: index withOperation: (operation: _LiteralSymbol) := ``{
         let wordIndex := `,index / BitsPerWord.
         let bitIndex := `,index % BitsPerWord.
@@ -90,9 +90,9 @@ struct Bitmap definition: {
         self manipulateBit: index withOperation: #bitXor:.
     }.
 
-    /**
+    #**
      * Test whether a specific bit set (i.e: is 1).
-     */
+     *#
     message isSetted: (index: UIntPointer) ::=> BooleanBit := {
         let wordIndex := index / BitsPerWord.
         let bitIndex := index % BitsPerWord.
@@ -101,23 +101,23 @@ struct Bitmap definition: {
         (bitmap[wordIndex] & bit) ~~ 0
     }.
 
-    /**
+    #**
      * Test whether a specific bit is cleared (i.e: is 0).
-     */
+     *#
     message isCleared: (index: UIntPointer) ::=> BooleanBit
         := (self isSetted: index) not.
 
 
-    /**
+    #**
      * Common macro for manipulating a range of bits.
-     */
+     *#
     macro expansionRule manipulateBitsFrom: start until: end withOperation: (operation: _LiteralSymbol) := ``{
         let alignedStart := `,start alignedTo: BitsPerWord.
         let alignedEnd := `,end floorAlignedTo: BitsPerWord.
         let startWord := `,start / BitsPerWord.
         let currentWord mutable := startWord.
 
-        // Head - High bits
+        ## Head - High bits
         let unalignedStartCount := alignedStart - `,start.
         unalignedStartCount > 0 ifTrue: {
             let bits := (1<<(BitsPerWord - unalignedStartCount - 1)) negated castTo: UIntPointer.
@@ -125,13 +125,13 @@ struct Bitmap definition: {
             currentWord := currentWord + 1
         }.
 
-        // Inner
+        ## Inner
         for: (let i mutable := alignedStart) while: (i < alignedEnd) do: {
             bitmap[currentWord] := bitmap[currentWord] __macroSend: operation with: (-1 castTo: UIntPointer).
             currentWord := currentWord + 1
         } continueWith: (i := i + BitsPerWord).
 
-        // Tail
+        ## Tail
         let unalignedEndCount := `,end - alignedEnd.
         unalignedEndCount > 0 ifTrue: {
             let bits := (1<<unalignedEndCount) - 1.
@@ -165,5 +165,5 @@ struct Bitmap definition: {
     }.
 }.
 
-}. // End of namespaces ExplicitMemoryCollections
-}. // End of namespace StdNative
+}. ## End of namespaces ExplicitMemoryCollections
+}. ## End of namespace StdNative

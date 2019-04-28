@@ -1,10 +1,10 @@
-// Bindings for Stdlib
+## Bindings for Stdlib
 namespace LibC definition: {
-    // Exit points
+    ## Exit points
     function abort externC () => Void.
     function exit externC (exitCode: Int) => Void.
 
-    // String conversions
+    ## String conversions
     function atol externC (string: ConstString) => Long.
     function atoll externC (string: ConstString) => LongLong.
     function atoi externC (string: ConstString) => Int.
@@ -17,7 +17,7 @@ namespace LibC definition: {
     function strtoul externC (str: ConstString, endptr: Char pointer pointer) => ULong.
     function strtoull externC (str: ConstString, endptr: Char pointer pointer) => ULongLong.
 
-    // Memory management
+    ## Memory management
     function calloc externC (nitems: SizeT, size: SizeT) => Void pointer.
     function malloc externC (size: SizeT) => Void pointer.
     function free externC (pointer: Void pointer) => Void.

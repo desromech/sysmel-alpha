@@ -1,0 +1,5 @@
+
+function main externC (argc: Int32, argv: UInt8 const pointer pointer) => Int32 := {
+    LibC printf("Hello World\n").
+    return: 0.
+}.

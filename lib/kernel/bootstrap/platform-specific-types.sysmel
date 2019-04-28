@@ -1,14 +1,14 @@
 namespace SysmelKernel definition: {
     if: Compiler compilationTarget pointerSize = 4 then: {
-        alias IntPointer := Int32.
-        alias UIntPointer := UInt32.
+        compileTimeConstant IntPointer := Int32.
+        compileTimeConstant UIntPointer := UInt32.
     } else: {
-        alias IntPointer := Int64.
-        alias UIntPointer := UInt64.
+        compileTimeConstant IntPointer := Int64.
+        compileTimeConstant UIntPointer := UInt64.
     }.
 
     Compiler compilationTarget
         intPointerType: IntPointer;
         uintPointerType: UIntPointer;
         yourself
-} // End of namespace SysmelKernel
+} ## End of namespace SysmelKernel

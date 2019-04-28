@@ -38,10 +38,10 @@ definition: {
         := left _ evaluate * right _ evaluate.
 }.
 
-/**
+#**
  * Simple DSL for constructing an expression tree.
- */
-// TODO: Make this message inline.
+ *#
+## TODO: Make this message inline.
 Expression message asExpression => Expression pointer
     := self address.
 
@@ -51,7 +51,7 @@ _LiteralInteger macro expansionRule asExpression := ``(
         asExpression
 ).
 
-// TODO: Add support for a namespace for macros.
+## TODO: Add support for a namespace for macros.
 Expression pointer extend: {
     macro expansionRule asExpression := self.
 

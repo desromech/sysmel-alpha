@@ -1,4 +1,4 @@
-Compiler evaluateFileNamedOnce: "bootstrap/bootstrap.sysmel".
+#*Compiler evaluateFileNamedOnce: "bootstrap/bootstrap.sysmel".
 
 loadFileOnce: "primitiveVectors.sysmel".
 loadFileOnce: "primitiveMatrix.sysmel".
@@ -10,3 +10,8 @@ if: Compiler hasStandardLibrary then: {
         loadFileOnce: "smalltalk/smalltalk.sysmel"
     }.
 }.
+*#
+
+compileTimeConstant IntPointer := Int32.
+compileTimeConstant UIntPointer := UInt32.
+loadFileOnce: "stdlib/stdlib.sysmel".

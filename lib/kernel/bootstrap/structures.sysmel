@@ -1,7 +1,7 @@
 namespace SysmelKernel definition: {
 
 StructureType meta macro selectors: #(basicNewValue basicNewValue: newValue newValue: applyWithArguments: ) doOn: #{
-// Compile time evaluation
+## Compile time evaluation
 evaluation: $$Pharo {
     node: node environment: environment
         "structure newValue/basicNewValue"
@@ -12,7 +12,7 @@ evaluation: $$Pharo {
         ^ instance asSysmelValueInEnvironment: environment
 }.
 
-// Semantic analysis
+## Semantic analysis
 metaMessageAnalysis: $$Pharo {
     node: node type: type environment: environment position: aSourcePosition
     | arguments |
@@ -32,7 +32,7 @@ metaMessageAnalysis: $$Pharo {
         yourself
 }.
 
-// Code generation
+## Code generation
 codeGeneration: $$Pharo {
     node: messageNode builder: builder
     | structureType structureVariable valueType basicInitializeMethod initializeMethod |
@@ -54,4 +54,4 @@ codeGeneration: $$Pharo {
 
 }
 
-}. // End of namespace SysmelKernel
+}. ## End of namespace SysmelKernel
