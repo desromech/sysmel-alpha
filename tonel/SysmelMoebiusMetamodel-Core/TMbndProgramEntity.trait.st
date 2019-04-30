@@ -5,6 +5,11 @@ Trait {
 	#category : #'SysmelMoebiusMetamodel-Core-ProgramEntity'
 }
 
+{ #category : #visiting }
+TMbndProgramEntity >> accept: aVisitor [
+	self subclassResponsibility
+]
+
 { #category : #adding }
 TMbndProgramEntity >> addChild: aChild [
 	self error: 'Cannot have child program entities here.'

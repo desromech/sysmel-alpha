@@ -13,6 +13,11 @@ Class {
 	#category : #'SysmelMoebiusMetamodel-Core-ProgramEntity'
 }
 
+{ #category : #visiting }
+MbndCompileTimeConstant >> accept: aVisitor [
+	^ aVisitor visitCompileTimeConstant: self
+]
+
 { #category : #'semantic analysis' }
 MbndCompileTimeConstant >> analyzeReferenceNode: referenceNode with: analyzer [
 	self ensureSemanticAnalysis.

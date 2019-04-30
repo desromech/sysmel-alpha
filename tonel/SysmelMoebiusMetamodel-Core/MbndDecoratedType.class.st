@@ -12,6 +12,11 @@ MbndDecoratedType class >> typeName [
 	^ #_DecoratedType
 ]
 
+{ #category : #visiting }
+MbndDecoratedType >> accept: aVisitor [
+	^ aVisitor visitDecoratedType: self
+]
+
 { #category : #accessing }
 MbndDecoratedType >> decorations [
 	^ decorations

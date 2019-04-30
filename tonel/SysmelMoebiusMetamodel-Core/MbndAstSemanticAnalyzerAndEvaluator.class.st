@@ -28,7 +28,7 @@ MbndAstSemanticAnalyzerAndEvaluator >> analyzeAndEvaluateNode: aNode [
 	^ self evaluateNode: (self analyzeNode: aNode)
 ]
 
-{ #category : #operations }
+{ #category : #delegate }
 MbndAstSemanticAnalyzerAndEvaluator >> analyzeNode: aNode [
 	^ semanticAnalyzer visitNode: aNode
 ]

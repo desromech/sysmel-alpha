@@ -38,8 +38,9 @@ TMbndAbstractMethodContainer >> createMethodEntityForPrototype: functionPrototyp
 { #category : #adding }
 TMbndAbstractMethodContainer >> createMethodEntityForPrototype: methodPrototype withReceiverType: receiverType [
 	| method |
-	method := MbndConcreteMethod new
+	method := MbndConcreteMessageMethod new
 		name: methodPrototype selector;
+		flags: methodPrototype flags;
 		declarationPosition: methodPrototype;
 		receiverType: receiverType;
 		boundType: methodPrototype functionType;

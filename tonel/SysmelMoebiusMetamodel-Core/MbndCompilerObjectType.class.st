@@ -9,6 +9,11 @@ MbndCompilerObjectType class >> typeName [
 	^ #_CompilerObjectType
 ]
 
+{ #category : #visiting }
+MbndCompilerObjectType >> accept: aVisitor [
+	^ aVisitor visitCompilerObjectType: self
+]
+
 { #category : #'semantic analysis' }
 MbndCompilerObjectType >> analyzeUnboundExpandedMessageSendNode: node with: analyzer [
 	| receiver arguments result selector |

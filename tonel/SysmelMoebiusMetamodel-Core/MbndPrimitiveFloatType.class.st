@@ -9,6 +9,11 @@ MbndPrimitiveFloatType class >> typeName [
 	^ #_PrimitiveFloatType
 ]
 
+{ #category : #visiting }
+MbndPrimitiveFloatType >> accept: aVisitor [
+	^ aVisitor visitPrimitiveFloatType: self
+]
+
 { #category : #'default values' }
 MbndPrimitiveFloatType >> defaultValue [
 	^ MbndValue value: 0.0 type: self

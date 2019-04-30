@@ -15,6 +15,11 @@ MbndFunctionType class >> typeName [
 	^ #_FunctionType
 ]
 
+{ #category : #visiting }
+MbndFunctionType >> accept: aVisitor [
+	^ aVisitor visitFunctionType: self
+]
+
 { #category : #'as yet unclassified' }
 MbndFunctionType >> analyzeFunctionCallNode: node with: analyzer [
 	node arguments size ~= argumentTypes size ifTrue: [ 

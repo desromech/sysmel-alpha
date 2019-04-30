@@ -1,6 +1,6 @@
 Class {
 	#name : #MbndAbstractIntrinsicMethod,
-	#superclass : #MbndAbstractConcreteMethod,
+	#superclass : #MbndAbstractSpecificMethod,
 	#instVars : [
 		'intrinsicName'
 	],

@@ -10,6 +10,11 @@ Trait {
 	#category : #'SysmelMoebiusMetamodel-Core-Module'
 }
 
+{ #category : #visiting }
+TMbndModule >> accept: aVisitor [
+	^ aVisitor visitModule: self
+]
+
 { #category : #evaluation }
 TMbndModule >> analyzeAndEvaluateAST: ast [
 	| parsedSource |
@@ -105,6 +110,13 @@ TMbndModule >> finishSemanticAnalysis [
 		
 		toAnalyze do: #ensureSemanticAnalysis
 	]
+]
+
+{ #category : #'as yet unclassified' }
+TMbndModule >> generateTargetCodeModule [
+	| codeGenerator |
+	codeGenerator := self compilationTarget newCodeModuleGenerator.
+	^ codeGenerator generateCodeModuleFor: self
 ]
 
 { #category : #accessing }

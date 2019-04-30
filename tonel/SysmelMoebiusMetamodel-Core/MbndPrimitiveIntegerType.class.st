@@ -12,6 +12,11 @@ MbndPrimitiveIntegerType class >> typeName [
 	^ #_PrimitiveIntegerType
 ]
 
+{ #category : #visiting }
+MbndPrimitiveIntegerType >> accept: aVisitor [
+	^ aVisitor visitPrimitiveIntegerType: self
+]
+
 { #category : #'default values' }
 MbndPrimitiveIntegerType >> defaultValue [
 	^ MbndValue value: 0 type: self

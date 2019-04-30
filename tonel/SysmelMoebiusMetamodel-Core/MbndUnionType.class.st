@@ -9,6 +9,11 @@ MbndUnionType class >> typeName [
 	^ #_UnionType
 ]
 
+{ #category : #visiting }
+MbndUnionType >> accept: aVisitor [
+	^ aVisitor visitUnionType: self
+]
+
 { #category : #'testing methods' }
 MbndUnionType >> isUnionType [
 	^ true

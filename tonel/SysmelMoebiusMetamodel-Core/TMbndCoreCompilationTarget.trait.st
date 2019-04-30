@@ -168,7 +168,7 @@ TMbndCoreCompilationTarget >> initializeBasicTypes [
 
 	self linkMetaHierarchy.
 	self
-		addBasicType: (MbndPrimitiveBooleanType new name: #BooleanBit; yourself);
+		addBasicType: (MbndPrimitiveBooleanType basicNew name: #BooleanBit; yourself);
 		addBasicIntegerTypeWithSize: 1 signed: false name: #UInt8;
 		addBasicIntegerTypeWithSize: 2 signed: false name: #UInt16;
 		addBasicIntegerTypeWithSize: 4 signed: false name: #UInt32;
@@ -322,6 +322,11 @@ TMbndCoreCompilationTarget >> metaBuilderInstanceType [
 { #category : #'convenience type accessors' }
 TMbndCoreCompilationTarget >> namespaceType [
 	^ self getBasicTypeNamed: MbndNamespaceType typeName
+]
+
+{ #category : #'instance creation' }
+TMbndCoreCompilationTarget >> newCodeModuleGenerator [
+	self explicitRequirement
 ]
 
 { #category : #'convenience type accessors' }

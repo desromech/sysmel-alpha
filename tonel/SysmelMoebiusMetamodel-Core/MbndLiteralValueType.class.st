@@ -12,6 +12,11 @@ MbndLiteralValueType class >> typeName [
 	^ #_LiteralValueType
 ]
 
+{ #category : #visiting }
+MbndLiteralValueType >> accept: aVisitor [
+	^ aVisitor visitLiteralValueType: self
+]
+
 { #category : #adding }
 MbndLiteralValueType >> addLiteralHostDelegationMacrosFor: selectors [
 	| macro |
@@ -76,4 +81,9 @@ MbndLiteralValueType >> inferValueTypeForNode: initialValueNode inScope: scope [
 { #category : #testing }
 MbndLiteralValueType >> isLiteralValueType [
 	^ true
+]
+
+{ #category : #testing }
+MbndLiteralValueType >> isTrait [
+	^ self class subclasses isEmpty
 ]

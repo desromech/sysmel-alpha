@@ -1,76 +1,165 @@
 Class {
 	#name : #MbndAbstractConcreteMethod,
-	#superclass : #MbndAbstractMethod,
+	#superclass : #MbndAbstractSpecificMethod,
 	#instVars : [
-		'receiverType',
-		'type',
-		'boundType'
+		'declarationPosition',
+		'definitionNode',
+		'definitionScope',
+		'analyzedBody',
+		'arguments'
 	],
 	#category : #'SysmelMoebiusMetamodel-Core-Method'
 }
 
-{ #category : #'semantic analysis' }
-MbndAbstractConcreteMethod >> analyzeExpandedMessageSendNode: node with: analyzer [
-	| newReceiverNode argumentTypes newArgumentNodes |
-	node receiver ifNotNil: [ :receiverNode |
-		receiverNode type isNamespaceType ifTrue: [
-			^ self analyzeExpandedMessageSendNode: (node copy receiver: nil) with: analyzer
-		].
-	].
+{ #category : #accessing }
+MbndAbstractConcreteMethod >> analyzedBody [
+	^ analyzedBody
+]
 
-	self receiverType isVoidType ~= node receiver isNil ifTrue: [
-		self error: 'analyzing message send {1} with mismatching presence or lack of receiver types.'
-			format: {self name asPrettySymbolName} at: node
-	].
+{ #category : #accessing }
+MbndAbstractConcreteMethod >> arguments [
+	^ arguments
+]
 
-	self boundType argumentTypes size ~= node arguments size ifTrue: [ 
-		self error: 'message send {1} with mismatching number of arguments. Expected {2} arguments.'
-			format: {self name asPrettySymbolName . self boundType argumentTypes size asString} at: node
-	].
-
-	newReceiverNode := node receiver ifNotNil: [ :receiver |
-		analyzer addImplicitCastFor: (analyzer analyzeNodeIfNeeded: receiver) to: self receiverType 
-	].
-
-	argumentTypes := self boundType argumentTypes.
-	newArgumentNodes := node arguments collectWithIndex: [ :argumentNode :index |
-		analyzer addImplicitCastFor: (analyzer analyzeNodeIfNeeded: argumentNode) to: (argumentTypes at: index)
+{ #category : #evaluation }
+MbndAbstractConcreteMethod >> constructEvaluationScopeWithReceiver: receiverValue arguments: argumentValues [
+	| evaluationScope argumentDefinition |
+	evaluationScope := MbndFunctionEvaluationScope parent: definitionScope.
+	evaluationScope := evaluationScope newReturnContextScope newLexicalScope.
+	
+	receiverType isVoidType ifFalse: [ 
+		self halt
 	].
 	
-	^ node copy
-		method: self;
-		receiver: newReceiverNode;
-		arguments: newArgumentNodes;
-		type: self returnType;
+	argumentValues doWithIndex: [ :argumentValue :index |
+		argumentDefinition := arguments at: index.
+		argumentDefinition createStorageInFunctionActivationScope: evaluationScope withValue: argumentValue
+	].
+
+	^ evaluationScope
+]
+
+{ #category : #'semantic analysis' }
+MbndAbstractConcreteMethod >> createSemanticAnalysisScope [
+	| analysisScope |
+	analysisScope := (MbndFunctionAnalysisScope parent: definitionScope)
+		programEntity: self;
+		yourself.
+		
+	analysisScope := analysisScope newLexicalScope.
+	arguments do: [ :arg |
+		arg isMbndAnonymousSymbol ifFalse: [ 
+			analysisScope addSymbol: arg name binding: arg
+		]
+	].
+
+	^ analysisScope
+]
+
+{ #category : #accessing }
+MbndAbstractConcreteMethod >> declarationPosition [
+	^ declarationPosition
+]
+
+{ #category : #accessing }
+MbndAbstractConcreteMethod >> declarationPosition: anObject [
+	declarationPosition := anObject
+]
+
+{ #category : #'semantic analysis' }
+MbndAbstractConcreteMethod >> defineArgument: argumentNode [
+	^ MbndFunctionArgumentVariable new
+		definitionNode: argumentNode;
+		parent: self;
+		name: argumentNode name;
+		valueType: argumentNode valueType;
 		yourself
 ]
 
-{ #category : #accessing }
-MbndAbstractConcreteMethod >> boundType [
-	^ boundType
+{ #category : #'semantic analysis' }
+MbndAbstractConcreteMethod >> defineArguments [
+	| usedNames |
+	receiverType isVoidType ifFalse: [
+		self halt
+	].
+	
+	usedNames := Set new.
+	arguments := definitionNode arguments collectWithIndex: [ :argument :index |
+		argument name isMbndAnonymousSymbol ifFalse: [
+			(usedNames includes: argument name) ifTrue: [ 
+				self error: 'argument {1} has the same name that is used by a previously defined argument.' format: { argument name asPrettySymbolName } at: argument
+			 ].
+			usedNames add: argument name
+		].
+		self defineArgument: argument
+	].
+
 ]
 
 { #category : #accessing }
-MbndAbstractConcreteMethod >> boundType: anObject [
-	boundType := anObject
+MbndAbstractConcreteMethod >> definitionNode [
+	^ definitionNode
 ]
 
 { #category : #accessing }
-MbndAbstractConcreteMethod >> receiverType [
-	^ receiverType
+MbndAbstractConcreteMethod >> definitionNode: anObject [
+	definitionNode := anObject
 ]
 
 { #category : #accessing }
-MbndAbstractConcreteMethod >> receiverType: anObject [
-	receiverType := anObject
+MbndAbstractConcreteMethod >> definitionScope [
+	^ definitionScope
 ]
 
 { #category : #accessing }
-MbndAbstractConcreteMethod >> type [
-	^ type
+MbndAbstractConcreteMethod >> definitionScope: anObject [
+	definitionScope := anObject
 ]
 
-{ #category : #accessing }
-MbndAbstractConcreteMethod >> type: anObject [
-	type := anObject
+{ #category : #'semantic analysis' }
+MbndAbstractConcreteMethod >> ensureSemanticAnalysis [
+	| analyzer analysisScope |
+	definitionNode ifNil: [ ^ self ].
+	analyzedBody ifNotNil: [ ^ self ].
+	
+	self defineArguments.
+	analysisScope := self createSemanticAnalysisScope.
+
+	"Analyze the function body."	
+	analyzer := MbndAstSemanticAnalyzer new 
+		module: self module;
+		scope: analysisScope;
+		yourself.
+		
+	analyzedBody := analyzer visitNode: definitionNode body.
+
+	"Cast the result into the required return type."
+	self returnType isVoidType ifFalse: [ 
+		analyzedBody type isReturnType ifFalse: [
+			analyzedBody := analyzer addImplicitCastFor: analyzedBody to: self returnType
+		].
+	].
+
+]
+
+{ #category : #evaluation }
+MbndAbstractConcreteMethod >> evaluateApplicationWithReceiver: receiverValue arguments: argumentValues withEvaluator: evaluator at: node [
+	^ self evaluateWithReceiver: receiverValue arguments: argumentValues withEvaluator: evaluator at: node
+]
+
+{ #category : #evaluation }
+MbndAbstractConcreteMethod >> evaluateWithReceiver: receiverValue arguments: argumentValues withEvaluator: evaluator at: position [
+	| evaluationScope callEvaluator |
+	definitionNode ifNil: [
+		self error: 'Cannot evaluate in compile time external function/method {1}.'
+			format: {name asPrettySymbolName} at: position
+	].
+
+	self ensureSemanticAnalysis.
+	self assert: argumentValues size = arguments size.
+
+	evaluationScope := self constructEvaluationScopeWithReceiver: receiverValue arguments: argumentValues.
+	callEvaluator := MbndAstEvaluator new scope: evaluationScope.
+
+	^ callEvaluator evaluateFunctionContent: analyzedBody.
 ]

@@ -34,5 +34,15 @@ BaselineOfSysmel >> baseline: spec [
 			package: 'SysmelLanguage-SysmelPhanide' with: [
 				spec requires: #('SysmelLanguage-Sysmel' 'Phanide')
 			].
+
+		spec
+			package: #'SysmelMoebiusCodeGenerator-Slovim' with: [
+				spec requires: #(#Slovim #'SysmelMoebiusMetamodel-Core')
+			].
+		spec
+			package: #'SysmelMoebiusCodeGenerator-Slovim-Tests' with: [
+				spec requires: #(#'SysmelMoebiusCodeGenerator-Slovim' #'SysmelLanguage-Sysmel')
+			].
+
 	].
 ]

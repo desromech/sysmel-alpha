@@ -9,6 +9,11 @@ MbndStructureType class >> typeName [
 	^ #_StructureType
 ]
 
+{ #category : #visiting }
+MbndStructureType >> accept: aVisitor [
+	^ aVisitor visitStructureType: self
+]
+
 { #category : #'testing methods' }
 MbndStructureType >> isStructureType [
 	^ true

@@ -1,7 +1,7 @@
 Class {
 	#name : #MbndInImageCompilationTarget,
 	#superclass : #MbndSlovimCompilationTarget,
-	#category : #'SysmelMoebiusMetamodel-Core-CompilationTarget'
+	#category : #'SysmelMoebiusCodeGenerator-Slovim-CompilationTarget'
 }
 
 { #category : #accessing }

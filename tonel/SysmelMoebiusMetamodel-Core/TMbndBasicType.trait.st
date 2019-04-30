@@ -22,6 +22,11 @@ TMbndBasicType >> analyzeExpandedMessageNode: node with: analyzer [
 
 ]
 
+{ #category : #testing }
+TMbndBasicType >> isTrait [
+	^ self hasFlag: #trait
+]
+
 { #category : #'macro expansion' }
 TMbndBasicType >> lookupOverloadedSelector: aSelector [
 	| method |

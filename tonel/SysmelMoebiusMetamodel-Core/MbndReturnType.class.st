@@ -9,6 +9,11 @@ MbndReturnType class >> typeName [
 	^ #_ReturnType
 ]
 
+{ #category : #visiting }
+MbndReturnType >> accept: aVisitor [
+	^ aVisitor visitReturnType: self
+]
+
 { #category : #testing }
 MbndReturnType >> isReturnType [
 	^ true

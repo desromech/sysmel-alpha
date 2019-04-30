@@ -24,6 +24,7 @@ TMbndObjectWithFlags >> flags: anArrayOfFlags [
 
 { #category : #flags }
 TMbndObjectWithFlags >> hasFlag: aFlags [
+	flags ifNil: [ ^ false ].
 	^ flags includes: aFlags
 ]
 

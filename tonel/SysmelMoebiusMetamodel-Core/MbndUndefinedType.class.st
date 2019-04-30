@@ -9,6 +9,11 @@ MbndUndefinedType class >> typeName [
 	^ #_UndefinedType
 ]
 
+{ #category : #visiting }
+MbndUndefinedType >> accept: aVisitor [
+	^ aVisitor visitUndefinedType: self
+]
+
 { #category : #'default values' }
 MbndUndefinedType >> defaultValue [
 	^ MbndValue value: nil type: self

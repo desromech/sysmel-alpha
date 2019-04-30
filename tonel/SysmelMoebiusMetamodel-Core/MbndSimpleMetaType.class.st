@@ -12,6 +12,11 @@ MbndSimpleMetaType class >> typeName [
 	^ #_SimpleMetaType
 ]
 
+{ #category : #visiting }
+MbndSimpleMetaType >> accept: aVisitor [
+	^ aVisitor visitSimpleMetaType: self
+]
+
 { #category : #'semantic analysis' }
 MbndSimpleMetaType >> analyzeUnboundExpandedMessageSendNode: node with: analyzer [
 	| arguments selector result |

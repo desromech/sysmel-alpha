@@ -9,6 +9,11 @@ MbndPointerType class >> typeName [
 	^ #_PointerType
 ]
 
+{ #category : #visiting }
+MbndPointerType >> accept: aVisitor [
+	^ aVisitor visitPointerType: self
+]
+
 { #category : #'default values' }
 MbndPointerType >> defaultValue [
 	^ MbndValue value: nil type: self

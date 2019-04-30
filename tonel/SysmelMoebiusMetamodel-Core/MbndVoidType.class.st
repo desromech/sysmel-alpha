@@ -9,6 +9,11 @@ MbndVoidType class >> typeName [
 	^ #Void
 ]
 
+{ #category : #visiting }
+MbndVoidType >> accept: aVisitor [
+	^ aVisitor visitVoidType: self
+]
+
 { #category : #'default values' }
 MbndVoidType >> defaultValue [
 	^ MbndValue value: nil type: self

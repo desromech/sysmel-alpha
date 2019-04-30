@@ -5,6 +5,11 @@ Trait {
 	#category : #'SysmelMoebiusMetamodel-Core-ProgramEntity'
 }
 
+{ #category : #visiting }
+TMbndNamespace >> accept: aVisitor [
+	^ aVisitor visitNamespace: self
+]
+
 { #category : #testing }
 TMbndNamespace >> canHaveNamespaces [
 	^ true

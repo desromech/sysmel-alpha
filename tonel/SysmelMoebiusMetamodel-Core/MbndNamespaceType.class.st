@@ -9,6 +9,11 @@ MbndNamespaceType class >> typeName [
 	^ #_NamespaceType
 ]
 
+{ #category : #visiting }
+MbndNamespaceType >> accept: aVisitor [
+	^ aVisitor visitNamespaceType: self
+]
+
 { #category : #'semantic analysis' }
 MbndNamespaceType >> analyzeUnboundExpandedMessageSendNode: node with: analyzer [
 	| namespaceEntity method boundSymbol |

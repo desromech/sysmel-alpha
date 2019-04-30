@@ -9,6 +9,11 @@ MbndReferenceType class >> typeName [
 	^ #_ReferenceType
 ]
 
+{ #category : #visiting }
+MbndReferenceType >> accept: aVisitor [
+	^ aVisitor visitReferenceType: self
+]
+
 { #category : #'semantic analysis' }
 MbndReferenceType >> analyzeUnboundExpandedMessageSendNode: node with: analyzer [
 	"Try to delegate to the base type."

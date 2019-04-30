@@ -306,6 +306,11 @@ TMbndAbstractType >> isStructureType [
 ]
 
 { #category : #'testing methods' }
+TMbndAbstractType >> isTrait [
+	^ false
+]
+
+{ #category : #'testing methods' }
 TMbndAbstractType >> isUndefinedType [
 	^ false
 ]

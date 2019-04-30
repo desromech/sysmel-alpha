@@ -11,8 +11,9 @@ TMbndAbstractSymbolContainer >> createFunctionEntityForPrototype: functionProtot
 { #category : #'overloaded methods' }
 TMbndAbstractSymbolContainer >> createFunctionEntityForPrototype: functionPrototype withReceiverType: receiverType [
 	| method |
-	method := MbndConcreteMethod new
+	method := MbndConcreteFunctionMethod new
 		name: functionPrototype name;
+		flags: functionPrototype flags;
 		declarationPosition: functionPrototype;
 		receiverType: receiverType;
 		boundType: functionPrototype functionType;

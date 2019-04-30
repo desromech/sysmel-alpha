@@ -9,6 +9,11 @@ MbndPrimitiveBooleanType class >> typeName [
 	^ #_PrimitiveBooleanType
 ]
 
+{ #category : #visiting }
+MbndPrimitiveBooleanType >> accept: aVisitor [
+	^ aVisitor visitPrimitiveBooleanType: self
+]
+
 { #category : #'default values' }
 MbndPrimitiveBooleanType >> defaultValue [
 	^ MbndValue value: false type: self
