@@ -4,6 +4,12 @@ Class {
 	#category : #'SysmelLanguage-Sysmel-Parser'
 }
 
+{ #category : #'class initialization' }
+MbndSysmelLanguage class >> initialize [
+	"This is for ensuring that I am registered."
+	MbndLanguageInterface initialize.
+]
+
 { #category : #accessing }
 MbndSysmelLanguage class >> languageFileExtensions [
 	^ #(sysmel)
