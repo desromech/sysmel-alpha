@@ -30,3 +30,10 @@ TMbndMacroMethodContainer >> onMacroSelector: aSelector do: aBlock [
 		ifAbsentPut: (MbndBlockClosureMacro new block: aBlock)
 
 ]
+
+{ #category : #'macro expansion' }
+TMbndMacroMethodContainer >> onMacroSelectors: aCollectionOfSelectors do: aBlock [
+	aCollectionOfSelectors do: [:selector |
+		self onMacroSelector: selector do: aBlock
+	]
+]

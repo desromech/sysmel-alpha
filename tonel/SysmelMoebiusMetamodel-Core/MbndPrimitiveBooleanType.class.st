@@ -29,7 +29,13 @@ MbndPrimitiveBooleanType >> initialize [
 	super initialize.
 	self
 		instanceSize: 1;
-		instanceAlignment: 1
+		instanceAlignment: 1;
+		onMacroSelectors: #(and: &&) do: [ :node :builder |
+			builder if: node receiver trueValue: node arguments first falseValue: builder literalBooleanFalse
+		];
+		onMacroSelectors: #(or: ||) do: [ :node :builder |
+			builder if: node receiver trueValue: builder literalBooleanTrue falseValue: node arguments first
+		]
 ]
 
 { #category : #testing }

@@ -19,6 +19,19 @@ MbndLiteralBooleanType >> bestConcreteTypeForLiteralValueNode: literalValueNode 
 	^ self compilationTarget booleanType
 ]
 
+{ #category : #initialization }
+MbndLiteralBooleanType >> initializeNonTraitType [
+	super initializeNonTraitType.
+	self
+		onMacroSelectors: #(and: &&) do: [ :node :builder |
+			builder if: node receiver trueValue: node arguments first falseValue: builder literalBooleanFalse
+		];
+		onMacroSelectors: #(or: ||) do: [ :node :builder |
+			builder if: node receiver trueValue: builder literalBooleanTrue falseValue: node arguments first
+		];
+		addLiteralHostDelegationMacrosFor: #(not).
+]
+
 { #category : #'testing methods' }
 MbndLiteralBooleanType >> isLiteralBooleanType [
 	^ true
