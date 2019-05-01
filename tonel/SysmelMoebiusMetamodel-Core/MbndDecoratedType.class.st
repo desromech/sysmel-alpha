@@ -44,6 +44,11 @@ MbndDecoratedType >> isConstantType [
 ]
 
 { #category : #'testing methods' }
+MbndDecoratedType >> isDecorationType [
+	^ true
+]
+
+{ #category : #'testing methods' }
 MbndDecoratedType >> isVolatileType [
 	^ decorations includes: #volatile
 ]

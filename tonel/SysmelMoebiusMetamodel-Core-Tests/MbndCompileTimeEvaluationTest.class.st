@@ -41,6 +41,110 @@ MbndCompileTimeEvaluationTest >> testDivideInteger [
 ]
 
 { #category : #tests }
+MbndCompileTimeEvaluationTest >> testIntegerEquals [
+	| ast result |
+	ast := builder send: (builder literalSymbol: #=) to:
+		(builder literalInteger: 1) withArguments: {
+			builder literalInteger: 1
+		}.
+	result := module analyzeAndEvaluateAST: ast.
+	
+	self assert: result value equals: true.
+	self assert: result type isPrimitiveBooleanType.
+]
+
+{ #category : #tests }
+MbndCompileTimeEvaluationTest >> testIntegerGreaterOrEqual [
+	| ast result |
+	ast := builder send: (builder literalSymbol: #>=) to:
+		(builder literalInteger: 1) withArguments: {
+			builder literalInteger: 3
+		}.
+	result := module analyzeAndEvaluateAST: ast.
+	
+	self assert: result value equals: false.
+	self assert: result type isPrimitiveBooleanType.
+]
+
+{ #category : #tests }
+MbndCompileTimeEvaluationTest >> testIntegerGreaterThan [
+	| ast result |
+	ast := builder send: (builder literalSymbol: #>) to:
+		(builder literalInteger: 1) withArguments: {
+			builder literalInteger: 3
+		}.
+	result := module analyzeAndEvaluateAST: ast.
+	
+	self assert: result value equals: false.
+	self assert: result type isPrimitiveBooleanType.
+]
+
+{ #category : #tests }
+MbndCompileTimeEvaluationTest >> testIntegerIdentityEquals [
+	| ast result |
+	ast := builder send: (builder literalSymbol: #==) to:
+		(builder literalInteger: 1) withArguments: {
+			builder literalInteger: 1
+		}.
+	result := module analyzeAndEvaluateAST: ast.
+	
+	self assert: result value equals: true.
+	self assert: result type isPrimitiveBooleanType.
+]
+
+{ #category : #tests }
+MbndCompileTimeEvaluationTest >> testIntegerIdentityNotEquals [
+	| ast result |
+	ast := builder send: (builder literalSymbol: #~~) to:
+		(builder literalInteger: 1) withArguments: {
+			builder literalInteger: 1
+		}.
+	result := module analyzeAndEvaluateAST: ast.
+	
+	self assert: result value equals: false.
+	self assert: result type isPrimitiveBooleanType.
+]
+
+{ #category : #tests }
+MbndCompileTimeEvaluationTest >> testIntegerLessOrEqual [
+	| ast result |
+	ast := builder send: (builder literalSymbol: #<=) to:
+		(builder literalInteger: 1) withArguments: {
+			builder literalInteger: 3
+		}.
+	result := module analyzeAndEvaluateAST: ast.
+	
+	self assert: result value equals: true.
+	self assert: result type isPrimitiveBooleanType.
+]
+
+{ #category : #tests }
+MbndCompileTimeEvaluationTest >> testIntegerLessThan [
+	| ast result |
+	ast := builder send: (builder literalSymbol: #<) to:
+		(builder literalInteger: 1) withArguments: {
+			builder literalInteger: 3
+		}.
+	result := module analyzeAndEvaluateAST: ast.
+	
+	self assert: result value equals: true.
+	self assert: result type isPrimitiveBooleanType.
+]
+
+{ #category : #tests }
+MbndCompileTimeEvaluationTest >> testIntegerNotEquals [
+	| ast result |
+	ast := builder send: (builder literalSymbol: #~=) to:
+		(builder literalInteger: 1) withArguments: {
+			builder literalInteger: 1
+		}.
+	result := module analyzeAndEvaluateAST: ast.
+	
+	self assert: result value equals: false.
+	self assert: result type isPrimitiveBooleanType.
+]
+
+{ #category : #tests }
 MbndCompileTimeEvaluationTest >> testLexicallyScopedLiteral [
 	| ast result |
 	ast := (builder literalInteger: 42) lexicallyScoped.
@@ -160,6 +264,110 @@ MbndCompileTimeEvaluationTest >> testUnexpandedDivideInteger [
 	
 	self assert: result value equals: -2.
 	self assert: result type isLiteralIntegerType.
+]
+
+{ #category : #tests }
+MbndCompileTimeEvaluationTest >> testUnexpandedIntegerEqual [
+	| ast result |
+	ast := builder unexpandedSend: (builder literalSymbol: #=) to:
+		(builder literalInteger: 1) withArguments: {
+			builder literalInteger: 1
+		}.
+	result := module analyzeAndEvaluateAST: ast.
+	
+	self assert: result value equals: true.
+	self assert: result type isLiteralBooleanType.
+]
+
+{ #category : #tests }
+MbndCompileTimeEvaluationTest >> testUnexpandedIntegerEqualIdentity [
+	| ast result |
+	ast := builder unexpandedSend: (builder literalSymbol: #==) to:
+		(builder literalInteger: 1) withArguments: {
+			builder literalInteger: 1
+		}.
+	result := module analyzeAndEvaluateAST: ast.
+	
+	self assert: result value equals: true.
+	self assert: result type isLiteralBooleanType.
+]
+
+{ #category : #tests }
+MbndCompileTimeEvaluationTest >> testUnexpandedIntegerGreater [
+	| ast result |
+	ast := builder unexpandedSend: (builder literalSymbol: #>) to:
+		(builder literalInteger: 1) withArguments: {
+			builder literalInteger: 3
+		}.
+	result := module analyzeAndEvaluateAST: ast.
+	
+	self assert: result value equals: false.
+	self assert: result type isLiteralBooleanType.
+]
+
+{ #category : #tests }
+MbndCompileTimeEvaluationTest >> testUnexpandedIntegerGreaterOrEqual [
+	| ast result |
+	ast := builder unexpandedSend: (builder literalSymbol: #>=) to:
+		(builder literalInteger: 1) withArguments: {
+			builder literalInteger: 3
+		}.
+	result := module analyzeAndEvaluateAST: ast.
+	
+	self assert: result value equals: false.
+	self assert: result type isLiteralBooleanType.
+]
+
+{ #category : #tests }
+MbndCompileTimeEvaluationTest >> testUnexpandedIntegerLess [
+	| ast result |
+	ast := builder unexpandedSend: (builder literalSymbol: #<) to:
+		(builder literalInteger: 1) withArguments: {
+			builder literalInteger: 3
+		}.
+	result := module analyzeAndEvaluateAST: ast.
+	
+	self assert: result value equals: true.
+	self assert: result type isLiteralBooleanType.
+]
+
+{ #category : #tests }
+MbndCompileTimeEvaluationTest >> testUnexpandedIntegerLessOrEqual [
+	| ast result |
+	ast := builder unexpandedSend: (builder literalSymbol: #<=) to:
+		(builder literalInteger: 1) withArguments: {
+			builder literalInteger: 3
+		}.
+	result := module analyzeAndEvaluateAST: ast.
+	
+	self assert: result value equals: true.
+	self assert: result type isLiteralBooleanType.
+]
+
+{ #category : #tests }
+MbndCompileTimeEvaluationTest >> testUnexpandedIntegerNotEqual [
+	| ast result |
+	ast := builder unexpandedSend: (builder literalSymbol: #~=) to:
+		(builder literalInteger: 1) withArguments: {
+			builder literalInteger: 1
+		}.
+	result := module analyzeAndEvaluateAST: ast.
+	
+	self assert: result value equals: false.
+	self assert: result type isLiteralBooleanType.
+]
+
+{ #category : #tests }
+MbndCompileTimeEvaluationTest >> testUnexpandedIntegerNotEqualIdentity [
+	| ast result |
+	ast := builder unexpandedSend: (builder literalSymbol: #~~) to:
+		(builder literalInteger: 1) withArguments: {
+			builder literalInteger: 1
+		}.
+	result := module analyzeAndEvaluateAST: ast.
+	
+	self assert: result value equals: false.
+	self assert: result type isLiteralBooleanType.
 ]
 
 { #category : #tests }

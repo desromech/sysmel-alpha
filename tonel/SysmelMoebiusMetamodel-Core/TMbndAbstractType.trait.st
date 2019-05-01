@@ -176,6 +176,11 @@ TMbndAbstractType >> isConstantType [
 ]
 
 { #category : #'testing methods' }
+TMbndAbstractType >> isDecorationType [
+	^ false
+]
+
+{ #category : #'testing methods' }
 TMbndAbstractType >> isDerivedType [
 	^ false
 ]

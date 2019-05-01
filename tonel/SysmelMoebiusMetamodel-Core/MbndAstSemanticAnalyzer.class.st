@@ -58,6 +58,14 @@ MbndAstSemanticAnalyzer >> analyzeNonConcreteNodeIfNeeded: node [
 { #category : #coercing }
 MbndAstSemanticAnalyzer >> arithmeticCoercionTypeFor: leftType with: rightType at: position [
 	leftType == rightType ifTrue: [ ^ leftType ].
+	(leftType isReferenceType or:
+	[ leftType isDecorationType or:
+	[ rightType isReferenceType or:
+	[ rightType isDecorationType ]]]) ifTrue: [
+		^ self arithmeticCoercionTypeFor: leftType withoutReferences withoutDecorations
+			with: rightType withoutReferences withoutDecorations at: position
+	].
+
 	self halt
 ]
 

@@ -51,7 +51,28 @@ MbndPrimitiveNumberType >> addArithmeticOperationCoercionMacro: selector [
 ]
 
 { #category : #initialization }
+MbndPrimitiveNumberType >> addComparison: selector intrinsic: intrinsicName [
+	self
+		addArithmeticOperationCoercionMacro: selector;
+		addOverloadedMethod: (MbndIntrinsicArithmeticBinaryOperationMethod new
+				name: selector;
+				intrinsicName: intrinsicName;
+				yourself)
+			receiverType: self argumentTypes: { self } returnType: self compilationTarget booleanType
+]
+
+{ #category : #initialization }
 MbndPrimitiveNumberType >> addComparisonIntrinsics [
+	self
+		addComparison: #= intrinsic: #eq;
+		addComparison: #== intrinsic: #eq;
+		addComparison: #~= intrinsic: #ne;
+		addComparison: #~~ intrinsic: #ne;
+
+		addComparison: #< intrinsic: #lt;
+		addComparison: #<= intrinsic: #le;
+		addComparison: #>= intrinsic: #ge;
+		addComparison: #> intrinsic: #gt
 ]
 
 { #category : #initialization }
