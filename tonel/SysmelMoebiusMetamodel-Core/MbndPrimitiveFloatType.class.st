@@ -14,6 +14,11 @@ MbndPrimitiveFloatType >> accept: aVisitor [
 	^ aVisitor visitPrimitiveFloatType: self
 ]
 
+{ #category : #converting }
+MbndPrimitiveFloatType >> asCVariadicTypeRequiredAt: position [
+	^ self compilationTarget float64Type
+]
+
 { #category : #'default values' }
 MbndPrimitiveFloatType >> defaultValue [
 	^ MbndValue value: 0.0 type: self

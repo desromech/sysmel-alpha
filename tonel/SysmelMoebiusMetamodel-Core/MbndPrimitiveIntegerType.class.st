@@ -17,6 +17,13 @@ MbndPrimitiveIntegerType >> accept: aVisitor [
 	^ aVisitor visitPrimitiveIntegerType: self
 ]
 
+{ #category : #converting }
+MbndPrimitiveIntegerType >> asCVariadicTypeRequiredAt: position [
+	self instanceSize < 4 ifTrue: [ ^ self compilationTarget int32Type ].
+	
+	^ self
+]
+
 { #category : #'default values' }
 MbndPrimitiveIntegerType >> defaultValue [
 	^ MbndValue value: 0 type: self

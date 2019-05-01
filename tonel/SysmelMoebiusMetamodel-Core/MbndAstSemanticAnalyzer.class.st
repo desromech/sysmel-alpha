@@ -14,6 +14,14 @@ Class {
 }
 
 { #category : #'implicit casting' }
+MbndAstSemanticAnalyzer >> addImplicitCVariadicCastFor: nodeRequiringCasting [
+	| sourceType cvariadicType |
+	sourceType := nodeRequiringCasting type.
+	cvariadicType := sourceType asCVariadicTypeRequiredAt: nodeRequiringCasting.
+	^ self addImplicitCastFor: nodeRequiringCasting to: cvariadicType
+]
+
+{ #category : #'implicit casting' }
 MbndAstSemanticAnalyzer >> addImplicitCastFor: nodeRequiringCasting to: expectedTargetType [
 	| sourceType |
 	sourceType := nodeRequiringCasting type.

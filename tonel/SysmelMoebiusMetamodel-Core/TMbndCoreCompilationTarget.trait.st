@@ -67,6 +67,11 @@ TMbndCoreCompilationTarget >> coreDefinitionsModule: anObject [
 	coreDefinitionsModule := anObject
 ]
 
+{ #category : #'convenience type accessors' }
+TMbndCoreCompilationTarget >> cstringLiteralType [
+	^ self uint8Type const pointer
+]
+
 { #category : #'calling conventions' }
 TMbndCoreCompilationTarget >> defaultCallingConvention [
 	^ #cdecl

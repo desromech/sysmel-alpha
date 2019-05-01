@@ -17,6 +17,34 @@ MbndCompilationTargetTest class >> isAbstract [
 ]
 
 { #category : #tests }
+MbndCompilationTargetTest >> testAsCVariadicType [
+	self assert: compilationTarget literalBooleanType asCVariadicType equals: compilationTarget booleanType.
+	self assert: compilationTarget booleanType asCVariadicType equals: compilationTarget booleanType.
+
+	self assert: compilationTarget literalIntegerType asCVariadicType equals: compilationTarget int32Type.
+	self assert: compilationTarget int8Type asCVariadicType equals: compilationTarget int32Type.
+	self assert: compilationTarget uint8Type asCVariadicType equals: compilationTarget int32Type.
+	self assert: compilationTarget int16Type asCVariadicType equals: compilationTarget int32Type.
+	self assert: compilationTarget uint16Type asCVariadicType equals: compilationTarget int32Type.
+	self assert: compilationTarget int32Type asCVariadicType equals: compilationTarget int32Type.
+	self assert: compilationTarget uint32Type asCVariadicType equals: compilationTarget uint32Type.
+	self assert: compilationTarget int64Type asCVariadicType equals: compilationTarget int64Type.
+	self assert: compilationTarget uint64Type asCVariadicType equals: compilationTarget uint64Type.
+
+	self assert: compilationTarget literalFloatType asCVariadicType equals: compilationTarget float64Type.
+	self assert: compilationTarget float32Type asCVariadicType equals: compilationTarget float64Type.
+	self assert: compilationTarget float64Type asCVariadicType equals: compilationTarget float64Type.
+
+	self assert: compilationTarget float64Type pointer asCVariadicType equals: compilationTarget float64Type pointer.
+	self assert: compilationTarget float64Type const asCVariadicType equals: compilationTarget float64Type.
+	self assert: compilationTarget float64Type ref asCVariadicType equals: compilationTarget float64Type.
+
+	self assert: compilationTarget undefinedType asCVariadicType equals: compilationTarget voidType pointer.
+	
+	self should: [compilationTarget voidType asCVariadicType] raise: Error.
+]
+
+{ #category : #tests }
 MbndCompilationTargetTest >> testBooleanType [
 	| type |
 	type := compilationTarget booleanType.
@@ -24,6 +52,16 @@ MbndCompilationTargetTest >> testBooleanType [
 	self assert: type isPrimitiveBooleanType.
 	self assert: type valueSize equals: 1.
 	self assert: type defaultValue unwrapMbndValue equals: false.
+]
+
+{ #category : #tests }
+MbndCompilationTargetTest >> testCStringLiteralType [
+	| type |
+	type := compilationTarget cstringLiteralType.
+	self assert: type isPointerType.
+	self assert: type baseType isConstantType.
+	self assert: type baseType baseType isPrimitiveIntegerType.
+	self assert: type baseType baseType instanceSize equals: 1.
 ]
 
 { #category : #tests }

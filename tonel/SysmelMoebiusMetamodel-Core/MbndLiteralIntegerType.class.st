@@ -9,6 +9,11 @@ MbndLiteralIntegerType class >> typeName [
 	^ #_LiteralInteger
 ]
 
+{ #category : #converting }
+MbndLiteralIntegerType >> asCVariadicTypeRequiredAt: position [
+	^ self compilationTarget int32Type
+]
+
 { #category : #'semantic analysis' }
 MbndLiteralIntegerType >> bestConcreteTypeForLiteralValueNode: literalValueNode inScope: scope [
 	self flag: 'TODO: Use the number range for selecting this.'.

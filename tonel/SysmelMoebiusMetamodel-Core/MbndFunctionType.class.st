@@ -22,13 +22,22 @@ MbndFunctionType >> accept: aVisitor [
 
 { #category : #'as yet unclassified' }
 MbndFunctionType >> analyzeFunctionCallNode: node with: analyzer [
-	node arguments size ~= argumentTypes size ifTrue: [ 
-		self error: 'Mismatching number of arguments for function call. Expected {1} arguments.'
-			format: { node arguments size asString } at: node
+	node arguments size < argumentTypes size ifTrue: [
+		self error: 'Fewer arguments than required are passed in function call. Expected {1} arguments.'
+			format: { argumentTypes size asString } at: node
+	] ifFalse: [
+		(node arguments size > argumentTypes size and: [ cvariadic not ]) ifTrue: [ 
+			self error: 'More arguments than required are passed in function call. Expected {1} arguments.'
+			format: { argumentTypes size asString } at: node
+		].
 	].
 
 	node arguments: (node arguments collectWithIndex: [:arg :index |
-		analyzer addImplicitCastFor: arg to: (argumentTypes at: index)
+		index <= argumentTypes size ifTrue: [ 
+			analyzer addImplicitCastFor: arg to: (argumentTypes at: index)
+		] ifFalse: [ 
+			analyzer addImplicitCVariadicCastFor: arg
+		]
 	]).
 
 	node type: returnType.

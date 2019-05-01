@@ -34,6 +34,29 @@ MbndAstSemanticAnalyzerTest >> identityMessageDefinitionNode [
 	^ builder messageSelector: #identity: arguments: arguments returnType: compilationTarget int32Type definitionBody: body
 ]
 
+{ #category : #tests }
+MbndAstSemanticAnalyzerTest >> libcPrintfDeclarationNode [
+	| arguments |
+	arguments := {
+		builder argument: #format type: compilationTarget cstringLiteralType
+	}.
+	^ (builder functionPrototypeNamed: #printf arguments: arguments returnType: compilationTarget int32Type)
+		externC;
+		CVariadic;
+		yourself
+]
+
+{ #category : #tests }
+MbndAstSemanticAnalyzerTest >> libcPutsDefinitionNode [
+	| arguments |
+	arguments := {
+		builder argument: #s type: compilationTarget cstringLiteralType
+	}.
+	^ (builder functionPrototypeNamed: #puts arguments: arguments returnType: compilationTarget int32Type)
+		externC;
+		yourself
+]
+
 { #category : #running }
 MbndAstSemanticAnalyzerTest >> setUp [
 	module := MbndDummyModule new.
@@ -475,6 +498,73 @@ MbndAstSemanticAnalyzerTest >> testPointerTypeConstruction [
 	self assert: analyzedNode isLiteralValueNode.
 	self assert: analyzedNode value isPointerType.
 	self assert: analyzedNode type isMetaType.
+
+]
+
+{ #category : #tests }
+MbndAstSemanticAnalyzerTest >> testPrintfCall [
+	| node analyzedNode |
+	node := builder sequence: {
+		self libcPrintfDeclarationNode.
+		builder call: (builder identifier: #printf) arguments: { 
+			builder literalString: 'Hello World:'.
+		}
+	}.
+	
+	analyzedNode := visitor visitNode: node.
+	self assert: analyzedNode isSequenceNode.
+	self assert: analyzedNode type isPrimitiveIntegerType.
+
+]
+
+{ #category : #tests }
+MbndAstSemanticAnalyzerTest >> testPrintfCallWithIntegerAndFloatArgument [
+	| node analyzedNode |
+	node := builder sequence: {
+		self libcPrintfDeclarationNode.
+		builder call: (builder identifier: #printf) arguments: { 
+			builder literalString: 'Hello World: %d %f'.
+			builder literalInteger: 42.
+			builder literalFloat: 42.0.
+		}
+	}.
+	
+	analyzedNode := visitor visitNode: node.
+	self assert: analyzedNode isSequenceNode.
+	self assert: analyzedNode type isPrimitiveIntegerType.
+
+]
+
+{ #category : #tests }
+MbndAstSemanticAnalyzerTest >> testPrintfCallWithIntegerArgument [
+	| node analyzedNode |
+	node := builder sequence: {
+		self libcPrintfDeclarationNode.
+		builder call: (builder identifier: #printf) arguments: { 
+			builder literalString: 'Hello World: %d'.
+			builder literalInteger: 42.
+		}
+	}.
+	
+	analyzedNode := visitor visitNode: node.
+	self assert: analyzedNode isSequenceNode.
+	self assert: analyzedNode type isPrimitiveIntegerType.
+
+]
+
+{ #category : #tests }
+MbndAstSemanticAnalyzerTest >> testPutsCall [
+	| node analyzedNode |
+	node := builder sequence: {
+		self libcPutsDefinitionNode.
+		builder call: (builder identifier: #puts) arguments: { 
+			builder literalString: 'Hello World'
+		}
+	}.
+	
+	analyzedNode := visitor visitNode: node.
+	self assert: analyzedNode isSequenceNode.
+	self assert: analyzedNode type isPrimitiveIntegerType.
 
 ]
 

@@ -168,6 +168,11 @@ MbndAstBuilder >> literalInteger: literalValue [
 ]
 
 { #category : #'builder methods' }
+MbndAstBuilder >> literalString: literalValue [
+	^ self literal: literalValue typeName: #_LiteralString
+]
+
+{ #category : #'builder methods' }
 MbndAstBuilder >> literalSymbol: literalValue [
 	^ self literal: literalValue typeName: #_LiteralSymbol
 ]

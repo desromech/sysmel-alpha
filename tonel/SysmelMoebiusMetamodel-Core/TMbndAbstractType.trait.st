@@ -72,6 +72,16 @@ TMbndAbstractType >> analyzeUnexpandedMessageSendNode: node with: analyzer [
 	^ analyzer visitNode: node asExpandedMessageSend
 ]
 
+{ #category : #converting }
+TMbndAbstractType >> asCVariadicType [
+	^ self asCVariadicTypeRequiredAt: MbndSourcePosition new
+]
+
+{ #category : #converting }
+TMbndAbstractType >> asCVariadicTypeRequiredAt: aPosition [
+	self error: 'Cannot pass value of type {1} as a C variadic argument.' format: { self fullName } at: aPosition
+]
+
 { #category : #'semantic analysis' }
 TMbndAbstractType >> asLiteralValueNode [
 	^ MbndAstLiteralValueNode new

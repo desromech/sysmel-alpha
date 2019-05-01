@@ -26,6 +26,11 @@ MbndReferenceType >> analyzeUnboundUnexpandedMessageSendNode: node with: analyze
 	^ baseType analyzeUnexpandedMessageSendNode: node with: analyzer
 ]
 
+{ #category : #converting }
+MbndReferenceType >> asCVariadicTypeRequiredAt: position [
+	^ baseType asCVariadicTypeRequiredAt: position
+]
+
 { #category : #'testing methods' }
 MbndReferenceType >> isReferenceType [
 	^ true

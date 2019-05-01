@@ -17,6 +17,11 @@ MbndDecoratedType >> accept: aVisitor [
 	^ aVisitor visitDecoratedType: self
 ]
 
+{ #category : #converting }
+MbndDecoratedType >> asCVariadicTypeRequiredAt: position [
+	^ baseType asCVariadicTypeRequiredAt: position
+]
+
 { #category : #accessing }
 MbndDecoratedType >> decorations [
 	^ decorations

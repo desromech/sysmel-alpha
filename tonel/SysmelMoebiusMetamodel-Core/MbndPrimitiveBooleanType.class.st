@@ -14,6 +14,11 @@ MbndPrimitiveBooleanType >> accept: aVisitor [
 	^ aVisitor visitPrimitiveBooleanType: self
 ]
 
+{ #category : #converting }
+MbndPrimitiveBooleanType >> asCVariadicTypeRequiredAt: position [
+	^ self compilationTarget booleanType
+]
+
 { #category : #'default values' }
 MbndPrimitiveBooleanType >> defaultValue [
 	^ MbndValue value: false type: self

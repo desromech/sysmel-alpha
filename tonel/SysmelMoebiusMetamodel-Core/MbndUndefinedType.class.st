@@ -14,6 +14,11 @@ MbndUndefinedType >> accept: aVisitor [
 	^ aVisitor visitUndefinedType: self
 ]
 
+{ #category : #converting }
+MbndUndefinedType >> asCVariadicTypeRequiredAt: position [
+	^ self compilationTarget voidType pointer
+]
+
 { #category : #'default values' }
 MbndUndefinedType >> defaultValue [
 	^ MbndValue value: nil type: self

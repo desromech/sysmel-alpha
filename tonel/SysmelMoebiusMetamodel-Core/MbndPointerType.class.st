@@ -14,6 +14,11 @@ MbndPointerType >> accept: aVisitor [
 	^ aVisitor visitPointerType: self
 ]
 
+{ #category : #converting }
+MbndPointerType >> asCVariadicTypeRequiredAt: position [
+	^ self
+]
+
 { #category : #'default values' }
 MbndPointerType >> defaultValue [
 	^ MbndValue value: nil type: self

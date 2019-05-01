@@ -266,6 +266,15 @@ MbndAstBuilderTest >> testLiteralInteger [
 ]
 
 { #category : #tests }
+MbndAstBuilderTest >> testLiteralString [
+	| node |
+	node := builder literalString: 'hello'.
+	self assert: node isLiteralValueNode.
+	self assert: node value equals: 'hello'.
+	self assert: node type isLiteralStringType.
+]
+
+{ #category : #tests }
 MbndAstBuilderTest >> testLiteralSymbol [
 	| node |
 	node := builder literalSymbol: #a.
