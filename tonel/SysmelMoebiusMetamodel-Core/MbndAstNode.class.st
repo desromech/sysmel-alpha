@@ -35,6 +35,11 @@ MbndAstNode >> isArgumentDefinitionNode [
 ]
 
 { #category : #testing }
+MbndAstNode >> isAssignmentNode [
+	^ false
+]
+
+{ #category : #testing }
 MbndAstNode >> isBoundIdentifierReferenceNode [
 	^ false
 ]
@@ -60,6 +65,11 @@ MbndAstNode >> isCasesOfNode [
 ]
 
 { #category : #testing }
+MbndAstNode >> isCastNode [
+	^ false
+]
+
+{ #category : #testing }
 MbndAstNode >> isCompileTimeConstantDefinitionNode [
 	^ false
 ]
@@ -76,6 +86,11 @@ MbndAstNode >> isDoWhileLoopNode [
 
 { #category : #testing }
 MbndAstNode >> isExpandedMessageSendNode [
+	^ false
+]
+
+{ #category : #testing }
+MbndAstNode >> isExplicitCastNode [
 	^ false
 ]
 
@@ -101,6 +116,11 @@ MbndAstNode >> isIdentifierReferenceNode [
 
 { #category : #testing }
 MbndAstNode >> isIfConditionNode [
+	^ false
+]
+
+{ #category : #testing }
+MbndAstNode >> isImplicitCastNode [
 	^ false
 ]
 
@@ -182,6 +202,16 @@ MbndAstNode >> isQuasiUnquoteNode [
 
 { #category : #testing }
 MbndAstNode >> isQuoteNode [
+	^ false
+]
+
+{ #category : #testing }
+MbndAstNode >> isReferenceLoadNode [
+	^ false
+]
+
+{ #category : #testing }
+MbndAstNode >> isReinterpretCastNode [
 	^ false
 ]
 

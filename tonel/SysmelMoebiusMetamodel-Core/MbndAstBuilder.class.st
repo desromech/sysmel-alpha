@@ -20,7 +20,7 @@ MbndAstBuilder >> alias: name definition: value [
 		yourself
 ]
 
-{ #category : #'as yet unclassified' }
+{ #category : #'builder methods' }
 MbndAstBuilder >> argument: name type: valueType [
 	^ MbndAstArgumentDefinitionNode new
 		name: name;
@@ -74,7 +74,7 @@ MbndAstBuilder >> continueStatement [
 	^ MbndAstContinueStatementNode new
 ]
 
-{ #category : #'as yet unclassified' }
+{ #category : #'builder methods' }
 MbndAstBuilder >> defineLocalVariable: name withValueType: valueType withInitialValue: initialValue [
 	^ MbndAstLocalVariableDefinitionNode new
 		name: name;
@@ -91,12 +91,20 @@ MbndAstBuilder >> do: action while: condition [
 		yourself
 ]
 
-{ #category : #'as yet unclassified' }
+{ #category : #'builder methods' }
+MbndAstBuilder >> explicitCast: expression to: targetType [
+	^ MbndAstExplicitCastNode new
+		expression: expression;
+		targetType: targetType;
+		yourself
+]
+
+{ #category : #'builder methods' }
 MbndAstBuilder >> functionNamed: name arguments: arguments returnType: returnType definitionBody: definitionBody [
 	^ self functionPrototype: (self functionPrototypeNamed: name arguments: arguments returnType: returnType) definitionBody: definitionBody
 ]
 
-{ #category : #'as yet unclassified' }
+{ #category : #'builder methods' }
 MbndAstBuilder >> functionPrototype: prototype definitionBody: definitionBody [
 	^ MbndAstFunctionDefinitionNode new
 		prototype: prototype;
@@ -104,7 +112,7 @@ MbndAstBuilder >> functionPrototype: prototype definitionBody: definitionBody [
 		yourself
 ]
 
-{ #category : #'as yet unclassified' }
+{ #category : #'builder methods' }
 MbndAstBuilder >> functionPrototypeNamed: name arguments: arguments returnType: returnType [
 	^ MbndAstFunctionPrototypeNode new
 		name: name;
@@ -124,6 +132,14 @@ MbndAstBuilder >> if: condition trueValue: trueValue falseValue: falseValue [
 		condition: condition;
 		trueValue: trueValue;
 		falseValue: falseValue;
+		yourself
+]
+
+{ #category : #'builder methods' }
+MbndAstBuilder >> implicitCast: expression to: targetType [
+	^ MbndAstImplicitCastNode new
+		expression: expression;
+		targetType: targetType;
 		yourself
 ]
 
@@ -208,7 +224,7 @@ MbndAstBuilder >> messageChainReceiver: receiver messages: chainedMessages [
 		yourself
 ]
 
-{ #category : #'as yet unclassified' }
+{ #category : #'builder methods' }
 MbndAstBuilder >> messagePrototype: prototype definitionBody: definitionBody [
 	^ MbndAstMessageDefinitionNode new
 		prototype: prototype;
@@ -216,7 +232,7 @@ MbndAstBuilder >> messagePrototype: prototype definitionBody: definitionBody [
 		yourself
 ]
 
-{ #category : #'as yet unclassified' }
+{ #category : #'builder methods' }
 MbndAstBuilder >> messagePrototypeSelector: selector arguments: arguments returnType: returnType [
 	^ MbndAstMessagePrototypeNode new
 		selector: selector;
@@ -225,7 +241,7 @@ MbndAstBuilder >> messagePrototypeSelector: selector arguments: arguments return
 		yourself
 ]
 
-{ #category : #'as yet unclassified' }
+{ #category : #'builder methods' }
 MbndAstBuilder >> messageSelector: selector arguments: arguments returnType: returnType definitionBody: definitionBody [
 	^ self messagePrototype: (self messagePrototypeSelector: selector arguments: arguments returnType: returnType)
 		definitionBody: definitionBody
@@ -278,6 +294,29 @@ MbndAstBuilder >> quasiUnquote: expression [
 { #category : #'builder methods' }
 MbndAstBuilder >> quote: expression [
 	^ MbndAstQuoteNode new expression: expression
+]
+
+{ #category : #'builder methods' }
+MbndAstBuilder >> reference: reference assignValue: value [
+	^ MbndAstAssignmentNode new
+		reference: reference;
+		value: value;
+		yourself
+]
+
+{ #category : #'builder methods' }
+MbndAstBuilder >> referenceLoad: reference [
+	^ MbndAstReferenceLoadNode new
+		reference: reference;
+		yourself
+]
+
+{ #category : #'builder methods' }
+MbndAstBuilder >> reinterpretCast: expression to: targetType [
+	^ MbndAstReinterpretCastNode new
+		expression: expression;
+		targetType: targetType;
+		yourself
 ]
 
 { #category : #'builder methods' }

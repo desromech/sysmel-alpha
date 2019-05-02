@@ -387,6 +387,47 @@ MbndAstSemanticAnalyzerTest >> testLiteral [
 ]
 
 { #category : #tests }
+MbndAstSemanticAnalyzerTest >> testLiteralIntegerExplicitCast [
+	| node analyzedNode |
+	node := builder explicitCast: (builder literalInteger: 42) to: (builder identifier: #Float32).
+	analyzedNode := visitor visitNode: node.
+	self assert: analyzedNode isExplicitCastNode.
+	self assert: analyzedNode type isPrimitiveFloatType.
+]
+
+{ #category : #tests }
+MbndAstSemanticAnalyzerTest >> testLiteralIntegerImplicitCast [
+	| node analyzedNode |
+	node := builder implicitCast: (builder literalInteger: 42) to: (builder identifier: #Float32).
+	analyzedNode := visitor visitNode: node.
+	self assert: analyzedNode isImplicitCastNode.
+	self assert: analyzedNode type isPrimitiveFloatType.
+]
+
+{ #category : #tests }
+MbndAstSemanticAnalyzerTest >> testLiteralIntegerReinterpretCast [
+	| node analyzedNode |
+	node := builder reinterpretCast: (builder literalInteger: 42) to: (compilationTarget void pointer).
+	analyzedNode := visitor visitNode: node.
+	self assert: analyzedNode isReinterpretCastNode.
+	self assert: analyzedNode type isPointerType.
+]
+
+{ #category : #tests }
+MbndAstSemanticAnalyzerTest >> testLocalVariableMutableAssignment [
+	| node analyzedNode |
+	node := builder sequence: { 
+		(builder defineLocalVariable: #x withValueType: (builder identifier: #Int32) withInitialValue: nil)
+			mutable.
+		builder reference: (builder identifier: #x) assignValue: (builder literalInteger: 5).
+	}.
+	analyzedNode := visitor visitNode: node.
+	self assert: (scope lookupSymbol: #x) isNotNil.
+	self assert: analyzedNode isSequenceNode.
+	self assert: analyzedNode type isReferenceType.
+]
+
+{ #category : #tests }
 MbndAstSemanticAnalyzerTest >> testLocalVariableMutableDefaultInitialValue [
 	| node analyzedNode |
 	node := builder sequence: { 
@@ -420,6 +461,21 @@ MbndAstSemanticAnalyzerTest >> testLocalVariableMutableReference [
 	self assert: analyzedNode type baseType isPrimitiveIntegerType.
 	self assert: analyzedNode elements last isBoundIdentifierReferenceNode.
 
+]
+
+{ #category : #tests }
+MbndAstSemanticAnalyzerTest >> testLocalVariableMutableReferenceExplicitLoad [
+	| node analyzedNode |
+	node := builder sequence: { 
+		(builder defineLocalVariable: #x withValueType: nil withInitialValue:
+			(builder literalInteger: 5))
+			mutable.
+		builder referenceLoad: (builder identifier: #x)
+	}.
+	analyzedNode := visitor visitNode: node.
+	self assert: (scope lookupSymbol: #x) isNotNil.
+	self assert: analyzedNode isSequenceNode.
+	self assert: analyzedNode type isPrimitiveIntegerType.
 ]
 
 { #category : #tests }

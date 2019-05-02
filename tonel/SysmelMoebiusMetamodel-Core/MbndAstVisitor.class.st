@@ -15,6 +15,11 @@ MbndAstVisitor >> visitArgumentDefinitionNode: node [
 ]
 
 { #category : #visiting }
+MbndAstVisitor >> visitAssignmentNode: node [
+	self subclassResponsibility
+]
+
+{ #category : #visiting }
 MbndAstVisitor >> visitBreakStatementNode: node [
 	self subclassResponsibility
 ]
@@ -55,6 +60,11 @@ MbndAstVisitor >> visitExpandedMessageSendNode: node [
 ]
 
 { #category : #visiting }
+MbndAstVisitor >> visitExplicitCastNode: node [
+	self subclassResponsibility
+]
+
+{ #category : #visiting }
 MbndAstVisitor >> visitFunctionCallNode: node [
 	self subclassResponsibility
 ]
@@ -76,6 +86,11 @@ MbndAstVisitor >> visitIdentifierReferenceNode: node [
 
 { #category : #visiting }
 MbndAstVisitor >> visitIfConditionNode: node [
+	self subclassResponsibility
+]
+
+{ #category : #visiting }
+MbndAstVisitor >> visitImplicitCastNode: node [
 	self subclassResponsibility
 ]
 
@@ -161,6 +176,16 @@ MbndAstVisitor >> visitQuasiUnquoteNode: node [
 
 { #category : #visiting }
 MbndAstVisitor >> visitQuoteNode: node [
+	self subclassResponsibility
+]
+
+{ #category : #visiting }
+MbndAstVisitor >> visitReferenceLoadNode: node [
+	self subclassResponsibility
+]
+
+{ #category : #visiting }
+MbndAstVisitor >> visitReinterpretCastNode: node [
 	self subclassResponsibility
 ]
 

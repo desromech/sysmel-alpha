@@ -30,6 +30,17 @@ MbndAstBuilderTest >> testArgumentDefinition [
 ]
 
 { #category : #tests }
+MbndAstBuilderTest >> testAssignmentExpression [
+	| node reference value|
+	reference := builder identifier: #x.
+	value := builder literalInteger: 42.
+	node := builder reference: reference assignValue: value.
+	self assert: node isAssignmentNode.
+	self assert: node reference equals: reference.
+	self assert: node value equals: value.
+]
+
+{ #category : #tests }
 MbndAstBuilderTest >> testBreakStatementNode [
 	| node |
 	node := builder breakStatement.
@@ -120,6 +131,17 @@ MbndAstBuilderTest >> testExpandedMessageNode [
 ]
 
 { #category : #tests }
+MbndAstBuilderTest >> testExplicitCast [
+	| node value targetType |
+	value := builder literalInteger: 42.
+	targetType := builder identifier: #Float32.
+	node := builder explicitCast: value to: targetType.
+	self assert: node isExplicitCastNode.
+	self assert: node expression equals: value.
+	self assert: node targetType equals: targetType.
+]
+
+{ #category : #tests }
 MbndAstBuilderTest >> testFunctionCallNode [
 	| node function arguments |
 	function := builder identifier: #sqrt.
@@ -195,6 +217,17 @@ MbndAstBuilderTest >> testIfConditionNode [
 	self assert: node condition equals: condition.
 	self assert: node trueValue equals: trueValue.
 	self assert: node falseValue equals: falseValue.
+]
+
+{ #category : #tests }
+MbndAstBuilderTest >> testImplicitCast [
+	| node value targetType |
+	value := builder literalInteger: 42.
+	targetType := builder identifier: #Float64.
+	node := builder implicitCast: value to: targetType.
+	self assert: node isImplicitCastNode.
+	self assert: node expression equals: value.
+	self assert: node targetType equals: targetType.
 ]
 
 { #category : #tests }
@@ -459,6 +492,26 @@ MbndAstBuilderTest >> testQuoteNode [
 
 	self assert: node isQuoteNode.
 	self assert: node expression equals: quoted.
+]
+
+{ #category : #tests }
+MbndAstBuilderTest >> testReferenceLoad [
+	| node reference |
+	reference := builder identifier: #x.
+	node := builder referenceLoad: reference.
+	self assert: node isReferenceLoadNode.
+	self assert: node reference equals: reference.
+]
+
+{ #category : #tests }
+MbndAstBuilderTest >> testReinterpretCast [
+	| node value targetType |
+	value := builder literalInteger: 42.
+	targetType := builder identifier: #VoidPtr.
+	node := builder reinterpretCast: value to: targetType.
+	self assert: node isReinterpretCastNode.
+	self assert: node expression equals: value.
+	self assert: node targetType equals: targetType.
 ]
 
 { #category : #tests }

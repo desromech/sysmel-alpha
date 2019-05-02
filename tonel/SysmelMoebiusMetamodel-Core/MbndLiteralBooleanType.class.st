@@ -24,10 +24,14 @@ MbndLiteralBooleanType >> initializeNonTraitType [
 	super initializeNonTraitType.
 	self
 		onMacroSelectors: #(and: &&) do: [ :node :builder |
-			builder if: node receiver trueValue: node arguments first falseValue: builder literalBooleanFalse
+			(builder if: node receiver trueValue: node arguments first falseValue: builder literalBooleanFalse)
+				position: node;
+				yourself
 		];
 		onMacroSelectors: #(or: ||) do: [ :node :builder |
-			builder if: node receiver trueValue: builder literalBooleanTrue falseValue: node arguments first
+			(builder if: node receiver trueValue: builder literalBooleanTrue falseValue: node arguments first)
+				position: node;
+				yourself
 		];
 		addLiteralHostDelegationMacrosFor: #(not).
 ]

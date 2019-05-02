@@ -32,6 +32,19 @@ MbndAstTransformVisitorTest >> testArgumentDefinition [
 ]
 
 { #category : #tests }
+MbndAstTransformVisitorTest >> testAssignmentExpression [
+	| node reference value transformedNode |
+	reference := builder identifier: #x.
+	value := builder literalInteger: 42.
+	node := builder reference: reference assignValue: value.
+	transformedNode := visitor visitNode: node.
+	self assert: transformedNode ~~ node.
+	self assert: transformedNode isAssignmentNode.
+	self assert: transformedNode reference equals: reference.
+	self assert: transformedNode value equals: value.
+]
+
+{ #category : #tests }
 MbndAstTransformVisitorTest >> testBreakStatement [
 	| node transformedNode |
 	node := builder breakStatement.
@@ -131,6 +144,20 @@ MbndAstTransformVisitorTest >> testExpandedMessageSendNode [
 ]
 
 { #category : #tests }
+MbndAstTransformVisitorTest >> testExplicitCast [
+	| node value targetType transformedNode |
+	value := builder literalInteger: 42.
+	targetType := builder identifier: #Float32.
+	node := builder explicitCast: value to: targetType.
+	transformedNode := visitor visitNode: node.
+	self assert: transformedNode ~~ node.
+	self assert: transformedNode isExplicitCastNode.
+	self assert: transformedNode expression equals: value.
+	self assert: transformedNode targetType equals: targetType.
+
+]
+
+{ #category : #tests }
 MbndAstTransformVisitorTest >> testFunctionCallNode [
 	| node transformedNode function arguments |
 	function := builder identifier: #sqrt.
@@ -209,6 +236,20 @@ MbndAstTransformVisitorTest >> testIfConditionNode [
 	self assert: transformedNode condition equals: node condition.
 	self assert: transformedNode trueValue equals: node trueValue.
 	self assert: transformedNode falseValue equals: node falseValue.
+]
+
+{ #category : #tests }
+MbndAstTransformVisitorTest >> testImplicitCast [
+	| node value targetType transformedNode |
+	value := builder literalInteger: 42.
+	targetType := builder identifier: #Float32.
+	node := builder implicitCast: value to: targetType.
+	transformedNode := visitor visitNode: node.
+	self assert: transformedNode ~~ node.
+	self assert: transformedNode isImplicitCastNode.
+	self assert: transformedNode expression equals: value.
+	self assert: transformedNode targetType equals: targetType.
+
 ]
 
 { #category : #tests }
@@ -386,6 +427,31 @@ MbndAstTransformVisitorTest >> testQuoteNode [
 	transformedNode := visitor visitNode: node.
 	self assert: transformedNode ~~ node.
 	self assert: transformedNode expression equals: expression.
+]
+
+{ #category : #tests }
+MbndAstTransformVisitorTest >> testReferenceLoad [
+	| node reference transformedNode |
+	reference := builder identifier: #x.
+	node := builder referenceLoad: reference.
+	transformedNode := visitor visitNode: node.
+	self assert: transformedNode ~~ node.
+	self assert: transformedNode isReferenceLoadNode.
+	self assert: transformedNode reference equals: reference.
+]
+
+{ #category : #tests }
+MbndAstTransformVisitorTest >> testReinterpretCast [
+	| node value targetType transformedNode |
+	value := builder literalInteger: 42.
+	targetType := builder identifier: #Float32.
+	node := builder reinterpretCast: value to: targetType.
+	transformedNode := visitor visitNode: node.
+	self assert: transformedNode ~~ node.
+	self assert: transformedNode isReinterpretCastNode.
+	self assert: transformedNode expression equals: value.
+	self assert: transformedNode targetType equals: targetType.
+
 ]
 
 { #category : #tests }

@@ -18,6 +18,11 @@ MbndAstDelegationVisitor >> visitArgumentDefinitionNode: node [
 ]
 
 { #category : #visiting }
+MbndAstDelegationVisitor >> visitAssignmentNode: node [
+	^ self delegateNodeVisit: node
+]
+
+{ #category : #visiting }
 MbndAstDelegationVisitor >> visitBreakStatementNode: node [
 	^ self delegateNodeVisit: node
 ]
@@ -58,6 +63,11 @@ MbndAstDelegationVisitor >> visitExpandedMessageSendNode: node [
 ]
 
 { #category : #visiting }
+MbndAstDelegationVisitor >> visitExplicitCastNode: node [
+	^ self delegateNodeVisit: node
+]
+
+{ #category : #visiting }
 MbndAstDelegationVisitor >> visitFunctionCallNode: node [
 	^ self delegateNodeVisit: node
 ]
@@ -79,6 +89,11 @@ MbndAstDelegationVisitor >> visitIdentifierReferenceNode: node [
 
 { #category : #visiting }
 MbndAstDelegationVisitor >> visitIfConditionNode: node [
+	^ self delegateNodeVisit: node
+]
+
+{ #category : #visiting }
+MbndAstDelegationVisitor >> visitImplicitCastNode: node [
 	^ self delegateNodeVisit: node
 ]
 
@@ -149,6 +164,16 @@ MbndAstDelegationVisitor >> visitQuasiUnquoteNode: node [
 
 { #category : #visiting }
 MbndAstDelegationVisitor >> visitQuoteNode: node [
+	^ self delegateNodeVisit: node
+]
+
+{ #category : #visiting }
+MbndAstDelegationVisitor >> visitReferenceLoadNode: node [
+	^ self delegateNodeVisit: node
+]
+
+{ #category : #visiting }
+MbndAstDelegationVisitor >> visitReinterpretCastNode: node [
 	^ self delegateNodeVisit: node
 ]
 

@@ -170,6 +170,31 @@ MbndAstSemanticAnalyzer >> visitArgumentDefinitionNode: node [
 
 ]
 
+{ #category : #'as yet unclassified' }
+MbndAstSemanticAnalyzer >> visitAssignmentNode: node [
+	| result |
+	result := node copy.
+	result value: (self analyzeNodeIfNeeded: node value);
+		reference: (self analyzeNodeIfNeeded: node reference);
+		yourself.
+		
+	"Make sure the reference can be assigned."
+	result reference type isReferenceType ifFalse: [ 
+		self error: 'Cannot assign a value to something that is not a reference.' at: result
+	].
+	result reference type baseType isConstantType ifTrue: [ 
+		self error: 'Cannot assign a value to a constant reference.' at: node
+	].
+
+	"Add an implicit cast to the assigned value."
+	result value: (self addImplicitCastFor: result value to: result reference type baseType withoutDecorations).
+	
+	"Return the reference after the assignment."
+	result type: result reference type.	
+	^ result
+
+]
+
 { #category : #visiting }
 MbndAstSemanticAnalyzer >> visitCompileTimeConstantDefinitionNode: node [
 	| aliasName owner alias |
@@ -490,6 +515,24 @@ MbndAstSemanticAnalyzer >> visitNode: node [
 { #category : #visiting }
 MbndAstSemanticAnalyzer >> visitNonConcreteNode: node [
 	^ node accept: self
+]
+
+{ #category : #'as yet unclassified' }
+MbndAstSemanticAnalyzer >> visitReferenceLoadNode: node [
+	| result |
+	result := node copy.
+	result reference: (self analyzeNodeIfNeeded: node reference);
+		yourself.
+		
+	"Make sure the reference can be assigned."
+	result reference type isReferenceType ifFalse: [ 
+		self error: 'Cannot assign a value to something that is not a reference.' at: result
+	].
+
+	"Return the reference after the assignment."
+	result type: result reference type baseType withoutDecorations.	
+	^ result
+
 ]
 
 { #category : #visiting }

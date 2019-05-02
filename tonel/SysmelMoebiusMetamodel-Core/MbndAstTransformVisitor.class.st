@@ -16,6 +16,14 @@ MbndAstTransformVisitor >> visitArgumentDefinitionNode: node [
 ]
 
 { #category : #visiting }
+MbndAstTransformVisitor >> visitAssignmentNode: node [
+	^ node copy
+		value: (self visitNode: node value);
+		reference: (self visitNode: node reference);
+		yourself
+]
+
+{ #category : #visiting }
 MbndAstTransformVisitor >> visitBreakStatementNode: node [
 	^ node
 ]
@@ -72,6 +80,16 @@ MbndAstTransformVisitor >> visitExpandedMessageSendNode: node [
 ]
 
 { #category : #visiting }
+MbndAstTransformVisitor >> visitExplicitCastNode: node [
+	^ node copy
+		expression: (self visitNode: node expression);
+		targetType: (node targetType isMbndAstNode
+			ifTrue: [self visitNode: node targetType]
+			ifFalse: [node targetType]);
+		yourself
+]
+
+{ #category : #visiting }
 MbndAstTransformVisitor >> visitFunctionCallNode: node [
 	^ node copy
 		function: (self visitNode: node function);
@@ -106,6 +124,16 @@ MbndAstTransformVisitor >> visitIfConditionNode: node [
 		condition: (self visitNode: node condition);
 		trueValue:  (self visitNode: node trueValue);
 		falseValue: (self visitNode: node falseValue);
+		yourself
+]
+
+{ #category : #visiting }
+MbndAstTransformVisitor >> visitImplicitCastNode: node [
+	^ node copy
+		expression: (self visitNode: node expression);
+		targetType: (node targetType isMbndAstNode
+			ifTrue: [self visitNode: node targetType]
+			ifFalse: [node targetType]);
 		yourself
 ]
 
@@ -203,6 +231,23 @@ MbndAstTransformVisitor >> visitQuasiUnquoteNode: node [
 MbndAstTransformVisitor >> visitQuoteNode: node [
 	^ node copy
 		expression: (self visitNode: node expression);
+		yourself
+]
+
+{ #category : #visiting }
+MbndAstTransformVisitor >> visitReferenceLoadNode: node [
+	^ node copy
+		reference: (self visitNode: node reference);
+		yourself
+]
+
+{ #category : #visiting }
+MbndAstTransformVisitor >> visitReinterpretCastNode: node [
+	^ node copy
+		expression: (self visitNode: node expression);
+		targetType: (node targetType isMbndAstNode
+			ifTrue: [self visitNode: node targetType]
+			ifFalse: [node targetType]);
 		yourself
 ]
 

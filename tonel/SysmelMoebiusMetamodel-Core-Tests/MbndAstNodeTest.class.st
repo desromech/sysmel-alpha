@@ -68,6 +68,7 @@ MbndAstNodeTest >> testTestingMethods [
 	
 	self deny: 1 isMbndAstNode.
 	self assert: node isMbndAstNode.
+	self deny: node isAssignmentNode.
 	self deny: node isCompileTimeConstantDefinitionNode.
 	self deny: node isArgumentDefinitionNode.
 	self deny: node isBreakStatementNode.
@@ -77,14 +78,17 @@ MbndAstNodeTest >> testTestingMethods [
 	self deny: node isCasesOfCaseNode.
 	self deny: node isCasesOfDefaultCaseNode.
 	self deny: node isCasesOfNode.
+	self deny: node isCastNode.
 	self deny: node isContinueStatementNode.
 	self deny: node isDoWhileLoopNode.
 	self deny: node isExpandedMessageSendNode.
+	self deny: node isExplicitCastNode.
 	self deny: node isFunctionCallNode.
 	self deny: node isFunctionDefinitionNode.
 	self deny: node isFunctionPrototypeNode.
 	self deny: node isIdentifierReferenceNode.
 	self deny: node isIfConditionNode.
+	self deny: node isImplicitCastNode.
 	self deny: node isLexicalScopeNode.
 	self deny: node isLiteralValueNode.
 	self deny: node isLiteralSymbolValueNode.
@@ -99,7 +103,9 @@ MbndAstNodeTest >> testTestingMethods [
 	self deny: node isQuasiQuoteNode.
 	self deny: node isQuasiUnquoteNode.
 	self deny: node isQuoteNode.
+	self deny: node isReinterpretCastNode.
 	self deny: node isReturnStatementNode.
+	self deny: node isReferenceLoadNode.
 	self deny: node isSequenceNode.
 	self deny: node isSpliceNode.
 	self deny: node isStatementNode.
