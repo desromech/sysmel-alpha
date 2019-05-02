@@ -39,6 +39,19 @@ MbndReferenceType >> asCVariadicTypeRequiredAt: position [
 	^ baseType asCVariadicTypeRequiredAt: position
 ]
 
+{ #category : #initialization }
+MbndReferenceType >> initializeBasicTypeTrait [
+	super initializeBasicTypeTrait.
+	self
+		onMacroSelector: #assignValue: do: [ :node :builder |
+			(builder reference: node receiver assignValue: node arguments first)
+				position: node
+		];
+		onMacroSelector: #address do: [ :node :builder |
+			self halt
+		].
+]
+
 { #category : #'testing methods' }
 MbndReferenceType >> isReferenceType [
 	^ true

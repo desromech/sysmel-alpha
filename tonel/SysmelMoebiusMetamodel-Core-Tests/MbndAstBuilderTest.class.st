@@ -610,12 +610,15 @@ MbndAstBuilderTest >> testVariableReference [
 
 { #category : #tests }
 MbndAstBuilderTest >> testWhileLoopNode [
-	| node condition action |
+	| node condition action continueAction |
 	condition := builder identifier: #predicate.
 	action := builder literalInteger: 1.
-	node := builder while: condition do: action.
+	continueAction := builder literalInteger: 1.
+	node := builder while: condition do: action continueWith: continueAction.
 	
 	self assert: node isWhileLoopNode.
 	self assert: node condition equals: condition.
 	self assert: node action equals: action.
+	self assert: node continueAction equals: continueAction.
+	
 ]

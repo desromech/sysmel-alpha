@@ -53,9 +53,11 @@ MbndGenericMacroLanguageTopLevelScopeTest >> testNew [
 	self assert: (scope lookupMacroSelector: #if:then:else:) isNotNil.
 
 	self assert: (scope lookupMacroSelector: #while:do:) isNotNil.
+	self assert: (scope lookupMacroSelector: #while:do:continueWith:) isNotNil.
 	self assert: (scope lookupMacroSelector: #do:while:) isNotNil.
 
 	self assert: (scope lookupMacroSelector: #until:do:) isNotNil.
+	self assert: (scope lookupMacroSelector: #until:do:continueWith:) isNotNil.
 	self assert: (scope lookupMacroSelector: #do:until:) isNotNil.
 	
 	self assert: (scope lookupSymbolRecursively: #nil ifAbsent: [nil]) isNotNil.

@@ -368,8 +368,14 @@ MbndAstBuilder >> variableReference: binding [
 
 { #category : #'builder methods' }
 MbndAstBuilder >> while: condition do: action [
+	^ self while: condition do: action continueWith: nil
+]
+
+{ #category : #'builder methods' }
+MbndAstBuilder >> while: condition do: action continueWith: continueAction [
 	^ MbndAstWhileLoopNode new
 		condition: condition;
 		action: action;
+		continueAction: continueAction;
 		yourself
 ]

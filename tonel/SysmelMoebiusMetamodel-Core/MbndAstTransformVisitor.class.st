@@ -299,5 +299,6 @@ MbndAstTransformVisitor >> visitWhileLoopNode: node [
 	^ node copy
 		condition: (self visitNode: node condition);
 		action: (self visitNode: node action);
-		yourself
+		continueAction: (self visitNode: node continueAction);
+		yourself 
 ]

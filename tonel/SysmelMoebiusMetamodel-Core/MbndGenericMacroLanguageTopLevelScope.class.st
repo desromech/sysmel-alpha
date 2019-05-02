@@ -41,6 +41,10 @@ MbndGenericMacroLanguageTopLevelScope >> addControlFlowMacros [
 			(builder while: node arguments first do: node arguments second)
 				position: node
 		];
+		onMacroSelector: #while:do:continueWith: do: [ :node :builder |
+			(builder while: node arguments first do: node arguments second continueWith: node arguments third)
+				position: node
+		];
 		onMacroSelector: #do:while: do: [ :node :builder |
 			(builder do: node arguments first while: node arguments second)
 				position: node
@@ -50,6 +54,14 @@ MbndGenericMacroLanguageTopLevelScope >> addControlFlowMacros [
 				((builder unexpandedSend: #not to: node arguments first withArguments: #())
 					position: node arguments first)
 				do: node arguments second)
+				position: node
+		];
+		onMacroSelector: #until:do:continueWith: do: [ :node :builder |
+			(builder while:
+				((builder unexpandedSend: #not to: node arguments first withArguments: #())
+					position: node arguments first)
+				do: node arguments second
+				continueWith: node arguments third)
 				position: node
 		];
 		onMacroSelector: #do:until: do: [ :node :builder |

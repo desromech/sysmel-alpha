@@ -550,13 +550,15 @@ MbndAstTransformVisitorTest >> testVariableReference [
 
 { #category : #tests }
 MbndAstTransformVisitorTest >> testWhileLoopNode [
-	| node transformedNode condition action |
+	| node transformedNode condition action continueAction |
 	condition := builder identifier: #predicate.
 	action := builder literalInteger: 42.
+	continueAction := builder literalInteger: 1.
 
-	node := builder while: condition do: action.
+	node := builder while: condition do: action continueWith: continueAction.
 	transformedNode := visitor visitNode: node.
 	self assert: transformedNode ~~ node.
 	self assert: transformedNode condition equals: node condition.
 	self assert: transformedNode action equals: node action.
+	self assert: transformedNode continueAction equals: node continueAction.
 ]

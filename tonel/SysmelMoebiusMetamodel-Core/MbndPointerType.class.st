@@ -24,6 +24,28 @@ MbndPointerType >> defaultValue [
 	^ MbndValue value: nil type: self
 ]
 
+{ #category : #initialization }
+MbndPointerType >> initializeBasicTypeTrait [
+	super initializeBasicTypeTrait.
+	self
+		onMacroSelectors: #(value _) do: [ :node :builder |
+			(builder reference: node receiver assignValue: node arguments first)
+				position: node
+		];
+		onMacroSelector: #value: do: [ :node :builder |
+			self halt
+		];
+		onMacroSelectors: #(subscriptAt: at:) do: [ :node :builder |
+			self halt
+		];
+		onMacroSelector: #+ do: [ :node :builder |
+			self halt
+		];
+		onMacroSelector: #- do: [ :node :builder |
+			self halt
+		].
+]
+
 { #category : #'testing methods' }
 MbndPointerType >> isPointerType [
 	^ true
