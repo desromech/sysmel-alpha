@@ -391,7 +391,6 @@ MbndAstSemanticAnalyzerTest >> testLiteralIntegerExplicitCast [
 	| node analyzedNode |
 	node := builder explicitCast: (builder literalInteger: 42) to: (builder identifier: #Float32).
 	analyzedNode := visitor visitNode: node.
-	self assert: analyzedNode isExplicitCastNode.
 	self assert: analyzedNode type isPrimitiveFloatType.
 ]
 
@@ -400,7 +399,6 @@ MbndAstSemanticAnalyzerTest >> testLiteralIntegerImplicitCast [
 	| node analyzedNode |
 	node := builder implicitCast: (builder literalInteger: 42) to: (builder identifier: #Float32).
 	analyzedNode := visitor visitNode: node.
-	self assert: analyzedNode isImplicitCastNode.
 	self assert: analyzedNode type isPrimitiveFloatType.
 ]
 
@@ -471,6 +469,25 @@ MbndAstSemanticAnalyzerTest >> testLocalVariableMutableReferenceExplicitLoad [
 			(builder literalInteger: 5))
 			mutable.
 		builder referenceLoad: (builder identifier: #x)
+	}.
+	analyzedNode := visitor visitNode: node.
+	self assert: (scope lookupSymbol: #x) isNotNil.
+	self assert: analyzedNode isSequenceNode.
+	self assert: analyzedNode type isPrimitiveIntegerType.
+]
+
+{ #category : #tests }
+MbndAstSemanticAnalyzerTest >> testLocalVariableMutableReferenceImplicitLoad [
+	| node analyzedNode |
+	node := builder sequence: { 
+		(builder defineLocalVariable: #x withValueType: nil withInitialValue:
+			(builder literalInteger: 5))
+			mutable.
+		builder unexpandedSend: (builder literalSymbol: #+)
+			to: (builder identifier: #x)
+			withArguments: { 
+			(builder literalInteger: 1)
+		}
 	}.
 	analyzedNode := visitor visitNode: node.
 	self assert: (scope lookupSymbol: #x) isNotNil.

@@ -44,6 +44,11 @@ MbndAstEvaluator >> scope: anObject [
 ]
 
 { #category : #visiting }
+MbndAstEvaluator >> visitAssignmentNode: node [
+	self halt
+]
+
+{ #category : #visiting }
 MbndAstEvaluator >> visitExpandedMessageSendNode: node [
 	| receiver arguments |
 	self assert: node type isNotNil.
@@ -51,6 +56,11 @@ MbndAstEvaluator >> visitExpandedMessageSendNode: node [
 	receiver := node receiver ifNotNil: [ self visitNode: node receiver ].
 	arguments := self visitNodesAndCollect: node arguments.
 	^ node method evaluateWithReceiver: receiver arguments: arguments withEvaluator: self at: node
+]
+
+{ #category : #visiting }
+MbndAstEvaluator >> visitExplicitCastNode: node [
+	self halt
 ]
 
 { #category : #visiting }
@@ -71,6 +81,11 @@ MbndAstEvaluator >> visitFunctionDefinitionNode: node [
 MbndAstEvaluator >> visitFunctionPrototypeNode: node [
 	self assert: node concreteMethod isNotNil.
 	^ MbndValue value: node concreteMethod type: node type
+]
+
+{ #category : #visiting }
+MbndAstEvaluator >> visitImplicitCastNode: node [
+	self halt
 ]
 
 { #category : #visiting }
@@ -108,6 +123,18 @@ MbndAstEvaluator >> visitMessagePrototypeNode: node [
 MbndAstEvaluator >> visitMethodReferenceNode: node [
 	self assert: node binding isNotNil.
 	^ MbndValue value: node binding type: node type
+]
+
+{ #category : #visiting }
+MbndAstEvaluator >> visitReferenceLoadNode: node [
+	| reference |
+	reference := self visitNode: node reference.
+	^ reference value value
+]
+
+{ #category : #visiting }
+MbndAstEvaluator >> visitReinterpretCastNode: node [
+	self halt
 ]
 
 { #category : #visiting }

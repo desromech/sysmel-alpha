@@ -233,6 +233,25 @@ MbndAstEvaluatorTest >> testLocalDeclaration [
 ]
 
 { #category : #running }
+MbndAstEvaluatorTest >> testLocalVariableMutableReferenceImplicitLoad [
+	| node value |
+	node := builder sequence: { 
+		(builder defineLocalVariable: #x withValueType: nil withInitialValue:
+			(builder literalInteger: 5))
+			mutable.
+		builder unexpandedSend: (builder literalSymbol: #+)
+			to: (builder identifier: #x)
+			withArguments: { 
+			(builder literalInteger: 1)
+		}
+	}.
+	
+	value := self analyzeAndEvaluateAST: node.
+	self assert: value value equals: 6.
+	self assert: value type isPrimitiveIntegerType.
+]
+
+{ #category : #running }
 MbndAstEvaluatorTest >> testNew [
 	self assert: evaluator scope equals: scope
 ]

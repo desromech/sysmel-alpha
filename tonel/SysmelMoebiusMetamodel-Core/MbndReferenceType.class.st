@@ -14,6 +14,14 @@ MbndReferenceType >> accept: aVisitor [
 	^ aVisitor visitReferenceType: self
 ]
 
+{ #category : #adding }
+MbndReferenceType >> addDefaultConversionRules [
+	super addDefaultConversionRules.
+	baseType ifNotNil: [ 
+		self addConversionTo: baseType withoutDecorations rule: MbndReferenceLoadTypeConversionRule.
+	]
+]
+
 { #category : #'semantic analysis' }
 MbndReferenceType >> analyzeUnboundExpandedMessageSendNode: node with: analyzer [
 	"Try to delegate to the base type."

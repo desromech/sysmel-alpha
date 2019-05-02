@@ -31,7 +31,12 @@ MbndAstSemanticAnalyzer >> addImplicitCastFor: nodeRequiringCasting to: expected
 		^ nodeRequiringCasting
 	].
 
-	^ sourceType createNode: nodeRequiringCasting implicitCastTo: expectedTargetType with: self
+	^ self visitNode: (MbndAstImplicitCastNode new
+		position: nodeRequiringCasting;
+		expression: nodeRequiringCasting;
+		targetType: expectedTargetType;
+		yourself)
+
 ]
 
 { #category : #visiting }
@@ -253,6 +258,26 @@ MbndAstSemanticAnalyzer >> visitExpandedMessageSendNode: node [
 ]
 
 { #category : #visiting }
+MbndAstSemanticAnalyzer >> visitExplicitCastNode: node [
+	| result sourceType conversionRule |
+	result := node copy
+		expression: (self analyzeNodeIfNeeded: node expression);
+		targetType: (self evaluateTypeExpression: node targetType);
+		yourself.
+	
+	sourceType := result expression type.
+	conversionRule := sourceType node: result expression convertedExplicitlyInto: result targetType.
+	conversionRule ifNil: [
+		self error: 'Cannot perform implicit cast from type {1} to type {2}.' format: { sourceType printString.  result targetType printString} at: node
+	].
+	
+	result
+		typeConversionRule: conversionRule;
+		type: result targetType.
+	^ conversionRule postProcessCastNode: result.
+]
+
+{ #category : #visiting }
 MbndAstSemanticAnalyzer >> visitFunctionCallNode: node [
 	| result functionalType |
 	result := node copy.
@@ -360,6 +385,26 @@ MbndAstSemanticAnalyzer >> visitIfConditionNode: node [
 	].
 
 	self halt
+]
+
+{ #category : #visiting }
+MbndAstSemanticAnalyzer >> visitImplicitCastNode: node [
+	| result sourceType conversionRule |
+	result := node copy
+		expression: (self analyzeNodeIfNeeded: node expression);
+		targetType: (self evaluateTypeExpression: node targetType);
+		yourself.
+	
+	sourceType := result expression type.
+	conversionRule := sourceType node: result expression convertedImplicitlyInto: result targetType.
+	conversionRule ifNil: [
+		self error: 'Cannot perform implicit cast from type {1} to type {2}.' format: { sourceType printString.  result targetType printString} at: node
+	].
+	
+	result
+		typeConversionRule: conversionRule;
+		type: result targetType.
+	^ conversionRule postProcessCastNode: result.
 ]
 
 { #category : #visiting }

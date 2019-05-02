@@ -17,6 +17,15 @@ MbndDecoratedType >> accept: aVisitor [
 	^ aVisitor visitDecoratedType: self
 ]
 
+{ #category : #adding }
+MbndDecoratedType >> addDefaultConversionRules [
+	super addDefaultConversionRules.
+	baseType ifNotNil: [ 
+		self addConversionTo: baseType rule: MbndIdentityTypeConversionRule.
+	].
+
+]
+
 { #category : #converting }
 MbndDecoratedType >> asCVariadicTypeRequiredAt: position [
 	^ baseType asCVariadicTypeRequiredAt: position
@@ -35,7 +44,7 @@ MbndDecoratedType >> decorations: anObject [
 { #category : #initialization }
 MbndDecoratedType >> initialize [
 	super initialize.
-	decorations := #().
+	decorations ifNil: [ decorations := #() ].
 ]
 
 { #category : #'testing methods' }

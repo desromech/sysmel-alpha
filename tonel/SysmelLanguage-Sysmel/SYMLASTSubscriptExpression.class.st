@@ -10,7 +10,7 @@ Class {
 
 { #category : #converting }
 SYMLASTSubscriptExpression >> buildMoebiusAST: builder [
-	^ (builder unexpandedSend: #subscriptAt:
+	^ (builder unexpandedSend: (builder literalSymbol: #subscriptAt:)
 		to: (container buildMoebiusAST: builder)
 		withArguments: {index buildMoebiusAST: builder})
 		position: self;

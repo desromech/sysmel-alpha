@@ -9,12 +9,26 @@ Trait {
 	#name : #TMbndType,
 	#instVars : [
 		'definitionModule',
-		'subtypes'
+		'subtypes',
+		'explicitConversionRules',
+		'implicitConversionRules'
 	],
 	#traits : 'TMbndAbstractType + TMbndMacroMethodContainer',
 	#classTraits : 'TMbndAbstractType classTrait + TMbndMacroMethodContainer classTrait',
 	#category : #'SysmelMoebiusMetamodel-Core-Type'
 }
+
+{ #category : #adding }
+TMbndType >> addExplicitConversionRule: conversionRule [
+	self explicitConversionRules add: conversionRule
+
+]
+
+{ #category : #adding }
+TMbndType >> addImplicitConversionRule: conversionRule [
+	self implicitConversionRules add: conversionRule
+
+]
 
 { #category : #'as yet unclassified' }
 TMbndType >> analyzeExpandedMessageNode: node with: analyzer [
@@ -32,6 +46,16 @@ TMbndType >> analyzeExpandedMessageNode: node with: analyzer [
 { #category : #accessing }
 TMbndType >> definitionModule: aModule [
 	definitionModule := aModule
+]
+
+{ #category : #accessing }
+TMbndType >> explicitConversionRules [
+	^ explicitConversionRules ifNil: [ explicitConversionRules := OrderedCollection new ]
+]
+
+{ #category : #accessing }
+TMbndType >> implicitConversionRules [
+	^ implicitConversionRules ifNil: [ implicitConversionRules := OrderedCollection new ]
 ]
 
 { #category : #'as yet unclassified' }

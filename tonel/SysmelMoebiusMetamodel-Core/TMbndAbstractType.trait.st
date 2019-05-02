@@ -8,6 +8,51 @@ Trait {
 	#category : #'SysmelMoebiusMetamodel-Core-Type'
 }
 
+{ #category : #converting }
+TMbndAbstractType >> addConversionRule: conversionRule [
+	self
+		addExplicitConversionRule: conversionRule;
+		addImplicitConversionRule: conversionRule
+]
+
+{ #category : #converting }
+TMbndAbstractType >> addConversionTo: targetType rule: conversionRule [
+	self
+		addExplicitConversionTo: targetType rule: conversionRule;
+		addImplicitConversionTo: targetType rule: conversionRule
+]
+
+{ #category : #adding }
+TMbndAbstractType >> addDefaultConversionRules [
+	self
+		addConversionRule: (MbndIdentityTypeConversionRule when: [:source :target |
+			source == target
+		]);
+		addConversionRule: (MbndIdentityTypeConversionRule when: [:source :target |
+			target == self compilationTarget compilerObjectType
+		])
+]
+
+{ #category : #converting }
+TMbndAbstractType >> addExplicitConversionRule: conversionRule [
+	self explicitRequirement
+]
+
+{ #category : #converting }
+TMbndAbstractType >> addExplicitConversionTo: targetType rule: conversionRule [
+	self addExplicitConversionRule: (conversionRule asMbndTypeConversionRuleTo: targetType)
+]
+
+{ #category : #converting }
+TMbndAbstractType >> addImplicitConversionRule: conversionRule [
+	self explicitRequirement
+]
+
+{ #category : #converting }
+TMbndAbstractType >> addImplicitConversionTo: targetType rule: conversionRule [
+	self addImplicitConversionRule: (conversionRule asMbndTypeConversionRuleTo: targetType)
+]
+
 { #category : #'type hierarchy' }
 TMbndAbstractType >> allSubtypes [
 	| result |
@@ -100,22 +145,27 @@ TMbndAbstractType >> bestConcreteTypeForLiteralValueNode: literalValueNode inSco
 	^ self
 ]
 
+{ #category : #converting }
+TMbndAbstractType >> buildTypeConversionChainUntil: targetType fromVisitedTypes: visitedTypes [
+	| previousTypeAndRule previousType rule previousRule |
+	previousTypeAndRule := visitedTypes at: targetType.
+	previousTypeAndRule ifNil: [ ^ nil ].
+	
+	previousType := previousTypeAndRule first.
+	rule := previousTypeAndRule second.
+	previousType == targetType ifTrue: [ ^ rule ].
+	previousType ifNil: [ ^ rule ].
+	
+	previousRule := self buildTypeConversionChainUntil: previousType fromVisitedTypes: visitedTypes.
+	previousRule ifNil: [ ^ rule ].
+	
+	^ previousRule intermediateConversion: previousType chainedWith: rule
+]
+
 { #category : #'type composition' }
 TMbndAbstractType >> const [
 	<compileTime>
 	^ self withDecoration: #const
-]
-
-{ #category : #casting }
-TMbndAbstractType >> createNode: node explicitCastTo: target with: analyzer [
-	self == target ifTrue: [ ^ node ].
-	^ analyzer error: 'Cannot perform implicit cast from type {1} to type {2}.' format: { self printString . target printString} at: node
-]
-
-{ #category : #casting }
-TMbndAbstractType >> createNode: node implicitCastTo: target with: analyzer [
-	self == target ifTrue: [ ^ node ].
-	^ analyzer error: 'Cannot perform implicit cast from type {1} to type {2}.' format: { self printString . target printString} at: node
 ]
 
 { #category : #'default values' }
@@ -128,6 +178,56 @@ TMbndAbstractType >> defaultValue [
 TMbndAbstractType >> defaultValueASTNode [
 	^ self defaultValue asLiteralValueNode
 
+]
+
+{ #category : #converting }
+TMbndAbstractType >> findConversionRuleInto: targetType node: node rulesExtractor: rulesExtractor [
+	| visitedTypes pendingTypes currentTypeFromToCheck currentType incomingTypeAndRule |
+	visitedTypes := IdentityDictionary new.
+	pendingTypes := LinkedList new.
+	
+	pendingTypes add: { self . nil }.
+	
+	[ pendingTypes isEmpty ] whileFalse: [ 
+		currentTypeFromToCheck := pendingTypes first.
+		pendingTypes removeFirst.
+		
+		currentType := currentTypeFromToCheck first.
+		incomingTypeAndRule := currentTypeFromToCheck second.
+		
+		(visitedTypes includesKey: currentType) ifTrue: [
+			(currentType == targetType and: [ incomingTypeAndRule isNotNil ]) ifTrue: [ 
+				targetType name = 'CompiledMethod' ifTrue: [self halt].
+				^ self buildTypeConversionChainUntil: targetType fromVisitedTypes: visitedTypes
+			].
+		] ifFalse: [ 
+			"Ignore the types that were already visited."
+			visitedTypes at: currentType put: incomingTypeAndRule.
+		
+			(rulesExtractor value: currentType) do: [ :rule |
+				(rule canBeUsedToConvertNode: node from: currentType into: targetType) ifTrue: [
+					visitedTypes at: targetType put: {currentType . rule}.
+					^ self buildTypeConversionChainUntil: targetType fromVisitedTypes: visitedTypes
+				].
+			
+				rule isTypeKindConversion ifTrue: [
+					rule targetTypeKind withAllTraitUsersDo: [ :nextType |
+						(visitedTypes includesKey: nextType) ifFalse: [
+							pendingTypes addLast: { nextType . { currentType . rule } }.
+						]
+					]
+				]
+			].
+		
+			currentType usedTraits do: [ :trait |
+				(visitedTypes includesKey: trait) ifFalse: [
+					pendingTypes addLast: { trait . { currentType . MbndIdentityTypeConversionRule new } }.
+				]
+			]
+		]
+	].
+
+	^ nil
 ]
 
 { #category : #accessing }
@@ -365,6 +465,17 @@ TMbndAbstractType >> lookupSelector: aSelector [
 	^ self supertype ifNotNil: [ :st | st lookupSelector: aSelector ]
 ]
 
+{ #category : #converting }
+TMbndAbstractType >> node: node convertedExplicitlyInto: targetType [
+	^ self findConversionRuleInto: targetType node: node rulesExtractor: #explicitConversionRules
+
+]
+
+{ #category : #converting }
+TMbndAbstractType >> node: node convertedImplicitlyInto: targetType [
+	^ self findConversionRuleInto: targetType node: node rulesExtractor: #implicitConversionRules
+]
+
 { #category : #'type composition' }
 TMbndAbstractType >> pointer [
 	<compileTime>
@@ -419,6 +530,11 @@ TMbndAbstractType >> type [
 	^ nil
 ]
 
+{ #category : #accessing }
+TMbndAbstractType >> usedTraits [
+	^ #()
+]
+
 { #category : #sizes }
 TMbndAbstractType >> valueAlignment [
 	^ self instanceAlignment
@@ -447,6 +563,12 @@ TMbndAbstractType >> withAllSubtypes [
 TMbndAbstractType >> withAllSubtypesDo: aBlock [
 	aBlock value: self.
 	self allSubtypesDo: aBlock
+]
+
+{ #category : #accessing }
+TMbndAbstractType >> withAllTraitUsersDo: aBlock [
+	aBlock value: self.
+	self allTraitUsersDo: aBlock
 ]
 
 { #category : #'type composition' }

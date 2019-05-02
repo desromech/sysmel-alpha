@@ -9,22 +9,10 @@ MbndLiteralStringType class >> typeName [
 	^ #_LiteralString
 ]
 
-{ #category : #casting }
-MbndLiteralStringType >> createNode: node implicitCastTo: target with: analyzer [
-	self flag: 'HACK: Implicit literal string -> to C-String. Implement this properly!!'.
-	node isLiteralValueNode ifTrue: [
-		(target isPointerType and:
-		[ target baseType isConstantType and:
-		[ target baseType withoutDecorations isPrimitiveIntegerType and:
-		[ target baseType withoutDecorations instanceSize = 1 ]]]) ifTrue: [
-			^ node copy
-				type: target;
-				yourself
-		]
-	].
-
-	
-	^ super createNode: node implicitCastTo: target with: analyzer
+{ #category : #adding }
+MbndLiteralStringType >> addDefaultConversionRules [
+	super addDefaultConversionRules.
+	self addConversionTo: self compilationTarget uint8Type const pointer rule: MbndIdentityTypeConversionRule .
 ]
 
 { #category : #'testing methods' }

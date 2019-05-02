@@ -4,20 +4,10 @@ Class {
 	#instVars : [
 		'expression',
 		'targetType',
-		'castingRule'
+		'typeConversionRule'
 	],
 	#category : #'SysmelMoebiusMetamodel-Core-AST'
 }
-
-{ #category : #accessing }
-MbndAstCastNode >> castingRule [
-	^ castingRule
-]
-
-{ #category : #accessing }
-MbndAstCastNode >> castingRule: anObject [
-	castingRule := anObject
-]
 
 { #category : #accessing }
 MbndAstCastNode >> expression [
@@ -42,4 +32,14 @@ MbndAstCastNode >> targetType [
 { #category : #accessing }
 MbndAstCastNode >> targetType: anObject [
 	targetType := anObject
+]
+
+{ #category : #accessing }
+MbndAstCastNode >> typeConversionRule [
+	^ typeConversionRule
+]
+
+{ #category : #accessing }
+MbndAstCastNode >> typeConversionRule: anObject [
+	typeConversionRule := anObject
 ]

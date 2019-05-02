@@ -362,10 +362,11 @@ TMbndCoreCompilationTarget >> pointerTo: baseType [
 TMbndCoreCompilationTarget >> referenceFor: addressSpace to: baseType [
 	^ referenceTypes at: { baseType . addressSpace } ifAbsentPut: [
 		| result |
-		result := MbndReferenceType new
+		result := MbndReferenceType basicNew
 			name: nil;
 			addressSpace: addressSpace;
 			baseType: baseType;
+			initializeNonTraitType;
 			yourself.
 		self ensureBasicTypeIsLinkedToTheHierarchy: result.
 		result
@@ -391,10 +392,11 @@ TMbndCoreCompilationTarget >> simpleMetaType [
 TMbndCoreCompilationTarget >> type: baseType withDecorations: decorations [
 	^ decoratedTypes at: { baseType . decorations } ifAbsentPut: [
 		| result |
-		result := MbndDecoratedType new
+		result := MbndDecoratedType basicNew
 			name: nil;
 			baseType: baseType;
 			decorations: decorations;
+			initializeNonTraitType;
 			yourself.
 		self ensureBasicTypeIsLinkedToTheHierarchy: result.
 		result

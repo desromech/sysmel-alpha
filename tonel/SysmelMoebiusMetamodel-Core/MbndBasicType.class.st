@@ -45,7 +45,8 @@ MbndBasicType >> initializeBasicTypeTrait [
 { #category : #initialization }
 MbndBasicType >> initializeNonTraitType [
 	flags ifNil: [ flags := #() ].
-	self isTrait ifFalse: [ 
+	self addDefaultConversionRules.
+	self isTrait ifFalse: [
 		self initialize
 	].
 	

@@ -17,6 +17,14 @@ MbndLiteralValueType >> accept: aVisitor [
 	^ aVisitor visitLiteralValueType: self
 ]
 
+{ #category : #casting }
+MbndLiteralValueType >> addDefaultConversionRules [
+	super addDefaultConversionRules.
+	
+	self addConversionRule: MbndLiteralToTargetTypeConversionRule new.
+
+]
+
 { #category : #adding }
 MbndLiteralValueType >> addLiteralHostDelegationMacrosFor: selectors [
 	| macro |
@@ -42,34 +50,6 @@ MbndLiteralValueType >> analyzeUnboundExpandedMessageSendNode: node with: analyz
 MbndLiteralValueType >> bestConcreteTypeForLiteralValueNode: literalValueNode inScope: scope [
 	"This should find the best concrete type for a specific literal value node"
 	self subclassResponsibility
-]
-
-{ #category : #casting }
-MbndLiteralValueType >> createNode: node explicitCastTo: target with: analyzer [
-	node isLiteralValueNode ifTrue: [
-		(target isAcceptableLiteralValue: node value) ifTrue: [
-			^ node copy
-				value: (target legalizeLiteralValue: node value);
-				type: target;
-				yourself
-		]
-	].
-
-	^ super createNode: node explicitCastTo: target with: analyzer
-]
-
-{ #category : #casting }
-MbndLiteralValueType >> createNode: node implicitCastTo: target with: analyzer [
-	node isLiteralValueNode ifTrue: [
-		(target isAcceptableLiteralValue: node value) ifTrue: [
-			^ node copy
-				value: (target legalizeLiteralValue: node value);
-				type: target;
-				yourself
-		]
-	].
-
-	^ super createNode: node implicitCastTo: target with: analyzer
 ]
 
 { #category : #'type inference' }
