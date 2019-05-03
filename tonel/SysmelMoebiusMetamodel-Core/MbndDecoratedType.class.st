@@ -75,3 +75,8 @@ MbndDecoratedType >> printOn: aStream [
 MbndDecoratedType >> withoutDecorations [
 	^ baseType withoutDecorations
 ]
+
+{ #category : #'type composition' }
+MbndDecoratedType >> withoutTopDecorations [
+	^ baseType
+]

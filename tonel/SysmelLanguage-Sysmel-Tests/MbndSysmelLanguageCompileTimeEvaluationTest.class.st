@@ -53,6 +53,36 @@ MbndSysmelLanguageCompileTimeEvaluationTest >> testLiteralType [
 ]
 
 { #category : #tests }
+MbndSysmelLanguageCompileTimeEvaluationTest >> testMaxFunction [
+	self evaluateSource: '
+function max(a: Int32, b: Int32) => Int32
+	:= if: a >= b then: a else: b.
+'.
+
+	self assert: (self evaluateSource: 'max(2, 3).') value equals: 3.
+	self assert: (self evaluateSource: 'max(2, 3).') type isPrimitiveIntegerType.
+
+	self assert: (self evaluateSource: 'max(3, 2).') value equals: 3.
+	self assert: (self evaluateSource: 'max(3, 2).') type isPrimitiveIntegerType.
+
+]
+
+{ #category : #tests }
+MbndSysmelLanguageCompileTimeEvaluationTest >> testMinFunction [
+	self evaluateSource: '
+function min(a: Int32, b: Int32) => Int32
+	:= if: a <= b then: a else: b.
+'.
+
+	self assert: (self evaluateSource: 'min(2, 3).') value equals: 2.
+	self assert: (self evaluateSource: 'min(2, 3).') type isPrimitiveIntegerType.
+
+	self assert: (self evaluateSource: 'min(3, 2).') value equals: 2.
+	self assert: (self evaluateSource: 'min(3, 2).') type isPrimitiveIntegerType.
+
+]
+
+{ #category : #tests }
 MbndSysmelLanguageCompileTimeEvaluationTest >> testSequence [
 	self assert: (self evaluateSource: '{1 + 2}. 5') value equals: 5.
 ]

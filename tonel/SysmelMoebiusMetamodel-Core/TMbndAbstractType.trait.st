@@ -66,6 +66,11 @@ TMbndAbstractType >> allSubtypesDo: aBlock [
 	self subtypes do: [ :st | st withAllSubtypesDo: aBlock ]
 ]
 
+{ #category : #accessing }
+TMbndAbstractType >> allTraitUsersDo: aBlock [
+	"By default, do nothing"
+]
+
 { #category : #'semantic analysis' }
 TMbndAbstractType >> analyzeExpandedMessageSendNode: node with: analyzer [
 	| method |
@@ -590,5 +595,10 @@ TMbndAbstractType >> withoutDecorations [
 
 { #category : #'type composition' }
 TMbndAbstractType >> withoutReferences [
+	^ self
+]
+
+{ #category : #'type composition' }
+TMbndAbstractType >> withoutTopDecorations [
 	^ self
 ]

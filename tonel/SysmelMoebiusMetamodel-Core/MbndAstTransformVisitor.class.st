@@ -16,6 +16,14 @@ MbndAstTransformVisitor >> visitArgumentDefinitionNode: node [
 ]
 
 { #category : #visiting }
+MbndAstTransformVisitor >> visitArrayElementReferenceNode: node [
+	^ node copy
+		container: (self visitNode: node container);
+		index: (self visitNode: node index);
+		yourself
+]
+
+{ #category : #visiting }
 MbndAstTransformVisitor >> visitAssignmentNode: node [
 	^ node copy
 		value: (self visitNode: node value);
@@ -202,6 +210,14 @@ MbndAstTransformVisitor >> visitMethodReferenceNode: node [
 MbndAstTransformVisitor >> visitNamespaceDefinitionNode: node [
 	^ node copy
 		body: (self visitNode: node body);
+		yourself
+]
+
+{ #category : #visiting }
+MbndAstTransformVisitor >> visitPointerElementReferenceNode: node [
+	^ node copy
+		container: (self visitNode: node container);
+		index: (self visitNode: node index);
 		yourself
 ]
 

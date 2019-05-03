@@ -8,7 +8,9 @@ Class {
 		'scope',
 		'module',
 		'compilationTarget',
-		'astBuilder'
+		'astBuilder',
+		'continueOwner',
+		'breakOwner'
 	],
 	#category : #'SysmelMoebiusMetamodel-Core-SemanticAnalysis'
 }
@@ -74,6 +76,14 @@ MbndAstSemanticAnalyzer >> arithmeticCoercionTypeFor: leftType with: rightType a
 	self halt
 ]
 
+{ #category : #coercing }
+MbndAstSemanticAnalyzer >> arithmeticCoercionTypeOrVoidFor: leftType with: rightType at: node [
+	leftType isVoidType ifTrue: [ ^ leftType ].
+	rightType isVoidType ifTrue: [ ^ rightType ].
+	
+	^ self arithmeticCoercionTypeFor: leftType with: rightType at: node
+]
+
 { #category : #accessing }
 MbndAstSemanticAnalyzer >> astBuilder [
 	^ astBuilder ifNil: [ astBuilder := MbndAstBuilder forModule: module ]
@@ -85,10 +95,53 @@ MbndAstSemanticAnalyzer >> compilationTarget [
 ]
 
 { #category : #'implicit casting' }
+MbndAstSemanticAnalyzer >> ensureIntegerValue: node at: position [
+	| result resultType |
+	result := self analyzeNodeIfNeeded: node.
+	resultType := result type withoutTopDecorations.
+	resultType isLiteralIntegerType ifTrue: [
+		^ result
+	].
+	resultType isPrimitiveIntegerType ifTrue: [ 
+		^ result
+	].
+
+	resultType isReferenceType ifTrue: [
+		^ self ensureIntegerValue: (MbndAstReferenceLoadNode new
+			reference: node;
+			position: position;
+			yourself)
+			at: position
+	].
+
+	self halt	
+]
+
+{ #category : #'implicit casting' }
 MbndAstSemanticAnalyzer >> ensureLiteralIsConcreted: node [
 	node type isLiteralValueType ifFalse: [ ^ node ].
 	self assert: node isLiteralValueNode.
 	^ self addImplicitCastFor: node to: (node type bestConcreteTypeForLiteralValueNode: node inScope: scope)
+]
+
+{ #category : #'implicit casting' }
+MbndAstSemanticAnalyzer >> ensurePointerValue: node at: position [
+	| result resultType |
+	result := self analyzeNodeIfNeeded: node.
+	resultType := result type withoutTopDecorations.
+	resultType isPointerType ifTrue: [
+		^ result
+	].
+
+	resultType isReferenceType ifTrue: [
+		^ self ensurePointerValue: (MbndAstReferenceLoadNode new
+			reference: node;
+			position: position;
+			yourself)
+			at: position
+	].
+
+	self halt	
 ]
 
 { #category : #errors }
@@ -173,6 +226,17 @@ MbndAstSemanticAnalyzer >> visitArgumentDefinitionNode: node [
 
 	^ result
 
+]
+
+{ #category : #visiting }
+MbndAstSemanticAnalyzer >> visitArrayElementReferenceNode: node [
+	| result |
+	result := node copy
+		container: (self analyzeNodeIfNeeded: node container);
+		index: (self analyzeNodeIfNeeded: node container);
+		yourself.
+		
+	self halt
 ]
 
 { #category : #'as yet unclassified' }
@@ -358,7 +422,7 @@ MbndAstSemanticAnalyzer >> visitIdentifierReferenceNode: node [
 
 { #category : #visiting }
 MbndAstSemanticAnalyzer >> visitIfConditionNode: node [
-	| result |
+	| result resultCoercionType |
 	result := node copy.
 	result condition: (self visitNode: result condition).
 
@@ -384,7 +448,19 @@ MbndAstSemanticAnalyzer >> visitIfConditionNode: node [
 		result falseValue: self astBuilder literalUndefined
 	].
 
-	self halt
+	result
+		trueValue: (self analyzeNodeIfNeeded: result trueValue);
+		falseValue: (self analyzeNodeIfNeeded: result falseValue).
+
+	resultCoercionType := self arithmeticCoercionTypeOrVoidFor: result trueValue type
+		with: result falseValue type at: result.
+	resultCoercionType isVoidType ifFalse: [
+		result
+			trueValue: (self addImplicitCastFor: result trueValue to: resultCoercionType);
+			falseValue: (self addImplicitCastFor: result falseValue to: resultCoercionType).
+	].
+	result type: resultCoercionType.
+	^ result
 ]
 
 { #category : #visiting }
@@ -562,6 +638,22 @@ MbndAstSemanticAnalyzer >> visitNonConcreteNode: node [
 	^ node accept: self
 ]
 
+{ #category : #visiting }
+MbndAstSemanticAnalyzer >> visitPointerElementReferenceNode: node [
+	| result pointerType elementReferenceType |
+	result := node copy
+		container: (self ensurePointerValue: node container at: node);
+		index: (self ensureIntegerValue: node index at: node);
+		yourself.
+		
+	pointerType := node container type withoutTopDecorations.
+	self assert: pointerType isPointerType.
+	
+	elementReferenceType := pointerType asReferenceType.
+	result type: elementReferenceType.
+	^ result
+]
+
 { #category : #'as yet unclassified' }
 MbndAstSemanticAnalyzer >> visitReferenceLoadNode: node [
 	| result |
@@ -640,6 +732,36 @@ MbndAstSemanticAnalyzer >> visitUnexpandedMessageSendNode: node [
 
 	"Apply the macro method."
 	^ macroMethod expandMessageNode: result with: self
+]
+
+{ #category : #visiting }
+MbndAstSemanticAnalyzer >> visitWhileLoopNode: node [
+	| result |
+	result := node copy.
+	result
+		condition: (self visitNode: result condition);
+		type: self compilationTarget voidType.
+	
+	self withContinueAndBreakOwnerNode: node do: [ 
+		result action: (result action ifNotNil: [:action | self analyzeNodeIfNeeded: action]).
+	].
+
+	result	 continueAction: (result continueAction ifNotNil: [:action | self analyzeNodeIfNeeded: action]).
+	^ result
+]
+
+{ #category : #visiting }
+MbndAstSemanticAnalyzer >> withContinueAndBreakOwnerNode: continueAndBreakOwner do: aBlock [
+	| oldContinueOwner oldBreakOwner |
+	oldContinueOwner := continueOwner.
+	oldBreakOwner := breakOwner.
+
+	continueOwner := continueAndBreakOwner.
+	breakOwner := continueAndBreakOwner.
+	aBlock ensure: [
+		continueOwner := oldContinueOwner.
+		breakOwner := oldBreakOwner.
+	]
 ]
 
 { #category : #accessing }

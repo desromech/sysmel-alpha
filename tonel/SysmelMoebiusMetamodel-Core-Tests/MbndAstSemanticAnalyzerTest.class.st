@@ -14,6 +14,39 @@ Class {
 	#category : #'SysmelMoebiusMetamodel-Core-Tests-SemanticAnalysis'
 }
 
+{ #category : #'as yet unclassified' }
+MbndAstSemanticAnalyzerTest >> countTwiceFunctionDefinitionNode [
+	| arguments body |
+	arguments := {
+		builder argument: #destCount type: compilationTarget int32Type.
+	}.
+	body := builder sequence: {
+		(builder defineLocalVariable: #i withValueType: nil withInitialValue: (builder literalInteger: 0))
+			mutable.
+		(builder defineLocalVariable: #count withValueType: nil withInitialValue: (builder literalInteger: 0))
+			mutable.
+			
+		builder while: (builder unexpandedSend: (builder literalSymbol: #<)
+			to: (builder identifier: #i) withArguments: {(builder identifier: #destCount)})
+			do: (builder sequence: {
+				builder unexpandedSend: (builder literalSymbol: #assignValue:)
+					to:  (builder identifier: #count)
+					withArguments: {
+						builder unexpandedSend: (builder literalSymbol: #+)
+							to: (builder identifier: #count) withArguments: { builder literalInteger: 2 }.
+					}
+			}) continueWith: (builder unexpandedSend: (builder literalSymbol: #assignValue:)
+					to:  (builder identifier: #i)
+					withArguments: {
+						builder unexpandedSend: (builder literalSymbol: #+)
+							to: (builder identifier: #i) withArguments: { builder literalInteger: 1 }.
+					}).
+		builder identifier: #count
+	}.
+	
+	^ builder functionNamed: #countTwice arguments: arguments returnType: compilationTarget int32Type definitionBody: body
+]
+
 { #category : #tests }
 MbndAstSemanticAnalyzerTest >> identityFunctionDefinitionNode [
 	| arguments body |
@@ -57,6 +90,19 @@ MbndAstSemanticAnalyzerTest >> libcPutsDefinitionNode [
 		yourself
 ]
 
+{ #category : #tests }
+MbndAstSemanticAnalyzerTest >> minFunctionDefinitionNode [
+	| arguments body |
+	arguments := {
+		builder argument: #a type: compilationTarget int32Type.
+		builder argument: #b type: compilationTarget int32Type.
+	}.
+	body := builder if: (builder unexpandedSend: (builder literalSymbol: #<=)
+			to: (builder identifier: #a) withArguments: { builder identifier: #b })
+		trueValue: (builder identifier: #a) falseValue: (builder identifier: #b).
+	^ builder functionNamed: #min arguments: arguments returnType: compilationTarget int32Type definitionBody: body
+]
+
 { #category : #running }
 MbndAstSemanticAnalyzerTest >> setUp [
 	module := MbndDummyModule new.
@@ -93,6 +139,28 @@ MbndAstSemanticAnalyzerTest >> testCompileTimeConstantReference [
 	self assert: analyzedNode type isMetaType.
 	self assert: analyzedNode elements last isLiteralValueNode.
 	self assert: analyzedNode elements last value isPrimitiveIntegerType.
+]
+
+{ #category : #tests }
+MbndAstSemanticAnalyzerTest >> testCountTwiceFunctionDefinition [
+	| node analyzedNode concreteMethod |
+	node := self countTwiceFunctionDefinitionNode.
+	
+	self assert: (module globalNamespace lookupSymbol: #countTwice) isNil.
+		
+	analyzedNode := visitor visitNode: node.
+	self assert: (module globalNamespace lookupSymbol: #countTwice) isMethod.
+	self deny: (module globalNamespace lookupSymbol: #countTwice) isMethodGroup.
+	self assert: analyzedNode isFunctionDefinitionNode.
+	self assert: analyzedNode arguments first valueType isPrimitiveIntegerType.
+	self assert: analyzedNode returnType isPrimitiveIntegerType.
+	
+	concreteMethod := analyzedNode concreteMethod.
+	concreteMethod ensureSemanticAnalysis.
+	
+	self assert: (module globalNamespace lookupSymbol: #countTwice) equals: concreteMethod.
+	self assert: concreteMethod analyzedBody isNotNil.
+	self assert: concreteMethod analyzedBody type isPrimitiveIntegerType.
 ]
 
 { #category : #tests }
@@ -529,6 +597,29 @@ MbndAstSemanticAnalyzerTest >> testLocalVariableScopeReferenceError [
 ]
 
 { #category : #tests }
+MbndAstSemanticAnalyzerTest >> testMinFunctionDefinition [
+	| node analyzedNode concreteMethod |
+	node := self minFunctionDefinitionNode.
+	
+	self assert: (module globalNamespace lookupSymbol: #min) isNil.
+		
+	analyzedNode := visitor visitNode: node.
+	self assert: (module globalNamespace lookupSymbol: #min) isMethod.
+	self deny: (module globalNamespace lookupSymbol: #min) isMethodGroup.
+	self assert: analyzedNode isFunctionDefinitionNode.
+	self assert: analyzedNode arguments first valueType isPrimitiveIntegerType.
+	self assert: analyzedNode arguments second valueType isPrimitiveIntegerType.
+	self assert: analyzedNode returnType isPrimitiveIntegerType.
+	
+	concreteMethod := analyzedNode concreteMethod.
+	concreteMethod ensureSemanticAnalysis.
+	
+	self assert: (module globalNamespace lookupSymbol: #min) equals: concreteMethod.
+	self assert: concreteMethod analyzedBody isNotNil.
+	self assert: concreteMethod analyzedBody type isPrimitiveIntegerType.
+]
+
+{ #category : #tests }
 MbndAstSemanticAnalyzerTest >> testNamespaceDefinition [
 	| node analyzedNode |
 	node := builder namespace: #HelloNamespace definition: (builder literalInteger: 42).
@@ -558,6 +649,18 @@ MbndAstSemanticAnalyzerTest >> testNamespaceReference [
 { #category : #tests }
 MbndAstSemanticAnalyzerTest >> testNew [
 	self assert: visitor scope equals: scope
+]
+
+{ #category : #tests }
+MbndAstSemanticAnalyzerTest >> testPointerElementReferenceNode [
+	| node analyzedNode |
+	node := builder pointer: (builder literal: nil type: compilationTarget int32Type pointer) elementReferenceAt: (builder literalInteger: 1).
+	
+	analyzedNode := visitor visitNode: node.
+	self assert: analyzedNode isPointerElementReferenceNode.
+	self assert: analyzedNode type isReferenceType.
+	self assert: analyzedNode type baseType isPrimitiveIntegerType.
+
 ]
 
 { #category : #tests }

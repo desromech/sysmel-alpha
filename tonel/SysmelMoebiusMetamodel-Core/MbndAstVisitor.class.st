@@ -15,6 +15,11 @@ MbndAstVisitor >> visitArgumentDefinitionNode: node [
 ]
 
 { #category : #visiting }
+MbndAstVisitor >> visitArrayElementReferenceNode: node [
+	self subclassResponsibility
+]
+
+{ #category : #visiting }
 MbndAstVisitor >> visitAssignmentNode: node [
 	self subclassResponsibility
 ]
@@ -157,6 +162,11 @@ MbndAstVisitor >> visitNodes: nodes [
 { #category : #'visitor utilties' }
 MbndAstVisitor >> visitNodesAndCollect: nodes [
 	^ nodes collect: [ :node | self visitNode: node ]
+]
+
+{ #category : #visiting }
+MbndAstVisitor >> visitPointerElementReferenceNode: node [
+	self subclassResponsibility
 ]
 
 { #category : #visiting }

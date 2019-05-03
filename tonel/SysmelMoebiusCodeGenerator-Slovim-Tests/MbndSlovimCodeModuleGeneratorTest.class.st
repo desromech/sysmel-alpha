@@ -43,11 +43,70 @@ MbndSlovimCodeModuleGeneratorTest >> testCStringCFunction [
 ]
 
 { #category : #running }
+MbndSlovimCodeModuleGeneratorTest >> testCountTwiceCFunction [
+	| function |
+	self
+		evaluateSysmelSource: 'function countTwice externC(destCount: Int32) => Int32 := { 
+			let i mutable := 0.
+			let count mutable := 0.
+			while: (i < destCount) do: { 
+				count := count + 2
+			} continueWith: (i := i + 1).
+
+			count
+		}';
+		generateSSAModule.
+
+	function := ssaModule globalNamed: #countTwice.
+	self assert: function isFunction.
+	self deny: function isEmpty.
+	self assert: function basicBlocks size > 3.
+	self assert: function basicBlocks last lastInstruction isReturn.
+]
+
+{ #category : #running }
 MbndSlovimCodeModuleGeneratorTest >> testEmptyModule [
 	self generateSSAModule.
 	
 	self assert: ssaModule globalValues isEmpty.
 
+]
+
+{ #category : #running }
+MbndSlovimCodeModuleGeneratorTest >> testGetPointerElementAtFunction [
+	| function |
+	self
+		evaluateSysmelSource: '
+function getPointerElement externC(pointer: Int32 pointer, index: Int32) => Int32
+	:= pointer at: index';
+		generateSSAModule.
+
+	function := ssaModule globalNamed: #getPointerElement.
+	self assert: function isFunction.
+	self deny: function isEmpty.
+	self assert: function basicBlocks size equals: 2.
+	self assert: function basicBlocks first firstInstruction isJump.
+	self assert: function basicBlocks second firstInstruction isBinaryOperation.
+	self assert: function basicBlocks second firstInstruction nextInstruction isGetElementPointer.
+	self assert: function basicBlocks second lastInstruction isReturn.
+]
+
+{ #category : #running }
+MbndSlovimCodeModuleGeneratorTest >> testGetPointerElementFunction [
+	| function |
+	self
+		evaluateSysmelSource: '
+function getPointerElement externC(pointer: Int32 pointer, index: Int32) => Int32
+	:= pointer[index]';
+		generateSSAModule.
+
+	function := ssaModule globalNamed: #getPointerElement.
+	self assert: function isFunction.
+	self deny: function isEmpty.
+	self assert: function basicBlocks size equals: 2.
+	self assert: function basicBlocks first firstInstruction isJump.
+	self assert: function basicBlocks second firstInstruction isGetElementPointer.
+	self assert: function basicBlocks second lastInstruction isReturn.
 ]
 
 { #category : #running }
@@ -96,6 +155,62 @@ MbndSlovimCodeModuleGeneratorTest >> testIdentityScopedSequenceCFunction [
 ]
 
 { #category : #running }
+MbndSlovimCodeModuleGeneratorTest >> testLetZeroCFunction [
+	| function |
+	self
+		evaluateSysmelSource: 'function zero externC() => Int32 := {
+			let x := 0.
+			x
+		}';
+		generateSSAModule.
+
+	function := ssaModule globalNamed: #zero.
+	self assert: function isFunction.
+	self deny: function isEmpty.
+	self assert: function basicBlocks size equals: 2.
+	self assert: function basicBlocks first firstInstruction isJump.
+	self assert: function basicBlocks second firstInstruction isReturn.
+]
+
+{ #category : #running }
+MbndSlovimCodeModuleGeneratorTest >> testLetZeroMutableAssignmentCFunction [
+	| function |
+	self
+		evaluateSysmelSource: 'function zero externC() => Int32 := {
+			let x mutable := 42.
+			x := 0.
+			x
+		}';
+		generateSSAModule.
+
+	function := ssaModule globalNamed: #zero.
+	self assert: function isFunction.
+	self deny: function isEmpty.
+	self assert: function basicBlocks size equals: 2.
+	self assert: function basicBlocks first firstInstruction isAlloca.
+	self assert: function basicBlocks second lastInstruction isReturn.
+]
+
+{ #category : #running }
+MbndSlovimCodeModuleGeneratorTest >> testLetZeroMutableCFunction [
+	| function |
+	self
+		evaluateSysmelSource: 'function zero externC() => Int32 := {
+			let x mutable := 0.
+			x
+		}';
+		generateSSAModule.
+
+	function := ssaModule globalNamed: #zero.
+	self assert: function isFunction.
+	self deny: function isEmpty.
+	self assert: function basicBlocks size equals: 2.
+	self assert: function basicBlocks first firstInstruction isAlloca.
+	self assert: function basicBlocks second firstInstruction isStore.
+	self assert: function basicBlocks second lastInstruction isReturn.
+]
+
+{ #category : #running }
 MbndSlovimCodeModuleGeneratorTest >> testMainPutsCFunction [
 	| function |
 	self
@@ -139,6 +254,40 @@ MbndSlovimCodeModuleGeneratorTest >> testMainPutsThenReturnCFunction [
 	self assert: function basicBlocks first firstInstruction isJump.
 	self assert: function basicBlocks second firstInstruction isCall.
 	self assert: function basicBlocks second lastInstruction isReturn.
+]
+
+{ #category : #running }
+MbndSlovimCodeModuleGeneratorTest >> testMinCFunction [
+	| function |
+	self
+		evaluateSysmelSource: 'function min externC(a: Int32, b: Int32) => Int32
+			:= if: a <= b then: a else: b';
+		generateSSAModule.
+
+	function := ssaModule globalNamed: #min.
+	function applyDominanceTopoSort.
+	self assert: function isFunction.
+	self deny: function isEmpty.
+	self assert: function basicBlocks size equals: 5.
+	self assert: function basicBlocks second firstInstruction isBinaryComparison.
+	self assert: function basicBlocks last firstInstruction isPhi.
+	self assert: function basicBlocks last lastInstruction isReturn.
+]
+
+{ #category : #running }
+MbndSlovimCodeModuleGeneratorTest >> testPlusOne [
+	| function |
+	self
+		evaluateSysmelSource: 'function plusOne externC(x: Int32) => Int32
+			:= x + 1';
+		generateSSAModule.
+
+	function := ssaModule globalNamed: #plusOne.
+	self assert: function isFunction.
+	self deny: function isEmpty.
+	self assert: function basicBlocks size equals: 2.
+	self assert: function basicBlocks last firstInstruction isBinaryOperation.
+	self assert: function basicBlocks last lastInstruction isReturn.
 ]
 
 { #category : #running }

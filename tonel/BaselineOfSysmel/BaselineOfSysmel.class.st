@@ -31,6 +31,10 @@ BaselineOfSysmel >> baseline: spec [
 				spec requires: #(#PetitParser2Core #'SysmelMoebiusMetamodel-Core')
 			].
 		spec
+			package: #'SysmelLanguage-Sysmel-Tests' with: [
+				spec requires: #(#'SysmelLanguage-Sysmel')
+			].
+		spec
 			package: 'SysmelLanguage-SysmelPhanide' with: [
 				spec requires: #('SysmelLanguage-Sysmel' 'Phanide')
 			].

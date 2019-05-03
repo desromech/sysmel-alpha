@@ -68,6 +68,7 @@ MbndAstNodeTest >> testTestingMethods [
 	
 	self deny: 1 isMbndAstNode.
 	self assert: node isMbndAstNode.
+	self deny: node isArrayElementReferenceNode.
 	self deny: node isAssignmentNode.
 	self deny: node isCompileTimeConstantDefinitionNode.
 	self deny: node isArgumentDefinitionNode.
@@ -100,6 +101,7 @@ MbndAstNodeTest >> testTestingMethods [
 	self deny: node isMessageDefinitionNode.
 	self deny: node isMessagePrototypeNode.
 	self deny: node isPragmaNode.
+	self deny: node isPointerElementReferenceNode.
 	self deny: node isQuasiQuoteNode.
 	self deny: node isQuasiUnquoteNode.
 	self deny: node isQuoteNode.
@@ -109,6 +111,7 @@ MbndAstNodeTest >> testTestingMethods [
 	self deny: node isSequenceNode.
 	self deny: node isSpliceNode.
 	self deny: node isStatementNode.
+	self deny: node isSubscriptElementReferenceNode .
 	self deny: node isTupleNode.
 	self deny: node isUnexpandedMessageSendNode.
 	self deny: node isWhileLoopNode.

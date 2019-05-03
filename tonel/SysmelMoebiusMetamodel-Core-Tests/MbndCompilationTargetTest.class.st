@@ -45,6 +45,28 @@ MbndCompilationTargetTest >> testAsCVariadicType [
 ]
 
 { #category : #tests }
+MbndCompilationTargetTest >> testAsPointerType [
+	| type baseType |
+	baseType := compilationTarget uint8Type.
+	type := baseType ref.
+	self assert: type asPointerType isPointerType.
+	self assert: type asPointerType baseType equals: baseType.
+	self assert: type asPointerType equals: baseType pointer.
+
+]
+
+{ #category : #tests }
+MbndCompilationTargetTest >> testAsReferenceType [
+	| type baseType |
+	baseType := compilationTarget uint8Type.
+	type := baseType pointer.
+	self assert: type asReferenceType isReferenceType.
+	self assert: type asReferenceType baseType equals: baseType.
+	self assert: type asReferenceType equals: baseType ref.
+
+]
+
+{ #category : #tests }
 MbndCompilationTargetTest >> testBooleanType [
 	| type |
 	type := compilationTarget booleanType.

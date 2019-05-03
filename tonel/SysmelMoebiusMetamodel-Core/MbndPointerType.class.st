@@ -19,6 +19,16 @@ MbndPointerType >> asCVariadicTypeRequiredAt: position [
 	^ self
 ]
 
+{ #category : #converting }
+MbndPointerType >> asPointerType [
+	^ self
+]
+
+{ #category : #converting }
+MbndPointerType >> asReferenceType [
+	^ baseType refFor: addressSpace
+]
+
 { #category : #'default values' }
 MbndPointerType >> defaultValue [
 	^ MbndValue value: nil type: self
@@ -29,14 +39,28 @@ MbndPointerType >> initializeBasicTypeTrait [
 	super initializeBasicTypeTrait.
 	self
 		onMacroSelectors: #(value _) do: [ :node :builder |
-			(builder reference: node receiver assignValue: node arguments first)
+			(builder pointerAsReference: node receiver)
 				position: node
 		];
 		onMacroSelector: #value: do: [ :node :builder |
-			self halt
+			| ref |
+			ref := (builder pointerAsReference: node receiver)
+				position: node;
+				yourself.
+			(builder reference: ref assignValue: node arguments first)
+				position: node
 		];
-		onMacroSelectors: #(subscriptAt: at:) do: [ :node :builder |
-			self halt
+		onMacroSelector: #subscriptAt: do: [ :node :builder |
+			(builder pointer: node receiver elementReferenceAt: node arguments first)
+				position: node;
+				isOneBasedIndex: false;
+				yourself.
+		];
+		onMacroSelector: #at: do: [ :node :builder |
+			(builder pointer: node receiver elementReferenceAt: node arguments first)
+				position: node;
+				isOneBasedIndex: true;
+				yourself.
 		];
 		onMacroSelector: #+ do: [ :node :builder |
 			self halt

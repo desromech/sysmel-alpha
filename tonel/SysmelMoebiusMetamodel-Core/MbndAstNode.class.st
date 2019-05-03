@@ -35,6 +35,11 @@ MbndAstNode >> isArgumentDefinitionNode [
 ]
 
 { #category : #testing }
+MbndAstNode >> isArrayElementReferenceNode [
+	^ false
+]
+
+{ #category : #testing }
 MbndAstNode >> isAssignmentNode [
 	^ false
 ]
@@ -186,6 +191,11 @@ MbndAstNode >> isNamespaceDefinitionNode [
 ]
 
 { #category : #testing }
+MbndAstNode >> isPointerElementReferenceNode [
+	^ false
+]
+
+{ #category : #testing }
 MbndAstNode >> isPragmaNode [
 	^ false
 ]
@@ -232,6 +242,11 @@ MbndAstNode >> isSpliceNode [
 
 { #category : #testing }
 MbndAstNode >> isStatementNode [
+	^ false
+]
+
+{ #category : #testing }
+MbndAstNode >> isSubscriptElementReferenceNode [
 	^ false
 ]
 

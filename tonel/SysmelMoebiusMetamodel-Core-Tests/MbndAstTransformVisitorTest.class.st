@@ -32,6 +32,19 @@ MbndAstTransformVisitorTest >> testArgumentDefinition [
 ]
 
 { #category : #tests }
+MbndAstTransformVisitorTest >> testArrayElementReferenceNode [
+	| node array index transformedNode |
+	array := builder identifier: #tr.
+	index := builder literalInteger: 42.
+	node := builder array: array elementReferenceAt: index.
+	transformedNode := visitor visitNode: node.
+	self assert: transformedNode ~~ node.
+	self assert: transformedNode isArrayElementReferenceNode.
+	self assert: transformedNode container equals: array.
+	self assert: transformedNode index equals: index.
+]
+
+{ #category : #tests }
 MbndAstTransformVisitorTest >> testAssignmentExpression [
 	| node reference value transformedNode |
 	reference := builder identifier: #x.
@@ -381,6 +394,19 @@ MbndAstTransformVisitorTest >> testNamespaceDefinition [
 	self assert: transformedNode name equals: #HelloNamespace.
 	self assert: transformedNode body equals: body.
 
+]
+
+{ #category : #tests }
+MbndAstTransformVisitorTest >> testPointerElementReferenceNode [
+	| node pointer index transformedNode |
+	pointer := builder identifier: #tr.
+	index := builder literalInteger: 42.
+	node := builder pointer: pointer elementReferenceAt: index.
+	transformedNode := visitor visitNode: node.
+	self assert: transformedNode ~~ node.
+	self assert: transformedNode isPointerElementReferenceNode.
+	self assert: transformedNode container equals: pointer.
+	self assert: transformedNode index equals: index.
 ]
 
 { #category : #tests }

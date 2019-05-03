@@ -18,6 +18,11 @@ MbndAstDelegationVisitor >> visitArgumentDefinitionNode: node [
 ]
 
 { #category : #visiting }
+MbndAstDelegationVisitor >> visitArrayElementReferenceNode: node [
+	^ self delegateNodeVisit: node
+]
+
+{ #category : #visiting }
 MbndAstDelegationVisitor >> visitAssignmentNode: node [
 	^ self delegateNodeVisit: node
 ]
@@ -144,6 +149,11 @@ MbndAstDelegationVisitor >> visitMethodReferenceNode: node [
 
 { #category : #visiting }
 MbndAstDelegationVisitor >> visitNamespaceDefinitionNode: node [
+	^ self delegateNodeVisit: node
+]
+
+{ #category : #visiting }
+MbndAstDelegationVisitor >> visitPointerElementReferenceNode: node [
 	^ self delegateNodeVisit: node
 ]
 

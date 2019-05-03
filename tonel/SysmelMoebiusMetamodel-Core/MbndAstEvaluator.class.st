@@ -3,7 +3,9 @@ Class {
 	#superclass : #MbndAstVisitor,
 	#instVars : [
 		'module',
-		'scope'
+		'scope',
+		'currentBreakContext',
+		'currentContinueContext'
 	],
 	#category : #'SysmelMoebiusMetamodel-Core-Evaluation'
 }
@@ -45,7 +47,12 @@ MbndAstEvaluator >> scope: anObject [
 
 { #category : #visiting }
 MbndAstEvaluator >> visitAssignmentNode: node [
-	self halt
+	| value reference |
+	value := self visitNode: node value.
+	reference := self visitNode: node reference.
+	
+	reference value value: value.
+	^ reference
 ]
 
 { #category : #visiting }
@@ -81,6 +88,28 @@ MbndAstEvaluator >> visitFunctionDefinitionNode: node [
 MbndAstEvaluator >> visitFunctionPrototypeNode: node [
 	self assert: node concreteMethod isNotNil.
 	^ MbndValue value: node concreteMethod type: node type
+]
+
+{ #category : #visiting }
+MbndAstEvaluator >> visitIfConditionNode: node [
+	| condition result |
+	condition := self visitNode: node condition.
+	
+	result := condition unwrapMbndValue ifTrue: [
+		node trueValue
+			ifNotNil: [ :expression | self visitNode: expression ]
+			ifNil: [ node type defaultValue ]
+	] ifFalse: [ 
+		node falseValue
+			ifNotNil: [ :expression | self visitNode: expression ]
+			ifNil: [ node type defaultValue ]
+	].
+
+	^ node type isVoidType ifTrue: [
+		node type defaultValue
+	] ifFalse: [
+		result
+	]
 ]
 
 { #category : #visiting }
@@ -170,6 +199,53 @@ MbndAstEvaluator >> visitUnexpandedMessageSendNode: node [
 MbndAstEvaluator >> visitVariableReferenceNode: node [
 	self assert: node binding isNotNil.
 	^ node binding asCompileTimeValueReferenceOfType: node type withEvaluator: self at: node
+]
+
+{ #category : #visiting }
+MbndAstEvaluator >> visitWhileLoopNode: node [
+	| loopContext hasReceivedBreak |
+	loopContext := Object new.
+	
+	hasReceivedBreak := false.
+	[
+		hasReceivedBreak not and: [
+			node condition
+				ifNil: [ true ]
+				ifNotNil: [(self visitNode: node condition) unwrapMbndValue]]
+	] whileTrue: [
+		[
+			self withBreakAndContinueContext: loopContext do: [
+				node action ifNotNil: [ :action | self visitNode: action ]
+			]
+		] on: MbndBlockExitAction do: [ :e |
+			e blockContext == loopContext ifFalse: [
+				^ e pass.
+			].
+		
+			hasReceivedBreak := e isBreakAction.
+		].
+	
+		hasReceivedBreak ifFalse: [
+			node continueAction ifNotNil: [ :action | self visitNode: action ]
+		].
+	].
+
+	^ node type defaultValue
+]
+
+{ #category : #visiting }
+MbndAstEvaluator >> withBreakAndContinueContext: context do: aBlock [
+	| oldBreakContext oldContinueContext |
+	oldBreakContext := currentBreakContext.
+	oldContinueContext := currentContinueContext.
+
+	currentBreakContext := context.
+	currentContinueContext := context.
+	^ aBlock ensure: [
+		currentBreakContext := oldBreakContext.
+		currentContinueContext := oldContinueContext.
+	]
+	
 ]
 
 { #category : #visiting }

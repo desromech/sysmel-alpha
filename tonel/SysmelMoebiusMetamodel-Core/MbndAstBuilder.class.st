@@ -29,6 +29,14 @@ MbndAstBuilder >> argument: name type: valueType [
 ]
 
 { #category : #'builder methods' }
+MbndAstBuilder >> array: array elementReferenceAt: index [
+	^ MbndAstArrayElementReferenceNode new
+		container: array;
+		index: index;
+		yourself
+]
+
+{ #category : #'builder methods' }
 MbndAstBuilder >> breakStatement [
 	^ MbndAstBreakStatementNode new
 ]
@@ -149,6 +157,14 @@ MbndAstBuilder >> lexicalScope: expression [
 ]
 
 { #category : #'builder methods' }
+MbndAstBuilder >> literal: literalValue type: type [
+	^ MbndAstLiteralValueNode new
+		value: literalValue;
+		type: type;
+		yourself
+]
+
+{ #category : #'builder methods' }
 MbndAstBuilder >> literal: literalValue typeName: typeSelector [
 	^ MbndAstLiteralValueNode new
 		value: literalValue;
@@ -262,6 +278,14 @@ MbndAstBuilder >> namespace: name definition: body [
 	^ MbndAstNamespaceDefinitionNode new
 		name: name;
 		body: body;
+		yourself
+]
+
+{ #category : #'builder methods' }
+MbndAstBuilder >> pointer: pointer elementReferenceAt: index [
+	^ MbndAstPointerElementReferenceNode new
+		container: pointer;
+		index: index;
 		yourself
 ]
 

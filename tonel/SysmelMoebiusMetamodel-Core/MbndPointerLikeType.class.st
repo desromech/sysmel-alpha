@@ -31,3 +31,13 @@ MbndPointerLikeType >> addressSpace [
 MbndPointerLikeType >> addressSpace: anObject [
 	addressSpace := anObject
 ]
+
+{ #category : #converting }
+MbndPointerLikeType >> asPointerType [
+	self subclassResponsibility
+]
+
+{ #category : #converting }
+MbndPointerLikeType >> asReferenceType [
+	self subclassResponsibility
+]

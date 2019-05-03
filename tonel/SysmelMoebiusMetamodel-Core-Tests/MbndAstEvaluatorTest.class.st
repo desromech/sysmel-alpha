@@ -21,6 +21,39 @@ MbndAstEvaluatorTest >> analyzeAndEvaluateAST: node [
 	^ evaluator visitNode: (analyzer visitNode: node)
 ]
 
+{ #category : #'as yet unclassified' }
+MbndAstEvaluatorTest >> countTwiceFunctionDefinitionNode [
+	| arguments body |
+	arguments := {
+		builder argument: #destCount type: compilationTarget int32Type.
+	}.
+	body := builder sequence: {
+		(builder defineLocalVariable: #i withValueType: nil withInitialValue: (builder literalInteger: 0))
+			mutable.
+		(builder defineLocalVariable: #count withValueType: nil withInitialValue: (builder literalInteger: 0))
+			mutable.
+			
+		builder while: (builder unexpandedSend: (builder literalSymbol: #<)
+			to: (builder identifier: #i) withArguments: {(builder identifier: #destCount)})
+			do: (builder sequence: {
+				builder unexpandedSend: (builder literalSymbol: #assignValue:)
+					to:  (builder identifier: #count)
+					withArguments: {
+						builder unexpandedSend: (builder literalSymbol: #+)
+							to: (builder identifier: #count) withArguments: { builder literalInteger: 2 }.
+					}
+			}) continueWith: (builder unexpandedSend: (builder literalSymbol: #assignValue:)
+					to:  (builder identifier: #i)
+					withArguments: {
+						builder unexpandedSend: (builder literalSymbol: #+)
+							to: (builder identifier: #i) withArguments: { builder literalInteger: 1 }.
+					}).
+		builder identifier: #count
+	}.
+	
+	^ builder functionNamed: #countTwice arguments: arguments returnType: compilationTarget int32Type definitionBody: body
+]
+
 { #category : #tests }
 MbndAstEvaluatorTest >> identityFunctionDefinitionNode [
 	| arguments body |
@@ -39,6 +72,19 @@ MbndAstEvaluatorTest >> identityMessageDefinitionNode [
 	}.
 	body := builder identifier: #x.
 	^ builder messageSelector: #identity: arguments: arguments returnType: compilationTarget int32Type definitionBody: body
+]
+
+{ #category : #accessing }
+MbndAstEvaluatorTest >> minFunctionDefinitionNode [
+	| arguments body |
+	arguments := {
+		builder argument: #a type: compilationTarget int32Type.
+		builder argument: #b type: compilationTarget int32Type.
+	}.
+	body := builder if: (builder unexpandedSend: (builder literalSymbol: #<=)
+			to: (builder identifier: #a) withArguments: { builder identifier: #b })
+		trueValue: (builder identifier: #a) falseValue: (builder identifier: #b).
+	^ builder functionNamed: #min arguments: arguments returnType: compilationTarget int32Type definitionBody: body
 ]
 
 { #category : #tests }
@@ -66,6 +112,22 @@ MbndAstEvaluatorTest >> setUp [
 
 	analyzer := MbndAstSemanticAnalyzer new scope: scope; module: module.
 	evaluator := MbndAstEvaluator new scope: scope.
+]
+
+{ #category : #running }
+MbndAstEvaluatorTest >> testCountTwiceFunctionCall [
+	| node value |
+	node := builder sequence: {
+		self countTwiceFunctionDefinitionNode.
+		builder call: (builder identifier: #countTwice) arguments: { 
+			builder literalInteger: 10.
+		}
+	}.
+		
+	value := self analyzeAndEvaluateAST: node.
+	self assert: value type isPrimitiveIntegerType.
+	self assert: value value equals: 20.
+
 ]
 
 { #category : #tests }
@@ -233,6 +295,22 @@ MbndAstEvaluatorTest >> testLocalDeclaration [
 ]
 
 { #category : #running }
+MbndAstEvaluatorTest >> testLocalVariableMutableAssignment [
+	| node value |
+	node := builder sequence: { 
+		(builder defineLocalVariable: #x withValueType: nil withInitialValue:
+			(builder literalInteger: 5))
+			mutable.
+		builder reference: (builder identifier: #x) assignValue: (builder literalInteger: 42).
+		builder referenceLoad: (builder identifier: #x)
+	}.
+	
+	value := self analyzeAndEvaluateAST: node.
+	self assert: value value equals: 42.
+	self assert: value type isPrimitiveIntegerType.
+]
+
+{ #category : #running }
 MbndAstEvaluatorTest >> testLocalVariableMutableReferenceImplicitLoad [
 	| node value |
 	node := builder sequence: { 
@@ -249,6 +327,40 @@ MbndAstEvaluatorTest >> testLocalVariableMutableReferenceImplicitLoad [
 	value := self analyzeAndEvaluateAST: node.
 	self assert: value value equals: 6.
 	self assert: value type isPrimitiveIntegerType.
+]
+
+{ #category : #running }
+MbndAstEvaluatorTest >> testMinFunctionCall [
+	| node value |
+	node := builder sequence: {
+		self minFunctionDefinitionNode.
+		builder call: (builder identifier: #min) arguments: { 
+			builder literalInteger: 2.
+			builder literalInteger: 3
+		}
+	}.
+		
+	value := self analyzeAndEvaluateAST: node.
+	self assert: value type isPrimitiveIntegerType.
+	self assert: value value equals: 2.
+
+]
+
+{ #category : #running }
+MbndAstEvaluatorTest >> testMinFunctionCall2 [
+	| node value |
+	node := builder sequence: {
+		self minFunctionDefinitionNode.
+		builder call: (builder identifier: #min) arguments: { 
+			builder literalInteger: 3.
+			builder literalInteger: 2
+		}
+	}.
+		
+	value := self analyzeAndEvaluateAST: node.
+	self assert: value type isPrimitiveIntegerType.
+	self assert: value value equals: 2.
+
 ]
 
 { #category : #running }

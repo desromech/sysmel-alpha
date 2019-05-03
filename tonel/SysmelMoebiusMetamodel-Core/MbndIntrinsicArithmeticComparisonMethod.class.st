@@ -1,5 +1,10 @@
 Class {
 	#name : #MbndIntrinsicArithmeticComparisonMethod,
-	#superclass : #MbndAbstractIntrinsicMethod,
+	#superclass : #MbndIntrinsicArithmeticBinaryOperationMethod,
 	#category : #'SysmelMoebiusMetamodel-Core-Method'
 }
+
+{ #category : #visiting }
+MbndIntrinsicArithmeticComparisonMethod >> accept: aVisitor [
+	^ aVisitor visitIntrinsicArithmeticComparisonMethod: self
+]

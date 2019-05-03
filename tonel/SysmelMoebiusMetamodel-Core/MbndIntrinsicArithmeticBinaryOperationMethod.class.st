@@ -1,8 +1,13 @@
 Class {
 	#name : #MbndIntrinsicArithmeticBinaryOperationMethod,
-	#superclass : #MbndIntrinsicArithmeticComparisonMethod,
+	#superclass : #MbndAbstractIntrinsicMethod,
 	#category : #'SysmelMoebiusMetamodel-Core-Method'
 }
+
+{ #category : #visiting }
+MbndIntrinsicArithmeticBinaryOperationMethod >> accept: aVisitor [
+	^ aVisitor visitIntrinsicArithmeticBinaryOperationMethod: self
+]
 
 { #category : #evaluation }
 MbndIntrinsicArithmeticBinaryOperationMethod >> evaluateWithReceiver: receiver arguments: arguments withEvaluator: evaluator at: node [

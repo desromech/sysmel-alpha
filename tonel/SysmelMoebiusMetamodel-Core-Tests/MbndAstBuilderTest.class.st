@@ -30,6 +30,17 @@ MbndAstBuilderTest >> testArgumentDefinition [
 ]
 
 { #category : #tests }
+MbndAstBuilderTest >> testArrayElementReferenceNode [
+	| node array index |
+	array := builder identifier: #array.
+	index := builder literalInteger: 42.
+	node := builder array: array elementReferenceAt: index.
+	self assert: node isArrayElementReferenceNode.
+	self assert: node container equals: array.
+	self assert: node index equals: index.
+]
+
+{ #category : #tests }
 MbndAstBuilderTest >> testAssignmentExpression [
 	| node reference value|
 	reference := builder identifier: #x.
@@ -346,6 +357,16 @@ MbndAstBuilderTest >> testLiteralVoid [
 ]
 
 { #category : #tests }
+MbndAstBuilderTest >> testLiteralWithType [
+	| node type |
+	type := builder compilationTarget int32Type pointer.
+	node := builder literal: nil type: type.
+	self assert: node isLiteralValueNode.
+	self assert: node value equals: nil.
+	self assert: node type equals: type.
+]
+
+{ #category : #tests }
 MbndAstBuilderTest >> testLocalVariableDefinition [
 	| node valueType initialValue |
 	valueType := module compilationTarget int32Type.
@@ -447,6 +468,17 @@ MbndAstBuilderTest >> testNamespaceDefinition [
 	self assert: node isNamespaceDefinitionNode.
 	self assert: node name equals: #HelloNamespace.
 	self assert: node body equals: body.
+]
+
+{ #category : #tests }
+MbndAstBuilderTest >> testPointerElementReferenceNode [
+	| node pointer index |
+	pointer := builder identifier: #pointer.
+	index := builder literalInteger: 42.
+	node := builder pointer: pointer elementReferenceAt: index.
+	self assert: node isPointerElementReferenceNode.
+	self assert: node container equals: pointer.
+	self assert: node index equals: index.
 ]
 
 { #category : #tests }

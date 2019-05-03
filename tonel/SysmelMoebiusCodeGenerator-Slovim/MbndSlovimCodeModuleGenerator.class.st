@@ -82,10 +82,16 @@ MbndSlovimCodeModuleGenerator >> mangleProgramEntityName: programEntity [
 
 { #category : #visiting }
 MbndSlovimCodeModuleGenerator >> setProgramEntity: programEntity ssaValue: ssaValue [
-	translatedProgramEntities at: programEntity put: (MbndSlovimProgramEntitySSAValue new
+	self setProgramEntity: programEntity translation: (MbndSlovimTranslatedProgramEntitySSAValue new
 		programEntity: programEntity;
 		ssaValue: ssaValue;
 		yourself)
+]
+
+{ #category : #visiting }
+MbndSlovimCodeModuleGenerator >> setProgramEntity: programEntity translation: translation [
+	translatedProgramEntities at: programEntity put: translation.
+	^ translation
 ]
 
 { #category : #accessing }
@@ -157,6 +163,24 @@ MbndSlovimCodeModuleGenerator >> visitConcreteFunctionMethod: functionMethod [
 { #category : #visiting }
 MbndSlovimCodeModuleGenerator >> visitConcreteMessageMethod: functionMethod [
 	self halt
+]
+
+{ #category : #visiting }
+MbndSlovimCodeModuleGenerator >> visitIntrinsicArithmeticBinaryOperationMethod: intrinsicMethod [
+	^ self setProgramEntity: intrinsicMethod translation: (MbndSlovimTranslatedIntrinsicArithmeticBinaryOperation new programEntity: intrinsicMethod)
+	
+]
+
+{ #category : #visiting }
+MbndSlovimCodeModuleGenerator >> visitIntrinsicArithmeticComparisonMethod: intrinsicMethod [
+	^ self setProgramEntity: intrinsicMethod translation: (MbndSlovimTranslatedIntrinsicArithmeticComparisonOperation new programEntity: intrinsicMethod)
+	
+]
+
+{ #category : #visiting }
+MbndSlovimCodeModuleGenerator >> visitIntrinsicArithmeticUnaryOperationMethod: intrinsicMethod [
+	^ self setProgramEntity: intrinsicMethod translation: (MbndSlovimTranslatedIntrinsicArithmeticUnaryOperation new programEntity: intrinsicMethod)
+	
 ]
 
 { #category : #visiting }

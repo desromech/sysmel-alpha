@@ -36,7 +36,7 @@ MbndPrimitiveNumberType >> addArithmeticIntrinsics [
 		addArithmetic: #negated unaryIntrinsic: #neg;
 		addArithmetic: #+ binaryIntrinsic: #add;
 		addArithmetic: #- binaryIntrinsic: #sub;
-		addArithmetic: #* binaryIntrinsic: #mult;
+		addArithmetic: #* binaryIntrinsic: #mul;
 		addArithmetic: #/ binaryIntrinsic: #div;
 		addArithmetic: #// binaryIntrinsic: #idiv;
 		addArithmetic: #\\ binaryIntrinsic: #irem;
@@ -54,7 +54,7 @@ MbndPrimitiveNumberType >> addArithmeticOperationCoercionMacro: selector [
 MbndPrimitiveNumberType >> addComparison: selector intrinsic: intrinsicName [
 	self
 		addArithmeticOperationCoercionMacro: selector;
-		addOverloadedMethod: (MbndIntrinsicArithmeticBinaryOperationMethod new
+		addOverloadedMethod: (MbndIntrinsicArithmeticComparisonMethod new
 				name: selector;
 				intrinsicName: intrinsicName;
 				yourself)

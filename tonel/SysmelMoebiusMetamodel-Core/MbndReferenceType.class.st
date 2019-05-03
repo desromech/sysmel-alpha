@@ -18,7 +18,7 @@ MbndReferenceType >> accept: aVisitor [
 MbndReferenceType >> addDefaultConversionRules [
 	super addDefaultConversionRules.
 	baseType ifNotNil: [ 
-		self addConversionTo: baseType withoutDecorations rule: MbndReferenceLoadTypeConversionRule.
+		self addConversionTo: baseType withoutTopDecorations rule: MbndReferenceLoadTypeConversionRule.
 	]
 ]
 
@@ -39,6 +39,16 @@ MbndReferenceType >> asCVariadicTypeRequiredAt: position [
 	^ baseType asCVariadicTypeRequiredAt: position
 ]
 
+{ #category : #converting }
+MbndReferenceType >> asPointerType [
+	^ baseType pointerFor: addressSpace
+]
+
+{ #category : #converting }
+MbndReferenceType >> asReferenceType [
+	^ self
+]
+
 { #category : #initialization }
 MbndReferenceType >> initializeBasicTypeTrait [
 	super initializeBasicTypeTrait.
@@ -48,7 +58,8 @@ MbndReferenceType >> initializeBasicTypeTrait [
 				position: node
 		];
 		onMacroSelector: #address do: [ :node :builder |
-			self halt
+			(builder referenceAsPointer: node receiver)
+				position: node
 		].
 ]
 

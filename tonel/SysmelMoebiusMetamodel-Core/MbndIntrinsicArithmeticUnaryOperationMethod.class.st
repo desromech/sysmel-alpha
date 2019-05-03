@@ -4,6 +4,11 @@ Class {
 	#category : #'SysmelMoebiusMetamodel-Core-Method'
 }
 
+{ #category : #visiting }
+MbndIntrinsicArithmeticUnaryOperationMethod >> accept: aVisitor [
+	^ aVisitor visitIntrinsicArithmeticUnaryOperationMethod: self
+]
+
 { #category : #evaluation }
 MbndIntrinsicArithmeticUnaryOperationMethod >> evaluateWithReceiver: receiver arguments: arguments withEvaluator: evaluator at: node [
 	| result |
