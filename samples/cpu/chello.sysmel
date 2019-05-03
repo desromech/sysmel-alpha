@@ -5,7 +5,7 @@ function main externC (argc: Int32, argv: UInt8 const pointer pointer) => Int32 
     LibC printf("Argc %d\n", argc).
     let i mutable := 1.
     while: (i < argc) do: {
-        ##LibC printf("Argv[i] := %s\n", argv[i]).
+        LibC printf("Argv[%d] := %s\n", i, argv[i]).
     } continueWith: (i := i + 1).
 
     return: 0.
