@@ -155,6 +155,21 @@ MbndAstEvaluator >> visitMethodReferenceNode: node [
 ]
 
 { #category : #visiting }
+MbndAstEvaluator >> visitQuasiQuoteNode: node [
+	| result |
+	result := MbndAstQuasiQuoteEvaluator new
+		unquoteEvaluator: self;
+		visitNode: node expression.
+	self assert: result isMbndAstNode.
+	^ MbndValue value: result type: node type.
+]
+
+{ #category : #visiting }
+MbndAstEvaluator >> visitQuoteNode: node [
+	^ MbndValue value: node expression type: node type
+]
+
+{ #category : #visiting }
 MbndAstEvaluator >> visitReferenceLoadNode: node [
 	| reference |
 	reference := self visitNode: node reference.

@@ -40,3 +40,10 @@ MbndSysmelLanguage >> parse: sourceCollectionWithContext [
 		language: self;
 		yourself
 ]
+
+{ #category : #scope }
+MbndSysmelLanguage >> topLevelLanguageScopeFor: aModule [
+	^ (MbndGenericMacroLanguageTopLevelScope for: aModule)
+		addUsedNamespace: (aModule globalNamespace ensureSymbolIsNamespace: #SysmelKernel);
+		yourself.
+]

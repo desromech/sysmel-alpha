@@ -3,6 +3,9 @@ I provide the fundamental protocol for the MoebiusBand type system. I am the cor
 "
 Trait {
 	#name : #TMbndAbstractType,
+	#instVars : [
+		'publicMetaBuilderFactories'
+	],
 	#traits : 'TMbndProgramEntity',
 	#classTraits : 'TMbndProgramEntity classTrait',
 	#category : #'SysmelMoebiusMetamodel-Core-Type'
@@ -173,6 +176,15 @@ TMbndAbstractType >> const [
 	^ self withDecoration: #const
 ]
 
+{ #category : #'meta builder factories' }
+TMbndAbstractType >> createPublicMetaBuilderFactories [
+	^ Dictionary newFromPairs: { 
+		#macro . MbndMacroMetaBuilder metaBuilderFactory.
+		#message . MbndMessageMetaBuilder metaBuilderFactory.
+		#method . MbndMethodMetaBuilder metaBuilderFactory.
+	}
+]
+
 { #category : #'default values' }
 TMbndAbstractType >> defaultValue [
 	self explicitRequirement
@@ -253,6 +265,11 @@ TMbndAbstractType >> instanceAlignment [
 { #category : #sizes }
 TMbndAbstractType >> instanceSize [
 	^ self explicitRequirement
+]
+
+{ #category : #'testing methods' }
+TMbndAbstractType >> isASTNodeType [
+	^ false
 ]
 
 { #category : #'testing methods' }
@@ -465,9 +482,20 @@ TMbndAbstractType >> lookupOverloadedSelector: selector [
 	^ self supertype ifNotNil: [ :st | st lookupOverloadedSelector: selector ]
 ]
 
+{ #category : #'meta builder factories' }
+TMbndAbstractType >> lookupPublicMetaBuilderFactoryNamed: name withAnalyzer: analyzer [
+	^ self publicMetaBuilderFactories at: name ifAbsent: [ nil ]
+]
+
 { #category : #methods }
 TMbndAbstractType >> lookupSelector: aSelector [
 	^ self supertype ifNotNil: [ :st | st lookupSelector: aSelector ]
+]
+
+{ #category : #methods }
+TMbndAbstractType >> lookupSymbol: aSymbol [
+	aSymbol == #SelfType ifTrue: [ ^ self ].
+	^ self supertype ifNotNil: [ :st | st lookupSymbol: aSymbol ]
 ]
 
 { #category : #converting }
@@ -491,6 +519,11 @@ TMbndAbstractType >> pointer [
 TMbndAbstractType >> pointerFor: addressSpace [
 	<compileTime>
 	^ self compilationTarget pointerFor: addressSpace to: self
+]
+
+{ #category : #'meta builder factories' }
+TMbndAbstractType >> publicMetaBuilderFactories [
+	^ publicMetaBuilderFactories ifNil: [ publicMetaBuilderFactories := self createPublicMetaBuilderFactories ]
 ]
 
 { #category : #'type composition' }

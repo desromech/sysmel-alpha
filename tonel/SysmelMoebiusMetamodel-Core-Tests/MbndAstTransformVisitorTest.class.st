@@ -298,6 +298,47 @@ MbndAstTransformVisitorTest >> testLocalVariableDefinition [
 ]
 
 { #category : #tests }
+MbndAstTransformVisitorTest >> testMacroMessageDefinitionNode [
+	| returnType definition body transformedNode |
+	returnType := builder identifier: #Int32.
+	body := builder literalInteger: 0.
+	definition := builder macroMessageSelector: #zero arguments: #() returnType: returnType definitionBody: body.
+	transformedNode := visitor visitNode: definition.
+	self assert: transformedNode ~~ definition.
+	self assert: transformedNode prototype ~~ definition prototype.
+	self assert: transformedNode isMacroMessageDefinitionNode.
+	self assert: transformedNode prototype isMacroMessagePrototypeNode.
+	self assert: transformedNode selector equals: #zero.
+	self assert: transformedNode arguments equals: #().
+	self assert: transformedNode returnType equals: returnType.
+]
+
+{ #category : #tests }
+MbndAstTransformVisitorTest >> testMacroMessagePrototypeNode [
+	| arguments prototype transformedNode |
+	arguments := { 
+		builder argument: #x type: nil.
+		builder argument: #y type: nil.
+	}.
+	prototype := builder macroMessagePrototypeSelector: #+ arguments: arguments returnType: nil.
+	transformedNode := visitor visitNode: prototype.
+	self assert: transformedNode ~~ prototype.
+	self assert: transformedNode isMacroMessagePrototypeNode.
+	self assert: transformedNode selector equals: prototype selector.
+
+	self assert: transformedNode arguments first ~~ arguments first.
+	self assert: transformedNode arguments first name equals: arguments first name.
+	self assert: transformedNode arguments first type equals: nil.
+
+	self assert: transformedNode arguments second ~~ arguments second.
+	self assert: transformedNode arguments second name equals: arguments second name.
+	self assert: transformedNode arguments second type equals: nil.
+
+	self assert: transformedNode returnType equals: nil.
+	
+]
+
+{ #category : #tests }
 MbndAstTransformVisitorTest >> testMessageChainMessageNode [
 	| node transformedNode selector arguments |
 	selector := builder literalSymbol: #to:by:.

@@ -115,6 +115,16 @@ MbndAstVisitor >> visitLocalVariableDefinitionNode: node [
 ]
 
 { #category : #visiting }
+MbndAstVisitor >> visitMacroMessageDefinitionNode: node [
+	self subclassResponsibility
+]
+
+{ #category : #visiting }
+MbndAstVisitor >> visitMacroMessagePrototypeNode: node [
+	self subclassResponsibility
+]
+
+{ #category : #visiting }
 MbndAstVisitor >> visitMessageChainMessageNode: node [
 	self subclassResponsibility
 ]

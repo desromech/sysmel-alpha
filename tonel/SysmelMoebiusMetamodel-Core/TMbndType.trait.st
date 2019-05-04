@@ -43,6 +43,11 @@ TMbndType >> analyzeExpandedMessageNode: node with: analyzer [
 
 ]
 
+{ #category : #'as yet unclassified' }
+TMbndType >> createMacroMethodEntityForPrototype: prototype [
+	^ self createMacroMethodEntityForPrototype: prototype withReceiverType: self compilationTarget astNodeType
+]
+
 { #category : #accessing }
 TMbndType >> definitionModule: aModule [
 	definitionModule := aModule

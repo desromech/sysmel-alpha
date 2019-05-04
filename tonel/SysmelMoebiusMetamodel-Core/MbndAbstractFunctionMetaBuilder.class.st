@@ -64,6 +64,7 @@ MbndAbstractFunctionMetaBuilder >> ensureFunctionPrototype [
 	functionPrototype ifNotNil: [ ^ self ].
 	functionPrototype := MbndAstFunctionPrototypeNode new
 		position: position;
+		ownerProgramEntity: ownerProgramEntity;
 		flags: flags;
 		name: name;
 		arguments: functionArguments;

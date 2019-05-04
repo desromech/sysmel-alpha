@@ -118,6 +118,16 @@ MbndAstDelegationVisitor >> visitLocalVariableDefinitionNode: node [
 ]
 
 { #category : #visiting }
+MbndAstDelegationVisitor >> visitMacroMessageDefinitionNode: node [
+	^ self delegateNodeVisit: node
+]
+
+{ #category : #visiting }
+MbndAstDelegationVisitor >> visitMacroMessagePrototypeNode: node [
+	^ self delegateNodeVisit: node
+]
+
+{ #category : #visiting }
 MbndAstDelegationVisitor >> visitMessageChainMessageNode: node [
 	^ self delegateNodeVisit: node
 ]

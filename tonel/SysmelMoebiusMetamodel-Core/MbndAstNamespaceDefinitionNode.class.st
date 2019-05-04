@@ -2,7 +2,8 @@ Class {
 	#name : #MbndAstNamespaceDefinitionNode,
 	#superclass : #MbndAstSymbolDefinition,
 	#instVars : [
-		'body'
+		'body',
+		'ownerProgramEntity'
 	],
 	#category : #'SysmelMoebiusMetamodel-Core-AST'
 }
@@ -25,4 +26,14 @@ MbndAstNamespaceDefinitionNode >> body: anObject [
 { #category : #testing }
 MbndAstNamespaceDefinitionNode >> isNamespaceDefinitionNode [
 	^ true
+]
+
+{ #category : #accessing }
+MbndAstNamespaceDefinitionNode >> ownerProgramEntity [
+	^ ownerProgramEntity
+]
+
+{ #category : #accessing }
+MbndAstNamespaceDefinitionNode >> ownerProgramEntity: anObject [
+	ownerProgramEntity := anObject
 ]

@@ -75,6 +75,7 @@ MbndAstTransformVisitor >> visitDoWhileLoopNode: node [
 	^ node copy
 		condition: (self visitNode: node condition);
 		action: (self visitNode: node action);
+		continueAction: (node continueAction ifNotNil: [self visitNode: node continueAction]);
 		yourself
 ]
 
@@ -161,6 +162,22 @@ MbndAstTransformVisitor >> visitLiteralValueNode: node [
 MbndAstTransformVisitor >> visitLocalVariableDefinitionNode: node [
 	^ node copy
 		initialValue: (node initialValue ifNotNil: [:initialValue | self visitNode: initialValue]);
+		yourself
+]
+
+{ #category : #visiting }
+MbndAstTransformVisitor >> visitMacroMessageDefinitionNode: node [
+	^ node copy
+		prototype: (self visitNode: node prototype);
+		body: (self visitNode: node body);
+		yourself
+]
+
+{ #category : #visiting }
+MbndAstTransformVisitor >> visitMacroMessagePrototypeNode: node [
+	^ node copy
+		arguments: (self visitNodesAndCollect: node arguments);
+		returnType: (node returnType ifNotNil: [self visitNode: node returnType]);
 		yourself
 ]
 
@@ -299,7 +316,7 @@ MbndAstTransformVisitor >> visitTupleNode: node [
 { #category : #visiting }
 MbndAstTransformVisitor >> visitUnexpandedMessageSendNode: node [
 	^ node copy
-		receiver: (self visitNode: node receiver);
+		receiver: (node receiver ifNotNil: [self visitNode: node receiver]);
 		selector: (self visitNode: node selector);
 		arguments: (self visitNodesAndCollect: node arguments);
 		yourself

@@ -8,7 +8,8 @@ Class {
 		'topLevelMacros',
 		'topLevelSymbols',
 		'module',
-		'compilationTarget'
+		'compilationTarget',
+		'usedNamespaces'
 	],
 	#category : #'SysmelMoebiusMetamodel-Core-Scope'
 }
@@ -28,6 +29,11 @@ MbndLanguageTopLevelScope >> addTopLevelSymbols [
 	"This is the place for adding top-level symbols"
 ]
 
+{ #category : #adding }
+MbndLanguageTopLevelScope >> addUsedNamespace: namespace [
+	self usedNamespaces add: namespace
+]
+
 { #category : #initialization }
 MbndLanguageTopLevelScope >> initializeWithModule: aModule [
 	module := aModule.
@@ -42,12 +48,24 @@ MbndLanguageTopLevelScope >> initializeWithModule: aModule [
 { #category : #'macro expansion' }
 MbndLanguageTopLevelScope >> lookupMacroSelector: selector [
 	topLevelMacros at: selector ifPresent: [ :macro | ^ macro ].
+	usedNamespaces ifNotNil: [
+		usedNamespaces do: [ :namespace |
+			(namespace lookupMacroSelector: selector) ifNotNil: [ :macro |^ macro ]
+		].
+	].
 	^ super lookupMacroSelector: selector
 ]
 
 { #category : #'macro expansion' }
 MbndLanguageTopLevelScope >> lookupSymbol: aSymbol [
-	^ topLevelSymbols at: aSymbol ifAbsent: [ nil ]
+	(topLevelSymbols at: aSymbol ifAbsent: [ nil ]) ifNotNil: [ :found | ^ found ].
+	usedNamespaces ifNotNil: [
+		usedNamespaces do: [ :namespace |
+			(namespace lookupSymbol: aSymbol) ifNotNil: [ :found | ^ found ]
+		].
+	].
+
+	^ super lookupSymbol: aSymbol
 ]
 
 { #category : #'macro addition' }
@@ -66,4 +84,9 @@ MbndLanguageTopLevelScope >> topLevelMacros [
 { #category : #accessing }
 MbndLanguageTopLevelScope >> topLevelSymbols [
 	^ topLevelSymbols
+]
+
+{ #category : #accessing }
+MbndLanguageTopLevelScope >> usedNamespaces [
+	^ usedNamespaces ifNil: [ usedNamespaces := OrderedCollection new ]
 ]

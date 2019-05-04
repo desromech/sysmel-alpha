@@ -2,7 +2,8 @@ Class {
 	#name : #MbndAstCompileTimeConstantDefinitionNode,
 	#superclass : #MbndAstSymbolDefinition,
 	#instVars : [
-		'value'
+		'value',
+		'ownerProgramEntity'
 	],
 	#category : #'SysmelMoebiusMetamodel-Core-AST'
 }
@@ -15,6 +16,16 @@ MbndAstCompileTimeConstantDefinitionNode >> accept: aVisitor [
 { #category : #testing }
 MbndAstCompileTimeConstantDefinitionNode >> isCompileTimeConstantDefinitionNode [
 	^ true
+]
+
+{ #category : #accessing }
+MbndAstCompileTimeConstantDefinitionNode >> ownerProgramEntity [
+	^ ownerProgramEntity
+]
+
+{ #category : #accessing }
+MbndAstCompileTimeConstantDefinitionNode >> ownerProgramEntity: anObject [
+	ownerProgramEntity := anObject
 ]
 
 { #category : #accessing }

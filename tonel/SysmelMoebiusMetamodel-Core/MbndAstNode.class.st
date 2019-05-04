@@ -150,6 +150,16 @@ MbndAstNode >> isLocalVariableDefinitionNode [
 ]
 
 { #category : #testing }
+MbndAstNode >> isMacroMessageDefinitionNode [
+	^ false
+]
+
+{ #category : #testing }
+MbndAstNode >> isMacroMessagePrototypeNode [
+	^ false
+]
+
+{ #category : #testing }
 MbndAstNode >> isMbndAstNode [
 	^ true
 ]
@@ -277,6 +287,11 @@ MbndAstNode >> lexicallyScoped [
 		position: position;
 		expression: self;
 		yourself
+]
+
+{ #category : #'as yet unclassified' }
+MbndAstNode >> mbndLiteralTypeWithTarget: compilationTarget [
+	^ compilationTarget astNodeType
 ]
 
 { #category : #parsing }

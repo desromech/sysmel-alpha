@@ -48,6 +48,11 @@ TMbndCoreCompilationTarget >> addBasicType: basicType [
 ]
 
 { #category : #'convenience type accessors' }
+TMbndCoreCompilationTarget >> astNodeType [
+	^ self getBasicTypeNamed: MbndASTNodeType typeName
+]
+
+{ #category : #'convenience type accessors' }
 TMbndCoreCompilationTarget >> booleanType [
 	^ self getBasicTypeNamed: #BooleanBit
 ]
@@ -94,11 +99,12 @@ TMbndCoreCompilationTarget >> ensureBasicTypeIsLinkedToTheHierarchy: basicType [
 TMbndCoreCompilationTarget >> ensureTypeHasSimpleMetaType: type [
 	type type ifNotNil: [ ^ self ].
 	
-	type type: (MbndSimpleMetaType new
+	type type: (MbndSimpleMetaType basicNew
 		definitionModule: coreDefinitionsModule;
 		instanceType: type;
 		type: self simpleMetaType;
 		supertype: type supertype type;
+		initializeNonTraitType;
 		yourself)
 ]
 
@@ -189,7 +195,20 @@ TMbndCoreCompilationTarget >> initializeBasicTypes [
 		addBasicFloatTypeWithSize: 8 alignment: self float64Alignment name: #Float64;
 		yourself.
 		
-	basicTypes valuesDo: #initializeNonTraitType.
+	basicTypes valuesDo: [:bt | 
+		bt initializeNonTraitType.
+		bt type initializeNonTraitType
+	].
+	
+	self pointerSize = 4 ifTrue: [ 
+		basicTypes
+			at: #UIntPointer put: self uint32Type;
+			at: #IntPointer put: self int32Type
+	] ifFalse: [ 
+		basicTypes
+			at: #UIntPointer put: self uint64Type;
+			at: #IntPointer put: self int64Type
+	].
 
 ]
 
@@ -233,6 +252,11 @@ TMbndCoreCompilationTarget >> int8Type [
 	^ self getBasicTypeNamed: #Int8
 ]
 
+{ #category : #'convenience type accessors' }
+TMbndCoreCompilationTarget >> intPointerType [
+	^ self getBasicTypeNamed: #IntPointer
+]
+
 { #category : #'platform testing' }
 TMbndCoreCompilationTarget >> isUnix [
 	^ false
@@ -260,7 +284,7 @@ TMbndCoreCompilationTarget >> linkMetaHierarchy [
 	
 		"Create the meta type."
 		bt type ifNil: [ 
-			bt type: (MbndSimpleMetaType new
+			bt type: (MbndSimpleMetaType basicNew
 				definitionModule: coreDefinitionsModule;
 				instanceType: bt;
 				type: simpleMetaType;
@@ -421,6 +445,11 @@ TMbndCoreCompilationTarget >> uint64Type [
 { #category : #'convenience type accessors' }
 TMbndCoreCompilationTarget >> uint8Type [
 	^ self getBasicTypeNamed: #UInt8
+]
+
+{ #category : #'convenience type accessors' }
+TMbndCoreCompilationTarget >> uintPointerType [
+	^ self getBasicTypeNamed: #UIntPointer
 ]
 
 { #category : #'convenience type accessors' }

@@ -10,9 +10,10 @@ Class {
 }
 
 { #category : #'semantic analysis' }
-MbndMetaBuilderFactory >> analyzeReferenceNode: referenceNode with: analyzer [
+MbndMetaBuilderFactory >> analyzeReferenceNode: referenceNode ownerProgramEntity: ownerProgramEntity with: analyzer [
 	^ MbndAstMetaBuilderInstanceNode new
 		instance: (metaBuilderClass new
+			ownerProgramEntity: ownerProgramEntity;
 			position: referenceNode;
 			metaBuilderAnalyzer: analyzer;
 			metaBuilderScope: analyzer scope;
@@ -20,6 +21,11 @@ MbndMetaBuilderFactory >> analyzeReferenceNode: referenceNode with: analyzer [
 		type: analyzer compilationTarget metaBuilderInstanceType;
 		position: referenceNode;
 		yourself
+]
+
+{ #category : #'semantic analysis' }
+MbndMetaBuilderFactory >> analyzeReferenceNode: referenceNode with: analyzer [
+	^ self analyzeReferenceNode: referenceNode ownerProgramEntity: nil with: analyzer
 ]
 
 { #category : #accessing }

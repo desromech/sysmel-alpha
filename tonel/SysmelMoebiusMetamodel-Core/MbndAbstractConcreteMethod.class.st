@@ -6,7 +6,8 @@ Class {
 		'definitionNode',
 		'definitionScope',
 		'analyzedBody',
-		'arguments'
+		'arguments',
+		'argumentsWithoutReceiver'
 	],
 	#category : #'SysmelMoebiusMetamodel-Core-Method'
 }
@@ -23,20 +24,30 @@ MbndAbstractConcreteMethod >> arguments [
 
 { #category : #evaluation }
 MbndAbstractConcreteMethod >> constructEvaluationScopeWithReceiver: receiverValue arguments: argumentValues [
-	| evaluationScope argumentDefinition |
+	| evaluationScope argumentDefinition receiverDefinition |
 	evaluationScope := MbndFunctionEvaluationScope parent: definitionScope.
 	evaluationScope := evaluationScope newReturnContextScope newLexicalScope.
 	
 	receiverType isVoidType ifFalse: [ 
-		self halt
+		receiverDefinition := arguments first.
+		receiverDefinition createStorageInFunctionActivationScope: evaluationScope withValue: receiverValue
 	].
 	
 	argumentValues doWithIndex: [ :argumentValue :index |
-		argumentDefinition := arguments at: index.
+		argumentDefinition := argumentsWithoutReceiver at: index.
 		argumentDefinition createStorageInFunctionActivationScope: evaluationScope withValue: argumentValue
 	].
 
 	^ evaluationScope
+]
+
+{ #category : #'as yet unclassified' }
+MbndAbstractConcreteMethod >> createExtraImplicitArgument: argumentName withType: argumentType [
+	^ MbndAstArgumentDefinitionNode new
+		position: definitionNode position;
+		name: argumentName;
+		valueType: argumentType;
+		yourself
 ]
 
 { #category : #'semantic analysis' }
@@ -78,13 +89,20 @@ MbndAbstractConcreteMethod >> defineArgument: argumentNode [
 
 { #category : #'semantic analysis' }
 MbndAbstractConcreteMethod >> defineArguments [
-	| usedNames |
+	| usedNames selfArgument |
+	selfArgument := #().
 	receiverType isVoidType ifFalse: [
-		self halt
+		selfArgument := { MbndFunctionReceiverArgumentVariable new
+			parent: self;
+			name: #self;
+			valueType: receiverType;
+			yourself
+		}
 	].
 	
 	usedNames := Set new.
-	arguments := definitionNode arguments collectWithIndex: [ :argument :index |
+	arguments := selfArgument , (self extraImplicitArguments , definitionNode arguments)
+		collectWithIndex: [ :argument :index |
 		argument name isMbndAnonymousSymbol ifFalse: [
 			(usedNames includes: argument name) ifTrue: [ 
 				self error: 'argument {1} has the same name that is used by a previously defined argument.' format: { argument name asPrettySymbolName } at: argument
@@ -93,6 +111,10 @@ MbndAbstractConcreteMethod >> defineArguments [
 		].
 		self defineArgument: argument
 	].
+
+	argumentsWithoutReceiver := receiverType isVoidType
+		ifTrue: [ arguments ]
+		ifFalse: [ arguments allButFirst ].
 
 ]
 
@@ -156,10 +178,16 @@ MbndAbstractConcreteMethod >> evaluateWithReceiver: receiverValue arguments: arg
 	].
 
 	self ensureSemanticAnalysis.
-	self assert: argumentValues size = arguments size.
+	self assert: receiverType isVoidType = receiverValue isNil.
+	self assert: argumentValues size = argumentsWithoutReceiver size.
 
 	evaluationScope := self constructEvaluationScopeWithReceiver: receiverValue arguments: argumentValues.
 	callEvaluator := MbndAstEvaluator new scope: evaluationScope.
 
 	^ callEvaluator evaluateFunctionContent: analyzedBody.
+]
+
+{ #category : #'semantic analysis' }
+MbndAbstractConcreteMethod >> extraImplicitArguments [
+	^ #()
 ]

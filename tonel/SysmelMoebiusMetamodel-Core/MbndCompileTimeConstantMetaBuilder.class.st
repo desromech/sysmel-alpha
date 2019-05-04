@@ -25,6 +25,7 @@ MbndCompileTimeConstantMetaBuilder >> concretizeNode: node withAnalyzer: analyze
 
 	^ analyzer visitNode: (MbndAstCompileTimeConstantDefinitionNode new
 		position: position;
+		ownerProgramEntity: ownerProgramEntity;
 		name: name;
 		value: valueNode;
 		yourself)

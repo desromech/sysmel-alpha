@@ -272,7 +272,7 @@ MbndAstSemanticAnalyzer >> visitCompileTimeConstantDefinitionNode: node [
 		self error: 'Anonymous aliases are not supported, yet.' at: node
 	].
 	
-	owner := scope lookupProgramEntityForNewDefinitions.
+	owner := node ownerProgramEntity ifNil: [scope lookupProgramEntityForNewDefinitions].
 	(owner lookupLocalSymbol: aliasName) ifNotNil: [ :previousDefintion |
 		self error: 'Alias {1} definition overrides previous definition {2}.'
 			format: {aliasName asPrettySymbolName . previousDefintion} at: node
@@ -368,7 +368,7 @@ MbndAstSemanticAnalyzer >> visitFunctionCallNode: node [
 MbndAstSemanticAnalyzer >> visitFunctionDefinitionNode: node [
 	| result |
 	result := node copy.
-	result prototype: (self visitNode: node prototype).
+	result prototype: (self visitNode: result prototype).
 	result concreteMethod definitionNode ifNil: [ 
 		result concreteMethod
 			declarationPosition: result prototype;
@@ -376,7 +376,7 @@ MbndAstSemanticAnalyzer >> visitFunctionDefinitionNode: node [
 			definitionScope: scope;
 			enqueueDelayedSemanticAnalysis
 	] ifNotNil: [ 
-		self error: 'multiples definitions for method {1}.' format: { node name asPrettySymbolName } at: node
+		self error: 'multiples definitions for method {1}.' format: { result name asPrettySymbolName } at: result
 	].
 	
 	result type: result prototype type.
@@ -567,18 +567,67 @@ MbndAstSemanticAnalyzer >> visitLocalVariableDefinitionNode: node [
 ]
 
 { #category : #visiting }
+MbndAstSemanticAnalyzer >> visitMacroMessageDefinitionNode: node [
+	| result |
+	result := node copy.
+	result prototype: (self visitNode: result prototype).
+	result concreteMethod definitionNode ifNil: [
+		result concreteMethod
+			declarationPosition: result prototype;
+			definitionNode: result;
+			definitionScope: (result prototype ownerProgramEntity programEntityScope parent: scope);
+			enqueueDelayedSemanticAnalysis
+	] ifNotNil: [ 
+		self error: 'multiples definitions for macro with selector {1}.' format: { result selector asPrettySymbolName } at: result
+	].
+	
+	result type: result prototype type.
+	^ result
+]
+
+{ #category : #visiting }
+MbndAstSemanticAnalyzer >> visitMacroMessagePrototypeNode: node [
+	| result |
+	result := node copy.
+	result
+		arguments: (result arguments collect: [:arg |
+			self visitNode: (arg valueType
+				ifNil: [ arg copy valueType: self compilationTarget astNodeType ]
+				ifNotNil: [ arg ])
+		]);
+		returnType: (result returnType
+			ifNil: [ self compilationTarget astNodeType ]
+			ifNotNil: [self evaluateTypeExpression: result returnType]).
+		
+	result functionType: (self compilationTarget
+		functionTypeWithArguments: (result arguments collect: #valueType)
+		returnType: result returnType).
+	result type: result functionType ref.
+	
+	result ownerProgramEntity ifNil: [
+		result ownerProgramEntity: scope lookupProgramEntityForNewDefinitions
+	].
+
+	result ownerProgramEntity ifNotNil: [ :newOwner |
+		newOwner findOrAddMacroSelectorPrototype: result
+	].
+	
+	^ result
+]
+
+{ #category : #visiting }
 MbndAstSemanticAnalyzer >> visitMessageDefinitionNode: node [
 	| result |
 	result := node copy.
-	result prototype: (self visitNode: node prototype).
+	result prototype: (self visitNode: result prototype).
 	result concreteMethod definitionNode ifNil: [ 
 		result concreteMethod
-			declarationPosition: node prototype;
-			definitionNode: node;
+			declarationPosition: result prototype;
+			definitionNode: result;
 			definitionScope: scope;
 			enqueueDelayedSemanticAnalysis
 	] ifNotNil: [ 
-		self error: 'multiples definitions for method with selector {1}.' format: { node selector asPrettySymbolName } at: node
+		self error: 'multiples definitions for method with selector {1}.' format: { result selector asPrettySymbolName } at: result
 	].
 	
 	result type: result prototype type.
@@ -617,7 +666,7 @@ MbndAstSemanticAnalyzer >> visitNamespaceDefinitionNode: node [
 		self error: 'Anonymous namespace are not supported, yet.' at: node
 	].
 	
-	owner := scope lookupProgramEntityForNewDefinitions.
+	owner := node ownerProgramEntity ifNil: [scope lookupProgramEntityForNewDefinitions].
 	namespace := owner ensureSymbolIsNamespace: namespaceName at: node.
 	self assert: namespace isNotNil.
 	
@@ -652,6 +701,32 @@ MbndAstSemanticAnalyzer >> visitPointerElementReferenceNode: node [
 	elementReferenceType := pointerType asReferenceType.
 	result type: elementReferenceType.
 	^ result
+]
+
+{ #category : #visiting }
+MbndAstSemanticAnalyzer >> visitQuasiQuoteNode: node [
+	| result |
+	result := node copy.
+	result type: self compilationTarget astNodeType.
+	
+	result expression: (MbndAstQuasiQuoteSemanticAnalyzer new
+		unquoteAnalyzer: self;
+		visitNode: result expression
+	).
+	
+	^ result
+]
+
+{ #category : #visiting }
+MbndAstSemanticAnalyzer >> visitQuasiUnquoteNode: node [
+	self error: 'Quasi unquote (e.g: `, ) expressions are only valid inside of a quasi quote.' at: node
+]
+
+{ #category : #visiting }
+MbndAstSemanticAnalyzer >> visitQuoteNode: node [
+	^ node copy
+		type: self compilationTarget astNodeType;
+		yourself
 ]
 
 { #category : #'as yet unclassified' }
@@ -706,6 +781,11 @@ MbndAstSemanticAnalyzer >> visitSequenceNode: node [
 		result type: result elements last type
 	].
 	^ result
+]
+
+{ #category : #visiting }
+MbndAstSemanticAnalyzer >> visitSpliceNode: node [
+	self error: 'Splice expressions (e.g: `@ ) are only valid inside of a quasi quote.' at: node
 ]
 
 { #category : #visiting }

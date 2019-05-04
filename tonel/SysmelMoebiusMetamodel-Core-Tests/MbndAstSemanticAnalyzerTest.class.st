@@ -68,6 +68,16 @@ MbndAstSemanticAnalyzerTest >> identityMessageDefinitionNode [
 ]
 
 { #category : #tests }
+MbndAstSemanticAnalyzerTest >> identityTopMacroDefinitionNode [
+	| arguments body |
+	arguments := {
+		builder argument: #x type: nil.
+	}.
+	body := builder identifier: #x.
+	^ builder macroMessageSelector: #identity: arguments: arguments returnType: nil definitionBody: body
+]
+
+{ #category : #tests }
 MbndAstSemanticAnalyzerTest >> libcPrintfDeclarationNode [
 	| arguments |
 	arguments := {
@@ -353,6 +363,41 @@ MbndAstSemanticAnalyzerTest >> testIdentityMessageSend [
 ]
 
 { #category : #tests }
+MbndAstSemanticAnalyzerTest >> testIdentityTopMacroDefinition [
+	| node analyzedNode concreteMethod |
+	node := self identityTopMacroDefinitionNode.
+	analyzedNode := visitor visitNode: node.
+	self assert: analyzedNode isMacroMessageDefinitionNode.
+	self assert: analyzedNode arguments first valueType isASTNodeType.
+	self assert: analyzedNode returnType isASTNodeType.
+	self assert: analyzedNode type isReferenceType.
+	self assert: analyzedNode type baseType isFunctionType.
+	self assert: analyzedNode concreteMethod isNotNil.
+	
+	concreteMethod := analyzedNode concreteMethod.
+	concreteMethod ensureSemanticAnalysis.
+	
+	self assert: concreteMethod analyzedBody isNotNil.
+	self assert: concreteMethod analyzedBody type isASTNodeType.
+]
+
+{ #category : #tests }
+MbndAstSemanticAnalyzerTest >> testIdentityTopMacroUsage [
+	| analyzedNode |
+	
+	visitor visitNode: self identityTopMacroDefinitionNode.
+	
+	analyzedNode := visitor visitNode: (
+		builder unexpandedSend: (builder literalSymbol: #identity:) to: nil
+			withArguments: {
+				builder literalInteger: 42
+			}).
+	self assert: analyzedNode isLiteralValueNode.
+	self assert: analyzedNode value equals: 42.
+
+]
+
+{ #category : #tests }
 MbndAstSemanticAnalyzerTest >> testIfLiteralFalse [
 	| node analyzedNode trueNode falseNode |
 	trueNode := builder literalInteger: 42.
@@ -374,6 +419,20 @@ MbndAstSemanticAnalyzerTest >> testIfLiteralTrue [
 		falseValue: falseNode.
 	analyzedNode := visitor visitNode: node.
 	self assert: analyzedNode equals: trueNode.
+]
+
+{ #category : #tests }
+MbndAstSemanticAnalyzerTest >> testInvalidQuasiUnquote [
+	| node |
+	node := builder quasiUnquote: (builder quote: (builder literalInteger: 42)).
+	self should: [visitor visitNode: node] raise: MbndSemanticError.
+]
+
+{ #category : #tests }
+MbndAstSemanticAnalyzerTest >> testInvalidSplice [
+	| node |
+	node := builder splice: (builder quote: (builder literalInteger: 42)).
+	self should: [visitor visitNode: node] raise: MbndSemanticError.
 ]
 
 { #category : #tests }
@@ -451,7 +510,8 @@ MbndAstSemanticAnalyzerTest >> testLiteral [
 	| literal analyzedNode |
 	literal := builder literalInteger: 42.
 	analyzedNode := visitor visitNode: literal.
-	self assert: analyzedNode equals: literal
+	self assert: analyzedNode equals: literal.
+	self assert: analyzedNode type isLiteralIntegerType.
 ]
 
 { #category : #tests }
@@ -742,6 +802,33 @@ MbndAstSemanticAnalyzerTest >> testPutsCall [
 	self assert: analyzedNode isSequenceNode.
 	self assert: analyzedNode type isPrimitiveIntegerType.
 
+]
+
+{ #category : #tests }
+MbndAstSemanticAnalyzerTest >> testQuasiQuoteLiteral [
+	| node analyzedNode |
+	node := builder quasiQuote: (builder literalInteger: 42).
+	analyzedNode := visitor visitNode: node.
+	self assert: analyzedNode isQuasiQuoteNode.
+	self assert: analyzedNode type isASTNodeType.
+]
+
+{ #category : #tests }
+MbndAstSemanticAnalyzerTest >> testQuasiQuoteUnquoteQuoteLiteral [
+	| node analyzedNode |
+	node := builder quasiQuote: (builder quasiUnquote: (builder quote: (builder literalInteger: 42))).
+	analyzedNode := visitor visitNode: node.
+	self assert: analyzedNode isQuasiQuoteNode.
+	self assert: analyzedNode type isASTNodeType.
+]
+
+{ #category : #tests }
+MbndAstSemanticAnalyzerTest >> testQuote [
+	| node analyzedNode |
+	node := builder quote: (builder literalInteger: 42).
+	analyzedNode := visitor visitNode: node.
+	self assert: analyzedNode isQuoteNode.
+	self assert: analyzedNode type isASTNodeType.
 ]
 
 { #category : #tests }

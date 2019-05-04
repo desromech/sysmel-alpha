@@ -95,6 +95,8 @@ MbndAstNodeTest >> testTestingMethods [
 	self deny: node isLiteralSymbolValueNode.
 	self deny: node isLocalVariableDefinitionNode.
 	self deny: node isNamespaceDefinitionNode.
+	self deny: node isMacroMessageDefinitionNode.
+	self deny: node isMacroMessagePrototypeNode.
 	self deny: node isMetaBuilderInstanceNode.
 	self deny: node isMessageChainNode.
 	self deny: node isMessageChainMessageNode.

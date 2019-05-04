@@ -14,6 +14,8 @@ MbndAstBuilder class >> forModule: aModule [
 
 { #category : #'builder methods' }
 MbndAstBuilder >> alias: name definition: value [
+	<compileTime>
+	<returnType: #_ASTNode>
 	^ MbndAstCompileTimeConstantDefinitionNode new
 		name: name;
 		value: value;
@@ -22,6 +24,8 @@ MbndAstBuilder >> alias: name definition: value [
 
 { #category : #'builder methods' }
 MbndAstBuilder >> argument: name type: valueType [
+	<compileTime>
+	<returnType: #_ASTNode>
 	^ MbndAstArgumentDefinitionNode new
 		name: name;
 		valueType: valueType;
@@ -30,6 +34,8 @@ MbndAstBuilder >> argument: name type: valueType [
 
 { #category : #'builder methods' }
 MbndAstBuilder >> array: array elementReferenceAt: index [
+	<compileTime>
+	<returnType: #_ASTNode>
 	^ MbndAstArrayElementReferenceNode new
 		container: array;
 		index: index;
@@ -38,11 +44,15 @@ MbndAstBuilder >> array: array elementReferenceAt: index [
 
 { #category : #'builder methods' }
 MbndAstBuilder >> breakStatement [
+	<compileTime>
+	<returnType: #_ASTNode>
 	^ MbndAstBreakStatementNode new
 ]
 
 { #category : #'builder methods' }
 MbndAstBuilder >> call: function arguments: arguments [
+	<compileTime>
+	<returnType: #_ASTNode>
 	^ MbndAstFunctionCallNode new
 		function: function;
 		arguments: arguments;
@@ -51,6 +61,8 @@ MbndAstBuilder >> call: function arguments: arguments [
 
 { #category : #'builder methods' }
 MbndAstBuilder >> casesOf: matchedExpression cases: cases [
+	<compileTime>
+	<returnType: #_ASTNode>
 	^ MbndAstCasesOfNode new
 		matchedExpression: matchedExpression;
 		cases: cases;
@@ -59,6 +71,8 @@ MbndAstBuilder >> casesOf: matchedExpression cases: cases [
 
 { #category : #'builder methods' }
 MbndAstBuilder >> casesOfCase: pattern do: action [
+	<compileTime>
+	<returnType: #_ASTNode>
 	^ MbndAstCasesOfCaseNode new
 		pattern: pattern;
 		action: action;
@@ -67,6 +81,8 @@ MbndAstBuilder >> casesOfCase: pattern do: action [
 
 { #category : #'builder methods' }
 MbndAstBuilder >> casesOfDefaultCaseDo: action [
+	<compileTime>
+	<returnType: #_ASTNode>
 	^ MbndAstCasesOfDefaultCaseNode new
 		action: action;
 		yourself
@@ -79,11 +95,15 @@ MbndAstBuilder >> compilationTarget [
 
 { #category : #'builder methods' }
 MbndAstBuilder >> continueStatement [
+	<compileTime>
+	<returnType: #_ASTNode>
 	^ MbndAstContinueStatementNode new
 ]
 
 { #category : #'builder methods' }
 MbndAstBuilder >> defineLocalVariable: name withValueType: valueType withInitialValue: initialValue [
+	<compileTime>
+	<returnType: #_ASTNode>
 	^ MbndAstLocalVariableDefinitionNode new
 		name: name;
 		valueType: valueType;
@@ -92,7 +112,20 @@ MbndAstBuilder >> defineLocalVariable: name withValueType: valueType withInitial
 ]
 
 { #category : #'builder methods' }
+MbndAstBuilder >> do: action continueWith: continueAction while: condition [
+	<compileTime>
+	<returnType: #_ASTNode>
+	^ MbndAstDoWhileLoopNode new
+		action: action;
+		continueAction: continueAction;
+		condition: condition;
+		yourself
+]
+
+{ #category : #'builder methods' }
 MbndAstBuilder >> do: action while: condition [
+	<compileTime>
+	<returnType: #_ASTNode>
 	^ MbndAstDoWhileLoopNode new
 		action: action;
 		condition: condition;
@@ -101,6 +134,8 @@ MbndAstBuilder >> do: action while: condition [
 
 { #category : #'builder methods' }
 MbndAstBuilder >> explicitCast: expression to: targetType [
+	<compileTime>
+	<returnType: #_ASTNode>
 	^ MbndAstExplicitCastNode new
 		expression: expression;
 		targetType: targetType;
@@ -109,11 +144,15 @@ MbndAstBuilder >> explicitCast: expression to: targetType [
 
 { #category : #'builder methods' }
 MbndAstBuilder >> functionNamed: name arguments: arguments returnType: returnType definitionBody: definitionBody [
+	<compileTime>
+	<returnType: #_ASTNode>
 	^ self functionPrototype: (self functionPrototypeNamed: name arguments: arguments returnType: returnType) definitionBody: definitionBody
 ]
 
 { #category : #'builder methods' }
 MbndAstBuilder >> functionPrototype: prototype definitionBody: definitionBody [
+	<compileTime>
+	<returnType: #_ASTNode>
 	^ MbndAstFunctionDefinitionNode new
 		prototype: prototype;
 		body: definitionBody;
@@ -122,6 +161,8 @@ MbndAstBuilder >> functionPrototype: prototype definitionBody: definitionBody [
 
 { #category : #'builder methods' }
 MbndAstBuilder >> functionPrototypeNamed: name arguments: arguments returnType: returnType [
+	<compileTime>
+	<returnType: #_ASTNode>
 	^ MbndAstFunctionPrototypeNode new
 		name: name;
 		arguments: arguments;
@@ -131,11 +172,15 @@ MbndAstBuilder >> functionPrototypeNamed: name arguments: arguments returnType: 
 
 { #category : #'builder methods' }
 MbndAstBuilder >> identifier: symbol [
+	<compileTime>
+	<returnType: #_ASTNode>
 	^ MbndAstIdentifierReferenceNode new symbol: symbol
 ]
 
 { #category : #'builder methods' }
 MbndAstBuilder >> if: condition trueValue: trueValue falseValue: falseValue [
+	<compileTime>
+	<returnType: #_ASTNode>
 	^ MbndAstIfConditionNode new
 		condition: condition;
 		trueValue: trueValue;
@@ -145,6 +190,8 @@ MbndAstBuilder >> if: condition trueValue: trueValue falseValue: falseValue [
 
 { #category : #'builder methods' }
 MbndAstBuilder >> implicitCast: expression to: targetType [
+	<compileTime>
+	<returnType: #_ASTNode>
 	^ MbndAstImplicitCastNode new
 		expression: expression;
 		targetType: targetType;
@@ -153,11 +200,15 @@ MbndAstBuilder >> implicitCast: expression to: targetType [
 
 { #category : #'builder methods' }
 MbndAstBuilder >> lexicalScope: expression [
+	<compileTime>
+	<returnType: #_ASTNode>
 	^ MbndAstLexicalScopeNode new expression: expression
 ]
 
 { #category : #'builder methods' }
 MbndAstBuilder >> literal: literalValue type: type [
+	<compileTime>
+	<returnType: #_ASTNode>
 	^ MbndAstLiteralValueNode new
 		value: literalValue;
 		type: type;
@@ -166,6 +217,8 @@ MbndAstBuilder >> literal: literalValue type: type [
 
 { #category : #'builder methods' }
 MbndAstBuilder >> literal: literalValue typeName: typeSelector [
+	<compileTime>
+	<returnType: #_ASTNode>
 	^ MbndAstLiteralValueNode new
 		value: literalValue;
 		type: (self lookupTypeWithName: typeSelector);
@@ -174,6 +227,8 @@ MbndAstBuilder >> literal: literalValue typeName: typeSelector [
 
 { #category : #'builder methods' }
 MbndAstBuilder >> literalBoolean: literalValue [
+	<compileTime>
+	<returnType: #_ASTNode>
 	^ literalValue
 		ifTrue: [ self literalBooleanTrue ]
 		ifFalse: [ self literalBooleanFalse ]
@@ -181,51 +236,100 @@ MbndAstBuilder >> literalBoolean: literalValue [
 
 { #category : #'builder methods' }
 MbndAstBuilder >> literalBooleanFalse [
+	<compileTime>
+	<returnType: #_ASTNode>
 	^ self literal: false typeName: #_LiteralBooleanFalse
 ]
 
 { #category : #'builder methods' }
 MbndAstBuilder >> literalBooleanTrue [
+	<compileTime>
+	<returnType: #_ASTNode>
 	^ self literal: true typeName: #_LiteralBooleanTrue
 ]
 
 { #category : #'builder methods' }
 MbndAstBuilder >> literalFloat: literalValue [
+	<compileTime>
+	<returnType: #_ASTNode>
 	^ self literal: literalValue typeName: #_LiteralFloat
 ]
 
 { #category : #'builder methods' }
 MbndAstBuilder >> literalInteger: literalValue [
+	<compileTime>
+	<returnType: #_ASTNode>
 	^ self literal: literalValue typeName: #_LiteralInteger
 ]
 
 { #category : #'builder methods' }
 MbndAstBuilder >> literalString: literalValue [
+	<compileTime>
+	<returnType: #_ASTNode>
 	^ self literal: literalValue typeName: #_LiteralString
 ]
 
 { #category : #'builder methods' }
 MbndAstBuilder >> literalSymbol: literalValue [
+	<compileTime>
+	<returnType: #_ASTNode>
 	^ self literal: literalValue typeName: #_LiteralSymbol
 ]
 
 { #category : #'builder methods' }
 MbndAstBuilder >> literalUndefined [
+	<compileTime>
+	<returnType: #_ASTNode>
 	^ self literal: nil typeName: MbndUndefinedType typeName
 ]
 
 { #category : #'builder methods' }
 MbndAstBuilder >> literalVoid [
+	<compileTime>
+	<returnType: #_ASTNode>
 	^ self literal: nil typeName: MbndVoidType typeName
 ]
 
 { #category : #'builder methods' }
 MbndAstBuilder >> lookupTypeWithName: typeSelector [
+	<compileTime>
+	<returnType: #_ASTNode>
 	^ self compilationTarget lookupTypeWithName: typeSelector
 ]
 
 { #category : #'builder methods' }
+MbndAstBuilder >> macroMessagePrototype: prototype definitionBody: definitionBody [
+	<compileTime>
+	<returnType: #_ASTNode>
+	^ MbndAstMacroMessageDefinitionNode new
+		prototype: prototype;
+		body: definitionBody;
+		yourself
+]
+
+{ #category : #'builder methods' }
+MbndAstBuilder >> macroMessagePrototypeSelector: selector arguments: arguments returnType: returnType [
+	<compileTime>
+	<returnType: #_ASTNode>
+	^ MbndAstMacroMessagePrototypeNode new
+		selector: selector;
+		arguments: arguments;
+		returnType: returnType;
+		yourself
+]
+
+{ #category : #'builder methods' }
+MbndAstBuilder >> macroMessageSelector: selector arguments: arguments returnType: returnType definitionBody: definitionBody [
+	<compileTime>
+	<returnType: #_ASTNode>
+	^ self macroMessagePrototype: (self macroMessagePrototypeSelector: selector arguments: arguments returnType: returnType)
+		definitionBody: definitionBody
+]
+
+{ #category : #'builder methods' }
 MbndAstBuilder >> messageChainMessageSelector: selector arguments: arguments [
+	<compileTime>
+	<returnType: #_ASTNode>
 	^ MbndAstMessageChainMessageNode new
 		selector: selector;
 		arguments: arguments;
@@ -234,6 +338,8 @@ MbndAstBuilder >> messageChainMessageSelector: selector arguments: arguments [
 
 { #category : #'builder methods' }
 MbndAstBuilder >> messageChainReceiver: receiver messages: chainedMessages [
+	<compileTime>
+	<returnType: #_ASTNode>
 	^ MbndAstMessageChainNode new
 		receiver: receiver;
 		messages: chainedMessages;
@@ -242,6 +348,8 @@ MbndAstBuilder >> messageChainReceiver: receiver messages: chainedMessages [
 
 { #category : #'builder methods' }
 MbndAstBuilder >> messagePrototype: prototype definitionBody: definitionBody [
+	<compileTime>
+	<returnType: #_ASTNode>
 	^ MbndAstMessageDefinitionNode new
 		prototype: prototype;
 		body: definitionBody;
@@ -250,6 +358,8 @@ MbndAstBuilder >> messagePrototype: prototype definitionBody: definitionBody [
 
 { #category : #'builder methods' }
 MbndAstBuilder >> messagePrototypeSelector: selector arguments: arguments returnType: returnType [
+	<compileTime>
+	<returnType: #_ASTNode>
 	^ MbndAstMessagePrototypeNode new
 		selector: selector;
 		arguments: arguments;
@@ -259,6 +369,8 @@ MbndAstBuilder >> messagePrototypeSelector: selector arguments: arguments return
 
 { #category : #'builder methods' }
 MbndAstBuilder >> messageSelector: selector arguments: arguments returnType: returnType definitionBody: definitionBody [
+	<compileTime>
+	<returnType: #_ASTNode>
 	^ self messagePrototype: (self messagePrototypeSelector: selector arguments: arguments returnType: returnType)
 		definitionBody: definitionBody
 ]
@@ -275,6 +387,8 @@ MbndAstBuilder >> module: aModule [
 
 { #category : #'builder methods' }
 MbndAstBuilder >> namespace: name definition: body [
+	<compileTime>
+	<returnType: #_ASTNode>
 	^ MbndAstNamespaceDefinitionNode new
 		name: name;
 		body: body;
@@ -283,6 +397,8 @@ MbndAstBuilder >> namespace: name definition: body [
 
 { #category : #'builder methods' }
 MbndAstBuilder >> pointer: pointer elementReferenceAt: index [
+	<compileTime>
+	<returnType: #_ASTNode>
 	^ MbndAstPointerElementReferenceNode new
 		container: pointer;
 		index: index;
@@ -291,6 +407,8 @@ MbndAstBuilder >> pointer: pointer elementReferenceAt: index [
 
 { #category : #'builder methods' }
 MbndAstBuilder >> pragmaSelector: selector arguments: arguments [
+	<compileTime>
+	<returnType: #_ASTNode>
 	^ MbndAstPragmaNode new
 		selector: selector;
 		arguments: arguments;
@@ -299,6 +417,8 @@ MbndAstBuilder >> pragmaSelector: selector arguments: arguments [
 
 { #category : #'builder methods' }
 MbndAstBuilder >> pragmas: aSequenceOfPragmas sequence: aSequenceOfNodes [
+	<compileTime>
+	<returnType: #_ASTNode>
 	^ MbndAstSequenceNode new
 		pragmas: aSequenceOfPragmas;
 		elements: aSequenceOfNodes;
@@ -307,21 +427,29 @@ MbndAstBuilder >> pragmas: aSequenceOfPragmas sequence: aSequenceOfNodes [
 
 { #category : #'builder methods' }
 MbndAstBuilder >> quasiQuote: expression [
+	<compileTime>
+	<returnType: #_ASTNode>
 	^ MbndAstQuasiQuoteNode new expression: expression
 ]
 
 { #category : #'builder methods' }
 MbndAstBuilder >> quasiUnquote: expression [
+	<compileTime>
+	<returnType: #_ASTNode>
 	^ MbndAstQuasiUnquoteNode new expression: expression
 ]
 
 { #category : #'builder methods' }
 MbndAstBuilder >> quote: expression [
+	<compileTime>
+	<returnType: #_ASTNode>
 	^ MbndAstQuoteNode new expression: expression
 ]
 
 { #category : #'builder methods' }
 MbndAstBuilder >> reference: reference assignValue: value [
+	<compileTime>
+	<returnType: #_ASTNode>
 	^ MbndAstAssignmentNode new
 		reference: reference;
 		value: value;
@@ -330,6 +458,8 @@ MbndAstBuilder >> reference: reference assignValue: value [
 
 { #category : #'builder methods' }
 MbndAstBuilder >> referenceLoad: reference [
+	<compileTime>
+	<returnType: #_ASTNode>
 	^ MbndAstReferenceLoadNode new
 		reference: reference;
 		yourself
@@ -337,6 +467,8 @@ MbndAstBuilder >> referenceLoad: reference [
 
 { #category : #'builder methods' }
 MbndAstBuilder >> reinterpretCast: expression to: targetType [
+	<compileTime>
+	<returnType: #_ASTNode>
 	^ MbndAstReinterpretCastNode new
 		expression: expression;
 		targetType: targetType;
@@ -345,12 +477,15 @@ MbndAstBuilder >> reinterpretCast: expression to: targetType [
 
 { #category : #'builder methods' }
 MbndAstBuilder >> return: expression [
+	<compileTime>
+	<returnType: #_ASTNode>
 	^ MbndAstReturnStatementNode new expression: expression
 ]
 
 { #category : #'builder methods' }
 MbndAstBuilder >> send: selector to: aReceiver withArguments: arguments [
 	<compileTime>
+	<returnType: #_ASTNode>
 	^ MbndAstExpandedMessageSendNode new
 		selector: selector;
 		receiver: aReceiver;
@@ -361,22 +496,29 @@ MbndAstBuilder >> send: selector to: aReceiver withArguments: arguments [
 
 { #category : #'builder methods' }
 MbndAstBuilder >> sequence: aSequenceOfNodes [
+	<compileTime>
+	<returnType: #_ASTNode>
 	^ self pragmas: #() sequence: aSequenceOfNodes
 ]
 
 { #category : #'builder methods' }
 MbndAstBuilder >> splice: expression [
+	<compileTime>
+	<returnType: #_ASTNode>
 	^ MbndAstSpliceNode new expression: expression
 ]
 
 { #category : #'builder methods' }
 MbndAstBuilder >> tuple: aSequenceOfNodes [
+	<compileTime>
+	<returnType: #_ASTNode>
 	^ MbndAstTupleNode new elements: aSequenceOfNodes; yourself
 ]
 
 { #category : #'builder methods' }
 MbndAstBuilder >> unexpandedSend: selector to: aReceiver withArguments: arguments [
 	<compileTime>
+	<returnType: #_ASTNode>
 	^ MbndAstUnexpandedMessageSendNode new
 		selector: selector;
 		receiver: aReceiver;
@@ -387,16 +529,22 @@ MbndAstBuilder >> unexpandedSend: selector to: aReceiver withArguments: argument
 
 { #category : #'builder methods' }
 MbndAstBuilder >> variableReference: binding [
+	<compileTime>
+	<returnType: #_ASTNode>
 	^ MbndAstVariableReference new binding: binding
 ]
 
 { #category : #'builder methods' }
 MbndAstBuilder >> while: condition do: action [
+	<compileTime>
+	<returnType: #_ASTNode>
 	^ self while: condition do: action continueWith: nil
 ]
 
 { #category : #'builder methods' }
 MbndAstBuilder >> while: condition do: action continueWith: continueAction [
+	<compileTime>
+	<returnType: #_ASTNode>
 	^ MbndAstWhileLoopNode new
 		condition: condition;
 		action: action;

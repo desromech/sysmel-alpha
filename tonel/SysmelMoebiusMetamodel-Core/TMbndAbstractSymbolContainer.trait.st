@@ -30,6 +30,11 @@ TMbndAbstractSymbolContainer >> createFunctionEntityForPrototype: functionProtot
 ]
 
 { #category : #'member symbols' }
+TMbndAbstractSymbolContainer >> ensureSymbolIsNamespace: namespaceName [
+	^ self ensureSymbolIsNamespace: namespaceName at: MbndSourcePosition empty
+]
+
+{ #category : #'member symbols' }
 TMbndAbstractSymbolContainer >> ensureSymbolIsNamespace: namespaceName at: position [
 	| namespace |
 	self canHaveNamespaces ifFalse: [

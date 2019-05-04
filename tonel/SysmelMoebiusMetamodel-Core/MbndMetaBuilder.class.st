@@ -7,7 +7,8 @@ Class {
 		'position',
 		'metaBuilderAnalyzer',
 		'metaBuilderScope',
-		'currentAnalyzer'
+		'currentAnalyzer',
+		'ownerProgramEntity'
 	],
 	#category : #'SysmelMoebiusMetamodel-Core-MetaBuilder'
 }
@@ -65,6 +66,25 @@ MbndMetaBuilder >> concretizeUnexpandedMessageSendNode: node thenAnalyzerWith: a
 		yourself)
 ]
 
+{ #category : #'as yet unclassified' }
+MbndMetaBuilder >> delegateToMetaBuilder: newMetaBuilder [
+	^ self delegateToMetaBuilder: newMetaBuilder withOwnerProgramEntity: ownerProgramEntity
+]
+
+{ #category : #'as yet unclassified' }
+MbndMetaBuilder >> delegateToMetaBuilder: newMetaBuilder withOwnerProgramEntity: newOwnerProgramEntity [
+	^ MbndAstMetaBuilderInstanceNode new
+		instance: (newMetaBuilder
+			position: position;
+			ownerProgramEntity: newOwnerProgramEntity;
+			metaBuilderAnalyzer: metaBuilderAnalyzer;
+			metaBuilderScope: metaBuilderScope;
+			yourself);
+		type: metaBuilderAnalyzer compilationTarget metaBuilderInstanceType;
+		position: position;
+		yourself
+]
+
 { #category : #'meta builder finalization' }
 MbndMetaBuilder >> finishMetaBuilding [
 	^ MbndMetaBuilderAbortException new signal
@@ -95,6 +115,16 @@ MbndMetaBuilder >> metaBuilderScope [
 { #category : #accessing }
 MbndMetaBuilder >> metaBuilderScope: anObject [
 	metaBuilderScope := anObject
+]
+
+{ #category : #accessing }
+MbndMetaBuilder >> ownerProgramEntity [
+	^ ownerProgramEntity
+]
+
+{ #category : #accessing }
+MbndMetaBuilder >> ownerProgramEntity: anObject [
+	ownerProgramEntity := anObject
 ]
 
 { #category : #accessing }

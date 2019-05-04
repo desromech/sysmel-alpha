@@ -369,6 +369,39 @@ MbndAstEvaluatorTest >> testNew [
 ]
 
 { #category : #running }
+MbndAstEvaluatorTest >> testQuasiQuoteLiteral [
+	| node literal value |
+	literal := builder literalInteger: 42.
+	node := builder quasiQuote: literal.
+	value := self analyzeAndEvaluateAST: node.
+	self assert: value type isASTNodeType.
+	self assert: value value equals: literal.
+
+]
+
+{ #category : #running }
+MbndAstEvaluatorTest >> testQuasiQuoteUnquoteQuoteLiteral [
+	| node literal value |
+	literal := builder literalInteger: 42.
+	node := builder quasiQuote: (builder quasiUnquote: (builder quote: literal)).
+	value := self analyzeAndEvaluateAST: node.
+	self assert: value type isASTNodeType.
+	self assert: value value equals: literal.
+
+]
+
+{ #category : #running }
+MbndAstEvaluatorTest >> testQuote [
+	| literal node value |
+	literal := builder literalInteger: 42.
+	node := builder quote: literal.
+	value := self analyzeAndEvaluateAST: node.
+	self assert: value type isASTNodeType.
+	self assert: value value equals: literal.
+
+]
+
+{ #category : #running }
 MbndAstEvaluatorTest >> testReturn [
 	| node |
 	node := builder return: (builder literalInteger: 42).

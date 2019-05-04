@@ -3,7 +3,8 @@ Class {
 	#superclass : #MbndAstStatementNode,
 	#instVars : [
 		'condition',
-		'action'
+		'action',
+		'continueAction'
 	],
 	#category : #'SysmelMoebiusMetamodel-Core-AST'
 }
@@ -31,6 +32,16 @@ MbndAstDoWhileLoopNode >> condition [
 { #category : #accessing }
 MbndAstDoWhileLoopNode >> condition: anObject [
 	condition := anObject
+]
+
+{ #category : #accessing }
+MbndAstDoWhileLoopNode >> continueAction [
+	^ continueAction
+]
+
+{ #category : #accessing }
+MbndAstDoWhileLoopNode >> continueAction: anObject [
+	continueAction := anObject
 ]
 
 { #category : #testing }

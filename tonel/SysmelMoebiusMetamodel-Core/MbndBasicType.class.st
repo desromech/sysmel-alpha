@@ -7,7 +7,8 @@ Class {
 	#traits : 'TMbndBasicType',
 	#classTraits : 'TMbndBasicType classTrait',
 	#instVars : [
-		'name'
+		'name',
+		'children'
 	],
 	#category : #'SysmelMoebiusMetamodel-Core-Type'
 }
@@ -15,6 +16,13 @@ Class {
 { #category : #accessing }
 MbndBasicType class >> typeName [
 	^ self == MbndBasicType ifTrue: [ #AnyValue ] ifFalse: [ nil ]
+]
+
+{ #category : #adding }
+MbndBasicType >> addChild: aChild [
+	self assert: aChild parent isNil.
+	aChild parent: self.
+	self children add: aChild.
 ]
 
 { #category : #'as yet unclassified' }
@@ -30,9 +38,14 @@ MbndBasicType >> analyzeExpandedMessageNode: node with: analyzer [
 
 ]
 
+{ #category : #adding }
+MbndBasicType >> children [
+	^ children ifNil: [ children := SLVMOrderedInsertionSet new ]
+]
+
 { #category : #accessing }
 MbndBasicType >> fullName [
-	^ name
+	^ name ifNil: [ ^ self printString ]
 ]
 
 { #category : #initialization }

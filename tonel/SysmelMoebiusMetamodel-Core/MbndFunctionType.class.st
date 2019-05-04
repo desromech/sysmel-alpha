@@ -106,3 +106,9 @@ MbndFunctionType >> returnType [
 MbndFunctionType >> returnType: anObject [
 	returnType := anObject
 ]
+
+{ #category : #'as yet unclassified' }
+MbndFunctionType >> withExplicitReceiverType: receiverType [
+	^ self compilationTarget functionTypeWithArguments: {receiverType} , argumentTypes returnType: returnType callingConvention: callingConvention cvariadic: cvariadic
+
+]

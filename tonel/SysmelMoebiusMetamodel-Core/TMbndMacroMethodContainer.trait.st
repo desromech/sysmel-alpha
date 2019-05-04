@@ -8,8 +8,20 @@ Trait {
 	#category : #'SysmelMoebiusMetamodel-Core-ProgramEntity'
 }
 
+{ #category : #adding }
+TMbndMacroMethodContainer >> addMacroMethod: macroMethod [
+	self macroMethodDict at: macroMethod selector put: macroMethod
+]
+
+{ #category : #'macro expansion' }
+TMbndMacroMethodContainer >> lookupLocalMacroSelector: aSelector [
+	macroMethodDict ifNil: [ ^ nil ].
+	^ self macroMethodDict at: aSelector ifAbsent: [ nil ].
+]
+
 { #category : #'macro expansion' }
 TMbndMacroMethodContainer >> lookupMacroSelector: aSelector [
+	macroMethodDict ifNil: [ ^ nil ].
 	^ self macroMethodDict at: aSelector ifAbsent: [ nil ].
 ]
 

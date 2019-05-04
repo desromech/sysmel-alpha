@@ -17,6 +17,13 @@ MbndCompilationTargetTest class >> isAbstract [
 ]
 
 { #category : #tests }
+MbndCompilationTargetTest >> testASTNodeType [
+	| type |
+	type := compilationTarget astNodeType.
+	self assert: type isASTNodeType.
+]
+
+{ #category : #tests }
 MbndCompilationTargetTest >> testAsCVariadicType [
 	self assert: compilationTarget literalBooleanType asCVariadicType equals: compilationTarget booleanType.
 	self assert: compilationTarget booleanType asCVariadicType equals: compilationTarget booleanType.
@@ -187,6 +194,19 @@ MbndCompilationTargetTest >> testInt8Type [
 ]
 
 { #category : #tests }
+MbndCompilationTargetTest >> testIntPointerType [
+	| type |
+	type := compilationTarget intPointerType.
+	self assert: type isPrimitiveType.
+	self assert: type isPrimitiveIntegerType.
+	self assert: type valueSize >= 4.
+	self assert: type isSigned.
+	self deny: type isUnsigned.
+	self assert: type defaultValue unwrapMbndValue equals: 0.
+	
+]
+
+{ #category : #tests }
 MbndCompilationTargetTest >> testLiteralFalseType [
 	self assert: compilationTarget literalBooleanFalseType isLiteralBooleanType.
 	self assert: compilationTarget literalBooleanFalseType isLiteralBooleanFalseType.
@@ -341,6 +361,19 @@ MbndCompilationTargetTest >> testUInt8Type [
 	self assert: type isPrimitiveType.
 	self assert: type isPrimitiveIntegerType.
 	self assert: type valueSize equals: 1.
+	self deny: type isSigned.
+	self assert: type isUnsigned.
+	self assert: type defaultValue unwrapMbndValue equals: 0.
+	
+]
+
+{ #category : #tests }
+MbndCompilationTargetTest >> testUIntPointerType [
+	| type |
+	type := compilationTarget uintPointerType.
+	self assert: type isPrimitiveType.
+	self assert: type isPrimitiveIntegerType.
+	self assert: type valueSize >= 4.
 	self deny: type isSigned.
 	self assert: type isUnsigned.
 	self assert: type defaultValue unwrapMbndValue equals: 0.

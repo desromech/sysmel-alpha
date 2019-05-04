@@ -379,6 +379,34 @@ MbndAstBuilderTest >> testLocalVariableDefinition [
 ]
 
 { #category : #tests }
+MbndAstBuilderTest >> testMacroMessageDefinitionNode [
+	| returnType definition prototype body |
+	returnType := builder identifier: #Int32.
+	prototype := builder messagePrototypeSelector: #zero arguments: #() returnType: returnType.
+	body := builder literalInteger: 0.
+	definition := builder macroMessagePrototype: prototype definitionBody: body.
+	self assert: definition isMacroMessageDefinitionNode.
+	self assert: definition prototype equals: prototype.
+	self assert: definition selector equals: #zero.
+	self assert: definition arguments equals: #().
+	self assert: definition returnType equals: returnType.
+]
+
+{ #category : #tests }
+MbndAstBuilderTest >> testMacroMessagePrototypeNode [
+	| arguments prototype |
+	arguments := { 
+		builder argument: #x type: nil.
+		builder argument: #y type: nil.
+	}.
+	prototype := builder macroMessagePrototypeSelector: #+ arguments: arguments returnType: nil.
+	self assert: prototype isMacroMessagePrototypeNode.
+	self assert: prototype selector equals: #+.
+	self assert: prototype arguments equals: arguments.
+	self assert: prototype returnType equals: nil.
+]
+
+{ #category : #tests }
 MbndAstBuilderTest >> testMessageChainMessageNode [
 	| node arguments selector |
 	arguments := { 

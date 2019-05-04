@@ -25,6 +25,7 @@ MbndNamespaceMetaBuilder >> concretizeNode: node withAnalyzer: analyzer [
 
 	^ analyzer visitNode: (MbndAstNamespaceDefinitionNode new
 		position: position;
+		ownerProgramEntity: ownerProgramEntity;
 		name: name;
 		body: bodyNode;
 		yourself)
