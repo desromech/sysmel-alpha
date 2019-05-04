@@ -1,16 +1,8 @@
-Compiler evaluateFileNamedOnce: "core-declarations.sysmel".
-
+loadFileOnce: "basic-traits.sysmel".
 loadFileOnce: "control-flow.sysmel".
-loadFileOnce: "basic-types.sysmel".
-loadFileOnce: "platform-specific-types.sysmel".
 loadFileOnce: "assembly.sysmel".
-loadFileOnce: "variables.sysmel".
-loadFileOnce: "arithmetic.sysmel".
-loadFileOnce: "boolean.sysmel".
-loadFileOnce: "conversions.sysmel".
+##loadFileOnce: "conversions.sysmel".
 
-loadFileOnce: "array.sysmel".
-loadFileOnce: "structures.sysmel".
-loadFileOnce: "pointer.sysmel".
-loadFileOnce: "atomic.sysmel".
+##loadFileOnce: "structures.sysmel".
+##loadFileOnce: "atomic.sysmel".
 loadFileOnce: "primitive-macros.sysmel".

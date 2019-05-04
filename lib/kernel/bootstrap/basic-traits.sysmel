@@ -1,0 +1,4 @@
+namespace SysmelKernel definition: {
+	## HACK: Until we reintroduce traits, properly.
+	compileTimeConstant BooleanType := BooleanBit.
+}.

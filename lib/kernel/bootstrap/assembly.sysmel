@@ -1,7 +1,8 @@
-namespace SysmelKernel definition: {
+#*namespace SysmelKernel definition: {
 macro expansionRule x86_gas: sourceCode
-    := (__apsgBuilder inlineAssemblyArch: #x86 language: #gas sourceCode: sourceCode)
+    := (__astBuilder inlineAssemblyArch: #x86 language: #gas sourceCode: sourceCode)
         position: sourceCode position;
         yourself.
 
 }. ## End of namespace SysmelKernel
+*#

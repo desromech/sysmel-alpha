@@ -11,38 +11,38 @@ namespace SysmelKernel definition: {
         ``(if: `,self then: `,trueAction else: `,falseAction).
 
     ## isNil
-    PointerType macro expansionRule isNil := ``(`,self == nil).
-    PointerType macro expansionRule isNotNil := ``(`,self ~~ nil).
+    _PointerType macro expansionRule isNil := ``(`,self == nil).
+    _PointerType macro expansionRule isNotNil := ``(`,self ~~ nil).
 
     ## ifNil:ifNotNil
     ## TODO: Add higienic symbols.
-    PointerType macro expansionRule ifNil: nilAction :=
+    _PointerType macro expansionRule ifNil: nilAction :=
         ``(if: `,self == nil then: `,nilAction).
-    PointerType macro expansionRule ifNotNil: notNilAction :=
+    _PointerType macro expansionRule ifNotNil: notNilAction :=
         ``(if: `,self ~~ nil then: `,notNilAction).
 
-    PointerType macro expansionRule ifNotNil: notNilAction ifNil: nilAction :=
+    _PointerType macro expansionRule ifNotNil: notNilAction ifNil: nilAction :=
         ``(if: `,self ~~ nil then: `,notNilAction else: `,nilAction).
-    PointerType macro expansionRule ifNil: nilAction ifNotNil: notNilAction :=
+    _PointerType macro expansionRule ifNil: nilAction ifNotNil: notNilAction :=
         ``(if: `,self == nil then: `,nilAction else: `,notNilAction).
 
 
     ## floorAlignedTo:
-    PrimitiveIntegerType macro expansionRule floorAlignedTo: alignment := ``(
+    _PrimitiveIntegerType macro expansionRule floorAlignedTo: alignment := ``(
         `,self & (`,alignment negated castTo: `,SelfType)
     ).
 
     ## alignedTo:
-    PrimitiveIntegerType macro expansionRule alignedTo: alignment := ``(
+    _PrimitiveIntegerType macro expansionRule alignedTo: alignment := ``(
         (`,self + `,alignment - 1) & (`,alignment negated castTo: `,SelfType)
     ).
 
     ## isAlignedTo:
-    PointerType macro expansionRule isAlignedTo: alignment :=
+    _PrimitiveIntegerType macro expansionRule isAlignedTo: alignment :=
         ``(((`,self reinterpretCastTo: UIntPointer) & (`,alignment - 1 castTo: UIntPointer)) == 0).
 
     ## Bitwise logarithm base 2
-    NumericalType macro expansionRule log2Floor :=
+    _PrimitiveIntegerType macro expansionRule log2Floor :=
         ``(`,self highBit - 1).
 
     #**
@@ -51,26 +51,26 @@ namespace SysmelKernel definition: {
      * => ceil(log2(n + 1)) = floor(log2(n)) + 1
      * => ceil(log2(n)) = floor(log2(n - 1)) + 1
      *#
-    NumericalType macro expansionRule log2Ceil :=
+    _PrimitiveIntegerType macro expansionRule log2Ceil :=
         ``((`,self - 1) log2Floor + 1).
 
     ## Bitwise manipulation.
-    IntegerType macro expansionRule bitClear: bits :=
+    _PrimitiveIntegerType macro expansionRule bitClear: bits :=
         ``(`,self & (`,bits bitInvert)).
 
-    IntegerType macro expansionRule allMask: mask :=
-        ``((`,self & `,mask) == `,bits).
+    _PrimitiveIntegerType macro expansionRule allMask: mask :=
+        ``((`,self & `,mask) == `,mask).
 
-    IntegerType macro expansionRule anyMask: mask :=
+    _PrimitiveIntegerType macro expansionRule anyMask: mask :=
         ``((`,self & `,mask) ~~ 0).
 
-    IntegerType macro expansionRule noMask: mask :=
+    _PrimitiveIntegerType macro expansionRule noMask: mask :=
         ``((`,self & `,mask) == 0).
 
     ## Some numerical testing methods.
-    IntegerType macro expansionRule isEven :=
+    _PrimitiveIntegerType macro expansionRule isEven :=
         ``((`,self & 1) == 0).
-    IntegerType macro expansionRule isOdd :=
+    _PrimitiveIntegerType macro expansionRule isOdd :=
         ``((`,self & 1) == 1).
 
     ## Compile time if.
@@ -81,10 +81,10 @@ namespace SysmelKernel definition: {
         := condition ifTrue: thenNode ifFalse: elseNode.
 
     ## Range loop macro
-    IntegerType macro expansionRule to: stop by: increment do: aBlock := {
-        let index := __apsgBuilder gensym: #index.
-        let stopValue := __apsgBuilder gensym: #stopValue.
-        let incrementValue := __apsgBuilder gensym: #incrementValue.
+#*    _PrimitiveIntegerType macro expansionRule to: stop by: increment do: aBlock := {
+        let index := __astBuilder gensym: #index.
+        let stopValue := __astBuilder gensym: #stopValue.
+        let incrementValue := __astBuilder gensym: #incrementValue.
 
         aBlock isBlockClosure && aBlock arguments size = 1 ifTrue: {
             let indexType := aBlock arguments first typeExpression.
@@ -111,9 +111,9 @@ namespace SysmelKernel definition: {
         }
     }.
 
-    IntegerType macro expansionRule to: stop do: aBlock := ``(`,self to: `,stop by: 1 do: `,aBlock).
+    _PrimitiveIntegerType macro expansionRule to: stop do: aBlock := ``(`,self to: `,stop by: 1 do: `,aBlock).
 
-    IntegerType macro expansionRule until: stop by: increment do: aBlock := {
+    _PrimitiveIntegerType macro expansionRule until: stop by: increment do: aBlock := {
         let index := __apsgBuilder gensym: #index.
         let stopValue := __apsgBuilder gensym: #stopValue.
         let incrementValue := __apsgBuilder gensym: #incrementValue.
@@ -142,7 +142,7 @@ namespace SysmelKernel definition: {
             }
         }
     }.
-
-    IntegerType macro expansionRule until: stop do: aBlock := ``(`,self until: `,stop by: 1 do: `,aBlock).
+*#
+    _PrimitiveIntegerType macro expansionRule until: stop do: aBlock := ``(`,self until: `,stop by: 1 do: `,aBlock).
 
 }.
