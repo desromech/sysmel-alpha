@@ -1,5 +1,5 @@
 Class {
-	#name : #MbndAbstractCompilationTarget,
+	#name : #MbndAbstractConcreteCompilationTarget,
 	#superclass : #Object,
 	#traits : 'TMbndCoreCompilationTarget',
 	#classTraits : 'TMbndCoreCompilationTarget classTrait',
@@ -7,6 +7,6 @@ Class {
 }
 
 { #category : #accessing }
-MbndAbstractCompilationTarget >> pointerSize [
+MbndAbstractConcreteCompilationTarget >> pointerSize [
 	self subclassResponsibility
 ]

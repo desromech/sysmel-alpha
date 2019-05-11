@@ -64,24 +64,14 @@ MbndAstSemanticAnalyzer >> analyzeNonConcreteNodeIfNeeded: node [
 
 { #category : #coercing }
 MbndAstSemanticAnalyzer >> arithmeticCoercionTypeFor: leftType with: rightType at: position [
-	leftType == rightType ifTrue: [ ^ leftType ].
-	(leftType isReferenceType or:
-	[ leftType isDecorationType or:
-	[ rightType isReferenceType or:
-	[ rightType isDecorationType ]]]) ifTrue: [
-		^ self arithmeticCoercionTypeFor: leftType withoutReferences withoutDecorations
-			with: rightType withoutReferences withoutDecorations at: position
+	| coercionType |
+	coercionType := leftType arithmeticCoercionWith: rightType.
+	coercionType ifNil: [ 
+		self error: 'Cannot compute arithmetic coercion type with values of type {1} and type {2}.'
+			format: { leftType printString . rightType printString } at: position
 	].
-
-	self halt
-]
-
-{ #category : #coercing }
-MbndAstSemanticAnalyzer >> arithmeticCoercionTypeOrVoidFor: leftType with: rightType at: node [
-	leftType isVoidType ifTrue: [ ^ leftType ].
-	rightType isVoidType ifTrue: [ ^ rightType ].
 	
-	^ self arithmeticCoercionTypeFor: leftType with: rightType at: node
+	^ coercionType
 ]
 
 { #category : #accessing }
@@ -92,6 +82,12 @@ MbndAstSemanticAnalyzer >> astBuilder [
 { #category : #accessing }
 MbndAstSemanticAnalyzer >> compilationTarget [
 	^ compilationTarget ifNil: [ compilationTarget := module compilationTarget ]
+]
+
+{ #category : #coercing }
+MbndAstSemanticAnalyzer >> conditionalResultCoercionTypeFor: leftType with: rightType at: node [
+	^ leftType conditionalResultCoercionTypeWith: rightType
+
 ]
 
 { #category : #'implicit casting' }
@@ -452,7 +448,7 @@ MbndAstSemanticAnalyzer >> visitIfConditionNode: node [
 		trueValue: (self analyzeNodeIfNeeded: result trueValue);
 		falseValue: (self analyzeNodeIfNeeded: result falseValue).
 
-	resultCoercionType := self arithmeticCoercionTypeOrVoidFor: result trueValue type
+	resultCoercionType := self conditionalResultCoercionTypeFor: result trueValue type
 		with: result falseValue type at: result.
 	resultCoercionType isVoidType ifFalse: [
 		result

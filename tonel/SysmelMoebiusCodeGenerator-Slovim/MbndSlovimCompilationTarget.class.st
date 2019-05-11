@@ -1,6 +1,6 @@
 Class {
 	#name : #MbndSlovimCompilationTarget,
-	#superclass : #MbndAbstractCompilationTarget,
+	#superclass : #MbndAbstractConcreteCompilationTarget,
 	#instVars : [
 		'slvmCompilationTarget'
 	],

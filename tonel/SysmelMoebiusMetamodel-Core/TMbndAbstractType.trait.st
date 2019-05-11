@@ -125,6 +125,11 @@ TMbndAbstractType >> analyzeUnexpandedMessageSendNode: node with: analyzer [
 	^ analyzer visitNode: node asExpandedMessageSend
 ]
 
+{ #category : #'as yet unclassified' }
+TMbndAbstractType >> arithmeticCoercionWith: rightType [
+	^ self compilationTarget computeArithmeticCoercionTypeFor: self with: rightType
+]
+
 { #category : #converting }
 TMbndAbstractType >> asCVariadicType [
 	^ self asCVariadicTypeRequiredAt: MbndSourcePosition new
@@ -168,6 +173,11 @@ TMbndAbstractType >> buildTypeConversionChainUntil: targetType fromVisitedTypes:
 	previousRule ifNil: [ ^ rule ].
 	
 	^ previousRule intermediateConversion: previousType chainedWith: rule
+]
+
+{ #category : #'as yet unclassified' }
+TMbndAbstractType >> conditionalResultCoercionTypeWith:rightType [
+	^ self compilationTarget computeConditionalResultCoercionTypeFor: self with: rightType
 ]
 
 { #category : #'type composition' }

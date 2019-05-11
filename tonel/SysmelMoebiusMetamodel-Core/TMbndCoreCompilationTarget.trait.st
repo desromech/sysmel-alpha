@@ -6,8 +6,11 @@ Trait {
 		'pointerTypes',
 		'referenceTypes',
 		'functionTypes',
-		'decoratedTypes'
+		'decoratedTypes',
+		'arithmeticCoercionTable'
 	],
+	#traits : 'TMbndAbstractCompilationTarget',
+	#classTraits : 'TMbndAbstractCompilationTarget classTrait',
 	#category : #'SysmelMoebiusMetamodel-Core-CompilationTarget'
 }
 
@@ -47,19 +50,27 @@ TMbndCoreCompilationTarget >> addBasicType: basicType [
 	^ basicType
 ]
 
-{ #category : #'convenience type accessors' }
-TMbndCoreCompilationTarget >> astNodeType [
-	^ self getBasicTypeNamed: MbndASTNodeType typeName
+{ #category : #coercing }
+TMbndCoreCompilationTarget >> computeArithmeticCoercionTypeFor: leftType with: rightType [
+	(leftType isReferenceType or:
+	[ leftType isDecorationType or:
+	[ rightType isReferenceType or:
+	[ rightType isDecorationType ]]]) ifTrue: [
+		^ self computeArithmeticCoercionTypeFor: leftType withoutReferences withoutDecorations with: rightType withoutReferences withoutDecorations
+	].
+
+	arithmeticCoercionTable at: { leftType .  rightType} ifPresent: [ :found | ^ found  ].
+	leftType == rightType ifTrue: [ ^ leftType ].
+	^ nil
 ]
 
-{ #category : #'convenience type accessors' }
-TMbndCoreCompilationTarget >> booleanType [
-	^ self getBasicTypeNamed: #BooleanBit
-]
+{ #category : #coercing }
+TMbndCoreCompilationTarget >> computeConditionalResultCoercionTypeFor: leftType with: rightType [
+	leftType isVoidType ifTrue: [ ^ leftType ].
+	rightType isVoidType ifTrue: [ ^ rightType ].
+	leftType == rightType ifTrue: [ ^ leftType ].
 
-{ #category : #'convenience type accessors' }
-TMbndCoreCompilationTarget >> compilerObjectType [
-	^ self getBasicTypeNamed: MbndCompilerObjectType typeName
+	^ self computeArithmeticCoercionTypeFor: leftType with: rightType
 ]
 
 { #category : #accessing }
@@ -70,16 +81,6 @@ TMbndCoreCompilationTarget >> coreDefinitionsModule [
 { #category : #accessing }
 TMbndCoreCompilationTarget >> coreDefinitionsModule: anObject [
 	coreDefinitionsModule := anObject
-]
-
-{ #category : #'convenience type accessors' }
-TMbndCoreCompilationTarget >> cstringLiteralType [
-	^ self uint8Type const pointer
-]
-
-{ #category : #'calling conventions' }
-TMbndCoreCompilationTarget >> defaultCallingConvention [
-	^ #cdecl
 ]
 
 { #category : #'basic types' }
@@ -108,36 +109,6 @@ TMbndCoreCompilationTarget >> ensureTypeHasSimpleMetaType: type [
 		yourself)
 ]
 
-{ #category : #'convenience type accessors' }
-TMbndCoreCompilationTarget >> float16Type [
-	^ self getBasicTypeNamed: #Float16
-]
-
-{ #category : #'convenience type accessors' }
-TMbndCoreCompilationTarget >> float32Type [
-	^ self getBasicTypeNamed: #Float32
-]
-
-{ #category : #accessing }
-TMbndCoreCompilationTarget >> float64Alignment [
-	^ self explicitRequirement
-]
-
-{ #category : #'convenience type accessors' }
-TMbndCoreCompilationTarget >> float64Type [
-	^ self getBasicTypeNamed: #Float64
-]
-
-{ #category : #'derived types' }
-TMbndCoreCompilationTarget >> functionTypeWithArguments: argumentTypes returnType: returnType [
-	^ self functionTypeWithArguments: argumentTypes returnType: returnType callingConvention: self defaultCallingConvention
-]
-
-{ #category : #'derived types' }
-TMbndCoreCompilationTarget >> functionTypeWithArguments: argumentTypes returnType: returnType callingConvention: callingConvention [
-	^ self functionTypeWithArguments: argumentTypes returnType: returnType callingConvention: callingConvention cvariadic: false
-]
-
 { #category : #'derived types' }
 TMbndCoreCompilationTarget >> functionTypeWithArguments: argumentTypes returnType: returnType callingConvention: callingConvention cvariadic: cvariadic [
 	^ functionTypes at: { argumentTypes . returnType . callingConvention . cvariadic} ifAbsentPut: [
@@ -154,17 +125,112 @@ TMbndCoreCompilationTarget >> functionTypeWithArguments: argumentTypes returnTyp
 	]
 ]
 
-{ #category : #'derived types' }
-TMbndCoreCompilationTarget >> functionTypeWithArguments: argumentTypes returnType: returnType cvariadic: cvariadic [
-	^ self functionTypeWithArguments: argumentTypes returnType: returnType callingConvention: self defaultCallingConvention cvariadic: cvariadic
-]
-
 { #category : #accessing }
 TMbndCoreCompilationTarget >> getBasicTypeNamed: typeName [
 	^ basicTypes at: typeName
 ]
 
-{ #category : #'basic types' }
+{ #category : #initialization }
+TMbndCoreCompilationTarget >> initializeArithmeticCoercionTable [
+	| left right coercionType |
+	arithmeticCoercionTable := Dictionary new.
+	
+	#(
+		"Small integer. Operate alwas as Int32"
+		(Int8 Int8 Int32)
+		(UInt8 UInt8 Int32)
+		(Int8 UInt8 Int32)
+
+		(Int16 Int16 Int32)
+		(UInt16 UInt16 Int32)
+		(Int16 UInt16 Int32)
+
+		(Int8 Int16 Int32)	
+		(Int8 UInt16 Int32)
+		(UInt8 Int16 Int32)
+		(UInt8 UInt16 Int32)
+		
+		"Integer coercions."
+		(Int8 Int32 Int32)
+		(Int16 Int32 Int32)
+		(UInt8 Int32 Int32)
+		(UInt16 Int32 Int32)
+
+		(UInt8 UInt32 UInt32)
+		(UInt16 UInt32 UInt32)
+
+		(Int8 Int64 Int64)
+		(Int16 Int64 Int64)
+		(Int32 Int64 Int64)
+		(UInt8 Int64 Int64)
+		(UInt16 Int64 Int64)
+		(UInt32 Int64 Int64)
+
+		(UInt8 UInt64 UInt64)
+		(UInt16 UInt64 UInt64)
+		(UInt32 UInt64 UInt64)
+		
+		"Larger integers."
+		(Int32 Int32 Int32)
+		(UInt32 UInt32 UInt32)
+		(Int64 Int64 Int64)
+		(UInt64 UInt64 UInt64)
+
+		(Int32 UInt32 Int64)
+
+		(UInt64 Int64 nil)
+
+		"Integer float16."
+		(Int8 Float16 Float16)
+		(UInt8 Float16 Float16)
+		(Int16 Float16 Float16)
+		(UInt16 Float16 Float16)
+		(Int32 Float16 nil)
+		(UInt32 Float16 nil)
+		(Int64 Float16 nil)
+		(UInt64 Float16 nil)
+		
+		"Integer float32."
+		(Int8 Float32 Float32)
+		(UInt8 Float32 Float32)
+		(Int16 Float32 Float32)
+		(UInt16 Float32 Float32)
+		(Int32 Float32 Float32)
+		(UInt32 Float32 Float32)
+		(Int64 Float32 nil)
+		(UInt64 Float32 nil)
+
+		"Integer float64."
+		(Int8 Float64 Float64)
+		(UInt8 Float64 Float64)
+		(Int16 Float64 Float64)
+		(UInt16 Float64 Float64)
+		(Int32 Float64 Float64)
+		(UInt32 Float64 Float64)
+		(Int64 Float64 Float64)
+		(UInt64 Float64 Float64)
+		
+		"Float float."
+		(Float16 Float16 Float16)
+		(Float32 Float32 Float32)
+		(Float64 Float64 Float64)
+
+		(Float16 Float32 Float32)
+		(Float16 Float64 Float64)
+
+		(Float32 Float64 Float64)
+		
+	) do: [ :coercionRule |
+		left := self getBasicTypeNamed: coercionRule first.
+		right := self getBasicTypeNamed: coercionRule second.
+		coercionType := coercionRule third ifNotNil: [:typeName | self getBasicTypeNamed: typeName].
+		
+		arithmeticCoercionTable at: { left . right } put: coercionType.
+		arithmeticCoercionTable at: { right . left } put: coercionType.
+	].
+]
+
+{ #category : #initialization }
 TMbndCoreCompilationTarget >> initializeBasicTypes [
 	| basicType | 
 	basicTypes := Dictionary new.
@@ -212,7 +278,7 @@ TMbndCoreCompilationTarget >> initializeBasicTypes [
 
 ]
 
-{ #category : #'basic types' }
+{ #category : #initialization }
 TMbndCoreCompilationTarget >> initializeDerivedTypeCaches [
 	pointerTypes := WeakValueDictionary new.
 	referenceTypes := WeakValueDictionary new.
@@ -220,54 +286,15 @@ TMbndCoreCompilationTarget >> initializeDerivedTypeCaches [
 	decoratedTypes := WeakValueDictionary new.
 ]
 
-{ #category : #'basic types' }
+{ #category : #initialization }
 TMbndCoreCompilationTarget >> initializeTypeSystem [
 	self
 		initializeDerivedTypeCaches;
-		initializeBasicTypes
+		initializeBasicTypes;
+		initializeArithmeticCoercionTable
 ]
 
-{ #category : #'convenience type accessors' }
-TMbndCoreCompilationTarget >> int16Type [
-	^ self getBasicTypeNamed: #Int16
-]
-
-{ #category : #'convenience type accessors' }
-TMbndCoreCompilationTarget >> int32Type [
-	^ self getBasicTypeNamed: #Int32
-]
-
-{ #category : #accessing }
-TMbndCoreCompilationTarget >> int64Alignment [
-	^ self explicitRequirement
-]
-
-{ #category : #'convenience type accessors' }
-TMbndCoreCompilationTarget >> int64Type [
-	^ self getBasicTypeNamed: #Int64
-]
-
-{ #category : #'convenience type accessors' }
-TMbndCoreCompilationTarget >> int8Type [
-	^ self getBasicTypeNamed: #Int8
-]
-
-{ #category : #'convenience type accessors' }
-TMbndCoreCompilationTarget >> intPointerType [
-	^ self getBasicTypeNamed: #IntPointer
-]
-
-{ #category : #'platform testing' }
-TMbndCoreCompilationTarget >> isUnix [
-	^ false
-]
-
-{ #category : #'platform testing' }
-TMbndCoreCompilationTarget >> isWin32 [
-	^ false
-]
-
-{ #category : #'basic types' }
+{ #category : #initialization }
 TMbndCoreCompilationTarget >> linkMetaHierarchy [
 	| simpleMetaType |
 	simpleMetaType := basicTypes at: MbndSimpleMetaType typeName.
@@ -302,65 +329,15 @@ TMbndCoreCompilationTarget >> linkMetaHierarchy [
 	]
 ]
 
-{ #category : #'convenience type accessors' }
-TMbndCoreCompilationTarget >> literalBooleanFalseType [
-	^ self getBasicTypeNamed: #_LiteralBooleanFalse
-]
-
-{ #category : #'convenience type accessors' }
-TMbndCoreCompilationTarget >> literalBooleanTrueType [
-	^ self getBasicTypeNamed: #_LiteralBooleanTrue
-]
-
-{ #category : #'convenience type accessors' }
-TMbndCoreCompilationTarget >> literalBooleanType [
-	^ self getBasicTypeNamed: #_LiteralBoolean
-]
-
-{ #category : #'convenience type accessors' }
-TMbndCoreCompilationTarget >> literalFloatType [
-	^ self getBasicTypeNamed: #_LiteralFloat
-]
-
-{ #category : #'convenience type accessors' }
-TMbndCoreCompilationTarget >> literalIntegerType [
-	^ self getBasicTypeNamed: #_LiteralInteger
-]
-
-{ #category : #'convenience type accessors' }
-TMbndCoreCompilationTarget >> literalStringType [
-	^ self getBasicTypeNamed: #_LiteralString
-]
-
-{ #category : #'convenience type accessors' }
-TMbndCoreCompilationTarget >> literalSymbolType [
-	^ self getBasicTypeNamed: #_LiteralSymbol
-]
-
 { #category : #'builder methods' }
 TMbndCoreCompilationTarget >> lookupTypeWithName: typeName [
 	^ basicTypes at: typeName ifAbsent: [ nil ]
 
 ]
 
-{ #category : #'convenience type accessors' }
-TMbndCoreCompilationTarget >> metaBuilderInstanceType [
-	^ self getBasicTypeNamed: MbndMetaBuilderInstanceType typeName
-]
-
-{ #category : #'convenience type accessors' }
-TMbndCoreCompilationTarget >> namespaceType [
-	^ self getBasicTypeNamed: MbndNamespaceType typeName
-]
-
 { #category : #'instance creation' }
 TMbndCoreCompilationTarget >> newCodeModuleGenerator [
 	self explicitRequirement
-]
-
-{ #category : #'convenience type accessors' }
-TMbndCoreCompilationTarget >> opaqueType [
-	^ self getBasicTypeNamed: MbndOpaqueType typeName
 ]
 
 { #category : #'derived types' }
@@ -375,11 +352,6 @@ TMbndCoreCompilationTarget >> pointerFor: addressSpace to: baseType [
 		self ensureBasicTypeIsLinkedToTheHierarchy: result.
 		result
 	]
-]
-
-{ #category : #'derived types' }
-TMbndCoreCompilationTarget >> pointerTo: baseType [
-	^ self pointerFor: MbndPointerLikeType genericAddressSpace to: baseType
 ]
 
 { #category : #'derived types' }
@@ -398,21 +370,6 @@ TMbndCoreCompilationTarget >> referenceFor: addressSpace to: baseType [
 ]
 
 { #category : #'derived types' }
-TMbndCoreCompilationTarget >> referenceTo: baseType [
-	^ self referenceFor: MbndPointerLikeType genericAddressSpace to: baseType
-]
-
-{ #category : #'convenience type accessors' }
-TMbndCoreCompilationTarget >> returnType [
-	^ self getBasicTypeNamed: #_ReturnType
-]
-
-{ #category : #'convenience type accessors' }
-TMbndCoreCompilationTarget >> simpleMetaType [
-	^ self getBasicTypeNamed: MbndSimpleMetaType typeName
-]
-
-{ #category : #'derived types' }
 TMbndCoreCompilationTarget >> type: baseType withDecorations: decorations [
 	^ decoratedTypes at: { baseType . decorations } ifAbsentPut: [
 		| result |
@@ -425,39 +382,4 @@ TMbndCoreCompilationTarget >> type: baseType withDecorations: decorations [
 		self ensureBasicTypeIsLinkedToTheHierarchy: result.
 		result
 	]
-]
-
-{ #category : #'convenience type accessors' }
-TMbndCoreCompilationTarget >> uint16Type [
-	^ self getBasicTypeNamed: #UInt16
-]
-
-{ #category : #'convenience type accessors' }
-TMbndCoreCompilationTarget >> uint32Type [
-	^ self getBasicTypeNamed: #UInt32
-]
-
-{ #category : #'convenience type accessors' }
-TMbndCoreCompilationTarget >> uint64Type [
-	^ self getBasicTypeNamed: #UInt64
-]
-
-{ #category : #'convenience type accessors' }
-TMbndCoreCompilationTarget >> uint8Type [
-	^ self getBasicTypeNamed: #UInt8
-]
-
-{ #category : #'convenience type accessors' }
-TMbndCoreCompilationTarget >> uintPointerType [
-	^ self getBasicTypeNamed: #UIntPointer
-]
-
-{ #category : #'convenience type accessors' }
-TMbndCoreCompilationTarget >> undefinedType [
-	^ self getBasicTypeNamed: MbndUndefinedType typeName
-]
-
-{ #category : #'convenience type accessors' }
-TMbndCoreCompilationTarget >> voidType [
-	^ self getBasicTypeNamed: MbndVoidType typeName
 ]

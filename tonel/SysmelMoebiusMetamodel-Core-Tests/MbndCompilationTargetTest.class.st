@@ -16,14 +16,14 @@ MbndCompilationTargetTest class >> isAbstract [
 	^ self == MbndCompilationTargetTest
 ]
 
-{ #category : #tests }
+{ #category : #'basic types' }
 MbndCompilationTargetTest >> testASTNodeType [
 	| type |
 	type := compilationTarget astNodeType.
 	self assert: type isASTNodeType.
 ]
 
-{ #category : #tests }
+{ #category : #'basic types' }
 MbndCompilationTargetTest >> testAsCVariadicType [
 	self assert: compilationTarget literalBooleanType asCVariadicType equals: compilationTarget booleanType.
 	self assert: compilationTarget booleanType asCVariadicType equals: compilationTarget booleanType.
@@ -51,7 +51,7 @@ MbndCompilationTargetTest >> testAsCVariadicType [
 	self should: [compilationTarget voidType asCVariadicType] raise: Error.
 ]
 
-{ #category : #tests }
+{ #category : #'basic types' }
 MbndCompilationTargetTest >> testAsPointerType [
 	| type baseType |
 	baseType := compilationTarget uint8Type.
@@ -62,7 +62,7 @@ MbndCompilationTargetTest >> testAsPointerType [
 
 ]
 
-{ #category : #tests }
+{ #category : #'basic types' }
 MbndCompilationTargetTest >> testAsReferenceType [
 	| type baseType |
 	baseType := compilationTarget uint8Type.
@@ -73,7 +73,7 @@ MbndCompilationTargetTest >> testAsReferenceType [
 
 ]
 
-{ #category : #tests }
+{ #category : #'basic types' }
 MbndCompilationTargetTest >> testBooleanType [
 	| type |
 	type := compilationTarget booleanType.
@@ -83,7 +83,7 @@ MbndCompilationTargetTest >> testBooleanType [
 	self assert: type defaultValue unwrapMbndValue equals: false.
 ]
 
-{ #category : #tests }
+{ #category : #'basic types' }
 MbndCompilationTargetTest >> testCStringLiteralType [
 	| type |
 	type := compilationTarget cstringLiteralType.
@@ -93,13 +93,13 @@ MbndCompilationTargetTest >> testCStringLiteralType [
 	self assert: type baseType baseType instanceSize equals: 1.
 ]
 
-{ #category : #tests }
+{ #category : #'basic types' }
 MbndCompilationTargetTest >> testCompilerObjectType [
 	self assert: compilationTarget compilerObjectType isOpaqueType.
 	self assert: compilationTarget compilerObjectType isCompilerObjectType.
 ]
 
-{ #category : #tests }
+{ #category : #'basic types' }
 MbndCompilationTargetTest >> testFloat16Type [
 	| type |
 	type := compilationTarget float16Type.
@@ -109,7 +109,7 @@ MbndCompilationTargetTest >> testFloat16Type [
 	self assert: type defaultValue unwrapMbndValue equals: 0.0.
 ]
 
-{ #category : #tests }
+{ #category : #'basic types' }
 MbndCompilationTargetTest >> testFloat32Type [
 	| type |
 	type := compilationTarget float32Type.
@@ -119,7 +119,7 @@ MbndCompilationTargetTest >> testFloat32Type [
 	self assert: type defaultValue unwrapMbndValue equals: 0.0.
 ]
 
-{ #category : #tests }
+{ #category : #'basic types' }
 MbndCompilationTargetTest >> testFloat64Type [
 	| type |
 	type := compilationTarget float64Type.
@@ -129,7 +129,32 @@ MbndCompilationTargetTest >> testFloat64Type [
 	self assert: type defaultValue unwrapMbndValue equals: 0.0.
 ]
 
-{ #category : #tests }
+{ #category : #coercing }
+MbndCompilationTargetTest >> testFloatCoercions [
+	| float16Type float32Type float64Type |
+	float16Type := compilationTarget float16Type.
+	float32Type := compilationTarget float32Type.
+	float64Type := compilationTarget float64Type.
+
+	"Identity"
+	self assert: (float16Type arithmeticCoercionWith: float16Type) equals: float16Type.
+	self assert: (float32Type arithmeticCoercionWith: float32Type) equals: float32Type.
+	self assert: (float64Type arithmeticCoercionWith: float64Type) equals: float64Type.
+
+	"Float16"
+	self assert: (float16Type arithmeticCoercionWith: float32Type) equals: float32Type.
+	self assert: (float16Type arithmeticCoercionWith: float64Type) equals: float64Type.
+	
+	self assert: (float32Type arithmeticCoercionWith: float16Type) equals: float32Type.
+	self assert: (float64Type arithmeticCoercionWith: float16Type) equals: float64Type.
+	
+	"Float32"
+	self assert: (float32Type arithmeticCoercionWith: float64Type) equals: float64Type.
+	self assert: (float64Type arithmeticCoercionWith: float32Type) equals: float64Type.
+
+]
+
+{ #category : #'basic types' }
 MbndCompilationTargetTest >> testFunctionType [
 	| type argumentTypes returnType |
 	argumentTypes := {compilationTarget uint8Type . compilationTarget float32Type}.
@@ -141,7 +166,7 @@ MbndCompilationTargetTest >> testFunctionType [
 	self assert: type returnType equals: returnType.
 ]
 
-{ #category : #tests }
+{ #category : #'basic types' }
 MbndCompilationTargetTest >> testInt16Type [
 	| type |
 	type := compilationTarget int16Type.
@@ -154,7 +179,7 @@ MbndCompilationTargetTest >> testInt16Type [
 	
 ]
 
-{ #category : #tests }
+{ #category : #'basic types' }
 MbndCompilationTargetTest >> testInt32Type [
 	| type |
 	type := compilationTarget int32Type.
@@ -167,7 +192,7 @@ MbndCompilationTargetTest >> testInt32Type [
 	
 ]
 
-{ #category : #tests }
+{ #category : #'basic types' }
 MbndCompilationTargetTest >> testInt64Type [
 	| type |
 	type := compilationTarget int64Type.
@@ -180,7 +205,7 @@ MbndCompilationTargetTest >> testInt64Type [
 	
 ]
 
-{ #category : #tests }
+{ #category : #'basic types' }
 MbndCompilationTargetTest >> testInt8Type [
 	| type |
 	type := compilationTarget int8Type.
@@ -193,7 +218,7 @@ MbndCompilationTargetTest >> testInt8Type [
 	
 ]
 
-{ #category : #tests }
+{ #category : #'basic types' }
 MbndCompilationTargetTest >> testIntPointerType [
 	| type |
 	type := compilationTarget intPointerType.
@@ -206,7 +231,164 @@ MbndCompilationTargetTest >> testIntPointerType [
 	
 ]
 
-{ #category : #tests }
+{ #category : #coercing }
+MbndCompilationTargetTest >> testIntegerCoercions [
+	| int8Type uint8Type int16Type uint16Type  int32Type uint32Type int64Type uint64Type |
+	int8Type := compilationTarget int8Type.
+	uint8Type := compilationTarget uint8Type.
+	int16Type := compilationTarget int16Type.
+	uint16Type := compilationTarget uint16Type.
+	int32Type := compilationTarget int32Type.
+	uint32Type := compilationTarget uint32Type.
+	int64Type := compilationTarget int64Type.
+	uint64Type := compilationTarget uint64Type.
+
+	"With Int32"
+	self assert: (int8Type arithmeticCoercionWith: int32Type) equals: int32Type.
+	self assert: (int16Type arithmeticCoercionWith: int32Type) equals: int32Type.	
+	self assert: (uint8Type arithmeticCoercionWith: int32Type) equals: int32Type.
+	self assert: (uint16Type arithmeticCoercionWith: int32Type) equals: int32Type.	
+
+	self assert: (int32Type arithmeticCoercionWith: int8Type) equals: int32Type.
+	self assert: (int32Type arithmeticCoercionWith: int16Type) equals: int32Type.	
+	self assert: (int32Type arithmeticCoercionWith: uint8Type) equals: int32Type.
+	self assert: (int32Type arithmeticCoercionWith: uint16Type) equals: int32Type.	
+
+	"With UInt32"
+	self assert: (uint8Type arithmeticCoercionWith: uint32Type) equals: uint32Type.
+	self assert: (uint16Type arithmeticCoercionWith: uint32Type) equals: uint32Type.	
+
+	self assert: (uint32Type arithmeticCoercionWith: uint8Type) equals: uint32Type.
+	self assert: (uint32Type arithmeticCoercionWith: uint16Type) equals: uint32Type.	
+
+	"With Int64"
+	self assert: (int8Type arithmeticCoercionWith: int64Type) equals: int64Type.
+	self assert: (int16Type arithmeticCoercionWith: int64Type) equals: int64Type.	
+	self assert: (int32Type arithmeticCoercionWith: int64Type) equals: int64Type.	
+	self assert: (uint8Type arithmeticCoercionWith: int64Type) equals: int64Type.
+	self assert: (uint16Type arithmeticCoercionWith: int64Type) equals: int64Type.
+	self assert: (uint32Type arithmeticCoercionWith: int64Type) equals: int64Type.
+
+	self assert: (int64Type arithmeticCoercionWith: int8Type) equals: int64Type.
+	self assert: (int64Type arithmeticCoercionWith: int16Type) equals: int64Type.	
+	self assert: (int64Type arithmeticCoercionWith: int32Type) equals: int64Type.	
+	self assert: (int64Type arithmeticCoercionWith: uint8Type) equals: int64Type.
+	self assert: (int64Type arithmeticCoercionWith: uint16Type) equals: int64Type.
+	self assert: (int64Type arithmeticCoercionWith: uint32Type) equals: int64Type.
+
+	"With UInt64"
+	self assert: (uint8Type arithmeticCoercionWith: uint64Type) equals: uint64Type.
+	self assert: (uint16Type arithmeticCoercionWith: uint64Type) equals: uint64Type.	
+	self assert: (uint32Type arithmeticCoercionWith: uint64Type) equals: uint64Type.	
+
+	self assert: (uint64Type arithmeticCoercionWith: uint8Type) equals: uint64Type.
+	self assert: (uint64Type arithmeticCoercionWith: uint16Type) equals: uint64Type.	
+	self assert: (uint64Type arithmeticCoercionWith: uint32Type) equals: uint64Type.	
+
+]
+
+{ #category : #coercing }
+MbndCompilationTargetTest >> testIntegerFloatCoercions [
+	| int8Type uint8Type int16Type uint16Type int32Type uint32Type int64Type uint64Type float16Type float32Type float64Type |
+	int8Type := compilationTarget int8Type.
+	uint8Type := compilationTarget uint8Type.
+	int16Type := compilationTarget int16Type.
+	uint16Type := compilationTarget uint16Type.
+	int32Type := compilationTarget int32Type.
+	uint32Type := compilationTarget uint32Type.
+	int64Type := compilationTarget int64Type.
+	uint64Type := compilationTarget uint64Type.
+	float16Type := compilationTarget float16Type.
+	float32Type := compilationTarget float32Type.
+	float64Type := compilationTarget float64Type.
+
+	"Float16"
+	self assert: (uint8Type arithmeticCoercionWith: float16Type) equals: float16Type.
+	self assert: (int8Type arithmeticCoercionWith: float16Type) equals: float16Type.
+	self assert: (uint16Type arithmeticCoercionWith: float16Type) equals: float16Type.
+	self assert: (int16Type arithmeticCoercionWith: float16Type) equals: float16Type.
+	self assert: (uint32Type arithmeticCoercionWith: float16Type) equals: nil.
+	self assert: (int32Type arithmeticCoercionWith: float16Type) equals: nil.
+	self assert: (uint64Type arithmeticCoercionWith: float16Type) equals: nil.
+	self assert: (int64Type arithmeticCoercionWith: float16Type) equals: nil.
+
+	self assert: (float16Type arithmeticCoercionWith: uint8Type) equals: float16Type.
+	self assert: (float16Type arithmeticCoercionWith: int8Type) equals: float16Type.
+	self assert: (float16Type arithmeticCoercionWith: uint16Type) equals: float16Type.
+	self assert: (float16Type arithmeticCoercionWith: int16Type) equals: float16Type.
+	self assert: (float16Type arithmeticCoercionWith: uint32Type) equals: nil.
+	self assert: (float16Type arithmeticCoercionWith: int32Type) equals: nil.
+	self assert: (float16Type arithmeticCoercionWith: uint64Type) equals: nil.
+	self assert: (float16Type arithmeticCoercionWith: int64Type) equals: nil.
+
+	"Float32"
+	self assert: (uint8Type arithmeticCoercionWith: float32Type) equals: float32Type.
+	self assert: (int8Type arithmeticCoercionWith: float32Type) equals: float32Type.
+	self assert: (uint16Type arithmeticCoercionWith: float32Type) equals: float32Type.
+	self assert: (int16Type arithmeticCoercionWith: float32Type) equals: float32Type.
+	self assert: (uint32Type arithmeticCoercionWith: float32Type) equals: float32Type.
+	self assert: (int32Type arithmeticCoercionWith: float32Type) equals: float32Type.
+	self assert: (uint64Type arithmeticCoercionWith: float32Type) equals: nil.
+	self assert: (int64Type arithmeticCoercionWith: float32Type) equals: nil.
+
+	self assert: (float32Type arithmeticCoercionWith: uint8Type) equals: float32Type.
+	self assert: (float32Type arithmeticCoercionWith: int8Type) equals: float32Type.
+	self assert: (float32Type arithmeticCoercionWith: uint16Type) equals: float32Type.
+	self assert: (float32Type arithmeticCoercionWith: int16Type) equals: float32Type.
+	self assert: (float32Type arithmeticCoercionWith: uint32Type) equals: float32Type.
+	self assert: (float32Type arithmeticCoercionWith: int32Type) equals: float32Type.
+	self assert: (float32Type arithmeticCoercionWith: uint64Type) equals: nil.
+	self assert: (float32Type arithmeticCoercionWith: int64Type) equals: nil.
+
+	"Float64"
+	self assert: (uint8Type arithmeticCoercionWith: float64Type) equals: float64Type.
+	self assert: (int8Type arithmeticCoercionWith: float64Type) equals: float64Type.
+	self assert: (uint16Type arithmeticCoercionWith: float64Type) equals: float64Type.
+	self assert: (int16Type arithmeticCoercionWith: float64Type) equals: float64Type.
+	self assert: (uint32Type arithmeticCoercionWith: float64Type) equals: float64Type.
+	self assert: (int32Type arithmeticCoercionWith: float64Type) equals: float64Type.
+	self assert: (uint64Type arithmeticCoercionWith: float64Type) equals: float64Type.
+	self assert: (int64Type arithmeticCoercionWith: float64Type) equals: float64Type.
+
+	self assert: (float64Type arithmeticCoercionWith: uint8Type) equals: float64Type.
+	self assert: (float64Type arithmeticCoercionWith: int8Type) equals: float64Type.
+	self assert: (float64Type arithmeticCoercionWith: uint16Type) equals: float64Type.
+	self assert: (float64Type arithmeticCoercionWith: int16Type) equals: float64Type.
+	self assert: (float64Type arithmeticCoercionWith: uint32Type) equals: float64Type.
+	self assert: (float64Type arithmeticCoercionWith: int32Type) equals: float64Type.
+	self assert: (float64Type arithmeticCoercionWith: uint64Type) equals: float64Type.
+	self assert: (float64Type arithmeticCoercionWith: int64Type) equals: float64Type.
+
+]
+
+{ #category : #coercing }
+MbndCompilationTargetTest >> testLargerIntegerCoercions [
+	| int32Type uint32Type int64Type uint64Type |
+	int32Type := compilationTarget int32Type.
+	uint32Type := compilationTarget uint32Type.
+	int64Type := compilationTarget int64Type.
+	uint64Type := compilationTarget uint64Type.
+
+	"Signed/unsigned coercions."
+	self assert: (int32Type arithmeticCoercionWith: int32Type) equals: int32Type.
+	self assert: (uint32Type arithmeticCoercionWith: uint32Type) equals: uint32Type.
+
+	self assert: (int64Type arithmeticCoercionWith: int64Type) equals: int64Type.
+	self assert: (uint64Type arithmeticCoercionWith: uint64Type) equals: uint64Type.
+
+	self assert: (int32Type arithmeticCoercionWith: uint32Type) equals: int64Type.
+	self assert: (uint32Type arithmeticCoercionWith: int32Type) equals: int64Type.
+
+	self assert: (uint32Type arithmeticCoercionWith: int32Type) equals: int64Type.
+	self assert: (int32Type arithmeticCoercionWith: uint32Type) equals: int64Type.
+
+	"Dangerous implicit coercion."
+	self assert: (uint64Type arithmeticCoercionWith: int64Type) equals: nil.
+	self assert: (int64Type arithmeticCoercionWith: uint64Type) equals: nil.
+
+]
+
+{ #category : #'basic types' }
 MbndCompilationTargetTest >> testLiteralFalseType [
 	self assert: compilationTarget literalBooleanFalseType isLiteralBooleanType.
 	self assert: compilationTarget literalBooleanFalseType isLiteralBooleanFalseType.
@@ -215,7 +397,7 @@ MbndCompilationTargetTest >> testLiteralFalseType [
 	
 ]
 
-{ #category : #tests }
+{ #category : #'basic types' }
 MbndCompilationTargetTest >> testLiteralFloatType [
 	self assert: compilationTarget literalFloatType isLiteralFloatType.
 	self assert: (42.0 mbndLiteralTypeWithTarget: compilationTarget) equals: compilationTarget literalFloatType.
@@ -223,7 +405,7 @@ MbndCompilationTargetTest >> testLiteralFloatType [
 	
 ]
 
-{ #category : #tests }
+{ #category : #'basic types' }
 MbndCompilationTargetTest >> testLiteralIntegerType [
 	self assert: compilationTarget literalIntegerType isLiteralIntegerType.
 	self assert: (42 mbndLiteralTypeWithTarget: compilationTarget) equals: compilationTarget literalIntegerType.
@@ -231,7 +413,7 @@ MbndCompilationTargetTest >> testLiteralIntegerType [
 	
 ]
 
-{ #category : #tests }
+{ #category : #'basic types' }
 MbndCompilationTargetTest >> testLiteralStringType [
 	self assert: compilationTarget literalStringType isLiteralStringType.
 	self assert: ('string' mbndLiteralTypeWithTarget: compilationTarget) equals: compilationTarget literalStringType.
@@ -239,7 +421,7 @@ MbndCompilationTargetTest >> testLiteralStringType [
 	
 ]
 
-{ #category : #tests }
+{ #category : #'basic types' }
 MbndCompilationTargetTest >> testLiteralSymbolType [
 	self assert: compilationTarget literalSymbolType isLiteralSymbolType.
 	self assert: (#symbol mbndLiteralTypeWithTarget: compilationTarget) equals: compilationTarget literalSymbolType.
@@ -247,7 +429,7 @@ MbndCompilationTargetTest >> testLiteralSymbolType [
 	
 ]
 
-{ #category : #tests }
+{ #category : #'basic types' }
 MbndCompilationTargetTest >> testLiteralTrueType [
 	self assert: compilationTarget literalBooleanTrueType isLiteralBooleanType.
 	self assert: compilationTarget literalBooleanTrueType isLiteralBooleanTrueType.
@@ -255,34 +437,34 @@ MbndCompilationTargetTest >> testLiteralTrueType [
 	
 ]
 
-{ #category : #tests }
+{ #category : #'basic types' }
 MbndCompilationTargetTest >> testMetaBuilderInstanceType [
 	self assert: compilationTarget metaBuilderInstanceType isMetaBuilderInstanceType.
 ]
 
-{ #category : #tests }
+{ #category : #'basic types' }
 MbndCompilationTargetTest >> testMetaType [
 	self assert: compilationTarget voidType type isMetaType.
 	self assert: compilationTarget voidType type instanceType equals: compilationTarget voidType.
 ]
 
-{ #category : #tests }
+{ #category : #'basic types' }
 MbndCompilationTargetTest >> testNew [
 	
 ]
 
-{ #category : #tests }
+{ #category : #'basic types' }
 MbndCompilationTargetTest >> testOpaqueType [
 	self assert: compilationTarget opaqueType isOpaqueType.
 	
 ]
 
-{ #category : #tests }
+{ #category : #'basic types' }
 MbndCompilationTargetTest >> testPointerSize [
 	self assert: compilationTarget pointerSize isInteger.
 ]
 
-{ #category : #tests }
+{ #category : #'basic types' }
 MbndCompilationTargetTest >> testPointerType [
 	| type baseType |
 	baseType := compilationTarget uint8Type.
@@ -295,7 +477,7 @@ MbndCompilationTargetTest >> testPointerType [
 
 ]
 
-{ #category : #tests }
+{ #category : #'basic types' }
 MbndCompilationTargetTest >> testReferenceType [
 	| type baseType |
 	baseType := compilationTarget uint8Type.
@@ -307,7 +489,7 @@ MbndCompilationTargetTest >> testReferenceType [
 
 ]
 
-{ #category : #tests }
+{ #category : #'basic types' }
 MbndCompilationTargetTest >> testReturnType [
 	self assert: compilationTarget returnType isOpaqueType.
 	self assert: compilationTarget returnType isVoidType.
@@ -315,7 +497,40 @@ MbndCompilationTargetTest >> testReturnType [
 	
 ]
 
-{ #category : #tests }
+{ #category : #coercing }
+MbndCompilationTargetTest >> testSmallIntegerCoercions [
+	| int8Type uint8Type int16Type uint16Type int32Type|
+	int8Type := compilationTarget int8Type.
+	uint8Type := compilationTarget uint8Type.
+	int16Type := compilationTarget int16Type.
+	uint16Type := compilationTarget uint16Type.
+	int32Type := compilationTarget int32Type.
+
+	self assert: (int8Type arithmeticCoercionWith: int8Type) equals: int32Type.
+	self assert: (uint8Type arithmeticCoercionWith: uint8Type) equals: int32Type.
+	self assert: (int8Type arithmeticCoercionWith: uint8Type) equals: int32Type.
+	self assert: (uint8Type arithmeticCoercionWith: int8Type) equals: int32Type.
+
+	self assert: (int16Type arithmeticCoercionWith: int16Type) equals: int32Type.
+	self assert: (uint16Type arithmeticCoercionWith: uint16Type) equals: int32Type.
+	self assert: (int16Type arithmeticCoercionWith: uint16Type) equals: int32Type.
+	self assert: (int16Type arithmeticCoercionWith: uint16Type) equals: int32Type.
+	
+	self assert: (int8Type arithmeticCoercionWith: int16Type) equals: int32Type.
+	self assert: (uint8Type arithmeticCoercionWith: int16Type) equals: int32Type.
+	self assert: (int8Type arithmeticCoercionWith: uint16Type) equals: int32Type.
+	self assert: (uint8Type arithmeticCoercionWith: uint16Type) equals: int32Type.
+
+	self assert: (int16Type arithmeticCoercionWith: int8Type) equals: int32Type.
+	self assert: (int16Type arithmeticCoercionWith: uint8Type) equals: int32Type.
+	self assert: (uint16Type arithmeticCoercionWith: int8Type) equals: int32Type.
+	self assert: (uint16Type arithmeticCoercionWith: uint8Type) equals: int32Type.
+
+	self assert: (uint16Type arithmeticCoercionWith: int16Type) equals: int32Type.
+	self assert: (int16Type arithmeticCoercionWith: uint16Type) equals: int32Type.
+]
+
+{ #category : #'basic types' }
 MbndCompilationTargetTest >> testUInt16Type [
 	| type |
 	type := compilationTarget uint16Type.
@@ -328,7 +543,7 @@ MbndCompilationTargetTest >> testUInt16Type [
 	
 ]
 
-{ #category : #tests }
+{ #category : #'basic types' }
 MbndCompilationTargetTest >> testUInt32Type [
 	| type |
 	type := compilationTarget uint32Type.
@@ -341,7 +556,7 @@ MbndCompilationTargetTest >> testUInt32Type [
 	
 ]
 
-{ #category : #tests }
+{ #category : #'basic types' }
 MbndCompilationTargetTest >> testUInt64Type [
 	| type |
 	type := compilationTarget uint64Type.
@@ -354,7 +569,7 @@ MbndCompilationTargetTest >> testUInt64Type [
 	
 ]
 
-{ #category : #tests }
+{ #category : #'basic types' }
 MbndCompilationTargetTest >> testUInt8Type [
 	| type |
 	type := compilationTarget uint8Type.
@@ -367,7 +582,7 @@ MbndCompilationTargetTest >> testUInt8Type [
 	
 ]
 
-{ #category : #tests }
+{ #category : #'basic types' }
 MbndCompilationTargetTest >> testUIntPointerType [
 	| type |
 	type := compilationTarget uintPointerType.
@@ -380,7 +595,7 @@ MbndCompilationTargetTest >> testUIntPointerType [
 	
 ]
 
-{ #category : #tests }
+{ #category : #'basic types' }
 MbndCompilationTargetTest >> testUndefinedType [
 	self assert: compilationTarget undefinedType isOpaqueType.
 	self assert: compilationTarget undefinedType isUndefinedType.
@@ -388,7 +603,7 @@ MbndCompilationTargetTest >> testUndefinedType [
 	
 ]
 
-{ #category : #tests }
+{ #category : #'basic types' }
 MbndCompilationTargetTest >> testVoidType [
 	self assert: compilationTarget voidType isOpaqueType.
 	self assert: compilationTarget voidType isVoidType.

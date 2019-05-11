@@ -1,6 +1,6 @@
 Class {
 	#name : #MbndDummyCompilationTarget,
-	#superclass : #MbndAbstractCompilationTarget,
+	#superclass : #MbndAbstractConcreteCompilationTarget,
 	#category : #'SysmelMoebiusMetamodel-Core-CompilationTarget'
 }
 
