@@ -28,6 +28,11 @@ MbndAstDelegationVisitor >> visitAssignmentNode: node [
 ]
 
 { #category : #visiting }
+MbndAstDelegationVisitor >> visitBitCastNode: node [
+	^ self delegateNodeVisit: node
+]
+
+{ #category : #visiting }
 MbndAstDelegationVisitor >> visitBreakStatementNode: node [
 	^ self delegateNodeVisit: node
 ]
@@ -73,6 +78,16 @@ MbndAstDelegationVisitor >> visitExplicitCastNode: node [
 ]
 
 { #category : #visiting }
+MbndAstDelegationVisitor >> visitFloatingPointSizeCastNode: node [
+	^ self delegateNodeVisit: node
+]
+
+{ #category : #visiting }
+MbndAstDelegationVisitor >> visitFloatingPointToIntegerCastNode: node [
+	^ self delegateNodeVisit: node
+]
+
+{ #category : #visiting }
 MbndAstDelegationVisitor >> visitFunctionCallNode: node [
 	^ self delegateNodeVisit: node
 ]
@@ -99,6 +114,11 @@ MbndAstDelegationVisitor >> visitIfConditionNode: node [
 
 { #category : #visiting }
 MbndAstDelegationVisitor >> visitImplicitCastNode: node [
+	^ self delegateNodeVisit: node
+]
+
+{ #category : #visiting }
+MbndAstDelegationVisitor >> visitIntegerToFloatingPointCastNode: node [
 	^ self delegateNodeVisit: node
 ]
 
@@ -208,7 +228,17 @@ MbndAstDelegationVisitor >> visitSequenceNode: node [
 ]
 
 { #category : #visiting }
+MbndAstDelegationVisitor >> visitSignExtensionCastNode: node [
+	^ self delegateNodeVisit: node
+]
+
+{ #category : #visiting }
 MbndAstDelegationVisitor >> visitSpliceNode: node [
+	^ self delegateNodeVisit: node
+]
+
+{ #category : #visiting }
+MbndAstDelegationVisitor >> visitTruncateCastNode: node [
 	^ self delegateNodeVisit: node
 ]
 
@@ -229,5 +259,10 @@ MbndAstDelegationVisitor >> visitVariableReferenceNode: node [
 
 { #category : #visiting }
 MbndAstDelegationVisitor >> visitWhileLoopNode: node [
+	^ self delegateNodeVisit: node
+]
+
+{ #category : #visiting }
+MbndAstDelegationVisitor >> visitZeroExtensionCastNode: node [
 	^ self delegateNodeVisit: node
 ]

@@ -30,6 +30,11 @@ MbndAstNode >> initialize [
 ]
 
 { #category : #testing }
+MbndAstNode >> isAbstractCastNode [
+	^ false
+]
+
+{ #category : #testing }
 MbndAstNode >> isArgumentDefinitionNode [
 	^ false
 ]
@@ -41,6 +46,11 @@ MbndAstNode >> isArrayElementReferenceNode [
 
 { #category : #testing }
 MbndAstNode >> isAssignmentNode [
+	^ false
+]
+
+{ #category : #testing }
+MbndAstNode >> isBitCastNode [
 	^ false
 ]
 
@@ -70,11 +80,6 @@ MbndAstNode >> isCasesOfNode [
 ]
 
 { #category : #testing }
-MbndAstNode >> isCastNode [
-	^ false
-]
-
-{ #category : #testing }
 MbndAstNode >> isCompileTimeConstantDefinitionNode [
 	^ false
 ]
@@ -100,6 +105,16 @@ MbndAstNode >> isExplicitCastNode [
 ]
 
 { #category : #testing }
+MbndAstNode >> isFloatingPointSizeCastNode [
+	^ false
+]
+
+{ #category : #testing }
+MbndAstNode >> isFloatingPointToIntegerCastNode [
+	^ false
+]
+
+{ #category : #testing }
 MbndAstNode >> isFunctionCallNode [
 	^ false
 ]
@@ -115,6 +130,11 @@ MbndAstNode >> isFunctionPrototypeNode [
 ]
 
 { #category : #testing }
+MbndAstNode >> isGenericCastNode [
+	^ false
+]
+
+{ #category : #testing }
 MbndAstNode >> isIdentifierReferenceNode [
 	^ false
 ]
@@ -126,6 +146,11 @@ MbndAstNode >> isIfConditionNode [
 
 { #category : #testing }
 MbndAstNode >> isImplicitCastNode [
+	^ false
+]
+
+{ #category : #testing }
+MbndAstNode >> isIntegerToFloatingPointCastNode [
 	^ false
 ]
 
@@ -201,6 +226,11 @@ MbndAstNode >> isNamespaceDefinitionNode [
 ]
 
 { #category : #testing }
+MbndAstNode >> isNumericalCastNode [
+	^ false
+]
+
+{ #category : #testing }
 MbndAstNode >> isPointerElementReferenceNode [
 	^ false
 ]
@@ -246,6 +276,16 @@ MbndAstNode >> isSequenceNode [
 ]
 
 { #category : #testing }
+MbndAstNode >> isSignExtensionCastNode [
+	^ false
+]
+
+{ #category : #testing }
+MbndAstNode >> isSpecificCastNode [
+	^ false
+]
+
+{ #category : #testing }
 MbndAstNode >> isSpliceNode [
 	^ false
 ]
@@ -257,6 +297,11 @@ MbndAstNode >> isStatementNode [
 
 { #category : #testing }
 MbndAstNode >> isSubscriptElementReferenceNode [
+	^ false
+]
+
+{ #category : #testing }
+MbndAstNode >> isTruncateCastNode [
 	^ false
 ]
 
@@ -278,6 +323,11 @@ MbndAstNode >> isVariableReferenceNode [
 
 { #category : #testing }
 MbndAstNode >> isWhileLoopNode [
+	^ false
+]
+
+{ #category : #testing }
+MbndAstNode >> isZeroExtensionCastNode [
 	^ false
 ]
 

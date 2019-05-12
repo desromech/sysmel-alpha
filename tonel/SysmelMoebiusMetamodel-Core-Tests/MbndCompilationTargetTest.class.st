@@ -604,6 +604,15 @@ MbndCompilationTargetTest >> testUndefinedType [
 ]
 
 { #category : #'basic types' }
+MbndCompilationTargetTest >> testVariantUnionType [
+	| type |
+	type := compilationTarget uint8Type | compilationTarget uint16Type.
+	self assert: type isVariantUnionType.
+	self assert: (type components includes: compilationTarget uint8Type).
+	self assert: (type components includes: compilationTarget uint16Type).
+]
+
+{ #category : #'basic types' }
 MbndCompilationTargetTest >> testVoidType [
 	self assert: compilationTarget voidType isOpaqueType.
 	self assert: compilationTarget voidType isVoidType.

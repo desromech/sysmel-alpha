@@ -52,6 +52,20 @@ MbndAstBuilderTest >> testAssignmentExpression [
 ]
 
 { #category : #tests }
+MbndAstBuilderTest >> testBitCastNode [
+	| expression node  targetType |
+	expression := builder identifier: #x.
+	targetType := builder identifier: #Int32.
+	node := builder bitCast: expression to: targetType.
+	self assert: node isAbstractCastNode.
+	self assert: node isSpecificCastNode.
+	self assert: node isNumericalCastNode.
+	self assert: node isBitCastNode.
+	self assert: node expression equals: expression.
+	self assert: node targetType equals: targetType.
+]
+
+{ #category : #tests }
 MbndAstBuilderTest >> testBreakStatementNode [
 	| node |
 	node := builder breakStatement.
@@ -153,6 +167,34 @@ MbndAstBuilderTest >> testExplicitCast [
 ]
 
 { #category : #tests }
+MbndAstBuilderTest >> testFloatingPointSizeCastNode [
+	| expression node  targetType |
+	expression := builder identifier: #x.
+	targetType := builder identifier: #Int32.
+	node := builder floatingPointSize: expression to: targetType.
+	self assert: node isAbstractCastNode.
+	self assert: node isSpecificCastNode.
+	self assert: node isNumericalCastNode.
+	self assert: node isFloatingPointSizeCastNode.
+	self assert: node expression equals: expression.
+	self assert: node targetType equals: targetType.
+]
+
+{ #category : #tests }
+MbndAstBuilderTest >> testFloatingPointToIntegerCastNode [
+	| expression node  targetType |
+	expression := builder identifier: #x.
+	targetType := builder identifier: #Int32.
+	node := builder floatingPoint: expression toInteger: targetType.
+	self assert: node isAbstractCastNode.
+	self assert: node isSpecificCastNode.
+	self assert: node isNumericalCastNode.
+	self assert: node isFloatingPointToIntegerCastNode.
+	self assert: node expression equals: expression.
+	self assert: node targetType equals: targetType.
+]
+
+{ #category : #tests }
 MbndAstBuilderTest >> testFunctionCallNode [
 	| node function arguments |
 	function := builder identifier: #sqrt.
@@ -238,6 +280,20 @@ MbndAstBuilderTest >> testImplicitCast [
 	node := builder implicitCast: value to: targetType.
 	self assert: node isImplicitCastNode.
 	self assert: node expression equals: value.
+	self assert: node targetType equals: targetType.
+]
+
+{ #category : #tests }
+MbndAstBuilderTest >> testIntegerToFloatingPointCastNode [
+	| expression node  targetType |
+	expression := builder identifier: #x.
+	targetType := builder identifier: #Int32.
+	node := builder integer: expression toFloatingPoint: targetType.
+	self assert: node isAbstractCastNode.
+	self assert: node isSpecificCastNode.
+	self assert: node isNumericalCastNode.
+	self assert: node isIntegerToFloatingPointCastNode.
+	self assert: node expression equals: expression.
 	self assert: node targetType equals: targetType.
 ]
 
@@ -618,6 +674,20 @@ MbndAstBuilderTest >> testSequenceWithPragmaNode [
 ]
 
 { #category : #tests }
+MbndAstBuilderTest >> testSignExtensionCastNode [
+	| expression node  targetType |
+	expression := builder identifier: #x.
+	targetType := builder identifier: #Int32.
+	node := builder signExtend: expression to: targetType.
+	self assert: node isAbstractCastNode.
+	self assert: node isSpecificCastNode.
+	self assert: node isNumericalCastNode.
+	self assert: node isSignExtensionCastNode.
+	self assert: node expression equals: expression.
+	self assert: node targetType equals: targetType.
+]
+
+{ #category : #tests }
 MbndAstBuilderTest >> testSpliceNode [
 	| node expression |
 	expression := builder literalInteger: 1.
@@ -625,6 +695,20 @@ MbndAstBuilderTest >> testSpliceNode [
 
 	self assert: node isSpliceNode.
 	self assert: node expression equals: expression.
+]
+
+{ #category : #tests }
+MbndAstBuilderTest >> testTruncateCastNode [
+	| expression node  targetType |
+	expression := builder identifier: #x.
+	targetType := builder identifier: #Int32.
+	node := builder truncate: expression to: targetType.
+	self assert: node isAbstractCastNode.
+	self assert: node isSpecificCastNode.
+	self assert: node isNumericalCastNode.
+	self assert: node isTruncateCastNode.
+	self assert: node expression equals: expression.
+	self assert: node targetType equals: targetType.
 ]
 
 { #category : #tests }
@@ -681,4 +765,18 @@ MbndAstBuilderTest >> testWhileLoopNode [
 	self assert: node action equals: action.
 	self assert: node continueAction equals: continueAction.
 	
+]
+
+{ #category : #tests }
+MbndAstBuilderTest >> testZeroExtensionCastNode [
+	| expression node  targetType |
+	expression := builder identifier: #x.
+	targetType := builder identifier: #Int32.
+	node := builder zeroExtend: expression to: targetType.
+	self assert: node isAbstractCastNode.
+	self assert: node isSpecificCastNode.
+	self assert: node isNumericalCastNode.
+	self assert: node isZeroExtensionCastNode.
+	self assert: node expression equals: expression.
+	self assert: node targetType equals: targetType.
 ]

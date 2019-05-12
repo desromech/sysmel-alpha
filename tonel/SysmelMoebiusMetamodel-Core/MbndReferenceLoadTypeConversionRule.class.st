@@ -5,7 +5,7 @@ Class {
 }
 
 { #category : #'as yet unclassified' }
-MbndReferenceLoadTypeConversionRule >> postProcessCastNode: node [
+MbndReferenceLoadTypeConversionRule >> postProcessCastNode: node withAnalyzer: analyzer [
 	^ MbndAstReferenceLoadNode new
 		position: node position;
 		reference: node expression;

@@ -58,8 +58,11 @@ MbndChainedTypeConversionRule >> nextRule: anObject [
 ]
 
 { #category : #'as yet unclassified' }
-MbndChainedTypeConversionRule >> postProcessCastNode: node [
+MbndChainedTypeConversionRule >> postProcessCastNode: node withAnalyzer: analyzer [
 	| intermediateCast nextCast |
+
+	"Split the cast node in two nodes."
+	self halt.
 	"Apply the intermediate cast."
 	intermediateCast := node copy
 		typeConversionRule: intermediateRule;

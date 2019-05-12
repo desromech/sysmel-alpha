@@ -18,7 +18,7 @@ MbndIdentityTypeConversionRule >> coercionCost [
 ]
 
 { #category : #'as yet unclassified' }
-MbndIdentityTypeConversionRule >> postProcessCastNode: node [
+MbndIdentityTypeConversionRule >> postProcessCastNode: node withAnalyzer: analyzer [
 	node expression isLiteralValueNode ifTrue: [ 
 		^ node expression copy
 			type: node targetType;

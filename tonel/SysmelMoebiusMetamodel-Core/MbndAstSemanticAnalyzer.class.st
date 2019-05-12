@@ -334,7 +334,7 @@ MbndAstSemanticAnalyzer >> visitExplicitCastNode: node [
 	result
 		typeConversionRule: conversionRule;
 		type: result targetType.
-	^ conversionRule postProcessCastNode: result.
+	^ conversionRule postProcessCastNode: result withAnalyzer: self.
 ]
 
 { #category : #visiting }
@@ -476,7 +476,7 @@ MbndAstSemanticAnalyzer >> visitImplicitCastNode: node [
 	result
 		typeConversionRule: conversionRule;
 		type: result targetType.
-	^ conversionRule postProcessCastNode: result.
+	^ conversionRule postProcessCastNode: result withAnalyzer: self.
 ]
 
 { #category : #visiting }
@@ -776,6 +776,18 @@ MbndAstSemanticAnalyzer >> visitSequenceNode: node [
 		result elements at: result elements size put: (self ensureLiteralIsConcreted: result elements last).
 		result type: result elements last type
 	].
+	^ result
+]
+
+{ #category : #visiting }
+MbndAstSemanticAnalyzer >> visitSpecificCastNode: node [
+	| result |
+	result := node copy
+		expression: (self analyzeNodeIfNeeded: node expression);
+		targetType: (self evaluateTypeExpression: node targetType);
+		yourself.
+	result type: result targetType.
+	self flag: 'TODO: Add validation checks.'.
 	^ result
 ]
 

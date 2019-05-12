@@ -53,7 +53,7 @@ MbndAbstractTypeConversionRule >> isTypeKindConversion [
 ]
 
 { #category : #'as yet unclassified' }
-MbndAbstractTypeConversionRule >> postProcessCastNode: node [
+MbndAbstractTypeConversionRule >> postProcessCastNode: node withAnalyzer: analyzer [
 	^ node
 ]
 

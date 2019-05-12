@@ -58,6 +58,19 @@ MbndAstTransformVisitorTest >> testAssignmentExpression [
 ]
 
 { #category : #tests }
+MbndAstTransformVisitorTest >> testBitCastNode [
+	| expression node targetType transformedNode |
+	expression := builder identifier: #x.
+	targetType := builder identifier: #Int32.
+	node := builder bitCast: expression to: targetType.
+	transformedNode := visitor visitNode: node.
+	self assert: transformedNode ~~ node.
+	self assert: transformedNode isBitCastNode.
+	self assert: transformedNode expression equals: expression.
+	self assert: transformedNode targetType equals: targetType.
+]
+
+{ #category : #tests }
 MbndAstTransformVisitorTest >> testBreakStatement [
 	| node transformedNode |
 	node := builder breakStatement.
@@ -171,6 +184,32 @@ MbndAstTransformVisitorTest >> testExplicitCast [
 ]
 
 { #category : #tests }
+MbndAstTransformVisitorTest >> testFloatingPointSizeCastNode [
+	| expression node targetType transformedNode |
+	expression := builder identifier: #x.
+	targetType := builder identifier: #Int32.
+	node := builder floatingPointSize: expression to: targetType.
+	transformedNode := visitor visitNode: node.
+	self assert: transformedNode ~~ node.
+	self assert: transformedNode isFloatingPointSizeCastNode.
+	self assert: transformedNode expression equals: expression.
+	self assert: transformedNode targetType equals: targetType.
+]
+
+{ #category : #tests }
+MbndAstTransformVisitorTest >> testFloatingPointToIntegerCastNode [
+	| expression node targetType transformedNode |
+	expression := builder identifier: #x.
+	targetType := builder identifier: #Int32.
+	node := builder floatingPoint: expression toInteger: targetType.
+	transformedNode := visitor visitNode: node.
+	self assert: transformedNode ~~ node.
+	self assert: transformedNode isFloatingPointToIntegerCastNode.
+	self assert: transformedNode expression equals: expression.
+	self assert: transformedNode targetType equals: targetType.
+]
+
+{ #category : #tests }
 MbndAstTransformVisitorTest >> testFunctionCallNode [
 	| node transformedNode function arguments |
 	function := builder identifier: #sqrt.
@@ -263,6 +302,19 @@ MbndAstTransformVisitorTest >> testImplicitCast [
 	self assert: transformedNode expression equals: value.
 	self assert: transformedNode targetType equals: targetType.
 
+]
+
+{ #category : #tests }
+MbndAstTransformVisitorTest >> testIntegerToFloatingPointCastNode [
+	| expression node targetType transformedNode |
+	expression := builder identifier: #x.
+	targetType := builder identifier: #Int32.
+	node := builder integer: expression toFloatingPoint: targetType.
+	transformedNode := visitor visitNode: node.
+	self assert: transformedNode ~~ node.
+	self assert: transformedNode isIntegerToFloatingPointCastNode.
+	self assert: transformedNode expression equals: expression.
+	self assert: transformedNode targetType equals: targetType.
 ]
 
 { #category : #tests }
@@ -562,6 +614,19 @@ MbndAstTransformVisitorTest >> testSequenceNode [
 ]
 
 { #category : #tests }
+MbndAstTransformVisitorTest >> testSignExtensionCastNode [
+	| expression node targetType transformedNode |
+	expression := builder identifier: #x.
+	targetType := builder identifier: #Int32.
+	node := builder signExtend: expression to: targetType.
+	transformedNode := visitor visitNode: node.
+	self assert: transformedNode ~~ node.
+	self assert: transformedNode isSignExtensionCastNode.
+	self assert: transformedNode expression equals: expression.
+	self assert: transformedNode targetType equals: targetType.
+]
+
+{ #category : #tests }
 MbndAstTransformVisitorTest >> testSpliceNode [
 	| node transformedNode expression |
 	expression := builder literalInteger: 1.
@@ -569,6 +634,19 @@ MbndAstTransformVisitorTest >> testSpliceNode [
 	transformedNode := visitor visitNode: node.
 	self assert: transformedNode ~~ node.
 	self assert: transformedNode expression equals: expression.
+]
+
+{ #category : #tests }
+MbndAstTransformVisitorTest >> testTruncateCastNode [
+	| expression node targetType transformedNode |
+	expression := builder identifier: #x.
+	targetType := builder identifier: #Int32.
+	node := builder truncate: expression to: targetType.
+	transformedNode := visitor visitNode: node.
+	self assert: transformedNode ~~ node.
+	self assert: transformedNode isTruncateCastNode.
+	self assert: transformedNode expression equals: expression.
+	self assert: transformedNode targetType equals: targetType.
 ]
 
 { #category : #tests }
@@ -628,4 +706,17 @@ MbndAstTransformVisitorTest >> testWhileLoopNode [
 	self assert: transformedNode condition equals: node condition.
 	self assert: transformedNode action equals: node action.
 	self assert: transformedNode continueAction equals: node continueAction.
+]
+
+{ #category : #tests }
+MbndAstTransformVisitorTest >> testZeroExtensionCastNode [
+	| expression node targetType transformedNode |
+	expression := builder identifier: #x.
+	targetType := builder identifier: #Int32.
+	node := builder zeroExtend: expression to: targetType.
+	transformedNode := visitor visitNode: node.
+	self assert: transformedNode ~~ node.
+	self assert: transformedNode isZeroExtensionCastNode.
+	self assert: transformedNode expression equals: expression.
+	self assert: transformedNode targetType equals: targetType.
 ]

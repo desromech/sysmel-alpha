@@ -238,6 +238,11 @@ TMbndAbstractCompilationTarget >> undefinedType [
 	^ self getBasicTypeNamed: MbndUndefinedType typeName
 ]
 
+{ #category : #'derived types' }
+TMbndAbstractCompilationTarget >> variantUnionTypeWithComponents: components [
+	self explicitRequirement
+]
+
 { #category : #'convenience type accessors' }
 TMbndAbstractCompilationTarget >> voidType [
 	^ self getBasicTypeNamed: MbndVoidType typeName

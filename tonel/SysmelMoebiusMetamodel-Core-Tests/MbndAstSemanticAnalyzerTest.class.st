@@ -14,6 +14,21 @@ Class {
 	#category : #'SysmelMoebiusMetamodel-Core-Tests-SemanticAnalysis'
 }
 
+{ #category : #tests }
+MbndAstSemanticAnalyzerTest >> computeAnalyzedCastNodeWithCastFunction: castFunctionDefinition [
+	| analyzedCastFunction concreteMethod |
+	analyzedCastFunction := visitor visitNode: castFunctionDefinition.
+	concreteMethod := analyzedCastFunction concreteMethod.
+	
+	"Remove the concrete method for reusing its name."
+	concreteMethod parent localSymbolTable removeKey: concreteMethod name.
+	concreteMethod parent children removeAll.
+	
+	"Analyze the concrete method."
+	concreteMethod ensureSemanticAnalysis.
+	^ concreteMethod analyzedBody
+]
+
 { #category : #'as yet unclassified' }
 MbndAstSemanticAnalyzerTest >> countTwiceFunctionDefinitionNode [
 	| arguments body |
@@ -48,6 +63,24 @@ MbndAstSemanticAnalyzerTest >> countTwiceFunctionDefinitionNode [
 ]
 
 { #category : #tests }
+MbndAstSemanticAnalyzerTest >> explicitAnalyzedCastNodeFrom: sourceType to: targetType [
+	| castFunction |
+	castFunction := self explicitCastFunctionDefinitionFrom: sourceType to: targetType.
+	^ self computeAnalyzedCastNodeWithCastFunction: castFunction
+	
+]
+
+{ #category : #tests }
+MbndAstSemanticAnalyzerTest >> explicitCastFunctionDefinitionFrom: sourceType to: targetType [
+	| arguments body |
+	arguments := {
+		builder argument: #x type: sourceType.
+	}.
+	body := builder explicitCast: (builder identifier: #x) to: targetType.
+	^ builder functionNamed: #castFunction arguments: arguments returnType: targetType definitionBody: body
+]
+
+{ #category : #tests }
 MbndAstSemanticAnalyzerTest >> identityFunctionDefinitionNode [
 	| arguments body |
 	arguments := {
@@ -75,6 +108,24 @@ MbndAstSemanticAnalyzerTest >> identityTopMacroDefinitionNode [
 	}.
 	body := builder identifier: #x.
 	^ builder macroMessageSelector: #identity: arguments: arguments returnType: nil definitionBody: body
+]
+
+{ #category : #tests }
+MbndAstSemanticAnalyzerTest >> implicitAnalyzedCastNodeFrom: sourceType to: targetType [
+	| castFunction |
+	castFunction := self implicitCastFunctionDefinitionFrom: sourceType to: targetType.
+	^ self computeAnalyzedCastNodeWithCastFunction: castFunction
+	
+]
+
+{ #category : #tests }
+MbndAstSemanticAnalyzerTest >> implicitCastFunctionDefinitionFrom: sourceType to: targetType [
+	| arguments body |
+	arguments := {
+		builder argument: #x type: sourceType.
+	}.
+	body := builder implicitCast: (builder identifier: #x) to: targetType.
+	^ builder functionNamed: #castFunction arguments: arguments returnType: targetType definitionBody: body
 ]
 
 { #category : #tests }
@@ -191,6 +242,101 @@ MbndAstSemanticAnalyzerTest >> testDummyLexicalScopeWithSingleLiteral [
 	node := builder lexicalScope: literalNode.
 	analyzedNode := visitor visitNode: node.
 	self assert: analyzedNode equals: literalNode.
+]
+
+{ #category : #tests }
+MbndAstSemanticAnalyzerTest >> testFloatingPointCast [
+	| float16Type float32Type float64Type |
+	float16Type := compilationTarget float16Type.
+	float32Type := compilationTarget float32Type.
+	float64Type := compilationTarget float64Type.
+
+	self assert: (self explicitAnalyzedCastNodeFrom: float16Type to: float32Type) isFloatingPointSizeCastNode.
+	self assert: (self explicitAnalyzedCastNodeFrom: float16Type to: float64Type) isFloatingPointSizeCastNode.
+	self assert: (self explicitAnalyzedCastNodeFrom: float32Type to: float16Type) isFloatingPointSizeCastNode.
+	self assert: (self explicitAnalyzedCastNodeFrom: float32Type to: float64Type) isFloatingPointSizeCastNode.
+	self assert: (self explicitAnalyzedCastNodeFrom: float64Type to: float16Type) isFloatingPointSizeCastNode.
+	self assert: (self explicitAnalyzedCastNodeFrom: float64Type to: float32Type) isFloatingPointSizeCastNode.
+
+	self assert: (self implicitAnalyzedCastNodeFrom: float16Type to: float32Type) isFloatingPointSizeCastNode.
+	self assert: (self implicitAnalyzedCastNodeFrom: float16Type to: float64Type) isFloatingPointSizeCastNode.
+	self assert: (self implicitAnalyzedCastNodeFrom: float32Type to: float64Type) isFloatingPointSizeCastNode.
+
+	self should: [self implicitAnalyzedCastNodeFrom: float32Type to: float16Type] raise: Error.
+	self should: [self implicitAnalyzedCastNodeFrom: float64Type to: float16Type] raise: Error.
+	self should: [self implicitAnalyzedCastNodeFrom: float64Type to: float32Type] raise: Error.
+
+]
+
+{ #category : #tests }
+MbndAstSemanticAnalyzerTest >> testFloatingPointToIntegerCast [
+	| int8Type int16Type int32Type int64Type uint8Type uint16Type uint32Type uint64Type float16Type float32Type float64Type |
+	int8Type := compilationTarget int8Type.
+	int16Type := compilationTarget int16Type.
+	int32Type := compilationTarget int32Type.
+	int64Type := compilationTarget int64Type.
+	uint8Type := compilationTarget uint8Type.
+	uint16Type := compilationTarget uint16Type.
+	uint32Type := compilationTarget uint32Type.
+	uint64Type := compilationTarget uint64Type.
+	float16Type := compilationTarget float16Type.
+	float32Type := compilationTarget float32Type.
+	float64Type := compilationTarget float64Type.
+
+	self assert: (self explicitAnalyzedCastNodeFrom: float16Type to: int8Type) isFloatingPointToIntegerCastNode.
+	self assert: (self explicitAnalyzedCastNodeFrom: float16Type to: int16Type) isFloatingPointToIntegerCastNode.
+	self assert: (self explicitAnalyzedCastNodeFrom: float16Type to: int32Type) isFloatingPointToIntegerCastNode.
+	self assert: (self explicitAnalyzedCastNodeFrom: float16Type to: int64Type) isFloatingPointToIntegerCastNode.
+	self assert: (self explicitAnalyzedCastNodeFrom: float16Type to: uint8Type) isFloatingPointToIntegerCastNode.
+	self assert: (self explicitAnalyzedCastNodeFrom: float16Type to: uint16Type) isFloatingPointToIntegerCastNode.
+	self assert: (self explicitAnalyzedCastNodeFrom: float16Type to: uint32Type) isFloatingPointToIntegerCastNode.
+	self assert: (self explicitAnalyzedCastNodeFrom: float16Type to: uint64Type) isFloatingPointToIntegerCastNode.
+
+	self assert: (self explicitAnalyzedCastNodeFrom: float32Type to: int8Type) isFloatingPointToIntegerCastNode.
+	self assert: (self explicitAnalyzedCastNodeFrom: float32Type to: int16Type) isFloatingPointToIntegerCastNode.
+	self assert: (self explicitAnalyzedCastNodeFrom: float32Type to: int32Type) isFloatingPointToIntegerCastNode.
+	self assert: (self explicitAnalyzedCastNodeFrom: float32Type to: int64Type) isFloatingPointToIntegerCastNode.
+	self assert: (self explicitAnalyzedCastNodeFrom: float32Type to: uint8Type) isFloatingPointToIntegerCastNode.
+	self assert: (self explicitAnalyzedCastNodeFrom: float32Type to: uint16Type) isFloatingPointToIntegerCastNode.
+	self assert: (self explicitAnalyzedCastNodeFrom: float32Type to: uint32Type) isFloatingPointToIntegerCastNode.
+	self assert: (self explicitAnalyzedCastNodeFrom: float32Type to: uint64Type) isFloatingPointToIntegerCastNode.
+
+	self assert: (self explicitAnalyzedCastNodeFrom: float64Type to: int8Type) isFloatingPointToIntegerCastNode.
+	self assert: (self explicitAnalyzedCastNodeFrom: float64Type to: int16Type) isFloatingPointToIntegerCastNode.
+	self assert: (self explicitAnalyzedCastNodeFrom: float64Type to: int32Type) isFloatingPointToIntegerCastNode.
+	self assert: (self explicitAnalyzedCastNodeFrom: float64Type to: int64Type) isFloatingPointToIntegerCastNode.
+	self assert: (self explicitAnalyzedCastNodeFrom: float64Type to: uint8Type) isFloatingPointToIntegerCastNode.
+	self assert: (self explicitAnalyzedCastNodeFrom: float64Type to: uint16Type) isFloatingPointToIntegerCastNode.
+	self assert: (self explicitAnalyzedCastNodeFrom: float64Type to: uint32Type) isFloatingPointToIntegerCastNode.
+	self assert: (self explicitAnalyzedCastNodeFrom: float64Type to: uint64Type) isFloatingPointToIntegerCastNode.
+
+	self should: [self implicitAnalyzedCastNodeFrom: float16Type to: int8Type] raise: Error.
+	self should: [self implicitAnalyzedCastNodeFrom: float16Type to: int16Type] raise: Error.
+	self should: [self implicitAnalyzedCastNodeFrom: float16Type to: int32Type] raise: Error.
+	self should: [self implicitAnalyzedCastNodeFrom: float16Type to: int64Type] raise: Error.
+	self should: [self implicitAnalyzedCastNodeFrom: float16Type to: uint8Type] raise: Error.
+	self should: [self implicitAnalyzedCastNodeFrom: float16Type to: uint16Type] raise: Error.
+	self should: [self implicitAnalyzedCastNodeFrom: float16Type to: uint32Type] raise: Error.
+	self should: [self implicitAnalyzedCastNodeFrom: float16Type to: uint64Type] raise: Error.
+
+	self should: [self implicitAnalyzedCastNodeFrom: float32Type to: int8Type] raise: Error.
+	self should: [self implicitAnalyzedCastNodeFrom: float32Type to: int16Type] raise: Error.
+	self should: [self implicitAnalyzedCastNodeFrom: float32Type to: int32Type] raise: Error.
+	self should: [self implicitAnalyzedCastNodeFrom: float32Type to: int64Type] raise: Error.
+	self should: [self implicitAnalyzedCastNodeFrom: float32Type to: uint8Type] raise: Error.
+	self should: [self implicitAnalyzedCastNodeFrom: float32Type to: uint16Type] raise: Error.
+	self should: [self implicitAnalyzedCastNodeFrom: float32Type to: uint32Type] raise: Error.
+	self should: [self implicitAnalyzedCastNodeFrom: float32Type to: uint64Type] raise: Error.
+
+	self should: [self implicitAnalyzedCastNodeFrom: float64Type to: int8Type] raise: Error.
+	self should: [self implicitAnalyzedCastNodeFrom: float64Type to: int16Type] raise: Error.
+	self should: [self implicitAnalyzedCastNodeFrom: float64Type to: int32Type] raise: Error.
+	self should: [self implicitAnalyzedCastNodeFrom: float64Type to: int64Type] raise: Error.
+	self should: [self implicitAnalyzedCastNodeFrom: float64Type to: uint8Type] raise: Error.
+	self should: [self implicitAnalyzedCastNodeFrom: float64Type to: uint16Type] raise: Error.
+	self should: [self implicitAnalyzedCastNodeFrom: float64Type to: uint32Type] raise: Error.
+	self should: [self implicitAnalyzedCastNodeFrom: float64Type to: uint64Type] raise: Error.
+
 ]
 
 { #category : #tests }
@@ -422,6 +568,110 @@ MbndAstSemanticAnalyzerTest >> testIfLiteralTrue [
 ]
 
 { #category : #tests }
+MbndAstSemanticAnalyzerTest >> testIntegerBitCast [
+	| int8Type int16Type int32Type int64Type uint8Type uint16Type uint32Type uint64Type |
+	int8Type := compilationTarget int8Type.
+	int16Type := compilationTarget int16Type.
+	int32Type := compilationTarget int32Type.
+	int64Type := compilationTarget int64Type.
+	uint8Type := compilationTarget uint8Type.
+	uint16Type := compilationTarget uint16Type.
+	uint32Type := compilationTarget uint32Type.
+	uint64Type := compilationTarget uint64Type.
+	
+	self assert: (self explicitAnalyzedCastNodeFrom: uint8Type to: int8Type) isBitCastNode.
+	self assert: (self explicitAnalyzedCastNodeFrom: int8Type to: uint8Type) isBitCastNode.
+	self assert: (self explicitAnalyzedCastNodeFrom: uint16Type to: int16Type) isBitCastNode.
+	self assert: (self explicitAnalyzedCastNodeFrom: int16Type to: uint16Type) isBitCastNode.
+	self assert: (self explicitAnalyzedCastNodeFrom: uint32Type to: int32Type) isBitCastNode.
+	self assert: (self explicitAnalyzedCastNodeFrom: int32Type to: uint32Type) isBitCastNode.
+	self assert: (self explicitAnalyzedCastNodeFrom: uint64Type to: int64Type) isBitCastNode.
+	self assert: (self explicitAnalyzedCastNodeFrom: int64Type to: uint64Type) isBitCastNode.
+
+	self should: [self implicitAnalyzedCastNodeFrom: uint8Type to: int8Type] raise: Error.
+	self should: [self implicitAnalyzedCastNodeFrom: int8Type to: uint8Type] raise: Error.
+	self should: [self implicitAnalyzedCastNodeFrom: uint16Type to: int16Type] raise: Error.
+	self should: [self implicitAnalyzedCastNodeFrom: int16Type to: uint16Type] raise: Error.
+	self should: [self implicitAnalyzedCastNodeFrom: uint32Type to: int32Type] raise: Error.
+	self should: [self implicitAnalyzedCastNodeFrom: int32Type to: uint32Type] raise: Error.
+	self should: [self implicitAnalyzedCastNodeFrom: uint64Type to: int64Type] raise: Error.
+	self should: [self implicitAnalyzedCastNodeFrom: int64Type to: uint64Type] raise: Error.
+
+]
+
+{ #category : #tests }
+MbndAstSemanticAnalyzerTest >> testIntegerToFloatingPointCast [
+	| int8Type int16Type int32Type int64Type uint8Type uint16Type uint32Type uint64Type float16Type float32Type float64Type |
+	int8Type := compilationTarget int8Type.
+	int16Type := compilationTarget int16Type.
+	int32Type := compilationTarget int32Type.
+	int64Type := compilationTarget int64Type.
+	uint8Type := compilationTarget uint8Type.
+	uint16Type := compilationTarget uint16Type.
+	uint32Type := compilationTarget uint32Type.
+	uint64Type := compilationTarget uint64Type.
+	float16Type := compilationTarget float16Type.
+	float32Type := compilationTarget float32Type.
+	float64Type := compilationTarget float64Type.
+
+	self flag: 'Check me: Maybe we should forbid some of these implicit casts?. (e.g: int64 -> float16)'.
+	self assert: (self implicitAnalyzedCastNodeFrom: int8Type to: float16Type) isIntegerToFloatingPointCastNode.
+	self assert: (self implicitAnalyzedCastNodeFrom: int16Type to: float16Type) isIntegerToFloatingPointCastNode.
+	self assert: (self implicitAnalyzedCastNodeFrom: int32Type to: float16Type) isIntegerToFloatingPointCastNode.
+	self assert: (self implicitAnalyzedCastNodeFrom: int64Type to: float16Type) isIntegerToFloatingPointCastNode.
+	self assert: (self implicitAnalyzedCastNodeFrom: uint8Type to: float16Type) isIntegerToFloatingPointCastNode.
+	self assert: (self implicitAnalyzedCastNodeFrom: uint16Type to: float16Type) isIntegerToFloatingPointCastNode.
+	self assert: (self implicitAnalyzedCastNodeFrom: uint32Type to: float16Type) isIntegerToFloatingPointCastNode.
+	self assert: (self implicitAnalyzedCastNodeFrom: uint64Type to: float16Type) isIntegerToFloatingPointCastNode.
+
+	self assert: (self implicitAnalyzedCastNodeFrom: int8Type to: float32Type) isIntegerToFloatingPointCastNode.
+	self assert: (self implicitAnalyzedCastNodeFrom: int16Type to: float32Type) isIntegerToFloatingPointCastNode.
+	self assert: (self implicitAnalyzedCastNodeFrom: int32Type to: float32Type) isIntegerToFloatingPointCastNode.
+	self assert: (self implicitAnalyzedCastNodeFrom: int64Type to: float32Type) isIntegerToFloatingPointCastNode.
+	self assert: (self implicitAnalyzedCastNodeFrom: uint8Type to: float32Type) isIntegerToFloatingPointCastNode.
+	self assert: (self implicitAnalyzedCastNodeFrom: uint16Type to: float32Type) isIntegerToFloatingPointCastNode.
+	self assert: (self implicitAnalyzedCastNodeFrom: uint32Type to: float32Type) isIntegerToFloatingPointCastNode.
+	self assert: (self implicitAnalyzedCastNodeFrom: uint64Type to: float32Type) isIntegerToFloatingPointCastNode.
+
+	self assert: (self implicitAnalyzedCastNodeFrom: int8Type to: float64Type) isIntegerToFloatingPointCastNode.
+	self assert: (self implicitAnalyzedCastNodeFrom: int16Type to: float64Type) isIntegerToFloatingPointCastNode.
+	self assert: (self implicitAnalyzedCastNodeFrom: int32Type to: float64Type) isIntegerToFloatingPointCastNode.
+	self assert: (self implicitAnalyzedCastNodeFrom: int64Type to: float64Type) isIntegerToFloatingPointCastNode.
+	self assert: (self implicitAnalyzedCastNodeFrom: uint8Type to: float64Type) isIntegerToFloatingPointCastNode.
+	self assert: (self implicitAnalyzedCastNodeFrom: uint16Type to: float64Type) isIntegerToFloatingPointCastNode.
+	self assert: (self implicitAnalyzedCastNodeFrom: uint32Type to: float64Type) isIntegerToFloatingPointCastNode.
+	self assert: (self implicitAnalyzedCastNodeFrom: uint64Type to: float64Type) isIntegerToFloatingPointCastNode.
+
+	self assert: (self explicitAnalyzedCastNodeFrom: int8Type to: float16Type) isIntegerToFloatingPointCastNode.
+	self assert: (self explicitAnalyzedCastNodeFrom: int16Type to: float16Type) isIntegerToFloatingPointCastNode.
+	self assert: (self explicitAnalyzedCastNodeFrom: int32Type to: float16Type) isIntegerToFloatingPointCastNode.
+	self assert: (self explicitAnalyzedCastNodeFrom: int64Type to: float16Type) isIntegerToFloatingPointCastNode.
+	self assert: (self explicitAnalyzedCastNodeFrom: uint8Type to: float16Type) isIntegerToFloatingPointCastNode.
+	self assert: (self explicitAnalyzedCastNodeFrom: uint16Type to: float16Type) isIntegerToFloatingPointCastNode.
+	self assert: (self explicitAnalyzedCastNodeFrom: uint32Type to: float16Type) isIntegerToFloatingPointCastNode.
+	self assert: (self explicitAnalyzedCastNodeFrom: uint64Type to: float16Type) isIntegerToFloatingPointCastNode.
+
+	self assert: (self explicitAnalyzedCastNodeFrom: int8Type to: float32Type) isIntegerToFloatingPointCastNode.
+	self assert: (self explicitAnalyzedCastNodeFrom: int16Type to: float32Type) isIntegerToFloatingPointCastNode.
+	self assert: (self explicitAnalyzedCastNodeFrom: int32Type to: float32Type) isIntegerToFloatingPointCastNode.
+	self assert: (self explicitAnalyzedCastNodeFrom: int64Type to: float32Type) isIntegerToFloatingPointCastNode.
+	self assert: (self explicitAnalyzedCastNodeFrom: uint8Type to: float32Type) isIntegerToFloatingPointCastNode.
+	self assert: (self explicitAnalyzedCastNodeFrom: uint16Type to: float32Type) isIntegerToFloatingPointCastNode.
+	self assert: (self explicitAnalyzedCastNodeFrom: uint32Type to: float32Type) isIntegerToFloatingPointCastNode.
+	self assert: (self explicitAnalyzedCastNodeFrom: uint64Type to: float32Type) isIntegerToFloatingPointCastNode.
+
+	self assert: (self explicitAnalyzedCastNodeFrom: int8Type to: float64Type) isIntegerToFloatingPointCastNode.
+	self assert: (self explicitAnalyzedCastNodeFrom: int16Type to: float64Type) isIntegerToFloatingPointCastNode.
+	self assert: (self explicitAnalyzedCastNodeFrom: int32Type to: float64Type) isIntegerToFloatingPointCastNode.
+	self assert: (self explicitAnalyzedCastNodeFrom: int64Type to: float64Type) isIntegerToFloatingPointCastNode.
+	self assert: (self explicitAnalyzedCastNodeFrom: uint8Type to: float64Type) isIntegerToFloatingPointCastNode.
+	self assert: (self explicitAnalyzedCastNodeFrom: uint16Type to: float64Type) isIntegerToFloatingPointCastNode.
+	self assert: (self explicitAnalyzedCastNodeFrom: uint32Type to: float64Type) isIntegerToFloatingPointCastNode.
+	self assert: (self explicitAnalyzedCastNodeFrom: uint64Type to: float64Type) isIntegerToFloatingPointCastNode.
+
+]
+
+{ #category : #tests }
 MbndAstSemanticAnalyzerTest >> testInvalidQuasiUnquote [
 	| node |
 	node := builder quasiUnquote: (builder quote: (builder literalInteger: 42)).
@@ -535,7 +785,7 @@ MbndAstSemanticAnalyzerTest >> testLiteralIntegerReinterpretCast [
 	| node analyzedNode |
 	node := builder reinterpretCast: (builder literalInteger: 42) to: (compilationTarget void pointer).
 	analyzedNode := visitor visitNode: node.
-	self assert: analyzedNode isReinterpretCastNode.
+	self assert: analyzedNode isLiteralValueNode.
 	self assert: analyzedNode type isPointerType.
 ]
 
@@ -871,6 +1121,72 @@ MbndAstSemanticAnalyzerTest >> testSequenceWithReturn [
 ]
 
 { #category : #tests }
+MbndAstSemanticAnalyzerTest >> testSignExtension [
+	| int8Type int16Type int32Type int64Type uint16Type uint32Type uint64Type |
+	int8Type := compilationTarget int8Type.
+	int16Type := compilationTarget int16Type.
+	int32Type := compilationTarget int32Type.
+	int64Type := compilationTarget int64Type.
+	uint16Type := compilationTarget uint16Type.
+	uint32Type := compilationTarget uint32Type.
+	uint64Type := compilationTarget uint64Type.
+	
+	self assert: (self implicitAnalyzedCastNodeFrom: int8Type to: int16Type) isSignExtensionCastNode.
+	self assert: (self implicitAnalyzedCastNodeFrom: int8Type to: uint16Type) isSignExtensionCastNode.
+	self assert: (self implicitAnalyzedCastNodeFrom: int16Type to: int32Type) isSignExtensionCastNode.
+	self assert: (self implicitAnalyzedCastNodeFrom: int16Type to: uint32Type) isSignExtensionCastNode.
+	self assert: (self implicitAnalyzedCastNodeFrom: int32Type to: int64Type) isSignExtensionCastNode.
+	self assert: (self implicitAnalyzedCastNodeFrom: int32Type to: uint64Type) isSignExtensionCastNode.
+	
+	self assert: (self explicitAnalyzedCastNodeFrom: int8Type to: int16Type) isSignExtensionCastNode.
+	self assert: (self explicitAnalyzedCastNodeFrom: int8Type to: uint16Type) isSignExtensionCastNode.
+	self assert: (self explicitAnalyzedCastNodeFrom: int16Type to: int32Type) isSignExtensionCastNode.
+	self assert: (self explicitAnalyzedCastNodeFrom: int16Type to: uint32Type) isSignExtensionCastNode.
+	self assert: (self explicitAnalyzedCastNodeFrom: int32Type to: int64Type) isSignExtensionCastNode.
+	self assert: (self explicitAnalyzedCastNodeFrom: int32Type to: uint64Type) isSignExtensionCastNode.
+]
+
+{ #category : #tests }
+MbndAstSemanticAnalyzerTest >> testTruncate [
+	| int8Type int16Type int32Type int64Type uint8Type uint16Type uint32Type uint64Type |
+	int8Type := compilationTarget int8Type.
+	int16Type := compilationTarget int16Type.
+	int32Type := compilationTarget int32Type.
+	int64Type := compilationTarget int64Type.
+	uint8Type := compilationTarget uint8Type.
+	uint16Type := compilationTarget uint16Type.
+	uint32Type := compilationTarget uint32Type.
+	uint64Type := compilationTarget uint64Type.
+	
+	self assert: (self explicitAnalyzedCastNodeFrom: int64Type to: int8Type) isTruncateCastNode.
+	self assert: (self explicitAnalyzedCastNodeFrom: int32Type to: int8Type) isTruncateCastNode.
+	self assert: (self explicitAnalyzedCastNodeFrom: int16Type to: int8Type) isTruncateCastNode.
+	self assert: (self explicitAnalyzedCastNodeFrom: int64Type to: uint8Type) isTruncateCastNode.
+	self assert: (self explicitAnalyzedCastNodeFrom: int32Type to: uint8Type) isTruncateCastNode.
+	self assert: (self explicitAnalyzedCastNodeFrom: int16Type to: uint8Type) isTruncateCastNode.
+	self assert: (self explicitAnalyzedCastNodeFrom: uint64Type to: int8Type) isTruncateCastNode.
+	self assert: (self explicitAnalyzedCastNodeFrom: uint32Type to: int8Type) isTruncateCastNode.
+	self assert: (self explicitAnalyzedCastNodeFrom: uint16Type to: int8Type) isTruncateCastNode.
+	self assert: (self explicitAnalyzedCastNodeFrom: uint64Type to: uint8Type) isTruncateCastNode.
+	self assert: (self explicitAnalyzedCastNodeFrom: uint32Type to: uint8Type) isTruncateCastNode.
+	self assert: (self explicitAnalyzedCastNodeFrom: uint16Type to: uint8Type) isTruncateCastNode.
+
+	self should: [self implicitAnalyzedCastNodeFrom: int64Type to: int8Type] raise: Error.
+	self should: [self implicitAnalyzedCastNodeFrom: int32Type to: int8Type] raise: Error.
+	self should: [self implicitAnalyzedCastNodeFrom: int16Type to: int8Type] raise: Error.
+	self should: [self implicitAnalyzedCastNodeFrom: int64Type to: uint8Type] raise: Error.
+	self should: [self implicitAnalyzedCastNodeFrom: int32Type to: uint8Type] raise: Error.
+	self should: [self implicitAnalyzedCastNodeFrom: int16Type to: uint8Type] raise: Error.
+	self should: [self implicitAnalyzedCastNodeFrom: uint64Type to: int8Type] raise: Error.
+	self should: [self implicitAnalyzedCastNodeFrom: uint32Type to: int8Type] raise: Error.
+	self should: [self implicitAnalyzedCastNodeFrom: uint16Type to: int8Type] raise: Error.
+	self should: [self implicitAnalyzedCastNodeFrom: uint64Type to: uint8Type] raise: Error.
+	self should: [self implicitAnalyzedCastNodeFrom: uint32Type to: uint8Type] raise: Error.
+	self should: [self implicitAnalyzedCastNodeFrom: uint16Type to: uint8Type] raise: Error.
+
+]
+
+{ #category : #tests }
 MbndAstSemanticAnalyzerTest >> testVariableReference [
 	| node analyzedNode |
 	node := builder sequence: { 
@@ -882,6 +1198,32 @@ MbndAstSemanticAnalyzerTest >> testVariableReference [
 	self assert: analyzedNode type isPrimitiveIntegerType.
 	self assert: analyzedNode elements last isBoundIdentifierReferenceNode.
 
+]
+
+{ #category : #tests }
+MbndAstSemanticAnalyzerTest >> testZeroExtension [
+	| int16Type int32Type int64Type uint8Type uint16Type uint32Type uint64Type |
+	int16Type := compilationTarget int16Type.
+	int32Type := compilationTarget int32Type.
+	int64Type := compilationTarget int64Type.
+	uint8Type := compilationTarget uint8Type.
+	uint16Type := compilationTarget uint16Type.
+	uint32Type := compilationTarget uint32Type.
+	uint64Type := compilationTarget uint64Type.
+	
+	self assert: (self implicitAnalyzedCastNodeFrom: uint8Type to: int16Type) isZeroExtensionCastNode.
+	self assert: (self implicitAnalyzedCastNodeFrom: uint8Type to: uint16Type) isZeroExtensionCastNode.
+	self assert: (self implicitAnalyzedCastNodeFrom: uint16Type to: int32Type) isZeroExtensionCastNode.
+	self assert: (self implicitAnalyzedCastNodeFrom: uint16Type to: uint32Type) isZeroExtensionCastNode.
+	self assert: (self implicitAnalyzedCastNodeFrom: uint32Type to: int64Type) isZeroExtensionCastNode.
+	self assert: (self implicitAnalyzedCastNodeFrom: uint32Type to: uint64Type) isZeroExtensionCastNode.
+	
+	self assert: (self explicitAnalyzedCastNodeFrom: uint8Type to: int16Type) isZeroExtensionCastNode.
+	self assert: (self explicitAnalyzedCastNodeFrom: uint8Type to: uint16Type) isZeroExtensionCastNode.
+	self assert: (self explicitAnalyzedCastNodeFrom: uint16Type to: int32Type) isZeroExtensionCastNode.
+	self assert: (self explicitAnalyzedCastNodeFrom: uint16Type to: uint32Type) isZeroExtensionCastNode.
+	self assert: (self explicitAnalyzedCastNodeFrom: uint32Type to: int64Type) isZeroExtensionCastNode.
+	self assert: (self explicitAnalyzedCastNodeFrom: uint32Type to: uint64Type) isZeroExtensionCastNode.
 ]
 
 { #category : #tests }

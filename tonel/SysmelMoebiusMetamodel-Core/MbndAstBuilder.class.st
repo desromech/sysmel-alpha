@@ -43,6 +43,16 @@ MbndAstBuilder >> array: array elementReferenceAt: index [
 ]
 
 { #category : #'builder methods' }
+MbndAstBuilder >> bitCast: expression to: targetType [
+	<compileTime>
+	<returnType: #_ASTNode>
+	^ MbndAstBitCastNode new
+		expression: expression;
+		targetType: targetType;
+		yourself
+]
+
+{ #category : #'builder methods' }
 MbndAstBuilder >> breakStatement [
 	<compileTime>
 	<returnType: #_ASTNode>
@@ -143,6 +153,26 @@ MbndAstBuilder >> explicitCast: expression to: targetType [
 ]
 
 { #category : #'builder methods' }
+MbndAstBuilder >> floatingPoint: expression toInteger: targetType [
+	<compileTime>
+	<returnType: #_ASTNode>
+	^ MbndAstFloatingPointToIntegerCastNode new
+		expression: expression;
+		targetType: targetType;
+		yourself
+]
+
+{ #category : #'builder methods' }
+MbndAstBuilder >> floatingPointSize: expression to: targetType [
+	<compileTime>
+	<returnType: #_ASTNode>
+	^ MbndAstFloatingPointSizeCastNode new
+		expression: expression;
+		targetType: targetType;
+		yourself
+]
+
+{ #category : #'builder methods' }
 MbndAstBuilder >> functionNamed: name arguments: arguments returnType: returnType definitionBody: definitionBody [
 	<compileTime>
 	<returnType: #_ASTNode>
@@ -193,6 +223,16 @@ MbndAstBuilder >> implicitCast: expression to: targetType [
 	<compileTime>
 	<returnType: #_ASTNode>
 	^ MbndAstImplicitCastNode new
+		expression: expression;
+		targetType: targetType;
+		yourself
+]
+
+{ #category : #'builder methods' }
+MbndAstBuilder >> integer: expression toFloatingPoint: targetType [
+	<compileTime>
+	<returnType: #_ASTNode>
+	^ MbndAstIntegerToFloatingPointCastNode new
 		expression: expression;
 		targetType: targetType;
 		yourself
@@ -502,10 +542,30 @@ MbndAstBuilder >> sequence: aSequenceOfNodes [
 ]
 
 { #category : #'builder methods' }
+MbndAstBuilder >> signExtend: expression to: targetType [
+	<compileTime>
+	<returnType: #_ASTNode>
+	^ MbndAstSignExtensionCastNode new
+		expression: expression;
+		targetType: targetType;
+		yourself
+]
+
+{ #category : #'builder methods' }
 MbndAstBuilder >> splice: expression [
 	<compileTime>
 	<returnType: #_ASTNode>
 	^ MbndAstSpliceNode new expression: expression
+]
+
+{ #category : #'builder methods' }
+MbndAstBuilder >> truncate: expression to: targetType [
+	<compileTime>
+	<returnType: #_ASTNode>
+	^ MbndAstTruncateCastNode new
+		expression: expression;
+		targetType: targetType;
+		yourself
 ]
 
 { #category : #'builder methods' }
@@ -549,5 +609,15 @@ MbndAstBuilder >> while: condition do: action continueWith: continueAction [
 		condition: condition;
 		action: action;
 		continueAction: continueAction;
+		yourself
+]
+
+{ #category : #'builder methods' }
+MbndAstBuilder >> zeroExtend: expression to: targetType [
+	<compileTime>
+	<returnType: #_ASTNode>
+	^ MbndAstZeroExtensionCastNode new
+		expression: expression;
+		targetType: targetType;
 		yourself
 ]

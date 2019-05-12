@@ -69,26 +69,29 @@ MbndAstNodeTest >> testTestingMethods [
 	self deny: 1 isMbndAstNode.
 	self assert: node isMbndAstNode.
 	self deny: node isArrayElementReferenceNode.
-	self deny: node isAssignmentNode.
-	self deny: node isCompileTimeConstantDefinitionNode.
+	self deny: node isAbstractCastNode.
 	self deny: node isArgumentDefinitionNode.
+	self deny: node isAssignmentNode.
+	self deny: node isBitCastNode.
 	self deny: node isBreakStatementNode.
 	self deny: node isBoundIdentifierReferenceNode.
-	self deny: node isVariableReferenceNode.
-	self deny: node isMethodReferenceNode.
 	self deny: node isCasesOfCaseNode.
 	self deny: node isCasesOfDefaultCaseNode.
 	self deny: node isCasesOfNode.
-	self deny: node isCastNode.
+	self deny: node isCompileTimeConstantDefinitionNode.
 	self deny: node isContinueStatementNode.
 	self deny: node isDoWhileLoopNode.
 	self deny: node isExpandedMessageSendNode.
 	self deny: node isExplicitCastNode.
+	self deny: node isFloatingPointToIntegerCastNode.
+	self deny: node isFloatingPointSizeCastNode.
 	self deny: node isFunctionCallNode.
 	self deny: node isFunctionDefinitionNode.
 	self deny: node isFunctionPrototypeNode.
+	self deny: node isGenericCastNode.
 	self deny: node isIdentifierReferenceNode.
 	self deny: node isIfConditionNode.
+	self deny: node isIntegerToFloatingPointCastNode.
 	self deny: node isImplicitCastNode.
 	self deny: node isLexicalScopeNode.
 	self deny: node isLiteralValueNode.
@@ -102,6 +105,8 @@ MbndAstNodeTest >> testTestingMethods [
 	self deny: node isMessageChainMessageNode.
 	self deny: node isMessageDefinitionNode.
 	self deny: node isMessagePrototypeNode.
+	self deny: node isMethodReferenceNode.
+	self deny: node isNumericalCastNode.
 	self deny: node isPragmaNode.
 	self deny: node isPointerElementReferenceNode.
 	self deny: node isQuasiQuoteNode.
@@ -111,12 +116,19 @@ MbndAstNodeTest >> testTestingMethods [
 	self deny: node isReturnStatementNode.
 	self deny: node isReferenceLoadNode.
 	self deny: node isSequenceNode.
+	self deny: node isSpecificCastNode.
+	self deny: node isSignExtensionCastNode.
 	self deny: node isSpliceNode.
 	self deny: node isStatementNode.
 	self deny: node isSubscriptElementReferenceNode .
+	self deny: node isTruncateCastNode.
 	self deny: node isTupleNode.
 	self deny: node isUnexpandedMessageSendNode.
 	self deny: node isWhileLoopNode.
+	self deny: node isVariableReferenceNode.
+	self deny: node isZeroExtensionCastNode.
+	
+
 ]
 
 { #category : #tests }

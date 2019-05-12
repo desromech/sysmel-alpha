@@ -32,6 +32,11 @@ MbndAstTransformVisitor >> visitAssignmentNode: node [
 ]
 
 { #category : #visiting }
+MbndAstTransformVisitor >> visitBitCastNode: node [
+	^ self visitSpecificCastNode: node
+]
+
+{ #category : #visiting }
 MbndAstTransformVisitor >> visitBreakStatementNode: node [
 	^ node
 ]
@@ -90,12 +95,17 @@ MbndAstTransformVisitor >> visitExpandedMessageSendNode: node [
 
 { #category : #visiting }
 MbndAstTransformVisitor >> visitExplicitCastNode: node [
-	^ node copy
-		expression: (self visitNode: node expression);
-		targetType: (node targetType isMbndAstNode
-			ifTrue: [self visitNode: node targetType]
-			ifFalse: [node targetType]);
-		yourself
+	^ self visitGenericCastNode: node
+]
+
+{ #category : #visiting }
+MbndAstTransformVisitor >> visitFloatingPointSizeCastNode: node [
+	^ self visitSpecificCastNode: node
+]
+
+{ #category : #visiting }
+MbndAstTransformVisitor >> visitFloatingPointToIntegerCastNode: node [
+	^ self visitSpecificCastNode: node
 ]
 
 { #category : #visiting }
@@ -123,6 +133,16 @@ MbndAstTransformVisitor >> visitFunctionPrototypeNode: node [
 ]
 
 { #category : #visiting }
+MbndAstTransformVisitor >> visitGenericCastNode: node [
+	^ node copy
+		expression: (self visitNode: node expression);
+		targetType: (node targetType isMbndAstNode
+			ifTrue: [self visitNode: node targetType]
+			ifFalse: [node targetType]);
+		yourself
+]
+
+{ #category : #visiting }
 MbndAstTransformVisitor >> visitIdentifierReferenceNode: node [
 	^ node
 ]
@@ -138,12 +158,12 @@ MbndAstTransformVisitor >> visitIfConditionNode: node [
 
 { #category : #visiting }
 MbndAstTransformVisitor >> visitImplicitCastNode: node [
-	^ node copy
-		expression: (self visitNode: node expression);
-		targetType: (node targetType isMbndAstNode
-			ifTrue: [self visitNode: node targetType]
-			ifFalse: [node targetType]);
-		yourself
+	^ self visitGenericCastNode: node
+]
+
+{ #category : #visiting }
+MbndAstTransformVisitor >> visitIntegerToFloatingPointCastNode: node [
+	^ self visitSpecificCastNode: node
 ]
 
 { #category : #visiting }
@@ -276,12 +296,7 @@ MbndAstTransformVisitor >> visitReferenceLoadNode: node [
 
 { #category : #visiting }
 MbndAstTransformVisitor >> visitReinterpretCastNode: node [
-	^ node copy
-		expression: (self visitNode: node expression);
-		targetType: (node targetType isMbndAstNode
-			ifTrue: [self visitNode: node targetType]
-			ifFalse: [node targetType]);
-		yourself
+	^ self visitGenericCastNode: node
 ]
 
 { #category : #visiting }
@@ -300,10 +315,30 @@ MbndAstTransformVisitor >> visitSequenceNode: node [
 ]
 
 { #category : #visiting }
+MbndAstTransformVisitor >> visitSignExtensionCastNode: node [
+	^ self visitSpecificCastNode: node
+]
+
+{ #category : #visiting }
+MbndAstTransformVisitor >> visitSpecificCastNode: node [
+	^ node copy
+		expression: (self visitNode: node expression);
+		targetType: (node targetType isMbndAstNode
+			ifTrue: [self visitNode: node targetType]
+			ifFalse: [node targetType]);
+		yourself
+]
+
+{ #category : #visiting }
 MbndAstTransformVisitor >> visitSpliceNode: node [
 	^ node copy
 		expression: (self visitNode: node expression);
 		yourself
+]
+
+{ #category : #visiting }
+MbndAstTransformVisitor >> visitTruncateCastNode: node [
+	^ self visitSpecificCastNode: node
 ]
 
 { #category : #visiting }
@@ -334,4 +369,9 @@ MbndAstTransformVisitor >> visitWhileLoopNode: node [
 		action: (self visitNode: node action);
 		continueAction: (self visitNode: node continueAction);
 		yourself 
+]
+
+{ #category : #visiting }
+MbndAstTransformVisitor >> visitZeroExtensionCastNode: node [
+	^ self visitSpecificCastNode: node
 ]

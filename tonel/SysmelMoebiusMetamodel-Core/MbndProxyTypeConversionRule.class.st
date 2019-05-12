@@ -23,8 +23,8 @@ MbndProxyTypeConversionRule >> convertValue: value into: targetType at: coercion
 ]
 
 { #category : #'as yet unclassified' }
-MbndProxyTypeConversionRule >> postProcessCastNode: node [
-	^ rule postProcessCastNode: node
+MbndProxyTypeConversionRule >> postProcessCastNode: node withAnalyzer: analyzer [
+	^ rule postProcessCastNode: node withAnalyzer: analyzer
 ]
 
 { #category : #accessing }

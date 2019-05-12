@@ -43,6 +43,14 @@ TMbndAbstractType >> addExplicitConversionRule: conversionRule [
 
 { #category : #converting }
 TMbndAbstractType >> addExplicitConversionTo: targetType rule: conversionRule [
+	targetType isVariantUnionType ifTrue: [ 
+		targetType components do: [ :comp |
+			self addExplicitConversionTo: comp rule: conversionRule
+		].
+	
+		^ self
+	].
+
 	self addExplicitConversionRule: (conversionRule asMbndTypeConversionRuleTo: targetType)
 ]
 
@@ -53,6 +61,14 @@ TMbndAbstractType >> addImplicitConversionRule: conversionRule [
 
 { #category : #converting }
 TMbndAbstractType >> addImplicitConversionTo: targetType rule: conversionRule [
+	targetType isVariantUnionType ifTrue: [ 
+		targetType components do: [ :comp |
+			self addImplicitConversionTo: comp rule: conversionRule
+		].
+	
+		^ self
+	].
+
 	self addImplicitConversionRule: (conversionRule asMbndTypeConversionRuleTo: targetType)
 ]
 
@@ -468,6 +484,11 @@ TMbndAbstractType >> isUnionType [
 ]
 
 { #category : #'testing methods' }
+TMbndAbstractType >> isVariantUnionType [
+	^ false
+]
+
+{ #category : #'testing methods' }
 TMbndAbstractType >> isVoidType [
 	^ false
 ]
@@ -644,4 +665,9 @@ TMbndAbstractType >> withoutReferences [
 { #category : #'type composition' }
 TMbndAbstractType >> withoutTopDecorations [
 	^ self
+]
+
+{ #category : #'type composition' }
+TMbndAbstractType >> | otherType [
+	^ self compilationTarget variantUnionTypeWithComponents: { self . otherType }
 ]

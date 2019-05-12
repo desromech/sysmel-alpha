@@ -25,6 +25,11 @@ MbndAstVisitor >> visitAssignmentNode: node [
 ]
 
 { #category : #visiting }
+MbndAstVisitor >> visitBitCastNode: node [
+	self subclassResponsibility
+]
+
+{ #category : #visiting }
 MbndAstVisitor >> visitBreakStatementNode: node [
 	self subclassResponsibility
 ]
@@ -70,6 +75,16 @@ MbndAstVisitor >> visitExplicitCastNode: node [
 ]
 
 { #category : #visiting }
+MbndAstVisitor >> visitFloatingPointSizeCastNode: node [
+	self subclassResponsibility
+]
+
+{ #category : #visiting }
+MbndAstVisitor >> visitFloatingPointToIntegerCastNode: node [
+	self subclassResponsibility
+]
+
+{ #category : #visiting }
 MbndAstVisitor >> visitFunctionCallNode: node [
 	self subclassResponsibility
 ]
@@ -96,6 +111,11 @@ MbndAstVisitor >> visitIfConditionNode: node [
 
 { #category : #visiting }
 MbndAstVisitor >> visitImplicitCastNode: node [
+	self subclassResponsibility
+]
+
+{ #category : #visiting }
+MbndAstVisitor >> visitIntegerToFloatingPointCastNode: node [
 	self subclassResponsibility
 ]
 
@@ -220,7 +240,17 @@ MbndAstVisitor >> visitSequenceNode: node [
 ]
 
 { #category : #visiting }
+MbndAstVisitor >> visitSignExtensionCastNode: node [
+	self subclassResponsibility
+]
+
+{ #category : #visiting }
 MbndAstVisitor >> visitSpliceNode: node [
+	self subclassResponsibility
+]
+
+{ #category : #visiting }
+MbndAstVisitor >> visitTruncateCastNode: node [
 	self subclassResponsibility
 ]
 
@@ -241,5 +271,10 @@ MbndAstVisitor >> visitVariableReferenceNode: node [
 
 { #category : #visiting }
 MbndAstVisitor >> visitWhileLoopNode: node [
+	self subclassResponsibility
+]
+
+{ #category : #visiting }
+MbndAstVisitor >> visitZeroExtensionCastNode: node [
 	self subclassResponsibility
 ]

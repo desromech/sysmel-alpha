@@ -7,7 +7,8 @@ Trait {
 		'referenceTypes',
 		'functionTypes',
 		'decoratedTypes',
-		'arithmeticCoercionTable'
+		'arithmeticCoercionTable',
+		'variantUnions'
 	],
 	#traits : 'TMbndAbstractCompilationTarget',
 	#classTraits : 'TMbndAbstractCompilationTarget classTrait',
@@ -231,6 +232,91 @@ TMbndCoreCompilationTarget >> initializeArithmeticCoercionTable [
 ]
 
 { #category : #initialization }
+TMbndCoreCompilationTarget >> initializeArithmeticConversionRules [
+	| int8Type int16Type int32Type int64Type uint8Type uint16Type uint32Type uint64Type float16Type float32Type float64Type |
+	int8Type := self int8Type.
+	int16Type := self int16Type.
+	int32Type := self int32Type.
+	int64Type := self int64Type.
+	uint8Type := self uint8Type.
+	uint8Type := self uint8Type.
+	uint16Type := self uint16Type.
+	uint32Type := self uint32Type.
+	uint64Type := self uint64Type.
+	float16Type := self float16Type.
+	float32Type := self float32Type.
+	float64Type := self float64Type.
+	
+	"Bit cast"
+	int64Type addExplicitConversionTo: uint64Type rule: MbndBitCastTypeConversionRule.
+	uint64Type addExplicitConversionTo: int64Type rule: MbndBitCastTypeConversionRule.
+	int32Type addExplicitConversionTo: uint32Type rule: MbndBitCastTypeConversionRule.
+	uint32Type addExplicitConversionTo: int32Type rule: MbndBitCastTypeConversionRule.
+	int16Type addExplicitConversionTo: uint16Type rule: MbndBitCastTypeConversionRule.
+	uint16Type addExplicitConversionTo: int16Type rule: MbndBitCastTypeConversionRule.
+	int8Type addExplicitConversionTo: uint8Type rule: MbndBitCastTypeConversionRule.
+	uint8Type addExplicitConversionTo: int8Type rule: MbndBitCastTypeConversionRule.
+	
+	"Truncate"
+	int64Type | uint64Type |
+	int32Type | uint32Type |
+	int16Type | uint16Type
+		addExplicitConversionTo: int8Type | uint8Type rule: MbndTruncateTypeConversionRule.
+	int64Type | uint64Type |
+	int32Type | uint32Type
+		addExplicitConversionTo: int16Type | uint16Type rule: MbndTruncateTypeConversionRule.
+	int64Type | uint64Type
+		addExplicitConversionTo: int32Type | uint32Type rule: MbndTruncateTypeConversionRule.
+	
+	"Sign extension"
+	int8Type | int16Type | int32Type addConversionTo:
+		int64Type | uint64Type
+		rule: MbndSignExtensionTypeConversionRule.
+	int8Type | int16Type addConversionTo:
+		int32Type | uint32Type | int64Type | uint64Type
+		rule: MbndSignExtensionTypeConversionRule.
+	int8Type addConversionTo:
+		int16Type | uint16Type | int32Type | uint32Type | int64Type | uint64Type
+		rule: MbndSignExtensionTypeConversionRule.
+	
+	"Zero extension"
+	uint8Type | uint16Type | uint32Type addConversionTo:
+		int64Type | uint64Type
+		rule: MbndZeroExtensionTypeConversionRule.
+	uint8Type | uint16Type addConversionTo:
+		int32Type | uint32Type | int64Type | uint64Type
+		rule: MbndZeroExtensionTypeConversionRule.
+	uint8Type addConversionTo:
+		int16Type | uint16Type | int32Type | uint32Type | int64Type | uint64Type
+		rule: MbndZeroExtensionTypeConversionRule.
+	
+	"Int -> FP"
+	int8Type | uint8Type |
+	int16Type | uint16Type |
+	int32Type | uint32Type |
+	int64Type | uint64Type addConversionTo:
+		float16Type | float32Type | float64Type
+		rule: MbndIntegerToFloatingPointTypeConversionRule.
+	
+	"FP -> Int"
+	float16Type | float32Type | float64Type addExplicitConversionTo:
+		int8Type | uint8Type |
+		int16Type | uint16Type |
+		int32Type | uint32Type |
+		int64Type | uint64Type
+		rule: MbndFloatingPointToIntegerTypeConversionRule.
+
+	"FP -> FP"
+	float16Type addConversionTo: float32Type | float64Type rule: MbndFloatingPointSizeTypeConversionRule.
+
+	float32Type addConversionTo: float64Type rule: MbndFloatingPointSizeTypeConversionRule.
+	float32Type addExplicitConversionTo: float16Type rule: MbndFloatingPointSizeTypeConversionRule.
+
+	float64Type addExplicitConversionTo: float16Type | float32Type rule: MbndFloatingPointSizeTypeConversionRule.
+
+]
+
+{ #category : #initialization }
 TMbndCoreCompilationTarget >> initializeBasicTypes [
 	| basicType | 
 	basicTypes := Dictionary new.
@@ -284,6 +370,7 @@ TMbndCoreCompilationTarget >> initializeDerivedTypeCaches [
 	referenceTypes := WeakValueDictionary new.
 	functionTypes := WeakValueDictionary new.
 	decoratedTypes := WeakValueDictionary new.
+	variantUnions := WeakValueDictionary new.
 ]
 
 { #category : #initialization }
@@ -291,7 +378,8 @@ TMbndCoreCompilationTarget >> initializeTypeSystem [
 	self
 		initializeDerivedTypeCaches;
 		initializeBasicTypes;
-		initializeArithmeticCoercionTable
+		initializeArithmeticCoercionTable;
+		initializeArithmeticConversionRules
 ]
 
 { #category : #initialization }
@@ -377,6 +465,21 @@ TMbndCoreCompilationTarget >> type: baseType withDecorations: decorations [
 			name: nil;
 			baseType: baseType;
 			decorations: decorations;
+			initializeNonTraitType;
+			yourself.
+		self ensureBasicTypeIsLinkedToTheHierarchy: result.
+		result
+	]
+]
+
+{ #category : #'derived types' }
+TMbndCoreCompilationTarget >> variantUnionTypeWithComponents: components [
+	| set |
+	set := Set newFrom: components.
+	^ variantUnions at: components ifAbsentPut: [
+		| result |
+		result := MbndVariantUnionType basicNew
+			components: components;
 			initializeNonTraitType;
 			yourself.
 		self ensureBasicTypeIsLinkedToTheHierarchy: result.

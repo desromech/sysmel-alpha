@@ -5,10 +5,9 @@ Class {
 }
 
 { #category : #'as yet unclassified' }
-MbndWrapInLiteralValueNodeTypeConversionRule >> postProcessCastNode: node [
+MbndWrapInLiteralValueNodeTypeConversionRule >> postProcessCastNode: node withAnalyzer: analyzer [
 	node expression isLiteralValueNode ifTrue: [
-		^ node copy
-			expression: (MbndAstQuoteNode new
+		^ analyzer analyzeNodeIfNeeded: (MbndAstQuoteNode new
 				position: node;
 				expression: node expression;
 				yourself)

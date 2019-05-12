@@ -14,7 +14,7 @@ MbndLiteralToTargetTypeConversionRule >> canBeUsedToConvertNode: node from: sour
 ]
 
 { #category : #'as yet unclassified' }
-MbndLiteralToTargetTypeConversionRule >> postProcessCastNode: node [
+MbndLiteralToTargetTypeConversionRule >> postProcessCastNode: node withAnalyzer: analyzer [
 	| literal target |
 	node expression isLiteralValueNode ifFalse: [
 		self error: 'Literal to target type cast requires a literal value node.' at: node

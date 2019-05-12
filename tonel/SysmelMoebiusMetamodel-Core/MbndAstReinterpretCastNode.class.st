@@ -1,6 +1,6 @@
 Class {
 	#name : #MbndAstReinterpretCastNode,
-	#superclass : #MbndAstCastNode,
+	#superclass : #MbndAstGenericCastNode,
 	#category : #'SysmelMoebiusMetamodel-Core-AST'
 }
 
