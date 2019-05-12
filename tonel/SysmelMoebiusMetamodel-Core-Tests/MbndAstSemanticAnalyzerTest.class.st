@@ -176,6 +176,22 @@ MbndAstSemanticAnalyzerTest >> setUp [
 ]
 
 { #category : #tests }
+MbndAstSemanticAnalyzerTest >> testChainedCast [
+	| node analyzedNode chainedCast |
+	node := builder sequence: { 
+		(builder defineLocalVariable: #x withValueType: compilationTarget int8Type withInitialValue: (builder literalInteger: 5))
+			mutable.
+		builder explicitCast: (builder identifier: #x) to: compilationTarget int64Type
+	}.
+	analyzedNode := visitor visitNode: node.
+	self assert: analyzedNode isSequenceNode.
+	
+	chainedCast := analyzedNode elements last.
+	self assert: chainedCast isSignExtensionCastNode.
+	self assert: chainedCast expression isReferenceLoadNode.
+]
+
+{ #category : #tests }
 MbndAstSemanticAnalyzerTest >> testCompileTimeConstantDefinition [
 	| node analyzedNode |
 	node := builder alias: #int definition: (builder identifier: #Int32).

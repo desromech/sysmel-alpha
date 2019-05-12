@@ -47,6 +47,15 @@ MbndAbstractTypeConversionRule >> convertValue: value into: targetType at: coerc
 	self subclassResponsibility
 ]
 
+{ #category : #'as yet unclassified' }
+MbndAbstractTypeConversionRule >> intermediateConversion: intermediateType chainedWith: nextRule [
+	^ MbndChainedTypeConversionRule new
+		intermediateType: intermediateType;
+		intermediateRule: self;
+		nextRule: nextRule;
+		yourself
+]
+
 { #category : #testing }
 MbndAbstractTypeConversionRule >> isTypeKindConversion [
 	^ false

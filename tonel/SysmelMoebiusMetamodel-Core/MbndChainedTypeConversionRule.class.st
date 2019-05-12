@@ -61,17 +61,15 @@ MbndChainedTypeConversionRule >> nextRule: anObject [
 MbndChainedTypeConversionRule >> postProcessCastNode: node withAnalyzer: analyzer [
 	| intermediateCast nextCast |
 
-	"Split the cast node in two nodes."
-	self halt.
 	"Apply the intermediate cast."
 	intermediateCast := node copy
 		typeConversionRule: intermediateRule;
 		type: intermediateType.
-	intermediateCast := intermediateRule postProcessCastNode: intermediateCast.
+	intermediateCast := intermediateRule postProcessCastNode: intermediateCast withAnalyzer: analyzer.
 
 	"Apply the next cast"	
 	nextCast := node copy
 		expression: intermediateCast;
 		typeConversionRule: nextRule.
-	^ nextCast postProcessCastNode: node.
+	^ nextRule postProcessCastNode: nextCast withAnalyzer: analyzer.
 ]
