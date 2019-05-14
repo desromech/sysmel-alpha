@@ -50,6 +50,16 @@ MbndAstVisitor >> visitCasesOfNode: node [
 ]
 
 { #category : #visiting }
+MbndAstVisitor >> visitClassDeclarationNode: node [
+	self subclassResponsibility
+]
+
+{ #category : #visiting }
+MbndAstVisitor >> visitClassDefinitionNode: node [
+	self subclassResponsibility
+]
+
+{ #category : #visiting }
 MbndAstVisitor >> visitCompileTimeConstantDefinitionNode: node [
 	self subclassResponsibility
 ]
@@ -75,6 +85,11 @@ MbndAstVisitor >> visitExplicitCastNode: node [
 ]
 
 { #category : #visiting }
+MbndAstVisitor >> visitFieldDefinitionNode: node [
+	self subclassResponsibility
+]
+
+{ #category : #visiting }
 MbndAstVisitor >> visitFloatingPointSizeCastNode: node [
 	self subclassResponsibility
 ]
@@ -96,6 +111,16 @@ MbndAstVisitor >> visitFunctionDefinitionNode: node [
 
 { #category : #visiting }
 MbndAstVisitor >> visitFunctionPrototypeNode: node [
+	self subclassResponsibility
+]
+
+{ #category : #visiting }
+MbndAstVisitor >> visitGCClassDeclarationNode: node [
+	self subclassResponsibility
+]
+
+{ #category : #visiting }
+MbndAstVisitor >> visitGCClassDefinitionNode: node [
 	self subclassResponsibility
 ]
 
@@ -250,6 +275,16 @@ MbndAstVisitor >> visitSpliceNode: node [
 ]
 
 { #category : #visiting }
+MbndAstVisitor >> visitStructureDeclarationNode: node [
+	self subclassResponsibility
+]
+
+{ #category : #visiting }
+MbndAstVisitor >> visitStructureDefinitionNode: node [
+	self subclassResponsibility
+]
+
+{ #category : #visiting }
 MbndAstVisitor >> visitTruncateCastNode: node [
 	self subclassResponsibility
 ]
@@ -261,6 +296,16 @@ MbndAstVisitor >> visitTupleNode: node [
 
 { #category : #visiting }
 MbndAstVisitor >> visitUnexpandedMessageSendNode: node [
+	self subclassResponsibility
+]
+
+{ #category : #visiting }
+MbndAstVisitor >> visitUnionDeclarationNode: node [
+	self subclassResponsibility
+]
+
+{ #category : #visiting }
+MbndAstVisitor >> visitUnionDefinitionNode: node [
 	self subclassResponsibility
 ]
 

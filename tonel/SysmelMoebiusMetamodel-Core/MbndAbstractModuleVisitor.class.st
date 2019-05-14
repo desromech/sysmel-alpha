@@ -12,6 +12,11 @@ MbndAbstractModuleVisitor >> visitArrayType: type [
 ]
 
 { #category : #visiting }
+MbndAbstractModuleVisitor >> visitClassType: type [
+	self subclassResponsibility
+]
+
+{ #category : #visiting }
 MbndAbstractModuleVisitor >> visitCompileTimeConstant: compileTimeConstant [
 	self subclassResponsibility
 ]
@@ -43,6 +48,11 @@ MbndAbstractModuleVisitor >> visitFunctionGroupType: type [
 
 { #category : #visiting }
 MbndAbstractModuleVisitor >> visitFunctionType: type [
+	self subclassResponsibility
+]
+
+{ #category : #visiting }
+MbndAbstractModuleVisitor >> visitGCClassType: type [
 	self subclassResponsibility
 ]
 

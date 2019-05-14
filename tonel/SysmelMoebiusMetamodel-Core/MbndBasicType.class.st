@@ -8,6 +8,7 @@ Class {
 	#classTraits : 'TMbndBasicType classTrait',
 	#instVars : [
 		'name',
+		'parent',
 		'children'
 	],
 	#category : #'SysmelMoebiusMetamodel-Core-Type'
@@ -43,6 +44,11 @@ MbndBasicType >> children [
 	^ children ifNil: [ children := SLVMOrderedInsertionSet new ]
 ]
 
+{ #category : #'semantic analysis' }
+MbndBasicType >> enqueueDelayedSemanticAnalysis [
+	self flag: 'TODO: Implement this properly.'
+]
+
 { #category : #accessing }
 MbndBasicType >> fullName [
 	^ name ifNil: [ ^ self printString ]
@@ -73,6 +79,16 @@ MbndBasicType >> name [
 { #category : #accessing }
 MbndBasicType >> name: anObject [
 	name := anObject
+]
+
+{ #category : #accessing }
+MbndBasicType >> parent [
+	^ parent
+]
+
+{ #category : #accessing }
+MbndBasicType >> parent: aParent [
+	parent := aParent
 ]
 
 { #category : #printing }

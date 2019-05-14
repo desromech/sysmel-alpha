@@ -53,6 +53,16 @@ MbndAstDelegationVisitor >> visitCasesOfNode: node [
 ]
 
 { #category : #visiting }
+MbndAstDelegationVisitor >> visitClassDeclarationNode: node [
+	^ self delegateNodeVisit: node
+]
+
+{ #category : #visiting }
+MbndAstDelegationVisitor >> visitClassDefinitionNode: node [
+	^ self delegateNodeVisit: node
+]
+
+{ #category : #visiting }
 MbndAstDelegationVisitor >> visitCompileTimeConstantDefinitionNode: node [
 	^ self delegateNodeVisit: node
 ]
@@ -99,6 +109,16 @@ MbndAstDelegationVisitor >> visitFunctionDefinitionNode: node [
 
 { #category : #visiting }
 MbndAstDelegationVisitor >> visitFunctionPrototypeNode: node [
+	^ self delegateNodeVisit: node
+]
+
+{ #category : #visiting }
+MbndAstDelegationVisitor >> visitGCClassDeclarationNode: node [
+	^ self delegateNodeVisit: node
+]
+
+{ #category : #visiting }
+MbndAstDelegationVisitor >> visitGCClassDefinitionNode: node [
 	^ self delegateNodeVisit: node
 ]
 
@@ -238,6 +258,16 @@ MbndAstDelegationVisitor >> visitSpliceNode: node [
 ]
 
 { #category : #visiting }
+MbndAstDelegationVisitor >> visitStructureDeclarationNode: node [
+	^ self delegateNodeVisit: node
+]
+
+{ #category : #visiting }
+MbndAstDelegationVisitor >> visitStructureDefinitionNode: node [
+	^ self delegateNodeVisit: node
+]
+
+{ #category : #visiting }
 MbndAstDelegationVisitor >> visitTruncateCastNode: node [
 	^ self delegateNodeVisit: node
 ]
@@ -249,6 +279,16 @@ MbndAstDelegationVisitor >> visitTupleNode: node [
 
 { #category : #visiting }
 MbndAstDelegationVisitor >> visitUnexpandedMessageSendNode: node [
+	^ self delegateNodeVisit: node
+]
+
+{ #category : #visiting }
+MbndAstDelegationVisitor >> visitUnionDeclarationNode: node [
+	^ self delegateNodeVisit: node
+]
+
+{ #category : #visiting }
+MbndAstDelegationVisitor >> visitUnionDefinitionNode: node [
 	^ self delegateNodeVisit: node
 ]
 

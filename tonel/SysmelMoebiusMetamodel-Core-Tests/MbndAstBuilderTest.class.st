@@ -110,6 +110,27 @@ MbndAstBuilderTest >> testCasesOfNode [
 ]
 
 { #category : #tests }
+MbndAstBuilderTest >> testClassDeclarationNode [
+	| node |
+	node := builder declareClass: #Test.
+	self assert: node isClassDeclarationNode.
+	self assert: node name equals: #Test.
+]
+
+{ #category : #tests }
+MbndAstBuilderTest >> testClassDefinitionNode [
+	| node superclass body |
+	superclass := builder identifier: #Object.
+	body := builder sequence: #().
+	node := builder defineClassNamed: #Test superclass: superclass body: body.
+	self assert: node isClassDefinitionNode.
+	self assert: node declaration isClassDeclarationNode.
+	self assert: node declaration name equals: #Test.
+	self assert: node superclass equals: superclass.
+	self assert: node body equals: body.
+]
+
+{ #category : #tests }
 MbndAstBuilderTest >> testCompileTimeConstantDefinition [
 	| node |
 	node := builder alias: #Zero definition: (builder literalInteger: 0).	
@@ -164,6 +185,18 @@ MbndAstBuilderTest >> testExplicitCast [
 	self assert: node isExplicitCastNode.
 	self assert: node expression equals: value.
 	self assert: node targetType equals: targetType.
+]
+
+{ #category : #tests }
+MbndAstBuilderTest >> testFieldDefinition [
+	| node valueType initialValue |
+	valueType := module compilationTarget int32Type.
+	initialValue := builder literalInteger: 42.
+	node := builder defineField: #var withValueType: valueType withInitialValue: initialValue.
+	self assert: node isFieldDefinitionNode.
+	self assert: node name equals: #var.
+	self assert: node valueType equals: valueType.
+	self assert: node initialValue equals: initialValue.
 ]
 
 { #category : #tests }
@@ -248,6 +281,27 @@ MbndAstBuilderTest >> testFunctionShortDefinition [
 	self assert: definition name equals: #zero.
 	self assert: definition arguments equals: #().
 	self assert: definition returnType equals: returnType.
+]
+
+{ #category : #tests }
+MbndAstBuilderTest >> testGCClassDeclarationNode [
+	| node |
+	node := builder declareGCClass: #Test.
+	self assert: node isGCClassDeclarationNode.
+	self assert: node name equals: #Test.
+]
+
+{ #category : #tests }
+MbndAstBuilderTest >> testGCClassDefinitionNode [
+	| node superclass body |
+	superclass := builder identifier: #Object.
+	body := builder sequence: #().
+	node := builder defineGCClassNamed: #Test superclass: superclass body: body.
+	self assert: node isGCClassDefinitionNode.
+	self assert: node declaration isGCClassDeclarationNode.
+	self assert: node declaration name equals: #Test.
+	self assert: node superclass equals: superclass.
+	self assert: node body equals: body.
 ]
 
 { #category : #tests }
@@ -698,6 +752,25 @@ MbndAstBuilderTest >> testSpliceNode [
 ]
 
 { #category : #tests }
+MbndAstBuilderTest >> testStructureDeclarationNode [
+	| node |
+	node := builder declareStructure: #Test.
+	self assert: node isStructureDeclarationNode.
+	self assert: node name equals: #Test.
+]
+
+{ #category : #tests }
+MbndAstBuilderTest >> testStructureDefinitionNode [
+	| node body |
+	body := builder sequence: #().
+	node := builder defineStructureNamed: #Test body: body.
+	self assert: node isStructureDefinitionNode.
+	self assert: node declaration isStructureDeclarationNode.
+	self assert: node declaration name equals: #Test.
+	self assert: node body equals: body.
+]
+
+{ #category : #tests }
 MbndAstBuilderTest >> testTruncateCastNode [
 	| expression node  targetType |
 	expression := builder identifier: #x.
@@ -737,6 +810,25 @@ MbndAstBuilderTest >> testUnexpandedMessageNode [
 	self deny: node isExpandedMessageSendNode .
 	self assert: node receiver equals: receiver.
 	self assert: node arguments equals: arguments.
+]
+
+{ #category : #tests }
+MbndAstBuilderTest >> testUnionDeclarationNode [
+	| node |
+	node := builder declareUnion: #Test.
+	self assert: node isUnionDeclarationNode.
+	self assert: node name equals: #Test.
+]
+
+{ #category : #tests }
+MbndAstBuilderTest >> testUnionDefinitionNode [
+	| node body |
+	body := builder sequence: #().
+	node := builder defineUnionNamed: #Test body: body.
+	self assert: node isUnionDefinitionNode.
+	self assert: node declaration isUnionDeclarationNode.
+	self assert: node declaration name equals: #Test.
+	self assert: node body equals: body.
 ]
 
 { #category : #tests }

@@ -1,6 +1,6 @@
 Class {
 	#name : #MbndStructureType,
-	#superclass : #MbndAggregateType,
+	#superclass : #MbndAggregateTypeWithFields,
 	#category : #'SysmelMoebiusMetamodel-Core-Type'
 }
 

@@ -80,6 +80,16 @@ MbndAstNode >> isCasesOfNode [
 ]
 
 { #category : #testing }
+MbndAstNode >> isClassDeclarationNode [
+	^ false
+]
+
+{ #category : #testing }
+MbndAstNode >> isClassDefinitionNode [
+	^ false
+]
+
+{ #category : #testing }
 MbndAstNode >> isCompileTimeConstantDefinitionNode [
 	^ false
 ]
@@ -105,6 +115,11 @@ MbndAstNode >> isExplicitCastNode [
 ]
 
 { #category : #testing }
+MbndAstNode >> isFieldDefinitionNode [
+	^ false
+]
+
+{ #category : #testing }
 MbndAstNode >> isFloatingPointSizeCastNode [
 	^ false
 ]
@@ -126,6 +141,16 @@ MbndAstNode >> isFunctionDefinitionNode [
 
 { #category : #testing }
 MbndAstNode >> isFunctionPrototypeNode [
+	^ false
+]
+
+{ #category : #testing }
+MbndAstNode >> isGCClassDeclarationNode [
+	^ false
+]
+
+{ #category : #testing }
+MbndAstNode >> isGCClassDefinitionNode [
 	^ false
 ]
 
@@ -296,6 +321,16 @@ MbndAstNode >> isStatementNode [
 ]
 
 { #category : #testing }
+MbndAstNode >> isStructureDeclarationNode [
+	^ false
+]
+
+{ #category : #testing }
+MbndAstNode >> isStructureDefinitionNode [
+	^ false
+]
+
+{ #category : #testing }
 MbndAstNode >> isSubscriptElementReferenceNode [
 	^ false
 ]
@@ -312,6 +347,16 @@ MbndAstNode >> isTupleNode [
 
 { #category : #testing }
 MbndAstNode >> isUnexpandedMessageSendNode [
+	^ false
+]
+
+{ #category : #testing }
+MbndAstNode >> isUnionDeclarationNode [
+	^ false
+]
+
+{ #category : #testing }
+MbndAstNode >> isUnionDefinitionNode [
 	^ false
 ]
 

@@ -84,6 +84,13 @@ TMbndCoreCompilationTarget >> coreDefinitionsModule: anObject [
 	coreDefinitionsModule := anObject
 ]
 
+{ #category : #'derived types' }
+TMbndCoreCompilationTarget >> createNamedType: name ofKind: typeKindClass [
+	^ (self ensureBasicTypeIsLinkedToTheHierarchy: typeKindClass basicNew)
+		name: name;
+		initializeNonTraitType.
+]
+
 { #category : #'basic types' }
 TMbndCoreCompilationTarget >> ensureBasicTypeIsLinkedToTheHierarchy: basicType [
 	basicType module ifNil: [ 
@@ -94,6 +101,7 @@ TMbndCoreCompilationTarget >> ensureBasicTypeIsLinkedToTheHierarchy: basicType [
 		basicType supertype: (basicTypes at: basicType class typeName)
 	].
 	self ensureTypeHasSimpleMetaType: basicType.
+	^ basicType
 
 ]
 
@@ -113,16 +121,14 @@ TMbndCoreCompilationTarget >> ensureTypeHasSimpleMetaType: type [
 { #category : #'derived types' }
 TMbndCoreCompilationTarget >> functionTypeWithArguments: argumentTypes returnType: returnType callingConvention: callingConvention cvariadic: cvariadic [
 	^ functionTypes at: { argumentTypes . returnType . callingConvention . cvariadic} ifAbsentPut: [
-		| result |
-		result := MbndFunctionType new
+		(self ensureBasicTypeIsLinkedToTheHierarchy: MbndFunctionType basicNew)
 			name: nil;
 			argumentTypes: argumentTypes;
 			returnType: returnType;
 			callingConvention: callingConvention;
 			cvariadic: cvariadic;
+			initializeNonTraitType;
 			yourself.
-		self ensureBasicTypeIsLinkedToTheHierarchy: result.
-		result
 	]
 ]
 
@@ -431,44 +437,35 @@ TMbndCoreCompilationTarget >> newCodeModuleGenerator [
 { #category : #'derived types' }
 TMbndCoreCompilationTarget >> pointerFor: addressSpace to: baseType [
 	^ pointerTypes at: { baseType . addressSpace } ifAbsentPut: [
-		| result |
-		result := MbndPointerType new
+		(self ensureBasicTypeIsLinkedToTheHierarchy: MbndPointerType basicNew)
 			name: nil;
 			addressSpace: addressSpace;
 			baseType: baseType;
+			initializeNonTraitType;
 			yourself.
-		self ensureBasicTypeIsLinkedToTheHierarchy: result.
-		result
 	]
 ]
 
 { #category : #'derived types' }
 TMbndCoreCompilationTarget >> referenceFor: addressSpace to: baseType [
 	^ referenceTypes at: { baseType . addressSpace } ifAbsentPut: [
-		| result |
-		result := MbndReferenceType basicNew
+		(self ensureBasicTypeIsLinkedToTheHierarchy: MbndReferenceType basicNew)
 			name: nil;
 			addressSpace: addressSpace;
 			baseType: baseType;
 			initializeNonTraitType;
 			yourself.
-		self ensureBasicTypeIsLinkedToTheHierarchy: result.
-		result
 	]
 ]
 
 { #category : #'derived types' }
 TMbndCoreCompilationTarget >> type: baseType withDecorations: decorations [
 	^ decoratedTypes at: { baseType . decorations } ifAbsentPut: [
-		| result |
-		result := MbndDecoratedType basicNew
-			name: nil;
+		(self ensureBasicTypeIsLinkedToTheHierarchy: MbndDecoratedType basicNew)
 			baseType: baseType;
 			decorations: decorations;
 			initializeNonTraitType;
 			yourself.
-		self ensureBasicTypeIsLinkedToTheHierarchy: result.
-		result
 	]
 ]
 

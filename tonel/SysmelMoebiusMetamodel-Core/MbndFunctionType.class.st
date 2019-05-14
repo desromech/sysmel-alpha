@@ -77,8 +77,8 @@ MbndFunctionType >> cvariadic: anObject [
 { #category : #initialization }
 MbndFunctionType >> initialize [
 	super initialize.
-	callingConvention := #cdecl.
-	cvariadic := false.
+	callingConvention ifNil: [callingConvention := #cdecl].
+	cvariadic ifNil: [cvariadic := false].
 ]
 
 { #category : #testing }

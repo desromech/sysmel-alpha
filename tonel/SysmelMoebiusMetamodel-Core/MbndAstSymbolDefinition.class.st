@@ -5,7 +5,8 @@ Class {
 	#classTraits : 'TMbndObjectWithFlags classTrait',
 	#instVars : [
 		'name',
-		'binding'
+		'binding',
+		'ownerProgramEntity'
 	],
 	#category : #'SysmelMoebiusMetamodel-Core-AST'
 }
@@ -34,4 +35,14 @@ MbndAstSymbolDefinition >> name [
 { #category : #accessing }
 MbndAstSymbolDefinition >> name: anObject [
 	name := anObject
+]
+
+{ #category : #accessing }
+MbndAstSymbolDefinition >> ownerProgramEntity [
+	^ ownerProgramEntity
+]
+
+{ #category : #accessing }
+MbndAstSymbolDefinition >> ownerProgramEntity: anObject [
+	ownerProgramEntity := anObject
 ]

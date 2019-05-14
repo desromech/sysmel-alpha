@@ -111,6 +111,89 @@ MbndAstBuilder >> continueStatement [
 ]
 
 { #category : #'builder methods' }
+MbndAstBuilder >> declareClass: name [
+	<compileTime>
+	<returnType: #_ASTNode>
+	^ MbndAstClassDeclarationNode new
+		name: name;
+		yourself
+]
+
+{ #category : #'builder methods' }
+MbndAstBuilder >> declareGCClass: name [
+	<compileTime>
+	<returnType: #_ASTNode>
+	^ MbndAstGCClassDeclarationNode new
+		name: name;
+		yourself
+]
+
+{ #category : #'builder methods' }
+MbndAstBuilder >> declareStructure: name [
+	<compileTime>
+	<returnType: #_ASTNode>
+	^ MbndAstStructureDeclarationNode new
+		name: name;
+		yourself
+]
+
+{ #category : #'builder methods' }
+MbndAstBuilder >> declareUnion: name [
+	<compileTime>
+	<returnType: #_ASTNode>
+	^ MbndAstUnionDeclarationNode new
+		name: name;
+		yourself
+]
+
+{ #category : #'builder methods' }
+MbndAstBuilder >> defineClass: declaration superclass: superclass body: body [
+	<compileTime>
+	<returnType: #_ASTNode>
+	^ MbndAstClassDefinitionNode new
+		declaration: declaration;
+		superclass: superclass;
+		body: body;
+		yourself
+]
+
+{ #category : #'builder methods' }
+MbndAstBuilder >> defineClassNamed: name superclass: superclass body: body [
+	<compileTime>
+	<returnType: #_ASTNode>
+	^ self defineClass: (self declareClass: name) superclass: superclass body: body
+]
+
+{ #category : #'builder methods' }
+MbndAstBuilder >> defineField: name withValueType: valueType withInitialValue: initialValue [
+	<compileTime>
+	<returnType: #_ASTNode>
+	^ MbndAstFieldDefinitionNode new
+		name: name;
+		valueType: valueType;
+		initialValue: initialValue;
+		yourself
+]
+
+{ #category : #'builder methods' }
+MbndAstBuilder >> defineGCClass: declaration superclass: superclass body: body [
+	<compileTime>
+	<returnType: #_ASTNode>
+	^ MbndAstGCClassDefinitionNode new
+		declaration: declaration;
+		superclass: superclass;
+		body: body;
+		yourself
+]
+
+{ #category : #'builder methods' }
+MbndAstBuilder >> defineGCClassNamed: name superclass: superclass body: body [
+	<compileTime>
+	<returnType: #_ASTNode>
+	^ self defineGCClass: (self declareGCClass: name) superclass: superclass body: body
+]
+
+{ #category : #'builder methods' }
 MbndAstBuilder >> defineLocalVariable: name withValueType: valueType withInitialValue: initialValue [
 	<compileTime>
 	<returnType: #_ASTNode>
@@ -119,6 +202,40 @@ MbndAstBuilder >> defineLocalVariable: name withValueType: valueType withInitial
 		valueType: valueType;
 		initialValue: initialValue;
 		yourself
+]
+
+{ #category : #'builder methods' }
+MbndAstBuilder >> defineStructure: declaration body: body [
+	<compileTime>
+	<returnType: #_ASTNode>
+	^ MbndAstStructureDefinitionNode new
+		declaration: declaration;
+		body: body;
+		yourself
+]
+
+{ #category : #'builder methods' }
+MbndAstBuilder >> defineStructureNamed: name body: body [
+	<compileTime>
+	<returnType: #_ASTNode>
+	^ self defineStructure: (self declareStructure: name) body: body
+]
+
+{ #category : #'builder methods' }
+MbndAstBuilder >> defineUnion: declaration body: body [
+	<compileTime>
+	<returnType: #_ASTNode>
+	^ MbndAstUnionDefinitionNode new
+		declaration: declaration;
+		body: body;
+		yourself
+]
+
+{ #category : #'builder methods' }
+MbndAstBuilder >> defineUnionNamed: name body: body [
+	<compileTime>
+	<returnType: #_ASTNode>
+	^ self defineUnion: (self declareUnion: name) body: body
 ]
 
 { #category : #'builder methods' }

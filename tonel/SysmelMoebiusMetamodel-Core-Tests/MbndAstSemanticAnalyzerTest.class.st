@@ -192,6 +192,19 @@ MbndAstSemanticAnalyzerTest >> testChainedCast [
 ]
 
 { #category : #tests }
+MbndAstSemanticAnalyzerTest >> testClassDeclarationBuilderExpansion [
+	| node analyzedNode |
+	node := builder identifier: #class.
+	node := builder unexpandedSend: (builder literalSymbol: #x) to: node withArguments: #().
+	analyzedNode := visitor visitNode: node.
+	self assert: analyzedNode isClassDeclarationNode.
+	self assert: (scope lookupSymbolRecursively: #x ifAbsent: [nil]) isNotNil.
+	self assert: analyzedNode binding isNotNil.
+	self assert: analyzedNode binding isClassType.
+
+]
+
+{ #category : #tests }
 MbndAstSemanticAnalyzerTest >> testCompileTimeConstantDefinition [
 	| node analyzedNode |
 	node := builder alias: #int definition: (builder identifier: #Int32).
@@ -352,6 +365,19 @@ MbndAstSemanticAnalyzerTest >> testFloatingPointToIntegerCast [
 	self should: [self implicitAnalyzedCastNodeFrom: float64Type to: uint16Type] raise: Error.
 	self should: [self implicitAnalyzedCastNodeFrom: float64Type to: uint32Type] raise: Error.
 	self should: [self implicitAnalyzedCastNodeFrom: float64Type to: uint64Type] raise: Error.
+
+]
+
+{ #category : #tests }
+MbndAstSemanticAnalyzerTest >> testGCClassDeclarationBuilderExpansion [
+	| node analyzedNode |
+	node := builder identifier: #gcclass.
+	node := builder unexpandedSend: (builder literalSymbol: #x) to: node withArguments: #().
+	analyzedNode := visitor visitNode: node.
+	self assert: analyzedNode isGCClassDeclarationNode.
+	self assert: (scope lookupSymbolRecursively: #x ifAbsent: [nil]) isNotNil.
+	self assert: analyzedNode binding isNotNil.
+	self assert: analyzedNode binding isGCClassType.
 
 ]
 
@@ -1163,6 +1189,19 @@ MbndAstSemanticAnalyzerTest >> testSignExtension [
 ]
 
 { #category : #tests }
+MbndAstSemanticAnalyzerTest >> testStructureDeclarationBuilderExpansion [
+	| node analyzedNode |
+	node := builder identifier: #struct.
+	node := builder unexpandedSend: (builder literalSymbol: #x) to: node withArguments: #().
+	analyzedNode := visitor visitNode: node.
+	self assert: analyzedNode isStructureDeclarationNode.
+	self assert: (scope lookupSymbolRecursively: #x ifAbsent: [nil]) isNotNil.
+	self assert: analyzedNode binding isNotNil.
+	self assert: analyzedNode binding isStructureType.
+
+]
+
+{ #category : #tests }
 MbndAstSemanticAnalyzerTest >> testTruncate [
 	| int8Type int16Type int32Type int64Type uint8Type uint16Type uint32Type uint64Type |
 	int8Type := compilationTarget int8Type.
@@ -1199,6 +1238,19 @@ MbndAstSemanticAnalyzerTest >> testTruncate [
 	self should: [self implicitAnalyzedCastNodeFrom: uint64Type to: uint8Type] raise: Error.
 	self should: [self implicitAnalyzedCastNodeFrom: uint32Type to: uint8Type] raise: Error.
 	self should: [self implicitAnalyzedCastNodeFrom: uint16Type to: uint8Type] raise: Error.
+
+]
+
+{ #category : #tests }
+MbndAstSemanticAnalyzerTest >> testUnionDeclarationBuilderExpansion [
+	| node analyzedNode |
+	node := builder identifier: #union.
+	node := builder unexpandedSend: (builder literalSymbol: #x) to: node withArguments: #().
+	analyzedNode := visitor visitNode: node.
+	self assert: analyzedNode isUnionDeclarationNode.
+	self assert: (scope lookupSymbolRecursively: #x ifAbsent: [nil]) isNotNil.
+	self assert: analyzedNode binding isNotNil.
+	self assert: analyzedNode binding isUnionType.
 
 ]
 

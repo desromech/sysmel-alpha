@@ -78,6 +78,8 @@ MbndAstNodeTest >> testTestingMethods [
 	self deny: node isCasesOfCaseNode.
 	self deny: node isCasesOfDefaultCaseNode.
 	self deny: node isCasesOfNode.
+	self deny: node isClassDeclarationNode.
+	self deny: node isClassDefinitionNode.
 	self deny: node isCompileTimeConstantDefinitionNode.
 	self deny: node isContinueStatementNode.
 	self deny: node isDoWhileLoopNode.
@@ -85,9 +87,12 @@ MbndAstNodeTest >> testTestingMethods [
 	self deny: node isExplicitCastNode.
 	self deny: node isFloatingPointToIntegerCastNode.
 	self deny: node isFloatingPointSizeCastNode.
+	self deny: node isFieldDefinitionNode.
 	self deny: node isFunctionCallNode.
 	self deny: node isFunctionDefinitionNode.
 	self deny: node isFunctionPrototypeNode.
+	self deny: node isGCClassDeclarationNode.
+	self deny: node isGCClassDefinitionNode.
 	self deny: node isGenericCastNode.
 	self deny: node isIdentifierReferenceNode.
 	self deny: node isIfConditionNode.
@@ -120,10 +125,14 @@ MbndAstNodeTest >> testTestingMethods [
 	self deny: node isSignExtensionCastNode.
 	self deny: node isSpliceNode.
 	self deny: node isStatementNode.
+	self deny: node isStructureDeclarationNode.
+	self deny: node isStructureDefinitionNode.
 	self deny: node isSubscriptElementReferenceNode .
 	self deny: node isTruncateCastNode.
 	self deny: node isTupleNode.
 	self deny: node isUnexpandedMessageSendNode.
+	self deny: node isUnionDeclarationNode.
+	self deny: node isUnionDefinitionNode.
 	self deny: node isWhileLoopNode.
 	self deny: node isVariableReferenceNode.
 	self deny: node isZeroExtensionCastNode.

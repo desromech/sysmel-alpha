@@ -261,6 +261,11 @@ MbndAstSemanticAnalyzer >> visitAssignmentNode: node [
 ]
 
 { #category : #visiting }
+MbndAstSemanticAnalyzer >> visitClassDeclarationNode: node [
+	^ self visitTypeDeclarationNode: node ofKind: MbndClassType
+]
+
+{ #category : #visiting }
 MbndAstSemanticAnalyzer >> visitCompileTimeConstantDefinitionNode: node [
 	| aliasName owner alias |
 	aliasName := node name.
@@ -281,8 +286,8 @@ MbndAstSemanticAnalyzer >> visitCompileTimeConstantDefinitionNode: node [
 		yourself.
 	owner
 		addChild: alias;
-		setLocalSymbol: aliasName value: alias;
-		enqueueDelayedSemanticAnalysis.
+		setLocalSymbol: aliasName value: alias.
+	alias enqueueDelayedSemanticAnalysis.
 
 	^ self astBuilder literalVoid
 ]
@@ -404,6 +409,11 @@ MbndAstSemanticAnalyzer >> visitFunctionPrototypeNode: node [
 	].
 	
 	^ result
+]
+
+{ #category : #visiting }
+MbndAstSemanticAnalyzer >> visitGCClassDeclarationNode: node [
+	^ self visitTypeDeclarationNode: node ofKind: MbndGCClassType
 ]
 
 { #category : #visiting }
@@ -797,6 +807,39 @@ MbndAstSemanticAnalyzer >> visitSpliceNode: node [
 ]
 
 { #category : #visiting }
+MbndAstSemanticAnalyzer >> visitStructureDeclarationNode: node [
+	^ self visitTypeDeclarationNode: node ofKind: MbndStructureType
+]
+
+{ #category : #visiting }
+MbndAstSemanticAnalyzer >> visitTypeDeclarationNode: node ofKind: typeKindClass [
+	| result owner type |
+	"At this context, forbid unnamed type declarations."
+	self assert: node name isNotNil.
+	
+	result := node copy.
+	owner := node ownerProgramEntity ifNil: [scope lookupProgramEntityForNewDefinitions].
+	(owner lookupLocalSymbol: node name) ifNotNil: [ :previousDefintion |
+		previousDefintion class == typeKindClass ifFalse: [ 
+			self error: 'Cannot redefine symbol {1} as a type of another kind.' format: { node name asPrettySymbolName } at: result
+		].
+	
+		type := previousDefintion.
+	] ifNil: [
+		type := self compilationTarget createNamedType: result name ofKind: typeKindClass.
+		result binding: type.
+
+		owner
+			addChild: type;
+			setLocalSymbol: type name value: type.
+		type enqueueDelayedSemanticAnalysis.
+	].
+
+	result type: type type.
+	^ result
+]
+
+{ #category : #visiting }
 MbndAstSemanticAnalyzer >> visitUnexpandedMessageSendNode: node [
 	| result selector macroMethod |
 	result := node copy
@@ -820,6 +863,11 @@ MbndAstSemanticAnalyzer >> visitUnexpandedMessageSendNode: node [
 
 	"Apply the macro method."
 	^ macroMethod expandMessageNode: result with: self
+]
+
+{ #category : #visiting }
+MbndAstSemanticAnalyzer >> visitUnionDeclarationNode: node [
+	^ self visitTypeDeclarationNode: node ofKind: MbndUnionType
 ]
 
 { #category : #visiting }

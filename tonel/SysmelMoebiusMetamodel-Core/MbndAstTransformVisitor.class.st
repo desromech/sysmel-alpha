@@ -8,6 +8,15 @@ Class {
 }
 
 { #category : #visiting }
+MbndAstTransformVisitor >> visitAbstractClassDefinitionNode: node [
+	^ node copy
+		declaration: (node declaration ifNotNil: [:n | self visitNode: n]);
+		superclass: (node superclass ifNotNil: [:n | self visitNode: n]);
+		body: (self visitNode: node body);
+		yourself
+]
+
+{ #category : #visiting }
 MbndAstTransformVisitor >> visitArgumentDefinitionNode: node [
 	^ node copy
 		valueType: (node valueType ifNotNil: [:vt | self visitNode: vt]);
@@ -64,6 +73,16 @@ MbndAstTransformVisitor >> visitCasesOfNode: node [
 ]
 
 { #category : #visiting }
+MbndAstTransformVisitor >> visitClassDeclarationNode: node [
+	^ node copy
+]
+
+{ #category : #visiting }
+MbndAstTransformVisitor >> visitClassDefinitionNode: node [
+	^ self visitAbstractClassDefinitionNode: node
+]
+
+{ #category : #visiting }
 MbndAstTransformVisitor >> visitCompileTimeConstantDefinitionNode: node [
 	^ node copy
 		value: (self visitNode: node value);
@@ -99,6 +118,13 @@ MbndAstTransformVisitor >> visitExplicitCastNode: node [
 ]
 
 { #category : #visiting }
+MbndAstTransformVisitor >> visitFieldDefinitionNode: node [
+	^ node copy
+		initialValue: (node initialValue ifNotNil: [:initialValue | self visitNode: initialValue]);
+		yourself
+]
+
+{ #category : #visiting }
 MbndAstTransformVisitor >> visitFloatingPointSizeCastNode: node [
 	^ self visitSpecificCastNode: node
 ]
@@ -130,6 +156,16 @@ MbndAstTransformVisitor >> visitFunctionPrototypeNode: node [
 		arguments: (self visitNodesAndCollect: node arguments);
 		returnType: (node returnType ifNotNil: [self visitNode: node returnType]);
 		yourself
+]
+
+{ #category : #visiting }
+MbndAstTransformVisitor >> visitGCClassDeclarationNode: node [
+	^ node copy
+]
+
+{ #category : #visiting }
+MbndAstTransformVisitor >> visitGCClassDefinitionNode: node [
+	^ self visitAbstractClassDefinitionNode: node
 ]
 
 { #category : #visiting }
@@ -337,6 +373,19 @@ MbndAstTransformVisitor >> visitSpliceNode: node [
 ]
 
 { #category : #visiting }
+MbndAstTransformVisitor >> visitStructureDeclarationNode: node [
+	^ node copy
+]
+
+{ #category : #visiting }
+MbndAstTransformVisitor >> visitStructureDefinitionNode: node [
+	^ node copy
+		declaration: (node declaration ifNotNil: [:n | self visitNode: n]);
+		body: (self visitNode: node body);
+		yourself
+]
+
+{ #category : #visiting }
 MbndAstTransformVisitor >> visitTruncateCastNode: node [
 	^ self visitSpecificCastNode: node
 ]
@@ -354,6 +403,19 @@ MbndAstTransformVisitor >> visitUnexpandedMessageSendNode: node [
 		receiver: (node receiver ifNotNil: [self visitNode: node receiver]);
 		selector: (self visitNode: node selector);
 		arguments: (self visitNodesAndCollect: node arguments);
+		yourself
+]
+
+{ #category : #visiting }
+MbndAstTransformVisitor >> visitUnionDeclarationNode: node [
+	^ node copy
+]
+
+{ #category : #visiting }
+MbndAstTransformVisitor >> visitUnionDefinitionNode: node [
+	^ node copy
+		declaration: (node declaration ifNotNil: [:n | self visitNode: n]);
+		body: (self visitNode: node body);
 		yourself
 ]
 

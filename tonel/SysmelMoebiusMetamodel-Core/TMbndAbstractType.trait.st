@@ -299,6 +299,11 @@ TMbndAbstractType >> isASTNodeType [
 ]
 
 { #category : #'testing methods' }
+TMbndAbstractType >> isAbstractClassType [
+	^ false
+]
+
+{ #category : #'testing methods' }
 TMbndAbstractType >> isAcceptableLiteralValue: literalValue [
 	^ false
 ]
@@ -310,6 +315,11 @@ TMbndAbstractType >> isAggregateType [
 
 { #category : #'testing methods' }
 TMbndAbstractType >> isArrayType [
+	^ false
+]
+
+{ #category : #'testing methods' }
+TMbndAbstractType >> isClassType [
 	^ false
 ]
 
@@ -340,6 +350,11 @@ TMbndAbstractType >> isFunctionType [
 
 { #category : #'testing methods' }
 TMbndAbstractType >> isFunctionalType [
+	^ false
+]
+
+{ #category : #'testing methods' }
+TMbndAbstractType >> isGCClassType [
 	^ false
 ]
 

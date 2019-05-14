@@ -94,6 +94,18 @@ MbndCompilationTargetTest >> testCStringLiteralType [
 ]
 
 { #category : #'basic types' }
+MbndCompilationTargetTest >> testClassType [
+	| classType classType2 |
+	classType := compilationTarget createNamedType: #Test ofKind: MbndClassType.
+	classType2 := compilationTarget createNamedType: #Test ofKind: MbndClassType.
+	self assert: classType isAbstractClassType.
+	self assert: classType isClassType.
+	self assert: classType2 isAbstractClassType.
+	self assert: classType2 isClassType.
+	self assert: classType ~~ classType2
+]
+
+{ #category : #'basic types' }
 MbndCompilationTargetTest >> testCompilerObjectType [
 	self assert: compilationTarget compilerObjectType isOpaqueType.
 	self assert: compilationTarget compilerObjectType isCompilerObjectType.
@@ -164,6 +176,18 @@ MbndCompilationTargetTest >> testFunctionType [
 	self assert: type isFunctionType.
 	self assert: type argumentTypes equals: argumentTypes.
 	self assert: type returnType equals: returnType.
+]
+
+{ #category : #'basic types' }
+MbndCompilationTargetTest >> testGCClassType [
+	| classType classType2 |
+	classType := compilationTarget createNamedType: #Test ofKind: MbndGCClassType.
+	classType2 := compilationTarget createNamedType: #Test ofKind: MbndGCClassType.
+	self assert: classType isAbstractClassType.
+	self assert: classType isGCClassType.
+	self assert: classType2 isAbstractClassType.
+	self assert: classType2 isGCClassType.
+	self assert: classType ~~ classType2
 ]
 
 { #category : #'basic types' }
@@ -531,6 +555,16 @@ MbndCompilationTargetTest >> testSmallIntegerCoercions [
 ]
 
 { #category : #'basic types' }
+MbndCompilationTargetTest >> testStructureType [
+	| structureType structureType2 |
+	structureType := compilationTarget createNamedType: #Test ofKind: MbndStructureType.
+	structureType2 := compilationTarget createNamedType: #Test ofKind: MbndStructureType.
+	self assert: structureType isStructureType.
+	self assert: structureType2 isStructureType.
+	self assert: structureType ~~ structureType2
+]
+
+{ #category : #'basic types' }
 MbndCompilationTargetTest >> testUInt16Type [
 	| type |
 	type := compilationTarget uint16Type.
@@ -601,6 +635,16 @@ MbndCompilationTargetTest >> testUndefinedType [
 	self assert: compilationTarget undefinedType isUndefinedType.
 	self assert: compilationTarget undefinedType defaultValue unwrapMbndValue equals: nil.
 	
+]
+
+{ #category : #'basic types' }
+MbndCompilationTargetTest >> testUnionType [
+	| unionType unionType2 |
+	unionType := compilationTarget createNamedType: #Test ofKind: MbndUnionType.
+	unionType2 := compilationTarget createNamedType: #Test ofKind: MbndUnionType.
+	self assert: unionType isUnionType.
+	self assert: unionType2 isUnionType.
+	self assert: unionType ~~ unionType2
 ]
 
 { #category : #'basic types' }

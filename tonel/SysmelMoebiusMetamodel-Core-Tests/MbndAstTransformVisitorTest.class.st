@@ -118,6 +118,30 @@ MbndAstTransformVisitorTest >> testCasesOfNode [
 ]
 
 { #category : #tests }
+MbndAstTransformVisitorTest >> testClassDeclarationNode [
+	| node transformedNode |
+	node := builder declareClass: #Test.
+	transformedNode := visitor visitNode: node.
+	self assert: transformedNode ~~ node.
+	self assert: transformedNode isClassDeclarationNode.
+	self assert: transformedNode name equals: node name.
+]
+
+{ #category : #tests }
+MbndAstTransformVisitorTest >> testClassDefinitionNode [
+	| node superclass body transformedNode |
+	superclass := builder identifier: #Object.
+	body := builder sequence: #().
+	node := builder defineClassNamed: #Test superclass: superclass body: body.
+	transformedNode := visitor visitNode: node.
+	self assert: transformedNode isClassDefinitionNode.
+	self assert: transformedNode declaration isClassDeclarationNode.
+	self assert: transformedNode declaration name equals: #Test.
+	self assert: transformedNode superclass equals: superclass.
+	self assert: transformedNode body elements equals: body elements.
+]
+
+{ #category : #tests }
 MbndAstTransformVisitorTest >> testCompileTimeConstantDefinition [
 	| node transformedNode value |
 	value := builder identifier: #Int32.
@@ -181,6 +205,20 @@ MbndAstTransformVisitorTest >> testExplicitCast [
 	self assert: transformedNode expression equals: value.
 	self assert: transformedNode targetType equals: targetType.
 
+]
+
+{ #category : #tests }
+MbndAstTransformVisitorTest >> testFieldDefinition [
+	| node valueType initialValue transformedNode |
+	valueType := module compilationTarget int32Type.
+	initialValue := builder literalInteger: 42.
+	node := builder defineField: #f withValueType: valueType withInitialValue: initialValue.
+	transformedNode := visitor visitNode: node.
+	self assert: transformedNode ~~ node.
+	self assert: transformedNode isFieldDefinitionNode.
+	self assert: transformedNode name equals: node name.
+	self assert: transformedNode valueType equals: valueType.
+	self assert: transformedNode initialValue equals: initialValue.
 ]
 
 { #category : #tests }
@@ -265,6 +303,30 @@ MbndAstTransformVisitorTest >> testFunctionPrototypeNode [
 
 	self assert: transformedNode returnType equals: returnType.
 	
+]
+
+{ #category : #tests }
+MbndAstTransformVisitorTest >> testGCClassDeclarationNode [
+	| node transformedNode |
+	node := builder declareGCClass: #Test.
+	transformedNode := visitor visitNode: node.
+	self assert: transformedNode ~~ node.
+	self assert: transformedNode isGCClassDeclarationNode.
+	self assert: transformedNode name equals: node name.
+]
+
+{ #category : #tests }
+MbndAstTransformVisitorTest >> testGCClassDefinitionNode [
+	| node superclass body transformedNode |
+	superclass := builder identifier: #Object.
+	body := builder sequence: #().
+	node := builder defineGCClassNamed: #Test superclass: superclass body: body.
+	transformedNode := visitor visitNode: node.
+	self assert: transformedNode isGCClassDefinitionNode.
+	self assert: transformedNode declaration isGCClassDeclarationNode.
+	self assert: transformedNode declaration name equals: #Test.
+	self assert: transformedNode superclass equals: superclass.
+	self assert: transformedNode body elements equals: body elements.
 ]
 
 { #category : #tests }
@@ -637,6 +699,28 @@ MbndAstTransformVisitorTest >> testSpliceNode [
 ]
 
 { #category : #tests }
+MbndAstTransformVisitorTest >> testStructureDeclarationNode [
+	| node transformedNode |
+	node := builder declareStructure: #Test.
+	transformedNode := visitor visitNode: node.
+	self assert: transformedNode ~~ node.
+	self assert: transformedNode isStructureDeclarationNode.
+	self assert: transformedNode name equals: node name.
+]
+
+{ #category : #tests }
+MbndAstTransformVisitorTest >> testStructureDefinitionNode [
+	| node body transformedNode |
+	body := builder sequence: #().
+	node := builder defineStructureNamed: #Test body: body.
+	transformedNode := visitor visitNode: node.
+	self assert: transformedNode isStructureDefinitionNode.
+	self assert: transformedNode declaration isStructureDeclarationNode.
+	self assert: transformedNode declaration name equals: #Test.
+	self assert: transformedNode body elements equals: body elements.
+]
+
+{ #category : #tests }
 MbndAstTransformVisitorTest >> testTruncateCastNode [
 	| expression node targetType transformedNode |
 	expression := builder identifier: #x.
@@ -679,6 +763,28 @@ MbndAstTransformVisitorTest >> testUnexpandedMessageSendNode [
 	self assert: transformedNode receiver equals: node receiver.
 	self assert: transformedNode selector equals: node selector.
 	self assert: transformedNode arguments equals: node arguments.
+]
+
+{ #category : #tests }
+MbndAstTransformVisitorTest >> testUnionDeclarationNode [
+	| node transformedNode |
+	node := builder declareUnion: #Test.
+	transformedNode := visitor visitNode: node.
+	self assert: transformedNode ~~ node.
+	self assert: transformedNode isUnionDeclarationNode.
+	self assert: transformedNode name equals: node name.
+]
+
+{ #category : #tests }
+MbndAstTransformVisitorTest >> testUnionDefinitionNode [
+	| node body transformedNode |
+	body := builder sequence: #().
+	node := builder defineUnionNamed: #Test body: body.
+	transformedNode := visitor visitNode: node.
+	self assert: transformedNode isUnionDefinitionNode.
+	self assert: transformedNode declaration isUnionDeclarationNode.
+	self assert: transformedNode declaration name equals: #Test.
+	self assert: transformedNode body elements equals: body elements.
 ]
 
 { #category : #tests }
