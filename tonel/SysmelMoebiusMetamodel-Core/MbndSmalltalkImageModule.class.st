@@ -50,7 +50,7 @@ MbndSmalltalkImageModule >> analyzeAndEvaluateAST: ast [
 	^ self analyzeAndEvaluateParsedSource: parsedSource
 ]
 
-{ #category : #accessing }
+{ #category : #'as yet unclassified' }
 MbndSmalltalkImageModule >> compilationTarget [
 	compilationTarget ifNil: [
 		compilationTarget := MbndInImageCompilationTarget basicNew.

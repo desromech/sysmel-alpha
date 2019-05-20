@@ -6,5 +6,5 @@ Class {
 
 { #category : #running }
 MbndFieldVariableTest >> variableClass [
-	^ MbndFieldVariable
+	^ MbndAbstractFieldVariable
 ]

@@ -20,7 +20,9 @@ MbndAbstractTypeMetaBuilder >> concretizeNode: node withAnalyzer: analyzer [
 
 { #category : #accessing }
 MbndAbstractTypeMetaBuilder >> definition: newBodyNode [
-	self halt
+	self ensureTypeDefinitionNode.
+	
+	typeDefinitionNode body: newBodyNode
 ]
 
 { #category : #'semantic analysis' }
@@ -33,8 +35,20 @@ MbndAbstractTypeMetaBuilder >> ensureTypeDeclarationNode [
 		yourself
 ]
 
+{ #category : #'semantic analysis' }
+MbndAbstractTypeMetaBuilder >> ensureTypeDefinitionNode [
+	typeDefinitionNode ifNotNil: [ ^ self ].
+	self ensureTypeDeclarationNode.
+	
+	typeDefinitionNode := self typeDefinitionNodeClass new
+		position: position;
+		declaration: typeDeclarationNode;
+		yourself
+]
+
 { #category : #accessing }
 MbndAbstractTypeMetaBuilder >> extend: newBodyNode [
+	self ensureTypeDefinitionNode.
 	self halt
 ]
 

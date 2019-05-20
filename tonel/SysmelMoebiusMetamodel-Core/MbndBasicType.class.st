@@ -19,7 +19,7 @@ MbndBasicType class >> typeName [
 	^ self == MbndBasicType ifTrue: [ #AnyValue ] ifFalse: [ nil ]
 ]
 
-{ #category : #adding }
+{ #category : #'as yet unclassified' }
 MbndBasicType >> addChild: aChild [
 	self assert: aChild parent isNil.
 	aChild parent: self.
@@ -49,7 +49,7 @@ MbndBasicType >> enqueueDelayedSemanticAnalysis [
 	self flag: 'TODO: Implement this properly.'
 ]
 
-{ #category : #accessing }
+{ #category : #'as yet unclassified' }
 MbndBasicType >> fullName [
 	^ name ifNil: [ ^ self printString ]
 ]
@@ -81,7 +81,7 @@ MbndBasicType >> name: anObject [
 	name := anObject
 ]
 
-{ #category : #accessing }
+{ #category : #'as yet unclassified' }
 MbndBasicType >> parent [
 	^ parent
 ]

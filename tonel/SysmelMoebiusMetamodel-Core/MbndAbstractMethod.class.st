@@ -55,7 +55,7 @@ MbndAbstractMethod >> name: anObject [
 	name := anObject
 ]
 
-{ #category : #accessing }
+{ #category : #'as yet unclassified' }
 MbndAbstractMethod >> parent [
 	^ parent
 ]

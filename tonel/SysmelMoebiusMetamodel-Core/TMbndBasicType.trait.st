@@ -4,8 +4,8 @@ Trait {
 		'supertype',
 		'type'
 	],
-	#traits : 'TMbndType + TMbndMethodContainer + TMbndObjectWithFlags',
-	#classTraits : 'TMbndType classTrait + TMbndMethodContainer classTrait + TMbndObjectWithFlags classTrait',
+	#traits : 'TMbndType + TMbndMethodContainer + TMbndObjectWithFlags + TMbndSymbolContainer',
+	#classTraits : 'TMbndType classTrait + TMbndMethodContainer classTrait + TMbndObjectWithFlags classTrait + TMbndSymbolContainer classTrait',
 	#category : #'SysmelMoebiusMetamodel-Core-Type'
 }
 
@@ -41,6 +41,13 @@ TMbndBasicType >> lookupSelector: aSelector [
 	method := self methodDict at: aSelector ifAbsent: [ nil ].
 	method ifNotNil: [ ^ method ].
 	^ self supertype ifNotNil: [ :st | st lookupSelector: aSelector ]
+]
+
+{ #category : #'member symbols' }
+TMbndBasicType >> lookupSymbol: aSymbol [
+	(self lookupSpecialSymbol: aSymbol) ifNotNil: [ :binding | ^ binding ].
+	(self lookupLocalSymbol: aSymbol) ifNotNil: [ :binding | ^ binding ].
+	^ self supertype ifNotNil: [ :st | st lookupSymbol: aSymbol ]
 ]
 
 { #category : #'type hierarchy' }

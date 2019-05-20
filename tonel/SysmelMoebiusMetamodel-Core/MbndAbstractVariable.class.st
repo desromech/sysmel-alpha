@@ -1,8 +1,8 @@
 Class {
 	#name : #MbndAbstractVariable,
 	#superclass : #Object,
-	#traits : 'TMbndVariable',
-	#classTraits : 'TMbndVariable classTrait',
+	#traits : 'TMbndProgramEntity + TMbndVariable',
+	#classTraits : 'TMbndProgramEntity classTrait + TMbndVariable classTrait',
 	#instVars : [
 		'parent',
 		'name',
@@ -61,7 +61,7 @@ MbndAbstractVariable >> name: anObject [
 	name := anObject
 ]
 
-{ #category : #accessing }
+{ #category : #'as yet unclassified' }
 MbndAbstractVariable >> parent [
 	^ parent
 ]

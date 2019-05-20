@@ -5,17 +5,17 @@ Trait {
 	#category : #'SysmelMoebiusMetamodel-Core-ProgramEntity'
 }
 
-{ #category : #visiting }
+{ #category : #'as yet unclassified' }
 TMbndNamespace >> accept: aVisitor [
 	^ aVisitor visitNamespace: self
 ]
 
-{ #category : #testing }
+{ #category : #'as yet unclassified' }
 TMbndNamespace >> canHaveNamespaces [
 	^ true
 ]
 
-{ #category : #testing }
+{ #category : #'as yet unclassified' }
 TMbndNamespace >> isNamespace [
 	^ true
 ]

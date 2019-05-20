@@ -205,6 +205,22 @@ MbndAstSemanticAnalyzerTest >> testClassDeclarationBuilderExpansion [
 ]
 
 { #category : #tests }
+MbndAstSemanticAnalyzerTest >> testClassDefinitionBuilderExpansion [
+	| node analyzedNode |
+	node := builder identifier: #class.
+	node := builder unexpandedSend: (builder literalSymbol: #x) to: node withArguments: #().
+	node := builder unexpandedSend: (builder literalSymbol: #definition:) to: node withArguments: {
+		builder sequence: #()
+	}.
+	analyzedNode := visitor visitNode: node.
+	self assert: analyzedNode isClassDefinitionNode.
+	self assert: (scope lookupSymbolRecursively: #x ifAbsent: [nil]) isNotNil.
+	self assert: analyzedNode binding isNotNil.
+	self assert: analyzedNode binding isClassType.
+
+]
+
+{ #category : #tests }
 MbndAstSemanticAnalyzerTest >> testCompileTimeConstantDefinition [
 	| node analyzedNode |
 	node := builder alias: #int definition: (builder identifier: #Int32).
@@ -375,6 +391,22 @@ MbndAstSemanticAnalyzerTest >> testGCClassDeclarationBuilderExpansion [
 	node := builder unexpandedSend: (builder literalSymbol: #x) to: node withArguments: #().
 	analyzedNode := visitor visitNode: node.
 	self assert: analyzedNode isGCClassDeclarationNode.
+	self assert: (scope lookupSymbolRecursively: #x ifAbsent: [nil]) isNotNil.
+	self assert: analyzedNode binding isNotNil.
+	self assert: analyzedNode binding isGCClassType.
+
+]
+
+{ #category : #tests }
+MbndAstSemanticAnalyzerTest >> testGCClassDefinitionBuilderExpansion [
+	| node analyzedNode |
+	node := builder identifier: #gcclass.
+	node := builder unexpandedSend: (builder literalSymbol: #x) to: node withArguments: #().
+	node := builder unexpandedSend: (builder literalSymbol: #definition:) to: node withArguments: {
+		builder sequence: #()
+	}.
+	analyzedNode := visitor visitNode: node.
+	self assert: analyzedNode isGCClassDefinitionNode.
 	self assert: (scope lookupSymbolRecursively: #x ifAbsent: [nil]) isNotNil.
 	self assert: analyzedNode binding isNotNil.
 	self assert: analyzedNode binding isGCClassType.
@@ -1202,6 +1234,90 @@ MbndAstSemanticAnalyzerTest >> testStructureDeclarationBuilderExpansion [
 ]
 
 { #category : #tests }
+MbndAstSemanticAnalyzerTest >> testStructureDeclarationNode [
+	| node analyzedNode |
+	node := builder declareStructure: #Test.
+	analyzedNode := visitor visitNode: node.
+	self assert: analyzedNode isStructureDeclarationNode.
+	self assert: (scope lookupSymbolRecursively: #Test ifAbsent: [nil]) isNotNil.
+	self assert: analyzedNode binding isNotNil.
+	self assert: analyzedNode binding isStructureType.
+
+]
+
+{ #category : #tests }
+MbndAstSemanticAnalyzerTest >> testStructureDefinitionBuilderExpansion [
+	| node analyzedNode |
+	node := builder identifier: #struct.
+	node := builder unexpandedSend: (builder literalSymbol: #x) to: node withArguments: #().
+	node := builder unexpandedSend: (builder literalSymbol: #definition:) to: node withArguments: {
+		builder sequence: #()
+	}.
+	analyzedNode := visitor visitNode: node.
+	self assert: analyzedNode isStructureDefinitionNode.
+	self assert: (scope lookupSymbolRecursively: #x ifAbsent: [nil]) isNotNil.
+	self assert: analyzedNode binding isNotNil.
+	self assert: analyzedNode binding isStructureType.
+
+]
+
+{ #category : #tests }
+MbndAstSemanticAnalyzerTest >> testStructureEmptyDefinitionNode [
+	| node body analyzedNode |
+	body := builder sequence: #().
+	node := builder defineStructureNamed: #Test body: body.
+	analyzedNode := visitor visitNode: node.
+	self assert: analyzedNode isStructureDefinitionNode.
+	self assert: (scope lookupSymbolRecursively: #Test ifAbsent: [nil]) isNotNil.
+	self assert: analyzedNode binding isNotNil.
+	self assert: analyzedNode binding isStructureType.
+
+]
+
+{ #category : #tests }
+MbndAstSemanticAnalyzerTest >> testStructureWithOneFieldDefinitionNode [
+	| node body analyzedNode structure |
+	body := builder sequence: {
+		builder defineField: #i withValueType: (builder identifier: #Int32) withInitialValue: nil
+	}.
+	node := builder defineStructureNamed: #Test body: body.
+	analyzedNode := visitor visitNode: node.
+	self assert: analyzedNode isStructureDefinitionNode.
+	
+	self assert: (scope lookupSymbolRecursively: #Test ifAbsent: [nil]) isNotNil.
+	structure := analyzedNode binding.
+	self assert: structure isNotNil.
+	self assert: structure isStructureType.
+
+	self assert: (structure lookupSymbol: #i) isNotNil.
+	self assert: structure instanceSize equals: 4	.
+	self assert: structure instanceAlignment equals: 4.
+
+]
+
+{ #category : #tests }
+MbndAstSemanticAnalyzerTest >> testStructureWithTwoFieldsDefinitionNode [
+	| node body analyzedNode structure |
+	body := builder sequence: {
+		builder defineField: #i withValueType: (builder identifier: #Int32) withInitialValue: nil.
+		builder defineField: #f withValueType: (builder identifier: #Float32) withInitialValue: nil.
+	}.
+	node := builder defineStructureNamed: #Test body: body.
+	analyzedNode := visitor visitNode: node.
+	self assert: analyzedNode isStructureDefinitionNode.
+	
+	self assert: (scope lookupSymbolRecursively: #Test ifAbsent: [nil]) isNotNil.
+	structure := analyzedNode binding.
+	self assert: structure isNotNil.
+	self assert: structure isStructureType.
+
+	self assert: (structure lookupSymbol: #i) isNotNil.
+	self assert: (structure lookupSymbol: #f) isNotNil.
+	self assert: structure instanceSize equals: 8.
+	self assert: structure instanceAlignment equals: 4.
+]
+
+{ #category : #tests }
 MbndAstSemanticAnalyzerTest >> testTruncate [
 	| int8Type int16Type int32Type int64Type uint8Type uint16Type uint32Type uint64Type |
 	int8Type := compilationTarget int8Type.
@@ -1252,6 +1368,44 @@ MbndAstSemanticAnalyzerTest >> testUnionDeclarationBuilderExpansion [
 	self assert: analyzedNode binding isNotNil.
 	self assert: analyzedNode binding isUnionType.
 
+]
+
+{ #category : #tests }
+MbndAstSemanticAnalyzerTest >> testUnionDefinitionBuilderExpansion [
+	| node analyzedNode |
+	node := builder identifier: #union.
+	node := builder unexpandedSend: (builder literalSymbol: #x) to: node withArguments: #().
+	node := builder unexpandedSend: (builder literalSymbol: #definition:) to: node withArguments: {
+		builder sequence: #()
+	}.
+	analyzedNode := visitor visitNode: node.
+	self assert: analyzedNode isUnionDefinitionNode.
+	self assert: (scope lookupSymbolRecursively: #x ifAbsent: [nil]) isNotNil.
+	self assert: analyzedNode binding isNotNil.
+	self assert: analyzedNode binding isUnionType.
+
+]
+
+{ #category : #tests }
+MbndAstSemanticAnalyzerTest >> testUnionWithTwoFieldsDefinitionNode [
+	| node body analyzedNode structure |
+	body := builder sequence: {
+		builder defineField: #i withValueType: (builder identifier: #Int32) withInitialValue: nil.
+		builder defineField: #f withValueType: (builder identifier: #Float32) withInitialValue: nil.
+	}.
+	node := builder defineUnionNamed: #Test body: body.
+	analyzedNode := visitor visitNode: node.
+	self assert: analyzedNode isUnionDefinitionNode.
+	
+	self assert: (scope lookupSymbolRecursively: #Test ifAbsent: [nil]) isNotNil.
+	structure := analyzedNode binding.
+	self assert: structure isNotNil.
+	self assert: structure isUnionType.
+
+	self assert: (structure lookupSymbol: #i) isNotNil.
+	self assert: (structure lookupSymbol: #f) isNotNil.
+	self assert: structure instanceSize equals: 4.
+	self assert: structure instanceAlignment equals: 4.
 ]
 
 { #category : #tests }

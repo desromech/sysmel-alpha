@@ -8,6 +8,11 @@ Class {
 }
 
 { #category : #accessing }
+MbndAstAbstractProgramEntityDefinitionNode >> binding [
+	^ declaration binding
+]
+
+{ #category : #accessing }
 MbndAstAbstractProgramEntityDefinitionNode >> declaration [
 	^ declaration
 ]

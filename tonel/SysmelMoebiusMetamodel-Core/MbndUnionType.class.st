@@ -14,6 +14,14 @@ MbndUnionType >> accept: aVisitor [
 	^ aVisitor visitUnionType: self
 ]
 
+{ #category : #layout }
+MbndUnionType >> buildSlotLayout [
+	| builder |
+	builder := MbndUnionSlotLayoutBuilder new.
+	self buildSlotLayoutWith: builder.
+	slotLayout := builder finish.
+]
+
 { #category : #'testing methods' }
 MbndUnionType >> isUnionType [
 	^ true

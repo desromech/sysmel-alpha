@@ -13,7 +13,7 @@ Class {
 	#category : #'SysmelMoebiusMetamodel-Core-ProgramEntity'
 }
 
-{ #category : #visiting }
+{ #category : #'as yet unclassified' }
 MbndCompileTimeConstant >> accept: aVisitor [
 	^ aVisitor visitCompileTimeConstant: self
 ]
@@ -24,7 +24,7 @@ MbndCompileTimeConstant >> analyzeReferenceNode: referenceNode with: analyzer [
 	^ evaluatedValue asLiteralValueNode
 ]
 
-{ #category : #accessing }
+{ #category : #'as yet unclassified' }
 MbndCompileTimeConstant >> compilationTarget [
 	^ parent compilationTarget
 ]
@@ -40,7 +40,7 @@ MbndCompileTimeConstant >> ensureSemanticAnalysis [
 
 ]
 
-{ #category : #testing }
+{ #category : #'as yet unclassified' }
 MbndCompileTimeConstant >> isCompileTimeConstant [
 	^ true
 ]
@@ -60,7 +60,7 @@ MbndCompileTimeConstant >> name: anObject [
 	name := anObject
 ]
 
-{ #category : #accessing }
+{ #category : #'as yet unclassified' }
 MbndCompileTimeConstant >> parent [
 	^ parent
 ]

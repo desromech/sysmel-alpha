@@ -10,7 +10,7 @@ Trait {
 	#category : #'SysmelMoebiusMetamodel-Core-Module'
 }
 
-{ #category : #visiting }
+{ #category : #'as yet unclassified' }
 TMbndModule >> accept: aVisitor [
 	^ aVisitor visitModule: self
 ]
@@ -51,12 +51,12 @@ TMbndModule >> analyzeReferenceNode: referenceNode with: analyzer [
 		yourself
 ]
 
-{ #category : #accessing }
+{ #category : #'as yet unclassified' }
 TMbndModule >> children [
 	^ { self globalNamespace }
 ]
 
-{ #category : #accessing }
+{ #category : #'as yet unclassified' }
 TMbndModule >> compilationTarget [
 	self explicitRequirement
 ]
@@ -186,7 +186,7 @@ TMbndModule >> newSourceEvaluationScopeForLanguageScope: languageScope withWorki
 	
 ]
 
-{ #category : #accessing }
+{ #category : #'as yet unclassified' }
 TMbndModule >> parent [
 	^ nil
 ]

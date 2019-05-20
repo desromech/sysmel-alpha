@@ -273,7 +273,7 @@ TMbndAbstractType >> findConversionRuleInto: targetType node: node rulesExtracto
 	^ nil
 ]
 
-{ #category : #accessing }
+{ #category : #'as yet unclassified' }
 TMbndAbstractType >> fullName [
 	self explicitRequirement
 ]
@@ -538,9 +538,15 @@ TMbndAbstractType >> lookupSelector: aSelector [
 	^ self supertype ifNotNil: [ :st | st lookupSelector: aSelector ]
 ]
 
-{ #category : #methods }
-TMbndAbstractType >> lookupSymbol: aSymbol [
+{ #category : #symbols }
+TMbndAbstractType >> lookupSpecialSymbol: aSymbol [
 	aSymbol == #SelfType ifTrue: [ ^ self ].
+	^ nil
+]
+
+{ #category : #symbols }
+TMbndAbstractType >> lookupSymbol: aSymbol [
+	(self lookupSpecialSymbol: aSymbol) ifNotNil: [ :binding | ^ binding ].
 	^ self supertype ifNotNil: [ :st | st lookupSymbol: aSymbol ]
 ]
 
@@ -582,6 +588,11 @@ TMbndAbstractType >> ref [
 TMbndAbstractType >> refFor: addressSpace [
 	<compileTime>
 	^ self compilationTarget referenceFor: addressSpace to: self
+]
+
+{ #category : #accessing }
+TMbndAbstractType >> slotLayout [
+	^ nil
 ]
 
 { #category : #'type hierarchy' }

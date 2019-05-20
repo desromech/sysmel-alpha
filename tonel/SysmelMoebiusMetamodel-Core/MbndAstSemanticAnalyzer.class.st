@@ -266,6 +266,11 @@ MbndAstSemanticAnalyzer >> visitClassDeclarationNode: node [
 ]
 
 { #category : #visiting }
+MbndAstSemanticAnalyzer >> visitClassDefinitionNode: node [
+	^ self visitTypeDefinitionNode: node ofKind: MbndClassType
+]
+
+{ #category : #visiting }
 MbndAstSemanticAnalyzer >> visitCompileTimeConstantDefinitionNode: node [
 	| aliasName owner alias |
 	aliasName := node name.
@@ -343,6 +348,53 @@ MbndAstSemanticAnalyzer >> visitExplicitCastNode: node [
 ]
 
 { #category : #visiting }
+MbndAstSemanticAnalyzer >> visitFieldDefinitionNode: node [
+	| result owner fieldName field |
+	result := node copy.
+
+	result valueType ifNotNil: [ 
+		result valueType: (self evaluateTypeExpression: node valueType)
+	].
+
+	result bits ifNotNil: [ 
+		result bits isMbndAstNode ifTrue: [ 
+			result bits: (self evaluateCompileTimeExpression: result bits) unwrapMbndValue.
+			self error: 'Expected an integer value for the bit count of a field.' at: node bits
+		] ifFalse: [ 
+			self error: 'Expected an integer value for the bit count of a field.' at: node
+		]
+	].
+
+	result initialValue ifNil: [
+		result valueType ifNil: [
+			self error: 'function argument {1} requires an explicit type.' format: { result name asPrettySymbolName } at: result
+		]
+	] ifNotNil: [ 
+		result initialValue: node initialValue.
+		self halt
+	].
+
+	fieldName := node name.
+	owner := node ownerProgramEntity ifNil: [scope lookupProgramEntityForNewDefinitions].
+	(owner lookupLocalSymbol: fieldName) ifNotNil: [ :previousDefintion |
+		self error: 'Cannot redefine field {1}.' format: { fieldName asPrettySymbolName } at: result
+	].
+
+	field := MbndFieldVariable new
+		name: fieldName;
+		valueType: result valueType;
+		type: result valueType ref;
+		bits: result bits;
+		yourself.
+	owner addField: field.
+
+	result
+		binding: field;
+		type: self compilationTarget voidType.
+	^ result
+]
+
+{ #category : #visiting }
 MbndAstSemanticAnalyzer >> visitFunctionCallNode: node [
 	| result functionalType |
 	result := node copy.
@@ -414,6 +466,11 @@ MbndAstSemanticAnalyzer >> visitFunctionPrototypeNode: node [
 { #category : #visiting }
 MbndAstSemanticAnalyzer >> visitGCClassDeclarationNode: node [
 	^ self visitTypeDeclarationNode: node ofKind: MbndGCClassType
+]
+
+{ #category : #visiting }
+MbndAstSemanticAnalyzer >> visitGCClassDefinitionNode: node [
+	^ self visitTypeDefinitionNode: node ofKind: MbndGCClassType
 ]
 
 { #category : #visiting }
@@ -812,6 +869,11 @@ MbndAstSemanticAnalyzer >> visitStructureDeclarationNode: node [
 ]
 
 { #category : #visiting }
+MbndAstSemanticAnalyzer >> visitStructureDefinitionNode: node [
+	^ self visitTypeDefinitionNode: node ofKind: MbndStructureType
+]
+
+{ #category : #visiting }
 MbndAstSemanticAnalyzer >> visitTypeDeclarationNode: node ofKind: typeKindClass [
 	| result owner type |
 	"At this context, forbid unnamed type declarations."
@@ -836,6 +898,33 @@ MbndAstSemanticAnalyzer >> visitTypeDeclarationNode: node ofKind: typeKindClass 
 	].
 
 	result type: type type.
+	^ result
+]
+
+{ #category : #visiting }
+MbndAstSemanticAnalyzer >> visitTypeDefinitionNode: node ofKind: typeKindClass [
+	| result definitionScope |
+	self flag: 'TODO: Support anonymous types.'.
+	
+	result := node copy.
+	result declaration: (self visitNode: result declaration).
+
+	"Set the defined flag"
+	result binding addFlag: #defined.
+	
+	"Create a new lexical scope for the definition body."	
+	definitionScope := (result binding programEntityScope parent: scope) newLexicalScope.
+	
+	"Analyze the definition body."
+	self withScope: definitionScope do: [ 
+		result body: (self visitNode: result body)
+	].
+
+	"Enqueue the result semantic analysis."
+	result binding enqueueDelayedSemanticAnalysis.
+	
+	"Pass through the declaration result."
+	result type: result declaration type.
 	^ result
 ]
 
@@ -868,6 +957,11 @@ MbndAstSemanticAnalyzer >> visitUnexpandedMessageSendNode: node [
 { #category : #visiting }
 MbndAstSemanticAnalyzer >> visitUnionDeclarationNode: node [
 	^ self visitTypeDeclarationNode: node ofKind: MbndUnionType
+]
+
+{ #category : #visiting }
+MbndAstSemanticAnalyzer >> visitUnionDefinitionNode: node [
+	^ self visitTypeDefinitionNode: node ofKind: MbndUnionType
 ]
 
 { #category : #visiting }

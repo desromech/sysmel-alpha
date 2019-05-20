@@ -5,7 +5,7 @@ Trait {
 	#category : #'SysmelMoebiusMetamodel-Core-Module'
 }
 
-{ #category : #visiting }
+{ #category : #'as yet unclassified' }
 TMbndGlobalVariable >> accept: aVisitor [
 	^ aVisitor visitGlobalVariable: self
 ]

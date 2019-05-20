@@ -1,10 +1,101 @@
 Class {
 	#name : #MbndAggregateTypeWithFields,
 	#superclass : #MbndAggregateType,
+	#instVars : [
+		'fields',
+		'slotLayout'
+	],
 	#category : #'SysmelMoebiusMetamodel-Core-Type'
 }
 
 { #category : #accessing }
 MbndAggregateTypeWithFields class >> typeName [
 	^ #_AggregateTypeWithFields
+]
+
+{ #category : #adding }
+MbndAggregateTypeWithFields >> addField: aField [
+	self addChild: aField.
+
+	aField name isMbndAnonymousSymbol ifFalse: [ 
+		self setLocalSymbol: aField name value: aField
+	].
+
+	self fields add: aField.
+
+]
+
+{ #category : #layout }
+MbndAggregateTypeWithFields >> buildSlotLayout [
+	| builder |
+	builder := MbndAggregateSlotLayoutBuilder new.
+	self buildSlotLayoutWith: builder.
+	slotLayout := builder finish.
+]
+
+{ #category : #layout }
+MbndAggregateTypeWithFields >> buildSlotLayoutWith: builder [
+	self buildSuperTypesSlotLayoutWith: builder.
+	fields do: [ :field |
+		builder addField: field
+	].
+]
+
+{ #category : #layout }
+MbndAggregateTypeWithFields >> buildSuperTypesSlotLayoutWith: builder [
+]
+
+{ #category : #'semantic analysis' }
+MbndAggregateTypeWithFields >> ensureSemanticAnalysis [
+	super ensureSemanticAnalysis.
+	self isDefined ifTrue: [ 
+		self ensureSlotLayoutIsComputed.
+	] ifFalse: [ 
+	]
+
+]
+
+{ #category : #layout }
+MbndAggregateTypeWithFields >> ensureSlotLayoutIsComputed [
+	(self hasFlag: #computingSlotLayout) ifTrue: [ 
+		self error: 'Type with circular slot layout.'
+	].
+	self
+		addFlag: #computingSlotLayout;
+		buildSlotLayout;
+		removeFlag: #computingSlotLayout.
+
+]
+
+{ #category : #accessing }
+MbndAggregateTypeWithFields >> fields [
+	^ fields ifNil: [ fields := OrderedCollection new ]
+]
+
+{ #category : #accessing }
+MbndAggregateTypeWithFields >> instanceAlignment [
+	slotLayout ifNil: [self ensureSlotLayoutIsComputed].
+	^ slotLayout instanceAlignment
+]
+
+{ #category : #accessing }
+MbndAggregateTypeWithFields >> instanceSize [
+	slotLayout ifNil: [self ensureSlotLayoutIsComputed].
+	^ slotLayout instanceSize
+]
+
+{ #category : #'semantic analysis' }
+MbndAggregateTypeWithFields >> isDefined [
+	^ self hasFlag: #defined
+]
+
+{ #category : #accessing }
+MbndAggregateTypeWithFields >> slotLayout [
+	slotLayout ifNil: [
+		self isDefined ifFalse: [ 
+			self error: 'Cannot instantiate or inherit from opaque type.'
+		].
+		self ensureSlotLayoutIsComputed
+	].
+	^ slotLayout
 ]

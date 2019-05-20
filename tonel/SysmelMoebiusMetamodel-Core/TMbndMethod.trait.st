@@ -25,7 +25,7 @@ TMbndMethod >> evaluateWithReceiver: receiver arguments: arguments withEvaluator
 	self explicitRequirement
 ]
 
-{ #category : #testing }
+{ #category : #'as yet unclassified' }
 TMbndMethod >> isMethod [
 	^ true
 ]

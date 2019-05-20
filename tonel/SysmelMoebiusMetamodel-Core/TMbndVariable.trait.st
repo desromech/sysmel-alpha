@@ -1,9 +1,19 @@
 Trait {
 	#name : #TMbndVariable,
-	#traits : 'TMbndSymbolBinding',
-	#classTraits : 'TMbndSymbolBinding classTrait',
+	#traits : 'TMbndAbstractProgramEntity',
+	#classTraits : 'TMbndAbstractProgramEntity classTrait',
 	#category : #'SysmelMoebiusMetamodel-Core-Variables'
 }
+
+{ #category : #testing }
+TMbndVariable >> isFieldVariable [
+	^ false
+]
+
+{ #category : #testing }
+TMbndVariable >> isVTablePointerField [
+	^ false
+]
 
 { #category : #testing }
 TMbndVariable >> isVariable [
