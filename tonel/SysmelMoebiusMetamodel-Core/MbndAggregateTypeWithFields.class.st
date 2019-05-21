@@ -36,7 +36,7 @@ MbndAggregateTypeWithFields >> buildSlotLayout [
 { #category : #layout }
 MbndAggregateTypeWithFields >> buildSlotLayoutWith: builder [
 	self buildSuperTypesSlotLayoutWith: builder.
-	fields do: [ :field |
+	self fields do: [ :field |
 		builder addField: field
 	].
 ]
@@ -74,12 +74,14 @@ MbndAggregateTypeWithFields >> fields [
 
 { #category : #accessing }
 MbndAggregateTypeWithFields >> instanceAlignment [
+	<compileTime>
 	slotLayout ifNil: [self ensureSlotLayoutIsComputed].
 	^ slotLayout instanceAlignment
 ]
 
 { #category : #accessing }
 MbndAggregateTypeWithFields >> instanceSize [
+	<compileTime>
 	slotLayout ifNil: [self ensureSlotLayoutIsComputed].
 	^ slotLayout instanceSize
 ]

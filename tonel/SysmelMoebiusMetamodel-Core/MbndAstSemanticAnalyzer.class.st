@@ -811,6 +811,18 @@ MbndAstSemanticAnalyzer >> visitReferenceLoadNode: node [
 ]
 
 { #category : #visiting }
+MbndAstSemanticAnalyzer >> visitReinterpretCastNode: node [
+	| result sourceType |
+	result := node copy
+		expression: (self analyzeNodeIfNeeded: node expression);
+		targetType: (self evaluateTypeExpression: node targetType);
+		yourself.
+	
+	sourceType := result expression type.
+	^ sourceType analyzeReinterpretCastNode: result to: result targetType with: self
+]
+
+{ #category : #visiting }
 MbndAstSemanticAnalyzer >> visitReturnStatementNode: node [
 	| result |
 	result := node copy

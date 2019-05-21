@@ -857,9 +857,10 @@ MbndAstSemanticAnalyzerTest >> testLiteralIntegerImplicitCast [
 { #category : #tests }
 MbndAstSemanticAnalyzerTest >> testLiteralIntegerReinterpretCast [
 	| node analyzedNode |
-	node := builder reinterpretCast: (builder literalInteger: 42) to: (compilationTarget void pointer).
+	node := builder reinterpretCast: (builder literalInteger: 42) to: (compilationTarget voidType pointer).
 	analyzedNode := visitor visitNode: node.
 	self assert: analyzedNode isLiteralValueNode.
+	self assert: analyzedNode value equals: 42.
 	self assert: analyzedNode type isPointerType.
 ]
 

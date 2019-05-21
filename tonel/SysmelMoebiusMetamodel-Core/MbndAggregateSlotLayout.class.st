@@ -17,6 +17,7 @@ MbndAggregateSlotLayout >> initialize [
 
 { #category : #accessing }
 MbndAggregateSlotLayout >> instanceAlignment [
+	<compileTime>
 	^ instanceAlignment
 ]
 
@@ -27,6 +28,7 @@ MbndAggregateSlotLayout >> instanceAlignment: anObject [
 
 { #category : #accessing }
 MbndAggregateSlotLayout >> instanceSize [
+	<compileTime>
 	^ instanceSize
 ]
 

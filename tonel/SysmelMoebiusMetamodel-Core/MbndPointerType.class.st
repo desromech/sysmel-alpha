@@ -14,29 +14,9 @@ MbndPointerType >> accept: aVisitor [
 	^ aVisitor visitPointerType: self
 ]
 
-{ #category : #converting }
-MbndPointerType >> asCVariadicTypeRequiredAt: position [
-	^ self
-]
-
-{ #category : #converting }
-MbndPointerType >> asPointerType [
-	^ self
-]
-
-{ #category : #converting }
-MbndPointerType >> asReferenceType [
-	^ baseType refFor: addressSpace
-]
-
-{ #category : #'default values' }
-MbndPointerType >> defaultValue [
-	^ MbndValue value: nil type: self
-]
-
 { #category : #initialization }
-MbndPointerType >> initializeBasicTypeTrait [
-	super initializeBasicTypeTrait.
+MbndPointerType >> addTraitMacros [
+	self class == MbndPointerType ifFalse: [ ^ self ].
 	self
 		onMacroSelectors: #(value _) do: [ :node :builder |
 			(builder pointerAsReference: node receiver)
@@ -68,6 +48,26 @@ MbndPointerType >> initializeBasicTypeTrait [
 		onMacroSelector: #- do: [ :node :builder |
 			self halt
 		].
+]
+
+{ #category : #converting }
+MbndPointerType >> asCVariadicTypeRequiredAt: position [
+	^ self
+]
+
+{ #category : #converting }
+MbndPointerType >> asPointerType [
+	^ self
+]
+
+{ #category : #converting }
+MbndPointerType >> asReferenceType [
+	^ baseType refFor: addressSpace
+]
+
+{ #category : #'default values' }
+MbndPointerType >> defaultValue [
+	^ MbndValue value: nil type: self
 ]
 
 { #category : #'testing methods' }

@@ -128,6 +128,16 @@ TMbndModule >> globalNamespace [
 	]
 ]
 
+{ #category : #parameters }
+TMbndModule >> hasRuntimeTypeInformation [
+	^ false
+]
+
+{ #category : #parameters }
+TMbndModule >> hasStandardLibrary [
+	^ true
+]
+
 { #category : #'member symbols' }
 TMbndModule >> lookupSymbol: aSymbol [
 	aSymbol = #Compiler ifTrue: [ ^ self ].

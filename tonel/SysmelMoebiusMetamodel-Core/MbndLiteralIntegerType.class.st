@@ -10,6 +10,19 @@ MbndLiteralIntegerType class >> typeName [
 ]
 
 { #category : #converting }
+MbndLiteralIntegerType >> analyzeReinterpretCastNode: node to: targetType with: analyzer [
+	node expression isLiteralValueNode ifTrue: [
+		targetType isPointerType ifTrue: [
+			^ node expression copy
+				type: targetType;
+				yourself
+		].
+	].
+
+	^ super analyzeReinterpretCastNode: node to: targetType with: analyzer
+]
+
+{ #category : #converting }
 MbndLiteralIntegerType >> asCVariadicTypeRequiredAt: position [
 	^ self compilationTarget int32Type
 ]

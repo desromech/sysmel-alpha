@@ -18,6 +18,7 @@ MbndPrimitiveType class >> typeName [
 
 { #category : #accessing }
 MbndPrimitiveType >> instanceAlignment [
+	<compileTime>
 	^ instanceAlignment
 ]
 
@@ -28,6 +29,7 @@ MbndPrimitiveType >> instanceAlignment: anObject [
 
 { #category : #accessing }
 MbndPrimitiveType >> instanceSize [
+	<compileTime>
 	^ instanceSize
 ]
 

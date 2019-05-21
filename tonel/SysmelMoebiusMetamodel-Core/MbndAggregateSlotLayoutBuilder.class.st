@@ -83,7 +83,7 @@ MbndAggregateSlotLayoutBuilder >> currentSlotIndex [
 MbndAggregateSlotLayoutBuilder >> finish [
 	self flush.
 	^ layout copy
-		slots: layout asArray;
+		slots: layout slots asArray;
 		instanceSize: instanceSize;
 		instanceAlignment: instanceAlignment;
 		yourself

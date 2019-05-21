@@ -8,7 +8,8 @@ Trait {
 		'functionTypes',
 		'decoratedTypes',
 		'arithmeticCoercionTable',
-		'variantUnions'
+		'variantUnions',
+		'arrayTypes'
 	],
 	#traits : 'TMbndAbstractCompilationTarget',
 	#classTraits : 'TMbndAbstractCompilationTarget classTrait',
@@ -49,6 +50,18 @@ TMbndCoreCompilationTarget >> addBasicType: basicType [
 	self ensureBasicTypeIsLinkedToTheHierarchy: basicType.
 	basicTypes at: basicType name put: basicType.
 	^ basicType
+]
+
+{ #category : #'derived types' }
+TMbndCoreCompilationTarget >> arrayOf: elementType elements: elementCount [
+	^ arrayTypes at: { elementType . elementCount } ifAbsentPut: [
+		(self ensureBasicTypeIsLinkedToTheHierarchy: MbndArrayType basicNew)
+			name: nil;
+			elementType: elementType;
+			elements: elementCount;
+			initializeNonTraitType;
+			yourself.
+	]
 ]
 
 { #category : #coercing }
@@ -377,6 +390,7 @@ TMbndCoreCompilationTarget >> initializeDerivedTypeCaches [
 	functionTypes := WeakValueDictionary new.
 	decoratedTypes := WeakValueDictionary new.
 	variantUnions := WeakValueDictionary new.
+	arrayTypes := WeakValueDictionary new.
 ]
 
 { #category : #initialization }

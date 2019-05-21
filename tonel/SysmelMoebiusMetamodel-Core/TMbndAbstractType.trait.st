@@ -11,6 +11,12 @@ Trait {
 	#category : #'SysmelMoebiusMetamodel-Core-Type'
 }
 
+{ #category : #'type composition' }
+TMbndAbstractType >> => returnType [
+	<compileTime>
+	^ self compilationTarget functionTypeWithArguments: { self } returnType: returnType
+]
+
 { #category : #converting }
 TMbndAbstractType >> addConversionRule: conversionRule [
 	self
@@ -72,6 +78,12 @@ TMbndAbstractType >> addImplicitConversionTo: targetType rule: conversionRule [
 	self addImplicitConversionRule: (conversionRule asMbndTypeConversionRuleTo: targetType)
 ]
 
+{ #category : #sizes }
+TMbndAbstractType >> alignedInstanceSize [
+	"By default, most of the type sizes are aligned. One notable exception is primitive vector3.".
+	^ self instanceSize
+]
+
 { #category : #'type hierarchy' }
 TMbndAbstractType >> allSubtypes [
 	| result |
@@ -115,6 +127,11 @@ TMbndAbstractType >> analyzeReferenceNode: referenceNode with: analyzer [
 		yourself
 ]
 
+{ #category : #converting }
+TMbndAbstractType >> analyzeReinterpretCastNode: node to: targetType with: analyzer [
+	self error: 'Cannot perform reinterpret cast from {1} to {2}.' format: { self asString . targetType asString } at: node
+]
+
 { #category : #'semantic analysis' }
 TMbndAbstractType >> analyzeUnboundExpandedMessageSendNode: node with: analyzer [
 	self error: 'Cannot send unknown message {1} to value of type {2}.' format: {node selector printValueString. self fullName} at: node
@@ -144,6 +161,18 @@ TMbndAbstractType >> analyzeUnexpandedMessageSendNode: node with: analyzer [
 { #category : #'as yet unclassified' }
 TMbndAbstractType >> arithmeticCoercionWith: rightType [
 	^ self compilationTarget computeArithmeticCoercionTypeFor: self with: rightType
+]
+
+{ #category : #'type composition' }
+TMbndAbstractType >> array [
+	<compileTime>
+	^ self array: 0
+]
+
+{ #category : #'type composition' }
+TMbndAbstractType >> array: elementCount [
+	<compileTime>
+	^ self compilationTarget arrayOf: self elements: elementCount
 ]
 
 { #category : #converting }
@@ -695,5 +724,6 @@ TMbndAbstractType >> withoutTopDecorations [
 
 { #category : #'type composition' }
 TMbndAbstractType >> | otherType [
+	<compileTime>
 	^ self compilationTarget variantUnionTypeWithComponents: { self . otherType }
 ]

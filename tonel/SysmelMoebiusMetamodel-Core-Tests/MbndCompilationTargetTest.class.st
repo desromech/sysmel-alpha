@@ -24,6 +24,18 @@ MbndCompilationTargetTest >> testASTNodeType [
 ]
 
 { #category : #'basic types' }
+MbndCompilationTargetTest >> testArrayType [
+	| elementType type|
+	elementType := compilationTarget uint8Type.
+	type := elementType array: 7.
+	self assert: type isArrayType.
+	self assert: type elementType equals: elementType.
+	self assert: type elements equals: 7.
+	self assert: type instanceSize equals: 7.
+	self assert: type instanceAlignment equals: 1.
+]
+
+{ #category : #'basic types' }
 MbndCompilationTargetTest >> testAsCVariadicType [
 	self assert: compilationTarget literalBooleanType asCVariadicType equals: compilationTarget booleanType.
 	self assert: compilationTarget booleanType asCVariadicType equals: compilationTarget booleanType.
@@ -164,6 +176,18 @@ MbndCompilationTargetTest >> testFloatCoercions [
 	self assert: (float32Type arithmeticCoercionWith: float64Type) equals: float64Type.
 	self assert: (float64Type arithmeticCoercionWith: float32Type) equals: float64Type.
 
+]
+
+{ #category : #'basic types' }
+MbndCompilationTargetTest >> testFunction2Type [
+	| type argumentType returnType |
+	argumentType := compilationTarget uint8Type.
+	returnType := compilationTarget voidType.
+	type := argumentType => returnType.
+	self assert: type isFunctionalType.
+	self assert: type isFunctionType.
+	self assert: type argumentTypes equals: {argumentType}.
+	self assert: type returnType equals: returnType.
 ]
 
 { #category : #'basic types' }
@@ -627,6 +651,18 @@ MbndCompilationTargetTest >> testUIntPointerType [
 	self assert: type isUnsigned.
 	self assert: type defaultValue unwrapMbndValue equals: 0.
 	
+]
+
+{ #category : #'basic types' }
+MbndCompilationTargetTest >> testUnboundedArrayType [
+	| elementType type|
+	elementType := compilationTarget uint8Type.
+	type := elementType array.
+	self assert: type isArrayType.
+	self assert: type elementType equals: elementType.
+	self assert: type elements equals: 0.
+	self assert: type instanceSize equals: 0.
+	self assert: type instanceAlignment equals: 1.
 ]
 
 { #category : #'basic types' }

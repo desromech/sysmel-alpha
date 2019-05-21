@@ -40,6 +40,26 @@ MbndSlovimCompilationTarget >> int64Alignment [
 	^ slvmCompilationTarget int64 alignment
 ]
 
+{ #category : #'platform testing' }
+MbndSlovimCompilationTarget >> isFreeBSD [
+	^ slvmCompilationTarget isFreeBSD
+]
+
+{ #category : #'platform testing' }
+MbndSlovimCompilationTarget >> isLinux [
+	^ slvmCompilationTarget isLinux
+]
+
+{ #category : #'platform testing' }
+MbndSlovimCompilationTarget >> isOSX [
+	^ slvmCompilationTarget isOSX
+]
+
+{ #category : #'platform testing' }
+MbndSlovimCompilationTarget >> isWin32 [
+	^ slvmCompilationTarget isWin32
+]
+
 { #category : #'instance creation' }
 MbndSlovimCompilationTarget >> newCodeModuleGenerator [
 	^ MbndSlovimCodeModuleGenerator new

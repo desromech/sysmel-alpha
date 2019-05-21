@@ -3,6 +3,11 @@ Trait {
 	#category : #'SysmelMoebiusMetamodel-Core-CompilationTarget'
 }
 
+{ #category : #'as yet unclassified' }
+TMbndAbstractCompilationTarget >> arrayOf: elementType elements: elementCount [
+	self explicitRequirement
+]
+
 { #category : #'convenience type accessors' }
 TMbndAbstractCompilationTarget >> astNodeType [
 	^ self getBasicTypeNamed: MbndASTNodeType typeName
@@ -109,8 +114,23 @@ TMbndAbstractCompilationTarget >> intPointerType [
 ]
 
 { #category : #'platform testing' }
-TMbndAbstractCompilationTarget >> isUnix [
+TMbndAbstractCompilationTarget >> isFreeBSD [
 	^ false
+]
+
+{ #category : #'platform testing' }
+TMbndAbstractCompilationTarget >> isLinux [
+	^ false
+]
+
+{ #category : #'platform testing' }
+TMbndAbstractCompilationTarget >> isOSX [
+	^ false
+]
+
+{ #category : #'platform testing' }
+TMbndAbstractCompilationTarget >> isUnix [
+	^ self isLinux or: [ self isOSX or: [ self isFreeBSD ] ]
 ]
 
 { #category : #'platform testing' }

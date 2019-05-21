@@ -26,6 +26,24 @@ MbndBasicType >> addChild: aChild [
 	self children add: aChild.
 ]
 
+{ #category : #initialization }
+MbndBasicType >> addTraitMacros [
+	self class == MbndBasicType ifFalse: [ ^ self ].
+	self
+		onMacroSelector: #castTo: do: [ :node :builder |
+			(builder explicitCast: node receiver to: node arguments first)
+				position: node
+		];
+		onMacroSelector: #implicitCastTo: do: [ :node :builder |
+			(builder implicitCast: node receiver to: node arguments first)
+				position: node
+		];
+		onMacroSelector: #reinterpretCastTo: do: [ :node :builder |
+			(builder reinterpretCast: node receiver to: node arguments first)
+				position: node
+		].
+]
+
 { #category : #'as yet unclassified' }
 MbndBasicType >> analyzeExpandedMessageNode: node with: analyzer [
 	| method |
@@ -59,6 +77,7 @@ MbndBasicType >> initializeBasicTypeTrait [
 	super initialize.
 	name := self class typeName.
 	flags := #(trait).
+	self addTraitMacros
 ]
 
 { #category : #initialization }

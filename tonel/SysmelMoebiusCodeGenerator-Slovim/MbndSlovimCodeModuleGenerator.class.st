@@ -133,6 +133,20 @@ MbndSlovimCodeModuleGenerator >> typeTranslator [
 ]
 
 { #category : #visiting }
+MbndSlovimCodeModuleGenerator >> visitAggregateTypeWithFields: type [
+	| ssaType |
+	ssaType := self translateType: type.
+	(ssaType isStructureType and: [ ssaType name isNotNil ]) ifTrue: [ 
+		ssaModule addStructure: ssaType
+	].
+]
+
+{ #category : #visiting }
+MbndSlovimCodeModuleGenerator >> visitClassType: type [
+	^ self visitAggregateTypeWithFields: type
+]
+
+{ #category : #visiting }
 MbndSlovimCodeModuleGenerator >> visitCompileTimeConstant: node [
 	"For we will just ignore this here"
 	^ nil
@@ -163,6 +177,11 @@ MbndSlovimCodeModuleGenerator >> visitConcreteFunctionMethod: functionMethod [
 { #category : #visiting }
 MbndSlovimCodeModuleGenerator >> visitConcreteMessageMethod: functionMethod [
 	self halt
+]
+
+{ #category : #visiting }
+MbndSlovimCodeModuleGenerator >> visitGCClassType: type [
+	^ self visitAggregateTypeWithFields: type
 ]
 
 { #category : #visiting }
@@ -199,4 +218,14 @@ MbndSlovimCodeModuleGenerator >> visitNamespace: namespace [
 	].
 
 
+]
+
+{ #category : #visiting }
+MbndSlovimCodeModuleGenerator >> visitStructureType: type [
+	^ self visitAggregateTypeWithFields: type
+]
+
+{ #category : #visiting }
+MbndSlovimCodeModuleGenerator >> visitUnionType: type [
+	^ self visitAggregateTypeWithFields: type
 ]

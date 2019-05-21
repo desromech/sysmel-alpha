@@ -22,6 +22,20 @@ MbndReferenceType >> addDefaultConversionRules [
 	]
 ]
 
+{ #category : #initialization }
+MbndReferenceType >> addTraitMacros [
+	self class == MbndReferenceType ifFalse: [ ^ self ].
+	self
+		onMacroSelector: #assignValue: do: [ :node :builder |
+			(builder reference: node receiver assignValue: node arguments first)
+				position: node
+		];
+		onMacroSelector: #address do: [ :node :builder |
+			(builder referenceAsPointer: node receiver)
+				position: node
+		].
+]
+
 { #category : #'semantic analysis' }
 MbndReferenceType >> analyzeUnboundExpandedMessageSendNode: node with: analyzer [
 	"Try to delegate to the base type."
@@ -47,20 +61,6 @@ MbndReferenceType >> asPointerType [
 { #category : #converting }
 MbndReferenceType >> asReferenceType [
 	^ self
-]
-
-{ #category : #initialization }
-MbndReferenceType >> initializeBasicTypeTrait [
-	super initializeBasicTypeTrait.
-	self
-		onMacroSelector: #assignValue: do: [ :node :builder |
-			(builder reference: node receiver assignValue: node arguments first)
-				position: node
-		];
-		onMacroSelector: #address do: [ :node :builder |
-			(builder referenceAsPointer: node receiver)
-				position: node
-		].
 ]
 
 { #category : #'testing methods' }

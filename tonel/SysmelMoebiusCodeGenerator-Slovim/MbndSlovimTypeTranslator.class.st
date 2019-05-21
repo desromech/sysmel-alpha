@@ -21,6 +21,20 @@ MbndSlovimTypeTranslator >> setType: type ssaType: ssaType [
 ]
 
 { #category : #visiting }
+MbndSlovimTypeTranslator >> translateAggregateType: aggregateType [
+	| ssaStructureType |
+	ssaStructureType := SLVMStructureType name: (codeModuleGenerator mangleProgramEntityName: aggregateType)
+		types: #() kind: SLVMStructureType genericKind names: #().
+	translatedTypes at: aggregateType put: ssaStructureType.
+	
+	ssaStructureType
+		names: (aggregateType slotLayout slots collect: #name);
+		types: (aggregateType slotLayout slots collect: [:slot | self translateType: slot type]).
+	
+	^ ssaStructureType
+]
+
+{ #category : #visiting }
 MbndSlovimTypeTranslator >> translateType: aType [
 	^ translatedTypes at: aType ifAbsentPut: [
 		aType isTrait ifFalse: [
@@ -35,6 +49,13 @@ MbndSlovimTypeTranslator >> translateType: aType [
 { #category : #visiting }
 MbndSlovimTypeTranslator >> translateTypes: aCollectionOfTypes [
 	^ aCollectionOfTypes collect: [ :type | self translateType: type ]
+]
+
+{ #category : #visiting }
+MbndSlovimTypeTranslator >> visitArrayType: arrayType [
+	| elementType |
+	elementType := self translateType: arrayType elementType.
+	^ SLVMArrayType baseType: elementType elements: arrayType elements
 ]
 
 { #category : #visiting }
@@ -69,4 +90,10 @@ MbndSlovimTypeTranslator >> visitPointerType: pointerType [
 { #category : #visiting }
 MbndSlovimTypeTranslator >> visitPrimitiveIntegerType: integerType [
 	self halt
+]
+
+{ #category : #visiting }
+MbndSlovimTypeTranslator >> visitStructureType: structureType [
+	^ self translateAggregateType: structureType
+
 ]

@@ -35,6 +35,16 @@ MbndLiteralValueType >> addLiteralHostDelegationMacrosFor: selectors [
 ]
 
 { #category : #'semantic analysis' }
+MbndLiteralValueType >> analyzeReinterpretCastNode: node to: targetType with: analyzer [
+	| bestConcreteType newNode |
+	self assert: node expression isLiteralValueNode.
+	bestConcreteType := self bestConcreteTypeForLiteralValueNode: node expression inScope: analyzer scope.
+	newNode := node copy.
+	newNode expression: (newNode expression copy type: bestConcreteType).
+	^ bestConcreteType analyzeReinterpretCastNode: newNode to: targetType with: analyzer
+]
+
+{ #category : #'semantic analysis' }
 MbndLiteralValueType >> analyzeUnboundExpandedMessageSendNode: node with: analyzer [
 	| bestConcreteType |
 	self assert: node receiver isLiteralValueNode.
