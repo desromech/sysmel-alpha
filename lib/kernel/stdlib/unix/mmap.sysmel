@@ -1,7 +1,7 @@
 namespace Unix definition: {
     compileTimeConstant MAP_FAILED := -1 reinterpretCastTo: Void pointer.
 
-    if: Compiler compilationTarget operatingSystemName = #linux then: {
+    if: Compiler compilationTarget isLinux then: {
         compileTimeConstant PROT_NONE := 0.
         compileTimeConstant PROT_READ := 1.
         compileTimeConstant PROT_WRITE := 2.

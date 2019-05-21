@@ -1,8 +1,6 @@
 loadFileOnce: "basic-traits.sysmel".
 loadFileOnce: "control-flow.sysmel".
 loadFileOnce: "assembly.sysmel".
-##loadFileOnce: "conversions.sysmel".
-
 ##loadFileOnce: "structures.sysmel".
 ##loadFileOnce: "atomic.sysmel".
 loadFileOnce: "primitive-macros.sysmel".

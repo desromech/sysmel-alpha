@@ -2,7 +2,7 @@ namespace Unix definition: {
     compileTimeConstant pthread_t := UIntPointer.
     compileTimeConstant pthread_key_t := UIntPointer.
 
-    if: Compiler compilationTarget operatingSystemName = #osx then: {
+    if: Compiler compilationTarget isOSX then: {
         if: UIntPointer instanceSize = 4 then: {
             compileTimeConstant pthread_attr_t := (UIntPointer array: 10). ## sizeof(pthread_attr_t) = 40"
             compileTimeConstant pthread_mutex_t := (UIntPointer array: 11). ## sizeof(pthread_mutex_t) = 44"
@@ -27,7 +27,7 @@ namespace Unix definition: {
         compileTimeConstant PTHREAD_MUTEX_DEFAULT := 0.
     }.
 
-    if: Compiler compilationTarget operatingSystemName = #linux then: {
+    if: Compiler compilationTarget isLinux then: {
 
         if: UIntPointer instanceSize = 4 then: {
             compileTimeConstant pthread_attr_t := (UIntPointer array: 9). ## sizeof(pthread_attr_t) = 36
@@ -54,7 +54,7 @@ namespace Unix definition: {
         compileTimeConstant PTHREAD_MUTEX_DEFAULT := 0.
     }.
 
-    if: Compiler compilationTarget operatingSystemName = #freebsd then: {
+    if: Compiler compilationTarget isFreeBSD then: {
         compileTimeConstant pthread_attr_t := (UIntPointer array: 1). ## sizeof(pthread_attr_t) = 8"
         compileTimeConstant pthread_mutex_t := (UIntPointer array: 1). ## sizeof(pthread_mutex_t) = 8"
         compileTimeConstant pthread_mutexattr_t := (UIntPointer array: 1). ## sizeof(pthread_mutexattr_t) = 8"
