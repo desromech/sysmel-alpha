@@ -771,6 +771,24 @@ MbndAstBuilderTest >> testStructureDefinitionNode [
 ]
 
 { #category : #tests }
+MbndAstBuilderTest >> testTemplateDefinition [
+	| arguments body node |
+	arguments := {
+		builder argument: #T type: (builder identifier: #Type).
+	}.
+	body := builder defineStructureNamed: #_ body: { 
+		builder defineField: #value withValueType: (builder identifier: #T) withInitialValue: nil
+	}.
+	node := builder defineTemplate: #ValueHolder arguments: arguments body: body.
+	
+	self assert: node isTemplateDefinitionNode.
+	self assert: node name equals: #ValueHolder.
+	self assert: node arguments equals: arguments.
+	self assert: node body isStructureDefinitionNode.
+
+]
+
+{ #category : #tests }
 MbndAstBuilderTest >> testTruncateCastNode [
 	| expression node  targetType |
 	expression := builder identifier: #x.

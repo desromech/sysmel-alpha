@@ -1,7 +1,7 @@
 Trait {
 	#name : #TMbndMethod,
-	#traits : 'TMbndProgramEntity + TMbndObjectWithFlags',
-	#classTraits : 'TMbndProgramEntity classTrait + TMbndObjectWithFlags classTrait',
+	#traits : 'TMbndProgramEntity + TMbndFlagContainer',
+	#classTraits : 'TMbndProgramEntity classTrait + TMbndFlagContainer classTrait',
 	#category : #'SysmelMoebiusMetamodel-Core-Method'
 }
 

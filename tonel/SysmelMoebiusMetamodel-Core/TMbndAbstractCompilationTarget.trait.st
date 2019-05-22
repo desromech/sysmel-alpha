@@ -3,6 +3,11 @@ Trait {
 	#category : #'SysmelMoebiusMetamodel-Core-CompilationTarget'
 }
 
+{ #category : #'convenience type accessors' }
+TMbndAbstractCompilationTarget >> abstractMetaType [
+	^ self getBasicTypeNamed: MbndAbstractMetaType typeName
+]
+
 { #category : #'as yet unclassified' }
 TMbndAbstractCompilationTarget >> arrayOf: elementType elements: elementCount [
 	self explicitRequirement
@@ -56,6 +61,11 @@ TMbndAbstractCompilationTarget >> float64Alignment [
 { #category : #'convenience type accessors' }
 TMbndAbstractCompilationTarget >> float64Type [
 	^ self getBasicTypeNamed: #Float64
+]
+
+{ #category : #'convenience type accessors' }
+TMbndAbstractCompilationTarget >> functionTemplateType [
+	^ self getBasicTypeNamed: MbndFunctionTemplateType typeName
 ]
 
 { #category : #'derived types' }
@@ -179,8 +189,18 @@ TMbndAbstractCompilationTarget >> lookupTypeWithName: typeName [
 ]
 
 { #category : #'convenience type accessors' }
+TMbndAbstractCompilationTarget >> messageTemplateType [
+	^ self getBasicTypeNamed: MbndMessageTemplateType typeName
+]
+
+{ #category : #'convenience type accessors' }
 TMbndAbstractCompilationTarget >> metaBuilderInstanceType [
 	^ self getBasicTypeNamed: MbndMetaBuilderInstanceType typeName
+]
+
+{ #category : #'convenience type accessors' }
+TMbndAbstractCompilationTarget >> methodTemplateType [
+	^ self getBasicTypeNamed: MbndMethodTemplateType typeName
 ]
 
 { #category : #'convenience type accessors' }
@@ -223,9 +243,19 @@ TMbndAbstractCompilationTarget >> simpleMetaType [
 	^ self getBasicTypeNamed: MbndSimpleMetaType typeName
 ]
 
+{ #category : #'convenience type accessors' }
+TMbndAbstractCompilationTarget >> templateType [
+	^ self getBasicTypeNamed: MbndTemplateType typeName
+]
+
 { #category : #'derived types' }
 TMbndAbstractCompilationTarget >> type: baseType withDecorations: decorations [
 	self explicitRequirement
+]
+
+{ #category : #'convenience type accessors' }
+TMbndAbstractCompilationTarget >> typeTemplateType [
+	^ self getBasicTypeNamed: MbndTypeTemplateType typeName
 ]
 
 { #category : #'convenience type accessors' }

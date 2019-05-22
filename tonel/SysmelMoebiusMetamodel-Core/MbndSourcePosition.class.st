@@ -10,12 +10,18 @@ Class {
 		'endLine',
 		'endColumn'
 	],
+	#classVars : [
+		'EmptySourcePosition'
+	],
 	#category : #'SysmelMoebiusMetamodel-Core-Parsing'
 }
 
 { #category : #requirements }
 MbndSourcePosition class >> empty [
-	^ self new
+	"
+	EmptySourcePosition := nil
+	"
+	^ EmptySourcePosition ifNil: [ EmptySourcePosition := self new beReadOnlyObject; yourself ]
 ]
 
 { #category : #comparing }
@@ -43,7 +49,11 @@ MbndSourcePosition >> collection [
 
 { #category : #accessing }
 MbndSourcePosition >> collection: anObject [
-	collection := anObject
+	collection := anObject.
+	line := nil.
+	column := nil.
+	endLine := nil.
+	endColumn := nil.
 ]
 
 { #category : #accessing }
@@ -107,6 +117,15 @@ MbndSourcePosition >> hash [
 	^ self class identityHash bitXor:
 		( collection identityHash bitXor: 
 		( start hash bitXor: stop hash))
+]
+
+{ #category : #initialization }
+MbndSourcePosition >> initialize [
+	super initialize.
+	line := 0.
+	column := 0.
+	endLine := 0.
+	endColumn := 0.
 ]
 
 { #category : #accessing }

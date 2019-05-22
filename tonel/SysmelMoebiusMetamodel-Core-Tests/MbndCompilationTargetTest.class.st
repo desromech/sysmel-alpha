@@ -24,6 +24,11 @@ MbndCompilationTargetTest >> testASTNodeType [
 ]
 
 { #category : #'basic types' }
+MbndCompilationTargetTest >> testAbstractMetaType [
+	self assert: compilationTarget abstractMetaType isMetaType
+]
+
+{ #category : #'basic types' }
 MbndCompilationTargetTest >> testArrayType [
 	| elementType type|
 	elementType := compilationTarget uint8Type.
@@ -188,6 +193,12 @@ MbndCompilationTargetTest >> testFunction2Type [
 	self assert: type isFunctionType.
 	self assert: type argumentTypes equals: {argumentType}.
 	self assert: type returnType equals: returnType.
+]
+
+{ #category : #'basic types' }
+MbndCompilationTargetTest >> testFunctionTemplateType [
+	self assert: compilationTarget functionTemplateType isTemplateType.
+	self assert: compilationTarget functionTemplateType isFunctionTemplateType.
 ]
 
 { #category : #'basic types' }
@@ -486,6 +497,12 @@ MbndCompilationTargetTest >> testLiteralTrueType [
 ]
 
 { #category : #'basic types' }
+MbndCompilationTargetTest >> testMessageTemplateType [
+	self assert: compilationTarget messageTemplateType isTemplateType.
+	self assert: compilationTarget messageTemplateType isMessageTemplateType.
+]
+
+{ #category : #'basic types' }
 MbndCompilationTargetTest >> testMetaBuilderInstanceType [
 	self assert: compilationTarget metaBuilderInstanceType isMetaBuilderInstanceType.
 ]
@@ -494,6 +511,12 @@ MbndCompilationTargetTest >> testMetaBuilderInstanceType [
 MbndCompilationTargetTest >> testMetaType [
 	self assert: compilationTarget voidType type isMetaType.
 	self assert: compilationTarget voidType type instanceType equals: compilationTarget voidType.
+]
+
+{ #category : #'basic types' }
+MbndCompilationTargetTest >> testMethodTemplateType [
+	self assert: compilationTarget methodTemplateType isTemplateType.
+	self assert: compilationTarget methodTemplateType isMethodTemplateType.
 ]
 
 { #category : #'basic types' }
@@ -545,6 +568,11 @@ MbndCompilationTargetTest >> testReturnType [
 	
 ]
 
+{ #category : #'basic types' }
+MbndCompilationTargetTest >> testSimpleMetaType [
+	self assert: compilationTarget simpleMetaType isMetaType
+]
+
 { #category : #coercing }
 MbndCompilationTargetTest >> testSmallIntegerCoercions [
 	| int8Type uint8Type int16Type uint16Type int32Type|
@@ -586,6 +614,28 @@ MbndCompilationTargetTest >> testStructureType [
 	self assert: structureType isStructureType.
 	self assert: structureType2 isStructureType.
 	self assert: structureType ~~ structureType2
+]
+
+{ #category : #'basic types' }
+MbndCompilationTargetTest >> testTemplateType [
+	self assert: compilationTarget templateType isTemplateType.
+]
+
+{ #category : #'basic types' }
+MbndCompilationTargetTest >> testTupleType [
+	| type type2 |
+	type := compilationTarget tuple: {compilationTarget int32Type . compilationTarget int64Type}.
+	type2 := compilationTarget int32Type , compilationTarget int64Type.
+	
+	self assert: type isTupleType.
+	self assert: type equals: type2.
+	self assert: type instanceSize equals: 16.
+	self assert: type instanceAlignment equals: 8.
+]
+
+{ #category : #'basic types' }
+MbndCompilationTargetTest >> testTypeTemplateType [
+	self assert: compilationTarget typeTemplateType isTypeTemplateType.
 ]
 
 { #category : #'basic types' }

@@ -43,6 +43,21 @@ MbndAstSemanticAnalyzerAndEvaluator >> evaluateNode: aNode [
 	^ evaluator visitNode: aNode
 ]
 
+{ #category : #'as yet unclassified' }
+MbndAstSemanticAnalyzerAndEvaluator >> evaluateNode: node withReturnContextInScope: parentScope [
+	| returnContext |
+	returnContext := parentScope newReturnContextScope.
+	self scope: returnContext newLexicalScope.
+	
+	[
+		^ self visitNode: node
+	] on: MbndEvaluationReturn do: [ :e |
+		e targetReturnContext == returnContext
+			ifTrue: [ ^ e returnValue ]
+			ifFalse: [ ^ e pass ]
+	]
+]
+
 { #category : #accessing }
 MbndAstSemanticAnalyzerAndEvaluator >> evaluator [
 	^ evaluator ifNil: [ evaluator := MbndAstEvaluator new ]

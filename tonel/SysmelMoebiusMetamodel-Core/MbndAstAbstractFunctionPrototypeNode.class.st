@@ -1,8 +1,8 @@
 Class {
 	#name : #MbndAstAbstractFunctionPrototypeNode,
 	#superclass : #MbndAstNode,
-	#traits : 'TMbndObjectWithFlags',
-	#classTraits : 'TMbndObjectWithFlags classTrait',
+	#traits : 'TMbndFlagContainer',
+	#classTraits : 'TMbndFlagContainer classTrait',
 	#instVars : [
 		'arguments',
 		'returnType',

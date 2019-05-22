@@ -9,6 +9,11 @@ MbndAstMessageDefinitionNode >> accept: aVisitor [
 	^ aVisitor visitMessageDefinitionNode: self
 ]
 
+{ #category : #'as yet unclassified' }
+MbndAstMessageDefinitionNode >> inferTemplateKindWithCompilationTarget: compilationTarget [
+	^ compilationTarget messageTemplateType
+]
+
 { #category : #testing }
 MbndAstMessageDefinitionNode >> isMessageDefinitionNode [
 	^ true

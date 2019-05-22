@@ -40,6 +40,11 @@ MbndCompileTimeConstant >> ensureSemanticAnalysis [
 
 ]
 
+{ #category : #accessing }
+MbndCompileTimeConstant >> immediateValue: aValue [
+	evaluatedValue := aValue
+]
+
 { #category : #'as yet unclassified' }
 MbndCompileTimeConstant >> isCompileTimeConstant [
 	^ true

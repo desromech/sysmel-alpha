@@ -72,6 +72,13 @@ MbndAggregateTypeWithFields >> fields [
 	^ fields ifNil: [ fields := OrderedCollection new ]
 ]
 
+{ #category : #'meta builder factories' }
+MbndAggregateTypeWithFields >> getExtraMetaBuilderFactoryList [
+	^ super getExtraMetaBuilderFactoryList ,  { 
+		#field . MbndFieldMetaBuilder metaBuilderFactory.
+	}
+]
+
 { #category : #accessing }
 MbndAggregateTypeWithFields >> instanceAlignment [
 	<compileTime>

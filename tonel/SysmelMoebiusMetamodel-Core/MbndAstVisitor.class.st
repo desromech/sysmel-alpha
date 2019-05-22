@@ -285,6 +285,16 @@ MbndAstVisitor >> visitStructureDefinitionNode: node [
 ]
 
 { #category : #visiting }
+MbndAstVisitor >> visitTemplateDefinitionNode: node [
+	self subclassResponsibility
+]
+
+{ #category : #visiting }
+MbndAstVisitor >> visitTemplatedMetaBuilderInstanceNode: node [
+	self subclassResponsibility
+]
+
+{ #category : #visiting }
 MbndAstVisitor >> visitTruncateCastNode: node [
 	self subclassResponsibility
 ]

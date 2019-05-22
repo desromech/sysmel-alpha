@@ -88,6 +88,11 @@ MbndAstDelegationVisitor >> visitExplicitCastNode: node [
 ]
 
 { #category : #visiting }
+MbndAstDelegationVisitor >> visitFieldDefinitionNode: node [
+	^ self delegateNodeVisit: node
+]
+
+{ #category : #visiting }
 MbndAstDelegationVisitor >> visitFloatingPointSizeCastNode: node [
 	^ self delegateNodeVisit: node
 ]
@@ -264,6 +269,16 @@ MbndAstDelegationVisitor >> visitStructureDeclarationNode: node [
 
 { #category : #visiting }
 MbndAstDelegationVisitor >> visitStructureDefinitionNode: node [
+	^ self delegateNodeVisit: node
+]
+
+{ #category : #visiting }
+MbndAstDelegationVisitor >> visitTemplateDefinitionNode: node [
+	^ self delegateNodeVisit: node
+]
+
+{ #category : #visiting }
+MbndAstDelegationVisitor >> visitTemplatedMetaBuilderInstanceNode: node [
 	^ self delegateNodeVisit: node
 ]
 

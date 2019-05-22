@@ -721,6 +721,26 @@ MbndAstTransformVisitorTest >> testStructureDefinitionNode [
 ]
 
 { #category : #tests }
+MbndAstTransformVisitorTest >> testTemplateDefinition [
+	| arguments body node transformedNode |
+	arguments := {
+		builder argument: #T type: (builder identifier: #Type).
+	}.
+	body := builder defineStructureNamed: #_ body: ( 
+		builder defineField: #value withValueType: (builder identifier: #T) withInitialValue: nil
+	).
+	node := builder defineTemplate: #ValueHolder arguments: arguments body: body.
+	transformedNode := visitor visitNode: node.
+	
+	self assert: node ~~ transformedNode.
+	self assert: transformedNode isTemplateDefinitionNode.
+	self assert: transformedNode name equals: #ValueHolder.
+	self assert: transformedNode arguments first name equals: arguments first name.
+	self assert: transformedNode body isStructureDefinitionNode.
+
+]
+
+{ #category : #tests }
 MbndAstTransformVisitorTest >> testTruncateCastNode [
 	| expression node targetType transformedNode |
 	expression := builder identifier: #x.

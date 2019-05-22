@@ -4,8 +4,8 @@ Trait {
 		'supertype',
 		'type'
 	],
-	#traits : 'TMbndType + TMbndMethodContainer + TMbndObjectWithFlags + TMbndSymbolContainer',
-	#classTraits : 'TMbndType classTrait + TMbndMethodContainer classTrait + TMbndObjectWithFlags classTrait + TMbndSymbolContainer classTrait',
+	#traits : 'TMbndType + TMbndMethodContainer + TMbndFlagContainer + TMbndSymbolContainer',
+	#classTraits : 'TMbndType classTrait + TMbndMethodContainer classTrait + TMbndFlagContainer classTrait + TMbndSymbolContainer classTrait',
 	#category : #'SysmelMoebiusMetamodel-Core-Type'
 }
 
@@ -57,6 +57,7 @@ TMbndBasicType >> supertype [
 
 { #category : #accessing }
 TMbndBasicType >> supertype: aType [
+	self assert: aType ~~ self.
 	supertype ifNotNil: [
 		supertype subtypeRemoved: self
 	].

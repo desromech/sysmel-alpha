@@ -71,6 +71,7 @@ MbndAstNodeTest >> testTestingMethods [
 	self deny: node isArrayElementReferenceNode.
 	self deny: node isAbstractCastNode.
 	self deny: node isArgumentDefinitionNode.
+	self deny: node isAbstractTypeDefinitionNode.
 	self deny: node isAssignmentNode.
 	self deny: node isBitCastNode.
 	self deny: node isBreakStatementNode.
@@ -128,6 +129,8 @@ MbndAstNodeTest >> testTestingMethods [
 	self deny: node isStructureDeclarationNode.
 	self deny: node isStructureDefinitionNode.
 	self deny: node isSubscriptElementReferenceNode .
+	self deny: node isTemplatedMetaBuilderInstanceNode.
+	self deny: node isTemplateDefinitionNode.
 	self deny: node isTruncateCastNode.
 	self deny: node isTupleNode.
 	self deny: node isUnexpandedMessageSendNode.

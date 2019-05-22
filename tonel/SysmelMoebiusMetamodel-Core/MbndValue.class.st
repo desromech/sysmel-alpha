@@ -38,6 +38,14 @@ MbndValue >> asMoebiusLiteralValueNodeWithTarget: compilationTarget [
 	^ self asLiteralValueNode
 ]
 
+{ #category : #converting }
+MbndValue >> asTupleWithCompileTimeValuesFor: compilationTarget [
+	self assert: type isTupleType.
+	^ self copy
+		type: (compilationTarget tuple: (value collect: [:v | v mbndLiteralTypeWithTarget: compilationTarget]));
+		yourself
+]
+
 { #category : #printing }
 MbndValue >> printOn: aStream [
 	aStream nextPut: $(; print: type; nextPut: $); print: value

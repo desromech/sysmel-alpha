@@ -4,12 +4,31 @@ I provide the fundamental protocol for the MoebiusBand type system. I am the cor
 Trait {
 	#name : #TMbndAbstractType,
 	#instVars : [
-		'publicMetaBuilderFactories'
+		'publicMetaBuilderFactories',
+		'extraMetaBuilderFactories'
 	],
 	#traits : 'TMbndProgramEntity',
 	#classTraits : 'TMbndProgramEntity classTrait',
 	#category : #'SysmelMoebiusMetamodel-Core-Type'
 }
+
+{ #category : #'type composition' }
+TMbndAbstractType >> , nextType [
+	<compileTime>
+	^ self compilationTarget tuple: { self . nextType }
+]
+
+{ #category : #'type composition' }
+TMbndAbstractType >> ,, nextType [
+	<compileTime>
+	^ self compilationTarget tuple: { self . nextType }
+]
+
+{ #category : #'type composition' }
+TMbndAbstractType >> -- nextType [
+	<compileTime>
+	^ self compilationTarget tuple: { self . nextType }
+]
 
 { #category : #'type composition' }
 TMbndAbstractType >> => returnType [
@@ -39,6 +58,9 @@ TMbndAbstractType >> addDefaultConversionRules [
 		]);
 		addConversionRule: (MbndIdentityTypeConversionRule when: [:source :target |
 			target == self compilationTarget compilerObjectType
+		]);
+		addConversionRule: (MbndIdentityTypeConversionRule when: [:source :target |
+			source isMetaType and: [ target == self compilationTarget abstractMetaType ]
 		])
 ]
 
@@ -232,12 +254,13 @@ TMbndAbstractType >> const [
 ]
 
 { #category : #'meta builder factories' }
+TMbndAbstractType >> createExtraMetaBuilderFactories [
+	^ Dictionary newFromPairs: self getExtraMetaBuilderFactoryList
+]
+
+{ #category : #'meta builder factories' }
 TMbndAbstractType >> createPublicMetaBuilderFactories [
-	^ Dictionary newFromPairs: { 
-		#macro . MbndMacroMetaBuilder metaBuilderFactory.
-		#message . MbndMessageMetaBuilder metaBuilderFactory.
-		#method . MbndMethodMetaBuilder metaBuilderFactory.
-	}
+	^ Dictionary newFromPairs: self getPublicMetaBuilderFactoryList
 ]
 
 { #category : #'default values' }
@@ -250,6 +273,11 @@ TMbndAbstractType >> defaultValue [
 TMbndAbstractType >> defaultValueASTNode [
 	^ self defaultValue asLiteralValueNode
 
+]
+
+{ #category : #'meta builder factories' }
+TMbndAbstractType >> extraMetaBuilderFactories [
+	^ extraMetaBuilderFactories ifNil: [ extraMetaBuilderFactories := self createExtraMetaBuilderFactories ]
 ]
 
 { #category : #converting }
@@ -305,6 +333,21 @@ TMbndAbstractType >> findConversionRuleInto: targetType node: node rulesExtracto
 { #category : #'as yet unclassified' }
 TMbndAbstractType >> fullName [
 	self explicitRequirement
+]
+
+{ #category : #'meta builder factories' }
+TMbndAbstractType >> getExtraMetaBuilderFactoryList [
+	^ { 
+		#method . MbndMethodMetaBuilder metaBuilderFactory.
+	}
+]
+
+{ #category : #'meta builder factories' }
+TMbndAbstractType >> getPublicMetaBuilderFactoryList [
+	^ { 
+		#macro . MbndMacroMetaBuilder metaBuilderFactory.
+		#message . MbndMessageMetaBuilder metaBuilderFactory.
+	} ,  self getExtraMetaBuilderFactoryList
 ]
 
 { #category : #'type inference' }
@@ -369,6 +412,11 @@ TMbndAbstractType >> isDecorationType [
 
 { #category : #'testing methods' }
 TMbndAbstractType >> isDerivedType [
+	^ false
+]
+
+{ #category : #'testing methods' }
+TMbndAbstractType >> isFunctionTemplateType [
 	^ false
 ]
 
@@ -448,12 +496,22 @@ TMbndAbstractType >> isMbndType [
 ]
 
 { #category : #'testing methods' }
+TMbndAbstractType >> isMessageTemplateType [
+	^ false
+]
+
+{ #category : #'testing methods' }
 TMbndAbstractType >> isMetaBuilderInstanceType [
 	^ false
 ]
 
 { #category : #'testing methods' }
 TMbndAbstractType >> isMetaType [
+	^ false
+]
+
+{ #category : #'testing methods' }
+TMbndAbstractType >> isMethodTemplateType [
 	^ false
 ]
 
@@ -513,7 +571,22 @@ TMbndAbstractType >> isStructureType [
 ]
 
 { #category : #'testing methods' }
+TMbndAbstractType >> isTemplateType [
+	^ false
+]
+
+{ #category : #'testing methods' }
 TMbndAbstractType >> isTrait [
+	^ false
+]
+
+{ #category : #'testing methods' }
+TMbndAbstractType >> isTupleType [
+	^ false
+]
+
+{ #category : #'testing methods' }
+TMbndAbstractType >> isTypeTemplateType [
 	^ false
 ]
 
@@ -570,6 +643,7 @@ TMbndAbstractType >> lookupSelector: aSelector [
 { #category : #symbols }
 TMbndAbstractType >> lookupSpecialSymbol: aSymbol [
 	aSymbol == #SelfType ifTrue: [ ^ self ].
+	self extraMetaBuilderFactories at: aSymbol ifPresent: [ :binding | ^ binding ].
 	^ nil
 ]
 
@@ -577,6 +651,11 @@ TMbndAbstractType >> lookupSpecialSymbol: aSymbol [
 TMbndAbstractType >> lookupSymbol: aSymbol [
 	(self lookupSpecialSymbol: aSymbol) ifNotNil: [ :binding | ^ binding ].
 	^ self supertype ifNotNil: [ :st | st lookupSymbol: aSymbol ]
+]
+
+{ #category : #'as yet unclassified' }
+TMbndAbstractType >> mbndLiteralTypeWithTarget: compilationTarget [
+	^ self type
 ]
 
 { #category : #converting }

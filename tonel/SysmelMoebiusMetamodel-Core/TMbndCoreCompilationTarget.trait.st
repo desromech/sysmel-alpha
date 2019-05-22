@@ -9,7 +9,8 @@ Trait {
 		'decoratedTypes',
 		'arithmeticCoercionTable',
 		'variantUnions',
-		'arrayTypes'
+		'arrayTypes',
+		'tupleTypes'
 	],
 	#traits : 'TMbndAbstractCompilationTarget',
 	#classTraits : 'TMbndAbstractCompilationTarget classTrait',
@@ -54,14 +55,7 @@ TMbndCoreCompilationTarget >> addBasicType: basicType [
 
 { #category : #'derived types' }
 TMbndCoreCompilationTarget >> arrayOf: elementType elements: elementCount [
-	^ arrayTypes at: { elementType . elementCount } ifAbsentPut: [
-		(self ensureBasicTypeIsLinkedToTheHierarchy: MbndArrayType basicNew)
-			name: nil;
-			elementType: elementType;
-			elements: elementCount;
-			initializeNonTraitType;
-			yourself.
-	]
+	^ arrayTypes getOrCreateInstanceWithArguments: { elementType . elementCount }
 ]
 
 { #category : #coercing }
@@ -104,6 +98,17 @@ TMbndCoreCompilationTarget >> createNamedType: name ofKind: typeKindClass [
 		initializeNonTraitType.
 ]
 
+{ #category : #initialization }
+TMbndCoreCompilationTarget >> createSystemProvidedTypeTemplate: templateName doing: aBlock [
+	| template |
+	template := MbndSystemProvidedTypeTemplate new
+		name: templateName;
+		mainDefinitionConstructionBlock: aBlock;
+		compilationTarget: self;
+		yourself.
+	^ template
+]
+
 { #category : #'basic types' }
 TMbndCoreCompilationTarget >> ensureBasicTypeIsLinkedToTheHierarchy: basicType [
 	basicType module ifNil: [ 
@@ -133,16 +138,7 @@ TMbndCoreCompilationTarget >> ensureTypeHasSimpleMetaType: type [
 
 { #category : #'derived types' }
 TMbndCoreCompilationTarget >> functionTypeWithArguments: argumentTypes returnType: returnType callingConvention: callingConvention cvariadic: cvariadic [
-	^ functionTypes at: { argumentTypes . returnType . callingConvention . cvariadic} ifAbsentPut: [
-		(self ensureBasicTypeIsLinkedToTheHierarchy: MbndFunctionType basicNew)
-			name: nil;
-			argumentTypes: argumentTypes;
-			returnType: returnType;
-			callingConvention: callingConvention;
-			cvariadic: cvariadic;
-			initializeNonTraitType;
-			yourself.
-	]
+	^ functionTypes getOrCreateInstanceWithArguments: { argumentTypes . returnType . callingConvention . cvariadic}
 ]
 
 { #category : #accessing }
@@ -385,12 +381,66 @@ TMbndCoreCompilationTarget >> initializeBasicTypes [
 
 { #category : #initialization }
 TMbndCoreCompilationTarget >> initializeDerivedTypeCaches [
-	pointerTypes := WeakValueDictionary new.
-	referenceTypes := WeakValueDictionary new.
-	functionTypes := WeakValueDictionary new.
-	decoratedTypes := WeakValueDictionary new.
-	variantUnions := WeakValueDictionary new.
-	arrayTypes := WeakValueDictionary new.
+	pointerTypes := self createSystemProvidedTypeTemplate: #_PointerTypeTemplate
+		doing: [ :baseType :addressSpace |
+			(self ensureBasicTypeIsLinkedToTheHierarchy: MbndPointerType basicNew)
+				addressSpace: addressSpace;
+				baseType: baseType;
+				initializeNonTraitType;
+				yourself.
+		].
+
+	referenceTypes := self createSystemProvidedTypeTemplate: #_ReferenceTypeTemplate
+		doing: [ :baseType :addressSpace |
+			(self ensureBasicTypeIsLinkedToTheHierarchy: MbndReferenceType basicNew)
+				addressSpace: addressSpace;
+				baseType: baseType;
+				initializeNonTraitType;
+				yourself.
+	].
+
+	functionTypes := self createSystemProvidedTypeTemplate: #_FunctionTypeTemplate
+		doing: [ :argumentTypes :returnType :callingConvention :cvariadic |
+			(self ensureBasicTypeIsLinkedToTheHierarchy: MbndFunctionType basicNew)
+				argumentTypes: argumentTypes;
+				returnType: returnType;
+				callingConvention: callingConvention;
+				cvariadic: cvariadic;
+				initializeNonTraitType;
+				yourself.
+	].
+	decoratedTypes := self createSystemProvidedTypeTemplate: #_DecoratedTypeTemplate
+		doing: [ :baseType :decorations |
+			(self ensureBasicTypeIsLinkedToTheHierarchy: MbndDecoratedType basicNew)
+				baseType: baseType;
+				decorations: decorations;
+				initializeNonTraitType;
+				yourself.
+	].
+	variantUnions := self createSystemProvidedTypeTemplate: #_VariantUnionTypeTemplate
+		doing: [ :components |
+			(self ensureBasicTypeIsLinkedToTheHierarchy: MbndVariantUnionType basicNew)
+				components: components;
+				initializeNonTraitType;
+				yourself.
+	].
+
+	arrayTypes := self createSystemProvidedTypeTemplate: #_BasicArrayTypeTemplate
+		doing: [ :elementType :elementCount |
+			(self ensureBasicTypeIsLinkedToTheHierarchy: MbndArrayType basicNew)
+				elementType: elementType;
+				elements: elementCount;
+				initializeNonTraitType;
+				yourself.
+	].
+
+	tupleTypes := self createSystemProvidedTypeTemplate: #_TupleTypeTemplate
+		doing: [ :elements |
+			(self ensureBasicTypeIsLinkedToTheHierarchy: MbndTupleType basicNew)
+				elements: elements;
+				initializeNonTraitType;
+				yourself.
+	].
 ]
 
 { #category : #initialization }
@@ -450,50 +500,27 @@ TMbndCoreCompilationTarget >> newCodeModuleGenerator [
 
 { #category : #'derived types' }
 TMbndCoreCompilationTarget >> pointerFor: addressSpace to: baseType [
-	^ pointerTypes at: { baseType . addressSpace } ifAbsentPut: [
-		(self ensureBasicTypeIsLinkedToTheHierarchy: MbndPointerType basicNew)
-			name: nil;
-			addressSpace: addressSpace;
-			baseType: baseType;
-			initializeNonTraitType;
-			yourself.
-	]
+	^ pointerTypes getOrCreateInstanceWithArguments: { baseType . addressSpace }
 ]
 
 { #category : #'derived types' }
 TMbndCoreCompilationTarget >> referenceFor: addressSpace to: baseType [
-	^ referenceTypes at: { baseType . addressSpace } ifAbsentPut: [
-		(self ensureBasicTypeIsLinkedToTheHierarchy: MbndReferenceType basicNew)
-			name: nil;
-			addressSpace: addressSpace;
-			baseType: baseType;
-			initializeNonTraitType;
-			yourself.
-	]
+	^ referenceTypes getOrCreateInstanceWithArguments: { baseType . addressSpace }
+]
+
+{ #category : #'derived types' }
+TMbndCoreCompilationTarget >> tuple: elements [
+	^ tupleTypes getOrCreateInstanceWithArguments: { elements }
 ]
 
 { #category : #'derived types' }
 TMbndCoreCompilationTarget >> type: baseType withDecorations: decorations [
-	^ decoratedTypes at: { baseType . decorations } ifAbsentPut: [
-		(self ensureBasicTypeIsLinkedToTheHierarchy: MbndDecoratedType basicNew)
-			baseType: baseType;
-			decorations: decorations;
-			initializeNonTraitType;
-			yourself.
-	]
+	^ decoratedTypes getOrCreateInstanceWithArguments: { baseType . decorations }
 ]
 
 { #category : #'derived types' }
 TMbndCoreCompilationTarget >> variantUnionTypeWithComponents: components [
 	| set |
 	set := Set newFrom: components.
-	^ variantUnions at: components ifAbsentPut: [
-		| result |
-		result := MbndVariantUnionType basicNew
-			components: components;
-			initializeNonTraitType;
-			yourself.
-		self ensureBasicTypeIsLinkedToTheHierarchy: result.
-		result
-	]
+	^ variantUnions getOrCreateInstanceWithArguments: {set}
 ]

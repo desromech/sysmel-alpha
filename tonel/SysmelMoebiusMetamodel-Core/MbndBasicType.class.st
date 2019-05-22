@@ -59,7 +59,7 @@ MbndBasicType >> analyzeExpandedMessageNode: node with: analyzer [
 
 { #category : #adding }
 MbndBasicType >> children [
-	^ children ifNil: [ children := SLVMOrderedInsertionSet new ]
+	^ children ifNil: [ children := OrderedCollection new ]
 ]
 
 { #category : #'semantic analysis' }

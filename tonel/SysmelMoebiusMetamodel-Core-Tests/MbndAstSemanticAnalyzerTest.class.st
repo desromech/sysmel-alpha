@@ -1263,6 +1263,30 @@ MbndAstSemanticAnalyzerTest >> testStructureDefinitionBuilderExpansion [
 ]
 
 { #category : #tests }
+MbndAstSemanticAnalyzerTest >> testStructureDefinitionBuilderWithOneFieldExpansion [
+	| node analyzedNode fieldNode structureType |
+	fieldNode := builder identifier: #field.
+	fieldNode := builder unexpandedSend: (builder literalSymbol: #i) to: fieldNode withArguments: #().
+	fieldNode := builder unexpandedSend: (builder literalSymbol: #type:) to: fieldNode
+		withArguments: {builder identifier: #Int32}.
+	
+	node := builder identifier: #struct.
+	node := builder unexpandedSend: (builder literalSymbol: #Test) to: node withArguments: #().
+	node := builder unexpandedSend: (builder literalSymbol: #definition:) to: node withArguments: {
+		builder sequence: { fieldNode }
+	}.
+	analyzedNode := visitor visitNode: node.
+	self assert: analyzedNode isStructureDefinitionNode.
+	self assert: (scope lookupSymbolRecursively: #Test ifAbsent: [nil]) isNotNil.
+	structureType := analyzedNode binding.
+	self assert: structureType isNotNil.
+	self assert: structureType isStructureType.
+	self assert: structureType fields size equals: 1.
+	self assert: structureType fields first valueType equals: compilationTarget int32Type.
+
+]
+
+{ #category : #tests }
 MbndAstSemanticAnalyzerTest >> testStructureEmptyDefinitionNode [
 	| node body analyzedNode |
 	body := builder sequence: #().
@@ -1316,6 +1340,55 @@ MbndAstSemanticAnalyzerTest >> testStructureWithTwoFieldsDefinitionNode [
 	self assert: (structure lookupSymbol: #f) isNotNil.
 	self assert: structure instanceSize equals: 8.
 	self assert: structure instanceAlignment equals: 4.
+]
+
+{ #category : #tests }
+MbndAstSemanticAnalyzerTest >> testTemplateDefinition [
+	| arguments body node analyzedNode binding |
+	arguments := {
+		builder argument: #T type: (builder identifier: #Type).
+	}.
+	body := builder defineStructureNamed: #_ body: ( 
+		builder defineField: #value withValueType: (builder identifier: #T) withInitialValue: nil
+	).
+	node := builder defineTemplate: #ValueHolder arguments: arguments body: body.
+	analyzedNode := visitor visitNode: node.
+	
+	self assert: analyzedNode ~~ node.
+	self assert: analyzedNode isTemplateDefinitionNode.
+	self assert: analyzedNode name equals: #ValueHolder.
+	self assert: analyzedNode type isTemplateType.
+	self assert: analyzedNode type isTypeTemplateType.
+	binding := analyzedNode binding.
+	
+	self assert: binding isNotNil.
+	self assert: binding isTemplate.
+]
+
+{ #category : #tests }
+MbndAstSemanticAnalyzerTest >> testTemplateInstance [
+	| arguments body node analyzedNode structureType |
+	arguments := {
+		builder argument: #T type: (builder identifier: #Type).
+	}.
+	body := builder defineStructureNamed: #_ body: ( 
+		builder defineField: #value withValueType: (builder identifier: #T) withInitialValue: nil
+	).
+	node := builder sequence: {
+		builder defineTemplate: #ValueHolder arguments: arguments body: body.
+		builder unexpandedCall: (builder identifier: #ValueHolder) withArguments: { 
+			builder identifier: #Int32
+		}
+	}.
+	analyzedNode := visitor visitNode: node.
+	
+	self assert: analyzedNode ~~ node.
+	self assert: analyzedNode isSequenceNode.
+	self assert: analyzedNode type isMetaType.
+	structureType := analyzedNode type instanceType.
+	self assert: structureType isStructureType.
+	self assert: structureType fields size equals: 1.
+	self assert: structureType fields first valueType equals: compilationTarget int32Type.
 ]
 
 { #category : #tests }

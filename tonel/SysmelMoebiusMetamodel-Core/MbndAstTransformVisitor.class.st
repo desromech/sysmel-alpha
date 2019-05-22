@@ -386,6 +386,19 @@ MbndAstTransformVisitor >> visitStructureDefinitionNode: node [
 ]
 
 { #category : #visiting }
+MbndAstTransformVisitor >> visitTemplateDefinitionNode: node [
+	^ node copy
+		arguments: (self visitNodesAndCollect: node arguments);
+		body: (self visitNode: node body);
+		yourself
+]
+
+{ #category : #visiting }
+MbndAstTransformVisitor >> visitTemplatedMetaBuilderInstanceNode: node [
+	^ node
+]
+
+{ #category : #visiting }
 MbndAstTransformVisitor >> visitTruncateCastNode: node [
 	^ self visitSpecificCastNode: node
 ]

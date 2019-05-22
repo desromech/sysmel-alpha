@@ -56,6 +56,11 @@ MbndAstEvaluator >> visitAssignmentNode: node [
 ]
 
 { #category : #visiting }
+MbndAstEvaluator >> visitClassDefinitionNode: node [
+	^ self visitTypeDefinitionNode: node
+]
+
+{ #category : #visiting }
 MbndAstEvaluator >> visitExpandedMessageSendNode: node [
 	| receiver arguments |
 	self assert: node type isNotNil.
@@ -68,6 +73,11 @@ MbndAstEvaluator >> visitExpandedMessageSendNode: node [
 { #category : #visiting }
 MbndAstEvaluator >> visitExplicitCastNode: node [
 	self halt
+]
+
+{ #category : #visiting }
+MbndAstEvaluator >> visitFieldDefinitionNode: node [
+	^ MbndValue value: nil type: node type
 ]
 
 { #category : #visiting }
@@ -88,6 +98,11 @@ MbndAstEvaluator >> visitFunctionDefinitionNode: node [
 MbndAstEvaluator >> visitFunctionPrototypeNode: node [
 	self assert: node concreteMethod isNotNil.
 	^ MbndValue value: node concreteMethod type: node type
+]
+
+{ #category : #visiting }
+MbndAstEvaluator >> visitGCClassDefinitionNode: node [
+	^ self visitTypeDefinitionNode: node
 ]
 
 { #category : #visiting }
@@ -206,8 +221,35 @@ MbndAstEvaluator >> visitSequenceNode: node [
 ]
 
 { #category : #visiting }
+MbndAstEvaluator >> visitStructureDefinitionNode: node [
+	^ self visitTypeDefinitionNode: node
+]
+
+{ #category : #visiting }
+MbndAstEvaluator >> visitTemplateDefinitionNode: node [
+	^ MbndValue value: node binding type: node type
+]
+
+{ #category : #visiting }
+MbndAstEvaluator >> visitTupleNode: node [
+	| result |
+	result := node elements collect: [ :el | (self visitNode: el) unwrapMbndValue ].
+	^ MbndValue value: result type: node type
+]
+
+{ #category : #visiting }
+MbndAstEvaluator >> visitTypeDefinitionNode: node [
+	^ MbndValue value: node binding type: node type
+]
+
+{ #category : #visiting }
 MbndAstEvaluator >> visitUnexpandedMessageSendNode: node [
 	self compilerBugError: 'Macro that should have been expanded is not expanded' at: node
+]
+
+{ #category : #visiting }
+MbndAstEvaluator >> visitUnionDefinitionNode: node [
+	^ self visitTypeDefinitionNode: node
 ]
 
 { #category : #visiting }

@@ -1,8 +1,8 @@
 Class {
 	#name : #MbndMetaBuilder,
 	#superclass : #Object,
-	#traits : 'TMbndObjectWithFlags',
-	#classTraits : 'TMbndObjectWithFlags classTrait',
+	#traits : 'TMbndObject + TMbndFlagContainer',
+	#classTraits : 'TMbndObject classTrait + TMbndFlagContainer classTrait',
 	#instVars : [
 		'position',
 		'metaBuilderAnalyzer',
@@ -83,6 +83,15 @@ MbndMetaBuilder >> delegateToMetaBuilder: newMetaBuilder withOwnerProgramEntity:
 		type: metaBuilderAnalyzer compilationTarget metaBuilderInstanceType;
 		position: position;
 		yourself
+]
+
+{ #category : #errors }
+MbndMetaBuilder >> error: anErrorString at: aSourcePosition [
+	<compileTime>
+	^ MbndSemanticError new
+		messageText: anErrorString;
+		sourcePosition: aSourcePosition;
+		signal
 ]
 
 { #category : #'meta builder finalization' }

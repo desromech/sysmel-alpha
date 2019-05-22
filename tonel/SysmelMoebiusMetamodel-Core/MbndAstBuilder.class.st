@@ -222,6 +222,16 @@ MbndAstBuilder >> defineStructureNamed: name body: body [
 ]
 
 { #category : #'builder methods' }
+MbndAstBuilder >> defineTemplate: name arguments: arguments body: body [
+	<compileTime>
+	^ MbndAstTemplateDefinitionNode new
+		name: name;
+		arguments: arguments;
+		body: body;
+		yourself
+]
+
+{ #category : #'builder methods' }
 MbndAstBuilder >> defineUnion: declaration body: body [
 	<compileTime>
 	<returnType: #_ASTNode>
@@ -690,6 +700,14 @@ MbndAstBuilder >> tuple: aSequenceOfNodes [
 	<compileTime>
 	<returnType: #_ASTNode>
 	^ MbndAstTupleNode new elements: aSequenceOfNodes; yourself
+]
+
+{ #category : #'builder methods' }
+MbndAstBuilder >> unexpandedCall: calledFunction withArguments: aCollectionOfArguments [
+	<compileTime>
+	<returnType: #_ASTNode>
+	^ self unexpandedSend: (self literalSymbol: #applyWithArguments:) to: calledFunction withArguments: { 		self tuple: aCollectionOfArguments
+	}
 ]
 
 { #category : #'builder methods' }

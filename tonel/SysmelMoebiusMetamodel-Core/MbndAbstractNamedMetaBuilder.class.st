@@ -12,7 +12,7 @@ MbndAbstractNamedMetaBuilder >> analyzeUnexpandedMessageSendNode: node with: ana
 	| selector |
 	name ifNil: [ 
 		node selector isLiteralSymbolValueNode ifTrue: [
-			selector := node selector value.
+			selector := self sanitizeBuilderSelector: node selector value.
 			(selector isSymbol and: [selector numArgs == 0]) ifTrue: [
 				name := selector.
 				^ node receiver
@@ -21,4 +21,20 @@ MbndAbstractNamedMetaBuilder >> analyzeUnexpandedMessageSendNode: node with: ana
 	].
 	
 	^ super analyzeUnexpandedMessageSendNode: node with: analyzer
+]
+
+{ #category : #accessing }
+MbndAbstractNamedMetaBuilder >> name [
+	^ name
+]
+
+{ #category : #accessing }
+MbndAbstractNamedMetaBuilder >> name: anObject [
+	^ name := anObject
+]
+
+{ #category : #'semantic analysis' }
+MbndAbstractNamedMetaBuilder >> sanitizeBuilderSelector: selector [
+	selector = #class ifTrue: [ ^ #nativeClass ].
+	^ selector
 ]

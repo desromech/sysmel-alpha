@@ -51,6 +51,16 @@ TMbndAbstractProgramEntity >> isNamespace [
 ]
 
 { #category : #testing }
+TMbndAbstractProgramEntity >> isTemplate [
+	^ false
+]
+
+{ #category : #testing }
+TMbndAbstractProgramEntity >> isTemplateInstance [
+	^ false
+]
+
+{ #category : #testing }
 TMbndAbstractProgramEntity >> isVariable [
 	^ false
 ]

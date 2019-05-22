@@ -34,7 +34,7 @@ MbndNamespace >> asLiteralValueNode [
 
 { #category : #accessing }
 MbndNamespace >> children [
-	^ children ifNil: [ children := SLVMOrderedInsertionSet new ]
+	^ children ifNil: [ children := OrderedCollection new ]
 ]
 
 { #category : #accessing }

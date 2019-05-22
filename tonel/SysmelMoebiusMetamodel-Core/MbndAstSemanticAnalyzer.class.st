@@ -152,20 +152,9 @@ MbndAstSemanticAnalyzer >> error: anErrorString at: aSourcePosition [
 
 { #category : #'compile time evaluation' }
 MbndAstSemanticAnalyzer >> evaluateCompileTimeExpression: compileTimeExpression [
-	| returnContext evaluator |
-	returnContext := MbndReturnContextScope parent: scope.
-	
-	evaluator := MbndAstSemanticAnalyzerAndEvaluator new
+	^ MbndAstSemanticAnalyzerAndEvaluator new
 		module: module;
-		scope: returnContext newLexicalScope.
-		
-	[
-		^ evaluator visitNode: compileTimeExpression
-	] on: MbndEvaluationReturn do: [ :e |
-		e targetReturnContext == returnContext
-			ifTrue: [ ^ e returnValue ]
-			ifFalse: [ ^ e pass ]
-	]
+		evaluateNode: compileTimeExpression withReturnContextInScope: scope
 ]
 
 { #category : #'compile time evaluation' }
@@ -376,8 +365,10 @@ MbndAstSemanticAnalyzer >> visitFieldDefinitionNode: node [
 
 	fieldName := node name.
 	owner := node ownerProgramEntity ifNil: [scope lookupProgramEntityForNewDefinitions].
-	(owner lookupLocalSymbol: fieldName) ifNotNil: [ :previousDefintion |
-		self error: 'Cannot redefine field {1}.' format: { fieldName asPrettySymbolName } at: result
+	fieldName isMbndAnonymousSymbol ifFalse: [ 
+		(owner lookupLocalSymbol: fieldName) ifNotNil: [ :previousDefintion |
+			self error: 'Cannot redefine field {1}.' format: { fieldName asPrettySymbolName } at: result
+		].
 	].
 
 	field := MbndFieldVariable new
@@ -537,7 +528,7 @@ MbndAstSemanticAnalyzer >> visitImplicitCastNode: node [
 	sourceType := result expression type.
 	conversionRule := sourceType node: result expression convertedImplicitlyInto: result targetType.
 	conversionRule ifNil: [
-		self error: 'Cannot perform implicit cast from type {1} to type {2}.' format: { sourceType printString.  result targetType printString} at: node
+		self error: 'Cannot perform implicit cast from type {1} to type {2}.' format: { sourceType printString. result targetType printString } at: node
 	].
 	
 	result
@@ -886,29 +877,78 @@ MbndAstSemanticAnalyzer >> visitStructureDefinitionNode: node [
 ]
 
 { #category : #visiting }
+MbndAstSemanticAnalyzer >> visitTemplateDefinitionNode: node [
+	| result owner template |
+	result := node copy
+		arguments: (self visitNodesAndCollect: node arguments);
+		yourself.
+	
+	owner := result ownerProgramEntity ifNil: [ scope lookupProgramEntityForNewDefinitions ].
+	result name isMbndAnonymousSymbol ifFalse: [ 
+		(owner lookupLocalSymbol: result name) ifNotNil: [
+			self error: 'Template {1} override a previous definition.' format: { node name asPrettySymbolName } at: result
+		].
+	].
+
+	template := MbndTemplate new
+		name: result name;
+		definitionPosition: result;
+		argumentDefinitions: result arguments;
+		mainDefinitionBody: result body scope: scope;
+		yourself.
+		
+	owner addChild: template.
+	template name isMbndAnonymousSymbol ifFalse: [ 
+		owner setLocalSymbol: template name value: template
+	].
+
+	^ result
+		binding: template;
+		type: template type;
+		yourself
+
+]
+
+{ #category : #visiting }
+MbndAstSemanticAnalyzer >> visitTupleNode: node [
+	| result |
+	result := super visitTupleNode: node.
+	^ result
+		type: (self compilationTarget tuple: (result elements collect: #type));
+		yourself
+]
+
+{ #category : #visiting }
 MbndAstSemanticAnalyzer >> visitTypeDeclarationNode: node ofKind: typeKindClass [
 	| result owner type |
-	"At this context, forbid unnamed type declarations."
-	self assert: node name isNotNil.
+	(node name isMbndAnonymousSymbol and: [ node isPartOfDefinition not ]) ifTrue: [
+		self error: 'Anonymous declaration of types are forbidden. Only anonymous definitions are allowed.' at: node
+	].
 	
 	result := node copy.
 	owner := node ownerProgramEntity ifNil: [scope lookupProgramEntityForNewDefinitions].
-	(owner lookupLocalSymbol: node name) ifNotNil: [ :previousDefintion |
-		previousDefintion class == typeKindClass ifFalse: [ 
-			self error: 'Cannot redefine symbol {1} as a type of another kind.' format: { node name asPrettySymbolName } at: result
-		].
-	
-		type := previousDefintion.
-	] ifNil: [
-		type := self compilationTarget createNamedType: result name ofKind: typeKindClass.
-		result binding: type.
 
-		owner
-			addChild: type;
-			setLocalSymbol: type name value: type.
-		type enqueueDelayedSemanticAnalysis.
+	type := nil.
+	node name isMbndAnonymousSymbol ifFalse: [ 
+		(owner lookupLocalSymbol: node name) ifNotNil: [ :previousDefintion |
+			previousDefintion class == typeKindClass ifFalse: [ 
+				self error: 'Cannot redefine symbol {1} as a type of another kind.' format: { node name asPrettySymbolName } at: result
+			].
+	
+			type := previousDefintion.
+		].
 	].
 
+	type ifNil: [ 
+		type := self compilationTarget createNamedType: result name ofKind: typeKindClass.
+		owner addChild: type.
+		type name isMbndAnonymousSymbol ifFalse: [ 
+			owner setLocalSymbol: type name value: type.
+		].
+	].
+	result binding: type.
+
+	type enqueueDelayedSemanticAnalysis.
 	result type: type type.
 	^ result
 ]
@@ -919,7 +959,7 @@ MbndAstSemanticAnalyzer >> visitTypeDefinitionNode: node ofKind: typeKindClass [
 	self flag: 'TODO: Support anonymous types.'.
 	
 	result := node copy.
-	result declaration: (self visitNode: result declaration).
+	result declaration: (self visitNode: result declaration ensurePartOfDefinitionFlagIsMarked).
 
 	"Set the defined flag"
 	result binding addFlag: #defined.
@@ -929,7 +969,7 @@ MbndAstSemanticAnalyzer >> visitTypeDefinitionNode: node ofKind: typeKindClass [
 	
 	"Analyze the definition body."
 	self withScope: definitionScope do: [ 
-		result body: (self visitNode: result body)
+		result body: (self evaluateCompileTimeExpression: result body)
 	].
 
 	"Enqueue the result semantic analysis."

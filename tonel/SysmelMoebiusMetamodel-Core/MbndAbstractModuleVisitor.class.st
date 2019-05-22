@@ -117,6 +117,21 @@ MbndAbstractModuleVisitor >> visitStructureType: type [
 ]
 
 { #category : #visiting }
+MbndAbstractModuleVisitor >> visitSystemProvidedTypeTemplate: method [
+	self subclassResponsibility
+]
+
+{ #category : #visiting }
+MbndAbstractModuleVisitor >> visitTemplate: method [
+	self subclassResponsibility
+]
+
+{ #category : #visiting }
+MbndAbstractModuleVisitor >> visitTemplateInstance: method [
+	self subclassResponsibility
+]
+
+{ #category : #visiting }
 MbndAbstractModuleVisitor >> visitUndefinedType: type [
 	self subclassResponsibility
 ]

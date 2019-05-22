@@ -23,6 +23,11 @@ MbndAstNode >> concretizeNodeWithAnalyzer: analyzer [
 	^ self
 ]
 
+{ #category : #'as yet unclassified' }
+MbndAstNode >> inferTemplateKindWithCompilationTarget: compilationTarget [
+	^ compilationTarget templateType
+]
+
 { #category : #initialization }
 MbndAstNode >> initialize [
 	super initialize.
@@ -31,6 +36,11 @@ MbndAstNode >> initialize [
 
 { #category : #testing }
 MbndAstNode >> isAbstractCastNode [
+	^ false
+]
+
+{ #category : #testing }
+MbndAstNode >> isAbstractTypeDefinitionNode [
 	^ false
 ]
 
@@ -336,6 +346,16 @@ MbndAstNode >> isSubscriptElementReferenceNode [
 ]
 
 { #category : #testing }
+MbndAstNode >> isTemplateDefinitionNode [
+	^ false
+]
+
+{ #category : #testing }
+MbndAstNode >> isTemplatedMetaBuilderInstanceNode [
+	^ false
+]
+
+{ #category : #testing }
 MbndAstNode >> isTruncateCastNode [
 	^ false
 ]
@@ -406,6 +426,7 @@ MbndAstNode >> position [
 
 { #category : #accessing }
 MbndAstNode >> position: anObject [
+	anObject == false ifTrue: [ self halt ].
 	position := anObject
 ]
 

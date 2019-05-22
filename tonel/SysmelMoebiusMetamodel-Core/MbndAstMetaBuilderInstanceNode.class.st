@@ -31,3 +31,8 @@ MbndAstMetaBuilderInstanceNode >> instance: anObject [
 MbndAstMetaBuilderInstanceNode >> isMetaBuilderInstanceNode [
 	^ true
 ]
+
+{ #category : #'as yet unclassified' }
+MbndAstMetaBuilderInstanceNode >> isTemplatedMetaBuilderInstanceNode [
+	^ true
+]

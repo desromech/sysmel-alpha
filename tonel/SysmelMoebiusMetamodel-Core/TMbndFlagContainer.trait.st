@@ -1,34 +1,34 @@
 Trait {
-	#name : #TMbndObjectWithFlags,
+	#name : #TMbndFlagContainer,
 	#instVars : [
 		'flags'
 	],
-	#category : #'SysmelMoebiusMetamodel-Core-Utility'
+	#category : #'SysmelMoebiusMetamodel-Core-Object'
 }
 
 { #category : #flags }
-TMbndObjectWithFlags >> addFlag: aFlag [
+TMbndFlagContainer >> addFlag: aFlag [
 	flags := (flags copyWithout: aFlag) copyWith: aFlag
 ]
 
 { #category : #accessing }
-TMbndObjectWithFlags >> flags [
+TMbndFlagContainer >> flags [
 	^ flags
 ]
 
 { #category : #accessing }
-TMbndObjectWithFlags >> flags: anArrayOfFlags [
+TMbndFlagContainer >> flags: anArrayOfFlags [
 	self assert: anArrayOfFlags isArray.
 	flags := anArrayOfFlags
 ]
 
 { #category : #flags }
-TMbndObjectWithFlags >> hasFlag: aFlags [
+TMbndFlagContainer >> hasFlag: aFlags [
 	flags ifNil: [ ^ false ].
 	^ flags includes: aFlags
 ]
 
 { #category : #flags }
-TMbndObjectWithFlags >> removeFlag: aFlag [
+TMbndFlagContainer >> removeFlag: aFlag [
 	flags := (flags copyWithout: aFlag) copyWith: aFlag
 ]

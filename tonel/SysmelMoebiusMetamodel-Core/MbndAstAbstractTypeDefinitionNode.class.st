@@ -16,3 +16,13 @@ MbndAstAbstractTypeDefinitionNode >> body [
 MbndAstAbstractTypeDefinitionNode >> body: anObject [
 	body := anObject
 ]
+
+{ #category : #'as yet unclassified' }
+MbndAstAbstractTypeDefinitionNode >> inferTemplateKindWithCompilationTarget: compilationTarget [
+	^ compilationTarget typeTemplateType
+]
+
+{ #category : #testing }
+MbndAstAbstractTypeDefinitionNode >> isAbstractTypeDefinitionNode [
+	^ true
+]
