@@ -573,6 +573,15 @@ MbndAstBuilder >> pointer: pointer elementReferenceAt: index [
 ]
 
 { #category : #'builder methods' }
+MbndAstBuilder >> pointerAsReference: pointer [
+	<compileTime>
+	<returnType: #_ASTNode>
+	^ MbndAstPointerAsReferenceNode new
+		pointer: pointer;
+		yourself
+]
+
+{ #category : #'builder methods' }
 MbndAstBuilder >> pragmaSelector: selector arguments: arguments [
 	<compileTime>
 	<returnType: #_ASTNode>
@@ -620,6 +629,15 @@ MbndAstBuilder >> reference: reference assignValue: value [
 	^ MbndAstAssignmentNode new
 		reference: reference;
 		value: value;
+		yourself
+]
+
+{ #category : #'builder methods' }
+MbndAstBuilder >> referenceAsPointer: reference [
+	<compileTime>
+	<returnType: #_ASTNode>
+	^ MbndAstReferenceAsPointerNode new
+		reference: reference;
 		yourself
 ]
 

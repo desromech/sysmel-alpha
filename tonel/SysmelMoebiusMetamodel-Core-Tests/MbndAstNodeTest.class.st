@@ -115,9 +115,11 @@ MbndAstNodeTest >> testTestingMethods [
 	self deny: node isNumericalCastNode.
 	self deny: node isPragmaNode.
 	self deny: node isPointerElementReferenceNode.
+	self deny: node isPointerAsReferenceNode.
 	self deny: node isQuasiQuoteNode.
 	self deny: node isQuasiUnquoteNode.
 	self deny: node isQuoteNode.
+	self deny: node isReferenceAsPointerNode.
 	self deny: node isReinterpretCastNode.
 	self deny: node isReturnStatementNode.
 	self deny: node isReferenceLoadNode.

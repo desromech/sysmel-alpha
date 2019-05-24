@@ -31,6 +31,16 @@ MbndDecoratedType >> asCVariadicTypeRequiredAt: position [
 	^ baseType asCVariadicTypeRequiredAt: position
 ]
 
+{ #category : #converting }
+MbndDecoratedType >> asPointerType [
+	^ baseType asPointerType withDecorations: decorations
+]
+
+{ #category : #converting }
+MbndDecoratedType >> asReferenceType [
+	^ baseType asReferenceType withDecorations: decorations
+]
+
 { #category : #accessing }
 MbndDecoratedType >> decorations [
 	^ decorations

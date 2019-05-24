@@ -915,6 +915,25 @@ MbndAstSemanticAnalyzerTest >> testLocalVariableMutableReference [
 ]
 
 { #category : #tests }
+MbndAstSemanticAnalyzerTest >> testLocalVariableMutableReferenceAddress [
+	| node analyzedNode |
+	node := builder sequence: { 
+		(builder defineLocalVariable: #x withValueType: nil withInitialValue:
+			(builder literalInteger: 5))
+			mutable.
+		builder unexpandedSend: (builder literalSymbol: #address)
+			to: (builder identifier: #x)
+			withArguments: #()
+	}.
+	analyzedNode := visitor visitNode: node.
+	self assert: (scope lookupSymbol: #x) isNotNil.
+	self assert: analyzedNode isSequenceNode.
+	self assert: analyzedNode type isPointerType.
+	self assert: analyzedNode type baseType isPrimitiveIntegerType.
+
+]
+
+{ #category : #tests }
 MbndAstSemanticAnalyzerTest >> testLocalVariableMutableReferenceExplicitLoad [
 	| node analyzedNode |
 	node := builder sequence: { 
@@ -1034,6 +1053,32 @@ MbndAstSemanticAnalyzerTest >> testNamespaceReference [
 { #category : #tests }
 MbndAstSemanticAnalyzerTest >> testNew [
 	self assert: visitor scope equals: scope
+]
+
+{ #category : #tests }
+MbndAstSemanticAnalyzerTest >> testPointerAsReference [
+	| node analyzedNode |
+	node := builder unexpandedSend: (builder literalSymbol: #value)
+			to: (builder literal: 16r8000 type: compilationTarget int32Type pointer)
+			withArguments: #().
+	analyzedNode := visitor visitNode: node.
+	self assert: analyzedNode isPointerAsReferenceNode.
+	self assert: analyzedNode type isReferenceType.
+	self assert: analyzedNode type baseType isPrimitiveIntegerType.
+
+]
+
+{ #category : #tests }
+MbndAstSemanticAnalyzerTest >> testPointerAsReference2 [
+	| node analyzedNode |
+	node := builder unexpandedSend: (builder literalSymbol: #_)
+			to: (builder literal: 16r8000 type: compilationTarget int32Type pointer)
+			withArguments: #().
+	analyzedNode := visitor visitNode: node.
+	self assert: analyzedNode isPointerAsReferenceNode.
+	self assert: analyzedNode type isReferenceType.
+	self assert: analyzedNode type baseType isPrimitiveIntegerType.
+
 ]
 
 { #category : #tests }

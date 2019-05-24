@@ -224,7 +224,7 @@ MbndAstSemanticAnalyzer >> visitArrayElementReferenceNode: node [
 	self halt
 ]
 
-{ #category : #'as yet unclassified' }
+{ #category : #visiting }
 MbndAstSemanticAnalyzer >> visitAssignmentNode: node [
 	| result |
 	result := node copy.
@@ -742,6 +742,20 @@ MbndAstSemanticAnalyzer >> visitNonConcreteNode: node [
 ]
 
 { #category : #visiting }
+MbndAstSemanticAnalyzer >> visitPointerAsReferenceNode: node [
+	| result basePointerType |
+	result := super visitPointerAsReferenceNode: node.
+	basePointerType := result pointer type withoutTopDecorations.
+	basePointerType isPointerType ifFalse: [
+		self error: 'Expected a pointer value.' at: node pointer.
+	].
+
+	^ result
+		type: result pointer type asReferenceType;
+		yourself
+]
+
+{ #category : #visiting }
 MbndAstSemanticAnalyzer >> visitPointerElementReferenceNode: node [
 	| result pointerType elementReferenceType |
 	result := node copy
@@ -783,7 +797,21 @@ MbndAstSemanticAnalyzer >> visitQuoteNode: node [
 		yourself
 ]
 
-{ #category : #'as yet unclassified' }
+{ #category : #visiting }
+MbndAstSemanticAnalyzer >> visitReferenceAsPointerNode: node [
+	| result basePointerType |
+	result := super visitReferenceAsPointerNode: node.
+	basePointerType := result reference type withoutTopDecorations.
+	basePointerType isReferenceType ifFalse: [
+		self error: 'Expected a reference value.' at: node pointer.
+	].
+
+	^ result
+		type: result reference type asPointerType;
+		yourself
+]
+
+{ #category : #visiting }
 MbndAstSemanticAnalyzer >> visitReferenceLoadNode: node [
 	| result |
 	result := node copy.
@@ -956,8 +984,6 @@ MbndAstSemanticAnalyzer >> visitTypeDeclarationNode: node ofKind: typeKindClass 
 { #category : #visiting }
 MbndAstSemanticAnalyzer >> visitTypeDefinitionNode: node ofKind: typeKindClass [
 	| result definitionScope |
-	self flag: 'TODO: Support anonymous types.'.
-	
 	result := node copy.
 	result declaration: (self visitNode: result declaration ensurePartOfDefinitionFlagIsMarked).
 

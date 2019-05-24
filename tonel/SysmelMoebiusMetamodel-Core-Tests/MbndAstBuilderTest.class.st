@@ -609,6 +609,15 @@ MbndAstBuilderTest >> testNamespaceDefinition [
 ]
 
 { #category : #tests }
+MbndAstBuilderTest >> testPointerAsReference [
+	| node pointer |
+	pointer := builder identifier: #x.
+	node := builder pointerAsReference: pointer.
+	self assert: node isPointerAsReferenceNode.
+	self assert: node pointer equals: pointer.
+]
+
+{ #category : #tests }
 MbndAstBuilderTest >> testPointerElementReferenceNode [
 	| node pointer index |
 	pointer := builder identifier: #pointer.
@@ -662,6 +671,15 @@ MbndAstBuilderTest >> testQuoteNode [
 
 	self assert: node isQuoteNode.
 	self assert: node expression equals: quoted.
+]
+
+{ #category : #tests }
+MbndAstBuilderTest >> testReferenceAsPointer [
+	| node reference |
+	reference := builder identifier: #x.
+	node := builder referenceAsPointer: reference.
+	self assert: node isReferenceAsPointerNode.
+	self assert: node reference equals: reference.
 ]
 
 { #category : #tests }

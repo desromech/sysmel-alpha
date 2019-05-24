@@ -552,6 +552,17 @@ MbndAstTransformVisitorTest >> testNamespaceDefinition [
 ]
 
 { #category : #tests }
+MbndAstTransformVisitorTest >> testPointerAsReference [
+	| node pointer transformedNode |
+	pointer := builder identifier: #x.
+	node := builder pointerAsReference: pointer.
+	transformedNode := visitor visitNode: node.
+	self assert: transformedNode ~~ node.
+	self assert: transformedNode isPointerAsReferenceNode.
+	self assert: transformedNode pointer equals: pointer.
+]
+
+{ #category : #tests }
 MbndAstTransformVisitorTest >> testPointerElementReferenceNode [
 	| node pointer index transformedNode |
 	pointer := builder identifier: #tr.
@@ -608,6 +619,17 @@ MbndAstTransformVisitorTest >> testQuoteNode [
 	transformedNode := visitor visitNode: node.
 	self assert: transformedNode ~~ node.
 	self assert: transformedNode expression equals: expression.
+]
+
+{ #category : #tests }
+MbndAstTransformVisitorTest >> testReferenceAsPointer [
+	| node reference transformedNode |
+	reference := builder identifier: #x.
+	node := builder referenceAsPointer: reference.
+	transformedNode := visitor visitNode: node.
+	self assert: transformedNode ~~ node.
+	self assert: transformedNode isReferenceAsPointerNode.
+	self assert: transformedNode reference equals: reference.
 ]
 
 { #category : #tests }

@@ -208,6 +208,11 @@ MbndAstDelegationVisitor >> visitNamespaceDefinitionNode: node [
 ]
 
 { #category : #visiting }
+MbndAstDelegationVisitor >> visitPointerAsReferenceNode: node [
+	^ self delegateNodeVisit: node
+]
+
+{ #category : #visiting }
 MbndAstDelegationVisitor >> visitPointerElementReferenceNode: node [
 	^ self delegateNodeVisit: node
 ]
@@ -229,6 +234,11 @@ MbndAstDelegationVisitor >> visitQuasiUnquoteNode: node [
 
 { #category : #visiting }
 MbndAstDelegationVisitor >> visitQuoteNode: node [
+	^ self delegateNodeVisit: node
+]
+
+{ #category : #visiting }
+MbndAstDelegationVisitor >> visitReferenceAsPointerNode: node [
 	^ self delegateNodeVisit: node
 ]
 

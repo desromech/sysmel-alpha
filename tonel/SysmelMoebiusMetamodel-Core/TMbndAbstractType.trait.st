@@ -220,6 +220,16 @@ TMbndAbstractType >> asMoebiusLiteralValueNodeWithTarget: compilationTarget [
 	^ self asLiteralValueNode
 ]
 
+{ #category : #converting }
+TMbndAbstractType >> asPointerType [
+	self error: 'Cannot convert type {1} into a pointer type version.' format: { self asString }
+]
+
+{ #category : #converting }
+TMbndAbstractType >> asReferenceType [
+	self error: 'Cannot convert type {1} into a reference type version.' format: { self asString }
+]
+
 { #category : #'semantic analysis' }
 TMbndAbstractType >> bestConcreteTypeForLiteralValueNode: literalValueNode inScope: scope [
 	^ self
@@ -777,7 +787,13 @@ TMbndAbstractType >> withAllTraitUsersDo: aBlock [
 { #category : #'type composition' }
 TMbndAbstractType >> withDecoration: decoration [
 	<compileTime>
-	^ self compilationTarget type: self withDecorations: {decoration}
+	^ self withDecorations: { decoration }
+]
+
+{ #category : #'type composition' }
+TMbndAbstractType >> withDecorations: decorations [
+	<compileTime>
+	^ self compilationTarget type: self withDecorations: decorations
 ]
 
 { #category : #'type hierarchy' }

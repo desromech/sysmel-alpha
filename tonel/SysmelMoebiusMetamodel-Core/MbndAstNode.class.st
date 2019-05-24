@@ -266,6 +266,11 @@ MbndAstNode >> isNumericalCastNode [
 ]
 
 { #category : #testing }
+MbndAstNode >> isPointerAsReferenceNode [
+	^ false
+]
+
+{ #category : #testing }
 MbndAstNode >> isPointerElementReferenceNode [
 	^ false
 ]
@@ -287,6 +292,11 @@ MbndAstNode >> isQuasiUnquoteNode [
 
 { #category : #testing }
 MbndAstNode >> isQuoteNode [
+	^ false
+]
+
+{ #category : #testing }
+MbndAstNode >> isReferenceAsPointerNode [
 	^ false
 ]
 

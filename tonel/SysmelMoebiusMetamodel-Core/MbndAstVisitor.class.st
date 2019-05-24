@@ -220,6 +220,11 @@ MbndAstVisitor >> visitNodesAndCollect: nodes [
 ]
 
 { #category : #visiting }
+MbndAstVisitor >> visitPointerAsReferenceNode: node [
+	self subclassResponsibility
+]
+
+{ #category : #visiting }
 MbndAstVisitor >> visitPointerElementReferenceNode: node [
 	self subclassResponsibility
 ]
@@ -241,6 +246,11 @@ MbndAstVisitor >> visitQuasiUnquoteNode: node [
 
 { #category : #visiting }
 MbndAstVisitor >> visitQuoteNode: node [
+	self subclassResponsibility
+]
+
+{ #category : #visiting }
+MbndAstVisitor >> visitReferenceAsPointerNode: node [
 	self subclassResponsibility
 ]
 

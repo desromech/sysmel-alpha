@@ -287,6 +287,13 @@ MbndAstTransformVisitor >> visitNamespaceDefinitionNode: node [
 ]
 
 { #category : #visiting }
+MbndAstTransformVisitor >> visitPointerAsReferenceNode: node [
+	^ node copy
+		pointer: (self visitNode: node pointer);
+		yourself
+]
+
+{ #category : #visiting }
 MbndAstTransformVisitor >> visitPointerElementReferenceNode: node [
 	^ node copy
 		container: (self visitNode: node container);
@@ -320,6 +327,13 @@ MbndAstTransformVisitor >> visitQuasiUnquoteNode: node [
 MbndAstTransformVisitor >> visitQuoteNode: node [
 	^ node copy
 		expression: (self visitNode: node expression);
+		yourself
+]
+
+{ #category : #visiting }
+MbndAstTransformVisitor >> visitReferenceAsPointerNode: node [
+	^ node copy
+		reference: (self visitNode: node reference);
 		yourself
 ]
 
