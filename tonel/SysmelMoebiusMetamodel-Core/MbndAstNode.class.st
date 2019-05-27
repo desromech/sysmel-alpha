@@ -170,6 +170,16 @@ MbndAstNode >> isGenericCastNode [
 ]
 
 { #category : #testing }
+MbndAstNode >> isGetFieldReferenceNode [
+	^ false
+]
+
+{ #category : #testing }
+MbndAstNode >> isGetFieldValueNode [
+	^ false
+]
+
+{ #category : #testing }
 MbndAstNode >> isIdentifierReferenceNode [
 	^ false
 ]
@@ -317,6 +327,11 @@ MbndAstNode >> isReturnStatementNode [
 
 { #category : #testing }
 MbndAstNode >> isSequenceNode [
+	^ false
+]
+
+{ #category : #testing }
+MbndAstNode >> isSetFieldValueNode [
 	^ false
 ]
 

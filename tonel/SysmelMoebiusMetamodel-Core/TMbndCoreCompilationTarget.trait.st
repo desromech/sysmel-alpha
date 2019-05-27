@@ -338,7 +338,6 @@ TMbndCoreCompilationTarget >> initializeBasicTypes [
 	MbndBasicType withAllSubclassesDo: [ :sc |
 		sc typeName ifNotNil: [ 
 			basicType := sc basicNew
-				initializeBasicTypeTrait;
 				definitionModule: coreDefinitionsModule.
 			basicTypes at: sc typeName put: basicType
 		]
@@ -483,8 +482,10 @@ TMbndCoreCompilationTarget >> linkMetaHierarchy [
 			bt type supertype ifNil: [
 				bt type supertype: bt supertype type.
 			]
-		]
-	]
+		].
+	
+		bt initializeBasicTypeTrait
+	].
 ]
 
 { #category : #'builder methods' }

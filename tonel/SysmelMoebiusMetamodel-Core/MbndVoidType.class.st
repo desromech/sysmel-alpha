@@ -15,7 +15,7 @@ MbndVoidType >> accept: aVisitor [
 ]
 
 { #category : #'default values' }
-MbndVoidType >> defaultValue [
+MbndVoidType >> defaultValueAt: aPosition [
 	^ MbndValue value: nil type: self
 ]
 

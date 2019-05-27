@@ -128,6 +128,16 @@ MbndAstDelegationVisitor >> visitGCClassDefinitionNode: node [
 ]
 
 { #category : #visiting }
+MbndAstDelegationVisitor >> visitGetFieldReferenceNode: node [
+	^ self delegateNodeVisit: node
+]
+
+{ #category : #visiting }
+MbndAstDelegationVisitor >> visitGetFieldValueNode: node [
+	^ self delegateNodeVisit: node
+]
+
+{ #category : #visiting }
 MbndAstDelegationVisitor >> visitIdentifierReferenceNode: node [
 	^ self delegateNodeVisit: node
 ]
@@ -259,6 +269,11 @@ MbndAstDelegationVisitor >> visitReturnStatementNode: node [
 
 { #category : #visiting }
 MbndAstDelegationVisitor >> visitSequenceNode: node [
+	^ self delegateNodeVisit: node
+]
+
+{ #category : #visiting }
+MbndAstDelegationVisitor >> visitSetFieldValueNode: node [
 	^ self delegateNodeVisit: node
 ]
 

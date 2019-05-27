@@ -20,7 +20,7 @@ MbndUndefinedType >> asCVariadicTypeRequiredAt: position [
 ]
 
 { #category : #'default values' }
-MbndUndefinedType >> defaultValue [
+MbndUndefinedType >> defaultValueAt: aPosition [
 	^ MbndValue value: nil type: self
 ]
 

@@ -18,7 +18,10 @@ MbndAggregateTypeWithFields >> addField: aField [
 	self addChild: aField.
 
 	aField name isMbndAnonymousSymbol ifFalse: [ 
-		self setLocalSymbol: aField name value: aField
+		self setLocalSymbol: aField name value: aField.
+		aField isPublic ifTrue: [
+			self createPublicFieldAccessors: aField
+		].
 	].
 
 	self fields add: aField.
@@ -43,6 +46,31 @@ MbndAggregateTypeWithFields >> buildSlotLayoutWith: builder [
 
 { #category : #layout }
 MbndAggregateTypeWithFields >> buildSuperTypesSlotLayoutWith: builder [
+]
+
+{ #category : #adding }
+MbndAggregateTypeWithFields >> createPublicFieldAccessors: aField [
+	self macroMethodDict
+		at: aField name asSymbol ifAbsentPut: [
+			MbndFieldGetterAccessorMacro new field: aField
+		];
+		at: (aField name , ':') asSymbol ifAbsentPut: [
+			MbndFieldSetterAccessorMacro new field: aField
+		].
+]
+
+{ #category : #'default values' }
+MbndAggregateTypeWithFields >> defaultValueAt: aPosition [
+	| valueSlots |
+	self isDefined ifFalse: [ 
+		self error: 'Cannot produce a value for incomplete type {1}.' format: { self asString } at: aPosition
+	].
+
+	valueSlots := self slotLayout slots collect: [ :slot | (slot defaultValueAt: aPosition) unwrapMbndValue].
+	^ MbndAggregateTypeInstanceValue new
+		type: self;
+		slots: valueSlots;
+		yourself
 ]
 
 { #category : #'semantic analysis' }

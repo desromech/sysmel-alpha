@@ -26,3 +26,8 @@ MbndAstFieldDefinitionNode >> bits: anObject [
 MbndAstFieldDefinitionNode >> isFieldDefinitionNode [
 	^ true
 ]
+
+{ #category : #'as yet unclassified' }
+MbndAstFieldDefinitionNode >> public [
+	self addFlag: #public
+]

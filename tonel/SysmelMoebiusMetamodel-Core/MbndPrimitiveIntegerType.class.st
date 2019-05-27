@@ -42,7 +42,7 @@ MbndPrimitiveIntegerType >> asCVariadicTypeRequiredAt: position [
 ]
 
 { #category : #'default values' }
-MbndPrimitiveIntegerType >> defaultValue [
+MbndPrimitiveIntegerType >> defaultValueAt: aPosition [
 	^ MbndValue value: 0 type: self
 ]
 

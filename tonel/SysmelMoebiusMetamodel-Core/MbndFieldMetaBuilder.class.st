@@ -14,3 +14,21 @@ MbndFieldMetaBuilder >> concretizeNode: node withAnalyzer: analyzer [
 		yourself.
 	^ analyzer visitNode: result
 ]
+
+{ #category : #'as yet unclassified' }
+MbndFieldMetaBuilder >> private [
+	<compileTime>
+	self addFlag: #private
+]
+
+{ #category : #'as yet unclassified' }
+MbndFieldMetaBuilder >> protected [
+	<compileTime>
+	self addFlag: #protected
+]
+
+{ #category : #'as yet unclassified' }
+MbndFieldMetaBuilder >> public [
+	<compileTime>
+	self addFlag: #public
+]

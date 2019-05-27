@@ -6,7 +6,8 @@ Class {
 		'initialValueNode',
 		'initialValueScope',
 		'byteOffset',
-		'slotIndex'
+		'slotIndex',
+		'visibility'
 	],
 	#category : #'SysmelMoebiusMetamodel-Core-Variables'
 }
@@ -46,6 +47,17 @@ MbndAbstractFieldVariable >> initialValueScope: anObject [
 	initialValueScope := anObject
 ]
 
+{ #category : #initialization }
+MbndAbstractFieldVariable >> initialize [
+	super initialize.
+	visibility := #private
+]
+
+{ #category : #testing }
+MbndAbstractFieldVariable >> isPublic [
+	^ visibility == #public
+]
+
 { #category : #accessing }
 MbndAbstractFieldVariable >> slotIndex [
 	^ slotIndex
@@ -64,4 +76,14 @@ MbndAbstractFieldVariable >> type [
 { #category : #accessing }
 MbndAbstractFieldVariable >> type: anObject [
 	type := anObject
+]
+
+{ #category : #accessing }
+MbndAbstractFieldVariable >> visibility [
+	^ visibility
+]
+
+{ #category : #accessing }
+MbndAbstractFieldVariable >> visibility: aVisibility [
+	visibility := aVisibility
 ]

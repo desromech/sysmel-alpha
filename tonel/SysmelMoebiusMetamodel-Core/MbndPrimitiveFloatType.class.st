@@ -20,7 +20,7 @@ MbndPrimitiveFloatType >> asCVariadicTypeRequiredAt: position [
 ]
 
 { #category : #'default values' }
-MbndPrimitiveFloatType >> defaultValue [
+MbndPrimitiveFloatType >> defaultValueAt: aPosition [
 	^ MbndValue value: 0.0 type: self
 ]
 

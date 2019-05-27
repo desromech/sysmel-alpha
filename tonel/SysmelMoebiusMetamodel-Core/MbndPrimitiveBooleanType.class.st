@@ -20,7 +20,7 @@ MbndPrimitiveBooleanType >> asCVariadicTypeRequiredAt: position [
 ]
 
 { #category : #'default values' }
-MbndPrimitiveBooleanType >> defaultValue [
+MbndPrimitiveBooleanType >> defaultValueAt: aPosition [
 	^ MbndValue value: false type: self
 ]
 

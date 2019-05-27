@@ -156,11 +156,19 @@ TMbndAbstractType >> analyzeReinterpretCastNode: node to: targetType with: analy
 
 { #category : #'semantic analysis' }
 TMbndAbstractType >> analyzeUnboundExpandedMessageSendNode: node with: analyzer [
-	self error: 'Cannot send unknown message {1} to value of type {2}.' format: {node selector printValueString. self fullName} at: node
+	self supertype ifNotNil: [:st |
+		^ st analyzeUnboundExpandedMessageSendNode: node with: analyzer
+	].
+
+	self error: 'Cannot send unknown message {1} to value of type {2}.' format: {node selector printValueString. node receiver type fullName} at: node
 ]
 
 { #category : #'semantic analysis' }
 TMbndAbstractType >> analyzeUnboundUnexpandedMessageSendNode: node with: analyzer [
+	self supertype ifNotNil: [:st |
+		^ st analyzeUnboundUnexpandedMessageSendNode: node with: analyzer
+	].
+
 	^ analyzer visitNode: node asExpandedMessageSend
 ]
 
@@ -207,6 +215,11 @@ TMbndAbstractType >> asCVariadicTypeRequiredAt: aPosition [
 	self error: 'Cannot pass value of type {1} as a C variadic argument.' format: { self fullName } at: aPosition
 ]
 
+{ #category : #converting }
+TMbndAbstractType >> asImmutableValueType [
+	^ self
+]
+
 { #category : #'semantic analysis' }
 TMbndAbstractType >> asLiteralValueNode [
 	^ MbndAstLiteralValueNode new
@@ -218,6 +231,11 @@ TMbndAbstractType >> asLiteralValueNode [
 { #category : #'semantic analysis' }
 TMbndAbstractType >> asMoebiusLiteralValueNodeWithTarget: compilationTarget [
 	^ self asLiteralValueNode
+]
+
+{ #category : #converting }
+TMbndAbstractType >> asMutableValueType [
+	^ self ref
 ]
 
 { #category : #converting }
@@ -275,13 +293,21 @@ TMbndAbstractType >> createPublicMetaBuilderFactories [
 
 { #category : #'default values' }
 TMbndAbstractType >> defaultValue [
-	self explicitRequirement
+	^ self defaultValueAt: MbndSourcePosition empty
 
 ]
 
 { #category : #'default values' }
-TMbndAbstractType >> defaultValueASTNode [
-	^ self defaultValue asLiteralValueNode
+TMbndAbstractType >> defaultValueASTNodeAt: aPosition [
+	^ ((self defaultValueAt: aPosition) asLiteralValueNode)
+		position: aPosition;
+		yourself
+
+]
+
+{ #category : #'default values' }
+TMbndAbstractType >> defaultValueAt: aPosition [
+	self error: 'Cannot obtain value of type {1}. ' format: { self asString } at: aPosition
 
 ]
 

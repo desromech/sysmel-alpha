@@ -88,6 +88,11 @@ MbndSlovimTypeTranslator >> visitPointerType: pointerType [
 ]
 
 { #category : #visiting }
+MbndSlovimTypeTranslator >> visitPrimitiveBooleanType: integerType [
+	self error: 'Unsupported primitive type.'
+]
+
+{ #category : #visiting }
 MbndSlovimTypeTranslator >> visitPrimitiveIntegerType: integerType [
 	self halt
 ]

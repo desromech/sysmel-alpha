@@ -125,6 +125,16 @@ MbndAstVisitor >> visitGCClassDefinitionNode: node [
 ]
 
 { #category : #visiting }
+MbndAstVisitor >> visitGetFieldReferenceNode: node [
+	self subclassResponsibility
+]
+
+{ #category : #visiting }
+MbndAstVisitor >> visitGetFieldValueNode: node [
+	self subclassResponsibility
+]
+
+{ #category : #visiting }
 MbndAstVisitor >> visitIdentifierReferenceNode: node [
 	self subclassResponsibility
 ]
@@ -271,6 +281,11 @@ MbndAstVisitor >> visitReturnStatementNode: node [
 
 { #category : #visiting }
 MbndAstVisitor >> visitSequenceNode: node [
+	self subclassResponsibility
+]
+
+{ #category : #visiting }
+MbndAstVisitor >> visitSetFieldValueNode: node [
 	self subclassResponsibility
 ]
 

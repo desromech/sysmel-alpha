@@ -12,12 +12,12 @@ Class {
 }
 
 { #category : #defaults }
-MbndAggregateSlotDescription >> defaultValue [
+MbndAggregateSlotDescription >> defaultValueAt: aPosition [
 	(fields size = 1 and: [ fields first isVTablePointerField ]) ifTrue: [ 
-		^ fields first defaultValue
+		^ fields first defaultValueAt: aPosition
 	].
 
-	^ type defaultValue
+	^ type defaultValueAt: aPosition
 ]
 
 { #category : #accessing }

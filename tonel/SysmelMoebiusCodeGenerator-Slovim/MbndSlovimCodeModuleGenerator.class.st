@@ -31,6 +31,8 @@ MbndSlovimCodeModuleGenerator >> addPrimitiveTypeTranslations [
 
 		(float32Type float32)
 		(float64Type float64)
+
+		(booleanType bool)
 	) do: [ :pair |
 		sourceType := sourceTarget perform: pair first.
 		destType := destTarget perform: pair second.

@@ -42,6 +42,14 @@ MbndBasicType >> addTraitMacros [
 			(builder reinterpretCast: node receiver to: node arguments first)
 				position: node
 		].
+	
+	self type
+		onMacroSelector: #basicNewValue do: [ :node :builder :analyzer |
+			node receiver type instanceType generateBasicNewValueForNode: node with: builder andWith: analyzer
+		];
+		onMacroSelector: #newValue do: [ :node :builder :analyzer |
+			node receiver type instanceType generateNewValueForNode: node with: builder andWith: analyzer
+		].
 ]
 
 { #category : #'as yet unclassified' }
@@ -70,6 +78,28 @@ MbndBasicType >> enqueueDelayedSemanticAnalysis [
 { #category : #'as yet unclassified' }
 MbndBasicType >> fullName [
 	^ name ifNil: [ ^ self printString ]
+]
+
+{ #category : #initialization }
+MbndBasicType >> generateBasicNewValueForNode: node with: builder andWith: analyzer [
+	self isOpaqueType ifTrue: [
+		self error: 'Cannot create a value with opaque type {1}' format: { self asString } at: node
+	].
+
+	^ self defaultValueASTNodeAt: node 
+]
+
+{ #category : #initialization }
+MbndBasicType >> generateNewValueForNode: node with: builder andWith: analyzer [
+	| basicValueNode |
+	basicValueNode := self generateBasicNewValueForNode: node with: builder andWith: analyzer.
+	^ self initializeAndReturnValueNode: basicValueNode with: builder andWith: analyzer.
+]
+
+{ #category : #initialization }
+MbndBasicType >> initializeAndReturnValueNode: basicValueNode with: builder andWith: analyzer [
+	self flag: 'TODO: Implement initializers.'.
+	^ basicValueNode
 ]
 
 { #category : #initialization }

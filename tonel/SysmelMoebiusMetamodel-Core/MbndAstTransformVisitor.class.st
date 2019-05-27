@@ -179,6 +179,20 @@ MbndAstTransformVisitor >> visitGenericCastNode: node [
 ]
 
 { #category : #visiting }
+MbndAstTransformVisitor >> visitGetFieldReferenceNode: node [
+	^ node copy
+		aggregate: (self visitNode: node aggregate);
+		yourself
+]
+
+{ #category : #visiting }
+MbndAstTransformVisitor >> visitGetFieldValueNode: node [
+	^ node copy
+		aggregate: (self visitNode: node aggregate);
+		yourself
+]
+
+{ #category : #visiting }
 MbndAstTransformVisitor >> visitIdentifierReferenceNode: node [
 	^ node
 ]
@@ -361,6 +375,14 @@ MbndAstTransformVisitor >> visitSequenceNode: node [
 	^ node copy
 		pragmas: (self visitNodesAndCollect: node pragmas);
 		elements: (self visitNodesAndCollect: node elements);
+		yourself
+]
+
+{ #category : #visiting }
+MbndAstTransformVisitor >> visitSetFieldValueNode: node [
+	^ node copy
+		aggregate: (self visitNode: node aggregate);
+		newValue: (self visitNode: node newValue);
 		yourself
 ]
 

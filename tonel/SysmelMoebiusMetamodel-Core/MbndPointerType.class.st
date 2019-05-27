@@ -66,7 +66,7 @@ MbndPointerType >> asReferenceType [
 ]
 
 { #category : #'default values' }
-MbndPointerType >> defaultValue [
+MbndPointerType >> defaultValueAt: aPosition [
 	^ MbndValue value: nil type: self
 ]
 

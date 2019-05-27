@@ -338,7 +338,7 @@ MbndAstSemanticAnalyzer >> visitExplicitCastNode: node [
 
 { #category : #visiting }
 MbndAstSemanticAnalyzer >> visitFieldDefinitionNode: node [
-	| result owner fieldName field |
+	| result owner fieldName field visibility |
 	result := node copy.
 
 	result valueType ifNotNil: [ 
@@ -356,12 +356,24 @@ MbndAstSemanticAnalyzer >> visitFieldDefinitionNode: node [
 
 	result initialValue ifNil: [
 		result valueType ifNil: [
-			self error: 'function argument {1} requires an explicit type.' format: { result name asPrettySymbolName } at: result
+			self error: 'field {1} requires an explicit type.' format: { result name asPrettySymbolName } at: result
 		]
 	] ifNotNil: [ 
 		result initialValue: node initialValue.
 		self halt
 	].
+
+	visibility := nil.
+	(result hasFlag: #public) ifTrue: [
+		visibility := #public.
+	].
+	(result hasFlag: #protected) ifTrue: [
+		visibility := #protected.
+	].
+	(result hasFlag: #private) ifTrue: [
+		visibility := #private.
+	].
+	visibility ifNil: [ visibility := #protected ].
 
 	fieldName := node name.
 	owner := node ownerProgramEntity ifNil: [scope lookupProgramEntityForNewDefinitions].
@@ -373,6 +385,7 @@ MbndAstSemanticAnalyzer >> visitFieldDefinitionNode: node [
 
 	field := MbndFieldVariable new
 		name: fieldName;
+		visibility: visibility;
 		valueType: result valueType;
 		type: result valueType ref;
 		bits: result bits;
@@ -462,6 +475,34 @@ MbndAstSemanticAnalyzer >> visitGCClassDeclarationNode: node [
 { #category : #visiting }
 MbndAstSemanticAnalyzer >> visitGCClassDefinitionNode: node [
 	^ self visitTypeDefinitionNode: node ofKind: MbndGCClassType
+]
+
+{ #category : #visiting }
+MbndAstSemanticAnalyzer >> visitGetFieldReferenceNode: node [
+	| result aggregateType |
+	result := node copy
+		aggregate: (self analyzeNodeIfNeeded: node aggregate);
+		yourself.
+	aggregateType := result aggregate type withoutReferences.
+	self assert: aggregateType isAggregateType.
+
+	^ result
+		type: result field type;
+		yourself
+]
+
+{ #category : #visiting }
+MbndAstSemanticAnalyzer >> visitGetFieldValueNode: node [
+	| result aggregateType |
+	result := node copy
+		aggregate: (self analyzeNodeIfNeeded: node aggregate);
+		yourself.
+	aggregateType := result aggregate type withoutReferences.
+	self assert: aggregateType isAggregateType.
+
+	^ result
+		type: result field valueType;
+		yourself
 ]
 
 { #category : #visiting }
@@ -586,20 +627,18 @@ MbndAstSemanticAnalyzer >> visitLocalVariableDefinitionNode: node [
 
 	"Make sure there is always an initial value."
 	result initialValue ifNil: [ 
-		result initialValue: (result valueType defaultValueASTNode
-			position: result;
-			yourself)
+		result initialValue: (result valueType defaultValueASTNodeAt: result)
 	].
 
 	"Compute the variable reference type"
 	self assert: valueType isNotNil.
 	result isMutable ifTrue: [
-		result type: valueType ref
+		result type: valueType asMutableValueType
 	] ifFalse: [
 		result isAccessedByReference ifTrue: [ 
 			result type: valueType const ref
 		] ifFalse: [ 
-			result type: valueType
+			result type: valueType asImmutableValueType
 		]
 	].
 
@@ -875,6 +914,23 @@ MbndAstSemanticAnalyzer >> visitSequenceNode: node [
 		result type: result elements last type
 	].
 	^ result
+]
+
+{ #category : #visiting }
+MbndAstSemanticAnalyzer >> visitSetFieldValueNode: node [
+	| result aggregateType |
+	result := node copy
+		aggregate: (self analyzeNodeIfNeeded: node aggregate);
+		newValue: (self analyzeNodeIfNeeded: node newValue);
+		yourself.
+	aggregateType := result aggregate type withoutReferences.
+	self assert: aggregateType isAggregateType.
+	
+	result newValue: (self addImplicitCastFor: result newValue to: result field valueType).
+
+	^ result
+		type: result aggregate type;
+		yourself
 ]
 
 { #category : #visiting }

@@ -1267,6 +1267,22 @@ MbndAstSemanticAnalyzerTest >> testSignExtension [
 ]
 
 { #category : #tests }
+MbndAstSemanticAnalyzerTest >> testStructureBasicNewValue [
+	| node structureBody analyzedNode |
+	structureBody := builder sequence: {
+		builder defineField: #intField withValueType: (builder identifier: #Int32) withInitialValue: nil.
+	}.
+	visitor visitNode: (builder defineStructureNamed: #TestStructure body: structureBody).
+
+	node := builder unexpandedSend: (builder literalSymbol: #basicNewValue)
+		to: (builder identifier: #TestStructure) withArguments: #().
+	analyzedNode := visitor visitNode: node.
+	self assert: analyzedNode isLiteralValueNode.
+	self assert: analyzedNode type isStructureType.
+	
+]
+
+{ #category : #tests }
 MbndAstSemanticAnalyzerTest >> testStructureDeclarationBuilderExpansion [
 	| node analyzedNode |
 	node := builder identifier: #struct.
@@ -1342,6 +1358,76 @@ MbndAstSemanticAnalyzerTest >> testStructureEmptyDefinitionNode [
 	self assert: analyzedNode binding isNotNil.
 	self assert: analyzedNode binding isStructureType.
 
+]
+
+{ #category : #tests }
+MbndAstSemanticAnalyzerTest >> testStructureNewValue [
+	| node structureBody analyzedNode |
+	structureBody := builder sequence: {
+		builder defineField: #intField withValueType: (builder identifier: #Int32) withInitialValue: nil.
+	}.
+	visitor visitNode: (builder defineStructureNamed: #TestStructure body: structureBody).
+
+	node := builder unexpandedSend: (builder literalSymbol: #newValue)
+		to: (builder identifier: #TestStructure) withArguments: #().
+	analyzedNode := visitor visitNode: node.
+	self assert: analyzedNode type withoutReferences isStructureType.
+]
+
+{ #category : #tests }
+MbndAstSemanticAnalyzerTest >> testStructurePublicFieldReferenceGetter [
+	| node structureBody analyzedNode |
+	structureBody := builder sequence: {
+		(builder defineField: #intField withValueType: (builder identifier: #Int32) withInitialValue: nil)
+			public.
+	}.
+	visitor visitNode: (builder defineStructureNamed: #TestStructure body: structureBody).
+
+	node := (builder defineLocalVariable: #testStructure withValueType: (builder identifier: #TestStructure) withInitialValue: nil) mutable.
+	visitor visitNode: node.
+	
+	node := builder unexpandedSend: (builder literalSymbol: #intField)
+		to: (builder identifier: #testStructure) withArguments: #().
+
+	analyzedNode := visitor visitNode: node.
+	self assert: analyzedNode type isReferenceType.
+	self assert: analyzedNode type baseType isPrimitiveIntegerType.
+]
+
+{ #category : #tests }
+MbndAstSemanticAnalyzerTest >> testStructurePublicFieldValueGetter [
+	| node structureBody analyzedNode |
+	structureBody := builder sequence: {
+		(builder defineField: #intField withValueType: (builder identifier: #Int32) withInitialValue: nil)
+			public.
+	}.
+	visitor visitNode: (builder defineStructureNamed: #TestStructure body: structureBody).
+
+	node := builder unexpandedSend: (builder literalSymbol: #newValue)
+		to: (builder identifier: #TestStructure) withArguments: #().
+	node := builder unexpandedSend: (builder literalSymbol: #intField)
+		to: node withArguments: #().
+
+	analyzedNode := visitor visitNode: node.
+	self assert: analyzedNode type isPrimitiveIntegerType.
+]
+
+{ #category : #tests }
+MbndAstSemanticAnalyzerTest >> testStructurePublicFieldValueSetter [
+	| node structureBody analyzedNode |
+	structureBody := builder sequence: {
+		(builder defineField: #intField withValueType: (builder identifier: #Int32) withInitialValue: nil)
+			public.
+	}.
+	visitor visitNode: (builder defineStructureNamed: #TestStructure body: structureBody).
+
+	node := builder unexpandedSend: (builder literalSymbol: #newValue)
+		to: (builder identifier: #TestStructure) withArguments: #().
+	node := builder unexpandedSend: (builder literalSymbol: #intField:)
+		to: node withArguments: {builder literalInteger: 42}.
+
+	analyzedNode := visitor visitNode: node.
+	self assert: analyzedNode type isStructureType.
 ]
 
 { #category : #tests }

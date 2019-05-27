@@ -328,6 +328,24 @@ MbndAstBuilder >> functionPrototypeNamed: name arguments: arguments returnType: 
 ]
 
 { #category : #'builder methods' }
+MbndAstBuilder >> getAggregate: aggregate referenceOfField: field [
+	<compileTime>
+	^ MbndAstGetFieldReferenceNode new
+		aggregate: aggregate;
+		field: field;
+		yourself
+]
+
+{ #category : #'builder methods' }
+MbndAstBuilder >> getAggregate: aggregate valueOfField: field [
+	<compileTime>
+	^ MbndAstGetFieldValueNode new
+		aggregate: aggregate;
+		field: field;
+		yourself
+]
+
+{ #category : #'builder methods' }
 MbndAstBuilder >> identifier: symbol [
 	<compileTime>
 	<returnType: #_ASTNode>
@@ -684,6 +702,16 @@ MbndAstBuilder >> sequence: aSequenceOfNodes [
 	<compileTime>
 	<returnType: #_ASTNode>
 	^ self pragmas: #() sequence: aSequenceOfNodes
+]
+
+{ #category : #'builder methods' }
+MbndAstBuilder >> setAggregate: aggregate field: field value: newValue [
+	<compileTime>
+	^ MbndAstSetFieldValueNode new
+		aggregate: aggregate;
+		field: field;
+		newValue: newValue;
+		yourself
 ]
 
 { #category : #'builder methods' }
