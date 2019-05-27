@@ -101,7 +101,7 @@ MbndAbstractConcreteMethod >> defineArguments [
 	].
 	
 	usedNames := Set new.
-	arguments := selfArgument , (self extraImplicitArguments , definitionNode arguments)
+	arguments := selfArgument , (self extraImplicitArguments , definitionNode arguments
 		collectWithIndex: [ :argument :index |
 		argument name isMbndAnonymousSymbol ifFalse: [
 			(usedNames includes: argument name) ifTrue: [ 
@@ -110,7 +110,7 @@ MbndAbstractConcreteMethod >> defineArguments [
 			usedNames add: argument name
 		].
 		self defineArgument: argument
-	].
+	]).
 
 	argumentsWithoutReceiver := receiverType isVoidType
 		ifTrue: [ arguments ]
@@ -190,4 +190,13 @@ MbndAbstractConcreteMethod >> evaluateWithReceiver: receiverValue arguments: arg
 { #category : #'semantic analysis' }
 MbndAbstractConcreteMethod >> extraImplicitArguments [
 	^ #()
+]
+
+{ #category : #'as yet unclassified' }
+MbndAbstractConcreteMethod >> lookupBoundReceiverSymbol: aSymbol [
+	(receiverType withoutReferences lookupSymbol: aSymbol) ifNotNil: [ :receiverSymbol |
+		^ receiverSymbol asSymbolBoundWithReceiverBinding: arguments first
+	].
+	
+	^ nil
 ]

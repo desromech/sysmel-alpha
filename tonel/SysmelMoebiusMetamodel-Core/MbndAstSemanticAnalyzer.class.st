@@ -41,6 +41,22 @@ MbndAstSemanticAnalyzer >> addImplicitCastFor: nodeRequiringCasting to: expected
 
 ]
 
+{ #category : #'implicit casting' }
+MbndAstSemanticAnalyzer >> addReceiverImplicitCastFor: nodeRequiringCasting to: expectedTargetType [
+	| sourceType temporaryVariable |
+	sourceType := nodeRequiringCasting type.
+	
+	"Aggregate value -> aggregate mutable reference. We need to create a temporary value in this special case."
+	(expectedTargetType isReferenceType and: [ sourceType withoutTopDecorations isReferenceType not ]) ifTrue: [
+		temporaryVariable := (self astBuilder defineLocalVariable: #_ withValueType: nil withInitialValue: nodeRequiringCasting)
+			position: nodeRequiringCasting;
+			mutable.
+		^ self addImplicitCastFor: (self visitNode: temporaryVariable) to: expectedTargetType
+	].
+
+	^ self addImplicitCastFor: nodeRequiringCasting to: expectedTargetType
+]
+
 { #category : #visiting }
 MbndAstSemanticAnalyzer >> analyzeNodeIfNeeded: node [
 	"Visit the node only if it does not have a type value."
@@ -652,8 +668,10 @@ MbndAstSemanticAnalyzer >> visitLocalVariableDefinitionNode: node [
 	).
 
 	"Add the variable to the current scope."
-	scope addSymbol: result name binding: result binding ifPresent: [ :previousDefinition |
-		self error: 'Variable {1} overrides a previous definition in the same scope.' format: { result name asPrettySymbolName } at: { result }
+	result name isMbndAnonymousSymbol ifFalse: [ 
+		scope addSymbol: result name binding: result binding ifPresent: [ :previousDefinition |
+			self error: 'Variable {1} overrides a previous definition in the same scope.' format: { result name asPrettySymbolName } at: result
+		].
 	].
 
 	^ result

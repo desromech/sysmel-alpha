@@ -1361,6 +1361,35 @@ MbndAstSemanticAnalyzerTest >> testStructureEmptyDefinitionNode [
 ]
 
 { #category : #tests }
+MbndAstSemanticAnalyzerTest >> testStructureMessage [
+	| node structureBody analyzedNode structure method methodBody |
+	structureBody := builder sequence: {
+		(builder defineField: #intField withValueType: (builder identifier: #Int32) withInitialValue: nil).
+		
+		builder messageSelector: #value arguments: #() returnType: (builder identifier: #Int32) definitionBody: (builder identifier: #intField)
+	}.
+	visitor visitNode: (builder defineStructureNamed: #TestStructure body: structureBody).
+
+	node := builder unexpandedSend: (builder literalSymbol: #newValue)
+		to: (builder identifier: #TestStructure) withArguments: #().
+	node := builder unexpandedSend: (builder literalSymbol: #value)
+		to: node withArguments: #().
+
+	analyzedNode := visitor visitNode: node.
+	self assert: analyzedNode type isPrimitiveIntegerType.
+	
+	structure := scope lookupSymbolRecursively: #TestStructure ifAbsent: [nil].
+	self assert: structure isStructureType.
+	
+	method := structure lookupLocalOverloadedSelector: #value.
+	method ensureSemanticAnalysis.
+	methodBody := method analyzedBody.
+	self assert: methodBody isReferenceLoadNode.
+	self assert: methodBody reference isGetFieldReferenceNode.
+	self assert: methodBody reference aggregate isVariableReferenceNode.
+]
+
+{ #category : #tests }
 MbndAstSemanticAnalyzerTest >> testStructureNewValue [
 	| node structureBody analyzedNode |
 	structureBody := builder sequence: {

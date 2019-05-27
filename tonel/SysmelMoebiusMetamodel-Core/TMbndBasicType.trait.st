@@ -22,9 +22,19 @@ TMbndBasicType >> analyzeExpandedMessageNode: node with: analyzer [
 
 ]
 
+{ #category : #adding }
+TMbndBasicType >> createMethodEntityForPrototype: functionPrototype [
+	^ self createMethodEntityForPrototype: functionPrototype withReceiverType: self asReceiverType
+]
+
 { #category : #testing }
 TMbndBasicType >> isTrait [
 	^ self hasFlag: #trait
+]
+
+{ #category : #methods }
+TMbndBasicType >> lookupLocalOverloadedSelector: aSelector [
+	^ self overloadedMethodDict at: aSelector ifAbsent: [ nil ].
 ]
 
 { #category : #'macro expansion' }

@@ -9,6 +9,14 @@ Class {
 	#category : #'SysmelMoebiusMetamodel-Core-Variables'
 }
 
+{ #category : #converting }
+MbndFieldVariable >> asSymbolBoundWithReceiverBinding: receiverBinding [
+	^ MbndFieldBoundWithReceiver new
+		receiver: receiverBinding;
+		field: self;
+		yourself
+]
+
 { #category : #accessing }
 MbndFieldVariable >> bitMask [
 	^ bitMask

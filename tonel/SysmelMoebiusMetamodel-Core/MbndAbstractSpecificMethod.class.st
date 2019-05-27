@@ -29,7 +29,7 @@ MbndAbstractSpecificMethod >> analyzeExpandedMessageSendNode: node with: analyze
 	].
 
 	newReceiverNode := node receiver ifNotNil: [ :receiver |
-		analyzer addImplicitCastFor: (analyzer analyzeNodeIfNeeded: receiver) to: self receiverType 
+		analyzer addReceiverImplicitCastFor: (analyzer analyzeNodeIfNeeded: receiver) to: self receiverType 
 	].
 
 	argumentTypes := self boundType argumentTypes.

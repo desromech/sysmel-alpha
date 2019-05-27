@@ -12,6 +12,11 @@ Class {
 	#category : #'SysmelMoebiusMetamodel-Core-Variables'
 }
 
+{ #category : #'semantic analysis' }
+MbndAbstractFieldVariable >> analyzeReferenceNode: referenceNode with: analyzer [
+	self error: 'Field description introspection is not yet implemented.' at: analyzer
+]
+
 { #category : #accessing }
 MbndAbstractFieldVariable >> bits [
 	^ nil

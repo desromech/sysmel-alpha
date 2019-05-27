@@ -86,6 +86,11 @@ MbndFunctionType >> isFunctionType [
 	^ true
 ]
 
+{ #category : #'as yet unclassified' }
+MbndFunctionType >> prependArguments: newArguments [
+	^ self compilationTarget functionTypeWithArguments: newArguments , argumentTypes returnType: returnType callingConvention: callingConvention cvariadic: cvariadic
+]
+
 { #category : #printing }
 MbndFunctionType >> printOn: aStream [
 	aStream nextPut: $(.

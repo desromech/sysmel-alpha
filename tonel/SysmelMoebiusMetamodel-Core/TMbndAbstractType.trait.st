@@ -244,6 +244,11 @@ TMbndAbstractType >> asPointerType [
 ]
 
 { #category : #converting }
+TMbndAbstractType >> asReceiverType [
+	^ self
+]
+
+{ #category : #converting }
 TMbndAbstractType >> asReferenceType [
 	self error: 'Cannot convert type {1} into a reference type version.' format: { self asString }
 ]
@@ -284,6 +289,11 @@ TMbndAbstractType >> const [
 { #category : #'meta builder factories' }
 TMbndAbstractType >> createExtraMetaBuilderFactories [
 	^ Dictionary newFromPairs: self getExtraMetaBuilderFactoryList
+]
+
+{ #category : #adding }
+TMbndAbstractType >> createMethodEntityForPrototype: functionPrototype [
+	^ self createMethodEntityForPrototype: functionPrototype withReceiverType: self asReceiverType
 ]
 
 { #category : #'meta builder factories' }

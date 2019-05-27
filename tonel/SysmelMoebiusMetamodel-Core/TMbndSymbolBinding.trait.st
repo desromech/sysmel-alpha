@@ -14,6 +14,11 @@ TMbndSymbolBinding >> asCompileTimeValueReferenceOfType: referenceType withEvalu
 ]
 
 { #category : #converting }
+TMbndSymbolBinding >> asSymbolBoundWithReceiverBinding: receiverBinding [
+	^ nil
+]
+
+{ #category : #converting }
 TMbndSymbolBinding >> evaluateLocalDefinition: node withEvaluator: evaluator [
 	self explicitRequirement
 ]

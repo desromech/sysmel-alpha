@@ -35,6 +35,11 @@ TMbndMethod >> isMethodGroup [
 	^ false
 ]
 
+{ #category : #'as yet unclassified' }
+TMbndMethod >> lookupBoundReceiverSymbol: aSymbol [
+	^ nil
+]
+
 { #category : #accessing }
 TMbndMethod >> receiverType [
 	^ nil

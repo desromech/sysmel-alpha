@@ -14,6 +14,11 @@ MbndAggregateType >> asImmutableValueType [
 	^ self const ref
 ]
 
+{ #category : #converting }
+MbndAggregateType >> asReceiverType [
+	^ self ref
+]
+
 { #category : #'testing methods' }
 MbndAggregateType >> isAggregateType [
 	^ true
