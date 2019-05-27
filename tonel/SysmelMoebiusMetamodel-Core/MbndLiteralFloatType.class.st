@@ -24,3 +24,9 @@ MbndLiteralFloatType >> bestConcreteTypeForLiteralValueNode: literalValueNode in
 MbndLiteralFloatType >> isLiteralFloatType [
 	^ true
 ]
+
+{ #category : #'semantic analysis' }
+MbndLiteralFloatType >> standardConcreteTypeForLiteralValueNode: literalValueNode inScope: scope [
+	self flag: 'TODO: Use the number range for selecting this.'.
+	^ self compilationTarget float64Type
+]

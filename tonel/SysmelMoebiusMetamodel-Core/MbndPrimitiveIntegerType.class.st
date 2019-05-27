@@ -2,7 +2,9 @@ Class {
 	#name : #MbndPrimitiveIntegerType,
 	#superclass : #MbndPrimitiveNumberType,
 	#instVars : [
-		'signed'
+		'signed',
+		'minValue',
+		'maxValue'
 	],
 	#category : #'SysmelMoebiusMetamodel-Core-Type'
 }
@@ -67,8 +69,39 @@ MbndPrimitiveIntegerType >> isUnsigned [
 ]
 
 { #category : #testing }
+MbndPrimitiveIntegerType >> isValueInRange: value [
+	^ self minValue <= value and: [ value <= self maxValue ]
+]
+
+{ #category : #testing }
 MbndPrimitiveIntegerType >> legalizeLiteralValue: literalValue [
 	^ literalValue asInteger
+]
+
+{ #category : #testing }
+MbndPrimitiveIntegerType >> maxValue [
+	maxValue ifNil: [
+		signed ifTrue: [
+			maxValue := (1 << (instanceSize * 8 - 1)) - 1
+		] ifFalse: [ 
+			maxValue := (1 << (instanceSize * 8)) - 1
+		]
+	].
+
+	^ maxValue
+]
+
+{ #category : #testing }
+MbndPrimitiveIntegerType >> minValue [
+	minValue ifNil: [
+		signed ifTrue: [
+			minValue := (1 << (instanceSize * 8 - 1)) negated
+		] ifFalse: [ 
+			minValue := 0
+		]
+	].
+
+	^ minValue
 ]
 
 { #category : #accessing }

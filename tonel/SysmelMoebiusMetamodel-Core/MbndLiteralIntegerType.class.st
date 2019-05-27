@@ -29,8 +29,29 @@ MbndLiteralIntegerType >> asCVariadicTypeRequiredAt: position [
 
 { #category : #'semantic analysis' }
 MbndLiteralIntegerType >> bestConcreteTypeForLiteralValueNode: literalValueNode inScope: scope [
-	self flag: 'TODO: Use the number range for selecting this.'.
-	^ self compilationTarget int32Type
+	| literalValue testType |
+	literalValue := literalValueNode value.
+	literalValue >= 0 ifTrue: [
+		literalValue <= 16rFF ifTrue: [ ^ self compilationTarget uint8Type ].
+		literalValue <= 16rFFFF ifTrue: [ ^ self compilationTarget uint16Type ].
+		literalValue <= 16r7FFFFFFF ifTrue: [ ^ self compilationTarget int32Type ].
+		literalValue <= 16rFFFFFFFF ifTrue: [ ^ self compilationTarget uint32Type ].
+		literalValue <= 16r7FFFFFFFFFFFFFFF ifTrue: [ ^ self compilationTarget int64Type ].
+		literalValue <= 16rFFFFFFFFFFFFFFFF ifTrue: [ ^ self compilationTarget uint64Type ].
+		self error: 'Large integers not yet supported.'
+	].
+
+	testType := self compilationTarget int8Type.
+	(testType isValueInRange: literalValue) ifTrue: [ ^ testType ].
+	testType := self compilationTarget int16Type.
+	(testType isValueInRange: literalValue) ifTrue: [ ^ testType ].
+	testType := self compilationTarget int32Type.
+	(testType isValueInRange: literalValue) ifTrue: [ ^ testType ].
+	testType := self compilationTarget int64Type.
+	(testType isValueInRange: literalValue) ifTrue: [ ^ testType ].
+	
+	self error: 'Large integers not yet supported.'
+
 ]
 
 { #category : #initialization }
@@ -46,4 +67,22 @@ MbndLiteralIntegerType >> initialize [
 { #category : #'testing methods' }
 MbndLiteralIntegerType >> isLiteralIntegerType [
 	^ true
+]
+
+{ #category : #'semantic analysis' }
+MbndLiteralIntegerType >> standardConcreteTypeForLiteralValueNode: literalValueNode inScope: scope [
+	| literalValue testType |
+	literalValue := literalValueNode value.
+	
+	testType := self compilationTarget int32Type.
+	(testType isValueInRange: literalValue) ifTrue: [ ^ testType ].
+	testType := self compilationTarget uint32Type.
+	(testType isValueInRange: literalValue) ifTrue: [ ^ testType ].
+	testType := self compilationTarget int64Type.
+	(testType isValueInRange: literalValue) ifTrue: [ ^ testType ].
+	testType := self compilationTarget uint64Type.
+	(testType isValueInRange: literalValue) ifTrue: [ ^ testType ].
+	
+	self error: 'Large integers not yet supported.'
+
 ]

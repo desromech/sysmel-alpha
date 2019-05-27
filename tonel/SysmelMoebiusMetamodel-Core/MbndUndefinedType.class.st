@@ -14,6 +14,18 @@ MbndUndefinedType >> accept: aVisitor [
 	^ aVisitor visitUndefinedType: self
 ]
 
+{ #category : #adding }
+MbndUndefinedType >> addDefaultConversionRules [
+	super addDefaultConversionRules.
+	
+	self
+		addConversionTo: self compilationTarget voidType rule: MbndIdentityTypeConversionRule;
+		addConversionRule: (MbndIdentityTypeConversionRule when: [:source :target |
+		target withoutTopDecorations isPointerType
+	])
+
+]
+
 { #category : #converting }
 MbndUndefinedType >> asCVariadicTypeRequiredAt: position [
 	^ self compilationTarget voidType pointer

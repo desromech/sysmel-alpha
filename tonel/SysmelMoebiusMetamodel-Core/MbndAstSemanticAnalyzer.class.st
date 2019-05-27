@@ -133,7 +133,7 @@ MbndAstSemanticAnalyzer >> ensureIntegerValue: node at: position [
 MbndAstSemanticAnalyzer >> ensureLiteralIsConcreted: node [
 	node type isLiteralValueType ifFalse: [ ^ node ].
 	self assert: node isLiteralValueNode.
-	^ self addImplicitCastFor: node to: (node type bestConcreteTypeForLiteralValueNode: node inScope: scope)
+	^ self addImplicitCastFor: node to: (node type standardConcreteTypeForLiteralValueNode: node inScope: scope)
 ]
 
 { #category : #'implicit casting' }

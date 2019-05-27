@@ -749,6 +749,11 @@ TMbndAbstractType >> slotLayout [
 	^ nil
 ]
 
+{ #category : #'semantic analysis' }
+TMbndAbstractType >> standardConcreteTypeForLiteralValueNode: literalValueNode inScope: scope [
+	^ self
+]
+
 { #category : #'type hierarchy' }
 TMbndAbstractType >> subtypeAdded: aSubtype [
 ]

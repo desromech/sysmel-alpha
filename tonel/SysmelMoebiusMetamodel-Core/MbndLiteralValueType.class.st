@@ -38,7 +38,7 @@ MbndLiteralValueType >> addLiteralHostDelegationMacrosFor: selectors [
 MbndLiteralValueType >> analyzeReinterpretCastNode: node to: targetType with: analyzer [
 	| bestConcreteType newNode |
 	self assert: node expression isLiteralValueNode.
-	bestConcreteType := self bestConcreteTypeForLiteralValueNode: node expression inScope: analyzer scope.
+	bestConcreteType := self standardConcreteTypeForLiteralValueNode: node expression inScope: analyzer scope.
 	newNode := node copy.
 	newNode expression: (newNode expression copy type: bestConcreteType).
 	^ bestConcreteType analyzeReinterpretCastNode: newNode to: targetType with: analyzer
@@ -48,7 +48,7 @@ MbndLiteralValueType >> analyzeReinterpretCastNode: node to: targetType with: an
 MbndLiteralValueType >> analyzeUnboundExpandedMessageSendNode: node with: analyzer [
 	| bestConcreteType |
 	self assert: node receiver isLiteralValueNode.
-	bestConcreteType := self bestConcreteTypeForLiteralValueNode: node receiver inScope: analyzer scope.
+	bestConcreteType := self standardConcreteTypeForLiteralValueNode: node receiver inScope: analyzer scope.
 	
 	"Apply the concrete literal type, and analyze again. Allow a second oppotunity for doing macro expansion."
 	^ analyzer visitNode: (node asUnexpandedMessageSend
@@ -65,7 +65,7 @@ MbndLiteralValueType >> bestConcreteTypeForLiteralValueNode: literalValueNode in
 { #category : #'type inference' }
 MbndLiteralValueType >> inferValueTypeForNode: initialValueNode inScope: scope [
 	self assert: initialValueNode isLiteralValueNode.
-	^ self bestConcreteTypeForLiteralValueNode: initialValueNode inScope: scope
+	^ self standardConcreteTypeForLiteralValueNode: initialValueNode inScope: scope
 ]
 
 { #category : #testing }
@@ -76,4 +76,10 @@ MbndLiteralValueType >> isLiteralValueType [
 { #category : #testing }
 MbndLiteralValueType >> isTrait [
 	^ self class subclasses isEmpty
+]
+
+{ #category : #'semantic analysis' }
+MbndLiteralValueType >> standardConcreteTypeForLiteralValueNode: literalValueNode inScope: scope [
+	"This should find the best concrete type for a specific literal value node"
+	self subclassResponsibility
 ]

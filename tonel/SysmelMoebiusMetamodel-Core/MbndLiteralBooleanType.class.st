@@ -40,3 +40,8 @@ MbndLiteralBooleanType >> initializeNonTraitType [
 MbndLiteralBooleanType >> isLiteralBooleanType [
 	^ true
 ]
+
+{ #category : #'semantic analysis' }
+MbndLiteralBooleanType >> standardConcreteTypeForLiteralValueNode: literalValueNode inScope: scope [
+	^ self compilationTarget booleanType
+]
