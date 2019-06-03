@@ -23,14 +23,9 @@ definition: {
         Unix pthread_mutex_unlock(handle address).
     }.
 
-    macro expansionRule heldInThisContext := ``{
-        `,self lock.
-        ensureCleanup: (`,self unlock)
-    } node.
-
     macro expansionRule withLock: aBlock := ``{
-        `,self heldInThisContext.
-        aBlock __macroInlineBlock.
+		`,self lock.
+        `,aBlock __macroInlineBlockEnsure: `,self unlock.
     }.
 }.
 
