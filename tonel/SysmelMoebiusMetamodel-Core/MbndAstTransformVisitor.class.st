@@ -83,6 +83,14 @@ MbndAstTransformVisitor >> visitClassDefinitionNode: node [
 ]
 
 { #category : #visiting }
+MbndAstTransformVisitor >> visitCleanUpScopeNode: node [
+	^ node copy
+		expression: (self visitNode: node expression);
+		cleanUpActions: (self visitNodesAndCollect: node cleanUpActions);
+		yourself
+]
+
+{ #category : #visiting }
 MbndAstTransformVisitor >> visitCompileTimeConstantDefinitionNode: node [
 	^ node copy
 		value: (self visitNode: node value);
@@ -220,6 +228,7 @@ MbndAstTransformVisitor >> visitIntegerToFloatingPointCastNode: node [
 MbndAstTransformVisitor >> visitLexicalScopeNode: node [
 	^ node copy
 		expression: (self visitNode: node expression);
+		cleanUpActions: (self visitNodesAndCollect: node cleanUpActions);
 		yourself
 ]
 
@@ -232,6 +241,15 @@ MbndAstTransformVisitor >> visitLiteralValueNode: node [
 MbndAstTransformVisitor >> visitLocalVariableDefinitionNode: node [
 	^ node copy
 		initialValue: (node initialValue ifNotNil: [:initialValue | self visitNode: initialValue]);
+		yourself
+]
+
+{ #category : #visiting }
+MbndAstTransformVisitor >> visitMacroExpansionInlineBlockNode: node [
+	^ node copy
+		blockNode: (self visitNode: node blockNode);
+		argumentNodes: (self visitNodesAndCollect: node argumentNodes);
+		ensureNode: (node ensureNode ifNotNil: [:en | self visitNode: en]);
 		yourself
 ]
 

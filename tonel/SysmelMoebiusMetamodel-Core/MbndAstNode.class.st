@@ -65,6 +65,11 @@ MbndAstNode >> isBitCastNode [
 ]
 
 { #category : #testing }
+MbndAstNode >> isBlockClosureNode [
+	^ false
+]
+
+{ #category : #testing }
 MbndAstNode >> isBoundIdentifierReferenceNode [
 	^ false
 ]
@@ -96,6 +101,11 @@ MbndAstNode >> isClassDeclarationNode [
 
 { #category : #testing }
 MbndAstNode >> isClassDefinitionNode [
+	^ false
+]
+
+{ #category : #testing }
+MbndAstNode >> isCleanUpScopeNode [
 	^ false
 ]
 
@@ -216,6 +226,11 @@ MbndAstNode >> isLiteralValueNode [
 
 { #category : #testing }
 MbndAstNode >> isLocalVariableDefinitionNode [
+	^ false
+]
+
+{ #category : #testing }
+MbndAstNode >> isMacroExpansionInlineBlockNode [
 	^ false
 ]
 

@@ -7,6 +7,11 @@ Class {
 	#category : #'SysmelMoebiusCodeGenerator-Slovim-Module'
 }
 
+{ #category : #'as yet unclassified' }
+MbndSlovimTranslatedProgramEntitySSAValue >> generateExpandedMessageSendNode: node with: codeGenerator [
+	^ codeGenerator generateExpandedMessageSendNode: node withStaticMethodBoundTo: ssaValue
+]
+
 { #category : #accessing }
 MbndSlovimTranslatedProgramEntitySSAValue >> ssaValue [
 	^ ssaValue

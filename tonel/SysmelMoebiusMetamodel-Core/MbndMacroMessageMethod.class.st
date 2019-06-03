@@ -8,6 +8,11 @@ Class {
 	#category : #'SysmelMoebiusMetamodel-Core-Macro'
 }
 
+{ #category : #visiting }
+MbndMacroMessageMethod >> accept: aVisitor [
+	^ aVisitor visitMacroMessageMethod: self
+]
+
 { #category : #accessing }
 MbndMacroMessageMethod >> children [
 	^ {concreteMethod}

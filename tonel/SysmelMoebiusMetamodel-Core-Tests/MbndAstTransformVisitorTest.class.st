@@ -142,6 +142,20 @@ MbndAstTransformVisitorTest >> testClassDefinitionNode [
 ]
 
 { #category : #tests }
+MbndAstTransformVisitorTest >> testCleanUpScopeNode [
+	| node expression cleanUpActions transformedNode |
+	expression := builder identifier: #hello.
+	cleanUpActions := {builder literalVoid}.
+	node := builder cleanUpScope: expression actions: cleanUpActions.
+
+	transformedNode := visitor visitNode: node.
+	self assert: transformedNode isCleanUpScopeNode.
+	self assert: transformedNode expression equals: expression.
+	self assert: transformedNode cleanUpActions equals: cleanUpActions.
+
+]
+
+{ #category : #tests }
 MbndAstTransformVisitorTest >> testCompileTimeConstantDefinition [
 	| node transformedNode value |
 	value := builder identifier: #Int32.

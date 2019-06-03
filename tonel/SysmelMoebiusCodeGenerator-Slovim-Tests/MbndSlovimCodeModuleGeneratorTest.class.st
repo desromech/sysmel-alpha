@@ -73,6 +73,52 @@ MbndSlovimCodeModuleGeneratorTest >> testEmptyModule [
 ]
 
 { #category : #running }
+MbndSlovimCodeModuleGeneratorTest >> testGetFieldReference [
+	| function |
+	self
+		evaluateSysmelSource: '
+		struct TestStruct definition: {
+			field intField public type: Int32
+		}.
+		
+		function getFieldRef externC(s: TestStruct ref) => Int32
+			:= s intField
+';
+		generateSSAModule.
+
+	function := ssaModule globalNamed: #getFieldRef.
+	self assert: function isFunction.
+	self deny: function isEmpty.
+	self assert: function basicBlocks size equals: 2.
+	self assert: function basicBlocks first firstInstruction isJump.
+	self assert: function basicBlocks second firstInstruction isGetElementPointer.
+	self assert: function basicBlocks second lastInstruction isReturn.
+]
+
+{ #category : #running }
+MbndSlovimCodeModuleGeneratorTest >> testGetFieldValue [
+	| function |
+	self
+		evaluateSysmelSource: '
+		struct TestStruct definition: {
+			field intField public type: Int32
+		}.
+		
+		function getFieldValue externC(s: TestStruct) => Int32
+			:= s intField
+';
+		generateSSAModule.
+
+	function := ssaModule globalNamed: #getFieldValue.
+	self assert: function isFunction.
+	self deny: function isEmpty.
+	self assert: function basicBlocks size equals: 2.
+	self assert: function basicBlocks first firstInstruction isJump.
+	self assert: function basicBlocks second firstInstruction isExtractValue.
+	self assert: function basicBlocks second lastInstruction isReturn.
+]
+
+{ #category : #running }
 MbndSlovimCodeModuleGeneratorTest >> testGetPointerElementAtFunction [
 	| function |
 	self
@@ -106,6 +152,55 @@ function getPointerElement externC(pointer: Int32 pointer, index: Int32) => Int3
 	self assert: function basicBlocks size equals: 2.
 	self assert: function basicBlocks first firstInstruction isJump.
 	self assert: function basicBlocks second firstInstruction isGetElementPointer.
+	self assert: function basicBlocks second lastInstruction isReturn.
+]
+
+{ #category : #running }
+MbndSlovimCodeModuleGeneratorTest >> testGetUnionFieldReference [
+	| function |
+	self
+		evaluateSysmelSource: '
+		union TestUnion definition: {
+			field intField public type: Int32.
+			field floatField public type: Int32.
+		}.
+		
+		function getFieldRef externC(s: TestUnion ref) => Int32
+			:= s intField
+';
+		generateSSAModule.
+
+	function := ssaModule globalNamed: #getFieldRef.
+	self assert: function isFunction.
+	self deny: function isEmpty.
+	self assert: function basicBlocks size equals: 2.
+	self assert: function basicBlocks first firstInstruction isJump.
+	self assert: function basicBlocks second firstInstruction isBitCast.
+	self assert: function basicBlocks second lastInstruction isReturn.
+]
+
+{ #category : #running }
+MbndSlovimCodeModuleGeneratorTest >> testGetUnionFieldValue [
+	| function |
+	self
+		evaluateSysmelSource: '
+		union TestUnion definition: {
+			field intField public type: Int32.
+			field floatField public type: Float64.
+		}.
+		
+		function getFieldValue externC(s: TestUnion) => Int32
+			:= s intField
+';
+		generateSSAModule.
+
+	function := ssaModule globalNamed: #getFieldValue.
+	self assert: function isFunction.
+	self deny: function isEmpty.
+	self assert: function basicBlocks size equals: 2.
+	self assert: function basicBlocks first firstInstruction isAlloca.
+	self assert: function basicBlocks second firstInstruction isStore.
+	self assert: function basicBlocks second firstInstruction nextInstruction isBitCast.
 	self assert: function basicBlocks second lastInstruction isReturn.
 ]
 

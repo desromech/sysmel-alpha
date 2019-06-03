@@ -9,6 +9,11 @@ Class {
 	#category : #'SysmelMoebiusMetamodel-Core-Variables'
 }
 
+{ #category : #visiting }
+MbndFieldVariable >> accept: aVisitor [
+	^ aVisitor visitFieldVariable: self
+]
+
 { #category : #converting }
 MbndFieldVariable >> asSymbolBoundWithReceiverBinding: receiverBinding [
 	^ MbndFieldBoundWithReceiver new

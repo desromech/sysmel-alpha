@@ -27,6 +27,12 @@ MbndTupleType >> -- nextType [
 	^ self compilationTarget tuple: elements , { nextType }
 ]
 
+{ #category : #'type composition' }
+MbndTupleType >> => returnType [
+	<compileTime>
+	^ self compilationTarget functionTypeWithArguments: elements returnType: returnType
+]
+
 { #category : #visiting }
 MbndTupleType >> accept: aVisitor [
 	^ aVisitor visitTupleType: self

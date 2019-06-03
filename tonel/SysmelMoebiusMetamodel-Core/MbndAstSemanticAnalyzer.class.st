@@ -33,6 +33,10 @@ MbndAstSemanticAnalyzer >> addImplicitCastFor: nodeRequiringCasting to: expected
 		^ nodeRequiringCasting
 	].
 
+	sourceType isReturnType ifTrue: [
+		^ nodeRequiringCasting
+	].
+
 	^ self visitNode: (MbndAstImplicitCastNode new
 		position: nodeRequiringCasting;
 		expression: nodeRequiringCasting;
@@ -273,6 +277,23 @@ MbndAstSemanticAnalyzer >> visitClassDeclarationNode: node [
 { #category : #visiting }
 MbndAstSemanticAnalyzer >> visitClassDefinitionNode: node [
 	^ self visitTypeDefinitionNode: node ofKind: MbndClassType
+]
+
+{ #category : #visiting }
+MbndAstSemanticAnalyzer >> visitCleanUpScopeNode: node [
+	| result analyzedContent |
+	result := node copy.
+	
+	analyzedContent := self visitNode: result expression.
+	analyzedContent isLiteralValueNode ifTrue: [ ^ analyzedContent ].
+	
+	self flag: 'TODO: Implement the clean up scope analysis correctly.'.
+	result
+		expression: analyzedContent;
+		type: analyzedContent type;
+		cleanUpActions: (self visitNodesAndCollect: result cleanUpActions).
+	
+	^ result
 ]
 
 { #category : #visiting }
@@ -560,8 +581,8 @@ MbndAstSemanticAnalyzer >> visitIfConditionNode: node [
 	].
 
 	result
-		trueValue: (self analyzeNodeIfNeeded: result trueValue);
-		falseValue: (self analyzeNodeIfNeeded: result falseValue).
+		trueValue: (self ensureLiteralIsConcreted: (self analyzeNodeIfNeeded: result trueValue));
+		falseValue: (self ensureLiteralIsConcreted: (self analyzeNodeIfNeeded: result falseValue)).
 
 	resultCoercionType := self conditionalResultCoercionTypeFor: result trueValue type
 		with: result falseValue type at: result.
@@ -603,9 +624,12 @@ MbndAstSemanticAnalyzer >> visitLexicalScopeNode: node [
 		analyzedContent := self visitNode: result expression.
 		analyzedContent isLiteralValueNode ifTrue: [ ^ analyzedContent ].
 		
+		self flag: 'TODO: Implement the clean up scope analysis correctly.'.
+		
 		result
 			expression: analyzedContent;
-			type: analyzedContent type.
+			type: analyzedContent type;
+			cleanUpActions: (self visitNodesAndCollect: result cleanUpActions).
 	].
 
 	^ result

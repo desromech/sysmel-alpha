@@ -15,8 +15,9 @@ MbndPointerType >> accept: aVisitor [
 ]
 
 { #category : #initialization }
-MbndPointerType >> addTraitMacros [
+MbndPointerType >> addInstanceMacros [
 	self class == MbndPointerType ifFalse: [ ^ self ].
+	self isTrait ifFalse: [ ^ self ].
 	self
 		onMacroSelectors: #(value _) do: [ :node :builder |
 			(builder pointerAsReference: node receiver)

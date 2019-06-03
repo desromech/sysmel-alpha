@@ -42,6 +42,11 @@ MbndAbstractModuleVisitor >> visitDecoratedType: type [
 ]
 
 { #category : #visiting }
+MbndAbstractModuleVisitor >> visitFieldVariable: type [
+	self subclassResponsibility
+]
+
+{ #category : #visiting }
 MbndAbstractModuleVisitor >> visitFunctionGroupType: type [
 	self subclassResponsibility
 ]
@@ -58,6 +63,11 @@ MbndAbstractModuleVisitor >> visitGCClassType: type [
 
 { #category : #visiting }
 MbndAbstractModuleVisitor >> visitGlobalVariable: globalVariable [
+	self subclassResponsibility
+]
+
+{ #category : #visiting }
+MbndAbstractModuleVisitor >> visitMacroMessageMethod: type [
 	self subclassResponsibility
 ]
 
@@ -138,6 +148,11 @@ MbndAbstractModuleVisitor >> visitUndefinedType: type [
 
 { #category : #visiting }
 MbndAbstractModuleVisitor >> visitUnionType: type [
+	self subclassResponsibility
+]
+
+{ #category : #visiting }
+MbndAbstractModuleVisitor >> visitVTablePointerFieldVariable: type [
 	self subclassResponsibility
 ]
 

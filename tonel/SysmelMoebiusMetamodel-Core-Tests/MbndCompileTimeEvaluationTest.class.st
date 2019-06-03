@@ -41,6 +41,58 @@ MbndCompileTimeEvaluationTest >> testDivideInteger [
 ]
 
 { #category : #tests }
+MbndCompileTimeEvaluationTest >> testIntegerBitAnd [
+	| ast result |
+	ast := builder send: (builder literalSymbol: #&) to:
+		(builder literalInteger: 16rFF) withArguments: {
+			builder literalInteger: 42
+		}.
+	result := module analyzeAndEvaluateAST: ast.
+	
+	self assert: result value equals: 42.
+	self assert: result type isPrimitiveIntegerType.
+]
+
+{ #category : #tests }
+MbndCompileTimeEvaluationTest >> testIntegerBitAnd2 [
+	| ast result |
+	ast := builder send: (builder literalSymbol: #bitAnd:) to:
+		(builder literalInteger: 16rFF) withArguments: {
+			builder literalInteger: 42
+		}.
+	result := module analyzeAndEvaluateAST: ast.
+	
+	self assert: result value equals: 42.
+	self assert: result type isPrimitiveIntegerType.
+]
+
+{ #category : #tests }
+MbndCompileTimeEvaluationTest >> testIntegerBitOr [
+	| ast result |
+	ast := builder send: (builder literalSymbol: #|) to:
+		(builder literalInteger: 16r0) withArguments: {
+			builder literalInteger: 42
+		}.
+	result := module analyzeAndEvaluateAST: ast.
+	
+	self assert: result value equals: 42.
+	self assert: result type isPrimitiveIntegerType.
+]
+
+{ #category : #tests }
+MbndCompileTimeEvaluationTest >> testIntegerBitOr2 [
+	| ast result |
+	ast := builder send: (builder literalSymbol: #bitOr:) to:
+		(builder literalInteger: 16r0) withArguments: {
+			builder literalInteger: 42
+		}.
+	result := module analyzeAndEvaluateAST: ast.
+	
+	self assert: result value equals: 42.
+	self assert: result type isPrimitiveIntegerType.
+]
+
+{ #category : #tests }
 MbndCompileTimeEvaluationTest >> testIntegerEquals [
 	| ast result |
 	ast := builder send: (builder literalSymbol: #=) to:
@@ -228,6 +280,17 @@ MbndCompileTimeEvaluationTest >> testSequenceOfSequenceLiterals [
 ]
 
 { #category : #tests }
+MbndCompileTimeEvaluationTest >> testSignedIntegerBitInvert [
+	| ast result |
+	ast := builder send: (builder literalSymbol: #bitInvert) to:
+		(builder literalInteger: 16r0) withArguments: #().
+	result := module analyzeAndEvaluateAST: ast.
+	
+	self assert: result value equals: -1.
+	self assert: result type isPrimitiveIntegerType.
+]
+
+{ #category : #tests }
 MbndCompileTimeEvaluationTest >> testSubtractInteger [
 	| ast result |
 	ast := builder send: (builder literalSymbol: #-) to:
@@ -250,6 +313,69 @@ MbndCompileTimeEvaluationTest >> testUnexpandedAddInteger [
 	result := module analyzeAndEvaluateAST: ast.
 	
 	self assert: result value equals: 4.
+	self assert: result type isLiteralIntegerType.
+]
+
+{ #category : #tests }
+MbndCompileTimeEvaluationTest >> testUnexpandedBitAnd [
+	| ast result |
+	ast := builder unexpandedSend: (builder literalSymbol: #&) to:
+		(builder literalInteger: 16rFF) withArguments: {
+			builder literalInteger: 42
+		}.
+	result := module analyzeAndEvaluateAST: ast.
+	
+	self assert: result value equals: 42.
+	self assert: result type isLiteralIntegerType.
+]
+
+{ #category : #tests }
+MbndCompileTimeEvaluationTest >> testUnexpandedBitAnd2 [
+	| ast result |
+	ast := builder unexpandedSend: (builder literalSymbol: #bitAnd:) to:
+		(builder literalInteger: 16rFF) withArguments: {
+			builder literalInteger: 42
+		}.
+	result := module analyzeAndEvaluateAST: ast.
+	
+	self assert: result value equals: 42.
+	self assert: result type isLiteralIntegerType.
+]
+
+{ #category : #tests }
+MbndCompileTimeEvaluationTest >> testUnexpandedBitNot [
+	| ast result |
+	ast := builder unexpandedSend: (builder literalSymbol: #bitInvert) to:
+		(builder literalInteger: 16r0) withArguments: #().
+	result := module analyzeAndEvaluateAST: ast.
+	
+	self assert: result value equals: -1.
+	self assert: result type isLiteralIntegerType.
+]
+
+{ #category : #tests }
+MbndCompileTimeEvaluationTest >> testUnexpandedBitOr [
+	| ast result |
+	ast := builder unexpandedSend: (builder literalSymbol: #|) to:
+		(builder literalInteger: 16r0) withArguments: {
+			builder literalInteger: 42
+		}.
+	result := module analyzeAndEvaluateAST: ast.
+	
+	self assert: result value equals: 42.
+	self assert: result type isLiteralIntegerType.
+]
+
+{ #category : #tests }
+MbndCompileTimeEvaluationTest >> testUnexpandedBitOr2 [
+	| ast result |
+	ast := builder unexpandedSend: (builder literalSymbol: #bitOr:) to:
+		(builder literalInteger: 16r0) withArguments: {
+			builder literalInteger: 42
+		}.
+	result := module analyzeAndEvaluateAST: ast.
+	
+	self assert: result value equals: 42.
 	self assert: result type isLiteralIntegerType.
 ]
 
@@ -405,4 +531,15 @@ MbndCompileTimeEvaluationTest >> testUnexpandedSubtractInteger [
 	
 	self assert: result value equals: -2.
 	self assert: result type isLiteralIntegerType.
+]
+
+{ #category : #tests }
+MbndCompileTimeEvaluationTest >> testUnsignedIntegerBitInvert [
+	| ast result |
+	ast := builder send: (builder literalSymbol: #bitInvert) to:
+		(builder literal: 0 type: module compilationTarget uint32Type) withArguments: #().
+	result := module analyzeAndEvaluateAST: ast.
+	
+	self assert: result value equals: 16rFFFFFFFF.
+	self assert: result type isPrimitiveIntegerType.
 ]

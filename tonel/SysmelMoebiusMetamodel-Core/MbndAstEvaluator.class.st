@@ -153,6 +153,11 @@ MbndAstEvaluator >> visitLocalVariableDefinitionNode: node [
 ]
 
 { #category : #visiting }
+MbndAstEvaluator >> visitMacroMessageDefinitionNode: node [
+	^ node prototype
+]
+
+{ #category : #visiting }
 MbndAstEvaluator >> visitMessageDefinitionNode: node [
 	^ self visitNode: node prototype
 ]

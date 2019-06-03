@@ -63,6 +63,11 @@ MbndAstDelegationVisitor >> visitClassDefinitionNode: node [
 ]
 
 { #category : #visiting }
+MbndAstDelegationVisitor >> visitCleanUpScopeNode: node [
+	^ self delegateNodeVisit: node
+]
+
+{ #category : #visiting }
 MbndAstDelegationVisitor >> visitCompileTimeConstantDefinitionNode: node [
 	^ self delegateNodeVisit: node
 ]
@@ -169,6 +174,11 @@ MbndAstDelegationVisitor >> visitLiteralValueNode: node [
 
 { #category : #visiting }
 MbndAstDelegationVisitor >> visitLocalVariableDefinitionNode: node [
+	^ self delegateNodeVisit: node
+]
+
+{ #category : #visiting }
+MbndAstDelegationVisitor >> visitMacroExpansionInlineBlockNode: node [
 	^ self delegateNodeVisit: node
 ]
 

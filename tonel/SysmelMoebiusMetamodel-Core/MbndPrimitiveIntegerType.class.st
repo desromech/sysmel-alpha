@@ -4,7 +4,9 @@ Class {
 	#instVars : [
 		'signed',
 		'minValue',
-		'maxValue'
+		'maxValue',
+		'signBit',
+		'bitMask'
 	],
 	#category : #'SysmelMoebiusMetamodel-Core-Type'
 }
@@ -27,12 +29,14 @@ MbndPrimitiveIntegerType >> addArithmeticIntrinsics [
 		addArithmetic: #bitAnd: binaryIntrinsic: #bitand;
 		addArithmetic: #& binaryIntrinsic: #bitand;
 		addArithmetic: #bitOr: binaryIntrinsic: #bitor;
-		addArithmetic: #or binaryIntrinsic: #bitor;
+		addArithmetic: #| binaryIntrinsic: #bitor;
 		addArithmetic: #bitXor: binaryIntrinsic: #bitxor;
 		addArithmetic: #'^' binaryIntrinsic: #bitxor;
 
 		addArithmetic: #<< binaryIntrinsic: #shiftleft;
-		addArithmetic: #>> binaryIntrinsic: #shiftright.
+		addArithmetic: #>> binaryIntrinsic: #shiftright;
+		addArithmetic: #bitInvert unaryIntrinsic: #not
+		
 
 ]
 
@@ -41,6 +45,11 @@ MbndPrimitiveIntegerType >> asCVariadicTypeRequiredAt: position [
 	self instanceSize < 4 ifTrue: [ ^ self compilationTarget int32Type ].
 	
 	^ self
+]
+
+{ #category : #testing }
+MbndPrimitiveIntegerType >> bitMask [
+	^ bitMask ifNil: [ bitMask := (1 << (instanceSize * 8))  - 1 ]
 ]
 
 { #category : #'default values' }
@@ -75,7 +84,12 @@ MbndPrimitiveIntegerType >> isValueInRange: value [
 
 { #category : #testing }
 MbndPrimitiveIntegerType >> legalizeLiteralValue: literalValue [
-	^ literalValue asInteger
+	| rawInteger |
+	rawInteger := literalValue asInteger.
+	^ signed
+		ifTrue: [ (rawInteger bitAnd: self maxValue) -
+				((rawInteger anyMask: self signBit) ifTrue: [ signBit ] ifFalse: [ 0 ])]
+		ifFalse: [ rawInteger bitAnd: self bitMask ].
 ]
 
 { #category : #testing }
@@ -102,6 +116,12 @@ MbndPrimitiveIntegerType >> minValue [
 	].
 
 	^ minValue
+]
+
+{ #category : #accessing }
+MbndPrimitiveIntegerType >> signBit [
+	self assert: signed.
+	^ signBit ifNil: [ signBit := 1 << (instanceSize *8 - 1) ].
 ]
 
 { #category : #accessing }

@@ -98,6 +98,16 @@ MbndAstBuilder >> casesOfDefaultCaseDo: action [
 		yourself
 ]
 
+{ #category : #'builder methods' }
+MbndAstBuilder >> cleanUpScope: expression actions: cleanUpActions [
+	<compileTime>
+	<returnType: #_ASTNode>
+	^ MbndAstCleanUpScopeNode new
+		expression: expression;
+		cleanUpActions: cleanUpActions;
+		yourself
+]
+
 { #category : #accessing }
 MbndAstBuilder >> compilationTarget [
 	^ module compilationTarget

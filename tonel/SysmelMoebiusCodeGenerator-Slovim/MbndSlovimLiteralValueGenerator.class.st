@@ -73,3 +73,13 @@ MbndSlovimLiteralValueGenerator >> visitPrimitiveFloatType: integerType [
 MbndSlovimLiteralValueGenerator >> visitPrimitiveIntegerType: integerType [
 	^ SLVMConstant type: (self translateType: integerType) value: literalValue
 ]
+
+{ #category : #'code generation' }
+MbndSlovimLiteralValueGenerator >> visitUndefinedType: undefinedType [
+	^ SLVMConstant type: (self translateType: undefinedType) value: literalValue
+]
+
+{ #category : #'code generation' }
+MbndSlovimLiteralValueGenerator >> visitVoidType: voidType [
+	^ nil
+]

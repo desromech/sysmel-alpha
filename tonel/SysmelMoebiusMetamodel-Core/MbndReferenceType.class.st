@@ -23,8 +23,9 @@ MbndReferenceType >> addDefaultConversionRules [
 ]
 
 { #category : #initialization }
-MbndReferenceType >> addTraitMacros [
+MbndReferenceType >> addInstanceMacros [
 	self class == MbndReferenceType ifFalse: [ ^ self ].
+	self isTrait ifFalse: [ ^ self ].
 	self
 		onMacroSelector: #assignValue: do: [ :node :builder |
 			(builder reference: node receiver assignValue: node arguments first)

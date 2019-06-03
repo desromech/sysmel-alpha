@@ -33,6 +33,7 @@ MbndSlovimCodeModuleGenerator >> addPrimitiveTypeTranslations [
 		(float64Type float64)
 
 		(booleanType bool)
+		(undefinedType voidPointerType)
 	) do: [ :pair |
 		sourceType := sourceTarget perform: pair first.
 		destType := destTarget perform: pair second.
@@ -59,6 +60,27 @@ MbndSlovimCodeModuleGenerator >> csymbolForProgramEntity: programEntity [
 	^ self mangleProgramEntityName: programEntity
 ]
 
+{ #category : #visiting }
+MbndSlovimCodeModuleGenerator >> escapeCharacterForMangling: c into: out [
+	c = $_ ifTrue: [ 
+		^ out nextPutAll: '__'
+	].
+	c = $: ifTrue: [ 
+		^ out nextPutAll: '_c'
+	].
+	^ out nextPut: c
+
+]
+
+{ #category : #visiting }
+MbndSlovimCodeModuleGenerator >> escapeNameForMangling: name [
+	^ ByteString streamContents: [ :out |
+		name do: [ :c |
+			self escapeCharacterForMangling: c into: out
+		]
+	]
+]
+
 { #category : #'code generation' }
 MbndSlovimCodeModuleGenerator >> generateCodeModuleFor: aModule [
 	sourceModule := aModule.
@@ -77,9 +99,11 @@ MbndSlovimCodeModuleGenerator >> initialize [
 
 { #category : #visiting }
 MbndSlovimCodeModuleGenerator >> mangleProgramEntityName: programEntity [
+	| escapedNamed |
 	programEntity ifNil: [ ^ #_S ].
 	(programEntity parent isNil and: [ programEntity isNamespace ]) ifTrue: [ ^ #_S ].
-	^ ((self mangleProgramEntityName: programEntity parent) , programEntity name size asString , programEntity name) asSymbol
+	escapedNamed := self escapeNameForMangling: programEntity name.
+	^ ((self mangleProgramEntityName: programEntity parent) , escapedNamed size asString , escapedNamed) asSymbol
 ]
 
 { #category : #visiting }
@@ -119,6 +143,13 @@ MbndSlovimCodeModuleGenerator >> translateProgramEntity: programEntity [
 	]
 ]
 
+{ #category : #visiting }
+MbndSlovimCodeModuleGenerator >> translateProgramEntityChildren: programEntity [
+	programEntity children do: [ :child |
+		self translateProgramEntity: child
+	]
+]
+
 { #category : #'code generation' }
 MbndSlovimCodeModuleGenerator >> translateType: aType [
 	^ self typeTranslator translateType: aType
@@ -141,6 +172,9 @@ MbndSlovimCodeModuleGenerator >> visitAggregateTypeWithFields: type [
 	(ssaType isStructureType and: [ ssaType name isNotNil ]) ifTrue: [ 
 		ssaModule addStructure: ssaType
 	].
+
+	self translateProgramEntityChildren: type.
+	
 ]
 
 { #category : #visiting }
@@ -178,7 +212,28 @@ MbndSlovimCodeModuleGenerator >> visitConcreteFunctionMethod: functionMethod [
 
 { #category : #visiting }
 MbndSlovimCodeModuleGenerator >> visitConcreteMessageMethod: functionMethod [
-	self halt
+	| ssaFunctionType csymbol ssaFunction |
+	ssaFunctionType := self translateType: functionMethod type.
+	
+	csymbol := self csymbolForProgramEntity: functionMethod.
+	ssaFunction := SLVMFunction module: ssaModule name: csymbol functionType: ssaFunctionType.
+	self setProgramEntity: functionMethod ssaValue: ssaFunction.
+	
+	functionMethod analyzedBody ifNil: [
+		ssaFunction makeExternal
+	] ifNotNil: [
+		self flag: 'TODO: Support the correct linkage/visibility.'.
+		ssaFunction makePublic.
+		
+		self createFunctionCodeGenerator
+			buildSSAFunction: ssaFunction definitionWithConcreteMethod: functionMethod
+	].
+	
+	^ ssaFunction
+]
+
+{ #category : #visiting }
+MbndSlovimCodeModuleGenerator >> visitFieldVariable: field [
 ]
 
 { #category : #visiting }
@@ -205,21 +260,17 @@ MbndSlovimCodeModuleGenerator >> visitIntrinsicArithmeticUnaryOperationMethod: i
 ]
 
 { #category : #visiting }
+MbndSlovimCodeModuleGenerator >> visitMacroMessageMethod: macro [
+]
+
+{ #category : #visiting }
 MbndSlovimCodeModuleGenerator >> visitModule: module [
 	^ self translateProgramEntity: module globalNamespace
 ]
 
 { #category : #visiting }
 MbndSlovimCodeModuleGenerator >> visitNamespace: namespace [
-	namespace localSymbolTable valuesDo: [ :localSymbol |
-		self translateProgramEntity: localSymbol
-	].
-
-	namespace overloadedMethodDict valuesDo: [ :method |
-		self translateProgramEntity: method
-	].
-
-
+	self translateProgramEntityChildren: namespace
 ]
 
 { #category : #visiting }

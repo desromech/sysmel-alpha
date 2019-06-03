@@ -59,6 +59,12 @@ MbndSlovimTypeTranslator >> visitArrayType: arrayType [
 ]
 
 { #category : #visiting }
+MbndSlovimTypeTranslator >> visitClassType: structureType [
+	^ self translateAggregateType: structureType
+
+]
+
+{ #category : #visiting }
 MbndSlovimTypeTranslator >> visitDecoratedType: type [
 	^ self translateType: type baseType
 ]
@@ -71,6 +77,12 @@ MbndSlovimTypeTranslator >> visitFunctionType: functionType [
 	^ (SLVMFunctionType callingConvention: functionType callingConvention arguments: argumentSSATypes returnType: returnSSAType)
 		variadic: functionType cvariadic;
 		yourself
+]
+
+{ #category : #visiting }
+MbndSlovimTypeTranslator >> visitGCClassType: structureType [
+	^ self translateAggregateType: structureType
+
 ]
 
 { #category : #visiting }
@@ -98,7 +110,18 @@ MbndSlovimTypeTranslator >> visitPrimitiveIntegerType: integerType [
 ]
 
 { #category : #visiting }
+MbndSlovimTypeTranslator >> visitReferenceType: referenceType [
+	^ self translateType: referenceType asPointerType
+]
+
+{ #category : #visiting }
 MbndSlovimTypeTranslator >> visitStructureType: structureType [
+	^ self translateAggregateType: structureType
+
+]
+
+{ #category : #visiting }
+MbndSlovimTypeTranslator >> visitUnionType: structureType [
 	^ self translateAggregateType: structureType
 
 ]

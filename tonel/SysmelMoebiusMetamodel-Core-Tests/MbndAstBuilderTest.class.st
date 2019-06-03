@@ -131,6 +131,18 @@ MbndAstBuilderTest >> testClassDefinitionNode [
 ]
 
 { #category : #tests }
+MbndAstBuilderTest >> testCleanUpScopeNode [
+	| node expression cleanUpActions |
+	expression := builder identifier: #hello.
+	cleanUpActions := {builder literalVoid}.
+	node := builder cleanUpScope: expression actions: cleanUpActions.
+
+	self assert: node isCleanUpScopeNode.
+	self assert: node expression equals: expression.
+	self assert: node cleanUpActions equals: cleanUpActions.
+]
+
+{ #category : #tests }
 MbndAstBuilderTest >> testCompileTimeConstantDefinition [
 	| node |
 	node := builder alias: #Zero definition: (builder literalInteger: 0).	

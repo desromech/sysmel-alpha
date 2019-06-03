@@ -48,7 +48,7 @@ TMbndAbstractMethodContainer >> createMethodEntityForPrototype: methodPrototype 
 	receiverType isVoidType ifTrue: [ 
 		method type: methodPrototype functionType.
 	] ifFalse: [
-		method type: (methodPrototype functionType prependArguments: receiverType).
+		method type: (methodPrototype functionType prependArguments: {receiverType}).
 	].
 
 	self addChild: method.

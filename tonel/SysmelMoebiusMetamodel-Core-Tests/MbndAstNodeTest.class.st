@@ -81,6 +81,7 @@ MbndAstNodeTest >> testTestingMethods [
 	self deny: node isCasesOfNode.
 	self deny: node isClassDeclarationNode.
 	self deny: node isClassDefinitionNode.
+	self deny: node isCleanUpScopeNode.
 	self deny: node isCompileTimeConstantDefinitionNode.
 	self deny: node isContinueStatementNode.
 	self deny: node isDoWhileLoopNode.
@@ -104,6 +105,7 @@ MbndAstNodeTest >> testTestingMethods [
 	self deny: node isLiteralSymbolValueNode.
 	self deny: node isLocalVariableDefinitionNode.
 	self deny: node isNamespaceDefinitionNode.
+	self deny: node isMacroExpansionInlineBlockNode.
 	self deny: node isMacroMessageDefinitionNode.
 	self deny: node isMacroMessagePrototypeNode.
 	self deny: node isMetaBuilderInstanceNode.

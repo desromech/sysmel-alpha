@@ -9,6 +9,16 @@ MbndLiteralIntegerType class >> typeName [
 	^ #_LiteralInteger
 ]
 
+{ #category : #initialization }
+MbndLiteralIntegerType >> addInstanceMacros [
+	self class == MbndLiteralIntegerType ifFalse: [ ^ self ].
+	self addLiteralHostDelegationMacrosFor: #(
+		// \\
+		<< >> & |
+		bitXor: bitAnd: bitOr: bitInvert
+	).
+]
+
 { #category : #converting }
 MbndLiteralIntegerType >> analyzeReinterpretCastNode: node to: targetType with: analyzer [
 	node expression isLiteralValueNode ifTrue: [
@@ -52,16 +62,6 @@ MbndLiteralIntegerType >> bestConcreteTypeForLiteralValueNode: literalValueNode 
 	
 	self error: 'Large integers not yet supported.'
 
-]
-
-{ #category : #initialization }
-MbndLiteralIntegerType >> initialize [
-	super initialize.
-	self addLiteralHostDelegationMacrosFor: #(
-		// \\
-		<< >> & |
-		bitXor: bitAnd: bitInvert
-	).
 ]
 
 { #category : #'testing methods' }

@@ -10,7 +10,7 @@ MbndTemplateType class >> typeName [
 ]
 
 { #category : #initialization }
-MbndTemplateType >> addTraitMacros [
+MbndTemplateType >> addInstanceMacros [
 	self class == MbndTemplateType ifFalse: [ ^ self ].
 	self
 		onMacroSelector: #applyWithArguments: do: [ :node :builder :analyzer |

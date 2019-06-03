@@ -221,6 +221,30 @@ MbndAstSemanticAnalyzerTest >> testClassDefinitionBuilderExpansion [
 ]
 
 { #category : #tests }
+MbndAstSemanticAnalyzerTest >> testCleanUpScopeNode [
+	| node expression cleanUpActions analyzedNode |
+	expression := builder literalInteger: 42.
+	cleanUpActions := {builder literalVoid}.
+	node := builder cleanUpScope: expression actions: cleanUpActions.
+
+	analyzedNode := visitor visitNode: node.
+	self assert: analyzedNode isLiteralValueNode.
+	self assert: analyzedNode type isLiteralIntegerType.
+]
+
+{ #category : #tests }
+MbndAstSemanticAnalyzerTest >> testCleanUpScopeNode2 [
+	| node expression cleanUpActions analyzedNode |
+	expression := builder identifier: #Int32.
+	cleanUpActions := {builder literalVoid}.
+	node := builder cleanUpScope: expression actions: cleanUpActions.
+
+	analyzedNode := visitor visitNode: node.
+	self assert: analyzedNode isLiteralValueNode.
+	self assert: analyzedNode type isMetaType.
+]
+
+{ #category : #tests }
 MbndAstSemanticAnalyzerTest >> testCompileTimeConstantDefinition [
 	| node analyzedNode |
 	node := builder alias: #int definition: (builder identifier: #Int32).
@@ -615,6 +639,25 @@ MbndAstSemanticAnalyzerTest >> testIdentityTopMacroUsage [
 	self assert: analyzedNode isLiteralValueNode.
 	self assert: analyzedNode value equals: 42.
 
+]
+
+{ #category : #tests }
+MbndAstSemanticAnalyzerTest >> testIfEarlyReturn [
+	| arguments body node analyzedNode concreteMethod |
+	arguments := {
+		builder argument: #er type: compilationTarget booleanType
+	}.
+
+	body := builder if: (builder identifier: #er)
+		trueValue: (builder return: (builder literalInteger: 1)) falseValue: (builder literalInteger: 0).
+	node := builder functionNamed: #earlyReturn arguments: arguments returnType: compilationTarget int32Type definitionBody: body.
+	
+	analyzedNode := visitor visitNode: node.
+	
+	concreteMethod := analyzedNode concreteMethod.
+	concreteMethod ensureSemanticAnalysis.
+	
+	self assert: concreteMethod analyzedBody type isPrimitiveIntegerType.
 ]
 
 { #category : #tests }

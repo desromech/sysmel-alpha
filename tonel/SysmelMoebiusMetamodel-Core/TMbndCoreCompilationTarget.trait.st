@@ -74,6 +74,8 @@ TMbndCoreCompilationTarget >> computeArithmeticCoercionTypeFor: leftType with: r
 
 { #category : #coercing }
 TMbndCoreCompilationTarget >> computeConditionalResultCoercionTypeFor: leftType with: rightType [
+	leftType isReturnType ifTrue: [ ^ rightType ].
+	rightType isReturnType ifTrue: [ ^ leftType ].
 	leftType isVoidType ifTrue: [ ^ leftType ].
 	rightType isVoidType ifTrue: [ ^ rightType ].
 	leftType == rightType ifTrue: [ ^ leftType ].

@@ -69,9 +69,26 @@ MbndSlovimFunctionCodeGenerator >> defineArgumentValues [
 
 ]
 
+{ #category : #'as yet unclassified' }
+MbndSlovimFunctionCodeGenerator >> generateExpandedMessageSendNode: node withStaticMethodBoundTo: methodSSAFunction [
+	| receiver arguments |
+	receiver := self visitNode: node receiver.
+	arguments := self visitNodesAndCollect: node arguments.
+	
+	^ slvmBuilder call: methodSSAFunction arguments: { receiver } , arguments
+]
+
 { #category : #accessing }
 MbndSlovimFunctionCodeGenerator >> slvmBuilder [
 	^ slvmBuilder
+]
+
+{ #category : #visiting }
+MbndSlovimFunctionCodeGenerator >> storeValueInTemporary: value [
+	| temporary |
+	temporary := slvmBuilder allocaBuilder alloca: value type.
+	slvmBuilder store: value in: temporary.
+	^ temporary
 ]
 
 { #category : #visiting }
@@ -82,6 +99,16 @@ MbndSlovimFunctionCodeGenerator >> visitAssignmentNode: node [
 	^ (slvmBuilder store: value in: reference)
 		volatile: node reference type isVolatileType;
 		yourself
+]
+
+{ #category : #visiting }
+MbndSlovimFunctionCodeGenerator >> visitCleanUpScopeNode: node [
+	| result |
+	result := self visitNode: node expression.
+	slvmBuilder isLastTerminator ifFalse: [ 
+		node cleanUpActions do: [ :cleanUpAction | self visitNode: cleanUpAction ]
+	].
+	^ result
 ]
 
 { #category : #visiting }
@@ -103,6 +130,54 @@ MbndSlovimFunctionCodeGenerator >> visitFunctionCallNode: node [
 	functionValue := self visitNode: node function.
 	argumentValues := self visitNodesAndCollect: node arguments.
 	^ slvmBuilder call: functionValue arguments: argumentValues
+]
+
+{ #category : #visiting }
+MbndSlovimFunctionCodeGenerator >> visitGetFieldReferenceNode: node [
+	| aggregate field aggregateType |
+	aggregate := self visitNode: node aggregate.
+	self assert: aggregate type isPointerType.
+	
+	aggregateType := node aggregate type withoutDecorations withoutReferences.
+	field := node field.
+	self assert: field bits isNil.
+	aggregateType isUnionType ifTrue: [
+		^ slvmBuilder bitCast: aggregate target: (self translateType: node type)
+	].
+
+	^ slvmBuilder getReference: aggregate element: (slvmBuilder constInt: field slotIndex).
+	
+
+]
+
+{ #category : #visiting }
+MbndSlovimFunctionCodeGenerator >> visitGetFieldValueNode: node [
+	| aggregate field aggregateType fieldValue |
+	aggregate := self visitNode: node aggregate.
+	aggregateType := node aggregate type withoutDecorations withoutReferences.
+	field := node field.
+	
+	aggregateType isUnionType ifTrue: [ 
+		aggregate type isPointerType ifFalse: [ 
+			aggregate := self storeValueInTemporary: aggregate
+		].
+	].
+	
+	aggregate type isPointerType ifTrue: [
+		aggregateType isUnionType ifTrue: [ 
+			fieldValue := slvmBuilder load: (slvmBuilder bitCast: aggregate target: (slvmBuilder pointerTypeFor: (self translateType: field valueType)))
+		] ifFalse: [
+			fieldValue := slvmBuilder load: (slvmBuilder getReference: aggregate element: (slvmBuilder constInt: field slotIndex))
+		].
+	] ifFalse: [
+		fieldValue := slvmBuilder extractValue: aggregate indices: { field slotIndex }.
+	].
+
+	field bits ifNotNil: [ 
+		self halt
+	].
+
+	^ fieldValue
 ]
 
 { #category : #visiting }
@@ -188,7 +263,7 @@ MbndSlovimFunctionCodeGenerator >> visitIfConditionNode: node [
 
 { #category : #visiting }
 MbndSlovimFunctionCodeGenerator >> visitLexicalScopeNode: node [
-	^ self visitNode: node expression
+	^ self visitCleanUpScopeNode: node
 ]
 
 { #category : #visiting }
@@ -236,6 +311,11 @@ MbndSlovimFunctionCodeGenerator >> visitPointerElementReferenceNode: node [
 	].
 
 	^ slvmBuilder getPointer: pointer element: { index }
+]
+
+{ #category : #visiting }
+MbndSlovimFunctionCodeGenerator >> visitReferenceAsPointerNode: node [
+	^ self visitNode: node reference
 ]
 
 { #category : #visiting }

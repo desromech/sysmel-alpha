@@ -27,8 +27,9 @@ MbndBasicType >> addChild: aChild [
 ]
 
 { #category : #initialization }
-MbndBasicType >> addTraitMacros [
+MbndBasicType >> addInstanceMacros [
 	self class == MbndBasicType ifFalse: [ ^ self ].
+	self isTrait ifFalse: [ ^ self ].
 	self
 		onMacroSelector: #castTo: do: [ :node :builder |
 			(builder explicitCast: node receiver to: node arguments first)
@@ -107,13 +108,14 @@ MbndBasicType >> initializeBasicTypeTrait [
 	super initialize.
 	name := self class typeName.
 	flags := #(trait).
-	self addTraitMacros
+	self addInstanceMacros
 ]
 
 { #category : #initialization }
 MbndBasicType >> initializeNonTraitType [
 	flags ifNil: [ flags := #() ].
-	self addDefaultConversionRules.
+	self
+		addDefaultConversionRules.
 	self isTrait ifFalse: [
 		self initialize
 	].

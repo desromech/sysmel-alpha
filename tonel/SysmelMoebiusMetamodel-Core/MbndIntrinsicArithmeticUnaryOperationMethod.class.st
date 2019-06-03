@@ -11,10 +11,11 @@ MbndIntrinsicArithmeticUnaryOperationMethod >> accept: aVisitor [
 
 { #category : #evaluation }
 MbndIntrinsicArithmeticUnaryOperationMethod >> evaluateWithReceiver: receiver arguments: arguments withEvaluator: evaluator at: node [
-	| result |
+	| result resultType |
 	self assert: receiver isNotNil.
 	self assert: arguments isEmpty.
 
 	result := receiver unwrapMbndValue perform: name.
-	^ MbndValue value: result type: self returnType
+	resultType := self returnType.
+	^ MbndValue value: (resultType legalizeLiteralValue: result) type: resultType
 ]

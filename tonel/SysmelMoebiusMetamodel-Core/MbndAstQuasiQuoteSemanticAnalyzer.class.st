@@ -13,9 +13,27 @@ MbndAstQuasiQuoteSemanticAnalyzer >> compilationTarget [
 ]
 
 { #category : #visiting }
+MbndAstQuasiQuoteSemanticAnalyzer >> processMacroInlineBlockNode: node withSelector: selector [
+	| result |
+	result := MbndAstMacroExpansionInlineBlockEvaluation new
+		position: node;
+		blockNode: node receiver;
+		argumentNodes: node arguments;
+		yourself.
+		
+	((selector endsWith: #':ensure:') or: [selector endsWith: #'Ensure:']) ifTrue: [ 
+		result
+			argumentNodes: node arguments allButLast;
+			ensureNode: node arguments last
+	].
+
+	^ self visitNode: result
+]
+
+{ #category : #visiting }
 MbndAstQuasiQuoteSemanticAnalyzer >> processMacroMessageSendNode: node withSelector: selector [
-	(selector beginsWith: #__macroInlineBlock) ifTrue: [ 
-		self halt
+	(selector beginsWith: #__macroInlineBlock) ifTrue: [
+		^ self processMacroInlineBlockNode: node withSelector: selector
 	].
 
 	self halt

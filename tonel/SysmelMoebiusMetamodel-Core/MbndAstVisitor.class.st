@@ -60,6 +60,11 @@ MbndAstVisitor >> visitClassDefinitionNode: node [
 ]
 
 { #category : #visiting }
+MbndAstVisitor >> visitCleanUpScopeNode: node [
+	self subclassResponsibility
+]
+
+{ #category : #visiting }
 MbndAstVisitor >> visitCompileTimeConstantDefinitionNode: node [
 	self subclassResponsibility
 ]
@@ -166,6 +171,11 @@ MbndAstVisitor >> visitLiteralValueNode: node [
 
 { #category : #visiting }
 MbndAstVisitor >> visitLocalVariableDefinitionNode: node [
+	self subclassResponsibility
+]
+
+{ #category : #visiting }
+MbndAstVisitor >> visitMacroExpansionInlineBlockNode: node [
 	self subclassResponsibility
 ]
 

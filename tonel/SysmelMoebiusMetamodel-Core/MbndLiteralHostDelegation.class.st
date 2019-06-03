@@ -11,7 +11,7 @@ Class {
 MbndLiteralHostDelegation >> expandMessageNode: node with: analyzer [
 	| receiver arguments result |
 	self assert: node receiver isLiteralValueNode.
-	
+
 	"Make sure the arguments are also a literal."
 	node arguments: (analyzer analyzeNodesIfNeeded: node arguments).
 	

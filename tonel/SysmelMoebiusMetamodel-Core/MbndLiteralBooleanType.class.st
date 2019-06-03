@@ -9,19 +9,9 @@ MbndLiteralBooleanType class >> typeName [
 	^ #_LiteralBoolean
 ]
 
-{ #category : #converting }
-MbndLiteralBooleanType >> asCVariadicTypeRequiredAt: position [
-	^ self compilationTarget booleanType
-]
-
-{ #category : #'semantic analysis' }
-MbndLiteralBooleanType >> bestConcreteTypeForLiteralValueNode: literalValueNode inScope: scope [
-	^ self compilationTarget booleanType
-]
-
 { #category : #initialization }
-MbndLiteralBooleanType >> initializeNonTraitType [
-	super initializeNonTraitType.
+MbndLiteralBooleanType >> addInstanceMacros [
+	self class == MbndLiteralBooleanType ifFalse: [ ^ self ].
 	self
 		onMacroSelectors: #(and: &&) do: [ :node :builder |
 			(builder if: node receiver trueValue: node arguments first falseValue: builder literalBooleanFalse)
@@ -34,6 +24,16 @@ MbndLiteralBooleanType >> initializeNonTraitType [
 				yourself
 		];
 		addLiteralHostDelegationMacrosFor: #(not).
+]
+
+{ #category : #converting }
+MbndLiteralBooleanType >> asCVariadicTypeRequiredAt: position [
+	^ self compilationTarget booleanType
+]
+
+{ #category : #'semantic analysis' }
+MbndLiteralBooleanType >> bestConcreteTypeForLiteralValueNode: literalValueNode inScope: scope [
+	^ self compilationTarget booleanType
 ]
 
 { #category : #'testing methods' }
