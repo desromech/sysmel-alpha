@@ -12,17 +12,17 @@ MbndIdentityTypeConversionRule >> accept: aVisitor [
 	^ aVisitor visitIdentityTypeConversionRule: self
 ]
 
-{ #category : #accessing }
-MbndIdentityTypeConversionRule >> coercionCost [
-	^ 0
-]
-
 { #category : #'as yet unclassified' }
 MbndIdentityTypeConversionRule >> postProcessCastNode: node withAnalyzer: analyzer [
+	node expression type == node targetType ifTrue: [
+		^ node expression
+	].
+
 	node expression isLiteralValueNode ifTrue: [ 
 		^ node expression copy
 			type: node targetType;
 			yourself
 	].
+
 	^ super postProcessCastNode: node
 ]

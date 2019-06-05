@@ -16,6 +16,66 @@ MbndPrimitiveType class >> typeName [
 	^ #_PrimitiveType
 ]
 
+{ #category : #initialization }
+MbndPrimitiveType >> addArithmetic: selector binaryIntrinsic: intrinsicName [
+	self
+		addArithmeticOperationCoercionMacro: selector;
+		addOverloadedMethod: (MbndIntrinsicArithmeticBinaryOperationMethod new
+				name: selector;
+				intrinsicName: intrinsicName;
+				yourself)
+			receiverType: self argumentTypes: { self } returnType: self
+]
+
+{ #category : #initialization }
+MbndPrimitiveType >> addArithmetic: selector unaryIntrinsic: intrinsicName [
+	self
+		addOverloadedMethod: (MbndIntrinsicArithmeticUnaryOperationMethod new
+				name: selector;
+				intrinsicName: intrinsicName;
+				yourself)
+			receiverType: self argumentTypes: #() returnType: self
+]
+
+{ #category : #initialization }
+MbndPrimitiveType >> addArithmeticIntrinsics [
+]
+
+{ #category : #initialization }
+MbndPrimitiveType >> addArithmeticOperationCoercionMacro: selector [
+	self macroMethodDict at: selector
+		ifPresent: [ self error: 'Duplicated macro selector.' ]
+		ifAbsentPut: (MbndArithmeticOperationCoercionMacro new)
+]
+
+{ #category : #initialization }
+MbndPrimitiveType >> addComparison: selector intrinsic: intrinsicName [
+	self
+		addArithmeticOperationCoercionMacro: selector;
+		addOverloadedMethod: (MbndIntrinsicArithmeticComparisonMethod new
+				name: selector;
+				intrinsicName: intrinsicName;
+				yourself)
+			receiverType: self argumentTypes: { self } returnType: self compilationTarget booleanType
+]
+
+{ #category : #initialization }
+MbndPrimitiveType >> addComparisonIntrinsics [
+	self
+		addComparison: #= intrinsic: #eq;
+		addComparison: #== intrinsic: #eq;
+		addComparison: #~= intrinsic: #ne;
+		addComparison: #~~ intrinsic: #ne
+]
+
+{ #category : #initialization }
+MbndPrimitiveType >> initialize [
+	super initialize.
+	self
+		addArithmeticIntrinsics;
+		addComparisonIntrinsics.
+]
+
 { #category : #accessing }
 MbndPrimitiveType >> instanceAlignment [
 	<compileTime>

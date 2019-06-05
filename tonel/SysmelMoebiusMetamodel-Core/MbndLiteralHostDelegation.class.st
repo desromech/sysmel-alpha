@@ -4,6 +4,9 @@ I am a macro implementation that is used for implementing compile time evaluatio
 Class {
 	#name : #MbndLiteralHostDelegation,
 	#superclass : #MbndAbstractMacro,
+	#instVars : [
+		'hostSelector'
+	],
 	#category : #'SysmelMoebiusMetamodel-Core-Macro'
 }
 
@@ -25,8 +28,18 @@ MbndLiteralHostDelegation >> expandMessageNode: node with: analyzer [
 	arguments := node arguments collect: #value.
 	
 	"Compute the result."
-	result := receiver perform: node selector value withArguments: arguments.
+	result := receiver perform: hostSelector withArguments: arguments.
 	^ (result asMoebiusLiteralValueNodeWithTarget: analyzer compilationTarget)
 		position: node;
 		yourself
+]
+
+{ #category : #accessing }
+MbndLiteralHostDelegation >> hostSelector [
+	^ hostSelector
+]
+
+{ #category : #accessing }
+MbndLiteralHostDelegation >> hostSelector: anObject [
+	hostSelector := anObject
 ]

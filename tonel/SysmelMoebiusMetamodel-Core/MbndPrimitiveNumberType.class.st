@@ -10,29 +10,9 @@ MbndPrimitiveNumberType class >> typeName [
 ]
 
 { #category : #initialization }
-MbndPrimitiveNumberType >> addArithmetic: selector binaryIntrinsic: intrinsicName [
-	self
-		addArithmeticOperationCoercionMacro: selector;
-		addOverloadedMethod: (MbndIntrinsicArithmeticBinaryOperationMethod new
-				name: selector;
-				intrinsicName: intrinsicName;
-				yourself)
-			receiverType: self argumentTypes: { self } returnType: self
-]
-
-{ #category : #initialization }
-MbndPrimitiveNumberType >> addArithmetic: selector unaryIntrinsic: intrinsicName [
-	self
-		addOverloadedMethod: (MbndIntrinsicArithmeticUnaryOperationMethod new
-				name: selector;
-				intrinsicName: intrinsicName;
-				yourself)
-			receiverType: self argumentTypes: #() returnType: self
-]
-
-{ #category : #initialization }
 MbndPrimitiveNumberType >> addArithmeticIntrinsics [
 	self
+		addArithmetic: #'prefix--' unaryIntrinsic: #neg;
 		addArithmetic: #negated unaryIntrinsic: #neg;
 		addArithmetic: #+ binaryIntrinsic: #add;
 		addArithmetic: #- binaryIntrinsic: #sub;
@@ -44,43 +24,13 @@ MbndPrimitiveNumberType >> addArithmeticIntrinsics [
 ]
 
 { #category : #initialization }
-MbndPrimitiveNumberType >> addArithmeticOperationCoercionMacro: selector [
-	self macroMethodDict at: selector
-		ifPresent: [ self error: 'Duplicated macro selector.' ]
-		ifAbsentPut: (MbndArithmeticOperationCoercionMacro new)
-]
-
-{ #category : #initialization }
-MbndPrimitiveNumberType >> addComparison: selector intrinsic: intrinsicName [
-	self
-		addArithmeticOperationCoercionMacro: selector;
-		addOverloadedMethod: (MbndIntrinsicArithmeticComparisonMethod new
-				name: selector;
-				intrinsicName: intrinsicName;
-				yourself)
-			receiverType: self argumentTypes: { self } returnType: self compilationTarget booleanType
-]
-
-{ #category : #initialization }
 MbndPrimitiveNumberType >> addComparisonIntrinsics [
+	super addComparisonIntrinsics.
 	self
-		addComparison: #= intrinsic: #eq;
-		addComparison: #== intrinsic: #eq;
-		addComparison: #~= intrinsic: #ne;
-		addComparison: #~~ intrinsic: #ne;
-
 		addComparison: #< intrinsic: #lt;
 		addComparison: #<= intrinsic: #le;
 		addComparison: #>= intrinsic: #ge;
 		addComparison: #> intrinsic: #gt
-]
-
-{ #category : #initialization }
-MbndPrimitiveNumberType >> initialize [
-	super initialize.
-	self
-		addArithmeticIntrinsics;
-		addComparisonIntrinsics.
 ]
 
 { #category : #'testing methods' }

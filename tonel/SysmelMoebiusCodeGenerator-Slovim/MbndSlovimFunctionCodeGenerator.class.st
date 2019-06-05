@@ -102,6 +102,14 @@ MbndSlovimFunctionCodeGenerator >> visitAssignmentNode: node [
 ]
 
 { #category : #visiting }
+MbndSlovimFunctionCodeGenerator >> visitBitCastNode: node [
+	| source targetType |
+	source := self visitNode: node expression.
+	targetType := self translateType: node type.
+	^ slvmBuilder bitCast: source target: targetType
+]
+
+{ #category : #visiting }
 MbndSlovimFunctionCodeGenerator >> visitCleanUpScopeNode: node [
 	| result |
 	result := self visitNode: node expression.
@@ -122,6 +130,22 @@ MbndSlovimFunctionCodeGenerator >> visitExpandedMessageSendNode: node [
 	receiver := node receiver ifNotNil: [ :expr | self visitNode: expr ].
 	arguments := self visitNodesAndCollect: node arguments.
 	self halt
+]
+
+{ #category : #visiting }
+MbndSlovimFunctionCodeGenerator >> visitFloatingPointSizeCastNode: node [
+	| source targetType |
+	source := self visitNode: node expression.
+	targetType := self translateType: node type.
+	^ slvmBuilder floatingPointCast: source target: targetType
+]
+
+{ #category : #visiting }
+MbndSlovimFunctionCodeGenerator >> visitFloatingPointToIntegerCastNode: node [
+	| source targetType |
+	source := self visitNode: node expression.
+	targetType := self translateType: node type.
+	^ slvmBuilder floatToIntCast: source target: targetType
 ]
 
 { #category : #visiting }
@@ -262,6 +286,14 @@ MbndSlovimFunctionCodeGenerator >> visitIfConditionNode: node [
 ]
 
 { #category : #visiting }
+MbndSlovimFunctionCodeGenerator >> visitIntegerToFloatingPointCastNode: node [
+	| source targetType |
+	source := self visitNode: node expression.
+	targetType := self translateType: node type.
+	^ slvmBuilder intToFloatCast: source target: targetType
+]
+
+{ #category : #visiting }
 MbndSlovimFunctionCodeGenerator >> visitLexicalScopeNode: node [
 	^ self visitCleanUpScopeNode: node
 ]
@@ -297,6 +329,11 @@ MbndSlovimFunctionCodeGenerator >> visitLocalVariableDefinitionNode: node [
 { #category : #visiting }
 MbndSlovimFunctionCodeGenerator >> visitMethodReferenceNode: node [
 	^ (codeModuleGenerator translateProgramEntity: node binding) ssaValue
+]
+
+{ #category : #visiting }
+MbndSlovimFunctionCodeGenerator >> visitPointerAsReferenceNode: node [
+	^ self visitNode: node pointer
 ]
 
 { #category : #visiting }
@@ -354,6 +391,22 @@ MbndSlovimFunctionCodeGenerator >> visitSequenceNode: node [
 		result ifNil: [ self halt ].
 	].
 	^ result
+]
+
+{ #category : #visiting }
+MbndSlovimFunctionCodeGenerator >> visitSignExtensionCastNode: node [
+	| source targetType |
+	source := self visitNode: node expression.
+	targetType := self translateType: node type.
+	^ slvmBuilder signExtend: source target: targetType
+]
+
+{ #category : #visiting }
+MbndSlovimFunctionCodeGenerator >> visitTruncateCastNode: node [
+	| source targetType |
+	source := self visitNode: node expression.
+	targetType := self translateType: node type.
+	^ slvmBuilder truncate: source target: targetType
 ]
 
 { #category : #visiting }
@@ -420,6 +473,14 @@ MbndSlovimFunctionCodeGenerator >> visitWhileLoopNode: node [
 		slvmBuilder unreachable.
 	].
 
+]
+
+{ #category : #visiting }
+MbndSlovimFunctionCodeGenerator >> visitZeroExtensionCastNode: node [
+	| source targetType |
+	source := self visitNode: node expression.
+	targetType := self translateType: node type.
+	^ slvmBuilder zeroExtend: source target: targetType
 ]
 
 { #category : #visiting }

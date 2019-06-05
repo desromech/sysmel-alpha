@@ -26,12 +26,16 @@ MbndLiteralValueType >> addDefaultConversionRules [
 ]
 
 { #category : #adding }
+MbndLiteralValueType >> addLiteralHostDelegationMacroFor: selector to: hostSelector [
+	self macroMethodDict at: selector put: (MbndLiteralHostDelegation new
+		hostSelector: hostSelector;
+		yourself
+	)
+]
+
+{ #category : #adding }
 MbndLiteralValueType >> addLiteralHostDelegationMacrosFor: selectors [
-	| macro |
-	macro := MbndLiteralHostDelegation new.
-	selectors do: [ :selector |
-		self macroMethodDict at: selector put: macro
-	].
+	selectors do: [ :sel | self addLiteralHostDelegationMacroFor: sel to: sel ]
 ]
 
 { #category : #'semantic analysis' }

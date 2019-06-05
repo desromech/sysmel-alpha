@@ -14,6 +14,14 @@ MbndPrimitiveFloatType >> accept: aVisitor [
 	^ aVisitor visitPrimitiveFloatType: self
 ]
 
+{ #category : #initialization }
+MbndPrimitiveFloatType >> addArithmeticIntrinsics [
+	super addArithmeticIntrinsics.
+
+	self
+		addArithmetic: #sqrt unaryIntrinsic: #sqrt
+]
+
 { #category : #converting }
 MbndPrimitiveFloatType >> asCVariadicTypeRequiredAt: position [
 	^ self compilationTarget float64Type

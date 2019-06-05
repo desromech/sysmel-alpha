@@ -13,7 +13,7 @@ MbndProxyTypeConversionRule >> canBeUsedToConvertFrom: sourceType into: targetTy
 ]
 
 { #category : #accessing }
-MbndProxyTypeConversionRule >> coercionCost [
+MbndProxyTypeConversionRule >> conversionCost [
 	^ rule coercionCost
 ]
 

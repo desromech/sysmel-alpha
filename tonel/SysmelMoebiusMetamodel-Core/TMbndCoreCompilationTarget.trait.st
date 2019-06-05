@@ -335,7 +335,7 @@ TMbndCoreCompilationTarget >> initializeArithmeticConversionRules [
 
 { #category : #initialization }
 TMbndCoreCompilationTarget >> initializeBasicTypes [
-	| basicType | 
+	| basicType typesToInitialize | 
 	basicTypes := Dictionary new.
 	MbndBasicType withAllSubclassesDo: [ :sc |
 		sc typeName ifNotNil: [ 
@@ -362,12 +362,8 @@ TMbndCoreCompilationTarget >> initializeBasicTypes [
 		addBasicFloatTypeWithSize: 4 name: #Float32;
 		addBasicFloatTypeWithSize: 8 alignment: self float64Alignment name: #Float64;
 		yourself.
-		
-	basicTypes valuesDo: [:bt | 
-		bt initializeNonTraitType.
-		bt type initializeNonTraitType
-	].
-	
+
+	typesToInitialize := basicTypes values asArray.
 	self pointerSize = 4 ifTrue: [ 
 		basicTypes
 			at: #UIntPointer put: self uint32Type;
@@ -376,6 +372,11 @@ TMbndCoreCompilationTarget >> initializeBasicTypes [
 		basicTypes
 			at: #UIntPointer put: self uint64Type;
 			at: #IntPointer put: self int64Type
+	].
+
+	typesToInitialize do: [:bt | 
+		bt initializeNonTraitType.
+		bt type initializeNonTraitType
 	].
 
 ]

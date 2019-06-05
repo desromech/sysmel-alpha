@@ -67,7 +67,10 @@ MbndSlovimTranslatedIntrinsicArithmeticBinaryOperation >> generateExpandedMessag
 	resultType := node type.
 	leftOperand := codeGenerator visitNode: node receiver.
 	rightOperand := codeGenerator visitNode: node arguments first.
-	
+
+	resultType isPrimitiveBooleanType ifTrue: [ 
+		^ codeGenerator slvmBuilder addOperation: (FloatingPointOperationMap at: intrinsicName) left: leftOperand right: rightOperand
+	].
 	resultType isPrimitiveIntegerType ifTrue: [
 		^ resultType isSigned ifTrue: [
 			codeGenerator slvmBuilder addOperation: (SignedIntegerOperationMap at: intrinsicName) left: leftOperand right: rightOperand

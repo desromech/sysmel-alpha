@@ -5,7 +5,7 @@ Class {
 		'intermediateType',
 		'intermediateRule',
 		'nextRule',
-		'coercionCost'
+		'conversionCost'
 	],
 	#category : #'SysmelMoebiusMetamodel-Core-TypeConversion'
 }
@@ -16,8 +16,8 @@ MbndChainedTypeConversionRule >> accept: aVisitor [
 ]
 
 { #category : #accessing }
-MbndChainedTypeConversionRule >> coercionCost [
-	^ coercionCost ifNil: [ coercionCost := intermediateRule coercionCost + nextRule coercionCost ]
+MbndChainedTypeConversionRule >> conversionCost [
+	^ conversionCost ifNil: [ conversionCost := intermediateRule coercionCost + nextRule coercionCost ]
 ]
 
 { #category : #accessing }

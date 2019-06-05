@@ -23,7 +23,8 @@ MbndLiteralBooleanType >> addInstanceMacros [
 				position: node;
 				yourself
 		];
-		addLiteralHostDelegationMacrosFor: #(not).
+		addLiteralHostDelegationMacrosFor: #(not);
+		addLiteralHostDelegationMacroFor: #'prefix-!' to: #not.
 ]
 
 { #category : #converting }

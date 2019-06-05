@@ -35,7 +35,10 @@ MbndPrimitiveIntegerType >> addArithmeticIntrinsics [
 
 		addArithmetic: #<< binaryIntrinsic: #shiftleft;
 		addArithmetic: #>> binaryIntrinsic: #shiftright;
-		addArithmetic: #bitInvert unaryIntrinsic: #not
+		
+		addArithmetic: #bitInvert unaryIntrinsic: #not;
+		addArithmetic: #'prefix-~' unaryIntrinsic: #not.
+
 		
 
 ]

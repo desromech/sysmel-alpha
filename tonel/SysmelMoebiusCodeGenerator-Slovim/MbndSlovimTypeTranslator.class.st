@@ -27,10 +27,12 @@ MbndSlovimTypeTranslator >> translateAggregateType: aggregateType [
 		types: #() kind: SLVMStructureType genericKind names: #().
 	translatedTypes at: aggregateType put: ssaStructureType.
 	
-	ssaStructureType
-		names: (aggregateType slotLayout slots collect: #name);
-		types: (aggregateType slotLayout slots collect: [:slot | self translateType: slot type]).
-	
+	aggregateType isDefined ifTrue: [ 
+		ssaStructureType
+			names: (aggregateType slotLayout slots collect: #name);
+			types: (aggregateType slotLayout slots collect: [:slot | self translateType: slot type]).
+	].
+		
 	^ ssaStructureType
 ]
 

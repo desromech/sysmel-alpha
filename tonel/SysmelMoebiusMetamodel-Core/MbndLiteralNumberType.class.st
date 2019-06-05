@@ -19,6 +19,7 @@ MbndLiteralNumberType >> addInstanceMacros [
 		< <= >= >
 		= ~= == ~~
 	).
+	self addLiteralHostDelegationMacroFor: #'prefix--' to: #negated
 ]
 
 { #category : #testing }

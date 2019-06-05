@@ -14,6 +14,23 @@ MbndPrimitiveBooleanType >> accept: aVisitor [
 	^ aVisitor visitPrimitiveBooleanType: self
 ]
 
+{ #category : #initialization }
+MbndPrimitiveBooleanType >> addArithmeticIntrinsics [
+	self
+		addArithmetic: #'prefix-!' unaryIntrinsic: #lnot;
+		addArithmetic: #not unaryIntrinsic: #lnot
+]
+
+{ #category : #initialization }
+MbndPrimitiveBooleanType >> addComparisonIntrinsics [
+	super addComparisonIntrinsics.
+	self
+		addComparison: #< intrinsic: #lt;
+		addComparison: #<= intrinsic: #le;
+		addComparison: #>= intrinsic: #ge;
+		addComparison: #> intrinsic: #gt
+]
+
 { #category : #converting }
 MbndPrimitiveBooleanType >> asCVariadicTypeRequiredAt: position [
 	^ self compilationTarget booleanType

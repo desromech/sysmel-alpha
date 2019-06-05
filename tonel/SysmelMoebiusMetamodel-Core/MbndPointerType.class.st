@@ -14,6 +14,19 @@ MbndPointerType >> accept: aVisitor [
 	^ aVisitor visitPointerType: self
 ]
 
+{ #category : #adding }
+MbndPointerType >> addDefaultConversionRules [
+	| uintPointerType intPointerType |
+	super addDefaultConversionRules.
+	self isTrait ifTrue: [ 
+		uintPointerType := self compilationTarget uintPointerType.
+		intPointerType := self compilationTarget intPointerType.
+		uintPointerType | intPointerType addExplicitConversionTo: self rule: MbndPointerToIntegerTypeConversionRule.
+		self addExplicitConversionTo: uintPointerType | intPointerType rule: MbndIntegerToPointerTypeConversionRule.
+	].
+
+]
+
 { #category : #initialization }
 MbndPointerType >> addInstanceMacros [
 	self class == MbndPointerType ifFalse: [ ^ self ].

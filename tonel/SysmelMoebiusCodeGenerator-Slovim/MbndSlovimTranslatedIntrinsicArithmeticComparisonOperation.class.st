@@ -2,6 +2,7 @@ Class {
 	#name : #MbndSlovimTranslatedIntrinsicArithmeticComparisonOperation,
 	#superclass : #MbndSlovimTranslatedIntrinsicOperation,
 	#classVars : [
+		'BooleanOperationMap',
 		'FloatingPointOperationMap',
 		'SignedIntegerOperationMap',
 		'UnsignedIntegerOperationMap'
@@ -12,6 +13,15 @@ Class {
 { #category : #'class initialization' }
 MbndSlovimTranslatedIntrinsicArithmeticComparisonOperation class >> initialize [
 	super initialize.
+
+	BooleanOperationMap := Dictionary newFromPairs: #(
+		eq ieq
+		ne ine
+		lt ult
+		le ule
+		ge uge
+		gt ugt
+	).
 	
 	SignedIntegerOperationMap := Dictionary newFromPairs: #(
 		eq ieq
@@ -36,19 +46,23 @@ MbndSlovimTranslatedIntrinsicArithmeticComparisonOperation class >> initialize [
 		ne ufne
 		lt uflt
 		le ufle
-		ge ufe
+		ge ufge
 		gt ufgt
 	).
 ]
 
 { #category : #'as yet unclassified' }
 MbndSlovimTranslatedIntrinsicArithmeticComparisonOperation >> generateExpandedMessageSendNode: node with: codeGenerator [
-	| intrinsicName resultType leftOperand rightOperand operandType |
+	| intrinsicName leftOperand rightOperand operandType |
 	intrinsicName := self intrinsicName.
 	operandType := node receiver type.
 	leftOperand := codeGenerator visitNode: node receiver.
 	rightOperand := codeGenerator visitNode: node arguments first.
 	
+	operandType isPrimitiveBooleanType ifTrue: [ 
+		^ codeGenerator slvmBuilder addOperation: (BooleanOperationMap at: intrinsicName) left: leftOperand right: rightOperand
+	].
+
 	operandType isPrimitiveIntegerType ifTrue: [
 		^ operandType isSigned ifTrue: [
 			codeGenerator slvmBuilder addOperation: (SignedIntegerOperationMap at: intrinsicName) left: leftOperand right: rightOperand

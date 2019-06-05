@@ -131,7 +131,7 @@ SysmelGrammar class >> initialize [
 
 { #category : #tokens }
 SysmelGrammar >> anyBinaryOperator [
-	^ self operator: (PP2PredicateObjectNode anyOf: '+-/\*~<>=@,%|&?!') plus
+	^ self operator: (PP2PredicateObjectNode anyOf: '+-/\*~<>=@,%|&?!^') plus
 ]
 
 { #category : #accessing }
