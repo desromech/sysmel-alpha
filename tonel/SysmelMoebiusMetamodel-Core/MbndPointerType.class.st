@@ -16,13 +16,9 @@ MbndPointerType >> accept: aVisitor [
 
 { #category : #adding }
 MbndPointerType >> addDefaultConversionRules [
-	| uintPointerType intPointerType |
 	super addDefaultConversionRules.
-	self isTrait ifTrue: [ 
-		uintPointerType := self compilationTarget uintPointerType.
-		intPointerType := self compilationTarget intPointerType.
-		uintPointerType | intPointerType addExplicitConversionTo: self rule: MbndPointerToIntegerTypeConversionRule.
-		self addExplicitConversionTo: uintPointerType | intPointerType rule: MbndIntegerToPointerTypeConversionRule.
+	self isTrait ifFalse: [
+		self flag: 'Add conversions from/to void pointer type.'
 	].
 
 ]
@@ -62,6 +58,30 @@ MbndPointerType >> addInstanceMacros [
 		onMacroSelector: #- do: [ :node :builder |
 			self halt
 		].
+]
+
+{ #category : #converting }
+MbndPointerType >> analyzeReinterpretCastNode: node to: targetType with: analyzer [
+	| undecoratedTargetType |
+	undecoratedTargetType := targetType withoutTopDecorations.
+	
+	undecoratedTargetType isPointerType ifTrue: [
+		^ analyzer visitNode: (MbndAstPointerReinterpretCastNode new
+			position: node;
+			expression: node expression;
+			targetType: targetType;
+			yourself)
+	].
+
+	(undecoratedTargetType isPrimitiveIntegerType and: [ undecoratedTargetType instanceSize = self instanceSize ]) ifTrue: [
+		^ analyzer visitNode: (MbndAstPointerToIntegerCastNode new
+			position: node;
+			expression: node expression;
+			targetType: targetType;
+			yourself)
+	].
+
+	^ super analyzeReinterpretCastNode: node to: targetType with: analyzer
 ]
 
 { #category : #converting }

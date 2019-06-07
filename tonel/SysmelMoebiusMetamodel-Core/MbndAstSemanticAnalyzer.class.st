@@ -364,7 +364,7 @@ MbndAstSemanticAnalyzer >> visitExplicitCastNode: node [
 	sourceType := result expression type.
 	conversionRule := sourceType node: result expression convertedExplicitlyInto: result targetType.
 	conversionRule ifNil: [
-		self error: 'Cannot perform implicit cast from type {1} to type {2}.' format: { sourceType printString.  result targetType printString} at: node
+		self error: 'Cannot perform explicit cast from type {1} to type {2}.' format: { sourceType printString.  result targetType printString} at: node
 	].
 	
 	result

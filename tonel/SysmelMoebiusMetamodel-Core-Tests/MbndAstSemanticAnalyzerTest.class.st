@@ -164,6 +164,24 @@ MbndAstSemanticAnalyzerTest >> minFunctionDefinitionNode [
 	^ builder functionNamed: #min arguments: arguments returnType: compilationTarget int32Type definitionBody: body
 ]
 
+{ #category : #tests }
+MbndAstSemanticAnalyzerTest >> reinterpretAnalyzedCastNodeFrom: sourceType to: targetType [
+	| castFunction |
+	castFunction := self reinterpretCastFunctionDefinitionFrom: sourceType to: targetType.
+	^ self computeAnalyzedCastNodeWithCastFunction: castFunction
+	
+]
+
+{ #category : #tests }
+MbndAstSemanticAnalyzerTest >> reinterpretCastFunctionDefinitionFrom: sourceType to: targetType [
+	| arguments body |
+	arguments := {
+		builder argument: #x type: sourceType.
+	}.
+	body := builder reinterpretCast: (builder identifier: #x) to: targetType.
+	^ builder functionNamed: #castFunction arguments: arguments returnType: targetType definitionBody: body
+]
+
 { #category : #running }
 MbndAstSemanticAnalyzerTest >> setUp [
 	module := MbndDummyModule new.
@@ -1134,6 +1152,30 @@ MbndAstSemanticAnalyzerTest >> testPointerElementReferenceNode [
 	self assert: analyzedNode type isReferenceType.
 	self assert: analyzedNode type baseType isPrimitiveIntegerType.
 
+]
+
+{ #category : #tests }
+MbndAstSemanticAnalyzerTest >> testPointerIntegerCasts [
+	| uintPointerType voidPointerType |
+	uintPointerType := compilationTarget uintPointerType.
+	voidPointerType := compilationTarget voidType pointer.
+
+	self assert: (self reinterpretAnalyzedCastNodeFrom: uintPointerType to: voidPointerType) isIntegerToPointerCastNode.
+	self assert: (self reinterpretAnalyzedCastNodeFrom: voidPointerType to: uintPointerType) isPointerToIntegerCastNode.
+
+]
+
+{ #category : #tests }
+MbndAstSemanticAnalyzerTest >> testPointerReinterpretCast [
+	| voidPointerType uint8PointerType uint32PointerType |
+	voidPointerType := compilationTarget voidType pointer.
+	uint8PointerType := compilationTarget uint8Type pointer.
+	uint32PointerType := compilationTarget uint32Type pointer.
+
+	self assert: (self reinterpretAnalyzedCastNodeFrom: uint8PointerType to: uint32PointerType) isPointerReinterpretCastNode.
+	self assert: (self implicitAnalyzedCastNodeFrom: uint8PointerType to: voidPointerType) isPointerReinterpretCastNode.
+	self assert: (self explicitAnalyzedCastNodeFrom: voidPointerType to: uint8PointerType) isPointerReinterpretCastNode.
+	self should: [self explicitAnalyzedCastNodeFrom: uint8PointerType to: uint32PointerType] raise: Error.
 ]
 
 { #category : #tests }

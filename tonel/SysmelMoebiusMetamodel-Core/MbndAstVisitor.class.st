@@ -75,6 +75,11 @@ MbndAstVisitor >> visitContinueStatementNode: node [
 ]
 
 { #category : #visiting }
+MbndAstVisitor >> visitConvertToCompilerObjectCastNode: node [
+	self subclassResponsibility
+]
+
+{ #category : #visiting }
 MbndAstVisitor >> visitDoWhileLoopNode: node [
 	self subclassResponsibility
 ]
@@ -156,6 +161,11 @@ MbndAstVisitor >> visitImplicitCastNode: node [
 
 { #category : #visiting }
 MbndAstVisitor >> visitIntegerToFloatingPointCastNode: node [
+	self subclassResponsibility
+]
+
+{ #category : #visiting }
+MbndAstVisitor >> visitIntegerToPointerCastNode: node [
 	self subclassResponsibility
 ]
 
@@ -246,6 +256,16 @@ MbndAstVisitor >> visitPointerAsReferenceNode: node [
 
 { #category : #visiting }
 MbndAstVisitor >> visitPointerElementReferenceNode: node [
+	self subclassResponsibility
+]
+
+{ #category : #visiting }
+MbndAstVisitor >> visitPointerReinterpretCastNode: node [
+	self subclassResponsibility
+]
+
+{ #category : #visiting }
+MbndAstVisitor >> visitPointerToIntegerCastNode: node [
 	self subclassResponsibility
 ]
 

@@ -103,6 +103,11 @@ MbndAstTransformVisitor >> visitContinueStatementNode: node [
 ]
 
 { #category : #visiting }
+MbndAstTransformVisitor >> visitConvertToCompilerObjectCastNode: node [
+	^ self visitSpecificCastNode: node
+]
+
+{ #category : #visiting }
 MbndAstTransformVisitor >> visitDoWhileLoopNode: node [
 	^ node copy
 		condition: (self visitNode: node condition);
@@ -225,6 +230,11 @@ MbndAstTransformVisitor >> visitIntegerToFloatingPointCastNode: node [
 ]
 
 { #category : #visiting }
+MbndAstTransformVisitor >> visitIntegerToPointerCastNode: node [
+	^ self visitSpecificCastNode: node
+]
+
+{ #category : #visiting }
 MbndAstTransformVisitor >> visitLexicalScopeNode: node [
 	^ node copy
 		expression: (self visitNode: node expression);
@@ -331,6 +341,16 @@ MbndAstTransformVisitor >> visitPointerElementReferenceNode: node [
 		container: (self visitNode: node container);
 		index: (self visitNode: node index);
 		yourself
+]
+
+{ #category : #visiting }
+MbndAstTransformVisitor >> visitPointerReinterpretCastNode: node [
+	^ self visitSpecificCastNode: node
+]
+
+{ #category : #visiting }
+MbndAstTransformVisitor >> visitPointerToIntegerCastNode: node [
+	^ self visitSpecificCastNode: node
 ]
 
 { #category : #visiting }

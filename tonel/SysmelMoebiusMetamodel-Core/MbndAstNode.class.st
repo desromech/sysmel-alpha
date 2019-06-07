@@ -120,6 +120,16 @@ MbndAstNode >> isContinueStatementNode [
 ]
 
 { #category : #testing }
+MbndAstNode >> isConvertFromCompilerObjectCastNode [
+	^ false
+]
+
+{ #category : #testing }
+MbndAstNode >> isConvertToCompilerObjectCastNode [
+	^ false
+]
+
+{ #category : #testing }
 MbndAstNode >> isDoWhileLoopNode [
 	^ false
 ]
@@ -206,6 +216,11 @@ MbndAstNode >> isImplicitCastNode [
 
 { #category : #testing }
 MbndAstNode >> isIntegerToFloatingPointCastNode [
+	^ false
+]
+
+{ #category : #testing }
+MbndAstNode >> isIntegerToPointerCastNode [
 	^ false
 ]
 
@@ -297,6 +312,16 @@ MbndAstNode >> isPointerAsReferenceNode [
 
 { #category : #testing }
 MbndAstNode >> isPointerElementReferenceNode [
+	^ false
+]
+
+{ #category : #testing }
+MbndAstNode >> isPointerReinterpretCastNode [
+	^ false
+]
+
+{ #category : #testing }
+MbndAstNode >> isPointerToIntegerCastNode [
 	^ false
 ]
 

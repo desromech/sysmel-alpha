@@ -53,15 +53,9 @@ TMbndAbstractType >> addConversionTo: targetType rule: conversionRule [
 { #category : #adding }
 TMbndAbstractType >> addDefaultConversionRules [
 	self
-		addConversionRule: (MbndIdentityTypeConversionRule when: [:source :target |
-			source == target
-		]);
-		addConversionRule: (MbndIdentityTypeConversionRule when: [:source :target |
-			target == self compilationTarget compilerObjectType
-		]);
-		addConversionRule: (MbndIdentityTypeConversionRule when: [:source :target |
-			source isMetaType and: [ target == self compilationTarget abstractMetaType ]
-		])
+		addConversionRule: MbndIdentityTypeConversionRule new;
+		addConversionRule: MbndToCompilerObjectTypeConversionRule new;
+		addConversionRule: MbndToAbstractMetaTypeTypeConversionRule new
 ]
 
 { #category : #converting }
@@ -121,7 +115,7 @@ TMbndAbstractType >> allSubtypesDo: aBlock [
 
 { #category : #accessing }
 TMbndAbstractType >> allTraitUsersDo: aBlock [
-	"By default, do nothing"
+	self allSubtypesDo: aBlock
 ]
 
 { #category : #'semantic analysis' }
@@ -261,7 +255,7 @@ TMbndAbstractType >> bestConcreteTypeForLiteralValueNode: literalValueNode inSco
 { #category : #converting }
 TMbndAbstractType >> buildTypeConversionChainUntil: targetType fromVisitedTypes: visitedTypes [
 	| previousTypeAndRule previousType rule previousRule |
-	previousTypeAndRule := visitedTypes at: targetType.
+	previousTypeAndRule := visitedTypes at: targetType ifAbsent: [nil].
 	previousTypeAndRule ifNil: [ ^ nil ].
 	
 	previousType := previousTypeAndRule first.
@@ -340,13 +334,13 @@ TMbndAbstractType >> findConversionRuleInto: targetType node: node rulesExtracto
 		
 		currentType := currentTypeFromToCheck first.
 		incomingTypeAndRule := currentTypeFromToCheck second.
+
+		(currentType == targetType and: [ incomingTypeAndRule isNotNil ]) ifTrue: [
+			visitedTypes at: currentType ifAbsentPut: incomingTypeAndRule.
+			^ self buildTypeConversionChainUntil: targetType fromVisitedTypes: visitedTypes
+		].
 		
-		(visitedTypes includesKey: currentType) ifTrue: [
-			(currentType == targetType and: [ incomingTypeAndRule isNotNil ]) ifTrue: [ 
-				targetType name = 'CompiledMethod' ifTrue: [self halt].
-				^ self buildTypeConversionChainUntil: targetType fromVisitedTypes: visitedTypes
-			].
-		] ifFalse: [ 
+		(visitedTypes includesKey: currentType) ifFalse: [ 
 			"Ignore the types that were already visited."
 			visitedTypes at: currentType put: incomingTypeAndRule.
 		
@@ -367,7 +361,7 @@ TMbndAbstractType >> findConversionRuleInto: targetType node: node rulesExtracto
 		
 			currentType usedTraits do: [ :trait |
 				(visitedTypes includesKey: trait) ifFalse: [
-					pendingTypes addLast: { trait . { currentType . MbndIdentityTypeConversionRule new } }.
+					pendingTypes addLast: { trait . { currentType . MbndImplicitUpcastTypeConversionRule new } }.
 				]
 			]
 		]
@@ -786,6 +780,7 @@ TMbndAbstractType >> type [
 
 { #category : #accessing }
 TMbndAbstractType >> usedTraits [
+	self supertype ifNotNil: [ :st | ^ { st } ].
 	^ #()
 ]
 

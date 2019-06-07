@@ -99,6 +99,7 @@ MbndAstNodeTest >> testTestingMethods [
 	self deny: node isIdentifierReferenceNode.
 	self deny: node isIfConditionNode.
 	self deny: node isIntegerToFloatingPointCastNode.
+	self deny: node isIntegerToPointerCastNode.
 	self deny: node isImplicitCastNode.
 	self deny: node isLexicalScopeNode.
 	self deny: node isLiteralValueNode.
@@ -121,6 +122,8 @@ MbndAstNodeTest >> testTestingMethods [
 	self deny: node isQuasiQuoteNode.
 	self deny: node isQuasiUnquoteNode.
 	self deny: node isQuoteNode.
+	self deny: node isPointerReinterpretCastNode.
+	self deny: node isPointerToIntegerCastNode.
 	self deny: node isReferenceAsPointerNode.
 	self deny: node isReinterpretCastNode.
 	self deny: node isReturnStatementNode.

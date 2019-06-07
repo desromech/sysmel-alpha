@@ -10,21 +10,9 @@ Class {
 	#category : #'SysmelMoebiusMetamodel-Core-TypeConversion'
 }
 
-{ #category : #visiting }
-MbndChainedTypeConversionRule >> accept: aVisitor [
-	^ aVisitor visitChainedTypeConversionRule: self
-]
-
 { #category : #accessing }
 MbndChainedTypeConversionRule >> conversionCost [
 	^ conversionCost ifNil: [ conversionCost := intermediateRule coercionCost + nextRule coercionCost ]
-]
-
-{ #category : #accessing }
-MbndChainedTypeConversionRule >> convertValue: value into: targetType at: coercionPosition [
-	| intermediateValue |
-	intermediateValue := intermediateRule convertValue: value into: intermediateType at: coercionPosition.
-	^ nextRule convertValue: intermediateValue into: targetType at: coercionPosition
 ]
 
 { #category : #accessing }

@@ -19,9 +19,9 @@ MbndUndefinedType >> addDefaultConversionRules [
 	super addDefaultConversionRules.
 	
 	self
-		addConversionTo: self compilationTarget voidType rule: MbndIdentityTypeConversionRule;
-		addConversionRule: (MbndIdentityTypeConversionRule when: [:source :target |
-		target withoutTopDecorations isPointerType
+		addConversionTo: self compilationTarget voidType rule: MbndLiteralValueTypeChangeConversionRule;
+		addConversionRule: (MbndLiteralValueTypeChangeConversionRule when: [:source :target |
+			target withoutTopDecorations isPointerType
 	])
 
 ]

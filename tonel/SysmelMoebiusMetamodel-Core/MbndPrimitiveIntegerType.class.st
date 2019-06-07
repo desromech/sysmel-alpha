@@ -44,6 +44,30 @@ MbndPrimitiveIntegerType >> addArithmeticIntrinsics [
 ]
 
 { #category : #converting }
+MbndPrimitiveIntegerType >> analyzeReinterpretCastNode: node to: targetType with: analyzer [
+	| undecoratedTargetType |
+	undecoratedTargetType := targetType withoutTopDecorations.
+	
+	undecoratedTargetType isPointerType ifTrue: [
+		^ analyzer visitNode: (MbndAstIntegerToPointerCastNode new
+			position: node;
+			expression: node expression;
+			targetType: targetType;
+			yourself)
+	].
+
+	(undecoratedTargetType isPrimitiveIntegerType and: [ undecoratedTargetType instanceSize = self instanceSize ]) ifTrue: [
+		^ analyzer visitNode: (MbndAstBitCastNode new
+			position: node;
+			expression: node expression;
+			targetType: targetType;
+			yourself)
+	].
+
+	^ super analyzeReinterpretCastNode: node to: targetType with: analyzer
+]
+
+{ #category : #converting }
 MbndPrimitiveIntegerType >> asCVariadicTypeRequiredAt: position [
 	self instanceSize < 4 ifTrue: [ ^ self compilationTarget int32Type ].
 	

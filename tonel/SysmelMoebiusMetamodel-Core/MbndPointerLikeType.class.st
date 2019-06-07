@@ -41,3 +41,13 @@ MbndPointerLikeType >> asPointerType [
 MbndPointerLikeType >> asReferenceType [
 	self subclassResponsibility
 ]
+
+{ #category : #sizes }
+MbndPointerLikeType >> instanceAlignment [
+	^ self compilationTarget pointerAlignment
+]
+
+{ #category : #sizes }
+MbndPointerLikeType >> instanceSize [
+	^ self compilationTarget pointerSize
+]

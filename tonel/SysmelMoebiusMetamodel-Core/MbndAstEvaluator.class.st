@@ -61,6 +61,15 @@ MbndAstEvaluator >> visitClassDefinitionNode: node [
 ]
 
 { #category : #visiting }
+MbndAstEvaluator >> visitConvertToCompilerObjectCastNode: node [
+	| result |
+	result := self visitNode: node expression.
+	^ result copy
+		type: node type;
+		yourself
+]
+
+{ #category : #visiting }
 MbndAstEvaluator >> visitExpandedMessageSendNode: node [
 	| receiver arguments |
 	self assert: node type isNotNil.
@@ -72,7 +81,7 @@ MbndAstEvaluator >> visitExpandedMessageSendNode: node [
 
 { #category : #visiting }
 MbndAstEvaluator >> visitExplicitCastNode: node [
-	self halt
+	self error: 'Cannot evaluate an unexpanded implicit cast.' at: node
 ]
 
 { #category : #visiting }
@@ -129,7 +138,7 @@ MbndAstEvaluator >> visitIfConditionNode: node [
 
 { #category : #visiting }
 MbndAstEvaluator >> visitImplicitCastNode: node [
-	self halt
+	self error: 'Cannot evaluate an unexpanded implicit cast.' at: node
 ]
 
 { #category : #visiting }
@@ -198,7 +207,7 @@ MbndAstEvaluator >> visitReferenceLoadNode: node [
 
 { #category : #visiting }
 MbndAstEvaluator >> visitReinterpretCastNode: node [
-	self halt
+	self error: 'Cannot evaluate an unexpanded reinterpret cast.' at: node
 ]
 
 { #category : #visiting }

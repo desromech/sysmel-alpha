@@ -1191,7 +1191,7 @@ MbndSlovimCodeModuleGeneratorTest >> testIntegerToPointerCast [
 	| function |
 	self
 		evaluateSysmelSource: 'function cast externC(x: IntPointer) => Void pointer
-			:= x castTo: Void pointer';
+			:= x reinterpretCastTo: Void pointer';
 		generateSSAModule.
 
 	function := ssaModule globalNamed: #cast.
@@ -1207,7 +1207,7 @@ MbndSlovimCodeModuleGeneratorTest >> testIntegerToPointerCast2 [
 	| function |
 	self
 		evaluateSysmelSource: 'function cast externC(x: UIntPointer) => Void pointer
-			:= x castTo: Void pointer';
+			:= x reinterpretCastTo: Void pointer';
 		generateSSAModule.
 
 	function := ssaModule globalNamed: #cast.
@@ -1497,7 +1497,7 @@ MbndSlovimCodeModuleGeneratorTest >> testPointerToIntegerCast [
 	| function |
 	self
 		evaluateSysmelSource: 'function cast externC(x: Void pointer) => IntPointer
-			:= x castTo: IntPointer';
+			:= x reinterpretCastTo: IntPointer';
 		generateSSAModule.
 
 	function := ssaModule globalNamed: #cast.
@@ -1513,7 +1513,7 @@ MbndSlovimCodeModuleGeneratorTest >> testPointerToIntegerCast2 [
 	| function |
 	self
 		evaluateSysmelSource: 'function cast externC(x: Void pointer) => UIntPointer
-			:= x castTo: UIntPointer';
+			:= x reinterpretCastTo: UIntPointer';
 		generateSSAModule.
 
 	function := ssaModule globalNamed: #cast.

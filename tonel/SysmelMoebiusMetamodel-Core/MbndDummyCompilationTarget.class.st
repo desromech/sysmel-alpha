@@ -21,6 +21,11 @@ MbndDummyCompilationTarget >> int64Alignment [
 ]
 
 { #category : #accessing }
+MbndDummyCompilationTarget >> pointerAlignment [
+	^ 4
+]
+
+{ #category : #accessing }
 MbndDummyCompilationTarget >> pointerSize [
 	^ 4
 ]

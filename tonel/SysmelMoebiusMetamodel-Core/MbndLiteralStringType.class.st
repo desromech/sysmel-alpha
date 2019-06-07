@@ -12,7 +12,7 @@ MbndLiteralStringType class >> typeName [
 { #category : #adding }
 MbndLiteralStringType >> addDefaultConversionRules [
 	super addDefaultConversionRules.
-	self addConversionTo: self compilationTarget uint8Type const pointer rule: MbndIdentityTypeConversionRule .
+	self addConversionTo: self compilationTarget uint8Type const pointer rule: MbndLiteralValueTypeChangeConversionRule .
 ]
 
 { #category : #'testing methods' }

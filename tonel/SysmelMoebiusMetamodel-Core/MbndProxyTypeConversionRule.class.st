@@ -17,11 +17,6 @@ MbndProxyTypeConversionRule >> conversionCost [
 	^ rule coercionCost
 ]
 
-{ #category : #converting }
-MbndProxyTypeConversionRule >> convertValue: value into: targetType at: coercionPosition [
-	^ rule convertValue: value into: targetType at: coercionPosition
-]
-
 { #category : #'as yet unclassified' }
 MbndProxyTypeConversionRule >> postProcessCastNode: node withAnalyzer: analyzer [
 	^ rule postProcessCastNode: node withAnalyzer: analyzer

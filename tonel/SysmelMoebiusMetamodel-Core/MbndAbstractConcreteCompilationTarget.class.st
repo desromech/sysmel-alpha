@@ -7,6 +7,11 @@ Class {
 }
 
 { #category : #accessing }
+MbndAbstractConcreteCompilationTarget >> pointerAlignment [
+	self subclassResponsibility
+]
+
+{ #category : #accessing }
 MbndAbstractConcreteCompilationTarget >> pointerSize [
 	self subclassResponsibility
 ]

@@ -1,10 +1,10 @@
 Class {
 	#name : #MbndReinterpretPointerTypeConversionRule,
-	#superclass : #MbndIdentityTypeConversionRule,
+	#superclass : #MbndAstRewriteTypeConversionRule,
 	#category : #'SysmelMoebiusMetamodel-Core-TypeConversion'
 }
 
-{ #category : #visiting }
-MbndReinterpretPointerTypeConversionRule >> accept: aVisitor [
-	^ aVisitor visitReinterpretPointerTypeConversionRule: self
+{ #category : #'as yet unclassified' }
+MbndReinterpretPointerTypeConversionRule >> postProcessCastNode: node withAnalyzer: analyzer [
+	self halt
 ]

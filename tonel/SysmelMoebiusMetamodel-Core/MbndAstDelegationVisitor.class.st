@@ -78,6 +78,11 @@ MbndAstDelegationVisitor >> visitContinueStatementNode: node [
 ]
 
 { #category : #visiting }
+MbndAstDelegationVisitor >> visitConvertToCompilerObjectCastNode: node [
+	^ self delegateNodeVisit: node
+]
+
+{ #category : #visiting }
 MbndAstDelegationVisitor >> visitDoWhileLoopNode: node [
 	^ self delegateNodeVisit: node
 ]
@@ -163,6 +168,11 @@ MbndAstDelegationVisitor >> visitIntegerToFloatingPointCastNode: node [
 ]
 
 { #category : #visiting }
+MbndAstDelegationVisitor >> visitIntegerToPointerCastNode: node [
+	^ self delegateNodeVisit: node
+]
+
+{ #category : #visiting }
 MbndAstDelegationVisitor >> visitLexicalScopeNode: node [
 	^ self delegateNodeVisit: node
 ]
@@ -234,6 +244,16 @@ MbndAstDelegationVisitor >> visitPointerAsReferenceNode: node [
 
 { #category : #visiting }
 MbndAstDelegationVisitor >> visitPointerElementReferenceNode: node [
+	^ self delegateNodeVisit: node
+]
+
+{ #category : #visiting }
+MbndAstDelegationVisitor >> visitPointerReinterpretCastNode: node [
+	^ self delegateNodeVisit: node
+]
+
+{ #category : #visiting }
+MbndAstDelegationVisitor >> visitPointerToIntegerCastNode: node [
 	^ self delegateNodeVisit: node
 ]
 

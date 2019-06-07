@@ -3,26 +3,21 @@ I am a type conversion rule that does not change thet itself, but it only change
 "
 Class {
 	#name : #MbndIdentityTypeConversionRule,
-	#superclass : #MbndAbstractTypeConversionRule,
+	#superclass : #MbndAstRewriteTypeConversionRule,
 	#category : #'SysmelMoebiusMetamodel-Core-TypeConversion'
 }
 
-{ #category : #visiting }
-MbndIdentityTypeConversionRule >> accept: aVisitor [
-	^ aVisitor visitIdentityTypeConversionRule: self
+{ #category : #testing }
+MbndIdentityTypeConversionRule >> canBeUsedToConvertFrom: sourceType into: targetType [
+	^ sourceType == targetType
+]
+
+{ #category : #testing }
+MbndIdentityTypeConversionRule >> conversionCost [
+	^ 0
 ]
 
 { #category : #'as yet unclassified' }
 MbndIdentityTypeConversionRule >> postProcessCastNode: node withAnalyzer: analyzer [
-	node expression type == node targetType ifTrue: [
-		^ node expression
-	].
-
-	node expression isLiteralValueNode ifTrue: [ 
-		^ node expression copy
-			type: node targetType;
-			yourself
-	].
-
-	^ super postProcessCastNode: node
+	^ node expression
 ]

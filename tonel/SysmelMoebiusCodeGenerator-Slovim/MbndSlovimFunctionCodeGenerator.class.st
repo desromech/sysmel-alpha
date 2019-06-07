@@ -294,6 +294,14 @@ MbndSlovimFunctionCodeGenerator >> visitIntegerToFloatingPointCastNode: node [
 ]
 
 { #category : #visiting }
+MbndSlovimFunctionCodeGenerator >> visitIntegerToPointerCastNode: node [
+	| source targetType |
+	source := self visitNode: node expression.
+	targetType := self translateType: node type.
+	^ slvmBuilder intToPointerCast: source target: targetType
+]
+
+{ #category : #visiting }
 MbndSlovimFunctionCodeGenerator >> visitLexicalScopeNode: node [
 	^ self visitCleanUpScopeNode: node
 ]
@@ -348,6 +356,14 @@ MbndSlovimFunctionCodeGenerator >> visitPointerElementReferenceNode: node [
 	].
 
 	^ slvmBuilder getPointer: pointer element: { index }
+]
+
+{ #category : #visiting }
+MbndSlovimFunctionCodeGenerator >> visitPointerToIntegerCastNode: node [
+	| source targetType |
+	source := self visitNode: node expression.
+	targetType := self translateType: node type.
+	^ slvmBuilder pointerToIntCast: source target: targetType
 ]
 
 { #category : #visiting }

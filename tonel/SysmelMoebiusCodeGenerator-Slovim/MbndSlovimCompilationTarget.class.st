@@ -66,6 +66,11 @@ MbndSlovimCompilationTarget >> newCodeModuleGenerator [
 ]
 
 { #category : #accessing }
+MbndSlovimCompilationTarget >> pointerAlignment [
+	^ slvmCompilationTarget pointerAlignment
+]
+
+{ #category : #accessing }
 MbndSlovimCompilationTarget >> pointerSize [
 	^ slvmCompilationTarget pointerSize
 ]

@@ -1,6 +1,6 @@
 Class {
 	#name : #MbndLiteralToTargetTypeConversionRule,
-	#superclass : #MbndAstRewriteTypeConversionRule,
+	#superclass : #MbndAbstractTypeConversionRule,
 	#category : #'SysmelMoebiusMetamodel-Core-TypeConversion'
 }
 

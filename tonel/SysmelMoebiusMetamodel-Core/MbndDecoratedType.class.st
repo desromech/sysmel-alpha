@@ -21,7 +21,7 @@ MbndDecoratedType >> accept: aVisitor [
 MbndDecoratedType >> addDefaultConversionRules [
 	super addDefaultConversionRules.
 	baseType ifNotNil: [ 
-		self addConversionTo: baseType rule: MbndIdentityTypeConversionRule.
+		self addConversionTo: baseType rule: MbndDecorationChangeTypeConversionRule.
 	].
 
 ]

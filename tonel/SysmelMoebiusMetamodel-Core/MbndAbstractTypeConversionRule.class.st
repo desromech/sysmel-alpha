@@ -14,11 +14,6 @@ MbndAbstractTypeConversionRule class >> when: aPredicate [
 	^ self new when: aPredicate
 ]
 
-{ #category : #visiting }
-MbndAbstractTypeConversionRule >> accept: aVisitor [
-	self subclassResponsibility
-]
-
 { #category : #converting }
 MbndAbstractTypeConversionRule >> asMbndTypeConversionRuleTo: targetType [
 	^ MbndTypeKindConversionRule new
@@ -42,11 +37,6 @@ MbndAbstractTypeConversionRule >> conversionCost [
 	self subclassResponsibility
 ]
 
-{ #category : #converting }
-MbndAbstractTypeConversionRule >> convertValue: value into: targetType at: coercionPosition [
-	self subclassResponsibility
-]
-
 { #category : #'as yet unclassified' }
 MbndAbstractTypeConversionRule >> intermediateConversion: intermediateType chainedWith: nextRule [
 	^ MbndChainedTypeConversionRule new
@@ -63,7 +53,8 @@ MbndAbstractTypeConversionRule >> isTypeKindConversion [
 
 { #category : #'as yet unclassified' }
 MbndAbstractTypeConversionRule >> postProcessCastNode: node withAnalyzer: analyzer [
-	^ node
+	"TODO: In some of these cases, we may need to make this an upcast explicit."
+	^ node expression
 ]
 
 { #category : #scripting }

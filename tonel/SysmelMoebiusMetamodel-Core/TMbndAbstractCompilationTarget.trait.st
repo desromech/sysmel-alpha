@@ -213,9 +213,19 @@ TMbndAbstractCompilationTarget >> opaqueType [
 	^ self getBasicTypeNamed: MbndOpaqueType typeName
 ]
 
+{ #category : #accessing }
+TMbndAbstractCompilationTarget >> pointerAlignment [
+	^ self explicitRequirement
+]
+
 { #category : #'derived types' }
 TMbndAbstractCompilationTarget >> pointerFor: addressSpace to: baseType [
 	self explicitRequirement
+]
+
+{ #category : #accessing }
+TMbndAbstractCompilationTarget >> pointerSize [
+	^ self explicitRequirement
 ]
 
 { #category : #'derived types' }
