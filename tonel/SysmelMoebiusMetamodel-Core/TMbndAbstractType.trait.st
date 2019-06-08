@@ -295,6 +295,11 @@ TMbndAbstractType >> createPublicMetaBuilderFactories [
 	^ Dictionary newFromPairs: self getPublicMetaBuilderFactoryList
 ]
 
+{ #category : #accessing }
+TMbndAbstractType >> decorations [
+	^ #()
+]
+
 { #category : #'default values' }
 TMbndAbstractType >> defaultValue [
 	^ self defaultValueAt: MbndSourcePosition empty

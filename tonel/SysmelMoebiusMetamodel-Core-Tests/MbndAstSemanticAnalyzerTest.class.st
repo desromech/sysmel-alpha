@@ -1167,13 +1167,18 @@ MbndAstSemanticAnalyzerTest >> testPointerIntegerCasts [
 
 { #category : #tests }
 MbndAstSemanticAnalyzerTest >> testPointerReinterpretCast [
-	| voidPointerType uint8PointerType uint32PointerType |
+	| voidPointerType uint8PointerType uint32PointerType constUInt8PointerType |
 	voidPointerType := compilationTarget voidType pointer.
+	constUInt8PointerType := compilationTarget uint8Type const pointer.
 	uint8PointerType := compilationTarget uint8Type pointer.
 	uint32PointerType := compilationTarget uint32Type pointer.
 
 	self assert: (self reinterpretAnalyzedCastNodeFrom: uint8PointerType to: uint32PointerType) isPointerReinterpretCastNode.
+
 	self assert: (self implicitAnalyzedCastNodeFrom: uint8PointerType to: voidPointerType) isPointerReinterpretCastNode.
+	self should: [self implicitAnalyzedCastNodeFrom: constUInt8PointerType to: uint8PointerType] raise: Error.
+	self should: [self implicitAnalyzedCastNodeFrom: voidPointerType to: uint8PointerType] raise: Error.
+
 	self assert: (self explicitAnalyzedCastNodeFrom: voidPointerType to: uint8PointerType) isPointerReinterpretCastNode.
 	self should: [self explicitAnalyzedCastNodeFrom: uint8PointerType to: uint32PointerType] raise: Error.
 ]

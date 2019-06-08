@@ -519,6 +519,7 @@ TMbndCoreCompilationTarget >> tuple: elements [
 
 { #category : #'derived types' }
 TMbndCoreCompilationTarget >> type: baseType withDecorations: decorations [
+	decorations ifEmpty: [ ^ baseType ].
 	^ decoratedTypes getOrCreateInstanceWithArguments: { baseType . decorations }
 ]
 

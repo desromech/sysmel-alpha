@@ -18,7 +18,9 @@ MbndPointerType >> accept: aVisitor [
 MbndPointerType >> addDefaultConversionRules [
 	super addDefaultConversionRules.
 	self isTrait ifFalse: [
-		self flag: 'Add conversions from/to void pointer type.'
+		self
+			addExplicitConversionRule: MbndPointerExplicitVoidReinterpretTypeConversionRule new;
+			addImplicitConversionRule: MbndPointerImplicitVoidReinterpretTypeConversionRule new.
 	].
 
 ]

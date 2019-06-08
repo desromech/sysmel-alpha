@@ -359,6 +359,11 @@ MbndSlovimFunctionCodeGenerator >> visitPointerElementReferenceNode: node [
 ]
 
 { #category : #visiting }
+MbndSlovimFunctionCodeGenerator >> visitPointerReinterpretCastNode: node [
+	^ self visitBitCastNode: node
+]
+
+{ #category : #visiting }
 MbndSlovimFunctionCodeGenerator >> visitPointerToIntegerCastNode: node [
 	| source targetType |
 	source := self visitNode: node expression.

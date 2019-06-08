@@ -1493,6 +1493,70 @@ MbndSlovimCodeModuleGeneratorTest >> testPointerAsReference2 [
 ]
 
 { #category : #tests }
+MbndSlovimCodeModuleGeneratorTest >> testPointerReinterpretCast [
+	| function |
+	self
+		evaluateSysmelSource: 'function cast externC(x: UInt32 pointer) => Void pointer
+			:= x';
+		generateSSAModule.
+
+	function := ssaModule globalNamed: #cast.
+	self assert: function isFunction.
+	self deny: function isEmpty.
+	self assert: function basicBlocks size equals: 2.
+	self assert: function basicBlocks second firstInstruction isBitCast.
+	self assert: function basicBlocks second lastInstruction isReturn.
+]
+
+{ #category : #tests }
+MbndSlovimCodeModuleGeneratorTest >> testPointerReinterpretCast2 [
+	| function |
+	self
+		evaluateSysmelSource: 'function cast externC(x: UInt32 pointer) => Void const pointer
+			:= x';
+		generateSSAModule.
+
+	function := ssaModule globalNamed: #cast.
+	self assert: function isFunction.
+	self deny: function isEmpty.
+	self assert: function basicBlocks size equals: 2.
+	self assert: function basicBlocks second firstInstruction isBitCast.
+	self assert: function basicBlocks second lastInstruction isReturn.
+]
+
+{ #category : #tests }
+MbndSlovimCodeModuleGeneratorTest >> testPointerReinterpretCast3 [
+	| function |
+	self
+		evaluateSysmelSource: 'function cast externC(x: Void const pointer) => UInt32 const pointer
+			:= x castTo: UInt32 const pointer';
+		generateSSAModule.
+
+	function := ssaModule globalNamed: #cast.
+	self assert: function isFunction.
+	self deny: function isEmpty.
+	self assert: function basicBlocks size equals: 2.
+	self assert: function basicBlocks second firstInstruction isBitCast.
+	self assert: function basicBlocks second lastInstruction isReturn.
+]
+
+{ #category : #tests }
+MbndSlovimCodeModuleGeneratorTest >> testPointerReinterpretCast4 [
+	| function |
+	self
+		evaluateSysmelSource: 'function cast externC(x: UInt8 const pointer) => UInt32 const pointer
+			:= x reinterpretCastTo: UInt32 const pointer';
+		generateSSAModule.
+
+	function := ssaModule globalNamed: #cast.
+	self assert: function isFunction.
+	self deny: function isEmpty.
+	self assert: function basicBlocks size equals: 2.
+	self assert: function basicBlocks second firstInstruction isBitCast.
+	self assert: function basicBlocks second lastInstruction isReturn.
+]
+
+{ #category : #tests }
 MbndSlovimCodeModuleGeneratorTest >> testPointerToIntegerCast [
 	| function |
 	self
