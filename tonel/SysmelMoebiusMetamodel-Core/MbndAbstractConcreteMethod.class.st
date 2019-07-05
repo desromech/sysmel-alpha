@@ -182,7 +182,9 @@ MbndAbstractConcreteMethod >> evaluateWithReceiver: receiverValue arguments: arg
 	self assert: argumentValues size = argumentsWithoutReceiver size.
 
 	evaluationScope := self constructEvaluationScopeWithReceiver: receiverValue arguments: argumentValues.
-	callEvaluator := MbndAstEvaluator new scope: evaluationScope.
+	callEvaluator := MbndAstEvaluator new
+		module: evaluator module;
+		scope: evaluationScope.
 
 	^ callEvaluator evaluateFunctionContent: analyzedBody.
 ]

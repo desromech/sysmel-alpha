@@ -260,6 +260,12 @@ MbndSlovimCodeModuleGenerator >> visitIntrinsicArithmeticUnaryOperationMethod: i
 ]
 
 { #category : #visiting }
+MbndSlovimCodeModuleGenerator >> visitIntrinsicPointerComparisonMethod: intrinsicMethod [
+	^ self setProgramEntity: intrinsicMethod translation: (MbndSlovimTranslatedIntrinsicPointerComparisonOperation new programEntity: intrinsicMethod)
+	
+]
+
+{ #category : #visiting }
 MbndSlovimCodeModuleGenerator >> visitMacroMessageMethod: macro [
 ]
 

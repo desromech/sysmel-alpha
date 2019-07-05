@@ -103,6 +103,11 @@ MbndAstTransformVisitor >> visitContinueStatementNode: node [
 ]
 
 { #category : #visiting }
+MbndAstTransformVisitor >> visitConvertToASTNodeCastNode: node [
+	^ self visitSpecificCastNode: node
+]
+
+{ #category : #visiting }
 MbndAstTransformVisitor >> visitConvertToCompilerObjectCastNode: node [
 	^ self visitSpecificCastNode: node
 ]

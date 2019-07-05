@@ -61,6 +61,14 @@ MbndAstEvaluator >> visitClassDefinitionNode: node [
 ]
 
 { #category : #visiting }
+MbndAstEvaluator >> visitConvertToASTNodeCastNode: node [
+	| result resultNode |
+	result := self visitNode: node expression.
+	resultNode := result unwrapMbndValue asMoebiusLiteralValueNodeWithTarget: module compilationTarget.
+	^ MbndValue value: resultNode type: node type
+]
+
+{ #category : #visiting }
 MbndAstEvaluator >> visitConvertToCompilerObjectCastNode: node [
 	| result |
 	result := self visitNode: node expression.

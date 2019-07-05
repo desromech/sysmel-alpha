@@ -125,6 +125,11 @@ MbndAstNode >> isConvertFromCompilerObjectCastNode [
 ]
 
 { #category : #testing }
+MbndAstNode >> isConvertToASTNodeCastNode [
+	^ false
+]
+
+{ #category : #testing }
 MbndAstNode >> isConvertToCompilerObjectCastNode [
 	^ false
 ]

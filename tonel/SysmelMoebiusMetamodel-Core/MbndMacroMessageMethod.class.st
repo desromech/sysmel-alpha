@@ -41,14 +41,16 @@ MbndMacroMessageMethod >> enqueueDelayedSemanticAnalysis [
 
 { #category : #'as yet unclassified' }
 MbndMacroMessageMethod >> expandMessageNode: node with: analyzer [
-	| evaluator builder compilerObjectType nodeType result |
+	| evaluator builder compilerObjectType nodeType result receiverType |
 	evaluator := MbndAstEvaluator new module: analyzer module.
 	builder := MbndAstBuilder forModule: analyzer module.
 	compilerObjectType := self compilationTarget compilerObjectType.
 	nodeType := self compilationTarget astNodeType.
+	receiverType := node receiver ifNil: [ self compilationTarget voidType ] ifNotNil: [ node receiver type ].
 	result := concreteMethod evaluateWithReceiver:
 			(node receiver ifNotNil: [MbndValue value: node receiver type: nodeType])
 		arguments: ({
+			MbndValue value: receiverType type: receiverType type.
 			MbndValue value: builder type: compilerObjectType.
 			MbndValue value: analyzer type: compilerObjectType.
 		} , node arguments collect: [ :arg | MbndValue value: arg type: nodeType])

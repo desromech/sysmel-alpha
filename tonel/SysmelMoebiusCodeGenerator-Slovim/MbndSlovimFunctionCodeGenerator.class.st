@@ -71,11 +71,15 @@ MbndSlovimFunctionCodeGenerator >> defineArgumentValues [
 
 { #category : #'as yet unclassified' }
 MbndSlovimFunctionCodeGenerator >> generateExpandedMessageSendNode: node withStaticMethodBoundTo: methodSSAFunction [
-	| receiver arguments |
-	receiver := self visitNode: node receiver.
+	| receiver arguments allArguments |
+	receiver := node receiver ifNotNil: [self visitNode: node receiver].
 	arguments := self visitNodesAndCollect: node arguments.
+	allArguments := arguments.
+	receiver ifNotNil: [
+		allArguments := { receiver } , arguments
+	].
 	
-	^ slvmBuilder call: methodSSAFunction arguments: { receiver } , arguments
+	^ slvmBuilder call: methodSSAFunction arguments: allArguments
 ]
 
 { #category : #accessing }

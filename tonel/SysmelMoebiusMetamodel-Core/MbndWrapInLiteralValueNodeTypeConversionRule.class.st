@@ -13,5 +13,14 @@ MbndWrapInLiteralValueNodeTypeConversionRule >> postProcessCastNode: node withAn
 				yourself)
 	].
 
+	(node expression type isMetaType or: [ node expression type isCompilerObjectType ]) ifTrue: [ 
+		^ analyzer analyzeNodeIfNeeded: (MbndAstConvertToASTNodeCastNode new
+				position: node;
+				expression: node expression;
+				targetType: node targetType;
+				yourself)
+	].
+	
+
 	self halt
 ]

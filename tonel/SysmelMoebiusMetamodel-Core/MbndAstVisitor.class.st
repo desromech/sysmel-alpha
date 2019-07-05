@@ -75,6 +75,11 @@ MbndAstVisitor >> visitContinueStatementNode: node [
 ]
 
 { #category : #visiting }
+MbndAstVisitor >> visitConvertToASTNodeCastNode: node [
+	self subclassResponsibility
+]
+
+{ #category : #visiting }
 MbndAstVisitor >> visitConvertToCompilerObjectCastNode: node [
 	self subclassResponsibility
 ]

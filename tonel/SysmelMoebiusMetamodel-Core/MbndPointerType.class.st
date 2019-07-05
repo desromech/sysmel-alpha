@@ -14,6 +14,38 @@ MbndPointerType >> accept: aVisitor [
 	^ aVisitor visitPointerType: self
 ]
 
+{ #category : #initialization }
+MbndPointerType >> addArithmeticOperationCoercionMacro: selector [
+	self macroMethodDict at: selector
+		ifPresent: [ self error: 'Duplicated macro selector.' ]
+		ifAbsentPut: (MbndPointerArithmeticOperationCoercionMacro new)
+]
+
+{ #category : #initialization }
+MbndPointerType >> addComparison: selector intrinsic: intrinsicName [
+	self
+		addArithmeticOperationCoercionMacro: selector;
+		addOverloadedMethod: (MbndIntrinsicPointerComparisonMethod new
+				name: selector;
+				intrinsicName: intrinsicName;
+				yourself)
+			receiverType: self argumentTypes: { self } returnType: self compilationTarget booleanType
+]
+
+{ #category : #initialization }
+MbndPointerType >> addComparisonIntrinsics [
+	self
+		addComparison: #= intrinsic: #eq;
+		addComparison: #== intrinsic: #eq;
+		addComparison: #~= intrinsic: #ne;
+		addComparison: #~~ intrinsic: #ne;
+		
+		addComparison: #< intrinsic: #lt;
+		addComparison: #<= intrinsic: #le;
+		addComparison: #> intrinsic: #gt;
+		addComparison: #>= intrinsic: #ge
+]
+
 { #category : #adding }
 MbndPointerType >> addDefaultConversionRules [
 	super addDefaultConversionRules.
@@ -104,6 +136,12 @@ MbndPointerType >> asReferenceType [
 { #category : #'default values' }
 MbndPointerType >> defaultValueAt: aPosition [
 	^ MbndValue value: nil type: self
+]
+
+{ #category : #initialization }
+MbndPointerType >> initialize [
+	super initialize.
+	self addComparisonIntrinsics
 ]
 
 { #category : #'testing methods' }

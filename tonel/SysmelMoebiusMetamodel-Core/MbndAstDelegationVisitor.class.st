@@ -78,6 +78,11 @@ MbndAstDelegationVisitor >> visitContinueStatementNode: node [
 ]
 
 { #category : #visiting }
+MbndAstDelegationVisitor >> visitConvertToASTNodeCastNode: node [
+	^ self delegateNodeVisit: node
+]
+
+{ #category : #visiting }
 MbndAstDelegationVisitor >> visitConvertToCompilerObjectCastNode: node [
 	^ self delegateNodeVisit: node
 ]
