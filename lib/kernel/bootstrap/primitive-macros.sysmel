@@ -39,7 +39,10 @@ namespace SysmelKernel definition: {
 
     ## isAlignedTo:
     _PrimitiveIntegerType macro expansionRule isAlignedTo: alignment :=
-        ``(((`,self reinterpretCastTo: UIntPointer) & (`,alignment - 1 castTo: UIntPointer)) == 0).
+        ``(( (`,self castTo: `,SelfType) & (`,alignment - 1 castTo: `,SelfType)) == 0).
+
+    _PointerType macro expansionRule isAlignedTo: alignment :=
+        ``( (`,self reinterpretCastTo: UIntPointer) isAlignedTo: `,alignment).
 
     ## Bitwise logarithm base 2
     _PrimitiveIntegerType macro expansionRule log2Floor :=
