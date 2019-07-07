@@ -114,6 +114,12 @@ MbndSlovimFunctionCodeGenerator >> visitBitCastNode: node [
 ]
 
 { #category : #visiting }
+MbndSlovimFunctionCodeGenerator >> visitBlockClosureNode: node [
+	self assert: node isBlockClosureWithImmediateActivation not.
+	self halt
+]
+
+{ #category : #visiting }
 MbndSlovimFunctionCodeGenerator >> visitCleanUpScopeNode: node [
 	| result |
 	result := self visitNode: node expression.
@@ -287,6 +293,22 @@ MbndSlovimFunctionCodeGenerator >> visitIfConditionNode: node [
 
 	self error: 'Should not reach here.'
 
+]
+
+{ #category : #visiting }
+MbndSlovimFunctionCodeGenerator >> visitImmediateBlockClosureActivationNode: node [
+	| argumentValues blockProgramEntity |
+	argumentValues := self visitNodesAndCollect: node arguments.
+	blockProgramEntity := node blockNode blockClosureProgramEntity.
+	self assert: blockProgramEntity isBlockClosureWithImmediateActivation.
+	
+	"Set the block closure argument values."
+	blockProgramEntity arguments doWithIndex: [ :argumentVariable :index |
+		functionVariables at: argumentVariable put: (argumentValues at: index)
+	].
+	
+	"Generate the block closure body"
+	^ self visitNode: node blockNode body
 ]
 
 { #category : #visiting }

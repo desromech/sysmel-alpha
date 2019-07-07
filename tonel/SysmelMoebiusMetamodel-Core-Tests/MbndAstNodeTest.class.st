@@ -76,6 +76,7 @@ MbndAstNodeTest >> testTestingMethods [
 	self deny: node isBitCastNode.
 	self deny: node isBreakStatementNode.
 	self deny: node isBoundIdentifierReferenceNode.
+	self deny: node isBlockClosureNode.
 	self deny: node isCasesOfCaseNode.
 	self deny: node isCasesOfDefaultCaseNode.
 	self deny: node isCasesOfNode.
@@ -101,6 +102,7 @@ MbndAstNodeTest >> testTestingMethods [
 	self deny: node isIfConditionNode.
 	self deny: node isIntegerToFloatingPointCastNode.
 	self deny: node isIntegerToPointerCastNode.
+	self deny: node isImmediateBlockClosureActivationNode.
 	self deny: node isImplicitCastNode.
 	self deny: node isLexicalScopeNode.
 	self deny: node isLiteralValueNode.

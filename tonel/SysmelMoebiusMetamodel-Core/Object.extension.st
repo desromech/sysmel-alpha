@@ -19,6 +19,11 @@ Object >> isMbndAstNode [
 ]
 
 { #category : #'*SysmelMoebiusMetamodel-Core' }
+Object >> isMbndGeneratedSymbol [
+	^ false
+]
+
+{ #category : #'*SysmelMoebiusMetamodel-Core' }
 Object >> isMbndSymbolBinding [
 	^ false
 ]

@@ -55,7 +55,8 @@ TMbndAbstractType >> addDefaultConversionRules [
 	self
 		addConversionRule: MbndIdentityTypeConversionRule new;
 		addConversionRule: MbndToCompilerObjectTypeConversionRule new;
-		addConversionRule: MbndToAbstractMetaTypeTypeConversionRule new
+		addConversionRule: MbndToAbstractMetaTypeTypeConversionRule new;
+		addExplicitConversionRule: MbndFromCompilerObjectTypeConversionRule new.
 ]
 
 { #category : #converting }
@@ -270,7 +271,7 @@ TMbndAbstractType >> buildTypeConversionChainUntil: targetType fromVisitedTypes:
 ]
 
 { #category : #'as yet unclassified' }
-TMbndAbstractType >> conditionalResultCoercionTypeWith:rightType [
+TMbndAbstractType >> conditionalResultCoercionTypeWith: rightType [
 	^ self compilationTarget computeConditionalResultCoercionTypeFor: self with: rightType
 ]
 
@@ -432,6 +433,11 @@ TMbndAbstractType >> isAggregateType [
 
 { #category : #'testing methods' }
 TMbndAbstractType >> isArrayType [
+	^ false
+]
+
+{ #category : #'testing methods' }
+TMbndAbstractType >> isBlockClosureType [
 	^ false
 ]
 

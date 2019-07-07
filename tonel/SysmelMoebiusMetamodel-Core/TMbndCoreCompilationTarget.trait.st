@@ -10,7 +10,9 @@ Trait {
 		'arithmeticCoercionTable',
 		'variantUnions',
 		'arrayTypes',
-		'tupleTypes'
+		'tupleTypes',
+		'specificCompilerObjects',
+		'blockClosureTypes'
 	],
 	#traits : 'TMbndAbstractCompilationTarget',
 	#classTraits : 'TMbndAbstractCompilationTarget classTrait',
@@ -58,6 +60,11 @@ TMbndCoreCompilationTarget >> arrayOf: elementType elements: elementCount [
 	^ arrayTypes getOrCreateInstanceWithArguments: { elementType . elementCount }
 ]
 
+{ #category : #'derived types' }
+TMbndCoreCompilationTarget >> blockClosureTypeWithSignature: functionType [
+	^ blockClosureTypes getOrCreateInstanceWithArguments: { functionType }
+]
+
 { #category : #coercing }
 TMbndCoreCompilationTarget >> computeArithmeticCoercionTypeFor: leftType with: rightType [
 	(leftType isReferenceType or:
@@ -69,6 +76,8 @@ TMbndCoreCompilationTarget >> computeArithmeticCoercionTypeFor: leftType with: r
 
 	arithmeticCoercionTable at: { leftType .  rightType} ifPresent: [ :found | ^ found  ].
 	leftType == rightType ifTrue: [ ^ leftType ].
+	leftType isCompilerObjectType ifTrue: [ ^ leftType ].
+	rightType isCompilerObjectType ifTrue: [ ^ leftType ].
 	^ nil
 ]
 
@@ -80,7 +89,9 @@ TMbndCoreCompilationTarget >> computeConditionalResultCoercionTypeFor: leftType 
 	rightType isVoidType ifTrue: [ ^ rightType ].
 	leftType == rightType ifTrue: [ ^ leftType ].
 
-	^ self computeArithmeticCoercionTypeFor: leftType with: rightType
+	^ (self computeArithmeticCoercionTypeFor: leftType with: rightType)
+		ifNil: [self voidType].
+	
 ]
 
 { #category : #accessing }
@@ -411,6 +422,15 @@ TMbndCoreCompilationTarget >> initializeDerivedTypeCaches [
 				initializeNonTraitType;
 				yourself.
 	].
+
+	blockClosureTypes := self createSystemProvidedTypeTemplate: #_BlockClosureTypeTemplate
+		doing: [ :functionType |
+			(self ensureBasicTypeIsLinkedToTheHierarchy: MbndBlockClosureType basicNew)
+				functionType: functionType;
+				initializeNonTraitType;
+				yourself.
+	].
+
 	decoratedTypes := self createSystemProvidedTypeTemplate: #_DecoratedTypeTemplate
 		doing: [ :baseType :decorations |
 			(self ensureBasicTypeIsLinkedToTheHierarchy: MbndDecoratedType basicNew)
@@ -440,6 +460,14 @@ TMbndCoreCompilationTarget >> initializeDerivedTypeCaches [
 		doing: [ :elements |
 			(self ensureBasicTypeIsLinkedToTheHierarchy: MbndTupleType basicNew)
 				elements: elements;
+				initializeNonTraitType;
+				yourself.
+	].
+
+	specificCompilerObjects := self createSystemProvidedTypeTemplate: #_SpecificCompilerObjectTypeTemplate
+		doing: [ :behavior |
+			(self ensureBasicTypeIsLinkedToTheHierarchy: MbndSpecificCompilerObjectType basicNew)
+				behavior: behavior;
 				initializeNonTraitType;
 				yourself.
 	].
@@ -510,6 +538,11 @@ TMbndCoreCompilationTarget >> pointerFor: addressSpace to: baseType [
 { #category : #'derived types' }
 TMbndCoreCompilationTarget >> referenceFor: addressSpace to: baseType [
 	^ referenceTypes getOrCreateInstanceWithArguments: { baseType . addressSpace }
+]
+
+{ #category : #'derived types' }
+TMbndCoreCompilationTarget >> specificCompilerObjectTypeFor: aBehavior [
+	^ specificCompilerObjects getOrCreateInstanceWithArguments: { aBehavior }
 ]
 
 { #category : #'derived types' }

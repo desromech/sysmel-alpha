@@ -61,10 +61,22 @@ MbndAstEvaluator >> visitClassDefinitionNode: node [
 ]
 
 { #category : #visiting }
+MbndAstEvaluator >> visitConvertFromCompilerObjectCastNode: node [
+	| result |
+	result := (self visitNode: node expression) unwrapMbndValue.
+	result := (node targetType legalizeLiteralValue: result).
+	^ MbndValue value: result type: node type
+]
+
+{ #category : #visiting }
 MbndAstEvaluator >> visitConvertToASTNodeCastNode: node [
 	| result resultNode |
 	result := self visitNode: node expression.
-	resultNode := result unwrapMbndValue asMoebiusLiteralValueNodeWithTarget: module compilationTarget.
+	resultNode := result unwrapMbndValue.
+	resultNode isMbndAstNode ifFalse: [ 
+		resultNode := resultNode	asMoebiusLiteralValueNodeWithTarget: module compilationTarget.
+	].
+
 	^ MbndValue value: resultNode type: node type
 ]
 
@@ -75,6 +87,16 @@ MbndAstEvaluator >> visitConvertToCompilerObjectCastNode: node [
 	^ result copy
 		type: node type;
 		yourself
+]
+
+{ #category : #visiting }
+MbndAstEvaluator >> visitExpandedHostMessageSendNode: node [
+	| receiver selector arguments result |
+	receiver := (self visitNode: node receiver) unwrapMbndValue.
+	selector := (self visitNode: node selector) unwrapMbndValue.
+	arguments := node arguments collect: [ :arg| (self visitNode: arg) unwrapMbndValue ].
+	result := receiver perform: selector withArguments: arguments.
+	^ MbndValue value: result type: node type
 ]
 
 { #category : #visiting }

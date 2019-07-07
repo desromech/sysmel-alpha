@@ -30,6 +30,11 @@ MbndAstVisitor >> visitBitCastNode: node [
 ]
 
 { #category : #visiting }
+MbndAstVisitor >> visitBlockClosureNode: node [
+	self subclassResponsibility
+]
+
+{ #category : #visiting }
 MbndAstVisitor >> visitBreakStatementNode: node [
 	self subclassResponsibility
 ]
@@ -75,6 +80,11 @@ MbndAstVisitor >> visitContinueStatementNode: node [
 ]
 
 { #category : #visiting }
+MbndAstVisitor >> visitConvertFromCompilerObjectCastNode: node [
+	self subclassResponsibility
+]
+
+{ #category : #visiting }
 MbndAstVisitor >> visitConvertToASTNodeCastNode: node [
 	self subclassResponsibility
 ]
@@ -86,6 +96,11 @@ MbndAstVisitor >> visitConvertToCompilerObjectCastNode: node [
 
 { #category : #visiting }
 MbndAstVisitor >> visitDoWhileLoopNode: node [
+	self subclassResponsibility
+]
+
+{ #category : #visiting }
+MbndAstVisitor >> visitExpandedHostMessageSendNode: node [
 	self subclassResponsibility
 ]
 
@@ -156,6 +171,11 @@ MbndAstVisitor >> visitIdentifierReferenceNode: node [
 
 { #category : #visiting }
 MbndAstVisitor >> visitIfConditionNode: node [
+	self subclassResponsibility
+]
+
+{ #category : #visiting }
+MbndAstVisitor >> visitImmediateBlockClosureActivationNode: node [
 	self subclassResponsibility
 ]
 

@@ -8,12 +8,12 @@ Trait {
 
 { #category : #flags }
 TMbndFlagContainer >> addFlag: aFlag [
-	flags := (flags copyWithout: aFlag) copyWith: aFlag
+	flags := (self flags copyWithout: aFlag) copyWith: aFlag
 ]
 
 { #category : #accessing }
 TMbndFlagContainer >> flags [
-	^ flags
+	^ flags ifNil: [ flags := #() ]
 ]
 
 { #category : #accessing }

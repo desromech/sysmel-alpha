@@ -71,3 +71,19 @@ MbndAbstractFunctionMetaBuilder >> ensureFunctionPrototype [
 		returnType: returnTypeNode;
 		yourself
 ]
+
+{ #category : #copying }
+MbndAbstractFunctionMetaBuilder >> ownerProgramEntity: newOwner [
+	super ownerProgramEntity: newOwner.
+	functionPrototype ifNotNil: [ functionPrototype ownerProgramEntity: newOwner ]
+]
+
+{ #category : #copying }
+MbndAbstractFunctionMetaBuilder >> postCopy [
+	functionPrototype := functionPrototype copy.
+	functionDefinition ifNotNil: [ 
+		functionDefinition := functionDefinition copy.
+		functionDefinition prototype: functionPrototype
+	]
+
+]

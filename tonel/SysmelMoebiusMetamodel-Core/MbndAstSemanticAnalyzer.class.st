@@ -270,6 +270,50 @@ MbndAstSemanticAnalyzer >> visitAssignmentNode: node [
 ]
 
 { #category : #visiting }
+MbndAstSemanticAnalyzer >> visitBlockClosureNode: node [
+	| result bodyScope resultType blockClosureEntity owner |
+	result := node copy.
+	result
+		arguments: (self visitNodesAndCollect: result arguments);
+		returnType: (result returnType ifNotNil: [self evaluateTypeExpression: result returnType]).
+
+	"Create the block closure program entity."
+	owner := scope lookupProgramEntityForNewDefinitions.
+	
+	blockClosureEntity := MbndBlockClosureMethod new
+		definitionPosition: result;
+		analyzedNode: result;
+		defineArguments.
+	result blockClosureProgramEntity: blockClosureEntity.
+
+	bodyScope := blockClosureEntity createSemanticAnalysisScopeWithParent: scope.
+	
+	"Add the argument to the scope."
+	self withScope: bodyScope do: [
+		"Analyze the body"
+		result body: (self visitNode: result body).
+		
+		"Infer the return type."
+		resultType := result body type.
+		result returnType ifNil: [
+			result returnType: (resultType inferValueTypeForNode: result body inScope: scope)
+		].
+	
+		"Cast the implicit return value."
+		resultType isReturnType ifFalse: [
+			result body: (self addImplicitCastFor: result body to: result returnType)
+		].
+	].
+
+	blockClosureEntity type: (self compilationTarget blockClosureTypeWithArguments: (blockClosureEntity arguments collect: #type) returnType: result returnType).
+	result type: blockClosureEntity type.
+
+	owner addChild: blockClosureEntity.
+	^ result
+
+]
+
+{ #category : #visiting }
 MbndAstSemanticAnalyzer >> visitClassDeclarationNode: node [
 	^ self visitTypeDeclarationNode: node ofKind: MbndClassType
 ]
@@ -556,7 +600,7 @@ MbndAstSemanticAnalyzer >> visitIdentifierReferenceNode: node [
 MbndAstSemanticAnalyzer >> visitIfConditionNode: node [
 	| result resultCoercionType |
 	result := node copy.
-	result condition: (self visitNode: result condition).
+	result condition: (self analyzeNodeIfNeeded: result condition).
 
 	result condition isLiteralValueNode ifTrue: [
 		result condition type isLiteralBooleanTrueType ifTrue: [
@@ -572,6 +616,10 @@ MbndAstSemanticAnalyzer >> visitIfConditionNode: node [
 		].
 	].
 	
+	result condition type isCompilerObjectType ifFalse: [ 
+		result condition: (self addImplicitCastFor: result condition to: self compilationTarget booleanType)
+	].
+
 	result trueValue ifNil: [
 		result trueValue: self astBuilder literalUndefined
 	].
@@ -592,6 +640,28 @@ MbndAstSemanticAnalyzer >> visitIfConditionNode: node [
 			falseValue: (self addImplicitCastFor: result falseValue to: resultCoercionType).
 	].
 	result type: resultCoercionType.
+	^ result
+]
+
+{ #category : #visiting }
+MbndAstSemanticAnalyzer >> visitImmediateBlockClosureActivationNode: node [
+	| result blockClosureType expectedArgumentTypes |
+	self flag: 'TODO: Assist the type inference machinery.'.
+
+	"Analyze the block node."
+	result := node copy
+		blockNode: (self analyzeNodeIfNeeded: node blockNode);
+		yourself.
+
+	"Analyze and coerce the arguments."
+	blockClosureType := result blockNode type.
+	expectedArgumentTypes := blockClosureType argumentTypes.
+	result arguments: (node arguments collectWithIndex: [:arg :index |
+		self addImplicitCastFor: (self analyzeNodeIfNeeded: arg) to: (expectedArgumentTypes at: index)
+	]).
+
+	self assert: result blockNode isBlockClosureNode.
+	result blockNode blockClosureProgramEntity makeBlockClosureWithImmediateActivation.
 	^ result
 ]
 

@@ -6,7 +6,7 @@ Class {
 
 { #category : #testing }
 MbndToCompilerObjectTypeConversionRule >> canBeUsedToConvertFrom: sourceType into: targetType [
-	^ targetType isCompilerObjectType
+	^ targetType isCompilerObjectType and: [ targetType isASTNodeType not ]
 ]
 
 { #category : #acccessing }
@@ -26,9 +26,9 @@ MbndToCompilerObjectTypeConversionRule >> postProcessCastNode: node withAnalyzer
 			yourself
 	].
 
-	^ MbndAstConvertToCompilerObjectCastNode new
+	^ analyzer visitNode: (MbndAstConvertToCompilerObjectCastNode new
 		position: node;
 		expression: node expression;
 		targetType: node targetType;
-		yourself
+		yourself)
 ]

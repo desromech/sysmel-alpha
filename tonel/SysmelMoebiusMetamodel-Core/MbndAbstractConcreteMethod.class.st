@@ -7,10 +7,17 @@ Class {
 		'definitionScope',
 		'analyzedBody',
 		'arguments',
-		'argumentsWithoutReceiver'
+		'argumentsWithoutReceiver',
+		'children'
 	],
 	#category : #'SysmelMoebiusMetamodel-Core-Method'
 }
+
+{ #category : #adding }
+MbndAbstractConcreteMethod >> addChild: aChild [
+	aChild parent: self.
+	children add: aChild.
+]
 
 { #category : #accessing }
 MbndAbstractConcreteMethod >> analyzedBody [
@@ -192,6 +199,12 @@ MbndAbstractConcreteMethod >> evaluateWithReceiver: receiverValue arguments: arg
 { #category : #'semantic analysis' }
 MbndAbstractConcreteMethod >> extraImplicitArguments [
 	^ #()
+]
+
+{ #category : #initialization }
+MbndAbstractConcreteMethod >> initialize [
+	super initialize.
+	children := OrderedCollection new.
 ]
 
 { #category : #'as yet unclassified' }

@@ -71,6 +71,28 @@ MbndAstTransformVisitorTest >> testBitCastNode [
 ]
 
 { #category : #tests }
+MbndAstTransformVisitorTest >> testBlockClosureNode [
+	| returnType body node arguments transformedNode |
+	arguments := { 
+		builder argument: #x type: (builder identifier: #Int32).
+		builder argument: #y type: (builder identifier: #Int32).
+	}.
+	returnType := builder identifier: #Int32.
+	body := builder literalInteger: 0.
+	node := builder blockClosureWithArguments: arguments returnType: returnType body: body.
+	transformedNode := visitor visitNode: node.
+	
+	self assert: transformedNode ~~ node.
+	self assert: transformedNode isBlockClosureNode.
+	self assert: transformedNode arguments first name equals: arguments first name.
+	self assert: transformedNode arguments first type equals: arguments first type.
+	self assert: transformedNode arguments second name equals: arguments second name.
+	self assert: transformedNode arguments second type equals: arguments second type.
+	self assert: transformedNode returnType equals: returnType.
+	self assert: transformedNode body equals: body.
+]
+
+{ #category : #tests }
 MbndAstTransformVisitorTest >> testBreakStatement [
 	| node transformedNode |
 	node := builder breakStatement.

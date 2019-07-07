@@ -18,6 +18,16 @@ TMbndAbstractCompilationTarget >> astNodeType [
 	^ self getBasicTypeNamed: MbndASTNodeType typeName
 ]
 
+{ #category : #'derived types' }
+TMbndAbstractCompilationTarget >> blockClosureTypeWithArguments: argumentTypes returnType: returnType [
+	^ (self functionTypeWithArguments: argumentTypes returnType: returnType) asBlockClosureType
+]
+
+{ #category : #'derived types' }
+TMbndAbstractCompilationTarget >> blockClosureTypeWithSignature: functionType [
+	self explicitRequirement
+]
+
 { #category : #'convenience type accessors' }
 TMbndAbstractCompilationTarget >> booleanType [
 	^ self getBasicTypeNamed: #BooleanBit
@@ -251,6 +261,11 @@ TMbndAbstractCompilationTarget >> returnType [
 { #category : #'convenience type accessors' }
 TMbndAbstractCompilationTarget >> simpleMetaType [
 	^ self getBasicTypeNamed: MbndSimpleMetaType typeName
+]
+
+{ #category : #'derived types' }
+TMbndAbstractCompilationTarget >> specificCompilerObjectTypeFor: aBehavior [
+	self explicitRequirement
 ]
 
 { #category : #'convenience type accessors' }

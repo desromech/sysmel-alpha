@@ -33,6 +33,11 @@ MbndAstDelegationVisitor >> visitBitCastNode: node [
 ]
 
 { #category : #visiting }
+MbndAstDelegationVisitor >> visitBlockClosureNode: node [
+	^ self delegateNodeVisit: node
+]
+
+{ #category : #visiting }
 MbndAstDelegationVisitor >> visitBreakStatementNode: node [
 	^ self delegateNodeVisit: node
 ]
@@ -78,6 +83,11 @@ MbndAstDelegationVisitor >> visitContinueStatementNode: node [
 ]
 
 { #category : #visiting }
+MbndAstDelegationVisitor >> visitConvertFromCompilerObjectCastNode: node [
+	^ self delegateNodeVisit: node
+]
+
+{ #category : #visiting }
 MbndAstDelegationVisitor >> visitConvertToASTNodeCastNode: node [
 	^ self delegateNodeVisit: node
 ]
@@ -89,6 +99,11 @@ MbndAstDelegationVisitor >> visitConvertToCompilerObjectCastNode: node [
 
 { #category : #visiting }
 MbndAstDelegationVisitor >> visitDoWhileLoopNode: node [
+	^ self delegateNodeVisit: node
+]
+
+{ #category : #visiting }
+MbndAstDelegationVisitor >> visitExpandedHostMessageSendNode: node [
 	^ self delegateNodeVisit: node
 ]
 
@@ -159,6 +174,11 @@ MbndAstDelegationVisitor >> visitIdentifierReferenceNode: node [
 
 { #category : #visiting }
 MbndAstDelegationVisitor >> visitIfConditionNode: node [
+	^ self delegateNodeVisit: node
+]
+
+{ #category : #visiting }
+MbndAstDelegationVisitor >> visitImmediateBlockClosureActivationNode: node [
 	^ self delegateNodeVisit: node
 ]
 

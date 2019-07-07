@@ -43,5 +43,6 @@ MbndVariantUnionType >> isVariantUnionType [
 
 { #category : #'type composition' }
 MbndVariantUnionType >> | otherType [
+	<compileTime>
 	^ self compilationTarget variantUnionTypeWithComponents: components , { otherType }
 ]

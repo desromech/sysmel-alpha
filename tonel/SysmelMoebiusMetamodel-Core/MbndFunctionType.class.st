@@ -54,6 +54,11 @@ MbndFunctionType >> argumentTypes: anObject [
 	argumentTypes := anObject
 ]
 
+{ #category : #'as yet unclassified' }
+MbndFunctionType >> asBlockClosureType [
+	^ self compilationTarget blockClosureTypeWithSignature: self
+]
+
 { #category : #accessing }
 MbndFunctionType >> callingConvention [
 	^ callingConvention

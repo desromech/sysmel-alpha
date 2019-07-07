@@ -54,6 +54,27 @@ MbndMetaBuilder >> analyzeUnexpandedMessageSendNode: node with: analyzer [
 ]
 
 { #category : #'semantic analysis' }
+MbndMetaBuilder >> concretizeGenericNode: node withAnalyzer: analyzer [
+	| specificExpansions |
+	ownerProgramEntity ifNotNil: [ 
+		(ownerProgramEntity isMbndType and: [ ownerProgramEntity isVariantUnionType ]) ifTrue: [
+			specificExpansions := (ownerProgramEntity components asArray collect: [ :comp |
+				self copy
+					ownerProgramEntity: comp;
+					concretizeNode: node withAnalyzer: analyzer
+			]).
+			^ MbndAstSequenceNode new
+				position: node;
+				elements: specificExpansions;
+				type: specificExpansions last type;
+				yourself
+		].
+	].
+
+	^ self concretizeNode: node withAnalyzer: analyzer
+]
+
+{ #category : #'semantic analysis' }
 MbndMetaBuilder >> concretizeNode: node withAnalyzer: analyzer [
 	"By default, in the end replace myself with void."
 	^ analyzer astBuilder literalVoid
@@ -62,7 +83,7 @@ MbndMetaBuilder >> concretizeNode: node withAnalyzer: analyzer [
 { #category : #'semantic analysis' }
 MbndMetaBuilder >> concretizeUnexpandedMessageSendNode: node thenAnalyzerWith: analyzer [
 	^ analyzer visitNode: (node copy
-		receiver: (self concretizeNode: node receiver withAnalyzer: analyzer);
+		receiver: (self concretizeGenericNode: node receiver withAnalyzer: analyzer);
 		yourself)
 ]
 

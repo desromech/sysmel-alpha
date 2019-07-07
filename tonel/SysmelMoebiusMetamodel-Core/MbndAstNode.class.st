@@ -140,6 +140,11 @@ MbndAstNode >> isDoWhileLoopNode [
 ]
 
 { #category : #testing }
+MbndAstNode >> isExpandedHostMessageSendNode [
+	^ false
+]
+
+{ #category : #testing }
 MbndAstNode >> isExpandedMessageSendNode [
 	^ false
 ]
@@ -190,6 +195,11 @@ MbndAstNode >> isGCClassDefinitionNode [
 ]
 
 { #category : #testing }
+MbndAstNode >> isGeneratedIdentifierNode [
+	^ false
+]
+
+{ #category : #testing }
 MbndAstNode >> isGenericCastNode [
 	^ false
 ]
@@ -211,6 +221,11 @@ MbndAstNode >> isIdentifierReferenceNode [
 
 { #category : #testing }
 MbndAstNode >> isIfConditionNode [
+	^ false
+]
+
+{ #category : #testing }
+MbndAstNode >> isImmediateBlockClosureActivationNode [
 	^ false
 ]
 

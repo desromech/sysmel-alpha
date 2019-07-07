@@ -44,6 +44,7 @@ MbndMacroMessageMethod >> expandMessageNode: node with: analyzer [
 	| evaluator builder compilerObjectType nodeType result receiverType |
 	evaluator := MbndAstEvaluator new module: analyzer module.
 	builder := MbndAstBuilder forModule: analyzer module.
+	builder gensymContext: { node . thisContext }.
 	compilerObjectType := self compilationTarget compilerObjectType.
 	nodeType := self compilationTarget astNodeType.
 	receiverType := node receiver ifNil: [ self compilationTarget voidType ] ifNotNil: [ node receiver type ].
@@ -53,7 +54,7 @@ MbndMacroMessageMethod >> expandMessageNode: node with: analyzer [
 			MbndValue value: receiverType type: receiverType type.
 			MbndValue value: builder type: compilerObjectType.
 			MbndValue value: analyzer type: compilerObjectType.
-		} , node arguments collect: [ :arg | MbndValue value: arg type: nodeType])
+		} , (node arguments collect: [ :arg | MbndValue value: arg type: nodeType]))
 		withEvaluator: evaluator at: node.
 	self assert: result type isASTNodeType.
 	^ analyzer visitNode: result value

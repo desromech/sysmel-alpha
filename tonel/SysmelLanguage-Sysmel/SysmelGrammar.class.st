@@ -76,7 +76,6 @@ Class {
 		'splice',
 		'lessThan',
 		'greaterThan',
-		'blockClosureArguments',
 		'verticalBar',
 		'unaryExpressionSuffixUnquote',
 		'dictionaryExpression',
@@ -87,7 +86,10 @@ Class {
 		'optionalDictionaryElement',
 		'dictionaryExpressionKey',
 		'colon',
-		'dictionaryKeywordKey'
+		'dictionaryKeywordKey',
+		'blockClosureArgument',
+		'blockClosureReturnType',
+		'blockClosureSignature'
 	],
 	#classVars : [
 		'SpecialOperators'
@@ -207,13 +209,23 @@ SysmelGrammar >> binaryExpression [
 ]
 
 { #category : #accessing }
-SysmelGrammar >> blockClosureArguments [
-	^ verticalBar , expression optional, verticalBar
+SysmelGrammar >> blockClosureArgument [
+	^ colon , parentExpression optional , identifier
+]
+
+{ #category : #accessing }
+SysmelGrammar >> blockClosureReturnType [
+	^ colon , colon , (identifierExpression | parentExpression)
+]
+
+{ #category : #accessing }
+SysmelGrammar >> blockClosureSignature [
+	^ blockClosureArgument star , blockClosureReturnType optional, verticalBar
 ]
 
 { #category : #accessing }
 SysmelGrammar >> blockExpression [
-	^ lcbracket , blockClosureArguments optional , pragma star, expressionList , rcbracket
+	^ lcbracket , blockClosureSignature optional , pragma star, expressionList , rcbracket
 ]
 
 { #category : #accessing }

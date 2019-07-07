@@ -17,8 +17,8 @@ MbndAstQuasiQuoteSemanticAnalyzer >> processMacroInlineBlockNode: node withSelec
 	| result |
 	result := MbndAstMacroExpansionInlineBlockEvaluation new
 		position: node;
-		blockNode: node receiver;
-		argumentNodes: node arguments;
+		blockNode: (self visitNode: node receiver);
+		argumentNodes: (self visitNodesAndCollect: node arguments);
 		yourself.
 		
 	((selector endsWith: #':ensure:') or: [selector endsWith: #'Ensure:']) ifTrue: [ 
@@ -54,12 +54,12 @@ MbndAstQuasiQuoteSemanticAnalyzer >> visitExpandedMessageSendNode: node [
 	| selector |
 	node selector isLiteralSymbolValueNode ifTrue: [ 
 		selector := node selector value.
-		(selector beginsWith: #__macro) ifTrue: [ 
-			self halt
+		(selector beginsWith: #__macro) ifTrue: [
+			^ self processMacroMessageSendNode: node withSelector: selector
 		]
 	].
 
-	^ super visitUnexpandedMessageSendNode: node
+	^ super visitExpandedMessageSendNode: node
 ]
 
 { #category : #visiting }

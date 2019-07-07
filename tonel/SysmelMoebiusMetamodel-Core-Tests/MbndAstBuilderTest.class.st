@@ -66,6 +66,22 @@ MbndAstBuilderTest >> testBitCastNode [
 ]
 
 { #category : #tests }
+MbndAstBuilderTest >> testBlockClosureNode [
+	| returnType body node arguments |
+	arguments := { 
+		builder argument: #x type: (builder identifier: #Int32).
+		builder argument: #y type: (builder identifier: #Int32).
+	}.
+	returnType := builder identifier: #Int32.
+	body := builder literalInteger: 0.
+	node := builder blockClosureWithArguments: arguments returnType: returnType body: body.
+	self assert: node isBlockClosureNode.
+	self assert: node arguments equals: arguments.
+	self assert: node returnType equals: returnType.
+	self assert: node body equals: body.
+]
+
+{ #category : #tests }
 MbndAstBuilderTest >> testBreakStatementNode [
 	| node |
 	node := builder breakStatement.

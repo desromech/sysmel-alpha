@@ -46,6 +46,15 @@ MbndAstTransformVisitor >> visitBitCastNode: node [
 ]
 
 { #category : #visiting }
+MbndAstTransformVisitor >> visitBlockClosureNode: node [
+	^ node copy
+		arguments: (self visitNodesAndCollect: node arguments);
+		returnType: (node returnType isMbndAstNode ifTrue: [:n | self visitNode: n]);
+		body: (self visitNode: node body);
+		yourself
+]
+
+{ #category : #visiting }
 MbndAstTransformVisitor >> visitBreakStatementNode: node [
 	^ node
 ]
@@ -103,6 +112,11 @@ MbndAstTransformVisitor >> visitContinueStatementNode: node [
 ]
 
 { #category : #visiting }
+MbndAstTransformVisitor >> visitConvertFromCompilerObjectCastNode: node [
+	^ self visitSpecificCastNode: node
+]
+
+{ #category : #visiting }
 MbndAstTransformVisitor >> visitConvertToASTNodeCastNode: node [
 	^ self visitSpecificCastNode: node
 ]
@@ -118,6 +132,15 @@ MbndAstTransformVisitor >> visitDoWhileLoopNode: node [
 		condition: (self visitNode: node condition);
 		action: (self visitNode: node action);
 		continueAction: (node continueAction ifNotNil: [self visitNode: node continueAction]);
+		yourself
+]
+
+{ #category : #visiting }
+MbndAstTransformVisitor >> visitExpandedHostMessageSendNode: node [
+	^ node copy
+		receiver: (self visitNode: node receiver);
+		selector: (self visitNode: node selector);
+		arguments: (self visitNodesAndCollect: node arguments);
 		yourself
 ]
 
@@ -172,7 +195,7 @@ MbndAstTransformVisitor >> visitFunctionDefinitionNode: node [
 MbndAstTransformVisitor >> visitFunctionPrototypeNode: node [
 	^ node copy
 		arguments: (self visitNodesAndCollect: node arguments);
-		returnType: (node returnType ifNotNil: [self visitNode: node returnType]);
+		returnType: (node returnType isMbndAstNode ifTrue: [self visitNode: node returnType]);
 		yourself
 ]
 
@@ -221,6 +244,14 @@ MbndAstTransformVisitor >> visitIfConditionNode: node [
 		condition: (self visitNode: node condition);
 		trueValue:  (self visitNode: node trueValue);
 		falseValue: (self visitNode: node falseValue);
+		yourself
+]
+
+{ #category : #visiting }
+MbndAstTransformVisitor >> visitImmediateBlockClosureActivationNode: node [
+	^ node copy
+		blockNode: (self visitNode: node blockNode);
+		arguments: (self visitNodesAndCollect: node arguments);
 		yourself
 ]
 
@@ -280,7 +311,7 @@ MbndAstTransformVisitor >> visitMacroMessageDefinitionNode: node [
 MbndAstTransformVisitor >> visitMacroMessagePrototypeNode: node [
 	^ node copy
 		arguments: (self visitNodesAndCollect: node arguments);
-		returnType: (node returnType ifNotNil: [self visitNode: node returnType]);
+		returnType: (node returnType isMbndAstNode ifTrue: [self visitNode: node returnType]);
 		yourself
 ]
 
@@ -312,7 +343,7 @@ MbndAstTransformVisitor >> visitMessageDefinitionNode: node [
 MbndAstTransformVisitor >> visitMessagePrototypeNode: node [
 	^ node copy
 		arguments: (self visitNodesAndCollect: node arguments);
-		returnType: (node returnType ifNotNil: [self visitNode: node returnType]);
+		returnType: (node returnType isMbndAstNode ifTrue: [self visitNode: node returnType]);
 		yourself
 ]
 

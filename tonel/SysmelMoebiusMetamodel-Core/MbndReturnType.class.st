@@ -14,6 +14,11 @@ MbndReturnType >> accept: aVisitor [
 	^ aVisitor visitReturnType: self
 ]
 
+{ #category : #'type inference' }
+MbndReturnType >> inferValueTypeForNode: initialValueNode inScope: scope [
+	^ self compilationTarget voidType
+]
+
 { #category : #testing }
 MbndReturnType >> isReturnType [
 	^ true

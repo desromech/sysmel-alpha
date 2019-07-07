@@ -91,6 +91,18 @@ MbndCompilationTargetTest >> testAsReferenceType [
 ]
 
 { #category : #'basic types' }
+MbndCompilationTargetTest >> testBlockClosureType [
+	| type argumentTypes returnType |
+	argumentTypes := {compilationTarget uint8Type . compilationTarget float32Type}.
+	returnType := compilationTarget voidType.
+	type := compilationTarget blockClosureTypeWithArguments: argumentTypes returnType: returnType.
+	self assert: type isFunctionalType.
+	self assert: type isBlockClosureType.
+	self assert: type argumentTypes equals: argumentTypes.
+	self assert: type returnType equals: returnType.
+]
+
+{ #category : #'basic types' }
 MbndCompilationTargetTest >> testBooleanType [
 	| type |
 	type := compilationTarget booleanType.

@@ -14,17 +14,30 @@ MbndCompilerObjectType >> accept: aVisitor [
 	^ aVisitor visitCompilerObjectType: self
 ]
 
+{ #category : #adding }
+MbndCompilerObjectType >> addDefaultConversionRules [
+	super addDefaultConversionRules.
+	self class == MbndCompilerObjectType ifFalse: [ ^ self ].
+	self addExplicitConversionTo: self compilationTarget astNodeType rule: MbndWrapInLiteralValueNodeTypeConversionRule.
+]
+
 { #category : #'semantic analysis' }
 MbndCompilerObjectType >> analyzeUnboundExpandedMessageSendNode: node with: analyzer [
-	| receiver arguments result selector |
+	| receiver arguments result selector resultType |
 	node selector isLiteralSymbolValueNode ifFalse: [
 		self error: 'Constant selectors are required for messages to compiler objects.' at: node
 	].
 
 	self assert: node receiver isNotNil.
 	
-	node hasOnlyLiterals ifFalse: [ 
-		self halt
+	node hasOnlyLiterals ifFalse: [
+		resultType := self resultTypeForMessageSendToHost: node selector.
+		^ MbndAstExpandedHostMessageSendNode new
+			position: node;
+			receiver: (analyzer analyzeNodeIfNeeded: node receiver);
+			selector: node selector;
+			arguments: (analyzer analyzeNodesIfNeeded: node arguments);
+			type: resultType
 	].
 
 	receiver := (analyzer evaluateCompileTimeExpression: node receiver) unwrapMbndValue.
@@ -41,4 +54,9 @@ MbndCompilerObjectType >> analyzeUnboundExpandedMessageSendNode: node with: anal
 { #category : #testing }
 MbndCompilerObjectType >> isCompilerObjectType [
 	^ true
+]
+
+{ #category : #'semantic analysis' }
+MbndCompilerObjectType >> resultTypeForMessageSendToHost: selector [
+	^ self compilationTarget compilerObjectType
 ]

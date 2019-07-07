@@ -31,6 +31,14 @@ SysmelSyntaxHighlighter class >> initialize [
 ]
 
 { #category : #accessing }
+SysmelSyntaxHighlighter >> blockClosureArgument [
+	^ super blockClosureArgument ==> [ :tokens |
+		self commands add: (PhanideHighlightCommandStyle identifier token: tokens third).
+		tokens
+	]
+]
+
+{ #category : #accessing }
 SysmelSyntaxHighlighter >> chainKeywordMessage [
 	^ super chainKeywordMessage ==> [ :tokens |
 		tokens do: [ :pair |
@@ -71,17 +79,6 @@ SysmelSyntaxHighlighter >> innerLiteralArrayLiteral [
 		self commands
 			add: (PhanideHighlightCommandStyle literalArrayParent token: tokens first);
 			add: (PhanideHighlightCommandStyle literalArrayParent token: tokens last)
-	]
-]
-
-{ #category : #accessing }
-SysmelSyntaxHighlighter >> languageScapeExpression [
-	^ super languageScapeExpression ==> [ :tokens |
-		self commands
-			add: (PhanideHighlightCommandStyle keyword token: tokens first);
-			add: (PhanideHighlightCommandStyle keyword token: tokens second).
-		SYMLScapedLanguageCompiler tryToStyle: tokens third language: tokens second inputValue into: commands.
-		tokens
 	]
 ]
 

@@ -13,7 +13,7 @@ MbndAbstractNamedMetaBuilder >> analyzeUnexpandedMessageSendNode: node with: ana
 	name ifNil: [ 
 		node selector isLiteralSymbolValueNode ifTrue: [
 			selector := self sanitizeBuilderSelector: node selector value.
-			(selector isSymbol and: [selector numArgs == 0]) ifTrue: [
+			(selector numArgs == 0) ifTrue: [
 				name := selector.
 				^ node receiver
 			]

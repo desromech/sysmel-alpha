@@ -2,21 +2,37 @@ Class {
 	#name : #MbndAstBlockClosureNode,
 	#superclass : #MbndAstNode,
 	#instVars : [
-		'argumentDefinitions',
+		'arguments',
 		'returnType',
-		'body'
+		'body',
+		'blockClosureProgramEntity'
 	],
 	#category : #'SysmelMoebiusMetamodel-Core-AST'
 }
 
-{ #category : #accessing }
-MbndAstBlockClosureNode >> argumentDefinitions [
-	^ argumentDefinitions
+{ #category : #visiting }
+MbndAstBlockClosureNode >> accept: aVisitor [
+	^ aVisitor visitBlockClosureNode: self
 ]
 
 { #category : #accessing }
-MbndAstBlockClosureNode >> argumentDefinitions: anObject [
-	argumentDefinitions := anObject
+MbndAstBlockClosureNode >> arguments [
+	^ arguments
+]
+
+{ #category : #accessing }
+MbndAstBlockClosureNode >> arguments: anObject [
+	arguments := anObject
+]
+
+{ #category : #accessing }
+MbndAstBlockClosureNode >> blockClosureProgramEntity [
+	^ blockClosureProgramEntity
+]
+
+{ #category : #accessing }
+MbndAstBlockClosureNode >> blockClosureProgramEntity: anObject [
+	blockClosureProgramEntity := anObject
 ]
 
 { #category : #accessing }

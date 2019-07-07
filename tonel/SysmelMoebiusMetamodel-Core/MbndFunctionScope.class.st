@@ -1,6 +1,6 @@
 Class {
 	#name : #MbndFunctionScope,
-	#superclass : #MbndProgramEntityScope,
+	#superclass : #MbndAbstractClosureScope,
 	#category : #'SysmelMoebiusMetamodel-Core-Scope'
 }
 

@@ -91,6 +91,22 @@ MbndAbstractMessageMetaBuilder >> messageArguments: anObject [
 ]
 
 { #category : #accessing }
+MbndAbstractMessageMetaBuilder >> ownerProgramEntity: newOwner [
+	super ownerProgramEntity: newOwner.
+	messagePrototype ifNotNil: [ messagePrototype ownerProgramEntity: newOwner ]
+]
+
+{ #category : #copying }
+MbndAbstractMessageMetaBuilder >> postCopy [
+	messagePrototype := messagePrototype copy.
+	messageDefinition ifNotNil: [ 
+		messageDefinition := messageDefinition copy.
+		messageDefinition prototype: messagePrototype
+	]
+
+]
+
+{ #category : #accessing }
 MbndAbstractMessageMetaBuilder >> returnTypeNode [
 	^ returnTypeNode
 ]

@@ -2,7 +2,8 @@ Class {
 	#name : #MbndAstBuilder,
 	#superclass : #Object,
 	#instVars : [
-		'module'
+		'module',
+		'gensymContext'
 	],
 	#category : #'SysmelMoebiusMetamodel-Core-AST'
 }
@@ -49,6 +50,28 @@ MbndAstBuilder >> bitCast: expression to: targetType [
 	^ MbndAstBitCastNode new
 		expression: expression;
 		targetType: targetType;
+		yourself
+]
+
+{ #category : #'builder methods' }
+MbndAstBuilder >> blockClosure: body arguments: arguments returnType: returnType [
+	<compileTime>
+	<returnType: #_ASTNode>
+	^ MbndAstBlockClosureNode new
+		argumentDefinitions: arguments;
+		returnType: returnType;
+		body: body;
+		yourself
+]
+
+{ #category : #'builder methods' }
+MbndAstBuilder >> blockClosureWithArguments: arguments returnType: returnType body: body [
+	<compileTime>
+	<returnType: #_ASTNode>
+	^ MbndAstBlockClosureNode new
+		arguments: arguments;
+		returnType: returnType;
+		body: body;
 		yourself
 ]
 
@@ -335,6 +358,26 @@ MbndAstBuilder >> functionPrototypeNamed: name arguments: arguments returnType: 
 		arguments: arguments;
 		returnType: returnType;
 		yourself
+]
+
+{ #category : #'builder methods' }
+MbndAstBuilder >> gensym: symbolName [
+	<compileTime>
+	<returnType: #_ASTNodeType>
+	^ self identifier: (MbndGeneratedSymbol new 
+		name: symbolName;
+		context: gensymContext;
+		yourself)
+]
+
+{ #category : #accessing }
+MbndAstBuilder >> gensymContext [
+	^ gensymContext
+]
+
+{ #category : #accessing }
+MbndAstBuilder >> gensymContext: anObject [
+	gensymContext := anObject
 ]
 
 { #category : #'builder methods' }

@@ -40,9 +40,31 @@ SysmelParser >> assignmentExpression [
 ]
 
 { #category : #accessing }
-SysmelParser >> blockClosureArguments [
-	^ super blockClosureArguments ==> [ :tokens |
-		tokens second ifNil: [SYMLASTCommaSeparatedList new expressions: #() ]
+SysmelParser >> blockClosureArgument [
+	^ super blockClosureArgument ==> [:tokens |
+		SYMLASTBlockArgument new
+			position: tokens first;
+			name: tokens third inputValue asSymbol;
+			optionalType: tokens second;
+			yourself
+	]
+]
+
+{ #category : #accessing }
+SysmelParser >> blockClosureReturnType [
+	^ super blockClosureReturnType ==> [ :tokens |
+		tokens third
+	]
+]
+
+{ #category : #accessing }
+SysmelParser >> blockClosureSignature [
+	^ super blockClosureSignature ==> [ :tokens |
+		SYMLASTBlockSignature new
+			position: (tokens first ifEmpty: [ tokens last ] ifNotEmpty: [tokens first first]);
+			arguments: tokens first;
+			returnType: tokens second;
+			yourself
 	]
 ]
 

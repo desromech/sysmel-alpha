@@ -194,6 +194,23 @@ MbndAstSemanticAnalyzerTest >> setUp [
 ]
 
 { #category : #tests }
+MbndAstSemanticAnalyzerTest >> testBlockClosure [
+	| arguments node analyzedNode body |
+	arguments := {
+		builder argument: #x type: compilationTarget int32Type
+	}.
+	body := builder identifier: #x.
+	node := builder blockClosureWithArguments: arguments returnType: compilationTarget int32Type body: body.
+	
+	analyzedNode := visitor visitNode: node.
+	self assert: analyzedNode isBlockClosureNode.
+	self assert: analyzedNode type isBlockClosureType.
+	self assert: analyzedNode type argumentTypes size equals: 1.
+	self assert: analyzedNode type argumentTypes first isPrimitiveIntegerType.
+	self assert: analyzedNode type returnType isPrimitiveIntegerType.
+]
+
+{ #category : #tests }
 MbndAstSemanticAnalyzerTest >> testChainedCast [
 	| node analyzedNode chainedCast |
 	node := builder sequence: { 

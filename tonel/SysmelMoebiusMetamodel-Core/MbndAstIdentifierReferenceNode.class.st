@@ -12,6 +12,19 @@ MbndAstIdentifierReferenceNode >> accept: aVisitor [
 	^ aVisitor visitIdentifierReferenceNode: self
 ]
 
+{ #category : #converting }
+MbndAstIdentifierReferenceNode >> asLiteralSymbolNodeFor: aCompilationTarget [
+	^ MbndAstLiteralValueNode new
+		value: symbol;
+		type: aCompilationTarget literalSymbolType;
+		yourself
+]
+
+{ #category : #testing }
+MbndAstIdentifierReferenceNode >> isGeneratedIdentifierNode [
+	^ symbol isMbndGeneratedSymbol
+]
+
 { #category : #testing }
 MbndAstIdentifierReferenceNode >> isIdentifierReferenceNode [
 	^ true
