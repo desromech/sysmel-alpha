@@ -15,7 +15,7 @@ function main externC (argc: Int32, argv: Char const pointer pointer) => Int32 :
 
     ##let s type: SomeStruct.
 
-    1 to: 3 do: {|(i: UInt32) => Void|.
+    1 to: 3 do: {:(UInt32)i :: Void |.
         StdNative stdout << "Loop iteration " << i; nl
     }.
 

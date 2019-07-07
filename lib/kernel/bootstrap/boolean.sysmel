@@ -1,83 +1,19 @@
 namespace SysmelKernel definition: {
 
-BooleanBit macro expansionRule or: orCondition := ``(
-    if: `,self then: true else: orCondition __macroInlineBlock
-).
-
-BooleanBit macro expansionRule || orCondition := ``(
-    if: `,self then: true else: orCondition __macroInlineBlock
-).
-
 _CompilerObjectType macro expansionRule or: orCondition := ``(
-    if: `,self then: true else: (orCondition __macroInlineBlock castTo: BooleanBit)
+    if: `,self then: true else: (`,orCondition __macroInlineBlock castTo: BooleanBit)
 ).
 
 _CompilerObjectType macro expansionRule || orCondition := ``(
-    if: `,self then: true else: (orCondition __macroInlineBlock castTo: BooleanBit)
-).
-
-BooleanBit macro expansionRule and: andCondition := ``(
-    if: `,self then: andCondition __macroInlineBlock else: false
-).
-
-BooleanBit macro expansionRule && andCondition := ``(
-    if: `,self then: andCondition __macroInlineBlock else: false
+    if: `,self then: true else: (`,orCondition __macroInlineBlock castTo: BooleanBit)
 ).
 
 _CompilerObjectType macro expansionRule and: andCondition := ``(
-    if: `,self then: (andCondition __macroInlineBlock castTo: BooleanBit) else: false
+    if: `,self then: (`,andCondition __macroInlineBlock castTo: BooleanBit) else: false
 ).
 
 _CompilerObjectType macro expansionRule && andCondition := ``(
-    if: `,self then: (andCondition __macroInlineBlock castTo: BooleanBit) else: false
+    if: `,self then: (`,andCondition __macroInlineBlock castTo: BooleanBit) else: false
 ).
-
-## Logical negation
-BooleanType macro selector: #not doOn: #{
-    ## Compile time evaluation
-    evaluation: $$Pharo {
-        node: node environment: environment
-            | operand coercionType |
-            coercionType := node coercionType.
-            operand := node coercionRule convertValue: (node receiver evaluateInEnvironment: environment) into: coercionType at: node.
-            ^ (operand value perform: node selector) sysmelValueWithType: coercionType inEnvironment: environment
-    }.
-
-    ## Semantic analysis
-    semanticAnalysis: $$Pharo {
-        node: node environment: environment position: aSourcePosition
-	        | operand operandType coercionType resultType coercionRule |
-	        operand := node receiver semanticAnalysisInEnvironment: environment.
-            operandType := operand evaluateCleanValueTypeInEnvironment: environment.
-
-            coercionType := operandType.
-            coercionType isLiteralType ifTrue: [
-                ^ node buildLiteralWithValue: ((operand value value perform: node selector) sysmelValueWithType: coercionType inEnvironment: environment)
-            ].
-
-            coercionRule := (operand evaluateTypeInEnvironment: environment) node: operand coercedImplicitlyInto: coercionType at: node.
-			resultType := coercionType.
-
-            ^ node copyForSemanticAnalysis
-                metaMethod: self;
-                receiver: operand;
-                arguments: #();
-                coercionType: coercionType;
-                coercionRule: coercionRule;
-                valueType: resultType;
-                yourself
-    }.
-
-    ## Code generation
-    codeGeneration: $$Pharo {
-        node: messageNode builder: builder
-			| coercionType operandNode operandValue |
-			"Convert the arguments"
-			coercionType := messageNode coercionType.
-			operandNode := messageNode receiver.
-			operandValue := messageNode coercionRule convertSSAValue: (operandNode generateSSACodeWith: builder) to: coercionType with: builder at: messageNode.
-            ^ builder lnot: operandValue
-    }.
-}.
 
 }. ## End of namespace SysmelKernel

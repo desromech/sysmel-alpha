@@ -1,15 +1,15 @@
 namespace SysmelKernel definition: {
     ## ifTrue:ifFalse
-    BooleanType macro expansionRule ifTrue: trueAction :=
+    (_BooleanType | _CompilerObjectType) macro expansionRule ifTrue: trueAction :=
         ``(if: `,self then: `,trueAction).
-    BooleanType macro expansionRule ifFalse: falseAction :=
+    (_BooleanType | _CompilerObjectType) macro expansionRule ifFalse: falseAction :=
         ``(if: `,self not then: `,falseAction).
 
-    BooleanType macro expansionRule ifTrue: trueAction ifFalse: falseAction :=
+    (_BooleanType | _CompilerObjectType) macro expansionRule ifTrue: trueAction ifFalse: falseAction :=
         ``(if: `,self then: `,trueAction else: `,falseAction).
-    BooleanType macro expansionRule ifFalse: falseAction ifTrue: trueAction :=
+    (_BooleanType | _CompilerObjectType) macro expansionRule ifFalse: falseAction ifTrue: trueAction :=
         ``(if: `,self then: `,trueAction else: `,falseAction).
-
+		
     ## isNil
     _PointerType macro expansionRule isNil := ``(`,self == nil).
     _PointerType macro expansionRule isNotNil := ``(`,self ~~ nil).
@@ -84,13 +84,14 @@ namespace SysmelKernel definition: {
         := condition ifTrue: thenNode ifFalse: elseNode.
 
     ## Range loop macro
-#*    _PrimitiveIntegerType macro expansionRule to: stop by: increment do: aBlock := {
+    _NumberType macro expansionRule to: stop by: increment do: aBlock := {
         let index := __astBuilder gensym: #index.
         let stopValue := __astBuilder gensym: #stopValue.
         let incrementValue := __astBuilder gensym: #incrementValue.
 
-        aBlock isBlockClosure && aBlock arguments size = 1 ifTrue: {
-            let indexType := aBlock arguments first typeExpression.
+		aBlock isBlockClosureNode && aBlock arguments size = 1
+			&& aBlock arguments first valueType isNotNil ifTrue: {
+            let indexType := aBlock arguments first typeExpression castTo: _ASTNodeType.
 
             ``{
                 let `,index mutable type: `,indexType := `,self.
@@ -98,7 +99,7 @@ namespace SysmelKernel definition: {
                 let `,incrementValue type: `,indexType := `,increment.
 
                 while: (`,index <= `,stopValue) do: {
-                    aBlock  __macroInlineBlock: `,index
+                    `,aBlock  __macroInlineBlock: `,index
                 } continueWith: (`,index := `,index + `,incrementValue)
             }
         } ifFalse: {
@@ -108,21 +109,22 @@ namespace SysmelKernel definition: {
                 let `,incrementValue := `,increment.
 
                 while: (`,index <= `,stopValue) do: {
-                    aBlock __macroInlineBlock: `,index
+                    `,aBlock __macroInlineBlock: `,index
                 } continueWith: (`,index := `,index + `,incrementValue)
             }
         }
     }.
 
-    _PrimitiveIntegerType macro expansionRule to: stop do: aBlock := ``(`,self to: `,stop by: 1 do: `,aBlock).
+    _NumberType macro expansionRule to: stop do: aBlock := ``(`,self to: `,stop by: 1 do: `,aBlock).
 
-    _PrimitiveIntegerType macro expansionRule until: stop by: increment do: aBlock := {
-        let index := __apsgBuilder gensym: #index.
-        let stopValue := __apsgBuilder gensym: #stopValue.
-        let incrementValue := __apsgBuilder gensym: #incrementValue.
+    _NumberType macro expansionRule until: stop by: increment do: aBlock := {
+        let index := __astBuilder gensym: #index.
+        let stopValue := __astBuilder gensym: #stopValue.
+        let incrementValue := __astBuilder gensym: #incrementValue.
 
-        aBlock isBlockClosure && aBlock arguments size = 1 ifTrue: {
-            let indexType := aBlock arguments first typeExpression.
+        aBlock isBlockClosureNode && aBlock arguments size = 1
+			&& aBlock arguments first valueType isNotNil ifTrue: {
+            let indexType := aBlock arguments first valueType castTo: _ASTNodeType.
 
             ``{
                 let `,index mutable type: `,indexType := `,self.
@@ -130,7 +132,7 @@ namespace SysmelKernel definition: {
                 let `,incrementValue type: `,indexType := `,increment.
 
                 while: (`,index < `,stopValue) do: {
-                    aBlock  __macroInlineBlock: `,index
+                    `,aBlock  __macroInlineBlock: `,index
                 } continueWith: (`,index := `,index + `,incrementValue)
             }
         } ifFalse: {
@@ -140,12 +142,11 @@ namespace SysmelKernel definition: {
                 let `,incrementValue := `,increment.
 
                 while: (`,index < `,stopValue) do: {
-                    aBlock __macroInlineBlock: `,index
+                    `,aBlock __macroInlineBlock: `,index
                 } continueWith: (`,index := `,index + `,incrementValue)
             }
         }
     }.
-*#
-    _PrimitiveIntegerType macro expansionRule until: stop do: aBlock := ``(`,self until: `,stop by: 1 do: `,aBlock).
 
+    _NumberType macro expansionRule until: stop do: aBlock := ``(`,self until: `,stop by: 1 do: `,aBlock).
 }.

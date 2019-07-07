@@ -16,7 +16,7 @@ template FixedBigInteger(WC: _LiteralInteger)
     field words public type: (UInt32 array: WordCount).
 
     message assignValue: (other: SelfType const ref) ::=> SelfType ref := {
-        0 until: WordCount do: {|(i: UIntPointer) => Void|.
+        0 until: WordCount do: {:(UIntPointer)i :: Void |
             words[i] := other words[i].
         }.
 
@@ -25,7 +25,7 @@ template FixedBigInteger(WC: _LiteralInteger)
 
     message assignValue: (value: UInt32) ::=> SelfType ref := {
         words[0] := value.
-        1 until: WordCount do: {|(i: UIntPointer) => Void|.
+        1 until: WordCount do: {:(UIntPointer)i :: Void |
             words[i] := 0.
         }.
 
@@ -36,7 +36,7 @@ template FixedBigInteger(WC: _LiteralInteger)
         message assignValue: (value: UInt64) ::=> SelfType ref := {
             words[0] := value castTo: UInt32.
             words[1] := value >> 32 castTo: UInt32.
-            2 until: WordCount do: {|(i: UIntPointer) => Void|.
+            2 until: WordCount do: {:(UIntPointer)i :: Void |
                 words[i] := 0.
             }.
 
@@ -47,7 +47,7 @@ template FixedBigInteger(WC: _LiteralInteger)
     message nonZeroWordCount => UIntPointer := {
         let result mutable type: UIntPointer := 0.
 
-        0 until: WordCount do: {|(i: UIntPointer) => Void|.
+        0 until: WordCount do: {:(UIntPointer)i :: Void |
             words[i] ~~ 0 ifTrue: {
                 result := i
             }
@@ -57,13 +57,13 @@ template FixedBigInteger(WC: _LiteralInteger)
     }.
 
     message clearToZero => Void := {
-        0 until: WordCount do: {|(i: UIntPointer) => Void|.
+        0 until: WordCount do: {:(UIntPointer)i :: Void |
             words[i] := 0
         }.
     }.
 
     message isZero => BooleanBit := {
-        0 until: WordCount do: {|(i: UIntPointer) => Void|.
+        0 until: WordCount do: {:(UIntPointer)i :: Void |
             words[i] ~~ 0 ifTrue: {
                 return: false
             }
@@ -75,7 +75,7 @@ template FixedBigInteger(WC: _LiteralInteger)
     message add: (other: SelfType const ref) into: (result: SelfType ref) ::=> Void := {
         let carry mutable type: UInt64 := 0.
 
-        0 until: WordCount do: {|(i: UIntPointer) => Void|.
+        0 until: WordCount do: {:(UIntPointer)i :: Void |
             let left := words[i] castTo: UInt64.
             let right := other words[i] castTo: UInt64.
             let sum := left + right + carry.
@@ -88,7 +88,7 @@ template FixedBigInteger(WC: _LiteralInteger)
     message subtract: (other: SelfType const ref) into: (result: SelfType ref) ::=> Void := {
         let carry mutable type: UInt64 := 1. ## For two-complement negation.
 
-        0 until: WordCount do: {|(i: UIntPointer) => Void|.
+        0 until: WordCount do: {:(UIntPointer)i :: Void |
             let left := words[i] castTo: UInt64.
             let right := other words[i] bitInvert castTo: UInt64.
             let sum := left + right + carry.
@@ -105,12 +105,12 @@ template FixedBigInteger(WC: _LiteralInteger)
             leftWordCount := WordCount
         }.
 
-        0 until: WordCount do: {|(i: UIntPointer) => Void|.
+        0 until: WordCount do: {:(UIntPointer)i :: Void |
             let rightFactor type: UInt64 := result words[i].
             rightFactor ~~ 0 ifTrue: {
                 let carry mutable type: UInt64 := 0.
 
-                i until: leftWordCount do: {|(j: UIntPointer) => Void|.
+                i until: leftWordCount do: {:(UIntPointer)j :: Void |
                     let leftFactor type: UInt64 := words[j].
                     let product := leftFactor * rightFactor.
 
@@ -136,7 +136,7 @@ template FixedBigInteger(WC: _LiteralInteger)
         let exponentIncreaseModulo := (1<<32 castTo: UInt64) % modulo.
         let result mutable type: UInt64 := 0.
 
-        0 until: self nonZeroWordCount do: {|(i: UIntPointer) => Void|.
+        0 until: self nonZeroWordCount do: {:(UIntPointer)i :: Void |
             result := result + (words[i] % modulo) * (exponentModulo % modulo).
             exponentModulo := (exponentModulo * exponentIncreaseModulo) % modulo
         }.

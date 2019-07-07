@@ -82,7 +82,7 @@ class TextStreamWriter definition: {
     }.
 
     message nextPutBigInteger: (bigInteger: FloatStringConversionBigInteger const ref) ::=> Void := {
-        0 to: FloatStringConversionBigInteger WordCount do: {|(i: UIntPointer) => Void|.
+        0 to: FloatStringConversionBigInteger WordCount do: {:(UIntPointer)i :: Void |
             self nextPutLittleUInt32: bigInteger words[i]
         }
     }.
@@ -140,7 +140,7 @@ class TextStreamWriter definition: {
 
     ## Pointer formatting.
     message nextPutLittleUInt32: (value: UInt32) ::=> Void := {
-        0 until: 32 by: 4 do: {|(i: UInt32) => Void|.
+        0 until: 32 by: 4 do: {:(UInt32)i :: Void|
             self nextPutHexDigit: ((value >> i) & 16rF castTo: Int32)
         }.
     }.
