@@ -90,6 +90,38 @@ MbndAstEvaluator >> visitConvertToCompilerObjectCastNode: node [
 ]
 
 { #category : #visiting }
+MbndAstEvaluator >> visitDoWhileLoopNode: node [
+	| loopContext hasReceivedBreak |
+	loopContext := Object new.
+	
+	hasReceivedBreak := false.
+	[
+		[
+			self withBreakAndContinueContext: loopContext do: [
+				node action ifNotNil: [ :action | self visitNode: action ]
+			]
+		] on: MbndBlockExitAction do: [ :e |
+			e blockContext == loopContext ifFalse: [
+				^ e pass.
+			].
+		
+			hasReceivedBreak := e isBreakAction.
+		].
+	
+		hasReceivedBreak ifFalse: [
+			node continueAction ifNotNil: [ :action | self visitNode: action ]
+		].
+	] doWhileTrue: [
+		hasReceivedBreak not and: [
+			node condition
+				ifNil: [ true ]
+				ifNotNil: [(self visitNode: node condition) unwrapMbndValue]]
+	].
+
+	^ node type defaultValue
+]
+
+{ #category : #visiting }
 MbndAstEvaluator >> visitExpandedHostMessageSendNode: node [
 	| receiver selector arguments result |
 	receiver := (self visitNode: node receiver) unwrapMbndValue.

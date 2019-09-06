@@ -47,9 +47,10 @@ MbndAstTransformVisitor >> visitBitCastNode: node [
 
 { #category : #visiting }
 MbndAstTransformVisitor >> visitBlockClosureNode: node [
+	| n |
 	^ node copy
 		arguments: (self visitNodesAndCollect: node arguments);
-		returnType: (node returnType isMbndAstNode ifTrue: [:n | self visitNode: n]);
+		returnType: (node returnType isMbndAstNode ifTrue: [ self visitNode: node returnType ]);
 		body: (self visitNode: node body);
 		yourself
 ]

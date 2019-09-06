@@ -130,6 +130,69 @@ MbndSlovimFunctionCodeGenerator >> visitCleanUpScopeNode: node [
 ]
 
 { #category : #visiting }
+MbndSlovimFunctionCodeGenerator >> visitDoWhileLoopNode: node [
+	| loopHeader loopBody loopContinue loopMerge loopCondition |
+	loopHeader := slvmBuilder newBasicBlock: #doWhileHeader.
+	loopBody := slvmBuilder newBasicBlock: #doWhileBody.
+	loopCondition := slvmBuilder newBasicBlock: #doWhileCondition.
+	loopContinue := node continueAction
+		ifNil: [ loopCondition ]
+		ifNotNil: [ slvmBuilder newBasicBlock: #doWhileContinue ].
+	loopMerge := slvmBuilder newBasicBlock: #doWhileMerge.
+	
+	"Enter into the loop."
+	slvmBuilder
+		jump: loopHeader;
+		currentBlock: loopHeader.
+		
+	"Set the structured blocks."
+	loopHeader
+		continueBlock: loopContinue;
+		mergeBlock: loopMerge.
+		
+	"Enter the loop body"
+	slvmBuilder jump: loopBody.
+	
+	"Generate the loop body."
+	slvmBuilder currentBlock: loopBody.
+	node action ifNotNil: [ :action |
+		self withBreakBlock: loopMerge continueBlock: loopContinue do: [ 
+			self visitNode: action
+		]
+	].
+
+	slvmBuilder isLastTerminator ifFalse: [ 
+		slvmBuilder jump: loopContinue
+	].
+
+	"Generate the continue action"
+	node continueAction ifNotNil: [ :action |
+		slvmBuilder currentBlock: loopContinue.
+
+		self visitNode: action.
+
+		slvmBuilder isLastTerminator ifFalse: [
+			slvmBuilder jump: loopCondition
+		]
+	].
+
+	"Test the loop condition."
+	slvmBuilder currentBlock: loopCondition.
+	node condition ifNil: [
+		slvmBuilder jump: loopHeader.
+	] ifNotNil: [ :expr |
+		slvmBuilder branch: (self visitNode: expr) ifTrue: loopHeader ifFalse: loopMerge
+	].
+
+	slvmBuilder currentBlock: loopMerge.
+	loopMerge predecessors ifEmpty: [
+		loopHeader addUnreachableStructuredSuccessors.
+		slvmBuilder unreachable.
+	].
+
+]
+
+{ #category : #visiting }
 MbndSlovimFunctionCodeGenerator >> visitExpandedMessageSendNode: node [
 	| receiver arguments methodProgramEntity |
 	node method ifNotNil: [

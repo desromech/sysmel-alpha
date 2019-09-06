@@ -368,6 +368,21 @@ MbndAstSemanticAnalyzer >> visitCompileTimeConstantDefinitionNode: node [
 ]
 
 { #category : #visiting }
+MbndAstSemanticAnalyzer >> visitDoWhileLoopNode: node [
+	| result |
+	result := node copy.
+	self withContinueAndBreakOwnerNode: node do: [ 
+		result action: (result action ifNotNil: [:action | self analyzeNodeIfNeeded: action]).
+	].
+	result
+		continueAction: (result continueAction ifNotNil: [:action | self analyzeNodeIfNeeded: action]);
+		condition: (self addImplicitCastFor: (self analyzeNodeIfNeeded: result condition) to: self compilationTarget booleanType);
+		type: self compilationTarget voidType.
+
+	^ result
+]
+
+{ #category : #visiting }
 MbndAstSemanticAnalyzer >> visitExpandedMessageSendNode: node [
 	| result receiverType method |
 	result := node copy
@@ -1215,7 +1230,7 @@ MbndAstSemanticAnalyzer >> visitWhileLoopNode: node [
 	| result |
 	result := node copy.
 	result
-		condition: (self visitNode: result condition);
+		condition: (self addImplicitCastFor: (self analyzeNodeIfNeeded: result condition) to: self compilationTarget booleanType);
 		type: self compilationTarget voidType.
 	
 	self withContinueAndBreakOwnerNode: node do: [ 
