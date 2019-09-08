@@ -5,7 +5,7 @@ template FixedArray(ET: Type)
 	:= struct definition: {
     compileTimeConstant ElementType := ET.
 
-    meta message elementType => _CompilerObjectType := {
+    SelfType meta message elementType => _CompilerObjectType := {
         return: ElementType
     }.
 
@@ -25,7 +25,7 @@ template FixedArray(ET: Type)
 compileTimeConstant String := FixedArray(Char).
 compileTimeConstant StringLiteral := String const ref.
 
-_LiteralString conversionTo: StringLiteral doOn: #{
+#*_LiteralString conversionTo: StringLiteral doOn: #{
     evaluation: $$Pharo {
         value: value targetType: targetType at: position
 			"_LiteralString conversionTo: StringLiteral"
@@ -36,5 +36,6 @@ _LiteralString conversionTo: StringLiteral doOn: #{
 			^ builder nativeStringLiteral: sourceValue type: targetType ssaType
     }.
 }.
+*#
 
 } ## End of namespace StdNative

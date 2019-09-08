@@ -12,4 +12,4 @@ if: Compiler useLibC then: {
 }.
 
 ## Evaluate the native stdlib
-##loadFileOnce: "native/native.sysmel".
+loadFileOnce: "native/native.sysmel".
