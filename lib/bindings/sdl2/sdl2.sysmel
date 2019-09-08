@@ -136,7 +136,7 @@ namespace SDL2 definition: {
 
     struct SDL_Keysym definition: {
         field scancode public type: UInt32.
-        field sym public type: Int32.
+        field sym public type: Keycode.
         field mod public type: UInt16.
         field unused public type: UInt32.
     }.

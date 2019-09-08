@@ -25,17 +25,6 @@ template FixedArray(ET: Type)
 compileTimeConstant String := FixedArray(Char).
 compileTimeConstant StringLiteral := String const ref.
 
-#*_LiteralString conversionTo: StringLiteral doOn: #{
-    evaluation: $$Pharo {
-        value: value targetType: targetType at: position
-			"_LiteralString conversionTo: StringLiteral"
-            self halt
-    }.
-    codeGeneration: $$Pharo {
-        convertSSAValue: sourceValue to: targetType with: builder at: messageNode
-			^ builder nativeStringLiteral: sourceValue type: targetType ssaType
-    }.
-}.
-*#
+Compiler compilationTarget setNativePrefixedStringLiteralType: StringLiteral.
 
 } ## End of namespace StdNative

@@ -2,5 +2,5 @@
 loadFileOnce: "array.sysmel".
 loadFileOnce: "string.sysmel".
 ##loadFileOnce: "fixed-biginteger.sysmel".
-##loadFileOnce: "explicit-memory-collections/collections.sysmel".
-##loadFileOnce: "fatal-error.sysmel".
+loadFileOnce: "explicit-memory-collections/collections.sysmel".
+loadFileOnce: "fatal-error.sysmel".
