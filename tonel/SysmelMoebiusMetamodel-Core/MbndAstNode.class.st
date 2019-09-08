@@ -18,6 +18,11 @@ MbndAstNode >> accept: aVisitor [
 	self subclassResponsibility
 ]
 
+{ #category : #converting }
+MbndAstNode >> asSourcePositionString [
+	^ position asSourcePositionString
+]
+
 { #category : #'as yet unclassified' }
 MbndAstNode >> concretizeNodeWithAnalyzer: analyzer [
 	^ self
@@ -497,6 +502,12 @@ MbndAstNode >> lexicallyScoped [
 { #category : #'as yet unclassified' }
 MbndAstNode >> mbndLiteralTypeWithTarget: compilationTarget [
 	^ compilationTarget astNodeType
+]
+
+{ #category : #'as yet unclassified' }
+MbndAstNode >> originalSourceCode [
+	<compileTime>
+	^ position originalSourceCode
 ]
 
 { #category : #parsing }

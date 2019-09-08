@@ -19,3 +19,8 @@ MbndLiteralStringType >> addDefaultConversionRules [
 MbndLiteralStringType >> isLiteralStringType [
 	^ true
 ]
+
+{ #category : #'semantic analysis' }
+MbndLiteralStringType >> standardConcreteTypeForLiteralValueNode: literalValueNode inScope: scope [
+	^ self compilationTarget standardConcreteTypeForLiteralStringInScope: scope
+]

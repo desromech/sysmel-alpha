@@ -41,7 +41,7 @@ MbndCompilerObjectType >> analyzeUnboundExpandedMessageSendNode: node with: anal
 	].
 
 	receiver := (analyzer evaluateCompileTimeExpression: node receiver) unwrapMbndValue.
-	arguments := node arguments collect: [ (analyzer evaluateCompileTimeExpression: node receiver) unwrapMbndValue. ].
+	arguments := node arguments collect: [ :arg | (analyzer evaluateCompileTimeExpression: arg) unwrapMbndValue. ].
 	selector := node selector value.
 	(receiver class lookupSelector: selector) ifNil: [ 
 		self error: 'Cannot send message {1} to compiler object {2}.' format: {selector printString . receiver printString} at: node

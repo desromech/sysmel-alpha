@@ -19,6 +19,23 @@ MbndArrayType >> accept: aVisitor [
 	^ aVisitor visitArrayType: self
 ]
 
+{ #category : #'default values' }
+MbndArrayType >> defaultValueAt: aPosition [
+	| valueSlots defaultElementValue |
+	
+	defaultElementValue := nil.
+	valueSlots := (1 to: elements) collect: [ :i |
+		defaultElementValue ifNil: [
+			defaultElementValue := (elementType defaultValueAt: aPosition) unwrapMbndValue
+		]
+	].
+
+	^ MbndAggregateTypeInstanceValue new
+		type: self;
+		slots: valueSlots;
+		yourself
+]
+
 { #category : #accessing }
 MbndArrayType >> elementType [
 	^ elementType

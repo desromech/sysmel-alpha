@@ -23,6 +23,15 @@ MbndAstMessageChainMessageNode >> arguments: anObject [
 	arguments := anObject
 ]
 
+{ #category : #converting }
+MbndAstMessageChainMessageNode >> asUnexpandedMessageSend [
+	^ MbndAstUnexpandedMessageSendNode new
+		position: self;
+		selector: selector;
+		arguments: arguments;
+		yourself
+]
+
 { #category : #testing }
 MbndAstMessageChainMessageNode >> isMessageChainMessageNode [
 	^ true

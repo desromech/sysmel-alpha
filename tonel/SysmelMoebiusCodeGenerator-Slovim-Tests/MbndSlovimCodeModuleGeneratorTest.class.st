@@ -1559,6 +1559,21 @@ MbndSlovimCodeModuleGeneratorTest >> testPointerAsReference2 [
 ]
 
 { #category : #tests }
+MbndSlovimCodeModuleGeneratorTest >> testPointerAsReference3 [
+	| function |
+	self
+		evaluateSysmelSource: 'function cast externC(x: Float32 pointer ref) => Float32 ref := x value';
+		generateSSAModule.
+
+	function := ssaModule globalNamed: #cast.
+	self assert: function isFunction.
+	self deny: function isEmpty.
+	self assert: function basicBlocks size equals: 2.
+	self assert: function basicBlocks second firstInstruction isLoad.
+	self assert: function basicBlocks second lastInstruction isReturn.
+]
+
+{ #category : #tests }
 MbndSlovimCodeModuleGeneratorTest >> testPointerEquality [
 	| function |
 	self

@@ -100,9 +100,11 @@ MbndSlovimFunctionCodeGenerator >> visitAssignmentNode: node [
 	| value reference |
 	value := self visitNode: node value.
 	reference := self visitNode: node reference.
-	^ (slvmBuilder store: value in: reference)
-		volatile: node reference type isVolatileType;
-		yourself
+	(slvmBuilder store: value in: reference)
+		volatile: node reference type isVolatileType.
+		
+	self assert: node type isReferenceType.
+	^ reference
 ]
 
 { #category : #visiting }
@@ -250,7 +252,7 @@ MbndSlovimFunctionCodeGenerator >> visitGetFieldReferenceNode: node [
 	].
 
 	^ slvmBuilder getReference: aggregate element: (slvmBuilder constInt: field slotIndex).
-	
+
 
 ]
 
@@ -508,6 +510,53 @@ MbndSlovimFunctionCodeGenerator >> visitSequenceNode: node [
 		result ifNil: [ self halt ].
 	].
 	^ result
+]
+
+{ #category : #visiting }
+MbndSlovimFunctionCodeGenerator >> visitSetFieldValueNode: node [
+	| aggregate newValue aggregateType field resultType fieldPointer |
+	resultType := self translateType: node type.
+	aggregate := self visitNode: node aggregate.
+	newValue := self visitNode: node newValue.
+	aggregateType := node aggregate type withoutDecorations withoutReferences.
+	field := node field.
+
+	aggregateType isUnionType ifTrue: [ 
+		aggregate type isPointerType ifFalse: [ 
+			aggregate := self storeValueInTemporary: aggregate
+		].
+	].
+
+	aggregate type isPointerType ifTrue: [
+		fieldPointer := 
+			aggregateType isUnionType ifTrue: [
+				slvmBuilder bitCast: aggregate target: (slvmBuilder pointerTypeFor: (self translateType: field valueType))
+			] ifFalse: [
+				slvmBuilder getReference: aggregate element: (slvmBuilder constInt: field slotIndex)
+			].
+		
+		field bits ifNil: [
+			slvmBuilder store: newValue in: fieldPointer
+		] ifNotNil: [ 
+			self halt
+		].
+	
+		^ resultType isPointerType
+			ifTrue: [ aggregate ]
+			ifFalse: [ slvmBuilder load: aggregate ].
+	] ifFalse: [
+	
+		field bits ifNil: [
+			aggregate := slvmBuilder insertValue: aggregate value: newValue indices: { field slotIndex }
+		] ifNotNil: [ 
+			self halt.
+		].
+
+		^ resultType isPointerType
+			ifTrue: [ self storeValueInTemporary: aggregate ]
+			ifFalse: [ aggregate ].
+	].
+
 ]
 
 { #category : #visiting }

@@ -25,6 +25,61 @@ MbndSlovimLiteralValueGenerator >> translateLiteralValue: theLiteralValueToTrans
 	^ literalType accept: self
 ]
 
+{ #category : #visiting }
+MbndSlovimLiteralValueGenerator >> visitAggregateType: type [
+	| slots convertedSlots slvmType hasBiggerArrayAtTheEnd |
+	slots := literalValue slots.
+	convertedSlots := type slotLayout slots collectWithIndex: [ :slot :index |
+		codeModuleGenerator translateLiteralValue: (slots at: index) ofType: slot type
+	].
+
+	slvmType := codeModuleGenerator translateType: type.
+	hasBiggerArrayAtTheEnd := false.
+	convertedSlots doWithIndex: [ :convertedSlot :index |
+		|slotType expectedType|
+		slotType := convertedSlot type.
+		expectedType := slvmType types at: index.
+		slotType ~= expectedType ifTrue: [
+			(index = convertedSlots size and:
+			[slotType isArrayType and:
+			[expectedType isArrayType and:
+			[slotType baseType = expectedType baseType and:
+			[slotType elements > expectedType elements]]]]) ifTrue: [
+				hasBiggerArrayAtTheEnd := true
+			] ifFalse: [
+				self error: 'Invalid aggregate literal value with mismatching slot types.'
+			]
+		].
+	].
+
+	hasBiggerArrayAtTheEnd ifTrue: [
+		slvmType := SLVMStructureType name: nil types: (convertedSlots collect: #type) kind: slvmType kind names: slvmType names.
+	].
+
+	^ SLVMConstant structure: slvmType slots: convertedSlots
+]
+
+{ #category : #'code generation' }
+MbndSlovimLiteralValueGenerator >> visitArrayType: arrayType [
+	| elementType slvmElementType slvmArrayType convertedSlots |
+	elementType := arrayType elementType.
+	slvmElementType := self translateType: arrayType elementType.
+	slvmArrayType := SLVMArrayType baseType: slvmElementType elements: literalValue slots size.
+	literalValue slots class == ByteArray ifTrue: [
+		^ SLVMConstant array: slvmArrayType blob: literalValue slots
+	].
+	literalValue slots class == ByteString ifTrue: [
+		^ SLVMConstant array: slvmArrayType blob: literalValue slots asByteArray
+	].
+	
+	convertedSlots := literalValue slots collect: [ :slot |
+		codeModuleGenerator translateLiteralValue: slot ofType: elementType
+	].
+
+	^ SLVMConstant array: slvmArrayType slots: convertedSlots
+	
+]
+
 { #category : #'code generation' }
 MbndSlovimLiteralValueGenerator >> visitDecoratedType: decoratedType [
 	^ decoratedType baseType accept: self
@@ -72,6 +127,16 @@ MbndSlovimLiteralValueGenerator >> visitPrimitiveFloatType: integerType [
 { #category : #'code generation' }
 MbndSlovimLiteralValueGenerator >> visitPrimitiveIntegerType: integerType [
 	^ SLVMConstant type: (self translateType: integerType) value: literalValue
+]
+
+{ #category : #'code generation' }
+MbndSlovimLiteralValueGenerator >> visitReferenceType: referenceType [
+	^ SLVMConstant pointerToConstant: (referenceType baseType accept: self) pointerType: (self translateType: referenceType)
+]
+
+{ #category : #visiting }
+MbndSlovimLiteralValueGenerator >> visitStructureType: type [
+	^ self visitAggregateType: type
 ]
 
 { #category : #'code generation' }

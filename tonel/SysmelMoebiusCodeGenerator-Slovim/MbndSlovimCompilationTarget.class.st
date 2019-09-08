@@ -29,6 +29,11 @@ MbndSlovimCompilationTarget >> float64Alignment [
 	^ slvmCompilationTarget float64 alignment
 ]
 
+{ #category : #'platform testing' }
+MbndSlovimCompilationTarget >> hasNoOperatingSystem [
+	^ slvmCompilationTarget isNoOperatingSystem
+]
+
 { #category : #initialization }
 MbndSlovimCompilationTarget >> initialize [
 	super initialize.

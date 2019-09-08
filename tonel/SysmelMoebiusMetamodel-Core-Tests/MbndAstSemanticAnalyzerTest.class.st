@@ -1081,6 +1081,45 @@ MbndAstSemanticAnalyzerTest >> testLocalVariableScopeReferenceError [
 ]
 
 { #category : #tests }
+MbndAstSemanticAnalyzerTest >> testMessageChainExpansion [
+	| analyzedNode receiver messageChain |
+	receiver := builder literalInteger: 42.
+	messageChain := builder messageChainReceiver: receiver messages: {
+		builder messageChainMessageSelector: (builder literalSymbol: #+) arguments: {builder literalInteger: 2}.
+		builder messageChainMessageSelector: (builder literalSymbol: #-) arguments: {builder literalInteger: 2}.
+	}.
+	
+	analyzedNode := visitor visitNode: messageChain.
+	self assert: analyzedNode isSequenceNode.
+	self assert: analyzedNode elements first isLocalVariableDefinitionNode.
+	self assert: analyzedNode elements last isExpandedMessageSendNode.
+	
+	
+]
+
+{ #category : #tests }
+MbndAstSemanticAnalyzerTest >> testMessageChainExpansion2 [
+	| analyzedNode receiver messageChain |
+	receiver := builder literalInteger: 42.
+	messageChain := builder messageChainReceiver: receiver messages: {
+		builder messageChainMessageSelector: (builder literalSymbol: #+) arguments: {builder literalInteger: 2}.
+	}.
+	
+	analyzedNode := visitor visitNode: messageChain.
+	self deny: analyzedNode isMessageChainNode.
+	self deny: analyzedNode isSequenceNode.
+]
+
+{ #category : #tests }
+MbndAstSemanticAnalyzerTest >> testMessageChainExpansion3 [
+	| analyzedNode receiver messageChain |
+	receiver := builder literalInteger: 42.
+	messageChain := builder messageChainReceiver: receiver messages: #().
+	analyzedNode := visitor visitNode: messageChain.
+	self assert: analyzedNode equals: receiver.
+]
+
+{ #category : #tests }
 MbndAstSemanticAnalyzerTest >> testMinFunctionDefinition [
 	| node analyzedNode concreteMethod |
 	node := self minFunctionDefinitionNode.

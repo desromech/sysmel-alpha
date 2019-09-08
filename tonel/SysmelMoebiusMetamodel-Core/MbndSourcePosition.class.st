@@ -38,6 +38,11 @@ MbndSourcePosition >> asMoebiusBandSourcePosition [
 ]
 
 { #category : #converting }
+MbndSourcePosition >> asSourcePositionString [
+	^ self asString
+]
+
+{ #category : #converting }
 MbndSourcePosition >> asSysmelSourcePosition [
 	^ self
 ]
@@ -132,6 +137,11 @@ MbndSourcePosition >> initialize [
 MbndSourcePosition >> line [
 	line ifNil: [ self fetchLineAndColumn ].
 	^ line
+]
+
+{ #category : #accessing }
+MbndSourcePosition >> originalSourceCode [
+	^ self sourceCode
 ]
 
 { #category : #accessing }

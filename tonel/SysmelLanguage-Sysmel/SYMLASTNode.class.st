@@ -24,6 +24,11 @@ SYMLASTNode >> asMoebiusBandSourcePosition [
 ]
 
 { #category : #converting }
+SYMLASTNode >> asSourcePositionString [
+	^ position asSourcePositionString
+]
+
+{ #category : #converting }
 SYMLASTNode >> buildMoebiusAST: builder [
 	self subclassResponsibility
 ]

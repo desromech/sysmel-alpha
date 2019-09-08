@@ -13,6 +13,11 @@ MbndAstMessageChainNode >> accept: aVisitor [
 	^ aVisitor visitMessageChainNode: self
 ]
 
+{ #category : #converting }
+MbndAstMessageChainNode >> asPrettySymbolName [
+	^ 'Message chain receiver'
+]
+
 { #category : #testing }
 MbndAstMessageChainNode >> isMessageChainNode [
 	^ true

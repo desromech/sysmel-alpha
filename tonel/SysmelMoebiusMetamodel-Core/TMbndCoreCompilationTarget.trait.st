@@ -12,7 +12,8 @@ Trait {
 		'arrayTypes',
 		'tupleTypes',
 		'specificCompilerObjects',
-		'blockClosureTypes'
+		'blockClosureTypes',
+		'nativePrefixedStringLiteralType'
 	],
 	#traits : 'TMbndAbstractCompilationTarget',
 	#classTraits : 'TMbndAbstractCompilationTarget classTrait',
@@ -540,9 +541,22 @@ TMbndCoreCompilationTarget >> referenceFor: addressSpace to: baseType [
 	^ referenceTypes getOrCreateInstanceWithArguments: { baseType . addressSpace }
 ]
 
+{ #category : #initialization }
+TMbndCoreCompilationTarget >> setNativePrefixedStringLiteralType: aType [
+	nativePrefixedStringLiteralType := aType.
+	self literalStringType addConversionTo: nativePrefixedStringLiteralType rule: MbndLiteralStringToNativePrefixedStringConversionRule.
+]
+
 { #category : #'derived types' }
 TMbndCoreCompilationTarget >> specificCompilerObjectTypeFor: aBehavior [
 	^ specificCompilerObjects getOrCreateInstanceWithArguments: { aBehavior }
+]
+
+{ #category : #initialization }
+TMbndCoreCompilationTarget >> standardConcreteTypeForLiteralStringInScope: aScope [
+	aScope isCompilationEvaluationScope ifTrue: [ ^ self compilerObjectType ].
+	nativePrefixedStringLiteralType ifNotNil: [ ^ nativePrefixedStringLiteralType ].
+	^ self uint8Type const pointer
 ]
 
 { #category : #'derived types' }

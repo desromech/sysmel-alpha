@@ -103,6 +103,16 @@ TMbndAbstractCompilationTarget >> getBasicTypeNamed: typeName [
 	self explicitRequirement
 ]
 
+{ #category : #'platform testing' }
+TMbndAbstractCompilationTarget >> hasNoOperatingSystem [
+	^ false
+]
+
+{ #category : #'platform testing' }
+TMbndAbstractCompilationTarget >> hasOperatingSystem [
+	^ self hasNoOperatingSystem not
+]
+
 { #category : #'convenience type accessors' }
 TMbndAbstractCompilationTarget >> int16Type [
 	^ self getBasicTypeNamed: #Int16
@@ -256,6 +266,10 @@ TMbndAbstractCompilationTarget >> referenceTo: baseType [
 { #category : #'convenience type accessors' }
 TMbndAbstractCompilationTarget >> returnType [
 	^ self getBasicTypeNamed: #_ReturnType
+]
+
+{ #category : #initialization }
+TMbndAbstractCompilationTarget >> setNativePrefixedStringLiteralType: aType [
 ]
 
 { #category : #'convenience type accessors' }

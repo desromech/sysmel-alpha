@@ -7,8 +7,8 @@ Class {
 { #category : #'as yet unclassified' }
 MbndPointerArithmeticOperationCoercionMacro >> computePointerArithmetic: node coercionTypeOf: leftValueType with: rightValueType [
 	leftValueType == rightValueType ifTrue: [ ^ leftValueType ].
-	leftValueType isUndefinedType ifTrue: [ ^ rightValueType ].
-	rightValueType isUndefinedType ifTrue: [ ^ leftValueType ].
+	leftValueType isUndefinedType ifTrue: [ ^ rightValueType withoutReferences ].
+	rightValueType isUndefinedType ifTrue: [ ^ leftValueType withoutReferences ].
 	
 	self halt
 ]
@@ -28,7 +28,7 @@ MbndPointerArithmeticOperationCoercionMacro >> expandMessageNode: node with: ana
 	rightValueType := rightAnalyzedNode type bestConcreteTypeForLiteralValueNode: rightAnalyzedNode inScope: analyzer scope.
 	
 	"Compute the coercion type."
-	coercionType := self computePointerArithmetic: node coercionTypeOf: leftValueType with: rightValueType.
+	coercionType := self computePointerArithmetic: node coercionTypeOf: leftValueType withoutReferences with: rightValueType withoutReferences.
 
 	"Apply the coercion to the operands."
 	leftOperand := analyzer addImplicitCastFor: leftAnalyzedNode to: coercionType.

@@ -579,7 +579,7 @@ MbndAstSemanticAnalyzer >> visitGetFieldReferenceNode: node [
 	result := node copy
 		aggregate: (self analyzeNodeIfNeeded: node aggregate);
 		yourself.
-	aggregateType := result aggregate type withoutReferences.
+	aggregateType := result aggregate type withoutReferences withoutDecorations.
 	self assert: aggregateType isAggregateType.
 
 	^ result
@@ -836,6 +836,40 @@ MbndAstSemanticAnalyzer >> visitMacroMessagePrototypeNode: node [
 ]
 
 { #category : #visiting }
+MbndAstSemanticAnalyzer >> visitMessageChainNode: node [
+	| receiverVariable receiverVariableReference messages |
+	node messages size = 0 ifTrue: [
+		^ self visitNode: node receiver
+	].
+
+	node messages size = 1 ifTrue: [
+		^ self visitNode: (node messages first asUnexpandedMessageSend
+			receiver: node receiver;
+			yourself)
+	].
+
+	receiverVariable := MbndAstLocalVariableDefinitionNode new
+		position: node;
+		name: node;
+		initialValue: node receiver;
+		yourself.
+	receiverVariableReference := MbndAstIdentifierReferenceNode new
+		position: node;
+		symbol: node;
+		yourself.
+		
+	messages := node messages collect: [ :message |
+		message asUnexpandedMessageSend
+			receiver: receiverVariableReference; yourself
+	].
+
+	^ self visitNode: (MbndAstSequenceNode new
+		position: node;
+		elements: { receiverVariable } , messages;
+		yourself)
+]
+
+{ #category : #visiting }
 MbndAstSemanticAnalyzer >> visitMessageDefinitionNode: node [
 	| result |
 	result := node copy.
@@ -911,6 +945,8 @@ MbndAstSemanticAnalyzer >> visitNonConcreteNode: node [
 MbndAstSemanticAnalyzer >> visitPointerAsReferenceNode: node [
 	| result basePointerType |
 	result := super visitPointerAsReferenceNode: node.
+	result pointer: (self ensurePointerValue: node pointer at: node).
+
 	basePointerType := result pointer type withoutTopDecorations.
 	basePointerType isPointerType ifFalse: [
 		self error: 'Expected a pointer value.' at: node pointer.
@@ -929,7 +965,7 @@ MbndAstSemanticAnalyzer >> visitPointerElementReferenceNode: node [
 		index: (self ensureIntegerValue: node index at: node);
 		yourself.
 		
-	pointerType := node container type withoutTopDecorations.
+	pointerType := result container type withoutTopDecorations.
 	self assert: pointerType isPointerType.
 	
 	elementReferenceType := pointerType asReferenceType.

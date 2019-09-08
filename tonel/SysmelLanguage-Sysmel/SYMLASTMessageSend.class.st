@@ -40,7 +40,7 @@ SYMLASTMessageSend >> buildMoebiusMessageChainMessageAST: builder [
 		ifTrue: [ selector buildMoebiusAST: builder]
 		ifFalse: [ (builder literalSymbol: selector) position: position ].
 		
-	^ (builder messageChainMessageSelector: selector
+	^ (builder messageChainMessageSelector: selectorNode
 		arguments: (arguments collect: [:arg | arg buildMoebiusAST: builder]))
 		position: self;
 		yourself
@@ -57,6 +57,11 @@ SYMLASTMessageSend >> children [
 { #category : #testing }
 SYMLASTMessageSend >> isMessageNode [
 	^ true
+]
+
+{ #category : #'as yet unclassified' }
+SYMLASTMessageSend >> originalSourceCode [
+	^ position originalSourceCode
 ]
 
 { #category : #printing }
