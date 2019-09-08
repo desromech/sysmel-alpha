@@ -236,6 +236,7 @@ MbndAstSemanticAnalyzerTest >> testClassDeclarationBuilderExpansion [
 	self assert: (scope lookupSymbolRecursively: #x ifAbsent: [nil]) isNotNil.
 	self assert: analyzedNode binding isNotNil.
 	self assert: analyzedNode binding isClassType.
+	self assert: analyzedNode binding type instanceType equals: analyzedNode binding.
 
 ]
 
@@ -252,6 +253,7 @@ MbndAstSemanticAnalyzerTest >> testClassDefinitionBuilderExpansion [
 	self assert: (scope lookupSymbolRecursively: #x ifAbsent: [nil]) isNotNil.
 	self assert: analyzedNode binding isNotNil.
 	self assert: analyzedNode binding isClassType.
+	self assert: analyzedNode binding type instanceType equals: analyzedNode binding.
 
 ]
 
@@ -1399,6 +1401,7 @@ MbndAstSemanticAnalyzerTest >> testStructureDeclarationBuilderExpansion [
 	self assert: (scope lookupSymbolRecursively: #x ifAbsent: [nil]) isNotNil.
 	self assert: analyzedNode binding isNotNil.
 	self assert: analyzedNode binding isStructureType.
+	self assert: analyzedNode binding type instanceType equals: analyzedNode binding.
 
 ]
 
@@ -1411,6 +1414,7 @@ MbndAstSemanticAnalyzerTest >> testStructureDeclarationNode [
 	self assert: (scope lookupSymbolRecursively: #Test ifAbsent: [nil]) isNotNil.
 	self assert: analyzedNode binding isNotNil.
 	self assert: analyzedNode binding isStructureType.
+	self assert: analyzedNode binding type instanceType equals: analyzedNode binding.
 
 ]
 
@@ -1427,6 +1431,7 @@ MbndAstSemanticAnalyzerTest >> testStructureDefinitionBuilderExpansion [
 	self assert: (scope lookupSymbolRecursively: #x ifAbsent: [nil]) isNotNil.
 	self assert: analyzedNode binding isNotNil.
 	self assert: analyzedNode binding isStructureType.
+	self assert: analyzedNode binding type instanceType equals: analyzedNode binding.
 
 ]
 
@@ -1451,6 +1456,7 @@ MbndAstSemanticAnalyzerTest >> testStructureDefinitionBuilderWithOneFieldExpansi
 	self assert: structureType isStructureType.
 	self assert: structureType fields size equals: 1.
 	self assert: structureType fields first valueType equals: compilationTarget int32Type.
+	self assert: analyzedNode binding type instanceType equals: analyzedNode binding.
 
 ]
 
@@ -1464,6 +1470,7 @@ MbndAstSemanticAnalyzerTest >> testStructureEmptyDefinitionNode [
 	self assert: (scope lookupSymbolRecursively: #Test ifAbsent: [nil]) isNotNil.
 	self assert: analyzedNode binding isNotNil.
 	self assert: analyzedNode binding isStructureType.
+	self assert: analyzedNode binding type instanceType equals: analyzedNode binding.
 
 ]
 
@@ -1654,6 +1661,7 @@ MbndAstSemanticAnalyzerTest >> testTemplateInstance [
 	self assert: analyzedNode type isMetaType.
 	structureType := analyzedNode type instanceType.
 	self assert: structureType isStructureType.
+	self assert: structureType type instanceType equals: structureType.
 	self assert: structureType fields size equals: 1.
 	self assert: structureType fields first valueType equals: compilationTarget int32Type.
 ]

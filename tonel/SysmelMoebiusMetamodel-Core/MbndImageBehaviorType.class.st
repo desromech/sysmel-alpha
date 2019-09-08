@@ -39,5 +39,6 @@ MbndImageBehaviorType >> supertype [
 
 { #category : #'type hierarchy' }
 MbndImageBehaviorType >> type [
+	<compileTime>
 	^ behavior class ifNotNil: [ :st | st asMoebiusType ]
 ]

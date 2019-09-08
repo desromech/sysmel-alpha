@@ -74,6 +74,7 @@ MbndSlovimCodeModuleGenerator >> escapeCharacterForMangling: c into: out [
 
 { #category : #visiting }
 MbndSlovimCodeModuleGenerator >> escapeNameForMangling: name [
+	name ifNil: [ ^ '_anon' ].
 	^ ByteString streamContents: [ :out |
 		name do: [ :c |
 			self escapeCharacterForMangling: c into: out
@@ -282,6 +283,16 @@ MbndSlovimCodeModuleGenerator >> visitNamespace: namespace [
 { #category : #visiting }
 MbndSlovimCodeModuleGenerator >> visitStructureType: type [
 	^ self visitAggregateTypeWithFields: type
+]
+
+{ #category : #visiting }
+MbndSlovimCodeModuleGenerator >> visitTemplate: template [
+	self translateProgramEntityChildren: template
+]
+
+{ #category : #visiting }
+MbndSlovimCodeModuleGenerator >> visitTemplateInstance: templateInstance [
+	self translateProgramEntityChildren: templateInstance
 ]
 
 { #category : #visiting }

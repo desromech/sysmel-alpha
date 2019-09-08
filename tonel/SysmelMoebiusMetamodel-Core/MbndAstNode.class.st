@@ -135,6 +135,11 @@ MbndAstNode >> isConvertToCompilerObjectCastNode [
 ]
 
 { #category : #testing }
+MbndAstNode >> isDecorationChangeTypeCastNode [
+	^ false
+]
+
+{ #category : #testing }
 MbndAstNode >> isDoWhileLoopNode [
 	^ false
 ]

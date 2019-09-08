@@ -44,7 +44,7 @@ MbndAbstractMetaType >> analyzeUnboundUnexpandedMessageSendNode: node with: anal
 	[ node selector isLiteralSymbolValueNode ]) ifTrue: [
 		selector := node selector value.
 		receiverValue := node receiver value.
-		(instanceType lookupPublicMetaBuilderFactoryNamed: selector withAnalyzer: analyzer) ifNotNil: [ :factory |
+		(receiverValue lookupPublicMetaBuilderFactoryNamed: selector withAnalyzer: analyzer) ifNotNil: [ :factory |
 			^ factory analyzeReferenceNode: node ownerProgramEntity: receiverValue with: analyzer
 		].
 	].

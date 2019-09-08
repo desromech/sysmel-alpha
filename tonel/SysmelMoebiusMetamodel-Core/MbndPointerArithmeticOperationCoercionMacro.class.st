@@ -7,6 +7,8 @@ Class {
 { #category : #'as yet unclassified' }
 MbndPointerArithmeticOperationCoercionMacro >> computePointerArithmetic: node coercionTypeOf: leftValueType with: rightValueType [
 	leftValueType == rightValueType ifTrue: [ ^ leftValueType ].
+	leftValueType isUndefinedType ifTrue: [ ^ rightValueType ].
+	rightValueType isUndefinedType ifTrue: [ ^ leftValueType ].
 	
 	self halt
 ]

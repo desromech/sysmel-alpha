@@ -98,6 +98,11 @@ MbndAstDelegationVisitor >> visitConvertToCompilerObjectCastNode: node [
 ]
 
 { #category : #visiting }
+MbndAstDelegationVisitor >> visitDecorationChangeTypeCastNode: node [
+	^ self delegateNodeVisit: node
+]
+
+{ #category : #visiting }
 MbndAstDelegationVisitor >> visitDoWhileLoopNode: node [
 	^ self delegateNodeVisit: node
 ]

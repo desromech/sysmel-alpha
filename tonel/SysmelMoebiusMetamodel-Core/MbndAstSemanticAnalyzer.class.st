@@ -261,7 +261,7 @@ MbndAstSemanticAnalyzer >> visitAssignmentNode: node [
 	].
 
 	"Add an implicit cast to the assigned value."
-	result value: (self addImplicitCastFor: result value to: result reference type baseType withoutDecorations).
+	result value: (self addImplicitCastFor: result value to: result reference type baseType withoutTopDecorations).
 	
 	"Return the reference after the assignment."
 	result type: result reference type.	

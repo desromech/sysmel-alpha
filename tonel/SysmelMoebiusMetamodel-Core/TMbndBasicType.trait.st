@@ -82,6 +82,7 @@ TMbndBasicType >> supertype: aType [
 
 { #category : #'type hierarchy' }
 TMbndBasicType >> type [
+	<compileTime>
 	^ type
 ]
 

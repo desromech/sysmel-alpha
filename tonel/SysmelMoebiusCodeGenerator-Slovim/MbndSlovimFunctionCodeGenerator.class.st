@@ -130,6 +130,13 @@ MbndSlovimFunctionCodeGenerator >> visitCleanUpScopeNode: node [
 ]
 
 { #category : #visiting }
+MbndSlovimFunctionCodeGenerator >> visitDecorationChangeTypeCastNode: node [
+	| source |
+	source := self visitNode: node expression.
+	^ source
+]
+
+{ #category : #visiting }
 MbndSlovimFunctionCodeGenerator >> visitDoWhileLoopNode: node [
 	| loopHeader loopBody loopContinue loopMerge loopCondition |
 	loopHeader := slvmBuilder newBasicBlock: #doWhileHeader.
@@ -495,7 +502,7 @@ MbndSlovimFunctionCodeGenerator >> visitSequenceNode: node [
 		slvmBuilder isLastTerminator ifTrue: [ ^ result ].
 	].
 
-	node type isVoidType ifTrue: [ 
+	(node type isVoidType or: [node type isUndefinedType ]) ifTrue: [ 
 		result := nil.
 	] ifFalse: [ 
 		result ifNil: [ self halt ].

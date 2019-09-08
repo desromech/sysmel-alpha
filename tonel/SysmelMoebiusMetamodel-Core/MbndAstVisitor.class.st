@@ -95,6 +95,11 @@ MbndAstVisitor >> visitConvertToCompilerObjectCastNode: node [
 ]
 
 { #category : #visiting }
+MbndAstVisitor >> visitDecorationChangeTypeCastNode: node [
+	self subclassResponsibility
+]
+
+{ #category : #visiting }
 MbndAstVisitor >> visitDoWhileLoopNode: node [
 	self subclassResponsibility
 ]

@@ -949,6 +949,72 @@ MbndSlovimCodeModuleGeneratorTest >> testIntegerEquality2 [
 ]
 
 { #category : #tests }
+MbndSlovimCodeModuleGeneratorTest >> testIntegerEquality3 [
+	| function |
+	self
+		evaluateSysmelSource: 'function op externC(x: Int32 const, y: Int32) => BooleanBit := x = y';
+		generateSSAModule.
+
+	function := ssaModule globalNamed: #op.
+	self assert: function isFunction.
+	self deny: function isEmpty.
+	self assert: function basicBlocks size equals: 2.
+	self assert: function basicBlocks second firstInstruction isBinaryOperation.
+	self assert: function basicBlocks second firstInstruction operation equals: #ieq.
+	self assert: function basicBlocks second lastInstruction isReturn.
+]
+
+{ #category : #tests }
+MbndSlovimCodeModuleGeneratorTest >> testIntegerEquality4 [
+	| function |
+	self
+		evaluateSysmelSource: 'function op externC(x: Int32 const, y: Int32) => BooleanBit := x == y';
+		generateSSAModule.
+
+	function := ssaModule globalNamed: #op.
+	self assert: function isFunction.
+	self deny: function isEmpty.
+	self assert: function basicBlocks size equals: 2.
+	self assert: function basicBlocks second firstInstruction isBinaryOperation.
+	self assert: function basicBlocks second firstInstruction operation equals: #ieq.
+	self assert: function basicBlocks second lastInstruction isReturn.
+]
+
+{ #category : #tests }
+MbndSlovimCodeModuleGeneratorTest >> testIntegerEquality5 [
+	| function |
+	self
+		evaluateSysmelSource: 'function op externC(x: Int32 const ref, y: Int32) => BooleanBit := x = y';
+		generateSSAModule.
+
+	function := ssaModule globalNamed: #op.
+	self assert: function isFunction.
+	self deny: function isEmpty.
+	self assert: function basicBlocks size equals: 2.
+	self assert: function basicBlocks second firstInstruction isLoad.
+	self assert: function basicBlocks second firstInstruction nextNonDebugInstruction isBinaryOperation.
+	self assert: function basicBlocks second firstInstruction nextNonDebugInstruction operation equals: #ieq.
+	self assert: function basicBlocks second lastInstruction isReturn.
+]
+
+{ #category : #tests }
+MbndSlovimCodeModuleGeneratorTest >> testIntegerEquality6 [
+	| function |
+	self
+		evaluateSysmelSource: 'function op externC(x: Int32 const ref, y: Int32) => BooleanBit := x == y';
+		generateSSAModule.
+
+	function := ssaModule globalNamed: #op.
+	self assert: function isFunction.
+	self deny: function isEmpty.
+	self assert: function basicBlocks size equals: 2.
+	self assert: function basicBlocks second firstInstruction isLoad.
+	self assert: function basicBlocks second firstInstruction nextNonDebugInstruction isBinaryOperation.
+	self assert: function basicBlocks second firstInstruction nextNonDebugInstruction operation equals: #ieq.
+	self assert: function basicBlocks second lastInstruction isReturn.
+]
+
+{ #category : #tests }
 MbndSlovimCodeModuleGeneratorTest >> testIntegerGreater [
 	| function |
 	self

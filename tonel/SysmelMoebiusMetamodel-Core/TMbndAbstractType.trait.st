@@ -709,6 +709,12 @@ TMbndAbstractType >> mbndLiteralTypeWithTarget: compilationTarget [
 	^ self type
 ]
 
+{ #category : #'type hierarchy' }
+TMbndAbstractType >> meta [
+	<compileTime>
+	^ self type
+]
+
 { #category : #converting }
 TMbndAbstractType >> node: node convertedExplicitlyInto: targetType [
 	^ self findConversionRuleInto: targetType node: node rulesExtractor: #explicitConversionRules
@@ -785,6 +791,7 @@ TMbndAbstractType >> supertype [
 
 { #category : #'type hierarchy' }
 TMbndAbstractType >> type [
+	<compileTime>
 	"I answer a meta type."
 	^ nil
 ]

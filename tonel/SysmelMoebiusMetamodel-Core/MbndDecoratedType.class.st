@@ -26,6 +26,18 @@ MbndDecoratedType >> addDefaultConversionRules [
 
 ]
 
+{ #category : #'semantic analysis' }
+MbndDecoratedType >> analyzeUnboundExpandedMessageSendNode: node with: analyzer [
+	"Try to delegate to the base type."
+	^ baseType analyzeExpandedMessageSendNode: node with: analyzer
+]
+
+{ #category : #'semantic analysis' }
+MbndDecoratedType >> analyzeUnboundUnexpandedMessageSendNode: node with: analyzer [
+	"Try to delegate to the base type."
+	^ baseType analyzeUnexpandedMessageSendNode: node with: analyzer
+]
+
 { #category : #converting }
 MbndDecoratedType >> asCVariadicTypeRequiredAt: position [
 	^ baseType asCVariadicTypeRequiredAt: position

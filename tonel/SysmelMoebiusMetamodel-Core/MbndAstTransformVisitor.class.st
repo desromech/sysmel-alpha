@@ -128,6 +128,11 @@ MbndAstTransformVisitor >> visitConvertToCompilerObjectCastNode: node [
 ]
 
 { #category : #visiting }
+MbndAstTransformVisitor >> visitDecorationChangeTypeCastNode: node [
+	^ self visitSpecificCastNode: node
+]
+
+{ #category : #visiting }
 MbndAstTransformVisitor >> visitDoWhileLoopNode: node [
 	^ node copy
 		condition: (self visitNode: node condition);
