@@ -847,9 +847,8 @@ MbndSlovimCodeModuleGeneratorTest >> testIntegerBitShiftLeftCoercion [
 	self assert: function isFunction.
 	self deny: function isEmpty.
 	self assert: function basicBlocks size equals: 2.
-	self assert: function basicBlocks second firstInstruction isZeroExtend.
-	self assert: function basicBlocks second firstInstruction nextNonDebugInstruction isBinaryOperation.
-	self assert: function basicBlocks second firstInstruction nextNonDebugInstruction operation equals: #shiftleft.
+	self assert: function basicBlocks second firstInstruction isBinaryOperation.
+	self assert: function basicBlocks second firstInstruction operation equals: #shiftleft.
 	self assert: function basicBlocks second lastInstruction isReturn.
 ]
 

@@ -12,6 +12,19 @@ MbndArithmeticOperationCoercionMacro >> ensureLiteralNode: literalNode hasConcre
 ]
 
 { #category : #'as yet unclassified' }
+MbndArithmeticOperationCoercionMacro >> ensureLiteralNode: literalNode hasConcreteType: literalConcreteType coercedTo: coercionType [
+	| result |
+	result := self ensureLiteralNode: literalNode hasConcreteType: literalConcreteType.
+	literalNode isLiteralValueNode ifTrue: [
+		literalConcreteType isPrimitiveIntegerType ifTrue: [ 
+			coercionType isPrimitiveIntegerType ifTrue: [ ^ literalNode copy type: coercionType ].
+		].
+	].
+
+	^ result
+]
+
+{ #category : #'as yet unclassified' }
 MbndArithmeticOperationCoercionMacro >> expandMessageNode: node with: analyzer [
 	| leftAnalyzedNode rightAnalyzedNode leftValueType rightValueType coercionType leftOperand rightOperand |
 	self assert: node receiver isNotNil.
@@ -29,8 +42,8 @@ MbndArithmeticOperationCoercionMacro >> expandMessageNode: node with: analyzer [
 	coercionType := analyzer arithmeticCoercionTypeFor: leftValueType with: rightValueType at: node.
 
 	"Apply the coercion to the operands."
-	leftOperand := analyzer addImplicitCastFor: (self ensureLiteralNode: leftAnalyzedNode hasConcreteType: leftValueType) to: coercionType.
-	rightOperand := analyzer addImplicitCastFor: (self ensureLiteralNode: rightAnalyzedNode hasConcreteType: rightValueType) to: coercionType.
+	leftOperand := analyzer addImplicitCastFor: (self ensureLiteralNode: leftAnalyzedNode hasConcreteType: leftValueType coercedTo: coercionType) to: coercionType.
+	rightOperand := analyzer addImplicitCastFor: (self ensureLiteralNode: rightAnalyzedNode hasConcreteType: rightValueType coercedTo: coercionType) to: coercionType.
 	
 	"Create the expanded message send node, and analyze it"
 	^ analyzer visitNode: ((analyzer astBuilder
