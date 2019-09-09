@@ -276,11 +276,11 @@ class NativeMemoryHeap definition: {
     #**
      * A common chunk header
      *#
-    struct CommonChunkHeader := {
+    struct CommonChunkHeader definition: {
         field isHugeAllocation public type: BooleanBit.
     }.
 
-    struct HugeChunkHeader := {
+    struct HugeChunkHeader definition: {
         field commonHeader public type: CommonChunkHeader.
         field allocationSize public type: UIntPointer.
     }.
@@ -290,7 +290,7 @@ class NativeMemoryHeap definition: {
     #**
      * A memory allocation chunk header.
      *#
-    struct NormalChunkHeader := {
+    struct NormalChunkHeader definition: {
         field commonHeader public type: CommonChunkHeader.
 
         field previousChunk public type: NormalChunkHeader pointer.
@@ -307,7 +307,7 @@ class NativeMemoryHeap definition: {
     #**
      * Quantum spaced category run
      *#
-    struct SlabHeader := {
+    struct SlabHeader definition: {
         compileTimeConstant MaxNumberOfElements := 256.
         compileTimeConstant WordBitCount := UIntPointer instanceSize*8.
         compileTimeConstant BitmapWords := MaxNumberOfElements / WordBitCount.
