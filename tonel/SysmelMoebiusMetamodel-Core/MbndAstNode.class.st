@@ -290,6 +290,11 @@ MbndAstNode >> isMacroMessagePrototypeNode [
 ]
 
 { #category : #testing }
+MbndAstNode >> isMacroSendMessageWithArgumentsNode [
+	^ false
+]
+
+{ #category : #testing }
 MbndAstNode >> isMbndAstNode [
 	^ true
 ]

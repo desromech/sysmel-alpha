@@ -63,6 +63,18 @@ MbndAstQuasiQuoteEvaluator >> visitMacroExpansionInlineBlockNode: node [
 ]
 
 { #category : #visiting }
+MbndAstQuasiQuoteEvaluator >> visitMacroSendMessageWithArgumentsNode: node [
+	| basicExpansion |
+	basicExpansion := super visitMacroSendMessageWithArgumentsNode: node.
+	^ MbndAstUnexpandedMessageSendNode new
+		position: node;
+		receiver: basicExpansion receiver;
+		selector: basicExpansion selector;
+		arguments: basicExpansion arguments;
+		yourself
+]
+
+{ #category : #visiting }
 MbndAstQuasiQuoteEvaluator >> visitQuasiUnquoteNode: node [
 	| result |
 	result := unquoteEvaluator visitNode: node expression.

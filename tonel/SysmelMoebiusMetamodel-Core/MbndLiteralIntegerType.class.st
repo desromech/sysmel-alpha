@@ -16,6 +16,7 @@ MbndLiteralIntegerType >> addInstanceMacros [
 		// \\
 		<< >> & |
 		bitXor: bitAnd: bitOr: bitInvert
+		lowBit highBit
 	).
 ]
 

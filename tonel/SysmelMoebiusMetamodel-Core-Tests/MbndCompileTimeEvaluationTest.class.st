@@ -543,3 +543,25 @@ MbndCompileTimeEvaluationTest >> testUnsignedIntegerBitInvert [
 	self assert: result value equals: 16rFFFFFFFF.
 	self assert: result type isPrimitiveIntegerType.
 ]
+
+{ #category : #tests }
+MbndCompileTimeEvaluationTest >> testUnsignedIntegerHighBit [
+	| ast result |
+	ast := builder send: (builder literalSymbol: #highBit) to:
+		(builder literal: 3 type: module compilationTarget uint32Type) withArguments: #().
+	result := module analyzeAndEvaluateAST: ast.
+	
+	self assert: result value equals: 2.
+	self assert: result type isPrimitiveIntegerType.
+]
+
+{ #category : #tests }
+MbndCompileTimeEvaluationTest >> testUnsignedIntegerLowBit [
+	| ast result |
+	ast := builder send: (builder literalSymbol: #lowBit) to:
+		(builder literal: 3 type: module compilationTarget uint32Type) withArguments: #().
+	result := module analyzeAndEvaluateAST: ast.
+	
+	self assert: result value equals: 1.
+	self assert: result type isPrimitiveIntegerType.
+]

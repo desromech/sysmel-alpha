@@ -110,6 +110,7 @@ MbndAstNodeTest >> testTestingMethods [
 	self deny: node isLocalVariableDefinitionNode.
 	self deny: node isNamespaceDefinitionNode.
 	self deny: node isMacroExpansionInlineBlockNode.
+	self deny: node isMacroSendMessageWithArgumentsNode.
 	self deny: node isMacroMessageDefinitionNode.
 	self deny: node isMacroMessagePrototypeNode.
 	self deny: node isMetaBuilderInstanceNode.

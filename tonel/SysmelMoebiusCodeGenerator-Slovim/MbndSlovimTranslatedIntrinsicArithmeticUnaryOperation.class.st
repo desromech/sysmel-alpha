@@ -37,6 +37,8 @@ MbndSlovimTranslatedIntrinsicArithmeticUnaryOperation >> generateExpandedMessage
 		^ codeGenerator slvmBuilder addOperation: (BooleanOperationMap at: intrinsicName) operand: operand
 	].
 	resultType isPrimitiveIntegerType ifTrue: [
+		intrinsicName = #lowBit ifTrue: [ ^ codeGenerator slvmBuilder lowBit: operand ].
+		intrinsicName = #highBit ifTrue: [ ^ codeGenerator slvmBuilder highBit: operand ].
 		^ codeGenerator slvmBuilder addOperation: (IntegerOperationMap at: intrinsicName) operand: operand
 	].
 	resultType isPrimitiveFloatType ifTrue: [ 

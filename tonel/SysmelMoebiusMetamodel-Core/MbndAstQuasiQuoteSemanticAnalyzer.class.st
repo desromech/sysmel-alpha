@@ -36,7 +36,22 @@ MbndAstQuasiQuoteSemanticAnalyzer >> processMacroMessageSendNode: node withSelec
 		^ self processMacroInlineBlockNode: node withSelector: selector
 	].
 
+	selector = #__macroSend:with: ifTrue: [
+		^ self processMacroSendMessageWithArguments: node
+	].
+
 	self halt
+]
+
+{ #category : #visiting }
+MbndAstQuasiQuoteSemanticAnalyzer >> processMacroSendMessageWithArguments: node [
+	^ self visitNode: (MbndAstMacroSendMessageWithArgumentsNode new
+		position: node;
+		receiver: node receiver;
+		selector: node arguments first;
+		arguments: node arguments allButFirst;
+		yourself)
+
 ]
 
 { #category : #accessing }

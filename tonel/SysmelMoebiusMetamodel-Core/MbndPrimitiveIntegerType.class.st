@@ -37,7 +37,10 @@ MbndPrimitiveIntegerType >> addArithmeticIntrinsics [
 		addArithmetic: #>> binaryIntrinsic: #shiftright;
 		
 		addArithmetic: #bitInvert unaryIntrinsic: #not;
-		addArithmetic: #'prefix-~' unaryIntrinsic: #not.
+		addArithmetic: #'prefix-~' unaryIntrinsic: #not;
+
+		addArithmetic: #lowBit unaryIntrinsic: #lowBit;
+		addArithmetic: #highBit unaryIntrinsic: #highBit.
 
 		
 
@@ -117,6 +120,12 @@ MbndPrimitiveIntegerType >> legalizeLiteralValue: literalValue [
 		ifTrue: [ (rawInteger bitAnd: self maxValue) -
 				((rawInteger anyMask: self signBit) ifTrue: [ signBit ] ifFalse: [ 0 ])]
 		ifFalse: [ rawInteger bitAnd: self bitMask ].
+]
+
+{ #category : #'semantic analysis' }
+MbndPrimitiveIntegerType >> literalTypeForValue: value [
+	value isInteger ifTrue: [ ^ self compilationTarget literalIntegerType ].
+	^ super literalTypeForValue: value
 ]
 
 { #category : #testing }

@@ -837,6 +837,23 @@ MbndSlovimCodeModuleGeneratorTest >> testIntegerBitShiftLeft [
 ]
 
 { #category : #tests }
+MbndSlovimCodeModuleGeneratorTest >> testIntegerBitShiftLeftCoercion [
+	| function |
+	self
+		evaluateSysmelSource: 'function op externC(x: UInt64) => UInt64 := 1 << x';
+		generateSSAModule.
+
+	function := ssaModule globalNamed: #op.
+	self assert: function isFunction.
+	self deny: function isEmpty.
+	self assert: function basicBlocks size equals: 2.
+	self assert: function basicBlocks second firstInstruction isZeroExtend.
+	self assert: function basicBlocks second firstInstruction nextNonDebugInstruction isBinaryOperation.
+	self assert: function basicBlocks second firstInstruction nextNonDebugInstruction operation equals: #shiftleft.
+	self assert: function basicBlocks second lastInstruction isReturn.
+]
+
+{ #category : #tests }
 MbndSlovimCodeModuleGeneratorTest >> testIntegerBitShiftRight [
 	| function |
 	self
@@ -1047,6 +1064,22 @@ MbndSlovimCodeModuleGeneratorTest >> testIntegerGreaterOrEqual [
 ]
 
 { #category : #tests }
+MbndSlovimCodeModuleGeneratorTest >> testIntegerHighBit [ 
+	| function |
+	self
+		evaluateSysmelSource: 'function op externC(x: Int32) => Int32 := x highBit';
+		generateSSAModule.
+
+	function := ssaModule globalNamed: #op.
+	self assert: function isFunction.
+	self deny: function isEmpty.
+	self assert: function basicBlocks size equals: 2.
+	self assert: function basicBlocks second firstInstruction isCall.
+	self assert: function basicBlocks second firstInstruction nextNonDebugInstruction isBinaryOperation.
+	self assert: function basicBlocks second lastInstruction isReturn.
+]
+
+{ #category : #tests }
 MbndSlovimCodeModuleGeneratorTest >> testIntegerLess [
 	| function |
 	self
@@ -1075,6 +1108,24 @@ MbndSlovimCodeModuleGeneratorTest >> testIntegerLessOrEqual [
 	self assert: function basicBlocks size equals: 2.
 	self assert: function basicBlocks second firstInstruction isBinaryOperation.
 	self assert: function basicBlocks second firstInstruction operation equals: #ile.
+	self assert: function basicBlocks second lastInstruction isReturn.
+]
+
+{ #category : #tests }
+MbndSlovimCodeModuleGeneratorTest >> testIntegerLowBit [ 
+	| function |
+	self
+		evaluateSysmelSource: 'function op externC(x: Int32) => Int32 := x lowBit';
+		generateSSAModule.
+
+	function := ssaModule globalNamed: #op.
+	self assert: function isFunction.
+	self deny: function isEmpty.
+	self assert: function basicBlocks size equals: 2.
+	self assert: function basicBlocks second firstInstruction isUnaryOperation.
+	self assert: function basicBlocks second firstInstruction nextNonDebugInstruction isBinaryOperation.
+	self assert: function basicBlocks second firstInstruction nextNonDebugInstruction nextNonDebugInstruction isCall.
+	self assert: function basicBlocks second firstInstruction nextNonDebugInstruction nextNonDebugInstruction nextNonDebugInstruction isBinaryOperation.
 	self assert: function basicBlocks second lastInstruction isReturn.
 ]
 

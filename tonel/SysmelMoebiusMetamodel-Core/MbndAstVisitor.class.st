@@ -230,6 +230,11 @@ MbndAstVisitor >> visitMacroMessagePrototypeNode: node [
 ]
 
 { #category : #visiting }
+MbndAstVisitor >> visitMacroSendMessageWithArgumentsNode: node [
+	self subclassResponsibility
+]
+
+{ #category : #visiting }
 MbndAstVisitor >> visitMessageChainMessageNode: node [
 	self subclassResponsibility
 ]

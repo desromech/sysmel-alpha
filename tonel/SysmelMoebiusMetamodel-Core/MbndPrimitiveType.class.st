@@ -68,6 +68,19 @@ MbndPrimitiveType >> addComparisonIntrinsics [
 		addComparison: #~~ intrinsic: #ne
 ]
 
+{ #category : #'semantic analysis' }
+MbndPrimitiveType >> bestConcreteTypeForLiteralValueNode: literalValueNode inScope: scope [
+	| literalType |
+	literalValueNode isLiteralValueNode ifTrue: [ 
+		literalType := self literalTypeForValue: literalValueNode value.
+		literalType ifNotNil: [ 
+			(literalType bestConcreteTypeForLiteralValueNode: literalValueNode inScope: scope) ifNotNil: [ :concreteType | ^ concreteType ].
+		].
+	].
+	
+	^ super bestConcreteTypeForLiteralValueNode: literalValueNode inScope: scope
+]
+
 { #category : #initialization }
 MbndPrimitiveType >> initialize [
 	super initialize.
@@ -101,4 +114,9 @@ MbndPrimitiveType >> instanceSize: anObject [
 { #category : #'testing methods' }
 MbndPrimitiveType >> isPrimitiveType [
 	^ true
+]
+
+{ #category : #'semantic analysis' }
+MbndPrimitiveType >> literalTypeForValue: value [
+	^ nil
 ]

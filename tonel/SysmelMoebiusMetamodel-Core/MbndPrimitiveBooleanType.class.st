@@ -68,3 +68,10 @@ MbndPrimitiveBooleanType >> isAcceptableLiteralValue: literalValue [
 MbndPrimitiveBooleanType >> isPrimitiveBooleanType [
 	^ true
 ]
+
+{ #category : #testing }
+MbndPrimitiveBooleanType >> literalTypeForValue: value [
+	value == true ifTrue: [^ self compilationTarget literalBooleanTrueType ].
+	value == false ifTrue: [^ self compilationTarget literalBooleanFalseType ].
+	^ super literalTypeForValue: value
+]

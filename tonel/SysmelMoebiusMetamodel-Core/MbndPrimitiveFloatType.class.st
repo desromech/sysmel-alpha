@@ -46,3 +46,9 @@ MbndPrimitiveFloatType >> isPrimitiveFloatType [
 MbndPrimitiveFloatType >> legalizeLiteralValue: literalValue [
 	^ literalValue asFloat
 ]
+
+{ #category : #'semantic analysis' }
+MbndPrimitiveFloatType >> literalTypeForValue: value [
+	value isFloat ifTrue: [ ^ self compilationTarget literalFloatType ].
+	^ super literalTypeForValue: value
+]
