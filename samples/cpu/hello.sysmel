@@ -61,7 +61,7 @@ function main externC (argc: Int32, argv: Char const pointer pointer) => Int32 :
     printValue(1).
     printValue(1.0).
 
-    1 until: argc do: {|(i: Int32) => Void|.
+    1 until: argc do: {:(Int32)i :: Void |.
         i = 1 ifTrue: {
             StdNative stdout << "First "
         } ifFalse: {
