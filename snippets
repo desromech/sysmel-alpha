@@ -1,31 +1,9 @@
-"GPU"
-module := SYMLModule spirv "withDebugInformation".
-ssaModule := module
-	evaluateFileNamedOnce: 'lib/gpu.sysmel';
-	evaluateFileNamedOnce: 'samples/gpu/screen/solidColor.sysmel';
-	semanticAnalysis;
-	buildSSAModule.
-ssaModule asLowLevelModule saveTo: 'screen.spv'
-
-"CPU"
-module := SYMLModule llvm_x86_64 withDebugInformation.
-ssaModule := module
+semanticModule := MbndStandaloneModule llvm_x86_64
 	evaluateFileNamedOnce: 'lib/kernel/kernel.sysmel';
-	evaluateFileNamedOnce: 'samples/cpu/hello.sysmel';
-	semanticAnalysis;
-	buildSSAModule.
+	"evaluateFileNamedOnce: 'lib/bindings/sdl2/sdl2.sysmel';"
+	evaluateFileNamedOnce: 'samples/cpu/chello.sysmel';
+	finishSemanticAnalysis;
+	yourself.
 	
-ssaModule asLowLevelModule asBinaryObject writeSysmelImageToFileNamed: 'test.sylsif'.
-"ssaModule asLowLevelModule writeTextToFileNamed: 'test.ll'.
-ssaModule asLowLevelModule writeObjectToFileNamed: 'test.o'."
-"ssaModule asLowLevelModule asBinaryObject."
-"ssaModule asLowLevelModule asOptimizedBinaryObject writeObjectToFileNamed: 'test.o'"
-
-"Elf loader"
-elf := SAsmElfLoader loadFromFileNamed: 'test.o'.
-elf asBinaryObject writeSysmelImageToFileNamed: 'test.sylsif'
-
-"image loader
-gcc -o sysmel-loader sylsif/sysmel-loader.c && ./sysmel-loader test.sylsif
-"
-
+ssaModule := semanticModule generateTargetCodeModule.
+ssaModule asLowLevelModule writeTextToFileNamed: 'test.ll'
