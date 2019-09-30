@@ -132,8 +132,8 @@ template FixedBigInteger(WC: _LiteralInteger)
     }.
 
     message smallModulo: (modulo: UInt32) ::=> UInt32 := {
-        let exponentModulo mutable := (1 castTo: UInt64) % modulo.
-        let exponentIncreaseModulo := (1<<32 castTo: UInt64) % modulo.
+        let exponentModulo mutable type: UInt64 := 1.
+        let exponentIncreaseModulo type: UInt64 := (1<<32 castTo: UInt64) % modulo.
         let result mutable type: UInt64 := 0.
 
         0 until: self nonZeroWordCount do: {:(UIntPointer)i :: Void |
