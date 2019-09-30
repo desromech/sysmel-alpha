@@ -5,7 +5,7 @@ template FixedArray(ET: Type)
 	:= struct definition: {
     compileTimeConstant ElementType := ET.
 
-    SelfType meta message elementType => _CompilerObjectType := {
+    meta message elementType => _CompilerObjectType := {
         return: ElementType
     }.
 
