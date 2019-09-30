@@ -80,6 +80,11 @@ MbndSlovimLiteralValueGenerator >> visitArrayType: arrayType [
 	
 ]
 
+{ #category : #visiting }
+MbndSlovimLiteralValueGenerator >> visitClassType: type [
+	^ self visitAggregateType: type
+]
+
 { #category : #'code generation' }
 MbndSlovimLiteralValueGenerator >> visitDecoratedType: decoratedType [
 	^ decoratedType baseType accept: self

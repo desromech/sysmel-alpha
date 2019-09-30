@@ -173,6 +173,11 @@ MbndAstDelegationVisitor >> visitGetFieldValueNode: node [
 ]
 
 { #category : #visiting }
+MbndAstDelegationVisitor >> visitGlobalVariableDefinitionNode: node [
+	^ self delegateNodeVisit: node
+]
+
+{ #category : #visiting }
 MbndAstDelegationVisitor >> visitIdentifierReferenceNode: node [
 	^ self delegateNodeVisit: node
 ]

@@ -96,6 +96,20 @@ MbndSlovimFunctionCodeGenerator >> storeValueInTemporary: value [
 ]
 
 { #category : #visiting }
+MbndSlovimFunctionCodeGenerator >> visitArrayElementReferenceNode: node [
+	| pointer index |
+	pointer := self visitNode: node container.
+	index := self visitNode: node index.
+	self assert: index type isIntegerType.
+	"Convert one based indices into zero based indices."
+	node isOneBasedIndex ifTrue: [ 
+		index := slvmBuilder sub: index with: (SLVMConstant type: index type value: 1)
+	].
+
+	^ slvmBuilder getReference: pointer element: index
+]
+
+{ #category : #visiting }
 MbndSlovimFunctionCodeGenerator >> visitAssignmentNode: node [
 	| value reference |
 	value := self visitNode: node value.

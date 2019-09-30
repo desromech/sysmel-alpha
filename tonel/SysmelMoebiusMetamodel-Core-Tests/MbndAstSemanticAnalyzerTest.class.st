@@ -515,6 +515,108 @@ MbndAstSemanticAnalyzerTest >> testGCClassDefinitionBuilderExpansion [
 ]
 
 { #category : #tests }
+MbndAstSemanticAnalyzerTest >> testGlobalVariableMutableAssignment [
+	| node analyzedNode |
+	node := builder sequence: { 
+		(builder defineGlobalVariable: #x withValueType: (builder identifier: #Int32) withInitialValue: nil)
+			mutable.
+		builder reference: (builder identifier: #x) assignValue: (builder literalInteger: 5).
+	}.
+	analyzedNode := visitor visitNode: node.
+	self assert: (scope lookupSymbolRecursively: #x ifAbsent: [nil]) isNotNil.
+	self assert: analyzedNode isSequenceNode.
+	self assert: analyzedNode type isReferenceType.
+]
+
+{ #category : #tests }
+MbndAstSemanticAnalyzerTest >> testGlobalVariableMutableDefaultInitialValue [
+	| node analyzedNode |
+	node := builder sequence: { 
+		(builder defineGlobalVariable: #x withValueType: compilationTarget int32Type withInitialValue: nil)
+			mutable.
+		builder identifier: #x
+	}.
+	analyzedNode := visitor visitNode: node.
+	self assert: (scope lookupSymbolRecursively: #x ifAbsent: [nil]) isNotNil.
+	self assert: analyzedNode isSequenceNode.
+	self assert: analyzedNode type isReferenceType.
+	self assert: analyzedNode type baseType isPrimitiveIntegerType.
+	self assert: analyzedNode elements last isBoundIdentifierReferenceNode.
+
+]
+
+{ #category : #tests }
+MbndAstSemanticAnalyzerTest >> testGlobalVariableMutableReference [
+	| node analyzedNode |
+	node := builder sequence: { 
+		(builder defineGlobalVariable: #x withValueType: nil withInitialValue:
+			(builder literalInteger: 5))
+			mutable.
+		builder identifier: #x
+	}.
+	analyzedNode := visitor visitNode: node.
+	self assert: (scope lookupSymbolRecursively: #x ifAbsent: [nil]) isNotNil.
+	self assert: analyzedNode isSequenceNode.
+	self assert: analyzedNode type isReferenceType.
+	self assert: analyzedNode type baseType isPrimitiveIntegerType.
+	self assert: analyzedNode elements last isBoundIdentifierReferenceNode.
+
+]
+
+{ #category : #tests }
+MbndAstSemanticAnalyzerTest >> testGlobalVariableMutableReferenceAddress [
+	| node analyzedNode |
+	node := builder sequence: { 
+		(builder defineGlobalVariable: #x withValueType: nil withInitialValue:
+			(builder literalInteger: 5))
+			mutable.
+		builder unexpandedSend: (builder literalSymbol: #address)
+			to: (builder identifier: #x)
+			withArguments: #()
+	}.
+	analyzedNode := visitor visitNode: node.
+	self assert: (scope lookupSymbolRecursively: #x ifAbsent: [nil]) isNotNil.
+	self assert: analyzedNode isSequenceNode.
+	self assert: analyzedNode type isPointerType.
+	self assert: analyzedNode type baseType isPrimitiveIntegerType.
+
+]
+
+{ #category : #tests }
+MbndAstSemanticAnalyzerTest >> testGlobalVariableMutableReferenceExplicitLoad [
+	| node analyzedNode |
+	node := builder sequence: { 
+		(builder defineGlobalVariable: #x withValueType: nil withInitialValue:
+			(builder literalInteger: 5))
+			mutable.
+		builder referenceLoad: (builder identifier: #x)
+	}.
+	analyzedNode := visitor visitNode: node.
+	self assert: (scope lookupSymbolRecursively: #x ifAbsent: [nil]) isNotNil.
+	self assert: analyzedNode isSequenceNode.
+	self assert: analyzedNode type isPrimitiveIntegerType.
+]
+
+{ #category : #tests }
+MbndAstSemanticAnalyzerTest >> testGlobalVariableMutableReferenceImplicitLoad [
+	| node analyzedNode |
+	node := builder sequence: { 
+		(builder defineGlobalVariable: #x withValueType: nil withInitialValue:
+			(builder literalInteger: 5))
+			mutable.
+		builder unexpandedSend: (builder literalSymbol: #+)
+			to: (builder identifier: #x)
+			withArguments: { 
+			(builder literalInteger: 1)
+		}
+	}.
+	analyzedNode := visitor visitNode: node.
+	self assert: (scope lookupSymbolRecursively: #x ifAbsent: [nil]) isNotNil.
+	self assert: analyzedNode isSequenceNode.
+	self assert: analyzedNode type isPrimitiveIntegerType.
+]
+
+{ #category : #tests }
 MbndAstSemanticAnalyzerTest >> testIdentityFunctionApplySend [
 	| node analyzedNode |
 	node := builder sequence: {

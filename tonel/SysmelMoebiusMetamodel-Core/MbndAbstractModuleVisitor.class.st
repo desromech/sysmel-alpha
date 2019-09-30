@@ -22,6 +22,11 @@ MbndAbstractModuleVisitor >> visitCompileTimeConstant: compileTimeConstant [
 ]
 
 { #category : #visiting }
+MbndAbstractModuleVisitor >> visitCompileTimeVariable: variable [
+	self subclassResponsibility
+]
+
+{ #category : #visiting }
 MbndAbstractModuleVisitor >> visitCompilerObjectType: type [
 	self subclassResponsibility
 ]
@@ -47,6 +52,11 @@ MbndAbstractModuleVisitor >> visitFieldVariable: type [
 ]
 
 { #category : #visiting }
+MbndAbstractModuleVisitor >> visitFunctionGroup: functionGroup [
+	self subclassResponsibility
+]
+
+{ #category : #visiting }
 MbndAbstractModuleVisitor >> visitFunctionGroupType: type [
 	self subclassResponsibility
 ]
@@ -62,12 +72,17 @@ MbndAbstractModuleVisitor >> visitGCClassType: type [
 ]
 
 { #category : #visiting }
-MbndAbstractModuleVisitor >> visitGlobalVariable: globalVariable [
+MbndAbstractModuleVisitor >> visitGlobalVariable: variable [
 	self subclassResponsibility
 ]
 
 { #category : #visiting }
 MbndAbstractModuleVisitor >> visitMacroMessageMethod: type [
+	self subclassResponsibility
+]
+
+{ #category : #visiting }
+MbndAbstractModuleVisitor >> visitMessageGroup: functionGroup [
 	self subclassResponsibility
 ]
 
@@ -132,7 +147,7 @@ MbndAbstractModuleVisitor >> visitSystemProvidedTypeTemplate: method [
 ]
 
 { #category : #visiting }
-MbndAbstractModuleVisitor >> visitTemplate: method [
+MbndAbstractModuleVisitor >> visitTemplate: template [
 	self subclassResponsibility
 ]
 

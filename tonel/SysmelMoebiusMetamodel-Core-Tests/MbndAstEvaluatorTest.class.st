@@ -154,6 +154,20 @@ MbndAstEvaluatorTest >> testEmptySequence [
 ]
 
 { #category : #running }
+MbndAstEvaluatorTest >> testGlobalDeclaration [
+	| node value |
+	node := builder sequence: { 
+		builder defineGlobalVariable: #x withValueType: nil withInitialValue: (builder literalInteger: 5).
+		builder identifier: #x
+	}.
+	
+	value := self analyzeAndEvaluateAST: node.
+	self assert: value type isPrimitiveIntegerType.
+	self assert: value value equals: 5.
+
+]
+
+{ #category : #running }
 MbndAstEvaluatorTest >> testIdentityFunctionApplySend [
 	| node value |
 	node := builder sequence: {

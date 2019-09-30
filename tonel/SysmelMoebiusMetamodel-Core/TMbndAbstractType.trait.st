@@ -286,11 +286,6 @@ TMbndAbstractType >> createExtraMetaBuilderFactories [
 	^ Dictionary newFromPairs: self getExtraMetaBuilderFactoryList
 ]
 
-{ #category : #adding }
-TMbndAbstractType >> createMethodEntityForPrototype: functionPrototype [
-	^ self createMethodEntityForPrototype: functionPrototype withReceiverType: self asReceiverType
-]
-
 { #category : #'meta builder factories' }
 TMbndAbstractType >> createPublicMetaBuilderFactories [
 	^ Dictionary newFromPairs: self getPublicMetaBuilderFactoryList
@@ -394,6 +389,11 @@ TMbndAbstractType >> getPublicMetaBuilderFactoryList [
 		#macro . MbndMacroMetaBuilder metaBuilderFactory.
 		#message . MbndMessageMetaBuilder metaBuilderFactory.
 	} ,  self getExtraMetaBuilderFactoryList
+]
+
+{ #category : #adding }
+TMbndAbstractType >> implicitMethodReceiverType [
+	^ self asReceiverType
 ]
 
 { #category : #'type inference' }

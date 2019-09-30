@@ -8,6 +8,11 @@ Class {
 	#category : #'SysmelMoebiusMetamodel-Core-Variables'
 }
 
+{ #category : #visiting }
+MbndCompileTimeVariable >> accept: aVisitor [
+	^ aVisitor visitCompileTimeVariable: self
+]
+
 { #category : #converting }
 MbndCompileTimeVariable >> asCompileTimeValueReferenceOfType: referenceType withEvaluator: evaluator at: node [
 	valueType = referenceType ifTrue: [ ^ value ].

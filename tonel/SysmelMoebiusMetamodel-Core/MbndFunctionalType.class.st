@@ -9,19 +9,20 @@ MbndFunctionalType class >> typeName [
 	^ #_FunctionalType
 ]
 
-{ #category : #'as yet unclassified' }
-MbndFunctionalType >> analyzeFunctionCallNode: node with: analyzer [
-	self subclassResponsibility
-]
-
 { #category : #initialization }
-MbndFunctionalType >> initialize [
-	super initialize.
+MbndFunctionalType >> addInstanceMacros [
+	self class == MbndFunctionalType ifFalse: [ ^ self ].
+	self isTrait ifFalse: [ ^ self ].
 	
 	self onMacroSelector: #applyWithArguments: do: [ :node :builder |
 		(builder call: node receiver arguments: node arguments first)
 			position: node
 	]
+]
+
+{ #category : #'as yet unclassified' }
+MbndFunctionalType >> analyzeFunctionCallNode: node with: analyzer [
+	self subclassResponsibility
 ]
 
 { #category : #testing }

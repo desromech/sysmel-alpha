@@ -19,6 +19,25 @@ MbndArrayType >> accept: aVisitor [
 	^ aVisitor visitArrayType: self
 ]
 
+{ #category : #initialization }
+MbndArrayType >> addInstanceMacros [
+	self class == MbndArrayType ifFalse: [ ^ self ].
+	self isTrait ifFalse: [ ^ self ].
+	self
+		onMacroSelector: #subscriptAt: do: [ :node :builder |
+			(builder array: node receiver elementReferenceAt: node arguments first)
+				position: node;
+				isOneBasedIndex: false;
+				yourself.
+		];
+		onMacroSelector: #at: do: [ :node :builder |
+			(builder array: node receiver elementReferenceAt: node arguments first)
+				position: node;
+				isOneBasedIndex: true;
+				yourself.
+		]
+]
+
 { #category : #'default values' }
 MbndArrayType >> defaultValueAt: aPosition [
 	| valueSlots defaultElementValue |

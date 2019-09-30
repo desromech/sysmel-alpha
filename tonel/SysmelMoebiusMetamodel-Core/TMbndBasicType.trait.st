@@ -22,9 +22,9 @@ TMbndBasicType >> analyzeExpandedMessageNode: node with: analyzer [
 
 ]
 
-{ #category : #adding }
-TMbndBasicType >> createMethodEntityForPrototype: functionPrototype [
-	^ self createMethodEntityForPrototype: functionPrototype withReceiverType: self asReceiverType
+{ #category : #'as yet unclassified' }
+TMbndBasicType >> implicitMethodReceiverType [
+	^ self asReceiverType
 ]
 
 { #category : #testing }

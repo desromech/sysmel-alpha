@@ -37,6 +37,10 @@ MbndAstSemanticAnalyzer >> addImplicitCastFor: nodeRequiringCasting to: expected
 		^ nodeRequiringCasting
 	].
 
+	expectedTargetType isVoidType ifTrue: [
+		^ nodeRequiringCasting
+	].
+
 	^ self visitNode: (MbndAstImplicitCastNode new
 		position: nodeRequiringCasting;
 		expression: nodeRequiringCasting;
@@ -104,6 +108,19 @@ MbndAstSemanticAnalyzer >> compilationTarget [
 	^ compilationTarget ifNil: [ compilationTarget := module compilationTarget ]
 ]
 
+{ #category : #'implicit casting' }
+MbndAstSemanticAnalyzer >> computeImplicitCoercionCostFor: argumentNode to: expectedType at: node [
+	| conversionRule |
+	self assert: argumentNode type isNotNil.
+	
+	argumentNode type == expectedType ifTrue: [ ^ 0 ].
+		
+	conversionRule := argumentNode type node: argumentNode convertedImplicitlyInto: expectedType.
+	conversionRule ifNil: [ ^ nil ].
+	
+	^ conversionRule conversionCost
+]
+
 { #category : #coercing }
 MbndAstSemanticAnalyzer >> conditionalResultCoercionTypeFor: leftType with: rightType at: node [
 	^ leftType conditionalResultCoercionTypeWith: rightType
@@ -116,7 +133,7 @@ MbndAstSemanticAnalyzer >> ensureIntegerValue: node at: position [
 	result := self analyzeNodeIfNeeded: node.
 	resultType := result type withoutTopDecorations.
 	resultType isLiteralIntegerType ifTrue: [
-		^ result
+		^ self ensureLiteralIsConcreted: result
 	].
 	resultType isPrimitiveIntegerType ifTrue: [ 
 		^ result
@@ -235,13 +252,27 @@ MbndAstSemanticAnalyzer >> visitArgumentDefinitionNode: node [
 
 { #category : #visiting }
 MbndAstSemanticAnalyzer >> visitArrayElementReferenceNode: node [
-	| result |
+	| result containerType arrayType elementType |
 	result := node copy
 		container: (self analyzeNodeIfNeeded: node container);
-		index: (self analyzeNodeIfNeeded: node container);
+		index: (self ensureIntegerValue: (self analyzeNodeIfNeeded: node index) at: node);
 		yourself.
 		
-	self halt
+	containerType := result container type.
+	containerType isReferenceType ifFalse: [
+		self error: 'An array reference is required for getting a refence to one of its elements.' at: node
+	].
+
+	arrayType := containerType baseType withoutDecorations.
+	arrayType isArrayType ifFalse: [
+		self error: 'An array reference is required for getting a refence to one of its elements.' at: node
+	].
+	
+	elementType := arrayType elementType.
+	result type: ((elementType withDecorations: containerType baseType decorations)
+		refFor: containerType addressSpace).
+	 
+	^ result
 ]
 
 { #category : #visiting }
@@ -599,6 +630,60 @@ MbndAstSemanticAnalyzer >> visitGetFieldValueNode: node [
 	^ result
 		type: result field valueType;
 		yourself
+]
+
+{ #category : #visiting }
+MbndAstSemanticAnalyzer >> visitGlobalVariableDefinitionNode: node [
+	| result valueType globalVariable owner |
+	result := node copy.
+	
+	"Make sure the value type is evaluated."
+	result valueType ifNotNil: [ 
+		result valueType: (self evaluateTypeExpression: node valueType).
+	].
+
+	"Analyze the initial value."
+	result initialValue ifNotNil: [
+		result initialValue: (self analyzeNodeIfNeeded: result initialValue)
+	] ifNil: [
+		result isAccessedByReference ifTrue: [ 
+			self error: 'Global variable "{1}" definition with ref access requires an initial value.' format: { result name asPrettySymbolName } at: result
+		]
+	].
+	
+	"Infer the value type, if needed"
+	result valueType ifNil: [
+		result initialValue ifNil: [
+			self error: 'Global variable {1} without an explicit type, or an initial value.' format: { node v asPrettySymbolName } at: node
+		].
+	
+		result valueType: (result initialValue type inferValueTypeForNode: result initialValue inScope: scope).
+	].
+
+	"Cast implicitly the initial value."
+	valueType := result valueType.
+	result initialValue ifNotNil: [ :valueNode |
+		result initialValue: (self addImplicitCastFor: valueNode to: valueType)
+	].
+
+	"Compute the variable reference type"
+	self assert: valueType isNotNil.
+	result isMutable ifTrue: [
+		result type: valueType asMutableValueType
+	] ifFalse: [
+		result isAccessedByReference ifTrue: [
+			result type: valueType const ref
+		] ifFalse: [ 
+			result type: valueType asImmutableValueType
+		]
+	].
+
+	"Create a matching variable"
+	owner := node ownerProgramEntity ifNil: [scope lookupProgramEntityForNewDefinitions].
+	globalVariable := owner findOrAddGlobalVariableNamed: result name valueType: result valueType type: result type at: result.
+
+	result binding: globalVariable.
+	^ result
 ]
 
 { #category : #visiting }

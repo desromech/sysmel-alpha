@@ -16,6 +16,8 @@ MbndLiteralNumberType >> addInstanceMacros [
 		+ - * / %
 		negated sqrt
 		
+		ceiling floor
+		
 		< <= >= >
 		= ~= == ~~
 	).

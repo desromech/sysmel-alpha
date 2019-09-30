@@ -32,7 +32,7 @@ TMbndAbstractMethodContainer >> addOverloadedMethod: method receiverType: receiv
 
 { #category : #adding }
 TMbndAbstractMethodContainer >> createMethodEntityForPrototype: functionPrototype [
-	^ self createMethodEntityForPrototype: functionPrototype withReceiverType: self compilationTarget voidType
+	^ self createMethodEntityForPrototype: functionPrototype withReceiverType: self implicitMethodReceiverType
 ]
 
 { #category : #adding }
@@ -61,8 +61,24 @@ TMbndAbstractMethodContainer >> findOrAddOverloadedSelectorPrototype: prototype 
 	(self lookupLocalOverloadedSelector: prototype selector) ifNil: [
 		self addOverloadedMethod: (self createMethodEntityForPrototype: prototype)
 	] ifNotNil: [ :existent |
-		self halt
+		existent isMethodGroup ifTrue: [
+			(existent findMatchingPrototypeNode: prototype withReceiverType: self implicitMethodReceiverType) ifNotNil: [ :previousDefinition |
+				prototype concreteMethod: previousDefinition.
+				^ self
+			]
+		] ifFalse: [ 
+			(existent matchesPrototypeNode: prototype withReceiverType: self implicitMethodReceiverType) ifTrue: [
+				prototype concreteMethod: existent.
+				^ self
+			].
+		].
+		self addOverloadedMethod: (self createMethodEntityForPrototype: prototype)
 	]
+]
+
+{ #category : #adding }
+TMbndAbstractMethodContainer >> implicitMethodReceiverType [
+	^ self compilationTarget voidType
 ]
 
 { #category : #methods }

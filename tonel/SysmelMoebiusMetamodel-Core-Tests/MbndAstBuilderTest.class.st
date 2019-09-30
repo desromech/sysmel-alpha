@@ -333,6 +333,18 @@ MbndAstBuilderTest >> testGCClassDefinitionNode [
 ]
 
 { #category : #tests }
+MbndAstBuilderTest >> testGlobalVariableDefinition [
+	| node valueType initialValue |
+	valueType := module compilationTarget int32Type.
+	initialValue := builder literalInteger: 42.
+	node := builder defineGlobalVariable: #var withValueType: valueType withInitialValue: initialValue.
+	self assert: node isGlobalVariableDefinitionNode.
+	self assert: node name equals: #var.
+	self assert: node valueType equals: valueType.
+	self assert: node initialValue equals: initialValue.
+]
+
+{ #category : #tests }
 MbndAstBuilderTest >> testIdentifier [
 	| node |
 	node := builder identifier: #symbol.

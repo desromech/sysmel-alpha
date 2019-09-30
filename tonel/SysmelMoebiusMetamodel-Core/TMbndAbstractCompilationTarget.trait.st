@@ -74,6 +74,11 @@ TMbndAbstractCompilationTarget >> float64Type [
 ]
 
 { #category : #'convenience type accessors' }
+TMbndAbstractCompilationTarget >> functionGroupType [
+	^ self getBasicTypeNamed: MbndFunctionGroupType typeName
+]
+
+{ #category : #'convenience type accessors' }
 TMbndAbstractCompilationTarget >> functionTemplateType [
 	^ self getBasicTypeNamed: MbndFunctionTemplateType typeName
 ]

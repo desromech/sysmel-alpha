@@ -12,7 +12,7 @@ Class {
 
 { #category : #accessing }
 MbndChainedTypeConversionRule >> conversionCost [
-	^ conversionCost ifNil: [ conversionCost := intermediateRule coercionCost + nextRule coercionCost ]
+	^ conversionCost ifNil: [ conversionCost := intermediateRule conversionCost + nextRule conversionCost ]
 ]
 
 { #category : #accessing }

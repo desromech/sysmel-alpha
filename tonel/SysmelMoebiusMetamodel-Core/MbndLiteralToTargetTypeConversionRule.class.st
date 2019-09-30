@@ -13,6 +13,11 @@ MbndLiteralToTargetTypeConversionRule >> canBeUsedToConvertNode: node from: sour
 	^ false.
 ]
 
+{ #category : #acccessing }
+MbndLiteralToTargetTypeConversionRule >> conversionCost [
+	^ 1
+]
+
 { #category : #'as yet unclassified' }
 MbndLiteralToTargetTypeConversionRule >> postProcessCastNode: node withAnalyzer: analyzer [
 	| literal target |

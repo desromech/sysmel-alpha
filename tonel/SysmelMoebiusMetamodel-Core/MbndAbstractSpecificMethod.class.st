@@ -55,6 +55,41 @@ MbndAbstractSpecificMethod >> boundType: anObject [
 	boundType := anObject
 ]
 
+{ #category : #testing }
+MbndAbstractSpecificMethod >> computeMatchingCostWithArguments: callArguments receiverType: callReceiverType analyzer: analyzer at: node [
+	| coercionCost |
+	receiverType isVoidType = callReceiverType isVoidType ifFalse: [ ^ nil ].
+	boundType isCVariadic ifTrue: [
+		callArguments size >= boundType argumentTypes size ifFalse: [ ^ nil ].
+	] ifFalse: [
+		callArguments size = boundType argumentTypes size ifFalse: [ ^ nil ].
+	].
+
+	coercionCost := 0.
+	callArguments doWithIndex: [ :argumentNode :index |
+		| expectedType argumentCoercionCost |
+		expectedType := boundType argumentTypes at: index.
+		argumentCoercionCost := analyzer computeImplicitCoercionCostFor: argumentNode to: expectedType at: node.
+		argumentCoercionCost ifNil: [ ^ nil ].
+		coercionCost := coercionCost + argumentCoercionCost
+	].
+	^ coercionCost
+]
+
+{ #category : #testing }
+MbndAbstractSpecificMethod >> matchesPrototypeNode: prototypeNode withReceiverType: prototypeReceiverType [
+	receiverType == prototypeReceiverType ifFalse: [ ^ false ].
+	boundType returnType == prototypeNode returnType ifFalse: [ ^ false ].
+	prototypeNode arguments size = boundType argumentTypes size ifFalse: [ ^ false ].
+	prototypeNode isCVariadic = boundType isCVariadic ifFalse: [ ^ false ].
+	
+	(1 to: prototypeNode arguments size) do: [ :i |
+		(boundType argumentTypes at: i) = (prototypeNode arguments at: i) ifFalse: [ ^ false ].
+	].
+	
+	^ true
+]
+
 { #category : #accessing }
 MbndAbstractSpecificMethod >> receiverType [
 	^ receiverType

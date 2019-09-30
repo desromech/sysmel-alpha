@@ -50,6 +50,11 @@ MbndAstAbstractFunctionPrototypeNode >> initialize [
 	flags := #().
 ]
 
+{ #category : #testing }
+MbndAstAbstractFunctionPrototypeNode >> isCVariadic [
+	^ false
+]
+
 { #category : #accessing }
 MbndAstAbstractFunctionPrototypeNode >> ownerProgramEntity [
 	^ ownerProgramEntity

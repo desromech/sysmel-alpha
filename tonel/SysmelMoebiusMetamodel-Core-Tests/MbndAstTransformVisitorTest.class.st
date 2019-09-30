@@ -366,6 +366,19 @@ MbndAstTransformVisitorTest >> testGCClassDefinitionNode [
 ]
 
 { #category : #tests }
+MbndAstTransformVisitorTest >> testGlobalVariableDefinition [
+	| node valueType initialValue transformedNode |
+	valueType := module compilationTarget int32Type.
+	initialValue := builder literalInteger: 42.
+	node := builder defineGlobalVariable: #var withValueType: valueType withInitialValue: initialValue.
+	transformedNode := visitor visitNode: node.
+	self assert: transformedNode ~~ node.
+	self assert: transformedNode name equals: node name.
+	self assert: transformedNode valueType equals: valueType.
+	self assert: transformedNode initialValue equals: initialValue.
+]
+
+{ #category : #tests }
 MbndAstTransformVisitorTest >> testIdentifierReference [
 	| node transformedNode |
 	node := builder identifier: #ident.

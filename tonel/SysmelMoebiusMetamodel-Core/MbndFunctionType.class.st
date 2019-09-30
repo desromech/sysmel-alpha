@@ -87,6 +87,11 @@ MbndFunctionType >> initialize [
 ]
 
 { #category : #testing }
+MbndFunctionType >> isCVariadic [
+	^ cvariadic
+]
+
+{ #category : #testing }
 MbndFunctionType >> isFunctionType [
 	^ true
 ]

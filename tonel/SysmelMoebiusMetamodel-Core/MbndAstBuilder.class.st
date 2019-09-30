@@ -227,6 +227,17 @@ MbndAstBuilder >> defineGCClassNamed: name superclass: superclass body: body [
 ]
 
 { #category : #'builder methods' }
+MbndAstBuilder >> defineGlobalVariable: name withValueType: valueType withInitialValue: initialValue [
+	<compileTime>
+	<returnType: #_ASTNodeType>
+	^ MbndAstGlobalVariableDefinitionNode new
+		name: name;
+		valueType: valueType;
+		initialValue: initialValue;
+		yourself
+]
+
+{ #category : #'builder methods' }
 MbndAstBuilder >> defineLocalVariable: name withValueType: valueType withInitialValue: initialValue [
 	<compileTime>
 	<returnType: #_ASTNodeType>

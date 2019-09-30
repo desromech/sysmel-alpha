@@ -5,7 +5,9 @@ Class {
 		'sourceModule',
 		'ssaModule',
 		'translatedProgramEntities',
-		'typeTranslator'
+		'typeTranslator',
+		'typeNameMangler',
+		'programEntityTypeNameMangler'
 	],
 	#category : #'SysmelMoebiusCodeGenerator-Slovim-Module'
 }
@@ -40,6 +42,11 @@ MbndSlovimCodeModuleGenerator >> addPrimitiveTypeTranslations [
 		self typeTranslator setType: sourceType ssaType: destType
 	].
 
+]
+
+{ #category : #accessing }
+MbndSlovimCodeModuleGenerator >> compilationTarget [
+	^ sourceModule compilationTarget
 ]
 
 { #category : #'as yet unclassified' }
@@ -100,11 +107,22 @@ MbndSlovimCodeModuleGenerator >> initialize [
 
 { #category : #visiting }
 MbndSlovimCodeModuleGenerator >> mangleProgramEntityName: programEntity [
-	| escapedNamed |
+	| escapedNamed mangledType |
 	programEntity ifNil: [ ^ #_S ].
 	(programEntity parent isNil and: [ programEntity isNamespace ]) ifTrue: [ ^ #_S ].
 	escapedNamed := self escapeNameForMangling: programEntity name.
-	^ ((self mangleProgramEntityName: programEntity parent) , escapedNamed size asString , escapedNamed) asSymbol
+	mangledType := self mangleProgramEntityType: programEntity.
+	^ ((self mangleProgramEntityName: programEntity parent) , escapedNamed size asString , escapedNamed , mangledType) asSymbol
+]
+
+{ #category : #visiting }
+MbndSlovimCodeModuleGenerator >> mangleProgramEntityType: programEntity [
+	^ self programEntityTypeNameMangler visitNode: programEntity
+]
+
+{ #category : #visiting }
+MbndSlovimCodeModuleGenerator >> programEntityTypeNameMangler [
+	^ programEntityTypeNameMangler ifNil: [ programEntityTypeNameMangler := MbndSlovimProgramEntityTypeNameMangler new codeModuleGenerator: self ]
 ]
 
 { #category : #visiting }
@@ -159,6 +177,11 @@ MbndSlovimCodeModuleGenerator >> translateType: aType [
 { #category : #'code generation' }
 MbndSlovimCodeModuleGenerator >> translateTypes: aType [
 	^ self typeTranslator translateTypes: aType
+]
+
+{ #category : #visiting }
+MbndSlovimCodeModuleGenerator >> typeNameMangler [
+	^ typeNameMangler ifNil: [ typeNameMangler := MbndSlovimTypeNameMangler new codeModuleGenerator: self ]
 ]
 
 { #category : #accessing }
@@ -238,8 +261,38 @@ MbndSlovimCodeModuleGenerator >> visitFieldVariable: field [
 ]
 
 { #category : #visiting }
+MbndSlovimCodeModuleGenerator >> visitFunctionGroup: functionGroup [
+	^ nil
+]
+
+{ #category : #visiting }
 MbndSlovimCodeModuleGenerator >> visitGCClassType: type [
 	^ self visitAggregateTypeWithFields: type
+]
+
+{ #category : #visiting }
+MbndSlovimCodeModuleGenerator >> visitGlobalVariable: globalVariable [
+	| ssaValueType csymbol ssaGlobalVariable initialValue |
+	ssaValueType := self translateType: globalVariable valueType.
+	
+	csymbol := self csymbolForProgramEntity: globalVariable.
+	ssaGlobalVariable := SLVMGlobalVariable module: ssaModule name: csymbol valueType: ssaValueType storage: SLVMType genericStorage.
+	self setProgramEntity: globalVariable ssaValue: ssaGlobalVariable.
+
+	ssaGlobalVariable readOnly: (globalVariable type withoutReferences isConstantType).
+	
+	globalVariable isExternal ifTrue: [
+		globalVariable makeExternal.
+	] ifFalse: [ 
+		initialValue := globalVariable currentValue.
+		self assert: initialValue isNotNil.
+		ssaGlobalVariable initialValue: (self translateLiteralValue: initialValue value ofType: initialValue type).
+		globalVariable isStatic ifTrue: [ 
+			ssaGlobalVariable makePrivate
+		].
+	].
+		
+	^ ssaGlobalVariable
 ]
 
 { #category : #visiting }
@@ -268,6 +321,12 @@ MbndSlovimCodeModuleGenerator >> visitIntrinsicPointerComparisonMethod: intrinsi
 
 { #category : #visiting }
 MbndSlovimCodeModuleGenerator >> visitMacroMessageMethod: macro [
+	^ nil
+]
+
+{ #category : #visiting }
+MbndSlovimCodeModuleGenerator >> visitMessageGroup: functionGroup [
+	^ nil
 ]
 
 { #category : #visiting }
@@ -277,7 +336,8 @@ MbndSlovimCodeModuleGenerator >> visitModule: module [
 
 { #category : #visiting }
 MbndSlovimCodeModuleGenerator >> visitNamespace: namespace [
-	self translateProgramEntityChildren: namespace
+	self translateProgramEntityChildren: namespace.
+	^ nil
 ]
 
 { #category : #visiting }
@@ -287,7 +347,8 @@ MbndSlovimCodeModuleGenerator >> visitStructureType: type [
 
 { #category : #visiting }
 MbndSlovimCodeModuleGenerator >> visitTemplate: template [
-	self translateProgramEntityChildren: template
+	self translateProgramEntityChildren: template.
+	^ nil
 ]
 
 { #category : #visiting }

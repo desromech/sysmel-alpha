@@ -14,7 +14,7 @@ MbndProxyTypeConversionRule >> canBeUsedToConvertFrom: sourceType into: targetTy
 
 { #category : #accessing }
 MbndProxyTypeConversionRule >> conversionCost [
-	^ rule coercionCost
+	^ rule conversionCost
 ]
 
 { #category : #'as yet unclassified' }

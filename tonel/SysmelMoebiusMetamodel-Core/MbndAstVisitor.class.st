@@ -170,6 +170,11 @@ MbndAstVisitor >> visitGetFieldValueNode: node [
 ]
 
 { #category : #visiting }
+MbndAstVisitor >> visitGlobalVariableDefinitionNode: node [
+	self subclassResponsibility
+]
+
+{ #category : #visiting }
 MbndAstVisitor >> visitIdentifierReferenceNode: node [
 	self subclassResponsibility
 ]

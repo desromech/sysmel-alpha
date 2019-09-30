@@ -14,7 +14,17 @@ TMbndMethodContainer >> addOverloadedMethod: method [
 	self assert: method boundType isNotNil.
 	self assert: method boundType isFunctionType.
 	self overloadedMethodDict at: method name ifPresent: [ :existent |
-		self halt
+		| methodGroup|
+		methodGroup := existent.
+		existent isMethodGroup ifFalse: [ 
+			methodGroup := MbndFunctionGroup new
+				name: existent name;
+				addOverloadedEntity: existent;
+				yourself.
+			self addChild: methodGroup.
+			self overloadedMethodDict at: method name put: methodGroup.
+		].
+		methodGroup addOverloadedEntity: method
 	] ifAbsentPut: [ method ]
 ]
 

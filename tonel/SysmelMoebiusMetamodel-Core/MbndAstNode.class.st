@@ -225,6 +225,11 @@ MbndAstNode >> isGetFieldValueNode [
 ]
 
 { #category : #testing }
+MbndAstNode >> isGlobalVariableDefinitionNode [
+	^ false
+]
+
+{ #category : #testing }
 MbndAstNode >> isIdentifierReferenceNode [
 	^ false
 ]

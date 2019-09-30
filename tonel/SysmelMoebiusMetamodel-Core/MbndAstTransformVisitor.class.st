@@ -240,6 +240,13 @@ MbndAstTransformVisitor >> visitGetFieldValueNode: node [
 ]
 
 { #category : #visiting }
+MbndAstTransformVisitor >> visitGlobalVariableDefinitionNode: node [
+	^ node copy
+		initialValue: (node initialValue ifNotNil: [:initialValue | self visitNode: initialValue]);
+		yourself
+]
+
+{ #category : #visiting }
 MbndAstTransformVisitor >> visitIdentifierReferenceNode: node [
 	^ node
 ]

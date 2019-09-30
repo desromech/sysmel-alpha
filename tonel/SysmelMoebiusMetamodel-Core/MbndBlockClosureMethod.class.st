@@ -4,7 +4,8 @@ Class {
 	#instVars : [
 		'definitionPosition',
 		'analyzedNode',
-		'arguments'
+		'arguments',
+		'children'
 	],
 	#category : #'SysmelMoebiusMetamodel-Core-Method'
 }
@@ -12,6 +13,12 @@ Class {
 { #category : #visiting }
 MbndBlockClosureMethod >> accept: aVisitor [
 	^ aVisitor visitBlockClosureMethod: self
+]
+
+{ #category : #adding }
+MbndBlockClosureMethod >> addChild: aChild [
+	aChild parent: self.
+	children add: aChild.
 ]
 
 { #category : #accessing }
@@ -80,6 +87,12 @@ MbndBlockClosureMethod >> definitionPosition [
 { #category : #accessing }
 MbndBlockClosureMethod >> definitionPosition: anObject [
 	definitionPosition := anObject
+]
+
+{ #category : #adding }
+MbndBlockClosureMethod >> initialize [
+	super initialize.
+	children := OrderedCollection new.
 ]
 
 { #category : #'as yet unclassified' }

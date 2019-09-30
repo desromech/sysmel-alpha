@@ -5,7 +5,7 @@ Trait {
 
 { #category : #'overloaded methods' }
 TMbndAbstractSymbolContainer >> createFunctionEntityForPrototype: functionPrototype [
-	^ self createFunctionEntityForPrototype: functionPrototype withReceiverType: self compilationTarget voidType
+	^ self createFunctionEntityForPrototype: functionPrototype withReceiverType: self implicitFunctionReceiverType
 ]
 
 { #category : #'overloaded methods' }
@@ -62,15 +62,67 @@ TMbndAbstractSymbolContainer >> ensureSymbolIsNamespace: namespaceName at: posit
 ]
 
 { #category : #'overloaded methods' }
+TMbndAbstractSymbolContainer >> findOrAddGlobalVariableNamed: name valueType: valueType type: type at: node [
+	| globalVariable |
+	globalVariable := self lookupLocalSymbol: name.
+	globalVariable ifNotNil: [
+		globalVariable isGlobalVariable ifFalse: [ 
+			self error: 'Global variable "{1}" clashes with the name of something that already exists.' at: node.
+		].
+	
+		(globalVariable valueType ~~ valueType or: [ globalVariable type ~~ type ]) ifTrue: [
+			self error: 'Global variable "{1}" another variable with a different type.' at: node.
+		].
+	
+		^ globalVariable
+	].
+
+	globalVariable := MbndGlobalVariable new
+		definitionNode: node;
+		flags: node flags;
+		name: name;
+		valueType: valueType;
+		type: type;
+		currentValue: (valueType defaultValueAt: node)
+		yourself.
+	self addChild: globalVariable.
+	self setLocalSymbol: name value: globalVariable.
+	^ globalVariable
+]
+
+{ #category : #'overloaded methods' }
 TMbndAbstractSymbolContainer >> findOrAddOverloadedFunctionPrototype: functionPrototype [
 	| localSymbolDefinition |
 	localSymbolDefinition := self lookupLocalSymbol: functionPrototype name.
 	localSymbolDefinition ifNil: [
 		self setLocalSymbol: functionPrototype name value: (self createFunctionEntityForPrototype: functionPrototype)
 	] ifNotNil: [
-		self halt
+		localSymbolDefinition isMethodGroup ifFalse: [
+			(localSymbolDefinition matchesPrototypeNode: functionPrototype withReceiverType: self implicitFunctionReceiverType) ifTrue: [
+				functionPrototype concreteMethod: localSymbolDefinition.
+				^ self
+			].
+			
+			localSymbolDefinition := MbndFunctionGroup new
+				name: localSymbolDefinition name;
+				addOverloadedEntity: localSymbolDefinition;
+				yourself.
+			self addChild: localSymbolDefinition.
+			self setLocalSymbol: localSymbolDefinition name value: localSymbolDefinition
+		].
+		(localSymbolDefinition findMatchingPrototypeNode: functionPrototype withReceiverType: self implicitFunctionReceiverType) ifNotNil: [ :existent |
+			functionPrototype concreteMethod: existent.
+			^ self
+		].
+	
+		localSymbolDefinition addOverloadedEntity: (self createFunctionEntityForPrototype: functionPrototype)
 	].
 
+]
+
+{ #category : #'overloaded methods' }
+TMbndAbstractSymbolContainer >> implicitFunctionReceiverType [
+	^ self compilationTarget voidType
 ]
 
 { #category : #'member symbols' }
