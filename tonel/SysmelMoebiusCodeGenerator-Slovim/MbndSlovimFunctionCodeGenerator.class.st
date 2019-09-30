@@ -419,9 +419,14 @@ MbndSlovimFunctionCodeGenerator >> visitLocalVariableDefinitionNode: node [
 	
 	node isMutable ifTrue: [
 		self assert: node type isReferenceType.
-		ssaValue := slvmBuilder allocaBuilder alloca: valueType.
-		initialValue ifNotNil: [
-			slvmBuilder store: initialValue in: ssaValue
+		(node isAccessedByReference and: [node initialValue type isReferenceType]) ifTrue: [
+			self assert: initialValue isNotNil.
+			ssaValue := initialValue.
+		] ifFalse: [ 
+			ssaValue := slvmBuilder allocaBuilder alloca: valueType.
+			initialValue ifNotNil: [
+				slvmBuilder store: initialValue in: ssaValue
+			].
 		].
 	] ifFalse: [
 		self assert: node initialValue isNotNil.
@@ -506,8 +511,8 @@ MbndSlovimFunctionCodeGenerator >> visitSequenceNode: node [
 
 	(node type isVoidType or: [node type isUndefinedType ]) ifTrue: [ 
 		result := nil.
-	] ifFalse: [ 
-		result ifNil: [ self halt ].
+	] ifFalse: [
+		self assert: result isNotNil.
 	].
 	^ result
 ]

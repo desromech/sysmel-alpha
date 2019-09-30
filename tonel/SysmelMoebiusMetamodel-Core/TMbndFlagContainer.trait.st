@@ -11,6 +11,11 @@ TMbndFlagContainer >> addFlag: aFlag [
 	flags := (self flags copyWithout: aFlag) copyWith: aFlag
 ]
 
+{ #category : #flags }
+TMbndFlagContainer >> addFlags: aCollectionOfFlags [
+	aCollectionOfFlags do: [ :flag | self addFlag: flag ]
+]
+
 { #category : #accessing }
 TMbndFlagContainer >> flags [
 	^ flags ifNil: [ flags := #() ]

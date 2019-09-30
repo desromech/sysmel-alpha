@@ -694,6 +694,7 @@ TMbndAbstractType >> lookupSelector: aSelector [
 { #category : #symbols }
 TMbndAbstractType >> lookupSpecialSymbol: aSymbol [
 	aSymbol == #SelfType ifTrue: [ ^ self ].
+	aSymbol == #meta ifTrue: [ ^ self meta ].
 	self extraMetaBuilderFactories at: aSymbol ifPresent: [ :binding | ^ binding ].
 	^ nil
 ]

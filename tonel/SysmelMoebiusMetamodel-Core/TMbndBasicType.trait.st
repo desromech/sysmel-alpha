@@ -60,6 +60,12 @@ TMbndBasicType >> lookupSymbol: aSymbol [
 	^ self supertype ifNotNil: [ :st | st lookupSymbol: aSymbol ]
 ]
 
+{ #category : #initialization }
+TMbndBasicType >> setSupertypeFromDefinition: newSupertype [
+	self supertype: newSupertype.
+	self type supertype: newSupertype type.
+]
+
 { #category : #'type hierarchy' }
 TMbndBasicType >> supertype [
 	^ supertype

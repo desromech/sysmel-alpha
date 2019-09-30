@@ -733,12 +733,16 @@ MbndAstSemanticAnalyzer >> visitLocalVariableDefinitionNode: node [
 	"Analyze the initial value."
 	result initialValue ifNotNil: [
 		result initialValue: (self analyzeNodeIfNeeded: result initialValue)
+	] ifNil: [
+		result isAccessedByReference ifTrue: [ 
+			self error: 'Local variable "{1}" definition with ref access requires an initial value.' format: { result name asPrettySymbolName } at: result
+		]
 	].
 	
 	"Infer the value type, if needed"
 	result valueType ifNil: [
 		result initialValue ifNil: [
-			self error: 'Variable {1} without an explicit type, or an initial value.' format: { node name asPrettySymbolName } at: node
+			self error: 'Variable {1} without an explicit type, or an initial value.' format: { node v asPrettySymbolName } at: node
 		].
 	
 		result valueType: (result initialValue type inferValueTypeForNode: result initialValue inScope: scope).
@@ -760,7 +764,7 @@ MbndAstSemanticAnalyzer >> visitLocalVariableDefinitionNode: node [
 	result isMutable ifTrue: [
 		result type: valueType asMutableValueType
 	] ifFalse: [
-		result isAccessedByReference ifTrue: [ 
+		result isAccessedByReference ifTrue: [
 			result type: valueType const ref
 		] ifFalse: [ 
 			result type: valueType asImmutableValueType
@@ -837,8 +841,8 @@ MbndAstSemanticAnalyzer >> visitMacroMessagePrototypeNode: node [
 
 { #category : #visiting }
 MbndAstSemanticAnalyzer >> visitMessageChainNode: node [
-	| receiverVariable receiverVariableReference messages |
-	node messages size = 0 ifTrue: [
+	| receiverVariable receiverVariableReference messages unconvertedMessages analyzedReceiver convertedMetaMessages |
+	node messages ifEmpty: [
 		^ self visitNode: node receiver
 	].
 
@@ -848,24 +852,45 @@ MbndAstSemanticAnalyzer >> visitMessageChainNode: node [
 			yourself)
 	].
 
+	unconvertedMessages := node messages.
+	
+	analyzedReceiver := self analyzeNonConcreteNodeIfNeeded: node receiver.
+	
+	convertedMetaMessages := OrderedCollection new.
+	[analyzedReceiver isNonConcreteNode and: [unconvertedMessages isNotEmpty]] whileTrue: [ 
+		| message analyzedMessage |
+		message := unconvertedMessages first asUnexpandedMessageSend receiver: analyzedReceiver.
+		unconvertedMessages := unconvertedMessages allButFirst.
+		analyzedMessage := self visitNonConcreteNode: message.
+		analyzedMessage isNonConcreteNode ifFalse: [ 
+			convertedMetaMessages add: analyzedMessage.
+		].
+	].
+
+	(convertedMetaMessages isEmpty and: [ unconvertedMessages isEmpty ]) ifTrue: [ 
+		^ analyzedReceiver
+	].
+
 	receiverVariable := MbndAstLocalVariableDefinitionNode new
+		mutable;
+		ref;
 		position: node;
 		name: node;
-		initialValue: node receiver;
+		initialValue: analyzedReceiver;
 		yourself.
 	receiverVariableReference := MbndAstIdentifierReferenceNode new
 		position: node;
 		symbol: node;
 		yourself.
 		
-	messages := node messages collect: [ :message |
+	messages := unconvertedMessages collect: [ :message |
 		message asUnexpandedMessageSend
 			receiver: receiverVariableReference; yourself
 	].
 
 	^ self visitNode: (MbndAstSequenceNode new
 		position: node;
-		elements: { receiverVariable } , messages;
+		elements: { receiverVariable } , convertedMetaMessages asArray, messages;
 		yourself)
 ]
 
@@ -1087,6 +1112,10 @@ MbndAstSemanticAnalyzer >> visitSetFieldValueNode: node [
 		newValue: (self analyzeNodeIfNeeded: node newValue);
 		yourself.
 	aggregateType := result aggregate type withoutReferences.
+	aggregateType isConstantType ifTrue: [
+		self error: 'Cannot modify value of field "{1}" in constant aggregate.' format: { node field name asPrettySymbolName } at: node
+	].
+	aggregateType := aggregateType withoutTopDecorations.
 	self assert: aggregateType isAggregateType.
 	
 	result newValue: (self addImplicitCastFor: result newValue to: result field valueType).
@@ -1202,9 +1231,15 @@ MbndAstSemanticAnalyzer >> visitTypeDeclarationNode: node ofKind: typeKindClass 
 
 { #category : #visiting }
 MbndAstSemanticAnalyzer >> visitTypeDefinitionNode: node ofKind: typeKindClass [
-	| result definitionScope |
+	| result definitionScope superType |
 	result := node copy.
 	result declaration: (self visitNode: result declaration ensurePartOfDefinitionFlagIsMarked).
+	
+	"Evaluate the supertype"
+	node superTypeNode ifNotNil: [ :superTypeNode |
+		superType := self evaluateTypeExpression: superTypeNode.
+		result binding setSupertypeFromDefinition: superType
+	].
 
 	"Set the defined flag"
 	result binding addFlag: #defined.

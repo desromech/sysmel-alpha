@@ -258,6 +258,46 @@ MbndAstSemanticAnalyzerTest >> testClassDefinitionBuilderExpansion [
 ]
 
 { #category : #tests }
+MbndAstSemanticAnalyzerTest >> testClassDefinitionWithSuperclassBuilderExpansion [
+	| node superClassDefinitionNode subClassDefinitionNode |
+	node := builder identifier: #class.
+	node := builder unexpandedSend: (builder literalSymbol: #BinaryStream) to: node withArguments: #().
+	node := builder unexpandedSend: (builder literalSymbol: #definition:) to: node withArguments: {
+		builder sequence: #()
+	}.
+	superClassDefinitionNode := visitor visitNode: node.
+	
+	self assert: superClassDefinitionNode isClassDefinitionNode.
+	self assert: (scope lookupSymbolRecursively: #BinaryStream ifAbsent: [nil]) isNotNil.
+	self assert: superClassDefinitionNode binding isNotNil.
+	self assert: superClassDefinitionNode binding isClassType.
+	self assert: superClassDefinitionNode binding type instanceType equals: superClassDefinitionNode binding.
+
+	node := builder identifier: #class.
+	node := builder unexpandedSend: (builder literalSymbol: #BinaryFileStream) to: node withArguments: #().
+	node := builder messageChainReceiver: node messages: { 
+		builder unexpandedSend: (builder literalSymbol: #superclass:) to: node withArguments: {
+			builder identifier: #BinaryStream
+		}.
+
+		builder unexpandedSend: (builder literalSymbol: #definition:) to: node withArguments: {
+			builder sequence: #()
+		}.
+	}.
+	
+	subClassDefinitionNode := visitor visitNode: node.
+	
+	self assert: subClassDefinitionNode isClassDefinitionNode.
+	self assert: (scope lookupSymbolRecursively: #BinaryFileStream ifAbsent: [nil]) isNotNil.
+	self assert: subClassDefinitionNode binding isNotNil.
+	self assert: subClassDefinitionNode binding isClassType.
+	self assert: subClassDefinitionNode binding type instanceType equals: subClassDefinitionNode binding.
+	self assert: subClassDefinitionNode binding type supertype equals: superClassDefinitionNode binding type.
+	self assert: subClassDefinitionNode binding type instanceType supertype equals: superClassDefinitionNode binding type instanceType.
+
+]
+
+{ #category : #tests }
 MbndAstSemanticAnalyzerTest >> testCleanUpScopeNode [
 	| node expression cleanUpActions analyzedNode |
 	expression := builder literalInteger: 42.
@@ -942,6 +982,16 @@ MbndAstSemanticAnalyzerTest >> testLiteralIntegerReinterpretCast [
 	self assert: analyzedNode isLiteralValueNode.
 	self assert: analyzedNode value equals: 42.
 	self assert: analyzedNode type isPointerType.
+]
+
+{ #category : #tests }
+MbndAstSemanticAnalyzerTest >> testLiteralYourself [
+	| literal analyzedNode node |
+	literal := builder literalInteger: 42.
+	node := builder unexpandedSend: (builder literalSymbol: #yourself) to: literal withArguments: #().
+	analyzedNode := visitor visitNode: node.
+	self assert: analyzedNode equals: literal.
+	self assert: analyzedNode type isLiteralIntegerType.
 ]
 
 { #category : #tests }

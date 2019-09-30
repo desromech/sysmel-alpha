@@ -26,3 +26,12 @@ MbndAstAbstractTypeDefinitionNode >> inferTemplateKindWithCompilationTarget: com
 MbndAstAbstractTypeDefinitionNode >> isAbstractTypeDefinitionNode [
 	^ true
 ]
+
+{ #category : #'as yet unclassified' }
+MbndAstAbstractTypeDefinitionNode >> superTypeNode [
+	^ nil
+]
+
+{ #category : #'as yet unclassified' }
+MbndAstAbstractTypeDefinitionNode >> superTypeNode: aNode [
+]

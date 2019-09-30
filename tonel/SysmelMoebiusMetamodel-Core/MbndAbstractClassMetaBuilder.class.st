@@ -6,5 +6,5 @@ Class {
 
 { #category : #accessing }
 MbndAbstractClassMetaBuilder >> superclass: superClassNode [
-	self halt
+	superTypeNode := superClassNode
 ]

@@ -55,6 +55,11 @@ MbndReferenceType >> asCVariadicTypeRequiredAt: position [
 ]
 
 { #category : #converting }
+MbndReferenceType >> asMutableValueType [
+	^ self
+]
+
+{ #category : #converting }
 MbndReferenceType >> asPointerType [
 	^ baseType pointerFor: addressSpace
 ]
@@ -73,6 +78,11 @@ MbndReferenceType >> isReferenceType [
 MbndReferenceType >> printOn: aStream [
 	baseType printOn: aStream.
 	aStream nextPutAll: ' ref'
+]
+
+{ #category : #'type composition' }
+MbndReferenceType >> ref [
+	^ self
 ]
 
 { #category : #'type composition' }

@@ -8,6 +8,7 @@ Class {
 MbndFieldSetterAccessorMacro >> expandMessageNode: node with: analyzer [
 	self assert: node arguments size = 1.
 	^ analyzer visitNode: (MbndAstSetFieldValueNode new
+		position: node;
 		aggregate: node receiver;
 		field: field;
 		newValue: node arguments first;

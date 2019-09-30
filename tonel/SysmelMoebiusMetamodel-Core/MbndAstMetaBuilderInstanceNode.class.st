@@ -33,6 +33,11 @@ MbndAstMetaBuilderInstanceNode >> isMetaBuilderInstanceNode [
 ]
 
 { #category : #'as yet unclassified' }
+MbndAstMetaBuilderInstanceNode >> isNonConcreteNode [
+	^ true
+]
+
+{ #category : #'as yet unclassified' }
 MbndAstMetaBuilderInstanceNode >> isTemplatedMetaBuilderInstanceNode [
 	^ true
 ]

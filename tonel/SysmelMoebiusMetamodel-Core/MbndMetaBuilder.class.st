@@ -166,3 +166,8 @@ MbndMetaBuilder >> position [
 MbndMetaBuilder >> position: anObject [
 	position := anObject
 ]
+
+{ #category : #accessing }
+MbndMetaBuilder >> validOwnerProgramEntity [
+	^ ownerProgramEntity ifNil: [ ownerProgramEntity := metaBuilderScope lookupProgramEntityForNewDefinitions ]
+]

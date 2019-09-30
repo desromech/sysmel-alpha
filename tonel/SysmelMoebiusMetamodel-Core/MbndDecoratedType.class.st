@@ -44,6 +44,11 @@ MbndDecoratedType >> asCVariadicTypeRequiredAt: position [
 ]
 
 { #category : #converting }
+MbndDecoratedType >> asMutableValueType [
+	^ baseType asMutableValueType withDecorations: decorations
+]
+
+{ #category : #converting }
 MbndDecoratedType >> asPointerType [
 	^ baseType asPointerType withDecorations: decorations
 ]

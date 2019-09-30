@@ -38,6 +38,11 @@ MbndAstAbstractVariableDefinitionNode >> mutable [
 	self addFlag: #mutable
 ]
 
+{ #category : #flags }
+MbndAstAbstractVariableDefinitionNode >> ref [
+	self addFlag: #ref
+]
+
 { #category : #accessing }
 MbndAstAbstractVariableDefinitionNode >> valueType [
 	^ valueType

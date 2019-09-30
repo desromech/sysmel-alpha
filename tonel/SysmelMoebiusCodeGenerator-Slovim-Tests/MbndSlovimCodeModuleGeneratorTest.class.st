@@ -1848,6 +1848,38 @@ MbndSlovimCodeModuleGeneratorTest >> testPointerToIntegerCast2 [
 ]
 
 { #category : #tests }
+MbndSlovimCodeModuleGeneratorTest >> testPointerValueMessageChain [
+	| function instructions |
+	self
+		evaluateSysmelSource: '
+
+struct Node definition: { 
+	field previous public type: Node pointer.
+	field next public type: Node pointer.
+}.
+
+function setPreviousAndNext externC(node: Node pointer, previous: Node pointer, next: Node pointer) => Void
+	:= node _
+		previous: previous;
+		next: next.
+';
+		generateSSAModule.
+
+	function := ssaModule globalNamed: #setPreviousAndNext.
+	self assert: function isFunction.
+	self deny: function isEmpty.
+	self assert: function basicBlocks size equals: 2.
+	
+	instructions := function basicBlocks second allInstructions.
+	self assert: instructions first isGetElementPointer.
+	self assert: instructions second isStore.
+	self assert: instructions third isGetElementPointer.
+	self assert: instructions fourth isStore.
+	self assert: instructions fifth isReturnVoid.
+
+]
+
+{ #category : #tests }
 MbndSlovimCodeModuleGeneratorTest >> testReferenceAsPointer [
 	| function |
 	self

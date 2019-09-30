@@ -336,6 +336,11 @@ MbndAstNode >> isNamespaceDefinitionNode [
 ]
 
 { #category : #testing }
+MbndAstNode >> isNonConcreteNode [
+	^ false
+]
+
+{ #category : #testing }
 MbndAstNode >> isNumericalCastNode [
 	^ false
 ]

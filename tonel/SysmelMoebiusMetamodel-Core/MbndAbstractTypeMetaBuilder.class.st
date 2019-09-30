@@ -3,7 +3,8 @@ Class {
 	#superclass : #MbndAbstractNamedMetaBuilder,
 	#instVars : [
 		'typeDefinitionNode',
-		'typeDeclarationNode'
+		'typeDeclarationNode',
+		'superTypeNode'
 	],
 	#category : #'SysmelMoebiusMetamodel-Core-MetaBuilder'
 }
@@ -43,6 +44,7 @@ MbndAbstractTypeMetaBuilder >> ensureTypeDefinitionNode [
 	typeDefinitionNode := self typeDefinitionNodeClass new
 		position: position;
 		declaration: typeDeclarationNode;
+		superTypeNode: superTypeNode;
 		yourself
 ]
 
