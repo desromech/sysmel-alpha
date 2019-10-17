@@ -1,13 +1,14 @@
 Class {
 	#name : #MbndAbstractFieldVariable,
 	#superclass : #MbndAbstractVariable,
+	#traits : 'TMbndEntityWithVisibility',
+	#classTraits : 'TMbndEntityWithVisibility classTrait',
 	#instVars : [
 		'type',
 		'initialValueNode',
 		'initialValueScope',
 		'byteOffset',
-		'slotIndex',
-		'visibility'
+		'slotIndex'
 	],
 	#category : #'SysmelMoebiusMetamodel-Core-Variables'
 }
@@ -30,6 +31,19 @@ MbndAbstractFieldVariable >> byteOffset [
 { #category : #accessing }
 MbndAbstractFieldVariable >> byteOffset: anObject [
 	byteOffset := anObject
+]
+
+{ #category : #'as yet unclassified' }
+MbndAbstractFieldVariable >> createPublicAccessorsIn: aParent [
+	self assert: self name isMbndAnonymousSymbol not.
+	aParent
+		addInstanceAccessor: (MbndFieldGetterAccessorMacro new field: self) for: name asSymbol;
+		addInstanceAccessor: (MbndFieldSetterAccessorMacro new field: self) for: (name , ':') asSymbol
+]
+
+{ #category : #accessing }
+MbndAbstractFieldVariable >> defaultVisibilityMode [
+	^ #protected
 ]
 
 { #category : #accessing }
@@ -55,12 +69,6 @@ MbndAbstractFieldVariable >> initialValueScope: anObject [
 { #category : #initialization }
 MbndAbstractFieldVariable >> initialize [
 	super initialize.
-	visibility := #private
-]
-
-{ #category : #testing }
-MbndAbstractFieldVariable >> isPublic [
-	^ visibility == #public
 ]
 
 { #category : #accessing }
@@ -81,14 +89,4 @@ MbndAbstractFieldVariable >> type [
 { #category : #accessing }
 MbndAbstractFieldVariable >> type: anObject [
 	type := anObject
-]
-
-{ #category : #accessing }
-MbndAbstractFieldVariable >> visibility [
-	^ visibility
-]
-
-{ #category : #accessing }
-MbndAbstractFieldVariable >> visibility: aVisibility [
-	visibility := aVisibility
 ]

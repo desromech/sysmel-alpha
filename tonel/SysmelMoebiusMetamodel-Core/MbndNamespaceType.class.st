@@ -16,22 +16,16 @@ MbndNamespaceType >> accept: aVisitor [
 
 { #category : #'semantic analysis' }
 MbndNamespaceType >> analyzeUnboundExpandedMessageSendNode: node with: analyzer [
-	| namespaceEntity method boundSymbol |
+	| namespaceEntity method |
 	node receiver isLiteralValueNode ifTrue: [ 
 		node selector isLiteralSymbolValueNode ifTrue: [ 
 			namespaceEntity := node receiver value.
 			self assert: namespaceEntity isNamespace.
 		
-			"Give priority to the methods."
+			"Check for an overloaded method."
 			method := namespaceEntity lookupOverloadedSelector: node selector value.
 			method ifNotNil: [
 				^ method analyzeExpandedMessageSendNode: node with: analyzer
-			].
-		
-			"Then allow access to the symbols."
-			boundSymbol := namespaceEntity lookupSymbol: node selector value.
-			boundSymbol ifNotNil: [
-				^ boundSymbol analyzeReferenceNode: node with: analyzer
 			].
 		
 			self error: 'Cannot find member named {1} in namespace {2}.' format: {node selector printValueString . namespaceEntity fullName} at: node

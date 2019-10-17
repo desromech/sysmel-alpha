@@ -512,7 +512,7 @@ MbndAstSemanticAnalyzer >> visitFieldDefinitionNode: node [
 
 	field := MbndFieldVariable new
 		name: fieldName;
-		visibility: visibility;
+		flags: result flags;
 		valueType: result valueType;
 		type: result valueType ref;
 		bits: result bits;

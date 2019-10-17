@@ -19,9 +19,6 @@ MbndAggregateTypeWithFields >> addField: aField [
 
 	aField name isMbndAnonymousSymbol ifFalse: [ 
 		self setLocalSymbol: aField name value: aField.
-		aField isPublic ifTrue: [
-			self createPublicFieldAccessors: aField
-		].
 	].
 
 	self fields add: aField.
@@ -46,17 +43,6 @@ MbndAggregateTypeWithFields >> buildSlotLayoutWith: builder [
 
 { #category : #layout }
 MbndAggregateTypeWithFields >> buildSuperTypesSlotLayoutWith: builder [
-]
-
-{ #category : #adding }
-MbndAggregateTypeWithFields >> createPublicFieldAccessors: aField [
-	self macroMethodDict
-		at: aField name asSymbol ifAbsentPut: [
-			MbndFieldGetterAccessorMacro new field: aField
-		];
-		at: (aField name , ':') asSymbol ifAbsentPut: [
-			MbndFieldSetterAccessorMacro new field: aField
-		].
 ]
 
 { #category : #'default values' }

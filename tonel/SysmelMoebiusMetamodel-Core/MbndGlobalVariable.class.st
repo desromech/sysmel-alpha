@@ -1,6 +1,8 @@
 Class {
 	#name : #MbndGlobalVariable,
 	#superclass : #MbndAbstractVariable,
+	#traits : 'TMbndEntityWithVisibility',
+	#classTraits : 'TMbndEntityWithVisibility classTrait',
 	#instVars : [
 		'currentValue',
 		'type'

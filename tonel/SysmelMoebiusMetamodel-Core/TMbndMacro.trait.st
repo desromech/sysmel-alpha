@@ -1,7 +1,7 @@
 Trait {
 	#name : #TMbndMacro,
-	#traits : 'TMbndProgramEntity',
-	#classTraits : 'TMbndProgramEntity classTrait',
+	#traits : 'TMbndProgramEntity + TMbndFlagContainer + TMbndEntityWithVisibility',
+	#classTraits : 'TMbndProgramEntity classTrait + TMbndFlagContainer classTrait + TMbndEntityWithVisibility classTrait',
 	#category : #'SysmelMoebiusMetamodel-Core-Macro'
 }
 

@@ -26,5 +26,10 @@ TMbndSymbolContainer >> lookupSymbol: aSymbol [
 
 { #category : #'member symbols' }
 TMbndSymbolContainer >> setLocalSymbol: aSymbol value: aValue [
-	^ self localSymbolTable at: aSymbol put: aValue
+	| result |
+	result := self localSymbolTable at: aSymbol put: aValue.
+	aValue hasPublicVisibility ifTrue: [
+		aValue createPublicAccessorsIn: self
+	].
+	^ result
 ]

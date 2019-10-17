@@ -37,3 +37,8 @@ MbndTemplateInstance >> instanceArguments: aListWithInstanceArguments [
 		].
 	].
 ]
+
+{ #category : #'member symbols' }
+MbndTemplateInstance >> setLocalSymbol: aSymbol value: aValue [
+	^ self localSymbolTable at: aSymbol put: aValue
+]

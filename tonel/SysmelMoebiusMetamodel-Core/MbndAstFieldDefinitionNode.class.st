@@ -1,6 +1,8 @@
 Class {
 	#name : #MbndAstFieldDefinitionNode,
 	#superclass : #MbndAstAbstractVariableDefinitionNode,
+	#traits : 'TMbndEntityWithVisibility',
+	#classTraits : 'TMbndEntityWithVisibility classTrait',
 	#instVars : [
 		'bits'
 	],
@@ -25,9 +27,4 @@ MbndAstFieldDefinitionNode >> bits: anObject [
 { #category : #testing }
 MbndAstFieldDefinitionNode >> isFieldDefinitionNode [
 	^ true
-]
-
-{ #category : #'as yet unclassified' }
-MbndAstFieldDefinitionNode >> public [
-	self addFlag: #public
 ]

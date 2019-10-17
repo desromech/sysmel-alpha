@@ -4,7 +4,6 @@ I provide the fundamental protocol for the MoebiusBand type system. I am the cor
 Trait {
 	#name : #TMbndAbstractType,
 	#instVars : [
-		'publicMetaBuilderFactories',
 		'extraMetaBuilderFactories'
 	],
 	#traits : 'TMbndProgramEntity',
@@ -286,11 +285,6 @@ TMbndAbstractType >> createExtraMetaBuilderFactories [
 	^ Dictionary newFromPairs: self getExtraMetaBuilderFactoryList
 ]
 
-{ #category : #'meta builder factories' }
-TMbndAbstractType >> createPublicMetaBuilderFactories [
-	^ Dictionary newFromPairs: self getPublicMetaBuilderFactoryList
-]
-
 { #category : #accessing }
 TMbndAbstractType >> decorations [
 	^ #()
@@ -381,14 +375,6 @@ TMbndAbstractType >> getExtraMetaBuilderFactoryList [
 	^ { 
 		#method . MbndMethodMetaBuilder metaBuilderFactory.
 	}
-]
-
-{ #category : #'meta builder factories' }
-TMbndAbstractType >> getPublicMetaBuilderFactoryList [
-	^ { 
-		#macro . MbndMacroMetaBuilder metaBuilderFactory.
-		#message . MbndMessageMetaBuilder metaBuilderFactory.
-	} ,  self getExtraMetaBuilderFactoryList
 ]
 
 { #category : #adding }
@@ -739,7 +725,7 @@ TMbndAbstractType >> pointerFor: addressSpace [
 	^ self compilationTarget pointerFor: addressSpace to: self
 ]
 
-{ #category : #'meta builder factories' }
+{ #category : #accessing }
 TMbndAbstractType >> publicMetaBuilderFactories [
 	^ publicMetaBuilderFactories ifNil: [ publicMetaBuilderFactories := self createPublicMetaBuilderFactories ]
 ]

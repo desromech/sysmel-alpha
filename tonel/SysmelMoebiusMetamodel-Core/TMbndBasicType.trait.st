@@ -4,10 +4,15 @@ Trait {
 		'supertype',
 		'type'
 	],
-	#traits : 'TMbndType + TMbndMethodContainer + TMbndFlagContainer + TMbndSymbolContainer',
-	#classTraits : 'TMbndType classTrait + TMbndMethodContainer classTrait + TMbndFlagContainer classTrait + TMbndSymbolContainer classTrait',
+	#traits : 'TMbndType + TMbndMethodContainer + TMbndFlagContainer + TMbndSymbolContainer + TMbndEntityWithVisibility',
+	#classTraits : 'TMbndType classTrait + TMbndMethodContainer classTrait + TMbndFlagContainer classTrait + TMbndSymbolContainer classTrait + TMbndEntityWithVisibility classTrait',
 	#category : #'SysmelMoebiusMetamodel-Core-Type'
 }
+
+{ #category : #adding }
+TMbndBasicType >> addStaticAccessor: accessor for: selector [
+	self type macroMethodDict at: selector put: accessor
+]
 
 { #category : #'as yet unclassified' }
 TMbndBasicType >> analyzeExpandedMessageNode: node with: analyzer [
@@ -20,6 +25,11 @@ TMbndBasicType >> analyzeExpandedMessageNode: node with: analyzer [
 	"We failed to find the method, then ask the receiver type to interpret this message."
 	^ self analyzeUnboundExpandedMessageSendNode: node with: analyzer
 
+]
+
+{ #category : #testing }
+TMbndBasicType >> hasPublicVisibility [
+	^ self visibilityMode == #public
 ]
 
 { #category : #'as yet unclassified' }

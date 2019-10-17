@@ -1,8 +1,8 @@
 Class {
 	#name : #MbndCompileTimeConstant,
-	#superclass : #Object,
-	#traits : 'TMbndProgramEntity',
-	#classTraits : 'TMbndProgramEntity classTrait',
+	#superclass : #MbndAbstractCompileTimeConstant,
+	#traits : 'TMbndFlagContainer + TMbndEntityWithVisibility',
+	#classTraits : 'TMbndFlagContainer classTrait + TMbndEntityWithVisibility classTrait',
 	#instVars : [
 		'name',
 		'parent',
@@ -27,6 +27,11 @@ MbndCompileTimeConstant >> analyzeReferenceNode: referenceNode with: analyzer [
 { #category : #'as yet unclassified' }
 MbndCompileTimeConstant >> compilationTarget [
 	^ parent compilationTarget
+]
+
+{ #category : #accessing }
+MbndCompileTimeConstant >> defaultVisibilityMode [
+	^ #public
 ]
 
 { #category : #'semantic analysis' }

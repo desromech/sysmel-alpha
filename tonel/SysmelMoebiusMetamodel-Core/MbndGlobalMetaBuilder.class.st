@@ -1,6 +1,8 @@
 Class {
 	#name : #MbndGlobalMetaBuilder,
 	#superclass : #MbndAbstractVariableMetaBuilder,
+	#traits : 'TMbndEntityWithVisibility',
+	#classTraits : 'TMbndEntityWithVisibility classTrait',
 	#category : #'SysmelMoebiusMetamodel-Core-MetaBuilder'
 }
 
@@ -24,22 +26,4 @@ MbndGlobalMetaBuilder >> concretizeNode: node withAnalyzer: analyzer [
 MbndGlobalMetaBuilder >> externC [
 	<compileTime>
 	self addFlag: #externC
-]
-
-{ #category : #accessing }
-MbndGlobalMetaBuilder >> private [
-	<compileTime>
-	self addFlag: #private
-]
-
-{ #category : #accessing }
-MbndGlobalMetaBuilder >> protected [
-	<compileTime>
-	self addFlag: #protected
-]
-
-{ #category : #accessing }
-MbndGlobalMetaBuilder >> public [
-	<compileTime>
-	self addFlag: #public
 ]

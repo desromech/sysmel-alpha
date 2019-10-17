@@ -8,9 +8,19 @@ Trait {
 	#category : #'SysmelMoebiusMetamodel-Core-ProgramEntity'
 }
 
+{ #category : #accessing }
+TMbndMacroMethodContainer >> addInstanceAccessor: accessor for: selector [
+	self macroMethodDict at: selector put: accessor
+]
+
 { #category : #adding }
 TMbndMacroMethodContainer >> addMacroMethod: macroMethod [
 	self macroMethodDict at: macroMethod selector put: macroMethod
+]
+
+{ #category : #accessing }
+TMbndMacroMethodContainer >> addStaticAccessor: accessor for: selector [
+	self macroMethodDict at: selector put: accessor
 ]
 
 { #category : #'macro expansion' }

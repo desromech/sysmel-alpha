@@ -1,9 +1,23 @@
 Trait {
 	#name : #TMbndProgramEntity,
+	#instVars : [
+		'publicMetaBuilderFactories'
+	],
 	#traits : 'TMbndAbstractProgramEntity + TMbndAbstractMacroMethodContainer + TMbndAbstractMethodContainer + TMbndAbstractSymbolContainer',
 	#classTraits : 'TMbndAbstractProgramEntity classTrait + TMbndAbstractMacroMethodContainer classTrait + TMbndAbstractMethodContainer classTrait + TMbndAbstractSymbolContainer classTrait',
 	#category : #'SysmelMoebiusMetamodel-Core-ProgramEntity'
 }
+
+{ #category : #'as yet unclassified' }
+TMbndProgramEntity >> createPublicAccessorsIn: aParent [
+	self assert: self name isMbndAnonymousSymbol not.
+	aParent addStaticAccessor: (MbndPublicProgramEntityAccessor new programEntity: self) for: self name asSymbol
+]
+
+{ #category : #accessing }
+TMbndProgramEntity >> createPublicMetaBuilderFactories [
+	^ Dictionary newFromPairs: self getPublicMetaBuilderFactoryList
+]
 
 { #category : #'semantic analysis' }
 TMbndProgramEntity >> enqueueDelayedSemanticAnalysis [
@@ -12,6 +26,19 @@ TMbndProgramEntity >> enqueueDelayedSemanticAnalysis [
 
 { #category : #'semantic analysis' }
 TMbndProgramEntity >> ensureSemanticAnalysis [
+]
+
+{ #category : #accessing }
+TMbndProgramEntity >> getExtraMetaBuilderFactoryList [
+	^ #()
+]
+
+{ #category : #accessing }
+TMbndProgramEntity >> getPublicMetaBuilderFactoryList [
+	^ { 
+		#macro . MbndMacroMetaBuilder metaBuilderFactory.
+		#message . MbndMessageMetaBuilder metaBuilderFactory.
+	} ,  self getExtraMetaBuilderFactoryList
 ]
 
 { #category : #accessing }
@@ -32,4 +59,9 @@ TMbndProgramEntity >> programEntityScope [
 { #category : #scope }
 TMbndProgramEntity >> programEntityScopeClass [
 	^ MbndProgramEntityScope
+]
+
+{ #category : #accessing }
+TMbndProgramEntity >> publicMetaBuilderFactories [
+	^ publicMetaBuilderFactories ifNil: [ publicMetaBuilderFactories := self createPublicMetaBuilderFactories ]
 ]

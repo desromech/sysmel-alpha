@@ -16,5 +16,5 @@ MbndAbstractFlagMetaBuilder >> analyzeUnexpandedMessageSendNode: node with: anal
 		].
 	].
 
-	^ self analyzeUnexpandedMessageSendNode: node with: analyzer
+	^ super analyzeUnexpandedMessageSendNode: node with: analyzer
 ]

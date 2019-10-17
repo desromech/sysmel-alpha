@@ -36,6 +36,11 @@ TMbndAbstractProgramEntity >> fullName [
 ]
 
 { #category : #testing }
+TMbndAbstractProgramEntity >> hasPublicVisibility [
+	^ true
+]
+
+{ #category : #testing }
 TMbndAbstractProgramEntity >> isCompileTimeConstant [
 	^ false
 ]
@@ -68,4 +73,9 @@ TMbndAbstractProgramEntity >> isVariable [
 { #category : #accessing }
 TMbndAbstractProgramEntity >> parent [
 	^ nil
+]
+
+{ #category : #'meta builder factories' }
+TMbndAbstractProgramEntity >> publicMetaBuilderFactories [
+	^ Dictionary new
 ]

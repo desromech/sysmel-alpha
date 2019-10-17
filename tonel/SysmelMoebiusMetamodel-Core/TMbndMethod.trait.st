@@ -1,7 +1,7 @@
 Trait {
 	#name : #TMbndMethod,
-	#traits : 'TMbndProgramEntity + TMbndFlagContainer',
-	#classTraits : 'TMbndProgramEntity classTrait + TMbndFlagContainer classTrait',
+	#traits : 'TMbndProgramEntity + TMbndFlagContainer + TMbndEntityWithVisibility',
+	#classTraits : 'TMbndProgramEntity classTrait + TMbndFlagContainer classTrait + TMbndEntityWithVisibility classTrait',
 	#category : #'SysmelMoebiusMetamodel-Core-Method'
 }
 
@@ -23,6 +23,11 @@ TMbndMethod >> boundType [
 { #category : #evaluation }
 TMbndMethod >> evaluateWithReceiver: receiver arguments: arguments withEvaluator: evaluator at: node [
 	self explicitRequirement
+]
+
+{ #category : #accessing }
+TMbndMethod >> hasPublicVisibility [
+	^ self visibilityMode == #public
 ]
 
 { #category : #'as yet unclassified' }
