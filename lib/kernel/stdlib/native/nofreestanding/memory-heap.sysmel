@@ -388,7 +388,7 @@ class NativeMemoryHeap definition: {
     #**
      * Quantum space category active run state.
      *#
-    struct QuantumSpacedCategoryState := {
+    struct QuantumSpacedCategoryState definition: {
         field firstActiveSlab public type: SlabHeader pointer.
         field lastActiveSlab public type: SlabHeader pointer.
 

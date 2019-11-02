@@ -1,5 +1,4 @@
 namespace SysmelKernel definition: {
-
 compileTimeConstant Char := UInt8.
 
 } ## End of namespace SysmelKernel

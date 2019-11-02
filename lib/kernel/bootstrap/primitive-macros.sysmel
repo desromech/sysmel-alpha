@@ -91,7 +91,7 @@ namespace SysmelKernel definition: {
 
 		aBlock isBlockClosureNode && aBlock arguments size = 1
 			&& aBlock arguments first valueType isNotNil ifTrue: {
-            let indexType := aBlock arguments first typeExpression castTo: _ASTNodeType.
+            let indexType := aBlock arguments first valueType castTo: _ASTNodeType.
 
             ``{
                 let `,index mutable type: `,indexType := `,self.
