@@ -1,4 +1,4 @@
 loadFileOnce: "stream.sysmel".
 loadFileOnce: "text-stream-writer.sysmel".
 loadFileOnce: "text-stream-reader.sysmel".
-##loadFileOnce: "memory-heap.sysmel".
+loadFileOnce: "memory-heap.sysmel".

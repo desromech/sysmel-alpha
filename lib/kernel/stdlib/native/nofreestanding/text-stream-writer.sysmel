@@ -88,7 +88,7 @@ class TextStreamWriter definition: {
     }.
 
     ## Floating point formatting
-    #*message nextPutDouble: (double: Float64) ::=> Void := {
+    message nextPutDouble: (double: Float64) ::=> Void := {
         let doubleMemory mutable := double.
         let ieee754Double := (doubleMemory address reinterpretCastTo: UInt64 pointer) value.
 
@@ -136,7 +136,7 @@ class TextStreamWriter definition: {
         self << "e" << exponent << "m" << mantissa.
         ##let decimalPart mutable type: FloatStringConversionBigInteger := mantissa.
         ##self << "e" << exponent << "m" << mantissa << "dp" << decimalPart words[0] << ":" << decimalPart words[1] << ":" << decimalPart words[2] << ":"; nextPutBigInteger: decimalPart.
-    }.*#
+    }.
 
     ## Pointer formatting.
     message nextPutLittleUInt32: (value: UInt32) ::=> Void := {
@@ -217,11 +217,11 @@ class TextStreamWriter definition: {
     message << (pointer: Void pointer) => SelfType ref
         := self nextPutHexPointer: pointer; yourself.
 
-    #*message << (float: Float32) => SelfType ref
+    message << (float: Float32) => SelfType ref
         := self nextPutDouble: float; yourself.
 
     message << (double: Float64) => SelfType ref
-        := self nextPutDouble: double; yourself.*#
+        := self nextPutDouble: double; yourself.
 }.
 
 #*PrimitiveVectorTypeTemplate extend: {

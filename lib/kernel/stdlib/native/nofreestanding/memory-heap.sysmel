@@ -79,7 +79,7 @@ template FixedSizeBuddyMemoryAllocator(MNOSB: _LiteralInteger)
             } continueWith: (i := i + 1).
 
             ## Store the target allocated level, and a bit to indicate the presence of a slab.
-            leafBlocks_allocatedLevel[leafBlockIndex] := targetLevel | (isForSlab ifTrue: (16r80 castTo: UInt8) ifFalse: 16r0) castTo: UInt8.
+            leafBlocks_allocatedLevel[leafBlockIndex] := targetLevel | ((isForSlab ifTrue: 16r80 ifFalse: 16r0) castTo: UInt8) castTo: UInt8.
 
             leafBlockIndex
         }
@@ -257,10 +257,10 @@ template FixedSizeBuddyMemoryAllocator(MNOSB: _LiteralInteger)
  *       - Dedicated chunk allocation.
  *#
 class NativeMemoryHeap definition: {
-    compileTimeConstant MemoryChunkSize := 16r200000.
-    compileTimeConstant MemoryChunkAlignment := 16r200000.
-    let HugeAllocationThreshold type: UIntPointer := MemoryChunkSize / 2.
-    let LargeAllocationThreshold type: UIntPointer := 16r1000.
+    compileTimeConstant MemoryChunkSize := 16r200000 castTo: UIntPointer.
+    compileTimeConstant MemoryChunkAlignment := 16r200000 castTo: UIntPointer.
+    compileTimeConstant HugeAllocationThreshold := MemoryChunkSize / 2 castTo: UIntPointer.
+    compileTimeConstant LargeAllocationThreshold := 16r1000 castTo: UIntPointer.
 
     compileTimeConstant MemoryChunkBlockSize := 16r800.
     compileTimeConstant MemoryChunkBlockCount := MemoryChunkSize / MemoryChunkBlockSize.
@@ -334,7 +334,7 @@ class NativeMemoryHeap definition: {
             freeCount := count castTo: UInt16.
 
             let bitmapWordCount := self bitmapWordCount.
-            let lastWordFreeElements := elementCount % WordBitCount.
+            let lastWordFreeElements := elementCount % WordBitCount castTo: UInt16.
             lastWordFreeElements ~~ 0 ifTrue: {
                 ## Mark the unused elements in the bitmap as allocated.
                 let lastWordFreeElementsMask := ((1 castTo: UIntPointer) << lastWordFreeElements) - 1.
@@ -537,7 +537,7 @@ class NativeMemoryHeap definition: {
             let slabBlockIndex := normalChunkHeader _ buddyMemoryAllocator getSlabBlockOrInvalid: buddyBlockIndex.
 
             slabBlockIndex ~~ ChunkBuddyMemoryAllocator InvalidBlockIndex ifTrue: {
-                let slabAddress := chunkAddress + slabBlockIndex * MemoryChunkBlockSize.
+                let slabAddress := chunkAddress + (slabBlockIndex * MemoryChunkBlockSize castTo: UIntPointer).
                 let slabHeader := slabAddress reinterpretCastTo: SlabHeader pointer.
 
                 slabHeader _ elementSize
@@ -580,7 +580,7 @@ class NativeMemoryHeap definition: {
             ##stdout << pointer << " normalChunkHeader " << normalChunkHeader << " " << buddyBlockIndex << " " << slabBlockIndex; nl.
 
             slabBlockIndex ~~ ChunkBuddyMemoryAllocator InvalidBlockIndex ifTrue: {
-                let slabAddress := chunkAddress + slabBlockIndex * MemoryChunkBlockSize.
+                let slabAddress := chunkAddress + (slabBlockIndex * MemoryChunkBlockSize castTo: UIntPointer).
                 let slabHeader := slabAddress reinterpretCastTo: SlabHeader pointer.
                 let slabElementIndex := (pointerAddress - (slabAddress + SlabHeaderSize)) / slabHeader _ elementSize.
 
@@ -905,38 +905,38 @@ function free(pointer: Void pointer) => Void
 
 
 ## basicNativeNew macro
-PrimitiveType meta macro expansionRule basicNativeNew := ``(
+_PrimitiveType meta macro expansionRule basicNativeNew := ``(
     (StdNative zmalloc(`,self instanceSize) reinterpretCastTo: `,self pointer) _
         basicInitialize;
         address
 ).
 
-StructureType meta macro expansionRule basicNativeNew := ``(
+_StructureType meta macro expansionRule basicNativeNew := ``(
     (StdNative zmalloc(`,self instanceSize) reinterpretCastTo: `,self pointer) _
         basicInitialize;
         address
 ).
 
 ## basicNativeDelete
-PointerType macro expansionRule basicNativeDelete := ``(
+_PointerType macro expansionRule basicNativeDelete := ``(
     StdNative free(`,self)
 ).
 
 ## Native new
-PrimitiveType meta macro expansionRule nativeNew := ``(
+_PrimitiveType meta macro expansionRule nativeNew := ``(
     (`,self basicNativeNew) _
         initialize;
         address
 ).
 
-StructureType meta macro expansionRule nativeNew := ``(
+_StructureType meta macro expansionRule nativeNew := ``(
     (`,self basicNativeNew) _
         initialize;
         address
 ).
 
 ## nativeDelete
-PointerType macro expansionRule nativeDelete := ``(
+_PointerType macro expansionRule nativeDelete := ``(
     `,self ifNotNil: {
         (`,self _
             finalize;
