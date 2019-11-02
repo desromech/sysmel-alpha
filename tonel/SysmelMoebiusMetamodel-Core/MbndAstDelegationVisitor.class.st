@@ -78,6 +78,11 @@ MbndAstDelegationVisitor >> visitCompileTimeConstantDefinitionNode: node [
 ]
 
 { #category : #visiting }
+MbndAstDelegationVisitor >> visitConcretizeUndefinedValueCastNode: node [
+	^ self delegateNodeVisit: node
+]
+
+{ #category : #visiting }
 MbndAstDelegationVisitor >> visitContinueStatementNode: node [
 	^ self delegateNodeVisit: node
 ]

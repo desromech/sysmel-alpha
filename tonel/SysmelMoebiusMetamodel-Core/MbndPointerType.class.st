@@ -51,6 +51,8 @@ MbndPointerType >> addDefaultConversionRules [
 	super addDefaultConversionRules.
 	self isTrait ifFalse: [
 		self
+			addExplicitConversionRule: MbndPointerConstCastConversionRule new;
+			addImplicitConversionRule: MbndPointerAddConstConversionRule new;
 			addExplicitConversionRule: MbndPointerExplicitVoidReinterpretTypeConversionRule new;
 			addImplicitConversionRule: MbndPointerImplicitVoidReinterpretTypeConversionRule new.
 		baseType withoutTopDecorations addConversionRulesToPointerType: self

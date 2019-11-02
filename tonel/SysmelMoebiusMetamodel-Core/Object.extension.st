@@ -24,12 +24,22 @@ Object >> isMbndGeneratedSymbol [
 ]
 
 { #category : #'*SysmelMoebiusMetamodel-Core' }
+Object >> isMbndProgramEntity [
+	^ false
+]
+
+{ #category : #'*SysmelMoebiusMetamodel-Core' }
 Object >> isMbndSymbolBinding [
 	^ false
 ]
 
 { #category : #'*SysmelMoebiusMetamodel-Core' }
 Object >> isMbndType [
+	^ false
+]
+
+{ #category : #'*SysmelMoebiusMetamodel-Core' }
+Object >> isMbndVTablePointerValue [
 	^ false
 ]
 

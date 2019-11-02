@@ -120,6 +120,11 @@ MbndAstNode >> isCompileTimeConstantDefinitionNode [
 ]
 
 { #category : #testing }
+MbndAstNode >> isConcretizeUndefinedValueCastNode [
+	^ false
+]
+
+{ #category : #testing }
 MbndAstNode >> isContinueStatementNode [
 	^ false
 ]

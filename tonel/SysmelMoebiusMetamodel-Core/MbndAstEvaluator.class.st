@@ -61,6 +61,11 @@ MbndAstEvaluator >> visitClassDefinitionNode: node [
 ]
 
 { #category : #visiting }
+MbndAstEvaluator >> visitConcretizeUndefinedValueCastNode: node [
+	self halt
+]
+
+{ #category : #visiting }
 MbndAstEvaluator >> visitConvertFromCompilerObjectCastNode: node [
 	| result |
 	result := (self visitNode: node expression) unwrapMbndValue.
@@ -256,6 +261,15 @@ MbndAstEvaluator >> visitMethodReferenceNode: node [
 ]
 
 { #category : #visiting }
+MbndAstEvaluator >> visitPointerAsReferenceNode: node [
+	| pointer |
+	pointer := self visitNode: node pointer.
+	^ pointer copy
+		type: pointer type asReferenceType;
+		yourself
+]
+
+{ #category : #visiting }
 MbndAstEvaluator >> visitQuasiQuoteNode: node [
 	| result |
 	result := MbndAstQuasiQuoteEvaluator new
@@ -268,6 +282,15 @@ MbndAstEvaluator >> visitQuasiQuoteNode: node [
 { #category : #visiting }
 MbndAstEvaluator >> visitQuoteNode: node [
 	^ MbndValue value: node expression type: node type
+]
+
+{ #category : #visiting }
+MbndAstEvaluator >> visitReferenceAsPointerNode: node [
+	| reference |
+	reference := self visitNode: node reference.
+	^ reference copy
+		type: reference type asPointerType;
+		yourself
 ]
 
 { #category : #visiting }
@@ -307,6 +330,55 @@ MbndAstEvaluator >> visitSequenceNode: node [
 ]
 
 { #category : #visiting }
+MbndAstEvaluator >> visitSetFieldValueNode: node [
+	| aggregate newValue aggregateType field aggregateValue |
+	aggregate := self visitNode: node aggregate.
+	newValue := self visitNode: node newValue.
+	aggregateType := node aggregate type withoutDecorations withoutReferences.
+	field := node field.
+
+	aggregateValue := aggregate.
+	(aggregate type isPointerType or: [ aggregate type isReferenceType ]) ifTrue: [ 
+		self assert: aggregate type baseType isConstantType not.
+		aggregateValue := aggregateValue "ref value" value "ref container" value.
+	].
+	
+	self assert: aggregateValue type isAggregateType.
+	aggregateValue value slots at: field slotIndex + 1 put: newValue value.
+	^ aggregate
+	
+]
+
+{ #category : #visiting }
+MbndAstEvaluator >> visitStaticClassPointerCastNode: castNode [
+	| pointer sourceType targetType targetSlotIndex |
+	pointer := self visitNode: castNode expression.
+	
+	sourceType := castNode expression type baseType withoutTopDecorations.
+	targetType := castNode targetType baseType withoutTopDecorations.
+	
+	"Is this an upcast?"
+	(sourceType isSubtypeOf: targetType) ifTrue: [
+		targetSlotIndex := sourceType slotLayout typeStartLocations at: targetType.
+		targetSlotIndex == 0 ifTrue: [ ^ pointer copy type: castNode type ].
+		
+		self halt
+	].
+
+	"Is this a down cast?"
+	(targetType isSubtypeOf: sourceType) ifTrue: [
+		self halt.
+	].
+
+	self halt
+]
+
+{ #category : #visiting }
+MbndAstEvaluator >> visitStructureDeclarationNode: node [
+	^ self visitTypeDeclarationNode: node
+]
+
+{ #category : #visiting }
 MbndAstEvaluator >> visitStructureDefinitionNode: node [
 	^ self visitTypeDefinitionNode: node
 ]
@@ -321,6 +393,11 @@ MbndAstEvaluator >> visitTupleNode: node [
 	| result |
 	result := node elements collect: [ :el | (self visitNode: el) unwrapMbndValue ].
 	^ MbndValue value: result type: node type
+]
+
+{ #category : #visiting }
+MbndAstEvaluator >> visitTypeDeclarationNode: node [
+	^ MbndValue value: node binding type: node type
 ]
 
 { #category : #visiting }

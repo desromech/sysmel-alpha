@@ -77,6 +77,18 @@ MbndPrimitiveIntegerType >> asCVariadicTypeRequiredAt: position [
 	^ self
 ]
 
+{ #category : #converting }
+MbndPrimitiveIntegerType >> asSignedType [
+	self isSigned  ifTrue: [ ^ self ].
+	^ self compilationTarget getBasicTypeNamed: name allButFirst asSymbol
+]
+
+{ #category : #converting }
+MbndPrimitiveIntegerType >> asUnsignedType [
+	self isUnsigned ifTrue: [ ^ self ].
+	^ self compilationTarget getBasicTypeNamed: ('U' , name) asSymbol
+]
+
 { #category : #testing }
 MbndPrimitiveIntegerType >> bitMask [
 	^ bitMask ifNil: [ bitMask := (1 << (instanceSize * 8))  - 1 ]

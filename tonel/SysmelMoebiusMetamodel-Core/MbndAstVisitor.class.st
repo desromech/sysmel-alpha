@@ -75,6 +75,11 @@ MbndAstVisitor >> visitCompileTimeConstantDefinitionNode: node [
 ]
 
 { #category : #visiting }
+MbndAstVisitor >> visitConcretizeUndefinedValueCastNode: node [
+	self subclassResponsibility
+]
+
+{ #category : #visiting }
 MbndAstVisitor >> visitContinueStatementNode: node [
 	self subclassResponsibility
 ]

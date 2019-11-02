@@ -768,6 +768,72 @@ MbndSlovimCodeModuleGeneratorTest >> testIntegerAdd [
 ]
 
 { #category : #tests }
+MbndSlovimCodeModuleGeneratorTest >> testIntegerAddUInt64 [
+	| function |
+	self
+		evaluateSysmelSource: 'function op externC(x: UInt64) => UInt64 := x + 1';
+		generateSSAModule.
+
+	function := ssaModule globalNamed: #op.
+	self assert: function isFunction.
+	self deny: function isEmpty.
+	self assert: function basicBlocks size equals: 2.
+	self assert: function basicBlocks second firstInstruction isBinaryOperation.
+	self assert: function basicBlocks second firstInstruction operation equals: #add.
+	self assert: function basicBlocks second lastInstruction isReturn.
+]
+
+{ #category : #tests }
+MbndSlovimCodeModuleGeneratorTest >> testIntegerAddUInt64Ref [
+	| function |
+	self
+		evaluateSysmelSource: 'function op externC(x: UInt64 ref) => UInt64 := x + 1';
+		generateSSAModule.
+
+	function := ssaModule globalNamed: #op.
+	self assert: function isFunction.
+	self deny: function isEmpty.
+	self assert: function basicBlocks size equals: 2.
+	self assert: function basicBlocks second firstInstruction isLoad.
+	self assert: function basicBlocks second firstInstruction nextInstruction isBinaryOperation.
+	self assert: function basicBlocks second firstInstruction nextInstruction operation equals: #add.
+	self assert: function basicBlocks second lastInstruction isReturn.
+]
+
+{ #category : #tests }
+MbndSlovimCodeModuleGeneratorTest >> testIntegerAddUInt64Ref2 [
+	| function |
+	self
+		evaluateSysmelSource: 'function op externC(x: UInt64 ref) => UInt64 := 1 + x';
+		generateSSAModule.
+
+	function := ssaModule globalNamed: #op.
+	self assert: function isFunction.
+	self deny: function isEmpty.
+	self assert: function basicBlocks size equals: 2.
+	self assert: function basicBlocks second firstInstruction isLoad.
+	self assert: function basicBlocks second firstInstruction nextInstruction isBinaryOperation.
+	self assert: function basicBlocks second firstInstruction nextInstruction operation equals: #add.
+	self assert: function basicBlocks second lastInstruction isReturn.
+]
+
+{ #category : #tests }
+MbndSlovimCodeModuleGeneratorTest >> testIntegerAddUInt64_2 [
+	| function |
+	self
+		evaluateSysmelSource: 'function op externC(x: UInt64) => UInt64 := 1 + x';
+		generateSSAModule.
+
+	function := ssaModule globalNamed: #op.
+	self assert: function isFunction.
+	self deny: function isEmpty.
+	self assert: function basicBlocks size equals: 2.
+	self assert: function basicBlocks second firstInstruction isBinaryOperation.
+	self assert: function basicBlocks second firstInstruction operation equals: #add.
+	self assert: function basicBlocks second lastInstruction isReturn.
+]
+
+{ #category : #tests }
 MbndSlovimCodeModuleGeneratorTest >> testIntegerBitAnd [
 	| function |
 	self
@@ -1414,6 +1480,22 @@ MbndSlovimCodeModuleGeneratorTest >> testIntegerSubtract [
 ]
 
 { #category : #tests }
+MbndSlovimCodeModuleGeneratorTest >> testIntegerSubtractUInt64 [
+	| function |
+	self
+		evaluateSysmelSource: 'function op externC(x: UInt64) => UInt64 := x - 20';
+		generateSSAModule.
+
+	function := ssaModule globalNamed: #op.
+	self assert: function isFunction.
+	self deny: function isEmpty.
+	self assert: function basicBlocks size equals: 2.
+	self assert: function basicBlocks second firstInstruction isBinaryOperation.
+	self assert: function basicBlocks second firstInstruction operation equals: #sub.
+	self assert: function basicBlocks second lastInstruction isReturn.
+]
+
+{ #category : #tests }
 MbndSlovimCodeModuleGeneratorTest >> testIntegerToFloatCast [
 	| function |
 	self
@@ -1929,6 +2011,36 @@ MbndSlovimCodeModuleGeneratorTest >> testPointerNotEquality2 [
 ]
 
 { #category : #tests }
+MbndSlovimCodeModuleGeneratorTest >> testPointerNull [
+	| function |
+	self
+		evaluateSysmelSource: 'function returnNull externC() => Int32 pointer := nil';
+		generateSSAModule.
+
+	function := ssaModule globalNamed: #returnNull.
+	self assert: function isFunction.
+	self deny: function isEmpty.
+	self assert: function basicBlocks size equals: 2.
+	self assert: function basicBlocks second firstInstruction isReturn.
+]
+
+{ #category : #tests }
+MbndSlovimCodeModuleGeneratorTest >> testPointerNull2 [
+	| function |
+	self
+		evaluateSysmelSource: '
+		function sideEffect() => Void.
+		function returnNull externC() => Int32 pointer := {sideEffect() . nil}';
+		generateSSAModule.
+
+	function := ssaModule globalNamed: #returnNull.
+	self assert: function isFunction.
+	self deny: function isEmpty.
+	self assert: function basicBlocks size equals: 2.
+	self assert: function basicBlocks second lastInstruction isReturn.
+]
+
+{ #category : #tests }
 MbndSlovimCodeModuleGeneratorTest >> testPointerReinterpretCast [
 	| function |
 	self
@@ -1990,6 +2102,37 @@ MbndSlovimCodeModuleGeneratorTest >> testPointerReinterpretCast4 [
 	self assert: function basicBlocks size equals: 2.
 	self assert: function basicBlocks second firstInstruction isBitCast.
 	self assert: function basicBlocks second lastInstruction isReturn.
+]
+
+{ #category : #tests }
+MbndSlovimCodeModuleGeneratorTest >> testPointerReinterpretCast5 [
+	| function |
+	self
+		evaluateSysmelSource: 'function cast externC(x: UInt8 const pointer ref) => UInt32 const pointer
+			:= x reinterpretCastTo: UInt32 const pointer';
+		generateSSAModule.
+
+	function := ssaModule globalNamed: #cast.
+	self assert: function isFunction.
+	self deny: function isEmpty.
+	self assert: function basicBlocks size equals: 2.
+	self assert: function basicBlocks second firstInstruction isLoad.
+	self assert: function basicBlocks second firstInstruction nextInstruction isBitCast.
+	self assert: function basicBlocks second lastInstruction isReturn.
+]
+
+{ #category : #tests }
+MbndSlovimCodeModuleGeneratorTest >> testPointerToConstPointer [
+	| function |
+	self
+		evaluateSysmelSource: 'function cast externC(x: Void pointer) => Void const pointer := x';
+		generateSSAModule.
+
+	function := ssaModule globalNamed: #cast.
+	self assert: function isFunction.
+	self deny: function isEmpty.
+	self assert: function basicBlocks size equals: 2.
+	self assert: function basicBlocks second firstInstruction isReturn.
 ]
 
 { #category : #tests }
@@ -2068,6 +2211,74 @@ MbndSlovimCodeModuleGeneratorTest >> testReferenceAsPointer [
 	self deny: function isEmpty.
 	self assert: function basicBlocks size equals: 2.
 	self assert: function basicBlocks second firstInstruction isReturn.
+]
+
+{ #category : #tests }
+MbndSlovimCodeModuleGeneratorTest >> testReferenceToConstReference [
+	| function |
+	self
+		evaluateSysmelSource: 'function cast externC(x: Int32 ref) => Int32 const ref := x';
+		generateSSAModule.
+
+	function := ssaModule globalNamed: #cast.
+	self assert: function isFunction.
+	self deny: function isEmpty.
+	self assert: function basicBlocks size equals: 2.
+	self assert: function basicBlocks second firstInstruction isReturn.
+]
+
+{ #category : #tests }
+MbndSlovimCodeModuleGeneratorTest >> testSelect [
+	| function |
+	self
+		evaluateSysmelSource: 
+'function select externC(cond: BooleanBit, left: UInt16, right: UInt16) => UInt16
+	:= if: cond then: left else: right';
+		generateSSAModule.
+
+	function := ssaModule globalNamed: #select.
+	self assert: function isFunction.
+	self deny: function isEmpty.
+	self assert: function basicBlocks size equals: 5.
+	self assert: function basicBlocks second firstInstruction isBranch.
+	self assert: function basicBlocks fifth firstInstruction isPhi.
+	self assert: function basicBlocks fifth lastInstruction isReturn.
+]
+
+{ #category : #tests }
+MbndSlovimCodeModuleGeneratorTest >> testSelect2 [
+	| function |
+	self
+		evaluateSysmelSource: 
+'function select externC(cond: BooleanBit, left: UInt16 ref, right: UInt16) => UInt16
+	:= if: cond then: left else: right';
+		generateSSAModule.
+
+	function := ssaModule globalNamed: #select.
+	self assert: function isFunction.
+	self deny: function isEmpty.
+	self assert: function basicBlocks size equals: 5.
+	self assert: function basicBlocks second firstInstruction isBranch.
+	self assert: function basicBlocks fifth firstInstruction isPhi.
+	self assert: function basicBlocks fifth lastInstruction isReturn.
+]
+
+{ #category : #tests }
+MbndSlovimCodeModuleGeneratorTest >> testSelect3 [
+	| function |
+	self
+		evaluateSysmelSource: 
+'function select externC(cond: BooleanBit, left: UInt16, right: UInt16 ref) => UInt16
+	:= if: cond then: left else: right';
+		generateSSAModule.
+
+	function := ssaModule globalNamed: #select.
+	self assert: function isFunction.
+	self deny: function isEmpty.
+	self assert: function basicBlocks size equals: 5.
+	self assert: function basicBlocks second firstInstruction isBranch.
+	self assert: function basicBlocks fifth firstInstruction isPhi.
+	self assert: function basicBlocks fifth lastInstruction isReturn.
 ]
 
 { #category : #tests }

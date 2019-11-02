@@ -84,6 +84,7 @@ MbndAstNodeTest >> testTestingMethods [
 	self deny: node isClassDefinitionNode.
 	self deny: node isCleanUpScopeNode.
 	self deny: node isCompileTimeConstantDefinitionNode.
+	self deny: node isConcretizeUndefinedValueCastNode.
 	self deny: node isContinueStatementNode.
 	self deny: node isConvertToASTNodeCastNode.
 	self deny: node isDoWhileLoopNode.

@@ -18,7 +18,10 @@ MbndReferenceType >> accept: aVisitor [
 MbndReferenceType >> addDefaultConversionRules [
 	super addDefaultConversionRules.
 	baseType ifNotNil: [ 
-		self addConversionTo: baseType withoutTopDecorations rule: MbndReferenceLoadTypeConversionRule.
+		self
+			addExplicitConversionRule: MbndPointerConstCastConversionRule new;
+			addImplicitConversionRule: MbndPointerAddConstConversionRule new;
+			addConversionTo: baseType withoutTopDecorations rule: MbndReferenceLoadTypeConversionRule.
 		baseType withoutTopDecorations addConversionRulesToReferenceType: self
 	]
 ]
@@ -36,6 +39,19 @@ MbndReferenceType >> addInstanceMacros [
 			(builder referenceAsPointer: node receiver)
 				position: node
 		].
+]
+
+{ #category : #converting }
+MbndReferenceType >> analyzeReinterpretCastNode: node to: targetType with: analyzer [
+	| newExpression |
+	newExpression := MbndAstReferenceLoadNode new
+		position: node position;
+		reference: node expression;
+		type: baseType;
+		yourself.
+	^ analyzer visitNode: (node copy
+		expression: newExpression;
+		yourself)
 ]
 
 { #category : #'semantic analysis' }
@@ -67,6 +83,13 @@ MbndReferenceType >> asPointerType [
 
 { #category : #converting }
 MbndReferenceType >> asReferenceType [
+	^ self
+]
+
+{ #category : #'type composition' }
+MbndReferenceType >> const [
+	<compileTime>
+	"References are always constants."
 	^ self
 ]
 

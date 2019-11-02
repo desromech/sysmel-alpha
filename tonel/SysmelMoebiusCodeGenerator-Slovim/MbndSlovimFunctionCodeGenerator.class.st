@@ -158,6 +158,16 @@ MbndSlovimFunctionCodeGenerator >> visitCleanUpScopeNode: node [
 ]
 
 { #category : #visiting }
+MbndSlovimFunctionCodeGenerator >> visitConcretizeUndefinedValueCastNode: node [
+	"Visit the node for the side effects."
+	| defaultValue |
+	self visitNode: node expression.
+
+	defaultValue := node type defaultValue.
+	^ codeModuleGenerator translateLiteralValue: defaultValue value ofType: defaultValue type
+]
+
+{ #category : #visiting }
 MbndSlovimFunctionCodeGenerator >> visitDecorationChangeTypeCastNode: node [
 	| source |
 	source := self visitNode: node expression.
@@ -316,13 +326,11 @@ MbndSlovimFunctionCodeGenerator >> visitGetFieldValueNode: node [
 MbndSlovimFunctionCodeGenerator >> visitIfConditionNode: node [
 	| condition mergeBlock thenBlock elseBlock trueResult falseResult hasTrueResult hasFalseResult resultType branchBlock |
 	condition := self visitNode: node condition.
+	thenBlock := node trueValue ifNotNil: [slvmBuilder newBasicBlock: #ifThen].
+	elseBlock := node falseValue ifNotNil: [slvmBuilder newBasicBlock: #ifElse].
 	mergeBlock := slvmBuilder newBasicBlock: #ifMerge.
-	thenBlock := node trueValue
-		ifNil: [ mergeBlock ]
-		ifNotNil: [slvmBuilder newBasicBlock: #ifThen].
-	elseBlock := node falseValue
-		ifNil: [ mergeBlock ]
-		ifNotNil: [slvmBuilder newBasicBlock: #ifElse].
+	thenBlock ifNil: [ thenBlock := mergeBlock ].
+	elseBlock ifNil: [ elseBlock := mergeBlock ].
 		
 	branchBlock := slvmBuilder currentBlock.
 	branchBlock mergeBlock: mergeBlock.

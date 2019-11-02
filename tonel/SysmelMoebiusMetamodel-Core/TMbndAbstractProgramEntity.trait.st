@@ -46,6 +46,11 @@ TMbndAbstractProgramEntity >> isCompileTimeConstant [
 ]
 
 { #category : #testing }
+TMbndAbstractProgramEntity >> isMbndProgramEntity [
+	^ true
+]
+
+{ #category : #testing }
 TMbndAbstractProgramEntity >> isMethod [
 	^ false
 ]

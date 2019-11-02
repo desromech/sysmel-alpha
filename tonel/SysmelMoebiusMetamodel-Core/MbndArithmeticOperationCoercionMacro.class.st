@@ -35,11 +35,12 @@ MbndArithmeticOperationCoercionMacro >> expandMessageNode: node with: analyzer [
 	rightAnalyzedNode := analyzer analyzeNodeIfNeeded: node arguments first.
 
 	"Get the value types of the nodes."		
-	leftValueType := leftAnalyzedNode type withoutReferences withoutDecorations bestConcreteTypeForLiteralValueNode: leftAnalyzedNode inScope: analyzer scope.
-	rightValueType := rightAnalyzedNode type withoutReferences withoutDecorations bestConcreteTypeForLiteralValueNode: rightAnalyzedNode inScope: analyzer scope.
+	leftValueType := leftAnalyzedNode type withoutReferences withoutDecorations.
+	rightValueType := rightAnalyzedNode type withoutReferences withoutDecorations.
 	
 	"Compute the coercion type."
-	coercionType := analyzer arithmeticCoercionTypeFor: leftValueType with: rightValueType at: node.
+	coercionType := analyzer arithmeticCoercionTypeFor: leftValueType with: rightValueType
+		 leftNode: leftAnalyzedNode rightNode: rightAnalyzedNode at: node.
 
 	"Apply the coercion to the operands."
 	leftOperand := analyzer addImplicitCastFor: (self ensureLiteralNode: leftAnalyzedNode hasConcreteType: leftValueType coercedTo: coercionType) to: coercionType.

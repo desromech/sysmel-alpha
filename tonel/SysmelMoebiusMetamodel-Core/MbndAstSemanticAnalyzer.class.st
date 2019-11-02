@@ -98,6 +98,18 @@ MbndAstSemanticAnalyzer >> arithmeticCoercionTypeFor: leftType with: rightType a
 	^ coercionType
 ]
 
+{ #category : #coercing }
+MbndAstSemanticAnalyzer >> arithmeticCoercionTypeFor: leftType with: rightType leftNode: leftNode rightNode: rightNode at: position [
+	| coercionType |
+	coercionType := leftType arithmeticCoercionWith: rightType leftNode: leftNode rightNode: rightNode inScope: scope.
+	coercionType ifNil: [ 
+		self error: 'Cannot compute arithmetic coercion type with values of type {1} and type {2}.'
+			format: { leftType printString . rightType printString } at: position
+	].
+	
+	^ coercionType
+]
+
 { #category : #accessing }
 MbndAstSemanticAnalyzer >> astBuilder [
 	^ astBuilder ifNil: [ astBuilder := MbndAstBuilder forModule: module ]
@@ -122,8 +134,8 @@ MbndAstSemanticAnalyzer >> computeImplicitCoercionCostFor: argumentNode to: expe
 ]
 
 { #category : #coercing }
-MbndAstSemanticAnalyzer >> conditionalResultCoercionTypeFor: leftType with: rightType at: node [
-	^ leftType conditionalResultCoercionTypeWith: rightType
+MbndAstSemanticAnalyzer >> conditionalResultCoercionTypeFor: leftType node: leftNode with: rightType node: rightNode at: node [
+	^ leftType conditionalResultCoercionTypeWith: rightType leftNode: leftNode rightNode: rightNode inScope: scope
 
 ]
 
@@ -732,8 +744,10 @@ MbndAstSemanticAnalyzer >> visitIfConditionNode: node [
 		trueValue: (self ensureLiteralIsConcreted: (self analyzeNodeIfNeeded: result trueValue));
 		falseValue: (self ensureLiteralIsConcreted: (self analyzeNodeIfNeeded: result falseValue)).
 
-	resultCoercionType := self conditionalResultCoercionTypeFor: result trueValue type
-		with: result falseValue type at: result.
+	resultCoercionType := self
+		conditionalResultCoercionTypeFor: result trueValue type node: result trueValue
+		with: result falseValue type node: result falseValue
+		at: result.
 	resultCoercionType isVoidType ifFalse: [
 		result
 			trueValue: (self addImplicitCastFor: result trueValue to: resultCoercionType);
@@ -827,10 +841,13 @@ MbndAstSemanticAnalyzer >> visitLocalVariableDefinitionNode: node [
 	"Infer the value type, if needed"
 	result valueType ifNil: [
 		result initialValue ifNil: [
-			self error: 'Variable {1} without an explicit type, or an initial value.' format: { node v asPrettySymbolName } at: node
+			self error: 'Variable {1} without an explicit type requires an initial value.' format: { node v asPrettySymbolName } at: node
 		].
 	
 		result valueType: (result initialValue type inferValueTypeForNode: result initialValue inScope: scope).
+		result isAccessedByReference ifFalse: [ 
+			result valueType: result valueType withoutReferences
+		].
 	].
 
 	"Cast implicitly the initial value."
@@ -1024,18 +1041,19 @@ MbndAstSemanticAnalyzer >> visitMessagePrototypeNode: node [
 
 { #category : #visiting }
 MbndAstSemanticAnalyzer >> visitNamespaceDefinitionNode: node [
-	| namespaceName owner namespace |
+	| namespaceName owner namespace result |
+	result := node copy.
 	namespaceName := node name.
 	namespaceName isMbndAnonymousSymbol ifTrue: [ 
-		self error: 'Anonymous namespace are not supported, yet.' at: node
+		self error: 'Anonymous namespace are not supported, yet.' at: result
 	].
 	
-	owner := node ownerProgramEntity ifNil: [scope lookupProgramEntityForNewDefinitions].
-	namespace := owner ensureSymbolIsNamespace: namespaceName at: node.
+	owner := result ownerProgramEntity ifNil: [scope lookupProgramEntityForNewDefinitions].
+	namespace := owner ensureSymbolIsNamespace: namespaceName at: result.
 	self assert: namespace isNotNil.
 	
 	self withScope: (namespace programEntityScope parent: scope) newLexicalScope do: [ 
-		self visitNode: node body
+		self evaluateCompileTimeExpression: node body
 	].
 
 	^ self astBuilder literalVoid

@@ -9,8 +9,8 @@ Class {
 	#category : #'SysmelMoebiusMetamodel-Core-Values'
 }
 
-{ #category : #testing }
-MbndVTablePointerValue >> isVTablePointerValue [
+{ #category : #'as yet unclassified' }
+MbndVTablePointerValue >> isMbndVTablePointerValue [
 	^ true
 ]
 

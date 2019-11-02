@@ -195,6 +195,11 @@ TMbndAbstractType >> arithmeticCoercionWith: rightType [
 	^ self compilationTarget computeArithmeticCoercionTypeFor: self with: rightType
 ]
 
+{ #category : #'as yet unclassified' }
+TMbndAbstractType >> arithmeticCoercionWith: rightType leftNode: leftNode rightNode: rightNode inScope: aScope [
+	^ self compilationTarget computeArithmeticCoercionTypeFor: self with: rightType leftNode: leftNode rightNode: rightNode inScope: aScope
+]
+
 { #category : #'type composition' }
 TMbndAbstractType >> array [
 	<compileTime>
@@ -278,8 +283,8 @@ TMbndAbstractType >> buildTypeConversionChainUntil: targetType fromVisitedTypes:
 ]
 
 { #category : #'as yet unclassified' }
-TMbndAbstractType >> conditionalResultCoercionTypeWith: rightType [
-	^ self compilationTarget computeConditionalResultCoercionTypeFor: self with: rightType
+TMbndAbstractType >> conditionalResultCoercionTypeWith: rightType leftNode: leftNode rightNode: rightNode inScope: aScope [
+	^ self compilationTarget computeConditionalResultCoercionTypeFor: self with: rightType leftNode: leftNode rightNode: rightNode inScope: aScope
 ]
 
 { #category : #'type composition' }

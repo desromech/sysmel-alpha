@@ -108,6 +108,11 @@ MbndAstTransformVisitor >> visitCompileTimeConstantDefinitionNode: node [
 ]
 
 { #category : #visiting }
+MbndAstTransformVisitor >> visitConcretizeUndefinedValueCastNode: node [
+	^ self visitSpecificCastNode: node
+]
+
+{ #category : #visiting }
 MbndAstTransformVisitor >> visitContinueStatementNode: node [
 	^ node
 ]

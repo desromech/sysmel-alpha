@@ -83,14 +83,44 @@ TMbndCoreCompilationTarget >> computeArithmeticCoercionTypeFor: leftType with: r
 ]
 
 { #category : #coercing }
-TMbndCoreCompilationTarget >> computeConditionalResultCoercionTypeFor: leftType with: rightType [
+TMbndCoreCompilationTarget >> computeArithmeticCoercionTypeFor: leftType with: rightType leftNode: leftNode rightNode: rightNode inScope: aScope [
+	| bestLeftType bestRightType |
+
+	bestLeftType := leftType bestConcreteTypeForLiteralValueNode: leftNode inScope: aScope.
+	bestRightType := rightType bestConcreteTypeForLiteralValueNode: rightNode inScope: aScope.
+	
+	"Positive literal , Unsigned type"
+	(leftType isLiteralIntegerType and: [leftNode value >= 0 and: [ bestLeftType isSigned
+	 and: [rightType isPrimitiveIntegerType and: [rightType isUnsigned]]]]) ifTrue: [
+		bestLeftType := bestLeftType asUnsignedType
+	].
+
+	"Unsigned type , Positive literal"
+	(rightType isLiteralIntegerType and: [rightNode value >= 0 and: [ bestRightType isSigned
+	 and: [leftType isPrimitiveIntegerType and: [leftType isUnsigned]]]]) ifTrue: [
+		bestRightType := bestRightType asUnsignedType
+	].
+
+
+	^ self computeArithmeticCoercionTypeFor: bestLeftType with: bestRightType.
+]
+
+{ #category : #coercing }
+TMbndCoreCompilationTarget >> computeConditionalResultCoercionTypeFor: leftType with: rightType leftNode: leftNode rightNode: rightNode inScope: aScope [
+
+	| leftValueType rightValueType |
 	leftType isReturnType ifTrue: [ ^ rightType ].
 	rightType isReturnType ifTrue: [ ^ leftType ].
 	leftType isVoidType ifTrue: [ ^ leftType ].
 	rightType isVoidType ifTrue: [ ^ rightType ].
-	leftType == rightType ifTrue: [ ^ leftType ].
+	
+	leftValueType := leftType withoutReferences.
+	rightValueType := rightType withoutReferences.
+	leftValueType == rightValueType ifTrue: [ ^ leftValueType ].
 
-	^ (self computeArithmeticCoercionTypeFor: leftType with: rightType)
+	
+
+	^ (self computeArithmeticCoercionTypeFor: leftType with: rightType leftNode: leftNode rightNode: rightNode inScope: aScope)
 		ifNil: [self voidType].
 	
 ]

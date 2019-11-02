@@ -40,11 +40,11 @@ MbndAbstractClassType >> addVirtualMethod: aMethod [
 { #category : #layout }
 MbndAbstractClassType >> buildSlotLayoutWith: builder [
 	builder recordTypeStartLocation: self.
+	self buildSuperTypesSlotLayoutWith: builder.
 	virtualMethods ifNotEmpty: [
 		builder createMainVirtualTable.
 	].
 
-	self buildSuperTypesSlotLayoutWith: builder.
 	self fields do: [ :field |
 		builder addField: field
 	].
