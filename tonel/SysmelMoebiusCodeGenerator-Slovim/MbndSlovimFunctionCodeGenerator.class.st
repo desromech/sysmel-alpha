@@ -36,6 +36,9 @@ MbndSlovimFunctionCodeGenerator >> buildSSAFunction: aSSAFunction definitionWith
 	"Create the body block."	
 	bodyBlock := slvmBuilder newBasicBlockHere: #body.
 	
+	"Initialize the argument variables."
+	self initializeArgumentVariables.
+	
 	"Generate the body code."
 	result := self visitNode: concreteMethod analyzedBody.
 	slvmBuilder currentBlock isLastTerminator ifTrue: [
@@ -52,6 +55,13 @@ MbndSlovimFunctionCodeGenerator >> buildSSAFunction: aSSAFunction definitionWith
 
 	"Jump from the alloca block into the body."
 	slvmBuilder allocaBuilder jump: bodyBlock.
+]
+
+{ #category : #visiting }
+MbndSlovimFunctionCodeGenerator >> createLocalVariableDebugInformation: localVariable [
+	^ (SLVMDebugVariable scope: nil name: localVariable name asPrettySymbolName)
+		type: (self translateType: localVariable type);
+		yourself
 ]
 
 { #category : #'as yet unclassified' }
@@ -92,6 +102,32 @@ MbndSlovimFunctionCodeGenerator >> generateExpandedMessageSendNode: node withSta
 	].
 	
 	^ slvmBuilder call: calledMethodSSAFunction arguments: allArguments
+]
+
+{ #category : #'as yet unclassified' }
+MbndSlovimFunctionCodeGenerator >> initializeArgumentVariable: argument [
+	| debugInformation convertedPosition ssaValue |
+
+	self isEmittingDebugInformation ifTrue: [ 
+		argument name isMbndAnonymousSymbol ifFalse: [ 
+			debugInformation := self createLocalVariableDebugInformation: argument.
+			convertedPosition := codeModuleGenerator convertDebugPosition: argument definitionPosition asActualSourcePosition.
+			ssaValue := functionVariables at: argument.
+			ssaValue
+				debugInformation: debugInformation;
+				debugSourceLocation: convertedPosition.
+			
+			(slvmBuilder debugSetVariable: debugInformation value: ssaValue)
+				debugSourceLocation: convertedPosition
+		].
+	].
+]
+
+{ #category : #'as yet unclassified' }
+MbndSlovimFunctionCodeGenerator >> initializeArgumentVariables [
+	concreteMethod arguments do: [ :argument |
+		self initializeArgumentVariable: argument
+	]
 ]
 
 { #category : #accessing }
@@ -456,15 +492,36 @@ MbndSlovimFunctionCodeGenerator >> visitLocalVariableDefinitionNode: node [
 		(node isAccessedByReference and: [node initialValue type isReferenceType]) ifTrue: [
 			self assert: initialValue isNotNil.
 			ssaValue := initialValue.
+
+			self isEmittingDebugInformation ifTrue: [ 
+				node name isMbndAnonymousSymbol ifFalse: [
+					(slvmBuilder debugSetVariable: (self createLocalVariableDebugInformation: node binding) value: ssaValue)
+				]
+			].
 		] ifFalse: [ 
 			ssaValue := slvmBuilder allocaBuilder alloca: valueType.
+
 			initialValue ifNotNil: [
 				slvmBuilder store: initialValue in: ssaValue
+			].
+
+			self isEmittingDebugInformation ifTrue: [ 
+				node name isMbndAnonymousSymbol ifFalse: [
+					(slvmBuilder debugDeclareVariable: ssaValue)
+						debugInformation: (self createLocalVariableDebugInformation: node binding)
+				]
 			].
 		].
 	] ifFalse: [
 		self assert: node initialValue isNotNil.
 		ssaValue := initialValue.
+
+		self isEmittingDebugInformation ifTrue: [ 
+			node name isMbndAnonymousSymbol ifFalse: [
+				(slvmBuilder debugSetVariable: (self createLocalVariableDebugInformation: node binding) value: ssaValue)
+			]
+		].
+
 	].
 
 	functionVariables at: node binding put: ssaValue.
@@ -474,6 +531,27 @@ MbndSlovimFunctionCodeGenerator >> visitLocalVariableDefinitionNode: node [
 { #category : #visiting }
 MbndSlovimFunctionCodeGenerator >> visitMethodReferenceNode: node [
 	^ (codeModuleGenerator translateProgramEntity: node binding) ssaValue
+]
+
+{ #category : #visiting }
+MbndSlovimFunctionCodeGenerator >> visitNode: node [
+	| debugPosition |
+	self isEmittingDebugInformation ifTrue: [ 
+
+		"Keep track of the debug position"
+		debugPosition := codeModuleGenerator convertDebugPosition: node asActualSourcePosition.
+		slvmBuilder pushDebugSourcePosition: debugPosition.
+		slvmBuilder allocaBuilder pushDebugSourcePosition: debugPosition.
+		
+		^ [
+			super visitNode: node.
+		] ensure: [
+			slvmBuilder popDebugSourcePosition.
+			slvmBuilder allocaBuilder popDebugSourcePosition.
+		]
+	].
+
+	^ super visitNode: node
 ]
 
 { #category : #visiting }

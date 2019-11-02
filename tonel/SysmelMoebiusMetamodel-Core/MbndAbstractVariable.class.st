@@ -37,6 +37,11 @@ MbndAbstractVariable >> definitionNode: anObject [
 	definitionNode := anObject
 ]
 
+{ #category : #accessing }
+MbndAbstractVariable >> definitionPosition [
+	^ definitionNode
+]
+
 { #category : #'compile time evaluation' }
 MbndAbstractVariable >> evaluateLocalDefinition: node withEvaluator: evaluator [
 	| compileTimeVariable |

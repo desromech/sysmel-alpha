@@ -89,3 +89,8 @@ MbndSlovimCompilationTarget >> slvmCompilationTarget [
 MbndSlovimCompilationTarget >> slvmCompilationTarget: anObject [
 	slvmCompilationTarget := anObject
 ]
+
+{ #category : #initialization }
+MbndSlovimCompilationTarget >> withDebugInformation [
+	slvmCompilationTarget withDebugInformation
+]

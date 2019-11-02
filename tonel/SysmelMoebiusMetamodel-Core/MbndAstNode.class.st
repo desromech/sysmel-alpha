@@ -19,6 +19,11 @@ MbndAstNode >> accept: aVisitor [
 ]
 
 { #category : #converting }
+MbndAstNode >> asActualSourcePosition [
+	^ position asActualSourcePosition
+]
+
+{ #category : #converting }
 MbndAstNode >> asSourcePositionString [
 	^ position asSourcePositionString
 ]

@@ -38,6 +38,11 @@ MbndAbstractTemplateInstance >> children: anObject [
 	children := anObject
 ]
 
+{ #category : #testing }
+MbndAbstractTemplateInstance >> isTemplateInstance [
+	^ true
+]
+
 { #category : #accessing }
 MbndAbstractTemplateInstance >> mainChild [
 	^ mainChild

@@ -33,6 +33,11 @@ MbndSourcePosition >> = other [
 ]
 
 { #category : #converting }
+MbndSourcePosition >> asActualSourcePosition [
+	^ self
+]
+
+{ #category : #converting }
 MbndSourcePosition >> asMoebiusBandSourcePosition [
 	^ self
 ]

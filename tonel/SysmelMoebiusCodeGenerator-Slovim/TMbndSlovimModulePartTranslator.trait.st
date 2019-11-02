@@ -16,6 +16,11 @@ TMbndSlovimModulePartTranslator >> codeModuleGenerator: anObject [
 	codeModuleGenerator := anObject
 ]
 
+{ #category : #testing }
+TMbndSlovimModulePartTranslator >> isEmittingDebugInformation [
+	^ codeModuleGenerator isEmittingDebugInformation
+]
+
 { #category : #accessing }
 TMbndSlovimModulePartTranslator >> slvmCompilationTarget [
 	^ codeModuleGenerator slvmCompilationTarget

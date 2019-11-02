@@ -51,6 +51,11 @@ TMbndProgramEntity >> isMessageMethod [
 	^ false
 ]
 
+{ #category : #testing }
+TMbndProgramEntity >> isVTablePointerField [
+	^ false
+]
+
 { #category : #accessing }
 TMbndProgramEntity >> module [
 	self explicitRequirement

@@ -7,7 +7,10 @@ Class {
 		'translatedProgramEntities',
 		'typeTranslator',
 		'typeNameMangler',
-		'programEntityTypeNameMangler'
+		'programEntityTypeNameMangler',
+		'anonSymbolCount',
+		'debugLocationDictionary',
+		'debugSourceFileDictionary'
 	],
 	#category : #'SysmelMoebiusCodeGenerator-Slovim-Module'
 }
@@ -44,9 +47,39 @@ MbndSlovimCodeModuleGenerator >> addPrimitiveTypeTranslations [
 
 ]
 
+{ #category : #visiting }
+MbndSlovimCodeModuleGenerator >> addUnmangledProgramEntity: programEntity suffixInto: out [
+	"TODO: Add the function type string here."
+]
+
 { #category : #accessing }
 MbndSlovimCodeModuleGenerator >> compilationTarget [
 	^ sourceModule compilationTarget
+]
+
+{ #category : #visiting }
+MbndSlovimCodeModuleGenerator >> convertDebugPosition: aPosition [
+	^ debugLocationDictionary at: aPosition ifAbsentPut: [ SLVMDebugLocation new
+			sourceFile: (self convertDebugSourceFile: aPosition collection);
+			start: aPosition start;
+			stop: aPosition stop;
+			startLine: aPosition line;
+			startColumn: aPosition column;
+			endLine: aPosition endLine;
+			endColumn: aPosition endColumn;
+			collection: aPosition collection;
+			yourself ]
+]
+
+{ #category : #visiting }
+MbndSlovimCodeModuleGenerator >> convertDebugSourceFile: aSourceCollection [
+	| sourceRef |
+	^ debugSourceFileDictionary at: aSourceCollection ifAbsentPut: [ 
+		sourceRef := (aSourceCollection ifNil: ['generated'] ifNotNil: [aSourceCollection name]) asFileReference.
+		SLVMDebugSourceFile new
+			directory: sourceRef parent fullName;
+			name: sourceRef basename
+	]
 ]
 
 { #category : #'as yet unclassified' }
@@ -101,10 +134,31 @@ MbndSlovimCodeModuleGenerator >> generateCodeModuleFor: aModule [
 	^ ssaModule
 ]
 
+{ #category : #visiting }
+MbndSlovimCodeModuleGenerator >> generatedNameForAnynomousEntity: programEntity [
+	| result |
+	programEntity isVTablePointerField ifTrue: [ ^ '__vtable' , programEntity slotIndex asString ].
+	programEntity isTemplateInstance ifTrue: [
+		self flag: 'TODO: Implement this properly'.
+	].
+
+	result := '<anon' , anonSymbolCount asString , '>'.
+	anonSymbolCount := anonSymbolCount + 1.
+	^ result
+]
+
 { #category : #initialization }
 MbndSlovimCodeModuleGenerator >> initialize [
 	super initialize.
 	translatedProgramEntities := Dictionary new.
+	anonSymbolCount := 0.
+	debugSourceFileDictionary := Dictionary new.
+	debugLocationDictionary := Dictionary new.
+]
+
+{ #category : #visiting }
+MbndSlovimCodeModuleGenerator >> isEmittingDebugInformation [
+	^ self slvmCompilationTarget emittingDebugInformation
 ]
 
 { #category : #visiting }
@@ -192,6 +246,33 @@ MbndSlovimCodeModuleGenerator >> typeTranslator [
 ]
 
 { #category : #visiting }
+MbndSlovimCodeModuleGenerator >> unmangledNameForProgramEntity: programEntity [
+	^ ByteString streamContents: [ :out |
+		self unmangledNameForProgramEntity: programEntity into: out
+	]
+]
+
+{ #category : #visiting }
+MbndSlovimCodeModuleGenerator >> unmangledNameForProgramEntity: programEntity into: out [
+	programEntity parent ifNotNil: [
+		programEntity parent parent ifNotNil: [ "Remove __global"
+			self unmangledNameForProgramEntity: programEntity parent into: out.
+			(programEntity name isMbndAnonymousSymbol and: [ programEntity parent isTemplateInstance ]) ifTrue: [ ^ self ].
+
+			out nextPutAll: '::'
+		].
+	].
+
+	programEntity isMessageMethod ifTrue: [ out nextPut: $[ ].
+	out nextPutAll: (programEntity name isMbndAnonymousSymbol
+		ifTrue: [ self generatedNameForAnynomousEntity: programEntity ]
+		ifFalse: [ programEntity name ]).
+	programEntity isMessageMethod ifTrue: [ out nextPut: $] ].
+		
+	self addUnmangledProgramEntity: programEntity suffixInto: out
+]
+
+{ #category : #visiting }
 MbndSlovimCodeModuleGenerator >> visitAggregateTypeWithFields: type [
 	| ssaType |
 	ssaType := self translateType: type.
@@ -217,12 +298,18 @@ MbndSlovimCodeModuleGenerator >> visitCompileTimeConstant: node [
 
 { #category : #visiting }
 MbndSlovimCodeModuleGenerator >> visitConcreteFunctionMethod: functionMethod [
-	| ssaFunctionType csymbol ssaFunction |
+	| ssaFunctionType csymbol ssaFunction unmangledName |
 	ssaFunctionType := self translateType: functionMethod type.
 	
 	csymbol := self csymbolForProgramEntity: functionMethod.
+	unmangledName := self unmangledNameForProgramEntity: functionMethod.
 	ssaFunction := SLVMFunction module: ssaModule name: csymbol functionType: ssaFunctionType.
+	ssaFunction unmangledName: unmangledName.
 	self setProgramEntity: functionMethod ssaValue: ssaFunction.
+
+	self isEmittingDebugInformation ifTrue: [ 
+		ssaFunction debugSourceLocation: (self convertDebugPosition: functionMethod definitionPosition asActualSourcePosition)
+	].
 	
 	functionMethod analyzedBody ifNil: [
 		ssaFunction makeExternal
@@ -239,13 +326,19 @@ MbndSlovimCodeModuleGenerator >> visitConcreteFunctionMethod: functionMethod [
 
 { #category : #visiting }
 MbndSlovimCodeModuleGenerator >> visitConcreteMessageMethod: functionMethod [
-	| ssaFunctionType csymbol ssaFunction |
+	| ssaFunctionType csymbol ssaFunction unmangledName |
 	ssaFunctionType := self translateType: functionMethod type.
 	
 	csymbol := self csymbolForProgramEntity: functionMethod.
+	unmangledName := self unmangledNameForProgramEntity: functionMethod.
 	ssaFunction := SLVMFunction module: ssaModule name: csymbol functionType: ssaFunctionType.
+	ssaFunction unmangledName: unmangledName.
 	self setProgramEntity: functionMethod ssaValue: ssaFunction.
 	
+	self isEmittingDebugInformation ifTrue: [ 
+		ssaFunction debugSourceLocation: (self convertDebugPosition: functionMethod definitionPosition asActualSourcePosition)
+	].
+
 	functionMethod analyzedBody ifNil: [
 		ssaFunction makeExternal
 	] ifNotNil: [
@@ -276,12 +369,18 @@ MbndSlovimCodeModuleGenerator >> visitGCClassType: type [
 
 { #category : #visiting }
 MbndSlovimCodeModuleGenerator >> visitGlobalVariable: globalVariable [
-	| ssaValueType csymbol ssaGlobalVariable initialValue |
+	| ssaValueType csymbol ssaGlobalVariable initialValue unmangledName |
 	ssaValueType := self translateType: globalVariable valueType.
 	
 	csymbol := self csymbolForProgramEntity: globalVariable.
+	unmangledName := self unmangledNameForProgramEntity: globalVariable.
 	ssaGlobalVariable := SLVMGlobalVariable module: ssaModule name: csymbol valueType: ssaValueType storage: SLVMType genericStorage.
+	ssaGlobalVariable unmangledName: unmangledName.
 	self setProgramEntity: globalVariable ssaValue: ssaGlobalVariable.
+
+	self isEmittingDebugInformation ifTrue: [ 
+		ssaGlobalVariable debugSourceLocation: (self convertDebugPosition: globalVariable definitionPosition asActualSourcePosition)
+	].
 
 	ssaGlobalVariable readOnly: (globalVariable type withoutReferences isConstantType).
 	
@@ -367,7 +466,7 @@ MbndSlovimCodeModuleGenerator >> visitUnionType: type [
 
 { #category : #visiting }
 MbndSlovimCodeModuleGenerator >> visitVTablePointerFieldVariable: vtableField [
-	| ssaValueType csymbol ssaVTableDefinition vtableEntryType additionalFields methodFields |
+	| ssaValueType csymbol ssaVTableDefinition vtableEntryType additionalFields methodFields unmangledName |
 	
 	vtableEntryType := self slvmCompilationTarget voidPointerType.
 	additionalFields := {
@@ -381,9 +480,11 @@ MbndSlovimCodeModuleGenerator >> visitVTablePointerFieldVariable: vtableField [
 	].
 	
 	ssaValueType := (SLVMArrayType baseType: vtableEntryType elements: additionalFields size + methodFields size ).
+	unmangledName := self unmangledNameForProgramEntity: vtableField.
 	csymbol := self mangleProgramEntityName: vtableField.
 	
 	ssaVTableDefinition := SLVMGlobalVariable module: ssaModule name: csymbol valueType: ssaValueType storage: SLVMType genericStorage.
+	ssaVTableDefinition unmangledName: unmangledName.
 	self setProgramEntity: vtableField ssaValue: ssaVTableDefinition.
 	ssaVTableDefinition
 		readOnly: true;

@@ -11,11 +11,6 @@ TMbndVariable >> isFieldVariable [
 ]
 
 { #category : #testing }
-TMbndVariable >> isVTablePointerField [
-	^ false
-]
-
-{ #category : #testing }
 TMbndVariable >> isVariable [
 	^ true
 ]

@@ -14,6 +14,11 @@ SYMLASTNode >> apsgNodeInEnvironment: anEnvironment [
 ]
 
 { #category : #converting }
+SYMLASTNode >> asActualSourcePosition [
+	^ position asActualSourcePosition
+]
+
+{ #category : #converting }
 SYMLASTNode >> asList [
 	^ { self }
 ]

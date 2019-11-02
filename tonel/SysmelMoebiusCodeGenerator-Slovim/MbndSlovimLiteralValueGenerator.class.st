@@ -117,7 +117,7 @@ MbndSlovimLiteralValueGenerator >> visitPointerType: pointerType [
 
 	literalValue isMbndVTablePointerValue ifTrue: [
 		^ SLVMConstant getReference: (self translateProgramEntity: literalValue vtableFieldDefinition) ssaValue
-			element: literalValue vtableFieldDefinition firstMethodSlotIndex - 1
+			element: literalValue vtableFieldDefinition firstMethodSlotIndex
 	].
 
 	literalValue isMbndProgramEntity ifTrue: [ 

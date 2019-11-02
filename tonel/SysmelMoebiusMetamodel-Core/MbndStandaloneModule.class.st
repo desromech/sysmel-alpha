@@ -38,3 +38,8 @@ MbndStandaloneModule >> initializeWithCompilationTarget: aCompilationTarget [
 		initialize.
 	self initialize
 ]
+
+{ #category : #initialization }
+MbndStandaloneModule >> withDebugInformation [
+	compilationTarget withDebugInformation
+]

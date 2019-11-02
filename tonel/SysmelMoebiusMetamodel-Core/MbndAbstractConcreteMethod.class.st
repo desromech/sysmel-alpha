@@ -100,6 +100,7 @@ MbndAbstractConcreteMethod >> defineArguments [
 	selfArgument := #().
 	receiverType isVoidType ifFalse: [
 		selfArgument := { MbndFunctionReceiverArgumentVariable new
+			definitionNode: (definitionNode ifNil: [declarationPosition]);
 			parent: self;
 			name: #self;
 			valueType: receiverType;
@@ -133,6 +134,11 @@ MbndAbstractConcreteMethod >> definitionNode [
 { #category : #accessing }
 MbndAbstractConcreteMethod >> definitionNode: anObject [
 	definitionNode := anObject
+]
+
+{ #category : #accessing }
+MbndAbstractConcreteMethod >> definitionPosition [
+	^ (definitionNode ifNil: [ declarationPosition ])
 ]
 
 { #category : #accessing }
