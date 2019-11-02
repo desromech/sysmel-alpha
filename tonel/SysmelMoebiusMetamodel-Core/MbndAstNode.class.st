@@ -441,6 +441,11 @@ MbndAstNode >> isStatementNode [
 ]
 
 { #category : #testing }
+MbndAstNode >> isStaticClassPointerCastNode [
+	^ false
+]
+
+{ #category : #testing }
 MbndAstNode >> isStructureDeclarationNode [
 	^ false
 ]

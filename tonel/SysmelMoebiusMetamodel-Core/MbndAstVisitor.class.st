@@ -370,6 +370,11 @@ MbndAstVisitor >> visitSpliceNode: node [
 ]
 
 { #category : #visiting }
+MbndAstVisitor >> visitStaticClassPointerCastNode: node [
+	self subclassResponsibility
+]
+
+{ #category : #visiting }
 MbndAstVisitor >> visitStructureDeclarationNode: node [
 	self subclassResponsibility
 ]

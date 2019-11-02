@@ -358,6 +358,11 @@ MbndAstDelegationVisitor >> visitSpliceNode: node [
 ]
 
 { #category : #visiting }
+MbndAstDelegationVisitor >> visitStaticClassPointerCastNode: node [
+	^ self delegateNodeVisit: node
+]
+
+{ #category : #visiting }
 MbndAstDelegationVisitor >> visitStructureDeclarationNode: node [
 	^ self delegateNodeVisit: node
 ]

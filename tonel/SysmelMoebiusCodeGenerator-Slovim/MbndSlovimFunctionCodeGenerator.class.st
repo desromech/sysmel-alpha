@@ -84,10 +84,11 @@ MbndSlovimFunctionCodeGenerator >> generateExpandedMessageSendNode: node withSta
 		receiverType := node receiver type withoutReferences.
 		vtableLayout := receiverType slotLayout mainVirtualTable.
 	
-		vtableSlot := slvmBuilder load: (slvmBuilder getReference: receiver element: vtableLayout slotIndex).
-		vtableEntrySlot := slvmBuilder load: (slvmBuilder getReference: vtableSlot element: (vtableLayout getSlotIndexFor: node method virtualTableSelectorName)).
+		vtableSlot := slvmBuilder load: (slvmBuilder getReference: receiver
+								element: (slvmBuilder constInt: vtableLayout slotIndex)).
+		vtableEntrySlot := slvmBuilder load: (slvmBuilder getPointer: vtableSlot
+								element: {slvmBuilder constInt: (vtableLayout getSlotIndexFor: node method virtualTableSelector)}).
 		calledMethodSSAFunction := slvmBuilder bitCast: vtableEntrySlot target: methodSSAFunction type.
-		self halt
 	].
 	
 	^ slvmBuilder call: calledMethodSSAFunction arguments: allArguments
@@ -595,6 +596,33 @@ MbndSlovimFunctionCodeGenerator >> visitSignExtensionCastNode: node [
 	source := self visitNode: node expression.
 	targetType := self translateType: node type.
 	^ slvmBuilder signExtend: source target: targetType
+]
+
+{ #category : #visiting }
+MbndSlovimFunctionCodeGenerator >> visitStaticClassPointerCastNode: node [
+	| sourceType targetType targetSlotIndex sourceValue targetSSAType |
+	sourceValue := self visitNode: node expression.
+	targetSSAType := self translateType: node type.
+	sourceType := node expression type baseType withoutTopDecorations.
+	targetType := node targetType baseType withoutTopDecorations.
+	self assert: (sourceType isAbstractClassType and: [ targetType isAbstractClassType ]).
+	
+	"Is this an upcast?"
+	(sourceType isSubtypeOf: targetType) ifTrue: [ 
+		targetSlotIndex := sourceType slotLayout typeStartLocations at: targetType.
+		targetSlotIndex == 0 ifTrue: [ ^ slvmBuilder bitCast: sourceValue target: targetSSAType ].
+		
+		^ slvmBuilder
+			bitCast: (slvmBuilder getReference: sourceValue element: targetSlotIndex)
+			target: targetSSAType
+	].
+	
+	"Is this a down cast?"
+	(targetType isSubtypeOf: sourceType) ifTrue: [
+		self halt.
+	].
+
+	self error: 'Unsupported class pointer casting type.'
 ]
 
 { #category : #visiting }

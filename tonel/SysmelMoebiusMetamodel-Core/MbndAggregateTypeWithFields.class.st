@@ -48,7 +48,6 @@ MbndAggregateTypeWithFields >> buildSlotLayoutWith: builder [
 MbndAggregateTypeWithFields >> buildSuperTypesSlotLayoutWith: builder [
 	self nonTraitSuperType ifNotNil: [ :st |
 		st
-			ensureSemanticAnalysis;
 			buildSlotLayoutWith: builder
 	]
 

@@ -75,6 +75,8 @@ MbndSlovimCodeModuleGenerator >> escapeCharacterForMangling: c into: out [
 	c = $: ifTrue: [ 
 		^ out nextPutAll: '_c'
 	].
+
+	('<>+-*/%"''()#?!|&^' includes: c) ifTrue: [ ^ out nextPutAll: '_x' ; nextPutAll: c asInteger hex ].
 	^ out nextPut: c
 
 ]

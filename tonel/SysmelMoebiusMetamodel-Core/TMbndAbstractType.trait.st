@@ -42,6 +42,14 @@ TMbndAbstractType >> addConversionRule: conversionRule [
 		addImplicitConversionRule: conversionRule
 ]
 
+{ #category : #adding }
+TMbndAbstractType >> addConversionRulesToPointerType: referenceType [
+]
+
+{ #category : #adding }
+TMbndAbstractType >> addConversionRulesToReferenceType: referenceType [
+]
+
 { #category : #converting }
 TMbndAbstractType >> addConversionTo: targetType rule: conversionRule [
 	self
@@ -377,6 +385,11 @@ TMbndAbstractType >> getExtraMetaBuilderFactoryList [
 	}
 ]
 
+{ #category : #'type hierarchy' }
+TMbndAbstractType >> hasImmediateSupertype: aType [
+	^ self supertype == aType
+]
+
 { #category : #adding }
 TMbndAbstractType >> implicitMethodReceiverType [
 	^ self asReceiverType
@@ -604,6 +617,18 @@ TMbndAbstractType >> isReturnType [
 
 { #category : #'testing methods' }
 TMbndAbstractType >> isStructureType [
+	^ false
+]
+
+{ #category : #'type hierarchy' }
+TMbndAbstractType >> isSubtypeOf: aType [
+	| currentType |
+	currentType := self.
+	[ currentType ] whileNotNil: [ 
+		(currentType hasImmediateSupertype: aType) ifTrue: [ ^ true ].
+		currentType := currentType supertype.
+	].
+
 	^ false
 ]
 

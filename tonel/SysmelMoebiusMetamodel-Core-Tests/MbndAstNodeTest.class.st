@@ -138,6 +138,7 @@ MbndAstNodeTest >> testTestingMethods [
 	self deny: node isSignExtensionCastNode.
 	self deny: node isSpliceNode.
 	self deny: node isStatementNode.
+	self deny: node isStaticClassPointerCastNode.
 	self deny: node isStructureDeclarationNode.
 	self deny: node isStructureDefinitionNode.
 	self deny: node isSubscriptElementReferenceNode .

@@ -221,6 +221,32 @@ MbndSlovimCodeModuleGeneratorTest >> testCStringCFunction [
 ]
 
 { #category : #tests }
+MbndSlovimCodeModuleGeneratorTest >> testClassPointerUpcast [
+	| function |
+	self
+		evaluateSysmelSource: '
+class SuperClass definition: { 
+	field int32Field type: Int32.
+}.
+
+class SubClass superclass: SuperClass; definition: { 
+	field float32Field type: Float32.
+}.
+
+function upcast externC(x: SubClass pointer) => SuperClass pointer := x
+';
+		generateSSAModule.
+
+	function := ssaModule globalNamed: #upcast.
+	self assert: function isFunction.
+	self deny: function isEmpty.
+	self assert: function basicBlocks size equals: 2.
+	self assert: function basicBlocks first firstInstruction isJump.
+	self assert: function basicBlocks second firstInstruction isBitCast.
+	self assert: function basicBlocks second lastInstruction isReturn.
+]
+
+{ #category : #tests }
 MbndSlovimCodeModuleGeneratorTest >> testCountTwiceCFunction [
 	| function |
 	self

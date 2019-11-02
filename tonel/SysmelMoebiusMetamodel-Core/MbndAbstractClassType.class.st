@@ -20,6 +20,18 @@ MbndAbstractClassType >> addChild: aChild [
 	].
 ]
 
+{ #category : #adding }
+MbndAbstractClassType >> addConversionRulesToPointerType: pointerType [
+	pointerType
+		addExplicitConversionRule: MbndClassPointerTypeConversionRule new;
+		addImplicitConversionRule: MbndClassImplicitUpcastTypeConversionRule new
+]
+
+{ #category : #adding }
+MbndAbstractClassType >> addConversionRulesToReferenceType: referenceType [
+	referenceType addImplicitConversionRule: MbndClassImplicitUpcastTypeConversionRule new
+]
+
 { #category : #'as yet unclassified' }
 MbndAbstractClassType >> addVirtualMethod: aMethod [
 	virtualMethods add: aMethod

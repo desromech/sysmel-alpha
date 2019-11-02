@@ -53,6 +53,7 @@ MbndPointerType >> addDefaultConversionRules [
 		self
 			addExplicitConversionRule: MbndPointerExplicitVoidReinterpretTypeConversionRule new;
 			addImplicitConversionRule: MbndPointerImplicitVoidReinterpretTypeConversionRule new.
+		baseType withoutTopDecorations addConversionRulesToPointerType: self
 	].
 
 ]

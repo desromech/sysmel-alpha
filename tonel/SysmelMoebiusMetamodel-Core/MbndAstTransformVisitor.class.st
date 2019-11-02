@@ -505,6 +505,11 @@ MbndAstTransformVisitor >> visitSpliceNode: node [
 ]
 
 { #category : #visiting }
+MbndAstTransformVisitor >> visitStaticClassPointerCastNode: node [
+	^ self visitSpecificCastNode: node
+]
+
+{ #category : #visiting }
 MbndAstTransformVisitor >> visitStructureDeclarationNode: node [
 	^ node copy
 ]

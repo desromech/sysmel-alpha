@@ -19,6 +19,7 @@ MbndReferenceType >> addDefaultConversionRules [
 	super addDefaultConversionRules.
 	baseType ifNotNil: [ 
 		self addConversionTo: baseType withoutTopDecorations rule: MbndReferenceLoadTypeConversionRule.
+		baseType withoutTopDecorations addConversionRulesToReferenceType: self
 	]
 ]
 
