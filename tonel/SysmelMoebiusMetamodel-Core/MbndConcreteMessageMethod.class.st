@@ -8,3 +8,8 @@ Class {
 MbndConcreteMessageMethod >> accept: aVisitor [
 	^ aVisitor visitConcreteMessageMethod: self
 ]
+
+{ #category : #testing }
+MbndConcreteMessageMethod >> isMessageMethod [
+	^ true
+]

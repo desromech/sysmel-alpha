@@ -40,6 +40,11 @@ MbndAbstractMethod >> evaluateWithReceiver: receiver arguments: arguments withEv
 	self subclassResponsibility
 ]
 
+{ #category : #testing }
+MbndAbstractMethod >> hasVirtualTableEntry [
+	^ false
+]
+
 { #category : #accessing }
 MbndAbstractMethod >> module [
 	^ parent module

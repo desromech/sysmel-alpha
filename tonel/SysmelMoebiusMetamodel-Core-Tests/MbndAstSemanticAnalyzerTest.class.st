@@ -298,6 +298,118 @@ MbndAstSemanticAnalyzerTest >> testClassDefinitionWithSuperclassBuilderExpansion
 ]
 
 { #category : #tests }
+MbndAstSemanticAnalyzerTest >> testClassNoOverrideError [
+	| classNode classType |
+	classNode := builder defineClass: (builder declareClass: #SuperClass) superclass: nil body: (builder sequence: {
+		builder defineField: #intField withValueType: (builder identifier: #Int32) withInitialValue: nil.
+		(builder functionPrototypeNamed: #virtualMethod arguments: #() returnType: (builder identifier: #Void))
+			override.
+	}).
+
+	classNode := visitor visitNode: classNode.
+	classType := classNode binding.
+	self assert: classType virtualMethods size equals: 1.
+
+	self should: [classType ensureSemanticAnalysis] raise: MbndCompilationError.
+
+]
+
+{ #category : #tests }
+MbndAstSemanticAnalyzerTest >> testClassVirtualMethodShadowWarning [
+	| superClassNode subClassNode superClass subClass |
+	superClassNode := builder defineClass: (builder declareClass: #SuperClass) superclass: nil body: (builder sequence: {
+		builder defineField: #intField withValueType: (builder identifier: #Int32) withInitialValue: nil.
+		(builder functionPrototypeNamed: #virtualMethod arguments: #() returnType: (builder identifier: #Void))
+			virtual.
+	}).
+	
+	subClassNode := builder defineClass: (builder declareClass: #SubClass) superclass: (builder identifier: #SuperClass) body: (builder sequence: {
+		builder defineField: #floatField withValueType: (builder identifier: #Float32) withInitialValue: nil.
+		(builder functionPrototypeNamed: #virtualMethod arguments: #() returnType: (builder identifier: #Void))
+			virtual.
+	}).
+	
+	superClassNode := visitor visitNode: superClassNode.
+	subClassNode := visitor visitNode: subClassNode.
+	
+	superClass := superClassNode binding.
+	subClass := subClassNode binding.
+	self assert: subClass supertype equals: superClass.
+
+	self assert: superClass virtualMethods size equals: 1.
+	self assert: subClass virtualMethods size equals: 1.
+	
+	self should: [subClass ensureSemanticAnalysis] raise: MbndCompilationWarning.
+
+]
+
+{ #category : #tests }
+MbndAstSemanticAnalyzerTest >> testClassWithSuperclass [
+	| superClassNode subClassNode superClass subClass |
+	superClassNode := builder defineClass: (builder declareClass: #SuperClass) superclass: nil body: (builder sequence: {
+		builder defineField: #intField withValueType: (builder identifier: #Int32) withInitialValue: nil
+	}).
+	
+	subClassNode := builder defineClass: (builder declareClass: #SubClass) superclass: (builder identifier: #SuperClass) body: (builder sequence: {
+		builder defineField: #floatField withValueType: (builder identifier: #Float32) withInitialValue: nil
+	}).
+	
+	superClassNode := visitor visitNode: superClassNode.
+	subClassNode := visitor visitNode: subClassNode.
+	
+	superClass := superClassNode binding.
+	subClass := subClassNode binding.
+	self assert: subClass supertype equals: superClass.
+	
+	subClass ensureSemanticAnalysis.
+	self assert: superClass slotLayout slots size equals: 1.
+	self assert: superClass slotLayout instanceSize equals: 4.
+	self assert: subClass slotLayout slots size equals: 2.
+	self assert: subClass slotLayout instanceSize equals: 8.
+
+]
+
+{ #category : #tests }
+MbndAstSemanticAnalyzerTest >> testClassWithSuperclassVirtualMethod [
+	| superClassNode subClassNode superClass subClass |
+	superClassNode := builder defineClass: (builder declareClass: #SuperClass) superclass: nil body: (builder sequence: {
+		builder defineField: #intField withValueType: (builder identifier: #Int32) withInitialValue: nil.
+		(builder functionPrototypeNamed: #firstVirtualMethod arguments: #() returnType: (builder identifier: #Void))
+			virtual.
+	}).
+	
+	subClassNode := builder defineClass: (builder declareClass: #SubClass) superclass: (builder identifier: #SuperClass) body: (builder sequence: {
+		builder defineField: #floatField withValueType: (builder identifier: #Float32) withInitialValue: nil.
+		(builder functionNamed: #firstVirtualMethod arguments: #() returnType: (builder identifier: #Void)
+			definitionBody: (builder sequence: #()))
+			override.
+
+		(builder functionPrototypeNamed: #secondVirtualMethod arguments: #() returnType: (builder identifier: #Void))
+			virtual.
+	}).
+	
+	superClassNode := visitor visitNode: superClassNode.
+	subClassNode := visitor visitNode: subClassNode.
+	
+	superClass := superClassNode binding.
+	subClass := subClassNode binding.
+	self assert: subClass supertype equals: superClass.
+
+	self assert: superClass virtualMethods size equals: 1.
+	self assert: subClass virtualMethods size equals: 2.
+	
+	subClass ensureSemanticAnalysis.
+	self assert: superClass slotLayout slots size equals: 2.
+	self assert: superClass slotLayout instanceSize equals: 8.
+	self assert: superClass slotLayout mainVirtualTable vtableSlots size equals: 1.
+	
+	self assert: subClass slotLayout slots size equals: 3.
+	self assert: subClass slotLayout instanceSize equals: 12.
+	self assert: subClass slotLayout mainVirtualTable vtableSlots size equals: 2.
+
+]
+
+{ #category : #tests }
 MbndAstSemanticAnalyzerTest >> testCleanUpScopeNode [
 	| node expression cleanUpActions analyzedNode |
 	expression := builder literalInteger: 42.

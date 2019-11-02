@@ -6,3 +6,8 @@ Class {
 	#superclass : #Object,
 	#category : #'SysmelMoebiusMetamodel-Core-Values'
 }
+
+{ #category : #testing }
+MbndAbstractValue >> isVTablePointerValue [
+	^ false
+]

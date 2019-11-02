@@ -8,7 +8,12 @@ Class {
 		'aggregate',
 		'layout',
 		'instanceSize',
-		'instanceAlignment'
+		'instanceAlignment',
+		'typeStartLocations',
+		'typeEndLocations',
+		'activeVTableField',
+		'mainVTableField',
+		'vtableFields'
 	],
 	#category : #'SysmelMoebiusMetamodel-Core-Type'
 }
@@ -19,10 +24,12 @@ MbndAggregateSlotLayoutBuilder >> addBitField: aField [
 		self flushBitFieldForNewType: aField valueType.
 	].
 
-	aField
-		slotIndex: self currentSlotIndex;
-		bitOffset: remainingBitFieldBits - aField bits;
-		bitMask: ((1 << aField bits) - 1) << aField bitOffset.
+	aField slotIndex ifNil: [ 
+		aField
+			slotIndex: self currentSlotIndex;
+			bitOffset: remainingBitFieldBits - aField bits;
+			bitMask: ((1 << aField bits) - 1) << aField bitOffset.
+	].
 	remainingBitFieldBits := remainingBitFieldBits - aField bits.
 	
 	currentBitFields add: aField.
@@ -41,7 +48,10 @@ MbndAggregateSlotLayoutBuilder >> addField: aField [
 MbndAggregateSlotLayoutBuilder >> addNormalField: aField [
 	| slot |
 	self flushBitFields.
-	aField slotIndex: self currentSlotIndex.
+	aField slotIndex ifNil: [ 
+		aField slotIndex: self currentSlotIndex.
+	].
+
 	slot := MbndAggregateSlotDescription new
 		name: aField name;
 		type: aField valueType;
@@ -63,6 +73,38 @@ MbndAggregateSlotLayoutBuilder >> addVTablePointerField: vtableField [
 ]
 
 { #category : #adding }
+MbndAggregateSlotLayoutBuilder >> addVirtualMethod: aMethod [
+	aMethod isNewVirtualTableEntry ifTrue: [ 
+		self assert: activeVTableField isNotNil.
+		
+		activeVTableField addNewVirtualMethodEntry: aMethod.
+		mainVTableField ~~ activeVTableField ifTrue: [ 
+			mainVTableField addNewVirtualMethodEntry: aMethod.
+		].
+	] ifFalse: [
+		self assert: aMethod isVirtualTableOverride.
+		vtableFields do: [ :vtable |
+			vtable == mainVTableField ifTrue: [
+				vtable overrideVirtualMethodEntryWith: aMethod
+			] ifFalse: [
+				vtable tryToOverrideVirtualMethodEntryWith: aMethod
+			].
+		]
+	].
+
+]
+
+{ #category : #accessing }
+MbndAggregateSlotLayoutBuilder >> aggregate [
+	^ aggregate
+]
+
+{ #category : #accessing }
+MbndAggregateSlotLayoutBuilder >> aggregate: anObject [
+	aggregate := anObject
+]
+
+{ #category : #adding }
 MbndAggregateSlotLayoutBuilder >> countSlotForSizeAndAlignment: slot [
 	| slotType |
 	slotType := slot type.
@@ -72,6 +114,28 @@ MbndAggregateSlotLayoutBuilder >> countSlotForSizeAndAlignment: slot [
 	
 	instanceSize := instanceSize + slotType instanceSize.
 	instanceAlignment := instanceAlignment max: slotType instanceAlignment
+]
+
+{ #category : #'as yet unclassified' }
+MbndAggregateSlotLayoutBuilder >> createMainVirtualTable [
+	mainVTableField ifNil: [
+		mainVTableField := activeVTableField := self createVirtualTable.
+	].
+
+	^ mainVTableField
+]
+
+{ #category : #'as yet unclassified' }
+MbndAggregateSlotLayoutBuilder >> createVirtualTable [
+	| vtableField fieldType |
+	fieldType := aggregate vtableFieldType.
+	vtableField := MbndVTablePointerFieldVariable new
+		valueType: fieldType;
+		type: fieldType ref.
+	aggregate addChild: vtableField.
+	self addNormalField: vtableField.
+	vtableFields add: vtableField.
+	^ vtableField
 ]
 
 { #category : #adding }
@@ -86,6 +150,10 @@ MbndAggregateSlotLayoutBuilder >> finish [
 		slots: layout slots asArray;
 		instanceSize: instanceSize;
 		instanceAlignment: instanceAlignment;
+		typeStartLocations: typeStartLocations;
+		typeEndLocations: typeEndLocations;
+		mainVirtualTable: mainVTableField;
+		virtualTables: vtableFields;
 		yourself
 ]
 
@@ -127,6 +195,9 @@ MbndAggregateSlotLayoutBuilder >> initialize [
 	super initialize.
 	layout := MbndAggregateSlotLayout new.
 	currentBitFields := OrderedCollection new.
+	typeStartLocations := OrderedDictionary new.
+	typeEndLocations := OrderedDictionary new.
+	vtableFields := OrderedCollection new.
 	instanceSize := 0.
 	instanceAlignment := 1.
 ]
@@ -134,4 +205,17 @@ MbndAggregateSlotLayoutBuilder >> initialize [
 { #category : #accessing }
 MbndAggregateSlotLayoutBuilder >> layout [
 	^ layout
+]
+
+{ #category : #'as yet unclassified' }
+MbndAggregateSlotLayoutBuilder >> recordTypeEndLocation: aType [
+	self flush.
+	typeEndLocations at: aType ifAbsentPut: [ layout slots size ].
+
+]
+
+{ #category : #'as yet unclassified' }
+MbndAggregateSlotLayoutBuilder >> recordTypeStartLocation: aType [
+	self flush.
+	typeStartLocations at: aType ifAbsentPut: [ layout slots size ].
 ]

@@ -4,7 +4,11 @@ Class {
 	#instVars : [
 		'slots',
 		'instanceSize',
-		'instanceAlignment'
+		'instanceAlignment',
+		'typeStartLocations',
+		'typeEndLocations',
+		'mainVirtualTable',
+		'virtualTables'
 	],
 	#category : #'SysmelMoebiusMetamodel-Core-Type'
 }
@@ -38,6 +42,16 @@ MbndAggregateSlotLayout >> instanceSize: anObject [
 ]
 
 { #category : #accessing }
+MbndAggregateSlotLayout >> mainVirtualTable [
+	^ mainVirtualTable
+]
+
+{ #category : #accessing }
+MbndAggregateSlotLayout >> mainVirtualTable: anObject [
+	mainVirtualTable := anObject
+]
+
+{ #category : #accessing }
 MbndAggregateSlotLayout >> slots [
 	^ slots
 ]
@@ -45,4 +59,34 @@ MbndAggregateSlotLayout >> slots [
 { #category : #accessing }
 MbndAggregateSlotLayout >> slots: anObject [
 	slots := anObject
+]
+
+{ #category : #accessing }
+MbndAggregateSlotLayout >> typeEndLocations [
+	^ typeEndLocations
+]
+
+{ #category : #accessing }
+MbndAggregateSlotLayout >> typeEndLocations: anObject [
+	typeEndLocations := anObject
+]
+
+{ #category : #accessing }
+MbndAggregateSlotLayout >> typeStartLocations [
+	^ typeStartLocations
+]
+
+{ #category : #accessing }
+MbndAggregateSlotLayout >> typeStartLocations: anObject [
+	typeStartLocations := anObject
+]
+
+{ #category : #accessing }
+MbndAggregateSlotLayout >> virtualTables [
+	^ virtualTables
+]
+
+{ #category : #accessing }
+MbndAggregateSlotLayout >> virtualTables: anObject [
+	virtualTables := anObject
 ]

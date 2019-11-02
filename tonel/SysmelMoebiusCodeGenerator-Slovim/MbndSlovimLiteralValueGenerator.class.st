@@ -115,6 +115,11 @@ MbndSlovimLiteralValueGenerator >> visitPointerType: pointerType [
 		].
 	].
 
+	literalValue isVTablePointerValue ifTrue: [
+		^ SLVMConstant getReference: (self translateProgramEntity: literalValue vtableFieldDefinition) ssaValue
+			element: literalValue vtableFieldDefinition firstMethodSlotIndex - 1
+	].
+
 	self error: 'Unsupported generation of literals of type {1}.' format: { pointerType asString }
 
 ]

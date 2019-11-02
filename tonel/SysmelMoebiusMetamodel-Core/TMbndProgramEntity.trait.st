@@ -41,6 +41,16 @@ TMbndProgramEntity >> getPublicMetaBuilderFactoryList [
 	} ,  self getExtraMetaBuilderFactoryList
 ]
 
+{ #category : #testing }
+TMbndProgramEntity >> isFunctionMethod [
+	^ false
+]
+
+{ #category : #testing }
+TMbndProgramEntity >> isMessageMethod [
+	^ false
+]
+
 { #category : #accessing }
 TMbndProgramEntity >> module [
 	self explicitRequirement

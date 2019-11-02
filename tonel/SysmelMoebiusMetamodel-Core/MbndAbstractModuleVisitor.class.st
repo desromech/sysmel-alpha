@@ -167,7 +167,7 @@ MbndAbstractModuleVisitor >> visitUnionType: type [
 ]
 
 { #category : #visiting }
-MbndAbstractModuleVisitor >> visitVTablePointerFieldVariable: type [
+MbndAbstractModuleVisitor >> visitVTablePointerFieldVariable: vtableFieldVariable [
 	self subclassResponsibility
 ]
 

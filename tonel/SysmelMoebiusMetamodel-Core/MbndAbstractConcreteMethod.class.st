@@ -201,10 +201,25 @@ MbndAbstractConcreteMethod >> extraImplicitArguments [
 	^ #()
 ]
 
+{ #category : #testing }
+MbndAbstractConcreteMethod >> hasVirtualTableEntry [
+	^ self isNewVirtualTableEntry or: [ self isVirtualTableOverride ]
+]
+
 { #category : #initialization }
 MbndAbstractConcreteMethod >> initialize [
 	super initialize.
 	children := OrderedCollection new.
+]
+
+{ #category : #testing }
+MbndAbstractConcreteMethod >> isNewVirtualTableEntry [
+	^ self hasFlag: #virtual
+]
+
+{ #category : #testing }
+MbndAbstractConcreteMethod >> isVirtualTableOverride [
+	^ self hasFlag: #override
 ]
 
 { #category : #'as yet unclassified' }
@@ -214,4 +229,9 @@ MbndAbstractConcreteMethod >> lookupBoundReceiverSymbol: aSymbol [
 	].
 	
 	^ nil
+]
+
+{ #category : #'as yet unclassified' }
+MbndAbstractConcreteMethod >> virtualTableSelector [
+	^ {name . self class . boundType }
 ]

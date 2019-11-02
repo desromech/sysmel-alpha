@@ -17,7 +17,7 @@ MbndUnionType >> accept: aVisitor [
 { #category : #layout }
 MbndUnionType >> buildSlotLayout [
 	| builder |
-	builder := MbndUnionSlotLayoutBuilder new.
+	builder := MbndUnionSlotLayoutBuilder new aggregate: self.
 	self buildSlotLayoutWith: builder.
 	slotLayout := builder finish.
 ]

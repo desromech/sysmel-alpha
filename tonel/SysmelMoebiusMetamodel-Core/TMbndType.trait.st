@@ -63,6 +63,11 @@ TMbndType >> implicitConversionRules [
 	^ implicitConversionRules ifNil: [ implicitConversionRules := OrderedCollection new ]
 ]
 
+{ #category : #testing }
+TMbndType >> isTrait [
+	^ self hasFlag: #trait
+]
+
 { #category : #'as yet unclassified' }
 TMbndType >> lookupMacroSelector: aSelector [
 	| macro |

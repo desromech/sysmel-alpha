@@ -25,7 +25,7 @@ TMbndMethodContainer >> addOverloadedMethod: method [
 			self overloadedMethodDict at: method name put: methodGroup.
 		].
 		methodGroup addOverloadedEntity: method
-	] ifAbsentPut: [ method ]
+	] ifAbsentPut: [ method ].
 ]
 
 { #category : #methods }

@@ -46,3 +46,15 @@ MbndAstFunctionPrototypeNode >> name [
 MbndAstFunctionPrototypeNode >> name: anObject [
 	name := anObject
 ]
+
+{ #category : #'as yet unclassified' }
+MbndAstFunctionPrototypeNode >> override [
+	<compileTime>
+	self addFlag: #override
+]
+
+{ #category : #'as yet unclassified' }
+MbndAstFunctionPrototypeNode >> virtual [
+	<compileTime>
+	self addFlag: #virtual
+]

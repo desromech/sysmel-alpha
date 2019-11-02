@@ -71,3 +71,8 @@ MbndSlovimProgramEntityTypeNameMangler >> visitTemplateInstance: node [
 MbndSlovimProgramEntityTypeNameMangler >> visitUnionType: node [
 	^ self visitAggregateType: node
 ]
+
+{ #category : #visiting }
+MbndSlovimProgramEntityTypeNameMangler >> visitVTablePointerFieldVariable: vtableFieldVariable [
+	 ^ (self emitMangledType: vtableFieldVariable parent) , 'VT' , vtableFieldVariable slotIndex asString
+]

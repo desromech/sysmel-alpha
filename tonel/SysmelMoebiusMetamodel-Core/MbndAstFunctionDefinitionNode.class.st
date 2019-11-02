@@ -23,3 +23,15 @@ MbndAstFunctionDefinitionNode >> isFunctionDefinitionNode [
 MbndAstFunctionDefinitionNode >> name [
 	^ prototype name
 ]
+
+{ #category : #running }
+MbndAstFunctionDefinitionNode >> override [
+	<compileTime>
+	prototype := prototype copy override
+]
+
+{ #category : #running }
+MbndAstFunctionDefinitionNode >> virtual [
+	<compileTime>
+	prototype := prototype copy virtual
+]

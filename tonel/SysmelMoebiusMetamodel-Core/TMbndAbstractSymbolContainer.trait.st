@@ -107,8 +107,9 @@ TMbndAbstractSymbolContainer >> findOrAddOverloadedFunctionPrototype: functionPr
 				name: localSymbolDefinition name;
 				addOverloadedEntity: localSymbolDefinition;
 				yourself.
-			self addChild: localSymbolDefinition.
-			self setLocalSymbol: localSymbolDefinition name value: localSymbolDefinition
+			self
+				addChild: localSymbolDefinition;
+				setLocalSymbol: localSymbolDefinition name value: localSymbolDefinition
 		].
 		(localSymbolDefinition findMatchingPrototypeNode: functionPrototype withReceiverType: self implicitFunctionReceiverType) ifNotNil: [ :existent |
 			functionPrototype concreteMethod: existent.

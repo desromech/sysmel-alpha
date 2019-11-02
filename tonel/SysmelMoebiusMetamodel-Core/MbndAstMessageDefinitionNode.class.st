@@ -19,7 +19,19 @@ MbndAstMessageDefinitionNode >> isMessageDefinitionNode [
 	^ true
 ]
 
+{ #category : #running }
+MbndAstMessageDefinitionNode >> override [
+	<compileTime>
+	prototype := prototype copy override
+]
+
 { #category : #accessing }
 MbndAstMessageDefinitionNode >> selector [
 	^ prototype selector
+]
+
+{ #category : #running }
+MbndAstMessageDefinitionNode >> virtual [
+	<compileTime>
+	prototype := prototype copy virtual
 ]

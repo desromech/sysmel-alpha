@@ -193,6 +193,7 @@ MbndSlovimCodeModuleGenerator >> typeTranslator [
 MbndSlovimCodeModuleGenerator >> visitAggregateTypeWithFields: type [
 	| ssaType |
 	ssaType := self translateType: type.
+	self setProgramEntity: type ssaValue: (SLVMConstant nullPointer: self slvmCompilationTarget voidPointerType).
 	(ssaType isStructureType and: [ ssaType name isNotNil ]) ifTrue: [ 
 		ssaModule addStructure: ssaType
 	].
@@ -258,6 +259,7 @@ MbndSlovimCodeModuleGenerator >> visitConcreteMessageMethod: functionMethod [
 
 { #category : #visiting }
 MbndSlovimCodeModuleGenerator >> visitFieldVariable: field [
+	^ nil
 ]
 
 { #category : #visiting }
@@ -359,4 +361,35 @@ MbndSlovimCodeModuleGenerator >> visitTemplateInstance: templateInstance [
 { #category : #visiting }
 MbndSlovimCodeModuleGenerator >> visitUnionType: type [
 	^ self visitAggregateTypeWithFields: type
+]
+
+{ #category : #visiting }
+MbndSlovimCodeModuleGenerator >> visitVTablePointerFieldVariable: vtableField [
+	| ssaValueType csymbol ssaVTableDefinition vtableEntryType additionalFields methodFields |
+	
+	vtableEntryType := self slvmCompilationTarget voidPointerType.
+	additionalFields := {
+		"Offset" SLVMConstant type: vtableEntryType value: 0.
+		"Type info" . SLVMConstant pointer: (self translateProgramEntity: vtableField parent) ssaValue castTo: vtableEntryType.
+	}.
+	
+	methodFields := vtableField vtableSlots collect: [ :vtableMethod |
+		SLVMConstant pointer: (self translateProgramEntity: vtableMethod) ssaValue
+			castTo: vtableEntryType
+	].
+	
+	ssaValueType := (SLVMArrayType baseType: vtableEntryType elements: additionalFields size + methodFields size ).
+	csymbol := self mangleProgramEntityName: vtableField.
+	
+	ssaVTableDefinition := SLVMGlobalVariable module: ssaModule name: csymbol valueType: ssaValueType storage: SLVMType genericStorage.
+	self setProgramEntity: vtableField ssaValue: ssaVTableDefinition.
+	ssaVTableDefinition
+		readOnly: true;
+		initialValue: (SLVMConstant array: ssaValueType slots: additionalFields , methodFields).
+
+	vtableField parent hasPrivateVisibility ifTrue: [ 
+		ssaVTableDefinition makePrivate
+	].
+
+	^ ssaVTableDefinition
 ]

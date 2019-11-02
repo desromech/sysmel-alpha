@@ -28,21 +28,30 @@ MbndAggregateTypeWithFields >> addField: aField [
 { #category : #layout }
 MbndAggregateTypeWithFields >> buildSlotLayout [
 	| builder |
-	builder := MbndAggregateSlotLayoutBuilder new.
+	builder := MbndAggregateSlotLayoutBuilder new aggregate: self.
 	self buildSlotLayoutWith: builder.
 	slotLayout := builder finish.
 ]
 
 { #category : #layout }
 MbndAggregateTypeWithFields >> buildSlotLayoutWith: builder [
+	builder recordTypeStartLocation: self.
 	self buildSuperTypesSlotLayoutWith: builder.
 	self fields do: [ :field |
 		builder addField: field
 	].
+	builder recordTypeEndLocation: self.
+
 ]
 
 { #category : #layout }
 MbndAggregateTypeWithFields >> buildSuperTypesSlotLayoutWith: builder [
+	self nonTraitSuperType ifNotNil: [ :st |
+		st
+			ensureSemanticAnalysis;
+			buildSlotLayoutWith: builder
+	]
+
 ]
 
 { #category : #'default values' }
@@ -110,6 +119,12 @@ MbndAggregateTypeWithFields >> instanceSize [
 { #category : #'semantic analysis' }
 MbndAggregateTypeWithFields >> isDefined [
 	^ self hasFlag: #defined
+]
+
+{ #category : #layout }
+MbndAggregateTypeWithFields >> nonTraitSuperType [
+	^ (self compilationTarget getBasicTypeNamed: self class typeName) == supertype
+		ifTrue: [ nil ] ifFalse: [ supertype ]
 ]
 
 { #category : #accessing }

@@ -71,15 +71,26 @@ MbndSlovimFunctionCodeGenerator >> defineArgumentValues [
 
 { #category : #'as yet unclassified' }
 MbndSlovimFunctionCodeGenerator >> generateExpandedMessageSendNode: node withStaticMethodBoundTo: methodSSAFunction [
-	| receiver arguments allArguments |
+	| receiver receiverType arguments allArguments calledMethodSSAFunction vtableLayout vtableSlot vtableEntrySlot |
 	receiver := node receiver ifNotNil: [self visitNode: node receiver].
 	arguments := self visitNodesAndCollect: node arguments.
 	allArguments := arguments.
 	receiver ifNotNil: [
 		allArguments := { receiver } , arguments
 	].
+
+	calledMethodSSAFunction := methodSSAFunction.
+	node method hasVirtualTableEntry ifTrue: [
+		receiverType := node receiver type withoutReferences.
+		vtableLayout := receiverType slotLayout mainVirtualTable.
 	
-	^ slvmBuilder call: methodSSAFunction arguments: allArguments
+		vtableSlot := slvmBuilder load: (slvmBuilder getReference: receiver element: vtableLayout slotIndex).
+		vtableEntrySlot := slvmBuilder load: (slvmBuilder getReference: vtableSlot element: (vtableLayout getSlotIndexFor: node method virtualTableSelectorName)).
+		calledMethodSSAFunction := slvmBuilder bitCast: vtableEntrySlot target: methodSSAFunction type.
+		self halt
+	].
+	
+	^ slvmBuilder call: calledMethodSSAFunction arguments: allArguments
 ]
 
 { #category : #accessing }

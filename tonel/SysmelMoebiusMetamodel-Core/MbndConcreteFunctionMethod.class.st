@@ -8,3 +8,8 @@ Class {
 MbndConcreteFunctionMethod >> accept: aVisitor [
 	^ aVisitor visitConcreteFunctionMethod: self
 ]
+
+{ #category : #testing }
+MbndConcreteFunctionMethod >> isFunctionMethod [
+	^ true
+]

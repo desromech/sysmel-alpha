@@ -17,6 +17,12 @@ MbndAstMessagePrototypeNode >> isMessagePrototypeNode [
 	^ true
 ]
 
+{ #category : #running }
+MbndAstMessagePrototypeNode >> override [
+	<compileTime>
+	self addFlag: #override
+]
+
 { #category : #accessing }
 MbndAstMessagePrototypeNode >> selector [
 	^ selector
@@ -25,4 +31,10 @@ MbndAstMessagePrototypeNode >> selector [
 { #category : #accessing }
 MbndAstMessagePrototypeNode >> selector: anObject [
 	selector := anObject
+]
+
+{ #category : #'as yet unclassified' }
+MbndAstMessagePrototypeNode >> virtual [
+	<compileTime>
+	self addFlag: #virtual
 ]
