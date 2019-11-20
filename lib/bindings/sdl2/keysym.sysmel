@@ -1,5 +1,5 @@
 namespace SDL2 definition: {
-	enum Keycode type: UInt32; values: #{
+	enum Keycode valueType: UInt32; values: #{
         SDLK_UNKNOWN: 16r0000.
         SDLK_RETURN: 16r000D.
         SDLK_ESCAPE: 16r001B.

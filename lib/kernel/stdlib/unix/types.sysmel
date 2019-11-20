@@ -1,5 +1,5 @@
 namespace Unix definition: {
-    useAndExport: CTypes.
+    useNamespaceAndExportSymbols: CTypes.
 
     compileTimeConstant UID_T := UInt32.
     compileTimeConstant GID_T := UInt32.

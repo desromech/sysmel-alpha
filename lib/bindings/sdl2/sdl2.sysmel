@@ -207,7 +207,7 @@ namespace SDL2 definition: {
         field direction public type: UInt32.
     }.
 
-    struct SDL_Event definition: {
+    union SDL_Event definition: {
         field type public type: UInt32.
         field common public type: SDL_CommonEvent.
         field window public type: SDL_WindowEvent.

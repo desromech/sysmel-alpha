@@ -8,6 +8,6 @@ function main externC (argc: Int32, argv: UInt8 const pointer pointer) => Int32 
 	}.
 
 	StdNative stdout << "Hello world StdNative stdout "; nl.
-	
+
     return: 0.
 }.
