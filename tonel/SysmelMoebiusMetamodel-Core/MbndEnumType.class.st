@@ -18,6 +18,11 @@ MbndEnumType >> accept: visitor [
 	^ visitor visitEnumType: self
 ]
 
+{ #category : #'default values' }
+MbndEnumType >> defaultValueAt: aPosition [
+	^ (valueType defaultValueAt: aPosition) copy type: self
+]
+
 { #category : #initialization }
 MbndEnumType >> initialize [
 	super initialize.

@@ -824,7 +824,7 @@ MbndAstSemanticAnalyzer >> visitGlobalVariableDefinitionNode: node [
 	"Infer the value type, if needed"
 	result valueType ifNil: [
 		result initialValue ifNil: [
-			self error: 'Global variable {1} without an explicit type, or an initial value.' format: { node v asPrettySymbolName } at: node
+			self error: 'Global variable {1} without an explicit type, or an initial value.' format: { result name asPrettySymbolName } at: node
 		].
 	
 		result valueType: (result initialValue type inferValueTypeForNode: result initialValue inScope: scope).

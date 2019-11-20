@@ -51,14 +51,14 @@ MbndGenericMacroLanguageTopLevelScope >> addControlFlowMacros [
 		];
 		onMacroSelector: #until:do: do: [ :node :builder |
 			(builder while:
-				((builder unexpandedSend: #not to: node arguments first withArguments: #())
+				((builder unexpandedSend: (builder literalSymbol: #not) to: node arguments first withArguments: #())
 					position: node arguments first)
 				do: node arguments second)
 				position: node
 		];
 		onMacroSelector: #until:do:continueWith: do: [ :node :builder |
 			(builder while:
-				((builder unexpandedSend: #not to: node arguments first withArguments: #())
+				((builder unexpandedSend: (builder literalSymbol: #not) to: node arguments first withArguments: #())
 					position: node arguments first)
 				do: node arguments second
 				continueWith: node arguments third)
@@ -112,7 +112,17 @@ MbndGenericMacroLanguageTopLevelScope >> addModuleMacros [
 { #category : #initialization }
 MbndGenericMacroLanguageTopLevelScope >> addNamespaceMacros [
 	self
-		onMacroSelector: #useAndExport: do: [ :node :builder :analyzer |
+		onMacroSelector: #useNamespace: do: [ :node :builder :analyzer |
+			| usedEntity |
+			usedEntity := analyzer evaluateCompileTimeExpression: node arguments first.
+			usedEntity type isNamespaceType ifFalse: [
+				self error: 'Cannot use and export program entity.' at: node.
+			].
+
+			analyzer scope useNamespace: usedEntity value.
+			builder literalVoid
+		];
+		onMacroSelector: #useNamespaceAndExportSymbols: do: [ :node :builder :analyzer |
 			| usedEntity |
 			usedEntity := analyzer evaluateCompileTimeExpression: node arguments first.
 			usedEntity type isNamespaceType ifFalse: [

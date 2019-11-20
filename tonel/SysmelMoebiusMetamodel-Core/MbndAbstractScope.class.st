@@ -56,8 +56,14 @@ MbndAbstractScope >> lookupSymbol: aSymbol [
 ]
 
 { #category : #'macro expansion' }
+MbndAbstractScope >> lookupSymbolOnUsedSymbols: symbol [
+	^ nil
+]
+
+{ #category : #'macro expansion' }
 MbndAbstractScope >> lookupSymbolRecursively: aSymbol ifAbsent: aBlock [
 	(self lookupSymbol: aSymbol) ifNotNil: [ :result | ^ result ].
+	(self lookupSymbolOnUsedSymbols: aSymbol) ifNotNil: [ :usedSymbol | ^ usedSymbol ].
 	parent ifNil: [
 		^ aBlock value
 	] ifNotNil: [

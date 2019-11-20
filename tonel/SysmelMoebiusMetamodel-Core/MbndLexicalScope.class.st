@@ -3,7 +3,8 @@ Class {
 	#superclass : #MbndAbstractScope,
 	#instVars : [
 		'symbolTable',
-		'bindingStorageTable'
+		'bindingStorageTable',
+		'usedNamespaces'
 	],
 	#category : #'SysmelMoebiusMetamodel-Core-Scope'
 }
@@ -62,6 +63,16 @@ MbndLexicalScope >> lookupSymbol: aSymbol [
 	^ symbolTable at: aSymbol ifAbsent: [ nil ]
 ]
 
+{ #category : #initialization }
+MbndLexicalScope >> lookupSymbolOnUsedSymbols: symbol [
+	usedNamespaces ifNotNil: [ 
+		usedNamespaces do: [ :namespace |
+			(namespace lookupSymbol: symbol) ifNotNil: [ :binding | ^ binding ]
+		]
+	].
+	^ nil
+]
+
 { #category : #storage }
 MbndLexicalScope >> setBinding: binding storage: storage [
 	^ self bindingStorageTable at: binding put: storage
@@ -70,4 +81,10 @@ MbndLexicalScope >> setBinding: binding storage: storage [
 { #category : #accessing }
 MbndLexicalScope >> symbolTable [
 	^ symbolTable
+]
+
+{ #category : #initialization }
+MbndLexicalScope >> useNamespace: aNamespace [
+	(usedNamespaces ifNil: [ usedNamespaces := OrderedCollection new])
+		add: aNamespace
 ]

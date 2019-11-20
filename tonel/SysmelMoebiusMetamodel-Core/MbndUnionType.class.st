@@ -22,6 +22,18 @@ MbndUnionType >> buildSlotLayout [
 	slotLayout := builder finish.
 ]
 
+{ #category : #'default values' }
+MbndUnionType >> defaultValueAt: aPosition [
+	self isDefined ifFalse: [ 
+		self error: 'Cannot produce a value for incomplete type {1}.' format: { self asString } at: aPosition
+	].
+
+	^ MbndUnionTypeInstanceValue new
+		type: self;
+		data: (ByteArray new: self instanceSize);
+		yourself
+]
+
 { #category : #'testing methods' }
 MbndUnionType >> isUnionType [
 	^ true

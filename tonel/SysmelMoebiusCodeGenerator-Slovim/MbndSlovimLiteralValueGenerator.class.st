@@ -164,6 +164,14 @@ MbndSlovimLiteralValueGenerator >> visitUndefinedType: undefinedType [
 	^ SLVMConstant type: (self translateType: undefinedType) value: literalValue
 ]
 
+{ #category : #visiting }
+MbndSlovimLiteralValueGenerator >> visitUnionType: type [
+	| slvmType |
+	slvmType := self translateType: type.
+	literalValue isAllZeros ifTrue: [ ^ slvmType defaultConstant ].
+	^ SLVMConstant union: slvmType blob: literalValue data
+]
+
 { #category : #'code generation' }
 MbndSlovimLiteralValueGenerator >> visitVoidType: voidType [
 	^ nil

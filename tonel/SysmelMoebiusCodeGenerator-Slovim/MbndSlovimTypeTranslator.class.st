@@ -22,9 +22,14 @@ MbndSlovimTypeTranslator >> setType: type ssaType: ssaType [
 
 { #category : #visiting }
 MbndSlovimTypeTranslator >> translateAggregateType: aggregateType [
+	^ self translateAggregateType: aggregateType withKind: SLVMStructureType
+]
+
+{ #category : #visiting }
+MbndSlovimTypeTranslator >> translateAggregateType: aggregateType withKind: typeKindClass [
 	| ssaStructureType |
-	ssaStructureType := SLVMStructureType name: (codeModuleGenerator mangleProgramEntityName: aggregateType)
-		types: #() kind: SLVMStructureType genericKind names: #().
+	ssaStructureType := typeKindClass name: (codeModuleGenerator mangleProgramEntityName: aggregateType)
+		types: #() kind: typeKindClass genericKind names: #().
 	translatedTypes at: aggregateType put: ssaStructureType.
 	
 	aggregateType isDefined ifTrue: [ 
@@ -129,6 +134,6 @@ MbndSlovimTypeTranslator >> visitStructureType: structureType [
 
 { #category : #visiting }
 MbndSlovimTypeTranslator >> visitUnionType: structureType [
-	^ self translateAggregateType: structureType
+	^ self translateAggregateType: structureType withKind: SLVMUnionType
 
 ]
