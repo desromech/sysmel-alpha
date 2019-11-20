@@ -174,6 +174,11 @@ TMbndAbstractCompilationTarget >> isWin32 [
 ]
 
 { #category : #'convenience type accessors' }
+TMbndAbstractCompilationTarget >> literalAssociationType [
+	^ self getBasicTypeNamed: #_LiteralAssociation
+]
+
+{ #category : #'convenience type accessors' }
 TMbndAbstractCompilationTarget >> literalBooleanFalseType [
 	^ self getBasicTypeNamed: #_LiteralBooleanFalse
 ]
@@ -186,6 +191,11 @@ TMbndAbstractCompilationTarget >> literalBooleanTrueType [
 { #category : #'convenience type accessors' }
 TMbndAbstractCompilationTarget >> literalBooleanType [
 	^ self getBasicTypeNamed: #_LiteralBoolean
+]
+
+{ #category : #'convenience type accessors' }
+TMbndAbstractCompilationTarget >> literalDictionaryType [
+	^ self getBasicTypeNamed: #_LiteralDictionary
 ]
 
 { #category : #'convenience type accessors' }

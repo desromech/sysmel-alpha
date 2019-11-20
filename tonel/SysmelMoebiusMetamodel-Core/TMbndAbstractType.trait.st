@@ -30,6 +30,12 @@ TMbndAbstractType >> -- nextType [
 ]
 
 { #category : #'type composition' }
+TMbndAbstractType >> --> valueType [
+	<compileTime>
+	^ self compilationTarget associationKey: self value: valueType
+]
+
+{ #category : #'type composition' }
 TMbndAbstractType >> => returnType [
 	<compileTime>
 	^ self compilationTarget functionTypeWithArguments: { self } returnType: returnType
@@ -441,6 +447,11 @@ TMbndAbstractType >> isArrayType [
 ]
 
 { #category : #'testing methods' }
+TMbndAbstractType >> isAssociationType [
+	^ false
+]
+
+{ #category : #'testing methods' }
 TMbndAbstractType >> isBlockClosureType [
 	^ false
 ]
@@ -471,6 +482,16 @@ TMbndAbstractType >> isDerivedType [
 ]
 
 { #category : #'testing methods' }
+TMbndAbstractType >> isDictionaryType [
+	^ false
+]
+
+{ #category : #'testing methods' }
+TMbndAbstractType >> isEnumType [
+	^ false
+]
+
+{ #category : #'testing methods' }
 TMbndAbstractType >> isFunctionTemplateType [
 	^ false
 ]
@@ -496,6 +517,11 @@ TMbndAbstractType >> isLiteralArrayType [
 ]
 
 { #category : #'testing methods' }
+TMbndAbstractType >> isLiteralAssociationType [
+	^ false
+]
+
+{ #category : #'testing methods' }
 TMbndAbstractType >> isLiteralBooleanFalseType [
 	^ false
 ]
@@ -512,6 +538,11 @@ TMbndAbstractType >> isLiteralBooleanType [
 
 { #category : #'testing methods' }
 TMbndAbstractType >> isLiteralCharacterType [
+	^ false
+]
+
+{ #category : #'testing methods' }
+TMbndAbstractType >> isLiteralDictionaryType [
 	^ false
 ]
 
@@ -697,6 +728,11 @@ TMbndAbstractType >> lookupOverloadedSelector: selector [
 	^ self supertype ifNotNil: [ :st | st lookupOverloadedSelector: selector ]
 ]
 
+{ #category : #'as yet unclassified' }
+TMbndAbstractType >> lookupOverloadedStaticSelector: selector [
+	^ nil
+]
+
 { #category : #'meta builder factories' }
 TMbndAbstractType >> lookupPublicMetaBuilderFactoryNamed: name withAnalyzer: analyzer [
 	^ self publicMetaBuilderFactories at: name ifAbsent: [ nil ]
@@ -712,6 +748,11 @@ TMbndAbstractType >> lookupSpecialSymbol: aSymbol [
 	aSymbol == #SelfType ifTrue: [ ^ self ].
 	aSymbol == #meta ifTrue: [ ^ self meta ].
 	self extraMetaBuilderFactories at: aSymbol ifPresent: [ :binding | ^ binding ].
+	^ nil
+]
+
+{ #category : #'as yet unclassified' }
+TMbndAbstractType >> lookupStaticMacroSelector: selector [
 	^ nil
 ]
 

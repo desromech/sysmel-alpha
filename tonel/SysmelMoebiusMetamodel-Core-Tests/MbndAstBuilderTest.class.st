@@ -52,6 +52,18 @@ MbndAstBuilderTest >> testAssignmentExpression [
 ]
 
 { #category : #tests }
+MbndAstBuilderTest >> testAssociationNode [
+	| node one two |
+	one := builder literalInteger: 1.
+	two := builder literalInteger: 2.
+	node := builder associationKey: one value: two.
+	
+	self assert: node isAssociationNode.
+	self assert: node key equals: one.
+	self assert: node value equals: two.
+]
+
+{ #category : #tests }
 MbndAstBuilderTest >> testBitCastNode [
 	| expression node  targetType |
 	expression := builder identifier: #x.
@@ -176,6 +188,19 @@ MbndAstBuilderTest >> testContinueStatementNode [
 ]
 
 { #category : #tests }
+MbndAstBuilderTest >> testDictionaryNode [
+	| node associations |
+	associations := {
+		builder associationKey: (builder literalSymbol: #First) value: (builder literalInteger: 1).
+		builder associationKey: (builder literalSymbol: #Second) value: (builder literalInteger: 2).
+	}.
+	node := builder dictionary: associations.
+	
+	self assert: node isDictionaryNode.
+	self assert: node elements equals: associations.
+]
+
+{ #category : #tests }
 MbndAstBuilderTest >> testDoWhileLoopNode [
 	| node condition action |
 	condition := builder identifier: #predicate.
@@ -185,6 +210,43 @@ MbndAstBuilderTest >> testDoWhileLoopNode [
 	self assert: node isDoWhileLoopNode.
 	self assert: node condition equals: condition.
 	self assert: node action equals: action.
+]
+
+{ #category : #tests }
+MbndAstBuilderTest >> testEnumDeclarationNode [
+	| node |
+	node := builder declareEnum: #TestEnum.
+	self assert: node isEnumDeclarationNode.
+	self assert: node name equals: #TestEnum.
+]
+
+{ #category : #tests }
+MbndAstBuilderTest >> testEnumDefinitionNode [
+	| node valueType body |
+	valueType := builder identifier: #Int32.
+	body := builder sequence: #().
+	node := builder defineEnumNamed: #Test valueType: valueType body: body.
+	self assert: node isEnumDefinitionNode.
+	self assert: node declaration isEnumDeclarationNode.
+	self assert: node declaration name equals: #Test.
+	self assert: node valueType equals: valueType.
+	self assert: node values equals: nil.
+	self assert: node body equals: body.
+]
+
+{ #category : #tests }
+MbndAstBuilderTest >> testEnumDefinitionNode2 [
+	| node valueType body values |
+	valueType := builder identifier: #Int32.
+	body := builder sequence: #().
+	values := builder dictionary: #().
+	node := builder defineEnumNamed: #Test valueType: valueType values: values body: body.
+	self assert: node isEnumDefinitionNode.
+	self assert: node declaration isEnumDeclarationNode.
+	self assert: node declaration name equals: #Test.
+	self assert: node valueType equals: valueType.
+	self assert: node values equals: values.
+	self assert: node body equals: body.
 ]
 
 { #category : #tests }

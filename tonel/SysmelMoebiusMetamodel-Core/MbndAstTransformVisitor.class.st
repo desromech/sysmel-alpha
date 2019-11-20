@@ -41,13 +41,20 @@ MbndAstTransformVisitor >> visitAssignmentNode: node [
 ]
 
 { #category : #visiting }
+MbndAstTransformVisitor >> visitAssociationNode: node [
+	^ node copy
+		key: (node key ifNotNil: [:n | self visitNode: n]);
+		value: (node value ifNotNil: [:n | self visitNode: n]);
+		yourself
+]
+
+{ #category : #visiting }
 MbndAstTransformVisitor >> visitBitCastNode: node [
 	^ self visitSpecificCastNode: node
 ]
 
 { #category : #visiting }
 MbndAstTransformVisitor >> visitBlockClosureNode: node [
-	| n |
 	^ node copy
 		arguments: (self visitNodesAndCollect: node arguments);
 		returnType: (node returnType isMbndAstNode ifTrue: [ self visitNode: node returnType ]);
@@ -138,11 +145,33 @@ MbndAstTransformVisitor >> visitDecorationChangeTypeCastNode: node [
 ]
 
 { #category : #visiting }
+MbndAstTransformVisitor >> visitDictionaryNode: node [
+	^ node copy
+		elements: (self visitNodesAndCollect: node elements);
+		yourself
+]
+
+{ #category : #visiting }
 MbndAstTransformVisitor >> visitDoWhileLoopNode: node [
 	^ node copy
 		condition: (self visitNode: node condition);
 		action: (self visitNode: node action);
 		continueAction: (node continueAction ifNotNil: [self visitNode: node continueAction]);
+		yourself
+]
+
+{ #category : #visiting }
+MbndAstTransformVisitor >> visitEnumDeclarationNode: node [
+	^ node copy
+]
+
+{ #category : #visiting }
+MbndAstTransformVisitor >> visitEnumDefinitionNode: node [
+	^ node copy
+		declaration: (node declaration ifNotNil: [:n | self visitNode: n]);
+		valueType: (node valueType ifNotNil: [:n | self visitNode: n]);
+		values: (node values ifNotNil: [:n | n isMbndAstNode ifTrue: [ self visitNode: n ] ifFalse: [n]]);
+		body: (node body ifNotNil: [:n | self visitNode: n]);
 		yourself
 ]
 

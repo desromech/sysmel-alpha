@@ -13,7 +13,8 @@ Trait {
 		'tupleTypes',
 		'specificCompilerObjects',
 		'blockClosureTypes',
-		'nativePrefixedStringLiteralType'
+		'nativePrefixedStringLiteralType',
+		'associationTypes'
 	],
 	#traits : 'TMbndAbstractCompilationTarget',
 	#classTraits : 'TMbndAbstractCompilationTarget classTrait',
@@ -59,6 +60,12 @@ TMbndCoreCompilationTarget >> addBasicType: basicType [
 { #category : #'derived types' }
 TMbndCoreCompilationTarget >> arrayOf: elementType elements: elementCount [
 	^ arrayTypes getOrCreateInstanceWithArguments: { elementType . elementCount }
+]
+
+{ #category : #'derived types' }
+TMbndCoreCompilationTarget >> associationKey: keyType value: valueType [
+	(keyType isLiteralValueType or: [ valueType isLiteralValueType ]) ifTrue: [ ^ self literalAssociationType ].
+	^ associationTypes getOrCreateInstanceWithArguments: { keyType . valueType }
 ]
 
 { #category : #'derived types' }
@@ -491,6 +498,15 @@ TMbndCoreCompilationTarget >> initializeDerivedTypeCaches [
 		doing: [ :elements |
 			(self ensureBasicTypeIsLinkedToTheHierarchy: MbndTupleType basicNew)
 				elements: elements;
+				initializeNonTraitType;
+				yourself.
+	].
+
+	associationTypes := self createSystemProvidedTypeTemplate: #_AssociationTypeTemplate
+		doing: [ :keyType :valueType |
+			(self ensureBasicTypeIsLinkedToTheHierarchy: MbndAssociationType basicNew)
+				keyType: keyType;
+				valueType: valueType;
 				initializeNonTraitType;
 				yourself.
 	].

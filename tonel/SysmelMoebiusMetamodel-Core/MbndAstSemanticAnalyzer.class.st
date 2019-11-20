@@ -66,6 +66,35 @@ MbndAstSemanticAnalyzer >> addReceiverImplicitCastFor: nodeRequiringCasting to: 
 ]
 
 { #category : #visiting }
+MbndAstSemanticAnalyzer >> analyzeEnumDefinition: enumDefinition values: values [
+	| enumType evaluatedDictionary convertedDictionary valueType |
+	enumType := enumDefinition binding.
+	evaluatedDictionary := values isMbndAstNode ifTrue: [
+		values isDictionaryNode ifTrue: [
+			self evaluateEnum: enumType literalDictionaryNode: values
+		] ifFalse: [
+			self evaluateCompileTimeExpression: values.
+		]
+	] ifFalse: [ values ].
+
+	(evaluatedDictionary type isLiteralDictionaryType or: [ evaluatedDictionary isDictionaryType ]) ifFalse: [ 
+		self error: 'Expected a dictionary, or an expression that evaluates to a dictionary for the values for enumeration {1}.' format: { enumType name asPrettySymbolName } at: enumDefinition
+	].
+
+	self assert: evaluatedDictionary value isDictionary.
+	convertedDictionary := evaluatedDictionary value species new.
+	valueType := enumType valueType.
+	evaluatedDictionary value keysAndValuesDo: [ :key :value |
+		convertedDictionary at: key put:
+			(valueType isPrimitiveType
+				ifTrue: [ value copy type: enumType ]
+				ifFalse: [ MbndValue value: value type: enumType ])
+	].
+
+	enumType values: convertedDictionary
+]
+
+{ #category : #visiting }
 MbndAstSemanticAnalyzer >> analyzeNodeIfNeeded: node [
 	"Visit the node only if it does not have a type value."
 	^ node type
@@ -206,6 +235,66 @@ MbndAstSemanticAnalyzer >> evaluateCompileTimeExpression: compileTimeExpression 
 		evaluateNode: compileTimeExpression withReturnContextInScope: scope
 ]
 
+{ #category : #visiting }
+MbndAstSemanticAnalyzer >> evaluateEnum: enumType literalDictionaryNode: dictionaryNode [
+	| dictionary lastValue |
+	self assert: dictionaryNode isDictionaryNode.
+	dictionary := OrderedDictionary new.
+	lastValue := nil.
+	
+	self withScope: scope newLexicalScope do: [ 
+		dictionaryNode elements do: [ :valueDefinition |
+			| association |
+			association := self evaluateEnum: enumType valueDefinition: valueDefinition lastValue: lastValue.
+			scope addSymbol: association key binding: association value ifPresent: [ 
+				self error: 'Enum {1} symbol {2} is duplicated.' format: { enumType asPrettySymbolName . association key asPrettySymbolName } at: valueDefinition
+			].
+		
+			dictionary add: association.
+			lastValue := association value
+		].
+	].
+
+	^ MbndValue value: dictionary type: compilationTarget literalDictionaryType
+	
+]
+
+{ #category : #visiting }
+MbndAstSemanticAnalyzer >> evaluateEnum: enumType valueDefinition: valueDefinition lastValue: lastValue [
+	| key value evaluatedValue |
+	valueDefinition isAssociationNode ifTrue: [
+		key := self evaluateCompileTimeExpression: valueDefinition key.
+		key type isLiteralSymbolType ifFalse: [
+			(key type isCompilerObjectType and: [ key value isSymbol not ]) ifTrue: [ 
+				self error: 'Expected a symbol for the key definition for enum elements.' at: valueDefinition key.
+			]
+		].
+	
+		value := valueDefinition value ifNil: [
+			self generateValueForEnum: enumType withLastValue: lastValue at: valueDefinition
+		] ifNotNil: [ :valueNode |
+			self evaluateCompileTimeExpression: (self addImplicitCastFor: valueNode to: enumType valueType).
+		].
+		self assert: value type == enumType valueType.
+		^ key value -> value
+	].
+
+	valueDefinition isLiteralSymbolValueNode ifTrue: [
+		^ valueDefinition value -> (self generateValueForEnum: enumType withLastValue: lastValue at: valueDefinition)
+	].
+
+	evaluatedValue := self evaluateCompileTimeExpression: valueDefinition.
+	evaluatedValue type isAssociationType ifTrue: [ 
+		self halt.
+	].
+
+	evaluatedValue type isLiteralAssociationType ifTrue: [ 
+		self halt.
+	].
+
+	self halt
+]
+
 { #category : #'compile time evaluation' }
 MbndAstSemanticAnalyzer >> evaluateTypeExpression: typeExpression [
 	| evaluationResult |
@@ -218,6 +307,18 @@ MbndAstSemanticAnalyzer >> evaluateTypeExpression: typeExpression [
 	].
 
 	^ evaluationResult value
+]
+
+{ #category : #visiting }
+MbndAstSemanticAnalyzer >> generateValueForEnum: enumType withLastValue: lastValue at: node [
+	| valueType |
+	valueType := enumType valueType.
+	valueType isPrimitiveNumberType ifFalse: [ 
+		self error: 'Cannot generate automatically an enumeration value with non-numerical type {1}.' format: { valueType name asPrettySymbolName } at: node
+	].
+
+	lastValue ifNil: [ ^ valueType defaultValueAt: node].
+	^ MbndValue value: lastValue value + 1 type: lastValue type
 ]
 
 { #category : #accessing }
@@ -310,6 +411,15 @@ MbndAstSemanticAnalyzer >> visitAssignmentNode: node [
 	result type: result reference type.	
 	^ result
 
+]
+
+{ #category : #visiting }
+MbndAstSemanticAnalyzer >> visitAssociationNode: node [
+	| result associationType |
+	result := super visitAssociationNode: node.
+	associationType := result key type --> result value type.
+	result type: associationType.
+	^ result type correctAssociationTypeForNode: result withAnalyzer: self.
 ]
 
 { #category : #visiting }
@@ -422,6 +532,54 @@ MbndAstSemanticAnalyzer >> visitDoWhileLoopNode: node [
 		condition: (self addImplicitCastFor: (self analyzeNodeIfNeeded: result condition) to: self compilationTarget booleanType);
 		type: self compilationTarget voidType.
 
+	^ result
+]
+
+{ #category : #visiting }
+MbndAstSemanticAnalyzer >> visitEnumDeclarationNode: node [
+	^ self visitTypeDeclarationNode: node ofKind: MbndEnumType
+]
+
+{ #category : #visiting }
+MbndAstSemanticAnalyzer >> visitEnumDefinitionNode: node [
+	| result definitionScope valueType |
+	result := node copy.
+	result declaration: (self visitNode: result declaration ensurePartOfDefinitionFlagIsMarked).
+	
+	"Evaluate the value type"
+	node valueType ifNotNil: [ :valueTypeNode |
+		valueType := self evaluateTypeExpression: valueTypeNode.
+	] ifNil: [
+		valueType := compilationTarget int32Type.
+	].
+
+	result binding valueType: valueType.
+
+	"Set the defined flag"
+	result binding addFlag: #defined.
+	
+	"Create a new lexical scope for the definition body."	
+	definitionScope := (result binding programEntityScope parent: scope) newLexicalScope.
+
+	"Analyze the values."
+	result values ifNotNil: [ :values |
+		self analyzeEnumDefinition: result values: values
+	].
+	
+	"Analyze the definition content."
+	result body ifNotNil: [ 
+		self withScope: definitionScope do: [
+
+			"Analyze the definition body. This optional."		
+			result body: (self evaluateCompileTimeExpression: result body)
+		].
+	].
+
+	"Enqueue the result semantic analysis."
+	result binding enqueueDelayedSemanticAnalysis.
+	
+	"Pass through the declaration result."
+	result type: result declaration type.
 	^ result
 ]
 

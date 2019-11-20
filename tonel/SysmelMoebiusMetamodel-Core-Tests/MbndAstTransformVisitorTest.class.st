@@ -58,6 +58,18 @@ MbndAstTransformVisitorTest >> testAssignmentExpression [
 ]
 
 { #category : #tests }
+MbndAstTransformVisitorTest >> testAssociationNode [
+	| one two node transformedNode |
+	one := builder literalInteger: 1.
+	two := builder literalInteger: 2.
+	node := builder associationKey: one value: two.
+	transformedNode := visitor visitNode: node.
+	self assert: transformedNode ~~ node.
+	self assert: transformedNode key equals: one.
+	self assert: transformedNode value equals: two.
+]
+
+{ #category : #tests }
 MbndAstTransformVisitorTest >> testBitCastNode [
 	| expression node targetType transformedNode |
 	expression := builder identifier: #x.
@@ -199,6 +211,20 @@ MbndAstTransformVisitorTest >> testContinueStatement [
 ]
 
 { #category : #tests }
+MbndAstTransformVisitorTest >> testDictionaryNode [
+	| node transformedNode elements |
+	elements := {
+		builder literalInteger: 1.
+		builder literalInteger: 2.
+	}.
+	
+	node := builder dictionary: elements.
+	transformedNode := visitor visitNode: node.
+	self assert: transformedNode ~~ node.
+	self assert: transformedNode elements equals: elements.
+]
+
+{ #category : #tests }
 MbndAstTransformVisitorTest >> testDoWhileLoopNode [
 	| node transformedNode condition action |
 	condition := builder identifier: #predicate.
@@ -209,6 +235,16 @@ MbndAstTransformVisitorTest >> testDoWhileLoopNode [
 	self assert: transformedNode ~~ node.
 	self assert: transformedNode condition equals: node condition.
 	self assert: transformedNode action equals: node action.
+]
+
+{ #category : #tests }
+MbndAstTransformVisitorTest >> testEnumDeclarationNode [
+	| node transformedNode |
+	node := builder declareEnum: #Test.
+	transformedNode := visitor visitNode: node.
+	self assert: transformedNode ~~ node.
+	self assert: transformedNode isEnumDeclarationNode.
+	self assert: transformedNode name equals: node name.
 ]
 
 { #category : #tests }

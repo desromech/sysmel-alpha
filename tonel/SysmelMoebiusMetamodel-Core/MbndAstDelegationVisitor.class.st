@@ -28,6 +28,11 @@ MbndAstDelegationVisitor >> visitAssignmentNode: node [
 ]
 
 { #category : #visiting }
+MbndAstDelegationVisitor >> visitAssociationNode: node [
+	^ self delegateNodeVisit: node
+]
+
+{ #category : #visiting }
 MbndAstDelegationVisitor >> visitBitCastNode: node [
 	^ self delegateNodeVisit: node
 ]
@@ -108,7 +113,22 @@ MbndAstDelegationVisitor >> visitDecorationChangeTypeCastNode: node [
 ]
 
 { #category : #visiting }
+MbndAstDelegationVisitor >> visitDictionaryNode: node [
+	^ self delegateNodeVisit: node
+]
+
+{ #category : #visiting }
 MbndAstDelegationVisitor >> visitDoWhileLoopNode: node [
+	^ self delegateNodeVisit: node
+]
+
+{ #category : #visiting }
+MbndAstDelegationVisitor >> visitEnumDeclarationNode: node [
+	^ self delegateNodeVisit: node
+]
+
+{ #category : #visiting }
+MbndAstDelegationVisitor >> visitEnumDefinitionNode: node [
 	^ self delegateNodeVisit: node
 ]
 

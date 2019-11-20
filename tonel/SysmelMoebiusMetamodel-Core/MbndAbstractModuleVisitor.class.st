@@ -47,6 +47,11 @@ MbndAbstractModuleVisitor >> visitDecoratedType: type [
 ]
 
 { #category : #visiting }
+MbndAbstractModuleVisitor >> visitEnumType: type [
+	self subclassResponsibility
+]
+
+{ #category : #visiting }
 MbndAbstractModuleVisitor >> visitFieldVariable: type [
 	self subclassResponsibility
 ]

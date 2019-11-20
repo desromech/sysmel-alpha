@@ -91,6 +91,11 @@ MbndSlovimLiteralValueGenerator >> visitDecoratedType: decoratedType [
 
 ]
 
+{ #category : #'code generation' }
+MbndSlovimLiteralValueGenerator >> visitEnumType: enumType [
+	^ enumType valueType accept: self
+]
+
 { #category : #visiting }
 MbndSlovimLiteralValueGenerator >> visitLiteralValueType: type [
 	^ literalValue

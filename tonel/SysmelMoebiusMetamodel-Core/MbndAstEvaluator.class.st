@@ -56,6 +56,11 @@ MbndAstEvaluator >> visitAssignmentNode: node [
 ]
 
 { #category : #visiting }
+MbndAstEvaluator >> visitClassDeclarationNode: node [
+	^ self visitTypeDeclarationNode: node
+]
+
+{ #category : #visiting }
 MbndAstEvaluator >> visitClassDefinitionNode: node [
 	^ self visitTypeDefinitionNode: node
 ]
@@ -127,6 +132,16 @@ MbndAstEvaluator >> visitDoWhileLoopNode: node [
 ]
 
 { #category : #visiting }
+MbndAstEvaluator >> visitEnumDeclarationNode: node [
+	^ self visitTypeDeclarationNode: node
+]
+
+{ #category : #visiting }
+MbndAstEvaluator >> visitEnumDefinitionNode: node [
+	^ self visitTypeDefinitionNode: node
+]
+
+{ #category : #visiting }
 MbndAstEvaluator >> visitExpandedHostMessageSendNode: node [
 	| receiver selector arguments result |
 	receiver := (self visitNode: node receiver) unwrapMbndValue.
@@ -174,6 +189,11 @@ MbndAstEvaluator >> visitFunctionDefinitionNode: node [
 MbndAstEvaluator >> visitFunctionPrototypeNode: node [
 	self assert: node concreteMethod isNotNil.
 	^ MbndValue value: node concreteMethod type: node type
+]
+
+{ #category : #visiting }
+MbndAstEvaluator >> visitGCClassDeclarationNode: node [
+	^ self visitTypeDeclarationNode: node
 ]
 
 { #category : #visiting }
@@ -408,6 +428,11 @@ MbndAstEvaluator >> visitTypeDefinitionNode: node [
 { #category : #visiting }
 MbndAstEvaluator >> visitUnexpandedMessageSendNode: node [
 	self compilerBugError: 'Macro that should have been expanded is not expanded' at: node
+]
+
+{ #category : #visiting }
+MbndAstEvaluator >> visitUnionDeclarationNode: node [
+	^ self visitTypeDeclarationNode: node
 ]
 
 { #category : #visiting }

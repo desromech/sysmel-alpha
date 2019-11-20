@@ -95,3 +95,19 @@ MbndArrayType >> instanceSize [
 MbndArrayType >> isArrayType [
 	^ true
 ]
+
+{ #category : #printing }
+MbndArrayType >> printOn: aStream [
+	elements = 0 ifTrue: [ 
+		elementType printOn: aStream.
+		aStream nextPutAll: ' array'.
+	] ifFalse: [ 
+	].
+
+	aStream nextPut: $(.
+	elementType printOn: aStream.
+	aStream nextPutAll: ' array: '.
+	elements printOn: aStream.
+	aStream nextPut: $).
+
+]

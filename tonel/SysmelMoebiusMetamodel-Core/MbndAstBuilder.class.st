@@ -44,6 +44,13 @@ MbndAstBuilder >> array: array elementReferenceAt: index [
 ]
 
 { #category : #'builder methods' }
+MbndAstBuilder >> associationKey: key value: value [
+	<compileTime>
+	<returnType: #_ASTNodeType>
+	^ MbndAstAssociationNode new key: key; value: value; yourself
+]
+
+{ #category : #'builder methods' }
 MbndAstBuilder >> bitCast: expression to: targetType [
 	<compileTime>
 	<returnType: #_ASTNodeType>
@@ -153,6 +160,15 @@ MbndAstBuilder >> declareClass: name [
 ]
 
 { #category : #'builder methods' }
+MbndAstBuilder >> declareEnum: name [
+	<compileTime>
+	<returnType: #_ASTNodeType>
+	^ MbndAstEnumDeclarationNode new
+		name: name;
+		yourself
+]
+
+{ #category : #'builder methods' }
 MbndAstBuilder >> declareGCClass: name [
 	<compileTime>
 	<returnType: #_ASTNodeType>
@@ -195,6 +211,39 @@ MbndAstBuilder >> defineClassNamed: name superclass: superclass body: body [
 	<compileTime>
 	<returnType: #_ASTNodeType>
 	^ self defineClass: (self declareClass: name) superclass: superclass body: body
+]
+
+{ #category : #'builder methods' }
+MbndAstBuilder >> defineEnum: declaration valueType: valueType body: body [
+	<compileTime>
+	<returnType: #_ASTNodeType>
+	^ self defineEnum: declaration valueType: valueType values: nil body: body
+]
+
+{ #category : #'builder methods' }
+MbndAstBuilder >> defineEnum: declaration valueType: valueType values: values body: body [
+	<compileTime>
+	<returnType: #_ASTNodeType>
+	^ MbndAstEnumDefinitionNode new
+		declaration: declaration;
+		valueType: valueType;
+		values: values;
+		body: body;
+		yourself
+]
+
+{ #category : #'builder methods' }
+MbndAstBuilder >> defineEnumNamed: name valueType: valueType body: body [
+	<compileTime>
+	<returnType: #_ASTNodeType>
+	^ self defineEnum: (self declareEnum: name) valueType: valueType values: nil body: body
+]
+
+{ #category : #'builder methods' }
+MbndAstBuilder >> defineEnumNamed: name valueType: valueType values: values body: body [
+	<compileTime>
+	<returnType: #_ASTNodeType>
+	^ self defineEnum: (self declareEnum: name) valueType: valueType values: values body: body
 ]
 
 { #category : #'builder methods' }
@@ -290,6 +339,13 @@ MbndAstBuilder >> defineUnionNamed: name body: body [
 	<compileTime>
 	<returnType: #_ASTNodeType>
 	^ self defineUnion: (self declareUnion: name) body: body
+]
+
+{ #category : #'builder methods' }
+MbndAstBuilder >> dictionary: aSequenceOfNodes [
+	<compileTime>
+	<returnType: #_ASTNodeType>
+	^ MbndAstDictionaryNode new elements: aSequenceOfNodes; yourself
 ]
 
 { #category : #'builder methods' }

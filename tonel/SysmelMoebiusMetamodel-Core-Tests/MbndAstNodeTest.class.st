@@ -72,6 +72,7 @@ MbndAstNodeTest >> testTestingMethods [
 	self deny: node isAbstractCastNode.
 	self deny: node isArgumentDefinitionNode.
 	self deny: node isAbstractTypeDefinitionNode.
+	self deny: node isAssociationNode.
 	self deny: node isAssignmentNode.
 	self deny: node isBitCastNode.
 	self deny: node isBreakStatementNode.
@@ -87,7 +88,10 @@ MbndAstNodeTest >> testTestingMethods [
 	self deny: node isConcretizeUndefinedValueCastNode.
 	self deny: node isContinueStatementNode.
 	self deny: node isConvertToASTNodeCastNode.
+	self deny: node isDictionaryNode.
 	self deny: node isDoWhileLoopNode.
+	self deny: node isEnumDeclarationNode.
+	self deny: node isEnumDefinitionNode.
 	self deny: node isExpandedMessageSendNode.
 	self deny: node isExplicitCastNode.
 	self deny: node isFloatingPointToIntegerCastNode.
@@ -138,7 +142,6 @@ MbndAstNodeTest >> testTestingMethods [
 	self deny: node isSpecificCastNode.
 	self deny: node isSignExtensionCastNode.
 	self deny: node isSpliceNode.
-	self deny: node isStatementNode.
 	self deny: node isStaticClassPointerCastNode.
 	self deny: node isStructureDeclarationNode.
 	self deny: node isStructureDefinitionNode.

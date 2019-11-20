@@ -19,7 +19,7 @@ SYMLASTDictionaryConstruction >> associations: anObject [
 
 { #category : #converting }
 SYMLASTDictionaryConstruction >> buildMoebiusAST: builder [
-	^ (builder contructDictionaryWith: (associations collect: [:assoc | assoc buildMoebiusAST: builder]))
+	^ (builder dictionary: (associations collect: [:assoc | assoc buildMoebiusAST: builder]))
 		position: self;
 		yourself
 ]

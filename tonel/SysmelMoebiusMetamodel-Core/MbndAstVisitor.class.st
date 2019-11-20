@@ -25,6 +25,11 @@ MbndAstVisitor >> visitAssignmentNode: node [
 ]
 
 { #category : #visiting }
+MbndAstVisitor >> visitAssociationNode: node [
+	self subclassResponsibility
+]
+
+{ #category : #visiting }
 MbndAstVisitor >> visitBitCastNode: node [
 	self subclassResponsibility
 ]
@@ -105,7 +110,22 @@ MbndAstVisitor >> visitDecorationChangeTypeCastNode: node [
 ]
 
 { #category : #visiting }
+MbndAstVisitor >> visitDictionaryNode: node [
+	self subclassResponsibility
+]
+
+{ #category : #visiting }
 MbndAstVisitor >> visitDoWhileLoopNode: node [
+	self subclassResponsibility
+]
+
+{ #category : #visiting }
+MbndAstVisitor >> visitEnumDeclarationNode: node [
+	self subclassResponsibility
+]
+
+{ #category : #visiting }
+MbndAstVisitor >> visitEnumDefinitionNode: node [
 	self subclassResponsibility
 ]
 

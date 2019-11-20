@@ -353,6 +353,11 @@ MbndSlovimCodeModuleGenerator >> visitConcreteMessageMethod: functionMethod [
 ]
 
 { #category : #visiting }
+MbndSlovimCodeModuleGenerator >> visitEnumType: type [
+	^ self visitUserDefinedType: type
+]
+
+{ #category : #visiting }
 MbndSlovimCodeModuleGenerator >> visitFieldVariable: field [
 	^ nil
 ]
@@ -462,6 +467,15 @@ MbndSlovimCodeModuleGenerator >> visitTemplateInstance: templateInstance [
 { #category : #visiting }
 MbndSlovimCodeModuleGenerator >> visitUnionType: type [
 	^ self visitAggregateTypeWithFields: type
+]
+
+{ #category : #visiting }
+MbndSlovimCodeModuleGenerator >> visitUserDefinedType: type [
+	| ssaType |
+	ssaType := self translateType: type.
+	self setProgramEntity: type ssaValue: (SLVMConstant nullPointer: self slvmCompilationTarget voidPointerType).
+	self translateProgramEntityChildren: type.
+	
 ]
 
 { #category : #visiting }

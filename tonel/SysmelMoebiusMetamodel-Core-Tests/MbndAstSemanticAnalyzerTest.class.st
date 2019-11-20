@@ -503,6 +503,88 @@ MbndAstSemanticAnalyzerTest >> testDummyLexicalScopeWithSingleLiteral [
 ]
 
 { #category : #tests }
+MbndAstSemanticAnalyzerTest >> testEnumDeclarationBuilderExpansion [
+	| node analyzedNode |
+	node := builder identifier: #enum.
+	node := builder unexpandedSend: (builder literalSymbol: #TestEnum) to: node withArguments: #().
+	analyzedNode := visitor visitNode: node.
+	self assert: analyzedNode isEnumDeclarationNode.
+	self assert: (scope lookupSymbolRecursively: #TestEnum ifAbsent: [nil]) isNotNil.
+	self assert: analyzedNode binding isNotNil.
+	self assert: analyzedNode binding isEnumType.
+	self assert: analyzedNode binding type instanceType equals: analyzedNode binding.
+
+]
+
+{ #category : #tests }
+MbndAstSemanticAnalyzerTest >> testEnumDefinitionBuilderExpansion [
+	| node analyzedNode enumType |
+	node := builder identifier: #enum.
+	node := builder unexpandedSend: (builder literalSymbol: #TestEnum) to: node withArguments: #().
+	node := builder unexpandedSend: (builder literalSymbol: #valueType:) to: node withArguments: {
+		builder identifier: #UInt16.
+	}.
+	node := builder unexpandedSend: (builder literalSymbol: #values:) to: node withArguments: {
+		builder dictionary: {
+			builder associationKey: (builder literalSymbol: #First) value: (builder literalInteger: 1).
+			builder associationKey: (builder literalSymbol: #Second) value: (builder literalInteger: 2).
+		}
+	}.
+	node := builder unexpandedSend: (builder literalSymbol: #definition:) to: node withArguments: {
+		builder sequence: #()
+	}.
+	analyzedNode := visitor visitNode: node.
+	self assert: analyzedNode isEnumDefinitionNode.
+	self assert: (scope lookupSymbolRecursively: #TestEnum ifAbsent: [nil]) isNotNil.
+	enumType := analyzedNode binding.
+	self assert: enumType isNotNil.
+	self assert: enumType isEnumType.
+	self assert: enumType type instanceType equals: enumType.
+	self assert: enumType valueType equals: compilationTarget uint16Type.
+	self assert: (enumType values at: #First) type equals: enumType.
+	self assert: (enumType values at: #First) value equals: 1.
+	self assert: (enumType values at: #Second) type equals: enumType.
+	self assert: (enumType values at: #Second) value equals: 2.
+	
+
+]
+
+{ #category : #tests }
+MbndAstSemanticAnalyzerTest >> testEnumDefinitionBuilderExpansion2 [
+	| node analyzedNode enumType |
+	node := builder identifier: #enum.
+	node := builder unexpandedSend: (builder literalSymbol: #TestEnum) to: node withArguments: #().
+	node := builder unexpandedSend: (builder literalSymbol: #values:) to: node withArguments: {
+		builder dictionary: {
+			builder associationKey: (builder literalSymbol: #Zero) value: nil.
+			builder literalSymbol: #First.
+			builder associationKey: (builder literalSymbol: #Second) value: nil.
+			builder associationKey: (builder literalSymbol: #Fifth) value: (builder literalInteger: 5).
+			builder literalSymbol: #Sixth.
+		}
+	}.
+	analyzedNode := visitor visitNode: node.
+	self assert: analyzedNode isEnumDefinitionNode.
+	self assert: (scope lookupSymbolRecursively: #TestEnum ifAbsent: [nil]) isNotNil.
+	enumType := analyzedNode binding.
+	self assert: enumType isNotNil.
+	self assert: enumType isEnumType.
+	self assert: enumType type instanceType equals: enumType.
+	self assert: enumType valueType equals: compilationTarget int32Type.
+	self assert: (enumType values at: #Zero) type equals: enumType.
+	self assert: (enumType values at: #Zero) value equals: 0.
+	self assert: (enumType values at: #First) type equals: enumType.
+	self assert: (enumType values at: #First) value equals: 1.
+	self assert: (enumType values at: #Second) type equals: enumType.
+	self assert: (enumType values at: #Second) value equals: 2.
+	self assert: (enumType values at: #Fifth) type equals: enumType.
+	self assert: (enumType values at: #Fifth) value equals: 5.
+	self assert: (enumType values at: #Sixth) type equals: enumType.
+	self assert: (enumType values at: #Sixth) value equals: 6.
+
+]
+
+{ #category : #tests }
 MbndAstSemanticAnalyzerTest >> testFloatingPointCast [
 	| float16Type float32Type float64Type |
 	float16Type := compilationTarget float16Type.
@@ -1170,6 +1252,17 @@ MbndAstSemanticAnalyzerTest >> testLiteral [
 	analyzedNode := visitor visitNode: literal.
 	self assert: analyzedNode equals: literal.
 	self assert: analyzedNode type isLiteralIntegerType.
+]
+
+{ #category : #tests }
+MbndAstSemanticAnalyzerTest >> testLiteralAssociation [
+	| literal analyzedNode key value |
+	key := builder literalSymbol: #First.
+	value := builder literalInteger: 1.
+	literal := builder associationKey: key value: value.
+	analyzedNode := visitor visitNode: literal.
+	self assert: analyzedNode isAssociationNode.
+	self assert: analyzedNode type isLiteralAssociationType.
 ]
 
 { #category : #tests }

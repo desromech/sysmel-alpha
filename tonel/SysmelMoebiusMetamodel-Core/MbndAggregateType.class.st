@@ -14,7 +14,7 @@ MbndAggregateType >> asImmutableValueType [
 	^ self const ref
 ]
 
-{ #category : #converting }
+{ #category : #'as yet unclassified' }
 MbndAggregateType >> asReceiverType [
 	^ self ref
 ]

@@ -285,7 +285,7 @@ SysmelGrammar >> decimalIntegerNumber [
 
 { #category : #accessing }
 SysmelGrammar >> dictionaryElement [
-	^ dictionaryKey , expression
+	^ dictionaryKey , expression optional
 ]
 
 { #category : #accessing }

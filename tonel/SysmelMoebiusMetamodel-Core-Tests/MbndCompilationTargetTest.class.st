@@ -91,6 +91,18 @@ MbndCompilationTargetTest >> testAsReferenceType [
 ]
 
 { #category : #'basic types' }
+MbndCompilationTargetTest >> testAssociationType [
+	| type type2 |
+	type := compilationTarget associationKey: compilationTarget int32Type value: compilationTarget float32Type.
+	type2 := compilationTarget int32Type --> compilationTarget float32Type.
+	
+	self assert: type isAssociationType.
+	self assert: type equals: type2.
+	self assert: type instanceSize equals: 8.
+	self assert: type instanceAlignment equals: 4.
+]
+
+{ #category : #'basic types' }
 MbndCompilationTargetTest >> testBlockClosureType [
 	| type argumentTypes returnType |
 	argumentTypes := {compilationTarget uint8Type . compilationTarget float32Type}.
@@ -456,6 +468,18 @@ MbndCompilationTargetTest >> testLargerIntegerCoercions [
 	"Dangerous implicit coercion."
 	self assert: (uint64Type arithmeticCoercionWith: int64Type) equals: nil.
 	self assert: (int64Type arithmeticCoercionWith: uint64Type) equals: nil.
+
+]
+
+{ #category : #'basic types' }
+MbndCompilationTargetTest >> testLiteralAssociationType [
+	| type type2 |
+	type := compilationTarget associationKey: compilationTarget literalIntegerType value: compilationTarget float32Type.
+	type2 := compilationTarget literalIntegerType --> compilationTarget float32Type.
+	
+	self assert: type isLiteralAssociationType.
+	self assert: type == type2.
+	self assert: type == compilationTarget literalAssociationType.
 
 ]
 

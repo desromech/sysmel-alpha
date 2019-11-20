@@ -6,3 +6,8 @@ Class {
 	#superclass : #Object,
 	#category : #'SysmelMoebiusMetamodel-Core-Values'
 }
+
+{ #category : #converting }
+MbndAbstractValue >> asMacroExpandedToConstant [
+	^ MbndMacroExpandedToConstant new constantValue: self
+]

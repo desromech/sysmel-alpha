@@ -277,6 +277,49 @@ MbndSlovimCodeModuleGeneratorTest >> testEmptyModule [
 ]
 
 { #category : #tests }
+MbndSlovimCodeModuleGeneratorTest >> testEnumValueReturn [
+	| function |
+	self
+		evaluateSysmelSource: '
+enum TestEnum values: #{
+	First: 1.
+	Second: 2.
+}.
+
+function returnValue externC() => TestEnum := TestEnum First';
+		generateSSAModule.
+
+	function := ssaModule globalNamed: #returnValue.
+	self assert: function isFunction.
+	self deny: function isEmpty.
+	self assert: function functionType returnType isIntegerType.
+	self assert: function basicBlocks size equals: 2.
+	self assert: function basicBlocks second firstInstruction isReturn.
+]
+
+{ #category : #tests }
+MbndSlovimCodeModuleGeneratorTest >> testEnumValueReturn2 [
+	| function |
+	self
+		evaluateSysmelSource: '
+enum TestEnum values: #{
+	None: .
+	First: .
+	Second: .
+}.
+
+function returnValue externC() => TestEnum := TestEnum First';
+		generateSSAModule.
+
+	function := ssaModule globalNamed: #returnValue.
+	self assert: function isFunction.
+	self deny: function isEmpty.
+	self assert: function functionType returnType isIntegerType.
+	self assert: function basicBlocks size equals: 2.
+	self assert: function basicBlocks second firstInstruction isReturn.
+]
+
+{ #category : #tests }
 MbndSlovimCodeModuleGeneratorTest >> testFloatAdd [
 	| function |
 	self

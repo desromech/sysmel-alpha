@@ -72,6 +72,11 @@ MbndSlovimTypeTranslator >> visitDecoratedType: type [
 ]
 
 { #category : #visiting }
+MbndSlovimTypeTranslator >> visitEnumType: enumType [
+	^ self translateType: enumType valueType
+]
+
+{ #category : #visiting }
 MbndSlovimTypeTranslator >> visitFunctionType: functionType [
 	| argumentSSATypes returnSSAType |
 	argumentSSATypes := self translateTypes: functionType argumentTypes.

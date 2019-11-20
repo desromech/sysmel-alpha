@@ -70,6 +70,11 @@ MbndAstNode >> isAssignmentNode [
 ]
 
 { #category : #testing }
+MbndAstNode >> isAssociationNode [
+	^ false
+]
+
+{ #category : #testing }
 MbndAstNode >> isBitCastNode [
 	^ false
 ]
@@ -155,7 +160,22 @@ MbndAstNode >> isDecorationChangeTypeCastNode [
 ]
 
 { #category : #testing }
+MbndAstNode >> isDictionaryNode [
+	^ false
+]
+
+{ #category : #testing }
 MbndAstNode >> isDoWhileLoopNode [
+	^ false
+]
+
+{ #category : #testing }
+MbndAstNode >> isEnumDeclarationNode [
+	^ false
+]
+
+{ #category : #testing }
+MbndAstNode >> isEnumDefinitionNode [
 	^ false
 ]
 
@@ -442,11 +462,6 @@ MbndAstNode >> isSpecificCastNode [
 
 { #category : #testing }
 MbndAstNode >> isSpliceNode [
-	^ false
-]
-
-{ #category : #testing }
-MbndAstNode >> isStatementNode [
 	^ false
 ]
 

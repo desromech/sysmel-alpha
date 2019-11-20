@@ -10,7 +10,7 @@ Class {
 
 { #category : #accessing }
 SYMLASTDictionaryKeyAndValue >> buildMoebiusAST: builder [
-	^ (builder associationKey: (key buildMoebiusAST: builder) value: (value buildMoebiusAST: builder))
+	^ (builder associationKey: (key buildMoebiusAST: builder) value: (value ifNotNil: [:v | v buildMoebiusAST: builder]))
 		position: position;
 		yourself
 ]
