@@ -63,6 +63,36 @@ TMbndAbstractCompilationTarget >> float32Type [
 	^ self getBasicTypeNamed: #Float32
 ]
 
+{ #category : #'convenience type accessors' }
+TMbndAbstractCompilationTarget >> float32x2Type [
+	^ self getBasicTypeNamed: #Float32x2
+]
+
+{ #category : #'convenience type accessors' }
+TMbndAbstractCompilationTarget >> float32x2x2Type [
+	^ self getBasicTypeNamed: #Float32x2x2
+]
+
+{ #category : #'convenience type accessors' }
+TMbndAbstractCompilationTarget >> float32x3Type [
+	^ self getBasicTypeNamed: #Float32x3
+]
+
+{ #category : #'convenience type accessors' }
+TMbndAbstractCompilationTarget >> float32x3x3Type [
+	^ self getBasicTypeNamed: #Float32x3x3
+]
+
+{ #category : #'convenience type accessors' }
+TMbndAbstractCompilationTarget >> float32x4Type [
+	^ self getBasicTypeNamed: #Float32x4
+]
+
+{ #category : #'convenience type accessors' }
+TMbndAbstractCompilationTarget >> float32x4x4Type [
+	^ self getBasicTypeNamed: #Float32x4x4
+]
+
 { #category : #accessing }
 TMbndAbstractCompilationTarget >> float64Alignment [
 	^ self explicitRequirement
@@ -71,6 +101,21 @@ TMbndAbstractCompilationTarget >> float64Alignment [
 { #category : #'convenience type accessors' }
 TMbndAbstractCompilationTarget >> float64Type [
 	^ self getBasicTypeNamed: #Float64
+]
+
+{ #category : #'convenience type accessors' }
+TMbndAbstractCompilationTarget >> float64x2Type [
+	^ self getBasicTypeNamed: #Float64x2
+]
+
+{ #category : #'convenience type accessors' }
+TMbndAbstractCompilationTarget >> float64x3Type [
+	^ self getBasicTypeNamed: #Float64x3
+]
+
+{ #category : #'convenience type accessors' }
+TMbndAbstractCompilationTarget >> float64x4Type [
+	^ self getBasicTypeNamed: #Float64x4
 ]
 
 { #category : #'convenience type accessors' }
@@ -126,6 +171,21 @@ TMbndAbstractCompilationTarget >> int16Type [
 { #category : #'convenience type accessors' }
 TMbndAbstractCompilationTarget >> int32Type [
 	^ self getBasicTypeNamed: #Int32
+]
+
+{ #category : #'convenience type accessors' }
+TMbndAbstractCompilationTarget >> int32x2Type [
+	^ self getBasicTypeNamed: #Int32x2
+]
+
+{ #category : #'convenience type accessors' }
+TMbndAbstractCompilationTarget >> int32x3Type [
+	^ self getBasicTypeNamed: #Int32x3
+]
+
+{ #category : #'convenience type accessors' }
+TMbndAbstractCompilationTarget >> int32x4Type [
+	^ self getBasicTypeNamed: #Int32x4
 ]
 
 { #category : #accessing }
@@ -269,6 +329,16 @@ TMbndAbstractCompilationTarget >> pointerTo: baseType [
 ]
 
 { #category : #'derived types' }
+TMbndAbstractCompilationTarget >> primitiveMatrixTypeFor: elementType rows: rowCount columns: columnCount [
+	self explicitRequirement
+]
+
+{ #category : #'derived types' }
+TMbndAbstractCompilationTarget >> primitiveVectorTypeFor: elementType elements: vectorSize [
+	self explicitRequirement
+]
+
+{ #category : #'derived types' }
 TMbndAbstractCompilationTarget >> referenceFor: addressSpace to: baseType [
 	self explicitRequirement
 ]
@@ -320,6 +390,21 @@ TMbndAbstractCompilationTarget >> uint16Type [
 { #category : #'convenience type accessors' }
 TMbndAbstractCompilationTarget >> uint32Type [
 	^ self getBasicTypeNamed: #UInt32
+]
+
+{ #category : #'convenience type accessors' }
+TMbndAbstractCompilationTarget >> uint32x2Type [
+	^ self getBasicTypeNamed: #UInt32x2
+]
+
+{ #category : #'convenience type accessors' }
+TMbndAbstractCompilationTarget >> uint32x3Type [
+	^ self getBasicTypeNamed: #UInt32x3
+]
+
+{ #category : #'convenience type accessors' }
+TMbndAbstractCompilationTarget >> uint32x4Type [
+	^ self getBasicTypeNamed: #UInt32x4
 ]
 
 { #category : #'convenience type accessors' }

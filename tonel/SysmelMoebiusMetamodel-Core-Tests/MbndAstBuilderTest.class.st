@@ -983,6 +983,17 @@ MbndAstBuilderTest >> testVariableReference [
 ]
 
 { #category : #tests }
+MbndAstBuilderTest >> testVectorConstructionNode [
+	| node one two |
+	one := builder literalInteger: 1.
+	two := builder literalInteger: 2.
+	node := builder constructVector: (builder identifier: #Float32x4) withElements: { one . two }.
+	
+	self assert: node isVectorConstructionNode.
+	self assert: node elements equals: {one . two}.
+]
+
+{ #category : #tests }
 MbndAstBuilderTest >> testWhileLoopNode [
 	| node condition action continueAction |
 	condition := builder identifier: #predicate.

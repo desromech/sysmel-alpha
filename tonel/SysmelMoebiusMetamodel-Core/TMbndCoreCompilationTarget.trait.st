@@ -14,7 +14,9 @@ Trait {
 		'specificCompilerObjects',
 		'blockClosureTypes',
 		'nativePrefixedStringLiteralType',
-		'associationTypes'
+		'associationTypes',
+		'primitiveVectorTypes',
+		'primitiveMatrixTypes'
 	],
 	#traits : 'TMbndAbstractCompilationTarget',
 	#classTraits : 'TMbndAbstractCompilationTarget classTrait',
@@ -511,6 +513,25 @@ TMbndCoreCompilationTarget >> initializeDerivedTypeCaches [
 				yourself.
 	].
 
+	primitiveVectorTypes := self createSystemProvidedTypeTemplate: #_PrimitiveVectorTypeTemplate
+		doing: [ :elementType :elements |
+			(self ensureBasicTypeIsLinkedToTheHierarchy: MbndPrimitiveVectorType basicNew)
+				elementType: elementType;
+				elements: elements;
+				initializeNonTraitType;
+				yourself.
+	].
+
+	primitiveMatrixTypes := self createSystemProvidedTypeTemplate: #_PrimitiveMatrixTypeTemplate
+		doing: [ :elementType :rowCount :columnCount |
+			(self ensureBasicTypeIsLinkedToTheHierarchy: MbndPrimitiveMatrixType basicNew)
+				elementType: elementType;
+				rows: rowCount;
+				columns: columnCount;
+				initializeNonTraitType;
+				yourself.
+	].
+
 	specificCompilerObjects := self createSystemProvidedTypeTemplate: #_SpecificCompilerObjectTypeTemplate
 		doing: [ :behavior |
 			(self ensureBasicTypeIsLinkedToTheHierarchy: MbndSpecificCompilerObjectType basicNew)
@@ -521,10 +542,44 @@ TMbndCoreCompilationTarget >> initializeDerivedTypeCaches [
 ]
 
 { #category : #initialization }
+TMbndCoreCompilationTarget >> initializePrimitiveMatrixTypes [
+	| baseType matrixTypeName matrixType |
+	#(BooleanBit Int32 UInt32 Float32 Float64) do: [ :baseTypeName |
+		baseType := self getBasicTypeNamed: baseTypeName.
+		2 to: 4 do: [ :rowCount |
+			2 to: 4 do: [ :columnCount |
+				matrixTypeName := (baseTypeName , 'x' , rowCount asString , 'x' , columnCount asString).
+				matrixType := baseType primitiveMatrixWithRows: rowCount columns: columnCount.
+				matrixType name: matrixTypeName.
+				basicTypes at: matrixTypeName put: matrixType.
+			].
+		].
+	] 
+
+]
+
+{ #category : #initialization }
+TMbndCoreCompilationTarget >> initializePrimitiveVectorTypes [
+	| baseType vectorTypeName vectorType |
+	#(BooleanBit Int32 UInt32 Float32 Float64) do: [ :baseTypeName |
+		baseType := self getBasicTypeNamed: baseTypeName.
+		2 to: 4 do: [ :elementCount |
+			vectorTypeName := (baseTypeName , 'x' , elementCount asString).
+			vectorType := baseType primitiveVectorWithElements: elementCount.
+			vectorType name: vectorTypeName.
+			basicTypes at: vectorTypeName put: vectorType.
+		].
+	] 
+
+]
+
+{ #category : #initialization }
 TMbndCoreCompilationTarget >> initializeTypeSystem [
 	self
 		initializeDerivedTypeCaches;
 		initializeBasicTypes;
+		initializePrimitiveVectorTypes;
+		initializePrimitiveMatrixTypes;
 		initializeArithmeticCoercionTable;
 		initializeArithmeticConversionRules
 ]
@@ -580,6 +635,16 @@ TMbndCoreCompilationTarget >> newCodeModuleGenerator [
 { #category : #'derived types' }
 TMbndCoreCompilationTarget >> pointerFor: addressSpace to: baseType [
 	^ pointerTypes getOrCreateInstanceWithArguments: { baseType . addressSpace }
+]
+
+{ #category : #'derived types' }
+TMbndCoreCompilationTarget >> primitiveMatrixTypeFor: elementType rows: rowCount columns: columnCount [
+	^ primitiveMatrixTypes getOrCreateInstanceWithArguments: { elementType . rowCount . columnCount }
+]
+
+{ #category : #'derived types' }
+TMbndCoreCompilationTarget >> primitiveVectorTypeFor: elementType elements: vectorSize [
+	^ primitiveVectorTypes getOrCreateInstanceWithArguments: { elementType . vectorSize }
 ]
 
 { #category : #'derived types' }

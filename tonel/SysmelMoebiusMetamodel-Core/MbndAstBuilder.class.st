@@ -144,6 +144,16 @@ MbndAstBuilder >> compilationTarget [
 ]
 
 { #category : #'builder methods' }
+MbndAstBuilder >> constructVector: vectorType withElements: elements [
+	<compileTime>
+	<returnType: #_ASTNodeType>
+	^ MbndAstVectorConstructionNode new
+		vectorType: vectorType;
+		elements: elements;
+		yourself
+]
+
+{ #category : #'builder methods' }
 MbndAstBuilder >> continueStatement [
 	<compileTime>
 	<returnType: #_ASTNodeType>

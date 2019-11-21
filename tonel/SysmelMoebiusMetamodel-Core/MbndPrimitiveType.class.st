@@ -41,11 +41,9 @@ MbndPrimitiveType >> addArithmetic: selector unaryIntrinsic: intrinsicName [
 MbndPrimitiveType >> addArithmeticIntrinsics [
 ]
 
-{ #category : #initialization }
+{ #category : #adding }
 MbndPrimitiveType >> addArithmeticOperationCoercionMacro: selector [
-	self macroMethodDict at: selector
-		ifPresent: [ self error: 'Duplicated macro selector.' ]
-		ifAbsentPut: (MbndArithmeticOperationCoercionMacro new)
+	self subclassResponsibility
 ]
 
 { #category : #initialization }
@@ -89,28 +87,6 @@ MbndPrimitiveType >> initialize [
 	self
 		addArithmeticIntrinsics;
 		addComparisonIntrinsics.
-]
-
-{ #category : #accessing }
-MbndPrimitiveType >> instanceAlignment [
-	<compileTime>
-	^ instanceAlignment
-]
-
-{ #category : #accessing }
-MbndPrimitiveType >> instanceAlignment: anObject [
-	instanceAlignment := anObject
-]
-
-{ #category : #accessing }
-MbndPrimitiveType >> instanceSize [
-	<compileTime>
-	^ instanceSize
-]
-
-{ #category : #accessing }
-MbndPrimitiveType >> instanceSize: anObject [
-	instanceSize := anObject
 ]
 
 { #category : #'testing methods' }

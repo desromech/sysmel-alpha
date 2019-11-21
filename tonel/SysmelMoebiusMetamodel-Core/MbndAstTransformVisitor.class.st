@@ -609,6 +609,16 @@ MbndAstTransformVisitor >> visitVariableReferenceNode: node [
 ]
 
 { #category : #visiting }
+MbndAstTransformVisitor >> visitVectorConstructionNode: node [
+	^ node copy
+		vectorType: (node vectorType isMbndAstNode
+			ifTrue: [ self visitNode: node vectorType ]
+			ifFalse: [node vectorType]);
+		elements: (self visitNodesAndCollect: node elements);
+		yourself
+]
+
+{ #category : #visiting }
 MbndAstTransformVisitor >> visitWhileLoopNode: node [
 	^ node copy
 		condition: (self visitNode: node condition);

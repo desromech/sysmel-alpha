@@ -30,6 +30,11 @@ MbndAggregateTypeInstanceValue >> asMoebiusLiteralValueNodeWithTarget: compilati
 	^ self asLiteralValueNode
 ]
 
+{ #category : #evaluating }
+MbndAggregateTypeInstanceValue >> slotValues [
+	^ slots collect: #value
+]
+
 { #category : #accessing }
 MbndAggregateTypeInstanceValue >> slots [
 	^ slots

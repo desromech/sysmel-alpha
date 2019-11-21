@@ -1,6 +1,6 @@
 Class {
 	#name : #MbndPrimitiveBooleanType,
-	#superclass : #MbndPrimitiveType,
+	#superclass : #MbndPrimitiveScalarType,
 	#category : #'SysmelMoebiusMetamodel-Core-Type'
 }
 

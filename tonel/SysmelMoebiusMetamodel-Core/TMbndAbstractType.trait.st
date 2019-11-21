@@ -638,12 +638,27 @@ TMbndAbstractType >> isPrimitiveIntegerType [
 ]
 
 { #category : #'testing methods' }
+TMbndAbstractType >> isPrimitiveMatrixType [
+	^ false
+]
+
+{ #category : #'testing methods' }
 TMbndAbstractType >> isPrimitiveNumberType [
 	^ false
 ]
 
 { #category : #'testing methods' }
+TMbndAbstractType >> isPrimitiveScalarType [
+	^ false
+]
+
+{ #category : #'testing methods' }
 TMbndAbstractType >> isPrimitiveType [
+	^ false
+]
+
+{ #category : #'testing methods' }
+TMbndAbstractType >> isPrimitiveVectorType [
 	^ false
 ]
 

@@ -173,6 +173,36 @@ MbndCompilationTargetTest >> testFloat32Type [
 ]
 
 { #category : #'basic types' }
+MbndCompilationTargetTest >> testFloat32x2Type [
+	| type |
+	type := compilationTarget float32x2Type.
+	self assert: type isPrimitiveVectorType.
+	self assert: type instanceSize equals: 8.
+	self assert: type instanceAlignment equals: 8.
+	self assert: type defaultValue slotValues equals: {0.0 . 0.0}.
+]
+
+{ #category : #'basic types' }
+MbndCompilationTargetTest >> testFloat32x3Type [
+	| type |
+	type := compilationTarget float32x3Type.
+	self assert: type isPrimitiveVectorType.
+	self assert: type instanceSize equals: 12.
+	self assert: type instanceAlignment equals: 16.
+	self assert: type defaultValue slotValues equals: {0.0 . 0.0 . 0.0}.
+]
+
+{ #category : #'basic types' }
+MbndCompilationTargetTest >> testFloat32x4Type [
+	| type |
+	type := compilationTarget float32x4Type.
+	self assert: type isPrimitiveVectorType.
+	self assert: type instanceSize equals: 16.
+	self assert: type instanceAlignment equals: 16.
+	self assert: type defaultValue slotValues equals: {0.0 . 0.0 . 0.0 . 0.0}.
+]
+
+{ #category : #'basic types' }
 MbndCompilationTargetTest >> testFloat64Type [
 	| type |
 	type := compilationTarget float64Type.
@@ -180,6 +210,36 @@ MbndCompilationTargetTest >> testFloat64Type [
 	self assert: type isPrimitiveFloatType.
 	self assert: type valueSize equals: 8.
 	self assert: type defaultValue unwrapMbndValue equals: 0.0.
+]
+
+{ #category : #'basic types' }
+MbndCompilationTargetTest >> testFloat64x2Type [
+	| type |
+	type := compilationTarget float64x2Type.
+	self assert: type isPrimitiveVectorType.
+	self assert: type instanceSize equals: 16.
+	self assert: type instanceAlignment equals: 16.
+	self assert: type defaultValue slotValues equals: {0.0 . 0.0}.
+]
+
+{ #category : #'basic types' }
+MbndCompilationTargetTest >> testFloat64x3Type [
+	| type |
+	type := compilationTarget float64x3Type.
+	self assert: type isPrimitiveVectorType.
+	self assert: type instanceSize equals: 24.
+	self assert: type instanceAlignment equals: 32.
+	self assert: type defaultValue slotValues equals: {0.0 . 0.0 . 0.0}.
+]
+
+{ #category : #'basic types' }
+MbndCompilationTargetTest >> testFloat64x4Type [
+	| type |
+	type := compilationTarget float64x4Type.
+	self assert: type isPrimitiveVectorType.
+	self assert: type instanceSize equals: 32.
+	self assert: type instanceAlignment equals: 32.
+	self assert: type defaultValue slotValues equals: {0.0 . 0.0 . 0.0 . 0.0}.
 ]
 
 { #category : #coercing }
@@ -273,6 +333,36 @@ MbndCompilationTargetTest >> testInt32Type [
 	self deny: type isUnsigned.
 	self assert: type defaultValue unwrapMbndValue equals: 0.
 	
+]
+
+{ #category : #'basic types' }
+MbndCompilationTargetTest >> testInt32x2Type [
+	| type |
+	type := compilationTarget int32x2Type.
+	self assert: type isPrimitiveVectorType.
+	self assert: type instanceSize equals: 8.
+	self assert: type instanceAlignment equals: 8.
+	self assert: type defaultValue slotValues equals: #(0 0).
+]
+
+{ #category : #'basic types' }
+MbndCompilationTargetTest >> testInt32x3Type [
+	| type |
+	type := compilationTarget int32x3Type.
+	self assert: type isPrimitiveVectorType.
+	self assert: type instanceSize equals: 12.
+	self assert: type instanceAlignment equals: 16.
+	self assert: type defaultValue slotValues equals: #(0 0 0).
+]
+
+{ #category : #'basic types' }
+MbndCompilationTargetTest >> testInt32x4Type [
+	| type |
+	type := compilationTarget int32x4Type.
+	self assert: type isPrimitiveVectorType.
+	self assert: type instanceSize equals: 16.
+	self assert: type instanceAlignment equals: 16.
+	self assert: type defaultValue slotValues equals: #(0 0 0 0).
 ]
 
 { #category : #'basic types' }
@@ -698,6 +788,36 @@ MbndCompilationTargetTest >> testUInt32Type [
 	self assert: type isUnsigned.
 	self assert: type defaultValue unwrapMbndValue equals: 0.
 	
+]
+
+{ #category : #'basic types' }
+MbndCompilationTargetTest >> testUInt32x2Type [
+	| type |
+	type := compilationTarget uint32x2Type.
+	self assert: type isPrimitiveVectorType.
+	self assert: type instanceSize equals: 8.
+	self assert: type instanceAlignment equals: 8.
+	self assert: type defaultValue slotValues equals: #(0 0).
+]
+
+{ #category : #'basic types' }
+MbndCompilationTargetTest >> testUInt32x3Type [
+	| type |
+	type := compilationTarget uint32x3Type.
+	self assert: type isPrimitiveVectorType.
+	self assert: type instanceSize equals: 12.
+	self assert: type instanceAlignment equals: 16.
+	self assert: type defaultValue slotValues equals: #(0 0 0).
+]
+
+{ #category : #'basic types' }
+MbndCompilationTargetTest >> testUInt32x4Type [
+	| type |
+	type := compilationTarget uint32x4Type.
+	self assert: type isPrimitiveVectorType.
+	self assert: type instanceSize equals: 16.
+	self assert: type instanceAlignment equals: 16.
+	self assert: type defaultValue slotValues equals: #(0 0 0 0).
 ]
 
 { #category : #'basic types' }

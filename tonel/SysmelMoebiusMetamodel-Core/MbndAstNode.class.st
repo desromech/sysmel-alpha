@@ -527,6 +527,11 @@ MbndAstNode >> isVariableReferenceNode [
 ]
 
 { #category : #testing }
+MbndAstNode >> isVectorConstructionNode [
+	^ false
+]
+
+{ #category : #testing }
 MbndAstNode >> isWhileLoopNode [
 	^ false
 ]

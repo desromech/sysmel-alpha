@@ -438,6 +438,11 @@ MbndAstDelegationVisitor >> visitVariableReferenceNode: node [
 ]
 
 { #category : #visiting }
+MbndAstDelegationVisitor >> visitVectorConstructionNode: node [
+	^ self delegateNodeVisit: node
+]
+
+{ #category : #visiting }
 MbndAstDelegationVisitor >> visitWhileLoopNode: node [
 	^ self delegateNodeVisit: node
 ]

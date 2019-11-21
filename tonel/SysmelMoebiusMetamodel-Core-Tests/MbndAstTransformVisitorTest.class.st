@@ -927,6 +927,21 @@ MbndAstTransformVisitorTest >> testVariableReference [
 ]
 
 { #category : #tests }
+MbndAstTransformVisitorTest >> testVectorConstructionNode [
+	| node one two vectorType transformedNode |
+	one := builder literalInteger: 1.
+	two := builder literalInteger: 2.
+	vectorType := builder identifier: #Float32x4.
+	node := builder constructVector: vectorType withElements: { one . two }.
+	transformedNode := visitor visitNode: node.
+	
+	self assert: node ~~ transformedNode.
+	self assert: transformedNode isVectorConstructionNode.
+	self assert: transformedNode vectorType equals: vectorType.
+	self assert: transformedNode elements equals: {one . two}.
+]
+
+{ #category : #tests }
 MbndAstTransformVisitorTest >> testWhileLoopNode [
 	| node transformedNode condition action continueAction |
 	condition := builder identifier: #predicate.

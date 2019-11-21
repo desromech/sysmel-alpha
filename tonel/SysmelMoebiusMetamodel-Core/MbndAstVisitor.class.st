@@ -450,6 +450,11 @@ MbndAstVisitor >> visitVariableReferenceNode: node [
 ]
 
 { #category : #visiting }
+MbndAstVisitor >> visitVectorConstructionNode: node [
+	self subclassResponsibility
+]
+
+{ #category : #visiting }
 MbndAstVisitor >> visitWhileLoopNode: node [
 	self subclassResponsibility
 ]
