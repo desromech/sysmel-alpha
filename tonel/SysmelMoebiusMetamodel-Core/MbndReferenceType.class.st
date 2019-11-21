@@ -35,6 +35,9 @@ MbndReferenceType >> addInstanceMacros [
 			(builder reference: node receiver assignValue: node arguments first)
 				position: node
 		];
+		onMacroSelector: #basicInitialize do: [ :node :builder :analyzer |
+			node receiver type baseType analyzeBasicInitializationNode: node with: analyzer
+		];
 		onMacroSelector: #address do: [ :node :builder |
 			(builder referenceAsPointer: node receiver)
 				position: node

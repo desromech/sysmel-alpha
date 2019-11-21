@@ -7,6 +7,11 @@ Class {
 	#category : #'SysmelMoebiusMetamodel-Core-Variables'
 }
 
+{ #category : #visiting }
+MbndFunctionLocalVariable >> accept: visitor [
+	^ visitor visitFunctionLocalVariable: self
+]
+
 { #category : #accessing }
 MbndFunctionLocalVariable >> type [
 	^ type

@@ -47,6 +47,7 @@ MbndAbstractVariable >> evaluateLocalDefinition: node withEvaluator: evaluator [
 	| compileTimeVariable |
 	compileTimeVariable := MbndCompileTimeVariable new
 		name: node name;
+		definitionNode: definitionNode;
 		valueType: node binding valueType;
 		type: node binding type;
 		value: (evaluator visitNode: node initialValue);

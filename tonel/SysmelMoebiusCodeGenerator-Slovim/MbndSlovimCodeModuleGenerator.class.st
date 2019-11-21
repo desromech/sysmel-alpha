@@ -138,6 +138,11 @@ MbndSlovimCodeModuleGenerator >> generateCodeModuleFor: aModule [
 MbndSlovimCodeModuleGenerator >> generatedNameForAnynomousEntity: programEntity [
 	| result |
 	programEntity isVTablePointerField ifTrue: [ ^ '__vtable' , programEntity slotIndex asString ].
+	programEntity isCompileTimeVariable ifTrue: [
+		result := '__compileTimeVariable' , anonSymbolCount asString.
+		anonSymbolCount := anonSymbolCount + 1.
+		^ result.
+	].
 	programEntity isTemplateInstance ifTrue: [
 		self flag: 'TODO: Implement this properly'.
 	].
@@ -297,6 +302,42 @@ MbndSlovimCodeModuleGenerator >> visitCompileTimeConstant: node [
 ]
 
 { #category : #visiting }
+MbndSlovimCodeModuleGenerator >> visitCompileTimeVariable: compileTimeVariable [
+	"I am like a global variable, but I am always anonymous and private."
+	| ssaValueType csymbol ssaCompileTimeVariable initialValue ssaReferenceType |
+	ssaReferenceType := self translateType: compileTimeVariable type.
+	ssaValueType := self translateType: compileTimeVariable valueType.
+	initialValue := compileTimeVariable value.
+
+	(compileTimeVariable type isReferenceType not and: [ssaValueType == ssaReferenceType]) ifTrue: [
+		| ssaConstantValue |
+		"In the immutable, per value type case, treat this as a constant."
+		ssaConstantValue := self translateLiteralValue: initialValue value ofType: initialValue type.
+		self setProgramEntity: compileTimeVariable ssaValue: ssaConstantValue.
+		^ ssaConstantValue
+	].
+	
+	csymbol := (self generatedNameForAnynomousEntity: compileTimeVariable) asSymbol.
+	ssaCompileTimeVariable := SLVMGlobalVariable module: ssaModule name: csymbol valueType: ssaValueType storage: SLVMType genericStorage.
+	ssaCompileTimeVariable unmangledName: csymbol.
+	self setProgramEntity: compileTimeVariable ssaValue: ssaCompileTimeVariable.
+
+	self isEmittingDebugInformation ifTrue: [ 
+		ssaCompileTimeVariable debugSourceLocation: (self convertDebugPosition: compileTimeVariable definitionPosition asActualSourcePosition)
+	].
+
+	ssaCompileTimeVariable readOnly: (compileTimeVariable type withoutReferences isConstantType).
+	
+	ssaCompileTimeVariable makePrivate.
+
+	self assert: initialValue isNotNil.
+
+	ssaCompileTimeVariable initialValue: (self translateLiteralValue: initialValue value ofType: initialValue type).
+		
+	^ ssaCompileTimeVariable
+]
+
+{ #category : #visiting }
 MbndSlovimCodeModuleGenerator >> visitConcreteFunctionMethod: functionMethod [
 	| ssaFunctionType csymbol ssaFunction unmangledName |
 	ssaFunctionType := self translateType: functionMethod type.
@@ -364,6 +405,12 @@ MbndSlovimCodeModuleGenerator >> visitFieldVariable: field [
 
 { #category : #visiting }
 MbndSlovimCodeModuleGenerator >> visitFunctionGroup: functionGroup [
+	^ nil
+]
+
+{ #category : #visiting }
+MbndSlovimCodeModuleGenerator >> visitFunctionLocalVariable: variable [
+	"For now we will just ignore this here"
 	^ nil
 ]
 

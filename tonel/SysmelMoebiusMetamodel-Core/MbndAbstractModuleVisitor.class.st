@@ -67,6 +67,11 @@ MbndAbstractModuleVisitor >> visitFunctionGroupType: type [
 ]
 
 { #category : #visiting }
+MbndAbstractModuleVisitor >> visitFunctionLocalVariable: variable [
+	self subclassResponsibility
+]
+
+{ #category : #visiting }
 MbndAbstractModuleVisitor >> visitFunctionType: type [
 	self subclassResponsibility
 ]

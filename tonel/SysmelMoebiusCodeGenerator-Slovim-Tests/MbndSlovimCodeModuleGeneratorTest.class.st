@@ -247,6 +247,40 @@ function upcast externC(x: SubClass pointer) => SuperClass pointer := x
 ]
 
 { #category : #tests }
+MbndSlovimCodeModuleGeneratorTest >> testCompileTimeLocalVariableCapture [
+	| function |
+	self
+		evaluateSysmelSource: '
+let localGlobalVariable := 0.
+function returnValue externC() => Int32 := localGlobalVariable';
+		generateSSAModule.
+
+	function := ssaModule globalNamed: #returnValue.
+	self assert: function isFunction.
+	self deny: function isEmpty.
+	self assert: function functionType returnType isIntegerType.
+	self assert: function basicBlocks size equals: 2.
+	self assert: function basicBlocks second firstInstruction isReturn.
+]
+
+{ #category : #tests }
+MbndSlovimCodeModuleGeneratorTest >> testCompileTimeLocalVariableMutableCapture [
+	| function |
+	self
+		evaluateSysmelSource: '
+let localGlobalVariable mutable := 0.
+function returnValue externC() => Int32 := localGlobalVariable';
+		generateSSAModule.
+
+	function := ssaModule globalNamed: #returnValue.
+	self assert: function isFunction.
+	self deny: function isEmpty.
+	self assert: function functionType returnType isIntegerType.
+	self assert: function basicBlocks size equals: 2.
+	self assert: function basicBlocks second firstInstruction isLoad.
+]
+
+{ #category : #tests }
 MbndSlovimCodeModuleGeneratorTest >> testCountTwiceCFunction [
 	| function |
 	self
@@ -1813,6 +1847,24 @@ MbndSlovimCodeModuleGeneratorTest >> testMinCFunction [
 	self assert: function basicBlocks second firstInstruction isBinaryComparison.
 	self assert: function basicBlocks last firstInstruction isPhi.
 	self assert: function basicBlocks last lastInstruction isReturn.
+]
+
+{ #category : #tests }
+MbndSlovimCodeModuleGeneratorTest >> testMultipleChainsFunction [
+	| function |
+	self
+		evaluateSysmelSource: 'function zero externC() => Int32
+			:= {
+			1 + 1; yourself.
+			0 yourself; yourself.
+		}';
+		generateSSAModule.
+
+	function := ssaModule globalNamed: #zero.
+	self assert: function isFunction.
+	self deny: function isEmpty.
+	self assert: function basicBlocks size equals: 2.
+
 ]
 
 { #category : #tests }

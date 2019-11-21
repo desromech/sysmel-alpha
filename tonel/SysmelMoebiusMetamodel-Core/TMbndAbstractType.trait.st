@@ -132,6 +132,12 @@ TMbndAbstractType >> allTraitUsersDo: aBlock [
 	self allSubtypesDo: aBlock
 ]
 
+{ #category : #'as yet unclassified' }
+TMbndAbstractType >> analyzeBasicInitializationNode: node with: analyzer [
+	"By default do nothing. This is supposed to be used for initializing vtables of aggregate types."
+	^ node receiver
+]
+
 { #category : #'semantic analysis' }
 TMbndAbstractType >> analyzeExpandedMessageSendNode: node with: analyzer [
 	| method |

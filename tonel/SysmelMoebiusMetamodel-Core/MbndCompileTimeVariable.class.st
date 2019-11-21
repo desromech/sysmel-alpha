@@ -20,6 +20,11 @@ MbndCompileTimeVariable >> asCompileTimeValueReferenceOfType: referenceType with
 	evaluator error: 'Invalid compile time variable reference.' at: node
 ]
 
+{ #category : #testing }
+MbndCompileTimeVariable >> isCompileTimeVariable [
+	^ true
+]
+
 { #category : #accessing }
 MbndCompileTimeVariable >> type [
 	^ type

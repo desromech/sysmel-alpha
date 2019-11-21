@@ -711,7 +711,7 @@ MbndAstSemanticAnalyzer >> visitFunctionCallNode: node [
 
 	result
 		function: (self analyzeNodeIfNeeded: node function);
-		arguments: (self visitNodesAndCollect: result arguments).
+		arguments: (self analyzeNodesIfNeeded: result arguments).
 		
 	functionalType := result function type withoutReferences.
 	self assert: functionalType isFunctionalType.
@@ -979,7 +979,7 @@ MbndAstSemanticAnalyzer >> visitLexicalScopeNode: node [
 
 { #category : #visiting }
 MbndAstSemanticAnalyzer >> visitLocalVariableDefinitionNode: node [
-	| result valueType |
+	| result valueType owner |
 	result := node copy.
 	
 	"Make sure the value type is evaluated."
@@ -1039,6 +1039,9 @@ MbndAstSemanticAnalyzer >> visitLocalVariableDefinitionNode: node [
 		type: result type;
 		yourself
 	).
+	
+	owner := scope lookupProgramEntityForNewDefinitions.
+	owner addChild: result binding.
 
 	"Add the variable to the current scope."
 	result name isMbndAnonymousSymbol ifFalse: [ 
@@ -1131,6 +1134,7 @@ MbndAstSemanticAnalyzer >> visitMessageChainNode: node [
 		^ analyzedReceiver
 	].
 
+	self assert: (scope lookupSymbol: node) isNil.
 	receiverVariable := MbndAstLocalVariableDefinitionNode new
 		mutable;
 		ref;
@@ -1230,7 +1234,9 @@ MbndAstSemanticAnalyzer >> visitNonConcreteNode: node [
 { #category : #visiting }
 MbndAstSemanticAnalyzer >> visitPointerAsReferenceNode: node [
 	| result basePointerType |
-	result := super visitPointerAsReferenceNode: node.
+	result := node copy
+		pointer: (self analyzeNodeIfNeeded: node pointer);
+		yourself.
 	result pointer: (self ensurePointerValue: node pointer at: node).
 
 	basePointerType := result pointer type withoutTopDecorations.
@@ -1333,7 +1339,7 @@ MbndAstSemanticAnalyzer >> visitReinterpretCastNode: node [
 MbndAstSemanticAnalyzer >> visitReturnStatementNode: node [
 	| result |
 	result := node copy
-		expression: (self visitNode: node expression);
+		expression: (self analyzeNodeIfNeeded: node expression);
 		type: self compilationTarget returnType.
 
 	scope returnType ifNotNil: [ :expectedReturnType |
