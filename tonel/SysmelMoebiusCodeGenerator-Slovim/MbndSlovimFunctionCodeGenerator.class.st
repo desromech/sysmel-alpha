@@ -736,6 +736,20 @@ MbndSlovimFunctionCodeGenerator >> visitVectorConstructionNode: node [
 ]
 
 { #category : #visiting }
+MbndSlovimFunctionCodeGenerator >> visitVectorGetElementsNode: node [
+	| vector |
+	vector := self visitNode: node vector.
+	node elements size = 1 ifTrue: [
+		^ node type isReferenceType
+			ifTrue: [ slvmBuilder getReference: vector element: (slvmBuilder constInt: node elements first) ]
+			ifFalse: [ slvmBuilder extractVector: vector element: (slvmBuilder constInt: node elements first) ].
+	].
+
+	self assert: node vector type isReferenceType not.
+	self halt.
+]
+
+{ #category : #visiting }
 MbndSlovimFunctionCodeGenerator >> visitWhileLoopNode: node [
 	| loopHeader loopBody loopContinue loopMerge |
 	loopHeader := slvmBuilder newBasicBlock: #whileHeader.

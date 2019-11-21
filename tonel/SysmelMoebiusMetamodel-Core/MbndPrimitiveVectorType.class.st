@@ -27,6 +27,13 @@ MbndPrimitiveVectorType >> addArithmeticOperationCoercionMacro: selector [
 MbndPrimitiveVectorType >> addInstanceMacros [
 	self class == MbndPrimitiveVectorType ifFalse: [ ^ self ].
 	self isTrait ifFalse: [ ^ self ].
+	#(
+	x y z w
+	r g b a
+	s t p q
+	) doWithIndex: [ :fieldName :fieldIndex |
+		self addVectorElementField: (fieldIndex - 1) % 4 withName: fieldName
+	].
 
 	self type
 		onMacroSelector: #applyWithArguments: do: [ :node :builder :analyzer |
@@ -44,6 +51,22 @@ MbndPrimitiveVectorType >> addInstanceMacros [
 					position: node
 			)
 		].
+]
+
+{ #category : #initialization }
+MbndPrimitiveVectorType >> addVectorElementField: vectorElement withName: fieldName [
+	| getterName setterName |
+	getterName := fieldName.
+	setterName := (fieldName , ':') asSymbol.
+	
+	self onMacroSelector: getterName do: [ :node :builder |
+		(builder vector: node receiver getElement: vectorElement)
+			position: node
+	].
+	self onMacroSelector: setterName do: [ :node :builder |
+		(builder vector: node receiver setElement: vectorElement value: node arguments first)
+			position: node
+	]
 ]
 
 { #category : #'as yet unclassified' }

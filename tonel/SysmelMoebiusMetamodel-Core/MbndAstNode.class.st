@@ -532,6 +532,16 @@ MbndAstNode >> isVectorConstructionNode [
 ]
 
 { #category : #testing }
+MbndAstNode >> isVectorGetElementsNode [
+	^ false
+]
+
+{ #category : #testing }
+MbndAstNode >> isVectorSetElementsNode [
+	^ false
+]
+
+{ #category : #testing }
 MbndAstNode >> isWhileLoopNode [
 	^ false
 ]

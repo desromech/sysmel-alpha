@@ -994,6 +994,52 @@ MbndAstBuilderTest >> testVectorConstructionNode [
 ]
 
 { #category : #tests }
+MbndAstBuilderTest >> testVectorGetElementNode [
+	| node vector |
+	vector := builder identifier: #x.
+	node := builder vector: vector getElement: 2.
+	self assert: node isVectorGetElementsNode.
+	self assert: node vector equals: vector.
+	self assert: node elements equals: #(2).
+]
+
+{ #category : #tests }
+MbndAstBuilderTest >> testVectorGetElementsNode [
+	| node vector elements |
+	vector := builder identifier: #x.
+	elements := #(1 2).
+	node := builder vector: vector getElements: elements.
+	self assert: node isVectorGetElementsNode.
+	self assert: node vector equals: vector.
+	self assert: node elements equals: elements.
+]
+
+{ #category : #tests }
+MbndAstBuilderTest >> testVectorSetElementNode [
+	| node vector value |
+	vector := builder identifier: #x.
+	value := builder literalInteger: 42..
+	node := builder vector: vector setElement: 2 value: value.
+	self assert: node isVectorSetElementsNode.
+	self assert: node vector equals: vector.
+	self assert: node elements equals: #(2).
+	self assert: node values equals: {value}.
+]
+
+{ #category : #tests }
+MbndAstBuilderTest >> testVectorSetElementsNode [
+	| node vector elements values |
+	vector := builder identifier: #x.
+	elements := #(1 2).
+	values := { builder literalInteger: 42 . builder literalInteger: 13}.
+	node := builder vector: vector setElements: elements values: values.
+	self assert: node isVectorSetElementsNode.
+	self assert: node vector equals: vector.
+	self assert: node elements equals: elements.
+	self assert: node values equals: values.
+]
+
+{ #category : #tests }
 MbndAstBuilderTest >> testWhileLoopNode [
 	| node condition action continueAction |
 	condition := builder identifier: #predicate.

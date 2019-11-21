@@ -53,6 +53,7 @@ MbndPrimitiveScalarType >> primitiveMatrixWithRows: rows columns: columns [
 { #category : #'as yet unclassified' }
 MbndPrimitiveScalarType >> primitiveVectorWithElements: vectorSize [
 	<compileTime>
+	vectorSize <= 1 ifTrue: [ ^ self ].
 	^ self compilationTarget primitiveVectorTypeFor: self elements: vectorSize
 	
 ]

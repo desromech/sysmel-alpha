@@ -641,10 +641,27 @@ MbndSlovimCodeModuleGeneratorTest >> testFloatVectorConstruction2 [
 ]
 
 { #category : #tests }
+MbndSlovimCodeModuleGeneratorTest >> testFloatVectorGetW [
+	| function |
+	self
+		evaluateSysmelSource: 'function getVectorElement externC(vector: Float32x4) => Float32
+			:= vector w';
+		generateSSAModule.
+
+	function := ssaModule globalNamed: #getVectorElement.
+	self assert: function isFunction.
+	self deny: function isEmpty.
+	self assert: function basicBlocks size equals: 2.
+	self assert: function basicBlocks second firstInstruction isExtractVectorElement.
+	self assert: function basicBlocks second firstInstruction index value equals: 3.
+	self assert: function basicBlocks second lastInstruction isReturn.
+]
+
+{ #category : #tests }
 MbndSlovimCodeModuleGeneratorTest >> testFloatVectorGetX [
 	| function |
 	self
-		evaluateSysmelSource: 'function getVectorElement externC(vector: Float32x4) => Float32x3
+		evaluateSysmelSource: 'function getVectorElement externC(vector: Float32x4) => Float32
 			:= vector x';
 		generateSSAModule.
 
@@ -653,6 +670,41 @@ MbndSlovimCodeModuleGeneratorTest >> testFloatVectorGetX [
 	self deny: function isEmpty.
 	self assert: function basicBlocks size equals: 2.
 	self assert: function basicBlocks second firstInstruction isExtractVectorElement.
+	self assert: function basicBlocks second firstInstruction index value equals: 0.
+	self assert: function basicBlocks second lastInstruction isReturn.
+]
+
+{ #category : #tests }
+MbndSlovimCodeModuleGeneratorTest >> testFloatVectorGetY [
+	| function |
+	self
+		evaluateSysmelSource: 'function getVectorElement externC(vector: Float32x4) => Float32
+			:= vector y';
+		generateSSAModule.
+
+	function := ssaModule globalNamed: #getVectorElement.
+	self assert: function isFunction.
+	self deny: function isEmpty.
+	self assert: function basicBlocks size equals: 2.
+	self assert: function basicBlocks second firstInstruction isExtractVectorElement.
+	self assert: function basicBlocks second firstInstruction index value equals: 1.
+	self assert: function basicBlocks second lastInstruction isReturn.
+]
+
+{ #category : #tests }
+MbndSlovimCodeModuleGeneratorTest >> testFloatVectorGetZ [
+	| function |
+	self
+		evaluateSysmelSource: 'function getVectorElement externC(vector: Float32x4) => Float32
+			:= vector z';
+		generateSSAModule.
+
+	function := ssaModule globalNamed: #getVectorElement.
+	self assert: function isFunction.
+	self deny: function isEmpty.
+	self assert: function basicBlocks size equals: 2.
+	self assert: function basicBlocks second firstInstruction isExtractVectorElement.
+	self assert: function basicBlocks second firstInstruction index value equals: 2.
 	self assert: function basicBlocks second lastInstruction isReturn.
 ]
 

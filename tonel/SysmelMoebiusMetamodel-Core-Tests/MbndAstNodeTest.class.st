@@ -156,6 +156,8 @@ MbndAstNodeTest >> testTestingMethods [
 	self deny: node isWhileLoopNode.
 	self deny: node isVariableReferenceNode.
 	self deny: node isVectorConstructionNode.
+	self deny: node isVectorGetElementsNode.
+	self deny: node isVectorSetElementsNode.
 	self deny: node isZeroExtensionCastNode.
 	
 

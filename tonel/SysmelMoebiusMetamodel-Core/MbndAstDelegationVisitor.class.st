@@ -443,6 +443,16 @@ MbndAstDelegationVisitor >> visitVectorConstructionNode: node [
 ]
 
 { #category : #visiting }
+MbndAstDelegationVisitor >> visitVectorGetElementsNode: node [
+	^ self delegateNodeVisit: node
+]
+
+{ #category : #visiting }
+MbndAstDelegationVisitor >> visitVectorSetElementsNode: node [
+	^ self delegateNodeVisit: node
+]
+
+{ #category : #visiting }
 MbndAstDelegationVisitor >> visitWhileLoopNode: node [
 	^ self delegateNodeVisit: node
 ]

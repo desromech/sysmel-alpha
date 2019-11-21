@@ -1616,6 +1616,26 @@ MbndAstSemanticAnalyzer >> visitVectorConstructionNode: node [
 ]
 
 { #category : #visiting }
+MbndAstSemanticAnalyzer >> visitVectorGetElementsNode: node [
+	| result vectorType |
+	result := node copy
+		vector: (self analyzeNodeIfNeeded: node vector);
+		yourself.
+	vectorType := result vector type withoutReferences withoutTopDecorations.
+	self assert: vectorType isPrimitiveVectorType.
+
+	^ result
+		vector: (self addImplicitCastFor: result vector to: vectorType);
+		type: (vectorType elementType primitiveVectorWithElements: node elements size);
+		yourself
+]
+
+{ #category : #visiting }
+MbndAstSemanticAnalyzer >> visitVectorSetElementsNode: node [
+	self halt
+]
+
+{ #category : #visiting }
 MbndAstSemanticAnalyzer >> visitWhileLoopNode: node [
 	| result |
 	result := node copy.

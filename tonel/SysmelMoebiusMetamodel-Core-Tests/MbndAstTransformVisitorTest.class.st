@@ -942,6 +942,33 @@ MbndAstTransformVisitorTest >> testVectorConstructionNode [
 ]
 
 { #category : #tests }
+MbndAstTransformVisitorTest >> testVectorGetElementNode [
+	| node vector transformedNode |
+	vector := builder identifier: #x.
+	node := builder vector: vector getElement: 2.
+	transformedNode := visitor visitNode: node.
+	self assert: node ~~ transformedNode.
+	self assert: transformedNode isVectorGetElementsNode.
+	self assert: transformedNode vector equals: vector.
+	self assert: transformedNode elements equals: #(2).
+]
+
+{ #category : #tests }
+MbndAstTransformVisitorTest >> testVectorSetElementsNode [
+	| node vector elements values transformedNode |
+	vector := builder identifier: #x.
+	elements := #(1 2).
+	values := { builder literalInteger: 42 . builder literalInteger: 13}.
+	node := builder vector: vector setElements: elements values: values.
+	transformedNode := visitor visitNode: node.
+	self assert: transformedNode ~~ node.
+	self assert: transformedNode isVectorSetElementsNode.
+	self assert: transformedNode vector equals: vector.
+	self assert: transformedNode elements equals: elements.
+	self assert: transformedNode values equals: values.
+]
+
+{ #category : #tests }
 MbndAstTransformVisitorTest >> testWhileLoopNode [
 	| node transformedNode condition action continueAction |
 	condition := builder identifier: #predicate.

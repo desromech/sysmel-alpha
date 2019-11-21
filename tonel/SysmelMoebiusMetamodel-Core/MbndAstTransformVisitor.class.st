@@ -619,6 +619,21 @@ MbndAstTransformVisitor >> visitVectorConstructionNode: node [
 ]
 
 { #category : #visiting }
+MbndAstTransformVisitor >> visitVectorGetElementsNode: node [
+	^ node copy
+		vector: (self visitNode: node vector);
+		yourself
+]
+
+{ #category : #visiting }
+MbndAstTransformVisitor >> visitVectorSetElementsNode: node [
+	^ node copy
+		vector: (self visitNode: node vector);
+		values: (self visitNodesAndCollect: node values);
+		yourself
+]
+
+{ #category : #visiting }
 MbndAstTransformVisitor >> visitWhileLoopNode: node [
 	^ node copy
 		condition: (self visitNode: node condition);

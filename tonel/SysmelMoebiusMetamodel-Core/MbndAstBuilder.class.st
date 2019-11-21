@@ -914,6 +914,41 @@ MbndAstBuilder >> variableReference: binding [
 ]
 
 { #category : #'builder methods' }
+MbndAstBuilder >> vector: vector getElement: element [
+	<compileTime>
+	<returnType: #_ASTNodeType>
+	^ self vector: vector getElements: { element }
+]
+
+{ #category : #'builder methods' }
+MbndAstBuilder >> vector: vector getElements: elements [
+	<compileTime>
+	<returnType: #_ASTNodeType>
+	^ MbndAstVectorGetElementsNode new
+		vector: vector;
+		elements: elements;
+		yourself
+]
+
+{ #category : #'builder methods' }
+MbndAstBuilder >> vector: vector setElement: element value: value [
+	<compileTime>
+	<returnType: #_ASTNodeType>
+	^ self vector: vector setElements: { element } values: { value }
+]
+
+{ #category : #'builder methods' }
+MbndAstBuilder >> vector: vector setElements: elements values: values [
+	<compileTime>
+	<returnType: #_ASTNodeType>
+	^ MbndAstVectorSetElementsNode new
+		vector: vector;
+		elements: elements;
+		values: values
+		yourself
+]
+
+{ #category : #'builder methods' }
 MbndAstBuilder >> while: condition do: action [
 	<compileTime>
 	<returnType: #_ASTNodeType>

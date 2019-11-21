@@ -455,6 +455,16 @@ MbndAstVisitor >> visitVectorConstructionNode: node [
 ]
 
 { #category : #visiting }
+MbndAstVisitor >> visitVectorGetElementsNode: node [
+	self subclassResponsibility
+]
+
+{ #category : #visiting }
+MbndAstVisitor >> visitVectorSetElementsNode: node [
+	self subclassResponsibility
+]
+
+{ #category : #visiting }
 MbndAstVisitor >> visitWhileLoopNode: node [
 	self subclassResponsibility
 ]
