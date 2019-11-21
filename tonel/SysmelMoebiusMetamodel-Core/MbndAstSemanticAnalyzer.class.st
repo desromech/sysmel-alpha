@@ -218,6 +218,21 @@ MbndAstSemanticAnalyzer >> ensurePointerValue: node at: position [
 	self halt	
 ]
 
+{ #category : #visiting }
+MbndAstSemanticAnalyzer >> ensureValue: valueNode isVectorOrScalarOfType: requiredElementType [
+	| cleanValueType |
+	cleanValueType := valueNode type withoutReferences withoutTopDecorations.
+	self flag: 'TODO: Support implicit casting of vectors.'.
+	cleanValueType isPrimitiveVectorType ifTrue: [
+		cleanValueType elementType ~~ requiredElementType ifTrue: [ 
+			self error: 'Expected a scalar or vector whose elements are of type {1} instead of a value of type {2}.' format: { requiredElementType asString . cleanValueType asString }.
+		].
+		^ self addImplicitCastFor: valueNode to: cleanValueType
+	] ifFalse: [
+		^ self addImplicitCastFor: valueNode to: requiredElementType
+	]
+]
+
 { #category : #errors }
 MbndAstSemanticAnalyzer >> error: anErrorString at: aSourcePosition [
 	<compileTime>
@@ -1410,6 +1425,14 @@ MbndAstSemanticAnalyzer >> visitSpliceNode: node [
 ]
 
 { #category : #visiting }
+MbndAstSemanticAnalyzer >> visitSplicingTupleNode: nodeOrList [
+	nodeOrList isMbndAstNode ifFalse: [ ^ self visitNodesAndCollect: nodeOrList ].
+	nodeOrList isTupleNode ifTrue: [ ^ self visitNodesAndCollect: nodeOrList elements ].
+	
+	self halt
+]
+
+{ #category : #visiting }
 MbndAstSemanticAnalyzer >> visitStructureDeclarationNode: node [
 	^ self visitTypeDeclarationNode: node ofKind: MbndStructureType
 ]
@@ -1561,6 +1584,35 @@ MbndAstSemanticAnalyzer >> visitUnionDeclarationNode: node [
 { #category : #visiting }
 MbndAstSemanticAnalyzer >> visitUnionDefinitionNode: node [
 	^ self visitTypeDefinitionNode: node ofKind: MbndUnionType
+]
+
+{ #category : #visiting }
+MbndAstSemanticAnalyzer >> visitVectorConstructionNode: node [
+	| result passedElementsCount requiredElementType |
+	result := node copy
+		vectorType: (self evaluateTypeExpression: node vectorType);
+		elements: (self visitSplicingTupleNode: node elements);
+		yourself.
+		
+	result vectorType isPrimitiveVectorType ifFalse: [ 
+		self error: 'Vector construction requires a vector type instead of {1} for constructing the vector.' format: { result vectorType asString } at: result
+	].
+	result type: result vectorType.
+
+	passedElementsCount := 0.
+	requiredElementType := result vectorType elementType.
+	result elements: (result elements collect: [ :element |
+		| convertedElement |
+		convertedElement := self ensureValue: element isVectorOrScalarOfType: requiredElementType.
+		passedElementsCount := passedElementsCount + (convertedElement type isPrimitiveVectorType ifTrue: [ convertedElement type elements ] ifFalse: [ 1 ]).
+		convertedElement
+	]).
+
+	passedElementsCount = result vectorType elements ifFalse: [
+		self error: 'Vector construction does not have sufficient elements for constructing a vector of type {1}.' format: { result vectorType asString } at: result
+	].
+	
+	^ result
 ]
 
 { #category : #visiting }

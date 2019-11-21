@@ -2168,6 +2168,21 @@ MbndAstSemanticAnalyzerTest >> testVariableReference [
 ]
 
 { #category : #tests }
+MbndAstSemanticAnalyzerTest >> testVectorConstruction [
+	| node one two vectorType analyzedNode |
+	one := builder literalInteger: 1.
+	two := builder literalInteger: 2.
+	vectorType := builder identifier: #Float32x2.
+	node := builder constructVector: vectorType withElements: { one . two }.
+	analyzedNode := visitor visitNode: node.
+	
+	self assert: analyzedNode isVectorConstructionNode.
+	self assert: analyzedNode vectorType isPrimitiveVectorType.
+	self assert: analyzedNode vectorType elementType isPrimitiveFloatType.
+	self assert: analyzedNode vectorType elements equals: 2.
+]
+
+{ #category : #tests }
 MbndAstSemanticAnalyzerTest >> testZeroExtension [
 	| int16Type int32Type int64Type uint8Type uint16Type uint32Type uint64Type |
 	int16Type := compilationTarget int16Type.

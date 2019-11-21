@@ -132,6 +132,16 @@ MbndAbstractModuleVisitor >> visitPrimitiveIntegerType: type [
 ]
 
 { #category : #visiting }
+MbndAbstractModuleVisitor >> visitPrimitiveMatrixType: type [
+	self subclassResponsibility
+]
+
+{ #category : #visiting }
+MbndAbstractModuleVisitor >> visitPrimitiveVectorType: type [
+	self subclassResponsibility
+]
+
+{ #category : #visiting }
 MbndAbstractModuleVisitor >> visitReferenceType: type [
 	self subclassResponsibility
 ]

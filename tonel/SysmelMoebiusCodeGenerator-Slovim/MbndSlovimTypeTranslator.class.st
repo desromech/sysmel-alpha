@@ -122,6 +122,18 @@ MbndSlovimTypeTranslator >> visitPrimitiveIntegerType: integerType [
 ]
 
 { #category : #visiting }
+MbndSlovimTypeTranslator >> visitPrimitiveMatrixType: matrixType [
+	^ SLVMMatrixType baseType: (self translateType: matrixType elementType) rows: matrixType rows columns: matrixType columns alignment: matrixType instanceAlignment
+
+]
+
+{ #category : #visiting }
+MbndSlovimTypeTranslator >> visitPrimitiveVectorType: vectorType [
+	^ SLVMVectorType baseType: (self translateType: vectorType elementType) elements: vectorType elements alignment: vectorType instanceAlignment
+
+]
+
+{ #category : #visiting }
 MbndSlovimTypeTranslator >> visitReferenceType: referenceType [
 	^ self translateType: referenceType asPointerType
 ]

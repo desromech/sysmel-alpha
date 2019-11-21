@@ -728,6 +728,14 @@ MbndSlovimFunctionCodeGenerator >> visitVariableReferenceNode: node [
 ]
 
 { #category : #visiting }
+MbndSlovimFunctionCodeGenerator >> visitVectorConstructionNode: node [
+	| elements targetType |
+	elements := self visitNodesAndCollect: node elements.
+	targetType := self translateType: node type.
+	^ slvmBuilder makeVector: targetType arguments: elements
+]
+
+{ #category : #visiting }
 MbndSlovimFunctionCodeGenerator >> visitWhileLoopNode: node [
 	| loopHeader loopBody loopContinue loopMerge |
 	loopHeader := slvmBuilder newBasicBlock: #whileHeader.
