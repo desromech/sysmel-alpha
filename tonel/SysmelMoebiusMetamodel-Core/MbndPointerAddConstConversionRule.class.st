@@ -5,7 +5,7 @@ Class {
 }
 
 { #category : #testing }
-MbndPointerAddConstConversionRule >> canBeUsedToConvertFrom: sourceType into: targetType [
+MbndPointerAddConstConversionRule >> canBeUsedToConvertNode: node from: sourceType into: targetType [
 	((sourceType isPointerType and: [ targetType isPointerType ]) or:
 	[(sourceType isReferenceType and: [ targetType isReferenceType ])]) ifFalse: [ ^ false ].
 

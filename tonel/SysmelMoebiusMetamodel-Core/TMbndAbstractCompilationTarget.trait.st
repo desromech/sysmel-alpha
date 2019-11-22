@@ -254,6 +254,11 @@ TMbndAbstractCompilationTarget >> literalBooleanType [
 ]
 
 { #category : #'convenience type accessors' }
+TMbndAbstractCompilationTarget >> literalCharacterType [
+	^ self getBasicTypeNamed: #_LiteralCharacter
+]
+
+{ #category : #'convenience type accessors' }
 TMbndAbstractCompilationTarget >> literalDictionaryType [
 	^ self getBasicTypeNamed: #_LiteralDictionary
 ]

@@ -133,6 +133,11 @@ MbndAstDelegationVisitor >> visitEnumDefinitionNode: node [
 ]
 
 { #category : #visiting }
+MbndAstDelegationVisitor >> visitExpandScalarToVectorCastNode: node [
+	^ self delegateNodeVisit: node
+]
+
+{ #category : #visiting }
 MbndAstDelegationVisitor >> visitExpandedHostMessageSendNode: node [
 	^ self delegateNodeVisit: node
 ]

@@ -4,6 +4,11 @@ Class {
 	#category : #'SysmelMoebiusMetamodel-Core-TypeConversion'
 }
 
+{ #category : #testing }
+MbndReferenceLoadTypeConversionRule >> canBeUsedToConvertNode: node from: sourceType into: targetType [
+	^ true
+]
+
 { #category : #'as yet unclassified' }
 MbndReferenceLoadTypeConversionRule >> postProcessCastNode: node withAnalyzer: analyzer [
 	^ MbndAstReferenceLoadNode new

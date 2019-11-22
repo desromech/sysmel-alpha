@@ -75,3 +75,8 @@ MbndPrimitiveBooleanType >> literalTypeForValue: value [
 	value == false ifTrue: [^ self compilationTarget literalBooleanFalseType ].
 	^ super literalTypeForValue: value
 ]
+
+{ #category : #adding }
+MbndPrimitiveBooleanType >> literalTypesThatCanBeConvertedToMe [
+	^ {self compilationTarget literalBooleanType . self compilationTarget literalBooleanTrueType . self compilationTarget literalBooleanFalseType }
+]

@@ -186,6 +186,11 @@ MbndAstNode >> isEnumDefinitionNode [
 ]
 
 { #category : #testing }
+MbndAstNode >> isExpandScalarToVectorCastNode [
+	^ false
+]
+
+{ #category : #testing }
 MbndAstNode >> isExpandedHostMessageSendNode [
 	^ false
 ]

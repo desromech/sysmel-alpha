@@ -24,6 +24,15 @@ MbndPrimitiveVectorType >> addArithmeticIntrinsics [
 	
 ]
 
+{ #category : #adding }
+MbndPrimitiveVectorType >> addDefaultConversionRules [
+	super addDefaultConversionRules.
+	elementType ifNotNil: [ 
+		elementType
+			addConversionTo: self rule: MbndExpandScalarToVectorConversionRule.
+	]
+]
+
 { #category : #initialization }
 MbndPrimitiveVectorType >> addInstanceMacros [
 	self class == MbndPrimitiveVectorType ifFalse: [ ^ self ].

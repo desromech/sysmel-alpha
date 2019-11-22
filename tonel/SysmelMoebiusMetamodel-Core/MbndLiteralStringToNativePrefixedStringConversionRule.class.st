@@ -4,6 +4,11 @@ Class {
 	#category : #'SysmelMoebiusMetamodel-Core-TypeConversion'
 }
 
+{ #category : #testing }
+MbndLiteralStringToNativePrefixedStringConversionRule >> canBeUsedToConvertNode: node from: sourceType into: targetType [
+	^ true
+]
+
 { #category : #'as yet unclassified' }
 MbndLiteralStringToNativePrefixedStringConversionRule >> postProcessCastNode: node withAnalyzer: analyzer [
 	| literal target literalString prefixedStringType newLiteralValue |

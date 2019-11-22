@@ -4,6 +4,11 @@ Class {
 	#category : #'SysmelMoebiusMetamodel-Core-TypeConversion'
 }
 
+{ #category : #testing }
+MbndWrapInLiteralValueNodeTypeConversionRule >> canBeUsedToConvertNode: node from: sourceType into: targetType [
+	^ true
+]
+
 { #category : #'as yet unclassified' }
 MbndWrapInLiteralValueNodeTypeConversionRule >> postProcessCastNode: node withAnalyzer: analyzer [
 	node expression isLiteralValueNode ifTrue: [

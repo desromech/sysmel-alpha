@@ -1,6 +1,6 @@
 Class {
 	#name : #MbndLiteralCharacterType,
-	#superclass : #MbndLiteralValueType,
+	#superclass : #MbndLiteralScalarType,
 	#category : #'SysmelMoebiusMetamodel-Core-Type'
 }
 

@@ -176,6 +176,11 @@ MbndAstTransformVisitor >> visitEnumDefinitionNode: node [
 ]
 
 { #category : #visiting }
+MbndAstTransformVisitor >> visitExpandScalarToVectorCastNode: node [
+	^ self visitSpecificCastNode: node
+]
+
+{ #category : #visiting }
 MbndAstTransformVisitor >> visitExpandedHostMessageSendNode: node [
 	^ node copy
 		receiver: (self visitNode: node receiver);

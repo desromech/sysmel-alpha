@@ -24,12 +24,12 @@ MbndAbstractTypeConversionRule >> asMbndTypeConversionRuleTo: targetType [
 
 { #category : #testing }
 MbndAbstractTypeConversionRule >> canBeUsedToConvertFrom: sourceType into: targetType [
-	self subclassResponsibility
+	^ self canBeUsedToConvertNode: MbndAstNode dummy from: sourceType into: targetType
 ]
 
 { #category : #testing }
 MbndAbstractTypeConversionRule >> canBeUsedToConvertNode: node from: sourceType into: targetType [
-	^ self canBeUsedToConvertFrom: sourceType into: targetType
+	^ self subclassResponsibility
 ]
 
 { #category : #acccessing }

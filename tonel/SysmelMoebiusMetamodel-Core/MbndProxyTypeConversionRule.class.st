@@ -8,8 +8,8 @@ Class {
 }
 
 { #category : #testing }
-MbndProxyTypeConversionRule >> canBeUsedToConvertFrom: sourceType into: targetType [
-	^ rule canBeUsedToConvertFrom: sourceType into: targetType
+MbndProxyTypeConversionRule >> canBeUsedToConvertNode: node from: sourceType into: targetType [
+	^ rule canBeUsedToConvertNode: node from: sourceType into: targetType
 ]
 
 { #category : #accessing }

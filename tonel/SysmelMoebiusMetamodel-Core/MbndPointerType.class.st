@@ -90,7 +90,13 @@ MbndPointerType >> addInstanceMacros [
 				yourself.
 		];
 		onMacroSelector: #+ do: [ :node :builder |
-			self halt
+			(builder referenceAsPointer: (
+				(builder pointer: node receiver elementReferenceAt: node arguments first)
+					position: node;
+					isOneBasedIndex: false;
+					yourself
+			)) position: node;
+				yourself
 		];
 		onMacroSelector: #- do: [ :node :builder |
 			self halt

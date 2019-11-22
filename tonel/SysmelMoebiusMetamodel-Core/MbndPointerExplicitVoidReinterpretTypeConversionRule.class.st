@@ -5,7 +5,7 @@ Class {
 }
 
 { #category : #testing }
-MbndPointerExplicitVoidReinterpretTypeConversionRule >> canBeUsedToConvertFrom: sourceType into: targetType [
+MbndPointerExplicitVoidReinterpretTypeConversionRule >> canBeUsedToConvertNode: node from: sourceType into: targetType [
 	| rawSourceType rawTargetType |
 	(sourceType isPointerType and: [ targetType isPointerType ]) ifFalse: [ ^ false ].
 	rawSourceType := sourceType baseType withoutTopDecorations.

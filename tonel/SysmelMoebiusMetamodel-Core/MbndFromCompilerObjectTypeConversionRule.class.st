@@ -5,7 +5,7 @@ Class {
 }
 
 { #category : #testing }
-MbndFromCompilerObjectTypeConversionRule >> canBeUsedToConvertFrom: sourceType into: targetType [
+MbndFromCompilerObjectTypeConversionRule >> canBeUsedToConvertNode: node from: sourceType into: targetType [
 	^ targetType isCompilerObjectType not and:
 	[sourceType isCompilerObjectType and: [ sourceType isASTNodeType not ]]
 ]

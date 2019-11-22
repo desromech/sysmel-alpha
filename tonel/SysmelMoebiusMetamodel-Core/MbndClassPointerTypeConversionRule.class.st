@@ -5,7 +5,7 @@ Class {
 }
 
 { #category : #testing }
-MbndClassPointerTypeConversionRule >> canBeUsedToConvertFrom: sourceType into: targetType [
+MbndClassPointerTypeConversionRule >> canBeUsedToConvertNode: node from: sourceType into: targetType [
 	| sourceClassType targetClassType |
 	sourceClassType := sourceType baseType withoutTopDecorations.
 	targetClassType := targetType baseType withoutTopDecorations.

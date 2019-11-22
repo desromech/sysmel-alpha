@@ -52,3 +52,8 @@ MbndPrimitiveFloatType >> literalTypeForValue: value [
 	value isFloat ifTrue: [ ^ self compilationTarget literalFloatType ].
 	^ super literalTypeForValue: value
 ]
+
+{ #category : #adding }
+MbndPrimitiveFloatType >> literalTypesThatCanBeConvertedToMe [
+	^ {self compilationTarget literalCharacterType . self compilationTarget literalIntegerType . self compilationTarget literalFloatType }
+]

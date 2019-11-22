@@ -5,7 +5,7 @@ Class {
 }
 
 { #category : #testing }
-MbndToAbstractMetaTypeTypeConversionRule >> canBeUsedToConvertFrom: sourceType into: targetType [
+MbndToAbstractMetaTypeTypeConversionRule >> canBeUsedToConvertNode: node from: sourceType into: targetType [
 	^ sourceType isMetaType and: [ targetType == targetType compilationTarget abstractMetaType ]
 ]
 

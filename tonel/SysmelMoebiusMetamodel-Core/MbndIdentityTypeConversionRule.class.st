@@ -8,7 +8,7 @@ Class {
 }
 
 { #category : #testing }
-MbndIdentityTypeConversionRule >> canBeUsedToConvertFrom: sourceType into: targetType [
+MbndIdentityTypeConversionRule >> canBeUsedToConvertNode: node from: sourceType into: targetType [
 	^ sourceType == targetType
 ]
 

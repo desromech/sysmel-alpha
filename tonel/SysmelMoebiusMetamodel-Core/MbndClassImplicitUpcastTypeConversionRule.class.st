@@ -5,7 +5,7 @@ Class {
 }
 
 { #category : #testing }
-MbndClassImplicitUpcastTypeConversionRule >> canBeUsedToConvertFrom: sourceType into: targetType [
+MbndClassImplicitUpcastTypeConversionRule >> canBeUsedToConvertNode: node from: sourceType into: targetType [
 	| sourceClassType targetClassType |
 	sourceClassType := sourceType baseType withoutTopDecorations.
 	targetClassType := targetType baseType withoutTopDecorations.

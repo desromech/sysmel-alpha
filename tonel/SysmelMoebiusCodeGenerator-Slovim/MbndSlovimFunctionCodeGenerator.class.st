@@ -288,6 +288,14 @@ MbndSlovimFunctionCodeGenerator >> visitDoWhileLoopNode: node [
 ]
 
 { #category : #visiting }
+MbndSlovimFunctionCodeGenerator >> visitExpandScalarToVectorCastNode: node [
+	| source targetType |
+	source := self visitNode: node expression.
+	targetType := self translateType: node type.
+	^ slvmBuilder makeVector: targetType arguments: ((1 to: targetType elements) collect: [:i | source])
+]
+
+{ #category : #visiting }
 MbndSlovimFunctionCodeGenerator >> visitExpandedMessageSendNode: node [
 	| receiver arguments methodProgramEntity |
 	node method ifNotNil: [

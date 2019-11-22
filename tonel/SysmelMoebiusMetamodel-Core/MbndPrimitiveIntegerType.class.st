@@ -140,6 +140,11 @@ MbndPrimitiveIntegerType >> literalTypeForValue: value [
 	^ super literalTypeForValue: value
 ]
 
+{ #category : #adding }
+MbndPrimitiveIntegerType >> literalTypesThatCanBeConvertedToMe [
+	^ {self compilationTarget literalCharacterType . self compilationTarget literalIntegerType }
+]
+
 { #category : #testing }
 MbndPrimitiveIntegerType >> maxValue [
 	maxValue ifNil: [

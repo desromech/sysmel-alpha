@@ -18,12 +18,10 @@ MbndLiteralValueType >> accept: aVisitor [
 ]
 
 { #category : #casting }
-MbndLiteralValueType >> addDefaultConversionRules [
-	super addDefaultConversionRules.
-	
+MbndLiteralValueType >> addConversionRulesToTargetType: targetType [
 	self
-		addConversionRule: MbndLiteralToTargetTypeConversionRule new;
-		addConversionRule: MbndLiteralToBestTargetTypeConversionRule new.
+		addConversionTo: targetType rule: MbndLiteralToTargetTypeConversionRule new;
+		addConversionTo: targetType rule: MbndLiteralToBestTargetTypeConversionRule new.
 
 ]
 

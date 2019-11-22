@@ -20,6 +20,21 @@ MbndPrimitiveScalarType >> addArithmeticIntrinsicsToVectorOrScalarType: vectorOr
 	
 ]
 
+{ #category : #adding }
+MbndPrimitiveScalarType >> addConversionsFromLiteralTypes [
+	self literalTypesThatCanBeConvertedToMe do: [ :literalType |
+		literalType addConversionRulesToTargetType: self
+	]
+]
+
+{ #category : #adding }
+MbndPrimitiveScalarType >> addDefaultConversionRules [
+	super addDefaultConversionRules.
+	self isTrait ifFalse: [
+		self addConversionsFromLiteralTypes
+	].
+]
+
 { #category : #accessing }
 MbndPrimitiveScalarType >> instanceAlignment [
 	<compileTime>
@@ -45,6 +60,11 @@ MbndPrimitiveScalarType >> instanceSize: anObject [
 { #category : #'testing methods' }
 MbndPrimitiveScalarType >> isPrimitiveScalarType [
 	^ true
+]
+
+{ #category : #adding }
+MbndPrimitiveScalarType >> literalTypesThatCanBeConvertedToMe [
+	^ #()
 ]
 
 { #category : #'as yet unclassified' }

@@ -130,6 +130,11 @@ MbndAstVisitor >> visitEnumDefinitionNode: node [
 ]
 
 { #category : #visiting }
+MbndAstVisitor >> visitExpandScalarToVectorCastNode: node [
+	self subclassResponsibility
+]
+
+{ #category : #visiting }
 MbndAstVisitor >> visitExpandedHostMessageSendNode: node [
 	self subclassResponsibility
 ]

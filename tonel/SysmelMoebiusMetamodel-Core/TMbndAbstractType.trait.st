@@ -459,7 +459,7 @@ TMbndAbstractType >> isAssociationType [
 
 { #category : #'semantic analysis' }
 TMbndAbstractType >> isBestConcreteTypeForLiteralValueNode: literalValueNode [
-	^ self == (self bestConcreteTypeForLiteralValueNode: literalValueNode inScope: MbndLexicalScope new)
+	^ self == (literalValueNode type bestConcreteTypeForLiteralValueNode: literalValueNode inScope: MbndLexicalScope new)
 ]
 
 { #category : #'testing methods' }
@@ -569,6 +569,11 @@ TMbndAbstractType >> isLiteralIntegerType [
 
 { #category : #'testing methods' }
 TMbndAbstractType >> isLiteralNumberType [
+	^ false
+]
+
+{ #category : #'testing methods' }
+TMbndAbstractType >> isLiteralScalarType [
 	^ false
 ]
 

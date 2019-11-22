@@ -18,9 +18,9 @@ MbndTypeKindConversionRule >> asMbndTypeConversionRuleTo: targetType [
 ]
 
 { #category : #testing }
-MbndTypeKindConversionRule >> canBeUsedToConvertFrom: sourceType into: targetType [
-	targetType == targetTypeKind ifTrue: [ ^ true ].
-	^ false
+MbndTypeKindConversionRule >> canBeUsedToConvertNode: node from: sourceType into: targetType [
+	targetType == targetTypeKind ifFalse: [ ^ false ].
+	^ super canBeUsedToConvertNode: node from: sourceType into: targetType
 ]
 
 { #category : #testing }

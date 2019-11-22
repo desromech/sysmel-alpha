@@ -8,14 +8,6 @@ Class {
 }
 
 { #category : #testing }
-MbndPredicatedTypeConversionRule >> canBeUsedToConvertFrom: sourceType into: targetType [
-	predicate numArgs = 2 ifTrue: [ 
-		^ predicate value: sourceType value: targetType
-	].
-	^ predicate value: nil value: sourceType value: targetType
-]
-
-{ #category : #testing }
 MbndPredicatedTypeConversionRule >> canBeUsedToConvertNode: node from: sourceType into: targetType [
 	predicate numArgs = 2 ifTrue: [ 
 		^ predicate value: sourceType value: targetType
