@@ -1624,15 +1624,36 @@ MbndAstSemanticAnalyzer >> visitVectorGetElementsNode: node [
 	vectorType := result vector type withoutReferences withoutTopDecorations.
 	self assert: vectorType isPrimitiveVectorType.
 
+	result type: (vectorType elementType primitiveVectorWithElements: node elements size).
+	(node elements size = 1 and: [ node vector type isReferenceType ]) ifTrue: [
+		
+		^ result type: ((result type 
+			withDecorations: node vector type baseType decorations)
+				refFor: node vector type addressSpace)
+	].
+
 	^ result
 		vector: (self addImplicitCastFor: result vector to: vectorType);
-		type: (vectorType elementType primitiveVectorWithElements: node elements size);
 		yourself
 ]
 
 { #category : #visiting }
 MbndAstSemanticAnalyzer >> visitVectorSetElementsNode: node [
-	self halt
+	| result vectorType |
+	result := node copy
+		vector: (self analyzeNodeIfNeeded: node vector);
+		values: (self visitNodesAndCollect: node values);
+		yourself.
+	vectorType := result vector type withoutReferences withoutTopDecorations.
+	self assert: vectorType isPrimitiveVectorType.
+	(result vector type isReferenceType and: [ result vector type baseType isConstantType ]) ifTrue: [
+		result vector: (self addImplicitCastFor: result vector to: vectorType)
+	].
+	
+	^ result
+		type: result vector type;
+		yourself
+
 ]
 
 { #category : #visiting }

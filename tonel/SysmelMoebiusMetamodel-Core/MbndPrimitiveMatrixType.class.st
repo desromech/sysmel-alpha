@@ -19,11 +19,6 @@ MbndPrimitiveMatrixType >> accept: visitor [
 	^ visitor visitPrimitiveMatrixType: self
 ]
 
-{ #category : #adding }
-MbndPrimitiveMatrixType >> addArithmeticOperationCoercionMacro: selector [
-	self flag: 'TODO: implement this'
-]
-
 { #category : #accessing }
 MbndPrimitiveMatrixType >> columns [
 	^ columns

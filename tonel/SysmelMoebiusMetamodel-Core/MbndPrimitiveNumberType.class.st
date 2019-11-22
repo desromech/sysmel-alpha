@@ -10,8 +10,8 @@ MbndPrimitiveNumberType class >> typeName [
 ]
 
 { #category : #initialization }
-MbndPrimitiveNumberType >> addArithmeticIntrinsics [
-	self
+MbndPrimitiveNumberType >> addArithmeticIntrinsicsToVectorOrScalarType: vectorOrScalarType [
+	vectorOrScalarType
 		addArithmetic: #'prefix--' unaryIntrinsic: #neg;
 		addArithmetic: #negated unaryIntrinsic: #neg;
 		addArithmetic: #+ binaryIntrinsic: #add;

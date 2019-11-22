@@ -28,20 +28,25 @@ MbndSlovimTranslatedIntrinsicArithmeticUnaryOperation class >> initialize [
 
 { #category : #'as yet unclassified' }
 MbndSlovimTranslatedIntrinsicArithmeticUnaryOperation >> generateExpandedMessageSendNode: node with: codeGenerator [
-	| intrinsicName resultType operand |
+	| intrinsicName resultType scalarType operand |
 	intrinsicName := self intrinsicName.
 	resultType := node type.
 	operand := codeGenerator visitNode: node receiver.
+	
+	scalarType := resultType.
+	(resultType isPrimitiveVectorType or: [ resultType isPrimitiveMatrixType ]) ifTrue: [
+		scalarType := resultType elementType
+	].
 
-	resultType isPrimitiveBooleanType ifTrue: [
+	scalarType isPrimitiveBooleanType ifTrue: [
 		^ codeGenerator slvmBuilder addOperation: (BooleanOperationMap at: intrinsicName) operand: operand
 	].
-	resultType isPrimitiveIntegerType ifTrue: [
+	scalarType isPrimitiveIntegerType ifTrue: [
 		intrinsicName = #lowBit ifTrue: [ ^ codeGenerator slvmBuilder lowBit: operand ].
 		intrinsicName = #highBit ifTrue: [ ^ codeGenerator slvmBuilder highBit: operand ].
 		^ codeGenerator slvmBuilder addOperation: (IntegerOperationMap at: intrinsicName) operand: operand
 	].
-	resultType isPrimitiveFloatType ifTrue: [ 
+	scalarType isPrimitiveFloatType ifTrue: [ 
 		^ codeGenerator slvmBuilder addOperation: (FloatingPointOperationMap at: intrinsicName) operand: operand
 	].
 

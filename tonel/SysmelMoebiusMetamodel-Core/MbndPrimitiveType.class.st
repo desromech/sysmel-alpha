@@ -41,9 +41,11 @@ MbndPrimitiveType >> addArithmetic: selector unaryIntrinsic: intrinsicName [
 MbndPrimitiveType >> addArithmeticIntrinsics [
 ]
 
-{ #category : #adding }
+{ #category : #initialization }
 MbndPrimitiveType >> addArithmeticOperationCoercionMacro: selector [
-	self subclassResponsibility
+	self macroMethodDict at: selector
+		ifPresent: [ self error: 'Duplicated macro selector.' ]
+		ifAbsentPut: (MbndArithmeticOperationCoercionMacro new)
 ]
 
 { #category : #initialization }

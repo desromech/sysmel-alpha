@@ -22,10 +22,10 @@ MbndPrimitiveIntegerType >> accept: aVisitor [
 ]
 
 { #category : #initialization }
-MbndPrimitiveIntegerType >> addArithmeticIntrinsics [
-	super addArithmeticIntrinsics.
+MbndPrimitiveIntegerType >> addArithmeticIntrinsicsToVectorOrScalarType: vectorOrScalarType [
+	super addArithmeticIntrinsicsToVectorOrScalarType: vectorOrScalarType.
 
-	self
+	vectorOrScalarType
 		addArithmetic: #bitAnd: binaryIntrinsic: #bitand;
 		addArithmetic: #& binaryIntrinsic: #bitand;
 		addArithmetic: #bitOr: binaryIntrinsic: #bitor;

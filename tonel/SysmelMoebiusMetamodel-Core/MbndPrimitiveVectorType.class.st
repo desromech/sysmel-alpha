@@ -18,9 +18,10 @@ MbndPrimitiveVectorType >> accept: visitor [
 	^ visitor visitPrimitiveVectorType: self
 ]
 
-{ #category : #adding }
-MbndPrimitiveVectorType >> addArithmeticOperationCoercionMacro: selector [
-	self flag: 'TODO: implement this'
+{ #category : #initialization }
+MbndPrimitiveVectorType >> addArithmeticIntrinsics [
+	elementType addArithmeticIntrinsicsToVectorOrScalarType: self
+	
 ]
 
 { #category : #initialization }
@@ -74,6 +75,33 @@ MbndPrimitiveVectorType >> alignmentMultiplier [
 	^ elements asLargerPowerOfTwo
 ]
 
+{ #category : #'semantic analysis' }
+MbndPrimitiveVectorType >> analyzeSwizzleMessageSendNode: node with: analyzer [
+	| selector fieldPortion elementIndices |
+	selector := node selector value.
+	self assert: selector isByteString.
+	fieldPortion := selector last = $: ifTrue: [selector allButLast] ifFalse: [selector].
+	elementIndices := fieldPortion collect: [ :char |
+		(('xyzwrgbastpq' indexOf: char) - 1) % 4
+	] as: Array.
+
+	^ analyzer visitNode: ((analyzer astBuilder vector: node receiver getElements: elementIndices)
+		position: node)
+]
+
+{ #category : #'semantic analysis' }
+MbndPrimitiveVectorType >> analyzeUnboundUnexpandedMessageSendNode: node with: analyzer [
+	| selector |
+	node selector isLiteralSymbolValueNode ifTrue: [
+		selector := node selector value.
+		(self isSwizzleSelector: selector) ifTrue: [
+			^ self analyzeSwizzleMessageSendNode: node with: analyzer
+		].
+	].
+
+	^ super analyzeUnboundUnexpandedMessageSendNode: node with: analyzer
+]
+
 { #category : #'default values' }
 MbndPrimitiveVectorType >> defaultValueAt: aPosition [
 	| defaultElementValue |
@@ -116,5 +144,16 @@ MbndPrimitiveVectorType >> instanceSize [
 
 { #category : #'testing methods' }
 MbndPrimitiveVectorType >> isPrimitiveVectorType [
+	^ true
+]
+
+{ #category : #'semantic analysis' }
+MbndPrimitiveVectorType >> isSwizzleSelector: selector [
+	| fieldPortion |
+	selector isByteString ifFalse: [ ^ false ].
+	fieldPortion := selector last = $: ifTrue: [selector allButLast] ifFalse: [selector].
+	fieldPortion do: [ :char |
+		('xyzwrgbastpq' includes: char) ifFalse: [ ^ false ]
+	].
 	^ true
 ]

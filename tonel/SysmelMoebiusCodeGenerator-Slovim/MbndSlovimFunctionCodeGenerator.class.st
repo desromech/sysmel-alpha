@@ -130,6 +130,20 @@ MbndSlovimFunctionCodeGenerator >> initializeArgumentVariables [
 	]
 ]
 
+{ #category : #visiting }
+MbndSlovimFunctionCodeGenerator >> replaceVector: vector elements: elementIndices with: newValues [
+	| result |
+	self assert: elementIndices size = newValues size.
+	result := vector.
+	1 to: elementIndices size do: [ :i |
+		| value elementIndex |
+		value := newValues at: i.
+		elementIndex := elementIndices at: i.
+		result := slvmBuilder insertVector: result element: (slvmBuilder constInt: elementIndex) value: value
+	].
+	^ result
+]
+
 { #category : #accessing }
 MbndSlovimFunctionCodeGenerator >> slvmBuilder [
 	^ slvmBuilder
@@ -746,7 +760,31 @@ MbndSlovimFunctionCodeGenerator >> visitVectorGetElementsNode: node [
 	].
 
 	self assert: node vector type isReferenceType not.
-	self halt.
+	^ slvmBuilder shuffleVector: vector with: vector components: (node elements)
+]
+
+{ #category : #visiting }
+MbndSlovimFunctionCodeGenerator >> visitVectorSetElementsNode:  node [
+	| vector values |
+	vector := self visitNode: node vector.
+	values := self visitNodesAndCollect: node values.
+	node vector type isReferenceType ifTrue: [
+		self assert: node vector type baseType isConstantType not.
+		"Mutable case, modify the vector itself."
+		node values size = 1 ifTrue: [ 
+			slvmBuilder store: values first in: (slvmBuilder getReference: vector element: (slvmBuilder constInt: node elements first))
+		] ifFalse: [
+			slvmBuilder store: (
+				self replaceVector: (slvmBuilder load: vector) elements: node elements with: values
+			) in: vector
+		].
+	
+		^ vector
+	] ifFalse: [
+		"Immutable case, create a new vector."
+		^ self replaceVector: vector elements: node elements with: values
+	].
+
 ]
 
 { #category : #visiting }

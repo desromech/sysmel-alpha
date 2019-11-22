@@ -9,11 +9,15 @@ MbndPrimitiveScalarType class >> typeName [
 	^ #_PrimitiveScalarType
 ]
 
-{ #category : #initialization }
-MbndPrimitiveScalarType >> addArithmeticOperationCoercionMacro: selector [
-	self macroMethodDict at: selector
-		ifPresent: [ self error: 'Duplicated macro selector.' ]
-		ifAbsentPut: (MbndArithmeticOperationCoercionMacro new)
+{ #category : #adding }
+MbndPrimitiveScalarType >> addArithmeticIntrinsics [
+	self addArithmeticIntrinsicsToVectorOrScalarType: self
+	
+]
+
+{ #category : #adding }
+MbndPrimitiveScalarType >> addArithmeticIntrinsicsToVectorOrScalarType: vectorOrScalarType [
+	
 ]
 
 { #category : #accessing }

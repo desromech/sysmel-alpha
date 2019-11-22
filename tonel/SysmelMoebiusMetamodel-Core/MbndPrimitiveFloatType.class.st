@@ -15,10 +15,10 @@ MbndPrimitiveFloatType >> accept: aVisitor [
 ]
 
 { #category : #initialization }
-MbndPrimitiveFloatType >> addArithmeticIntrinsics [
-	super addArithmeticIntrinsics.
+MbndPrimitiveFloatType >> addArithmeticIntrinsicsToVectorOrScalarType: vectorOrScalarType [
+	super addArithmeticIntrinsicsToVectorOrScalarType: vectorOrScalarType.
 
-	self
+	vectorOrScalarType
 		addArithmetic: #sqrt unaryIntrinsic: #sqrt
 ]
 

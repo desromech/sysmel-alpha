@@ -62,23 +62,28 @@ MbndSlovimTranslatedIntrinsicArithmeticBinaryOperation class >> initialize [
 
 { #category : #'as yet unclassified' }
 MbndSlovimTranslatedIntrinsicArithmeticBinaryOperation >> generateExpandedMessageSendNode: node with: codeGenerator [
-	| intrinsicName resultType leftOperand rightOperand |
+	| intrinsicName resultType scalarType leftOperand rightOperand |
 	intrinsicName := self intrinsicName.
 	resultType := node type.
 	leftOperand := codeGenerator visitNode: node receiver.
 	rightOperand := codeGenerator visitNode: node arguments first.
 
-	resultType isPrimitiveBooleanType ifTrue: [ 
+	scalarType := resultType.
+	(resultType isPrimitiveVectorType or: [ resultType isPrimitiveMatrixType ]) ifTrue: [ 
+		scalarType := resultType elementType
+	].
+	
+	scalarType isPrimitiveBooleanType ifTrue: [ 
 		^ codeGenerator slvmBuilder addOperation: (FloatingPointOperationMap at: intrinsicName) left: leftOperand right: rightOperand
 	].
-	resultType isPrimitiveIntegerType ifTrue: [
-		^ resultType isSigned ifTrue: [
+	scalarType isPrimitiveIntegerType ifTrue: [
+		^ scalarType isSigned ifTrue: [
 			codeGenerator slvmBuilder addOperation: (SignedIntegerOperationMap at: intrinsicName) left: leftOperand right: rightOperand
 		] ifFalse: [
 			codeGenerator slvmBuilder addOperation: (UnsignedIntegerOperationMap at: intrinsicName) left: leftOperand right: rightOperand
 		]
 	].
-	resultType isPrimitiveFloatType ifTrue: [ 
+	scalarType isPrimitiveFloatType ifTrue: [ 
 		^ codeGenerator slvmBuilder addOperation: (FloatingPointOperationMap at: intrinsicName) left: leftOperand right: rightOperand
 	].
 

@@ -15,8 +15,8 @@ MbndPrimitiveBooleanType >> accept: aVisitor [
 ]
 
 { #category : #initialization }
-MbndPrimitiveBooleanType >> addArithmeticIntrinsics [
-	self
+MbndPrimitiveBooleanType >> addArithmeticIntrinsicsToVectorOrScalarType: vectorOrScalarType [
+	vectorOrScalarType
 		addArithmetic: #'prefix-!' unaryIntrinsic: #lnot;
 		addArithmetic: #not unaryIntrinsic: #lnot
 ]
