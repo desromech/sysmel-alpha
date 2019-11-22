@@ -625,6 +625,39 @@ MbndSlovimCodeModuleGeneratorTest >> testFloatVectorAdd [
 ]
 
 { #category : #tests }
+MbndSlovimCodeModuleGeneratorTest >> testFloatVectorAddWithScalar [
+	| function |
+	self
+		evaluateSysmelSource: 'function op externC(x: Float32x4, y: Float32) => Float32x4 := x + y';
+		generateSSAModule.
+
+	function := ssaModule globalNamed: #op.
+	self assert: function isFunction.
+	self deny: function isEmpty.
+	self assert: function basicBlocks size equals: 2.
+	self assert: function basicBlocks second firstInstruction isMakeVector.
+	self assert: function basicBlocks second firstInstruction nextInstruction isBinaryOperation.
+	self assert: function basicBlocks second firstInstruction nextInstruction operation equals: #fadd.
+	self assert: function basicBlocks second lastInstruction isReturn.
+]
+
+{ #category : #tests }
+MbndSlovimCodeModuleGeneratorTest >> testFloatVectorAddWithScalarLiteral [
+	| function |
+	self
+		evaluateSysmelSource: 'function op externC(x: Float32x4) => Float32x4 := x + 1.0';
+		generateSSAModule.
+
+	function := ssaModule globalNamed: #op.
+	self assert: function isFunction.
+	self deny: function isEmpty.
+	self assert: function basicBlocks size equals: 2.
+	self assert: function basicBlocks second firstInstruction isBinaryOperation.
+	self assert: function basicBlocks second firstInstruction operation equals: #fadd.
+	self assert: function basicBlocks second lastInstruction isReturn.
+]
+
+{ #category : #tests }
 MbndSlovimCodeModuleGeneratorTest >> testFloatVectorConstruction [
 	| function |
 	self
@@ -2160,6 +2193,30 @@ function called(x: Int32) => Int32
 	
 function call externC(x: Int32) => Int32
 	:= called(x).';
+		generateSSAModule.
+
+	function := ssaModule globalNamed: #call.
+	self assert: function isFunction.
+	self deny: function isEmpty.
+	self assert: function basicBlocks size equals: 2.
+	call := function basicBlocks second firstInstruction.
+	self assert: call isCall.
+	self assert: call functionValue name equals: #_S6calledFi.
+]
+
+{ #category : #tests }
+MbndSlovimCodeModuleGeneratorTest >> testOverloadedCallWithLiteral [
+	| function call |
+	self
+		evaluateSysmelSource: '
+function called(x: Float32) => Float32
+	:= x + 2.
+	
+function called(x: Int32) => Int32
+	:= x + 1.
+	
+function call externC() => Int32
+	:= called(1).';
 		generateSSAModule.
 
 	function := ssaModule globalNamed: #call.

@@ -97,6 +97,16 @@ TMbndCoreCompilationTarget >> computeArithmeticCoercionTypeFor: leftType with: r
 
 	bestLeftType := leftType bestConcreteTypeForLiteralValueNode: leftNode inScope: aScope.
 	bestRightType := rightType bestConcreteTypeForLiteralValueNode: rightNode inScope: aScope.
+
+	"Promote to matrix"
+	(bestLeftType isPrimitiveMatrixType or: [ bestRightType isPrimitiveMatrixType ]) ifTrue: [
+		^ self computeMatrixArithmeticCoercionTypeFor: bestLeftType with: bestRightType leftNode: leftNode rightNode: rightNode inScope: aScope
+	].
+	
+	"Promote to vector"
+	(bestLeftType isPrimitiveVectorType or: [ bestRightType isPrimitiveVectorType ]) ifTrue: [
+		^ self computeVectorArithmeticCoercionTypeFor: bestLeftType with: bestRightType leftNode: leftNode rightNode: rightNode inScope: aScope
+	].
 	
 	"Positive literal , Unsigned type"
 	(leftType isLiteralIntegerType and: [leftNode value >= 0 and: [ bestLeftType isSigned
@@ -132,6 +142,88 @@ TMbndCoreCompilationTarget >> computeConditionalResultCoercionTypeFor: leftType 
 	^ (self computeArithmeticCoercionTypeFor: leftType with: rightType leftNode: leftNode rightNode: rightNode inScope: aScope)
 		ifNil: [self voidType].
 	
+]
+
+{ #category : #coercing }
+TMbndCoreCompilationTarget >> computeMatrixArithmeticCoercionTypeFor: leftType with: rightType leftNode: leftNode rightNode: rightNode inScope: aScope [
+	| matrixType firstElementType firstElementTypeNode secondElementType secondElementTypeNode elementCoercionType |
+	leftType isPrimitiveVectorType ifTrue: [ ^ nil ].
+	rightType isPrimitiveVectorType ifTrue: [ ^ nil ].
+
+	(leftType isPrimitiveMatrixType and: [rightType isPrimitiveMatrixType]) ifTrue: [ 
+		"Matrix - Matrix, the dimensions must match."
+		(leftType rows ~= rightType rows or: [leftType columns ~= rightType columns]) ifTrue: [
+			^ nil.
+		].
+			
+		matrixType := leftType.
+		firstElementType := leftType elementType.
+		firstElementTypeNode := MbndAstNode dummy.
+		secondElementType := rightType elementType.
+		secondElementTypeNode := MbndAstNode dummy.
+	] ifFalse: [ 
+		leftType isPrimitiveMatrixType ifTrue: [
+			"Matrix - Scalar"
+			matrixType := leftType.
+			firstElementType := leftType elementType.
+			firstElementTypeNode := MbndAstNode dummy.
+			secondElementType := rightType.
+			secondElementTypeNode := rightNode.
+		] ifFalse: [ 
+			"Scalar - Matrix"
+			matrixType := rightType.
+			firstElementType := leftType.
+			firstElementTypeNode := leftNode.
+			secondElementType := rightType elementType.
+			secondElementTypeNode := MbndAstNode dummy.
+		]
+	].
+	
+	self assert: matrixType isPrimitiveMatrixType.
+	elementCoercionType := self computeArithmeticCoercionTypeFor: firstElementType with: secondElementType leftNode: firstElementTypeNode rightNode: secondElementTypeNode inScope: aScope.
+	elementCoercionType ifNil: [ ^ nil ].
+	
+	^ elementCoercionType primitiveMatrixWithRows: matrixType rows columns: matrixType columns
+]
+
+{ #category : #coercing }
+TMbndCoreCompilationTarget >> computeVectorArithmeticCoercionTypeFor: leftType with: rightType leftNode: leftNode rightNode: rightNode inScope: aScope [
+	| vectorType firstElementType firstElementTypeNode secondElementType secondElementTypeNode elementCoercionType |
+	(leftType isPrimitiveVectorType and: [rightType isPrimitiveVectorType]) ifTrue: [ 
+		"Vector - Vector, the dimensions must match."
+		(leftType elements ~= rightType elements) ifTrue: [
+			^ nil.
+		].
+			
+		vectorType := leftType.
+		firstElementType := leftType elementType.
+		firstElementTypeNode := MbndAstNode dummy.
+		secondElementType := rightType elementType.
+		secondElementTypeNode := MbndAstNode dummy.
+	] ifFalse: [ 
+		leftType isPrimitiveVectorType ifTrue: [
+			"Vector - Scalar"
+			vectorType := leftType.
+			firstElementType := leftType elementType.
+			firstElementTypeNode := MbndAstNode dummy.
+			secondElementType := rightType.
+			secondElementTypeNode := rightNode.
+		] ifFalse: [ 
+			"Scalar - Vector"
+			vectorType := rightType.
+			firstElementType := leftType.
+			firstElementTypeNode := leftNode.
+			secondElementType := rightType elementType.
+			secondElementTypeNode := MbndAstNode dummy.
+
+		]
+	].
+	
+	self assert: vectorType isPrimitiveVectorType.
+	elementCoercionType := self computeArithmeticCoercionTypeFor: firstElementType with: secondElementType leftNode: firstElementTypeNode rightNode: secondElementTypeNode inScope: aScope.
+	elementCoercionType ifNil: [ ^ nil ].
+	
+	^ elementCoercionType primitiveVectorWithElements: vectorType elements
 ]
 
 { #category : #accessing }

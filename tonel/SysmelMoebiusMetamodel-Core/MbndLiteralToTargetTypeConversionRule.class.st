@@ -7,7 +7,7 @@ Class {
 { #category : #testing }
 MbndLiteralToTargetTypeConversionRule >> canBeUsedToConvertNode: node from: sourceType into: targetType [
 	node isLiteralValueNode ifTrue: [ 
-		^ targetType isAcceptableLiteralValue: node value
+		^ (targetType isAcceptableLiteralValue: node value) and: [ (targetType isStandardConcreteTypeForLiteralValueNode: node) not ]
 	].
 
 	^ false.
@@ -15,7 +15,7 @@ MbndLiteralToTargetTypeConversionRule >> canBeUsedToConvertNode: node from: sour
 
 { #category : #acccessing }
 MbndLiteralToTargetTypeConversionRule >> conversionCost [
-	^ 1
+	^ 10
 ]
 
 { #category : #'as yet unclassified' }

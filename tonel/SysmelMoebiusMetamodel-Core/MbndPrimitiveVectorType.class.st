@@ -31,7 +31,6 @@ MbndPrimitiveVectorType >> addInstanceMacros [
 	#(
 	x y z w
 	r g b a
-	s t p q
 	) doWithIndex: [ :fieldName :fieldIndex |
 		self addVectorElementField: (fieldIndex - 1) % 4 withName: fieldName
 	].
@@ -82,7 +81,7 @@ MbndPrimitiveVectorType >> analyzeSwizzleMessageSendNode: node with: analyzer [
 	self assert: selector isByteString.
 	fieldPortion := selector last = $: ifTrue: [selector allButLast] ifFalse: [selector].
 	elementIndices := fieldPortion collect: [ :char |
-		(('xyzwrgbastpq' indexOf: char) - 1) % 4
+		(('xyzwrgba' indexOf: char) - 1) % 4
 	] as: Array.
 
 	^ analyzer visitNode: ((analyzer astBuilder vector: node receiver getElements: elementIndices)
@@ -153,7 +152,7 @@ MbndPrimitiveVectorType >> isSwizzleSelector: selector [
 	selector isByteString ifFalse: [ ^ false ].
 	fieldPortion := selector last = $: ifTrue: [selector allButLast] ifFalse: [selector].
 	fieldPortion do: [ :char |
-		('xyzwrgbastpq' includes: char) ifFalse: [ ^ false ]
+		('xyzwrgba' includes: char) ifFalse: [ ^ false ]
 	].
 	^ true
 ]

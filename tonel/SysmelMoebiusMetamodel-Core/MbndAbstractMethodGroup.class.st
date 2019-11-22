@@ -79,9 +79,9 @@ MbndAbstractMethodGroup >> findSingleOverloadedEntityMatchingArguments: argument
 	bestMatchingCandidates size ~= 1 ifTrue: [ 
 		
 	self error: (ByteString streamContents: [:out |
-			out nextPutAll: 'Ambiguous matching overloaded functions for "{1}". The matching candidates have the following types:'; cr.
+			out nextPutAll: ('Ambiguous matching overloaded functions for "{1}". The matching candidates have the following types:' format: {name asPrettySymbolName}); lf.
 			bestMatchingCandidates do: [ :candidate |
-				out tab; nextPutAll: candidate boundType asString; cr.
+				out tab; nextPutAll: candidate boundType asString; lf.
 			].
 		]) at: node
 	].

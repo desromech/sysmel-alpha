@@ -457,6 +457,11 @@ TMbndAbstractType >> isAssociationType [
 	^ false
 ]
 
+{ #category : #'semantic analysis' }
+TMbndAbstractType >> isBestConcreteTypeForLiteralValueNode: literalValueNode [
+	^ self == (self bestConcreteTypeForLiteralValueNode: literalValueNode inScope: MbndLexicalScope new)
+]
+
 { #category : #'testing methods' }
 TMbndAbstractType >> isBlockClosureType [
 	^ false
@@ -670,6 +675,11 @@ TMbndAbstractType >> isReferenceType [
 { #category : #'testing methods' }
 TMbndAbstractType >> isReturnType [
 	^ false
+]
+
+{ #category : #'semantic analysis' }
+TMbndAbstractType >> isStandardConcreteTypeForLiteralValueNode: literalValueNode [
+	^ self == (literalValueNode type standardConcreteTypeForLiteralValueNode: literalValueNode inScope: MbndLexicalScope new)
 ]
 
 { #category : #'testing methods' }

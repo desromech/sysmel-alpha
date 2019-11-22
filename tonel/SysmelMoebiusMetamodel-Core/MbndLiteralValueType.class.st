@@ -21,7 +21,9 @@ MbndLiteralValueType >> accept: aVisitor [
 MbndLiteralValueType >> addDefaultConversionRules [
 	super addDefaultConversionRules.
 	
-	self addConversionRule: MbndLiteralToTargetTypeConversionRule new.
+	self
+		addConversionRule: MbndLiteralToTargetTypeConversionRule new;
+		addConversionRule: MbndLiteralToBestTargetTypeConversionRule new.
 
 ]
 

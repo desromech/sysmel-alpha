@@ -12,7 +12,7 @@ MbndFromCompilerObjectTypeConversionRule >> canBeUsedToConvertFrom: sourceType i
 
 { #category : #testing }
 MbndFromCompilerObjectTypeConversionRule >> conversionCost [
-	^ 1
+	^ 10
 ]
 
 { #category : #testing }

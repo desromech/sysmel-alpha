@@ -6,5 +6,5 @@ Class {
 
 { #category : #acccessing }
 MbndAstRewriteTypeConversionRule >> conversionCost [
-	^ 1
+	^ 10
 ]

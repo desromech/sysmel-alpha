@@ -13,6 +13,12 @@ Class {
 	#category : #'SysmelMoebiusMetamodel-Core-AST'
 }
 
+{ #category : #'instance creation' }
+MbndAstNode class >> dummy [
+	"I am any null node that answers to the AST node protocol."
+	^ self new
+]
+
 { #category : #visiting }
 MbndAstNode >> accept: aVisitor [
 	self subclassResponsibility

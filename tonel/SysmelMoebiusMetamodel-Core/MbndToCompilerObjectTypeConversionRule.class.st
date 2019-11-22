@@ -11,7 +11,7 @@ MbndToCompilerObjectTypeConversionRule >> canBeUsedToConvertFrom: sourceType int
 
 { #category : #acccessing }
 MbndToCompilerObjectTypeConversionRule >> conversionCost [
-	^ 1
+	^ 10
 ]
 
 { #category : #'as yet unclassified' }
