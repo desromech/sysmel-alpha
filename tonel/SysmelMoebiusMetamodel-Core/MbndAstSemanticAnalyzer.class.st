@@ -599,44 +599,6 @@ MbndAstSemanticAnalyzer >> visitEnumDefinitionNode: node [
 ]
 
 { #category : #visiting }
-MbndAstSemanticAnalyzer >> visitExpandScalarToMatrixCastNode: node [
-	| scalarNode matrixType columnType zeroConstantNode resultNode |
-	scalarNode := self analyzeNodeIfNeeded: node expression.
-	matrixType := node targetType isMbndAstNode
-			ifTrue: [self evaluateTypeExpression: node targetType]
-			ifFalse: [node targetType].
-
-	columnType := matrixType columnType.
-	zeroConstantNode := matrixType elementType zeroConstantValue asLiteralValueNode position: node.
-	resultNode := (self astBuilder 
-		constructMatrix: matrixType withColumns:
-		((0 to: matrixType columns - 1) collect: [ :columnIndex |
-			(self astBuilder constructVector: columnType withElements: ((0 to: matrixType rows - 1) collect: [ :rowIndex |
-				columnIndex = rowIndex
-					ifTrue: [ scalarNode ]
-					ifFalse: [ zeroConstantNode ]
-			])) position: node
-		])
-	) position: node.
-	
-	^ self visitNode: resultNode
-]
-
-{ #category : #visiting }
-MbndAstSemanticAnalyzer >> visitExpandScalarToVectorCastNode: node [
-	| scalarNode vectorType |
-	scalarNode := self analyzeNodeIfNeeded: node expression.
-	vectorType := node targetType isMbndAstNode
-			ifTrue: [self evaluateTypeExpression: node targetType]
-			ifFalse: [node targetType].
-
-	^ (self astBuilder 
-		constructVector: vectorType withElements:
-		((1 to: vectorType elements) collect: [ :i | scalarNode ])
-	) position: node
-]
-
-{ #category : #visiting }
 MbndAstSemanticAnalyzer >> visitExpandedMessageSendNode: node [
 	| result receiverType method |
 	result := node copy

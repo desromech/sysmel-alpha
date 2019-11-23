@@ -20,6 +20,45 @@ MbndPrimitiveVectorType >> accept: visitor [
 
 { #category : #initialization }
 MbndPrimitiveVectorType >> addArithmeticIntrinsics [
+	elementType isPrimitiveNumberType ifTrue: [ 
+		self
+			addBuiltIn: #length intrinsicNamed: #'vector.length' argumentTypes: #() returnType: elementType evaluatedWith: [:receiver :arguments :evaluator :node |
+				self halt.
+			];
+			addBuiltIn: #length2 intrinsicNamed: #'vector.length2' argumentTypes: #() returnType: elementType evaluatedWith: [:receiver :arguments :evaluator :node |
+				self halt.
+			];
+			addBuiltIn: #normalized: intrinsicNamed: #'vector.normalize' argumentTypes: #() returnType: self evaluatedWith: [:receiver :arguments :evaluator :node |
+				self halt.
+			];
+			addBuiltIn: #dot: intrinsicNamed: #'vector.dot' argumentTypes: {self} returnType: elementType evaluatedWith: [:receiver :arguments :evaluator :node |
+				self halt.
+		].
+	
+		elements = 2 ifTrue: [ 
+			self
+				addBuiltIn: #cross: intrinsicNamed: #'vector.cross.2d' argumentTypes: {self} returnType: elementType evaluatedWith: [:receiver :arguments :evaluator :node |
+					self halt.
+				].
+		].
+		elements = 3 ifTrue: [ 
+			self
+				addBuiltIn: #cross: intrinsicNamed: #'vector.cross' argumentTypes: {self} returnType: self evaluatedWith: [:receiver :arguments :evaluator :node |
+				self halt.
+				].
+			
+			elementType isPrimitiveFloatType ifTrue: [
+				self
+					addBuiltIn: #reflectOn: intrinsicNamed: #'vector.reflect' argumentTypes: {self} returnType: self evaluatedWith: [:receiver :arguments :evaluator :node |
+					self halt.
+					];
+					addBuiltIn: #refractOn:with: intrinsicNamed: #'vector.refract' argumentTypes: {self . elementType} returnType: self evaluatedWith: [:receiver :arguments :evaluator :node |
+					self halt.
+				].
+			].
+		].
+
+	].
 	elementType addArithmeticIntrinsicsToVectorOrScalarType: self
 	
 ]

@@ -501,6 +501,12 @@ MbndSlovimCodeModuleGenerator >> visitStructureType: type [
 ]
 
 { #category : #visiting }
+MbndSlovimCodeModuleGenerator >> visitTargetNamedIntrinsicMethod: intrinsicMethod [
+	^ self setProgramEntity: intrinsicMethod translation: (MbndSlovimTranslatedTargetSpecificIntrinsic new programEntity: intrinsicMethod)
+	
+]
+
+{ #category : #visiting }
 MbndSlovimCodeModuleGenerator >> visitTemplate: template [
 	self translateProgramEntityChildren: template.
 	^ nil

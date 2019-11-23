@@ -104,6 +104,34 @@ MbndSlovimFunctionCodeGenerator >> generateExpandedMessageSendNode: node withSta
 	^ slvmBuilder call: calledMethodSSAFunction arguments: allArguments
 ]
 
+{ #category : #visiting }
+MbndSlovimFunctionCodeGenerator >> generateVectorCross2DIntrinsic: node [
+	| leftVector rightVector vectorType leftOperand rightOperand multiplication leftProduct rightProduct |
+	leftVector := self visitNode: node receiver.
+	rightVector := self visitNode: node arguments first.
+	self assert: leftVector type = rightVector type.
+	vectorType := leftVector type. 
+	self assert: vectorType elements = 2.
+	
+	leftOperand := slvmBuilder shuffleVector: leftVector with: rightVector components: #(0 3).
+	rightOperand := slvmBuilder shuffleVector: leftVector with: rightVector components: #(2 1).
+	multiplication := slvmBuilder vectorMul: leftOperand with: rightOperand.
+	leftProduct := slvmBuilder extractVector: multiplication element: (slvmBuilder constInt: 0).
+	rightProduct := slvmBuilder extractVector: multiplication element: (slvmBuilder constInt: 1).
+	^ vectorType baseType isFloatType ifTrue: [ 
+		slvmBuilder fadd: leftProduct with: rightProduct
+	] ifFalse: [ 
+		slvmBuilder add: leftProduct with: rightProduct
+	]
+]
+
+{ #category : #visiting }
+MbndSlovimFunctionCodeGenerator >> generateVectorLength2Intrinsic: node [
+	| vector |
+	vector := self visitNode: node receiver.
+	^ slvmBuilder vectorDot: vector with: vector
+]
+
 { #category : #'as yet unclassified' }
 MbndSlovimFunctionCodeGenerator >> initializeArgumentVariable: argument [
 	| debugInformation convertedPosition ssaValue |
@@ -289,12 +317,28 @@ MbndSlovimFunctionCodeGenerator >> visitDoWhileLoopNode: node [
 
 { #category : #visiting }
 MbndSlovimFunctionCodeGenerator >> visitExpandScalarToMatrixCastNode: node [
-	self shouldNotImplement
+	| scalar matrixType  columnType zeroConstant |
+	scalar := self visitNode: node expression.
+	matrixType := self translateType: node type.
+
+	columnType := matrixType columnType.
+	zeroConstant := matrixType baseType defaultConstant.
+	^ slvmBuilder makeMatrix: matrixType arguments: ((0 to: matrixType columns - 1) collect: [ :columnIndex |
+		slvmBuilder makeVector: columnType arguments: ((0 to: matrixType rows - 1) collect: [ :rowIndex |
+			columnIndex = rowIndex
+				ifTrue: [ scalar ]
+				ifFalse: [ zeroConstant ]
+			
+		])
+	])
 ]
 
 { #category : #visiting }
 MbndSlovimFunctionCodeGenerator >> visitExpandScalarToVectorCastNode: node [
-	self shouldNotImplement
+	| scalar vectorType |
+	scalar := self visitNode: node expression.
+	vectorType := self translateType: node type.
+	^ slvmBuilder makeVector: vectorType arguments: ((1 to: vectorType elements) collect: [ :i | scalar ])
 ]
 
 { #category : #visiting }

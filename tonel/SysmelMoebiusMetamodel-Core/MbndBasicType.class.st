@@ -19,6 +19,16 @@ MbndBasicType class >> typeName [
 	^ self == MbndBasicType ifTrue: [ #AnyValue ] ifFalse: [ nil ]
 ]
 
+{ #category : #adding }
+MbndBasicType >> addBuiltIn: selector intrinsicNamed: intrinsicName argumentTypes: argumentType returnType: returnType evaluatedWith: evaluationBlock [
+	self addOverloadedMethod: (MbndTargetNamedIntrinsicMethod new
+		name: selector;
+		intrinsicName: intrinsicName;
+		evaluationBlock: evaluationBlock;
+		yourself)
+		receiverType: self asReceiverType argumentTypes: argumentType returnType: returnType 
+]
+
 { #category : #'as yet unclassified' }
 MbndBasicType >> addChild: aChild [
 	self assert: aChild parent isNil.

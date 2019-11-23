@@ -1067,6 +1067,39 @@ MbndSlovimCodeModuleGeneratorTest >> testFloatVectorConstruction2 [
 ]
 
 { #category : #tests }
+MbndSlovimCodeModuleGeneratorTest >> testFloatVectorCross [
+	| function |
+	self
+		evaluateSysmelSource: 'function op externC(x: Float32x3, y: Float32x3) => Float32x3 := x cross: y';
+		generateSSAModule.
+
+	function := ssaModule globalNamed: #op.
+	self assert: function isFunction.
+	self deny: function isEmpty.
+	self assert: function basicBlocks size equals: 2.
+	self assert: function basicBlocks second firstInstruction isCall.
+	self assert: function basicBlocks second firstInstruction functionValue isConstantBuiltInFunction.
+	self assert: function basicBlocks second firstInstruction functionValue name equals: #'vector.cross'.
+	self assert: function basicBlocks second lastInstruction isReturn.
+]
+
+{ #category : #tests }
+MbndSlovimCodeModuleGeneratorTest >> testFloatVectorCross2D [
+	| function |
+	self
+		evaluateSysmelSource: 'function op externC(x: Float32x2, y: Float32x2) => Float32 := x cross: y';
+		generateSSAModule.
+
+	function := ssaModule globalNamed: #op.
+	self assert: function isFunction.
+	self deny: function isEmpty.
+	self assert: function basicBlocks size equals: 2.
+	self deny: function basicBlocks second firstInstruction isCall.
+	self deny: function basicBlocks second firstInstruction isReturn.
+	self assert: function basicBlocks second lastInstruction isReturn.
+]
+
+{ #category : #tests }
 MbndSlovimCodeModuleGeneratorTest >> testFloatVectorDivide [
 	| function |
 	self
@@ -1079,6 +1112,23 @@ MbndSlovimCodeModuleGeneratorTest >> testFloatVectorDivide [
 	self assert: function basicBlocks size equals: 2.
 	self assert: function basicBlocks second firstInstruction isBinaryOperation.
 	self assert: function basicBlocks second firstInstruction operation equals: #fdiv.
+	self assert: function basicBlocks second lastInstruction isReturn.
+]
+
+{ #category : #tests }
+MbndSlovimCodeModuleGeneratorTest >> testFloatVectorDot [
+	| function |
+	self
+		evaluateSysmelSource: 'function op externC(x: Float32x4, y: Float32x4) => Float32 := x dot: y';
+		generateSSAModule.
+
+	function := ssaModule globalNamed: #op.
+	self assert: function isFunction.
+	self deny: function isEmpty.
+	self assert: function basicBlocks size equals: 2.
+	self assert: function basicBlocks second firstInstruction isCall.
+	self assert: function basicBlocks second firstInstruction functionValue isConstantBuiltInFunction.
+	self assert: function basicBlocks second firstInstruction functionValue name equals: #'vector.dot'.
 	self assert: function basicBlocks second lastInstruction isReturn.
 ]
 
@@ -1147,6 +1197,23 @@ MbndSlovimCodeModuleGeneratorTest >> testFloatVectorGetZ [
 	self assert: function basicBlocks size equals: 2.
 	self assert: function basicBlocks second firstInstruction isExtractVectorElement.
 	self assert: function basicBlocks second firstInstruction index value equals: 2.
+	self assert: function basicBlocks second lastInstruction isReturn.
+]
+
+{ #category : #tests }
+MbndSlovimCodeModuleGeneratorTest >> testFloatVectorLength2 [
+	| function |
+	self
+		evaluateSysmelSource: 'function op externC(x: Float32x4) => Float32 := x length2';
+		generateSSAModule.
+
+	function := ssaModule globalNamed: #op.
+	self assert: function isFunction.
+	self deny: function isEmpty.
+	self assert: function basicBlocks size equals: 2.
+	self assert: function basicBlocks second firstInstruction isCall.
+	self assert: function basicBlocks second firstInstruction functionValue isConstantBuiltInFunction.
+	self assert: function basicBlocks second firstInstruction functionValue name equals: #'vector.dot'.
 	self assert: function basicBlocks second lastInstruction isReturn.
 ]
 

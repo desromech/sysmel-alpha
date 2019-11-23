@@ -87,6 +87,26 @@ MbndAbstractModuleVisitor >> visitGlobalVariable: variable [
 ]
 
 { #category : #visiting }
+MbndAbstractModuleVisitor >> visitIntrinsicArithmeticBinaryOperationMethod: type [
+	self subclassResponsibility
+]
+
+{ #category : #visiting }
+MbndAbstractModuleVisitor >> visitIntrinsicArithmeticComparisonMethod: type [
+	self subclassResponsibility
+]
+
+{ #category : #visiting }
+MbndAbstractModuleVisitor >> visitIntrinsicArithmeticUnaryOperationMethod: type [
+	self subclassResponsibility
+]
+
+{ #category : #visiting }
+MbndAbstractModuleVisitor >> visitIntrinsicPointerComparisonMethod: type [
+	self subclassResponsibility
+]
+
+{ #category : #visiting }
 MbndAbstractModuleVisitor >> visitMacroMessageMethod: type [
 	self subclassResponsibility
 ]
@@ -163,6 +183,11 @@ MbndAbstractModuleVisitor >> visitStructureType: type [
 
 { #category : #visiting }
 MbndAbstractModuleVisitor >> visitSystemProvidedTypeTemplate: method [
+	self subclassResponsibility
+]
+
+{ #category : #visiting }
+MbndAbstractModuleVisitor >> visitTargetNamedIntrinsicMethod: type [
 	self subclassResponsibility
 ]
 
