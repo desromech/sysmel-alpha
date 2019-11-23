@@ -648,6 +648,11 @@ TMbndAbstractType >> isPrimitiveIntegerType [
 ]
 
 { #category : #'testing methods' }
+TMbndAbstractType >> isPrimitiveMatrixOrVectorType [
+	^ self isPrimitiveMatrixType or: [ self isPrimitiveVectorType ]
+]
+
+{ #category : #'testing methods' }
 TMbndAbstractType >> isPrimitiveMatrixType [
 	^ false
 ]

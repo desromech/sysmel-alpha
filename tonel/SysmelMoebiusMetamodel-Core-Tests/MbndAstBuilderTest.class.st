@@ -654,6 +654,18 @@ MbndAstBuilderTest >> testMatrixGetRowNode [
 ]
 
 { #category : #tests }
+MbndAstBuilderTest >> testMatrixMultiplicationOperationNode [
+	| node leftMatrix rightMatrix |
+	leftMatrix := builder identifier: #leftMatrix.
+	rightMatrix := builder identifier: #rightMatrix.
+	node := builder matrix: leftMatrix multiplicationWith: rightMatrix.
+	
+	self assert: node isMatrixMultiplicationOperationNode.
+	self assert: node leftMatrix equals: leftMatrix.
+	self assert: node rightMatrix equals: rightMatrix.
+]
+
+{ #category : #tests }
 MbndAstBuilderTest >> testMatrixSetColumnValueNode [
 	| node matrix value |
 	matrix := builder identifier: #x.

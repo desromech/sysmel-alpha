@@ -290,6 +290,11 @@ MbndAstVisitor >> visitMatrixGetRowNode: node [
 ]
 
 { #category : #visiting }
+MbndAstVisitor >> visitMatrixMultiplicationOperationNode: node [
+	self subclassResponsibility
+]
+
+{ #category : #visiting }
 MbndAstVisitor >> visitMatrixSetColumnValueNode: node [
 	self subclassResponsibility
 ]

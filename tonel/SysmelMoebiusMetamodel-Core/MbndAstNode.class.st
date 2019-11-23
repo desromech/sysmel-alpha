@@ -361,6 +361,11 @@ MbndAstNode >> isMatrixGetRowNode [
 ]
 
 { #category : #testing }
+MbndAstNode >> isMatrixMultiplicationOperationNode [
+	^ false
+]
+
+{ #category : #testing }
 MbndAstNode >> isMatrixSetColumnValueNode [
 	^ false
 ]

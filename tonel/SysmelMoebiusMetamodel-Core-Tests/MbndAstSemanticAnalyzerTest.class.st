@@ -1455,6 +1455,37 @@ MbndAstSemanticAnalyzerTest >> testMatrixConstruction [
 ]
 
 { #category : #tests }
+MbndAstSemanticAnalyzerTest >> testMatrixMatrixMultiplication [
+	| node column leftMatrix rightMatrix analyzedNode |
+	column := builder constructVector: (builder identifier: #Float32x2) withElements: {
+		builder literalFloat: 0.0.
+		builder literalFloat: 0.0.
+	}.
+	leftMatrix := builder constructMatrix: (builder identifier: #Float32x2x2) withColumns: {column . column}.
+	rightMatrix := builder constructMatrix: (builder identifier: #Float32x2x2) withColumns: {column . column}.
+	
+	node := builder matrix: leftMatrix multiplicationWith: rightMatrix.
+	analyzedNode := visitor visitNode: node.
+	self assert: analyzedNode isMatrixMultiplicationOperationNode.
+	self assert: analyzedNode type isPrimitiveMatrixType.
+]
+
+{ #category : #tests }
+MbndAstSemanticAnalyzerTest >> testMatrixVectorMultiplication [
+	| node leftMatrix rightMatrix analyzedNode |
+	rightMatrix := builder constructVector: (builder identifier: #Float32x2) withElements: {
+		builder literalFloat: 0.0.
+		builder literalFloat: 0.0.
+	}.
+	leftMatrix := builder constructMatrix: (builder identifier: #Float32x2x2) withColumns: {rightMatrix . rightMatrix}.
+	
+	node := builder matrix: leftMatrix multiplicationWith: rightMatrix.
+	analyzedNode := visitor visitNode: node.
+	self assert: analyzedNode isMatrixMultiplicationOperationNode.
+	self assert: analyzedNode type isPrimitiveVectorType.
+]
+
+{ #category : #tests }
 MbndAstSemanticAnalyzerTest >> testMessageChainExpansion [
 	| analyzedNode receiver messageChain |
 	receiver := builder literalInteger: 42.
@@ -2197,6 +2228,21 @@ MbndAstSemanticAnalyzerTest >> testVectorConstruction [
 	self assert: analyzedNode vectorType isPrimitiveVectorType.
 	self assert: analyzedNode vectorType elementType isPrimitiveFloatType.
 	self assert: analyzedNode vectorType elements equals: 2.
+]
+
+{ #category : #tests }
+MbndAstSemanticAnalyzerTest >> testVectorMatrixMultiplication [
+	| node leftMatrix rightMatrix analyzedNode |
+	leftMatrix := builder constructVector: (builder identifier: #Float32x2) withElements: {
+		builder literalFloat: 0.0.
+		builder literalFloat: 0.0.
+	}.
+	rightMatrix := builder constructMatrix: (builder identifier: #Float32x2x2) withColumns: {leftMatrix . leftMatrix}.
+	
+	node := builder matrix: leftMatrix multiplicationWith: rightMatrix.
+	analyzedNode := visitor visitNode: node.
+	self assert: analyzedNode isMatrixMultiplicationOperationNode.
+	self assert: analyzedNode type isPrimitiveVectorType.
 ]
 
 { #category : #tests }

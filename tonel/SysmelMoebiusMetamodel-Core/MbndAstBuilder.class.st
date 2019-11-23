@@ -700,6 +700,16 @@ MbndAstBuilder >> matrix: matrix getRow: row [
 ]
 
 { #category : #'builder methods' }
+MbndAstBuilder >> matrix: leftMatrix multiplicationWith: rightMatrix [
+	<compileTime>
+	<returnType: #_ASTNodeType>
+	^ MbndAstMatrixMultiplicationOperationNode new
+		leftMatrix: leftMatrix;
+		rightMatrix: rightMatrix;
+		yourself
+]
+
+{ #category : #'builder methods' }
 MbndAstBuilder >> matrix: matrix setColumn: column value: value [
 	<compileTime>
 	<returnType: #_ASTNodeType>

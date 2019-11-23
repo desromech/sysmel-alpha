@@ -293,6 +293,11 @@ MbndAstDelegationVisitor >> visitMatrixGetRowNode: node [
 ]
 
 { #category : #visiting }
+MbndAstDelegationVisitor >> visitMatrixMultiplicationOperationNode: node [
+	^ self delegateNodeVisit: node
+]
+
+{ #category : #visiting }
 MbndAstDelegationVisitor >> visitMatrixSetColumnValueNode: node [
 	^ self delegateNodeVisit: node
 ]

@@ -408,6 +408,14 @@ MbndAstTransformVisitor >> visitMatrixGetRowNode: node [
 ]
 
 { #category : #visiting }
+MbndAstTransformVisitor >> visitMatrixMultiplicationOperationNode: node [
+	^ node copy
+		leftMatrix: (self visitNode: node leftMatrix);
+		rightMatrix: (self visitNode: node rightMatrix);
+		yourself
+]
+
+{ #category : #visiting }
 MbndAstTransformVisitor >> visitMatrixSetColumnValueNode: node [
 	^ node copy
 		matrix: (self visitNode: node matrix);

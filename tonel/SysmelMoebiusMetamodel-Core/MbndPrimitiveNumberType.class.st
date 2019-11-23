@@ -13,7 +13,10 @@ MbndPrimitiveNumberType class >> typeName [
 MbndPrimitiveNumberType >> addArithmeticIntrinsicsToMatrixType: matrixType [
 	super addArithmeticIntrinsicsToMatrixType: matrixType.
 	
-	self flag: 'TODO: Add matrix-mutiplication intrinsic.'
+	matrixType onMacroSelector: #* do: [ :node :builder |
+		(builder matrix: node receiver multiplicationWith: node arguments first)
+			position: node
+	].
 ]
 
 { #category : #initialization }

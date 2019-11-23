@@ -38,6 +38,12 @@ MbndArithmeticOperationCoercionMacro >> expandMessageNode: node with: analyzer [
 	leftValueType := leftAnalyzedNode type withoutReferences withoutDecorations.
 	rightValueType := rightAnalyzedNode type withoutReferences withoutDecorations.
 	
+	"Vector - Matrix multiplication is a special case."
+	(node selector value = #* and: [ leftValueType isPrimitiveVectorType and: [ rightValueType isPrimitiveMatrixType ] ]) ifTrue: [
+		^ analyzer visitNode: ((analyzer astBuilder matrix: leftAnalyzedNode multiplicationWith: rightAnalyzedNode)
+			position: node)
+	].
+	
 	"Compute the coercion type."
 	coercionType := analyzer arithmeticCoercionTypeFor: leftValueType with: rightValueType
 		 leftNode: leftAnalyzedNode rightNode: rightAnalyzedNode at: node.

@@ -1229,6 +1229,82 @@ MbndAstSemanticAnalyzer >> visitMatrixGetRowNode: node [
 ]
 
 { #category : #visiting }
+MbndAstSemanticAnalyzer >> visitMatrixMultiplicationOperationNode: node [
+	| result leftMatrixType rightMatrixType |
+	result := node copy
+		leftMatrix: (self analyzeNodeIfNeeded: node leftMatrix);
+		rightMatrix: (self analyzeNodeIfNeeded: node rightMatrix);
+		yourself.
+	
+	leftMatrixType := result leftMatrix type withoutReferences withoutTopDecorations.
+	rightMatrixType := result rightMatrix type withoutReferences withoutTopDecorations.
+	"The receiver must be always a matrix or a vector."
+	self assert: leftMatrixType isPrimitiveMatrixOrVectorType.
+	
+	rightMatrixType isPrimitiveMatrixOrVectorType ifFalse: [
+		rightMatrixType isPrimitiveScalarType ifTrue: [
+			"Coerce the right scalar type."
+			result rightMatrix: (self addImplicitCastFor: result rightMatrix to: rightMatrixType elementType).
+			
+			"If the right type is a scalar, we should expand it into a matrix"
+			result rightMatrix: (self astBuilder expandScalar: result rightMatrix toMatrixType: (
+				leftMatrixType elementType primitiveMatrixWithRows: leftMatrixType columns columns: leftMatrixType columns
+			)).
+			
+			^ self visitNode: result
+		] ifFalse: [
+		
+			self error: 'Cannot multiply a matrix with a value of type {1}.' format: { rightMatrixType asString } at: result
+		]
+	].
+
+	"Make sure the element type matches."
+	leftMatrixType elementType = rightMatrixType elementType ifFalse: [ 
+		self error: 'Cannot multiply matrices (or vectors) with incompatible element types ({1} vs {2}).' format: { 
+			leftMatrixType elementType asString . rightMatrixType elementType asString
+		} at: result
+	].
+
+	"Make sure there are no references."
+	result 
+		leftMatrix: (self addImplicitCastFor: result leftMatrix to: leftMatrixType);
+		rightMatrix: (self addImplicitCastFor: result rightMatrix to: rightMatrixType).
+
+	leftMatrixType isPrimitiveVectorType ifTrue: [ 
+		self assert: rightMatrixType isPrimitiveMatrixType.
+		leftMatrixType 	elements = rightMatrixType rows ifFalse: [
+			self error: 'Cannot multiply a vector with {1} elements with a matrix with {2} rows.'
+				format: { leftMatrixType elements asString . rightMatrixType rows asString } at: result
+		].
+	
+		^ result type: leftMatrixType;
+			yourself
+	].
+
+	rightMatrixType isPrimitiveVectorType ifTrue: [ 
+		self assert: leftMatrixType isPrimitiveMatrixType.
+		leftMatrixType 	columns = rightMatrixType elements ifFalse: [
+			self error: 'Cannot multiply a matrix with {1} columns with a vector with {2} elements.'
+				format: { leftMatrixType columns asString . rightMatrixType elements asString } at: result
+		].
+
+		^ result type: rightMatrixType;
+			yourself
+	].
+
+	self assert: leftMatrixType isPrimitiveMatrixType.
+	self assert: rightMatrixType isPrimitiveMatrixType.
+	leftMatrixType columns = rightMatrixType rows ifFalse: [ 
+		self error: 'Cannot multiply a matrix with {1} columns with another matrix with {2} rows.'
+			format: { leftMatrixType columns asString . rightMatrixType rows asString } at: result
+	].
+
+	^ result
+		type: (leftMatrixType elementType primitiveMatrixWithRows: leftMatrixType rows columns: rightMatrixType columns);
+		yourself
+]
+
+{ #category : #visiting }
 MbndAstSemanticAnalyzer >> visitMessageChainNode: node [
 	| receiverVariable receiverVariableReference messages unconvertedMessages analyzedReceiver convertedMetaMessages |
 	node messages ifEmpty: [

@@ -578,6 +578,19 @@ MbndAstTransformVisitorTest >> testMatrixGetRowNode [
 ]
 
 { #category : #tests }
+MbndAstTransformVisitorTest >> testMatrixMultiplicationOperationNode [
+	| node leftMatrix rightMatrix transformedNode |
+	leftMatrix := builder identifier: #leftMatrix.
+	rightMatrix := builder identifier: #rightMatrix.
+	node := builder matrix: leftMatrix multiplicationWith: rightMatrix.
+	transformedNode := visitor visitNode: node.
+	self assert: node ~~ transformedNode.
+	self assert: transformedNode isMatrixMultiplicationOperationNode.
+	self assert: transformedNode leftMatrix equals: leftMatrix.
+	self assert: transformedNode rightMatrix equals: rightMatrix.
+]
+
+{ #category : #tests }
 MbndAstTransformVisitorTest >> testMatrixSetColumnValueNode [
 	| node matrix value transformedNode |
 	matrix := builder identifier: #x.

@@ -581,6 +581,24 @@ MbndSlovimFunctionCodeGenerator >> visitMatrixGetColumnNode: node [
 ]
 
 { #category : #visiting }
+MbndSlovimFunctionCodeGenerator >> visitMatrixMultiplicationOperationNode: node [
+	| leftMatrix rightMatrix |
+	leftMatrix := self visitNode: node leftMatrix.
+	rightMatrix := self visitNode: node rightMatrix.
+	leftMatrix type isVectorType ifTrue: [
+		self assert: rightMatrix type isMatrixType.
+		^ slvmBuilder mulVector: leftMatrix withMatrix: rightMatrix.
+	].
+	rightMatrix type isVectorType ifTrue: [
+		self assert: leftMatrix type isMatrixType.
+		^ slvmBuilder mulMatrix: leftMatrix withVector: rightMatrix.
+	].
+	self assert: leftMatrix type isMatrixType.
+	self assert: rightMatrix type isMatrixType.
+	^ slvmBuilder mulMatrix: leftMatrix withMatrix: rightMatrix
+]
+
+{ #category : #visiting }
 MbndSlovimFunctionCodeGenerator >> visitMethodReferenceNode: node [
 	^ (codeModuleGenerator translateProgramEntity: node binding) ssaValue
 ]
