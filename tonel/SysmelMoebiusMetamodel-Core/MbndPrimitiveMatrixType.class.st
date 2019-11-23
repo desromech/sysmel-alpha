@@ -20,6 +20,12 @@ MbndPrimitiveMatrixType >> accept: visitor [
 	^ visitor visitPrimitiveMatrixType: self
 ]
 
+{ #category : #initialization }
+MbndPrimitiveMatrixType >> addArithmeticIntrinsics [
+	elementType addArithmeticIntrinsicsToMatrixType: self
+	
+]
+
 { #category : #adding }
 MbndPrimitiveMatrixType >> addDefaultConversionRules [
 	super addDefaultConversionRules.

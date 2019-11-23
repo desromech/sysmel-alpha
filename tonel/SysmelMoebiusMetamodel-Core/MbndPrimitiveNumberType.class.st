@@ -10,17 +10,36 @@ MbndPrimitiveNumberType class >> typeName [
 ]
 
 { #category : #initialization }
+MbndPrimitiveNumberType >> addArithmeticIntrinsicsToMatrixType: matrixType [
+	super addArithmeticIntrinsicsToMatrixType: matrixType.
+	
+	self flag: 'TODO: Add matrix-mutiplication intrinsic.'
+]
+
+{ #category : #initialization }
 MbndPrimitiveNumberType >> addArithmeticIntrinsicsToVectorOrScalarType: vectorOrScalarType [
 	vectorOrScalarType
 		addArithmetic: #'prefix--' unaryIntrinsic: #neg;
 		addArithmetic: #negated unaryIntrinsic: #neg;
 		addArithmetic: #+ binaryIntrinsic: #add;
-		addArithmetic: #- binaryIntrinsic: #sub;
-		addArithmetic: #* binaryIntrinsic: #mul;
-		addArithmetic: #/ binaryIntrinsic: #div;
-		addArithmetic: #// binaryIntrinsic: #idiv;
-		addArithmetic: #\\ binaryIntrinsic: #irem;
-		addArithmetic: #% binaryIntrinsic: #rem.
+		addArithmetic: #- binaryIntrinsic: #sub.
+		
+	vectorOrScalarType isPrimitiveMatrixType ifTrue: [ 
+		vectorOrScalarType
+			addArithmetic: #%* binaryIntrinsic: #mul;
+			addArithmetic: #%/ binaryIntrinsic: #div;
+			addArithmetic: #%// binaryIntrinsic: #idiv;
+			addArithmetic: #%\\ binaryIntrinsic: #irem;
+			addArithmetic: #%% binaryIntrinsic: #rem.
+	] ifFalse: [ 
+		vectorOrScalarType
+			addArithmetic: #* binaryIntrinsic: #mul;
+			addArithmetic: #/ binaryIntrinsic: #div;
+			addArithmetic: #// binaryIntrinsic: #idiv;
+			addArithmetic: #\\ binaryIntrinsic: #irem;
+			addArithmetic: #% binaryIntrinsic: #rem.
+	].
+
 ]
 
 { #category : #initialization }

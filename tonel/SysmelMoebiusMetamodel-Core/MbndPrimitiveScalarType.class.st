@@ -16,6 +16,12 @@ MbndPrimitiveScalarType >> addArithmeticIntrinsics [
 ]
 
 { #category : #adding }
+MbndPrimitiveScalarType >> addArithmeticIntrinsicsToMatrixType: matrixType [
+	self addArithmeticIntrinsicsToVectorOrScalarType: matrixType
+	
+]
+
+{ #category : #adding }
 MbndPrimitiveScalarType >> addArithmeticIntrinsicsToVectorOrScalarType: vectorOrScalarType [
 	
 ]

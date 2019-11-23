@@ -482,6 +482,22 @@ MbndSlovimCodeModuleGeneratorTest >> testFloatLessOrEqual [
 ]
 
 { #category : #tests }
+MbndSlovimCodeModuleGeneratorTest >> testFloatMatrixAdd [
+	| function |
+	self
+		evaluateSysmelSource: 'function op externC(x: Float32x4x4, y: Float32x4x4) => Float32x4x4 := x + y';
+		generateSSAModule.
+
+	function := ssaModule globalNamed: #op.
+	self assert: function isFunction.
+	self deny: function isEmpty.
+	self assert: function basicBlocks size equals: 2.
+	self assert: function basicBlocks second firstInstruction isBinaryOperation.
+	self assert: function basicBlocks second firstInstruction operation equals: #fadd.
+	self assert: function basicBlocks second lastInstruction isReturn.
+]
+
+{ #category : #tests }
 MbndSlovimCodeModuleGeneratorTest >> testFloatMatrixConstructWithColumns [
 	| function |
 	self
@@ -495,6 +511,38 @@ MbndSlovimCodeModuleGeneratorTest >> testFloatMatrixConstructWithColumns [
 	self deny: function isEmpty.
 	self assert: function basicBlocks size equals: 2.
 	self assert: function basicBlocks second firstInstruction isMakeMatrix.
+	self assert: function basicBlocks second lastInstruction isReturn.
+]
+
+{ #category : #tests }
+MbndSlovimCodeModuleGeneratorTest >> testFloatMatrixElementwiseDivision [
+	| function |
+	self
+		evaluateSysmelSource: 'function op externC(x: Float32x4x4, y: Float32x4x4) => Float32x4x4 := x %/ y';
+		generateSSAModule.
+
+	function := ssaModule globalNamed: #op.
+	self assert: function isFunction.
+	self deny: function isEmpty.
+	self assert: function basicBlocks size equals: 2.
+	self assert: function basicBlocks second firstInstruction isBinaryOperation.
+	self assert: function basicBlocks second firstInstruction operation equals: #fdiv.
+	self assert: function basicBlocks second lastInstruction isReturn.
+]
+
+{ #category : #tests }
+MbndSlovimCodeModuleGeneratorTest >> testFloatMatrixElementwiseProduct [
+	| function |
+	self
+		evaluateSysmelSource: 'function op externC(x: Float32x4x4, y: Float32x4x4) => Float32x4x4 := x %* y';
+		generateSSAModule.
+
+	function := ssaModule globalNamed: #op.
+	self assert: function isFunction.
+	self deny: function isEmpty.
+	self assert: function basicBlocks size equals: 2.
+	self assert: function basicBlocks second firstInstruction isBinaryOperation.
+	self assert: function basicBlocks second firstInstruction operation equals: #fmul.
 	self assert: function basicBlocks second lastInstruction isReturn.
 ]
 
@@ -697,6 +745,22 @@ MbndSlovimCodeModuleGeneratorTest >> testFloatMatrixReferenceGetThirdColumn [
 	self assert: function basicBlocks second firstInstruction isGetElementPointer.
 	self assert: function basicBlocks second firstInstruction indices last value equals: 2.
 	self assert: function basicBlocks second firstInstruction nextInstruction isLoad.
+	self assert: function basicBlocks second lastInstruction isReturn.
+]
+
+{ #category : #tests }
+MbndSlovimCodeModuleGeneratorTest >> testFloatMatrixSubtract [
+	| function |
+	self
+		evaluateSysmelSource: 'function op externC(x: Float32x4x4, y: Float32x4x4) => Float32x4x4 := x - y';
+		generateSSAModule.
+
+	function := ssaModule globalNamed: #op.
+	self assert: function isFunction.
+	self deny: function isEmpty.
+	self assert: function basicBlocks size equals: 2.
+	self assert: function basicBlocks second firstInstruction isBinaryOperation.
+	self assert: function basicBlocks second firstInstruction operation equals: #fsub.
 	self assert: function basicBlocks second lastInstruction isReturn.
 ]
 
