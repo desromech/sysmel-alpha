@@ -119,6 +119,11 @@ MbndAstNodeTest >> testTestingMethods [
 	self deny: node isMacroSendMessageWithArgumentsNode.
 	self deny: node isMacroMessageDefinitionNode.
 	self deny: node isMacroMessagePrototypeNode.
+	self deny: node isMatrixConstructionNode.
+	self deny: node isMatrixGetColumnNode.
+	self deny: node isMatrixGetRowNode.
+	self deny: node isMatrixSetColumnValueNode.
+	self deny: node isMatrixSetRowValueNode.
 	self deny: node isMetaBuilderInstanceNode.
 	self deny: node isMessageChainNode.
 	self deny: node isMessageChainMessageNode.

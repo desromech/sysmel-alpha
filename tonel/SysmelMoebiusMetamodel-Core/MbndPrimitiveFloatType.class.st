@@ -57,3 +57,13 @@ MbndPrimitiveFloatType >> literalTypeForValue: value [
 MbndPrimitiveFloatType >> literalTypesThatCanBeConvertedToMe [
 	^ {self compilationTarget literalCharacterType . self compilationTarget literalIntegerType . self compilationTarget literalFloatType }
 ]
+
+{ #category : #'as yet unclassified' }
+MbndPrimitiveFloatType >> oneConstantValue [
+	^ MbndValue value: 1.0 type: self
+]
+
+{ #category : #'as yet unclassified' }
+MbndPrimitiveFloatType >> zeroConstantValue [
+	^ MbndValue value: 0.0 type: self
+]

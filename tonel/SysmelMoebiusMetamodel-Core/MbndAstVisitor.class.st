@@ -130,6 +130,11 @@ MbndAstVisitor >> visitEnumDefinitionNode: node [
 ]
 
 { #category : #visiting }
+MbndAstVisitor >> visitExpandScalarToMatrixCastNode: node [
+	self subclassResponsibility
+]
+
+{ #category : #visiting }
 MbndAstVisitor >> visitExpandScalarToVectorCastNode: node [
 	self subclassResponsibility
 ]
@@ -266,6 +271,31 @@ MbndAstVisitor >> visitMacroMessagePrototypeNode: node [
 
 { #category : #visiting }
 MbndAstVisitor >> visitMacroSendMessageWithArgumentsNode: node [
+	self subclassResponsibility
+]
+
+{ #category : #visiting }
+MbndAstVisitor >> visitMatrixConstructionNode: node [
+	self subclassResponsibility
+]
+
+{ #category : #visiting }
+MbndAstVisitor >> visitMatrixGetColumnNode: node [
+	self subclassResponsibility
+]
+
+{ #category : #visiting }
+MbndAstVisitor >> visitMatrixGetRowNode: node [
+	self subclassResponsibility
+]
+
+{ #category : #visiting }
+MbndAstVisitor >> visitMatrixSetColumnValueNode: node [
+	self subclassResponsibility
+]
+
+{ #category : #visiting }
+MbndAstVisitor >> visitMatrixSetRowValueNode: node [
 	self subclassResponsibility
 ]
 

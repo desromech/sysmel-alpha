@@ -288,11 +288,13 @@ MbndSlovimFunctionCodeGenerator >> visitDoWhileLoopNode: node [
 ]
 
 { #category : #visiting }
+MbndSlovimFunctionCodeGenerator >> visitExpandScalarToMatrixCastNode: node [
+	self shouldNotImplement
+]
+
+{ #category : #visiting }
 MbndSlovimFunctionCodeGenerator >> visitExpandScalarToVectorCastNode: node [
-	| source targetType |
-	source := self visitNode: node expression.
-	targetType := self translateType: node type.
-	^ slvmBuilder makeVector: targetType arguments: ((1 to: targetType elements) collect: [:i | source])
+	self shouldNotImplement
 ]
 
 { #category : #visiting }
@@ -548,6 +550,34 @@ MbndSlovimFunctionCodeGenerator >> visitLocalVariableDefinitionNode: node [
 
 	functionVariables at: node binding put: ssaValue.
 	^ ssaValue
+]
+
+{ #category : #visiting }
+MbndSlovimFunctionCodeGenerator >> visitMatrixConstructionNode: node [
+	| columns targetType |
+	columns := self visitNodesAndCollect: node columns.
+	targetType := self translateType: node type.
+	^ slvmBuilder makeMatrix: targetType arguments: columns
+]
+
+{ #category : #visiting }
+MbndSlovimFunctionCodeGenerator >> visitMatrixGetColumnNode: node [
+	| matrix element temporary |
+	matrix := self visitNode: node matrix.
+	element := self visitNode: node element.
+	^ node type isReferenceType ifTrue: [ 
+		slvmBuilder getReference: matrix element: element
+	] ifFalse: [
+		element isConstantValue ifTrue: [ 
+			slvmBuilder extractValue: matrix indices: {element value}
+		] ifFalse: [
+			"If the index is not a constant, then we need to spill the matrix."
+			temporary := slvmBuilder allocaBuilder alloca: matrix type.
+			slvmBuilder store: matrix in: temporary.
+			slvmBuilder load: (slvmBuilder getReference: temporary element: element)
+		].
+	].
+
 ]
 
 { #category : #visiting }

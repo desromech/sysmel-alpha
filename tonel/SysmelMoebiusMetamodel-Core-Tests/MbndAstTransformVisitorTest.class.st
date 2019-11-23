@@ -538,6 +538,76 @@ MbndAstTransformVisitorTest >> testMacroMessagePrototypeNode [
 ]
 
 { #category : #tests }
+MbndAstTransformVisitorTest >> testMatrixConstructionNode [
+	| node zero one firstColumn secondColumn transformedNode |
+	zero := builder literalInteger: 0.
+	one := builder literalInteger: 1.
+	firstColumn := builder identifier: #firstColumn.
+	secondColumn := builder identifier: #secondColumn.
+	node := builder constructMatrix: (builder identifier: #Float32x2x2) withColumns: {firstColumn . secondColumn}.
+	transformedNode := visitor visitNode: node.
+	self assert: node ~~ transformedNode.
+	self assert: transformedNode isMatrixConstructionNode.
+	self assert: transformedNode columns equals: {firstColumn . secondColumn}.
+]
+
+{ #category : #tests }
+MbndAstTransformVisitorTest >> testMatrixGetColumnNode [
+	| node matrix transformedNode |
+	matrix := builder identifier: #x.
+	node := builder matrix: matrix getColumn: (builder literalInteger: 1).
+	transformedNode := visitor visitNode: node.
+	self assert: node ~~ transformedNode.
+	self assert: transformedNode isMatrixGetColumnNode.
+	self deny: transformedNode isMatrixGetRowNode.
+	self assert: transformedNode matrix equals: matrix.
+	self assert: transformedNode element value equals: 1.
+]
+
+{ #category : #tests }
+MbndAstTransformVisitorTest >> testMatrixGetRowNode [
+	| node matrix transformedNode |
+	matrix := builder identifier: #x.
+	node := builder matrix: matrix getRow: (builder literalInteger: 1).
+	transformedNode := visitor visitNode: node.
+	self assert: node ~~ transformedNode.
+	self assert: transformedNode isMatrixGetRowNode.
+	self deny: transformedNode isMatrixGetColumnNode.
+	self assert: transformedNode matrix equals: matrix.
+	self assert: transformedNode element value equals: 1.
+]
+
+{ #category : #tests }
+MbndAstTransformVisitorTest >> testMatrixSetColumnValueNode [
+	| node matrix value transformedNode |
+	matrix := builder identifier: #x.
+	value := builder identifier: #y.
+	node := builder matrix: matrix setColumn: (builder literalInteger: 1) value: value.
+	transformedNode := visitor visitNode: node.
+	self assert: node ~~ transformedNode.
+	self assert: transformedNode isMatrixSetColumnValueNode.
+	self deny: transformedNode isMatrixSetRowValueNode.
+	self assert: transformedNode matrix equals: matrix.
+	self assert: transformedNode element value equals: 1.
+	self assert: transformedNode value equals: value.
+]
+
+{ #category : #tests }
+MbndAstTransformVisitorTest >> testMatrixSetRowValueNode [
+	| node matrix value transformedNode |
+	matrix := builder identifier: #x.
+	value := builder identifier: #y.
+	node := builder matrix: matrix setRow: (builder literalInteger: 1) value: value.
+	transformedNode := visitor visitNode: node.
+	self assert: node ~~ transformedNode.
+	self assert: transformedNode isMatrixSetRowValueNode.
+	self deny: transformedNode isMatrixSetColumnValueNode.
+	self assert: transformedNode matrix equals: matrix.
+	self assert: transformedNode element value equals: 1.
+	self assert: transformedNode value equals: value.
+]
+
+{ #category : #tests }
 MbndAstTransformVisitorTest >> testMessageChainMessageNode [
 	| node transformedNode selector arguments |
 	selector := builder literalSymbol: #to:by:.

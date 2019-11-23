@@ -144,6 +144,16 @@ MbndAstBuilder >> compilationTarget [
 ]
 
 { #category : #'builder methods' }
+MbndAstBuilder >> constructMatrix: matrixType withColumns: columns [
+	<compileTime>
+	<returnType: #_ASTNodeType>
+	^ MbndAstMatrixConstructionNode new
+		matrixType: matrixType;
+		columns: columns;
+		yourself
+]
+
+{ #category : #'builder methods' }
 MbndAstBuilder >> constructVector: vectorType withElements: elements [
 	<compileTime>
 	<returnType: #_ASTNodeType>
@@ -376,6 +386,26 @@ MbndAstBuilder >> do: action while: condition [
 	^ MbndAstDoWhileLoopNode new
 		action: action;
 		condition: condition;
+		yourself
+]
+
+{ #category : #'builder methods' }
+MbndAstBuilder >> expandScalar: scalar toMatrixType: targetType [
+	<compileTime>
+	<returnType: #_ASTNodeType>
+	^ MbndAstExpandScalarToMatrixCastNode new
+		expression: scalar;
+		targetType: targetType;
+		yourself
+]
+
+{ #category : #'builder methods' }
+MbndAstBuilder >> expandScalar: scalar toVectorType: targetType [
+	<compileTime>
+	<returnType: #_ASTNodeType>
+	^ MbndAstExpandScalarToVectorCastNode new
+		expression: scalar;
+		targetType: targetType;
 		yourself
 ]
 
@@ -647,6 +677,48 @@ MbndAstBuilder >> macroMessageSelector: selector arguments: arguments returnType
 	<returnType: #_ASTNodeType>
 	^ self macroMessagePrototype: (self macroMessagePrototypeSelector: selector arguments: arguments returnType: returnType)
 		definitionBody: definitionBody
+]
+
+{ #category : #'builder methods' }
+MbndAstBuilder >> matrix: matrix getColumn: column [
+	<compileTime>
+	<returnType: #_ASTNodeType>
+	^ MbndAstMatrixGetColumnNode new
+		matrix: matrix;
+		element: column;
+		yourself
+]
+
+{ #category : #'builder methods' }
+MbndAstBuilder >> matrix: matrix getRow: row [
+	<compileTime>
+	<returnType: #_ASTNodeType>
+	^ MbndAstMatrixGetRowNode new
+		matrix: matrix;
+		element: row;
+		yourself
+]
+
+{ #category : #'builder methods' }
+MbndAstBuilder >> matrix: matrix setColumn: column value: value [
+	<compileTime>
+	<returnType: #_ASTNodeType>
+	^ MbndAstMatrixSetColumnValueNode new
+		matrix: matrix;
+		element: column;
+		value: value;
+		yourself
+]
+
+{ #category : #'builder methods' }
+MbndAstBuilder >> matrix: matrix setRow: row value: value [
+	<compileTime>
+	<returnType: #_ASTNodeType>
+	^ MbndAstMatrixSetRowValueNode new
+		matrix: matrix;
+		element: row;
+		value: value;
+		yourself
 ]
 
 { #category : #'builder methods' }

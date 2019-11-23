@@ -171,6 +171,11 @@ MbndPrimitiveIntegerType >> minValue [
 	^ minValue
 ]
 
+{ #category : #'as yet unclassified' }
+MbndPrimitiveIntegerType >> oneConstantValue [
+	^ MbndValue value: 1 type: self
+]
+
 { #category : #accessing }
 MbndPrimitiveIntegerType >> signBit [
 	self assert: signed.
@@ -185,4 +190,9 @@ MbndPrimitiveIntegerType >> signed [
 { #category : #accessing }
 MbndPrimitiveIntegerType >> signed: anObject [
 	signed := anObject
+]
+
+{ #category : #'as yet unclassified' }
+MbndPrimitiveIntegerType >> zeroConstantValue [
+	^ MbndValue value: 0 type: self
 ]

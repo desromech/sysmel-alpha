@@ -186,6 +186,11 @@ MbndAstNode >> isEnumDefinitionNode [
 ]
 
 { #category : #testing }
+MbndAstNode >> isExpandScalarToMatrixCastNode [
+	^ false
+]
+
+{ #category : #testing }
 MbndAstNode >> isExpandScalarToVectorCastNode [
 	^ false
 ]
@@ -337,6 +342,31 @@ MbndAstNode >> isMacroMessagePrototypeNode [
 
 { #category : #testing }
 MbndAstNode >> isMacroSendMessageWithArgumentsNode [
+	^ false
+]
+
+{ #category : #testing }
+MbndAstNode >> isMatrixConstructionNode [
+	^ false
+]
+
+{ #category : #testing }
+MbndAstNode >> isMatrixGetColumnNode [
+	^ false
+]
+
+{ #category : #testing }
+MbndAstNode >> isMatrixGetRowNode [
+	^ false
+]
+
+{ #category : #testing }
+MbndAstNode >> isMatrixSetColumnValueNode [
+	^ false
+]
+
+{ #category : #testing }
+MbndAstNode >> isMatrixSetRowValueNode [
 	^ false
 ]
 

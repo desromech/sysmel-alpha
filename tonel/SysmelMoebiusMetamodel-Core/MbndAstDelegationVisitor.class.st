@@ -133,6 +133,11 @@ MbndAstDelegationVisitor >> visitEnumDefinitionNode: node [
 ]
 
 { #category : #visiting }
+MbndAstDelegationVisitor >> visitExpandScalarToMatrixCastNode: node [
+	^ self delegateNodeVisit: node
+]
+
+{ #category : #visiting }
 MbndAstDelegationVisitor >> visitExpandScalarToVectorCastNode: node [
 	^ self delegateNodeVisit: node
 ]
@@ -269,6 +274,31 @@ MbndAstDelegationVisitor >> visitMacroMessagePrototypeNode: node [
 
 { #category : #visiting }
 MbndAstDelegationVisitor >> visitMacroSendMessageWithArgumentsNode: node [
+	^ self delegateNodeVisit: node
+]
+
+{ #category : #visiting }
+MbndAstDelegationVisitor >> visitMatrixConstructionNode: node [
+	^ self delegateNodeVisit: node
+]
+
+{ #category : #visiting }
+MbndAstDelegationVisitor >> visitMatrixGetColumnNode: node [
+	^ self delegateNodeVisit: node
+]
+
+{ #category : #visiting }
+MbndAstDelegationVisitor >> visitMatrixGetRowNode: node [
+	^ self delegateNodeVisit: node
+]
+
+{ #category : #visiting }
+MbndAstDelegationVisitor >> visitMatrixSetColumnValueNode: node [
+	^ self delegateNodeVisit: node
+]
+
+{ #category : #visiting }
+MbndAstDelegationVisitor >> visitMatrixSetRowValueNode: node [
 	^ self delegateNodeVisit: node
 ]
 

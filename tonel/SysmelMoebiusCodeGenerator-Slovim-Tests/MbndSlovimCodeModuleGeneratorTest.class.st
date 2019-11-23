@@ -482,6 +482,246 @@ MbndSlovimCodeModuleGeneratorTest >> testFloatLessOrEqual [
 ]
 
 { #category : #tests }
+MbndSlovimCodeModuleGeneratorTest >> testFloatMatrixConstructWithColumns [
+	| function |
+	self
+		evaluateSysmelSource: 'function makeMatrix externC(
+			firstColumn: Float32x4, secondColumn: Float32x4, thirdColumn: Float32x4, fourthColumn: Float32x4) => Float32x4x4
+			:= Float32x4x4(firstColumn, secondColumn, thirdColumn, fourthColumn)';
+		generateSSAModule.
+
+	function := ssaModule globalNamed: #makeMatrix.
+	self assert: function isFunction.
+	self deny: function isEmpty.
+	self assert: function basicBlocks size equals: 2.
+	self assert: function basicBlocks second firstInstruction isMakeMatrix.
+	self assert: function basicBlocks second lastInstruction isReturn.
+]
+
+{ #category : #tests }
+MbndSlovimCodeModuleGeneratorTest >> testFloatMatrixGetFirstColumn [
+	| function |
+	self
+		evaluateSysmelSource: 'function getMatrixColumn externC(vector: Float32x4x4) => Float32x4
+			:= vector firstColumn';
+		generateSSAModule.
+
+	function := ssaModule globalNamed: #getMatrixColumn.
+	self assert: function isFunction.
+	self deny: function isEmpty.
+	self assert: function basicBlocks size equals: 2.
+	self assert: function basicBlocks second firstInstruction isExtractValue.
+	self assert: function basicBlocks second firstInstruction indices value equals: #(0).
+	self assert: function basicBlocks second lastInstruction isReturn.
+]
+
+{ #category : #tests }
+MbndSlovimCodeModuleGeneratorTest >> testFloatMatrixGetFourthColumn [
+	| function |
+	self
+		evaluateSysmelSource: 'function getMatrixColumn externC(vector: Float32x4x4) => Float32x4
+			:= vector fourthColumn';
+		generateSSAModule.
+
+	function := ssaModule globalNamed: #getMatrixColumn.
+	self assert: function isFunction.
+	self deny: function isEmpty.
+	self assert: function basicBlocks size equals: 2.
+	self assert: function basicBlocks second firstInstruction isExtractValue.
+	self assert: function basicBlocks second firstInstruction indices value equals: #(3).
+	self assert: function basicBlocks second lastInstruction isReturn.
+]
+
+{ #category : #tests }
+MbndSlovimCodeModuleGeneratorTest >> testFloatMatrixGetSecondColumn [
+	| function |
+	self
+		evaluateSysmelSource: 'function getMatrixColumn externC(vector: Float32x4x4) => Float32x4
+			:= vector secondColumn';
+		generateSSAModule.
+
+	function := ssaModule globalNamed: #getMatrixColumn.
+	self assert: function isFunction.
+	self deny: function isEmpty.
+	self assert: function basicBlocks size equals: 2.
+	self assert: function basicBlocks second firstInstruction isExtractValue.
+	self assert: function basicBlocks second firstInstruction indices value equals: #(1).
+	self assert: function basicBlocks second lastInstruction isReturn.
+]
+
+{ #category : #tests }
+MbndSlovimCodeModuleGeneratorTest >> testFloatMatrixGetThirdColumn [
+	| function |
+	self
+		evaluateSysmelSource: 'function getMatrixColumn externC(vector: Float32x4x4) => Float32x4
+			:= vector thirdColumn';
+		generateSSAModule.
+
+	function := ssaModule globalNamed: #getMatrixColumn.
+	self assert: function isFunction.
+	self deny: function isEmpty.
+	self assert: function basicBlocks size equals: 2.
+	self assert: function basicBlocks second firstInstruction isExtractValue.
+	self assert: function basicBlocks second firstInstruction indices value equals: #(2).
+	self assert: function basicBlocks second lastInstruction isReturn.
+]
+
+{ #category : #tests }
+MbndSlovimCodeModuleGeneratorTest >> testFloatMatrixIdentity [
+	| function |
+	self
+		evaluateSysmelSource: 'function makeIdentity externC() => Float32x4x4
+			:= Float32x4x4 identity';
+		generateSSAModule.
+
+	function := ssaModule globalNamed: #makeIdentity.
+	self assert: function isFunction.
+	self deny: function isEmpty.
+	self assert: function basicBlocks size equals: 2.
+	self assert: function basicBlocks second firstInstruction isReturn.
+	self assert: function basicBlocks second firstInstruction value asFloatArray asArray equals: #(
+		1.0 0.0 0.0 0.0
+		0.0 1.0 0.0 0.0
+		0.0 0.0 1.0 0.0
+		0.0 0.0 0.0 1.0
+	).
+]
+
+{ #category : #tests }
+MbndSlovimCodeModuleGeneratorTest >> testFloatMatrixIdentityNonSquare [
+	| function |
+	self
+		evaluateSysmelSource: 'function makeIdentity externC() => Float32x3x4
+			:= Float32x3x4 identity';
+		generateSSAModule.
+
+	function := ssaModule globalNamed: #makeIdentity.
+	self assert: function isFunction.
+	self deny: function isEmpty.
+	self assert: function basicBlocks size equals: 2.
+	self assert: function basicBlocks second firstInstruction isReturn.
+	self assert: function basicBlocks second firstInstruction value asFloatArray asArray equals: #(
+		1.0 0.0 0.0 0.0
+		0.0 1.0 0.0 0.0
+		0.0 0.0 1.0 0.0
+	).
+]
+
+{ #category : #tests }
+MbndSlovimCodeModuleGeneratorTest >> testFloatMatrixOnes [
+	| function |
+	self
+		evaluateSysmelSource: 'function makeOnes externC() => Float32x4x4
+			:= Float32x4x4 ones';
+		generateSSAModule.
+
+	function := ssaModule globalNamed: #makeOnes.
+	self assert: function isFunction.
+	self deny: function isEmpty.
+	self assert: function basicBlocks size equals: 2.
+	self assert: function basicBlocks second firstInstruction isReturn.
+	self assert: function basicBlocks second firstInstruction value asFloatArray asArray equals: #(
+		1.0 1.0 1.0 1.0
+		1.0 1.0 1.0 1.0
+		1.0 1.0 1.0 1.0
+		1.0 1.0 1.0 1.0
+	).
+]
+
+{ #category : #tests }
+MbndSlovimCodeModuleGeneratorTest >> testFloatMatrixReferenceGetFirstColumn [
+	| function |
+	self
+		evaluateSysmelSource: 'function getMatrixColumn externC(vector: Float32x4x4 ref) => Float32x4
+			:= vector firstColumn';
+		generateSSAModule.
+
+	function := ssaModule globalNamed: #getMatrixColumn.
+	self assert: function isFunction.
+	self deny: function isEmpty.
+	self assert: function basicBlocks size equals: 2.
+	self assert: function basicBlocks second firstInstruction isGetElementPointer.
+	self assert: function basicBlocks second firstInstruction indices last value equals: 0.
+	self assert: function basicBlocks second firstInstruction nextInstruction isLoad.
+	self assert: function basicBlocks second lastInstruction isReturn.
+]
+
+{ #category : #tests }
+MbndSlovimCodeModuleGeneratorTest >> testFloatMatrixReferenceGetFourthColumn [
+	| function |
+	self
+		evaluateSysmelSource: 'function getMatrixColumn externC(vector: Float32x4x4 ref) => Float32x4
+			:= vector fourthColumn';
+		generateSSAModule.
+
+	function := ssaModule globalNamed: #getMatrixColumn.
+	self assert: function isFunction.
+	self deny: function isEmpty.
+	self assert: function basicBlocks size equals: 2.
+	self assert: function basicBlocks second firstInstruction isGetElementPointer.
+	self assert: function basicBlocks second firstInstruction indices last value equals: 3.
+	self assert: function basicBlocks second firstInstruction nextInstruction isLoad.
+	self assert: function basicBlocks second lastInstruction isReturn.
+]
+
+{ #category : #tests }
+MbndSlovimCodeModuleGeneratorTest >> testFloatMatrixReferenceGetSecondColumn [
+	| function |
+	self
+		evaluateSysmelSource: 'function getMatrixColumn externC(vector: Float32x4x4 ref) => Float32x4
+			:= vector secondColumn';
+		generateSSAModule.
+
+	function := ssaModule globalNamed: #getMatrixColumn.
+	self assert: function isFunction.
+	self deny: function isEmpty.
+	self assert: function basicBlocks size equals: 2.
+	self assert: function basicBlocks second firstInstruction isGetElementPointer.
+	self assert: function basicBlocks second firstInstruction indices last value equals: 1.
+	self assert: function basicBlocks second firstInstruction nextInstruction isLoad.
+	self assert: function basicBlocks second lastInstruction isReturn.
+]
+
+{ #category : #tests }
+MbndSlovimCodeModuleGeneratorTest >> testFloatMatrixReferenceGetThirdColumn [
+	| function |
+	self
+		evaluateSysmelSource: 'function getMatrixColumn externC(vector: Float32x4x4 ref) => Float32x4
+			:= vector thirdColumn';
+		generateSSAModule.
+
+	function := ssaModule globalNamed: #getMatrixColumn.
+	self assert: function isFunction.
+	self deny: function isEmpty.
+	self assert: function basicBlocks size equals: 2.
+	self assert: function basicBlocks second firstInstruction isGetElementPointer.
+	self assert: function basicBlocks second firstInstruction indices last value equals: 2.
+	self assert: function basicBlocks second firstInstruction nextInstruction isLoad.
+	self assert: function basicBlocks second lastInstruction isReturn.
+]
+
+{ #category : #tests }
+MbndSlovimCodeModuleGeneratorTest >> testFloatMatrixZeros [
+	| function |
+	self
+		evaluateSysmelSource: 'function makeZeros externC() => Float32x4x4
+			:= Float32x4x4 zeros';
+		generateSSAModule.
+
+	function := ssaModule globalNamed: #makeZeros.
+	self assert: function isFunction.
+	self deny: function isEmpty.
+	self assert: function basicBlocks size equals: 2.
+	self assert: function basicBlocks second firstInstruction isReturn.
+	self assert: function basicBlocks second firstInstruction value asFloatArray asArray equals: #(
+		0.0 0.0 0.0 0.0
+		0.0 0.0 0.0 0.0
+		0.0 0.0 0.0 0.0
+		0.0 0.0 0.0 0.0
+	).
+]
+
+{ #category : #tests }
 MbndSlovimCodeModuleGeneratorTest >> testFloatMultiply [
 	| function |
 	self
@@ -559,6 +799,38 @@ MbndSlovimCodeModuleGeneratorTest >> testFloatNotEquality2 [
 	self assert: function basicBlocks second firstInstruction isBinaryOperation.
 	self assert: function basicBlocks second firstInstruction operation equals: #ufne.
 	self assert: function basicBlocks second lastInstruction isReturn.
+]
+
+{ #category : #tests }
+MbndSlovimCodeModuleGeneratorTest >> testFloatScalarToMatrix [
+	| function |
+	self
+		evaluateSysmelSource: 'function scalarToMatrix externC(scalar: Float32) => Float32x4x4
+			:= Float32x4x4(scalar)';
+		generateSSAModule.
+
+	function := ssaModule globalNamed: #scalarToMatrix.
+	self assert: function isFunction.
+	self deny: function isEmpty.
+	self assert: function basicBlocks size equals: 2.
+	self assert: function basicBlocks second allInstructionsMnemonics equals:
+		#(makeVector makeVector makeVector makeVector makeMatrix return).
+]
+
+{ #category : #tests }
+MbndSlovimCodeModuleGeneratorTest >> testFloatScalarToMatrix2 [
+	| function |
+	self
+		evaluateSysmelSource: 'function scalarToMatrix externC(scalar: Float32) => Float32x4x4
+			:= scalar';
+		generateSSAModule.
+
+	function := ssaModule globalNamed: #scalarToMatrix.
+	self assert: function isFunction.
+	self deny: function isEmpty.
+	self assert: function basicBlocks size equals: 2.
+	self assert: function basicBlocks second allInstructionsMnemonics equals:
+		#(makeVector makeVector makeVector makeVector makeMatrix return).
 ]
 
 { #category : #tests }

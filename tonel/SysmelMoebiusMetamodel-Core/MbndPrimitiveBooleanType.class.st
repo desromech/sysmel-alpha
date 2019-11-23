@@ -80,3 +80,13 @@ MbndPrimitiveBooleanType >> literalTypeForValue: value [
 MbndPrimitiveBooleanType >> literalTypesThatCanBeConvertedToMe [
 	^ {self compilationTarget literalBooleanType . self compilationTarget literalBooleanTrueType . self compilationTarget literalBooleanFalseType }
 ]
+
+{ #category : #'as yet unclassified' }
+MbndPrimitiveBooleanType >> oneConstantValue [
+	^ MbndValue value: true type: self
+]
+
+{ #category : #'as yet unclassified' }
+MbndPrimitiveBooleanType >> zeroConstantValue [
+	^ MbndValue value: false type: self
+]

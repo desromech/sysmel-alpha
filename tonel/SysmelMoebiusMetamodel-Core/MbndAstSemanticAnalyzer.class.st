@@ -599,6 +599,44 @@ MbndAstSemanticAnalyzer >> visitEnumDefinitionNode: node [
 ]
 
 { #category : #visiting }
+MbndAstSemanticAnalyzer >> visitExpandScalarToMatrixCastNode: node [
+	| scalarNode matrixType columnType zeroConstantNode resultNode |
+	scalarNode := self analyzeNodeIfNeeded: node expression.
+	matrixType := node targetType isMbndAstNode
+			ifTrue: [self evaluateTypeExpression: node targetType]
+			ifFalse: [node targetType].
+
+	columnType := matrixType columnType.
+	zeroConstantNode := matrixType elementType zeroConstantValue asLiteralValueNode position: node.
+	resultNode := (self astBuilder 
+		constructMatrix: matrixType withColumns:
+		((0 to: matrixType columns - 1) collect: [ :columnIndex |
+			(self astBuilder constructVector: columnType withElements: ((0 to: matrixType rows - 1) collect: [ :rowIndex |
+				columnIndex = rowIndex
+					ifTrue: [ scalarNode ]
+					ifFalse: [ zeroConstantNode ]
+			])) position: node
+		])
+	) position: node.
+	
+	^ self visitNode: resultNode
+]
+
+{ #category : #visiting }
+MbndAstSemanticAnalyzer >> visitExpandScalarToVectorCastNode: node [
+	| scalarNode vectorType |
+	scalarNode := self analyzeNodeIfNeeded: node expression.
+	vectorType := node targetType isMbndAstNode
+			ifTrue: [self evaluateTypeExpression: node targetType]
+			ifFalse: [node targetType].
+
+	^ (self astBuilder 
+		constructVector: vectorType withElements:
+		((1 to: vectorType elements) collect: [ :i | scalarNode ])
+	) position: node
+]
+
+{ #category : #visiting }
 MbndAstSemanticAnalyzer >> visitExpandedMessageSendNode: node [
 	| result receiverType method |
 	result := node copy
@@ -1118,6 +1156,79 @@ MbndAstSemanticAnalyzer >> visitMacroMessagePrototypeNode: node [
 ]
 
 { #category : #visiting }
+MbndAstSemanticAnalyzer >> visitMatrixConstructionNode: node [
+	| result expectedColumnType |
+	result := node copy
+		matrixType: (self evaluateTypeExpression: node matrixType);
+		columns: (self visitNodesAndCollect: node columns);
+		yourself.
+		
+	result matrixType isPrimitiveMatrixType ifFalse: [ 
+		self error: 'Matrix construction requires a matrix type instead of {1} for constructing the matrix.' format: { result vectorType asString } at: result
+	].
+	result type: result matrixType.
+	
+	result columns size = result matrixType columns ifFalse: [
+		self error: 'Matrix construction requires {1} instead of the supplied {2} columns.'
+			format: { result matrixType columns asString . result columns size asString } at: result
+	].
+
+	expectedColumnType := result matrixType columnType.
+	result columns: (result columns collect: [:column | self addImplicitCastFor: column to: expectedColumnType]).
+	
+	^ result
+]
+
+{ #category : #visiting }
+MbndAstSemanticAnalyzer >> visitMatrixGetColumnNode: node [
+	| result matrixType resultType |
+	result := node copy
+		matrix: (self analyzeNodeIfNeeded: node matrix);
+		element: (self ensureIntegerValue: (self analyzeNodeIfNeeded: node element) at: node);
+		yourself.
+	matrixType := result matrix type withoutReferences withoutTopDecorations.
+	self assert: matrixType isPrimitiveMatrixType.
+	
+	result element isLiteralValueNode ifTrue: [ 
+		result element value >= matrixType columns ifTrue: [
+			self error: 'Accessing matrix column that is out of bounds.' at: result
+		]
+	].
+	
+	resultType := matrixType columnType.
+	result matrix type isReferenceType ifTrue: [ 
+		resultType := (resultType withDecoration: result matrix type decorations)
+			refFor: result matrix type addressSpace
+	].
+	
+	^ result
+		type: resultType;
+		yourself
+]
+
+{ #category : #visiting }
+MbndAstSemanticAnalyzer >> visitMatrixGetRowNode: node [
+	| result matrixType |
+	result := node copy
+		matrix: (self analyzeNodeIfNeeded: node matrix);
+		element: (self ensureIntegerValue: (self analyzeNodeIfNeeded: node matrix) at: node);
+		yourself.
+	matrixType := result matrix type withoutReferences withoutTopDecorations.
+	self assert: matrixType isPrimitiveMatrixType.
+	
+	result element isLiteralValueNode ifTrue: [ 
+		result element value >= matrixType rows ifTrue: [
+			self error: 'Accessing matrix row that is out of bounds.' at: result
+		]
+	].
+
+	^ result
+		matrix: (self addImplicitCastFor: result matrix to: matrixType);
+		type: matrixType rowType;
+		yourself
+]
+
+{ #category : #visiting }
 MbndAstSemanticAnalyzer >> visitMessageChainNode: node [
 	| receiverVariable receiverVariableReference messages unconvertedMessages analyzedReceiver convertedMetaMessages |
 	node messages ifEmpty: [
@@ -1426,8 +1537,8 @@ MbndAstSemanticAnalyzer >> visitSpliceNode: node [
 
 { #category : #visiting }
 MbndAstSemanticAnalyzer >> visitSplicingTupleNode: nodeOrList [
-	nodeOrList isMbndAstNode ifFalse: [ ^ self visitNodesAndCollect: nodeOrList ].
-	nodeOrList isTupleNode ifTrue: [ ^ self visitNodesAndCollect: nodeOrList elements ].
+	nodeOrList isMbndAstNode ifFalse: [ ^ self analyzeNodesIfNeeded: nodeOrList ].
+	nodeOrList isTupleNode ifTrue: [ ^ self analyzeNodesIfNeeded: nodeOrList elements ].
 	
 	self halt
 ]

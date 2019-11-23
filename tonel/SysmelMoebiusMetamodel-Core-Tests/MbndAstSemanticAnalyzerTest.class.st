@@ -1438,6 +1438,23 @@ MbndAstSemanticAnalyzerTest >> testLocalVariableScopeReferenceError [
 ]
 
 { #category : #tests }
+MbndAstSemanticAnalyzerTest >> testMatrixConstruction [
+	| node zero one firstColumn secondColumn analyzedNode |
+	zero := builder literalInteger: 0.
+	one := builder literalInteger: 1.
+	firstColumn := builder constructVector: (builder identifier: #Float32x2) withElements: { one . zero }.
+	secondColumn := builder constructVector: (builder identifier: #Float32x2) withElements: { zero . one }.
+	node := builder constructMatrix: (builder identifier: #Float32x2x2) withColumns: {firstColumn . secondColumn}.
+	analyzedNode := visitor visitNode: node.
+	
+	self assert: analyzedNode isMatrixConstructionNode.
+	self assert: analyzedNode matrixType isPrimitiveMatrixType.
+	self assert: analyzedNode matrixType elementType isPrimitiveFloatType.
+	self assert: analyzedNode matrixType rows equals: 2.
+	self assert: analyzedNode matrixType columns equals: 2.
+]
+
+{ #category : #tests }
 MbndAstSemanticAnalyzerTest >> testMessageChainExpansion [
 	| analyzedNode receiver messageChain |
 	receiver := builder literalInteger: 42.

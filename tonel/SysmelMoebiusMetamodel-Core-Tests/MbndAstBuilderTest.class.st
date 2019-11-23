@@ -619,6 +619,67 @@ MbndAstBuilderTest >> testMacroMessagePrototypeNode [
 ]
 
 { #category : #tests }
+MbndAstBuilderTest >> testMatrixConstructionNode [
+	| node zero one firstColumn secondColumn |
+	zero := builder literalInteger: 0.
+	one := builder literalInteger: 1.
+	firstColumn := builder constructVector: (builder identifier: #Float32x2) withElements: { one . zero }.
+	secondColumn := builder constructVector: (builder identifier: #Float32x2) withElements: { zero . one }.
+	node := builder constructMatrix: (builder identifier: #Float32x2x2) withColumns: {firstColumn . secondColumn}.
+	
+	self assert: node isMatrixConstructionNode.
+	self assert: node columns equals: {firstColumn . secondColumn}.
+]
+
+{ #category : #tests }
+MbndAstBuilderTest >> testMatrixGetColumnNode [
+	| node matrix |
+	matrix := builder identifier: #x.
+	node := builder matrix: matrix getColumn: (builder literalInteger: 1).
+	self assert: node isMatrixGetColumnNode.
+	self deny: node isMatrixGetRowNode.
+	self assert: node matrix equals: matrix.
+	self assert: node element value equals: 1.
+]
+
+{ #category : #tests }
+MbndAstBuilderTest >> testMatrixGetRowNode [
+	| node matrix |
+	matrix := builder identifier: #x.
+	node := builder matrix: matrix getRow: (builder literalInteger: 1).
+	self assert: node isMatrixGetRowNode.
+	self deny: node isMatrixGetColumnNode.
+	self assert: node matrix equals: matrix.
+	self assert: node element value equals: 1.
+]
+
+{ #category : #tests }
+MbndAstBuilderTest >> testMatrixSetColumnValueNode [
+	| node matrix value |
+	matrix := builder identifier: #x.
+	value := builder identifier: #y.
+	node := builder matrix: matrix setColumn: (builder literalInteger: 1) value: value.
+	self assert: node isMatrixSetColumnValueNode.
+	self deny: node isMatrixSetRowValueNode.
+	self assert: node matrix equals: matrix.
+	self assert: node element value equals: 1.
+	self assert: node value equals: value.
+]
+
+{ #category : #tests }
+MbndAstBuilderTest >> testMatrixSetRowValueNode [
+	| node matrix value |
+	matrix := builder identifier: #x.
+	value := builder identifier: #y.
+	node := builder matrix: matrix setRow: (builder literalInteger: 1) value: value.
+	self assert: node isMatrixSetRowValueNode.
+	self deny: node isMatrixSetColumnValueNode.
+	self assert: node matrix equals: matrix.
+	self assert: node element value equals: 1.
+	self assert: node value equals: value.
+]
+
+{ #category : #tests }
 MbndAstBuilderTest >> testMessageChainMessageNode [
 	| node arguments selector |
 	arguments := { 

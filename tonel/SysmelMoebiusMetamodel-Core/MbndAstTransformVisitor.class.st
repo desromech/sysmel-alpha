@@ -176,6 +176,11 @@ MbndAstTransformVisitor >> visitEnumDefinitionNode: node [
 ]
 
 { #category : #visiting }
+MbndAstTransformVisitor >> visitExpandScalarToMatrixCastNode: node [
+	^ self visitSpecificCastNode: node
+]
+
+{ #category : #visiting }
 MbndAstTransformVisitor >> visitExpandScalarToVectorCastNode: node [
 	^ self visitSpecificCastNode: node
 ]
@@ -373,6 +378,50 @@ MbndAstTransformVisitor >> visitMacroSendMessageWithArgumentsNode: node [
 		selector: (self visitNode: node selector);
 		receiver: (self visitNode: node receiver);
 		arguments: (self visitNodesAndCollect: node arguments);
+		yourself
+]
+
+{ #category : #visiting }
+MbndAstTransformVisitor >> visitMatrixConstructionNode: node [
+	^ node copy
+		matrixType: (node matrixType isMbndAstNode
+			ifTrue: [ self visitNode: node matrixType ]
+			ifFalse: [node matrixType]);
+		columns: (self visitNodesAndCollect: node columns);
+		yourself
+]
+
+{ #category : #visiting }
+MbndAstTransformVisitor >> visitMatrixGetColumnNode: node [
+	^ node copy
+		matrix: (self visitNode: node matrix);
+		element: (self visitNode: node element);
+		yourself
+]
+
+{ #category : #visiting }
+MbndAstTransformVisitor >> visitMatrixGetRowNode: node [
+	^ node copy
+		matrix: (self visitNode: node matrix);
+		element: (self visitNode: node element);
+		yourself
+]
+
+{ #category : #visiting }
+MbndAstTransformVisitor >> visitMatrixSetColumnValueNode: node [
+	^ node copy
+		matrix: (self visitNode: node matrix);
+		element: (self visitNode: node element);
+		value: (self visitNode: node value);
+		yourself
+]
+
+{ #category : #visiting }
+MbndAstTransformVisitor >> visitMatrixSetRowValueNode: node [
+	^ node copy
+		matrix: (self visitNode: node matrix);
+		element: (self visitNode: node element);
+		value: (self visitNode: node value);
 		yourself
 ]
 

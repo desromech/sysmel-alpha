@@ -68,6 +68,11 @@ MbndPrimitiveScalarType >> literalTypesThatCanBeConvertedToMe [
 ]
 
 { #category : #'as yet unclassified' }
+MbndPrimitiveScalarType >> oneConstantValue [
+	^ self subclassResponsibility
+]
+
+{ #category : #'as yet unclassified' }
 MbndPrimitiveScalarType >> primitiveMatrixWithRows: rows columns: columns [
 	<compileTime>
 	^ self compilationTarget primitiveMatrixTypeFor: self rows: rows columns: columns
@@ -80,4 +85,9 @@ MbndPrimitiveScalarType >> primitiveVectorWithElements: vectorSize [
 	vectorSize <= 1 ifTrue: [ ^ self ].
 	^ self compilationTarget primitiveVectorTypeFor: self elements: vectorSize
 	
+]
+
+{ #category : #'as yet unclassified' }
+MbndPrimitiveScalarType >> zeroConstantValue [
+	^ self subclassResponsibility
 ]
