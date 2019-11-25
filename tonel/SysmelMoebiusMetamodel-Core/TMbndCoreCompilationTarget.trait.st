@@ -16,7 +16,10 @@ Trait {
 		'nativePrefixedStringLiteralType',
 		'associationTypes',
 		'primitiveVectorTypes',
-		'primitiveMatrixTypes'
+		'primitiveMatrixTypes',
+		'dynamicObjectType',
+		'managedObjectModel',
+		'gcClassVariableDataArrayTypes'
 	],
 	#traits : 'TMbndAbstractCompilationTarget',
 	#classTraits : 'TMbndAbstractCompilationTarget classTrait',
@@ -254,6 +257,16 @@ TMbndCoreCompilationTarget >> createSystemProvidedTypeTemplate: templateName doi
 	^ template
 ]
 
+{ #category : #accessing }
+TMbndCoreCompilationTarget >> dynamicObjectType [
+	^ dynamicObjectType
+]
+
+{ #category : #accessing }
+TMbndCoreCompilationTarget >> dynamicObjectType: anObjectType [
+	dynamicObjectType := anObjectType
+]
+
 { #category : #'basic types' }
 TMbndCoreCompilationTarget >> ensureBasicTypeIsLinkedToTheHierarchy: basicType [
 	basicType module ifNil: [ 
@@ -270,12 +283,17 @@ TMbndCoreCompilationTarget >> ensureBasicTypeIsLinkedToTheHierarchy: basicType [
 
 { #category : #'basic types' }
 TMbndCoreCompilationTarget >> ensureTypeHasSimpleMetaType: type [
+	| metaTypeType |
 	type type ifNotNil: [ ^ self ].
 	
-	type type: (MbndSimpleMetaType basicNew
+	metaTypeType := self simpleMetaType.
+	type supertype type type ifNotNil: [ :stMetaType |
+		metaTypeType := stMetaType.
+	].
+	type type: (type createMetaTypeBasicInstance
 		definitionModule: coreDefinitionsModule;
 		instanceType: type;
-		type: self simpleMetaType;
+		type: metaTypeType;
 		supertype: type supertype type;
 		initializeNonTraitType;
 		yourself)
@@ -284,6 +302,11 @@ TMbndCoreCompilationTarget >> ensureTypeHasSimpleMetaType: type [
 { #category : #'derived types' }
 TMbndCoreCompilationTarget >> functionTypeWithArguments: argumentTypes returnType: returnType callingConvention: callingConvention cvariadic: cvariadic [
 	^ functionTypes getOrCreateInstanceWithArguments: { argumentTypes . returnType . callingConvention . cvariadic}
+]
+
+{ #category : #'derived types' }
+TMbndCoreCompilationTarget >> gcClassVariableDataArrayOf: elementType [
+	^ gcClassVariableDataArrayTypes getOrCreateInstanceWithArguments: { elementType }
 ]
 
 { #category : #accessing }
@@ -406,6 +429,11 @@ TMbndCoreCompilationTarget >> initializeArithmeticConversionRules [
 	float16Type := self float16Type.
 	float32Type := self float32Type.
 	float64Type := self float64Type.
+	
+	"Positive literal -> Unsigned type"
+	int8Type | int16Type | int32Type | int64Type addImplicitConversionTo:
+		uint8Type | uint16Type | uint32Type | uint64Type
+	rule: MbndPositiveLiteralToUnsignedTypeConversionRule.
 	
 	"Bit cast"
 	int64Type addExplicitConversionTo: uint64Type rule: MbndBitCastTypeConversionRule.
@@ -588,6 +616,14 @@ TMbndCoreCompilationTarget >> initializeDerivedTypeCaches [
 				yourself.
 	].
 
+	gcClassVariableDataArrayTypes := self createSystemProvidedTypeTemplate: #_GCClassVariableDataArrayTypeTemplate
+		doing: [ :elementType |
+			(self ensureBasicTypeIsLinkedToTheHierarchy: MbndGCClassVariableDataArrayType basicNew)
+				elementType: elementType;
+				initializeNonTraitType;
+				yourself.
+	].
+
 	tupleTypes := self createSystemProvidedTypeTemplate: #_TupleTypeTemplate
 		doing: [ :elements |
 			(self ensureBasicTypeIsLinkedToTheHierarchy: MbndTupleType basicNew)
@@ -717,6 +753,16 @@ TMbndCoreCompilationTarget >> linkMetaHierarchy [
 TMbndCoreCompilationTarget >> lookupTypeWithName: typeName [
 	^ basicTypes at: typeName ifAbsent: [ nil ]
 
+]
+
+{ #category : #'as yet unclassified' }
+TMbndCoreCompilationTarget >> managedObjectModel [
+	^ managedObjectModel ifNil: [managedObjectModel := self managedObjectModelClass for: self ]
+]
+
+{ #category : #'as yet unclassified' }
+TMbndCoreCompilationTarget >> managedObjectModelClass [
+	^ MbndGenericManagedObjectModel
 ]
 
 { #category : #'instance creation' }

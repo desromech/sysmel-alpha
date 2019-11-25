@@ -21,7 +21,7 @@ MbndUndefinedType >> addDefaultConversionRules [
 	self
 		addConversionTo: self compilationTarget voidType rule: MbndConcretizeUndefinedTypeConversionRule;
 		addConversionRule: (MbndConcretizeUndefinedTypeConversionRule when: [:source :target |
-			target withoutTopDecorations isPointerType
+			target withoutTopDecorations isPointerType or: [ target isGCClassType ]
 	])
 
 ]

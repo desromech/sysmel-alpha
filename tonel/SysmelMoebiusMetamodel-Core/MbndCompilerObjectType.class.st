@@ -34,7 +34,7 @@ MbndCompilerObjectType >> analyzeUnboundExpandedMessageSendNode: node with: anal
 		resultType := self resultTypeForMessageSendToHost: node selector.
 		^ MbndAstExpandedHostMessageSendNode new
 			position: node;
-			receiver: (analyzer analyzeNodeIfNeeded: node receiver);
+			receiver: (analyzer ensureReferencesAreEvaluated: (analyzer analyzeNodeIfNeeded: node receiver));
 			selector: node selector;
 			arguments: (analyzer analyzeNodesIfNeeded: node arguments);
 			type: resultType

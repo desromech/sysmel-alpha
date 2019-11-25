@@ -82,6 +82,11 @@ MbndAbstractModuleVisitor >> visitGCClassType: type [
 ]
 
 { #category : #visiting }
+MbndAbstractModuleVisitor >> visitGCClassVariableDataArrayType: type [
+	self subclassResponsibility
+]
+
+{ #category : #visiting }
 MbndAbstractModuleVisitor >> visitGlobalVariable: variable [
 	self subclassResponsibility
 ]

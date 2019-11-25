@@ -1,6 +1,8 @@
 Class {
 	#name : #MbndSimpleMetaType,
-	#superclass : #MbndAbstractMetaType,
+	#superclass : #MbndBasicType,
+	#traits : 'TMbndMetaType',
+	#classTraits : 'TMbndMetaType classTrait',
 	#category : #'SysmelMoebiusMetamodel-Core-Type'
 }
 
@@ -12,6 +14,12 @@ MbndSimpleMetaType class >> typeName [
 { #category : #visiting }
 MbndSimpleMetaType >> accept: aVisitor [
 	^ aVisitor visitSimpleMetaType: self
+]
+
+{ #category : #accessing }
+MbndSimpleMetaType >> instanceType: anObject [
+	instanceType := anObject.
+	name := nil.
 ]
 
 { #category : #accessing }

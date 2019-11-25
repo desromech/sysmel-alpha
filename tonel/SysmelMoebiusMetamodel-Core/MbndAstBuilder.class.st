@@ -468,6 +468,16 @@ MbndAstBuilder >> functionPrototypeNamed: name arguments: arguments returnType: 
 ]
 
 { #category : #'builder methods' }
+MbndAstBuilder >> gcVariableDataArray: array elementReferenceAt: index [
+	<compileTime>
+	<returnType: #_ASTNodeType>
+	^ MbndAstGCVariableDataArrayElementReferenceNode new
+		container: array;
+		index: index;
+		yourself
+]
+
+{ #category : #'builder methods' }
 MbndAstBuilder >> gensym: symbolName [
 	<compileTime>
 	<returnType: #_ASTNodeType>
@@ -836,6 +846,16 @@ MbndAstBuilder >> pragmas: aSequenceOfPragmas sequence: aSequenceOfNodes [
 	^ MbndAstSequenceNode new
 		pragmas: aSequenceOfPragmas;
 		elements: aSequenceOfNodes;
+		yourself
+]
+
+{ #category : #'builder methods' }
+MbndAstBuilder >> programEntity: programEntity extension: extensionBody [
+	<compileTime>
+	<returnType: #_ASTNodeType>
+	^ MbndAstProgramEntityExtensionNode new
+		programEntity: programEntity;
+		body: extensionBody;
 		yourself
 ]
 

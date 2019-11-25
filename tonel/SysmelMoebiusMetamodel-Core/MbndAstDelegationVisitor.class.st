@@ -198,6 +198,11 @@ MbndAstDelegationVisitor >> visitGCClassDefinitionNode: node [
 ]
 
 { #category : #visiting }
+MbndAstDelegationVisitor >> visitGCVariableDataArrayElementReferenceNode: node [
+	^ self delegateNodeVisit: node
+]
+
+{ #category : #visiting }
 MbndAstDelegationVisitor >> visitGetFieldReferenceNode: node [
 	^ self delegateNodeVisit: node
 ]
@@ -364,6 +369,11 @@ MbndAstDelegationVisitor >> visitPointerToIntegerCastNode: node [
 
 { #category : #visiting }
 MbndAstDelegationVisitor >> visitPragmaNode: node [
+	^ self delegateNodeVisit: node
+]
+
+{ #category : #visiting }
+MbndAstDelegationVisitor >> visitProgramEntityExtensionNode: node [
 	^ self delegateNodeVisit: node
 ]
 

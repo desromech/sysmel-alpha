@@ -129,12 +129,26 @@ TMbndModule >> globalNamespace [
 ]
 
 { #category : #parameters }
-TMbndModule >> hasRuntimeTypeInformation [
+TMbndModule >> hasGarbageCollectionStackMap [
+	<compileTime>
 	^ false
 ]
 
 { #category : #parameters }
+TMbndModule >> hasGarbageCollectionSupport [
+	<compileTime>
+	^ true
+]
+
+{ #category : #parameters }
+TMbndModule >> hasRuntimeTypeInformation [
+	<compileTime>
+	^ true
+]
+
+{ #category : #parameters }
 TMbndModule >> hasStandardLibrary [
+	<compileTime>
 	^ true
 ]
 

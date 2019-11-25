@@ -10,7 +10,8 @@ Class {
 		'programEntityTypeNameMangler',
 		'anonSymbolCount',
 		'debugLocationDictionary',
-		'debugSourceFileDictionary'
+		'debugSourceFileDictionary',
+		'identityHashRandomGenerator'
 	],
 	#category : #'SysmelMoebiusCodeGenerator-Slovim-Module'
 }
@@ -109,7 +110,7 @@ MbndSlovimCodeModuleGenerator >> escapeCharacterForMangling: c into: out [
 		^ out nextPutAll: '_c'
 	].
 
-	('<>+-*/%"''()#?!|&^' includes: c) ifTrue: [ ^ out nextPutAll: '_x' ; nextPutAll: c asInteger hex ].
+	('<>+-*/%"''()#?!|&^~=' includes: c) ifTrue: [ ^ out nextPutAll: '_x' ; nextPutAll: c asInteger hex ].
 	^ out nextPut: c
 
 ]
@@ -132,6 +133,11 @@ MbndSlovimCodeModuleGenerator >> generateCodeModuleFor: aModule [
 	self translateProgramEntity: sourceModule.
 	
 	^ ssaModule
+]
+
+{ #category : #'as yet unclassified' }
+MbndSlovimCodeModuleGenerator >> generateIdentityHash [
+	^ (identityHashRandomGenerator nextInt: (1<<32) + 1) - 1 
 ]
 
 { #category : #visiting }
@@ -159,6 +165,7 @@ MbndSlovimCodeModuleGenerator >> initialize [
 	anonSymbolCount := 0.
 	debugSourceFileDictionary := Dictionary new.
 	debugLocationDictionary := Dictionary new.
+	identityHashRandomGenerator := Random seed: 0.
 ]
 
 { #category : #visiting }
@@ -203,6 +210,13 @@ MbndSlovimCodeModuleGenerator >> setProgramEntity: programEntity translation: tr
 { #category : #accessing }
 MbndSlovimCodeModuleGenerator >> slvmCompilationTarget [
 	^ sourceModule compilationTarget slvmCompilationTarget
+]
+
+{ #category : #'code generation' }
+MbndSlovimCodeModuleGenerator >> translateDynamicObjectInstanceContent: dynamicObject [
+	^ MbndSlovimLiteralValueGenerator new
+		codeModuleGenerator: self;
+		translateDynamicObjectInstanceContent: dynamicObject
 ]
 
 { #category : #'code generation' }
@@ -279,15 +293,23 @@ MbndSlovimCodeModuleGenerator >> unmangledNameForProgramEntity: programEntity in
 
 { #category : #visiting }
 MbndSlovimCodeModuleGenerator >> visitAggregateTypeWithFields: type [
-	| ssaType |
+	| ssaType ssaValue ssaValueType |
 	ssaType := self translateType: type.
-	self setProgramEntity: type ssaValue: (SLVMConstant nullPointer: self slvmCompilationTarget voidPointerType).
-	(ssaType isStructureType and: [ ssaType name isNotNil ]) ifTrue: [ 
-		ssaModule addStructure: ssaType
+	ssaValueType := self translateType: type type.
+
+	ssaValue := SLVMConstant nullPointer: ssaValueType.
+	self setProgramEntity: type ssaValue: ssaValue.
+	type isGCClassType ifTrue: [
+		ssaModule addStructure: ssaType baseType.
+		ssaModule addStructure: ssaValueType baseType.
+	] ifFalse: [
+		(ssaType isStructureType and: [ ssaType name isNotNil ]) ifTrue: [ 
+			ssaModule addStructure: ssaType
+		]
 	].
 
 	self translateProgramEntityChildren: type.
-	
+	^ ssaValue
 ]
 
 { #category : #visiting }
@@ -436,8 +458,8 @@ MbndSlovimCodeModuleGenerator >> visitGlobalVariable: globalVariable [
 
 	ssaGlobalVariable readOnly: (globalVariable type withoutReferences isConstantType).
 	
-	globalVariable isExternal ifTrue: [
-		globalVariable makeExternal.
+	globalVariable hasExternalVisibility ifTrue: [
+		ssaGlobalVariable makeExternal.
 	] ifFalse: [ 
 		initialValue := globalVariable currentValue.
 		self assert: initialValue isNotNil.
@@ -486,6 +508,7 @@ MbndSlovimCodeModuleGenerator >> visitMessageGroup: functionGroup [
 
 { #category : #visiting }
 MbndSlovimCodeModuleGenerator >> visitModule: module [
+	self slvmCompilationTarget objectModel moduleCodeGenerator: self.
 	^ self translateProgramEntity: module globalNamespace
 ]
 

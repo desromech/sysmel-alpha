@@ -53,8 +53,22 @@ MbndAggregateTypeWithFields >> buildSuperTypesSlotLayoutWith: builder [
 
 ]
 
+{ #category : #accessing }
+MbndAggregateTypeWithFields >> dataInstanceAlignment [
+	<compileTime>
+	slotLayout ifNil: [self ensureSlotLayoutIsComputed].
+	^ slotLayout instanceAlignment
+]
+
+{ #category : #accessing }
+MbndAggregateTypeWithFields >> dataInstanceSize [
+	<compileTime>
+	slotLayout ifNil: [self ensureSlotLayoutIsComputed].
+	^ slotLayout instanceSize
+]
+
 { #category : #'default values' }
-MbndAggregateTypeWithFields >> defaultValueAt: aPosition [
+MbndAggregateTypeWithFields >> defaultAggregateValueAt: aPosition [
 	| valueSlots |
 	self isDefined ifFalse: [ 
 		self error: 'Cannot produce a value for incomplete type {1}.' format: { self asString } at: aPosition
@@ -65,6 +79,11 @@ MbndAggregateTypeWithFields >> defaultValueAt: aPosition [
 		type: self;
 		slots: valueSlots;
 		yourself
+]
+
+{ #category : #'default values' }
+MbndAggregateTypeWithFields >> defaultValueAt: position [
+	^ self defaultAggregateValueAt: position
 ]
 
 { #category : #'semantic analysis' }
@@ -104,15 +123,13 @@ MbndAggregateTypeWithFields >> getExtraMetaBuilderFactoryList [
 { #category : #accessing }
 MbndAggregateTypeWithFields >> instanceAlignment [
 	<compileTime>
-	slotLayout ifNil: [self ensureSlotLayoutIsComputed].
-	^ slotLayout instanceAlignment
+	^ self dataInstanceAlignment
 ]
 
 { #category : #accessing }
 MbndAggregateTypeWithFields >> instanceSize [
 	<compileTime>
-	slotLayout ifNil: [self ensureSlotLayoutIsComputed].
-	^ slotLayout instanceSize
+	^ self dataInstanceSize
 ]
 
 { #category : #'semantic analysis' }

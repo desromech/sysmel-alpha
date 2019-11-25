@@ -9,6 +9,17 @@ TMbndEntityWithVisibility >> defaultVisibilityMode [
 ]
 
 { #category : #accessing }
+TMbndEntityWithVisibility >> external [
+	<compileTime>
+	self addFlag: #external
+]
+
+{ #category : #accessing }
+TMbndEntityWithVisibility >> hasExternalVisibility [
+	^ self visibilityMode == #external
+]
+
+{ #category : #accessing }
 TMbndEntityWithVisibility >> hasInternalVisibility [
 	^ self visibilityMode == #internal
 ]
@@ -48,6 +59,7 @@ TMbndEntityWithVisibility >> public [
 
 { #category : #accessing }
 TMbndEntityWithVisibility >> visibilityMode [
+	(self hasFlag: #external) ifTrue: [ ^ #external ].
 	(self hasFlag: #public) ifTrue: [ ^ #public ].
 	(self hasFlag: #internal) ifTrue: [ ^ #internal ].
 	(self hasFlag: #protected) ifTrue: [ ^ #protected ].

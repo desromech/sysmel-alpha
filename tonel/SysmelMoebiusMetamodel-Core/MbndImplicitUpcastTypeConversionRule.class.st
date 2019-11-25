@@ -12,5 +12,6 @@ MbndImplicitUpcastTypeConversionRule >> applySpecificIdentityCastToNode: node wi
 
 { #category : #testing }
 MbndImplicitUpcastTypeConversionRule >> canBeUsedToConvertNode: node from: sourceType into: targetType [
+	(sourceType isAbstractClassType and: [ targetType isAbstractClassType ]) ifTrue: [ ^ false ].
 	^ true
 ]

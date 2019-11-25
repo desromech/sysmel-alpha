@@ -12,7 +12,7 @@ MbndConcreteMacroMessageMethod >> accept: aVisitor [
 { #category : #'semantic analysis' }
 MbndConcreteMacroMessageMethod >> extraImplicitArguments [
 	^ {
-		self createExtraImplicitArgument: #SelfType withType: self compilationTarget abstractMetaType.
+		self createExtraImplicitArgument: #SelfType withType: self compilationTarget typeTypeConcept.
 		self createExtraImplicitArgument: #__astBuilder withType: (self compilationTarget specificCompilerObjectTypeFor: MbndAstBuilder).
 		self createExtraImplicitArgument: #__analyzer withType: (self compilationTarget specificCompilerObjectTypeFor: MbndAstSemanticAnalyzer).
 	}

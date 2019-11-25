@@ -33,11 +33,6 @@ MbndGlobalVariable >> currentValue: anObject [
 ]
 
 { #category : #testing }
-MbndGlobalVariable >> isExternal [
-	^ self hasFlag: #external
-]
-
-{ #category : #testing }
 MbndGlobalVariable >> isStatic [
 	^ self hasFlag: #static
 ]

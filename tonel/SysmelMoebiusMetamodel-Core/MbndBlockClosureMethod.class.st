@@ -59,7 +59,7 @@ MbndBlockClosureMethod >> defineArgument: argumentNode [
 		definitionNode: argumentNode;
 		parent: self;
 		name: argumentNode name;
-		valueType: argumentNode valueType;
+		valueType: (argumentNode valueType asConcreteTypeForAnalysisOfFunction: self);
 		yourself
 ]
 

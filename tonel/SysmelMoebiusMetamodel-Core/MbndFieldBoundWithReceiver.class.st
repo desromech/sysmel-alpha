@@ -11,7 +11,7 @@ Class {
 MbndFieldBoundWithReceiver >> analyzeReferenceNode: referenceNode with: analyzer [
 	| receiverReference getterClass getterNode |
 	receiverReference := receiver analyzeReferenceNode: referenceNode with: analyzer.
-	getterClass := receiverReference type withoutTopDecorations isReferenceType
+	getterClass := (receiverReference type withoutTopDecorations isReferenceLikeValueType and: [ field bits isNil ])
 		ifTrue: [ MbndAstGetFieldReferenceNode ]
 		ifFalse: [ MbndAstGetFieldValueNode ].
 		

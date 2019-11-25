@@ -251,6 +251,11 @@ MbndAstNode >> isGCClassDefinitionNode [
 ]
 
 { #category : #testing }
+MbndAstNode >> isGCVariableDataArrayElementReferenceNode [
+	^ false
+]
+
+{ #category : #testing }
 MbndAstNode >> isGeneratedIdentifierNode [
 	^ false
 ]
@@ -448,6 +453,11 @@ MbndAstNode >> isPointerToIntegerCastNode [
 
 { #category : #testing }
 MbndAstNode >> isPragmaNode [
+	^ false
+]
+
+{ #category : #testing }
+MbndAstNode >> isProgramEntityExtensionNode [
 	^ false
 ]
 

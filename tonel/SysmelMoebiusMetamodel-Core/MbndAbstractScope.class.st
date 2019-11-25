@@ -101,6 +101,11 @@ MbndAbstractScope >> returnType [
 	^ parent ifNotNil: #returnType
 ]
 
+{ #category : #accessing }
+MbndAbstractScope >> returnTypeProgramEntity [
+	^ parent ifNotNil: #returnTypeProgramEntity
+]
+
 { #category : #'as yet unclassified' }
 MbndAbstractScope >> workingDirectory [
 	^ parent

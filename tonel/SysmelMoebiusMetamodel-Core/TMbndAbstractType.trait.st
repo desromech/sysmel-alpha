@@ -68,7 +68,7 @@ TMbndAbstractType >> addDefaultConversionRules [
 	self
 		addConversionRule: MbndIdentityTypeConversionRule new;
 		addConversionRule: MbndToCompilerObjectTypeConversionRule new;
-		addConversionRule: MbndToAbstractMetaTypeTypeConversionRule new;
+		addConversionRule: MbndToTypeConceptConversionRule new;
 		addExplicitConversionRule: MbndFromCompilerObjectTypeConversionRule new.
 ]
 
@@ -170,6 +170,29 @@ TMbndAbstractType >> analyzeReinterpretCastNode: node to: targetType with: analy
 
 { #category : #'semantic analysis' }
 TMbndAbstractType >> analyzeUnboundExpandedMessageSendNode: node with: analyzer [
+	(self isMetaType or: [ self isMetaTypeType ]) ifTrue: [ 
+		| selector receiverValue staticMethod arguments result |
+		(node receiver isLiteralValueNode and:
+		[ node selector isLiteralSymbolValueNode ]) ifTrue: [
+			selector := node selector value.
+			receiverValue := node receiver value.
+		
+			"Check for an overloaded method."
+			staticMethod := receiverValue lookupOverloadedStaticSelector: node selector value.
+			staticMethod ifNotNil: [
+				^ staticMethod analyzeExpandedMessageSendNode: node with: analyzer
+			].
+		
+			(receiverValue class lookupSelector: selector) ifNotNil: [ :method |
+				(method hasPragmaNamed: #compileTime) ifTrue: [
+					arguments := node arguments collect: [ :arg | (analyzer evaluateCompileTimeExpression: arg) unwrapMbndValue ].
+					result := receiverValue perform: selector withArguments: arguments.
+				^ analyzer visitNode: (result asMoebiusLiteralValueNodeWithTarget: self compilationTarget)
+				]
+			]
+		].
+	].
+
 	self supertype ifNotNil: [:st |
 		^ st analyzeUnboundExpandedMessageSendNode: node with: analyzer
 	].
@@ -179,6 +202,24 @@ TMbndAbstractType >> analyzeUnboundExpandedMessageSendNode: node with: analyzer 
 
 { #category : #'semantic analysis' }
 TMbndAbstractType >> analyzeUnboundUnexpandedMessageSendNode: node with: analyzer [
+	(self isMetaType or: [ self isMetaTypeType ]) ifTrue: [ 
+		| selector receiverValue staticMacro |
+		(node receiver isLiteralValueNode and:
+		[ node selector isLiteralSymbolValueNode ]) ifTrue: [
+			selector := node selector value.
+			receiverValue := node receiver value.
+			(receiverValue lookupPublicMetaBuilderFactoryNamed: selector withAnalyzer: analyzer) ifNotNil: [ :factory |
+				^ factory analyzeReferenceNode: node ownerProgramEntity: receiverValue with: analyzer
+			].
+	
+			"Check for an overloaded method."
+			staticMacro := receiverValue lookupStaticMacroSelector: node selector value.
+			staticMacro ifNotNil: [
+				^ staticMacro expandMessageNode: node with: analyzer
+			].
+		].
+	].
+
 	self supertype ifNotNil: [:st |
 		^ st analyzeUnboundUnexpandedMessageSendNode: node with: analyzer
 	].
@@ -235,6 +276,21 @@ TMbndAbstractType >> asCVariadicTypeRequiredAt: aPosition [
 ]
 
 { #category : #converting }
+TMbndAbstractType >> asConcreteTypeForAnalysisOfFunction: aFunction [
+	^ self
+]
+
+{ #category : #converting }
+TMbndAbstractType >> asConcreteTypeForAnalysisOfFunctionType: aFunction [
+	^ self
+]
+
+{ #category : #converting }
+TMbndAbstractType >> asFieldTypeFor: owner [
+	^ self
+]
+
+{ #category : #converting }
 TMbndAbstractType >> asImmutableValueType [
 	^ self
 ]
@@ -270,6 +326,16 @@ TMbndAbstractType >> asReceiverType [
 { #category : #converting }
 TMbndAbstractType >> asReferenceType [
 	self error: 'Cannot convert type {1} into a reference type version.' format: { self asString }
+]
+
+{ #category : #converting }
+TMbndAbstractType >> asResultTypeWithReceiver: receiverType withArguments: argumentTypes [
+	^ self
+]
+
+{ #category : #converting }
+TMbndAbstractType >> asUndecoratedClassType [
+	^ self withoutTopDecorations
 ]
 
 { #category : #'semantic analysis' }
@@ -310,6 +376,11 @@ TMbndAbstractType >> createExtraMetaBuilderFactories [
 	^ Dictionary newFromPairs: self getExtraMetaBuilderFactoryList
 ]
 
+{ #category : #'as yet unclassified' }
+TMbndAbstractType >> createMetaTypeBasicInstance [
+	^ MbndSimpleMetaType basicNew
+]
+
 { #category : #accessing }
 TMbndAbstractType >> decorations [
 	^ #()
@@ -342,9 +413,10 @@ TMbndAbstractType >> extraMetaBuilderFactories [
 
 { #category : #converting }
 TMbndAbstractType >> findConversionRuleInto: targetType node: node rulesExtractor: rulesExtractor [
-	| visitedTypes pendingTypes currentTypeFromToCheck currentType incomingTypeAndRule |
+	| visitedTypes pendingTypes currentTypeFromToCheck currentType incomingTypeAndRule implicitUpcastRule |
 	visitedTypes := IdentityDictionary new.
 	pendingTypes := LinkedList new.
+	implicitUpcastRule := MbndImplicitUpcastTypeConversionRule new.
 	
 	pendingTypes add: { self . nil }.
 	
@@ -381,7 +453,9 @@ TMbndAbstractType >> findConversionRuleInto: targetType node: node rulesExtracto
 		
 			currentType usedTraits do: [ :trait |
 				(visitedTypes includesKey: trait) ifFalse: [
-					pendingTypes addLast: { trait . { currentType . MbndImplicitUpcastTypeConversionRule new } }.
+					(implicitUpcastRule canBeUsedToConvertNode: node from: currentType into: trait) ifTrue: [ 
+						pendingTypes addLast: { trait . { currentType . implicitUpcastRule } }.
+					]
 				]
 			]
 		]
@@ -487,6 +561,11 @@ TMbndAbstractType >> isDecorationType [
 	^ false
 ]
 
+{ #category : #testing }
+TMbndAbstractType >> isDependentType [
+	^ false
+]
+
 { #category : #'testing methods' }
 TMbndAbstractType >> isDerivedType [
 	^ false
@@ -519,6 +598,11 @@ TMbndAbstractType >> isFunctionalType [
 
 { #category : #'testing methods' }
 TMbndAbstractType >> isGCClassType [
+	^ false
+]
+
+{ #category : #'testing methods' }
+TMbndAbstractType >> isGCClassVariableDataArrayType [
 	^ false
 ]
 
@@ -613,6 +697,11 @@ TMbndAbstractType >> isMetaType [
 ]
 
 { #category : #'testing methods' }
+TMbndAbstractType >> isMetaTypeType [
+	^ false
+]
+
+{ #category : #'testing methods' }
 TMbndAbstractType >> isMethodTemplateType [
 	^ false
 ]
@@ -624,6 +713,11 @@ TMbndAbstractType >> isNamespaceType [
 
 { #category : #'testing methods' }
 TMbndAbstractType >> isOpaqueType [
+	^ false
+]
+
+{ #category : #'testing methods' }
+TMbndAbstractType >> isPointerLikeValueType [
 	^ false
 ]
 
@@ -678,6 +772,11 @@ TMbndAbstractType >> isPrimitiveVectorType [
 ]
 
 { #category : #'testing methods' }
+TMbndAbstractType >> isReferenceLikeValueType [
+	^ false
+]
+
+{ #category : #'testing methods' }
 TMbndAbstractType >> isReferenceType [
 	^ false
 ]
@@ -721,6 +820,11 @@ TMbndAbstractType >> isTrait [
 
 { #category : #'testing methods' }
 TMbndAbstractType >> isTupleType [
+	^ false
+]
+
+{ #category : #testing }
+TMbndAbstractType >> isTypeConcept [
 	^ false
 ]
 
@@ -801,6 +905,11 @@ TMbndAbstractType >> lookupStaticMacroSelector: selector [
 TMbndAbstractType >> lookupSymbol: aSymbol [
 	(self lookupSpecialSymbol: aSymbol) ifNotNil: [ :binding | ^ binding ].
 	^ self supertype ifNotNil: [ :st | st lookupSymbol: aSymbol ]
+]
+
+{ #category : #'as yet unclassified' }
+TMbndAbstractType >> markAsMetaTypeType [
+	self error: 'Cannot use type {1} as a meta-type type.' format: {self asString}
 ]
 
 { #category : #'as yet unclassified' }

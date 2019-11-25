@@ -63,6 +63,11 @@ MbndPrimitiveScalarType >> instanceSize: anObject [
 	instanceSize := anObject
 ]
 
+{ #category : #testing }
+MbndPrimitiveScalarType >> isAcceptableLiteralValueInRange: value [
+	^ (self isAcceptableLiteralValue: value) and: [ self isValueInRange: value ]
+]
+
 { #category : #'testing methods' }
 MbndPrimitiveScalarType >> isPrimitiveScalarType [
 	^ true

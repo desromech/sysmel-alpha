@@ -78,12 +78,19 @@ TMbndBasicType >> supertype [
 
 { #category : #accessing }
 TMbndBasicType >> supertype: aType [
+	<compileTime>
 	self assert: aType ~~ self.
 	supertype ifNotNil: [
 		supertype subtypeRemoved: self
 	].
 
 	supertype := aType.
+	
+	self isMetaType ifFalse: [
+		type ifNotNil: [ 
+			type type: supertype type type
+		].
+	].
 	
 	supertype ifNotNil: [
 		supertype subtypeAdded: self

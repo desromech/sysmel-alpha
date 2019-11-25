@@ -14,14 +14,6 @@ MbndFieldVariable >> accept: aVisitor [
 	^ aVisitor visitFieldVariable: self
 ]
 
-{ #category : #converting }
-MbndFieldVariable >> asSymbolBoundWithReceiverBinding: receiverBinding [
-	^ MbndFieldBoundWithReceiver new
-		receiver: receiverBinding;
-		field: self;
-		yourself
-]
-
 { #category : #accessing }
 MbndFieldVariable >> bitMask [
 	^ bitMask

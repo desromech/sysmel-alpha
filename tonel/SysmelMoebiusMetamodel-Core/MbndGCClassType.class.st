@@ -14,7 +14,137 @@ MbndGCClassType >> accept: aVisitor [
 	^ aVisitor visitGCClassType: self
 ]
 
+{ #category : #adding }
+MbndGCClassType >> addDefaultConversionRules [
+	super addDefaultConversionRules.
+	self
+		addExplicitConversionRule: MbndClassPointerTypeConversionRule new;
+		addImplicitConversionRule: MbndClassImplicitUpcastTypeConversionRule new
+]
+
+{ #category : #adding }
+MbndGCClassType >> addMainVTableFieldNamed: fieldName [
+	<compileTime>
+	| fieldType vtableField |
+	fieldType := self vtableFieldType.
+	vtableField := MbndVTablePointerFieldVariable new
+		name: fieldName;
+		valueType: fieldType;
+		type: fieldType ref.
+	self addField: vtableField.
+	^ vtableField
+]
+
+{ #category : #converting }
+MbndGCClassType >> analyzeReinterpretCastNode: node to: targetType with: analyzer [
+	| undecoratedTargetType |
+	undecoratedTargetType := targetType withoutTopDecorations.
+	
+	undecoratedTargetType isPointerLikeValueType ifTrue: [
+		^ analyzer visitNode: (MbndAstPointerReinterpretCastNode new
+			position: node;
+			expression: node expression;
+			targetType: targetType;
+			yourself)
+	].
+
+	^ super analyzeReinterpretCastNode: node to: targetType with: analyzer
+]
+
+{ #category : #'type composition' }
+MbndGCClassType >> array [
+	<compileTime>
+	^ self compilationTarget gcClassVariableDataArrayOf: self
+]
+
+{ #category : #'as yet unclassified' }
+MbndGCClassType >> asCVariadicTypeRequiredAt: position [
+	^ self
+]
+
+{ #category : #converting }
+MbndGCClassType >> asDefaultInstanceType [
+	^ self compilationTarget dynamicObjectType ifNil: [ self error: 'Dynamic object type is required at this context.' ]
+]
+
+{ #category : #converting }
+MbndGCClassType >> asImmutableValueType [
+	^ self
+]
+
+{ #category : #'as yet unclassified' }
+MbndGCClassType >> asReceiverType [
+	"My scheme is to be always a gc pointer."
+	^ self
+]
+
+{ #category : #'as yet unclassified' }
+MbndGCClassType >> createMetaTypeBasicInstance [
+	^ MbndGCClassMetaType basicNew markAsDefined
+]
+
+{ #category : #'default values' }
+MbndGCClassType >> defaultValueAt: position [
+	^ MbndValue value: nil type: self
+]
+
+{ #category : #accessing }
+MbndGCClassType >> instanceAlignment [
+	<compileTime>
+	^ self compilationTarget pointerSize
+]
+
+{ #category : #accessing }
+MbndGCClassType >> instanceSize [
+	<compileTime>
+	^ self compilationTarget pointerSize
+]
+
 { #category : #testing }
 MbndGCClassType >> isGCClassType [
 	^ true
+]
+
+{ #category : #'testing methods' }
+MbndGCClassType >> isPointerLikeValueType [
+	^ true
+]
+
+{ #category : #'testing methods' }
+MbndGCClassType >> isReferenceLikeValueType [
+	^ true
+]
+
+{ #category : #'as yet unclassified' }
+MbndGCClassType >> makeInstance: variableSize identityHash: identityHash [
+	^ self makeInstance: variableSize identityHash: identityHash at: MbndSourcePosition empty
+]
+
+{ #category : #'as yet unclassified' }
+MbndGCClassType >> makeInstance: variableSize identityHash: identityHash at: aPosition [
+	| result variableElementType |
+	result := self defaultAggregateValueAt: aPosition.
+	variableSize > 0 ifTrue: [ 
+		variableElementType := self slotLayout slots last type.
+		variableElementType isGCClassVariableDataArrayType ifFalse: [
+			self error: 'Cannot make an instance for a variable object without variable slot data.' at: aPosition
+		].
+		result slots last resizeTo: variableSize at: aPosition.
+	].
+
+	self flag: 'TODO: Set the identity hash value.'.
+	^ result
+]
+
+{ #category : #'as yet unclassified' }
+MbndGCClassType >> metaClassClass: theClassForTheMetaClass [
+	<compileTime>
+	type type: theClassForTheMetaClass.
+	self addMetaTypeMacrosTo: type
+]
+
+{ #category : #'type composition' }
+MbndGCClassType >> ref [
+	<compileTime>
+	^ self refFor: #gc
 ]

@@ -81,7 +81,7 @@ MbndSlovimFunctionCodeGenerator >> defineArgumentValues [
 
 { #category : #'as yet unclassified' }
 MbndSlovimFunctionCodeGenerator >> generateExpandedMessageSendNode: node withStaticMethodBoundTo: methodSSAFunction [
-	| receiver receiverType arguments allArguments calledMethodSSAFunction vtableLayout vtableSlot vtableEntrySlot |
+	| receiver receiverType arguments allArguments calledMethodSSAFunction vtableLayout vtableSlot vtableEntrySlot result expectedResultType |
 	receiver := node receiver ifNotNil: [self visitNode: node receiver].
 	arguments := self visitNodesAndCollect: node arguments.
 	allArguments := arguments.
@@ -101,7 +101,16 @@ MbndSlovimFunctionCodeGenerator >> generateExpandedMessageSendNode: node withSta
 		calledMethodSSAFunction := slvmBuilder bitCast: vtableEntrySlot target: methodSSAFunction type.
 	].
 	
-	^ slvmBuilder call: calledMethodSSAFunction arguments: allArguments
+	result := slvmBuilder call: calledMethodSSAFunction arguments: allArguments.
+	expectedResultType := self translateType: node type.
+	
+	"We may need to adjust the result type in the case of dependent types."
+	result type ~~ expectedResultType ifTrue: [ 
+		self assert: (result type isPointerType and: [ expectedResultType isPointerType ]).
+		result := slvmBuilder bitCast: result target: expectedResultType
+	].
+	
+	^ result
 ]
 
 { #category : #visiting }
@@ -379,6 +388,20 @@ MbndSlovimFunctionCodeGenerator >> visitFunctionCallNode: node [
 ]
 
 { #category : #visiting }
+MbndSlovimFunctionCodeGenerator >> visitGCVariableDataArrayElementReferenceNode: node [
+	| pointer index |
+	pointer := self visitNode: node container.
+	index := self visitNode: node index.
+	self assert: index type isIntegerType.
+	"Convert one based indices into zero based indices."
+	node isOneBasedIndex ifTrue: [ 
+		index := slvmBuilder sub: index with: (SLVMConstant type: index type value: 1)
+	].
+
+	^ slvmBuilder getReference: pointer element: index
+]
+
+{ #category : #visiting }
 MbndSlovimFunctionCodeGenerator >> visitGetFieldReferenceNode: node [
 	| aggregate field aggregateType |
 	aggregate := self visitNode: node aggregate.
@@ -419,8 +442,11 @@ MbndSlovimFunctionCodeGenerator >> visitGetFieldValueNode: node [
 		fieldValue := slvmBuilder extractValue: aggregate indices: { field slotIndex }.
 	].
 
-	field bits ifNotNil: [ 
-		self halt
+	field bits ifNotNil: [
+		| valueType |
+		valueType := self translateType: field valueType.
+		fieldValue := slvmBuilder bitAnd: fieldValue with: (slvmBuilder const: field bitMask type: valueType).
+		fieldValue := slvmBuilder shiftRight: fieldValue with: (slvmBuilder const: field bitOffset type: valueType).
 	].
 
 	^ fieldValue
@@ -544,6 +570,11 @@ MbndSlovimFunctionCodeGenerator >> visitLexicalScopeNode: node [
 
 { #category : #visiting }
 MbndSlovimFunctionCodeGenerator >> visitLiteralValueNode: node [
+	node type isGCClassType ifTrue: [
+		| dynamicLiteral |
+		dynamicLiteral := slvmBuilder addDynamicLiteral: node value.
+		^ slvmBuilder bitCast: dynamicLiteral target: (self translateType: node type)
+	].
 	^ codeModuleGenerator translateLiteralValue: node value ofType: node type
 ]
 
@@ -803,9 +834,18 @@ MbndSlovimFunctionCodeGenerator >> visitStaticClassPointerCastNode: node [
 	| sourceType targetType targetSlotIndex sourceValue targetSSAType |
 	sourceValue := self visitNode: node expression.
 	targetSSAType := self translateType: node type.
-	sourceType := node expression type baseType withoutTopDecorations.
-	targetType := node targetType baseType withoutTopDecorations.
+	sourceType := node expression type asUndecoratedClassType.
+	targetType := node targetType asUndecoratedClassType.
 	self assert: (sourceType isAbstractClassType and: [ targetType isAbstractClassType ]).
+	
+	"There is only single inheritance with GC classes."
+	(sourceType isGCClassType and: [ targetType isGCClassType ]) ifTrue: [ 
+		(targetType isSubtypeOf: sourceType) ifTrue: [ 
+			self flag: 'TODO: validate the possibility of doing this down cast.'.
+		].
+	
+		^ slvmBuilder bitCast: sourceValue target: targetSSAType
+	].
 	
 	"Is this an upcast?"
 	(sourceType isSubtypeOf: targetType) ifTrue: [ 

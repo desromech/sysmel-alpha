@@ -6,6 +6,7 @@ Class {
 
 { #category : #testing }
 MbndToCompilerObjectTypeConversionRule >> canBeUsedToConvertNode: node from: sourceType into: targetType [
+	sourceType isReferenceType ifTrue: [ ^ false ].
 	^ targetType isCompilerObjectType and: [ targetType isASTNodeType not ]
 ]
 

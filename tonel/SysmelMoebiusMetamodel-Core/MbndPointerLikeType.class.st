@@ -42,6 +42,11 @@ MbndPointerLikeType >> asReferenceType [
 	self subclassResponsibility
 ]
 
+{ #category : #converting }
+MbndPointerLikeType >> asUndecoratedClassType [
+	^ baseType asUndecoratedClassType
+]
+
 { #category : #sizes }
 MbndPointerLikeType >> instanceAlignment [
 	^ self compilationTarget pointerAlignment

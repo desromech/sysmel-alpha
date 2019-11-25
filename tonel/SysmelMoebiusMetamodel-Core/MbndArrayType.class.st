@@ -38,15 +38,27 @@ MbndArrayType >> addInstanceMacros [
 		]
 ]
 
+{ #category : #converting }
+MbndArrayType >> asFieldTypeFor: owner [
+	(owner isGCClassType and: [ elements = 0 ]) ifTrue: [
+		^ self compilationTarget gcClassVariableDataArrayOf: elementType
+	].
+	^ self
+]
+
 { #category : #'default values' }
 MbndArrayType >> defaultValueAt: aPosition [
 	| valueSlots defaultElementValue |
 	
 	defaultElementValue := nil.
-	valueSlots := (1 to: elements) collect: [ :i |
-		defaultElementValue ifNil: [
-			defaultElementValue := (elementType defaultValueAt: aPosition) unwrapMbndValue
-		]
+	valueSlots := elementType == self compilationTarget uint8Type ifTrue: [ 
+		ByteArray new: elements
+	] ifFalse: [ 
+		(1 to: elements) collect: [ :i |
+			defaultElementValue ifNil: [
+				defaultElementValue := (elementType defaultValueAt: aPosition) unwrapMbndValue
+			]
+		].
 	].
 
 	^ MbndAggregateTypeInstanceValue new

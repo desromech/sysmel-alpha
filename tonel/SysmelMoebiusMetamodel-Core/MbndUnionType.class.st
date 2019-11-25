@@ -23,7 +23,7 @@ MbndUnionType >> buildSlotLayout [
 ]
 
 { #category : #'default values' }
-MbndUnionType >> defaultValueAt: aPosition [
+MbndUnionType >> defaultAggregateValueAt: aPosition [
 	self isDefined ifFalse: [ 
 		self error: 'Cannot produce a value for incomplete type {1}.' format: { self asString } at: aPosition
 	].

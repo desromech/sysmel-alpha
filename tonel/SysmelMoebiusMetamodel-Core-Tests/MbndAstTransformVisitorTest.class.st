@@ -760,6 +760,19 @@ MbndAstTransformVisitorTest >> testPragmaNode [
 ]
 
 { #category : #tests }
+MbndAstTransformVisitorTest >> testProgramEntityExtensionNode [
+	| node transformedNode programEntity extension |
+	programEntity := builder identifier: #ProgramEntity.
+	extension := builder sequence: #().
+	node := builder programEntity: programEntity extension: extension.
+	transformedNode := visitor visitNode: node.
+	self assert: transformedNode ~~ node.
+	self assert: transformedNode isProgramEntityExtensionNode.
+	self assert: transformedNode programEntity equals: programEntity.
+	self assert: transformedNode body isSequenceNode.
+]
+
+{ #category : #tests }
 MbndAstTransformVisitorTest >> testQuasiQuoteNode [
 	| node transformedNode expression |
 	expression := builder literalInteger: 1.

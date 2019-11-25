@@ -218,6 +218,11 @@ MbndAstSemanticAnalyzer >> ensurePointerValue: node at: position [
 	self halt	
 ]
 
+{ #category : #coercing }
+MbndAstSemanticAnalyzer >> ensureReferencesAreEvaluated: node [
+	^ self addImplicitCastFor: node to: node type withoutReferences
+]
+
 { #category : #visiting }
 MbndAstSemanticAnalyzer >> ensureValue: valueNode isVectorOrScalarOfType: requiredElementType [
 	| cleanValueType |
@@ -599,6 +604,12 @@ MbndAstSemanticAnalyzer >> visitEnumDefinitionNode: node [
 ]
 
 { #category : #visiting }
+MbndAstSemanticAnalyzer >> visitExpandedHostMessageSendNode: node [
+	"The analysis of this node is performed when is constructed."
+	self shouldNotImplement
+]
+
+{ #category : #visiting }
 MbndAstSemanticAnalyzer >> visitExpandedMessageSendNode: node [
 	| result receiverType method |
 	result := node copy
@@ -660,7 +671,9 @@ MbndAstSemanticAnalyzer >> visitFieldDefinitionNode: node [
 	result bits ifNotNil: [ 
 		result bits isMbndAstNode ifTrue: [ 
 			result bits: (self evaluateCompileTimeExpression: result bits) unwrapMbndValue.
-			self error: 'Expected an integer value for the bit count of a field.' at: node bits
+			result bits isInteger ifFalse: [ 
+				self error: 'Expected an integer value for the bit count of a field.' at: node bits
+			].
 		] ifFalse: [ 
 			self error: 'Expected an integer value for the bit count of a field.' at: node
 		]
@@ -698,7 +711,7 @@ MbndAstSemanticAnalyzer >> visitFieldDefinitionNode: node [
 	field := MbndFieldVariable new
 		name: fieldName;
 		flags: result flags;
-		valueType: result valueType;
+		valueType: (result valueType asFieldTypeFor: owner);
 		type: result valueType ref;
 		bits: result bits;
 		yourself.
@@ -787,6 +800,29 @@ MbndAstSemanticAnalyzer >> visitGCClassDeclarationNode: node [
 { #category : #visiting }
 MbndAstSemanticAnalyzer >> visitGCClassDefinitionNode: node [
 	^ self visitTypeDefinitionNode: node ofKind: MbndGCClassType
+]
+
+{ #category : #visiting }
+MbndAstSemanticAnalyzer >> visitGCVariableDataArrayElementReferenceNode: node [
+	| result arrayType elementType containerType |
+	result := node copy
+		container: (self analyzeNodeIfNeeded: node container);
+		index: (self ensureIntegerValue: (self analyzeNodeIfNeeded: node index) at: node);
+		yourself.
+		
+	containerType := result container type.
+	containerType isReferenceType ifFalse: [
+		self error: 'A gc class variable data array reference is required for getting a reference to one of its elements.' at: node
+	].
+
+	arrayType := containerType baseType.
+	arrayType isGCClassVariableDataArrayType ifFalse: [
+		self error: 'A gc class variable data array reference is required for getting a reference to one of its elements.' at: node
+	].
+
+	elementType := arrayType elementType.
+	result type: elementType ref.
+	^ result
 ]
 
 { #category : #visiting }
@@ -1430,6 +1466,25 @@ MbndAstSemanticAnalyzer >> visitPointerElementReferenceNode: node [
 ]
 
 { #category : #visiting }
+MbndAstSemanticAnalyzer >> visitProgramEntityExtensionNode: node [
+	| programEntity |
+	programEntity := node programEntity.
+	programEntity isMbndAstNode ifTrue: [ 
+		programEntity := (self evaluateCompileTimeExpression: programEntity) unwrapMbndValue.
+		programEntity isMbndProgramEntity ifFalse: [ 
+			self error: 'Expected a program entity to extend.' at: node programEntity
+		]
+	].
+
+	programEntity addFlag: #defined.
+	self withScope: (programEntity programEntityScope parent: scope) newLexicalScope do: [ 
+		self evaluateCompileTimeExpression: node body
+	].
+
+	^ self astBuilder literalVoid
+]
+
+{ #category : #visiting }
 MbndAstSemanticAnalyzer >> visitQuasiQuoteNode: node [
 	| result |
 	result := node copy.
@@ -1507,7 +1562,7 @@ MbndAstSemanticAnalyzer >> visitReturnStatementNode: node [
 		type: self compilationTarget returnType.
 
 	scope returnType ifNotNil: [ :expectedReturnType |
-		result expression: (self addImplicitCastFor: result expression to: expectedReturnType)
+		result expression: (self addImplicitCastFor: result expression to: (expectedReturnType asConcreteTypeForAnalysisOfFunction: scope returnTypeProgramEntity))
 	].
 
 	^ result
@@ -1687,8 +1742,10 @@ MbndAstSemanticAnalyzer >> visitTypeDefinitionNode: node ofKind: typeKindClass [
 	definitionScope := (result binding programEntityScope parent: scope) newLexicalScope.
 	
 	"Analyze the definition body."
-	self withScope: definitionScope do: [ 
-		result body: (self evaluateCompileTimeExpression: result body)
+	result body ifNotNil: [ 
+		self withScope: definitionScope do: [ 
+			result body: (self evaluateCompileTimeExpression: result body)
+		].
 	].
 
 	"Enqueue the result semantic analysis."

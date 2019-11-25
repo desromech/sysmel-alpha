@@ -20,6 +20,12 @@ MbndSlovimLiteralValueGenerator >> literalValue: anObject [
 ]
 
 { #category : #'code generation' }
+MbndSlovimLiteralValueGenerator >> translateDynamicObjectInstanceContent: dynamicObject [
+	literalValue := dynamicObject.
+	^ self visitAggregateType: dynamicObject type
+]
+
+{ #category : #'code generation' }
 MbndSlovimLiteralValueGenerator >> translateLiteralValue: theLiteralValueToTranslate ofType: literalType [
 	literalValue := theLiteralValueToTranslate.
 	^ literalType accept: self
@@ -34,6 +40,8 @@ MbndSlovimLiteralValueGenerator >> visitAggregateType: type [
 	].
 
 	slvmType := codeModuleGenerator translateType: type.
+	type isGCClassType ifTrue: [ slvmType := slvmType baseType ].
+	
 	hasBiggerArrayAtTheEnd := false.
 	convertedSlots doWithIndex: [ :convertedSlot :index |
 		|slotType expectedType|
@@ -94,6 +102,23 @@ MbndSlovimLiteralValueGenerator >> visitDecoratedType: decoratedType [
 { #category : #'code generation' }
 MbndSlovimLiteralValueGenerator >> visitEnumType: enumType [
 	^ enumType valueType accept: self
+]
+
+{ #category : #visiting }
+MbndSlovimLiteralValueGenerator >> visitGCClassType: type [
+	| objectModel targetType |
+	targetType := self translateType: type.
+	objectModel := self slvmCompilationTarget objectModel.
+	^ (objectModel isInlineLiteral: literalValue) ifTrue: [
+		objectModel convertInlineLiteral: literalValue withType: targetType.
+	] ifFalse: [ 
+		objectModel convertNonInlineLiteral: literalValue.
+	].
+]
+
+{ #category : #visiting }
+MbndSlovimLiteralValueGenerator >> visitGCClassVariableDataArrayType: type [
+	^ self visitArrayType: type
 ]
 
 { #category : #visiting }

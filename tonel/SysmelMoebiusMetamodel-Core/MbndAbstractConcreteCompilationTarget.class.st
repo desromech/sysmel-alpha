@@ -6,6 +6,16 @@ Class {
 	#category : #'SysmelMoebiusMetamodel-Core-CompilationTarget'
 }
 
+{ #category : #'instance creation' }
+MbndAbstractConcreteCompilationTarget class >> for: aCompilationTarget [
+	^ self basicNew initializeWithCompilationTarget: aCompilationTarget
+]
+
+{ #category : #initialization }
+MbndAbstractConcreteCompilationTarget >> initializeWithCompilationTarget: aCompilationTarget [
+	compilationTarget := aCompilationTarget
+]
+
 { #category : #accessing }
 MbndAbstractConcreteCompilationTarget >> pointerAlignment [
 	self subclassResponsibility

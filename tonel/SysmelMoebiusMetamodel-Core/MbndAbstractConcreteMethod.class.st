@@ -90,7 +90,7 @@ MbndAbstractConcreteMethod >> defineArgument: argumentNode [
 		definitionNode: argumentNode;
 		parent: self;
 		name: argumentNode name;
-		valueType: argumentNode valueType;
+		valueType: (argumentNode valueType asConcreteTypeForAnalysisOfFunction: self);
 		yourself
 ]
 
@@ -103,7 +103,7 @@ MbndAbstractConcreteMethod >> defineArguments [
 			definitionNode: (definitionNode ifNil: [declarationPosition]);
 			parent: self;
 			name: #self;
-			valueType: receiverType;
+			valueType: (receiverType asConcreteTypeForAnalysisOfFunction: self);
 			yourself
 		}
 	].

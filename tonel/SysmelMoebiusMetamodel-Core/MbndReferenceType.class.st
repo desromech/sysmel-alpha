@@ -97,6 +97,11 @@ MbndReferenceType >> const [
 ]
 
 { #category : #'testing methods' }
+MbndReferenceType >> isReferenceLikeValueType [
+	^ true
+]
+
+{ #category : #'testing methods' }
 MbndReferenceType >> isReferenceType [
 	^ true
 ]

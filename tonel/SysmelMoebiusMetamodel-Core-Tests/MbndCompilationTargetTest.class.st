@@ -24,11 +24,6 @@ MbndCompilationTargetTest >> testASTNodeType [
 ]
 
 { #category : #'basic types' }
-MbndCompilationTargetTest >> testAbstractMetaType [
-	self assert: compilationTarget abstractMetaType isMetaType
-]
-
-{ #category : #'basic types' }
 MbndCompilationTargetTest >> testArrayType [
 	| elementType type|
 	elementType := compilationTarget uint8Type.

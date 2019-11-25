@@ -27,18 +27,34 @@ MbndSlovimTypeTranslator >> translateAggregateType: aggregateType [
 
 { #category : #visiting }
 MbndSlovimTypeTranslator >> translateAggregateType: aggregateType withKind: typeKindClass [
-	| ssaStructureType |
-	ssaStructureType := typeKindClass name: (codeModuleGenerator mangleProgramEntityName: aggregateType)
+	| structureName ssaStructureType ssaValueType |
+	structureName := aggregateType name ifNotNil: [
+		codeModuleGenerator mangleProgramEntityName: aggregateType
+	].
+	(aggregateType isGCClassType and: [ aggregateType isMetaType ]) ifTrue: [ 
+		structureName := ((codeModuleGenerator mangleProgramEntityName: aggregateType instanceType) , 'Tm') asSymbol
+	].
+
+	ssaStructureType := typeKindClass name: structureName
 		types: #() kind: typeKindClass genericKind names: #().
-	translatedTypes at: aggregateType put: ssaStructureType.
-	
+
+	ssaValueType := ssaStructureType.
+	aggregateType isGCClassType ifTrue: [ 
+		ssaValueType := SLVMPointerType
+			size: self slvmCompilationTarget pointerSize
+			baseType: ssaStructureType
+			storage: #gc.
+	].
+
+	translatedTypes at: aggregateType put: ssaValueType.
+
 	aggregateType isDefined ifTrue: [ 
 		ssaStructureType
 			names: (aggregateType slotLayout slots collect: #name);
 			types: (aggregateType slotLayout slots collect: [:slot | self translateType: slot type]).
 	].
 		
-	^ ssaStructureType
+	^ ssaValueType
 ]
 
 { #category : #visiting }
@@ -84,8 +100,8 @@ MbndSlovimTypeTranslator >> visitEnumType: enumType [
 { #category : #visiting }
 MbndSlovimTypeTranslator >> visitFunctionType: functionType [
 	| argumentSSATypes returnSSAType |
-	argumentSSATypes := self translateTypes: functionType argumentTypes.
-	returnSSAType := self translateType: functionType returnType.
+	argumentSSATypes := self translateTypes: (functionType argumentTypes collect: [:type | type asConcreteTypeForAnalysisOfFunctionType: functionType]).
+	returnSSAType := self translateType: (functionType returnType asConcreteTypeForAnalysisOfFunctionType: functionType).
 	^ (SLVMFunctionType callingConvention: functionType callingConvention arguments: argumentSSATypes returnType: returnSSAType)
 		variadic: functionType cvariadic;
 		yourself
@@ -95,6 +111,13 @@ MbndSlovimTypeTranslator >> visitFunctionType: functionType [
 MbndSlovimTypeTranslator >> visitGCClassType: structureType [
 	^ self translateAggregateType: structureType
 
+]
+
+{ #category : #visiting }
+MbndSlovimTypeTranslator >> visitGCClassVariableDataArrayType: variableDataArrayType [
+	| elementType |
+	elementType := self translateType: variableDataArrayType elementType.
+	^ SLVMArrayType baseType: elementType elements: 0
 ]
 
 { #category : #visiting }
@@ -136,6 +159,11 @@ MbndSlovimTypeTranslator >> visitPrimitiveVectorType: vectorType [
 { #category : #visiting }
 MbndSlovimTypeTranslator >> visitReferenceType: referenceType [
 	^ self translateType: referenceType asPointerType
+]
+
+{ #category : #visiting }
+MbndSlovimTypeTranslator >> visitSimpleMetaType: metaType [
+	^ self slvmCompilationTarget voidPointerType
 ]
 
 { #category : #visiting }

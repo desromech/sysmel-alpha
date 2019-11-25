@@ -9,6 +9,8 @@ MbndClassPointerTypeConversionRule >> canBeUsedToConvertNode: node from: sourceT
 	| sourceClassType targetClassType |
 	sourceClassType := sourceType baseType withoutTopDecorations.
 	targetClassType := targetType baseType withoutTopDecorations.
+	sourceType withoutTopDecorations isReferenceType == targetType withoutTopDecorations isReferenceType ifFalse: [ ^ false ].
+	
 	(sourceClassType isAbstractClassType or: [ targetClassType isAbstractClassType ]) ifFalse: [ ^ false ].
 	
 	^ (sourceClassType isSubtypeOf: targetClassType) or: [ targetClassType isSubtypeOf: targetClassType]

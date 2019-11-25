@@ -3,11 +3,6 @@ Trait {
 	#category : #'SysmelMoebiusMetamodel-Core-CompilationTarget'
 }
 
-{ #category : #'convenience type accessors' }
-TMbndAbstractCompilationTarget >> abstractMetaType [
-	^ self getBasicTypeNamed: MbndAbstractMetaType typeName
-]
-
 { #category : #'as yet unclassified' }
 TMbndAbstractCompilationTarget >> arrayOf: elementType elements: elementCount [
 	self explicitRequirement
@@ -51,6 +46,11 @@ TMbndAbstractCompilationTarget >> cstringLiteralType [
 { #category : #'calling conventions' }
 TMbndAbstractCompilationTarget >> defaultCallingConvention [
 	^ #cdecl
+]
+
+{ #category : #'as yet unclassified' }
+TMbndAbstractCompilationTarget >> dynamicObjectType [
+	self explicitRequirement
 ]
 
 { #category : #'convenience type accessors' }
@@ -288,6 +288,11 @@ TMbndAbstractCompilationTarget >> lookupTypeWithName: typeName [
 	self explicitRequirement
 ]
 
+{ #category : #'as yet unclassified' }
+TMbndAbstractCompilationTarget >> managedObjectModel [
+	self explicitRequirement
+]
+
 { #category : #'convenience type accessors' }
 TMbndAbstractCompilationTarget >> messageTemplateType [
 	^ self getBasicTypeNamed: MbndMessageTemplateType typeName
@@ -385,6 +390,11 @@ TMbndAbstractCompilationTarget >> type: baseType withDecorations: decorations [
 { #category : #'convenience type accessors' }
 TMbndAbstractCompilationTarget >> typeTemplateType [
 	^ self getBasicTypeNamed: MbndTypeTemplateType typeName
+]
+
+{ #category : #'convenience type accessors' }
+TMbndAbstractCompilationTarget >> typeTypeConcept [
+	^ self getBasicTypeNamed: MbndTypeTypeConcept typeName
 ]
 
 { #category : #'convenience type accessors' }

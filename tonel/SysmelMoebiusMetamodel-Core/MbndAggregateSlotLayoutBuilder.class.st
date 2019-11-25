@@ -39,6 +39,11 @@ MbndAggregateSlotLayoutBuilder >> addBitField: aField [
 
 { #category : #adding }
 MbndAggregateSlotLayoutBuilder >> addField: aField [
+	(aField isVTablePointerField and: [ mainVTableField isNil ]) ifTrue: [
+		mainVTableField := activeVTableField := aField.
+		vtableFields add: aField
+	].
+
 	aField bits
 		ifNil: [ self addNormalField: aField ]
 		ifNotNil: [ self addBitField: aField ]

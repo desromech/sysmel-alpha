@@ -108,7 +108,7 @@ MbndPointerType >> analyzeReinterpretCastNode: node to: targetType with: analyze
 	| undecoratedTargetType |
 	undecoratedTargetType := targetType withoutTopDecorations.
 	
-	undecoratedTargetType isPointerType ifTrue: [
+	undecoratedTargetType isPointerLikeValueType ifTrue: [
 		^ analyzer visitNode: (MbndAstPointerReinterpretCastNode new
 			position: node;
 			expression: node expression;
@@ -151,6 +151,11 @@ MbndPointerType >> defaultValueAt: aPosition [
 MbndPointerType >> initialize [
 	super initialize.
 	self addComparisonIntrinsics
+]
+
+{ #category : #'testing methods' }
+MbndPointerType >> isPointerLikeValueType [
+	^ true
 ]
 
 { #category : #'testing methods' }

@@ -8,3 +8,8 @@ Class {
 MbndFunctionScope >> returnType [
 	^ programEntity returnType
 ]
+
+{ #category : #accessing }
+MbndFunctionScope >> returnTypeProgramEntity [
+	^ programEntity
+]

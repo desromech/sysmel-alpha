@@ -1602,6 +1602,22 @@ MbndSlovimCodeModuleGeneratorTest >> testIdentityScopedSequenceCFunction [
 ]
 
 { #category : #tests }
+MbndSlovimCodeModuleGeneratorTest >> testIfIntegerLiteralCoercion [
+	| function |
+	self
+		evaluateSysmelSource: 'function coercion externC(condition: BooleanBit, uint: UInt32) => UInt32
+		:= if: condition then: uint else: 0.';
+		generateSSAModule.
+
+	function := ssaModule globalNamed: #coercion.
+	self assert: function isFunction.
+	self deny: function isEmpty.
+	self assert: function basicBlocks size equals: 5.
+	self assert: function basicBlocks fifth firstInstruction isPhi.
+	self assert: function basicBlocks fifth lastInstruction isReturn.
+]
+
+{ #category : #tests }
 MbndSlovimCodeModuleGeneratorTest >> testIntegerAdd [
 	| function |
 	self

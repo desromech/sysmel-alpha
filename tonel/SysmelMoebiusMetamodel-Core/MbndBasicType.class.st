@@ -54,14 +54,29 @@ MbndBasicType >> addInstanceMacros [
 			(builder reinterpretCast: node receiver to: node arguments first)
 				position: node
 		].
-	
-	self type
+	self addMetaTypeMacrosTo: self type.
+]
+
+{ #category : #initialization }
+MbndBasicType >> addMetaTypeMacrosTo: metaType [
+	metaType
+		onMacroSelectors: #( definition: extend: )do: [ :node :builder |
+			builder programEntity: node receiver extension: node arguments first
+			
+		];
 		onMacroSelector: #basicNewValue do: [ :node :builder :analyzer |
-			node receiver type instanceType generateBasicNewValueForNode: node with: builder andWith: analyzer
+			(node receiver isLiteralValueNode
+				ifTrue: [ node receiver value unwrapMbndValue ]
+				ifFalse: [ node receiver type instanceType ])
+			 		generateBasicNewValueForNode: node with: builder andWith: analyzer
 		];
 		onMacroSelector: #newValue do: [ :node :builder :analyzer |
-			node receiver type instanceType generateNewValueForNode: node with: builder andWith: analyzer
+			(node receiver isLiteralValueNode
+				ifTrue: [ node receiver value unwrapMbndValue ]
+				ifFalse: [ node receiver type instanceType ])
+					generateNewValueForNode: node with: builder andWith: analyzer
 		].
+
 ]
 
 { #category : #'as yet unclassified' }

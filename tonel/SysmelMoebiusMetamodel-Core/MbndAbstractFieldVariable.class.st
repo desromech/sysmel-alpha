@@ -15,7 +15,15 @@ Class {
 
 { #category : #'semantic analysis' }
 MbndAbstractFieldVariable >> analyzeReferenceNode: referenceNode with: analyzer [
-	self error: 'Field description introspection is not yet implemented.' at: analyzer
+	self error: 'Field description introspection is not yet implemented.' at: referenceNode
+]
+
+{ #category : #converting }
+MbndAbstractFieldVariable >> asSymbolBoundWithReceiverBinding: receiverBinding [
+	^ MbndFieldBoundWithReceiver new
+		receiver: receiverBinding;
+		field: self;
+		yourself
 ]
 
 { #category : #accessing }

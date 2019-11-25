@@ -20,18 +20,6 @@ MbndAbstractClassType >> addChild: aChild [
 	].
 ]
 
-{ #category : #adding }
-MbndAbstractClassType >> addConversionRulesToPointerType: pointerType [
-	pointerType
-		addExplicitConversionRule: MbndClassPointerTypeConversionRule new;
-		addImplicitConversionRule: MbndClassImplicitUpcastTypeConversionRule new
-]
-
-{ #category : #adding }
-MbndAbstractClassType >> addConversionRulesToReferenceType: referenceType [
-	referenceType addImplicitConversionRule: MbndClassImplicitUpcastTypeConversionRule new
-]
-
 { #category : #'as yet unclassified' }
 MbndAbstractClassType >> addVirtualMethod: aMethod [
 	virtualMethods add: aMethod
@@ -41,7 +29,7 @@ MbndAbstractClassType >> addVirtualMethod: aMethod [
 MbndAbstractClassType >> buildSlotLayoutWith: builder [
 	builder recordTypeStartLocation: self.
 	self buildSuperTypesSlotLayoutWith: builder.
-	virtualMethods ifNotEmpty: [
+	(virtualMethods isNotEmpty and: [ self fields isEmpty or: [ fields first isVTablePointerField not ] ]) ifTrue: [
 		builder createMainVirtualTable.
 	].
 
@@ -66,6 +54,21 @@ MbndAbstractClassType >> initialize [
 { #category : #'testing methods' }
 MbndAbstractClassType >> isAbstractClassType [
 	^ true
+]
+
+{ #category : #'testing methods' }
+MbndAbstractClassType >> isMetaTypeType [
+	^ self hasFlag: #metaTypeType
+]
+
+{ #category : #'as yet unclassified' }
+MbndAbstractClassType >> markAsDefined [
+	self addFlag: #defined
+]
+
+{ #category : #'as yet unclassified' }
+MbndAbstractClassType >> markAsMetaTypeType [
+	^ self addFlag: #metaTypeType
 ]
 
 { #category : #accessing }

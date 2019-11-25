@@ -6,5 +6,6 @@ Class {
 
 { #category : #accessing }
 MbndAbstractClassMetaBuilder >> superclass: superClassNode [
-	superTypeNode := superClassNode
+	superTypeNode := superClassNode.
+	self ensureTypeDefinitionNode.
 ]

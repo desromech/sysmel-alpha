@@ -87,7 +87,11 @@ MbndSlovimCompilationTarget >> slvmCompilationTarget [
 
 { #category : #accessing }
 MbndSlovimCompilationTarget >> slvmCompilationTarget: anObject [
-	slvmCompilationTarget := anObject
+	slvmCompilationTarget := anObject.
+	slvmCompilationTarget objectModel: (MbndSlovimObjectModel new
+		managedObjectModel: self managedObjectModel;
+		target: slvmCompilationTarget;
+		yourself)
 ]
 
 { #category : #initialization }

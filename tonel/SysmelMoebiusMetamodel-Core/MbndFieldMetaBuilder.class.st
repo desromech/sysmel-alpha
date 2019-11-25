@@ -3,14 +3,23 @@ Class {
 	#superclass : #MbndAbstractVariableMetaBuilder,
 	#traits : 'TMbndEntityWithVisibility',
 	#classTraits : 'TMbndEntityWithVisibility classTrait',
+	#instVars : [
+		'bits'
+	],
 	#category : #'SysmelMoebiusMetamodel-Core-MetaBuilder'
 }
+
+{ #category : #accessing }
+MbndFieldMetaBuilder >> bits: bitCount [
+	bits := bitCount
+]
 
 { #category : #'semantic analysis' }
 MbndFieldMetaBuilder >> concretizeNode: node withAnalyzer: analyzer [
 	| result |
 	result := (analyzer astBuilder
 		defineField: name withValueType: valueType withInitialValue: initialValueNode)
+		bits: bits;
 		position: position;
 		flags: flags;
 		yourself.

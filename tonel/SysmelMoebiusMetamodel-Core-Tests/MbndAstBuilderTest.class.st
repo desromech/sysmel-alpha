@@ -819,6 +819,17 @@ MbndAstBuilderTest >> testPragmaNode [
 ]
 
 { #category : #tests }
+MbndAstBuilderTest >> testProgramEntityExtensionNode [
+	| node programEntity extension |
+	programEntity := builder identifier: #ProgramEntity.
+	extension := builder sequence: #().
+	node := builder programEntity: programEntity extension: extension.
+	self assert: node isProgramEntityExtensionNode.
+	self assert: node programEntity equals: programEntity.
+	self assert: node body equals: extension.
+]
+
+{ #category : #tests }
 MbndAstBuilderTest >> testQuasiQuoteNode [
 	| node quoted |
 	quoted := builder literalInteger: 1.

@@ -30,6 +30,14 @@ MbndAggregateTypeInstanceValue >> asMoebiusLiteralValueNodeWithTarget: compilati
 	^ self asLiteralValueNode
 ]
 
+{ #category : #'as yet unclassified' }
+MbndAggregateTypeInstanceValue >> resizeTo: newSize at: aPosition [
+	| defaultValue |
+	defaultValue := (type elementType defaultValueAt: aPosition) unwrapMbndValue.
+	slots := (slots species new: newSize)
+		atAllPut: defaultValue
+]
+
 { #category : #evaluating }
 MbndAggregateTypeInstanceValue >> slotValues [
 	^ slots collect: #value

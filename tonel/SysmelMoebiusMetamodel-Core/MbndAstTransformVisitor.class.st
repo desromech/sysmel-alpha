@@ -260,6 +260,14 @@ MbndAstTransformVisitor >> visitGCClassDefinitionNode: node [
 ]
 
 { #category : #visiting }
+MbndAstTransformVisitor >> visitGCVariableDataArrayElementReferenceNode: node [
+	^ node copy
+		container: (self visitNode: node container);
+		index: (self visitNode: node index);
+		yourself
+]
+
+{ #category : #visiting }
 MbndAstTransformVisitor >> visitGenericCastNode: node [
 	^ node copy
 		expression: (self visitNode: node expression);
@@ -512,6 +520,16 @@ MbndAstTransformVisitor >> visitPragmaNode: node [
 	^ node copy
 		selector: (node selector);
 		arguments: (self visitNodesAndCollect: node arguments);
+		yourself
+]
+
+{ #category : #visiting }
+MbndAstTransformVisitor >> visitProgramEntityExtensionNode: node [
+	^ node copy
+		programEntity: (node programEntity isMbndAstNode
+			ifTrue: [ self visitNode: node programEntity ]
+			ifFalse: [ node programEntity ]);
+		body: (self visitNode: node body)
 		yourself
 ]
 
