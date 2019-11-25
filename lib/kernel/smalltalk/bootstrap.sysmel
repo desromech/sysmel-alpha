@@ -1,5 +1,6 @@
 namespace SysmelKernel definition: {
 
+#*
 Compiler compilationTarget
     managedClassTypeTrait: trait ManagedClassTrait.
 
@@ -88,19 +89,27 @@ GCClassVariableDataArrayType macro selectors: #(size) doOn: #{
             ^ sizeField ssaGetValue: actualReceiver builder: builder
     }.
 }.
-
+*#
 }. ## End of namespace Sysmel
 
+
+## The most essential declarations.
 namespace Smalltalk definition: {
 
-## Meta circular hierarchy
 gcclass ProtoObject.
 gcclass Metaclass.
 
 ProtoObject metaClassClass: Metaclass.
+Metaclass metaClassClass: Metaclass.
 
 Compiler compilationTarget dynamicObjectType: ProtoObject.
-compileTimeConstant Dynobject := ProtoObject.
+}.
+
+namespace SysmelKernel definition: {
+	compileTimeConstant Dynobject := Smalltalk ProtoObject.
+}.
+
+namespace Smalltalk definition: {
 
 gcclass Object superclass: ProtoObject.
     gcclass Behavior superclass: Object.
@@ -151,16 +160,15 @@ gcclass Collection superclass: Object.
 gcclass CompiledMethod superclass: Object.
 
 ## ProtoObject
-ProtoObject type superclass: Class.
+ProtoObject type supertype: Class.
 
 ProtoObject definition: {
     ## We use a fixed 16-byte object header, to be able to use SSE instructions.
-    (SelfType addMainVTableFieldNamed: #__vtable)
-        private.
+    (SelfType addMainVTableFieldNamed: #__vtable) private.
 
     if: UIntPointer instanceSize == 4 then: {
         ## TODO: Support big-endian.
-        field __padding private type: Behavior.
+        field __padding private type: UInt32.
     }.
 
     ## 32 bits: gc color, isPinned, isImmutable.
@@ -175,7 +183,7 @@ ProtoObject definition: {
     field __variableDataSize private type: UInt32.
 }.
 
-Behavior uses: Type; definition: {
+Behavior definition: {
     field superclass public type: Behavior.
     field methodDict public type: MethodDictionary.
     field gclayout public type: GCLayout.
@@ -188,37 +196,14 @@ Behavior uses: Type; definition: {
     field variableInstanceElementSize public type: UInt32.
     field variableInstanceElementAlignment public type: UInt32.
 
-    ## Notify about dynamic object type.
-    message isDynamicObjectType => BooleanBit := {
-        return: true
-    }.
-
-    message isAnyDynamicObjectType => BooleanBit := {
-        return: self == Dynobject
-    }.
-
     ## The type of the instance is actually a dependent type because of the meta-circular hierarchy.
-    type InstanceType uses: AnyValue;
-        definition: {
-        meta message asConcreteTypeForFunctionAnalysis => Type := {
-            return: Dynobject
-        }.
-
-        meta message asReturnTypeForReceiverType: (receiverType: _CompilerObjectType) argumentTypes: (argumentTypes: _CompilerObjectType) ::=> _CompilerObjectType := {
-            return: receiverType instanceType
-        }.
-    }.
-
-    (message basicNew => InstanceType := {
-        <notInCompileTime>
+    message basicNew => _DependentInstanceType := {
+		<intrinsic: #"gc.object.basicNew">
         return: (self basicNew: 0)
-    }) evaluator: $$Pharo {
-        evaluateMessageWithReceiver: receiver arguments: arguments environment: environment at: position
-            ^ receiver makeInstance asSysmelValueInEnvironment: environment
     }.
 
-    (message basicNew: (initialSize: UInt32) ::=> InstanceType := {
-        <notInCompileTime>
+    message basicNew: (initialSize: UInt32) ::=> _DependentInstanceType := {
+		<intrinsic: #"gc.object.basicNew.variable">
         ## Compute the object size.
         let objectSize := instanceDataSize + initialSize*variableInstanceElementSize.
 
@@ -230,19 +215,6 @@ Behavior uses: Type; definition: {
 
         ## Convert the allocated object.
         return: (allocatedObject reinterpretCastTo: ProtoObject)
-    }) evaluator: $$Pharo {
-        evaluateMessageWithReceiver: receiver arguments: arguments environment: environment at: position
-            ^ (receiver makeInstance: arguments first unwrapSysmelValue) asSysmelValueInEnvironment: environment
-    }.
-
-    message asReceiverType => SelfType := {
-        <compileTime>
-        return: self
-    }.
-
-    message cvariadicCoercionType => SelfType := {
-        <compileTime>
-        return: self
     }.
 
     message lookupSelector: (selector: ProtoObject) ::=> ProtoObject := {
@@ -315,19 +287,18 @@ ProtoObject definition: {
         return: __identityHash
     }.
 
-    (message == (other: ProtoObject) => BooleanBit := {
+    message == (other: ProtoObject) => BooleanBit := {
         <compileTime>
         <staticBinding>
-        <intrinsic: #"dynobject.identityEquals">
-    }) evaluator: $$Pharo {
-        evaluateMessageWithReceiver: receiver arguments: arguments environment: environment at: position
-            ^ (receiver unwrapSysmelValue == arguments first unwrapSysmelValue) asSysmelValueInEnvironment: environment
+		## Identity equality message is also defined as a macro, so lets just exploit its previous definition.
+		self == other
     }.
 
     message ~~ (other: ProtoObject) => BooleanBit := {
         <compileTime>
         <staticBinding>
-        <intrinsic: #"dynobject.identityNotEquals">
+		## Identity equality message is also defined as a macro, so lets just exploit its previous definition.
+		self ~~ other
     }.
 }.
 
@@ -484,26 +455,6 @@ MethodDictionary definition: {
 }.
 
 ##-----------------------------------------------------------------------------
-## Literals
-let literalConversionRule := #{
-    evaluation: $$Pharo {
-        value: value into: targetType at: coercionPosition
-            "Literal => Object eval"
-            ^ (value value asLiteralObjectProxyWithType: targetType) sysmelValueWithType: targetType inEnvironment: value environment
-    }.
-
-    codeGeneration: $$Pharo {
-        convertSSAValue: sourceValue to: targetType with: builder at: messageNode
-            ^ builder addDynamicLiteral: sourceValue
-    }.
-}.
-
-_LiteralSymbol conversionTo: Symbol doOn: literalConversionRule.
-_LiteralString conversionTo: String doOn: literalConversionRule.
-_LiteralInteger conversionTo: Integer doOn: literalConversionRule.
-_LiteralFloat conversionTo: Float doOn: literalConversionRule.
-
-##-----------------------------------------------------------------------------
 ## Normal message lookup
 namespace Runtime definition: {
 function messageLookupFromBehavior(behavior: Behavior, object: ProtoObject, selector: Object, fallbackTrampoline: Void pointer) => Void pointer := {
@@ -520,7 +471,7 @@ function messageLookupFromBehavior(behavior: Behavior, object: ProtoObject, sele
         return: fallbackTrampoline
     }.
 
-    let compiledMethod := method castTo: CompiledMethod.
+    let compiledMethod := method reinterpretCastTo: CompiledMethod.
     ##LibC printf("Found method: %p entryPoint: %p\n", compiledMethod, compiledMethod entryPoint).
     return: compiledMethod entryPoint
 }.
@@ -531,7 +482,7 @@ function normalMessageLookup(object: ProtoObject, selector: Object, fallbackTram
     return: messageLookupFromBehavior(object class, object, selector, fallbackTrampoline).
 }.
 
-Compiler compilationTarget objectModel
+Compiler compilationTarget managedObjectModel
     sysmelMessageLookupFunction: normalMessageLookup;
     arrayClass: Array;
     byteArrayClass: ByteArray;
@@ -540,6 +491,8 @@ Compiler compilationTarget objectModel
     methodDictionaryClass: MethodDictionary;
     symbolClass: Symbol;
     stringClass: String;
+	integerClass: Integer;
+	floatClass: Float;
     yourself
 }.
 

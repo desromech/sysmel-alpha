@@ -71,7 +71,7 @@ definition: {
     meta message createPrintingName => _CompilerObjectType := {
         return: (ElementType printingName -- "x" -- RowCount printString -- "x" -- ColumnCount printString)
     }.
-
+#*
     (meta message withAll: (value: ElementType) ::=> SelfType)
         definition: `'{};
         evaluator: $$Pharo {
@@ -124,7 +124,7 @@ definition: {
     meta message generateSSAValue: (value: _CompilerObjectType) withBuilder: (builder: _CompilerObjectType) ::=> _CompilerObjectType := {
         return: (value unwrapSysmelValue generateSSAReferenceWith: builder)
     }.
-
+*#
     meta macro expansionRule zeros := ``(
         `,self withAll: 0
     ).

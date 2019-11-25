@@ -224,7 +224,7 @@ class TextStreamWriter definition: {
         := self nextPutDouble: double; yourself.
 }.
 
-#*PrimitiveVectorTypeTemplate extend: {
+#*_PrimitiveVectorTypeTemplate extend: {
     let VectorType := SelfType.
 
     TextStreamWriter extend: {

@@ -35,8 +35,14 @@ struct GCFunctionStackMapEntry definition: {
         := self roots[self paddedRootCount] address reinterpretCastTo: GCFunctionStackMapEntry pointer.
 }.
 
-global __sysmel_gc_section_start external externC mutable type: GCFunctionStackMapEntry.
-global __sysmel_gc_section_end external externC mutable type: GCFunctionStackMapEntry.
+if: Compiler hasGarbageCollectionStackMap then: {
+	global __sysmel_gc_section_start external externC mutable type: GCFunctionStackMapEntry.
+	global __sysmel_gc_section_end external externC mutable type: GCFunctionStackMapEntry.
+} else: {
+	global __sysmel_gc_section_start externC mutable type: GCFunctionStackMapEntry.
+	global __sysmel_gc_section_end externC mutable type: GCFunctionStackMapEntry.
+}.
+
 
 #**
  * _ObjectHeader

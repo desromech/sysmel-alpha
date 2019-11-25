@@ -1,13 +1,12 @@
 loadFileOnce: "bootstrap/bootstrap.sysmel".
 
-##loadFileOnce: "primitiveVectors.sysmel".
-##loadFileOnce: "primitiveMatrix.sysmel".
-
 if: Compiler hasStandardLibrary then: {
     loadFileOnce: "stdlib/stdlib.sysmel".
 
     if: Compiler hasRuntimeTypeInformation then: {
-        loadFileOnce: "smalltalk/smalltalk.sysmel"
+		if: Compiler hasGarbageCollectionSupport then: {
+	        loadFileOnce: "smalltalk/smalltalk.sysmel"
+		}
     }.
 }.
 
