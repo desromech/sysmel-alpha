@@ -2,7 +2,6 @@ Trait {
 	#name : #TMbndCoreManagedObjectModel,
 	#instVars : [
 		'compilationTarget',
-		'sysmelMessageLookupFunction',
 		'arrayClass',
 		'byteArrayClass',
 		'compiledMethodClass',
@@ -11,7 +10,8 @@ Trait {
 		'symbolClass',
 		'stringClass',
 		'integerClass',
-		'floatClass'
+		'floatClass',
+		'messageLookupFunction'
 	],
 	#traits : 'TMbndAbstractManagedObjectModel',
 	#classTraits : 'TMbndAbstractManagedObjectModel classTrait',
@@ -82,6 +82,16 @@ TMbndCoreManagedObjectModel >> integerClass: anObject [
 ]
 
 { #category : #accessing }
+TMbndCoreManagedObjectModel >> messageLookupFunction [
+	^ messageLookupFunction
+]
+
+{ #category : #accessing }
+TMbndCoreManagedObjectModel >> messageLookupFunction: anObject [
+	messageLookupFunction := anObject
+]
+
+{ #category : #accessing }
 TMbndCoreManagedObjectModel >> methodDictionaryClass [
 	^ methodDictionaryClass
 ]
@@ -111,14 +121,4 @@ TMbndCoreManagedObjectModel >> symbolClass [
 TMbndCoreManagedObjectModel >> symbolClass: anObject [
 	symbolClass := anObject.
 	compilationTarget literalSymbolType addConversionTo: symbolClass rule: MbndLiteralValueTypeChangeConversionRule.
-]
-
-{ #category : #accessing }
-TMbndCoreManagedObjectModel >> sysmelMessageLookupFunction [
-	^ sysmelMessageLookupFunction
-]
-
-{ #category : #accessing }
-TMbndCoreManagedObjectModel >> sysmelMessageLookupFunction: anObject [
-	sysmelMessageLookupFunction := anObject
 ]

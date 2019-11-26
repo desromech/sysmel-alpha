@@ -41,6 +41,11 @@ MbndAbstractMethod >> evaluateWithReceiver: receiver arguments: arguments withEv
 ]
 
 { #category : #testing }
+MbndAbstractMethod >> hasPragmaNamed: pragmaName [
+	^ self pragmaAt: pragmaName ifAbsent: [ false ] ifPresent: [ :x | true ]
+]
+
+{ #category : #testing }
 MbndAbstractMethod >> hasVirtualTableEntry [
 	^ false
 ]
@@ -68,4 +73,14 @@ MbndAbstractMethod >> parent [
 { #category : #accessing }
 MbndAbstractMethod >> parent: anObject [
 	parent := anObject
+]
+
+{ #category : #testing }
+MbndAbstractMethod >> pragmaAt: pragmaName ifAbsent: absentBlock ifPresent: presentBlock [
+	^ absentBlock value
+]
+
+{ #category : #testing }
+MbndAbstractMethod >> pragmaAt: pragmaName ifPresent: presentBlock [
+	^ self pragmaAt: pragmaName ifAbsent: [nil] ifPresent: presentBlock
 ]

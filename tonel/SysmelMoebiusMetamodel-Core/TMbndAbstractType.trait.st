@@ -444,8 +444,10 @@ TMbndAbstractType >> findConversionRuleInto: targetType node: node rulesExtracto
 			
 				rule isTypeKindConversion ifTrue: [
 					rule targetTypeKind withAllTraitUsersDo: [ :nextType |
-						(visitedTypes includesKey: nextType) ifFalse: [
-							pendingTypes addLast: { nextType . { currentType . rule } }.
+						(rule canBeUsedToConvertNode: node from: currentType into: nextType) ifTrue: [
+							(visitedTypes includesKey: nextType) ifFalse: [
+								pendingTypes addLast: { nextType . { currentType . rule } }.
+							]
 						]
 					]
 				]
@@ -474,6 +476,11 @@ TMbndAbstractType >> getExtraMetaBuilderFactoryList [
 	^ { 
 		#method . MbndMethodMetaBuilder metaBuilderFactory.
 	}
+]
+
+{ #category : #testing }
+TMbndAbstractType >> hasDynamicMessageLookup [
+	^ false
 ]
 
 { #category : #'type hierarchy' }

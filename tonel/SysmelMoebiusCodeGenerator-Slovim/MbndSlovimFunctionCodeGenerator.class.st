@@ -11,8 +11,28 @@ Class {
 		'currentBreakBlock',
 		'currentContinueBlock'
 	],
+	#classVars : [
+		'AdditionalIntrinsicsDictionary',
+		'EvaluationOnlyIntrinsics'
+	],
 	#category : #'SysmelMoebiusCodeGenerator-Slovim-Module'
 }
+
+{ #category : #'class initialization' }
+MbndSlovimFunctionCodeGenerator class >> initialize [
+	AdditionalIntrinsicsDictionary := Dictionary newFromPairs: #(
+		#'vector.length2' generateVectorLength2Intrinsic:
+		#'vector.cross.2d' generateVectorCross2DIntrinsic:
+		#'dynobject.identityEquals' generateIdentityEquals:
+		#'dynobject.identityNotEquals' generateIdentityNotEquals:
+	).
+	
+	EvaluationOnlyIntrinsics := Set newFrom: #(
+		#'dynobject.class'
+		#'dynobject.identityHash'
+		#'gc.object.basicNew' #'gc.object.basicNew.variable'
+	)
+]
 
 { #category : #'as yet unclassified' }
 MbndSlovimFunctionCodeGenerator >> buildSSAFunction: aSSAFunction definitionWithConcreteMethod: aConcreteMethod [
@@ -80,17 +100,34 @@ MbndSlovimFunctionCodeGenerator >> defineArgumentValues [
 ]
 
 { #category : #'as yet unclassified' }
+MbndSlovimFunctionCodeGenerator >> generateExpandedMessageSendNode: node withIntrinsicName: intrinsicName [
+	AdditionalIntrinsicsDictionary at: intrinsicName ifPresent: [ :selector |
+		^ self perform: selector with: node
+	].
+	(EvaluationOnlyIntrinsics includes: intrinsicName) ifTrue: [
+		^ self generateExpandedMessageSendNode: node withStaticMethodBoundTo: (self translateProgramEntity: node method) ssaValue
+	].
+	^ self generateExpandedMessageSendNode: node withStaticMethodBoundTo: (codeModuleGenerator intrinsicConstantBuiltInFunction: intrinsicName withType: node method type)
+]
+
+{ #category : #'as yet unclassified' }
 MbndSlovimFunctionCodeGenerator >> generateExpandedMessageSendNode: node withStaticMethodBoundTo: methodSSAFunction [
-	| receiver receiverType arguments allArguments calledMethodSSAFunction vtableLayout vtableSlot vtableEntrySlot result expectedResultType |
+	| receiver receiverType arguments allArguments calledMethodSSAFunction vtableLayout vtableSlot vtableEntrySlot result expectedResultType hasDynamicMessageLookup selectorValue |
 	receiver := node receiver ifNotNil: [self visitNode: node receiver].
+	selectorValue := self visitNode: node selector.
 	arguments := self visitNodesAndCollect: node arguments.
 	allArguments := arguments.
+
+	hasDynamicMessageLookup := node receiver
+		ifNil: [ false ]
+		ifNotNil: [:receiverNode | hasDynamicMessageLookup := receiverNode type hasDynamicMessageLookup].
 	receiver ifNotNil: [
 		allArguments := { receiver } , arguments
 	].
 
 	calledMethodSSAFunction := methodSSAFunction.
 	node method hasVirtualTableEntry ifTrue: [
+		hasDynamicMessageLookup := false.
 		receiverType := node receiver type withoutReferences.
 		vtableLayout := receiverType slotLayout mainVirtualTable.
 	
@@ -101,16 +138,46 @@ MbndSlovimFunctionCodeGenerator >> generateExpandedMessageSendNode: node withSta
 		calledMethodSSAFunction := slvmBuilder bitCast: vtableEntrySlot target: methodSSAFunction type.
 	].
 	
-	result := slvmBuilder call: calledMethodSSAFunction arguments: allArguments.
-	expectedResultType := self translateType: node type.
+	(node method hasPragmaNamed: #staticBinding) ifTrue: [ hasDynamicMessageLookup := false ].
 	
+	expectedResultType := self translateType: node type.
+	hasDynamicMessageLookup ifTrue:[
+		selectorValue isSymbol ifTrue: [ selectorValue := slvmBuilder addDynamicLiteral: selectorValue ].
+		self assert: selectorValue type isDynamicObjectPointerType.
+		result := slvmBuilder send: selectorValue returnType: expectedResultType receiver: receiver arguments: arguments
+	] ifFalse: [
+		result := slvmBuilder call: calledMethodSSAFunction arguments: allArguments.
+	].
+
 	"We may need to adjust the result type in the case of dependent types."
 	result type ~~ expectedResultType ifTrue: [ 
 		self assert: (result type isPointerType and: [ expectedResultType isPointerType ]).
 		result := slvmBuilder bitCast: result target: expectedResultType
 	].
-	
+
 	^ result
+]
+
+{ #category : #visiting }
+MbndSlovimFunctionCodeGenerator >> generateIdentityEquals: node [
+	| leftValue rightValue |
+	leftValue := self visitNode: node receiver.
+	rightValue := self visitNode: node arguments first.
+	self assert: leftValue type isDynamicObjectPointerType.
+	self assert: rightValue type isDynamicObjectPointerType.
+	self assert: leftValue type == rightValue type.
+	^ slvmBuilder dynObjectIdentityEquals: leftValue with: rightValue
+]
+
+{ #category : #visiting }
+MbndSlovimFunctionCodeGenerator >> generateIdentityNotEquals: node [
+	| leftValue rightValue |
+	leftValue := self visitNode: node receiver.
+	rightValue := self visitNode: node arguments first.
+	self assert: leftValue type isDynamicObjectPointerType.
+	self assert: rightValue type isDynamicObjectPointerType.
+	self assert: leftValue type == rightValue type.
+	^ slvmBuilder dynObjectIdentityNotEquals: leftValue with: rightValue
 ]
 
 { #category : #visiting }

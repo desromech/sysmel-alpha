@@ -24,6 +24,22 @@ MbndSlovimCompilationTarget class >> slvmCompilationTarget: slvmTarget [
 		yourself
 ]
 
+{ #category : #adding }
+MbndSlovimCompilationTarget >> addSysmelLLVMGCPlugin [
+	| path |
+	#(
+		'SysmelGCPlugin.so'
+		'SysmelGCPlugin.dylib'
+		'SysmelGCPlugin.dll'
+	) do: [ :pluginName |
+		path := Smalltalk imageDirectory / pluginName.
+		path exists ifTrue: [
+			^ slvmCompilationTarget compilationPlugins: { path fullName }
+		]
+	]
+
+]
+
 { #category : #accessing }
 MbndSlovimCompilationTarget >> float64Alignment [
 	^ slvmCompilationTarget float64 alignment
@@ -96,5 +112,6 @@ MbndSlovimCompilationTarget >> slvmCompilationTarget: anObject [
 
 { #category : #initialization }
 MbndSlovimCompilationTarget >> withDebugInformation [
-	slvmCompilationTarget withDebugInformation
+	slvmCompilationTarget withDebugInformation.
+	self addSysmelLLVMGCPlugin
 ]

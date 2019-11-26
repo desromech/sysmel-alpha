@@ -4,7 +4,9 @@ Class {
 	#instVars : [
 		'managedObjectModel',
 		'moduleCodeGenerator',
-		'convertedSymbolDictionary'
+		'convertedSymbolDictionary',
+		'gcrootIntrinsic',
+		'messageLookupFunction'
 	],
 	#category : #'SysmelMoebiusCodeGenerator-Slovim-CompilationTarget'
 }
@@ -33,6 +35,45 @@ MbndSlovimObjectModel >> computeBytesHash: data initialHash: initialHash [
 { #category : #converting }
 MbndSlovimObjectModel >> convertInlineLiteral: literalValue withType: targetType [
 	^ SLVMConstantValue type: targetType value: literalValue
+]
+
+{ #category : #'code generation' }
+MbndSlovimObjectModel >> createDoesNotUnderstandTrampolineWithType: functionType [
+	| function builder boxedMessage result convertedResult |
+	function := SLVMFunction pointerSize: target pointerSize functionType: functionType.
+	function
+		compilationTarget: target;
+		propertyAt: #omitDebugInformation put: true;
+		propertyAt: #dnuTrampoline put: true;
+		gcStrategy: #sysmel.
+	
+	
+	builder := SLVMBuilder on: function.
+	
+	builder newBasicBlockHere: #entry.
+	
+	boxedMessage := builder addDynamicLiteral: nil.
+	
+	result := builder send: (builder addDynamicLiteral: #doesNotUnderstand:)
+		returnType: target dynamicObjectType 
+		receiver: function arguments first
+		arguments: { boxedMessage }.
+	
+	functionType returnType isDynamicObjectType ifTrue: [ 
+		convertedResult := result type == functionType returnType
+			ifTrue: [ result ]
+			ifFalse: [ builder bitCast: result target: functionType returnType ].
+		builder return: convertedResult.
+	] ifFalse: [ 
+		functionType returnType isVoidType ifTrue: [
+			builder returnVoid
+		] ifFalse: [ 
+			self flag: 'TODO: Unbox the result.'.
+			builder return: functionType returnType defaultConstant
+		].
+	].
+
+	^ function
 ]
 
 { #category : #converting }
@@ -71,6 +112,14 @@ MbndSlovimObjectModel >> createSymbolObjectInstance: symbol [
 
 ]
 
+{ #category : #accessing }
+MbndSlovimObjectModel >> gcrootIntrinsic [
+	^ gcrootIntrinsic ifNil: [
+		gcrootIntrinsic := SLVMConstantBuiltInFunction pointerSize: target pointerSize
+			name: #'gc.root'
+			functionType: (SLVMFunctionType callingConvention: #cdecl arguments: { target voidPointerPointerType . target voidPointerType } returnType: target void) ]
+]
+
 { #category : #converting }
 MbndSlovimObjectModel >> generateIdentityHash [
 	^ moduleCodeGenerator generateIdentityHash
@@ -90,6 +139,12 @@ MbndSlovimObjectModel >> managedObjectModel [
 { #category : #accessing }
 MbndSlovimObjectModel >> managedObjectModel: anObject [
 	managedObjectModel := anObject
+]
+
+{ #category : #accessing }
+MbndSlovimObjectModel >> messageLookupFunction [
+	<compileTime>
+	^ messageLookupFunction ifNil: [messageLookupFunction := (moduleCodeGenerator translateProgramEntity: managedObjectModel messageLookupFunction) ssaValue ]
 ]
 
 { #category : #accessing }

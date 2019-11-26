@@ -237,6 +237,12 @@ MbndAbstractConcreteMethod >> lookupBoundReceiverSymbol: aSymbol [
 	^ nil
 ]
 
+{ #category : #testing }
+MbndAbstractConcreteMethod >> pragmaAt: pragmaName ifAbsent: absentBlock ifPresent: presentBlock [
+	definitionNode ifNil: [ ^ absentBlock value ].
+	^ self analyzedBody pragmaAt: pragmaName ifAbsent: absentBlock ifPresent: presentBlock
+]
+
 { #category : #'as yet unclassified' }
 MbndAbstractConcreteMethod >> virtualTableSelector [
 	^ {name . self class . boundType }

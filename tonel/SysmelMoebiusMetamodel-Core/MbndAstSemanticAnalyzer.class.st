@@ -1576,7 +1576,7 @@ MbndAstSemanticAnalyzer >> visitSequenceNode: node [
 		result type: self compilationTarget voidType
 	] ifNotEmpty: [
 		"Remove sequences with a single element."
-		result elements size = 1 ifTrue: [ ^ result elements first ].
+		(result elements size = 1 and: [result pragmas isEmpty]) ifTrue: [ ^ result elements first ].
 		
 		"If there is an explicit return, cut the analyzer elements."
 		explicitReturnIndex := result elements detectIndex: [ :el | el type isReturnType ] ifNone: [ result elements size + 1 ].

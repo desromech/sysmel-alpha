@@ -24,6 +24,11 @@ MbndAstAbstractCastNode >> isAbstractCastNode [
 ]
 
 { #category : #accessing }
+MbndAstAbstractCastNode >> pragmaAt: pragmaName ifAbsent: absentBlock ifPresent: presentBlock [
+	^ expression pragmaAt: pragmaName ifAbsent: absentBlock ifPresent: presentBlock
+]
+
+{ #category : #accessing }
 MbndAstAbstractCastNode >> targetType [
 	^ targetType
 ]

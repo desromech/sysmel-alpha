@@ -11,7 +11,8 @@ Class {
 		'anonSymbolCount',
 		'debugLocationDictionary',
 		'debugSourceFileDictionary',
-		'identityHashRandomGenerator'
+		'identityHashRandomGenerator',
+		'intrinsicConstantBuiltInFunctionCache'
 	],
 	#category : #'SysmelMoebiusCodeGenerator-Slovim-Module'
 }
@@ -166,6 +167,18 @@ MbndSlovimCodeModuleGenerator >> initialize [
 	debugSourceFileDictionary := Dictionary new.
 	debugLocationDictionary := Dictionary new.
 	identityHashRandomGenerator := Random seed: 0.
+	intrinsicConstantBuiltInFunctionCache := Dictionary new.
+]
+
+{ #category : #'as yet unclassified' }
+MbndSlovimCodeModuleGenerator >> intrinsicConstantBuiltInFunction: intrinsicName withType: functionType [
+	| ssaFunctionType |
+	ssaFunctionType := self translateType: functionType.
+	^ intrinsicConstantBuiltInFunctionCache at: { intrinsicName . ssaFunctionType } ifAbsentPut: [ 
+		SLVMConstantBuiltInFunction pointerSize: self slvmCompilationTarget pointerSize
+			name: intrinsicName
+			functionType: ssaFunctionType
+	]
 ]
 
 { #category : #visiting }
@@ -205,6 +218,13 @@ MbndSlovimCodeModuleGenerator >> setProgramEntity: programEntity ssaValue: ssaVa
 MbndSlovimCodeModuleGenerator >> setProgramEntity: programEntity translation: translation [
 	translatedProgramEntities at: programEntity put: translation.
 	^ translation
+]
+
+{ #category : #visiting }
+MbndSlovimCodeModuleGenerator >> setupGCStrategyFor: ssaFunction generatedFrom: functionMethod [
+	sourceModule hasGarbageCollectionStackMap ifFalse: [ ^ self ].
+	(functionMethod hasPragmaNamed: #nogc) ifTrue: [ ^ self ].
+	ssaFunction gcStrategy: #sysmel
 ]
 
 { #category : #accessing }
@@ -367,6 +387,7 @@ MbndSlovimCodeModuleGenerator >> visitConcreteFunctionMethod: functionMethod [
 	csymbol := self csymbolForProgramEntity: functionMethod.
 	unmangledName := self unmangledNameForProgramEntity: functionMethod.
 	ssaFunction := SLVMFunction module: ssaModule name: csymbol functionType: ssaFunctionType.
+
 	ssaFunction unmangledName: unmangledName.
 	self setProgramEntity: functionMethod ssaValue: ssaFunction.
 
@@ -379,6 +400,7 @@ MbndSlovimCodeModuleGenerator >> visitConcreteFunctionMethod: functionMethod [
 	] ifNotNil: [
 		self flag: 'TODO: Support the correct linkage/visibility.'.
 		ssaFunction makePublic.
+		self setupGCStrategyFor: ssaFunction generatedFrom: functionMethod.
 		
 		self createFunctionCodeGenerator
 			buildSSAFunction: ssaFunction definitionWithConcreteMethod: functionMethod
@@ -407,6 +429,7 @@ MbndSlovimCodeModuleGenerator >> visitConcreteMessageMethod: functionMethod [
 	] ifNotNil: [
 		self flag: 'TODO: Support the correct linkage/visibility.'.
 		ssaFunction makePublic.
+		self setupGCStrategyFor: ssaFunction generatedFrom: functionMethod.
 		
 		self createFunctionCodeGenerator
 			buildSSAFunction: ssaFunction definitionWithConcreteMethod: functionMethod

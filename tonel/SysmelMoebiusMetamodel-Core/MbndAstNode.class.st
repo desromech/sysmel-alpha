@@ -647,6 +647,11 @@ MbndAstNode >> position: anObject [
 	position := anObject
 ]
 
+{ #category : #accessing }
+MbndAstNode >> pragmaAt: pragmaName ifAbsent: absentBlock ifPresent: presentBlock [
+	^ absentBlock value
+]
+
 { #category : #printing }
 MbndAstNode >> printValueString [
 	^ self printString

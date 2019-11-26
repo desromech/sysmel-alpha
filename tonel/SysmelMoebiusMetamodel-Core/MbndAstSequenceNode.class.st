@@ -39,6 +39,15 @@ MbndAstSequenceNode >> isSequenceNode [
 ]
 
 { #category : #accessing }
+MbndAstSequenceNode >> pragmaAt: pragmaName ifAbsent: absentBlock ifPresent: presentBlock [
+	pragmas do: [:pragma |
+		pragma selector = pragmaName ifTrue: [ ^ presentBlock value: pragma ]
+	].
+	
+	^ absentBlock value
+]
+
+{ #category : #accessing }
 MbndAstSequenceNode >> pragmas [
 	^ pragmas
 ]

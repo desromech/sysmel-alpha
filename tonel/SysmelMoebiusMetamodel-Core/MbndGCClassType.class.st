@@ -48,6 +48,14 @@ MbndGCClassType >> analyzeReinterpretCastNode: node to: targetType with: analyze
 			yourself)
 	].
 
+	(undecoratedTargetType isPrimitiveIntegerType and: [ undecoratedTargetType instanceSize = self instanceSize ]) ifTrue: [
+		^ analyzer visitNode: (MbndAstPointerToIntegerCastNode new
+			position: node;
+			expression: node expression;
+			targetType: targetType;
+			yourself)
+	].
+
 	^ super analyzeReinterpretCastNode: node to: targetType with: analyzer
 ]
 
@@ -86,6 +94,11 @@ MbndGCClassType >> createMetaTypeBasicInstance [
 { #category : #'default values' }
 MbndGCClassType >> defaultValueAt: position [
 	^ MbndValue value: nil type: self
+]
+
+{ #category : #testing }
+MbndGCClassType >> hasDynamicMessageLookup [
+	^ true
 ]
 
 { #category : #accessing }

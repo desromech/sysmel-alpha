@@ -43,3 +43,8 @@ MbndAstCleanUpScopeNode >> initialize [
 MbndAstCleanUpScopeNode >> isCleanUpScopeNode [
 	^ true
 ]
+
+{ #category : #accessing }
+MbndAstCleanUpScopeNode >> pragmaAt: pragmaName ifAbsent: absentBlock ifPresent: presentBlock [
+	^ expression pragmaAt: pragmaName ifAbsent: absentBlock ifPresent: presentBlock
+]
