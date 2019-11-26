@@ -272,31 +272,71 @@ String definition: {
 
 ##-----------------------------------------------------------------------------
 ProtoObject definition: {
+
+    if: UIntPointer instanceSize = 4 then: {
+        message __isImmediateValue => BooleanBit := {
+            <notInCompileTime>
+            <staticBinding>
+            <nogc>
+            self == nil || (((self reinterpretCastTo: UIntPointer) & 3) ~= 0)
+        }.
+
+        message __immediateTypeTag => UInt8 := {
+            <notInCompileTime>
+            <staticBinding>
+            <nogc>
+            (self reinterpretCastTo: UIntPointer) >> 2 castTo: UInt8
+        }.
+    } else: {
+        message __isImmediateValue => BooleanBit := {
+            <notInCompileTime>
+            <staticBinding>
+            <nogc>
+            self == nil || (((self reinterpretCastTo: UIntPointer) & 7) ~= 0)
+        }.
+
+        message __immediateTypeTag => UInt8 := {
+            <notInCompileTime>
+            <staticBinding>
+            <nogc>
+            (self reinterpretCastTo: UIntPointer) >> 3 castTo: UInt8
+        }.
+    }.
+
     message class => Behavior := {
-        <compileTime>
         <staticBinding>
         <nogc>
-        ##return: __class
+        <intrinsic: #"dynobject.class">
+        self __isImmediateValue ifTrue: {
+            return: UndefinedObject.
+        }.
+
         __vtable[-1] reinterpretCastTo: Behavior
     }.
 
     message identityHash => UInt32 := {
-        <compileTime>
         <staticBinding>
         <nogc>
-        return: __identityHash
+        <intrinsic: #"dynobject.identityHash">
+        self __isImmediateValue ifTrue: {
+            (self reinterpretCastTo: UIntPointer) castTo: UInt32.
+        } ifFalse: {
+            __identityHash
+        }
     }.
 
     message == (other: ProtoObject) => BooleanBit := {
-        <compileTime>
         <staticBinding>
+        <nogc>
+		<intrinsic: #"dynobject.identityEquals">
 		## Identity equality message is also defined as a macro, so lets just exploit its previous definition.
 		self == other
     }.
 
     message ~~ (other: ProtoObject) => BooleanBit := {
-        <compileTime>
         <staticBinding>
+        <nogc>
+		<intrinsic: #"dynobject.identityNotEquals">
 		## Identity equality message is also defined as a macro, so lets just exploit its previous definition.
 		self ~~ other
     }.
@@ -483,7 +523,7 @@ function normalMessageLookup(object: ProtoObject, selector: Object, fallbackTram
 }.
 
 Compiler compilationTarget managedObjectModel
-    sysmelMessageLookupFunction: normalMessageLookup;
+    messageLookupFunction: normalMessageLookup;
     arrayClass: Array;
     byteArrayClass: ByteArray;
     compiledMethodClass: CompiledMethod;

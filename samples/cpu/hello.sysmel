@@ -74,16 +74,15 @@ function main externC (argc: Int32, argv: Char const pointer pointer) => Int32 :
 
     StdNative stdout << "Hello World: "; nextPutCString: argv value; nl.
 
-	#*
     StdNative stdout << "Object: " << (Smalltalk Object reinterpretCastTo: Void pointer); nl.
     StdNative stdout << "Object class: " << (Smalltalk Object class reinterpretCastTo: Void pointer); nl.
 
-    use: Smalltalk.
+    useNamespace: Smalltalk.
 
     let o := Object.
     StdNative stdout << "o: " << (o reinterpretCastTo: Void pointer); nl.
     StdNative stdout << "o class: " << (o class reinterpretCastTo: Void pointer); nl.
-    StdNative stdout << "Object basicNew: " << (Object basicNew reinterpretCastTo: Void pointer); nl.*#
+    StdNative stdout << "Object basicNew: " << (Object basicNew reinterpretCastTo: Void pointer); nl.
 
     return: 0.
 }.
