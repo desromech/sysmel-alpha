@@ -190,6 +190,9 @@ MbndSlovimCodeModuleGenerator >> isEmittingDebugInformation [
 MbndSlovimCodeModuleGenerator >> mangleProgramEntityName: programEntity [
 	| escapedNamed mangledType |
 	programEntity ifNil: [ ^ #_S ].
+	(programEntity name isNil and: [ programEntity isMbndType and: [programEntity isMetaType] ]) ifTrue: [
+		^ ((self mangleProgramEntityName: programEntity instanceType) , '__meta') asSymbol
+	].
 	(programEntity parent isNil and: [ programEntity isNamespace ]) ifTrue: [ ^ #_S ].
 	escapedNamed := self escapeNameForMangling: programEntity name.
 	mangledType := self mangleProgramEntityType: programEntity.
@@ -269,6 +272,30 @@ MbndSlovimCodeModuleGenerator >> translateType: aType [
 	^ self typeTranslator translateType: aType
 ]
 
+{ #category : #visiting }
+MbndSlovimCodeModuleGenerator >> translateTypeInfoDefinition: type [
+	| ssaTypeInfo ssaTypeInfoType metaType |
+	metaType := type type.
+	ssaTypeInfoType := self translateType: metaType.
+
+	sourceModule hasRuntimeTypeInformation ifFalse: [
+		self assert: type isGCClassType not.
+		ssaTypeInfo := SLVMConstant nullPointer: ssaTypeInfoType.
+		self setProgramEntity: type ssaValue: ssaTypeInfo.
+		^ ssaTypeInfo
+	].
+
+	self assert: ssaTypeInfoType isPointerType.
+	ssaTypeInfo := SLVMGlobalVariable module: ssaModule name: ((self mangleProgramEntityName: type ) , 'Ti') asSymbol valueType: ssaTypeInfoType baseType storage: SLVMType genericStorage.
+	self setProgramEntity: type ssaValue: ssaTypeInfo.
+	
+	ssaTypeInfo initialValue: (MbndSlovimLiteralValueGenerator new
+		codeModuleGenerator: self;
+		translateTypeInfoContent: type).
+
+	^ ssaTypeInfo
+]
+
 { #category : #'code generation' }
 MbndSlovimCodeModuleGenerator >> translateTypes: aType [
 	^ self typeTranslator translateTypes: aType
@@ -313,21 +340,20 @@ MbndSlovimCodeModuleGenerator >> unmangledNameForProgramEntity: programEntity in
 
 { #category : #visiting }
 MbndSlovimCodeModuleGenerator >> visitAggregateTypeWithFields: type [
-	| ssaType ssaValue ssaValueType |
+	| ssaType ssaValue ssaTypeValueType |
 	ssaType := self translateType: type.
-	ssaValueType := self translateType: type type.
+	ssaTypeValueType := self translateType: type type.
 
-	ssaValue := SLVMConstant nullPointer: ssaValueType.
-	self setProgramEntity: type ssaValue: ssaValue.
 	type isGCClassType ifTrue: [
 		ssaModule addStructure: ssaType baseType.
-		ssaModule addStructure: ssaValueType baseType.
+		ssaModule addStructure: ssaTypeValueType baseType.
 	] ifFalse: [
 		(ssaType isStructureType and: [ ssaType name isNotNil ]) ifTrue: [ 
 			ssaModule addStructure: ssaType
 		]
 	].
 
+	ssaValue := self translateTypeInfoDefinition: type.
 	self translateProgramEntityChildren: type.
 	^ ssaValue
 ]
@@ -560,7 +586,8 @@ MbndSlovimCodeModuleGenerator >> visitTemplate: template [
 
 { #category : #visiting }
 MbndSlovimCodeModuleGenerator >> visitTemplateInstance: templateInstance [
-	self translateProgramEntityChildren: templateInstance
+	self translateProgramEntityChildren: templateInstance.
+	^ nil
 ]
 
 { #category : #visiting }
@@ -570,10 +597,10 @@ MbndSlovimCodeModuleGenerator >> visitUnionType: type [
 
 { #category : #visiting }
 MbndSlovimCodeModuleGenerator >> visitUserDefinedType: type [
-	| ssaType |
-	ssaType := self translateType: type.
-	self setProgramEntity: type ssaValue: (SLVMConstant nullPointer: self slvmCompilationTarget voidPointerType).
+	| ssaValue |
+	ssaValue := self translateTypeInfoDefinition: type.
 	self translateProgramEntityChildren: type.
+	^ ssaValue
 	
 ]
 

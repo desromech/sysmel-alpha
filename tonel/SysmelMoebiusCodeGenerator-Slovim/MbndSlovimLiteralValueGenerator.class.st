@@ -31,6 +31,18 @@ MbndSlovimLiteralValueGenerator >> translateLiteralValue: theLiteralValueToTrans
 	^ literalType accept: self
 ]
 
+{ #category : #'code generation' }
+MbndSlovimLiteralValueGenerator >> translateTypeInfoContent: targetType [
+	| metaType |
+	metaType := targetType type.
+	literalValue := targetType.
+	targetType isGCClassType ifTrue: [ 
+		literalValue := targetType asInstanceObjectForTypeInfoGeneration.
+		^ self visitAggregateType: metaType
+	].
+	^ (self translateType: metaType) defaultConstant
+]
+
 { #category : #visiting }
 MbndSlovimLiteralValueGenerator >> visitAggregateType: type [
 	| slots convertedSlots slvmType hasBiggerArrayAtTheEnd |
@@ -177,6 +189,11 @@ MbndSlovimLiteralValueGenerator >> visitPrimitiveIntegerType: integerType [
 { #category : #'code generation' }
 MbndSlovimLiteralValueGenerator >> visitReferenceType: referenceType [
 	^ SLVMConstant pointerToConstant: (referenceType baseType accept: self) pointerType: (self translateType: referenceType)
+]
+
+{ #category : #visiting }
+MbndSlovimLiteralValueGenerator >> visitSimpleMetaType: type [
+	^ self translateProgramEntity: literalValue
 ]
 
 { #category : #visiting }

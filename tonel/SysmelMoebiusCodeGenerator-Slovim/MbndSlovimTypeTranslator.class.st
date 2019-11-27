@@ -163,7 +163,7 @@ MbndSlovimTypeTranslator >> visitReferenceType: referenceType [
 
 { #category : #visiting }
 MbndSlovimTypeTranslator >> visitSimpleMetaType: metaType [
-	^ self slvmCompilationTarget voidPointerType
+	^ self slvmCompilationTarget voidPointerPointerType
 ]
 
 { #category : #visiting }

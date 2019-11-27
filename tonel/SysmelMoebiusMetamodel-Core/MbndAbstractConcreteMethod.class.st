@@ -30,6 +30,11 @@ MbndAbstractConcreteMethod >> arguments [
 ]
 
 { #category : #evaluation }
+MbndAbstractConcreteMethod >> canBeEvaluatedInCompileTime [
+	^ (self hasPragmaNamed: #notInCompileTime) not
+]
+
+{ #category : #evaluation }
 MbndAbstractConcreteMethod >> constructEvaluationScopeWithReceiver: receiverValue arguments: argumentValues [
 	| evaluationScope argumentDefinition receiverDefinition |
 	evaluationScope := MbndFunctionEvaluationScope parent: definitionScope.
@@ -193,6 +198,14 @@ MbndAbstractConcreteMethod >> evaluateWithReceiver: receiverValue arguments: arg
 	self ensureSemanticAnalysis.
 	self assert: receiverType isVoidType = receiverValue isNil.
 	self assert: argumentValues size = argumentsWithoutReceiver size.
+	
+	self pragmaAt: #intrinsic: ifPresent: [ :intrinsic |
+		self halt
+	].
+
+	self canBeEvaluatedInCompileTime ifFalse: [
+		self error: 'Cannot evaluate method {1} in compile time.' format: { name asPrettySymbolName } at: position.
+	].
 
 	evaluationScope := self constructEvaluationScopeWithReceiver: receiverValue arguments: argumentValues.
 	callEvaluator := MbndAstEvaluator new

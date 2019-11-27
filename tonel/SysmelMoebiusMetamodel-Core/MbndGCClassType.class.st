@@ -80,6 +80,22 @@ MbndGCClassType >> asImmutableValueType [
 	^ self
 ]
 
+{ #category : #converting }
+MbndGCClassType >> asInstanceObjectForTypeInfoGeneration [
+	| result |
+	result := self type makeInstance: 0 identityHash: self identityHash at: MbndSourcePosition empty.
+	self flag: 'TODO: Set the superclass'.
+	self flag: 'TODO: Set the method dictionary.'.
+	self flag: 'TODO: Set the GC layout.'.
+	self flag: 'TODO: Set the basic initialize function.'.
+
+	self flag: 'TODO: Set the instance size'.
+	self flag: 'TODO: Set the instance alignment'.
+	self flag: 'TODO: Set the variable instance element size'.
+	self flag: 'TODO: Set the variable instance element alignment'.
+	^ result
+]
+
 { #category : #'as yet unclassified' }
 MbndGCClassType >> asReceiverType [
 	"My scheme is to be always a gc pointer."
