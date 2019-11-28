@@ -35,6 +35,11 @@ Object >> isMbndAstNode [
 ]
 
 { #category : #'*SysmelMoebiusMetamodel-Core' }
+Object >> isMbndGenerateSymbolRemovedFromDebug [
+	^ self isMbndAnonymousSymbol
+]
+
+{ #category : #'*SysmelMoebiusMetamodel-Core' }
 Object >> isMbndGeneratedSymbol [
 	^ false
 ]

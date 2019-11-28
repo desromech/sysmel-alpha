@@ -660,7 +660,7 @@ MbndSlovimFunctionCodeGenerator >> visitLocalVariableDefinitionNode: node [
 			ssaValue := initialValue.
 
 			self isEmittingDebugInformation ifTrue: [ 
-				node name isMbndAnonymousSymbol ifFalse: [
+				node name isMbndGenerateSymbolRemovedFromDebug ifFalse: [
 					(slvmBuilder debugSetVariable: (self createLocalVariableDebugInformation: node binding) value: ssaValue)
 				]
 			].
@@ -672,7 +672,7 @@ MbndSlovimFunctionCodeGenerator >> visitLocalVariableDefinitionNode: node [
 			].
 
 			self isEmittingDebugInformation ifTrue: [ 
-				node name isMbndAnonymousSymbol ifFalse: [
+				node name isMbndGenerateSymbolRemovedFromDebug ifFalse: [
 					(slvmBuilder debugDeclareVariable: ssaValue)
 						debugInformation: (self createLocalVariableDebugInformation: node binding)
 				]
@@ -683,7 +683,7 @@ MbndSlovimFunctionCodeGenerator >> visitLocalVariableDefinitionNode: node [
 		ssaValue := initialValue.
 
 		self isEmittingDebugInformation ifTrue: [ 
-			node name isMbndAnonymousSymbol ifFalse: [
+			node name isMbndGenerateSymbolRemovedFromDebug ifFalse: [
 				(slvmBuilder debugSetVariable: (self createLocalVariableDebugInformation: node binding) value: ssaValue)
 			]
 		].

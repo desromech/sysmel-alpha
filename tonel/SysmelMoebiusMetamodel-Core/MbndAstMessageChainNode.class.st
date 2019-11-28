@@ -18,6 +18,11 @@ MbndAstMessageChainNode >> asPrettySymbolName [
 	^ 'Message chain receiver'
 ]
 
+{ #category : #converting }
+MbndAstMessageChainNode >> isMbndGenerateSymbolRemovedFromDebug [
+	^ true
+]
+
 { #category : #testing }
 MbndAstMessageChainNode >> isMessageChainNode [
 	^ true
