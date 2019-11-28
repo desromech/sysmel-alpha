@@ -37,6 +37,11 @@ MbndSlovimProgramEntityTypeNameMangler >> visitConcreteMessageMethod: node [
 ]
 
 { #category : #visiting }
+MbndSlovimProgramEntityTypeNameMangler >> visitEnumType: node [
+	^ ''
+]
+
+{ #category : #visiting }
 MbndSlovimProgramEntityTypeNameMangler >> visitGCClassType: node [
 	^ self visitAggregateType: node
 ]

@@ -10,10 +10,20 @@ Class {
 		'mainVirtualTable',
 		'virtualTables',
 		'identityHashField',
-		'variableDataSizeField'
+		'variableDataSizeField',
+		'hasTrivialBasicInitialization'
 	],
 	#category : #'SysmelMoebiusMetamodel-Core-Type'
 }
+
+{ #category : #accessing }
+MbndAggregateSlotLayout >> checkForTrivialBasicInitialization [
+	virtualTables ifNotEmpty: [ ^ false ].
+	slots do: [ :slot |
+		slot type hasTrivialBasicInitialization ifFalse: [ ^ false ]
+	].
+	^ true
+]
 
 { #category : #'as yet unclassified' }
 MbndAggregateSlotLayout >> findFirstFieldNamed: fieldName [
@@ -23,6 +33,11 @@ MbndAggregateSlotLayout >> findFirstFieldNamed: fieldName [
 		]
 	].
 	^ nil
+]
+
+{ #category : #accessing }
+MbndAggregateSlotLayout >> hasTrivialBasicInitialization [
+	^ hasTrivialBasicInitialization ifNil: [ hasTrivialBasicInitialization := self checkForTrivialBasicInitialization ]
 ]
 
 { #category : #accessing }
