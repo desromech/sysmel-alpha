@@ -235,6 +235,43 @@ MbndSlovimCodeModuleGenerator >> slvmCompilationTarget [
 	^ sourceModule compilationTarget slvmCompilationTarget
 ]
 
+{ #category : #initialization }
+MbndSlovimCodeModuleGenerator >> ssaModule [
+	^ ssaModule
+]
+
+{ #category : #visiting }
+MbndSlovimCodeModuleGenerator >> translateCompilerGeneratedMethod: generatedMethod with: codeGenerationBlock [
+	| ssaFunctionType csymbol ssaFunction unmangledName builder allocaBuilder bodyBlock |
+	ssaFunctionType := self translateType: generatedMethod type.
+	
+	csymbol := self csymbolForProgramEntity: generatedMethod.
+	unmangledName := self unmangledNameForProgramEntity: generatedMethod.
+	ssaFunction := SLVMFunction module: ssaModule name: csymbol functionType: ssaFunctionType.
+	ssaFunction unmangledName: unmangledName.
+	
+	self setProgramEntity: generatedMethod ssaValue: ssaFunction.
+
+	self flag: 'TODO: Support the correct linkage/visibility.'.
+	ssaFunction makePublic.
+	self setupGCStrategyFor: ssaFunction generatedFrom: generatedMethod.
+	
+	"Create the builder, and the main blocks."
+	builder := SLVMBuilder on: ssaFunction.
+	allocaBuilder := SLVMBuilder on: ssaFunction.
+	allocaBuilder newBasicBlockHere: #entry.
+	builder allocaBuilder: allocaBuilder.
+	bodyBlock := builder newBasicBlockHere: #body.
+
+	"Generate the method content."	
+	codeGenerationBlock value: ssaFunction value: builder.
+	
+	"Jump from the alloca builder into the body method."
+	allocaBuilder jump: bodyBlock.
+
+	^ ssaFunction
+]
+
 { #category : #'code generation' }
 MbndSlovimCodeModuleGenerator >> translateDynamicObjectInstanceContent: dynamicObject [
 	^ MbndSlovimLiteralValueGenerator new
@@ -339,14 +376,41 @@ MbndSlovimCodeModuleGenerator >> unmangledNameForProgramEntity: programEntity in
 ]
 
 { #category : #visiting }
+MbndSlovimCodeModuleGenerator >> visitAggregateBasicInitializeMethod: generatedMethod [
+	^ self translateCompilerGeneratedMethod: generatedMethod with: [ :ssaFunction :builder |
+		| receiver field |
+		receiver := ssaFunction arguments first.
+		generatedMethod parent slotLayout slots do: [ :slot |
+			slot fields size = 1 ifTrue: [ 
+				field := slot fields first.
+				field isVTablePointerField ifTrue: [ 
+					builder store: (self translateLiteralValue: (field defaultValueAt: MbndSourcePosition empty) ofType: field valueType)
+						in: (builder getReference: receiver element: (builder constInt: field slotIndex)).
+				] ifFalse: [ 
+					field valueType hasTrivialBasicInitialization ifFalse: [ 
+						builder call: (self translateProgramEntity: field valueType basicInitializeMethod) ssaValue
+							arguments: { (builder getReference: receiver element: (builder constInt: field slotIndex)) }.
+					]
+				].
+			]
+		].
+	
+		builder return: receiver
+	]
+
+]
+
+{ #category : #visiting }
 MbndSlovimCodeModuleGenerator >> visitAggregateTypeWithFields: type [
 	| ssaType ssaValue ssaTypeValueType |
 	ssaType := self translateType: type.
 	ssaTypeValueType := self translateType: type type.
 
 	type isGCClassType ifTrue: [
-		ssaModule addStructure: ssaType baseType.
-		ssaModule addStructure: ssaTypeValueType baseType.
+		type isMetaType ifFalse: [ 
+			ssaModule addStructure: ssaType baseType.
+			ssaModule addStructure: ssaTypeValueType baseType.
+		].
 	] ifFalse: [
 		(ssaType isStructureType and: [ ssaType name isNotNil ]) ifTrue: [ 
 			ssaModule addStructure: ssaType

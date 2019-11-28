@@ -9,6 +9,29 @@ Class {
 	#category : #'SysmelMoebiusCodeGenerator-Slovim-Module'
 }
 
+{ #category : #visiting }
+MbndSlovimLiteralValueGenerator >> ensureValidSSALiteralValue: convertedLiteralValue ofType: literalType [
+	| expectedTargetType |
+	(convertedLiteralValue isSLVMObject and: [ convertedLiteralValue isSSAValue ]) ifTrue: [
+		literalType isGCClassType ifTrue: [ 
+			expectedTargetType := self translateType: literalType.
+			convertedLiteralValue type ~~ literalType type ifTrue: [ 
+				convertedLiteralValue isFunction ifTrue: [ 
+					^ SLVMConstant value: convertedLiteralValue compiledMethodMetaDataValue bitcast: expectedTargetType
+				].
+				^ SLVMConstant value: convertedLiteralValue bitcast: expectedTargetType
+			]
+		].
+		^ convertedLiteralValue
+	].
+	convertedLiteralValue isMbndProgramEntity ifTrue: [
+		^ self ensureValidSSALiteralValue: (self translateProgramEntity: convertedLiteralValue) ssaValue ofType: literalType
+	].
+
+	self assert: literalType isGCClassType.
+	^ self ensureValidSSALiteralValue: (self slvmCompilationTarget objectModel convertDynamicLiteralToConstant: convertedLiteralValue) ofType: literalType
+]
+
 { #category : #accessing }
 MbndSlovimLiteralValueGenerator >> literalValue [
 	^ literalValue
@@ -48,7 +71,8 @@ MbndSlovimLiteralValueGenerator >> visitAggregateType: type [
 	| slots convertedSlots slvmType hasBiggerArrayAtTheEnd |
 	slots := literalValue slots.
 	convertedSlots := type slotLayout slots collectWithIndex: [ :slot :index |
-		codeModuleGenerator translateLiteralValue: (slots at: index) ofType: slot type
+		self ensureValidSSALiteralValue: (codeModuleGenerator translateLiteralValue: (slots at: index) ofType: slot type)
+			ofType: slot type
 	].
 
 	slvmType := codeModuleGenerator translateType: type.
@@ -93,7 +117,7 @@ MbndSlovimLiteralValueGenerator >> visitArrayType: arrayType [
 	].
 	
 	convertedSlots := literalValue slots collect: [ :slot |
-		codeModuleGenerator translateLiteralValue: slot ofType: elementType
+		self ensureValidSSALiteralValue: (codeModuleGenerator translateLiteralValue: slot ofType: elementType) ofType: elementType
 	].
 
 	^ SLVMConstant array: slvmArrayType slots: convertedSlots
@@ -143,6 +167,10 @@ MbndSlovimLiteralValueGenerator >> visitPointerType: pointerType [
 	| baseType undecoratedBaseType |
 	(literalValue isNil or: [ literalValue isInteger ]) ifTrue: [
 		^ SLVMConstant type: (self translateType: pointerType) value: literalValue
+	].
+
+	(literalValue isSLVMObject and: [ literalValue isConstant ]) ifTrue: [ 
+		^ SLVMConstant value: literalValue bitcast: (self translateType: pointerType)
 	].
 
 	baseType := pointerType baseType.

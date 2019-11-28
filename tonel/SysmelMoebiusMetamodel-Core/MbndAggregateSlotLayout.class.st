@@ -8,10 +8,27 @@ Class {
 		'typeStartLocations',
 		'typeEndLocations',
 		'mainVirtualTable',
-		'virtualTables'
+		'virtualTables',
+		'identityHashField',
+		'variableDataSizeField'
 	],
 	#category : #'SysmelMoebiusMetamodel-Core-Type'
 }
+
+{ #category : #'as yet unclassified' }
+MbndAggregateSlotLayout >> findFirstFieldNamed: fieldName [
+	slots do: [ :slot |
+		slot fields do: [ :field |
+			field name == fieldName ifTrue: [ ^ field ]
+		]
+	].
+	^ nil
+]
+
+{ #category : #accessing }
+MbndAggregateSlotLayout >> identityHashField [
+	^ identityHashField ifNil: [ identityHashField := self findFirstFieldNamed: #__identityHash ]
+]
 
 { #category : #initialization }
 MbndAggregateSlotLayout >> initialize [
@@ -79,6 +96,11 @@ MbndAggregateSlotLayout >> typeStartLocations [
 { #category : #accessing }
 MbndAggregateSlotLayout >> typeStartLocations: anObject [
 	typeStartLocations := anObject
+]
+
+{ #category : #accessing }
+MbndAggregateSlotLayout >> variableDataSizeField [
+	^ variableDataSizeField ifNil: [ variableDataSizeField := self findFirstFieldNamed: #__variableDataSize ]
 ]
 
 { #category : #accessing }

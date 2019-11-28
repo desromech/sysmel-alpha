@@ -10,6 +10,26 @@ Class {
 	#category : #'SysmelMoebiusMetamodel-Core-Values'
 }
 
+{ #category : #accessing }
+MbndAggregateTypeInstanceValue >> __identityHashValue [
+	^ type identityHashField evaluateAggregateValue: self
+]
+
+{ #category : #accessing }
+MbndAggregateTypeInstanceValue >> __identityHashValue: value [
+	^ type identityHashField evaluateSetAggregate: self value: (value asMoebiusValueWithTarget: self compilationTarget)
+]
+
+{ #category : #accessing }
+MbndAggregateTypeInstanceValue >> __variableDataSizeValue [
+	^ type variableDataSizeField evaluateAggregateValue: self
+]
+
+{ #category : #accessing }
+MbndAggregateTypeInstanceValue >> __variableDataSizeValue: value [
+	^ type variableDataSizeField evaluateSetAggregate: self value: (value asMoebiusValueWithTarget: self compilationTarget)
+]
+
 { #category : #'semantic analysis' }
 MbndAggregateTypeInstanceValue >> analyzeReferenceNode: referenceNode with: analyzer [
 	^ self asLiteralValueNode 
@@ -30,12 +50,27 @@ MbndAggregateTypeInstanceValue >> asMoebiusLiteralValueNodeWithTarget: compilati
 	^ self asLiteralValueNode
 ]
 
+{ #category : #accessing }
+MbndAggregateTypeInstanceValue >> getFieldValue: fieldName [
+	^ (type slotLayout findFirstFieldNamed: fieldName) evaluateAggregateValue: self
+]
+
+{ #category : #testing }
+MbndAggregateTypeInstanceValue >> isAggregateTypeInstanceValue [
+	^ true
+]
+
 { #category : #'as yet unclassified' }
 MbndAggregateTypeInstanceValue >> resizeTo: newSize at: aPosition [
 	| defaultValue |
 	defaultValue := (type elementType defaultValueAt: aPosition) unwrapMbndValue.
 	slots := (slots species new: newSize)
 		atAllPut: defaultValue
+]
+
+{ #category : #accessing }
+MbndAggregateTypeInstanceValue >> setField: fieldName value: newFieldValue [
+	^ (type slotLayout findFirstFieldNamed: fieldName) evaluateSetAggregate: self value: (newFieldValue asMoebiusValueWithTarget: self compilationTarget)
 ]
 
 { #category : #evaluating }

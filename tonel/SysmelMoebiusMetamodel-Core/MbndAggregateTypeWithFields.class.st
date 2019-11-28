@@ -3,7 +3,8 @@ Class {
 	#superclass : #MbndAggregateType,
 	#instVars : [
 		'fields',
-		'slotLayout'
+		'slotLayout',
+		'basicInitializeMethod'
 	],
 	#category : #'SysmelMoebiusMetamodel-Core-Type'
 }
@@ -23,6 +24,18 @@ MbndAggregateTypeWithFields >> addField: aField [
 
 	self fields add: aField.
 
+]
+
+{ #category : #'as yet unclassified' }
+MbndAggregateTypeWithFields >> analyzeBasicInitializationNode: node with: analyzer [
+	self hasTrivialBasicInitialization ifTrue: [ ^ super analyzeBasicInitializationNode: node with: analyzer ].
+	self halt
+]
+
+{ #category : #accessing }
+MbndAggregateTypeWithFields >> basicInitializeMethod [
+	basicInitializeMethod ifNil: [ self createBasicInitializeMethod ].
+	^ basicInitializeMethod
 ]
 
 { #category : #layout }
@@ -54,17 +67,17 @@ MbndAggregateTypeWithFields >> buildSuperTypesSlotLayoutWith: builder [
 ]
 
 { #category : #accessing }
-MbndAggregateTypeWithFields >> dataInstanceAlignment [
-	<compileTime>
-	slotLayout ifNil: [self ensureSlotLayoutIsComputed].
-	^ slotLayout instanceAlignment
-]
-
-{ #category : #accessing }
-MbndAggregateTypeWithFields >> dataInstanceSize [
-	<compileTime>
-	slotLayout ifNil: [self ensureSlotLayoutIsComputed].
-	^ slotLayout instanceSize
+MbndAggregateTypeWithFields >> createBasicInitializeMethod [
+	| asReceiverType |
+	asReceiverType := self asReceiverType.
+	basicInitializeMethod := MbndAggregateBasicInitializeMethod new
+		name: #basicInitialize;
+		receiverType: asReceiverType;
+		type: (self compilationTarget functionTypeWithArguments: {asReceiverType} returnType: asReceiverType);
+		boundType: (self compilationTarget functionTypeWithArguments: #() returnType: asReceiverType).
+	self
+		addChild: basicInitializeMethod;
+		addOverloadedMethod: basicInitializeMethod
 ]
 
 { #category : #'default values' }
@@ -120,16 +133,40 @@ MbndAggregateTypeWithFields >> getExtraMetaBuilderFactoryList [
 	}
 ]
 
+{ #category : #testing }
+MbndAggregateTypeWithFields >> hasTrivialBasicInitialization [
+	^ self hasTrivialInstanceBasicInitialization
+]
+
+{ #category : #testing }
+MbndAggregateTypeWithFields >> hasTrivialInstanceBasicInitialization [
+	^ self slotLayout hasTrivialBasicInitialization
+]
+
 { #category : #accessing }
 MbndAggregateTypeWithFields >> instanceAlignment [
 	<compileTime>
-	^ self dataInstanceAlignment
+	^ self instanceDataAlignment
+]
+
+{ #category : #accessing }
+MbndAggregateTypeWithFields >> instanceDataAlignment [
+	<compileTime>
+	slotLayout ifNil: [self ensureSlotLayoutIsComputed].
+	^ slotLayout instanceAlignment
+]
+
+{ #category : #accessing }
+MbndAggregateTypeWithFields >> instanceDataSize [
+	<compileTime>
+	slotLayout ifNil: [self ensureSlotLayoutIsComputed].
+	^ slotLayout instanceSize
 ]
 
 { #category : #accessing }
 MbndAggregateTypeWithFields >> instanceSize [
 	<compileTime>
-	^ self dataInstanceSize
+	^ self instanceDataSize
 ]
 
 { #category : #'semantic analysis' }

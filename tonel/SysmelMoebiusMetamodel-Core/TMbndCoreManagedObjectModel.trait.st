@@ -48,6 +48,27 @@ TMbndCoreManagedObjectModel >> compiledMethodClass: anObject [
 	compiledMethodClass := anObject
 ]
 
+{ #category : #converting }
+TMbndCoreManagedObjectModel >> computeBytesHash: data [
+	^ self computeBytesHash: data initialHash: 5381
+]
+
+{ #category : #converting }
+TMbndCoreManagedObjectModel >> computeBytesHash: data initialHash: initialHash [
+	"
+	https://en.wikipedia.org/wiki/Universal_hashing
+	"
+	| result |
+	self flag: 'TODO: Perform a benchmark to pick these constants.'.
+	result := initialHash.
+	result := (result*33 + data size) & 16rFFFFFFFF.
+	data do: [ :x |
+		result := (result*33 + x) & 16rFFFFFFFF.
+	].
+
+	^ result
+]
+
 { #category : #accessing }
 TMbndCoreManagedObjectModel >> dictionaryClass [
 	^ dictionaryClass
@@ -68,6 +89,11 @@ TMbndCoreManagedObjectModel >> floatClass: anObject [
 	floatClass := anObject.
 	compilationTarget literalIntegerType addConversionTo: floatClass rule: MbndLiteralValueTypeChangeConversionRule.
 	compilationTarget literalFloatType addConversionTo: floatClass rule: MbndLiteralValueTypeChangeConversionRule.
+]
+
+{ #category : #'as yet unclassified' }
+TMbndCoreManagedObjectModel >> identityHashForSymbol: aSymbol [
+	^ self computeBytesHash: aSymbol utf8Encoded initialHash: 5381
 ]
 
 { #category : #accessing }

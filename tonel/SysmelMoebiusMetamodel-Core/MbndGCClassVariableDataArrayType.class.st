@@ -23,11 +23,7 @@ MbndGCClassVariableDataArrayType >> addInstanceMacros [
 	self isTrait ifFalse: [ ^ self ].
 	self
 		onMacroSelector: #size do: [ :node :builder |
-			builder literalInteger: 0
-			"(builder array: node receiver elementReferenceAt: node arguments first)
-				position: node;
-				isOneBasedIndex: false;
-				yourself."
+			builder getGCVariableDataArraySize: node receiver
 		];
 		onMacroSelector: #subscriptAt: do: [ :node :builder |
 			(builder gcVariableDataArray: node receiver elementReferenceAt: node arguments first)

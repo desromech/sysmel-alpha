@@ -84,3 +84,8 @@ MbndAbstractMethod >> pragmaAt: pragmaName ifAbsent: absentBlock ifPresent: pres
 MbndAbstractMethod >> pragmaAt: pragmaName ifPresent: presentBlock [
 	^ self pragmaAt: pragmaName ifAbsent: [nil] ifPresent: presentBlock
 ]
+
+{ #category : #'as yet unclassified' }
+MbndAbstractMethod >> typedSelector [
+	^ name
+]

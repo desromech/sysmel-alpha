@@ -82,17 +82,23 @@ MbndGCClassType >> asImmutableValueType [
 
 { #category : #converting }
 MbndGCClassType >> asInstanceObjectForTypeInfoGeneration [
-	| result |
+	| result variableDataType |
 	result := self type makeInstance: 0 identityHash: self identityHash at: MbndSourcePosition empty.
-	self flag: 'TODO: Set the superclass'.
-	self flag: 'TODO: Set the method dictionary.'.
 	self flag: 'TODO: Set the GC layout.'.
-	self flag: 'TODO: Set the basic initialize function.'.
+	
+	variableDataType := nil.
+	(fields isNotEmpty and: [ fields last valueType isGCClassVariableDataArrayType ]) ifTrue: [ 
+		variableDataType := fields last valueType elementType.
+	].
 
-	self flag: 'TODO: Set the instance size'.
-	self flag: 'TODO: Set the instance alignment'.
-	self flag: 'TODO: Set the variable instance element size'.
-	self flag: 'TODO: Set the variable instance element alignment'.
+	result
+		setField: #superclass value: self superclass;
+		setField: #methodDict value: self methodDictionaryInstanceObject;
+		setField: #basicInitializeFunctionPointer value: self basicInitializeMethod;
+		setField: #instanceDataSize value: self instanceDataSize;
+		setField: #instanceDataAlignment value: self instanceDataAlignment;
+		setField: #variableInstanceElementSize value: (variableDataType ifNil: [ 0 ] ifNotNil: [variableDataType instanceSize]);
+		setField: #variableInstanceElementAlignment value: (variableDataType ifNil: [ 1 ] ifNotNil: [variableDataType instanceAlignment]).
 	^ result
 ]
 
@@ -115,6 +121,16 @@ MbndGCClassType >> defaultValueAt: position [
 { #category : #testing }
 MbndGCClassType >> hasDynamicMessageLookup [
 	^ true
+]
+
+{ #category : #testing }
+MbndGCClassType >> hasTrivialBasicInitialization [
+	^ true
+]
+
+{ #category : #'as yet unclassified' }
+MbndGCClassType >> identityHashField [
+	^ self slotLayout identityHashField
 ]
 
 { #category : #accessing }
@@ -161,8 +177,10 @@ MbndGCClassType >> makeInstance: variableSize identityHash: identityHash at: aPo
 		result slots last resizeTo: variableSize at: aPosition.
 	].
 
-	self flag: 'TODO: Set the identity hash value.'.
 	^ result
+		__identityHashValue: identityHash;
+		__variableDataSizeValue: variableSize;
+		yourself
 ]
 
 { #category : #'as yet unclassified' }
@@ -176,4 +194,16 @@ MbndGCClassType >> metaClassClass: theClassForTheMetaClass [
 MbndGCClassType >> ref [
 	<compileTime>
 	^ self refFor: #gc
+]
+
+{ #category : #converting }
+MbndGCClassType >> superclass [
+	^ supertype isTrait
+		ifTrue: [ nil ]
+		ifFalse: [ self supertype ].
+]
+
+{ #category : #'as yet unclassified' }
+MbndGCClassType >> variableDataSizeField [
+	^ self slotLayout variableDataSizeField
 ]

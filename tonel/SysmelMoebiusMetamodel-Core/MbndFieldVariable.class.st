@@ -44,6 +44,23 @@ MbndFieldVariable >> bits: anObject [
 	bits := anObject
 ]
 
+{ #category : #'as yet unclassified' }
+MbndFieldVariable >> evaluateAggregateValue: aggregate [
+	bits ifNil: [ ^ super evaluateAggregateValue: aggregate ].
+	^ MbndValue value: ((aggregate slots at: slotIndex + 1) & bitMask) >> bitOffset type: type
+]
+
+{ #category : #'as yet unclassified' }
+MbndFieldVariable >> evaluateSetAggregate: aggregate value: newValue [
+	| oldValue newSlotValue |
+	bits ifNil: [ ^ super evaluateSetAggregate: aggregate value: newValue ].
+	oldValue := aggregate slots at: slotIndex + 1.
+	newSlotValue := (oldValue & bitMask bitInvert) bitOr:
+		((newValue unwrapMbndValue << bitOffset) bitAnd: bitMask).
+	aggregate slots at: slotIndex + 1 put: newSlotValue.
+	^ aggregate
+]
+
 { #category : #testing }
 MbndFieldVariable >> isFieldVariable [
 	^ true

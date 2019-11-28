@@ -103,6 +103,7 @@ MbndAstNodeTest >> testTestingMethods [
 	self deny: node isGCClassDeclarationNode.
 	self deny: node isGCClassDefinitionNode.
 	self deny: node isGenericCastNode.
+	self deny: node isGetGCVariableDataArraySizeNode.
 	self deny: node isGlobalVariableDefinitionNode.
 	self deny: node isIdentifierReferenceNode.
 	self deny: node isIfConditionNode.

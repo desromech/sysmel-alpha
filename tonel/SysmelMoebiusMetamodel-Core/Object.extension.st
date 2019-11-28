@@ -9,6 +9,22 @@ Object >> asMoebiusLiteralValueNodeWithTarget: compilationTarget [
 ]
 
 { #category : #'*SysmelMoebiusMetamodel-Core' }
+Object >> asMoebiusValueWithTarget: compilationTarget [
+	^ self asMoebiusValueWithType: (self mbndLiteralTypeWithTarget: compilationTarget)
+]
+
+{ #category : #'*SysmelMoebiusMetamodel-Core' }
+Object >> asMoebiusValueWithType: aType [
+	^ MbndValue value: self type: aType
+	
+]
+
+{ #category : #'*SysmelMoebiusMetamodel-Core' }
+Object >> isMbndAbstractValue [
+	^ false
+]
+
+{ #category : #'*SysmelMoebiusMetamodel-Core' }
 Object >> isMbndAnonymousSymbol [
 	^ false
 ]

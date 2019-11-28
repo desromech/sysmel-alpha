@@ -39,6 +39,11 @@ MbndValue >> asMoebiusLiteralValueNodeWithTarget: compilationTarget [
 ]
 
 { #category : #converting }
+MbndValue >> asMoebiusValueWithType: aType [
+	^ self copy type: aType; yourself
+]
+
+{ #category : #converting }
 MbndValue >> asTupleWithCompileTimeValuesFor: compilationTarget [
 	self assert: type isTupleType.
 	^ self copy

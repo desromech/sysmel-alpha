@@ -854,6 +854,30 @@ MbndAstSemanticAnalyzer >> visitGetFieldValueNode: node [
 ]
 
 { #category : #visiting }
+MbndAstSemanticAnalyzer >> visitGetGCVariableDataArraySizeNode: node [
+	| result arrayType elementType containerType container |
+	result := node copy
+		container: (self analyzeNodeIfNeeded: node container);
+		yourself.
+		
+	containerType := result container type.
+	result container isGetFieldReferenceNode ifFalse: [
+		self error: 'A GC class variable data array size reference to a container is required.' at: node
+	].
+
+	container := result container aggregate.
+	containerType := container type withoutReferences withoutTopDecorations.
+	containerType isGCClassType ifFalse: [
+		self error: 'A GC class must be the owner of the GC class variable data.' at: node
+	].
+	
+	^ self visitNode: (MbndAstGetFieldValueNode new
+		aggregate: container;
+		field: containerType variableDataSizeField;
+		yourself)
+]
+
+{ #category : #visiting }
 MbndAstSemanticAnalyzer >> visitGlobalVariableDefinitionNode: node [
 	| result valueType globalVariable owner |
 	result := node copy.

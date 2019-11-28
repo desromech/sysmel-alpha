@@ -12,6 +12,11 @@ MbndSlovimProgramEntityTypeNameMangler >> emitMangledType: type [
 ]
 
 { #category : #visiting }
+MbndSlovimProgramEntityTypeNameMangler >> visitAggregateBasicInitializeMethod: node [
+	^ self emitMangledType: node type
+]
+
+{ #category : #visiting }
 MbndSlovimProgramEntityTypeNameMangler >> visitAggregateType: node [
 	^ ''
 ]

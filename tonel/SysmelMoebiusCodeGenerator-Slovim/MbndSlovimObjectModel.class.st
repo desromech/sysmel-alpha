@@ -4,37 +4,59 @@ Class {
 	#instVars : [
 		'managedObjectModel',
 		'moduleCodeGenerator',
-		'convertedSymbolDictionary',
 		'gcrootIntrinsic',
-		'messageLookupFunction'
+		'messageLookupFunction',
+		'convertedLiteralContent',
+		'convertedLiteralGlobals'
 	],
 	#category : #'SysmelMoebiusCodeGenerator-Slovim-CompilationTarget'
 }
 
-{ #category : #converting }
-MbndSlovimObjectModel >> computeBytesHash: data [
-	^ self computeBytesHash: data initialHash: 5381
+{ #category : #accessing }
+MbndSlovimObjectModel >> arrayClass [
+	^ managedObjectModel arrayClass
 ]
 
-{ #category : #converting }
-MbndSlovimObjectModel >> computeBytesHash: data initialHash: initialHash [
-	"
-	https://en.wikipedia.org/wiki/Universal_hashing
-	"
-	| result |
-	self flag: 'TODO: Perform a benchmark to pick these constants.'.
-	result := initialHash.
-	result := (result*33 + data size) & 16rFFFFFFFF.
-	data do: [ :x |
-		result := (result*33 + x) & 16rFFFFFFFF.
+{ #category : #'as yet unclassified' }
+MbndSlovimObjectModel >> convertDynamicLiteralToConstant: dynamicLiteralValue [
+	| initialValue targetType convertedValue literalGlobal |
+	dynamicLiteralValue isMbndProgramEntity ifTrue: [
+		^ (moduleCodeGenerator translateProgramEntity: dynamicLiteralValue) ssaValue
+	].
+	(self isInlineLiteral: dynamicLiteralValue) ifTrue: [
+		^ self convertInlineLiteral: dynamicLiteralValue
 	].
 
-	^ result
+	convertedLiteralGlobals at: dynamicLiteralValue ifPresent: [ :previousVersion | ^ previousVersion ].
+	targetType := moduleCodeGenerator translateType: moduleCodeGenerator compilationTarget dynamicObjectType.
+	convertedValue := SLVMConstantExpresionBitCast new value: nil targetType: targetType.
+	convertedLiteralGlobals at: dynamicLiteralValue put: convertedValue.
+
+	initialValue := moduleCodeGenerator translateDynamicObjectInstanceContent: (dynamicLiteralValue isMbndAbstractValue ifTrue: [ 
+		self assert: dynamicLiteralValue isAggregateTypeInstanceValue.
+		dynamicLiteralValue
+	] ifFalse: [
+		dynamicLiteralValue createNonInlineLiteralObjectForMbndObjectModel: self .
+	]).
+
+	literalGlobal := SLVMGlobalVariable module: moduleCodeGenerator ssaModule name: nil valueType: initialValue type storage: SLVMType genericStorage.
+	literalGlobal makePrivate; initialValue: initialValue.
+	
+	convertedValue value: literalGlobal targetType: targetType.
+	^ convertedValue
 ]
 
 { #category : #converting }
 MbndSlovimObjectModel >> convertInlineLiteral: literalValue withType: targetType [
 	^ SLVMConstantValue type: targetType value: literalValue
+]
+
+{ #category : #converting }
+MbndSlovimObjectModel >> createArray: array class: arrayClass [
+	| result |
+	result := arrayClass makeInstance: array size identityHash: self generateIdentityHash.
+	result slots last slots: (array collect: [:el | self convertDynamicLiteralToConstant: el ]).
+	^ result
 ]
 
 { #category : #'code generation' }
@@ -76,6 +98,17 @@ MbndSlovimObjectModel >> createDoesNotUnderstandTrampolineWithType: functionType
 	^ function
 ]
 
+{ #category : #visiting }
+MbndSlovimObjectModel >> createFunctionContextMetaData: aFunction [
+	| literals compiledMethod |
+	literals := aFunction dynamicLiterals.
+	compiledMethod := managedObjectModel compiledMethodClass makeInstance: literals size identityHash: 0.
+
+	compiledMethod setField: #entryPoint value: aFunction.
+	compiledMethod slots last slots: (literals collect: #value as: Array).
+	^ compiledMethod
+]
+
 { #category : #converting }
 MbndSlovimObjectModel >> createNonInlineLiteralConstant: aLiteral withCodeGenerator: aCodeGenerator [
 	^ moduleCodeGenerator translateDynamicObjectInstanceContent:( aLiteral createNonInlineLiteralObjectForMbndObjectModel: self)
@@ -83,10 +116,11 @@ MbndSlovimObjectModel >> createNonInlineLiteralConstant: aLiteral withCodeGenera
 
 { #category : #converting }
 MbndSlovimObjectModel >> createNonInlineLiteralUniqueGlobal: aLiteral withCodeGenerator: codeGenerator [
-	aLiteral isMbndProgramEntity ifTrue: [
+	^ self convertDynamicLiteralToConstant: aLiteral
+	"aLiteral isMbndProgramEntity ifTrue: [
 		^ (moduleCodeGenerator translateProgramEntity: aLiteral) ssaValue
 	].
-	^ nil
+	^ nil"
 ]
 
 { #category : #converting }
@@ -105,9 +139,9 @@ MbndSlovimObjectModel >> createObjectBytes: bytes class: class identityHash: ide
 { #category : #converting }
 MbndSlovimObjectModel >> createSymbolObjectInstance: symbol [
 	| data |
-	^ convertedSymbolDictionary at: symbol ifAbsentPut: [
+	^ convertedLiteralContent at: symbol ifAbsentPut: [
 		data := symbol asUTF8Bytes.
-		self createObjectBytes: data class: managedObjectModel symbolClass identityHash: (self computeBytesHash: data)
+		self createObjectBytes: data class: managedObjectModel symbolClass identityHash: (managedObjectModel computeBytesHash: data)
 	]
 
 ]
@@ -128,7 +162,8 @@ MbndSlovimObjectModel >> generateIdentityHash [
 { #category : #initialization }
 MbndSlovimObjectModel >> initialize [
 	super initialize.
-	convertedSymbolDictionary := IdentityDictionary new.
+	convertedLiteralContent := IdentityDictionary new.
+	convertedLiteralGlobals := IdentityDictionary new.
 ]
 
 { #category : #accessing }

@@ -292,6 +292,13 @@ MbndAstTransformVisitor >> visitGetFieldValueNode: node [
 ]
 
 { #category : #visiting }
+MbndAstTransformVisitor >> visitGetGCVariableDataArraySizeNode: node [
+	^ node copy
+		container: (self visitNode: node container);
+		yourself
+]
+
+{ #category : #visiting }
 MbndAstTransformVisitor >> visitGlobalVariableDefinitionNode: node [
 	^ node copy
 		initialValue: (node initialValue ifNotNil: [:initialValue | self visitNode: initialValue]);

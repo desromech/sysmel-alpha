@@ -276,6 +276,11 @@ MbndAstNode >> isGetFieldValueNode [
 ]
 
 { #category : #testing }
+MbndAstNode >> isGetGCVariableDataArraySizeNode [
+	^ false
+]
+
+{ #category : #testing }
 MbndAstNode >> isGlobalVariableDefinitionNode [
 	^ false
 ]

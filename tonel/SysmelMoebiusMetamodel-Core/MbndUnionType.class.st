@@ -34,6 +34,11 @@ MbndUnionType >> defaultAggregateValueAt: aPosition [
 		yourself
 ]
 
+{ #category : #testing }
+MbndUnionType >> hasTrivialBasicInitialization [
+	^ true
+]
+
 { #category : #'testing methods' }
 MbndUnionType >> isUnionType [
 	^ true

@@ -7,6 +7,11 @@ Class {
 }
 
 { #category : #visiting }
+MbndAbstractModuleVisitor >> visitAggregateBasicInitializeMethod: method [
+	self subclassResponsibility
+]
+
+{ #category : #visiting }
 MbndAbstractModuleVisitor >> visitArrayType: type [
 	self subclassResponsibility
 ]

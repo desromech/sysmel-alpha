@@ -13,6 +13,9 @@ Trait {
 TMbndMethodContainer >> addOverloadedMethod: method [
 	self assert: method boundType isNotNil.
 	self assert: method boundType isFunctionType.
+	method typedSelector ifNotNil: [ :typedSelector |
+		self methodDict at: typedSelector put: method
+	].
 	self overloadedMethodDict at: method name ifPresent: [ :existent |
 		| methodGroup|
 		methodGroup := existent.

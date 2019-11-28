@@ -210,6 +210,11 @@ MbndAstVisitor >> visitGetFieldValueNode: node [
 ]
 
 { #category : #visiting }
+MbndAstVisitor >> visitGetGCVariableDataArraySizeNode: node [
+	self subclassResponsibility
+]
+
+{ #category : #visiting }
 MbndAstVisitor >> visitGlobalVariableDefinitionNode: node [
 	self subclassResponsibility
 ]

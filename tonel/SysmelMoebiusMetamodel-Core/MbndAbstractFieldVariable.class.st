@@ -54,6 +54,17 @@ MbndAbstractFieldVariable >> defaultVisibilityMode [
 	^ #protected
 ]
 
+{ #category : #'as yet unclassified' }
+MbndAbstractFieldVariable >> evaluateAggregateValue: aggregate [
+	^ (aggregate slots at: slotIndex + 1) asMoebiusValueWithType: valueType
+]
+
+{ #category : #'as yet unclassified' }
+MbndAbstractFieldVariable >> evaluateSetAggregate: aggregate value: newValue [
+	aggregate slots at: slotIndex + 1 put: newValue unwrapMbndValue.
+	^ aggregate
+]
+
 { #category : #accessing }
 MbndAbstractFieldVariable >> initialValueNode [
 	^ initialValueNode

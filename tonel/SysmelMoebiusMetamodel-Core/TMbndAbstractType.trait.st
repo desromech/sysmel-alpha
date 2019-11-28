@@ -488,6 +488,11 @@ TMbndAbstractType >> hasImmediateSupertype: aType [
 	^ self supertype == aType
 ]
 
+{ #category : #testing }
+TMbndAbstractType >> hasTrivialBasicInitialization [
+	^ true
+]
+
 { #category : #adding }
 TMbndAbstractType >> implicitMethodReceiverType [
 	^ self asReceiverType

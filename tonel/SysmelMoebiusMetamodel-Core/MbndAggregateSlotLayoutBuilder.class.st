@@ -40,8 +40,12 @@ MbndAggregateSlotLayoutBuilder >> addBitField: aField [
 { #category : #adding }
 MbndAggregateSlotLayoutBuilder >> addField: aField [
 	(aField isVTablePointerField and: [ mainVTableField isNil ]) ifTrue: [
-		mainVTableField := activeVTableField := aField.
-		vtableFields add: aField
+		aField parent == aggregate ifTrue: [ 
+			mainVTableField := activeVTableField := aField.
+			vtableFields add: aField
+		] ifFalse: [ 
+			^ self createVirtualTable
+		]
 	].
 
 	aField bits

@@ -314,6 +314,11 @@ TMbndCoreCompilationTarget >> getBasicTypeNamed: typeName [
 	^ basicTypes at: typeName
 ]
 
+{ #category : #'as yet unclassified' }
+TMbndCoreCompilationTarget >> identityHashForSymbol: symbol [
+	^ self managedObjectModel identityHashForSymbol: symbol
+]
+
 { #category : #initialization }
 TMbndCoreCompilationTarget >> initializeArithmeticCoercionTable [
 	| left right coercionType |

@@ -71,6 +71,25 @@ MbndAbstractClassType >> markAsMetaTypeType [
 	^ self addFlag: #metaTypeType
 ]
 
+{ #category : #'as yet unclassified' }
+MbndAbstractClassType >> methodDictionaryContent [
+	| result identityHashField identityHashFieldBitMask |
+	result := MbndMethodDictionaryContent for: self methodDict size.
+	identityHashField := self compilationTarget managedObjectModel symbolClass slotLayout identityHashField.
+	identityHashFieldBitMask := (1 << (identityHashField bits ifNil: [ identityHashField valueType instanceSize * 8 ])) - 1.
+	
+	methodDict keysAndValuesDo: [ :key :value |
+		result withHash: (self compilationTarget identityHashForSymbol: key) & identityHashFieldBitMask putKey: key value: value
+	].
+
+	^ result
+]
+
+{ #category : #'as yet unclassified' }
+MbndAbstractClassType >> methodDictionaryInstanceObject [
+	^ self methodDictionaryContent makeInstanceForCompilationTarget: self compilationTarget
+]
+
 { #category : #accessing }
 MbndAbstractClassType >> virtualMethods [
 	^ virtualMethods

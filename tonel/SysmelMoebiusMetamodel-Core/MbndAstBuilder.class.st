@@ -516,6 +516,15 @@ MbndAstBuilder >> getAggregate: aggregate valueOfField: field [
 ]
 
 { #category : #'builder methods' }
+MbndAstBuilder >> getGCVariableDataArraySize: container [
+	<compileTime>
+	<returnType: #_ASTNodeType>
+	^ MbndAstGetGCVariableDataArraySizeNode new
+		container: container;
+		yourself
+]
+
+{ #category : #'builder methods' }
 MbndAstBuilder >> identifier: symbol [
 	<compileTime>
 	<returnType: #_ASTNodeType>
