@@ -91,7 +91,7 @@ template FixedSizeBuddyMemoryAllocator(MNOSB: _LiteralInteger)
         assert: leafBlockIndex ~~ InvalidBlockIndex.
 
         ## Get the index of the allocated level.
-        let allocatedLevel := leafBlocks_allocatedLevel[leafBlockIndex] & 16r7f.
+        let allocatedLevel := leafBlocks_allocatedLevel[leafBlockIndex] & 16r7f castTo: UIntPointer.
         let allocationBlockCount := self smallBlockCountPerLevel: allocatedLevel.
         freeLeafBlockCount := freeLeafBlockCount + allocationBlockCount castTo: BlockIndexType.
 
@@ -208,7 +208,7 @@ template FixedSizeBuddyMemoryAllocator(MNOSB: _LiteralInteger)
 
         ## Get the index of the allocated level.
         assert: leafBlocks_allocatedLevel[firstBlockIndex] ~~ 16rff.
-        let allocatedLevel := leafBlocks_allocatedLevel[firstBlockIndex] & 16r7f.
+        let allocatedLevel := leafBlocks_allocatedLevel[firstBlockIndex] & 16r7f castTo: UIntPointer.
         self smallBlockCountPerLevel: allocatedLevel
     }.
 
@@ -337,14 +337,14 @@ class NativeMemoryHeap definition: {
             let lastWordFreeElements := elementCount % WordBitCount castTo: UInt16.
             lastWordFreeElements ~~ 0 ifTrue: {
                 ## Mark the unused elements in the bitmap as allocated.
-                let lastWordFreeElementsMask := ((1 castTo: UIntPointer) << lastWordFreeElements) - 1.
+                let lastWordFreeElementsMask := ((1 castTo: UIntPointer) << lastWordFreeElements) - 1 castTo: UIntPointer.
                 let lastWordUnusedElementsMask := lastWordFreeElementsMask bitInvert.
                 bitmap[bitmapWordCount - 1] := lastWordUnusedElementsMask.
             }.
         }.
 
         message bitmapWordCount => UIntPointer
-            := (elementCount + WordBitCount - 1) / WordBitCount.
+            := (elementCount + WordBitCount - 1 castTo: UIntPointer) / WordBitCount.
 
         message findFreeElementIndex => Int32 := {
             let bitmapWordCount := self bitmapWordCount.
@@ -905,13 +905,7 @@ function free(pointer: Void pointer) => Void
 
 
 ## basicNativeNew macro
-_PrimitiveType meta macro expansionRule basicNativeNew := ``(
-    (StdNative zmalloc(`,self instanceSize) reinterpretCastTo: `,self pointer) _
-        basicInitialize;
-        address
-).
-
-_StructureType meta macro expansionRule basicNativeNew := ``(
+_NativeType meta macro expansionRule basicNativeNew := ``(
     (StdNative zmalloc(`,self instanceSize) reinterpretCastTo: `,self pointer) _
         basicInitialize;
         address
@@ -923,13 +917,7 @@ _PointerType macro expansionRule basicNativeDelete := ``(
 ).
 
 ## Native new
-_PrimitiveType meta macro expansionRule nativeNew := ``(
-    (`,self basicNativeNew) _
-        initialize;
-        address
-).
-
-_StructureType meta macro expansionRule nativeNew := ``(
+_NativeType meta macro expansionRule nativeNew := ``(
     (`,self basicNativeNew) _
         initialize;
         address
