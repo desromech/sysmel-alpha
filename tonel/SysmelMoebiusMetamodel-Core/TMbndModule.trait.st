@@ -141,6 +141,11 @@ TMbndModule >> hasGarbageCollectionSupport [
 ]
 
 { #category : #parameters }
+TMbndModule >> hasLibC [
+	^ true
+]
+
+{ #category : #parameters }
 TMbndModule >> hasRuntimeTypeInformation [
 	<compileTime>
 	^ true

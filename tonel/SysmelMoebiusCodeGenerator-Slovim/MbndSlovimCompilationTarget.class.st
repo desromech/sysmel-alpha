@@ -81,9 +81,29 @@ MbndSlovimCompilationTarget >> isWin32 [
 	^ slvmCompilationTarget isWin32
 ]
 
+{ #category : #accessing }
+MbndSlovimCompilationTarget >> machineAttributes [
+	^ slvmCompilationTarget machineAttributes
+]
+
+{ #category : #accessing }
+MbndSlovimCompilationTarget >> machineAttributes: machineAttributes [
+	slvmCompilationTarget machineAttributes: machineAttributes
+]
+
 { #category : #'instance creation' }
 MbndSlovimCompilationTarget >> newCodeModuleGenerator [
 	^ MbndSlovimCodeModuleGenerator new
+]
+
+{ #category : #accessing }
+MbndSlovimCompilationTarget >> operatingSystemName [
+	^ slvmCompilationTarget operatingSystemName
+]
+
+{ #category : #accessing }
+MbndSlovimCompilationTarget >> operatingSystemName: osName [
+	slvmCompilationTarget operatingSystemName: osName
 ]
 
 { #category : #accessing }
@@ -108,6 +128,16 @@ MbndSlovimCompilationTarget >> slvmCompilationTarget: anObject [
 		managedObjectModel: self managedObjectModel;
 		target: slvmCompilationTarget;
 		yourself)
+]
+
+{ #category : #accessing }
+MbndSlovimCompilationTarget >> systemVendor [
+	^ slvmCompilationTarget systemVendor
+]
+
+{ #category : #accessing }
+MbndSlovimCompilationTarget >> systemVendor: vendor [
+	slvmCompilationTarget systemVendor: vendor
 ]
 
 { #category : #initialization }

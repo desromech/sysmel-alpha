@@ -56,6 +56,13 @@ MbndAstEvaluator >> visitAssignmentNode: node [
 ]
 
 { #category : #visiting }
+MbndAstEvaluator >> visitBitCastNode: node [
+	| originalValue |
+	originalValue := self visitNode: node expression.
+	^ originalValue asMoebiusValueWithType: node type
+]
+
+{ #category : #visiting }
 MbndAstEvaluator >> visitClassDeclarationNode: node [
 	^ self visitTypeDeclarationNode: node
 ]
