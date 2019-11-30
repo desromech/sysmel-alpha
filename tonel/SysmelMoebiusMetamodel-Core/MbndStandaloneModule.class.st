@@ -82,6 +82,11 @@ MbndStandaloneModule >> hasLibC: aBoolean [
 ]
 
 { #category : #parameters }
+MbndStandaloneModule >> hasPreciseGarbageCollector [
+	^ false
+]
+
+{ #category : #parameters }
 MbndStandaloneModule >> hasRuntimeTypeInformation [
 	<compileTime>
 	^ hasRuntimeTypeInformation ifNil: [ hasRuntimeTypeInformation := true ]

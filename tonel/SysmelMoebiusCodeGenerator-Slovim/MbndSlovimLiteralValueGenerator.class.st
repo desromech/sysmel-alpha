@@ -141,6 +141,13 @@ MbndSlovimLiteralValueGenerator >> visitEnumType: enumType [
 ]
 
 { #category : #visiting }
+MbndSlovimLiteralValueGenerator >> visitFunctionType: type [
+	self halt.
+	literalValue isMbndProgramEntity ifTrue: [ ^ (self translateProgramEntity: literalValue) ssaValue ].
+	self halt
+]
+
+{ #category : #visiting }
 MbndSlovimLiteralValueGenerator >> visitGCClassType: type [
 	| objectModel targetType |
 	targetType := self translateType: type.
@@ -216,6 +223,10 @@ MbndSlovimLiteralValueGenerator >> visitPrimitiveIntegerType: integerType [
 
 { #category : #'code generation' }
 MbndSlovimLiteralValueGenerator >> visitReferenceType: referenceType [
+	referenceType baseType isFunctionType ifTrue: [ 
+		literalValue isMbndProgramEntity ifTrue: [ ^ (self translateProgramEntity: literalValue) ssaValue ].
+		self halt
+	].
 	^ SLVMConstant pointerToConstant: (referenceType baseType accept: self) pointerType: (self translateType: referenceType)
 ]
 
