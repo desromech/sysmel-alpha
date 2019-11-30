@@ -9,8 +9,10 @@ namespace LibC definition: {
 
     ## Strings
     function strlen externC (string: ConstString) => SizeT.
+    function strnlen externC (string: ConstString, maxlen: SizeT) => SizeT.
     function strcpy externC (destination: String, source: ConstString) => Void pointer.
     function strcmp externC (left: ConstString, right: ConstString) => Int.
     function strncmp externC (left: ConstString, right: ConstString, num: SizeT) => Int.
     function strncpy externC (destination: String, source: ConstString, num: SizeT) => Void pointer.
+    function strstr externC (haystack: UInt8 const pointer, needle: UInt8 const pointer) => UInt8 const pointer.
 }.

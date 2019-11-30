@@ -1,0 +1,17 @@
+##--------------------------------------------------------------------
+## Memory allocation primitives.
+##--------------------------------------------------------------------
+## Compile the memory heap support, only if it is needed.
+if: Compiler useLibC not || (Compiler hasGarbageCollectionSupport && Compiler hasGarbageCollectionStackMap) then: {
+	loadFileOnce: "customHeap.sysmel".
+}.
+
+## Export the global memory heap primitives according to whether we are using LibC or not for them.
+if: Compiler useLibC then: {
+	loadFileOnce: "libcGlobalMemoryHeap.sysmel".
+} else: {
+	loadFileOnce: "globalMemoryHeap.sysmel".
+}.
+
+## Native new and native delete.
+loadFileOnce: "nativeNew.sysmel".

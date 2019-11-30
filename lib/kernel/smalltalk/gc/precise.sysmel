@@ -1,7 +1,5 @@
 namespace SysmelKernel definition: {
 
-compileTimeConstant _BasicInitializeFunctionPointerType := ((Void pointer) => Void) pointer.
-
 struct GCFunctionStackMapEntry definition: {
     field stackFrameSize public type: UInt32.
     field _ public type: UInt32.
@@ -35,40 +33,8 @@ struct GCFunctionStackMapEntry definition: {
         := self roots[self paddedRootCount] address reinterpretCastTo: GCFunctionStackMapEntry pointer.
 }.
 
-if: Compiler hasGarbageCollectionStackMap then: {
-	global __sysmel_gc_section_start external externC mutable type: GCFunctionStackMapEntry.
-	global __sysmel_gc_section_end external externC mutable type: GCFunctionStackMapEntry.
-} else: {
-	global __sysmel_gc_section_start externC mutable type: GCFunctionStackMapEntry.
-	global __sysmel_gc_section_end externC mutable type: GCFunctionStackMapEntry.
-}.
-
-
-#**
- * _ObjectHeader
- * The header an object.
- *#
-struct _ObjectHeader definition: {
-    ## Pointer towards the main virtual table. Objects that implement interfaces
-    ## can have additional vtables.
-    field __vtable public type: Void pointer.
-
-    if: UIntPointer instanceSize == 4 then: {
-        ## TODO: Support big-endian.
-        field __padding public type: UInt32.
-    }.
-
-    ## 32 bits: gc color, isPinned, isImmutable.
-    field _ public bits: 5; type: UInt32.
-
-    field __gcBits public type: UInt32; bits: 3.
-    field __isPinned public type: UInt32; bits: 1.
-    field __isImmutable public type: UInt32; bits: 1.
-    field __identityHash public type: UInt32; bits: 22.
-
-    ## Variable data size
-    field __variableDataSize public type: UInt32.
-}.
+global __sysmel_gc_section_start external externC mutable type: GCFunctionStackMapEntry.
+global __sysmel_gc_section_end external externC mutable type: GCFunctionStackMapEntry.
 
 class SysmelGC definition: {
     field memoryHeap mutable type: StdNative NativeMemoryHeap.

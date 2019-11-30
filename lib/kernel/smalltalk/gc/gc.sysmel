@@ -1,0 +1,7 @@
+loadFileOnce: "objectModel.sysmel".
+
+if: Compiler hasGarbageCollectionStackMap then: {
+    loadFileOnce: "precise.sysmel".
+} else: {
+    loadFileOnce: "conservative.sysmel".
+}.

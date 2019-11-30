@@ -1,5 +1,16 @@
 namespace StdNative definition: {
+if: Compiler useLibC then: {
+	compileTimeConstant memchr := LibC memchr.
+	compileTimeConstant memcmp := LibC memcmp.
+	compileTimeConstant memcpy := LibC memcpy.
+	compileTimeConstant memmove := LibC memmove.
+	compileTimeConstant memset := LibC memset.
 
+	compileTimeConstant cstrlen := LibC strlen.
+	compileTimeConstant cstrnlen := LibC strnlen.
+	compileTimeConstant cstrstr := LibC strstr.
+
+} else: {
 #**
  * Scan memory for a character.
  *#
@@ -12,22 +23,6 @@ function memchr(source: Void const pointer, character: Int32, size: UIntPointer)
     } continueWith: (i := i + 1).
 
     return: nil.
-}.
-
-#**
- * Scan memory for the last occurrence of a character.
- *#
-function memrchr(source: Void const pointer, character: Int32, size: UIntPointer) => Void const pointer := {
-    let sourceBytes := source reinterpretCastTo: UInt8 const pointer.
-    let bestResult mutable type: Void const pointer := nil.
-
-    for: (let i mutable type: UIntPointer := 0) while: (i < size) do: {
-        if: sourceBytes[i] == character then: {
-            bestResult := sourceBytes[i] address
-        }
-    } continueWith: (i := i + 1).
-
-    return: bestResult.
 }.
 
 #**
@@ -86,30 +81,6 @@ function memset(dest: Void pointer, value: Int32, size: UIntPointer) => Void poi
 }.
 
 #**
- * Finds a substring in a memory region.
- *#
-function memstrstr(haystack: Void const pointer, haystackSize: UIntPointer, needle: Void const pointer, needleSize: UIntPointer) => Void const pointer := {
-    ## TODO: Use KMP when possible.
-    let haystackBytes := haystack reinterpretCastTo: UInt8 const pointer.
-
-    for: (let i mutable type: UIntPointer := 0) while: i < haystackSize do: {
-        ## Can we still have a match?
-        if: haystackSize - i < needleSize then: {
-            return: nil
-        }.
-
-        ## Check this element with the needle.
-        let position := haystackBytes[i] address.
-        if: memcmp(position, needle, needleSize) = 0 then: {
-            return: position
-        }.
-    } continueWith: (i := i + 1).
-
-    return: nil
-}.
-
-
-#**
  * Computes the length of a C-String.
  *#
 function cstrlen (string: UInt8 const pointer) => UIntPointer := {
@@ -153,6 +124,46 @@ function cstrstr (haystack: UInt8 const pointer, needle: UInt8 const pointer) =>
     }.
 
     return: (memstrstr(haystack, cstrlen(haystack), needle, cstrlen(needle)) reinterpretCastTo: UInt8 const pointer)
+}.
+}. ## useLibC
+
+#**
+ * Scan memory for the last occurrence of a character.
+ *#
+function memrchr(source: Void const pointer, character: Int32, size: UIntPointer) => Void const pointer := {
+    let sourceBytes := source reinterpretCastTo: UInt8 const pointer.
+    let bestResult mutable type: Void const pointer := nil.
+
+    for: (let i mutable type: UIntPointer := 0) while: (i < size) do: {
+        if: sourceBytes[i] == character then: {
+            bestResult := sourceBytes[i] address
+        }
+    } continueWith: (i := i + 1).
+
+    return: bestResult.
+}.
+
+#**
+ * Finds a substring in a memory region.
+ *#
+function memstrstr(haystack: Void const pointer, haystackSize: UIntPointer, needle: Void const pointer, needleSize: UIntPointer) => Void const pointer := {
+    ## TODO: Use KMP when possible.
+    let haystackBytes := haystack reinterpretCastTo: UInt8 const pointer.
+
+    for: (let i mutable type: UIntPointer := 0) while: i < haystackSize do: {
+        ## Can we still have a match?
+        if: haystackSize - i < needleSize then: {
+            return: nil
+        }.
+
+        ## Check this element with the needle.
+        let position := haystackBytes[i] address.
+        if: memcmp(position, needle, needleSize) = 0 then: {
+            return: position
+        }.
+    } continueWith: (i := i + 1).
+
+    return: nil
 }.
 
 }.

@@ -1,0 +1,16 @@
+namespace StdNative definition: {
+
+compileTimeConstant malloc := LibC malloc.
+compileTimeConstant calloc := LibC calloc.
+compileTimeConstant realloc := LibC realloc.
+compileTimeConstant free := LibC free.
+
+function zmalloc(size: UIntPointer) => Void pointer := {
+    let allocated := LibC malloc(size).
+    allocated ifNotNil: {
+        memset(allocated, 0, size)
+    }.
+    allocated
+}.
+
+}. ## End of StdNative

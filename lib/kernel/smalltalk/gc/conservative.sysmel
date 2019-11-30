@@ -1,0 +1,32 @@
+namespace SysmelKernel definition: {
+
+namespace BoehmGC definition: {
+    function GC_malloc externC(size: UIntPointer) => Void pointer.
+}.
+
+class SysmelGC definition: {
+
+    message allocate: (objectSize: UIntPointer)
+        variableDataSize: (variableDataSize: UInt32)
+        initializingWith: (basicInitializer: _BasicInitializeFunctionPointerType)
+          ::=> _ObjectHeader pointer := {
+        <nogc>
+
+        ## Allocate the object memory.
+        let allocatedObject := BoehmGC GC_malloc(objectSize) reinterpretCastTo: _ObjectHeader pointer.
+        LibC memset(allocatedObject, 0, objectSize).
+
+        ## Set the allocated object class.
+        allocatedObject value
+            __variableDataSize: variableDataSize.
+
+        ## Perform the basic initialization. This sets the vtable pointers.
+        basicInitializer _ (allocatedObject).
+
+        return: allocatedObject
+    }.
+}.
+
+global globalSysmelGC mutable type: SysmelGC.
+
+}.

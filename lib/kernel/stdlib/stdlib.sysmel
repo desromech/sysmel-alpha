@@ -1,5 +1,5 @@
 ## Evaluate the platform specific library bindings, that we depend on.
-if: Compiler useLibC then: {
+if: Compiler hasLibC then: {
     loadFileOnce: "libc/libc.sysmel".
 
     if: Compiler compilationTarget isUnix then: {
