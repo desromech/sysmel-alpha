@@ -520,6 +520,43 @@ MbndSlovimFunctionCodeGenerator >> visitGetFieldValueNode: node [
 ]
 
 { #category : #visiting }
+MbndSlovimFunctionCodeGenerator >> visitIOChannelReceiveAction: node [
+	| channel messageType |
+	channel := self visitNode: node channel.
+	messageType := self translateType: node channel type messageType.
+	
+	self slvmCompilationTarget isSpirV ifTrue: [ 
+		self halt.
+	].
+
+	
+	codeModuleGenerator compilationTarget inputChannelImplementationType ifNotNil: [ :implType |
+		self halt
+	].
+
+	self assert: channel type isDynamicObjectPointerType.
+	^ slvmBuilder send: (slvmBuilder addDynamicLiteral: #receive) returnType: messageType receiver: channel arguments: #()
+]
+
+{ #category : #visiting }
+MbndSlovimFunctionCodeGenerator >> visitIOChannelSendAction: node [
+	| channel message |
+	channel := self visitNode: node channel.
+	message := self visitNode: node message.
+	
+	self slvmCompilationTarget isSpirV ifTrue: [ 
+		self halt.
+	].
+
+	codeModuleGenerator compilationTarget outputChannelImplementationType ifNotNil: [ :implType |
+		self halt
+	].
+
+	self assert: channel type isDynamicObjectPointerType.
+	^ slvmBuilder send: (slvmBuilder addDynamicLiteral: #send:) returnType: channel type receiver: channel arguments: { message }
+]
+
+{ #category : #visiting }
 MbndSlovimFunctionCodeGenerator >> visitIfConditionNode: node [
 	| condition mergeBlock thenBlock elseBlock trueResult falseResult hasTrueResult hasFalseResult resultType branchBlock |
 	condition := self visitNode: node condition.
@@ -653,8 +690,7 @@ MbndSlovimFunctionCodeGenerator >> visitLocalVariableDefinitionNode: node [
 	initialValue := node initialValue ifNotNil: [ :iv | self visitNode: iv ].
 	valueType := self translateType: node valueType.
 	
-	node isMutable ifTrue: [
-		self assert: node type isReferenceType.
+	node type isReferenceType ifTrue: [
 		(node isAccessedByReference and: [node initialValue type isReferenceType]) ifTrue: [
 			self assert: initialValue isNotNil.
 			ssaValue := initialValue.

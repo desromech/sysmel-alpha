@@ -185,7 +185,7 @@ MbndPrimitiveMatrixType >> instanceAlignment [
 
 { #category : #sizes }
 MbndPrimitiveMatrixType >> instanceSize [
-	^ instanceSize ifNil: [ instanceSize := (self columnType instanceSize alignedTo: self columnType instanceSize instanceAlignment) * columns ]
+	^ instanceSize ifNil: [ instanceSize := (self columnType instanceSize alignedTo: self columnType instanceSize) * columns ]
 ]
 
 { #category : #'testing methods' }

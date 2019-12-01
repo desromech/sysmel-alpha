@@ -407,6 +407,30 @@ MbndAstBuilderTest >> testGlobalVariableDefinition [
 ]
 
 { #category : #tests }
+MbndAstBuilderTest >> testIOChannelReceiveNode [
+	| node channel |
+	channel := builder identifier: #channel.
+	node := builder receiveFromInputChannel: channel.
+	
+	self assert: node isIOChannelActionNode.
+	self assert: node isIOChannelReceiveActionNode.
+	self assert: node channel equals: channel.
+]
+
+{ #category : #tests }
+MbndAstBuilderTest >> testIOChannelSendNode [
+	| node channel message |
+	channel := builder identifier: #channel.
+	message := builder identifier: #message.
+	node := builder sendIntoOutputChannel: channel message: message.
+	
+	self assert: node isIOChannelActionNode.
+	self assert: node isIOChannelSendActionNode.
+	self assert: node channel equals: channel.
+	self assert: node message equals: message.
+]
+
+{ #category : #tests }
 MbndAstBuilderTest >> testIdentifier [
 	| node |
 	node := builder identifier: #symbol.

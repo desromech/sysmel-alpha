@@ -153,6 +153,71 @@ TMbndAbstractCompilationTarget >> getBasicTypeNamed: typeName [
 	self explicitRequirement
 ]
 
+{ #category : #'gpu convenience type accessors' }
+TMbndAbstractCompilationTarget >> gpuDepthTexture2DArrayType [
+	^ self getBasicTypeNamed: #GPUDepthTexture2DArray
+]
+
+{ #category : #'gpu convenience type accessors' }
+TMbndAbstractCompilationTarget >> gpuDepthTexture2DType [
+	^ self getBasicTypeNamed: #GPUDepthTexture2D
+]
+
+{ #category : #'gpu convenience type accessors' }
+TMbndAbstractCompilationTarget >> gpuDepthTextureCubeArrayType [
+	^ self getBasicTypeNamed: #GPUDepthTextureCubeArray
+]
+
+{ #category : #'gpu convenience type accessors' }
+TMbndAbstractCompilationTarget >> gpuDepthTextureCubeType [
+	^ self getBasicTypeNamed: #GPUDepthTextureCube
+]
+
+{ #category : #'gpu convenience type accessors' }
+TMbndAbstractCompilationTarget >> gpuSamplerType [
+	^ self getBasicTypeNamed: #GPUSampler
+]
+
+{ #category : #'gpu convenience type accessors' }
+TMbndAbstractCompilationTarget >> gpuTexture1DArrayType [
+	^ self getBasicTypeNamed: #GPUTexture1DArray
+]
+
+{ #category : #'gpu convenience type accessors' }
+TMbndAbstractCompilationTarget >> gpuTexture1DType [
+	^ self getBasicTypeNamed: #GPUTexture1D
+]
+
+{ #category : #'gpu convenience type accessors' }
+TMbndAbstractCompilationTarget >> gpuTexture2DArrayType [
+	^ self getBasicTypeNamed: #GPUTexture2DArray
+]
+
+{ #category : #'gpu convenience type accessors' }
+TMbndAbstractCompilationTarget >> gpuTexture2DType [
+	^ self getBasicTypeNamed: #GPUTexture2D
+]
+
+{ #category : #'gpu convenience type accessors' }
+TMbndAbstractCompilationTarget >> gpuTexture3DArrayType [
+	^ self getBasicTypeNamed: #GPUTexture3DArray
+]
+
+{ #category : #'gpu convenience type accessors' }
+TMbndAbstractCompilationTarget >> gpuTexture3DType [
+	^ self getBasicTypeNamed: #GPUTexture3D
+]
+
+{ #category : #'gpu convenience type accessors' }
+TMbndAbstractCompilationTarget >> gpuTextureCubeArrayType [
+	^ self getBasicTypeNamed: #GPUTextureCubeArray
+]
+
+{ #category : #'gpu convenience type accessors' }
+TMbndAbstractCompilationTarget >> gpuTextureCubeType [
+	^ self getBasicTypeNamed: #GPUTextureCube
+]
+
 { #category : #'platform testing' }
 TMbndAbstractCompilationTarget >> hasNoOperatingSystem [
 	^ false
@@ -161,6 +226,11 @@ TMbndAbstractCompilationTarget >> hasNoOperatingSystem [
 { #category : #'platform testing' }
 TMbndAbstractCompilationTarget >> hasOperatingSystem [
 	^ self hasNoOperatingSystem not
+]
+
+{ #category : #'derived types' }
+TMbndAbstractCompilationTarget >> inputChannelFor: messageType [
+	self explicitRequirement
 ]
 
 { #category : #'convenience type accessors' }
@@ -316,6 +386,11 @@ TMbndAbstractCompilationTarget >> namespaceType [
 { #category : #'convenience type accessors' }
 TMbndAbstractCompilationTarget >> opaqueType [
 	^ self getBasicTypeNamed: MbndOpaqueType typeName
+]
+
+{ #category : #'derived types' }
+TMbndAbstractCompilationTarget >> outputChannelFor: messageType [
+	self explicitRequirement
 ]
 
 { #category : #accessing }

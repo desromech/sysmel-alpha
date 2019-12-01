@@ -79,10 +79,20 @@ MbndSlovimTypeNameMangler >> visitGCClassType: metaType [
 	^ 'Tg' , (codeModuleGenerator mangleProgramEntityName: metaType)
 ]
 
+{ #category : #visiting }
+MbndSlovimTypeNameMangler >> visitInputChannelType: type [
+	^ 'TCi' , (self visitNode: type messageType)
+]
+
 { #category : #accessing }
 MbndSlovimTypeNameMangler >> visitNode: node [
 	builtInManglingTable at: node ifPresent: [ :existent | ^ existent ].
 	^ node accept: self
+]
+
+{ #category : #visiting }
+MbndSlovimTypeNameMangler >> visitOutputChannelType: type [
+	^ 'TCo' , (self visitNode: type messageType)
 ]
 
 { #category : #visiting }

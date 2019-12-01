@@ -121,6 +121,28 @@ MbndSlovimTypeTranslator >> visitGCClassVariableDataArrayType: variableDataArray
 ]
 
 { #category : #visiting }
+MbndSlovimTypeTranslator >> visitInputChannelType: type [
+	self slvmCompilationTarget isSpirV ifTrue: [ 
+		self halt.
+	].
+
+	codeModuleGenerator compilationTarget inputChannelImplementationType ifNotNil: [ :targetType | ^ self translateType: type ].
+	codeModuleGenerator compilationTarget dynamicObjectType ifNotNil: [ :targetType | ^ self translateType: type ].
+	^ self slvmCompilationTarget dynamicObjectType
+]
+
+{ #category : #visiting }
+MbndSlovimTypeTranslator >> visitOutputChannelType: type [
+	self slvmCompilationTarget isSpirV ifTrue: [ 
+		self halt.
+	].
+
+	codeModuleGenerator compilationTarget outputChannelImplementationType ifNotNil: [ :targetType | ^ self translateType: type ].
+	codeModuleGenerator compilationTarget dynamicObjectType ifNotNil: [ :targetType | ^ self translateType: type ].
+	^ self slvmCompilationTarget dynamicObjectType
+]
+
+{ #category : #visiting }
 MbndSlovimTypeTranslator >> visitPointerType: pointerType [
 	"This could be a recursive type."
 	| ssaPointerType |
@@ -162,6 +184,13 @@ MbndSlovimTypeTranslator >> visitReferenceType: referenceType [
 ]
 
 { #category : #visiting }
+MbndSlovimTypeTranslator >> visitSamplerType: type [
+	codeModuleGenerator compilationTarget samplerImplementationType ifNotNil: [ :targetType | ^ self translateType: type ].
+	codeModuleGenerator compilationTarget dynamicObjectType ifNotNil: [ :targetType | ^ self translateType: type ].
+	^ self slvmCompilationTarget dynamicObjectType
+]
+
+{ #category : #visiting }
 MbndSlovimTypeTranslator >> visitSimpleMetaType: metaType [
 	^ self slvmCompilationTarget voidPointerPointerType
 ]
@@ -170,6 +199,12 @@ MbndSlovimTypeTranslator >> visitSimpleMetaType: metaType [
 MbndSlovimTypeTranslator >> visitStructureType: structureType [
 	^ self translateAggregateType: structureType
 
+]
+
+{ #category : #visiting }
+MbndSlovimTypeTranslator >> visitTextureType: type [
+	codeModuleGenerator compilationTarget dynamicObjectType ifNotNil: [ :targetType | ^ self translateType: type ].
+	^ self slvmCompilationTarget dynamicObjectType
 ]
 
 { #category : #visiting }

@@ -220,6 +220,16 @@ MbndAstVisitor >> visitGlobalVariableDefinitionNode: node [
 ]
 
 { #category : #visiting }
+MbndAstVisitor >> visitIOChannelReceiveAction: node [
+	self subclassResponsibility
+]
+
+{ #category : #visiting }
+MbndAstVisitor >> visitIOChannelSendAction: node [
+	self subclassResponsibility
+]
+
+{ #category : #visiting }
 MbndAstVisitor >> visitIdentifierReferenceNode: node [
 	self subclassResponsibility
 ]

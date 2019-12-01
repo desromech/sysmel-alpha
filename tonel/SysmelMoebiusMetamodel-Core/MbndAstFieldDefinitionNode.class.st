@@ -4,7 +4,9 @@ Class {
 	#traits : 'TMbndEntityWithVisibility',
 	#classTraits : 'TMbndEntityWithVisibility classTrait',
 	#instVars : [
-		'bits'
+		'bits',
+		'location',
+		'intrinsic'
 	],
 	#category : #'SysmelMoebiusMetamodel-Core-AST'
 }
@@ -24,7 +26,27 @@ MbndAstFieldDefinitionNode >> bits: anObject [
 	bits := anObject
 ]
 
+{ #category : #accessing }
+MbndAstFieldDefinitionNode >> intrinsic [
+	^ intrinsic
+]
+
+{ #category : #accessing }
+MbndAstFieldDefinitionNode >> intrinsic: anObject [
+	intrinsic := anObject
+]
+
 { #category : #testing }
 MbndAstFieldDefinitionNode >> isFieldDefinitionNode [
 	^ true
+]
+
+{ #category : #accessing }
+MbndAstFieldDefinitionNode >> location [
+	^ location
+]
+
+{ #category : #accessing }
+MbndAstFieldDefinitionNode >> location: anObject [
+	location := anObject
 ]

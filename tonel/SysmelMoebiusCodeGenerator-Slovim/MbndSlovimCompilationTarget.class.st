@@ -24,6 +24,11 @@ MbndSlovimCompilationTarget class >> slvmCompilationTarget: slvmTarget [
 		yourself
 ]
 
+{ #category : #'as yet unclassified' }
+MbndSlovimCompilationTarget class >> spirv_vulkan [
+	^ self slvmCompilationTarget: SLVMLLVMCompilationTarget spirv_logical64
+]
+
 { #category : #adding }
 MbndSlovimCompilationTarget >> addSysmelLLVMGCPlugin [
 	| path |

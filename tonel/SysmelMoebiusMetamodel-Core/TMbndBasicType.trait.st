@@ -33,6 +33,11 @@ TMbndBasicType >> hasPublicVisibility [
 ]
 
 { #category : #'as yet unclassified' }
+TMbndBasicType >> implicitFunctionReceiverType [
+	^ self asReceiverType
+]
+
+{ #category : #'as yet unclassified' }
 TMbndBasicType >> implicitMethodReceiverType [
 	^ self asReceiverType
 ]

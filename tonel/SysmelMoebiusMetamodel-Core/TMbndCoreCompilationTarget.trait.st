@@ -19,7 +19,12 @@ Trait {
 		'primitiveMatrixTypes',
 		'dynamicObjectType',
 		'managedObjectModel',
-		'gcClassVariableDataArrayTypes'
+		'gcClassVariableDataArrayTypes',
+		'outputChannelTypes',
+		'inputChannelTypes',
+		'inputChannelImplementationType',
+		'outputChannelImplementationType',
+		'samplerImplementationType'
 	],
 	#traits : 'TMbndAbstractCompilationTarget',
 	#classTraits : 'TMbndAbstractCompilationTarget classTrait',
@@ -60,6 +65,23 @@ TMbndCoreCompilationTarget >> addBasicType: basicType [
 	self ensureBasicTypeIsLinkedToTheHierarchy: basicType.
 	basicTypes at: basicType name put: basicType.
 	^ basicType
+]
+
+{ #category : #initialization }
+TMbndCoreCompilationTarget >> addGpuTextureTypeNamed: name sampled: sampled dimensions: dimensions layered: layered depth: depth multisampling: multisampling [
+	| textureType |
+	textureType := (self ensureBasicTypeIsLinkedToTheHierarchy: MbndTextureType basicNew)
+		name: name;
+		sampled: sampled;
+		dimensions: dimensions;
+		depth: depth;
+		multisampling: multisampling;
+		layered: layered;
+		initializeNonTraitType;
+		yourself.
+	basicTypes at: name put: textureType.
+	^ textureType
+
 ]
 
 { #category : #'derived types' }
@@ -672,6 +694,41 @@ TMbndCoreCompilationTarget >> initializeDerivedTypeCaches [
 				initializeNonTraitType;
 				yourself.
 	].
+
+	inputChannelTypes := self createSystemProvidedTypeTemplate: #_InputChannelTypeTemplate
+		doing: [ :messageType |
+			(self ensureBasicTypeIsLinkedToTheHierarchy: MbndInputChannelType basicNew)
+				messageType: messageType;
+				initializeNonTraitType;
+				yourself.
+	].
+
+	outputChannelTypes := self createSystemProvidedTypeTemplate: #_OutputChannelTypeTemplate
+		doing: [ :messageType |
+			(self ensureBasicTypeIsLinkedToTheHierarchy: MbndOutputChannelType basicNew)
+				messageType: messageType;
+				initializeNonTraitType;
+				yourself.
+	].
+
+]
+
+{ #category : #initialization }
+TMbndCoreCompilationTarget >> initializeGpuTypes [
+	self 
+		addGpuTextureTypeNamed: #GPUTexture1D sampled: true dimensions: 1 layered: false depth: false multisampling: false;
+		addGpuTextureTypeNamed: #GPUTexture1DArray sampled: true dimensions: 1 layered: true depth: false multisampling: false;
+		addGpuTextureTypeNamed: #GPUTexture2D sampled: true dimensions: 2 layered: false depth: false multisampling: false;
+		addGpuTextureTypeNamed: #GPUTexture2DArray sampled: true dimensions: 2 layered: true depth: false multisampling: false;
+		addGpuTextureTypeNamed: #GPUTextureCube sampled: true dimensions: #cube layered: false depth: false multisampling: false;
+		addGpuTextureTypeNamed: #GPUTextureCubeArray sampled: true dimensions: #cube layered: true depth: false multisampling: false;
+		addGpuTextureTypeNamed: #GPUTexture3D sampled: true dimensions: 3 layered: false depth: false multisampling: false;
+		addGpuTextureTypeNamed: #GPUTexture3DArray sampled: true dimensions: 3 layered: false depth: false multisampling: false;
+		
+		addGpuTextureTypeNamed: #GPUDepthTexture2D sampled: true dimensions: 2 layered: false depth: true multisampling: false;
+		addGpuTextureTypeNamed: #GPUDepthTexture2DArray sampled: true dimensions: 2 layered: true depth: true multisampling: false;
+		addGpuTextureTypeNamed: #GPUDepthTextureCube sampled: true dimensions: #cube layered: false depth: true multisampling: false;
+		addGpuTextureTypeNamed: #GPUDepthTextureCubeArray sampled: true dimensions: #cube layered: true depth: true multisampling: false.
 ]
 
 { #category : #initialization }
@@ -713,8 +770,24 @@ TMbndCoreCompilationTarget >> initializeTypeSystem [
 		initializeBasicTypes;
 		initializePrimitiveVectorTypes;
 		initializePrimitiveMatrixTypes;
+		initializeGpuTypes;
 		initializeArithmeticCoercionTable;
 		initializeArithmeticConversionRules
+]
+
+{ #category : #'derived types' }
+TMbndCoreCompilationTarget >> inputChannelFor: messageType [
+	^ inputChannelTypes getOrCreateInstanceWithArguments: { messageType }
+]
+
+{ #category : #accessing }
+TMbndCoreCompilationTarget >> inputChannelImplementationType [
+	^ inputChannelImplementationType
+]
+
+{ #category : #accessing }
+TMbndCoreCompilationTarget >> inputChannelImplementationType: anObject [
+	inputChannelImplementationType := anObject
 ]
 
 { #category : #initialization }
@@ -776,6 +849,21 @@ TMbndCoreCompilationTarget >> newCodeModuleGenerator [
 ]
 
 { #category : #'derived types' }
+TMbndCoreCompilationTarget >> outputChannelFor: messageType [
+	^ outputChannelTypes getOrCreateInstanceWithArguments: { messageType }
+]
+
+{ #category : #accessing }
+TMbndCoreCompilationTarget >> outputChannelImplementationType [
+	^ outputChannelImplementationType
+]
+
+{ #category : #accessing }
+TMbndCoreCompilationTarget >> outputChannelImplementationType: anObject [
+	outputChannelImplementationType := anObject
+]
+
+{ #category : #'derived types' }
 TMbndCoreCompilationTarget >> pointerFor: addressSpace to: baseType [
 	^ pointerTypes getOrCreateInstanceWithArguments: { baseType . addressSpace }
 ]
@@ -793,6 +881,16 @@ TMbndCoreCompilationTarget >> primitiveVectorTypeFor: elementType elements: vect
 { #category : #'derived types' }
 TMbndCoreCompilationTarget >> referenceFor: addressSpace to: baseType [
 	^ referenceTypes getOrCreateInstanceWithArguments: { baseType . addressSpace }
+]
+
+{ #category : #accessing }
+TMbndCoreCompilationTarget >> samplerImplementationType [
+	^ samplerImplementationType
+]
+
+{ #category : #accessing }
+TMbndCoreCompilationTarget >> samplerImplementationType: aType [
+	samplerImplementationType := aType
 ]
 
 { #category : #initialization }

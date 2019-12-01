@@ -5,7 +5,8 @@ Class {
 		'functionArguments',
 		'returnTypeNode',
 		'functionPrototype',
-		'functionDefinition'
+		'functionDefinition',
+		'specialSemantics'
 	],
 	#category : #'SysmelMoebiusMetamodel-Core-MetaBuilder'
 }
@@ -18,6 +19,11 @@ MbndAbstractFunctionMetaBuilder >> => aReturnType [
 	self ensureFunctionPrototype
 ]
 
+{ #category : #flags }
+MbndAbstractFunctionMetaBuilder >> CVariadic [
+	self addFlag: #cvariadic
+]
+
 { #category : #'as yet unclassified' }
 MbndAbstractFunctionMetaBuilder >> applyWithArguments: prototypeTemplate [
 	functionArguments ifNotNil: [ self abortMetaBuilding ].
@@ -28,6 +34,11 @@ MbndAbstractFunctionMetaBuilder >> applyWithArguments: prototypeTemplate [
 { #category : #definition }
 MbndAbstractFunctionMetaBuilder >> assignValue: aNode [
 	^ self definition: aNode
+]
+
+{ #category : #'as yet unclassified' }
+MbndAbstractFunctionMetaBuilder >> computeShader [
+	^ self specialSemantics: #computeShader
 ]
 
 { #category : #'semantic analysis' }
@@ -69,7 +80,18 @@ MbndAbstractFunctionMetaBuilder >> ensureFunctionPrototype [
 		name: name;
 		arguments: functionArguments;
 		returnType: returnTypeNode;
+		specialSemantics: specialSemantics;
 		yourself
+]
+
+{ #category : #flags }
+MbndAbstractFunctionMetaBuilder >> externC [
+	self addFlag: #externC
+]
+
+{ #category : #'as yet unclassified' }
+MbndAbstractFunctionMetaBuilder >> fragmentShader [
+	^ self specialSemantics: #fragmentShader
 ]
 
 { #category : #copying }
@@ -86,4 +108,19 @@ MbndAbstractFunctionMetaBuilder >> postCopy [
 		functionDefinition prototype: functionPrototype
 	]
 
+]
+
+{ #category : #accessing }
+MbndAbstractFunctionMetaBuilder >> specialSemantics [
+	^ specialSemantics
+]
+
+{ #category : #accessing }
+MbndAbstractFunctionMetaBuilder >> specialSemantics: anObject [
+	specialSemantics := anObject
+]
+
+{ #category : #'as yet unclassified' }
+MbndAbstractFunctionMetaBuilder >> vertexShader [
+	^ self specialSemantics: #vertexShader
 ]

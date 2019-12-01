@@ -890,6 +890,15 @@ MbndAstBuilder >> quote: expression [
 ]
 
 { #category : #'builder methods' }
+MbndAstBuilder >> receiveFromInputChannel: channel [
+	<compileTime>
+	<returnType: #_ASTNodeType>
+	^ MbndAstIOChannelReceiveAction new
+		channel: channel;
+		yourself
+]
+
+{ #category : #'builder methods' }
 MbndAstBuilder >> reference: reference assignValue: value [
 	<compileTime>
 	<returnType: #_ASTNodeType>
@@ -944,6 +953,16 @@ MbndAstBuilder >> send: selector to: aReceiver withArguments: arguments [
 		arguments: arguments;
 		yourself
 		
+]
+
+{ #category : #'builder methods' }
+MbndAstBuilder >> sendIntoOutputChannel: channel message: message [
+	<compileTime>
+	<returnType: #_ASTNodeType>
+	^ MbndAstIOChannelSendAction new
+		channel: channel;
+		message: message;
+		yourself
 ]
 
 { #category : #'builder methods' }

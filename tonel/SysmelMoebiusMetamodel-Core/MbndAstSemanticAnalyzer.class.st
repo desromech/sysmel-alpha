@@ -932,6 +932,37 @@ MbndAstSemanticAnalyzer >> visitGlobalVariableDefinitionNode: node [
 ]
 
 { #category : #visiting }
+MbndAstSemanticAnalyzer >> visitIOChannelReceiveAction: node [
+	| result |
+	result := node copy
+		channel: (self ensureReferencesAreEvaluated: (self analyzeNodeIfNeeded: node channel)).
+	result channel type isInputChannelType ifFalse: [ 
+		self error: 'An input channel is expected for receiving message.' at: node
+	].
+
+	^ result
+		type: result channel type messageType;
+		yourself
+]
+
+{ #category : #visiting }
+MbndAstSemanticAnalyzer >> visitIOChannelSendAction: node [
+	| result |
+	result := node copy
+		channel: (self ensureReferencesAreEvaluated: (self analyzeNodeIfNeeded: node channel));
+		message: (self analyzeNodeIfNeeded: node message).
+		
+	result channel type isOutputChannelType ifFalse: [ 
+		self error: 'An output channel is expected for receiving message.' at: node
+	].
+	result message: (self addImplicitCastFor: result message to: result channel type messageType).
+
+	^ result
+		type: result channel type;
+		yourself
+]
+
+{ #category : #visiting }
 MbndAstSemanticAnalyzer >> visitIdentifierReferenceNode: node [
 	| binding |
 	binding := scope lookupSymbolRecursively: node symbol ifAbsent: [

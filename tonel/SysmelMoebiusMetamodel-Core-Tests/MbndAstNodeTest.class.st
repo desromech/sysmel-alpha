@@ -111,6 +111,9 @@ MbndAstNodeTest >> testTestingMethods [
 	self deny: node isIntegerToPointerCastNode.
 	self deny: node isImmediateBlockClosureActivationNode.
 	self deny: node isImplicitCastNode.
+	self deny: node isIOChannelActionNode.
+	self deny: node isIOChannelReceiveActionNode.
+	self deny: node isIOChannelSendActionNode.
 	self deny: node isLexicalScopeNode.
 	self deny: node isLiteralValueNode.
 	self deny: node isLiteralSymbolValueNode.

@@ -32,6 +32,11 @@ MbndStandaloneModule class >> llvm_x86_64 [
 	^ self compilationTarget: MbndSlovimCompilationTarget llvm_x86_64
 ]
 
+{ #category : #'as yet unclassified' }
+MbndStandaloneModule class >> spirv_vulkan [
+	^ self compilationTarget: MbndSlovimCompilationTarget spirv_vulkan
+]
+
 { #category : #accessing }
 MbndStandaloneModule >> compilationTarget [
 	^ compilationTarget

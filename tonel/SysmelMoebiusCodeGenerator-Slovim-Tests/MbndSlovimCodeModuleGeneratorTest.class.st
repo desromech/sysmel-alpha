@@ -221,6 +221,60 @@ MbndSlovimCodeModuleGeneratorTest >> testCStringCFunction [
 ]
 
 { #category : #tests }
+MbndSlovimCodeModuleGeneratorTest >> testClassGetSuperclassField [
+	| function |
+	self
+		evaluateSysmelSource: '
+class SuperClass definition: { 
+	field int32Field type: Int32.
+}.
+
+class SubClass superclass: SuperClass; definition: { 
+	field float32Field type: Float32.
+	
+	message getField => Int32 := int32Field.
+}.
+
+';
+		generateSSAModule.
+
+	function := ssaModule globalNamed: #_S8SubClass8getFieldFRTc_S8SubClass.
+	self assert: function isFunction.
+	self deny: function isEmpty.
+	self assert: function basicBlocks size equals: 2.
+	self assert: function basicBlocks first firstInstruction isJump.
+	self assert: function basicBlocks second firstInstruction isGetElementPointer.
+	self assert: function basicBlocks second lastInstruction isReturn.
+]
+
+{ #category : #tests }
+MbndSlovimCodeModuleGeneratorTest >> testClassGetSuperclassField2 [
+	| function |
+	self
+		evaluateSysmelSource: '
+class SuperClass definition: { 
+	field int32Field type: Int32.
+}.
+
+class SubClass superclass: SuperClass; definition: { 
+	field float32Field type: Float32.
+	
+	function getField externC() => Int32 := int32Field.
+}.
+
+';
+		generateSSAModule.
+
+	function := ssaModule globalNamed: #getField.
+	self assert: function isFunction.
+	self deny: function isEmpty.
+	self assert: function basicBlocks size equals: 2.
+	self assert: function basicBlocks first firstInstruction isJump.
+	self assert: function basicBlocks second firstInstruction isGetElementPointer.
+	self assert: function basicBlocks second lastInstruction isReturn.
+]
+
+{ #category : #tests }
 MbndSlovimCodeModuleGeneratorTest >> testClassPointerUpcast [
 	| function |
 	self
@@ -1618,6 +1672,22 @@ MbndSlovimCodeModuleGeneratorTest >> testIfIntegerLiteralCoercion [
 ]
 
 { #category : #tests }
+MbndSlovimCodeModuleGeneratorTest >> testInputChannelReceiveInteger [
+	| function |
+	self
+		evaluateSysmelSource: 'function receive externC(inputChannel: Int32 inputChannel) => Int32
+			:= inputChannel receive';
+		generateSSAModule.
+
+	function := ssaModule globalNamed: #receive.
+	self assert: function isFunction.
+	self deny: function isEmpty.
+	self assert: function basicBlocks size equals: 2.
+	self assert: function basicBlocks second firstInstruction isMessageSend.
+	self assert: function basicBlocks second lastInstruction isReturn.
+]
+
+{ #category : #tests }
 MbndSlovimCodeModuleGeneratorTest >> testIntegerAdd [
 	| function |
 	self
@@ -2654,6 +2724,21 @@ MbndSlovimCodeModuleGeneratorTest >> testMultipleChainsFunction [
 	self deny: function isEmpty.
 	self assert: function basicBlocks size equals: 2.
 
+]
+
+{ #category : #tests }
+MbndSlovimCodeModuleGeneratorTest >> testOutputChannelSendInteger [
+	| function |
+	self
+		evaluateSysmelSource: 'function send externC(outputChannel: Int32 outputChannel, message: Int32) => Void
+			:= outputChannel send: message';
+		generateSSAModule.
+
+	function := ssaModule globalNamed: #send.
+	self assert: function isFunction.
+	self deny: function isEmpty.
+	self assert: function basicBlocks size equals: 2.
+	self assert: function basicBlocks second firstInstruction isMessageSend.
 ]
 
 { #category : #tests }

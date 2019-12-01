@@ -306,6 +306,21 @@ MbndAstTransformVisitor >> visitGlobalVariableDefinitionNode: node [
 ]
 
 { #category : #visiting }
+MbndAstTransformVisitor >> visitIOChannelReceiveAction: node [
+	^ node copy
+		channel: (self visitNode: node channel);
+		yourself
+]
+
+{ #category : #visiting }
+MbndAstTransformVisitor >> visitIOChannelSendAction: node [
+	^ node copy
+		channel: (self visitNode: node channel);
+		message: (self visitNode: node message);
+		yourself
+]
+
+{ #category : #visiting }
 MbndAstTransformVisitor >> visitIdentifierReferenceNode: node [
 	^ node
 ]

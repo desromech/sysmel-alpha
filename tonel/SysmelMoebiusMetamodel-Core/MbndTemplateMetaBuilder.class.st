@@ -87,12 +87,6 @@ MbndTemplateMetaBuilder >> message [
 ]
 
 { #category : #'as yet unclassified' }
-MbndTemplateMetaBuilder >> method [
-	self checkTemplateArguments.
-	^ self delegateToMetaBuilder: MbndMethodMetaBuilder
-]
-
-{ #category : #'as yet unclassified' }
 MbndTemplateMetaBuilder >> nativeClass [
 	self checkTemplateArguments.
 	^ self delegateToMetaBuilder: MbndClassMetaBuilder

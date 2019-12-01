@@ -8,7 +8,8 @@ Class {
 		'returnType',
 		'functionType',
 		'concreteMethod',
-		'ownerProgramEntity'
+		'ownerProgramEntity',
+		'specialSemantics'
 	],
 	#category : #'SysmelMoebiusMetamodel-Core-AST'
 }
@@ -73,4 +74,14 @@ MbndAstAbstractFunctionPrototypeNode >> returnType [
 { #category : #accessing }
 MbndAstAbstractFunctionPrototypeNode >> returnType: aTypeExpression [
 	returnType := aTypeExpression
+]
+
+{ #category : #accessing }
+MbndAstAbstractFunctionPrototypeNode >> specialSemantics [
+	^ specialSemantics
+]
+
+{ #category : #accessing }
+MbndAstAbstractFunctionPrototypeNode >> specialSemantics: anObject [
+	specialSemantics := anObject
 ]

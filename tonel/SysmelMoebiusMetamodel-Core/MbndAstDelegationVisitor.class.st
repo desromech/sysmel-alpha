@@ -223,6 +223,16 @@ MbndAstDelegationVisitor >> visitGlobalVariableDefinitionNode: node [
 ]
 
 { #category : #visiting }
+MbndAstDelegationVisitor >> visitIOChannelReceiveAction: node [
+	^ self delegateNodeVisit: node
+]
+
+{ #category : #visiting }
+MbndAstDelegationVisitor >> visitIOChannelSendAction: node [
+	^ self delegateNodeVisit: node
+]
+
+{ #category : #visiting }
 MbndAstDelegationVisitor >> visitIdentifierReferenceNode: node [
 	^ self delegateNodeVisit: node
 ]

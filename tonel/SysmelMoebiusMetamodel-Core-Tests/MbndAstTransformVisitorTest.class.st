@@ -415,6 +415,34 @@ MbndAstTransformVisitorTest >> testGlobalVariableDefinition [
 ]
 
 { #category : #tests }
+MbndAstTransformVisitorTest >> testIOChannelReceiveNode [
+	| node channel transformedNode |
+	channel := builder identifier: #channel.
+	node := builder receiveFromInputChannel: channel.
+	transformedNode := visitor visitNode: node.
+	
+	self assert: transformedNode ~~ node.
+	self assert: transformedNode isIOChannelActionNode.
+	self assert: transformedNode isIOChannelReceiveActionNode.
+	self assert: transformedNode channel equals: channel.
+]
+
+{ #category : #tests }
+MbndAstTransformVisitorTest >> testIOChannelSendNode [
+	| node channel message transformedNode |
+	channel := builder identifier: #channel.
+	message := builder identifier: #message.
+	node := builder sendIntoOutputChannel: channel message: message.
+	transformedNode := visitor visitNode: node.
+	
+	self assert: transformedNode ~~ node.
+	self assert: transformedNode isIOChannelActionNode.
+	self assert: transformedNode isIOChannelSendActionNode.
+	self assert: transformedNode channel equals: channel.
+	self assert: transformedNode message equals: message.
+]
+
+{ #category : #tests }
 MbndAstTransformVisitorTest >> testIdentifierReference [
 	| node transformedNode |
 	node := builder identifier: #ident.

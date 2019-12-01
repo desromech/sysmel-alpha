@@ -133,7 +133,8 @@ MbndBasicType >> initializeAndReturnValueNode: basicValueNode with: builder andW
 MbndBasicType >> initializeBasicTypeTrait [
 	super initialize.
 	name := self class typeName.
-	flags := #(trait).
+	flags := #().
+	self markAsTrait.
 	self addInstanceMacros
 ]
 
@@ -146,6 +147,11 @@ MbndBasicType >> initializeNonTraitType [
 		self initialize
 	].
 	
+]
+
+{ #category : #initialization }
+MbndBasicType >> markAsTrait [
+	^ self addFlag: #trait
 ]
 
 { #category : #accessing }

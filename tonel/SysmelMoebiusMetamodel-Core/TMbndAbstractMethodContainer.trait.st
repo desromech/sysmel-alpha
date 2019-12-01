@@ -10,19 +10,17 @@ TMbndAbstractMethodContainer >> addOverloadedMethod: method [
 
 { #category : #adding }
 TMbndAbstractMethodContainer >> addOverloadedMethod: method argumentTypes: argumentTypes returnType: returnType [
-	| functionType |
-	functionType := self compilationTarget functionTypeWithArguments: argumentTypes returnType: returnType.
-	^ self addOverloadedMethod: (method copy
-		type: functionType;
-		boundType: functionType;
-		yourself)
+	^ self addOverloadedMethod: method receiverType: self implicitMethodReceiverType argumentTypes: argumentTypes returnType: returnType
 ]
 
 { #category : #adding }
 TMbndAbstractMethodContainer >> addOverloadedMethod: method receiverType: receiverType argumentTypes: argumentTypes returnType: returnType [
 	| functionType boundFunctionType |
 	boundFunctionType := self compilationTarget functionTypeWithArguments: argumentTypes returnType: returnType.
-	functionType := self compilationTarget functionTypeWithArguments: {receiverType} , argumentTypes returnType: returnType.
+	functionType := receiverType isVoidType
+		ifTrue: [ boundFunctionType ]
+		ifFalse: [ self compilationTarget functionTypeWithArguments: {receiverType} , argumentTypes returnType: returnType ].
+	 
 	^ self addOverloadedMethod: (method copy
 		receiverType: receiverType;
 		type: functionType;

@@ -221,6 +221,13 @@ MbndSlovimLiteralValueGenerator >> visitPrimitiveIntegerType: integerType [
 	^ SLVMConstant type: (self translateType: integerType) value: literalValue
 ]
 
+{ #category : #visiting }
+MbndSlovimLiteralValueGenerator >> visitPrimitiveVectorType: type [
+	| slvmType |
+	slvmType := self translateType: type.
+	^ SLVMConstant vector: slvmType elements: literalValue slots
+]
+
 { #category : #'code generation' }
 MbndSlovimLiteralValueGenerator >> visitReferenceType: referenceType [
 	referenceType baseType isFunctionType ifTrue: [ 

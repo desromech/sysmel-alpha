@@ -20,8 +20,8 @@ TMbndAbstractSymbolContainer >> createFunctionEntityForPrototype: functionProtot
 		yourself.
 	receiverType isVoidType ifTrue: [ 
 		method type: functionPrototype functionType.
-	] ifFalse: [ 
-		self halt
+	] ifFalse: [
+		method type: (self compilationTarget functionTypeWithArguments: {receiverType} , method boundType argumentTypes returnType: method returnType)
 	].
 
 	self addChild: method.

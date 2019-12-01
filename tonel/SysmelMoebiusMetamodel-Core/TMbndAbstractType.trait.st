@@ -343,6 +343,12 @@ TMbndAbstractType >> bestConcreteTypeForLiteralValueNode: literalValueNode inSco
 	^ self
 ]
 
+{ #category : #'type composition' }
+TMbndAbstractType >> bindingSetPointer [
+	<compileTime>
+	^ self pointerFor: #bindingSet
+]
+
 { #category : #converting }
 TMbndAbstractType >> buildTypeConversionChainUntil: targetType fromVisitedTypes: visitedTypes [
 	| previousTypeAndRule previousType rule previousRule |
@@ -474,7 +480,7 @@ TMbndAbstractType >> fullName [
 { #category : #'meta builder factories' }
 TMbndAbstractType >> getExtraMetaBuilderFactoryList [
 	^ { 
-		#method . MbndMethodMetaBuilder metaBuilderFactory.
+		"#method . MbndMethodMetaBuilder metaBuilderFactory."
 	}
 ]
 
@@ -494,6 +500,11 @@ TMbndAbstractType >> hasTrivialBasicInitialization [
 ]
 
 { #category : #adding }
+TMbndAbstractType >> implicitFunctionReceiverType [
+	^ self asReceiverType
+]
+
+{ #category : #adding }
 TMbndAbstractType >> implicitMethodReceiverType [
 	^ self asReceiverType
 ]
@@ -501,6 +512,12 @@ TMbndAbstractType >> implicitMethodReceiverType [
 { #category : #'type inference' }
 TMbndAbstractType >> inferValueTypeForNode: initialValueNode inScope: scope [
 	^ self
+]
+
+{ #category : #'type composition' }
+TMbndAbstractType >> inputChannel [
+	<compileTime>
+	^ self compilationTarget inputChannelFor: self
 ]
 
 { #category : #sizes }
@@ -619,6 +636,16 @@ TMbndAbstractType >> isGCClassVariableDataArrayType [
 ]
 
 { #category : #'testing methods' }
+TMbndAbstractType >> isIOChannelType [
+	^ false
+]
+
+{ #category : #'testing methods' }
+TMbndAbstractType >> isInputChannelType [
+	^ false
+]
+
+{ #category : #'testing methods' }
 TMbndAbstractType >> isLiteralArrayType [
 	^ false
 ]
@@ -724,7 +751,17 @@ TMbndAbstractType >> isNamespaceType [
 ]
 
 { #category : #'testing methods' }
+TMbndAbstractType >> isOpaqueHandleType [
+	^ false
+]
+
+{ #category : #'testing methods' }
 TMbndAbstractType >> isOpaqueType [
+	^ false
+]
+
+{ #category : #'testing methods' }
+TMbndAbstractType >> isOutputChannelType [
 	^ false
 ]
 
@@ -798,6 +835,11 @@ TMbndAbstractType >> isReturnType [
 	^ false
 ]
 
+{ #category : #'testing methods' }
+TMbndAbstractType >> isSamplerType [
+	^ false
+]
+
 { #category : #'semantic analysis' }
 TMbndAbstractType >> isStandardConcreteTypeForLiteralValueNode: literalValueNode [
 	^ self == (literalValueNode type standardConcreteTypeForLiteralValueNode: literalValueNode inScope: MbndLexicalScope new)
@@ -822,6 +864,11 @@ TMbndAbstractType >> isSubtypeOf: aType [
 
 { #category : #'testing methods' }
 TMbndAbstractType >> isTemplateType [
+	^ false
+]
+
+{ #category : #'testing methods' }
+TMbndAbstractType >> isTextureType [
 	^ false
 ]
 
@@ -947,6 +994,12 @@ TMbndAbstractType >> node: node convertedImplicitlyInto: targetType [
 ]
 
 { #category : #'type composition' }
+TMbndAbstractType >> outputChannel [
+	<compileTime>
+	^ self compilationTarget outputChannelFor: self
+]
+
+{ #category : #'type composition' }
 TMbndAbstractType >> pointer [
 	<compileTime>
 	^ self compilationTarget pointerTo: self
@@ -985,6 +1038,12 @@ TMbndAbstractType >> standardConcreteTypeForLiteralValueNode: literalValueNode i
 	^ self
 ]
 
+{ #category : #'type composition' }
+TMbndAbstractType >> storageBufferPointer [
+	<compileTime>
+	^ self pointerFor: #storageBuffer
+]
+
 { #category : #'type hierarchy' }
 TMbndAbstractType >> subtypeAdded: aSubtype [
 ]
@@ -1014,6 +1073,12 @@ TMbndAbstractType >> type [
 	<compileTime>
 	"I answer a meta type."
 	^ nil
+]
+
+{ #category : #'type composition' }
+TMbndAbstractType >> uniformBufferPointer [
+	<compileTime>
+	^ self pointerFor: #uniformBuffer
 ]
 
 { #category : #accessing }

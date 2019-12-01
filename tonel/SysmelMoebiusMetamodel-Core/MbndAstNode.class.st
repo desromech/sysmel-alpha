@@ -286,6 +286,21 @@ MbndAstNode >> isGlobalVariableDefinitionNode [
 ]
 
 { #category : #testing }
+MbndAstNode >> isIOChannelActionNode [
+	^ false
+]
+
+{ #category : #testing }
+MbndAstNode >> isIOChannelReceiveActionNode [
+	^ false
+]
+
+{ #category : #testing }
+MbndAstNode >> isIOChannelSendActionNode [
+	^ false
+]
+
+{ #category : #testing }
 MbndAstNode >> isIdentifierReferenceNode [
 	^ false
 ]

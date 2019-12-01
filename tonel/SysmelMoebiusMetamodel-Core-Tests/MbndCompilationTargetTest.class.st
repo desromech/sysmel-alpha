@@ -305,6 +305,21 @@ MbndCompilationTargetTest >> testGCClassType [
 ]
 
 { #category : #'basic types' }
+MbndCompilationTargetTest >> testInputChannelType [
+	| type messageType |
+	messageType := compilationTarget uint32Type.
+	type := messageType inputChannel.
+	self assert: type isOpaqueType.
+	self assert: type isOpaqueHandleType.
+	self assert: type isIOChannelType.
+	self assert: type isInputChannelType.
+	self assert: type messageType equals: messageType.
+	self assert: messageType inputChannel equals: type.
+	self assert: type defaultValue unwrapMbndValue equals: nil.
+
+]
+
+{ #category : #'basic types' }
 MbndCompilationTargetTest >> testInt16Type [
 	| type |
 	type := compilationTarget int16Type.
@@ -649,6 +664,21 @@ MbndCompilationTargetTest >> testNew [
 MbndCompilationTargetTest >> testOpaqueType [
 	self assert: compilationTarget opaqueType isOpaqueType.
 	
+]
+
+{ #category : #'basic types' }
+MbndCompilationTargetTest >> testOutputChannelType [
+	| type messageType |
+	messageType := compilationTarget uint32Type.
+	type := messageType outputChannel.
+	self assert: type isOpaqueType.
+	self assert: type isOpaqueHandleType.
+	self assert: type isIOChannelType.
+	self assert: type isOutputChannelType.
+	self assert: type messageType equals: messageType.
+	self assert: messageType outputChannel equals: type.
+	self assert: type defaultValue unwrapMbndValue equals: nil.
+
 ]
 
 { #category : #'basic types' }

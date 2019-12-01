@@ -23,7 +23,7 @@ MbndSlovimCodeModuleGenerator >> addPrimitiveTypeTranslations [
 	sourceTarget := sourceModule compilationTarget.
 	destTarget := self slvmCompilationTarget.
 	
-	#(
+	(#(
 		(voidType void)
 
 		(uint8Type uint8)
@@ -41,7 +41,8 @@ MbndSlovimCodeModuleGenerator >> addPrimitiveTypeTranslations [
 
 		(booleanType bool)
 		(undefinedType voidPointerType)
-	) do: [ :pair |
+	) , self gpuTypeMapping)
+	 do: [ :pair |
 		sourceType := sourceTarget perform: pair first.
 		destType := destTarget perform: pair second.
 		self typeTranslator setType: sourceType ssaType: destType
@@ -157,6 +158,28 @@ MbndSlovimCodeModuleGenerator >> generatedNameForAnynomousEntity: programEntity 
 	result := '<anon' , anonSymbolCount asString , '>'.
 	anonSymbolCount := anonSymbolCount + 1.
 	^ result
+]
+
+{ #category : #'code generation' }
+MbndSlovimCodeModuleGenerator >> gpuTypeMapping [
+	self slvmCompilationTarget isSpirV ifFalse: [ ^ #() ].
+	^ #(
+		(gpuSamplerType sampler)
+		
+		(gpuTexture1DType texture1D)
+		(gpuTexture1DArrayType texture1DArray)
+		(gpuTexture2DType texture2D)
+		(gpuTexture2DArrayType texture2DArray)
+		(gpuTexture3DType texture3D)
+		(gpuTexture3DArrayType texture3DArray)
+		(gpuTextureCubeType textureCube)
+		(gpuTextureCubeArrayType textureCubeArray)
+
+		(gpuDepthTexture2DType depthTexture2D)
+		(gpuDepthTexture2DArrayType depthTexture2DArray)
+		(gpuDepthTextureCubeType depthTextureCube)
+		(gpuDepthTextureCubeArrayType depthTextureCubeArray)
+	)
 ]
 
 { #category : #initialization }

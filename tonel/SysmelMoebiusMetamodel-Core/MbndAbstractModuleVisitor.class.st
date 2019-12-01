@@ -97,6 +97,11 @@ MbndAbstractModuleVisitor >> visitGlobalVariable: variable [
 ]
 
 { #category : #visiting }
+MbndAbstractModuleVisitor >> visitInputChannelType: type [
+	self subclassResponsibility
+]
+
+{ #category : #visiting }
 MbndAbstractModuleVisitor >> visitIntrinsicArithmeticBinaryOperationMethod: type [
 	self subclassResponsibility
 ]
@@ -142,6 +147,11 @@ MbndAbstractModuleVisitor >> visitNamespaceType: type [
 ]
 
 { #category : #visiting }
+MbndAbstractModuleVisitor >> visitOutputChannelType: type [
+	self subclassResponsibility
+]
+
+{ #category : #visiting }
 MbndAbstractModuleVisitor >> visitPointerType: type [
 	self subclassResponsibility
 ]
@@ -182,6 +192,11 @@ MbndAbstractModuleVisitor >> visitReturnType: type [
 ]
 
 { #category : #visiting }
+MbndAbstractModuleVisitor >> visitSamplerType: type [
+	self subclassResponsibility
+]
+
+{ #category : #visiting }
 MbndAbstractModuleVisitor >> visitSimpleMetaType: type [
 	self subclassResponsibility
 ]
@@ -208,6 +223,11 @@ MbndAbstractModuleVisitor >> visitTemplate: template [
 
 { #category : #visiting }
 MbndAbstractModuleVisitor >> visitTemplateInstance: method [
+	self subclassResponsibility
+]
+
+{ #category : #visiting }
+MbndAbstractModuleVisitor >> visitTextureType: type [
 	self subclassResponsibility
 ]
 
