@@ -1,0 +1,70 @@
+class Samplers definition: {
+    public field sampler type: GPUSampler.
+}.
+
+class TransformationState definition: {
+    public field modelViewMatrix type: Float32x4x4.
+    public field projectionMatrix type: Float32x4x4.
+}.
+
+class ObjectState definition: {
+    public field transformationState type: TransformationState uniformBufferPointer.
+    public field texture type: GPUTexture2D.
+}.
+
+class ShaderInterface definition: {
+    public field samplerState type: Samplers bindingSetPointer.
+    public field objectState type: ObjectState bindingSetPointer.
+}.
+
+struct VertexInput definition: {
+    public field position type: Float32x3; location: 0.
+    public field color type: Float32x4; location: 1.
+    public field texcoord type: Float32x2; location: 2.
+}.
+
+class VertexIO definition: {
+    public field color type: Float32x4; location: 0.
+    public field texcoord type: Float32x2; location: 1.
+}.
+
+class VertexOutput superclass: VertexIO; definition: {
+    public field screenPosition type: Float32x4; intrinsic: #position.
+}.
+
+compileTimeConstant FragmentInput := VertexIO.
+
+class FragmentOutput definition: {
+    public field color type: Float32x4; location: 0.
+}.
+
+class SolidShaders superclass: ShaderInterface; definition: {
+    function genericVertex vertexShader externC(stageIn: VertexInput inputChannel, stageOut: VertexOutput outputChannel) => Void := {
+        let input := stageIn receive.
+
+        stageOut send: (VertexOutput newValue
+            screenPosition: objectState _ transformationState _ projectionMatrix * (objectState _ transformationState _ modelViewMatrix * Float32x4(input position, 1.0));
+            color: input color;
+            texcoord: input texcoord;
+            yourself
+        ).
+    }.
+
+    function coloredFragment fragmentShader externC(stageIn: FragmentInput inputChannel, stageOut: FragmentOutput outputChannel) => Void := {
+        let input := stageIn receive.
+
+        stageOut send: (FragmentOutput newValue
+            color: input color
+        )
+    }.
+
+    function texturedFragment fragmentShader externC(stageIn: FragmentInput inputChannel, stageOut: FragmentOutput outputChannel) => Void := {
+        let input := stageIn receive.
+        let textureColor := samplerState _ sampler sample: objectState _ texture at: input texcoord.
+        let color := input color * textureColor.
+
+        stageOut send: (FragmentOutput newValue
+            color: color
+        )
+    }.
+}.
