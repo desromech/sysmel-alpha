@@ -42,13 +42,18 @@ MbndSlovimProgramEntityTypeNameMangler >> visitEnumType: node [
 ]
 
 { #category : #visiting }
+MbndSlovimProgramEntityTypeNameMangler >> visitFieldVariable: node [
+	^ (self emitMangledType: node valueType)
+]
+
+{ #category : #visiting }
 MbndSlovimProgramEntityTypeNameMangler >> visitGCClassType: node [
 	^ self visitAggregateType: node
 ]
 
 { #category : #visiting }
 MbndSlovimProgramEntityTypeNameMangler >> visitGlobalVariable: node [
-	^ (self emitMangledType: node valueType) , (self emitMangledType: node type)
+	^ (self emitMangledType: node valueType)
 ]
 
 { #category : #visiting }

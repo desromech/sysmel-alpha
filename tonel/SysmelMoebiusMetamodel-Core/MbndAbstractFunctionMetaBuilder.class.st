@@ -36,9 +36,9 @@ MbndAbstractFunctionMetaBuilder >> assignValue: aNode [
 	^ self definition: aNode
 ]
 
-{ #category : #'as yet unclassified' }
+{ #category : #'special semantics' }
 MbndAbstractFunctionMetaBuilder >> computeShader [
-	^ self specialSemantics: #computeShader
+	^ self specialSemantics: #compute
 ]
 
 { #category : #'semantic analysis' }
@@ -89,9 +89,9 @@ MbndAbstractFunctionMetaBuilder >> externC [
 	self addFlag: #externC
 ]
 
-{ #category : #'as yet unclassified' }
+{ #category : #'special semantics' }
 MbndAbstractFunctionMetaBuilder >> fragmentShader [
-	^ self specialSemantics: #fragmentShader
+	^ self specialSemantics: #fragment
 ]
 
 { #category : #copying }
@@ -120,7 +120,7 @@ MbndAbstractFunctionMetaBuilder >> specialSemantics: anObject [
 	specialSemantics := anObject
 ]
 
-{ #category : #'as yet unclassified' }
+{ #category : #'special semantics' }
 MbndAbstractFunctionMetaBuilder >> vertexShader [
-	^ self specialSemantics: #vertexShader
+	^ self specialSemantics: #vertex
 ]

@@ -101,6 +101,11 @@ MbndAbstractSpecificMethod >> receiverType: anObject [
 ]
 
 { #category : #accessing }
+MbndAbstractSpecificMethod >> specialSemantics [
+	^ nil
+]
+
+{ #category : #accessing }
 MbndAbstractSpecificMethod >> type [
 	^ type
 ]

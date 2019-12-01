@@ -714,6 +714,7 @@ MbndAstSemanticAnalyzer >> visitFieldDefinitionNode: node [
 		valueType: (result valueType asFieldTypeFor: owner);
 		type: result valueType ref;
 		bits: result bits;
+		location: result location;
 		yourself.
 	owner addField: field.
 
@@ -787,6 +788,9 @@ MbndAstSemanticAnalyzer >> visitFunctionPrototypeNode: node [
 		result ownerProgramEntity ifNotNil: [ :newOwner |
 			newOwner findOrAddOverloadedFunctionPrototype: result
 		].
+	].
+	result specialSemantics ifNotNil: [ 
+		result concreteMethod specialSemantics: node specialSemantics
 	].
 	
 	^ result

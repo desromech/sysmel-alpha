@@ -8,7 +8,8 @@ Class {
 		'analyzedBody',
 		'arguments',
 		'argumentsWithoutReceiver',
-		'children'
+		'children',
+		'specialSemantics'
 	],
 	#category : #'SysmelMoebiusMetamodel-Core-Method'
 }
@@ -254,6 +255,16 @@ MbndAbstractConcreteMethod >> lookupBoundReceiverSymbol: aSymbol [
 MbndAbstractConcreteMethod >> pragmaAt: pragmaName ifAbsent: absentBlock ifPresent: presentBlock [
 	definitionNode ifNil: [ ^ absentBlock value ].
 	^ self analyzedBody pragmaAt: pragmaName ifAbsent: absentBlock ifPresent: presentBlock
+]
+
+{ #category : #accessing }
+MbndAbstractConcreteMethod >> specialSemantics [
+	^ specialSemantics
+]
+
+{ #category : #accessing }
+MbndAbstractConcreteMethod >> specialSemantics: anObject [
+	specialSemantics := anObject
 ]
 
 { #category : #'as yet unclassified' }

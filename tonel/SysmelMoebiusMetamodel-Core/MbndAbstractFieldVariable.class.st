@@ -8,7 +8,8 @@ Class {
 		'initialValueNode',
 		'initialValueScope',
 		'byteOffset',
-		'slotIndex'
+		'slotIndex',
+		'location'
 	],
 	#category : #'SysmelMoebiusMetamodel-Core-Variables'
 }
@@ -16,6 +17,16 @@ Class {
 { #category : #'semantic analysis' }
 MbndAbstractFieldVariable >> analyzeReferenceNode: referenceNode with: analyzer [
 	self error: 'Field description introspection is not yet implemented.' at: referenceNode
+]
+
+{ #category : #converting }
+MbndAbstractFieldVariable >> asDescriptorSetBinding [
+	^ slotIndex
+]
+
+{ #category : #converting }
+MbndAbstractFieldVariable >> asDescriptorSetIndex [
+	^ location isInteger ifTrue: [ location ] ifFalse: [ slotIndex ]
 ]
 
 { #category : #converting }
@@ -88,6 +99,16 @@ MbndAbstractFieldVariable >> initialValueScope: anObject [
 { #category : #initialization }
 MbndAbstractFieldVariable >> initialize [
 	super initialize.
+]
+
+{ #category : #accessing }
+MbndAbstractFieldVariable >> location [
+	^ location
+]
+
+{ #category : #accessing }
+MbndAbstractFieldVariable >> location: anObject [
+	location := anObject
 ]
 
 { #category : #accessing }

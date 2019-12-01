@@ -6,8 +6,20 @@ Class {
 	#instVars : [
 		'translatedTypes'
 	],
+	#classVars : [
+		'ShaderOpaqueAddressSpaces'
+	],
 	#category : #'SysmelMoebiusCodeGenerator-Slovim-Module'
 }
+
+{ #category : #'class initialization' }
+MbndSlovimTypeTranslator class >> initialize [
+	ShaderOpaqueAddressSpaces := Set newFrom: #(
+		bindingSet
+		uniformBuffer
+		storageBuffer
+	)
+]
 
 { #category : #initialization }
 MbndSlovimTypeTranslator >> initialize [
@@ -122,8 +134,10 @@ MbndSlovimTypeTranslator >> visitGCClassVariableDataArrayType: variableDataArray
 
 { #category : #visiting }
 MbndSlovimTypeTranslator >> visitInputChannelType: type [
-	self slvmCompilationTarget isSpirV ifTrue: [ 
-		self halt.
+	| messageType |
+	self slvmCompilationTarget isSpirV ifTrue: [
+		messageType := self translateType: type messageType.
+		^ self slvmCompilationTarget pointerTo: messageType storage: SLVMType functionStorage
 	].
 
 	codeModuleGenerator compilationTarget inputChannelImplementationType ifNotNil: [ :targetType | ^ self translateType: type ].
@@ -133,8 +147,10 @@ MbndSlovimTypeTranslator >> visitInputChannelType: type [
 
 { #category : #visiting }
 MbndSlovimTypeTranslator >> visitOutputChannelType: type [
-	self slvmCompilationTarget isSpirV ifTrue: [ 
-		self halt.
+	| messageType |
+	self slvmCompilationTarget isSpirV ifTrue: [
+		messageType := self translateType: type messageType.
+		^ self slvmCompilationTarget pointerTo: messageType storage: SLVMType functionStorage
 	].
 
 	codeModuleGenerator compilationTarget outputChannelImplementationType ifNotNil: [ :targetType | ^ self translateType: type ].
@@ -146,6 +162,14 @@ MbndSlovimTypeTranslator >> visitOutputChannelType: type [
 MbndSlovimTypeTranslator >> visitPointerType: pointerType [
 	"This could be a recursive type."
 	| ssaPointerType |
+	self slvmCompilationTarget isSpirV ifTrue: [ 
+		(ShaderOpaqueAddressSpaces includes: pointerType addressSpace) ifTrue: [
+			^ self slvmCompilationTarget pointerSize = 4
+				ifTrue: [ self slvmCompilationTarget int32 ]
+				ifFalse: [ SLVMVectorType baseType: self slvmCompilationTarget int32 elements: 2 ].
+		].
+	].
+
 	ssaPointerType := SLVMPointerType new
 		size: self slvmCompilationTarget pointerSize;
 		storage: pointerType addressSpace;

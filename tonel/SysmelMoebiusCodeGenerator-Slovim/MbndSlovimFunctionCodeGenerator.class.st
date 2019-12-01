@@ -34,6 +34,32 @@ MbndSlovimFunctionCodeGenerator class >> initialize [
 	)
 ]
 
+{ #category : #visiting }
+MbndSlovimFunctionCodeGenerator >> aggregate: aggregateNode value: aggregateValue getFieldOverrideFor: field [
+	| valueType |
+	self slvmCompilationTarget isSpirV ifFalse: [ ^ nil ].
+	
+	valueType := field valueType.
+	(valueType isPointerLikeValueType and: [ valueType addressSpace = #bindingSet ]) ifTrue: [
+		self assert: aggregateValue isFunctionArgument.
+		^ MbndSlovimDescriptorSetReference new
+			setIndex: field asDescriptorSetIndex;
+			valueType: field valueType;
+			yourself
+	].
+
+	(aggregateValue isFakeValue and: [ aggregateValue isMbndDescriptorSetReference ]) ifTrue: [ 
+		valueType isPointerLikeValueType ifTrue: [ 
+			self assert: (#(uniformBuffer storageBuffer) includes: valueType addressSpace).
+			^ MbndSlovimLoadedReferenceValue new value: 
+				(codeModuleGenerator getField: field fromDescriptorSet: aggregateValue)
+		].
+		^ codeModuleGenerator getField: field fromDescriptorSet: aggregateValue
+	].
+
+	^ nil
+]
+
 { #category : #'as yet unclassified' }
 MbndSlovimFunctionCodeGenerator >> buildSSAFunction: aSSAFunction definitionWithConcreteMethod: aConcreteMethod [
 	| entryBlock bodyBlock result |
@@ -472,6 +498,9 @@ MbndSlovimFunctionCodeGenerator >> visitGCVariableDataArrayElementReferenceNode:
 MbndSlovimFunctionCodeGenerator >> visitGetFieldReferenceNode: node [
 	| aggregate field aggregateType |
 	aggregate := self visitNode: node aggregate.
+	(self aggregate: node aggregate value: aggregate getFieldOverrideFor: node field) ifNotNil: [ :fieldOverride |
+		^ fieldOverride
+	].
 	self assert: aggregate type isPointerType.
 	
 	aggregateType := node aggregate type withoutDecorations withoutReferences.
@@ -525,10 +554,9 @@ MbndSlovimFunctionCodeGenerator >> visitIOChannelReceiveAction: node [
 	channel := self visitNode: node channel.
 	messageType := self translateType: node channel type messageType.
 	
-	self slvmCompilationTarget isSpirV ifTrue: [ 
-		self halt.
+	self slvmCompilationTarget isSpirV ifTrue: [
+		^ slvmBuilder load: channel
 	].
-
 	
 	codeModuleGenerator compilationTarget inputChannelImplementationType ifNotNil: [ :implType |
 		self halt
@@ -545,7 +573,8 @@ MbndSlovimFunctionCodeGenerator >> visitIOChannelSendAction: node [
 	message := self visitNode: node message.
 	
 	self slvmCompilationTarget isSpirV ifTrue: [ 
-		self halt.
+		slvmBuilder store: message in: channel.
+		^ channel
 	].
 
 	codeModuleGenerator compilationTarget outputChannelImplementationType ifNotNil: [ :implType |
@@ -553,7 +582,8 @@ MbndSlovimFunctionCodeGenerator >> visitIOChannelSendAction: node [
 	].
 
 	self assert: channel type isDynamicObjectPointerType.
-	^ slvmBuilder send: (slvmBuilder addDynamicLiteral: #send:) returnType: channel type receiver: channel arguments: { message }
+	slvmBuilder send: (slvmBuilder addDynamicLiteral: #send:) returnType: channel type receiver: channel arguments: { message }.
+	^ channel
 ]
 
 { #category : #visiting }
@@ -843,6 +873,10 @@ MbndSlovimFunctionCodeGenerator >> visitReferenceAsPointerNode: node [
 MbndSlovimFunctionCodeGenerator >> visitReferenceLoadNode: node [
 	| reference |
 	reference := self visitNode: node reference.
+	reference isFakeValue ifTrue: [
+		reference isMbndLoadedReferenceValue ifTrue: [ ^ reference value ].
+		^ reference
+	].
 	^ (slvmBuilder load: reference)
 		volatile: node reference type isVolatileType;
 		yourself

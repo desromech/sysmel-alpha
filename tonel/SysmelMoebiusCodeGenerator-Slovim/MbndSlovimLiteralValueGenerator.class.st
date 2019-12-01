@@ -223,9 +223,12 @@ MbndSlovimLiteralValueGenerator >> visitPrimitiveIntegerType: integerType [
 
 { #category : #visiting }
 MbndSlovimLiteralValueGenerator >> visitPrimitiveVectorType: type [
-	| slvmType |
+	| slvmType elementType |
 	slvmType := self translateType: type.
-	^ SLVMConstant vector: slvmType elements: literalValue slots
+	elementType := type elementType.
+	^ SLVMConstant vector: slvmType elements: (literalValue slots collect: [:slot |
+		self translateLiteralValue: slot ofType: elementType
+	])
 ]
 
 { #category : #'code generation' }

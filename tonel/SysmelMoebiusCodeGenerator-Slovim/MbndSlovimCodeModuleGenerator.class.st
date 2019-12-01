@@ -12,7 +12,9 @@ Class {
 		'debugLocationDictionary',
 		'debugSourceFileDictionary',
 		'identityHashRandomGenerator',
-		'intrinsicConstantBuiltInFunctionCache'
+		'intrinsicConstantBuiltInFunctionCache',
+		'convertedDescriptorSetBindings',
+		'structuresWithAdditionalKinds'
 	],
 	#category : #'SysmelMoebiusCodeGenerator-Slovim-Module'
 }
@@ -93,11 +95,55 @@ MbndSlovimCodeModuleGenerator >> createFunctionCodeGenerator [
 ]
 
 { #category : #visiting }
+MbndSlovimCodeModuleGenerator >> createSpirVShaderControllerFor: functionMethod generatedAs: generatedSSAFunction [
+	| csymbol shaderFunction builder argumentTypes stageInputType stageOutputType fetchedInput computedOutput receiverType receiver invocationArguments |
+	csymbol := self csymbolForProgramEntity: functionMethod.
+	(functionMethod hasFlag: #externC) ifTrue: [
+		csymbol := functionMethod name.
+	].
+
+	receiverType := self translateType: functionMethod receiverType.
+	argumentTypes := functionMethod boundType argumentTypes.
+	self assert: argumentTypes size >= 1.
+	stageInputType := argumentTypes first.
+	stageOutputType := argumentTypes size >= 2 ifTrue: [argumentTypes second] ifFalse: [nil].
+
+	shaderFunction := SLVMFunction module: ssaModule name: csymbol functionType: (SLVMFunctionType arguments: #() returnType: SLVMType voidType).
+	shaderFunction propertyAt: functionMethod specialSemantics put: nil.
+	
+	builder := SLVMBuilder on: shaderFunction.
+	builder newBasicBlockHere: #entry.
+	
+	"Allocate space for the IO data."
+	receiver := receiverType isVoidType ifTrue: [nil] ifFalse: [builder alloca: receiverType baseType].
+	
+	fetchedInput := builder alloca: (self translateType: stageInputType messageType).
+	computedOutput := stageOutputType ifNotNil: [builder alloca: (self translateType: stageOutputType messageType)].
+
+	"TODO: fetch the inputs."
+	
+	"Call the actual shader content."
+	invocationArguments := #().
+	receiver ifNotNil: [ invocationArguments := invocationArguments , { receiver } ].
+	fetchedInput ifNotNil: [ invocationArguments := invocationArguments , { fetchedInput } ].
+	computedOutput ifNotNil: [ invocationArguments := invocationArguments , { computedOutput } ].
+
+	builder call: generatedSSAFunction arguments: invocationArguments.
+	
+	"TODO: copy the computed results."
+	
+	builder returnVoid.
+	
+]
+
+{ #category : #visiting }
 MbndSlovimCodeModuleGenerator >> csymbolForProgramEntity: programEntity [
 	programEntity name ifNil: [ ^ nil ].
 
 	(programEntity hasFlag: #externC) ifTrue: [
-		^ programEntity name
+		(self slvmCompilationTarget isSpirV and: [ programEntity specialSemantics isNotNil ]) ifFalse: [ 
+			^ programEntity name
+		].
 	].
 
 	^ self mangleProgramEntityName: programEntity
@@ -138,6 +184,37 @@ MbndSlovimCodeModuleGenerator >> generateCodeModuleFor: aModule [
 ]
 
 { #category : #'as yet unclassified' }
+MbndSlovimCodeModuleGenerator >> generateGlobalField: field forDescriptorSet: set binding: binding [
+	| globalName valueType globalStorage structureKind ssaValueType ssaGlobal |
+	globalName := ByteString streamContents: [:out |
+		out nextPutAll: (self csymbolForProgramEntity: field);
+			nextPutAll: '_';
+			nextPutAll: 'set'; print: set;
+			nextPutAll: 'binding'; print: binding
+	].
+
+	valueType := field valueType.
+	globalStorage := SLVMType uniformConstantStorage.
+	ssaValueType := nil.
+	valueType isPointerLikeValueType ifTrue: [ 
+		self assert: (#(uniformBuffer storageBuffer) includes: valueType addressSpace).
+		globalStorage := SLVMType uniformStorage.
+		structureKind := (valueType addressSpace == #uniformBuffer)
+			ifTrue: [ SLVMStructureType blockKind ]
+			ifFalse: [ SLVMStructureType bufferBlockKind ].
+		ssaValueType := self translateStructureType: valueType baseType withKind: structureKind.
+	] ifFalse: [
+		self halt
+	].
+
+	ssaGlobal := SLVMGlobalVariable module: ssaModule name: globalName valueType: ssaValueType storage: globalStorage.
+	ssaGlobal
+		propertyAt: #set put: set;
+		propertyAt: #binding put: binding.
+	^ ssaGlobal
+]
+
+{ #category : #'as yet unclassified' }
 MbndSlovimCodeModuleGenerator >> generateIdentityHash [
 	^ (identityHashRandomGenerator nextInt: (1<<32) + 1) - 1 
 ]
@@ -158,6 +235,16 @@ MbndSlovimCodeModuleGenerator >> generatedNameForAnynomousEntity: programEntity 
 	result := '<anon' , anonSymbolCount asString , '>'.
 	anonSymbolCount := anonSymbolCount + 1.
 	^ result
+]
+
+{ #category : #'as yet unclassified' }
+MbndSlovimCodeModuleGenerator >> getField: field fromDescriptorSet: aggregateValue [
+	| set binding |
+	set := aggregateValue setIndex.
+	binding := field asDescriptorSetBinding.
+	^ convertedDescriptorSetBindings at: {set . binding . field} ifAbsentPut: [ 
+		self generateGlobalField: field forDescriptorSet: set binding: binding
+	]
 ]
 
 { #category : #'code generation' }
@@ -191,6 +278,8 @@ MbndSlovimCodeModuleGenerator >> initialize [
 	debugLocationDictionary := Dictionary new.
 	identityHashRandomGenerator := Random seed: 0.
 	intrinsicConstantBuiltInFunctionCache := Dictionary new.
+	convertedDescriptorSetBindings := Dictionary new.
+	structuresWithAdditionalKinds := Dictionary new.
 ]
 
 { #category : #'as yet unclassified' }
@@ -328,6 +417,21 @@ MbndSlovimCodeModuleGenerator >> translateProgramEntityChildren: programEntity [
 ]
 
 { #category : #'code generation' }
+MbndSlovimCodeModuleGenerator >> translateStructureType: type withKind: structureKind [
+	| ssaStructureType |
+	ssaStructureType := self translateType: type.
+	^ structuresWithAdditionalKinds at: { ssaStructureType . structureKind } ifAbsentPut: [ 
+		| newStructureType |
+		newStructureType := ssaStructureType copy
+			name: (ssaStructureType name , '__ ', structureKind) asSymbol;
+			kind: structureKind;
+			yourself.
+		ssaModule addStructure: newStructureType.
+		newStructureType
+	]
+]
+
+{ #category : #'code generation' }
 MbndSlovimCodeModuleGenerator >> translateType: aType [
 	^ self typeTranslator translateType: aType
 ]
@@ -338,7 +442,7 @@ MbndSlovimCodeModuleGenerator >> translateTypeInfoDefinition: type [
 	metaType := type type.
 	ssaTypeInfoType := self translateType: metaType.
 
-	sourceModule hasRuntimeTypeInformation ifFalse: [
+	(sourceModule hasRuntimeTypeInformation not or: [self slvmCompilationTarget isSpirV ]) ifTrue: [
 		self assert: type isGCClassType not.
 		ssaTypeInfo := SLVMConstant nullPointer: ssaTypeInfoType.
 		self setProgramEntity: type ssaValue: ssaTypeInfo.
@@ -498,6 +602,10 @@ MbndSlovimCodeModuleGenerator >> visitConcreteFunctionMethod: functionMethod [
 	ssaFunctionType := self translateType: functionMethod type.
 	
 	csymbol := self csymbolForProgramEntity: functionMethod.
+	(self slvmCompilationTarget isSpirV and: [functionMethod specialSemantics isNotNil ]) ifTrue: [ 
+		csymbol := (csymbol , #_impl) asSymbol
+	].
+
 	unmangledName := self unmangledNameForProgramEntity: functionMethod.
 	ssaFunction := SLVMFunction module: ssaModule name: csymbol functionType: ssaFunctionType.
 
@@ -519,6 +627,10 @@ MbndSlovimCodeModuleGenerator >> visitConcreteFunctionMethod: functionMethod [
 			buildSSAFunction: ssaFunction definitionWithConcreteMethod: functionMethod
 	].
 	
+	(self slvmCompilationTarget isSpirV and: [functionMethod specialSemantics isNotNil ]) ifTrue: [ 
+		self createSpirVShaderControllerFor: functionMethod generatedAs: ssaFunction
+	].
+
 	^ ssaFunction
 ]
 
