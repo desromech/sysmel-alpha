@@ -9,7 +9,8 @@ Class {
 		'initialValueScope',
 		'byteOffset',
 		'slotIndex',
-		'location'
+		'location',
+		'intrinsic'
 	],
 	#category : #'SysmelMoebiusMetamodel-Core-Variables'
 }
@@ -99,6 +100,16 @@ MbndAbstractFieldVariable >> initialValueScope: anObject [
 { #category : #initialization }
 MbndAbstractFieldVariable >> initialize [
 	super initialize.
+]
+
+{ #category : #accessing }
+MbndAbstractFieldVariable >> intrinsic [
+	^ intrinsic
+]
+
+{ #category : #accessing }
+MbndAbstractFieldVariable >> intrinsic: anObject [
+	intrinsic := anObject
 ]
 
 { #category : #accessing }

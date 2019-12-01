@@ -661,7 +661,7 @@ MbndAstSemanticAnalyzer >> visitExplicitCastNode: node [
 
 { #category : #visiting }
 MbndAstSemanticAnalyzer >> visitFieldDefinitionNode: node [
-	| result owner fieldName field visibility |
+	| result owner fieldName field visibility location intrinsic |
 	result := node copy.
 
 	result valueType ifNotNil: [ 
@@ -708,13 +708,30 @@ MbndAstSemanticAnalyzer >> visitFieldDefinitionNode: node [
 		].
 	].
 
+	location := nil.
+	result location ifNotNil: [:loc |
+		location := (self evaluateCompileTimeExpression: loc) unwrapMbndValue.
+		location isInteger ifFalse: [
+			self error: 'Field location must be an integer.' at: loc.
+		]
+	].
+
+	intrinsic := nil.
+	result intrinsic ifNotNil: [:intr |
+		intrinsic := (self evaluateCompileTimeExpression: intr) unwrapMbndValue.
+		intrinsic isSymbol ifFalse: [
+			self error: 'Field intrinsic must be an integer.' at: intr.
+		]
+	].
+
 	field := MbndFieldVariable new
 		name: fieldName;
 		flags: result flags;
 		valueType: (result valueType asFieldTypeFor: owner);
 		type: result valueType ref;
 		bits: result bits;
-		location: result location;
+		location: location;
+		intrinsic: intrinsic;
 		yourself.
 	owner addField: field.
 

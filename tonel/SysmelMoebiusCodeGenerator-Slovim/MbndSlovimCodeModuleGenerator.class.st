@@ -14,10 +14,22 @@ Class {
 		'identityHashRandomGenerator',
 		'intrinsicConstantBuiltInFunctionCache',
 		'convertedDescriptorSetBindings',
-		'structuresWithAdditionalKinds'
+		'structuresWithAdditionalKinds',
+		'convertedShaderIOFields'
+	],
+	#classVars : [
+		'ShaderBuiltInLocationMap'
 	],
 	#category : #'SysmelMoebiusCodeGenerator-Slovim-Module'
 }
+
+{ #category : #'class initialization' }
+MbndSlovimCodeModuleGenerator class >> initialize [
+	ShaderBuiltInLocationMap := Dictionary newFromPairs: #(
+		(vertex position) -1
+	).
+	
+]
 
 { #category : #'code generation' }
 MbndSlovimCodeModuleGenerator >> addPrimitiveTypeTranslations [
@@ -120,7 +132,8 @@ MbndSlovimCodeModuleGenerator >> createSpirVShaderControllerFor: functionMethod 
 	fetchedInput := builder alloca: (self translateType: stageInputType messageType).
 	computedOutput := stageOutputType ifNotNil: [builder alloca: (self translateType: stageOutputType messageType)].
 
-	"TODO: fetch the inputs."
+	"Fetch the inputs."
+	self fetchShader: functionMethod inputsOfType: stageInputType messageType into: fetchedInput with: builder.
 	
 	"Call the actual shader content."
 	invocationArguments := #().
@@ -130,7 +143,10 @@ MbndSlovimCodeModuleGenerator >> createSpirVShaderControllerFor: functionMethod 
 
 	builder call: generatedSSAFunction arguments: invocationArguments.
 	
-	"TODO: copy the computed results."
+	"Copy the computed results."
+	computedOutput ifNotNil: [ 
+		self storeShader: functionMethod outputsOfType: stageOutputType messageType from: computedOutput with: builder
+	].
 	
 	builder returnVoid.
 	
@@ -170,6 +186,19 @@ MbndSlovimCodeModuleGenerator >> escapeNameForMangling: name [
 		name do: [ :c |
 			self escapeCharacterForMangling: c into: out
 		]
+	]
+]
+
+{ #category : #visiting }
+MbndSlovimCodeModuleGenerator >> fetchShader: functionMethod inputsOfType: inputMessageType into: inputFetchedLocation with: builder [
+	| slotField inputGlobal |
+	self assert: inputMessageType isAggregateType.
+	inputMessageType slotLayout slots do: [ :slot |
+		self assert: slot fields size = 1.
+		slotField := slot fields first.
+		inputGlobal := self getShaderIOField: slotField storage: SLVMType inputStorage forStage: functionMethod specialSemantics.
+		builder store: (builder load: inputGlobal)
+			in: (builder getReference: inputFetchedLocation element: (builder constInt: slotField slotIndex))
 	]
 ]
 
@@ -215,6 +244,30 @@ MbndSlovimCodeModuleGenerator >> generateGlobalField: field forDescriptorSet: se
 ]
 
 { #category : #'as yet unclassified' }
+MbndSlovimCodeModuleGenerator >> generateGlobalField: field forShader: shaderStage storage: storage [
+	| globalName ssaValueType ssaGlobal location |
+	globalName := ByteString streamContents: [:out |
+		out nextPutAll: (self csymbolForProgramEntity: field);
+			nextPutAll: '_';
+			nextPutAll: shaderStage;
+			nextPutAll: '_'; nextPutAll: storage
+	].
+
+	ssaValueType := self translateType: field valueType.
+	
+	location := field location.
+	field intrinsic ifNotNil: [ :instricName |
+		location := ShaderBuiltInLocationMap at: {shaderStage . instricName}.
+	].
+
+	ssaGlobal := SLVMGlobalVariable module: ssaModule name: globalName valueType: ssaValueType storage: storage.
+	location ifNotNil: [
+		ssaGlobal propertyAt: #location put: location.
+	].
+	^ ssaGlobal
+]
+
+{ #category : #'as yet unclassified' }
 MbndSlovimCodeModuleGenerator >> generateIdentityHash [
 	^ (identityHashRandomGenerator nextInt: (1<<32) + 1) - 1 
 ]
@@ -244,6 +297,13 @@ MbndSlovimCodeModuleGenerator >> getField: field fromDescriptorSet: aggregateVal
 	binding := field asDescriptorSetBinding.
 	^ convertedDescriptorSetBindings at: {set . binding . field} ifAbsentPut: [ 
 		self generateGlobalField: field forDescriptorSet: set binding: binding
+	]
+]
+
+{ #category : #'as yet unclassified' }
+MbndSlovimCodeModuleGenerator >> getShaderIOField: field storage: storage forStage: specialSemantics [
+	^ convertedShaderIOFields at: {field . storage . specialSemantics} ifAbsentPut: [ 
+		self generateGlobalField: field forShader: specialSemantics storage: storage
 	]
 ]
 
@@ -279,6 +339,7 @@ MbndSlovimCodeModuleGenerator >> initialize [
 	identityHashRandomGenerator := Random seed: 0.
 	intrinsicConstantBuiltInFunctionCache := Dictionary new.
 	convertedDescriptorSetBindings := Dictionary new.
+	convertedShaderIOFields := Dictionary new.
 	structuresWithAdditionalKinds := Dictionary new.
 ]
 
@@ -350,6 +411,19 @@ MbndSlovimCodeModuleGenerator >> slvmCompilationTarget [
 { #category : #initialization }
 MbndSlovimCodeModuleGenerator >> ssaModule [
 	^ ssaModule
+]
+
+{ #category : #visiting }
+MbndSlovimCodeModuleGenerator >> storeShader: functionMethod outputsOfType: outputMessageType from: inputFetchedLocation with: builder [
+	| slotField outputGlobal |
+	self assert: outputMessageType isAggregateType.
+	outputMessageType slotLayout slots do: [ :slot |
+		self assert: slot fields size = 1.
+		slotField := slot fields first.
+		outputGlobal := self getShaderIOField: slotField storage: SLVMType outputStorage forStage: functionMethod specialSemantics.
+		builder store: (builder load: (builder getReference: inputFetchedLocation element: (builder constInt: slotField slotIndex)))
+			in: outputGlobal
+	]
 ]
 
 { #category : #visiting }
