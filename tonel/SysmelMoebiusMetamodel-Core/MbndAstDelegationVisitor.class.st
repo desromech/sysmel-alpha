@@ -428,6 +428,21 @@ MbndAstDelegationVisitor >> visitReturnStatementNode: node [
 ]
 
 { #category : #visiting }
+MbndAstDelegationVisitor >> visitSampleTextureWithExplicitDerivativesNode: node [
+	^ self delegateNodeVisit: node
+]
+
+{ #category : #visiting }
+MbndAstDelegationVisitor >> visitSampleTextureWithExplicitLodNode: node [
+	^ self delegateNodeVisit: node
+]
+
+{ #category : #visiting }
+MbndAstDelegationVisitor >> visitSampleTextureWithImplicitLodNode: node [
+	^ self delegateNodeVisit: node
+]
+
+{ #category : #visiting }
 MbndAstDelegationVisitor >> visitSequenceNode: node [
 	^ self delegateNodeVisit: node
 ]

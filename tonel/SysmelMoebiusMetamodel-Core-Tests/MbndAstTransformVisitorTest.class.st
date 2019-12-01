@@ -887,6 +887,56 @@ MbndAstTransformVisitorTest >> testReturnStatementNode [
 ]
 
 { #category : #tests }
+MbndAstTransformVisitorTest >> testSampleTextureWithExplicitDerivatives [
+	| node sampler texture texcoord dtdx dtdy tranformedNode |
+	sampler := builder identifier: #sampler.
+	texture := builder identifier: #texture.
+	texcoord := builder identifier: #texcoord.
+	dtdx := builder identifier: #dtdx.
+	dtdy := builder identifier: #dtdy.
+	node := builder sampleWith: sampler texture: texture at: texcoord dtdx: dtdx dtdy: dtdy.
+	tranformedNode := visitor visitNode: node.
+	self assert: node ~~ tranformedNode.
+	self assert: tranformedNode isSampleTextureWithExplicitDerivativesNode.
+	self assert: tranformedNode sampler equals: sampler.
+	self assert: tranformedNode texture equals: texture.
+	self assert: tranformedNode texcoord equals: texcoord.
+	self assert: tranformedNode dtdx equals: dtdx.
+	self assert: tranformedNode dtdy equals: dtdy.
+]
+
+{ #category : #tests }
+MbndAstTransformVisitorTest >> testSampleTextureWithExplicitLod [
+	| node sampler texture texcoord lod transformedNode |
+	sampler := builder identifier: #sampler.
+	texture := builder identifier: #texture.
+	texcoord := builder identifier: #texcoord.
+	lod := builder identifier: #lod.
+	node := builder sampleWith: sampler texture: texture at: texcoord lod: lod.
+	transformedNode := visitor visitNode: node.
+	self assert: node ~~ transformedNode.
+	self assert: transformedNode isSampleTextureWithExplicitLodNode.
+	self assert: transformedNode sampler equals: sampler.
+	self assert: transformedNode texture equals: texture.
+	self assert: transformedNode texcoord equals: texcoord.
+	self assert: transformedNode lod equals: lod.
+]
+
+{ #category : #tests }
+MbndAstTransformVisitorTest >> testSampleTextureWithImplicitLod [
+	| node sampler texture texcoord transformedNode |
+	sampler := builder identifier: #sampler.
+	texture := builder identifier: #texture.
+	texcoord := builder identifier: #texcoord.
+	node := builder sampleWith: sampler texture: texture atWithImplicitLod: texcoord.
+	transformedNode := visitor visitNode: node.
+	self assert: transformedNode isSampleTextureWithImplicitLodNode.
+	self assert: transformedNode sampler equals: sampler.
+	self assert: transformedNode texture equals: texture.
+	self assert: transformedNode texcoord equals: texcoord.
+]
+
+{ #category : #tests }
 MbndAstTransformVisitorTest >> testSequenceNode [
 	| node transformedNode pragmaNode elements |
 	pragmaNode := builder pragmaSelector: #pragma:withArg arguments: {

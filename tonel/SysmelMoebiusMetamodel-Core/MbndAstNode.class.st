@@ -517,6 +517,21 @@ MbndAstNode >> isReturnStatementNode [
 ]
 
 { #category : #testing }
+MbndAstNode >> isSampleTextureWithExplicitDerivativesNode [
+	^ false
+]
+
+{ #category : #testing }
+MbndAstNode >> isSampleTextureWithExplicitLodNode [
+	^ false
+]
+
+{ #category : #testing }
+MbndAstNode >> isSampleTextureWithImplicitLodNode [
+	^ false
+]
+
+{ #category : #testing }
 MbndAstNode >> isSequenceNode [
 	^ false
 ]

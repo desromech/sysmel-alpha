@@ -149,6 +149,9 @@ MbndAstNodeTest >> testTestingMethods [
 	self deny: node isReinterpretCastNode.
 	self deny: node isReturnStatementNode.
 	self deny: node isReferenceLoadNode.
+	self deny: node isSampleTextureWithExplicitDerivativesNode.
+	self deny: node isSampleTextureWithExplicitLodNode.
+	self deny: node isSampleTextureWithImplicitLodNode.
 	self deny: node isSequenceNode.
 	self deny: node isSpecificCastNode.
 	self deny: node isSignExtensionCastNode.

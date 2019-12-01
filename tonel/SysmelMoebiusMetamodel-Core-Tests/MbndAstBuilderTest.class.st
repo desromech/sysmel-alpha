@@ -923,6 +923,51 @@ MbndAstBuilderTest >> testReturnNode [
 ]
 
 { #category : #tests }
+MbndAstBuilderTest >> testSampleTextureWithExplicitDerivatives [
+	| node sampler texture texcoord dtdx dtdy |
+	sampler := builder identifier: #sampler.
+	texture := builder identifier: #texture.
+	texcoord := builder identifier: #texcoord.
+	dtdx := builder identifier: #dtdx.
+	dtdy := builder identifier: #dtdy.
+	node := builder sampleWith: sampler texture: texture at: texcoord dtdx: dtdx dtdy: dtdy.
+	self assert: node isSampleTextureWithExplicitDerivativesNode.
+	self assert: node sampler equals: sampler.
+	self assert: node texture equals: texture.
+	self assert: node texcoord equals: texcoord.
+	self assert: node dtdx equals: dtdx.
+	self assert: node dtdy equals: dtdy.
+]
+
+{ #category : #tests }
+MbndAstBuilderTest >> testSampleTextureWithExplicitLod [
+	| node sampler texture texcoord lod |
+	sampler := builder identifier: #sampler.
+	texture := builder identifier: #texture.
+	texcoord := builder identifier: #texcoord.
+	lod := builder identifier: #lod.
+	node := builder sampleWith: sampler texture: texture at: texcoord lod: lod.
+	self assert: node isSampleTextureWithExplicitLodNode.
+	self assert: node sampler equals: sampler.
+	self assert: node texture equals: texture.
+	self assert: node texcoord equals: texcoord.
+	self assert: node lod equals: lod.
+]
+
+{ #category : #tests }
+MbndAstBuilderTest >> testSampleTextureWithImplicitLod [
+	| node sampler texture texcoord |
+	sampler := builder identifier: #sampler.
+	texture := builder identifier: #texture.
+	texcoord := builder identifier: #texcoord.
+	node := builder sampleWith: sampler texture: texture atWithImplicitLod: texcoord.
+	self assert: node isSampleTextureWithImplicitLodNode.
+	self assert: node sampler equals: sampler.
+	self assert: node texture equals: texture.
+	self assert: node texcoord equals: texcoord.
+]
+
+{ #category : #tests }
 MbndAstBuilderTest >> testSequenceNode [
 	| node one two |
 	one := builder literalInteger: 1.

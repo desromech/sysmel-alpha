@@ -603,6 +603,36 @@ MbndAstTransformVisitor >> visitReturnStatementNode: node [
 ]
 
 { #category : #visiting }
+MbndAstTransformVisitor >> visitSampleTextureWithExplicitDerivativesNode: node [
+	^ node copy
+		sampler: (self visitNode: node sampler);
+		texture: (self visitNode: node texture);
+		texcoord: (self visitNode: node texcoord);
+		dtdx: (self visitNode: node dtdx);
+		dtdy: (self visitNode: node dtdy);
+		yourself
+]
+
+{ #category : #visiting }
+MbndAstTransformVisitor >> visitSampleTextureWithExplicitLodNode: node [
+	^ node copy
+		sampler: (self visitNode: node sampler);
+		texture: (self visitNode: node texture);
+		texcoord: (self visitNode: node texcoord);
+		lod: (self visitNode: node lod);
+		yourself
+]
+
+{ #category : #visiting }
+MbndAstTransformVisitor >> visitSampleTextureWithImplicitLodNode: node [
+	^ node copy
+		sampler: (self visitNode: node sampler);
+		texture: (self visitNode: node texture);
+		texcoord: (self visitNode: node texcoord);
+		yourself
+]
+
+{ #category : #visiting }
 MbndAstTransformVisitor >> visitSequenceNode: node [
 	^ node copy
 		pragmas: (self visitNodesAndCollect: node pragmas);

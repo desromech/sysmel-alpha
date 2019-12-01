@@ -7,6 +7,7 @@ Class {
 		'translatedTypes'
 	],
 	#classVars : [
+		'ShaderAdressSpaceMap',
 		'ShaderOpaqueAddressSpaces'
 	],
 	#category : #'SysmelMoebiusCodeGenerator-Slovim-Module'
@@ -18,13 +19,32 @@ MbndSlovimTypeTranslator class >> initialize [
 		bindingSet
 		uniformBuffer
 		storageBuffer
-	)
+	).
+	
+	ShaderAdressSpaceMap := Dictionary newFromPairs: #(
+		uniformBuffer uniform
+		storageBuffer uniform
+		generic function
+	).
 ]
 
 { #category : #initialization }
 MbndSlovimTypeTranslator >> initialize [
 	super initialize.
 	translatedTypes := Dictionary new.
+]
+
+{ #category : #visiting }
+MbndSlovimTypeTranslator >> sanitizeStructureFieldType: fieldType [
+	self slvmCompilationTarget isSpirV ifTrue: [ 
+		fieldType isPointerType ifTrue: [
+			^ self slvmCompilationTarget pointerSize = 4
+				ifTrue: [ self slvmCompilationTarget int32 ]
+				ifFalse: [ SLVMVectorType baseType: self slvmCompilationTarget int32 elements: 2 ].
+		]
+	].
+
+	^ fieldType
 ]
 
 { #category : #visiting }
@@ -63,7 +83,7 @@ MbndSlovimTypeTranslator >> translateAggregateType: aggregateType withKind: type
 	aggregateType isDefined ifTrue: [ 
 		ssaStructureType
 			names: (aggregateType slotLayout slots collect: #name);
-			types: (aggregateType slotLayout slots collect: [:slot | self translateType: slot type]).
+			types: (aggregateType slotLayout slots collect: [:slot | self sanitizeStructureFieldType: (self translateType: slot type)]).
 	].
 		
 	^ ssaValueType
@@ -161,18 +181,15 @@ MbndSlovimTypeTranslator >> visitOutputChannelType: type [
 { #category : #visiting }
 MbndSlovimTypeTranslator >> visitPointerType: pointerType [
 	"This could be a recursive type."
-	| ssaPointerType |
+	| ssaPointerType actualAddressSpace |
+	actualAddressSpace := pointerType addressSpace.
 	self slvmCompilationTarget isSpirV ifTrue: [ 
-		(ShaderOpaqueAddressSpaces includes: pointerType addressSpace) ifTrue: [
-			^ self slvmCompilationTarget pointerSize = 4
-				ifTrue: [ self slvmCompilationTarget int32 ]
-				ifFalse: [ SLVMVectorType baseType: self slvmCompilationTarget int32 elements: 2 ].
-		].
+		actualAddressSpace := ShaderAdressSpaceMap at: actualAddressSpace ifAbsent: [ actualAddressSpace ].
 	].
 
 	ssaPointerType := SLVMPointerType new
 		size: self slvmCompilationTarget pointerSize;
-		storage: pointerType addressSpace;
+		storage: actualAddressSpace;
 		yourself.
 	translatedTypes at: pointerType put: ssaPointerType.
 	

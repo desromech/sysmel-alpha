@@ -108,7 +108,7 @@ MbndSlovimCodeModuleGenerator >> createFunctionCodeGenerator [
 
 { #category : #visiting }
 MbndSlovimCodeModuleGenerator >> createSpirVShaderControllerFor: functionMethod generatedAs: generatedSSAFunction [
-	| csymbol shaderFunction builder argumentTypes stageInputType stageOutputType fetchedInput computedOutput receiverType receiver invocationArguments |
+	| csymbol shaderFunction builder argumentTypes receiverType receiver invocationArguments inputChannels outputChannels boundArguments fetchedInputs computedOutputs |
 	csymbol := self csymbolForProgramEntity: functionMethod.
 	(functionMethod hasFlag: #externC) ifTrue: [
 		csymbol := functionMethod name.
@@ -116,9 +116,12 @@ MbndSlovimCodeModuleGenerator >> createSpirVShaderControllerFor: functionMethod 
 
 	receiverType := self translateType: functionMethod receiverType.
 	argumentTypes := functionMethod boundType argumentTypes.
-	self assert: argumentTypes size >= 1.
-	stageInputType := argumentTypes first.
-	stageOutputType := argumentTypes size >= 2 ifTrue: [argumentTypes second] ifFalse: [nil].
+	inputChannels := (argumentTypes collectWithIndex: [ :argumentType :index |
+		{argumentType . index}
+	]) select: [:pair | pair first isInputChannelType].
+	outputChannels := (argumentTypes collectWithIndex: [ :argumentType :index |
+		{argumentType . index}
+	]) select: [:pair | pair first isOutputChannelType].
 
 	shaderFunction := SLVMFunction module: ssaModule name: csymbol functionType: (SLVMFunctionType arguments: #() returnType: SLVMType voidType).
 	shaderFunction propertyAt: functionMethod specialSemantics put: nil.
@@ -128,24 +131,34 @@ MbndSlovimCodeModuleGenerator >> createSpirVShaderControllerFor: functionMethod 
 	
 	"Allocate space for the IO data."
 	receiver := receiverType isVoidType ifTrue: [nil] ifFalse: [builder alloca: receiverType baseType].
+	boundArguments := Array new: argumentTypes size.
 	
-	fetchedInput := builder alloca: (self translateType: stageInputType messageType).
-	computedOutput := stageOutputType ifNotNil: [builder alloca: (self translateType: stageOutputType messageType)].
+	fetchedInputs := inputChannels collect: [ :channel | builder alloca: (self translateType: channel first messageType) ].
+	computedOutputs := outputChannels collect: [ :channel | builder alloca: (self translateType: channel first messageType) ].
 
 	"Fetch the inputs."
-	self fetchShader: functionMethod inputsOfType: stageInputType messageType into: fetchedInput with: builder.
+	fetchedInputs doWithIndex: [ :fetchedInput :index |
+		| stageInputType |
+		stageInputType := (inputChannels at: index) first.
+		boundArguments at: (inputChannels at: index) second put: fetchedInput.
+		self fetchShader: functionMethod inputsOfType: stageInputType messageType into: fetchedInput with: builder.
+	].
+
+	computedOutputs doWithIndex: [ :computedOutput :index |
+		boundArguments at: (outputChannels at: index) second put: computedOutput.
+	].
 	
 	"Call the actual shader content."
-	invocationArguments := #().
-	receiver ifNotNil: [ invocationArguments := invocationArguments , { receiver } ].
-	fetchedInput ifNotNil: [ invocationArguments := invocationArguments , { fetchedInput } ].
-	computedOutput ifNotNil: [ invocationArguments := invocationArguments , { computedOutput } ].
+	invocationArguments := boundArguments.
+	receiver ifNotNil: [ invocationArguments := { receiver } , invocationArguments ].
 
 	builder call: generatedSSAFunction arguments: invocationArguments.
 	
 	"Copy the computed results."
-	computedOutput ifNotNil: [ 
-		self storeShader: functionMethod outputsOfType: stageOutputType messageType from: computedOutput with: builder
+	computedOutputs doWithIndex: [ :computedOutput :index |
+		| stageOutputType |
+		stageOutputType := (outputChannels at: index) first.
+		self storeShader: functionMethod outputsOfType: stageOutputType messageType from: computedOutput with: builder.
 	].
 	
 	builder returnVoid.
@@ -233,7 +246,7 @@ MbndSlovimCodeModuleGenerator >> generateGlobalField: field forDescriptorSet: se
 			ifFalse: [ SLVMStructureType bufferBlockKind ].
 		ssaValueType := self translateStructureType: valueType baseType withKind: structureKind.
 	] ifFalse: [
-		self halt
+		ssaValueType := self translateType: valueType
 	].
 
 	ssaGlobal := SLVMGlobalVariable module: ssaModule name: globalName valueType: ssaValueType storage: globalStorage.

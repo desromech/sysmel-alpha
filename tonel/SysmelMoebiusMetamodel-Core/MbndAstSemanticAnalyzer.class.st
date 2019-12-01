@@ -1645,6 +1645,51 @@ MbndAstSemanticAnalyzer >> visitReturnStatementNode: node [
 ]
 
 { #category : #visiting }
+MbndAstSemanticAnalyzer >> visitSampleTextureWithExplicitDerivativesNode: node [
+	| result derivativeType |
+	result := self visitSampleTextureWithImplicitLodNode: node.
+	derivativeType := result texture type derivativeType.
+	result
+		dtdx: (self addImplicitCastFor: (self analyzeNodeIfNeeded: result dtdx) to: derivativeType);
+		dtdy: (self addImplicitCastFor: (self analyzeNodeIfNeeded: result dtdy) to: derivativeType).
+	^ result
+]
+
+{ #category : #visiting }
+MbndAstSemanticAnalyzer >> visitSampleTextureWithExplicitLodNode: node [
+	| result |
+	result := self visitSampleTextureWithImplicitLodNode: node.
+	result lod: (self addImplicitCastFor: (self analyzeNodeIfNeeded: result lod) to: self compilationTarget float32Type).
+	^ result
+]
+
+{ #category : #visiting }
+MbndAstSemanticAnalyzer >> visitSampleTextureWithImplicitLodNode: node [
+	| result |
+	result := node copy
+		sampler: (self ensureReferencesAreEvaluated: (self analyzeNodeIfNeeded: node sampler));
+		texture: (self ensureReferencesAreEvaluated: (self analyzeNodeIfNeeded: node texture));
+		texcoord: (self analyzeNodeIfNeeded: node texcoord);
+		yourself.
+	result sampler type isSamplerType ifFalse: [
+		self error: 'A sampler is expected for sampling a texture.' at: result sampler.
+	].
+
+	result texture type isTextureType ifFalse: [
+		self error: 'A texture to be sampled is expected instead of a value of type {1}.' format: { result texture type asString } at: result texture.
+	].
+
+	result texture type sampled ifFalse: [
+		self error: 'A sampled texture must be used for sampling instead of a texture of type {1}.' format: { result texture type asString } at: result texture.
+	].
+
+	result
+		texcoord: (self addImplicitCastFor: result texcoord to: result texture type samplingCoordinateType);
+		type: self compilationTarget float32x4Type.
+	^ result
+]
+
+{ #category : #visiting }
 MbndAstSemanticAnalyzer >> visitSequenceNode: node [
 	| result explicitReturnIndex |
 	result := super visitSequenceNode: node.

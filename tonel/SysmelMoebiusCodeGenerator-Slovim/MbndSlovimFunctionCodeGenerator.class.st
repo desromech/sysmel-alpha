@@ -895,6 +895,51 @@ MbndSlovimFunctionCodeGenerator >> visitReturnStatementNode: node [
 ]
 
 { #category : #visiting }
+MbndSlovimFunctionCodeGenerator >> visitSampleTextureWithExplicitDerivativesNode: node [
+	| sampler texture texcoord combinedSampler dtdx dtdy |
+	sampler := self visitNode: node sampler.
+	texture := self visitNode: node texture.
+	texcoord := self visitNode: node texcoord.
+	dtdx := self visitNode: node dtdx.
+	dtdy := self visitNode: node dtdy.
+	self slvmCompilationTarget isSpirV ifTrue: [ 
+		combinedSampler := slvmBuilder combineSampler: sampler with: texture.
+		^ slvmBuilder sample: combinedSampler atCoord: texcoord dtdx: dtdx dtdy: dtdy
+	].
+
+	self halt
+]
+
+{ #category : #visiting }
+MbndSlovimFunctionCodeGenerator >> visitSampleTextureWithExplicitLodNode: node [
+	| sampler texture texcoord combinedSampler lod |
+	sampler := self visitNode: node sampler.
+	texture := self visitNode: node texture.
+	texcoord := self visitNode: node texcoord.
+	lod := self visitNode: node lod.
+	self slvmCompilationTarget isSpirV ifTrue: [ 
+		combinedSampler := slvmBuilder combineSampler: sampler with: texture.
+		^ slvmBuilder sample: combinedSampler explicitLod: lod atCoord: texcoord
+	].
+
+	self halt
+]
+
+{ #category : #visiting }
+MbndSlovimFunctionCodeGenerator >> visitSampleTextureWithImplicitLodNode: node [
+	| sampler texture texcoord combinedSampler |
+	sampler := self visitNode: node sampler.
+	texture := self visitNode: node texture.
+	texcoord := self visitNode: node texcoord.
+	self slvmCompilationTarget isSpirV ifTrue: [ 
+		combinedSampler := slvmBuilder combineSampler: sampler with: texture.
+		^ slvmBuilder sample: combinedSampler implicitLodAtCoord: texcoord
+	].
+
+	self halt
+]
+
+{ #category : #visiting }
 MbndSlovimFunctionCodeGenerator >> visitSequenceNode: node [
 	| result |
 	result := nil.

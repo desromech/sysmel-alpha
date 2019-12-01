@@ -944,6 +944,42 @@ MbndAstBuilder >> return: expression [
 ]
 
 { #category : #'builder methods' }
+MbndAstBuilder >> sampleWith: sampler texture: texture at: texcoord dtdx: dtdx dtdy: dtdy [
+	<compileTime>
+	<returnType: #_ASTNodeType>
+	^ MbndAstSampleTextureWithExplicitDerivativesNode new
+		sampler: sampler;
+		texture: texture;
+		texcoord: texcoord;
+		dtdx: dtdx;
+		dtdy: dtdy;
+		yourself
+]
+
+{ #category : #'builder methods' }
+MbndAstBuilder >> sampleWith: sampler texture: texture at: texcoord lod: lod [
+	<compileTime>
+	<returnType: #_ASTNodeType>
+	^ MbndAstSampleTextureWithExplicitLodNode new
+		sampler: sampler;
+		texture: texture;
+		texcoord: texcoord;
+		lod: lod;
+		yourself
+]
+
+{ #category : #'builder methods' }
+MbndAstBuilder >> sampleWith: sampler texture: texture atWithImplicitLod: texcoord [
+	<compileTime>
+	<returnType: #_ASTNodeType>
+	^ MbndAstSampleTextureWithImplicitLodNode new
+		sampler: sampler;
+		texture: texture;
+		texcoord: texcoord;
+		yourself
+]
+
+{ #category : #'builder methods' }
 MbndAstBuilder >> send: selector to: aReceiver withArguments: arguments [
 	<compileTime>
 	<returnType: #_ASTNodeType>

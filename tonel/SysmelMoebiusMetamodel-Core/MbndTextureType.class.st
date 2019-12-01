@@ -31,6 +31,11 @@ MbndTextureType >> depth: anObject [
 	depth := anObject
 ]
 
+{ #category : #'as yet unclassified' }
+MbndTextureType >> derivativeType [
+	^ self compilationTarget float32Type primitiveVectorWithElements: dimensions
+]
+
 { #category : #accessing }
 MbndTextureType >> dimensions [
 	^ dimensions
@@ -74,4 +79,9 @@ MbndTextureType >> sampled [
 { #category : #accessing }
 MbndTextureType >> sampled: anObject [
 	sampled := anObject
+]
+
+{ #category : #'as yet unclassified' }
+MbndTextureType >> samplingCoordinateType [
+	^ self compilationTarget float32Type primitiveVectorWithElements: dimensions + layered asBit
 ]

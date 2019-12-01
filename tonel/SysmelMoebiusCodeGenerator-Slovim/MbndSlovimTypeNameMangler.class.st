@@ -118,6 +118,11 @@ MbndSlovimTypeNameMangler >> visitReferenceType: type [
 ]
 
 { #category : #visiting }
+MbndSlovimTypeNameMangler >> visitSamplerType: type [
+	^ 'Tgs'
+]
+
+{ #category : #visiting }
 MbndSlovimTypeNameMangler >> visitSimpleMetaType: metaType [
 	^ 'Tm' , (codeModuleGenerator mangleProgramEntityName: metaType)
 ]
@@ -125,6 +130,11 @@ MbndSlovimTypeNameMangler >> visitSimpleMetaType: metaType [
 { #category : #visiting }
 MbndSlovimTypeNameMangler >> visitStructureType: metaType [
 	^ 'Ts' , (codeModuleGenerator mangleProgramEntityName: metaType)
+]
+
+{ #category : #visiting }
+MbndSlovimTypeNameMangler >> visitTextureType: textureType [
+	^ 'Tgt' , (codeModuleGenerator mangleProgramEntityName: textureType)
 ]
 
 { #category : #visiting }

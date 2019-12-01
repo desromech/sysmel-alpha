@@ -83,6 +83,11 @@ MbndSlovimProgramEntityTypeNameMangler >> visitTemplateInstance: node [
 ]
 
 { #category : #visiting }
+MbndSlovimProgramEntityTypeNameMangler >> visitTextureType: node [
+	^ self visitAggregateType: node
+]
+
+{ #category : #visiting }
 MbndSlovimProgramEntityTypeNameMangler >> visitUnionType: node [
 	^ self visitAggregateType: node
 ]

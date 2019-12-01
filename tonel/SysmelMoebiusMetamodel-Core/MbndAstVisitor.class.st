@@ -440,6 +440,21 @@ MbndAstVisitor >> visitReturnStatementNode: node [
 ]
 
 { #category : #visiting }
+MbndAstVisitor >> visitSampleTextureWithExplicitDerivativesNode: node [
+	self subclassResponsibility
+]
+
+{ #category : #visiting }
+MbndAstVisitor >> visitSampleTextureWithExplicitLodNode: node [
+	self subclassResponsibility
+]
+
+{ #category : #visiting }
+MbndAstVisitor >> visitSampleTextureWithImplicitLodNode: node [
+	self subclassResponsibility
+]
+
+{ #category : #visiting }
 MbndAstVisitor >> visitSequenceNode: node [
 	self subclassResponsibility
 ]
