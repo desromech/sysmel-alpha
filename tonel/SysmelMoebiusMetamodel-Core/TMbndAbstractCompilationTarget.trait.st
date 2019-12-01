@@ -225,7 +225,7 @@ TMbndAbstractCompilationTarget >> hasNoOperatingSystem [
 
 { #category : #'platform testing' }
 TMbndAbstractCompilationTarget >> hasOperatingSystem [
-	^ self hasNoOperatingSystem not
+	^ self hasNoOperatingSystem not and: [ self isGPU not ]
 ]
 
 { #category : #'derived types' }
@@ -280,6 +280,11 @@ TMbndAbstractCompilationTarget >> intPointerType [
 
 { #category : #'platform testing' }
 TMbndAbstractCompilationTarget >> isFreeBSD [
+	^ false
+]
+
+{ #category : #'platform testing' }
+TMbndAbstractCompilationTarget >> isGPU [
 	^ false
 ]
 

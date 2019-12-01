@@ -26,7 +26,27 @@ Class {
 { #category : #'class initialization' }
 MbndSlovimCodeModuleGenerator class >> initialize [
 	ShaderBuiltInLocationMap := Dictionary newFromPairs: #(
+		"Vertex outputs"
 		(vertex position) -1
+		(vertex pointSize) -2
+		(vertex clipDistance) -3
+
+		"Vertex inputs"
+		(vertex vertexID) -43
+		(vertex instanceID) -44
+
+		"Fragment inputs"
+		(fragment fragCoord) -16
+		(fragment pointCoord) -17
+		(fragment frontFacing) -18
+
+		"Compute inputs"
+		(compute workgroupCount) -25
+		(compute workgroupSize) -26
+		(compute workgroupID) -27
+		(compute localInvocationID) -28
+		(compute globalInvocationID) -29
+		(compute localInvocationIndex) -30
 	).
 	
 ]
@@ -170,7 +190,7 @@ MbndSlovimCodeModuleGenerator >> csymbolForProgramEntity: programEntity [
 	programEntity name ifNil: [ ^ nil ].
 
 	(programEntity hasFlag: #externC) ifTrue: [
-		(self slvmCompilationTarget isSpirV and: [ programEntity specialSemantics isNotNil ]) ifFalse: [ 
+		(self slvmCompilationTarget isGPU and: [ programEntity specialSemantics isNotNil ]) ifFalse: [ 
 			^ programEntity name
 		].
 	].
@@ -322,7 +342,7 @@ MbndSlovimCodeModuleGenerator >> getShaderIOField: field storage: storage forSta
 
 { #category : #'code generation' }
 MbndSlovimCodeModuleGenerator >> gpuTypeMapping [
-	self slvmCompilationTarget isSpirV ifFalse: [ ^ #() ].
+	self slvmCompilationTarget isGPU ifFalse: [ ^ #() ].
 	^ #(
 		(gpuSamplerType sampler)
 		
@@ -529,7 +549,7 @@ MbndSlovimCodeModuleGenerator >> translateTypeInfoDefinition: type [
 	metaType := type type.
 	ssaTypeInfoType := self translateType: metaType.
 
-	(sourceModule hasRuntimeTypeInformation not or: [self slvmCompilationTarget isSpirV ]) ifTrue: [
+	(sourceModule hasRuntimeTypeInformation not or: [self slvmCompilationTarget isGPU ]) ifTrue: [
 		self assert: type isGCClassType not.
 		ssaTypeInfo := SLVMConstant nullPointer: ssaTypeInfoType.
 		self setProgramEntity: type ssaValue: ssaTypeInfo.
@@ -689,7 +709,7 @@ MbndSlovimCodeModuleGenerator >> visitConcreteFunctionMethod: functionMethod [
 	ssaFunctionType := self translateType: functionMethod type.
 	
 	csymbol := self csymbolForProgramEntity: functionMethod.
-	(self slvmCompilationTarget isSpirV and: [functionMethod specialSemantics isNotNil ]) ifTrue: [ 
+	(self slvmCompilationTarget isGPU and: [functionMethod specialSemantics isNotNil ]) ifTrue: [ 
 		csymbol := (csymbol , #_impl) asSymbol
 	].
 

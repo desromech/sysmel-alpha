@@ -36,7 +36,7 @@ MbndSlovimTypeTranslator >> initialize [
 
 { #category : #visiting }
 MbndSlovimTypeTranslator >> sanitizeStructureFieldType: fieldType [
-	self slvmCompilationTarget isSpirV ifTrue: [ 
+	self slvmCompilationTarget isGPU ifTrue: [ 
 		fieldType isPointerType ifTrue: [
 			^ self slvmCompilationTarget pointerSize = 4
 				ifTrue: [ self slvmCompilationTarget int32 ]
@@ -155,7 +155,7 @@ MbndSlovimTypeTranslator >> visitGCClassVariableDataArrayType: variableDataArray
 { #category : #visiting }
 MbndSlovimTypeTranslator >> visitInputChannelType: type [
 	| messageType |
-	self slvmCompilationTarget isSpirV ifTrue: [
+	self slvmCompilationTarget isGPU ifTrue: [
 		messageType := self translateType: type messageType.
 		^ self slvmCompilationTarget pointerTo: messageType storage: SLVMType functionStorage
 	].
@@ -168,7 +168,7 @@ MbndSlovimTypeTranslator >> visitInputChannelType: type [
 { #category : #visiting }
 MbndSlovimTypeTranslator >> visitOutputChannelType: type [
 	| messageType |
-	self slvmCompilationTarget isSpirV ifTrue: [
+	self slvmCompilationTarget isGPU ifTrue: [
 		messageType := self translateType: type messageType.
 		^ self slvmCompilationTarget pointerTo: messageType storage: SLVMType functionStorage
 	].
@@ -183,7 +183,7 @@ MbndSlovimTypeTranslator >> visitPointerType: pointerType [
 	"This could be a recursive type."
 	| ssaPointerType actualAddressSpace |
 	actualAddressSpace := pointerType addressSpace.
-	self slvmCompilationTarget isSpirV ifTrue: [ 
+	self slvmCompilationTarget isGPU ifTrue: [ 
 		actualAddressSpace := ShaderAdressSpaceMap at: actualAddressSpace ifAbsent: [ actualAddressSpace ].
 	].
 

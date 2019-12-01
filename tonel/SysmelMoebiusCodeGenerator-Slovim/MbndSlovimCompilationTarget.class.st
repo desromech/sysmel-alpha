@@ -72,6 +72,11 @@ MbndSlovimCompilationTarget >> isFreeBSD [
 ]
 
 { #category : #'platform testing' }
+MbndSlovimCompilationTarget >> isGPU [
+	^ slvmCompilationTarget isGPU
+]
+
+{ #category : #'platform testing' }
 MbndSlovimCompilationTarget >> isLinux [
 	^ slvmCompilationTarget isLinux
 ]

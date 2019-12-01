@@ -37,7 +37,7 @@ MbndSlovimFunctionCodeGenerator class >> initialize [
 { #category : #visiting }
 MbndSlovimFunctionCodeGenerator >> aggregate: aggregateNode value: aggregateValue getFieldOverrideFor: field [
 	| valueType |
-	self slvmCompilationTarget isSpirV ifFalse: [ ^ nil ].
+	self slvmCompilationTarget isGPU ifFalse: [ ^ nil ].
 	
 	valueType := field valueType.
 	(valueType isPointerLikeValueType and: [ valueType addressSpace = #bindingSet ]) ifTrue: [
@@ -554,7 +554,7 @@ MbndSlovimFunctionCodeGenerator >> visitIOChannelReceiveAction: node [
 	channel := self visitNode: node channel.
 	messageType := self translateType: node channel type messageType.
 	
-	self slvmCompilationTarget isSpirV ifTrue: [
+	self slvmCompilationTarget isGPU ifTrue: [
 		^ slvmBuilder load: channel
 	].
 	
@@ -902,7 +902,7 @@ MbndSlovimFunctionCodeGenerator >> visitSampleTextureWithExplicitDerivativesNode
 	texcoord := self visitNode: node texcoord.
 	dtdx := self visitNode: node dtdx.
 	dtdy := self visitNode: node dtdy.
-	self slvmCompilationTarget isSpirV ifTrue: [ 
+	self slvmCompilationTarget isGPU ifTrue: [ 
 		combinedSampler := slvmBuilder combineSampler: sampler with: texture.
 		^ slvmBuilder sample: combinedSampler atCoord: texcoord dtdx: dtdx dtdy: dtdy
 	].
@@ -917,7 +917,7 @@ MbndSlovimFunctionCodeGenerator >> visitSampleTextureWithExplicitLodNode: node [
 	texture := self visitNode: node texture.
 	texcoord := self visitNode: node texcoord.
 	lod := self visitNode: node lod.
-	self slvmCompilationTarget isSpirV ifTrue: [ 
+	self slvmCompilationTarget isGPU ifTrue: [ 
 		combinedSampler := slvmBuilder combineSampler: sampler with: texture.
 		^ slvmBuilder sample: combinedSampler explicitLod: lod atCoord: texcoord
 	].
@@ -931,7 +931,7 @@ MbndSlovimFunctionCodeGenerator >> visitSampleTextureWithImplicitLodNode: node [
 	sampler := self visitNode: node sampler.
 	texture := self visitNode: node texture.
 	texcoord := self visitNode: node texcoord.
-	self slvmCompilationTarget isSpirV ifTrue: [ 
+	self slvmCompilationTarget isGPU ifTrue: [ 
 		combinedSampler := slvmBuilder combineSampler: sampler with: texture.
 		^ slvmBuilder sample: combinedSampler implicitLodAtCoord: texcoord
 	].

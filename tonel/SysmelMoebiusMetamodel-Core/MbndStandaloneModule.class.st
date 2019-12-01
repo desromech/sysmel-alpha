@@ -77,7 +77,7 @@ MbndStandaloneModule >> hasGarbageCollectionSupport: aBoolean [
 { #category : #parameters }
 MbndStandaloneModule >> hasLibC [
 	<compileTime>
-	^ hasLibC ifNil: [ hasLibC := true ]
+	^ hasLibC ifNil: [ hasLibC := self compilationTarget isGPU not ]
 ]
 
 { #category : #parameters }
@@ -94,7 +94,7 @@ MbndStandaloneModule >> hasPreciseGarbageCollector [
 { #category : #parameters }
 MbndStandaloneModule >> hasRuntimeTypeInformation [
 	<compileTime>
-	^ hasRuntimeTypeInformation ifNil: [ hasRuntimeTypeInformation := true ]
+	^ hasRuntimeTypeInformation ifNil: [ hasRuntimeTypeInformation := self compilationTarget isGPU not ]
 ]
 
 { #category : #parameters }
