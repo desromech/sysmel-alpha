@@ -1,6 +1,9 @@
 Class {
 	#name : #MbndSysmelLanguage,
 	#superclass : #MbndGenericMacroLanguageInterface,
+	#instVars : [
+		'parser'
+	],
 	#category : #'SysmelLanguage-Sysmel-Parser'
 }
 
@@ -20,10 +23,17 @@ MbndSysmelLanguage class >> languageName [
 	^ #sysmel
 ]
 
+{ #category : #scope }
+MbndSysmelLanguage >> constructTopLevelLanguageScopeFor: aModule [
+	^ (MbndGenericMacroLanguageTopLevelScope for: aModule)
+		addUsedNamespace: (aModule globalNamespace ensureSymbolIsNamespace: #SysmelKernel);
+		yourself.
+]
+
 { #category : #parsing }
 MbndSysmelLanguage >> parse: sourceCollectionWithContext [
 	| astOrFailure position |
-	astOrFailure := SysmelParser parse: sourceCollectionWithContext.
+	astOrFailure := self parser parse: sourceCollectionWithContext.
 	astOrFailure isPetit2Failure ifTrue: [
 		position := MbndSourcePosition new
 			collection: sourceCollectionWithContext;
@@ -41,9 +51,7 @@ MbndSysmelLanguage >> parse: sourceCollectionWithContext [
 		yourself
 ]
 
-{ #category : #scope }
-MbndSysmelLanguage >> topLevelLanguageScopeFor: aModule [
-	^ (MbndGenericMacroLanguageTopLevelScope for: aModule)
-		addUsedNamespace: (aModule globalNamespace ensureSymbolIsNamespace: #SysmelKernel);
-		yourself.
+{ #category : #accessing }
+MbndSysmelLanguage >> parser [
+	^ parser ifNil: [parser := SysmelParser optimizedParser ]
 ]

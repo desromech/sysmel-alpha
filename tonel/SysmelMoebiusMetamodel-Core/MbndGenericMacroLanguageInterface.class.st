@@ -8,6 +8,6 @@ Class {
 }
 
 { #category : #scope }
-MbndGenericMacroLanguageInterface >> topLevelLanguageScopeFor: aModule [
+MbndGenericMacroLanguageInterface >> constructTopLevelLanguageScopeFor: aModule [
 	^ MbndGenericMacroLanguageTopLevelScope for: aModule
 ]

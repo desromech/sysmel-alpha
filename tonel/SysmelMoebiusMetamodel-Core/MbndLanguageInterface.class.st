@@ -2,7 +2,8 @@ Class {
 	#name : #MbndLanguageInterface,
 	#superclass : #Object,
 	#instVars : [
-		'targetModule'
+		'targetModule',
+		'topLevelLanguageScopeCache'
 	],
 	#classVars : [
 		'MoebiusBandLanguageFileExtensions',
@@ -58,6 +59,17 @@ MbndLanguageInterface class >> parseSourceString: sourceString forModule: target
 	^ self new parseSourceString: sourceString forModule: targetModule
 ]
 
+{ #category : #scope }
+MbndLanguageInterface >> constructTopLevelLanguageScopeFor: aModule [
+	self subclassResponsibility
+]
+
+{ #category : #initialization }
+MbndLanguageInterface >> initialize [
+	super initialize.
+	topLevelLanguageScopeCache := IdentityDictionary new.
+]
+
 { #category : #parsing }
 MbndLanguageInterface >> parse: sourceCollectionWithContext [
 	self subclassResponsibility
@@ -81,5 +93,5 @@ MbndLanguageInterface >> parseSourceString: sourceString forModule: aTargetModul
 
 { #category : #scope }
 MbndLanguageInterface >> topLevelLanguageScopeFor: aModule [
-	self subclassResponsibility
+	^ topLevelLanguageScopeCache at: aModule ifAbsentPut: [ self constructTopLevelLanguageScopeFor: aModule ]
 ]

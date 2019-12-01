@@ -3,7 +3,8 @@ Trait {
 	#instVars : [
 		'globalNamespace',
 		'evaluatedFileSet',
-		'pendingDelayedSemanticAnalysisSet'
+		'pendingDelayedSemanticAnalysisSet',
+		'languageInterfaceCache'
 	],
 	#traits : 'TMbndProgramEntity',
 	#classTraits : 'TMbndProgramEntity classTrait',
@@ -119,6 +120,13 @@ TMbndModule >> generateTargetCodeModule [
 	^ codeGenerator generateCodeModuleFor: self
 ]
 
+{ #category : #parsing }
+TMbndModule >> getLanguageNamedFromCache: languageName [
+	^ self languageInterfaceCache at: languageName ifAbsentPut: [
+		(MbndLanguageInterface languageNamed: languageName) new
+	]
+]
+
 { #category : #accessing }
 TMbndModule >> globalNamespace [
 	^ globalNamespace ifNil: [ globalNamespace := MbndNamespace new
@@ -155,6 +163,11 @@ TMbndModule >> hasRuntimeTypeInformation [
 TMbndModule >> hasStandardLibrary [
 	<compileTime>
 	^ true
+]
+
+{ #category : #parsing }
+TMbndModule >> languageInterfaceCache [
+	^ languageInterfaceCache ifNil: [ languageInterfaceCache := Dictionary new ]
 ]
 
 { #category : #'member symbols' }
@@ -224,14 +237,14 @@ TMbndModule >> parent [
 TMbndModule >> parseFileNamed: fileName [
 	| language fileReference |
 	fileReference := fileName asFileReference.
-	language := MbndLanguageInterface languageForFileExtension: fileReference extension.
+	language := self getLanguageNamedFromCache: (MbndLanguageInterface languageForFileExtension: fileReference extension) languageName.
 	^ language parseFromFileReference: fileReference forModule: self
 ]
 
 { #category : #parsing }
 TMbndModule >> parseLanguage: languageName source: sourceString [
 	| language |
-	language := MbndLanguageInterface languageNamed: languageName.
+	language := self getLanguageNamedFromCache: languageName.
 	^ language parseSourceString: sourceString forModule: self
 ]
 

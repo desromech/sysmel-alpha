@@ -2,7 +2,8 @@ Class {
 	#name : #SysmelParser,
 	#superclass : #SysmelGrammar,
 	#classVars : [
-		'CScapeCharacter'
+		'CScapeCharacter',
+		'OptimizedParser'
 	],
 	#category : #'SysmelLanguage-Sysmel-Parser'
 }
@@ -21,7 +22,17 @@ SysmelParser class >> initialize [
 		$" . $".
 		$\ . $\.
 	}.
-	
+	self optimizedParser
+]
+
+{ #category : #initialization }
+SysmelParser class >> noteCompilationOf: aSelector meta: isMeta [
+	OptimizedParser := nil
+]
+
+{ #category : #initialization }
+SysmelParser class >> optimizedParser [
+	^ OptimizedParser ifNil: [ OptimizedParser := self new optimize ]
 ]
 
 { #category : #accessing }
