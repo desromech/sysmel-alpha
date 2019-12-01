@@ -1,5 +1,3 @@
-Compiler
-    ## We still need the language kernel.
-    evaluateFileNamedOnce: "rendering.sysmel";
-    evaluateFileNamedOnce: "compute.sysmel";
-    yourself.
+loadFileOnce: "types.sysmel".
+loadFileOnce: "rendering.sysmel".
+loadFileOnce: "compute.sysmel".

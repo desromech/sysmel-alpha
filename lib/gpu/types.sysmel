@@ -1,0 +1,18 @@
+namespace GPU definition: {
+compileTimeConstant Sampler := GPUSampler.
+
+compileTimeConstant Texture1D := GPUTexture1D.
+compileTimeConstant Texture1DArray := GPUTexture1DArray.
+compileTimeConstant Texture2D := GPUTexture2D.
+compileTimeConstant Texture2DArray := GPUTexture2DArray.
+compileTimeConstant Texture3D := GPUTexture3D.
+compileTimeConstant Texture3DArray := GPUTexture3DArray.
+compileTimeConstant TextureCube := GPUTextureCube.
+compileTimeConstant TextureCubeArray := GPUTextureCubeArray.
+
+compileTimeConstant DepthTexture2D := GPUDepthTexture2D.
+compileTimeConstant DepthTexture2DArray := GPUDepthTexture2DArray.
+compileTimeConstant DepthTextureCube := GPUDepthTextureCube.
+compileTimeConstant DepthTextureCubeArray := GPUDepthTextureCubeArray.
+
+} ## End of namespace GPU

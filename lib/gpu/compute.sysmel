@@ -1,0 +1,11 @@
+namespace GPU definition: {
+## Vertex Stage intrinsics
+class ComputeStageInput definition: {
+	public field numberOfWorkGroups type: UInt32x3; intrinsic: #workgroupCount.
+	public field workgroupID type: UInt32x3; intrinsic: #workgroupID.
+	public field localInvocationID type: UInt32x3; intrinsic: #localInvocationID.
+	public field globalInvocationID type: UInt32x3; intrinsic: #globalInvocationID.
+	public field localInvocationIndex type: Int32; intrinsic: #localInvocationIndex.
+}.
+
+} ## End of namespace GPU

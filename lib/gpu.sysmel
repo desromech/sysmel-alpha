@@ -1,7 +1,2 @@
-Compiler
-    ## We still need the language kernel.
-    evaluateFileNamedOnce: "kernel/kernel.sysmel";
-
-    ## Evaluate stuff with commonly used GPU functions
-    evaluateFileNamedOnce: "gpu/gpu.sysmel";
-    yourself.
+loadFileOnce: "kernel/kernel.sysmel".
+loadFileOnce: "gpu/gpu.sysmel".

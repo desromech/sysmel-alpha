@@ -1,15 +1,12 @@
 namespace GPU definition: {
+## Vertex Stage intrinsics
+class VertexStageInput definition: {
+	public field vertexID type: Int32; intrinsic: #vertexID.
+	public field instanceID type: Int32; intrinsic: #instanceID.
+}.
 
-## GPU Graphics pipeline common interface
-shader GraphicsPipeline interface definition: {
-
-    ## Vertex Stage intrinsics
-    stageio VertexStage vertex definition: {
-        output screenPosition type: Float32x4; location: -1.
-
-        input vertexID type: Int32; location: -43.
-        input instanceID type: Int32; location: -43.
-    }.
+class VertexStageOutput definition: {
+	public field screenPosition type: Float32x4; intrinsic: #position.
 }.
 
 } ## End of namespace GPU
