@@ -5,17 +5,23 @@ global renderer mutable type: SDL_Renderer pointer.
 global isQuitting mutable := false.
 
 function onKeyDown(event: SDL_KeyboardEvent ref) => Void := {
-	let sym := event keysym sym.
-	## sym == Keycode SDLK_ESCAPE ifTrue: {isQuitting := true}.
+	event keysym sym selectCase: #{
+	Keycode SDLK_ESCAPE : {isQuitting := true.}.
+	}.
+}.
+
+function onKeyUp(event: SDL_KeyboardEvent ref) => Void := {
 }.
 
 function processEvents() => Void := {
 	let event mutable type: SDL_Event.
 	
 	while: SDL_PollEvent(event address) do: {
-		let eventType := event type.
-		eventType = SDL_QUIT ifTrue: {isQuitting := true}.
-		eventType = SDL_KEYDOWN ifTrue: {onKeyDown(event key)}.
+		event type selectCase: #{
+		SDL_QUIT : { isQuitting := true }.
+		SDL_KEYDOWN : { onKeyDown(event key) }.
+		SDL_KEYUP  : { onKeyUp(event key) }.
+		}.
 	}
 }.
 
