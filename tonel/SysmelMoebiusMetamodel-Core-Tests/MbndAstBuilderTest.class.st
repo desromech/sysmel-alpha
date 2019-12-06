@@ -113,16 +113,6 @@ MbndAstBuilderTest >> testCasesOfCaseNode [
 ]
 
 { #category : #tests }
-MbndAstBuilderTest >> testCasesOfDefaultCaseNode [
-	| node action |
-	action := builder literalInteger: 1.
-	node := builder casesOfDefaultCaseDo: action.
-	
-	self assert: node isCasesOfDefaultCaseNode.
-	self assert: node action equals: action.
-]
-
-{ #category : #tests }
 MbndAstBuilderTest >> testCasesOfNode [
 	| node firstCase secondCase matchedExpression |
 	firstCase := builder casesOfCase: (builder literalInteger: 1) do: (builder literalInteger: 2).

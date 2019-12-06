@@ -76,15 +76,9 @@ MbndAstTransformVisitor >> visitCasesOfCaseNode: node [
 ]
 
 { #category : #visiting }
-MbndAstTransformVisitor >> visitCasesOfDefaultCaseNode: node [
-	^ node copy
-		action: (self visitNode: node action);
-		yourself
-]
-
-{ #category : #visiting }
 MbndAstTransformVisitor >> visitCasesOfNode: node [
 	^ node copy
+		matchedExpression: (self visitNode: node matchedExpression);
 		cases: (self visitNodesAndCollect: node cases);
 		yourself
 ]
@@ -736,6 +730,11 @@ MbndAstTransformVisitor >> visitUnionDefinitionNode: node [
 ]
 
 { #category : #visiting }
+MbndAstTransformVisitor >> visitUnwrapEnumValueCastNode: node [
+	^ self visitSpecificCastNode: node
+]
+
+{ #category : #visiting }
 MbndAstTransformVisitor >> visitVariableReferenceNode: node [
 	^ node
 ]
@@ -772,6 +771,11 @@ MbndAstTransformVisitor >> visitWhileLoopNode: node [
 		action: (self visitNode: node action);
 		continueAction: (self visitNode: node continueAction);
 		yourself 
+]
+
+{ #category : #visiting }
+MbndAstTransformVisitor >> visitWrapEnumValueCastNode: node [
+	^ self visitSpecificCastNode: node
 ]
 
 { #category : #visiting }

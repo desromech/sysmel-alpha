@@ -125,6 +125,95 @@ MbndSlovimFunctionCodeGenerator >> defineArgumentValues [
 
 ]
 
+{ #category : #visiting }
+MbndSlovimFunctionCodeGenerator >> generateCase: case withMatchedValue: matchedValue [
+	case bindings ifNotEmpty: [
+		self generateDestructuringPattern: case pattern assignment: matchedValue
+	].
+	^ self visitNode: case action
+]
+
+{ #category : #visiting }
+MbndSlovimFunctionCodeGenerator >> generateCasesOfNode: node matchedValue: matchedValue caseStream: caseStream [
+	| currentCase mergeValue caseValue |
+	currentCase := caseStream peek.
+	mergeValue := nil.
+	matchedValue type isIntegerType ifTrue: [
+		| literalCases |
+		literalCases := Array streamContents: [ :out |
+			[ currentCase isNotNil and: [ currentCase pattern isPatternMatchingLiteralValuePatternNode] ] whileTrue: [ 
+				out nextPut: caseStream next.
+				currentCase := caseStream peek.
+			]
+		].
+	
+		literalCases ifNotEmpty: [
+			| caseConstants caseBlocks defaultBlock mergeBlock switchBlock |
+			caseConstants := literalCases collect: [ :case | self visitNode: case pattern ].
+			caseBlocks := literalCases collect: [ :case | slvmBuilder newBasicBlock: #casesOfCase ].
+			defaultBlock := slvmBuilder newBasicBlock: #casesOfDefault.
+			mergeBlock := slvmBuilder newBasicBlock: #casesOfMerge.
+
+			switchBlock := slvmBuilder currentBlock.
+			slvmBuilder currentBlock mergeBlock: mergeBlock.
+			slvmBuilder switch: matchedValue caseConstants: caseConstants caseBlocks: caseBlocks defaultBlock: defaultBlock.
+			node type isVoidType ifFalse: [
+				slvmBuilder currentBlock: mergeBlock.
+				mergeValue := slvmBuilder phi: (self translateType: node type) name: #casesResult
+			].
+
+			"Generate the literal cases."
+			literalCases doWithIndex: [ :case :index |
+				slvmBuilder currentBlock: (caseBlocks at: index).
+				caseValue := self generateCase: case withMatchedValue: matchedValue.
+				slvmBuilder isLastTerminator ifFalse: [
+					mergeValue ifNotNil: [
+						mergeValue addValue: caseValue from: slvmBuilder currentBlock.
+					].
+					slvmBuilder jump: mergeBlock
+				]
+			].
+		
+			"Generate the default case."
+			slvmBuilder currentBlock: defaultBlock.
+			caseValue := self generateCasesOfNode: node matchedValue: matchedValue caseStream: caseStream.
+
+			slvmBuilder isLastTerminator ifFalse: [
+				mergeValue ifNotNil: [
+					mergeValue addValue: caseValue from: slvmBuilder currentBlock.
+				].
+				slvmBuilder jump: mergeBlock
+			].
+
+			"Move back to the merge block."		
+			slvmBuilder currentBlock: mergeBlock.
+			mergeBlock predecessors ifEmpty: [
+				slvmBuilder unreachable.
+				switchBlock addUnreachableStructuredSuccessors.
+				mergeValue ifNotNil: [ mergeValue removeFromBlock ].
+				^ nil
+			].
+			
+			^ mergeValue
+		]
+	].
+
+	currentCase ifNil: [ ^ self translateLiteralValue: node type defaultValue ].
+	currentCase hasDefaultPattern ifTrue: [
+		^ self generateCase: currentCase withMatchedValue: matchedValue
+	].
+
+	self halt
+]
+
+{ #category : #'as yet unclassified' }
+MbndSlovimFunctionCodeGenerator >> generateDestructuringPattern: pattern assignment: assignmentValue [
+	^ MbndSlovimFunctionDestructuringPatternAssignmentCodeGenerator new
+		functionCodeGenerator: self;
+		assignmentValue: assignmentValue;
+		visitNode: pattern
+]
+
 { #category : #'as yet unclassified' }
 MbndSlovimFunctionCodeGenerator >> generateExpandedMessageSendNode: node withIntrinsicName: intrinsicName [
 	AdditionalIntrinsicsDictionary at: intrinsicName ifPresent: [ :selector |
@@ -204,6 +293,52 @@ MbndSlovimFunctionCodeGenerator >> generateIdentityNotEquals: node [
 	self assert: rightValue type isDynamicObjectPointerType.
 	self assert: leftValue type == rightValue type.
 	^ slvmBuilder dynObjectIdentityNotEquals: leftValue with: rightValue
+]
+
+{ #category : #visiting }
+MbndSlovimFunctionCodeGenerator >> generateLocalVariable: localVariable definitionAt: position withInitialValue: initialValue [
+	| valueType ssaValue |
+	self assert: (functionVariables includesKey: localVariable) not.
+
+	valueType := self translateType: localVariable valueType.
+	
+	localVariable type isReferenceType ifTrue: [
+		(localVariable valueType isReferenceType and: [initialValue isNotNil and: [initialValue type isPointerType]]) ifTrue: [
+			self assert: initialValue isNotNil.
+			ssaValue := initialValue.
+
+			self isEmittingDebugInformation ifTrue: [ 
+				localVariable name isMbndGenerateSymbolRemovedFromDebug ifFalse: [
+					(slvmBuilder debugSetVariable: (self createLocalVariableDebugInformation: localVariable) value: ssaValue)
+				]
+			].
+		] ifFalse: [ 
+			ssaValue := slvmBuilder allocaBuilder alloca: valueType.
+
+			initialValue ifNotNil: [
+				slvmBuilder store: initialValue in: ssaValue
+			].
+
+			self isEmittingDebugInformation ifTrue: [ 
+				localVariable name isMbndGenerateSymbolRemovedFromDebug ifFalse: [
+					(slvmBuilder debugDeclareVariable: ssaValue)
+						debugInformation: (self createLocalVariableDebugInformation: localVariable)
+				]
+			].
+		].
+	] ifFalse: [
+		ssaValue := initialValue.
+
+		self isEmittingDebugInformation ifTrue: [ 
+			localVariable name isMbndGenerateSymbolRemovedFromDebug ifFalse: [
+				(slvmBuilder debugSetVariable: (self createLocalVariableDebugInformation: localVariable) value: ssaValue)
+			]
+		].
+
+	].
+
+	functionVariables at: localVariable put: ssaValue.
+	^ ssaValue
 ]
 
 { #category : #visiting }
@@ -288,6 +423,11 @@ MbndSlovimFunctionCodeGenerator >> storeValueInTemporary: value [
 ]
 
 { #category : #visiting }
+MbndSlovimFunctionCodeGenerator >> translateLiteralValue: value [
+	^ codeModuleGenerator translateLiteralValue: value value ofType: value type
+]
+
+{ #category : #visiting }
 MbndSlovimFunctionCodeGenerator >> visitArrayElementReferenceNode: node [
 	| pointer index |
 	pointer := self visitNode: node container.
@@ -325,6 +465,14 @@ MbndSlovimFunctionCodeGenerator >> visitBitCastNode: node [
 MbndSlovimFunctionCodeGenerator >> visitBlockClosureNode: node [
 	self assert: node isBlockClosureWithImmediateActivation not.
 	self halt
+]
+
+{ #category : #visiting }
+MbndSlovimFunctionCodeGenerator >> visitCasesOfNode: node [
+	| matchedValue literalGroupStream |
+	matchedValue := self visitNode: node matchedExpression.
+	literalGroupStream := node cases readStream.
+	^ self generateCasesOfNode: node matchedValue: matchedValue caseStream: literalGroupStream
 ]
 
 { #category : #visiting }
@@ -714,50 +862,7 @@ MbndSlovimFunctionCodeGenerator >> visitLiteralValueNode: node [
 
 { #category : #visiting }
 MbndSlovimFunctionCodeGenerator >> visitLocalVariableDefinitionNode: node [
-	| initialValue valueType ssaValue |
-	self assert: (functionVariables includesKey: node binding) not.
-	
-	initialValue := node initialValue ifNotNil: [ :iv | self visitNode: iv ].
-	valueType := self translateType: node valueType.
-	
-	node type isReferenceType ifTrue: [
-		(node isAccessedByReference and: [node initialValue type isReferenceType]) ifTrue: [
-			self assert: initialValue isNotNil.
-			ssaValue := initialValue.
-
-			self isEmittingDebugInformation ifTrue: [ 
-				node name isMbndGenerateSymbolRemovedFromDebug ifFalse: [
-					(slvmBuilder debugSetVariable: (self createLocalVariableDebugInformation: node binding) value: ssaValue)
-				]
-			].
-		] ifFalse: [ 
-			ssaValue := slvmBuilder allocaBuilder alloca: valueType.
-
-			initialValue ifNotNil: [
-				slvmBuilder store: initialValue in: ssaValue
-			].
-
-			self isEmittingDebugInformation ifTrue: [ 
-				node name isMbndGenerateSymbolRemovedFromDebug ifFalse: [
-					(slvmBuilder debugDeclareVariable: ssaValue)
-						debugInformation: (self createLocalVariableDebugInformation: node binding)
-				]
-			].
-		].
-	] ifFalse: [
-		self assert: node initialValue isNotNil.
-		ssaValue := initialValue.
-
-		self isEmittingDebugInformation ifTrue: [ 
-			node name isMbndGenerateSymbolRemovedFromDebug ifFalse: [
-				(slvmBuilder debugSetVariable: (self createLocalVariableDebugInformation: node binding) value: ssaValue)
-			]
-		].
-
-	].
-
-	functionVariables at: node binding put: ssaValue.
-	^ ssaValue
+	^ self generateLocalVariable: node binding definitionAt: node withInitialValue: (node initialValue ifNotNil: [ :iv | self visitNode: iv ])
 ]
 
 { #category : #visiting }
@@ -830,6 +935,17 @@ MbndSlovimFunctionCodeGenerator >> visitNode: node [
 	].
 
 	^ super visitNode: node
+]
+
+{ #category : #visiting }
+MbndSlovimFunctionCodeGenerator >> visitPatternMatchingBindingPatternNode: node [
+	self assert: node value isNotNil.
+	^ self visitNode: node value
+]
+
+{ #category : #visiting }
+MbndSlovimFunctionCodeGenerator >> visitPatternMatchingLiteralValuePatternNode: node [
+	^ self visitLiteralValueNode: node
 ]
 
 { #category : #visiting }
@@ -1056,6 +1172,11 @@ MbndSlovimFunctionCodeGenerator >> visitTruncateCastNode: node [
 ]
 
 { #category : #visiting }
+MbndSlovimFunctionCodeGenerator >> visitUnwrapEnumValueCastNode: node [
+	^ self visitNode: node expression
+]
+
+{ #category : #visiting }
 MbndSlovimFunctionCodeGenerator >> visitVariableReferenceNode: node [
 	| binding |
 	binding := node binding.
@@ -1165,6 +1286,11 @@ MbndSlovimFunctionCodeGenerator >> visitWhileLoopNode: node [
 		slvmBuilder unreachable.
 	].
 
+]
+
+{ #category : #visiting }
+MbndSlovimFunctionCodeGenerator >> visitWrapEnumValueCastNode: node [
+	^ self visitNode: node expression
 ]
 
 { #category : #visiting }

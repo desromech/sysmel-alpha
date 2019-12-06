@@ -53,11 +53,6 @@ MbndAstDelegationVisitor >> visitCasesOfCaseNode: node [
 ]
 
 { #category : #visiting }
-MbndAstDelegationVisitor >> visitCasesOfDefaultCaseNode: node [
-	^ self delegateNodeVisit: node
-]
-
-{ #category : #visiting }
 MbndAstDelegationVisitor >> visitCasesOfNode: node [
 	^ self delegateNodeVisit: node
 ]
@@ -513,6 +508,11 @@ MbndAstDelegationVisitor >> visitUnionDefinitionNode: node [
 ]
 
 { #category : #visiting }
+MbndAstDelegationVisitor >> visitUnwrapEnumValueCastNode: node [
+	^ self delegateNodeVisit: node
+]
+
+{ #category : #visiting }
 MbndAstDelegationVisitor >> visitVariableReferenceNode: node [
 	^ self delegateNodeVisit: node
 ]
@@ -534,6 +534,11 @@ MbndAstDelegationVisitor >> visitVectorSetElementsNode: node [
 
 { #category : #visiting }
 MbndAstDelegationVisitor >> visitWhileLoopNode: node [
+	^ self delegateNodeVisit: node
+]
+
+{ #category : #visiting }
+MbndAstDelegationVisitor >> visitWrapEnumValueCastNode: node [
 	^ self delegateNodeVisit: node
 ]
 

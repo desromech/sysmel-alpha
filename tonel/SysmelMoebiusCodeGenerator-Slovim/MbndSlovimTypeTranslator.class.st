@@ -126,7 +126,7 @@ MbndSlovimTypeTranslator >> visitDecoratedType: type [
 
 { #category : #visiting }
 MbndSlovimTypeTranslator >> visitEnumType: enumType [
-	^ self translateType: enumType valueType
+	^ self translateType: enumType baseType
 ]
 
 { #category : #visiting }

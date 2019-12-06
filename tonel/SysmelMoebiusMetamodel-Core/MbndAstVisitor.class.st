@@ -50,11 +50,6 @@ MbndAstVisitor >> visitCasesOfCaseNode: node [
 ]
 
 { #category : #visiting }
-MbndAstVisitor >> visitCasesOfDefaultCaseNode: node [
-	self subclassResponsibility
-]
-
-{ #category : #visiting }
 MbndAstVisitor >> visitCasesOfNode: node [
 	self subclassResponsibility
 ]
@@ -375,6 +370,16 @@ MbndAstVisitor >> visitNodesAndCollect: nodes [
 ]
 
 { #category : #visiting }
+MbndAstVisitor >> visitPatternMatchingBindingPatternNode: node [
+	self subclassResponsibility
+]
+
+{ #category : #visiting }
+MbndAstVisitor >> visitPatternMatchingLiteralValuePatternNode: node [
+	self subclassResponsibility
+]
+
+{ #category : #visiting }
 MbndAstVisitor >> visitPointerAsReferenceNode: node [
 	self subclassResponsibility
 ]
@@ -525,6 +530,11 @@ MbndAstVisitor >> visitUnionDefinitionNode: node [
 ]
 
 { #category : #visiting }
+MbndAstVisitor >> visitUnwrapEnumValueCastNode: node [
+	self subclassResponsibility
+]
+
+{ #category : #visiting }
 MbndAstVisitor >> visitVariableReferenceNode: node [
 	self subclassResponsibility
 ]
@@ -546,6 +556,11 @@ MbndAstVisitor >> visitVectorSetElementsNode: node [
 
 { #category : #visiting }
 MbndAstVisitor >> visitWhileLoopNode: node [
+	self subclassResponsibility
+]
+
+{ #category : #visiting }
+MbndAstVisitor >> visitWrapEnumValueCastNode: node [
 	self subclassResponsibility
 ]
 

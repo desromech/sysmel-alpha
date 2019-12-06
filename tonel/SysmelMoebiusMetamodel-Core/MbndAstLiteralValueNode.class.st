@@ -13,6 +13,15 @@ MbndAstLiteralValueNode >> accept: aVisitor [
 ]
 
 { #category : #'as yet unclassified' }
+MbndAstLiteralValueNode >> asLiteralValuePatternNode [
+	^ MbndAstPatternMatchingLiteralValuePatternNode new
+		position: self;
+		value: value;
+		type: type;
+		yourself
+]
+
+{ #category : #'as yet unclassified' }
 MbndAstLiteralValueNode >> evaluateMbndValue [
 	^ MbndValue value: value type: type
 ]

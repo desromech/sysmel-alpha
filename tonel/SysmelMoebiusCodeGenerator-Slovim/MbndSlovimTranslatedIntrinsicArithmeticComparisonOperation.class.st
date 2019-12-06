@@ -56,6 +56,8 @@ MbndSlovimTranslatedIntrinsicArithmeticComparisonOperation >> generateExpandedMe
 	| intrinsicName leftOperand rightOperand operandType |
 	intrinsicName := self intrinsicName.
 	operandType := node receiver type.
+	operandType isEnumType ifTrue: [ operandType := operandType baseType ].
+	
 	leftOperand := codeGenerator visitNode: node receiver.
 	rightOperand := codeGenerator visitNode: node arguments first.
 	

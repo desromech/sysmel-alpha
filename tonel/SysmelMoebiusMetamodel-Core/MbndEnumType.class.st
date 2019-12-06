@@ -2,7 +2,6 @@ Class {
 	#name : #MbndEnumType,
 	#superclass : #MbndDerivedType,
 	#instVars : [
-		'valueType',
 		'values'
 	],
 	#category : #'SysmelMoebiusMetamodel-Core-Type'
@@ -18,25 +17,88 @@ MbndEnumType >> accept: visitor [
 	^ visitor visitEnumType: self
 ]
 
+{ #category : #initialization }
+MbndEnumType >> addArithmeticOperationCoercionMacro: selector [
+	self macroMethodDict at: selector
+		ifPresent: [ self error: 'Duplicated macro selector.' ]
+		ifAbsentPut: (MbndArithmeticOperationCoercionMacro new)
+]
+
+{ #category : #initialization }
+MbndEnumType >> addComparison: selector intrinsic: intrinsicName [
+	self
+		addArithmeticOperationCoercionMacro: selector;
+		addOverloadedMethod: (MbndIntrinsicArithmeticComparisonMethod new
+				name: selector;
+				intrinsicName: intrinsicName;
+				yourself)
+			receiverType: self argumentTypes: { self } returnType: self compilationTarget booleanType
+]
+
+{ #category : #initialization }
+MbndEnumType >> addComparisonIntrinsics [
+	self
+		addComparison: #= intrinsic: #eq;
+		addComparison: #== intrinsic: #eq;
+		addComparison: #~= intrinsic: #ne;
+		addComparison: #~~ intrinsic: #ne;
+		addComparison: #< intrinsic: #lt;
+		addComparison: #<= intrinsic: #le;
+		addComparison: #>= intrinsic: #ge;
+		addComparison: #> intrinsic: #gt
+]
+
+{ #category : #initialization }
+MbndEnumType >> addConversionsBetweenBaseType [
+	self addConversionTo: baseType rule: MbndUnwrapEnumValueTypeConversionRule.
+	baseType addExplicitConversionTo: self rule: MbndWrapEnumValueTypeConversionRule.
+]
+
+{ #category : #initialization }
+MbndEnumType >> addDefaultConversionRules [
+	super addDefaultConversionRules.
+	baseType ifNotNil: [
+		self addConversionsBetweenBaseType
+	].
+
+]
+
+{ #category : #initialization }
+MbndEnumType >> addInstanceMacros [
+	self class == MbndEnumType ifFalse: [ ^ self ].
+	self isTrait ifFalse: [ ^ self ].
+	self
+		onMacroSelector: #value do: [ :node :builder |
+			builder unwrapEnumValue: node receiver.
+		]
+
+]
+
+{ #category : #accessing }
+MbndEnumType >> baseType: aBaseType [
+	super baseType: aBaseType.
+	self addConversionsBetweenBaseType.
+]
+
 { #category : #'default values' }
 MbndEnumType >> defaultValueAt: aPosition [
-	^ (valueType defaultValueAt: aPosition) copy type: self
+	^ (baseType defaultValueAt: aPosition) copy type: self
 ]
 
 { #category : #initialization }
 MbndEnumType >> initialize [
 	super initialize.
-	values := OrderedDictionary new.
+	self addComparisonIntrinsics
 ]
 
 { #category : #sizes }
 MbndEnumType >> instanceAlignment [
-	^ valueType instanceAlignment
+	^ baseType instanceAlignment
 ]
 
 { #category : #sizes }
 MbndEnumType >> instanceSize [
-	^ valueType instanceSize
+	^ baseType instanceSize
 ]
 
 { #category : #'testing methods' }
@@ -54,14 +116,15 @@ MbndEnumType >> lookupStaticMacroSelector: selector [
 
 { #category : #accessing }
 MbndEnumType >> valueType [
-	^ valueType
+	<compileTime>
+	^ baseType
 ]
 
 { #category : #accessing }
-MbndEnumType >> valueType: anObject [
-	self assert: anObject ~~ self.
-	valueType := anObject
-
+MbndEnumType >> valueType: aType [
+	<compileTime>
+	self assert: baseType isNil.
+	^ self baseType: aType
 ]
 
 { #category : #accessing }

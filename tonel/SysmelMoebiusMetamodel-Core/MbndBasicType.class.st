@@ -42,6 +42,10 @@ MbndBasicType >> addInstanceMacros [
 	self isTrait ifFalse: [ ^ self ].
 	self
 		onMacroSelector: #yourself do: [ :node :builder | node receiver ];
+		onMacroSelector: #selectCase: do: [ :node :builder |
+			(builder casesOf: node receiver cases: node arguments first)
+				position: node
+		];
 		onMacroSelector: #castTo: do: [ :node :builder |
 			(builder explicitCast: node receiver to: node arguments first)
 				position: node

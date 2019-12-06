@@ -365,6 +365,139 @@ MbndSlovimCodeModuleGeneratorTest >> testEmptyModule [
 ]
 
 { #category : #tests }
+MbndSlovimCodeModuleGeneratorTest >> testEnumSelectCase [
+	| function |
+	self
+		evaluateSysmelSource: '
+enum TestEnum values: #{
+	First: 1.
+	Second: 2.
+}.
+
+		function selectCaseTest externC(value: TestEnum) => Float32
+			:= value selectCase: #{
+	TestEnum First : 0.0.
+	TestEnum Second : 1.0.
+}';
+		generateSSAModule.
+
+	function := ssaModule globalNamed: #selectCaseTest.
+	self assert: function isFunction.
+	self deny: function isEmpty.
+	self assert: function basicBlocks size equals: 6.
+	self assert: function basicBlocks second firstInstruction isSwitch.
+	self assert: function basicBlocks last lastInstruction isReturn.
+]
+
+{ #category : #tests }
+MbndSlovimCodeModuleGeneratorTest >> testEnumSelectSingleCase [
+	| function |
+	self
+		evaluateSysmelSource: '
+enum TestEnum values: #{
+	First: 1.
+	Second: 2.
+}.
+
+		function selectCaseTest externC(value: TestEnum) => Float32
+			:= value selectCase: #{
+	TestEnum First : 42.0.
+}';
+		generateSSAModule.
+
+	function := ssaModule globalNamed: #selectCaseTest.
+	self assert: function isFunction.
+	self deny: function isEmpty.
+	self assert: function basicBlocks size equals: 5.
+	self assert: function basicBlocks second firstInstruction isSwitch.
+	self assert: function basicBlocks last lastInstruction isReturn.
+]
+
+{ #category : #tests }
+MbndSlovimCodeModuleGeneratorTest >> testEnumValueAsIntegerCastReturn [
+	| function |
+	self
+		evaluateSysmelSource: '
+enum TestEnum values: #{
+	First: 1.
+	Second: 2.
+}.
+
+function returnValue externC() => Int64 := TestEnum First castTo: Int64';
+		generateSSAModule.
+
+	function := ssaModule globalNamed: #returnValue.
+	self assert: function isFunction.
+	self deny: function isEmpty.
+	self assert: function functionType returnType isIntegerType.
+	self assert: function basicBlocks size equals: 2.
+	self assert: function basicBlocks second firstInstruction isSignExtend.
+]
+
+{ #category : #tests }
+MbndSlovimCodeModuleGeneratorTest >> testEnumValueAsIntegerReturn [
+	| function |
+	self
+		evaluateSysmelSource: '
+enum TestEnum values: #{
+	First: 1.
+	Second: 2.
+}.
+
+function returnValue externC() => Int32 := TestEnum First value';
+		generateSSAModule.
+
+	function := ssaModule globalNamed: #returnValue.
+	self assert: function isFunction.
+	self deny: function isEmpty.
+	self assert: function functionType returnType isIntegerType.
+	self assert: function basicBlocks size equals: 2.
+	self assert: function basicBlocks second firstInstruction isReturn.
+]
+
+{ #category : #tests }
+MbndSlovimCodeModuleGeneratorTest >> testEnumValueFromValueCast2Return [
+	| function |
+	self
+		evaluateSysmelSource: '
+enum TestEnum values: #{
+	First: 1.
+	Second: 2.
+}.
+
+function asEnum externC(value: Int64) => TestEnum := value castTo: TestEnum';
+		generateSSAModule.
+
+	function := ssaModule globalNamed: #asEnum.
+	self assert: function isFunction.
+	self deny: function isEmpty.
+	self assert: function functionType returnType isIntegerType.
+	self assert: function basicBlocks size equals: 2.
+	self assert: function basicBlocks second firstInstruction isTruncate.
+]
+
+{ #category : #tests }
+MbndSlovimCodeModuleGeneratorTest >> testEnumValueFromValueCastReturn [
+	| function |
+	self
+		evaluateSysmelSource: '
+enum TestEnum values: #{
+	First: 1.
+	Second: 2.
+}.
+
+function asEnum externC(value: Int32) => TestEnum := value castTo: TestEnum';
+		generateSSAModule.
+
+	function := ssaModule globalNamed: #asEnum.
+	self assert: function isFunction.
+	self deny: function isEmpty.
+	self assert: function functionType returnType isIntegerType.
+	self assert: function basicBlocks size equals: 2.
+	self assert: function basicBlocks second firstInstruction isReturn.
+]
+
+{ #category : #tests }
 MbndSlovimCodeModuleGeneratorTest >> testEnumValueReturn [
 	| function |
 	self
@@ -1993,6 +2126,22 @@ MbndSlovimCodeModuleGeneratorTest >> testIntegerDivideUnsigned [
 ]
 
 { #category : #tests }
+MbndSlovimCodeModuleGeneratorTest >> testIntegerEmptySelectCase [
+	| function |
+	self
+		evaluateSysmelSource: 'function selectCaseTest externC(value: Int32) => Void
+			:= value selectCase: #{
+}';
+		generateSSAModule.
+
+	function := ssaModule globalNamed: #selectCaseTest.
+	self assert: function isFunction.
+	self deny: function isEmpty.
+	self assert: function basicBlocks size equals: 2.
+	self assert: function basicBlocks second firstInstruction isReturnVoid.
+]
+
+{ #category : #tests }
 MbndSlovimCodeModuleGeneratorTest >> testIntegerEquality [
 	| function |
 	self
@@ -2382,6 +2531,63 @@ MbndSlovimCodeModuleGeneratorTest >> testIntegerRemainderUnsigned [
 	self assert: function basicBlocks second firstInstruction isBinaryOperation.
 	self assert: function basicBlocks second firstInstruction operation equals: #urem.
 	self assert: function basicBlocks second lastInstruction isReturn.
+]
+
+{ #category : #tests }
+MbndSlovimCodeModuleGeneratorTest >> testIntegerSelectCase [
+	| function |
+	self
+		evaluateSysmelSource: 'function selectCaseTest externC(value: Int32) => Float32
+			:= value selectCase: #{
+	0: 0.0.
+	1: 1.0.
+	2: 2.0.
+	3: 3.0.
+	4: 4.0.
+	let v : (v castTo: Float32) * 2.0
+}';
+		generateSSAModule.
+
+	function := ssaModule globalNamed: #selectCaseTest.
+	self assert: function isFunction.
+	self deny: function isEmpty.
+	self assert: function basicBlocks size equals: 9.
+	self assert: function basicBlocks second firstInstruction isSwitch.
+	self assert: function basicBlocks last lastInstruction isReturn.
+]
+
+{ #category : #tests }
+MbndSlovimCodeModuleGeneratorTest >> testIntegerSelectSingleCase [
+	| function |
+	self
+		evaluateSysmelSource: 'function selectCaseTest externC(value: Int32) => Float32
+			:= value selectCase: #{
+	0: value.
+}';
+		generateSSAModule.
+
+	function := ssaModule globalNamed: #selectCaseTest.
+	self assert: function isFunction.
+	self deny: function isEmpty.
+	self assert: function basicBlocks size equals: 5.
+	self assert: function basicBlocks last lastInstruction isReturn.
+]
+
+{ #category : #tests }
+MbndSlovimCodeModuleGeneratorTest >> testIntegerSelectSingleCase2 [
+	| function |
+	self
+		evaluateSysmelSource: 'function selectCaseTest externC(value: Int32 ref) => Float32
+			:= value selectCase: #{
+	0: 42.0.
+}';
+		generateSSAModule.
+
+	function := ssaModule globalNamed: #selectCaseTest.
+	self assert: function isFunction.
+	self deny: function isEmpty.
+	self assert: function basicBlocks size equals: 5.
+	self assert: function basicBlocks last lastInstruction isReturn.
 ]
 
 { #category : #tests }

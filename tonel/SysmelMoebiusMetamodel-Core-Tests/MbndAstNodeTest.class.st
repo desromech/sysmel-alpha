@@ -79,7 +79,6 @@ MbndAstNodeTest >> testTestingMethods [
 	self deny: node isBoundIdentifierReferenceNode.
 	self deny: node isBlockClosureNode.
 	self deny: node isCasesOfCaseNode.
-	self deny: node isCasesOfDefaultCaseNode.
 	self deny: node isCasesOfNode.
 	self deny: node isClassDeclarationNode.
 	self deny: node isClassDefinitionNode.
@@ -167,7 +166,9 @@ MbndAstNodeTest >> testTestingMethods [
 	self deny: node isUnexpandedMessageSendNode.
 	self deny: node isUnionDeclarationNode.
 	self deny: node isUnionDefinitionNode.
+	self deny: node isUnwrapEnumValueNode.
 	self deny: node isWhileLoopNode.
+	self deny: node isWrapEnumValueNode.
 	self deny: node isVariableReferenceNode.
 	self deny: node isVectorConstructionNode.
 	self deny: node isVectorGetElementsNode.

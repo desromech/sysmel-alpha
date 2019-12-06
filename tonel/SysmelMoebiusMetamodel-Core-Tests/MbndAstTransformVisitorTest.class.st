@@ -125,16 +125,6 @@ MbndAstTransformVisitorTest >> testCasesOfCaseNode [
 ]
 
 { #category : #tests }
-MbndAstTransformVisitorTest >> testCasesOfDefaultCaseNode [
-	| node transformedNode action |
-	action := builder literalInteger: 1.
-	node := builder casesOfDefaultCaseDo: action.
-	transformedNode := visitor visitNode: node.
-	self assert: transformedNode ~~ node.
-	self assert: transformedNode action equals: action.
-]
-
-{ #category : #tests }
 MbndAstTransformVisitorTest >> testCasesOfNode [
 	| node transformedNode firstCase secondCase matchedExpression |
 	firstCase := builder casesOfCase: (builder literalInteger: 1) do: (builder literalInteger: 2).

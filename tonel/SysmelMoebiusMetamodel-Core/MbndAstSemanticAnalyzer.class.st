@@ -3,15 +3,7 @@ I am an AST visitor that performs semantic analysis.
 "
 Class {
 	#name : #MbndAstSemanticAnalyzer,
-	#superclass : #MbndAstTransformVisitor,
-	#instVars : [
-		'scope',
-		'module',
-		'compilationTarget',
-		'astBuilder',
-		'continueOwner',
-		'breakOwner'
-	],
+	#superclass : #MbndAstSemanticAnalyzerForExplicitMacroExpansion,
 	#category : #'SysmelMoebiusMetamodel-Core-SemanticAnalysis'
 }
 
@@ -83,7 +75,7 @@ MbndAstSemanticAnalyzer >> analyzeEnumDefinition: enumDefinition values: values 
 
 	self assert: evaluatedDictionary value isDictionary.
 	convertedDictionary := evaluatedDictionary value species new.
-	valueType := enumType valueType.
+	valueType := enumType baseType.
 	evaluatedDictionary value keysAndValuesDo: [ :key :value |
 		convertedDictionary at: key put:
 			(valueType isPrimitiveType
@@ -94,25 +86,17 @@ MbndAstSemanticAnalyzer >> analyzeEnumDefinition: enumDefinition values: values 
 	enumType values: convertedDictionary
 ]
 
-{ #category : #visiting }
-MbndAstSemanticAnalyzer >> analyzeNodeIfNeeded: node [
-	"Visit the node only if it does not have a type value."
-	^ node type
-		ifNil: [ self visitNode: node ]
-		ifNotNil: [ node ]
-]
-
-{ #category : #visiting }
-MbndAstSemanticAnalyzer >> analyzeNodesIfNeeded: nodes [
-	^ nodes collect: [ :node | self analyzeNodeIfNeeded: node ]
-]
-
-{ #category : #visiting }
-MbndAstSemanticAnalyzer >> analyzeNonConcreteNodeIfNeeded: node [
-	"Visit the node only if it does not have a type value."
-	^ node type
-		ifNil: [ self visitNonConcreteNode: node ]
-		ifNotNil: [ node ]
+{ #category : #'as yet unclassified' }
+MbndAstSemanticAnalyzer >> analyzePatternMatchingPatternNode: node withValueOfType: patternValueType [
+	| pattern |
+	pattern := MbndAstPatternSemanticAnalyzer new
+		semanticAnalyzer: self;
+		patternValueType: patternValueType;
+		visitNode: node.
+	pattern isPatternMatchingPatternNode ifFalse: [ 
+		self error: 'Expected an expression that represents a pattern.' at: node
+	].
+	^ pattern
 ]
 
 { #category : #coercing }
@@ -139,16 +123,6 @@ MbndAstSemanticAnalyzer >> arithmeticCoercionTypeFor: leftType with: rightType l
 	^ coercionType
 ]
 
-{ #category : #accessing }
-MbndAstSemanticAnalyzer >> astBuilder [
-	^ astBuilder ifNil: [ astBuilder := MbndAstBuilder forModule: module ]
-]
-
-{ #category : #accessing }
-MbndAstSemanticAnalyzer >> compilationTarget [
-	^ compilationTarget ifNil: [ compilationTarget := module compilationTarget ]
-]
-
 { #category : #'implicit casting' }
 MbndAstSemanticAnalyzer >> computeImplicitCoercionCostFor: argumentNode to: expectedType at: node [
 	| conversionRule |
@@ -166,6 +140,57 @@ MbndAstSemanticAnalyzer >> computeImplicitCoercionCostFor: argumentNode to: expe
 MbndAstSemanticAnalyzer >> conditionalResultCoercionTypeFor: leftType node: leftNode with: rightType node: rightNode at: node [
 	^ leftType conditionalResultCoercionTypeWith: rightType leftNode: leftNode rightNode: rightNode inScope: scope
 
+]
+
+{ #category : #visiting }
+MbndAstSemanticAnalyzer >> createBindingPatternLocalVariable: bindingPattern [
+	"Bindings without a name are always a nop in this context."
+	| valueType |
+	bindingPattern name isMbndAnonymousSymbol ifTrue: [^nil].
+	
+	"For now only support immutable bindings."
+	valueType := bindingPattern type asImmutableValueType.
+	
+	"Create the variable"
+	bindingPattern binding: (self createLocalVariableNamed: bindingPattern name withValueType: valueType
+		type: valueType at: bindingPattern).
+]
+
+{ #category : #visiting }
+MbndAstSemanticAnalyzer >> createLocalVariableNamed: localVariableName withValueType: valueType type: referenceType at: definitionNode [
+	| localVariable owner |
+	localVariable := MbndFunctionLocalVariable new
+		definitionNode: definitionNode;
+		name: localVariableName;
+		valueType: valueType;
+		type: referenceType;
+		yourself.
+		
+	owner := scope lookupProgramEntityForNewDefinitions.
+
+	"Add the variable to the current scope."
+	localVariableName isMbndAnonymousSymbol ifFalse: [ 
+		scope addSymbol: localVariableName binding: localVariable ifPresent: [ :previousDefinition |
+			self error: 'Variable {1} overrides a previous definition in the same scope.' format: { localVariableName asPrettySymbolName } at: definitionNode
+		].
+	].
+
+	owner addChild: localVariable.
+	^ localVariable
+]
+
+{ #category : #visiting }
+MbndAstSemanticAnalyzer >> ensureConcreteValue: node [
+	node type isLiteralValueType ifTrue: [ self ensureLiteralIsConcreted: node ].
+	^ self ensureReferencesAreEvaluated: node
+]
+
+{ #category : #visiting }
+MbndAstSemanticAnalyzer >> ensureDirectMacrosAreExpanded: node [
+	node isUnexpandedMessageSendNode ifTrue: [
+		self halt
+	].
+	^ node
 ]
 
 { #category : #'implicit casting' }
@@ -238,16 +263,6 @@ MbndAstSemanticAnalyzer >> ensureValue: valueNode isVectorOrScalarOfType: requir
 	]
 ]
 
-{ #category : #errors }
-MbndAstSemanticAnalyzer >> error: anErrorString at: aSourcePosition [
-	<compileTime>
-	^ MbndSemanticError new
-		messageText: anErrorString;
-		sourcePosition: aSourcePosition;
-		environment: scope;
-		signal
-]
-
 { #category : #'compile time evaluation' }
 MbndAstSemanticAnalyzer >> evaluateCompileTimeExpression: compileTimeExpression [
 	^ MbndAstSemanticAnalyzerAndEvaluator new
@@ -293,9 +308,9 @@ MbndAstSemanticAnalyzer >> evaluateEnum: enumType valueDefinition: valueDefiniti
 		value := valueDefinition value ifNil: [
 			self generateValueForEnum: enumType withLastValue: lastValue at: valueDefinition
 		] ifNotNil: [ :valueNode |
-			self evaluateCompileTimeExpression: (self addImplicitCastFor: valueNode to: enumType valueType).
+			self evaluateCompileTimeExpression: (self addImplicitCastFor: valueNode to: enumType baseType).
 		].
-		self assert: value type == enumType valueType.
+		self assert: value type == enumType baseType.
 		^ key value -> value
 	].
 
@@ -339,26 +354,6 @@ MbndAstSemanticAnalyzer >> generateValueForEnum: enumType withLastValue: lastVal
 
 	lastValue ifNil: [ ^ valueType defaultValueAt: node].
 	^ MbndValue value: lastValue value + 1 type: lastValue type
-]
-
-{ #category : #accessing }
-MbndAstSemanticAnalyzer >> module [
-	^ module
-]
-
-{ #category : #accessing }
-MbndAstSemanticAnalyzer >> module: anObject [
-	module := anObject
-]
-
-{ #category : #accessing }
-MbndAstSemanticAnalyzer >> scope [
-	^ scope
-]
-
-{ #category : #accessing }
-MbndAstSemanticAnalyzer >> scope: anObject [
-	scope := anObject
 ]
 
 { #category : #visiting }
@@ -487,6 +482,86 @@ MbndAstSemanticAnalyzer >> visitBlockClosureNode: node [
 ]
 
 { #category : #visiting }
+MbndAstSemanticAnalyzer >> visitCasesOfCaseNode: node [
+	| result matchingScope |
+	matchingScope := scope newLexicalScope.
+
+	self withScope: matchingScope do: [ 
+		result := node copy
+			pattern: (self analyzePatternMatchingPatternNode: node pattern withValueOfType: node patternValueType);
+		yourself.
+		result bindings: result pattern collectBindings.
+		result action: (self ensureLiteralIsConcreted: (self analyzeNodeIfNeeded: result action))
+	].
+
+	result type: result action type.
+	^ result
+]
+
+{ #category : #visiting }
+MbndAstSemanticAnalyzer >> visitCasesOfNode: node [
+	| result patternValueType resultType dummyNode defaultCaseIndex |
+	result := node copy
+		matchedExpression: (self ensureConcreteValue: (self analyzeNodeIfNeeded: node matchedExpression)).
+	patternValueType := result matchedExpression type.
+	result cases isMbndAstNode ifTrue: [ 
+		result cases: (self ensureDirectMacrosAreExpanded: result cases).
+
+		result cases isDictionaryNode ifFalse: [ 
+			self error: 'A dictionary node with the list of the cases is expected for doing pattern matching.' at: node.
+		].
+
+		result cases: (result cases elements collect: [:el |
+			el isAssociationNode ifFalse: [ self error: 'An association node is expected for specifying a <pattern> : <action> pair.' at: el].
+			self visitNode: (MbndAstCasesOfCaseNode new
+				position: el;
+				patternValueType: patternValueType;
+				pattern: el key;
+				action: el value)
+		]).
+	] ifFalse: [
+		self assert: result cases isCollection.
+		result cases: (result cases collect: [:case |
+			self visitNode: (case copy patternValueType patternValueType)
+		] as: Array)
+	].
+
+	"Ignore all the patterns after the default case pattern."
+	defaultCaseIndex := result cases findFirst: #hasDefaultPattern.
+	defaultCaseIndex > 0 ifTrue: [ 
+		result hasDefaultCase: true.
+		defaultCaseIndex < result cases size ifTrue: [ 
+			self warning: 'Default matching pattern is not last. All of the case patterns defined after this pattern are ignored.' at: result.
+			result cases: (result cases first: defaultCaseIndex)
+		].
+	].
+	
+
+	resultType := nil.
+	dummyNode := MbndAstNode dummy.
+	result cases do: [ :case |
+		resultType ifNil: [
+			resultType := case type withoutReferences withoutTopDecorations .
+		] ifNotNil: [ 
+			resultType := self
+				conditionalResultCoercionTypeFor: resultType node: dummyNode
+					with: case type node: dummyNode at: result.
+		].
+	].
+
+	resultType ifNil: [ resultType := self compilationTarget voidType ].
+	resultType isVoidType ifFalse: [
+		result cases do: [ :case |
+			case action: (self addImplicitCastFor: case action to: resultType)
+		]
+	].
+	
+	^ result
+		type: resultType;
+		yourself
+]
+
+{ #category : #visiting }
 MbndAstSemanticAnalyzer >> visitClassDeclarationNode: node [
 	^ self visitTypeDeclarationNode: node ofKind: MbndClassType
 ]
@@ -573,7 +648,7 @@ MbndAstSemanticAnalyzer >> visitEnumDefinitionNode: node [
 		valueType := compilationTarget int32Type.
 	].
 
-	result binding valueType: valueType.
+	result binding baseType: valueType.
 
 	"Set the defined flag"
 	result binding addFlag: #defined.
@@ -601,42 +676,6 @@ MbndAstSemanticAnalyzer >> visitEnumDefinitionNode: node [
 	"Pass through the declaration result."
 	result type: result declaration type.
 	^ result
-]
-
-{ #category : #visiting }
-MbndAstSemanticAnalyzer >> visitExpandedHostMessageSendNode: node [
-	"The analysis of this node is performed when is constructed."
-	self shouldNotImplement
-]
-
-{ #category : #visiting }
-MbndAstSemanticAnalyzer >> visitExpandedMessageSendNode: node [
-	| result receiverType method |
-	result := node copy
-		receiver: (node receiver ifNotNil: [:receiver | self analyzeNodeIfNeeded: node receiver]);
-		selector: (self analyzeNodeIfNeeded: node selector);
-		arguments: (self analyzeNodesIfNeeded: node arguments).
-		
-	"Find the method in order to perform a typed message send."
-	result receiver ifNil: [ 
-		result selector isLiteralSymbolValueNode ifFalse: [ 
-			self error: 'Message send without a receiver cannot have non-constant selector.' at: result
-		].
-	
-		method := scope lookupOverloadedSelector: result selector value.
-		method ifNil: [
-			self error: 'Failed to find definition for scoped selector {1}.' format: { result selector value printString } at: result
-		].
-	
-		^ method analyzeExpandedMessageSendNode: result with: self
-	].
-
-	receiverType := result receiver type.
-	result selector isLiteralSymbolValueNode ifTrue: [
-		^ receiverType analyzeExpandedMessageSendNode: result with: self
-	].
-
-	^ receiverType analyzeMessageSendNodeWithDynamicSelector: result with: self
 ]
 
 { #category : #visiting }
@@ -739,29 +778,6 @@ MbndAstSemanticAnalyzer >> visitFieldDefinitionNode: node [
 		binding: field;
 		type: self compilationTarget voidType.
 	^ result
-]
-
-{ #category : #visiting }
-MbndAstSemanticAnalyzer >> visitFunctionCallNode: node [
-	| result functionalType |
-	result := node copy.
-	result arguments isMbndAstNode ifTrue: [
-		"Rewrite the node by removing the tuple object."
-		result arguments isTupleNode ifTrue: [
-			^ self visitNode: (result arguments: result arguments elements)
-		] ifFalse: [
-			self flag: 'TODO: Generate code for unwrapping the tuple.'.
-			self halt
-		]
-	].
-
-	result
-		function: (self analyzeNodeIfNeeded: node function);
-		arguments: (self analyzeNodesIfNeeded: result arguments).
-		
-	functionalType := result function type withoutReferences.
-	self assert: functionalType isFunctionalType.
-	^ functionalType analyzeFunctionCallNode: result with: self
 ]
 
 { #category : #visiting }
@@ -984,16 +1000,6 @@ MbndAstSemanticAnalyzer >> visitIOChannelSendAction: node [
 ]
 
 { #category : #visiting }
-MbndAstSemanticAnalyzer >> visitIdentifierReferenceNode: node [
-	| binding |
-	binding := scope lookupSymbolRecursively: node symbol ifAbsent: [
-		self error: 'Failed to find binding for {1}.' format: { node symbol asPrettySymbolName } at: node
-	].
-
-	^ binding analyzeReferenceNode: node with: self
-]
-
-{ #category : #visiting }
 MbndAstSemanticAnalyzer >> visitIfConditionNode: node [
 	| result resultCoercionType |
 	result := node copy.
@@ -1126,7 +1132,7 @@ MbndAstSemanticAnalyzer >> visitLocalVariableDefinitionNode: node [
 	"Infer the value type, if needed"
 	result valueType ifNil: [
 		result initialValue ifNil: [
-			self error: 'Variable {1} without an explicit type requires an initial value.' format: { node v asPrettySymbolName } at: node
+			self error: 'Variable {1} without an explicit type requires an initial value.' format: { node name asPrettySymbolName } at: node
 		].
 	
 		result valueType: (result initialValue type inferValueTypeForNode: result initialValue inScope: scope).
@@ -1158,24 +1164,8 @@ MbndAstSemanticAnalyzer >> visitLocalVariableDefinitionNode: node [
 		]
 	].
 
-	"Create a matching variable"
-	result binding: (MbndFunctionLocalVariable new
-		definitionNode: result;
-		name: node name;
-		valueType: valueType;
-		type: result type;
-		yourself
-	).
-	
-	owner := scope lookupProgramEntityForNewDefinitions.
-	owner addChild: result binding.
-
-	"Add the variable to the current scope."
-	result name isMbndAnonymousSymbol ifFalse: [ 
-		scope addSymbol: result name binding: result binding ifPresent: [ :previousDefinition |
-			self error: 'Variable {1} overrides a previous definition in the same scope.' format: { result name asPrettySymbolName } at: result
-		].
-	].
+	"Create the matching local variable"
+	result binding: (self createLocalVariableNamed: node name withValueType: valueType type: result type at: result).
 
 	^ result
 ]
@@ -1379,62 +1369,6 @@ MbndAstSemanticAnalyzer >> visitMatrixMultiplicationOperationNode: node [
 ]
 
 { #category : #visiting }
-MbndAstSemanticAnalyzer >> visitMessageChainNode: node [
-	| receiverVariable receiverVariableReference messages unconvertedMessages analyzedReceiver convertedMetaMessages |
-	node messages ifEmpty: [
-		^ self visitNode: node receiver
-	].
-
-	node messages size = 1 ifTrue: [
-		^ self visitNode: (node messages first asUnexpandedMessageSend
-			receiver: node receiver;
-			yourself)
-	].
-
-	unconvertedMessages := node messages.
-	
-	analyzedReceiver := self analyzeNonConcreteNodeIfNeeded: node receiver.
-	
-	convertedMetaMessages := OrderedCollection new.
-	[analyzedReceiver isNonConcreteNode and: [unconvertedMessages isNotEmpty]] whileTrue: [ 
-		| message analyzedMessage |
-		message := unconvertedMessages first asUnexpandedMessageSend receiver: analyzedReceiver.
-		unconvertedMessages := unconvertedMessages allButFirst.
-		analyzedMessage := self visitNonConcreteNode: message.
-		analyzedMessage isNonConcreteNode ifFalse: [ 
-			convertedMetaMessages add: analyzedMessage.
-		].
-	].
-
-	(convertedMetaMessages isEmpty and: [ unconvertedMessages isEmpty ]) ifTrue: [ 
-		^ analyzedReceiver
-	].
-
-	self assert: (scope lookupSymbol: node) isNil.
-	receiverVariable := MbndAstLocalVariableDefinitionNode new
-		mutable;
-		ref;
-		position: node;
-		name: node;
-		initialValue: analyzedReceiver;
-		yourself.
-	receiverVariableReference := MbndAstIdentifierReferenceNode new
-		position: node;
-		symbol: node;
-		yourself.
-		
-	messages := unconvertedMessages collect: [ :message |
-		message asUnexpandedMessageSend
-			receiver: receiverVariableReference; yourself
-	].
-
-	^ self visitNode: (MbndAstSequenceNode new
-		position: node;
-		elements: { receiverVariable } , convertedMetaMessages asArray, messages;
-		yourself)
-]
-
-{ #category : #visiting }
 MbndAstSemanticAnalyzer >> visitMessageDefinitionNode: node [
 	| result |
 	result := node copy.
@@ -1495,16 +1429,6 @@ MbndAstSemanticAnalyzer >> visitNamespaceDefinitionNode: node [
 	].
 
 	^ self astBuilder literalVoid
-]
-
-{ #category : #visiting }
-MbndAstSemanticAnalyzer >> visitNode: node [
-	^ (node accept: self) concretizeNodeWithAnalyzer: self
-]
-
-{ #category : #visiting }
-MbndAstSemanticAnalyzer >> visitNonConcreteNode: node [
-	^ node accept: self
 ]
 
 { #category : #visiting }
@@ -1878,32 +1802,6 @@ MbndAstSemanticAnalyzer >> visitTypeDefinitionNode: node ofKind: typeKindClass [
 ]
 
 { #category : #visiting }
-MbndAstSemanticAnalyzer >> visitUnexpandedMessageSendNode: node [
-	| result selector macroMethod |
-	result := node copy
-		receiver: (node receiver ifNotNil: [self analyzeNonConcreteNodeIfNeeded: node receiver]);
-		selector: (self analyzeNodeIfNeeded: node selector);
-		yourself.
-
-	result receiver ifNotNil: [
-		^ result receiver type analyzeUnexpandedMessageSendNode: result with: self
-	].
-
-	result selector isLiteralSymbolValueNode ifFalse: [
-		^ self error: 'Invalid message send without receiver. The selector must be a constant.' at: node
-	].
-
-	selector := result selector value.
-	macroMethod := scope lookupMacroSelector: selector.
-	macroMethod ifNil: [
-		^ self visitNode: result asExpandedMessageSend
-	].
-
-	"Apply the macro method."
-	^ macroMethod expandMessageNode: result with: self
-]
-
-{ #category : #visiting }
 MbndAstSemanticAnalyzer >> visitUnionDeclarationNode: node [
 	^ self visitTypeDeclarationNode: node ofKind: MbndUnionType
 ]
@@ -1911,6 +1809,28 @@ MbndAstSemanticAnalyzer >> visitUnionDeclarationNode: node [
 { #category : #visiting }
 MbndAstSemanticAnalyzer >> visitUnionDefinitionNode: node [
 	^ self visitTypeDefinitionNode: node ofKind: MbndUnionType
+]
+
+{ #category : #visiting }
+MbndAstSemanticAnalyzer >> visitUnwrapEnumValueCastNode: node [
+	| result enumType |
+	result := node copy
+		expression: (self analyzeNodeIfNeeded: node expression);
+		targetType: (node targetType ifNotNil: [:tt | self evaluateTypeExpression: tt]);
+		yourself.
+	result targetType ifNil: [
+		enumType := node expression type withoutReferences withoutTopDecorations.
+		enumType isEnumType ifFalse: [
+			self error: 'An expression with an enum type is expected for extracting a value.' at: node
+		].
+		result
+			expression: (self addImplicitCastFor: result expression to: enumType);
+			targetType: enumType baseType.
+	].
+
+	^ result
+		type: result targetType;
+		yourself
 ]
 
 { #category : #visiting }
@@ -2010,16 +1930,5 @@ MbndAstSemanticAnalyzer >> withContinueAndBreakOwnerNode: continueAndBreakOwner 
 	aBlock ensure: [
 		continueOwner := oldContinueOwner.
 		breakOwner := oldBreakOwner.
-	]
-]
-
-{ #category : #accessing }
-MbndAstSemanticAnalyzer >> withScope: newAnalysisScope do: aBlock [
-	| oldAnalysisScope |
-	oldAnalysisScope := scope.
-	scope := newAnalysisScope.
-	
-	^ aBlock ensure: [ 
-		scope := oldAnalysisScope
 	]
 ]

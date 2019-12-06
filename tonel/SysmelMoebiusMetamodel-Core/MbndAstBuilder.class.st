@@ -120,15 +120,6 @@ MbndAstBuilder >> casesOfCase: pattern do: action [
 ]
 
 { #category : #'builder methods' }
-MbndAstBuilder >> casesOfDefaultCaseDo: action [
-	<compileTime>
-	<returnType: #_ASTNodeType>
-	^ MbndAstCasesOfDefaultCaseNode new
-		action: action;
-		yourself
-]
-
-{ #category : #'builder methods' }
 MbndAstBuilder >> cleanUpScope: expression actions: cleanUpActions [
 	<compileTime>
 	<returnType: #_ASTNodeType>
@@ -1070,6 +1061,15 @@ MbndAstBuilder >> unexpandedSend: selector to: aReceiver withArguments: argument
 		arguments: arguments;
 		yourself
 		
+]
+
+{ #category : #'builder methods' }
+MbndAstBuilder >> unwrapEnumValue: node [
+	<compileTime>
+	<returnType: #_ASTNodeType>
+	^ MbndAstUnwrapEnumValueCastNode new
+		expression: node;
+		yourself
 ]
 
 { #category : #'builder methods' }

@@ -452,6 +452,21 @@ MbndAstNode >> isNumericalCastNode [
 ]
 
 { #category : #testing }
+MbndAstNode >> isPatternMatchingBindingPatternNode [
+	^ false
+]
+
+{ #category : #testing }
+MbndAstNode >> isPatternMatchingLiteralValuePatternNode [
+	^ false
+]
+
+{ #category : #testing }
+MbndAstNode >> isPatternMatchingPatternNode [
+	^ false
+]
+
+{ #category : #testing }
 MbndAstNode >> isPointerAsReferenceNode [
 	^ false
 ]
@@ -612,6 +627,11 @@ MbndAstNode >> isUnionDefinitionNode [
 ]
 
 { #category : #testing }
+MbndAstNode >> isUnwrapEnumValueNode [
+	^ false
+]
+
+{ #category : #testing }
 MbndAstNode >> isVariableReferenceNode [
 	^ false
 
@@ -634,6 +654,11 @@ MbndAstNode >> isVectorSetElementsNode [
 
 { #category : #testing }
 MbndAstNode >> isWhileLoopNode [
+	^ false
+]
+
+{ #category : #testing }
+MbndAstNode >> isWrapEnumValueNode [
 	^ false
 ]
 

@@ -3,7 +3,8 @@ Class {
 	#superclass : #MbndAstNode,
 	#instVars : [
 		'matchedExpression',
-		'cases'
+		'cases',
+		'hasDefaultCase'
 	],
 	#category : #'SysmelMoebiusMetamodel-Core-AST'
 }
@@ -21,6 +22,16 @@ MbndAstCasesOfNode >> cases [
 { #category : #accessing }
 MbndAstCasesOfNode >> cases: anObject [
 	cases := anObject
+]
+
+{ #category : #accessing }
+MbndAstCasesOfNode >> hasDefaultCase [
+	^ hasDefaultCase ifNil: [ hasDefaultCase := false ]
+]
+
+{ #category : #accessing }
+MbndAstCasesOfNode >> hasDefaultCase: anObject [
+	hasDefaultCase := anObject
 ]
 
 { #category : #testing }

@@ -69,7 +69,11 @@ MbndGenericMacroLanguageTopLevelScope >> addControlFlowMacros [
 				while: ((node unexpandedSend: #not to: node arguments second withArguments: #())
 					position: node arguments second))
 				position: node
-		]
+		];
+		onMacroSelector: #of:selectCase: do: [ :node :builder |
+			(builder casesOf: node arguments first cases: node arguments second)
+				position: node
+		].
 ]
 
 { #category : #initialization }

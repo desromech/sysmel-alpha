@@ -1,8 +1,11 @@
 Class {
 	#name : #MbndAstCasesOfCaseNode,
-	#superclass : #MbndAstCasesOfAbstractCaseNode,
+	#superclass : #MbndAstNode,
 	#instVars : [
-		'pattern'
+		'patternValueType',
+		'pattern',
+		'bindings',
+		'action'
 	],
 	#category : #'SysmelMoebiusMetamodel-Core-AST'
 }
@@ -10,6 +13,31 @@ Class {
 { #category : #visiting }
 MbndAstCasesOfCaseNode >> accept: aVisitor [
 	^ aVisitor visitCasesOfCaseNode: self
+]
+
+{ #category : #accessing }
+MbndAstCasesOfCaseNode >> action [
+	^ action
+]
+
+{ #category : #accessing }
+MbndAstCasesOfCaseNode >> action: anObject [
+	action := anObject
+]
+
+{ #category : #accessing }
+MbndAstCasesOfCaseNode >> bindings [
+	^ bindings
+]
+
+{ #category : #accessing }
+MbndAstCasesOfCaseNode >> bindings: anObject [
+	bindings := anObject
+]
+
+{ #category : #testing }
+MbndAstCasesOfCaseNode >> hasDefaultPattern [
+	^ pattern isDefaultPattern
 ]
 
 { #category : #testing }
@@ -25,4 +53,14 @@ MbndAstCasesOfCaseNode >> pattern [
 { #category : #accessing }
 MbndAstCasesOfCaseNode >> pattern: anObject [
 	pattern := anObject
+]
+
+{ #category : #accessing }
+MbndAstCasesOfCaseNode >> patternValueType [
+	^ patternValueType
+]
+
+{ #category : #accessing }
+MbndAstCasesOfCaseNode >> patternValueType: anObject [
+	patternValueType := anObject
 ]
