@@ -1,0 +1,37 @@
+namespace SDL2 definition: {
+
+## Renderer
+compileTimeConstant SDL_RENDERER_SOFTWARE value: 16r00000001.
+compileTimeConstant SDL_RENDERER_ACCELERATED value: 16r00000002.
+compileTimeConstant SDL_RENDERER_PRESENTVSYNC value: 16r00000004.
+compileTimeConstant SDL_RENDERER_TARGETTEXTURE value: 16r00000008.
+
+struct SDL_Renderer.
+struct SDL_Texture.
+
+function SDL_CreateRenderer externC(window: SDL_Window pointer, index: Int32, flags: UInt32) => SDL_Renderer pointer.
+function SDL_CreateTexture externC(renderer: SDL_Renderer pointer, format: UInt32, access: Int32, w: Int32, h: Int32) => SDL_Texture pointer.
+
+function SDL_SetRenderDrawColor externC(renderer: SDL_Renderer pointer, r: UInt8, g: UInt8, b: UInt8, a: UInt8) => Int32.
+function SDL_GetRenderDrawColor externC(renderer: SDL_Renderer pointer, r: UInt8 pointer, g: UInt8 pointer, b: UInt8 pointer, a: UInt8 pointer) => Int32.
+
+function SDL_RenderClear externC(renderer: SDL_Renderer pointer) => Int32.
+
+function SDL_RenderDrawPoint externC(renderer: SDL_Renderer pointer, x: Int32, y: Int32) => Int32.
+function SDL_RenderDrawPoints externC(renderer: SDL_Renderer pointer, points: SDL_Point const pointer, count: Int32) => Int32.
+
+function SDL_RenderDrawLine externC(renderer: SDL_Renderer pointer, x1: Int32, y1: Int32, x2: Int32, y2: Int32) => Int32.
+function SDL_RenderDrawLines externC(renderer: SDL_Renderer pointer, points: SDL_Point const pointer, count: Int32) => Int32.
+
+function SDL_RenderDrawRect externC(renderer: SDL_Renderer pointer, rect: SDL_Rect const pointer) => Int32.
+function SDL_RenderDrawRects externC(renderer: SDL_Renderer pointer, rects: SDL_Rect const pointer, count: Int32) => Int32.
+
+function SDL_RenderFillRect externC(renderer: SDL_Renderer pointer, rect: SDL_Rect const pointer) => Int32.
+function SDL_RenderFillRects externC(renderer: SDL_Renderer pointer, rect: SDL_Rect const pointer, count: Int32) => Int32.
+
+function SDL_RenderPresent externC(renderer: SDL_Renderer pointer) => Void.
+
+function SDL_DestroyTexture externC(texture: SDL_Texture pointer) => Void.
+function SDL_DestroyRenderer externC(renderer: SDL_Renderer pointer) => Void.
+
+}. ## End of namespace SDL2

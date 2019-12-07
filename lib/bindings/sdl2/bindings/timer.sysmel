@@ -1,0 +1,6 @@
+namespace SDL2 definition: {
+
+function SDL_GetTicks externC() => UInt32.
+function SDL_Delay externC(ms: UInt32) => Void.
+
+}. ## End of namespace SDL2

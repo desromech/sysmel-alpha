@@ -1,0 +1,180 @@
+namespace SDL2 definition: {
+
+## Event
+enum SDL_EventType valueType: UInt32; values: #{
+    SDL_FIRSTEVENT: 0.
+    SDL_QUIT: 16r100.
+
+    SDL_APP_TERMINATING: 16r101.
+    SDL_APP_LOWMEMORY: 16r102.
+    SDL_APP_WILLENTERBACKGROUND: 16r103.
+    SDL_APP_DIDENTERBACKGROUND: 16r104.
+    SDL_APP_WILLENTERFOREGROUND: 16r105.
+    SDL_APP_DIDENTERFOREGROUND: 16r106.
+
+    SDL_WINDOWEVENT: 16r200.
+    SDL_SYSWMEVENT: 16r201.
+
+    SDL_KEYDOWN: 16r300.
+    SDL_KEYUP: 16r301.
+    SDL_TEXTEDITING: 16r302.
+    SDL_TEXTINPUT: 16r303.
+    SDL_KEYMAPCHANGED: 16r304.
+
+    SDL_MOUSEMOTION: 16r400.
+    SDL_MOUSEBUTTONDOWN: 16r401.
+    SDL_MOUSEBUTTONUP: 16r402.
+    SDL_MOUSEWHEEL: 16r403.
+
+    SDL_JOYAXISMOTION: 16r600.
+    SDL_JOYBALLMOTION: 16r601.
+    SDL_JOYHATMOTION: 16r602.
+    SDL_JOYBUTTONDOWN: 16r603.
+    SDL_JOYBUTTONUP: 16r604.
+    SDL_JOYDEVICEADDED: 16r605.
+    SDL_JOYDEVICEREMOVED: 16r606.
+
+    SDL_CONTROLLERAXISMOTION: 16r650.
+    SDL_CONTROLLERBUTTONDOWN: 16r651.
+    SDL_CONTROLLERBUTTONUP: 16r652.
+    SDL_CONTROLLERDEVICEADDED: 16r653.
+    SDL_CONTROLLERDEVICEREMOVED: 16r654.
+    SDL_CONTROLLERDEVICEREMAPPED: 16r655.
+
+    SDL_FINGERDOWN: 16r700.
+    SDL_FINGERUP: 16r701.
+    SDL_FINGERMOTION: 16r702.
+
+    SDL_DOLLARGESTURE: 16r800.
+    SDL_DOLLARRECORD: 16r801.
+    SDL_MULTIGESTURE: 16r802.
+
+    SDL_CLIPBOARDUPDATE: 16r900.
+
+    SDL_DROPFILE: 16r1000.
+
+    SDL_AUDIODEVICEADDED: 16r1100.
+    SDL_AUDIODEVICEREMOVED: 16r1101.
+
+    SDL_RENDER_TARGETS_RESET: 16r2000.
+    SDL_RENDER_DEVICE_RESET: 16r2001.
+
+    SDL_USEREVENT: 16r8000.
+    SDL_LASTEVENT: 16rffff.
+}.
+
+
+struct SDL_CommonEvent definition: {
+    field type public type: SDL_EventType.
+    field timestamp public type: UInt32.
+}.
+
+struct SDL_WindowEvent definition: {
+    field type public type: SDL_EventType.
+    field timestamp public type: UInt32.
+    field windowID public type: UInt32.
+    field event public type: UInt8.
+    field padding1 public type: UInt8.
+    field padding2 public type: UInt8.
+    field padding3 public type: UInt8.
+    field data1 public type: Int32.
+    field data2 public type: Int32.
+}.
+
+struct SDL_Keysym definition: {
+    field scancode public type: UInt32.
+    field sym public type: Keycode.
+    field mod public type: UInt16.
+    field unused public type: UInt32.
+}.
+
+struct SDL_KeyboardEvent definition: {
+    field type public type: SDL_EventType.
+    field timestamp public type: UInt32.
+    field windowID public type: UInt32.
+    field state public type: UInt8.
+    field repeat public type: UInt8.
+    field padding2 public type: UInt8.
+    field padding3 public type: UInt8.
+    field keysym public type: SDL_Keysym.
+}.
+
+compileTimeConstant SDL_TEXTEDITINGEVENT_TEXT_SIZE := 32.
+
+struct SDL_TextEditingEvent definition: {
+    field type public type: SDL_EventType.
+    field timestamp public type: UInt32.
+    field windowID public type: UInt32.
+    field text public type: (UInt8 array: SDL_TEXTEDITINGEVENT_TEXT_SIZE).
+    field start public type: Int32.
+    field length public type: Int32.
+}.
+
+compileTimeConstant SDL_TEXTINPUTEVENT_TEXT_SIZE := 32.
+
+struct SDL_TextInputEvent definition: {
+    field type public type: SDL_EventType.
+    field timestamp public type: UInt32.
+    field windowID public type: UInt32.
+    field text public type: (UInt8 array: SDL_TEXTINPUTEVENT_TEXT_SIZE).
+}.
+
+struct SDL_MouseMotionEvent definition: {
+    field type public type: SDL_EventType.
+    field timestamp public type: UInt32.
+    field windowID public type: UInt32.
+    field which public type: UInt32.
+    field state public type: UInt32.
+    field x public type: Int32.
+    field y public type: Int32.
+    field xrel public type: Int32.
+    field yrel public type: Int32.
+}.
+
+struct SDL_MouseButtonEvent definition: {
+    field type public type: SDL_EventType.
+    field timestamp public type: UInt32.
+    field windowID public type: UInt32.
+    field which public type: UInt32.
+    field button public type: UInt8.
+    field state public type: UInt8.
+    field clicks public type: UInt8.
+    field padding1 public type: UInt8.
+    field x public type: Int32.
+    field y public type: Int32.
+}.
+
+struct SDL_MouseWheelEvent definition: {
+    field type public type: SDL_EventType.
+    field timestamp public type: UInt32.
+    field windowID public type: UInt32.
+    field which public type: UInt32.
+    field x public type: Int32.
+    field y public type: Int32.
+    field direction public type: UInt32.
+}.
+
+union SDL_Event definition: {
+    field type public type: SDL_EventType.
+    field common public type: SDL_CommonEvent.
+    field window public type: SDL_WindowEvent.
+    field key public type: SDL_KeyboardEvent.
+    field padding public type: (UInt8 array: 56).
+}.
+
+function SDL_PollEvent externC (event: SDL_Event pointer) => BooleanBit.
+
+## Rect
+struct SDL_Point definition: {
+    field x public type: Int32.
+    field y public type: Int32
+}.
+
+struct SDL_Rect definition: {
+    field x public type: Int32.
+    field y public type: Int32.
+    field w public type: Int32.
+    field h public type: Int32.
+}.
+
+}. ## End of namespace SDL2

@@ -15,12 +15,12 @@ function onKeyUp(event: SDL_KeyboardEvent ref) => Void := {
 
 function processEvents() => Void := {
 	let event mutable type: SDL_Event.
-	
+
 	while: SDL_PollEvent(event address) do: {
 		event type selectCase: #{
-		SDL_QUIT : { isQuitting := true }.
-		SDL_KEYDOWN : { onKeyDown(event key) }.
-		SDL_KEYUP  : { onKeyUp(event key) }.
+		SDL_EventType SDL_QUIT : { isQuitting := true }.
+		SDL_EventType SDL_KEYDOWN : { onKeyDown(event key) }.
+		SDL_EventType SDL_KEYUP  : { onKeyUp(event key) }.
 		}.
 	}
 }.
@@ -32,30 +32,30 @@ function render() => Void := {
 }.
 
 function main externC (argc: Int32, argv: UInt8 const pointer pointer) => Int32 := {
-    
+
 	SDL_Init(SDL_INIT_VIDEO) < 0 ifTrue: {
 		return: 1.
 	}.
-	
+
 	window := SDL_CreateWindow("Test window", SDL_WINDOWPOS_CENTERED, SDL_WINDOWPOS_CENTERED, 640, 480, SDL_WINDOW_SHOWN).
 	window ifNil: {
 		return: 1.
 	}.
-	
+
 	renderer := SDL_CreateRenderer(window, -1, 0).
 	renderer ifNil: {
 		return: 1.
 	}.
-	
+
 	until: isQuitting do: {
 		processEvents().
 		render().
 		SDL_Delay(16).
 	}.
-	
+
 	SDL_DestroyRenderer(renderer).
 	SDL_DestroyWindow(window).
 	SDL_Quit().
-	
+
     return: 0.
 }.
