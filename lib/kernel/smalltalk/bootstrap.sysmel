@@ -41,6 +41,7 @@ gcclass Object superclass: ProtoObject.
                     gcclass LargeNegativeInteger superclass: LargeInteger.
                     gcclass LargePositiveInteger superclass: LargeInteger.
                 gcclass SmallInteger superclass: Integer.
+		gcclass Character superclass: Magnitude.
 
 
     gcclass GCLayout superclass: Object.
@@ -175,6 +176,28 @@ String definition: {
     field __data protected type: UInt8 array.
 }.
 
+## Table with the immediate clases.
+if: UIntPointer instanceSize == 4 then: {
+	global immediateClassTable type: (Behavior array: 4) := (
+		UndefinedObject, ## 2r00
+		SmallInteger,	 ## 2r01
+		Character,	 	 ## 2r10
+		SmallInteger,	 ## 2r11
+	).
+} else: {
+	global immediateClassTable type: (Behavior array: 8) := (
+		UndefinedObject, ## 2r000
+		SmallInteger,	 ## 2r001
+		Character,	 	 ## 2r010
+		UndefinedObject, ## 2r011 (Reserved)
+
+		SmallFloat64, 	 ## 2r100
+		UndefinedObject, ## 2r101 (Reserved)
+		UndefinedObject, ## 2r110 (Reserved)
+		UndefinedObject, ## 2r111 (Reserved)
+	).
+}.
+
 ##-----------------------------------------------------------------------------
 ProtoObject definition: {
 
@@ -213,7 +236,7 @@ ProtoObject definition: {
         <nogc>
         <intrinsic: #"dynobject.class">
         self __isImmediateValue ifTrue: {
-            return: UndefinedObject.
+            return: immediateClassTable[self __immediateTypeTag].
         }.
 
         __vtable[-1] reinterpretCastTo: Behavior
