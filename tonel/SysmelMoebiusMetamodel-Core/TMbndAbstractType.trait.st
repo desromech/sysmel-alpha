@@ -394,7 +394,7 @@ TMbndAbstractType >> createMetaTypeBasicInstance [
 ]
 
 { #category : #testing }
-TMbndAbstractType >> createValueForNode: nodeRequiringCasting withAnalyzer: analyzer [
+TMbndAbstractType >> createValueForNode: node withAnalyzer: analyzer [
 	self error: 'Should not be here.'
 ]
 

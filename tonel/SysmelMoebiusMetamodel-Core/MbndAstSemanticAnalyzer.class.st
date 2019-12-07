@@ -21,7 +21,7 @@ MbndAstSemanticAnalyzer >> addImplicitCastFor: nodeRequiringCasting to: expected
 	sourceType := nodeRequiringCasting type.
 	sourceType ifNil: [
 		(expectedTargetType canValueBeCreatedForNode: nodeRequiringCasting) ifTrue: [ 
-			^ expectedTargetType createValueForNode: nodeRequiringCasting withAnalyzer: self
+			^ self analyzeNodeIfNeeded: (expectedTargetType createValueForNode: nodeRequiringCasting withAnalyzer: self)
 		].
 		^ self addImplicitCastFor: (self analyzeNodeIfNeeded: nodeRequiringCasting) to: expectedTargetType
 	].

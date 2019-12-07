@@ -46,6 +46,23 @@ MbndArrayType >> asFieldTypeFor: owner [
 	^ self
 ]
 
+{ #category : #testing }
+MbndArrayType >> canValueBeCreatedForNode: node [
+	^ node isTupleNode
+]
+
+{ #category : #testing }
+MbndArrayType >> createValueForNode: node withAnalyzer: analyzer [
+	self assert: node isTupleNode.
+	elements > 0 ifTrue: [ 
+		node elements size = elements ifFalse: [
+			analyzer error: 'Cannot create array with {1} elements from a tuple with {2} elements.'
+				format: { elements asString . node elements size asString } at: node
+		].
+	].
+	^ analyzer astBuilder constructArrayOf: elementType withElements: node elements
+]
+
 { #category : #'default values' }
 MbndArrayType >> defaultValueAt: aPosition [
 	| valueSlots defaultElementValue |
