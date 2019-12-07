@@ -80,6 +80,10 @@ TMbndAbstractProgramEntity >> isVariable [
 	^ false
 ]
 
+{ #category : #'as yet unclassified' }
+TMbndAbstractProgramEntity >> markCompileTimeEvaluationImpossibility [
+]
+
 { #category : #accessing }
 TMbndAbstractProgramEntity >> parent [
 	^ nil

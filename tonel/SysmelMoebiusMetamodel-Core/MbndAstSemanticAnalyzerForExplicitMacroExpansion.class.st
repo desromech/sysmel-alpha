@@ -53,6 +53,11 @@ MbndAstSemanticAnalyzerForExplicitMacroExpansion >> error: anErrorString at: aSo
 		signal
 ]
 
+{ #category : #'as yet unclassified' }
+MbndAstSemanticAnalyzerForExplicitMacroExpansion >> markCompileTimeEvaluationImpossibility [
+	"This is a nop in this context"
+]
+
 { #category : #accessing }
 MbndAstSemanticAnalyzerForExplicitMacroExpansion >> module [
 	^ module

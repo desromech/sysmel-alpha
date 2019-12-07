@@ -35,6 +35,11 @@ MbndAstNode >> asSourcePositionString [
 ]
 
 { #category : #'as yet unclassified' }
+MbndAstNode >> calledFunctionBinding [
+	^ nil
+]
+
+{ #category : #'as yet unclassified' }
 MbndAstNode >> concretizeNodeWithAnalyzer: analyzer [
 	^ self
 ]

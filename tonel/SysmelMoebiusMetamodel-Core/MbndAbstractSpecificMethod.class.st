@@ -37,6 +37,10 @@ MbndAbstractSpecificMethod >> analyzeExpandedMessageSendNode: node with: analyze
 		analyzer addImplicitCastFor: argumentNode to: (argumentTypes at: index)
 	].
 
+	self canBeEvaluatedInCompileTime ifFalse: [ 
+		analyzer markCompileTimeEvaluationImpossibility
+	].
+
 	^ node copy
 		method: self;
 		receiver: newReceiverNode;

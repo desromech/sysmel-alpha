@@ -31,11 +31,6 @@ MbndAbstractConcreteMethod >> arguments [
 ]
 
 { #category : #evaluation }
-MbndAbstractConcreteMethod >> canBeEvaluatedInCompileTime [
-	^ (self hasPragmaNamed: #notInCompileTime) not
-]
-
-{ #category : #evaluation }
 MbndAbstractConcreteMethod >> constructEvaluationScopeWithReceiver: receiverValue arguments: argumentValues [
 	| evaluationScope argumentDefinition receiverDefinition |
 	evaluationScope := MbndFunctionEvaluationScope parent: definitionScope.
@@ -172,6 +167,8 @@ MbndAbstractConcreteMethod >> ensureSemanticAnalysis [
 		scope: analysisScope;
 		yourself.
 		
+	"The initial setup is to avoid infinite recursion."
+	analyzedBody := definitionNode.
 	analyzedBody := analyzer visitNode: definitionNode body.
 
 	"Cast the result into the required return type."
@@ -205,7 +202,7 @@ MbndAbstractConcreteMethod >> evaluateWithReceiver: receiverValue arguments: arg
 	].
 
 	self canBeEvaluatedInCompileTime ifFalse: [
-		self error: 'Cannot evaluate method {1} in compile time.' format: { name asPrettySymbolName } at: position.
+		self errorNotInCompileTime: 'Cannot evaluate method {1} in compile time.' format: { name asPrettySymbolName } at: position.
 	].
 
 	evaluationScope := self constructEvaluationScopeWithReceiver: receiverValue arguments: argumentValues.
@@ -254,6 +251,7 @@ MbndAbstractConcreteMethod >> lookupBoundReceiverSymbol: aSymbol [
 { #category : #testing }
 MbndAbstractConcreteMethod >> pragmaAt: pragmaName ifAbsent: absentBlock ifPresent: presentBlock [
 	definitionNode ifNil: [ ^ absentBlock value ].
+	self ensureSemanticAnalysis.
 	^ self analyzedBody pragmaAt: pragmaName ifAbsent: absentBlock ifPresent: presentBlock
 ]
 

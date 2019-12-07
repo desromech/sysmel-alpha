@@ -38,6 +38,32 @@ MbndSysmelLanguageCompileTimeEvaluationTest >> testBooleanLiterals [
 ]
 
 { #category : #tests }
+MbndSysmelLanguageCompileTimeEvaluationTest >> testFunctionNotInCompileTime [
+	self should: [ self evaluateSource: '
+		function notInCompileTime() => Void := { 
+			<notInCompileTime>
+		}.
+		notInCompileTime()
+	'
+	] raise: MbndNotInCompileTimeError
+]
+
+{ #category : #tests }
+MbndSysmelLanguageCompileTimeEvaluationTest >> testFunctionNotInCompileTimeTransitivity [
+	| caller |
+	caller := self evaluateSource: '
+		function notInCompileTime() => Void := { 
+			<notInCompileTime>
+		}.
+
+		function caller() => Void := { 
+			notInCompileTime().
+		}.
+	'.
+	self deny: caller unwrapMbndValue canBeEvaluatedInCompileTime
+]
+
+{ #category : #tests }
 MbndSysmelLanguageCompileTimeEvaluationTest >> testLet [
 	self assert: (self evaluateSource: 'let x := 5. x') value equals: 5.
 	self assert: (self evaluateSource: 'let x mutable := 5. x') type isReferenceType.
@@ -65,6 +91,35 @@ function max(a: Int32, b: Int32) => Int32
 	self assert: (self evaluateSource: 'max(3, 2).') value equals: 3.
 	self assert: (self evaluateSource: 'max(3, 2).') type isPrimitiveIntegerType.
 
+]
+
+{ #category : #tests }
+MbndSysmelLanguageCompileTimeEvaluationTest >> testMessageNotInCompileTime [
+	self should: [ self evaluateSource: '
+		struct testStruct definition: {
+			message notInCompileTime => Void := { 
+				<notInCompileTime>
+			}.
+		}.
+		testStruct newValue notInCompileTime.
+	'
+	] raise: MbndNotInCompileTimeError
+]
+
+{ #category : #tests }
+MbndSysmelLanguageCompileTimeEvaluationTest >> testMessageNotInCompileTimeTransitivity [
+	| structValue |
+	structValue := self evaluateSource: '
+		struct testStruct definition: {
+			message notInCompileTime => Void := { 
+				<notInCompileTime>
+			}.
+			message caller => Void
+				:= self notInCompileTime.
+		}.
+	'.
+	
+	self deny: (structValue unwrapMbndValue overloadedMethodDict at: #caller) canBeEvaluatedInCompileTime
 ]
 
 { #category : #tests }

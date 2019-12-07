@@ -25,6 +25,13 @@ MbndAbstractMethod >> analyzeReferenceNode: referenceNode with: analyzer [
 ]
 
 { #category : #evaluation }
+MbndAbstractMethod >> canBeEvaluatedInCompileTime [
+	(self hasPragmaNamed: #notInCompileTime) ifTrue: [^ false ].
+	(self hasFlag: #notInCompileTime) ifTrue: [ ^ false ].
+	^ true
+]
+
+{ #category : #evaluation }
 MbndAbstractMethod >> evaluateApplicationWithArguments: arguments withEvaluator: evaluator at: node [
 	self assert: self receiverType isVoidType.
 	^ self evaluateApplicationWithReceiver: nil arguments: arguments withEvaluator: evaluator at: node
@@ -48,6 +55,11 @@ MbndAbstractMethod >> hasPragmaNamed: pragmaName [
 { #category : #testing }
 MbndAbstractMethod >> hasVirtualTableEntry [
 	^ false
+]
+
+{ #category : #'as yet unclassified' }
+MbndAbstractMethod >> markCompileTimeEvaluationImpossibility [
+	self addFlag: #notInCompileTime.
 ]
 
 { #category : #accessing }

@@ -33,6 +33,20 @@ TMbndObject >> error: anErrorString format: formatArguments at: aSourcePosition 
 ]
 
 { #category : #errors }
+TMbndObject >> errorNotInCompileTime: anErrorString at: aSourcePosition [
+	<compileTime>
+	^ MbndNotInCompileTimeError new
+		messageText: anErrorString;
+		sourcePosition: aSourcePosition;
+		signal
+]
+
+{ #category : #errors }
+TMbndObject >> errorNotInCompileTime: anErrorString format: formatArguments at: aSourcePosition [
+	^ self errorNotInCompileTime: (anErrorString format: formatArguments) at: aSourcePosition
+]
+
+{ #category : #errors }
 TMbndObject >> warning: anErrorString at: aSourcePosition [
 	<compileTime>
 	^ MbndCompilationWarning new

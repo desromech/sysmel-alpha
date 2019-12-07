@@ -40,6 +40,12 @@ MbndFunctionType >> analyzeFunctionCallNode: node with: analyzer [
 		]
 	]).
 
+	node function calledFunctionBinding ifNotNil: [ :function |
+		function canBeEvaluatedInCompileTime ifFalse: [
+			analyzer markCompileTimeEvaluationImpossibility. 
+		]
+	].
+
 	node type: returnType.
 	^ node
 ]

@@ -362,6 +362,13 @@ MbndAstSemanticAnalyzer >> generateValueForEnum: enumType withLastValue: lastVal
 	^ MbndValue value: lastValue value + 1 type: lastValue type
 ]
 
+{ #category : #'as yet unclassified' }
+MbndAstSemanticAnalyzer >> markCompileTimeEvaluationImpossibility [
+	scope lookupProgramEntityForNewDefinitions ifNotNil: [ :programEntity |
+		programEntity markCompileTimeEvaluationImpossibility
+	]
+]
+
 { #category : #visiting }
 MbndAstSemanticAnalyzer >> visitArgumentDefinitionNode: node [
 	| result |
@@ -1172,7 +1179,7 @@ MbndAstSemanticAnalyzer >> visitLiteralArrayToArrayCastNode: node [
 
 { #category : #visiting }
 MbndAstSemanticAnalyzer >> visitLocalVariableDefinitionNode: node [
-	| result valueType owner |
+	| result valueType |
 	result := node copy.
 	
 	"Make sure the value type is evaluated."
