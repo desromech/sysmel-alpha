@@ -292,7 +292,7 @@ SysmelParser >> innerLiteralArrayLiteral [
 		SYMLASTLiteralArrayValue new
 			tokens: { tokens first . tokens last  };
 			position: tokens first;
-			elements: tokens second;
+			elements: tokens second asArray;
 			yourself
 	]
 ]
@@ -313,7 +313,7 @@ SysmelParser >> literalArray [
 		SYMLASTLiteralArrayValue new
 			tokens: { tokens first . tokens last  };
 			position: tokens first;
-			elements: tokens second;
+			elements: tokens second asArray;
 			yourself
 	]
 ]

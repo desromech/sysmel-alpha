@@ -30,7 +30,7 @@ MbndAbstractTemplate >> analyzeAndEvaluateApplicationNode: node withAnalyzer: an
 	rawArgumentsLiteralNode := (rawArguments asTupleWithCompileTimeValuesFor: self compilationTarget) asLiteralValueNode
 		position: argumentsNode.
 		
-	convertedArgumentsNode := analyzer addImplicitCastFor: (analyzer analyzeNodeIfNeeded: rawArgumentsLiteralNode) to: self argumentTupleType.
+	convertedArgumentsNode := analyzer addImplicitCastFor: rawArgumentsLiteralNode to: self argumentTupleType.
 	arguments := (analyzer evaluateCompileTimeExpression: convertedArgumentsNode) unwrapMbndValue.
 
 	result := self getOrCreateInstanceWithArguments: arguments.

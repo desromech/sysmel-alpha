@@ -34,7 +34,7 @@ MbndAbstractSpecificMethod >> analyzeExpandedMessageSendNode: node with: analyze
 
 	argumentTypes := self boundType argumentTypes.
 	newArgumentNodes := node arguments collectWithIndex: [ :argumentNode :index |
-		analyzer addImplicitCastFor: (analyzer analyzeNodeIfNeeded: argumentNode) to: (argumentTypes at: index)
+		analyzer addImplicitCastFor: argumentNode to: (argumentTypes at: index)
 	].
 
 	^ node copy

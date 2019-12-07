@@ -25,6 +25,16 @@ MbndAstTransformVisitor >> visitArgumentDefinitionNode: node [
 ]
 
 { #category : #visiting }
+MbndAstTransformVisitor >> visitArrayConstructionNode: node [
+	^ node copy
+		elementType: (node elementType isMbndAstNode
+			ifTrue: [ self visitNode: node elementType ]
+			ifFalse: [node elementType]);
+		elements: (self visitNodesAndCollect: node elements);
+		yourself
+]
+
+{ #category : #visiting }
 MbndAstTransformVisitor >> visitArrayElementReferenceNode: node [
 	^ node copy
 		container: (self visitNode: node container);
@@ -357,6 +367,11 @@ MbndAstTransformVisitor >> visitLexicalScopeNode: node [
 		expression: (self visitNode: node expression);
 		cleanUpActions: (self visitNodesAndCollect: node cleanUpActions);
 		yourself
+]
+
+{ #category : #visiting }
+MbndAstTransformVisitor >> visitLiteralArrayToArrayCastNode: node [
+	^ self visitSpecificCastNode: node
 ]
 
 { #category : #visiting }
@@ -705,6 +720,11 @@ MbndAstTransformVisitor >> visitTupleNode: node [
 	^ node copy
 		elements: (self visitNodesAndCollect: node elements);
 		yourself
+]
+
+{ #category : #visiting }
+MbndAstTransformVisitor >> visitTupleToArrayCastNode: node [
+	^ self visitSpecificCastNode: node
 ]
 
 { #category : #visiting }

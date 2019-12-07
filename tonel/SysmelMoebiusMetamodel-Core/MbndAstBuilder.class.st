@@ -135,6 +135,16 @@ MbndAstBuilder >> compilationTarget [
 ]
 
 { #category : #'builder methods' }
+MbndAstBuilder >> constructArrayOf: elementType withElements: elements [
+	<compileTime>
+	<returnType: #_ASTNodeType>
+	^ MbndAstArrayConstructionNode new
+		elementType: elementType;
+		elements: elements;
+		yourself
+]
+
+{ #category : #'builder methods' }
 MbndAstBuilder >> constructMatrix: matrixType withColumns: columns [
 	<compileTime>
 	<returnType: #_ASTNodeType>

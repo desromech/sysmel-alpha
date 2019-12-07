@@ -32,6 +32,19 @@ MbndAstTransformVisitorTest >> testArgumentDefinition [
 ]
 
 { #category : #tests }
+MbndAstTransformVisitorTest >> testArrayConstructionNode [
+	| node one two transfomedNode |
+	one := builder literalInteger: 1.
+	two := builder literalInteger: 2.
+	node := builder constructArrayOf: (builder identifier: #Float32) withElements: { one . two }.
+	transfomedNode := visitor visitNode: node.
+	
+	self assert: node ~~ transfomedNode.
+	self assert: transfomedNode isArrayConstructionNode.
+	self assert: transfomedNode elements equals: {one . two}.
+]
+
+{ #category : #tests }
 MbndAstTransformVisitorTest >> testArrayElementReferenceNode [
 	| node array index transformedNode |
 	array := builder identifier: #tr.

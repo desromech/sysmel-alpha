@@ -46,6 +46,17 @@ MbndAstEvaluator >> scope: anObject [
 ]
 
 { #category : #visiting }
+MbndAstEvaluator >> visitArrayConstructionNode: node [
+	| result |
+	result := node type defaultValueAt: node.
+	
+	node elements doWithIndex: [ :el :index |
+		result slots at: index put: (self visitNode: el) unwrapMbndValue
+	].
+	^ result
+]
+
+{ #category : #visiting }
 MbndAstEvaluator >> visitAssignmentNode: node [
 	| value reference |
 	value := self visitNode: node value.
@@ -381,8 +392,8 @@ MbndAstEvaluator >> visitStaticClassPointerCastNode: castNode [
 	| pointer sourceType targetType targetSlotIndex |
 	pointer := self visitNode: castNode expression.
 	
-	sourceType := castNode expression type baseType withoutTopDecorations.
-	targetType := castNode targetType baseType withoutTopDecorations.
+	sourceType := castNode expression type asUndecoratedClassType.
+	targetType := castNode targetType asUndecoratedClassType.
 	
 	"Is this an upcast?"
 	(sourceType isSubtypeOf: targetType) ifTrue: [

@@ -15,7 +15,7 @@ MbndTupleTypeConversionRule >> postProcessCastNode: node withAnalyzer: analyzer 
 		^ analyzer analyzeNodeIfNeeded: (MbndAstTupleNode new
 			position: node;
 			elements: (sourceExpression elements collectWithIndex: [:sourceElement :index |
-				analyzer addImplicitCastFor: (analyzer analyzeNodeIfNeeded: sourceElement) to: (targetType elements at: index)
+				analyzer addImplicitCastFor: sourceElement to: (targetType elements at: index)
 			]);
 			yourself)
 	].

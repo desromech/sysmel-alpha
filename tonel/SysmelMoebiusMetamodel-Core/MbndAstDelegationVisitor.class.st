@@ -18,6 +18,11 @@ MbndAstDelegationVisitor >> visitArgumentDefinitionNode: node [
 ]
 
 { #category : #visiting }
+MbndAstDelegationVisitor >> visitArrayConstructionNode: node [
+	^ self delegateNodeVisit: node
+]
+
+{ #category : #visiting }
 MbndAstDelegationVisitor >> visitArrayElementReferenceNode: node [
 	^ self delegateNodeVisit: node
 ]
@@ -263,6 +268,11 @@ MbndAstDelegationVisitor >> visitLexicalScopeNode: node [
 ]
 
 { #category : #visiting }
+MbndAstDelegationVisitor >> visitLiteralArrayToArrayCastNode: node [
+	^ self delegateNodeVisit: node
+]
+
+{ #category : #visiting }
 MbndAstDelegationVisitor >> visitLiteralValueNode: node [
 	^ self delegateNodeVisit: node
 ]
@@ -489,6 +499,11 @@ MbndAstDelegationVisitor >> visitTruncateCastNode: node [
 
 { #category : #visiting }
 MbndAstDelegationVisitor >> visitTupleNode: node [
+	^ self delegateNodeVisit: node
+]
+
+{ #category : #visiting }
+MbndAstDelegationVisitor >> visitTupleToArrayCastNode: node [
 	^ self delegateNodeVisit: node
 ]
 

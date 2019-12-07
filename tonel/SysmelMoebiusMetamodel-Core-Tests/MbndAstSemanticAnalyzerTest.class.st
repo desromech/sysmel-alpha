@@ -194,6 +194,20 @@ MbndAstSemanticAnalyzerTest >> setUp [
 ]
 
 { #category : #tests }
+MbndAstSemanticAnalyzerTest >> testArrayConstructionNode [
+	| node one two analyzedNode |
+	one := builder literalInteger: 1.
+	two := builder literalInteger: 2.
+	node := builder constructArrayOf: (builder identifier: #Float32) withElements: { one . two }.
+	analyzedNode := visitor visitNode: node.
+	
+	self assert: analyzedNode type elements equals: 2.
+	self assert: analyzedNode type elementType equals: compilationTarget float32Type.
+	self assert: analyzedNode isLiteralValueNode.
+
+]
+
+{ #category : #tests }
 MbndAstSemanticAnalyzerTest >> testBlockClosure [
 	| arguments node analyzedNode body |
 	arguments := {

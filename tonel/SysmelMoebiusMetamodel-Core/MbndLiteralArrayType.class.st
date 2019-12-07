@@ -9,6 +9,13 @@ MbndLiteralArrayType class >> typeName [
 	^ #_LiteralArray
 ]
 
+{ #category : #adding }
+MbndLiteralArrayType >> addDefaultConversionRules [
+	self
+		addConversionRule: MbndLiteralArrayToArrayConversionRule new.
+
+]
+
 { #category : #'testing methods' }
 MbndLiteralArrayType >> isLiteralArrayType [
 	^ true

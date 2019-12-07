@@ -41,9 +41,11 @@ MbndTupleType >> accept: aVisitor [
 { #category : #adding }
 MbndTupleType >> addDefaultConversionRules [
 	super addDefaultConversionRules.
-	self addConversionRule: (MbndTupleTypeConversionRule when: [:source :target |
+	self
+		addConversionRule: (MbndTupleTypeConversionRule when: [:source :target |
 			source isTupleType and: [ target isTupleType and: [ source elements size = target elements size ] ]
-		]).
+		]);
+		addConversionRule: MbndTupleToArrayTypeConversionRule new.
 
 ]
 

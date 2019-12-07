@@ -19,6 +19,12 @@ MbndAstSemanticAnalyzer >> addImplicitCVariadicCastFor: nodeRequiringCasting [
 MbndAstSemanticAnalyzer >> addImplicitCastFor: nodeRequiringCasting to: expectedTargetType [
 	| sourceType |
 	sourceType := nodeRequiringCasting type.
+	sourceType ifNil: [
+		(expectedTargetType canValueBeCreatedForNode: nodeRequiringCasting) ifTrue: [ 
+			^ expectedTargetType createValueForNode: nodeRequiringCasting withAnalyzer: self
+		].
+		^ self addImplicitCastFor: (self analyzeNodeIfNeeded: nodeRequiringCasting) to: expectedTargetType
+	].
 
 	"Omit the cast if not needed."
 	sourceType = expectedTargetType ifTrue: [
@@ -51,7 +57,7 @@ MbndAstSemanticAnalyzer >> addReceiverImplicitCastFor: nodeRequiringCasting to: 
 		temporaryVariable := (self astBuilder defineLocalVariable: #_ withValueType: nil withInitialValue: nodeRequiringCasting)
 			position: nodeRequiringCasting;
 			mutable.
-		^ self addImplicitCastFor: (self visitNode: temporaryVariable) to: expectedTargetType
+		^ self addImplicitCastFor: temporaryVariable to: expectedTargetType
 	].
 
 	^ self addImplicitCastFor: nodeRequiringCasting to: expectedTargetType
@@ -379,6 +385,33 @@ MbndAstSemanticAnalyzer >> visitArgumentDefinitionNode: node [
 ]
 
 { #category : #visiting }
+MbndAstSemanticAnalyzer >> visitArrayConstructionNode: node [
+	| result elementType |
+	result := node copy
+		elementType: (self evaluateTypeExpression: node elementType);
+		elements: (self visitSplicingTupleNode: node elements);
+		yourself.
+	elementType := result elementType.
+	result elements: (result elements collect: [:el |
+		self addImplicitCastFor: el to: elementType
+	]).
+	result type: (elementType array: result elements size).
+
+	(result elements allSatisfy: #isLiteralValueNode) ifTrue: [ 
+		| resultValue |
+		resultValue := result type defaultValueAt: node.
+		result elements doWithIndex: [ :element :index |
+			self assert: element isLiteralValueNode.
+			resultValue slots at: index put: element value
+		].
+		^ (resultValue asMoebiusLiteralValueNodeWithTarget: self compilationTarget)
+			position: node
+	].
+	
+	^ result
+]
+
+{ #category : #visiting }
 MbndAstSemanticAnalyzer >> visitArrayElementReferenceNode: node [
 	| result containerType arrayType elementType |
 	result := node copy
@@ -624,7 +657,7 @@ MbndAstSemanticAnalyzer >> visitDoWhileLoopNode: node [
 	].
 	result
 		continueAction: (result continueAction ifNotNil: [:action | self analyzeNodeIfNeeded: action]);
-		condition: (self addImplicitCastFor: (self analyzeNodeIfNeeded: result condition) to: self compilationTarget booleanType);
+		condition: (self addImplicitCastFor: result condition to: self compilationTarget booleanType);
 		type: self compilationTarget voidType.
 
 	^ result
@@ -922,26 +955,22 @@ MbndAstSemanticAnalyzer >> visitGlobalVariableDefinitionNode: node [
 	"Make sure the value type is evaluated."
 	result valueType ifNotNil: [ 
 		result valueType: (self evaluateTypeExpression: node valueType).
+	] ifNil: [
+		result initialValue ifNil: [
+			self error: 'Global variable {1} without an explicit type, or an initial value.' format: { result name asPrettySymbolName } at: node
+		].
+
+		result initialValue: (self analyzeNodeIfNeeded: result initialValue).
+		result valueType: (result initialValue type inferValueTypeForNode: result initialValue inScope: scope).
 	].
 
-	"Analyze the initial value."
-	result initialValue ifNotNil: [
-		result initialValue: (self analyzeNodeIfNeeded: result initialValue)
-	] ifNil: [
+	"If accessed by reference, make sure an initial value is provided."
+	result initialValue ifNil: [
 		result isAccessedByReference ifTrue: [ 
 			self error: 'Global variable "{1}" definition with ref access requires an initial value.' format: { result name asPrettySymbolName } at: result
 		]
 	].
 	
-	"Infer the value type, if needed"
-	result valueType ifNil: [
-		result initialValue ifNil: [
-			self error: 'Global variable {1} without an explicit type, or an initial value.' format: { result name asPrettySymbolName } at: node
-		].
-	
-		result valueType: (result initialValue type inferValueTypeForNode: result initialValue inScope: scope).
-	].
-
 	"Cast implicitly the initial value."
 	valueType := result valueType.
 	result initialValue ifNotNil: [ :valueNode |
@@ -1062,7 +1091,7 @@ MbndAstSemanticAnalyzer >> visitImmediateBlockClosureActivationNode: node [
 	blockClosureType := result blockNode type.
 	expectedArgumentTypes := blockClosureType argumentTypes.
 	result arguments: (node arguments collectWithIndex: [:arg :index |
-		self addImplicitCastFor: (self analyzeNodeIfNeeded: arg) to: (expectedArgumentTypes at: index)
+		self addImplicitCastFor: arg to: (expectedArgumentTypes at: index)
 	]).
 
 	self assert: result blockNode isBlockClosureNode.
@@ -1108,6 +1137,37 @@ MbndAstSemanticAnalyzer >> visitLexicalScopeNode: node [
 	].
 
 	^ result
+]
+
+{ #category : #visiting }
+MbndAstSemanticAnalyzer >> visitLiteralArrayToArrayCastNode: node [
+	| literalArrayExpression targetType arrayValues resultValue expectedElementType elementLiteralNode |
+	literalArrayExpression := self analyzeNodeIfNeeded: node expression.
+	self assert: literalArrayExpression isLiteralValueNode.
+	arrayValues := literalArrayExpression value.
+	self assert: arrayValues isArray.
+	
+	targetType := node targetType.
+	self assert: targetType isArrayType.
+	targetType elements > 0 ifTrue: [
+		arrayValues size = targetType elements ifFalse: [ 
+			self error: 'Literal array with {1} cannot be converted into an array with {2} elements.' format: { arrayValues size asString. targetType elements asString } at: node
+		]
+	].
+
+	expectedElementType := targetType elementType.
+	resultValue := targetType defaultValueAt: node.
+	arrayValues doWithIndex: [:element :index |
+		self flag: 'FIXME: Preserve the per-element nodes.'.
+		elementLiteralNode := (element asMoebiusLiteralValueNodeWithTarget: self compilationTarget)
+			position: literalArrayExpression.
+		elementLiteralNode := self addImplicitCastFor: elementLiteralNode to: expectedElementType.
+		self assert: elementLiteralNode isLiteralValueNode.
+		resultValue slots at: index put: elementLiteralNode value.
+	].
+	
+	^ (resultValue asMoebiusLiteralValueNodeWithTarget: self compilationTarget)
+		position: node
 ]
 
 { #category : #visiting }
@@ -1574,8 +1634,8 @@ MbndAstSemanticAnalyzer >> visitSampleTextureWithExplicitDerivativesNode: node [
 	result := self visitSampleTextureWithImplicitLodNode: node.
 	derivativeType := result texture type derivativeType.
 	result
-		dtdx: (self addImplicitCastFor: (self analyzeNodeIfNeeded: result dtdx) to: derivativeType);
-		dtdy: (self addImplicitCastFor: (self analyzeNodeIfNeeded: result dtdy) to: derivativeType).
+		dtdx: (self addImplicitCastFor: result dtdx to: derivativeType);
+		dtdy: (self addImplicitCastFor: result dtdy to: derivativeType).
 	^ result
 ]
 
@@ -1583,7 +1643,7 @@ MbndAstSemanticAnalyzer >> visitSampleTextureWithExplicitDerivativesNode: node [
 MbndAstSemanticAnalyzer >> visitSampleTextureWithExplicitLodNode: node [
 	| result |
 	result := self visitSampleTextureWithImplicitLodNode: node.
-	result lod: (self addImplicitCastFor: (self analyzeNodeIfNeeded: result lod) to: self compilationTarget float32Type).
+	result lod: (self addImplicitCastFor: result lod to: self compilationTarget float32Type).
 	^ result
 ]
 
@@ -1731,6 +1791,25 @@ MbndAstSemanticAnalyzer >> visitTupleNode: node [
 	^ result
 		type: (self compilationTarget tuple: (result elements collect: #type));
 		yourself
+]
+
+{ #category : #visiting }
+MbndAstSemanticAnalyzer >> visitTupleToArrayCastNode: node [
+	| tupleNodes tupleElements targetType expectedElementType |
+	tupleNodes := self visitSplicingTupleNode: node expression.
+
+	tupleElements := tupleNodes size.
+	targetType := node targetType.
+	self assert: targetType isArrayType.
+	targetType elements > 0 ifTrue: [
+		tupleElements = targetType elements ifFalse: [ 
+			self error: 'Array with {1} elements cannot be constructed with a tuple with {2} elements.' format: { targetType elements asString . tupleElements asString } at: node
+		]
+	].
+
+	expectedElementType := targetType elementType.
+	^ self visitNode: ((self astBuilder constructArrayOf: expectedElementType withElements: tupleNodes)
+		position: node)
 ]
 
 { #category : #visiting }
@@ -1908,7 +1987,7 @@ MbndAstSemanticAnalyzer >> visitWhileLoopNode: node [
 	| result |
 	result := node copy.
 	result
-		condition: (self addImplicitCastFor: (self analyzeNodeIfNeeded: result condition) to: self compilationTarget booleanType);
+		condition: (self addImplicitCastFor: result condition to: self compilationTarget booleanType);
 		type: self compilationTarget voidType.
 	
 	self withContinueAndBreakOwnerNode: node do: [ 

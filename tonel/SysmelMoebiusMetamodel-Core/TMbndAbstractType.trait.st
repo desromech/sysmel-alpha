@@ -366,6 +366,12 @@ TMbndAbstractType >> buildTypeConversionChainUntil: targetType fromVisitedTypes:
 	^ previousRule intermediateConversion: previousType chainedWith: rule
 ]
 
+{ #category : #testing }
+TMbndAbstractType >> canValueBeCreatedForNode: node [
+	"This allows the opportunity of creating values of types with a specific kind of node, and avoiding of type conversion machinery. This is useful to convert tuple creation nodes into arrays without creating an intermediate tuple value in the process."
+	^ false
+]
+
 { #category : #'as yet unclassified' }
 TMbndAbstractType >> conditionalResultCoercionTypeWith: rightType leftNode: leftNode rightNode: rightNode inScope: aScope [
 	^ self compilationTarget computeConditionalResultCoercionTypeFor: self with: rightType leftNode: leftNode rightNode: rightNode inScope: aScope
@@ -385,6 +391,11 @@ TMbndAbstractType >> createExtraMetaBuilderFactories [
 { #category : #'as yet unclassified' }
 TMbndAbstractType >> createMetaTypeBasicInstance [
 	^ MbndSimpleMetaType basicNew
+]
+
+{ #category : #testing }
+TMbndAbstractType >> createValueForNode: nodeRequiringCasting withAnalyzer: analyzer [
+	self error: 'Should not be here.'
 ]
 
 { #category : #accessing }

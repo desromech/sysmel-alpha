@@ -15,6 +15,11 @@ MbndAstVisitor >> visitArgumentDefinitionNode: node [
 ]
 
 { #category : #visiting }
+MbndAstVisitor >> visitArrayConstructionNode: node [
+	self subclassResponsibility
+]
+
+{ #category : #visiting }
 MbndAstVisitor >> visitArrayElementReferenceNode: node [
 	self subclassResponsibility
 ]
@@ -256,6 +261,11 @@ MbndAstVisitor >> visitIntegerToPointerCastNode: node [
 
 { #category : #visiting }
 MbndAstVisitor >> visitLexicalScopeNode: node [
+	self subclassResponsibility
+]
+
+{ #category : #visiting }
+MbndAstVisitor >> visitLiteralArrayToArrayCastNode: node [
 	self subclassResponsibility
 ]
 
@@ -511,6 +521,11 @@ MbndAstVisitor >> visitTruncateCastNode: node [
 
 { #category : #visiting }
 MbndAstVisitor >> visitTupleNode: node [
+	self subclassResponsibility
+]
+
+{ #category : #visiting }
+MbndAstVisitor >> visitTupleToArrayCastNode: node [
 	self subclassResponsibility
 ]
 

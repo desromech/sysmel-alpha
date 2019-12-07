@@ -66,6 +66,11 @@ MbndAstNode >> isArgumentDefinitionNode [
 ]
 
 { #category : #testing }
+MbndAstNode >> isArrayConstructionNode [
+	^ false
+]
+
+{ #category : #testing }
 MbndAstNode >> isArrayElementReferenceNode [
 	^ false
 ]
@@ -332,6 +337,11 @@ MbndAstNode >> isIntegerToPointerCastNode [
 
 { #category : #testing }
 MbndAstNode >> isLexicalScopeNode [
+	^ false
+]
+
+{ #category : #testing }
+MbndAstNode >> isLiteralArrayToArrayCastNode [
 	^ false
 ]
 
@@ -608,6 +618,11 @@ MbndAstNode >> isTruncateCastNode [
 
 { #category : #testing }
 MbndAstNode >> isTupleNode [
+	^ false
+]
+
+{ #category : #testing }
+MbndAstNode >> isTupleToArrayCastNode [
 	^ false
 ]
 

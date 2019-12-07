@@ -116,6 +116,7 @@ MbndAstNodeTest >> testTestingMethods [
 	self deny: node isLexicalScopeNode.
 	self deny: node isLiteralValueNode.
 	self deny: node isLiteralSymbolValueNode.
+	self deny: node isLiteralArrayToArrayCastNode.
 	self deny: node isLocalVariableDefinitionNode.
 	self deny: node isNamespaceDefinitionNode.
 	self deny: node isMacroExpansionInlineBlockNode.
@@ -163,6 +164,7 @@ MbndAstNodeTest >> testTestingMethods [
 	self deny: node isTemplateDefinitionNode.
 	self deny: node isTruncateCastNode.
 	self deny: node isTupleNode.
+	self deny: node isTupleToArrayCastNode.
 	self deny: node isUnexpandedMessageSendNode.
 	self deny: node isUnionDeclarationNode.
 	self deny: node isUnionDefinitionNode.

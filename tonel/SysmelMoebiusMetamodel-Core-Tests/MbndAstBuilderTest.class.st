@@ -30,6 +30,17 @@ MbndAstBuilderTest >> testArgumentDefinition [
 ]
 
 { #category : #tests }
+MbndAstBuilderTest >> testArrayConstructionNode [
+	| node one two |
+	one := builder literalInteger: 1.
+	two := builder literalInteger: 2.
+	node := builder constructArrayOf: (builder identifier: #Float32) withElements: { one . two }.
+	
+	self assert: node isArrayConstructionNode.
+	self assert: node elements equals: {one . two}.
+]
+
+{ #category : #tests }
 MbndAstBuilderTest >> testArrayElementReferenceNode [
 	| node array index |
 	array := builder identifier: #array.

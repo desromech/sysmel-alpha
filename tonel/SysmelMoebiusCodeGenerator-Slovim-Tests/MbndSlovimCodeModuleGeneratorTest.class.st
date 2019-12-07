@@ -1716,6 +1716,56 @@ MbndSlovimCodeModuleGeneratorTest >> testGetUnionFieldValue [
 ]
 
 { #category : #tests }
+MbndSlovimCodeModuleGeneratorTest >> testGlobalArrayInitialization [
+	| globalVariable |
+	self
+		evaluateSysmelSource: '
+global theArray mutable externC type: (Int32 array: 5) := #(1 2 3 4 5).
+';
+		generateSSAModule.
+
+	globalVariable := ssaModule globalNamed: #theArray.
+	self assert: globalVariable isGlobalVariable.
+	self assert: (globalVariable initialValue slots collect: #value) equals: #(1 2 3 4 5).
+]
+
+{ #category : #tests }
+MbndSlovimCodeModuleGeneratorTest >> testGlobalArrayInitialization2 [
+	| globalVariable |
+	self
+		evaluateSysmelSource: '
+global theArray mutable externC type: (Int32 array: 5) := (1, 2, 3, 4, 5).
+';
+		generateSSAModule.
+
+	globalVariable := ssaModule globalNamed: #theArray.
+	self assert: globalVariable isGlobalVariable.
+	self assert: (globalVariable initialValue slots collect: #value) equals: #(1 2 3 4 5).
+]
+
+{ #category : #tests }
+MbndSlovimCodeModuleGeneratorTest >> testGlobalArrayInitialization3 [
+	| globalVariable |
+	self
+		evaluateSysmelSource: '
+global firstPointed mutable externC type: Int32.
+global secondPointed mutable externC type: Int32.
+global theArray mutable externC type: (Int32 pointer array: 2) := (
+	firstPointed address,
+	secondPointed address
+).
+';
+		generateSSAModule.
+
+	globalVariable := ssaModule globalNamed: #theArray.
+	self assert: globalVariable isGlobalVariable.
+	self assert: globalVariable initialValue slots equals: {
+		ssaModule globalNamed: #firstPointed.
+		ssaModule globalNamed: #secondPointed.
+	}.
+]
+
+{ #category : #tests }
 MbndSlovimCodeModuleGeneratorTest >> testGlobalVariableDefinition [
 	| global |
 	self
