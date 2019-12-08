@@ -911,6 +911,13 @@ TMbndCoreCompilationTarget >> standardConcreteTypeForLiteralStringInScope: aScop
 	^ self uint8Type const pointer
 ]
 
+{ #category : #initialization }
+TMbndCoreCompilationTarget >> standardConcreteTypeForSymbolInScope: aScope [
+	aScope isCompilationEvaluationScope ifTrue: [ ^ self compilerObjectType ].
+	self objectModel symbolClass ifNotNil: [ ^ self objectModel symbolClass ].
+	self error: 'Unsupported symbols at this context.'
+]
+
 { #category : #'derived types' }
 TMbndCoreCompilationTarget >> tuple: elements [
 	^ tupleTypes getOrCreateInstanceWithArguments: { elements }

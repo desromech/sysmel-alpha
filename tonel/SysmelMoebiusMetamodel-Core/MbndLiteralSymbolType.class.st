@@ -13,3 +13,8 @@ MbndLiteralSymbolType class >> typeName [
 MbndLiteralSymbolType >> isLiteralSymbolType [
 	^ true
 ]
+
+{ #category : #'semantic analysis' }
+MbndLiteralSymbolType >> standardConcreteTypeForLiteralValueNode: literalValueNode inScope: scope [
+	^ self compilationTarget standardConcreteTypeForSymbolInScope: scope
+]
