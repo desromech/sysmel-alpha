@@ -319,6 +319,13 @@ MbndAstBuilder >> defineLocalVariable: name withValueType: valueType withInitial
 ]
 
 { #category : #'builder methods' }
+MbndAstBuilder >> definePackedStructureNamed: name body: body [
+	<compileTime>
+	<returnType: #_ASTNodeType>
+	^ self defineStructure: (self declareStructure: name) packed body: body
+]
+
+{ #category : #'builder methods' }
 MbndAstBuilder >> defineStructure: declaration body: body [
 	<compileTime>
 	<returnType: #_ASTNodeType>

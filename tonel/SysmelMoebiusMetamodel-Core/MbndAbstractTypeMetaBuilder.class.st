@@ -31,6 +31,7 @@ MbndAbstractTypeMetaBuilder >> ensureTypeDeclarationNode [
 	typeDeclarationNode ifNotNil: [ ^ self ].
 	
 	typeDeclarationNode := self typeDeclarationNodeClass new
+		flags: flags;
 		position: position;
 		name: name;
 		yourself

@@ -14,14 +14,6 @@ MbndUnionType >> accept: aVisitor [
 	^ aVisitor visitUnionType: self
 ]
 
-{ #category : #layout }
-MbndUnionType >> buildSlotLayout [
-	| builder |
-	builder := MbndUnionSlotLayoutBuilder new aggregate: self.
-	self buildSlotLayoutWith: builder.
-	slotLayout := builder finish.
-]
-
 { #category : #'default values' }
 MbndUnionType >> defaultAggregateValueAt: aPosition [
 	self isDefined ifFalse: [ 
@@ -42,4 +34,9 @@ MbndUnionType >> hasTrivialBasicInitialization [
 { #category : #'testing methods' }
 MbndUnionType >> isUnionType [
 	^ true
+]
+
+{ #category : #layout }
+MbndUnionType >> slotLayoutBuilderClass [
+	^ MbndUnionSlotLayoutBuilder
 ]

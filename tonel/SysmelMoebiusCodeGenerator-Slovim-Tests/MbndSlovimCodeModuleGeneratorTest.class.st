@@ -1773,6 +1773,25 @@ global testPointed externC mutable type: Int32 := 42.
 ]
 
 { #category : #tests }
+MbndSlovimCodeModuleGeneratorTest >> testGlobalVariablePackedStructre [
+	| global |
+	self
+		evaluateSysmelSource: '
+struct PackedStructure packed definition: { 
+	public field byteValue type: UInt8.
+	public field wordValue type: UInt32.
+}.
+
+global testGlobal externC mutable type: PackedStructure';
+		generateSSAModule.
+
+	global := ssaModule globalNamed: #testGlobal.
+	self assert: global isGlobalVariable.
+	self assert: global valueType isStructureType.
+	self assert: global valueType isPacked.
+]
+
+{ #category : #tests }
 MbndSlovimCodeModuleGeneratorTest >> testIdentityCFunction [
 	| function |
 	self

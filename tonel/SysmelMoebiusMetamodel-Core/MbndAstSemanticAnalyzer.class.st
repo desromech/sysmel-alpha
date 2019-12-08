@@ -1882,6 +1882,7 @@ MbndAstSemanticAnalyzer >> visitTypeDeclarationNode: node ofKind: typeKindClass 
 
 	type ifNil: [ 
 		type := self compilationTarget createNamedType: result name ofKind: typeKindClass.
+		type addFlags: node flags.
 		owner addChild: type.
 		type name isMbndAnonymousSymbol ifFalse: [ 
 			owner setLocalSymbol: type name value: type.

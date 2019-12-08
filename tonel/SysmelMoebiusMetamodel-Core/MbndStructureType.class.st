@@ -14,7 +14,18 @@ MbndStructureType >> accept: aVisitor [
 	^ aVisitor visitStructureType: self
 ]
 
+{ #category : #testing }
+MbndStructureType >> isPacked [
+	^ self hasFlag: #packed
+]
+
 { #category : #'testing methods' }
 MbndStructureType >> isStructureType [
 	^ true
+]
+
+{ #category : #layout }
+MbndStructureType >> slotLayoutBuilderClass [
+	self isPacked ifTrue: [ ^ MbndPackedSlotLayoutBuilder ].
+	^ super slotLayoutBuilderClass
 ]

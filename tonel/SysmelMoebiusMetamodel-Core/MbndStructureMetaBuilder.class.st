@@ -9,6 +9,11 @@ MbndStructureMetaBuilder class >> globalBindingName [
 	^ #struct
 ]
 
+{ #category : #accessing }
+MbndStructureMetaBuilder >> packed [
+	self addFlag: #packed
+]
+
 { #category : #'semantic analysis' }
 MbndStructureMetaBuilder >> typeDeclarationNodeClass [
 	^ MbndAstStructureDeclarationNode

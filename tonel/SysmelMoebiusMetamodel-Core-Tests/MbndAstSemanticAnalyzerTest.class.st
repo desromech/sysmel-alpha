@@ -1458,6 +1458,28 @@ MbndAstSemanticAnalyzerTest >> testNew [
 ]
 
 { #category : #tests }
+MbndAstSemanticAnalyzerTest >> testPackedStructureWithTwoFieldsDefinitionNode [
+	| node body analyzedNode structure |
+	body := builder sequence: {
+		builder defineField: #b withValueType: (builder identifier: #Int8) withInitialValue: nil.
+		builder defineField: #i withValueType: (builder identifier: #Int32) withInitialValue: nil.
+	}.
+	node := builder definePackedStructureNamed: #Test body: body.
+	analyzedNode := visitor visitNode: node.
+	self assert: analyzedNode isStructureDefinitionNode.
+	
+	self assert: (scope lookupSymbolRecursively: #Test ifAbsent: [nil]) isNotNil.
+	structure := analyzedNode binding.
+	self assert: structure isNotNil.
+	self assert: structure isStructureType.
+
+	self assert: (structure lookupSymbol: #b) isNotNil.
+	self assert: (structure lookupSymbol: #i) isNotNil.
+	self assert: structure instanceSize equals: 5.
+	self assert: structure instanceAlignment equals: 1.
+]
+
+{ #category : #tests }
 MbndAstSemanticAnalyzerTest >> testPointerAsReference [
 	| node analyzedNode |
 	node := builder unexpandedSend: (builder literalSymbol: #value)

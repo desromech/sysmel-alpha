@@ -42,7 +42,7 @@ MbndAggregateTypeWithFields >> basicInitializeMethod [
 { #category : #layout }
 MbndAggregateTypeWithFields >> buildSlotLayout [
 	| builder |
-	builder := MbndAggregateSlotLayoutBuilder new aggregate: self.
+	builder := self slotLayoutBuilderClass new aggregate: self.
 	self buildSlotLayoutWith: builder.
 	slotLayout := builder finish.
 ]
@@ -190,4 +190,9 @@ MbndAggregateTypeWithFields >> slotLayout [
 		self ensureSlotLayoutIsComputed
 	].
 	^ slotLayout
+]
+
+{ #category : #layout }
+MbndAggregateTypeWithFields >> slotLayoutBuilderClass [
+	^ MbndAggregateSlotLayoutBuilder
 ]

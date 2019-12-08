@@ -13,3 +13,8 @@ MbndAstStructureDeclarationNode >> accept: aVisitor [
 MbndAstStructureDeclarationNode >> isStructureDeclarationNode [
 	^ true
 ]
+
+{ #category : #accessing }
+MbndAstStructureDeclarationNode >> packed [
+	self addFlag: #packed
+]

@@ -238,7 +238,10 @@ MbndSlovimTypeTranslator >> visitSimpleMetaType: metaType [
 
 { #category : #visiting }
 MbndSlovimTypeTranslator >> visitStructureType: structureType [
-	^ self translateAggregateType: structureType
+	^ self translateAggregateType: structureType withKind: (structureType
+		isPacked
+			ifTrue: [SLVMPackedStructureType]
+			ifFalse: [SLVMStructureType])
 
 ]
 
