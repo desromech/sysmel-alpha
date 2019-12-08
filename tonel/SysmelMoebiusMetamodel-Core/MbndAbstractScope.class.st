@@ -30,6 +30,12 @@ MbndAbstractScope >> isCompilationEvaluationScope [
 	^ true
 ]
 
+{ #category : #testing }
+MbndAbstractScope >> isInFunctionScope [
+	parent ifNotNil: [ ^ parent isInFunctionScope ].
+	^ false
+]
+
 { #category : #storage }
 MbndAbstractScope >> lookBindingStorageRecursively: binding [
 	^ parent ifNotNil: [ parent lookBindingStorageRecursively: binding ]

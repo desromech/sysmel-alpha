@@ -17,3 +17,8 @@ MbndConcreteMacroMessageMethod >> extraImplicitArguments [
 		self createExtraImplicitArgument: #__analyzer withType: (self compilationTarget specificCompilerObjectTypeFor: MbndAstSemanticAnalyzer).
 	}
 ]
+
+{ #category : #testing }
+MbndConcreteMacroMessageMethod >> isConcreteMacroMessage [
+	^ true
+]

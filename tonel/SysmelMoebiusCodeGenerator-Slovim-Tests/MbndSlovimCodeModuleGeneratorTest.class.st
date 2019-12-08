@@ -301,40 +301,6 @@ function upcast externC(x: SubClass pointer) => SuperClass pointer := x
 ]
 
 { #category : #tests }
-MbndSlovimCodeModuleGeneratorTest >> testCompileTimeLocalVariableCapture [
-	| function |
-	self
-		evaluateSysmelSource: '
-let localGlobalVariable := 0.
-function returnValue externC() => Int32 := localGlobalVariable';
-		generateSSAModule.
-
-	function := ssaModule globalNamed: #returnValue.
-	self assert: function isFunction.
-	self deny: function isEmpty.
-	self assert: function functionType returnType isIntegerType.
-	self assert: function basicBlocks size equals: 2.
-	self assert: function basicBlocks second firstInstruction isReturn.
-]
-
-{ #category : #tests }
-MbndSlovimCodeModuleGeneratorTest >> testCompileTimeLocalVariableMutableCapture [
-	| function |
-	self
-		evaluateSysmelSource: '
-let localGlobalVariable mutable := 0.
-function returnValue externC() => Int32 := localGlobalVariable';
-		generateSSAModule.
-
-	function := ssaModule globalNamed: #returnValue.
-	self assert: function isFunction.
-	self deny: function isEmpty.
-	self assert: function functionType returnType isIntegerType.
-	self assert: function basicBlocks size equals: 2.
-	self assert: function basicBlocks second firstInstruction isLoad.
-]
-
-{ #category : #tests }
 MbndSlovimCodeModuleGeneratorTest >> testCountTwiceCFunction [
 	| function |
 	self
@@ -1777,6 +1743,33 @@ MbndSlovimCodeModuleGeneratorTest >> testGlobalVariableDefinition [
 	self assert: global valueType isIntegerType.
 	self assert: global initialValue isConstantValue.
 	self assert: global initialValue value equals: 42.
+]
+
+{ #category : #tests }
+MbndSlovimCodeModuleGeneratorTest >> testGlobalVariableLazyInitialization [
+	| global pointed |
+	self
+		evaluateSysmelSource: '
+struct StructWithPointer.
+		
+global testGlobal externC mutable type: StructWithPointer := StructWithPointer newValue
+	pointer: testPointed address.
+
+StructWithPointer definition: {
+	public field pointer type: Int32 pointer.	
+}.
+
+global testPointed externC mutable type: Int32 := 42.
+';
+		generateSSAModule.
+
+	global := ssaModule globalNamed: #testGlobal.
+	pointed := ssaModule globalNamed: #testPointed.
+	self assert: global isGlobalVariable.
+	self assert: pointed isGlobalVariable.
+	self assert: global valueType isStructureType.
+	self assert: global initialValue isConstantStructureValue.
+	self assert: global initialValue slots first equals: pointed.
 ]
 
 { #category : #tests }
@@ -3601,6 +3594,40 @@ struct TestStruct definition: {
 	self deny: function isEmpty.
 	self assert: function basicBlocks size equals: 2.
 	self assert: function basicBlocks second firstInstruction isReturn.
+]
+
+{ #category : #tests }
+MbndSlovimCodeModuleGeneratorTest >> testStaticGlobalVariableCapture [
+	| function |
+	self
+		evaluateSysmelSource: '
+let localGlobalVariable := 0.
+function returnValue externC() => Int32 := localGlobalVariable';
+		generateSSAModule.
+
+	function := ssaModule globalNamed: #returnValue.
+	self assert: function isFunction.
+	self deny: function isEmpty.
+	self assert: function functionType returnType isIntegerType.
+	self assert: function basicBlocks size equals: 2.
+	self assert: function basicBlocks second firstInstruction isReturn.
+]
+
+{ #category : #tests }
+MbndSlovimCodeModuleGeneratorTest >> testStaticGlobalVariableMutableCapture [
+	| function |
+	self
+		evaluateSysmelSource: '
+let localGlobalVariable mutable := 0.
+function returnValue externC() => Int32 := localGlobalVariable';
+		generateSSAModule.
+
+	function := ssaModule globalNamed: #returnValue.
+	self assert: function isFunction.
+	self deny: function isEmpty.
+	self assert: function functionType returnType isIntegerType.
+	self assert: function basicBlocks size equals: 2.
+	self assert: function basicBlocks second firstInstruction isLoad.
 ]
 
 { #category : #tests }

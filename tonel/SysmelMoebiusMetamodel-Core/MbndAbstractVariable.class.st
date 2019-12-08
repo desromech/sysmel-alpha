@@ -63,6 +63,11 @@ MbndAbstractVariable >> hasPublicVisibility [
 ]
 
 { #category : #accessing }
+MbndAbstractVariable >> module [
+	^ parent module
+]
+
+{ #category : #accessing }
 MbndAbstractVariable >> name [
 	^ name
 ]

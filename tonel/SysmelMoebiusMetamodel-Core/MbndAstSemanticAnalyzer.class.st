@@ -164,8 +164,14 @@ MbndAstSemanticAnalyzer >> createBindingPatternLocalVariable: bindingPattern [
 
 { #category : #visiting }
 MbndAstSemanticAnalyzer >> createLocalVariableNamed: localVariableName withValueType: valueType type: referenceType at: definitionNode [
+	^ self createLocalVariableNamed: localVariableName withValueType: valueType type: referenceType variableClass: MbndFunctionLocalVariable flags: #() at: definitionNode
+]
+
+{ #category : #visiting }
+MbndAstSemanticAnalyzer >> createLocalVariableNamed: localVariableName withValueType: valueType type: referenceType variableClass: variableClass flags: flags at: definitionNode [
 	| localVariable owner |
-	localVariable := MbndFunctionLocalVariable new
+	localVariable := variableClass new
+		flags: flags;
 		definitionNode: definitionNode;
 		name: localVariableName;
 		valueType: valueType;
@@ -181,7 +187,8 @@ MbndAstSemanticAnalyzer >> createLocalVariableNamed: localVariableName withValue
 		].
 	].
 
-	owner addChild: localVariable.
+	owner addPrivateChild: localVariable.
+	localVariable enqueueDelayedSemanticAnalysis.
 	^ localVariable
 ]
 
@@ -351,6 +358,16 @@ MbndAstSemanticAnalyzer >> evaluateTypeExpression: typeExpression [
 ]
 
 { #category : #visiting }
+MbndAstSemanticAnalyzer >> forNode: node deferAnalysisWith: aBlock [
+	^ MbndAstNodeWithDeferredAnalysis new
+		position: node;
+		node: node;
+		analyzer: self copy;
+		analysisBlock: aBlock;
+		yourself
+]
+
+{ #category : #visiting }
 MbndAstSemanticAnalyzer >> generateValueForEnum: enumType withLastValue: lastValue at: node [
 	| valueType |
 	valueType := enumType valueType.
@@ -489,6 +506,7 @@ MbndAstSemanticAnalyzer >> visitBlockClosureNode: node [
 	owner := scope lookupProgramEntityForNewDefinitions.
 	
 	blockClosureEntity := MbndBlockClosureMethod new
+		parent: owner;
 		definitionPosition: result;
 		analyzedNode: result;
 		defineArguments.
@@ -516,7 +534,7 @@ MbndAstSemanticAnalyzer >> visitBlockClosureNode: node [
 	blockClosureEntity type: (self compilationTarget blockClosureTypeWithArguments: (blockClosureEntity arguments collect: #type) returnType: result returnType).
 	result type: blockClosureEntity type.
 
-	owner addChild: blockClosureEntity.
+	owner addPrivateChild: blockClosureEntity.
 	^ result
 
 ]
@@ -981,7 +999,10 @@ MbndAstSemanticAnalyzer >> visitGlobalVariableDefinitionNode: node [
 	"Cast implicitly the initial value."
 	valueType := result valueType.
 	result initialValue ifNotNil: [ :valueNode |
-		result initialValue: (self addImplicitCastFor: valueNode to: valueType)
+		result initialValue: ((self forNode: valueNode deferAnalysisWith: [:iv :analyzer |
+			analyzer addImplicitCastFor: iv to: valueType
+		])
+			type: valueType)
 	].
 
 	"Compute the variable reference type"
@@ -997,8 +1018,16 @@ MbndAstSemanticAnalyzer >> visitGlobalVariableDefinitionNode: node [
 	].
 
 	"Create a matching variable"
-	owner := node ownerProgramEntity ifNil: [scope lookupProgramEntityForNewDefinitions].
-	globalVariable := owner findOrAddGlobalVariableNamed: result name valueType: result valueType type: result type at: result.
+	(node isLocalVariableDefinitionNode or: [node isStatic]) ifTrue: [
+		globalVariable := self createLocalVariableNamed: result name withValueType: valueType type: result type variableClass: MbndGlobalVariable flags: (node flags copyWith: #static) at: node
+	] ifFalse: [ 
+		owner := node ownerProgramEntity ifNil: [scope lookupProgramEntityForNewDefinitions].
+		globalVariable := owner findOrAddGlobalVariableNamed: result name valueType: result valueType type: result type at: result.
+	].
+
+	result initialValue ifNotNil: [ 
+		globalVariable initialValueNode: result initialValue
+	].
 
 	result binding: globalVariable.
 	^ result
@@ -1181,9 +1210,14 @@ MbndAstSemanticAnalyzer >> visitLiteralArrayToArrayCastNode: node [
 MbndAstSemanticAnalyzer >> visitLocalVariableDefinitionNode: node [
 	| result valueType |
 	result := node copy.
+
+	"If this is not in a function scope, then this is actually a static global variable."
+	scope isInFunctionScope ifFalse: [
+		 ^ self visitGlobalVariableDefinitionNode: node
+	].
 	
 	"Make sure the value type is evaluated."
-	result valueType ifNotNil: [ 
+	result valueType ifNotNil: [
 		result valueType: (self evaluateTypeExpression: node valueType).
 	].
 
@@ -1496,6 +1530,12 @@ MbndAstSemanticAnalyzer >> visitNamespaceDefinitionNode: node [
 	].
 
 	^ self astBuilder literalVoid
+]
+
+{ #category : #visiting }
+MbndAstSemanticAnalyzer >> visitNodeWithDeferredAnalysis: node [
+	self assert: node type isNotNil.
+	^ node
 ]
 
 { #category : #visiting }

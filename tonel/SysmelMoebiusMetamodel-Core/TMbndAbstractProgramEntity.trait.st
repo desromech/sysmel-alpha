@@ -15,6 +15,11 @@ TMbndAbstractProgramEntity >> addChild: aChild [
 	self error: 'Cannot have child program entities here.'
 ]
 
+{ #category : #adding }
+TMbndAbstractProgramEntity >> addPrivateChild: aChild [
+	aChild parent: self
+]
+
 { #category : #testing }
 TMbndAbstractProgramEntity >> canHaveNamespaces [
 	^ false

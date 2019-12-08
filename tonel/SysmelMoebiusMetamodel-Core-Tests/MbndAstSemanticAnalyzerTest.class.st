@@ -1200,7 +1200,7 @@ MbndAstSemanticAnalyzerTest >> testLetAutoMacroBuilderExpansion [
 	analyzedNode := visitor visitNode: node.
 	self assert: (scope lookupSymbol: #x) isNotNil.
 	self assert: analyzedNode isLocalVariableDefinitionNode.
-	self assert: analyzedNode initialValue isLiteralValueNode.
+	self assert: analyzedNode initialValue isNodeWithDeferredAnalysis.
 	self assert: analyzedNode initialValue type equals: compilationTarget int32Type.
 	self assert: analyzedNode type equals: compilationTarget int32Type.
 
@@ -1217,7 +1217,7 @@ MbndAstSemanticAnalyzerTest >> testLetMacroBuilderExpansion [
 	analyzedNode := visitor visitNode: node.
 	self assert: (scope lookupSymbol: #x) isNotNil.
 	self assert: analyzedNode isLocalVariableDefinitionNode.
-	self assert: analyzedNode initialValue isLiteralValueNode.
+	self assert: analyzedNode initialValue isNil.
 	self assert: analyzedNode type equals: compilationTarget int32Type.
 ]
 
@@ -1233,7 +1233,7 @@ MbndAstSemanticAnalyzerTest >> testLetMutableAutoMacroBuilderExpansion [
 	analyzedNode := visitor visitNode: node.
 	self assert: (scope lookupSymbol: #x) isNotNil.
 	self assert: analyzedNode isLocalVariableDefinitionNode.
-	self assert: analyzedNode initialValue isLiteralValueNode.
+	self assert: analyzedNode initialValue isNodeWithDeferredAnalysis.
 	self assert: analyzedNode initialValue type equals: compilationTarget int32Type.
 	self assert: analyzedNode type isReferenceType.
 	self assert: analyzedNode type baseType equals: compilationTarget int32Type.
@@ -1252,7 +1252,7 @@ MbndAstSemanticAnalyzerTest >> testLetMutableMacroBuilderExpansion [
 	analyzedNode := visitor visitNode: node.
 	self assert: (scope lookupSymbol: #x) isNotNil.
 	self assert: analyzedNode isLocalVariableDefinitionNode.
-	self assert: analyzedNode initialValue isLiteralValueNode.
+	self assert: analyzedNode initialValue isNil.
 	self assert: analyzedNode type isReferenceType.
 	self assert: analyzedNode type baseType equals: compilationTarget int32Type.
 
@@ -1313,142 +1313,6 @@ MbndAstSemanticAnalyzerTest >> testLiteralYourself [
 	analyzedNode := visitor visitNode: node.
 	self assert: analyzedNode equals: literal.
 	self assert: analyzedNode type isLiteralIntegerType.
-]
-
-{ #category : #tests }
-MbndAstSemanticAnalyzerTest >> testLocalVariableMutableAssignment [
-	| node analyzedNode |
-	node := builder sequence: { 
-		(builder defineLocalVariable: #x withValueType: (builder identifier: #Int32) withInitialValue: nil)
-			mutable.
-		builder reference: (builder identifier: #x) assignValue: (builder literalInteger: 5).
-	}.
-	analyzedNode := visitor visitNode: node.
-	self assert: (scope lookupSymbol: #x) isNotNil.
-	self assert: analyzedNode isSequenceNode.
-	self assert: analyzedNode type isReferenceType.
-]
-
-{ #category : #tests }
-MbndAstSemanticAnalyzerTest >> testLocalVariableMutableDefaultInitialValue [
-	| node analyzedNode |
-	node := builder sequence: { 
-		(builder defineLocalVariable: #x withValueType: compilationTarget int32Type withInitialValue: nil)
-			mutable.
-		builder identifier: #x
-	}.
-	analyzedNode := visitor visitNode: node.
-	self assert: (scope lookupSymbol: #x) isNotNil.
-	self assert: analyzedNode isSequenceNode.
-	self assert: analyzedNode type isReferenceType.
-	self assert: analyzedNode type baseType isPrimitiveIntegerType.
-	self assert: analyzedNode elements first initialValue isLiteralValueNode.
-	self assert: analyzedNode elements last isBoundIdentifierReferenceNode.
-
-]
-
-{ #category : #tests }
-MbndAstSemanticAnalyzerTest >> testLocalVariableMutableReference [
-	| node analyzedNode |
-	node := builder sequence: { 
-		(builder defineLocalVariable: #x withValueType: nil withInitialValue:
-			(builder literalInteger: 5))
-			mutable.
-		builder identifier: #x
-	}.
-	analyzedNode := visitor visitNode: node.
-	self assert: (scope lookupSymbol: #x) isNotNil.
-	self assert: analyzedNode isSequenceNode.
-	self assert: analyzedNode type isReferenceType.
-	self assert: analyzedNode type baseType isPrimitiveIntegerType.
-	self assert: analyzedNode elements last isBoundIdentifierReferenceNode.
-
-]
-
-{ #category : #tests }
-MbndAstSemanticAnalyzerTest >> testLocalVariableMutableReferenceAddress [
-	| node analyzedNode |
-	node := builder sequence: { 
-		(builder defineLocalVariable: #x withValueType: nil withInitialValue:
-			(builder literalInteger: 5))
-			mutable.
-		builder unexpandedSend: (builder literalSymbol: #address)
-			to: (builder identifier: #x)
-			withArguments: #()
-	}.
-	analyzedNode := visitor visitNode: node.
-	self assert: (scope lookupSymbol: #x) isNotNil.
-	self assert: analyzedNode isSequenceNode.
-	self assert: analyzedNode type isPointerType.
-	self assert: analyzedNode type baseType isPrimitiveIntegerType.
-
-]
-
-{ #category : #tests }
-MbndAstSemanticAnalyzerTest >> testLocalVariableMutableReferenceExplicitLoad [
-	| node analyzedNode |
-	node := builder sequence: { 
-		(builder defineLocalVariable: #x withValueType: nil withInitialValue:
-			(builder literalInteger: 5))
-			mutable.
-		builder referenceLoad: (builder identifier: #x)
-	}.
-	analyzedNode := visitor visitNode: node.
-	self assert: (scope lookupSymbol: #x) isNotNil.
-	self assert: analyzedNode isSequenceNode.
-	self assert: analyzedNode type isPrimitiveIntegerType.
-]
-
-{ #category : #tests }
-MbndAstSemanticAnalyzerTest >> testLocalVariableMutableReferenceImplicitLoad [
-	| node analyzedNode |
-	node := builder sequence: { 
-		(builder defineLocalVariable: #x withValueType: nil withInitialValue:
-			(builder literalInteger: 5))
-			mutable.
-		builder unexpandedSend: (builder literalSymbol: #+)
-			to: (builder identifier: #x)
-			withArguments: { 
-			(builder literalInteger: 1)
-		}
-	}.
-	analyzedNode := visitor visitNode: node.
-	self assert: (scope lookupSymbol: #x) isNotNil.
-	self assert: analyzedNode isSequenceNode.
-	self assert: analyzedNode type isPrimitiveIntegerType.
-]
-
-{ #category : #tests }
-MbndAstSemanticAnalyzerTest >> testLocalVariableScopeReference [
-	| node analyzedNode |
-	node := builder lexicalScope: (builder sequence: { 
-		(builder defineLocalVariable: #x withValueType: nil withInitialValue:
-			(builder literalInteger: 5))
-			mutable.
-		builder identifier: #x
-	}).
-	
-	analyzedNode := visitor visitNode: node.
-	self assert: (scope lookupSymbol: #x) equals: nil.
-	self assert: analyzedNode isLexicalScopeNode.
-	self assert: analyzedNode type isReferenceType.
-	self assert: analyzedNode type baseType isPrimitiveIntegerType.
-	self assert: analyzedNode expression elements last isBoundIdentifierReferenceNode.
-
-]
-
-{ #category : #tests }
-MbndAstSemanticAnalyzerTest >> testLocalVariableScopeReferenceError [
-	| node |
-	node := builder sequence: {
-			builder lexicalScope: (builder sequence: { 
-				(builder defineLocalVariable: #x withValueType: nil withInitialValue:
-				(builder literalInteger: 5))
-				mutable.
-		}) .
-		builder identifier: #x
-	}.
-	self should: [ visitor visitNode: node ] raise: Error
 ]
 
 { #category : #tests }
@@ -1831,6 +1695,144 @@ MbndAstSemanticAnalyzerTest >> testSignExtension [
 	self assert: (self explicitAnalyzedCastNodeFrom: int16Type to: uint32Type) isSignExtensionCastNode.
 	self assert: (self explicitAnalyzedCastNodeFrom: int32Type to: int64Type) isSignExtensionCastNode.
 	self assert: (self explicitAnalyzedCastNodeFrom: int32Type to: uint64Type) isSignExtensionCastNode.
+]
+
+{ #category : #tests }
+MbndAstSemanticAnalyzerTest >> testStaticLocalVariableMutableAssignment [
+	| node analyzedNode |
+	node := builder sequence: { 
+		(builder defineLocalVariable: #x withValueType: (builder identifier: #Int32) withInitialValue: nil)
+			mutable.
+		builder reference: (builder identifier: #x) assignValue: (builder literalInteger: 5).
+	}.
+	analyzedNode := visitor visitNode: node.
+	self assert: (scope lookupSymbol: #x) isNotNil.
+	self assert: analyzedNode isSequenceNode.
+	self assert: analyzedNode type isReferenceType.
+]
+
+{ #category : #tests }
+MbndAstSemanticAnalyzerTest >> testStaticLocalVariableMutableDefaultInitialValue [
+	| node analyzedNode |
+	node := builder sequence: { 
+		(builder defineLocalVariable: #x withValueType: compilationTarget int32Type withInitialValue: nil)
+			mutable.
+		builder identifier: #x
+	}.
+	analyzedNode := visitor visitNode: node.
+	self assert: (scope lookupSymbol: #x) isNotNil.
+	self assert: analyzedNode isSequenceNode.
+	self assert: analyzedNode type isReferenceType.
+	self assert: analyzedNode type baseType isPrimitiveIntegerType.
+	self assert: analyzedNode elements first initialValue isNil.
+	self assert: analyzedNode elements last isBoundIdentifierReferenceNode.
+	self assert: analyzedNode elements first binding isGlobalVariable.
+	self assert: analyzedNode elements first binding isStatic.
+
+]
+
+{ #category : #tests }
+MbndAstSemanticAnalyzerTest >> testStaticLocalVariableMutableReference [
+	| node analyzedNode |
+	node := builder sequence: { 
+		(builder defineLocalVariable: #x withValueType: nil withInitialValue:
+			(builder literalInteger: 5))
+			mutable.
+		builder identifier: #x
+	}.
+	analyzedNode := visitor visitNode: node.
+	self assert: (scope lookupSymbol: #x) isNotNil.
+	self assert: analyzedNode isSequenceNode.
+	self assert: analyzedNode type isReferenceType.
+	self assert: analyzedNode type baseType isPrimitiveIntegerType.
+	self assert: analyzedNode elements last isBoundIdentifierReferenceNode.
+
+]
+
+{ #category : #tests }
+MbndAstSemanticAnalyzerTest >> testStaticLocalVariableMutableReferenceAddress [
+	| node analyzedNode |
+	node := builder sequence: { 
+		(builder defineLocalVariable: #x withValueType: nil withInitialValue:
+			(builder literalInteger: 5))
+			mutable.
+		builder unexpandedSend: (builder literalSymbol: #address)
+			to: (builder identifier: #x)
+			withArguments: #()
+	}.
+	analyzedNode := visitor visitNode: node.
+	self assert: (scope lookupSymbol: #x) isNotNil.
+	self assert: analyzedNode isSequenceNode.
+	self assert: analyzedNode type isPointerType.
+	self assert: analyzedNode type baseType isPrimitiveIntegerType.
+
+]
+
+{ #category : #tests }
+MbndAstSemanticAnalyzerTest >> testStaticLocalVariableMutableReferenceExplicitLoad [
+	| node analyzedNode |
+	node := builder sequence: { 
+		(builder defineLocalVariable: #x withValueType: nil withInitialValue:
+			(builder literalInteger: 5))
+			mutable.
+		builder referenceLoad: (builder identifier: #x)
+	}.
+	analyzedNode := visitor visitNode: node.
+	self assert: (scope lookupSymbol: #x) isNotNil.
+	self assert: analyzedNode isSequenceNode.
+	self assert: analyzedNode type isPrimitiveIntegerType.
+]
+
+{ #category : #tests }
+MbndAstSemanticAnalyzerTest >> testStaticLocalVariableMutableReferenceImplicitLoad [
+	| node analyzedNode |
+	node := builder sequence: { 
+		(builder defineLocalVariable: #x withValueType: nil withInitialValue:
+			(builder literalInteger: 5))
+			mutable.
+		builder unexpandedSend: (builder literalSymbol: #+)
+			to: (builder identifier: #x)
+			withArguments: { 
+			(builder literalInteger: 1)
+		}
+	}.
+	analyzedNode := visitor visitNode: node.
+	self assert: (scope lookupSymbol: #x) isNotNil.
+	self assert: analyzedNode isSequenceNode.
+	self assert: analyzedNode type isPrimitiveIntegerType.
+]
+
+{ #category : #tests }
+MbndAstSemanticAnalyzerTest >> testStaticLocalVariableScopeReference [
+	| node analyzedNode |
+	node := builder lexicalScope: (builder sequence: { 
+		(builder defineLocalVariable: #x withValueType: nil withInitialValue:
+			(builder literalInteger: 5))
+			mutable.
+		builder identifier: #x
+	}).
+	
+	analyzedNode := visitor visitNode: node.
+	self assert: (scope lookupSymbol: #x) equals: nil.
+	self assert: analyzedNode isLexicalScopeNode.
+	self assert: analyzedNode type isReferenceType.
+	self assert: analyzedNode type baseType isPrimitiveIntegerType.
+	self assert: analyzedNode expression elements last isBoundIdentifierReferenceNode.
+
+]
+
+{ #category : #tests }
+MbndAstSemanticAnalyzerTest >> testStaticLocalVariableScopeReferenceError [
+	| node |
+	node := builder sequence: {
+			builder lexicalScope: (builder sequence: { 
+				(builder defineLocalVariable: #x withValueType: nil withInitialValue:
+				(builder literalInteger: 5))
+				mutable.
+		}) .
+		builder identifier: #x
+	}.
+	self should: [ visitor visitNode: node ] raise: Error
 ]
 
 { #category : #tests }

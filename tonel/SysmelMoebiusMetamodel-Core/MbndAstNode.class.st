@@ -457,6 +457,11 @@ MbndAstNode >> isNamespaceDefinitionNode [
 ]
 
 { #category : #testing }
+MbndAstNode >> isNodeWithDeferredAnalysis [
+	^ false
+]
+
+{ #category : #testing }
 MbndAstNode >> isNonConcreteNode [
 	^ false
 ]

@@ -920,6 +920,7 @@ TMbndAbstractType >> isVariantUnionType [
 
 { #category : #'testing methods' }
 TMbndAbstractType >> isVoidType [
+	<compileTime>
 	^ false
 ]
 

@@ -309,41 +309,6 @@ MbndAstEvaluatorTest >> testLocalDeclaration [
 ]
 
 { #category : #running }
-MbndAstEvaluatorTest >> testLocalVariableMutableAssignment [
-	| node value |
-	node := builder sequence: { 
-		(builder defineLocalVariable: #x withValueType: nil withInitialValue:
-			(builder literalInteger: 5))
-			mutable.
-		builder reference: (builder identifier: #x) assignValue: (builder literalInteger: 42).
-		builder referenceLoad: (builder identifier: #x)
-	}.
-	
-	value := self analyzeAndEvaluateAST: node.
-	self assert: value value equals: 42.
-	self assert: value type isPrimitiveIntegerType.
-]
-
-{ #category : #running }
-MbndAstEvaluatorTest >> testLocalVariableMutableReferenceImplicitLoad [
-	| node value |
-	node := builder sequence: { 
-		(builder defineLocalVariable: #x withValueType: nil withInitialValue:
-			(builder literalInteger: 5))
-			mutable.
-		builder unexpandedSend: (builder literalSymbol: #+)
-			to: (builder identifier: #x)
-			withArguments: { 
-			(builder literalInteger: 1)
-		}
-	}.
-	
-	value := self analyzeAndEvaluateAST: node.
-	self assert: value value equals: 6.
-	self assert: value type isPrimitiveIntegerType.
-]
-
-{ #category : #running }
 MbndAstEvaluatorTest >> testMinFunctionCall [
 	| node value |
 	node := builder sequence: {
@@ -457,4 +422,39 @@ MbndAstEvaluatorTest >> testSquareFunctionCall [
 	self assert: value type isPrimitiveIntegerType.
 	self assert: value value equals: 25.
 
+]
+
+{ #category : #running }
+MbndAstEvaluatorTest >> testStaticLocalVariableMutableAssignment [
+	| node value |
+	node := builder sequence: { 
+		(builder defineLocalVariable: #x withValueType: nil withInitialValue:
+			(builder literalInteger: 5))
+			mutable.
+		builder reference: (builder identifier: #x) assignValue: (builder literalInteger: 42).
+		builder referenceLoad: (builder identifier: #x)
+	}.
+	
+	value := self analyzeAndEvaluateAST: node.
+	self assert: value value equals: 42.
+	self assert: value type isPrimitiveIntegerType.
+]
+
+{ #category : #running }
+MbndAstEvaluatorTest >> testStaticLocalVariableMutableReferenceImplicitLoad [
+	| node value |
+	node := builder sequence: { 
+		(builder defineLocalVariable: #x withValueType: nil withInitialValue:
+			(builder literalInteger: 5))
+			mutable.
+		builder unexpandedSend: (builder literalSymbol: #+)
+			to: (builder identifier: #x)
+			withArguments: { 
+			(builder literalInteger: 1)
+		}
+	}.
+	
+	value := self analyzeAndEvaluateAST: node.
+	self assert: value value equals: 6.
+	self assert: value type isPrimitiveIntegerType.
 ]

@@ -118,7 +118,6 @@ MbndAstNodeTest >> testTestingMethods [
 	self deny: node isLiteralSymbolValueNode.
 	self deny: node isLiteralArrayToArrayCastNode.
 	self deny: node isLocalVariableDefinitionNode.
-	self deny: node isNamespaceDefinitionNode.
 	self deny: node isMacroExpansionInlineBlockNode.
 	self deny: node isMacroSendMessageWithArgumentsNode.
 	self deny: node isMacroMessageDefinitionNode.
@@ -135,6 +134,8 @@ MbndAstNodeTest >> testTestingMethods [
 	self deny: node isMessageDefinitionNode.
 	self deny: node isMessagePrototypeNode.
 	self deny: node isMethodReferenceNode.
+	self deny: node isNamespaceDefinitionNode.
+	self deny: node isNodeWithDeferredAnalysis.
 	self deny: node isNumericalCastNode.
 	self deny: node isPragmaNode.
 	self deny: node isProgramEntityExtensionNode.

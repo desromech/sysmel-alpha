@@ -33,6 +33,11 @@ MbndAstAbstractVariableDefinitionNode >> isMutable [
 	^ self hasFlag: #mutable
 ]
 
+{ #category : #testing }
+MbndAstAbstractVariableDefinitionNode >> isStatic [
+	^ self hasFlag: #static
+]
+
 { #category : #flags }
 MbndAstAbstractVariableDefinitionNode >> mutable [
 	self addFlag: #mutable

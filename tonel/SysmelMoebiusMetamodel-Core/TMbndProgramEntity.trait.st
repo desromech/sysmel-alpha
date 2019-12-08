@@ -47,6 +47,11 @@ TMbndProgramEntity >> isFunctionMethod [
 ]
 
 { #category : #testing }
+TMbndProgramEntity >> isGlobalVariable [
+	^ false
+]
+
+{ #category : #testing }
 TMbndProgramEntity >> isMessageMethod [
 	^ false
 ]

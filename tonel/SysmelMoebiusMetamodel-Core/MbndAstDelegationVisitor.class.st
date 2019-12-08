@@ -368,6 +368,11 @@ MbndAstDelegationVisitor >> visitNamespaceDefinitionNode: node [
 ]
 
 { #category : #visiting }
+MbndAstDelegationVisitor >> visitNodeWithDeferredAnalysis: node [
+	^ self delegateNodeVisit: node
+]
+
+{ #category : #visiting }
 MbndAstDelegationVisitor >> visitPointerAsReferenceNode: node [
 	^ self delegateNodeVisit: node
 ]

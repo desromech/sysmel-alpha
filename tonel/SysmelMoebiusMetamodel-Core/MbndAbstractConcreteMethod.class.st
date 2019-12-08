@@ -31,6 +31,13 @@ MbndAbstractConcreteMethod >> arguments [
 ]
 
 { #category : #evaluation }
+MbndAbstractConcreteMethod >> canBeEvaluatedInCompileTime [
+	definitionNode ifNil: [ ^ false ].
+	self hasExternalVisibility ifTrue: [ ^ false ].
+	^ super canBeEvaluatedInCompileTime
+]
+
+{ #category : #evaluation }
 MbndAbstractConcreteMethod >> constructEvaluationScopeWithReceiver: receiverValue arguments: argumentValues [
 	| evaluationScope argumentDefinition receiverDefinition |
 	evaluationScope := MbndFunctionEvaluationScope parent: definitionScope.

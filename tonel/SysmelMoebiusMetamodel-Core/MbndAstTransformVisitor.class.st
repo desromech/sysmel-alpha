@@ -522,6 +522,13 @@ MbndAstTransformVisitor >> visitNamespaceDefinitionNode: node [
 ]
 
 { #category : #visiting }
+MbndAstTransformVisitor >> visitNodeWithDeferredAnalysis: node [
+	^ node copy
+		node: (self visitNode: node node);
+		yourself
+]
+
+{ #category : #visiting }
 MbndAstTransformVisitor >> visitPointerAsReferenceNode: node [
 	^ node copy
 		pointer: (self visitNode: node pointer);

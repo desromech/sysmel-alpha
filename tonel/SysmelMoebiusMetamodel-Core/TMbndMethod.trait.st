@@ -30,6 +30,11 @@ TMbndMethod >> hasPublicVisibility [
 	^ self visibilityMode == #public
 ]
 
+{ #category : #testing }
+TMbndMethod >> isConcreteMacroMessage [
+	^ false
+]
+
 { #category : #'as yet unclassified' }
 TMbndMethod >> isMethod [
 	^ true

@@ -369,6 +369,11 @@ MbndAstVisitor >> visitNode: node [
 	^ node accept: self
 ]
 
+{ #category : #visiting }
+MbndAstVisitor >> visitNodeWithDeferredAnalysis: node [
+	self subclassResponsibility
+]
+
 { #category : #'visitor utilties' }
 MbndAstVisitor >> visitNodes: nodes [
 	nodes do: [ :node | node accept: self ]

@@ -21,5 +21,6 @@ MbndVoidType >> defaultValueAt: aPosition [
 
 { #category : #testing }
 MbndVoidType >> isVoidType [
+	<compileTime>
 	^ true
 ]

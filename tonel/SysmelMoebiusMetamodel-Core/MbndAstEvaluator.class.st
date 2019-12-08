@@ -222,9 +222,6 @@ MbndAstEvaluator >> visitGCClassDefinitionNode: node [
 { #category : #visiting }
 MbndAstEvaluator >> visitGlobalVariableDefinitionNode: node [
 	self assert: node binding isNotNil.
-	node initialValue ifNotNil: [ 
-		node binding currentValue: (self visitNode: node initialValue)
-	].
 	^ node binding asCompileTimeValueReferenceOfType: node type withEvaluator: self at: node
 
 ]
@@ -271,6 +268,8 @@ MbndAstEvaluator >> visitLiteralValueNode: node [
 { #category : #visiting }
 MbndAstEvaluator >> visitLocalVariableDefinitionNode: node [
 	self assert: node binding isNotNil.
+	node binding isGlobalVariable ifTrue: [ ^ self visitGlobalVariableDefinitionNode: node ].
+	
 	self assert: node initialValue isNotNil.
 	^ node binding evaluateLocalDefinition: node withEvaluator: self
 

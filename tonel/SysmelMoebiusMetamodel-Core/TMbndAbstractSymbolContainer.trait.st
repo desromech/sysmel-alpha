@@ -83,10 +83,10 @@ TMbndAbstractSymbolContainer >> findOrAddGlobalVariableNamed: name valueType: va
 		name: name;
 		valueType: valueType;
 		type: type;
-		currentValue: (valueType defaultValueAt: node)
 		yourself.
 	self addChild: globalVariable.
 	self setLocalSymbol: name value: globalVariable.
+	globalVariable enqueueDelayedSemanticAnalysis.
 	^ globalVariable
 ]
 

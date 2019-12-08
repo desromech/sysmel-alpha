@@ -801,8 +801,13 @@ MbndSlovimCodeModuleGenerator >> visitGlobalVariable: globalVariable [
 	| ssaValueType csymbol ssaGlobalVariable initialValue unmangledName |
 	ssaValueType := self translateType: globalVariable valueType.
 	
-	csymbol := self csymbolForProgramEntity: globalVariable.
-	unmangledName := self unmangledNameForProgramEntity: globalVariable.
+	globalVariable isStatic ifTrue: [ 
+		csymbol := (self generatedNameForAnynomousEntity: globalVariable) asSymbol.
+		unmangledName := globalVariable name asPrettySymbolName.
+	] ifFalse: [ 
+		csymbol := self csymbolForProgramEntity: globalVariable.
+		unmangledName := self unmangledNameForProgramEntity: globalVariable.
+	].
 	ssaGlobalVariable := SLVMGlobalVariable module: ssaModule name: csymbol valueType: ssaValueType storage: SLVMType genericStorage.
 	ssaGlobalVariable unmangledName: unmangledName.
 	self setProgramEntity: globalVariable ssaValue: ssaGlobalVariable.
