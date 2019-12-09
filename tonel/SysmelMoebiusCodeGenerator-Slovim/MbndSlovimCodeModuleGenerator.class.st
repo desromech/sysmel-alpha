@@ -318,7 +318,7 @@ MbndSlovimCodeModuleGenerator >> generatedNameForAnynomousEntity: programEntity 
 		self flag: 'TODO: Implement this properly'.
 	].
 
-	result := '<anon' , anonSymbolCount asString , '>'.
+	result := '___anon' , anonSymbolCount asString , '___'.
 	anonSymbolCount := anonSymbolCount + 1.
 	^ result
 ]

@@ -3514,6 +3514,64 @@ function setPreviousAndNext externC(node: Node pointer, previous: Node pointer, 
 ]
 
 { #category : #tests }
+MbndSlovimCodeModuleGeneratorTest >> testRecursiveStructure [
+	| function structureType |
+	self
+		evaluateSysmelSource: '
+struct TreeNode definition: {
+	public field left type: TreeNode pointer.
+	public field right type: TreeNode pointer.
+	
+	message size => Int32 := { 
+		if: self address == nil
+			then: (0)
+			else: (left _ size + right _ size)
+	}.
+}.';
+		generateSSAModule.
+
+	function := ssaModule globalNamed: #_S8TreeNode4sizeFRTs_S8TreeNode.
+	structureType := function arguments first type baseType.
+	self assert: structureType isStructureType.
+	self assert: structureType name equals: #_S8TreeNode.
+
+]
+
+{ #category : #tests }
+MbndSlovimCodeModuleGeneratorTest >> testRecursiveTemplateStructure [
+	| function structureType |
+	self
+		evaluateSysmelSource: '
+template TreeNode(KT: Type )
+	:= struct definition: {
+	compileTimeConstant KeyType := KT.
+
+	public field left type: SelfType pointer.
+	public field right type: SelfType pointer.
+	public field key type: KeyType.
+	
+	message size => Int32 := { 
+		if: self address == nil
+			then: (0)
+			else: (left _ size + right _ size)
+	}.
+}.
+
+function nullTree externC() => TreeNode(Int32) pointer
+	:= nil.
+'
+;
+		generateSSAModule.
+
+	function := ssaModule globalNamed: #nullTree.
+	structureType := function functionType returnType baseType.
+	self assert: structureType isStructureType.
+	self assert: structureType name isNotNil.
+	self deny: structureType name equals: #_S8TreeNode.
+
+]
+
+{ #category : #tests }
 MbndSlovimCodeModuleGeneratorTest >> testReferenceAsPointer [
 	| function |
 	self

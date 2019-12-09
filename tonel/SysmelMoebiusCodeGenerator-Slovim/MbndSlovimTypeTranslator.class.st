@@ -60,7 +60,7 @@ MbndSlovimTypeTranslator >> translateAggregateType: aggregateType [
 { #category : #visiting }
 MbndSlovimTypeTranslator >> translateAggregateType: aggregateType withKind: typeKindClass [
 	| structureName ssaStructureType ssaValueType |
-	structureName := aggregateType name ifNotNil: [
+	structureName := (aggregateType name isNotNil or: [aggregateType parent isTemplateInstance]) ifTrue: [
 		codeModuleGenerator mangleProgramEntityName: aggregateType
 	].
 	(aggregateType isGCClassType and: [ aggregateType isMetaType ]) ifTrue: [ 
