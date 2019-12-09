@@ -3682,7 +3682,7 @@ function returnValue externC() => Int32 := localGlobalVariable';
 	self deny: function isEmpty.
 	self assert: function functionType returnType isIntegerType.
 	self assert: function basicBlocks size equals: 2.
-	self assert: function basicBlocks second firstInstruction isReturn.
+	self assert: function basicBlocks second firstInstruction isLoad.
 ]
 
 { #category : #tests }
