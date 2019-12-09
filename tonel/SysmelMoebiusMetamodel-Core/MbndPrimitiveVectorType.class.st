@@ -181,11 +181,13 @@ MbndPrimitiveVectorType >> elements: anObject [
 
 { #category : #sizes }
 MbndPrimitiveVectorType >> instanceAlignment [
+	<compileTime>
 	^ instanceAlignment ifNil: [ instanceAlignment := elementType instanceAlignment * self alignmentMultiplier ]
 ]
 
 { #category : #sizes }
 MbndPrimitiveVectorType >> instanceSize [
+	<compileTime>
 	^ instanceSize ifNil: [ instanceSize := elementType instanceSize * elements ]
 ]
 

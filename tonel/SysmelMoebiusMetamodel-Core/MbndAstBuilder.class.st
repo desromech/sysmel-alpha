@@ -561,6 +561,20 @@ MbndAstBuilder >> implicitCast: expression to: targetType [
 ]
 
 { #category : #'builder methods' }
+MbndAstBuilder >> inlineAssembly: assembly architecture: architecture dialect: dialect inputList: inputList outputList: outputList clobberList: clobberList [
+	<compileTime>
+	<returnType: #_ASTNodeType>
+	^ MbndAstInlineAssembly new
+		assembly: assembly;
+		architecture: architecture;
+		dialect: dialect;
+		inputList: inputList;
+		outputList: outputList;
+		clobberList: clobberList;
+		yourself
+]
+
+{ #category : #'builder methods' }
 MbndAstBuilder >> integer: expression toFloatingPoint: targetType [
 	<compileTime>
 	<returnType: #_ASTNodeType>

@@ -538,6 +538,7 @@ TMbndAbstractType >> instanceAlignment [
 
 { #category : #sizes }
 TMbndAbstractType >> instanceSize [
+	<compileTime>
 	^ self explicitRequirement
 ]
 

@@ -253,6 +253,11 @@ MbndAstDelegationVisitor >> visitImplicitCastNode: node [
 ]
 
 { #category : #visiting }
+MbndAstDelegationVisitor >> visitInlineAssembly: node [
+	^ self delegateNodeVisit: node
+]
+
+{ #category : #visiting }
 MbndAstDelegationVisitor >> visitIntegerToFloatingPointCastNode: node [
 	^ self delegateNodeVisit: node
 ]

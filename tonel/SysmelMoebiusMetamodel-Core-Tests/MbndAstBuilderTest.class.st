@@ -465,6 +465,30 @@ MbndAstBuilderTest >> testImplicitCast [
 ]
 
 { #category : #tests }
+MbndAstBuilderTest >> testInlineAssemblyNode [
+	| node assembly architecture dialect inputList outputList clobberList |
+	assembly := builder literalString: #nop.
+	architecture := builder literalSymbol: #x86.
+	dialect := builder literalSymbol: #gas.
+	inputList := builder tuple: #().
+	outputList := builder tuple: #().
+	clobberList := builder tuple: #().
+	node := builder inlineAssembly: assembly
+		architecture: architecture
+		dialect: dialect
+		inputList: inputList
+		outputList: outputList
+		clobberList: clobberList.
+	self assert: node isInlineAssembly.
+	self assert: node architecture equals: architecture.
+	self assert: node dialect equals: dialect.
+	self assert: node inputList equals: inputList.
+	self assert: node outputList equals: outputList.
+	self assert: node clobberList equals: clobberList.
+
+]
+
+{ #category : #tests }
 MbndAstBuilderTest >> testIntegerToFloatingPointCastNode [
 	| expression node  targetType |
 	expression := builder identifier: #x.

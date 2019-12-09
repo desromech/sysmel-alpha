@@ -106,11 +106,13 @@ MbndArrayType >> elements: anObject [
 
 { #category : #sizes }
 MbndArrayType >> instanceAlignment [
+	<compileTime>
 	^ elementType instanceAlignment
 ]
 
 { #category : #sizes }
 MbndArrayType >> instanceSize [
+	<compileTime>
 	instanceSize ifNil: [ 
 		instanceSize := elements = 0
 			ifTrue: [0]

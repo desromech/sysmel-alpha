@@ -104,6 +104,11 @@ SYMLASTNode >> isSYMLASTNode [
 	^ true
 ]
 
+{ #category : #composition }
+SYMLASTNode >> originalSourceCode [
+	^ position originalSourceCode
+]
+
 { #category : #accessing }
 SYMLASTNode >> position [
 	^ position

@@ -93,11 +93,13 @@ MbndEnumType >> initialize [
 
 { #category : #sizes }
 MbndEnumType >> instanceAlignment [
+	<compileTime>
 	^ baseType instanceAlignment
 ]
 
 { #category : #sizes }
 MbndEnumType >> instanceSize [
+	<compileTime>
 	^ baseType instanceSize
 ]
 

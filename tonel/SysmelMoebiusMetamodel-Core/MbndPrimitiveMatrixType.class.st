@@ -180,11 +180,13 @@ MbndPrimitiveMatrixType >> expandZerosMatrixConstruction: node with: builder [
 
 { #category : #sizes }
 MbndPrimitiveMatrixType >> instanceAlignment [
+	<compileTime>
 	^ instanceAlignment ifNil: [ instanceAlignment := self columnType instanceAlignment ]
 ]
 
 { #category : #sizes }
 MbndPrimitiveMatrixType >> instanceSize [
+	<compileTime>
 	^ instanceSize ifNil: [ instanceSize := (self columnType instanceSize alignedTo: self columnType instanceSize) * columns ]
 ]
 

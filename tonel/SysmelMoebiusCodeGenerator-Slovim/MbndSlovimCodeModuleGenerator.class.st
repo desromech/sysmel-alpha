@@ -506,6 +506,11 @@ MbndSlovimCodeModuleGenerator >> translateLiteralValue: literalValue ofType: lit
 ]
 
 { #category : #visiting }
+MbndSlovimCodeModuleGenerator >> translateModuleLevelInlineAssembly: inlineAssembly [
+	ssaModule addArchitecture: inlineAssembly architecture language: inlineAssembly dialect inlineAssembly: inlineAssembly assembly
+]
+
+{ #category : #visiting }
 MbndSlovimCodeModuleGenerator >> translateProgramEntity: programEntity [
 	^ translatedProgramEntities at: programEntity ifAbsent: [
 		| ssaValue |
@@ -810,13 +815,14 @@ MbndSlovimCodeModuleGenerator >> visitGlobalVariable: globalVariable [
 	].
 	ssaGlobalVariable := SLVMGlobalVariable module: ssaModule name: csymbol valueType: ssaValueType storage: SLVMType genericStorage.
 	ssaGlobalVariable unmangledName: unmangledName.
+	ssaGlobalVariable minimalAlignment: globalVariable minimalAlignment.
 	self setProgramEntity: globalVariable ssaValue: ssaGlobalVariable.
 
 	self isEmittingDebugInformation ifTrue: [ 
 		ssaGlobalVariable debugSourceLocation: (self convertDebugPosition: globalVariable definitionPosition asActualSourcePosition)
 	].
 
-	ssaGlobalVariable readOnly: (globalVariable type withoutReferences isConstantType).
+	ssaGlobalVariable readOnly: (globalVariable type isReferenceType not or: [globalVariable type withoutReferences isConstantType]).
 	
 	globalVariable hasExternalVisibility ifTrue: [
 		ssaGlobalVariable makeExternal.
@@ -869,6 +875,7 @@ MbndSlovimCodeModuleGenerator >> visitMessageGroup: functionGroup [
 { #category : #visiting }
 MbndSlovimCodeModuleGenerator >> visitModule: module [
 	self slvmCompilationTarget objectModel moduleCodeGenerator: self.
+	module moduleLevelInlineAssembly do: [ :inlineAssembly | self translateModuleLevelInlineAssembly: inlineAssembly ].
 	^ self translateProgramEntity: module globalNamespace
 ]
 

@@ -254,6 +254,12 @@ MbndAstEvaluator >> visitImplicitCastNode: node [
 ]
 
 { #category : #visiting }
+MbndAstEvaluator >> visitInlineAssembly: node [
+	node isModuleLevelInlineAssembly ifTrue: [ ^ node type defaultValueAt: node ].
+	self errorNotInCompileTime: 'Cannot evaluate inline assembly in compile time.' at: node
+]
+
+{ #category : #visiting }
 MbndAstEvaluator >> visitLexicalScopeNode: node [
 	^ self withScope: scope newLexicalScope do: [
 		self visitNode: node expression
@@ -387,6 +393,13 @@ MbndAstEvaluator >> visitSetFieldValueNode: node [
 ]
 
 { #category : #visiting }
+MbndAstEvaluator >> visitSignExtensionCastNode: node [
+	self assert: node type isPrimitiveIntegerType.
+	"Nothing special should be required here."
+	^ self visitBitCastNode: node
+]
+
+{ #category : #visiting }
 MbndAstEvaluator >> visitStaticClassPointerCastNode: castNode [
 	| pointer sourceType targetType targetSlotIndex |
 	pointer := self visitNode: castNode expression.
@@ -423,6 +436,23 @@ MbndAstEvaluator >> visitStructureDefinitionNode: node [
 { #category : #visiting }
 MbndAstEvaluator >> visitTemplateDefinitionNode: node [
 	^ MbndValue value: node binding type: node type
+]
+
+{ #category : #visiting }
+MbndAstEvaluator >> visitTruncateCastNode: node [
+	| originalValue truncatedValue bitSize |
+	self assert: node type isPrimitiveIntegerType.
+	originalValue := self visitNode: node expression.
+	bitSize := node type instanceSize *8.
+	truncatedValue := originalValue value bitAnd: (1 << bitSize) - 1.
+	node type isSigned ifTrue: [
+		| signBit |
+		signBit := 1 << (bitSize - 1).
+		truncatedValue := (truncatedValue bitAnd: signBit - 1) - 
+			(truncatedValue bitAnd: signBit)
+	].
+	
+	^ truncatedValue asMoebiusValueWithType: node type
 ]
 
 { #category : #visiting }
@@ -493,6 +523,13 @@ MbndAstEvaluator >> visitWhileLoopNode: node [
 	].
 
 	^ node type defaultValue
+]
+
+{ #category : #visiting }
+MbndAstEvaluator >> visitZeroExtensionCastNode: node [
+	self assert: node type isPrimitiveIntegerType.
+	"Nothing special should be required here."
+	^ self visitBitCastNode: node
 ]
 
 { #category : #visiting }

@@ -11,11 +11,13 @@ MbndOpaqueHandleType class >> typeName [
 
 { #category : #sizes }
 MbndOpaqueHandleType >> instanceAlignment [
+	<compileTime>
 	^ self compilationTarget pointerAlignment
 ]
 
 { #category : #sizes }
 MbndOpaqueHandleType >> instanceSize [
+	<compileTime>
 	^ self compilationTarget pointerSize
 ]
 

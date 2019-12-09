@@ -21,6 +21,7 @@ MbndFieldMetaBuilder >> concretizeNode: node withAnalyzer: analyzer [
 	| result |
 	result := (analyzer astBuilder
 		defineField: name withValueType: valueType withInitialValue: initialValueNode)
+		minimalAlignment: alignment;
 		bits: bits;
 		position: position;
 		flags: flags;

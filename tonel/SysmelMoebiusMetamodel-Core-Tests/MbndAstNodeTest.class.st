@@ -106,6 +106,7 @@ MbndAstNodeTest >> testTestingMethods [
 	self deny: node isGlobalVariableDefinitionNode.
 	self deny: node isIdentifierReferenceNode.
 	self deny: node isIfConditionNode.
+	self deny: node isInlineAssembly.
 	self deny: node isIntegerToFloatingPointCastNode.
 	self deny: node isIntegerToPointerCastNode.
 	self deny: node isImmediateBlockClosureActivationNode.

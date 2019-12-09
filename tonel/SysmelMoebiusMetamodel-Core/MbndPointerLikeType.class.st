@@ -49,10 +49,12 @@ MbndPointerLikeType >> asUndecoratedClassType [
 
 { #category : #sizes }
 MbndPointerLikeType >> instanceAlignment [
+	<compileTime>
 	^ self compilationTarget pointerAlignment
 ]
 
 { #category : #sizes }
 MbndPointerLikeType >> instanceSize [
+	<compileTime>
 	^ self compilationTarget pointerSize
 ]

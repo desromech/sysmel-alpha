@@ -352,6 +352,17 @@ MbndAstTransformVisitor >> visitImplicitCastNode: node [
 ]
 
 { #category : #visiting }
+MbndAstTransformVisitor >> visitInlineAssembly: node [
+	^ node copy
+		architecture: (self visitNode: node architecture);
+		dialect: (self visitNode: node dialect);
+		inputList: (self visitNode: node inputList);
+		outputList: (self visitNode: node outputList);
+		clobberList: (self visitNode: node clobberList);
+		yourself
+]
+
+{ #category : #visiting }
 MbndAstTransformVisitor >> visitIntegerToFloatingPointCastNode: node [
 	^ self visitSpecificCastNode: node
 ]

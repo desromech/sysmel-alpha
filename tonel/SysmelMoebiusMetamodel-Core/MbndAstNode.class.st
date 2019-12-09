@@ -34,17 +34,17 @@ MbndAstNode >> asSourcePositionString [
 	^ position asSourcePositionString
 ]
 
-{ #category : #'as yet unclassified' }
+{ #category : #composition }
 MbndAstNode >> calledFunctionBinding [
 	^ nil
 ]
 
-{ #category : #'as yet unclassified' }
+{ #category : #composition }
 MbndAstNode >> concretizeNodeWithAnalyzer: analyzer [
 	^ self
 ]
 
-{ #category : #'as yet unclassified' }
+{ #category : #composition }
 MbndAstNode >> inferTemplateKindWithCompilationTarget: compilationTarget [
 	^ compilationTarget templateType
 ]
@@ -327,6 +327,11 @@ MbndAstNode >> isImmediateBlockClosureActivationNode [
 
 { #category : #testing }
 MbndAstNode >> isImplicitCastNode [
+	^ false
+]
+
+{ #category : #testing }
+MbndAstNode >> isInlineAssembly [
 	^ false
 ]
 
@@ -692,7 +697,7 @@ MbndAstNode >> isZeroExtensionCastNode [
 	^ false
 ]
 
-{ #category : #'as yet unclassified' }
+{ #category : #composition }
 MbndAstNode >> lexicallyScoped [
 	^ MbndAstLexicalScopeNode new
 		position: position;
@@ -700,12 +705,12 @@ MbndAstNode >> lexicallyScoped [
 		yourself
 ]
 
-{ #category : #'as yet unclassified' }
+{ #category : #composition }
 MbndAstNode >> mbndLiteralTypeWithTarget: compilationTarget [
 	^ compilationTarget astNodeType
 ]
 
-{ #category : #'as yet unclassified' }
+{ #category : #composition }
 MbndAstNode >> originalSourceCode [
 	<compileTime>
 	^ position originalSourceCode
@@ -755,4 +760,15 @@ MbndAstNode >> type [
 { #category : #accessing }
 MbndAstNode >> type: anObject [
 	type := anObject
+]
+
+{ #category : #composition }
+MbndAstNode >> withNextExpression: anotherNode [
+	<compileTime>
+	<returnType: #_ASTNodeType>
+	^ MbndAstSequenceNode new
+		position: self;
+		elements: { self . anotherNode };
+		yourself
+	
 ]

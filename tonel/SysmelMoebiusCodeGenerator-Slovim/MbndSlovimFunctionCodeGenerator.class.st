@@ -1178,10 +1178,15 @@ MbndSlovimFunctionCodeGenerator >> visitUnwrapEnumValueCastNode: node [
 
 { #category : #visiting }
 MbndSlovimFunctionCodeGenerator >> visitVariableReferenceNode: node [
-	| binding |
+	| binding translatedBinding |
 	binding := node binding.
 	functionVariables at: binding ifPresent: [ :ssaValue | ^ ssaValue ].
-	^ (codeModuleGenerator translateProgramEntity: binding) ssaValue
+	translatedBinding := (codeModuleGenerator translateProgramEntity: binding) ssaValue.
+	(translatedBinding type isPointerType and: [ (self translateType: node type) isPointerType not]) ifTrue: [
+		"Load the value of immutable variables."
+		^ self slvmBuilder load: translatedBinding
+	].
+	^ translatedBinding
 ]
 
 { #category : #visiting }

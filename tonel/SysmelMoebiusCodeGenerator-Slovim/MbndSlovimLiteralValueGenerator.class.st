@@ -242,7 +242,7 @@ MbndSlovimLiteralValueGenerator >> visitReferenceType: referenceType [
 
 { #category : #visiting }
 MbndSlovimLiteralValueGenerator >> visitSimpleMetaType: type [
-	^ self translateProgramEntity: literalValue
+	^ (self translateProgramEntity: literalValue) ssaValue
 ]
 
 { #category : #visiting }

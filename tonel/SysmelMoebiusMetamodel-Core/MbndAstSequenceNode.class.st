@@ -56,3 +56,12 @@ MbndAstSequenceNode >> pragmas [
 MbndAstSequenceNode >> pragmas: anObject [
 	pragmas := anObject
 ]
+
+{ #category : #composition }
+MbndAstSequenceNode >> withNextExpression: anotherNode [
+	<compileTime>
+	<returnType: #_ASTNodeType>
+	^ self copy
+		elements: elements , { anotherNode };
+		yourself
+]

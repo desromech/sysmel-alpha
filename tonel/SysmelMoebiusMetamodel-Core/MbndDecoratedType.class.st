@@ -68,10 +68,27 @@ MbndDecoratedType >> decorations: anObject [
 	decorations := anObject
 ]
 
+{ #category : #'default values' }
+MbndDecoratedType >> defaultValueAt: aPosition [
+	^ baseType defaultValueAt: aPosition
+]
+
 { #category : #initialization }
 MbndDecoratedType >> initialize [
 	super initialize.
 	decorations ifNil: [ decorations := #() ].
+]
+
+{ #category : #sizes }
+MbndDecoratedType >> instanceAlignment [
+	<compileTime>
+	^ baseType instanceAlignment
+]
+
+{ #category : #sizes }
+MbndDecoratedType >> instanceSize [
+	<compileTime>
+	^ baseType instanceSize
 ]
 
 { #category : #'testing methods' }

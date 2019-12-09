@@ -59,11 +59,13 @@ MbndGCClassVariableDataArrayType >> elementType: anObject [
 
 { #category : #sizes }
 MbndGCClassVariableDataArrayType >> instanceAlignment [
+	<compileTime>
 	^ elementType instanceAlignment
 ]
 
 { #category : #sizes }
 MbndGCClassVariableDataArrayType >> instanceSize [
+	<compileTime>
 	^ 0
 ]
 

@@ -1692,6 +1692,7 @@ global theArray mutable externC type: (Int32 array: 5) := #(1 2 3 4 5).
 
 	globalVariable := ssaModule globalNamed: #theArray.
 	self assert: globalVariable isGlobalVariable.
+	self deny: globalVariable readOnly.
 	self assert: (globalVariable initialValue slots collect: #value) equals: #(1 2 3 4 5).
 ]
 
@@ -1706,6 +1707,7 @@ global theArray mutable externC type: (Int32 array: 5) := (1, 2, 3, 4, 5).
 
 	globalVariable := ssaModule globalNamed: #theArray.
 	self assert: globalVariable isGlobalVariable.
+	self deny: globalVariable readOnly.
 	self assert: (globalVariable initialValue slots collect: #value) equals: #(1 2 3 4 5).
 ]
 
@@ -1725,6 +1727,7 @@ global theArray mutable externC type: (Int32 pointer array: 2) := (
 
 	globalVariable := ssaModule globalNamed: #theArray.
 	self assert: globalVariable isGlobalVariable.
+	self deny: globalVariable readOnly.
 	self assert: globalVariable initialValue slots equals: {
 		ssaModule globalNamed: #firstPointed.
 		ssaModule globalNamed: #secondPointed.
@@ -1740,9 +1743,29 @@ MbndSlovimCodeModuleGeneratorTest >> testGlobalVariableDefinition [
 
 	global := ssaModule globalNamed: #testGlobal.
 	self assert: global isGlobalVariable.
+	self deny: global readOnly.
 	self assert: global valueType isIntegerType.
 	self assert: global initialValue isConstantValue.
 	self assert: global initialValue value equals: 42.
+]
+
+{ #category : #tests }
+MbndSlovimCodeModuleGeneratorTest >> testGlobalVariableImmutableLoad [
+	| global function |
+	self
+		evaluateSysmelSource: '
+global testGlobal externC := 42.
+
+function testFunction externC () => Int32 := testGlobal.
+';
+		generateSSAModule.
+
+	global := ssaModule globalNamed: #testGlobal.
+	function := ssaModule globalNamed: #testFunction.
+	self assert: global isGlobalVariable.
+	self assert: global readOnly.
+	self assert: function isFunction.
+	self assert: function basicBlocks second firstInstruction isLoad.
 ]
 
 { #category : #tests }
@@ -1789,6 +1812,20 @@ global testGlobal externC mutable type: PackedStructure';
 	self assert: global isGlobalVariable.
 	self assert: global valueType isStructureType.
 	self assert: global valueType isPacked.
+]
+
+{ #category : #tests }
+MbndSlovimCodeModuleGeneratorTest >> testGlobalVariableWithMinimalAlignment [
+	| global |
+	self
+		evaluateSysmelSource: '
+global testGlobal externC mutable alignment: 4096; type: UIntPointer';
+		generateSSAModule.
+
+	global := ssaModule globalNamed: #testGlobal.
+	self assert: global isGlobalVariable.
+	self assert: global valueType isPrimitiveType.
+	self assert: global minimalAlignment equals: 4096
 ]
 
 { #category : #tests }
@@ -2977,6 +3014,22 @@ MbndSlovimCodeModuleGeneratorTest >> testMinCFunction [
 ]
 
 { #category : #tests }
+MbndSlovimCodeModuleGeneratorTest >> testModuleLevelInlineAssembly [
+	| fragment |
+	self
+		evaluateSysmelSource: '
+inlineAssembly: "nop" architecture: #x86 dialect: #gas
+';
+		generateSSAModule.
+
+	self assert: ssaModule inlineAssemblyFragments size equals: 1.
+	fragment := ssaModule  inlineAssemblyFragments first.
+	self assert: fragment architecture equals: #x86.
+	self assert: fragment language equals: #gas.
+	self assert: fragment source equals: 'nop'.
+]
+
+{ #category : #tests }
 MbndSlovimCodeModuleGeneratorTest >> testMultipleChainsFunction [
 	| function |
 	self
@@ -3633,6 +3686,28 @@ function returnValue externC() => Int32 := localGlobalVariable';
 ]
 
 { #category : #tests }
+MbndSlovimCodeModuleGeneratorTest >> testStaticGlobalVariableImmutableLoad [
+	| global function |
+	self
+		evaluateSysmelSource: '
+let testGlobal := 42.
+
+function testFunction externC () => Int32 := testGlobal.
+';
+		generateSSAModule.
+
+	function := ssaModule globalNamed: #testFunction.
+
+	self assert: function isFunction.
+	self assert: function basicBlocks second firstInstruction isLoad.
+
+	global := function basicBlocks second firstInstruction variable.
+	self assert: global isGlobalVariable.
+	self assert: global readOnly.
+
+]
+
+{ #category : #tests }
 MbndSlovimCodeModuleGeneratorTest >> testStaticGlobalVariableMutableCapture [
 	| function |
 	self
@@ -3647,6 +3722,26 @@ function returnValue externC() => Int32 := localGlobalVariable';
 	self assert: function functionType returnType isIntegerType.
 	self assert: function basicBlocks size equals: 2.
 	self assert: function basicBlocks second firstInstruction isLoad.
+]
+
+{ #category : #tests }
+MbndSlovimCodeModuleGeneratorTest >> testStaticGlobalVariableWithMinimalAlignment [
+	| global function |
+	self
+		evaluateSysmelSource: '
+let localGlobalVariable mutable alignment: 4096; type: UIntPointer.
+function returnValue externC() => UIntPointer := localGlobalVariable';
+		generateSSAModule.
+
+	function := ssaModule globalNamed: #returnValue.
+	self assert: function isFunction.
+	self deny: function isEmpty.
+	self assert: function functionType returnType isIntegerType.
+	self assert: function basicBlocks size equals: 2.
+	self assert: function basicBlocks second firstInstruction isLoad.
+	
+	global := function basicBlocks second firstInstruction variable.
+	self assert: global minimalAlignment equals: 4096.
 ]
 
 { #category : #tests }

@@ -48,3 +48,12 @@ MbndAstCleanUpScopeNode >> isCleanUpScopeNode [
 MbndAstCleanUpScopeNode >> pragmaAt: pragmaName ifAbsent: absentBlock ifPresent: presentBlock [
 	^ expression pragmaAt: pragmaName ifAbsent: absentBlock ifPresent: presentBlock
 ]
+
+{ #category : #composition }
+MbndAstCleanUpScopeNode >> withNextExpression: anotherNode [
+	<compileTime>
+	<returnType: #_ASTNodeType>
+	^ self copy
+		expression: (expression withNextExpression: anotherNode);
+		yourself
+]

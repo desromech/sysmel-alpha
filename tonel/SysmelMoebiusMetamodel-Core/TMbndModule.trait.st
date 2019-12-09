@@ -4,7 +4,8 @@ Trait {
 		'globalNamespace',
 		'evaluatedFileSet',
 		'pendingDelayedSemanticAnalysisSet',
-		'languageInterfaceCache'
+		'languageInterfaceCache',
+		'moduleLevelInlineAssembly'
 	],
 	#traits : 'TMbndProgramEntity',
 	#classTraits : 'TMbndProgramEntity classTrait',
@@ -14,6 +15,11 @@ Trait {
 { #category : #'as yet unclassified' }
 TMbndModule >> accept: aVisitor [
 	^ aVisitor visitModule: self
+]
+
+{ #category : #adding }
+TMbndModule >> addModuleLevelInlineAssembly: node [
+	self moduleLevelInlineAssembly add: node
 ]
 
 { #category : #evaluation }
@@ -179,6 +185,11 @@ TMbndModule >> lookupSymbol: aSymbol [
 { #category : #accessing }
 TMbndModule >> module [
 	^ self
+]
+
+{ #category : #accessing }
+TMbndModule >> moduleLevelInlineAssembly [
+	^ moduleLevelInlineAssembly ifNil: [ moduleLevelInlineAssembly := OrderedCollection new ]
 ]
 
 { #category : #scope }

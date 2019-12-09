@@ -250,6 +250,11 @@ MbndAstVisitor >> visitImplicitCastNode: node [
 ]
 
 { #category : #visiting }
+MbndAstVisitor >> visitInlineAssembly: node [
+	self subclassResponsibility
+]
+
+{ #category : #visiting }
 MbndAstVisitor >> visitIntegerToFloatingPointCastNode: node [
 	self subclassResponsibility
 ]

@@ -17,6 +17,7 @@ MbndGlobalMetaBuilder >> concretizeNode: node withAnalyzer: analyzer [
 	result := (analyzer astBuilder
 		defineGlobalVariable: name withValueType: valueType withInitialValue: initialValueNode)
 		position: position;
+		minimalAlignment: alignment;
 		flags: flags;
 		yourself.
 	^ analyzer visitNode: result

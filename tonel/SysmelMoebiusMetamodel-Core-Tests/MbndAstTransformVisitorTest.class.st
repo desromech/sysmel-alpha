@@ -483,6 +483,38 @@ MbndAstTransformVisitorTest >> testImplicitCast [
 ]
 
 { #category : #tests }
+MbndAstTransformVisitorTest >> testInlineAssemblyNode [
+	| node assembly architecture dialect inputList outputList clobberList transformedNode |
+	assembly := builder literalString: #nop.
+	architecture := builder literalSymbol: #x86.
+	dialect := builder literalSymbol: #gas.
+	inputList := builder tuple: #().
+	outputList := builder tuple: #().
+	clobberList := builder tuple: #().
+	node := builder inlineAssembly: assembly
+		architecture: architecture
+		dialect: dialect
+		inputList: inputList
+		outputList: outputList
+		clobberList: clobberList.
+	transformedNode := visitor visitNode: node.
+	self assert: node ~~ transformedNode.
+	self assert: transformedNode isInlineAssembly.
+	self assert: transformedNode architecture equals: architecture.
+	self assert: transformedNode dialect equals: dialect.
+
+	self assert: transformedNode inputList isTupleNode.
+	self deny: transformedNode inputList equals: inputList.
+
+	self assert: transformedNode outputList isTupleNode.
+	self deny: transformedNode outputList equals: outputList.
+
+	self assert: transformedNode clobberList isTupleNode.
+	self deny: transformedNode clobberList equals: clobberList.
+
+]
+
+{ #category : #tests }
 MbndAstTransformVisitorTest >> testIntegerToFloatingPointCastNode [
 	| expression node targetType transformedNode |
 	expression := builder identifier: #x.

@@ -1072,6 +1072,33 @@ MbndAstSemanticAnalyzerTest >> testIfLiteralTrue [
 ]
 
 { #category : #tests }
+MbndAstSemanticAnalyzerTest >> testInlineAssemblyNode [
+	| node assemblySource assembly architecture dialect inputList outputList clobberList analyzedNode |
+	assemblySource := 'nop'.
+	assembly := builder literalString: assemblySource.
+	architecture := builder literalSymbol: #x86.
+	dialect := builder literalSymbol: #gas.
+	inputList := builder tuple: #().
+	outputList := builder tuple: #().
+	clobberList := builder tuple: #().
+	node := builder inlineAssembly: assembly
+		architecture: architecture
+		dialect: dialect
+		inputList: inputList
+		outputList: outputList
+		clobberList: clobberList.
+	analyzedNode := visitor visitNode: node.
+	self assert: analyzedNode isInlineAssembly.
+	self assert: analyzedNode assembly equals: assemblySource.
+	self assert: analyzedNode architecture equals: #x86.
+	self assert: analyzedNode dialect equals: #gas.
+	self assert: analyzedNode inputList equals: #().
+	self assert: analyzedNode outputList equals: #().
+	self assert: analyzedNode clobberList equals: #().
+
+]
+
+{ #category : #tests }
 MbndAstSemanticAnalyzerTest >> testIntegerBitCast [
 	| int8Type int16Type int32Type int64Type uint8Type uint16Type uint32Type uint64Type |
 	int8Type := compilationTarget int8Type.

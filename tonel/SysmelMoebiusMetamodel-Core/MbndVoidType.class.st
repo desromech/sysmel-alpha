@@ -9,6 +9,12 @@ MbndVoidType class >> typeName [
 	^ #Void
 ]
 
+{ #category : #'type composition' }
+MbndVoidType >> => returnType [
+	<compileTime>
+	^ self compilationTarget functionTypeWithArguments: #() returnType: returnType
+]
+
 { #category : #visiting }
 MbndVoidType >> accept: aVisitor [
 	^ aVisitor visitVoidType: self

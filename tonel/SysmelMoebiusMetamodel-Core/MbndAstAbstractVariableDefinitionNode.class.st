@@ -3,7 +3,8 @@ Class {
 	#superclass : #MbndAstSymbolDefinition,
 	#instVars : [
 		'initialValue',
-		'valueType'
+		'valueType',
+		'minimalAlignment'
 	],
 	#category : #'SysmelMoebiusMetamodel-Core-AST'
 }
@@ -36,6 +37,16 @@ MbndAstAbstractVariableDefinitionNode >> isMutable [
 { #category : #testing }
 MbndAstAbstractVariableDefinitionNode >> isStatic [
 	^ self hasFlag: #static
+]
+
+{ #category : #accessing }
+MbndAstAbstractVariableDefinitionNode >> minimalAlignment [
+	^ minimalAlignment
+]
+
+{ #category : #accessing }
+MbndAstAbstractVariableDefinitionNode >> minimalAlignment: anObject [
+	minimalAlignment := anObject
 ]
 
 { #category : #flags }

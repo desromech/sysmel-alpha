@@ -145,12 +145,50 @@ MbndGenericMacroLanguageTopLevelScope >> addNamespaceMacros [
 ]
 
 { #category : #initialization }
+MbndGenericMacroLanguageTopLevelScope >> addTargetSpecificMacros [
+	self
+		onMacroSelector: #inlineAssembly:architecture:dialect:inputList:outputList:clobberList: do: [ :node :builder |
+			(builder inlineAssembly: node arguments first
+				architecture: node arguments second dialect: node arguments third
+				inputList: node arguments fourth outputList: node arguments fifth
+				clobberList: node arguments sixth)
+				position: node;
+				yourself
+		];
+		onMacroSelector: #inlineAssembly:architecture:dialect: do: [ :node :builder |
+			(builder inlineAssembly: node arguments first
+				architecture: node arguments second dialect: node arguments third
+				inputList: #() outputList: #() clobberList: #())
+				position: node;
+				yourself
+		];
+		onMacroSelector: #volatileInlineAssembly:architecture:dialect:inputList:outputList:clobberList: do: [ :node :builder |
+			(builder inlineAssembly: node arguments first
+				architecture: node arguments second dialect: node arguments third
+				inputList: node arguments fourth outputList: node arguments fifth
+				clobberList: node arguments sixth)
+				position: node;
+				volatile;
+				yourself
+		];
+		onMacroSelector: #volatileInlineAssembly:architecture:dialect: do: [ :node :builder |
+			(builder inlineAssembly: node arguments first
+				architecture: node arguments second dialect: node arguments third
+				inputList: #() outputList: #() clobberList: #())
+				position: node;
+				volatile;
+				yourself
+		]
+]
+
+{ #category : #initialization }
 MbndGenericMacroLanguageTopLevelScope >> addTopLevelMacros [
 	super addTopLevelMacros.
 	
 	self
 		addModuleMacros;
 		addNamespaceMacros;
-		addControlFlowMacros
+		addControlFlowMacros;
+		addTargetSpecificMacros
 
 ]

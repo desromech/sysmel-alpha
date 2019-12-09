@@ -1017,12 +1017,24 @@ MbndAstSemanticAnalyzer >> visitGlobalVariableDefinitionNode: node [
 		]
 	].
 
+	result minimalAlignment ifNotNil: [ :ma |
+		result minimalAlignment: (self evaluateCompileTimeExpression: ma) unwrapMbndValue.
+		result minimalAlignment isInteger ifFalse: [
+			self error: 'The minimal alignment specified for a variable {1} must be an integer.'
+				format: { result name asPrettySymbolName } at: node minimalAlignment
+		]
+	].
+
 	"Create a matching variable"
 	(node isLocalVariableDefinitionNode or: [node isStatic]) ifTrue: [
 		globalVariable := self createLocalVariableNamed: result name withValueType: valueType type: result type variableClass: MbndGlobalVariable flags: (node flags copyWith: #static) at: node
 	] ifFalse: [ 
 		owner := node ownerProgramEntity ifNil: [scope lookupProgramEntityForNewDefinitions].
 		globalVariable := owner findOrAddGlobalVariableNamed: result name valueType: result valueType type: result type at: result.
+	].
+
+	result minimalAlignment ifNotNil: [ :ma |
+		globalVariable minimalAlignment: ma
 	].
 
 	result initialValue ifNotNil: [ 
@@ -1153,6 +1165,51 @@ MbndAstSemanticAnalyzer >> visitImplicitCastNode: node [
 		typeConversionRule: conversionRule;
 		type: result targetType.
 	^ conversionRule postProcessCastNode: result withAnalyzer: self.
+]
+
+{ #category : #visiting }
+MbndAstSemanticAnalyzer >> visitInlineAssembly: node [
+	| result |
+	result := node copy.
+	result assembly: (self evaluateCompileTimeExpression: node assembly) unwrapMbndValue.
+	result assembly isString ifFalse: [
+		self error: 'Inline assembly source code must be evaluated into a string in compile time.' at: node assembly.
+	].
+
+	result architecture: (self evaluateCompileTimeExpression: node architecture) unwrapMbndValue.
+	result architecture isSymbol ifFalse: [ 
+		self error: 'Inline assembly architecture name must be evaluated into a symbol in compile time.' at: node architecture.
+	].
+
+	result dialect: (self evaluateCompileTimeExpression: node dialect) unwrapMbndValue.
+	result dialect isSymbol ifFalse: [ 
+		self error: 'Inline assembly dialect name must be evaluated into a symbol in compile time.' at: node architecture.
+	].
+
+	result inputList: ((self visitSplicingTupleNode: result inputList) collect: [ :inputConstraint |
+		self analyzeInlineAssemblyInputConstraint: inputConstraint for: result
+	]).
+
+	result outputList: ((self visitSplicingTupleNode: result outputList) collect: [ :outputConstraint |
+		self analyzeInlineAssemblyOutputConstraint: outputConstraint for: result
+	]).
+
+	result clobberList: ((self visitSplicingTupleNode: result clobberList) collect: [ :clobberConstraint |
+		self analyzeInlineAssemblyClobberConstraint: clobberConstraint for: result
+	]).
+	
+	scope isInFunctionScope ifFalse: [
+		(result inputList isNotEmpty or: [ result outputList isNotEmpty or: [ result clobberList isNotEmpty ] ]) ifTrue: [
+			self error: 'Module level inline assembly (i.e. not inside a function) cannot have I/O constraints, or elements in the cloberred list.' at: result
+		].
+	
+		result markAsModuleLevel.
+		scope lookupProgramEntityForNewDefinitions module
+			addModuleLevelInlineAssembly: result
+	].
+
+	result type: self compilationTarget voidType.
+	^ result
 ]
 
 { #category : #visiting }

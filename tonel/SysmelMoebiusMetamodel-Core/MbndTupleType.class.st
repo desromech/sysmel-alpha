@@ -86,12 +86,14 @@ MbndTupleType >> elements: anObject [
 
 { #category : #sizes }
 MbndTupleType >> instanceAlignment [
+	<compileTime>
 	instanceAlignment ifNil: [ self computeLayout ].
 	^ instanceAlignment
 ]
 
 { #category : #sizes }
 MbndTupleType >> instanceSize [
+	<compileTime>
 	instanceSize ifNil: [ self computeLayout ].
 	^ instanceSize
 ]

@@ -54,12 +54,14 @@ MbndAssociationType >> elementOffsets [
 
 { #category : #sizes }
 MbndAssociationType >> instanceAlignment [
+	<compileTime>
 	instanceAlignment ifNil: [ self computeLayout ].
 	^ instanceAlignment
 ]
 
 { #category : #sizes }
 MbndAssociationType >> instanceSize [
+	<compileTime>
 	instanceSize ifNil: [ self computeLayout ].
 	^ instanceSize
 ]

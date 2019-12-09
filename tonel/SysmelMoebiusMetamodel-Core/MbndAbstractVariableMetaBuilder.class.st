@@ -3,10 +3,21 @@ Class {
 	#superclass : #MbndAbstractNamedMetaBuilder,
 	#instVars : [
 		'initialValueNode',
-		'valueType'
+		'valueType',
+		'alignment'
 	],
 	#category : #'SysmelMoebiusMetamodel-Core-MetaBuilder'
 }
+
+{ #category : #accessing }
+MbndAbstractVariableMetaBuilder >> alignment [
+	^ alignment
+]
+
+{ #category : #accessing }
+MbndAbstractVariableMetaBuilder >> alignment: anObject [
+	alignment := anObject
+]
 
 { #category : #definition }
 MbndAbstractVariableMetaBuilder >> assignValue: newInitialValueNode [

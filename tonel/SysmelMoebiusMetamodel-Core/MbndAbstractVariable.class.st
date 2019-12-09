@@ -7,7 +7,8 @@ Class {
 		'parent',
 		'name',
 		'definitionNode',
-		'valueType'
+		'valueType',
+		'minimalAlignment'
 	],
 	#category : #'SysmelMoebiusMetamodel-Core-Variables'
 }
@@ -60,6 +61,16 @@ MbndAbstractVariable >> evaluateLocalDefinition: node withEvaluator: evaluator [
 { #category : #'as yet unclassified' }
 MbndAbstractVariable >> hasPublicVisibility [
 	^ false
+]
+
+{ #category : #accessing }
+MbndAbstractVariable >> minimalAlignment [
+	^ minimalAlignment
+]
+
+{ #category : #accessing }
+MbndAbstractVariable >> minimalAlignment: anObject [
+	minimalAlignment := anObject
 ]
 
 { #category : #accessing }

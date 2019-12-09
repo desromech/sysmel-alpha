@@ -384,11 +384,19 @@ SysmelParser >> operate: left with: right do: operation [
 { #category : #accessing }
 SysmelParser >> parentExpression [
 	^ super parentExpression ==> [ :tokens |
-		SYMLASTParentExpression new
-			position: tokens first;
-			tokens: { tokens first . tokens last };
-			expression: tokens second;
-			yourself
+		tokens second ifNil: [
+			SYMLASTCommaSeparatedList new
+				position: tokens first;
+				tokens: { tokens first . tokens last };
+				expressions: #();
+				yourself
+		] ifNotNil: [ 
+			SYMLASTParentExpression new
+				position: tokens first;
+				tokens: { tokens first . tokens last };
+				expression: tokens second;
+				yourself
+		].
 	]
 ]
 

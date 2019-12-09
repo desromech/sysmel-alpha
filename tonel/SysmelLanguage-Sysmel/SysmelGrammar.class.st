@@ -531,7 +531,7 @@ SysmelGrammar >> optionalExpression [
 
 { #category : #accessing }
 SysmelGrammar >> parentExpression [
-	^ lparent , expression , rparent
+	^ lparent , expression optional, rparent
 ]
 
 { #category : #operators }
