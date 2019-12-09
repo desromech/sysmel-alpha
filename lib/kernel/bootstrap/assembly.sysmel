@@ -1,8 +1,18 @@
-#*namespace SysmelKernel definition: {
-macro expansionRule x86_gas: sourceCode
-    := (__astBuilder inlineAssemblyArch: #x86 language: #gas sourceCode: sourceCode)
-        position: sourceCode position;
-        yourself.
+namespace SysmelKernel definition: {
+macro expansionRule x86InlineAssemblyGAS: sourceCode
+    := ``(inlineAssembly: `,sourceCode architecture: #x86 dialect: #gas
+			inputList: () outputList: () clobberList: ()).
+
+macro expansionRule x86VolatileInlineAssemblyGAS: sourceCode
+    := ``(volatileInlineAssembly: `,sourceCode architecture: #x86 dialect: #gas
+			inputList: () outputList: () clobberList: ()).
+
+macro expansionRule x86InlineAssemblyIntel: sourceCode
+    := ``(inlineAssembly: `,sourceCode architecture: #x86 dialect: #intel
+			inputList: () outputList: () clobberList: ()).
+
+macro expansionRule x86VolatileInlineAssemblyIntel: sourceCode
+    := ``(volatileInlineAssembly: `,sourceCode architecture: #x86 dialect: #intel
+			inputList: () outputList: () clobberList: ()).
 
 }. ## End of namespace SysmelKernel
-*#
