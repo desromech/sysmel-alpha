@@ -50,6 +50,11 @@ MbndAggregateTypeInstanceValue >> asMoebiusLiteralValueNodeWithTarget: compilati
 	^ self asLiteralValueNode
 ]
 
+{ #category : #copying }
+MbndAggregateTypeInstanceValue >> copyForValueAssignment [
+	^ self copy
+]
+
 { #category : #accessing }
 MbndAggregateTypeInstanceValue >> getFieldValue: fieldName [
 	^ (type slotLayout findFirstFieldNamed: fieldName) evaluateAggregateValue: self
@@ -58,6 +63,11 @@ MbndAggregateTypeInstanceValue >> getFieldValue: fieldName [
 { #category : #testing }
 MbndAggregateTypeInstanceValue >> isAggregateTypeInstanceValue [
 	^ true
+]
+
+{ #category : #copying }
+MbndAggregateTypeInstanceValue >> postCopy [
+	slots := slots copy
 ]
 
 { #category : #'as yet unclassified' }

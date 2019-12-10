@@ -67,6 +67,11 @@ MbndNamespace >> parent: anObject [
 	parent := anObject
 ]
 
+{ #category : #printing }
+MbndNamespace >> printOn: aStream [
+	aStream nextPutAll: 'namespace '; nextPutAll: name asPrettySymbolName
+]
+
 { #category : #'semantic analysis' }
 MbndNamespace >> type [
 	^ self compilationTarget namespaceType

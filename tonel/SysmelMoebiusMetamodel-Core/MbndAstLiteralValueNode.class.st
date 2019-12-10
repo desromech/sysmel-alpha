@@ -23,7 +23,7 @@ MbndAstLiteralValueNode >> asLiteralValuePatternNode [
 
 { #category : #'as yet unclassified' }
 MbndAstLiteralValueNode >> evaluateMbndValue [
-	^ MbndValue value: value type: type
+	^ value asMoebiusValueWithType: type
 ]
 
 { #category : #testing }

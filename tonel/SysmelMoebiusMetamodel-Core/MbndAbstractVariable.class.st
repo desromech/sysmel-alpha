@@ -53,6 +53,10 @@ MbndAbstractVariable >> evaluateLocalDefinition: node withEvaluator: evaluator [
 		type: node binding type;
 		value: (evaluator visitNode: node initialValue);
 		yourself.
+	compileTimeVariable valueType isReferenceType ifFalse: [ 
+		compileTimeVariable value: compileTimeVariable value copyForValueAssignment
+	].
+
 	"Add the store to the scope."
 	evaluator scope setBinding: node binding storage: compileTimeVariable.
 	^ compileTimeVariable asCompileTimeValueReferenceOfType: node type withEvaluator: evaluator at: node

@@ -30,6 +30,11 @@ MbndUnionTypeInstanceValue >> asMoebiusLiteralValueNodeWithTarget: compilationTa
 	^ self asLiteralValueNode
 ]
 
+{ #category : #copying }
+MbndUnionTypeInstanceValue >> copyForValueAssignment [
+	^ self copy
+]
+
 { #category : #accessing }
 MbndUnionTypeInstanceValue >> data [
 	^ data
@@ -46,6 +51,11 @@ MbndUnionTypeInstanceValue >> isAllZeros [
 		(data at: i) ~~ 0 ifTrue: [ ^ false ]
 	].
 	^ true
+]
+
+{ #category : #copying }
+MbndUnionTypeInstanceValue >> postCopy [
+	data := data copy
 ]
 
 { #category : #accessing }

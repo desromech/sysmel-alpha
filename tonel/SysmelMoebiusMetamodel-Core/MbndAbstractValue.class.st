@@ -27,6 +27,11 @@ MbndAbstractValue >> compilationTarget [
 	^ self type compilationTarget
 ]
 
+{ #category : #copying }
+MbndAbstractValue >> copyForValueAssignment [
+	^ self
+]
+
 { #category : #testing }
 MbndAbstractValue >> isAggregateTypeInstanceValue [
 	^ false

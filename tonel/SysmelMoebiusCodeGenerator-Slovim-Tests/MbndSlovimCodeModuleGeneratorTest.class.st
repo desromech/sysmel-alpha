@@ -1796,6 +1796,108 @@ global testPointed externC mutable type: Int32 := 42.
 ]
 
 { #category : #tests }
+MbndSlovimCodeModuleGeneratorTest >> testGlobalVariableMultipleInitialization [
+	| testA testB testC |
+	self
+		evaluateSysmelSource: '
+struct TestStruct definition: { 
+	public field f type: Int32.
+}.
+
+global testA externC mutable := TestStruct newValue f: 0.
+global testB externC mutable := TestStruct newValue f: 1.
+global testC externC mutable := TestStruct newValue f: 2.
+';
+		generateSSAModule.
+
+	testA := ssaModule globalNamed: #testA.
+	testB := ssaModule globalNamed: #testB.
+	testC := ssaModule globalNamed: #testC.
+	self assert: testA isGlobalVariable.
+	self assert: testA initialValue isConstantStructureValue.
+	self assert: testA initialValue slots first value equals: 0.
+	
+	self assert: testB isGlobalVariable.
+	self assert: testB initialValue isConstantStructureValue.
+	self assert: testB initialValue slots first value equals: 1.
+
+	self assert: testC isGlobalVariable.
+	self assert: testC initialValue isConstantStructureValue.
+	self assert: testC initialValue slots first value equals: 2.
+
+]
+
+{ #category : #tests }
+MbndSlovimCodeModuleGeneratorTest >> testGlobalVariableMultipleInitialization2 [
+	| testA testB testC |
+	self
+		evaluateSysmelSource: '
+struct TestStruct definition: { 
+	meta message for: (v: Int32) ::=> TestStruct
+		:= SelfType newValue f: v.
+
+	public field f type: Int32.
+}.
+
+global testA externC mutable := TestStruct for: 0.
+global testB externC mutable := TestStruct for: 1.
+global testC externC mutable := TestStruct for: 2.
+';
+		generateSSAModule.
+
+	testA := ssaModule globalNamed: #testA.
+	self assert: testA isGlobalVariable.
+	self assert: testA initialValue isConstantStructureValue.
+	self assert: testA initialValue slots first value equals: 0.
+	
+	testB := ssaModule globalNamed: #testB.
+	self assert: testB isGlobalVariable.
+	self assert: testB initialValue isConstantStructureValue.
+	self assert: testB initialValue slots first value equals: 1.
+
+	testC := ssaModule globalNamed: #testC.
+	self assert: testC isGlobalVariable.
+	self assert: testC initialValue isConstantStructureValue.
+	self assert: testC initialValue slots first value equals: 2.
+
+]
+
+{ #category : #tests }
+MbndSlovimCodeModuleGeneratorTest >> testGlobalVariableMultipleInitialization3 [
+	| testA testB testC |
+	self
+		evaluateSysmelSource: '
+struct TestStruct definition: { 
+	meta message for: (v: Int32) ::=> TestStruct
+		:= SelfType newValue f: v; yourself.
+
+	public field f type: Int32.
+}.
+
+global testA externC mutable := TestStruct for: 0.
+global testB externC mutable := TestStruct for: 1.
+global testC externC mutable := TestStruct for: 2.
+';
+		generateSSAModule.
+
+	testA := ssaModule globalNamed: #testA.
+	self assert: testA isGlobalVariable.
+	self assert: testA initialValue isConstantStructureValue.
+	self assert: testA initialValue slots first value equals: 0.
+	
+	testB := ssaModule globalNamed: #testB.
+	self assert: testB isGlobalVariable.
+	self assert: testB initialValue isConstantStructureValue.
+	self assert: testB initialValue slots first value equals: 1.
+
+	testC := ssaModule globalNamed: #testC.
+	self assert: testC isGlobalVariable.
+	self assert: testC initialValue isConstantStructureValue.
+	self assert: testC initialValue slots first value equals: 2.
+
+]
+
+{ #category : #tests }
 MbndSlovimCodeModuleGeneratorTest >> testGlobalVariablePackedStructre [
 	| global |
 	self

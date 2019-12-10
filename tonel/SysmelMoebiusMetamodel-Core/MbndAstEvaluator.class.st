@@ -62,7 +62,7 @@ MbndAstEvaluator >> visitAssignmentNode: node [
 	value := self visitNode: node value.
 	reference := self visitNode: node reference.
 	
-	reference value value: value.
+	reference value value: value copyForValueAssignment.
 	^ reference
 ]
 
@@ -384,10 +384,12 @@ MbndAstEvaluator >> visitSetFieldValueNode: node [
 	(aggregate type isPointerType or: [ aggregate type isReferenceType ]) ifTrue: [ 
 		self assert: aggregate type baseType isConstantType not.
 		aggregateValue := aggregateValue "ref value" value "ref container" value.
+	] ifFalse: [
+		aggregate := aggregateValue := aggregateValue copy
 	].
 	
 	self assert: aggregateValue type isAggregateType.
-	aggregateValue value slots at: field slotIndex + 1 put: newValue value.
+	aggregateValue slots at: field slotIndex + 1 put: newValue value.
 	^ aggregate
 	
 ]
