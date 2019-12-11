@@ -1433,7 +1433,7 @@ MbndAstSemanticAnalyzer >> visitMatrixGetRowNode: node [
 	| result matrixType |
 	result := node copy
 		matrix: (self analyzeNodeIfNeeded: node matrix);
-		element: (self ensureIntegerValue: (self analyzeNodeIfNeeded: node matrix) at: node);
+		element: (self ensureIntegerValue: (self analyzeNodeIfNeeded: node element) at: node);
 		yourself.
 	matrixType := result matrix type withoutReferences withoutTopDecorations.
 	self assert: matrixType isPrimitiveMatrixType.
