@@ -152,5 +152,4 @@ template FixedBigInteger(WC: _LiteralInteger)
     }.
 }.
 
-compileTimeConstant FloatStringConversionBigInteger := FixedBigInteger(32). ## 1024 bits big integer.
 }. ## End of namespace StdNative

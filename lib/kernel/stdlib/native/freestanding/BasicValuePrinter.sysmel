@@ -1,0 +1,24 @@
+namespace StdNative definition: {
+
+class BasicValuePrinter definition: {
+    compileTimeConstant bufferCapacity := 256.
+    public field bufferSize type: UIntPointer.
+    public field buffer type: (UInt8 array: bufferCapacity).
+
+    message nextPut: (c: Int32) ::=> Void := {
+        bufferSize < bufferCapacity ifTrue:{
+            buffer[bufferSize] := c castTo: UInt8.
+            bufferSize := bufferSize + 1
+        }
+    }.
+
+    message nextPutAll: (string: StdNative StringLiteral) ::=> Void := {
+        bufferSize + string size < bufferCapacity ifTrue: {
+            memcpy(buffer[bufferSize] address, string[0] address, string size).
+            bufferSize := bufferSize + string size.
+        }.
+    }.
+
+}.
+
+}.

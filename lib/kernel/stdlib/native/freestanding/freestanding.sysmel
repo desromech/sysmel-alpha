@@ -2,7 +2,19 @@
 if: Compiler compilationTarget isGPU not then: {
 	loadFileOnce: "array.sysmel".
 	loadFileOnce: "string.sysmel".
-	loadFileOnce: "FixedBigInteger.sysmel".
+
+	loadFileOnce: "BasicValuePrinter.sysmel".
+	loadFileOnce: "StandaloneIntegerPrinter.sysmel".
+
+	## Our standalone float printer is not yet completely implemented, so for
+	## now just use the snprintf based implementation.
+	if: Compiler hasLibC then: {
+		loadFileOnce: "LibCFloatPrinter.sysmel".
+	} else: {
+		loadFileOnce: "FixedBigInteger.sysmel".
+		loadFileOnce: "StandaloneFloatPrinter.sysmel".
+	}.
+
 	loadFileOnce: "explicit-memory-collections/collections.sysmel".
 	loadFileOnce: "fatalError.sysmel".
 }.

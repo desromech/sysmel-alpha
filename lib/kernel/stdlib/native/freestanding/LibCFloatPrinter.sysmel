@@ -1,0 +1,23 @@
+namespace StdNative definition: {
+
+class BasicValueFloatPrinter superclass: BasicValueIntegerPrinter; definition: {
+    message nextPutDouble: (double: Float64) ::=> Void := {
+        bufferSize := LibC snprintf(buffer[0] address, bufferCapacity, "%g", double).
+
+        ## Make sure a point or an exponent is present in the output.
+        0 until: bufferSize do: {:(UIntPointer)i :: Void |.
+            let c := buffer[i].
+            c = '.' || c = 'e' ifTrue: {
+                return: nil
+            }
+        }.
+
+        self nextPut: '.'; nextPut: '0'
+    }.
+
+    message nextPutSingleFloat: (float: Float32) ::=> Void := {
+        self nextPutDouble: float
+    }.
+}.
+
+}.
