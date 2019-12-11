@@ -24,6 +24,14 @@ class TextStreamWriter definition: {
         (stream _ write: string size: size) == (size castTo: IntPointer)
     }.
 
+    message nextPutBoolean: (value: BooleanBit) ::=> Void := {
+        value ifTrue: {
+			self nextPutAll: "true"
+		} ifFalse:{
+			self nextPutAll: "false"
+		}
+    }.
+
     message nextPutHexDigit: (digit: Int32) ::=> Void := {
         if: 0 <= digit && digit <= 9 then: {
             self nextPut: '0' + digit
@@ -190,6 +198,9 @@ class TextStreamWriter definition: {
     message << (string: StdNative StringLiteral) => SelfType ref
         := self nextPutAll: string; yourself.
 
+    message << (bool: BooleanBit) => SelfType ref
+        := self nextPutBoolean: bool; yourself.
+
     message << (integer: Int8) => SelfType ref
         := self nextPutInteger: integer; yourself.
 
@@ -224,29 +235,33 @@ class TextStreamWriter definition: {
         := self nextPutDouble: double; yourself.
 }.
 
-#*_PrimitiveVectorTypeTemplate extend: {
+_PrimitiveVectorTypeTemplate extend: {
     let VectorType := SelfType.
+    let VectorSize := SelfType elements.
 
     TextStreamWriter extend: {
-        message << (vector: VectorType) => SelfType ref := {
+        message nextPutPrimitiveVector: (vector: VectorType) ::=> Void := {
             self << vector x.
-            compileTimeIf: ElementCount > 1 then: {
+            compileTimeIf: VectorSize > 1 then: {
                 self nextPut: ' '.
                 self << vector y.
-                compileTimeIf: ElementCount > 2 then: {
+                compileTimeIf: VectorSize > 2 then: {
                     self nextPut: ' '.
                     self << vector z.
-                    compileTimeIf: ElementCount > 3 then: {
+                    compileTimeIf: VectorSize > 3 then: {
                         self nextPut: ' '.
                         self << vector w.
                     }
                 }
             }.
+        }.
 
+        message << (vector: VectorType) => SelfType ref := {
+            self nextPutPrimitiveVector: vector.
             self
         }.
     }.
-}.*#
+}.
 
 global stdout mutable := TextStreamWriter for: stdoutFile address.
 global stderr mutable := TextStreamWriter for: stderrFile address.

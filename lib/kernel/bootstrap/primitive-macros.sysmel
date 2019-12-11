@@ -76,13 +76,6 @@ namespace SysmelKernel definition: {
     _PrimitiveIntegerType macro expansionRule isOdd :=
         ``((`,self & 1) == 1).
 
-    ## Compile time if.
-    macro expansionRule compileTimeIf: (condition: BooleanBit) then: thenNode
-        := condition ifTrue: thenNode ifFalse: ``nil.
-
-    macro expansionRule compileTimeIf: (condition: BooleanBit) then: thenNode else: elseNode
-        := condition ifTrue: thenNode ifFalse: elseNode.
-
     ## Range loop macro
     _NumberType macro expansionRule to: stop by: increment do: aBlock := {
         let index := __astBuilder gensym: #index.
