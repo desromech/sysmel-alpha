@@ -40,7 +40,7 @@ function main externC (argc: Int32, argv: Char const pointer pointer) => Int32 :
 	tab; nextPutVector: matrix thirdRow; nl.*#
 	
     let mv3f := matrix * v3f.
-    LibC printf("mv3f %f %f %f\n", mv3f x, mv3f y, mv3f z).
+	StdNative stdout << "mv3f " << mv3f; nl.
 
     let v3fm := v3f * matrix.
     StdNative stdout << "v3fm " << v3fm; nl.
