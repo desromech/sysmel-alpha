@@ -1640,6 +1640,11 @@ MbndAstSemanticAnalyzer >> visitProgramEntityExtensionNode: node [
 		]
 	].
 
+	programEntity isTemplate ifTrue: [
+		programEntity addExtension: node body inScope: scope.
+		^ self astBuilder literalVoid
+	].
+
 	programEntity addFlag: #defined.
 	self withScope: (programEntity programEntityScope parent: scope) newLexicalScope do: [ 
 		self evaluateCompileTimeExpression: node body

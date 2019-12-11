@@ -21,6 +21,38 @@ Class {
 }
 
 { #category : #initialization }
+MbndGenericMacroLanguageTopLevelScope >> addCompileTimeControlFlowMacros [
+	self
+		onMacroSelector: #compileTimeIf:then: do: [ :node :builder :analyzer |
+			| condition |
+			condition := (analyzer evaluateCompileTimeExpression: node arguments first) unwrapMbndValue.
+			condition == true ifTrue: [
+				analyzer analyzeNodeIfNeeded: node arguments second
+			] ifFalse: [ 
+				condition == false ifTrue: [
+					analyzer analyzeNodeIfNeeded: ((builder literalVoid)
+						position: node)
+				] ifFalse: [ 
+					analyzer error: 'Compile time condition must evaluate to a boolean value instead of: {1}.' format: { condition asString } at: node arguments first
+				]
+			]
+		];
+		onMacroSelector: #compileTimeIf:then:else: do: [ :node :builder :analyzer |
+			| condition |
+			condition := (analyzer evaluateCompileTimeExpression: node arguments first) unwrapMbndValue.
+			condition == true ifTrue: [
+				analyzer analyzeNodeIfNeeded: node arguments second
+			] ifFalse: [ 
+				condition == false ifTrue: [
+					analyzer analyzeNodeIfNeeded: node arguments third
+				] ifFalse: [ 
+					analyzer error: 'Compile time condition must evaluate to a boolean value instead of: {1}.' format: { condition asString } at: node arguments first
+				]
+			]
+		]
+]
+
+{ #category : #initialization }
 MbndGenericMacroLanguageTopLevelScope >> addControlFlowMacros [
 	self
 		onMacroSelector: #return: do: [ :node :builder |
@@ -189,6 +221,7 @@ MbndGenericMacroLanguageTopLevelScope >> addTopLevelMacros [
 		addModuleMacros;
 		addNamespaceMacros;
 		addControlFlowMacros;
+		addCompileTimeControlFlowMacros;
 		addTargetSpecificMacros
 
 ]

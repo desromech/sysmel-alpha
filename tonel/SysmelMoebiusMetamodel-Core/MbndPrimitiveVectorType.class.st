@@ -161,6 +161,7 @@ MbndPrimitiveVectorType >> defaultValueAt: aPosition [
 
 { #category : #accessing }
 MbndPrimitiveVectorType >> elementType [
+	<compileTime>
 	^ elementType
 ]
 
@@ -171,6 +172,7 @@ MbndPrimitiveVectorType >> elementType: anObject [
 
 { #category : #accessing }
 MbndPrimitiveVectorType >> elements [
+	<compileTime>
 	^ elements
 ]
 

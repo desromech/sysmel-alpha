@@ -3,6 +3,7 @@ Class {
 	#superclass : #MbndAbstractTemplate,
 	#instVars : [
 		'compilationTarget',
+		'argumentNames',
 		'instances',
 		'mainDefinitionConstructionBlock'
 	],
@@ -12,6 +13,16 @@ Class {
 { #category : #visiting }
 MbndSystemProvidedTypeTemplate >> accept: aVisitor [
 	^ aVisitor visitSystemProvidedTypeTemplate: self
+]
+
+{ #category : #accessing }
+MbndSystemProvidedTypeTemplate >> argumentNames [
+	^ argumentNames
+]
+
+{ #category : #accessing }
+MbndSystemProvidedTypeTemplate >> argumentNames: anObject [
+	argumentNames := anObject
 ]
 
 { #category : #accessing }
@@ -27,7 +38,11 @@ MbndSystemProvidedTypeTemplate >> compilationTarget: anObject [
 { #category : #template }
 MbndSystemProvidedTypeTemplate >> getOrCreateInstanceWithArguments: arguments [
 	^ instances at: arguments ifAbsentPut: [
-		mainDefinitionConstructionBlock valueWithArguments: arguments.
+		| newInstance |
+		newInstance := mainDefinitionConstructionBlock valueWithArguments: arguments.
+		instances at: arguments put: newInstance.
+		definitionFragments do: [ :fragment | fragment applyToInstance: newInstance ].
+		newInstance
 	]
 ]
 
@@ -35,6 +50,16 @@ MbndSystemProvidedTypeTemplate >> getOrCreateInstanceWithArguments: arguments [
 MbndSystemProvidedTypeTemplate >> initialize [
 	super initialize.
 	instances := WeakValueDictionary new.
+]
+
+{ #category : #accessing }
+MbndSystemProvidedTypeTemplate >> instances [
+	^ instances
+]
+
+{ #category : #accessing }
+MbndSystemProvidedTypeTemplate >> instances: anObject [
+	instances := anObject
 ]
 
 { #category : #accessing }

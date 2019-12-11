@@ -21,6 +21,17 @@ MbndAbstractTemplate >> addChild: aChild [
 	self children add: aChild.
 ]
 
+{ #category : #adding }
+MbndAbstractTemplate >> addExtension: extensionBody inScope: extensionScope [
+	| fragment |
+	fragment := MbndTemplateDefinitionFragment new
+		node: extensionBody; scope: extensionScope; yourself.
+	definitionFragments add: fragment.
+	self instances valuesDo: [ :instance |
+		fragment applyToInstance: instance
+	]
+]
+
 { #category : #'semantic analysis' }
 MbndAbstractTemplate >> analyzeAndEvaluateApplicationNode: node withAnalyzer: analyzer [
 	| argumentsNode arguments rawArguments rawArgumentsLiteralNode convertedArgumentsNode result |

@@ -24,7 +24,8 @@ Trait {
 		'inputChannelTypes',
 		'inputChannelImplementationType',
 		'outputChannelImplementationType',
-		'samplerImplementationType'
+		'samplerImplementationType',
+		'systemProvidedTypeTemplates'
 	],
 	#traits : 'TMbndAbstractCompilationTarget',
 	#classTraits : 'TMbndAbstractCompilationTarget classTrait',
@@ -269,13 +270,15 @@ TMbndCoreCompilationTarget >> createNamedType: name ofKind: typeKindClass [
 ]
 
 { #category : #initialization }
-TMbndCoreCompilationTarget >> createSystemProvidedTypeTemplate: templateName doing: aBlock [
+TMbndCoreCompilationTarget >> createSystemProvidedTypeTemplate: templateName argumentNames: argumentNames doing: aBlock [
 	| template |
 	template := MbndSystemProvidedTypeTemplate new
 		name: templateName;
+		argumentNames: argumentNames;
 		mainDefinitionConstructionBlock: aBlock;
 		compilationTarget: self;
 		yourself.
+	self systemProvidedTypeTemplates add: template.
 	^ template
 ]
 
@@ -577,11 +580,15 @@ TMbndCoreCompilationTarget >> initializeBasicTypes [
 		bt type initializeNonTraitType
 	].
 
+	self systemProvidedTypeTemplates do: [ :template |
+		basicTypes at: template name put: template
+	]
 ]
 
 { #category : #initialization }
 TMbndCoreCompilationTarget >> initializeDerivedTypeCaches [
 	pointerTypes := self createSystemProvidedTypeTemplate: #_PointerTypeTemplate
+		argumentNames: #(BaseType AddressSpace)
 		doing: [ :baseType :addressSpace |
 			(self ensureBasicTypeIsLinkedToTheHierarchy: MbndPointerType basicNew)
 				addressSpace: addressSpace;
@@ -591,6 +598,7 @@ TMbndCoreCompilationTarget >> initializeDerivedTypeCaches [
 		].
 
 	referenceTypes := self createSystemProvidedTypeTemplate: #_ReferenceTypeTemplate
+		argumentNames: #(BaseType AddressSpace)
 		doing: [ :baseType :addressSpace |
 			(self ensureBasicTypeIsLinkedToTheHierarchy: MbndReferenceType basicNew)
 				addressSpace: addressSpace;
@@ -600,6 +608,7 @@ TMbndCoreCompilationTarget >> initializeDerivedTypeCaches [
 	].
 
 	functionTypes := self createSystemProvidedTypeTemplate: #_FunctionTypeTemplate
+		argumentNames: #(ArgumentTypes ReturnType CallingConvention IsCVariadic)
 		doing: [ :argumentTypes :returnType :callingConvention :cvariadic |
 			(self ensureBasicTypeIsLinkedToTheHierarchy: MbndFunctionType basicNew)
 				argumentTypes: argumentTypes;
@@ -611,6 +620,7 @@ TMbndCoreCompilationTarget >> initializeDerivedTypeCaches [
 	].
 
 	blockClosureTypes := self createSystemProvidedTypeTemplate: #_BlockClosureTypeTemplate
+		argumentNames: #(FunctionType)
 		doing: [ :functionType |
 			(self ensureBasicTypeIsLinkedToTheHierarchy: MbndBlockClosureType basicNew)
 				functionType: functionType;
@@ -619,6 +629,7 @@ TMbndCoreCompilationTarget >> initializeDerivedTypeCaches [
 	].
 
 	decoratedTypes := self createSystemProvidedTypeTemplate: #_DecoratedTypeTemplate
+		argumentNames: #(BaseType Decorations)
 		doing: [ :baseType :decorations |
 			(self ensureBasicTypeIsLinkedToTheHierarchy: MbndDecoratedType basicNew)
 				baseType: baseType;
@@ -627,6 +638,7 @@ TMbndCoreCompilationTarget >> initializeDerivedTypeCaches [
 				yourself.
 	].
 	variantUnions := self createSystemProvidedTypeTemplate: #_VariantUnionTypeTemplate
+		argumentNames: #(Components)
 		doing: [ :components |
 			(self ensureBasicTypeIsLinkedToTheHierarchy: MbndVariantUnionType basicNew)
 				components: components;
@@ -635,6 +647,7 @@ TMbndCoreCompilationTarget >> initializeDerivedTypeCaches [
 	].
 
 	arrayTypes := self createSystemProvidedTypeTemplate: #_BasicArrayTypeTemplate
+		argumentNames: #(ElementType ElementCount)
 		doing: [ :elementType :elementCount |
 			(self ensureBasicTypeIsLinkedToTheHierarchy: MbndArrayType basicNew)
 				elementType: elementType;
@@ -644,6 +657,7 @@ TMbndCoreCompilationTarget >> initializeDerivedTypeCaches [
 	].
 
 	gcClassVariableDataArrayTypes := self createSystemProvidedTypeTemplate: #_GCClassVariableDataArrayTypeTemplate
+		argumentNames: #(ElementType)
 		doing: [ :elementType |
 			(self ensureBasicTypeIsLinkedToTheHierarchy: MbndGCClassVariableDataArrayType basicNew)
 				elementType: elementType;
@@ -652,6 +666,7 @@ TMbndCoreCompilationTarget >> initializeDerivedTypeCaches [
 	].
 
 	tupleTypes := self createSystemProvidedTypeTemplate: #_TupleTypeTemplate
+		argumentNames: #(Elements)
 		doing: [ :elements |
 			(self ensureBasicTypeIsLinkedToTheHierarchy: MbndTupleType basicNew)
 				elements: elements;
@@ -660,6 +675,7 @@ TMbndCoreCompilationTarget >> initializeDerivedTypeCaches [
 	].
 
 	associationTypes := self createSystemProvidedTypeTemplate: #_AssociationTypeTemplate
+		argumentNames: #(KeyType ValueType)
 		doing: [ :keyType :valueType |
 			(self ensureBasicTypeIsLinkedToTheHierarchy: MbndAssociationType basicNew)
 				keyType: keyType;
@@ -669,6 +685,7 @@ TMbndCoreCompilationTarget >> initializeDerivedTypeCaches [
 	].
 
 	primitiveVectorTypes := self createSystemProvidedTypeTemplate: #_PrimitiveVectorTypeTemplate
+		argumentNames: #(ElementType Elements)
 		doing: [ :elementType :elements |
 			(self ensureBasicTypeIsLinkedToTheHierarchy: MbndPrimitiveVectorType basicNew)
 				elementType: elementType;
@@ -678,6 +695,7 @@ TMbndCoreCompilationTarget >> initializeDerivedTypeCaches [
 	].
 
 	primitiveMatrixTypes := self createSystemProvidedTypeTemplate: #_PrimitiveMatrixTypeTemplate
+		argumentNames: #(ElementType RowCount ColumnCount)
 		doing: [ :elementType :rowCount :columnCount |
 			(self ensureBasicTypeIsLinkedToTheHierarchy: MbndPrimitiveMatrixType basicNew)
 				elementType: elementType;
@@ -688,6 +706,7 @@ TMbndCoreCompilationTarget >> initializeDerivedTypeCaches [
 	].
 
 	specificCompilerObjects := self createSystemProvidedTypeTemplate: #_SpecificCompilerObjectTypeTemplate
+		argumentNames: #(Behavior)
 		doing: [ :behavior |
 			(self ensureBasicTypeIsLinkedToTheHierarchy: MbndSpecificCompilerObjectType basicNew)
 				behavior: behavior;
@@ -696,6 +715,7 @@ TMbndCoreCompilationTarget >> initializeDerivedTypeCaches [
 	].
 
 	inputChannelTypes := self createSystemProvidedTypeTemplate: #_InputChannelTypeTemplate
+		argumentNames: #(MessageType)
 		doing: [ :messageType |
 			(self ensureBasicTypeIsLinkedToTheHierarchy: MbndInputChannelType basicNew)
 				messageType: messageType;
@@ -704,6 +724,7 @@ TMbndCoreCompilationTarget >> initializeDerivedTypeCaches [
 	].
 
 	outputChannelTypes := self createSystemProvidedTypeTemplate: #_OutputChannelTypeTemplate
+		argumentNames: #(MessageType)
 		doing: [ :messageType |
 			(self ensureBasicTypeIsLinkedToTheHierarchy: MbndOutputChannelType basicNew)
 				messageType: messageType;
@@ -916,6 +937,11 @@ TMbndCoreCompilationTarget >> standardConcreteTypeForSymbolInScope: aScope [
 	aScope isCompilationEvaluationScope ifTrue: [ ^ self compilerObjectType ].
 	self objectModel symbolClass ifNotNil: [ ^ self objectModel symbolClass ].
 	self error: 'Unsupported symbols at this context.'
+]
+
+{ #category : #accessing }
+TMbndCoreCompilationTarget >> systemProvidedTypeTemplates [
+	^ systemProvidedTypeTemplates ifNil: [ systemProvidedTypeTemplates := OrderedCollection new ]
 ]
 
 { #category : #'derived types' }
