@@ -62,6 +62,18 @@ MbndPrimitiveMatrixType >> addInstanceMacros [
 			self assert: node receiver value isPrimitiveMatrixType.
 			node receiver value expandOnesMatrixConstruction: node with: builder.
 		];
+		onMacroSelector: #rowMajorIndices do: [ :node :builder |
+			self assert: node receiver value isPrimitiveMatrixType.
+			node receiver value expandConstantMatrixConstruction: node with: builder valuesComputedWith: [ :r :c :i :j |
+				j*c + i
+			].
+		];
+		onMacroSelector: #columnMajorIndices do: [ :node :builder |
+			self assert: node receiver value isPrimitiveMatrixType.
+			node receiver value expandConstantMatrixConstruction: node with: builder valuesComputedWith: [ :r :c :i :j |
+				i*r + j
+			].
+		];
 		onMacroSelector: #applyWithArguments: do: [ :node :builder :analyzer |
 			self assert: node receiver value isPrimitiveMatrixType.
 			node receiver value analyzeMatrixConstructionNode: node with: analyzer.
@@ -159,6 +171,21 @@ MbndPrimitiveMatrixType >> expandAllConstant: constantValue matrixConstruction: 
 	column := (builder constructVector: self columnType withElements: ((1 to: rows) collect: [ :i | constantValueNode ]))
 		position: node.
 	^ (builder constructMatrix: self withColumns: ((1 to: columns) collect: [ :i | column ]))
+		position: node
+	
+]
+
+{ #category : #initialization }
+MbndPrimitiveMatrixType >> expandConstantMatrixConstruction: node with: builder valuesComputedWith: valueComputationBlock [
+	^ (builder constructMatrix: self withColumns: ((0 to: columns - 1) collect: [ :i |
+			(builder constructVector: self columnType withElements: ((0 to: rows - 1) collect: [ :j |
+				| constantValue |
+				constantValue := valueComputationBlock value: rows value: columns value: i value value: j.
+				(constantValue asMoebiusLiteralValueNodeWithTarget: self compilationTarget)
+					position: node
+			]))
+			position: node.
+		]))
 		position: node
 	
 ]

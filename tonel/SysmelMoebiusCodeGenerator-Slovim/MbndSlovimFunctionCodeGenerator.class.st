@@ -126,6 +126,29 @@ MbndSlovimFunctionCodeGenerator >> defineArgumentValues [
 ]
 
 { #category : #visiting }
+MbndSlovimFunctionCodeGenerator >> extractColumns: columns elementAsVector: element [
+	| halfSize leftHalf rightHalf leftHalfType rightHalfType returnType |
+	columns size = 1 ifTrue: [
+		^ slvmBuilder extractVector: columns first element: element
+	].
+	columns size = 2 ifTrue: [
+		^ slvmBuilder shuffleVector: columns first with: columns second components: { element value . columns first type elements + element value }
+	].
+	
+	halfSize := columns size // 2.
+	leftHalf := self extractColumns: (columns first: halfSize) elementAsVector: element.
+	rightHalf := self extractColumns: (columns allButFirst: halfSize) elementAsVector: element.
+	leftHalfType := leftHalf type.
+	rightHalfType := rightHalf type.
+	returnType := SLVMVectorType baseType: (leftHalfType isVectorType
+			ifTrue: [ leftHalfType baseType ]
+			ifFalse: [ leftHalfType ])
+		elements: columns size.
+	
+	^ slvmBuilder makeVector: returnType arguments: { leftHalf . rightHalf }
+]
+
+{ #category : #visiting }
 MbndSlovimFunctionCodeGenerator >> generateCase: case withMatchedValue: matchedValue [
 	case bindings ifNotEmpty: [
 		self generateDestructuringPattern: case pattern assignment: matchedValue
@@ -891,6 +914,25 @@ MbndSlovimFunctionCodeGenerator >> visitMatrixGetColumnNode: node [
 		].
 	].
 
+]
+
+{ #category : #visiting }
+MbndSlovimFunctionCodeGenerator >> visitMatrixGetRowNode: node [
+	| matrix element rowElementCount columns |
+	matrix := self visitNode: node matrix.
+	element := self visitNode: node element.
+	rowElementCount := node type elements.
+	self assert: rowElementCount >= 2.
+	
+	columns := (0 to: rowElementCount - 1) collect: [ :i |
+		matrix type isPointerType ifTrue: [ 
+			slvmBuilder getReference: matrix element: (slvmBuilder constInt: i)
+		] ifFalse: [ 
+			slvmBuilder extractValue: matrix indices: {i}
+		]
+	].
+
+	^ self extractColumns: columns elementAsVector: element
 ]
 
 { #category : #visiting }

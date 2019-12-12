@@ -717,6 +717,33 @@ MbndSlovimCodeModuleGeneratorTest >> testFloatMatrixGetFirstColumn [
 ]
 
 { #category : #tests }
+MbndSlovimCodeModuleGeneratorTest >> testFloatMatrixGetFirstRow [
+	| function |
+	self
+		evaluateSysmelSource: 'function getMatrixColumn externC(vector: Float32x4x4) => Float32x4
+			:= vector firstRow';
+		generateSSAModule.
+
+	function := ssaModule globalNamed: #getMatrixColumn.
+	self assert: function isFunction.
+	self deny: function isEmpty.
+	self assert: function basicBlocks size equals: 2.
+	self assert: function allInstructionsMnemonics equals: #(
+		(entry (jump))
+		(body (
+			extractValue
+			extractValue
+			extractValue
+			extractValue
+			shuffleVectors
+			shuffleVectors
+			makeVector
+			return
+		))
+	)
+]
+
+{ #category : #tests }
 MbndSlovimCodeModuleGeneratorTest >> testFloatMatrixGetFourthColumn [
 	| function |
 	self
