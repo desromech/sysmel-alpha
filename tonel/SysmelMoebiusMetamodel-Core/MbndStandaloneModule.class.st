@@ -172,6 +172,16 @@ MbndStandaloneModule >> withDebugInformation [
 ]
 
 { #category : #writing }
+MbndStandaloneModule >> writeAssemblyToFileNamed: outputFileName [
+	^ self writeMode: #assembly toFileNamed: outputFileName
+]
+
+{ #category : #writing }
+MbndStandaloneModule >> writeExecutableToFileNamed: outputFileName [
+	^ self writeMode: #executable toFileNamed: outputFileName
+]
+
+{ #category : #writing }
 MbndStandaloneModule >> writeMode: writeMode toFileNamed: outputFileName [
 	| lowLevelModule ssaModule |
 	self finishSemanticAnalysis.
@@ -200,4 +210,14 @@ MbndStandaloneModule >> writeMode: writeMode toFileNamed: outputFileName [
 
 	self error: 'Writing mode ' , writeMode printString , ' not yet implemented'
 
+]
+
+{ #category : #writing }
+MbndStandaloneModule >> writeObjectToFileNamed: outputFileName [
+	^ self writeMode: #object toFileNamed: outputFileName
+]
+
+{ #category : #writing }
+MbndStandaloneModule >> writeSharedToFileNamed: outputFileName [
+	^ self writeMode: #shared toFileNamed: outputFileName
 ]
