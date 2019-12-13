@@ -7,3 +7,26 @@ semanticModule := MbndStandaloneModule llvm_x86_64
 	
 ssaModule := semanticModule generateTargetCodeModule.
 ssaModule asLowLevelModule writeTextToFileNamed: 'test.ll'
+
+===============================================================================
+MbndStandaloneModule llvm_x86_64
+	withDebugInformation;
+	evaluateFileNamedOnce: 'lib/kernel/kernel.sysmel';
+	evaluateFileNamedOnce: 'samples/cpu/hello.sysmel';
+	finishSemanticAnalysis;
+	writeAssemblyToFileNamed: 'hello.ll'
+
+===============================================================================
+MbndStandaloneModule llvm_x86_64
+	withDebugInformation;
+	evaluateFileNamedOnce: 'lib/kernel/kernel.sysmel';
+	evaluateFileNamedOnce: 'lib/bindings/sdl2/sdl2.sysmel';
+	evaluateFileNamedOnce: 'samples/cpu/helloSDL2.sysmel';
+	finishSemanticAnalysis;
+	writeAssemblyToFileNamed: 'helloSDL2.ll'
+===============================================================================
+MbndStandaloneModule spirv_vulkan
+	evaluateFileNamedOnce: 'lib/gpu.sysmel';
+	evaluateFileNamedOnce: 'samples/gpu/solidRenderingShaders.sysmel';
+	finishSemanticAnalysis;
+	writeExecutableToFileNamed: 'test.spv'
