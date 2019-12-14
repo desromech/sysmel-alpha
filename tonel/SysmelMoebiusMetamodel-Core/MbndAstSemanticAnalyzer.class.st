@@ -105,6 +105,29 @@ MbndAstSemanticAnalyzer >> analyzePatternMatchingPatternNode: node withValueOfTy
 	^ pattern
 ]
 
+{ #category : #visiting }
+MbndAstSemanticAnalyzer >> analyzeVariableDefinition: definition initialValue: initialValueNode [
+	| valueType |
+	valueType := definition valueType.
+	self assert: valueType isNotNil.
+	definition initialValue ifNotNil: [ :valueNode |
+		valueType hasTrivialInitializationFromCopy ifTrue: [ 
+			definition
+				initialValueKind: #copy;
+				initialValue: (self addImplicitCastFor: valueNode to: valueType)
+		] ifFalse: [
+			definition
+				initialValueKind: #copy;
+				initialValue: (self addImplicitCastFor: valueNode to: valueType asCopyConstructorParameter)
+		]	
+	] ifNil: [ 
+		"Make sure there is always an initial value."
+		definition
+			initialValueKind: #default;
+			initialValue: (definition valueType defaultValueASTNodeAt: definition)
+	]
+]
+
 { #category : #coercing }
 MbndAstSemanticAnalyzer >> arithmeticCoercionTypeFor: leftType with: rightType at: position [
 	| coercionType |
@@ -1299,18 +1322,8 @@ MbndAstSemanticAnalyzer >> visitLocalVariableDefinitionNode: node [
 		].
 	].
 
-	"Cast implicitly the initial value."
-	valueType := result valueType.
-	result initialValue ifNotNil: [ :valueNode |
-		result initialValue: (self addImplicitCastFor: valueNode to: valueType)
-	].
-
-	"Make sure there is always an initial value."
-	result initialValue ifNil: [ 
-		result initialValue: (result valueType defaultValueASTNodeAt: result)
-	].
-
 	"Compute the variable reference type"
+	valueType := result valueType.
 	self assert: valueType isNotNil.
 	result isMutable ifTrue: [
 		result type: valueType asMutableValueType
@@ -1321,6 +1334,9 @@ MbndAstSemanticAnalyzer >> visitLocalVariableDefinitionNode: node [
 			result type: valueType asImmutableValueType
 		]
 	].
+
+	"Analyze the initial value, and its kind of initialization."
+	self analyzeVariableDefinition: result initialValue: result initialValue.
 
 	"Create the matching local variable"
 	result binding: (self createLocalVariableNamed: node name withValueType: valueType type: result type at: result).

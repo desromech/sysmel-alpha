@@ -12,6 +12,26 @@ MbndAbstractModuleVisitor >> visitAggregateBasicInitializeMethod: method [
 ]
 
 { #category : #visiting }
+MbndAbstractModuleVisitor >> visitAggregateFinalizeMethod: method [
+	self subclassResponsibility
+]
+
+{ #category : #visiting }
+MbndAbstractModuleVisitor >> visitAggregateInitializeFromCopyMethod: method [
+	self subclassResponsibility
+]
+
+{ #category : #visiting }
+MbndAbstractModuleVisitor >> visitAggregateInitializeMethod: method [
+	self subclassResponsibility
+]
+
+{ #category : #visiting }
+MbndAbstractModuleVisitor >> visitAggregateInitializeMovingFromMethod: method [
+	self subclassResponsibility
+]
+
+{ #category : #visiting }
 MbndAbstractModuleVisitor >> visitArrayType: type [
 	self subclassResponsibility
 ]

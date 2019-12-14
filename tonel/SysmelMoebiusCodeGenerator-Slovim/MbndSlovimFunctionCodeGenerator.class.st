@@ -319,9 +319,10 @@ MbndSlovimFunctionCodeGenerator >> generateIdentityNotEquals: node [
 ]
 
 { #category : #visiting }
-MbndSlovimFunctionCodeGenerator >> generateLocalVariable: localVariable definitionAt: position withInitialValue: initialValue [
+MbndSlovimFunctionCodeGenerator >> generateLocalVariable: localVariable definitionAt: position withInitialValue: initialValue initialValueKind: initialValueKind [
 	| valueType ssaValue |
 	self assert: (functionVariables includesKey: localVariable) not.
+	self assert: initialValue isNotNil.
 
 	valueType := self translateType: localVariable valueType.
 	
@@ -335,12 +336,9 @@ MbndSlovimFunctionCodeGenerator >> generateLocalVariable: localVariable definiti
 					(slvmBuilder debugSetVariable: (self createLocalVariableDebugInformation: localVariable) value: ssaValue)
 				]
 			].
-		] ifFalse: [ 
+		] ifFalse: [
 			ssaValue := slvmBuilder allocaBuilder alloca: valueType.
-
-			initialValue ifNotNil: [
-				slvmBuilder store: initialValue in: ssaValue
-			].
+			self generateVariable: ssaValue withValueType: localVariable valueType initializationWithValue: initialValue initialValueKind: initialValueKind.
 
 			self isEmittingDebugInformation ifTrue: [ 
 				localVariable name isMbndGenerateSymbolRemovedFromDebug ifFalse: [
@@ -357,11 +355,34 @@ MbndSlovimFunctionCodeGenerator >> generateLocalVariable: localVariable definiti
 				(slvmBuilder debugSetVariable: (self createLocalVariableDebugInformation: localVariable) value: ssaValue)
 			]
 		].
-
 	].
 
 	functionVariables at: localVariable put: ssaValue.
 	^ ssaValue
+]
+
+{ #category : #visiting }
+MbndSlovimFunctionCodeGenerator >> generateVariable: ssaValue withValueType: valueType initializationWithValue: initialValue initialValueKind: initialValueKind [
+	self assert: initialValueKind isNotNil.
+	
+	initialValueKind = #default ifTrue: [ 
+		slvmBuilder store: initialValue in: ssaValue.
+		valueType hasTrivialInitialization ifFalse: [
+			slvmBuilder call: (self translateProgramEntity: valueType initializeMethod) ssaValue arguments: {ssaValue}
+		].
+		^ self
+	].
+
+	initialValueKind = #copy ifTrue: [ 
+		valueType hasTrivialInitializationFromCopy ifTrue: [ 
+			slvmBuilder store: initialValue in: ssaValue.
+		] ifFalse: [
+			self halt
+		].
+		^ self
+	].
+
+	self error: 'Unsupported variable kind of initialization.'
 ]
 
 { #category : #visiting }
@@ -885,7 +906,8 @@ MbndSlovimFunctionCodeGenerator >> visitLiteralValueNode: node [
 
 { #category : #visiting }
 MbndSlovimFunctionCodeGenerator >> visitLocalVariableDefinitionNode: node [
-	^ self generateLocalVariable: node binding definitionAt: node withInitialValue: (node initialValue ifNotNil: [ :iv | self visitNode: iv ])
+	self assert: node initialValue isNotNil.
+	^ self generateLocalVariable: node binding definitionAt: node withInitialValue: (self visitNode: node initialValue) initialValueKind: node initialValueKind
 ]
 
 { #category : #visiting }

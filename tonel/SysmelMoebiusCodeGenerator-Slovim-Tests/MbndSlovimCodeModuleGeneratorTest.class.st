@@ -28,6 +28,73 @@ MbndSlovimCodeModuleGeneratorTest >> setUp [
 ]
 
 { #category : #tests }
+MbndSlovimCodeModuleGeneratorTest >> testAggregateLocalInitialize [
+	| function |
+	self
+		evaluateSysmelSource: '
+class SomeResource definition: { 
+	message initialize => Void
+		:= initSideEffect().
+}.
+
+function initSideEffect externC() => Void.
+function sideEffect externC() => Void.
+
+function withSomeResource externC() => Void := {
+	let _ mutable type: SomeResource.
+	sideEffect().
+}.
+';
+		generateSSAModule.
+
+	function := ssaModule globalNamed: #withSomeResource.
+	self assert: function isFunction.
+	self deny: function isEmpty.
+	self assert: function basicBlocks size equals: 2.
+	
+	self assert: function allInstructionsMnemonics equals: #(
+		(entry (alloca jump))
+		(body (store call call returnVoid))
+	).
+]
+
+{ #category : #tests }
+MbndSlovimCodeModuleGeneratorTest >> testAggregateLocalInitializeFinalize [
+	| function |
+	self
+		evaluateSysmelSource: '
+class Guard definition: { 
+	message initialize => Void
+		:= grabLock().
+	message finalize => Void
+		:= releaseLock().
+
+}.
+
+function grabLock externC() => Void.
+function sideEffect externC() => Void.
+function releaseLock externC() => Void.
+
+function useGuard externC() => Void := {
+	let _ mutable type: Guard.
+	sideEffect().
+}.
+';
+		generateSSAModule.
+
+	function := ssaModule globalNamed: #useGuard.
+	self assert: function isFunction.
+	self deny: function isEmpty.
+	self assert: function basicBlocks size equals: 2.
+	
+	self assert: function allInstructionsMnemonics equals: #(
+		(entry (alloca jump))
+		(body (store call call call returnVoid))
+
+	).
+]
+
+{ #category : #tests }
 MbndSlovimCodeModuleGeneratorTest >> testArraySubscriptAt [
 	| function |
 	self

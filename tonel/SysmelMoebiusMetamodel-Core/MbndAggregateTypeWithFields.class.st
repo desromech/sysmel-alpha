@@ -4,7 +4,15 @@ Class {
 	#instVars : [
 		'fields',
 		'slotLayout',
-		'basicInitializeMethod'
+		'basicInitializeMethod',
+		'initializeMethod',
+		'hasTrivialInstanceInitialization',
+		'hasTrivialInstanceFinalization',
+		'hasTrivialInstanceInitializationFromCopy',
+		'hasTrivialInstanceInitializationMovingFrom',
+		'finalizeMethod',
+		'initializeFromCopyMethod',
+		'initializeMovingFromMethod'
 	],
 	#category : #'SysmelMoebiusMetamodel-Core-Type'
 }
@@ -67,7 +75,7 @@ MbndAggregateTypeWithFields >> buildSuperTypesSlotLayoutWith: builder [
 
 ]
 
-{ #category : #accessing }
+{ #category : #'initialize-destroy' }
 MbndAggregateTypeWithFields >> createBasicInitializeMethod [
 	| asReceiverType |
 	asReceiverType := self asReceiverType.
@@ -127,6 +135,11 @@ MbndAggregateTypeWithFields >> fields [
 	^ fields ifNil: [ fields := OrderedCollection new ]
 ]
 
+{ #category : #'initialize-destroy' }
+MbndAggregateTypeWithFields >> finalizeMethod [
+	^ finalizeMethod ifNil: [ finalizeMethod := self getOrCreateOptionallyGeneratedMethod: #finalize ofKind: MbndAggregateFinalizeMethod argumentTypes: #() ]
+]
+
 { #category : #'meta builder factories' }
 MbndAggregateTypeWithFields >> getExtraMetaBuilderFactoryList [
 	^ super getExtraMetaBuilderFactoryList ,  { 
@@ -134,14 +147,94 @@ MbndAggregateTypeWithFields >> getExtraMetaBuilderFactoryList [
 	}
 ]
 
+{ #category : #'initialize-destroy' }
+MbndAggregateTypeWithFields >> getOrCreateOptionallyGeneratedMethod: selector ofKind: generatedMethodClass argumentTypes: argumentTypes [
+	| method asReceiverType |
+	self overloadedMethodDict at: selector ifPresent: [ :existent |
+		self flag: 'TODO: Check the existent method argument types.'.
+		^ existent
+	].
+
+	asReceiverType := self asReceiverType.
+	method := generatedMethodClass new
+		name: selector;
+		receiverType: asReceiverType;
+		type: (self compilationTarget functionTypeWithArguments: {asReceiverType} , argumentTypes returnType: asReceiverType);
+		boundType: (self compilationTarget functionTypeWithArguments: argumentTypes returnType: asReceiverType).
+	self
+		addChild: method;
+		addOverloadedMethod: method.
+	^ method
+]
+
 { #category : #testing }
-MbndAggregateTypeWithFields >> hasTrivialBasicInitialization [
-	^ self hasTrivialInstanceBasicInitialization
+MbndAggregateTypeWithFields >> hasNonCompilerGeneratedMethod: selector [
+	| method |
+	method := self overloadedMethodDict at: selector ifAbsent: [ ^ false ].
+	^ method isCompilerGeneratedMethod not
 ]
 
 { #category : #testing }
 MbndAggregateTypeWithFields >> hasTrivialInstanceBasicInitialization [
 	^ self slotLayout hasTrivialBasicInitialization
+]
+
+{ #category : #testing }
+MbndAggregateTypeWithFields >> hasTrivialInstanceFinalization [
+	^ hasTrivialInstanceFinalization ifNil: [
+		hasTrivialInstanceFinalization := self supertype hasTrivialInstanceFinalization
+		and: [self slotLayout hasTrivialFinalization
+		and: [ (self hasNonCompilerGeneratedMethod: #finalize) not ] ]
+	]
+]
+
+{ #category : #testing }
+MbndAggregateTypeWithFields >> hasTrivialInstanceInitialization [
+	self isTrait ifTrue: [ ^ super hasTrivialInstanceInitialization ].
+
+	^ hasTrivialInstanceInitialization ifNil: [
+		hasTrivialInstanceInitialization := self supertype hasTrivialInstanceInitialization
+		and: [self slotLayout hasTrivialInitialization
+		and: [ (self hasNonCompilerGeneratedMethod: #initialize) not ] ]
+	]
+]
+
+{ #category : #testing }
+MbndAggregateTypeWithFields >> hasTrivialInstanceInitializationFromCopy [
+	self isTrait ifTrue: [ ^ super hasTrivialInstanceInitializationFromCopy ].
+	
+	^ hasTrivialInstanceInitializationFromCopy ifNil: [
+		hasTrivialInstanceInitializationFromCopy := self supertype hasTrivialInstanceInitializationFromCopy
+		and: [self slotLayout hasTrivialInitializationFromCopy
+		and: [ (self hasNonCompilerGeneratedMethod: #initializeFrom:) not ] ]
+	]
+]
+
+{ #category : #testing }
+MbndAggregateTypeWithFields >> hasTrivialInstanceInitializationMovingFrom [
+	self isTrait ifTrue: [ ^ super hasTrivialInstanceInitializationMovingFrom ].
+	
+	^ hasTrivialInstanceInitializationMovingFrom ifNil: [
+		hasTrivialInstanceInitializationMovingFrom := self supertype hasTrivialInstanceInitializationMovingFrom
+		and: [self slotLayout hasTrivialInitializationMovingFrom
+		and: [ (self hasNonCompilerGeneratedMethod: #initializeMovingFrom:) not ] ]
+	]
+]
+
+{ #category : #'initialize-destroy' }
+MbndAggregateTypeWithFields >> initializeFromCopyMethod [
+	initializeFromCopyMethod ifNil: [ self getOrCreateOptionallyGeneratedMethod: #initializeFrom: ofKind: MbndAggregateInitializeFromCopyMethod argumentTypes: {self asCopyConstructorParameter} ].
+	^ initializeFromCopyMethod
+]
+
+{ #category : #'initialize-destroy' }
+MbndAggregateTypeWithFields >> initializeMethod [
+	^ initializeMethod ifNil: [ initializeMethod := self getOrCreateOptionallyGeneratedMethod: #initialize ofKind: MbndAggregateInitializeMethod argumentTypes: #() ]
+]
+
+{ #category : #'initialize-destroy' }
+MbndAggregateTypeWithFields >> initializeMovingFromMethod [
+	^ initializeMovingFromMethod ifNil: [ initializeMovingFromMethod := self getOrCreateOptionallyGeneratedMethod: #initializeMovingFrom: ofKind: MbndAggregateInitializeMovingFromMethod argumentTypes: {self asMovementConstructorParameter} ]
 ]
 
 { #category : #accessing }

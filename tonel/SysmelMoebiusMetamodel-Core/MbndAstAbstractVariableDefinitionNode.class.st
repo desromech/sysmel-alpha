@@ -3,6 +3,7 @@ Class {
 	#superclass : #MbndAstSymbolDefinition,
 	#instVars : [
 		'initialValue',
+		'initialValueKind',
 		'valueType',
 		'minimalAlignment'
 	],
@@ -22,6 +23,16 @@ MbndAstAbstractVariableDefinitionNode >> initialValue [
 { #category : #accessing }
 MbndAstAbstractVariableDefinitionNode >> initialValue: anObject [
 	initialValue := anObject
+]
+
+{ #category : #accessing }
+MbndAstAbstractVariableDefinitionNode >> initialValueKind [
+	^ initialValueKind
+]
+
+{ #category : #accessing }
+MbndAstAbstractVariableDefinitionNode >> initialValueKind: anObject [
+	initialValueKind := anObject
 ]
 
 { #category : #testing }

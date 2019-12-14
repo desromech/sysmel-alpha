@@ -3,3 +3,8 @@ Class {
 	#superclass : #MbndAbstractSpecificMethod,
 	#category : #'SysmelMoebiusMetamodel-Core-Method'
 }
+
+{ #category : #testing }
+MbndCompilerGeneratedMethod >> isCompilerGeneratedMethod [
+	^ true
+]

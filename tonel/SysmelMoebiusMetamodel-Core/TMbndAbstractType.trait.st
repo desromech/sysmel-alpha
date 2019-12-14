@@ -286,6 +286,11 @@ TMbndAbstractType >> asConcreteTypeForAnalysisOfFunctionType: aFunction [
 ]
 
 { #category : #converting }
+TMbndAbstractType >> asCopyConstructorParameter [
+	^ self const ref
+]
+
+{ #category : #converting }
 TMbndAbstractType >> asFieldTypeFor: owner [
 	^ self
 ]
@@ -306,6 +311,11 @@ TMbndAbstractType >> asLiteralValueNode [
 { #category : #'semantic analysis' }
 TMbndAbstractType >> asMoebiusLiteralValueNodeWithTarget: compilationTarget [
 	^ self asLiteralValueNode
+]
+
+{ #category : #converting }
+TMbndAbstractType >> asMovementConstructorParameter [
+	^ self const tempRef
 ]
 
 { #category : #converting }
@@ -507,6 +517,51 @@ TMbndAbstractType >> hasImmediateSupertype: aType [
 
 { #category : #testing }
 TMbndAbstractType >> hasTrivialBasicInitialization [
+	^ self hasTrivialInstanceBasicInitialization
+]
+
+{ #category : #testing }
+TMbndAbstractType >> hasTrivialFinalization [
+	^ self hasTrivialInstanceFinalization
+]
+
+{ #category : #testing }
+TMbndAbstractType >> hasTrivialInitialization [
+	^ self hasTrivialInstanceInitialization
+]
+
+{ #category : #testing }
+TMbndAbstractType >> hasTrivialInitializationFromCopy [
+	^ self hasTrivialInstanceInitializationFromCopy
+]
+
+{ #category : #testing }
+TMbndAbstractType >> hasTrivialInitializationMovingFrom [
+	^ self hasTrivialInstanceInitializationMovingFrom
+]
+
+{ #category : #testing }
+TMbndAbstractType >> hasTrivialInstanceBasicInitialization [
+	^ true
+]
+
+{ #category : #testing }
+TMbndAbstractType >> hasTrivialInstanceFinalization [
+	^ true
+]
+
+{ #category : #testing }
+TMbndAbstractType >> hasTrivialInstanceInitialization [
+	^ true
+]
+
+{ #category : #testing }
+TMbndAbstractType >> hasTrivialInstanceInitializationFromCopy [
+	^ true
+]
+
+{ #category : #testing }
+TMbndAbstractType >> hasTrivialInstanceInitializationMovingFrom [
 	^ true
 ]
 
@@ -1079,6 +1134,16 @@ TMbndAbstractType >> subtypesDo: aBlock [
 TMbndAbstractType >> supertype [
 	"I answer a supertype." 
 	^ nil
+]
+
+{ #category : #'type composition' }
+TMbndAbstractType >> tempRef [
+	^ self ref
+]
+
+{ #category : #'type composition' }
+TMbndAbstractType >> tempRefFor: addressSpace [
+	^ self refFor: addressSpace
 ]
 
 { #category : #'type hierarchy' }

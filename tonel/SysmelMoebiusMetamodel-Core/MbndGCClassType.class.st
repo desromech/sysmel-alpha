@@ -71,6 +71,11 @@ MbndGCClassType >> asCVariadicTypeRequiredAt: position [
 ]
 
 { #category : #converting }
+MbndGCClassType >> asCopyConstructorParameter [
+	^ self
+]
+
+{ #category : #converting }
 MbndGCClassType >> asDefaultInstanceType [
 	^ self compilationTarget dynamicObjectType ifNil: [ self error: 'Dynamic object type is required at this context.' ]
 ]
@@ -102,6 +107,11 @@ MbndGCClassType >> asInstanceObjectForTypeInfoGeneration [
 	^ result
 ]
 
+{ #category : #converting }
+MbndGCClassType >> asMovementConstructorParameter [
+	^ self
+]
+
 { #category : #'as yet unclassified' }
 MbndGCClassType >> asReceiverType [
 	"My scheme is to be always a gc pointer."
@@ -125,6 +135,26 @@ MbndGCClassType >> hasDynamicMessageLookup [
 
 { #category : #testing }
 MbndGCClassType >> hasTrivialBasicInitialization [
+	^ true
+]
+
+{ #category : #testing }
+MbndGCClassType >> hasTrivialFinalization [
+	^ true
+]
+
+{ #category : #testing }
+MbndGCClassType >> hasTrivialInitialization [
+	^ true
+]
+
+{ #category : #testing }
+MbndGCClassType >> hasTrivialInitializationFromCopy [
+	^ true
+]
+
+{ #category : #testing }
+MbndGCClassType >> hasTrivialInitializationMovingFrom [
 	^ true
 ]
 

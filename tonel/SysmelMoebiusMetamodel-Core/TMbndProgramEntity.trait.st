@@ -42,6 +42,11 @@ TMbndProgramEntity >> getPublicMetaBuilderFactoryList [
 ]
 
 { #category : #testing }
+TMbndProgramEntity >> isCompilerGeneratedMethod [
+	^ false
+]
+
+{ #category : #testing }
 TMbndProgramEntity >> isFunctionMethod [
 	^ false
 ]

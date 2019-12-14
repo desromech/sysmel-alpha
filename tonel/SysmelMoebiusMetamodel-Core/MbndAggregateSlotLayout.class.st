@@ -19,8 +19,13 @@ Class {
 { #category : #accessing }
 MbndAggregateSlotLayout >> checkForTrivialBasicInitialization [
 	virtualTables ifNotEmpty: [ ^ false ].
+	^ self checkForTypeTriviality: #hasTrivialBasicInitialization
+]
+
+{ #category : #accessing }
+MbndAggregateSlotLayout >> checkForTypeTriviality: aBlock [
 	slots do: [ :slot |
-		slot type hasTrivialBasicInitialization ifFalse: [ ^ false ]
+		(aBlock value: slot type) ifFalse: [ ^ false ]
 	].
 	^ true
 ]
@@ -38,6 +43,26 @@ MbndAggregateSlotLayout >> findFirstFieldNamed: fieldName [
 { #category : #accessing }
 MbndAggregateSlotLayout >> hasTrivialBasicInitialization [
 	^ hasTrivialBasicInitialization ifNil: [ hasTrivialBasicInitialization := self checkForTrivialBasicInitialization ]
+]
+
+{ #category : #accessing }
+MbndAggregateSlotLayout >> hasTrivialFinalization [
+	^ self checkForTypeTriviality: #hasTrivialFinalization
+]
+
+{ #category : #accessing }
+MbndAggregateSlotLayout >> hasTrivialInitialization [
+	^ self checkForTypeTriviality: #hasTrivialInitialization
+]
+
+{ #category : #accessing }
+MbndAggregateSlotLayout >> hasTrivialInitializationFromCopy [
+	^ self checkForTypeTriviality: #hasTrivialInitializationFromCopy
+]
+
+{ #category : #accessing }
+MbndAggregateSlotLayout >> hasTrivialInitializationMovingFrom [
+	^ self checkForTypeTriviality: #hasTrivialInitializationMovingFrom
 ]
 
 { #category : #accessing }
