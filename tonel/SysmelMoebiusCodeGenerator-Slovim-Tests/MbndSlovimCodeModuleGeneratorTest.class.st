@@ -85,12 +85,51 @@ function useGuard externC() => Void := {
 	function := ssaModule globalNamed: #useGuard.
 	self assert: function isFunction.
 	self deny: function isEmpty.
-	self assert: function basicBlocks size equals: 2.
+	self assert: function basicBlocks size equals: 4.
 	
 	self assert: function allInstructionsMnemonics equals: #(
-		(entry (alloca jump))
-		(body (store call call call returnVoid))
+		(entry (alloca alloca jump))
+		(body (store store call store call load branch))
+		(implicitCleanUpAction (call jump))
+		(implicitCleanUpMerge (returnVoid))
+	).
+]
 
+{ #category : #tests }
+MbndSlovimCodeModuleGeneratorTest >> testAggregateLocalInitializeFinalizeWithExplicitReturn [
+	| function |
+	self
+		evaluateSysmelSource: '
+class Guard definition: { 
+	message initialize => Void
+		:= grabLock().
+	message finalize => Void
+		:= releaseLock().
+
+}.
+
+function grabLock externC() => Void.
+function sideEffect externC() => Void.
+function releaseLock externC() => Void.
+
+function useGuard externC() => Int32 := {
+	let _ mutable type: Guard.
+	sideEffect().
+	return: 42
+}.
+';
+		generateSSAModule.
+
+	function := ssaModule globalNamed: #useGuard.
+	self assert: function isFunction.
+	self deny: function isEmpty.
+	self assert: function basicBlocks size equals: 4.
+	
+	self assert: function allInstructionsMnemonics equals: #(
+		(entry (alloca alloca jump))
+		(body (store store call store call load branch))
+		(implicitCleanUpAction (call jump))
+		(implicitCleanUpMerge (return))
 	).
 ]
 

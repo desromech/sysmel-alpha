@@ -4,6 +4,9 @@ I am an AST visitor that performs semantic analysis.
 Class {
 	#name : #MbndAstSemanticAnalyzer,
 	#superclass : #MbndAstSemanticAnalyzerForExplicitMacroExpansion,
+	#instVars : [
+		'currentCleanUpScope'
+	],
 	#category : #'SysmelMoebiusMetamodel-Core-SemanticAnalysis'
 }
 
@@ -660,11 +663,13 @@ MbndAstSemanticAnalyzer >> visitCleanUpScopeNode: node [
 	analyzedContent := self visitNode: result expression.
 	analyzedContent isLiteralValueNode ifTrue: [ ^ analyzedContent ].
 	
-	self flag: 'TODO: Implement the clean up scope analysis correctly.'.
+	self withCleanUpScope: result do: [
+		result
+			expression: analyzedContent;
+			type: analyzedContent type.
+	].
 	result
-		expression: analyzedContent;
-		type: analyzedContent type;
-		cleanUpActions: (self visitNodesAndCollect: result cleanUpActions).
+		explicitCleanUpActions: (self visitNodesAndCollect: result explicitCleanUpActions).
 	
 	^ result
 ]
@@ -1239,17 +1244,17 @@ MbndAstSemanticAnalyzer >> visitInlineAssembly: node [
 MbndAstSemanticAnalyzer >> visitLexicalScopeNode: node [
 	| result analyzedContent |
 	result := node copy.
-	
 	self withScope: scope newLexicalScope do: [
-		analyzedContent := self visitNode: result expression.
-		analyzedContent isLiteralValueNode ifTrue: [ ^ analyzedContent ].
-		
-		self flag: 'TODO: Implement the clean up scope analysis correctly.'.
+		self withCleanUpScope: result do: [ 
+			analyzedContent := self visitNode: result expression.
+			analyzedContent isLiteralValueNode ifTrue: [ ^ analyzedContent ].
 		
 		result
 			expression: analyzedContent;
-			type: analyzedContent type;
-			cleanUpActions: (self visitNodesAndCollect: result cleanUpActions).
+			type: analyzedContent type.
+		].
+	result
+		explicitCleanUpActions: (self visitNodesAndCollect: result explicitCleanUpActions).
 	].
 
 	^ result
@@ -1325,6 +1330,8 @@ MbndAstSemanticAnalyzer >> visitLocalVariableDefinitionNode: node [
 	"Compute the variable reference type"
 	valueType := result valueType.
 	self assert: valueType isNotNil.
+	
+	
 	result isMutable ifTrue: [
 		result type: valueType asMutableValueType
 	] ifFalse: [
@@ -1340,6 +1347,14 @@ MbndAstSemanticAnalyzer >> visitLocalVariableDefinitionNode: node [
 
 	"Create the matching local variable"
 	result binding: (self createLocalVariableNamed: node name withValueType: valueType type: result type at: result).
+
+	valueType hasTrivialFinalization ifFalse: [
+		currentCleanUpScope ifNil: [
+			self error: 'Cannot instantiate a local variable with finalization in a context that does not admit finalizations.' at: result.
+		].
+	
+		currentCleanUpScope addNodeWithImplicitFinalization: result
+	].
 
 	^ result
 ]
@@ -2122,6 +2137,15 @@ MbndAstSemanticAnalyzer >> visitWhileLoopNode: node [
 
 	result	 continueAction: (result continueAction ifNotNil: [:action | self analyzeNodeIfNeeded: action]).
 	^ result
+]
+
+{ #category : #visiting }
+MbndAstSemanticAnalyzer >> withCleanUpScope: cleanUpScope do: aBlock [
+	| oldCleanUpScope |
+	oldCleanUpScope := currentCleanUpScope.
+	currentCleanUpScope := cleanUpScope.
+	
+	aBlock ensure: [ currentCleanUpScope := oldCleanUpScope ]
 ]
 
 { #category : #visiting }

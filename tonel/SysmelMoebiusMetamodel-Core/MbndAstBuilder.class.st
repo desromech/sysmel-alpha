@@ -125,7 +125,7 @@ MbndAstBuilder >> cleanUpScope: expression actions: cleanUpActions [
 	<returnType: #_ASTNodeType>
 	^ MbndAstCleanUpScopeNode new
 		expression: expression;
-		cleanUpActions: cleanUpActions;
+		explicitCleanUpActions: cleanUpActions;
 		yourself
 ]
 

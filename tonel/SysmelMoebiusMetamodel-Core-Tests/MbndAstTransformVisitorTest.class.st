@@ -188,7 +188,7 @@ MbndAstTransformVisitorTest >> testCleanUpScopeNode [
 	transformedNode := visitor visitNode: node.
 	self assert: transformedNode isCleanUpScopeNode.
 	self assert: transformedNode expression equals: expression.
-	self assert: transformedNode cleanUpActions equals: cleanUpActions.
+	self assert: transformedNode explicitCleanUpActions equals: cleanUpActions.
 
 ]
 

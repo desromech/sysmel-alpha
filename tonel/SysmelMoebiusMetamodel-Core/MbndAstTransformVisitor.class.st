@@ -107,7 +107,7 @@ MbndAstTransformVisitor >> visitClassDefinitionNode: node [
 MbndAstTransformVisitor >> visitCleanUpScopeNode: node [
 	^ node copy
 		expression: (self visitNode: node expression);
-		cleanUpActions: (self visitNodesAndCollect: node cleanUpActions);
+		explicitCleanUpActions: (self visitNodesAndCollect: node explicitCleanUpActions);
 		yourself
 ]
 
@@ -376,7 +376,7 @@ MbndAstTransformVisitor >> visitIntegerToPointerCastNode: node [
 MbndAstTransformVisitor >> visitLexicalScopeNode: node [
 	^ node copy
 		expression: (self visitNode: node expression);
-		cleanUpActions: (self visitNodesAndCollect: node cleanUpActions);
+		explicitCleanUpActions: (self visitNodesAndCollect: node explicitCleanUpActions);
 		yourself
 ]
 

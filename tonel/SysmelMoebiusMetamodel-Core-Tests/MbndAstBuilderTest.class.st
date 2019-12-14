@@ -168,7 +168,7 @@ MbndAstBuilderTest >> testCleanUpScopeNode [
 
 	self assert: node isCleanUpScopeNode.
 	self assert: node expression equals: expression.
-	self assert: node cleanUpActions equals: cleanUpActions.
+	self assert: node explicitCleanUpActions equals: cleanUpActions.
 ]
 
 { #category : #tests }

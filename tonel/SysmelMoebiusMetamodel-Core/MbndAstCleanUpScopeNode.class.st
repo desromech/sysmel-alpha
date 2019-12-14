@@ -3,7 +3,8 @@ Class {
 	#superclass : #MbndAstNode,
 	#instVars : [
 		'expression',
-		'cleanUpActions'
+		'nodesWithImplicitFinalization',
+		'explicitCleanUpActions'
 	],
 	#category : #'SysmelMoebiusMetamodel-Core-AST'
 }
@@ -13,14 +14,19 @@ MbndAstCleanUpScopeNode >> accept: aVisitor [
 	^ aVisitor visitCleanUpScopeNode: self
 ]
 
-{ #category : #accessing }
-MbndAstCleanUpScopeNode >> cleanUpActions [
-	^ cleanUpActions
+{ #category : #adding }
+MbndAstCleanUpScopeNode >> addNodeWithImplicitFinalization: node [
+	self nodesWithImplicitFinalization add: node
 ]
 
 { #category : #accessing }
-MbndAstCleanUpScopeNode >> cleanUpActions: anObject [
-	cleanUpActions := anObject
+MbndAstCleanUpScopeNode >> explicitCleanUpActions [
+	^ explicitCleanUpActions
+]
+
+{ #category : #accessing }
+MbndAstCleanUpScopeNode >> explicitCleanUpActions: anObject [
+	explicitCleanUpActions := anObject
 ]
 
 { #category : #accessing }
@@ -36,12 +42,22 @@ MbndAstCleanUpScopeNode >> expression: anObject [
 { #category : #initialization }
 MbndAstCleanUpScopeNode >> initialize [
 	super initialize.
-	cleanUpActions := #().
+	explicitCleanUpActions := #().
 ]
 
 { #category : #testing }
 MbndAstCleanUpScopeNode >> isCleanUpScopeNode [
 	^ true
+]
+
+{ #category : #accessing }
+MbndAstCleanUpScopeNode >> nodesWithImplicitFinalization [
+	^ nodesWithImplicitFinalization ifNil: [ nodesWithImplicitFinalization := OrderedCollection new ]
+]
+
+{ #category : #copying }
+MbndAstCleanUpScopeNode >> postCopy [
+	nodesWithImplicitFinalization := nodesWithImplicitFinalization copy
 ]
 
 { #category : #accessing }

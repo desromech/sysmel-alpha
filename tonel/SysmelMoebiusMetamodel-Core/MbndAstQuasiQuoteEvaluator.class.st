@@ -55,7 +55,7 @@ MbndAstQuasiQuoteEvaluator >> visitMacroExpansionInlineBlockNode: node [
 		^ MbndAstCleanUpScopeNode new 
 			position: node;
 			expression: bodyNode;
-			cleanUpActions: { ensureNode lexicallyScoped };
+			explicitCleanUpActions: { ensureNode lexicallyScoped };
 			yourself
 	] ifNil: [
 		^ bodyNode

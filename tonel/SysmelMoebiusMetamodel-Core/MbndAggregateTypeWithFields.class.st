@@ -176,11 +176,15 @@ MbndAggregateTypeWithFields >> hasNonCompilerGeneratedMethod: selector [
 
 { #category : #testing }
 MbndAggregateTypeWithFields >> hasTrivialInstanceBasicInitialization [
+	self isTrait ifTrue: [ ^ super hasTrivialInstanceBasicInitialization ].
+	
 	^ self slotLayout hasTrivialBasicInitialization
 ]
 
 { #category : #testing }
 MbndAggregateTypeWithFields >> hasTrivialInstanceFinalization [
+	self isTrait ifTrue: [ ^ super hasTrivialInstanceFinalization ].
+	
 	^ hasTrivialInstanceFinalization ifNil: [
 		hasTrivialInstanceFinalization := self supertype hasTrivialInstanceFinalization
 		and: [self slotLayout hasTrivialFinalization
