@@ -132,7 +132,7 @@ MbndSlovimFunctionCodeGenerator >> executeAllScopeCleanUp [
 	position := currentCleanUpScope.
 	[ position ] whileNotNil: [
 		self executeScopeCleanUpActions: position.
-		slvmBuilder isLastTerminator ifFalse: [ ^ self ] .
+		slvmBuilder isLastTerminator ifTrue: [ ^ self ] .
 		position := position parent
 	]
 ]
@@ -584,8 +584,10 @@ MbndSlovimFunctionCodeGenerator >> visitCleanUpScopeNode: node [
 		cleanUpScope implicitFinalizationStateDictionary at: nodeWithFinalization put: MbndSlovimCleanUpScopeImplicitFinalizationState new
 	].
 
-	cleanUpScope explicitFinalizationAction: [
-		node explicitCleanUpActions do: [ :cleanUpAction | self visitNode: cleanUpAction ]
+	node explicitCleanUpActions ifNotEmpty: [ 
+		cleanUpScope explicitFinalizationAction: [
+			node explicitCleanUpActions do: [ :cleanUpAction | self visitNode: cleanUpAction ]
+		].
 	].
 
 	^ self withCleanUpScope: cleanUpScope do: [ 
@@ -1131,6 +1133,7 @@ MbndSlovimFunctionCodeGenerator >> visitReferenceLoadNode: node [
 MbndSlovimFunctionCodeGenerator >> visitReturnStatementNode: node [
 	| result |
 	result := node expression ifNotNil: [ :expr | self visitNode: expr ].
+
 	self executeAllScopeCleanUp.
 	slvmBuilder isLastTerminator ifTrue: [ ^ false ].
 	^ concreteMethod returnType isVoidType ifTrue: [

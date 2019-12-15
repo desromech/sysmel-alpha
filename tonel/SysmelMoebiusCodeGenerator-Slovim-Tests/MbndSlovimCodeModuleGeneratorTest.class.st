@@ -134,6 +134,91 @@ function useGuard externC() => Int32 := {
 ]
 
 { #category : #tests }
+MbndSlovimCodeModuleGeneratorTest >> testAggregateWithLock [
+	| function |
+	self
+		evaluateSysmelSource: '
+class Mutex definition: { 
+	message lock => Void
+		:= grabLock().
+	message unlock => Void
+		:= releaseLock().
+
+    macro expansionRule withLock: aBlock := ``{
+		`,self lock.
+        `,aBlock __macroInlineBlockEnsure: `,self unlock.
+    }.
+}.
+
+function grabLock externC() => Void.
+function sideEffect externC() => Void.
+function releaseLock externC() => Void.
+
+function useMutex externC() => Void := {
+	let mutex mutable type: Mutex.
+	mutex withLock: { 
+		sideEffect().
+	}
+}.
+';
+		generateSSAModule.
+
+	function := ssaModule globalNamed: #useMutex.
+	self assert: function isFunction.
+	self deny: function isEmpty.
+	self assert: function basicBlocks size equals: 2.
+	
+	self assert: function allInstructionsMnemonics equals: #(
+		(entry (alloca jump))
+		(body (store call call call returnVoid))
+	).
+]
+
+{ #category : #tests }
+MbndSlovimCodeModuleGeneratorTest >> testAggregateWithLockExplicitReturn [
+	| function |
+	self
+		evaluateSysmelSource: '
+class Mutex definition: { 
+	message lock => Void
+		:= grabLock().
+	message unlock => Void
+		:= releaseLock().
+
+    macro expansionRule withLock: aBlock := ``{
+		`,self lock.
+        `,aBlock __macroInlineBlockEnsure: `,self unlock.
+    }.
+}.
+
+function grabLock externC() => Void.
+function sideEffect externC() => Void.
+function releaseLock externC() => Void.
+
+function useMutex externC() => Int32 := {
+	let mutex mutable type: Mutex.
+	mutex withLock: { 
+		sideEffect().
+		return: 42
+	}.
+	
+	return: 0
+}.
+';
+		generateSSAModule.
+
+	function := ssaModule globalNamed: #useMutex.
+	self assert: function isFunction.
+	self deny: function isEmpty.
+	self assert: function basicBlocks size equals: 2.
+	
+	self assert: function allInstructionsMnemonics equals: #(
+		(entry (alloca jump))
+		(body (store call call call return))
+	).
+]
+
+{ #category : #tests }
 MbndSlovimCodeModuleGeneratorTest >> testArraySubscriptAt [
 	| function |
 	self

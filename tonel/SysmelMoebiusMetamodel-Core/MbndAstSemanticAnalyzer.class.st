@@ -660,10 +660,11 @@ MbndAstSemanticAnalyzer >> visitCleanUpScopeNode: node [
 	| result analyzedContent |
 	result := node copy.
 	
-	analyzedContent := self visitNode: result expression.
-	analyzedContent isLiteralValueNode ifTrue: [ ^ analyzedContent ].
-	
 	self withCleanUpScope: result do: [
+		analyzedContent := self visitNode: result expression.
+		(analyzedContent isLiteralValueNode and: [result explicitCleanUpActions isEmpty]) ifTrue: [ ^ analyzedContent ].
+
+		analyzedContent := (self ensureLiteralIsConcreted: analyzedContent).
 		result
 			expression: analyzedContent;
 			type: analyzedContent type.
@@ -1242,22 +1243,10 @@ MbndAstSemanticAnalyzer >> visitInlineAssembly: node [
 
 { #category : #visiting }
 MbndAstSemanticAnalyzer >> visitLexicalScopeNode: node [
-	| result analyzedContent |
-	result := node copy.
-	self withScope: scope newLexicalScope do: [
-		self withCleanUpScope: result do: [ 
-			analyzedContent := self visitNode: result expression.
-			analyzedContent isLiteralValueNode ifTrue: [ ^ analyzedContent ].
-		
-		result
-			expression: analyzedContent;
-			type: analyzedContent type.
-		].
-	result
-		explicitCleanUpActions: (self visitNodesAndCollect: result explicitCleanUpActions).
+	^ self withScope: scope newLexicalScope do: [
+		self visitCleanUpScopeNode: node
 	].
 
-	^ result
 ]
 
 { #category : #visiting }
