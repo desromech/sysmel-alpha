@@ -1,34 +1,139 @@
-PointerTypeTemplate extend: {
-    message atomicSwap: (newValue: CleanPointedType) ::=> PointedType := {
+namespace SysmelKernel definition: {
+
+
+enum MemoryOrder values: #{
+    Relaxed: 0.
+    Consume: 1.
+    Acquire: 2.
+    Release: 3.
+    AcquireAndRelease: 4.
+    SequentiallyConsistent: 5.
+}.
+
+struct AtomicFlag definition: {
+    field flag private type: BooleanBit.
+
+    message loadWith: (ordering: MemoryOrder) ::=> BooleanBit := {
+        <staticBinding>
+        <intrinsic: #"atomic.load">
+        flag
+    }.
+
+    message load ::=> BooleanBit
+        := self loadWith: MemoryOrder SequentiallyConsistent.
+
+    message store: (newValue: BooleanBit) with: (ordering: MemoryOrder) ::=> Void := {
+        <staticBinding>
+        <intrinsic: #"atomic.store">
+        flag := newValue.
+    }.
+
+    message store: (value: BooleanBit) ::=> Void
+        := self store: value with: MemoryOrder SequentiallyConsistent.
+
+    message testAndSet: (value: BooleanBit) with: (ordering: MemoryOrder) ::=> BooleanBit := {
+        <staticBinding>
+        <intrinsic: #"atomic.test_and_set">
+        flag := value.
+        value
+    }.
+
+    message testAndSet: (value: BooleanBit) ::=> BooleanBit
+        := self testAndSet: value with: MemoryOrder SequentiallyConsistent
+}.
+
+template Atomic(BaseType: Type)
+    := struct definition: {
+    field value private type: BaseType.
+
+    message loadWith: (ordering: MemoryOrder) ::=> BaseType := {
+        <staticBinding>
+        <intrinsic: #"atomic.load">
+        value
+    }.
+
+    message load ::=> BaseType
+        := self loadWith: MemoryOrder SequentiallyConsistent.
+
+    message store: (newValue: BaseType) with: (ordering: MemoryOrder) ::=> Void := {
+        <staticBinding>
+        <intrinsic: #"atomic.store">
+        value := newValue
+    }.
+
+    message store: (newValue: BaseType) ::=> Void
+        := self store: value with: MemoryOrder SequentiallyConsistent.
+
+    message swap: (newValue: BaseType) with: (ordering: MemoryOrder) ::=> BaseType := {
         <compileTime>
         <staticBinding>
         <intrinsic: #"atomic.swap_value">
+        let result := value.
+        value := newValue.
+        result
     }.
 
-    message atomicCompare: (comparedValue: CleanPointedType) andSet: (newValue: CleanPointedType) ::=> BooleanBit := {
+    message swap: (newValue: BaseType) ::=> BaseType
+        := self swap: newValue with: MemoryOrder SequentiallyConsistent.
+
+    message atomicCompare: (comparedValue: BaseType) andSet: (newValue: BaseType) with: (ordering: MemoryOrder) ::=> BooleanBit := {
         <compileTime>
         <staticBinding>
         <intrinsic: #"atomic.compare_and_swap">
+        let result := value == comparedValue.
+        if: result then: {
+            value := newValue
+        }.
+
+        result
     }.
 
-    message atomicCompare: (comparedValue: CleanPointedType) andSwap: (newValue: CleanPointedType) ::=> CleanPointedType := {
+    message atomicCompare: (comparedValue: BaseType) andSet: (newValue: BaseType) ::=> BooleanBit
+        := self atomicCompare: comparedValue andSet: newValue with: MemoryOrder SequentiallyConsistent.
+
+    message atomicCompare: (comparedValue: BaseType) andSwap: (newValue: BaseType) with: (ordering: MemoryOrder) ::=> BaseType := {
         <compileTime>
         <staticBinding>
         <intrinsic: #"atomic.compare_and_swap">
+        let result := value.
+        if: value == comparedValue then: {
+            value := newValue
+        }.
+        result
     }.
 
-    if: CleanPointedType isIntegerType then: {
-        message atomicFetchAndAdd: (addedValue: CleanPointedType) ::=> CleanPointedType := {
+    message atomicCompare: (comparedValue: BaseType) andSwap: (newValue: BaseType) ::=> BaseType
+        := self atomicCompare: comparedValue andSwap: newValue with: MemoryOrder SequentiallyConsistent.
+
+    compileTimeIf: BaseType isPrimitiveIntegerType then: {
+        message fetchAndAdd: (operand: BaseType) with: (ordering: MemoryOrder) ::=> BaseType := {
             <compileTime>
             <staticBinding>
             <intrinsic: #"atomic.fetch_and_add">
+            let result := value.
+            value := value + operand.
+            result
         }.
 
-        message atomicFetchAndSubtract: (addedValue: CleanPointedType) ::=> CleanPointedType := {
+        message fetchAndAdd: (operand: BaseType) ::=> BaseType
+            := self fetchAndAdd: operand with: MemoryOrder SequentiallyConsistent.
+
+        message fetchAndSubtract: (operand: BaseType) with: (ordering: MemoryOrder) ::=> BaseType := {
             <compileTime>
             <staticBinding>
             <intrinsic: #"atomic.fetch_and_subtract">
+            let result := value.
+            value := value - operand.
+            result
         }.
-    }.
+
+        message fetchAndSubtract: (operand: BaseType) ::=> BaseType
+            := self fetchAndSubtract: operand with: MemoryOrder SequentiallyConsistent.
+    }
+
+}.
+
+compileTimeConstant AtomicUIntPointer := Atomic(UIntPointer).
+compileTimeConstant AtomicIntPointer := Atomic(IntPointer).
 
 }.
