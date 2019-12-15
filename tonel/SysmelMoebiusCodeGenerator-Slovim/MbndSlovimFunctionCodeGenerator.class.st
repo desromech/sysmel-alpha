@@ -10,7 +10,9 @@ Class {
 		'functionVariables',
 		'currentBreakBlock',
 		'currentContinueBlock',
-		'currentCleanUpScope'
+		'currentCleanUpScope',
+		'ssaFunctionEntryBlock',
+		'ssaFunctionBodyBlock'
 	],
 	#classVars : [
 		'AdditionalIntrinsicsDictionary',
@@ -66,34 +68,26 @@ MbndSlovimFunctionCodeGenerator >> aggregate: aggregateNode value: aggregateValu
 ]
 
 { #category : #'as yet unclassified' }
-MbndSlovimFunctionCodeGenerator >> buildSSAFunction: aSSAFunction definitionWithConcreteMethod: aConcreteMethod [
-	| entryBlock bodyBlock result |
+MbndSlovimFunctionCodeGenerator >> buildSSAFunction: aSSAFunction at: sourcePosition withCodeGenerationBlock: codeGenerationBlock [
 	ssaFunction := aSSAFunction.
-	concreteMethod := aConcreteMethod.
 	functionVariables := Dictionary new.
-	self assert: concreteMethod analyzedBody isNotNil.
 	
-	concreteMethod pragmaAt: #intrinsic: ifPresent: [ :pragma |
-		(self generateMethodBodyForIntrinsic: pragma arguments first value) ifTrue: [ ^ self ]
+	self setupBuilders.
+
+	"Generate the body code."
+	self withDebugPosition: (codeModuleGenerator convertDebugPosition: sourcePosition asActualSourcePosition) do: [ 
+		codeGenerationBlock value: ssaFunction value: slvmBuilder value: self.
 	].
-	
-	"Define the argument values."
-	self defineArgumentValues.
 
-	"Create the main slvm builder."	
-	slvmBuilder := SLVMBuilder on: ssaFunction.
-	entryBlock := slvmBuilder newBasicBlockHere: #entry.
+	"Jump from the alloca block into the body."
+	slvmBuilder allocaBuilder jump: ssaFunctionBodyBlock.
+]
 
-	"Create the alloca builder."
-	slvmBuilder allocaBuilder: ((SLVMBuilder on: ssaFunction)
-		currentBlock: entryBlock).
+{ #category : #'as yet unclassified' }
+MbndSlovimFunctionCodeGenerator >> buildSSAFunction: aSSAFunction definitionWithConcreteMethod: aConcreteMethod [
+	| result |
+	(self setupSSAFunction: aSSAFunction definitionWithMethod: aConcreteMethod) ifTrue: [ ^ self ].
 
-	"Create the body block."	
-	bodyBlock := slvmBuilder newBasicBlockHere: #body.
-	
-	"Initialize the argument variables."
-	self initializeArgumentVariables.
-	
 	"Generate the body code."
 	result := self visitNode: concreteMethod analyzedBody.
 	slvmBuilder currentBlock isLastTerminator ifTrue: [
@@ -109,7 +103,42 @@ MbndSlovimFunctionCodeGenerator >> buildSSAFunction: aSSAFunction definitionWith
 	].
 
 	"Jump from the alloca block into the body."
-	slvmBuilder allocaBuilder jump: bodyBlock.
+	slvmBuilder allocaBuilder jump: ssaFunctionBodyBlock.
+]
+
+{ #category : #'as yet unclassified' }
+MbndSlovimFunctionCodeGenerator >> buildSSAFunction: aSSAFunction definitionWithMethod: aConcreteMethod withCodeGenerationBlock: codeGenerationBlock [
+	| funcletValue |
+	(self setupSSAFunction: aSSAFunction definitionWithMethod: aConcreteMethod) ifTrue: [ ^ self ].
+	
+	"Generate the body code."
+	concreteMethod isFunclet ifTrue: [ 
+		funcletValue := self visitNode: concreteMethod analyzedBody.
+		self withDebugPosition: (codeModuleGenerator convertDebugPosition: aConcreteMethod definitionPosition asActualSourcePosition) do: [ 
+			codeGenerationBlock value: ssaFunction value: funcletValue value: slvmBuilder value: self
+		]
+	] ifFalse: [
+		self withDebugPosition: (codeModuleGenerator convertDebugPosition: aConcreteMethod definitionPosition asActualSourcePosition) do: [ 
+			codeGenerationBlock value: ssaFunction value: slvmBuilder value: self
+		]
+	].
+
+	"Jump from the alloca block into the body."
+	slvmBuilder allocaBuilder jump: ssaFunctionBodyBlock.
+]
+
+{ #category : #'as yet unclassified' }
+MbndSlovimFunctionCodeGenerator >> buildSSAFunction: aSSAFunction withCodeGenerationBlock: codeGenerationBlock [
+	ssaFunction := aSSAFunction.
+	functionVariables := Dictionary new.
+	
+	self setupBuilders.
+
+	"Generate the body code."
+	codeGenerationBlock value: ssaFunction value: slvmBuilder value: self.
+
+	"Jump from the alloca block into the body."
+	slvmBuilder allocaBuilder jump: ssaFunctionBodyBlock.
 ]
 
 { #category : #visiting }
@@ -122,7 +151,7 @@ MbndSlovimFunctionCodeGenerator >> createLocalVariableDebugInformation: localVar
 { #category : #'as yet unclassified' }
 MbndSlovimFunctionCodeGenerator >> defineArgumentValues [
 	| argumentValue |
-	self assert: concreteMethod arguments size = ssaFunction arguments size.
+	self assert: (concreteMethod isConcreteMethod not or: [concreteMethod arguments size = ssaFunction arguments size]).
 	concreteMethod arguments doWithIndex: [ :argVariable :argIndex |
 		argumentValue := ssaFunction arguments at: argIndex.
 		argVariable name isMbndAnonymousSymbol ifFalse: [
@@ -374,6 +403,18 @@ MbndSlovimFunctionCodeGenerator >> generateExpandedMessageSendNode: node withSta
 	^ result
 ]
 
+{ #category : #'as yet unclassified' }
+MbndSlovimFunctionCodeGenerator >> generateFuncletValue: funclet withArguments: funcletArguments [
+	^ self withConcreteMethod: funclet do: [ 
+		funcletArguments doWithIndex: [ 
+			self halt.
+		].
+	
+		self visitNode: funclet analyzedBody
+	].
+
+]
+
 { #category : #visiting }
 MbndSlovimFunctionCodeGenerator >> generateIdentityEquals: node [
 	| leftValue rightValue |
@@ -602,6 +643,45 @@ MbndSlovimFunctionCodeGenerator >> sanitizeValueTypeForAlloca: valueType [
 	].
 
 	^ valueType
+]
+
+{ #category : #'as yet unclassified' }
+MbndSlovimFunctionCodeGenerator >> setupBuilders [
+	"Create the main slvm builder."	
+	slvmBuilder := SLVMBuilder on: ssaFunction.
+	ssaFunctionEntryBlock := slvmBuilder newBasicBlockHere: #entry.
+
+	"Create the alloca builder."
+	slvmBuilder allocaBuilder: ((SLVMBuilder on: ssaFunction)
+		currentBlock: ssaFunctionEntryBlock).
+
+	"Create the body block."	
+	ssaFunctionBodyBlock := slvmBuilder newBasicBlockHere: #body.
+]
+
+{ #category : #'as yet unclassified' }
+MbndSlovimFunctionCodeGenerator >> setupSSAFunction: aSSAFunction definitionWithMethod: aConcreteMethod [
+	ssaFunction := aSSAFunction.
+	concreteMethod := aConcreteMethod.
+	functionVariables := Dictionary new.
+	
+	concreteMethod isConcreteMethod ifTrue: [ 
+		self assert: concreteMethod analyzedBody isNotNil.
+	
+		concreteMethod pragmaAt: #intrinsic: ifPresent: [ :pragma |
+			(self generateMethodBodyForIntrinsic: pragma arguments first value) ifTrue: [ ^ true ]
+		].
+	].
+	
+	"Define the argument values."
+	self defineArgumentValues.
+
+	self setupBuilders.
+	
+	"Initialize the argument variables."
+	self initializeArgumentVariables.
+	
+	^ false
 ]
 
 { #category : #accessing }
@@ -1143,20 +1223,10 @@ MbndSlovimFunctionCodeGenerator >> visitMethodReferenceNode: node [
 
 { #category : #visiting }
 MbndSlovimFunctionCodeGenerator >> visitNode: node [
-	| debugPosition |
 	self isEmittingDebugInformation ifTrue: [ 
-
-		"Keep track of the debug position"
-		debugPosition := codeModuleGenerator convertDebugPosition: node asActualSourcePosition.
-		slvmBuilder pushDebugSourcePosition: debugPosition.
-		slvmBuilder allocaBuilder pushDebugSourcePosition: debugPosition.
-		
-		^ [
-			super visitNode: node.
-		] ensure: [
-			slvmBuilder popDebugSourcePosition.
-			slvmBuilder allocaBuilder popDebugSourcePosition.
-		]
+		^ self withDebugPosition: (codeModuleGenerator convertDebugPosition: node asActualSourcePosition) do: [ 
+			super visitNode: node
+		].
 	].
 
 	^ super visitNode: node
@@ -1566,4 +1636,28 @@ MbndSlovimFunctionCodeGenerator >> withCleanUpScope: newCleanUpScope do: aBlock 
 		].
 	] ensure: [ currentCleanUpScope := oldCleanUpScope ].
 	^ result
+]
+
+{ #category : #'as yet unclassified' }
+MbndSlovimFunctionCodeGenerator >> withConcreteMethod: aConcreteMethod do: aBlock [
+	| oldConcreteMethod |
+	oldConcreteMethod := concreteMethod.
+	concreteMethod := aConcreteMethod.
+	^ aBlock ensure: [ 
+		concreteMethod := oldConcreteMethod
+	]
+]
+
+{ #category : #visiting }
+MbndSlovimFunctionCodeGenerator >> withDebugPosition: debugPosition do: aBlock [
+	self isEmittingDebugInformation ifFalse: [ ^ aBlock value ].
+
+	"Keep track of the debug position"
+	slvmBuilder pushDebugSourcePosition: debugPosition.
+	slvmBuilder allocaBuilder pushDebugSourcePosition: debugPosition.
+		
+	^ aBlock ensure: [
+		slvmBuilder popDebugSourcePosition.
+		slvmBuilder allocaBuilder popDebugSourcePosition.
+	]
 ]

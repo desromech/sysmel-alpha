@@ -306,6 +306,7 @@ MbndAstTransformVisitor >> visitGetGCVariableDataArraySizeNode: node [
 MbndAstTransformVisitor >> visitGlobalVariableDefinitionNode: node [
 	^ node copy
 		initialValue: (node initialValue ifNotNil: [:initialValue | self visitNode: initialValue]);
+		constructionPriority: (node constructionPriority ifNotNil: [:cp | self visitNode: cp]);
 		yourself
 ]
 

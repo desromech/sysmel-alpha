@@ -26,6 +26,11 @@ MbndAbstractConcreteMethod >> analyzedBody [
 ]
 
 { #category : #accessing }
+MbndAbstractConcreteMethod >> argumentNodes [
+	^ definitionNode arguments
+]
+
+{ #category : #accessing }
 MbndAbstractConcreteMethod >> arguments [
 	^ arguments
 ]
@@ -117,7 +122,7 @@ MbndAbstractConcreteMethod >> defineArguments [
 	].
 	
 	usedNames := Set new.
-	arguments := selfArgument , (self extraImplicitArguments , definitionNode arguments
+	arguments := selfArgument , (self extraImplicitArguments , self argumentNodes
 		collectWithIndex: [ :argument :index |
 		argument name isMbndAnonymousSymbol ifFalse: [
 			(usedNames includes: argument name) ifTrue: [ 
@@ -132,6 +137,11 @@ MbndAbstractConcreteMethod >> defineArguments [
 		ifTrue: [ arguments ]
 		ifFalse: [ arguments allButFirst ].
 
+]
+
+{ #category : #'as yet unclassified' }
+MbndAbstractConcreteMethod >> definitionBody [
+	^ definitionNode body
 ]
 
 { #category : #accessing }
@@ -176,7 +186,7 @@ MbndAbstractConcreteMethod >> ensureSemanticAnalysis [
 		
 	"The initial setup is to avoid infinite recursion."
 	analyzedBody := definitionNode.
-	analyzedBody := analyzer visitNode: definitionNode body.
+	analyzedBody := analyzer visitNode: self definitionBody.
 
 	"Cast the result into the required return type."
 	self returnType isVoidType ifFalse: [ 
@@ -190,6 +200,13 @@ MbndAbstractConcreteMethod >> ensureSemanticAnalysis [
 { #category : #evaluation }
 MbndAbstractConcreteMethod >> evaluateApplicationWithReceiver: receiverValue arguments: argumentValues withEvaluator: evaluator at: node [
 	^ self evaluateWithReceiver: receiverValue arguments: argumentValues withEvaluator: evaluator at: node
+]
+
+{ #category : #evaluation }
+MbndAbstractConcreteMethod >> evaluateWithReceiver: receiverValue arguments: argumentValues at: position [
+	| evaluator |
+	evaluator := MbndAstEvaluator new module: self module.
+	^ self evaluateWithReceiver: receiverValue arguments: argumentValues withEvaluator: evaluator at: position
 ]
 
 { #category : #evaluation }
@@ -234,6 +251,11 @@ MbndAbstractConcreteMethod >> hasVirtualTableEntry [
 MbndAbstractConcreteMethod >> initialize [
 	super initialize.
 	children := OrderedCollection new.
+]
+
+{ #category : #testing }
+MbndAbstractConcreteMethod >> isConcreteMethod [
+	^ true
 ]
 
 { #category : #testing }

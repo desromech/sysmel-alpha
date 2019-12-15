@@ -3,6 +3,9 @@ Class {
 	#superclass : #MbndAbstractVariableMetaBuilder,
 	#traits : 'TMbndEntityWithVisibility',
 	#classTraits : 'TMbndEntityWithVisibility classTrait',
+	#instVars : [
+		'constructionPriority'
+	],
 	#category : #'SysmelMoebiusMetamodel-Core-MetaBuilder'
 }
 
@@ -19,8 +22,19 @@ MbndGlobalMetaBuilder >> concretizeNode: node withAnalyzer: analyzer [
 		position: position;
 		minimalAlignment: alignment;
 		flags: flags;
+		constructionPriority: constructionPriority;
 		yourself.
 	^ analyzer visitNode: result
+]
+
+{ #category : #accessing }
+MbndGlobalMetaBuilder >> constructionPriority [
+	^ constructionPriority
+]
+
+{ #category : #accessing }
+MbndGlobalMetaBuilder >> constructionPriority: anObject [
+	constructionPriority := anObject
 ]
 
 { #category : #flags }

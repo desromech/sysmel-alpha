@@ -2301,6 +2301,162 @@ global testGlobal externC mutable type: PackedStructure';
 ]
 
 { #category : #tests }
+MbndSlovimCodeModuleGeneratorTest >> testGlobalVariableWithConstructor [
+	| global ctor globalCtor callInstruction |
+	self
+		evaluateSysmelSource: '
+function makeHandle externC() => Int32.
+
+struct Resource definition: { 
+	public field handle type: Int32.
+	
+	message initialize => Void := { 
+		handle := makeHandle().
+	}.
+}.
+
+global globalHandle externC mutable type: Resource';
+		generateSSAModule.
+
+	global := ssaModule globalNamed: #globalHandle.
+	self assert: global isGlobalVariable.
+	self assert: global valueType isStructureType.
+	self assert: global initialValue isNotNil.
+	
+	self assert: ssaModule globalConstructors isNotEmpty.
+	ctor := ssaModule globalConstructors first.
+	self assert: ctor global equals: global.
+	self assert: ctor priority equals: 0.
+
+	globalCtor := ctor function.
+	self assert: globalCtor allInstructionsMnemonics equals: #(
+		(entry (jump))
+		(body (call returnVoid))
+	).
+	
+	callInstruction := globalCtor basicBlocks second firstInstruction.
+	self assert: callInstruction isCall.
+	self assert: callInstruction functionValue name equals: #_S8Resource10initializeFRTs_S8Resource.
+]
+
+{ #category : #tests }
+MbndSlovimCodeModuleGeneratorTest >> testGlobalVariableWithConstructorPriority [
+	| global ctor globalCtor callInstruction |
+	self
+		evaluateSysmelSource: '
+function makeHandle externC() => Int32.
+
+struct Resource definition: { 
+	public field handle type: Int32.
+	
+	message initialize => Void := { 
+		handle := makeHandle().
+	}.
+}.
+
+global globalHandle externC mutable type: Resource; constructionPriority: -100';
+		generateSSAModule.
+
+	global := ssaModule globalNamed: #globalHandle.
+	self assert: global isGlobalVariable.
+	self assert: global valueType isStructureType.
+	self assert: global initialValue isNotNil.
+	
+	self assert: ssaModule globalConstructors isNotEmpty.
+	ctor := ssaModule globalConstructors first.
+	self assert: ctor global equals: global.
+	self assert: ctor priority equals: -100.
+
+	globalCtor := ctor function.
+	self assert: globalCtor allInstructionsMnemonics equals: #(
+		(entry (jump))
+		(body (call returnVoid))
+	).
+	
+	callInstruction := globalCtor basicBlocks second firstInstruction.
+	self assert: callInstruction isCall.
+	self assert: callInstruction functionValue name equals: #_S8Resource10initializeFRTs_S8Resource.
+]
+
+{ #category : #tests }
+MbndSlovimCodeModuleGeneratorTest >> testGlobalVariableWithDestructor [
+	| global dtor globalDtor callInstruction |
+	self
+		evaluateSysmelSource: '
+function destroyHandle externC(handle: Int32) => Void.
+
+struct Resource definition: { 
+	public field handle type: Int32.
+	
+	message finalize => Void := { 
+		destroyHandle(handle).
+	}.
+}.
+
+global globalHandle externC mutable type: Resource';
+		generateSSAModule.
+
+	global := ssaModule globalNamed: #globalHandle.
+	self assert: global isGlobalVariable.
+	self assert: global valueType isStructureType.
+	self assert: global initialValue isNotNil.
+	
+	self assert: ssaModule globalDestructors isNotEmpty.
+	dtor := ssaModule globalDestructors first.
+	self assert: dtor global equals: global.
+	self assert: dtor priority equals: 0.
+
+	globalDtor := dtor function.
+	self assert: globalDtor allInstructionsMnemonics equals: #(
+		(entry (jump))
+		(body (call returnVoid))
+	).
+	
+	callInstruction := globalDtor basicBlocks second firstInstruction.
+	self assert: callInstruction isCall.
+	self assert: callInstruction functionValue name equals: #_S8Resource8finalizeFRTs_S8Resource.
+]
+
+{ #category : #tests }
+MbndSlovimCodeModuleGeneratorTest >> testGlobalVariableWithDestructorPriority [
+	| global dtor globalDtor callInstruction |
+	self
+		evaluateSysmelSource: '
+function destroyHandle externC(handle: Int32) => Void.
+
+struct Resource definition: { 
+	public field handle type: Int32.
+	
+	message finalize => Void := { 
+		destroyHandle(handle).
+	}.
+}.
+
+global globalHandle externC mutable type: Resource; constructionPriority: -100';
+		generateSSAModule.
+
+	global := ssaModule globalNamed: #globalHandle.
+	self assert: global isGlobalVariable.
+	self assert: global valueType isStructureType.
+	self assert: global initialValue isNotNil.
+	
+	self assert: ssaModule globalDestructors isNotEmpty.
+	dtor := ssaModule globalDestructors first.
+	self assert: dtor global equals: global.
+	self assert: dtor priority equals: -100.
+
+	globalDtor := dtor function.
+	self assert: globalDtor allInstructionsMnemonics equals: #(
+		(entry (jump))
+		(body (call returnVoid))
+	).
+	
+	callInstruction := globalDtor basicBlocks second firstInstruction.
+	self assert: callInstruction isCall.
+	self assert: callInstruction functionValue name equals: #_S8Resource8finalizeFRTs_S8Resource.
+]
+
+{ #category : #tests }
 MbndSlovimCodeModuleGeneratorTest >> testGlobalVariableWithMinimalAlignment [
 	| global |
 	self
@@ -2312,6 +2468,38 @@ global testGlobal externC mutable alignment: 4096; type: UIntPointer';
 	self assert: global isGlobalVariable.
 	self assert: global valueType isPrimitiveType.
 	self assert: global minimalAlignment equals: 4096
+]
+
+{ #category : #tests }
+MbndSlovimCodeModuleGeneratorTest >> testGlobalVariableWithNonCompileTimeInitialization [
+	| global globalCtor ctor |
+	self
+		evaluateSysmelSource: '
+function makeHandle externC() => Int32.
+
+struct Resource definition: { 
+	public field handle type: Int32.
+}.
+
+global globalHandle externC mutable type: Resource := (Resource newValue handle: makeHandle(); yourself)';
+		generateSSAModule.
+
+	global := ssaModule globalNamed: #globalHandle.
+	self assert: global isGlobalVariable.
+	self assert: global valueType isStructureType.
+	self assert: global initialValue isNotNil.
+	
+	self assert: ssaModule globalConstructors isNotEmpty.
+	ctor := ssaModule globalConstructors first.
+	self assert: ctor global equals: global.
+	self assert: ctor priority equals: 0.
+
+	globalCtor := ctor function.
+	self assert: globalCtor allInstructionsMnemonics equals: #(
+		(entry (alloca jump))
+		(body (store call getElementPointer store load store returnVoid))
+	).
+
 ]
 
 { #category : #tests }

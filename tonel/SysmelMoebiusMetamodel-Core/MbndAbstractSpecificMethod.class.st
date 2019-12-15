@@ -50,6 +50,11 @@ MbndAbstractSpecificMethod >> analyzeExpandedMessageSendNode: node with: analyze
 ]
 
 { #category : #accessing }
+MbndAbstractSpecificMethod >> arguments [
+	^ #()
+]
+
+{ #category : #accessing }
 MbndAbstractSpecificMethod >> boundType [
 	^ boundType
 ]

@@ -94,7 +94,7 @@ MbndSlovimCodeModuleGenerator >> compilationTarget [
 	^ sourceModule compilationTarget
 ]
 
-{ #category : #visiting }
+{ #category : #'code generation' }
 MbndSlovimCodeModuleGenerator >> convertDebugPosition: aPosition [
 	^ debugLocationDictionary at: aPosition ifAbsentPut: [ SLVMDebugLocation new
 			sourceFile: (self convertDebugSourceFile: aPosition collection);
@@ -108,7 +108,7 @@ MbndSlovimCodeModuleGenerator >> convertDebugPosition: aPosition [
 			yourself ]
 ]
 
-{ #category : #visiting }
+{ #category : #'code generation' }
 MbndSlovimCodeModuleGenerator >> convertDebugSourceFile: aSourceCollection [
 	| sourceRef |
 	^ debugSourceFileDictionary at: aSourceCollection ifAbsentPut: [ 
@@ -245,6 +245,26 @@ MbndSlovimCodeModuleGenerator >> generateCodeModuleFor: aModule [
 	^ ssaModule
 ]
 
+{ #category : #'code generation' }
+MbndSlovimCodeModuleGenerator >> generateFinalizationOfGlobalVariable: globalVariable withSSAValue: ssaGlobalVariable [
+	| valueType globalDtorFunctionType dtor |
+	globalVariable needsDestructor ifFalse: [ ^ self ].
+	
+	valueType := globalVariable valueType.
+	self assert: valueType hasTrivialFinalization not.
+	globalDtorFunctionType := self compilationTarget voidType => self compilationTarget voidType.
+
+	dtor := self translateCompilerGeneratedMethodNamed: nil functionType: globalDtorFunctionType
+		at: globalVariable definitionNode
+		with: [:ssaFunction :builder :functionCodeGenerator |
+		builder
+			call: (self translateProgramEntity: valueType finalizeMethod) ssaValue arguments: { ssaGlobalVariable };
+			returnVoid
+	].
+
+	ssaModule addGlobal: ssaGlobalVariable destructor: dtor priority: (globalVariable constructionPriority ifNil: [0])
+]
+
 { #category : #'as yet unclassified' }
 MbndSlovimCodeModuleGenerator >> generateGlobalField: field forDescriptorSet: set binding: binding [
 	| globalName valueType globalStorage structureKind ssaValueType ssaGlobal |
@@ -305,7 +325,48 @@ MbndSlovimCodeModuleGenerator >> generateIdentityHash [
 	^ (identityHashRandomGenerator nextInt: (1<<32) + 1) - 1 
 ]
 
-{ #category : #visiting }
+{ #category : #'code generation' }
+MbndSlovimCodeModuleGenerator >> generateInitializationOfGlobalVariable: globalVariable withSSAValue: ssaGlobalVariable [
+	| globalCtorFunctionType ctor valueType |
+	globalVariable needsConstructor ifFalse: [ ^ self ].
+	
+	valueType := globalVariable valueType.
+	globalCtorFunctionType := self compilationTarget voidType => self compilationTarget voidType.
+	
+	globalVariable initialValueKind = #default ifTrue: [
+		ctor := self translateCompilerGeneratedMethodNamed: nil functionType: globalCtorFunctionType
+			at: globalVariable definitionNode
+			with: [:ssaFunction :builder :functionCodeGenerator |
+			valueType hasTrivialInitialization ifFalse: [ 
+				builder call: (self translateProgramEntity: valueType initializeMethod) ssaValue arguments: { ssaGlobalVariable }
+			].
+		
+			builder returnVoid
+		]
+	].
+
+	globalVariable initialValueKind = #copy ifTrue: [
+		self assert: globalVariable initialValueFunclet isNotNil.
+		ctor := self translateCompilerGeneratedMethodNamed: nil functionType: globalCtorFunctionType
+			at: globalVariable definitionNode
+			with: [ :ssaFunction :builder :functionCodeGenerator |
+			| funcletValue |
+			funcletValue := functionCodeGenerator generateFuncletValue: globalVariable initialValueFunclet withArguments: #().
+
+			functionCodeGenerator generateVariable: ssaGlobalVariable withValueType: valueType initializationWithValue: funcletValue initialValueKind: globalVariable initialValueKind.
+			
+			builder returnVoid
+		]
+	].
+
+	ctor ifNil: [ 
+		self error: 'Unsupported global initialization kind'	
+	].
+
+	ssaModule addGlobal: ssaGlobalVariable constructor: ctor priority: (globalVariable constructionPriority ifNil: [0])
+]
+
+{ #category : #'code generation' }
 MbndSlovimCodeModuleGenerator >> generatedNameForAnynomousEntity: programEntity [
 	| result |
 	programEntity isVTablePointerField ifTrue: [ ^ '__vtable' , programEntity slotIndex asString ].
@@ -461,7 +522,7 @@ MbndSlovimCodeModuleGenerator >> storeShader: functionMethod outputsOfType: outp
 
 { #category : #visiting }
 MbndSlovimCodeModuleGenerator >> translateCompilerGeneratedMethod: generatedMethod with: codeGenerationBlock [
-	| ssaFunctionType csymbol ssaFunction unmangledName builder allocaBuilder bodyBlock |
+	| ssaFunctionType csymbol ssaFunction unmangledName |
 	ssaFunctionType := self translateType: generatedMethod type.
 	
 	csymbol := self csymbolForProgramEntity: generatedMethod.
@@ -473,22 +534,31 @@ MbndSlovimCodeModuleGenerator >> translateCompilerGeneratedMethod: generatedMeth
 
 	self flag: 'TODO: Support the correct linkage/visibility.'.
 	ssaFunction makePublic.
+	generatedMethod isFunclet ifTrue: [ ssaFunction makePrivate ].
 	self setupGCStrategyFor: ssaFunction generatedFrom: generatedMethod.
 	
-	"Create the builder, and the main blocks."
-	builder := SLVMBuilder on: ssaFunction.
-	allocaBuilder := SLVMBuilder on: ssaFunction.
-	allocaBuilder newBasicBlockHere: #entry.
-	builder allocaBuilder: allocaBuilder.
-	bodyBlock := builder newBasicBlockHere: #body.
-
-	"Generate the method content."	
-	codeGenerationBlock value: ssaFunction value: builder.
-	
-	"Jump from the alloca builder into the body method."
-	allocaBuilder jump: bodyBlock.
+	self createFunctionCodeGenerator
+		buildSSAFunction: ssaFunction definitionWithMethod: generatedMethod
+			withCodeGenerationBlock: codeGenerationBlock.
 
 	^ ssaFunction
+]
+
+{ #category : #visiting }
+MbndSlovimCodeModuleGenerator >> translateCompilerGeneratedMethodNamed: name functionType: functionType at: sourcePosition with: codeGenerationBlock [
+	| ssaFunctionType ssaFunction |
+	ssaFunctionType := self translateType: functionType.
+	
+	ssaFunction := SLVMFunction module: ssaModule name: name functionType: ssaFunctionType.
+	ssaFunction unmangledName: name.
+
+	name ifNil: [ ssaFunction makePrivate ]
+		ifNotNil: [ ssaFunction makePublic ].
+		
+	self createFunctionCodeGenerator
+		buildSSAFunction: ssaFunction at: sourcePosition withCodeGenerationBlock: codeGenerationBlock.
+			
+	^ ssaFunction.
 ]
 
 { #category : #'code generation' }
@@ -616,7 +686,7 @@ MbndSlovimCodeModuleGenerator >> unmangledNameForProgramEntity: programEntity in
 
 { #category : #visiting }
 MbndSlovimCodeModuleGenerator >> visitAggregateBasicInitializeMethod: generatedMethod [
-	^ self translateCompilerGeneratedMethod: generatedMethod with: [ :ssaFunction :builder |
+	^ self translateCompilerGeneratedMethod: generatedMethod with: [ :ssaFunction :builder :functionCodeGenerator |
 		| receiver field |
 		receiver := ssaFunction arguments first.
 		generatedMethod parent slotLayout slots do: [ :slot |
@@ -827,12 +897,16 @@ MbndSlovimCodeModuleGenerator >> visitGlobalVariable: globalVariable [
 	globalVariable hasExternalVisibility ifTrue: [
 		ssaGlobalVariable makeExternal.
 	] ifFalse: [ 
-		initialValue := globalVariable currentValue.
+		initialValue := globalVariable currentRawValue.
 		self assert: initialValue isNotNil.
 		ssaGlobalVariable initialValue: (self translateLiteralValue: initialValue value ofType: initialValue type).
 		globalVariable isStatic ifTrue: [ 
 			ssaGlobalVariable makePrivate
 		].
+	
+		self
+			generateInitializationOfGlobalVariable: globalVariable withSSAValue: ssaGlobalVariable;
+			generateFinalizationOfGlobalVariable: globalVariable withSSAValue: ssaGlobalVariable
 	].
 		
 	^ ssaGlobalVariable

@@ -10,6 +10,11 @@ Class {
 	#category : #'SysmelMoebiusMetamodel-Core-AST'
 }
 
+{ #category : #accessing }
+MbndAstAbstractVariableDefinitionNode >> constructionPriority [
+	^ nil
+]
+
 { #category : #flags }
 MbndAstAbstractVariableDefinitionNode >> immutable [
 	self removeFlag: #mutable

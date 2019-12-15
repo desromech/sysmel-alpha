@@ -188,6 +188,14 @@ MbndAstSemanticAnalyzer >> createBindingPatternLocalVariable: bindingPattern [
 		type: valueType at: bindingPattern).
 ]
 
+{ #category : #'as yet unclassified' }
+MbndAstSemanticAnalyzer >> createFuncletWithNode: node [
+	^ MbndConcreteFunclet new
+		contentNode: node;
+		definitionScope: scope;
+		yourself
+]
+
 { #category : #visiting }
 MbndAstSemanticAnalyzer >> createLocalVariableNamed: localVariableName withValueType: valueType type: referenceType at: definitionNode [
 	^ self createLocalVariableNamed: localVariableName withValueType: valueType type: referenceType variableClass: MbndFunctionLocalVariable flags: #() at: definitionNode
@@ -1025,16 +1033,8 @@ MbndAstSemanticAnalyzer >> visitGlobalVariableDefinitionNode: node [
 		]
 	].
 	
-	"Cast implicitly the initial value."
-	valueType := result valueType.
-	result initialValue ifNotNil: [ :valueNode |
-		result initialValue: ((self forNode: valueNode deferAnalysisWith: [:iv :analyzer |
-			analyzer addImplicitCastFor: iv to: valueType
-		])
-			type: valueType)
-	].
-
 	"Compute the variable reference type"
+	valueType := result valueType.
 	self assert: valueType isNotNil.
 	result isMutable ifTrue: [
 		result type: valueType asMutableValueType
@@ -1053,7 +1053,14 @@ MbndAstSemanticAnalyzer >> visitGlobalVariableDefinitionNode: node [
 				format: { result name asPrettySymbolName } at: node minimalAlignment
 		]
 	].
-
+	
+	result constructionPriority ifNotNil: [ :cp |
+		result constructionPriority: (self evaluateCompileTimeExpression: cp) unwrapMbndValue.
+		result constructionPriority isInteger ifFalse: [
+			self error: 'The construction priority specified for a variable {1} must be an integer.'
+				format: { result name asPrettySymbolName } at: node minimalAlignment
+		]
+	].
 	"Create a matching variable"
 	(node isLocalVariableDefinitionNode or: [node isStatic]) ifTrue: [
 		globalVariable := self createLocalVariableNamed: result name withValueType: valueType type: result type variableClass: MbndGlobalVariable flags: (node flags copyWith: #static) at: node
@@ -1066,8 +1073,13 @@ MbndAstSemanticAnalyzer >> visitGlobalVariableDefinitionNode: node [
 		globalVariable minimalAlignment: ma
 	].
 
-	result initialValue ifNotNil: [ 
-		globalVariable initialValueNode: result initialValue
+	result constructionPriority ifNotNil: [ :cp |
+		globalVariable constructionPriority: cp
+	].
+
+	"Turn the initial value into a funclet."
+	result initialValue ifNotNil: [ :valueNode |
+		globalVariable initialValueFunclet: (self createFuncletWithNode: valueNode )
 	].
 
 	result binding: globalVariable.

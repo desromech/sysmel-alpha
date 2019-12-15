@@ -47,6 +47,16 @@ TMbndProgramEntity >> isCompilerGeneratedMethod [
 ]
 
 { #category : #testing }
+TMbndProgramEntity >> isConcreteMethod [
+	^ false
+]
+
+{ #category : #testing }
+TMbndProgramEntity >> isFunclet [
+	^ false
+]
+
+{ #category : #testing }
 TMbndProgramEntity >> isFunctionMethod [
 	^ false
 ]

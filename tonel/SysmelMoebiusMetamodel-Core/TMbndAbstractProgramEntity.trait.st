@@ -36,6 +36,13 @@ TMbndAbstractProgramEntity >> compilationTarget [
 ]
 
 { #category : #accessing }
+TMbndAbstractProgramEntity >> definitionPosition [
+	^ self parent
+		ifNotNil: [ :p | p definitionPosition ]
+		ifNil: [ MbndSourcePosition empty ]
+]
+
+{ #category : #accessing }
 TMbndAbstractProgramEntity >> fullName [
 	^ self name
 ]
