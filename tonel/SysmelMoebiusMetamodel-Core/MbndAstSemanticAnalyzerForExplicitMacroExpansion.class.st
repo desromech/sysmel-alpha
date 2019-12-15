@@ -151,11 +151,11 @@ MbndAstSemanticAnalyzerForExplicitMacroExpansion >> visitIdentifierReferenceNode
 MbndAstSemanticAnalyzerForExplicitMacroExpansion >> visitMessageChainNode: node [
 	| receiverVariable receiverVariableReference messages unconvertedMessages analyzedReceiver convertedMetaMessages |
 	node messages ifEmpty: [
-		^ self visitNode: node receiver
+		^ self analyzeNodeIfNeeded: node receiver
 	].
 
 	node messages size = 1 ifTrue: [
-		^ self visitNode: (node messages first asUnexpandedMessageSend
+		^ self analyzeNodeIfNeeded: (node messages first asUnexpandedMessageSend
 			receiver: node receiver;
 			yourself)
 	].

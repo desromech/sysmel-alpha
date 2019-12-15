@@ -726,7 +726,7 @@ MbndAstSemanticAnalyzer >> visitEnumDeclarationNode: node [
 MbndAstSemanticAnalyzer >> visitEnumDefinitionNode: node [
 	| result definitionScope valueType |
 	result := node copy.
-	result declaration: (self visitNode: result declaration ensurePartOfDefinitionFlagIsMarked).
+	result declaration: (self analyzeNodeIfNeeded: result declaration ensurePartOfDefinitionFlagIsMarked).
 	
 	"Evaluate the value type"
 	node valueType ifNotNil: [ :valueTypeNode |
@@ -871,7 +871,7 @@ MbndAstSemanticAnalyzer >> visitFieldDefinitionNode: node [
 MbndAstSemanticAnalyzer >> visitFunctionDefinitionNode: node [
 	| result |
 	result := node copy.
-	result prototype: (self visitNode: result prototype).
+	result prototype: (self analyzeNodeIfNeeded: result prototype).
 	result concreteMethod definitionNode ifNil: [ 
 		result concreteMethod
 			declarationPosition: result prototype;
@@ -1114,13 +1114,13 @@ MbndAstSemanticAnalyzer >> visitIfConditionNode: node [
 	result condition isLiteralValueNode ifTrue: [
 		result condition type isLiteralBooleanTrueType ifTrue: [
 			^ result trueValue
-				ifNotNil: [ :child | self visitNode: child ]
+				ifNotNil: [ :child | self analyzeNodeIfNeeded: child ]
 				ifNil: [ self astBuilder literalUndefined ]
 		].
 	
 		result condition type isLiteralBooleanFalseType ifTrue: [
 			^ result falseValue
-				ifNotNil: [ :child | self visitNode: child ]
+				ifNotNil: [ :child | self analyzeNodeIfNeeded: child ]
 				ifNil: [ self astBuilder literalUndefined ]
 		].
 	].
@@ -1353,7 +1353,7 @@ MbndAstSemanticAnalyzer >> visitLocalVariableDefinitionNode: node [
 MbndAstSemanticAnalyzer >> visitMacroMessageDefinitionNode: node [
 	| result |
 	result := node copy.
-	result prototype: (self visitNode: result prototype).
+	result prototype: (self analyzeNodeIfNeeded: result prototype).
 	result concreteMethod definitionNode ifNil: [
 		result concreteMethod
 			declarationPosition: result prototype;
@@ -1551,7 +1551,7 @@ MbndAstSemanticAnalyzer >> visitMatrixMultiplicationOperationNode: node [
 MbndAstSemanticAnalyzer >> visitMessageDefinitionNode: node [
 	| result |
 	result := node copy.
-	result prototype: (self visitNode: result prototype).
+	result prototype: (self analyzeNodeIfNeeded: result prototype).
 	result concreteMethod definitionNode ifNil: [ 
 		result concreteMethod
 			declarationPosition: result prototype;
@@ -1982,7 +1982,7 @@ MbndAstSemanticAnalyzer >> visitTypeDeclarationNode: node ofKind: typeKindClass 
 MbndAstSemanticAnalyzer >> visitTypeDefinitionNode: node ofKind: typeKindClass [
 	| result definitionScope superType |
 	result := node copy.
-	result declaration: (self visitNode: result declaration ensurePartOfDefinitionFlagIsMarked).
+	result declaration: (self analyzeNodeIfNeeded: result declaration ensurePartOfDefinitionFlagIsMarked).
 	
 	"Evaluate the supertype"
 	node superTypeNode ifNotNil: [ :superTypeNode |
