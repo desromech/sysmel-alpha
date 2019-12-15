@@ -42,6 +42,18 @@ MbndSlovimLiteralValueGenerator >> literalValue: anObject [
 	literalValue := anObject
 ]
 
+{ #category : #visiting }
+MbndSlovimLiteralValueGenerator >> sanitizeAggregateConstantMember: constantMember [
+	constantMember type isBooleanType ifTrue: [
+		self slvmCompilationTarget isLLVMCompilationTarget ifTrue: [ 
+			constantMember isConstantValue ifTrue: [ 
+				^ SLVMConstant uchar: constantMember value asBit
+			]
+		].
+	].
+	^ constantMember
+]
+
 { #category : #'code generation' }
 MbndSlovimLiteralValueGenerator >> translateDynamicObjectInstanceContent: dynamicObject [
 	literalValue := dynamicObject.
@@ -71,8 +83,9 @@ MbndSlovimLiteralValueGenerator >> visitAggregateType: type [
 	| slots convertedSlots slvmType hasBiggerArrayAtTheEnd |
 	slots := literalValue slots.
 	convertedSlots := type slotLayout slots collectWithIndex: [ :slot :index |
-		self ensureValidSSALiteralValue: (codeModuleGenerator translateLiteralValue: (slots at: index) ofType: slot type)
-			ofType: slot type
+		self sanitizeAggregateConstantMember:
+		(self ensureValidSSALiteralValue: (codeModuleGenerator translateLiteralValue: (slots at: index) ofType: slot type)
+			ofType: slot type)
 	].
 
 	slvmType := codeModuleGenerator translateType: type.

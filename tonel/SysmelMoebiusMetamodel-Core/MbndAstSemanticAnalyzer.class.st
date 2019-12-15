@@ -661,7 +661,7 @@ MbndAstSemanticAnalyzer >> visitCleanUpScopeNode: node [
 	result := node copy.
 	
 	self withCleanUpScope: result do: [
-		analyzedContent := self visitNode: result expression.
+		analyzedContent := self analyzeNodeIfNeeded: result expression.
 		(analyzedContent isLiteralValueNode and: [result explicitCleanUpActions isEmpty]) ifTrue: [ ^ analyzedContent ].
 
 		analyzedContent := (self ensureLiteralIsConcreted: analyzedContent).
@@ -1173,6 +1173,7 @@ MbndAstSemanticAnalyzer >> visitImmediateBlockClosureActivationNode: node [
 
 	self assert: result blockNode isBlockClosureNode.
 	result blockNode blockClosureProgramEntity makeBlockClosureWithImmediateActivation.
+	result type: result blockNode returnType.
 	^ result
 ]
 

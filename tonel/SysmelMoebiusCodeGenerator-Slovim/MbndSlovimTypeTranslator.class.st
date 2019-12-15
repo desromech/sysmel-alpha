@@ -44,6 +44,10 @@ MbndSlovimTypeTranslator >> sanitizeStructureFieldType: fieldType [
 		]
 	].
 
+	self slvmCompilationTarget isLLVMCompilationTarget ifTrue: [ 
+		fieldType isBooleanType ifTrue: [ ^ self slvmCompilationTarget uint8 ]
+	].
+
 	^ fieldType
 ]
 
@@ -194,6 +198,11 @@ MbndSlovimTypeTranslator >> visitPointerType: pointerType [
 	translatedTypes at: pointerType put: ssaPointerType.
 	
 	ssaPointerType baseType: (self translateType: pointerType baseType).
+	self slvmCompilationTarget isLLVMCompilationTarget ifTrue: [ 
+		ssaPointerType baseType isBooleanType ifTrue: [ 
+			ssaPointerType baseType: self slvmCompilationTarget uchar
+		]
+	].
 	^ ssaPointerType
 ]
 

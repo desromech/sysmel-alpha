@@ -106,6 +106,7 @@ MbndPrimitiveIntegerType >> isAcceptableLiteralValue: literalValue [
 
 { #category : #'testing methods' }
 MbndPrimitiveIntegerType >> isPrimitiveIntegerType [
+	<compileTime>
 	^ true
 ]
 

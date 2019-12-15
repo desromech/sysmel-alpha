@@ -237,6 +237,34 @@ function f externC(x: Int32) => Int32 ref
 ]
 
 { #category : #tests }
+MbndSlovimCodeModuleGeneratorTest >> testAtomicBooleanFlagLoad [
+	| function |
+	self
+		evaluateSysmelSource: '
+class AtomicFlag definition: { 
+	field flag private type: BooleanBit.
+	
+	message loadWith: (ordering: Int32) ::=> BooleanBit := {
+        <staticBinding>
+        <intrinsic: #"atomic.load">
+        flag
+    }.
+}.
+
+';
+		generateSSAModule.
+
+	function := ssaModule globalNamed: #_S10AtomicFlag10loadWith_cFRTc_S10AtomicFlagi.
+	self assert: function isFunction.
+	self deny: function isEmpty.
+	self assert: function basicBlocks size equals: 1.
+	
+	self assert: function allInstructionsMnemonics equals: #(
+		(intrinsic (getElementPointer call return))
+	).
+]
+
+{ #category : #tests }
 MbndSlovimCodeModuleGeneratorTest >> testBooleanEquality [
 	| function |
 	self
@@ -330,6 +358,102 @@ MbndSlovimCodeModuleGeneratorTest >> testBooleanLessOrEqual [
 	self assert: function basicBlocks second firstInstruction isBinaryOperation.
 	self assert: function basicBlocks second firstInstruction operation equals: #ule.
 	self assert: function basicBlocks second lastInstruction isReturn.
+]
+
+{ #category : #tests }
+MbndSlovimCodeModuleGeneratorTest >> testBooleanLoadFromRef [
+	| function |
+	self
+		evaluateSysmelSource: '
+		function loadBoolFromRef externC(v: BooleanBit ref) => BooleanBit := v';
+		generateSSAModule.
+
+	function := ssaModule globalNamed: #loadBoolFromRef.
+	self assert: function isFunction.
+	self deny: function isEmpty.
+	self assert: function allInstructionsMnemonics equals: #(
+		(entry (jump))
+		(body (
+			load
+			truncate
+			return))
+	).
+]
+
+{ #category : #tests }
+MbndSlovimCodeModuleGeneratorTest >> testBooleanLoadStructure [
+	| function |
+	self
+		evaluateSysmelSource: '
+struct TestStruct definition: {
+	public field b type: BooleanBit.
+}.
+
+		function getField externC(s: TestStruct ref) => BooleanBit := s b';
+		generateSSAModule.
+
+	function := ssaModule globalNamed: #getField.
+	self assert: function isFunction.
+	self deny: function isEmpty.
+	self assert: function allInstructionsMnemonics equals: #(
+		(entry (jump))
+		(body (
+			getElementPointer
+			load
+			truncate
+			return))
+	).
+]
+
+{ #category : #tests }
+MbndSlovimCodeModuleGeneratorTest >> testBooleanLoadStructure2 [
+	| function |
+	self
+		evaluateSysmelSource: '
+struct TestStruct definition: {
+	public field b type: BooleanBit.
+}.
+
+		function getField externC(s: TestStruct) => BooleanBit := s b';
+		generateSSAModule.
+
+	function := ssaModule globalNamed: #getField.
+	self assert: function isFunction.
+	self deny: function isEmpty.
+	self assert: function allInstructionsMnemonics equals: #(
+		(entry (jump))
+		(body (
+			extractValue
+			truncate
+			return))
+	).
+]
+
+{ #category : #tests }
+MbndSlovimCodeModuleGeneratorTest >> testBooleanLocal [
+	| function |
+	self
+		evaluateSysmelSource: '
+		function boolLocal externC() => BooleanBit := {
+			let v mutable := true.
+			v
+		}.';
+		generateSSAModule.
+
+	function := ssaModule globalNamed: #boolLocal.
+	self assert: function isFunction.
+	self deny: function isEmpty.
+	self assert: function allInstructionsMnemonics equals: #(
+		(entry (alloca jump))
+		(body (
+			store
+			load
+			truncate
+			return))
+	).
+	
+	self assert: function basicBlocks second firstInstruction value type isIntegerType.
+
 ]
 
 { #category : #tests }
@@ -2163,7 +2287,7 @@ MbndSlovimCodeModuleGeneratorTest >> testGlobalVariablePackedStructre [
 	self
 		evaluateSysmelSource: '
 struct PackedStructure packed definition: { 
-	public field byteValue type: UInt8.
+	public field byteValue type: BooleanBit.
 	public field wordValue type: UInt32.
 }.
 

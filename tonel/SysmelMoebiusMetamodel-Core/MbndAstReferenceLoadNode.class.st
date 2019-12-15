@@ -18,6 +18,11 @@ MbndAstReferenceLoadNode >> isReferenceLoadNode [
 ]
 
 { #category : #accessing }
+MbndAstReferenceLoadNode >> pragmaAt: pragmaName ifAbsent: absentBlock ifPresent: presentBlock [
+	^ reference pragmaAt: pragmaName ifAbsent: absentBlock ifPresent: presentBlock
+]
+
+{ #category : #accessing }
 MbndAstReferenceLoadNode >> reference [
 	^ reference
 ]

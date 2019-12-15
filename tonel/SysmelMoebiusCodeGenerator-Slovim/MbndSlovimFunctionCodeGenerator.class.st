@@ -14,7 +14,8 @@ Class {
 	],
 	#classVars : [
 		'AdditionalIntrinsicsDictionary',
-		'EvaluationOnlyIntrinsics'
+		'EvaluationOnlyIntrinsics',
+		'IntrinsicTargetMap'
 	],
 	#category : #'SysmelMoebiusCodeGenerator-Slovim-Module'
 }
@@ -32,7 +33,10 @@ MbndSlovimFunctionCodeGenerator class >> initialize [
 		#'dynobject.class'
 		#'dynobject.identityHash'
 		#'gc.object.basicNew' #'gc.object.basicNew.variable'
-	)
+	).
+	
+	IntrinsicTargetMap := Dictionary newFromPairs: #(
+	).
 ]
 
 { #category : #visiting }
@@ -68,6 +72,10 @@ MbndSlovimFunctionCodeGenerator >> buildSSAFunction: aSSAFunction definitionWith
 	concreteMethod := aConcreteMethod.
 	functionVariables := Dictionary new.
 	self assert: concreteMethod analyzedBody isNotNil.
+	
+	concreteMethod pragmaAt: #intrinsic: ifPresent: [ :pragma |
+		(self generateMethodBodyForIntrinsic: pragma arguments first value) ifTrue: [ ^ self ]
+	].
 	
 	"Define the argument values."
 	self defineArgumentValues.
@@ -189,6 +197,13 @@ MbndSlovimFunctionCodeGenerator >> extractColumns: columns elementAsVector: elem
 	^ slvmBuilder makeVector: returnType arguments: { leftHalf . rightHalf }
 ]
 
+{ #category : #'as yet unclassified' }
+MbndSlovimFunctionCodeGenerator >> generateCall: calledFunction arguments: arguments expectedReturnType: expectedReturnType [
+	| result |
+	result := slvmBuilder call: calledFunction arguments: arguments.
+	^ self sanitizeValue: result withExpectedType: (self translateType: expectedReturnType).
+]
+
 { #category : #visiting }
 MbndSlovimFunctionCodeGenerator >> generateCase: case withMatchedValue: matchedValue [
 	case bindings ifNotEmpty: [
@@ -289,13 +304,26 @@ MbndSlovimFunctionCodeGenerator >> generateDestructuringPattern: pattern assignm
 
 { #category : #'as yet unclassified' }
 MbndSlovimFunctionCodeGenerator >> generateExpandedMessageSendNode: node withIntrinsicName: intrinsicName [
+	| intrinsicSSAFunction receiver arguments allArguments result |
 	AdditionalIntrinsicsDictionary at: intrinsicName ifPresent: [ :selector |
 		^ self perform: selector with: node
 	].
 	(EvaluationOnlyIntrinsics includes: intrinsicName) ifTrue: [
 		^ self generateExpandedMessageSendNode: node withStaticMethodBoundTo: (self translateProgramEntity: node method) ssaValue
 	].
-	^ self generateExpandedMessageSendNode: node withStaticMethodBoundTo: (codeModuleGenerator intrinsicConstantBuiltInFunction: intrinsicName withType: node method type)
+
+	receiver := node receiver ifNil: [#()]
+		ifNotNil: [{self visitNode: node receiver}].
+	arguments := self visitNodesAndCollect: node arguments.
+	allArguments := receiver , arguments.
+	allArguments := self processIntrinsic: intrinsicName callArguments: allArguments.
+
+	intrinsicSSAFunction := codeModuleGenerator intrinsicConstantBuiltInFunction:
+		(IntrinsicTargetMap at: intrinsicName ifAbsent: [ intrinsicName ])
+		withType: node method type.
+
+	^ self generateCall: intrinsicSSAFunction arguments: allArguments expectedReturnType: node type
+
 ]
 
 { #category : #'as yet unclassified' }
@@ -387,7 +415,7 @@ MbndSlovimFunctionCodeGenerator >> generateLocalVariable: localVariable definiti
 				]
 			].
 		] ifFalse: [
-			ssaValue := slvmBuilder allocaBuilder alloca: valueType.
+			ssaValue := slvmBuilder allocaBuilder alloca: (self sanitizeValueTypeForAlloca: valueType).
 			self generateVariable: ssaValue withValueType: localVariable valueType initializationWithValue: initialValue initialValueKind: initialValueKind.
 
 			self isEmittingDebugInformation ifTrue: [ 
@@ -417,12 +445,33 @@ MbndSlovimFunctionCodeGenerator >> generateLocalVariable: localVariable definiti
 	^ ssaValue
 ]
 
+{ #category : #'as yet unclassified' }
+MbndSlovimFunctionCodeGenerator >> generateMethodBodyForIntrinsic: intrinsicName [
+	| ssaBuiltIn result processedArguments |
+	(AdditionalIntrinsicsDictionary includesKey: intrinsicName) ifTrue: [ ^ false ].
+	(EvaluationOnlyIntrinsics includes: intrinsicName) ifTrue: [ ^ false ].
+	slvmBuilder := SLVMBuilder on: ssaFunction.
+	slvmBuilder newBasicBlockHere: #intrinsic.
+
+	processedArguments := self processIntrinsic: intrinsicName callArguments: ssaFunction arguments asArray.
+	ssaBuiltIn := codeModuleGenerator intrinsicConstantBuiltInFunction: (IntrinsicTargetMap at: intrinsicName ifAbsent: [ intrinsicName ]) withType: concreteMethod type.
+	
+	result := self generateCall: ssaBuiltIn arguments: processedArguments expectedReturnType: concreteMethod returnType.
+
+	result type isVoidType ifTrue: [ 
+		slvmBuilder returnVoid
+	] ifFalse: [ 
+		slvmBuilder return: result
+	].
+	^ true
+]
+
 { #category : #visiting }
 MbndSlovimFunctionCodeGenerator >> generateVariable: ssaValue withValueType: valueType initializationWithValue: initialValue initialValueKind: initialValueKind [
 	self assert: initialValueKind isNotNil.
 	
 	initialValueKind = #default ifTrue: [ 
-		slvmBuilder store: initialValue in: ssaValue.
+		slvmBuilder store: (self sanitizeStoreValue: initialValue inPointer: ssaValue) in: ssaValue.
 		valueType hasTrivialInitialization ifFalse: [
 			slvmBuilder call: (self translateProgramEntity: valueType initializeMethod) ssaValue arguments: {ssaValue}
 		].
@@ -431,7 +480,7 @@ MbndSlovimFunctionCodeGenerator >> generateVariable: ssaValue withValueType: val
 
 	initialValueKind = #copy ifTrue: [ 
 		valueType hasTrivialInitializationFromCopy ifTrue: [ 
-			slvmBuilder store: initialValue in: ssaValue.
+			slvmBuilder store: (self sanitizeStoreValue: initialValue inPointer: ssaValue) in: ssaValue.
 		] ifFalse: [
 			self generateCleanUpActionActivatedHereWith: [ 
 			].
@@ -496,6 +545,19 @@ MbndSlovimFunctionCodeGenerator >> initializeArgumentVariables [
 	]
 ]
 
+{ #category : #'as yet unclassified' }
+MbndSlovimFunctionCodeGenerator >> processIntrinsic: intrinsicName callArguments: callArguments [
+	| processedArguments |
+	processedArguments := callArguments.
+	(intrinsicName beginsWith: 'atomic.') ifTrue: [
+		self assert: callArguments first type isPointerType.
+		self assert: callArguments first type baseType isStructureType.
+		processedArguments := {slvmBuilder getReference: callArguments first element: (slvmBuilder constInt: 0)} , callArguments allButFirst.
+	].
+
+	^ processedArguments
+]
+
 { #category : #visiting }
 MbndSlovimFunctionCodeGenerator >> replaceVector: vector elements: elementIndices with: newValues [
 	| result |
@@ -508,6 +570,38 @@ MbndSlovimFunctionCodeGenerator >> replaceVector: vector elements: elementIndice
 		result := slvmBuilder insertVector: result element: (slvmBuilder constInt: elementIndex) value: value
 	].
 	^ result
+]
+
+{ #category : #visiting }
+MbndSlovimFunctionCodeGenerator >> sanitizeStoreValue: value inPointer: fieldPointer [
+	self assert: fieldPointer type isPointerType.
+	^ self sanitizeValue: value withExpectedType: fieldPointer type baseType
+]
+
+{ #category : #visiting }
+MbndSlovimFunctionCodeGenerator >> sanitizeValue: value withExpectedType: expectedType [
+	self slvmCompilationTarget isLLVMCompilationTarget ifTrue: [ 
+		(expectedType isBooleanType and: [ value type isIntegerType ]) ifTrue: [ 
+			^ slvmBuilder truncate: value target: self slvmCompilationTarget bool
+		].
+	
+		(expectedType isIntegerType and: [ value type isBooleanType ]) ifTrue: [ 
+			^ slvmBuilder zeroExtend: value target: expectedType
+		].
+	].
+
+	^ value
+]
+
+{ #category : #visiting }
+MbndSlovimFunctionCodeGenerator >> sanitizeValueTypeForAlloca: valueType [
+	self slvmCompilationTarget isLLVMCompilationTarget ifTrue: [ 
+		valueType isBooleanType ifTrue: [ 
+			^ self slvmCompilationTarget uchar
+		].
+	].
+
+	^ valueType
 ]
 
 { #category : #accessing }
@@ -547,7 +641,7 @@ MbndSlovimFunctionCodeGenerator >> visitAssignmentNode: node [
 	| value reference |
 	value := self visitNode: node value.
 	reference := self visitNode: node reference.
-	(slvmBuilder store: value in: reference)
+	(slvmBuilder store: (self sanitizeStoreValue: value inPointer: reference) in: reference)
 		volatile: node reference type isVolatileType.
 		
 	self assert: node type isReferenceType.
@@ -804,7 +898,7 @@ MbndSlovimFunctionCodeGenerator >> visitGetFieldValueNode: node [
 		fieldValue := slvmBuilder shiftRight: fieldValue with: (slvmBuilder const: field bitOffset type: valueType).
 	].
 
-	^ fieldValue
+	^ self sanitizeValue: fieldValue withExpectedType: (self translateType: node type)
 ]
 
 { #category : #visiting }
@@ -1124,9 +1218,9 @@ MbndSlovimFunctionCodeGenerator >> visitReferenceLoadNode: node [
 		reference isMbndLoadedReferenceValue ifTrue: [ ^ reference value ].
 		^ reference
 	].
-	^ (slvmBuilder load: reference)
+	^ self sanitizeValue: ((slvmBuilder load: reference)
 		volatile: node reference type isVolatileType;
-		yourself
+		yourself) withExpectedType: (self translateType: node type)
 ]
 
 { #category : #visiting }
@@ -1230,7 +1324,8 @@ MbndSlovimFunctionCodeGenerator >> visitSetFieldValueNode: node [
 			].
 		
 		field bits ifNil: [
-			slvmBuilder store: newValue in: fieldPointer
+			slvmBuilder store: (self sanitizeStoreValue: newValue inPointer: fieldPointer)
+				in: fieldPointer
 		] ifNotNil: [ 
 			self halt
 		].

@@ -854,6 +854,7 @@ TMbndAbstractType >> isPrimitiveFloatType [
 
 { #category : #'testing methods' }
 TMbndAbstractType >> isPrimitiveIntegerType [
+	<compileTime>
 	^ false
 ]
 
