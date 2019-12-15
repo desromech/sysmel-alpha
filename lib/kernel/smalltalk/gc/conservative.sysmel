@@ -1,10 +1,19 @@
 namespace SysmelKernel definition: {
 
 namespace BoehmGC definition: {
+    function GC_init externC() => Void.
     function GC_malloc externC(size: UIntPointer) => Void pointer.
 }.
 
 class SysmelGC definition: {
+    message initialize => Void := {
+        <nogc>
+        BoehmGC GC_init().
+    }.
+
+    message finalize => Void := {
+        <nogc>
+    }.
 
     message allocate: (objectSize: UIntPointer)
         variableDataSize: (variableDataSize: UInt32)
@@ -27,6 +36,6 @@ class SysmelGC definition: {
     }.
 }.
 
-global globalSysmelGC mutable type: SysmelGC.
+global globalSysmelGC mutable type: SysmelGC; constructionPriority: -1000.
 
 }.
