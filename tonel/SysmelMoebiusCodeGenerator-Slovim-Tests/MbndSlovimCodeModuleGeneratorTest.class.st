@@ -1334,6 +1334,24 @@ MbndSlovimCodeModuleGeneratorTest >> testFloatMatrixVectorMultiplication [
 ]
 
 { #category : #tests }
+MbndSlovimCodeModuleGeneratorTest >> testFloatMatrixVectorMultiplication2 [
+	| function |
+	self
+		evaluateSysmelSource: 'function op externC(x: Float32x2x3, y: Float32x3) => Float32x2 := x * y';
+		generateSSAModule.
+
+	function := ssaModule globalNamed: #op.
+	self assert: function isFunction.
+	self deny: function isEmpty.
+	self assert: function basicBlocks size equals: 2.
+	self assert: function basicBlocks second firstInstruction isBinaryOperation.
+	self assert: function basicBlocks second firstInstruction operation equals: #mulMatrixVector.
+	self assert: function basicBlocks second firstInstruction type isVectorType.
+	self assert: function basicBlocks second firstInstruction type elements equals: 2.
+	self assert: function basicBlocks second lastInstruction isReturn.
+]
+
+{ #category : #tests }
 MbndSlovimCodeModuleGeneratorTest >> testFloatMatrixVectorMultiplicationError [
 	self should: [ 
 		self

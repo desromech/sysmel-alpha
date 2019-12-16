@@ -102,7 +102,8 @@ MbndSlovimTypeNameMangler >> visitPointerType: type [
 
 { #category : #visiting }
 MbndSlovimTypeNameMangler >> visitPrimitiveMatrixType: matrixType [
-	self assert: matrixType elements isInteger.
+	self assert: matrixType rows isInteger.
+	self assert: matrixType columns isInteger.
 	^ 'M' , matrixType rows asString , 'c' , matrixType columns asString , 'e' , (self visitNode: matrixType elementType)
 ]
 

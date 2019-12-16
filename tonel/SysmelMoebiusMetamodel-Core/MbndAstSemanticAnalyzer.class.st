@@ -228,7 +228,7 @@ MbndAstSemanticAnalyzer >> createLocalVariableNamed: localVariableName withValue
 
 { #category : #visiting }
 MbndAstSemanticAnalyzer >> ensureConcreteValue: node [
-	node type isLiteralValueType ifTrue: [ self ensureLiteralIsConcreted: node ].
+	node type isLiteralValueType ifTrue: [ ^ self ensureLiteralIsConcreted: node ].
 	^ self ensureReferencesAreEvaluated: node
 ]
 
@@ -1532,7 +1532,7 @@ MbndAstSemanticAnalyzer >> visitMatrixMultiplicationOperationNode: node [
 				format: { leftMatrixType elements asString . rightMatrixType rows asString } at: result
 		].
 	
-		^ result type: leftMatrixType;
+		^ result type: (leftMatrixType elementType primitiveVectorWithElements: rightMatrixType columns);
 			yourself
 	].
 
@@ -1543,7 +1543,7 @@ MbndAstSemanticAnalyzer >> visitMatrixMultiplicationOperationNode: node [
 				format: { leftMatrixType columns asString . rightMatrixType elements asString } at: result
 		].
 
-		^ result type: rightMatrixType;
+		^ result type: (rightMatrixType elementType primitiveVectorWithElements: leftMatrixType rows);
 			yourself
 	].
 
@@ -2111,13 +2111,16 @@ MbndAstSemanticAnalyzer >> visitVectorSetElementsNode: node [
 	| result vectorType |
 	result := node copy
 		vector: (self analyzeNodeIfNeeded: node vector);
-		values: (self visitNodesAndCollect: node values);
 		yourself.
 	vectorType := result vector type withoutReferences withoutTopDecorations.
 	self assert: vectorType isPrimitiveVectorType.
 	(result vector type isReferenceType and: [ result vector type baseType isConstantType ]) ifTrue: [
 		result vector: (self addImplicitCastFor: result vector to: vectorType)
 	].
+
+	result values: (node values collect: [:value |
+		self ensureConcreteValue: (self analyzeNodeIfNeeded: value).
+	]).
 	
 	^ result
 		type: result vector type;

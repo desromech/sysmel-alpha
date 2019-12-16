@@ -225,13 +225,23 @@ MbndSlovimLiteralValueGenerator >> visitPrimitiveBooleanType: integerType [
 ]
 
 { #category : #'code generation' }
-MbndSlovimLiteralValueGenerator >> visitPrimitiveFloatType: integerType [
-	^ SLVMConstant type: (self translateType: integerType) value: literalValue
+MbndSlovimLiteralValueGenerator >> visitPrimitiveFloatType: floatType [
+	^ SLVMConstant type: (self translateType: floatType) value: (floatType legalizeLiteralValue: literalValue)
 ]
 
 { #category : #'code generation' }
 MbndSlovimLiteralValueGenerator >> visitPrimitiveIntegerType: integerType [
 	^ SLVMConstant type: (self translateType: integerType) value: literalValue
+]
+
+{ #category : #visiting }
+MbndSlovimLiteralValueGenerator >> visitPrimitiveMatrixType: type [
+	| slvmType columnType |
+	slvmType := self translateType: type.
+	columnType := type columnType.
+	^ SLVMConstant matrix: slvmType columns: (literalValue slots collect: [:slot |
+		self translateLiteralValue: slot ofType: columnType
+	])
 ]
 
 { #category : #visiting }

@@ -44,7 +44,9 @@ MbndPrimitiveFloatType >> isPrimitiveFloatType [
 
 { #category : #testing }
 MbndPrimitiveFloatType >> legalizeLiteralValue: literalValue [
-	^ literalValue asFloat
+	literalValue isFloat ifFalse: [ ^ self legalizeLiteralValue: literalValue asFloat ].
+	self instanceSize = 4 ifTrue: [ ^ (Float fromIEEE32Bit: literalValue asIEEE32BitWord) ].
+	^ literalValue
 ]
 
 { #category : #'semantic analysis' }

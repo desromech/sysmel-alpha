@@ -154,6 +154,16 @@ MbndPrimitiveMatrixType >> columns: anObject [
 	columns := anObject
 ]
 
+{ #category : #'default values' }
+MbndPrimitiveMatrixType >> defaultValueAt: aPosition [
+	| defaultElementValue |
+	defaultElementValue := self columnType defaultValueAt: aPosition.
+	^ MbndAggregateTypeInstanceValue new
+		type: self;
+		slots: ((1 to: columns) collect: [:i | defaultElementValue copy]);
+		yourself
+]
+
 { #category : #accessing }
 MbndPrimitiveMatrixType >> elementType [
 	^ elementType
