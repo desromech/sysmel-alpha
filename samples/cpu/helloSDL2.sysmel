@@ -4,13 +4,82 @@ global window mutable type: SDL_Window pointer.
 global renderer mutable type: SDL_Renderer pointer.
 global isQuitting mutable := false.
 
+struct Box2D definition: {
+	public field min type: Float32x2.
+	public field max type: Float32x2.
+	
+	meta message center: (center: Float32x2) halfExtent: (halfExtent: Float32x2) ::=> SelfType
+		:= SelfType newValue
+			min: center - halfExtent;
+			max: center + halfExtent;
+			yourself.
+	
+	message extent => Float32x2
+		:= max - min.
+
+	message halfExtent => Float32x2
+		:= (max - min) * 0.5.
+
+	message center => Float32x2
+		:= (max + min) * 0.5.
+}.
+
+class Character definition: {
+	public field position type: Float32x2.
+	public field velocity type: Float32x2.
+	public field halfExtent type: Float32x2.
+	
+	message boundingBox => Box2D
+		:= Box2D center: position halfExtent: halfExtent.
+}.
+
+class Player superclass: Character; definition: {
+	public field speed type: Float32.
+	public field direction type: Float32x2.
+	
+	message initialize => Void := {
+		halfExtent := Float32x2(0.5, 1.0).
+		self walk
+	}.
+
+	message walk => Void := {
+		speed := 1.0
+	}.
+
+	message run => Void := {
+		speed := 3.0
+	}.
+	
+	message simulate: (delta: Float32) ::=> Void := {
+		velocity := direction * speed.
+
+		position := position + velocity * delta.
+	}.
+}.
+
+global player mutable type: Player.
+global viewMatrix mutable type: Float32x2x3.
+
 function onKeyDown(event: SDL_KeyboardEvent ref) => Void := {
 	event keysym sym selectCase: #{
 	Keycode SDLK_ESCAPE : {isQuitting := true.}.
+	Keycode SDLK_a : {player direction x: -1.0}.
+	Keycode SDLK_d : {player direction x: 1.0}.
+	Keycode SDLK_s : {player direction y: -1.0}.
+	Keycode SDLK_w : {player direction y: 1.0}.
+	Keycode SDLK_LSHIFT : {player run}.
 	}.
 }.
 
 function onKeyUp(event: SDL_KeyboardEvent ref) => Void := {
+	event keysym sym selectCase: #{
+	Keycode SDLK_ESCAPE : {isQuitting := true.}.
+	Keycode SDLK_a : {player direction x < 0.0 ifTrue: {player direction x: 0.0}}.
+	Keycode SDLK_d : {player direction x > 0.0 ifTrue: {player direction x: 0.0}}.
+	Keycode SDLK_s : {player direction y < 0.0 ifTrue: {player direction y: 0.0}}.
+	Keycode SDLK_w : {player direction y > 0.0 ifTrue: {player direction y: 0.0}}.
+	Keycode SDLK_LSHIFT : {player walk}.
+	}.
 }.
 
 function processEvents() => Void := {
@@ -25,9 +94,42 @@ function processEvents() => Void := {
 	}
 }.
 
+function drawCharacter(character: Character ref) => Void := {
+	let boundingBox := character boundingBox.
+	let min := viewMatrix * Float32x3(boundingBox min, 1.0).
+	let max := viewMatrix * Float32x3(boundingBox max, 1.0).
+	let extent := max - min.
+	
+	let rect mutable := SDL_Rect newValue
+		x: (min x castTo: Int32);
+		y: (max y castTo: Int32);
+		w: (extent x castTo: Int32);
+		h: (-extent y castTo: Int32).
+	SDL_SetRenderDrawColor(renderer, 128, 128, 0, 255).
+	SDL_RenderFillRect(renderer, rect address).
+}.
+
+function update(delta: Float32) => Void := {
+	player simulate: delta.
+}.
+
 function render() => Void := {
-	SDL_SetRenderDrawColor(renderer, 0, 0, 255, 255).
+	## Clear the screen.
+	SDL_SetRenderDrawColor(renderer, 0, 0, 0, 255).
 	SDL_RenderClear(renderer).
+	
+	## Compute the view matrix
+	{
+		let viewScale := 1.0 / 10.0 castTo: Float32.
+		viewMatrix := Float32x2x3(
+			Float32x2(640.0*viewScale, 0.0),
+			Float32x2(0.0, -480.0*viewScale),
+			Float32x2(320, 240)
+		).
+	}.
+	
+	drawCharacter(player).
+	
 	SDL_RenderPresent(renderer).
 }.
 
@@ -42,15 +144,45 @@ function main externC (argc: Int32, argv: UInt8 const pointer pointer) => Int32 
 		return: 1.
 	}.
 
-	renderer := SDL_CreateRenderer(window, -1, 0).
+	renderer := SDL_CreateRenderer(window, -1, SDL_RENDERER_PRESENTVSYNC).
 	renderer ifNil: {
 		return: 1.
 	}.
 
+	let oldTicks mutable := SDL_GetTicks().
+	let updateDelta := 1.0 / 60.0 castTo: Float32.
+	let accumulatedTime mutable type: Float32 := 0.0.
 	until: isQuitting do: {
+		let newTicks := SDL_GetTicks().
+		let deltaTicks := newTicks - oldTicks.
+		accumulatedTime := accumulatedTime + deltaTicks *0.001 castTo: Float32.
+
+		## Process the event.
 		processEvents().
+		
+		## Deterministic update.
+		##StdNative stdout << "deltaTicks " << deltaTicks; nl.
+		##StdNative stdout << "accumulatedTime " << accumulatedTime; nl.
+		while: accumulatedTime - updateDelta >= updateDelta  do: {
+			##StdNative stdout << "update iter "; nl.
+			update(updateDelta).
+			accumulatedTime := accumulatedTime - updateDelta
+		}.
+		
+		## Perform the actual rendering.
 		render().
-		SDL_Delay(16).
+
+		## Compute the sleep time to achieve 60 fps.		
+		let targetTicks := newTicks + 16 - (accumulatedTime castTo: UInt32).
+		let renderEndTicks := SDL_GetTicks().
+		renderEndTicks < targetTicks ifTrue: {
+			let delayTicks := targetTicks - renderEndTicks - 2 castTo: Int32.
+			##StdNative stdout << "delayTicks " << delayTicks; nl.
+			delayTicks > 0 ifTrue: {
+				SDL_Delay(delayTicks castTo: UInt32).
+			}
+		}.
+		oldTicks := newTicks.
 	}.
 
 	SDL_DestroyRenderer(renderer).
