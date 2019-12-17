@@ -88,7 +88,7 @@ TMbndModule >> evaluateFileNamed: fileName [
 { #category : #evaluation }
 TMbndModule >> evaluateFileNamedOnce: fileName [
 	| fileReference parsedSource |
-	fileReference := fileName asFileReference asAbsolute.
+	fileReference := fileName asFileReference asAbsolute canonicalize.
 	(self evaluatedFileSet includes: fileReference) ifTrue: [ ^ self ].
 	
 	self evaluatedFileSet add: fileReference.
