@@ -33,6 +33,9 @@ MbndSlovimFunctionDestructuringPatternAssignmentCodeGenerator >> functionCodeGen
 
 { #category : #accessing }
 MbndSlovimFunctionDestructuringPatternAssignmentCodeGenerator >> visitPatternMatchingBindingPatternNode: node [
-	functionCodeGenerator generateLocalVariable: node binding definitionAt: node withInitialValue: assignmentValue initialValueKind: #copy.
+	node binding ifNotNil: [ 
+		functionCodeGenerator generateLocalVariable: node binding definitionAt: node withInitialValue: assignmentValue initialValueKind: #copy.
+	].
+
 	node value ifNotNil: [ ^ self visitNode: node value ].
 ]
