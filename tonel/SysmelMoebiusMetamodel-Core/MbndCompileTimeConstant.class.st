@@ -36,13 +36,20 @@ MbndCompileTimeConstant >> defaultVisibilityMode [
 
 { #category : #'semantic analysis' }
 MbndCompileTimeConstant >> ensureSemanticAnalysis [
-	evaluatedValue ifNotNil: [ ^ self ].
+	(self hasFlag: #evaluating) ifTrue: [
+		self error: 'Compile time constant {1} has a recursive definition.' format: { name asPrettySymbolName } at: valueNode
+	].
 
+	evaluatedValue ifNotNil: [
+		^ self
+	].
+
+	self addFlag: #evaluating.
 	evaluatedValue := MbndAstSemanticAnalyzer new 
 		module: self module;
 		scope: valueScope;
 		evaluateCompileTimeExpression: valueNode.
-
+	self removeFlag: #evaluating.
 ]
 
 { #category : #accessing }

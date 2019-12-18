@@ -99,6 +99,11 @@ MbndAbstractSpecificMethod >> matchesPrototypeNode: prototypeNode withReceiverTy
 	^ true
 ]
 
+{ #category : #composition }
+MbndAbstractSpecificMethod >> mbndLiteralTypeWithTarget: compilationTarget [
+	^ type ref
+]
+
 { #category : #accessing }
 MbndAbstractSpecificMethod >> receiverType [
 	^ receiverType

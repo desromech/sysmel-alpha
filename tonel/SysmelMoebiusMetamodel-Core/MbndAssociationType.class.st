@@ -83,6 +83,7 @@ MbndAssociationType >> keyType: anObject [
 
 { #category : #printing }
 MbndAssociationType >> printOn: aStream [
+	name ifNotNil: [ ^ super printOn: aStream ].
 	aStream nextPut: $(.
 	keyType printOn: aStream.
 	aStream nextPutAll: ' --> '.

@@ -27,6 +27,8 @@ MbndGCClassMetaType >> metaTypeTypeChangedFrom: oldType into: newType [
 
 { #category : #accessing }
 MbndGCClassMetaType >> printOn: aStream [
+	name ifNotNil: [ ^ super printOn: aStream ].
+	
 	instanceType ifNil: [ ^ super printOn: aStream ].
 	instanceType printOn: aStream.
 	aStream nextPutAll: ' class'.

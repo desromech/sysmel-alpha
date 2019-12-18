@@ -108,6 +108,7 @@ MbndDecoratedType >> isVolatileType [
 
 { #category : #printing }
 MbndDecoratedType >> printOn: aStream [
+	name ifNotNil: [ ^ super printOn: aStream ].
 	baseType printOn: aStream.
 	decorations do: [ :decoration |
 		aStream space; nextPutAll: decoration

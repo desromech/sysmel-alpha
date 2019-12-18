@@ -55,6 +55,7 @@ MbndPointerType >> addDefaultConversionRules [
 			addImplicitConversionRule: MbndPointerAddConstConversionRule new;
 			addExplicitConversionRule: MbndPointerExplicitVoidReinterpretTypeConversionRule new;
 			addImplicitConversionRule: MbndPointerImplicitVoidReinterpretTypeConversionRule new.
+		self addConversionRule: MbndToDerivedTypeConceptConversionRule new.
 		baseType withoutTopDecorations addConversionRulesToPointerType: self
 	].
 
@@ -165,6 +166,8 @@ MbndPointerType >> isPointerType [
 
 { #category : #printing }
 MbndPointerType >> printOn: aStream [
+	name ifNotNil: [ ^ super printOn: aStream ].
+	
 	baseType printOn: aStream.
 	aStream nextPutAll: ' pointer'
 ]

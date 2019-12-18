@@ -114,7 +114,7 @@ MbndSlovimTypeTranslator >> translateTypes: aCollectionOfTypes [
 MbndSlovimTypeTranslator >> visitArrayType: arrayType [
 	| elementType |
 	elementType := self translateType: arrayType elementType.
-	^ SLVMArrayType baseType: elementType elements: arrayType elements
+	^ SLVMArrayType baseType: elementType elements: (arrayType elements > 0 ifTrue: [arrayType elements] ifFalse: [nil])
 ]
 
 { #category : #visiting }

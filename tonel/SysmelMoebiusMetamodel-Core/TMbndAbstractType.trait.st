@@ -848,6 +848,11 @@ TMbndAbstractType >> isPointerType [
 ]
 
 { #category : #'testing methods' }
+TMbndAbstractType >> isPossibleToLoadReferences [
+	^ true
+]
+
+{ #category : #'testing methods' }
 TMbndAbstractType >> isPrimitiveBooleanType [
 	^ false
 ]

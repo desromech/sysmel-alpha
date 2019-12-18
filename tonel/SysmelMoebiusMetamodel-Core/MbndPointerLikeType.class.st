@@ -24,6 +24,7 @@ MbndPointerLikeType class >> typeName [
 
 { #category : #accessing }
 MbndPointerLikeType >> addressSpace [
+	<compileTime>
 	^ addressSpace
 ]
 

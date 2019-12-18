@@ -15,6 +15,13 @@ MbndTemplate >> accept: aVisitor [
 	^ aVisitor visitTemplate: self
 ]
 
+{ #category : #template }
+MbndTemplate >> createImmediateValue: argumentValue definitionType: definitionType [
+	| actualArgumentType |
+	actualArgumentType := argumentValue mbndLiteralTypeWithTarget: self compilationTarget.
+	^ argumentValue asMoebiusValueWithType: actualArgumentType
+]
+
 { #category : #accessing }
 MbndTemplate >> definitionPosition [
 	^ definitionPosition
@@ -37,7 +44,7 @@ MbndTemplate >> getOrCreateInstanceWithArguments: arguments [
 			argDefinition := argumentDefinitions at: index.
 			MbndCompileTimeConstant new
 				name: argDefinition name;
-				immediateValue: (MbndValue value: argumentValue type: argDefinition valueType);
+				immediateValue: (self createImmediateValue: argumentValue definitionType: argDefinition valueType);
 				yourself
 			]);
 		yourself.

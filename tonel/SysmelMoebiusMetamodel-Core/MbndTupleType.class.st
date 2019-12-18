@@ -105,6 +105,8 @@ MbndTupleType >> isTupleType [
 
 { #category : #printing }
 MbndTupleType >> printOn: aStream [
+	name ifNotNil: [ ^ super printOn: aStream ].
+	
 	aStream nextPut: $(.
 	elements doWithIndex: [ :el :index |
 		index > 1 ifTrue: [ aStream nextPutAll: ' -- ' ].

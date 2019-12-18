@@ -76,6 +76,8 @@ MbndGCClassVariableDataArrayType >> isGCClassVariableDataArrayType [
 
 { #category : #printing }
 MbndGCClassVariableDataArrayType >> printOn: aStream [
+	name ifNotNil: [ ^ super printOn: aStream ].
+	
 	elementType printOn: aStream.
 	aStream nextPutAll: ' gcVariableDataArray'
 ]

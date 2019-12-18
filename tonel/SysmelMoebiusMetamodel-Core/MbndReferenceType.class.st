@@ -20,8 +20,12 @@ MbndReferenceType >> addDefaultConversionRules [
 	baseType ifNotNil: [ 
 		self
 			addExplicitConversionRule: MbndPointerConstCastConversionRule new;
-			addImplicitConversionRule: MbndPointerAddConstConversionRule new;
-			addConversionTo: baseType withoutTopDecorations rule: MbndReferenceLoadTypeConversionRule.
+			addImplicitConversionRule: MbndPointerAddConstConversionRule new.
+		self addConversionRule: MbndToDerivedTypeConceptConversionRule new.
+		baseType isPossibleToLoadReferences ifTrue: [
+			self
+				addConversionTo: baseType withoutTopDecorations rule: MbndReferenceLoadTypeConversionRule.
+		].
 		baseType withoutTopDecorations addConversionRulesToReferenceType: self
 	]
 ]
@@ -108,6 +112,8 @@ MbndReferenceType >> isReferenceType [
 
 { #category : #printing }
 MbndReferenceType >> printOn: aStream [
+	name ifNotNil: [ ^ super printOn: aStream ].
+	
 	baseType printOn: aStream.
 	aStream nextPutAll: ' ref'
 ]

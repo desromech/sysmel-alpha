@@ -19,11 +19,13 @@ MbndBlockClosureType >> accept: aVisitor [
 
 { #category : #accessing }
 MbndBlockClosureType >> argumentTypes [
+	<compileTime>
 	^ functionType argumentTypes
 ]
 
 { #category : #accessing }
 MbndBlockClosureType >> functionType [
+	<compileTime>
 	^ functionType
 ]
 
@@ -39,5 +41,6 @@ MbndBlockClosureType >> isBlockClosureType [
 
 { #category : #accessing }
 MbndBlockClosureType >> returnType [
+	<compileTime>
 	^ functionType returnType
 ]

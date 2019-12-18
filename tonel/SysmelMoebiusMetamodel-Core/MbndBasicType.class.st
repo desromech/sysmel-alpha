@@ -42,6 +42,13 @@ MbndBasicType >> addInstanceMacros [
 	self isTrait ifFalse: [ ^ self ].
 	self
 		onMacroSelector: #yourself do: [ :node :builder | node receiver ];
+		onMacroSelector: #typeOfExpression do: [ :node :builder |
+			((node receiver isLiteralValueNode
+				ifTrue: [ node receiver value mbndLiteralTypeWithTarget: self compilationTarget ]
+				ifFalse: [ node receiverType ])
+				asMoebiusLiteralValueNodeWithTarget: self compilationTarget)
+				position: node
+		];
 		onMacroSelector: #selectCase: do: [ :node :builder |
 			(builder casesOf: node receiver cases: node arguments first)
 				position: node

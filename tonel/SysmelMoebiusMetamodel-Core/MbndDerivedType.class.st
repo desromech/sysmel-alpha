@@ -14,6 +14,7 @@ MbndDerivedType class >> typeName [
 
 { #category : #accessing }
 MbndDerivedType >> baseType [
+	<compileTime>
 	^ baseType
 ]
 

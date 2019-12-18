@@ -62,7 +62,7 @@ SGPUCompilationEnvironment >> compileBlockClosure: blockClosure withTypeExpressi
 	] on: Error do: [ :e |
 		compiledBlockClosures removeKey: cacheKey.
 		convertedClosure := nil.
-		e signal
+		e pass
 	].
 
 	^ convertedClosure

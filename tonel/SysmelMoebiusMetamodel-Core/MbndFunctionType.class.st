@@ -52,6 +52,7 @@ MbndFunctionType >> analyzeFunctionCallNode: node with: analyzer [
 
 { #category : #accessing }
 MbndFunctionType >> argumentTypes [
+	<compileTime>
 	^ argumentTypes
 ]
 
@@ -67,6 +68,7 @@ MbndFunctionType >> asBlockClosureType [
 
 { #category : #accessing }
 MbndFunctionType >> callingConvention [
+	<compileTime>
 	^ callingConvention
 ]
 
@@ -77,6 +79,7 @@ MbndFunctionType >> callingConvention: anObject [
 
 { #category : #accessing }
 MbndFunctionType >> cvariadic [
+	<compileTime>
 	^ cvariadic
 ]
 
@@ -99,7 +102,13 @@ MbndFunctionType >> isCVariadic [
 
 { #category : #testing }
 MbndFunctionType >> isFunctionType [
+	<compileTime>
 	^ true
+]
+
+{ #category : #'testing methods' }
+MbndFunctionType >> isPossibleToLoadReferences [
+	^ false
 ]
 
 { #category : #'as yet unclassified' }
@@ -109,10 +118,14 @@ MbndFunctionType >> prependArguments: newArguments [
 
 { #category : #printing }
 MbndFunctionType >> printOn: aStream [
+	name ifNotNil: [ ^ super printOn: aStream ].
+
 	aStream nextPut: $(.
-	argumentTypes doWithIndex: [ :arg :index |
-		index > 1 ifTrue: [ aStream nextPutAll: ', ' ].
-		arg printOn: aStream
+	argumentTypes ifNotNil: [ 
+		argumentTypes doWithIndex: [ :arg :index |
+			index > 1 ifTrue: [ aStream nextPutAll: ', ' ].
+			arg printOn: aStream
+		].
 	].
 	aStream nextPutAll: ') => '.
 	returnType printOn: aStream.
@@ -120,6 +133,7 @@ MbndFunctionType >> printOn: aStream [
 
 { #category : #accessing }
 MbndFunctionType >> returnType [
+	<compileTime>
 	^ returnType
 ]
 

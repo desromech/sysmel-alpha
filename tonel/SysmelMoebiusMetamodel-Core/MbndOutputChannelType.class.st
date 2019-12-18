@@ -32,6 +32,8 @@ MbndOutputChannelType >> isOutputChannelType [
 
 { #category : #printing }
 MbndOutputChannelType >> printOn: aStream [
+	name ifNotNil: [ ^ super printOn: aStream ].
+	
 	messageType printOn: aStream.
 	aStream nextPutAll: ' outputChannel'
 ]

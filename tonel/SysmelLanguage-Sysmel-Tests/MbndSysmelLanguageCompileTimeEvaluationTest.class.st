@@ -70,6 +70,32 @@ MbndSysmelLanguageCompileTimeEvaluationTest >> testFunctionNotInCompileTimeTrans
 ]
 
 { #category : #tests }
+MbndSysmelLanguageCompileTimeEvaluationTest >> testFunctorTemplate [
+	| functionType |
+	functionType := self evaluateSource: '
+template FunctorTemplate(F: _FunctionType ref)
+:= class definition: {
+	compileTimeConstant FunctionType := F typeOfExpression.
+}.
+
+function f(x: Float32) => Float32 := x.
+FunctorTemplate(f) FunctionType
+'.
+
+	self assert: functionType type isMetaType.
+	self deny: functionType value isTrait.
+	self assert: functionType value isReferenceType.
+	functionType := functionType value baseType.
+
+	self deny: functionType isTrait.
+	self assert: functionType isFunctionType.
+	self assert: functionType argumentTypes size equals: 1.
+	self assert: functionType argumentTypes first isPrimitiveFloatType.
+	self assert: functionType returnType isPrimitiveFloatType.
+
+]
+
+{ #category : #tests }
 MbndSysmelLanguageCompileTimeEvaluationTest >> testLet [
 	self assert: (self evaluateSource: 'let x := 5. x') value equals: 5.
 	self assert: (self evaluateSource: 'let x mutable := 5. x') type isReferenceType.
@@ -166,6 +192,12 @@ function min(a: Int32, b: Int32) => Int32
 MbndSysmelLanguageCompileTimeEvaluationTest >> testNilLiteral [
 	self assert: (self evaluateSource: 'nil') value equals: nil.
 	self assert: (self evaluateSource: 'nil') type isUndefinedType.
+]
+
+{ #category : #tests }
+MbndSysmelLanguageCompileTimeEvaluationTest >> testRecursiveCompileTimeConstant [
+	self should: [ self evaluateSource: 'compileTimeConstant X := X. X.' ] raise: Error.
+
 ]
 
 { #category : #tests }

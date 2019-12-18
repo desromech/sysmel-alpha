@@ -27,5 +27,6 @@ MbndFunctionalType >> analyzeFunctionCallNode: node with: analyzer [
 
 { #category : #testing }
 MbndFunctionalType >> isFunctionalType [
+	<compileTime>
 	^ true
 ]

@@ -24,6 +24,8 @@ MbndSimpleMetaType >> instanceType: anObject [
 
 { #category : #accessing }
 MbndSimpleMetaType >> printOn: aStream [
+	name ifNotNil: [ ^ super printOn: aStream ].
+	
 	instanceType ifNil: [ ^ super printOn: aStream ].
 	instanceType printOn: aStream.
 	aStream nextPutAll: ' type'.

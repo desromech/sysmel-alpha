@@ -129,6 +129,7 @@ MbndArrayType >> isArrayType [
 
 { #category : #printing }
 MbndArrayType >> printOn: aStream [
+	name ifNotNil: [ ^ super printOn: aStream ].
 	elements = 0 ifTrue: [ 
 		elementType printOn: aStream.
 		aStream nextPutAll: ' array'.
