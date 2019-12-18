@@ -14,6 +14,16 @@ SGPUBlockClosure class >> for: blockClosure withTypeExpression: typeExpression [
 	^ SGPUCompilationEnvironment current compileBlockClosure: blockClosure withTypeExpression: typeExpression
 ]
 
+{ #category : #converting }
+SGPUBlockClosure >> asCollectionMapShaderClass [
+	^ self constructShaderClassWithTemplateNamed: 'CollectionMapShader'.
+]
+
+{ #category : #converting }
+SGPUBlockClosure >> asCollectionMapShaderMethod [
+	^ self asCollectionMapShaderClass lookupSymbol: #main.
+]
+
 { #category : #accessing }
 SGPUBlockClosure >> compilationEnvironment [
 	^ compilationEnvironment
@@ -32,6 +42,15 @@ SGPUBlockClosure >> concreteMethod [
 { #category : #accessing }
 SGPUBlockClosure >> concreteMethod: anObject [
 	concreteMethod := anObject
+]
+
+{ #category : #converting }
+SGPUBlockClosure >> constructShaderClassWithTemplateNamed: templateName [
+	| blockConversionNamespace templateDefinition |
+	blockConversionNamespace := compilationEnvironment compilationModule globalNamespace lookupSymbol: #GPUBlockConversion.
+	templateDefinition := blockConversionNamespace lookupSymbol: templateName.
+	^ (templateDefinition getOrCreateInstanceWithArguments: { concreteMethod })
+		mainChild
 ]
 
 { #category : #accessing }

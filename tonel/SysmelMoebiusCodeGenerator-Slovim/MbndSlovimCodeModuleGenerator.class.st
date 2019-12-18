@@ -237,10 +237,15 @@ MbndSlovimCodeModuleGenerator >> fetchShader: functionMethod inputsOfType: input
 
 { #category : #'code generation' }
 MbndSlovimCodeModuleGenerator >> generateCodeModuleFor: aModule [
+	^ self generateCodeModuleFor: aModule programEntities: { aModule }
+]
+
+{ #category : #'code generation' }
+MbndSlovimCodeModuleGenerator >> generateCodeModuleFor: aModule programEntities: programEntitities [
 	sourceModule := aModule.
 	ssaModule := SLVMModule new compilationTarget: self slvmCompilationTarget.
 	self addPrimitiveTypeTranslations.
-	self translateProgramEntity: sourceModule.
+	programEntitities do: [ :each | self translateProgramEntity: each ].
 	
 	^ ssaModule
 ]

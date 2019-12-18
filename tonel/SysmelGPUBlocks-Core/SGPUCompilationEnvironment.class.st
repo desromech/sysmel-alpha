@@ -92,7 +92,8 @@ SGPUCompilationEnvironment >> evaluateTypeExpression: typeExpression [
 SGPUCompilationEnvironment >> initialize [
 	super initialize.
 	compilationModule := MbndStandaloneModule spirv_vulkan
-		evaluateFileNamedOnce: 'lib/gpu.sysmel'.
+		loadRuntimeCoreLibrary;
+		evaluateFileNamedOnce: Smalltalk imageDirectory / 'lib' / 'gpu' / 'blocks' / 'blocks.sysmel'.
 		
 	compiledBlockClosures := WeakKeyDictionary new.
 ]

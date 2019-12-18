@@ -28,6 +28,11 @@ TMbndProgramEntity >> enqueueDelayedSemanticAnalysis [
 TMbndProgramEntity >> ensureSemanticAnalysis [
 ]
 
+{ #category : #'as yet unclassified' }
+TMbndProgramEntity >> generateTargetCodeModuleOnlyForMyself [
+	^ self module generateTargetCodeModuleForProgramEntities: { self }
+]
+
 { #category : #accessing }
 TMbndProgramEntity >> getExtraMetaBuilderFactoryList [
 	^ #()

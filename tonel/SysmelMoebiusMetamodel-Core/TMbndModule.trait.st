@@ -126,6 +126,13 @@ TMbndModule >> generateTargetCodeModule [
 	^ codeGenerator generateCodeModuleFor: self
 ]
 
+{ #category : #'as yet unclassified' }
+TMbndModule >> generateTargetCodeModuleForProgramEntities: programEntitities [
+	| codeGenerator |
+	codeGenerator := self compilationTarget newCodeModuleGenerator.
+	^ codeGenerator generateCodeModuleFor: self programEntities: programEntitities
+]
+
 { #category : #parsing }
 TMbndModule >> getLanguageNamedFromCache: languageName [
 	^ self languageInterfaceCache at: languageName ifAbsentPut: [
@@ -140,6 +147,11 @@ TMbndModule >> globalNamespace [
 			module: self;
 			yourself
 	]
+]
+
+{ #category : #parameters }
+TMbndModule >> hasGPUSupport [
+	^ true
 ]
 
 { #category : #parameters }

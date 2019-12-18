@@ -9,7 +9,8 @@ Class {
 		'hasGarbageCollectionSupport',
 		'hasGarbageCollectionStackMap',
 		'hasLibC',
-		'optimizationLevel'
+		'optimizationLevel',
+		'hasGPUSupport'
 	],
 	#category : #'SysmelMoebiusMetamodel-Core-Module'
 }
@@ -48,6 +49,12 @@ MbndStandaloneModule >> freestanding [
 	^ self
 		noLibC;
 		noRTTI.
+]
+
+{ #category : #parameters }
+MbndStandaloneModule >> hasGPUSupport [
+	<compileTime>
+	^ hasGPUSupport ifNil: [ hasGPUSupport := true ]
 ]
 
 { #category : #parameters }
@@ -122,6 +129,11 @@ MbndStandaloneModule >> initializeWithCompilationTarget: aCompilationTarget [
 		coreDefinitionsModule: self;
 		initialize.
 	self initialize
+]
+
+{ #category : #'as yet unclassified' }
+MbndStandaloneModule >> loadRuntimeCoreLibrary [
+	^ self evaluateFileNamedOnce: Smalltalk imageDirectory  / 'lib' / 'kernel' / 'kernel.sysmel'. 
 ]
 
 { #category : #parameters }

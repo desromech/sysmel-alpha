@@ -151,12 +151,7 @@ MbndCompilerCommandLineHandler >> activate [
 		option value: compiler.
 	].
 
-	gpu ifTrue: [ 
-		compiler evaluateFileNamedOnce: Smalltalk imageDirectory  / 'lib' / 'gpu.sysmel'
-	] ifFalse: [ 
-		compiler evaluateFileNamedOnce: Smalltalk imageDirectory  / 'lib' / 'kernel' / 'kernel.sysmel'. 
-	].
-	
+	compiler loadRuntimeCoreLibrary.
 	[
 		[ 
 			compilationCommands do: [ :cmd | cmd cull: compiler ].
