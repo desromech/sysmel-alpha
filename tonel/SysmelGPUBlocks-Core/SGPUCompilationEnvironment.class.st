@@ -75,7 +75,7 @@ SGPUCompilationEnvironment >> evaluateTypeExpression: typeExpression [
 		^ self compilationTarget tuple: #()
 	].
 
-	result := (typeExpression isString and: [typeExpression isSymbol]) ifTrue: [ 
+	result := (typeExpression isString and: [typeExpression isSymbol not]) ifTrue: [ 
 		compilationModule evaluateLanguage: #pharoEmbedded source: typeExpression
 	] ifFalse: [
 		compilationModule analyzeAndEvaluateParsedSource: (self wrapParsedSource: (self parseTypeExpression: typeExpression))
