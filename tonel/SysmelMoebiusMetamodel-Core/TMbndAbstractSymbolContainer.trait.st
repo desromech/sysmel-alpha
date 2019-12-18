@@ -93,6 +93,11 @@ TMbndAbstractSymbolContainer >> findOrAddGlobalVariableNamed: name valueType: va
 { #category : #'overloaded methods' }
 TMbndAbstractSymbolContainer >> findOrAddOverloadedFunctionPrototype: functionPrototype [
 	| localSymbolDefinition |
+	functionPrototype name isMbndAnonymousSymbol ifTrue: [ 
+		self createFunctionEntityForPrototype: functionPrototype.
+		^ self
+	].
+
 	localSymbolDefinition := self lookupLocalSymbol: functionPrototype name.
 	localSymbolDefinition ifNil: [
 		self setLocalSymbol: functionPrototype name value: (self createFunctionEntityForPrototype: functionPrototype)

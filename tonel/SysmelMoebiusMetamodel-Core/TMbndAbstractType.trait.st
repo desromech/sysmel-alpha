@@ -738,6 +738,11 @@ TMbndAbstractType >> isLiteralBooleanType [
 ]
 
 { #category : #'testing methods' }
+TMbndAbstractType >> isLiteralByteArrayType [
+	^ false
+]
+
+{ #category : #'testing methods' }
 TMbndAbstractType >> isLiteralCharacterType [
 	^ false
 ]

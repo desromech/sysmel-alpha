@@ -9,3 +9,8 @@ UndefinedObject >> asPrettySymbolName [
 UndefinedObject >> isMbndAnonymousSymbol [
 	^ true
 ]
+
+{ #category : #'*SysmelMoebiusMetamodel-Core' }
+UndefinedObject >> mbndLiteralTypeWithTarget: compilationTarget [
+	^ compilationTarget undefinedType
+]

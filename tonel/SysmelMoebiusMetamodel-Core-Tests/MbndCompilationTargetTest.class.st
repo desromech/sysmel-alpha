@@ -572,6 +572,13 @@ MbndCompilationTargetTest >> testLargerIntegerCoercions [
 ]
 
 { #category : #'basic types' }
+MbndCompilationTargetTest >> testLiteralArrayType [
+	| type |
+	type := compilationTarget literalArrayType.
+	self assert: type isLiteralArrayType.
+]
+
+{ #category : #'basic types' }
 MbndCompilationTargetTest >> testLiteralAssociationType [
 	| type type2 |
 	type := compilationTarget associationKey: compilationTarget literalIntegerType value: compilationTarget float32Type.
@@ -581,6 +588,13 @@ MbndCompilationTargetTest >> testLiteralAssociationType [
 	self assert: type == type2.
 	self assert: type == compilationTarget literalAssociationType.
 
+]
+
+{ #category : #'basic types' }
+MbndCompilationTargetTest >> testLiteralByteArrayType [
+	| type |
+	type := compilationTarget literalByteArrayType.
+	self assert: type isLiteralByteArrayType.
 ]
 
 { #category : #'basic types' }

@@ -163,6 +163,12 @@ function min(a: Int32, b: Int32) => Int32
 ]
 
 { #category : #tests }
+MbndSysmelLanguageCompileTimeEvaluationTest >> testNilLiteral [
+	self assert: (self evaluateSource: 'nil') value equals: nil.
+	self assert: (self evaluateSource: 'nil') type isUndefinedType.
+]
+
+{ #category : #tests }
 MbndSysmelLanguageCompileTimeEvaluationTest >> testSequence [
 	self assert: (self evaluateSource: '{1 + 2}. 5') value equals: 5.
 ]

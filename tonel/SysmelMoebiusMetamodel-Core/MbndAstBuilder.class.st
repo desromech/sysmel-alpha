@@ -65,7 +65,7 @@ MbndAstBuilder >> blockClosure: body arguments: arguments returnType: returnType
 	<compileTime>
 	<returnType: #_ASTNodeType>
 	^ MbndAstBlockClosureNode new
-		argumentDefinitions: arguments;
+		arguments: arguments;
 		returnType: returnType;
 		body: body;
 		yourself

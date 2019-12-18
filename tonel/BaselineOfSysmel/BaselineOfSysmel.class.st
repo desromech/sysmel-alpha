@@ -18,6 +18,9 @@ BaselineOfSysmel >> baseline: spec [
 		spec baseline: #'Phanide' with: [
 				spec
 					repository: 'github://ronsaldo/phanide/tonel' ].
+		spec baseline: #'AbstractGPU' with: [
+				spec
+					repository: 'github://ronsaldo/abstract-gpu/tonel' ].
 		spec
 			package: #'SysmelMoebiusMetamodel-Core' with: [
 				spec requires: #(#Slovim #PetitParser2Core)
@@ -35,6 +38,15 @@ BaselineOfSysmel >> baseline: spec [
 				spec requires: #(#'SysmelLanguage-Sysmel')
 			].
 		spec
+			package: #'SysmelLanguage-Pharo' with: [
+				spec requires: #(#'SysmelMoebiusMetamodel-Core')
+			].
+		spec
+			package: #'SysmelLanguage-Pharo-Tests' with: [
+				spec requires: #(#'SysmelLanguage-Pharo')
+			].
+
+		spec
 			package: 'SysmelLanguage-SysmelPhanide' with: [
 				spec requires: #('SysmelLanguage-Sysmel' 'Phanide')
 			].
@@ -48,5 +60,22 @@ BaselineOfSysmel >> baseline: spec [
 				spec requires: #(#'SysmelMoebiusCodeGenerator-Slovim' #'SysmelLanguage-Sysmel')
 			].
 
+		spec
+			package: #'SysmelGPUBlocks-Core' with: [
+				spec requires: #(#'SysmelMoebiusCodeGenerator-Slovim' #'SysmelLanguage-Pharo')
+			].
+		spec
+			package: #'SysmelGPUBlocks-Core-Tests' with: [
+				spec requires: #(#'SysmelGPUBlocks-Core')
+			].
+
+		spec
+			package: #'SysmelGPUBlocks-AbstractGPU' with: [
+				spec requires: #(#'SysmelGPUBlocks-Core' #'AbstractGPU')
+			].
+		spec
+			package: #'SysmelGPUBlocks-AbstractGPU-Tests' with: [
+				spec requires: #(#'SysmelGPUBlocks-Core-Tests')
+			].
 	].
 ]

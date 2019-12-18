@@ -912,11 +912,10 @@ MbndAstSemanticAnalyzer >> visitFunctionPrototypeNode: node [
 		result ownerProgramEntity: scope lookupProgramEntityForNewDefinitions
 	].
 	
-	result name isMbndAnonymousSymbol ifFalse: [
-		result ownerProgramEntity ifNotNil: [ :newOwner |
-			newOwner findOrAddOverloadedFunctionPrototype: result
-		].
+	result ownerProgramEntity ifNotNil: [ :newOwner |
+		newOwner findOrAddOverloadedFunctionPrototype: result
 	].
+
 	result specialSemantics ifNotNil: [ 
 		result concreteMethod specialSemantics: node specialSemantics
 	].

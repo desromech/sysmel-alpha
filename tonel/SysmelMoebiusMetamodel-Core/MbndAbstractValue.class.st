@@ -32,6 +32,12 @@ MbndAbstractValue >> copyForValueAssignment [
 	^ self
 ]
 
+{ #category : #evaluation }
+MbndAbstractValue >> evaluateReference [
+	self assert: self type isReferenceType.
+	^ self value value
+]
+
 { #category : #testing }
 MbndAbstractValue >> isAggregateTypeInstanceValue [
 	^ false
@@ -45,4 +51,10 @@ MbndAbstractValue >> isMbndAbstractValue [
 { #category : #accessing }
 MbndAbstractValue >> type [
 	self subclassResponsibility
+]
+
+{ #category : #evaluation }
+MbndAbstractValue >> withoutReferences [
+	self type isReferenceType ifTrue: [ ^ self evaluateReference ].
+	^ self
 ]

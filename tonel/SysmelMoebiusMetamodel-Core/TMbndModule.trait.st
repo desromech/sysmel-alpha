@@ -219,6 +219,11 @@ TMbndModule >> newSourceEvaluationScopeForLanguage: aLanguage withWorkingDirecto
 ]
 
 { #category : #scope }
+TMbndModule >> newSourceEvaluationScopeForLanguageNamed: aLanguage [
+	^ self newSourceEvaluationScopeForLanguage: (self getLanguageNamedFromCache: aLanguage)
+]
+
+{ #category : #scope }
 TMbndModule >> newSourceEvaluationScopeForLanguageScope: languageScope [
 	^ self newSourceEvaluationScopeForLanguageScope: languageScope withWorkingDirectory: nil
 ]

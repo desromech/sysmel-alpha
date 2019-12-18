@@ -25,6 +25,21 @@ MbndAstBlockClosureNode >> arguments: anObject [
 	arguments := anObject
 ]
 
+{ #category : #converting }
+MbndAstBlockClosureNode >> asFunctionDefinitionNode [
+	| prototype |
+	prototype := MbndAstFunctionPrototypeNode new
+		position: self;
+		arguments: arguments;
+		returnType: returnType;
+		yourself.
+	^ MbndAstFunctionDefinitionNode new
+		position: self;
+		prototype: prototype;
+		body: body;
+		yourself
+]
+
 { #category : #accessing }
 MbndAstBlockClosureNode >> blockClosureProgramEntity [
 	^ blockClosureProgramEntity
