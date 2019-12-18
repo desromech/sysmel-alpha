@@ -10,3 +10,6 @@ if: Compiler hasStandardLibrary then: {
     }.
 }.
 
+if: Compiler hasGPUSupport then: {
+    loadFileOnce: "gpu/gpu.sysmel".
+}.
