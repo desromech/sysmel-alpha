@@ -11,7 +11,8 @@ Number extend: {
     message isNumber := true.
 
     message + aNumber := {
-        super + other
+        LibC abort().
+		self
     }.
 }.
 
@@ -19,7 +20,7 @@ Integer extend: {
     message isInteger := true.
 
     message + aNumber := {
-        super + other
+        super + aNumber
     }.
 }.
 
@@ -27,13 +28,13 @@ Fraction extend: {
     message isFraction := true.
 
     message + aNumber := {
-        super + other
+        super + aNumber
     }.
 }.
 
 SmallInteger extend: {
-    message + other := {
-        super + other
+    message + aNumber := {
+        super + aNumber
     }.
 }.
 
@@ -41,7 +42,7 @@ Float extend: {
     message isFloat := true.
 
     message + aNumber := {
-        super + other
+        super + aNumber
     }.
 }.
 }. ## End of namespace Smalltalk
