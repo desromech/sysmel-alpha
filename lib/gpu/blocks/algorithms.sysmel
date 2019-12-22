@@ -22,7 +22,6 @@ template CollectionMapShader(MF: _FunctionType ref)
 
 	function main computeShader(stageIn: GPU ComputeStageInput inputChannel) => Void := {
 		<localSize: #(4 4 4)>
-		let localSize := UInt32x3(4, 4, 4).
 		let collectionElement := stageIn receive globalIndex.
 
 		arguments _ outputBuffer _ data [collectionElement] := MapFunction(arguments _ inputBuffer _ data [collectionElement]).
