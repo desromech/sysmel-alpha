@@ -96,15 +96,15 @@ function processEvents() => Void := {
 
 function drawCharacter(character: Character ref) => Void := {
 	let boundingBox := character boundingBox.
-	let min := viewMatrix * Float32x3(boundingBox min, 1.0).
-	let max := viewMatrix * Float32x3(boundingBox max, 1.0).
+	let min := viewMatrix * Float32x3(boundingBox min, 1.0) castTo: Int32x2.
+	let max := viewMatrix * Float32x3(boundingBox max, 1.0) castTo: Int32x2.
 	let extent := max - min.
 	
 	let rect mutable := SDL_Rect newValue
-		x: (min x castTo: Int32);
-		y: (max y castTo: Int32);
-		w: (extent x castTo: Int32);
-		h: (-extent y castTo: Int32).
+		x: (min x);
+		y: (max y);
+		w: (extent x);
+		h: (-extent y).
 	SDL_SetRenderDrawColor(renderer, 128, 128, 0, 255).
 	SDL_RenderFillRect(renderer, rect address).
 }.
