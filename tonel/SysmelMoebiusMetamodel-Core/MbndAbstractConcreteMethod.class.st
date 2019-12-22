@@ -9,7 +9,8 @@ Class {
 		'arguments',
 		'argumentsWithoutReceiver',
 		'children',
-		'specialSemantics'
+		'specialSemantics',
+		'computeShaderLocalSize'
 	],
 	#category : #'SysmelMoebiusMetamodel-Core-Method'
 }
@@ -40,6 +41,16 @@ MbndAbstractConcreteMethod >> canBeEvaluatedInCompileTime [
 	definitionNode ifNil: [ ^ false ].
 	self hasExternalVisibility ifTrue: [ ^ false ].
 	^ super canBeEvaluatedInCompileTime
+]
+
+{ #category : #accessing }
+MbndAbstractConcreteMethod >> computeShaderLocalSize [
+	^ computeShaderLocalSize
+]
+
+{ #category : #accessing }
+MbndAbstractConcreteMethod >> computeShaderLocalSize: anObject [
+	computeShaderLocalSize := anObject
 ]
 
 { #category : #evaluation }
@@ -91,6 +102,8 @@ MbndAbstractConcreteMethod >> createSemanticAnalysisScope [
 			].
 		].
 	].
+
+	self setupAnalysisScopeForSpecialSemantics: analysisScope.
 
 	^ analysisScope
 ]
@@ -290,6 +303,48 @@ MbndAbstractConcreteMethod >> pragmaAt: pragmaName ifAbsent: absentBlock ifPrese
 	definitionNode ifNil: [ ^ absentBlock value ].
 	self ensureSemanticAnalysis.
 	^ self analyzedBody pragmaAt: pragmaName ifAbsent: absentBlock ifPresent: presentBlock
+]
+
+{ #category : #'semantic analysis' }
+MbndAbstractConcreteMethod >> setupAnalysisScopeForComputeShader: analysisScope [
+	| localSizeLiteralValue localSizeVectorValue |
+	localSizeLiteralValue := definitionNode body pragmaAt: #localSize: ifAbsent: [ #(1 1 1) ] ifPresent: [ :localSize |
+		| localSizeValue pragmaValue |
+		pragmaValue := localSize arguments first.
+		pragmaValue isLiteralValueNode ifFalse: [
+			self error: 'Local size pragma argument must be a literal value.' at: localSize arguments first
+		].
+	
+		localSizeValue := localSize arguments first value.
+		localSizeValue isArray ifTrue: [
+			localSizeValue size > 3 ifTrue: [ 
+				self error: 'Local size can have up to 3 dimensions.' at: pragmaValue
+			].
+			localSizeValue , ((Array new: 3 - localSizeValue size) atAllPut: 1)
+		] ifFalse: [
+			{ localSizeValue .  1 . 1}
+		]
+	].
+
+	self assert: localSizeLiteralValue isArray.
+	self assert: localSizeLiteralValue size = 3.
+	self assert: (localSizeLiteralValue noneSatisfy: [:v | v isInteger not]).
+	computeShaderLocalSize := localSizeLiteralValue.
+	
+	localSizeVectorValue := (self compilationTarget uint32x3Type defaultValueAt: definitionNode)
+		slots: localSizeLiteralValue;
+		yourself.
+		
+	analysisScope addSymbol: #localSize binding: localSizeVectorValue ifPresent: [:existent |
+		self error: 'Compiler provided symbol #localSize overrides an user specified symbol.' at: definitionNode
+	].
+]
+
+{ #category : #'semantic analysis' }
+MbndAbstractConcreteMethod >> setupAnalysisScopeForSpecialSemantics: analysisScope [
+	self specialSemantics = #compute ifTrue: [
+		self setupAnalysisScopeForComputeShader: analysisScope
+	].
 ]
 
 { #category : #accessing }

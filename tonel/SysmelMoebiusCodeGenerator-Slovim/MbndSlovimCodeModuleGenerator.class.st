@@ -146,6 +146,13 @@ MbndSlovimCodeModuleGenerator >> createSpirVShaderControllerFor: functionMethod 
 	shaderFunction := SLVMFunction module: ssaModule name: csymbol functionType: (SLVMFunctionType arguments: #() returnType: SLVMType voidType).
 	shaderFunction propertyAt: functionMethod specialSemantics put: nil.
 	
+	functionMethod specialSemantics = #compute ifTrue: [
+		shaderFunction
+			propertyAt: #localSizeX put: functionMethod computeShaderLocalSize first;
+			propertyAt: #localSizeY put: functionMethod computeShaderLocalSize second;
+			propertyAt: #localSizeZ put: functionMethod computeShaderLocalSize third.
+	].
+	
 	builder := SLVMBuilder on: shaderFunction.
 	builder newBasicBlockHere: #entry.
 	

@@ -19,6 +19,117 @@ MbndSlovimSpirVCodeModuleGeneratorTest >> setUp [
 ]
 
 { #category : #tests }
+MbndSlovimSpirVCodeModuleGeneratorTest >> testComputeShaderLocalSize [
+	| shaderController shaderImplementation callWithLocalSize |
+	self evaluateSysmelSource: '
+function calledWithLocalSize(localSize: UInt32x3) => Void := {
+}.
+
+function shader computeShader externC() => Void := {
+	<localSize: 4>
+	calledWithLocalSize(localSize).
+}.
+';
+	generateSSAModule;
+	validateSpirV.
+	
+	shaderController := ssaModule globalNamed: #shader.
+	self assert: shaderController allInstructionsMnemonics equals: #(
+		(entry (
+			call
+			returnVoid
+		))
+	).
+	self assert: (shaderController propertyAt: #localSizeX) equals: 4.
+	self assert: (shaderController propertyAt: #localSizeY) equals: 1.
+	self assert: (shaderController propertyAt: #localSizeZ) equals: 1.
+	
+	shaderImplementation := shaderController basicBlocks first firstInstruction functionValue.
+	self assert: shaderImplementation allInstructionsMnemonics equals: #(
+		(entry (jump))
+		(body (call returnVoid))
+	).
+	
+	callWithLocalSize := shaderImplementation basicBlocks second firstInstruction.
+	self assert: callWithLocalSize arguments first isConstantVectorValue.
+	self assert: (callWithLocalSize arguments first slots collect: #value) equals: #(4 1 1).
+]
+
+{ #category : #tests }
+MbndSlovimSpirVCodeModuleGeneratorTest >> testComputeShaderLocalSize2 [
+	| shaderController shaderImplementation callWithLocalSize |
+	self evaluateSysmelSource: '
+function calledWithLocalSize(localSize: UInt32x3) => Void := {
+}.
+
+function shader computeShader externC() => Void := {
+	<localSize: #(4 3)>
+	calledWithLocalSize(localSize).
+}.
+';
+	generateSSAModule;
+	validateSpirV.
+	
+	shaderController := ssaModule globalNamed: #shader.
+	self assert: shaderController allInstructionsMnemonics equals: #(
+		(entry (
+			call
+			returnVoid
+		))
+	).
+	self assert: (shaderController propertyAt: #localSizeX) equals: 4.
+	self assert: (shaderController propertyAt: #localSizeY) equals: 3.
+	self assert: (shaderController propertyAt: #localSizeZ) equals: 1.
+	
+	shaderImplementation := shaderController basicBlocks first firstInstruction functionValue.
+	self assert: shaderImplementation allInstructionsMnemonics equals: #(
+		(entry (jump))
+		(body (call returnVoid))
+	).
+	
+	callWithLocalSize := shaderImplementation basicBlocks second firstInstruction.
+	self assert: callWithLocalSize arguments first isConstantVectorValue.
+	self assert: (callWithLocalSize arguments first slots collect: #value) equals: #(4 3 1).
+]
+
+{ #category : #tests }
+MbndSlovimSpirVCodeModuleGeneratorTest >> testComputeShaderLocalSize3 [
+	| shaderController shaderImplementation callWithLocalSize |
+	self evaluateSysmelSource: '
+function calledWithLocalSize(localSize: UInt32x3) => Void := {
+}.
+
+function shader computeShader externC() => Void := {
+	<localSize: #(4 3 7)>
+	calledWithLocalSize(localSize).
+}.
+';
+	generateSSAModule;
+	validateSpirV.
+	
+	shaderController := ssaModule globalNamed: #shader.
+	self assert: shaderController allInstructionsMnemonics equals: #(
+		(entry (
+			call
+			returnVoid
+		))
+	).
+	self assert: (shaderController propertyAt: #localSizeX) equals: 4.
+	self assert: (shaderController propertyAt: #localSizeY) equals: 3.
+	self assert: (shaderController propertyAt: #localSizeZ) equals: 7.
+	
+	shaderImplementation := shaderController basicBlocks first firstInstruction functionValue.
+	self assert: shaderImplementation allInstructionsMnemonics equals: #(
+		(entry (jump))
+		(body (call returnVoid))
+	).
+	
+	callWithLocalSize := shaderImplementation basicBlocks second firstInstruction.
+	self assert: callWithLocalSize arguments first isConstantVectorValue.
+	self assert: (callWithLocalSize arguments first slots collect: #value) equals: #(4 3 7).
+]
+
+{ #category : #tests }
 MbndSlovimSpirVCodeModuleGeneratorTest >> testFragmentShaderIO [
 	| shaderController |
 	self evaluateSysmelSource: '
