@@ -148,6 +148,9 @@ Compiler compilationTarget managedObjectModel
     stringClass: String;
 	integerClass: Integer;
 	floatClass: Float;
+	boolClass: Boolean;
+	trueClass: True;
+	falseClass: False;
     yourself
 '
 	

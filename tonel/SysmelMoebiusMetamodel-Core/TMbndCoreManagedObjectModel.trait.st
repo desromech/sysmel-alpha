@@ -11,7 +11,10 @@ Trait {
 		'stringClass',
 		'integerClass',
 		'floatClass',
-		'messageLookupFunction'
+		'messageLookupFunction',
+		'trueClass',
+		'falseClass',
+		'boolClass'
 	],
 	#traits : 'TMbndAbstractManagedObjectModel',
 	#classTraits : 'TMbndAbstractManagedObjectModel classTrait',
@@ -26,6 +29,16 @@ TMbndCoreManagedObjectModel >> arrayClass [
 { #category : #accessing }
 TMbndCoreManagedObjectModel >> arrayClass: anObject [
 	arrayClass := anObject
+]
+
+{ #category : #accessing }
+TMbndCoreManagedObjectModel >> boolClass [
+	^ boolClass
+]
+
+{ #category : #accessing }
+TMbndCoreManagedObjectModel >> boolClass: aClass [
+	boolClass := aClass
 ]
 
 { #category : #accessing }
@@ -77,6 +90,17 @@ TMbndCoreManagedObjectModel >> dictionaryClass [
 { #category : #accessing }
 TMbndCoreManagedObjectModel >> dictionaryClass: anObject [
 	dictionaryClass := anObject
+]
+
+{ #category : #accessing }
+TMbndCoreManagedObjectModel >> falseClass [
+	^ falseClass
+]
+
+{ #category : #accessing }
+TMbndCoreManagedObjectModel >> falseClass: anObject [
+	falseClass := anObject.
+	compilationTarget literalBooleanFalseType addConversionTo: falseClass rule: MbndLiteralValueTypeChangeConversionRule.
 ]
 
 { #category : #accessing }
@@ -147,4 +171,15 @@ TMbndCoreManagedObjectModel >> symbolClass [
 TMbndCoreManagedObjectModel >> symbolClass: anObject [
 	symbolClass := anObject.
 	compilationTarget literalSymbolType addConversionTo: symbolClass rule: MbndLiteralValueTypeChangeConversionRule.
+]
+
+{ #category : #accessing }
+TMbndCoreManagedObjectModel >> trueClass [
+	^ trueClass
+]
+
+{ #category : #accessing }
+TMbndCoreManagedObjectModel >> trueClass: anObject [
+	trueClass := anObject.
+	compilationTarget literalBooleanTrueType addConversionTo: trueClass rule: MbndLiteralValueTypeChangeConversionRule.
 ]
