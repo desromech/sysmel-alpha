@@ -69,7 +69,8 @@ MbndPrimitiveVectorType >> addDefaultConversionRules [
 	elementType ifNotNil: [ 
 		elementType
 			addConversionTo: self rule: MbndExpandScalarToVectorConversionRule.
-	]
+		self addExplicitConversionRule: MbndPrimitiveVectorTypeElementConversionRule new.
+	].
 ]
 
 { #category : #initialization }

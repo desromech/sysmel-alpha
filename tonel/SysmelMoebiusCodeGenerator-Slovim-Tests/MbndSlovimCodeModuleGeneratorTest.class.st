@@ -1590,6 +1590,38 @@ MbndSlovimCodeModuleGeneratorTest >> testFloatVectorAddWithScalarLiteral [
 ]
 
 { #category : #tests }
+MbndSlovimCodeModuleGeneratorTest >> testFloatVectorCastToIntVector [
+	| function |
+	self
+		evaluateSysmelSource: 'function cast externC(v: Float32x2) => Int32x2
+			:= v castTo: Int32x2';
+		generateSSAModule.
+
+	function := ssaModule globalNamed: #cast.
+	self assert: function isFunction.
+	self deny: function isEmpty.
+	self assert: function basicBlocks size equals: 2.
+	self assert: function basicBlocks second firstInstruction isFloatToIntCast.
+	self assert: function basicBlocks second lastInstruction isReturn.
+]
+
+{ #category : #tests }
+MbndSlovimCodeModuleGeneratorTest >> testFloatVectorCastToIntVector2 [
+	| function |
+	self
+		evaluateSysmelSource: 'function cast externC(v: Float32x3) => UInt32x3
+			:= v castTo: UInt32x3';
+		generateSSAModule.
+
+	function := ssaModule globalNamed: #cast.
+	self assert: function isFunction.
+	self deny: function isEmpty.
+	self assert: function basicBlocks size equals: 2.
+	self assert: function basicBlocks second firstInstruction isFloatToIntCast.
+	self assert: function basicBlocks second lastInstruction isReturn.
+]
+
+{ #category : #tests }
 MbndSlovimCodeModuleGeneratorTest >> testFloatVectorConstruction [
 	| function |
 	self

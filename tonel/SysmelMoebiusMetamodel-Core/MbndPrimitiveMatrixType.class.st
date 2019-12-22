@@ -32,6 +32,7 @@ MbndPrimitiveMatrixType >> addDefaultConversionRules [
 	elementType ifNotNil: [ 
 		elementType
 			addConversionTo: self rule: MbndExpandScalarToMatrixConversionRule.
+		self addExplicitConversionRule: MbndPrimitiveMatrixTypeElementConversionRule new.
 	]
 ]
 
