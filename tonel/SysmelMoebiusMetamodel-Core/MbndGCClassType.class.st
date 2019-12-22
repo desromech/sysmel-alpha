@@ -123,6 +123,16 @@ MbndGCClassType >> createMetaTypeBasicInstance [
 	^ MbndGCClassMetaType basicNew markAsDefined
 ]
 
+{ #category : #'as yet unclassified' }
+MbndGCClassType >> defaultArgumentType [
+	^ self compilationTarget dynamicObjectType
+]
+
+{ #category : #'as yet unclassified' }
+MbndGCClassType >> defaultReturnType [
+	^ self compilationTarget dynamicObjectType
+]
+
 { #category : #'default values' }
 MbndGCClassType >> defaultValueAt: position [
 	^ MbndValue value: nil type: self

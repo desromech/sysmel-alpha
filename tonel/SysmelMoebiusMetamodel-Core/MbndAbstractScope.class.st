@@ -24,6 +24,16 @@ MbndAbstractScope >> compilationTarget [
 	^ parent compilationTarget
 ]
 
+{ #category : #accessing }
+MbndAbstractScope >> defaultArgumentType [
+	^ parent ifNotNil: [ parent defaultArgumentType ]
+]
+
+{ #category : #accessing }
+MbndAbstractScope >> defaultReturnType [
+	^ parent ifNotNil: [ parent defaultReturnType ]
+]
+
 { #category : #testing }
 MbndAbstractScope >> isCompilationEvaluationScope [
 	parent ifNotNil: [ ^ parent isCompilationEvaluationScope ].

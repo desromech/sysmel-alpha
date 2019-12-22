@@ -418,6 +418,16 @@ TMbndAbstractType >> decorations [
 	^ #()
 ]
 
+{ #category : #'as yet unclassified' }
+TMbndAbstractType >> defaultArgumentType [
+	^ nil
+]
+
+{ #category : #'as yet unclassified' }
+TMbndAbstractType >> defaultReturnType [
+	^ nil
+]
+
 { #category : #'default values' }
 TMbndAbstractType >> defaultValue [
 	^ self defaultValueAt: MbndSourcePosition empty

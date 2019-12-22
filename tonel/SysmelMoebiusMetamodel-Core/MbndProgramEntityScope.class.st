@@ -12,6 +12,18 @@ MbndProgramEntityScope >> compilationTarget [
 	^ programEntity compilationTarget
 ]
 
+{ #category : #accessing }
+MbndProgramEntityScope >> defaultArgumentType [
+	programEntity isMbndType ifTrue: [ ^ programEntity defaultArgumentType ].
+	^ super defaultArgumentType
+]
+
+{ #category : #accessing }
+MbndProgramEntityScope >> defaultReturnType [
+	programEntity isMbndType ifTrue: [ ^ programEntity defaultReturnType ].
+	^ super defaultReturnType
+]
+
 { #category : #'macro expansion' }
 MbndProgramEntityScope >> lookupMacroSelector: selector [
 	(programEntity lookupMacroSelector: selector) ifNotNil: [ :macroMethod |

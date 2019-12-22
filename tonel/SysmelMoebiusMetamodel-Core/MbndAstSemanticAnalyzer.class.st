@@ -422,7 +422,7 @@ MbndAstSemanticAnalyzer >> markCompileTimeEvaluationImpossibility [
 
 { #category : #visiting }
 MbndAstSemanticAnalyzer >> visitArgumentDefinitionNode: node [
-	| result |
+	| result defaultArgumentType |
 	result := node copy.
 	
 	result valueType ifNotNil: [ 
@@ -431,7 +431,12 @@ MbndAstSemanticAnalyzer >> visitArgumentDefinitionNode: node [
 
 	result initialValue ifNil: [
 		result valueType ifNil: [
-			self error: 'function argument {1} requires an explicit type.' format: { result name asPrettySymbolName } at: result
+			defaultArgumentType := scope defaultArgumentType.
+			defaultArgumentType ifNil: [ 
+				self error: 'function argument {1} requires an explicit type.' format: { result name asPrettySymbolName } at: result
+			].
+		
+			result valueType: defaultArgumentType
 		]
 	] ifNotNil: [ 
 		result initialValue: node initialValue.
@@ -898,9 +903,14 @@ MbndAstSemanticAnalyzer >> visitFunctionDefinitionNode: node [
 MbndAstSemanticAnalyzer >> visitFunctionPrototypeNode: node [
 	| result |
 	result := node copy.
-	result
-		arguments: (self visitNodesAndCollect: result arguments);
-		returnType: (self evaluateTypeExpression: result returnType).
+	result arguments: (self visitNodesAndCollect: result arguments).
+	result returnType ifNil: [
+		result returnType: (scope defaultReturnType ifNil: [
+			self error: 'Function requires an explicit return type.' at: node
+		]).
+	] ifNotNil: [ 
+		result returnType: (self evaluateTypeExpression: result returnType)
+	].
 		
 	result functionType: (self compilationTarget
 		functionTypeWithArguments: (result arguments collect: #valueType)
@@ -1581,9 +1591,14 @@ MbndAstSemanticAnalyzer >> visitMessageDefinitionNode: node [
 MbndAstSemanticAnalyzer >> visitMessagePrototypeNode: node [
 	| result |
 	result := node copy.
-	result
-		arguments: (self visitNodesAndCollect: result arguments);
-		returnType: (self evaluateTypeExpression: result returnType).
+	result arguments: (self visitNodesAndCollect: result arguments).
+	result returnType ifNil: [
+		result returnType: (scope defaultReturnType ifNil: [
+			self error: 'Message requires an explicit return type.' at: node
+		]).
+	] ifNotNil: [ 
+		result returnType: (self evaluateTypeExpression: result returnType)
+	].
 		
 	result functionType: (self compilationTarget
 		functionTypeWithArguments: (result arguments collect: #valueType)

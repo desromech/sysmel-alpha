@@ -5,6 +5,26 @@ Class {
 }
 
 { #category : #tests }
+MbndSysmelLanguageSemanticEvaluationTest >> testGCClassDefaultArgumentAndReturnType [
+	| protoObjectClass method dynobjectType |
+	self evaluateMiniObjectModelRuntime.
+	protoObjectClass := (self evaluateSource: '
+		ProtoObject definition: {
+			message operateWith: anArgument := self.
+		}.
+		
+		ProtoObject
+	') unwrapMbndValue.
+	semanticModule finishSemanticAnalysis.
+
+	method := protoObjectClass overloadedMethodDict at: #operateWith:.
+	dynobjectType := semanticModule compilationTarget dynamicObjectType.
+	self assert: dynobjectType equals: protoObjectClass.
+	self assert: method returnType equals: dynobjectType.
+	self assert: method argumentTypes first equals: dynobjectType.
+]
+
+{ #category : #tests }
 MbndSysmelLanguageSemanticEvaluationTest >> testGCClassDefaultSuperClass [
 	| sampleClass |
 	self evaluateMiniObjectModelRuntime.
