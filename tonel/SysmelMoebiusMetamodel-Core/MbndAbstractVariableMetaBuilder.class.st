@@ -37,7 +37,7 @@ MbndAbstractVariableMetaBuilder >> mutable [
 
 { #category : #mutability }
 MbndAbstractVariableMetaBuilder >> ref [
-	self removeFlag: #ref
+	self addFlag: #ref
 ]
 
 { #category : #accessing }

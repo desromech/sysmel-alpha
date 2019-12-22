@@ -3586,6 +3586,32 @@ MbndSlovimCodeModuleGeneratorTest >> testIntegerZeroExtension [
 ]
 
 { #category : #tests }
+MbndSlovimCodeModuleGeneratorTest >> testLetRef [
+	| function |
+	self
+		evaluateSysmelSource: '
+global someCount mutable type: UInt32 := 0.
+
+function increase externC() => Void := {
+	let count ref := someCount.
+	count := count + 1
+}';
+		generateSSAModule.
+
+	function := ssaModule globalNamed: #increase.
+	self assert: function isFunction.
+	self assert: function allInstructionsMnemonics equals: #(
+		(entry (jump))
+		(body (
+			load
+			add
+			store
+			returnVoid
+		))
+	).
+]
+
+{ #category : #tests }
 MbndSlovimCodeModuleGeneratorTest >> testLetZeroCFunction [
 	| function |
 	self
