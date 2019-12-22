@@ -36,6 +36,7 @@ gcclass Object superclass: ProtoObject.
             gcclass Float superclass: Number.
                 gcclass BoxedFloat64 superclass: Float.
                 gcclass SmallFloat64 superclass: Float.
+			gcclass Fraction superclass: Number.
             gcclass Integer superclass: Number.
                 gcclass LargeInteger superclass: Integer.
                     gcclass LargeNegativeInteger superclass: LargeInteger.

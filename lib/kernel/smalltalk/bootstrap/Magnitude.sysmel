@@ -1,0 +1,47 @@
+namespace Smalltalk definition: {
+
+Object extend: {
+    message isNumber := false.
+    message isInteger := false.
+    message isFraction := false.
+    message isFloat := false.
+}.
+
+Number extend: {
+    message isNumber := true.
+
+    message + aNumber := {
+        super + other
+    }.
+}.
+
+Integer extend: {
+    message isInteger := true.
+
+    message + aNumber := {
+        super + other
+    }.
+}.
+
+Fraction extend: {
+    message isFraction := true.
+
+    message + aNumber := {
+        super + other
+    }.
+}.
+
+SmallInteger extend: {
+    message + other := {
+        super + other
+    }.
+}.
+
+Float extend: {
+    message isFloat := true.
+
+    message + aNumber := {
+        super + other
+    }.
+}.
+}. ## End of namespace Smalltalk
