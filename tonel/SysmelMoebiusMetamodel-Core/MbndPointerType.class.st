@@ -143,6 +143,11 @@ MbndPointerType >> asReferenceType [
 	^ baseType refFor: addressSpace
 ]
 
+{ #category : #converting }
+MbndPointerType >> asSuperArgumentType [
+	^ baseType asSuperArgumentType pointerFor: addressSpace
+]
+
 { #category : #'default values' }
 MbndPointerType >> defaultValueAt: aPosition [
 	^ MbndValue value: nil type: self

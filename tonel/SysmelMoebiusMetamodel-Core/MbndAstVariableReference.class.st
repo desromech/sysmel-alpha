@@ -10,6 +10,11 @@ MbndAstVariableReference >> accept: aVisitor [
 ]
 
 { #category : #testing }
+MbndAstVariableReference >> isSuperReference [
+	^ binding isFunctionSuperReceiverArgumentVariable
+]
+
+{ #category : #testing }
 MbndAstVariableReference >> isVariableReferenceNode [
 	^ true
 ]

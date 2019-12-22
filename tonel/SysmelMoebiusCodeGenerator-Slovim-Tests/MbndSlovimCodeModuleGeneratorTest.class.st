@@ -3,29 +3,9 @@ A MbndSlovimCodeModuleGeneratorTest is a test class for testing the behavior of 
 "
 Class {
 	#name : #MbndSlovimCodeModuleGeneratorTest,
-	#superclass : #TestCase,
-	#instVars : [
-		'semanticModule',
-		'ssaModule'
-	],
+	#superclass : #MbndSlovimCodeModuleGeneratorCommonTest,
 	#category : #'SysmelMoebiusCodeGenerator-Slovim-Tests-Module'
 }
-
-{ #category : #running }
-MbndSlovimCodeModuleGeneratorTest >> evaluateSysmelSource: sourceString [
-	semanticModule evaluateLanguage: #sysmel source: sourceString.
-]
-
-{ #category : #running }
-MbndSlovimCodeModuleGeneratorTest >> generateSSAModule [
-	semanticModule finishSemanticAnalysis.
-	ssaModule := semanticModule generateTargetCodeModule.
-]
-
-{ #category : #running }
-MbndSlovimCodeModuleGeneratorTest >> setUp [
-	semanticModule := MbndStandaloneModule llvm_x86_64.
-]
 
 { #category : #tests }
 MbndSlovimCodeModuleGeneratorTest >> testAggregateLocalInitialize [
@@ -613,6 +593,97 @@ function upcast externC(x: SubClass pointer) => SuperClass pointer := x
 	self assert: function basicBlocks first firstInstruction isJump.
 	self assert: function basicBlocks second firstInstruction isBitCast.
 	self assert: function basicBlocks second lastInstruction isReturn.
+]
+
+{ #category : #tests }
+MbndSlovimCodeModuleGeneratorTest >> testClassVirtualMessageSend [
+	| function |
+	self
+		evaluateSysmelSource: '
+class SuperClass definition: { 
+	field int32Field type: Int32.
+	
+	virtual message getValue => Float64
+		:= int32Field.
+}.
+
+function callVirtual externC(o: SuperClass ref) => Float64
+	:= o getValue.
+';
+		generateSSAModule.
+
+	function := ssaModule globalNamed: #callVirtual.
+	self assert: function isFunction.
+	self deny: function isEmpty.
+	self assert: function basicBlocks size equals: 2.
+	self assert: function allInstructionsMnemonics equals: #(
+		(entry (jump))
+		(body (
+			getElementPointer
+			load
+			getElementPointer
+			load
+			bitcast
+			call
+			return
+		))
+	).
+]
+
+{ #category : #tests }
+MbndSlovimCodeModuleGeneratorTest >> testClassVirtualMessageSuperSend [
+	| function |
+	self
+		evaluateSysmelSource: '
+class SuperClass definition: { 
+	field int32Field type: Int32.
+	
+	virtual message getValue => Float64
+		:= int32Field.
+}.
+
+class SubClass superclass: SuperClass; definition: { 
+	field float32Field type: Float32.
+	
+	override message getValue => Float64
+		:= super getValue + float32Field.
+}.
+
+function callVirtual externC(o: SuperClass ref) => Float64
+	:= o getValue.
+';
+		generateSSAModule.
+
+	function := ssaModule globalNamed: #callVirtual.
+	self assert: function isFunction.
+	self deny: function isEmpty.
+	self assert: function basicBlocks size equals: 2.
+	self assert: function allInstructionsMnemonics equals: #(
+		(entry (jump))
+		(body (
+			getElementPointer
+			load
+			getElementPointer
+			load
+			bitcast
+			call
+			return
+		))
+	).
+	
+	function := ssaModule globalNamed: #_S8SubClass8getValueFRTc_S8SubClass.
+	self assert: function allInstructionsMnemonics equals: #(
+		(entry (jump))
+		(body (
+			bitcast
+			call
+			getElementPointer
+			load
+			fpcast
+			fadd
+			return
+		))
+	)
 ]
 
 { #category : #tests }
@@ -1981,6 +2052,86 @@ MbndSlovimCodeModuleGeneratorTest >> testFloatingPointCast [
 	self assert: function basicBlocks size equals: 2.
 	self assert: function basicBlocks second firstInstruction isFloatingPointCast.
 	self assert: function basicBlocks second lastInstruction isReturn.
+]
+
+{ #category : #tests }
+MbndSlovimCodeModuleGeneratorTest >> testGCClassMessageSend [
+	| function |
+	self
+		evaluateMiniObjectModelRuntime;
+		evaluateSysmelSource: '
+gcclass SuperClass definition: { 
+	field int32Field type: Int32.
+	
+	message getValue => Float64
+		:= int32Field.
+}.
+
+function callMessage externC(o: SuperClass) => Float64
+	:= o getValue.
+';
+		generateSSAModule.
+
+	function := ssaModule globalNamed: #callMessage.
+	self assert: function isFunction.
+	self deny: function isEmpty.
+	self assert: function basicBlocks size equals: 2.
+	self assert: function allInstructionsMnemonics equals: #(
+		(entry (jump))
+		(body (
+			send
+			return
+		))
+	).
+]
+
+{ #category : #tests }
+MbndSlovimCodeModuleGeneratorTest >> testGCClassMessageSuperSend [
+	| function |
+	self
+		evaluateMiniObjectModelRuntime;
+		evaluateSysmelSource: '
+gcclass SuperClass definition: { 
+	field int32Field type: Int32.
+	
+	message getValue => Float64
+		:= int32Field.
+}.
+
+gcclass SubClass superclass: SuperClass; definition: { 
+	field float32Field type: Float32.
+	
+	message getValue => Float64
+		:= super getValue + float32Field.
+}.
+
+function callMessage externC(o: SubClass) => Float64
+	:= o getValue.
+';
+		generateSSAModule.
+
+	function := ssaModule globalNamed: #callMessage.
+	self assert: function allInstructionsMnemonics equals: #(
+		(entry (jump))
+		(body (
+			send
+			return
+		))
+	).
+	
+	function := ssaModule globalNamed: #_S8SubClass8getValueFTg_S8SubClass.
+	self assert: function allInstructionsMnemonics equals: #(
+		(entry (jump))
+		(body (
+			bitcast
+			send
+			getElementPointer
+			load
+			fpcast
+			fadd
+			return
+		))
+	).
 ]
 
 { #category : #tests }

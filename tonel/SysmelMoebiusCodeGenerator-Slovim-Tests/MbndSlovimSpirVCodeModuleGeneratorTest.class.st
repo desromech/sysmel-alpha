@@ -1,24 +1,11 @@
 Class {
 	#name : #MbndSlovimSpirVCodeModuleGeneratorTest,
-	#superclass : #TestCase,
+	#superclass : #MbndSlovimCodeModuleGeneratorCommonTest,
 	#instVars : [
-		'semanticModule',
-		'ssaModule',
 		'spirvModule'
 	],
 	#category : #'SysmelMoebiusCodeGenerator-Slovim-Tests-Module'
 }
-
-{ #category : #running }
-MbndSlovimSpirVCodeModuleGeneratorTest >> evaluateSysmelSource: sourceString [
-	semanticModule evaluateLanguage: #sysmel source: sourceString.
-]
-
-{ #category : #running }
-MbndSlovimSpirVCodeModuleGeneratorTest >> generateSSAModule [
-	semanticModule finishSemanticAnalysis.
-	ssaModule := semanticModule generateTargetCodeModule.
-]
 
 { #category : #running }
 MbndSlovimSpirVCodeModuleGeneratorTest >> generateSpirV [

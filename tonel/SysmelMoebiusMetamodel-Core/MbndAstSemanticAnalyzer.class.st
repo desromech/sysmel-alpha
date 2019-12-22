@@ -1996,8 +1996,16 @@ MbndAstSemanticAnalyzer >> visitTypeDefinitionNode: node ofKind: typeKindClass [
 	result declaration: (self analyzeNodeIfNeeded: result declaration ensurePartOfDefinitionFlagIsMarked).
 	
 	"Evaluate the supertype"
+	superType := nil.
 	node superTypeNode ifNotNil: [ :superTypeNode |
 		superType := self evaluateTypeExpression: superTypeNode.
+	] ifNil: [
+		typeKindClass == MbndGCClassType ifTrue: [ 
+			superType := self compilationTarget defaultGCClassSuperClass
+		]
+	].
+
+	superType ifNotNil: [ 
 		result binding setSupertypeFromDefinition: superType
 	].
 

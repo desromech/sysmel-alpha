@@ -344,6 +344,11 @@ TMbndAbstractType >> asResultTypeWithReceiver: receiverType withArguments: argum
 ]
 
 { #category : #converting }
+TMbndAbstractType >> asSuperArgumentType [
+	^ self supertype ifNil: [ self compilationTarget voidType ]
+]
+
+{ #category : #converting }
 TMbndAbstractType >> asUndecoratedClassType [
 	^ self withoutTopDecorations
 ]

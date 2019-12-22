@@ -47,31 +47,6 @@ TMbndProgramEntity >> getPublicMetaBuilderFactoryList [
 ]
 
 { #category : #testing }
-TMbndProgramEntity >> isCompilerGeneratedMethod [
-	^ false
-]
-
-{ #category : #testing }
-TMbndProgramEntity >> isConcreteMethod [
-	^ false
-]
-
-{ #category : #testing }
-TMbndProgramEntity >> isFunclet [
-	^ false
-]
-
-{ #category : #testing }
-TMbndProgramEntity >> isFunctionMethod [
-	^ false
-]
-
-{ #category : #testing }
-TMbndProgramEntity >> isGlobalVariable [
-	^ false
-]
-
-{ #category : #testing }
 TMbndProgramEntity >> isMessageMethod [
 	^ false
 ]

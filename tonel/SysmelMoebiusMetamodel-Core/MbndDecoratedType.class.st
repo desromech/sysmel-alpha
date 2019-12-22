@@ -58,6 +58,11 @@ MbndDecoratedType >> asReferenceType [
 	^ baseType asReferenceType withDecorations: decorations
 ]
 
+{ #category : #converting }
+MbndDecoratedType >> asSuperArgumentType [
+	^ baseType asSuperArgumentType withDecorations: decorations
+]
+
 { #category : #accessing }
 MbndDecoratedType >> decorations [
 	^ decorations

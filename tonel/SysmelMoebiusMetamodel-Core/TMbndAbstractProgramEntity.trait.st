@@ -63,6 +63,41 @@ TMbndAbstractProgramEntity >> isCompileTimeVariable [
 ]
 
 { #category : #testing }
+TMbndAbstractProgramEntity >> isCompilerGeneratedMethod [
+	^ false
+]
+
+{ #category : #testing }
+TMbndAbstractProgramEntity >> isConcreteMethod [
+	^ false
+]
+
+{ #category : #testing }
+TMbndAbstractProgramEntity >> isFunclet [
+	^ false
+]
+
+{ #category : #testing }
+TMbndAbstractProgramEntity >> isFunctionMethod [
+	^ false
+]
+
+{ #category : #testing }
+TMbndAbstractProgramEntity >> isFunctionReceiverArgumentVariable [
+	^ false
+]
+
+{ #category : #testing }
+TMbndAbstractProgramEntity >> isFunctionSuperReceiverArgumentVariable [
+	^ false
+]
+
+{ #category : #testing }
+TMbndAbstractProgramEntity >> isGlobalVariable [
+	^ false
+]
+
+{ #category : #testing }
 TMbndAbstractProgramEntity >> isMbndProgramEntity [
 	^ true
 ]

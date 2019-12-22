@@ -3,22 +3,9 @@ A MbndSysmelLanguageTest is a test class for testing the behavior of MbndSysmelL
 "
 Class {
 	#name : #MbndSysmelLanguageCompileTimeEvaluationTest,
-	#superclass : #TestCase,
-	#instVars : [
-		'module'
-	],
+	#superclass : #MbndSysmelLanguageTestCommon,
 	#category : #'SysmelLanguage-Sysmel-Tests-Parser'
 }
-
-{ #category : #'as yet unclassified' }
-MbndSysmelLanguageCompileTimeEvaluationTest >> evaluateSource: aString [
-	^ module evaluateLanguage: #sysmel source: aString
-]
-
-{ #category : #running }
-MbndSysmelLanguageCompileTimeEvaluationTest >> setUp [
-	module := MbndDummyModule new
-]
 
 { #category : #tests }
 MbndSysmelLanguageCompileTimeEvaluationTest >> testBitInvert [
@@ -107,7 +94,7 @@ MbndSysmelLanguageCompileTimeEvaluationTest >> testLet [
 { #category : #tests }
 MbndSysmelLanguageCompileTimeEvaluationTest >> testLiteralType [
 	self assert: (self evaluateSource: '_LiteralInteger') type isMetaType.
-	self assert: (self evaluateSource: '_LiteralInteger') value equals: module compilationTarget literalIntegerType.
+	self assert: (self evaluateSource: '_LiteralInteger') value equals: semanticModule compilationTarget literalIntegerType.
 ]
 
 { #category : #tests }

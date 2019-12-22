@@ -24,9 +24,8 @@ SysmelSyntaxHighlighter class >> initialize [
 		#true #false #nil
 		thisContext self super
 		
-		let namespace struct union function template macro message method field
-		type trait
-		shader descriptorSet stageio vertex fragment compute geometry tesseval tesscontrol
+		let namespace struct union class gcclass enum function template macro message method field
+		public private static virtual abstract override compileTimeConstant
 	).
 ]
 

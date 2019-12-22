@@ -25,7 +25,8 @@ Trait {
 		'inputChannelImplementationType',
 		'outputChannelImplementationType',
 		'samplerImplementationType',
-		'systemProvidedTypeTemplates'
+		'systemProvidedTypeTemplates',
+		'defaultGCClassSuperClass'
 	],
 	#traits : 'TMbndAbstractCompilationTarget',
 	#classTraits : 'TMbndAbstractCompilationTarget classTrait',
@@ -280,6 +281,16 @@ TMbndCoreCompilationTarget >> createSystemProvidedTypeTemplate: templateName arg
 		yourself.
 	self systemProvidedTypeTemplates add: template.
 	^ template
+]
+
+{ #category : #accessing }
+TMbndCoreCompilationTarget >> defaultGCClassSuperClass [
+	^ defaultGCClassSuperClass
+]
+
+{ #category : #accessing }
+TMbndCoreCompilationTarget >> defaultGCClassSuperClass: aGCClassType [
+	defaultGCClassSuperClass := aGCClassType
 ]
 
 { #category : #accessing }

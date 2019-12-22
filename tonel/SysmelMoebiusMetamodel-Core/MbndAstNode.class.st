@@ -617,6 +617,11 @@ MbndAstNode >> isSubscriptElementReferenceNode [
 ]
 
 { #category : #testing }
+MbndAstNode >> isSuperReference [
+	^ false
+]
+
+{ #category : #testing }
 MbndAstNode >> isTemplateDefinitionNode [
 	^ false
 ]

@@ -80,8 +80,16 @@ MbndAbstractConcreteMethod >> createSemanticAnalysisScope [
 	analysisScope := analysisScope newLexicalScope.
 	arguments do: [ :arg |
 		arg isMbndAnonymousSymbol ifFalse: [ 
-			analysisScope addSymbol: arg name binding: arg
-		]
+			analysisScope addSymbol: arg name binding: arg.
+			
+			arg isFunctionReceiverArgumentVariable ifTrue: [
+				| superArgument |
+				superArgument := arg asSuperArgumentVariable.
+				superArgument name isMbndAnonymousSymbol ifFalse: [ 
+					analysisScope addSymbol: superArgument name binding: superArgument.
+				].
+			].
+		].
 	].
 
 	^ analysisScope

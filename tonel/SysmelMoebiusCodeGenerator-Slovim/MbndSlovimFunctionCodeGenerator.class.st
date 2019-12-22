@@ -150,7 +150,7 @@ MbndSlovimFunctionCodeGenerator >> createLocalVariableDebugInformation: localVar
 
 { #category : #'as yet unclassified' }
 MbndSlovimFunctionCodeGenerator >> defineArgumentValues [
-	| argumentValue |
+	| argumentValue superVariable |
 	self assert: (concreteMethod isConcreteMethod not or: [concreteMethod arguments size = ssaFunction arguments size]).
 	concreteMethod arguments doWithIndex: [ :argVariable :argIndex |
 		argumentValue := ssaFunction arguments at: argIndex.
@@ -158,7 +158,14 @@ MbndSlovimFunctionCodeGenerator >> defineArgumentValues [
 			argumentValue name: argVariable name
 		].
 	
-		functionVariables at: argVariable put: argumentValue
+		functionVariables at: argVariable put: argumentValue.
+		
+		argVariable isFunctionReceiverArgumentVariable ifTrue: [ 
+			superVariable := argVariable asSuperArgumentVariable.
+			superVariable type isVoidType ifFalse: [
+				functionVariables at: superVariable put: argumentValue
+			].
+		]
 	].
 
 ]
@@ -357,8 +364,16 @@ MbndSlovimFunctionCodeGenerator >> generateExpandedMessageSendNode: node withInt
 
 { #category : #'as yet unclassified' }
 MbndSlovimFunctionCodeGenerator >> generateExpandedMessageSendNode: node withStaticMethodBoundTo: methodSSAFunction [
-	| receiver receiverType arguments allArguments calledMethodSSAFunction vtableLayout vtableSlot vtableEntrySlot result expectedResultType hasDynamicMessageLookup selectorValue |
+	| receiver receiverType arguments allArguments calledMethodSSAFunction vtableLayout vtableSlot vtableEntrySlot result expectedResultType hasDynamicMessageLookup selectorValue hasStaticBinding isSuperSend |
+	
+	"Process the receiver."
 	receiver := node receiver ifNotNil: [self visitNode: node receiver].
+	isSuperSend := false.
+	(node receiver isNotNil and: [ node receiver isSuperReference ]) ifTrue: [
+		isSuperSend := true.
+	].
+
+	"Process the selector and the remaining arguments."
 	selectorValue := self visitNode: node selector.
 	arguments := self visitNodesAndCollect: node arguments.
 	allArguments := arguments.
@@ -371,7 +386,9 @@ MbndSlovimFunctionCodeGenerator >> generateExpandedMessageSendNode: node withSta
 	].
 
 	calledMethodSSAFunction := methodSSAFunction.
-	node method hasVirtualTableEntry ifTrue: [
+	hasStaticBinding := node method hasPragmaNamed: #staticBinding.
+	
+	(node method hasVirtualTableEntry and: [ hasStaticBinding not and: [isSuperSend not]]) ifTrue: [
 		hasDynamicMessageLookup := false.
 		receiverType := node receiver type withoutReferences.
 		vtableLayout := receiverType slotLayout mainVirtualTable.
@@ -383,13 +400,16 @@ MbndSlovimFunctionCodeGenerator >> generateExpandedMessageSendNode: node withSta
 		calledMethodSSAFunction := slvmBuilder bitCast: vtableEntrySlot target: methodSSAFunction type.
 	].
 	
-	(node method hasPragmaNamed: #staticBinding) ifTrue: [ hasDynamicMessageLookup := false ].
+	hasStaticBinding ifTrue: [ hasDynamicMessageLookup := false ].
 	
 	expectedResultType := self translateType: node type.
 	hasDynamicMessageLookup ifTrue:[
 		selectorValue isSymbol ifTrue: [ selectorValue := slvmBuilder addDynamicLiteral: selectorValue ].
 		self assert: selectorValue type isDynamicObjectPointerType.
-		result := slvmBuilder send: selectorValue returnType: expectedResultType receiver: receiver arguments: arguments
+		result := slvmBuilder send: selectorValue returnType: expectedResultType receiver: receiver arguments: arguments.
+		isSuperSend ifTrue: [
+			result setSuperSend
+		].
 	] ifFalse: [
 		result := slvmBuilder call: calledMethodSSAFunction arguments: allArguments.
 	].
@@ -1477,11 +1497,20 @@ MbndSlovimFunctionCodeGenerator >> visitUnwrapEnumValueCastNode: node [
 
 { #category : #visiting }
 MbndSlovimFunctionCodeGenerator >> visitVariableReferenceNode: node [
-	| binding translatedBinding |
+	| binding translatedBinding targetType |
 	binding := node binding.
-	functionVariables at: binding ifPresent: [ :ssaValue | ^ ssaValue ].
+	functionVariables at: binding ifPresent: [ :ssaValue |
+		node isSuperReference ifTrue: [
+			targetType := self translateType: node type.
+			self assert: targetType isPointerType.
+			self assert: ssaValue type isPointerType.
+			^ self slvmBuilder bitCast: ssaValue target: targetType
+		].
+		^ ssaValue
+	].
 	translatedBinding := (codeModuleGenerator translateProgramEntity: binding) ssaValue.
-	(translatedBinding type isPointerType and: [ (self translateType: node type) isPointerType not]) ifTrue: [
+	targetType := self translateType: node type.
+	(translatedBinding type isPointerType and: [ targetType isPointerType not]) ifTrue: [
 		"Load the value of immutable variables."
 		^ self slvmBuilder load: translatedBinding
 	].

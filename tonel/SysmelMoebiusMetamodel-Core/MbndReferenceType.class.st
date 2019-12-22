@@ -93,6 +93,11 @@ MbndReferenceType >> asReferenceType [
 	^ self
 ]
 
+{ #category : #converting }
+MbndReferenceType >> asSuperArgumentType [
+	^ baseType asSuperArgumentType refFor: addressSpace
+]
+
 { #category : #'type composition' }
 MbndReferenceType >> const [
 	<compileTime>
