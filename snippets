@@ -1,5 +1,5 @@
 semanticModule := MbndStandaloneModule llvm_x86_64
-	evaluateFileNamedOnce: 'lib/kernel/kernel.sysmel';
+	loadRuntimeCoreLibrary;
 	"evaluateFileNamedOnce: 'lib/bindings/sdl2/sdl2.sysmel';"
 	evaluateFileNamedOnce: 'samples/cpu/chello.sysmel';
 	finishSemanticAnalysis;
@@ -11,7 +11,7 @@ ssaModule asLowLevelModule writeTextToFileNamed: 'test.ll'
 ===============================================================================
 MbndStandaloneModule llvm_x86_64
 	withDebugInformation;
-	evaluateFileNamedOnce: 'lib/kernel/kernel.sysmel';
+	loadRuntimeCoreLibrary;
 	evaluateFileNamedOnce: 'samples/cpu/hello.sysmel';
 	finishSemanticAnalysis;
 	writeAssemblyToFileNamed: 'hello.ll'
@@ -19,14 +19,34 @@ MbndStandaloneModule llvm_x86_64
 ===============================================================================
 MbndStandaloneModule llvm_x86_64
 	withDebugInformation;
-	evaluateFileNamedOnce: 'lib/kernel/kernel.sysmel';
+	loadRuntimeCoreLibrary;
 	evaluateFileNamedOnce: 'lib/bindings/sdl2/sdl2.sysmel';
 	evaluateFileNamedOnce: 'samples/cpu/helloSDL2.sysmel';
 	finishSemanticAnalysis;
 	writeAssemblyToFileNamed: 'helloSDL2.ll'
 ===============================================================================
 MbndStandaloneModule spirv_vulkan
-	evaluateFileNamedOnce: 'lib/gpu.sysmel';
+	loadRuntimeCoreLibrary;
 	evaluateFileNamedOnce: 'samples/gpu/solidRenderingShaders.sysmel';
 	finishSemanticAnalysis;
 	writeExecutableToFileNamed: 'test.spv'
+
+===============================================================================
+MbndStandaloneModule spirv_vulkan
+	loadRuntimeCoreLibrary;
+	evaluateFileNamedOnce: 'lib/gpu/blocks/blocks.sysmel';
+	evaluateLanguage: #sysmel source: '
+function mapFunction(x: Float32) => Float32
+	:= x + 2.
+
+GPUBlockConversion CollectionMapShader(mapFunction) main
+';
+	finishSemanticAnalysis;
+	writeExecutableToFileNamed: 'test.spv'
+
+===============================================================================
+SGPUCompilationEnvironment reset.
+
+gpuBlock := [ :x | x + 10 * 2 ] gpuType: #(Float32 => Float32).
+gpuBlock asCollectionMapShaderStageCode.
+
