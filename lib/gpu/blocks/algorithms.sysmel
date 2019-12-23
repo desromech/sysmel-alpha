@@ -18,13 +18,22 @@ template CollectionMapShader(MF: _FunctionType ref)
 		public field outputBuffer type: OutputBuffer storageBufferPointer.
 	}.
 
+	struct QuickConstants definition: {
+		public field bufferSize type: UInt32.
+	}.
+
 	public field arguments type: ComputationBindings bindingSetPointer.
+	public field quickConstants type: QuickConstants pushConstantPointer.
 
 	function main computeShader(stageIn: GPU ComputeStageInput inputChannel) => Void := {
 		<localSize: #(4 4 4)>
 		let collectionElement := stageIn receive globalIndex.
-
-		arguments _ outputBuffer _ data [collectionElement] := MapFunction(arguments _ inputBuffer _ data [collectionElement]).
+		let bufferSize := quickConstants _ bufferSize.
+		collectionElement < bufferSize ifTrue: {
+			let input := arguments _ inputBuffer _ data [collectionElement].
+			let result := MapFunction(input).
+			arguments _ outputBuffer _ data [collectionElement] := result.
+		}.
 	}.
 }.
 
