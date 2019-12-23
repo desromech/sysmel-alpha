@@ -48,3 +48,25 @@ SGPUBlockClosureTest >> testIntegerLiteralBlock [
 	
 	self assert: block value equals: 1
 ]
+
+{ #category : #tests }
+SGPUBlockClosureTest >> testSimpleCollectionMapShader [
+	| block shaderClass shaderMethod shaderStageCode |
+	block := [ :x | (x + 10) * 2 ] gpuType: #(Float32 => Float32).
+	shaderClass := block asCollectionMapShaderClass.
+	self assert: shaderClass isMbndType.
+	self assert: shaderClass isClassType.
+	self assert: shaderClass == block asCollectionMapShaderClass.
+
+	shaderMethod := block asCollectionMapShaderMethod.
+	self assert: shaderMethod isConcreteMethod.
+	self assert: shaderMethod parent equals: shaderClass.
+	self assert: shaderMethod == block asCollectionMapShaderMethod.
+	
+	shaderStageCode := block asCollectionMapShaderStageCode.
+	self assert: shaderStageCode spirVModule isNotNil.
+	self assert: shaderStageCode stage equals: #compute.
+	self assert: shaderStageCode entryPointName isSymbol.
+	self assert: shaderStageCode == block asCollectionMapShaderStageCode.	
+
+]

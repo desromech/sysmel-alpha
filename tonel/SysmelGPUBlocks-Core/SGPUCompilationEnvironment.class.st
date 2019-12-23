@@ -3,7 +3,8 @@ Class {
 	#superclass : #Object,
 	#instVars : [
 		'compilationModule',
-		'compiledBlockClosures'
+		'compiledBlockClosures',
+		'compiledShaderStages'
 	],
 	#classVars : [
 		'Current'
@@ -96,6 +97,7 @@ SGPUCompilationEnvironment >> initialize [
 		evaluateFileNamedOnce: Smalltalk imageDirectory / 'lib' / 'gpu' / 'blocks' / 'blocks.sysmel'.
 		
 	compiledBlockClosures := WeakKeyDictionary new.
+	compiledShaderStages := WeakKeyDictionary new.
 ]
 
 { #category : #compiling }
@@ -189,6 +191,25 @@ SGPUCompilationEnvironment >> parseTypeExpressionFrom: in [
 	].
 	^ result
 
+]
+
+{ #category : #'as yet unclassified' }
+SGPUCompilationEnvironment >> shaderStageCodeFor: concreteMethod [
+	| shaderStageType targetSSACodeModule spirVModule shaderSymbol shaderEntryPoint |
+	^ compiledShaderStages at: concreteMethod ifAbsentPut: [
+		shaderStageType := concreteMethod specialSemantics.
+		self assert: shaderStageType isNotNil.
+		compilationModule finishSemanticAnalysis.
+	
+		targetSSACodeModule := concreteMethod generateTargetCodeModuleOnlyForMyself.
+		spirVModule := targetSSACodeModule asLowLevelModuleWithOptimizationLevel: compilationModule optimizationLevel.
+		shaderSymbol := targetSSACodeModule highLevelMapToSymbol at: concreteMethod.
+		shaderEntryPoint := spirVModule entryPoints at: shaderSymbol -> shaderStageType.
+		SGPUShaderStageCode new
+			spirVModule: spirVModule;
+			entryPointMetadata: shaderEntryPoint;
+			yourself
+	]
 ]
 
 { #category : #compiling }

@@ -24,6 +24,11 @@ SGPUBlockClosure >> asCollectionMapShaderMethod [
 	^ self asCollectionMapShaderClass lookupSymbol: #main.
 ]
 
+{ #category : #converting }
+SGPUBlockClosure >> asCollectionMapShaderStageCode [
+	^ compilationEnvironment shaderStageCodeFor: (self asCollectionMapShaderClass lookupSymbol: #main).
+]
+
 { #category : #accessing }
 SGPUBlockClosure >> compilationEnvironment [
 	^ compilationEnvironment

@@ -145,6 +145,7 @@ MbndSlovimCodeModuleGenerator >> createSpirVShaderControllerFor: functionMethod 
 
 	shaderFunction := SLVMFunction module: ssaModule name: csymbol functionType: (SLVMFunctionType arguments: #() returnType: SLVMType voidType).
 	shaderFunction propertyAt: functionMethod specialSemantics put: nil.
+	ssaModule addHighLevelEntity: functionMethod mapToGlobalValue: shaderFunction.
 	
 	functionMethod specialSemantics = #compute ifTrue: [
 		shaderFunction
@@ -646,6 +647,7 @@ MbndSlovimCodeModuleGenerator >> translateTypeInfoDefinition: type [
 	self assert: ssaTypeInfoType isPointerType.
 	ssaTypeInfo := SLVMGlobalVariable module: ssaModule name: ((self mangleProgramEntityName: type ) , 'Ti') asSymbol valueType: ssaTypeInfoType baseType storage: SLVMType genericStorage.
 	self setProgramEntity: type ssaValue: ssaTypeInfo.
+	ssaModule addHighLevelEntity: type mapToGlobalValue: ssaTypeInfo.
 	
 	ssaTypeInfo initialValue: (MbndSlovimLiteralValueGenerator new
 		codeModuleGenerator: self;
@@ -774,6 +776,7 @@ MbndSlovimCodeModuleGenerator >> visitCompileTimeVariable: compileTimeVariable [
 	ssaCompileTimeVariable := SLVMGlobalVariable module: ssaModule name: csymbol valueType: ssaValueType storage: SLVMType genericStorage.
 	ssaCompileTimeVariable unmangledName: csymbol.
 	self setProgramEntity: compileTimeVariable ssaValue: ssaCompileTimeVariable.
+	ssaModule addHighLevelEntity: compileTimeVariable mapToGlobalValue: ssaCompileTimeVariable.
 
 	self isEmittingDebugInformation ifTrue: [ 
 		ssaCompileTimeVariable debugSourceLocation: (self convertDebugPosition: compileTimeVariable definitionPosition asActualSourcePosition)
@@ -792,16 +795,22 @@ MbndSlovimCodeModuleGenerator >> visitCompileTimeVariable: compileTimeVariable [
 
 { #category : #visiting }
 MbndSlovimCodeModuleGenerator >> visitConcreteFunctionMethod: functionMethod [
-	| ssaFunctionType csymbol ssaFunction unmangledName |
+	| ssaFunctionType csymbol ssaFunction unmangledName addHighLevelMap |
 	ssaFunctionType := self translateType: functionMethod type.
 	
 	csymbol := self csymbolForProgramEntity: functionMethod.
+	addHighLevelMap := true.
 	(self slvmCompilationTarget isGPU and: [functionMethod specialSemantics isNotNil ]) ifTrue: [ 
-		csymbol := (csymbol , #_impl) asSymbol
+		csymbol := (csymbol , #_impl) asSymbol.
+		addHighLevelMap := false.
 	].
 
 	unmangledName := self unmangledNameForProgramEntity: functionMethod.
 	ssaFunction := SLVMFunction module: ssaModule name: csymbol functionType: ssaFunctionType.
+	
+	addHighLevelMap ifTrue: [ 
+		ssaModule addHighLevelEntity: functionMethod mapToGlobalValue: ssaFunction
+	].
 
 	ssaFunction unmangledName: unmangledName.
 	self setProgramEntity: functionMethod ssaValue: ssaFunction.
@@ -838,6 +847,7 @@ MbndSlovimCodeModuleGenerator >> visitConcreteMessageMethod: functionMethod [
 	ssaFunction := SLVMFunction module: ssaModule name: csymbol functionType: ssaFunctionType.
 	ssaFunction unmangledName: unmangledName.
 	self setProgramEntity: functionMethod ssaValue: ssaFunction.
+	ssaModule addHighLevelEntity: functionMethod mapToGlobalValue: ssaFunction.
 	
 	self isEmittingDebugInformation ifTrue: [ 
 		ssaFunction debugSourceLocation: (self convertDebugPosition: functionMethod definitionPosition asActualSourcePosition)
@@ -899,6 +909,7 @@ MbndSlovimCodeModuleGenerator >> visitGlobalVariable: globalVariable [
 	ssaGlobalVariable unmangledName: unmangledName.
 	ssaGlobalVariable minimalAlignment: globalVariable minimalAlignment.
 	self setProgramEntity: globalVariable ssaValue: ssaGlobalVariable.
+	ssaModule addHighLevelEntity: globalVariable mapToGlobalValue: ssaGlobalVariable.
 
 	self isEmittingDebugInformation ifTrue: [ 
 		ssaGlobalVariable debugSourceLocation: (self convertDebugPosition: globalVariable definitionPosition asActualSourcePosition)
@@ -1030,6 +1041,7 @@ MbndSlovimCodeModuleGenerator >> visitVTablePointerFieldVariable: vtableField [
 	ssaVTableDefinition := SLVMGlobalVariable module: ssaModule name: csymbol valueType: ssaValueType storage: SLVMType genericStorage.
 	ssaVTableDefinition unmangledName: unmangledName.
 	self setProgramEntity: vtableField ssaValue: ssaVTableDefinition.
+	ssaModule addHighLevelEntity: vtableField mapToGlobalValue: ssaVTableDefinition.
 	ssaVTableDefinition
 		readOnly: true;
 		initialValue: (SLVMConstant array: ssaValueType slots: additionalFields , methodFields).
