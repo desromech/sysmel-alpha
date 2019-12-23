@@ -4,7 +4,8 @@ Class {
 	#instVars : [
 		'compilationModule',
 		'compiledBlockClosures',
-		'compiledShaderStages'
+		'compiledShaderStages',
+		'mbndToSlvmTypeMapCache'
 	],
 	#classVars : [
 		'Current'
@@ -69,6 +70,21 @@ SGPUCompilationEnvironment >> compileBlockClosure: blockClosure withTypeExpressi
 	^ convertedClosure
 ]
 
+{ #category : #'as yet unclassified' }
+SGPUCompilationEnvironment >> constructArrayOfType: typeExpression with: initialData [
+	| type size slvmType cpuDataArray |
+	type := self evaluateTypeExpression: typeExpression.
+	size := initialData size.
+	slvmType := self slvmTypeForMbndType: type.
+	cpuDataArray := SLVMNativeArray for: slvmType new: size.
+	1 to: size do: [ :i |
+		cpuDataArray uncheckedAt: i put: (initialData at: i)
+	].
+
+	^ SGPUManagedDataArray basicNew
+		initializeForType: type withCPUData: cpuDataArray
+]
+
 { #category : #compiling }
 SGPUCompilationEnvironment >> evaluateTypeExpression: typeExpression [
 	| result resultValue |
@@ -98,6 +114,7 @@ SGPUCompilationEnvironment >> initialize [
 		
 	compiledBlockClosures := WeakKeyDictionary new.
 	compiledShaderStages := WeakKeyDictionary new.
+	mbndToSlvmTypeMapCache := WeakKeyDictionary new.
 ]
 
 { #category : #compiling }
@@ -210,6 +227,16 @@ SGPUCompilationEnvironment >> shaderStageCodeFor: concreteMethod [
 			entryPointMetadata: shaderEntryPoint;
 			yourself
 	]
+]
+
+{ #category : #'as yet unclassified' }
+SGPUCompilationEnvironment >> slvmTypeForMbndType: mbndType [
+	^ mbndToSlvmTypeMapCache at: mbndType ifAbsentPut: [
+		compilationModule compilationTarget newCodeModuleGenerator
+			generateCodeModuleFor: compilationModule programEntities: #();
+			translateType: mbndType
+	].
+
 ]
 
 { #category : #compiling }

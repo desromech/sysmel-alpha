@@ -93,6 +93,11 @@ SGPUBlockClosure >> functionType [
 	^ self concreteMethod type
 ]
 
+{ #category : #testing }
+SGPUBlockClosure >> isSGPUBlockClosure [
+	^ true
+]
+
 { #category : #evaluating }
 SGPUBlockClosure >> value [
 	^ cpuBlock value
