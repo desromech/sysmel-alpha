@@ -1111,6 +1111,12 @@ TMbndAbstractType >> publicMetaBuilderFactories [
 ]
 
 { #category : #'type composition' }
+TMbndAbstractType >> pushConstantPointer [
+	<compileTime>
+	^ self pointerFor: #pushConstant
+]
+
+{ #category : #'type composition' }
 TMbndAbstractType >> ref [
 	<compileTime>
 	^ self compilationTarget referenceTo: self

@@ -55,6 +55,12 @@ MbndSlovimFunctionCodeGenerator >> aggregate: aggregateNode value: aggregateValu
 			yourself
 	].
 
+	(valueType isPointerLikeValueType and: [ valueType addressSpace = #pushConstant ]) ifTrue: [
+		self assert: aggregateValue isFunctionArgument.
+		^ MbndSlovimLoadedReferenceValue new
+			value: (codeModuleGenerator getFieldAsPushConstantReference: field)
+	].
+
 	(aggregateValue isFakeValue and: [ aggregateValue isMbndDescriptorSetReference ]) ifTrue: [ 
 		valueType isPointerLikeValueType ifTrue: [ 
 			self assert: (#(uniformBuffer storageBuffer) includes: valueType addressSpace).

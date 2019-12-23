@@ -31,6 +31,11 @@ MbndAbstractFieldVariable >> asDescriptorSetIndex [
 ]
 
 { #category : #converting }
+MbndAbstractFieldVariable >> asPushConstantIndex [
+	^ location isInteger ifTrue: [ location ] ifFalse: [ 0 ]
+]
+
+{ #category : #converting }
 MbndAbstractFieldVariable >> asSymbolBoundWithReceiverBinding: receiverBinding [
 	^ MbndFieldBoundWithReceiver new
 		receiver: receiverBinding;

@@ -334,6 +334,24 @@ MbndSlovimCodeModuleGenerator >> generateGlobalField: field forShader: shaderSta
 ]
 
 { #category : #'as yet unclassified' }
+MbndSlovimCodeModuleGenerator >> generateGlobalFieldForPushConstants: field [
+	| globalName valueType globalStorage structureKind ssaValueType ssaGlobal |
+	globalName := ByteString streamContents: [:out |
+		out nextPutAll: (self csymbolForProgramEntity: field);
+			nextPutAll: '_';
+			nextPutAll: 'pushConstants'
+	].
+
+	valueType := field valueType.
+	globalStorage := SLVMType pushConstantStorage.
+	structureKind := SLVMStructureType blockKind.
+	ssaValueType := self translateStructureType: valueType baseType withKind: structureKind.
+
+	ssaGlobal := SLVMGlobalVariable module: ssaModule name: globalName valueType: ssaValueType storage: globalStorage.
+	^ ssaGlobal
+]
+
+{ #category : #'as yet unclassified' }
 MbndSlovimCodeModuleGenerator >> generateIdentityHash [
 	^ (identityHashRandomGenerator nextInt: (1<<32) + 1) - 1 
 ]
@@ -404,6 +422,13 @@ MbndSlovimCodeModuleGenerator >> getField: field fromDescriptorSet: aggregateVal
 	binding := field asDescriptorSetBinding.
 	^ convertedDescriptorSetBindings at: {set . binding . field} ifAbsentPut: [ 
 		self generateGlobalField: field forDescriptorSet: set binding: binding
+	]
+]
+
+{ #category : #'as yet unclassified' }
+MbndSlovimCodeModuleGenerator >> getFieldAsPushConstantReference: field [
+	^ convertedDescriptorSetBindings at: {#pushConstant . field} ifAbsentPut: [ 
+		self generateGlobalFieldForPushConstants: field
 	]
 ]
 
