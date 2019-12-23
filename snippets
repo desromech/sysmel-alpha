@@ -53,3 +53,5 @@ gpuBlock asCollectionMapShaderStageCode.
 data := ((1 to: 20) collect: #asFloat) asGPUFloat32Array.
 result := data collect: gpuBlock.
 
+[SGPUExecutionDriver current finishPendingComputations] timeToRun
+
