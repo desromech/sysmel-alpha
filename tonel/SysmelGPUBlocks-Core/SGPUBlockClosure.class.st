@@ -98,6 +98,11 @@ SGPUBlockClosure >> isSGPUBlockClosure [
 	^ true
 ]
 
+{ #category : #accessing }
+SGPUBlockClosure >> returnType [
+	^ self functionType returnType
+]
+
 { #category : #evaluating }
 SGPUBlockClosure >> value [
 	^ cpuBlock value

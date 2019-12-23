@@ -33,3 +33,20 @@ SGPUExecutionDriver class >> findDriver [
 SGPUExecutionDriver class >> isAvailable [
 	^ false
 ]
+
+{ #category : #'as yet unclassified' }
+SGPUExecutionDriver >> enqueueComputationWithInputBuffers: inputBuffers outputBuffers: outputBuffers pushConstants: pushConstant
+computeShaderStage: shaderStageCode globalSize: size
+cpuFallbackWith: cpuFallbackBlock [
+	self subclassResponsibility
+]
+
+{ #category : #'as yet unclassified' }
+SGPUExecutionDriver >> ensureManagedDataArrayIsInCPU: managedDataArray [
+	self subclassResponsibility
+]
+
+{ #category : #'as yet unclassified' }
+SGPUExecutionDriver >> ensureManagedDataArrayIsInGPU: managedDataArray [
+	self subclassResponsibility
+]

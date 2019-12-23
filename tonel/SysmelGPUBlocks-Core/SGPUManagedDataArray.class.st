@@ -42,8 +42,25 @@ SGPUManagedDataArray >> at: index put: value [
 
 { #category : #enumerating }
 SGPUManagedDataArray >> collect: aBlock [
+	| shaderStageCode resultBuffer |
 	aBlock isSGPUBlockClosure ifFalse: [ ^ super collect: aBlock ].
-	self halt
+	
+	shaderStageCode := aBlock asCollectionMapShaderStageCode.
+	self ensureInGPU.
+
+	resultBuffer := SGPUCompilationEnvironment current	
+		constructArrayOfType: aBlock returnType withSize: self size.
+	SGPUExecutionDriver current
+		enqueueComputationWithInputBuffers: { self } outputBuffers: { resultBuffer }
+		pushConstants: (IntegerArray with: size)
+		computeShaderStage: shaderStageCode globalSize: size
+		cpuFallbackWith: [
+			1 to: size do: [ :i |
+				resultBuffer at: i put: (aBlock value: (self at: i))
+			]
+		].
+	
+	^ resultBuffer
 ]
 
 { #category : #accessing }
@@ -59,7 +76,13 @@ SGPUManagedDataArray >> currentDataLocation [
 { #category : #'as yet unclassified' }
 SGPUManagedDataArray >> ensureInCPU [
 	self isInCPU ifTrue: [ ^ self ].
-	self halt
+	SGPUExecutionDriver current ensureManagedDataArrayIsInCPU: self
+]
+
+{ #category : #'as yet unclassified' }
+SGPUManagedDataArray >> ensureInGPU [
+	self isInGPU ifTrue: [ ^ self ].
+	SGPUExecutionDriver current ensureManagedDataArrayIsInGPU: self
 ]
 
 { #category : #accessing }
@@ -82,12 +105,17 @@ SGPUManagedDataArray >> initializeForType: aMbndType withCPUData: theCpuData [
 
 { #category : #testing }
 SGPUManagedDataArray >> isInCPU [
-	^ currentDataLocation == #cpu.
+	^ #(both cpu) includes: currentDataLocation
 ]
 
 { #category : #testing }
 SGPUManagedDataArray >> isInGPU [
-	^ currentDataLocation == #gpu.
+	^ #(both gpu) includes: currentDataLocation
+]
+
+{ #category : #'as yet unclassified' }
+SGPUManagedDataArray >> markSynchronizedCopies [
+	currentDataLocation := #both
 ]
 
 { #category : #accessing }

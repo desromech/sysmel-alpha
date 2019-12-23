@@ -85,6 +85,18 @@ SGPUCompilationEnvironment >> constructArrayOfType: typeExpression with: initial
 		initializeForType: type withCPUData: cpuDataArray
 ]
 
+{ #category : #'as yet unclassified' }
+SGPUCompilationEnvironment >> constructArrayOfType: typeExpression withSize: size [
+	| type slvmType cpuDataArray |
+	type := typeExpression isMbndType ifTrue: [ typeExpression ]
+		ifFalse: [self evaluateTypeExpression: typeExpression].
+	slvmType := self slvmTypeForMbndType: type.
+	cpuDataArray := SLVMNativeArray for: slvmType new: size.
+
+	^ SGPUManagedDataArray basicNew
+		initializeForType: type withCPUData: cpuDataArray
+]
+
 { #category : #compiling }
 SGPUCompilationEnvironment >> evaluateTypeExpression: typeExpression [
 	| result resultValue |
