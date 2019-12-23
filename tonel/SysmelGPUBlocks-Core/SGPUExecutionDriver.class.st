@@ -34,6 +34,12 @@ SGPUExecutionDriver class >> isAvailable [
 	^ false
 ]
 
+{ #category : #accessing }
+SGPUExecutionDriver class >> reset [
+	CurrentSession := nil.
+	CurrentDriver := nil.
+]
+
 { #category : #'as yet unclassified' }
 SGPUExecutionDriver >> enqueueComputationWithInputBuffers: inputBuffers outputBuffers: outputBuffers pushConstants: pushConstant
 computeShaderStage: shaderStageCode globalSize: size
