@@ -46,7 +46,10 @@ GPUBlockConversion CollectionMapShader(mapFunction) main
 
 ===============================================================================
 SGPUCompilationEnvironment reset.
-
-gpuBlock := [ :x | x + 10 * 2 ] gpuType: #(Float32 => Float32).
+SGPUExecutionDriver reset.
+gpuBlock := [ :x | (x + 10) * 2 ] gpuType: #(Float32 => Float32).
 gpuBlock asCollectionMapShaderStageCode.
+
+data := ((1 to: 20) collect: #asFloat) asGPUFloat32Array.
+result := data collect: gpuBlock.
 
