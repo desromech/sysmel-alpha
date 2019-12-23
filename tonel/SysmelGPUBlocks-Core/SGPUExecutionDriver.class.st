@@ -22,6 +22,12 @@ SGPUExecutionDriver class >> current [
 ]
 
 { #category : #accessing }
+SGPUExecutionDriver class >> current: aCurrentDriver [
+	CurrentSession := Smalltalk session.
+	CurrentDriver := aCurrentDriver
+]
+
+{ #category : #accessing }
 SGPUExecutionDriver class >> findDriver [
 	self withAllSubclassesDo: [ :sc |
 		sc isAvailable ifTrue: [ ^ sc new ]
@@ -42,9 +48,22 @@ SGPUExecutionDriver class >> reset [
 
 { #category : #'as yet unclassified' }
 SGPUExecutionDriver >> enqueueComputationWithInputBuffers: inputBuffers outputBuffers: outputBuffers pushConstants: pushConstant
-computeShaderStage: shaderStageCode globalSize: size
+computeShaderStage: shaderStageCode globalGridSize: gridSize
 cpuFallbackWith: cpuFallbackBlock [
 	self subclassResponsibility
+]
+
+{ #category : #'as yet unclassified' }
+SGPUExecutionDriver >> enqueueComputationWithInputBuffers: inputBuffers outputBuffers: outputBuffers pushConstants: pushConstant
+computeShaderStage: shaderStageCode globalSize: size
+cpuFallbackWith: cpuFallbackBlock [
+	| gridSize localSize |
+	localSize := shaderStageCode localSize.
+	self flag: 'TODO: Compute the grid size correctly.'.
+	gridSize := { size . 1 . 1 }.
+	^ self enqueueComputationWithInputBuffers: inputBuffers outputBuffers: outputBuffers pushConstants: pushConstant
+computeShaderStage: shaderStageCode globalGridSize: gridSize
+cpuFallbackWith: cpuFallbackBlock
 ]
 
 { #category : #'as yet unclassified' }
@@ -55,4 +74,12 @@ SGPUExecutionDriver >> ensureManagedDataArrayIsInCPU: managedDataArray [
 { #category : #'as yet unclassified' }
 SGPUExecutionDriver >> ensureManagedDataArrayIsInGPU: managedDataArray [
 	self subclassResponsibility
+]
+
+{ #category : #'as yet unclassified' }
+SGPUExecutionDriver >> finishPendingComputations [
+]
+
+{ #category : #'as yet unclassified' }
+SGPUExecutionDriver >> flushPendingComputations [
 ]

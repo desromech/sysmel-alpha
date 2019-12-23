@@ -18,26 +18,22 @@ SGPUManagedDataArray >> add: newObject [
 
 { #category : #converting }
 SGPUManagedDataArray >> asArray [
-	self ensureInCPU.
-	^ cpuData asArray
+	^ self cpuData asArray
 ]
 
 { #category : #converting }
 SGPUManagedDataArray >> asFloatArray [
-	self ensureInCPU.
-	^ cpuData asFloatArray
+	^ self cpuData asFloatArray
 ]
 
 { #category : #accessing }
 SGPUManagedDataArray >> at: index [
-	self ensureInCPU.
-	^ cpuData at: index
+	^ self cpuData at: index
 ]
 
 { #category : #accessing }
 SGPUManagedDataArray >> at: index put: value [
-	self ensureInCPU.
-	^ cpuData at: index put: value
+	^ self cpuData at: index put: value
 ]
 
 { #category : #enumerating }
@@ -65,6 +61,7 @@ SGPUManagedDataArray >> collect: aBlock [
 
 { #category : #accessing }
 SGPUManagedDataArray >> cpuData [
+	self ensureInCPU.
 	^ cpuData
 ]
 
@@ -114,6 +111,11 @@ SGPUManagedDataArray >> isInGPU [
 ]
 
 { #category : #'as yet unclassified' }
+SGPUManagedDataArray >> markOnlyValidInGPU [
+	currentDataLocation := #gpu
+]
+
+{ #category : #'as yet unclassified' }
 SGPUManagedDataArray >> markSynchronizedCopies [
 	currentDataLocation := #both
 ]
@@ -121,6 +123,11 @@ SGPUManagedDataArray >> markSynchronizedCopies [
 { #category : #accessing }
 SGPUManagedDataArray >> mbndType [
 	^ mbndType
+]
+
+{ #category : #accessing }
+SGPUManagedDataArray >> rawCpuData [
+	^ cpuData
 ]
 
 { #category : #accessing }
