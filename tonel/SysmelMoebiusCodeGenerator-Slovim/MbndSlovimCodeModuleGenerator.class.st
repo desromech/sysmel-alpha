@@ -501,7 +501,7 @@ MbndSlovimCodeModuleGenerator >> isEmittingDebugInformation [
 
 { #category : #visiting }
 MbndSlovimCodeModuleGenerator >> mangleProgramEntityName: programEntity [
-	| escapedNamed mangledType validName |
+	| escapedNamed mangledType validName result |
 	programEntity ifNil: [ ^ #_S ].
 	(programEntity name isMbndAnonymousSymbol and: [ programEntity isMbndType and: [programEntity isMetaType] ]) ifTrue: [
 		^ ((self mangleProgramEntityName: programEntity instanceType) , '__meta') asSymbol
@@ -515,7 +515,14 @@ MbndSlovimCodeModuleGenerator >> mangleProgramEntityName: programEntity [
 	
 	escapedNamed := self escapeNameForMangling: validName.
 	mangledType := self mangleProgramEntityType: programEntity.
-	^ ((self mangleProgramEntityName: programEntity parent) , escapedNamed size asString , escapedNamed , mangledType) asSymbol
+	
+	result := self mangleProgramEntityName: programEntity parent.
+	escapedNamed ifNotEmpty: [ 
+		result := result , escapedNamed size asString , escapedNamed.
+	].
+	
+	result := result , mangledType.
+	^ result asSymbol
 ]
 
 { #category : #visiting }
