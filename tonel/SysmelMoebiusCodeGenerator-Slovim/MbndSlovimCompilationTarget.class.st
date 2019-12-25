@@ -137,7 +137,8 @@ MbndSlovimCompilationTarget >> slvmCompilationTarget: anObject [
 	slvmCompilationTarget objectModel: (MbndSlovimObjectModel new
 		managedObjectModel: self managedObjectModel;
 		target: slvmCompilationTarget;
-		yourself)
+		yourself).
+	self addSysmelLLVMGCPlugin
 ]
 
 { #category : #accessing }
@@ -152,6 +153,10 @@ MbndSlovimCompilationTarget >> systemVendor: vendor [
 
 { #category : #initialization }
 MbndSlovimCompilationTarget >> withDebugInformation [
-	slvmCompilationTarget withDebugInformation.
-	self addSysmelLLVMGCPlugin
+	slvmCompilationTarget withDebugInformation
+]
+
+{ #category : #initialization }
+MbndSlovimCompilationTarget >> withPositionIndependentCode [
+	slvmCompilationTarget withPositionIndependentCode.
 ]

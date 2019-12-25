@@ -13,7 +13,7 @@ MbndCompilerCommandLineHandler class >> commandName [
 
 { #category : #activation }
 MbndCompilerCommandLineHandler >> activate [
-	| architecture outputFileName withDebugInformation arguments argumentIndex compilationCommands arg skipCount target compiler emitLLVM writeMode gpu compilationOptions targetVendor targetOS targetAttributes |
+	| architecture outputFileName withDebugInformation arguments argumentIndex compilationCommands arg skipCount target compiler emitLLVM writeMode gpu compilationOptions targetVendor targetOS targetAttributes linkerArguments |
 	self activateHelp
 		ifTrue: [  ^ self ].
 		
@@ -32,6 +32,7 @@ MbndCompilerCommandLineHandler >> activate [
 	
 	compilationOptions := OrderedCollection new.
 	compilationCommands := OrderedCollection new.
+	linkerArguments := OrderedCollection new.
 	
 	[argumentIndex <= arguments size] whileTrue: [
 		arg := arguments at: argumentIndex.
@@ -80,6 +81,9 @@ MbndCompilerCommandLineHandler >> activate [
 		arg = '-c' ifTrue: [ 
 			writeMode := #object
 		].
+		arg = '-shared' ifTrue: [ 
+			writeMode := #shared
+		].
 		arg = '-O0' ifTrue: [
 			compilationOptions add: [ :c | c optimizationLevel: 0 ]
 		].
@@ -126,6 +130,10 @@ MbndCompilerCommandLineHandler >> activate [
 			skipCount := 2
 		].
 	
+		((arg beginsWith: '-l') or: [(arg beginsWith: '-L') or: [arg beginsWith: '-Wl']]) ifTrue: [ 
+			linkerArguments add: arg
+		].
+	
 		(arg beginsWith: '-') ifFalse: [
 			|fileName|
 			fileName := arg.
@@ -150,6 +158,8 @@ MbndCompilerCommandLineHandler >> activate [
 	compilationOptions do: [ :option |
 		option value: compiler.
 	].
+
+	compiler addLinkerArguments: linkerArguments.
 
 	compiler loadRuntimeCoreLibrary.
 	[

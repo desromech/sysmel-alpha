@@ -10,7 +10,8 @@ Class {
 		'hasGarbageCollectionStackMap',
 		'hasLibC',
 		'optimizationLevel',
-		'hasGPUSupport'
+		'hasGPUSupport',
+		'linkerArguments'
 	],
 	#category : #'SysmelMoebiusMetamodel-Core-Module'
 }
@@ -36,6 +37,12 @@ MbndStandaloneModule class >> llvm_x86_64 [
 { #category : #'as yet unclassified' }
 MbndStandaloneModule class >> spirv_vulkan [
 	^ self compilationTarget: MbndSlovimCompilationTarget spirv_vulkan
+]
+
+{ #category : #adding }
+MbndStandaloneModule >> addLinkerArguments: arguments [
+	<compileTime>
+	self linkerArguments addAll: arguments
 ]
 
 { #category : #accessing }
@@ -131,6 +138,11 @@ MbndStandaloneModule >> initializeWithCompilationTarget: aCompilationTarget [
 	self initialize
 ]
 
+{ #category : #accessing }
+MbndStandaloneModule >> linkerArguments [
+	^ linkerArguments ifNil: [ linkerArguments := OrderedCollection new ]
+]
+
 { #category : #'as yet unclassified' }
 MbndStandaloneModule >> loadRuntimeCoreLibrary [
 	^ self evaluateFileNamedOnce: Smalltalk imageDirectory  / 'lib' / 'kernel' / 'kernel.sysmel'. 
@@ -183,6 +195,11 @@ MbndStandaloneModule >> withDebugInformation [
 	compilationTarget withDebugInformation
 ]
 
+{ #category : #initialization }
+MbndStandaloneModule >> withPositionIndependentCode [
+	compilationTarget withPositionIndependentCode
+]
+
 { #category : #writing }
 MbndStandaloneModule >> writeAssemblyToFileNamed: outputFileName [
 	^ self writeMode: #assembly toFileNamed: outputFileName
@@ -204,6 +221,8 @@ MbndStandaloneModule >> writeMode: writeMode toFileNamed: outputFileName [
 	].
 
 	lowLevelModule := ssaModule asLowLevelModuleWithOptimizationLevel: optimizationLevel.
+	lowLevelModule linkerArguments: linkerArguments.
+	
 	writeMode == #assembly ifTrue: [
 		^ lowLevelModule writeAssemblyToFileNamed: outputFileName
 	].
@@ -217,6 +236,10 @@ MbndStandaloneModule >> writeMode: writeMode toFileNamed: outputFileName [
 	].
 
 	writeMode == #shared ifTrue: [
+		^ lowLevelModule writeSharedToFileNamed: outputFileName
+	].
+
+	writeMode == #plugin ifTrue: [
 		^ lowLevelModule writeSharedToFileNamed: outputFileName
 	].
 
