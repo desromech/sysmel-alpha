@@ -12,6 +12,19 @@ MbndSlovimProgramEntityTypeNameMangler >> emitMangledType: type [
 ]
 
 { #category : #visiting }
+MbndSlovimProgramEntityTypeNameMangler >> emitTemplateArgumentValue: argumentValue [
+	argumentValue isMbndType ifTrue: [
+		^ self emitMangledType: argumentValue
+	].
+
+	argumentValue isMbndProgramEntity ifTrue: [
+		^ self codeModuleGenerator mangleProgramEntityName: argumentValue
+	].
+
+	^ 'V' , (self codeModuleGenerator escapeNameForMangling: argumentValue asString).
+]
+
+{ #category : #visiting }
 MbndSlovimProgramEntityTypeNameMangler >> visitAggregateBasicInitializeMethod: node [
 	^ self emitMangledType: node type
 ]
@@ -78,8 +91,19 @@ MbndSlovimProgramEntityTypeNameMangler >> visitTemplate: node [
 
 { #category : #visiting }
 MbndSlovimProgramEntityTypeNameMangler >> visitTemplateInstance: node [
-	self flag: 'TODO: Implement this properly'.
-	^ ''
+	^ ByteString streamContents: [ :out |
+		out nextPutAll: 'TI'; print: node instanceArguments size.
+		node instanceArguments do: [ :arg |
+			| argumentValue mangledArgument |
+			argumentValue := arg evaluatedValue unwrapMbndValue.
+			mangledArgument := self emitTemplateArgumentValue: argumentValue.
+			out nextPut: $_; print: mangledArgument size.
+			mangledArgument first isDigit ifTrue: [ 
+				out nextPut: $_
+			].
+			out nextPutAll: mangledArgument
+		]
+	]
 ]
 
 { #category : #visiting }

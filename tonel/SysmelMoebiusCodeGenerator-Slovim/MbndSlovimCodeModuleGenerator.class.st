@@ -15,7 +15,8 @@ Class {
 		'intrinsicConstantBuiltInFunctionCache',
 		'convertedDescriptorSetBindings',
 		'structuresWithAdditionalKinds',
-		'convertedShaderIOFields'
+		'convertedShaderIOFields',
+		'generatedNameTable'
 	],
 	#classVars : [
 		'ShaderBuiltInLocationMap'
@@ -400,18 +401,24 @@ MbndSlovimCodeModuleGenerator >> generateInitializationOfGlobalVariable: globalV
 { #category : #'code generation' }
 MbndSlovimCodeModuleGenerator >> generatedNameForAnynomousEntity: programEntity [
 	| result |
-	programEntity isVTablePointerField ifTrue: [ ^ '__vtable' , programEntity slotIndex asString ].
+	generatedNameTable at: programEntity ifPresent: [ :existent | ^ existent ].
+	
+	programEntity isVTablePointerField ifTrue: [
+		result := '__vtable' , programEntity slotIndex asString.
+		generatedNameTable at: programEntity put: result.
+		^ result.
+	].
 	programEntity isCompileTimeVariable ifTrue: [
 		result := '__compileTimeVariable' , anonSymbolCount asString.
 		anonSymbolCount := anonSymbolCount + 1.
+		generatedNameTable at: programEntity put: result.
 		^ result.
 	].
-	programEntity isTemplateInstance ifTrue: [
-		self flag: 'TODO: Implement this properly'.
-	].
+	self assert: programEntity isTemplateInstance not.
 
 	result := '___anon' , anonSymbolCount asString , '___'.
 	anonSymbolCount := anonSymbolCount + 1.
+	generatedNameTable at: programEntity put: result.
 	^ result
 ]
 
@@ -473,6 +480,7 @@ MbndSlovimCodeModuleGenerator >> initialize [
 	convertedDescriptorSetBindings := Dictionary new.
 	convertedShaderIOFields := Dictionary new.
 	structuresWithAdditionalKinds := Dictionary new.
+	generatedNameTable := IdentityDictionary new.
 ]
 
 { #category : #'as yet unclassified' }
@@ -493,13 +501,19 @@ MbndSlovimCodeModuleGenerator >> isEmittingDebugInformation [
 
 { #category : #visiting }
 MbndSlovimCodeModuleGenerator >> mangleProgramEntityName: programEntity [
-	| escapedNamed mangledType |
+	| escapedNamed mangledType validName |
 	programEntity ifNil: [ ^ #_S ].
-	(programEntity name isNil and: [ programEntity isMbndType and: [programEntity isMetaType] ]) ifTrue: [
+	(programEntity name isMbndAnonymousSymbol and: [ programEntity isMbndType and: [programEntity isMetaType] ]) ifTrue: [
 		^ ((self mangleProgramEntityName: programEntity instanceType) , '__meta') asSymbol
 	].
 	(programEntity parent isNil and: [ programEntity isNamespace ]) ifTrue: [ ^ #_S ].
-	escapedNamed := self escapeNameForMangling: programEntity name.
+	
+	validName := programEntity name.
+	programEntity isTemplateInstance ifTrue: [ validName := '' ].
+	(validName isMbndAnonymousSymbol and: [ programEntity parent isNotNil and: [ programEntity parent isTemplateInstance ] ]) ifTrue: [ validName := '' ].
+	validName isMbndAnonymousSymbol ifTrue: [ validName := self generatedNameForAnynomousEntity: programEntity ].
+	
+	escapedNamed := self escapeNameForMangling: validName.
 	mangledType := self mangleProgramEntityType: programEntity.
 	^ ((self mangleProgramEntityName: programEntity parent) , escapedNamed size asString , escapedNamed , mangledType) asSymbol
 ]
@@ -708,10 +722,22 @@ MbndSlovimCodeModuleGenerator >> unmangledNameForProgramEntity: programEntity in
 	programEntity parent ifNotNil: [
 		programEntity parent parent ifNotNil: [ "Remove __global"
 			self unmangledNameForProgramEntity: programEntity parent into: out.
-			(programEntity name isMbndAnonymousSymbol and: [ programEntity parent isTemplateInstance ]) ifTrue: [ ^ self ].
-
-			out nextPutAll: '::'
+			(programEntity name isMbndAnonymousSymbol and: [ programEntity parent isTemplateInstance ]) ifTrue: [  ^ self ].
+			
+			programEntity isTemplateInstance ifFalse: [ 
+				out nextPutAll: '::'
+			].
 		].
+	].
+
+	programEntity isTemplateInstance ifTrue: [ 
+		out nextPut: $(.
+		programEntity instanceArguments doWithIndex: [ :arg :index |
+			index > 1 ifTrue: [ out nextPut: $, ].
+			out print: arg evaluatedValue unwrapMbndValue
+		].
+		out nextPut: $).
+		^ self
 	].
 
 	programEntity isMessageMethod ifTrue: [ out nextPut: $[ ].

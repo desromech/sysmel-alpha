@@ -53,6 +53,12 @@ MbndCompileTimeConstant >> ensureSemanticAnalysis [
 ]
 
 { #category : #accessing }
+MbndCompileTimeConstant >> evaluatedValue [
+	self ensureSemanticAnalysis.
+	^ evaluatedValue
+]
+
+{ #category : #accessing }
 MbndCompileTimeConstant >> immediateValue: aValue [
 	evaluatedValue := aValue
 ]
