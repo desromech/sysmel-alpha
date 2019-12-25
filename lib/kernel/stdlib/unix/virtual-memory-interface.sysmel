@@ -87,14 +87,14 @@ namespace UnixVirtualMemoryInterface definition: {
         return: result
     }.
 
-    message commitAddressSpace: (addressSpace: Void pointer) offset: (offset: UIntPointer) size: (size: UIntPointer) ::=> BooleanBit := {
+    message commitAddressSpace: (addressSpace: Void pointer) offset: (offset: UIntPointer) size: (size: UIntPointer) ::=> Boolean8 := {
         let alignedSize := size alignedTo: 4096.
         let startAddress := (addressSpace reinterpretCastTo: UInt8 pointer)[offset] address.
 
         Unix mprotect(startAddress, alignedSize, Unix PROT_READ | Unix PROT_WRITE) == 0
     }.
 
-    message releaseAddressSpace: (addressSpace: Void pointer) offset: (offset: UIntPointer) size: (size: UIntPointer) ::=> BooleanBit := {
+    message releaseAddressSpace: (addressSpace: Void pointer) offset: (offset: UIntPointer) size: (size: UIntPointer) ::=> Boolean8 := {
         let alignedSize := size alignedTo: 4096.
         let startAddress := (addressSpace reinterpretCastTo: UInt8 pointer)[offset] address.
 
@@ -102,7 +102,7 @@ namespace UnixVirtualMemoryInterface definition: {
         Unix mprotect(startAddress, alignedSize, Unix PROT_NONE) == 0
     }.
 
-    message freeAddressSpace: (addressSpace: Void pointer) size: (size: UIntPointer) ::=> BooleanBit := {
+    message freeAddressSpace: (addressSpace: Void pointer) size: (size: UIntPointer) ::=> Boolean8 := {
         Unix munmap (addressSpace, size) == 0
     }.
 

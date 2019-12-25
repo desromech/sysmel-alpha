@@ -93,7 +93,7 @@ struct Bitmap definition: {
     #**
      * Test whether a specific bit set (i.e: is 1).
      *#
-    message isSetted: (index: UIntPointer) ::=> BooleanBit := {
+    message isSetted: (index: UIntPointer) ::=> Boolean8 := {
         let wordIndex := index / BitsPerWord.
         let bitIndex := index % BitsPerWord.
         let bit := 1<<bitIndex castTo: UIntPointer.
@@ -104,7 +104,7 @@ struct Bitmap definition: {
     #**
      * Test whether a specific bit is cleared (i.e: is 0).
      *#
-    message isCleared: (index: UIntPointer) ::=> BooleanBit
+    message isCleared: (index: UIntPointer) ::=> Boolean8
         := (self isSetted: index) not.
 
 

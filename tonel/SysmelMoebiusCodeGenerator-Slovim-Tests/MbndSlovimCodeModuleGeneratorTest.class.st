@@ -222,9 +222,9 @@ MbndSlovimCodeModuleGeneratorTest >> testAtomicBooleanFlagLoad [
 	self
 		evaluateSysmelSource: '
 class AtomicFlag definition: { 
-	field flag private type: BooleanBit.
+	field flag private type: Boolean8.
 	
-	message loadWith: (ordering: Int32) ::=> BooleanBit := {
+	message loadWith: (ordering: Int32) ::=> Boolean8 := {
         <staticBinding>
         <intrinsic: #"atomic.load">
         flag
@@ -248,7 +248,7 @@ class AtomicFlag definition: {
 MbndSlovimCodeModuleGeneratorTest >> testBooleanEquality [
 	| function |
 	self
-		evaluateSysmelSource: 'function op externC(x: BooleanBit, y: BooleanBit) => BooleanBit := x = y';
+		evaluateSysmelSource: 'function op externC(x: Boolean8, y: Boolean8) => Boolean8 := x = y';
 		generateSSAModule.
 
 	function := ssaModule globalNamed: #op.
@@ -264,7 +264,7 @@ MbndSlovimCodeModuleGeneratorTest >> testBooleanEquality [
 MbndSlovimCodeModuleGeneratorTest >> testBooleanEquality2 [
 	| function |
 	self
-		evaluateSysmelSource: 'function op externC(x: BooleanBit, y: BooleanBit) => BooleanBit := x == y';
+		evaluateSysmelSource: 'function op externC(x: Boolean8, y: Boolean8) => Boolean8 := x == y';
 		generateSSAModule.
 
 	function := ssaModule globalNamed: #op.
@@ -280,7 +280,7 @@ MbndSlovimCodeModuleGeneratorTest >> testBooleanEquality2 [
 MbndSlovimCodeModuleGeneratorTest >> testBooleanGreater [
 	| function |
 	self
-		evaluateSysmelSource: 'function op externC(x: BooleanBit, y: BooleanBit) => BooleanBit := x > y';
+		evaluateSysmelSource: 'function op externC(x: Boolean8, y: Boolean8) => Boolean8 := x > y';
 		generateSSAModule.
 
 	function := ssaModule globalNamed: #op.
@@ -296,7 +296,7 @@ MbndSlovimCodeModuleGeneratorTest >> testBooleanGreater [
 MbndSlovimCodeModuleGeneratorTest >> testBooleanGreaterOrEqual [
 	| function |
 	self
-		evaluateSysmelSource: 'function op externC(x: BooleanBit, y: BooleanBit) => BooleanBit := x >= y';
+		evaluateSysmelSource: 'function op externC(x: Boolean8, y: Boolean8) => Boolean8 := x >= y';
 		generateSSAModule.
 
 	function := ssaModule globalNamed: #op.
@@ -312,7 +312,7 @@ MbndSlovimCodeModuleGeneratorTest >> testBooleanGreaterOrEqual [
 MbndSlovimCodeModuleGeneratorTest >> testBooleanLess [
 	| function |
 	self
-		evaluateSysmelSource: 'function op externC(x: BooleanBit, y: BooleanBit) => BooleanBit := x < y';
+		evaluateSysmelSource: 'function op externC(x: Boolean8, y: Boolean8) => Boolean8 := x < y';
 		generateSSAModule.
 
 	function := ssaModule globalNamed: #op.
@@ -328,7 +328,7 @@ MbndSlovimCodeModuleGeneratorTest >> testBooleanLess [
 MbndSlovimCodeModuleGeneratorTest >> testBooleanLessOrEqual [
 	| function |
 	self
-		evaluateSysmelSource: 'function op externC(x: BooleanBit, y: BooleanBit) => BooleanBit := x <= y';
+		evaluateSysmelSource: 'function op externC(x: Boolean8, y: Boolean8) => Boolean8 := x <= y';
 		generateSSAModule.
 
 	function := ssaModule globalNamed: #op.
@@ -345,7 +345,7 @@ MbndSlovimCodeModuleGeneratorTest >> testBooleanLoadFromRef [
 	| function |
 	self
 		evaluateSysmelSource: '
-		function loadBoolFromRef externC(v: BooleanBit ref) => BooleanBit := v';
+		function loadBoolFromRef externC(v: Boolean8 ref) => Boolean8 := v';
 		generateSSAModule.
 
 	function := ssaModule globalNamed: #loadBoolFromRef.
@@ -366,10 +366,10 @@ MbndSlovimCodeModuleGeneratorTest >> testBooleanLoadStructure [
 	self
 		evaluateSysmelSource: '
 struct TestStruct definition: {
-	public field b type: BooleanBit.
+	public field b type: Boolean8.
 }.
 
-		function getField externC(s: TestStruct ref) => BooleanBit := s b';
+		function getField externC(s: TestStruct ref) => Boolean8 := s b';
 		generateSSAModule.
 
 	function := ssaModule globalNamed: #getField.
@@ -391,10 +391,10 @@ MbndSlovimCodeModuleGeneratorTest >> testBooleanLoadStructure2 [
 	self
 		evaluateSysmelSource: '
 struct TestStruct definition: {
-	public field b type: BooleanBit.
+	public field b type: Boolean8.
 }.
 
-		function getField externC(s: TestStruct) => BooleanBit := s b';
+		function getField externC(s: TestStruct) => Boolean8 := s b';
 		generateSSAModule.
 
 	function := ssaModule globalNamed: #getField.
@@ -414,7 +414,7 @@ MbndSlovimCodeModuleGeneratorTest >> testBooleanLocal [
 	| function |
 	self
 		evaluateSysmelSource: '
-		function boolLocal externC() => BooleanBit := {
+		function boolLocal externC() => Boolean8 := {
 			let v mutable := true.
 			v
 		}.';
@@ -440,7 +440,7 @@ MbndSlovimCodeModuleGeneratorTest >> testBooleanLocal [
 MbndSlovimCodeModuleGeneratorTest >> testBooleanNot [
 	| function |
 	self
-		evaluateSysmelSource: 'function op externC(x: BooleanBit) => BooleanBit := !x';
+		evaluateSysmelSource: 'function op externC(x: Boolean8) => Boolean8 := !x';
 		generateSSAModule.
 
 	function := ssaModule globalNamed: #op.
@@ -456,7 +456,7 @@ MbndSlovimCodeModuleGeneratorTest >> testBooleanNot [
 MbndSlovimCodeModuleGeneratorTest >> testBooleanNot2 [
 	| function |
 	self
-		evaluateSysmelSource: 'function op externC(x: BooleanBit) => BooleanBit := x not';
+		evaluateSysmelSource: 'function op externC(x: Boolean8) => Boolean8 := x not';
 		generateSSAModule.
 
 	function := ssaModule globalNamed: #op.
@@ -472,7 +472,7 @@ MbndSlovimCodeModuleGeneratorTest >> testBooleanNot2 [
 MbndSlovimCodeModuleGeneratorTest >> testBooleanNotEquality [
 	| function |
 	self
-		evaluateSysmelSource: 'function op externC(x: BooleanBit, y: BooleanBit) => BooleanBit := x ~= y';
+		evaluateSysmelSource: 'function op externC(x: Boolean8, y: Boolean8) => Boolean8 := x ~= y';
 		generateSSAModule.
 
 	function := ssaModule globalNamed: #op.
@@ -488,7 +488,7 @@ MbndSlovimCodeModuleGeneratorTest >> testBooleanNotEquality [
 MbndSlovimCodeModuleGeneratorTest >> testBooleanNotEquality2 [
 	| function |
 	self
-		evaluateSysmelSource: 'function op externC(x: BooleanBit, y: BooleanBit) => BooleanBit := x ~~ y';
+		evaluateSysmelSource: 'function op externC(x: Boolean8, y: Boolean8) => Boolean8 := x ~~ y';
 		generateSSAModule.
 
 	function := ssaModule globalNamed: #op.
@@ -928,7 +928,7 @@ MbndSlovimCodeModuleGeneratorTest >> testFloatDivide [
 MbndSlovimCodeModuleGeneratorTest >> testFloatEquality [
 	| function |
 	self
-		evaluateSysmelSource: 'function op externC(x: Float32, y: Float32) => BooleanBit := x = y';
+		evaluateSysmelSource: 'function op externC(x: Float32, y: Float32) => Boolean8 := x = y';
 		generateSSAModule.
 
 	function := ssaModule globalNamed: #op.
@@ -944,7 +944,7 @@ MbndSlovimCodeModuleGeneratorTest >> testFloatEquality [
 MbndSlovimCodeModuleGeneratorTest >> testFloatEquality2 [
 	| function |
 	self
-		evaluateSysmelSource: 'function op externC(x: Float32, y: Float32) => BooleanBit := x == y';
+		evaluateSysmelSource: 'function op externC(x: Float32, y: Float32) => Boolean8 := x == y';
 		generateSSAModule.
 
 	function := ssaModule globalNamed: #op.
@@ -960,7 +960,7 @@ MbndSlovimCodeModuleGeneratorTest >> testFloatEquality2 [
 MbndSlovimCodeModuleGeneratorTest >> testFloatGreater [
 	| function |
 	self
-		evaluateSysmelSource: 'function op externC(x: Float32, y: Float32) => BooleanBit := x > y';
+		evaluateSysmelSource: 'function op externC(x: Float32, y: Float32) => Boolean8 := x > y';
 		generateSSAModule.
 
 	function := ssaModule globalNamed: #op.
@@ -976,7 +976,7 @@ MbndSlovimCodeModuleGeneratorTest >> testFloatGreater [
 MbndSlovimCodeModuleGeneratorTest >> testFloatGreaterOrEqual [
 	| function |
 	self
-		evaluateSysmelSource: 'function op externC(x: Float32, y: Float32) => BooleanBit := x >= y';
+		evaluateSysmelSource: 'function op externC(x: Float32, y: Float32) => Boolean8 := x >= y';
 		generateSSAModule.
 
 	function := ssaModule globalNamed: #op.
@@ -992,7 +992,7 @@ MbndSlovimCodeModuleGeneratorTest >> testFloatGreaterOrEqual [
 MbndSlovimCodeModuleGeneratorTest >> testFloatLess [
 	| function |
 	self
-		evaluateSysmelSource: 'function op externC(x: Float32, y: Float32) => BooleanBit := x < y';
+		evaluateSysmelSource: 'function op externC(x: Float32, y: Float32) => Boolean8 := x < y';
 		generateSSAModule.
 
 	function := ssaModule globalNamed: #op.
@@ -1008,7 +1008,7 @@ MbndSlovimCodeModuleGeneratorTest >> testFloatLess [
 MbndSlovimCodeModuleGeneratorTest >> testFloatLessOrEqual [
 	| function |
 	self
-		evaluateSysmelSource: 'function op externC(x: Float32, y: Float32) => BooleanBit := x <= y';
+		evaluateSysmelSource: 'function op externC(x: Float32, y: Float32) => Boolean8 := x <= y';
 		generateSSAModule.
 
 	function := ssaModule globalNamed: #op.
@@ -1504,7 +1504,7 @@ MbndSlovimCodeModuleGeneratorTest >> testFloatNegate2 [
 MbndSlovimCodeModuleGeneratorTest >> testFloatNotEquality [
 	| function |
 	self
-		evaluateSysmelSource: 'function op externC(x: Float32, y: Float32) => BooleanBit := x ~= y';
+		evaluateSysmelSource: 'function op externC(x: Float32, y: Float32) => Boolean8 := x ~= y';
 		generateSSAModule.
 
 	function := ssaModule globalNamed: #op.
@@ -1520,7 +1520,7 @@ MbndSlovimCodeModuleGeneratorTest >> testFloatNotEquality [
 MbndSlovimCodeModuleGeneratorTest >> testFloatNotEquality2 [
 	| function |
 	self
-		evaluateSysmelSource: 'function op externC(x: Float32, y: Float32) => BooleanBit := x ~~ y';
+		evaluateSysmelSource: 'function op externC(x: Float32, y: Float32) => Boolean8 := x ~~ y';
 		generateSSAModule.
 
 	function := ssaModule globalNamed: #op.
@@ -2488,7 +2488,7 @@ MbndSlovimCodeModuleGeneratorTest >> testGlobalVariablePackedStructre [
 	self
 		evaluateSysmelSource: '
 struct PackedStructure packed definition: { 
-	public field byteValue type: BooleanBit.
+	public field byteValue type: Boolean8.
 	public field wordValue type: UInt32.
 }.
 
@@ -2766,7 +2766,7 @@ MbndSlovimCodeModuleGeneratorTest >> testIdentityScopedSequenceCFunction [
 MbndSlovimCodeModuleGeneratorTest >> testIfIntegerLiteralCoercion [
 	| function |
 	self
-		evaluateSysmelSource: 'function coercion externC(condition: BooleanBit, uint: UInt32) => UInt32
+		evaluateSysmelSource: 'function coercion externC(condition: Boolean8, uint: UInt32) => UInt32
 		:= if: condition then: uint else: 0.';
 		generateSSAModule.
 
@@ -3119,7 +3119,7 @@ MbndSlovimCodeModuleGeneratorTest >> testIntegerEmptySelectCase [
 MbndSlovimCodeModuleGeneratorTest >> testIntegerEquality [
 	| function |
 	self
-		evaluateSysmelSource: 'function op externC(x: Int32, y: Int32) => BooleanBit := x = y';
+		evaluateSysmelSource: 'function op externC(x: Int32, y: Int32) => Boolean8 := x = y';
 		generateSSAModule.
 
 	function := ssaModule globalNamed: #op.
@@ -3135,7 +3135,7 @@ MbndSlovimCodeModuleGeneratorTest >> testIntegerEquality [
 MbndSlovimCodeModuleGeneratorTest >> testIntegerEquality2 [
 	| function |
 	self
-		evaluateSysmelSource: 'function op externC(x: Int32, y: Int32) => BooleanBit := x == y';
+		evaluateSysmelSource: 'function op externC(x: Int32, y: Int32) => Boolean8 := x == y';
 		generateSSAModule.
 
 	function := ssaModule globalNamed: #op.
@@ -3151,7 +3151,7 @@ MbndSlovimCodeModuleGeneratorTest >> testIntegerEquality2 [
 MbndSlovimCodeModuleGeneratorTest >> testIntegerEquality3 [
 	| function |
 	self
-		evaluateSysmelSource: 'function op externC(x: Int32 const, y: Int32) => BooleanBit := x = y';
+		evaluateSysmelSource: 'function op externC(x: Int32 const, y: Int32) => Boolean8 := x = y';
 		generateSSAModule.
 
 	function := ssaModule globalNamed: #op.
@@ -3167,7 +3167,7 @@ MbndSlovimCodeModuleGeneratorTest >> testIntegerEquality3 [
 MbndSlovimCodeModuleGeneratorTest >> testIntegerEquality4 [
 	| function |
 	self
-		evaluateSysmelSource: 'function op externC(x: Int32 const, y: Int32) => BooleanBit := x == y';
+		evaluateSysmelSource: 'function op externC(x: Int32 const, y: Int32) => Boolean8 := x == y';
 		generateSSAModule.
 
 	function := ssaModule globalNamed: #op.
@@ -3183,7 +3183,7 @@ MbndSlovimCodeModuleGeneratorTest >> testIntegerEquality4 [
 MbndSlovimCodeModuleGeneratorTest >> testIntegerEquality5 [
 	| function |
 	self
-		evaluateSysmelSource: 'function op externC(x: Int32 const ref, y: Int32) => BooleanBit := x = y';
+		evaluateSysmelSource: 'function op externC(x: Int32 const ref, y: Int32) => Boolean8 := x = y';
 		generateSSAModule.
 
 	function := ssaModule globalNamed: #op.
@@ -3200,7 +3200,7 @@ MbndSlovimCodeModuleGeneratorTest >> testIntegerEquality5 [
 MbndSlovimCodeModuleGeneratorTest >> testIntegerEquality6 [
 	| function |
 	self
-		evaluateSysmelSource: 'function op externC(x: Int32 const ref, y: Int32) => BooleanBit := x == y';
+		evaluateSysmelSource: 'function op externC(x: Int32 const ref, y: Int32) => Boolean8 := x == y';
 		generateSSAModule.
 
 	function := ssaModule globalNamed: #op.
@@ -3217,7 +3217,7 @@ MbndSlovimCodeModuleGeneratorTest >> testIntegerEquality6 [
 MbndSlovimCodeModuleGeneratorTest >> testIntegerEquality7 [
 	| function |
 	self
-		evaluateSysmelSource: 'function op externC(x: Int16, y: Int32) => BooleanBit := x == y';
+		evaluateSysmelSource: 'function op externC(x: Int16, y: Int32) => Boolean8 := x == y';
 		generateSSAModule.
 
 	function := ssaModule globalNamed: #op.
@@ -3234,7 +3234,7 @@ MbndSlovimCodeModuleGeneratorTest >> testIntegerEquality7 [
 MbndSlovimCodeModuleGeneratorTest >> testIntegerEquality8 [
 	| function |
 	self
-		evaluateSysmelSource: 'function op externC(x: Int32, y: Int16) => BooleanBit := x == y';
+		evaluateSysmelSource: 'function op externC(x: Int32, y: Int16) => Boolean8 := x == y';
 		generateSSAModule.
 
 	function := ssaModule globalNamed: #op.
@@ -3251,7 +3251,7 @@ MbndSlovimCodeModuleGeneratorTest >> testIntegerEquality8 [
 MbndSlovimCodeModuleGeneratorTest >> testIntegerGreater [
 	| function |
 	self
-		evaluateSysmelSource: 'function op externC(x: Int32, y: Int32) => BooleanBit := x > y';
+		evaluateSysmelSource: 'function op externC(x: Int32, y: Int32) => Boolean8 := x > y';
 		generateSSAModule.
 
 	function := ssaModule globalNamed: #op.
@@ -3267,7 +3267,7 @@ MbndSlovimCodeModuleGeneratorTest >> testIntegerGreater [
 MbndSlovimCodeModuleGeneratorTest >> testIntegerGreaterOrEqual [
 	| function |
 	self
-		evaluateSysmelSource: 'function op externC(x: Int32, y: Int32) => BooleanBit := x >= y';
+		evaluateSysmelSource: 'function op externC(x: Int32, y: Int32) => Boolean8 := x >= y';
 		generateSSAModule.
 
 	function := ssaModule globalNamed: #op.
@@ -3299,7 +3299,7 @@ MbndSlovimCodeModuleGeneratorTest >> testIntegerHighBit [
 MbndSlovimCodeModuleGeneratorTest >> testIntegerLess [
 	| function |
 	self
-		evaluateSysmelSource: 'function op externC(x: Int32, y: Int32) => BooleanBit := x < y';
+		evaluateSysmelSource: 'function op externC(x: Int32, y: Int32) => Boolean8 := x < y';
 		generateSSAModule.
 
 	function := ssaModule globalNamed: #op.
@@ -3315,7 +3315,7 @@ MbndSlovimCodeModuleGeneratorTest >> testIntegerLess [
 MbndSlovimCodeModuleGeneratorTest >> testIntegerLessOrEqual [
 	| function |
 	self
-		evaluateSysmelSource: 'function op externC(x: Int32, y: Int32) => BooleanBit := x <= y';
+		evaluateSysmelSource: 'function op externC(x: Int32, y: Int32) => Boolean8 := x <= y';
 		generateSSAModule.
 
 	function := ssaModule globalNamed: #op.
@@ -3413,7 +3413,7 @@ MbndSlovimCodeModuleGeneratorTest >> testIntegerNegate2 [
 MbndSlovimCodeModuleGeneratorTest >> testIntegerNotEquality [
 	| function |
 	self
-		evaluateSysmelSource: 'function op externC(x: Int32, y: Int32) => BooleanBit := x ~= y';
+		evaluateSysmelSource: 'function op externC(x: Int32, y: Int32) => Boolean8 := x ~= y';
 		generateSSAModule.
 
 	function := ssaModule globalNamed: #op.
@@ -3429,7 +3429,7 @@ MbndSlovimCodeModuleGeneratorTest >> testIntegerNotEquality [
 MbndSlovimCodeModuleGeneratorTest >> testIntegerNotEquality2 [
 	| function |
 	self
-		evaluateSysmelSource: 'function op externC(x: Int32, y: Int32) => BooleanBit := x ~~ y';
+		evaluateSysmelSource: 'function op externC(x: Int32, y: Int32) => Boolean8 := x ~~ y';
 		generateSSAModule.
 
 	function := ssaModule globalNamed: #op.
@@ -3445,7 +3445,7 @@ MbndSlovimCodeModuleGeneratorTest >> testIntegerNotEquality2 [
 MbndSlovimCodeModuleGeneratorTest >> testIntegerNotEquality3 [
 	| function |
 	self
-		evaluateSysmelSource: 'function op externC(x: Int16, y: Int32) => BooleanBit := x ~~ y';
+		evaluateSysmelSource: 'function op externC(x: Int16, y: Int32) => Boolean8 := x ~~ y';
 		generateSSAModule.
 
 	function := ssaModule globalNamed: #op.
@@ -3462,7 +3462,7 @@ MbndSlovimCodeModuleGeneratorTest >> testIntegerNotEquality3 [
 MbndSlovimCodeModuleGeneratorTest >> testIntegerNotEquality4 [
 	| function |
 	self
-		evaluateSysmelSource: 'function op externC(x: Int32, y: Int16) => BooleanBit := x ~~ y';
+		evaluateSysmelSource: 'function op externC(x: Int32, y: Int16) => Boolean8 := x ~~ y';
 		generateSSAModule.
 
 	function := ssaModule globalNamed: #op.
@@ -3693,7 +3693,7 @@ MbndSlovimCodeModuleGeneratorTest >> testIntegerUnsignedBitShiftRight [
 MbndSlovimCodeModuleGeneratorTest >> testIntegerUnsignedGreater [
 	| function |
 	self
-		evaluateSysmelSource: 'function op externC(x: UInt32, y: UInt32) => BooleanBit := x > y';
+		evaluateSysmelSource: 'function op externC(x: UInt32, y: UInt32) => Boolean8 := x > y';
 		generateSSAModule.
 
 	function := ssaModule globalNamed: #op.
@@ -3709,7 +3709,7 @@ MbndSlovimCodeModuleGeneratorTest >> testIntegerUnsignedGreater [
 MbndSlovimCodeModuleGeneratorTest >> testIntegerUnsignedGreaterOrEqual [
 	| function |
 	self
-		evaluateSysmelSource: 'function op externC(x: UInt32, y: UInt32) => BooleanBit := x >= y';
+		evaluateSysmelSource: 'function op externC(x: UInt32, y: UInt32) => Boolean8 := x >= y';
 		generateSSAModule.
 
 	function := ssaModule globalNamed: #op.
@@ -3725,7 +3725,7 @@ MbndSlovimCodeModuleGeneratorTest >> testIntegerUnsignedGreaterOrEqual [
 MbndSlovimCodeModuleGeneratorTest >> testIntegerUnsignedLess [
 	| function |
 	self
-		evaluateSysmelSource: 'function op externC(x: UInt32, y: UInt32) => BooleanBit := x < y';
+		evaluateSysmelSource: 'function op externC(x: UInt32, y: UInt32) => Boolean8 := x < y';
 		generateSSAModule.
 
 	function := ssaModule globalNamed: #op.
@@ -3741,7 +3741,7 @@ MbndSlovimCodeModuleGeneratorTest >> testIntegerUnsignedLess [
 MbndSlovimCodeModuleGeneratorTest >> testIntegerUnsignedLessOrEqual [
 	| function |
 	self
-		evaluateSysmelSource: 'function op externC(x: UInt32, y: UInt32) => BooleanBit := x <= y';
+		evaluateSysmelSource: 'function op externC(x: UInt32, y: UInt32) => Boolean8 := x <= y';
 		generateSSAModule.
 
 	function := ssaModule globalNamed: #op.
@@ -4101,7 +4101,7 @@ MbndSlovimCodeModuleGeneratorTest >> testPointerAsReference3 [
 MbndSlovimCodeModuleGeneratorTest >> testPointerEquality [
 	| function |
 	self
-		evaluateSysmelSource: 'function op externC(x: Int32 pointer, y: Int32 pointer) => BooleanBit := x == y';
+		evaluateSysmelSource: 'function op externC(x: Int32 pointer, y: Int32 pointer) => Boolean8 := x == y';
 		generateSSAModule.
 
 	function := ssaModule globalNamed: #op.
@@ -4117,7 +4117,7 @@ MbndSlovimCodeModuleGeneratorTest >> testPointerEquality [
 MbndSlovimCodeModuleGeneratorTest >> testPointerEquality2 [
 	| function |
 	self
-		evaluateSysmelSource: 'function op externC(x: Int32 pointer, y: Int32 pointer) => BooleanBit := x = y';
+		evaluateSysmelSource: 'function op externC(x: Int32 pointer, y: Int32 pointer) => Boolean8 := x = y';
 		generateSSAModule.
 
 	function := ssaModule globalNamed: #op.
@@ -4133,7 +4133,7 @@ MbndSlovimCodeModuleGeneratorTest >> testPointerEquality2 [
 MbndSlovimCodeModuleGeneratorTest >> testPointerGreater [
 	| function |
 	self
-		evaluateSysmelSource: 'function op externC(x: Int32 pointer, y: Int32 pointer) => BooleanBit := x > y';
+		evaluateSysmelSource: 'function op externC(x: Int32 pointer, y: Int32 pointer) => Boolean8 := x > y';
 		generateSSAModule.
 
 	function := ssaModule globalNamed: #op.
@@ -4149,7 +4149,7 @@ MbndSlovimCodeModuleGeneratorTest >> testPointerGreater [
 MbndSlovimCodeModuleGeneratorTest >> testPointerGreaterOrEqual [
 	| function |
 	self
-		evaluateSysmelSource: 'function op externC(x: Int32 pointer, y: Int32 pointer) => BooleanBit := x >= y';
+		evaluateSysmelSource: 'function op externC(x: Int32 pointer, y: Int32 pointer) => Boolean8 := x >= y';
 		generateSSAModule.
 
 	function := ssaModule globalNamed: #op.
@@ -4165,7 +4165,7 @@ MbndSlovimCodeModuleGeneratorTest >> testPointerGreaterOrEqual [
 MbndSlovimCodeModuleGeneratorTest >> testPointerLess [
 	| function |
 	self
-		evaluateSysmelSource: 'function op externC(x: Int32 pointer, y: Int32 pointer) => BooleanBit := x < y';
+		evaluateSysmelSource: 'function op externC(x: Int32 pointer, y: Int32 pointer) => Boolean8 := x < y';
 		generateSSAModule.
 
 	function := ssaModule globalNamed: #op.
@@ -4181,7 +4181,7 @@ MbndSlovimCodeModuleGeneratorTest >> testPointerLess [
 MbndSlovimCodeModuleGeneratorTest >> testPointerLessOrEqual [
 	| function |
 	self
-		evaluateSysmelSource: 'function op externC(x: Int32 pointer, y: Int32 pointer) => BooleanBit := x <= y';
+		evaluateSysmelSource: 'function op externC(x: Int32 pointer, y: Int32 pointer) => Boolean8 := x <= y';
 		generateSSAModule.
 
 	function := ssaModule globalNamed: #op.
@@ -4197,7 +4197,7 @@ MbndSlovimCodeModuleGeneratorTest >> testPointerLessOrEqual [
 MbndSlovimCodeModuleGeneratorTest >> testPointerNotEquality [
 	| function |
 	self
-		evaluateSysmelSource: 'function op externC(x: Int32 pointer, y: Int32 pointer) => BooleanBit := x ~~ y';
+		evaluateSysmelSource: 'function op externC(x: Int32 pointer, y: Int32 pointer) => Boolean8 := x ~~ y';
 		generateSSAModule.
 
 	function := ssaModule globalNamed: #op.
@@ -4213,7 +4213,7 @@ MbndSlovimCodeModuleGeneratorTest >> testPointerNotEquality [
 MbndSlovimCodeModuleGeneratorTest >> testPointerNotEquality2 [
 	| function |
 	self
-		evaluateSysmelSource: 'function op externC(x: Int32 pointer, y: Int32 pointer) => BooleanBit := x ~= y';
+		evaluateSysmelSource: 'function op externC(x: Int32 pointer, y: Int32 pointer) => Boolean8 := x ~= y';
 		generateSSAModule.
 
 	function := ssaModule globalNamed: #op.
@@ -4505,7 +4505,7 @@ MbndSlovimCodeModuleGeneratorTest >> testSelect [
 	| function |
 	self
 		evaluateSysmelSource: 
-'function select externC(cond: BooleanBit, left: UInt16, right: UInt16) => UInt16
+'function select externC(cond: Boolean8, left: UInt16, right: UInt16) => UInt16
 	:= if: cond then: left else: right';
 		generateSSAModule.
 
@@ -4523,7 +4523,7 @@ MbndSlovimCodeModuleGeneratorTest >> testSelect2 [
 	| function |
 	self
 		evaluateSysmelSource: 
-'function select externC(cond: BooleanBit, left: UInt16 ref, right: UInt16) => UInt16
+'function select externC(cond: Boolean8, left: UInt16 ref, right: UInt16) => UInt16
 	:= if: cond then: left else: right';
 		generateSSAModule.
 
@@ -4541,7 +4541,7 @@ MbndSlovimCodeModuleGeneratorTest >> testSelect3 [
 	| function |
 	self
 		evaluateSysmelSource: 
-'function select externC(cond: BooleanBit, left: UInt16, right: UInt16 ref) => UInt16
+'function select externC(cond: Boolean8, left: UInt16, right: UInt16 ref) => UInt16
 	:= if: cond then: left else: right';
 		generateSSAModule.
 

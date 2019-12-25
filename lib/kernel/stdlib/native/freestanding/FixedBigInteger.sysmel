@@ -62,7 +62,7 @@ template FixedBigInteger(WC: _LiteralInteger)
         }.
     }.
 
-    message isZero => BooleanBit := {
+    message isZero => Boolean8 := {
         0 until: WordCount do: {:(UIntPointer)i :: Void |
             words[i] ~~ 0 ifTrue: {
                 return: false

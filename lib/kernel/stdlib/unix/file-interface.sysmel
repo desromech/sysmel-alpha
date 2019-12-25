@@ -9,7 +9,7 @@ compileTimeConstant NativeFile_SeekSet := LibC SEEK_SET.
 compileTimeConstant NativeFile_SeekCur := LibC SEEK_CUR.
 compileTimeConstant NativeFile_SeekEnd := LibC SEEK_END.
 
-function nativeFile_seek(fd: NativeFileHandle, offset: Unix OFF64_T, whence: Int32) => BooleanBit := {
+function nativeFile_seek(fd: NativeFileHandle, offset: Unix OFF64_T, whence: Int32) => Boolean8 := {
     Unix lseek64(fd, offset, whence) ~= (-1 castTo: Unix OFF_T)
 }.
 

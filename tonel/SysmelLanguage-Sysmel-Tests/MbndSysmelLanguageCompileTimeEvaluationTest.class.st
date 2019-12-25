@@ -105,8 +105,8 @@ MbndSysmelLanguageCompileTimeEvaluationTest >> testLogicalNot [
 	self assert: (self evaluateSource: '!false') value equals: true.
 
 	self evaluateSource: '
-	function f(v: BooleanBit) => BooleanBit := v not.
-	function g(v: BooleanBit) => BooleanBit := !v.
+	function f(v: Boolean8) => Boolean8 := v not.
+	function g(v: Boolean8) => Boolean8 := !v.
 '.
 
 	self assert: (self evaluateSource: 'f(false)') value equals: true.

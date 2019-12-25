@@ -14,19 +14,19 @@ class BinaryStream definition: {
     #**
      * This sets the current file position.
      *#
-    virtual message position: (newPosition: Int64) ::=> BooleanBit
+    virtual message position: (newPosition: Int64) ::=> Boolean8
         := false.
 
     #**
      * This sets the current file position, from the end of the file.
      *#
-    virtual message positionFromEnd: (newPosition: Int64) ::=> BooleanBit
+    virtual message positionFromEnd: (newPosition: Int64) ::=> Boolean8
         := false.
 
     #**
      * This moves the file pointer the requested amount.
      *#
-    virtual message skip: (byteCount: Int64) ::=> BooleanBit
+    virtual message skip: (byteCount: Int64) ::=> Boolean8
         := false.
 
     #**
@@ -57,13 +57,13 @@ definition: {
     override message position => Int64
         := nativeFile_tell(nativeFileHandle).
 
-    override message position: (newPosition: Int64) ::=> BooleanBit
+    override message position: (newPosition: Int64) ::=> Boolean8
         := nativeFile_seek(nativeFileHandle, newPosition, NativeFile_SeekSet).
 
-    override message positionFromEnd: (newPosition: Int64) ::=> BooleanBit
+    override message positionFromEnd: (newPosition: Int64) ::=> Boolean8
         := nativeFile_seek(nativeFileHandle, newPosition, NativeFile_SeekEnd).
 
-    override message skip: (byteCount: Int64) ::=> BooleanBit
+    override message skip: (byteCount: Int64) ::=> Boolean8
         := nativeFile_seek(nativeFileHandle, byteCount, NativeFile_SeekCur).
 
     override message write: (buffer: Void const pointer) size: (size: UIntPointer) ::=> IntPointer

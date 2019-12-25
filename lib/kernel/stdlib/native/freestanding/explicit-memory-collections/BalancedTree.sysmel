@@ -162,7 +162,7 @@ template BalancedTree(KT: Type, VT: Type)
         self right _ last
     }.
 
-    message isLeaf => BooleanBit
+    message isLeaf => Boolean8
         := self left isNil && self right isNil.
 
     ## Insert node.

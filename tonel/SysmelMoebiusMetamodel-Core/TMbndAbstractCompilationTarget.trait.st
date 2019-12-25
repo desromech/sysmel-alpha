@@ -25,7 +25,7 @@ TMbndAbstractCompilationTarget >> blockClosureTypeWithSignature: functionType [
 
 { #category : #'convenience type accessors' }
 TMbndAbstractCompilationTarget >> booleanType [
-	^ self getBasicTypeNamed: #BooleanBit
+	^ self getBasicTypeNamed: #Boolean8
 ]
 
 { #category : #'convenience type accessors' }

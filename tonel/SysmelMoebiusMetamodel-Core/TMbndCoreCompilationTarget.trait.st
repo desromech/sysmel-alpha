@@ -559,7 +559,7 @@ TMbndCoreCompilationTarget >> initializeBasicTypes [
 
 	self linkMetaHierarchy.
 	self
-		addBasicType: (MbndPrimitiveBooleanType basicNew name: #BooleanBit; yourself);
+		addBasicType: (MbndPrimitiveBooleanType basicNew name: #Boolean8; yourself);
 		addBasicIntegerTypeWithSize: 1 signed: false name: #UInt8;
 		addBasicIntegerTypeWithSize: 2 signed: false name: #UInt16;
 		addBasicIntegerTypeWithSize: 4 signed: false name: #UInt32;
@@ -766,7 +766,7 @@ TMbndCoreCompilationTarget >> initializeGpuTypes [
 { #category : #initialization }
 TMbndCoreCompilationTarget >> initializePrimitiveMatrixTypes [
 	| baseType matrixTypeName matrixType |
-	#(BooleanBit Int32 UInt32 Float32 Float64) do: [ :baseTypeName |
+	#(Boolean8 Int32 UInt32 Float32 Float64) do: [ :baseTypeName |
 		baseType := self getBasicTypeNamed: baseTypeName.
 		2 to: 4 do: [ :rowCount |
 			2 to: 4 do: [ :columnCount |
@@ -783,7 +783,7 @@ TMbndCoreCompilationTarget >> initializePrimitiveMatrixTypes [
 { #category : #initialization }
 TMbndCoreCompilationTarget >> initializePrimitiveVectorTypes [
 	| baseType vectorTypeName vectorType |
-	#(BooleanBit Int32 UInt32 Float32 Float64) do: [ :baseTypeName |
+	#(Boolean8 Int32 UInt32 Float32 Float64) do: [ :baseTypeName |
 		baseType := self getBasicTypeNamed: baseTypeName.
 		2 to: 4 do: [ :elementCount |
 			vectorTypeName := (baseTypeName , 'x' , elementCount asString).

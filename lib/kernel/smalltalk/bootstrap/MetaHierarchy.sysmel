@@ -22,7 +22,7 @@ gcclass Object superclass: ProtoObject.
             gcclass Class superclass: ClassDescription.
             gcclass Metaclass superclass: ClassDescription.
 
-    ## BooleanBit
+    ## Boolean8
     gcclass Boolean superclass: Object.
         gcclass True superclass: Boolean.
         gcclass False superclass: Boolean.
@@ -155,7 +155,7 @@ Class definition: {
 Metaclass definition: {
     field thisClass protected type: Behavior.
 
-    message isMetaType => BooleanBit := {
+    message isMetaType => Boolean8 := {
         return: true
     }.
 }.
@@ -203,7 +203,7 @@ if: UIntPointer instanceSize == 4 then: {
 ProtoObject definition: {
 
     if: UIntPointer instanceSize = 4 then: {
-        message __isImmediateValue => BooleanBit := {
+        message __isImmediateValue => Boolean8 := {
             <notInCompileTime>
             <staticBinding>
             <nogc>
@@ -217,7 +217,7 @@ ProtoObject definition: {
             (self reinterpretCastTo: UIntPointer) >> 2 castTo: UInt8
         }.
     } else: {
-        message __isImmediateValue => BooleanBit := {
+        message __isImmediateValue => Boolean8 := {
             <notInCompileTime>
             <staticBinding>
             <nogc>
@@ -254,7 +254,7 @@ ProtoObject definition: {
         }
     }.
 
-    message == (other: ProtoObject) => BooleanBit := {
+    message == (other: ProtoObject) => Boolean8 := {
         <staticBinding>
         <nogc>
 		<intrinsic: #"dynobject.identityEquals">
@@ -262,7 +262,7 @@ ProtoObject definition: {
 		self == other
     }.
 
-    message ~~ (other: ProtoObject) => BooleanBit := {
+    message ~~ (other: ProtoObject) => Boolean8 := {
         <staticBinding>
         <nogc>
 		<intrinsic: #"dynobject.identityNotEquals">

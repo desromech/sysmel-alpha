@@ -31,7 +31,7 @@ gcclass Object superclass: ProtoObject.
             gcclass Class superclass: ClassDescription.
             gcclass Metaclass superclass: ClassDescription.
 
-    ## BooleanBit
+    ## Boolean8
     gcclass Boolean superclass: Object.
         gcclass True superclass: Boolean.
         gcclass False superclass: Boolean.

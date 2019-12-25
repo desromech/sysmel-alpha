@@ -18,7 +18,7 @@ struct DoubleLinkedList definition: {
     field first public type: DoubleLinkedListNode pointer.
     field last public type: DoubleLinkedListNode pointer.
 
-    message isEmpty => BooleanBit
+    message isEmpty => Boolean8
         := first isNil.
 
     message add: (newNode: Node pointer) ::=> Void := {
