@@ -11,8 +11,7 @@ Number extend: {
     message isNumber := true.
 
     message + aNumber := {
-		LibC printf("Unimplemented Number >> #+\n").
-        LibC abort().
+        StdNative fatalError: "Unimplemented Number >> #+".
 		self
     }.
 }.
@@ -35,8 +34,25 @@ Fraction extend: {
 
 SmallInteger extend: {
     message + aNumber := {
+		aNumber __isSmallInteger ifTrue: {
+			let a := self __decodeSmallInteger.
+			let b := aNumber __decodeSmallInteger.
+			##return: a + b
+		}.
+
         super + aNumber
     }.
+
+    message - aNumber := {
+		aNumber __isSmallInteger ifTrue: {
+			let a := self __decodeSmallInteger.
+			let b := aNumber __decodeSmallInteger.
+			##return: a - b
+		}.
+
+        super - aNumber
+    }.
+
 }.
 
 Float extend: {

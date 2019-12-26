@@ -226,6 +226,49 @@ ProtoObject definition: {
             <nogc>
             (self reinterpretCastTo: UIntPointer) & 3 castTo: UInt8
         }.
+
+        message __isSmallInteger => Boolean8 := {
+            <notInCompileTime>
+            <staticBinding>
+            <nogc>
+            (self reinterpretCastTo: UIntPointer) & 1 = 1
+        }.
+
+		message __decodeSmallInteger => IntPointer := {
+            <notInCompileTime>
+            <staticBinding>
+            <nogc>
+			(self reinterpretCastTo: IntPointer) >> 1
+		}.
+
+        message __isCharacter => Boolean8 := {
+            <notInCompileTime>
+            <staticBinding>
+            <nogc>
+            self __immediateTypeTag = 2
+        }.
+
+		message __decodeCharacter => UInt32 := {
+            <notInCompileTime>
+            <staticBinding>
+            <nogc>
+			(self reinterpretCastTo: UIntPointer) >> 2 castTo: UInt32
+		}.
+
+        message __isSmallFloat => Boolean8 := {
+            <notInCompileTime>
+            <staticBinding>
+            <nogc>
+            false
+        }.
+
+        message __decodeSmallFloat => Float64 := {
+            <notInCompileTime>
+            <staticBinding>
+            <nogc>
+            0.0
+        }.
+	
     } else: {
         message __isImmediateValue => Boolean8 := {
             <notInCompileTime>
@@ -239,6 +282,41 @@ ProtoObject definition: {
             <staticBinding>
             <nogc>
             (self reinterpretCastTo: UIntPointer) & 7 castTo: UInt8
+        }.
+
+        message __isSmallInteger => Boolean8 := {
+            <notInCompileTime>
+            <staticBinding>
+            <nogc>
+            self __immediateTypeTag = 1
+        }.
+
+		message __decodeSmallInteger => IntPointer := {
+            <notInCompileTime>
+            <staticBinding>
+            <nogc>
+			(self reinterpretCastTo: IntPointer) >> 3
+		}.
+
+        message __isCharacter => Boolean8 := {
+            <notInCompileTime>
+            <staticBinding>
+            <nogc>
+            self __immediateTypeTag = 2
+        }.
+
+		message __decodeCharacter => UInt32 := {
+            <notInCompileTime>
+            <staticBinding>
+            <nogc>
+			(self reinterpretCastTo: UIntPointer) >> 3 castTo: UInt32
+		}.
+
+        message __isSmallFloat => Boolean8 := {
+            <notInCompileTime>
+            <staticBinding>
+            <nogc>
+            self __immediateTypeTag = 4
         }.
     }.
 
