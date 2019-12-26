@@ -16,6 +16,11 @@ TMbndSlovimModulePartTranslator >> codeModuleGenerator: anObject [
 	codeModuleGenerator := anObject
 ]
 
+{ #category : #accessing }
+TMbndSlovimModulePartTranslator >> compilationTarget [
+	^ codeModuleGenerator compilationTarget
+]
+
 { #category : #testing }
 TMbndSlovimModulePartTranslator >> isEmittingDebugInformation [
 	^ codeModuleGenerator isEmittingDebugInformation
@@ -34,6 +39,11 @@ TMbndSlovimModulePartTranslator >> sourceModule [
 { #category : #'as yet unclassified' }
 TMbndSlovimModulePartTranslator >> ssaModule [
 	^ codeModuleGenerator ssaModule
+]
+
+{ #category : #'code generation' }
+TMbndSlovimModulePartTranslator >> translateDebugType: aType [
+	^ codeModuleGenerator translateDebugType: aType	
 ]
 
 { #category : #'code generation' }

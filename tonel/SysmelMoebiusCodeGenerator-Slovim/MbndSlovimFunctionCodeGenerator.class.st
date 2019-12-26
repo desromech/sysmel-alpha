@@ -157,7 +157,7 @@ MbndSlovimFunctionCodeGenerator >> buildSSAFunction: aSSAFunction withCodeGenera
 { #category : #visiting }
 MbndSlovimFunctionCodeGenerator >> createLocalVariableDebugInformation: localVariable [
 	^ (SLVMDebugVariable scope: nil name: localVariable name asPrettySymbolName)
-		type: (self translateType: localVariable valueType);
+		type: (self translateDebugType: localVariable valueType);
 		yourself
 ]
 

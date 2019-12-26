@@ -16,7 +16,8 @@ Class {
 		'convertedDescriptorSetBindings',
 		'structuresWithAdditionalKinds',
 		'convertedShaderIOFields',
-		'generatedNameTable'
+		'generatedNameTable',
+		'debugTypeTranslator'
 	],
 	#classVars : [
 		'ShaderBuiltInLocationMap'
@@ -205,6 +206,11 @@ MbndSlovimCodeModuleGenerator >> csymbolForProgramEntity: programEntity [
 	].
 
 	^ self mangleProgramEntityName: programEntity
+]
+
+{ #category : #accessing }
+MbndSlovimCodeModuleGenerator >> debugTypeTranslator [
+	^ debugTypeTranslator ifNil: [ debugTypeTranslator := MbndSlovimDebugTypeTranslator new codeModuleGenerator: self ]
 ]
 
 { #category : #visiting }
@@ -621,6 +627,11 @@ MbndSlovimCodeModuleGenerator >> translateCompilerGeneratedMethodNamed: name fun
 ]
 
 { #category : #'code generation' }
+MbndSlovimCodeModuleGenerator >> translateDebugType: aType [
+	^ self debugTypeTranslator translateDebugType: aType
+]
+
+{ #category : #'code generation' }
 MbndSlovimCodeModuleGenerator >> translateDynamicObjectInstanceContent: dynamicObject [
 	^ MbndSlovimLiteralValueGenerator new
 		codeModuleGenerator: self;
@@ -873,8 +884,11 @@ MbndSlovimCodeModuleGenerator >> visitConcreteFunctionMethod: functionMethod [
 	ssaFunction unmangledName: unmangledName.
 	self setProgramEntity: functionMethod ssaValue: ssaFunction.
 
-	self isEmittingDebugInformation ifTrue: [ 
-		ssaFunction debugSourceLocation: (self convertDebugPosition: functionMethod definitionPosition asActualSourcePosition)
+	self isEmittingDebugInformation ifTrue: [
+		
+		ssaFunction
+			debugType: (self translateDebugType: functionMethod type);
+			debugSourceLocation: (self convertDebugPosition: functionMethod definitionPosition asActualSourcePosition)
 	].
 	
 	functionMethod analyzedBody ifNil: [
@@ -908,7 +922,9 @@ MbndSlovimCodeModuleGenerator >> visitConcreteMessageMethod: functionMethod [
 	ssaModule addHighLevelEntity: functionMethod mapToGlobalValue: ssaFunction.
 	
 	self isEmittingDebugInformation ifTrue: [ 
-		ssaFunction debugSourceLocation: (self convertDebugPosition: functionMethod definitionPosition asActualSourcePosition)
+		ssaFunction
+			debugType: (self translateDebugType: functionMethod type);
+			debugSourceLocation: (self convertDebugPosition: functionMethod definitionPosition asActualSourcePosition)
 	].
 
 	functionMethod analyzedBody ifNil: [
