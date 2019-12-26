@@ -1,3 +1,5 @@
+Compiler addLinkerArguments: #("-lSDL2").
+
 loadFileOnce: "keysym.sysmel".
 loadFileOnce: "init.sysmel".
 loadFileOnce: "video.sysmel".

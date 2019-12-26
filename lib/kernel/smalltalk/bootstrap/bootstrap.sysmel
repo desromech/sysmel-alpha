@@ -1,2 +1,2 @@
 loadFileOnce: "MetaHierarchy.sysmel".
-##loadFileOnce: "Magnitude.sysmel".
+loadFileOnce: "Magnitude.sysmel".

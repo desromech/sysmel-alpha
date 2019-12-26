@@ -76,5 +76,8 @@ function main externC (argc: Int32, argv: Char const pointer pointer) => Int32 :
     StdNative stdout << "o class: " << (o class reinterpretCastTo: Void pointer); nl.
     StdNative stdout << "Object basicNew: " << (Object basicNew reinterpretCastTo: Void pointer); nl.
 
+	let n mutable type: ProtoObject := 42.
+	n + 7.
+
     return: 0.
 }.

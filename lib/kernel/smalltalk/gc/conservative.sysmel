@@ -1,5 +1,7 @@
 namespace SysmelKernel definition: {
 
+Compiler addLinkerArguments: #("-lgc").
+
 namespace BoehmGC definition: {
     function GC_init externC() => Void.
     function GC_malloc externC(size: UIntPointer) => Void pointer.

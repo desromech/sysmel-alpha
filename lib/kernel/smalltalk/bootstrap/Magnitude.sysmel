@@ -11,6 +11,7 @@ Number extend: {
     message isNumber := true.
 
     message + aNumber := {
+		LibC printf("Unimplemented Number >> #+\n").
         LibC abort().
 		self
     }.

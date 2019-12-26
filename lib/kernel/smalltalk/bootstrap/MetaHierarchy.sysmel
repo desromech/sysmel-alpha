@@ -44,6 +44,15 @@ gcclass Object superclass: ProtoObject.
                 gcclass SmallInteger superclass: Integer.
 		gcclass Character superclass: Magnitude.
 
+		gcclass LookupKey superclass: Magnitude.
+			gcclass Association superclass: LookupKey.
+				gcclass LiteralVariable superclass: Association.
+					gcclass AdditionalBinding superclass: LiteralVariable.
+					gcclass ClassVariable superclass: LiteralVariable.
+					gcclass GlobalVariable superclass: LiteralVariable.
+					gcclass UndeclaredVariable superclass: LiteralVariable.
+					gcclass WorkspaceVariable superclass: LiteralVariable.
+
 
     gcclass GCLayout superclass: Object.
 
@@ -65,6 +74,7 @@ gcclass Collection superclass: Object.
 
 ## Methods
 gcclass CompiledMethod superclass: Object.
+gcclass AdditionalMethodState superclass: Object.
 
 ## ProtoObject
 ProtoObject type supertype: Class.
@@ -214,7 +224,7 @@ ProtoObject definition: {
             <notInCompileTime>
             <staticBinding>
             <nogc>
-            (self reinterpretCastTo: UIntPointer) >> 2 castTo: UInt8
+            (self reinterpretCastTo: UIntPointer) & 3 castTo: UInt8
         }.
     } else: {
         message __isImmediateValue => Boolean8 := {
@@ -228,7 +238,7 @@ ProtoObject definition: {
             <notInCompileTime>
             <staticBinding>
             <nogc>
-            (self reinterpretCastTo: UIntPointer) >> 3 castTo: UInt8
+            (self reinterpretCastTo: UIntPointer) & 7 castTo: UInt8
         }.
     }.
 
@@ -293,6 +303,19 @@ CompiledMethod definition: {
 
 ##-----------------------------------------------------------------------------
 ## Important collections
+Object definition: {
+	message species => ProtoObject
+		:= self class.
+}.
+
+LookupKey definition: {
+	public field key type: ProtoObject.
+}.
+
+Association definition: {
+	public field value type: ProtoObject.
+}.
+
 Array definition: {
     field __data protected type: ProtoObject array.
 
@@ -451,13 +474,22 @@ function normalMessageLookup(object: ProtoObject, selector: Object, fallbackTram
     return: messageLookupFromBehavior(object class, object, selector, fallbackTrampoline).
 }.
 
+function superMessageLookup(object: ProtoObject, selector: Object, selfClass: Behavior, fallbackTrampoline: Void pointer) => Void pointer := {
+    <nogc>
+    ##LibC printf("superMessageLookup object [%p] %p selector %p fallbackTrampoline %p\n", object, selfClass, selector, fallbackTrampoline).
+    return: messageLookupFromBehavior(selfClass superclass, object, selector, fallbackTrampoline).
+}.
+
 Compiler compilationTarget managedObjectModel
     messageLookupFunction: normalMessageLookup;
+	superMessageLookupFunction: superMessageLookup;
     arrayClass: Array;
+    associationClass: Association;
     byteArrayClass: ByteArray;
     compiledMethodClass: CompiledMethod;
     dictionaryClass: Dictionary;
     methodDictionaryClass: MethodDictionary;
+	additionalMethodStateClass: AdditionalMethodState;
     symbolClass: Symbol;
     stringClass: String;
 	integerClass: Integer;
@@ -465,6 +497,12 @@ Compiler compilationTarget managedObjectModel
 	boolClass: Boolean;
 	trueClass: True;
 	falseClass: False;
+
+	additionalBindingClass: AdditionalBinding;
+	classVariableClass: ClassVariable;
+	globalVariableClass: GlobalVariable;
+	undeclaredVariableClass: UndeclaredVariable;
+	workspaceVariableClass: WorkspaceVariable;
     yourself
 }.
 
