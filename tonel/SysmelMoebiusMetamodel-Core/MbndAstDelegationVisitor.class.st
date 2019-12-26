@@ -48,6 +48,11 @@ MbndAstDelegationVisitor >> visitBlockClosureNode: node [
 ]
 
 { #category : #visiting }
+MbndAstDelegationVisitor >> visitBooleanToDynamicObjectCastNode: node [
+	^ self delegateNodeVisit: node
+]
+
+{ #category : #visiting }
 MbndAstDelegationVisitor >> visitBreakStatementNode: node [
 	^ self delegateNodeVisit: node
 ]
@@ -123,6 +128,21 @@ MbndAstDelegationVisitor >> visitDoWhileLoopNode: node [
 ]
 
 { #category : #visiting }
+MbndAstDelegationVisitor >> visitDynamicObjectToBooleanCastNode: node [
+	^ self delegateNodeVisit: node
+]
+
+{ #category : #visiting }
+MbndAstDelegationVisitor >> visitDynamicObjectToFloatCastNode: node [
+	^ self delegateNodeVisit: node
+]
+
+{ #category : #visiting }
+MbndAstDelegationVisitor >> visitDynamicObjectToIntegerCastNode: node [
+	^ self delegateNodeVisit: node
+]
+
+{ #category : #visiting }
 MbndAstDelegationVisitor >> visitEnumDeclarationNode: node [
 	^ self delegateNodeVisit: node
 ]
@@ -164,6 +184,11 @@ MbndAstDelegationVisitor >> visitExplicitCastNode: node [
 
 { #category : #visiting }
 MbndAstDelegationVisitor >> visitFieldDefinitionNode: node [
+	^ self delegateNodeVisit: node
+]
+
+{ #category : #visiting }
+MbndAstDelegationVisitor >> visitFloatToDynamicObjectCastNode: node [
 	^ self delegateNodeVisit: node
 ]
 
@@ -259,6 +284,11 @@ MbndAstDelegationVisitor >> visitImplicitCastNode: node [
 
 { #category : #visiting }
 MbndAstDelegationVisitor >> visitInlineAssembly: node [
+	^ self delegateNodeVisit: node
+]
+
+{ #category : #visiting }
+MbndAstDelegationVisitor >> visitIntegerToDynamicObjectCastNode: node [
 	^ self delegateNodeVisit: node
 ]
 

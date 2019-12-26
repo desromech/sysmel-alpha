@@ -82,7 +82,11 @@ TMbndCoreManagedObjectModel >> boolClass [
 
 { #category : #accessing }
 TMbndCoreManagedObjectModel >> boolClass: aClass [
-	boolClass := aClass
+	boolClass := aClass.
+	compilationTarget booleanType addConversionTo: boolClass rule: MbndBooleanToDynamicObjectConversionRule.
+	compilationTarget dynamicObjectType addExplicitConversionRule: (MbndDynamicObjectToBooleanConversionRule when: [:sourceType :targetType |
+		targetType isPrimitiveBooleanType
+	]).
 ]
 
 { #category : #accessing }
@@ -167,6 +171,10 @@ TMbndCoreManagedObjectModel >> floatClass: anObject [
 	floatClass := anObject.
 	compilationTarget literalIntegerType addConversionTo: floatClass rule: MbndLiteralValueTypeChangeConversionRule.
 	compilationTarget literalFloatType addConversionTo: floatClass rule: MbndLiteralValueTypeChangeConversionRule.
+	compilationTarget primitiveFloatType addConversionTo: floatClass rule: MbndFloatToDynamicObjectConversionRule.
+	compilationTarget dynamicObjectType addExplicitConversionRule: (MbndDynamicObjectToFloatConversionRule when: [:sourceType :targetType |
+		targetType isPrimitiveFloatType
+	]).
 ]
 
 { #category : #accessing }
@@ -193,6 +201,10 @@ TMbndCoreManagedObjectModel >> integerClass [
 TMbndCoreManagedObjectModel >> integerClass: anObject [
 	integerClass := anObject.
 	compilationTarget literalIntegerType addConversionTo: integerClass rule: MbndLiteralValueTypeChangeConversionRule.
+	compilationTarget primitiveIntegerType addConversionTo: integerClass rule: MbndIntegerToDynamicObjectConversionRule.
+	compilationTarget dynamicObjectType addExplicitConversionRule: (MbndDynamicObjectToIntegerConversionRule when: [:sourceType :targetType |
+		targetType isPrimitiveIntegerType
+	]).
 ]
 
 { #category : #accessing }

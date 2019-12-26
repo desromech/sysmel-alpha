@@ -428,6 +428,16 @@ TMbndAbstractCompilationTarget >> pointerTo: baseType [
 	^ self pointerFor: MbndPointerLikeType genericAddressSpace to: baseType
 ]
 
+{ #category : #'convenience type accessors' }
+TMbndAbstractCompilationTarget >> primitiveFloatType [
+	^ self getBasicTypeNamed: #_PrimitiveFloatType
+]
+
+{ #category : #'convenience type accessors' }
+TMbndAbstractCompilationTarget >> primitiveIntegerType [
+	^ self getBasicTypeNamed: #_PrimitiveIntegerType
+]
+
 { #category : #'derived types' }
 TMbndAbstractCompilationTarget >> primitiveMatrixTypeFor: elementType rows: rowCount columns: columnCount [
 	self explicitRequirement

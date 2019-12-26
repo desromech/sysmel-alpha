@@ -73,6 +73,11 @@ MbndAstTransformVisitor >> visitBlockClosureNode: node [
 ]
 
 { #category : #visiting }
+MbndAstTransformVisitor >> visitBooleanToDynamicObjectCastNode: node [
+	^ self visitSpecificCastNode: node
+]
+
+{ #category : #visiting }
 MbndAstTransformVisitor >> visitBreakStatementNode: node [
 	^ node
 ]
@@ -165,6 +170,21 @@ MbndAstTransformVisitor >> visitDoWhileLoopNode: node [
 ]
 
 { #category : #visiting }
+MbndAstTransformVisitor >> visitDynamicObjectToBooleanCastNode: node [
+	^ self visitSpecificCastNode: node
+]
+
+{ #category : #visiting }
+MbndAstTransformVisitor >> visitDynamicObjectToFloatCastNode: node [
+	^ self visitSpecificCastNode: node
+]
+
+{ #category : #visiting }
+MbndAstTransformVisitor >> visitDynamicObjectToIntegerCastNode: node [
+	^ self visitSpecificCastNode: node
+]
+
+{ #category : #visiting }
 MbndAstTransformVisitor >> visitEnumDeclarationNode: node [
 	^ node copy
 ]
@@ -226,6 +246,11 @@ MbndAstTransformVisitor >> visitFieldDefinitionNode: node [
 	^ node copy
 		initialValue: (node initialValue ifNotNil: [:initialValue | self visitNode: initialValue]);
 		yourself
+]
+
+{ #category : #visiting }
+MbndAstTransformVisitor >> visitFloatToDynamicObjectCastNode: node [
+	^ self visitSpecificCastNode: node
 ]
 
 { #category : #visiting }
@@ -370,6 +395,11 @@ MbndAstTransformVisitor >> visitInlineAssembly: node [
 		outputList: (self visitNode: node outputList);
 		clobberList: (self visitNode: node clobberList);
 		yourself
+]
+
+{ #category : #visiting }
+MbndAstTransformVisitor >> visitIntegerToDynamicObjectCastNode: node [
+	^ self visitSpecificCastNode: node
 ]
 
 { #category : #visiting }

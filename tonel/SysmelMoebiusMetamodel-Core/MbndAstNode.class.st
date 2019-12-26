@@ -101,6 +101,11 @@ MbndAstNode >> isBlockClosureNode [
 ]
 
 { #category : #testing }
+MbndAstNode >> isBooleanToDynamicObjectCastNode [
+	^ false
+]
+
+{ #category : #testing }
 MbndAstNode >> isBoundIdentifierReferenceNode [
 	^ false
 ]
@@ -186,6 +191,26 @@ MbndAstNode >> isDoWhileLoopNode [
 ]
 
 { #category : #testing }
+MbndAstNode >> isDynamicObjectCastNode [
+	^ false
+]
+
+{ #category : #testing }
+MbndAstNode >> isDynamicObjectToBooleanCastNode [
+	^ false
+]
+
+{ #category : #testing }
+MbndAstNode >> isDynamicObjectToFloatCastNode [
+	^ false
+]
+
+{ #category : #testing }
+MbndAstNode >> isDynamicObjectToIntegerCastNode [
+	^ false
+]
+
+{ #category : #testing }
 MbndAstNode >> isEnumDeclarationNode [
 	^ false
 ]
@@ -232,6 +257,11 @@ MbndAstNode >> isFieldDefinitionNode [
 
 { #category : #testing }
 MbndAstNode >> isFloatingPointSizeCastNode [
+	^ false
+]
+
+{ #category : #testing }
+MbndAstNode >> isFloatingPointToDynamicObjectCastNode [
 	^ false
 ]
 
@@ -337,6 +367,11 @@ MbndAstNode >> isImplicitCastNode [
 
 { #category : #testing }
 MbndAstNode >> isInlineAssembly [
+	^ false
+]
+
+{ #category : #testing }
+MbndAstNode >> isIntegerToDynamicObjectCastNode [
 	^ false
 ]
 

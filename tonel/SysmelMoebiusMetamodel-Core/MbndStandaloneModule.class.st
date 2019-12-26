@@ -149,6 +149,12 @@ MbndStandaloneModule >> loadRuntimeCoreLibrary [
 ]
 
 { #category : #parameters }
+MbndStandaloneModule >> noGC [
+	<compileTime>
+	self hasGarbageCollectionSupport: false
+]
+
+{ #category : #parameters }
 MbndStandaloneModule >> noLibC [
 	<compileTime>
 	self

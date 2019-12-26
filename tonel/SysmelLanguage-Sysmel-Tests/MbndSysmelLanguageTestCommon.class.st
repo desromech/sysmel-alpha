@@ -51,7 +51,15 @@ gcclass Object superclass: ProtoObject.
                     gcclass LargePositiveInteger superclass: LargeInteger.
                 gcclass SmallInteger superclass: Integer.
 
-
+		gcclass LookupKey superclass: Magnitude.
+			gcclass Association superclass: LookupKey.
+				gcclass LiteralVariable superclass: Association.
+					gcclass AdditionalBinding superclass: LiteralVariable.
+					gcclass ClassVariable superclass: LiteralVariable.
+					gcclass GlobalVariable superclass: LiteralVariable.
+					gcclass UndeclaredVariable superclass: LiteralVariable.
+					gcclass WorkspaceVariable superclass: LiteralVariable.
+					
     gcclass GCLayout superclass: Object.
 
 ## Essential collections
@@ -72,6 +80,7 @@ gcclass Collection superclass: Object.
 
 ## Methods
 gcclass CompiledMethod superclass: Object.
+gcclass AdditionalMethodState superclass: Object.
 
 ## ProtoObject
 ProtoObject type supertype: Class.
@@ -138,12 +147,22 @@ MethodDictionary definition: {
     field values protected type: Array.
 }.
 
+LookupKey definition: {
+	public field key type: ProtoObject.
+}.
+
+Association definition: {
+	public field value type: ProtoObject.
+}.
+
 Compiler compilationTarget managedObjectModel
     arrayClass: Array;
+    associationClass: Association;
     byteArrayClass: ByteArray;
     compiledMethodClass: CompiledMethod;
     dictionaryClass: Dictionary;
     methodDictionaryClass: MethodDictionary;
+	additionalMethodStateClass: AdditionalMethodState;
     symbolClass: Symbol;
     stringClass: String;
 	integerClass: Integer;
@@ -151,6 +170,13 @@ Compiler compilationTarget managedObjectModel
 	boolClass: Boolean;
 	trueClass: True;
 	falseClass: False;
+
+	additionalBindingClass: AdditionalBinding;
+	classVariableClass: ClassVariable;
+	globalVariableClass: GlobalVariable;
+	undeclaredVariableClass: UndeclaredVariable;
+	workspaceVariableClass: WorkspaceVariable;
+	
     yourself
 '
 	

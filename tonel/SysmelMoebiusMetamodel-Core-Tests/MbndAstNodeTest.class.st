@@ -87,6 +87,7 @@ MbndAstNodeTest >> testTestingMethods [
 	self deny: node isConcretizeUndefinedValueCastNode.
 	self deny: node isContinueStatementNode.
 	self deny: node isConvertToASTNodeCastNode.
+	self deny: node isDynamicObjectCastNode.
 	self deny: node isDictionaryNode.
 	self deny: node isDoWhileLoopNode.
 	self deny: node isEnumDeclarationNode.
@@ -108,6 +109,7 @@ MbndAstNodeTest >> testTestingMethods [
 	self deny: node isIdentifierReferenceNode.
 	self deny: node isIfConditionNode.
 	self deny: node isInlineAssembly.
+	self deny: node isIntegerToDynamicObjectCastNode.
 	self deny: node isIntegerToFloatingPointCastNode.
 	self deny: node isIntegerToPointerCastNode.
 	self deny: node isImmediateBlockClosureActivationNode.

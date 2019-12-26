@@ -45,6 +45,11 @@ MbndAstVisitor >> visitBlockClosureNode: node [
 ]
 
 { #category : #visiting }
+MbndAstVisitor >> visitBooleanToDynamicObjectCastNode: node [
+	self subclassResponsibility
+]
+
+{ #category : #visiting }
 MbndAstVisitor >> visitBreakStatementNode: node [
 	self subclassResponsibility
 ]
@@ -120,6 +125,21 @@ MbndAstVisitor >> visitDoWhileLoopNode: node [
 ]
 
 { #category : #visiting }
+MbndAstVisitor >> visitDynamicObjectToBooleanCastNode: node [
+	self subclassResponsibility
+]
+
+{ #category : #visiting }
+MbndAstVisitor >> visitDynamicObjectToFloatCastNode: node [
+	self subclassResponsibility
+]
+
+{ #category : #visiting }
+MbndAstVisitor >> visitDynamicObjectToIntegerCastNode: node [
+	self subclassResponsibility
+]
+
+{ #category : #visiting }
 MbndAstVisitor >> visitEnumDeclarationNode: node [
 	self subclassResponsibility
 ]
@@ -161,6 +181,11 @@ MbndAstVisitor >> visitExplicitCastNode: node [
 
 { #category : #visiting }
 MbndAstVisitor >> visitFieldDefinitionNode: node [
+	self subclassResponsibility
+]
+
+{ #category : #visiting }
+MbndAstVisitor >> visitFloatToDynamicObjectCastNode: node [
 	self subclassResponsibility
 ]
 
@@ -256,6 +281,11 @@ MbndAstVisitor >> visitImplicitCastNode: node [
 
 { #category : #visiting }
 MbndAstVisitor >> visitInlineAssembly: node [
+	self subclassResponsibility
+]
+
+{ #category : #visiting }
+MbndAstVisitor >> visitIntegerToDynamicObjectCastNode: node [
 	self subclassResponsibility
 ]
 

@@ -501,6 +501,22 @@ MbndSlovimCodeModuleGeneratorTest >> testBooleanNotEquality2 [
 ]
 
 { #category : #tests }
+MbndSlovimCodeModuleGeneratorTest >> testBooleanToDynamicObject [
+	| function |
+	self
+		evaluateMiniObjectModelRuntime;
+		evaluateSysmelSource: 'function cast externC(x: Boolean8) => ProtoObject := x';
+		generateSSAModule.
+
+	function := ssaModule globalNamed: #cast.
+	self assert: function isFunction.
+	self deny: function isEmpty.
+	self assert: function basicBlocks size equals: 2.
+	self assert: function basicBlocks second firstInstruction isBoolToDynamicObjectCast.
+	self assert: function basicBlocks second lastInstruction isReturn.
+]
+
+{ #category : #tests }
 MbndSlovimCodeModuleGeneratorTest >> testCStringCFunction [
 	| function |
 	self
@@ -706,6 +722,54 @@ MbndSlovimCodeModuleGeneratorTest >> testCountTwiceCFunction [
 	self deny: function isEmpty.
 	self assert: function basicBlocks size > 3.
 	self assert: function basicBlocks last lastInstruction isReturn.
+]
+
+{ #category : #tests }
+MbndSlovimCodeModuleGeneratorTest >> testDynamicObjectToBoolean [
+	| function |
+	self
+		evaluateMiniObjectModelRuntime;
+		evaluateSysmelSource: 'function cast externC(x: ProtoObject) => Boolean8 := x castTo: Boolean8';
+		generateSSAModule.
+
+	function := ssaModule globalNamed: #cast.
+	self assert: function isFunction.
+	self deny: function isEmpty.
+	self assert: function basicBlocks size equals: 2.
+	self assert: function basicBlocks second firstInstruction isDynamicObjectToBoolCast.
+	self assert: function basicBlocks second lastInstruction isReturn.
+]
+
+{ #category : #tests }
+MbndSlovimCodeModuleGeneratorTest >> testDynamicObjectToFloat [
+	| function |
+	self
+		evaluateMiniObjectModelRuntime;
+		evaluateSysmelSource: 'function cast externC(x: ProtoObject) => Float32 := x castTo: Float32';
+		generateSSAModule.
+
+	function := ssaModule globalNamed: #cast.
+	self assert: function isFunction.
+	self deny: function isEmpty.
+	self assert: function basicBlocks size equals: 2.
+	self assert: function basicBlocks second firstInstruction isDynamicObjectToFloatCast.
+	self assert: function basicBlocks second lastInstruction isReturn.
+]
+
+{ #category : #tests }
+MbndSlovimCodeModuleGeneratorTest >> testDynamicObjectToInteger [
+	| function |
+	self
+		evaluateMiniObjectModelRuntime;
+		evaluateSysmelSource: 'function cast externC(x: ProtoObject) => Int32 := x castTo: Int32';
+		generateSSAModule.
+
+	function := ssaModule globalNamed: #cast.
+	self assert: function isFunction.
+	self deny: function isEmpty.
+	self assert: function basicBlocks size equals: 2.
+	self assert: function basicBlocks second firstInstruction isDynamicObjectToIntCast.
+	self assert: function basicBlocks second lastInstruction isReturn.
 ]
 
 { #category : #tests }
@@ -1593,6 +1657,22 @@ MbndSlovimCodeModuleGeneratorTest >> testFloatSubtract [
 	self assert: function basicBlocks size equals: 2.
 	self assert: function basicBlocks second firstInstruction isBinaryOperation.
 	self assert: function basicBlocks second firstInstruction operation equals: #fsub.
+	self assert: function basicBlocks second lastInstruction isReturn.
+]
+
+{ #category : #tests }
+MbndSlovimCodeModuleGeneratorTest >> testFloatToDynamicObject [
+	| function |
+	self
+		evaluateMiniObjectModelRuntime;
+		evaluateSysmelSource: 'function cast externC(x: Float32) => ProtoObject := x';
+		generateSSAModule.
+
+	function := ssaModule globalNamed: #cast.
+	self assert: function isFunction.
+	self deny: function isEmpty.
+	self assert: function basicBlocks size equals: 2.
+	self assert: function basicBlocks second firstInstruction isFloatToDynamicObjectCast.
 	self assert: function basicBlocks second lastInstruction isReturn.
 ]
 
@@ -3608,6 +3688,22 @@ MbndSlovimCodeModuleGeneratorTest >> testIntegerSubtractUInt64 [
 	self assert: function basicBlocks size equals: 2.
 	self assert: function basicBlocks second firstInstruction isBinaryOperation.
 	self assert: function basicBlocks second firstInstruction operation equals: #sub.
+	self assert: function basicBlocks second lastInstruction isReturn.
+]
+
+{ #category : #tests }
+MbndSlovimCodeModuleGeneratorTest >> testIntegerToDynamicObject [
+	| function |
+	self
+		evaluateMiniObjectModelRuntime;
+		evaluateSysmelSource: 'function cast externC(x: Int32) => ProtoObject := x';
+		generateSSAModule.
+
+	function := ssaModule globalNamed: #cast.
+	self assert: function isFunction.
+	self deny: function isEmpty.
+	self assert: function basicBlocks size equals: 2.
+	self assert: function basicBlocks second firstInstruction isIntToDynamicObjectCast.
 	self assert: function basicBlocks second lastInstruction isReturn.
 ]
 

@@ -776,6 +776,14 @@ MbndSlovimFunctionCodeGenerator >> visitBlockClosureNode: node [
 ]
 
 { #category : #visiting }
+MbndSlovimFunctionCodeGenerator >> visitBooleanToDynamicObjectCastNode: node [
+	| source targetType |
+	source := self visitNode: node expression.
+	targetType := self translateType: node type.
+	^ slvmBuilder boolToDynamicObjectCast: source target: targetType
+]
+
+{ #category : #visiting }
 MbndSlovimFunctionCodeGenerator >> visitCasesOfNode: node [
 	| matchedValue literalGroupStream |
 	matchedValue := self visitNode: node matchedExpression.
@@ -884,6 +892,30 @@ MbndSlovimFunctionCodeGenerator >> visitDoWhileLoopNode: node [
 ]
 
 { #category : #visiting }
+MbndSlovimFunctionCodeGenerator >> visitDynamicObjectToBooleanCastNode: node [
+	| source targetType |
+	source := self visitNode: node expression.
+	targetType := self translateType: node type.
+	^ slvmBuilder dynamicObjectToBoolCast: source target: targetType
+]
+
+{ #category : #visiting }
+MbndSlovimFunctionCodeGenerator >> visitDynamicObjectToFloatCastNode: node [
+	| source targetType |
+	source := self visitNode: node expression.
+	targetType := self translateType: node type.
+	^ slvmBuilder dynamicObjectToFloatCast: source target: targetType
+]
+
+{ #category : #visiting }
+MbndSlovimFunctionCodeGenerator >> visitDynamicObjectToIntegerCastNode: node [
+	| source targetType |
+	source := self visitNode: node expression.
+	targetType := self translateType: node type.
+	^ slvmBuilder dynamicObjectToIntCast: source target: targetType
+]
+
+{ #category : #visiting }
 MbndSlovimFunctionCodeGenerator >> visitExpandScalarToMatrixCastNode: node [
 	| scalar matrixType  columnType zeroConstant |
 	scalar := self visitNode: node expression.
@@ -929,6 +961,14 @@ MbndSlovimFunctionCodeGenerator >> visitExpandedMessageSendNode: node [
 	self assert: node method isNotNil.
 	methodProgramEntity := self translateProgramEntity: node method.
 	^ methodProgramEntity generateExpandedMessageSendNode: node with: self
+]
+
+{ #category : #visiting }
+MbndSlovimFunctionCodeGenerator >> visitFloatToDynamicObjectCastNode: node [
+	| source targetType |
+	source := self visitNode: node expression.
+	targetType := self translateType: node type.
+	^ slvmBuilder floatToDynamicObjectCast: source target: targetType
 ]
 
 { #category : #visiting }
@@ -1154,6 +1194,14 @@ MbndSlovimFunctionCodeGenerator >> visitImmediateBlockClosureActivationNode: nod
 	
 	"Generate the block closure body"
 	^ self visitNode: node blockNode body
+]
+
+{ #category : #visiting }
+MbndSlovimFunctionCodeGenerator >> visitIntegerToDynamicObjectCastNode: node [
+	| source targetType |
+	source := self visitNode: node expression.
+	targetType := self translateType: node type.
+	^ slvmBuilder intToDynamicObjectCast: source target: targetType
 ]
 
 { #category : #visiting }
