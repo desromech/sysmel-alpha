@@ -19,6 +19,11 @@ MbndAggregateType >> asReceiverType [
 	^ self ref
 ]
 
+{ #category : #accessing }
+MbndAggregateType >> getFieldOffset: fieldName [
+	^ self slotLayout getFieldOffset: fieldName
+]
+
 { #category : #'testing methods' }
 MbndAggregateType >> isAggregateType [
 	^ true

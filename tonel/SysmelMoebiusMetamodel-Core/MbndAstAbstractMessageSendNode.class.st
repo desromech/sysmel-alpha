@@ -20,6 +20,16 @@ MbndAstAbstractMessageSendNode >> arguments: anObject [
 ]
 
 { #category : #converting }
+MbndAstAbstractMessageSendNode >> asExpandedDynamicMessageSend [
+	^ MbndAstExpandedDynamicMessageSendNode new
+		position: position;
+		receiver: receiver;
+		selector: selector;
+		arguments: arguments;
+		yourself
+]
+
+{ #category : #converting }
 MbndAstAbstractMessageSendNode >> asExpandedMessageSend [
 	^ MbndAstExpandedMessageSendNode new
 		position: position;

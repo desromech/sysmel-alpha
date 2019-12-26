@@ -91,6 +91,7 @@ MbndAstNodeTest >> testTestingMethods [
 	self deny: node isDoWhileLoopNode.
 	self deny: node isEnumDeclarationNode.
 	self deny: node isEnumDefinitionNode.
+	self deny: node isExpandedDynamicMessageSendNode.
 	self deny: node isExpandedMessageSendNode.
 	self deny: node isExplicitCastNode.
 	self deny: node isFloatingPointToIntegerCastNode.

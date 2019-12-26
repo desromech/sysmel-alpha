@@ -197,7 +197,7 @@ TMbndAbstractType >> analyzeUnboundExpandedMessageSendNode: node with: analyzer 
 		^ st analyzeUnboundExpandedMessageSendNode: node with: analyzer
 	].
 
-	self error: 'Cannot send unknown message {1} to value of type {2}.' format: {node selector printValueString. node receiver type fullName} at: node
+	^ node receiver type analyzeUnhandledUnboundExpandedMessageSendNode: node with: analyzer
 ]
 
 { #category : #'semantic analysis' }
@@ -241,6 +241,15 @@ TMbndAbstractType >> analyzeUnexpandedMessageSendNode: node with: analyzer [
 	].
 
 	^ analyzer visitNode: node asExpandedMessageSend
+]
+
+{ #category : #'semantic analysis' }
+TMbndAbstractType >> analyzeUnhandledUnboundExpandedMessageSendNode: node with: analyzer [
+	self supertype ifNotNil: [:st |
+		^ st analyzeUnhandledUnboundExpandedMessageSendNode: node with: analyzer
+	].
+
+	self error: 'Cannot send unknown message {1} to value of type {2}.' format: {node selector printValueString. node receiver type fullName} at: node
 ]
 
 { #category : #'as yet unclassified' }

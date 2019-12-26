@@ -206,6 +206,11 @@ MbndAstNode >> isExpandScalarToVectorCastNode [
 ]
 
 { #category : #testing }
+MbndAstNode >> isExpandedDynamicMessageSendNode [
+	^ false
+]
+
+{ #category : #testing }
 MbndAstNode >> isExpandedHostMessageSendNode [
 	^ false
 ]

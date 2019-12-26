@@ -110,6 +110,13 @@ MbndSlovimFunctionCodeGenerator >> buildSSAFunction: aSSAFunction definitionWith
 
 	"Jump from the alloca block into the body."
 	slvmBuilder allocaBuilder jump: ssaFunctionBodyBlock.
+	
+	concreteMethod requiresCompiledMethodMetadata ifTrue: [
+		ssaFunction
+			addRequiredDynamicLiteral: concreteMethod selectorRequiredLiteral;
+			addRequiredDynamicLiteral: concreteMethod classBindingLiteral;
+			hasSelectorAndClassBinding: true
+	].
 ]
 
 { #category : #'as yet unclassified' }
@@ -903,16 +910,25 @@ MbndSlovimFunctionCodeGenerator >> visitExpandScalarToVectorCastNode: node [
 ]
 
 { #category : #visiting }
-MbndSlovimFunctionCodeGenerator >> visitExpandedMessageSendNode: node [
-	| receiver arguments methodProgramEntity |
-	node method ifNotNil: [
-		methodProgramEntity := self translateProgramEntity: node method.
-		^ methodProgramEntity generateExpandedMessageSendNode: node with: self
-	].
-
-	receiver := node receiver ifNotNil: [ :expr | self visitNode: expr ].
+MbndSlovimFunctionCodeGenerator >> visitExpandedDynamicMessageSendNode: node [
+	| receiver selector arguments returnType sendInstruction |
+	receiver := self visitNode: node receiver.
+	selector := self visitNode: node selector.
 	arguments := self visitNodesAndCollect: node arguments.
-	self halt
+	returnType := self translateType: node type.
+	sendInstruction := slvmBuilder send: selector returnType: returnType receiver: receiver arguments: arguments.
+	node receiver isSuperReference ifTrue: [ 
+		sendInstruction setSuperSend
+	].
+	^ sendInstruction
+]
+
+{ #category : #visiting }
+MbndSlovimFunctionCodeGenerator >> visitExpandedMessageSendNode: node [
+	| methodProgramEntity |
+	self assert: node method isNotNil.
+	methodProgramEntity := self translateProgramEntity: node method.
+	^ methodProgramEntity generateExpandedMessageSendNode: node with: self
 ]
 
 { #category : #visiting }

@@ -140,6 +140,11 @@ MbndAstVisitor >> visitExpandScalarToVectorCastNode: node [
 ]
 
 { #category : #visiting }
+MbndAstVisitor >> visitExpandedDynamicMessageSendNode: node [
+	self subclassResponsibility
+]
+
+{ #category : #visiting }
 MbndAstVisitor >> visitExpandedHostMessageSendNode: node [
 	self subclassResponsibility
 ]

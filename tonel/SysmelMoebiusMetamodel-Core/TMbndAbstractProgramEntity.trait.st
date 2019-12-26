@@ -47,6 +47,11 @@ TMbndAbstractProgramEntity >> fullName [
 	^ self name
 ]
 
+{ #category : #'as yet unclassified' }
+TMbndAbstractProgramEntity >> globalBindingAssociation [
+	^ self explicitRequirement
+]
+
 { #category : #testing }
 TMbndAbstractProgramEntity >> hasPublicVisibility [
 	^ true

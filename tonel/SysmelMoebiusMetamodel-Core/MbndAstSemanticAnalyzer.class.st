@@ -779,6 +779,19 @@ MbndAstSemanticAnalyzer >> visitEnumDefinitionNode: node [
 ]
 
 { #category : #visiting }
+MbndAstSemanticAnalyzer >> visitExpandedDynamicMessageSendNode: node [
+	| dynobjectType |
+	dynobjectType := self compilationTarget dynamicObjectType.
+	^ node copy
+		receiver: (self addImplicitCastFor: (self analyzeNodeIfNeeded: node receiver) to: dynobjectType);
+		selector: (self addImplicitCastFor: (self analyzeNodeIfNeeded: node selector) to: dynobjectType);
+		arguments: (node arguments collect: [:arg |
+			self addImplicitCastFor: arg to: dynobjectType
+		]);
+		type: dynobjectType
+]
+
+{ #category : #visiting }
 MbndAstSemanticAnalyzer >> visitExplicitCastNode: node [
 	| result sourceType conversionRule |
 	result := node copy

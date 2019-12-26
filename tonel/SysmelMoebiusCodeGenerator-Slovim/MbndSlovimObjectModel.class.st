@@ -7,7 +7,10 @@ Class {
 		'gcrootIntrinsic',
 		'messageLookupFunction',
 		'convertedLiteralContent',
-		'convertedLiteralGlobals'
+		'convertedLiteralGlobals',
+		'superMessageLookupFunction',
+		'trueLiteralValue',
+		'falseLiteralValue'
 	],
 	#category : #'SysmelMoebiusCodeGenerator-Slovim-CompilationTarget'
 }
@@ -17,8 +20,28 @@ MbndSlovimObjectModel >> arrayClass [
 	^ managedObjectModel arrayClass
 ]
 
+{ #category : #accessing }
+MbndSlovimObjectModel >> associationClass [
+	^ managedObjectModel associationClass
+]
+
+{ #category : #accessing }
+MbndSlovimObjectModel >> associationValueOffset [
+	^ managedObjectModel associationValueOffset
+]
+
+{ #category : #accessing }
+MbndSlovimObjectModel >> classVariableClass [
+	^ managedObjectModel classVariableClass
+]
+
 { #category : #'as yet unclassified' }
 MbndSlovimObjectModel >> convertDynamicLiteralToConstant: dynamicLiteralValue [
+	^ self convertDynamicLiteralToConstant: dynamicLiteralValue withName: nil
+]
+
+{ #category : #'as yet unclassified' }
+MbndSlovimObjectModel >> convertDynamicLiteralToConstant: dynamicLiteralValue withName: dynamicLiteralName [
 	| initialValue targetType convertedValue literalGlobal |
 	dynamicLiteralValue isMbndProgramEntity ifTrue: [
 		^ (moduleCodeGenerator translateProgramEntity: dynamicLiteralValue) ssaValue
@@ -39,11 +62,22 @@ MbndSlovimObjectModel >> convertDynamicLiteralToConstant: dynamicLiteralValue [
 		dynamicLiteralValue createNonInlineLiteralObjectForMbndObjectModel: self .
 	]).
 
-	literalGlobal := SLVMGlobalVariable module: moduleCodeGenerator ssaModule name: nil valueType: initialValue type storage: SLVMType genericStorage.
+	literalGlobal := SLVMGlobalVariable module: moduleCodeGenerator ssaModule name: dynamicLiteralName valueType: initialValue type storage: SLVMType genericStorage.
 	literalGlobal makePrivate; initialValue: initialValue.
 	
 	convertedValue value: literalGlobal targetType: targetType.
 	^ convertedValue
+]
+
+{ #category : #'literal conversion' }
+MbndSlovimObjectModel >> convertInlineLiteral: literal [
+	literal == true ifTrue: [ ^ self trueLiteralValue ].
+	literal == false ifTrue: [ ^ self falseLiteralValue ].
+	literal ifNil: [ ^ SLVMConstantValue type: target dynamicObjectType value: nil ].
+	literal isInteger ifTrue: [ ^ SLVMConstantValue type: target dynamicObjectType value: (self encodeSmallInteger: literal)].
+	literal isCharacter ifTrue: [ ^ SLVMConstantValue type: target dynamicObjectType value: (self encodeSmallInteger: literal)].
+	literal isFloat ifTrue: [ ^ SLVMConstantValue type: target dynamicObjectType value: (self encodeSmallFloat: literal)].
+	self error: 'Should not reach here.'
 ]
 
 { #category : #converting }
@@ -56,6 +90,16 @@ MbndSlovimObjectModel >> createArray: array class: arrayClass [
 	| result |
 	result := arrayClass makeInstance: array size identityHash: self generateIdentityHash.
 	result slots last slots: (array collect: [:el | self convertDynamicLiteralToConstant: el ]).
+	^ result
+]
+
+{ #category : #converting }
+MbndSlovimObjectModel >> createAssociation: association class: associationClass [
+	| result |
+	result := associationClass makeInstance: 0 identityHash: self generateIdentityHash.
+	result
+		setField: #key value: (self convertDynamicLiteralToConstant: association key);
+		setField: #value value: (self convertDynamicLiteralToConstant: association value).
 	^ result
 ]
 
@@ -147,6 +191,20 @@ MbndSlovimObjectModel >> createSymbolObjectInstance: symbol [
 ]
 
 { #category : #accessing }
+MbndSlovimObjectModel >> falseClass [
+	^ managedObjectModel falseClass
+]
+
+{ #category : #'as yet unclassified' }
+MbndSlovimObjectModel >> falseLiteralValue [
+	| literalValue |
+	^ falseLiteralValue ifNil: [ 
+		literalValue := self falseClass makeInstance: 0 identityHash: self generateIdentityHash.
+		falseLiteralValue := self convertDynamicLiteralToConstant: literalValue withName: '_S9Smalltalk_false'.
+	]
+]
+
+{ #category : #accessing }
 MbndSlovimObjectModel >> gcrootIntrinsic [
 	^ gcrootIntrinsic ifNil: [
 		gcrootIntrinsic := SLVMConstantBuiltInFunction pointerSize: target pointerSize
@@ -157,6 +215,11 @@ MbndSlovimObjectModel >> gcrootIntrinsic [
 { #category : #converting }
 MbndSlovimObjectModel >> generateIdentityHash [
 	^ moduleCodeGenerator generateIdentityHash
+]
+
+{ #category : #accessing }
+MbndSlovimObjectModel >> globalVariableClass [
+	^ managedObjectModel globalVariableClass
 ]
 
 { #category : #initialization }
@@ -190,4 +253,29 @@ MbndSlovimObjectModel >> moduleCodeGenerator [
 { #category : #accessing }
 MbndSlovimObjectModel >> moduleCodeGenerator: anObject [
 	moduleCodeGenerator := anObject
+]
+
+{ #category : #accessing }
+MbndSlovimObjectModel >> superMessageLookupFunction [
+	<compileTime>
+	^ superMessageLookupFunction ifNil: [superMessageLookupFunction := (moduleCodeGenerator translateProgramEntity: managedObjectModel superMessageLookupFunction) ssaValue ]
+]
+
+{ #category : #accessing }
+MbndSlovimObjectModel >> trueClass [
+	^ managedObjectModel trueClass
+]
+
+{ #category : #'as yet unclassified' }
+MbndSlovimObjectModel >> trueLiteralValue [
+	| literalValue |
+	^ trueLiteralValue ifNil: [ 
+		literalValue := self trueClass makeInstance: 0 identityHash: self generateIdentityHash.
+		trueLiteralValue := self convertDynamicLiteralToConstant: literalValue withName: '_S9Smalltalk_true'.
+	]
+]
+
+{ #category : #accessing }
+MbndSlovimObjectModel >> workspaceVariableClass [
+	^ managedObjectModel workspaceVariableClass
 ]

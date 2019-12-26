@@ -41,6 +41,11 @@ MbndAggregateSlotLayout >> findFirstFieldNamed: fieldName [
 ]
 
 { #category : #accessing }
+MbndAggregateSlotLayout >> getFieldOffset: fieldName [
+	^ (self findFirstFieldNamed: fieldName) byteOffset
+]
+
+{ #category : #accessing }
 MbndAggregateSlotLayout >> hasTrivialBasicInitialization [
 	^ hasTrivialBasicInitialization ifNil: [ hasTrivialBasicInitialization := self checkForTrivialBasicInitialization ]
 ]

@@ -43,6 +43,12 @@ MbndAbstractConcreteMethod >> canBeEvaluatedInCompileTime [
 	^ super canBeEvaluatedInCompileTime
 ]
 
+{ #category : #testing }
+MbndAbstractConcreteMethod >> classBindingLiteral [
+	self flag: 'TODO: Support nested method'.
+	^ parent globalBindingAssociation
+]
+
 { #category : #accessing }
 MbndAbstractConcreteMethod >> computeShaderLocalSize [
 	^ computeShaderLocalSize
@@ -303,6 +309,17 @@ MbndAbstractConcreteMethod >> pragmaAt: pragmaName ifAbsent: absentBlock ifPrese
 	definitionNode ifNil: [ ^ absentBlock value ].
 	self ensureSemanticAnalysis.
 	^ self analyzedBody pragmaAt: pragmaName ifAbsent: absentBlock ifPresent: presentBlock
+]
+
+{ #category : #testing }
+MbndAbstractConcreteMethod >> requiresCompiledMethodMetadata [
+	^ self module hasRuntimeTypeInformation
+]
+
+{ #category : #testing }
+MbndAbstractConcreteMethod >> selectorRequiredLiteral [
+	self flag: 'Create the MethodAdditionalState for the pragmas'.
+	^ self typedSelector
 ]
 
 { #category : #'semantic analysis' }

@@ -1,7 +1,8 @@
 Trait {
 	#name : #TMbndProgramEntity,
 	#instVars : [
-		'publicMetaBuilderFactories'
+		'publicMetaBuilderFactories',
+		'globalBindingAssociation'
 	],
 	#traits : 'TMbndAbstractProgramEntity + TMbndAbstractMacroMethodContainer + TMbndAbstractMethodContainer + TMbndAbstractSymbolContainer',
 	#classTraits : 'TMbndAbstractProgramEntity classTrait + TMbndAbstractMacroMethodContainer classTrait + TMbndAbstractMethodContainer classTrait + TMbndAbstractSymbolContainer classTrait',
@@ -44,6 +45,11 @@ TMbndProgramEntity >> getPublicMetaBuilderFactoryList [
 		#macro . MbndMacroMetaBuilder metaBuilderFactory.
 		#message . MbndMessageMetaBuilder metaBuilderFactory.
 	} ,  self getExtraMetaBuilderFactoryList
+]
+
+{ #category : #accessing }
+TMbndProgramEntity >> globalBindingAssociation [
+	^ globalBindingAssociation ifNil: [ globalBindingAssociation := GlobalVariable key: self name value: self ]
 ]
 
 { #category : #testing }

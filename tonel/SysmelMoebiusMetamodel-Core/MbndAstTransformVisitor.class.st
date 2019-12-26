@@ -190,6 +190,15 @@ MbndAstTransformVisitor >> visitExpandScalarToVectorCastNode: node [
 ]
 
 { #category : #visiting }
+MbndAstTransformVisitor >> visitExpandedDynamicMessageSendNode: node [
+	^ node copy
+		receiver: (self visitNode: node receiver);
+		selector: (self visitNode: node selector);
+		arguments: (self visitNodesAndCollect: node arguments);
+		yourself
+]
+
+{ #category : #visiting }
 MbndAstTransformVisitor >> visitExpandedHostMessageSendNode: node [
 	^ node copy
 		receiver: (self visitNode: node receiver);

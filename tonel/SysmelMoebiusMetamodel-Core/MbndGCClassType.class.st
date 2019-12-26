@@ -35,6 +35,11 @@ MbndGCClassType >> addMainVTableFieldNamed: fieldName [
 	^ vtableField
 ]
 
+{ #category : #'semantic analysis' }
+MbndGCClassType >> analyzeMessageSendNodeWithDynamicSelector: node with: analyzer [
+	^ analyzer visitNode: node asExpandedDynamicMessageSend
+]
+
 { #category : #converting }
 MbndGCClassType >> analyzeReinterpretCastNode: node to: targetType with: analyzer [
 	| undecoratedTargetType |
@@ -57,6 +62,11 @@ MbndGCClassType >> analyzeReinterpretCastNode: node to: targetType with: analyze
 	].
 
 	^ super analyzeReinterpretCastNode: node to: targetType with: analyzer
+]
+
+{ #category : #'semantic analysis' }
+MbndGCClassType >> analyzeUnhandledUnboundExpandedMessageSendNode: node with: analyzer [
+	^ analyzer visitNode: node asExpandedDynamicMessageSend
 ]
 
 { #category : #'type composition' }

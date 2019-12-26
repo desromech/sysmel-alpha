@@ -2,8 +2,12 @@ Trait {
 	#name : #TMbndCoreManagedObjectModel,
 	#instVars : [
 		'compilationTarget',
+		'additionalBindingClass',
+		'additionalMethodStateClass',
 		'arrayClass',
+		'associationClass',
 		'byteArrayClass',
+		'classVariableClass',
 		'compiledMethodClass',
 		'dictionaryClass',
 		'methodDictionaryClass',
@@ -11,15 +15,40 @@ Trait {
 		'stringClass',
 		'integerClass',
 		'floatClass',
+		'globalVariableClass',
 		'messageLookupFunction',
 		'trueClass',
 		'falseClass',
-		'boolClass'
+		'boolClass',
+		'superMessageLookupFunction',
+		'undeclaredVariableClass',
+		'workspaceVariableClass',
+		'associationValueOffset'
 	],
 	#traits : 'TMbndAbstractManagedObjectModel',
 	#classTraits : 'TMbndAbstractManagedObjectModel classTrait',
 	#category : #'SysmelMoebiusMetamodel-Core-CompilationTarget'
 }
+
+{ #category : #accessing }
+TMbndCoreManagedObjectModel >> additionalBindingClass [
+	^ additionalBindingClass
+]
+
+{ #category : #accessing }
+TMbndCoreManagedObjectModel >> additionalBindingClass: anObject [
+	additionalBindingClass := anObject
+]
+
+{ #category : #accessing }
+TMbndCoreManagedObjectModel >> additionalMethodStateClass [
+	^ additionalMethodStateClass
+]
+
+{ #category : #accessing }
+TMbndCoreManagedObjectModel >> additionalMethodStateClass: anObject [
+	additionalMethodStateClass := anObject
+]
 
 { #category : #accessing }
 TMbndCoreManagedObjectModel >> arrayClass [
@@ -29,6 +58,21 @@ TMbndCoreManagedObjectModel >> arrayClass [
 { #category : #accessing }
 TMbndCoreManagedObjectModel >> arrayClass: anObject [
 	arrayClass := anObject
+]
+
+{ #category : #accessing }
+TMbndCoreManagedObjectModel >> associationClass [
+	^ associationClass
+]
+
+{ #category : #accessing }
+TMbndCoreManagedObjectModel >> associationClass: anObject [
+	associationClass := anObject
+]
+
+{ #category : #accessing }
+TMbndCoreManagedObjectModel >> associationValueOffset [
+	^ associationValueOffset ifNil: [associationValueOffset := associationClass getFieldOffset: #value]
 ]
 
 { #category : #accessing }
@@ -49,6 +93,16 @@ TMbndCoreManagedObjectModel >> byteArrayClass [
 { #category : #accessing }
 TMbndCoreManagedObjectModel >> byteArrayClass: anObject [
 	byteArrayClass := anObject
+]
+
+{ #category : #accessing }
+TMbndCoreManagedObjectModel >> classVariableClass [
+	^ classVariableClass
+]
+
+{ #category : #accessing }
+TMbndCoreManagedObjectModel >> classVariableClass: anObject [
+	classVariableClass := anObject
 ]
 
 { #category : #accessing }
@@ -115,6 +169,16 @@ TMbndCoreManagedObjectModel >> floatClass: anObject [
 	compilationTarget literalFloatType addConversionTo: floatClass rule: MbndLiteralValueTypeChangeConversionRule.
 ]
 
+{ #category : #accessing }
+TMbndCoreManagedObjectModel >> globalVariableClass [
+	^ globalVariableClass
+]
+
+{ #category : #accessing }
+TMbndCoreManagedObjectModel >> globalVariableClass: anObject [
+	globalVariableClass := anObject
+]
+
 { #category : #'as yet unclassified' }
 TMbndCoreManagedObjectModel >> identityHashForSymbol: aSymbol [
 	^ self computeBytesHash: aSymbol utf8Encoded initialHash: 5381
@@ -163,6 +227,16 @@ TMbndCoreManagedObjectModel >> stringClass: anObject [
 ]
 
 { #category : #accessing }
+TMbndCoreManagedObjectModel >> superMessageLookupFunction [
+	^ superMessageLookupFunction
+]
+
+{ #category : #accessing }
+TMbndCoreManagedObjectModel >> superMessageLookupFunction: anObject [
+	superMessageLookupFunction := anObject
+]
+
+{ #category : #accessing }
 TMbndCoreManagedObjectModel >> symbolClass [
 	^ symbolClass
 ]
@@ -182,4 +256,24 @@ TMbndCoreManagedObjectModel >> trueClass [
 TMbndCoreManagedObjectModel >> trueClass: anObject [
 	trueClass := anObject.
 	compilationTarget literalBooleanTrueType addConversionTo: trueClass rule: MbndLiteralValueTypeChangeConversionRule.
+]
+
+{ #category : #accessing }
+TMbndCoreManagedObjectModel >> undeclaredVariableClass [
+	^ undeclaredVariableClass
+]
+
+{ #category : #accessing }
+TMbndCoreManagedObjectModel >> undeclaredVariableClass: anObject [
+	undeclaredVariableClass := anObject
+]
+
+{ #category : #accessing }
+TMbndCoreManagedObjectModel >> workspaceVariableClass [
+	^ workspaceVariableClass
+]
+
+{ #category : #accessing }
+TMbndCoreManagedObjectModel >> workspaceVariableClass: anObject [
+	workspaceVariableClass := anObject
 ]
