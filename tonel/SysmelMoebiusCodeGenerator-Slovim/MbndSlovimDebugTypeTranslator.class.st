@@ -20,17 +20,39 @@ MbndSlovimDebugTypeTranslator class >> initialize [
 ]
 
 { #category : #visiting }
+MbndSlovimDebugTypeTranslator >> addAggregateDebugType: debugType fieldMember: field into: out [ 
+	| member |
+	field name isMbndAnonymousSymbol ifTrue: [ ^ self ].
+	
+	member := SLVMDebugDerivedType new
+		makeMember;
+		name: field name;
+		baseType: (self translateDebugType: field valueType);
+		byteSize: field valueType instanceSize;
+		byteOffset: field byteOffset.
+		
+	field bits ifNotNil: [
+		member
+			bitSize: field bits;
+			bitOffset: field byteOffset * 8 + field bitOffset
+	].
+		
+	out nextPut: member
+
+]
+
+{ #category : #visiting }
 MbndSlovimDebugTypeTranslator >> addAggregateDebugType: debugType membersFrom: aggregateType [
 	debugType members: (Array streamContents: [ :out |
+		aggregateType supertype isTrait ifFalse: [
+			out nextPut: (SLVMDebugDerivedType new
+				makeInheritance;
+				baseType: (self translateSuperDebugType: aggregateType supertype)
+			)
+		].
+	
 		aggregateType fields do: [ :field |
-			field name isMbndAnonymousSymbol ifFalse: [
-				out nextPut: (SLVMDebugDerivedType new makeMember;
-					name: field name;
-					baseType: (self translateDebugType: field valueType);
-					byteSize: field valueType instanceSize;
-					byteOffset: field byteOffset
-				)
-			].
+			self addAggregateDebugType: debugType fieldMember: field into: out 
 		]
 	])
 
@@ -54,6 +76,14 @@ MbndSlovimDebugTypeTranslator >> setCommonDebugType: debugType informationFrom: 
 MbndSlovimDebugTypeTranslator >> translateDebugType: aType [
 	^ translatedTypes at: aType ifAbsentPut: [ aType accept: self ]
 
+]
+
+{ #category : #visiting }
+MbndSlovimDebugTypeTranslator >> translateSuperDebugType: supertype [
+	| debugType |
+	debugType := self translateDebugType: supertype.
+	debugType isDebugDerivedType ifTrue: [ ^ debugType baseType ].
+	^ debugType
 ]
 
 { #category : #visiting }
@@ -160,7 +190,7 @@ MbndSlovimDebugTypeTranslator >> visitGCClassType: classType [
 
 	self addAggregateDebugType: debugType membersFrom: classType.
 	
-	^ debugType
+	^ gcClassPointerType
 ]
 
 { #category : #visiting }

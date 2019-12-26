@@ -20,7 +20,7 @@ Class {
 
 { #category : #adding }
 MbndAggregateSlotLayoutBuilder >> addBitField: aField [
-	(aField type ~~ currentBitFieldType or: [ aField bits > remainingBitFieldBits ]) ifTrue: [ 
+	(aField valueType ~~ currentBitFieldType or: [ aField bits > remainingBitFieldBits ]) ifTrue: [ 
 		self flushBitFieldForNewType: aField valueType.
 	].
 

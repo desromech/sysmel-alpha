@@ -597,6 +597,10 @@ MbndSlovimCodeModuleGenerator >> translateCompilerGeneratedMethod: generatedMeth
 	
 	self setProgramEntity: generatedMethod ssaValue: ssaFunction.
 
+	self isEmittingDebugInformation ifTrue: [
+		ssaFunction debugType: (self translateDebugType: generatedMethod type)
+	].
+
 	self flag: 'TODO: Support the correct linkage/visibility.'.
 	ssaFunction makePublic.
 	generatedMethod isFunclet ifTrue: [ ssaFunction makePrivate ].
@@ -616,6 +620,10 @@ MbndSlovimCodeModuleGenerator >> translateCompilerGeneratedMethodNamed: name fun
 	
 	ssaFunction := SLVMFunction module: ssaModule name: name functionType: ssaFunctionType.
 	ssaFunction unmangledName: name.
+	
+	self isEmittingDebugInformation ifTrue: [
+		ssaFunction debugType: (self translateDebugType: functionType)
+	].
 
 	name ifNil: [ ssaFunction makePrivate ]
 		ifNotNil: [ ssaFunction makePublic ].
