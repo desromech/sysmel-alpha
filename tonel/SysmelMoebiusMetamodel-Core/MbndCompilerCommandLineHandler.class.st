@@ -110,6 +110,10 @@ MbndCompilerCommandLineHandler >> activate [
 			compilationOptions add: [ :c | c freestanding ].
 		].
 
+		(#(-fpic -fPIC) includes: arg) ifTrue: [
+			compilationOptions add: [ :c | c withPositionIndependentCode ].
+		].
+
 		arg = '-o' ifTrue: [
 			argumentIndex + 1 > arguments size ifTrue: [ self error: 'Expected an argument after -o' ].
 			outputFileName := arguments at: argumentIndex + 1.
