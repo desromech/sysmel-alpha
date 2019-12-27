@@ -1,12 +1,25 @@
 Class {
 	#name : #MbndFunctionArgumentVariable,
 	#superclass : #MbndFunctionVariable,
+	#instVars : [
+		'argumentIndex'
+	],
 	#category : #'SysmelMoebiusMetamodel-Core-Variables'
 }
 
 { #category : #visiting }
 MbndFunctionArgumentVariable >> accept: visitor [
 	^ visitor visitFunctionArgumentVariable: self
+]
+
+{ #category : #accessing }
+MbndFunctionArgumentVariable >> argumentIndex [
+	^ argumentIndex
+]
+
+{ #category : #accessing }
+MbndFunctionArgumentVariable >> argumentIndex: anObject [
+	argumentIndex := anObject
 ]
 
 { #category : #'compile time evaluation' }

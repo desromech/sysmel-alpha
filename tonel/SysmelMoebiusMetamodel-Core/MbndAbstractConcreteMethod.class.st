@@ -160,6 +160,10 @@ MbndAbstractConcreteMethod >> defineArguments [
 		self defineArgument: argument
 	]).
 
+	arguments doWithIndex: [ :arg :index |
+		arg argumentIndex: index
+	].
+
 	argumentsWithoutReceiver := receiverType isVoidType
 		ifTrue: [ arguments ]
 		ifFalse: [ arguments allButFirst ].

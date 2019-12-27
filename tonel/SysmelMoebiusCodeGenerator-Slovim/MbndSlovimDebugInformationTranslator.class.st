@@ -241,7 +241,10 @@ MbndSlovimDebugInformationTranslator >> visitEnumType: enumType [
 
 { #category : #visiting }
 MbndSlovimDebugInformationTranslator >> visitFunctionArgumentVariable: argumentVariable [
-	^ self visitFunctionLocalVariable: argumentVariable
+	^ (SLVMDebugVariable scope: nil name: argumentVariable name asPrettySymbolName)
+		type: (self translateDebugType: argumentVariable valueType);
+		argumentIndex: argumentVariable argumentIndex;
+		yourself.
 ]
 
 { #category : #visiting }
@@ -254,7 +257,7 @@ MbndSlovimDebugInformationTranslator >> visitFunctionLocalVariable: localVariabl
 
 { #category : #visiting }
 MbndSlovimDebugInformationTranslator >> visitFunctionReceiverArgumentVariable: argumentVariable [
-	^ self visitFunctionLocalVariable: argumentVariable
+	^ self visitFunctionArgumentVariable: argumentVariable
 ]
 
 { #category : #visiting }
