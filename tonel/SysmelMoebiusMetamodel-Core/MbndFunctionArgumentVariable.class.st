@@ -4,6 +4,11 @@ Class {
 	#category : #'SysmelMoebiusMetamodel-Core-Variables'
 }
 
+{ #category : #visiting }
+MbndFunctionArgumentVariable >> accept: visitor [
+	^ visitor visitFunctionArgumentVariable: self
+]
+
 { #category : #'compile time evaluation' }
 MbndFunctionArgumentVariable >> asCompileTimeValueReferenceOfType: referenceType withEvaluator: evaluator at: node [
 	self assert: referenceType = self type.

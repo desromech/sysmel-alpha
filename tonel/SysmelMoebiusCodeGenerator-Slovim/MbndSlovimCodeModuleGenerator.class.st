@@ -209,8 +209,8 @@ MbndSlovimCodeModuleGenerator >> csymbolForProgramEntity: programEntity [
 ]
 
 { #category : #accessing }
-MbndSlovimCodeModuleGenerator >> debugTypeTranslator [
-	^ debugTypeTranslator ifNil: [ debugTypeTranslator := MbndSlovimDebugTypeTranslator new codeModuleGenerator: self ]
+MbndSlovimCodeModuleGenerator >> debugInformationTranslator [
+	^ debugTypeTranslator ifNil: [ debugTypeTranslator := MbndSlovimDebugInformationTranslator new codeModuleGenerator: self ]
 ]
 
 { #category : #visiting }
@@ -598,7 +598,9 @@ MbndSlovimCodeModuleGenerator >> translateCompilerGeneratedMethod: generatedMeth
 	self setProgramEntity: generatedMethod ssaValue: ssaFunction.
 
 	self isEmittingDebugInformation ifTrue: [
-		ssaFunction debugType: (self translateDebugType: generatedMethod type)
+		ssaFunction
+			debugInformation: (self translateProgramEntityDebugInformation: generatedMethod);
+			debugType: (self translateDebugType: generatedMethod type)
 	].
 
 	self flag: 'TODO: Support the correct linkage/visibility.'.
@@ -622,7 +624,8 @@ MbndSlovimCodeModuleGenerator >> translateCompilerGeneratedMethodNamed: name fun
 	ssaFunction unmangledName: name.
 	
 	self isEmittingDebugInformation ifTrue: [
-		ssaFunction debugType: (self translateDebugType: functionType)
+		ssaFunction
+			debugType: (self translateDebugType: functionType)
 	].
 
 	name ifNil: [ ssaFunction makePrivate ]
@@ -636,7 +639,7 @@ MbndSlovimCodeModuleGenerator >> translateCompilerGeneratedMethodNamed: name fun
 
 { #category : #'code generation' }
 MbndSlovimCodeModuleGenerator >> translateDebugType: aType [
-	^ self debugTypeTranslator translateDebugType: aType
+	^ self debugInformationTranslator translateDebugType: aType
 ]
 
 { #category : #'code generation' }
@@ -674,6 +677,12 @@ MbndSlovimCodeModuleGenerator >> translateProgramEntityChildren: programEntity [
 	programEntity children do: [ :child |
 		self translateProgramEntity: child
 	]
+]
+
+{ #category : #'code generation' }
+MbndSlovimCodeModuleGenerator >> translateProgramEntityDebugInformation: aProgramEntity [
+	aProgramEntity isMbndType ifTrue: [ ^ self translateDebugType: aProgramEntity ].
+	^ self debugInformationTranslator translateProgramEntityDebugInformation: aProgramEntity
 ]
 
 { #category : #'code generation' }
@@ -856,7 +865,9 @@ MbndSlovimCodeModuleGenerator >> visitCompileTimeVariable: compileTimeVariable [
 	ssaModule addHighLevelEntity: compileTimeVariable mapToGlobalValue: ssaCompileTimeVariable.
 
 	self isEmittingDebugInformation ifTrue: [ 
-		ssaCompileTimeVariable debugSourceLocation: (self convertDebugPosition: compileTimeVariable definitionPosition asActualSourcePosition)
+		ssaCompileTimeVariable
+			debugSourceLocation: (self convertDebugPosition: compileTimeVariable definitionPosition asActualSourcePosition);
+			debugInformation: (self translateProgramEntityDebugInformation: compileTimeVariable)
 	].
 
 	ssaCompileTimeVariable readOnly: (compileTimeVariable type withoutReferences isConstantType).
@@ -895,6 +906,7 @@ MbndSlovimCodeModuleGenerator >> visitConcreteFunctionMethod: functionMethod [
 	self isEmittingDebugInformation ifTrue: [
 		
 		ssaFunction
+			debugInformation: (self translateProgramEntityDebugInformation: functionMethod);
 			debugType: (self translateDebugType: functionMethod type);
 			debugSourceLocation: (self convertDebugPosition: functionMethod definitionPosition asActualSourcePosition)
 	].
@@ -931,6 +943,7 @@ MbndSlovimCodeModuleGenerator >> visitConcreteMessageMethod: functionMethod [
 	
 	self isEmittingDebugInformation ifTrue: [ 
 		ssaFunction
+			debugInformation: (self translateProgramEntityDebugInformation: functionMethod);
 			debugType: (self translateDebugType: functionMethod type);
 			debugSourceLocation: (self convertDebugPosition: functionMethod definitionPosition asActualSourcePosition)
 	].
@@ -994,7 +1007,9 @@ MbndSlovimCodeModuleGenerator >> visitGlobalVariable: globalVariable [
 	ssaModule addHighLevelEntity: globalVariable mapToGlobalValue: ssaGlobalVariable.
 
 	self isEmittingDebugInformation ifTrue: [ 
-		ssaGlobalVariable debugSourceLocation: (self convertDebugPosition: globalVariable definitionPosition asActualSourcePosition)
+		ssaGlobalVariable
+			debugSourceLocation: (self convertDebugPosition: globalVariable definitionPosition asActualSourcePosition);
+			debugInformation: (self translateProgramEntityDebugInformation: globalVariable)
 	].
 
 	ssaGlobalVariable readOnly: (globalVariable type isReferenceType not or: [globalVariable type withoutReferences isConstantType]).

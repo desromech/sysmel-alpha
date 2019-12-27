@@ -82,6 +82,11 @@ MbndAbstractModuleVisitor >> visitFieldVariable: type [
 ]
 
 { #category : #visiting }
+MbndAbstractModuleVisitor >> visitFunctionArgumentVariable: variable [
+	self subclassResponsibility
+]
+
+{ #category : #visiting }
 MbndAbstractModuleVisitor >> visitFunctionGroup: functionGroup [
 	self subclassResponsibility
 ]
@@ -93,6 +98,11 @@ MbndAbstractModuleVisitor >> visitFunctionGroupType: type [
 
 { #category : #visiting }
 MbndAbstractModuleVisitor >> visitFunctionLocalVariable: variable [
+	self subclassResponsibility
+]
+
+{ #category : #visiting }
+MbndAbstractModuleVisitor >> visitFunctionReceiverArgumentVariable: variable [
 	self subclassResponsibility
 ]
 

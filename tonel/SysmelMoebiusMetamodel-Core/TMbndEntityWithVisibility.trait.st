@@ -35,6 +35,11 @@ TMbndEntityWithVisibility >> hasProtectedVisibility [
 ]
 
 { #category : #accessing }
+TMbndEntityWithVisibility >> hasPublicOrExternalVisibility [
+	^ self hasPublicVisibility or: [self hasExternalVisibility]
+]
+
+{ #category : #accessing }
 TMbndEntityWithVisibility >> hasPublicVisibility [
 	^ self visibilityMode == #public
 ]

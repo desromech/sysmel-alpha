@@ -52,6 +52,11 @@ TMbndSlovimModulePartTranslator >> translateProgramEntity: aProgramEntity [
 ]
 
 { #category : #'code generation' }
+TMbndSlovimModulePartTranslator >> translateProgramEntityDebugInformation: aProgramEntity [
+	^ codeModuleGenerator translateProgramEntityDebugInformation: aProgramEntity
+]
+
+{ #category : #'code generation' }
 TMbndSlovimModulePartTranslator >> translateType: aType [
 	^ codeModuleGenerator translateType: aType	
 ]

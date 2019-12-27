@@ -86,6 +86,11 @@ MbndAbstractSpecificMethod >> computeMatchingCostWithArguments: callArguments re
 ]
 
 { #category : #testing }
+MbndAbstractSpecificMethod >> isDefinition [
+	^ false
+]
+
+{ #category : #testing }
 MbndAbstractSpecificMethod >> matchesPrototypeNode: prototypeNode withReceiverType: prototypeReceiverType [
 	receiverType == prototypeReceiverType ifFalse: [ ^ false ].
 	boundType returnType == prototypeNode returnType ifFalse: [ ^ false ].

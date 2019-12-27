@@ -1,10 +1,11 @@
 Class {
-	#name : #MbndSlovimDebugTypeTranslator,
+	#name : #MbndSlovimDebugInformationTranslator,
 	#superclass : #MbndAbstractModuleVisitor,
 	#traits : 'TMbndSlovimModulePartTranslator',
 	#classTraits : 'TMbndSlovimModulePartTranslator classTrait',
 	#instVars : [
-		'translatedTypes'
+		'translatedEntities',
+		'codeModuleGenerator'
 	],
 	#classVars : [
 		'DebugDecorationWhiteList'
@@ -13,14 +14,14 @@ Class {
 }
 
 { #category : #'class initialization' }
-MbndSlovimDebugTypeTranslator class >> initialize [
+MbndSlovimDebugInformationTranslator class >> initialize [
 	DebugDecorationWhiteList := Set newFrom: #(
 		const volatile restrict
 	)
 ]
 
 { #category : #visiting }
-MbndSlovimDebugTypeTranslator >> addAggregateDebugType: debugType fieldMember: field into: out [ 
+MbndSlovimDebugInformationTranslator >> addAggregateDebugType: debugType fieldMember: field into: out [ 
 	| member |
 	field name isMbndAnonymousSymbol ifTrue: [ ^ self ].
 	
@@ -42,7 +43,7 @@ MbndSlovimDebugTypeTranslator >> addAggregateDebugType: debugType fieldMember: f
 ]
 
 { #category : #visiting }
-MbndSlovimDebugTypeTranslator >> addAggregateDebugType: debugType membersFrom: aggregateType [
+MbndSlovimDebugInformationTranslator >> addAggregateDebugType: debugType membersFrom: aggregateType [
 	debugType members: (Array streamContents: [ :out |
 		aggregateType supertype isTrait ifFalse: [
 			out nextPut: (SLVMDebugDerivedType new
@@ -59,27 +60,69 @@ MbndSlovimDebugTypeTranslator >> addAggregateDebugType: debugType membersFrom: a
 ]
 
 { #category : #initialization }
-MbndSlovimDebugTypeTranslator >> initialize [
+MbndSlovimDebugInformationTranslator >> initialize [
 	super initialize.
-	translatedTypes := Dictionary new.
+	translatedEntities := Dictionary new.
 ]
 
 { #category : #visiting }
-MbndSlovimDebugTypeTranslator >> setCommonDebugType: debugType informationFrom: typeEntity [
+MbndSlovimDebugInformationTranslator >> setCommonDebugSubprogram: debugSubprogram informationFrom: method [
+	method parent ifNotNil: [ 
+		debugSubprogram parentScope: (self translateParentScope: method parent)
+	].
+
+	debugSubprogram
+		isLocal: method hasPublicOrExternalVisibility not;
+		isDefinition: method isDefinition;
+		type: (self translateDebugType: method type)
+]
+
+{ #category : #visiting }
+MbndSlovimDebugInformationTranslator >> setCommonDebugType: debugType informationFrom: typeEntity [
 	typeEntity name isMbndAnonymousSymbol ifFalse: [ 
 		debugType name: typeEntity name
 	].
 
+	(typeEntity isMetaType and: [ typeEntity instanceType isNotNil ]) ifTrue: [ 
+		self assert: typeEntity name isMbndAnonymousSymbol.
+		debugType
+			name: '__Type__';
+			parentScope: (self translateDebugType: typeEntity instanceType)
+	] ifFalse: [
+		typeEntity parent ifNotNil: [ 
+			debugType parentScope: (self translateParentScope: typeEntity parent)
+		].
+	]
+
 ]
 
 { #category : #'code generation' }
-MbndSlovimDebugTypeTranslator >> translateDebugType: aType [
-	^ translatedTypes at: aType ifAbsentPut: [ aType accept: self ]
+MbndSlovimDebugInformationTranslator >> translateDebugType: aType [
+	^ self translateProgramEntityDebugInformation: aType
+]
+
+{ #category : #visiting }
+MbndSlovimDebugInformationTranslator >> translateParentScope: parentScope [
+	| debugScope |
+	debugScope := self translateProgramEntityDebugInformation: parentScope.
+	parentScope isMbndType ifTrue: [ 
+		parentScope isGCClassType ifTrue: [ 
+			self assert: debugScope isDebugDerivedType.
+			^ debugScope baseType.
+		].
+	].
+	^ debugScope
+
+]
+
+{ #category : #'code generation' }
+MbndSlovimDebugInformationTranslator >> translateProgramEntityDebugInformation: aProgramEntity [
+	^ translatedEntities at: aProgramEntity ifAbsentPut: [ aProgramEntity accept: self ]
 
 ]
 
 { #category : #visiting }
-MbndSlovimDebugTypeTranslator >> translateSuperDebugType: supertype [
+MbndSlovimDebugInformationTranslator >> translateSuperDebugType: supertype [
 	| debugType |
 	debugType := self translateDebugType: supertype.
 	debugType isDebugDerivedType ifTrue: [ ^ debugType baseType ].
@@ -87,12 +130,17 @@ MbndSlovimDebugTypeTranslator >> translateSuperDebugType: supertype [
 ]
 
 { #category : #visiting }
-MbndSlovimDebugTypeTranslator >> visitArrayType: arrayType [
+MbndSlovimDebugInformationTranslator >> visitAggregateBasicInitializeMethod: method [
+	^ self visitConcreteMessageMethod: method
+]
+
+{ #category : #visiting }
+MbndSlovimDebugInformationTranslator >> visitArrayType: arrayType [
 	| debugType |
 	arrayType isTrait ifTrue: [ ^ self visitTraitType: arrayType ].
 	
 	debugType := SLVMDebugCompositeType new makeArray.
-	translatedTypes at: arrayType put: debugType.
+	translatedEntities at: arrayType put: debugType.
 	debugType
 		byteSize: arrayType instanceSize;
 		byteAlignment: arrayType instanceAlignment;
@@ -103,12 +151,12 @@ MbndSlovimDebugTypeTranslator >> visitArrayType: arrayType [
 ]
 
 { #category : #visiting }
-MbndSlovimDebugTypeTranslator >> visitClassType: classType [
+MbndSlovimDebugInformationTranslator >> visitClassType: classType [
 	| debugType |
 	classType isTrait ifTrue: [ ^ self visitTraitType: classType ].
 	
 	debugType := SLVMDebugCompositeType new makeClass.
-	translatedTypes at: classType put: debugType.
+	translatedEntities at: classType put: debugType.
 	self setCommonDebugType: debugType informationFrom: classType.
 	debugType
 		byteSize: classType instanceSize;
@@ -120,7 +168,41 @@ MbndSlovimDebugTypeTranslator >> visitClassType: classType [
 ]
 
 { #category : #visiting }
-MbndSlovimDebugTypeTranslator >> visitDecoratedType: type [
+MbndSlovimDebugInformationTranslator >> visitCompileTimeVariable: compileTimeVariable [
+	self flag: 'TODO: Translate myself properly'.
+	^ (SLVMDebugVariable scope: nil name: compileTimeVariable name asPrettySymbolName)
+		type: (self translateDebugType: compileTimeVariable valueType);
+		yourself.
+]
+
+{ #category : #visiting }
+MbndSlovimDebugInformationTranslator >> visitConcreteFunctionMethod: method [
+	| debugInfo |
+	debugInfo := SLVMDebugSubprogram new.
+	method name isMbndAnonymousSymbol ifFalse: [ 
+		debugInfo name: method name
+	].
+
+	translatedEntities at: method put: debugInfo.
+	self setCommonDebugSubprogram: debugInfo informationFrom: method.
+	^ debugInfo
+]
+
+{ #category : #visiting }
+MbndSlovimDebugInformationTranslator >> visitConcreteMessageMethod: method [
+	| debugInfo |
+	debugInfo := SLVMDebugSubprogram new.
+	method name isMbndAnonymousSymbol ifFalse: [ 
+		debugInfo name: '[', method name , ']'
+	].
+
+	translatedEntities at: method put: debugInfo.
+	self setCommonDebugSubprogram: debugInfo informationFrom: method.
+	^ debugInfo
+]
+
+{ #category : #visiting }
+MbndSlovimDebugInformationTranslator >> visitDecoratedType: type [
 	| baseType |
 	type isTrait ifTrue: [ ^ self visitTraitType: type ].
 	
@@ -134,17 +216,17 @@ MbndSlovimDebugTypeTranslator >> visitDecoratedType: type [
 			baseType := derivedType.
 		].
 	].
-	translatedTypes at: type put: baseType.
+	translatedEntities at: type put: baseType.
 	^ baseType
 ]
 
 { #category : #visiting }
-MbndSlovimDebugTypeTranslator >> visitEnumType: enumType [
+MbndSlovimDebugInformationTranslator >> visitEnumType: enumType [
 	| debugType |
 	enumType isTrait ifTrue: [ ^ self visitTraitType: enumType ].
 	
 	debugType := SLVMDebugCompositeType new makeEnumeration.
-	translatedTypes at: enumType put: debugType.
+	translatedEntities at: enumType put: debugType.
 	self setCommonDebugType: debugType informationFrom: enumType.
 	
 	debugType
@@ -158,12 +240,30 @@ MbndSlovimDebugTypeTranslator >> visitEnumType: enumType [
 ]
 
 { #category : #visiting }
-MbndSlovimDebugTypeTranslator >> visitFunctionType: functionType [
+MbndSlovimDebugInformationTranslator >> visitFunctionArgumentVariable: argumentVariable [
+	^ self visitFunctionLocalVariable: argumentVariable
+]
+
+{ #category : #visiting }
+MbndSlovimDebugInformationTranslator >> visitFunctionLocalVariable: localVariable [
+	^ (SLVMDebugVariable scope: nil name: localVariable name asPrettySymbolName)
+		type: (self translateDebugType: localVariable valueType);
+		yourself.
+	
+]
+
+{ #category : #visiting }
+MbndSlovimDebugInformationTranslator >> visitFunctionReceiverArgumentVariable: argumentVariable [
+	^ self visitFunctionLocalVariable: argumentVariable
+]
+
+{ #category : #visiting }
+MbndSlovimDebugInformationTranslator >> visitFunctionType: functionType [
 	| subroutineType |
 	functionType isTrait ifTrue: [ ^ self visitTraitType: functionType ].
 	
 	subroutineType := SLVMDebugSubroutineType new.
-	translatedTypes at: functionType put: subroutineType.
+	translatedEntities at: functionType put: subroutineType.
 	
 	subroutineType
 		argumentTypes: (functionType argumentTypes collect: [:arg | self translateDebugType: (arg asConcreteTypeForAnalysisOfFunctionType: functionType)]);
@@ -173,7 +273,7 @@ MbndSlovimDebugTypeTranslator >> visitFunctionType: functionType [
 ]
 
 { #category : #visiting }
-MbndSlovimDebugTypeTranslator >> visitGCClassType: classType [
+MbndSlovimDebugInformationTranslator >> visitGCClassType: classType [
 	| debugType gcClassPointerType |
 	classType isTrait ifTrue: [ ^ self visitTraitType: classType ].
 	
@@ -182,7 +282,7 @@ MbndSlovimDebugTypeTranslator >> visitGCClassType: classType [
 		baseType: debugType;
 		byteSize: self compilationTarget pointerSize;
 		byteAlignment: self compilationTarget pointerAlignment.
-	translatedTypes at: classType put: gcClassPointerType.
+	translatedEntities at: classType put: gcClassPointerType.
 	self setCommonDebugType: debugType informationFrom: classType.
 	debugType
 		byteSize: classType instanceSize;
@@ -194,12 +294,12 @@ MbndSlovimDebugTypeTranslator >> visitGCClassType: classType [
 ]
 
 { #category : #visiting }
-MbndSlovimDebugTypeTranslator >> visitGCClassVariableDataArrayType: arrayType [
+MbndSlovimDebugInformationTranslator >> visitGCClassVariableDataArrayType: arrayType [
 	| debugType |
 	arrayType isTrait ifTrue: [ ^ self visitTraitType: arrayType ].
 	
 	debugType := SLVMDebugCompositeType new makeArray.
-	translatedTypes at: arrayType put: debugType.
+	translatedEntities at: arrayType put: debugType.
 	debugType
 		byteSize: arrayType instanceSize;
 		byteAlignment: arrayType instanceAlignment;
@@ -210,12 +310,32 @@ MbndSlovimDebugTypeTranslator >> visitGCClassVariableDataArrayType: arrayType [
 ]
 
 { #category : #visiting }
-MbndSlovimDebugTypeTranslator >> visitPointerType: pointerType [
+MbndSlovimDebugInformationTranslator >> visitGlobalVariable: globalVariable [
+	self flag: 'TODO: Translate myself properly'.
+	^ (SLVMDebugVariable scope: nil name: globalVariable name asPrettySymbolName)
+		type: (self translateDebugType: globalVariable valueType);
+		yourself.
+]
+
+{ #category : #visiting }
+MbndSlovimDebugInformationTranslator >> visitNamespace: namespace [
+	| debugInformation |
+	(namespace name = #__global and: [ namespace parent isNil ]) ifTrue: [ 
+		^ nil
+	].
+
+	debugInformation := SLVMDebugNamespace new name: namespace name.
+	translatedEntities at: namespace put: debugInformation.
+	^ debugInformation
+]
+
+{ #category : #visiting }
+MbndSlovimDebugInformationTranslator >> visitPointerType: pointerType [
 	| derivedType |
 	pointerType isTrait ifTrue: [ ^ self visitTraitType: pointerType ].
 	
 	derivedType := SLVMDebugDerivedType new makePointer.
-	translatedTypes at: pointerType put: derivedType.
+	translatedEntities at: pointerType put: derivedType.
 	derivedType
 		baseType: (self translateDebugType: pointerType baseType);
 		byteSize: pointerType instanceSize;
@@ -224,7 +344,7 @@ MbndSlovimDebugTypeTranslator >> visitPointerType: pointerType [
 ]
 
 { #category : #visiting }
-MbndSlovimDebugTypeTranslator >> visitPrimitiveBooleanType: type [
+MbndSlovimDebugInformationTranslator >> visitPrimitiveBooleanType: type [
 	| basicType |
 	type isTrait ifTrue: [ self visitTraitType: type ].
 	basicType := SLVMDebugBasicType new
@@ -238,7 +358,7 @@ MbndSlovimDebugTypeTranslator >> visitPrimitiveBooleanType: type [
 ]
 
 { #category : #visiting }
-MbndSlovimDebugTypeTranslator >> visitPrimitiveFloatType: type [
+MbndSlovimDebugInformationTranslator >> visitPrimitiveFloatType: type [
 	| basicType |
 	type isTrait ifTrue: [ self visitTraitType: type ].
 	basicType := SLVMDebugBasicType new
@@ -252,7 +372,7 @@ MbndSlovimDebugTypeTranslator >> visitPrimitiveFloatType: type [
 ]
 
 { #category : #visiting }
-MbndSlovimDebugTypeTranslator >> visitPrimitiveIntegerType: type [
+MbndSlovimDebugInformationTranslator >> visitPrimitiveIntegerType: type [
 	| basicType |
 	type isTrait ifTrue: [ self visitTraitType: type ].
 	basicType := SLVMDebugBasicType new.
@@ -268,12 +388,12 @@ MbndSlovimDebugTypeTranslator >> visitPrimitiveIntegerType: type [
 ]
 
 { #category : #visiting }
-MbndSlovimDebugTypeTranslator >> visitPrimitiveMatrixType: matrixType [
+MbndSlovimDebugInformationTranslator >> visitPrimitiveMatrixType: matrixType [
 	| debugType |
 	matrixType isTrait ifTrue: [ ^ self visitTraitType: matrixType ].
 	
 	debugType := SLVMDebugCompositeType new makeArray.
-	translatedTypes at: matrixType put: debugType.
+	translatedEntities at: matrixType put: debugType.
 	self setCommonDebugType: debugType informationFrom: matrixType.
 	
 	debugType
@@ -286,12 +406,12 @@ MbndSlovimDebugTypeTranslator >> visitPrimitiveMatrixType: matrixType [
 ]
 
 { #category : #visiting }
-MbndSlovimDebugTypeTranslator >> visitPrimitiveVectorType: vectorType [
+MbndSlovimDebugInformationTranslator >> visitPrimitiveVectorType: vectorType [
 	| debugType elementType elementDebugType |
 	vectorType isTrait ifTrue: [ ^ self visitTraitType: vectorType ].
 	
 	debugType := SLVMDebugCompositeType new makeStructure.
-	translatedTypes at: vectorType put: debugType.
+	translatedEntities at: vectorType put: debugType.
 	self setCommonDebugType: debugType informationFrom: vectorType.
 	
 	elementType := vectorType elementType.
@@ -312,11 +432,11 @@ MbndSlovimDebugTypeTranslator >> visitPrimitiveVectorType: vectorType [
 ]
 
 { #category : #visiting }
-MbndSlovimDebugTypeTranslator >> visitReferenceType: referenceType [
+MbndSlovimDebugInformationTranslator >> visitReferenceType: referenceType [
 	| derivedType |
 	referenceType isTrait ifTrue: [ ^ self visitTraitType: referenceType ].
 	derivedType := SLVMDebugDerivedType new makeReference.
-	translatedTypes at: referenceType put: derivedType.
+	translatedEntities at: referenceType put: derivedType.
 	derivedType
 		baseType: (self translateDebugType: referenceType baseType);
 		byteSize: referenceType instanceSize;
@@ -325,7 +445,7 @@ MbndSlovimDebugTypeTranslator >> visitReferenceType: referenceType [
 ]
 
 { #category : #visiting }
-MbndSlovimDebugTypeTranslator >> visitSimpleMetaType: simpleMetaType [
+MbndSlovimDebugInformationTranslator >> visitSimpleMetaType: simpleMetaType [
 	| debugStructureType debugType |
 	simpleMetaType isTrait ifTrue: [ ^ self visitTraitType: simpleMetaType ].
 	
@@ -336,19 +456,19 @@ MbndSlovimDebugTypeTranslator >> visitSimpleMetaType: simpleMetaType [
 		byteSize: self compilationTarget pointerSize;
 		byteAlignment: self compilationTarget pointerAlignment.
 	self setCommonDebugType: debugStructureType informationFrom: simpleMetaType.
-	translatedTypes at: simpleMetaType put: debugType.
+	translatedEntities at: simpleMetaType put: debugType.
 	self flag: 'TODO: Add the member fields.'.
 	
 	^ debugType
 ]
 
 { #category : #visiting }
-MbndSlovimDebugTypeTranslator >> visitStructureType: structureType [
+MbndSlovimDebugInformationTranslator >> visitStructureType: structureType [
 	| debugType |
 	structureType isTrait ifTrue: [ ^ self visitTraitType: structureType ].
 	
 	debugType := SLVMDebugCompositeType new makeStructure.
-	translatedTypes at: structureType put: debugType.
+	translatedEntities at: structureType put: debugType.
 	self setCommonDebugType: debugType informationFrom: structureType.
 	
 	debugType
@@ -361,12 +481,18 @@ MbndSlovimDebugTypeTranslator >> visitStructureType: structureType [
 ]
 
 { #category : #visiting }
-MbndSlovimDebugTypeTranslator >> visitUnionType: unionType [
+MbndSlovimDebugInformationTranslator >> visitTemplateInstance: templateInstance [
+	self flag: 'TODO: Support this case.'.
+	^ nil
+]
+
+{ #category : #visiting }
+MbndSlovimDebugInformationTranslator >> visitUnionType: unionType [
 	| debugType |
 	unionType isTrait ifTrue: [ ^ self visitTraitType: unionType ].
 	
 	debugType := SLVMDebugCompositeType new makeUnion.
-	translatedTypes at: unionType put: debugType.
+	translatedEntities at: unionType put: debugType.
 	self setCommonDebugType: debugType informationFrom: unionType.
 	
 	debugType
@@ -379,7 +505,7 @@ MbndSlovimDebugTypeTranslator >> visitUnionType: unionType [
 ]
 
 { #category : #visiting }
-MbndSlovimDebugTypeTranslator >> visitVoidType: type [
+MbndSlovimDebugInformationTranslator >> visitVoidType: type [
 	^ SLVMDebugBasicType new
 		makeVoid;
 		yourself.

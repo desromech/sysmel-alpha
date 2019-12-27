@@ -7,6 +7,11 @@ Class {
 	#category : #'SysmelMoebiusMetamodel-Core-Variables'
 }
 
+{ #category : #visiting }
+MbndFunctionReceiverArgumentVariable >> accept: visitor [
+	^ visitor visitFunctionReceiverArgumentVariable: self
+]
+
 { #category : #converting }
 MbndFunctionReceiverArgumentVariable >> asSuperArgumentVariable [
 	^ superArgumentVariable ifNil: [superArgumentVariable := MbndFunctionSuperReceiverArgumentVariable new

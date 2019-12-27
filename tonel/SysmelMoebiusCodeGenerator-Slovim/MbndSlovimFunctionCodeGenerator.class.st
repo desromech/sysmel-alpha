@@ -154,13 +154,6 @@ MbndSlovimFunctionCodeGenerator >> buildSSAFunction: aSSAFunction withCodeGenera
 	slvmBuilder allocaBuilder jump: ssaFunctionBodyBlock.
 ]
 
-{ #category : #visiting }
-MbndSlovimFunctionCodeGenerator >> createLocalVariableDebugInformation: localVariable [
-	^ (SLVMDebugVariable scope: nil name: localVariable name asPrettySymbolName)
-		type: (self translateDebugType: localVariable valueType);
-		yourself
-]
-
 { #category : #'as yet unclassified' }
 MbndSlovimFunctionCodeGenerator >> defineArgumentValues [
 	| argumentValue superVariable |
@@ -485,7 +478,7 @@ MbndSlovimFunctionCodeGenerator >> generateLocalVariable: localVariable definiti
 
 			self isEmittingDebugInformation ifTrue: [ 
 				localVariable name isMbndGenerateSymbolRemovedFromDebug ifFalse: [
-					(slvmBuilder debugSetVariable: (self createLocalVariableDebugInformation: localVariable) value: ssaValue)
+					(slvmBuilder debugSetVariable: (self translateProgramEntityDebugInformation: localVariable) value: ssaValue)
 				]
 			].
 		] ifFalse: [
@@ -495,7 +488,7 @@ MbndSlovimFunctionCodeGenerator >> generateLocalVariable: localVariable definiti
 			self isEmittingDebugInformation ifTrue: [ 
 				localVariable name isMbndGenerateSymbolRemovedFromDebug ifFalse: [
 					(slvmBuilder debugDeclareVariable: ssaValue)
-						debugInformation: (self createLocalVariableDebugInformation: localVariable)
+						debugInformation: (self translateProgramEntityDebugInformation: localVariable)
 				]
 			].
 		
@@ -510,7 +503,7 @@ MbndSlovimFunctionCodeGenerator >> generateLocalVariable: localVariable definiti
 
 		self isEmittingDebugInformation ifTrue: [ 
 			localVariable name isMbndGenerateSymbolRemovedFromDebug ifFalse: [
-				(slvmBuilder debugSetVariable: (self createLocalVariableDebugInformation: localVariable) value: ssaValue)
+				(slvmBuilder debugSetVariable: (self translateProgramEntityDebugInformation: localVariable) value: ssaValue)
 			]
 		].
 	].
@@ -599,7 +592,7 @@ MbndSlovimFunctionCodeGenerator >> initializeArgumentVariable: argument [
 
 	self isEmittingDebugInformation ifTrue: [ 
 		argument name isMbndAnonymousSymbol ifFalse: [ 
-			debugInformation := self createLocalVariableDebugInformation: argument.
+			debugInformation := self translateProgramEntityDebugInformation: argument.
 			convertedPosition := codeModuleGenerator convertDebugPosition: argument definitionPosition asActualSourcePosition.
 			ssaValue := functionVariables at: argument.
 			ssaValue

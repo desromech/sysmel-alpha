@@ -286,6 +286,11 @@ MbndAbstractConcreteMethod >> isConcreteMethod [
 ]
 
 { #category : #testing }
+MbndAbstractConcreteMethod >> isDefinition [
+	^ definitionNode isNotNil
+]
+
+{ #category : #testing }
 MbndAbstractConcreteMethod >> isNewVirtualTableEntry [
 	^ self hasFlag: #virtual
 ]

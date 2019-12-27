@@ -8,3 +8,8 @@ Class {
 MbndCompilerGeneratedMethod >> isCompilerGeneratedMethod [
 	^ true
 ]
+
+{ #category : #testing }
+MbndCompilerGeneratedMethod >> isDefinition [
+	^ true
+]
