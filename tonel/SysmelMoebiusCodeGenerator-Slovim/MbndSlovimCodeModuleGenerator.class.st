@@ -6,8 +6,6 @@ Class {
 		'ssaModule',
 		'translatedProgramEntities',
 		'typeTranslator',
-		'typeNameMangler',
-		'programEntityTypeNameMangler',
 		'anonSymbolCount',
 		'debugLocationDictionary',
 		'debugSourceFileDictionary',
@@ -17,7 +15,8 @@ Class {
 		'structuresWithAdditionalKinds',
 		'convertedShaderIOFields',
 		'generatedNameTable',
-		'debugTypeTranslator'
+		'debugTypeTranslator',
+		'symbolNameManglerPrototype'
 	],
 	#classVars : [
 		'ShaderBuiltInLocationMap'
@@ -214,30 +213,6 @@ MbndSlovimCodeModuleGenerator >> debugInformationTranslator [
 ]
 
 { #category : #visiting }
-MbndSlovimCodeModuleGenerator >> escapeCharacterForMangling: c into: out [
-	c = $_ ifTrue: [ 
-		^ out nextPutAll: '__'
-	].
-	c = $: ifTrue: [ 
-		^ out nextPutAll: '_c'
-	].
-
-	('<>+-*/%"''()#?!|&^~=' includes: c) ifTrue: [ ^ out nextPutAll: '_x' ; nextPutAll: c asInteger hex ].
-	^ out nextPut: c
-
-]
-
-{ #category : #visiting }
-MbndSlovimCodeModuleGenerator >> escapeNameForMangling: name [
-	name ifNil: [ ^ '_anon' ].
-	^ ByteString streamContents: [ :out |
-		name do: [ :c |
-			self escapeCharacterForMangling: c into: out
-		]
-	]
-]
-
-{ #category : #visiting }
 MbndSlovimCodeModuleGenerator >> fetchShader: functionMethod inputsOfType: inputMessageType into: inputFetchedLocation with: builder [
 	| slotField inputGlobal |
 	self assert: inputMessageType isAggregateType.
@@ -259,6 +234,8 @@ MbndSlovimCodeModuleGenerator >> generateCodeModuleFor: aModule [
 MbndSlovimCodeModuleGenerator >> generateCodeModuleFor: aModule programEntities: programEntitities [
 	sourceModule := aModule.
 	ssaModule := SLVMModule new compilationTarget: self slvmCompilationTarget.
+	ssaModule sourceLanguageName: 'C++'. "HACK"
+	
 	self addPrimitiveTypeTranslations.
 	programEntitities do: [ :each | self translateProgramEntity: each ].
 	
@@ -288,12 +265,8 @@ MbndSlovimCodeModuleGenerator >> generateFinalizationOfGlobalVariable: globalVar
 { #category : #'as yet unclassified' }
 MbndSlovimCodeModuleGenerator >> generateGlobalField: field forDescriptorSet: set binding: binding [
 	| globalName valueType globalStorage structureKind ssaValueType ssaGlobal |
-	globalName := ByteString streamContents: [:out |
-		out nextPutAll: (self csymbolForProgramEntity: field);
-			nextPutAll: '_';
-			nextPutAll: 'set'; print: set;
-			nextPutAll: 'binding'; print: binding
-	].
+	globalName := self newSymbolNameMangler mangleProgramEntityName: field
+		descriptorSet: set descriptorBinding: binding.
 
 	valueType := field valueType.
 	globalStorage := SLVMType uniformConstantStorage.
@@ -319,12 +292,8 @@ MbndSlovimCodeModuleGenerator >> generateGlobalField: field forDescriptorSet: se
 { #category : #'as yet unclassified' }
 MbndSlovimCodeModuleGenerator >> generateGlobalField: field forShader: shaderStage storage: storage [
 	| globalName ssaValueType ssaGlobal location |
-	globalName := ByteString streamContents: [:out |
-		out nextPutAll: (self csymbolForProgramEntity: field);
-			nextPutAll: '_';
-			nextPutAll: shaderStage;
-			nextPutAll: '_'; nextPutAll: storage
-	].
+	globalName := self newSymbolNameMangler mangleProgramEntityName: field
+		suffixes: {shaderStage . storage}.
 
 	ssaValueType := self translateType: field valueType.
 	
@@ -343,11 +312,8 @@ MbndSlovimCodeModuleGenerator >> generateGlobalField: field forShader: shaderSta
 { #category : #'as yet unclassified' }
 MbndSlovimCodeModuleGenerator >> generateGlobalFieldForPushConstants: field [
 	| globalName valueType globalStorage structureKind ssaValueType ssaGlobal |
-	globalName := ByteString streamContents: [:out |
-		out nextPutAll: (self csymbolForProgramEntity: field);
-			nextPutAll: '_';
-			nextPutAll: 'pushConstants'
-	].
+	globalName := self newSymbolNameMangler mangleProgramEntityName: field
+		suffixes: {#pushConstants}.
 
 	valueType := field valueType.
 	globalStorage := SLVMType pushConstantStorage.
@@ -507,12 +473,17 @@ MbndSlovimCodeModuleGenerator >> isEmittingDebugInformation [
 
 { #category : #visiting }
 MbndSlovimCodeModuleGenerator >> mangleProgramEntityName: programEntity [
-	| escapedNamed mangledType validName result |
-	programEntity ifNil: [ ^ #_S ].
+	^ self newSymbolNameMangler mangleProgramEntityName: programEntity
+]
+
+{ #category : #visiting }
+MbndSlovimCodeModuleGenerator >> mangleProgramEntityNestedName: programEntity [
+	| escapedNamed validName result |
+	programEntity ifNil: [ ^ #N ].
 	(programEntity name isMbndAnonymousSymbol and: [ programEntity isMbndType and: [programEntity isMetaType] ]) ifTrue: [
-		^ ((self mangleProgramEntityName: programEntity instanceType) , '__meta') asSymbol
+		^ ((self mangleProgramEntityNestedName: programEntity instanceType) , '8__Type__') asSymbol
 	].
-	(programEntity parent isNil and: [ programEntity isNamespace ]) ifTrue: [ ^ #_S ].
+	(programEntity parent isNil and: [ programEntity isNamespace ]) ifTrue: [ ^ #N ].
 	
 	validName := programEntity name.
 	programEntity isTemplateInstance ifTrue: [ validName := '' ].
@@ -520,25 +491,18 @@ MbndSlovimCodeModuleGenerator >> mangleProgramEntityName: programEntity [
 	validName isMbndAnonymousSymbol ifTrue: [ validName := self generatedNameForAnynomousEntity: programEntity ].
 	
 	escapedNamed := self escapeNameForMangling: validName.
-	mangledType := self mangleProgramEntityType: programEntity.
-	
-	result := self mangleProgramEntityName: programEntity parent.
+
+	result := self mangleProgramEntityNestedName: programEntity parent.
 	escapedNamed ifNotEmpty: [ 
 		result := result , escapedNamed size asString , escapedNamed.
 	].
 	
-	result := result , mangledType.
-	^ result asSymbol
+	^ result
 ]
 
 { #category : #visiting }
-MbndSlovimCodeModuleGenerator >> mangleProgramEntityType: programEntity [
-	^ self programEntityTypeNameMangler visitNode: programEntity
-]
-
-{ #category : #visiting }
-MbndSlovimCodeModuleGenerator >> programEntityTypeNameMangler [
-	^ programEntityTypeNameMangler ifNil: [ programEntityTypeNameMangler := MbndSlovimProgramEntityTypeNameMangler new codeModuleGenerator: self ]
+MbndSlovimCodeModuleGenerator >> newSymbolNameMangler [
+	^ self symbolNameManglerPrototype copy
 ]
 
 { #category : #visiting }
@@ -582,6 +546,16 @@ MbndSlovimCodeModuleGenerator >> storeShader: functionMethod outputsOfType: outp
 		outputGlobal := self getShaderIOField: slotField storage: SLVMType outputStorage forStage: functionMethod specialSemantics.
 		builder store: (builder load: (builder getReference: inputFetchedLocation element: (builder constInt: slotField slotIndex)))
 			in: outputGlobal
+	]
+]
+
+{ #category : #visiting }
+MbndSlovimCodeModuleGenerator >> symbolNameManglerPrototype [
+	^ symbolNameManglerPrototype ifNil: [
+		symbolNameManglerPrototype := MbndSlovimSymbolNameMangler new
+			compilationTarget: self compilationTarget;
+			codeModuleGenerator: self;
+			yourself
 	]
 ]
 
@@ -719,7 +693,7 @@ MbndSlovimCodeModuleGenerator >> translateTypeInfoDefinition: type [
 	].
 
 	self assert: ssaTypeInfoType isPointerType.
-	ssaTypeInfo := SLVMGlobalVariable module: ssaModule name: ((self mangleProgramEntityName: type ) , 'Ti') asSymbol valueType: ssaTypeInfoType baseType storage: SLVMType genericStorage.
+	ssaTypeInfo := SLVMGlobalVariable module: ssaModule name: (self newSymbolNameMangler mangleTypeInfo: type) valueType: ssaTypeInfoType baseType storage: SLVMType genericStorage.
 	self setProgramEntity: type ssaValue: ssaTypeInfo.
 	ssaModule addHighLevelEntity: type mapToGlobalValue: ssaTypeInfo.
 	
@@ -733,11 +707,6 @@ MbndSlovimCodeModuleGenerator >> translateTypeInfoDefinition: type [
 { #category : #'code generation' }
 MbndSlovimCodeModuleGenerator >> translateTypes: aType [
 	^ self typeTranslator translateTypes: aType
-]
-
-{ #category : #visiting }
-MbndSlovimCodeModuleGenerator >> typeNameMangler [
-	^ typeNameMangler ifNil: [ typeNameMangler := MbndSlovimTypeNameMangler new codeModuleGenerator: self ]
 ]
 
 { #category : #accessing }
@@ -889,7 +858,7 @@ MbndSlovimCodeModuleGenerator >> visitConcreteFunctionMethod: functionMethod [
 	csymbol := self csymbolForProgramEntity: functionMethod.
 	addHighLevelMap := true.
 	(self slvmCompilationTarget isGPU and: [functionMethod specialSemantics isNotNil ]) ifTrue: [ 
-		csymbol := (csymbol , #_impl) asSymbol.
+		csymbol := self newSymbolNameMangler mangleProgramEntityName: functionMethod suffixes: {#__impl}.
 		addHighLevelMap := false.
 	].
 

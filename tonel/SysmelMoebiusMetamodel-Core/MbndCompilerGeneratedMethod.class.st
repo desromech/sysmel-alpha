@@ -13,3 +13,8 @@ MbndCompilerGeneratedMethod >> isCompilerGeneratedMethod [
 MbndCompilerGeneratedMethod >> isDefinition [
 	^ true
 ]
+
+{ #category : #testing }
+MbndCompilerGeneratedMethod >> isMessageMethod [
+	^ true
+]

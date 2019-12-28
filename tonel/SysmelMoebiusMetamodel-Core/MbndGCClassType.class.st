@@ -254,6 +254,11 @@ MbndGCClassType >> superclass [
 ]
 
 { #category : #'as yet unclassified' }
+MbndGCClassType >> unmangledStructureTypePrefix [
+	^ 'gcclass.'
+]
+
+{ #category : #'as yet unclassified' }
 MbndGCClassType >> variableDataSizeField [
 	^ self slotLayout variableDataSizeField
 ]

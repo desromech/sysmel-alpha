@@ -234,7 +234,7 @@ class AtomicFlag definition: {
 ';
 		generateSSAModule.
 
-	function := ssaModule globalNamed: #_S10AtomicFlag10loadWith_cFRTc_S10AtomicFlagi.
+	function := ssaModule globalNamed: #'_ZN10AtomicFlag10.loadWith.ERNS_Ei'.
 	self assert: function isFunction.
 	self deny: function isEmpty.
 	self assert: function basicBlocks size equals: 1.
@@ -549,7 +549,7 @@ class SubClass superclass: SuperClass; definition: {
 ';
 		generateSSAModule.
 
-	function := ssaModule globalNamed: #_S8SubClass8getFieldFRTc_S8SubClass.
+	function := ssaModule globalNamed: #'_ZN8SubClass9.getFieldERNS_E'.
 	self assert: function isFunction.
 	self deny: function isEmpty.
 	self assert: function basicBlocks size equals: 2.
@@ -687,7 +687,7 @@ function callVirtual externC(o: SuperClass ref) => Float64
 		))
 	).
 	
-	function := ssaModule globalNamed: #_S8SubClass8getValueFRTc_S8SubClass.
+	function := ssaModule globalNamed: #'_ZN8SubClass9.getValueERNS_E'.
 	self assert: function allInstructionsMnemonics equals: #(
 		(entry (jump))
 		(body (
@@ -2199,7 +2199,7 @@ function callMessage externC(o: SubClass) => Float64
 		))
 	).
 	
-	function := ssaModule globalNamed: #_S8SubClass8getValueFTg_S8SubClass.
+	function := ssaModule globalNamed: #'_ZN8SubClass9.getValueEPNS_E'.
 	self assert: function allInstructionsMnemonics equals: #(
 		(entry (jump))
 		(body (
@@ -2617,7 +2617,7 @@ global globalHandle externC mutable type: Resource';
 	
 	callInstruction := globalCtor basicBlocks second firstInstruction.
 	self assert: callInstruction isCall.
-	self assert: callInstruction functionValue name equals: #_S8Resource10initializeFRTs_S8Resource.
+	self assert: callInstruction functionValue name equals: #'_ZN8Resource11.initializeERNS_E'. 
 ]
 
 { #category : #tests }
@@ -2656,7 +2656,7 @@ global globalHandle externC mutable type: Resource; constructionPriority: -100';
 	
 	callInstruction := globalCtor basicBlocks second firstInstruction.
 	self assert: callInstruction isCall.
-	self assert: callInstruction functionValue name equals: #_S8Resource10initializeFRTs_S8Resource.
+	self assert: callInstruction functionValue name equals: #'_ZN8Resource11.initializeERNS_E'.
 ]
 
 { #category : #tests }
@@ -2695,7 +2695,7 @@ global globalHandle externC mutable type: Resource';
 	
 	callInstruction := globalDtor basicBlocks second firstInstruction.
 	self assert: callInstruction isCall.
-	self assert: callInstruction functionValue name equals: #_S8Resource8finalizeFRTs_S8Resource.
+	self assert: callInstruction functionValue name equals: #'_ZN8Resource9.finalizeERNS_E'.
 ]
 
 { #category : #tests }
@@ -2734,7 +2734,7 @@ global globalHandle externC mutable type: Resource; constructionPriority: -100';
 	
 	callInstruction := globalDtor basicBlocks second firstInstruction.
 	self assert: callInstruction isCall.
-	self assert: callInstruction functionValue name equals: #_S8Resource8finalizeFRTs_S8Resource.
+	self assert: callInstruction functionValue name equals: #'_ZN8Resource9.finalizeERNS_E'.
 ]
 
 { #category : #tests }
@@ -4080,7 +4080,7 @@ function call externC(x: Int32) => Int32
 	self assert: function basicBlocks size equals: 2.
 	call := function basicBlocks second firstInstruction.
 	self assert: call isCall.
-	self assert: call functionValue name equals: #_S6calledFi.
+	self assert: call functionValue name equals: #_ZN6calledEi.
 ]
 
 { #category : #tests }
@@ -4104,7 +4104,7 @@ function call externC() => Int32
 	self assert: function basicBlocks size equals: 2.
 	call := function basicBlocks second firstInstruction.
 	self assert: call isCall.
-	self assert: call functionValue name equals: #_S6calledFi.
+	self assert: call functionValue name equals: #_ZN6calledEi.
 ]
 
 { #category : #tests }
@@ -4131,7 +4131,7 @@ function call externC(x: Int32) => Int32
 	self assert: function basicBlocks second firstInstruction isStore.
 	call := function basicBlocks second firstInstruction nextInstruction.
 	self assert: call isCall.
-	self assert: call functionValue name equals:  #_S10TestStruct7addTo_cFRTs_S10TestStructi.
+	self assert: call functionValue name equals:  #'_ZN10TestStruct7.addTo.ERNS_Ei'
 ]
 
 { #category : #tests }
@@ -4527,10 +4527,10 @@ struct TreeNode definition: {
 }.';
 		generateSSAModule.
 
-	function := ssaModule globalNamed: #_S8TreeNode4sizeFRTs_S8TreeNode.
+	function := ssaModule globalNamed: #'_ZN8TreeNode5.sizeERNS_E'.
 	structureType := function arguments first type baseType.
 	self assert: structureType isStructureType.
-	self assert: structureType name equals: #_S8TreeNode.
+	self assert: structureType name equals: #'struct.TreeNode'.
 
 ]
 
@@ -4697,7 +4697,7 @@ struct TestStruct definition: {
 ';
 		generateSSAModule.
 
-	function := ssaModule globalNamed: #_S10TestStruct1fFRTs_S10TestStruct.
+	function := ssaModule globalNamed: #'_ZN10TestStruct2.fERNS_E'.
 	self assert: function isFunction.
 	self deny: function isEmpty.
 	self assert: function basicBlocks size equals: 2.
@@ -4716,7 +4716,7 @@ struct TestStruct definition: {
 ';
 		generateSSAModule.
 
-	function := ssaModule globalNamed: #_S10TestStruct1fFRTs_S10TestStruct.
+	function := ssaModule globalNamed: #'_ZN10TestStruct2.fERNS_E'.
 	self assert: function isFunction.
 	self deny: function isEmpty.
 	self assert: function basicBlocks size equals: 2.

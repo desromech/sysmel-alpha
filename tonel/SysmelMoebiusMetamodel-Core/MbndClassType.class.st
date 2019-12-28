@@ -30,3 +30,8 @@ MbndClassType >> addConversionRulesToReferenceType: referenceType [
 MbndClassType >> isClassType [
 	^ true
 ]
+
+{ #category : #'as yet unclassified' }
+MbndClassType >> unmangledStructureTypePrefix [
+	^ 'class.'
+]

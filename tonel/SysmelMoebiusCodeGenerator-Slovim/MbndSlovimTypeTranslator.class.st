@@ -65,10 +65,10 @@ MbndSlovimTypeTranslator >> translateAggregateType: aggregateType [
 MbndSlovimTypeTranslator >> translateAggregateType: aggregateType withKind: typeKindClass [
 	| structureName ssaStructureType ssaValueType |
 	structureName := (aggregateType name isNotNil or: [aggregateType parent isNotNil and: [aggregateType parent isTemplateInstance]]) ifTrue: [
-		codeModuleGenerator mangleProgramEntityName: aggregateType
+		(aggregateType unmangledStructureTypePrefix , (codeModuleGenerator unmangledNameForProgramEntity: aggregateType)) asSymbol
 	].
 	(aggregateType isGCClassType and: [ aggregateType isMetaType ]) ifTrue: [ 
-		structureName := ((codeModuleGenerator mangleProgramEntityName: aggregateType instanceType) , 'Tm') asSymbol
+		structureName := (aggregateType unmangledStructureTypePrefix ,  (codeModuleGenerator unmangledNameForProgramEntity: aggregateType instanceType) , '::__Meta__') asSymbol
 	].
 
 	ssaStructureType := typeKindClass name: structureName

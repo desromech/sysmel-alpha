@@ -215,7 +215,7 @@ class ShaderInterface definition: {
 	generateSSAModule;
 	validateSpirV.
 	
-	shaderImplementation := ssaModule globalNamed: #_S15ShaderInterface6shaderFRTc_S15ShaderInterfaceTCiTs_S5InputTCoTs_S6Output_impl.
+	shaderImplementation := ssaModule globalNamed: #'_ZN15ShaderInterface6shader6__implERNS_EU12inputChannelN5InputEU13outputChannelN6OutputE'.
 	self assert: shaderImplementation allInstructionsMnemonics equals: #(
 		(entry (
 			jump
@@ -269,7 +269,7 @@ class ShaderInterface definition: {
 	generateSSAModule;
 	validateSpirV.
 	
-	shaderImplementation := ssaModule globalNamed: #_S15ShaderInterface6shaderFRTc_S15ShaderInterfaceTCiTs_S5InputTCoTs_S6Output_impl.
+	shaderImplementation := ssaModule globalNamed: #'_ZN15ShaderInterface6shader6__implERNS_EU12inputChannelN5InputEU13outputChannelN6OutputE'.
 	self assert: shaderImplementation allInstructionsMnemonics equals: #(
 		(entry (
 			jump
@@ -323,7 +323,7 @@ class ShaderInterface definition: {
 	generateSSAModule;
 	validateSpirV.
 	
-	shaderImplementation := ssaModule globalNamed: #_S15ShaderInterface6shaderFRTc_S15ShaderInterfaceTCiTs_S5InputTCoTs_S6Output_impl.
+	shaderImplementation := ssaModule globalNamed: #'_ZN15ShaderInterface6shader6__implERNS_EU12inputChannelN5InputEU13outputChannelN6OutputE'.
 	self assert: shaderImplementation allInstructionsMnemonics equals: #(
 		(entry (
 			jump

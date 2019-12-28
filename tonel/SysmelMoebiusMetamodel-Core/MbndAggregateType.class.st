@@ -28,3 +28,8 @@ MbndAggregateType >> getFieldOffset: fieldName [
 MbndAggregateType >> isAggregateType [
 	^ true
 ]
+
+{ #category : #'as yet unclassified' }
+MbndAggregateType >> unmangledStructureTypePrefix [
+	self subclassResponsibility
+]

@@ -40,3 +40,8 @@ MbndUnionType >> isUnionType [
 MbndUnionType >> slotLayoutBuilderClass [
 	^ MbndUnionSlotLayoutBuilder
 ]
+
+{ #category : #'as yet unclassified' }
+MbndUnionType >> unmangledStructureTypePrefix [
+	^ 'union.'
+]

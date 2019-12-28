@@ -29,3 +29,8 @@ MbndStructureType >> slotLayoutBuilderClass [
 	self isPacked ifTrue: [ ^ MbndPackedSlotLayoutBuilder ].
 	^ super slotLayoutBuilderClass
 ]
+
+{ #category : #'as yet unclassified' }
+MbndStructureType >> unmangledStructureTypePrefix [
+	^ 'struct.'
+]

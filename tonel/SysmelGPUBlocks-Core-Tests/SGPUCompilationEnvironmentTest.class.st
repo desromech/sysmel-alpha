@@ -13,6 +13,7 @@ Class {
 { #category : #running }
 SGPUCompilationEnvironmentTest >> setUp [
 	SGPUCompilationEnvironment reset.
+	compilationEnvironment := SGPUCompilationEnvironment current.
 ]
 
 { #category : #running }

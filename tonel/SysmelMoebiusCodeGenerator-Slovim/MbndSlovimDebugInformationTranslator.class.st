@@ -180,7 +180,9 @@ MbndSlovimDebugInformationTranslator >> visitConcreteFunctionMethod: method [
 	| debugInfo |
 	debugInfo := SLVMDebugSubprogram new.
 	method name isMbndAnonymousSymbol ifFalse: [ 
-		debugInfo name: method name
+		debugInfo
+			name: method name;
+			emitLinkageName: true
 	].
 
 	translatedEntities at: method put: debugInfo.
@@ -193,7 +195,9 @@ MbndSlovimDebugInformationTranslator >> visitConcreteMessageMethod: method [
 	| debugInfo |
 	debugInfo := SLVMDebugSubprogram new.
 	method name isMbndAnonymousSymbol ifFalse: [ 
-		debugInfo name: '[', method name , ']'
+		debugInfo
+			name: '[', method name , ']';
+			emitLinkageName: true
 	].
 
 	translatedEntities at: method put: debugInfo.
