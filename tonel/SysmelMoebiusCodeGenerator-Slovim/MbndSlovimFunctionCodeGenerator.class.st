@@ -12,7 +12,8 @@ Class {
 		'currentContinueBlock',
 		'currentCleanUpScope',
 		'ssaFunctionEntryBlock',
-		'ssaFunctionBodyBlock'
+		'ssaFunctionBodyBlock',
+		'activeLexicalScope'
 	],
 	#classVars : [
 		'AdditionalIntrinsicsDictionary',
@@ -1215,7 +1216,9 @@ MbndSlovimFunctionCodeGenerator >> visitIntegerToPointerCastNode: node [
 
 { #category : #visiting }
 MbndSlovimFunctionCodeGenerator >> visitLexicalScopeNode: node [
-	^ self visitCleanUpScopeNode: node
+	^ self withLexicalScope: node lexicalScope do: [
+		self visitCleanUpScopeNode: node
+	]
 ]
 
 { #category : #visiting }
@@ -1307,7 +1310,7 @@ MbndSlovimFunctionCodeGenerator >> visitMethodReferenceNode: node [
 { #category : #visiting }
 MbndSlovimFunctionCodeGenerator >> visitNode: node [
 	self isEmittingDebugInformation ifTrue: [ 
-		^ self withDebugPosition: (codeModuleGenerator convertDebugPosition: node asActualSourcePosition) do: [ 
+		^ self withDebugPosition: (codeModuleGenerator convertDebugPosition: node asActualSourcePosition scope: activeLexicalScope) do: [ 
 			super visitNode: node
 		].
 	].
@@ -1752,4 +1755,17 @@ MbndSlovimFunctionCodeGenerator >> withDebugPosition: debugPosition do: aBlock [
 		slvmBuilder popDebugSourcePosition.
 		slvmBuilder allocaBuilder popDebugSourcePosition.
 	]
+]
+
+{ #category : #'as yet unclassified' }
+MbndSlovimFunctionCodeGenerator >> withLexicalScope: lexicalScope do: aBlock [
+	| debugLexicalScope oldActiveLexicalScope |
+	self isEmittingDebugInformation ifFalse: [ ^ aBlock value ].
+	
+	debugLexicalScope := codeModuleGenerator debugInformationTranslator translateLexicalScope: lexicalScope.
+	oldActiveLexicalScope := activeLexicalScope.
+	^ [ 
+		activeLexicalScope := debugLexicalScope.
+		aBlock value
+	] ensure: [ activeLexicalScope := oldActiveLexicalScope ]
 ]

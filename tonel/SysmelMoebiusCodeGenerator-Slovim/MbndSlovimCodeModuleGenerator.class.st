@@ -97,7 +97,12 @@ MbndSlovimCodeModuleGenerator >> compilationTarget [
 
 { #category : #'code generation' }
 MbndSlovimCodeModuleGenerator >> convertDebugPosition: aPosition [
-	^ debugLocationDictionary at: aPosition ifAbsentPut: [ SLVMDebugLocation new
+	^ self convertDebugPosition: aPosition scope: nil
+]
+
+{ #category : #'code generation' }
+MbndSlovimCodeModuleGenerator >> convertDebugPosition: aPosition scope: lexicalScope [
+	^ debugLocationDictionary at: {aPosition . lexicalScope} ifAbsentPut: [ SLVMDebugLocation new
 			sourceFile: (self convertDebugSourceFile: aPosition collection);
 			start: aPosition start;
 			stop: aPosition stop;
@@ -106,6 +111,7 @@ MbndSlovimCodeModuleGenerator >> convertDebugPosition: aPosition [
 			endLine: aPosition endLine;
 			endColumn: aPosition endColumn;
 			collection: aPosition collection;
+			scope: lexicalScope;
 			yourself ]
 ]
 

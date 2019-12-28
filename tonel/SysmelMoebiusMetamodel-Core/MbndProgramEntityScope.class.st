@@ -24,6 +24,11 @@ MbndProgramEntityScope >> defaultReturnType [
 	^ super defaultReturnType
 ]
 
+{ #category : #testing }
+MbndProgramEntityScope >> isProgramEntityScope [
+	^ true
+]
+
 { #category : #'macro expansion' }
 MbndProgramEntityScope >> lookupMacroSelector: selector [
 	(programEntity lookupMacroSelector: selector) ifNotNil: [ :macroMethod |

@@ -7,6 +7,7 @@ Class {
 		'parent',
 		'name',
 		'definitionNode',
+		'definitionScope',
 		'valueType',
 		'minimalAlignment'
 	],
@@ -41,6 +42,16 @@ MbndAbstractVariable >> definitionNode: anObject [
 { #category : #accessing }
 MbndAbstractVariable >> definitionPosition [
 	^ definitionNode
+]
+
+{ #category : #accessing }
+MbndAbstractVariable >> definitionScope [
+	^ definitionScope
+]
+
+{ #category : #accessing }
+MbndAbstractVariable >> definitionScope: anObject [
+	definitionScope := anObject
 ]
 
 { #category : #'compile time evaluation' }

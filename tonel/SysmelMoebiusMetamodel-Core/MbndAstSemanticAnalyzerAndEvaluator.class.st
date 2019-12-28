@@ -47,7 +47,7 @@ MbndAstSemanticAnalyzerAndEvaluator >> evaluateNode: aNode [
 MbndAstSemanticAnalyzerAndEvaluator >> evaluateNode: node withReturnContextInScope: parentScope [
 	| returnContext |
 	returnContext := parentScope newReturnContextScope.
-	self scope: returnContext newLexicalScope.
+	self scope: (returnContext newLexicalScopeAt: node).
 	
 	[
 		^ self visitNode: node
@@ -93,7 +93,7 @@ MbndAstSemanticAnalyzerAndEvaluator >> semanticAnalyzer: anObject [
 { #category : #delegate }
 MbndAstSemanticAnalyzerAndEvaluator >> visitLexicalScopeNode: node [
 	| newScope |
-	newScope := evaluator scope newLexicalScope.
+	newScope := evaluator scope newLexicalScopeAt: node.
 	^ self withScope: newScope do: [
 		self visitNode: node expression
 	]

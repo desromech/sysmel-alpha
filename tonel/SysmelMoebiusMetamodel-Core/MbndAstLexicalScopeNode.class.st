@@ -1,6 +1,9 @@
 Class {
 	#name : #MbndAstLexicalScopeNode,
 	#superclass : #MbndAstCleanUpScopeNode,
+	#instVars : [
+		'lexicalScope'
+	],
 	#category : #'SysmelMoebiusMetamodel-Core-AST'
 }
 
@@ -12,6 +15,16 @@ MbndAstLexicalScopeNode >> accept: aVisitor [
 { #category : #testing }
 MbndAstLexicalScopeNode >> isLexicalScopeNode [
 	^ true
+]
+
+{ #category : #accessing }
+MbndAstLexicalScopeNode >> lexicalScope [
+	^ lexicalScope
+]
+
+{ #category : #accessing }
+MbndAstLexicalScopeNode >> lexicalScope: anObject [
+	lexicalScope := anObject
 ]
 
 { #category : #'as yet unclassified' }

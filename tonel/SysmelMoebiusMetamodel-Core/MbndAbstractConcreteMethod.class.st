@@ -94,7 +94,7 @@ MbndAbstractConcreteMethod >> createSemanticAnalysisScope [
 		programEntity: self;
 		yourself.
 		
-	analysisScope := analysisScope newLexicalScope.
+	analysisScope := analysisScope newLexicalScopeAt: definitionNode.
 	arguments do: [ :arg |
 		arg isMbndAnonymousSymbol ifFalse: [ 
 			analysisScope addSymbol: arg name binding: arg.

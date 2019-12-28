@@ -41,7 +41,7 @@ MbndBlockClosureMethod >> createSemanticAnalysisScopeWithParent: parentScope [
 	| blockClosureScope analysisScope |
 	blockClosureScope := MbndBlockClosureScope parent: parentScope.
 	blockClosureScope programEntity: self.
-	analysisScope := blockClosureScope newLexicalScope.
+	analysisScope := blockClosureScope newLexicalScopeAt: definitionPosition.
 	
 	arguments do: [ :arg |
 		arg isMbndAnonymousSymbol ifFalse: [ 
@@ -93,6 +93,11 @@ MbndBlockClosureMethod >> definitionPosition: anObject [
 MbndBlockClosureMethod >> initialize [
 	super initialize.
 	children := OrderedCollection new.
+]
+
+{ #category : #'as yet unclassified' }
+MbndBlockClosureMethod >> isBlockClosureMethod [
+	^ true
 ]
 
 { #category : #'as yet unclassified' }

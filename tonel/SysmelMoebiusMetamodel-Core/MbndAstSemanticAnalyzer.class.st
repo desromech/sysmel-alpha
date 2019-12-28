@@ -207,6 +207,7 @@ MbndAstSemanticAnalyzer >> createLocalVariableNamed: localVariableName withValue
 	localVariable := variableClass new
 		flags: flags;
 		definitionNode: definitionNode;
+		definitionScope: scope;
 		name: localVariableName;
 		valueType: valueType;
 		type: referenceType;
@@ -324,7 +325,7 @@ MbndAstSemanticAnalyzer >> evaluateEnum: enumType literalDictionaryNode: diction
 	dictionary := OrderedDictionary new.
 	lastValue := nil.
 	
-	self withScope: scope newLexicalScope do: [ 
+	self withScope: (scope newLexicalScopeAt: dictionaryNode) do: [ 
 		dictionaryNode elements do: [ :valueDefinition |
 			| association |
 			association := self evaluateEnum: enumType valueDefinition: valueDefinition lastValue: lastValue.
@@ -581,7 +582,7 @@ MbndAstSemanticAnalyzer >> visitBlockClosureNode: node [
 { #category : #visiting }
 MbndAstSemanticAnalyzer >> visitCasesOfCaseNode: node [
 	| result matchingScope |
-	matchingScope := scope newLexicalScope.
+	matchingScope := scope newLexicalScopeAt: node.
 
 	self withScope: matchingScope do: [ 
 		result := node copy
@@ -754,7 +755,7 @@ MbndAstSemanticAnalyzer >> visitEnumDefinitionNode: node [
 	result binding addFlag: #defined.
 	
 	"Create a new lexical scope for the definition body."	
-	definitionScope := (result binding programEntityScope parent: scope) newLexicalScope.
+	definitionScope := (result binding programEntityScope parent: scope) newLexicalScopeAt: result.
 
 	"Analyze the values."
 	result values ifNotNil: [ :values |
@@ -1278,8 +1279,11 @@ MbndAstSemanticAnalyzer >> visitInlineAssembly: node [
 
 { #category : #visiting }
 MbndAstSemanticAnalyzer >> visitLexicalScopeNode: node [
-	^ self withScope: scope newLexicalScope do: [
-		self visitCleanUpScopeNode: node
+	| result |
+	result := node copy.
+	result lexicalScope: (scope newLexicalScopeAt: result).
+	^ self withScope: result lexicalScope do: [
+		self visitCleanUpScopeNode: result
 	].
 
 ]
@@ -1642,7 +1646,7 @@ MbndAstSemanticAnalyzer >> visitNamespaceDefinitionNode: node [
 	namespace := owner ensureSymbolIsNamespace: namespaceName at: result.
 	self assert: namespace isNotNil.
 	
-	self withScope: (namespace programEntityScope parent: scope) newLexicalScope do: [ 
+	self withScope: ((namespace programEntityScope parent: scope) newLexicalScopeAt: node) do: [ 
 		self evaluateCompileTimeExpression: node body
 	].
 
@@ -1706,7 +1710,7 @@ MbndAstSemanticAnalyzer >> visitProgramEntityExtensionNode: node [
 	].
 
 	programEntity addFlag: #defined.
-	self withScope: (programEntity programEntityScope parent: scope) newLexicalScope do: [ 
+	self withScope: ((programEntity programEntityScope parent: scope) newLexicalScopeAt: node) do: [ 
 		self evaluateCompileTimeExpression: node body
 	].
 
@@ -2041,7 +2045,7 @@ MbndAstSemanticAnalyzer >> visitTypeDefinitionNode: node ofKind: typeKindClass [
 	result binding addFlag: #defined.
 	
 	"Create a new lexical scope for the definition body."	
-	definitionScope := (result binding programEntityScope parent: scope) newLexicalScope.
+	definitionScope := ((result binding programEntityScope parent: scope) newLexicalScopeAt: result).
 	
 	"Analyze the definition body."
 	result body ifNotNil: [ 

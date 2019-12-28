@@ -58,6 +58,16 @@ TMbndAbstractProgramEntity >> hasPublicVisibility [
 ]
 
 { #category : #testing }
+TMbndAbstractProgramEntity >> isBlockClosureMethod [
+	^ false
+]
+
+{ #category : #testing }
+TMbndAbstractProgramEntity >> isBlockClosureWithImmediateActivation [
+	^ false
+]
+
+{ #category : #testing }
 TMbndAbstractProgramEntity >> isCompileTimeConstant [
 	^ false
 ]

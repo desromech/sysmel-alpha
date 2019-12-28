@@ -261,7 +261,7 @@ MbndAstEvaluator >> visitInlineAssembly: node [
 
 { #category : #visiting }
 MbndAstEvaluator >> visitLexicalScopeNode: node [
-	^ self withScope: scope newLexicalScope do: [
+	^ self withScope: (scope newLexicalScopeAt: node) do: [
 		self visitNode: node expression
 	]
 ]

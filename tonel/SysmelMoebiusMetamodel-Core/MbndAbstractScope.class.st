@@ -34,6 +34,11 @@ MbndAbstractScope >> defaultReturnType [
 	^ parent ifNotNil: [ parent defaultReturnType ]
 ]
 
+{ #category : #accessing }
+MbndAbstractScope >> definitionPosition [
+	^ nil
+]
+
 { #category : #testing }
 MbndAbstractScope >> isCompilationEvaluationScope [
 	parent ifNotNil: [ ^ parent isCompilationEvaluationScope ].
@@ -43,6 +48,16 @@ MbndAbstractScope >> isCompilationEvaluationScope [
 { #category : #testing }
 MbndAbstractScope >> isInFunctionScope [
 	parent ifNotNil: [ ^ parent isInFunctionScope ].
+	^ false
+]
+
+{ #category : #testing }
+MbndAbstractScope >> isLexicalScope [
+	^ false
+]
+
+{ #category : #testing }
+MbndAbstractScope >> isProgramEntityScope [
 	^ false
 ]
 
@@ -90,6 +105,13 @@ MbndAbstractScope >> lookupSymbolRecursively: aSymbol ifAbsent: aBlock [
 { #category : #'instance creation' }
 MbndAbstractScope >> newLexicalScope [
 	^ MbndLexicalScope parent: self
+]
+
+{ #category : #'instance creation' }
+MbndAbstractScope >> newLexicalScopeAt: definitionPosition [
+	^ (MbndLexicalScope parent: self)
+		definitionPosition: definitionPosition;
+		yourself
 ]
 
 { #category : #'instance creation' }

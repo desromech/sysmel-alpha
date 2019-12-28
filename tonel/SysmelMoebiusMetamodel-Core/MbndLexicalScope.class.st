@@ -4,7 +4,8 @@ Class {
 	#instVars : [
 		'symbolTable',
 		'bindingStorageTable',
-		'usedNamespaces'
+		'usedNamespaces',
+		'definitionPosition'
 	],
 	#category : #'SysmelMoebiusMetamodel-Core-Scope'
 }
@@ -32,10 +33,25 @@ MbndLexicalScope >> clearBindingStorage [
 	bindingStorageTable ifNotNil: #removeAll
 ]
 
+{ #category : #accessing }
+MbndLexicalScope >> definitionPosition [
+	^ definitionPosition
+]
+
+{ #category : #accessing }
+MbndLexicalScope >> definitionPosition: anObject [
+	definitionPosition := anObject
+]
+
 { #category : #initialization }
 MbndLexicalScope >> initialize [
 	super initialize.
 	symbolTable := Dictionary new.
+]
+
+{ #category : #testing }
+MbndLexicalScope >> isLexicalScope [
+	^ true
 ]
 
 { #category : #storage }

@@ -101,6 +101,38 @@ MbndSlovimDebugInformationTranslator >> translateDebugType: aType [
 	^ self translateProgramEntityDebugInformation: aType
 ]
 
+{ #category : #'as yet unclassified' }
+MbndSlovimDebugInformationTranslator >> translateLexicalScope: lexicalScope [
+	| translatedScope |
+	lexicalScope ifNil: [ ^ nil ].
+
+	translatedEntities at: lexicalScope ifPresent: [ :existent | ^ existent ].
+	
+	lexicalScope isProgramEntityScope ifTrue: [
+		lexicalScope programEntity isBlockClosureWithImmediateActivation ifFalse: [ 
+			translatedScope := self translateParentScope: lexicalScope programEntity.
+			translatedEntities at: lexicalScope put: translatedScope.
+			^ translatedScope.
+		].
+	].
+
+	translatedScope := SLVMDebugLexicalScope new.
+	translatedEntities at: lexicalScope put: translatedScope.
+	translatedScope parentScope: (self translateLexicalScope: lexicalScope parent).
+	
+	lexicalScope definitionPosition ifNotNil: [ :scopePositionNode |
+		| scopePosition |
+		scopePosition := scopePositionNode asActualSourcePosition.
+		translatedScope
+			file: (codeModuleGenerator convertDebugSourceFile: scopePosition collection);
+			startLine: scopePosition line;
+			startColumn: scopePosition column;
+			endLine: scopePosition endLine;
+			endColumn: scopePosition endColumn
+	].
+	^ translatedScope
+]
+
 { #category : #visiting }
 MbndSlovimDebugInformationTranslator >> translateParentScope: parentScope [
 	| debugScope |
@@ -148,6 +180,12 @@ MbndSlovimDebugInformationTranslator >> visitArrayType: arrayType [
 		baseType: (self translateDebugType: arrayType elementType).
 	
 	^ debugType
+]
+
+{ #category : #visiting }
+MbndSlovimDebugInformationTranslator >> visitBlockClosureMethod: blockClosureMethod [
+	self deny: blockClosureMethod isBlockClosureWithImmediateActivation.
+	self halt
 ]
 
 { #category : #visiting }
@@ -253,7 +291,9 @@ MbndSlovimDebugInformationTranslator >> visitFunctionArgumentVariable: argumentV
 
 { #category : #visiting }
 MbndSlovimDebugInformationTranslator >> visitFunctionLocalVariable: localVariable [
-	^ (SLVMDebugVariable scope: nil name: localVariable name asPrettySymbolName)
+	| scope |
+	scope := self translateLexicalScope: localVariable definitionScope.
+	^ (SLVMDebugVariable scope: scope name: localVariable name asPrettySymbolName)
 		type: (self translateDebugType: localVariable valueType);
 		yourself.
 	
