@@ -34,8 +34,10 @@ MbndSlovimDebugInformationTranslator >> addAggregateDebugType: debugType fieldMe
 		
 	field bits ifNotNil: [
 		member
+			isBitField: true;
 			bitSize: field bits;
-			bitOffset: field byteOffset * 8 + field bitOffset
+			"bitOffset: (field byteOffset * 8) + (field valueType instanceSize * 8) - field bitOffset - field bits"
+			bitOffset: (field byteOffset * 8) + field bitOffset
 	].
 		
 	out nextPut: member
@@ -44,19 +46,19 @@ MbndSlovimDebugInformationTranslator >> addAggregateDebugType: debugType fieldMe
 
 { #category : #visiting }
 MbndSlovimDebugInformationTranslator >> addAggregateDebugType: debugType membersFrom: aggregateType [
-	debugType members: (Array streamContents: [ :out |
+	debugType members: ((Array streamContents: [ :out |
 		aggregateType supertype isTrait ifFalse: [
 			out nextPut: (SLVMDebugDerivedType new
 				makeInheritance;
-				baseType: (self translateSuperDebugType: aggregateType supertype)
+				baseType: (self translateSuperDebugType: aggregateType supertype);
+				byteOffset: 0
 			)
 		].
 	
 		aggregateType fields do: [ :field |
 			self addAggregateDebugType: debugType fieldMember: field into: out 
 		]
-	])
-
+	]) sorted: [ :a :b | a bitOffset < b bitOffset ])
 ]
 
 { #category : #initialization }
@@ -87,7 +89,7 @@ MbndSlovimDebugInformationTranslator >> setCommonDebugType: debugType informatio
 		self assert: typeEntity name isMbndAnonymousSymbol.
 		debugType
 			name: '__Type__';
-			parentScope: (self translateDebugType: typeEntity instanceType)
+			parentScope: (self translateSuperDebugType: typeEntity instanceType)
 	] ifFalse: [
 		typeEntity parent ifNotNil: [ 
 			debugType parentScope: (self translateParentScope: typeEntity parent)
@@ -332,8 +334,8 @@ MbndSlovimDebugInformationTranslator >> visitGCClassType: classType [
 	translatedEntities at: classType put: gcClassPointerType.
 	self setCommonDebugType: debugType informationFrom: classType.
 	debugType
-		byteSize: classType instanceSize;
-		byteAlignment: classType instanceAlignment.
+		byteSize: classType instanceDataSize;
+		byteAlignment: classType instanceDataAlignment.
 
 	self addAggregateDebugType: debugType membersFrom: classType.
 	
