@@ -109,13 +109,22 @@ MbndAggregateTypeWithFields >> defaultValueAt: position [
 ]
 
 { #category : #'semantic analysis' }
+MbndAggregateTypeWithFields >> ensureGeneratedMethodsExist [
+	self hasTrivialInstanceBasicInitialization ifFalse: [ self basicInitializeMethod ].
+	self hasTrivialInstanceInitialization ifFalse: [ self initializeMethod ].
+	self hasTrivialInstanceInitializationFromCopy ifFalse: [ self initializeFromCopyMethod ].
+	self hasTrivialInstanceInitializationMovingFrom ifFalse: [ self initializeMovingFromMethod ].
+	self hasTrivialInstanceFinalization ifFalse: [ self finalizeMethod ].
+
+]
+
+{ #category : #'semantic analysis' }
 MbndAggregateTypeWithFields >> ensureSemanticAnalysis [
 	super ensureSemanticAnalysis.
 	self isDefined ifTrue: [ 
 		self ensureSlotLayoutIsComputed.
-	] ifFalse: [ 
-	]
-
+		self ensureGeneratedMethodsExist.
+	].
 ]
 
 { #category : #layout }

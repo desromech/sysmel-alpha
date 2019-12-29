@@ -47,6 +47,11 @@ MbndAbstractMethod >> evaluateWithReceiver: receiver arguments: arguments withEv
 	self subclassResponsibility
 ]
 
+{ #category : #'semantic analysis' }
+MbndAbstractMethod >> hasExplicitSuperSend [
+	^ self hasFlag: #hasExplicitSuperSend
+]
+
 { #category : #testing }
 MbndAbstractMethod >> hasPragmaNamed: pragmaName [
 	^ self pragmaAt: pragmaName ifAbsent: [ false ] ifPresent: [ :x | true ]
@@ -57,9 +62,14 @@ MbndAbstractMethod >> hasVirtualTableEntry [
 	^ false
 ]
 
-{ #category : #'as yet unclassified' }
+{ #category : #'semantic analysis' }
 MbndAbstractMethod >> markCompileTimeEvaluationImpossibility [
 	self addFlag: #notInCompileTime.
+]
+
+{ #category : #'semantic analysis' }
+MbndAbstractMethod >> markExplicitSuperSend [
+	self addFlag: #hasExplicitSuperSend.
 ]
 
 { #category : #accessing }

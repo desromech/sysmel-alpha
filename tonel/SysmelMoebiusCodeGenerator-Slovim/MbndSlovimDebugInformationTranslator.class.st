@@ -169,6 +169,26 @@ MbndSlovimDebugInformationTranslator >> visitAggregateBasicInitializeMethod: met
 ]
 
 { #category : #visiting }
+MbndSlovimDebugInformationTranslator >> visitAggregateFinalizeMethod: method [
+	^ self visitConcreteMessageMethod: method
+]
+
+{ #category : #visiting }
+MbndSlovimDebugInformationTranslator >> visitAggregateInitializeFromCopyMethod: method [
+	^ self visitConcreteMessageMethod: method
+]
+
+{ #category : #visiting }
+MbndSlovimDebugInformationTranslator >> visitAggregateInitializeMethod: method [
+	^ self visitConcreteMessageMethod: method
+]
+
+{ #category : #visiting }
+MbndSlovimDebugInformationTranslator >> visitAggregateInitializeMovingFromMethod: method [
+	^ self visitConcreteMessageMethod: method
+]
+
+{ #category : #visiting }
 MbndSlovimDebugInformationTranslator >> visitArrayType: arrayType [
 	| debugType |
 	arrayType isTrait ifTrue: [ ^ self visitTraitType: arrayType ].

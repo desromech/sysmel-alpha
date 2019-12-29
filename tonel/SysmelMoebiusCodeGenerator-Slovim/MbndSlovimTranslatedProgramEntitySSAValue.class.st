@@ -12,7 +12,7 @@ MbndSlovimTranslatedProgramEntitySSAValue >> generateExpandedMessageSendNode: no
 	programEntity pragmaAt: #intrinsic: ifPresent: [ :pragma |
 		^ codeGenerator generateExpandedMessageSendNode: node withIntrinsicName: pragma arguments first value
 	].
-	^ codeGenerator generateExpandedMessageSendNode: node withStaticMethodBoundTo: ssaValue
+	^ codeGenerator generateExpandedMessageSendNode: node withDeclaredMethod: programEntity
 ]
 
 { #category : #accessing }

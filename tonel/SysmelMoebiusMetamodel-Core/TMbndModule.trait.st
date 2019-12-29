@@ -114,7 +114,6 @@ TMbndModule >> finishSemanticAnalysis [
 	[ self pendingDelayedSemanticAnalysisSet isNotEmpty ] whileTrue: [
 		toAnalyze := self pendingDelayedSemanticAnalysisSet asArray.
 		self pendingDelayedSemanticAnalysisSet removeAll.
-		
 		toAnalyze do: #ensureSemanticAnalysis
 	]
 ]

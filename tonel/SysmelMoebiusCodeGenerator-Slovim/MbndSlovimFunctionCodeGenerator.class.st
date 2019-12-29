@@ -95,12 +95,16 @@ MbndSlovimFunctionCodeGenerator >> buildSSAFunction: aSSAFunction definitionWith
 	| result |
 	(self setupSSAFunction: aSSAFunction definitionWithMethod: aConcreteMethod) ifTrue: [ ^ self ].
 
+	self generateAutomaticPrologueCode.
+	
 	"Generate the body code."
 	result := self visitNode: concreteMethod analyzedBody.
 	slvmBuilder currentBlock isLastTerminator ifTrue: [
 		self assert: concreteMethod analyzedBody type isReturnType.
 	] ifFalse: [ 
 		self assert: concreteMethod analyzedBody type isReturnType not.
+
+		self generateAutomaticEpilogueCode.
 		
 		concreteMethod returnType isVoidType ifTrue: [
 			slvmBuilder returnVoid.
@@ -241,10 +245,165 @@ MbndSlovimFunctionCodeGenerator >> extractColumns: columns elementAsVector: elem
 ]
 
 { #category : #'as yet unclassified' }
+MbndSlovimFunctionCodeGenerator >> generateAutomaticEpilogueCode [
+	concreteMethod ifNil: [ ^ self ].
+	(concreteMethod isMessageMethod and: [ concreteMethod name = #finalize and: [concreteMethod hasExplicitSuperSend not ]]) ifTrue: [
+		self generateAutomaticFinalizationCode
+	].
+]
+
+{ #category : #'as yet unclassified' }
+MbndSlovimFunctionCodeGenerator >> generateAutomaticFieldFinalization: field [
+	| fieldPointer fieldType finalizeMethod |
+
+	fieldType := field valueType.
+	fieldType hasTrivialFinalization ifTrue: [ ^ self ].
+	
+	fieldPointer := slvmBuilder getReference: ssaFunction arguments first element: (slvmBuilder constInt: field slotIndex).
+	finalizeMethod := fieldType finalizeMethod.
+	self generateCallWithReceiver: fieldPointer receiverType: field valueType selector: #finalize arguments: #()
+		isSuperSend: false declaredMethod: finalizeMethod expectedResultType: (self translateType: finalizeMethod returnType)
+]
+
+{ #category : #'as yet unclassified' }
+MbndSlovimFunctionCodeGenerator >> generateAutomaticFieldFinalizations: fields [
+	fields reverseDo: [ :field | self generateAutomaticFieldFinalization: field ]
+]
+
+{ #category : #'as yet unclassified' }
+MbndSlovimFunctionCodeGenerator >> generateAutomaticFieldInitialization: field [
+	| fieldPointer fieldType initializeMethod |
+	fieldType := field valueType.
+
+	field initialValueNode ifNotNil: [ 
+		self flag: 'TODO: Implement this case.'.
+		self halt
+	].
+
+	fieldType hasTrivialInitialization ifTrue: [ ^ self ].
+	
+	fieldPointer := slvmBuilder getReference: ssaFunction arguments first element: (slvmBuilder constInt: field slotIndex).
+	initializeMethod := fieldType initializeMethod.
+	self generateCallWithReceiver: fieldPointer receiverType: field valueType selector: #initialize arguments: #()
+		isSuperSend: false declaredMethod: initializeMethod expectedResultType: (self translateType: initializeMethod returnType)
+]
+
+{ #category : #'as yet unclassified' }
+MbndSlovimFunctionCodeGenerator >> generateAutomaticFieldInitializations: fields [
+	fields do: [ :field | self generateAutomaticFieldInitialization: field ]
+]
+
+{ #category : #'as yet unclassified' }
+MbndSlovimFunctionCodeGenerator >> generateAutomaticFinalizationCode [
+	| receiver superFinalize |
+	receiver := ssaFunction arguments first.
+	self generateAutomaticFieldFinalizations: concreteMethod parent fields.
+
+	concreteMethod hasExplicitSuperSend ifTrue: [ ^ self ].
+	
+	concreteMethod parent supertype ifNotNil: [ :supertype |
+		supertype hasTrivialFinalization ifFalse: [
+			superFinalize := supertype finalizeMethod.
+			self generateCallWithReceiver: (slvmBuilder bitCast: receiver target: (self translateType: superFinalize receiverType))
+				receiverType: superFinalize receiverType
+				selector: #finalize arguments: #() isSuperSend: true declaredMethod: superFinalize
+				expectedResultType: (self translateType: superFinalize returnType)
+		]
+	]
+
+]
+
+{ #category : #'as yet unclassified' }
+MbndSlovimFunctionCodeGenerator >> generateAutomaticInitializationCode [
+	| receiver superInitialize |
+	receiver := ssaFunction arguments first.
+	concreteMethod hasExplicitSuperSend ifFalse: [
+		concreteMethod parent supertype ifNotNil: [ :supertype |
+			supertype hasTrivialInitialization ifFalse: [
+				superInitialize := supertype initializeMethod.
+				self generateCallWithReceiver: (slvmBuilder bitCast: receiver target: (self translateType: superInitialize receiverType))
+					receiverType: superInitialize receiverType
+					selector: #initialize arguments: #() isSuperSend: true declaredMethod: superInitialize
+					expectedResultType: (self translateType: superInitialize returnType)
+			]
+		].
+	].
+
+	self generateAutomaticFieldInitializations: concreteMethod parent fields.
+	
+]
+
+{ #category : #'as yet unclassified' }
+MbndSlovimFunctionCodeGenerator >> generateAutomaticPrologueCode [
+	concreteMethod ifNil: [ ^ self ].
+	(concreteMethod isMessageMethod and: [ concreteMethod name = #initialize and: [concreteMethod hasExplicitSuperSend not ]]) ifTrue: [
+		self generateAutomaticInitializationCode
+	].
+]
+
+{ #category : #'as yet unclassified' }
 MbndSlovimFunctionCodeGenerator >> generateCall: calledFunction arguments: arguments expectedReturnType: expectedReturnType [
 	| result |
 	result := slvmBuilder call: calledFunction arguments: arguments.
 	^ self sanitizeValue: result withExpectedType: (self translateType: expectedReturnType).
+]
+
+{ #category : #'as yet unclassified' }
+MbndSlovimFunctionCodeGenerator >> generateCallWithReceiver: receiver receiverType: receiverType selector: selector arguments: arguments
+isSuperSend: isSuperSend declaredMethod: declaredMethod expectedResultType: expectedResultType [
+	| selectorValue allArguments hasDynamicMessageLookup calledMethodSSAFunction hasStaticBinding vtableLayout vtableSlot vtableEntrySlot result |
+	selectorValue := selector.
+	allArguments := arguments.
+	
+	isSuperSend ifTrue: [
+		self generateSuperSendPrologueWithSelector: selector
+	].
+
+	hasDynamicMessageLookup := receiver
+		ifNil: [ false ]
+		ifNotNil: [:receiverNode | hasDynamicMessageLookup := receiverType hasDynamicMessageLookup].
+	receiver ifNotNil: [
+		allArguments := { receiver } , arguments
+	].
+
+	calledMethodSSAFunction := (self translateProgramEntity: declaredMethod) ssaValue.
+	hasStaticBinding := declaredMethod hasPragmaNamed: #staticBinding.
+	
+	(declaredMethod hasVirtualTableEntry and: [ hasStaticBinding not and: [isSuperSend not]]) ifTrue: [
+		hasDynamicMessageLookup := false.
+		vtableLayout := receiverType slotLayout mainVirtualTable.
+	
+		vtableSlot := slvmBuilder load: (slvmBuilder getReference: receiver
+								element: (slvmBuilder constInt: vtableLayout slotIndex)).
+		vtableEntrySlot := slvmBuilder load: (slvmBuilder getPointer: vtableSlot
+								element: {slvmBuilder constInt: (vtableLayout getSlotIndexFor: declaredMethod virtualTableSelector)}).
+		calledMethodSSAFunction := slvmBuilder bitCast: vtableEntrySlot target: calledMethodSSAFunction type.
+	].
+	
+	hasStaticBinding ifTrue: [ hasDynamicMessageLookup := false ].
+	
+	hasDynamicMessageLookup ifTrue:[
+		selectorValue isSymbol ifTrue: [ selectorValue := slvmBuilder addDynamicLiteral: selectorValue ].
+		self assert: selectorValue type isDynamicObjectPointerType.
+		result := slvmBuilder send: selectorValue returnType: expectedResultType receiver: receiver arguments: arguments.
+		isSuperSend ifTrue: [
+			result setSuperSend
+		].
+	] ifFalse: [
+		result := slvmBuilder call: calledMethodSSAFunction arguments: allArguments.
+	].
+
+	isSuperSend ifTrue: [
+		self generateSuperSendEpilogueWithSelector: selector
+	].
+
+	"We may need to adjust the result type in the case of dependent types."
+	result type ~~ expectedResultType ifTrue: [ 
+		self assert: (result type isPointerType and: [ expectedResultType isPointerType ]).
+		result := slvmBuilder bitCast: result target: expectedResultType
+	].
+
+	^ result
 ]
 
 { #category : #visiting }
@@ -346,13 +505,32 @@ MbndSlovimFunctionCodeGenerator >> generateDestructuringPattern: pattern assignm
 ]
 
 { #category : #'as yet unclassified' }
+MbndSlovimFunctionCodeGenerator >> generateExpandedMessageSendNode: node withDeclaredMethod: declaredMethod [
+	"Process the receiver."
+	| receiver isSuperSend selectorValue arguments receiverType |
+	receiver := node receiver ifNotNil: [self visitNode: node receiver].
+	isSuperSend := false.
+	(node receiver isNotNil and: [ node receiver isSuperReference ]) ifTrue: [
+		isSuperSend := true.
+	].
+
+	"Process the selector and the remaining arguments."
+	selectorValue := self visitNode: node selector.
+	arguments := self visitNodesAndCollect: node arguments.
+	receiverType := node receiver ifNil: [ self compilationTarget voidType ]
+		ifNotNil: [ node receiver type ].
+	^ self generateCallWithReceiver: receiver receiverType: receiverType withoutReferences selector: selectorValue arguments: arguments
+		isSuperSend: isSuperSend declaredMethod: declaredMethod expectedResultType: (self translateType: node type)
+]
+
+{ #category : #'as yet unclassified' }
 MbndSlovimFunctionCodeGenerator >> generateExpandedMessageSendNode: node withIntrinsicName: intrinsicName [
-	| intrinsicSSAFunction receiver arguments allArguments result |
+	| intrinsicSSAFunction receiver arguments allArguments |
 	AdditionalIntrinsicsDictionary at: intrinsicName ifPresent: [ :selector |
 		^ self perform: selector with: node
 	].
 	(EvaluationOnlyIntrinsics includes: intrinsicName) ifTrue: [
-		^ self generateExpandedMessageSendNode: node withStaticMethodBoundTo: (self translateProgramEntity: node method) ssaValue
+		^ self generateExpandedMessageSendNode: node withDeclaredMethod: node method
 	].
 
 	receiver := node receiver ifNil: [#()]
@@ -367,67 +545,6 @@ MbndSlovimFunctionCodeGenerator >> generateExpandedMessageSendNode: node withInt
 
 	^ self generateCall: intrinsicSSAFunction arguments: allArguments expectedReturnType: node type
 
-]
-
-{ #category : #'as yet unclassified' }
-MbndSlovimFunctionCodeGenerator >> generateExpandedMessageSendNode: node withStaticMethodBoundTo: methodSSAFunction [
-	| receiver receiverType arguments allArguments calledMethodSSAFunction vtableLayout vtableSlot vtableEntrySlot result expectedResultType hasDynamicMessageLookup selectorValue hasStaticBinding isSuperSend |
-	
-	"Process the receiver."
-	receiver := node receiver ifNotNil: [self visitNode: node receiver].
-	isSuperSend := false.
-	(node receiver isNotNil and: [ node receiver isSuperReference ]) ifTrue: [
-		isSuperSend := true.
-	].
-
-	"Process the selector and the remaining arguments."
-	selectorValue := self visitNode: node selector.
-	arguments := self visitNodesAndCollect: node arguments.
-	allArguments := arguments.
-
-	hasDynamicMessageLookup := node receiver
-		ifNil: [ false ]
-		ifNotNil: [:receiverNode | hasDynamicMessageLookup := receiverNode type hasDynamicMessageLookup].
-	receiver ifNotNil: [
-		allArguments := { receiver } , arguments
-	].
-
-	calledMethodSSAFunction := methodSSAFunction.
-	hasStaticBinding := node method hasPragmaNamed: #staticBinding.
-	
-	(node method hasVirtualTableEntry and: [ hasStaticBinding not and: [isSuperSend not]]) ifTrue: [
-		hasDynamicMessageLookup := false.
-		receiverType := node receiver type withoutReferences.
-		vtableLayout := receiverType slotLayout mainVirtualTable.
-	
-		vtableSlot := slvmBuilder load: (slvmBuilder getReference: receiver
-								element: (slvmBuilder constInt: vtableLayout slotIndex)).
-		vtableEntrySlot := slvmBuilder load: (slvmBuilder getPointer: vtableSlot
-								element: {slvmBuilder constInt: (vtableLayout getSlotIndexFor: node method virtualTableSelector)}).
-		calledMethodSSAFunction := slvmBuilder bitCast: vtableEntrySlot target: methodSSAFunction type.
-	].
-	
-	hasStaticBinding ifTrue: [ hasDynamicMessageLookup := false ].
-	
-	expectedResultType := self translateType: node type.
-	hasDynamicMessageLookup ifTrue:[
-		selectorValue isSymbol ifTrue: [ selectorValue := slvmBuilder addDynamicLiteral: selectorValue ].
-		self assert: selectorValue type isDynamicObjectPointerType.
-		result := slvmBuilder send: selectorValue returnType: expectedResultType receiver: receiver arguments: arguments.
-		isSuperSend ifTrue: [
-			result setSuperSend
-		].
-	] ifFalse: [
-		result := slvmBuilder call: calledMethodSSAFunction arguments: allArguments.
-	].
-
-	"We may need to adjust the result type in the case of dependent types."
-	result type ~~ expectedResultType ifTrue: [ 
-		self assert: (result type isPointerType and: [ expectedResultType isPointerType ]).
-		result := slvmBuilder bitCast: result target: expectedResultType
-	].
-
-	^ result
 ]
 
 { #category : #'as yet unclassified' }
@@ -532,6 +649,27 @@ MbndSlovimFunctionCodeGenerator >> generateMethodBodyForIntrinsic: intrinsicName
 		slvmBuilder return: result
 	].
 	^ true
+]
+
+{ #category : #'as yet unclassified' }
+MbndSlovimFunctionCodeGenerator >> generateSuperSendEpilogueWithSelector: selector [
+	selector isSymbol ifFalse: [ ^ self ].
+	concreteMethod hasExplicitSuperSend ifFalse: [ ^ self ].
+
+	(concreteMethod isConcreteMethod and: [ concreteMethod isMessageMethod and: [ concreteMethod name = selector ] ]) ifTrue: [ 
+		selector = #initialize ifTrue: [ self generateAutomaticInitializationCode ]
+	].
+
+]
+
+{ #category : #'as yet unclassified' }
+MbndSlovimFunctionCodeGenerator >> generateSuperSendPrologueWithSelector: selector [
+	selector isSymbol ifFalse: [ ^ self ].
+	concreteMethod hasExplicitSuperSend ifFalse: [ ^ self ].
+	(concreteMethod isConcreteMethod and: [ concreteMethod isMessageMethod and: [ concreteMethod name = selector ] ]) ifTrue: [ 
+		selector = #finalize ifTrue: [ self generateAutomaticFinalizationCode ]
+	].
+
 ]
 
 { #category : #visiting }
@@ -1386,6 +1524,7 @@ MbndSlovimFunctionCodeGenerator >> visitReturnStatementNode: node [
 
 	self executeAllScopeCleanUp.
 	slvmBuilder isLastTerminator ifTrue: [ ^ false ].
+	self generateAutomaticEpilogueCode.
 	^ concreteMethod returnType isVoidType ifTrue: [
 		slvmBuilder returnVoid
 	] ifFalse: [

@@ -110,7 +110,7 @@ MbndBasicType >> children [
 
 { #category : #'semantic analysis' }
 MbndBasicType >> enqueueDelayedSemanticAnalysis [
-	self flag: 'TODO: Implement this properly.'
+	self module enqueueProgramEntityWithDelayedSemanticAnalysis: self
 ]
 
 { #category : #'as yet unclassified' }

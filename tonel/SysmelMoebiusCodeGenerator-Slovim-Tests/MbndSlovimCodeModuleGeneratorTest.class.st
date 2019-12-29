@@ -8,6 +8,268 @@ Class {
 }
 
 { #category : #tests }
+MbndSlovimCodeModuleGeneratorTest >> testAggregateGeneratedInitializeFinalize [
+	| function classWithGuard |
+	self
+		evaluateSysmelSource: '
+class Guard definition: { 
+	message initialize => Void
+		:= grabLock().
+	message finalize => Void
+		:= releaseLock().
+}.
+
+function grabLock externC() => Void.
+function releaseLock externC() => Void.
+
+class ClassWithGuard definition: {
+	field guard type: Guard.
+}.
+';
+		generateSSAModule.
+
+	classWithGuard := (self evaluateSysmelSource: 'ClassWithGuard') unwrapMbndValue.
+	self deny: classWithGuard hasTrivialInitialization.
+	self deny: classWithGuard hasTrivialFinalization.
+
+	function := ssaModule globalNamed: #'_ZN14ClassWithGuard11.initializeERNS_E'.
+	self assert: function isFunction.
+	self assert: function basicBlocks size equals: 2.
+	self assert: function allInstructionsMnemonics equals: #(
+		(entry (jump))
+		(body (getElementPointer call return))
+	).
+	self assert: function basicBlocks second firstInstruction nextInstruction functionValue name equals: #'_ZN5Guard11.initializeERNS_E'.
+	
+	function := ssaModule globalNamed: #'_ZN14ClassWithGuard9.finalizeERNS_E'.
+	self assert: function isFunction.
+	self assert: function basicBlocks size equals: 2.
+	self assert: function allInstructionsMnemonics equals: #(
+		(entry (jump))
+		(body (getElementPointer call return))
+	).
+	self assert: function basicBlocks second firstInstruction nextInstruction functionValue name equals: #'_ZN5Guard9.finalizeERNS_E'.
+]
+
+{ #category : #tests }
+MbndSlovimCodeModuleGeneratorTest >> testAggregateGeneratedInitializeFinalizeExplicitMethod [
+	| function classWithGuard |
+	self
+		evaluateSysmelSource: '
+class Guard definition: { 
+	message initialize => Void
+		:= grabLock().
+	message finalize => Void
+		:= releaseLock().
+}.
+
+function grabLock externC() => Void.
+function methodWithSideEffect externC() => Void.
+function releaseLock externC() => Void.
+
+class ClassWithGuard definition: {
+	field guard type: Guard.
+
+	message initialize => Void
+		:= { methodWithSideEffect(). }.
+	message finalize => Void
+		:= { methodWithSideEffect(). }.
+}.
+';
+		generateSSAModule.
+
+	classWithGuard := (self evaluateSysmelSource: 'ClassWithGuard') unwrapMbndValue.
+	self deny: classWithGuard hasTrivialInitialization.
+	self deny: classWithGuard hasTrivialFinalization.
+
+	function := ssaModule globalNamed: #'_ZN14ClassWithGuard11.initializeERNS_E'.
+	self assert: function isFunction.
+	self assert: function basicBlocks size equals: 2.
+	self assert: function allInstructionsMnemonics equals: #(
+		(entry (jump))
+		(body (getElementPointer call call returnVoid))
+	).
+	self assert: function basicBlocks second firstInstruction nextInstruction functionValue name equals: #'_ZN5Guard11.initializeERNS_E'.
+	self assert: function basicBlocks second firstInstruction nextInstruction nextInstruction functionValue name equals: #'methodWithSideEffect'.
+	
+	function := ssaModule globalNamed: #'_ZN14ClassWithGuard9.finalizeERNS_E'.
+	self assert: function isFunction.
+	self assert: function basicBlocks size equals: 2.
+	self assert: function allInstructionsMnemonics equals: #(
+		(entry (jump))
+		(body (call getElementPointer call returnVoid))
+	).
+	self assert: function basicBlocks second firstInstruction functionValue name equals: #'methodWithSideEffect'.
+	self assert: function basicBlocks second firstInstruction nextInstruction nextInstruction functionValue name equals: #'_ZN5Guard9.finalizeERNS_E'.
+]
+
+{ #category : #tests }
+MbndSlovimCodeModuleGeneratorTest >> testAggregateGeneratedSubclassInitializeFinalize [
+	| function subclassWithGuard |
+	self
+		evaluateSysmelSource: '
+class Guard definition: { 
+	message initialize => Void
+		:= grabLock().
+	message finalize => Void
+		:= releaseLock().
+}.
+
+function grabLock externC() => Void.
+function releaseLock externC() => Void.
+
+class ClassWithGuard definition: {
+	field guard type: Guard.
+}.
+
+class SubClassWithGuard superclass: ClassWithGuard; definition: {
+}.
+
+';
+		generateSSAModule.
+
+	subclassWithGuard := (self evaluateSysmelSource: 'SubClassWithGuard') unwrapMbndValue.
+	self deny: subclassWithGuard hasTrivialInitialization.
+	self deny: subclassWithGuard hasTrivialFinalization.
+
+	function := ssaModule globalNamed: #'_ZN17SubClassWithGuard11.initializeERNS_E'.
+	self assert: function isFunction.
+	self assert: function basicBlocks size equals: 2.
+	self assert: function allInstructionsMnemonics equals: #(
+		(entry (jump))
+		(body (bitcast call return))
+	).
+	self assert: function basicBlocks second firstInstruction nextInstruction functionValue name equals: #'_ZN14ClassWithGuard11.initializeERNS_E'.
+	
+	function := ssaModule globalNamed: #'_ZN17SubClassWithGuard9.finalizeERNS_E'.
+	self assert: function isFunction.
+	self assert: function basicBlocks size equals: 2.
+	self assert: function allInstructionsMnemonics equals: #(
+		(entry (jump))
+		(body (bitcast call return))
+	).
+	self assert: function basicBlocks second firstInstruction nextInstruction functionValue name equals: #'_ZN14ClassWithGuard9.finalizeERNS_E'.
+]
+
+{ #category : #tests }
+MbndSlovimCodeModuleGeneratorTest >> testAggregateGeneratedSubclassInitializeFinalizeExplicitMethod [
+	| function subclassWithGuard |
+	self
+		evaluateSysmelSource: '
+class Guard definition: { 
+	message initialize => Void
+		:= grabLock().
+	message finalize => Void
+		:= releaseLock().
+}.
+
+function grabLock externC() => Void.
+function releaseLock externC() => Void.
+function methodWithSideEffect externC() => Void.
+
+class ClassWithGuard definition: {
+	field guard type: Guard.
+}.
+
+class SubClassWithGuard superclass: ClassWithGuard; definition: {
+	message initialize => Void := {
+		super initialize.
+		methodWithSideEffect().
+	}.
+	
+	message finalize => Void := {
+		methodWithSideEffect().
+		super finalize.
+	}.
+}.
+
+';
+		generateSSAModule.
+
+	subclassWithGuard := (self evaluateSysmelSource: 'SubClassWithGuard') unwrapMbndValue.
+	self deny: subclassWithGuard hasTrivialInitialization.
+	self deny: subclassWithGuard hasTrivialFinalization.
+
+	function := ssaModule globalNamed: #'_ZN17SubClassWithGuard11.initializeERNS_E'.
+	self assert: function isFunction.
+	self assert: function basicBlocks size equals: 2.
+	self assert: function allInstructionsMnemonics equals: #(
+		(entry (jump))
+		(body (bitcast call call returnVoid))
+	).
+	self assert: function basicBlocks second firstInstruction nextInstruction functionValue name equals: #'_ZN14ClassWithGuard11.initializeERNS_E'.
+	self assert: function basicBlocks second firstInstruction nextInstruction nextInstruction functionValue name equals: #methodWithSideEffect.
+	
+	function := ssaModule globalNamed: #'_ZN17SubClassWithGuard9.finalizeERNS_E'.
+	self assert: function isFunction.
+	self assert: function basicBlocks size equals: 2.
+	self assert: function allInstructionsMnemonics equals: #(
+		(entry (jump))
+		(body (call bitcast call returnVoid))
+	).
+	self assert: function basicBlocks second firstInstruction functionValue name equals: #methodWithSideEffect.
+	self assert: function basicBlocks second firstInstruction nextInstruction nextInstruction functionValue name equals: #'_ZN14ClassWithGuard9.finalizeERNS_E'.
+]
+
+{ #category : #tests }
+MbndSlovimCodeModuleGeneratorTest >> testAggregateGeneratedSubclassInitializeFinalizeExplicitMethod2 [
+	| function subclassWithGuard |
+	self
+		evaluateSysmelSource: '
+class Guard definition: { 
+	message initialize => Void
+		:= grabLock().
+	message finalize => Void
+		:= releaseLock().
+}.
+
+function grabLock externC() => Void.
+function releaseLock externC() => Void.
+function methodWithSideEffect externC() => Void.
+
+class ClassWithGuard definition: {
+	field guard type: Guard.
+}.
+
+class SubClassWithGuard superclass: ClassWithGuard; definition: {
+	message initialize => Void := {
+		methodWithSideEffect().
+	}.
+	
+	message finalize => Void := {
+		methodWithSideEffect().
+	}.
+}.
+
+';
+		generateSSAModule.
+
+	subclassWithGuard := (self evaluateSysmelSource: 'SubClassWithGuard') unwrapMbndValue.
+	self deny: subclassWithGuard hasTrivialInitialization.
+	self deny: subclassWithGuard hasTrivialFinalization.
+
+	function := ssaModule globalNamed: #'_ZN17SubClassWithGuard11.initializeERNS_E'.
+	self assert: function isFunction.
+	self assert: function basicBlocks size equals: 2.
+	self assert: function allInstructionsMnemonics equals: #(
+		(entry (jump))
+		(body (bitcast call call returnVoid))
+	).
+	self assert: function basicBlocks second firstInstruction nextInstruction functionValue name equals: #'_ZN14ClassWithGuard11.initializeERNS_E'.
+	self assert: function basicBlocks second firstInstruction nextInstruction nextInstruction functionValue name equals: #methodWithSideEffect.
+	
+	function := ssaModule globalNamed: #'_ZN17SubClassWithGuard9.finalizeERNS_E'.
+	self assert: function isFunction.
+	self assert: function basicBlocks size equals: 2.
+	self assert: function allInstructionsMnemonics equals: #(
+		(entry (jump))
+		(body (call bitcast call returnVoid))
+	).
+	self assert: function basicBlocks second firstInstruction functionValue name equals: #methodWithSideEffect.
+	self assert: function basicBlocks second firstInstruction nextInstruction nextInstruction functionValue name equals: #'_ZN14ClassWithGuard9.finalizeERNS_E'.
+]
+
+{ #category : #tests }
 MbndSlovimCodeModuleGeneratorTest >> testAggregateLocalInitialize [
 	| function |
 	self
@@ -1741,6 +2003,24 @@ MbndSlovimCodeModuleGeneratorTest >> testFloatVectorAddWithScalarLiteral [
 ]
 
 { #category : #tests }
+MbndSlovimCodeModuleGeneratorTest >> testFloatVectorArcTan [
+	| function |
+	self
+		evaluateSysmelSource: 'function op externC(a: Float32x4, b: Float32x4) => Float32x4
+			:= a arcTan: b';
+		generateSSAModule.
+
+	function := ssaModule globalNamed: #op.
+	self assert: function isFunction.
+	self deny: function isEmpty.
+	self assert: function basicBlocks size equals: 2.
+	self assert: function basicBlocks second firstInstruction isCall.
+	self assert: function basicBlocks second firstInstruction functionValue isConstantBuiltInFunction.
+	self assert: function basicBlocks second firstInstruction functionValue name equals: #'math.atan2'.
+	self assert: function basicBlocks second lastInstruction isReturn.
+]
+
+{ #category : #tests }
 MbndSlovimCodeModuleGeneratorTest >> testFloatVectorCastToIntVector [
 	| function |
 	self
@@ -1939,6 +2219,42 @@ MbndSlovimCodeModuleGeneratorTest >> testFloatVectorGetZ [
 ]
 
 { #category : #tests }
+MbndSlovimCodeModuleGeneratorTest >> testFloatVectorInterpolateToAt [
+	| function |
+	self
+		evaluateSysmelSource: 'function op externC(edge0: Float32x4, edge1: Float32x4, value: Float32x4) => Float32x4
+			:= edge0 interpolateTo: edge1 at: value';
+		generateSSAModule.
+
+	function := ssaModule globalNamed: #op.
+	self assert: function isFunction.
+	self deny: function isEmpty.
+	self assert: function basicBlocks size equals: 2.
+	self assert: function basicBlocks second firstInstruction isCall.
+	self assert: function basicBlocks second firstInstruction functionValue isConstantBuiltInFunction.
+	self assert: function basicBlocks second firstInstruction functionValue name equals: #'math.fmix'.
+	self assert: function basicBlocks second lastInstruction isReturn.
+]
+
+{ #category : #tests }
+MbndSlovimCodeModuleGeneratorTest >> testFloatVectorInterpolateToAt2 [
+	| function |
+	self
+		evaluateSysmelSource: 'function op externC(edge0: Float32x4, edge1: Float32x4, value: Float32) => Float32x4
+			:= edge0 interpolateTo: edge1 at: value';
+		generateSSAModule.
+
+	function := ssaModule globalNamed: #op.
+	self assert: function isFunction.
+	self deny: function isEmpty.
+	self assert: function basicBlocks size equals: 2.
+	self assert: function basicBlocks second lastInstruction previousInstruction isCall.
+	self assert: function basicBlocks second lastInstruction previousInstruction functionValue isConstantBuiltInFunction.
+	self assert: function basicBlocks second lastInstruction previousInstruction functionValue name equals: #'math.fmix'.
+	self assert: function basicBlocks second lastInstruction isReturn.
+]
+
+{ #category : #tests }
 MbndSlovimCodeModuleGeneratorTest >> testFloatVectorLength2 [
 	| function |
 	self
@@ -1968,6 +2284,42 @@ MbndSlovimCodeModuleGeneratorTest >> testFloatVectorMatrixMultiplication [
 	self assert: function basicBlocks size equals: 2.
 	self assert: function basicBlocks second firstInstruction isBinaryOperation.
 	self assert: function basicBlocks second firstInstruction operation equals: #mulVectorMatrix.
+	self assert: function basicBlocks second lastInstruction isReturn.
+]
+
+{ #category : #tests }
+MbndSlovimCodeModuleGeneratorTest >> testFloatVectorMax [
+	| function |
+	self
+		evaluateSysmelSource: 'function op externC(a: Float32x4, b: Float32x4) => Float32x4
+			:= a max: b';
+		generateSSAModule.
+
+	function := ssaModule globalNamed: #op.
+	self assert: function isFunction.
+	self deny: function isEmpty.
+	self assert: function basicBlocks size equals: 2.
+	self assert: function basicBlocks second firstInstruction isCall.
+	self assert: function basicBlocks second firstInstruction functionValue isConstantBuiltInFunction.
+	self assert: function basicBlocks second firstInstruction functionValue name equals: #'math.fmax'.
+	self assert: function basicBlocks second lastInstruction isReturn.
+]
+
+{ #category : #tests }
+MbndSlovimCodeModuleGeneratorTest >> testFloatVectorMin [
+	| function |
+	self
+		evaluateSysmelSource: 'function op externC(a: Float32x4, b: Float32x4) => Float32x4
+			:= a min: b';
+		generateSSAModule.
+
+	function := ssaModule globalNamed: #op.
+	self assert: function isFunction.
+	self deny: function isEmpty.
+	self assert: function basicBlocks size equals: 2.
+	self assert: function basicBlocks second firstInstruction isCall.
+	self assert: function basicBlocks second firstInstruction functionValue isConstantBuiltInFunction.
+	self assert: function basicBlocks second firstInstruction functionValue name equals: #'math.fmin'.
 	self assert: function basicBlocks second lastInstruction isReturn.
 ]
 
@@ -2016,6 +2368,24 @@ MbndSlovimCodeModuleGeneratorTest >> testFloatVectorNegate2 [
 	self assert: function basicBlocks size equals: 2.
 	self assert: function basicBlocks second firstInstruction isUnaryOperation.
 	self assert: function basicBlocks second firstInstruction operation equals: #fneg.
+	self assert: function basicBlocks second lastInstruction isReturn.
+]
+
+{ #category : #tests }
+MbndSlovimCodeModuleGeneratorTest >> testFloatVectorRaisedTo [
+	| function |
+	self
+		evaluateSysmelSource: 'function op externC(a: Float32x4, b: Float32x4) => Float32x4
+			:= a raisedTo: b';
+		generateSSAModule.
+
+	function := ssaModule globalNamed: #op.
+	self assert: function isFunction.
+	self deny: function isEmpty.
+	self assert: function basicBlocks size equals: 2.
+	self assert: function basicBlocks second firstInstruction isCall.
+	self assert: function basicBlocks second firstInstruction functionValue isConstantBuiltInFunction.
+	self assert: function basicBlocks second firstInstruction functionValue name equals: #'math.pow'.
 	self assert: function basicBlocks second lastInstruction isReturn.
 ]
 
@@ -2071,6 +2441,60 @@ MbndSlovimCodeModuleGeneratorTest >> testFloatVectorSetYReferenceValue2 [
 ]
 
 { #category : #tests }
+MbndSlovimCodeModuleGeneratorTest >> testFloatVectorSin [
+	| function |
+	self
+		evaluateSysmelSource: 'function op externC(a: Float32x4) => Float32x4
+			:= a sin';
+		generateSSAModule.
+
+	function := ssaModule globalNamed: #op.
+	self assert: function isFunction.
+	self deny: function isEmpty.
+	self assert: function basicBlocks size equals: 2.
+	self assert: function basicBlocks second firstInstruction isCall.
+	self assert: function basicBlocks second firstInstruction functionValue isConstantBuiltInFunction.
+	self assert: function basicBlocks second firstInstruction functionValue name equals: #'math.sin'.
+	self assert: function basicBlocks second lastInstruction isReturn.
+]
+
+{ #category : #tests }
+MbndSlovimCodeModuleGeneratorTest >> testFloatVectorSmoothStep [
+	| function |
+	self
+		evaluateSysmelSource: 'function op externC(edge0: Float32x4, edge1: Float32x4, value: Float32x4) => Float32x4
+			:= edge0 smoothStepTo: edge1 value: value';
+		generateSSAModule.
+
+	function := ssaModule globalNamed: #op.
+	self assert: function isFunction.
+	self deny: function isEmpty.
+	self assert: function basicBlocks size equals: 2.
+	self assert: function basicBlocks second firstInstruction isCall.
+	self assert: function basicBlocks second firstInstruction functionValue isConstantBuiltInFunction.
+	self assert: function basicBlocks second firstInstruction functionValue name equals: #'math.smoothstep'.
+	self assert: function basicBlocks second lastInstruction isReturn.
+]
+
+{ #category : #tests }
+MbndSlovimCodeModuleGeneratorTest >> testFloatVectorSmoothStep2 [
+	| function |
+	self
+		evaluateSysmelSource: 'function op externC(edge0: Float32, edge1: Float32, value: Float32x4) => Float32x4
+			:= edge0 smoothStepTo: edge1 value: value';
+		generateSSAModule.
+
+	function := ssaModule globalNamed: #op.
+	self assert: function isFunction.
+	self deny: function isEmpty.
+	self assert: function basicBlocks size equals: 2.
+	self assert: function basicBlocks second firstInstruction isCall.
+	self assert: function basicBlocks second firstInstruction functionValue isConstantBuiltInFunction.
+	self assert: function basicBlocks second firstInstruction functionValue name equals: #'math.smoothstep'.
+	self assert: function basicBlocks second lastInstruction isReturn.
+]
+
+{ #category : #tests }
 MbndSlovimCodeModuleGeneratorTest >> testFloatVectorSqrt [
 	| function |
 	self
@@ -2083,6 +2507,42 @@ MbndSlovimCodeModuleGeneratorTest >> testFloatVectorSqrt [
 	self assert: function basicBlocks size equals: 2.
 	self assert: function basicBlocks second firstInstruction isUnaryOperation.
 	self assert: function basicBlocks second firstInstruction operation equals: #fsqrt.
+	self assert: function basicBlocks second lastInstruction isReturn.
+]
+
+{ #category : #tests }
+MbndSlovimCodeModuleGeneratorTest >> testFloatVectorStep [
+	| function |
+	self
+		evaluateSysmelSource: 'function op externC(edge0: Float32x4, value: Float32x4) => Float32x4
+			:= edge0 stepValue: value';
+		generateSSAModule.
+
+	function := ssaModule globalNamed: #op.
+	self assert: function isFunction.
+	self deny: function isEmpty.
+	self assert: function basicBlocks size equals: 2.
+	self assert: function basicBlocks second firstInstruction isCall.
+	self assert: function basicBlocks second firstInstruction functionValue isConstantBuiltInFunction.
+	self assert: function basicBlocks second firstInstruction functionValue name equals: #'math.step'.
+	self assert: function basicBlocks second lastInstruction isReturn.
+]
+
+{ #category : #tests }
+MbndSlovimCodeModuleGeneratorTest >> testFloatVectorStep2 [
+	| function |
+	self
+		evaluateSysmelSource: 'function op externC(edge0: Float32, value: Float32x4) => Float32x4
+			:= edge0 stepValue: value';
+		generateSSAModule.
+
+	function := ssaModule globalNamed: #op.
+	self assert: function isFunction.
+	self deny: function isEmpty.
+	self assert: function basicBlocks size equals: 2.
+	self assert: function basicBlocks second firstInstruction isCall.
+	self assert: function basicBlocks second firstInstruction functionValue isConstantBuiltInFunction.
+	self assert: function basicBlocks second firstInstruction functionValue name equals: #'math.step'.
 	self assert: function basicBlocks second lastInstruction isReturn.
 ]
 

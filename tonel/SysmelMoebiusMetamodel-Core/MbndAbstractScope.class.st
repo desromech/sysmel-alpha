@@ -66,6 +66,11 @@ MbndAbstractScope >> lookBindingStorageRecursively: binding [
 	^ parent ifNotNil: [ parent lookBindingStorageRecursively: binding ]
 ]
 
+{ #category : #'as yet unclassified' }
+MbndAbstractScope >> lookupFunctionProgramEntity [
+	^ parent ifNotNil: [ parent lookupFunctionProgramEntity ]
+]
+
 { #category : #'macro expansion' }
 MbndAbstractScope >> lookupMacroSelector: selector [
 	^ parent ifNotNil: [ parent lookupMacroSelector: selector ]

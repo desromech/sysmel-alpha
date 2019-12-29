@@ -19,7 +19,86 @@ MbndPrimitiveFloatType >> addArithmeticIntrinsicsToVectorOrScalarType: vectorOrS
 	super addArithmeticIntrinsicsToVectorOrScalarType: vectorOrScalarType.
 
 	vectorOrScalarType
-		addArithmetic: #sqrt unaryIntrinsic: #sqrt
+		addArithmetic: #sqrt unaryIntrinsic: #sqrt.
+
+	vectorOrScalarType isPrimitiveVectorType ifTrue: [ 
+		self
+			addBuiltIn: #stepValue: intrinsicNamed: 'math.step' argumentTypes: {vectorOrScalarType} returnType: vectorOrScalarType evaluatedWith: [:receiver :arguments :evaluator :node |
+				self halt.
+			];
+			addBuiltIn: #smoothStepTo:value: intrinsicNamed: 'math.smoothstep' argumentTypes: {self . vectorOrScalarType} returnType: vectorOrScalarType evaluatedWith: [:receiver :arguments :evaluator :node |
+				self halt.
+			].
+	].
+
+	vectorOrScalarType
+		addBuiltIn: #stepValue: intrinsicNamed: 'math.step' argumentTypes: {vectorOrScalarType} returnType: vectorOrScalarType evaluatedWith: [:receiver :arguments :evaluator :node |
+			self halt.
+		];
+		addBuiltIn: #smoothStepTo:value: intrinsicNamed: 'math.smoothstep' argumentTypes: {vectorOrScalarType. vectorOrScalarType} returnType: vectorOrScalarType evaluatedWith: [:receiver :arguments :evaluator :node |
+			self halt.
+		];
+		addBuiltIn: #interpolateTo:at: intrinsicNamed: 'math.fmix' argumentTypes: {vectorOrScalarType. vectorOrScalarType} returnType: vectorOrScalarType evaluatedWith: [:receiver :arguments :evaluator :node |
+			self halt.
+		];
+		addBuiltIn: #min: intrinsicNamed: 'math.fmin' argumentTypes: {vectorOrScalarType} returnType: vectorOrScalarType evaluatedWith: [:receiver :arguments :evaluator :node |
+			self halt.
+		];
+		addBuiltIn: #max: intrinsicNamed: 'math.fmax' argumentTypes: {vectorOrScalarType} returnType: vectorOrScalarType evaluatedWith: [:receiver :arguments :evaluator :node |
+			self halt.
+		];
+
+		addBuiltIn: #raisedTo: intrinsicNamed: 'math.pow' argumentTypes: {vectorOrScalarType} returnType: vectorOrScalarType evaluatedWith: [:receiver :arguments :evaluator :node |
+			self halt.
+		];
+		addBuiltIn: #arcTan: intrinsicNamed: 'math.atan2' argumentTypes: {vectorOrScalarType} returnType: vectorOrScalarType evaluatedWith: [:receiver :arguments :evaluator :node |
+			self halt.
+		].
+	
+	#(
+		(arcSin 'math.asin')
+		(sin 'math.sin')
+		(arcSinh 'math.asinh')
+		(sinh 'math.sinh')
+
+		(arcCos 'math.acos')
+		(cos 'math.cos')
+		(arcCosh 'math.acosh')
+		(cosh 'math.cosh')
+
+		(arcTan 'math.tan')
+		(tan 'math.tan')
+		(arcTanh 'math.atanh')
+
+		(exp 'math.exp')
+		(exp2 'math.exp')
+		(ln 'math.log')
+		(log2 'math.log2')
+
+		(floor 'math.floor')
+		(ceil 'math.ceil')
+		(truncated 'math.trunc')
+		(rounded 'math.round')
+		(roundedEven 'math.roundEven')
+		(fract 'math.fract')
+
+		(degreesToRadians 'math.degrees')
+		(radiansToDegrees 'math.radians')
+
+		(sign 'math.fsign')
+		(abs 'math.fabs')
+		
+	) do: [ :unaryIntrinsic |
+		| selector builtIn |
+		selector := unaryIntrinsic first.
+		builtIn  := unaryIntrinsic second.
+		
+		vectorOrScalarType addBuiltIn: selector intrinsicNamed: builtIn argumentTypes: #() returnType: vectorOrScalarType evaluatedWith: [:receiver :arguments :evaluator :node |
+			self halt.
+		]
+	].
+	
+
 ]
 
 { #category : #converting }

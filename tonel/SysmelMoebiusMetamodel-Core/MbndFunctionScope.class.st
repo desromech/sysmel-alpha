@@ -9,6 +9,11 @@ MbndFunctionScope >> isInFunctionScope [
 	^ true
 ]
 
+{ #category : #'as yet unclassified' }
+MbndFunctionScope >> lookupFunctionProgramEntity [
+	^ programEntity
+]
+
 { #category : #accessing }
 MbndFunctionScope >> returnType [
 	^ programEntity returnType

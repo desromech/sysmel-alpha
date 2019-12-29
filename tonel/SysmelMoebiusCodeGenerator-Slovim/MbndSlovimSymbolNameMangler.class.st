@@ -370,6 +370,26 @@ MbndSlovimSymbolNameMangler >> visitAggregateBasicInitializeMethod: method [
 ]
 
 { #category : #visiting }
+MbndSlovimSymbolNameMangler >> visitAggregateFinalizeMethod: method [
+	^ self visitGenericFunction: method
+]
+
+{ #category : #visiting }
+MbndSlovimSymbolNameMangler >> visitAggregateInitializeFromCopyMethod: method [
+	^ self visitGenericFunction: method
+]
+
+{ #category : #visiting }
+MbndSlovimSymbolNameMangler >> visitAggregateInitializeMethod: method [
+	^ self visitGenericFunction: method
+]
+
+{ #category : #visiting }
+MbndSlovimSymbolNameMangler >> visitAggregateInitializeMovingFromMethod: method [
+	^ self visitGenericFunction: method
+]
+
+{ #category : #visiting }
 MbndSlovimSymbolNameMangler >> visitClassType: type [
 	^ self visitGenericType: type
 ]

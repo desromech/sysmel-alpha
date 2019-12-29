@@ -41,6 +41,18 @@ MbndAbstractSpecificMethod >> analyzeExpandedMessageSendNode: node with: analyze
 		analyzer markCompileTimeEvaluationImpossibility
 	].
 
+	name isMbndAnonymousSymbol ifFalse: [ 
+		newReceiverNode ifNotNil: [ 
+			newReceiverNode isSuperReference ifTrue: [
+				analyzer scope lookupFunctionProgramEntity ifNotNil: [ :callingFunction |
+					callingFunction name = name ifTrue: [ 
+						callingFunction markExplicitSuperSend
+					]
+				].
+			].
+		].
+	].
+
 	^ node copy
 		method: self;
 		receiver: newReceiverNode;

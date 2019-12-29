@@ -785,6 +785,24 @@ MbndSlovimCodeModuleGenerator >> visitAggregateBasicInitializeMethod: generatedM
 ]
 
 { #category : #visiting }
+MbndSlovimCodeModuleGenerator >> visitAggregateFinalizeMethod: generatedMethod [
+	^ self translateCompilerGeneratedMethod: generatedMethod with: [ :ssaFunction :builder :functionCodeGenerator |
+		functionCodeGenerator generateAutomaticFinalizationCode.
+		builder return: ssaFunction arguments first.
+	]
+
+]
+
+{ #category : #visiting }
+MbndSlovimCodeModuleGenerator >> visitAggregateInitializeMethod: generatedMethod [
+	^ self translateCompilerGeneratedMethod: generatedMethod with: [ :ssaFunction :builder :functionCodeGenerator |
+		functionCodeGenerator generateAutomaticInitializationCode.
+		builder return: ssaFunction arguments first
+	]
+
+]
+
+{ #category : #visiting }
 MbndSlovimCodeModuleGenerator >> visitAggregateTypeWithFields: type [
 	| ssaType ssaValue ssaTypeValueType |
 	ssaType := self translateType: type.
