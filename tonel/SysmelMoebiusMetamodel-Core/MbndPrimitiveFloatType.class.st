@@ -69,6 +69,7 @@ MbndPrimitiveFloatType >> addArithmeticIntrinsicsToVectorOrScalarType: vectorOrS
 		(arcTan 'math.tan')
 		(tan 'math.tan')
 		(arcTanh 'math.atanh')
+		(tanh 'math.tanh')
 
 		(exp 'math.exp')
 		(exp2 'math.exp')
