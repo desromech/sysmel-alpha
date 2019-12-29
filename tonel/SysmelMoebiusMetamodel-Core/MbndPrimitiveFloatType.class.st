@@ -53,6 +53,9 @@ MbndPrimitiveFloatType >> addArithmeticIntrinsicsToVectorOrScalarType: vectorOrS
 		];
 		addBuiltIn: #arcTan: intrinsicNamed: 'math.atan2' argumentTypes: {vectorOrScalarType} returnType: vectorOrScalarType evaluatedWith: [:receiver :arguments :evaluator :node |
 			self halt.
+		];
+		addBuiltIn: #floorMod: intrinsicNamed: 'math.fmod' argumentTypes: {vectorOrScalarType} returnType: vectorOrScalarType evaluatedWith: [:receiver :arguments :evaluator :node |
+			self halt.
 		].
 	
 	#(
@@ -83,8 +86,8 @@ MbndPrimitiveFloatType >> addArithmeticIntrinsicsToVectorOrScalarType: vectorOrS
 		(roundedEven 'math.roundEven')
 		(fract 'math.fract')
 
-		(degreesToRadians 'math.degrees')
-		(radiansToDegrees 'math.radians')
+		(degreesToRadians 'math.radians')
+		(radiansToDegrees 'math.degrees')
 
 		(sign 'math.fsign')
 		(abs 'math.fabs')
