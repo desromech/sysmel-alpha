@@ -1,5 +1,4 @@
 loadFileOnce: "basic-traits.sysmel".
-loadFileOnce: "basic-types.sysmel".
 loadFileOnce: "control-flow.sysmel".
 loadFileOnce: "assembly.sysmel".
 loadFileOnce: "atomic.sysmel".

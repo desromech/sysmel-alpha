@@ -184,7 +184,7 @@ GCLayout definition: {
 
 ## String
 String definition: {
-    field __data protected type: UInt8 array.
+    field __data protected type: Char8 array.
 }.
 
 ## Table with the immediate clases.
@@ -268,7 +268,7 @@ ProtoObject definition: {
             <nogc>
             0.0
         }.
-	
+
     } else: {
         message __isImmediateValue => Boolean8 := {
             <notInCompileTime>
@@ -570,6 +570,7 @@ Compiler compilationTarget managedObjectModel
 	additionalMethodStateClass: AdditionalMethodState;
     symbolClass: Symbol;
     stringClass: String;
+	characterClass: Character;
 	integerClass: Integer;
 	floatClass: Float;
 	boolClass: Boolean;

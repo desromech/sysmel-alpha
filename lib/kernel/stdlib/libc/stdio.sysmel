@@ -5,17 +5,17 @@ namespace LibC definition: {
 
     struct FILE definition: {}.
 
-    function printf externC CVariadic (format: Char const pointer) => Int32.
-    function perror externC(s: Char const pointer) => Int32.
+    function printf externC CVariadic (format: Char8 const pointer) => Int32.
+    function perror externC(s: Char8 const pointer) => Int32.
 
-    function snprintf externC CVariadic(buffer: Char pointer, size: SizeT, format: Char const pointer) => Int32.
+    function snprintf externC CVariadic(buffer: Char8 pointer, size: SizeT, format: Char8 const pointer) => Int32.
 
     function fopen externC(path: ConstString, mode: ConstString) => FILE pointer.
     function fclose externC(stream: FILE pointer) => Int32.
     function fflush externC(stream: FILE pointer) => Int32.
     function fseek externC(stream: FILE pointer, offset: IntPointer, whence: Int32) => Int32.
     function fread externC(ptr: Void pointer, size: SizeT, nmemb: SizeT, stream: FILE pointer) => SizeT.
-    function fprintf externC CVariadic(stream: FILE pointer, format: Char const pointer) => Int32.
+    function fprintf externC CVariadic(stream: FILE pointer, format: Char8 const pointer) => Int32.
     function fwrite externC(ptr: Void const pointer, size: SizeT, nmemb: SizeT, stream: FILE pointer) => SizeT.
     function ftell externC(stream: FILE pointer) => Int32.
 

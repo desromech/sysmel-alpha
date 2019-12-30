@@ -10,12 +10,12 @@ namespace LibC definition: {
     function atoi externC (string: ConstString) => Int.
     function atof externC (string: ConstString) => Double.
 
-    function strtod externC (str: ConstString, endptr: Char pointer pointer) => Double.
-    function strtof externC (str: ConstString, endptr: Char pointer pointer) => Float.
-    function strtol externC (str: ConstString, endptr: Char pointer pointer) => Long.
-    function strtoll externC (str: ConstString, endptr: Char pointer pointer) => LongLong.
-    function strtoul externC (str: ConstString, endptr: Char pointer pointer) => ULong.
-    function strtoull externC (str: ConstString, endptr: Char pointer pointer) => ULongLong.
+    function strtod externC (str: ConstString, endptr: Char8 pointer pointer) => Double.
+    function strtof externC (str: ConstString, endptr: Char8 pointer pointer) => Float.
+    function strtol externC (str: ConstString, endptr: Char8 pointer pointer) => Long.
+    function strtoll externC (str: ConstString, endptr: Char8 pointer pointer) => LongLong.
+    function strtoul externC (str: ConstString, endptr: Char8 pointer pointer) => ULong.
+    function strtoull externC (str: ConstString, endptr: Char8 pointer pointer) => ULongLong.
 
     ## Memory management
     function calloc externC (nitems: SizeT, size: SizeT) => Void pointer.

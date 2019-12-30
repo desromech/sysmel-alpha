@@ -7,13 +7,13 @@ global isQuitting mutable := false.
 struct Box2D definition: {
 	public field min type: Float32x2.
 	public field max type: Float32x2.
-	
+
 	meta message center: (center: Float32x2) halfExtent: (halfExtent: Float32x2) ::=> SelfType
 		:= SelfType newValue
 			min: center - halfExtent;
 			max: center + halfExtent;
 			yourself.
-	
+
 	message extent => Float32x2
 		:= max - min.
 
@@ -28,7 +28,7 @@ class Character definition: {
 	public field position type: Float32x2.
 	public field velocity type: Float32x2.
 	public field halfExtent type: Float32x2.
-	
+
 	message boundingBox => Box2D
 		:= Box2D center: position halfExtent: halfExtent.
 }.
@@ -36,7 +36,7 @@ class Character definition: {
 class Player superclass: Character; definition: {
 	public field speed type: Float32.
 	public field direction type: Float32x2.
-	
+
 	message initialize => Void := {
 		halfExtent := Float32x2(0.5, 1.0).
 		self walk
@@ -49,7 +49,7 @@ class Player superclass: Character; definition: {
 	message run => Void := {
 		speed := 3.0
 	}.
-	
+
 	message simulate: (delta: Float32) ::=> Void := {
 		velocity := direction * speed.
 
@@ -99,7 +99,7 @@ function drawCharacter(character: Character ref) => Void := {
 	let min := viewMatrix * Float32x3(boundingBox min, 1.0) castTo: Int32x2.
 	let max := viewMatrix * Float32x3(boundingBox max, 1.0) castTo: Int32x2.
 	let extent := max - min.
-	
+
 	let rect mutable := SDL_Rect newValue
 		x: (min x);
 		y: (max y);
@@ -117,7 +117,7 @@ function render() => Void := {
 	## Clear the screen.
 	SDL_SetRenderDrawColor(renderer, 0, 0, 0, 255).
 	SDL_RenderClear(renderer).
-	
+
 	## Compute the view matrix
 	{
 		let viewScale := 1.0 / 10.0 castTo: Float32.
@@ -127,13 +127,13 @@ function render() => Void := {
 			Float32x2(320, 240)
 		).
 	}.
-	
+
 	drawCharacter(player).
-	
+
 	SDL_RenderPresent(renderer).
 }.
 
-function main externC (argc: Int32, argv: UInt8 const pointer pointer) => Int32 := {
+function main externC (argc: Int32, argv: Char8 const pointer pointer) => Int32 := {
 
 	SDL_Init(SDL_INIT_VIDEO) < 0 ifTrue: {
 		return: 1.
@@ -159,7 +159,7 @@ function main externC (argc: Int32, argv: UInt8 const pointer pointer) => Int32 
 
 		## Process the event.
 		processEvents().
-		
+
 		## Deterministic update.
 		##StdNative stdout << "deltaTicks " << deltaTicks; nl.
 		##StdNative stdout << "accumulatedTime " << accumulatedTime; nl.
@@ -168,11 +168,11 @@ function main externC (argc: Int32, argv: UInt8 const pointer pointer) => Int32 
 			update(updateDelta).
 			accumulatedTime := accumulatedTime - updateDelta
 		}.
-		
+
 		## Perform the actual rendering.
 		render().
 
-		## Compute the sleep time to achieve 60 fps.		
+		## Compute the sleep time to achieve 60 fps.
 		let targetTicks := newTicks + 16 - (accumulatedTime castTo: UInt32).
 		let renderEndTicks := SDL_GetTicks().
 		renderEndTicks < targetTicks ifTrue: {

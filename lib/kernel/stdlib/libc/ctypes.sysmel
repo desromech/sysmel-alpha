@@ -1,8 +1,7 @@
 namespace CTypes definition: {
     ## CTypes
-    compileTimeConstant Char := UInt8.
-    compileTimeConstant String := Char pointer.
-    compileTimeConstant ConstString := Char const pointer.
+    compileTimeConstant String := Char8 pointer.
+    compileTimeConstant ConstString := Char8 const pointer.
 
     compileTimeConstant Short := Int16.
     compileTimeConstant UShort := UInt16.

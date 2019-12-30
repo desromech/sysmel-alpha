@@ -97,7 +97,7 @@ class TextStreamWriter definition: {
         self nextPutHexPointer: (pointer reinterpretCastTo: UIntPointer).
     }.
 
-    message nextPutCString:(cstring: UInt8 const pointer) ::=> Boolean8 := {
+    message nextPutCString:(cstring: Char8 const pointer) ::=> Boolean8 := {
         cstring ifNil: {
             true
         } ifNotNil: {
@@ -123,6 +123,9 @@ class TextStreamWriter definition: {
         := self lf; yourself.
 
     ## Convenience printing methods.
+    message << (character: Char8) => SelfType ref
+        := self nextPut: character; yourself.
+
     message << (string: StdNative StringLiteral) => SelfType ref
         := self nextPutAll: string; yourself.
 

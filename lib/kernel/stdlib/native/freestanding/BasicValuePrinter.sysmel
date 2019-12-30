@@ -3,11 +3,11 @@ namespace StdNative definition: {
 class BasicValuePrinter definition: {
     compileTimeConstant bufferCapacity := 256.
     public field bufferSize type: UIntPointer.
-    public field buffer type: (UInt8 array: bufferCapacity).
+    public field buffer type: (Char8 array: bufferCapacity).
 
     message nextPut: (c: Int32) ::=> Void := {
         bufferSize < bufferCapacity ifTrue:{
-            buffer[bufferSize] := c castTo: UInt8.
+            buffer[bufferSize] := c castTo: Char8.
             bufferSize := bufferSize + 1
         }
     }.

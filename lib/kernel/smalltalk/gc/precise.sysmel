@@ -80,7 +80,7 @@ global globalSysmelGC mutable type: SysmelGC.
 #**
  * This is the entry point for a sysmel image.
  *#
-function __sylsif_entryPoint externC(sysmelImageMetadata: Void pointer, argc: Int32, argv: Char const pointer pointer) => Int32 := {
+function __sylsif_entryPoint externC(sysmelImageMetadata: Void pointer, argc: Int32, argv: Char8 const pointer pointer) => Int32 := {
     LibC printf("__sylsif_entryPoint executed. Image metadata: %p\n", sysmelImageMetadata).
     return: 0.
 }.
