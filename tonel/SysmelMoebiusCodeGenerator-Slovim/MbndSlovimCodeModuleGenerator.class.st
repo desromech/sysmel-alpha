@@ -61,6 +61,10 @@ MbndSlovimCodeModuleGenerator >> addPrimitiveTypeTranslations [
 	(#(
 		(voidType void)
 
+		(char8Type uint8)
+		(char16Type uint16)
+		(char32Type uint32)
+
 		(uint8Type uint8)
 		(uint16Type uint16)
 		(uint32Type uint32)

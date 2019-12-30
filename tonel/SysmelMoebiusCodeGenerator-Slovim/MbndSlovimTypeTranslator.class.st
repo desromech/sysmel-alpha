@@ -212,6 +212,11 @@ MbndSlovimTypeTranslator >> visitPrimitiveBooleanType: integerType [
 ]
 
 { #category : #visiting }
+MbndSlovimTypeTranslator >> visitPrimitiveCharacterCodeType: integerType [
+	self halt
+]
+
+{ #category : #visiting }
 MbndSlovimTypeTranslator >> visitPrimitiveIntegerType: integerType [
 	self halt
 ]

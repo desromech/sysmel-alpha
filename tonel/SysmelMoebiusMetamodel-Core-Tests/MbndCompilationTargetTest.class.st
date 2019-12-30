@@ -130,6 +130,48 @@ MbndCompilationTargetTest >> testCStringLiteralType [
 ]
 
 { #category : #'basic types' }
+MbndCompilationTargetTest >> testChar16Type [
+	| type |
+	type := compilationTarget char16Type.
+	self assert: type isPrimitiveType.
+	self assert: type isPrimitiveIntegerType.
+	self assert: type isPrimitiveCharacterCodeType.
+	self assert: type valueSize equals: 2.
+	self assert: type isUnsigned.
+	self deny: type isSigned.
+	self assert: type defaultValue unwrapMbndValue equals: Character null.
+	
+]
+
+{ #category : #'basic types' }
+MbndCompilationTargetTest >> testChar32Type [
+	| type |
+	type := compilationTarget char32Type.
+	self assert: type isPrimitiveType.
+	self assert: type isPrimitiveIntegerType.
+	self assert: type isPrimitiveCharacterCodeType.
+	self assert: type valueSize equals: 4.
+	self assert: type isUnsigned.
+	self deny: type isSigned.
+	self assert: type defaultValue unwrapMbndValue equals: Character null.
+	
+]
+
+{ #category : #'basic types' }
+MbndCompilationTargetTest >> testChar8Type [
+	| type |
+	type := compilationTarget char8Type.
+	self assert: type isPrimitiveType.
+	self assert: type isPrimitiveIntegerType.
+	self assert: type isPrimitiveCharacterCodeType.
+	self assert: type valueSize equals: 1.
+	self assert: type isUnsigned.
+	self deny: type isSigned.
+	self assert: type defaultValue unwrapMbndValue equals: Character null.
+	
+]
+
+{ #category : #'basic types' }
 MbndCompilationTargetTest >> testClassType [
 	| classType classType2 |
 	classType := compilationTarget createNamedType: #Test ofKind: MbndClassType.
@@ -325,6 +367,7 @@ MbndCompilationTargetTest >> testInt16Type [
 	type := compilationTarget int16Type.
 	self assert: type isPrimitiveType.
 	self assert: type isPrimitiveIntegerType.
+	self deny: type isPrimitiveCharacterCodeType.
 	self assert: type valueSize equals: 2.
 	self assert: type isSigned.
 	self deny: type isUnsigned.
@@ -381,6 +424,7 @@ MbndCompilationTargetTest >> testInt64Type [
 	type := compilationTarget int64Type.
 	self assert: type isPrimitiveType.
 	self assert: type isPrimitiveIntegerType.
+	self deny: type isPrimitiveCharacterCodeType.
 	self assert: type valueSize equals: 8.
 	self assert: type isSigned.
 	self deny: type isUnsigned.
@@ -394,6 +438,7 @@ MbndCompilationTargetTest >> testInt8Type [
 	type := compilationTarget int8Type.
 	self assert: type isPrimitiveType.
 	self assert: type isPrimitiveIntegerType.
+	self deny: type isPrimitiveCharacterCodeType.
 	self assert: type valueSize equals: 1.
 	self assert: type isSigned.
 	self deny: type isUnsigned.
@@ -809,6 +854,7 @@ MbndCompilationTargetTest >> testUInt16Type [
 	type := compilationTarget uint16Type.
 	self assert: type isPrimitiveType.
 	self assert: type isPrimitiveIntegerType.
+	self deny: type isPrimitiveCharacterCodeType.
 	self assert: type valueSize equals: 2.
 	self deny: type isSigned.
 	self assert: type isUnsigned.
@@ -822,6 +868,7 @@ MbndCompilationTargetTest >> testUInt32Type [
 	type := compilationTarget uint32Type.
 	self assert: type isPrimitiveType.
 	self assert: type isPrimitiveIntegerType.
+	self deny: type isPrimitiveCharacterCodeType.
 	self assert: type valueSize equals: 4.
 	self deny: type isSigned.
 	self assert: type isUnsigned.
@@ -865,6 +912,7 @@ MbndCompilationTargetTest >> testUInt64Type [
 	type := compilationTarget uint64Type.
 	self assert: type isPrimitiveType.
 	self assert: type isPrimitiveIntegerType.
+	self deny: type isPrimitiveCharacterCodeType.
 	self assert: type valueSize equals: 8.
 	self deny: type isSigned.
 	self assert: type isUnsigned.
@@ -878,6 +926,7 @@ MbndCompilationTargetTest >> testUInt8Type [
 	type := compilationTarget uint8Type.
 	self assert: type isPrimitiveType.
 	self assert: type isPrimitiveIntegerType.
+	self deny: type isPrimitiveCharacterCodeType.
 	self assert: type valueSize equals: 1.
 	self deny: type isSigned.
 	self assert: type isUnsigned.

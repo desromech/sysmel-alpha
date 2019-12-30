@@ -192,6 +192,11 @@ MbndAbstractModuleVisitor >> visitPrimitiveBooleanType: type [
 ]
 
 { #category : #visiting }
+MbndAbstractModuleVisitor >> visitPrimitiveCharacterCodeType: type [
+	self subclassResponsibility
+]
+
+{ #category : #visiting }
 MbndAbstractModuleVisitor >> visitPrimitiveFloatType: type [
 	self subclassResponsibility
 ]

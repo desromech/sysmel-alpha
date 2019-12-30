@@ -23,7 +23,8 @@ Trait {
 		'superMessageLookupFunction',
 		'undeclaredVariableClass',
 		'workspaceVariableClass',
-		'associationValueOffset'
+		'associationValueOffset',
+		'characterClass'
 	],
 	#traits : 'TMbndAbstractManagedObjectModel',
 	#classTraits : 'TMbndAbstractManagedObjectModel classTrait',
@@ -97,6 +98,21 @@ TMbndCoreManagedObjectModel >> byteArrayClass [
 { #category : #accessing }
 TMbndCoreManagedObjectModel >> byteArrayClass: anObject [
 	byteArrayClass := anObject
+]
+
+{ #category : #accessing }
+TMbndCoreManagedObjectModel >> characterClass [
+	^ characterClass
+]
+
+{ #category : #accessing }
+TMbndCoreManagedObjectModel >> characterClass: anObject [
+	characterClass := anObject.
+	compilationTarget literalCharacterType addConversionTo: characterClass rule: MbndLiteralValueTypeChangeConversionRule.
+	compilationTarget primitiveCharacterCodeType addConversionTo: characterClass rule: MbndCharacterToDynamicObjectConversionRule.
+	compilationTarget dynamicObjectType addExplicitConversionRule: (MbndDynamicObjectToCharacterConversionRule when: [:sourceType :targetType |
+		targetType isPrimitiveIntegerType
+	]).
 ]
 
 { #category : #accessing }

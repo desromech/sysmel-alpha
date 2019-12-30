@@ -427,6 +427,20 @@ MbndSlovimDebugInformationTranslator >> visitPrimitiveBooleanType: type [
 ]
 
 { #category : #visiting }
+MbndSlovimDebugInformationTranslator >> visitPrimitiveCharacterCodeType: type [
+	| basicType |
+	type isTrait ifTrue: [ self visitTraitType: type ].
+	basicType := SLVMDebugBasicType new.
+	basicType
+		byteSize: type instanceSize;
+		byteAlignment: type instanceAlignment;
+		makeCharacter.
+	self setCommonDebugType: basicType informationFrom: type.
+	^ basicType.
+	
+]
+
+{ #category : #visiting }
 MbndSlovimDebugInformationTranslator >> visitPrimitiveFloatType: type [
 	| basicType |
 	type isTrait ifTrue: [ self visitTraitType: type ].

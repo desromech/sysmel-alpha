@@ -882,6 +882,11 @@ TMbndAbstractType >> isPrimitiveBooleanType [
 ]
 
 { #category : #'testing methods' }
+TMbndAbstractType >> isPrimitiveCharacterCodeType [
+	^ false
+]
+
+{ #category : #'testing methods' }
 TMbndAbstractType >> isPrimitiveFloatType [
 	^ false
 ]

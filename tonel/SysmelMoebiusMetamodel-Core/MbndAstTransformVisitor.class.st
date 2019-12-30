@@ -99,6 +99,11 @@ MbndAstTransformVisitor >> visitCasesOfNode: node [
 ]
 
 { #category : #visiting }
+MbndAstTransformVisitor >> visitCharacterToDynamicObjectCastNode: node [
+	^ self visitSpecificCastNode: node
+]
+
+{ #category : #visiting }
 MbndAstTransformVisitor >> visitClassDeclarationNode: node [
 	^ node copy
 ]
@@ -171,6 +176,11 @@ MbndAstTransformVisitor >> visitDoWhileLoopNode: node [
 
 { #category : #visiting }
 MbndAstTransformVisitor >> visitDynamicObjectToBooleanCastNode: node [
+	^ self visitSpecificCastNode: node
+]
+
+{ #category : #visiting }
+MbndAstTransformVisitor >> visitDynamicObjectToCharacterCastNode: node [
 	^ self visitSpecificCastNode: node
 ]
 

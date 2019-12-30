@@ -131,6 +131,11 @@ MbndAstNode >> isCasesOfNode [
 ]
 
 { #category : #testing }
+MbndAstNode >> isCharacterToDynamicObjectCastNode [
+	^ false
+]
+
+{ #category : #testing }
 MbndAstNode >> isClassDeclarationNode [
 	^ false
 ]
@@ -197,6 +202,11 @@ MbndAstNode >> isDynamicObjectCastNode [
 
 { #category : #testing }
 MbndAstNode >> isDynamicObjectToBooleanCastNode [
+	^ false
+]
+
+{ #category : #testing }
+MbndAstNode >> isDynamicObjectToCharacterCastNode [
 	^ false
 ]
 

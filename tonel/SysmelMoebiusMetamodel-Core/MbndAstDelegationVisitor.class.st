@@ -68,6 +68,11 @@ MbndAstDelegationVisitor >> visitCasesOfNode: node [
 ]
 
 { #category : #visiting }
+MbndAstDelegationVisitor >> visitCharacterToDynamicObjectCastNode: node [
+	^ self delegateNodeVisit: node
+]
+
+{ #category : #visiting }
 MbndAstDelegationVisitor >> visitClassDeclarationNode: node [
 	^ self delegateNodeVisit: node
 ]
@@ -129,6 +134,11 @@ MbndAstDelegationVisitor >> visitDoWhileLoopNode: node [
 
 { #category : #visiting }
 MbndAstDelegationVisitor >> visitDynamicObjectToBooleanCastNode: node [
+	^ self delegateNodeVisit: node
+]
+
+{ #category : #visiting }
+MbndAstDelegationVisitor >> visitDynamicObjectToCharacterCastNode: node [
 	^ self delegateNodeVisit: node
 ]
 

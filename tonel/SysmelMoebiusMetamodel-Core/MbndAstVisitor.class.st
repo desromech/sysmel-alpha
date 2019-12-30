@@ -65,6 +65,11 @@ MbndAstVisitor >> visitCasesOfNode: node [
 ]
 
 { #category : #visiting }
+MbndAstVisitor >> visitCharacterToDynamicObjectCastNode: node [
+	self subclassResponsibility
+]
+
+{ #category : #visiting }
 MbndAstVisitor >> visitClassDeclarationNode: node [
 	self subclassResponsibility
 ]
@@ -126,6 +131,11 @@ MbndAstVisitor >> visitDoWhileLoopNode: node [
 
 { #category : #visiting }
 MbndAstVisitor >> visitDynamicObjectToBooleanCastNode: node [
+	self subclassResponsibility
+]
+
+{ #category : #visiting }
+MbndAstVisitor >> visitDynamicObjectToCharacterCastNode: node [
 	self subclassResponsibility
 ]
 

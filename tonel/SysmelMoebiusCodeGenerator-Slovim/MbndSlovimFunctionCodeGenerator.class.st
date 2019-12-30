@@ -924,6 +924,14 @@ MbndSlovimFunctionCodeGenerator >> visitCasesOfNode: node [
 ]
 
 { #category : #visiting }
+MbndSlovimFunctionCodeGenerator >> visitCharacterToDynamicObjectCastNode: node [
+	| source targetType |
+	source := self visitNode: node expression.
+	targetType := self translateType: node type.
+	^ slvmBuilder charToDynamicObjectCast: source target: targetType
+]
+
+{ #category : #visiting }
 MbndSlovimFunctionCodeGenerator >> visitCleanUpScopeNode: node [
 	| cleanUpScope |
 	cleanUpScope := MbndSlovimCleanUpScope new parent: currentCleanUpScope.
@@ -1029,6 +1037,14 @@ MbndSlovimFunctionCodeGenerator >> visitDynamicObjectToBooleanCastNode: node [
 	source := self visitNode: node expression.
 	targetType := self translateType: node type.
 	^ slvmBuilder dynamicObjectToBoolCast: source target: targetType
+]
+
+{ #category : #visiting }
+MbndSlovimFunctionCodeGenerator >> visitDynamicObjectToCharacterCastNode: node [
+	| source targetType |
+	source := self visitNode: node expression.
+	targetType := self translateType: node type.
+	^ slvmBuilder dynamicObjectToCharCast: source target: targetType
 ]
 
 { #category : #visiting }

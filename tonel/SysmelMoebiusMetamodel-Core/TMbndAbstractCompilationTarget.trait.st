@@ -29,6 +29,21 @@ TMbndAbstractCompilationTarget >> booleanType [
 ]
 
 { #category : #'convenience type accessors' }
+TMbndAbstractCompilationTarget >> char16Type [
+	^ self getBasicTypeNamed: #Char16
+]
+
+{ #category : #'convenience type accessors' }
+TMbndAbstractCompilationTarget >> char32Type [
+	^ self getBasicTypeNamed: #Char32
+]
+
+{ #category : #'convenience type accessors' }
+TMbndAbstractCompilationTarget >> char8Type [
+	^ self getBasicTypeNamed: #Char8
+]
+
+{ #category : #'convenience type accessors' }
 TMbndAbstractCompilationTarget >> compilerObjectType [
 	^ self getBasicTypeNamed: MbndCompilerObjectType typeName
 ]
@@ -426,6 +441,11 @@ TMbndAbstractCompilationTarget >> pointerSize [
 { #category : #'derived types' }
 TMbndAbstractCompilationTarget >> pointerTo: baseType [
 	^ self pointerFor: MbndPointerLikeType genericAddressSpace to: baseType
+]
+
+{ #category : #'convenience type accessors' }
+TMbndAbstractCompilationTarget >> primitiveCharacterCodeType [
+	^ self getBasicTypeNamed: #_PrimitiveCharacterCodeType
 ]
 
 { #category : #'convenience type accessors' }

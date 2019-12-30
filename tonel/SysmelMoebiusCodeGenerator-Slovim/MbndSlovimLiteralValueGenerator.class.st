@@ -225,6 +225,11 @@ MbndSlovimLiteralValueGenerator >> visitPrimitiveBooleanType: integerType [
 ]
 
 { #category : #'code generation' }
+MbndSlovimLiteralValueGenerator >> visitPrimitiveCharacterCodeType: integerType [
+	^ SLVMConstant type: (self translateType: integerType) value: literalValue asInteger
+]
+
+{ #category : #'code generation' }
 MbndSlovimLiteralValueGenerator >> visitPrimitiveFloatType: floatType [
 	^ SLVMConstant type: (self translateType: floatType) value: (floatType legalizeLiteralValue: literalValue)
 ]

@@ -50,6 +50,7 @@ gcclass Object superclass: ProtoObject.
                     gcclass LargeNegativeInteger superclass: LargeInteger.
                     gcclass LargePositiveInteger superclass: LargeInteger.
                 gcclass SmallInteger superclass: Integer.
+		gcclass Character superclass: Magnitude.
 
 		gcclass LookupKey superclass: Magnitude.
 			gcclass Association superclass: LookupKey.
@@ -165,6 +166,7 @@ Compiler compilationTarget managedObjectModel
 	additionalMethodStateClass: AdditionalMethodState;
     symbolClass: Symbol;
     stringClass: String;
+	characterClass: Character;
 	integerClass: Integer;
 	floatClass: Float;
 	boolClass: Boolean;

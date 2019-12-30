@@ -34,6 +34,16 @@ Trait {
 }
 
 { #category : #'basic types' }
+TMbndCoreCompilationTarget >> addBasicCharTypeWithSize: size name: name [
+	^ self addBasicType: (MbndPrimitiveCharacterCodeType basicNew
+		name: name;
+		instanceSize: size;
+		instanceAlignment: size;
+		signed: false;
+		yourself)
+]
+
+{ #category : #'basic types' }
 TMbndCoreCompilationTarget >> addBasicFloatTypeWithSize: size alignment: alignment name: name [
 	^ self addBasicType: (MbndPrimitiveFloatType basicNew
 		name: name;
@@ -135,6 +145,14 @@ TMbndCoreCompilationTarget >> computeArithmeticCoercionTypeFor: leftType with: r
 		^ self computeVectorArithmeticCoercionTypeFor: bestLeftType with: bestRightType leftNode: leftNode rightNode: rightNode inScope: aScope
 	].
 	
+	"Promote characters into integers."
+	bestLeftType isPrimitiveCharacterCodeType ifTrue: [
+		bestLeftType := bestLeftType asIntegerType
+	].
+	bestRightType isPrimitiveCharacterCodeType ifTrue: [
+		bestRightType := bestRightType asIntegerType
+	].
+
 	"Positive literal , Unsigned type"
 	(leftType isLiteralIntegerType and: [leftNode value >= 0 and: [ bestLeftType isSigned
 	 and: [rightType isPrimitiveIntegerType and: [rightType isUnsigned]]]]) ifTrue: [
@@ -457,7 +475,11 @@ TMbndCoreCompilationTarget >> initializeArithmeticCoercionTable [
 
 { #category : #initialization }
 TMbndCoreCompilationTarget >> initializeArithmeticConversionRules [
-	| int8Type int16Type int32Type int64Type uint8Type uint16Type uint32Type uint64Type float16Type float32Type float64Type |
+	| char8Type char16Type char32Type int8Type int16Type int32Type int64Type uint8Type uint16Type uint32Type uint64Type float16Type float32Type float64Type |
+	char8Type := self char8Type.
+	char16Type := self char16Type.
+	char32Type := self char32Type.
+
 	int8Type := self int8Type.
 	int16Type := self int16Type.
 	int32Type := self int32Type.
@@ -475,8 +497,15 @@ TMbndCoreCompilationTarget >> initializeArithmeticConversionRules [
 	int8Type | int16Type | int32Type | int64Type addImplicitConversionTo:
 		uint8Type | uint16Type | uint32Type | uint64Type
 	rule: MbndPositiveLiteralToUnsignedTypeConversionRule.
-	
+
 	"Bit cast"
+	char8Type addConversionTo: uint8Type rule: MbndBitCastTypeConversionRule.
+	char16Type addConversionTo: uint16Type rule: MbndBitCastTypeConversionRule.
+	char32Type addConversionTo: uint32Type rule: MbndBitCastTypeConversionRule.
+	uint8Type addConversionTo: char8Type rule: MbndBitCastTypeConversionRule.
+	uint16Type addConversionTo: char16Type rule: MbndBitCastTypeConversionRule.
+	uint32Type addConversionTo: char32Type rule: MbndBitCastTypeConversionRule.
+	
 	int64Type addExplicitConversionTo: uint64Type rule: MbndBitCastTypeConversionRule.
 	uint64Type addExplicitConversionTo: int64Type rule: MbndBitCastTypeConversionRule.
 	int32Type addExplicitConversionTo: uint32Type rule: MbndBitCastTypeConversionRule.
@@ -560,6 +589,10 @@ TMbndCoreCompilationTarget >> initializeBasicTypes [
 	self linkMetaHierarchy.
 	self
 		addBasicType: (MbndPrimitiveBooleanType basicNew name: #Boolean8; yourself);
+		addBasicCharTypeWithSize: 1 name: #Char8;
+		addBasicCharTypeWithSize: 2 name: #Char16;
+		addBasicCharTypeWithSize: 4 name: #Char32;
+
 		addBasicIntegerTypeWithSize: 1 signed: false name: #UInt8;
 		addBasicIntegerTypeWithSize: 2 signed: false name: #UInt16;
 		addBasicIntegerTypeWithSize: 4 signed: false name: #UInt32;
@@ -940,7 +973,7 @@ TMbndCoreCompilationTarget >> specificCompilerObjectTypeFor: aBehavior [
 TMbndCoreCompilationTarget >> standardConcreteTypeForLiteralStringInScope: aScope [
 	aScope isCompilationEvaluationScope ifTrue: [ ^ self compilerObjectType ].
 	nativePrefixedStringLiteralType ifNotNil: [ ^ nativePrefixedStringLiteralType ].
-	^ self uint8Type const pointer
+	^ self char8Type const pointer
 ]
 
 { #category : #initialization }

@@ -69,6 +69,11 @@ MbndSlovimSymbolNameMangler >> buildBuiltInTypeManglingTable [
 		float16Type DF16_
 		float32Type f
 		float64Type d
+
+		char8Type c
+		char16Type Ds
+		char32Type Di
+
 	) pairsDo: [ :typeName :mangledName |
 		builtInManglingTable at: (compilationTarget perform: typeName) put: mangledName
 	].
@@ -136,6 +141,10 @@ MbndSlovimSymbolNameMangler >> emitTemplateInstanceArgument: argument [
 		^ self.
 	].
 
+	argumentType isLiteralIntegerType ifTrue: [ 
+		argumentType := argumentType bestConcreteTypeForLiteralValueNode: argument asLiteralValueNode inScope: nil
+	].
+
 	(argumentType isPrimitiveIntegerType "or: [argumentType isPrimitiveFloatType]") ifTrue: [
 		output nextPut: $L.
 		self mangleType: argumentType.
@@ -145,6 +154,7 @@ MbndSlovimSymbolNameMangler >> emitTemplateInstanceArgument: argument [
 		] ifFalse: [
 			output print: argumentValue
 		].
+		^ self
 	].
 
 	self error: 'Unsupported template argument in mangling scheme yet'

@@ -11,7 +11,12 @@ MbndLiteralCharacterType class >> typeName [
 
 { #category : #'semantic analysis' }
 MbndLiteralCharacterType >> bestConcreteTypeForLiteralValueNode: literalValueNode inScope: scope [
-	^ self compilationTarget int32Type
+	| literalValue |
+	literalValue := literalValueNode value asInteger.
+	literalValue <= 16rFF ifTrue: [ ^ self compilationTarget char8Type ].
+	literalValue <= 16rFFFF ifTrue: [ ^ self compilationTarget char16Type ].
+	
+	^ self compilationTarget char32Type
 ]
 
 { #category : #'testing methods' }
@@ -21,5 +26,5 @@ MbndLiteralCharacterType >> isLiteralCharacterType [
 
 { #category : #'semantic analysis' }
 MbndLiteralCharacterType >> standardConcreteTypeForLiteralValueNode: literalValueNode inScope: scope [
-	^ self compilationTarget int32Type
+	^ self compilationTarget char32Type
 ]
