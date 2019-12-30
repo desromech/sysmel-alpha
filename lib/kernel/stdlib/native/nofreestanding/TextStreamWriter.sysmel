@@ -11,10 +11,13 @@ class TextStreamWriter definition: {
             stream: stream;
             yourself.
 
-    message nextPut: (character: Int32) ::=> Boolean8 := {
+    message nextPut: (character: Char32) ::=> Boolean8 := {
         let buffer mutable type: UInt8 := character castTo: UInt8.
         (stream _ write: buffer address size: 1) == 1
     }.
+
+    message nextPut: (character: Int32) ::=> Boolean8
+		:= self nextPut: (character castTo: Char32).
 
     message nextPutAll: (string: StdNative StringLiteral) ::=> Boolean8 := {
         (stream _ write: string [0] address size: string size) == (string size castTo: IntPointer)
@@ -123,7 +126,7 @@ class TextStreamWriter definition: {
         := self lf; yourself.
 
     ## Convenience printing methods.
-    message << (character: Char8) => SelfType ref
+    message << (character: Char32) => SelfType ref
         := self nextPut: character; yourself.
 
     message << (string: StdNative StringLiteral) => SelfType ref
