@@ -279,6 +279,11 @@ MbndSlovimLiteralValueGenerator >> visitStructureType: type [
 ]
 
 { #category : #'code generation' }
+MbndSlovimLiteralValueGenerator >> visitTemporaryReferenceType: referenceType [
+	^ self visitReferenceType: referenceType
+]
+
+{ #category : #'code generation' }
 MbndSlovimLiteralValueGenerator >> visitUndefinedType: undefinedType [
 	^ SLVMConstant type: (self translateType: undefinedType) value: literalValue
 ]

@@ -358,6 +358,11 @@ TMbndAbstractType >> asSuperArgumentType [
 ]
 
 { #category : #converting }
+TMbndAbstractType >> asTemporaryReferenceType [
+	self error: 'Cannot convert type {1} into a reference type version.' format: { self asString }
+]
+
+{ #category : #converting }
 TMbndAbstractType >> asUndecoratedClassType [
 	^ self withoutTopDecorations
 ]
@@ -974,6 +979,11 @@ TMbndAbstractType >> isTemplateType [
 	^ false
 ]
 
+{ #category : #testing }
+TMbndAbstractType >> isTemporaryReferenceType [
+	^ false
+]
+
 { #category : #'testing methods' }
 TMbndAbstractType >> isTextureType [
 	^ false
@@ -1110,7 +1120,7 @@ TMbndAbstractType >> outputChannel [
 { #category : #'type composition' }
 TMbndAbstractType >> pointer [
 	<compileTime>
-	^ self compilationTarget pointerTo: self
+	^ self pointerFor: MbndPointerLikeType genericAddressSpace
 ]
 
 { #category : #'type composition' }
@@ -1133,7 +1143,7 @@ TMbndAbstractType >> pushConstantPointer [
 { #category : #'type composition' }
 TMbndAbstractType >> ref [
 	<compileTime>
-	^ self compilationTarget referenceTo: self
+	^ self refFor: MbndPointerLikeType genericAddressSpace
 ]
 
 { #category : #'type composition' }
@@ -1184,12 +1194,14 @@ TMbndAbstractType >> supertype [
 
 { #category : #'type composition' }
 TMbndAbstractType >> tempRef [
-	^ self ref
+	<compileTime>
+	^ self tempRefFor: MbndPointerLikeType genericAddressSpace
 ]
 
 { #category : #'type composition' }
 TMbndAbstractType >> tempRefFor: addressSpace [
-	^ self refFor: addressSpace
+	<compileTime>
+	^ self compilationTarget temporaryReferenceFor: addressSpace to: self
 ]
 
 { #category : #'type hierarchy' }

@@ -63,6 +63,11 @@ MbndDecoratedType >> asSuperArgumentType [
 	^ baseType asSuperArgumentType withDecorations: decorations
 ]
 
+{ #category : #converting }
+MbndDecoratedType >> asTemporaryReferenceType [
+	^ baseType asTemporaryReferenceType withDecorations: decorations
+]
+
 { #category : #accessing }
 MbndDecoratedType >> decorations [
 	^ decorations

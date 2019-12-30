@@ -86,6 +86,17 @@ MbndCompilationTargetTest >> testAsReferenceType [
 ]
 
 { #category : #'basic types' }
+MbndCompilationTargetTest >> testAsTemporaryReferenceType [
+	| type baseType |
+	baseType := compilationTarget uint8Type.
+	type := baseType pointer.
+	self assert: type asTemporaryReferenceType isTemporaryReferenceType.
+	self assert: type asTemporaryReferenceType baseType equals: baseType.
+	self assert: type asTemporaryReferenceType equals: baseType tempRef.
+
+]
+
+{ #category : #'basic types' }
 MbndCompilationTargetTest >> testAssociationType [
 	| type type2 |
 	type := compilationTarget associationKey: compilationTarget int32Type value: compilationTarget float32Type.
@@ -829,6 +840,18 @@ MbndCompilationTargetTest >> testStructureType [
 { #category : #'basic types' }
 MbndCompilationTargetTest >> testTemplateType [
 	self assert: compilationTarget templateType isTemplateType.
+]
+
+{ #category : #'basic types' }
+MbndCompilationTargetTest >> testTemporaryReferenceType [
+	| type baseType |
+	baseType := compilationTarget uint8Type.
+	type := baseType tempRef.
+	self assert: type isDerivedType.
+	self assert: type isTemporaryReferenceType.
+	self assert: type baseType equals: baseType.
+	self assert: baseType tempRef equals: type.
+
 ]
 
 { #category : #'basic types' }

@@ -26,7 +26,8 @@ Trait {
 		'outputChannelImplementationType',
 		'samplerImplementationType',
 		'systemProvidedTypeTemplates',
-		'defaultGCClassSuperClass'
+		'defaultGCClassSuperClass',
+		'temporaryReferenceTypes'
 	],
 	#traits : 'TMbndAbstractCompilationTarget',
 	#classTraits : 'TMbndAbstractCompilationTarget classTrait',
@@ -651,6 +652,16 @@ TMbndCoreCompilationTarget >> initializeDerivedTypeCaches [
 				yourself.
 	].
 
+	temporaryReferenceTypes := self createSystemProvidedTypeTemplate: #_TemporaryReferenceTypeTemplate
+		argumentNames: #(BaseType AddressSpace)
+		doing: [ :baseType :addressSpace |
+			(self ensureBasicTypeIsLinkedToTheHierarchy: MbndTemporaryReferenceType basicNew)
+				addressSpace: addressSpace;
+				baseType: baseType;
+				initializeNonTraitType;
+				yourself.
+	].
+
 	functionTypes := self createSystemProvidedTypeTemplate: #_FunctionTypeTemplate
 		argumentNames: #(ArgumentTypes ReturnType CallingConvention IsCVariadic)
 		doing: [ :argumentTypes :returnType :callingConvention :cvariadic |
@@ -986,6 +997,11 @@ TMbndCoreCompilationTarget >> standardConcreteTypeForSymbolInScope: aScope [
 { #category : #accessing }
 TMbndCoreCompilationTarget >> systemProvidedTypeTemplates [
 	^ systemProvidedTypeTemplates ifNil: [ systemProvidedTypeTemplates := OrderedCollection new ]
+]
+
+{ #category : #'derived types' }
+TMbndCoreCompilationTarget >> temporaryReferenceFor: addressSpace to: baseType [
+	^ temporaryReferenceTypes getOrCreateInstanceWithArguments: { baseType . addressSpace }
 ]
 
 { #category : #'derived types' }

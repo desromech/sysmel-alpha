@@ -570,6 +570,19 @@ MbndSlovimDebugInformationTranslator >> visitTemplateInstance: templateInstance 
 ]
 
 { #category : #visiting }
+MbndSlovimDebugInformationTranslator >> visitTemporaryReferenceType: referenceType [
+	| derivedType |
+	referenceType isTrait ifTrue: [ ^ self visitTraitType: referenceType ].
+	derivedType := SLVMDebugDerivedType new makeTemporaryReference.
+	translatedEntities at: referenceType put: derivedType.
+	derivedType
+		baseType: (self translateDebugType: referenceType baseType);
+		byteSize: referenceType instanceSize;
+		byteAlignment: referenceType instanceAlignment.
+	^ derivedType
+]
+
+{ #category : #visiting }
 MbndSlovimDebugInformationTranslator >> visitUnionType: unionType [
 	| debugType |
 	unionType isTrait ifTrue: [ ^ self visitTraitType: unionType ].

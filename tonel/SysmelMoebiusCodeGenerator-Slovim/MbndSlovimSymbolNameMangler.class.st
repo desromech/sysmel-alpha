@@ -539,6 +539,13 @@ MbndSlovimSymbolNameMangler >> visitStructureType: type [
 ]
 
 { #category : #visiting }
+MbndSlovimSymbolNameMangler >> visitTemporaryReferenceType: type [
+	output nextPut: $O.
+	self mangleType: type baseType.
+	self recordNewSubstitutionElement: { #temporaryReference . type baseType }.
+]
+
+{ #category : #visiting }
 MbndSlovimSymbolNameMangler >> visitTextureType: type [
 	output nextPut: $u.
 	self emitSubstitutionElement: type name

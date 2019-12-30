@@ -111,7 +111,7 @@ TMbndCoreManagedObjectModel >> characterClass: anObject [
 	compilationTarget literalCharacterType addConversionTo: characterClass rule: MbndLiteralValueTypeChangeConversionRule.
 	compilationTarget primitiveCharacterCodeType addConversionTo: characterClass rule: MbndCharacterToDynamicObjectConversionRule.
 	compilationTarget dynamicObjectType addExplicitConversionRule: (MbndDynamicObjectToCharacterConversionRule when: [:sourceType :targetType |
-		targetType isPrimitiveIntegerType
+		targetType isPrimitiveCharacterCodeType
 	]).
 ]
 
@@ -219,7 +219,7 @@ TMbndCoreManagedObjectModel >> integerClass: anObject [
 	compilationTarget literalIntegerType addConversionTo: integerClass rule: MbndLiteralValueTypeChangeConversionRule.
 	compilationTarget primitiveIntegerType addConversionTo: integerClass rule: MbndIntegerToDynamicObjectConversionRule.
 	compilationTarget dynamicObjectType addExplicitConversionRule: (MbndDynamicObjectToIntegerConversionRule when: [:sourceType :targetType |
-		targetType isPrimitiveIntegerType
+		targetType isPrimitiveIntegerType and: [ targetType isPrimitiveCharacterCodeType not ]
 	]).
 ]
 

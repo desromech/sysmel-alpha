@@ -260,6 +260,11 @@ MbndSlovimTypeTranslator >> visitStructureType: structureType [
 ]
 
 { #category : #visiting }
+MbndSlovimTypeTranslator >> visitTemporaryReferenceType: referenceType [
+	^ self translateType: referenceType asPointerType
+]
+
+{ #category : #visiting }
 MbndSlovimTypeTranslator >> visitTextureType: type [
 	codeModuleGenerator compilationTarget dynamicObjectType ifNotNil: [ :targetType | ^ self translateType: type ].
 	^ self slvmCompilationTarget dynamicObjectType

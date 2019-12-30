@@ -262,6 +262,11 @@ MbndAbstractModuleVisitor >> visitTemplateInstance: method [
 ]
 
 { #category : #visiting }
+MbndAbstractModuleVisitor >> visitTemporaryReferenceType: method [
+	self subclassResponsibility
+]
+
+{ #category : #visiting }
 MbndAbstractModuleVisitor >> visitTextureType: type [
 	self subclassResponsibility
 ]

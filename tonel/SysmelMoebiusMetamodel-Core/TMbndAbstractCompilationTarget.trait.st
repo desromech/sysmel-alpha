@@ -503,6 +503,16 @@ TMbndAbstractCompilationTarget >> templateType [
 ]
 
 { #category : #'derived types' }
+TMbndAbstractCompilationTarget >> temporaryReferenceFor: addressSpace to: baseType [
+	self explicitRequirement
+]
+
+{ #category : #'derived types' }
+TMbndAbstractCompilationTarget >> temporaryReferenceTo: baseType [
+	^ self temporaryReferenceFor: MbndPointerLikeType genericAddressSpace to: baseType
+]
+
+{ #category : #'derived types' }
 TMbndAbstractCompilationTarget >> type: baseType withDecorations: decorations [
 	self explicitRequirement
 ]

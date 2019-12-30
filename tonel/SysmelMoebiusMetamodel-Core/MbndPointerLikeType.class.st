@@ -35,12 +35,17 @@ MbndPointerLikeType >> addressSpace: anObject [
 
 { #category : #converting }
 MbndPointerLikeType >> asPointerType [
-	self subclassResponsibility
+	^ baseType pointerFor: addressSpace
 ]
 
 { #category : #converting }
 MbndPointerLikeType >> asReferenceType [
-	self subclassResponsibility
+	^ baseType refFor: addressSpace
+]
+
+{ #category : #converting }
+MbndPointerLikeType >> asTemporaryReferenceType [
+	^ baseType tempRefFor: addressSpace
 ]
 
 { #category : #converting }

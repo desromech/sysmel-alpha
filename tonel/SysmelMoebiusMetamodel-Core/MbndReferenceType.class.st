@@ -90,11 +90,6 @@ MbndReferenceType >> asMutableValueType [
 ]
 
 { #category : #converting }
-MbndReferenceType >> asPointerType [
-	^ baseType pointerFor: addressSpace
-]
-
-{ #category : #converting }
 MbndReferenceType >> asReferenceType [
 	^ self
 ]
@@ -130,8 +125,15 @@ MbndReferenceType >> printOn: aStream [
 ]
 
 { #category : #'type composition' }
-MbndReferenceType >> ref [
-	^ self
+MbndReferenceType >> refFor: anAddressSpace [
+	addressSpace == anAddressSpace ifTrue: [ ^ self ].
+	^ baseType refFor: anAddressSpace
+]
+
+{ #category : #'type composition' }
+MbndReferenceType >> tempRefFor: anAddressSpace [
+	addressSpace == anAddressSpace ifTrue: [ ^ self ].
+	^ baseType refFor: anAddressSpace
 ]
 
 { #category : #'type composition' }

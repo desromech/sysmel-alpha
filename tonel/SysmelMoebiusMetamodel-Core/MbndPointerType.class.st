@@ -139,11 +139,6 @@ MbndPointerType >> asPointerType [
 ]
 
 { #category : #converting }
-MbndPointerType >> asReferenceType [
-	^ baseType refFor: addressSpace
-]
-
-{ #category : #converting }
 MbndPointerType >> asSuperArgumentType [
 	^ baseType asSuperArgumentType pointerFor: addressSpace
 ]
