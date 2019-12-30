@@ -59,7 +59,8 @@ MbndPrimitiveVectorType >> addArithmeticIntrinsics [
 		].
 
 	].
-	elementType addArithmeticIntrinsicsToVectorOrScalarType: self
+	elementType addArithmeticIntrinsicsToVectorOrScalarType: self.
+	self addPackingIntrinsics
 	
 ]
 
@@ -100,6 +101,52 @@ MbndPrimitiveVectorType >> addInstanceMacros [
 					position: node
 			)
 		].
+]
+
+{ #category : #initialization }
+MbndPrimitiveVectorType >> addPackingIntrinsics [
+	| uint32Type |
+	elementType isPrimitiveFloatType ifFalse: [ ^ self ].
+	uint32Type := self compilationTarget uint32Type.
+	
+	(elements = 4) ifTrue: [ 
+		self
+			addBuiltIn: #packUnorm8x4 intrinsicNamed: #'pack.unorm4x8' argumentTypes: #() returnType: uint32Type evaluatedWith: [:receiver :arguments :evaluator :node |
+				self halt.
+			];
+			addBuiltIn: #packSnorm8x4 intrinsicNamed: #'pack.snorm4x8' argumentTypes: #() returnType: uint32Type evaluatedWith: [:receiver :arguments :evaluator :node |
+				self halt.
+			].
+		elementType instanceSize = 4 ifTrue: [ 
+			uint32Type
+				addBuiltIn: #unpackUnorm8x4 intrinsicNamed: #'unpack.unorm4x8' argumentTypes: #() returnType: self evaluatedWith: [:receiver :arguments :evaluator :node |
+					self halt.
+				];
+				addBuiltIn: #unpackSnorm8x4 intrinsicNamed: #'unpack.snorm4x8' argumentTypes: #() returnType: self evaluatedWith: [:receiver :arguments :evaluator :node |
+					self halt.
+				].
+		].
+	].
+
+	(elements = 2) ifTrue: [ 
+		self
+			addBuiltIn: #packUnorm16x2 intrinsicNamed: #'pack.unorm2x16' argumentTypes: #() returnType: uint32Type evaluatedWith: [:receiver :arguments :evaluator :node |
+				self halt.
+			];
+			addBuiltIn: #packSnorm16x2 intrinsicNamed: #'pack.snorm2x16' argumentTypes: #() returnType: uint32Type evaluatedWith: [:receiver :arguments :evaluator :node |
+				self halt.
+			].
+
+		elementType instanceSize = 4 ifTrue: [ 
+			uint32Type
+				addBuiltIn: #unpackUnorm16x2 intrinsicNamed: #'unpack.unorm2x16' argumentTypes: #() returnType: self evaluatedWith: [:receiver :arguments :evaluator :node |
+					self halt.
+				];
+				addBuiltIn: #unpackSnorm16x2 intrinsicNamed: #'unpack.snorm2x16' argumentTypes: #() returnType: self evaluatedWith: [:receiver :arguments :evaluator :node |
+					self halt.
+				].
+		].
+	].
 ]
 
 { #category : #initialization }

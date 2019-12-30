@@ -88,7 +88,7 @@ MbndPrimitiveType >> initialize [
 	super initialize.
 	self
 		addArithmeticIntrinsics;
-		addComparisonIntrinsics.
+		addComparisonIntrinsics
 ]
 
 { #category : #'testing methods' }
