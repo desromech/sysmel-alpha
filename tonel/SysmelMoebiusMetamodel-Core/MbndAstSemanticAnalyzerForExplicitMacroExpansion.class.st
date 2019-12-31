@@ -209,6 +209,12 @@ MbndAstSemanticAnalyzerForExplicitMacroExpansion >> visitNode: node [
 ]
 
 { #category : #visiting }
+MbndAstSemanticAnalyzerForExplicitMacroExpansion >> visitNodeForIdentifierMacroExpansion: node [
+	self class == MbndAstSemanticAnalyzerForIdentifierValueExpansion ifTrue: [ ^ self visitNode: node ].
+	^ (self as: MbndAstSemanticAnalyzerForIdentifierValueExpansion) visitNode: node
+]
+
+{ #category : #visiting }
 MbndAstSemanticAnalyzerForExplicitMacroExpansion >> visitNodeForMacroExpansion: node [
 	self class == MbndAstSemanticAnalyzerForExplicitMacroExpansion ifTrue: [ ^ self visitNode: node ].
 	^ (self as: MbndAstSemanticAnalyzerForExplicitMacroExpansion) visitNode: node

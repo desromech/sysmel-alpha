@@ -89,7 +89,8 @@ Class {
 		'dictionaryKeywordKey',
 		'blockClosureArgument',
 		'blockClosureReturnType',
-		'blockClosureSignature'
+		'blockClosureSignature',
+		'identifierExpressionOrMacroExpansion'
 	],
 	#classVars : [
 		'SpecialOperators'
@@ -210,12 +211,12 @@ SysmelGrammar >> binaryExpression [
 
 { #category : #accessing }
 SysmelGrammar >> blockClosureArgument [
-	^ colon , parentExpression optional , identifier
+	^ colon , parentExpression optional , identifierExpressionOrMacroExpansion
 ]
 
 { #category : #accessing }
 SysmelGrammar >> blockClosureReturnType [
-	^ colon , colon , (identifierExpression | parentExpression)
+	^ colon , colon , (identifierExpressionOrMacroExpansion | parentExpression)
 ]
 
 { #category : #accessing }
@@ -361,6 +362,11 @@ SysmelGrammar >> identifier [
 { #category : #accessing }
 SysmelGrammar >> identifierExpression [
 	^ identifier
+]
+
+{ #category : #accessing }
+SysmelGrammar >> identifierExpressionOrMacroExpansion [
+	^ identifierExpression / unquoteExpression
 ]
 
 { #category : #tokens }

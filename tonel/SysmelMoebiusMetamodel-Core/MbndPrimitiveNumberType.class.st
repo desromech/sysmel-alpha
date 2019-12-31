@@ -43,6 +43,16 @@ MbndPrimitiveNumberType >> addArithmeticIntrinsicsToVectorOrScalarType: vectorOr
 			addArithmetic: #% binaryIntrinsic: #rem.
 	].
 
+	vectorOrScalarType onMacroSelector: #clampMin:max: do: [ :node :builder |
+		(builder unexpandedSend: (builder literalSymbol: #min:)
+			to: ((builder unexpandedSend: (builder literalSymbol: #max:) to: node receiver
+				withArguments: { node arguments first})
+				position: node)
+			withArguments: { node arguments second })
+				position: node
+		
+	].
+
 ]
 
 { #category : #initialization }

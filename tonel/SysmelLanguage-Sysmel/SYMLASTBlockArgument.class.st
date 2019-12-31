@@ -10,7 +10,7 @@ Class {
 
 { #category : #converting }
 SYMLASTBlockArgument >> buildMoebiusAST: builder [
-	^ builder argument: name type: (optionalType ifNotNil: [optionalType buildMoebiusAST: builder])
+	^ builder argument: (name buildMoebiusAST: builder) type: (optionalType ifNotNil: [optionalType buildMoebiusAST: builder])
 ]
 
 { #category : #accessing }

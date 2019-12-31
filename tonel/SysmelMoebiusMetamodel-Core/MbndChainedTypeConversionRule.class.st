@@ -52,7 +52,8 @@ MbndChainedTypeConversionRule >> postProcessCastNode: node withAnalyzer: analyze
 	"Apply the intermediate cast."
 	intermediateCast := node copy
 		typeConversionRule: intermediateRule;
-		targetType: intermediateType.
+		targetType: intermediateType;
+		type: intermediateType.
 	intermediateCast := intermediateRule postProcessCastNode: intermediateCast withAnalyzer: analyzer.
 
 	"Apply the next cast"	

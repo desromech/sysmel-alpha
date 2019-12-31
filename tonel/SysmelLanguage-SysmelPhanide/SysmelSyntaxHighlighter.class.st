@@ -30,14 +30,6 @@ SysmelSyntaxHighlighter class >> initialize [
 ]
 
 { #category : #accessing }
-SysmelSyntaxHighlighter >> blockClosureArgument [
-	^ super blockClosureArgument ==> [ :tokens |
-		self commands add: (PhanideHighlightCommandStyle identifier token: tokens third).
-		tokens
-	]
-]
-
-{ #category : #accessing }
 SysmelSyntaxHighlighter >> chainKeywordMessage [
 	^ super chainKeywordMessage ==> [ :tokens |
 		tokens do: [ :pair |

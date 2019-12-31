@@ -88,7 +88,8 @@ MbndPrimitiveVectorType >> addInstanceMacros [
 	self type
 		onMacroSelector: #applyWithArguments: do: [ :node :builder :analyzer |
 			self assert: node receiver value isPrimitiveVectorType.
-			analyzer visitNode: (builder constructVector: node receiver value withElements: node arguments first)
+			analyzer visitNode: ((builder constructVector: node receiver value withElements: node arguments first)
+				position: node)
 		];
 		onMacroSelectors: #(
 			x: x:y: x:y:z: x:y:z:w:

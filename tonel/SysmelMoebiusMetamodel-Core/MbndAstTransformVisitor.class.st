@@ -19,6 +19,7 @@ MbndAstTransformVisitor >> visitAbstractClassDefinitionNode: node [
 { #category : #visiting }
 MbndAstTransformVisitor >> visitArgumentDefinitionNode: node [
 	^ node copy
+		name: (node name isMbndAstNode ifTrue: [ self visitNode: node name ] ifFalse: [node name]);
 		valueType: (node valueType ifNotNil: [:vt | self visitNode: vt]);
 		initialValue: (node initialValue ifNotNil: [:iv | self visitNode: iv]);
 		yourself

@@ -426,6 +426,14 @@ MbndAstSemanticAnalyzer >> visitArgumentDefinitionNode: node [
 	| result defaultArgumentType |
 	result := node copy.
 	
+	result name isMbndAstNode ifTrue: [
+		result name: (self visitNodeForIdentifierMacroExpansion: result name).
+		result name isIdentifierReferenceNode ifFalse: [
+			self error: 'Macro did not expand into an identifier reference node.' at: node name.
+		].
+		result name: result name symbol
+	].
+	
 	result valueType ifNotNil: [ 
 		result valueType: (self evaluateTypeExpression: node valueType)
 	].

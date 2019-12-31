@@ -55,7 +55,7 @@ SysmelParser >> blockClosureArgument [
 	^ super blockClosureArgument ==> [:tokens |
 		SYMLASTBlockArgument new
 			position: tokens first;
-			name: tokens third inputValue asSymbol;
+			name: tokens third;
 			optionalType: tokens second;
 			yourself
 	]
