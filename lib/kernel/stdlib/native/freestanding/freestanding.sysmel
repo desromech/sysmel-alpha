@@ -1,6 +1,6 @@
 ## Core definitions without a requirement on memory allocation, or an actual operating system.
 if: Compiler compilationTarget isGPU not then: {
-	loadFileOnce: "array.sysmel".
+	loadFileOnce: "FixedArray.sysmel".
 	loadFileOnce: "string.sysmel".
 
 	loadFileOnce: "BasicValuePrinter.sysmel".

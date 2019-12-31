@@ -1,4 +1,3 @@
-loadFileOnce: "Stream.sysmel".
-loadFileOnce: "TextStreamWriter.sysmel".
-loadFileOnce: "TextStreamReader.sysmel".
+loadFileOnce: "io/io.sysmel".
 loadFileOnce: "memory/memory.sysmel".
+loadFileOnce: "collections/collections.sysmel".

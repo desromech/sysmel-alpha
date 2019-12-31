@@ -57,28 +57,30 @@ class Player superclass: Character; definition: {
 	}.
 }.
 
-global player mutable type: Player.
+global characters mutable type: (StdNative OrderedCollection(Character pointer)).
+
+global player mutable type: Player pointer.
 global viewMatrix mutable type: Float32x2x3.
 
 function onKeyDown(event: SDL_KeyboardEvent ref) => Void := {
 	event keysym sym selectCase: #{
 	Keycode SDLK_ESCAPE : {isQuitting := true.}.
-	Keycode SDLK_a : {player direction x: -1.0}.
-	Keycode SDLK_d : {player direction x: 1.0}.
-	Keycode SDLK_s : {player direction y: -1.0}.
-	Keycode SDLK_w : {player direction y: 1.0}.
-	Keycode SDLK_LSHIFT : {player run}.
+	Keycode SDLK_a : {player _ direction x: -1.0}.
+	Keycode SDLK_d : {player _ direction x: 1.0}.
+	Keycode SDLK_s : {player _ direction y: -1.0}.
+	Keycode SDLK_w : {player _ direction y: 1.0}.
+	Keycode SDLK_LSHIFT : {player _ run}.
 	}.
 }.
 
 function onKeyUp(event: SDL_KeyboardEvent ref) => Void := {
 	event keysym sym selectCase: #{
 	Keycode SDLK_ESCAPE : {isQuitting := true.}.
-	Keycode SDLK_a : {player direction x < 0.0 ifTrue: {player direction x: 0.0}}.
-	Keycode SDLK_d : {player direction x > 0.0 ifTrue: {player direction x: 0.0}}.
-	Keycode SDLK_s : {player direction y < 0.0 ifTrue: {player direction y: 0.0}}.
-	Keycode SDLK_w : {player direction y > 0.0 ifTrue: {player direction y: 0.0}}.
-	Keycode SDLK_LSHIFT : {player walk}.
+	Keycode SDLK_a : {player _ direction x < 0.0 ifTrue: {player _ direction x: 0.0}}.
+	Keycode SDLK_d : {player _ direction x > 0.0 ifTrue: {player _ direction x: 0.0}}.
+	Keycode SDLK_s : {player _ direction y < 0.0 ifTrue: {player _ direction y: 0.0}}.
+	Keycode SDLK_w : {player _ direction y > 0.0 ifTrue: {player _ direction y: 0.0}}.
+	Keycode SDLK_LSHIFT : {player _ walk}.
 	}.
 }.
 
@@ -110,7 +112,7 @@ function drawCharacter(character: Character ref) => Void := {
 }.
 
 function update(delta: Float32) => Void := {
-	player simulate: delta.
+	player _ simulate: delta.
 }.
 
 function render() => Void := {
@@ -128,7 +130,7 @@ function render() => Void := {
 		).
 	}.
 
-	drawCharacter(player).
+	drawCharacter(player _).
 
 	SDL_RenderPresent(renderer).
 }.
@@ -148,6 +150,9 @@ function main externC (argc: Int32, argv: Char8 const pointer pointer) => Int32 
 	renderer ifNil: {
 		return: 1.
 	}.
+	
+	player := Player nativeNew.
+	characters add: player.
 
 	let oldTicks mutable := SDL_GetTicks().
 	let updateDelta := 1.0 / 60.0 castTo: Float32.

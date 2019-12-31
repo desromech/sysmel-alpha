@@ -1,0 +1,86 @@
+namespace StdNative definition: {
+
+template OrderedCollection(ET: Type)
+	:= struct definition: {
+    compileTimeConstant ElementType := ET.
+
+    private field capacity_ type: UIntPointer.
+	private field size_ type: UIntPointer.
+    private field storage_ type: ElementType pointer.
+
+    message finalize => Void := {
+        0 until: size_ do: {:(UIntPointer)i :: Void |.
+            storage_[i] finalize
+        }.
+    }.
+
+    const inline message capacity => UIntPointer
+        := capacity_.
+    const inline message size => UIntPointer
+        := size_.
+    const inline message data => ElementType pointer
+        := storage_.
+
+    const inline message isEmpty => Boolean8
+        := size_ == 0.
+    const inline message isNotEmpty => Boolean8
+        := size_ ~= 0.
+
+	inline message first => ElementType ref := {
+		assert: size_ > 0.
+		storage_[0].
+	}.
+
+	inline message second => ElementType ref := {
+		assert: size_ > 0.
+		storage_[1].
+	}.
+
+	inline message third => ElementType ref := {
+		assert: size_ > 0.
+		storage_[2].
+	}.
+
+	inline message last => ElementType ref := {
+		assert: size_ > 0.
+		storage_[size_ - 1].
+	}.
+	
+    message increaseCapacity ::=> Void := {
+		let newCapacity := capacity_*2 max: 16.
+		let newStorageSize := newCapacity * ElementType instanceSize.
+		let newStorage := StdNative zmalloc(newStorageSize) reinterpretCastTo: ElementType pointer.
+
+        0 until: size_ do: {:(UIntPointer)i :: Void |.
+            newStorage[i]
+				basicInitialize;
+				initializeMovingFrom: storage_[i] asMoveReference.
+			storage_[i] finalize.
+        }.
+		
+		storage_ := newStorage.
+		capacity_ := newCapacity.
+    }.
+
+    inline message add: (newElement: ElementType const ref) ::=> Void
+        := self addLast: newElement.
+
+    inline message addLast: (newElement: ElementType const ref) ::=> Void := {
+        size_ >= capacity_ ifTrue: {
+            self increaseCapacity.
+        }.
+
+        storage_[size_]
+            basicInitialize;
+            initializeFromCopy: newElement.
+        size_ := size_ + 1.
+    }.
+
+    inline message removeLast => Void := {
+        assert: self isNotEmpty.
+        size_ := size_ - 1.
+        storage_[size_] finalize.
+    }.
+}.
+
+}.
