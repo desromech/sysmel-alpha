@@ -45,6 +45,17 @@ template OrderedCollection(ET: Type)
 		assert: size_ > 0.
 		storage_[size_ - 1].
 	}.
+
+	inline message at: (index: UIntPointer) ::=> ElementType ref := {
+		assert: index >= 1.
+		assert: index <= size_.
+		storage_ at: index.
+	}.
+	
+	inline message subscriptAt: (index: UIntPointer) ::=> ElementType ref := {
+		assert: index < size_.
+		storage_[index].
+	}.
 	
     message increaseCapacity ::=> Void := {
 		let newCapacity := capacity_*2 max: 16.
@@ -81,6 +92,17 @@ template OrderedCollection(ET: Type)
         size_ := size_ - 1.
         storage_[size_] finalize.
     }.
+
+	macro expansionRule do: aBlock := {
+		let collection := __astBuilder gensym: #collection.
+		let index := __astBuilder gensym: #index.
+		``{
+			let `,collection ref := `,self.
+			0 until: `,self size do: {:(UIntPointer)`,index :: Void |
+				`,aBlock __macroInlineBlock: `,collection[`,index]
+			}
+		}
+	}
 }.
 
 }.

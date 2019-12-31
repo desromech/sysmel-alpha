@@ -28,9 +28,20 @@ class Character definition: {
 	public field position type: Float32x2.
 	public field velocity type: Float32x2.
 	public field halfExtent type: Float32x2.
+	public field color type: Float32x4.
 
 	message boundingBox => Box2D
 		:= Box2D center: position halfExtent: halfExtent.
+}.
+
+class Enemy superclass: Character; definition: {
+	message initialize => Void := {
+		halfExtent := Float32x2(0.5, 1.0).
+		color := Float32x4(0.5, 0.1, 0.1, 1.0).
+	}.
+
+	message simulate: (delta: Float32) ::=> Void := {
+	}.
 }.
 
 class Player superclass: Character; definition: {
@@ -39,6 +50,7 @@ class Player superclass: Character; definition: {
 
 	message initialize => Void := {
 		halfExtent := Float32x2(0.5, 1.0).
+		color := Float32x4(0.5, 0.5, 0.2, 1.0).
 		self walk
 	}.
 
@@ -97,17 +109,22 @@ function processEvents() => Void := {
 }.
 
 function drawCharacter(character: Character ref) => Void := {
+	let color := (character color clampMin: 0.0 max: 1.0)*255.0 castTo: UInt8x4.
+	
 	let boundingBox := character boundingBox.
-	let min := viewMatrix * Float32x3(boundingBox min, 1.0) castTo: Int32x2.
-	let max := viewMatrix * Float32x3(boundingBox max, 1.0) castTo: Int32x2.
-	let extent := max - min.
+	let negativeCorner := viewMatrix * Float32x3(boundingBox min, 1.0) castTo: Int32x2.
+	let positiveCorner := viewMatrix * Float32x3(boundingBox max, 1.0) castTo: Int32x2.
+
+	let minCorner := negativeCorner min: positiveCorner.
+	let maxCorner := negativeCorner max: positiveCorner.
+	let extent := maxCorner - minCorner.
 
 	let rect mutable := SDL_Rect newValue
-		x: (min x);
-		y: (max y);
+		x: (minCorner x);
+		y: (minCorner y);
 		w: (extent x);
-		h: (-extent y).
-	SDL_SetRenderDrawColor(renderer, 128, 128, 0, 255).
+		h: (extent y).
+	SDL_SetRenderDrawColor(renderer, color r, color g, color b, color a).
 	SDL_RenderFillRect(renderer, rect address).
 }.
 
@@ -130,7 +147,9 @@ function render() => Void := {
 		).
 	}.
 
-	drawCharacter(player _).
+	characters do: {:(Character pointer)character :: Void |
+		drawCharacter(character _).
+	}.
 
 	SDL_RenderPresent(renderer).
 }.
@@ -151,8 +170,22 @@ function main externC (argc: Int32, argv: Char8 const pointer pointer) => Int32 
 		return: 1.
 	}.
 	
-	player := Player nativeNew.
-	characters add: player.
+	{
+		player := Player nativeNew.
+		characters add: player.
+	}.
+
+	{
+		let enemy mutable := Enemy nativeNew.
+		enemy _ position: Float32x2(2.0, 0.0).
+		characters add: enemy.
+	}.
+
+	{
+		let enemy mutable := Enemy nativeNew.
+		enemy _ position: Float32x2(4.0, 0.0).
+		characters add: enemy.
+	}.
 
 	let oldTicks mutable := SDL_GetTicks().
 	let updateDelta := 1.0 / 60.0 castTo: Float32.
