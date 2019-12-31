@@ -600,7 +600,7 @@ MbndSlovimFunctionCodeGenerator >> generateLocalVariable: localVariable definiti
 				]
 			].
 		] ifFalse: [
-			ssaValue := slvmBuilder allocaBuilder alloca: (self sanitizeValueTypeForAlloca: valueType).
+			ssaValue := slvmBuilder allocaBuilder alloca: (self sanitizeValueTypeForMemory: valueType).
 			self generateVariable: ssaValue withValueType: localVariable valueType initializationWithValue: initialValue initialValueKind: initialValueKind.
 
 			self isEmittingDebugInformation ifTrue: [ 
@@ -797,17 +797,6 @@ MbndSlovimFunctionCodeGenerator >> sanitizeValue: value withExpectedType: expect
 	].
 
 	^ value
-]
-
-{ #category : #visiting }
-MbndSlovimFunctionCodeGenerator >> sanitizeValueTypeForAlloca: valueType [
-	self slvmCompilationTarget isLLVMCompilationTarget ifTrue: [ 
-		valueType isBooleanType ifTrue: [ 
-			^ self slvmCompilationTarget uchar
-		].
-	].
-
-	^ valueType
 ]
 
 { #category : #'as yet unclassified' }

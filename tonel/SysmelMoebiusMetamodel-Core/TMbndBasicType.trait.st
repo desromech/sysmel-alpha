@@ -27,6 +27,15 @@ TMbndBasicType >> analyzeExpandedMessageNode: node with: analyzer [
 
 ]
 
+{ #category : #'as yet unclassified' }
+TMbndBasicType >> ensureSyntheticMethodExists: aSelector [
+	aSelector = #basicInitialize ifTrue: [^ self basicInitializeMethod ].
+	aSelector = #initialize ifTrue: [^ self initializeMethod ].
+	aSelector = #initializeFromCopy: ifTrue: [^ self initializeFromCopyMethod ].
+	aSelector = #initializeMovingFrom: ifTrue: [^ self initializeMovingFromMethod ].
+	^ nil
+]
+
 { #category : #testing }
 TMbndBasicType >> hasPublicVisibility [
 	^ self visibilityMode == #public
@@ -50,6 +59,7 @@ TMbndBasicType >> lookupLocalOverloadedSelector: aSelector [
 { #category : #'macro expansion' }
 TMbndBasicType >> lookupOverloadedSelector: aSelector [
 	| method |
+	#(basicInitialize initialize initializeFromCopy: initializeMovingFrom: finalize) includes: [ self ensureSyntheticMethodExists: aSelector ].
 	method := self overloadedMethodDict at: aSelector ifAbsent: [ nil ].
 	method ifNotNil: [ ^ method ].
 	^ self supertype ifNotNil: [ :st | st lookupOverloadedSelector: aSelector ]

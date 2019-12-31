@@ -28,6 +28,11 @@ MbndMetaBuilderFactory >> analyzeReferenceNode: referenceNode with: analyzer [
 	^ self analyzeReferenceNode: referenceNode ownerProgramEntity: nil with: analyzer
 ]
 
+{ #category : #testing }
+MbndMetaBuilderFactory >> isMetaBuilderFactory [
+	^ true
+]
+
 { #category : #accessing }
 MbndMetaBuilderFactory >> metaBuilderClass [
 	^ metaBuilderClass

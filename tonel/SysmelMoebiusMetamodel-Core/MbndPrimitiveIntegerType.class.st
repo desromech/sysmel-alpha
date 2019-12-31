@@ -42,7 +42,23 @@ MbndPrimitiveIntegerType >> addArithmeticIntrinsicsToVectorOrScalarType: vectorO
 		addArithmetic: #lowBit unaryIntrinsic: #lowBit;
 		addArithmetic: #highBit unaryIntrinsic: #highBit.
 
-		
+	self isSigned ifTrue: [ 
+		vectorOrScalarType
+			addBuiltIn: #min: intrinsicNamed: 'math.smin' argumentTypes: {vectorOrScalarType} returnType: vectorOrScalarType evaluatedWith: [:receiver :arguments :evaluator :node |
+				self halt.
+			];
+			addBuiltIn: #max: intrinsicNamed: 'math.smax' argumentTypes: {vectorOrScalarType} returnType: vectorOrScalarType evaluatedWith: [:receiver :arguments :evaluator :node |
+				self halt.
+			].
+	] ifFalse: [ 
+		vectorOrScalarType
+			addBuiltIn: #min: intrinsicNamed: 'math.umin' argumentTypes: {vectorOrScalarType} returnType: vectorOrScalarType evaluatedWith: [:receiver :arguments :evaluator :node |
+				self halt.
+			];
+			addBuiltIn: #max: intrinsicNamed: 'math.umax' argumentTypes: {vectorOrScalarType} returnType: vectorOrScalarType evaluatedWith: [:receiver :arguments :evaluator :node |
+				self halt.
+			].
+	].
 
 ]
 

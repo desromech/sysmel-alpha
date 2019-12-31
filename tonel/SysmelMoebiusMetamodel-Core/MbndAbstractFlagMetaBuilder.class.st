@@ -14,6 +14,14 @@ MbndAbstractFlagMetaBuilder >> analyzeUnexpandedMessageSendNode: node with: anal
 				addFlags: flags;
 				yourself)
 		].
+	
+		(analyzer scope lookupSymbolRecursively: selector ifAbsent: [ nil ]) ifNotNil: [ :binding |
+			binding isMetaBuilderFactory ifTrue: [ 
+				^ self delegateToMetaBuilder: (binding metaBuilderClass new
+					addFlags: flags;
+					yourself)
+			].
+		].
 	].
 
 	^ super analyzeUnexpandedMessageSendNode: node with: analyzer

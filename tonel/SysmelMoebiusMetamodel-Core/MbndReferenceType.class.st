@@ -26,7 +26,7 @@ MbndReferenceType >> addDefaultConversionRules [
 			self
 				addConversionTo: baseType withoutTopDecorations rule: MbndReferenceLoadTypeConversionRule.
 		].
-		baseType withoutTopDecorations addConversionRulesToReferenceType: self
+		self addImplicitConversionRule: MbndClassImplicitUpcastTypeConversionRule new.
 	]
 ]
 
@@ -39,8 +39,24 @@ MbndReferenceType >> addInstanceMacros [
 			(builder reference: node receiver assignValue: node arguments first)
 				position: node
 		];
+		onMacroSelector: #asMoveReference do: [ :node :builder |
+			self flag: 'TODO: Implement this properly.'.
+			node receiver
+		];
 		onMacroSelector: #basicInitialize do: [ :node :builder :analyzer |
 			node receiver type baseType analyzeBasicInitializationNode: node with: analyzer
+		];
+		onMacroSelector: #initialize do: [ :node :builder :analyzer |
+			node receiver type baseType analyzeInitializationNode: node with: analyzer
+		];
+		onMacroSelector: #initializeFromCopy: do: [ :node :builder :analyzer |
+			node receiver type baseType analyzeInitializationFromCopyNode: node with: analyzer
+		];
+		onMacroSelector: #initializeMovingFrom: do: [ :node :builder :analyzer |
+			node receiver type baseType analyzeInitializationMovingFromNode: node with: analyzer
+		];
+		onMacroSelector: #finalize do: [ :node :builder :analyzer |
+			node receiver type baseType analyzeFinalizationNode: node with: analyzer
 		];
 		onMacroSelector: #address do: [ :node :builder |
 			(builder referenceAsPointer: node receiver)
@@ -114,6 +130,11 @@ MbndReferenceType >> isReferenceLikeValueType [
 { #category : #'testing methods' }
 MbndReferenceType >> isReferenceType [
 	^ true
+]
+
+{ #category : #testing }
+MbndReferenceType >> pointerRank [
+	^ baseType pointerRank , { {#reference . addressSpace . baseType isConstantType} }
 ]
 
 { #category : #printing }

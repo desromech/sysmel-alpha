@@ -27,3 +27,8 @@ TMbndSymbolBinding >> evaluateLocalDefinition: node withEvaluator: evaluator [
 TMbndSymbolBinding >> isMbndSymbolBinding [
 	^ true
 ]
+
+{ #category : #testing }
+TMbndSymbolBinding >> isMetaBuilderFactory [
+	^ false
+]

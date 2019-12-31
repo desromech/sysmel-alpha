@@ -34,13 +34,6 @@ MbndAggregateTypeWithFields >> addField: aField [
 
 ]
 
-{ #category : #'as yet unclassified' }
-MbndAggregateTypeWithFields >> analyzeBasicInitializationNode: node with: analyzer [
-	self hasTrivialBasicInitialization ifTrue: [ ^ super analyzeBasicInitializationNode: node with: analyzer ].
-	self basicInitializeMethod.
-	^ analyzer visitNode: node asExpandedMessageSend
-]
-
 { #category : #accessing }
 MbndAggregateTypeWithFields >> basicInitializeMethod [
 	basicInitializeMethod ifNil: [ self createBasicInitializeMethod ].

@@ -9,8 +9,7 @@ MbndClassImplicitUpcastTypeConversionRule >> canBeUsedToConvertNode: node from: 
 	| sourceClassType targetClassType |
 	sourceClassType := sourceType asUndecoratedClassType.
 	targetClassType := targetType asUndecoratedClassType.
-	sourceType withoutTopDecorations isReferenceType == targetType withoutTopDecorations isReferenceType ifFalse: [ ^ false ].
-	sourceType withoutTopDecorations isPointerType == targetType withoutTopDecorations isPointerType ifFalse: [ ^ false ].
+	(sourceType hasPointerRankImplicitlyConvertibleTo: targetType pointerRank) ifFalse: [ ^ false ].
 	
 	(sourceClassType isAbstractClassType or: [ targetClassType isAbstractClassType ]) ifFalse: [ ^ false ].
 	^ sourceClassType isSubtypeOf: targetClassType

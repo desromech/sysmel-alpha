@@ -48,14 +48,6 @@ TMbndAbstractType >> addConversionRule: conversionRule [
 		addImplicitConversionRule: conversionRule
 ]
 
-{ #category : #adding }
-TMbndAbstractType >> addConversionRulesToPointerType: referenceType [
-]
-
-{ #category : #adding }
-TMbndAbstractType >> addConversionRulesToReferenceType: referenceType [
-]
-
 { #category : #converting }
 TMbndAbstractType >> addConversionTo: targetType rule: conversionRule [
 	self
@@ -132,10 +124,10 @@ TMbndAbstractType >> allTraitUsersDo: aBlock [
 	self allSubtypesDo: aBlock
 ]
 
-{ #category : #'as yet unclassified' }
+{ #category : #'semantic analysis' }
 TMbndAbstractType >> analyzeBasicInitializationNode: node with: analyzer [
-	"By default do nothing. This is supposed to be used for initializing vtables of aggregate types."
-	^ node receiver
+	self hasTrivialBasicInitialization ifTrue: [ ^ node receiver ].
+	^ analyzer visitNode: node asExpandedMessageSend
 ]
 
 { #category : #'semantic analysis' }
@@ -149,6 +141,38 @@ TMbndAbstractType >> analyzeExpandedMessageSendNode: node with: analyzer [
 	"We failed to find the method, then ask the receiver type to interpret this message."
 	^ self analyzeUnboundExpandedMessageSendNode: node with: analyzer
 
+]
+
+{ #category : #'semantic analysis' }
+TMbndAbstractType >> analyzeFinalizationNode: node with: analyzer [
+	self hasTrivialFinalization ifTrue: [ ^ node receiver ].
+	^ analyzer visitNode: node asExpandedMessageSend
+]
+
+{ #category : #'semantic analysis' }
+TMbndAbstractType >> analyzeInitializationFromCopyNode: node with: analyzer [
+	self hasTrivialInitializationFromCopy ifTrue: [
+		^ analyzer visitNode: (node asUnexpandedMessageSend
+			selector: ((analyzer astBuilder literalSymbol: #assignValue:)
+				position: node))
+	].
+	^ analyzer visitNode: node asExpandedMessageSend
+]
+
+{ #category : #'semantic analysis' }
+TMbndAbstractType >> analyzeInitializationMovingFromNode: node with: analyzer [
+	self hasTrivialInitializationMovingFrom ifTrue: [
+		^ analyzer visitNode: (node asUnexpandedMessageSend
+			selector: ((analyzer astBuilder literalSymbol: #assignValue:)
+				position: node))
+	].
+	^ analyzer visitNode: node asExpandedMessageSend
+]
+
+{ #category : #'semantic analysis' }
+TMbndAbstractType >> analyzeInitializationNode: node with: analyzer [
+	self hasTrivialInitialization ifTrue: [ ^ node receiver ].
+	^ analyzer visitNode: node asExpandedMessageSend
 ]
 
 { #category : #'semantic analysis' }
@@ -542,6 +566,31 @@ TMbndAbstractType >> hasDynamicMessageLookup [
 { #category : #'type hierarchy' }
 TMbndAbstractType >> hasImmediateSupertype: aType [
 	^ self supertype == aType
+]
+
+{ #category : #testing }
+TMbndAbstractType >> hasPointerRankImplicitlyConvertibleTo: targetPointerRank [
+	| myPointerRank sourcePointerType targetPointerType |
+	myPointerRank := self pointerRank.
+	myPointerRank size = targetPointerRank size ifFalse: [
+		^ false
+	].
+
+	1 to: myPointerRank size do: [ :index |
+		sourcePointerType := myPointerRank at: index.
+		targetPointerType := targetPointerRank at: index.
+		
+		"PointerLike kind"
+		sourcePointerType first = targetPointerType first ifFalse: [ ^ false ].
+		
+		"Address space"
+		sourcePointerType second = targetPointerType second ifFalse: [ ^ false ].
+		
+		"Const -> non const"
+		(sourcePointerType third and: [targetPointerType third not]) ifTrue: [ ^ false ]
+	].
+
+	^ true
 ]
 
 { #category : #testing }
@@ -1127,6 +1176,11 @@ TMbndAbstractType >> pointer [
 TMbndAbstractType >> pointerFor: addressSpace [
 	<compileTime>
 	^ self compilationTarget pointerFor: addressSpace to: self
+]
+
+{ #category : #testing }
+TMbndAbstractType >> pointerRank [
+	^ #()
 ]
 
 { #category : #accessing }

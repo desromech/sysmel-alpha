@@ -35,23 +35,6 @@ MbndSlovimTypeTranslator >> initialize [
 ]
 
 { #category : #visiting }
-MbndSlovimTypeTranslator >> sanitizeStructureFieldType: fieldType [
-	self slvmCompilationTarget isGPU ifTrue: [ 
-		fieldType isPointerType ifTrue: [
-			^ self slvmCompilationTarget pointerSize = 4
-				ifTrue: [ self slvmCompilationTarget int32 ]
-				ifFalse: [ SLVMVectorType baseType: self slvmCompilationTarget int32 elements: 2 ].
-		]
-	].
-
-	self slvmCompilationTarget isLLVMCompilationTarget ifTrue: [ 
-		fieldType isBooleanType ifTrue: [ ^ self slvmCompilationTarget uint8 ]
-	].
-
-	^ fieldType
-]
-
-{ #category : #visiting }
 MbndSlovimTypeTranslator >> setType: type ssaType: ssaType [
 	translatedTypes at: type put: ssaType
 ]

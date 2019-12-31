@@ -515,6 +515,47 @@ MbndSlovimCodeModuleGenerator >> newSymbolNameMangler [
 	^ self symbolNameManglerPrototype copy
 ]
 
+{ #category : #'as yet unclassified' }
+MbndSlovimCodeModuleGenerator >> sanitizeStructureFieldType: fieldType [
+	self slvmCompilationTarget isGPU ifTrue: [ 
+		fieldType isPointerType ifTrue: [
+			^ self slvmCompilationTarget pointerSize = 4
+				ifTrue: [ self slvmCompilationTarget int32 ]
+				ifFalse: [ SLVMVectorType baseType: self slvmCompilationTarget int32 elements: 2 ].
+		]
+	].
+
+	^ self sanitizeValueTypeForMemory: fieldType
+]
+
+{ #category : #visiting }
+MbndSlovimCodeModuleGenerator >> sanitizeValue: value withExpectedType: expectedType [
+	self slvmCompilationTarget isLLVMCompilationTarget ifTrue: [ 
+		(expectedType isBooleanType and: [ value type isIntegerType ]) ifTrue: [
+			self assert: value isConstantValue.
+			^ SLVMConstant type: expectedType value: value value asInteger ~= 0
+		].
+	
+		(expectedType isIntegerType and: [ value type isBooleanType ]) ifTrue: [ 
+			self assert: value isConstantValue.
+			^ SLVMConstant type: expectedType value: value value asBit
+		].
+	].
+
+	^ value
+]
+
+{ #category : #'as yet unclassified' }
+MbndSlovimCodeModuleGenerator >> sanitizeValueTypeForMemory: valueType [
+	self slvmCompilationTarget isLLVMCompilationTarget ifTrue: [ 
+		valueType isBooleanType ifTrue: [ 
+			^ self slvmCompilationTarget uint8
+		].
+	].
+
+	^ valueType
+]
+
 { #category : #visiting }
 MbndSlovimCodeModuleGenerator >> setProgramEntity: programEntity ssaValue: ssaValue [
 	self setProgramEntity: programEntity translation: (MbndSlovimTranslatedProgramEntitySSAValue new
@@ -844,7 +885,7 @@ MbndSlovimCodeModuleGenerator >> visitCompileTimeVariable: compileTimeVariable [
 	"I am like a global variable, but I am always anonymous and private."
 	| ssaValueType csymbol ssaCompileTimeVariable initialValue ssaReferenceType |
 	ssaReferenceType := self translateType: compileTimeVariable type.
-	ssaValueType := self translateType: compileTimeVariable valueType.
+	ssaValueType := self sanitizeValueTypeForMemory: (self translateType: compileTimeVariable valueType).
 	initialValue := compileTimeVariable value.
 
 	(compileTimeVariable type isReferenceType not and: [ssaValueType == ssaReferenceType]) ifTrue: [
@@ -873,7 +914,8 @@ MbndSlovimCodeModuleGenerator >> visitCompileTimeVariable: compileTimeVariable [
 
 	self assert: initialValue isNotNil.
 
-	ssaCompileTimeVariable initialValue: (self translateLiteralValue: initialValue value ofType: initialValue type).
+	ssaCompileTimeVariable initialValue: (self sanitizeValue: (self translateLiteralValue: initialValue value ofType: initialValue type) withExpectedType: ssaValueType).
+	
 		
 	^ ssaCompileTimeVariable
 ]
@@ -988,7 +1030,7 @@ MbndSlovimCodeModuleGenerator >> visitGCClassType: type [
 { #category : #visiting }
 MbndSlovimCodeModuleGenerator >> visitGlobalVariable: globalVariable [
 	| ssaValueType csymbol ssaGlobalVariable initialValue unmangledName |
-	ssaValueType := self translateType: globalVariable valueType.
+	ssaValueType := self sanitizeValueTypeForMemory: (self translateType: globalVariable valueType).
 	
 	globalVariable isStatic ifTrue: [ 
 		csymbol := (self generatedNameForAnynomousEntity: globalVariable) asSymbol.
@@ -1016,7 +1058,9 @@ MbndSlovimCodeModuleGenerator >> visitGlobalVariable: globalVariable [
 	] ifFalse: [ 
 		initialValue := globalVariable currentRawValue.
 		self assert: initialValue isNotNil.
-		ssaGlobalVariable initialValue: (self translateLiteralValue: initialValue value ofType: initialValue type).
+		ssaGlobalVariable initialValue: (self sanitizeValue: (self translateLiteralValue: initialValue value ofType: initialValue type) withExpectedType: ssaValueType).
+		
+		  
 		globalVariable isStatic ifTrue: [ 
 			ssaGlobalVariable makePrivate
 		].

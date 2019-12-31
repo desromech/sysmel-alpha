@@ -7,7 +7,7 @@ Class {
 { #category : #testing }
 MbndClassPointerTypeConversionRule >> canBeUsedToConvertNode: node from: sourceType into: targetType [
 	| sourceClassType targetClassType |
-	sourceType withoutTopDecorations isReferenceType == targetType withoutTopDecorations isReferenceType ifFalse: [ ^ false ].
+	(sourceType hasPointerRankImplicitlyConvertibleTo: targetType pointerRank) ifFalse: [ ^ false ].
 
 	sourceClassType := sourceType asUndecoratedClassType.
 	targetClassType := targetType asUndecoratedClassType.

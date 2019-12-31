@@ -54,9 +54,10 @@ MbndPointerType >> addDefaultConversionRules [
 			addExplicitConversionRule: MbndPointerConstCastConversionRule new;
 			addImplicitConversionRule: MbndPointerAddConstConversionRule new;
 			addExplicitConversionRule: MbndPointerExplicitVoidReinterpretTypeConversionRule new;
-			addImplicitConversionRule: MbndPointerImplicitVoidReinterpretTypeConversionRule new.
-		self addConversionRule: MbndToDerivedTypeConceptConversionRule new.
-		baseType withoutTopDecorations addConversionRulesToPointerType: self
+			addImplicitConversionRule: MbndPointerImplicitVoidReinterpretTypeConversionRule new;
+			addExplicitConversionRule: MbndClassPointerTypeConversionRule new;
+			addImplicitConversionRule: MbndClassImplicitUpcastTypeConversionRule new;
+			addConversionRule: MbndToDerivedTypeConceptConversionRule new.
 	].
 
 ]
@@ -162,6 +163,11 @@ MbndPointerType >> isPointerLikeValueType [
 { #category : #'testing methods' }
 MbndPointerType >> isPointerType [
 	^ true
+]
+
+{ #category : #testing }
+MbndPointerType >> pointerRank [
+	^ baseType pointerRank , { {#pointer . addressSpace . baseType isConstantType} }
 ]
 
 { #category : #printing }

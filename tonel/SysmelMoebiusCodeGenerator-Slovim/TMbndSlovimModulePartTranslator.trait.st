@@ -26,6 +26,16 @@ TMbndSlovimModulePartTranslator >> isEmittingDebugInformation [
 	^ codeModuleGenerator isEmittingDebugInformation
 ]
 
+{ #category : #'as yet unclassified' }
+TMbndSlovimModulePartTranslator >> sanitizeStructureFieldType: type [
+	^ codeModuleGenerator sanitizeStructureFieldType: type
+]
+
+{ #category : #'as yet unclassified' }
+TMbndSlovimModulePartTranslator >> sanitizeValueTypeForMemory: type [
+	^ codeModuleGenerator sanitizeValueTypeForMemory: type
+]
+
 { #category : #accessing }
 TMbndSlovimModulePartTranslator >> slvmCompilationTarget [
 	^ codeModuleGenerator slvmCompilationTarget

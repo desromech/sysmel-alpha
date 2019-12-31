@@ -68,6 +68,11 @@ MbndDecoratedType >> asTemporaryReferenceType [
 	^ baseType asTemporaryReferenceType withDecorations: decorations
 ]
 
+{ #category : #converting }
+MbndDecoratedType >> asUndecoratedClassType [
+	^ baseType asUndecoratedClassType
+]
+
 { #category : #accessing }
 MbndDecoratedType >> decorations [
 	^ decorations
@@ -114,6 +119,11 @@ MbndDecoratedType >> isDecorationType [
 { #category : #'testing methods' }
 MbndDecoratedType >> isVolatileType [
 	^ decorations includes: #volatile
+]
+
+{ #category : #testing }
+MbndDecoratedType >> pointerRank [
+	^ baseType pointerRank
 ]
 
 { #category : #printing }
