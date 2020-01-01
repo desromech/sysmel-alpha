@@ -25,6 +25,10 @@ MbndReferenceType >> addDefaultConversionRules [
 		baseType isPossibleToLoadReferences ifTrue: [
 			self
 				addConversionTo: baseType withoutTopDecorations rule: MbndReferenceLoadTypeConversionRule.
+			baseType isConstantType ifTrue: [ 
+				baseType baseType addConversionTo: self rule: MbndSpillValueInReferenceTypeConversionRule new.
+			].
+
 		].
 		self addImplicitConversionRule: MbndClassImplicitUpcastTypeConversionRule new.
 	]

@@ -117,6 +117,11 @@ MbndDecoratedType >> isDecorationType [
 ]
 
 { #category : #'testing methods' }
+MbndDecoratedType >> isPossibleToLoadReferences [
+	^ baseType isPossibleToLoadReferences
+]
+
+{ #category : #'testing methods' }
 MbndDecoratedType >> isVolatileType [
 	^ decorations includes: #volatile
 ]

@@ -810,6 +810,32 @@ MbndSlovimCodeModuleGeneratorTest >> testCharacterToDynamicObject [
 ]
 
 { #category : #tests }
+MbndSlovimCodeModuleGeneratorTest >> testClassConstPointerUpcast [
+	| function |
+	self
+		evaluateSysmelSource: '
+class SuperClass definition: { 
+	field int32Field type: Int32.
+}.
+
+class SubClass superclass: SuperClass; definition: { 
+	field float32Field type: Float32.
+}.
+
+function upcast externC(x: SubClass pointer) => SuperClass const pointer := x
+';
+		generateSSAModule.
+
+	function := ssaModule globalNamed: #upcast.
+	self assert: function isFunction.
+	self deny: function isEmpty.
+	self assert: function basicBlocks size equals: 2.
+	self assert: function basicBlocks first firstInstruction isJump.
+	self assert: function basicBlocks second firstInstruction isBitCast.
+	self assert: function basicBlocks second lastInstruction isReturn.
+]
+
+{ #category : #tests }
 MbndSlovimCodeModuleGeneratorTest >> testClassGetSuperclassField [
 	| function |
 	self
@@ -4624,6 +4650,30 @@ function call externC(x: Int32) => Int32
 	call := function basicBlocks second firstInstruction nextInstruction.
 	self assert: call isCall.
 	self assert: call functionValue name equals:  #'_ZN10TestStruct7.addTo.ERNS_Ei'
+]
+
+{ #category : #tests }
+MbndSlovimCodeModuleGeneratorTest >> testParameterConstRef [
+	| function |
+	self
+		evaluateSysmelSource: '
+
+function called externC(x: Int32 const ref) => Void.
+
+function caller externC(x: Int32) => Void := called(x).
+';
+		generateSSAModule.
+
+	function := ssaModule globalNamed: #caller.
+	self assert: function allInstructionsMnemonics equals: #(
+		(entry (alloca jump))
+		(body (
+			store
+			bitcast "Address space cast"
+			call
+			returnVoid
+		))
+	).
 ]
 
 { #category : #tests }
