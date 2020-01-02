@@ -496,6 +496,26 @@ MbndAstEvaluator >> visitVariableReferenceNode: node [
 ]
 
 { #category : #visiting }
+MbndAstEvaluator >> visitVectorConstructionNode: node [
+	| vectorElements |
+	vectorElements := OrderedCollection new.
+	node elements do: [ :el |
+		| element |
+		element := self visitNode: el.
+		element type isPrimitiveVectorType ifTrue: [
+			vectorElements addAll: element slots
+		] ifFalse: [ 
+			vectorElements add: element unwrapMbndValue
+		]
+	].
+	self assert: vectorElements size = node type elements.
+	^ MbndAggregateTypeInstanceValue new
+		type: node type;
+		slots: vectorElements asArray;
+		yourself
+]
+
+{ #category : #visiting }
 MbndAstEvaluator >> visitWhileLoopNode: node [
 	| loopContext hasReceivedBreak |
 	loopContext := Object new.

@@ -240,6 +240,14 @@ function f(v: UInt32) => UInt8
 ]
 
 { #category : #tests }
+MbndSysmelLanguageCompileTimeEvaluationTest >> testVectorConstruction [
+	self assert: (self evaluateSource: 'Float32x2(1.0, 2.0)') slots equals: #(1.0 2.0).
+	self assert: (self evaluateSource: 'Float32x2 x: 1.0 y: 2.0') slots equals: #(1.0 2.0).
+	self assert: (self evaluateSource: 'Float32x3(Float32x2(1.0, 2.0), 3.0)') slots equals: #(1.0 2.0 3.0).
+	self assert: (self evaluateSource: 'Float32x3(1.0, Float32x2(2.0, 3.0))') slots equals: #(1.0 2.0 3.0).
+]
+
+{ #category : #tests }
 MbndSysmelLanguageCompileTimeEvaluationTest >> testZeroExtension [
 	self evaluateSource: '
 function f(v: UInt8) => UInt64
