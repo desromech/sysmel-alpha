@@ -3,13 +3,13 @@ compileTimeConstant BigIntegerForFloat := FixedBigInteger(32). ## 1024 bits big 
 
 class BasicValueFloatPrinter superclass: BasicValueIntegerPrinter; definition: {
 
-    message nextPutBigInteger: (bigInteger: BigIntegerForFloat const ref) ::=> Void := {
+    method nextPutBigInteger: (bigInteger: BigIntegerForFloat const ref) ::=> Void := {
         0 to: BigIntegerForFloat WordCount do: {:(UIntPointer)i :: Void |
             self nextPutLittleUInt32: bigInteger words[i]
         }
     }.
 
-    message nextPutDouble: (double: Float64) ::=> Void := {
+    method nextPutDouble: (double: Float64) ::=> Void := {
         let doubleMemory mutable := double.
         let ieee754Double := (doubleMemory address reinterpretCastTo: UInt64 pointer) value.
 
@@ -59,7 +59,7 @@ class BasicValueFloatPrinter superclass: BasicValueIntegerPrinter; definition: {
         ##self << "e" << exponent << "m" << mantissa << "dp" << decimalPart words[0] << ":" << decimalPart words[1] << ":" << decimalPart words[2] << ":"; nextPutBigInteger: decimalPart.
     }.
 
-    message nextPutSingleFloat: (float: Float32) ::=> Void := {
+    method nextPutSingleFloat: (float: Float32) ::=> Void := {
         self nextPutDouble: float
     }.
 }.

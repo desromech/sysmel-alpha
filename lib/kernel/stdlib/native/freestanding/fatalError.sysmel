@@ -1,11 +1,11 @@
 namespace StdNative definition: {
 
 if: Compiler compilationTarget hasNoOperatingSystem then: {
-    message fatalError: (errorMessage: StringLiteral) ::=> Void := {
+    method fatalError: (errorMessage: StringLiteral) ::=> Void := {
         ## TODO: Use a trap instruction here.
     }.
 } else: {
-    message fatalError: (errorMessage: StringLiteral) ::=> Void := {
+    method fatalError: (errorMessage: StringLiteral) ::=> Void := {
 		LibC printf("FATAL ERROR: %.*s\n", errorMessage size castTo: Int32, errorMessage elements address).
         ##stderr << "FATAL ERROR: " << errorMessage; nl.
         native_abort().
@@ -15,7 +15,7 @@ if: Compiler compilationTarget hasNoOperatingSystem then: {
 #**
  * assert: an assertion that can be disabled in compile time.
  *#
-macro expansionRule assert: condition := {
+macro method assert: condition := {
     let position := condition asSourcePositionString.
     let expression := condition originalSourceCode.
     let errorMessage := "Assertion " -- expression -- " FAILED in " -- position.
@@ -29,7 +29,7 @@ macro expansionRule assert: condition := {
 #**
  * assertAlways: An assertion that is always active.
  *#
-macro expansionRule assertAlways: condition := {
+macro method assertAlways: condition := {
     let position := condition asSourcePositionString.
     let expression := condition originalSourceCode.
     let errorMessage := "Assertion " -- expression -- " FAILED in " -- position.

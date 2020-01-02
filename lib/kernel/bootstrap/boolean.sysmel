@@ -1,18 +1,18 @@
 namespace SysmelKernel definition: {
 
-_CompilerObjectType macro expansionRule or: orCondition := ``(
+_CompilerObjectType macro method or: orCondition := ``(
     if: `,self then: true else: (`,orCondition __macroInlineBlock castTo: Boolean8)
 ).
 
-_CompilerObjectType macro expansionRule || orCondition := ``(
+_CompilerObjectType macro method || orCondition := ``(
     if: `,self then: true else: (`,orCondition __macroInlineBlock castTo: Boolean8)
 ).
 
-_CompilerObjectType macro expansionRule and: andCondition := ``(
+_CompilerObjectType macro method and: andCondition := ``(
     if: `,self then: (`,andCondition __macroInlineBlock castTo: Boolean8) else: false
 ).
 
-_CompilerObjectType macro expansionRule && andCondition := ``(
+_CompilerObjectType macro method && andCondition := ``(
     if: `,self then: (`,andCondition __macroInlineBlock castTo: Boolean8) else: false
 ).
 

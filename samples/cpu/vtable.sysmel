@@ -1,5 +1,5 @@
 class Expression definition: {
-    virtual message evaluate => Int32 := {
+    virtual method evaluate => Int32 := {
         StdNative fatalError: "Evaluating pure virtual method.".
         0
     }.
@@ -9,7 +9,7 @@ class ConstantInteger superclass: Expression;
 definition: {
     field constant public type: Int32.
 
-    override message evaluate => Int32
+    override method evaluate => Int32
         := constant.
 }.
 
@@ -18,7 +18,7 @@ definition: {
     field left public type: Expression pointer.
     field right public type: Expression pointer.
 
-    meta macro expansionRule left: leftOperand right: rightOperand := ``(
+    meta macro method left: leftOperand right: rightOperand := ``(
         `,self basicNativeNew _
             left: `,leftOperand;
             right: `,rightOperand;
@@ -28,24 +28,24 @@ definition: {
 
 class Addition superclass: BinaryOperation;
 definition: {
-    override message evaluate => Int32
+    override method evaluate => Int32
         := left _ evaluate + right _ evaluate.
 }.
 
 class Multiplication superclass: BinaryOperation;
 definition: {
-    override message evaluate => Int32
+    override method evaluate => Int32
         := left _ evaluate * right _ evaluate.
 }.
 
 #**
  * Simple DSL for constructing an expression tree.
  *#
-## TODO: Make this message inline.
-Expression message asExpression => Expression pointer
+## TODO: Make this method inline.
+Expression method asExpression => Expression pointer
     := self address.
 
-_LiteralInteger macro expansionRule asExpression := ``(
+_LiteralInteger macro method asExpression := ``(
     ConstantInteger basicNativeNew _
         constant: `,self;
         asExpression
@@ -53,10 +53,10 @@ _LiteralInteger macro expansionRule asExpression := ``(
 
 ## TODO: Add support for a namespace for macros.
 Expression pointer extend: {
-    macro expansionRule asExpression := self.
+    macro method asExpression := self.
 
-    macro expansionRule * other := ``(Multiplication left: `,self right: `,other asExpression).
-    macro expansionRule + other := ``(Addition left: `,self right: `,other asExpression).
+    macro method * other := ``(Multiplication left: `,self right: `,other asExpression).
+    macro method + other := ``(Addition left: `,self right: `,other asExpression).
 }.
 
 function main externC (argc: Int32, argv: Char const pointer pointer) => Int32 := {

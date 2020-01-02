@@ -24,33 +24,33 @@ template BalancedTree(KT: Type, VT: Type)
     if: ValueType isVoidType not then: {
         field value public type: ValueType.
 
-        message replaceValueWith: (otherNode: SelfType pointer) ::=> Void := {
+        method replaceValueWith: (otherNode: SelfType pointer) ::=> Void := {
             value := otherNode _ value
         }
     } else: {
-        message replaceValueWith: (otherNode: SelfType pointer) ::=> Void := {
+        method replaceValueWith: (otherNode: SelfType pointer) ::=> Void := {
             ## Do nothing.
         }
     }.
 
     ## Left pointer accessor.
-    message left => Node pointer
+    method left => Node pointer
         := left_ & ChildPointerMask reinterpretCastTo: Node pointer.
 
-    message left: (newLeftNode: Node pointer) ::=> Void := {
+    method left: (newLeftNode: Node pointer) ::=> Void := {
         left_ := (left_ & BalanceFactorMask) | ((newLeftNode reinterpretCastTo: UIntPointer) & ChildPointerMask)
     }.
 
     ## Balance factor accessor.
-    message balanceFactor => Int32
+    method balanceFactor => Int32
         := (left_ & BalanceFactorMask castTo: Int32) - 1.
 
-    message balanceFactor: (newFactor: Int32) ::=> Void := {
+    method balanceFactor: (newFactor: Int32) ::=> Void := {
         left_ := (left_ & ChildPointerMask) | ((newFactor + 1 castTo: UIntPointer) & BalanceFactorMask)
     }.
 
     ## Binary tree search
-    message search: (searchKey: KeyType) ::=> SelfType pointer := {
+    method search: (searchKey: KeyType) ::=> SelfType pointer := {
         let position mutable := self address.
         while: position isNotNil do: {
             searchKey < position _ key ifTrue: {
@@ -70,7 +70,7 @@ template BalancedTree(KT: Type, VT: Type)
     #**
      * This finds the first element that is at least as big as the key.
      *#
-    message lowerBound: (searchKey: KeyType) ::=> SelfType pointer := {
+    method lowerBound: (searchKey: KeyType) ::=> SelfType pointer := {
         let position mutable := self address.
         let bestFound mutable type: SelfType pointer := nil.
 
@@ -96,7 +96,7 @@ template BalancedTree(KT: Type, VT: Type)
     #**
      * This finds the first element that is at greater than the search key.
      *#
-    message upperBound: (searchKey: KeyType) ::=> SelfType pointer := {
+    method upperBound: (searchKey: KeyType) ::=> SelfType pointer := {
         let position mutable := self address.
         let bestFound mutable type: SelfType pointer := nil.
 
@@ -112,12 +112,12 @@ template BalancedTree(KT: Type, VT: Type)
         return: bestFound
     }.
 
-    message upperBoundPredecessor: (searchKey: KeyType) ::=> SelfType pointer := {
+    method upperBoundPredecessor: (searchKey: KeyType) ::=> SelfType pointer := {
         let lb := self upperBound: searchKey.
         lb ifNil: self last ifNotNil: lb _ predecessor
     }.
 
-    message predecessor => SelfType pointer := {
+    method predecessor => SelfType pointer := {
         self address ifNil: {
             return: nil
         }.
@@ -146,7 +146,7 @@ template BalancedTree(KT: Type, VT: Type)
         return: nil.
     }.
 
-    message first ::=> SelfType pointer := {
+    method first ::=> SelfType pointer := {
         self address isNil || self left isNil ifTrue: {
             return: self address
         }.
@@ -154,7 +154,7 @@ template BalancedTree(KT: Type, VT: Type)
         self left _ first
     }.
 
-    message last ::=> SelfType pointer := {
+    method last ::=> SelfType pointer := {
         self address isNil || self right isNil ifTrue: {
             return: self address
         }.
@@ -162,11 +162,11 @@ template BalancedTree(KT: Type, VT: Type)
         self right _ last
     }.
 
-    message isLeaf => Boolean8
+    method isLeaf => Boolean8
         := self left isNil && self right isNil.
 
     ## Insert node.
-    message insertOrReplace: (newNode: SelfType pointer) ::=> SelfType pointer := {
+    method insertOrReplace: (newNode: SelfType pointer) ::=> SelfType pointer := {
         ## If self is nil, just return the node.
         self address ifNil: {
             return: newNode
@@ -197,7 +197,7 @@ template BalancedTree(KT: Type, VT: Type)
         self address
     }.
 
-    message insertNode: (newNode: SelfType pointer) ::=> SelfType pointer := {
+    method insertNode: (newNode: SelfType pointer) ::=> SelfType pointer := {
         ## If self is nil, just return the node.
         self address ifNil: {
             return: newNode
@@ -224,7 +224,7 @@ template BalancedTree(KT: Type, VT: Type)
     }.
 
     ## Remove unique node.
-    message removeUniqueNode: (oldNode: SelfType pointer) ::=> SelfType pointer := {
+    method removeUniqueNode: (oldNode: SelfType pointer) ::=> SelfType pointer := {
         self address ifNil: {
             return: nil
         }.
@@ -267,7 +267,7 @@ template BalancedTree(KT: Type, VT: Type)
     }.
 
     ## Remove node with duplicated key.
-    message removeNode: (oldNode: SelfType pointer) ::=> SelfType pointer := {
+    method removeNode: (oldNode: SelfType pointer) ::=> SelfType pointer := {
         self address ifNil: {
             return: nil
         }.
@@ -324,7 +324,7 @@ template BalancedTree(KT: Type, VT: Type)
     #**
      * This removes the lower left node of the tree, and returns the old lower left node.
      *#
-    message removeLowerLeftNode ::=> SelfType pointer := {
+    method removeLowerLeftNode ::=> SelfType pointer := {
         self isLeaf ifTrue: {
             self address.
         } ifFalse: {

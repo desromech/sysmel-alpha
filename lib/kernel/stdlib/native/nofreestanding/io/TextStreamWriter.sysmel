@@ -6,28 +6,28 @@ namespace StdNative definition: {
 class TextStreamWriter definition: {
     field stream public type: BinaryStream pointer.
 
-    meta message for: (stream: BinaryStream pointer) ::=> SelfType
+    meta method for: (stream: BinaryStream pointer) ::=> SelfType
         := SelfType newValue
             stream: stream;
             yourself.
 
-    message nextPut: (character: Char32) ::=> Boolean8 := {
+    method nextPut: (character: Char32) ::=> Boolean8 := {
         let buffer mutable type: UInt8 := character castTo: UInt8.
         (stream _ write: buffer address size: 1) == 1
     }.
 
-    message nextPut: (character: Int32) ::=> Boolean8
+    method nextPut: (character: Int32) ::=> Boolean8
 		:= self nextPut: (character castTo: Char32).
 
-    message nextPutAll: (string: StdNative StringLiteral) ::=> Boolean8 := {
+    method nextPutAll: (string: StdNative StringLiteral) ::=> Boolean8 := {
         (stream _ write: string [0] address size: string size) == (string size castTo: IntPointer)
     }.
 
-    message write: (string: Void const pointer) size: (size: UIntPointer) ::=> Boolean8 := {
+    method write: (string: Void const pointer) size: (size: UIntPointer) ::=> Boolean8 := {
         (stream _ write: string size: size) == (size castTo: IntPointer)
     }.
 
-    message nextPutBasicValuePrinterBuffer: (valuePrinter: BasicValuePrinter const ref) ::=> Boolean8 := {
+    method nextPutBasicValuePrinterBuffer: (valuePrinter: BasicValuePrinter const ref) ::=> Boolean8 := {
         valuePrinter bufferSize > 0 ifTrue: {
             (stream _ write: valuePrinter buffer [0] address size: valuePrinter bufferSize) == (valuePrinter bufferSize castTo: IntPointer)
         } ifFalse: {
@@ -35,7 +35,7 @@ class TextStreamWriter definition: {
         }
     }.
 
-    message nextPutBoolean: (value: Boolean8) ::=> Void := {
+    method nextPutBoolean: (value: Boolean8) ::=> Void := {
         value ifTrue: {
 			self nextPutAll: "true"
 		} ifFalse:{
@@ -43,7 +43,7 @@ class TextStreamWriter definition: {
 		}
     }.
 
-    message nextPutHexDigit: (digit: Int32) ::=> Void := {
+    method nextPutHexDigit: (digit: Int32) ::=> Void := {
         if: 0 <= digit && digit <= 9 then: {
             self nextPut: '0' + digit
         } else: {
@@ -52,55 +52,55 @@ class TextStreamWriter definition: {
     }.
 
     ## Integer formatting.
-    message nextPutInteger: (value: Int64) ::=> Void := {
+    method nextPutInteger: (value: Int64) ::=> Void := {
         let integerPrinter mutable type: BasicValueIntegerPrinter.
         integerPrinter nextPutInteger: value.
         self nextPutBasicValuePrinterBuffer: integerPrinter
     }.
 
-    message nextPutUnsignedInteger: (value: UInt64) ::=> Void := {
+    method nextPutUnsignedInteger: (value: UInt64) ::=> Void := {
         let integerPrinter mutable type: BasicValueIntegerPrinter.
         integerPrinter nextPutUnsignedInteger: value.
         self nextPutBasicValuePrinterBuffer: integerPrinter
     }.
 
     ## Floating point formatting
-    message nextPutSingleFloat: (float: Float32) ::=> Void := {
+    method nextPutSingleFloat: (float: Float32) ::=> Void := {
         let floatPrinter mutable type: BasicValueFloatPrinter.
         floatPrinter nextPutSingleFloat: float.
         self nextPutBasicValuePrinterBuffer: floatPrinter
     }.
 
-    message nextPutDouble: (double: Float64) ::=> Void := {
+    method nextPutDouble: (double: Float64) ::=> Void := {
         let floatPrinter mutable type: BasicValueFloatPrinter.
         floatPrinter nextPutDouble: double.
         self nextPutBasicValuePrinterBuffer: floatPrinter
     }.
 
     ## Pointer formatting.
-    message nextPutLittleUInt32: (value: UInt32) ::=> Void := {
+    method nextPutLittleUInt32: (value: UInt32) ::=> Void := {
         let integerPrinter mutable type: BasicValueIntegerPrinter.
         integerPrinter nextPutLittleUInt32: value.
         self nextPutBasicValuePrinterBuffer: integerPrinter
     }.
 
-    message nextPutHexPointer: (address: UInt32) ::=> Void := {
+    method nextPutHexPointer: (address: UInt32) ::=> Void := {
         let integerPrinter mutable type: BasicValueIntegerPrinter.
         integerPrinter nextPutHexUInt32: address.
         self nextPutBasicValuePrinterBuffer: integerPrinter
     }.
 
-    message nextPutHexPointer: (address: UInt64) ::=> Void := {
+    method nextPutHexPointer: (address: UInt64) ::=> Void := {
         let integerPrinter mutable type: BasicValueIntegerPrinter.
         integerPrinter nextPutHexUInt64: address.
         self nextPutBasicValuePrinterBuffer: integerPrinter
     }.
 
-    message nextPutHexPointer: (pointer: Void pointer) ::=> Void := {
+    method nextPutHexPointer: (pointer: Void pointer) ::=> Void := {
         self nextPutHexPointer: (pointer reinterpretCastTo: UIntPointer).
     }.
 
-    message nextPutCString:(cstring: Char8 const pointer) ::=> Boolean8 := {
+    method nextPutCString:(cstring: Char8 const pointer) ::=> Boolean8 := {
         cstring ifNil: {
             true
         } ifNotNil: {
@@ -110,62 +110,62 @@ class TextStreamWriter definition: {
     }.
 
     ## Special characters
-    message tab => SelfType ref
+    method tab => SelfType ref
         := self nextPut: '\t'; yourself.
 
-    message lf => SelfType ref
+    method lf => SelfType ref
         := self nextPut: '\n'; yourself.
 
-    message cr => SelfType ref
+    method cr => SelfType ref
         := self nextPut: '\r'; yourself.
 
-    message crlf => SelfType ref
+    method crlf => SelfType ref
         := self nextPutAll: "\r\n"; yourself.
 
-    message nl => SelfType ref
+    method nl => SelfType ref
         := self lf; yourself.
 
     ## Convenience printing methods.
-    message << (character: Char32) => SelfType ref
+    method << (character: Char32) => SelfType ref
         := self nextPut: character; yourself.
 
-    message << (string: StdNative StringLiteral) => SelfType ref
+    method << (string: StdNative StringLiteral) => SelfType ref
         := self nextPutAll: string; yourself.
 
-    message << (bool: Boolean8) => SelfType ref
+    method << (bool: Boolean8) => SelfType ref
         := self nextPutBoolean: bool; yourself.
 
-    message << (integer: Int8) => SelfType ref
+    method << (integer: Int8) => SelfType ref
         := self nextPutInteger: integer; yourself.
 
-    message << (integer: Int16) => SelfType ref
+    method << (integer: Int16) => SelfType ref
         := self nextPutInteger: integer; yourself.
 
-    message << (integer: Int32) => SelfType ref
+    method << (integer: Int32) => SelfType ref
         := self nextPutInteger: integer; yourself.
 
-    message << (integer: Int64) => SelfType ref
+    method << (integer: Int64) => SelfType ref
         := self nextPutInteger: integer; yourself.
 
-    message << (integer: UInt8) => SelfType ref
+    method << (integer: UInt8) => SelfType ref
         := self nextPutUnsignedInteger: integer; yourself.
 
-    message << (integer: UInt16) => SelfType ref
+    method << (integer: UInt16) => SelfType ref
         := self nextPutUnsignedInteger: integer; yourself.
 
-    message << (integer: UInt32) => SelfType ref
+    method << (integer: UInt32) => SelfType ref
         := self nextPutUnsignedInteger: integer; yourself.
 
-    message << (integer: UInt64) => SelfType ref
+    method << (integer: UInt64) => SelfType ref
         := self nextPutUnsignedInteger: integer; yourself.
 
-    message << (pointer: Void pointer) => SelfType ref
+    method << (pointer: Void pointer) => SelfType ref
         := self nextPutHexPointer: pointer; yourself.
 
-    message << (float: Float32) => SelfType ref
+    method << (float: Float32) => SelfType ref
         := self nextPutSingleFloat: float; yourself.
 
-    message << (double: Float64) => SelfType ref
+    method << (double: Float64) => SelfType ref
         := self nextPutDouble: double; yourself.
 }.
 
@@ -174,7 +174,7 @@ _PrimitiveVectorTypeTemplate extend: {
     let VectorSize := SelfType elements.
 
     TextStreamWriter extend: {
-        message nextPutVector: (vector: VectorType) ::=> Void := {
+        method nextPutVector: (vector: VectorType) ::=> Void := {
             self << vector x.
             compileTimeIf: VectorSize > 1 then: {
                 self nextPut: ' '.
@@ -190,7 +190,7 @@ _PrimitiveVectorTypeTemplate extend: {
             }.
         }.
 
-        message << (vector: VectorType) => SelfType ref := {
+        method << (vector: VectorType) => SelfType ref := {
             self nextPutVector: vector.
             self
         }.

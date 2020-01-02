@@ -8,56 +8,56 @@ template OrderedCollection(ET: Type)
 	private field size_ type: UIntPointer.
     private field storage_ type: ElementType pointer.
 
-    message finalize => Void := {
+    method finalize => Void := {
         0 until: size_ do: {:(UIntPointer)i :: Void |.
             storage_[i] finalize
         }.
     }.
 
-    const inline message capacity => UIntPointer
+    const inline method capacity => UIntPointer
         := capacity_.
-    const inline message size => UIntPointer
+    const inline method size => UIntPointer
         := size_.
-    const inline message data => ElementType pointer
+    const inline method data => ElementType pointer
         := storage_.
 
-    const inline message isEmpty => Boolean8
+    const inline method isEmpty => Boolean8
         := size_ == 0.
-    const inline message isNotEmpty => Boolean8
+    const inline method isNotEmpty => Boolean8
         := size_ ~= 0.
 
-	inline message first => ElementType ref := {
+	inline method first => ElementType ref := {
 		assert: size_ > 0.
 		storage_[0].
 	}.
 
-	inline message second => ElementType ref := {
+	inline method second => ElementType ref := {
 		assert: size_ > 0.
 		storage_[1].
 	}.
 
-	inline message third => ElementType ref := {
+	inline method third => ElementType ref := {
 		assert: size_ > 0.
 		storage_[2].
 	}.
 
-	inline message last => ElementType ref := {
+	inline method last => ElementType ref := {
 		assert: size_ > 0.
 		storage_[size_ - 1].
 	}.
 
-	inline message at: (index: UIntPointer) ::=> ElementType ref := {
+	inline method at: (index: UIntPointer) ::=> ElementType ref := {
 		assert: index >= 1.
 		assert: index <= size_.
 		storage_ at: index.
 	}.
 	
-	inline message subscriptAt: (index: UIntPointer) ::=> ElementType ref := {
+	inline method subscriptAt: (index: UIntPointer) ::=> ElementType ref := {
 		assert: index < size_.
 		storage_[index].
 	}.
 	
-    message increaseCapacity ::=> Void := {
+    method increaseCapacity ::=> Void := {
 		let newCapacity := capacity_*2 max: 16.
 		let newStorageSize := newCapacity * ElementType instanceSize.
 		let newStorage := StdNative zmalloc(newStorageSize) reinterpretCastTo: ElementType pointer.
@@ -73,10 +73,10 @@ template OrderedCollection(ET: Type)
 		capacity_ := newCapacity.
     }.
 
-    inline message add: (newElement: ElementType const ref) ::=> Void
+    inline method add: (newElement: ElementType const ref) ::=> Void
         := self addLast: newElement.
 
-    inline message addLast: (newElement: ElementType const ref) ::=> Void := {
+    inline method addLast: (newElement: ElementType const ref) ::=> Void := {
         size_ >= capacity_ ifTrue: {
             self increaseCapacity.
         }.
@@ -87,13 +87,13 @@ template OrderedCollection(ET: Type)
         size_ := size_ + 1.
     }.
 
-    inline message removeLast => Void := {
+    inline method removeLast => Void := {
         assert: self isNotEmpty.
         size_ := size_ - 1.
         storage_[size_] finalize.
     }.
 
-	macro expansionRule do: aBlock := {
+	macro method do: aBlock := {
 		let collection := __astBuilder gensym: #collection.
 		let index := __astBuilder gensym: #index.
 		``{

@@ -5,7 +5,7 @@ namespace StdNative definition: {
  *#
 namespace UnixVirtualMemoryInterface definition: {
 
-    message reserveAndCommitAddressSpace: (size: UIntPointer) alignment: (alignment: UIntPointer) ::=> Void pointer := {
+    method reserveAndCommitAddressSpace: (size: UIntPointer) alignment: (alignment: UIntPointer) ::=> Void pointer := {
         alignment <= 4096 ifTrue: {
             return: (UnixVirtualMemoryInterface reserveAndCommitAddressSpace: size)
         }.
@@ -26,7 +26,7 @@ namespace UnixVirtualMemoryInterface definition: {
         }
     }.
 
-    message slowReserveAndCommitAddressSpace: (size: UIntPointer) alignment: (alignment: UIntPointer) ::=> Void pointer := {
+    method slowReserveAndCommitAddressSpace: (size: UIntPointer) alignment: (alignment: UIntPointer) ::=> Void pointer := {
         ## This technique is taken from the implementation in jemalloc.
         let reservationSize := size + alignment.
         ## Guard for wrap around.
@@ -69,7 +69,7 @@ namespace UnixVirtualMemoryInterface definition: {
         return: (alignedAddress reinterpretCastTo: Void pointer).
     }.
 
-    message reserveAndCommitAddressSpace: (size: UIntPointer) ::=> Void pointer := {
+    method reserveAndCommitAddressSpace: (size: UIntPointer) ::=> Void pointer := {
         let result := Unix mmap(nil, size, Unix PROT_READ | Unix PROT_WRITE, Unix MAP_PRIVATE | Unix MAP_ANONYMOUS, -1, 0).
         result == Unix MAP_FAILED ifTrue: {
             return: nil.
@@ -78,7 +78,7 @@ namespace UnixVirtualMemoryInterface definition: {
         return: result
     }.
 
-    message reserveAddressSpace: (size: UIntPointer) ::=> Void pointer := {
+    method reserveAddressSpace: (size: UIntPointer) ::=> Void pointer := {
         let result := Unix mmap(nil, size, Unix PROT_NONE, Unix MAP_PRIVATE | Unix MAP_ANONYMOUS, -1, 0).
         result == Unix MAP_FAILED ifTrue: {
             return: nil.
@@ -87,14 +87,14 @@ namespace UnixVirtualMemoryInterface definition: {
         return: result
     }.
 
-    message commitAddressSpace: (addressSpace: Void pointer) offset: (offset: UIntPointer) size: (size: UIntPointer) ::=> Boolean8 := {
+    method commitAddressSpace: (addressSpace: Void pointer) offset: (offset: UIntPointer) size: (size: UIntPointer) ::=> Boolean8 := {
         let alignedSize := size alignedTo: 4096.
         let startAddress := (addressSpace reinterpretCastTo: UInt8 pointer)[offset] address.
 
         Unix mprotect(startAddress, alignedSize, Unix PROT_READ | Unix PROT_WRITE) == 0
     }.
 
-    message releaseAddressSpace: (addressSpace: Void pointer) offset: (offset: UIntPointer) size: (size: UIntPointer) ::=> Boolean8 := {
+    method releaseAddressSpace: (addressSpace: Void pointer) offset: (offset: UIntPointer) size: (size: UIntPointer) ::=> Boolean8 := {
         let alignedSize := size alignedTo: 4096.
         let startAddress := (addressSpace reinterpretCastTo: UInt8 pointer)[offset] address.
 
@@ -102,7 +102,7 @@ namespace UnixVirtualMemoryInterface definition: {
         Unix mprotect(startAddress, alignedSize, Unix PROT_NONE) == 0
     }.
 
-    message freeAddressSpace: (addressSpace: Void pointer) size: (size: UIntPointer) ::=> Boolean8 := {
+    method freeAddressSpace: (addressSpace: Void pointer) size: (size: UIntPointer) ::=> Boolean8 := {
         Unix munmap (addressSpace, size) == 0
     }.
 

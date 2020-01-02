@@ -16,7 +16,7 @@ struct Bitmap definition: {
     #**
      * Utility macro for iterating through all the words, starting from a fixed index.
      *#
-    macro expansionRule allWordsStartingFrom: startWord do: action := ``{
+    macro method allWordsStartingFrom: startWord do: action := ``{
         ## From the word until the end.
         for: (let wordIndex mutable type: UIntPointer := `,startWord) while: (wordIndex < wordCount) do: {
             let word := bitmap[wordIndex].
@@ -33,7 +33,7 @@ struct Bitmap definition: {
     #**
      * This finds the first setted bit in the word that belongs to the requested index.
      *#
-    message findSettedBitFrom: (startIndex: UIntPointer) ::=> UIntPointer := {
+    method findSettedBitFrom: (startIndex: UIntPointer) ::=> UIntPointer := {
         let startWord := startIndex / BitsPerWord.
 
         self allWordsStartingFrom: startWord do: {
@@ -49,7 +49,7 @@ struct Bitmap definition: {
     #**
      * This finds the first cleared bit in the word that belongs to the requested index.
      *#
-    message findClearedBitFrom: (startIndex: UIntPointer) ::=> UIntPointer := {
+    method findClearedBitFrom: (startIndex: UIntPointer) ::=> UIntPointer := {
         let startWord := startIndex / BitsPerWord.
 
         self allWordsStartingFrom: startWord do: {
@@ -62,38 +62,38 @@ struct Bitmap definition: {
         InvalidBitIndex
     }.
 
-    message findFirstClearedBit ::=> UIntPointer
+    method findFirstClearedBit ::=> UIntPointer
         := self findClearedBitFrom: 0.
 
-    message findFirstSettedBit ::=> UIntPointer
+    method findFirstSettedBit ::=> UIntPointer
         := self findSettedBitFrom: 0.
 
     #**
      * Common macro for manipulating a single bit.
      *#
-    macro expansionRule manipulateBit: index withOperation: operation := ``{
+    macro method manipulateBit: index withOperation: operation := ``{
         let wordIndex := `,index / BitsPerWord.
         let bitIndex := `,index % BitsPerWord.
         let bit := 1<<bitIndex castTo: UIntPointer.
         bitmap[wordIndex] := bitmap[wordIndex] __macroSend: `,operation with: bit
     }.
 
-    message clearBit: (index: UIntPointer) ::=> Void := {
+    method clearBit: (index: UIntPointer) ::=> Void := {
         self manipulateBit: index withOperation: #bitClear:.
     }.
 
-    message setBit: (index: UIntPointer) ::=> Void := {
+    method setBit: (index: UIntPointer) ::=> Void := {
         self manipulateBit: index withOperation: #bitOr:.
     }.
 
-    message toggleBit: (index: UIntPointer) ::=> Void := {
+    method toggleBit: (index: UIntPointer) ::=> Void := {
         self manipulateBit: index withOperation: #bitXor:.
     }.
 
     #**
      * Test whether a specific bit set (i.e: is 1).
      *#
-    message isSetted: (index: UIntPointer) ::=> Boolean8 := {
+    method isSetted: (index: UIntPointer) ::=> Boolean8 := {
         let wordIndex := index / BitsPerWord.
         let bitIndex := index % BitsPerWord.
         let bit := 1<<bitIndex castTo: UIntPointer.
@@ -104,14 +104,14 @@ struct Bitmap definition: {
     #**
      * Test whether a specific bit is cleared (i.e: is 0).
      *#
-    message isCleared: (index: UIntPointer) ::=> Boolean8
+    method isCleared: (index: UIntPointer) ::=> Boolean8
         := (self isSetted: index) not.
 
 
     #**
      * Common macro for manipulating a range of bits.
      *#
-    macro expansionRule manipulateBitsFrom: start until: end withOperation: operation := ``{
+    macro method manipulateBitsFrom: start until: end withOperation: operation := ``{
         let alignedStart := `,start alignedTo: BitsPerWord.
         let alignedEnd := `,end floorAlignedTo: BitsPerWord.
         let startWord := `,start / BitsPerWord.
@@ -140,27 +140,27 @@ struct Bitmap definition: {
         }.
     }.
 
-    message clearFrom: (start: UIntPointer) until: (end: UIntPointer) ::=> Void := {
+    method clearFrom: (start: UIntPointer) until: (end: UIntPointer) ::=> Void := {
         self manipulateBitsFrom: start until: end withOperation: #bitClear:
     }.
 
-    message clearFrom: (start: UIntPointer) count: (count: UIntPointer) ::=> Void := {
+    method clearFrom: (start: UIntPointer) count: (count: UIntPointer) ::=> Void := {
         self clearFrom: start until: start + count
     }.
 
-    message setFrom: (start: UIntPointer) until: (end: UIntPointer) ::=> Void := {
+    method setFrom: (start: UIntPointer) until: (end: UIntPointer) ::=> Void := {
         self manipulateBitsFrom: start until: end withOperation: #bitOr:
     }.
 
-    message setFrom: (start: UIntPointer) count: (count: UIntPointer) ::=> Void := {
+    method setFrom: (start: UIntPointer) count: (count: UIntPointer) ::=> Void := {
         self setFrom: start until: start + count
     }.
 
-    message toggleFrom: (start: UIntPointer) until: (end: UIntPointer) ::=> Void := {
+    method toggleFrom: (start: UIntPointer) until: (end: UIntPointer) ::=> Void := {
         self manipulateBitsFrom: start until: end withOperation: #bitXor:
     }.
 
-    message toggleFrom: (start: UIntPointer) count: (count: UIntPointer) ::=> Void := {
+    method toggleFrom: (start: UIntPointer) count: (count: UIntPointer) ::=> Void := {
         self toggleFrom: start until: start + count
     }.
 }.

@@ -114,12 +114,12 @@ Behavior definition: {
     field variableInstanceElementAlignment public type: UInt32.
 
     ## The type of the instance is actually a dependent type because of the meta-circular hierarchy.
-    message basicNew => _DependentInstanceType := {
+    method basicNew => _DependentInstanceType := {
 		<intrinsic: #"gc.object.basicNew">
         return: (self basicNew: 0)
     }.
 
-    message basicNew: (initialSize: UInt32) ::=> _DependentInstanceType := {
+    method basicNew: (initialSize: UInt32) ::=> _DependentInstanceType := {
 		<intrinsic: #"gc.object.basicNew.variable">
         ## Compute the object size.
         let objectSize := instanceDataSize + initialSize*variableInstanceElementSize.
@@ -134,15 +134,15 @@ Behavior definition: {
         return: (allocatedObject reinterpretCastTo: ProtoObject)
     }.
 
-    message lookupSelector: (selector: ProtoObject) ::=> ProtoObject := {
+    method lookupSelector: (selector: ProtoObject) ::=> ProtoObject := {
         <staticBinding>
         <nogc>
         ##LibC printf("Behavior %p >> lookupSelector: %p\n", self, selector).
 
         if: methodDict ~~ nil then: {
-            let method := methodDict atOrNil: selector.
-            if: method  ~~ nil then: {
-                return: method
+            let methodObject := methodDict atOrNil: selector.
+            if: methodObject  ~~ nil then: {
+                return: methodObject
             }.
         }.
 
@@ -157,7 +157,7 @@ Behavior definition: {
 Class definition: {
     field name protected type: Symbol.
 
-    message name => Symbol := {
+    method name => Symbol := {
         return: name
     }.
 }.
@@ -165,7 +165,7 @@ Class definition: {
 Metaclass definition: {
     field thisClass protected type: Behavior.
 
-    message isMetaType => Boolean8 := {
+    method isMetaType => Boolean8 := {
         return: true
     }.
 }.
@@ -213,56 +213,56 @@ if: UIntPointer instanceSize == 4 then: {
 ProtoObject definition: {
 
     if: UIntPointer instanceSize = 4 then: {
-        message __isImmediateValue => Boolean8 := {
+        method __isImmediateValue => Boolean8 := {
             <notInCompileTime>
             <staticBinding>
             <nogc>
             self == nil || (((self reinterpretCastTo: UIntPointer) & 3) ~= 0)
         }.
 
-        message __immediateTypeTag => UInt8 := {
+        method __immediateTypeTag => UInt8 := {
             <notInCompileTime>
             <staticBinding>
             <nogc>
             (self reinterpretCastTo: UIntPointer) & 3 castTo: UInt8
         }.
 
-        message __isSmallInteger => Boolean8 := {
+        method __isSmallInteger => Boolean8 := {
             <notInCompileTime>
             <staticBinding>
             <nogc>
             (self reinterpretCastTo: UIntPointer) & 1 = 1
         }.
 
-		message __decodeSmallInteger => IntPointer := {
+		method __decodeSmallInteger => IntPointer := {
             <notInCompileTime>
             <staticBinding>
             <nogc>
 			(self reinterpretCastTo: IntPointer) >> 1
 		}.
 
-        message __isCharacter => Boolean8 := {
+        method __isCharacter => Boolean8 := {
             <notInCompileTime>
             <staticBinding>
             <nogc>
             self __immediateTypeTag = 2
         }.
 
-		message __decodeCharacter => UInt32 := {
+		method __decodeCharacter => UInt32 := {
             <notInCompileTime>
             <staticBinding>
             <nogc>
 			(self reinterpretCastTo: UIntPointer) >> 2 castTo: UInt32
 		}.
 
-        message __isSmallFloat => Boolean8 := {
+        method __isSmallFloat => Boolean8 := {
             <notInCompileTime>
             <staticBinding>
             <nogc>
             false
         }.
 
-        message __decodeSmallFloat => Float64 := {
+        method __decodeSmallFloat => Float64 := {
             <notInCompileTime>
             <staticBinding>
             <nogc>
@@ -270,49 +270,49 @@ ProtoObject definition: {
         }.
 
     } else: {
-        message __isImmediateValue => Boolean8 := {
+        method __isImmediateValue => Boolean8 := {
             <notInCompileTime>
             <staticBinding>
             <nogc>
             self == nil || (((self reinterpretCastTo: UIntPointer) & 7) ~= 0)
         }.
 
-        message __immediateTypeTag => UInt8 := {
+        method __immediateTypeTag => UInt8 := {
             <notInCompileTime>
             <staticBinding>
             <nogc>
             (self reinterpretCastTo: UIntPointer) & 7 castTo: UInt8
         }.
 
-        message __isSmallInteger => Boolean8 := {
+        method __isSmallInteger => Boolean8 := {
             <notInCompileTime>
             <staticBinding>
             <nogc>
             self __immediateTypeTag = 1
         }.
 
-		message __decodeSmallInteger => IntPointer := {
+		method __decodeSmallInteger => IntPointer := {
             <notInCompileTime>
             <staticBinding>
             <nogc>
 			(self reinterpretCastTo: IntPointer) >> 3
 		}.
 
-        message __isCharacter => Boolean8 := {
+        method __isCharacter => Boolean8 := {
             <notInCompileTime>
             <staticBinding>
             <nogc>
             self __immediateTypeTag = 2
         }.
 
-		message __decodeCharacter => UInt32 := {
+		method __decodeCharacter => UInt32 := {
             <notInCompileTime>
             <staticBinding>
             <nogc>
 			(self reinterpretCastTo: UIntPointer) >> 3 castTo: UInt32
 		}.
 
-        message __isSmallFloat => Boolean8 := {
+        method __isSmallFloat => Boolean8 := {
             <notInCompileTime>
             <staticBinding>
             <nogc>
@@ -320,7 +320,7 @@ ProtoObject definition: {
         }.
     }.
 
-    message class => Behavior := {
+    method class => Behavior := {
         <staticBinding>
         <nogc>
         <intrinsic: #"dynobject.class">
@@ -331,7 +331,7 @@ ProtoObject definition: {
         __vtable[-1] reinterpretCastTo: Behavior
     }.
 
-    message identityHash => UInt32 := {
+    method identityHash => UInt32 := {
         <staticBinding>
         <nogc>
         <intrinsic: #"dynobject.identityHash">
@@ -342,19 +342,19 @@ ProtoObject definition: {
         }
     }.
 
-    message == (other: ProtoObject) => Boolean8 := {
+    method == (other: ProtoObject) => Boolean8 := {
         <staticBinding>
         <nogc>
 		<intrinsic: #"dynobject.identityEquals">
-		## Identity equality message is also defined as a macro, so lets just exploit its previous definition.
+		## Identity equality method is also defined as a macro, so lets just exploit its previous definition.
 		self == other
     }.
 
-    message ~~ (other: ProtoObject) => Boolean8 := {
+    method ~~ (other: ProtoObject) => Boolean8 := {
         <staticBinding>
         <nogc>
 		<intrinsic: #"dynobject.identityNotEquals">
-		## Identity equality message is also defined as a macro, so lets just exploit its previous definition.
+		## Identity equality method is also defined as a macro, so lets just exploit its previous definition.
 		self ~~ other
     }.
 }.
@@ -366,13 +366,13 @@ CompiledMethod definition: {
     field entryPoint type: Void pointer.
     field __literals protected type: ProtoObject array.
 
-    message entryPoint => Void pointer := {
+    method entryPoint => Void pointer := {
         <staticBinding>
         <nogc>
         return: entryPoint
     }.
 
-    message entryPoint:(newEntryPoint: Void pointer)  ::=> Void pointer := {
+    method entryPoint:(newEntryPoint: Void pointer)  ::=> Void pointer := {
         <staticBinding>
         <nogc>
         return: entryPoint
@@ -382,7 +382,7 @@ CompiledMethod definition: {
 ##-----------------------------------------------------------------------------
 ## Important collections
 Object definition: {
-	message species => ProtoObject
+	method species => ProtoObject
 		:= self class.
 }.
 
@@ -397,28 +397,28 @@ Association definition: {
 Array definition: {
     field __data protected type: ProtoObject array.
 
-    message basicSize => UInt32 := {
+    method basicSize => UInt32 := {
         <compileTime>
         <staticBinding>
         <nogc>
         return: __data size
     }.
 
-    message basicAt: (index: UInt32) ::=> ProtoObject := {
+    method basicAt: (index: UInt32) ::=> ProtoObject := {
         <compileTime>
         <staticBinding>
         <nogc>
         return: (__data at: index)
     }.
 
-    message basicAt: (index: Int32) ::=> ProtoObject := {
+    method basicAt: (index: Int32) ::=> ProtoObject := {
         <compileTime>
         <staticBinding>
         <nogc>
         return: (__data at: index)
     }.
 
-    message basicAt: (index: UInt32) put: (value: ProtoObject) ::=> ProtoObject := {
+    method basicAt: (index: UInt32) put: (value: ProtoObject) ::=> ProtoObject := {
         <compileTime>
         <staticBinding>
         <nogc>
@@ -426,7 +426,7 @@ Array definition: {
         return: value
     }.
 
-    message basicAt: (index: Int32) put: (value: ProtoObject) ::=> ProtoObject := {
+    method basicAt: (index: Int32) put: (value: ProtoObject) ::=> ProtoObject := {
         <compileTime>
         <staticBinding>
         <nogc>
@@ -434,14 +434,14 @@ Array definition: {
         return: value
     }.
 
-    message subscriptAt: (index: Int32) ::=> ProtoObject ref := {
+    method subscriptAt: (index: Int32) ::=> ProtoObject ref := {
         <compileTime>
         <staticBinding>
         <nogc>
         return: __data[index]
     }.
 
-    message subscriptAt: (index: UInt32) ::=> ProtoObject ref := {
+    method subscriptAt: (index: UInt32) ::=> ProtoObject ref := {
         <compileTime>
         <staticBinding>
         <nogc>
@@ -457,14 +457,14 @@ HashedCollection definition: {
 MethodDictionary definition: {
     field values protected type: Array.
 
-    message initializeForCapacity: (initialCapacity: UInt32) ::=> SelfType := {
+    method initializeForCapacity: (initialCapacity: UInt32) ::=> SelfType := {
         tally := 0.
         array := Array basicNew: initialCapacity.
         values := Array basicNew: initialCapacity.
         return: self
     }.
 
-    message scanFor: (key: ProtoObject) ::=> Int32 := {
+    method scanFor: (key: ProtoObject) ::=> Int32 := {
         <staticBinding>
         <nogc>
 
@@ -497,7 +497,7 @@ MethodDictionary definition: {
         return: -1
     }.
 
-    message at: (key: ProtoObject) putNoSpaceCheck: (value: ProtoObject) ::=> SelfType := {
+    method at: (key: ProtoObject) putNoSpaceCheck: (value: ProtoObject) ::=> SelfType := {
         <staticBinding>
         let slot := self scanFor: key.
         if: slot < 0 then: {
@@ -510,7 +510,7 @@ MethodDictionary definition: {
         return: self
     }.
 
-    message atOrNil: (key: ProtoObject) ::=> ProtoObject := {
+    method atOrNil: (key: ProtoObject) ::=> ProtoObject := {
         <staticBinding>
         <nogc>
         ## LibC printf("atOrNil: %p | tally %zu array [%d]%p values [%d]%p\n", key, tally, array basicSize, array, values basicSize, values).
@@ -525,14 +525,14 @@ MethodDictionary definition: {
 }.
 
 ##-----------------------------------------------------------------------------
-## Normal message lookup
+## Normal method lookup
 namespace Runtime definition: {
 function messageLookupFromBehavior(behavior: Behavior, object: ProtoObject, selector: Object, fallbackTrampoline: Void pointer) => Void pointer := {
     <nogc>
     ##LibC printf("messageLookupFromBehavior behavior %p object %p selector %p\n", behavior, object, selector).
-    let method := behavior lookupSelector: selector.
+    let methodObject := behavior lookupSelector: selector.
 
-    if: method == nil then: {
+    if: methodObject == nil then: {
         if: selector == #doesNotUnderstand: then: {
             LibC printf("Fatal error: Failed to lookup doesNotUnderstand:\n").
             LibC abort().
@@ -541,7 +541,7 @@ function messageLookupFromBehavior(behavior: Behavior, object: ProtoObject, sele
         return: fallbackTrampoline
     }.
 
-    let compiledMethod := method reinterpretCastTo: CompiledMethod.
+    let compiledMethod := methodObject reinterpretCastTo: CompiledMethod.
     ##LibC printf("Found method: %p entryPoint: %p\n", compiledMethod, compiledMethod entryPoint).
     return: compiledMethod entryPoint
 }.

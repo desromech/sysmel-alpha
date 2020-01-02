@@ -18,14 +18,14 @@ struct DoubleLinkedList definition: {
     field first public type: DoubleLinkedListNode pointer.
     field last public type: DoubleLinkedListNode pointer.
 
-    message isEmpty => Boolean8
+    method isEmpty => Boolean8
         := first isNil.
 
-    message add: (newNode: Node pointer) ::=> Void := {
+    method add: (newNode: Node pointer) ::=> Void := {
         self addLast: newNode
     }.
 
-    message addFirst: (newNode: Node pointer) ::=> Void := {
+    method addFirst: (newNode: Node pointer) ::=> Void := {
         assert: newNode _ list isNil.
         assert: newNode _ previous isNil.
         assert: newNode _ next isNil.
@@ -42,7 +42,7 @@ struct DoubleLinkedList definition: {
         newNode _ list: self address.
     }.
 
-    message addLast: (newNode: Node pointer) ::=> Void := {
+    method addLast: (newNode: Node pointer) ::=> Void := {
         assert: newNode _ list isNil.
         assert: newNode _ previous isNil.
         assert: newNode _ next isNil.
@@ -59,7 +59,7 @@ struct DoubleLinkedList definition: {
         newNode _ list: self address.
     }.
 
-    message add: (newNode: Node pointer) after: (position: Node pointer) ::=> Void := {
+    method add: (newNode: Node pointer) after: (position: Node pointer) ::=> Void := {
         assert: newNode _ list isNil.
         assert: newNode _ previous isNil.
         assert: newNode _ next isNil.
@@ -85,7 +85,7 @@ struct DoubleLinkedList definition: {
         }.
     }.
 
-    message add: (newNode: Node pointer) before: (position: Node pointer) ::=> Void := {
+    method add: (newNode: Node pointer) before: (position: Node pointer) ::=> Void := {
         assert: newNode _ list isNil.
         assert: newNode _ previous isNil.
         assert: newNode _ next isNil.
@@ -111,7 +111,7 @@ struct DoubleLinkedList definition: {
         }.
     }.
 
-    message remove: (node: Node pointer) ::=> Void := {
+    method remove: (node: Node pointer) ::=> Void := {
         assert: node isNotNil.
         assert: node _ list == self address.
 

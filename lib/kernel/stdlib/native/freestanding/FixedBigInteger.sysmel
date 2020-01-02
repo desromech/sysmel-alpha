@@ -15,7 +15,7 @@ template FixedBigInteger(WC: _LiteralInteger)
 
     field words public type: (UInt32 array: WordCount).
 
-    message assignValue: (other: SelfType const ref) ::=> SelfType ref := {
+    method assignValue: (other: SelfType const ref) ::=> SelfType ref := {
         0 until: WordCount do: {:(UIntPointer)i :: Void |
             words[i] := other words[i].
         }.
@@ -23,7 +23,7 @@ template FixedBigInteger(WC: _LiteralInteger)
         self
     }.
 
-    message assignValue: (value: UInt32) ::=> SelfType ref := {
+    method assignValue: (value: UInt32) ::=> SelfType ref := {
         words[0] := value.
         1 until: WordCount do: {:(UIntPointer)i :: Void |
             words[i] := 0.
@@ -33,7 +33,7 @@ template FixedBigInteger(WC: _LiteralInteger)
     }.
 
     if: WordCount > 1 then: {
-        message assignValue: (value: UInt64) ::=> SelfType ref := {
+        method assignValue: (value: UInt64) ::=> SelfType ref := {
             words[0] := value castTo: UInt32.
             words[1] := value >> 32 castTo: UInt32.
             2 until: WordCount do: {:(UIntPointer)i :: Void |
@@ -44,7 +44,7 @@ template FixedBigInteger(WC: _LiteralInteger)
         }.
     }.
 
-    message nonZeroWordCount => UIntPointer := {
+    method nonZeroWordCount => UIntPointer := {
         let result mutable type: UIntPointer := 0.
 
         0 until: WordCount do: {:(UIntPointer)i :: Void |
@@ -56,13 +56,13 @@ template FixedBigInteger(WC: _LiteralInteger)
         result
     }.
 
-    message clearToZero => Void := {
+    method clearToZero => Void := {
         0 until: WordCount do: {:(UIntPointer)i :: Void |
             words[i] := 0
         }.
     }.
 
-    message isZero => Boolean8 := {
+    method isZero => Boolean8 := {
         0 until: WordCount do: {:(UIntPointer)i :: Void |
             words[i] ~~ 0 ifTrue: {
                 return: false
@@ -72,7 +72,7 @@ template FixedBigInteger(WC: _LiteralInteger)
         true
     }.
 
-    message add: (other: SelfType const ref) into: (result: SelfType ref) ::=> Void := {
+    method add: (other: SelfType const ref) into: (result: SelfType ref) ::=> Void := {
         let carry mutable type: UInt64 := 0.
 
         0 until: WordCount do: {:(UIntPointer)i :: Void |
@@ -85,7 +85,7 @@ template FixedBigInteger(WC: _LiteralInteger)
         }.
     }.
 
-    message subtract: (other: SelfType const ref) into: (result: SelfType ref) ::=> Void := {
+    method subtract: (other: SelfType const ref) into: (result: SelfType ref) ::=> Void := {
         let carry mutable type: UInt64 := 1. ## For two-complement negation.
 
         0 until: WordCount do: {:(UIntPointer)i :: Void |
@@ -98,7 +98,7 @@ template FixedBigInteger(WC: _LiteralInteger)
         }.
     }.
 
-    message unsignedMultiplyWith: (other: SelfType const ref) into: (result: SelfType ref) ::=> Void := {
+    method unsignedMultiplyWith: (other: SelfType const ref) into: (result: SelfType ref) ::=> Void := {
         result clearToZero.
         let leftWordCount mutable := self nonZeroWordCount + 1.
         leftWordCount > WordCount ifTrue: {
@@ -131,7 +131,7 @@ template FixedBigInteger(WC: _LiteralInteger)
         }.
     }.
 
-    message smallModulo: (modulo: UInt32) ::=> UInt32 := {
+    method smallModulo: (modulo: UInt32) ::=> UInt32 := {
         let exponentModulo mutable type: UInt64 := 1.
         let exponentIncreaseModulo type: UInt64 := (1<<32 castTo: UInt64) % modulo.
         let result mutable type: UInt64 := 0.
@@ -144,10 +144,10 @@ template FixedBigInteger(WC: _LiteralInteger)
         result % modulo castTo: UInt32
     }.
 
-    message modulo10 => UInt32
+    method modulo10 => UInt32
         := self smallModulo: 10.
 
-    message divide: (other: SelfType const ref) into: (result: SelfType ref) ::=> Void := {
+    method divide: (other: SelfType const ref) into: (result: SelfType ref) ::=> Void := {
 
     }.
 }.

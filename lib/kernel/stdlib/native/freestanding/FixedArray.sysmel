@@ -5,18 +5,18 @@ template FixedArray(ET: Type)
 	:= struct definition: {
     compileTimeConstant ElementType := ET.
 
-    meta message elementType => _CompilerObjectType := {
+    meta method elementType => _CompilerObjectType := {
         return: ElementType
     }.
 
 	field size public type: UIntPointer.
     field elements public type: ElementType array.
 
-    macro expansionRule at: index := ``(
+    macro method at: index := ``(
         `,self elements at: `,index
     ).
 
-    macro expansionRule subscriptAt: index := ``(
+    macro method subscriptAt: index := ``(
         `,self elements [`,index]
     ).
 }.

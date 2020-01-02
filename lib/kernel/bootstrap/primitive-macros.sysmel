@@ -1,51 +1,51 @@
 namespace SysmelKernel definition: {
     ## ifTrue:ifFalse
-    (_BooleanType | _CompilerObjectType) macro expansionRule ifTrue: trueAction :=
+    (_BooleanType | _CompilerObjectType) macro method ifTrue: trueAction :=
         ``(if: `,self then: `,trueAction).
-    (_BooleanType | _CompilerObjectType) macro expansionRule ifFalse: falseAction :=
+    (_BooleanType | _CompilerObjectType) macro method ifFalse: falseAction :=
         ``(if: `,self not then: `,falseAction).
 
-    (_BooleanType | _CompilerObjectType) macro expansionRule ifTrue: trueAction ifFalse: falseAction :=
+    (_BooleanType | _CompilerObjectType) macro method ifTrue: trueAction ifFalse: falseAction :=
         ``(if: `,self then: `,trueAction else: `,falseAction).
-    (_BooleanType | _CompilerObjectType) macro expansionRule ifFalse: falseAction ifTrue: trueAction :=
+    (_BooleanType | _CompilerObjectType) macro method ifFalse: falseAction ifTrue: trueAction :=
         ``(if: `,self then: `,trueAction else: `,falseAction).
 		
     ## isNil
-    _PointerType macro expansionRule isNil := ``(`,self == nil).
-    _PointerType macro expansionRule isNotNil := ``(`,self ~~ nil).
+    _PointerType macro method isNil := ``(`,self == nil).
+    _PointerType macro method isNotNil := ``(`,self ~~ nil).
 
     ## ifNil:ifNotNil
     ## TODO: Add higienic symbols.
-    _PointerType macro expansionRule ifNil: nilAction :=
+    _PointerType macro method ifNil: nilAction :=
         ``(if: `,self == nil then: `,nilAction).
-    _PointerType macro expansionRule ifNotNil: notNilAction :=
+    _PointerType macro method ifNotNil: notNilAction :=
         ``(if: `,self ~~ nil then: `,notNilAction).
 
-    _PointerType macro expansionRule ifNotNil: notNilAction ifNil: nilAction :=
+    _PointerType macro method ifNotNil: notNilAction ifNil: nilAction :=
         ``(if: `,self ~~ nil then: `,notNilAction else: `,nilAction).
-    _PointerType macro expansionRule ifNil: nilAction ifNotNil: notNilAction :=
+    _PointerType macro method ifNil: nilAction ifNotNil: notNilAction :=
         ``(if: `,self == nil then: `,nilAction else: `,notNilAction).
 
 
     ## floorAlignedTo:
-    _PrimitiveIntegerType macro expansionRule floorAlignedTo: alignment := ``(
+    _PrimitiveIntegerType macro method floorAlignedTo: alignment := ``(
         `,self & (`,alignment negated castTo: `,SelfType)
     ).
 
     ## alignedTo:
-    _PrimitiveIntegerType macro expansionRule alignedTo: alignment := ``(
+    _PrimitiveIntegerType macro method alignedTo: alignment := ``(
         (`,self + `,alignment - 1) & (`,alignment negated castTo: `,SelfType)
     ).
 
     ## isAlignedTo:
-    _PrimitiveIntegerType macro expansionRule isAlignedTo: alignment :=
+    _PrimitiveIntegerType macro method isAlignedTo: alignment :=
         ``(( (`,self castTo: `,SelfType) & (`,alignment - 1 castTo: `,SelfType)) == 0).
 
-    _PointerType macro expansionRule isAlignedTo: alignment :=
+    _PointerType macro method isAlignedTo: alignment :=
         ``( (`,self reinterpretCastTo: UIntPointer) isAlignedTo: `,alignment).
 
     ## Bitwise logarithm base 2
-    _PrimitiveIntegerType macro expansionRule log2Floor :=
+    _PrimitiveIntegerType macro method log2Floor :=
         ``(`,self highBit - 1).
 
     #**
@@ -54,30 +54,30 @@ namespace SysmelKernel definition: {
      * => ceil(log2(n + 1)) = floor(log2(n)) + 1
      * => ceil(log2(n)) = floor(log2(n - 1)) + 1
      *#
-    _PrimitiveIntegerType macro expansionRule log2Ceil :=
+    _PrimitiveIntegerType macro method log2Ceil :=
         ``((`,self - 1) log2Floor + 1).
 
     ## Bitwise manipulation.
-    _PrimitiveIntegerType macro expansionRule bitClear: bits :=
+    _PrimitiveIntegerType macro method bitClear: bits :=
         ``(`,self & (`,bits bitInvert)).
 
-    _PrimitiveIntegerType macro expansionRule allMask: mask :=
+    _PrimitiveIntegerType macro method allMask: mask :=
         ``((`,self & `,mask) == `,mask).
 
-    _PrimitiveIntegerType macro expansionRule anyMask: mask :=
+    _PrimitiveIntegerType macro method anyMask: mask :=
         ``((`,self & `,mask) ~~ 0).
 
-    _PrimitiveIntegerType macro expansionRule noMask: mask :=
+    _PrimitiveIntegerType macro method noMask: mask :=
         ``((`,self & `,mask) == 0).
 
     ## Some numerical testing methods.
-    _PrimitiveIntegerType macro expansionRule isEven :=
+    _PrimitiveIntegerType macro method isEven :=
         ``((`,self & 1) == 0).
-    _PrimitiveIntegerType macro expansionRule isOdd :=
+    _PrimitiveIntegerType macro method isOdd :=
         ``((`,self & 1) == 1).
 
     ## Range loop macro
-    _NumberType macro expansionRule to: stop by: increment do: aBlock := {
+    _NumberType macro method to: stop by: increment do: aBlock := {
         let index := __astBuilder gensym: #index.
         let stopValue := __astBuilder gensym: #stopValue.
         let incrementValue := __astBuilder gensym: #incrementValue.
@@ -108,9 +108,9 @@ namespace SysmelKernel definition: {
         }
     }.
 
-    _NumberType macro expansionRule to: stop do: aBlock := ``(`,self to: `,stop by: 1 do: `,aBlock).
+    _NumberType macro method to: stop do: aBlock := ``(`,self to: `,stop by: 1 do: `,aBlock).
 
-    _NumberType macro expansionRule until: stop by: increment do: aBlock := {
+    _NumberType macro method until: stop by: increment do: aBlock := {
         let index := __astBuilder gensym: #index.
         let stopValue := __astBuilder gensym: #stopValue.
         let incrementValue := __astBuilder gensym: #incrementValue.
@@ -141,5 +141,5 @@ namespace SysmelKernel definition: {
         }
     }.
 
-    _NumberType macro expansionRule until: stop do: aBlock := ``(`,self until: `,stop by: 1 do: `,aBlock).
+    _NumberType macro method until: stop do: aBlock := ``(`,self until: `,stop by: 1 do: `,aBlock).
 }.

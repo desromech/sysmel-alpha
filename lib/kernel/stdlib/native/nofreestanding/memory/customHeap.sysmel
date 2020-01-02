@@ -24,7 +24,7 @@ template FixedSizeBuddyMemoryAllocator(MNOSB: _LiteralInteger)
 
     field perLevelFreeListHeads type: (BlockIndexType array: LevelCount).
 
-    message initialize => Void := {
+    method initialize => Void := {
         ## Mark the top level as free.
         perLevelFreeListHeads[0] := 0.
         allBlocks_nextFreePointer[0] := InvalidBlockIndex.
@@ -45,22 +45,22 @@ template FixedSizeBuddyMemoryAllocator(MNOSB: _LiteralInteger)
         freeLeafBlockCount := LeafLevelBlockCount.
     }.
 
-    message currentFreeLeafBlockCount => BlockIndexType
+    method currentFreeLeafBlockCount => BlockIndexType
         := freeLeafBlockCount.
 
-    message blocksPerLevel: (level: UIntPointer) ::=> UIntPointer := 1<<level.
-    message smallBlockCountPerLevel: (level: UIntPointer) ::=> UIntPointer := 1 << (LevelCount - level - 1).
+    method blocksPerLevel: (level: UIntPointer) ::=> UIntPointer := 1<<level.
+    method smallBlockCountPerLevel: (level: UIntPointer) ::=> UIntPointer := 1 << (LevelCount - level - 1).
 
-    message totalBlocksBeforeLevel: (level: UIntPointer) ::=> UIntPointer := {
+    method totalBlocksBeforeLevel: (level: UIntPointer) ::=> UIntPointer := {
         level == 0
             ifTrue: (0)
             ifFalse: (self blocksPerLevel: level - 1) * 2 - 1
     }.
 
-    message findLevelForBlockCount: (blockCount: UIntPointer) ::=> UIntPointer
+    method findLevelForBlockCount: (blockCount: UIntPointer) ::=> UIntPointer
         := LevelCount - blockCount log2Ceil - 1.
 
-    message allocateBlocks: (blockCount: UIntPointer) forSlab: (isForSlab: Boolean8) ::=> UIntPointer := {
+    method allocateBlocks: (blockCount: UIntPointer) forSlab: (isForSlab: Boolean8) ::=> UIntPointer := {
         let targetLevel := self findLevelForBlockCount: blockCount.
 
         let allocatedBlock := self allocateBlockInLevel: targetLevel.
@@ -85,7 +85,7 @@ template FixedSizeBuddyMemoryAllocator(MNOSB: _LiteralInteger)
         }
     }.
 
-    message freeAtBlock: (blockIndex: UIntPointer) ::=> Void := {
+    method freeAtBlock: (blockIndex: UIntPointer) ::=> Void := {
         ## Get the index of the first leaf block corresponding to this leaf.
         let leafBlockIndex := leafBlocks_startRunIndex[blockIndex].
         assert: leafBlockIndex ~~ InvalidBlockIndex.
@@ -109,7 +109,7 @@ template FixedSizeBuddyMemoryAllocator(MNOSB: _LiteralInteger)
         self freeBlock: (levelIndex castTo: BlockIndexType) inLevel: allocatedLevel.
     }.
 
-    message freeBlock: (levelIndex: BlockIndexType) inLevel: (level: UIntPointer) ::=> Void := {
+    method freeBlock: (levelIndex: BlockIndexType) inLevel: (level: UIntPointer) ::=> Void := {
         let rawBlockIndex := levelIndex + (self totalBlocksBeforeLevel: level) castTo: BlockIndexType.
         let buddyBlockIndex := (levelIndex isEven ifTrue: (rawBlockIndex + 1) ifFalse: (rawBlockIndex - 1)) castTo: BlockIndexType.
 
@@ -125,7 +125,7 @@ template FixedSizeBuddyMemoryAllocator(MNOSB: _LiteralInteger)
         }
     }.
 
-    message removeBlock: (buddyBlockIndex: BlockIndexType) fromFreeListInLevel: (level: UIntPointer) ::=> Boolean8 := {
+    method removeBlock: (buddyBlockIndex: BlockIndexType) fromFreeListInLevel: (level: UIntPointer) ::=> Boolean8 := {
         ## Handle in the first element as a special case.
         perLevelFreeListHeads[level] == buddyBlockIndex ifTrue: {
             perLevelFreeListHeads[level] := allBlocks_nextFreePointer[buddyBlockIndex].
@@ -146,7 +146,7 @@ template FixedSizeBuddyMemoryAllocator(MNOSB: _LiteralInteger)
         false
     }.
 
-    message carveBlockInLevel: (level: UIntPointer) ::=> BlockIndexType := {
+    method carveBlockInLevel: (level: UIntPointer) ::=> BlockIndexType := {
         let freeBlock mutable := perLevelFreeListHeads[level].
 
         freeBlock == InvalidBlockIndex ifTrue: {
@@ -180,7 +180,7 @@ template FixedSizeBuddyMemoryAllocator(MNOSB: _LiteralInteger)
         leftIndex
     }.
 
-    message allocateBlockInLevel: (targetLevel: UIntPointer) ::=> BlockIndexType := {
+    method allocateBlockInLevel: (targetLevel: UIntPointer) ::=> BlockIndexType := {
         let freeBlock mutable := perLevelFreeListHeads[targetLevel].
         ##stdout << self address << " Level:  " << targetLevel << " free list head " << freeBlock << " next free " << perLevelFreeListHeads[targetLevel + 1]; nl.
 
@@ -201,7 +201,7 @@ template FixedSizeBuddyMemoryAllocator(MNOSB: _LiteralInteger)
         freeBlock
     }.
 
-    message getAllocatedBlockCountAt: (blockIndex: UIntPointer) ::=> UIntPointer := {
+    method getAllocatedBlockCountAt: (blockIndex: UIntPointer) ::=> UIntPointer := {
         ## Get the index of the first leaf block corresponding to this leaf.
         let firstBlockIndex := leafBlocks_startRunIndex[blockIndex].
         assert: firstBlockIndex ~~ InvalidBlockIndex.
@@ -212,7 +212,7 @@ template FixedSizeBuddyMemoryAllocator(MNOSB: _LiteralInteger)
         self smallBlockCountPerLevel: allocatedLevel
     }.
 
-    message getSlabBlockOrInvalid: (blockIndex: UIntPointer) ::=> BlockIndexType := {
+    method getSlabBlockOrInvalid: (blockIndex: UIntPointer) ::=> BlockIndexType := {
         ## Get the index of the first leaf block corresponding to this leaf.
         let firstBlockIndex := leafBlocks_startRunIndex[blockIndex].
         assert: firstBlockIndex ~~ InvalidBlockIndex.
@@ -230,7 +230,7 @@ template FixedSizeBuddyMemoryAllocator(MNOSB: _LiteralInteger)
         }
     }.
 
-    message hasFreeBlockInLevel: (targetLevel: UIntPointer) ::=> Boolean8 := {
+    method hasFreeBlockInLevel: (targetLevel: UIntPointer) ::=> Boolean8 := {
         let freeBlock := perLevelFreeListHeads[targetLevel].
 
         freeBlock == InvalidBlockIndex ifTrue: {
@@ -300,7 +300,7 @@ class NativeMemoryHeap definition: {
 
         field buddyMemoryAllocator public type: ChunkBuddyMemoryAllocator.
 
-        message isCompletelyFree => Boolean8
+        method isCompletelyFree => Boolean8
             := initialFreeBlockCount == buddyMemoryAllocator currentFreeLeafBlockCount.
     }.
 
@@ -329,7 +329,7 @@ class NativeMemoryHeap definition: {
 
         field bitmap public type: (UIntPointer array: BitmapWords).
 
-        message setupForElements: (count: UIntPointer) ::=> Void := {
+        method setupForElements: (count: UIntPointer) ::=> Void := {
             elementCount := count castTo: UInt16.
             freeCount := count castTo: UInt16.
 
@@ -343,10 +343,10 @@ class NativeMemoryHeap definition: {
             }.
         }.
 
-        message bitmapWordCount => UIntPointer
+        method bitmapWordCount => UIntPointer
             := (elementCount + WordBitCount - 1 castTo: UIntPointer) / WordBitCount.
 
-        message findFreeElementIndex => Int32 := {
+        method findFreeElementIndex => Int32 := {
             let bitmapWordCount := self bitmapWordCount.
 
             for: (let i mutable type: UIntPointer := 0) while: (i < bitmapWordCount) do: {
@@ -361,7 +361,7 @@ class NativeMemoryHeap definition: {
             -1
         }.
 
-        message markElement: (elementIndex: UIntPointer) ::=> Void := {
+        method markElement: (elementIndex: UIntPointer) ::=> Void := {
             let wordIndex := elementIndex / WordBitCount.
             let wordBitIndex := elementIndex % WordBitCount.
             let bit := (1 castTo: UIntPointer) << wordBitIndex.
@@ -370,7 +370,7 @@ class NativeMemoryHeap definition: {
             freeCount := freeCount - 1 castTo: UInt16
         }.
 
-        message unmarkElement: (elementIndex: UIntPointer) ::=> Void := {
+        method unmarkElement: (elementIndex: UIntPointer) ::=> Void := {
             let wordIndex := elementIndex / WordBitCount.
             let wordBitIndex := elementIndex % WordBitCount.
             let bit := (1 castTo: UIntPointer) << wordBitIndex.
@@ -379,7 +379,7 @@ class NativeMemoryHeap definition: {
             freeCount := freeCount + 1 castTo: UInt16
         }.
 
-        message isCompletelyFree => Boolean8
+        method isCompletelyFree => Boolean8
             := freeCount == elementCount.
     }.
 
@@ -395,11 +395,11 @@ class NativeMemoryHeap definition: {
         field firstSlab public type: SlabHeader pointer.
         field lastSlab public type: SlabHeader pointer.
 
-        message isActiveSlab: (slab: SlabHeader pointer) ::=> Boolean8
+        method isActiveSlab: (slab: SlabHeader pointer) ::=> Boolean8
             := firstActiveSlab == slab || lastActiveSlab == slab ||
             slab _ previousActiveSlab isNotNil || slab _ nextActiveSlab isNotNil.
 
-        message addSlab: (slab: SlabHeader pointer) ::=> Void := {
+        method addSlab: (slab: SlabHeader pointer) ::=> Void := {
             firstSlab ifNil: {
                 assert: lastSlab isNil.
                 firstSlab := lastSlab := slab
@@ -410,7 +410,7 @@ class NativeMemoryHeap definition: {
             }.
         }.
 
-        message removeSlab: (slab: SlabHeader pointer) ::=> Void := {
+        method removeSlab: (slab: SlabHeader pointer) ::=> Void := {
             slab _ previousSlab ifNil: {
                 firstSlab := slab _ nextSlab.
             } ifNotNil: {
@@ -428,7 +428,7 @@ class NativeMemoryHeap definition: {
                 nextSlab: nil.
         }.
 
-        message activateSlab: (slab: SlabHeader pointer) ::=> Void := {
+        method activateSlab: (slab: SlabHeader pointer) ::=> Void := {
             assert: slab _ previousActiveSlab isNil.
             assert: slab _ nextActiveSlab isNil.
             firstActiveSlab ifNil: {
@@ -441,7 +441,7 @@ class NativeMemoryHeap definition: {
             }
         }.
 
-        message deactivateSlab: (slab: SlabHeader pointer) ::=> Void := {
+        method deactivateSlab: (slab: SlabHeader pointer) ::=> Void := {
             slab _ previousActiveSlab ifNil: {
                 firstActiveSlab := slab _ nextActiveSlab.
             } ifNotNil: {
@@ -467,7 +467,7 @@ class NativeMemoryHeap definition: {
 
     field quantumSpacedCategoryStates type: (QuantumSpacedCategoryState array: QuantumSpacedCategories + 1).
 
-    message allocateInitializedWithZero: (size: UIntPointer) ::=> Void pointer := {
+    method allocateInitializedWithZero: (size: UIntPointer) ::=> Void pointer := {
         let result := self allocate: size.
         result ifNotNil: {
             StdNative memset(result, 0, size).
@@ -476,7 +476,7 @@ class NativeMemoryHeap definition: {
         result
     }.
 
-    message reallocate: (pointer: Void pointer) withNewSize: (newSize: UIntPointer) ::=> Void pointer := {
+    method reallocate: (pointer: Void pointer) withNewSize: (newSize: UIntPointer) ::=> Void pointer := {
         pointer ifNil: {
             return: (self allocate: newSize)
         }.
@@ -493,7 +493,7 @@ class NativeMemoryHeap definition: {
         }
     }.
 
-    message allocate: (size: UIntPointer) ::=> Void pointer := {
+    method allocate: (size: UIntPointer) ::=> Void pointer := {
         size == 0 ifTrue: {
             return: nil
         }.
@@ -511,7 +511,7 @@ class NativeMemoryHeap definition: {
         }
     }.
 
-    message getAllocationSize: (pointer: Void pointer) ::=> UIntPointer := {
+    method getAllocationSize: (pointer: Void pointer) ::=> UIntPointer := {
         pointer ifNil: {
             return: 0
         }.
@@ -549,7 +549,7 @@ class NativeMemoryHeap definition: {
         }.
     }.
 
-    message free: (pointer: Void pointer) ::=> Void := {
+    method free: (pointer: Void pointer) ::=> Void := {
         ## Ignore null pointers.
         pointer ifNil: {
             return: nil
@@ -603,7 +603,7 @@ class NativeMemoryHeap definition: {
     #**
      * This makes sure the slab is active, or it is completely freed, after freeing an element.
      *#
-    message processSlabWithFreedElement: (slabHeader: SlabHeader pointer) blockIndex: (slabBlockIndex: UIntPointer) inChunk: (normalChunkHeader: NormalChunkHeader pointer) ::=> Void := {
+    method processSlabWithFreedElement: (slabHeader: SlabHeader pointer) blockIndex: (slabBlockIndex: UIntPointer) inChunk: (normalChunkHeader: NormalChunkHeader pointer) ::=> Void := {
         let categoryState ref := quantumSpacedCategoryStates[slabHeader _ category].
         let isActiveSlab := categoryState isActiveSlab: slabHeader.
 
@@ -626,7 +626,7 @@ class NativeMemoryHeap definition: {
     #**
      * This frees a large allocation through the buddy memory allocator.
      *#
-    message freeLargeAllocationBlock: (buddyBlockIndex: UIntPointer) inChunk: (normalChunkHeader: NormalChunkHeader pointer) ::=> Void := {
+    method freeLargeAllocationBlock: (buddyBlockIndex: UIntPointer) inChunk: (normalChunkHeader: NormalChunkHeader pointer) ::=> Void := {
         ##stdout << normalChunkHeader << " normalChunkHeader initialFreeBlockCount " << normalChunkHeader _ initialFreeBlockCount << " " << normalChunkHeader _ buddyMemoryAllocator currentFreeLeafBlockCount; nl.
 
         normalChunkHeader _ buddyMemoryAllocator freeAtBlock: buddyBlockIndex.
@@ -642,7 +642,7 @@ class NativeMemoryHeap definition: {
     #**
      * Small allocation
      *#
-    message allocateSmall: (size: UIntPointer) ::=> Void pointer := {
+    method allocateSmall: (size: UIntPointer) ::=> Void pointer := {
         size <= 512 ifTrue: {
             self allocateQuantumSpaced: size
         } ifFalse: {
@@ -653,7 +653,7 @@ class NativeMemoryHeap definition: {
     #**
      * Quantum spaced allocations.
      *#
-    message allocateQuantumSpaced: (size: UIntPointer) ::=> Void pointer := {
+    method allocateQuantumSpaced: (size: UIntPointer) ::=> Void pointer := {
         let category := (size + 15) / 16.
 
         mutex withLock: {
@@ -693,7 +693,7 @@ class NativeMemoryHeap definition: {
     #**
      * Creates a slab
      *#
-    message createSlabForQuantumSpacedCategory: (category: UIntPointer) ::=> SlabHeader pointer := {
+    method createSlabForQuantumSpacedCategory: (category: UIntPointer) ::=> SlabHeader pointer := {
         let categoryElementSize := category * 16.
         let allocationSize := SlabHeaderSize + categoryElementSize * 33 alignedTo: 4096. ## Go for no more than 3 % of overheader
 
@@ -729,13 +729,13 @@ class NativeMemoryHeap definition: {
     #**
      * Large allocation. Buddy memory allocation system.
      *#
-    message allocateLarge: (size: UIntPointer) ::=> Void pointer := {
+    method allocateLarge: (size: UIntPointer) ::=> Void pointer := {
         mutex withLock: {
             self doAllocateLarge: size forSlab: false
         }
     }.
 
-    message doAllocateLarge: (size: UIntPointer) forSlab: (isForSlab: Boolean8) ::=> Void pointer := {
+    method doAllocateLarge: (size: UIntPointer) forSlab: (isForSlab: Boolean8) ::=> Void pointer := {
         ## Find or create the chunk.
         let chunk := self findOrCreateChunkWithAvailableSize: size.
         chunk ifNil: {
@@ -762,7 +762,7 @@ class NativeMemoryHeap definition: {
     #**
      * Huge allocation. This creates a dedicated mmap.
      *#
-    message allocateHuge: (size: UIntPointer) ::=> Void pointer := {
+    method allocateHuge: (size: UIntPointer) ::=> Void pointer := {
         mutex withLock: {
             ## Compute the size of the allocation.
             let allocationSize := size + HugeChunkHeaderSize alignedTo: 4096.
@@ -789,7 +789,7 @@ class NativeMemoryHeap definition: {
     #**
      * Allocates a new memory chunk.
      *#
-    message allocateNewChunk => NormalChunkHeader pointer := {
+    method allocateNewChunk => NormalChunkHeader pointer := {
         let chunk := (NativeVirtualMemoryInterface reserveAndCommitAddressSpace: MemoryChunkSize alignment: MemoryChunkAlignment) reinterpretCastTo: NormalChunkHeader pointer.
         ##stdout << "Allocated memory chunk: " << chunk; nl.
 
@@ -813,7 +813,7 @@ class NativeMemoryHeap definition: {
     #**
      * Adds a chunk into the list of chunks.
      *#
-    message addChunk: (chunk: NormalChunkHeader pointer) ::=> Void := {
+    method addChunk: (chunk: NormalChunkHeader pointer) ::=> Void := {
         ## Put the chunk in the beginning of the double linked list.
         firstChunk ifNil: {
             firstChunk := lastChunk := chunk.
@@ -827,7 +827,7 @@ class NativeMemoryHeap definition: {
     #**
      * Removes a chunk from the linked list of chunks.
      *#
-    message removeChunk: (chunk: NormalChunkHeader pointer) ::=> Void := {
+    method removeChunk: (chunk: NormalChunkHeader pointer) ::=> Void := {
         chunk _ previousChunk ifNil: {
             firstChunk := chunk _ nextChunk.
         } ifNotNil: {
@@ -848,13 +848,13 @@ class NativeMemoryHeap definition: {
     #**
      * This computes the number of required blocks for a given size.
      *#
-    message blockCountForSize: (size: UIntPointer) ::=> UIntPointer
+    method blockCountForSize: (size: UIntPointer) ::=> UIntPointer
         := (size + MemoryChunkBlockSize - 1) / MemoryChunkBlockSize.
 
     #**
      * Finds a chunk with the required available size.
      *#
-    message findChunkWithAvailableSize: (requiredSize: UIntPointer) ::=> NormalChunkHeader pointer := {
+    method findChunkWithAvailableSize: (requiredSize: UIntPointer) ::=> NormalChunkHeader pointer := {
         firstChunk ifNil: {
             return: nil
         }.
@@ -878,7 +878,7 @@ class NativeMemoryHeap definition: {
     #**
      * Finds a chunk with the required available size.
      *#
-    message findOrCreateChunkWithAvailableSize: (requiredSize: UIntPointer) ::=> NormalChunkHeader pointer := {
+    method findOrCreateChunkWithAvailableSize: (requiredSize: UIntPointer) ::=> NormalChunkHeader pointer := {
         let chunk := self findChunkWithAvailableSize: requiredSize.
         chunk
             ifNotNil: {chunk}

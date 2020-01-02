@@ -8,16 +8,16 @@ namespace BoehmGC definition: {
 }.
 
 class SysmelGC definition: {
-    message initialize => Void := {
+    method initialize => Void := {
         <nogc>
         BoehmGC GC_init().
     }.
 
-    message finalize => Void := {
+    method finalize => Void := {
         <nogc>
     }.
 
-    message allocate: (objectSize: UIntPointer)
+    method allocate: (objectSize: UIntPointer)
         variableDataSize: (variableDataSize: UInt32)
         initializingWith: (basicInitializer: _BasicInitializeFunctionPointerType)
           ::=> _ObjectHeader pointer := {

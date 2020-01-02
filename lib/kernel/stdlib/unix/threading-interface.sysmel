@@ -7,23 +7,23 @@ class Mutex
 definition: {
     field handle public type: Unix pthread_mutex_t.
 
-    message initialize => Void := {
+    method initialize => Void := {
         Unix pthread_mutex_init(handle address, nil).
     }.
 
-    message finalize => Void := {
+    method finalize => Void := {
         Unix pthread_mutex_destroy(handle address).
     }.
 
-    message lock => Void := {
+    method lock => Void := {
         Unix pthread_mutex_lock(handle address).
     }.
 
-    message unlock => Void := {
+    method unlock => Void := {
         Unix pthread_mutex_unlock(handle address).
     }.
 
-    macro expansionRule withLock: aBlock := ``{
+    macro method withLock: aBlock := ``{
 		`,self lock.
         `,aBlock __macroInlineBlockEnsure: `,self unlock.
     }.
@@ -36,23 +36,23 @@ class ConditionVariable
 definition: {
     field handle public type: Unix pthread_cond_t.
 
-    message initialize => Void := {
+    method initialize => Void := {
         Unix pthread_cond_init(handle address, nil).
     }.
 
-    message finalize => Void := {
+    method finalize => Void := {
         Unix pthread_cond_destroy(handle address).
     }.
 
-    message wait: (mutex: Mutex ref) ::=> Void := {
+    method wait: (mutex: Mutex ref) ::=> Void := {
         Unix pthread_cond_wait(handle address, mutex handle address).
     }.
 
-    message notifyOne => Void := {
+    method notifyOne => Void := {
         Unix pthread_cond_signal(handle address).
     }.
 
-    message notifyAll => Void := {
+    method notifyAll => Void := {
         Unix pthread_cond_broadcast(handle address).
     }.
 }.
@@ -66,25 +66,25 @@ definition: {
     field condition type: ConditionVariable.
     field count type: UIntPointer.
 
-    message initializeWithCount: (initialCount: UIntPointer) ::=> Void := {
+    method initializeWithCount: (initialCount: UIntPointer) ::=> Void := {
         count := initialCount.
     }.
 
-    message lock => Void := {
+    method lock => Void := {
         self wait: 1
     }.
 
-    message unlock => Void := {
+    method unlock => Void := {
         self signal: 1
     }.
 
-    message signal => Void
+    method signal => Void
         := self signal: 1.
 
-    message wait => Void
+    method wait => Void
         := self wait: 1.
 
-    message signal: (n: UIntPointer) ::=> Void := {
+    method signal: (n: UIntPointer) ::=> Void := {
         n == 0 ifTrue: {
             return: nil
         }.
@@ -99,7 +99,7 @@ definition: {
         }
     }.
 
-    message wait: (n: UIntPointer) ::=> Void := {
+    method wait: (n: UIntPointer) ::=> Void := {
         n == 0 ifTrue: {
             return: nil
         }.

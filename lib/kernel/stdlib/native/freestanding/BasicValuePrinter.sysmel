@@ -5,14 +5,14 @@ class BasicValuePrinter definition: {
     public field bufferSize type: UIntPointer.
     public field buffer type: (Char8 array: bufferCapacity).
 
-    message nextPut: (c: Int32) ::=> Void := {
+    method nextPut: (c: Int32) ::=> Void := {
         bufferSize < bufferCapacity ifTrue:{
             buffer[bufferSize] := c castTo: Char8.
             bufferSize := bufferSize + 1
         }
     }.
 
-    message nextPutAll: (string: StdNative StringLiteral) ::=> Void := {
+    method nextPutAll: (string: StdNative StringLiteral) ::=> Void := {
         bufferSize + string size < bufferCapacity ifTrue: {
             memcpy(buffer[bufferSize] address, string[0] address, string size).
             bufferSize := bufferSize + string size.

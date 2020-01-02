@@ -13,32 +13,32 @@ enum MemoryOrder values: #{
 struct AtomicFlag definition: {
     field flag private type: Boolean8.
 
-    message loadWith: (ordering: MemoryOrder) ::=> Boolean8 := {
+    method loadWith: (ordering: MemoryOrder) ::=> Boolean8 := {
         <staticBinding>
         <intrinsic: #"atomic.load">
         flag
     }.
 
-    message load ::=> Boolean8
+    method load ::=> Boolean8
         := self loadWith: MemoryOrder SequentiallyConsistent.
 
-    message store: (newValue: Boolean8) with: (ordering: MemoryOrder) ::=> Void := {
+    method store: (newValue: Boolean8) with: (ordering: MemoryOrder) ::=> Void := {
         <staticBinding>
         <intrinsic: #"atomic.store">
         flag := newValue.
     }.
 
-    message store: (value: Boolean8) ::=> Void
+    method store: (value: Boolean8) ::=> Void
         := self store: value with: MemoryOrder SequentiallyConsistent.
 
-    message testAndSet: (value: Boolean8) with: (ordering: MemoryOrder) ::=> Boolean8 := {
+    method testAndSet: (value: Boolean8) with: (ordering: MemoryOrder) ::=> Boolean8 := {
         <staticBinding>
         <intrinsic: #"atomic.test_and_set">
         flag := value.
         value
     }.
 
-    message testAndSet: (value: Boolean8) ::=> Boolean8
+    method testAndSet: (value: Boolean8) ::=> Boolean8
         := self testAndSet: value with: MemoryOrder SequentiallyConsistent
 }.
 
@@ -46,25 +46,25 @@ template Atomic(BaseType: Type)
     := struct definition: {
     field value private type: BaseType.
 
-    message loadWith: (ordering: MemoryOrder) ::=> BaseType := {
+    method loadWith: (ordering: MemoryOrder) ::=> BaseType := {
         <staticBinding>
         <intrinsic: #"atomic.load">
         value
     }.
 
-    message load ::=> BaseType
+    method load ::=> BaseType
         := self loadWith: MemoryOrder SequentiallyConsistent.
 
-    message store: (newValue: BaseType) with: (ordering: MemoryOrder) ::=> Void := {
+    method store: (newValue: BaseType) with: (ordering: MemoryOrder) ::=> Void := {
         <staticBinding>
         <intrinsic: #"atomic.store">
         value := newValue
     }.
 
-    message store: (newValue: BaseType) ::=> Void
+    method store: (newValue: BaseType) ::=> Void
         := self store: value with: MemoryOrder SequentiallyConsistent.
 
-    message swap: (newValue: BaseType) with: (ordering: MemoryOrder) ::=> BaseType := {
+    method swap: (newValue: BaseType) with: (ordering: MemoryOrder) ::=> BaseType := {
         <compileTime>
         <staticBinding>
         <intrinsic: #"atomic.swap_value">
@@ -73,10 +73,10 @@ template Atomic(BaseType: Type)
         result
     }.
 
-    message swap: (newValue: BaseType) ::=> BaseType
+    method swap: (newValue: BaseType) ::=> BaseType
         := self swap: newValue with: MemoryOrder SequentiallyConsistent.
 
-    message atomicCompare: (comparedValue: BaseType) andSet: (newValue: BaseType) with: (ordering: MemoryOrder) ::=> Boolean8 := {
+    method atomicCompare: (comparedValue: BaseType) andSet: (newValue: BaseType) with: (ordering: MemoryOrder) ::=> Boolean8 := {
         <compileTime>
         <staticBinding>
         <intrinsic: #"atomic.compare_and_swap">
@@ -88,10 +88,10 @@ template Atomic(BaseType: Type)
         result
     }.
 
-    message atomicCompare: (comparedValue: BaseType) andSet: (newValue: BaseType) ::=> Boolean8
+    method atomicCompare: (comparedValue: BaseType) andSet: (newValue: BaseType) ::=> Boolean8
         := self atomicCompare: comparedValue andSet: newValue with: MemoryOrder SequentiallyConsistent.
 
-    message atomicCompare: (comparedValue: BaseType) andSwap: (newValue: BaseType) with: (ordering: MemoryOrder) ::=> BaseType := {
+    method atomicCompare: (comparedValue: BaseType) andSwap: (newValue: BaseType) with: (ordering: MemoryOrder) ::=> BaseType := {
         <compileTime>
         <staticBinding>
         <intrinsic: #"atomic.compare_and_swap">
@@ -102,11 +102,11 @@ template Atomic(BaseType: Type)
         result
     }.
 
-    message atomicCompare: (comparedValue: BaseType) andSwap: (newValue: BaseType) ::=> BaseType
+    method atomicCompare: (comparedValue: BaseType) andSwap: (newValue: BaseType) ::=> BaseType
         := self atomicCompare: comparedValue andSwap: newValue with: MemoryOrder SequentiallyConsistent.
 
     compileTimeIf: BaseType isPrimitiveIntegerType then: {
-        message fetchAndAdd: (operand: BaseType) with: (ordering: MemoryOrder) ::=> BaseType := {
+        method fetchAndAdd: (operand: BaseType) with: (ordering: MemoryOrder) ::=> BaseType := {
             <compileTime>
             <staticBinding>
             <intrinsic: #"atomic.fetch_and_add">
@@ -115,10 +115,10 @@ template Atomic(BaseType: Type)
             result
         }.
 
-        message fetchAndAdd: (operand: BaseType) ::=> BaseType
+        method fetchAndAdd: (operand: BaseType) ::=> BaseType
             := self fetchAndAdd: operand with: MemoryOrder SequentiallyConsistent.
 
-        message fetchAndSubtract: (operand: BaseType) with: (ordering: MemoryOrder) ::=> BaseType := {
+        method fetchAndSubtract: (operand: BaseType) with: (ordering: MemoryOrder) ::=> BaseType := {
             <compileTime>
             <staticBinding>
             <intrinsic: #"atomic.fetch_and_subtract">
@@ -127,7 +127,7 @@ template Atomic(BaseType: Type)
             result
         }.
 
-        message fetchAndSubtract: (operand: BaseType) ::=> BaseType
+        method fetchAndSubtract: (operand: BaseType) ::=> BaseType
             := self fetchAndSubtract: operand with: MemoryOrder SequentiallyConsistent.
     }
 

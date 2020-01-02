@@ -1,25 +1,25 @@
 namespace SysmelKernel definition: {
 ## For
-macro expansionRule for: declarations while: condition do: body continueWith: continueAction := ``{
+macro method for: declarations while: condition do: body continueWith: continueAction := ``{
     `,declarations.
 	while: `,condition do: `,body continueWith: `,continueAction
 }.
 
 ## until:do:continueWith:
-macro expansionRule until: condition do: body := ``(
+macro method until: condition do: body := ``(
 	while: `,condition not do: `,body
 ).
 
-macro expansionRule until: condition do: body continueWith: continueAction := ``(
+macro method until: condition do: body continueWith: continueAction := ``(
 	while: `,condition not do: `,body continueWith: `,continueAction
 ).
 
 ## do:until:
-macro expansionRule do: body until: condition := ``(
+macro method do: body until: condition := ``(
 	do: `,body while: `,condition not
 ).
 
-macro expansionRule do: body continueWith: continueAction until: condition := ``(
+macro method do: body continueWith: continueAction until: condition := ``(
 	do: `,body continueWith: `,continueAction while: `,condition not
 ).
 

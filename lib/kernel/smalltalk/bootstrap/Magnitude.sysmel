@@ -1,39 +1,39 @@
 namespace Smalltalk definition: {
 
 Object extend: {
-    message isNumber := false.
-    message isInteger := false.
-    message isFraction := false.
-    message isFloat := false.
+    method isNumber := false.
+    method isInteger := false.
+    method isFraction := false.
+    method isFloat := false.
 }.
 
 Number extend: {
-    message isNumber := true.
+    method isNumber := true.
 
-    message + aNumber := {
+    method + aNumber := {
         StdNative fatalError: "Unimplemented Number >> #+".
 		self
     }.
 }.
 
 Integer extend: {
-    message isInteger := true.
+    method isInteger := true.
 
-    message + aNumber := {
+    method + aNumber := {
         super + aNumber
     }.
 }.
 
 Fraction extend: {
-    message isFraction := true.
+    method isFraction := true.
 
-    message + aNumber := {
+    method + aNumber := {
         super + aNumber
     }.
 }.
 
 SmallInteger extend: {
-    message + aNumber := {
+    method + aNumber := {
 		aNumber __isSmallInteger ifTrue: {
 			let a := self __decodeSmallInteger.
 			let b := aNumber __decodeSmallInteger.
@@ -43,7 +43,7 @@ SmallInteger extend: {
         super + aNumber
     }.
 
-    message - aNumber := {
+    method - aNumber := {
 		aNumber __isSmallInteger ifTrue: {
 			let a := self __decodeSmallInteger.
 			let b := aNumber __decodeSmallInteger.
@@ -56,9 +56,9 @@ SmallInteger extend: {
 }.
 
 Float extend: {
-    message isFloat := true.
+    method isFloat := true.
 
-    message + aNumber := {
+    method + aNumber := {
         super + aNumber
     }.
 }.

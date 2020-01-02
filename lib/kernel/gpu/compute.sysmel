@@ -7,19 +7,19 @@ class ComputeStageInput definition: {
 	public field globalInvocationID type: UInt32x3; intrinsic: #globalInvocationID.
 	public field localInvocationIndex type: UInt32; intrinsic: #localInvocationIndex.
 
-	message gridSizeForLocalSize: (localSize: UInt32x3) ::=> UInt32x3
+	method gridSizeForLocalSize: (localSize: UInt32x3) ::=> UInt32x3
 		:= numberOfWorkGroups*localSize.
 
-	message globalIndexForGridSize: (gridSize: UInt32x3) ::=> UInt32
+	method globalIndexForGridSize: (gridSize: UInt32x3) ::=> UInt32
 		:= globalInvocationID x +
 		   globalInvocationID y*gridSize x +
 		   globalInvocationID y*gridSize x*gridSize y.
 
-	message globalIndexForLocalSize: (localSize: UInt32x3) ::=> UInt32
+	method globalIndexForLocalSize: (localSize: UInt32x3) ::=> UInt32
 		:= self globalIndexForGridSize: (self gridSizeForLocalSize: localSize).
 
-	macro expansionRule gridSize := ``(`,self gridSizeForLocalSize: localSize).
-	macro expansionRule globalIndex := ``(`,self globalIndexForLocalSize: localSize).
+	macro method gridSize := ``(`,self gridSizeForLocalSize: localSize).
+	macro method globalIndex := ``(`,self globalIndexForLocalSize: localSize).
 }.
 
 } ## End of namespace GPU

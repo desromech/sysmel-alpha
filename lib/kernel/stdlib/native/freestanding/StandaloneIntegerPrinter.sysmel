@@ -2,7 +2,7 @@ namespace StdNative definition: {
 
 class BasicValueIntegerPrinter superclass: BasicValuePrinter; definition: {
 
-    message nextPutHexDigit: (digit: Int32) ::=> Void := {
+    method nextPutHexDigit: (digit: Int32) ::=> Void := {
         if: 0 <= digit && digit <= 9 then: {
             self nextPut: '0' + digit
         } else: {
@@ -10,26 +10,26 @@ class BasicValueIntegerPrinter superclass: BasicValuePrinter; definition: {
         }
     }.
 
-    message nextPutLittleUInt32: (value: UInt32) ::=> Void := {
+    method nextPutLittleUInt32: (value: UInt32) ::=> Void := {
         0 until: 32 by: 4 do: {:(UInt32)i :: Void|
             self nextPutHexDigit: ((value >> i) & 16rF castTo: Int32)
         }.
     }.
 
-    message nextPutHexUInt32: (value: UInt32) ::=> Void := {
+    method nextPutHexUInt32: (value: UInt32) ::=> Void := {
         for: (let i mutable type: Int32 := 28) while: i >= 0 do: {
             self nextPutHexDigit: ((value >> (i castTo: UInt32)) & 16rF castTo: Int32)
         } continueWith: (i := i - 4).
     }.
 
-    message nextPutHexUInt64: (value: UInt64) ::=> Void := {
+    method nextPutHexUInt64: (value: UInt64) ::=> Void := {
         for: (let i mutable type: Int32 := 60) while: i >= 0 do: {
             self nextPutHexDigit: ((value >> (i castTo: UInt64)) & 16rF castTo: Int32)
         } continueWith: (i := i - 4).
     }.
 
     ## Integer formatting.
-    message nextPutInteger: (value: Int64) ::=> Void := {
+    method nextPutInteger: (value: Int64) ::=> Void := {
         ## Extract the digits, in reverse order.
         let currentValue mutable := value < 0 ifTrue: -value ifFalse: value.
         let digitCount mutable := 0.
@@ -55,7 +55,7 @@ class BasicValueIntegerPrinter superclass: BasicValuePrinter; definition: {
         }.
     }.
 
-    message nextPutUnsignedInteger: (value: UInt64) ::=> Void := {
+    method nextPutUnsignedInteger: (value: UInt64) ::=> Void := {
         ## Extract the digits, in reverse order.
         let currentValue mutable := value.
         let digitCount mutable := 0.

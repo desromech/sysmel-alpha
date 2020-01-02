@@ -1,26 +1,26 @@
 namespace StdNative definition: {
 
 ## basicNativeNew macro
-_NativeType meta macro expansionRule basicNativeNew := ``(
+_NativeType meta macro method basicNativeNew := ``(
     (StdNative zmalloc(`,self instanceSize) reinterpretCastTo: `,self pointer) _
         basicInitialize;
         address
 ).
 
 ## basicNativeDelete
-_PointerType macro expansionRule basicNativeDelete := ``(
+_PointerType macro method basicNativeDelete := ``(
     StdNative free(`,self)
 ).
 
 ## Native new
-_NativeType meta macro expansionRule nativeNew := ``(
+_NativeType meta macro method nativeNew := ``(
     (`,self basicNativeNew) _
         initialize;
         address
 ).
 
 ## nativeDelete
-_PointerType macro expansionRule nativeDelete := ``(
+_PointerType macro method nativeDelete := ``(
     `,self ifNotNil: {
         (`,self _
             finalize;

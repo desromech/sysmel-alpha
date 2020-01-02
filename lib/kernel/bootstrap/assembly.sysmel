@@ -1,17 +1,17 @@
 namespace SysmelKernel definition: {
-macro expansionRule x86InlineAssemblyGAS: sourceCode
+macro method x86InlineAssemblyGAS: sourceCode
     := ``(inlineAssembly: `,sourceCode architecture: #x86 dialect: #gas
 			inputList: () outputList: () clobberList: ()).
 
-macro expansionRule x86VolatileInlineAssemblyGAS: sourceCode
+macro method x86VolatileInlineAssemblyGAS: sourceCode
     := ``(volatileInlineAssembly: `,sourceCode architecture: #x86 dialect: #gas
 			inputList: () outputList: () clobberList: ()).
 
-macro expansionRule x86InlineAssemblyIntel: sourceCode
+macro method x86InlineAssemblyIntel: sourceCode
     := ``(inlineAssembly: `,sourceCode architecture: #x86 dialect: #intel
 			inputList: () outputList: () clobberList: ()).
 
-macro expansionRule x86VolatileInlineAssemblyIntel: sourceCode
+macro method x86VolatileInlineAssemblyIntel: sourceCode
     := ``(volatileInlineAssembly: `,sourceCode architecture: #x86 dialect: #intel
 			inputList: () outputList: () clobberList: ()).
 

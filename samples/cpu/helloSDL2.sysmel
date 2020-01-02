@@ -8,19 +8,19 @@ struct Box2D definition: {
 	public field min type: Float32x2.
 	public field max type: Float32x2.
 
-	meta message center: (center: Float32x2) halfExtent: (halfExtent: Float32x2) ::=> SelfType
+	meta method center: (center: Float32x2) halfExtent: (halfExtent: Float32x2) ::=> SelfType
 		:= SelfType newValue
 			min: center - halfExtent;
 			max: center + halfExtent;
 			yourself.
 
-	message extent => Float32x2
+	method extent => Float32x2
 		:= max - min.
 
-	message halfExtent => Float32x2
+	method halfExtent => Float32x2
 		:= (max - min) * 0.5.
 
-	message center => Float32x2
+	method center => Float32x2
 		:= (max + min) * 0.5.
 }.
 
@@ -30,17 +30,17 @@ class Character definition: {
 	public field halfExtent type: Float32x2.
 	public field color type: Float32x4.
 
-	message boundingBox => Box2D
+	method boundingBox => Box2D
 		:= Box2D center: position halfExtent: halfExtent.
 }.
 
 class Enemy superclass: Character; definition: {
-	message initialize => Void := {
+	method initialize => Void := {
 		halfExtent := Float32x2(0.5, 1.0).
 		color := Float32x4(0.5, 0.1, 0.1, 1.0).
 	}.
 
-	message simulate: (delta: Float32) ::=> Void := {
+	method simulate: (delta: Float32) ::=> Void := {
 	}.
 }.
 
@@ -48,21 +48,21 @@ class Player superclass: Character; definition: {
 	public field speed type: Float32.
 	public field direction type: Float32x2.
 
-	message initialize => Void := {
+	method initialize => Void := {
 		halfExtent := Float32x2(0.5, 1.0).
 		color := Float32x4(0.5, 0.5, 0.2, 1.0).
 		self walk
 	}.
 
-	message walk => Void := {
+	method walk => Void := {
 		speed := 1.0
 	}.
 
-	message run => Void := {
+	method run => Void := {
 		speed := 3.0
 	}.
 
-	message simulate: (delta: Float32) ::=> Void := {
+	method simulate: (delta: Float32) ::=> Void := {
 		velocity := direction * speed.
 
 		position := position + velocity * delta.

@@ -8,37 +8,37 @@ class BinaryStream definition: {
      * Tells the current position of the stream in the file.
      * Negative for error or not supported.
      *#
-    virtual message position => Int64
+    virtual method position => Int64
         := -1.
 
     #**
      * This sets the current file position.
      *#
-    virtual message position: (newPosition: Int64) ::=> Boolean8
+    virtual method position: (newPosition: Int64) ::=> Boolean8
         := false.
 
     #**
      * This sets the current file position, from the end of the file.
      *#
-    virtual message positionFromEnd: (newPosition: Int64) ::=> Boolean8
+    virtual method positionFromEnd: (newPosition: Int64) ::=> Boolean8
         := false.
 
     #**
      * This moves the file pointer the requested amount.
      *#
-    virtual message skip: (byteCount: Int64) ::=> Boolean8
+    virtual method skip: (byteCount: Int64) ::=> Boolean8
         := false.
 
     #**
      * Writes the content of a buffer into the file.
      *#
-    virtual message write: (buffer: Void const pointer) size: (size: UIntPointer) ::=> IntPointer
+    virtual method write: (buffer: Void const pointer) size: (size: UIntPointer) ::=> IntPointer
         := -1.
 
     #**
      * Read the content of a file towards a buffer.
      *#
-     virtual message read: (buffer: Void pointer) size: (size: UIntPointer) ::=> IntPointer
+     virtual method read: (buffer: Void pointer) size: (size: UIntPointer) ::=> IntPointer
          := -1.
 }.
 
@@ -49,27 +49,27 @@ class BinaryFileStream superclass: BinaryStream;
 definition: {
     field nativeFileHandle public type: NativeFileHandle.
 
-    meta message fromNativeFileHandle: (handle: NativeFileHandle) ::=> SelfType
+    meta method fromNativeFileHandle: (handle: NativeFileHandle) ::=> SelfType
         := SelfType newValue
             nativeFileHandle: handle;
             yourself.
 
-    override message position => Int64
+    override method position => Int64
         := nativeFile_tell(nativeFileHandle).
 
-    override message position: (newPosition: Int64) ::=> Boolean8
+    override method position: (newPosition: Int64) ::=> Boolean8
         := nativeFile_seek(nativeFileHandle, newPosition, NativeFile_SeekSet).
 
-    override message positionFromEnd: (newPosition: Int64) ::=> Boolean8
+    override method positionFromEnd: (newPosition: Int64) ::=> Boolean8
         := nativeFile_seek(nativeFileHandle, newPosition, NativeFile_SeekEnd).
 
-    override message skip: (byteCount: Int64) ::=> Boolean8
+    override method skip: (byteCount: Int64) ::=> Boolean8
         := nativeFile_seek(nativeFileHandle, byteCount, NativeFile_SeekCur).
 
-    override message write: (buffer: Void const pointer) size: (size: UIntPointer) ::=> IntPointer
+    override method write: (buffer: Void const pointer) size: (size: UIntPointer) ::=> IntPointer
         := nativeFile_write(nativeFileHandle, buffer, size).
 
-    override message read: (buffer: Void pointer) size: (size: UIntPointer) ::=> IntPointer
+    override method read: (buffer: Void pointer) size: (size: UIntPointer) ::=> IntPointer
         := nativeFile_read(nativeFileHandle, buffer, size).
 }.
 
