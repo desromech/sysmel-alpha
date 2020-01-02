@@ -1,13 +1,13 @@
 namespace StdNative definition: {
 
 if: Compiler compilationTarget hasNoOperatingSystem then: {
-    message fatalError: (message: StringLiteral) ::=> Void := {
+    message fatalError: (errorMessage: StringLiteral) ::=> Void := {
         ## TODO: Use a trap instruction here.
     }.
 } else: {
-    message fatalError: (message: StringLiteral) ::=> Void := {
-		LibC printf("FATAL ERROR: %.*s\n", message size castTo: Int32, message elements address).
-        ##stderr << "FATAL ERROR: " << message; nl.
+    message fatalError: (errorMessage: StringLiteral) ::=> Void := {
+		LibC printf("FATAL ERROR: %.*s\n", errorMessage size castTo: Int32, errorMessage elements address).
+        ##stderr << "FATAL ERROR: " << errorMessage; nl.
         native_abort().
     }.
 }.
@@ -18,8 +18,8 @@ if: Compiler compilationTarget hasNoOperatingSystem then: {
 macro expansionRule assert: condition := {
     let position := condition asSourcePositionString.
     let expression := condition originalSourceCode.
-    let message := "Assertion " -- expression -- " FAILED in " -- position.
-    let messageNode := __astBuilder literalString: message position: condition position.
+    let errorMessage := "Assertion " -- expression -- " FAILED in " -- position.
+    let messageNode := __astBuilder literalString: errorMessage position: condition position.
 
     ``(`,condition ifFalse: {
         StdNative fatalError: `,messageNode
@@ -32,8 +32,8 @@ macro expansionRule assert: condition := {
 macro expansionRule assertAlways: condition := {
     let position := condition asSourcePositionString.
     let expression := condition originalSourceCode.
-    let message := "Assertion " -- expression -- " FAILED in " -- position.
-    let messageNode := __astBuilder literalString: message position: condition position.
+    let errorMessage := "Assertion " -- expression -- " FAILED in " -- position.
+    let messageNode := __astBuilder literalString: errorMessage position: condition position.
 
     ``(`,condition ifFalse: {
         StdNative fatalError: `,messageNode
