@@ -13,9 +13,9 @@ MbndSlovimCodeModuleGeneratorTest >> testAggregateGeneratedInitializeFinalize [
 	self
 		evaluateSysmelSource: '
 class Guard definition: { 
-	message initialize => Void
+	method initialize => Void
 		:= grabLock().
-	message finalize => Void
+	method finalize => Void
 		:= releaseLock().
 }.
 
@@ -57,9 +57,9 @@ MbndSlovimCodeModuleGeneratorTest >> testAggregateGeneratedInitializeFinalizeExp
 	self
 		evaluateSysmelSource: '
 class Guard definition: { 
-	message initialize => Void
+	method initialize => Void
 		:= grabLock().
-	message finalize => Void
+	method finalize => Void
 		:= releaseLock().
 }.
 
@@ -70,9 +70,9 @@ function releaseLock externC() => Void.
 class ClassWithGuard definition: {
 	field guard type: Guard.
 
-	message initialize => Void
+	method initialize => Void
 		:= { methodWithSideEffect(). }.
-	message finalize => Void
+	method finalize => Void
 		:= { methodWithSideEffect(). }.
 }.
 ';
@@ -109,9 +109,9 @@ MbndSlovimCodeModuleGeneratorTest >> testAggregateGeneratedSubclassInitializeFin
 	self
 		evaluateSysmelSource: '
 class Guard definition: { 
-	message initialize => Void
+	method initialize => Void
 		:= grabLock().
-	message finalize => Void
+	method finalize => Void
 		:= releaseLock().
 }.
 
@@ -157,9 +157,9 @@ MbndSlovimCodeModuleGeneratorTest >> testAggregateGeneratedSubclassInitializeFin
 	self
 		evaluateSysmelSource: '
 class Guard definition: { 
-	message initialize => Void
+	method initialize => Void
 		:= grabLock().
-	message finalize => Void
+	method finalize => Void
 		:= releaseLock().
 }.
 
@@ -172,12 +172,12 @@ class ClassWithGuard definition: {
 }.
 
 class SubClassWithGuard superclass: ClassWithGuard; definition: {
-	message initialize => Void := {
+	method initialize => Void := {
 		super initialize.
 		methodWithSideEffect().
 	}.
 	
-	message finalize => Void := {
+	method finalize => Void := {
 		methodWithSideEffect().
 		super finalize.
 	}.
@@ -217,9 +217,9 @@ MbndSlovimCodeModuleGeneratorTest >> testAggregateGeneratedSubclassInitializeFin
 	self
 		evaluateSysmelSource: '
 class Guard definition: { 
-	message initialize => Void
+	method initialize => Void
 		:= grabLock().
-	message finalize => Void
+	method finalize => Void
 		:= releaseLock().
 }.
 
@@ -232,11 +232,11 @@ class ClassWithGuard definition: {
 }.
 
 class SubClassWithGuard superclass: ClassWithGuard; definition: {
-	message initialize => Void := {
+	method initialize => Void := {
 		methodWithSideEffect().
 	}.
 	
-	message finalize => Void := {
+	method finalize => Void := {
 		methodWithSideEffect().
 	}.
 }.
@@ -275,7 +275,7 @@ MbndSlovimCodeModuleGeneratorTest >> testAggregateLocalInitialize [
 	self
 		evaluateSysmelSource: '
 class SomeResource definition: { 
-	message initialize => Void
+	method initialize => Void
 		:= initSideEffect().
 }.
 
@@ -306,9 +306,9 @@ MbndSlovimCodeModuleGeneratorTest >> testAggregateLocalInitializeFinalize [
 	self
 		evaluateSysmelSource: '
 class Guard definition: { 
-	message initialize => Void
+	method initialize => Void
 		:= grabLock().
-	message finalize => Void
+	method finalize => Void
 		:= releaseLock().
 
 }.
@@ -343,9 +343,9 @@ MbndSlovimCodeModuleGeneratorTest >> testAggregateLocalInitializeFinalizeWithExp
 	self
 		evaluateSysmelSource: '
 class Guard definition: { 
-	message initialize => Void
+	method initialize => Void
 		:= grabLock().
-	message finalize => Void
+	method finalize => Void
 		:= releaseLock().
 
 }.
@@ -381,12 +381,12 @@ MbndSlovimCodeModuleGeneratorTest >> testAggregateWithLock [
 	self
 		evaluateSysmelSource: '
 class Mutex definition: { 
-	message lock => Void
+	method lock => Void
 		:= grabLock().
-	message unlock => Void
+	method unlock => Void
 		:= releaseLock().
 
-    macro expansionRule withLock: aBlock := ``{
+    macro method withLock: aBlock := ``{
 		`,self lock.
         `,aBlock __macroInlineBlockEnsure: `,self unlock.
     }.
@@ -422,12 +422,12 @@ MbndSlovimCodeModuleGeneratorTest >> testAggregateWithLockExplicitReturn [
 	self
 		evaluateSysmelSource: '
 class Mutex definition: { 
-	message lock => Void
+	method lock => Void
 		:= grabLock().
-	message unlock => Void
+	method unlock => Void
 		:= releaseLock().
 
-    macro expansionRule withLock: aBlock := ``{
+    macro method withLock: aBlock := ``{
 		`,self lock.
         `,aBlock __macroInlineBlockEnsure: `,self unlock.
     }.
@@ -486,7 +486,7 @@ MbndSlovimCodeModuleGeneratorTest >> testAtomicBooleanFlagLoad [
 class AtomicFlag definition: { 
 	field flag private type: Boolean8.
 	
-	message loadWith: (ordering: Int32) ::=> Boolean8 := {
+	method loadWith: (ordering: Int32) ::=> Boolean8 := {
         <staticBinding>
         <intrinsic: #"atomic.load">
         flag
@@ -847,7 +847,7 @@ class SuperClass definition: {
 class SubClass superclass: SuperClass; definition: { 
 	field float32Field type: Float32.
 	
-	message getField => Int32 := int32Field.
+	method getField => Int32 := int32Field.
 }.
 
 ';
@@ -923,7 +923,7 @@ MbndSlovimCodeModuleGeneratorTest >> testClassVirtualMessageSend [
 class SuperClass definition: { 
 	field int32Field type: Int32.
 	
-	virtual message getValue => Float64
+	virtual method getValue => Float64
 		:= int32Field.
 }.
 
@@ -958,14 +958,14 @@ MbndSlovimCodeModuleGeneratorTest >> testClassVirtualMessageSuperSend [
 class SuperClass definition: { 
 	field int32Field type: Int32.
 	
-	virtual message getValue => Float64
+	virtual method getValue => Float64
 		:= int32Field.
 }.
 
 class SubClass superclass: SuperClass; definition: { 
 	field float32Field type: Float32.
 	
-	override message getValue => Float64
+	override method getValue => Float64
 		:= super getValue + float32Field.
 }.
 
@@ -2661,7 +2661,7 @@ MbndSlovimCodeModuleGeneratorTest >> testGCClassMessageSend [
 gcclass SuperClass definition: { 
 	field int32Field type: Int32.
 	
-	message getValue => Float64
+	method getValue => Float64
 		:= int32Field.
 }.
 
@@ -2692,14 +2692,14 @@ MbndSlovimCodeModuleGeneratorTest >> testGCClassMessageSuperSend [
 gcclass SuperClass definition: { 
 	field int32Field type: Int32.
 	
-	message getValue => Float64
+	method getValue => Float64
 		:= int32Field.
 }.
 
 gcclass SubClass superclass: SuperClass; definition: { 
 	field float32Field type: Float32.
 	
-	message getValue => Float64
+	method getValue => Float64
 		:= super getValue + float32Field.
 }.
 
@@ -3016,7 +3016,7 @@ MbndSlovimCodeModuleGeneratorTest >> testGlobalVariableMultipleInitialization2 [
 	self
 		evaluateSysmelSource: '
 struct TestStruct definition: { 
-	meta message for: (v: Int32) ::=> TestStruct
+	meta method for: (v: Int32) ::=> TestStruct
 		:= SelfType newValue f: v.
 
 	public field f type: Int32.
@@ -3051,7 +3051,7 @@ MbndSlovimCodeModuleGeneratorTest >> testGlobalVariableMultipleInitialization3 [
 	self
 		evaluateSysmelSource: '
 struct TestStruct definition: { 
-	meta message for: (v: Int32) ::=> TestStruct
+	meta method for: (v: Int32) ::=> TestStruct
 		:= SelfType newValue f: v; yourself.
 
 	public field f type: Int32.
@@ -3109,7 +3109,7 @@ function makeHandle externC() => Int32.
 struct Resource definition: { 
 	public field handle type: Int32.
 	
-	message initialize => Void := { 
+	method initialize => Void := { 
 		handle := makeHandle().
 	}.
 }.
@@ -3148,7 +3148,7 @@ function makeHandle externC() => Int32.
 struct Resource definition: { 
 	public field handle type: Int32.
 	
-	message initialize => Void := { 
+	method initialize => Void := { 
 		handle := makeHandle().
 	}.
 }.
@@ -3187,7 +3187,7 @@ function destroyHandle externC(handle: Int32) => Void.
 struct Resource definition: { 
 	public field handle type: Int32.
 	
-	message finalize => Void := { 
+	method finalize => Void := { 
 		destroyHandle(handle).
 	}.
 }.
@@ -3226,7 +3226,7 @@ function destroyHandle externC(handle: Int32) => Void.
 struct Resource definition: { 
 	public field handle type: Int32.
 	
-	message finalize => Void := { 
+	method finalize => Void := { 
 		destroyHandle(handle).
 	}.
 }.
@@ -4631,10 +4631,10 @@ MbndSlovimCodeModuleGeneratorTest >> testOverloadedMessageSend [
 	self
 		evaluateSysmelSource: '
 struct TestStruct definition: { 
-	message addTo: (x: Float32) ::=> Float32
+	method addTo: (x: Float32) ::=> Float32
 		:= x + 2.
 
-	message addTo: (x: Int32) ::=> Int32
+	method addTo: (x: Int32) ::=> Int32
 		:= x + 2.
 }.
 
@@ -5061,7 +5061,7 @@ struct TreeNode definition: {
 	public field left type: TreeNode pointer.
 	public field right type: TreeNode pointer.
 	
-	message size => Int32 := { 
+	method size => Int32 := { 
 		if: self address == nil
 			then: (0)
 			else: (left _ size + right _ size)
@@ -5089,7 +5089,7 @@ template TreeNode(KT: Type )
 	public field right type: SelfType pointer.
 	public field key type: KeyType.
 	
-	message size => Int32 := { 
+	method size => Int32 := { 
 		if: self address == nil
 			then: (0)
 			else: (left _ size + right _ size)
@@ -5232,8 +5232,8 @@ MbndSlovimCodeModuleGeneratorTest >> testSeparateMessageDeclarationDefinition [
 	self
 		evaluateSysmelSource: '
 struct TestStruct definition: {
-	message f => Int32.
-	message f => Int32 := 1.
+	method f => Int32.
+	method f => Int32 := 1.
 
 }.
 ';
@@ -5252,8 +5252,8 @@ MbndSlovimCodeModuleGeneratorTest >> testSeparateMessageDeclarationDefinition2 [
 	self
 		evaluateSysmelSource: '
 struct TestStruct definition: {
-	message f => Int32 := 1.
-	message f => Int32.
+	method f => Int32 := 1.
+	method f => Int32.
 }.
 ';
 		generateSSAModule.

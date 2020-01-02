@@ -1,5 +1,5 @@
 Class {
-	#name : #MbndAstMessagePrototypeNode,
+	#name : #MbndAstMessageMethodPrototypeNode,
 	#superclass : #MbndAstAbstractFunctionPrototypeNode,
 	#instVars : [
 		'selector'
@@ -8,33 +8,33 @@ Class {
 }
 
 { #category : #visiting }
-MbndAstMessagePrototypeNode >> accept: aVisitor [
+MbndAstMessageMethodPrototypeNode >> accept: aVisitor [
 	^ aVisitor visitMessagePrototypeNode: self
 ]
 
 { #category : #visiting }
-MbndAstMessagePrototypeNode >> isMessagePrototypeNode [
+MbndAstMessageMethodPrototypeNode >> isMessageMethodPrototypeNode [
 	^ true
 ]
 
 { #category : #running }
-MbndAstMessagePrototypeNode >> override [
+MbndAstMessageMethodPrototypeNode >> override [
 	<compileTime>
 	self addFlag: #override
 ]
 
 { #category : #accessing }
-MbndAstMessagePrototypeNode >> selector [
+MbndAstMessageMethodPrototypeNode >> selector [
 	^ selector
 ]
 
 { #category : #accessing }
-MbndAstMessagePrototypeNode >> selector: anObject [
+MbndAstMessageMethodPrototypeNode >> selector: anObject [
 	selector := anObject
 ]
 
 { #category : #'as yet unclassified' }
-MbndAstMessagePrototypeNode >> virtual [
+MbndAstMessageMethodPrototypeNode >> virtual [
 	<compileTime>
 	self addFlag: #virtual
 ]

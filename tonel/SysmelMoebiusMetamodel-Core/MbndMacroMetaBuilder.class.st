@@ -10,7 +10,7 @@ MbndMacroMetaBuilder class >> globalBindingName [
 ]
 
 { #category : #'as yet unclassified' }
-MbndMacroMetaBuilder >> expansionRule [
-	^ self delegateToMetaBuilder: MbndMacroExpansionRuleMetaBuilder new
+MbndMacroMetaBuilder >> method [
+	^ self delegateToMetaBuilder: MbndMacroMethodMetaBuilder new
 
 ]

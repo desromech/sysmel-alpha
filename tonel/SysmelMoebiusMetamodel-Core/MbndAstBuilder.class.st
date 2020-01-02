@@ -747,7 +747,7 @@ MbndAstBuilder >> lookupTypeWithName: typeSelector [
 MbndAstBuilder >> macroMessagePrototype: prototype definitionBody: definitionBody [
 	<compileTime>
 	<returnType: #_ASTNodeType>
-	^ MbndAstMacroMessageDefinitionNode new
+	^ MbndAstMacroMessageMethodDefinitionNode new
 		prototype: prototype;
 		body: definitionBody;
 		yourself
@@ -757,7 +757,7 @@ MbndAstBuilder >> macroMessagePrototype: prototype definitionBody: definitionBod
 MbndAstBuilder >> macroMessagePrototypeSelector: selector arguments: arguments returnType: returnType [
 	<compileTime>
 	<returnType: #_ASTNodeType>
-	^ MbndAstMacroMessagePrototypeNode new
+	^ MbndAstMacroMessageMethodPrototypeNode new
 		selector: selector;
 		arguments: arguments;
 		returnType: returnType;
@@ -848,7 +848,7 @@ MbndAstBuilder >> messageChainReceiver: receiver messages: chainedMessages [
 MbndAstBuilder >> messagePrototype: prototype definitionBody: definitionBody [
 	<compileTime>
 	<returnType: #_ASTNodeType>
-	^ MbndAstMessageDefinitionNode new
+	^ MbndAstMessageMethodDefinitionNode new
 		prototype: prototype;
 		body: definitionBody;
 		yourself
@@ -858,7 +858,7 @@ MbndAstBuilder >> messagePrototype: prototype definitionBody: definitionBody [
 MbndAstBuilder >> messagePrototypeSelector: selector arguments: arguments returnType: returnType [
 	<compileTime>
 	<returnType: #_ASTNodeType>
-	^ MbndAstMessagePrototypeNode new
+	^ MbndAstMessageMethodPrototypeNode new
 		selector: selector;
 		arguments: arguments;
 		returnType: returnType;

@@ -946,7 +946,7 @@ MbndAstSemanticAnalyzerTest >> testIdentityMessageDefinition [
 	body := builder identifier: #x.
 	node := builder messageSelector: #identity arguments: arguments returnType: compilationTarget int32Type definitionBody: body.
 	analyzedNode := visitor visitNode: node.
-	self assert: analyzedNode isMessageDefinitionNode.
+	self assert: analyzedNode isMessageMethodDefinitionNode.
 	self assert: analyzedNode arguments first valueType isPrimitiveIntegerType.
 	self assert: analyzedNode returnType isPrimitiveIntegerType.
 	self assert: analyzedNode type isReferenceType.
@@ -968,7 +968,7 @@ MbndAstSemanticAnalyzerTest >> testIdentityMessagePrototype [
 	}.
 	node := builder messagePrototypeSelector: #identity arguments: arguments returnType: compilationTarget int32Type.
 	analyzedNode := visitor visitNode: node.
-	self assert: analyzedNode isMessagePrototypeNode.
+	self assert: analyzedNode isMessageMethodPrototypeNode.
 	self assert: analyzedNode arguments first valueType isPrimitiveIntegerType.
 	self assert: analyzedNode returnType isPrimitiveIntegerType.
 	self assert: analyzedNode type isReferenceType.
@@ -998,7 +998,7 @@ MbndAstSemanticAnalyzerTest >> testIdentityTopMacroDefinition [
 	| node analyzedNode concreteMethod |
 	node := self identityTopMacroDefinitionNode.
 	analyzedNode := visitor visitNode: node.
-	self assert: analyzedNode isMacroMessageDefinitionNode.
+	self assert: analyzedNode isMacroMessageMethodDefinitionNode.
 	self assert: analyzedNode arguments first valueType isASTNodeType.
 	self assert: analyzedNode returnType isASTNodeType.
 	self assert: analyzedNode type isReferenceType.

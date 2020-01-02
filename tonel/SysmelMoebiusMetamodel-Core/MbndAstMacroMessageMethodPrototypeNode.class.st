@@ -1,5 +1,5 @@
 Class {
-	#name : #MbndAstMacroMessagePrototypeNode,
+	#name : #MbndAstMacroMessageMethodPrototypeNode,
 	#superclass : #MbndAstAbstractFunctionPrototypeNode,
 	#instVars : [
 		'selector'
@@ -8,21 +8,21 @@ Class {
 }
 
 { #category : #visiting }
-MbndAstMacroMessagePrototypeNode >> accept: aVisitor [
+MbndAstMacroMessageMethodPrototypeNode >> accept: aVisitor [
 	^ aVisitor visitMacroMessagePrototypeNode: self
 ]
 
 { #category : #testing }
-MbndAstMacroMessagePrototypeNode >> isMacroMessagePrototypeNode [
+MbndAstMacroMessageMethodPrototypeNode >> isMacroMessageMethodPrototypeNode [
 	^ true
 ]
 
 { #category : #accessing }
-MbndAstMacroMessagePrototypeNode >> selector [
+MbndAstMacroMessageMethodPrototypeNode >> selector [
 	^ selector
 ]
 
 { #category : #accessing }
-MbndAstMacroMessagePrototypeNode >> selector: anObject [
+MbndAstMacroMessageMethodPrototypeNode >> selector: anObject [
 	selector := anObject
 ]

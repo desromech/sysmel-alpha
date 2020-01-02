@@ -590,8 +590,8 @@ MbndAstTransformVisitorTest >> testMacroMessageDefinitionNode [
 	transformedNode := visitor visitNode: definition.
 	self assert: transformedNode ~~ definition.
 	self assert: transformedNode prototype ~~ definition prototype.
-	self assert: transformedNode isMacroMessageDefinitionNode.
-	self assert: transformedNode prototype isMacroMessagePrototypeNode.
+	self assert: transformedNode isMacroMessageMethodDefinitionNode.
+	self assert: transformedNode prototype isMacroMessageMethodPrototypeNode.
 	self assert: transformedNode selector equals: #zero.
 	self assert: transformedNode arguments equals: #().
 	self assert: transformedNode returnType equals: returnType.
@@ -607,7 +607,7 @@ MbndAstTransformVisitorTest >> testMacroMessagePrototypeNode [
 	prototype := builder macroMessagePrototypeSelector: #+ arguments: arguments returnType: nil.
 	transformedNode := visitor visitNode: prototype.
 	self assert: transformedNode ~~ prototype.
-	self assert: transformedNode isMacroMessagePrototypeNode.
+	self assert: transformedNode isMacroMessageMethodPrototypeNode.
 	self assert: transformedNode selector equals: prototype selector.
 
 	self assert: transformedNode arguments first ~~ arguments first.
@@ -750,8 +750,8 @@ MbndAstTransformVisitorTest >> testMessageDefinitionNode [
 	transformedNode := visitor visitNode: definition.
 	self assert: transformedNode ~~ definition.
 	self assert: transformedNode prototype ~~ definition prototype.
-	self assert: transformedNode isMessageDefinitionNode.
-	self assert: transformedNode prototype isMessagePrototypeNode.
+	self assert: transformedNode isMessageMethodDefinitionNode.
+	self assert: transformedNode prototype isMessageMethodPrototypeNode.
 	self assert: transformedNode selector equals: #zero.
 	self assert: transformedNode arguments equals: #().
 	self assert: transformedNode returnType equals: returnType.
@@ -768,7 +768,7 @@ MbndAstTransformVisitorTest >> testMessagePrototypeNode [
 	prototype := builder messagePrototypeSelector: #+ arguments: arguments returnType: returnType.
 	transformedNode := visitor visitNode: prototype.
 	self assert: transformedNode ~~ prototype.
-	self assert: transformedNode isMessagePrototypeNode.
+	self assert: transformedNode isMessageMethodPrototypeNode.
 	self assert: transformedNode selector equals: prototype selector.
 
 	self assert: transformedNode arguments first ~~ arguments first.

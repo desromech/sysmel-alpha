@@ -1,20 +1,20 @@
 Class {
-	#name : #MbndAstMacroMessageDefinitionNode,
+	#name : #MbndAstMacroMessageMethodDefinitionNode,
 	#superclass : #MbndAstAbstractFunctionDefinitionNode,
 	#category : #'SysmelMoebiusMetamodel-Core-AST'
 }
 
 { #category : #visiting }
-MbndAstMacroMessageDefinitionNode >> accept: aVisitor [
+MbndAstMacroMessageMethodDefinitionNode >> accept: aVisitor [
 	^ aVisitor visitMacroMessageDefinitionNode: self
 ]
 
 { #category : #testing }
-MbndAstMacroMessageDefinitionNode >> isMacroMessageDefinitionNode [
+MbndAstMacroMessageMethodDefinitionNode >> isMacroMessageMethodDefinitionNode [
 	^ true
 ]
 
 { #category : #accessing }
-MbndAstMacroMessageDefinitionNode >> selector [
+MbndAstMacroMessageMethodDefinitionNode >> selector [
 	^ prototype selector
 ]

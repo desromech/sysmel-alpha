@@ -15,6 +15,14 @@ TMbndNamespace >> canHaveNamespaces [
 	^ true
 ]
 
+{ #category : #accessing }
+TMbndNamespace >> getPublicMetaBuilderFactoryList [
+	^ { 
+		#macro . MbndMacroMetaBuilder metaBuilderFactory.
+		#method . MbndMethodMetaBuilder metaBuilderFactory.
+	} ,  self getExtraMetaBuilderFactoryList
+]
+
 { #category : #'as yet unclassified' }
 TMbndNamespace >> isNamespace [
 	^ true

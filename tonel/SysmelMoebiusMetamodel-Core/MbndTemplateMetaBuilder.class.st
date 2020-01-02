@@ -83,7 +83,7 @@ MbndTemplateMetaBuilder >> gcclass [
 { #category : #'as yet unclassified' }
 MbndTemplateMetaBuilder >> message [
 	self checkTemplateArguments.
-	^ self delegateToMetaBuilder: MbndMessageMetaBuilder
+	^ self delegateToMetaBuilder: MbndMethodMetaBuilder
 ]
 
 { #category : #'as yet unclassified' }

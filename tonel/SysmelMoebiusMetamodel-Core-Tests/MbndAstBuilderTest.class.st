@@ -665,7 +665,7 @@ MbndAstBuilderTest >> testMacroMessageDefinitionNode [
 	prototype := builder messagePrototypeSelector: #zero arguments: #() returnType: returnType.
 	body := builder literalInteger: 0.
 	definition := builder macroMessagePrototype: prototype definitionBody: body.
-	self assert: definition isMacroMessageDefinitionNode.
+	self assert: definition isMacroMessageMethodDefinitionNode.
 	self assert: definition prototype equals: prototype.
 	self assert: definition selector equals: #zero.
 	self assert: definition arguments equals: #().
@@ -680,7 +680,7 @@ MbndAstBuilderTest >> testMacroMessagePrototypeNode [
 		builder argument: #y type: nil.
 	}.
 	prototype := builder macroMessagePrototypeSelector: #+ arguments: arguments returnType: nil.
-	self assert: prototype isMacroMessagePrototypeNode.
+	self assert: prototype isMacroMessageMethodPrototypeNode.
 	self assert: prototype selector equals: #+.
 	self assert: prototype arguments equals: arguments.
 	self assert: prototype returnType equals: nil.
@@ -800,7 +800,7 @@ MbndAstBuilderTest >> testMessageDefinitionNode [
 	prototype := builder messagePrototypeSelector: #zero arguments: #() returnType: returnType.
 	body := builder literalInteger: 0.
 	definition := builder messagePrototype: prototype definitionBody: body.
-	self assert: definition isMessageDefinitionNode.
+	self assert: definition isMessageMethodDefinitionNode.
 	self assert: definition prototype equals: prototype.
 	self assert: definition selector equals: #zero.
 	self assert: definition arguments equals: #().
@@ -816,7 +816,7 @@ MbndAstBuilderTest >> testMessagePrototypeNode [
 	}.
 	returnType := (builder identifier: #Int32).
 	prototype := builder messagePrototypeSelector: #+ arguments: arguments returnType: returnType.
-	self assert: prototype isMessagePrototypeNode.
+	self assert: prototype isMessageMethodPrototypeNode.
 	self assert: prototype selector equals: #+.
 	self assert: prototype arguments equals: arguments.
 	self assert: prototype returnType equals: returnType.
@@ -828,7 +828,7 @@ MbndAstBuilderTest >> testMessageShortDefinition [
 	returnType := builder identifier: #Int32.
 	body := builder literalInteger: 0.
 	definition := builder messageSelector: #zero arguments: #() returnType: returnType definitionBody: body.
-	self assert: definition isMessageDefinitionNode.
+	self assert: definition isMessageMethodDefinitionNode.
 	self assert: definition prototype isNotNil.
 	self assert: definition selector equals: #zero.
 	self assert: definition arguments equals: #().

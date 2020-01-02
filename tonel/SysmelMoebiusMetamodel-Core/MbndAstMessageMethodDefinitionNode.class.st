@@ -1,37 +1,37 @@
 Class {
-	#name : #MbndAstMessageDefinitionNode,
+	#name : #MbndAstMessageMethodDefinitionNode,
 	#superclass : #MbndAstAbstractFunctionDefinitionNode,
 	#category : #'SysmelMoebiusMetamodel-Core-AST'
 }
 
 { #category : #visiting }
-MbndAstMessageDefinitionNode >> accept: aVisitor [
+MbndAstMessageMethodDefinitionNode >> accept: aVisitor [
 	^ aVisitor visitMessageDefinitionNode: self
 ]
 
 { #category : #'as yet unclassified' }
-MbndAstMessageDefinitionNode >> inferTemplateKindWithCompilationTarget: compilationTarget [
+MbndAstMessageMethodDefinitionNode >> inferTemplateKindWithCompilationTarget: compilationTarget [
 	^ compilationTarget messageTemplateType
 ]
 
 { #category : #testing }
-MbndAstMessageDefinitionNode >> isMessageDefinitionNode [
+MbndAstMessageMethodDefinitionNode >> isMessageMethodDefinitionNode [
 	^ true
 ]
 
 { #category : #running }
-MbndAstMessageDefinitionNode >> override [
+MbndAstMessageMethodDefinitionNode >> override [
 	<compileTime>
 	prototype := prototype copy override
 ]
 
 { #category : #accessing }
-MbndAstMessageDefinitionNode >> selector [
+MbndAstMessageMethodDefinitionNode >> selector [
 	^ prototype selector
 ]
 
 { #category : #running }
-MbndAstMessageDefinitionNode >> virtual [
+MbndAstMessageMethodDefinitionNode >> virtual [
 	<compileTime>
 	prototype := prototype copy virtual
 ]

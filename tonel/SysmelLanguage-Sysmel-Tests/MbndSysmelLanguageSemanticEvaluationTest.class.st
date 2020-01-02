@@ -10,7 +10,7 @@ MbndSysmelLanguageSemanticEvaluationTest >> testGCClassDefaultArgumentAndReturnT
 	self evaluateMiniObjectModelRuntime.
 	protoObjectClass := (self evaluateSource: '
 		ProtoObject definition: {
-			message operateWith: anArgument := self.
+			method operateWith: anArgument := self.
 		}.
 		
 		ProtoObject
@@ -80,9 +80,9 @@ MbndSysmelLanguageSemanticEvaluationTest >> testGCClassMethodDictionary [
 	self evaluateMiniObjectModelRuntime.
 	protoObjectClass := (self evaluateSource: '
 		ProtoObject definition: {
-			message returnSelf => ProtoObject := self.
-			message returnSelf2 => ProtoObject := self.
-			message returnSelf3 => ProtoObject := self.
+			method returnSelf => ProtoObject := self.
+			method returnSelf2 => ProtoObject := self.
+			method returnSelf3 => ProtoObject := self.
 		}.
 		
 		ProtoObject

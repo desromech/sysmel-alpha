@@ -1,22 +1,22 @@
 Class {
-	#name : #MbndMacroExpansionRuleMetaBuilder,
+	#name : #MbndMacroMethodMetaBuilder,
 	#superclass : #MbndAbstractMessageMetaBuilder,
 	#category : #'SysmelMoebiusMetamodel-Core-MetaBuilder'
 }
 
 { #category : #'as yet unclassified' }
-MbndMacroExpansionRuleMetaBuilder >> createMessageDefinition [
+MbndMacroMethodMetaBuilder >> createMessageDefinition [
 	self ensureMessagePrototype.
-	messageDefinition := MbndAstMacroMessageDefinitionNode new
+	messageDefinition := MbndAstMacroMessageMethodDefinitionNode new
 		position: position;
 		prototype: messagePrototype;
 		yourself
 ]
 
 { #category : #'as yet unclassified' }
-MbndMacroExpansionRuleMetaBuilder >> ensureMessagePrototype [
+MbndMacroMethodMetaBuilder >> ensureMessagePrototype [
 	messagePrototype ifNotNil: [ ^ self ].
-	messagePrototype := MbndAstMacroMessagePrototypeNode new
+	messagePrototype := MbndAstMacroMessageMethodPrototypeNode new
 		position: position;
 		ownerProgramEntity: ownerProgramEntity;
 		flags: flags;

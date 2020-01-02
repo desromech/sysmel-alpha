@@ -1,10 +1,10 @@
 Class {
-	#name : #MbndMessageMetaBuilder,
+	#name : #MbndMethodMetaBuilder,
 	#superclass : #MbndAbstractMessageMetaBuilder,
 	#category : #'SysmelMoebiusMetamodel-Core-MetaBuilder'
 }
 
 { #category : #'as yet unclassified' }
-MbndMessageMetaBuilder class >> globalBindingName [
-	^ #message
+MbndMethodMetaBuilder class >> globalBindingName [
+	^ #method
 ]

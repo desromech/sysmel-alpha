@@ -50,7 +50,7 @@ MbndAbstractMessageMetaBuilder >> concretizeNode: node withAnalyzer: analyzer [
 { #category : #'as yet unclassified' }
 MbndAbstractMessageMetaBuilder >> createMessageDefinition [
 	self ensureMessagePrototype.
-	messageDefinition := MbndAstMessageDefinitionNode new
+	messageDefinition := MbndAstMessageMethodDefinitionNode new
 		position: position;
 		prototype: messagePrototype;
 		yourself
@@ -70,7 +70,7 @@ MbndAbstractMessageMetaBuilder >> definition: aNode [
 { #category : #'as yet unclassified' }
 MbndAbstractMessageMetaBuilder >> ensureMessagePrototype [
 	messagePrototype ifNotNil: [ ^ self ].
-	messagePrototype := MbndAstMessagePrototypeNode new
+	messagePrototype := MbndAstMessageMethodPrototypeNode new
 		position: position;
 		ownerProgramEntity: ownerProgramEntity;
 		flags: flags;

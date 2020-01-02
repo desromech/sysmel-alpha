@@ -436,12 +436,12 @@ MbndAstNode >> isMacroExpansionInlineBlockNode [
 ]
 
 { #category : #testing }
-MbndAstNode >> isMacroMessageDefinitionNode [
+MbndAstNode >> isMacroMessageMethodDefinitionNode [
 	^ false
 ]
 
 { #category : #testing }
-MbndAstNode >> isMacroMessagePrototypeNode [
+MbndAstNode >> isMacroMessageMethodPrototypeNode [
 	^ false
 ]
 
@@ -496,12 +496,12 @@ MbndAstNode >> isMessageChainNode [
 ]
 
 { #category : #testing }
-MbndAstNode >> isMessageDefinitionNode [
+MbndAstNode >> isMessageMethodDefinitionNode [
 	^ false
 ]
 
 { #category : #testing }
-MbndAstNode >> isMessagePrototypeNode [
+MbndAstNode >> isMessageMethodPrototypeNode [
 	^ false
 ]
 

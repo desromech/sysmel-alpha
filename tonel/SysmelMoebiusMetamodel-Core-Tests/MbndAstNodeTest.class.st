@@ -126,8 +126,8 @@ MbndAstNodeTest >> testTestingMethods [
 	self deny: node isLocalVariableDefinitionNode.
 	self deny: node isMacroExpansionInlineBlockNode.
 	self deny: node isMacroSendMessageWithArgumentsNode.
-	self deny: node isMacroMessageDefinitionNode.
-	self deny: node isMacroMessagePrototypeNode.
+	self deny: node isMacroMessageMethodDefinitionNode.
+	self deny: node isMacroMessageMethodPrototypeNode.
 	self deny: node isMatrixConstructionNode.
 	self deny: node isMatrixGetColumnNode.
 	self deny: node isMatrixGetRowNode.
@@ -137,8 +137,8 @@ MbndAstNodeTest >> testTestingMethods [
 	self deny: node isMetaBuilderInstanceNode.
 	self deny: node isMessageChainNode.
 	self deny: node isMessageChainMessageNode.
-	self deny: node isMessageDefinitionNode.
-	self deny: node isMessagePrototypeNode.
+	self deny: node isMessageMethodDefinitionNode.
+	self deny: node isMessageMethodPrototypeNode.
 	self deny: node isMethodReferenceNode.
 	self deny: node isNamespaceDefinitionNode.
 	self deny: node isNodeWithDeferredAnalysis.

@@ -38,6 +38,14 @@ MbndAbstractTemplateInstance >> children: anObject [
 	children := anObject
 ]
 
+{ #category : #accessing }
+MbndAbstractTemplateInstance >> getPublicMetaBuilderFactoryList [
+	^ { 
+		#macro . MbndMacroMetaBuilder metaBuilderFactory.
+		#method . MbndMethodMetaBuilder metaBuilderFactory.
+	} ,  self getExtraMetaBuilderFactoryList
+]
+
 { #category : #testing }
 MbndAbstractTemplateInstance >> isTemplateInstance [
 	^ true

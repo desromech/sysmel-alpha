@@ -14,3 +14,11 @@ MbndAbstractModule >> analyzeAndEvaluateAST: ast [
 		language: MbndGenericMacroLanguageInterface new.
 	^ self analyzeAndEvaluateParsedSource: parsedSource
 ]
+
+{ #category : #'as yet unclassified' }
+MbndAbstractModule >> getPublicMetaBuilderFactoryList [
+	^ { 
+		#macro . MbndMacroMetaBuilder metaBuilderFactory.
+		#method . MbndMethodMetaBuilder metaBuilderFactory.
+	} ,  self getExtraMetaBuilderFactoryList
+]

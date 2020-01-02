@@ -43,7 +43,7 @@ TMbndProgramEntity >> getExtraMetaBuilderFactoryList [
 TMbndProgramEntity >> getPublicMetaBuilderFactoryList [
 	^ { 
 		#macro . MbndMacroMetaBuilder metaBuilderFactory.
-		#message . MbndMessageMetaBuilder metaBuilderFactory.
+		#method . MbndMethodMetaBuilder metaBuilderFactory.
 	} ,  self getExtraMetaBuilderFactoryList
 ]
 

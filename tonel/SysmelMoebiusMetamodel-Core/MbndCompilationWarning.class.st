@@ -7,6 +7,11 @@ Class {
 	#category : #'SysmelMoebiusMetamodel-Core-Exceptions'
 }
 
+{ #category : #exceptionDescription }
+MbndCompilationWarning >> defaultAction [
+	self inform: self description
+]
+
 { #category : #accessing }
 MbndCompilationWarning >> description [
 	"Return a textual description of the exception."

@@ -135,7 +135,7 @@ function max(a: Int32, b: Int32) => Int32
 MbndSysmelLanguageCompileTimeEvaluationTest >> testMessageNotInCompileTime [
 	self should: [ self evaluateSource: '
 		struct testStruct definition: {
-			message notInCompileTime => Void := { 
+			method notInCompileTime => Void := { 
 				<notInCompileTime>
 			}.
 		}.
@@ -149,10 +149,10 @@ MbndSysmelLanguageCompileTimeEvaluationTest >> testMessageNotInCompileTimeTransi
 	| structValue |
 	structValue := self evaluateSource: '
 		struct testStruct definition: {
-			message notInCompileTime => Void := { 
+			method notInCompileTime => Void := { 
 				<notInCompileTime>
 			}.
-			message caller => Void
+			method caller => Void
 				:= self notInCompileTime.
 		}.
 	'.
