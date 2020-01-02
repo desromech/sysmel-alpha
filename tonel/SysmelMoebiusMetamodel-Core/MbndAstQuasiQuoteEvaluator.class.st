@@ -50,6 +50,17 @@ MbndAstQuasiQuoteEvaluator >> visitMacroExpansionInlineBlockNode: node [
 			yourself
 	].
 
+	"Allow applying unary selectors."
+	(node argumentNodes size = 1 and: [blockNode isLiteralSymbolValueNode]) ifTrue: [
+		blockNode value numArgs = 0 ifTrue: [
+			bodyNode := MbndAstUnexpandedMessageSendNode new
+				position: node;
+				selector: blockNode;
+				receiver: (self visitNode: node argumentNodes first);
+				arguments: #()
+		].
+	].
+
 	"The node is not a block, ignore the arguments."	
 	basicExpansion ensureNode ifNotNil: [:ensureNode |
 		^ MbndAstCleanUpScopeNode new 

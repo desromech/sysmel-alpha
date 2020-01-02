@@ -21,7 +21,14 @@ MbndLiteralNumberType >> addInstanceMacros [
 		< <= >= >
 		= ~= == ~~
 	).
-	self addLiteralHostDelegationMacroFor: #'prefix--' to: #negated
+	self addLiteralHostDelegationMacroFor: #'prefix--' to: #negated.
+	self
+		onMacroSelector: #u do: [ :node :builder |
+			builder explicitCast: node receiver to: self compilationTarget uint32Type
+		];
+		onMacroSelector: #f do: [ :node :builder |
+			builder explicitCast: node receiver to: self compilationTarget float32Type
+		]
 ]
 
 { #category : #testing }

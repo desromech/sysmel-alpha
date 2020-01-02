@@ -105,6 +105,34 @@ MbndPrimitiveFloatType >> addArithmeticIntrinsicsToVectorOrScalarType: vectorOrS
 
 ]
 
+{ #category : #initialization }
+MbndPrimitiveFloatType >> addInstanceMacros [
+	self class == MbndPrimitiveFloatType ifFalse: [ ^ self ].
+	self isTrait ifFalse: [ ^ self ].
+	
+	self type
+		onMacroSelector: #pi do: [ :node :builder |
+			(builder explicitCast: ((builder literalFloat: 3.141592653589793)
+				position: node) to: node receiver)
+				position: node
+		];
+		onMacroSelector: #twoPi do: [ :node :builder |
+			(builder explicitCast: ((builder literalFloat: 6.283185307179586 )
+				position: node) to: node receiver)
+				position: node
+		];
+		onMacroSelector: #threePi do: [ :node :builder |
+			(builder explicitCast: ((builder literalFloat: 9.42477796076938 )
+				position: node) to: node receiver)
+				position: node
+		];
+		onMacroSelector: #halfPi do: [ :node :builder |
+			(builder explicitCast: ((builder literalFloat: 1.5707963267948966 )
+				position: node) to: node receiver)
+				position: node
+		]
+]
+
 { #category : #converting }
 MbndPrimitiveFloatType >> asCVariadicTypeRequiredAt: position [
 	^ self compilationTarget float64Type
