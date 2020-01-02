@@ -17,6 +17,14 @@ MbndAstTransformVisitor >> visitAbstractClassDefinitionNode: node [
 ]
 
 { #category : #visiting }
+MbndAstTransformVisitor >> visitAbstractTypeDefinitionNode: node [
+	^ node copy
+		declaration: (node declaration ifNotNil: [:n | self visitNode: n]);
+		body: (self visitNode: node body);
+		yourself
+]
+
+{ #category : #visiting }
 MbndAstTransformVisitor >> visitArgumentDefinitionNode: node [
 	^ node copy
 		name: (node name isMbndAstNode ifTrue: [ self visitNode: node name ] ifFalse: [node name]);
@@ -424,6 +432,16 @@ MbndAstTransformVisitor >> visitIntegerToPointerCastNode: node [
 ]
 
 { #category : #visiting }
+MbndAstTransformVisitor >> visitInterfaceDeclarationNode: node [
+	^ node copy
+]
+
+{ #category : #visiting }
+MbndAstTransformVisitor >> visitInterfaceDefinitionNode: node [
+	^ self visitAbstractTypeDefinitionNode: node
+]
+
+{ #category : #visiting }
 MbndAstTransformVisitor >> visitLexicalScopeNode: node [
 	^ node copy
 		expression: (self visitNode: node expression);
@@ -760,10 +778,7 @@ MbndAstTransformVisitor >> visitStructureDeclarationNode: node [
 
 { #category : #visiting }
 MbndAstTransformVisitor >> visitStructureDefinitionNode: node [
-	^ node copy
-		declaration: (node declaration ifNotNil: [:n | self visitNode: n]);
-		body: (self visitNode: node body);
-		yourself
+	^ self visitAbstractTypeDefinitionNode: node
 ]
 
 { #category : #visiting }
@@ -777,6 +792,16 @@ MbndAstTransformVisitor >> visitTemplateDefinitionNode: node [
 { #category : #visiting }
 MbndAstTransformVisitor >> visitTemplatedMetaBuilderInstanceNode: node [
 	^ node
+]
+
+{ #category : #visiting }
+MbndAstTransformVisitor >> visitTraitDeclarationNode: node [
+	^ node copy
+]
+
+{ #category : #visiting }
+MbndAstTransformVisitor >> visitTraitDefinitionNode: node [
+	^ self visitAbstractTypeDefinitionNode: node
 ]
 
 { #category : #visiting }

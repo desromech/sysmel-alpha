@@ -503,6 +503,25 @@ MbndAstBuilderTest >> testIntegerToFloatingPointCastNode [
 ]
 
 { #category : #tests }
+MbndAstBuilderTest >> testInterfaceDeclarationNode [
+	| node |
+	node := builder declareInterface: #Test.
+	self assert: node isInterfaceDeclarationNode.
+	self assert: node name equals: #Test.
+]
+
+{ #category : #tests }
+MbndAstBuilderTest >> testInterfaceDefinitionNode [
+	| node body |
+	body := builder sequence: #().
+	node := builder defineInterfaceNamed: #Test body: body.
+	self assert: node isInterfaceDefinitionNode.
+	self assert: node declaration isInterfaceDeclarationNode.
+	self assert: node declaration name equals: #Test.
+	self assert: node body equals: body.
+]
+
+{ #category : #tests }
 MbndAstBuilderTest >> testLexicalScope2Node [
 	| node expression |
 	expression := builder identifier: #hello.
@@ -1084,6 +1103,25 @@ MbndAstBuilderTest >> testTemplateDefinition [
 	self assert: node arguments equals: arguments.
 	self assert: node body isStructureDefinitionNode.
 
+]
+
+{ #category : #tests }
+MbndAstBuilderTest >> testTraitDeclarationNode [
+	| node |
+	node := builder declareTrait: #Test.
+	self assert: node isTraitDeclarationNode.
+	self assert: node name equals: #Test.
+]
+
+{ #category : #tests }
+MbndAstBuilderTest >> testTraitDefinitionNode [
+	| node body |
+	body := builder sequence: #().
+	node := builder defineTraitNamed: #Test body: body.
+	self assert: node isTraitDefinitionNode.
+	self assert: node declaration isTraitDeclarationNode.
+	self assert: node declaration name equals: #Test.
+	self assert: node body equals: body.
 ]
 
 { #category : #tests }

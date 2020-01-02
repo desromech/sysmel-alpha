@@ -528,6 +528,28 @@ MbndAstTransformVisitorTest >> testIntegerToFloatingPointCastNode [
 ]
 
 { #category : #tests }
+MbndAstTransformVisitorTest >> testInterfaceDeclarationNode [
+	| node transformedNode |
+	node := builder declareInterface: #Test.
+	transformedNode := visitor visitNode: node.
+	self assert: transformedNode ~~ node.
+	self assert: transformedNode isInterfaceDeclarationNode.
+	self assert: transformedNode name equals: node name.
+]
+
+{ #category : #tests }
+MbndAstTransformVisitorTest >> testInterfaceDefinitionNode [
+	| node body transformedNode |
+	body := builder sequence: #().
+	node := builder defineInterfaceNamed: #Test body: body.
+	transformedNode := visitor visitNode: node.
+	self assert: transformedNode isInterfaceDefinitionNode.
+	self assert: transformedNode declaration isInterfaceDeclarationNode.
+	self assert: transformedNode declaration name equals: #Test.
+	self assert: transformedNode body elements equals: body elements.
+]
+
+{ #category : #tests }
 MbndAstTransformVisitorTest >> testLexicalScopeNode [
 	| node transformedNode scoped |
 	scoped := builder identifier: #predicate.
@@ -1054,6 +1076,28 @@ MbndAstTransformVisitorTest >> testTemplateDefinition [
 	self assert: transformedNode arguments first name equals: arguments first name.
 	self assert: transformedNode body isStructureDefinitionNode.
 
+]
+
+{ #category : #tests }
+MbndAstTransformVisitorTest >> testTraitDeclarationNode [
+	| node transformedNode |
+	node := builder declareTrait: #Test.
+	transformedNode := visitor visitNode: node.
+	self assert: transformedNode ~~ node.
+	self assert: transformedNode isTraitDeclarationNode.
+	self assert: transformedNode name equals: node name.
+]
+
+{ #category : #tests }
+MbndAstTransformVisitorTest >> testTraitDefinitionNode [
+	| node body transformedNode |
+	body := builder sequence: #().
+	node := builder defineTraitNamed: #Test body: body.
+	transformedNode := visitor visitNode: node.
+	self assert: transformedNode isTraitDefinitionNode.
+	self assert: transformedNode declaration isTraitDeclarationNode.
+	self assert: transformedNode declaration name equals: #Test.
+	self assert: transformedNode body elements equals: body elements.
 ]
 
 { #category : #tests }

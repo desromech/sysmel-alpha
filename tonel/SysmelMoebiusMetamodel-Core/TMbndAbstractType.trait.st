@@ -791,6 +791,11 @@ TMbndAbstractType >> isInputChannelType [
 ]
 
 { #category : #'testing methods' }
+TMbndAbstractType >> isInterfaceType [
+	^ false
+]
+
+{ #category : #'testing methods' }
 TMbndAbstractType >> isLiteralArrayType [
 	^ false
 ]
@@ -1040,6 +1045,11 @@ TMbndAbstractType >> isTextureType [
 
 { #category : #'testing methods' }
 TMbndAbstractType >> isTrait [
+	^ false
+]
+
+{ #category : #'testing methods' }
+TMbndAbstractType >> isTraitType [
 	^ false
 ]
 

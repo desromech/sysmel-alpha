@@ -1203,6 +1203,37 @@ MbndAstSemanticAnalyzerTest >> testIntegerToFloatingPointCast [
 ]
 
 { #category : #tests }
+MbndAstSemanticAnalyzerTest >> testInterfaceDeclarationBuilderExpansion [
+	| node analyzedNode |
+	node := builder identifier: #interface.
+	node := builder unexpandedSend: (builder literalSymbol: #x) to: node withArguments: #().
+	analyzedNode := visitor visitNode: node.
+	self assert: analyzedNode isInterfaceDeclarationNode.
+	self assert: (scope lookupSymbolRecursively: #x ifAbsent: [nil]) isNotNil.
+	self assert: analyzedNode binding isNotNil.
+	self assert: analyzedNode binding isInterfaceType.
+	self assert: analyzedNode binding type instanceType equals: analyzedNode binding.
+
+]
+
+{ #category : #tests }
+MbndAstSemanticAnalyzerTest >> testInterfaceDefinitionBuilderExpansion [
+	| node analyzedNode |
+	node := builder identifier: #interface.
+	node := builder unexpandedSend: (builder literalSymbol: #x) to: node withArguments: #().
+	node := builder unexpandedSend: (builder literalSymbol: #definition:) to: node withArguments: {
+		builder sequence: #()
+	}.
+	analyzedNode := visitor visitNode: node.
+	self assert: analyzedNode isInterfaceDefinitionNode.
+	self assert: (scope lookupSymbolRecursively: #x ifAbsent: [nil]) isNotNil.
+	self assert: analyzedNode binding isNotNil.
+	self assert: analyzedNode binding isInterfaceType.
+	self assert: analyzedNode binding type instanceType equals: analyzedNode binding.
+
+]
+
+{ #category : #tests }
 MbndAstSemanticAnalyzerTest >> testInvalidQuasiUnquote [
 	| node |
 	node := builder quasiUnquote: (builder quote: (builder literalInteger: 42)).
@@ -1246,6 +1277,17 @@ MbndAstSemanticAnalyzerTest >> testLetMacroBuilderExpansion [
 	self assert: analyzedNode isLocalVariableDefinitionNode.
 	self assert: analyzedNode initialValue isNil.
 	self assert: analyzedNode type equals: compilationTarget int32Type.
+]
+
+{ #category : #tests }
+MbndAstSemanticAnalyzerTest >> testLetMetabuilderNameWarning [
+	| node |
+	node := builder identifier: #let.
+	node := builder unexpandedSend: (builder literalSymbol: #class) to: node withArguments: #().
+	node := builder unexpandedSend: (builder literalSymbol: #assignValue:) to: node withArguments: {
+		builder literalInteger: 42
+	}.
+	self should: [visitor visitNode: node] raise: MbndCompilationWarning.
 ]
 
 { #category : #tests }
@@ -2173,6 +2215,37 @@ MbndAstSemanticAnalyzerTest >> testTemplateInstance [
 	self assert: structureType type instanceType equals: structureType.
 	self assert: structureType fields size equals: 1.
 	self assert: structureType fields first valueType equals: compilationTarget int32Type.
+]
+
+{ #category : #tests }
+MbndAstSemanticAnalyzerTest >> testTraitDeclarationBuilderExpansion [
+	| node analyzedNode |
+	node := builder identifier: #trait.
+	node := builder unexpandedSend: (builder literalSymbol: #x) to: node withArguments: #().
+	analyzedNode := visitor visitNode: node.
+	self assert: analyzedNode isTraitDeclarationNode.
+	self assert: (scope lookupSymbolRecursively: #x ifAbsent: [nil]) isNotNil.
+	self assert: analyzedNode binding isNotNil.
+	self assert: analyzedNode binding isTraitType.
+	self assert: analyzedNode binding type instanceType equals: analyzedNode binding.
+
+]
+
+{ #category : #tests }
+MbndAstSemanticAnalyzerTest >> testTraitDefinitionBuilderExpansion [
+	| node analyzedNode |
+	node := builder identifier: #trait.
+	node := builder unexpandedSend: (builder literalSymbol: #x) to: node withArguments: #().
+	node := builder unexpandedSend: (builder literalSymbol: #definition:) to: node withArguments: {
+		builder sequence: #()
+	}.
+	analyzedNode := visitor visitNode: node.
+	self assert: analyzedNode isTraitDefinitionNode.
+	self assert: (scope lookupSymbolRecursively: #x ifAbsent: [nil]) isNotNil.
+	self assert: analyzedNode binding isNotNil.
+	self assert: analyzedNode binding isTraitType.
+	self assert: analyzedNode binding type instanceType equals: analyzedNode binding.
+
 ]
 
 { #category : #tests }

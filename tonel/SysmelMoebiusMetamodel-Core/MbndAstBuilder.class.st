@@ -199,10 +199,28 @@ MbndAstBuilder >> declareGCClass: name [
 ]
 
 { #category : #'builder methods' }
+MbndAstBuilder >> declareInterface: name [
+	<compileTime>
+	<returnType: #_ASTNodeType>
+	^ MbndAstInterfaceDeclarationNode new
+		name: name;
+		yourself
+]
+
+{ #category : #'builder methods' }
 MbndAstBuilder >> declareStructure: name [
 	<compileTime>
 	<returnType: #_ASTNodeType>
 	^ MbndAstStructureDeclarationNode new
+		name: name;
+		yourself
+]
+
+{ #category : #'builder methods' }
+MbndAstBuilder >> declareTrait: name [
+	<compileTime>
+	<returnType: #_ASTNodeType>
+	^ MbndAstTraitDeclarationNode new
 		name: name;
 		yourself
 ]
@@ -308,6 +326,23 @@ MbndAstBuilder >> defineGlobalVariable: name withValueType: valueType withInitia
 ]
 
 { #category : #'builder methods' }
+MbndAstBuilder >> defineInterface: declaration body: body [
+	<compileTime>
+	<returnType: #_ASTNodeType>
+	^ MbndAstInterfaceDefinitionNode new
+		declaration: declaration;
+		body: body;
+		yourself
+]
+
+{ #category : #'builder methods' }
+MbndAstBuilder >> defineInterfaceNamed: name body: body [
+	<compileTime>
+	<returnType: #_ASTNodeType>
+	^ self defineInterface: (self declareInterface: name) body: body
+]
+
+{ #category : #'builder methods' }
 MbndAstBuilder >> defineLocalVariable: name withValueType: valueType withInitialValue: initialValue [
 	<compileTime>
 	<returnType: #_ASTNodeType>
@@ -350,6 +385,23 @@ MbndAstBuilder >> defineTemplate: name arguments: arguments body: body [
 		arguments: arguments;
 		body: body;
 		yourself
+]
+
+{ #category : #'builder methods' }
+MbndAstBuilder >> defineTrait: declaration body: body [
+	<compileTime>
+	<returnType: #_ASTNodeType>
+	^ MbndAstTraitDefinitionNode new
+		declaration: declaration;
+		body: body;
+		yourself
+]
+
+{ #category : #'builder methods' }
+MbndAstBuilder >> defineTraitNamed: name body: body [
+	<compileTime>
+	<returnType: #_ASTNodeType>
+	^ self defineTrait: (self declareTrait: name) body: body
 ]
 
 { #category : #'builder methods' }

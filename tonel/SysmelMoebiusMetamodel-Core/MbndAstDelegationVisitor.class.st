@@ -313,6 +313,16 @@ MbndAstDelegationVisitor >> visitIntegerToPointerCastNode: node [
 ]
 
 { #category : #visiting }
+MbndAstDelegationVisitor >> visitInterfaceDeclarationNode: node [
+	^ self delegateNodeVisit: node
+]
+
+{ #category : #visiting }
+MbndAstDelegationVisitor >> visitInterfaceDefinitionNode: node [
+	^ self delegateNodeVisit: node
+]
+
+{ #category : #visiting }
 MbndAstDelegationVisitor >> visitLexicalScopeNode: node [
 	^ self delegateNodeVisit: node
 ]

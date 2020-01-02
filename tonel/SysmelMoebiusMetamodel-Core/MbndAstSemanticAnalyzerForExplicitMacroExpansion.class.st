@@ -38,6 +38,17 @@ MbndAstSemanticAnalyzerForExplicitMacroExpansion >> astBuilder [
 	^ astBuilder ifNil: [ astBuilder := MbndAstBuilder forModule: module ]
 ]
 
+{ #category : #'as yet unclassified' }
+MbndAstSemanticAnalyzerForExplicitMacroExpansion >> checkForRestrictedSymbol: symbolName at: node [
+	| found |
+	found := scope lookupSymbolRecursively: symbolName ifAbsent: [ ^ self ].
+	found ifNil: [ ^ self ].
+	found isMetaBuilderFactory ifTrue: [ 
+		self warning: 'Symbol #{1} bound to metabuild is overriden at this scope.' format: { symbolName asPrettySymbolName } at: node
+	].
+
+]
+
 { #category : #accessing }
 MbndAstSemanticAnalyzerForExplicitMacroExpansion >> compilationTarget [
 	^ compilationTarget ifNil: [ compilationTarget := module compilationTarget ]

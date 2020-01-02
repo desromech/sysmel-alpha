@@ -396,6 +396,16 @@ MbndAstNode >> isIntegerToPointerCastNode [
 ]
 
 { #category : #testing }
+MbndAstNode >> isInterfaceDeclarationNode [
+	^ false
+]
+
+{ #category : #testing }
+MbndAstNode >> isInterfaceDefinitionNode [
+	^ false
+]
+
+{ #category : #testing }
 MbndAstNode >> isLexicalScopeNode [
 	^ false
 ]
@@ -678,6 +688,16 @@ MbndAstNode >> isTemplateDefinitionNode [
 
 { #category : #testing }
 MbndAstNode >> isTemplatedMetaBuilderInstanceNode [
+	^ false
+]
+
+{ #category : #testing }
+MbndAstNode >> isTraitDeclarationNode [
+	^ false
+]
+
+{ #category : #testing }
+MbndAstNode >> isTraitDefinitionNode [
 	^ false
 ]
 

@@ -216,7 +216,8 @@ MbndAstSemanticAnalyzer >> createLocalVariableNamed: localVariableName withValue
 	owner := scope lookupProgramEntityForNewDefinitions.
 
 	"Add the variable to the current scope."
-	localVariableName isMbndAnonymousSymbol ifFalse: [ 
+	localVariableName isMbndAnonymousSymbol ifFalse: [
+		self checkForRestrictedSymbol: localVariableName at: definitionNode.
 		scope addSymbol: localVariableName binding: localVariable ifPresent: [ :previousDefinition |
 			self error: 'Variable {1} overrides a previous definition in the same scope.' format: { localVariableName asPrettySymbolName } at: definitionNode
 		].
@@ -1286,6 +1287,16 @@ MbndAstSemanticAnalyzer >> visitInlineAssembly: node [
 ]
 
 { #category : #visiting }
+MbndAstSemanticAnalyzer >> visitInterfaceDeclarationNode: node [
+	^ self visitTypeDeclarationNode: node ofKind: MbndInterfaceType
+]
+
+{ #category : #visiting }
+MbndAstSemanticAnalyzer >> visitInterfaceDefinitionNode: node [
+	^ self visitTypeDefinitionNode: node ofKind: MbndInterfaceType
+]
+
+{ #category : #visiting }
 MbndAstSemanticAnalyzer >> visitLexicalScopeNode: node [
 	| result |
 	result := node copy.
@@ -1963,6 +1974,16 @@ MbndAstSemanticAnalyzer >> visitTemplateDefinitionNode: node [
 		type: template type;
 		yourself
 
+]
+
+{ #category : #visiting }
+MbndAstSemanticAnalyzer >> visitTraitDeclarationNode: node [
+	^ self visitTypeDeclarationNode: node ofKind: MbndTraitType
+]
+
+{ #category : #visiting }
+MbndAstSemanticAnalyzer >> visitTraitDefinitionNode: node [
+	^ self visitTypeDefinitionNode: node ofKind: MbndTraitType
 ]
 
 { #category : #visiting }

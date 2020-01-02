@@ -112,6 +112,8 @@ MbndAstNodeTest >> testTestingMethods [
 	self deny: node isIntegerToDynamicObjectCastNode.
 	self deny: node isIntegerToFloatingPointCastNode.
 	self deny: node isIntegerToPointerCastNode.
+	self deny: node isInterfaceDeclarationNode.
+	self deny: node isInterfaceDefinitionNode.
 	self deny: node isImmediateBlockClosureActivationNode.
 	self deny: node isImplicitCastNode.
 	self deny: node isIOChannelActionNode.
@@ -167,6 +169,8 @@ MbndAstNodeTest >> testTestingMethods [
 	self deny: node isSubscriptElementReferenceNode .
 	self deny: node isTemplatedMetaBuilderInstanceNode.
 	self deny: node isTemplateDefinitionNode.
+	self deny: node isTraitDeclarationNode.
+	self deny: node isTraitDefinitionNode.
 	self deny: node isTruncateCastNode.
 	self deny: node isTupleNode.
 	self deny: node isTupleToArrayCastNode.

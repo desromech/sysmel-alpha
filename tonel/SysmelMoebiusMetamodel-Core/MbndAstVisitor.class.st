@@ -310,6 +310,16 @@ MbndAstVisitor >> visitIntegerToPointerCastNode: node [
 ]
 
 { #category : #visiting }
+MbndAstVisitor >> visitInterfaceDeclarationNode: node [
+	self subclassResponsibility
+]
+
+{ #category : #visiting }
+MbndAstVisitor >> visitInterfaceDefinitionNode: node [
+	self subclassResponsibility
+]
+
+{ #category : #visiting }
 MbndAstVisitor >> visitLexicalScopeNode: node [
 	self subclassResponsibility
 ]
@@ -566,6 +576,16 @@ MbndAstVisitor >> visitTemplateDefinitionNode: node [
 
 { #category : #visiting }
 MbndAstVisitor >> visitTemplatedMetaBuilderInstanceNode: node [
+	self subclassResponsibility
+]
+
+{ #category : #visiting }
+MbndAstVisitor >> visitTraitDeclarationNode: node [
+	self subclassResponsibility
+]
+
+{ #category : #visiting }
+MbndAstVisitor >> visitTraitDefinitionNode: node [
 	self subclassResponsibility
 ]
 
