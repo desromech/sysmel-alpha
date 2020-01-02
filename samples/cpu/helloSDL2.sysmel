@@ -3,6 +3,8 @@ useNamespace: SDL2.
 global window mutable type: SDL_Window pointer.
 global renderer mutable type: SDL_Renderer pointer.
 global isQuitting mutable := false.
+
+global audioMutex mutable type: StdNative Mutex.
 global audioDeviceID mutable type: SDL_AudioDeviceID.
 global audioDeviceSpec mutable type: SDL_AudioSpec.
 global audioTemporaryBuffer mutable type: Float32x2 pointer.
@@ -83,15 +85,15 @@ class SineChannel superclass: SoundChannel; definition: {
 	public field frequency type: Float32.
 
 	field currentSampleIndex type: UInt32.
-	
+
 	override method mixSamples: (sampleCount: UInt32) samplePeriod: (samplePeriod: Float32) intoBuffer: (mixBuffer: Float32x2 pointer) ::=> Void := {
-		## Mix the samples	
+		## Mix the samples
 		0 until: sampleCount do: {:(UInt32)i :: Void |
 			let absoluteSampleTime := (currentSampleIndex + i)*samplePeriod.
 			let c := (absoluteSampleTime * frequency * Float32 twoPi) cos * amplitude.
 			mixBuffer[i] := mixBuffer[i] + Float32x2(c, c)
 		}.
-		
+
 		currentSampleIndex := currentSampleIndex + sampleCount.
 	}.
 }.
@@ -138,7 +140,7 @@ function processEvents() => Void := {
 
 function drawCharacter(character: Character ref) => Void := {
 	let color := (character color clampMin: 0.0 max: 1.0)*255.0 castTo: UInt8x4.
-	
+
 	let boundingBox := character boundingBox.
 	let negativeCorner := viewMatrix * Float32x3(boundingBox min, 1.0) castTo: Int32x2.
 	let positiveCorner := viewMatrix * Float32x3(boundingBox max, 1.0) castTo: Int32x2.
@@ -188,23 +190,25 @@ function mixAudioSamples(mixBuffer: Float32x2 pointer, sampleCount: UInt32) => V
 	## Clear the mixing buffer.
 	StdNative memset(mixBuffer, 0, sampleCount * Float32x2 instanceSize).
 
-	## Add each one of the sound channels into the mixing buffer.
-	soundChannels do: {:(SoundChannel pointer)channel :: Void |
-		channel _ mixSamples: sampleCount samplePeriod: samplePeriod intoBuffer: mixBuffer
+	audioMutex withLock: {
+		## Add each one of the sound channels into the mixing buffer.
+		soundChannels do: {:(SoundChannel pointer)channel :: Void |
+			channel _ mixSamples: sampleCount samplePeriod: samplePeriod intoBuffer: mixBuffer
+		}.
 	}.
-	
+
 }.
 
 function audioCallback(userdata: Void pointer, stream: UInt8 pointer, len: Int32) => Void := {
 	let channels := audioDeviceSpec channels.
 	let sampleByteSize := audioDeviceSpec sampleByteSize.
 	let sampleCount := len / (sampleByteSize * channels) castTo: UInt32.
-	
+
 	audioDeviceSpec format = AUDIO_F32 ifTrue: {
 		mixAudioSamples(stream reinterpretCastTo: Float32x2 pointer, sampleCount).
 		return: nil
 	}.
-	
+
 	mixAudioSamples(audioTemporaryBuffer, sampleCount).
 
 	audioDeviceSpec format selectCase: #{
@@ -245,7 +249,7 @@ function main externC (argc: Int32, argv: Char8 const pointer pointer) => Int32 
 	renderer ifNil: {
 		return: 1.
 	}.
-	
+
 	{
 		let desiredAudioSpec mutable := SDL_AudioSpec newValue
 			freq: 48000;
@@ -259,7 +263,7 @@ function main externC (argc: Int32, argv: Char8 const pointer pointer) => Int32 
 			audioTemporaryBuffer := StdNative malloc(audioDeviceSpec samples * 8) reinterpretCastTo: Float32x2 pointer.
 		}.
 	}.
-	
+
 	{
 		player := Player nativeNew.
 		characters add: player.
@@ -276,7 +280,7 @@ function main externC (argc: Int32, argv: Char8 const pointer pointer) => Int32 
 		enemy _ position: Float32x2(4.0, 0.0).
 		characters add: enemy.
 	}.
-	
+
 	{
 		let sineChannel mutable := SineChannel nativeNew.
 		sineChannel _
@@ -336,7 +340,7 @@ function main externC (argc: Int32, argv: Char8 const pointer pointer) => Int32 
 		SDL_CloseAudioDevice(audioDeviceID).
 		StdNative free(audioTemporaryBuffer).
 	}.
-	
+
 	characters do: #nativeDelete.
 	soundChannels do: #nativeDelete.
 
