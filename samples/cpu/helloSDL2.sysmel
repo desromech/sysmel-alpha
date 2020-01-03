@@ -205,9 +205,46 @@ class SoundChannel definition: {
 	}.
 }.
 
-class SineChannel superclass: SoundChannel; definition: {
+class NoiseChannel; superclass: SoundChannel; definition: {
+	public field amplitude type: Float32.
+
+	field currentSampleIndex type: UInt32.
+
+	field randomState type: UInt64.
+
+	method nextRandomSample => Float32 := {
+		randomState = 0 ifTrue: {randomState := 1}.
+
+		## Xor shift generator.
+		## https://en.wikipedia.org/wiki/Xorshift [January 3th, 2020]
+		let x mutable := randomState.
+		x := x ^ (x << 13).
+		x := x ^ (x >> 7).
+		x := x ^ (x << 17).
+		randomState := x.
+
+		let unormValue := (randomState castTo: Float64) / 18446744073709551615.0.
+		unormValue*2.0 - 1.0 castTo: Float32
+	}.
+
+	override method mixSamples: (sampleCount: UInt32) samplePeriod: (samplePeriod: Float32) intoBuffer: (mixBuffer: Float32x2 pointer) ::=> Void := {
+		## Mix the samples
+		0 until: sampleCount do: {:(UInt32)i :: Void |
+			##let absoluteSampleTime := (currentSampleIndex + i)*samplePeriod.
+			let sample := self nextRandomSample * amplitude.
+			mixBuffer[i] := mixBuffer[i] + sample
+		}.
+
+		currentSampleIndex := currentSampleIndex + sampleCount.
+	}.
+}.
+
+template ToneFunctionSoundChannel(toneFunction: _FunctionType ref)
+	:= class superclass: SoundChannel; definition: {
 	public field amplitude type: Float32.
 	public field frequency type: Float32.
+	public field phase type: Float32.
+	public field extraParam type: Float32.
 
 	field currentSampleIndex type: UInt32.
 
@@ -215,13 +252,28 @@ class SineChannel superclass: SoundChannel; definition: {
 		## Mix the samples
 		0 until: sampleCount do: {:(UInt32)i :: Void |
 			let absoluteSampleTime := (currentSampleIndex + i)*samplePeriod.
-			let c := (absoluteSampleTime * frequency * Float32 twoPi) cos * amplitude.
-			mixBuffer[i] := mixBuffer[i] + Float32x2(c, c)
+			let sample := toneFunction(absoluteSampleTime * frequency + phase, extraParam) * amplitude.
+			mixBuffer[i] := mixBuffer[i] + sample
 		}.
 
 		currentSampleIndex := currentSampleIndex + sampleCount.
 	}.
 }.
+
+compileTimeConstant SineChannel := ToneFunctionSoundChannel(
+	function(x: Float32, _: Float32) => Float32
+		:= (x * Float32 twoPi) sin
+).
+
+compileTimeConstant PulseChannel := ToneFunctionSoundChannel(
+	function(x: Float32, pulseWidth: Float32) => Float32
+		:= (x fract stepValue: pulseWidth)*2.0f - 1.0f
+).
+
+compileTimeConstant SawChannel := ToneFunctionSoundChannel(
+	function(x: Float32, _: Float32) => Float32
+		:= x fract*2.0f - 1.0f
+).
 
 global entities mutable type: (StdNative OrderedCollection(Entity pointer)).
 global soundChannels mutable type: (StdNative OrderedCollection(SoundChannel pointer)).
@@ -264,8 +316,8 @@ function processEvents() => Void := {
 function fillRectangle(worldRectangle: Box2D, color: Float32x4) => Void := {
 	let color32 := (color clampMin: 0.0 max: 1.0)*255.0 castTo: UInt8x4.
 
-	let negativeCorner := viewMatrix * Float32x3(worldRectangle min, 1.0) castTo: Int32x2.
-	let positiveCorner := viewMatrix * Float32x3(worldRectangle max, 1.0) castTo: Int32x2.
+	let negativeCorner := (viewMatrix * Float32x3(worldRectangle min, 1.0)) floor castTo: Int32x2.
+	let positiveCorner := (viewMatrix * Float32x3(worldRectangle max, 1.0)) floor castTo: Int32x2.
 
 	let minCorner := negativeCorner min: positiveCorner.
 	let maxCorner := negativeCorner max: positiveCorner.
@@ -429,19 +481,19 @@ function main externC (argc: Int32, argv: Char8 const pointer pointer) => Int32 
 	}.
 
 	{
-		let sineChannel mutable := SineChannel nativeNew.
-		sineChannel _
+		let pulseChannel mutable := PulseChannel nativeNew.
+		pulseChannel _
 			frequency: 440.0;
-			amplitude: 0.05.
-		soundChannels add: sineChannel.
+			amplitude: 0.05;
+			extraParam: 0.15.
+		soundChannels add: pulseChannel.
 	}.
 
 	{
-		let sineChannel mutable := SineChannel nativeNew.
-		sineChannel _
-			frequency: 220.0;
+		let noiseChannel mutable := NoiseChannel nativeNew.
+		noiseChannel _
 			amplitude: 0.1.
-		soundChannels add: sineChannel.
+		soundChannels add: noiseChannel.
 	}.
 	audioDeviceID ~= 0 ifTrue: {
 		SDL_PauseAudioDevice(audioDeviceID, 0).
