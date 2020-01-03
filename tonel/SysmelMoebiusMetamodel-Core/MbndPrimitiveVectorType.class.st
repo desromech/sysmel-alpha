@@ -28,7 +28,7 @@ MbndPrimitiveVectorType >> addArithmeticIntrinsics [
 			addBuiltIn: #length2 intrinsicNamed: #'vector.length2' argumentTypes: #() returnType: elementType evaluatedWith: [:receiver :arguments :evaluator :node |
 				self halt.
 			];
-			addBuiltIn: #normalized: intrinsicNamed: #'vector.normalize' argumentTypes: #() returnType: self evaluatedWith: [:receiver :arguments :evaluator :node |
+			addBuiltIn: #normalized intrinsicNamed: #'vector.normalize' argumentTypes: #() returnType: self evaluatedWith: [:receiver :arguments :evaluator :node |
 				self halt.
 			];
 			addBuiltIn: #dot: intrinsicNamed: #'vector.dot' argumentTypes: {self} returnType: elementType evaluatedWith: [:receiver :arguments :evaluator :node |
