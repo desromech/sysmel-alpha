@@ -1,0 +1,2 @@
+## In some platforms we may need to link to -lm.
+Compiler addLinkerArguments: Compiler compilationTarget standardMathLibraryLinkerArguments.

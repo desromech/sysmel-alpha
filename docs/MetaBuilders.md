@@ -75,7 +75,7 @@ gcclass SubClass superclass: SuperClass; definition: {
 
 --------------------------------------------------------------------------------
 ### **interface**
-Declaration of virtual methods. This is analog to a C++ with only pure virtual
+Declaration of virtual methods. This is analog to a C++ class with only pure virtual
 methods.
 
 ```sysmel

@@ -4,3 +4,4 @@ loadFileOnce: "assembly.sysmel".
 loadFileOnce: "atomic.sysmel".
 loadFileOnce: "boolean.sysmel".
 loadFileOnce: "primitive-macros.sysmel".
+loadFileOnce: "math.sysmel".
