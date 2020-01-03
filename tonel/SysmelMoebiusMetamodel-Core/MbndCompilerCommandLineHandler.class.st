@@ -45,7 +45,7 @@ MbndCompilerCommandLineHandler >> activate [
 			architecture := #x86.
 		].
 		arg = '-mvulkan' ifTrue: [  
-			architecture := #spirv_logical64.
+			architecture := #spirv_vulkan.
 			emitLLVM := false.
 			gpu := true.
 		].
@@ -104,6 +104,10 @@ MbndCompilerCommandLineHandler >> activate [
 
 		arg = '-nortti' ifTrue: [
 			compilationOptions add: [ :c | c noRTTI ].
+		].
+
+		arg = '-nogc' ifTrue: [
+			compilationOptions add: [ :c | c noGC ].
 		].
 
 		arg = '-freestanding' ifTrue: [

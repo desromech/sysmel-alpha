@@ -497,6 +497,12 @@ TMbndAbstractCompilationTarget >> specificCompilerObjectTypeFor: aBehavior [
 	self explicitRequirement
 ]
 
+{ #category : #'platform testing' }
+TMbndAbstractCompilationTarget >> standardMathLibraryLinkerArguments [
+	self isUnix ifTrue: [ ^ #('-lm') ].
+	^ #()
+]
+
 { #category : #'convenience type accessors' }
 TMbndAbstractCompilationTarget >> templateType [
 	^ self getBasicTypeNamed: MbndTemplateType typeName
