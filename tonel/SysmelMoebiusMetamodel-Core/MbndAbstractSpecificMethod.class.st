@@ -121,6 +121,12 @@ MbndAbstractSpecificMethod >> mbndLiteralTypeWithTarget: compilationTarget [
 	^ type ref
 ]
 
+{ #category : #printing }
+MbndAbstractSpecificMethod >> printOn: aStream [
+	name ifNotNil: [ ^ aStream nextPutAll: name ].
+	aStream nextPutAll: '__anon'
+]
+
 { #category : #accessing }
 MbndAbstractSpecificMethod >> receiverType [
 	^ receiverType

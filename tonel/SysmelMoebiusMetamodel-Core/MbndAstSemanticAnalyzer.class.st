@@ -761,7 +761,7 @@ MbndAstSemanticAnalyzer >> visitEnumDefinitionNode: node [
 	result binding baseType: valueType.
 
 	"Set the defined flag"
-	result binding addFlag: #defined.
+	result binding markAsDefined.
 	
 	"Create a new lexical scope for the definition body."	
 	definitionScope := (result binding programEntityScope parent: scope) newLexicalScopeAt: result.
@@ -1728,7 +1728,7 @@ MbndAstSemanticAnalyzer >> visitProgramEntityExtensionNode: node [
 		^ self astBuilder literalVoid
 	].
 
-	programEntity addFlag: #defined.
+	programEntity markAsDefined.
 	self withScope: ((programEntity programEntityScope parent: scope) newLexicalScopeAt: node) do: [ 
 		self evaluateCompileTimeExpression: node body
 	].
@@ -2071,7 +2071,7 @@ MbndAstSemanticAnalyzer >> visitTypeDefinitionNode: node ofKind: typeKindClass [
 	].
 
 	"Set the defined flag"
-	result binding addFlag: #defined.
+	result binding markAsDefined.
 	
 	"Create a new lexical scope for the definition body."	
 	definitionScope := ((result binding programEntityScope parent: scope) newLexicalScopeAt: result).

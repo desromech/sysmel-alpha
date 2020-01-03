@@ -269,11 +269,6 @@ MbndAggregateTypeWithFields >> instanceSize [
 	^ self instanceDataSize
 ]
 
-{ #category : #'semantic analysis' }
-MbndAggregateTypeWithFields >> isDefined [
-	^ self hasFlag: #defined
-]
-
 { #category : #layout }
 MbndAggregateTypeWithFields >> nonTraitSuperType [
 	^ (self compilationTarget getBasicTypeNamed: self class typeName) == supertype

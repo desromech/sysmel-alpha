@@ -59,7 +59,9 @@ TMbndBasicType >> lookupLocalOverloadedSelector: aSelector [
 { #category : #'macro expansion' }
 TMbndBasicType >> lookupOverloadedSelector: aSelector [
 	| method |
-	#(basicInitialize initialize initializeFromCopy: initializeMovingFrom: finalize) includes: [ self ensureSyntheticMethodExists: aSelector ].
+	(#(basicInitialize initialize initializeFromCopy: initializeMovingFrom: finalize) includes: aSelector) ifTrue: [
+		self ensureSyntheticMethodExists: aSelector
+	].
 	method := self overloadedMethodDict at: aSelector ifAbsent: [ nil ].
 	method ifNotNil: [ ^ method ].
 	^ self supertype ifNotNil: [ :st | st lookupOverloadedSelector: aSelector ]

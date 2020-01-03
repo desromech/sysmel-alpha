@@ -62,11 +62,6 @@ MbndAbstractClassType >> isMetaTypeType [
 ]
 
 { #category : #'as yet unclassified' }
-MbndAbstractClassType >> markAsDefined [
-	self addFlag: #defined
-]
-
-{ #category : #'as yet unclassified' }
 MbndAbstractClassType >> markAsMetaTypeType [
 	^ self addFlag: #metaTypeType
 ]

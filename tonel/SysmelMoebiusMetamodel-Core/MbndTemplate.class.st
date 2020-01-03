@@ -64,7 +64,7 @@ MbndTemplate >> getOrCreateInstanceWithArguments: arguments [
 
 	"Apply the extension fragments."
 	definitionFragments do: [ :fragment | fragment applyToInstance: templateInstance ].
-	
+
 	^ templateInstance
 ]
 

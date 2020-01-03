@@ -391,6 +391,11 @@ TMbndAbstractType >> asUndecoratedClassType [
 	^ self withoutTopDecorations
 ]
 
+{ #category : #accessing }
+TMbndAbstractType >> basicInitializeMethod [
+	^ nil
+]
+
 { #category : #'semantic analysis' }
 TMbndAbstractType >> bestConcreteTypeForLiteralValueNode: literalValueNode inScope: scope [
 	^ self
@@ -664,6 +669,21 @@ TMbndAbstractType >> implicitMethodReceiverType [
 { #category : #'type inference' }
 TMbndAbstractType >> inferValueTypeForNode: initialValueNode inScope: scope [
 	^ self
+]
+
+{ #category : #accessing }
+TMbndAbstractType >> initializeFromCopyMethod [
+	^ nil
+]
+
+{ #category : #accessing }
+TMbndAbstractType >> initializeMethod [
+	^ nil
+]
+
+{ #category : #accessing }
+TMbndAbstractType >> initializeMovingFromMethod [
+	^ nil
 ]
 
 { #category : #'type composition' }
