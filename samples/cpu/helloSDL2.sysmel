@@ -1,5 +1,7 @@
 useNamespace: SDL2.
 
+class SoundChannelWithEnvelope.
+
 let Gravity := Float32x2(0.0, -9.8).
 global window mutable type: SDL_Window pointer.
 global renderer mutable type: SDL_Renderer pointer.
@@ -9,6 +11,9 @@ global audioMutex mutable type: StdNative Mutex.
 global audioDeviceID mutable type: SDL_AudioDeviceID.
 global audioDeviceSpec mutable type: SDL_AudioSpec.
 global audioTemporaryBuffer mutable type: Float32x2 pointer.
+
+global jumpSound mutable type: SoundChannelWithEnvelope pointer.
+global shootSound mutable type: SoundChannelWithEnvelope pointer.
 
 struct Box2D definition: {
 	public field min type: Float32x2.
@@ -185,11 +190,16 @@ class Player superclass: Character; definition: {
 	method jump => Void := {
 		isOnFloor ifTrue: {
 			velocity y: 10.0.
+			audioMutex withLock: {
+				jumpSound _ reset
+			}.
 		}.
 	}.
 
 	method shoot => Void := {
-
+		audioMutex withLock: {
+			shootSound _ reset
+		}.
 	}.
 
 	override method update: (delta: Float32) ::=> Void := {
@@ -200,15 +210,53 @@ class Player superclass: Character; definition: {
 }.
 
 class SoundChannel definition: {
+	virtual method reset => Void := {
+		"By default do nothing"
+	}.
+
 	virtual method mixSamples: (sampleCount: UInt32) samplePeriod: (samplePeriod: Float32) intoBuffer: (mixBuffer: Float32x2 pointer) ::=> Void := {
 		## By default do nothing.
 	}.
 }.
 
-class NoiseChannel; superclass: SoundChannel; definition: {
-	public field amplitude type: Float32.
+class SoundChannelWithEnvelope; superclass: SoundChannel; definition: {
+	public field attackTime type: Float32.
+	public field decayTime type: Float32.
+	public field sustainLevel type: Float32.
+	public field sustainTime type: Float32.
+	public field releaseTime type: Float32.
+	public field paused type: Boolean8.
 
 	field currentSampleIndex type: UInt32.
+
+	override method reset => Void := {
+		currentSampleIndex := 0.
+		paused := false.
+	}.
+
+	method computeEnvelopeFactorAt: (time: Float32) ::=> Float32 := {
+		(attackTime > 0.0f) && (time < attackTime) ifTrue: {
+			return: time / attackTime
+		}.
+		(decayTime > 0.0f) && (time < attackTime + decayTime) ifTrue: {
+			return: (1.0 interpolateTo: sustainLevel at: time - attackTime / decayTime)
+		}.
+
+		(sustainTime > 0.0f) && (time < attackTime + decayTime + sustainTime) ifTrue: {
+			return: sustainLevel
+		}.
+
+		(releaseTime > 0.0f) && (time < attackTime + decayTime + sustainTime + releaseTime) ifTrue: {
+			return: (sustainLevel interpolateTo: 0.0 at: (time - (attackTime + decayTime + sustainTime)) / releaseTime)
+		}.
+
+		paused := true.
+		return: 0.0
+	}
+}.
+
+class NoiseChannel; superclass: SoundChannelWithEnvelope; definition: {
+	public field amplitude type: Float32.
 
 	field randomState type: UInt64.
 
@@ -228,10 +276,13 @@ class NoiseChannel; superclass: SoundChannel; definition: {
 	}.
 
 	override method mixSamples: (sampleCount: UInt32) samplePeriod: (samplePeriod: Float32) intoBuffer: (mixBuffer: Float32x2 pointer) ::=> Void := {
+		paused ifTrue: {return: nil}.
+
 		## Mix the samples
 		0 until: sampleCount do: {:(UInt32)i :: Void |
-			##let absoluteSampleTime := (currentSampleIndex + i)*samplePeriod.
-			let sample := self nextRandomSample * amplitude.
+			let absoluteSampleTime := (currentSampleIndex + i)*samplePeriod.
+			let envelopeFactor := self computeEnvelopeFactorAt: absoluteSampleTime.
+			let sample := self nextRandomSample * amplitude * envelopeFactor.
 			mixBuffer[i] := mixBuffer[i] + sample
 		}.
 
@@ -240,19 +291,20 @@ class NoiseChannel; superclass: SoundChannel; definition: {
 }.
 
 template ToneFunctionSoundChannel(toneFunction: _FunctionType ref)
-	:= class superclass: SoundChannel; definition: {
+	:= class superclass: SoundChannelWithEnvelope; definition: {
 	public field amplitude type: Float32.
 	public field frequency type: Float32.
 	public field phase type: Float32.
 	public field extraParam type: Float32.
 
-	field currentSampleIndex type: UInt32.
-
 	override method mixSamples: (sampleCount: UInt32) samplePeriod: (samplePeriod: Float32) intoBuffer: (mixBuffer: Float32x2 pointer) ::=> Void := {
+		paused ifTrue: {return: nil}.
+
 		## Mix the samples
 		0 until: sampleCount do: {:(UInt32)i :: Void |
 			let absoluteSampleTime := (currentSampleIndex + i)*samplePeriod.
-			let sample := toneFunction(absoluteSampleTime * frequency + phase, extraParam) * amplitude.
+			let envelopeFactor := self computeEnvelopeFactorAt: absoluteSampleTime.
+			let sample := toneFunction(absoluteSampleTime * frequency + phase, extraParam) * amplitude * envelopeFactor.
 			mixBuffer[i] := mixBuffer[i] + sample
 		}.
 
@@ -480,21 +532,43 @@ function main externC (argc: Int32, argv: Char8 const pointer pointer) => Int32 
 		entities add: enemy.
 	}.
 
+	## Shoot sound.
 	{
 		let pulseChannel mutable := PulseChannel nativeNew.
 		pulseChannel _
-			frequency: 440.0;
-			amplitude: 0.05;
-			extraParam: 0.15.
+			frequency: 800.0;
+			amplitude: 0.1;
+			extraParam: 0.15;
+
+			paused: true;
+
+			attackTime: 0.025;
+			decayTime: 0.025;
+			sustainLevel: 0.4;
+			sustainTime: 0.1;
+			releaseTime: 0.3.
+
+		shootSound := pulseChannel.
 		soundChannels add: pulseChannel.
 	}.
 
+	## Jump sound.
 	{
 		let noiseChannel mutable := NoiseChannel nativeNew.
 		noiseChannel _
-			amplitude: 0.1.
+			amplitude: 0.1;
+
+			paused: true;
+
+			attackTime: 0.02;
+			decayTime: 0.02;
+			sustainLevel: 0.2;
+			sustainTime: 0.1;
+			releaseTime: 0.2.
+		jumpSound := noiseChannel.
 		soundChannels add: noiseChannel.
 	}.
+
 	audioDeviceID ~= 0 ifTrue: {
 		SDL_PauseAudioDevice(audioDeviceID, 0).
 	}.
