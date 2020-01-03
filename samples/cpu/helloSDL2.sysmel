@@ -294,11 +294,21 @@ function render() => Void := {
 	## Compute the view matrix
 	{
 		let viewScale := 1.0 / 10.0 castTo: Float32.
-		viewMatrix := Float32x2x3(
-			Float32x2(640.0*viewScale, 0.0),
-			Float32x2(0.0, -480.0*viewScale),
-			Float32x2(320, 240)
+		let viewScaleMatrix := Float32x3x3(
+			Float32x3(640.0f*viewScale, 0.0f, 0.0f),
+			Float32x3(0.0f, -480.0f*viewScale, 0.0f),
+			Float32x3(320.0f, 240.0f, 1.0f)
 		).
+		let cameraMatrix := Float32x3x3(
+			Float32x3(1.0f, 0.0f, 0.0f),
+			Float32x3(0.0f, 1.0f, 0.0f),
+			Float32x3(player _ position negated + Float32x2(-2.0f, -2.0f), 1.0f)).
+		let fullViewMatrix := viewScaleMatrix * cameraMatrix.
+
+		viewMatrix := Float32x2x3(
+			fullViewMatrix firstColumn xy,
+			fullViewMatrix secondColumn xy,
+			fullViewMatrix thirdColumn xy).
 	}.
 
 	entities do: {:(Entity pointer)entity :: Void |
