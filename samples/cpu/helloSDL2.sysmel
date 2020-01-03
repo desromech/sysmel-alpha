@@ -1,5 +1,6 @@
 useNamespace: SDL2.
 
+let Gravity := Float32x2(0.0, -9.8).
 global window mutable type: SDL_Window pointer.
 global renderer mutable type: SDL_Renderer pointer.
 global isQuitting mutable := false.
@@ -27,25 +28,139 @@ struct Box2D definition: {
 
 	method center => Float32x2
 		:= (max + min) * 0.5.
+
+	method containsPoint: (point: Float32x2) ::=> Boolean8
+		:= min x <= point x && point x <= max x &&
+		   min y <= point y && point y <= max x.
+
+	method hasIntersectionWithRayOrigin: (rayOrigin: Float32x2) direction: (rayDirection: Float32x2) at: (intersectionT: Float32 pointer) ::=> Boolean8 := {
+		## Ray box intersection algorithm from: https://www.scratchapixel.com/lessons/3d-basic-rendering/minimal-ray-tracer-rendering-simple-shapes/ray-box-intersection
+		let directionReciprocal := 1.0f / rayDirection.
+		let tNegative := (min - rayOrigin) * directionReciprocal.
+		let tPositive := (max - rayOrigin) * directionReciprocal.
+
+		let tmin := tNegative min: tPositive.
+		let tmax := tNegative max: tPositive.
+
+		(tmin x > tmax y || tmin y > tmax x) ifTrue: {
+			false
+		} ifFalse: {
+			intersectionT _ := (tmin x max: tmin y) max: 0.0f.
+			tmin x >= 0.0f || tmin y >= 0.0f
+		}
+	}.
+
+	method computePenetrationDistanceForPoint: (point: Float32x2) withNormal: (normal: Float32x2) ::=> Float32 := {
+		let delta := point - self center.
+		((self halfExtent - delta) dot: normal) max: 0.0
+	}.
+
+	method computeCollisionNormalForPoint: (point: Float32x2) ::=> Float32x2 := {
+		let delta := point - self center.
+		let deltaAbsolute := delta abs / self halfExtent.
+		deltaAbsolute x >= deltaAbsolute y ifTrue: {
+			Float32x2(delta x sign, 0.0f)
+		} ifFalse: {
+			Float32x2(0.0f, delta y sign)
+		}
+	}.
 }.
 
-class Character definition: {
+class Entity definition: {
 	public field position type: Float32x2.
-	public field velocity type: Float32x2.
 	public field halfExtent type: Float32x2.
 	public field color type: Float32x4.
 
 	method boundingBox => Box2D
 		:= Box2D center: position halfExtent: halfExtent.
+
+	method boundingBoxExpandedWith: (extraHalfExtent: Float32x2) ::=> Box2D
+		:= Box2D center: position halfExtent: halfExtent + extraHalfExtent.
+
+	virtual method hasCollisionResponse => Boolean8
+		:= true.
+
+	virtual method render => Void := {
+		fillRectangle(self boundingBox, color).
+	}.
+
+	virtual method update: (delta: Float32) ::=> Void := {
+	}.
+}.
+
+class Wall superclass: Entity; definition: {
+
+}.
+
+class Character superclass: Entity; definition: {
+	public field velocity type: Float32x2.
+	field isOnFloor type: Boolean8.
+
+	override method hasCollisionResponse => Boolean8
+		:= false.
+
+	method sweepCollidingFrom: (oldPosition: Float32x2) into: (targetPosition: Float32x2) maxDepth: (maxDepth: UInt32)::=> Void := {
+		maxDepth = 0 ifTrue: { return: nil. }.
+
+		## Compute the ray direction and length.
+		let rayOrigin := oldPosition.
+		let rayDirection mutable := targetPosition - position.
+		let rayLength := rayDirection length2 sqrt.##rayDirection length.
+		rayLength < 0.00001f ifTrue: { return: nil }.
+		rayDirection := rayDirection / rayLength.
+
+		## Perform Minkowski difference based collision detection with the boxes.
+		let bestCollisionAlpha mutable := rayLength.
+		let bestCollisionEntity mutable type: Entity pointer := nil.
+		let bestCollisionExpandedBound mutable type: Box2D.
+
+		entities do: {:(Entity pointer)entity :: Void |
+			## FIXME: Make this cast redundant.
+			entity ~~ (self address castTo: Entity pointer) && entity _ hasCollisionResponse ifTrue: {
+				let entityExpandedBoundingBox mutable := entity _ boundingBoxExpandedWith: halfExtent.
+				let intersectionAlpha mutable type: Float32.
+				(entityExpandedBoundingBox hasIntersectionWithRayOrigin: rayOrigin direction: rayDirection at: intersectionAlpha address) ifTrue: {
+					intersectionAlpha < rayLength ifTrue: {
+						bestCollisionExpandedBound := entityExpandedBoundingBox.
+						bestCollisionAlpha := intersectionAlpha.
+						bestCollisionEntity := entity
+					}.
+				}.
+			}.
+		}.
+
+		bestCollisionAlpha < rayLength ifTrue: {
+			let collisionPoint := rayOrigin + bestCollisionAlpha*rayDirection.
+			let remainingDelta := (rayLength - bestCollisionAlpha)*rayDirection.
+
+			let collisionNormal := bestCollisionExpandedBound computeCollisionNormalForPoint: collisionPoint.
+			let penetrationDistance := bestCollisionExpandedBound computePenetrationDistanceForPoint: collisionNormal withNormal: collisionNormal.
+			let slidingDelta := remainingDelta - (remainingDelta dot: collisionNormal)*collisionNormal.
+
+			isOnFloor := isOnFloor || collisionNormal y > 0.0.
+			velocity := velocity - (velocity dot: collisionNormal)*collisionNormal.
+			position := collisionPoint + collisionNormal*(penetrationDistance*0.1f).
+
+			self sweepCollidingFrom: position into: position + slidingDelta maxDepth: maxDepth - 1.
+		} ifFalse: {
+			position := targetPosition
+		}.
+
+	}.
+
+	override method update: (delta: Float32) ::=> Void := {
+		velocity := velocity + Gravity * delta.
+		let newPosition := position + velocity * delta.
+
+		isOnFloor := false.
+		self sweepCollidingFrom: position into: newPosition maxDepth: 5.
+	}.
 }.
 
 class Enemy superclass: Character; definition: {
 	method initialize => Void := {
 		halfExtent := Float32x2(0.5, 1.0).
 		color := Float32x4(0.5, 0.1, 0.1, 1.0).
-	}.
-
-	method simulate: (delta: Float32) ::=> Void := {
 	}.
 }.
 
@@ -67,10 +182,20 @@ class Player superclass: Character; definition: {
 		speed := 3.0
 	}.
 
-	method simulate: (delta: Float32) ::=> Void := {
-		velocity := direction * speed.
+	method jump => Void := {
+		isOnFloor ifTrue: {
+			velocity y: 10.0.
+		}.
+	}.
 
-		position := position + velocity * delta.
+	method shoot => Void := {
+
+	}.
+
+	override method update: (delta: Float32) ::=> Void := {
+		velocity x: direction x * speed.
+
+		super update: delta
 	}.
 }.
 
@@ -98,7 +223,7 @@ class SineChannel superclass: SoundChannel; definition: {
 	}.
 }.
 
-global characters mutable type: (StdNative OrderedCollection(Character pointer)).
+global entities mutable type: (StdNative OrderedCollection(Entity pointer)).
 global soundChannels mutable type: (StdNative OrderedCollection(SoundChannel pointer)).
 
 global player mutable type: Player pointer.
@@ -109,8 +234,8 @@ function onKeyDown(event: SDL_KeyboardEvent ref) => Void := {
 	Keycode SDLK_ESCAPE : {isQuitting := true.}.
 	Keycode SDLK_a : {player _ direction x: -1.0}.
 	Keycode SDLK_d : {player _ direction x: 1.0}.
-	Keycode SDLK_s : {player _ direction y: -1.0}.
-	Keycode SDLK_w : {player _ direction y: 1.0}.
+	Keycode SDLK_w : {player _ jump}.
+	Keycode SDLK_SPACE : {player _ shoot}.
 	Keycode SDLK_LSHIFT : {player _ run}.
 	}.
 }.
@@ -120,8 +245,6 @@ function onKeyUp(event: SDL_KeyboardEvent ref) => Void := {
 	Keycode SDLK_ESCAPE : {isQuitting := true.}.
 	Keycode SDLK_a : {player _ direction x < 0.0 ifTrue: {player _ direction x: 0.0}}.
 	Keycode SDLK_d : {player _ direction x > 0.0 ifTrue: {player _ direction x: 0.0}}.
-	Keycode SDLK_s : {player _ direction y < 0.0 ifTrue: {player _ direction y: 0.0}}.
-	Keycode SDLK_w : {player _ direction y > 0.0 ifTrue: {player _ direction y: 0.0}}.
 	Keycode SDLK_LSHIFT : {player _ walk}.
 	}.
 }.
@@ -138,12 +261,11 @@ function processEvents() => Void := {
 	}
 }.
 
-function drawCharacter(character: Character ref) => Void := {
-	let color := (character color clampMin: 0.0 max: 1.0)*255.0 castTo: UInt8x4.
+function fillRectangle(worldRectangle: Box2D, color: Float32x4) => Void := {
+	let color32 := (color clampMin: 0.0 max: 1.0)*255.0 castTo: UInt8x4.
 
-	let boundingBox := character boundingBox.
-	let negativeCorner := viewMatrix * Float32x3(boundingBox min, 1.0) castTo: Int32x2.
-	let positiveCorner := viewMatrix * Float32x3(boundingBox max, 1.0) castTo: Int32x2.
+	let negativeCorner := viewMatrix * Float32x3(worldRectangle min, 1.0) castTo: Int32x2.
+	let positiveCorner := viewMatrix * Float32x3(worldRectangle max, 1.0) castTo: Int32x2.
 
 	let minCorner := negativeCorner min: positiveCorner.
 	let maxCorner := negativeCorner max: positiveCorner.
@@ -154,12 +276,14 @@ function drawCharacter(character: Character ref) => Void := {
 		y: (minCorner y);
 		w: (extent x);
 		h: (extent y).
-	SDL_SetRenderDrawColor(renderer, color r, color g, color b, color a).
+	SDL_SetRenderDrawColor(renderer, color32 r, color32 g, color32 b, color32 a).
 	SDL_RenderFillRect(renderer, rect address).
 }.
 
 function update(delta: Float32) => Void := {
-	player _ simulate: delta.
+	entities do: {:(Entity pointer)entity :: Void |
+		entity _ update: delta.
+	}.
 }.
 
 function render() => Void := {
@@ -177,8 +301,8 @@ function render() => Void := {
 		).
 	}.
 
-	characters do: {:(Character pointer)character :: Void |
-		drawCharacter(character _).
+	entities do: {:(Entity pointer)entity :: Void |
+		entity _ render.
 	}.
 
 	SDL_RenderPresent(renderer).
@@ -196,7 +320,6 @@ function mixAudioSamples(mixBuffer: Float32x2 pointer, sampleCount: UInt32) => V
 			channel _ mixSamples: sampleCount samplePeriod: samplePeriod intoBuffer: mixBuffer
 		}.
 	}.
-
 }.
 
 function audioCallback(userdata: Void pointer, stream: UInt8 pointer, len: Int32) => Void := {
@@ -234,13 +357,22 @@ function audioCallback(userdata: Void pointer, stream: UInt8 pointer, len: Int32
 	}.
 }.
 
+method createWallMin: (min: Float32x2) max: (max: Float32x2) color: (color: Float32x4) ::=> Void := {
+	let wall mutable := Wall nativeNew.
+	wall _
+		position: (max + min) *0.5f;
+		halfExtent: (max - min) *0.5f;
+		color: color.
+	entities add: wall.
+}.
+
 function main externC (argc: Int32, argv: Char8 const pointer pointer) => Int32 := {
 
 	SDL_Init(SDL_INIT_VIDEO | SDL_INIT_AUDIO | SDL_INIT_GAMECONTROLLER) < 0 ifTrue: {
 		return: 1.
 	}.
 
-	window := SDL_CreateWindow("Test window", SDL_WINDOWPOS_CENTERED, SDL_WINDOWPOS_CENTERED, 640, 480, SDL_WINDOW_SHOWN).
+	window := SDL_CreateWindow("Sysmel Hello SDL2", SDL_WINDOWPOS_CENTERED, SDL_WINDOWPOS_CENTERED, 640, 480, SDL_WINDOW_SHOWN).
 	window ifNil: {
 		return: 1.
 	}.
@@ -264,21 +396,26 @@ function main externC (argc: Int32, argv: Char8 const pointer pointer) => Int32 
 		}.
 	}.
 
+	## Create the floor
+	{
+		createWallMin: Float32x2(-20.0f, -5.0f) max: Float32x2(20.0f, -4.0f) color: Float32x4(0.2f, 0.2f, 0.2f, 0.2f).
+	}.
+
 	{
 		player := Player nativeNew.
-		characters add: player.
+		entities add: player.
 	}.
 
 	{
 		let enemy mutable := Enemy nativeNew.
 		enemy _ position: Float32x2(2.0, 0.0).
-		characters add: enemy.
+		entities add: enemy.
 	}.
 
 	{
 		let enemy mutable := Enemy nativeNew.
 		enemy _ position: Float32x2(4.0, 0.0).
-		characters add: enemy.
+		entities add: enemy.
 	}.
 
 	{
@@ -341,7 +478,7 @@ function main externC (argc: Int32, argv: Char8 const pointer pointer) => Int32 
 		StdNative free(audioTemporaryBuffer).
 	}.
 
-	characters do: #nativeDelete.
+	entities do: #nativeDelete.
 	soundChannels do: #nativeDelete.
 
 	SDL_DestroyRenderer(renderer).

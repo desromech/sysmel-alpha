@@ -22,7 +22,7 @@ frontend accepts gcc/clang style command line arguments:
 ./sysmelc -g -O2 -o hello samples/cpu/hello.sysmel
 
 # Program direct compilation without GC support.
-./sysmelc -nogc -g -O2 -o helloSDL2 samples/cpu/helloSDL2.sysmel
+./sysmelc -nogc -g -o helloSDL2 samples/cpu/helloSDL2.sysmel
 
 # LLVM IR assembly.
 ./sysmelc -g -O2 -S -o hello.ll samples/cpu/hello.sysmel

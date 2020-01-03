@@ -51,12 +51,12 @@ template OrderedCollection(ET: Type)
 		assert: index <= size_.
 		storage_ at: index.
 	}.
-	
+
 	inline method subscriptAt: (index: UIntPointer) ::=> ElementType ref := {
 		assert: index < size_.
 		storage_[index].
 	}.
-	
+
     method increaseCapacity ::=> Void := {
 		let newCapacity := capacity_*2 max: 16.
 		let newStorageSize := newCapacity * ElementType instanceSize.
@@ -68,7 +68,7 @@ template OrderedCollection(ET: Type)
 				initializeMovingFrom: storage_[i] asMoveReference.
 			storage_[i] finalize.
         }.
-		
+
 		storage_ := newStorage.
 		capacity_ := newCapacity.
     }.
@@ -102,7 +102,20 @@ template OrderedCollection(ET: Type)
 				`,aBlock __macroInlineBlock: `,collection[`,index]
 			}
 		}
-	}
+	}.
+
+	macro method select: aPredicate thenDo: aBlock := {
+		let collection := __astBuilder gensym: #collection.
+		let index := __astBuilder gensym: #index.
+		``{
+			let `,collection ref := `,self.
+			0 until: `,self size do: {:(UIntPointer)`,index :: Void |
+				if: (`,aPredicate __macroInlineBlock: `,collection[`,index]) then: {
+					`,aBlock __macroInlineBlock: `,collection[`,index]
+				}.
+			}
+		}
+	}.
 }.
 
 }.
