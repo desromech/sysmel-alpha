@@ -4,7 +4,7 @@ semanticModule := MbndStandaloneModule llvm_x86_64
 	evaluateFileNamedOnce: 'samples/cpu/chello.sysmel';
 	finishSemanticAnalysis;
 	yourself.
-	
+
 ssaModule := semanticModule generateTargetCodeModule.
 ssaModule asLowLevelModule writeTextToFileNamed: 'test.ll'
 
@@ -21,9 +21,9 @@ MbndStandaloneModule llvm_x86_64
 	withDebugInformation;
 	loadRuntimeCoreLibrary;
 	evaluateFileNamedOnce: 'lib/bindings/sdl2/sdl2.sysmel';
-	evaluateFileNamedOnce: 'samples/cpu/helloSDL2.sysmel';
+	evaluateFileNamedOnce: 'samples/cpu/sampleNativeGame.sysmel';
 	finishSemanticAnalysis;
-	writeAssemblyToFileNamed: 'helloSDL2.ll'
+	writeAssemblyToFileNamed: 'sampleNativeGame.ll'
 ===============================================================================
 MbndStandaloneModule spirv_vulkan
 	loadRuntimeCoreLibrary;
@@ -54,4 +54,3 @@ data := ((1 to: 20) collect: #asFloat) asGPUFloat32Array.
 result := data collect: gpuBlock.
 
 [SGPUExecutionDriver current finishPendingComputations] timeToRun
-

@@ -22,7 +22,7 @@ frontend accepts gcc/clang style command line arguments:
 ./sysmelc -g -O2 -o hello samples/cpu/hello.sysmel
 
 # Program direct compilation without GC support.
-./sysmelc -nogc -g -o helloSDL2 samples/cpu/helloSDL2.sysmel
+./sysmelc -nogc -g -o sampleNativeGame lib/bindings/sdl2/sdl2.sysmel samples/cpu/sampleNativeGame.sysmel
 
 # LLVM IR assembly.
 ./sysmelc -g -O2 -S -o hello.ll samples/cpu/hello.sysmel
@@ -46,4 +46,60 @@ Metacello new
    baseline: 'Sysmel';
    repository: 'github://ronsaldo/sysmel/tonel';
    load
+```
+
+## Compiler invocation in a playground
+```smalltalk
+"CPU Hello sample"
+MbndStandaloneModule llvm_x86_64
+	withDebugInformation;
+	loadRuntimeCoreLibrary;
+	evaluateFileNamedOnce: 'samples/cpu/hello.sysmel';
+	finishSemanticAnalysis;
+	"writeAssemblyToFileNamed: 'hello.ll';"
+    writeExecutableToFileNamed: 'hello'
+
+"CPU native sample game"
+MbndStandaloneModule llvm_x86_64
+	withDebugInformation;
+	noGC;
+	"optimizationLevel: 2;"
+	loadRuntimeCoreLibrary;
+	evaluateFileNamedOnce: 'lib/bindings/sdl2/sdl2.sysmel';
+	evaluateFileNamedOnce: 'samples/cpu/sampleNativeGame.sysmel';
+	finishSemanticAnalysis;
+	"writeAssemblyToFileNamed: 'sampleNativeGame.ll';"
+	writeExecutableToFileNamed: 'sampleNativeGame'
+
+"Sample Vulkan shaders"
+MbndStandaloneModule spirv_vulkan
+	loadRuntimeCoreLibrary;
+	evaluateFileNamedOnce: 'samples/gpu/solidRenderingShaders.sysmel';
+	finishSemanticAnalysis;
+	writeExecutableToFileNamed: 'solidRenderingShaders.spv'
+```
+
+## BlockClosure to GPU block compilation
+
+```smalltalk
+"For cleaning up, you can do the following:
+SGPUCompilationEnvironment reset.
+SGPUExecutionDriver reset.
+"
+
+gpuBlock := [ :x | (x + 10) * 2 ] gpuType: #(Float32 => Float32).
+
+"Generate the input data."
+data := ((1 to: 4096) collect: #asFloat) asGPUFloat32Array.
+
+"Generate the output result."
+result := data collect: gpuBlock.
+
+"Inspect the results."
+results inspect.
+
+"Computation results are delayed until they are actually needed. They are done
+automatically when inspecting the result. The pending computations can be
+finished by doing the following: SGPUExecutionDriver current finishPendingComputations
+"
 ```
