@@ -76,6 +76,12 @@ class Entity definition: {
 	public field halfExtent type: Float32x2.
 	public field color type: Float32x4.
 
+	virtual method shouldBeRemoved => Boolean8
+		:= self isDead.
+
+	virtual method isDead => Boolean8
+		:= false.
+
 	method boundingBox => Box2D
 		:= Box2D center: position halfExtent: halfExtent.
 
@@ -84,6 +90,13 @@ class Entity definition: {
 
 	virtual method hasCollisionResponse => Boolean8
 		:= true.
+
+	virtual method canBeShot => Boolean8
+		:= true.
+
+	virtual method shotAt: (bulletHitPoint: Float32x2) withDamage: (damage: Float32) ::=> Void := {
+		## By default do nothing when shot.
+	}.
 
 	virtual method render => Void := {
 		fillRectangle(self boundingBox, color).
@@ -99,10 +112,25 @@ class Wall superclass: Entity; definition: {
 
 class Character superclass: Entity; definition: {
 	public field velocity type: Float32x2.
+	public field lookDirection type: Float32x2.
+	public field hitPoints type: Float32.
+
 	field isOnFloor type: Boolean8.
+
+	method initialize => Void := {
+		lookDirection := Float32x2(1.0f, 0.0f).
+		hitPoints := 100.0.
+	}.
+
+	override method isDead => Boolean8
+		:= hitPoints <= 0.0f.
 
 	override method hasCollisionResponse => Boolean8
 		:= false.
+
+	override method shotAt: (bulletHitPoint: Float32x2) withDamage: (damage: Float32) ::=> Void := {
+		hitPoints := hitPoints - damage.
+	}.
 
 	method sweepCollidingFrom: (oldPosition: Float32x2) into: (targetPosition: Float32x2) maxDepth: (maxDepth: UInt32)::=> Void := {
 		maxDepth = 0 ifTrue: { return: nil. }.
@@ -121,7 +149,9 @@ class Character superclass: Entity; definition: {
 
 		entities do: {:(Entity pointer)entity :: Void |
 			## FIXME: Make this cast redundant.
-			entity ~~ (self address castTo: Entity pointer) && entity _ hasCollisionResponse ifTrue: {
+			entity ~~ (self address castTo: Entity pointer) &&
+			entity _ isDead not &&
+			entity _ hasCollisionResponse ifTrue: {
 				let entityExpandedBoundingBox mutable := entity _ boundingBoxExpandedWith: halfExtent.
 				let intersectionAlpha mutable type: Float32.
 				(entityExpandedBoundingBox hasIntersectionWithRayOrigin: rayOrigin direction: rayDirection at: intersectionAlpha address) ifTrue: {
@@ -162,6 +192,60 @@ class Character superclass: Entity; definition: {
 	}.
 }.
 
+class Bullet superclass: Entity; definition: {
+	public field velocity type: Float32x2.
+	public field shooter type: Entity pointer.
+	public field maxFlyingTime type: Float32.
+	public field damage type: Float32.
+
+	field flyingTime type: Float32.
+	field hasHitTarget type: Boolean8.
+
+	override method isDead => Boolean8
+		:= hasHitTarget || flyingTime > maxFlyingTime.
+
+	override method update: (delta: Float32) ::=> Void := {
+		let targetPosition := position + velocity * delta.
+		let oldPosition := position.
+		flyingTime := flyingTime + delta.
+
+		## Compute the ray direction and length.
+		let rayOrigin := oldPosition.
+		let rayDirection mutable := targetPosition - position.
+		let rayLength := rayDirection length2 sqrt.##rayDirection length.
+		rayLength < 0.00001f ifTrue: { return: nil }.
+		rayDirection := rayDirection / rayLength.
+
+		## Perform Minkowski difference based collision detection with the boxes.
+		let bestCollisionAlpha mutable := rayLength.
+		let bestCollisionEntity mutable type: Entity pointer := nil.
+
+		entities do: {:(Entity pointer)entity :: Void |
+			## FIXME: Make this cast redundant.
+			entity ~~ shooter &&
+			entity _ isDead not &&
+			entity _ canBeShot ifTrue: {
+				let entityExpandedBoundingBox mutable := entity _ boundingBoxExpandedWith: halfExtent.
+				let intersectionAlpha mutable type: Float32.
+				(entityExpandedBoundingBox hasIntersectionWithRayOrigin: rayOrigin direction: rayDirection at: intersectionAlpha address) ifTrue: {
+					intersectionAlpha < rayLength ifTrue: {
+						bestCollisionAlpha := intersectionAlpha.
+						bestCollisionEntity := entity
+					}.
+				}.
+			}.
+		}.
+
+		bestCollisionEntity ifNotNil: {
+			hasHitTarget := true.
+			bestCollisionEntity _ shotAt: rayOrigin + bestCollisionAlpha*rayDirection withDamage: damage.
+			return: nil
+		}.
+
+		position := targetPosition.
+	}.
+}.
+
 class Enemy superclass: Character; definition: {
 	method initialize => Void := {
 		halfExtent := Float32x2(0.5, 1.0).
@@ -172,6 +256,10 @@ class Enemy superclass: Character; definition: {
 class Player superclass: Character; definition: {
 	public field speed type: Float32.
 	public field direction type: Float32x2.
+
+	## Never remove the player.
+	method shouldBeRemoved => Boolean8
+		:= false.
 
 	method initialize => Void := {
 		halfExtent := Float32x2(0.5, 1.0).
@@ -200,6 +288,17 @@ class Player superclass: Character; definition: {
 		audioMutex withLock: {
 			shootSound _ reset
 		}.
+
+		let bullet mutable := Bullet nativeNew.
+		bullet _
+			color: Float32x4(0.8, 0.8, 0.8, 1.0);
+			halfExtent: 0.2;
+			shooter: self address;
+			position: position;
+			velocity: Float32x2(10.0f + velocity x, 0.0f);
+			damage: 20.0f;
+			maxFlyingTime: 0.5f.
+		entities add: bullet
 	}.
 
 	override method update: (delta: Float32) ::=> Void := {
@@ -388,6 +487,19 @@ function update(delta: Float32) => Void := {
 	entities do: {:(Entity pointer)entity :: Void |
 		entity _ update: delta.
 	}.
+
+	## Remove the dead entities
+	let destIndex mutable type: UIntPointer := 0.
+	0 until: entities size do: {:(UIntPointer)i :: Void |
+		let entity := entities[i].
+		entity _ shouldBeRemoved ifTrue: {
+			entity nativeDelete
+		} ifFalse: {
+			entities[destIndex] := entity.
+			destIndex := destIndex + 1
+		}.
+	}.
+	entities resizeTo: destIndex.
 }.
 
 function render() => Void := {
@@ -536,7 +648,7 @@ function main externC (argc: Int32, argv: Char8 const pointer pointer) => Int32 
 	{
 		let pulseChannel mutable := PulseChannel nativeNew.
 		pulseChannel _
-			frequency: 800.0;
+			frequency: 150.0;
 			amplitude: 0.1;
 			extraParam: 0.15;
 

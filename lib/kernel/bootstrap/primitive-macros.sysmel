@@ -9,7 +9,7 @@ namespace SysmelKernel definition: {
         ``(if: `,self then: `,trueAction else: `,falseAction).
     (_BooleanType | _CompilerObjectType) macro method ifFalse: falseAction ifTrue: trueAction :=
         ``(if: `,self then: `,trueAction else: `,falseAction).
-		
+
     ## isNil
     _PointerType macro method isNil := ``(`,self == nil).
     _PointerType macro method isNotNil := ``(`,self ~~ nil).
@@ -56,6 +56,12 @@ namespace SysmelKernel definition: {
      *#
     _PrimitiveIntegerType macro method log2Ceil :=
         ``((`,self - 1) log2Floor + 1).
+
+    _PrimitiveIntegerType macro method asSmallerPowerOfTwo :=
+        ``(1 << `,self log2Floor).
+
+    _PrimitiveIntegerType macro method asLargerPowerOfTwo :=
+        ``(1 << `,self log2Ceil).
 
     ## Bitwise manipulation.
     _PrimitiveIntegerType macro method bitClear: bits :=

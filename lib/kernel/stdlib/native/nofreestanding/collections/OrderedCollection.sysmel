@@ -57,8 +57,10 @@ template OrderedCollection(ET: Type)
 		storage_[index].
 	}.
 
-    method increaseCapacity ::=> Void := {
-		let newCapacity := capacity_*2 max: 16.
+    method increaseCapacityToAtLeast: (requiredCapacity: UIntPointer) ::=> Void := {
+		let newCapacity := requiredCapacity asLargerPowerOfTwo max: 16.
+		newCapacity <= capacity_ ifTrue: {return: nil}.
+
 		let newStorageSize := newCapacity * ElementType instanceSize.
 		let newStorage := StdNative zmalloc(newStorageSize) reinterpretCastTo: ElementType pointer.
 
@@ -78,7 +80,7 @@ template OrderedCollection(ET: Type)
 
     inline method addLast: (newElement: ElementType const ref) ::=> Void := {
         size_ >= capacity_ ifTrue: {
-            self increaseCapacity.
+            self increaseCapacityToAtLeast: size_ + 1.
         }.
 
         storage_[size_]
@@ -92,6 +94,37 @@ template OrderedCollection(ET: Type)
         size_ := size_ - 1.
         storage_[size_] finalize.
     }.
+
+	method reserve: (reservedElements: UIntPointer) ::=> Void := {
+		self increaseCapacityToAtLeast: size_ + reservedElements
+	}.
+
+	method resizeTo: (newSize: UIntPointer) ::=> Void := {
+		## Same size, nothing is required.
+		newSize = size_ ifTrue: {return: nil}.
+
+		## Increase size, we may need to increase the, and basic initialize
+		newSize > size_ ifTrue: {
+			newSize > capacity_ ifTrue: {
+				self increaseCapacityToAtLeast: newSize.
+			}.
+
+			## Initialize the new elements
+			size_ until: newSize do: {:(UIntPointer)i :: Void |
+				storage_[i] basicInitialize; initialize.
+			}.
+
+		} ifFalse: {
+			assert: newSize < size_.
+
+			## Invoke the finalizer of the removed elements.
+			size_ until: newSize do: {:(UIntPointer)i :: Void |
+				storage_[i] finalize
+			}.
+		}.
+
+		size_ := newSize
+	}.
 
 	macro method do: aBlock := {
 		let collection := __astBuilder gensym: #collection.
