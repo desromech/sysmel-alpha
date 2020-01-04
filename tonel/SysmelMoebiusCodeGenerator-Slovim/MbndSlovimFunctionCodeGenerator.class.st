@@ -802,6 +802,7 @@ MbndSlovimFunctionCodeGenerator >> sanitizeValue: value withExpectedType: expect
 { #category : #'as yet unclassified' }
 MbndSlovimFunctionCodeGenerator >> setupBuilders [
 	"Create the main slvm builder."	
+	| initialDebugPosition |
 	slvmBuilder := SLVMBuilder on: ssaFunction.
 	ssaFunctionEntryBlock := slvmBuilder newBasicBlockHere: #entry.
 
@@ -811,6 +812,14 @@ MbndSlovimFunctionCodeGenerator >> setupBuilders [
 
 	"Create the body block."	
 	ssaFunctionBodyBlock := slvmBuilder newBasicBlockHere: #body.
+	
+	self isEmittingDebugInformation ifTrue: [
+		concreteMethod ifNotNil: [ 
+			initialDebugPosition := codeModuleGenerator convertDebugPosition: concreteMethod definitionPosition asActualSourcePosition scope: nil.
+			slvmBuilder pushDebugSourcePosition: initialDebugPosition.
+	slvmBuilder allocaBuilder pushDebugSourcePosition: initialDebugPosition.
+		]
+	]
 ]
 
 { #category : #'as yet unclassified' }
