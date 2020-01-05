@@ -145,7 +145,7 @@ MbndStandaloneModule >> linkerArguments [
 
 { #category : #'as yet unclassified' }
 MbndStandaloneModule >> loadRuntimeCoreLibrary [
-	^ self evaluateFileNamedOnce: Smalltalk imageDirectory  / 'lib' / 'kernel' / 'kernel.sysmel'. 
+	^ self evaluateFileNamedOnce: MbndCoreAssets location  / 'lib' / 'kernel' / 'kernel.sysmel'. 
 ]
 
 { #category : #parameters }

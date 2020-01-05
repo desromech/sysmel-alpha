@@ -122,7 +122,7 @@ SGPUCompilationEnvironment >> initialize [
 	super initialize.
 	compilationModule := MbndStandaloneModule spirv_vulkan
 		loadRuntimeCoreLibrary;
-		evaluateFileNamedOnce: Smalltalk imageDirectory / 'lib' / 'gpu' / 'blocks' / 'blocks.sysmel'.
+		evaluateFileNamedOnce: MbndCoreAssets location / 'lib' / 'gpu' / 'blocks' / 'blocks.sysmel'.
 		
 	compiledBlockClosures := WeakKeyDictionary new.
 	compiledShaderStages := WeakKeyDictionary new.
