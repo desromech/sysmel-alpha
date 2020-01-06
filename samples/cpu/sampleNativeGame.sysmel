@@ -13,6 +13,7 @@ global audioDeviceSpec mutable type: SDL_AudioSpec.
 global audioTemporaryBuffer mutable type: Float32x2 pointer.
 
 global jumpSound mutable type: SoundChannelWithEnvelope pointer.
+global dashSound mutable type: SoundChannelWithEnvelope pointer.
 global shootSound mutable type: SoundChannelWithEnvelope pointer.
 
 struct Box2D definition: {
@@ -36,7 +37,7 @@ struct Box2D definition: {
 
 	method containsPoint: (point: Float32x2) ::=> Boolean8
 		:= min x <= point x && point x <= max x &&
-		   min y <= point y && point y <= max x.
+		   min y <= point y && point y <= max y.
 
 	method hasIntersectionWithRayOrigin: (rayOrigin: Float32x2) direction: (rayDirection: Float32x2) at: (intersectionT: Float32 pointer) ::=> Boolean8 := {
 		## Ray box intersection algorithm from: https://www.scratchapixel.com/lessons/3d-basic-rendering/minimal-ray-tracer-rendering-simple-shapes/ray-box-intersection
@@ -56,8 +57,9 @@ struct Box2D definition: {
 	}.
 
 	method computePenetrationDistanceForPoint: (point: Float32x2) withNormal: (normal: Float32x2) ::=> Float32 := {
-		let delta := point - self center.
-		((self halfExtent - delta) dot: normal) max: 0.0
+		##let delta := point - self center.
+		##((self halfExtent - delta) dot: normal) max: 0.0
+		0.0f
 	}.
 
 	method computeCollisionNormalForPoint: (point: Float32x2) ::=> Float32x2 := {
@@ -87,6 +89,9 @@ class Entity definition: {
 
 	method boundingBoxExpandedWith: (extraHalfExtent: Float32x2) ::=> Box2D
 		:= Box2D center: position halfExtent: halfExtent + extraHalfExtent.
+		
+	virtual method currentColor => Float32x4
+		:= color.
 
 	virtual method hasCollisionResponse => Boolean8
 		:= true.
@@ -99,7 +104,7 @@ class Entity definition: {
 	}.
 
 	virtual method render => Void := {
-		fillRectangle(self boundingBox, color).
+		fillRectangle(self boundingBox, self currentColor).
 	}.
 
 	virtual method update: (delta: Float32) ::=> Void := {
@@ -114,8 +119,12 @@ class Character superclass: Entity; definition: {
 	public field velocity type: Float32x2.
 	public field lookDirection type: Float32x2.
 	public field hitPoints type: Float32.
+	field hitFlashRemainingTime type: Float32.
 
 	field isOnFloor type: Boolean8.
+
+	override method currentColor => Float32x4
+		:= hitFlashRemainingTime > 0.0f ifTrue: {Float32x4(1.0f, 1.0f, 1.0f, 1.0f)} ifFalse: {color}.
 
 	method initialize => Void := {
 		lookDirection := Float32x2(1.0f, 0.0f).
@@ -129,7 +138,11 @@ class Character superclass: Entity; definition: {
 		:= false.
 
 	override method shotAt: (bulletHitPoint: Float32x2) withDamage: (damage: Float32) ::=> Void := {
+		## Invincibility period.
+		hitFlashRemainingTime > 0.0f ifTrue: { return: 0.0f }.
+		
 		hitPoints := hitPoints - damage.
+		hitFlashRemainingTime := 0.05f.
 	}.
 
 	method sweepCollidingFrom: (oldPosition: Float32x2) into: (targetPosition: Float32x2) maxDepth: (maxDepth: UInt32)::=> Void := {
@@ -155,7 +168,7 @@ class Character superclass: Entity; definition: {
 				let entityExpandedBoundingBox mutable := entity _ boundingBoxExpandedWith: halfExtent.
 				let intersectionAlpha mutable type: Float32.
 				(entityExpandedBoundingBox hasIntersectionWithRayOrigin: rayOrigin direction: rayDirection at: intersectionAlpha address) ifTrue: {
-					intersectionAlpha < rayLength ifTrue: {
+					intersectionAlpha < bestCollisionAlpha ifTrue: {
 						bestCollisionExpandedBound := entityExpandedBoundingBox.
 						bestCollisionAlpha := intersectionAlpha.
 						bestCollisionEntity := entity
@@ -184,6 +197,10 @@ class Character superclass: Entity; definition: {
 	}.
 
 	override method update: (delta: Float32) ::=> Void := {
+		hitFlashRemainingTime > 0.0f ifTrue: {
+			hitFlashRemainingTime := hitFlashRemainingTime - delta.
+		}.
+		
 		velocity := velocity + Gravity * delta.
 		let newPosition := position + velocity * delta.
 
@@ -228,7 +245,7 @@ class Bullet superclass: Entity; definition: {
 				let entityExpandedBoundingBox mutable := entity _ boundingBoxExpandedWith: halfExtent.
 				let intersectionAlpha mutable type: Float32.
 				(entityExpandedBoundingBox hasIntersectionWithRayOrigin: rayOrigin direction: rayDirection at: intersectionAlpha address) ifTrue: {
-					intersectionAlpha < rayLength ifTrue: {
+					intersectionAlpha < bestCollisionAlpha ifTrue: {
 						bestCollisionAlpha := intersectionAlpha.
 						bestCollisionEntity := entity
 					}.
@@ -256,6 +273,8 @@ class Enemy superclass: Character; definition: {
 class Player superclass: Character; definition: {
 	public field speed type: Float32.
 	public field direction type: Float32x2.
+	public field remainingDashTime type: Float32.
+	public field dashDirection type: Float32x2.
 
 	## Never remove the player.
 	method shouldBeRemoved => Boolean8
@@ -264,15 +283,39 @@ class Player superclass: Character; definition: {
 	method initialize => Void := {
 		halfExtent := Float32x2(0.5, 1.0).
 		color := Float32x4(0.5, 0.5, 0.2, 1.0).
-		self walk
+		speed := 3.0f.
 	}.
 
-	method walk => Void := {
-		speed := 1.0
+	method dash => Void := {
+		isOnFloor ifTrue: {
+			remainingDashTime := 0.35f.
+			dashDirection := Float32x2(lookDirection x, 0.0f).
+			audioMutex withLock: {
+				dashSound _ reset
+			}.
+		}.
+	}.
+	
+	method moveLeftInput: (state: Boolean8) ::=> Void := {
+		state ifTrue: {
+			direction x: -1.0.
+			lookDirection x: -1.0.
+		} ifFalse: {
+			direction x < 0.0 ifTrue: {
+				direction x: 0.0.
+			}.
+		}.
 	}.
 
-	method run => Void := {
-		speed := 3.0
+	method moveRightInput: (state: Boolean8) ::=> Void := {
+		state ifTrue: {
+			direction x: 1.0.
+			lookDirection x: 1.0.
+		} ifFalse: {
+			direction x > 0.0 ifTrue: {
+				direction x: 0.0.
+			}.
+		}.
 	}.
 
 	method jump => Void := {
@@ -295,22 +338,27 @@ class Player superclass: Character; definition: {
 			halfExtent: 0.2;
 			shooter: self address;
 			position: position;
-			velocity: Float32x2(10.0f + velocity x, 0.0f);
+			velocity: Float32x2(velocity x, 0.0f) + 10.0f*lookDirection;
 			damage: 20.0f;
 			maxFlyingTime: 0.5f.
 		entities add: bullet
 	}.
 
 	override method update: (delta: Float32) ::=> Void := {
-		velocity x: direction x * speed.
-
+		remainingDashTime > 0.0f ifTrue: {
+			remainingDashTime := remainingDashTime - delta.
+			velocity x: dashDirection x * 10.0.
+		} ifFalse: {
+			velocity x: direction x * speed.
+		}.
+	
 		super update: delta
 	}.
 }.
 
 class SoundChannel definition: {
 	virtual method reset => Void := {
-		"By default do nothing"
+		## By default do nothing
 	}.
 
 	virtual method mixSamples: (sampleCount: UInt32) samplePeriod: (samplePeriod: Float32) intoBuffer: (mixBuffer: Float32x2 pointer) ::=> Void := {
@@ -435,20 +483,19 @@ global viewMatrix mutable type: Float32x2x3.
 function onKeyDown(event: SDL_KeyboardEvent ref) => Void := {
 	event keysym sym selectCase: #{
 	Keycode SDLK_ESCAPE : {isQuitting := true.}.
-	Keycode SDLK_a : {player _ direction x: -1.0}.
-	Keycode SDLK_d : {player _ direction x: 1.0}.
+	Keycode SDLK_a : {player _ moveLeftInput: true}.
+	Keycode SDLK_d : {player _ moveRightInput: true}.
 	Keycode SDLK_w : {player _ jump}.
 	Keycode SDLK_SPACE : {player _ shoot}.
-	Keycode SDLK_LSHIFT : {player _ run}.
+	Keycode SDLK_LSHIFT : {player _ dash}.
 	}.
 }.
 
 function onKeyUp(event: SDL_KeyboardEvent ref) => Void := {
 	event keysym sym selectCase: #{
 	Keycode SDLK_ESCAPE : {isQuitting := true.}.
-	Keycode SDLK_a : {player _ direction x < 0.0 ifTrue: {player _ direction x: 0.0}}.
-	Keycode SDLK_d : {player _ direction x > 0.0 ifTrue: {player _ direction x: 0.0}}.
-	Keycode SDLK_LSHIFT : {player _ walk}.
+	Keycode SDLK_a : {player _ moveLeftInput: false}.
+	Keycode SDLK_d : {player _ moveRightInput: false}.
 	}.
 }.
 
@@ -502,6 +549,31 @@ function update(delta: Float32) => Void := {
 	entities resizeTo: destIndex.
 }.
 
+function drawHealth() => Void := {
+	## Red border
+	let fullHealthRect mutable := SDL_Rect newValue
+		x: 20;
+		y: 20;
+		w: 250;
+		h: 15;
+		yourself.
+		
+	let currentHealthRect mutable := fullHealthRect.
+	let healthPercentage := player _ hitPoints / 100.0f clampMin: 0.0f max: 1.0.
+	currentHealthRect w: (fullHealthRect w * healthPercentage castTo: Int32).
+
+	SDL_SetRenderDrawColor(renderer, 255, 160, 0, 255).
+	SDL_RenderFillRect(renderer, fullHealthRect address).
+	
+	SDL_SetRenderDrawColor(renderer, 255, 0, 0, 255).
+	SDL_RenderDrawRect(renderer, fullHealthRect address).
+	
+}.
+
+function renderHUD() => Void := {
+	drawHealth().
+}.
+
 function render() => Void := {
 	## Clear the screen.
 	SDL_SetRenderDrawColor(renderer, 0, 0, 0, 255).
@@ -527,9 +599,13 @@ function render() => Void := {
 			fullViewMatrix thirdColumn xy).
 	}.
 
+	## Draw the entities.
 	entities do: {:(Entity pointer)entity :: Void |
 		entity _ render.
 	}.
+	
+	## Draw the HUD.
+	renderHUD().
 
 	SDL_RenderPresent(renderer).
 }.
@@ -624,7 +700,9 @@ function main externC (argc: Int32, argv: Char8 const pointer pointer) => Int32 
 
 	## Create the floor
 	{
-		createWallMin: Float32x2(-20.0f, -5.0f) max: Float32x2(20.0f, -4.0f) color: Float32x4(0.2f, 0.2f, 0.2f, 0.2f).
+		createWallMin: Float32x2(-5.0f, -5.0f) max: Float32x2(20.0f, -4.0f) color: Float32x4(0.2f, 0.2f, 0.2f, 0.2f).
+		
+		createWallMin: Float32x2(3.0f, -1.0f) max: Float32x2(8.0f, 0.0f) color: Float32x4(0.2f, 0.2f, 0.2f, 0.2f).
 	}.
 
 	{
@@ -634,13 +712,13 @@ function main externC (argc: Int32, argv: Char8 const pointer pointer) => Int32 
 
 	{
 		let enemy mutable := Enemy nativeNew.
-		enemy _ position: Float32x2(2.0, 0.0).
+		enemy _ position: Float32x2(4.0, 2.0).
 		entities add: enemy.
 	}.
 
 	{
 		let enemy mutable := Enemy nativeNew.
-		enemy _ position: Float32x2(4.0, 0.0).
+		enemy _ position: Float32x2(15.0, 0.0).
 		entities add: enemy.
 	}.
 
@@ -672,12 +750,29 @@ function main externC (argc: Int32, argv: Char8 const pointer pointer) => Int32 
 
 			paused: true;
 
-			attackTime: 0.02;
-			decayTime: 0.02;
-			sustainLevel: 0.2;
-			sustainTime: 0.1;
-			releaseTime: 0.2.
+			attackTime: 0.015f;
+			decayTime: 0.015f;
+			sustainLevel: 0.2f;
+			sustainTime: 0.05f;
+			releaseTime: 0.1f.
 		jumpSound := noiseChannel.
+		soundChannels add: noiseChannel.
+	}.
+
+	## Dash sound.
+	{
+		let noiseChannel mutable := NoiseChannel nativeNew.
+		noiseChannel _
+			amplitude: 0.1;
+
+			paused: true;
+
+			attackTime: 0.025f;
+			decayTime: 0.02f;
+			sustainLevel: 0.2f;
+			sustainTime: 0.1f;
+			releaseTime: 0.2f.
+		dashSound := noiseChannel.
 		soundChannels add: noiseChannel.
 	}.
 
