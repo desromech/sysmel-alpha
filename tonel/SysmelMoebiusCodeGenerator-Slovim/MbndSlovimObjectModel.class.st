@@ -36,6 +36,11 @@ MbndSlovimObjectModel >> classVariableClass [
 ]
 
 { #category : #'as yet unclassified' }
+MbndSlovimObjectModel >> compiledMethodLiteralsOffset [
+	^ managedObjectModel compiledMethodClass instanceDataSize alignedTo: managedObjectModel compiledMethodClass instanceDataAlignment
+]
+
+{ #category : #'as yet unclassified' }
 MbndSlovimObjectModel >> convertDynamicLiteralToConstant: dynamicLiteralValue [
 	^ self convertDynamicLiteralToConstant: dynamicLiteralValue withName: nil
 ]
@@ -67,17 +72,6 @@ MbndSlovimObjectModel >> convertDynamicLiteralToConstant: dynamicLiteralValue wi
 	
 	convertedValue value: literalGlobal targetType: targetType.
 	^ convertedValue
-]
-
-{ #category : #'literal conversion' }
-MbndSlovimObjectModel >> convertInlineLiteral: literal [
-	literal == true ifTrue: [ ^ self trueLiteralValue ].
-	literal == false ifTrue: [ ^ self falseLiteralValue ].
-	literal ifNil: [ ^ SLVMConstantValue type: target dynamicObjectType value: nil ].
-	literal isInteger ifTrue: [ ^ SLVMConstantValue type: target dynamicObjectType value: (self encodeSmallInteger: literal)].
-	literal isCharacter ifTrue: [ ^ SLVMConstantValue type: target dynamicObjectType value: (self encodeSmallInteger: literal)].
-	literal isFloat ifTrue: [ ^ SLVMConstantValue type: target dynamicObjectType value: (self encodeSmallFloat: literal)].
-	self error: 'Should not reach here.'
 ]
 
 { #category : #converting }
@@ -188,6 +182,17 @@ MbndSlovimObjectModel >> createSymbolObjectInstance: symbol [
 		self createObjectBytes: data class: managedObjectModel symbolClass identityHash: (managedObjectModel computeBytesHash: data)
 	]
 
+]
+
+{ #category : #'literal conversion' }
+MbndSlovimObjectModel >> encodeInlineLiteral: literal [
+	literal == true ifTrue: [ ^ self trueLiteralValue ].
+	literal == false ifTrue: [ ^ self falseLiteralValue ].
+	literal ifNil: [ ^ SLVMConstantValue type: target uintPointer value: 0 ].
+	literal isInteger ifTrue: [ ^ SLVMConstantValue type: target uintPointer value: (self encodeSmallInteger: literal)].
+	literal isCharacter ifTrue: [ ^ SLVMConstantValue type: target uintPointer value: (self encodeSmallInteger: literal)].
+	literal isFloat ifTrue: [ ^ SLVMConstantValue type: target uintPointer value: (self encodeSmallFloat: literal)].
+	self error: 'Should not reach here.'
 ]
 
 { #category : #accessing }
