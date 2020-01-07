@@ -13,7 +13,7 @@ MbndCompilerCommandLineHandler class >> commandName [
 
 { #category : #activation }
 MbndCompilerCommandLineHandler >> activate [
-	| architecture outputFileName withDebugInformation arguments argumentIndex compilationCommands arg skipCount target compiler emitLLVM writeMode gpu compilationOptions targetVendor targetOS targetAttributes linkerArguments |
+	| architecture outputFileName withDebugInformation arguments argumentIndex compilationCommands arg skipCount target compiler emitLLVM writeMode gpu compilationOptions targetVendor targetOS targetAttributes linkerArguments useLLVM |
 	self activateHelp
 		ifTrue: [  ^ self ].
 		
@@ -24,7 +24,8 @@ MbndCompilerCommandLineHandler >> activate [
 	outputFileName := nil.
 	withDebugInformation := false.
 	writeMode := #executable.
-	emitLLVM := true.
+	useLLVM := true.
+	emitLLVM := false.
 	gpu := false.
 	
 	arguments := self arguments.
@@ -46,7 +47,7 @@ MbndCompilerCommandLineHandler >> activate [
 		].
 		arg = '-mvulkan' ifTrue: [  
 			architecture := #spirv_vulkan.
-			emitLLVM := false.
+			useLLVM := false.
 			gpu := true.
 		].
 		arg = '-mvendor' ifTrue: [
@@ -65,6 +66,13 @@ MbndCompilerCommandLineHandler >> activate [
 			skipCount := 2
 		].
 
+		arg = '-nouse-llvm' ifTrue: [  
+			useLLVM := false.
+		].
+		arg = '-use-llvm' ifTrue: [  
+			useLLVM := true.
+		].
+
 		arg = '-noemit-llvm' ifTrue: [  
 			emitLLVM := false.
 		].
@@ -76,7 +84,7 @@ MbndCompilerCommandLineHandler >> activate [
 			withDebugInformation := true.
 		].
 		arg = '-S' ifTrue: [
-			writeMode := #assembly.
+			writeMode := emitLLVM ifTrue: [#llvm_assembly] ifFalse: [#assembly].
 		].
 		arg = '-c' ifTrue: [ 
 			writeMode := #object
@@ -153,7 +161,7 @@ MbndCompilerCommandLineHandler >> activate [
 
 	compilationCommands ifEmpty: [ ^ self help ].
 
-	target := MbndSlovimCompilationTarget perform: ((emitLLVM ifTrue: [ 'llvm_' ] ifFalse: ['']) , architecture) asSymbol.
+	target := MbndSlovimCompilationTarget perform: ((useLLVM ifTrue: [ 'llvm_' ] ifFalse: ['']) , architecture) asSymbol.
 	targetOS ifNotNil: [ target operatingSystemName: targetOS asSymbol ].
 	targetVendor ifNotNil: [ target systemVendor: targetVendor asSymbol].
 	targetAttributes ifNotNil: [ target machineAttributes: targetAttributes ].

@@ -34,3 +34,14 @@ SGPUExecutionDriverTest >> testArrayCollect [
 	expectedResult := (1 to: 1234) collect: cpuBlock.
 	self assert: result asArray equals: expectedResult
 ]
+
+{ #category : #tests }
+SGPUExecutionDriverTest >> testIntervalArrayCollect [
+	| cpuBlock gpuBlock data result expectedResult |
+	cpuBlock := [ :x | (x + 10) * 2 ].
+	gpuBlock := cpuBlock gpuType: #(Float32 => Float32).
+	data := (1 to: 1234) asGPUFloat32Array.
+	result := data collect: gpuBlock.
+	expectedResult := (1 to: 1234) collect: cpuBlock.
+	self assert: result asArray equals: expectedResult
+]

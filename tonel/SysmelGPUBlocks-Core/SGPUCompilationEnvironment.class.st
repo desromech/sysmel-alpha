@@ -5,7 +5,8 @@ Class {
 		'compilationModule',
 		'compiledBlockClosures',
 		'compiledShaderStages',
-		'mbndToSlvmTypeMapCache'
+		'mbndToSlvmTypeMapCache',
+		'compiledGenerators'
 	],
 	#classVars : [
 		'Current'
@@ -82,7 +83,16 @@ SGPUCompilationEnvironment >> constructArrayOfType: typeExpression with: initial
 	].
 
 	^ SGPUManagedDataArray basicNew
+		compilationEnvironment: self;
 		initializeForType: type withCPUData: cpuDataArray
+]
+
+{ #category : #'as yet unclassified' }
+SGPUCompilationEnvironment >> constructArrayOfType: typeExpression withInterval: interval [
+	^ self constructArrayOfType: typeExpression withSize: interval size withGenerator: (SGPUIntervalDataArrayGenerator new
+	first: interval first;
+	increment: interval increment;
+	yourself)
 ]
 
 { #category : #'as yet unclassified' }
@@ -94,7 +104,23 @@ SGPUCompilationEnvironment >> constructArrayOfType: typeExpression withSize: siz
 	cpuDataArray := SLVMNativeArray for: slvmType new: size.
 
 	^ SGPUManagedDataArray basicNew
+		compilationEnvironment: self;
 		initializeForType: type withCPUData: cpuDataArray
+]
+
+{ #category : #'as yet unclassified' }
+SGPUCompilationEnvironment >> constructArrayOfType: typeExpression withSize: size withGenerator: generator [
+	| type slvmType cpuDataArray |
+	self assert: size >= 0.
+	size = 0 ifTrue: [ ^ self constructArrayOfType: typeExpression with: size ].
+	type := typeExpression isMbndType ifTrue: [ typeExpression ]
+		ifFalse: [self evaluateTypeExpression: typeExpression].
+	slvmType := self slvmTypeForMbndType: type.
+	cpuDataArray := SLVMNativeArray for: slvmType new: size.
+
+	^ SGPUManagedDataArray basicNew
+		compilationEnvironment: self;
+		initializeForType: type withGenerator: generator cpuAllocationData: cpuDataArray
 ]
 
 { #category : #compiling }
@@ -117,6 +143,22 @@ SGPUCompilationEnvironment >> evaluateTypeExpression: typeExpression [
 	^ resultValue
 ]
 
+{ #category : #'as yet unclassified' }
+SGPUCompilationEnvironment >> getShaderTemplateNamed: templateName [
+	| blockConversionNamespace |
+	blockConversionNamespace := compilationModule globalNamespace lookupSymbol: #GPUBlockConversion.
+	^ blockConversionNamespace lookupSymbol: templateName.
+
+]
+
+{ #category : #'as yet unclassified' }
+SGPUCompilationEnvironment >> getShaderTemplateNamed: templateName instanceWithArguments: arguments [
+	| templateDefinition |
+	templateDefinition := self getShaderTemplateNamed: templateName.
+	^ (templateDefinition getOrCreateInstanceWithArguments: arguments)
+		mainChild
+]
+
 { #category : #initialization }
 SGPUCompilationEnvironment >> initialize [
 	super initialize.
@@ -126,7 +168,19 @@ SGPUCompilationEnvironment >> initialize [
 		
 	compiledBlockClosures := WeakKeyDictionary new.
 	compiledShaderStages := WeakKeyDictionary new.
+	compiledGenerators := WeakValueDictionary new.
 	mbndToSlvmTypeMapCache := WeakKeyDictionary new.
+]
+
+{ #category : #'as yet unclassified' }
+SGPUCompilationEnvironment >> intervalGenerationShaderStageCodeForValueType: valueType [
+	^ compiledGenerators at: { #interval . valueType } ifAbsentPut: [
+		| templateInstance method |
+		templateInstance := self getShaderTemplateNamed: #IntervalGeneratorShader instanceWithArguments: { valueType }.
+		method := templateInstance lookupSymbol: #main.
+		self shaderStageCodeFor: method
+	]
+
 ]
 
 { #category : #compiling }

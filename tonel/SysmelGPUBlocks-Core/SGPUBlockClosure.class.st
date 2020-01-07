@@ -26,7 +26,7 @@ SGPUBlockClosure >> asCollectionMapShaderMethod [
 
 { #category : #converting }
 SGPUBlockClosure >> asCollectionMapShaderStageCode [
-	^ compilationEnvironment shaderStageCodeFor: (self asCollectionMapShaderClass lookupSymbol: #main).
+	^ compilationEnvironment shaderStageCodeFor: (self asCollectionMapShaderMethod).
 ]
 
 { #category : #accessing }
@@ -51,11 +51,7 @@ SGPUBlockClosure >> concreteMethod: anObject [
 
 { #category : #converting }
 SGPUBlockClosure >> constructShaderClassWithTemplateNamed: templateName [
-	| blockConversionNamespace templateDefinition |
-	blockConversionNamespace := compilationEnvironment compilationModule globalNamespace lookupSymbol: #GPUBlockConversion.
-	templateDefinition := blockConversionNamespace lookupSymbol: templateName.
-	^ (templateDefinition getOrCreateInstanceWithArguments: { concreteMethod })
-		mainChild
+	^ compilationEnvironment getShaderTemplateNamed: templateName instanceWithArguments: { concreteMethod }
 ]
 
 { #category : #accessing }

@@ -49,7 +49,18 @@ SAbstractGPUExecutionDriver >> createShaderSignature [
 	builder
 		beginBindingBank: 1000;
 		addBindingBankElement: AGPU_SHADER_BINDING_TYPE_STORAGE_BUFFER bindingPointCount: 2;
-		"bufferSize" addBindingConstant.
+		
+		"Two quad words"
+		addBindingConstant;
+		addBindingConstant;
+		addBindingConstant;
+		addBindingConstant;
+		
+		addBindingConstant;
+		addBindingConstant;
+		addBindingConstant;
+		addBindingConstant.
+
 	computeShaderSignature := builder build
 ]
 
@@ -119,10 +130,15 @@ SAbstractGPUExecutionDriver >> ensureManagedDataArrayIsInGPU: managedDataArray [
 	| bufferHandle rawCpuData |
 	bufferHandle := self validStorageBufferHandleFor: managedDataArray.
 	self ensureBufferIsReadyForHostToDeviceTransfer: bufferHandle.
+	
+	managedDataArray isNotYetGenerated ifTrue: [ 
+		managedDataArray generator generateDataInGPUManagedBuffer: managedDataArray
+	] ifFalse: [ 
+		rawCpuData := managedDataArray rawCpuData.
+		bufferHandle uploadBufferData: 0 size: rawCpuData rawDataSize data: rawCpuData rawData.
+		managedDataArray markSynchronizedCopies
+	].
 
-	rawCpuData := managedDataArray rawCpuData.
-	bufferHandle uploadBufferData: 0 size: rawCpuData rawDataSize data: rawCpuData rawData.
-	managedDataArray markSynchronizedCopies
 ]
 
 { #category : #'as yet unclassified' }

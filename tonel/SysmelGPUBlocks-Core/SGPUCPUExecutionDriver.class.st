@@ -25,5 +25,6 @@ SGPUCPUExecutionDriver >> ensureManagedDataArrayIsInCPU: managedDataArray [
 
 { #category : #'as yet unclassified' }
 SGPUCPUExecutionDriver >> ensureManagedDataArrayIsInGPU: managedDataArray [
+	managedDataArray isNotYetGenerated ifTrue: [ managedDataArray ensureInCPU ].
 	managedDataArray markSynchronizedCopies
 ]

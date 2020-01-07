@@ -2,11 +2,13 @@ Class {
 	#name : #SGPUManagedDataArray,
 	#superclass : #SequenceableCollection,
 	#instVars : [
+		'compilationEnvironment',
 		'size',
 		'mbndType',
 		'cpuData',
 		'currentDataLocation',
-		'gpuBufferHandle'
+		'gpuBufferHandle',
+		'generator'
 	],
 	#category : #'SysmelGPUBlocks-Core-Data'
 }
@@ -60,6 +62,16 @@ SGPUManagedDataArray >> collect: aBlock [
 ]
 
 { #category : #accessing }
+SGPUManagedDataArray >> compilationEnvironment [
+	^ compilationEnvironment
+]
+
+{ #category : #accessing }
+SGPUManagedDataArray >> compilationEnvironment: anObject [
+	compilationEnvironment := anObject
+]
+
+{ #category : #accessing }
 SGPUManagedDataArray >> cpuData [
 	self ensureInCPU.
 	^ cpuData
@@ -73,6 +85,7 @@ SGPUManagedDataArray >> currentDataLocation [
 { #category : #'as yet unclassified' }
 SGPUManagedDataArray >> ensureInCPU [
 	self isInCPU ifTrue: [ ^ self ].
+	self isNotYetGenerated ifTrue: [ ^ self generateDataInCPU ].
 	SGPUExecutionDriver current ensureManagedDataArrayIsInCPU: self
 ]
 
@@ -80,6 +93,28 @@ SGPUManagedDataArray >> ensureInCPU [
 SGPUManagedDataArray >> ensureInGPU [
 	self isInGPU ifTrue: [ ^ self ].
 	SGPUExecutionDriver current ensureManagedDataArrayIsInGPU: self
+]
+
+{ #category : #'as yet unclassified' }
+SGPUManagedDataArray >> generateDataInCPU [
+	self assert: generator isNotNil.
+	self markOnlyValidInCPU.
+	
+	generator generateDataWithSize: self size intoCPUBuffer: cpuData.
+	
+	generator := nil.
+]
+
+{ #category : #'as yet unclassified' }
+SGPUManagedDataArray >> generateDataInGPU [
+	self assert: generator isNotNil.
+	generator generateDataInGPUManagedBuffer: self.
+	generator := nil.
+]
+
+{ #category : #accessing }
+SGPUManagedDataArray >> generator [
+	^ generator
 ]
 
 { #category : #accessing }
@@ -100,6 +135,15 @@ SGPUManagedDataArray >> initializeForType: aMbndType withCPUData: theCpuData [
 	size := theCpuData size.
 ]
 
+{ #category : #initialization }
+SGPUManagedDataArray >> initializeForType: aMbndType withGenerator: theGenerator cpuAllocationData: theCpuData [
+	mbndType := aMbndType.
+	cpuData := theCpuData.
+	currentDataLocation := #notYetGenerated.
+	size := theCpuData size.
+	generator := theGenerator.
+]
+
 { #category : #testing }
 SGPUManagedDataArray >> isInCPU [
 	^ #(both cpu) includes: currentDataLocation
@@ -110,14 +154,25 @@ SGPUManagedDataArray >> isInGPU [
 	^ #(both gpu) includes: currentDataLocation
 ]
 
+{ #category : #testing }
+SGPUManagedDataArray >> isNotYetGenerated [
+	^ currentDataLocation == #notYetGenerated
+]
+
+{ #category : #'as yet unclassified' }
+SGPUManagedDataArray >> markOnlyValidInCPU [
+	currentDataLocation := #cpu.
+]
+
 { #category : #'as yet unclassified' }
 SGPUManagedDataArray >> markOnlyValidInGPU [
-	currentDataLocation := #gpu
+	currentDataLocation := #gpu.
 ]
 
 { #category : #'as yet unclassified' }
 SGPUManagedDataArray >> markSynchronizedCopies [
-	currentDataLocation := #both
+	currentDataLocation := #both.
+	generator := nil.
 ]
 
 { #category : #accessing }

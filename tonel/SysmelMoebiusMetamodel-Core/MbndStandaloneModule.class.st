@@ -24,6 +24,11 @@ MbndStandaloneModule class >> compilationTarget: aCompilationTarget [
 
 ]
 
+{ #category : #accessing }
+MbndStandaloneModule class >> disableSLVMOptimizations [
+	^ true
+]
+
 { #category : #'as yet unclassified' }
 MbndStandaloneModule class >> llvm_x86 [
 	^ self compilationTarget: MbndSlovimCompilationTarget llvm_x86
@@ -48,6 +53,11 @@ MbndStandaloneModule >> addLinkerArguments: arguments [
 { #category : #accessing }
 MbndStandaloneModule >> compilationTarget [
 	^ compilationTarget
+]
+
+{ #category : #accessing }
+MbndStandaloneModule >> disableSLVMOptimizations [
+	^ self class disableSLVMOptimizations
 ]
 
 { #category : #parameters }
@@ -217,13 +227,21 @@ MbndStandaloneModule >> writeExecutableToFileNamed: outputFileName [
 ]
 
 { #category : #writing }
+MbndStandaloneModule >> writeLLVMAssemblyToFileNamed: outputFileName [
+	^ self writeMode: #llvm_assembly toFileNamed: outputFileName
+]
+
+{ #category : #writing }
 MbndStandaloneModule >> writeMode: writeMode toFileNamed: outputFileName [
 	| lowLevelModule ssaModule |
 	self finishSemanticAnalysis.
 	ssaModule := self generateTargetCodeModule.
 	
-	self optimizationLevel > 0 ifTrue: [ 
-		ssaModule optimizeGlobalVariables
+	ssaModule disableSLVMOptimizations: self disableSLVMOptimizations.
+	ssaModule disableSLVMOptimizations ifFalse: [ 
+		self optimizationLevel > 0 ifTrue: [ 
+			ssaModule optimizeGlobalVariables
+		].
 	].
 
 	lowLevelModule := ssaModule asLowLevelModuleWithOptimizationLevel: optimizationLevel.
@@ -231,6 +249,10 @@ MbndStandaloneModule >> writeMode: writeMode toFileNamed: outputFileName [
 	
 	writeMode == #assembly ifTrue: [
 		^ lowLevelModule writeAssemblyToFileNamed: outputFileName
+	].
+
+	writeMode == #llvm_assembly ifTrue: [
+		^ lowLevelModule writeIRAssemblyToFileNamed: outputFileName
 	].
 
 	writeMode == #object ifTrue: [
