@@ -290,6 +290,7 @@ class Player superclass: Character; definition: {
 		isOnFloor ifTrue: {
 			remainingDashTime := 0.35f.
 			dashDirection := Float32x2(lookDirection x, 0.0f).
+			speed := 10.0f.
 			audioMutex withLock: {
 				dashSound _ reset
 			}.
@@ -321,6 +322,7 @@ class Player superclass: Character; definition: {
 	method jump => Void := {
 		isOnFloor ifTrue: {
 			velocity y: 10.0.
+			remainingDashTime := 0.0f.
 			audioMutex withLock: {
 				jumpSound _ reset
 			}.
@@ -347,12 +349,18 @@ class Player superclass: Character; definition: {
 	override method update: (delta: Float32) ::=> Void := {
 		remainingDashTime > 0.0f ifTrue: {
 			remainingDashTime := remainingDashTime - delta.
-			velocity x: dashDirection x * 10.0.
+			velocity x: dashDirection x * speed.
 		} ifFalse: {
 			velocity x: direction x * speed.
 		}.
 	
-		super update: delta
+		super update: delta.
+
+		isOnFloor ifTrue: {
+			remainingDashTime <= 0.0f ifTrue: {
+				speed := 3.0f
+			}.
+		}.
 	}.
 }.
 

@@ -25,7 +25,11 @@ frontend accepts gcc/clang style command line arguments:
 ./sysmelc -nogc -g -o sampleNativeGame lib/bindings/sdl2/sdl2.sysmel samples/cpu/sampleNativeGame.sysmel
 
 # LLVM IR assembly.
-./sysmelc -g -O2 -S -o hello.ll samples/cpu/hello.sysmel
+./sysmelc -g -O2 -emit-llvm -S -o hello.ll samples/cpu/hello.sysmel
+clang -o hello hello.o -lgc -lm
+
+# Native assembly.
+./sysmelc -g -O2 -S -o hello.s samples/cpu/hello.sysmel
 clang -o hello hello.o -lgc -lm
 
 # Separate object file and linking.
