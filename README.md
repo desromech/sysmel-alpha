@@ -196,7 +196,7 @@ SGPUExecutionDriver reset.
 gpuBlock := [ :x | (x + 10) * 2 ] gpuType: #(Float32 => Float32).
 
 "Generate the input data."
-data := ((1 to: 4096) collect: #asFloat) asGPUFloat32Array.
+data := (1 to: 4096) asGPUFloat32Array.
 
 "Generate the output result."
 result := data collect: gpuBlock.
