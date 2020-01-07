@@ -13,7 +13,7 @@ class ComputeStageInput definition: {
 	method globalIndexForGridSize: (gridSize: UInt32x3) ::=> UInt32
 		:= globalInvocationID x +
 		   globalInvocationID y*gridSize x +
-		   globalInvocationID y*gridSize x*gridSize y.
+		   globalInvocationID z*gridSize x*gridSize y.
 
 	method globalIndexForLocalSize: (localSize: UInt32x3) ::=> UInt32
 		:= self globalIndexForGridSize: (self gridSizeForLocalSize: localSize).
