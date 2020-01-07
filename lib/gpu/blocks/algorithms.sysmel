@@ -37,4 +37,38 @@ template CollectionMapShader(MF: _FunctionType ref)
 	}.
 }.
 
+template IntervalGeneratorShader(ET: Type)
+:= class definition: {
+	compileTimeConstant ElementType := ET.
+
+	struct OutputBuffer definition: {
+		public field data type: ElementType array.
+	}.
+
+	struct ComputationBindings definition: {
+		public field outputBuffer type: OutputBuffer storageBufferPointer.
+	}.
+
+	struct QuickConstants definition: {
+		public field bufferSize type: UInt32.
+		public field reserved type: UInt32.
+
+		public field firstElement type: ElementType.
+		public field increment type: ElementType.
+	}.
+
+	public field arguments type: ComputationBindings bindingSetPointer.
+	public field quickConstants type: QuickConstants pushConstantPointer.
+
+	function main computeShader(stageIn: GPU ComputeStageInput inputChannel) => Void := {
+		<localSize: #(4 4 4)>
+		let elementIndex := stageIn receive globalIndex.
+		let bufferSize := quickConstants _ bufferSize.
+		let firstElement := quickConstants _ firstElement.
+		let increment := quickConstants _ increment.
+		elementIndex < bufferSize ifTrue: {
+			arguments _ outputBuffer _ data [elementIndex] := firstElement + elementIndex*increment.
+		}.
+	}.
+}.
 }. ## End of namespace GPUBlockConversion
