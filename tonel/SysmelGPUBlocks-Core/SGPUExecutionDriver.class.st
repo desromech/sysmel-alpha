@@ -57,10 +57,34 @@ cpuFallbackWith: cpuFallbackBlock [
 SGPUExecutionDriver >> enqueueComputationWithInputBuffers: inputBuffers outputBuffers: outputBuffers pushConstants: pushConstant
 computeShaderStage: shaderStageCode globalSize: size
 cpuFallbackWith: cpuFallbackBlock [
-	| gridSize localSize |
+	| gridSize localSize blockSize requiredBlocks gridSizeX gridSizeY gridSizeZ |
 	localSize := shaderStageCode localSize.
-	self flag: 'TODO: Compute the grid size correctly.'.
-	gridSize := { size . 1 . 1 }.
+	blockSize := localSize first * localSize second * localSize third.
+	requiredBlocks := (size + blockSize - 1) // blockSize.
+	
+	requiredBlocks <= 65535 ifTrue: [
+		gridSize := { requiredBlocks . 1 . 1 }.
+	] ifFalse: [
+		requiredBlocks <= "65535*65535" 4294836225 ifTrue: [
+			gridSizeX := requiredBlocks sqrt ceiling.
+			gridSizeY := (requiredBlocks + gridSizeX - 1) // gridSizeX.
+			self assert: gridSizeX <= 65535.
+			self assert: gridSizeY <= 65535.
+			self assert: gridSizeX*gridSizeY >= requiredBlocks.
+			gridSize := { gridSizeX . gridSizeY . 1 }.
+		] ifFalse: [
+			self assert: requiredBlocks <= 65535*65535*65535.
+			gridSizeX := (requiredBlocks raisedTo: 1.0/3.0) ceiling.
+			gridSizeY := gridSizeX.
+			gridSizeZ := (requiredBlocks + (gridSizeX*gridSizeY) - 1) // (gridSizeX*gridSizeX*gridSizeY).
+			self assert: gridSizeX <= 65535.
+			self assert: gridSizeY <= 65535.
+			self assert: gridSizeZ <= 65535.
+			self assert: gridSizeX*gridSizeY*gridSizeZ >= requiredBlocks.
+			gridSize := { gridSizeX . gridSizeY . gridSizeZ }.
+		]
+	].
+	
 	^ self enqueueComputationWithInputBuffers: inputBuffers outputBuffers: outputBuffers pushConstants: pushConstant
 computeShaderStage: shaderStageCode globalGridSize: gridSize
 cpuFallbackWith: cpuFallbackBlock
