@@ -37,6 +37,80 @@ template CollectionMapShader(MF: _FunctionType ref)
 	}.
 }.
 
+template BinaryReductionShader(RF: _FunctionType ref)
+:= class definition: {
+	compileTimeConstant ReductionFunction := RF.
+	compileTimeConstant FunctionType := ReductionFunction typeOfExpression baseType.
+	compileTimeConstant ElementType := FunctionType argumentTypes first.
+
+	struct DataBuffer definition: {
+		public field data type: ElementType array.
+	}.
+
+	struct ComputationBindings definition: {
+		public field inputBuffer type: DataBuffer storageBufferPointer.
+		public field outputBuffer type: DataBuffer storageBufferPointer.
+	}.
+
+	struct QuickConstants definition: {
+		public field bufferSize type: UInt32.
+		public field defaultValue type: ElementType.
+	}.
+
+	public field arguments type: ComputationBindings bindingSetPointer.
+	public field quickConstants type: QuickConstants pushConstantPointer.
+	public field sharedBlockData workgroupShared type: (ElementType array: 64).
+
+	function main computeShader(stageIn: GPU ComputeStageInput inputChannel) => Void := {
+		<localSize: 64>
+		let stageInput mutable := stageIn receive.
+
+		let collectionElement := stageInput globalIndex*2.
+		let localIndex := stageInput localInvocationID x.
+
+		let bufferSize := quickConstants _ bufferSize.
+		let destinationIndex := collectionElement / 128.
+
+		## Fetch the first pair of elements.
+		{
+			let defaultValue := quickConstants _ defaultValue.
+			let leftInput := collectionElement < bufferSize ifTrue: {
+				arguments _ inputBuffer _ data [collectionElement].
+			} ifFalse: {
+				defaultValue
+			}.
+
+			let rightInput := (collectionElement + 1) < bufferSize ifTrue: {
+				arguments _ inputBuffer _ data [collectionElement + 1].
+			} ifFalse: {
+				defaultValue
+			}.
+
+			sharedBlockData[localIndex] := ReductionFunction(leftInput, rightInput)
+		}.
+
+		GPU memoryBarrierShared().
+		GPU barrier().
+
+		## Perform the reduction levels.
+		1 to: 6 do: { :(UInt32)levelDepth :: Void |
+			let levelHalfSize := 64 >> levelDepth.
+			localIndex < levelHalfSize ifTrue: {
+				let leftInput := sharedBlockData[localIndex*2].
+				let rightInput := sharedBlockData[localIndex*2 + 1].
+				sharedBlockData[localIndex] := ReductionFunction(leftInput, rightInput).
+			}.
+			GPU memoryBarrierShared().
+			GPU barrier().
+		}.
+
+		## Write the reduced result into the output buffer.
+		localIndex = 0 && destinationIndex < bufferSize ifTrue: {
+			arguments _ outputBuffer _ data [destinationIndex] := sharedBlockData[0].
+		}.
+	}.
+}.
+
 template IntervalGeneratorShader(ET: Type)
 := class definition: {
 	compileTimeConstant ElementType := ET.

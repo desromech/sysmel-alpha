@@ -1,0 +1,32 @@
+namespace GPU definition: {
+
+function barrier() => Void := {
+	<intrinsic: #"shader.barrier.execution">
+}.
+
+function memoryBarrier() => Void := {
+	<intrinsic: #"shader.barrier.memory.all">
+}.
+
+function memoryBarrierAtomicCounter() => Void := {
+	<intrinsic: #"shader.barrier.memory.atomic_counter">
+}.
+
+function memoryBarrierImage() => Void := {
+	<intrinsic: #"shader.barrier.memory.image">
+}.
+
+function memoryBarrierBuffer() => Void := {
+	<intrinsic: #"shader.barrier.memory.buffer">
+}.
+
+function memoryBarrierShared() => Void := {
+	<intrinsic: #"shader.barrier.memory.shared">
+}.
+
+function groupMemoryBarrier() => Void := {
+	<intrinsic: #"shader.barrier.memory.group">
+}.
+
+
+} ## End of namespace GPU
