@@ -26,7 +26,7 @@ template CollectionMapShader(MF: _FunctionType ref)
 	public field quickConstants type: QuickConstants pushConstantPointer.
 
 	function main computeShader(stageIn: GPU ComputeStageInput inputChannel) => Void := {
-		<localSize: #(4 4 4)>
+		<localSize: 64>
 		let collectionElement := stageIn receive globalIndex.
 		let bufferSize := quickConstants _ bufferSize.
 		collectionElement < bufferSize ifTrue: {
@@ -61,7 +61,7 @@ template IntervalGeneratorShader(ET: Type)
 	public field quickConstants type: QuickConstants pushConstantPointer.
 
 	function main computeShader(stageIn: GPU ComputeStageInput inputChannel) => Void := {
-		<localSize: #(4 4 4)>
+		<localSize: 64>
 		let elementIndex := stageIn receive globalIndex.
 		let bufferSize := quickConstants _ bufferSize.
 		let firstElement := quickConstants _ firstElement.
