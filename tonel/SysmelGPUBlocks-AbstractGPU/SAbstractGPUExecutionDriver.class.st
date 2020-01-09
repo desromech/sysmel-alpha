@@ -71,10 +71,10 @@ computeShaderStage: shaderStageCode globalGridSize: gridSize
 cpuFallbackWith: cpuFallbackBlock [
 
 	| pipelineState shaderResourceBinding destBufferIndex |
+	self ensureValidComputationCommandList.
 	shaderResourceBinding := self getFreeComputeArgumentShaderResourceBinding.
 	pipelineState := self computePipelineStateForStage: shaderStageCode.
 
-	self ensureValidComputationCommandList.
 	computationCommandList usePipelineState: pipelineState.
 	
 	"Bind the input buffers."
@@ -91,6 +91,14 @@ cpuFallbackWith: cpuFallbackBlock [
 		destBufferIndex := destBufferIndex + 1
 	].
 
+	"Use the buffer arguments."
+	computationCommandList useComputeShaderResources: shaderResourceBinding.
+	
+	"Pass the push constants"
+	pushConstant ifNotNil: [ 
+		pushConstant pushAsGPUConstantsWithCommandList: computationCommandList at: 0.
+	].
+
 	"Barrier for input buffers that are active output buffers"
 	inputManagedBuffers do: [ :inputBuffer |
 		(activeOutputBuffers includes: inputBuffer) ifTrue: [
@@ -101,14 +109,6 @@ cpuFallbackWith: cpuFallbackBlock [
 				offset: 0 size: inputBuffer byteSize.
 			activeOutputBuffers remove: inputBuffer
 		]
-	].
-
-	"Use the buffer arguments."
-	computationCommandList useComputeShaderResources: shaderResourceBinding.
-	
-	"Pass the push constants"
-	pushConstant ifNotNil: [ 
-		pushConstant pushAsGPUConstantsWithCommandList: computationCommandList at: 0.
 	].
 
 	"Dispatch the computation."
