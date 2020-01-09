@@ -60,7 +60,7 @@ SGPUManagedDataArray >> binaryReductionWith: aBinaryBlock neutralValue: neutralV
 	pongBuffer := nil.
 	neutralValueOffset := 4 alignedTo: mbndType instanceAlignment.
 	quickConstants := ByteArray new: neutralValueOffset + mbndType instanceSize.
-	cpuData elementType write: neutralValueOffset intoPointer: (SLVMInternalObjectPointer object: quickConstants offset: neutralValueOffset).
+	cpuData elementType write: neutralValue intoPointer: (SLVMInternalObjectPointer object: quickConstants offset: neutralValueOffset).
 	
 	[currentReductionSize > 1] whileTrue: [ 
 		nextReductionSize := (currentReductionSize + stageReductionSize - 1) // stageReductionSize max: 1.
