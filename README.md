@@ -195,19 +195,37 @@ SGPUCompilationEnvironment reset.
 SGPUExecutionDriver reset.
 "
 
-gpuBlock := [ :x | (x + 10) * 2 ] gpuType: #(Float32 => Float32).
-
+Transcript show: 'GPU scheduling, memory allocation and block conversion time ';
+    show: [
 "Generate the input data."
-data := (1 to: 4096) asGPUFloat32Array.
+n := 10000000.
+data := (1 to: n) asGPUFloat32Array.
 
-"Generate the output result."
-result := data collect: gpuBlock.
+"Map the data"
+mapBlock := [ :x | (x + 10) * 2 ] gpuType: #(Float32 => Float32).
+mappedData := data collect: mapBlock.
 
-"Inspect the results."
-results inspect.
+"Then reduce it"
+sumBlock := [ :x :y | x + y ] gpuType: #((Float32, Float32) => Float32).
+reducedData := mappedData binaryReductionWith: sumBlock.
+
+"Inspect the results. By doing the following:
+reducedData inspect.
+mappedData inspect
+"
+] timeToRun asMilliSeconds; cr.
 
 "Computation results are delayed until they are actually needed. They are done
 automatically when inspecting the result. The pending computations can be
 finished by doing the following: SGPUExecutionDriver current finishPendingComputations
 "
+
+Transcript show: 'GPU execution time: ';
+    show: [SGPUExecutionDriver current finishPendingComputations] timeToRun asMilliSeconds;
+    cr.
+
+"Compare with the following CPU only example"
+Transcript show: 'CPU execution time: ';
+    show: [((1 to: n) collect: [ :x | (x + 10) * 2 ]) sum ] timeToRun asMilliSeconds;
+    cr.
 ```
