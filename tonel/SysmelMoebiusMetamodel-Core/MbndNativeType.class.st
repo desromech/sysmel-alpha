@@ -11,13 +11,3 @@ Class {
 MbndNativeType class >> typeName [
 	^ #_NativeType
 ]
-
-{ #category : #'semantic analysis' }
-MbndNativeType >> isDefined [
-	^ self hasFlag: #defined
-]
-
-{ #category : #'as yet unclassified' }
-MbndNativeType >> markAsDefined [
-	self addFlag: #defined
-]

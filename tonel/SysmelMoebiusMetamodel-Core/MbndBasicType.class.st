@@ -160,6 +160,16 @@ MbndBasicType >> initializeNonTraitType [
 	
 ]
 
+{ #category : #'semantic analysis' }
+MbndBasicType >> isDefined [
+	^ self hasFlag: #defined
+]
+
+{ #category : #'as yet unclassified' }
+MbndBasicType >> markAsDefined [
+	self addFlag: #defined
+]
+
 { #category : #initialization }
 MbndBasicType >> markAsTrait [
 	^ self addFlag: #trait
