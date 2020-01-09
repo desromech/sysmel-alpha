@@ -187,8 +187,52 @@ Types are specified by arbitrary expressions whose values are evaluated in
 compile-time into an object representing a type. For this reason the syntax for
 specifying types is highly flexible.
 
-## BlockClosure to GPU block compilation
+Many Smalltalk style control flow messages are defined as macros methods which are
+expanded in compile time into the invocation of other macros. The following
+are the definitions of some of these macros (there are defined at lib/kernel/bootstrap/primitive-macros.sysmel):
 
+```sysmel
+## ifTrue:ifFalse
+(_BooleanType | _CompilerObjectType) macro method ifTrue: trueAction :=
+    ``(if: `,self then: `,trueAction).
+(_BooleanType | _CompilerObjectType) macro method ifFalse: falseAction :=
+    ``(if: `,self not then: `,falseAction).
+
+(_BooleanType | _CompilerObjectType) macro method ifTrue: trueAction ifFalse: falseAction :=
+    ``(if: `,self then: `,trueAction else: `,falseAction).
+(_BooleanType | _CompilerObjectType) macro method ifFalse: falseAction ifTrue: trueAction :=
+    ``(if: `,self then: `,trueAction else: `,falseAction).
+
+## isNil
+_PointerType macro method isNil := ``(`,self == nil).
+_PointerType macro method isNotNil := ``(`,self ~~ nil).
+
+## ifNil:ifNotNil
+_PointerType macro method ifNil: nilAction :=
+    ``(if: `,self == nil then: `,nilAction).
+_PointerType macro method ifNotNil: notNilAction :=
+    ``(if: `,self ~~ nil then: `,notNilAction).
+
+_PointerType macro method ifNotNil: notNilAction ifNil: nilAction :=
+    ``(if: `,self ~~ nil then: `,notNilAction else: `,nilAction).
+_PointerType macro method ifNil: nilAction ifNotNil: notNilAction :=
+    ``(if: `,self == nil then: `,nilAction else: `,notNilAction).
+
+```
+
+This technique of prefixing common lisp-style quasi-quoting operators with a
+backquote (**`**) is taken from the PhD thesis
+titled *Dynamic Language Embedding: With Homogeneous Tool Support* by Lukas
+Renggli. The following is a summary of the operators that expressed by using
+this quoting syntax:
+
+1. **`'** Quote. The following AST node is completely quoted.
+2. **``** Quasi-quote. The following AST node is transformed with a quasi-quote evaluation visitor.
+2. **`,** Quasi-unquote. This is followed by an expression that must evaluate to an AST node.
+2. **`@** Splicing. This is used for inserting all of the elements of a tuple or an array in place.
+
+
+## BlockClosure to GPU block compilation
 ```smalltalk
 "For cleaning up, you can do the following:
 SGPUCompilationEnvironment reset.
