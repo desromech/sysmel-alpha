@@ -60,7 +60,8 @@ MbndStandaloneModule llvm_x86_64
 	loadRuntimeCoreLibrary;
 	evaluateFileNamedOnce: 'samples/cpu/hello.sysmel';
 	finishSemanticAnalysis;
-	"writeAssemblyToFileNamed: 'hello.ll';"
+	"writeLLVMAssemblyToFileNamed: 'hello.ll';"
+    "writeAssemblyToFileNamed: 'hello.s';"
     writeExecutableToFileNamed: 'hello'
 
 "CPU native sample game"
@@ -72,7 +73,8 @@ MbndStandaloneModule llvm_x86_64
 	evaluateFileNamedOnce: 'lib/bindings/sdl2/sdl2.sysmel';
 	evaluateFileNamedOnce: 'samples/cpu/sampleNativeGame.sysmel';
 	finishSemanticAnalysis;
-	"writeAssemblyToFileNamed: 'sampleNativeGame.ll';"
+	"writeLLVMAssemblyToFileNamed: 'sampleNativeGame.ll';"
+	"writeAssemblyToFileNamed: 'sampleNativeGame.s';"
 	writeExecutableToFileNamed: 'sampleNativeGame'
 
 "Sample Vulkan shaders"
