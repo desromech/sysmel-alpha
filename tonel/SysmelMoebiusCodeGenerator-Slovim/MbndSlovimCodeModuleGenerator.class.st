@@ -320,6 +320,19 @@ MbndSlovimCodeModuleGenerator >> generateGlobalField: field forShader: shaderSta
 ]
 
 { #category : #'as yet unclassified' }
+MbndSlovimCodeModuleGenerator >> generateGlobalField: field forSharedStorageWithType: storageType [
+	| globalName valueType ssaValueType ssaGlobal |
+	globalName := self newSymbolNameMangler mangleProgramEntityName: field
+		suffixes: {storageType}.
+
+	valueType := field valueType.
+	ssaValueType := self translateType: valueType.
+
+	ssaGlobal := SLVMGlobalVariable module: ssaModule name: globalName valueType: ssaValueType storage: storageType.
+	^ ssaGlobal
+]
+
+{ #category : #'as yet unclassified' }
 MbndSlovimCodeModuleGenerator >> generateGlobalFieldForPushConstants: field [
 	| globalName valueType globalStorage structureKind ssaValueType ssaGlobal |
 	globalName := self newSymbolNameMangler mangleProgramEntityName: field
@@ -402,6 +415,13 @@ MbndSlovimCodeModuleGenerator >> generatedNameForAnynomousEntity: programEntity 
 	anonSymbolCount := anonSymbolCount + 1.
 	generatedNameTable at: programEntity put: result.
 	^ result
+]
+
+{ #category : #'as yet unclassified' }
+MbndSlovimCodeModuleGenerator >> getField: field asSharedStorageWithType: storageType [
+	^ convertedDescriptorSetBindings at: {storageType . field} ifAbsentPut: [ 
+		self generateGlobalField: field forSharedStorageWithType: storageType
+	]
 ]
 
 { #category : #'as yet unclassified' }

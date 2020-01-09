@@ -15,6 +15,21 @@ SGPUBlockClosure class >> for: blockClosure withTypeExpression: typeExpression [
 ]
 
 { #category : #converting }
+SGPUBlockClosure >> asBinaryReductionShaderClass [
+	^ self constructShaderClassWithTemplateNamed: 'BinaryReductionShader'.
+]
+
+{ #category : #converting }
+SGPUBlockClosure >> asBinaryReductionShaderMethod [
+	^ self asBinaryReductionShaderClass lookupSymbol: #main.
+]
+
+{ #category : #converting }
+SGPUBlockClosure >> asBinaryReductionShaderStageCode [
+	^ compilationEnvironment shaderStageCodeFor: (self asBinaryReductionShaderMethod).
+]
+
+{ #category : #converting }
 SGPUBlockClosure >> asCollectionMapShaderClass [
 	^ self constructShaderClassWithTemplateNamed: 'CollectionMapShader'.
 ]

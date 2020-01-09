@@ -44,10 +44,11 @@ MbndSlovimFunctionCodeGenerator class >> initialize [
 
 { #category : #visiting }
 MbndSlovimFunctionCodeGenerator >> aggregate: aggregateNode value: aggregateValue getFieldOverrideFor: field [
-	| valueType |
+	| valueType referenceType |
 	self slvmCompilationTarget isGPU ifFalse: [ ^ nil ].
 	
 	valueType := field valueType.
+	referenceType := field type.
 	(valueType isPointerLikeValueType and: [ valueType addressSpace = #bindingSet ]) ifTrue: [
 		self assert: aggregateValue isFunctionArgument.
 		^ MbndSlovimDescriptorSetReference new
@@ -60,6 +61,11 @@ MbndSlovimFunctionCodeGenerator >> aggregate: aggregateNode value: aggregateValu
 		self assert: aggregateValue isFunctionArgument.
 		^ MbndSlovimLoadedReferenceValue new
 			value: (codeModuleGenerator getFieldAsPushConstantReference: field)
+	].
+
+	(referenceType isReferenceType and: [ #(#workgroup crossWorkgroup) includes: referenceType addressSpace ]) ifTrue: [ 
+		self assert: aggregateValue isFunctionArgument.
+		^ codeModuleGenerator getField: field asSharedStorageWithType: referenceType addressSpace
 	].
 
 	(aggregateValue isFakeValue and: [ aggregateValue isMbndDescriptorSetReference ]) ifTrue: [ 
@@ -1135,8 +1141,19 @@ MbndSlovimFunctionCodeGenerator >> visitFloatingPointToIntegerCastNode: node [
 
 { #category : #visiting }
 MbndSlovimFunctionCodeGenerator >> visitFunctionCallNode: node [
-	| functionValue argumentValues |
-	functionValue := self visitNode: node function.
+	| functionValue argumentValues intrinsicName |
+	functionValue := nil.
+	node function isMethodReferenceNode ifTrue: [ 
+		node function binding pragmaAt: #intrinsic: ifPresent: [ :pragma |
+			intrinsicName := pragma arguments first value.
+			(EvaluationOnlyIntrinsics includes: intrinsicName) ifFalse: [
+				functionValue := codeModuleGenerator intrinsicConstantBuiltInFunction: (IntrinsicTargetMap at: intrinsicName ifAbsent: [ intrinsicName ]) withType: node function binding type.
+			].
+		].
+	].
+
+	functionValue ifNil: [ functionValue := self visitNode: node function ].
+	
 	argumentValues := self visitNodesAndCollect: node arguments.
 	^ slvmBuilder call: functionValue arguments: argumentValues
 ]

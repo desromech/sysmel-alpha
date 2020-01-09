@@ -25,6 +25,12 @@ MbndAbstractVariableMetaBuilder >> assignValue: newInitialValueNode [
 	initialValueNode := newInitialValueNode
 ]
 
+{ #category : #'as yet unclassified' }
+MbndAbstractVariableMetaBuilder >> crossWorkgroupShared [
+	self addFlag: #crossWorkgroupShared
+	
+]
+
 { #category : #mutability }
 MbndAbstractVariableMetaBuilder >> inmutable [
 	self removeFlag: #mutable
@@ -44,4 +50,10 @@ MbndAbstractVariableMetaBuilder >> ref [
 MbndAbstractVariableMetaBuilder >> type: typeExpression [
 	valueType := typeExpression.
 
+]
+
+{ #category : #'as yet unclassified' }
+MbndAbstractVariableMetaBuilder >> workgroupShared [
+	self addFlag: #workgroupShared
+	
 ]

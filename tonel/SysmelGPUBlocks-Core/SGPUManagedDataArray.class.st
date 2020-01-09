@@ -39,6 +39,56 @@ SGPUManagedDataArray >> at: index put: value [
 ]
 
 { #category : #enumerating }
+SGPUManagedDataArray >> binaryReductionWith: aBinaryBlock [
+	| neutralValue |
+	neutralValue := mbndType defaultValue value.
+	^ self binaryReductionWith: aBinaryBlock neutralValue: neutralValue
+]
+
+{ #category : #enumerating }
+SGPUManagedDataArray >> binaryReductionWith: aBinaryBlock neutralValue: neutralValue [
+	| shaderStageCode stageReductionSize currentReductionSize nextReductionSize pingBuffer pongBuffer tempBuffer quickConstants neutralValueOffset |
+	aBinaryBlock isSGPUBlockClosure ifFalse: [ self halt ].
+	
+	shaderStageCode := aBinaryBlock asBinaryReductionShaderStageCode.
+	self ensureInGPU.
+	
+	stageReductionSize := 2 * shaderStageCode localBlockSize.
+	
+	currentReductionSize := self size.
+	pingBuffer := self.
+	pongBuffer := nil.
+	neutralValueOffset := 4 alignedTo: mbndType instanceAlignment.
+	quickConstants := ByteArray new: neutralValueOffset + mbndType instanceSize.
+	cpuData elementType write: neutralValueOffset intoPointer: (SLVMInternalObjectPointer object: quickConstants offset: neutralValueOffset).
+	
+	[currentReductionSize > 1] whileTrue: [ 
+		nextReductionSize := (currentReductionSize + stageReductionSize - 1) // stageReductionSize max: 1.
+
+		(pongBuffer isNil or: [nextReductionSize = 1]) ifTrue: [
+			pongBuffer := compilationEnvironment constructArrayOfType: aBinaryBlock returnType withSize: nextReductionSize
+		].
+	
+		"Enqueue the computation"
+		self enqueueBinaryReductionFrom: currentReductionSize buffer: pingBuffer to: nextReductionSize buffer: pongBuffer
+			shaderStage: shaderStageCode quickConstants: quickConstants.
+		
+		"Swap the ping-pong buffers"
+		tempBuffer := pingBuffer ~~ self ifTrue: [pingBuffer] ifFalse: [nil].
+		pingBuffer := pongBuffer.
+		pongBuffer := tempBuffer.
+		currentReductionSize := nextReductionSize
+	].
+
+	^ pingBuffer
+]
+
+{ #category : #accessing }
+SGPUManagedDataArray >> byteSize [
+	^ cpuData rawDataSize
+]
+
+{ #category : #enumerating }
 SGPUManagedDataArray >> collect: aBlock [
 	| shaderStageCode resultBuffer |
 	aBlock isSGPUBlockClosure ifFalse: [ ^ super collect: aBlock ].
@@ -80,6 +130,20 @@ SGPUManagedDataArray >> cpuData [
 { #category : #accessing }
 SGPUManagedDataArray >> currentDataLocation [
 	^ currentDataLocation
+]
+
+{ #category : #enumerating }
+SGPUManagedDataArray >> enqueueBinaryReductionFrom: sourceSize buffer: sourceBuffer to: targetSize buffer: targetBuffer
+shaderStage: shaderStageCode quickConstants: quickConstants [
+	quickConstants unsignedLongAt: 1 put: sourceSize.
+	
+	SGPUExecutionDriver current
+		enqueueComputationWithInputBuffers: { sourceBuffer } outputBuffers: { targetBuffer }
+		pushConstants: quickConstants
+		computeShaderStage: shaderStageCode globalSize: (sourceSize + 1) // 2
+		cpuFallbackWith: [
+			self halt
+		].
 ]
 
 { #category : #'as yet unclassified' }

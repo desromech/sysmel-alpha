@@ -823,7 +823,7 @@ MbndAstSemanticAnalyzer >> visitExplicitCastNode: node [
 
 { #category : #visiting }
 MbndAstSemanticAnalyzer >> visitFieldDefinitionNode: node [
-	| result owner fieldName field visibility location intrinsic |
+	| result owner fieldName field visibility location intrinsic valueType referenceType |
 	result := node copy.
 
 	result valueType ifNotNil: [ 
@@ -886,11 +886,20 @@ MbndAstSemanticAnalyzer >> visitFieldDefinitionNode: node [
 		]
 	].
 
+	valueType := result valueType asFieldTypeFor: owner.
+	referenceType := valueType ref.
+	(result hasFlag: #workgroupShared) ifTrue: [ 
+		referenceType := valueType refFor: #workgroup.
+	].
+	(result hasFlag: #crossWorkgroupShared) ifTrue: [ 
+		referenceType := valueType refFor: #crossWorkgroup
+	].
+	
 	field := MbndFieldVariable new
 		name: fieldName;
 		flags: result flags;
-		valueType: (result valueType asFieldTypeFor: owner);
-		type: result valueType ref;
+		valueType: valueType;
+		type: referenceType;
 		bits: result bits;
 		location: location;
 		intrinsic: intrinsic;

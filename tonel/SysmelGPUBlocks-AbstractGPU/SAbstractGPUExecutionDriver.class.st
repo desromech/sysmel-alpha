@@ -13,7 +13,8 @@ Class {
 		'isComputationCommandListOpen',
 		'hasPendingComputations',
 		'freeShaderResourceBindings',
-		'occupiedShaderResourceBindings'
+		'occupiedShaderResourceBindings',
+		'activeOutputBuffers'
 	],
 	#pools : [
 		'AGPUConstants'
@@ -90,6 +91,18 @@ cpuFallbackWith: cpuFallbackBlock [
 		destBufferIndex := destBufferIndex + 1
 	].
 
+	"Barrier for input buffers that are active output buffers"
+	inputManagedBuffers do: [ :inputBuffer |
+		(activeOutputBuffers includes: inputBuffer) ifTrue: [
+			computationCommandList bufferMemoryBarrier: (self validStorageBufferHandleFor: inputBuffer) 				source_stage: AGPU_PIPELINE_STAGE_COMPUTE_SHADER
+				dest_stage: AGPU_PIPELINE_STAGE_COMPUTE_SHADER
+				source_accesses: AGPU_ACCESS_SHADER_WRITE
+				dest_accesses: AGPU_ACCESS_SHADER_READ
+				offset: 0 size: inputBuffer byteSize.
+			activeOutputBuffers remove: inputBuffer
+		]
+	].
+
 	"Use the buffer arguments."
 	computationCommandList useComputeShaderResources: shaderResourceBinding.
 	
@@ -102,6 +115,7 @@ cpuFallbackWith: cpuFallbackBlock [
 	computationCommandList dispatchCompute: gridSize first group_count_y: gridSize second group_count_z: gridSize third.
 	
 	hasPendingComputations := true.
+	activeOutputBuffers addAll: outputManagedBuffers
 ]
 
 { #category : #'as yet unclassified' }
@@ -163,6 +177,7 @@ SAbstractGPUExecutionDriver >> finishPendingComputations [
 
 { #category : #'as yet unclassified' }
 SAbstractGPUExecutionDriver >> flushPendingComputations [
+	activeOutputBuffers removeAll.
 	isComputationCommandListOpen ifFalse: [ ^ false ].
 	computationCommandList close.
 
@@ -208,6 +223,7 @@ SAbstractGPUExecutionDriver >> initialize [
 	computationCommandList close.
 	isComputationCommandListOpen := false.
 	hasPendingComputations := false.
+	activeOutputBuffers := IdentitySet new.
 ]
 
 { #category : #'as yet unclassified' }

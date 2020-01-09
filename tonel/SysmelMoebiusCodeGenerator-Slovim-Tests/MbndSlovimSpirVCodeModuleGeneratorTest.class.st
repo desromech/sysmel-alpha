@@ -130,6 +130,44 @@ function shader computeShader externC() => Void := {
 ]
 
 { #category : #tests }
+MbndSlovimSpirVCodeModuleGeneratorTest >> testComputeShaderSharedStorage [
+	| shaderController shaderImplementation callWithLocalSize |
+	self evaluateSysmelSource: '
+class Shader definition:
+{ 
+	field sharedInt workgroupShared type: UInt32.
+
+	function main computeShader() => Void := {
+		<localSize: 1>
+		sharedInt := 0
+	}.
+
+}.
+';
+	generateSSAModule;
+	validateSpirV.
+	
+	shaderController := ssaModule globalNamed: #_ZN6Shader4mainERNS_E.
+	self assert: shaderController allInstructionsMnemonics equals: #(
+		(entry (
+			alloca
+			call
+			returnVoid
+		))
+	).
+	self assert: (shaderController propertyAt: #localSizeX) equals: 1.
+	self assert: (shaderController propertyAt: #localSizeY) equals: 1.
+	self assert: (shaderController propertyAt: #localSizeZ) equals: 1.
+	
+	shaderImplementation := shaderController basicBlocks first firstInstruction nextInstruction functionValue.
+	self assert: shaderImplementation allInstructionsMnemonics equals: #(
+		(entry (jump))
+		(body (store returnVoid))
+	).
+
+]
+
+{ #category : #tests }
 MbndSlovimSpirVCodeModuleGeneratorTest >> testFragmentShaderIO [
 	| shaderController |
 	self evaluateSysmelSource: '

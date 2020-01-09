@@ -4,7 +4,8 @@ Class {
 	#instVars : [
 		'spirVModule',
 		'entryPointMetadata',
-		'localSize'
+		'localSize',
+		'localBlockSize'
 	],
 	#classVars : [
 		'Current'
@@ -25,6 +26,11 @@ SGPUShaderStageCode >> entryPointMetadata: anObject [
 { #category : #accessing }
 SGPUShaderStageCode >> entryPointName [
 	^ entryPointMetadata name
+]
+
+{ #category : #accessing }
+SGPUShaderStageCode >> localBlockSize [
+	^ localBlockSize ifNil: [localBlockSize := self localSize first * self localSize second * self localSize third]
 ]
 
 { #category : #accessing }
