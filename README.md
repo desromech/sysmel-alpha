@@ -233,6 +233,16 @@ this quoting syntax:
 
 
 ## BlockClosure to GPU block compilation
+The Sysmel intermediate AST (called the AST of the Moebius Band metamodel) is
+designed to be usable as a generic AST to facilitate the compilation of different
+programming languages. One intended usage of this intermediate AST is to compile
+standard Pharo code into a Sysmel defined runtime environment. Another intended
+usage is compile a version of Smalltalk that uses the Sysmel type inference
+mechanism for the usage in embedded. As a direct application of this technique
+is the support for a facility for converting Pharo block closure objects into
+shaders that can be executed in the GPU. The following is an example that
+performs map-reduce style computations by using this infrastructure:
+
 ```smalltalk
 "For cleaning up, you can do the following:
 SGPUCompilationEnvironment reset.
