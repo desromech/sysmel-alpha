@@ -1,5 +1,119 @@
 namespace Smalltalk definition: {
 
+LargeInteger definition: {
+	public field __data type: ProtoObject gcclassVariableDataArray.
+}.
+
+BoxedFloat64 definition: {
+	public field __float64Value type: Float64.
+}.
+
+namespace ObjectModel definition: {
+compileTimeIf: UIntPointer instanceSize = 4 then: {
+	compileTimeConstant SmallIntegerMinValue := #*(1<<31) negated*# -1073741824.
+	compileTimeConstant SmallIntegerMaxValue := #*(1<<31)-1*# 1073741823.
+
+	function encodeSmallInteger(v: IntPointer) => SmallInteger
+		:= (v << 1) | 1 reinterpretCastTo: SmallInteger.
+
+	function uint32ToCharacter(v: UInt32) => Character
+		:= (v << 2) | 2 reinterpretCastTo: Character.
+
+	function int32ToInteger(v: Int32) => Integer := {
+		SmallIntegerMinValue <= v && v <= SmallIntegerMaxValue ifTrue: {
+			return: encodeSmallInteger(v castTo: IntPointer)
+		}.
+		
+		v < 0 ifTrue: {
+			let largeNegativeInteger := LargeNegativeInteger basicNew: 4.
+			let spilledValue mutable := v negated.
+			StdNative memcpy(largeNegativeInteger __data[0] address, spilledValue address, 4).
+			return: largeNegativeInteger
+		} ifFalse: {
+			let largePositiveInteger := LargePositiveInteger basicNew: 4.
+			let spilledValue mutable := v.
+			StdNative memcpy(largePositiveInteger __data[0] address, spilledValue address, 8).
+			return: largePositiveInteger
+		}.
+	}.
+
+	function uint32ToInteger(v: UInt32) => Integer := {
+		v <= SmallIntegerMaxValue ifTrue: {
+			return: encodeSmallInteger(v castTo: IntPointer)
+		}.
+
+		return: nil
+	}.
+
+	function float64ToFloat(v: Float64) => Float
+		:= BoxedFloat64 basicNew
+			__float64Value: v;
+			yourself
+} else: {
+	compileTimeConstant SmallIntegerMinValue := #*(1<<60) negated*# -1152921504606846976.
+	compileTimeConstant SmallIntegerMaxValue := #*(1<<60)-1*# 1152921504606846975.
+
+	function encodeSmallInteger(v: IntPointer) => SmallInteger
+		:= (v << 3) | 1 reinterpretCastTo: SmallInteger.
+
+	function uint32ToCharacter(v: UInt32) => Character
+		:= ((v castTo: UIntPointer) << 3) | 2 reinterpretCastTo: Character.
+
+	function int32ToInteger(v: Int32) => Integer
+		:= encodeSmallInteger(v).
+
+	function uint32ToInteger(v: UInt32) => Integer
+		:= encodeSmallInteger(v).
+
+		
+	function float64ToFloat(v: Float64) => Float := {
+		BoxedFloat64 basicNew
+			__float64Value: v;
+			yourself
+	}.
+}.
+
+function int64ToInteger(v: Int64) => Integer := {
+	SmallIntegerMinValue <= v && v <= SmallIntegerMaxValue ifTrue: {
+		return: encodeSmallInteger(v castTo: IntPointer)
+	}.
+		
+	v < 0 ifTrue: {
+		let largeNegativeInteger := LargeNegativeInteger basicNew: 8.
+		let spilledValue mutable := v negated.
+		StdNative memcpy(largeNegativeInteger __data[0] address, spilledValue address, 8).
+		return: largeNegativeInteger
+	} ifFalse: {
+		let largePositiveInteger := LargePositiveInteger basicNew: 8.
+		let spilledValue mutable := v.
+		StdNative memcpy(largePositiveInteger __data[0] address, spilledValue address, 8).
+		return: largePositiveInteger
+	}.
+}.
+
+function uint64ToInteger(v: UInt64) => Integer := {
+	v <= SmallIntegerMaxValue ifTrue: {
+		return: encodeSmallInteger(v castTo: IntPointer)
+	}.
+
+	let largePositiveInteger := LargePositiveInteger basicNew: 8.
+	let spilledValue mutable := v.
+	StdNative memcpy(largePositiveInteger __data[0] address, spilledValue address, 8).
+	return: largePositiveInteger
+}.
+
+Compiler compilationTarget managedObjectModel
+	int32ToInteger: int32ToInteger;
+	uint32ToInteger: uint32ToInteger;
+	int64ToInteger: int64ToInteger;
+	uint64ToInteger: uint64ToInteger;
+
+	uint32ToCharacter: uint32ToCharacter;	
+	float64ToFloat: float64ToFloat;
+	yourself.
+}.
+
+
 Object extend: {
     method isNumber := false.
     method isInteger := false.
@@ -40,6 +154,12 @@ SmallInteger extend: {
 			##return: a + b
 		}.
 
+		aNumber __isCharacter ifTrue: {
+			let a := self __decodeSmallInteger.
+			let b := aNumber __decodeCharacter.
+			##return: (a + b castTo: Char32)
+		}.
+
         super + aNumber
     }.
 
@@ -48,6 +168,12 @@ SmallInteger extend: {
 			let a := self __decodeSmallInteger.
 			let b := aNumber __decodeSmallInteger.
 			##return: a - b
+		}.
+
+		aNumber __isCharacter ifTrue: {
+			let a := self __decodeSmallInteger.
+			let b := aNumber __decodeCharacter.
+			##return: (a - b castTo: Char32)
 		}.
 
         super - aNumber
