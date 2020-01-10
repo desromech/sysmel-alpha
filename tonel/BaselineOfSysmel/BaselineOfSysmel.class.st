@@ -10,8 +10,9 @@ BaselineOfSysmel >> baseline: spec [
 
 	spec for: #common do: [
 		spec baseline: #'PetitParser2Core' with: [
+				"The same PetitParser version that is used by GToolkit"
 				spec
-					repository: 'github://kursjan/petitparser2' ].
+					repository: 'github://kursjan/petitparser2:9e90d58f71a430f5ed7f2893216990fc5b6a8a43' ].
 		spec baseline: #'Slovim' with: [
 				spec
 					repository: 'github://ronsaldo/slovim/tonel' ].
