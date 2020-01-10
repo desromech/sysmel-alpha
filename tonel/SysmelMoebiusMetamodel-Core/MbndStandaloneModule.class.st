@@ -244,8 +244,10 @@ MbndStandaloneModule >> writeMode: writeMode toFileNamed: outputFileName [
 		].
 	].
 
-	lowLevelModule := ssaModule asLowLevelModuleWithOptimizationLevel: optimizationLevel.
-	lowLevelModule linkerArguments: linkerArguments.
+	MbndBenchmark component: #lirCodeGeneration with: [ 
+		lowLevelModule := ssaModule asLowLevelModuleWithOptimizationLevel: optimizationLevel.
+		lowLevelModule linkerArguments: linkerArguments.
+	].
 	
 	writeMode == #assembly ifTrue: [
 		^ lowLevelModule writeAssemblyToFileNamed: outputFileName

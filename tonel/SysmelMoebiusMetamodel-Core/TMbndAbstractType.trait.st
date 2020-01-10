@@ -556,6 +556,12 @@ TMbndAbstractType >> fullName [
 	self explicitRequirement
 ]
 
+{ #category : #'type composition' }
+TMbndAbstractType >> gcclassVariableDataArray [
+	<compileTime>
+	^ self compilationTarget gcClassVariableDataArrayOf: self
+]
+
 { #category : #'meta builder factories' }
 TMbndAbstractType >> getExtraMetaBuilderFactoryList [
 	^ { 

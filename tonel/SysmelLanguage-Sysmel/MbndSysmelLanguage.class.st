@@ -32,8 +32,8 @@ MbndSysmelLanguage >> constructTopLevelLanguageScopeFor: aModule [
 
 { #category : #parsing }
 MbndSysmelLanguage >> parse: sourceCollectionWithContext [
-	| astOrFailure position |
-	astOrFailure := self parser parse: sourceCollectionWithContext.
+	| astOrFailure position convertedAST |
+	astOrFailure := MbndBenchmark component: #parseSysmel with: [self parser parse: sourceCollectionWithContext].
 	astOrFailure isPetit2Failure ifTrue: [
 		position := MbndSourcePosition new
 			collection: sourceCollectionWithContext;
@@ -45,8 +45,9 @@ MbndSysmelLanguage >> parse: sourceCollectionWithContext [
 			signal: astOrFailure message.
 	].
 
+	convertedAST :=  MbndBenchmark component: #convertSysmelAST with: [astOrFailure buildMoebiusAST: (MbndAstBuilder forModule: targetModule)].
 	^ MbndLanguageParsedSource new
-		ast: (astOrFailure buildMoebiusAST: (MbndAstBuilder forModule: targetModule));
+		ast: convertedAST;
 		language: self;
 		yourself
 ]

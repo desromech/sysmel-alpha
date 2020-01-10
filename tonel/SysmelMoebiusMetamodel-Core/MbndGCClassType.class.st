@@ -72,7 +72,7 @@ MbndGCClassType >> analyzeUnhandledUnboundExpandedMessageSendNode: node with: an
 { #category : #'type composition' }
 MbndGCClassType >> array [
 	<compileTime>
-	^ self compilationTarget gcClassVariableDataArrayOf: self
+	^ self gcclassVariableDataArray
 ]
 
 { #category : #'as yet unclassified' }

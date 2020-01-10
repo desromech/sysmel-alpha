@@ -24,7 +24,13 @@ Trait {
 		'undeclaredVariableClass',
 		'workspaceVariableClass',
 		'associationValueOffset',
-		'characterClass'
+		'characterClass',
+		'int32ToInteger',
+		'uint32ToInteger',
+		'int64ToInteger',
+		'uint64ToInteger',
+		'uint32ToCharacter',
+		'float64ToFloat'
 	],
 	#traits : 'TMbndAbstractManagedObjectModel',
 	#classTraits : 'TMbndAbstractManagedObjectModel classTrait',
@@ -178,6 +184,16 @@ TMbndCoreManagedObjectModel >> falseClass: anObject [
 ]
 
 { #category : #accessing }
+TMbndCoreManagedObjectModel >> float64ToFloat [
+	^ float64ToFloat
+]
+
+{ #category : #accessing }
+TMbndCoreManagedObjectModel >> float64ToFloat: anObject [
+	float64ToFloat := anObject
+]
+
+{ #category : #accessing }
 TMbndCoreManagedObjectModel >> floatClass [
 	^ floatClass
 ]
@@ -206,6 +222,26 @@ TMbndCoreManagedObjectModel >> globalVariableClass: anObject [
 { #category : #'as yet unclassified' }
 TMbndCoreManagedObjectModel >> identityHashForSymbol: aSymbol [
 	^ self computeBytesHash: aSymbol utf8Encoded initialHash: 5381
+]
+
+{ #category : #accessing }
+TMbndCoreManagedObjectModel >> int32ToInteger [
+	^ int32ToInteger
+]
+
+{ #category : #accessing }
+TMbndCoreManagedObjectModel >> int32ToInteger: anObject [
+	int32ToInteger := anObject
+]
+
+{ #category : #accessing }
+TMbndCoreManagedObjectModel >> int64ToInteger [
+	^ int64ToInteger
+]
+
+{ #category : #accessing }
+TMbndCoreManagedObjectModel >> int64ToInteger: anObject [
+	int64ToInteger := anObject
 ]
 
 { #category : #accessing }
@@ -284,6 +320,36 @@ TMbndCoreManagedObjectModel >> trueClass [
 TMbndCoreManagedObjectModel >> trueClass: anObject [
 	trueClass := anObject.
 	compilationTarget literalBooleanTrueType addConversionTo: trueClass rule: MbndLiteralValueTypeChangeConversionRule.
+]
+
+{ #category : #accessing }
+TMbndCoreManagedObjectModel >> uint32ToCharacter [
+	^ uint32ToCharacter
+]
+
+{ #category : #accessing }
+TMbndCoreManagedObjectModel >> uint32ToCharacter: anObject [
+	uint32ToCharacter := anObject
+]
+
+{ #category : #accessing }
+TMbndCoreManagedObjectModel >> uint32ToInteger [
+	^ uint32ToInteger
+]
+
+{ #category : #accessing }
+TMbndCoreManagedObjectModel >> uint32ToInteger: anObject [
+	uint32ToInteger := anObject
+]
+
+{ #category : #accessing }
+TMbndCoreManagedObjectModel >> uint64ToInteger [
+	^ uint64ToInteger
+]
+
+{ #category : #accessing }
+TMbndCoreManagedObjectModel >> uint64ToInteger: anObject [
+	uint64ToInteger := anObject
 ]
 
 { #category : #accessing }

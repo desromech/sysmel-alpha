@@ -12,9 +12,9 @@ MbndPharoDoItLanguage class >> languageName [
 { #category : #parsing }
 MbndPharoDoItLanguage >> parse: sourceCollectionWithContext [
 	| ast |
-	ast := RBParser parseExpression: sourceCollectionWithContext onError: [ :message :index |
+	ast := MbndBenchmark component: #parsePharoDoIt with: [RBParser parseExpression: sourceCollectionWithContext onError: [ :message :index |
 		^ self convertParseError: message at: index in: sourceCollectionWithContext
-	].
+	]].
 	^ MbndLanguageParsedSource new
 		ast: (self generateMoebiusASTFromRBAst: ast parsedFromSourceCollection: sourceCollectionWithContext);
 		language: self;
