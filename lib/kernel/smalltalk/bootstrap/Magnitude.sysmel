@@ -23,7 +23,7 @@ compileTimeIf: UIntPointer instanceSize = 4 then: {
 		SmallIntegerMinValue <= v && v <= SmallIntegerMaxValue ifTrue: {
 			return: encodeSmallInteger(v castTo: IntPointer)
 		}.
-		
+
 		v < 0 ifTrue: {
 			let largeNegativeInteger := LargeNegativeInteger basicNew: 4.
 			let spilledValue mutable := v negated.
@@ -65,7 +65,7 @@ compileTimeIf: UIntPointer instanceSize = 4 then: {
 	function uint32ToInteger(v: UInt32) => Integer
 		:= encodeSmallInteger(v).
 
-		
+
 	function float64ToFloat(v: Float64) => Float := {
 		BoxedFloat64 basicNew
 			__float64Value: v;
@@ -77,7 +77,7 @@ function int64ToInteger(v: Int64) => Integer := {
 	SmallIntegerMinValue <= v && v <= SmallIntegerMaxValue ifTrue: {
 		return: encodeSmallInteger(v castTo: IntPointer)
 	}.
-		
+
 	v < 0 ifTrue: {
 		let largeNegativeInteger := LargeNegativeInteger basicNew: 8.
 		let spilledValue mutable := v negated.
@@ -103,13 +103,17 @@ function uint64ToInteger(v: UInt64) => Integer := {
 }.
 
 Compiler compilationTarget managedObjectModel
-	int32ToInteger: int32ToInteger;
-	uint32ToInteger: uint32ToInteger;
-	int64ToInteger: int64ToInteger;
-	uint64ToInteger: uint64ToInteger;
+    ## Primitive integer <-> Integer object.
+	int32ToIntegerFunction: int32ToInteger;
+	uint32ToIntegerFunction: uint32ToInteger;
+	int64ToIntegerFunction: int64ToInteger;
+	uint64ToIntegerFunction: uint64ToInteger;
 
-	uint32ToCharacter: uint32ToCharacter;	
-	float64ToFloat: float64ToFloat;
+    ## Primitive character <-> Integer object.
+	uint32ToCharacterFunction: uint32ToCharacter;
+
+    ## Primitive float <-> Float object.
+	float64ToFloatFunction: float64ToFloat;
 	yourself.
 }.
 
@@ -151,13 +155,13 @@ SmallInteger extend: {
 		aNumber __isSmallInteger ifTrue: {
 			let a := self __decodeSmallInteger.
 			let b := aNumber __decodeSmallInteger.
-			##return: a + b
+			return: a + b
 		}.
 
 		aNumber __isCharacter ifTrue: {
 			let a := self __decodeSmallInteger.
 			let b := aNumber __decodeCharacter.
-			##return: (a + b castTo: Char32)
+			return: (a + b castTo: Char32)
 		}.
 
         super + aNumber
@@ -167,13 +171,13 @@ SmallInteger extend: {
 		aNumber __isSmallInteger ifTrue: {
 			let a := self __decodeSmallInteger.
 			let b := aNumber __decodeSmallInteger.
-			##return: a - b
+			return: a - b
 		}.
 
 		aNumber __isCharacter ifTrue: {
 			let a := self __decodeSmallInteger.
 			let b := aNumber __decodeCharacter.
-			##return: (a - b castTo: Char32)
+			return: (a - b castTo: Char32)
 		}.
 
         super - aNumber

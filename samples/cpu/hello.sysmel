@@ -78,7 +78,13 @@ function main externC (argc: Int32, argv: Char8 const pointer pointer) => Int32 
     StdNative stdout << "Object basicNew: " << (Object basicNew reinterpretCastTo: Void pointer); nl.
 
 	let n mutable type: ProtoObject := 42.
-	n + 7.
+	let sumResult := n + 7.
+    StdNative stdout << "(ProtoObject)42 + (ProtoObject)7 = " << (sumResult reinterpretCastTo: Void pointer); nl.
+
+    let boolValue := true.
+    let boolCast type: ProtoObject := boolValue.
+    StdNative stdout << "Bool cast " << (boolCast reinterpretCastTo: Void pointer); nl.
+
 
     return: 0.
 }.
