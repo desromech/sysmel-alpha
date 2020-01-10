@@ -2653,6 +2653,61 @@ MbndSlovimCodeModuleGeneratorTest >> testFloatingPointCast [
 ]
 
 { #category : #tests }
+MbndSlovimCodeModuleGeneratorTest >> testGCClassGetPublicField [
+	| function |
+	self
+		evaluateMiniObjectModelRuntime;
+		evaluateSysmelSource: '
+gcclass ClassWithPublicField definition: { 
+	public field int32Field type: Int32.
+}.
+
+function getPublicField externC(o: ClassWithPublicField) => Int32
+	:= o int32Field.
+';
+		generateSSAModule.
+
+	function := ssaModule globalNamed: #getPublicField.
+	self assert: function allInstructionsMnemonics equals: #(
+		(entry (jump))
+		(body (
+			getElementPointer
+			load
+			return
+		))
+	).
+	
+]
+
+{ #category : #tests }
+MbndSlovimCodeModuleGeneratorTest >> testGCClassGetPublicField2 [
+	| function |
+	self
+		evaluateMiniObjectModelRuntime;
+		evaluateSysmelSource: '
+gcclass ClassWithPublicField definition: { 
+	public field int32Field type: Int32.
+}.
+
+function getPublicField externC(o: ClassWithPublicField ref) => Int32
+	:= o int32Field.
+';
+		generateSSAModule.
+
+	function := ssaModule globalNamed: #getPublicField.
+	self assert: function allInstructionsMnemonics equals: #(
+		(entry (jump))
+		(body (
+			load
+			getElementPointer
+			load
+			return
+		))
+	).
+	
+]
+
+{ #category : #tests }
 MbndSlovimCodeModuleGeneratorTest >> testGCClassMessageSend [
 	| function |
 	self

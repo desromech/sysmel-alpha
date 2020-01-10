@@ -1006,6 +1006,9 @@ MbndAstSemanticAnalyzer >> visitGetFieldReferenceNode: node [
 		yourself.
 	aggregateType := result aggregate type withoutReferences withoutDecorations.
 	self assert: aggregateType isAggregateType.
+	aggregateType isGCClassType ifTrue: [
+		result aggregate: (self ensureReferencesAreEvaluated: result aggregate)
+	].
 
 	^ result
 		type: result field type;
@@ -1020,6 +1023,9 @@ MbndAstSemanticAnalyzer >> visitGetFieldValueNode: node [
 		yourself.
 	aggregateType := result aggregate type withoutReferences.
 	self assert: aggregateType isAggregateType.
+	aggregateType isGCClassType ifTrue: [
+		result aggregate: (self ensureReferencesAreEvaluated: result aggregate)
+	].
 
 	^ result
 		type: result field valueType;
@@ -1909,6 +1915,9 @@ MbndAstSemanticAnalyzer >> visitSetFieldValueNode: node [
 	].
 	aggregateType := aggregateType withoutTopDecorations.
 	self assert: aggregateType isAggregateType.
+	aggregateType isGCClassType ifTrue: [
+		result aggregate: (self ensureReferencesAreEvaluated: result aggregate)
+	].
 	
 	result newValue: (self addImplicitCastFor: result newValue to: result field valueType).
 

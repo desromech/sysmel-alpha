@@ -25,12 +25,12 @@ Trait {
 		'workspaceVariableClass',
 		'associationValueOffset',
 		'characterClass',
-		'int32ToInteger',
-		'uint32ToInteger',
-		'int64ToInteger',
-		'uint64ToInteger',
-		'uint32ToCharacter',
-		'float64ToFloat'
+		'int32ToIntegerFunction',
+		'uint32ToIntegerFunction',
+		'int64ToIntegerFunction',
+		'uint64ToIntegerFunction',
+		'uint32ToCharacterFunction',
+		'float64ToFloatFunction'
 	],
 	#traits : 'TMbndAbstractManagedObjectModel',
 	#classTraits : 'TMbndAbstractManagedObjectModel classTrait',
@@ -184,13 +184,13 @@ TMbndCoreManagedObjectModel >> falseClass: anObject [
 ]
 
 { #category : #accessing }
-TMbndCoreManagedObjectModel >> float64ToFloat [
-	^ float64ToFloat
+TMbndCoreManagedObjectModel >> float64ToFloatFunction [
+	^ float64ToFloatFunction
 ]
 
 { #category : #accessing }
-TMbndCoreManagedObjectModel >> float64ToFloat: anObject [
-	float64ToFloat := anObject
+TMbndCoreManagedObjectModel >> float64ToFloatFunction: anObject [
+	float64ToFloatFunction := anObject
 ]
 
 { #category : #accessing }
@@ -225,23 +225,23 @@ TMbndCoreManagedObjectModel >> identityHashForSymbol: aSymbol [
 ]
 
 { #category : #accessing }
-TMbndCoreManagedObjectModel >> int32ToInteger [
-	^ int32ToInteger
+TMbndCoreManagedObjectModel >> int32ToIntegerFunction [
+	^ int32ToIntegerFunction
 ]
 
 { #category : #accessing }
-TMbndCoreManagedObjectModel >> int32ToInteger: anObject [
-	int32ToInteger := anObject
+TMbndCoreManagedObjectModel >> int32ToIntegerFunction: anObject [
+	int32ToIntegerFunction := anObject
 ]
 
 { #category : #accessing }
-TMbndCoreManagedObjectModel >> int64ToInteger [
-	^ int64ToInteger
+TMbndCoreManagedObjectModel >> int64ToIntegerFunction [
+	^ int64ToIntegerFunction
 ]
 
 { #category : #accessing }
-TMbndCoreManagedObjectModel >> int64ToInteger: anObject [
-	int64ToInteger := anObject
+TMbndCoreManagedObjectModel >> int64ToIntegerFunction: anObject [
+	int64ToIntegerFunction := anObject
 ]
 
 { #category : #accessing }
@@ -323,33 +323,33 @@ TMbndCoreManagedObjectModel >> trueClass: anObject [
 ]
 
 { #category : #accessing }
-TMbndCoreManagedObjectModel >> uint32ToCharacter [
-	^ uint32ToCharacter
+TMbndCoreManagedObjectModel >> uint32ToCharacterFunction [
+	^ uint32ToCharacterFunction
 ]
 
 { #category : #accessing }
-TMbndCoreManagedObjectModel >> uint32ToCharacter: anObject [
-	uint32ToCharacter := anObject
+TMbndCoreManagedObjectModel >> uint32ToCharacterFunction: anObject [
+	uint32ToCharacterFunction := anObject
 ]
 
 { #category : #accessing }
-TMbndCoreManagedObjectModel >> uint32ToInteger [
-	^ uint32ToInteger
+TMbndCoreManagedObjectModel >> uint32ToIntegerFunction [
+	^ uint32ToIntegerFunction
 ]
 
 { #category : #accessing }
-TMbndCoreManagedObjectModel >> uint32ToInteger: anObject [
-	uint32ToInteger := anObject
+TMbndCoreManagedObjectModel >> uint32ToIntegerFunction: anObject [
+	uint32ToIntegerFunction := anObject
 ]
 
 { #category : #accessing }
-TMbndCoreManagedObjectModel >> uint64ToInteger [
-	^ uint64ToInteger
+TMbndCoreManagedObjectModel >> uint64ToIntegerFunction [
+	^ uint64ToIntegerFunction
 ]
 
 { #category : #accessing }
-TMbndCoreManagedObjectModel >> uint64ToInteger: anObject [
-	uint64ToInteger := anObject
+TMbndCoreManagedObjectModel >> uint64ToIntegerFunction: anObject [
+	uint64ToIntegerFunction := anObject
 ]
 
 { #category : #accessing }

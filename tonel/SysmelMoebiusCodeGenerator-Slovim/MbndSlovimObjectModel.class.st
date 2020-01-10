@@ -10,7 +10,13 @@ Class {
 		'convertedLiteralGlobals',
 		'superMessageLookupFunction',
 		'trueLiteralValue',
-		'falseLiteralValue'
+		'falseLiteralValue',
+		'uint32ToIntegerFunction',
+		'uint64ToIntegerFunction',
+		'int64ToIntegerFunction',
+		'int32ToIntegerFunction',
+		'uint32ToCharacterFunction',
+		'float64ToFloatFunction'
 	],
 	#category : #'SysmelMoebiusCodeGenerator-Slovim-CompilationTarget'
 }
@@ -210,6 +216,12 @@ MbndSlovimObjectModel >> falseLiteralValue [
 ]
 
 { #category : #accessing }
+MbndSlovimObjectModel >> float64ToFloatFunction [
+	<compileTime>
+	^ float64ToFloatFunction ifNil: [float64ToFloatFunction := (moduleCodeGenerator translateProgramEntity: managedObjectModel float64ToFloatFunction) ssaValue ]
+]
+
+{ #category : #accessing }
 MbndSlovimObjectModel >> gcrootIntrinsic [
 	^ gcrootIntrinsic ifNil: [
 		gcrootIntrinsic := SLVMConstantBuiltInFunction pointerSize: target pointerSize
@@ -232,6 +244,18 @@ MbndSlovimObjectModel >> initialize [
 	super initialize.
 	convertedLiteralContent := IdentityDictionary new.
 	convertedLiteralGlobals := IdentityDictionary new.
+]
+
+{ #category : #accessing }
+MbndSlovimObjectModel >> int32ToIntegerFunction [
+	<compileTime>
+	^ int32ToIntegerFunction ifNil: [int32ToIntegerFunction := (moduleCodeGenerator translateProgramEntity: managedObjectModel int32ToIntegerFunction) ssaValue ]
+]
+
+{ #category : #accessing }
+MbndSlovimObjectModel >> int64ToIntegerFunction [
+	<compileTime>
+	^ int64ToIntegerFunction ifNil: [int64ToIntegerFunction := (moduleCodeGenerator translateProgramEntity: managedObjectModel int64ToIntegerFunction) ssaValue ]
 ]
 
 { #category : #accessing }
@@ -278,6 +302,24 @@ MbndSlovimObjectModel >> trueLiteralValue [
 		literalValue := self trueClass makeInstance: 0 identityHash: self generateIdentityHash.
 		trueLiteralValue := self convertDynamicLiteralToConstant: literalValue withName: '_S9Smalltalk_true'.
 	]
+]
+
+{ #category : #accessing }
+MbndSlovimObjectModel >> uint32ToCharacterFunction [
+	<compileTime>
+	^ uint32ToCharacterFunction ifNil: [uint32ToCharacterFunction := (moduleCodeGenerator translateProgramEntity: managedObjectModel uint32ToCharacterFunction) ssaValue ]
+]
+
+{ #category : #accessing }
+MbndSlovimObjectModel >> uint32ToIntegerFunction [
+	<compileTime>
+	^ uint32ToIntegerFunction ifNil: [uint32ToIntegerFunction := (moduleCodeGenerator translateProgramEntity: managedObjectModel uint32ToIntegerFunction) ssaValue ]
+]
+
+{ #category : #accessing }
+MbndSlovimObjectModel >> uint64ToIntegerFunction [
+	<compileTime>
+	^ uint64ToIntegerFunction ifNil: [uint64ToIntegerFunction := (moduleCodeGenerator translateProgramEntity: managedObjectModel uint64ToIntegerFunction) ssaValue ]
 ]
 
 { #category : #accessing }
