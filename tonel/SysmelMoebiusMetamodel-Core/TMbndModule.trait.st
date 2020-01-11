@@ -149,6 +149,11 @@ TMbndModule >> globalNamespace [
 ]
 
 { #category : #parameters }
+TMbndModule >> hasConservativeGarbageCollector [
+	^ self hasGarbageCollectionSupport and: [ self hasPreciseGarbageCollector not or: [ self hasGarbageCollectionStackMap not ] ]
+]
+
+{ #category : #parameters }
 TMbndModule >> hasGPUSupport [
 	^ true
 ]
