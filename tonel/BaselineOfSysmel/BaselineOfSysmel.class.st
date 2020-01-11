@@ -16,9 +16,6 @@ BaselineOfSysmel >> baseline: spec [
 		spec baseline: #'Slovim' with: [
 				spec
 					repository: 'github://ronsaldo/slovim/tonel' ].
-		spec baseline: #'Phanide' with: [
-				spec
-					repository: 'github://ronsaldo/phanide/tonel' ].
 		spec baseline: #'AbstractGPU' with: [
 				spec
 					repository: 'github://ronsaldo/abstract-gpu/tonel' ].
@@ -45,11 +42,6 @@ BaselineOfSysmel >> baseline: spec [
 		spec
 			package: #'SysmelLanguage-Pharo-Tests' with: [
 				spec requires: #(#'SysmelLanguage-Pharo')
-			].
-
-		spec
-			package: 'SysmelLanguage-SysmelPhanide' with: [
-				spec requires: #('SysmelLanguage-Sysmel' 'Phanide')
 			].
 
 		spec
