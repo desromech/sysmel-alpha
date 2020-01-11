@@ -50,6 +50,16 @@ MbndSmalltalkImageModule >> analyzeAndEvaluateAST: ast [
 	^ self analyzeAndEvaluateParsedSource: parsedSource
 ]
 
+{ #category : #evaluation }
+MbndSmalltalkImageModule >> analyzeAndEvaluateAST: ast inScope: scope [
+	| analyzerAndEvaluator |
+	analyzerAndEvaluator := MbndAstSemanticAnalyzerAndEvaluator new
+		module: self;
+		scope: scope.
+	^ MbndProfiler component: #analysisAndEvaluation with: [analyzerAndEvaluator analyzeAndEvaluateFunctionContent: ast]
+
+]
+
 { #category : #'as yet unclassified' }
 MbndSmalltalkImageModule >> compilationTarget [
 	compilationTarget ifNil: [
@@ -60,6 +70,13 @@ MbndSmalltalkImageModule >> compilationTarget [
 	].
 
 	^ compilationTarget
+]
+
+{ #category : #'as yet unclassified' }
+MbndSmalltalkImageModule >> generateTargetCodeModule [
+	| codeGenerator |
+	codeGenerator := self compilationTarget newCodeModuleGenerator.
+	^ MbndProfiler component: #irCodeGeneration with: [codeGenerator generateCodeModuleFor: self]
 ]
 
 { #category : #initialization }

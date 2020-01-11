@@ -217,7 +217,7 @@ MbndAbstractConcreteMethod >> ensureSemanticAnalysis [
 		
 	"The initial setup is to avoid infinite recursion."
 	analyzedBody := definitionNode.
-	analyzedBody := MbndBenchmark component: #methodAnalysis with: [analyzer visitNode: self definitionBody].
+	analyzedBody := MbndProfiler component: #methodAnalysis with: [analyzer visitNode: self definitionBody].
 
 	"Cast the result into the required return type."
 	self returnType isVoidType ifFalse: [ 

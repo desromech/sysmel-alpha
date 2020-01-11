@@ -15,6 +15,23 @@ MbndAbstractModule >> analyzeAndEvaluateAST: ast [
 	^ self analyzeAndEvaluateParsedSource: parsedSource
 ]
 
+{ #category : #evaluation }
+MbndAbstractModule >> analyzeAndEvaluateAST: ast inScope: scope [
+	| analyzerAndEvaluator |
+	analyzerAndEvaluator := MbndAstSemanticAnalyzerAndEvaluator new
+		module: self;
+		scope: scope.
+	^ MbndProfiler component: #analysisAndEvaluation with: [analyzerAndEvaluator analyzeAndEvaluateFunctionContent: ast]
+
+]
+
+{ #category : #'as yet unclassified' }
+MbndAbstractModule >> generateTargetCodeModule [
+	| codeGenerator |
+	codeGenerator := self compilationTarget newCodeModuleGenerator.
+	^ MbndProfiler component: #irCodeGeneration with: [codeGenerator generateCodeModuleFor: self]
+]
+
 { #category : #'as yet unclassified' }
 MbndAbstractModule >> getPublicMetaBuilderFactoryList [
 	^ { 

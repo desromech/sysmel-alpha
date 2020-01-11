@@ -244,7 +244,7 @@ MbndStandaloneModule >> writeMode: writeMode toFileNamed: outputFileName [
 		].
 	].
 
-	MbndBenchmark component: #lirCodeGeneration with: [ 
+	MbndProfiler component: #lirCodeGeneration with: [ 
 		lowLevelModule := ssaModule asLowLevelModuleWithOptimizationLevel: optimizationLevel.
 		lowLevelModule linkerArguments: linkerArguments.
 	].

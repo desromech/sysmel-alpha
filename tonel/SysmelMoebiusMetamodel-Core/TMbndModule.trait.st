@@ -37,7 +37,7 @@ TMbndModule >> analyzeAndEvaluateAST: ast inScope: scope [
 	analyzerAndEvaluator := MbndAstSemanticAnalyzerAndEvaluator new
 		module: self;
 		scope: scope.
-	^ MbndBenchmark component: #analysisAndEvaluation with: [analyzerAndEvaluator analyzeAndEvaluateFunctionContent: ast]
+	^ MbndProfiler component: #analysisAndEvaluation with: [analyzerAndEvaluator analyzeAndEvaluateFunctionContent: ast]
 
 ]
 
@@ -122,7 +122,7 @@ TMbndModule >> finishSemanticAnalysis [
 TMbndModule >> generateTargetCodeModule [
 	| codeGenerator |
 	codeGenerator := self compilationTarget newCodeModuleGenerator.
-	^ MbndBenchmark component: #irCodeGeneration with: [codeGenerator generateCodeModuleFor: self]
+	^ MbndProfiler component: #irCodeGeneration with: [codeGenerator generateCodeModuleFor: self]
 ]
 
 { #category : #'as yet unclassified' }

@@ -12,7 +12,7 @@ MbndPharoDoItLanguage class >> languageName [
 { #category : #parsing }
 MbndPharoDoItLanguage >> parse: sourceCollectionWithContext [
 	| ast |
-	ast := MbndBenchmark component: #parsePharoDoIt with: [RBParser parseExpression: sourceCollectionWithContext onError: [ :message :index |
+	ast := MbndProfiler component: #parsePharoDoIt with: [RBParser parseExpression: sourceCollectionWithContext onError: [ :message :index |
 		^ self convertParseError: message at: index in: sourceCollectionWithContext
 	]].
 	^ MbndLanguageParsedSource new

@@ -1,21 +1,21 @@
 Class {
-	#name : #MbndBenchmark,
+	#name : #MbndProfiler,
 	#superclass : #Object,
 	#classVars : [
-		'BenchmarkActive',
-		'BenchmarkReports',
+		'ProfilerActive',
+		'ProfilerReports',
 		'SubComponentRunning'
 	],
 	#category : #'SysmelMoebiusMetamodel-Core-Variables'
 }
 
 { #category : #initialization }
-MbndBenchmark class >> activate [
-	BenchmarkActive := true
+MbndProfiler class >> activate [
+	ProfilerActive := true
 ]
 
 { #category : #initialization }
-MbndBenchmark class >> component: elementName with: aBlock [
+MbndProfiler class >> component: elementName with: aBlock [
 	| resultValue runningTime totalRunningTime oldSubrunningTime |
 	self isActive ifFalse: [ ^ aBlock value ].
 	
@@ -30,21 +30,21 @@ MbndBenchmark class >> component: elementName with: aBlock [
 ]
 
 { #category : #initialization }
-MbndBenchmark class >> deactivate [
-	BenchmarkActive := false
+MbndProfiler class >> deactivate [
+	ProfilerActive := false
 ]
 
 { #category : #initialization }
-MbndBenchmark class >> isActive [
-	^ BenchmarkActive ifNil: [ BenchmarkActive := false ]
+MbndProfiler class >> isActive [
+	^ ProfilerActive ifNil: [ ProfilerActive := false ]
 ]
 
 { #category : #initialization }
-MbndBenchmark class >> report [
-	^ BenchmarkReports ifNil: [ BenchmarkReports := OrderedDictionary new ]
+MbndProfiler class >> report [
+	^ ProfilerReports ifNil: [ ProfilerReports := OrderedDictionary new ]
 ]
 
 { #category : #initialization }
-MbndBenchmark class >> reset [
+MbndProfiler class >> reset [
 	self report removeAll
 ]
