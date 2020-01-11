@@ -72,11 +72,29 @@ namespace Unix definition: {
     compileTimeConstant pthread_start_routine_t := (Void pointer) => Void pointer.
 
     ## Posix threads
-    function pthread_create externC (pthread: pthread_t pointer, attributes: pthread_attr_t const pointer, entrypoint: pthread_start_routine_t pointer, argument: Void pointer) => Int32.
-    function pthread_cancel externC (pthread: pthread_t) => Int32.
+
+	## The Boehm conservative garbage collector requires hooking some pthread functions.
+	if: Compiler hasConservativeGarbageCollector then: {
+	    function GC_pthread_create externC (pthread: pthread_t pointer, attributes: pthread_attr_t const pointer, entrypoint: pthread_start_routine_t pointer, argument: Void pointer) => Int32.
+	    function GC_pthread_detach externC (pthread: pthread_t) => Int32.
+	    function GC_pthread_join externC (pthread: pthread_t, returnValue: Void pointer pointer) => Int32.
+	    function GC_pthread_exit externC (returnValue: Void pointer) => Void.
+	    function GC_pthread_cancel externC (pthread: pthread_t) => Int32.
+	
+		compileTimeConstant pthread_create := GC_pthread_create.
+		compileTimeConstant pthread_detach := GC_pthread_detach.
+		compileTimeConstant pthread_join := GC_pthread_join.
+		compileTimeConstant pthread_exit := GC_pthread_exit.
+		compileTimeConstant pthread_cancel := GC_pthread_cancel.
+	} else: {
+	    function pthread_create externC (pthread: pthread_t pointer, attributes: pthread_attr_t const pointer, entrypoint: pthread_start_routine_t pointer, argument: Void pointer) => Int32.
+	    function pthread_detach externC (pthread: pthread_t) => Int32.
+	    function pthread_join externC (pthread: pthread_t, returnValue: Void pointer pointer) => Int32.
+	    function pthread_exit externC (returnValue: Void pointer) => Void.
+	    function pthread_cancel externC (pthread: pthread_t) => Int32.
+	}.
+	
     function pthread_equal externC (left: pthread_t, right: pthread_t) => Int32.
-    function pthread_exit externC (returnValue: Void pointer) => Void.
-    function pthread_join externC (pthread: pthread_t, returnValue: Void pointer pointer) => Int32.
     function pthread_kill externC (pthread: pthread_t, sig: Int32) => Int32.
     ## TODO: pthread_once"
     function pthread_self externC () => pthread_t.
