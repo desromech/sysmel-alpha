@@ -5,7 +5,7 @@
 
 #include "llvm/CodeGen/AsmPrinter.h"
 #include "llvm/CodeGen/MachineFrameInfo.h"
-#include "llvm/CodeGen/TargetLoweringObjectFile.h"
+#include "llvm/Target/TargetLoweringObjectFile.h"
 #include "llvm/IR/Function.h"
 #include "llvm/IR/DataLayout.h"
 #include "llvm/MC/MCContext.h"
@@ -33,10 +33,7 @@ X("sysmel", "Sysmel garbage collection plugin.");
 SysmelGCStrategy::SysmelGCStrategy()
 {
     UsesMetadata = true;
-
-    // The required safe points.
-    NeededSafePoints = 1 << GC::PreCall
-                   | 1 << GC::PostCall;
+    NeededSafePoints = true;
 }
 
 /**
@@ -82,21 +79,21 @@ void SysmelGCPrinter::finishAssembly(Module &M, GCModuleInfo &Info, AsmPrinter &
         auto RootCount = FunctionInfo->roots_size();
         auto StackFrameSize = FunctionInfo->getFrameSize();
 
-        AP.EmitInt32(StackFrameSize / IntPtrSize); // In words.
-        AP.EmitInt32(0); // Reserved.
+        AP.emitInt32(StackFrameSize / IntPtrSize); // In words.
+        AP.emitInt32(0); // Reserved.
 
-        AP.EmitInt32(SafePointCount);
-        AP.EmitInt32(RootCount);
+        AP.emitInt32(SafePointCount);
+        AP.emitInt32(RootCount);
 
         // TODO: Here goes the compiled method object.
         if(IntPtrSize == 4)
         {
-            AP.EmitInt32(0);
+            AP.emitInt32(0);
         }
         else
         {
-            AP.EmitInt32(0);
-            AP.EmitInt32(0);
+            AP.emitInt32(0);
+            AP.emitInt32(0);
         }
 
         // Emit the safe points.
@@ -109,13 +106,13 @@ void SysmelGCPrinter::finishAssembly(Module &M, GCModuleInfo &Info, AsmPrinter &
         for(auto rit = FunctionInfo->roots_begin(); rit != FunctionInfo->roots_end(); ++rit)
         {
             auto &Root = *rit;
-            AP.EmitInt32(Root.StackOffset);
+            AP.emitInt32(Root.StackOffset);
         }
 
         // Padding member
         if(IntPtrSize != 4 && (RootCount & 1))
         {
-            AP.EmitInt32(0);
+            AP.emitInt32(0);
         }
     }
 

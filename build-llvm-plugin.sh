@@ -1,3 +1,3 @@
 #!/bin/sh
-g++ -shared `llvm-config --link-shared --cxxflags --libs` -Wall -o SysmelGCPlugin.so llvm-gc-plugin/SysmelGCPlugin.cpp
+g++ -shared -Wall `llvm-config --link-shared --cxxflags --libs` -fPIC -o SysmelGCPlugin.so llvm-gc-plugin/SysmelGCPlugin.cpp
 
