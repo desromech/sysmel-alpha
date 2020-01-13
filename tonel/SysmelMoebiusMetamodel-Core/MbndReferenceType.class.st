@@ -28,7 +28,6 @@ MbndReferenceType >> addDefaultConversionRules [
 			baseType isConstantType ifTrue: [ 
 				baseType baseType addConversionTo: self rule: MbndSpillValueInReferenceTypeConversionRule new.
 			].
-
 		].
 		self addImplicitConversionRule: MbndClassImplicitUpcastTypeConversionRule new.
 	]
@@ -44,8 +43,8 @@ MbndReferenceType >> addInstanceMacros [
 				position: node
 		];
 		onMacroSelector: #asMoveReference do: [ :node :builder |
-			self flag: 'TODO: Implement this properly.'.
-			node receiver
+			(builder reinterpretCast: node receiver to: node receiver type asTemporaryReferenceType)
+				position: node
 		];
 		onMacroSelector: #basicInitialize do: [ :node :builder :analyzer |
 			node receiver type baseType analyzeBasicInitializationNode: node with: analyzer
@@ -70,7 +69,16 @@ MbndReferenceType >> addInstanceMacros [
 
 { #category : #converting }
 MbndReferenceType >> analyzeReinterpretCastNode: node to: targetType with: analyzer [
-	| newExpression |
+	| undecoratedTargetType newExpression |
+	undecoratedTargetType := targetType withoutTopDecorations.
+	(undecoratedTargetType isReferenceType or: [ undecoratedTargetType isTemporaryReferenceType ]) ifTrue: [
+		^ analyzer visitNode: (MbndAstPointerReinterpretCastNode new
+			position: node;
+			expression: node expression;
+			targetType: targetType;
+			yourself)
+	].
+
 	newExpression := MbndAstReferenceLoadNode new
 		position: node position;
 		reference: node expression;
@@ -102,6 +110,11 @@ MbndReferenceType >> analyzeUnhandledUnboundExpandedMessageSendNode: node with: 
 { #category : #converting }
 MbndReferenceType >> asCVariadicTypeRequiredAt: position [
 	^ baseType asCVariadicTypeRequiredAt: position
+]
+
+{ #category : #converting }
+MbndReferenceType >> asForwardingReferenceType [
+	^ self
 ]
 
 { #category : #converting }

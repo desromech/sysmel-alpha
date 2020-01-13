@@ -372,7 +372,7 @@ MbndSlovimCodeModuleGenerator >> generateInitializationOfGlobalVariable: globalV
 		]
 	].
 
-	globalVariable initialValueKind = #copy ifTrue: [
+	(#(move copy) includes: globalVariable initialValueKind) ifTrue: [
 		self assert: globalVariable initialValueFunclet isNotNil.
 		ctor := self translateCompilerGeneratedMethodNamed: nil functionType: globalCtorFunctionType
 			at: globalVariable definitionNode

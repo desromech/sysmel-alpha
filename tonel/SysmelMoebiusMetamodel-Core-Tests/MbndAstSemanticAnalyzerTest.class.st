@@ -26,7 +26,7 @@ MbndAstSemanticAnalyzerTest >> computeAnalyzedCastNodeWithCastFunction: castFunc
 	
 	"Analyze the concrete method."
 	concreteMethod ensureSemanticAnalysis.
-	^ concreteMethod analyzedBody
+	^ concreteMethod analyzedBody expression
 ]
 
 { #category : #'as yet unclassified' }
@@ -2050,8 +2050,8 @@ MbndAstSemanticAnalyzerTest >> testStructureMessage [
 	method ensureSemanticAnalysis.
 	methodBody := method analyzedBody.
 	self assert: methodBody isReferenceLoadNode.
-	self assert: methodBody reference isGetFieldReferenceNode.
-	self assert: methodBody reference aggregate isVariableReferenceNode.
+	self assert: methodBody reference expression isGetFieldReferenceNode.
+	self assert: methodBody reference expression aggregate isVariableReferenceNode.
 ]
 
 { #category : #tests }
@@ -2215,6 +2215,18 @@ MbndAstSemanticAnalyzerTest >> testTemplateInstance [
 	self assert: structureType type instanceType equals: structureType.
 	self assert: structureType fields size equals: 1.
 	self assert: structureType fields first valueType equals: compilationTarget int32Type.
+]
+
+{ #category : #tests }
+MbndAstSemanticAnalyzerTest >> testTemporaryVariableNode [
+	| node valueType analyzedNode |
+	valueType := module compilationTarget int32Type.
+	node := builder temporaryVariableOfType: valueType.
+	analyzedNode := visitor visitNode: node.
+	self assert: analyzedNode isTemporaryVariableNode.
+	self assert: analyzedNode valueType equals: valueType.
+	self assert: analyzedNode type isTemporaryReferenceType.
+	self assert: analyzedNode type baseType equals: valueType.
 ]
 
 { #category : #tests }

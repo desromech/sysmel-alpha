@@ -421,6 +421,19 @@ MbndAstBuilder >> defineUnionNamed: name body: body [
 	^ self defineUnion: (self declareUnion: name) body: body
 ]
 
+{ #category : #'as yet unclassified' }
+MbndAstBuilder >> delegateToMetaBuilderClass: metaBuilderClass withAnalyzer: analyzer at: position [
+	^ MbndAstMetaBuilderInstanceNode new
+		instance: (metaBuilderClass new
+			position: position;
+			metaBuilderAnalyzer: analyzer;
+			metaBuilderScope: analyzer scope;
+			yourself);
+		type: analyzer compilationTarget metaBuilderInstanceType;
+		position: position;
+		yourself
+]
+
 { #category : #'builder methods' }
 MbndAstBuilder >> dictionary: aSequenceOfNodes [
 	<compileTime>
@@ -1107,6 +1120,15 @@ MbndAstBuilder >> splice: expression [
 	<compileTime>
 	<returnType: #_ASTNodeType>
 	^ MbndAstSpliceNode new expression: expression
+]
+
+{ #category : #'builder methods' }
+MbndAstBuilder >> temporaryVariableOfType: valueType [
+	<compileTime>
+	<returnType: #_ASTNodeType>
+	^ MbndAstTemporaryVariableNode new
+		valueType: valueType;
+		yourself
 ]
 
 { #category : #'builder methods' }

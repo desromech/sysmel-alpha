@@ -31,6 +31,11 @@ MbndConcreteFunclet >> isFunclet [
 	^ true
 ]
 
+{ #category : #'semantic analysis' }
+MbndConcreteFunclet >> preprocessDefinitionBody: node [
+	^ node
+]
+
 { #category : #initialization }
 MbndConcreteFunclet >> setArguments: newArguments returnType: returnType [
 	| functionType |

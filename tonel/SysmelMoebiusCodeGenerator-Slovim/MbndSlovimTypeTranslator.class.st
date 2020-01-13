@@ -118,9 +118,27 @@ MbndSlovimTypeTranslator >> visitEnumType: enumType [
 
 { #category : #visiting }
 MbndSlovimTypeTranslator >> visitFunctionType: functionType [
-	| argumentSSATypes returnSSAType |
-	argumentSSATypes := self translateTypes: (functionType argumentTypes collect: [:type | type asConcreteTypeForAnalysisOfFunctionType: functionType]).
-	returnSSAType := self translateType: (functionType returnType asConcreteTypeForAnalysisOfFunctionType: functionType).
+	| argumentSSATypes returnSSAType concreteArgumentTypes concreteReturnType |
+	concreteArgumentTypes := functionType argumentTypes collect: [:type | type asConcreteTypeForAnalysisOfFunctionType: functionType].
+	concreteReturnType := functionType returnType asConcreteTypeForAnalysisOfFunctionType: functionType.
+	
+	argumentSSATypes := Array streamContents: [:out |
+		concreteArgumentTypes do: [ :argumentType |
+			argumentType isTypePassedByReference ifTrue: [
+				out nextPut: (self slvmCompilationTarget pointerTo: (self translateType: argumentType))
+			] ifFalse: [ 
+				out nextPut: (self translateType: argumentType)
+			].
+		].
+	].
+
+	concreteReturnType isMemoryReturnedType ifTrue: [
+		argumentSSATypes := {self slvmCompilationTarget pointerTo: (self translateType: concreteReturnType)} , argumentSSATypes.
+		returnSSAType := SLVMType voidType.
+	] ifFalse: [
+		returnSSAType := self translateType: concreteReturnType
+	].
+	
 	^ (SLVMFunctionType callingConvention: functionType callingConvention arguments: argumentSSATypes returnType: returnSSAType)
 		variadic: functionType cvariadic;
 		yourself

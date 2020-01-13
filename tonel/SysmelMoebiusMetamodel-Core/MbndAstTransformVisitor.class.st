@@ -795,6 +795,11 @@ MbndAstTransformVisitor >> visitTemplatedMetaBuilderInstanceNode: node [
 ]
 
 { #category : #visiting }
+MbndAstTransformVisitor >> visitTemporaryVariableNode: node [
+	^ node
+]
+
+{ #category : #visiting }
 MbndAstTransformVisitor >> visitTraitDeclarationNode: node [
 	^ node copy
 ]

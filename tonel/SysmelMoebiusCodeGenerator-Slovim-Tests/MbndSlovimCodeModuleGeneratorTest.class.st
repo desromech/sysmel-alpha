@@ -2871,6 +2871,52 @@ function getPointerElement externC(pointer: Int32 pointer, index: Int32) => Int3
 ]
 
 { #category : #tests }
+MbndSlovimCodeModuleGeneratorTest >> testGetPrivateFieldReference [
+	| function |
+	self
+		evaluateSysmelSource: '
+		struct TestStruct definition: {
+			field intField public type: Int32
+		}.
+		
+		function getFieldRef externC(s: TestStruct ref) => Int32
+			:= s __private intField
+';
+		generateSSAModule.
+
+	function := ssaModule globalNamed: #getFieldRef.
+	self assert: function isFunction.
+	self deny: function isEmpty.
+	self assert: function basicBlocks size equals: 2.
+	self assert: function basicBlocks first firstInstruction isJump.
+	self assert: function basicBlocks second firstInstruction isGetElementPointer.
+	self assert: function basicBlocks second lastInstruction isReturn.
+]
+
+{ #category : #tests }
+MbndSlovimCodeModuleGeneratorTest >> testGetPrivateFieldValue [
+	| function |
+	self
+		evaluateSysmelSource: '
+		struct TestStruct definition: {
+			field intField public type: Int32
+		}.
+		
+		function getFieldValue externC(s: TestStruct) => Int32
+			:= s __private intField
+';
+		generateSSAModule.
+
+	function := ssaModule globalNamed: #getFieldValue.
+	self assert: function isFunction.
+	self deny: function isEmpty.
+	self assert: function basicBlocks size equals: 2.
+	self assert: function basicBlocks first firstInstruction isJump.
+	self assert: function basicBlocks second firstInstruction isExtractValue.
+	self assert: function basicBlocks second lastInstruction isReturn.
+]
+
+{ #category : #tests }
 MbndSlovimCodeModuleGeneratorTest >> testGetUnionFieldReference [
 	| function |
 	self
@@ -2911,12 +2957,10 @@ MbndSlovimCodeModuleGeneratorTest >> testGetUnionFieldValue [
 
 	function := ssaModule globalNamed: #getFieldValue.
 	self assert: function isFunction.
-	self deny: function isEmpty.
-	self assert: function basicBlocks size equals: 2.
-	self assert: function basicBlocks first firstInstruction isAlloca.
-	self assert: function basicBlocks second firstInstruction isStore.
-	self assert: function basicBlocks second firstInstruction nextInstruction isBitCast.
-	self assert: function basicBlocks second lastInstruction isReturn.
+	self assert: function allInstructionsMnemonics equals: #(
+		(entry (jump))
+		(body (bitcast load return))
+	).
 ]
 
 { #category : #tests }
@@ -4618,6 +4662,150 @@ MbndSlovimCodeModuleGeneratorTest >> testMultipleChainsFunction [
 ]
 
 { #category : #tests }
+MbndSlovimCodeModuleGeneratorTest >> testNonPODAggregatePassing [
+	| function |
+	self
+		evaluateSysmelSource: '
+class Aggregate definition: { 
+	method initialize => Void.
+	method finalize => Void.
+}.
+
+function calledWithAggregate externC(arg: Aggregate) => Void := {}.
+function callWithAggregate externC() => Void
+	:= calledWithAggregate(Aggregate newValue).
+';
+		generateSSAModule.
+
+	function := ssaModule globalNamed: #callWithAggregate.
+	self assert: function isFunction.
+	
+	self assert: function allInstructionsMnemonics equals: #(
+		(entry (alloca jump))
+		(body (store call call returnVoid))
+	).
+	
+	function := ssaModule globalNamed: #calledWithAggregate.
+	self assert: function isFunction.
+	
+	self assert: function allInstructionsMnemonics equals: #(
+		(entry (jump))
+		(body (returnVoid))
+	).
+]
+
+{ #category : #tests }
+MbndSlovimCodeModuleGeneratorTest >> testNonPODAggregateReturn [
+	| function |
+	self
+		evaluateSysmelSource: '
+class Aggregate definition: { 
+	method initialize => Void.
+	method finalize => Void.
+}.
+
+function makeAggregate externC() => Aggregate
+	:= Aggregate newValue.
+
+function caller externC() => Void
+	:= makeAggregate().
+'
+;
+		generateSSAModule.
+
+	function := ssaModule globalNamed: #makeAggregate.
+	self assert: function isFunction.
+	self assert: function arguments first isStructReturnPointer.
+	self assert: function allInstructionsMnemonics equals: #(
+		(entry (alloca jump))
+		(body (store call store returnVoid))
+	).
+	
+	function := ssaModule globalNamed: #caller.
+	self assert: function isFunction.
+	self assert: function allInstructionsMnemonics equals: #(
+		(entry (alloca alloca jump))
+		(body (store call store load branch))
+		(implicitCleanUpAction (call jump))
+		(implicitCleanUpMerge (returnVoid))
+	).
+]
+
+{ #category : #tests }
+MbndSlovimCodeModuleGeneratorTest >> testNonPODAggregateReturn2 [
+	| function |
+	self
+		evaluateSysmelSource: '
+class Aggregate definition: { 
+	method initialize => Void.
+	method finalize => Void.
+}.
+
+function makeAggregate externC() => Aggregate := {
+	return: Aggregate newValue.
+}.
+
+function caller externC() => Void
+	:= makeAggregate().
+';
+		generateSSAModule.
+
+	function := ssaModule globalNamed: #makeAggregate.
+	self assert: function isFunction.
+	self assert: function arguments first isStructReturnPointer.
+	self assert: function allInstructionsMnemonics equals: #(
+		(entry (alloca jump))
+		(body (store call store returnVoid))
+	).
+	
+	function := ssaModule globalNamed: #caller.
+	self assert: function isFunction.
+	self assert: function allInstructionsMnemonics equals: #(
+		(entry (alloca alloca jump))
+		(body (store call store load branch))
+		(implicitCleanUpAction (call jump))
+		(implicitCleanUpMerge (returnVoid))
+	).
+]
+
+{ #category : #tests }
+MbndSlovimCodeModuleGeneratorTest >> testNonPODAggregateReturn3 [
+	| function |
+	self
+		evaluateSysmelSource: '
+class Aggregate definition: { 
+	method initialize => Void.
+	method finalize => Void.
+	
+	meta method make => SelfType
+		:= SelfType newValue.
+}.
+
+function caller externC() => Void
+	:= Aggregate make.
+'
+;
+		generateSSAModule.
+
+	function := ssaModule globalNamed: #'_ZN9Aggregate8__Meta__5.makeENS0_E'.
+	self assert: function isFunction.
+	self assert: function arguments first isStructReturnPointer.
+	self assert: function allInstructionsMnemonics equals: #(
+		(entry (alloca jump))
+		(body (store call store returnVoid))
+	).
+	
+	function := ssaModule globalNamed: #caller.
+	self assert: function isFunction.
+	self assert: function allInstructionsMnemonics equals: #(
+		(entry (alloca alloca jump))
+		(body (store call store load branch))
+		(implicitCleanUpAction (call jump))
+		(implicitCleanUpMerge (returnVoid))
+	).
+]
+
+{ #category : #tests }
 MbndSlovimCodeModuleGeneratorTest >> testOutputChannelSendInteger [
 	| function |
 	self
@@ -5166,6 +5354,26 @@ function nullTree externC() => TreeNode(Int32) pointer
 ]
 
 { #category : #tests }
+MbndSlovimCodeModuleGeneratorTest >> testRefCountedPointerCreate [
+	| function |
+	self
+		evaluateIntrusivePointerClass;
+		evaluateSysmelSource: '
+function makeRefCountedPtr externC(p: RefCounted pointer) => RefCountedPtr
+	:= RefCountedPtr for: p.
+';
+		generateSSAModule.
+
+	function := ssaModule globalNamed: #makeRefCountedPtr.
+	self assert: function isFunction.
+	self deny: function isEmpty.
+	self assert: function allInstructionsMnemonics equals: #(
+		(entry (alloca jump))
+		(body (store call call return))
+	).
+]
+
+{ #category : #tests }
 MbndSlovimCodeModuleGeneratorTest >> testReferenceAsPointer [
 	| function |
 	self
@@ -5177,6 +5385,34 @@ MbndSlovimCodeModuleGeneratorTest >> testReferenceAsPointer [
 	self deny: function isEmpty.
 	self assert: function basicBlocks size equals: 2.
 	self assert: function basicBlocks second firstInstruction isReturn.
+]
+
+{ #category : #tests }
+MbndSlovimCodeModuleGeneratorTest >> testReferenceAsTempReference [
+	| function |
+	self
+		evaluateSysmelSource: 'function cast externC(x: Float32 ref) => Float32 tempRef := x asMoveReference';
+		generateSSAModule.
+
+	function := ssaModule globalNamed: #cast.
+	self assert: function isFunction.
+	self deny: function isEmpty.
+	self assert: function basicBlocks size equals: 2.
+	self assert: function basicBlocks second firstInstruction isReturn.
+]
+
+{ #category : #tests }
+MbndSlovimCodeModuleGeneratorTest >> testReferenceLoad [
+	| function |
+	self
+		evaluateSysmelSource: 'function cast externC(x: Float32 ref) => Float32 := x';
+		generateSSAModule.
+
+	function := ssaModule globalNamed: #cast.
+	self assert: function isFunction.
+	self deny: function isEmpty.
+	self assert: function basicBlocks size equals: 2.
+	self assert: function basicBlocks second firstInstruction isLoad.
 ]
 
 { #category : #tests }
@@ -5394,6 +5630,34 @@ function returnValue externC() => UIntPointer := localGlobalVariable';
 	
 	global := function basicBlocks second firstInstruction variable.
 	self assert: global minimalAlignment equals: 4096.
+]
+
+{ #category : #tests }
+MbndSlovimCodeModuleGeneratorTest >> testTempReferenceAsReference [
+	| function |
+	self
+		evaluateSysmelSource: 'function cast externC(x: Float32 tempRef) => Float32 ref := x';
+		generateSSAModule.
+
+	function := ssaModule globalNamed: #cast.
+	self assert: function isFunction.
+	self deny: function isEmpty.
+	self assert: function basicBlocks size equals: 2.
+	self assert: function basicBlocks second firstInstruction isReturn.
+]
+
+{ #category : #tests }
+MbndSlovimCodeModuleGeneratorTest >> testTempReferenceLoad [
+	| function |
+	self
+		evaluateSysmelSource: 'function cast externC(x: Float32 tempRef) => Float32 := x';
+		generateSSAModule.
+
+	function := ssaModule globalNamed: #cast.
+	self assert: function isFunction.
+	self deny: function isEmpty.
+	self assert: function basicBlocks size equals: 2.
+	self assert: function basicBlocks second firstInstruction isLoad.
 ]
 
 { #category : #tests }

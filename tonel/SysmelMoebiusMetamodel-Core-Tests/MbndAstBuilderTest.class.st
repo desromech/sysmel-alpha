@@ -1106,6 +1106,15 @@ MbndAstBuilderTest >> testTemplateDefinition [
 ]
 
 { #category : #tests }
+MbndAstBuilderTest >> testTemporaryVariableNode [
+	| node valueType |
+	valueType := module compilationTarget int32Type.
+	node := builder temporaryVariableOfType: valueType.
+	self assert: node isTemporaryVariableNode.
+	self assert: node valueType equals: valueType.
+]
+
+{ #category : #tests }
 MbndAstBuilderTest >> testTraitDeclarationNode [
 	| node |
 	node := builder declareTrait: #Test.

@@ -14,6 +14,19 @@ MbndTemporaryReferenceType >> accept: aVisitor [
 	^ aVisitor visitTemporaryReferenceType: self
 ]
 
+{ #category : #adding }
+MbndTemporaryReferenceType >> addDefaultConversionRules [
+	super addDefaultConversionRules.
+	baseType ifNotNil: [
+		baseType isPossibleToLoadReferences ifTrue: [
+			self
+				addConversionTo: baseType withoutTopDecorations rule: MbndReferenceLoadTypeConversionRule.
+		].
+
+		self addImplicitConversionRule: MbndTemporaryReferenceAsReferenceRule new.
+	]
+]
+
 { #category : #initialization }
 MbndTemporaryReferenceType >> addInstanceMacros [
 	self class == MbndTemporaryReferenceType ifFalse: [ ^ self ].
@@ -22,6 +35,28 @@ MbndTemporaryReferenceType >> addInstanceMacros [
 		onMacroSelector: #asMoveReference do: [ :node :builder |
 			node receiver
 		]
+]
+
+{ #category : #converting }
+MbndTemporaryReferenceType >> analyzeReinterpretCastNode: node to: targetType with: analyzer [
+	| undecoratedTargetType newExpression |
+	undecoratedTargetType := targetType withoutTopDecorations.
+	(undecoratedTargetType isReferenceType or: [ undecoratedTargetType isTemporaryReferenceType ]) ifTrue: [
+		^ analyzer visitNode: (MbndAstPointerReinterpretCastNode new
+			position: node;
+			expression: node expression;
+			targetType: targetType;
+			yourself)
+	].
+
+	newExpression := MbndAstReferenceLoadNode new
+		position: node position;
+		reference: node expression;
+		type: baseType;
+		yourself.
+	^ analyzer visitNode: (node copy
+		expression: newExpression;
+		yourself)
 ]
 
 { #category : #'semantic analysis' }
@@ -45,6 +80,16 @@ MbndTemporaryReferenceType >> analyzeUnhandledUnboundExpandedMessageSendNode: no
 { #category : #'semantic analysis' }
 MbndTemporaryReferenceType >> asCVariadicTypeRequiredAt: position [
 	^ baseType asCVariadicTypeRequiredAt: position
+]
+
+{ #category : #converting }
+MbndTemporaryReferenceType >> asForwardingReferenceType [
+	^ self
+]
+
+{ #category : #'semantic analysis' }
+MbndTemporaryReferenceType >> asImmutableReferenceType [
+	^ baseType const ref
 ]
 
 { #category : #'semantic analysis' }
@@ -92,6 +137,7 @@ MbndTemporaryReferenceType >> ref [
 
 { #category : #'type composition' }
 MbndTemporaryReferenceType >> tempRef [
+	<compileTime>
 	^ self
 ]
 

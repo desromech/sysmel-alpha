@@ -580,6 +580,11 @@ MbndAstVisitor >> visitTemplatedMetaBuilderInstanceNode: node [
 ]
 
 { #category : #visiting }
+MbndAstVisitor >> visitTemporaryVariableNode: node [
+	self subclassResponsibility
+]
+
+{ #category : #visiting }
 MbndAstVisitor >> visitTraitDeclarationNode: node [
 	self subclassResponsibility
 ]

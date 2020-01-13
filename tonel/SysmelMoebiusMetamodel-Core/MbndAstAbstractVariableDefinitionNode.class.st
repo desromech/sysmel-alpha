@@ -46,6 +46,11 @@ MbndAstAbstractVariableDefinitionNode >> isAccessedByReference [
 ]
 
 { #category : #testing }
+MbndAstAbstractVariableDefinitionNode >> isForwardingValue [
+	^ self hasFlag: #tempRef
+]
+
+{ #category : #testing }
 MbndAstAbstractVariableDefinitionNode >> isMutable [
 	^ self hasFlag: #mutable
 ]
@@ -73,6 +78,11 @@ MbndAstAbstractVariableDefinitionNode >> mutable [
 { #category : #flags }
 MbndAstAbstractVariableDefinitionNode >> ref [
 	self addFlag: #ref
+]
+
+{ #category : #flags }
+MbndAstAbstractVariableDefinitionNode >> tempRef [
+	self addFlag: #tempRef
 ]
 
 { #category : #accessing }

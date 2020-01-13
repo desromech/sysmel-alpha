@@ -50,6 +50,15 @@ MbndAstSemanticAnalyzer >> addImplicitCastFor: nodeRequiringCasting to: expected
 
 ]
 
+{ #category : #visiting }
+MbndAstSemanticAnalyzer >> addNodeWithImplicitFinalization: node [
+	currentCleanUpScope ifNil: [
+		self error: 'AST node {1} is invalid at this context because it requires implicit finalization support.' format: {node class name} at: node.
+	].
+	
+	currentCleanUpScope addNodeWithImplicitFinalization: node
+]
+
 { #category : #'implicit casting' }
 MbndAstSemanticAnalyzer >> addReceiverImplicitCastFor: nodeRequiringCasting to: expectedTargetType [
 	| sourceType temporaryVariable |
@@ -1075,7 +1084,7 @@ MbndAstSemanticAnalyzer >> visitGlobalVariableDefinitionNode: node [
 
 	"If accessed by reference, make sure an initial value is provided."
 	result initialValue ifNil: [
-		result isAccessedByReference ifTrue: [ 
+		(result isAccessedByReference or: [ result isForwardingValue ]) ifTrue: [ 
 			self error: 'Global variable "{1}" definition with ref access requires an initial value.' format: { result name asPrettySymbolName } at: result
 		]
 	].
@@ -1083,14 +1092,18 @@ MbndAstSemanticAnalyzer >> visitGlobalVariableDefinitionNode: node [
 	"Compute the variable reference type"
 	valueType := result valueType.
 	self assert: valueType isNotNil.
-	result isMutable ifTrue: [
-		result type: valueType asMutableValueType
-	] ifFalse: [
-		result isAccessedByReference ifTrue: [
-			result type: valueType const ref
-		] ifFalse: [ 
-			result type: valueType asImmutableValueType
-		]
+	result isForwardingValue ifTrue: [
+		result type: valueType asForwardingReferenceType
+	] ifFalse: [ 
+		result isMutable ifTrue: [
+			result type: valueType asMutableValueType
+		] ifFalse: [
+			result isAccessedByReference ifTrue: [
+				result type: valueType asImmutableReferenceType
+			] ifFalse: [ 
+				result type: valueType asImmutableValueType
+			]
+		].
 	].
 
 	result minimalAlignment ifNotNil: [ :ma |
@@ -1372,7 +1385,7 @@ MbndAstSemanticAnalyzer >> visitLocalVariableDefinitionNode: node [
 	result initialValue ifNotNil: [
 		result initialValue: (self analyzeNodeIfNeeded: result initialValue)
 	] ifNil: [
-		result isAccessedByReference ifTrue: [ 
+		(result isAccessedByReference or: [result isForwardingValue]) ifTrue: [ 
 			self error: 'Local variable "{1}" definition with ref access requires an initial value.' format: { result name asPrettySymbolName } at: result
 		]
 	].
@@ -1384,7 +1397,7 @@ MbndAstSemanticAnalyzer >> visitLocalVariableDefinitionNode: node [
 		].
 	
 		result valueType: (result initialValue type inferValueTypeForNode: result initialValue inScope: scope).
-		result isAccessedByReference ifFalse: [ 
+		(result isAccessedByReference or: [ result isForwardingValue ]) ifFalse: [ 
 			result valueType: result valueType withoutReferences
 		].
 	].
@@ -1393,15 +1406,18 @@ MbndAstSemanticAnalyzer >> visitLocalVariableDefinitionNode: node [
 	valueType := result valueType.
 	self assert: valueType isNotNil.
 	
-	
-	result isMutable ifTrue: [
-		result type: valueType asMutableValueType
-	] ifFalse: [
-		result isAccessedByReference ifTrue: [
-			result type: valueType const ref
-		] ifFalse: [ 
-			result type: valueType asImmutableValueType
-		]
+	result isForwardingValue ifTrue: [
+		result type: valueType tempRef
+	] ifFalse: [ 
+		result isMutable ifTrue: [
+			result type: valueType asMutableValueType
+		] ifFalse: [
+			result isAccessedByReference ifTrue: [
+				result type: valueType asImmutableReferenceType
+			] ifFalse: [ 
+				result type: valueType asImmutableValueType
+			]
+		].
 	].
 
 	"Analyze the initial value, and its kind of initialization."
@@ -1992,6 +2008,14 @@ MbndAstSemanticAnalyzer >> visitTemplateDefinitionNode: node [
 		type: template type;
 		yourself
 
+]
+
+{ #category : #visiting }
+MbndAstSemanticAnalyzer >> visitTemporaryVariableNode: node [
+	| result |
+	result := node copy.
+	result type: result valueType tempRef.
+	^ result
 ]
 
 { #category : #visiting }

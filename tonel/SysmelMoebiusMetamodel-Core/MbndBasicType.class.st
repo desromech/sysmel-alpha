@@ -124,6 +124,10 @@ MbndBasicType >> generateBasicNewValueForNode: node with: builder andWith: analy
 		self error: 'Cannot create a value with opaque type {1}' format: { self asString } at: node
 	].
 
+	self isTypePassedByReference ifTrue: [
+		^ analyzer visitNode: (builder temporaryVariableOfType: self)
+	].
+
 	^ self defaultValueASTNodeAt: node 
 ]
 
@@ -136,8 +140,22 @@ MbndBasicType >> generateNewValueForNode: node with: builder andWith: analyzer [
 
 { #category : #initialization }
 MbndBasicType >> initializeAndReturnValueNode: basicValueNode with: builder andWith: analyzer [
-	self flag: 'TODO: Implement initializers.'.
-	^ basicValueNode
+	| analyzedBasicValueNode valueType |
+	analyzedBasicValueNode := analyzer analyzeNodeIfNeeded: basicValueNode.
+	valueType := analyzedBasicValueNode type withoutReferences.
+	valueType hasTrivialInitialization ifTrue: [ ^ analyzedBasicValueNode ].
+
+	basicValueNode isTemporaryVariableNode ifTrue: [
+		^ basicValueNode withInitialization
+	].
+	
+	^ (builder messageChainReceiver: analyzedBasicValueNode messages: {
+		(builder messageChainMessageSelector: (builder literalSymbol: #initialize) arguments: #())
+			position: analyzedBasicValueNode.
+		(builder messageChainMessageSelector: (builder literalSymbol: #yourself) arguments: #())
+			position: analyzedBasicValueNode.
+	})
+		position: analyzedBasicValueNode
 ]
 
 { #category : #initialization }

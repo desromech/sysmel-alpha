@@ -216,8 +216,8 @@ MbndAbstractConcreteMethod >> ensureSemanticAnalysis [
 		yourself.
 		
 	"The initial setup is to avoid infinite recursion."
-	analyzedBody := definitionNode.
-	analyzedBody := MbndProfiler component: #methodAnalysis with: [analyzer visitNode: self definitionBody].
+	analyzedBody := self preprocessDefinitionBody: self definitionBody.
+	analyzedBody := MbndProfiler component: #methodAnalysis with: [analyzer visitNode: analyzedBody].
 
 	"Cast the result into the required return type."
 	self returnType isVoidType ifFalse: [ 
@@ -318,6 +318,11 @@ MbndAbstractConcreteMethod >> pragmaAt: pragmaName ifAbsent: absentBlock ifPrese
 	definitionNode ifNil: [ ^ absentBlock value ].
 	self ensureSemanticAnalysis.
 	^ self analyzedBody pragmaAt: pragmaName ifAbsent: absentBlock ifPresent: presentBlock
+]
+
+{ #category : #'semantic analysis' }
+MbndAbstractConcreteMethod >> preprocessDefinitionBody: node [
+	^ node lexicallyScoped
 ]
 
 { #category : #testing }

@@ -47,6 +47,11 @@ MbndFunctionType >> analyzeFunctionCallNode: node with: analyzer [
 	].
 
 	node type: returnType.
+	
+	returnType hasTrivialFinalization ifFalse: [
+		analyzer addNodeWithImplicitFinalization: node
+	].
+
 	^ node
 ]
 

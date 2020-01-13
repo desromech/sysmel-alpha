@@ -32,6 +32,11 @@ MbndUnionType >> hasTrivialBasicInitialization [
 ]
 
 { #category : #'testing methods' }
+MbndUnionType >> isTypePassedByReference [
+	^ true
+]
+
+{ #category : #'testing methods' }
 MbndUnionType >> isUnionType [
 	^ true
 ]

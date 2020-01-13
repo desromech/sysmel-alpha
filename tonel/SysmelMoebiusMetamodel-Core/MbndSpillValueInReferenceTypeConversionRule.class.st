@@ -14,7 +14,7 @@ MbndSpillValueInReferenceTypeConversionRule >> postProcessCastNode: node withAna
 	| localNode |
 	localNode := (analyzer astBuilder defineLocalVariable: #_ withValueType: nil withInitialValue: node expression)
 		position: node;
-		mutable.
+		tempRef.
 	self assert: node isGenericCastNode.
 	^ analyzer visitNode: (node copy
 		expression: localNode;

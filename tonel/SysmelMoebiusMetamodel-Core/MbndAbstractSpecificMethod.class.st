@@ -11,7 +11,7 @@ Class {
 
 { #category : #'semantic analysis' }
 MbndAbstractSpecificMethod >> analyzeExpandedMessageSendNode: node with: analyzer [
-	| newReceiverNode argumentTypes newArgumentNodes |
+	| newReceiverNode argumentTypes newArgumentNodes result |
 	node receiver ifNotNil: [ :receiverNode |
 		receiverNode type isNamespaceType ifTrue: [
 			^ self analyzeExpandedMessageSendNode: (node copy receiver: nil) with: analyzer
@@ -53,12 +53,16 @@ MbndAbstractSpecificMethod >> analyzeExpandedMessageSendNode: node with: analyze
 		].
 	].
 
-	^ node copy
+	result := node copy
 		method: self;
 		receiver: newReceiverNode;
 		arguments: newArgumentNodes;
 		type: (self returnType asResultTypeWithReceiver: node receiver withArguments: newArgumentNodes );
-		yourself
+		yourself.
+	result type hasTrivialFinalization ifFalse: [
+		analyzer addNodeWithImplicitFinalization: result
+	].
+	^ result
 ]
 
 { #category : #accessing }

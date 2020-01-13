@@ -13,6 +13,100 @@ MbndSysmelLanguageTestCommon class >> isAbstract [
 ]
 
 { #category : #tests }
+MbndSysmelLanguageTestCommon >> evaluateIntrusivePointerClass [
+	self evaluateIntrusivePointerTemplate.
+	^ self evaluateSource: '
+class RefCounted definition: { 
+	method retain => Void := { 
+	}.
+	method release => Void := { 
+	}.
+}.
+
+compileTimeConstant RefCountedPtr := IntrusivePointer(RefCounted).
+'
+	
+]
+
+{ #category : #tests }
+MbndSysmelLanguageTestCommon >> evaluateIntrusivePointerTemplate [
+	^ self evaluateSource: '
+template IntrusivePointer(PT: Type)
+	:= struct definition: {
+	compileTimeConstant PointedType := PT.
+	compileTimeConstant PointerType := PointedType pointer.
+
+	private field pointer_ type: PointerType.
+	
+	meta method for: (pointer: PointerType) ::=> SelfType
+		:= SelfType basicNewValue initializeWith: pointer; yourself.
+	
+	method finalize => Void := {
+		if: pointer_ ~~ nil then: { 
+			pointer_ _ release.
+		}.
+	}.
+
+	method initializeWith: (pointer: PointerType) ::=> Void := {
+		pointer_ := pointer
+	}.
+	
+	method initializeFromCopy: (o: SelfType const ref) ::=> Void := {
+		pointer_ := o __private pointer_.
+		if: pointer_ ~~ nil then: {
+			pointer_ _ retain
+		}.
+	}.
+
+	method initializeMovingFrom: (o: SelfType tempRef) ::=> Void := {
+		pointer_ := o __private pointer_.
+		o __private pointer_ := nil
+	}.
+
+	method _ => PointedType ref
+		:= pointer_ _.
+		
+	method getPointer => PointerType
+		:= pointer_.
+		
+	method reset: (newPointer: PointerType) ::=> Void := {
+		if: pointer_ ~~ nil then: { 
+			pointer_ _ release
+		}.
+
+		pointer_ := newPointer
+	}.
+	
+	method assignValue: (o: SelfType const ref) ::=> SelfType const ref := { 
+		let newPointer := o __private pointer_.
+		if: newPointer ~~ nil then: {
+			newPointer _ retain
+		}.
+		if: pointer_ ~~ nil then: {
+			pointer_ _ release
+		}.
+
+		pointer_ := newPointer.
+		self
+	}.
+	
+	method assignValue: (o: SelfType tempRef) ::=> SelfType const ref := { 
+		let newPointer := o __private pointer_.
+		o __private pointer_ := nil.
+		if: pointer_ ~~ nil then: {
+			pointer_ _ release
+		}.
+
+		pointer_ := newPointer.
+		self
+	}.
+}.
+
+'
+	
+]
+
+{ #category : #tests }
 MbndSysmelLanguageTestCommon >> evaluateMiniObjectModelRuntime [
 	^ self evaluateSource: '
 compileTimeConstant _BasicInitializeFunctionPointerType := ((Void pointer) => Void) pointer.

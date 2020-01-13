@@ -692,6 +692,11 @@ MbndAstNode >> isTemplatedMetaBuilderInstanceNode [
 ]
 
 { #category : #testing }
+MbndAstNode >> isTemporaryVariableNode [
+	^ false
+]
+
+{ #category : #testing }
 MbndAstNode >> isTraitDeclarationNode [
 	^ false
 ]

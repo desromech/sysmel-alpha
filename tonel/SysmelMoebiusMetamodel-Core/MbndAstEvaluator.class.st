@@ -381,7 +381,7 @@ MbndAstEvaluator >> visitSetFieldValueNode: node [
 	field := node field.
 
 	aggregateValue := aggregate.
-	(aggregate type isPointerType or: [ aggregate type isReferenceType ]) ifTrue: [ 
+	(aggregate type isPointerType or: [ aggregate type isReferenceType or: [aggregate type isTemporaryReferenceType]]) ifTrue: [
 		self assert: aggregate type baseType isConstantType not.
 		aggregateValue := aggregateValue "ref value" value "ref container" value.
 	] ifFalse: [
@@ -438,6 +438,17 @@ MbndAstEvaluator >> visitStructureDefinitionNode: node [
 { #category : #visiting }
 MbndAstEvaluator >> visitTemplateDefinitionNode: node [
 	^ MbndValue value: node binding type: node type
+]
+
+{ #category : #visiting }
+MbndAstEvaluator >> visitTemporaryVariableNode: node [
+	| defaultValue |
+	defaultValue := node valueType defaultValueAt: node.
+	defaultValue isAggregateTypeInstanceValue ifTrue: [
+		^ MbndValue value: defaultValue copy type: node type
+	].
+
+	self halt
 ]
 
 { #category : #visiting }

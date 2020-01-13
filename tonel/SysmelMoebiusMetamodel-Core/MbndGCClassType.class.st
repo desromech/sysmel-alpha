@@ -200,6 +200,11 @@ MbndGCClassType >> isGCClassType [
 	^ true
 ]
 
+{ #category : #testing }
+MbndGCClassType >> isMemoryReturnedType [
+	^ false
+]
+
 { #category : #'testing methods' }
 MbndGCClassType >> isPointerLikeValueType [
 	^ true
@@ -208,6 +213,11 @@ MbndGCClassType >> isPointerLikeValueType [
 { #category : #'testing methods' }
 MbndGCClassType >> isReferenceLikeValueType [
 	^ true
+]
+
+{ #category : #testing }
+MbndGCClassType >> isTypePassedByReference [
+	^ false
 ]
 
 { #category : #'as yet unclassified' }

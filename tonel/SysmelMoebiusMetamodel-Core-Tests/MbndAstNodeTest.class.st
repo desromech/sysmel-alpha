@@ -169,6 +169,7 @@ MbndAstNodeTest >> testTestingMethods [
 	self deny: node isSubscriptElementReferenceNode .
 	self deny: node isTemplatedMetaBuilderInstanceNode.
 	self deny: node isTemplateDefinitionNode.
+	self deny: node isTemporaryVariableNode.
 	self deny: node isTraitDeclarationNode.
 	self deny: node isTraitDefinitionNode.
 	self deny: node isTruncateCastNode.

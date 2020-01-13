@@ -24,6 +24,12 @@ MbndStructureType >> isStructureType [
 	^ true
 ]
 
+{ #category : #'testing methods' }
+MbndStructureType >> isTypePassedByReference [
+	self isPacked ifTrue: [ ^ true ].
+	^ super isTypePassedByReference
+]
+
 { #category : #layout }
 MbndStructureType >> slotLayoutBuilderClass [
 	self isPacked ifTrue: [ ^ MbndPackedSlotLayoutBuilder ].

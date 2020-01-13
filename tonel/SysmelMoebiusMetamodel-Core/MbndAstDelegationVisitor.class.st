@@ -558,6 +558,11 @@ MbndAstDelegationVisitor >> visitTemplatedMetaBuilderInstanceNode: node [
 ]
 
 { #category : #visiting }
+MbndAstDelegationVisitor >> visitTemporaryVariableNode: node [
+	^ self delegateNodeVisit: node
+]
+
+{ #category : #visiting }
 MbndAstDelegationVisitor >> visitTruncateCastNode: node [
 	^ self delegateNodeVisit: node
 ]

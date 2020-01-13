@@ -329,6 +329,16 @@ TMbndAbstractType >> asFieldTypeFor: owner [
 ]
 
 { #category : #converting }
+TMbndAbstractType >> asForwardingReferenceType [
+	^ self
+]
+
+{ #category : #converting }
+TMbndAbstractType >> asImmutableReferenceType [
+	^ self const ref
+]
+
+{ #category : #converting }
 TMbndAbstractType >> asImmutableValueType [
 	^ self
 ]
@@ -909,6 +919,11 @@ TMbndAbstractType >> isMbndType [
 	^ true
 ]
 
+{ #category : #testing }
+TMbndAbstractType >> isMemoryReturnedType [
+	^ self isPOD not
+]
+
 { #category : #'testing methods' }
 TMbndAbstractType >> isMessageTemplateType [
 	^ false
@@ -952,6 +967,24 @@ TMbndAbstractType >> isOpaqueType [
 { #category : #'testing methods' }
 TMbndAbstractType >> isOutputChannelType [
 	^ false
+]
+
+{ #category : #testing }
+TMbndAbstractType >> isPOD [
+	^ self hasTrivialBasicInitialization and: [
+	  self hasTrivialInitialization and: [
+	  self hasTrivialFinalization and: [
+	  self hasTrivialInitializationFromCopy and: [
+	  self hasTrivialInitializationMovingFrom ]]]]
+]
+
+{ #category : #testing }
+TMbndAbstractType >> isPODInstance [
+	^ self hasTrivialInstanceBasicInitialization and: [
+	  self hasTrivialInstanceInitialization and: [
+	  self hasTrivialInstanceFinalization and: [
+	  self hasTrivialInstanceInitializationFromCopy and: [
+	  self hasTrivialInstanceInitializationMovingFrom ]]]]
 ]
 
 { #category : #'testing methods' }
@@ -1095,6 +1128,11 @@ TMbndAbstractType >> isTupleType [
 { #category : #testing }
 TMbndAbstractType >> isTypeConcept [
 	^ false
+]
+
+{ #category : #'testing methods' }
+TMbndAbstractType >> isTypePassedByReference [
+	^ self isPOD not
 ]
 
 { #category : #'testing methods' }

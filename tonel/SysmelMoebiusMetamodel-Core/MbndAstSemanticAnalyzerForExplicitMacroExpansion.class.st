@@ -192,8 +192,7 @@ MbndAstSemanticAnalyzerForExplicitMacroExpansion >> visitMessageChainNode: node 
 
 	self assert: (scope lookupSymbol: node) isNil.
 	receiverVariable := MbndAstLocalVariableDefinitionNode new
-		mutable;
-		ref;
+		tempRef;
 		position: node;
 		name: node;
 		initialValue: analyzedReceiver;

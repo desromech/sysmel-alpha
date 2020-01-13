@@ -34,6 +34,25 @@ MbndAggregateTypeWithFields >> addField: aField [
 
 ]
 
+{ #category : #initialization }
+MbndAggregateTypeWithFields >> addInstanceMacros [
+	self class == MbndAggregateTypeWithFields ifFalse: [ ^ self ].
+	self isTrait ifFalse: [ ^ self ].
+	
+	self
+		onMacroSelector: #__private do: [ :node :builder :analyzer|
+			| analyzedReceiver receiverAggregateType resultNode |
+			analyzedReceiver := analyzer analyzeNodeIfNeeded: node receiver.
+			receiverAggregateType := analyzedReceiver type asUndecoratedClassType.
+			self assert: receiverAggregateType isAggregateType.
+			resultNode := builder delegateToMetaBuilderClass: MbndPrivateAccessingMetaBuilder withAnalyzer: analyzer at: node.
+			resultNode instance
+				aggregateNode: analyzedReceiver;
+				aggregateType: receiverAggregateType.
+			resultNode
+		]
+]
+
 { #category : #accessing }
 MbndAggregateTypeWithFields >> basicInitializeMethod [
 	basicInitializeMethod ifNil: [ self createBasicInitializeMethod ].
@@ -140,6 +159,12 @@ MbndAggregateTypeWithFields >> fields [
 { #category : #'initialize-destroy' }
 MbndAggregateTypeWithFields >> finalizeMethod [
 	^ finalizeMethod ifNil: [ finalizeMethod := self getOrCreateOptionallyGeneratedMethod: #finalize ofKind: MbndAggregateFinalizeMethod argumentTypes: #() ]
+]
+
+{ #category : #'as yet unclassified' }
+MbndAggregateTypeWithFields >> findFirstFieldNamed: fieldName [
+	^ self slotLayout findFirstFieldNamed: fieldName
+	
 ]
 
 { #category : #'meta builder factories' }
