@@ -5419,11 +5419,32 @@ MbndSlovimCodeModuleGeneratorTest >> testRefCountedPointerCreate3 [
 	self
 		evaluateIntrusivePointerClass;
 		evaluateSysmelSource: '
-function makeRefCountedPtr externC(p: RefCounted pointer) => Void
-	:= {
-			let temp := RefCountedPtr for: p.
-			temp
-		}.
+function makeRefCountedPtr externC(p: RefCounted pointer) => RefCountedPtr := {
+	let temp := RefCountedPtr for: p.
+	temp
+}.
+';
+		generateSSAModule.
+
+	function := ssaModule globalNamed: #makeRefCountedPtr.
+	self assert: function isFunction.
+	self deny: function isEmpty.
+	self assert: function allInstructionsMnemonics equals: #(
+		(entry (alloca jump))
+		(body (store call call call return))
+	).
+]
+
+{ #category : #tests }
+MbndSlovimCodeModuleGeneratorTest >> testRefCountedPointerCreate4 [
+	| function |
+	self
+		evaluateIntrusivePointerClass;
+		evaluateSysmelSource: '
+function makeRefCountedPtr externC(p: RefCounted pointer) => Void := {
+	let temp := RefCountedPtr for: p.
+	temp
+}.
 ';
 		generateSSAModule.
 
