@@ -119,18 +119,28 @@ MbndAstSemanticAnalyzer >> analyzePatternMatchingPatternNode: node withValueOfTy
 
 { #category : #visiting }
 MbndAstSemanticAnalyzer >> analyzeVariableDefinition: definition initialValue: initialValueNode [
-	| valueType |
+	| valueType initialValueType |
 	valueType := definition valueType.
 	self assert: valueType isNotNil.
-	definition initialValue ifNotNil: [ :valueNode |
+	initialValueNode ifNotNil: [
+		initialValueType := initialValueNode type.
+		(initialValueType isTemporaryReferenceType and: [initialValueType baseType == valueType]) ifTrue: [
+			valueType hasTrivialInitializationMovingFrom ifFalse: [ 
+				definition
+					initialValueKind: #move;
+					initialValue: initialValueNode.
+				^ self
+			].
+		].
+	
 		valueType hasTrivialInitializationFromCopy ifTrue: [ 
 			definition
 				initialValueKind: #copy;
-				initialValue: (self addImplicitCastFor: valueNode to: valueType)
+				initialValue: (self addImplicitCastFor: initialValueNode to: valueType)
 		] ifFalse: [
 			definition
 				initialValueKind: #copy;
-				initialValue: (self addImplicitCastFor: valueNode to: valueType asCopyConstructorParameter)
+				initialValue: (self addImplicitCastFor: initialValueNode to: valueType asCopyConstructorParameter)
 		]	
 	] ifNil: [ 
 		"Make sure there is always an initial value."
@@ -704,6 +714,11 @@ MbndAstSemanticAnalyzer >> visitCleanUpScopeNode: node [
 	result
 		explicitCleanUpActions: (self visitNodesAndCollect: result explicitCleanUpActions).
 	
+	currentCleanUpScope ifNotNil: [
+		result type hasTrivialFinalization ifFalse: [
+			self addNodeWithImplicitFinalization: result
+		].
+	].
 	^ result
 ]
 

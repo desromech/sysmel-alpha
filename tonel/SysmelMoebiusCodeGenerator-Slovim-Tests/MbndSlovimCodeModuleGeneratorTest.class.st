@@ -5354,6 +5354,26 @@ function nullTree externC() => TreeNode(Int32) pointer
 ]
 
 { #category : #tests }
+MbndSlovimCodeModuleGeneratorTest >> testRefCountedPointerAssign [
+	| function |
+	self
+		evaluateIntrusivePointerClass;
+		evaluateSysmelSource: '
+function assignRefCountedPtr externC(variable: RefCountedPtr ref, value: RefCountedPtr ref) => Void
+	:= variable := value.
+';
+		generateSSAModule.
+
+	function := ssaModule globalNamed: #assignRefCountedPtr.
+	self assert: function isFunction.
+	self deny: function isEmpty.
+	self assert: function allInstructionsMnemonics equals: #(
+		(entry (jump))
+		(body (call returnVoid))
+	).
+]
+
+{ #category : #tests }
 MbndSlovimCodeModuleGeneratorTest >> testRefCountedPointerCreate [
 	| function |
 	self
@@ -5370,6 +5390,89 @@ function makeRefCountedPtr externC(p: RefCounted pointer) => RefCountedPtr
 	self assert: function allInstructionsMnemonics equals: #(
 		(entry (alloca jump))
 		(body (store call call return))
+	).
+]
+
+{ #category : #tests }
+MbndSlovimCodeModuleGeneratorTest >> testRefCountedPointerCreate2 [
+	| function |
+	self
+		evaluateIntrusivePointerClass;
+		evaluateSysmelSource: '
+function makeRefCountedPtr externC(p: RefCounted pointer) => Void
+	:= RefCountedPtr for: p.
+';
+		generateSSAModule.
+
+	function := ssaModule globalNamed: #makeRefCountedPtr.
+	self assert: function isFunction.
+	self deny: function isEmpty.
+	self assert: function allInstructionsMnemonics equals: #(
+		(entry (alloca jump))
+		(body (store call call call return))
+	).
+]
+
+{ #category : #tests }
+MbndSlovimCodeModuleGeneratorTest >> testRefCountedPointerCreate3 [
+	| function |
+	self
+		evaluateIntrusivePointerClass;
+		evaluateSysmelSource: '
+function makeRefCountedPtr externC(p: RefCounted pointer) => Void
+	:= {
+			let temp := RefCountedPtr for: p.
+			temp
+		}.
+';
+		generateSSAModule.
+
+	function := ssaModule globalNamed: #makeRefCountedPtr.
+	self assert: function isFunction.
+	self deny: function isEmpty.
+	self assert: function allInstructionsMnemonics equals: #(
+		(entry (alloca jump))
+		(body (store call call call return))
+	).
+]
+
+{ #category : #tests }
+MbndSlovimCodeModuleGeneratorTest >> testRefCountedPointerMove [
+	| function |
+	self
+		evaluateIntrusivePointerClass;
+		evaluateSysmelSource: '
+function assignRefCountedPtr externC(variable: RefCountedPtr ref, value: RefCountedPtr tempRef) => Void
+	:= variable := value.
+';
+		generateSSAModule.
+
+	function := ssaModule globalNamed: #assignRefCountedPtr.
+	self assert: function isFunction.
+	self deny: function isEmpty.
+	self assert: function allInstructionsMnemonics equals: #(
+		(entry (jump))
+		(body (call returnVoid))
+	).
+]
+
+{ #category : #tests }
+MbndSlovimCodeModuleGeneratorTest >> testRefCountedPointerReset [
+	| function |
+	self
+		evaluateIntrusivePointerClass;
+		evaluateSysmelSource: '
+function assignRefCountedPtr externC(variable: RefCountedPtr ref, value: RefCounted pointer) => Void
+	:= variable reset: value.
+';
+		generateSSAModule.
+
+	function := ssaModule globalNamed: #assignRefCountedPtr.
+	self assert: function isFunction.
+	self deny: function isEmpty.
+	self assert: function allInstructionsMnemonics equals: #(
+		(entry (jump))
+		(body (call returnVoid))
 	).
 ]
 

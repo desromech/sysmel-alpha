@@ -45,7 +45,7 @@ MbndSlovimFunctionCodeGenerator class >> initialize [
 { #category : #visiting }
 MbndSlovimFunctionCodeGenerator >> addLocalVariable: localVariable withValueType: valueType cleanUpActionForNode: node [
 	self generateCleanUpActionActivatedHereForNode: node with: [
-		slvmBuilder call: (self translateProgramEntity: valueType finalizeMethod) ssaValue arguments: { localVariable }
+		self generateVariable: localVariable finalizationForValueType: valueType
 	]
 ]
 
@@ -105,13 +105,15 @@ MbndSlovimFunctionCodeGenerator >> buildSSAFunction: aSSAFunction at: sourcePosi
 
 { #category : #'as yet unclassified' }
 MbndSlovimFunctionCodeGenerator >> buildSSAFunction: aSSAFunction definitionWithConcreteMethod: aConcreteMethod [
-	| result |
+	| result resultType |
 	(self setupSSAFunction: aSSAFunction definitionWithMethod: aConcreteMethod) ifTrue: [ ^ self ].
 
 	self generateAutomaticPrologueCode.
 	
 	"Generate the body code."
 	result := self visitNode: concreteMethod analyzedBody.
+	resultType := concreteMethod analyzedBody type.
+	
 	slvmBuilder currentBlock isLastTerminator ifTrue: [
 		self assert: concreteMethod analyzedBody type isReturnType.
 	] ifFalse: [ 
@@ -120,6 +122,10 @@ MbndSlovimFunctionCodeGenerator >> buildSSAFunction: aSSAFunction definitionWith
 		self generateAutomaticEpilogueCode.
 		
 		concreteMethod returnType isVoidType ifTrue: [
+			resultType hasTrivialFinalization ifFalse: [
+				self assert: result type isPointerType.
+				self generateVariable: result finalizationForValueType: resultType
+			].
 			slvmBuilder returnVoid.
 		] ifFalse: [
 			concreteMethod returnType isMemoryReturnedType ifTrue: [
@@ -737,6 +743,11 @@ MbndSlovimFunctionCodeGenerator >> generateVariable: ssaValue basicInitializatio
 ]
 
 { #category : #visiting }
+MbndSlovimFunctionCodeGenerator >> generateVariable: variable finalizationForValueType: valueType [
+	slvmBuilder call: (self translateProgramEntity: valueType finalizeMethod) ssaValue arguments: { variable }
+]
+
+{ #category : #visiting }
 MbndSlovimFunctionCodeGenerator >> generateVariable: ssaValue withValueType: valueType initializationWithValue: initialValue initialValueKind: initialValueKind [
 	self assert: initialValueKind isNotNil.
 	
@@ -1014,7 +1025,7 @@ MbndSlovimFunctionCodeGenerator >> visitCharacterToDynamicObjectCastNode: node [
 
 { #category : #visiting }
 MbndSlovimFunctionCodeGenerator >> visitCleanUpScopeNode: node [
-	| cleanUpScope |
+	| cleanUpScope resultTemporary resultValue |
 	cleanUpScope := MbndSlovimCleanUpScope new parent: currentCleanUpScope.
 	node nodesWithImplicitFinalization do: [ :nodeWithFinalization |
 		cleanUpScope implicitFinalizationStateDictionary at: nodeWithFinalization put: MbndSlovimCleanUpScopeImplicitFinalizationState new
@@ -1026,10 +1037,23 @@ MbndSlovimFunctionCodeGenerator >> visitCleanUpScopeNode: node [
 		].
 	].
 
-	^ self withCleanUpScope: cleanUpScope do: [ 
-		self visitNode: node expression
+	resultTemporary := nil.
+	self withCleanUpScope: cleanUpScope do: [ 
+		resultValue := self visitNode: node expression.
+		node type hasTrivialFinalization ifFalse: [
+			self assert: node type isMemoryReturnedType.
+			resultTemporary := slvmBuilder allocaBuilder alloca: (self translateType: node type).
+			self generateVariable: resultTemporary withValueType: node type initializationWithValue: resultValue initialValueKind: #move.
+		].
 	].
 
+	currentCleanUpScope ifNotNil: [ 
+		resultTemporary ifNotNil: [ 
+			self addLocalVariable: resultTemporary withValueType: node type cleanUpActionForNode: node.
+		].
+	].
+
+	^ resultValue
 ]
 
 { #category : #visiting }

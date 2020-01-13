@@ -39,8 +39,12 @@ MbndReferenceType >> addInstanceMacros [
 	self isTrait ifFalse: [ ^ self ].
 	self
 		onMacroSelector: #assignValue: do: [ :node :builder |
-			(builder reference: node receiver assignValue: node arguments first)
-				position: node
+			(node receiver type baseType lookupOverloadedSelector: #assignValue:) ifNotNil: [
+				node asExpandedMessageSend
+			] ifNil: [ 
+				(builder reference: node receiver assignValue: node arguments first)
+					position: node
+			]
 		];
 		onMacroSelector: #asMoveReference do: [ :node :builder |
 			(builder reinterpretCast: node receiver to: node receiver type asTemporaryReferenceType)
