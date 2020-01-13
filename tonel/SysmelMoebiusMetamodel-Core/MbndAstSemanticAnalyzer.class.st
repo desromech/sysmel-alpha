@@ -1860,7 +1860,11 @@ MbndAstSemanticAnalyzer >> visitReturnStatementNode: node [
 		type: self compilationTarget returnType.
 
 	scope returnType ifNotNil: [ :expectedReturnType |
-		result expression: (self addImplicitCastFor: result expression to: (expectedReturnType asConcreteTypeForAnalysisOfFunction: scope returnTypeProgramEntity))
+		result expression: (self addImplicitCastFor: result expression to: (expectedReturnType asConcreteTypeForAnalysisOfFunction: scope returnTypeProgramEntity)).
+		
+		"expectedReturnType isMemoryReturnedType ifTrue: [
+			self halt
+		]."
 	].
 
 	^ result
@@ -2030,6 +2034,11 @@ MbndAstSemanticAnalyzer >> visitTemporaryVariableNode: node [
 	| result |
 	result := node copy.
 	result type: result valueType tempRef.
+	
+	result valueType hasTrivialFinalization ifFalse: [
+		self addNodeWithImplicitFinalization: result
+	].
+
 	^ result
 ]
 

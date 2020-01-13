@@ -13,7 +13,8 @@ Class {
 		'currentCleanUpScope',
 		'ssaFunctionEntryBlock',
 		'ssaFunctionBodyBlock',
-		'activeLexicalScope'
+		'activeLexicalScope',
+		'implicitCleanUpActionStates'
 	],
 	#classVars : [
 		'AdditionalIntrinsicsDictionary',
@@ -44,7 +45,7 @@ MbndSlovimFunctionCodeGenerator class >> initialize [
 
 { #category : #visiting }
 MbndSlovimFunctionCodeGenerator >> addLocalVariable: localVariable withValueType: valueType cleanUpActionForNode: node [
-	self generateCleanUpActionActivatedHereForNode: node with: [
+	self generateCleanUpActionActivatedHereForNode: node token: localVariable asCanonicalLocalReference with: [
 		self generateVariable: localVariable finalizationForValueType: valueType
 	]
 ]
@@ -105,38 +106,20 @@ MbndSlovimFunctionCodeGenerator >> buildSSAFunction: aSSAFunction at: sourcePosi
 
 { #category : #'as yet unclassified' }
 MbndSlovimFunctionCodeGenerator >> buildSSAFunction: aSSAFunction definitionWithConcreteMethod: aConcreteMethod [
-	| result resultType |
 	(self setupSSAFunction: aSSAFunction definitionWithMethod: aConcreteMethod) ifTrue: [ ^ self ].
 
 	self generateAutomaticPrologueCode.
 	
 	"Generate the body code."
-	result := self visitNode: concreteMethod analyzedBody.
-	resultType := concreteMethod analyzedBody type.
+	self visitNode: concreteMethod analyzedBody.
+
+	"Semantic analysis introduces an implicit return, so this should be always a terminator."
+	self assert: slvmBuilder currentBlock isLastTerminator.
+	self assert: concreteMethod analyzedBody type isReturnType.
+
+	"Initialize the required clean up action states in the alloca block."
+	self initializeCleanUpActionStates.
 	
-	slvmBuilder currentBlock isLastTerminator ifTrue: [
-		self assert: concreteMethod analyzedBody type isReturnType.
-	] ifFalse: [ 
-		self assert: concreteMethod analyzedBody type isReturnType not.
-
-		self generateAutomaticEpilogueCode.
-		
-		concreteMethod returnType isVoidType ifTrue: [
-			resultType hasTrivialFinalization ifFalse: [
-				self assert: result type isPointerType.
-				self generateVariable: result finalizationForValueType: resultType
-			].
-			slvmBuilder returnVoid.
-		] ifFalse: [
-			concreteMethod returnType isMemoryReturnedType ifTrue: [
-				self generateVariable: aSSAFunction arguments first withValueType: concreteMethod returnType initializationWithValue: result initialValueKind: #move.
-				slvmBuilder returnVoid.
-			] ifFalse: [ 
-				slvmBuilder return: result
-			].
-		]
-	].
-
 	"Jump from the alloca block into the body."
 	slvmBuilder allocaBuilder jump: ssaFunctionBodyBlock.
 	
@@ -165,6 +148,8 @@ MbndSlovimFunctionCodeGenerator >> buildSSAFunction: aSSAFunction definitionWith
 		]
 	].
 
+	self initializeCleanUpActionStates.
+	
 	"Jump from the alloca block into the body."
 	slvmBuilder allocaBuilder jump: ssaFunctionBodyBlock.
 ]
@@ -228,6 +213,8 @@ MbndSlovimFunctionCodeGenerator >> executeAllScopeCleanUp [
 { #category : #'as yet unclassified' }
 MbndSlovimFunctionCodeGenerator >> executeImplicitFinalizationAction: action [
 	| activated cleanUpBlock mergeBlock |
+	action finalizationActionBlocks ifEmpty: [ ^ self ].
+
 	activated := slvmBuilder load: action finalizationActivated.
 	cleanUpBlock := slvmBuilder newBasicBlock: #implicitCleanUpAction.
 	mergeBlock := slvmBuilder newBasicBlock: #implicitCleanUpMerge.
@@ -237,7 +224,7 @@ MbndSlovimFunctionCodeGenerator >> executeImplicitFinalizationAction: action [
 	slvmBuilder branch: activated ifTrue: cleanUpBlock ifFalse: mergeBlock.
 	
 	slvmBuilder currentBlock: cleanUpBlock.
-	action finalizationActionBlock value.
+	action finalizationActionBlocks do: #value.
 	slvmBuilder isLastTerminator ifFalse: [ slvmBuilder jump: mergeBlock ].
 
 	slvmBuilder currentBlock: mergeBlock.
@@ -245,8 +232,12 @@ MbndSlovimFunctionCodeGenerator >> executeImplicitFinalizationAction: action [
 
 { #category : #'as yet unclassified' }
 MbndSlovimFunctionCodeGenerator >> executeScopeCleanUpActions: cleanUpScope [
-	cleanUpScope implicitFinalizationStateDictionary valuesDo: [ :action |
-		self executeImplicitFinalizationAction: action
+	cleanUpScope implicitFinalizationStateDictionary "valuesDo: crashes" keysDo: [ :token |
+		token ifNotNil: [ 
+			| action |
+			action := cleanUpScope implicitFinalizationStateDictionary at: token.
+			self executeImplicitFinalizationAction: action
+		].
 	].
 	cleanUpScope explicitFinalizationAction ifNotNil: [ :ac |
 		ac value
@@ -547,19 +538,22 @@ MbndSlovimFunctionCodeGenerator >> generateCasesOfNode: node matchedValue: match
 ]
 
 { #category : #visiting }
-MbndSlovimFunctionCodeGenerator >> generateCleanUpActionActivatedHereForNode: node with: aBlock [
-	| cleanUpActionState |
+MbndSlovimFunctionCodeGenerator >> generateCleanUpActionActivatedHereForNode: node token: token with: aBlock [
+	| cleanUpActionState activatedFlag |
 	self assert: currentCleanUpScope isNotNil.
-	cleanUpActionState := currentCleanUpScope implicitFinalizationStateDictionary at: node.
-	cleanUpActionState finalizationActionBlock ifNil: [ 
-		slvmBuilder store: (slvmBuilder constBool: true) in: cleanUpActionState finalizationActivated.
-		cleanUpActionState finalizationActionBlock: aBlock
-	] ifNotNil: [
-		| oldBlock |
-		oldBlock := cleanUpActionState finalizationActionBlock.
-		cleanUpActionState finalizationActionBlock: [ oldBlock value. aBlock value ]
+	self assert: (currentCleanUpScope allowedNodesWithImplicitFinalization includes: node).
+	cleanUpActionState := currentCleanUpScope implicitFinalizationStateDictionary at: token ifAbsentPut: [
+		implicitCleanUpActionStates add: (MbndSlovimCleanUpScopeImplicitFinalizationState new
+			token: token;
+			yourself)
 	].
-
+	
+	cleanUpActionState finalizationActivated ifNil: [
+		activatedFlag := slvmBuilder allocaBuilder alloca: SLVMType boolType.
+		cleanUpActionState finalizationActivated: activatedFlag.
+		slvmBuilder store: (slvmBuilder constBool: true) in: activatedFlag.
+	].
+	cleanUpActionState addFinalizationActionBlock: aBlock.
 ]
 
 { #category : #'as yet unclassified' }
@@ -839,6 +833,15 @@ MbndSlovimFunctionCodeGenerator >> initializeArgumentVariables [
 ]
 
 { #category : #'as yet unclassified' }
+MbndSlovimFunctionCodeGenerator >> initializeCleanUpActionStates [
+	implicitCleanUpActionStates do: [ :cleanUpState |
+		cleanUpState finalizationActivated ifNotNil: [ :activatedFlag |
+			slvmBuilder allocaBuilder store: (slvmBuilder constBool: false) in: activatedFlag.
+		].
+	]
+]
+
+{ #category : #'as yet unclassified' }
 MbndSlovimFunctionCodeGenerator >> processIntrinsic: intrinsicName callArguments: callArguments [
 	| processedArguments |
 	processedArguments := callArguments.
@@ -892,6 +895,7 @@ MbndSlovimFunctionCodeGenerator >> setupBuilders [
 	| initialDebugPosition |
 	slvmBuilder := SLVMBuilder on: ssaFunction.
 	ssaFunctionEntryBlock := slvmBuilder newBasicBlockHere: #entry.
+	implicitCleanUpActionStates := OrderedCollection new.
 
 	"Create the alloca builder."
 	slvmBuilder allocaBuilder: ((SLVMBuilder on: ssaFunction)
@@ -1025,11 +1029,9 @@ MbndSlovimFunctionCodeGenerator >> visitCharacterToDynamicObjectCastNode: node [
 
 { #category : #visiting }
 MbndSlovimFunctionCodeGenerator >> visitCleanUpScopeNode: node [
-	| cleanUpScope resultTemporary resultValue |
+	| cleanUpScope resultTemporary resultValue resultImplicitFinalization |
 	cleanUpScope := MbndSlovimCleanUpScope new parent: currentCleanUpScope.
-	node nodesWithImplicitFinalization do: [ :nodeWithFinalization |
-		cleanUpScope implicitFinalizationStateDictionary at: nodeWithFinalization put: MbndSlovimCleanUpScopeImplicitFinalizationState new
-	].
+	cleanUpScope allowedNodesWithImplicitFinalization: node nodesWithImplicitFinalization.
 
 	node explicitCleanUpActions ifNotEmpty: [ 
 		cleanUpScope explicitFinalizationAction: [
@@ -1038,16 +1040,32 @@ MbndSlovimFunctionCodeGenerator >> visitCleanUpScopeNode: node [
 	].
 
 	resultTemporary := nil.
+	resultImplicitFinalization := nil.
 	self withCleanUpScope: cleanUpScope do: [ 
 		resultValue := self visitNode: node expression.
-		node type hasTrivialFinalization ifFalse: [
-			self assert: node type isMemoryReturnedType.
-			resultTemporary := slvmBuilder allocaBuilder alloca: (self translateType: node type).
-			self generateVariable: resultTemporary withValueType: node type initializationWithValue: resultValue initialValueKind: #move.
+		(resultValue isNotNil and: [node type isVoidType not]) ifTrue: [ 
+			"If the result value has an implicit finalization, we may be able to delay its finalization."
+			cleanUpScope implicitFinalizationStateDictionary at: resultValue asCanonicalLocalReference ifPresent: [ :finalizationAction |
+				resultImplicitFinalization := finalizationAction.
+				cleanUpScope implicitFinalizationStateDictionary removeKey: finalizationAction token
+			] ifAbsent: [
+				node type hasTrivialFinalization ifFalse: [
+					self assert: node type isMemoryReturnedType.
+					resultTemporary := slvmBuilder allocaBuilder alloca: (self translateType: node type).
+					self generateVariable: resultTemporary withValueType: node type initializationWithValue: resultValue initialValueKind: #move.
+				].
+			].
 		].
 	].
 
-	currentCleanUpScope ifNotNil: [ 
+	currentCleanUpScope ifNotNil: [
+		"Delay the implicit finalization of the result by lifting it up to the outer finalization scope."
+		resultImplicitFinalization ifNotNil: [
+			currentCleanUpScope implicitFinalizationStateDictionary at: resultImplicitFinalization token ifPresent: [ :previous |
+				self error: 'Local variable with multiple finalization contexts.'
+			] ifAbsentPut: [ resultImplicitFinalization ]
+		].
+	
 		resultTemporary ifNotNil: [ 
 			self addLocalVariable: resultTemporary withValueType: node type cleanUpActionForNode: node.
 		].
@@ -1689,22 +1707,29 @@ MbndSlovimFunctionCodeGenerator >> visitReferenceLoadNode: node [
 MbndSlovimFunctionCodeGenerator >> visitReturnStatementNode: node [
 	| result |
 	result := node expression ifNotNil: [ :expr | self visitNode: expr ].
+	slvmBuilder isLastTerminator ifTrue: [ ^ nil ].
+
+	concreteMethod returnType isMemoryReturnedType ifTrue: [ 
+		self assert: result isNotNil.
+		self generateVariable: ssaFunction arguments first withValueType: concreteMethod returnType initializationWithValue: result initialValueKind: #move.
+	].
 
 	self executeAllScopeCleanUp.
-	slvmBuilder isLastTerminator ifTrue: [ ^ false ].
+	slvmBuilder isLastTerminator ifTrue: [ ^ nil ].
 	self generateAutomaticEpilogueCode.
-	^ concreteMethod returnType isVoidType ifTrue: [
+	concreteMethod returnType isVoidType ifTrue: [
+		slvmBuilder returnVoid.
+		^ nil
+	].
+
+	self assert: result isNotNil.
+		
+	concreteMethod returnType isMemoryReturnedType ifTrue: [ 
 		slvmBuilder returnVoid
 	] ifFalse: [
-		self assert: result isNotNil.
-		
-		concreteMethod returnType isMemoryReturnedType ifTrue: [ 
-			self generateVariable: ssaFunction arguments first withValueType: concreteMethod returnType initializationWithValue: result initialValueKind: #move.
-			slvmBuilder returnVoid
-		] ifFalse: [
-			slvmBuilder return: result
-		].
-	]
+		slvmBuilder return: result
+	].
+	^ nil
 ]
 
 { #category : #visiting }
@@ -1875,6 +1900,10 @@ MbndSlovimFunctionCodeGenerator >> visitTemporaryVariableNode: node [
 			self generateCallWithReceiver: tempVar receiverType: node valueType selector: #initialize arguments: #() isSuperSend: false
 				declaredMethod: initializer expectedResultType: initializer returnType
 		].
+	].
+
+	node valueType hasTrivialFinalization ifFalse: [ 
+		self addLocalVariable: tempVar withValueType: node valueType cleanUpActionForNode: node
 	].
 
 	^ tempVar
@@ -2052,11 +2081,6 @@ MbndSlovimFunctionCodeGenerator >> withCleanUpScope: newCleanUpScope do: aBlock 
 	oldCleanUpScope := currentCleanUpScope.
 	currentCleanUpScope := newCleanUpScope.
 	[
-		newCleanUpScope implicitFinalizationStateDictionary valuesDo: [ :state |
-			state finalizationActivated: (slvmBuilder allocaBuilder alloca: SLVMType boolType).
-			slvmBuilder store: (slvmBuilder constBool: false) in: state finalizationActivated
-		].
-	
 		result := aBlock value.
 		slvmBuilder isLastTerminator ifFalse: [
 			self executeScopeCleanUpActions: currentCleanUpScope

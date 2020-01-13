@@ -26,7 +26,7 @@ MbndAstSemanticAnalyzerTest >> computeAnalyzedCastNodeWithCastFunction: castFunc
 	
 	"Analyze the concrete method."
 	concreteMethod ensureSemanticAnalysis.
-	^ concreteMethod analyzedBody expression
+	^ concreteMethod analyzedBody "Lexical scope" expression "Implicit return statement" expression
 ]
 
 { #category : #'as yet unclassified' }

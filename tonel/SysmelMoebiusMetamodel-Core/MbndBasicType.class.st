@@ -76,16 +76,20 @@ MbndBasicType >> addMetaTypeMacrosTo: metaType [
 			
 		];
 		onMacroSelector: #basicNewValue do: [ :node :builder :analyzer |
-			(node receiver isLiteralValueNode
-				ifTrue: [ node receiver value unwrapMbndValue ]
-				ifFalse: [ node receiver type instanceType ])
-			 		generateBasicNewValueForNode: node with: builder andWith: analyzer
+			analyzer analyzeNodeIfNeeded: (
+				(node receiver isLiteralValueNode
+					ifTrue: [ node receiver value unwrapMbndValue ]
+					ifFalse: [ node receiver type instanceType ])
+				 		generateBasicNewValueForNode: node with: builder andWith: analyzer
+			)
 		];
 		onMacroSelector: #newValue do: [ :node :builder :analyzer |
-			(node receiver isLiteralValueNode
-				ifTrue: [ node receiver value unwrapMbndValue ]
-				ifFalse: [ node receiver type instanceType ])
-					generateNewValueForNode: node with: builder andWith: analyzer
+			analyzer analyzeNodeIfNeeded: (
+				(node receiver isLiteralValueNode
+					ifTrue: [ node receiver value unwrapMbndValue ]
+					ifFalse: [ node receiver type instanceType ])
+						generateNewValueForNode: node with: builder andWith: analyzer
+			)
 		].
 
 ]
@@ -125,7 +129,7 @@ MbndBasicType >> generateBasicNewValueForNode: node with: builder andWith: analy
 	].
 
 	self isTypePassedByReference ifTrue: [
-		^ analyzer visitNode: (builder temporaryVariableOfType: self)
+		^ builder temporaryVariableOfType: self
 	].
 
 	^ self defaultValueASTNodeAt: node 

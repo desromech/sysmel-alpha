@@ -2,7 +2,8 @@ Class {
 	#name : #MbndAstReturnStatementNode,
 	#superclass : #MbndAstStatementNode,
 	#instVars : [
-		'expression'
+		'expression',
+		'implicitReturn'
 	],
 	#category : #'SysmelMoebiusMetamodel-Core-AST'
 }
@@ -22,7 +23,29 @@ MbndAstReturnStatementNode >> expression: anObject [
 	expression := anObject
 ]
 
+{ #category : #accessing }
+MbndAstReturnStatementNode >> implicitReturn [
+	^ implicitReturn
+]
+
+{ #category : #accessing }
+MbndAstReturnStatementNode >> implicitReturn: anObject [
+	implicitReturn := anObject
+]
+
+{ #category : #initialization }
+MbndAstReturnStatementNode >> initialize [
+	super initialize.
+	implicitReturn := false.
+]
+
 { #category : #testing }
 MbndAstReturnStatementNode >> isReturnStatementNode [
 	^ true
+]
+
+{ #category : #accessing }
+MbndAstReturnStatementNode >> pragmaAt: pragmaName ifAbsent: absentBlock ifPresent: presentBloc [
+	implicitReturn ifTrue: [ ^ expression pragmaAt: pragmaName ifAbsent: absentBlock ifPresent: presentBloc ].
+	^ super pragmaAt: pragmaName ifAbsent: absentBlock ifPresent: presentBloc
 ]

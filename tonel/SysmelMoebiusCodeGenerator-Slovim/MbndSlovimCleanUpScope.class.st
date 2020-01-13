@@ -4,10 +4,21 @@ Class {
 	#instVars : [
 		'parent',
 		'implicitFinalizationStateDictionary',
-		'explicitFinalizationAction'
+		'explicitFinalizationAction',
+		'allowedNodesWithImplicitFinalization'
 	],
 	#category : #'SysmelMoebiusCodeGenerator-Slovim-Module'
 }
+
+{ #category : #accessing }
+MbndSlovimCleanUpScope >> allowedNodesWithImplicitFinalization [
+	^ allowedNodesWithImplicitFinalization
+]
+
+{ #category : #accessing }
+MbndSlovimCleanUpScope >> allowedNodesWithImplicitFinalization: anObject [
+	allowedNodesWithImplicitFinalization := anObject
+]
 
 { #category : #accessing }
 MbndSlovimCleanUpScope >> explicitFinalizationAction [

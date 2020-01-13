@@ -330,8 +330,8 @@ function useGuard externC() => Void := {
 	self assert: function basicBlocks size equals: 4.
 	
 	self assert: function allInstructionsMnemonics equals: #(
-		(entry (alloca alloca jump))
-		(body (store store call store call load branch))
+		(entry (alloca alloca store jump))
+		(body (store call store call load branch))
 		(implicitCleanUpAction (call jump))
 		(implicitCleanUpMerge (returnVoid))
 	).
@@ -368,8 +368,8 @@ function useGuard externC() => Int32 := {
 	self assert: function basicBlocks size equals: 4.
 	
 	self assert: function allInstructionsMnemonics equals: #(
-		(entry (alloca alloca jump))
-		(body (store store call store call load branch))
+		(entry (alloca alloca store jump))
+		(body (store call store call load branch))
 		(implicitCleanUpAction (call jump))
 		(implicitCleanUpMerge (return))
 	).
@@ -4666,7 +4666,7 @@ MbndSlovimCodeModuleGeneratorTest >> testNonPODAggregatePassing [
 	| function |
 	self
 		evaluateSysmelSource: '
-class Aggregate definition: { 
+class Aggregate definition: {
 	method initialize => Void.
 	method finalize => Void.
 }.
@@ -4681,8 +4681,10 @@ function callWithAggregate externC() => Void
 	self assert: function isFunction.
 	
 	self assert: function allInstructionsMnemonics equals: #(
-		(entry (alloca jump))
-		(body (store call call returnVoid))
+		(#entry (#alloca #alloca #store #jump))
+		(#body (#store #call #store #call #load #branch))
+		(#implicitCleanUpAction (#call #jump))
+		(#implicitCleanUpMerge (#returnVoid))
 	).
 	
 	function := ssaModule globalNamed: #calledWithAggregate.
@@ -4699,7 +4701,7 @@ MbndSlovimCodeModuleGeneratorTest >> testNonPODAggregateReturn [
 	| function |
 	self
 		evaluateSysmelSource: '
-class Aggregate definition: { 
+class Aggregate definition: {
 	method initialize => Void.
 	method finalize => Void.
 }.

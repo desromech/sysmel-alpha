@@ -322,7 +322,13 @@ MbndAbstractConcreteMethod >> pragmaAt: pragmaName ifAbsent: absentBlock ifPrese
 
 { #category : #'semantic analysis' }
 MbndAbstractConcreteMethod >> preprocessDefinitionBody: node [
-	^ node lexicallyScoped
+	(node isLexicalScopeNode and: [ node expression isReturnStatementNode ]) ifTrue: [ ^ node ].
+	
+	"Wrap the node in a implicit return statement node."
+	^ (MbndAstReturnStatementNode new
+		position: node;
+		implicitReturn: true;
+		expression: node) lexicallyScoped
 ]
 
 { #category : #testing }
