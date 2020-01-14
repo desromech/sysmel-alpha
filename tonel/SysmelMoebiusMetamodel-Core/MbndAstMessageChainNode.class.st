@@ -28,6 +28,11 @@ MbndAstMessageChainNode >> isMessageChainNode [
 	^ true
 ]
 
+{ #category : #'as yet unclassified' }
+MbndAstMessageChainNode >> markStorageCreationNodeForCopyEllision: node [
+	self shouldNotImplement
+]
+
 { #category : #accessing }
 MbndAstMessageChainNode >> messages [
 	^ messages

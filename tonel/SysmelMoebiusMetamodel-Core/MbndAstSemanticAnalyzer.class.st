@@ -1449,6 +1449,10 @@ MbndAstSemanticAnalyzer >> visitLocalVariableDefinitionNode: node [
 		currentCleanUpScope addNodeWithImplicitFinalization: result
 	].
 
+	result valueType isMemoryReturnedType ifTrue: [
+		result initialValue ifNotNil: [ :iv | iv markStorageCreationNodeForCopyEllision: result]
+	].
+
 	^ result
 ]
 
@@ -1824,18 +1828,28 @@ MbndAstSemanticAnalyzer >> visitReferenceAsPointerNode: node [
 
 { #category : #visiting }
 MbndAstSemanticAnalyzer >> visitReferenceLoadNode: node [
-	| result |
+	| result referenceType |
 	result := node copy.
 	result reference: (self analyzeNodeIfNeeded: node reference);
 		yourself.
 		
 	"Make sure the reference can be assigned."
-	result reference type isReferenceType ifFalse: [ 
+	referenceType := result reference type.
+	(referenceType isReferenceType or: [ referenceType isTemporaryReferenceType ]) ifFalse: [ 
 		self error: 'Cannot assign a value to something that is not a reference.' at: result
 	].
 
 	"Return the reference after the assignment."
-	result type: result reference type baseType withoutDecorations.	
+	result type: referenceType baseType withoutDecorations.	
+	
+	"We may need to create a new temporary copy in some cases."
+	result type isTypePassedByReference ifTrue: [
+		referenceType isReferenceType ifTrue: [
+			result createsImplicitTemporary: true.
+			self addNodeWithImplicitFinalization: result
+		].
+	].	
+	
 	^ result
 
 ]
@@ -1859,12 +1873,14 @@ MbndAstSemanticAnalyzer >> visitReturnStatementNode: node [
 		expression: (self analyzeNodeIfNeeded: node expression);
 		type: self compilationTarget returnType.
 
+	result expression type isReturnType ifTrue: [ ^ result ].
+	
 	scope returnType ifNotNil: [ :expectedReturnType |
 		result expression: (self addImplicitCastFor: result expression to: (expectedReturnType asConcreteTypeForAnalysisOfFunction: scope returnTypeProgramEntity)).
 		
-		"expectedReturnType isMemoryReturnedType ifTrue: [
-			self halt
-		]."
+		expectedReturnType isMemoryReturnedType ifTrue: [
+			result expression markStorageCreationNodeForCopyEllision: result
+		].
 	].
 
 	^ result

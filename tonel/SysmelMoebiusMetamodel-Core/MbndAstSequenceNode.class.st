@@ -38,6 +38,11 @@ MbndAstSequenceNode >> isSequenceNode [
 	^ true
 ]
 
+{ #category : #'as yet unclassified' }
+MbndAstSequenceNode >> markStorageCreationNodeForCopyEllision: node [
+	elements ifNotEmpty: [ elements last markStorageCreationNodeForCopyEllision: node ]
+]
+
 { #category : #accessing }
 MbndAstSequenceNode >> pragmaAt: pragmaName ifAbsent: absentBlock ifPresent: presentBlock [
 	pragmas do: [:pragma |

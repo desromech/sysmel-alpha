@@ -50,6 +50,11 @@ MbndAstCleanUpScopeNode >> isCleanUpScopeNode [
 	^ true
 ]
 
+{ #category : #'as yet unclassified' }
+MbndAstCleanUpScopeNode >> markStorageCreationNodeForCopyEllision: node [
+	expression markStorageCreationNodeForCopyEllision: node
+]
+
 { #category : #accessing }
 MbndAstCleanUpScopeNode >> nodesWithImplicitFinalization [
 	^ nodesWithImplicitFinalization ifNil: [ nodesWithImplicitFinalization := OrderedCollection new ]

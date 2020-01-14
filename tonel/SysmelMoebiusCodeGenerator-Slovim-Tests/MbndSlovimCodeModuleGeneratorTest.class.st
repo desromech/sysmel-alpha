@@ -4719,15 +4719,15 @@ function caller externC() => Void
 	self assert: function isFunction.
 	self assert: function arguments first isStructReturnPointer.
 	self assert: function allInstructionsMnemonics equals: #(
-		(entry (alloca jump))
-		(body (store call store returnVoid))
+		(entry (jump))
+		(body (store call returnVoid))
 	).
 	
 	function := ssaModule globalNamed: #caller.
 	self assert: function isFunction.
 	self assert: function allInstructionsMnemonics equals: #(
-		(entry (alloca alloca jump))
-		(body (store call store load branch))
+		(entry (alloca alloca store jump))
+		(body (call store load branch))
 		(implicitCleanUpAction (call jump))
 		(implicitCleanUpMerge (returnVoid))
 	).
@@ -4756,15 +4756,15 @@ function caller externC() => Void
 	self assert: function isFunction.
 	self assert: function arguments first isStructReturnPointer.
 	self assert: function allInstructionsMnemonics equals: #(
-		(entry (alloca jump))
-		(body (store call store returnVoid))
+		(entry (jump))
+		(body (store call returnVoid))
 	).
 	
 	function := ssaModule globalNamed: #caller.
 	self assert: function isFunction.
 	self assert: function allInstructionsMnemonics equals: #(
-		(entry (alloca alloca jump))
-		(body (store call store load branch))
+		(entry (alloca alloca store jump))
+		(body (call store load branch))
 		(implicitCleanUpAction (call jump))
 		(implicitCleanUpMerge (returnVoid))
 	).
@@ -4793,15 +4793,15 @@ function caller externC() => Void
 	self assert: function isFunction.
 	self assert: function arguments first isStructReturnPointer.
 	self assert: function allInstructionsMnemonics equals: #(
-		(entry (alloca jump))
-		(body (store call store returnVoid))
+		(entry (jump))
+		(body (store call returnVoid))
 	).
 	
 	function := ssaModule globalNamed: #caller.
 	self assert: function isFunction.
 	self assert: function allInstructionsMnemonics equals: #(
-		(entry (alloca alloca jump))
-		(body (store call store load branch))
+		(entry (alloca alloca store jump))
+		(body (call store load branch))
 		(implicitCleanUpAction (call jump))
 		(implicitCleanUpMerge (returnVoid))
 	).
@@ -5385,6 +5385,14 @@ function makeRefCountedPtr externC(p: RefCounted pointer) => RefCountedPtr
 	:= RefCountedPtr for: p.
 ';
 		generateSSAModule.
+
+	function := ssaModule globalNamed: #'_ZN16IntrusivePointerIN10RefCountedEE8__Meta__5.for.ENS2_EPNS1_E'.
+	self assert: function isFunction.
+	self deny: function isEmpty.
+	self assert: function allInstructionsMnemonics equals: #(
+		(entry (alloca jump))
+		(body (store call call return))
+	).		
 
 	function := ssaModule globalNamed: #makeRefCountedPtr.
 	self assert: function isFunction.

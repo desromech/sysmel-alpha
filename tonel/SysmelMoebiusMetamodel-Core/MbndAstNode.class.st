@@ -785,6 +785,12 @@ MbndAstNode >> lexicallyScoped [
 		yourself
 ]
 
+{ #category : #'as yet unclassified' }
+MbndAstNode >> markStorageCreationNodeForCopyEllision: storageCreationNode [
+	"By default, do nothing."
+	Transcript show: self class name; cr.
+]
+
 { #category : #composition }
 MbndAstNode >> mbndLiteralTypeWithTarget: compilationTarget [
 	^ compilationTarget astNodeType

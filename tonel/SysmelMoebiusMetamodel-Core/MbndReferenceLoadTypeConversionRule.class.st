@@ -11,9 +11,14 @@ MbndReferenceLoadTypeConversionRule >> canBeUsedToConvertNode: node from: source
 
 { #category : #'as yet unclassified' }
 MbndReferenceLoadTypeConversionRule >> postProcessCastNode: node withAnalyzer: analyzer [
-	^ MbndAstReferenceLoadNode new
-		position: node position;
+	self assert: node isGenericCastNode.
+	^ analyzer analyzeNodeIfNeeded: (self specificCastNodeClass new
+		position: node;
 		reference: node expression;
-		type: node type;
-		yourself
+		yourself)
+]
+
+{ #category : #hooks }
+MbndReferenceLoadTypeConversionRule >> specificCastNodeClass [
+	^ MbndAstReferenceLoadNode
 ]

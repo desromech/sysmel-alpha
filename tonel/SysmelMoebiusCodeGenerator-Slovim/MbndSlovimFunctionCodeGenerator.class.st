@@ -14,7 +14,8 @@ Class {
 		'ssaFunctionEntryBlock',
 		'ssaFunctionBodyBlock',
 		'activeLexicalScope',
-		'implicitCleanUpActionStates'
+		'implicitCleanUpActionStates',
+		'storageCreationNodeVariableMapForCopyEllision'
 	],
 	#classVars : [
 		'AdditionalIntrinsicsDictionary',
@@ -86,6 +87,19 @@ MbndSlovimFunctionCodeGenerator >> aggregate: aggregateNode value: aggregateValu
 	].
 
 	^ nil
+]
+
+{ #category : #visiting }
+MbndSlovimFunctionCodeGenerator >> allocateTemporaryStorageFor: valueType withStorageCreationNode: storageCreationNode [
+	storageCreationNode ifNotNil: [
+		storageCreationNodeVariableMapForCopyEllision at: storageCreationNode ifPresent: [ :ellisionStorage |
+			self assert: ellisionStorage type isPointerType.
+			ellisionStorage type baseType = valueType ifTrue: [ 
+				^ ellisionStorage
+			].
+		]
+	].
+	^ slvmBuilder allocaBuilder alloca: valueType
 ]
 
 { #category : #'as yet unclassified' }
@@ -201,10 +215,15 @@ MbndSlovimFunctionCodeGenerator >> defineArgumentValues [
 
 { #category : #'as yet unclassified' }
 MbndSlovimFunctionCodeGenerator >> executeAllScopeCleanUp [
+	^ self executeAllScopeCleanUpExceptForTokens: #()
+]
+
+{ #category : #'as yet unclassified' }
+MbndSlovimFunctionCodeGenerator >> executeAllScopeCleanUpExceptForTokens: suppressedCleanUpTokens [
 	| position |
 	position := currentCleanUpScope.
 	[ position ] whileNotNil: [
-		self executeScopeCleanUpActions: position.
+		self executeScopeCleanUpActions: position exceptForTokens: suppressedCleanUpTokens.
 		slvmBuilder isLastTerminator ifTrue: [ ^ self ] .
 		position := position parent
 	]
@@ -214,6 +233,7 @@ MbndSlovimFunctionCodeGenerator >> executeAllScopeCleanUp [
 MbndSlovimFunctionCodeGenerator >> executeImplicitFinalizationAction: action [
 	| activated cleanUpBlock mergeBlock |
 	action finalizationActionBlocks ifEmpty: [ ^ self ].
+	action isActuallyExecuted: true.
 
 	activated := slvmBuilder load: action finalizationActivated.
 	cleanUpBlock := slvmBuilder newBasicBlock: #implicitCleanUpAction.
@@ -232,8 +252,13 @@ MbndSlovimFunctionCodeGenerator >> executeImplicitFinalizationAction: action [
 
 { #category : #'as yet unclassified' }
 MbndSlovimFunctionCodeGenerator >> executeScopeCleanUpActions: cleanUpScope [
+	^ self executeScopeCleanUpActions: cleanUpScope exceptForTokens: #()
+]
+
+{ #category : #'as yet unclassified' }
+MbndSlovimFunctionCodeGenerator >> executeScopeCleanUpActions: cleanUpScope exceptForTokens: suppressedCleanUpTokens [
 	cleanUpScope implicitFinalizationStateDictionary "valuesDo: crashes" keysDo: [ :token |
-		token ifNotNil: [ 
+		(token isNotNil and: [(suppressedCleanUpTokens includes: token) not]) ifTrue: [ 
 			| action |
 			action := cleanUpScope implicitFinalizationStateDictionary at: token.
 			self executeImplicitFinalizationAction: action
@@ -743,6 +768,7 @@ MbndSlovimFunctionCodeGenerator >> generateVariable: variable finalizationForVal
 
 { #category : #visiting }
 MbndSlovimFunctionCodeGenerator >> generateVariable: ssaValue withValueType: valueType initializationWithValue: initialValue initialValueKind: initialValueKind [
+	| initialLoadedValue |
 	self assert: initialValueKind isNotNil.
 	
 	initialValueKind = #default ifTrue: [ 
@@ -753,9 +779,20 @@ MbndSlovimFunctionCodeGenerator >> generateVariable: ssaValue withValueType: val
 		^ self
 	].
 
-	initialValueKind = #copy ifTrue: [ 
-		valueType hasTrivialInitializationFromCopy ifTrue: [ 
-			slvmBuilder store: (self sanitizeStoreValue: initialValue inPointer: ssaValue) in: ssaValue.
+	initialValueKind = #copy ifTrue: [
+		valueType isTypePassedByReference ifTrue: [
+			"Copy ellision nop."
+			initialValue == ssaValue ifTrue: [ ^ self ].
+		].
+
+		valueType hasTrivialInitializationFromCopy ifTrue: [
+			initialLoadedValue := initialValue.
+			valueType isTypePassedByReference ifTrue: [
+				self assert: initialLoadedValue type isPointerType.
+				self assert: initialLoadedValue type ~= ssaValue type baseType.
+				initialLoadedValue := slvmBuilder load: initialLoadedValue.
+			].
+			slvmBuilder store: (self sanitizeStoreValue: initialLoadedValue inPointer: ssaValue) in: ssaValue.
 		] ifFalse: [
 			self generateVariable: ssaValue basicInitializationWithValueType: valueType.
 			self assert: initialValue type isPointerType.
@@ -765,6 +802,11 @@ MbndSlovimFunctionCodeGenerator >> generateVariable: ssaValue withValueType: val
 	].
 
 	initialValueKind = #move ifTrue: [ 
+		valueType isTypePassedByReference ifTrue: [
+			"Copy ellision nop."
+			initialValue == ssaValue ifTrue: [ ^ self ].
+		].
+
 		valueType hasTrivialInitializationMovingFrom ifTrue: [
 			^ self generateVariable: ssaValue withValueType: valueType initializationWithValue: initialValue initialValueKind: #copy
 		] ifFalse: [
@@ -836,7 +878,16 @@ MbndSlovimFunctionCodeGenerator >> initializeArgumentVariables [
 MbndSlovimFunctionCodeGenerator >> initializeCleanUpActionStates [
 	implicitCleanUpActionStates do: [ :cleanUpState |
 		cleanUpState finalizationActivated ifNotNil: [ :activatedFlag |
-			slvmBuilder allocaBuilder store: (slvmBuilder constBool: false) in: activatedFlag.
+			cleanUpState isActuallyExecuted ifTrue: [ 
+				slvmBuilder allocaBuilder store: (slvmBuilder constBool: false) in: activatedFlag.
+			] ifFalse: [
+				"Remove any reference to an unused clean-up action state."
+				activatedFlag instructionReferences do: [ :ref |
+					self assert: ref isStore.
+					ref removeFromBlock.
+				].
+				activatedFlag removeFromBlock
+			].
 		].
 	]
 ]
@@ -889,6 +940,11 @@ MbndSlovimFunctionCodeGenerator >> sanitizeValue: value withExpectedType: expect
 	^ value
 ]
 
+{ #category : #initialization }
+MbndSlovimFunctionCodeGenerator >> setStorageCreationNode: node variableForCopyEllision: ssaVariable [
+	storageCreationNodeVariableMapForCopyEllision at: node put: ssaVariable
+]
+
 { #category : #'as yet unclassified' }
 MbndSlovimFunctionCodeGenerator >> setupBuilders [
 	"Create the main slvm builder."	
@@ -896,6 +952,7 @@ MbndSlovimFunctionCodeGenerator >> setupBuilders [
 	slvmBuilder := SLVMBuilder on: ssaFunction.
 	ssaFunctionEntryBlock := slvmBuilder newBasicBlockHere: #entry.
 	implicitCleanUpActionStates := OrderedCollection new.
+	storageCreationNodeVariableMapForCopyEllision := IdentityDictionary new.
 
 	"Create the alloca builder."
 	slvmBuilder allocaBuilder: ((SLVMBuilder on: ssaFunction)
@@ -1692,7 +1749,7 @@ MbndSlovimFunctionCodeGenerator >> visitReferenceLoadNode: node [
 
 	"Do not load the types that are passed by reference."
 	node type isTypePassedByReference ifTrue: [
-		node reference type isReferenceType ifTrue: [
+		node createsImplicitTemporary ifTrue: [
 			self halt
 		].
 		^ reference
@@ -1705,16 +1762,22 @@ MbndSlovimFunctionCodeGenerator >> visitReferenceLoadNode: node [
 
 { #category : #visiting }
 MbndSlovimFunctionCodeGenerator >> visitReturnStatementNode: node [
-	| result |
+	| result suppresedCleanUpTokens |
+	concreteMethod returnType isMemoryReturnedType ifTrue: [
+		self setStorageCreationNode: node variableForCopyEllision: ssaFunction arguments first
+	].
+
 	result := node expression ifNotNil: [ :expr | self visitNode: expr ].
 	slvmBuilder isLastTerminator ifTrue: [ ^ nil ].
 
+	suppresedCleanUpTokens := #().
 	concreteMethod returnType isMemoryReturnedType ifTrue: [ 
 		self assert: result isNotNil.
 		self generateVariable: ssaFunction arguments first withValueType: concreteMethod returnType initializationWithValue: result initialValueKind: #move.
+		suppresedCleanUpTokens := { ssaFunction arguments first }
 	].
 
-	self executeAllScopeCleanUp.
+	self executeAllScopeCleanUpExceptForTokens: suppresedCleanUpTokens.
 	slvmBuilder isLastTerminator ifTrue: [ ^ nil ].
 	self generateAutomaticEpilogueCode.
 	concreteMethod returnType isVoidType ifTrue: [
@@ -1890,7 +1953,7 @@ MbndSlovimFunctionCodeGenerator >> visitStaticClassPointerCastNode: node [
 MbndSlovimFunctionCodeGenerator >> visitTemporaryVariableNode: node [
 	| valueType tempVar initializer |
 	valueType := self translateType: node valueType.
-	tempVar := slvmBuilder allocaBuilder alloca: valueType.
+	tempVar := self allocateTemporaryStorageFor: valueType withStorageCreationNode: node storageCreationNode.
 	node hasBasicInitialization ifTrue: [ 
 		self generateVariable: tempVar basicInitializationWithValueType: node valueType.
 	].

@@ -4,7 +4,8 @@ Class {
 	#instVars : [
 		'token',
 		'finalizationActivated',
-		'finalizationActionBlocks'
+		'finalizationActionBlocks',
+		'isActuallyExecuted'
 	],
 	#category : #'SysmelMoebiusCodeGenerator-Slovim-Module'
 }
@@ -17,6 +18,11 @@ MbndSlovimCleanUpScopeImplicitFinalizationState >> addFinalizationActionBlock: a
 { #category : #accessing }
 MbndSlovimCleanUpScopeImplicitFinalizationState >> finalizationActionBlocks [
 	^ finalizationActionBlocks
+]
+
+{ #category : #accessing }
+MbndSlovimCleanUpScopeImplicitFinalizationState >> finalizationActionBlocks: anObject [
+	finalizationActionBlocks := anObject
 ]
 
 { #category : #accessing }
@@ -33,6 +39,17 @@ MbndSlovimCleanUpScopeImplicitFinalizationState >> finalizationActivated: anObje
 MbndSlovimCleanUpScopeImplicitFinalizationState >> initialize [
 	super initialize.
 	finalizationActionBlocks := OrderedCollection new.
+	isActuallyExecuted := false.
+]
+
+{ #category : #accessing }
+MbndSlovimCleanUpScopeImplicitFinalizationState >> isActuallyExecuted [
+	^ isActuallyExecuted
+]
+
+{ #category : #accessing }
+MbndSlovimCleanUpScopeImplicitFinalizationState >> isActuallyExecuted: anObject [
+	isActuallyExecuted := anObject
 ]
 
 { #category : #accessing }

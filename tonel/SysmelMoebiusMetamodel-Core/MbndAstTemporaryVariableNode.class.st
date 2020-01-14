@@ -4,7 +4,8 @@ Class {
 	#instVars : [
 		'valueType',
 		'hasBasicInitialization',
-		'hasInitialization'
+		'hasInitialization',
+		'storageCreationNode'
 	],
 	#category : #'SysmelMoebiusMetamodel-Core-AST'
 }
@@ -44,6 +45,16 @@ MbndAstTemporaryVariableNode >> initialize [
 { #category : #testing }
 MbndAstTemporaryVariableNode >> isTemporaryVariableNode [
 	^ true
+]
+
+{ #category : #'as yet unclassified' }
+MbndAstTemporaryVariableNode >> markStorageCreationNodeForCopyEllision: aStorageCreationNode [
+	storageCreationNode := aStorageCreationNode
+]
+
+{ #category : #accessing }
+MbndAstTemporaryVariableNode >> storageCreationNode [
+	^ storageCreationNode
 ]
 
 { #category : #accessing }
