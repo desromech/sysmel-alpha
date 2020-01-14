@@ -1497,7 +1497,7 @@ MbndSlovimFunctionCodeGenerator >> visitIOChannelSendAction: node [
 MbndSlovimFunctionCodeGenerator >> visitIfConditionNode: node [
 	| condition mergeBlock thenBlock elseBlock trueResult falseResult hasTrueResult hasFalseResult resultType branchBlock |
 	condition := self visitNode: node condition.
-	thenBlock := node trueValue ifNotNil: [slvmBuilder newBasicBlock: #ifThen].
+	thenBlock := node trueValue ifNotNil: [slvmBuilder newBasicBlock: #ifThen ].
 	elseBlock := node falseValue ifNotNil: [slvmBuilder newBasicBlock: #ifElse].
 	mergeBlock := slvmBuilder newBasicBlock: #ifMerge.
 	thenBlock ifNil: [ thenBlock := mergeBlock ].

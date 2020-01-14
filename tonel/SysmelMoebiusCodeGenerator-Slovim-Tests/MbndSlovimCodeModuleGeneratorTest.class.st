@@ -5465,6 +5465,73 @@ function nullTree externC() => TreeNode(Int32) pointer
 ]
 
 { #category : #tests }
+MbndSlovimCodeModuleGeneratorTest >> testRefCountedMethods [
+	| function |
+	self
+		evaluateIntrusivePointerClass;
+		evaluateSysmelSource: 'RefCountedPtr';
+		generateSSAModule.
+
+	function := ssaModule globalNamed: #'_ZN16IntrusivePointerIN10RefCountedEE9.finalizeERNS0_E'.
+	self assert: function isFunction.
+	self deny: function isEmpty.
+	self assert: function allInstructionsMnemonics equals: #(
+		(entry (jump))
+		(body (getElementPointer load ine branch))
+		(ifThen (getElementPointer load call jump))
+		(ifMerge (returnVoid))
+	).
+
+	function := ssaModule globalNamed: #'_ZN16IntrusivePointerIN10RefCountedEE16.initializeWith.ERNS0_EPNS1_E'.
+	self assert: function isFunction.
+	self deny: function isEmpty.
+	self assert: function allInstructionsMnemonics equals: #(
+		(entry (jump))
+		(body (getElementPointer store returnVoid))
+	).
+
+	function := ssaModule globalNamed: #'_ZN16IntrusivePointerIN10RefCountedEE16.initializeFrom.ERNS0_ERKNS0_E'.
+	self assert: function isFunction.
+	self deny: function isEmpty.
+	self assert: function allInstructionsMnemonics equals: #(
+		(entry (jump))
+		(body (getElementPointer load getElementPointer store getElementPointer load ine branch))
+		(ifThen (getElementPointer load call jump))
+		(ifMerge (returnVoid))
+	).
+	
+	function := ssaModule globalNamed: #'_ZN16IntrusivePointerIN10RefCountedEE22.initializeMovingFrom.ERNS0_EONS0_E'.
+	self assert: function isFunction.
+	self deny: function isEmpty.
+	self assert: function allInstructionsMnemonics equals: #(
+		(entry (jump))
+		(body (getElementPointer load getElementPointer store getElementPointer store returnVoid))
+	).
+	
+	function := ssaModule globalNamed: #'_ZN16IntrusivePointerIN10RefCountedEE13.assignValue.ERNS0_ERKNS0_E'.
+	self assert: function isFunction.
+	self deny: function isEmpty.
+	self assert: function allInstructionsMnemonics equals: #(
+		(entry (jump))
+		(body (getElementPointer load ine branch))
+		(ifThen (call jump))
+		(ifMerge (getElementPointer load ine branch))
+		(ifThen (getElementPointer load call jump))
+		(ifMerge (getElementPointer store return))
+	).
+	
+	function := ssaModule globalNamed: #'_ZN16IntrusivePointerIN10RefCountedEE13.assignValue.ERNS0_EONS0_E'.
+	self assert: function isFunction.
+	self deny: function isEmpty.
+	self assert: function allInstructionsMnemonics equals: #(
+		(entry (jump))
+		(body (getElementPointer load getElementPointer store getElementPointer load ine branch))
+		(ifThen (getElementPointer load call jump))
+		(ifMerge (getElementPointer store return))
+	).
+]
+
+{ #category : #tests }
 MbndSlovimCodeModuleGeneratorTest >> testRefCountedPointerAssign [
 	| function |
 	self
@@ -5501,7 +5568,7 @@ function makeRefCountedPtr externC(p: RefCounted pointer) => RefCountedPtr
 	self assert: function allInstructionsMnemonics equals: #(
 		(entry (jump))
 		(body (store call returnVoid))
-	).		
+	).
 
 	function := ssaModule globalNamed: #makeRefCountedPtr.
 	self assert: function isFunction.

@@ -1242,7 +1242,10 @@ MbndAstSemanticAnalyzer >> visitIfConditionNode: node [
 		conditionalResultCoercionTypeFor: result trueValue type node: result trueValue
 		with: result falseValue type node: result falseValue
 		at: result.
-	resultCoercionType isVoidType ifFalse: [
+	resultCoercionType isVoidType ifTrue: [
+		(result falseValue isLiteralValueNode and: [ result falseValue type isUndefinedType ]) ifTrue: [ 			result falseValue: nil.
+		].
+	] ifFalse: [
 		result
 			trueValue: (self addImplicitCastFor: result trueValue to: resultCoercionType);
 			falseValue: (self addImplicitCastFor: result falseValue to: resultCoercionType).
