@@ -788,7 +788,7 @@ MbndAstNode >> lexicallyScoped [
 { #category : #'as yet unclassified' }
 MbndAstNode >> markStorageCreationNodeForCopyEllision: storageCreationNode [
 	"By default, do nothing."
-	Transcript show: self class name; cr.
+	"Transcript show: self class name; cr."
 ]
 
 { #category : #composition }

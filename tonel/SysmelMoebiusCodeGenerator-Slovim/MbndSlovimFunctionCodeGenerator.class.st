@@ -676,21 +676,23 @@ MbndSlovimFunctionCodeGenerator >> generateIdentityNotEquals: node [
 ]
 
 { #category : #visiting }
-MbndSlovimFunctionCodeGenerator >> generateLocalVariable: localVariable definitionAt: position withInitialValue: initialValue initialValueKind: initialValueKind [
-	^ self generateLocalVariable: localVariable storageCreationNode: nil definitionAt: position withInitialValue: initialValue initialValueKind: initialValueKind
+MbndSlovimFunctionCodeGenerator >> generateLocalVariable: localVariable definitionAt: position withInitialValue: initialValueBlock initialValueKind: initialValueKind [
+	^ self generateLocalVariable: localVariable storageCreationNode: nil definitionAt: position withInitialValue: initialValueBlock initialValueKind: initialValueKind
 ]
 
 { #category : #visiting }
-MbndSlovimFunctionCodeGenerator >> generateLocalVariable: localVariable storageCreationNode: storageCreationNode definitionAt: position withInitialValue: initialValue initialValueKind: initialValueKind [
-	| valueType ssaValue |
+MbndSlovimFunctionCodeGenerator >> generateLocalVariable: localVariable storageCreationNode: storageCreationNode definitionAt: position withInitialValue: initialValueBlock initialValueKind: initialValueKind [
+	| valueType initialValue ssaValue |
 	self assert: (functionVariables includesKey: localVariable) not.
-	self assert: initialValue isNotNil.
+	self assert: initialValueBlock isNotNil.
 
 	valueType := self translateType: localVariable valueType.
 	
 	(localVariable type isReferenceType or: [ localVariable type isTemporaryReferenceType ]) ifTrue: [
-		((localVariable valueType isReferenceType or: [localVariable valueType isTemporaryReferenceType]) and: [initialValue isNotNil and: [initialValue type isPointerType]]) ifTrue: [
+		(localVariable valueType isReferenceType or: [localVariable valueType isTemporaryReferenceType]) ifTrue: [
+			initialValue := initialValueBlock value.
 			self assert: initialValue isNotNil.
+			self assert: initialValue type isPointerType.
 			ssaValue := initialValue.
 
 			self isEmittingDebugInformation ifTrue: [ 
@@ -700,6 +702,12 @@ MbndSlovimFunctionCodeGenerator >> generateLocalVariable: localVariable storageC
 			].
 		] ifFalse: [
 			ssaValue := self allocateTemporaryStorageFor: valueType withStorageCreationNode: storageCreationNode.
+			(storageCreationNode isNil and: [position isMbndAstNode]) ifTrue: [
+				self setStorageCreationNode: position variableForCopyEllision: ssaValue
+			].
+		
+			initialValue := initialValueBlock value.
+		
 			self generateVariable: ssaValue withValueType: localVariable valueType initializationWithValue: initialValue initialValueKind: initialValueKind.
 
 			self isEmittingDebugInformation ifTrue: [ 
@@ -710,10 +718,14 @@ MbndSlovimFunctionCodeGenerator >> generateLocalVariable: localVariable storageC
 			].
 		
 			localVariable valueType hasTrivialFinalization ifFalse: [
-				self addLocalVariable: ssaValue withValueType: localVariable valueType cleanUpActionForNode: position
+				initialValue ~~ ssaValue ifTrue: [
+					"Avoid double finalization."
+					self addLocalVariable: ssaValue withValueType: localVariable valueType cleanUpActionForNode: position
+				].
 			].
 		].
 	] ifFalse: [
+		initialValue := initialValueBlock value.
 		ssaValue := initialValue.
 
 		self isEmittingDebugInformation ifTrue: [ 
@@ -1620,7 +1632,7 @@ MbndSlovimFunctionCodeGenerator >> visitLiteralValueNode: node [
 { #category : #visiting }
 MbndSlovimFunctionCodeGenerator >> visitLocalVariableDefinitionNode: node [
 	self assert: node initialValue isNotNil.
-	^ self generateLocalVariable: node binding storageCreationNode: node storageCreationNode definitionAt: node withInitialValue: (self visitNode: node initialValue) initialValueKind: node initialValueKind
+	^ self generateLocalVariable: node binding storageCreationNode: node storageCreationNode definitionAt: node withInitialValue: [self visitNode: node initialValue] initialValueKind: node initialValueKind
 ]
 
 { #category : #visiting }
