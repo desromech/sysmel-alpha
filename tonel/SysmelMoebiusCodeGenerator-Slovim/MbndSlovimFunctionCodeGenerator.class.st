@@ -700,8 +700,6 @@ MbndSlovimFunctionCodeGenerator >> generateLocalVariable: localVariable storageC
 			].
 		] ifFalse: [
 			ssaValue := self allocateTemporaryStorageFor: valueType withStorageCreationNode: storageCreationNode.
-			
-			slvmBuilder allocaBuilder alloca: (self sanitizeValueTypeForMemory: valueType).
 			self generateVariable: ssaValue withValueType: localVariable valueType initializationWithValue: initialValue initialValueKind: initialValueKind.
 
 			self isEmittingDebugInformation ifTrue: [ 

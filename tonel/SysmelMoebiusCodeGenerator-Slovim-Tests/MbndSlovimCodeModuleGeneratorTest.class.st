@@ -5552,7 +5552,7 @@ function makeRefCountedPtr externC(p: RefCounted pointer) => RefCountedPtr := {
 	self deny: function isEmpty.
 	self assert: function allInstructionsMnemonics equals: #(
 		(entry (alloca jump))
-		(body (store call call call return))
+		(body (store call call call returnVoid))
 	).
 ]
 

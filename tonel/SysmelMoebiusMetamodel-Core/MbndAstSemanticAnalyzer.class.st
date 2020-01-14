@@ -61,6 +61,24 @@ MbndAstSemanticAnalyzer >> addNodeWithImplicitFinalization: node [
 
 { #category : #'implicit casting' }
 MbndAstSemanticAnalyzer >> addReceiverImplicitCastFor: nodeRequiringCasting to: expectedTargetType [
+	| sourceType |
+	sourceType := nodeRequiringCasting type. 
+	self assert: sourceType isNotNil.
+	
+	"This is the only special case where it is allowed to implicitly spill value types into non-const references."
+	(expectedTargetType isReferenceType and: [ expectedTargetType isConstantType not]) ifTrue: [
+		(sourceType isReferenceType not and: [ sourceType isTemporaryReferenceType not ]) ifTrue: [
+			sourceType isTypePassedByReference ifTrue: [
+				self halt.
+			] ifFalse: [
+				"Spill the receiver in a temporary."
+				self flag: 'TODO: convert this into a proper conversion rule/node.'.
+				^ self visitNode: ((self astBuilder defineLocalVariable: #_ withValueType: nil withInitialValue: nodeRequiringCasting)
+					position: nodeRequiringCasting;
+					mutable)
+			].
+		].
+	].
 	^ self addImplicitCastFor: nodeRequiringCasting to: expectedTargetType
 ]
 
@@ -1084,6 +1102,9 @@ MbndAstSemanticAnalyzer >> visitGlobalVariableDefinitionNode: node [
 
 		result initialValue: (self analyzeNodeIfNeeded: result initialValue).
 		result valueType: (result initialValue type inferValueTypeForNode: result initialValue inScope: scope).
+		(result isAccessedByReference or: [ result isForwardingValue ]) ifFalse: [ 
+			result valueType: result valueType withoutReferences
+		].
 	].
 
 	"If accessed by reference, make sure an initial value is provided."

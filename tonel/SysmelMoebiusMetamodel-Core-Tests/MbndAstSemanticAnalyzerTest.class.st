@@ -493,7 +493,7 @@ MbndAstSemanticAnalyzerTest >> testCountTwiceFunctionDefinition [
 	
 	self assert: (module globalNamespace lookupSymbol: #countTwice) equals: concreteMethod.
 	self assert: concreteMethod analyzedBody isNotNil.
-	self assert: concreteMethod analyzedBody type isPrimitiveIntegerType.
+	self assert: concreteMethod analyzedBody "lexical scope" expression "implicit return" expression type isPrimitiveIntegerType.
 ]
 
 { #category : #tests }
@@ -902,7 +902,7 @@ MbndAstSemanticAnalyzerTest >> testIdentityFunctionDefinition [
 	
 	self assert: (module globalNamespace lookupSymbol: #identity) equals: concreteMethod.
 	self assert: concreteMethod analyzedBody isNotNil.
-	self assert: concreteMethod analyzedBody type isPrimitiveIntegerType.
+	self assert: concreteMethod analyzedBody "lexical scope" expression "implicit return" expression type isPrimitiveIntegerType.
 ]
 
 { #category : #tests }
@@ -957,7 +957,7 @@ MbndAstSemanticAnalyzerTest >> testIdentityMessageDefinition [
 	concreteMethod ensureSemanticAnalysis.
 	
 	self assert: concreteMethod analyzedBody isNotNil.
-	self assert: concreteMethod analyzedBody type isPrimitiveIntegerType.
+	self assert: concreteMethod analyzedBody "lexical scope" expression "implicit return" expression type isPrimitiveIntegerType.
 ]
 
 { #category : #tests }
@@ -1009,7 +1009,7 @@ MbndAstSemanticAnalyzerTest >> testIdentityTopMacroDefinition [
 	concreteMethod ensureSemanticAnalysis.
 	
 	self assert: concreteMethod analyzedBody isNotNil.
-	self assert: concreteMethod analyzedBody type isASTNodeType.
+	self assert: concreteMethod analyzedBody "lexical scope" expression "implicit return" expression type isASTNodeType.
 ]
 
 { #category : #tests }
@@ -1044,7 +1044,7 @@ MbndAstSemanticAnalyzerTest >> testIfEarlyReturn [
 	concreteMethod := analyzedNode concreteMethod.
 	concreteMethod ensureSemanticAnalysis.
 	
-	self assert: concreteMethod analyzedBody type isPrimitiveIntegerType.
+	self assert: concreteMethod analyzedBody "lexical scope" expression "implicit return" expression type isPrimitiveIntegerType.
 ]
 
 { #category : #tests }
@@ -1491,7 +1491,7 @@ MbndAstSemanticAnalyzerTest >> testMinFunctionDefinition [
 	
 	self assert: (module globalNamespace lookupSymbol: #min) equals: concreteMethod.
 	self assert: concreteMethod analyzedBody isNotNil.
-	self assert: concreteMethod analyzedBody type isPrimitiveIntegerType.
+	self assert: concreteMethod analyzedBody "lexical scope" expression "implicit return" expression type isPrimitiveIntegerType.
 ]
 
 { #category : #tests }
@@ -2048,10 +2048,10 @@ MbndAstSemanticAnalyzerTest >> testStructureMessage [
 	
 	method := structure lookupLocalOverloadedSelector: #value.
 	method ensureSemanticAnalysis.
-	methodBody := method analyzedBody.
+	methodBody := method analyzedBody "lexical scope" expression "implicit return" expression.
 	self assert: methodBody isReferenceLoadNode.
-	self assert: methodBody reference expression isGetFieldReferenceNode.
-	self assert: methodBody reference expression aggregate isVariableReferenceNode.
+	self assert: methodBody reference isGetFieldReferenceNode.
+	self assert: methodBody reference aggregate isVariableReferenceNode.
 ]
 
 { #category : #tests }
@@ -2437,5 +2437,5 @@ MbndAstSemanticAnalyzerTest >> testZeroFunctionDefinition [
 	concreteMethod ensureSemanticAnalysis.
 	
 	self assert: concreteMethod analyzedBody isNotNil.
-	self assert: concreteMethod analyzedBody type isPrimitiveIntegerType.
+	self assert: concreteMethod analyzedBody "lexical scope" expression "implicit return" expression type isPrimitiveIntegerType.
 ]
