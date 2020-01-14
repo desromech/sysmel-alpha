@@ -4808,6 +4808,115 @@ function caller externC() => Void
 ]
 
 { #category : #tests }
+MbndSlovimCodeModuleGeneratorTest >> testNonPODAggregateReturn4 [
+	| function |
+	self
+		evaluateSysmelSource: '
+class Aggregate definition: {
+	method initialize => Void.
+	method finalize => Void.
+	
+	method setFlag => Void.
+	
+	meta method make => SelfType
+		:= SelfType newValue setFlag; yourself.
+}.
+
+function caller externC() => Void
+	:= Aggregate make.
+'
+;
+		generateSSAModule.
+
+	function := ssaModule globalNamed: #'_ZN9Aggregate8__Meta__5.makeENS0_E'.
+	self assert: function isFunction.
+	self assert: function arguments first isStructReturnPointer.
+	self assert: function allInstructionsMnemonics equals: #(
+		(entry (jump))
+		(body (store call call returnVoid))
+	).
+	
+	function := ssaModule globalNamed: #caller.
+	self assert: function isFunction.
+	self assert: function allInstructionsMnemonics equals: #(
+		(entry (alloca alloca store jump))
+		(body (call store load branch))
+		(implicitCleanUpAction (call jump))
+		(implicitCleanUpMerge (returnVoid))
+	).
+]
+
+{ #category : #tests }
+MbndSlovimCodeModuleGeneratorTest >> testNonPODAggregateReturn5 [
+	| function |
+	self
+		evaluateSysmelSource: '
+class Aggregate definition: { 
+	method initialize => Void.
+	method finalize => Void.
+	
+	meta method make => SelfType
+		:= SelfType newValue.
+}.
+
+function caller externC() => Aggregate
+	:= Aggregate make.
+'
+;
+		generateSSAModule.
+
+	function := ssaModule globalNamed: #'_ZN9Aggregate8__Meta__5.makeENS0_E'.
+	self assert: function isFunction.
+	self assert: function arguments first isStructReturnPointer.
+	self assert: function allInstructionsMnemonics equals: #(
+		(entry (jump))
+		(body (store call returnVoid))
+	).
+	
+	function := ssaModule globalNamed: #caller.
+	self assert: function isFunction.
+	self assert: function allInstructionsMnemonics equals: #(
+		(entry (jump))
+		(body (call returnVoid))
+	).
+]
+
+{ #category : #tests }
+MbndSlovimCodeModuleGeneratorTest >> testNonPODAggregateReturn6 [
+	| function |
+	self
+		evaluateSysmelSource: '
+class Aggregate definition: { 
+	method initialize => Void.
+	method finalize => Void.
+}.
+
+function makeAggregate externC() => Aggregate := {
+	return: Aggregate newValue.
+}.
+
+function caller externC() => Aggregate
+	:= makeAggregate().
+';
+		generateSSAModule.
+
+	function := ssaModule globalNamed: #makeAggregate.
+	self assert: function isFunction.
+	self assert: function arguments first isStructReturnPointer.
+	self assert: function allInstructionsMnemonics equals: #(
+		(entry (jump))
+		(body (store call returnVoid))
+	).
+	
+	function := ssaModule globalNamed: #caller.
+	self assert: function isFunction.
+	self assert: function allInstructionsMnemonics equals: #(
+		(entry (jump))
+		(body (call returnVoid))
+	).
+]
+
+{ #category : #tests }
 MbndSlovimCodeModuleGeneratorTest >> testOutputChannelSendInteger [
 	| function |
 	self
@@ -5390,16 +5499,16 @@ function makeRefCountedPtr externC(p: RefCounted pointer) => RefCountedPtr
 	self assert: function isFunction.
 	self deny: function isEmpty.
 	self assert: function allInstructionsMnemonics equals: #(
-		(entry (alloca jump))
-		(body (store call call return))
+		(entry (jump))
+		(body (store call returnVoid))
 	).		
 
 	function := ssaModule globalNamed: #makeRefCountedPtr.
 	self assert: function isFunction.
 	self deny: function isEmpty.
 	self assert: function allInstructionsMnemonics equals: #(
-		(entry (alloca jump))
-		(body (store call call return))
+		(entry (jump))
+		(body (call returnVoid))
 	).
 ]
 
@@ -5418,8 +5527,10 @@ function makeRefCountedPtr externC(p: RefCounted pointer) => Void
 	self assert: function isFunction.
 	self deny: function isEmpty.
 	self assert: function allInstructionsMnemonics equals: #(
-		(entry (alloca jump))
-		(body (store call call call return))
+		(entry (alloca alloca store jump))
+		(body (call store load branch))
+		(implicitCleanUpAction (call jump))
+		(implicitCleanUpMerge (returnVoid))
 	).
 ]
 
@@ -5462,8 +5573,10 @@ function makeRefCountedPtr externC(p: RefCounted pointer) => Void := {
 	self assert: function isFunction.
 	self deny: function isEmpty.
 	self assert: function allInstructionsMnemonics equals: #(
-		(entry (alloca jump))
-		(body (store call call call return))
+		(entry (alloca alloca store jump))
+		(body (call store load branch))
+		(implicitCleanUpAction (call jump))
+		(implicitCleanUpMerge (returnVoid))
 	).
 ]
 

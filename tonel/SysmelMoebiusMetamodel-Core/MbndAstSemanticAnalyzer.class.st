@@ -61,17 +61,6 @@ MbndAstSemanticAnalyzer >> addNodeWithImplicitFinalization: node [
 
 { #category : #'implicit casting' }
 MbndAstSemanticAnalyzer >> addReceiverImplicitCastFor: nodeRequiringCasting to: expectedTargetType [
-	| sourceType temporaryVariable |
-	sourceType := nodeRequiringCasting type.
-	
-	"Aggregate value -> aggregate mutable reference. We need to create a temporary value in this special case."
-	(expectedTargetType isReferenceType and: [ sourceType withoutTopDecorations isReferenceType not ]) ifTrue: [
-		temporaryVariable := (self astBuilder defineLocalVariable: #_ withValueType: nil withInitialValue: nodeRequiringCasting)
-			position: nodeRequiringCasting;
-			mutable.
-		^ self addImplicitCastFor: temporaryVariable to: expectedTargetType
-	].
-
 	^ self addImplicitCastFor: nodeRequiringCasting to: expectedTargetType
 ]
 
@@ -1422,7 +1411,7 @@ MbndAstSemanticAnalyzer >> visitLocalVariableDefinitionNode: node [
 	self assert: valueType isNotNil.
 	
 	result isForwardingValue ifTrue: [
-		result type: valueType tempRef
+		result type: valueType tempRef.
 	] ifFalse: [ 
 		result isMutable ifTrue: [
 			result type: valueType asMutableValueType

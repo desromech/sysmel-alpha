@@ -18,3 +18,11 @@ MbndAstVariableReference >> isSuperReference [
 MbndAstVariableReference >> isVariableReferenceNode [
 	^ true
 ]
+
+{ #category : #'as yet unclassified' }
+MbndAstVariableReference >> markStorageCreationNodeForCopyEllision: storageCreationNode [
+	binding isFunctionLocalVariable ifFalse: [ ^ self ].
+	self flag: 'TODO: Validate whether the storage creation exists before the variable. For now only support the return nodes.'.
+	storageCreationNode isReturnStatementNode ifFalse: [ ^ self ].
+	binding definitionNode markStorageCreationNodeForCopyEllision: storageCreationNode
+]

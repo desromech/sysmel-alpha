@@ -57,10 +57,16 @@ MbndAbstractSpecificMethod >> analyzeExpandedMessageSendNode: node with: analyze
 		method: self;
 		receiver: newReceiverNode;
 		arguments: newArgumentNodes;
-		type: (self returnType asResultTypeWithReceiver: node receiver withArguments: newArgumentNodes );
+		methodReturnType: (self returnType asResultTypeWithReceiver: node receiver withArguments: newArgumentNodes );
 		yourself.
-	result type hasTrivialFinalization ifFalse: [
+	result methodReturnType hasTrivialFinalization ifFalse: [
 		analyzer addNodeWithImplicitFinalization: result
+	].
+
+	"The return type of the node may be different to the actual return type of the method."
+	result type: result methodReturnType.
+	result methodReturnType isMemoryReturnedType ifTrue: [
+		result type: result methodReturnType tempRef
 	].
 	^ result
 ]

@@ -24,6 +24,11 @@ TMbndSymbolBinding >> evaluateLocalDefinition: node withEvaluator: evaluator [
 ]
 
 { #category : #testing }
+TMbndSymbolBinding >> isFunctionLocalVariable [
+	^ false
+]
+
+{ #category : #testing }
 TMbndSymbolBinding >> isMbndSymbolBinding [
 	^ true
 ]

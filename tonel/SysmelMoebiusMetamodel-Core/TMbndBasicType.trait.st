@@ -31,7 +31,7 @@ TMbndBasicType >> analyzeExpandedMessageNode: node with: analyzer [
 TMbndBasicType >> ensureSyntheticMethodExists: aSelector [
 	aSelector = #basicInitialize ifTrue: [^ self basicInitializeMethod ].
 	aSelector = #initialize ifTrue: [^ self initializeMethod ].
-	aSelector = #initializeFromCopy: ifTrue: [^ self initializeFromCopyMethod ].
+	aSelector = #initializeFrom: ifTrue: [^ self initializeFromCopyMethod ].
 	aSelector = #initializeMovingFrom: ifTrue: [^ self initializeMovingFromMethod ].
 	^ nil
 ]

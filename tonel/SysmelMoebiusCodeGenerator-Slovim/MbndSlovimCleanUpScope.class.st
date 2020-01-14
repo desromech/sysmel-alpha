@@ -38,7 +38,7 @@ MbndSlovimCleanUpScope >> implicitFinalizationStateDictionary [
 { #category : #initialization }
 MbndSlovimCleanUpScope >> initialize [
 	super initialize.
-	implicitFinalizationStateDictionary := OrderedDictionary new.
+	implicitFinalizationStateDictionary := LLVMOrderedDictionary new.
 ]
 
 { #category : #accessing }

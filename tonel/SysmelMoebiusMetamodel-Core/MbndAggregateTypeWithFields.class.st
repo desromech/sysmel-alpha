@@ -254,8 +254,7 @@ MbndAggregateTypeWithFields >> hasTrivialInstanceInitializationMovingFrom [
 
 { #category : #'initialize-destroy' }
 MbndAggregateTypeWithFields >> initializeFromCopyMethod [
-	initializeFromCopyMethod ifNil: [ self getOrCreateOptionallyGeneratedMethod: #initializeFrom: ofKind: MbndAggregateInitializeFromCopyMethod argumentTypes: {self asCopyConstructorParameter} ].
-	^ initializeFromCopyMethod
+	^ initializeFromCopyMethod ifNil: [ initializeFromCopyMethod := self getOrCreateOptionallyGeneratedMethod: #initializeFrom: ofKind: MbndAggregateInitializeFromCopyMethod argumentTypes: {self asCopyConstructorParameter} ]
 ]
 
 { #category : #'initialize-destroy' }

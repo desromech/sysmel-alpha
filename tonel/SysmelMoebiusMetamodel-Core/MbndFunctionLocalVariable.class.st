@@ -12,6 +12,11 @@ MbndFunctionLocalVariable >> accept: visitor [
 	^ visitor visitFunctionLocalVariable: self
 ]
 
+{ #category : #testing }
+MbndFunctionLocalVariable >> isFunctionLocalVariable [
+	^ true
+]
+
 { #category : #accessing }
 MbndFunctionLocalVariable >> type [
 	^ type

@@ -91,15 +91,17 @@ MbndSlovimFunctionCodeGenerator >> aggregate: aggregateNode value: aggregateValu
 
 { #category : #visiting }
 MbndSlovimFunctionCodeGenerator >> allocateTemporaryStorageFor: valueType withStorageCreationNode: storageCreationNode [
+	| actualValueType |
+	actualValueType := self sanitizeValueTypeForMemory: valueType.
 	storageCreationNode ifNotNil: [
 		storageCreationNodeVariableMapForCopyEllision at: storageCreationNode ifPresent: [ :ellisionStorage |
 			self assert: ellisionStorage type isPointerType.
-			ellisionStorage type baseType = valueType ifTrue: [ 
+			ellisionStorage type baseType = actualValueType ifTrue: [ 
 				^ ellisionStorage
 			].
 		]
 	].
-	^ slvmBuilder allocaBuilder alloca: valueType
+	^ slvmBuilder allocaBuilder alloca: actualValueType
 ]
 
 { #category : #'as yet unclassified' }
@@ -257,10 +259,8 @@ MbndSlovimFunctionCodeGenerator >> executeScopeCleanUpActions: cleanUpScope [
 
 { #category : #'as yet unclassified' }
 MbndSlovimFunctionCodeGenerator >> executeScopeCleanUpActions: cleanUpScope exceptForTokens: suppressedCleanUpTokens [
-	cleanUpScope implicitFinalizationStateDictionary "valuesDo: crashes" keysDo: [ :token |
-		(token isNotNil and: [(suppressedCleanUpTokens includes: token) not]) ifTrue: [ 
-			| action |
-			action := cleanUpScope implicitFinalizationStateDictionary at: token.
+	cleanUpScope implicitFinalizationStateDictionary valuesDo: [ :action |
+		(suppressedCleanUpTokens includes: action token) ifFalse: [ 
 			self executeImplicitFinalizationAction: action
 		].
 	].
@@ -407,6 +407,13 @@ isSuperSend: isSuperSend declaredMethod: declaredMethod expectedResultType: expe
 { #category : #'as yet unclassified' }
 MbndSlovimFunctionCodeGenerator >> generateCallWithReceiver: receiver receiverType: receiverType selector: selector arguments: arguments
 isSuperSend: isSuperSend declaredMethod: declaredMethod expectedResultType: expectedResultType at: position [
+	^ self generateCallWithReceiver: receiver receiverType: receiverType selector: selector arguments: arguments
+isSuperSend: isSuperSend declaredMethod: declaredMethod expectedResultType: expectedResultType storageCreationNode: nil at: position
+]
+
+{ #category : #'as yet unclassified' }
+MbndSlovimFunctionCodeGenerator >> generateCallWithReceiver: receiver receiverType: receiverType selector: selector arguments: arguments
+isSuperSend: isSuperSend declaredMethod: declaredMethod expectedResultType: expectedResultType storageCreationNode: storageCreationNode at: position [
 	| selectorValue allArguments hasDynamicMessageLookup calledMethodSSAFunction hasStaticBinding vtableLayout vtableSlot vtableEntrySlot result expectedResultSSAType actualReturnType memoryReturnTemporary |
 	selectorValue := selector.
 	expectedResultSSAType := self translateType: expectedResultType.
@@ -423,7 +430,7 @@ isSuperSend: isSuperSend declaredMethod: declaredMethod expectedResultType: expe
 	memoryReturnTemporary := nil.
 	allArguments := Array streamContents: [ :out |
 		expectedResultType isMemoryReturnedType ifTrue: [
-			memoryReturnTemporary := slvmBuilder allocaBuilder alloca: expectedResultSSAType.
+			memoryReturnTemporary := self allocateTemporaryStorageFor: expectedResultSSAType withStorageCreationNode: storageCreationNode.
 			actualReturnType := SLVMType voidType.
 			out nextPut: memoryReturnTemporary
 		].
@@ -605,7 +612,8 @@ MbndSlovimFunctionCodeGenerator >> generateExpandedMessageSendNode: node withDec
 	receiverType := node receiver ifNil: [ self compilationTarget voidType ]
 		ifNotNil: [ node receiver type ].
 	^ self generateCallWithReceiver: receiver receiverType: receiverType withoutReferences selector: selectorValue arguments: arguments
-		isSuperSend: isSuperSend declaredMethod: declaredMethod expectedResultType: node type
+		isSuperSend: isSuperSend declaredMethod: declaredMethod expectedResultType: node methodReturnType
+		storageCreationNode: node storageCreationNode
 		at: node
 ]
 
@@ -669,6 +677,11 @@ MbndSlovimFunctionCodeGenerator >> generateIdentityNotEquals: node [
 
 { #category : #visiting }
 MbndSlovimFunctionCodeGenerator >> generateLocalVariable: localVariable definitionAt: position withInitialValue: initialValue initialValueKind: initialValueKind [
+	^ self generateLocalVariable: localVariable storageCreationNode: nil definitionAt: position withInitialValue: initialValue initialValueKind: initialValueKind
+]
+
+{ #category : #visiting }
+MbndSlovimFunctionCodeGenerator >> generateLocalVariable: localVariable storageCreationNode: storageCreationNode definitionAt: position withInitialValue: initialValue initialValueKind: initialValueKind [
 	| valueType ssaValue |
 	self assert: (functionVariables includesKey: localVariable) not.
 	self assert: initialValue isNotNil.
@@ -686,7 +699,9 @@ MbndSlovimFunctionCodeGenerator >> generateLocalVariable: localVariable definiti
 				]
 			].
 		] ifFalse: [
-			ssaValue := slvmBuilder allocaBuilder alloca: (self sanitizeValueTypeForMemory: valueType).
+			ssaValue := self allocateTemporaryStorageFor: valueType withStorageCreationNode: storageCreationNode.
+			
+			slvmBuilder allocaBuilder alloca: (self sanitizeValueTypeForMemory: valueType).
 			self generateVariable: ssaValue withValueType: localVariable valueType initializationWithValue: initialValue initialValueKind: initialValueKind.
 
 			self isEmittingDebugInformation ifTrue: [ 
@@ -1317,7 +1332,7 @@ MbndSlovimFunctionCodeGenerator >> visitFloatingPointToIntegerCastNode: node [
 
 { #category : #visiting }
 MbndSlovimFunctionCodeGenerator >> visitFunctionCallNode: node [
-	| functionValue argumentValues intrinsicName memoryReturnTemporary expectedResultType result |
+	| functionValue argumentValues intrinsicName memoryReturnTemporary expectedResultSSAType result expectedResultType |
 	functionValue := nil.
 	node function isMethodReferenceNode ifTrue: [ 
 		node function binding pragmaAt: #intrinsic: ifPresent: [ :pragma |
@@ -1330,11 +1345,12 @@ MbndSlovimFunctionCodeGenerator >> visitFunctionCallNode: node [
 
 	functionValue ifNil: [ functionValue := self visitNode: node function ].
 	
-	expectedResultType := self translateType: node type.
+	expectedResultType := node functionReturnType.
+	expectedResultSSAType := self translateType: expectedResultType.
 	memoryReturnTemporary := nil.
 	argumentValues := Array streamContents: [:out |
-		node type isMemoryReturnedType ifTrue: [ 
-			memoryReturnTemporary := slvmBuilder allocaBuilder alloca: expectedResultType.
+		expectedResultType isMemoryReturnedType ifTrue: [ 
+			memoryReturnTemporary := self allocateTemporaryStorageFor: expectedResultSSAType withStorageCreationNode: node storageCreationNode.
 			out nextPut: memoryReturnTemporary
 		].
 
@@ -1346,15 +1362,15 @@ MbndSlovimFunctionCodeGenerator >> visitFunctionCallNode: node [
 	result := slvmBuilder call: functionValue arguments: argumentValues.
 	
 	memoryReturnTemporary ifNotNil: [
-		node type hasTrivialFinalization ifFalse: [
-			self addLocalVariable: memoryReturnTemporary withValueType: node type cleanUpActionForNode: node
+		expectedResultType hasTrivialFinalization ifFalse: [
+			self addLocalVariable: memoryReturnTemporary withValueType: expectedResultType cleanUpActionForNode: node
 		].
 		result := memoryReturnTemporary
 	] ifNil: [
 		"We may need to adjust the result type in the case of dependent types."
-		result type ~~ expectedResultType ifTrue: [ 
-			self assert: (result type isPointerType and: [ expectedResultType isPointerType ]).
-			result := slvmBuilder bitCast: result target: expectedResultType
+		result type ~~ expectedResultSSAType ifTrue: [ 
+			self assert: (result type isPointerType and: [ expectedResultSSAType isPointerType ]).
+			result := slvmBuilder bitCast: result target: expectedResultSSAType
 		].
 	].
 	
@@ -1606,7 +1622,7 @@ MbndSlovimFunctionCodeGenerator >> visitLiteralValueNode: node [
 { #category : #visiting }
 MbndSlovimFunctionCodeGenerator >> visitLocalVariableDefinitionNode: node [
 	self assert: node initialValue isNotNil.
-	^ self generateLocalVariable: node binding definitionAt: node withInitialValue: (self visitNode: node initialValue) initialValueKind: node initialValueKind
+	^ self generateLocalVariable: node binding storageCreationNode: node storageCreationNode definitionAt: node withInitialValue: (self visitNode: node initialValue) initialValueKind: node initialValueKind
 ]
 
 { #category : #visiting }
@@ -1740,7 +1756,7 @@ MbndSlovimFunctionCodeGenerator >> visitReferenceAsPointerNode: node [
 
 { #category : #visiting }
 MbndSlovimFunctionCodeGenerator >> visitReferenceLoadNode: node [
-	| reference |
+	| reference valueType tempVar |
 	reference := self visitNode: node reference.
 	reference isFakeValue ifTrue: [
 		reference isMbndLoadedReferenceValue ifTrue: [ ^ reference value ].
@@ -1748,9 +1764,15 @@ MbndSlovimFunctionCodeGenerator >> visitReferenceLoadNode: node [
 	].
 
 	"Do not load the types that are passed by reference."
+	valueType := node type.
 	node type isTypePassedByReference ifTrue: [
 		node createsImplicitTemporary ifTrue: [
-			self halt
+			tempVar := self allocateTemporaryStorageFor: (self translateType: valueType) withStorageCreationNode: node storageCreationNode.
+			self generateVariable: tempVar withValueType:node type initializationWithValue: reference initialValueKind: #copy.
+			valueType hasTrivialFinalization ifFalse: [
+				self addLocalVariable: tempVar withValueType: valueType cleanUpActionForNode: node
+			].
+			^ tempVar
 		].
 		^ reference
 	].

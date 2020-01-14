@@ -46,10 +46,15 @@ MbndFunctionType >> analyzeFunctionCallNode: node with: analyzer [
 		]
 	].
 
-	node type: returnType.
+	node
+		functionReturnType: returnType;
+		type: returnType.
 	
 	returnType hasTrivialFinalization ifFalse: [
 		analyzer addNodeWithImplicitFinalization: node
+	].
+	returnType isMemoryReturnedType ifTrue: [ 
+		node type: returnType tempRef
 	].
 
 	^ node

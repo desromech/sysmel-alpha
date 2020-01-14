@@ -51,7 +51,7 @@ template IntrusivePointer(PT: Type)
 		pointer_ := pointer
 	}.
 	
-	method initializeFromCopy: (o: SelfType const ref) ::=> Void := {
+	method initializeFrom: (o: SelfType const ref) ::=> Void := {
 		pointer_ := o __private pointer_.
 		if: pointer_ ~~ nil then: {
 			pointer_ _ retain

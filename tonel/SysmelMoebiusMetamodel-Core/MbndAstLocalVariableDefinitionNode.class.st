@@ -1,6 +1,9 @@
 Class {
 	#name : #MbndAstLocalVariableDefinitionNode,
 	#superclass : #MbndAstAbstractVariableDefinitionNode,
+	#instVars : [
+		'storageCreationNode'
+	],
 	#category : #'SysmelMoebiusMetamodel-Core-AST'
 }
 
@@ -12,4 +15,18 @@ MbndAstLocalVariableDefinitionNode >> accept: aVisitor [
 { #category : #testing }
 MbndAstLocalVariableDefinitionNode >> isLocalVariableDefinitionNode [
 	^ true
+]
+
+{ #category : #'as yet unclassified' }
+MbndAstLocalVariableDefinitionNode >> markStorageCreationNodeForCopyEllision: aStorageCreationNode [
+	self assert: type isNotNil.
+	valueType isTemporaryReferenceType ifTrue: [ ^ initialValue markStorageCreationNodeForCopyEllision: aStorageCreationNode ].
+	valueType isTypePassedByReference ifTrue: [
+		storageCreationNode := aStorageCreationNode
+	].
+]
+
+{ #category : #accessing }
+MbndAstLocalVariableDefinitionNode >> storageCreationNode [
+	^ storageCreationNode
 ]
