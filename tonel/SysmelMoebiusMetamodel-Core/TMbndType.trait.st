@@ -91,7 +91,9 @@ TMbndType >> module [
 
 { #category : #'type hierarchy' }
 TMbndType >> subtypeAdded: aSubtype [
-	^ subtypes := (self subtypes copyWithout: aSubtype) copyWith: aSubtype
+	self subtypes ifEmpty: [ subtypes := OrderedCollection new ].
+	subtypes add: aSubtype.
+
 ]
 
 { #category : #'type hierarchy' }
