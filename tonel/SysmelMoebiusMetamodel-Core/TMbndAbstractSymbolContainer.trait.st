@@ -5,7 +5,7 @@ Trait {
 
 { #category : #'overloaded methods' }
 TMbndAbstractSymbolContainer >> createFunctionEntityForPrototype: functionPrototype [
-	^ self createFunctionEntityForPrototype: functionPrototype withReceiverType: self implicitFunctionReceiverType
+	^ self createFunctionEntityForPrototype: functionPrototype withReceiverType: (functionPrototype computeReceiverTypeForEntity: self)
 ]
 
 { #category : #'overloaded methods' }
@@ -103,7 +103,7 @@ TMbndAbstractSymbolContainer >> findOrAddOverloadedFunctionPrototype: functionPr
 		self setLocalSymbol: functionPrototype name value: (self createFunctionEntityForPrototype: functionPrototype)
 	] ifNotNil: [
 		localSymbolDefinition isMethodGroup ifFalse: [
-			(localSymbolDefinition matchesPrototypeNode: functionPrototype withReceiverType: self implicitFunctionReceiverType) ifTrue: [
+			(localSymbolDefinition matchesPrototypeNode: functionPrototype withReceiverType: (functionPrototype computeReceiverTypeForEntity: self)) ifTrue: [
 				functionPrototype concreteMethod: localSymbolDefinition.
 				^ self
 			].
@@ -116,7 +116,7 @@ TMbndAbstractSymbolContainer >> findOrAddOverloadedFunctionPrototype: functionPr
 				addChild: localSymbolDefinition;
 				setLocalSymbol: localSymbolDefinition name value: localSymbolDefinition
 		].
-		(localSymbolDefinition findMatchingPrototypeNode: functionPrototype withReceiverType: self implicitFunctionReceiverType) ifNotNil: [ :existent |
+		(localSymbolDefinition findMatchingPrototypeNode: functionPrototype withReceiverType: (functionPrototype computeReceiverTypeForEntity: self)) ifNotNil: [ :existent |
 			functionPrototype concreteMethod: existent.
 			^ self
 		].
@@ -127,7 +127,7 @@ TMbndAbstractSymbolContainer >> findOrAddOverloadedFunctionPrototype: functionPr
 ]
 
 { #category : #'overloaded methods' }
-TMbndAbstractSymbolContainer >> implicitFunctionReceiverType [
+TMbndAbstractSymbolContainer >> implicitFunctionConstReceiverType [
 	^ self compilationTarget voidType
 ]
 

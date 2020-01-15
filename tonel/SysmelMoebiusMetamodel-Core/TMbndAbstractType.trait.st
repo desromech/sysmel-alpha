@@ -319,6 +319,11 @@ TMbndAbstractType >> asConcreteTypeForAnalysisOfFunctionType: aFunction [
 ]
 
 { #category : #converting }
+TMbndAbstractType >> asConstReceiverType [
+	^ self
+]
+
+{ #category : #converting }
 TMbndAbstractType >> asCopyConstructorParameter [
 	^ self const ref
 ]
@@ -673,8 +678,13 @@ TMbndAbstractType >> hasTrivialInstanceInitializationMovingFrom [
 ]
 
 { #category : #adding }
-TMbndAbstractType >> implicitFunctionReceiverType [
-	^ self asReceiverType
+TMbndAbstractType >> implicitFunctionConstReceiverType [
+	^ self asConstReceiverType
+]
+
+{ #category : #adding }
+TMbndAbstractType >> implicitMethodConstReceiverType [
+	^ self asConstReceiverType
 ]
 
 { #category : #adding }

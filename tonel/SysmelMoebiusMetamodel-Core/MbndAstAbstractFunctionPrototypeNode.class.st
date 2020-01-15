@@ -24,6 +24,14 @@ MbndAstAbstractFunctionPrototypeNode >> arguments: anObject [
 	arguments := anObject
 ]
 
+{ #category : #'as yet unclassified' }
+MbndAstAbstractFunctionPrototypeNode >> computeReceiverTypeForEntity: entity [
+	(self hasFlag: #const) ifTrue: [
+		^ entity implicitMethodConstReceiverType
+	].
+	^ entity implicitMethodReceiverType
+]
+
 { #category : #accessing }
 MbndAstAbstractFunctionPrototypeNode >> concreteMethod [
 	^ concreteMethod

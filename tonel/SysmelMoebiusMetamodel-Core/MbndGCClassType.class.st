@@ -80,6 +80,11 @@ MbndGCClassType >> asCVariadicTypeRequiredAt: position [
 	^ self
 ]
 
+{ #category : #'as yet unclassified' }
+MbndGCClassType >> asConstReceiverType [
+	^ self const
+]
+
 { #category : #converting }
 MbndGCClassType >> asCopyConstructorParameter [
 	^ self

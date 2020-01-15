@@ -306,7 +306,7 @@ MbndAbstractConcreteMethod >> isVirtualTableOverride [
 
 { #category : #'as yet unclassified' }
 MbndAbstractConcreteMethod >> lookupBoundReceiverSymbol: aSymbol [
-	(receiverType withoutReferences lookupSymbol: aSymbol) ifNotNil: [ :receiverSymbol |
+	(receiverType withoutReferences withoutDecorations lookupSymbol: aSymbol) ifNotNil: [ :receiverSymbol |
 		^ receiverSymbol asSymbolBoundWithReceiverBinding: arguments first
 	].
 	

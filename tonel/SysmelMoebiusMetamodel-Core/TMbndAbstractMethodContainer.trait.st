@@ -10,7 +10,7 @@ TMbndAbstractMethodContainer >> addOverloadedMethod: method [
 
 { #category : #adding }
 TMbndAbstractMethodContainer >> addOverloadedMethod: method argumentTypes: argumentTypes returnType: returnType [
-	^ self addOverloadedMethod: method receiverType: self implicitMethodReceiverType argumentTypes: argumentTypes returnType: returnType
+	^ self addOverloadedMethod: method receiverType: (method computeReceiverTypeForEntity: self) argumentTypes: argumentTypes returnType: returnType
 ]
 
 { #category : #adding }
@@ -30,7 +30,7 @@ TMbndAbstractMethodContainer >> addOverloadedMethod: method receiverType: receiv
 
 { #category : #adding }
 TMbndAbstractMethodContainer >> createMethodEntityForPrototype: functionPrototype [
-	^ self createMethodEntityForPrototype: functionPrototype withReceiverType: self implicitMethodReceiverType
+	^ self createMethodEntityForPrototype: functionPrototype withReceiverType: (functionPrototype computeReceiverTypeForEntity: self)
 ]
 
 { #category : #adding }
@@ -60,18 +60,23 @@ TMbndAbstractMethodContainer >> findOrAddOverloadedSelectorPrototype: prototype 
 		self addOverloadedMethod: (self createMethodEntityForPrototype: prototype)
 	] ifNotNil: [ :existent |
 		existent isMethodGroup ifTrue: [
-			(existent findMatchingPrototypeNode: prototype withReceiverType: self implicitMethodReceiverType) ifNotNil: [ :previousDefinition |
+			(existent findMatchingPrototypeNode: prototype withReceiverType: (prototype computeReceiverTypeForEntity: self)) ifNotNil: [ :previousDefinition |
 				prototype concreteMethod: previousDefinition.
 				^ self
 			]
 		] ifFalse: [ 
-			(existent matchesPrototypeNode: prototype withReceiverType: self implicitMethodReceiverType) ifTrue: [
+			(existent matchesPrototypeNode: prototype withReceiverType: (prototype computeReceiverTypeForEntity: self)) ifTrue: [
 				prototype concreteMethod: existent.
 				^ self
 			].
 		].
 		self addOverloadedMethod: (self createMethodEntityForPrototype: prototype)
 	]
+]
+
+{ #category : #adding }
+TMbndAbstractMethodContainer >> implicitMethodConstReceiverType [
+	^ self compilationTarget voidType
 ]
 
 { #category : #adding }

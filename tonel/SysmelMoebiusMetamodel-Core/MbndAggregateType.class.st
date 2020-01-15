@@ -10,6 +10,11 @@ MbndAggregateType class >> typeName [
 ]
 
 { #category : #converting }
+MbndAggregateType >> asConstReceiverType [
+	^ self const ref
+]
+
+{ #category : #converting }
 MbndAggregateType >> asImmutableValueType [
 	^ self const ref
 ]
