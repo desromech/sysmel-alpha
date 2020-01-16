@@ -73,14 +73,6 @@ MbndAbstractVariable >> evaluateLocalDefinition: node withEvaluator: evaluator [
 	^ compileTimeVariable asCompileTimeValueReferenceOfType: node type withEvaluator: evaluator at: node
 ]
 
-{ #category : #accessing }
-MbndAbstractVariable >> getPublicMetaBuilderFactoryList [
-	^ { 
-		#macro . MbndMacroMetaBuilder metaBuilderFactory.
-		#method . MbndMethodMetaBuilder metaBuilderFactory.
-	} ,  self getExtraMetaBuilderFactoryList
-]
-
 { #category : #'as yet unclassified' }
 MbndAbstractVariable >> hasPublicVisibility [
 	^ false

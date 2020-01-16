@@ -383,6 +383,16 @@ MbndSlovimFunctionCodeGenerator >> generateAutomaticInitializationCode [
 ]
 
 { #category : #'as yet unclassified' }
+MbndSlovimFunctionCodeGenerator >> generateAutomaticInitializationFromCopyCode [
+	self flag: 'TODO: Implement this method properly.'.
+]
+
+{ #category : #'as yet unclassified' }
+MbndSlovimFunctionCodeGenerator >> generateAutomaticInitializationMovingFromCode [
+	self flag: 'TODO: Implement this method properly.'.
+]
+
+{ #category : #'as yet unclassified' }
 MbndSlovimFunctionCodeGenerator >> generateAutomaticPrologueCode [
 	concreteMethod ifNil: [ ^ self ].
 	(concreteMethod isMessageMethod and: [ concreteMethod name = #initialize and: [concreteMethod hasExplicitSuperSend not ]]) ifTrue: [

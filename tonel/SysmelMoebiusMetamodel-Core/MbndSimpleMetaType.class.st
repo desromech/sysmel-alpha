@@ -16,6 +16,17 @@ MbndSimpleMetaType >> accept: aVisitor [
 	^ aVisitor visitSimpleMetaType: self
 ]
 
+{ #category : #initialization }
+MbndSimpleMetaType >> addInstanceMacros [
+	self class == MbndSimpleMetaType ifFalse: [ ^ self ].
+	self isTrait ifFalse: [ ^ self ].
+	
+	self
+		onMacroSelectors: #( definition: extend: )do: [ :node :builder |
+			builder programEntity: node receiver extension: node arguments first
+		]
+]
+
 { #category : #accessing }
 MbndSimpleMetaType >> instanceType: anObject [
 	instanceType := anObject.

@@ -31,11 +31,3 @@ MbndAbstractModule >> generateTargetCodeModule [
 	codeGenerator := self compilationTarget newCodeModuleGenerator.
 	^ MbndProfiler component: #irCodeGeneration with: [codeGenerator generateCodeModuleFor: self]
 ]
-
-{ #category : #'as yet unclassified' }
-MbndAbstractModule >> getPublicMetaBuilderFactoryList [
-	^ { 
-		#macro . MbndMacroMetaBuilder metaBuilderFactory.
-		#method . MbndMethodMetaBuilder metaBuilderFactory.
-	} ,  self getExtraMetaBuilderFactoryList
-]

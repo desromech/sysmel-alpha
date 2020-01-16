@@ -584,14 +584,6 @@ TMbndAbstractType >> getExtraMetaBuilderFactoryList [
 	}
 ]
 
-{ #category : #accessing }
-TMbndAbstractType >> getPublicMetaBuilderFactoryList [
-	^ { 
-		#macro . MbndMacroMetaBuilder metaBuilderFactory.
-		#method . MbndMethodMetaBuilder metaBuilderFactory.
-	} ,  self getExtraMetaBuilderFactoryList
-]
-
 { #category : #testing }
 TMbndAbstractType >> hasDynamicMessageLookup [
 	^ false

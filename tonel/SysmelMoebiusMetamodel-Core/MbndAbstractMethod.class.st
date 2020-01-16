@@ -47,14 +47,6 @@ MbndAbstractMethod >> evaluateWithReceiver: receiver arguments: arguments withEv
 	self subclassResponsibility
 ]
 
-{ #category : #'as yet unclassified' }
-MbndAbstractMethod >> getPublicMetaBuilderFactoryList [
-	^ { 
-		#macro . MbndMacroMetaBuilder metaBuilderFactory.
-		#method . MbndMethodMetaBuilder metaBuilderFactory.
-	} ,  self getExtraMetaBuilderFactoryList
-]
-
 { #category : #'semantic analysis' }
 MbndAbstractMethod >> hasExplicitSuperSend [
 	^ self hasFlag: #hasExplicitSuperSend

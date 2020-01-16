@@ -88,14 +88,6 @@ MbndAbstractTemplate >> getOrCreateInstanceWithArguments: arguments [
 	self subclassResponsibility
 ]
 
-{ #category : #accessing }
-MbndAbstractTemplate >> getPublicMetaBuilderFactoryList [
-	^ { 
-		#macro . MbndMacroMetaBuilder metaBuilderFactory.
-		#method . MbndMethodMetaBuilder metaBuilderFactory.
-	} ,  self getExtraMetaBuilderFactoryList
-]
-
 { #category : #initialization }
 MbndAbstractTemplate >> initialize [
 	super initialize.

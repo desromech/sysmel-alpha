@@ -73,7 +73,6 @@ MbndBasicType >> addMetaTypeMacrosTo: metaType [
 	metaType
 		onMacroSelectors: #( definition: extend: )do: [ :node :builder |
 			builder programEntity: node receiver extension: node arguments first
-			
 		];
 		onMacroSelector: #basicNewValue do: [ :node :builder :analyzer |
 			analyzer analyzeNodeIfNeeded: (

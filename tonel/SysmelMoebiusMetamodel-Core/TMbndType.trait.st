@@ -59,14 +59,6 @@ TMbndType >> explicitConversionRules [
 ]
 
 { #category : #accessing }
-TMbndType >> getPublicMetaBuilderFactoryList [
-	^ { 
-		#macro . MbndMacroMetaBuilder metaBuilderFactory.
-		#method . MbndMethodMetaBuilder metaBuilderFactory.
-	} ,  self getExtraMetaBuilderFactoryList
-]
-
-{ #category : #accessing }
 TMbndType >> implicitConversionRules [
 	^ implicitConversionRules ifNil: [ implicitConversionRules := OrderedCollection new ]
 ]
