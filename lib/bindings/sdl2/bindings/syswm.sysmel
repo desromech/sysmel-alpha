@@ -1,0 +1,57 @@
+namespace SDL2 definition: {
+
+compileTimeConstant SDL_SYSWM_TYPE := Int32.
+
+compileTimeConstant SDL_SYSWM_UNKNOWN := 0.
+compileTimeConstant SDL_SYSWM_WINDOWS := 1.
+compileTimeConstant SDL_SYSWM_X11 := 2.
+compileTimeConstant SDL_SYSWM_DIRECTFB := 3.
+compileTimeConstant SDL_SYSWM_COCOA := 4.
+compileTimeConstant SDL_SYSWM_UIKIT := 5.
+compileTimeConstant SDL_SYSWM_WAYLAND := 6.
+compileTimeConstant SDL_SYSWM_MIR := 7.
+compileTimeConstant SDL_SYSWM_WINRT := 8.
+compileTimeConstant SDL_SYSWM_ANDROID := 9.
+compileTimeConstant SDL_SYSWM_VIVANTE := 10.
+compileTimeConstant SDL_SYSWM_OS2 := 11.
+
+struct SDL_SysWMinfo definition: {
+    public field version type: SDL_version.
+    public field subsystem type: SDL_SYSWM_TYPE.
+
+    union Info definition: {
+        struct Win definition: {
+            ## TODO: Use the proper handles.
+            public field window type: Void pointer.
+            public field hdc type: Void pointer.
+            public field hinstance type: Void pointer.
+        }.
+        public field win type: Win.
+
+        struct X11 definition: {
+            ## TODO: Use the proper handles.
+            public field display type: Void pointer.
+            public field window type: Void pointer.
+        }.
+        public field x11 type: X11.
+
+        struct Cocoa definition: {
+            public field window type: Void pointer.
+        }.
+        public field cocoa type: Cocoa.
+
+        struct WL definition: {
+            public field display type: Void pointer.
+            public field surface type: Void pointer.
+            public field shell_surface type: Void pointer.
+        }.
+        public field wl type: WL.
+
+        public field dummy type: Int32.
+    }.
+
+    public field info type: Info.
+}.
+
+function SDL_GetWindowWMInfo externC(window: SDL_Window pointer, info: SDL_SysWMinfo pointer) => Boolean8.
+}. ## End of namespace SDL2

@@ -7,3 +7,5 @@ loadFileOnce: "video.sysmel".
 loadFileOnce: "event.sysmel".
 loadFileOnce: "timer.sysmel".
 loadFileOnce: "renderer.sysmel".
+loadFileOnce: "version.sysmel".
+loadFileOnce: "syswm.sysmel".

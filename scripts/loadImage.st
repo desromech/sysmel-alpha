@@ -1,5 +1,5 @@
 Metacello new
-  baseline: 'Sysmel';
+  baseline: 'SysmelIDE';
   repository: 'gitlocal://tonel';
   load.
 

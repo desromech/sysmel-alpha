@@ -1,0 +1,19 @@
+namespace SDL2 definition: {
+
+compileTimeConstant SDL_MAJOR_VERSION := 2.
+compileTimeConstant SDL_MINOR_VERSION := 0.
+compileTimeConstant SDL_PATCHLEVEL := 9.
+
+struct SDL_version definition: {
+    public field major type: UInt8.
+    public field minor type: UInt8.
+    public field patch type: UInt8.
+
+    inline method setCurrent => Void := {
+        major := SDL_MAJOR_VERSION.
+        minor := SDL_MINOR_VERSION.
+        patch := SDL_PATCHLEVEL.
+    }.
+}.
+
+}. ## End of namespace SDL2
