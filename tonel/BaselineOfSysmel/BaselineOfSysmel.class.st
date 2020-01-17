@@ -8,9 +8,12 @@ Class {
 BaselineOfSysmel >> baseline: spec [
 	<baseline>
 
+	| conditionalDeps |
 	spec for: #common do: [
 		"Omit pp2 from the baseline to avoid Metacello conflicts when loading in GToolkit."
+		conditionalDeps := #().
 		Smalltalk globals at: #PP2CompositeNode ifAbsent: [ 
+			conditionalDeps := { #'PetitParser2Core' }.
 			spec baseline: #'PetitParser2Core' with: [
 					"Pick a stable version of PP2"
 					spec
@@ -24,7 +27,7 @@ BaselineOfSysmel >> baseline: spec [
 					repository: 'github://ronsaldo/abstract-gpu/tonel' ].
 		spec
 			package: #'SysmelMoebiusMetamodel-Core' with: [
-				spec requires: #(#Slovim #PetitParser2Core)
+				spec requires: #(#Slovim)
 			].
 		spec
 			package: #'SysmelMoebiusMetamodel-Core-Tests' with: [
@@ -32,7 +35,7 @@ BaselineOfSysmel >> baseline: spec [
 			].
 		spec
 			package: #'SysmelLanguage-Sysmel' with: [
-				spec requires: #(#PetitParser2Core #'SysmelMoebiusMetamodel-Core')
+				spec requires: conditionalDeps , #(#'SysmelMoebiusMetamodel-Core')
 			].
 		spec
 			package: #'SysmelLanguage-Sysmel-Tests' with: [
