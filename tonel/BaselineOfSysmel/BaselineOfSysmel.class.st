@@ -9,10 +9,13 @@ BaselineOfSysmel >> baseline: spec [
 	<baseline>
 
 	spec for: #common do: [
-		spec baseline: #'PetitParser2Core' with: [
-				"The same PetitParser version that is used by GToolkit"
-				spec
-					repository: 'github://kursjan/petitparser2:9e90d58f71a430f5ed7f2893216990fc5b6a8a43' ].
+		"Omit pp2 from the baseline to avoid Metacello conflicts when loading in GToolkit."
+		Smalltalk globals at: #PP2CompositeNode ifAbsent: [ 
+			spec baseline: #'PetitParser2Core' with: [
+					"Pick a stable version of PP2"
+					spec
+						repository: 'github://kursjan/petitparser2:9e90d58f71a430f5ed7f2893216990fc5b6a8a43' ].
+		].
 		spec baseline: #'Slovim' with: [
 				spec
 					repository: 'github://ronsaldo/slovim/tonel' ].
