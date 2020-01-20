@@ -125,6 +125,16 @@ MbndAbstractScope >> newReturnContextScope [
 ]
 
 { #category : #accessing }
+MbndAbstractScope >> nonLocalReturnType [
+	^ parent ifNotNil: #nonLocalReturnType
+]
+
+{ #category : #accessing }
+MbndAbstractScope >> nonLocalReturnTypeProgramEntity [
+	^ parent ifNotNil: #nonLocalReturnTypeProgramEntity
+]
+
+{ #category : #accessing }
 MbndAbstractScope >> parent [
 	^ parent
 ]

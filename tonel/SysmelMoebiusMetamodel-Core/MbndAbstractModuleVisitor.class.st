@@ -87,6 +87,11 @@ MbndAbstractModuleVisitor >> visitFunctionArgumentVariable: variable [
 ]
 
 { #category : #visiting }
+MbndAbstractModuleVisitor >> visitFunctionCapturedVariable: variable [
+	self subclassResponsibility
+]
+
+{ #category : #visiting }
 MbndAbstractModuleVisitor >> visitFunctionGroup: functionGroup [
 	self subclassResponsibility
 ]

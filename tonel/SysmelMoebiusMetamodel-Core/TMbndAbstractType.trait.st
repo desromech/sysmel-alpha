@@ -817,12 +817,22 @@ TMbndAbstractType >> isFunctionalType [
 ]
 
 { #category : #'testing methods' }
+TMbndAbstractType >> isGCBlockClosureType [
+	^ false
+]
+
+{ #category : #'testing methods' }
 TMbndAbstractType >> isGCClassType [
 	^ false
 ]
 
 { #category : #'testing methods' }
 TMbndAbstractType >> isGCClassVariableDataArrayType [
+	^ false
+]
+
+{ #category : #'testing methods' }
+TMbndAbstractType >> isGarbageCollectedType [
 	^ false
 ]
 
@@ -953,6 +963,11 @@ TMbndAbstractType >> isMethodTemplateType [
 
 { #category : #'testing methods' }
 TMbndAbstractType >> isNamespaceType [
+	^ false
+]
+
+{ #category : #'testing methods' }
+TMbndAbstractType >> isNativeBlockClosureType [
 	^ false
 ]
 

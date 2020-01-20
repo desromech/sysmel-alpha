@@ -206,6 +206,11 @@ MbndGCClassType >> isGCClassType [
 ]
 
 { #category : #testing }
+MbndGCClassType >> isGarbageCollectedType [
+	^ true
+]
+
+{ #category : #testing }
 MbndGCClassType >> isMemoryReturnedType [
 	^ false
 ]

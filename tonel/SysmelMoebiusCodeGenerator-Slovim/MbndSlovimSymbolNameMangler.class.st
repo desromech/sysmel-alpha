@@ -351,9 +351,9 @@ MbndSlovimSymbolNameMangler >> mangleProgramEntityQualifiedContentName: programE
 
 { #category : #visiting }
 MbndSlovimSymbolNameMangler >> mangleType: type [
-	type isGCClassType ifTrue: [ output nextPut: $P ].
+	type isGarbageCollectedType ifTrue: [ output nextPut: $P ].
 	self mangleProgramEntityContentName: type.
-	type isGCClassType ifTrue: [ self recordNewSubstitutionElement: { #pointer . type } ].
+	type isGarbageCollectedType ifTrue: [ self recordNewSubstitutionElement: { #pointer . type } ].
 
 ]
 

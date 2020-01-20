@@ -352,6 +352,7 @@ MbndCompilationTargetTest >> testGCClassType [
 	classType2 := compilationTarget createNamedType: #Test ofKind: MbndGCClassType.
 	self assert: classType isAbstractClassType.
 	self assert: classType isGCClassType.
+	self assert: classType isGarbageCollectedType.
 	self assert: classType2 isAbstractClassType.
 	self assert: classType2 isGCClassType.
 	self assert: classType ~~ classType2
@@ -723,6 +724,19 @@ MbndCompilationTargetTest >> testMetaType [
 MbndCompilationTargetTest >> testMethodTemplateType [
 	self assert: compilationTarget methodTemplateType isTemplateType.
 	self assert: compilationTarget methodTemplateType isMethodTemplateType.
+]
+
+{ #category : #'basic types' }
+MbndCompilationTargetTest >> testNativeBlockClosureType [
+	| type argumentTypes returnType |
+	argumentTypes := {compilationTarget uint8Type . compilationTarget float32Type}.
+	returnType := compilationTarget voidType.
+	type := compilationTarget nativeBlockClosureTypeWithArguments: argumentTypes returnType: returnType.
+	self assert: type isFunctionalType.
+	self assert: type isBlockClosureType.
+	self assert: type isNativeBlockClosureType.
+	self assert: type argumentTypes equals: argumentTypes.
+	self assert: type returnType equals: returnType.
 ]
 
 { #category : #'basic types' }

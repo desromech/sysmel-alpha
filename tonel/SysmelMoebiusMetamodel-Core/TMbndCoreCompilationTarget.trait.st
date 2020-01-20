@@ -27,7 +27,8 @@ Trait {
 		'samplerImplementationType',
 		'systemProvidedTypeTemplates',
 		'defaultGCClassSuperClass',
-		'temporaryReferenceTypes'
+		'temporaryReferenceTypes',
+		'nativeBlockClosureTypes'
 	],
 	#traits : 'TMbndAbstractCompilationTarget',
 	#classTraits : 'TMbndAbstractCompilationTarget classTrait',
@@ -106,6 +107,11 @@ TMbndCoreCompilationTarget >> arrayOf: elementType elements: elementCount [
 TMbndCoreCompilationTarget >> associationKey: keyType value: valueType [
 	(keyType isLiteralValueType or: [ valueType isLiteralValueType ]) ifTrue: [ ^ self literalAssociationType ].
 	^ associationTypes getOrCreateInstanceWithArguments: { keyType . valueType }
+]
+
+{ #category : #'derived types' }
+TMbndCoreCompilationTarget >> blockClosureTypeWithArguments: argumentTypes returnType: returnType [
+	^ (self functionTypeWithArguments: argumentTypes returnType: returnType) asGCBlockClosureType
 ]
 
 { #category : #'derived types' }
@@ -677,7 +683,16 @@ TMbndCoreCompilationTarget >> initializeDerivedTypeCaches [
 	blockClosureTypes := self createSystemProvidedTypeTemplate: #_BlockClosureTypeTemplate
 		argumentNames: #(FunctionType)
 		doing: [ :functionType |
-			(self ensureBasicTypeIsLinkedToTheHierarchy: MbndBlockClosureType basicNew)
+			(self ensureBasicTypeIsLinkedToTheHierarchy: MbndAbstractBlockClosureType basicNew)
+				functionType: functionType;
+				initializeNonTraitType;
+				yourself.
+	].
+
+	nativeBlockClosureTypes := self createSystemProvidedTypeTemplate: #_NativeBlockClosureTypeTemplate
+		argumentNames: #(FunctionType)
+		doing: [ :functionType |
+			(self ensureBasicTypeIsLinkedToTheHierarchy: MbndNativeBlockClosureType basicNew)
 				functionType: functionType;
 				initializeNonTraitType;
 				yourself.
@@ -917,6 +932,11 @@ TMbndCoreCompilationTarget >> managedObjectModel [
 { #category : #'as yet unclassified' }
 TMbndCoreCompilationTarget >> managedObjectModelClass [
 	^ MbndGenericManagedObjectModel
+]
+
+{ #category : #'derived types' }
+TMbndCoreCompilationTarget >> nativeBlockClosureTypeWithSignature: functionType [
+	^ nativeBlockClosureTypes getOrCreateInstanceWithArguments: { functionType }
 ]
 
 { #category : #'instance creation' }

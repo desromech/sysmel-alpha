@@ -15,6 +15,17 @@ MbndAstAbstractFunctionDefinitionNode >> arguments [
 	^ prototype arguments
 ]
 
+{ #category : #converting }
+MbndAstAbstractFunctionDefinitionNode >> asBlockClosureNode [
+	^ MbndAstBlockClosureNode new
+		position: self;
+		isBlockWithNonLocalReturn: false;
+		arguments: prototype arguments;
+		returnType: prototype returnType;
+		body: body;
+		yourself
+]
+
 { #category : #accessing }
 MbndAstAbstractFunctionDefinitionNode >> body [
 	^ body

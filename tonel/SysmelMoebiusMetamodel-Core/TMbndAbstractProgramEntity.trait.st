@@ -58,6 +58,11 @@ TMbndAbstractProgramEntity >> hasPublicVisibility [
 ]
 
 { #category : #testing }
+TMbndAbstractProgramEntity >> isAbstractSpecificMethod [
+	^ false
+]
+
+{ #category : #testing }
 TMbndAbstractProgramEntity >> isBlockClosureMethod [
 	^ false
 ]
@@ -125,6 +130,11 @@ TMbndAbstractProgramEntity >> isMethod [
 { #category : #testing }
 TMbndAbstractProgramEntity >> isNamespace [
 	^ false
+]
+
+{ #category : #testing }
+TMbndAbstractProgramEntity >> isNonLocalReturnTargetEntity [
+	^ true
 ]
 
 { #category : #testing }

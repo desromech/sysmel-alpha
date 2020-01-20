@@ -72,8 +72,13 @@ MbndFunctionType >> argumentTypes: anObject [
 ]
 
 { #category : #'as yet unclassified' }
-MbndFunctionType >> asBlockClosureType [
+MbndFunctionType >> asGCBlockClosureType [
 	^ self compilationTarget blockClosureTypeWithSignature: self
+]
+
+{ #category : #'as yet unclassified' }
+MbndFunctionType >> asNativeBlockClosureType [
+	^ self compilationTarget nativeBlockClosureTypeWithSignature: self
 ]
 
 { #category : #accessing }
@@ -98,6 +103,12 @@ MbndFunctionType >> cvariadic: anObject [
 	cvariadic := anObject
 ]
 
+{ #category : #'as yet unclassified' }
+MbndFunctionType >> gcBlockClosure [
+	<compileTime>
+	^ self asGCBlockClosureType 
+]
+
 { #category : #initialization }
 MbndFunctionType >> initialize [
 	super initialize.
@@ -119,6 +130,18 @@ MbndFunctionType >> isFunctionType [
 { #category : #'testing methods' }
 MbndFunctionType >> isPossibleToLoadReferences [
 	^ false
+]
+
+{ #category : #'as yet unclassified' }
+MbndFunctionType >> nativeBlockClosure [
+	<compileTime>
+	^ self asNativeBlockClosureType 
+]
+
+{ #category : #'as yet unclassified' }
+MbndFunctionType >> nativeStackBlockClosure [
+	<compileTime>
+	^ self asNativeBlockClosureType 
 ]
 
 { #category : #'as yet unclassified' }

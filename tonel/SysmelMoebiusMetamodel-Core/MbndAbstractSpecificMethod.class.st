@@ -107,6 +107,18 @@ MbndAbstractSpecificMethod >> computeMatchingCostWithArguments: callArguments re
 	^ coercionCost
 ]
 
+{ #category : #'as yet unclassified' }
+MbndAbstractSpecificMethod >> getOrCreateCapturedVariableDefinition: capturedVariable [
+	"At the end, just return the captured variable definition."
+	self assert: capturedVariable parent == self.
+	^ capturedVariable
+]
+
+{ #category : #testing }
+MbndAbstractSpecificMethod >> isAbstractSpecificMethod [
+	^ true
+]
+
 { #category : #testing }
 MbndAbstractSpecificMethod >> isDefinition [
 	^ false

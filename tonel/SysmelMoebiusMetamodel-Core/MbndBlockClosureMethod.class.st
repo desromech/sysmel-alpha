@@ -5,7 +5,10 @@ Class {
 		'definitionPosition',
 		'analyzedNode',
 		'arguments',
-		'children'
+		'children',
+		'needsGarbageCollection',
+		'capturedVariables',
+		'capturedVariableMap'
 	],
 	#category : #'SysmelMoebiusMetamodel-Core-Method'
 }
@@ -21,6 +24,21 @@ MbndBlockClosureMethod >> addChild: aChild [
 	children add: aChild.
 ]
 
+{ #category : #'as yet unclassified' }
+MbndBlockClosureMethod >> analyzeReferenceNode: referenceNode toCapturedVariable: capturedVariableOriginalDefinition with: analyzer [
+	| capturedVariable |
+	capturedVariable := self getOrCreateCapturedVariableDefinition: capturedVariableOriginalDefinition.
+	^ MbndAstVariableReference new
+		binding: capturedVariable;
+		position: referenceNode;
+		yourself
+]
+
+{ #category : #accessing }
+MbndBlockClosureMethod >> analyzedBody [
+	^ analyzedNode body
+]
+
 { #category : #accessing }
 MbndBlockClosureMethod >> analyzedNode [
 	^ analyzedNode
@@ -34,6 +52,33 @@ MbndBlockClosureMethod >> analyzedNode: anObject [
 { #category : #accessing }
 MbndBlockClosureMethod >> arguments [
 	^ arguments
+]
+
+{ #category : #accessing }
+MbndBlockClosureMethod >> capturedVariables [
+	^ capturedVariables
+]
+
+{ #category : #'as yet unclassified' }
+MbndBlockClosureMethod >> computeGarbageCollectionNeed [
+	needsGarbageCollection := boundType returnType isGarbageCollectedType.
+	needsGarbageCollection ifTrue: [ ^ self ].
+
+	boundType argumentTypes do: [ :arg |
+		arg isGarbageCollectedType ifTrue: [ 
+			needsGarbageCollection := true.
+			^ self.
+		].
+	].
+
+	capturedVariables do: [ :capturedVariable |
+		capturedVariable type isGarbageCollectedType ifTrue: [ 
+			needsGarbageCollection := true.
+			^ self
+		].
+	].
+
+	self flag: 'TODO: Check the captured variables.'
 ]
 
 { #category : #'as yet unclassified' }
@@ -89,10 +134,28 @@ MbndBlockClosureMethod >> definitionPosition: anObject [
 	definitionPosition := anObject
 ]
 
+{ #category : #'as yet unclassified' }
+MbndBlockClosureMethod >> getOrCreateCapturedVariableDefinition: originalVariable [
+	originalVariable parent == self ifTrue: [ ^ super getOrCreateCapturedVariableDefinition: originalVariable ].
+	^ capturedVariableMap at: originalVariable ifAbsentPut: [ 
+		| parentVar capturedVariable |
+		parentVar := parent getOrCreateCapturedVariableDefinition: originalVariable.
+		capturedVariable := MbndFunctionCapturedVariable new
+			name: parentVar name;
+			upperContextVariable: parentVar;
+			yourself.
+		self addChild: capturedVariable.
+		capturedVariables add: capturedVariable.
+		capturedVariable
+	].
+]
+
 { #category : #adding }
 MbndBlockClosureMethod >> initialize [
 	super initialize.
 	children := OrderedCollection new.
+	capturedVariables := OrderedCollection new.
+	capturedVariableMap := IdentityDictionary new.
 ]
 
 { #category : #'as yet unclassified' }
@@ -105,9 +168,27 @@ MbndBlockClosureMethod >> isBlockClosureWithImmediateActivation [
 	^ self hasFlag: #hasImmediateActivation
 ]
 
+{ #category : #testing }
+MbndBlockClosureMethod >> isNonLocalReturnTargetEntity [
+	^ self hasFlag: #nonLocalReturnTarget
+]
+
 { #category : #'as yet unclassified' }
 MbndBlockClosureMethod >> makeBlockClosureWithImmediateActivation [
-	^ self addFlag: #hasImmediateActivation
+	self addFlag: #hasImmediateActivation.
+	self assert: self analyzedBody expression isReturnStatementNode.
+	self analyzedBody expression isInImmediatelyActivatedClosure: true
+]
+
+{ #category : #accessing }
+MbndBlockClosureMethod >> needsGarbageCollection [
+	needsGarbageCollection ifNil: [ self computeGarbageCollectionNeed ].
+	^ needsGarbageCollection
+]
+
+{ #category : #initialization }
+MbndBlockClosureMethod >> setNonLocalReturnTarget: aBoolean [
+	self setFlag: #nonLocalReturnTarget value: aBoolean
 ]
 
 { #category : #accessing }

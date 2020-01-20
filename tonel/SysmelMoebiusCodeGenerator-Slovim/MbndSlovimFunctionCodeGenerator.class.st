@@ -105,6 +105,31 @@ MbndSlovimFunctionCodeGenerator >> allocateTemporaryStorageFor: valueType withSt
 ]
 
 { #category : #'as yet unclassified' }
+MbndSlovimFunctionCodeGenerator >> buildSSAClosure: ssaClosureDefinition definitionWith: blockClosureMethod [
+	(self setupSSAFunction: ssaClosureDefinition definitionWithMethod: blockClosureMethod) ifTrue: [ ^ self ].
+	
+	"Generate the body code."
+	self visitNode: concreteMethod analyzedBody.
+
+	"Semantic analysis introduces an implicit return, so this should be always a terminator."
+	self assert: slvmBuilder currentBlock isLastTerminator.
+	self assert: concreteMethod analyzedBody type isReturnType.
+
+	"Initialize the required clean up action states in the alloca block."
+	self initializeCleanUpActionStates.
+	
+	"Jump from the alloca block into the body."
+	slvmBuilder allocaBuilder jump: ssaFunctionBodyBlock.
+	
+	"concreteMethod requiresCompiledMethodMetadata ifTrue: [
+		ssaFunction
+			addRequiredDynamicLiteral: concreteMethod selectorRequiredLiteral;
+			addRequiredDynamicLiteral: concreteMethod classBindingLiteral;
+			hasSelectorAndClassBinding: true
+	]."
+]
+
+{ #category : #'as yet unclassified' }
 MbndSlovimFunctionCodeGenerator >> buildSSAFunction: aSSAFunction at: sourcePosition withCodeGenerationBlock: codeGenerationBlock [
 	ssaFunction := aSSAFunction.
 	functionVariables := Dictionary new.
@@ -211,6 +236,17 @@ MbndSlovimFunctionCodeGenerator >> defineArgumentValues [
 		].
 	
 		argIndex := argIndex + 1
+	].
+
+]
+
+{ #category : #'as yet unclassified' }
+MbndSlovimFunctionCodeGenerator >> defineCapturedVariables [
+	| capturedValue |
+	concreteMethod isBlockClosureMethod ifFalse: [ ^ self ].
+	concreteMethod capturedVariables do: [ :variable |
+		capturedValue := ssaFunction createClosureCaptureOfType: (self translateType: variable type).
+		functionVariables at: variable put: capturedValue
 	].
 
 ]
@@ -1018,6 +1054,9 @@ MbndSlovimFunctionCodeGenerator >> setupSSAFunction: aSSAFunction definitionWith
 			(self generateMethodBodyForIntrinsic: pragma arguments first value) ifTrue: [ ^ true ]
 		].
 	].
+
+	"Define the captured variables."
+	self defineCapturedVariables.
 	
 	"Define the argument values."
 	self defineArgumentValues.
@@ -1091,8 +1130,12 @@ MbndSlovimFunctionCodeGenerator >> visitBitCastNode: node [
 
 { #category : #visiting }
 MbndSlovimFunctionCodeGenerator >> visitBlockClosureNode: node [
+	| closureDefinition captures closureInstance |
 	self assert: node isBlockClosureWithImmediateActivation not.
-	self halt
+	closureDefinition := (self translateProgramEntity: node blockClosureProgramEntity) ssaValue.
+	captures := node blockClosureProgramEntity capturedVariables collect: [ :var | functionVariables at: var upperContextVariable ].
+	closureInstance := slvmBuilder instantiateClosure: closureDefinition captures: captures.
+	^ slvmBuilder bitCast: closureInstance target: (self translateType: node type)
 ]
 
 { #category : #visiting }
@@ -1352,7 +1395,7 @@ MbndSlovimFunctionCodeGenerator >> visitFloatingPointToIntegerCastNode: node [
 
 { #category : #visiting }
 MbndSlovimFunctionCodeGenerator >> visitFunctionCallNode: node [
-	| functionValue argumentValues intrinsicName memoryReturnTemporary expectedResultSSAType result expectedResultType |
+	| functionValue argumentValues intrinsicName memoryReturnTemporary expectedResultSSAType result expectedResultType hiddenReceiverArgument |
 	functionValue := nil.
 	node function isMethodReferenceNode ifTrue: [ 
 		node function binding pragmaAt: #intrinsic: ifPresent: [ :pragma |
@@ -1363,7 +1406,19 @@ MbndSlovimFunctionCodeGenerator >> visitFunctionCallNode: node [
 		].
 	].
 
-	functionValue ifNil: [ functionValue := self visitNode: node function ].
+	hiddenReceiverArgument := nil.
+	functionValue ifNil: [
+		functionValue := self visitNode: node function.
+		node function type isBlockClosureType ifTrue: [ 
+			node function type isNativeBlockClosureType ifTrue: [ 
+				hiddenReceiverArgument := slvmBuilder bitCast: functionValue target: self slvmCompilationTarget voidPointerType.
+				functionValue := slvmBuilder load: (slvmBuilder getReference: functionValue element: (slvmBuilder constInt: 1)).
+			] ifFalse: [ 
+				self assert: node function type isGCBlockClosureType.
+				self halt
+			].
+		].
+	].
 	
 	expectedResultType := node functionReturnType.
 	expectedResultSSAType := self translateType: expectedResultType.
@@ -1372,6 +1427,10 @@ MbndSlovimFunctionCodeGenerator >> visitFunctionCallNode: node [
 		expectedResultType isMemoryReturnedType ifTrue: [ 
 			memoryReturnTemporary := self allocateTemporaryStorageFor: expectedResultSSAType withStorageCreationNode: node storageCreationNode.
 			out nextPut: memoryReturnTemporary
+		].
+	
+		hiddenReceiverArgument ifNotNil: [ 
+			out nextPut: hiddenReceiverArgument.
 		].
 
 		node arguments do: [:arg |
@@ -1589,6 +1648,11 @@ MbndSlovimFunctionCodeGenerator >> visitImmediateBlockClosureActivationNode: nod
 	blockProgramEntity := node blockNode blockClosureProgramEntity.
 	self assert: blockProgramEntity isBlockClosureWithImmediateActivation.
 	
+	"Set the block closure captured variables."
+	blockProgramEntity capturedVariables do: [ :var |
+		functionVariables at: var put: (functionVariables at: var upperContextVariable)
+	].
+	
 	"Set the block closure argument values."
 	blockProgramEntity arguments doWithIndex: [ :argumentVariable :index |
 		functionVariables at: argumentVariable put: (argumentValues at: index)
@@ -1631,7 +1695,7 @@ MbndSlovimFunctionCodeGenerator >> visitLexicalScopeNode: node [
 
 { #category : #visiting }
 MbndSlovimFunctionCodeGenerator >> visitLiteralValueNode: node [
-	node type isGCClassType ifTrue: [
+	node type isGarbageCollectedType ifTrue: [
 		| dynamicLiteral |
 		dynamicLiteral := slvmBuilder addDynamicLiteral: node value.
 		^ slvmBuilder bitCast: dynamicLiteral target: (self translateType: node type)
@@ -1805,6 +1869,10 @@ MbndSlovimFunctionCodeGenerator >> visitReferenceLoadNode: node [
 { #category : #visiting }
 MbndSlovimFunctionCodeGenerator >> visitReturnStatementNode: node [
 	| result suppresedCleanUpTokens |
+	(node implicitReturn and: [ node isInImmediatelyActivatedClosure ]) ifTrue: [
+		^ node expression ifNotNil: [ :expr | ^ self visitNode: expr ]
+	].
+
 	concreteMethod returnType isMemoryReturnedType ifTrue: [
 		self setStorageCreationNode: node variableForCopyEllision: ssaFunction arguments first
 	].

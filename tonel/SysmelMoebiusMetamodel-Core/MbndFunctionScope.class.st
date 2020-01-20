@@ -15,6 +15,18 @@ MbndFunctionScope >> lookupFunctionProgramEntity [
 ]
 
 { #category : #accessing }
+MbndFunctionScope >> nonLocalReturnType [
+	(parent isNil or: [programEntity isNonLocalReturnTargetEntity]) ifTrue: [ ^ self returnType ].
+	^ parent nonLocalReturnType
+]
+
+{ #category : #accessing }
+MbndFunctionScope >> nonLocalReturnTypeProgramEntity [
+	(parent isNil or: [programEntity isNonLocalReturnTargetEntity]) ifTrue: [ ^ self returnTypeProgramEntity ].
+	^ parent nonLocalReturnTypeProgramEntity 
+]
+
+{ #category : #accessing }
 MbndFunctionScope >> returnType [
 	^ programEntity returnType
 ]

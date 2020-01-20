@@ -35,7 +35,7 @@ TMbndFlagContainer >> hasFlag: aFlags [
 
 { #category : #flags }
 TMbndFlagContainer >> removeFlag: aFlag [
-	flags := flags copyWithout: aFlag
+	flags := self flags copyWithout: aFlag
 ]
 
 { #category : #flags }

@@ -757,7 +757,7 @@ MbndSlovimCodeModuleGenerator >> translateTypeInfoDefinition: type [
 	ssaTypeInfoType := self translateType: metaType.
 
 	(sourceModule hasRuntimeTypeInformation not or: [self slvmCompilationTarget isGPU ]) ifTrue: [
-		self assert: type isGCClassType not.
+		self assert: type isGarbageCollectedType not.
 		ssaTypeInfo := SLVMConstant nullPointer: ssaTypeInfoType.
 		self setProgramEntity: type ssaValue: ssaTypeInfo.
 		^ ssaTypeInfo
@@ -908,6 +908,29 @@ MbndSlovimCodeModuleGenerator >> visitAggregateTypeWithFields: type [
 ]
 
 { #category : #visiting }
+MbndSlovimCodeModuleGenerator >> visitBlockClosureMethod: blockClosureMethod [
+	| ssaFunctionType ssaClosureDefinition |
+	ssaFunctionType := self translateType: blockClosureMethod type functionType.
+	
+	ssaClosureDefinition := SLVMClosureDefinition module: ssaModule functionType: ssaFunctionType.
+	ssaClosureDefinition kind: (blockClosureMethod needsGarbageCollection ifTrue: [ #gc ] ifFalse: [#nativeStack]).
+	self setProgramEntity: blockClosureMethod ssaValue: ssaClosureDefinition.
+
+	self isEmittingDebugInformation ifTrue: [
+		"ssaFunction
+			debugInformation: (self translateProgramEntityDebugInformation: functionMethod);
+			debugType: (self translateDebugType: functionMethod type);
+			debugSourceLocation: (self convertDebugPosition: functionMethod definitionPosition asActualSourcePosition)"
+	].
+
+	self createFunctionCodeGenerator
+			buildSSAClosure: ssaClosureDefinition definitionWith: blockClosureMethod.
+	
+	^ ssaClosureDefinition
+
+]
+
+{ #category : #visiting }
 MbndSlovimCodeModuleGenerator >> visitClassType: type [
 	^ self visitAggregateTypeWithFields: type
 ]
@@ -1046,6 +1069,18 @@ MbndSlovimCodeModuleGenerator >> visitEnumType: type [
 
 { #category : #visiting }
 MbndSlovimCodeModuleGenerator >> visitFieldVariable: field [
+	^ nil
+]
+
+{ #category : #visiting }
+MbndSlovimCodeModuleGenerator >> visitFunctionArgumentVariable: variable [
+	"For now we will just ignore this here"
+	^ nil
+]
+
+{ #category : #visiting }
+MbndSlovimCodeModuleGenerator >> visitFunctionCapturedVariable: variable [
+	"For now we will just ignore this here"
 	^ nil
 ]
 

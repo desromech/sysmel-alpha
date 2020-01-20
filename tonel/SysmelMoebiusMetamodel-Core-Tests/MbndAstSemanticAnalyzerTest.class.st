@@ -219,6 +219,7 @@ MbndAstSemanticAnalyzerTest >> testBlockClosure [
 	analyzedNode := visitor visitNode: node.
 	self assert: analyzedNode isBlockClosureNode.
 	self assert: analyzedNode type isBlockClosureType.
+	self assert: analyzedNode type isNativeBlockClosureType.
 	self assert: analyzedNode type argumentTypes size equals: 1.
 	self assert: analyzedNode type argumentTypes first isPrimitiveIntegerType.
 	self assert: analyzedNode type returnType isPrimitiveIntegerType.

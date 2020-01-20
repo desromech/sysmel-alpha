@@ -40,7 +40,7 @@ MbndArrayType >> addInstanceMacros [
 
 { #category : #converting }
 MbndArrayType >> asFieldTypeFor: owner [
-	(owner isGCClassType and: [ elements = 0 ]) ifTrue: [
+	(owner isGarbageCollectedType and: [ elements = 0 ]) ifTrue: [
 		^ self compilationTarget gcClassVariableDataArrayOf: elementType
 	].
 	^ self

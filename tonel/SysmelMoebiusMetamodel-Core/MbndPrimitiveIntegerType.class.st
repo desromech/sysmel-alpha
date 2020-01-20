@@ -67,7 +67,7 @@ MbndPrimitiveIntegerType >> analyzeReinterpretCastNode: node to: targetType with
 	| undecoratedTargetType |
 	undecoratedTargetType := targetType withoutTopDecorations.
 	
-	(undecoratedTargetType isPointerType or: [undecoratedTargetType isGCClassType]) ifTrue: [
+	(undecoratedTargetType isPointerType or: [undecoratedTargetType isGarbageCollectedType]) ifTrue: [
 		^ analyzer visitNode: (MbndAstIntegerToPointerCastNode new
 			position: node;
 			expression: node expression;

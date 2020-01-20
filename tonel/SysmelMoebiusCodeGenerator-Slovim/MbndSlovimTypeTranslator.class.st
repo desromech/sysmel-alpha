@@ -145,6 +145,11 @@ MbndSlovimTypeTranslator >> visitFunctionType: functionType [
 ]
 
 { #category : #visiting }
+MbndSlovimTypeTranslator >> visitGCBlockClosureType: type [
+	self halt
+]
+
+{ #category : #visiting }
 MbndSlovimTypeTranslator >> visitGCClassType: structureType [
 	^ self translateAggregateType: structureType
 
@@ -168,6 +173,16 @@ MbndSlovimTypeTranslator >> visitInputChannelType: type [
 	codeModuleGenerator compilationTarget inputChannelImplementationType ifNotNil: [ :targetType | ^ self translateType: type ].
 	codeModuleGenerator compilationTarget dynamicObjectType ifNotNil: [ :targetType | ^ self translateType: type ].
 	^ self slvmCompilationTarget dynamicObjectType
+]
+
+{ #category : #visiting }
+MbndSlovimTypeTranslator >> visitNativeBlockClosureType: type [
+	| headerType functionPointerType |
+	headerType := self slvmCompilationTarget objectModel closureHeaderTypeForKind: #nativeStack.
+	self assert: headerType isNotNil.
+	functionPointerType := self translateType: type functionTypeWithGenericClosurePointer pointer.
+	
+	^ self slvmCompilationTarget pointerTo: (SLVMStructureType name: nil types: { headerType . functionPointerType } kind: SLVMStructureType genericKind names: #(vtable functionPointer))
 ]
 
 { #category : #visiting }

@@ -2,6 +2,7 @@ Class {
 	#name : #MbndAstBlockClosureNode,
 	#superclass : #MbndAstNode,
 	#instVars : [
+		'isBlockWithNonLocalReturn',
 		'arguments',
 		'returnType',
 		'body',
@@ -60,9 +61,30 @@ MbndAstBlockClosureNode >> body: anObject [
 	body := anObject
 ]
 
+{ #category : #initialization }
+MbndAstBlockClosureNode >> initialize [
+	super initialize.
+	isBlockWithNonLocalReturn := true.
+]
+
 { #category : #'as yet unclassified' }
 MbndAstBlockClosureNode >> isBlockClosureNode [
 	^ true
+]
+
+{ #category : #testing }
+MbndAstBlockClosureNode >> isBlockClosureWithImmediateActivation [
+	^ blockClosureProgramEntity isBlockClosureWithImmediateActivation
+]
+
+{ #category : #accessing }
+MbndAstBlockClosureNode >> isBlockWithNonLocalReturn [
+	^ isBlockWithNonLocalReturn
+]
+
+{ #category : #accessing }
+MbndAstBlockClosureNode >> isBlockWithNonLocalReturn: anObject [
+	isBlockWithNonLocalReturn := anObject
 ]
 
 { #category : #accessing }

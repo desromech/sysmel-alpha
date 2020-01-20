@@ -16,7 +16,8 @@ Class {
 		'int64ToIntegerFunction',
 		'int32ToIntegerFunction',
 		'uint32ToCharacterFunction',
-		'float64ToFloatFunction'
+		'float64ToFloatFunction',
+		'nativeClosureHeaderType'
 	],
 	#category : #'SysmelMoebiusCodeGenerator-Slovim-CompilationTarget'
 }
@@ -39,6 +40,20 @@ MbndSlovimObjectModel >> associationValueOffset [
 { #category : #accessing }
 MbndSlovimObjectModel >> classVariableClass [
 	^ managedObjectModel classVariableClass
+]
+
+{ #category : #'as yet unclassified' }
+MbndSlovimObjectModel >> closureHeaderTypeForKind: kind [
+	kind == #nativeStack ifTrue: [ 
+		^ self nativeClosureHeaderType
+	].
+
+	kind == #gc ifTrue: [ 
+		self halt
+	].
+
+	self error: 'Unsupported closure header type.'
+
 ]
 
 { #category : #'as yet unclassified' }
@@ -258,6 +273,11 @@ MbndSlovimObjectModel >> int64ToIntegerFunction [
 	^ int64ToIntegerFunction ifNil: [int64ToIntegerFunction := (moduleCodeGenerator translateProgramEntity: managedObjectModel int64ToIntegerFunction) ssaValue ]
 ]
 
+{ #category : #testing }
+MbndSlovimObjectModel >> isClosureKindAllocatedInTheStack: kind [
+	^ kind = #nativeStack
+]
+
 { #category : #accessing }
 MbndSlovimObjectModel >> managedObjectModel [
 	^ managedObjectModel
@@ -282,6 +302,11 @@ MbndSlovimObjectModel >> moduleCodeGenerator [
 { #category : #accessing }
 MbndSlovimObjectModel >> moduleCodeGenerator: anObject [
 	moduleCodeGenerator := anObject
+]
+
+{ #category : #'as yet unclassified' }
+MbndSlovimObjectModel >> nativeClosureHeaderType [
+	^ nativeClosureHeaderType ifNil: [ nativeClosureHeaderType := target voidPointerPointerType ]
 ]
 
 { #category : #accessing }

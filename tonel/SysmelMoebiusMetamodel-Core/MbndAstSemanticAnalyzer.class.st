@@ -571,7 +571,7 @@ MbndAstSemanticAnalyzer >> visitAssociationNode: node [
 
 { #category : #visiting }
 MbndAstSemanticAnalyzer >> visitBlockClosureNode: node [
-	| result bodyScope resultType blockClosureEntity owner |
+	| result bodyScope resultType blockClosureEntity owner functionType needsGC preprocessedBody |
 	result := node copy.
 	result
 		arguments: (self visitNodesAndCollect: result arguments);
@@ -584,29 +584,34 @@ MbndAstSemanticAnalyzer >> visitBlockClosureNode: node [
 		parent: owner;
 		definitionPosition: result;
 		analyzedNode: result;
+		setNonLocalReturnTarget: node isBlockWithNonLocalReturn not;
 		defineArguments.
 	result blockClosureProgramEntity: blockClosureEntity.
+	
+	blockClosureEntity boundType: (self compilationTarget functionTypeWithArguments: (blockClosureEntity arguments collect: #type as: Array) returnType: result returnType).
+
 
 	bodyScope := blockClosureEntity createSemanticAnalysisScopeWithParent: scope.
+	
+	preprocessedBody := result body.
+	(preprocessedBody isLexicalScopeNode and: [ preprocessedBody expression isReturnStatementNode ]) ifFalse: [
+		preprocessedBody := (MbndAstReturnStatementNode new
+			position: preprocessedBody;
+			implicitReturn: true;
+			expression: preprocessedBody) lexicallyScoped
+	].
 	
 	"Add the argument to the scope."
 	self withScope: bodyScope do: [
 		"Analyze the body"
-		result body: (self visitNode: result body).
-		
-		"Infer the return type."
-		resultType := result body type.
-		result returnType ifNil: [
-			result returnType: (resultType inferValueTypeForNode: result body inScope: scope)
-		].
-	
-		"Cast the implicit return value."
-		resultType isReturnType ifFalse: [
-			result body: (self addImplicitCastFor: result body to: result returnType)
-		].
+		result body: (self visitNode: preprocessedBody).
 	].
 
-	blockClosureEntity type: (self compilationTarget blockClosureTypeWithArguments: (blockClosureEntity arguments collect: #type) returnType: result returnType).
+	functionType := blockClosureEntity boundType.
+	needsGC := blockClosureEntity needsGarbageCollection.
+	
+	blockClosureEntity type: (needsGC ifTrue: [ functionType asGCBlockClosureType ] ifFalse: [
+		functionType asNativeBlockClosureType]).
 	result type: blockClosureEntity type.
 
 	owner addPrivateChild: blockClosureEntity.
@@ -946,6 +951,10 @@ MbndAstSemanticAnalyzer >> visitFieldDefinitionNode: node [
 { #category : #visiting }
 MbndAstSemanticAnalyzer >> visitFunctionDefinitionNode: node [
 	| result |
+	scope isInFunctionScope ifTrue: [ 
+		^ self analyzeNodeIfNeeded: node asBlockClosureNode
+	].
+
 	result := node copy.
 	result prototype: (self analyzeNodeIfNeeded: result prototype).
 	result concreteMethod definitionNode ifNil: [ 
@@ -965,6 +974,10 @@ MbndAstSemanticAnalyzer >> visitFunctionDefinitionNode: node [
 { #category : #visiting }
 MbndAstSemanticAnalyzer >> visitFunctionPrototypeNode: node [
 	| result |
+	scope isInFunctionScope ifTrue: [ 
+		self error: 'Function prototypes are not valid inside other functions or methods.' at: node.
+	].
+
 	result := node copy.
 	result arguments: (self visitNodesAndCollect: result arguments).
 	result returnType ifNil: [
@@ -1037,7 +1050,7 @@ MbndAstSemanticAnalyzer >> visitGetFieldReferenceNode: node [
 		yourself.
 	aggregateType := result aggregate type withoutReferences withoutDecorations.
 	self assert: aggregateType isAggregateType.
-	aggregateType isGCClassType ifTrue: [
+	aggregateType isGarbageCollectedType ifTrue: [
 		result aggregate: (self ensureReferencesAreEvaluated: result aggregate)
 	].
 
@@ -1054,7 +1067,7 @@ MbndAstSemanticAnalyzer >> visitGetFieldValueNode: node [
 		yourself.
 	aggregateType := result aggregate type withoutReferences.
 	self assert: aggregateType isAggregateType.
-	aggregateType isGCClassType ifTrue: [
+	aggregateType isGarbageCollectedType ifTrue: [
 		result aggregate: (self ensureReferencesAreEvaluated: result aggregate)
 	].
 
@@ -1065,7 +1078,7 @@ MbndAstSemanticAnalyzer >> visitGetFieldValueNode: node [
 
 { #category : #visiting }
 MbndAstSemanticAnalyzer >> visitGetGCVariableDataArraySizeNode: node [
-	| result arrayType elementType containerType container |
+	| result containerType container |
 	result := node copy
 		container: (self analyzeNodeIfNeeded: node container);
 		yourself.
@@ -1077,7 +1090,7 @@ MbndAstSemanticAnalyzer >> visitGetGCVariableDataArraySizeNode: node [
 
 	container := result container aggregate.
 	containerType := container type withoutReferences withoutTopDecorations.
-	containerType isGCClassType ifFalse: [
+	containerType isGarbageCollectedType ifFalse: [
 		self error: 'A GC class must be the owner of the GC class variable data.' at: node
 	].
 	
@@ -1670,6 +1683,10 @@ MbndAstSemanticAnalyzer >> visitMatrixMultiplicationOperationNode: node [
 { #category : #visiting }
 MbndAstSemanticAnalyzer >> visitMessageDefinitionNode: node [
 	| result |
+	scope isInFunctionScope ifTrue: [ 
+		^ self analyzeNodeIfNeeded: node asBlockClosureNode
+	].
+
 	result := node copy.
 	result prototype: (self analyzeNodeIfNeeded: result prototype).
 	result concreteMethod definitionNode ifNil: [ 
@@ -1689,6 +1706,10 @@ MbndAstSemanticAnalyzer >> visitMessageDefinitionNode: node [
 { #category : #visiting }
 MbndAstSemanticAnalyzer >> visitMessagePrototypeNode: node [
 	| result |
+	scope isInFunctionScope ifTrue: [ 
+		self error: 'Method prototypes are not valid inside other functions or methods.' at: node.
+	].
+
 	result := node copy.
 	result arguments: (self visitNodesAndCollect: result arguments).
 	result returnType ifNil: [
@@ -1881,14 +1902,22 @@ MbndAstSemanticAnalyzer >> visitReinterpretCastNode: node [
 
 { #category : #visiting }
 MbndAstSemanticAnalyzer >> visitReturnStatementNode: node [
-	| result |
+	| result expectedReturnType returnTypeProgramEntity |
 	result := node copy
 		expression: (self analyzeNodeIfNeeded: node expression);
 		type: self compilationTarget returnType.
 
 	result expression type isReturnType ifTrue: [ ^ result ].
 	
-	scope returnType ifNotNil: [ :expectedReturnType |
+	node implicitReturn ifTrue: [
+		expectedReturnType := scope returnType.
+		returnTypeProgramEntity := scope returnTypeProgramEntity.
+	] ifFalse: [
+		expectedReturnType := scope nonLocalReturnType.
+		returnTypeProgramEntity := scope nonLocalReturnTypeProgramEntity.
+	].
+	
+	expectedReturnType ifNotNil: [
 		result expression: (self addImplicitCastFor: result expression to: (expectedReturnType asConcreteTypeForAnalysisOfFunction: scope returnTypeProgramEntity)).
 		
 		expectedReturnType isMemoryReturnedType ifTrue: [
@@ -1979,7 +2008,7 @@ MbndAstSemanticAnalyzer >> visitSetFieldValueNode: node [
 	].
 	aggregateType := aggregateType withoutTopDecorations.
 	self assert: aggregateType isAggregateType.
-	aggregateType isGCClassType ifTrue: [
+	aggregateType isGarbageCollectedType ifTrue: [
 		result aggregate: (self ensureReferencesAreEvaluated: result aggregate)
 	].
 	

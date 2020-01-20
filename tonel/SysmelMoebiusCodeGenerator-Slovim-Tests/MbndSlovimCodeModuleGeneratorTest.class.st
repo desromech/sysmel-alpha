@@ -794,6 +794,83 @@ MbndSlovimCodeModuleGeneratorTest >> testCStringCFunction [
 ]
 
 { #category : #tests }
+MbndSlovimCodeModuleGeneratorTest >> testCallWithNativeBlockClosure [
+	| function |
+	self
+		evaluateSysmelSource: '
+function calledWithNativeBlockClosure externC(f: (Void => Int32) nativeStackBlockClosure) => Int32
+	:= f().
+
+function callWithNativeBlockClosure externC(v: Int32) => Int32
+	:= calledWithNativeBlockClosure(function () => Int32 := v).
+';
+		generateSSAModule.
+
+	function := ssaModule globalNamed: #calledWithNativeBlockClosure.
+	self assert: function allInstructionsMnemonics equals: #(
+		(entry (jump))
+		(body (
+			bitcast
+			getElementPointer
+			load
+			call
+			return
+		))
+	).
+	
+	function := ssaModule globalNamed: #callWithNativeBlockClosure.
+	self assert: function allInstructionsMnemonics equals: #(
+		(entry (jump))
+		(body (
+			instantiateClosure
+			bitcast 
+			call
+			return
+		))
+	).
+
+]
+
+{ #category : #tests }
+MbndSlovimCodeModuleGeneratorTest >> testCallWithNativeBlockClosure2 [
+	| function |
+	self
+		evaluateSysmelSource: '
+function calledWithNativeBlockClosure externC(f: (Void => Int32) nativeStackBlockClosure) => Int32
+	:= f().
+
+function callWithNativeBlockClosure externC(v: Int32) => Int32
+	:= calledWithNativeBlockClosure({ :: Int32 | v }).
+';
+		generateSSAModule.
+
+	function := ssaModule globalNamed: #calledWithNativeBlockClosure.
+	self assert: function allInstructionsMnemonics equals: #(
+		(entry (jump))
+		(body (
+			bitcast
+			getElementPointer
+			load
+			call
+			return
+		))
+
+	).
+	
+	function := ssaModule globalNamed: #callWithNativeBlockClosure.
+	self assert: function allInstructionsMnemonics equals: #(
+		(entry (jump))
+		(body (
+			instantiateClosure
+			bitcast 
+			call
+			return
+		))
+	).
+
+]
+
+{ #category : #tests }
 MbndSlovimCodeModuleGeneratorTest >> testCharacterToDynamicObject [
 	| function |
 	self

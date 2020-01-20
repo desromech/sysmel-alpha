@@ -3,7 +3,8 @@ Class {
 	#superclass : #MbndAstStatementNode,
 	#instVars : [
 		'expression',
-		'implicitReturn'
+		'implicitReturn',
+		'isInImmediatelyActivatedClosure'
 	],
 	#category : #'SysmelMoebiusMetamodel-Core-AST'
 }
@@ -37,6 +38,17 @@ MbndAstReturnStatementNode >> implicitReturn: anObject [
 MbndAstReturnStatementNode >> initialize [
 	super initialize.
 	implicitReturn := false.
+	isInImmediatelyActivatedClosure := false.
+]
+
+{ #category : #accessing }
+MbndAstReturnStatementNode >> isInImmediatelyActivatedClosure [
+	^ isInImmediatelyActivatedClosure
+]
+
+{ #category : #accessing }
+MbndAstReturnStatementNode >> isInImmediatelyActivatedClosure: anObject [
+	isInImmediatelyActivatedClosure := anObject
 ]
 
 { #category : #testing }

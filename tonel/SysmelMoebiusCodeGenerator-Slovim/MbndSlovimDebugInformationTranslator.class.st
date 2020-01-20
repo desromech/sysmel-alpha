@@ -140,7 +140,7 @@ MbndSlovimDebugInformationTranslator >> translateParentScope: parentScope [
 	| debugScope |
 	debugScope := self translateProgramEntityDebugInformation: parentScope.
 	parentScope isMbndType ifTrue: [ 
-		parentScope isGCClassType ifTrue: [ 
+		parentScope isGarbageCollectedType ifTrue: [ 
 			self assert: debugScope isDebugDerivedType.
 			^ debugScope baseType.
 		].

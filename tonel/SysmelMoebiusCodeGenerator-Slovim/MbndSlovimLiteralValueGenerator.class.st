@@ -13,7 +13,7 @@ Class {
 MbndSlovimLiteralValueGenerator >> ensureValidSSALiteralValue: convertedLiteralValue ofType: literalType [
 	| expectedTargetType |
 	(convertedLiteralValue isSLVMObject and: [ convertedLiteralValue isSSAValue ]) ifTrue: [
-		literalType isGCClassType ifTrue: [ 
+		literalType isGarbageCollectedType ifTrue: [ 
 			expectedTargetType := self translateType: literalType.
 			convertedLiteralValue type ~~ literalType type ifTrue: [ 
 				convertedLiteralValue isFunction ifTrue: [ 
@@ -28,7 +28,7 @@ MbndSlovimLiteralValueGenerator >> ensureValidSSALiteralValue: convertedLiteralV
 		^ self ensureValidSSALiteralValue: (self translateProgramEntity: convertedLiteralValue) ssaValue ofType: literalType
 	].
 
-	self assert: literalType isGCClassType.
+	self assert: literalType isGarbageCollectedType.
 	^ self ensureValidSSALiteralValue: (self slvmCompilationTarget objectModel convertDynamicLiteralToConstant: convertedLiteralValue) ofType: literalType
 ]
 
@@ -71,7 +71,7 @@ MbndSlovimLiteralValueGenerator >> translateTypeInfoContent: targetType [
 	| metaType |
 	metaType := targetType type.
 	literalValue := targetType.
-	targetType isGCClassType ifTrue: [ 
+	targetType isGarbageCollectedType ifTrue: [ 
 		literalValue := targetType asInstanceObjectForTypeInfoGeneration.
 		^ self visitAggregateType: metaType
 	].
@@ -89,7 +89,7 @@ MbndSlovimLiteralValueGenerator >> visitAggregateType: type [
 	].
 
 	slvmType := codeModuleGenerator translateType: type.
-	type isGCClassType ifTrue: [ slvmType := slvmType baseType ].
+	type isGarbageCollectedType ifTrue: [ slvmType := slvmType baseType ].
 	
 	hasBiggerArrayAtTheEnd := false.
 	convertedSlots doWithIndex: [ :convertedSlot :index |

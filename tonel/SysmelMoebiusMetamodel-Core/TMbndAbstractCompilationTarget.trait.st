@@ -15,7 +15,7 @@ TMbndAbstractCompilationTarget >> astNodeType [
 
 { #category : #'derived types' }
 TMbndAbstractCompilationTarget >> blockClosureTypeWithArguments: argumentTypes returnType: returnType [
-	^ (self functionTypeWithArguments: argumentTypes returnType: returnType) asBlockClosureType
+	^ (self functionTypeWithArguments: argumentTypes returnType: returnType) asGCBlockClosureType
 ]
 
 { #category : #'derived types' }
@@ -411,6 +411,16 @@ TMbndAbstractCompilationTarget >> methodTemplateType [
 { #category : #'convenience type accessors' }
 TMbndAbstractCompilationTarget >> namespaceType [
 	^ self getBasicTypeNamed: MbndNamespaceType typeName
+]
+
+{ #category : #'derived types' }
+TMbndAbstractCompilationTarget >> nativeBlockClosureTypeWithArguments: argumentTypes returnType: returnType [
+	^ (self functionTypeWithArguments: argumentTypes returnType: returnType) asNativeBlockClosureType
+]
+
+{ #category : #'derived types' }
+TMbndAbstractCompilationTarget >> nativeBlockClosureTypeWithSignature: functionType [
+	self explicitRequirement
 ]
 
 { #category : #'convenience type accessors' }

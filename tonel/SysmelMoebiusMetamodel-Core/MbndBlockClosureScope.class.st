@@ -1,5 +1,5 @@
 Class {
 	#name : #MbndBlockClosureScope,
-	#superclass : #MbndAbstractClosureScope,
+	#superclass : #MbndFunctionScope,
 	#category : #'SysmelMoebiusMetamodel-Core-Scope'
 }
