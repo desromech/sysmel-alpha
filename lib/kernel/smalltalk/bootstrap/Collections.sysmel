@@ -1,0 +1,19 @@
+namespace Smalltalk definition: {
+SequenceableCollection definition: {
+	#*method do: aBlock := {
+		1 to: self size do: {:i :: Void|
+			aBlock value: (self at: i)
+		}.
+	}.*#
+}.
+
+Array definition: {
+	method do: aBlock := {
+		0 until: __data size do: {:(UIntPointer)i :: Void|
+			aBlock value: __data[i]
+		}.
+		self
+	}.
+}.
+
+}.

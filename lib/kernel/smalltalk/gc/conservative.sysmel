@@ -25,7 +25,7 @@ class SysmelGC definition: {
 
         ## Allocate the object memory.
         let allocatedObject := BoehmGC GC_malloc(objectSize) reinterpretCastTo: _ObjectHeader pointer.
-        LibC memset(allocatedObject, 0, objectSize).
+        StdNative memset(allocatedObject, 0, objectSize).
 
         ## Set the allocated object class.
         allocatedObject value
@@ -36,6 +36,20 @@ class SysmelGC definition: {
 
         return: allocatedObject
     }.
+
+	method allocate: (instanceSize: UIntPointer) instanceAlignment: (instanceAligment: UIntPointer)
+		copyingFromPrototype: (prototype: Void pointer)
+		  ::=> _ObjectHeader pointer := {
+		<nogc>
+
+        ## Allocate the object memory.
+        let allocatedObject := BoehmGC GC_malloc(instanceSize) reinterpretCastTo: _ObjectHeader pointer.
+
+		## Copy the data from the prototype
+        StdNative memcpy(allocatedObject, prototype, instanceSize).
+
+        return: allocatedObject
+	}.
 }.
 
 global globalSysmelGC mutable type: SysmelGC; constructionPriority: -1000.
