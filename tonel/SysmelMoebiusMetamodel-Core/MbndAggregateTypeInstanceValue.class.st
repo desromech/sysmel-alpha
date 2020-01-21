@@ -79,6 +79,13 @@ MbndAggregateTypeInstanceValue >> resizeTo: newSize at: aPosition [
 ]
 
 { #category : #accessing }
+MbndAggregateTypeInstanceValue >> setField: fieldName ifExistsWith: newValueBlock [
+	(type slotLayout findFirstFieldNamed: fieldName) ifNotNil: [:field |
+		field evaluateSetAggregate: self value: (newValueBlock value asMoebiusValueWithTarget: self compilationTarget)
+	]
+]
+
+{ #category : #accessing }
 MbndAggregateTypeInstanceValue >> setField: fieldName value: newFieldValue [
 	^ (type slotLayout findFirstFieldNamed: fieldName) evaluateSetAggregate: self value: (newFieldValue asMoebiusValueWithTarget: self compilationTarget)
 ]

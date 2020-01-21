@@ -981,18 +981,21 @@ MbndSlovimCodeModuleGenerator >> visitAggregateTypeWithFields: type [
 
 { #category : #visiting }
 MbndSlovimCodeModuleGenerator >> visitBlockClosureMethod: blockClosureMethod [
-	| ssaFunctionType ssaClosureDefinition csymbol unmangledName |
+	| ssaFunctionType ssaClosureDefinition csymbol unmangledName kind normalFunctionType |
 	ssaFunctionType := self translateType: blockClosureMethod type functionType.
 	
 	csymbol := self csymbolForProgramEntity: blockClosureMethod.
 	unmangledName := self unmangledNameForProgramEntity: blockClosureMethod.
 
+	kind := (blockClosureMethod needsGarbageCollection ifTrue: [ #gc ] ifFalse: [#nativeStack]).
+	normalFunctionType := blockClosureMethod boundType prependArguments: {blockClosureMethod type}.
+
 	ssaClosureDefinition := SLVMClosureDefinition module: ssaModule functionType: ssaFunctionType.
 	ssaClosureDefinition
-		kind: (blockClosureMethod needsGarbageCollection ifTrue: [ #gc ] ifFalse: [#nativeStack]);
+		kind: kind;
 		name: csymbol;
 		unmangledName: unmangledName;
-		propertyAt: #mbndFunctionType put: blockClosureMethod boundType;
+		propertyAt: #mbndFunctionType put: normalFunctionType;
 		propertyAt: #mbndProgramEntity put: blockClosureMethod.
 	self setProgramEntity: blockClosureMethod ssaValue: ssaClosureDefinition.
 

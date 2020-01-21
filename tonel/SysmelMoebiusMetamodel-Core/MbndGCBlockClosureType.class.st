@@ -29,6 +29,11 @@ MbndGCBlockClosureType >> isGCBlockClosureType [
 	^ true
 ]
 
+{ #category : #'testing methods' }
+MbndGCBlockClosureType >> isGarbageCollectedType [
+	^ true
+]
+
 { #category : #printing }
 MbndGCBlockClosureType >> printOn: aStream [
 	name ifNotNil: [ ^ super printOn: aStream ].

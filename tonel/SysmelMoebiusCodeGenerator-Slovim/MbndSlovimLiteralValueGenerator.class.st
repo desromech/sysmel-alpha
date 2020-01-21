@@ -101,7 +101,7 @@ MbndSlovimLiteralValueGenerator >> visitAggregateType: type [
 			[slotType isArrayType and:
 			[expectedType isArrayType and:
 			[slotType baseType = expectedType baseType and:
-			[slotType elements > expectedType validElements ]]]]) ifTrue: [
+			[slotType elements >= expectedType validElements ]]]]) ifTrue: [
 				hasBiggerArrayAtTheEnd := true
 			] ifFalse: [
 				self error: 'Invalid aggregate literal value with mismatching slot types.'

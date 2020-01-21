@@ -111,15 +111,17 @@ MbndGCClassType >> asInstanceObjectForTypeInfoGeneration [
 		variableDataType := fields last valueType elementType.
 	].
 
-	result
+	^ result
 		setField: #superclass value: self superclass;
 		setField: #methodDict value: self methodDictionaryInstanceObject;
 		setField: #basicInitializeFunctionPointer value: self basicInitializeMethod;
 		setField: #instanceDataSize value: self instanceDataSize;
 		setField: #instanceDataAlignment value: self instanceDataAlignment;
 		setField: #variableInstanceElementSize value: (variableDataType ifNil: [ 0 ] ifNotNil: [variableDataType instanceSize]);
-		setField: #variableInstanceElementAlignment value: (variableDataType ifNil: [ 1 ] ifNotNil: [variableDataType instanceAlignment]).
-	^ result
+		setField: #variableInstanceElementAlignment value: (variableDataType ifNil: [ 1 ] ifNotNil: [variableDataType instanceAlignment]);
+		setField: #name ifExistsWith: [ name ];
+		setField: #subclasses ifExistsWith: [ (self subtypes select: #isGCClassType) asArray ];
+		yourself
 ]
 
 { #category : #converting }

@@ -22,7 +22,8 @@ Class {
 		'gcBlockClosureAllocationFunction',
 		'gcBlockClosureHeaderConstant',
 		'gcBlockClosureHeaderNumArgsSlotIndex',
-		'gcBlockClosureHeaderDynamicCallAdapterSlotIndex'
+		'gcBlockClosureHeaderDynamicCallAdapterSlotIndex',
+		'dynamicObjectType'
 	],
 	#category : #'SysmelMoebiusCodeGenerator-Slovim-CompilationTarget'
 }
@@ -88,7 +89,7 @@ MbndSlovimObjectModel >> constructClosurePrototypeFor: closureDefinition [
 			);
 			at: numArgsSlotIndex put:
 			((header slots at: numArgsSlotIndex) copy
-				value: mbndFunctionType argumentTypes size).
+				value: mbndFunctionType argumentTypes size - "closure pointer" 1).
 		prototype slots at: 1 put: header.
 	].
 
@@ -239,6 +240,11 @@ MbndSlovimObjectModel >> createSymbolObjectInstance: symbol [
 
 ]
 
+{ #category : #'as yet unclassified' }
+MbndSlovimObjectModel >> dynamicObjectType [
+	^ dynamicObjectType ifNil: [ dynamicObjectType := moduleCodeGenerator translateType: (moduleCodeGenerator compilationTarget dynamicObjectType) ]
+]
+
 { #category : #'literal conversion' }
 MbndSlovimObjectModel >> encodeInlineLiteral: literal [
 	literal == true ifTrue: [ ^ self trueLiteralValue ].
@@ -322,6 +328,14 @@ MbndSlovimObjectModel >> gcrootIntrinsic [
 { #category : #converting }
 MbndSlovimObjectModel >> generateIdentityHash [
 	^ moduleCodeGenerator generateIdentityHash
+]
+
+{ #category : #'as yet unclassified' }
+MbndSlovimObjectModel >> genericClosurePointerForKind: kind [
+	kind = #gc ifTrue: [
+		^ self dynamicObjectType
+	].
+	^ super genericClosurePointerForKind: kind
 ]
 
 { #category : #accessing }

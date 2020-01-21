@@ -11,6 +11,13 @@ MbndGCClassMetaType class >> typeName [
 	^ #_GCClassMetaType
 ]
 
+{ #category : #converting }
+MbndGCClassMetaType >> asInstanceObjectForTypeInfoGeneration [
+	^ super asInstanceObjectForTypeInfoGeneration
+		setField: #thisClass ifExistsWith: [ instanceType ];
+		yourself
+]
+
 { #category : #accessing }
 MbndGCClassMetaType >> instanceType: anObject [
 	instanceType := anObject.
