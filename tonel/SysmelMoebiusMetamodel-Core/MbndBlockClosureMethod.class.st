@@ -123,6 +123,11 @@ MbndBlockClosureMethod >> defineArguments [
 		self defineArgument: argument
 	].
 
+	arguments doWithIndex: [ :arg :index |
+		arg argumentIndex: index
+	].
+
+
 ]
 
 { #category : #accessing }

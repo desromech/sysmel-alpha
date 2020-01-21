@@ -352,9 +352,12 @@ MbndSlovimDebugInformationTranslator >> visitEnumType: enumType [
 
 { #category : #visiting }
 MbndSlovimDebugInformationTranslator >> visitFunctionArgumentVariable: argumentVariable [
+	| argumentIndex |
+	argumentIndex := argumentVariable argumentIndex.
+	argumentVariable isBlockClosureWithImmediateActivation ifTrue: [ argumentIndex := nil ].
 	^ (SLVMDebugVariable scope: nil name: argumentVariable name asPrettySymbolName)
 		type: (self translateDebugType: argumentVariable valueType);
-		argumentIndex: argumentVariable argumentIndex;
+		argumentIndex: argumentIndex;
 		yourself.
 ]
 
