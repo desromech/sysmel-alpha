@@ -206,7 +206,7 @@ MbndSlovimDebugInformationTranslator >> visitArrayType: arrayType [
 
 { #category : #visiting }
 MbndSlovimDebugInformationTranslator >> visitBlockClosureMethod: blockClosureMethod [
-	self deny: blockClosureMethod isBlockClosureWithImmediateActivation.
+	self assert: blockClosureMethod isBlockClosureWithImmediateActivation not.
 	self halt
 ]
 

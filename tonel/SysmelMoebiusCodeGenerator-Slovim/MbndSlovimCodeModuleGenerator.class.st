@@ -16,7 +16,8 @@ Class {
 		'convertedShaderIOFields',
 		'generatedNameTable',
 		'debugTypeTranslator',
-		'symbolNameManglerPrototype'
+		'symbolNameManglerPrototype',
+		'dynamicFunctionCallsAdapters'
 	],
 	#classVars : [
 		'ShaderBuiltInLocationMap'
@@ -235,6 +236,37 @@ MbndSlovimCodeModuleGenerator >> fetchShader: functionMethod inputsOfType: input
 	]
 ]
 
+{ #category : #visiting }
+MbndSlovimCodeModuleGenerator >> generateAnonCompilerGeneratedMethodWithType: functionType allowGC: allowGC with: codeGenerationBlock [
+	| ssaFunctionType ssaFunction dummyMethod |
+	ssaFunctionType := self translateType: functionType.
+	dummyMethod := MbndDummyMethod new
+		type: functionType;
+		boundType: functionType;
+		receiverType: self compilationTarget voidType;
+		yourself.
+
+	ssaFunction := SLVMFunction module: ssaModule name: nil functionType: ssaFunctionType.
+
+	self isEmittingDebugInformation ifTrue: [
+		ssaFunction
+			"debugInformation: (self translateProgramEntityDebugInformation: generatedMethod);"
+			debugType: (self translateDebugType: ssaFunctionType)
+	].
+
+	ssaFunction makePrivate.
+	
+	(allowGC and: [sourceModule hasGarbageCollectionStackMap]) ifTrue: [
+		ssaFunction gcStrategy: #sysmel
+	].
+	
+	self createFunctionCodeGenerator
+			buildSSAFunction: ssaFunction definitionWithMethod: dummyMethod
+			withCodeGenerationBlock: codeGenerationBlock.
+
+	^ ssaFunction
+]
+
 { #category : #'code generation' }
 MbndSlovimCodeModuleGenerator >> generateCodeModuleFor: aModule [
 	^ self generateCodeModuleFor: aModule programEntities: { aModule }
@@ -441,6 +473,45 @@ MbndSlovimCodeModuleGenerator >> getFieldAsPushConstantReference: field [
 	]
 ]
 
+{ #category : #'code generation' }
+MbndSlovimCodeModuleGenerator >> getOrCreateDynamicFunctionCallAdapterFor: functionType [
+	| adapterFunctionType dynamicObjectType unwrappedArguments callResultType convertedResult |
+	dynamicObjectType := self compilationTarget dynamicObjectType.
+	adapterFunctionType := self compilationTarget
+		functionTypeWithArguments: {functionType pointer} , (functionType argumentTypes collect: [ :arg | dynamicObjectType ])
+		returnType: dynamicObjectType.
+	^ dynamicFunctionCallsAdapters at: adapterFunctionType ifAbsentPut: [ 
+		self generateAnonCompilerGeneratedMethodWithType: adapterFunctionType allowGC: true with: [:ssaFunction :builder :functionCodeGenerator |
+			| calledFunction result |
+			"Unwrap the arguments."
+			calledFunction := ssaFunction arguments first.
+			unwrappedArguments := ssaFunction arguments allButFirst collectWithIndex: [ :argValue :argIndex |
+				functionCodeGenerator unwrapDynamicObject: argValue withType: dynamicObjectType intoValueOfType: (functionType argumentTypes at: argIndex)
+			].
+		
+			"Generate the call."
+			result := functionCodeGenerator generateCall: calledFunction arguments: unwrappedArguments calledFunctionType: functionType.
+			
+			"Compute the actual result type."
+			callResultType := functionType returnType.
+			callResultType isMemoryReturnedType ifTrue: [ 
+				callResultType := callResultType tempRef.
+			].
+		
+			"Wrap the result."
+			convertedResult := functionCodeGenerator wrapValue: result withType: callResultType intoDynamicObjectWithType: dynamicObjectType.
+			
+			"Finalize the temporary result."
+			functionType returnType hasTrivialFinalization ifFalse: [
+				self flag: 'FIXME: Make this finalization implicit by using clean-up actions.'.
+				functionCodeGenerator generateVariable: result finalizationForValueType: functionType returnType
+			].
+			
+			builder return: convertedResult
+		]
+	].
+]
+
 { #category : #'as yet unclassified' }
 MbndSlovimCodeModuleGenerator >> getShaderIOField: field storage: storage forStage: specialSemantics [
 	^ convertedShaderIOFields at: {field . storage . specialSemantics} ifAbsentPut: [ 
@@ -483,6 +554,7 @@ MbndSlovimCodeModuleGenerator >> initialize [
 	convertedShaderIOFields := Dictionary new.
 	structuresWithAdditionalKinds := Dictionary new.
 	generatedNameTable := IdentityDictionary new.
+	dynamicFunctionCallsAdapters := IdentityDictionary new.
 ]
 
 { #category : #'as yet unclassified' }
@@ -499,6 +571,12 @@ MbndSlovimCodeModuleGenerator >> intrinsicConstantBuiltInFunction: intrinsicName
 { #category : #visiting }
 MbndSlovimCodeModuleGenerator >> isEmittingDebugInformation [
 	^ self slvmCompilationTarget emittingDebugInformation
+]
+
+{ #category : #'code generation' }
+MbndSlovimCodeModuleGenerator >> literalValueGenerator [
+	^ MbndSlovimLiteralValueGenerator new
+		codeModuleGenerator: self
 ]
 
 { #category : #visiting }
@@ -689,16 +767,12 @@ MbndSlovimCodeModuleGenerator >> translateDebugType: aType [
 
 { #category : #'code generation' }
 MbndSlovimCodeModuleGenerator >> translateDynamicObjectInstanceContent: dynamicObject [
-	^ MbndSlovimLiteralValueGenerator new
-		codeModuleGenerator: self;
-		translateDynamicObjectInstanceContent: dynamicObject
+	^ self literalValueGenerator translateDynamicObjectInstanceContent: dynamicObject
 ]
 
 { #category : #'code generation' }
 MbndSlovimCodeModuleGenerator >> translateLiteralValue: literalValue ofType: literalType [
-	^ MbndSlovimLiteralValueGenerator new
-		codeModuleGenerator: self;
-		translateLiteralValue: literalValue ofType: literalType
+	^ self literalValueGenerator translateLiteralValue: literalValue ofType: literalType
 ]
 
 { #category : #visiting }
@@ -768,9 +842,7 @@ MbndSlovimCodeModuleGenerator >> translateTypeInfoDefinition: type [
 	self setProgramEntity: type ssaValue: ssaTypeInfo.
 	ssaModule addHighLevelEntity: type mapToGlobalValue: ssaTypeInfo.
 	
-	ssaTypeInfo initialValue: (MbndSlovimLiteralValueGenerator new
-		codeModuleGenerator: self;
-		translateTypeInfoContent: type).
+	ssaTypeInfo initialValue: (self literalValueGenerator translateTypeInfoContent: type).
 
 	^ ssaTypeInfo
 ]
@@ -913,7 +985,10 @@ MbndSlovimCodeModuleGenerator >> visitBlockClosureMethod: blockClosureMethod [
 	ssaFunctionType := self translateType: blockClosureMethod type functionType.
 	
 	ssaClosureDefinition := SLVMClosureDefinition module: ssaModule functionType: ssaFunctionType.
-	ssaClosureDefinition kind: (blockClosureMethod needsGarbageCollection ifTrue: [ #gc ] ifFalse: [#nativeStack]).
+	ssaClosureDefinition
+		kind: (blockClosureMethod needsGarbageCollection ifTrue: [ #gc ] ifFalse: [#nativeStack]);
+		propertyAt: #mbndFunctionType put: blockClosureMethod boundType;
+		propertyAt: #mbndProgramEntity put: blockClosureMethod.
 	self setProgramEntity: blockClosureMethod ssaValue: ssaClosureDefinition.
 
 	self isEmittingDebugInformation ifTrue: [

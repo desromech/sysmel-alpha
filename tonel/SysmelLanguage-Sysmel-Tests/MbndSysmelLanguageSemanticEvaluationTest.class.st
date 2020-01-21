@@ -99,3 +99,20 @@ MbndSysmelLanguageSemanticEvaluationTest >> testGCClassMethodDictionary [
 	self assert: (methodDictionaryObject getFieldValue: #array) unwrapMbndValue equals: methodDictionaryContent keys.
 	self assert: (methodDictionaryObject getFieldValue: #values) unwrapMbndValue equals: methodDictionaryContent values.
 ]
+
+{ #category : #tests }
+MbndSysmelLanguageSemanticEvaluationTest >> testGCClassVTable [
+	| sampleClass |
+	self evaluateMiniObjectModelRuntime.
+	sampleClass := (self evaluateSource: '
+		gcclass SampleClass definition: {
+			virtual method myYourself := self.
+		}.
+		
+		SampleClass
+	') unwrapMbndValue.
+	semanticModule finishSemanticAnalysis.
+
+	self assert: sampleClass supertype name equals: #Object.
+	self assert: sampleClass slotLayout virtualTables size equals: 1.
+]

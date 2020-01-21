@@ -40,11 +40,15 @@ MbndAggregateSlotLayoutBuilder >> addBitField: aField [
 { #category : #adding }
 MbndAggregateSlotLayoutBuilder >> addField: aField [
 	(aField isVTablePointerField and: [ mainVTableField isNil ]) ifTrue: [
-		aField parent == aggregate ifTrue: [ 
+		aField parent == aggregate ifTrue: [
 			mainVTableField := activeVTableField := aField.
 			vtableFields add: aField
-		] ifFalse: [ 
-			^ self createVirtualTable
+		] ifFalse: [
+			| newVTableField |
+			newVTableField := self createVirtualTable.
+			activeVTableField := newVTableField.
+			mainVTableField ifNil: [ mainVTableField := newVTableField ].
+			^ newVTableField
 		]
 	].
 
@@ -70,15 +74,6 @@ MbndAggregateSlotLayoutBuilder >> addNormalField: aField [
 		
 	layout slots add: slot.
 	self countSlotForSizeAndAlignment: slot.
-]
-
-{ #category : #adding }
-MbndAggregateSlotLayoutBuilder >> addVTablePointerField: vtableField [
-	self flushBitFields.
-	vtableField slotIndex: self currentSlotIndex.
-	aggregate buildVTableFieldLayout: vtableField.
-	self addNormalField: vtableField.
-
 ]
 
 { #category : #adding }

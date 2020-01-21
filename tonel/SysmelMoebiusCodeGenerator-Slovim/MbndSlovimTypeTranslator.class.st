@@ -101,6 +101,18 @@ MbndSlovimTypeTranslator >> visitArrayType: arrayType [
 ]
 
 { #category : #visiting }
+MbndSlovimTypeTranslator >> visitBlockClosureType: type kind: closureKind addressSpace: addressSpace [
+	| headerType functionPointerType |
+	headerType := self slvmCompilationTarget objectModel closureHeaderTypeForKind: closureKind.
+	self assert: headerType isNotNil.
+	functionPointerType := self translateType: type functionTypeWithGenericClosurePointer pointer.
+	
+	^ self slvmCompilationTarget
+		pointerTo: (SLVMStructureType name: nil types: { headerType . functionPointerType } kind: SLVMStructureType genericKind names: #(vtable functionPointer))
+		storage: addressSpace 
+]
+
+{ #category : #visiting }
 MbndSlovimTypeTranslator >> visitClassType: structureType [
 	^ self translateAggregateType: structureType
 
@@ -146,7 +158,7 @@ MbndSlovimTypeTranslator >> visitFunctionType: functionType [
 
 { #category : #visiting }
 MbndSlovimTypeTranslator >> visitGCBlockClosureType: type [
-	self halt
+	^ self visitBlockClosureType: type kind: #gc addressSpace: #gc
 ]
 
 { #category : #visiting }
@@ -177,12 +189,7 @@ MbndSlovimTypeTranslator >> visitInputChannelType: type [
 
 { #category : #visiting }
 MbndSlovimTypeTranslator >> visitNativeBlockClosureType: type [
-	| headerType functionPointerType |
-	headerType := self slvmCompilationTarget objectModel closureHeaderTypeForKind: #nativeStack.
-	self assert: headerType isNotNil.
-	functionPointerType := self translateType: type functionTypeWithGenericClosurePointer pointer.
-	
-	^ self slvmCompilationTarget pointerTo: (SLVMStructureType name: nil types: { headerType . functionPointerType } kind: SLVMStructureType genericKind names: #(vtable functionPointer))
+	^ self visitBlockClosureType: type kind: #nativeStack addressSpace: #generic
 ]
 
 { #category : #visiting }

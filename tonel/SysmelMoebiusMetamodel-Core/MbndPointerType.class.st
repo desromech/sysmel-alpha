@@ -102,6 +102,12 @@ MbndPointerType >> addInstanceMacros [
 		];
 		onMacroSelector: #- do: [ :node :builder |
 			self halt
+		];
+		onMacroSelector: #applyWithArguments: do: [:node :builder |
+			builder unexpandedSend: node selector to:
+				((builder pointerAsReference: node receiver)
+					position: node)
+				withArguments: node arguments
 		].
 ]
 

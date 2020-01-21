@@ -177,6 +177,10 @@ gcclass Collection superclass: Object.
 gcclass CompiledMethod superclass: Object.
 gcclass AdditionalMethodState superclass: Object.
 
+## Block closures
+gcclass BlockClosureHeaderClass superclass: Object.
+gcclass BlockClosure superclass: BlockClosureHeaderClass.
+
 ## ProtoObject
 ProtoObject type supertype: Class.
 
@@ -273,6 +277,8 @@ Compiler compilationTarget managedObjectModel
 	undeclaredVariableClass: UndeclaredVariable;
 	workspaceVariableClass: WorkspaceVariable;
 	
+	blockClosureHeaderClass: BlockClosureHeaderClass;
+	blockClosureClass: BlockClosure;
     yourself
 '
 	

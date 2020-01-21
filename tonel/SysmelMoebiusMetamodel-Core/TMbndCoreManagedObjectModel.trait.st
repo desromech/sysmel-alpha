@@ -30,7 +30,10 @@ Trait {
 		'int64ToIntegerFunction',
 		'uint64ToIntegerFunction',
 		'uint32ToCharacterFunction',
-		'float64ToFloatFunction'
+		'float64ToFloatFunction',
+		'blockClosureHeaderClass',
+		'blockClosureClass',
+		'gcBlockClosureAllocationFunction'
 	],
 	#traits : 'TMbndAbstractManagedObjectModel',
 	#classTraits : 'TMbndAbstractManagedObjectModel classTrait',
@@ -64,7 +67,8 @@ TMbndCoreManagedObjectModel >> arrayClass [
 
 { #category : #accessing }
 TMbndCoreManagedObjectModel >> arrayClass: anObject [
-	arrayClass := anObject
+	arrayClass := anObject.
+	compilationTarget literalArrayType addConversionTo: arrayClass rule: MbndLiteralValueTypeChangeConversionRule.
 ]
 
 { #category : #accessing }
@@ -80,6 +84,27 @@ TMbndCoreManagedObjectModel >> associationClass: anObject [
 { #category : #accessing }
 TMbndCoreManagedObjectModel >> associationValueOffset [
 	^ associationValueOffset ifNil: [associationValueOffset := associationClass getFieldOffset: #value]
+]
+
+{ #category : #accessing }
+TMbndCoreManagedObjectModel >> blockClosureClass [
+	^ blockClosureClass
+]
+
+{ #category : #accessing }
+TMbndCoreManagedObjectModel >> blockClosureClass: anObject [
+	blockClosureClass := anObject.
+	compilationTarget gcBlockClosureType addConversionTo: blockClosureClass rule: MbndPointerReinterpretTypeConversionRule.
+]
+
+{ #category : #accessing }
+TMbndCoreManagedObjectModel >> blockClosureHeaderClass [
+	^ blockClosureHeaderClass
+]
+
+{ #category : #accessing }
+TMbndCoreManagedObjectModel >> blockClosureHeaderClass: anObject [
+	blockClosureHeaderClass := anObject
 ]
 
 { #category : #accessing }
@@ -207,6 +232,16 @@ TMbndCoreManagedObjectModel >> floatClass: anObject [
 	compilationTarget dynamicObjectType addExplicitConversionRule: (MbndDynamicObjectToFloatConversionRule when: [:sourceType :targetType |
 		targetType isPrimitiveFloatType
 	]).
+]
+
+{ #category : #accessing }
+TMbndCoreManagedObjectModel >> gcBlockClosureAllocationFunction [
+	^ gcBlockClosureAllocationFunction
+]
+
+{ #category : #accessing }
+TMbndCoreManagedObjectModel >> gcBlockClosureAllocationFunction: aFunction [
+	gcBlockClosureAllocationFunction := aFunction
 ]
 
 { #category : #accessing }

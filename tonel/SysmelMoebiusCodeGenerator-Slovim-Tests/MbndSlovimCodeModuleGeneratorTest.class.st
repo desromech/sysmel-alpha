@@ -794,6 +794,82 @@ MbndSlovimCodeModuleGeneratorTest >> testCStringCFunction [
 ]
 
 { #category : #tests }
+MbndSlovimCodeModuleGeneratorTest >> testCallWithGCBlockClosure [
+	| function |
+	self
+		evaluateMiniObjectModelRuntime;
+		evaluateSysmelSource: '
+function calledWithGCBlockClosure externC(f: (Void => ProtoObject) gcBlockClosure) => ProtoObject
+	:= f().
+
+function callWithGCBlockClosure externC(v: ProtoObject) => ProtoObject
+	:= calledWithGCBlockClosure(function () => ProtoObject := v).
+';
+		generateSSAModule.
+
+	function := ssaModule globalNamed: #calledWithGCBlockClosure.
+	self assert: function allInstructionsMnemonics equals: #(
+		(entry (jump))
+		(body (
+			getElementPointer
+			load
+			bitcast
+			call
+			return
+		))
+	).
+	
+	function := ssaModule globalNamed: #callWithGCBlockClosure.
+	self assert: function allInstructionsMnemonics equals: #(
+		(entry (jump))
+		(body (
+			instantiateClosure
+			bitcast 
+			call
+			return
+		))
+	).
+]
+
+{ #category : #tests }
+MbndSlovimCodeModuleGeneratorTest >> testCallWithGCBlockClosure2 [
+	| function |
+	self
+		evaluateMiniObjectModelRuntime;
+		evaluateSysmelSource: '
+function calledWithGCBlockClosure externC(f: (Void => ProtoObject) gcBlockClosure) => ProtoObject
+	:= f().
+
+function callWithGCBlockClosure externC(v: ProtoObject) => ProtoObject
+	:= calledWithGCBlockClosure({ :: ProtoObject | v }).
+';
+		generateSSAModule.
+
+	function := ssaModule globalNamed: #calledWithGCBlockClosure.
+	self assert: function allInstructionsMnemonics equals: #(
+		(entry (jump))
+		(body (
+			getElementPointer
+			load
+			bitcast
+			call
+			return
+		))
+	).
+	
+	function := ssaModule globalNamed: #callWithGCBlockClosure.
+	self assert: function allInstructionsMnemonics equals: #(
+		(entry (jump))
+		(body (
+			instantiateClosure
+			bitcast 
+			call
+			return
+		))
+	).
+]
+
+{ #category : #tests }
 MbndSlovimCodeModuleGeneratorTest >> testCallWithNativeBlockClosure [
 	| function |
 	self
@@ -810,9 +886,9 @@ function callWithNativeBlockClosure externC(v: Int32) => Int32
 	self assert: function allInstructionsMnemonics equals: #(
 		(entry (jump))
 		(body (
-			bitcast
 			getElementPointer
 			load
+			bitcast
 			call
 			return
 		))
@@ -848,9 +924,9 @@ function callWithNativeBlockClosure externC(v: Int32) => Int32
 	self assert: function allInstructionsMnemonics equals: #(
 		(entry (jump))
 		(body (
-			bitcast
 			getElementPointer
 			load
+			bitcast
 			call
 			return
 		))

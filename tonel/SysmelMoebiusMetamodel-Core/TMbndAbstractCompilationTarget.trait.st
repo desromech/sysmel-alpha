@@ -163,6 +163,11 @@ TMbndAbstractCompilationTarget >> functionTypeWithArguments: argumentTypes retur
 	^ self functionTypeWithArguments: argumentTypes returnType: returnType callingConvention: self defaultCallingConvention cvariadic: cvariadic
 ]
 
+{ #category : #'convenience type accessors' }
+TMbndAbstractCompilationTarget >> gcBlockClosureType [
+	^ self getBasicTypeNamed: #_GCBlockClosureType
+]
+
 { #category : #accessing }
 TMbndAbstractCompilationTarget >> getBasicTypeNamed: typeName [
 	self explicitRequirement

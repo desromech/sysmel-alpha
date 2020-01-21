@@ -437,6 +437,56 @@ MbndSlovimFunctionCodeGenerator >> generateAutomaticPrologueCode [
 ]
 
 { #category : #'as yet unclassified' }
+MbndSlovimFunctionCodeGenerator >> generateCall: calledFunction arguments: arguments argumentTypes: argumentTypes expectedResultType: expectedResultType hiddenReceiverArgument: hiddenReceiverArgument storageCreationNode: storageCreationNode cleanUpActionNode: cleanUpActionNode [
+	| expectedResultSSAType memoryReturnTemporary allArguments result |
+	expectedResultSSAType := self translateType: expectedResultType.
+	memoryReturnTemporary := nil.
+
+	allArguments := Array streamContents: [:out |
+		expectedResultType isMemoryReturnedType ifTrue: [ 
+			memoryReturnTemporary := self allocateTemporaryStorageFor: expectedResultSSAType withStorageCreationNode: storageCreationNode.
+			out nextPut: memoryReturnTemporary
+		].
+	
+		hiddenReceiverArgument ifNotNil: [ 
+			out nextPut: hiddenReceiverArgument.
+		].
+
+		arguments do: [:arg |
+			out nextPut: arg
+		].
+	].
+
+	result := slvmBuilder call: calledFunction arguments: allArguments.
+	
+	memoryReturnTemporary ifNotNil: [
+		expectedResultType hasTrivialFinalization ifFalse: [
+			cleanUpActionNode ifNotNil: [ 
+				self addLocalVariable: memoryReturnTemporary withValueType: expectedResultType cleanUpActionForNode: cleanUpActionNode
+			] ifNil: [
+				self assert: concreteMethod isConcreteMethod not.
+			].
+		].
+		result := memoryReturnTemporary
+	] ifNil: [
+		"We may need to adjust the result type in the case of dependent types."
+		result type ~~ expectedResultSSAType ifTrue: [ 
+			self assert: (result type isPointerType and: [ expectedResultSSAType isPointerType ]).
+			result := slvmBuilder bitCast: result target: expectedResultSSAType
+		].
+	].
+
+	^ result
+]
+
+{ #category : #'as yet unclassified' }
+MbndSlovimFunctionCodeGenerator >> generateCall: calledFunction arguments: arguments calledFunctionType: functionType [
+	^ self generateCall: calledFunction arguments: arguments
+		argumentTypes: functionType argumentTypes expectedResultType: functionType returnType
+		hiddenReceiverArgument: nil storageCreationNode: nil cleanUpActionNode: nil
+]
+
+{ #category : #'as yet unclassified' }
 MbndSlovimFunctionCodeGenerator >> generateCall: calledFunction arguments: arguments expectedReturnType: expectedReturnType [
 	| result |
 	result := slvmBuilder call: calledFunction arguments: arguments.
@@ -1087,6 +1137,18 @@ MbndSlovimFunctionCodeGenerator >> translateLiteralValue: value [
 	^ codeModuleGenerator translateLiteralValue: value value ofType: value type
 ]
 
+{ #category : #'as yet unclassified' }
+MbndSlovimFunctionCodeGenerator >> unwrapDynamicObject: dynamicObjectValue withType: dynamicObjectType intoValueOfType: targetType [
+	self assert: dynamicObjectType isGarbageCollectedType.
+	
+	targetType isGarbageCollectedType ifTrue: [ 
+		self flag: 'TODO: Perform a type check here.'.
+		^ slvmBuilder bitCast: dynamicObjectValue target: (self translateType: targetType)
+	].
+
+	self error: 'TODO: Implement this case.'
+]
+
 { #category : #visiting }
 MbndSlovimFunctionCodeGenerator >> visitArrayElementReferenceNode: node [
 	| pointer index |
@@ -1395,7 +1457,7 @@ MbndSlovimFunctionCodeGenerator >> visitFloatingPointToIntegerCastNode: node [
 
 { #category : #visiting }
 MbndSlovimFunctionCodeGenerator >> visitFunctionCallNode: node [
-	| functionValue argumentValues intrinsicName memoryReturnTemporary expectedResultSSAType result expectedResultType hiddenReceiverArgument |
+	| functionValue argumentValues intrinsicName expectedResultType hiddenReceiverArgument hiddenReceiverArgumentIndex |
 	functionValue := nil.
 	node function isMethodReferenceNode ifTrue: [ 
 		node function binding pragmaAt: #intrinsic: ifPresent: [ :pragma |
@@ -1406,54 +1468,27 @@ MbndSlovimFunctionCodeGenerator >> visitFunctionCallNode: node [
 		].
 	].
 
+	expectedResultType := node functionReturnType.
+	hiddenReceiverArgumentIndex := 1.
+	expectedResultType isMemoryReturnedType ifTrue: [ hiddenReceiverArgumentIndex := 2].
+	
 	hiddenReceiverArgument := nil.
 	functionValue ifNil: [
 		functionValue := self visitNode: node function.
 		node function type isBlockClosureType ifTrue: [ 
-			node function type isNativeBlockClosureType ifTrue: [ 
-				hiddenReceiverArgument := slvmBuilder bitCast: functionValue target: self slvmCompilationTarget voidPointerType.
-				functionValue := slvmBuilder load: (slvmBuilder getReference: functionValue element: (slvmBuilder constInt: 1)).
-			] ifFalse: [ 
-				self assert: node function type isGCBlockClosureType.
-				self halt
-			].
+			functionValue := slvmBuilder load: (slvmBuilder getReference: functionValue element: (slvmBuilder constInt: 1)).
+			self assert: functionValue type isPointerType.
+			self assert: functionValue type baseType isFunctionType.
+			hiddenReceiverArgument := slvmBuilder bitCast: functionValue target: (functionValue type baseType arguments at: hiddenReceiverArgumentIndex).
 		].
 	].
 	
-	expectedResultType := node functionReturnType.
-	expectedResultSSAType := self translateType: expectedResultType.
-	memoryReturnTemporary := nil.
-	argumentValues := Array streamContents: [:out |
-		expectedResultType isMemoryReturnedType ifTrue: [ 
-			memoryReturnTemporary := self allocateTemporaryStorageFor: expectedResultSSAType withStorageCreationNode: node storageCreationNode.
-			out nextPut: memoryReturnTemporary
-		].
-	
-		hiddenReceiverArgument ifNotNil: [ 
-			out nextPut: hiddenReceiverArgument.
-		].
-
-		node arguments do: [:arg |
-			out nextPut: (self visitNode: arg)
-		].
-	].
-
-	result := slvmBuilder call: functionValue arguments: argumentValues.
-	
-	memoryReturnTemporary ifNotNil: [
-		expectedResultType hasTrivialFinalization ifFalse: [
-			self addLocalVariable: memoryReturnTemporary withValueType: expectedResultType cleanUpActionForNode: node
-		].
-		result := memoryReturnTemporary
-	] ifNil: [
-		"We may need to adjust the result type in the case of dependent types."
-		result type ~~ expectedResultSSAType ifTrue: [ 
-			self assert: (result type isPointerType and: [ expectedResultSSAType isPointerType ]).
-			result := slvmBuilder bitCast: result target: expectedResultSSAType
-		].
-	].
-	
-	^ result
+	^ self generateCall: functionValue
+		arguments: (self visitNodesAndCollect: node arguments)
+		argumentTypes: (node arguments collect: #type)
+		expectedResultType: expectedResultType
+		hiddenReceiverArgument: hiddenReceiverArgument
+		storageCreationNode: node storageCreationNode cleanUpActionNode: node
 ]
 
 { #category : #visiting }
@@ -2297,4 +2332,26 @@ MbndSlovimFunctionCodeGenerator >> withLexicalScope: lexicalScope do: aBlock [
 		activeLexicalScope := debugLexicalScope.
 		aBlock value
 	] ensure: [ activeLexicalScope := oldActiveLexicalScope ]
+]
+
+{ #category : #'as yet unclassified' }
+MbndSlovimFunctionCodeGenerator >> wrapValue: value withType: valueType intoDynamicObjectWithType: dynamicObjectType [
+	| wrappedValue |
+	self assert: dynamicObjectType isGarbageCollectedType.
+	
+	wrappedValue := nil.
+	valueType isGarbageCollectedType ifTrue: [ 
+		self flag: 'TODO: Perform a type check here.'.
+		wrappedValue := value.
+	].
+
+	valueType isVoidType ifTrue: [
+		wrappedValue := slvmBuilder addDynamicLiteral: nil
+	].
+
+	wrappedValue ifNil: [ 
+		self error: 'TODO: Implement this case.'
+	].
+
+	^ slvmBuilder bitCast: wrappedValue target: (self translateType: dynamicObjectType)
 ]

@@ -14,7 +14,7 @@ MbndGCBlockClosureType class >> typeName [
 
 { #category : #visiting }
 MbndGCBlockClosureType >> accept: aVisitor [
-	^ aVisitor visitBlockClosureType: self
+	^ aVisitor visitGCBlockClosureType: self
 ]
 
 { #category : #accessing }

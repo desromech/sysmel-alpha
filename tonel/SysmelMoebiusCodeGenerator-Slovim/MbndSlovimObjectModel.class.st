@@ -17,7 +17,12 @@ Class {
 		'int32ToIntegerFunction',
 		'uint32ToCharacterFunction',
 		'float64ToFloatFunction',
-		'nativeClosureHeaderType'
+		'nativeClosureHeaderType',
+		'gcClosureHeaderType',
+		'gcBlockClosureAllocationFunction',
+		'gcBlockClosureHeaderConstant',
+		'gcBlockClosureHeaderNumArgsSlotIndex',
+		'gcBlockClosureHeaderDynamicCallAdapterSlotIndex'
 	],
 	#category : #'SysmelMoebiusCodeGenerator-Slovim-CompilationTarget'
 }
@@ -38,6 +43,11 @@ MbndSlovimObjectModel >> associationValueOffset [
 ]
 
 { #category : #accessing }
+MbndSlovimObjectModel >> byteArrayClass [
+	^ managedObjectModel byteArrayClass
+]
+
+{ #category : #accessing }
 MbndSlovimObjectModel >> classVariableClass [
 	^ managedObjectModel classVariableClass
 ]
@@ -48,8 +58,8 @@ MbndSlovimObjectModel >> closureHeaderTypeForKind: kind [
 		^ self nativeClosureHeaderType
 	].
 
-	kind == #gc ifTrue: [ 
-		self halt
+	kind == #gc ifTrue: [
+		^ self gcClosureHeaderType
 	].
 
 	self error: 'Unsupported closure header type.'
@@ -59,6 +69,30 @@ MbndSlovimObjectModel >> closureHeaderTypeForKind: kind [
 { #category : #'as yet unclassified' }
 MbndSlovimObjectModel >> compiledMethodLiteralsOffset [
 	^ managedObjectModel compiledMethodClass instanceDataSize alignedTo: managedObjectModel compiledMethodClass instanceDataAlignment
+]
+
+{ #category : #'as yet unclassified' }
+MbndSlovimObjectModel >> constructClosurePrototypeFor: closureDefinition [
+	| prototype mbndFunctionType header dynamicCallAdapterSlotIndex numArgsSlotIndex dynamicCallAdapter |
+	prototype := super constructClosurePrototypeFor: closureDefinition.
+	closureDefinition kind = #gc ifTrue: [
+		mbndFunctionType := closureDefinition propertyAt: #mbndFunctionType.
+		dynamicCallAdapter := moduleCodeGenerator getOrCreateDynamicFunctionCallAdapterFor: mbndFunctionType.
+		dynamicCallAdapterSlotIndex := self gcBlockClosureHeaderDynamicCallAdapterSlotIndex + 1.
+		numArgsSlotIndex := self gcBlockClosureHeaderNumArgsSlotIndex + 1.
+
+		header := self gcBlockClosureHeaderConstant copy.
+		header slots
+			at: dynamicCallAdapterSlotIndex put: (
+				SLVMConstant value: dynamicCallAdapter bitcast: (header slots at: dynamicCallAdapterSlotIndex) type
+			);
+			at: numArgsSlotIndex put:
+			((header slots at: numArgsSlotIndex) copy
+				value: mbndFunctionType argumentTypes size).
+		prototype slots at: 1 put: header.
+	].
+
+	^ prototype
 ]
 
 { #category : #'as yet unclassified' }
@@ -237,6 +271,47 @@ MbndSlovimObjectModel >> float64ToFloatFunction [
 ]
 
 { #category : #accessing }
+MbndSlovimObjectModel >> gcBlockClosureAllocationFunction [
+	<compileTime>
+	^ gcBlockClosureAllocationFunction ifNil: [gcBlockClosureAllocationFunction := (moduleCodeGenerator translateProgramEntity: managedObjectModel gcBlockClosureAllocationFunction) ssaValue ]
+]
+
+{ #category : #'as yet unclassified' }
+MbndSlovimObjectModel >> gcBlockClosureDynamicCallAdapterSlotIndex [
+	^ gcBlockClosureHeaderDynamicCallAdapterSlotIndex ifNil: [gcBlockClosureHeaderDynamicCallAdapterSlotIndex := (managedObjectModel blockClosureHeaderClass findFirstFieldNamed: #dynamicCallAdapter) slotIndex]
+]
+
+{ #category : #'as yet unclassified' }
+MbndSlovimObjectModel >> gcBlockClosureHeaderConstant [
+	| headerLiteralValue blockClosureLiteralValue |
+	gcBlockClosureHeaderConstant ifNil:[
+		headerLiteralValue := managedObjectModel blockClosureHeaderClass makeInstance: 0 identityHash: 0.
+		
+		"Transplant the vtable from the block closure into the header object."
+		blockClosureLiteralValue := managedObjectModel blockClosureClass makeInstance: 0 identityHash: 0.
+		headerLiteralValue slots at: 1 put: blockClosureLiteralValue slots first.
+		
+		gcBlockClosureHeaderConstant := moduleCodeGenerator translateDynamicObjectInstanceContent: headerLiteralValue.
+	]. 
+	^ gcBlockClosureHeaderConstant
+]
+
+{ #category : #'as yet unclassified' }
+MbndSlovimObjectModel >> gcBlockClosureHeaderDynamicCallAdapterSlotIndex [
+	^ gcBlockClosureHeaderDynamicCallAdapterSlotIndex ifNil: [gcBlockClosureHeaderDynamicCallAdapterSlotIndex := (managedObjectModel blockClosureHeaderClass findFirstFieldNamed: #dynamicCallAdapter) slotIndex]
+]
+
+{ #category : #'as yet unclassified' }
+MbndSlovimObjectModel >> gcBlockClosureHeaderNumArgsSlotIndex [
+	^ gcBlockClosureHeaderNumArgsSlotIndex ifNil: [gcBlockClosureHeaderNumArgsSlotIndex := (managedObjectModel blockClosureHeaderClass findFirstFieldNamed: #numArgs) slotIndex]
+]
+
+{ #category : #'as yet unclassified' }
+MbndSlovimObjectModel >> gcClosureHeaderType [
+	^ gcClosureHeaderType ifNil: [ gcClosureHeaderType := (moduleCodeGenerator translateType: managedObjectModel blockClosureHeaderClass) baseType ]
+]
+
+{ #category : #accessing }
 MbndSlovimObjectModel >> gcrootIntrinsic [
 	^ gcrootIntrinsic ifNil: [
 		gcrootIntrinsic := SLVMConstantBuiltInFunction pointerSize: target pointerSize
@@ -307,6 +382,11 @@ MbndSlovimObjectModel >> moduleCodeGenerator: anObject [
 { #category : #'as yet unclassified' }
 MbndSlovimObjectModel >> nativeClosureHeaderType [
 	^ nativeClosureHeaderType ifNil: [ nativeClosureHeaderType := target voidPointerPointerType ]
+]
+
+{ #category : #accessing }
+MbndSlovimObjectModel >> stringClass [
+	^ managedObjectModel stringClass
 ]
 
 { #category : #accessing }
