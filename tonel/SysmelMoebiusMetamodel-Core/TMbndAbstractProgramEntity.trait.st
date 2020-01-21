@@ -16,6 +16,11 @@ TMbndAbstractProgramEntity >> addChild: aChild [
 ]
 
 { #category : #adding }
+TMbndAbstractProgramEntity >> addLambdaChild: aChild [
+	self addPrivateChild: aChild
+]
+
+{ #category : #adding }
 TMbndAbstractProgramEntity >> addPrivateChild: aChild [
 	aChild parent: self
 ]

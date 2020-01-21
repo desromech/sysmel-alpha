@@ -37,6 +37,11 @@ MbndAbstractModuleVisitor >> visitArrayType: type [
 ]
 
 { #category : #visiting }
+MbndAbstractModuleVisitor >> visitBlockClosureMethod: method [
+	self subclassResponsibility
+]
+
+{ #category : #visiting }
 MbndAbstractModuleVisitor >> visitClassType: type [
 	self subclassResponsibility
 ]

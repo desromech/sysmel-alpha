@@ -2,7 +2,8 @@ Class {
 	#name : #MbndAbstractBlockClosureType,
 	#superclass : #MbndFunctionalType,
 	#instVars : [
-		'functionType'
+		'functionType',
+		'functionTypeWithClosureParameter'
 	],
 	#category : #'SysmelMoebiusMetamodel-Core-Type'
 }
@@ -32,6 +33,11 @@ MbndAbstractBlockClosureType >> functionType [
 { #category : #accessing }
 MbndAbstractBlockClosureType >> functionType: anObject [
 	functionType := anObject
+]
+
+{ #category : #accessing }
+MbndAbstractBlockClosureType >> functionTypeWithClosureParameter [
+	^ functionTypeWithClosureParameter ifNil: [ functionTypeWithClosureParameter := functionType prependArguments: { self } ]
 ]
 
 { #category : #'testing methods' }

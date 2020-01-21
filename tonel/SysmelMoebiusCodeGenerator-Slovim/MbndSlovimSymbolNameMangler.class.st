@@ -400,6 +400,11 @@ MbndSlovimSymbolNameMangler >> visitAggregateInitializeMovingFromMethod: method 
 ]
 
 { #category : #visiting }
+MbndSlovimSymbolNameMangler >> visitBlockClosureMethod: method [
+	^ self visitGenericFunction: method
+]
+
+{ #category : #visiting }
 MbndSlovimSymbolNameMangler >> visitClassType: type [
 	^ self visitGenericType: type
 ]
@@ -464,12 +469,15 @@ MbndSlovimSymbolNameMangler >> visitGCClassType: type [
 
 { #category : #visiting }
 MbndSlovimSymbolNameMangler >> visitGenericFunction: function [
+	| functionType |
 	self mangleProgramEntityNestedName: function.
-	function type argumentTypes do: [ :argumentType |
+	functionType := function type.
+	functionType isBlockClosureType ifTrue: [ functionType := functionType functionType ].
+	functionType argumentTypes do: [ :argumentType |
 		self mangleType: argumentType
 	].
 
-	function type isCVariadic ifTrue: [ output nextPut: $z ]
+	functionType isCVariadic ifTrue: [ output nextPut: $z ]
 ]
 
 { #category : #visiting }

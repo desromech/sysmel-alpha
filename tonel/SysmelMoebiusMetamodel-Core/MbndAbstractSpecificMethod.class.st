@@ -4,10 +4,18 @@ Class {
 	#instVars : [
 		'receiverType',
 		'type',
-		'boundType'
+		'boundType',
+		'lambdaCount'
 	],
 	#category : #'SysmelMoebiusMetamodel-Core-Method'
 }
+
+{ #category : #adding }
+MbndAbstractSpecificMethod >> addLambdaChild: aLambda [
+	aLambda lambdaIndex: lambdaCount.
+	lambdaCount := lambdaCount + 1.
+	^ super addLambdaChild: aLambda
+]
 
 { #category : #'semantic analysis' }
 MbndAbstractSpecificMethod >> analyzeExpandedMessageSendNode: node with: analyzer [
@@ -112,6 +120,12 @@ MbndAbstractSpecificMethod >> getOrCreateCapturedVariableDefinition: capturedVar
 	"At the end, just return the captured variable definition."
 	self assert: capturedVariable parent == self.
 	^ capturedVariable
+]
+
+{ #category : #initialization }
+MbndAbstractSpecificMethod >> initialize [
+	super initialize.
+	lambdaCount := 0.
 ]
 
 { #category : #testing }

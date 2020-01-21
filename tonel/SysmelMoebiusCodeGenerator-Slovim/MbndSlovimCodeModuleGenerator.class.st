@@ -237,7 +237,7 @@ MbndSlovimCodeModuleGenerator >> fetchShader: functionMethod inputsOfType: input
 ]
 
 { #category : #visiting }
-MbndSlovimCodeModuleGenerator >> generateAnonCompilerGeneratedMethodWithType: functionType allowGC: allowGC with: codeGenerationBlock [
+MbndSlovimCodeModuleGenerator >> generateAnonCompilerGeneratedMethodWithType: functionType allowGC: allowGC debugInformationWith: debugInformationBlock with: codeGenerationBlock [
 	| ssaFunctionType ssaFunction dummyMethod |
 	ssaFunctionType := self translateType: functionType.
 	dummyMethod := MbndDummyMethod new
@@ -250,8 +250,7 @@ MbndSlovimCodeModuleGenerator >> generateAnonCompilerGeneratedMethodWithType: fu
 
 	self isEmittingDebugInformation ifTrue: [
 		ssaFunction
-			"debugInformation: (self translateProgramEntityDebugInformation: generatedMethod);"
-			debugType: (self translateDebugType: ssaFunctionType)
+			debugInformation: debugInformationBlock value
 	].
 
 	ssaFunction makePrivate.
@@ -481,7 +480,9 @@ MbndSlovimCodeModuleGenerator >> getOrCreateDynamicFunctionCallAdapterFor: funct
 		functionTypeWithArguments: {functionType pointer} , (functionType argumentTypes collect: [ :arg | dynamicObjectType ])
 		returnType: dynamicObjectType.
 	^ dynamicFunctionCallsAdapters at: adapterFunctionType ifAbsentPut: [ 
-		self generateAnonCompilerGeneratedMethodWithType: adapterFunctionType allowGC: true with: [:ssaFunction :builder :functionCodeGenerator |
+		self generateAnonCompilerGeneratedMethodWithType: adapterFunctionType allowGC: true
+		debugInformationWith: [ self debugInformationTranslator createForTrampolineWithFunctionType: adapterFunctionType ]
+		with: [:ssaFunction :builder :functionCodeGenerator |
 			| calledFunction result |
 			"Unwrap the arguments."
 			calledFunction := ssaFunction arguments first.
@@ -722,8 +723,7 @@ MbndSlovimCodeModuleGenerator >> translateCompilerGeneratedMethod: generatedMeth
 
 	self isEmittingDebugInformation ifTrue: [
 		ssaFunction
-			debugInformation: (self translateProgramEntityDebugInformation: generatedMethod);
-			debugType: (self translateDebugType: generatedMethod type)
+			debugInformation: (self translateProgramEntityDebugInformation: generatedMethod)
 	].
 
 	self flag: 'TODO: Support the correct linkage/visibility.'.
@@ -981,21 +981,27 @@ MbndSlovimCodeModuleGenerator >> visitAggregateTypeWithFields: type [
 
 { #category : #visiting }
 MbndSlovimCodeModuleGenerator >> visitBlockClosureMethod: blockClosureMethod [
-	| ssaFunctionType ssaClosureDefinition |
+	| ssaFunctionType ssaClosureDefinition csymbol unmangledName |
 	ssaFunctionType := self translateType: blockClosureMethod type functionType.
 	
+	csymbol := self csymbolForProgramEntity: blockClosureMethod.
+	unmangledName := self unmangledNameForProgramEntity: blockClosureMethod.
+
 	ssaClosureDefinition := SLVMClosureDefinition module: ssaModule functionType: ssaFunctionType.
 	ssaClosureDefinition
 		kind: (blockClosureMethod needsGarbageCollection ifTrue: [ #gc ] ifFalse: [#nativeStack]);
+		name: csymbol;
+		unmangledName: unmangledName;
 		propertyAt: #mbndFunctionType put: blockClosureMethod boundType;
 		propertyAt: #mbndProgramEntity put: blockClosureMethod.
 	self setProgramEntity: blockClosureMethod ssaValue: ssaClosureDefinition.
 
 	self isEmittingDebugInformation ifTrue: [
-		"ssaFunction
-			debugInformation: (self translateProgramEntityDebugInformation: functionMethod);
-			debugType: (self translateDebugType: functionMethod type);
-			debugSourceLocation: (self convertDebugPosition: functionMethod definitionPosition asActualSourcePosition)"
+		| debugInfo |
+		debugInfo := self translateProgramEntityDebugInformation: blockClosureMethod.
+		ssaClosureDefinition
+			debugInformation: debugInfo;
+			debugSourceLocation: (self convertDebugPosition: blockClosureMethod definitionPosition asActualSourcePosition)
 	].
 
 	self createFunctionCodeGenerator
@@ -1082,7 +1088,6 @@ MbndSlovimCodeModuleGenerator >> visitConcreteFunctionMethod: functionMethod [
 		
 		ssaFunction
 			debugInformation: (self translateProgramEntityDebugInformation: functionMethod);
-			debugType: (self translateDebugType: functionMethod type);
 			debugSourceLocation: (self convertDebugPosition: functionMethod definitionPosition asActualSourcePosition)
 	].
 	
@@ -1119,7 +1124,6 @@ MbndSlovimCodeModuleGenerator >> visitConcreteMessageMethod: functionMethod [
 	self isEmittingDebugInformation ifTrue: [ 
 		ssaFunction
 			debugInformation: (self translateProgramEntityDebugInformation: functionMethod);
-			debugType: (self translateDebugType: functionMethod type);
 			debugSourceLocation: (self convertDebugPosition: functionMethod definitionPosition asActualSourcePosition)
 	].
 

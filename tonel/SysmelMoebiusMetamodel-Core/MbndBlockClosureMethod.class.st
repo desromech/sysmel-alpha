@@ -8,7 +8,8 @@ Class {
 		'children',
 		'needsGarbageCollection',
 		'capturedVariables',
-		'capturedVariableMap'
+		'capturedVariableMap',
+		'lambdaIndex'
 	],
 	#category : #'SysmelMoebiusMetamodel-Core-Method'
 }
@@ -171,6 +172,17 @@ MbndBlockClosureMethod >> isBlockClosureWithImmediateActivation [
 { #category : #testing }
 MbndBlockClosureMethod >> isNonLocalReturnTargetEntity [
 	^ self hasFlag: #nonLocalReturnTarget
+]
+
+{ #category : #accessing }
+MbndBlockClosureMethod >> lambdaIndex [
+	^ lambdaIndex
+]
+
+{ #category : #accessing }
+MbndBlockClosureMethod >> lambdaIndex: anObject [
+	lambdaIndex := anObject.
+	name := ('__lambda' , lambdaIndex asString) asSymbol
 ]
 
 { #category : #'as yet unclassified' }

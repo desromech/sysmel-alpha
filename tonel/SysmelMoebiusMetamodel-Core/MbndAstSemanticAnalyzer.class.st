@@ -614,7 +614,7 @@ MbndAstSemanticAnalyzer >> visitBlockClosureNode: node [
 		functionType asNativeBlockClosureType]).
 	result type: blockClosureEntity type.
 
-	owner addPrivateChild: blockClosureEntity.
+	owner addLambdaChild: blockClosureEntity.
 	^ result
 
 ]

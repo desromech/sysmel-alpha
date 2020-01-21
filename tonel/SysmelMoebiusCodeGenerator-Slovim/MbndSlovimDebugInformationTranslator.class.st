@@ -61,6 +61,16 @@ MbndSlovimDebugInformationTranslator >> addAggregateDebugType: debugType members
 	]) sorted: [ :a :b | a bitOffset < b bitOffset ])
 ]
 
+{ #category : #visiting }
+MbndSlovimDebugInformationTranslator >> createForTrampolineWithFunctionType: functionType [
+	^ SLVMDebugSubprogram new
+		name: #'<trampoline>';
+		isLocal: true;
+		isDefinition: true;
+		type: (self translateDebugType: functionType);
+		yourself
+]
+
 { #category : #initialization }
 MbndSlovimDebugInformationTranslator >> initialize [
 	super initialize.
@@ -206,8 +216,45 @@ MbndSlovimDebugInformationTranslator >> visitArrayType: arrayType [
 
 { #category : #visiting }
 MbndSlovimDebugInformationTranslator >> visitBlockClosureMethod: blockClosureMethod [
+	| debugInfo |
 	self assert: blockClosureMethod isBlockClosureWithImmediateActivation not.
-	self halt
+	debugInfo := SLVMDebugSubprogram new.
+
+	translatedEntities at: blockClosureMethod put: debugInfo.
+	
+	blockClosureMethod parent ifNotNil: [ 
+		debugInfo parentScope: (self translateParentScope: blockClosureMethod parent)
+	].
+	debugInfo
+		name: blockClosureMethod name;
+		emitLinkageName: true;
+		isLocal: true;
+		isDefinition: true;
+		type: (self translateDebugType: blockClosureMethod type functionTypeWithClosureParameter).
+	^ debugInfo
+]
+
+{ #category : #visiting }
+MbndSlovimDebugInformationTranslator >> visitBlockClosureType: blockClosureType [
+	| debugType blockClosurePointerType |
+	blockClosureType isTrait ifTrue: [ ^ self visitTraitType: blockClosureType ].
+	
+	debugType := SLVMDebugCompositeType new makeStructure.
+	blockClosurePointerType := SLVMDebugDerivedType new makePointer
+		baseType: debugType;
+		byteSize: self compilationTarget pointerSize;
+		byteAlignment: self compilationTarget pointerAlignment.
+
+	translatedEntities at: blockClosureType put: blockClosurePointerType.
+	self setCommonDebugType: debugType informationFrom: blockClosureType.
+	
+	debugType
+		byteSize: "vtable + function pointer" self compilationTarget pointerSize * 2;
+		byteAlignment: self compilationTarget pointerAlignment.
+
+	"self addAggregateDebugType: debugType membersFrom: blockClosureType."
+	
+	^ blockClosurePointerType
 ]
 
 { #category : #visiting }
@@ -342,6 +389,11 @@ MbndSlovimDebugInformationTranslator >> visitFunctionType: functionType [
 ]
 
 { #category : #visiting }
+MbndSlovimDebugInformationTranslator >> visitGCBlockClosureType: blockClosureType [
+	^ self visitBlockClosureType: blockClosureType
+]
+
+{ #category : #visiting }
 MbndSlovimDebugInformationTranslator >> visitGCClassType: classType [
 	| debugType gcClassPointerType |
 	classType isTrait ifTrue: [ ^ self visitTraitType: classType ].
@@ -379,6 +431,11 @@ MbndSlovimDebugInformationTranslator >> visitGCClassVariableDataArrayType: array
 ]
 
 { #category : #visiting }
+MbndSlovimDebugInformationTranslator >> visitGCClosureType: blockClosureType [
+	self halt
+]
+
+{ #category : #visiting }
 MbndSlovimDebugInformationTranslator >> visitGlobalVariable: globalVariable [
 	self flag: 'TODO: Translate myself properly'.
 	^ (SLVMDebugVariable scope: nil name: globalVariable name asPrettySymbolName)
@@ -396,6 +453,11 @@ MbndSlovimDebugInformationTranslator >> visitNamespace: namespace [
 	debugInformation := SLVMDebugNamespace new name: namespace name.
 	translatedEntities at: namespace put: debugInformation.
 	^ debugInformation
+]
+
+{ #category : #visiting }
+MbndSlovimDebugInformationTranslator >> visitNativeBlockClosureType: blockClosureType [
+	^ self visitBlockClosureType: blockClosureType
 ]
 
 { #category : #visiting }
