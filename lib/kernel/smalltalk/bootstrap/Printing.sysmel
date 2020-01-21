@@ -1,0 +1,117 @@
+namespace Smalltalk definition: {
+
+ProtoObject extend: {
+    method printOnNativeTextStreamWriter: (writer: StdNative TextStreamWriter ref) := {
+        self asString printOnNativeTextStreamWriter: writer.
+		self
+    }.
+}.
+
+Object extend: {
+    method asString
+		:= self printString.
+
+    method printString
+		:= "TODO: Object >>#printString".
+
+    method storeString
+		:= "TODO: Object >>#storeString".
+}.
+
+UndefinedObject extend: {
+    method asString
+		:= "nil".
+
+    method printString
+		:= "nil".
+
+    method storeString
+		:= "nil".
+}.
+
+True extend: {
+    method asString
+		:= "true".
+
+    method printString
+		:= "true".
+
+    method storeString
+		:= "true".
+}.
+
+False extend: {
+    method asString
+		:= "false".
+
+    method printString
+		:= "false".
+
+    method storeString
+		:= "false".
+}.
+
+String extend: {
+	method asString
+		:= self.
+
+    method printOnNativeTextStreamWriter: (writer: StdNative TextStreamWriter ref) := {
+		__data size > 0 ifTrue: {
+		    writer write: __data [0] address size: __data size
+		}.
+
+		self
+    }.
+
+}.
+
+Behavior extend: {
+	method name
+		:= "A subclass of something".
+
+    method asString
+		:= self name.
+
+    method printString
+		:= self name.
+
+    method storeString
+		:= self name.
+}.
+
+Class extend: {
+	method name
+		:= name.
+}.
+
+Metaclass extend: {
+    method printOnNativeTextStreamWriter: (writer: StdNative TextStreamWriter ref) := {
+		thisClass printOnNativeTextStreamWriter: writer.
+        writer << " class".
+		self
+    }.
+
+}.
+
+SmallInteger extend: {
+    method printOnNativeTextStreamWriter: (writer: StdNative TextStreamWriter ref) := {
+        writer << self __decodeSmallInteger.
+		self
+    }.
+}.
+
+Character extend: {
+    method printOnNativeTextStreamWriter: (writer: StdNative TextStreamWriter ref) := {
+        writer << self __decodeCharacter.
+		self
+    }.
+}.
+
+StdNative TextStreamWriter extend: {
+    method << (object: ProtoObject) => SelfType ref := {
+        object printOnNativeTextStreamWriter: self.
+        self
+    }
+}.
+
+}.

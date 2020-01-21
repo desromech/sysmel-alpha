@@ -73,21 +73,26 @@ function main externC (argc: Int32, argv: Char8 const pointer pointer) => Int32 
     useNamespace: Smalltalk.
 
     let o := Object.
-    StdNative stdout << "o: " << (o reinterpretCastTo: Void pointer); nl.
-    StdNative stdout << "o class: " << (o class reinterpretCastTo: Void pointer); nl.
-    StdNative stdout << "Object basicNew: " << (Object basicNew reinterpretCastTo: Void pointer); nl.
+    StdNative stdout << "o: " << (o reinterpretCastTo: Void pointer) << " " << o; nl.
+    StdNative stdout << "o class: " << (o class reinterpretCastTo: Void pointer) << " " << o class; nl.
+    StdNative stdout << "Object basicNew: " << Object basicNew; nl.
 
 	let n mutable type: ProtoObject := 42.
 	let sumResult := n + 7.
-    StdNative stdout << "(ProtoObject)42 + (ProtoObject)7 = " << (sumResult reinterpretCastTo: Void pointer); nl.
+    StdNative stdout << "(ProtoObject)42 + (ProtoObject)7 = " << sumResult; nl.
 
     let boolValue := true.
     let boolCast type: ProtoObject := boolValue.
-    StdNative stdout << "Bool cast " << (boolCast reinterpretCastTo: Void pointer); nl.
+    StdNative stdout << "Bool cast " << (boolCast reinterpretCastTo: Void pointer) << " " << boolCast; nl.
 
 	let testArray type: ProtoObject := #("Hello world" 1 #symbol 2 3 4 5).
 	testArray do: {:(ProtoObject)el :: Void |
-	    StdNative stdout << "Array element " << (el reinterpretCastTo: Void pointer); nl.
+	    StdNative stdout << "Array element " << el; nl.
+	}.
+
+    StdNative stdout << "Printing ProtoObject with all subclasses"; nl.
+    ProtoObject withAllSubclassesDo: {:(ProtoObject)cls :: Void |
+	    StdNative stdout << cls; nl.
 	}.
 
     return: 0.

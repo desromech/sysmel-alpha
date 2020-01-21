@@ -159,11 +159,15 @@ Behavior definition: {
 }.
 
 Class definition: {
+    field subclasses protected type: ProtoObject.
     field name protected type: Symbol.
 
     method name => Symbol := {
         return: name
     }.
+
+	method subclasses
+		:= subclasses.
 }.
 
 Metaclass definition: {
@@ -534,7 +538,7 @@ MethodDictionary definition: {
 BlockClosureHeaderClass definition: {
 	protected field dynamicCallAdapter type: Void pointer.
 	protected field numArgs type: UInt32.
-	
+
 	virtual method initializeFrom: o
 		:= self.
 	virtual method initializeMovingFrom: o
@@ -551,54 +555,54 @@ BlockClosure definition: {
 			StdNative fatalError: "Mismatching argument count for block closure activation."
 		}.
 	}.
-		
+
 	method value := {
 		self checkRequiredArgumentCount: 0.
 		(dynamicCallAdapter reinterpretCastTo:
-			(Void pointer => ProtoObject) pointer)
-				(activationFunctionPointer_)
+			((Void pointer -- BlockClosure) => ProtoObject) pointer)
+				(activationFunctionPointer_, self)
 	}.
 
 	method value: argument := {
 		self checkRequiredArgumentCount: 1.
 		(dynamicCallAdapter reinterpretCastTo:
-			(Void pointer -- ProtoObject => ProtoObject) pointer)
-				(activationFunctionPointer_, argument)
+			(Void pointer -- BlockClosure -- ProtoObject => ProtoObject) pointer)
+				(activationFunctionPointer_, self, argument)
 	}.
 
 	method value: firstArg value: secondArg := {
 		self checkRequiredArgumentCount: 2.
 		(dynamicCallAdapter reinterpretCastTo:
-			((Void pointer -- ProtoObject -- ProtoObject) => ProtoObject) pointer)
-				(activationFunctionPointer_, firstArg, secondArg)
+			((Void pointer -- BlockClosure -- ProtoObject -- ProtoObject) => ProtoObject) pointer)
+				(activationFunctionPointer_, self, firstArg, secondArg)
 	}.
 
 	method value: firstArg value: secondArg value: thirdArg := {
 		self checkRequiredArgumentCount: 3.
 		(dynamicCallAdapter reinterpretCastTo:
-			((Void pointer -- ProtoObject -- ProtoObject -- ProtoObject) => ProtoObject) pointer)
-				(activationFunctionPointer_, firstArg, secondArg, thirdArg)
+			((Void pointer -- BlockClosure -- ProtoObject -- ProtoObject -- ProtoObject) => ProtoObject) pointer)
+				(activationFunctionPointer_, self, firstArg, secondArg, thirdArg)
 	}.
 
 	method value: firstArg value: secondArg value: thirdArg value: fourthArg := {
 		self checkRequiredArgumentCount: 4.
 		(dynamicCallAdapter reinterpretCastTo:
-			((Void pointer -- ProtoObject -- ProtoObject -- ProtoObject -- ProtoObject) => ProtoObject) pointer)
-				(activationFunctionPointer_, firstArg, secondArg, thirdArg, fourthArg)
+			((Void pointer -- BlockClosure -- ProtoObject -- ProtoObject -- ProtoObject -- ProtoObject) => ProtoObject) pointer)
+				(activationFunctionPointer_, self, firstArg, secondArg, thirdArg, fourthArg)
 	}.
-	
+
 	method value: firstArg value: secondArg value: thirdArg value: fourthArg value: fifthArg := {
 		self checkRequiredArgumentCount: 5.
 		(dynamicCallAdapter reinterpretCastTo:
-			((Void pointer -- ProtoObject -- ProtoObject -- ProtoObject -- ProtoObject -- ProtoObject) => ProtoObject) pointer)
-				(activationFunctionPointer_, firstArg, secondArg, thirdArg, fourthArg, fifthArg)
+			((Void pointer -- BlockClosure -- ProtoObject -- ProtoObject -- ProtoObject -- ProtoObject -- ProtoObject) => ProtoObject) pointer)
+				(activationFunctionPointer_, self, firstArg, secondArg, thirdArg, fourthArg, fifthArg)
 	}.
 
 	method value: firstArg value: secondArg value: thirdArg value: fourthArg value: fifthArg value: sixthArg := {
 		self checkRequiredArgumentCount: 6.
 		(dynamicCallAdapter reinterpretCastTo:
-			((Void pointer -- ProtoObject -- ProtoObject -- ProtoObject -- ProtoObject -- ProtoObject -- ProtoObject) => ProtoObject) pointer)
-				(activationFunctionPointer_, firstArg, secondArg, thirdArg, fourthArg, fifthArg, sixthArg)
+			((Void pointer -- BlockClosure -- ProtoObject -- ProtoObject -- ProtoObject -- ProtoObject -- ProtoObject -- ProtoObject) => ProtoObject) pointer)
+				(activationFunctionPointer_, self, firstArg, secondArg, thirdArg, fourthArg, fifthArg, sixthArg)
 	}.
 
 	method cull: argument := {
@@ -701,7 +705,7 @@ Compiler compilationTarget managedObjectModel
 	globalVariableClass: GlobalVariable;
 	undeclaredVariableClass: UndeclaredVariable;
 	workspaceVariableClass: WorkspaceVariable;
-	
+
 	blockClosureHeaderClass: BlockClosureHeaderClass;
 	blockClosureClass: BlockClosure;
 	gcBlockClosureAllocationFunction: gcBlockClosureAllocator;

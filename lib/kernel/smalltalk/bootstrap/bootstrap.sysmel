@@ -1,4 +1,5 @@
 loadFileOnce: "MetaHierarchy.sysmel".
+loadFileOnce: "Macros.sysmel".
 loadFileOnce: "Magnitude.sysmel".
 loadFileOnce: "Collections.sysmel".
 loadFileOnce: "Printing.sysmel".

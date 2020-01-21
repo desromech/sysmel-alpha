@@ -1,0 +1,26 @@
+namespace Smalltalk definition: {
+
+ProtoObject extend: {
+    ## ifTrue:ifFalse
+    macro method ifTrue: trueAction :=
+        ``(if: `,self == true then: `,trueAction).
+    macro method ifFalse: falseAction :=
+        ``(if: `,self == false then: `,falseAction).
+    macro method ifTrue: trueAction ifFalse: falseAction :=
+        ``(if: `,self == true then: `,trueAction else: `,falseAction).
+    macro method ifFalse: falseAction ifTrue: trueAction :=
+        ``(if: `,self == true  then: `,trueAction else: `,falseAction).
+
+    ## TODO: Add higienic symbols.
+    macro method ifNil: nilAction :=
+        ``(if: `,self == nil then: `,nilAction).
+    macro method ifNotNil: notNilAction :=
+        ``(if: `,self ~~ nil then: `,notNilAction).
+
+    macro method ifNotNil: notNilAction ifNil: nilAction :=
+        ``(if: `,self ~~ nil then: `,notNilAction else: `,nilAction).
+    macro method ifNil: nilAction ifNotNil: notNilAction :=
+        ``(if: `,self == nil then: `,nilAction else: `,notNilAction).
+}.
+
+}.
