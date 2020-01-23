@@ -94,18 +94,18 @@ class Application definition: {
 
     method render => Void := {
         commandAllocator _ reset.
-        commandList _ reset: commandAllocator initial_pipeline_state: AGPU PipelineStateRef nil.
+        commandList _ reset: commandAllocator initialPipelineState: AGPU PipelineStateRef nil.
 
         let backBuffer := swapChain _ getCurrentBackBuffer.
         commandList _
             setShaderSignature: shaderSignature;
 
-            beginRenderPass: mainRenderPass framebuffer: backBuffer bundle_content: 0;
+            beginRenderPass: mainRenderPass framebuffer: backBuffer bundleContent: 0;
             setViewport: 0 y: 0 w: (screenWidth castTo: Int32) h: (screenHeight castTo: Int32);
             setScissor: 0 y: 0 w: (screenWidth castTo: Int32) h: (screenHeight castTo: Int32);
 
             usePipelineState: pipelineState;
-            drawArrays: 3 instance_count: 1 first_vertex: 0 base_instance: 0;
+            drawArrays: 3 instanceCount: 1 firstVertex: 0 baseInstance: 0;
 
             endRenderPass.
 
@@ -220,8 +220,8 @@ class Application definition: {
                 pipelineState :=
                     builder _
                     setShaderSignature: shaderSignature;
-                    attachShaderWithEntryPoint: shaderModule type: AGPU ShaderType Vertex entry_point: TriangleShader triangleVertex shaderEntryPointInfo entryPointSymbol;
-                    attachShaderWithEntryPoint: shaderModule type: AGPU ShaderType Fragment entry_point: TriangleShader triangleFragment shaderEntryPointInfo entryPointSymbol;
+                    attachShaderWithEntryPoint: shaderModule type: AGPU ShaderType Vertex entryPoint: TriangleShader triangleVertex shaderEntryPointInfo entryPointSymbol;
+                    attachShaderWithEntryPoint: shaderModule type: AGPU ShaderType Fragment entryPoint: TriangleShader triangleFragment shaderEntryPointInfo entryPointSymbol;
                     setPrimitiveType: AGPU PrimitiveTopology Triangles;
                     build
             }.
@@ -257,7 +257,7 @@ class Application definition: {
 
             ## Create the command allocator and the command list.
             commandAllocator := device _ createCommandAllocator: AGPU CommandListType Direct queue: commandQueue.
-            commandList := device _ createCommandList: AGPU CommandListType Direct allocator: commandAllocator initial_pipeline_state: AGPU PipelineStateRef nil.
+            commandList := device _ createCommandList: AGPU CommandListType Direct allocator: commandAllocator initialPipelineState: AGPU PipelineStateRef nil.
             commandList _ close.
         }.
 
