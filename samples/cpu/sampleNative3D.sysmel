@@ -1,5 +1,50 @@
 useNamespace: SDL2.
 
+class TriangleShader definition: {
+    let triangleVertices type: (Float32x4 array: 3) := (
+        Float32x4(-1.0f, 1.0f, 0.0f, 1.0f),
+        Float32x4(1.0f, 1.0f, 0.0f, 1.0f),
+        Float32x4(0.0f, -1.0f, 0.0f, 1.0f)
+    ).
+
+    let triangleColors type: (Float32x4 array: 3) := (
+        Float32x4(1.0f, 0.0f, 0.0f, 1.0f),
+        Float32x4(0.0f, 1.0f, 0.0f, 1.0f),
+        Float32x4(0.0f, 0.0f, 1.0f, 1.0f)
+    ).
+
+    class VertexOutput superclass: GPU VertexStageOutput; definition: {
+        public field color type: Float32x4; location: 0.
+        public field screenPosition type: Float32x4; intrinsic: #position.
+    }.
+
+    class FragmentInput definition: {
+        public field color type: Float32x4; location: 0.
+    }.
+
+    class FragmentOutput definition: {
+        public field color type: Float32x4; location: 0.
+    }.
+
+    function triangleVertex vertexShader externC(stageIn: GPU VertexStageInput inputChannel, stageOut: VertexOutput outputChannel) => Void := {
+        let input := stageIn receive.
+
+        stageOut send: (VertexOutput newValue
+            screenPosition: triangleVertices[input vertexID];
+            color: triangleColors[input vertexID];
+            yourself
+        ).
+    }.
+
+    function triangleFragment fragmentShader externC(stageIn: FragmentInput inputChannel, stageOut: FragmentOutput outputChannel) => Void := {
+        let input := stageIn receive.
+
+        stageOut send: (FragmentOutput newValue
+            color: input color
+        )
+    }.
+}.
+
 class Application definition: {
     field window type: SDL_Window pointer.
     field renderer type: SDL_Renderer pointer.
@@ -15,6 +60,10 @@ class Application definition: {
     field mainRenderPass type: AGPU RenderpassRef.
     field commandAllocator type: AGPU CommandAllocatorRef.
     field commandList type: AGPU CommandListRef.
+
+    field shaderModule type: AGPU ShaderRef.
+    field shaderSignature type: AGPU ShaderSignatureRef.
+    field pipelineState type: AGPU PipelineStateRef.
 
     method onKeyDown: (event: SDL_KeyboardEvent ref) ::=> Void := {
     	event keysym sym selectCase: #{
@@ -49,7 +98,15 @@ class Application definition: {
 
         let backBuffer := swapChain _ getCurrentBackBuffer.
         commandList _
+            setShaderSignature: shaderSignature;
+
             beginRenderPass: mainRenderPass framebuffer: backBuffer bundle_content: 0;
+            setViewport: 0 y: 0 w: (screenWidth castTo: Int32) h: (screenHeight castTo: Int32);
+            setScissor: 0 y: 0 w: (screenWidth castTo: Int32) h: (screenHeight castTo: Int32);
+
+            usePipelineState: pipelineState;
+            drawArrays: 3 instance_count: 1 first_vertex: 0 base_instance: 0;
+
             endRenderPass.
 
         commandList _ close.
@@ -137,6 +194,38 @@ class Application definition: {
                 return: 1
             }.
 
+            ## Create the shader module.
+            {
+                let moduleInfo := TriangleShader triangleVertex shaderEntryPointInfo moduleInfo.
+
+                shaderModule := device _ createShader: AGPU ShaderType Library.
+                shaderModule _
+                    setShaderSource: AGPU ShaderLanguage SpirV sourceText: (moduleInfo _ blobStartPointer reinterpretCastTo: Char8 const pointer)
+                        sourceTextLength: moduleInfo _ blobSize;
+                        compileShader: "".
+
+                ## TODO: Handle shader compilation errors.
+            }.
+
+            ## Create the shader signature.
+            {
+                let builder := device _ createShaderSignatureBuilder.
+                shaderSignature := builder _
+                    build
+            }.
+
+            ## Create the pipeline state object.
+            {
+                let builder := device _ createPipelineBuilder.
+                pipelineState :=
+                    builder _
+                    setShaderSignature: shaderSignature;
+                    attachShaderWithEntryPoint: shaderModule type: AGPU ShaderType Vertex entry_point: TriangleShader triangleVertex shaderEntryPointInfo entryPointSymbol;
+                    attachShaderWithEntryPoint: shaderModule type: AGPU ShaderType Fragment entry_point: TriangleShader triangleFragment shaderEntryPointInfo entryPointSymbol;
+                    setPrimitiveType: AGPU PrimitiveTopology Triangles;
+                    build
+            }.
+
             ## Create the main render pass.
             {
                 ## Color attachment
@@ -146,7 +235,7 @@ class Application definition: {
                     begin_action: AGPU RenderpassAttachmentAction Clear;
                     end_action: AGPU RenderpassAttachmentAction Keep;
                     sample_count: 1.
-                colorAttachment clear_value r: 0.0f; g: 0.0f; b: 1.0f; a: 0.0f.
+                colorAttachment clear_value r: 0.0f; g: 0.0f; b: 0.0f; a: 0.0f.
 
                 ## Depth stencil
                 let depthStencil mutable type: AGPU RenderpassDepthStencilDescription.

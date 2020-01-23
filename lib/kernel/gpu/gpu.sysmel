@@ -1,4 +1,5 @@
 loadFileOnce: "types.sysmel".
+loadFileOnce: "metadata.sysmel".
 loadFileOnce: "rendering.sysmel".
 loadFileOnce: "compute.sysmel".
 loadFileOnce: "barriers.sysmel".
