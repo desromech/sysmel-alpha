@@ -284,6 +284,29 @@ Compiler compilationTarget managedObjectModel
 	
 ]
 
+{ #category : #tests }
+MbndSysmelLanguageTestCommon >> evaluateShaderMetadata [
+	^ self evaluateSource: '
+struct ShaderModuleInfo definition: { 
+	public field blobSize type: UIntPointer.
+	public field blobStartPointer type: UInt8 pointer.
+}.
+
+struct ShaderEntryPointInfo definition: { 
+	public field moduleInfo type: ShaderModuleInfo pointer.
+	public field entryPointSymbol type: Char8 const pointer.
+	public field stageType type: Int32.
+	public field localSizeX type: UInt32.
+	public field localSizeY type: UInt32.
+	public field localSizeZ type: UInt32.
+}.
+
+Compiler compilationTarget
+	shaderModuleInfo: ShaderModuleInfo;
+	shaderEntryPointInfo: ShaderEntryPointInfo.
+'
+]
+
 { #category : #'as yet unclassified' }
 MbndSysmelLanguageTestCommon >> evaluateSource: aString [
 	^ semanticModule evaluateLanguage: #sysmel source: aString

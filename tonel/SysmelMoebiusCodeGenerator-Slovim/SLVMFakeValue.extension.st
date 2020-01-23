@@ -9,3 +9,8 @@ SLVMFakeValue >> isMbndDescriptorSetReference [
 SLVMFakeValue >> isMbndLoadedReferenceValue [
 	^ false
 ]
+
+{ #category : #'*SysmelMoebiusCodeGenerator-Slovim' }
+SLVMFakeValue >> isMbndSlovimFoldingLiteralGlobal [
+	^ false
+]

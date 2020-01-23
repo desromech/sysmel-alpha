@@ -177,7 +177,7 @@ MbndSlovimTypeTranslator >> visitGCClassVariableDataArrayType: variableDataArray
 { #category : #visiting }
 MbndSlovimTypeTranslator >> visitInputChannelType: type [
 	| messageType |
-	self slvmCompilationTarget isGPU ifTrue: [
+	type specialSemantics ifNotNil: [
 		messageType := self translateType: type messageType.
 		^ self slvmCompilationTarget pointerTo: messageType storage: SLVMType functionStorage
 	].
@@ -195,7 +195,7 @@ MbndSlovimTypeTranslator >> visitNativeBlockClosureType: type [
 { #category : #visiting }
 MbndSlovimTypeTranslator >> visitOutputChannelType: type [
 	| messageType |
-	self slvmCompilationTarget isGPU ifTrue: [
+	type specialSemantics ifNotNil: [
 		messageType := self translateType: type messageType.
 		^ self slvmCompilationTarget pointerTo: messageType storage: SLVMType functionStorage
 	].

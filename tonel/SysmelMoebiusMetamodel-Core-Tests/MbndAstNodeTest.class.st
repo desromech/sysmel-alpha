@@ -160,6 +160,7 @@ MbndAstNodeTest >> testTestingMethods [
 	self deny: node isSampleTextureWithExplicitLodNode.
 	self deny: node isSampleTextureWithImplicitLodNode.
 	self deny: node isSequenceNode.
+	self deny: node isShaderEntryPointInfoReferenceNode.
 	self deny: node isSpecificCastNode.
 	self deny: node isSignExtensionCastNode.
 	self deny: node isSpliceNode.

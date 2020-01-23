@@ -1246,6 +1246,19 @@ MbndSlovimCodeModuleGeneratorTest >> testDynamicObjectToInteger [
 ]
 
 { #category : #tests }
+MbndSlovimCodeModuleGeneratorTest >> testEmbedderShaderGeneration [
+	self
+		evaluateShaderMetadata;
+		evaluateSysmelSource: 'class SampleShader definition: { 
+	function v vertexShader() => Void := {
+	}.
+}.';
+		generateSSAModule.
+		
+	self flag: 'TODO: Add tests for the shader module generation.'
+]
+
+{ #category : #tests }
 MbndSlovimCodeModuleGeneratorTest >> testEmptyModule [
 	self generateSSAModule.
 	

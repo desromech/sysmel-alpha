@@ -20,6 +20,19 @@ MbndFunctionType >> accept: aVisitor [
 	^ aVisitor visitFunctionType: self
 ]
 
+{ #category : #initialization }
+MbndFunctionType >> addInstanceMacros [
+	self class == MbndFunctionType ifFalse: [ ^ self ].
+	self isTrait ifFalse: [ ^ self ].
+	
+	self onMacroSelector: #shaderEntryPointInfo do: [ :node :builder |
+		node receiver isMethodReferenceNode ifFalse: [ 
+			self error: 'A direct method reference is required for the shaderEntryPointInfo macro.' at: node
+		].
+		node receiver binding shaderEntryPointInfoReferenceNodeAt: node
+	].
+]
+
 { #category : #'as yet unclassified' }
 MbndFunctionType >> analyzeFunctionCallNode: node with: analyzer [
 	node arguments size < argumentTypes size ifTrue: [

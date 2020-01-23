@@ -130,7 +130,7 @@ MbndAbstractConcreteMethod >> defineArgument: argumentNode [
 		definitionNode: argumentNode;
 		parent: self;
 		name: argumentNode name;
-		valueType: (argumentNode valueType asConcreteTypeForAnalysisOfFunction: self);
+		valueType: ((argumentNode valueType asConcreteTypeForAnalysisOfFunction: self) withSpecialSemantics: specialSemantics);
 		yourself
 ]
 
@@ -382,6 +382,16 @@ MbndAbstractConcreteMethod >> setupAnalysisScopeForSpecialSemantics: analysisSco
 	self specialSemantics = #compute ifTrue: [
 		self setupAnalysisScopeForComputeShader: analysisScope
 	].
+]
+
+{ #category : #accessing }
+MbndAbstractConcreteMethod >> shaderEntryPointInfoReferenceNodeAt: node [
+	specialSemantics ifNil: [ self error: 'Function or method {1} is not a shader.' format: { name asPrettySymbolName } at: node ].
+	^ MbndAstShaderEntryPointInfoReference new 
+		position: node;
+		binding: self;
+		type: self compilationTarget shaderEntryPointInfo const ref;
+		yourself
 ]
 
 { #category : #accessing }

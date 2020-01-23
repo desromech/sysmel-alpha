@@ -973,7 +973,7 @@ MbndAstSemanticAnalyzer >> visitFunctionDefinitionNode: node [
 
 { #category : #visiting }
 MbndAstSemanticAnalyzer >> visitFunctionPrototypeNode: node [
-	| result |
+	| result specialSemantics |
 	scope isInFunctionScope ifTrue: [ 
 		self error: 'Function prototypes are not valid inside other functions or methods.' at: node.
 	].
@@ -988,8 +988,9 @@ MbndAstSemanticAnalyzer >> visitFunctionPrototypeNode: node [
 		result returnType: (self evaluateTypeExpression: result returnType)
 	].
 		
+	specialSemantics := node specialSemantics.
 	result functionType: (self compilationTarget
-		functionTypeWithArguments: (result arguments collect: #valueType)
+		functionTypeWithArguments: (result arguments collect: [:arg | arg valueType withSpecialSemantics: specialSemantics])
 		returnType: result returnType
 		cvariadic: node isCVariadic).
 	result type: result functionType ref.
@@ -1002,9 +1003,7 @@ MbndAstSemanticAnalyzer >> visitFunctionPrototypeNode: node [
 		newOwner findOrAddOverloadedFunctionPrototype: result
 	].
 
-	result specialSemantics ifNotNil: [ 
-		result concreteMethod specialSemantics: node specialSemantics
-	].
+	result concreteMethod specialSemantics: node specialSemantics.
 	
 	^ result
 ]

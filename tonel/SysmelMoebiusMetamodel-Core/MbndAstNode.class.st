@@ -642,6 +642,12 @@ MbndAstNode >> isSetFieldValueNode [
 ]
 
 { #category : #testing }
+MbndAstNode >> isShaderEntryPointInfoReferenceNode [
+	^ false
+
+]
+
+{ #category : #testing }
 MbndAstNode >> isSignExtensionCastNode [
 	^ false
 ]

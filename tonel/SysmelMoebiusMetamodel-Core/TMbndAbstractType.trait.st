@@ -707,7 +707,7 @@ TMbndAbstractType >> initializeMovingFromMethod [
 { #category : #'type composition' }
 TMbndAbstractType >> inputChannel [
 	<compileTime>
-	^ self compilationTarget inputChannelFor: self
+	^ self compilationTarget inputChannelFor: self specialSemantics: nil
 ]
 
 { #category : #sizes }
@@ -1262,7 +1262,7 @@ TMbndAbstractType >> node: node convertedImplicitlyInto: targetType [
 { #category : #'type composition' }
 TMbndAbstractType >> outputChannel [
 	<compileTime>
-	^ self compilationTarget outputChannelFor: self
+	^ self compilationTarget outputChannelFor: self specialSemantics: nil
 ]
 
 { #category : #'type composition' }
@@ -1422,6 +1422,11 @@ TMbndAbstractType >> withDecoration: decoration [
 TMbndAbstractType >> withDecorations: decorations [
 	<compileTime>
 	^ self compilationTarget type: self withDecorations: decorations
+]
+
+{ #category : #'as yet unclassified' }
+TMbndAbstractType >> withSpecialSemantics: specialSemantics [
+	^ self
 ]
 
 { #category : #'type hierarchy' }

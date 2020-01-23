@@ -2,7 +2,8 @@ Class {
 	#name : #MbndIOChannelType,
 	#superclass : #MbndOpaqueHandleType,
 	#instVars : [
-		'messageType'
+		'messageType',
+		'specialSemantics'
 	],
 	#category : #'SysmelMoebiusMetamodel-Core-Type'
 }
@@ -30,4 +31,14 @@ MbndIOChannelType >> messageType [
 { #category : #accessing }
 MbndIOChannelType >> messageType: anObject [
 	messageType := anObject
+]
+
+{ #category : #accessing }
+MbndIOChannelType >> specialSemantics [
+	^ specialSemantics
+]
+
+{ #category : #accessing }
+MbndIOChannelType >> specialSemantics: anObject [
+	specialSemantics := anObject
 ]

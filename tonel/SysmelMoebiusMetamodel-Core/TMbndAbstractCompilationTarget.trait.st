@@ -249,7 +249,7 @@ TMbndAbstractCompilationTarget >> hasOperatingSystem [
 ]
 
 { #category : #'derived types' }
-TMbndAbstractCompilationTarget >> inputChannelFor: messageType [
+TMbndAbstractCompilationTarget >> inputChannelFor: messageType specialSemantics: specialSemantics [
 	self explicitRequirement
 ]
 
@@ -434,7 +434,7 @@ TMbndAbstractCompilationTarget >> opaqueType [
 ]
 
 { #category : #'derived types' }
-TMbndAbstractCompilationTarget >> outputChannelFor: messageType [
+TMbndAbstractCompilationTarget >> outputChannelFor: messageType specialSemantics: specialSemantics [
 	self explicitRequirement
 ]
 

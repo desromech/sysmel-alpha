@@ -15,7 +15,8 @@ Class {
 		'ssaFunctionBodyBlock',
 		'activeLexicalScope',
 		'implicitCleanUpActionStates',
-		'storageCreationNodeVariableMapForCopyEllision'
+		'storageCreationNodeVariableMapForCopyEllision',
+		'entryPointLocalInitializations'
 	],
 	#classVars : [
 		'AdditionalIntrinsicsDictionary',
@@ -159,6 +160,7 @@ MbndSlovimFunctionCodeGenerator >> buildSSAFunction: aSSAFunction definitionWith
 	self assert: concreteMethod analyzedBody type isReturnType.
 
 	"Initialize the required clean up action states in the alloca block."
+	self initializeEntryPointLocals.
 	self initializeCleanUpActionStates.
 	
 	"Jump from the alloca block into the body."
@@ -1014,6 +1016,11 @@ MbndSlovimFunctionCodeGenerator >> initializeCleanUpActionStates [
 ]
 
 { #category : #'as yet unclassified' }
+MbndSlovimFunctionCodeGenerator >> initializeEntryPointLocals [
+	entryPointLocalInitializations do: [ :each | each value]
+]
+
+{ #category : #'as yet unclassified' }
 MbndSlovimFunctionCodeGenerator >> processIntrinsic: intrinsicName callArguments: callArguments [
 	| processedArguments |
 	processedArguments := callArguments.
@@ -1072,6 +1079,7 @@ MbndSlovimFunctionCodeGenerator >> setupBuilders [
 	| initialDebugPosition |
 	slvmBuilder := SLVMBuilder on: ssaFunction.
 	ssaFunctionEntryBlock := slvmBuilder newBasicBlockHere: #entry.
+	entryPointLocalInitializations := OrderedCollection new.
 	implicitCleanUpActionStates := OrderedCollection new.
 	storageCreationNodeVariableMapForCopyEllision := IdentityDictionary new.
 
@@ -1565,7 +1573,7 @@ MbndSlovimFunctionCodeGenerator >> visitIOChannelReceiveAction: node [
 	channel := self visitNode: node channel.
 	messageType := self translateType: node channel type messageType.
 	
-	self slvmCompilationTarget isGPU ifTrue: [
+	node channel type specialSemantics ifNotNil: [
 		^ slvmBuilder load: channel
 	].
 	
@@ -1583,7 +1591,7 @@ MbndSlovimFunctionCodeGenerator >> visitIOChannelSendAction: node [
 	channel := self visitNode: node channel.
 	message := self visitNode: node message.
 	
-	self slvmCompilationTarget isSpirV ifTrue: [ 
+	node channel type specialSemantics ifNotNil: [
 		slvmBuilder store: message in: channel.
 		^ channel
 	].
@@ -2051,6 +2059,11 @@ MbndSlovimFunctionCodeGenerator >> visitSetFieldValueNode: node [
 ]
 
 { #category : #visiting }
+MbndSlovimFunctionCodeGenerator >> visitShaderEntryPointInfoReferenceNode: node [
+	^ codeModuleGenerator getOrCreateShaderEntryPointInfoFor: node binding
+]
+
+{ #category : #visiting }
 MbndSlovimFunctionCodeGenerator >> visitSignExtensionCastNode: node [
 	| source targetType |
 	source := self visitNode: node expression.
@@ -2144,6 +2157,18 @@ MbndSlovimFunctionCodeGenerator >> visitVariableReferenceNode: node [
 		^ ssaValue
 	].
 	translatedBinding := (codeModuleGenerator translateProgramEntity: binding) ssaValue.
+	translatedBinding isFakeValue ifTrue: [ 
+		translatedBinding isMbndSlovimFoldingLiteralGlobal ifTrue: [
+			translatedBinding := functionVariables at: translatedBinding ifAbsentPut: [
+				| functionLocalVar constantValue |
+				constantValue := translatedBinding value.
+				functionLocalVar := slvmBuilder allocaBuilder alloca: constantValue type.
+				entryPointLocalInitializations add: [ slvmBuilder allocaBuilder store: constantValue in: functionLocalVar ].
+				functionLocalVar
+			].
+		].
+	].
+
 	targetType := self translateType: node type.
 	(translatedBinding type isPointerType and: [ targetType isPointerType not]) ifTrue: [
 		"Load the value of immutable variables."

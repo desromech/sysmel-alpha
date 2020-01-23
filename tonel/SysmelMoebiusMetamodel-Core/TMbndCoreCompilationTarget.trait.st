@@ -28,7 +28,9 @@ Trait {
 		'systemProvidedTypeTemplates',
 		'defaultGCClassSuperClass',
 		'temporaryReferenceTypes',
-		'nativeBlockClosureTypes'
+		'nativeBlockClosureTypes',
+		'shaderModuleInfo',
+		'shaderEntryPointInfo'
 	],
 	#traits : 'TMbndAbstractCompilationTarget',
 	#classTraits : 'TMbndAbstractCompilationTarget classTrait',
@@ -866,9 +868,9 @@ TMbndCoreCompilationTarget >> initializeTypeSystem [
 		initializeArithmeticConversionRules
 ]
 
-{ #category : #'derived types' }
-TMbndCoreCompilationTarget >> inputChannelFor: messageType [
-	^ inputChannelTypes getOrCreateInstanceWithArguments: { messageType }
+{ #category : #'as yet unclassified' }
+TMbndCoreCompilationTarget >> inputChannelFor: messageType specialSemantics: specialSemantics [
+	^ inputChannelTypes getOrCreateInstanceWithArguments: { messageType . specialSemantics }
 ]
 
 { #category : #accessing }
@@ -944,9 +946,9 @@ TMbndCoreCompilationTarget >> newCodeModuleGenerator [
 	self explicitRequirement
 ]
 
-{ #category : #'derived types' }
-TMbndCoreCompilationTarget >> outputChannelFor: messageType [
-	^ outputChannelTypes getOrCreateInstanceWithArguments: { messageType }
+{ #category : #'as yet unclassified' }
+TMbndCoreCompilationTarget >> outputChannelFor: messageType specialSemantics: specialSemantics [
+	^ outputChannelTypes getOrCreateInstanceWithArguments: { messageType . specialSemantics }
 ]
 
 { #category : #accessing }
@@ -993,6 +995,26 @@ TMbndCoreCompilationTarget >> samplerImplementationType: aType [
 TMbndCoreCompilationTarget >> setNativePrefixedStringLiteralType: aType [
 	nativePrefixedStringLiteralType := aType.
 	self literalStringType addConversionTo: nativePrefixedStringLiteralType rule: MbndLiteralStringToNativePrefixedStringConversionRule.
+]
+
+{ #category : #accessing }
+TMbndCoreCompilationTarget >> shaderEntryPointInfo [
+	^ shaderEntryPointInfo
+]
+
+{ #category : #accessing }
+TMbndCoreCompilationTarget >> shaderEntryPointInfo: anObject [
+	shaderEntryPointInfo := anObject
+]
+
+{ #category : #accessing }
+TMbndCoreCompilationTarget >> shaderModuleInfo [
+	^ shaderModuleInfo
+]
+
+{ #category : #accessing }
+TMbndCoreCompilationTarget >> shaderModuleInfo: anObject [
+	shaderModuleInfo := anObject
 ]
 
 { #category : #'derived types' }

@@ -45,6 +45,13 @@ MbndSlovimCompilationTarget >> addSysmelLLVMGCPlugin [
 
 ]
 
+{ #category : #converting }
+MbndSlovimCompilationTarget >> asSpirVCompilationTarget [
+	^ self slvmCompilationTarget: (self pointerSize = 4
+		ifTrue: [SLVMLLVMCompilationTarget spirv_logical32]
+		ifFalse: [SLVMLLVMCompilationTarget spirv_logical64])
+]
+
 { #category : #accessing }
 MbndSlovimCompilationTarget >> float64Alignment [
 	^ slvmCompilationTarget float64 alignment

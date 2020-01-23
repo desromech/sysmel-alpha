@@ -545,6 +545,11 @@ MbndAstVisitor >> visitSetFieldValueNode: node [
 ]
 
 { #category : #visiting }
+MbndAstVisitor >> visitShaderEntryPointInfoReferenceNode: node [
+	self subclassResponsibility
+]
+
+{ #category : #visiting }
 MbndAstVisitor >> visitSignExtensionCastNode: node [
 	self subclassResponsibility
 ]

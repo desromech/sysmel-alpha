@@ -5,7 +5,8 @@ Trait {
 		'evaluatedFileSet',
 		'pendingDelayedSemanticAnalysisSet',
 		'languageInterfaceCache',
-		'moduleLevelInlineAssembly'
+		'moduleLevelInlineAssembly',
+		'embeddedShaderCopyOutputFile'
 	],
 	#traits : 'TMbndProgramEntity',
 	#classTraits : 'TMbndProgramEntity classTrait',
@@ -66,6 +67,16 @@ TMbndModule >> children [
 { #category : #'as yet unclassified' }
 TMbndModule >> compilationTarget [
 	self explicitRequirement
+]
+
+{ #category : #accessing }
+TMbndModule >> embeddedShaderCopyOutputFile [
+	^ embeddedShaderCopyOutputFile
+]
+
+{ #category : #accessing }
+TMbndModule >> embeddedShaderCopyOutputFile: aFileName [
+	embeddedShaderCopyOutputFile := aFileName 
 ]
 
 { #category : #'semantic analysis' }

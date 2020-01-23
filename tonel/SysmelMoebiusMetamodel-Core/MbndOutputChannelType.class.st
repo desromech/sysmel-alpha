@@ -37,3 +37,8 @@ MbndOutputChannelType >> printOn: aStream [
 	messageType printOn: aStream.
 	aStream nextPutAll: ' outputChannel'
 ]
+
+{ #category : #'as yet unclassified' }
+MbndOutputChannelType >> withSpecialSemantics: newSpecialSemantics [
+	^ self compilationTarget outputChannelFor: messageType specialSemantics: newSpecialSemantics
+]

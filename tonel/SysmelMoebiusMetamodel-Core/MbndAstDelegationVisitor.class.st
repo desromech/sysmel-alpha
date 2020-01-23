@@ -523,6 +523,11 @@ MbndAstDelegationVisitor >> visitSetFieldValueNode: node [
 ]
 
 { #category : #visiting }
+MbndAstDelegationVisitor >> visitShaderEntryPointInfoReferenceNode: node [
+	^ self delegateNodeVisit: node
+]
+
+{ #category : #visiting }
 MbndAstDelegationVisitor >> visitSignExtensionCastNode: node [
 	^ self delegateNodeVisit: node
 ]

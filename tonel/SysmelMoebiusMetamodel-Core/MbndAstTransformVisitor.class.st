@@ -745,6 +745,11 @@ MbndAstTransformVisitor >> visitSetFieldValueNode: node [
 ]
 
 { #category : #visiting }
+MbndAstTransformVisitor >> visitShaderEntryPointInfoReferenceNode: node [
+	^ node
+]
+
+{ #category : #visiting }
 MbndAstTransformVisitor >> visitSignExtensionCastNode: node [
 	^ self visitSpecificCastNode: node
 ]

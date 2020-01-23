@@ -165,19 +165,21 @@ MbndAbstractConcreteCompilationTarget >> initializeDerivedTypeCaches [
 	].
 
 	inputChannelTypes := self createSystemProvidedTypeTemplate: #_InputChannelTypeTemplate
-		argumentNames: #(MessageType)
-		doing: [ :messageType |
+		argumentNames: #(MessageType SpecialSemantics)
+		doing: [ :messageType :specialSemantics |
 			(self ensureBasicTypeIsLinkedToTheHierarchy: MbndInputChannelType basicNew)
 				messageType: messageType;
+				specialSemantics: specialSemantics;
 				initializeNonTraitType;
 				yourself.
 	].
 
 	outputChannelTypes := self createSystemProvidedTypeTemplate: #_OutputChannelTypeTemplate
-		argumentNames: #(MessageType)
-		doing: [ :messageType |
+		argumentNames: #(MessageType SpecialSemantics)
+		doing: [ :messageType :specialSemantics |
 			(self ensureBasicTypeIsLinkedToTheHierarchy: MbndOutputChannelType basicNew)
 				messageType: messageType;
+				specialSemantics: specialSemantics;
 				initializeNonTraitType;
 				yourself.
 	].

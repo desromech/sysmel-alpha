@@ -17,10 +17,14 @@ Class {
 		'generatedNameTable',
 		'debugTypeTranslator',
 		'symbolNameManglerPrototype',
-		'dynamicFunctionCallsAdapters'
+		'dynamicFunctionCallsAdapters',
+		'shaderEntryPointInfoDictionary',
+		'compilationTargetOverride',
+		'shaderEntryPoints'
 	],
 	#classVars : [
-		'ShaderBuiltInLocationMap'
+		'ShaderBuiltInLocationMap',
+		'ShaderTypeToStageType'
 	],
 	#category : #'SysmelMoebiusCodeGenerator-Slovim-Module'
 }
@@ -50,6 +54,15 @@ MbndSlovimCodeModuleGenerator class >> initialize [
 		(compute globalInvocationID) -29
 		(compute localInvocationIndex) -30
 	).
+	
+	ShaderTypeToStageType := Dictionary newFromPairs: #(
+		vertex 0 "AGPU_VERTEX_SHADER"
+		fragment 1 "AGPU_FRAGMENT_SHADER"
+		geometry 2 "AGPU_GEOMETRY_SHADER"
+		compute 3 "AGPU_COMPUTE_SHADER"
+		tcontrol 4 "AGPU_TESSELLATION_CONTROL_SHADER"
+		teval 5 "AGPU_TESSELLATION_EVALUATION_SHADER"
+	)
 	
 ]
 
@@ -97,7 +110,17 @@ MbndSlovimCodeModuleGenerator >> addUnmangledProgramEntity: programEntity suffix
 
 { #category : #accessing }
 MbndSlovimCodeModuleGenerator >> compilationTarget [
-	^ sourceModule compilationTarget
+	^ compilationTargetOverride ifNil: [ sourceModule compilationTarget ]
+]
+
+{ #category : #accessing }
+MbndSlovimCodeModuleGenerator >> compilationTargetOverride [
+	^ compilationTargetOverride
+]
+
+{ #category : #accessing }
+MbndSlovimCodeModuleGenerator >> compilationTargetOverride: aCompilationTarget [
+	^ compilationTargetOverride := aCompilationTarget
 ]
 
 { #category : #'code generation' }
@@ -281,6 +304,46 @@ MbndSlovimCodeModuleGenerator >> generateCodeModuleFor: aModule programEntities:
 	programEntitities do: [ :each | self translateProgramEntity: each ].
 	
 	^ ssaModule
+]
+
+{ #category : #'code generation' }
+MbndSlovimCodeModuleGenerator >> generateEmbeddedShaderModule [
+	| shaderCompilationTarget shaderModuleCodeGenerator shaderSSAModule spirVModule spirVModuleBlobData spirVModuleBlob spirVModuleInfoGlobal |
+	self compilationTarget isGPU ifTrue: [ ^ self ].
+	shaderEntryPoints ifEmpty: [ ^ self ].
+	shaderCompilationTarget := self compilationTarget asSpirVCompilationTarget.
+	shaderModuleCodeGenerator := shaderCompilationTarget newCodeModuleGenerator.
+	shaderModuleCodeGenerator compilationTargetOverride: shaderCompilationTarget.
+	shaderSSAModule := MbndProfiler component: #shaderIRCodeGeneration with: [shaderModuleCodeGenerator generateCodeModuleFor: sourceModule programEntities: shaderEntryPoints].
+	
+	spirVModule := shaderSSAModule asLowLevelModuleWithOptimizationLevel: sourceModule optimizationLevel.
+	spirVModuleBlobData := spirVModule bytes.
+	sourceModule embeddedShaderCopyOutputFile ifNotNil: [ :filename |
+		spirVModule saveTo: filename.
+	].
+	
+	spirVModuleBlob := SLVMGlobalVariable module: ssaModule name: nil valueType: (SLVMArrayType baseType: SLVMType ucharType elements: spirVModuleBlobData size) storage: SLVMType genericStorage.
+	spirVModuleBlob
+		readOnly: true;
+		initialValue: (SLVMConstant array: spirVModuleBlob valueType blob: spirVModuleBlobData).
+	
+	spirVModuleInfoGlobal := SLVMGlobalVariable module: ssaModule name: nil
+		valueType: (self translateType: self compilationTarget shaderModuleInfo)
+		storage: SLVMType genericStorage.
+	
+	shaderEntryPoints do: [ :entryPoint |
+		shaderSSAModule highLevelMapToSymbol at: entryPoint ifPresent: [:shaderEntryPointName |
+			self setEmbedderShaderEntryPoint: entryPoint withName: shaderEntryPointName infoWithModuleInfo: spirVModuleInfoGlobal
+		].
+	].
+
+	spirVModuleInfoGlobal initialValue: (
+		self translateLiteralValue: (
+			self compilationTarget shaderModuleInfo defaultValue
+				setField: #blobSize value: spirVModuleBlobData size;
+				setField: #blobStartPointer value: spirVModuleBlob)
+		ofType: self compilationTarget shaderModuleInfo).
+
 ]
 
 { #category : #'code generation' }
@@ -514,6 +577,13 @@ MbndSlovimCodeModuleGenerator >> getOrCreateDynamicFunctionCallAdapterFor: funct
 ]
 
 { #category : #'as yet unclassified' }
+MbndSlovimCodeModuleGenerator >> getOrCreateShaderEntryPointInfoFor: concreteMethod [
+	^ shaderEntryPointInfoDictionary at: concreteMethod ifAbsentPut: [
+		SLVMGlobalVariable module: ssaModule name: nil valueType: (self translateType: self compilationTarget shaderEntryPointInfo) storage: SLVMType genericStorage 
+	].
+]
+
+{ #category : #'as yet unclassified' }
 MbndSlovimCodeModuleGenerator >> getShaderIOField: field storage: storage forStage: specialSemantics [
 	^ convertedShaderIOFields at: {field . storage . specialSemantics} ifAbsentPut: [ 
 		self generateGlobalField: field forShader: specialSemantics storage: storage
@@ -556,6 +626,8 @@ MbndSlovimCodeModuleGenerator >> initialize [
 	structuresWithAdditionalKinds := Dictionary new.
 	generatedNameTable := IdentityDictionary new.
 	dynamicFunctionCallsAdapters := IdentityDictionary new.
+	shaderEntryPointInfoDictionary := IdentityDictionary new.
+	shaderEntryPoints := OrderedCollection new.
 ]
 
 { #category : #'as yet unclassified' }
@@ -653,6 +725,29 @@ MbndSlovimCodeModuleGenerator >> sanitizeValueTypeForMemory: valueType [
 	].
 
 	^ valueType
+]
+
+{ #category : #initialization }
+MbndSlovimCodeModuleGenerator >> setEmbedderShaderEntryPoint: entryPoint withName: symbolName infoWithModuleInfo: shaderModuleInfoGlobal [
+	| entryPointInfo entryPointInfoData |
+	entryPointInfo := self getOrCreateShaderEntryPointInfoFor: entryPoint.
+	entryPointInfoData := self compilationTarget shaderEntryPointInfo defaultValue.
+	entryPointInfoData
+		setField: #moduleInfo value: shaderModuleInfoGlobal;
+		setField: #entryPointSymbol value: (SLVMConstant cstringPointer: symbolName for: self compilationTarget);
+		setField: #stageType value: (ShaderTypeToStageType at: entryPoint specialSemantics).
+		
+	entryPoint specialSemantics = #compute ifTrue: [
+		| localSize |
+		localSize := entryPoint computeShaderLocalSize.
+		entryPointInfoData
+			setField: #localSizeX value: localSize first;
+			setField: #localSizeY value: localSize second;
+			setField: #localSizeZ value: localSize third
+	].
+
+	entryPointInfo
+		initialValue: (self translateLiteralValue: entryPointInfoData ofType: self compilationTarget shaderEntryPointInfo)
 ]
 
 { #category : #visiting }
@@ -1072,6 +1167,7 @@ MbndSlovimCodeModuleGenerator >> visitConcreteFunctionMethod: functionMethod [
 	
 	csymbol := self csymbolForProgramEntity: functionMethod.
 	addHighLevelMap := true.
+	functionMethod specialSemantics ifNotNil: [ shaderEntryPoints add: functionMethod ].
 	(self slvmCompilationTarget isGPU and: [functionMethod specialSemantics isNotNil ]) ifTrue: [ 
 		csymbol := self newSymbolNameMangler mangleProgramEntityName: functionMethod suffixes: {#__impl}.
 		addHighLevelMap := false.
@@ -1184,7 +1280,7 @@ MbndSlovimCodeModuleGenerator >> visitGCClassType: type [
 
 { #category : #visiting }
 MbndSlovimCodeModuleGenerator >> visitGlobalVariable: globalVariable [
-	| ssaValueType csymbol ssaGlobalVariable initialValue unmangledName |
+	| ssaValueType csymbol ssaGlobalVariable initialValue unmangledName storage isReadOnly hasInitialValue |
 	ssaValueType := self sanitizeValueTypeForMemory: (self translateType: globalVariable valueType).
 	
 	globalVariable isStatic ifTrue: [ 
@@ -1194,7 +1290,21 @@ MbndSlovimCodeModuleGenerator >> visitGlobalVariable: globalVariable [
 		csymbol := self csymbolForProgramEntity: globalVariable.
 		unmangledName := self unmangledNameForProgramEntity: globalVariable.
 	].
-	ssaGlobalVariable := SLVMGlobalVariable module: ssaModule name: csymbol valueType: ssaValueType storage: SLVMType genericStorage.
+
+	storage := SLVMType genericStorage.
+	isReadOnly := globalVariable type isReferenceType not or: [globalVariable type withoutReferences isConstantType]. 
+	hasInitialValue := globalVariable hasExternalVisibility not.
+	self compilationTarget isGPU ifTrue: [
+		(isReadOnly and: [ hasInitialValue ]) ifTrue: [
+			initialValue := globalVariable currentRawValue.
+			ssaGlobalVariable := MbndSlovimFoldingLiteralGlobal new
+				value: (self translateLiteralValue: initialValue value ofType: initialValue type).
+			self setProgramEntity: globalVariable ssaValue: ssaGlobalVariable.
+			^ ssaGlobalVariable
+		].
+	].
+
+	ssaGlobalVariable := SLVMGlobalVariable module: ssaModule name: csymbol valueType: ssaValueType storage: storage.
 	ssaGlobalVariable unmangledName: unmangledName.
 	ssaGlobalVariable minimalAlignment: globalVariable minimalAlignment.
 	self setProgramEntity: globalVariable ssaValue: ssaGlobalVariable.
@@ -1206,7 +1316,7 @@ MbndSlovimCodeModuleGenerator >> visitGlobalVariable: globalVariable [
 			debugInformation: (self translateProgramEntityDebugInformation: globalVariable)
 	].
 
-	ssaGlobalVariable readOnly: (globalVariable type isReferenceType not or: [globalVariable type withoutReferences isConstantType]).
+	ssaGlobalVariable readOnly: isReadOnly.
 	
 	globalVariable hasExternalVisibility ifTrue: [
 		ssaGlobalVariable makeExternal.
@@ -1266,7 +1376,9 @@ MbndSlovimCodeModuleGenerator >> visitMessageGroup: functionGroup [
 MbndSlovimCodeModuleGenerator >> visitModule: module [
 	self slvmCompilationTarget objectModel moduleCodeGenerator: self.
 	module moduleLevelInlineAssembly do: [ :inlineAssembly | self translateModuleLevelInlineAssembly: inlineAssembly ].
-	^ self translateProgramEntity: module globalNamespace
+	self translateProgramEntity: module globalNamespace.
+	self generateEmbeddedShaderModule.
+	^ nil
 ]
 
 { #category : #visiting }
