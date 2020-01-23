@@ -447,6 +447,15 @@ MbndSlovimDebugInformationTranslator >> visitGlobalVariable: globalVariable [
 ]
 
 { #category : #visiting }
+MbndSlovimDebugInformationTranslator >> visitInputChannelType: type [
+	type specialSemantics ifNotNil: [
+		^ self translateDebugType: type messageType pointer
+	].
+
+	self halt
+]
+
+{ #category : #visiting }
 MbndSlovimDebugInformationTranslator >> visitNamespace: namespace [
 	| debugInformation |
 	(namespace name = #__global and: [ namespace parent isNil ]) ifTrue: [ 
@@ -461,6 +470,15 @@ MbndSlovimDebugInformationTranslator >> visitNamespace: namespace [
 { #category : #visiting }
 MbndSlovimDebugInformationTranslator >> visitNativeBlockClosureType: blockClosureType [
 	^ self visitBlockClosureType: blockClosureType
+]
+
+{ #category : #visiting }
+MbndSlovimDebugInformationTranslator >> visitOutputChannelType: type [
+	type specialSemantics ifNotNil: [
+		^ self translateDebugType: type messageType pointer
+	].
+
+	self halt
 ]
 
 { #category : #visiting }
