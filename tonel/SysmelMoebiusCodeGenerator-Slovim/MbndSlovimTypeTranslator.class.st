@@ -69,7 +69,7 @@ MbndSlovimTypeTranslator >> translateAggregateType: aggregateType withKind: type
 
 	aggregateType isDefined ifTrue: [ 
 		ssaStructureType
-			names: (aggregateType slotLayout slots collect: #name);
+			names: (aggregateType slotLayout slots collect: [:each | each name]);
 			types: (aggregateType slotLayout slots collect: [:slot | self sanitizeStructureFieldType: (self translateType: slot type)]).
 	].
 		

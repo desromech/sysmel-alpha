@@ -35,5 +35,5 @@ MbndAstTupleNode >> isTupleNode [
 
 { #category : #parsing }
 MbndAstTupleNode >> parseAsFunctionArgumentsPrototype [
-	^ elements collect: #parseAsArgumentDefinition
+	^ elements collect: [:each | each parseAsArgumentDefinition]
 ]

@@ -166,7 +166,7 @@ MbndAstBuilderTest >> testCleanUpScopeNode [
 	cleanUpActions := {builder literalVoid}.
 	node := builder cleanUpScope: expression actions: cleanUpActions.
 
-	self assert: node isCleanUpScopeNode.
+	self assert: node isExceptionScopeNode.
 	self assert: node expression equals: expression.
 	self assert: node explicitCleanUpActions equals: cleanUpActions.
 ]

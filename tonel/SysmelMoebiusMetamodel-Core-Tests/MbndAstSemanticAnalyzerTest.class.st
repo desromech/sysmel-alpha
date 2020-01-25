@@ -432,7 +432,7 @@ MbndAstSemanticAnalyzerTest >> testCleanUpScopeNode [
 	node := builder cleanUpScope: expression actions: cleanUpActions.
 
 	analyzedNode := visitor visitNode: node.
-	self assert: analyzedNode isCleanUpScopeNode.
+	self assert: analyzedNode isExceptionScopeNode.
 	self assert: analyzedNode type isPrimitiveIntegerType.
 ]
 
@@ -444,7 +444,7 @@ MbndAstSemanticAnalyzerTest >> testCleanUpScopeNode2 [
 	node := builder cleanUpScope: expression actions: cleanUpActions.
 
 	analyzedNode := visitor visitNode: node.
-	self assert: analyzedNode isCleanUpScopeNode.
+	self assert: analyzedNode isExceptionScopeNode.
 	self assert: analyzedNode type isMetaType.
 ]
 

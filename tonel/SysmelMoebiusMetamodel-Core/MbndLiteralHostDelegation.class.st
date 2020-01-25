@@ -19,13 +19,13 @@ MbndLiteralHostDelegation >> expandMessageNode: node with: analyzer [
 	node arguments: (analyzer analyzeNodesIfNeeded: node arguments).
 	
 	"If one of the arguments is not a literal node, then fallback towards a normal message send."
-	(node arguments allSatisfy: #isLiteralValueNode) ifFalse: [
+	(node arguments allSatisfy: [:each | each isLiteralValueNode]) ifFalse: [
 		^ analyzer visitNode: node asExpandedMessageSend
 	].
 
 	"Unwrap the literal values."
 	receiver := node receiver value.
-	arguments := node arguments collect: #value.
+	arguments := node arguments collect: [:each | each value].
 	
 	"Compute the result."
 	result := receiver perform: hostSelector withArguments: arguments.

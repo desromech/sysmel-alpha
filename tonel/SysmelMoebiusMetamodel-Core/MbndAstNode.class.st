@@ -146,11 +146,6 @@ MbndAstNode >> isClassDefinitionNode [
 ]
 
 { #category : #testing }
-MbndAstNode >> isCleanUpScopeNode [
-	^ false
-]
-
-{ #category : #testing }
 MbndAstNode >> isCompileTimeConstantDefinitionNode [
 	^ false
 ]
@@ -227,6 +222,11 @@ MbndAstNode >> isEnumDeclarationNode [
 
 { #category : #testing }
 MbndAstNode >> isEnumDefinitionNode [
+	^ false
+]
+
+{ #category : #testing }
+MbndAstNode >> isExceptionScopeNode [
 	^ false
 ]
 

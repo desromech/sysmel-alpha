@@ -1,5 +1,5 @@
 Class {
-	#name : #MbndAstCleanUpScopeNode,
+	#name : #MbndAstExceptionScopeNode,
 	#superclass : #MbndAstNode,
 	#instVars : [
 		'expression',
@@ -10,68 +10,68 @@ Class {
 }
 
 { #category : #visiting }
-MbndAstCleanUpScopeNode >> accept: aVisitor [
-	^ aVisitor visitCleanUpScopeNode: self
+MbndAstExceptionScopeNode >> accept: aVisitor [
+	^ aVisitor visitExceptionScopeNode: self
 ]
 
 { #category : #adding }
-MbndAstCleanUpScopeNode >> addNodeWithImplicitFinalization: node [
+MbndAstExceptionScopeNode >> addNodeWithImplicitFinalization: node [
 	self nodesWithImplicitFinalization add: node
 ]
 
 { #category : #accessing }
-MbndAstCleanUpScopeNode >> explicitCleanUpActions [
+MbndAstExceptionScopeNode >> explicitCleanUpActions [
 	^ explicitCleanUpActions
 ]
 
 { #category : #accessing }
-MbndAstCleanUpScopeNode >> explicitCleanUpActions: anObject [
+MbndAstExceptionScopeNode >> explicitCleanUpActions: anObject [
 	explicitCleanUpActions := anObject
 ]
 
 { #category : #accessing }
-MbndAstCleanUpScopeNode >> expression [
+MbndAstExceptionScopeNode >> expression [
 	^ expression
 ]
 
 { #category : #accessing }
-MbndAstCleanUpScopeNode >> expression: anObject [
+MbndAstExceptionScopeNode >> expression: anObject [
 	expression := anObject
 ]
 
 { #category : #initialization }
-MbndAstCleanUpScopeNode >> initialize [
+MbndAstExceptionScopeNode >> initialize [
 	super initialize.
 	explicitCleanUpActions := #().
 ]
 
 { #category : #testing }
-MbndAstCleanUpScopeNode >> isCleanUpScopeNode [
+MbndAstExceptionScopeNode >> isExceptionScopeNode [
 	^ true
 ]
 
 { #category : #'as yet unclassified' }
-MbndAstCleanUpScopeNode >> markStorageCreationNodeForCopyEllision: node [
+MbndAstExceptionScopeNode >> markStorageCreationNodeForCopyEllision: node [
 	expression markStorageCreationNodeForCopyEllision: node
 ]
 
 { #category : #accessing }
-MbndAstCleanUpScopeNode >> nodesWithImplicitFinalization [
+MbndAstExceptionScopeNode >> nodesWithImplicitFinalization [
 	^ nodesWithImplicitFinalization ifNil: [ nodesWithImplicitFinalization := OrderedCollection new ]
 ]
 
 { #category : #copying }
-MbndAstCleanUpScopeNode >> postCopy [
+MbndAstExceptionScopeNode >> postCopy [
 	nodesWithImplicitFinalization := nodesWithImplicitFinalization copy
 ]
 
 { #category : #accessing }
-MbndAstCleanUpScopeNode >> pragmaAt: pragmaName ifAbsent: absentBlock ifPresent: presentBlock [
+MbndAstExceptionScopeNode >> pragmaAt: pragmaName ifAbsent: absentBlock ifPresent: presentBlock [
 	^ expression pragmaAt: pragmaName ifAbsent: absentBlock ifPresent: presentBlock
 ]
 
 { #category : #composition }
-MbndAstCleanUpScopeNode >> withNextExpression: anotherNode [
+MbndAstExceptionScopeNode >> withNextExpression: anotherNode [
 	<compileTime>
 	<returnType: #_ASTNodeType>
 	^ self copy

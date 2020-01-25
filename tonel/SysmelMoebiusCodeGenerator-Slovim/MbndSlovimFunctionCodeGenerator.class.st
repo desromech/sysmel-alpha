@@ -16,7 +16,12 @@ Class {
 		'activeLexicalScope',
 		'implicitCleanUpActionStates',
 		'storageCreationNodeVariableMapForCopyEllision',
-		'entryPointLocalInitializations'
+		'entryPointLocalInitializations',
+		'allCleanUpScopes',
+		'unwindExceptionPointerVariable',
+		'unwindExceptionSelectorVariable',
+		'inCleanUpContextCount',
+		'forbiddenExceptionDuringCleanupTarget'
 	],
 	#classVars : [
 		'AdditionalIntrinsicsDictionary',
@@ -117,7 +122,7 @@ MbndSlovimFunctionCodeGenerator >> buildSSAClosure: ssaClosureDefinition definit
 	self assert: concreteMethod analyzedBody type isReturnType.
 
 	"Initialize the required clean up action states in the alloca block."
-	self initializeCleanUpActionStates.
+	self generateUnwindingCode.
 	
 	"Jump from the alloca block into the body."
 	slvmBuilder allocaBuilder jump: ssaFunctionBodyBlock.
@@ -128,6 +133,8 @@ MbndSlovimFunctionCodeGenerator >> buildSSAClosure: ssaClosureDefinition definit
 			addRequiredDynamicLiteral: concreteMethod classBindingLiteral;
 			hasSelectorAndClassBinding: true
 	]."
+
+	self cleanUpStructuredControlFlow.
 ]
 
 { #category : #'as yet unclassified' }
@@ -144,6 +151,8 @@ MbndSlovimFunctionCodeGenerator >> buildSSAFunction: aSSAFunction at: sourcePosi
 
 	"Jump from the alloca block into the body."
 	slvmBuilder allocaBuilder jump: ssaFunctionBodyBlock.
+	
+	self cleanUpStructuredControlFlow.
 ]
 
 { #category : #'as yet unclassified' }
@@ -161,7 +170,7 @@ MbndSlovimFunctionCodeGenerator >> buildSSAFunction: aSSAFunction definitionWith
 
 	"Initialize the required clean up action states in the alloca block."
 	self initializeEntryPointLocals.
-	self initializeCleanUpActionStates.
+	self generateUnwindingCode.
 	
 	"Jump from the alloca block into the body."
 	slvmBuilder allocaBuilder jump: ssaFunctionBodyBlock.
@@ -172,6 +181,8 @@ MbndSlovimFunctionCodeGenerator >> buildSSAFunction: aSSAFunction definitionWith
 			addRequiredDynamicLiteral: concreteMethod classBindingLiteral;
 			hasSelectorAndClassBinding: true
 	].
+
+	self cleanUpStructuredControlFlow.
 ]
 
 { #category : #'as yet unclassified' }
@@ -191,10 +202,13 @@ MbndSlovimFunctionCodeGenerator >> buildSSAFunction: aSSAFunction definitionWith
 		]
 	].
 
-	self initializeCleanUpActionStates.
+	self generateUnwindingCode.
 	
 	"Jump from the alloca block into the body."
 	slvmBuilder allocaBuilder jump: ssaFunctionBodyBlock.
+	
+	self cleanUpStructuredControlFlow.
+
 ]
 
 { #category : #'as yet unclassified' }
@@ -209,9 +223,20 @@ MbndSlovimFunctionCodeGenerator >> buildSSAFunction: aSSAFunction withCodeGenera
 
 	"Jump from the alloca block into the body."
 	slvmBuilder allocaBuilder jump: ssaFunctionBodyBlock.
+	
+	self cleanUpStructuredControlFlow.
 ]
 
 { #category : #'as yet unclassified' }
+MbndSlovimFunctionCodeGenerator >> cleanUpStructuredControlFlow [
+	ssaFunction basicBlocks do: [ :bb |
+		self assert: bb isEmpty not.
+		bb addUnreachableStructuredSuccessors
+	].
+
+]
+
+{ #category : #accessing }
 MbndSlovimFunctionCodeGenerator >> defineArgumentValues [
 	| argumentValue superVariable argIndex |
 	self assert: (concreteMethod isConcreteMethod not or: [concreteMethod arguments size <= ssaFunction arguments size]).
@@ -284,7 +309,7 @@ MbndSlovimFunctionCodeGenerator >> executeImplicitFinalizationAction: action [
 	slvmBuilder branch: activated ifTrue: cleanUpBlock ifFalse: mergeBlock.
 	
 	slvmBuilder currentBlock: cleanUpBlock.
-	action finalizationActionBlocks do: #value.
+	action finalizationActionBlocks do: [:each | each value].
 	slvmBuilder isLastTerminator ifFalse: [ slvmBuilder jump: mergeBlock ].
 
 	slvmBuilder currentBlock: mergeBlock.
@@ -297,13 +322,15 @@ MbndSlovimFunctionCodeGenerator >> executeScopeCleanUpActions: cleanUpScope [
 
 { #category : #'as yet unclassified' }
 MbndSlovimFunctionCodeGenerator >> executeScopeCleanUpActions: cleanUpScope exceptForTokens: suppressedCleanUpTokens [
-	cleanUpScope implicitFinalizationStateDictionary valuesDo: [ :action |
-		(suppressedCleanUpTokens includes: action token) ifFalse: [ 
-			self executeImplicitFinalizationAction: action
+	self inCleanUpContextDo: [ 
+		cleanUpScope implicitFinalizationStateDictionary valuesDo: [ :action |
+			(suppressedCleanUpTokens includes: action token) ifFalse: [ 
+				self executeImplicitFinalizationAction: action
+			].
 		].
-	].
-	cleanUpScope explicitFinalizationAction ifNotNil: [ :ac |
-		ac value
+		cleanUpScope explicitFinalizationAction ifNotNil: [ :ac |
+			ac value
+		].
 	].
 
 ]
@@ -329,6 +356,11 @@ MbndSlovimFunctionCodeGenerator >> extractColumns: columns elementAsVector: elem
 		elements: columns size.
 	
 	^ slvmBuilder makeVector: returnType arguments: { leftHalf . rightHalf }
+]
+
+{ #category : #visiting }
+MbndSlovimFunctionCodeGenerator >> forbiddenExceptionDuringCleanupTarget [
+	^ forbiddenExceptionDuringCleanupTarget ifNil: [ ^ forbiddenExceptionDuringCleanupTarget := slvmBuilder newBasicBlock: #forbiddenExceptionTarget ]
 ]
 
 { #category : #'as yet unclassified' }
@@ -650,7 +682,6 @@ MbndSlovimFunctionCodeGenerator >> generateCasesOfNode: node matchedValue: match
 			slvmBuilder currentBlock: mergeBlock.
 			mergeBlock predecessors ifEmpty: [
 				slvmBuilder unreachable.
-				switchBlock addUnreachableStructuredSuccessors.
 				mergeValue ifNotNil: [ mergeValue removeFromBlock ].
 				^ nil
 			].
@@ -673,7 +704,7 @@ MbndSlovimFunctionCodeGenerator >> generateCleanUpActionActivatedHereForNode: no
 	self assert: currentCleanUpScope isNotNil.
 	self assert: (currentCleanUpScope allowedNodesWithImplicitFinalization includes: node).
 	cleanUpActionState := currentCleanUpScope implicitFinalizationStateDictionary at: token ifAbsentPut: [
-		implicitCleanUpActionStates add: (MbndSlovimCleanUpScopeImplicitFinalizationState new
+		implicitCleanUpActionStates add: (MbndSlovimExceptionScopeImplicitFinalizationState new
 			token: token;
 			yourself)
 	].
@@ -736,6 +767,25 @@ MbndSlovimFunctionCodeGenerator >> generateExpandedMessageSendNode: node withInt
 		withType: node method type.
 
 	^ self generateCall: intrinsicSSAFunction arguments: allArguments expectedReturnType: node type
+
+]
+
+{ #category : #visiting }
+MbndSlovimFunctionCodeGenerator >> generateForbiddenExceptionDuringCleanupTarget [
+	| builder landingPath exceptionPointer |
+	forbiddenExceptionDuringCleanupTarget ifNil: [ ^ self ].
+	builder := SLVMBuilder on: ssaFunction.
+	builder currentBlock: self forbiddenExceptionDuringCleanupTarget.
+	self isEmittingDebugInformation ifTrue: [ 
+		builder pushDebugSourcePosition: (codeModuleGenerator convertDebugPosition: concreteMethod definitionPosition asActualSourcePosition scope: nil)
+	].
+
+	landingPath := builder landingPath: codeModuleGenerator landingPathResultType.
+	landingPath cleanup: true.
+	
+	exceptionPointer := builder extractValue: landingPath indices: #(0).
+	builder call: (codeModuleGenerator forbiddenExceptionHandlingFunction) arguments: { exceptionPointer }.
+	builder unreachable.
 
 ]
 
@@ -880,6 +930,123 @@ MbndSlovimFunctionCodeGenerator >> generateSuperSendPrologueWithSelector: select
 ]
 
 { #category : #'as yet unclassified' }
+MbndSlovimFunctionCodeGenerator >> generateUnwindingCleanUpFor: exceptionScope [
+	| resumeValue |
+	self assert: slvmBuilder currentUnwindBlock isNil.
+	slvmBuilder currentBlock: exceptionScope cleanUpBlock.
+	self withUnwindBlock: self forbiddenExceptionDuringCleanupTarget do: [ 
+		self executeScopeCleanUpActions: exceptionScope.
+	].
+	
+	slvmBuilder isLastTerminator ifTrue: [ ^ self ].
+	
+	exceptionScope parent ifNotNil: [ :parent |
+		parent cleanUpBlock ifNotNil: [ :parentCleanUp |
+			^ slvmBuilder jump: parent cleanUpBlock
+		].
+	].
+
+	resumeValue := SLVMConstant undefined: codeModuleGenerator landingPathResultType.
+	resumeValue := slvmBuilder insertValue: resumeValue value: (slvmBuilder load: self unwindExceptionPointerVariable) indices: #(0).
+	resumeValue := slvmBuilder insertValue: resumeValue value: (slvmBuilder load: self unwindExceptionSelectorVariable) indices: #(1).
+	^ slvmBuilder resumeException: resumeValue
+]
+
+{ #category : #'as yet unclassified' }
+MbndSlovimFunctionCodeGenerator >> generateUnwindingCode [
+	| unusedUnwindBlocks unwindBlockReplacementDictionary |
+	self assert: slvmBuilder currentUnwindBlock isNil.
+	self hasExceptions ifFalse: [
+		self assert: (ssaFunction basicBlocks detect: [ :each | each unwindBlock ~~ nil ] ifFound: [ false ] ifNone: [ true]).
+		self removeUnusedCleanUpActionStates.
+		^ self
+	].
+
+	"Create a list with the unused unwind blocks and a replacement dictionary for them."	
+	unusedUnwindBlocks := OrderedCollection new.
+	unwindBlockReplacementDictionary := Dictionary new.
+
+	allCleanUpScopes do: [ :cleanUpScope |
+		| parent |
+		parent := cleanUpScope parent.
+		(cleanUpScope isNopExceptionScope and: [ cleanUpScope isInCleanUpAction not ]) ifTrue: [
+			| unusedUnwindBlock newUnwindBlock |
+			unusedUnwindBlock := cleanUpScope unwindBlock.
+			newUnwindBlock := nil.
+			"These scopes are in pre-order, so parent are always before their
+			children (i.e. there are topologically sorted)."
+			parent ifNotNil: [
+				newUnwindBlock := parent unwindBlock.
+				cleanUpScope
+					unwindBlock: newUnwindBlock;
+					cleanUpBlock: parent cleanUpBlock.
+			] ifNil: [ 
+				cleanUpScope
+					unwindBlock: nil;
+					cleanUpBlock: nil.
+			].
+		
+			unusedUnwindBlocks add: unusedUnwindBlock.
+			unwindBlockReplacementDictionary at: unusedUnwindBlock put: newUnwindBlock.
+		] ifFalse: [
+			cleanUpScope isInCleanUpAction ifFalse: [ 
+				cleanUpScope cleanUpBlock: (slvmBuilder newBasicBlock: #unwindCleanUp).
+				cleanUpScope cleanUpBlock unwindBlock: self forbiddenExceptionDuringCleanupTarget
+			].
+		].
+	].
+
+	"Replace the removed unwind blocks."
+	ssaFunction basicBlocks do: [ :each |
+		unwindBlockReplacementDictionary at: each unwindBlock ifPresent: [ :replacement |
+			each unwindBlock: replacement
+		]
+	].
+
+	"Remove the unused unwind blocks."
+	unusedUnwindBlocks do: [ :each | each removeFromFunction ].
+	
+	"Generate the per scope landing pad, catch clauses, and cleanup."
+	allCleanUpScopes do: [ :each |
+		each isNopExceptionScope ifFalse: [
+			self generateUnwindingCodeForExceptionScope: each 
+		]
+	].
+
+	forbiddenExceptionDuringCleanupTarget ifNotNil: [
+		ssaFunction basicBlocks detect: [ :each |each unwindBlock == forbiddenExceptionDuringCleanupTarget ] ifFound: [ 
+			self generateForbiddenExceptionDuringCleanupTarget
+		] ifNone: [
+			forbiddenExceptionDuringCleanupTarget removeFromFunction
+		].
+	].
+
+	self removeUnusedCleanUpActionStates.
+
+]
+
+{ #category : #'as yet unclassified' }
+MbndSlovimFunctionCodeGenerator >> generateUnwindingCodeForExceptionScope: exceptionScope [
+	self generateUnwindingLandingPadFor: exceptionScope.
+	self generateUnwindingCleanUpFor: exceptionScope.
+]
+
+{ #category : #'as yet unclassified' }
+MbndSlovimFunctionCodeGenerator >> generateUnwindingLandingPadFor: exceptionScope [
+	| landingPath |
+	self assert: slvmBuilder currentUnwindBlock isNil.
+	slvmBuilder currentBlock: exceptionScope unwindBlock.
+	ssaFunction personalityFunction: codeModuleGenerator personalityFunction.
+
+	landingPath := slvmBuilder landingPath: codeModuleGenerator landingPathResultType.
+	landingPath cleanup: true.
+
+	slvmBuilder store: (slvmBuilder extractValue: landingPath indices: {0}) in: self unwindExceptionPointerVariable.
+	slvmBuilder store: (slvmBuilder extractValue: landingPath indices: {1}) in: self unwindExceptionSelectorVariable.
+	slvmBuilder jump: exceptionScope cleanUpBlock
+]
+
+{ #category : #'as yet unclassified' }
 MbndSlovimFunctionCodeGenerator >> generateVariable: ssaValue basicInitializationWithValueType: valueType [
 	slvmBuilder store: (self translateLiteralValue: valueType defaultValue) in: ssaValue
 ]
@@ -971,7 +1138,18 @@ MbndSlovimFunctionCodeGenerator >> generateVectorLength2Intrinsic: node [
 	^ slvmBuilder vectorDot: vector with: vector
 ]
 
-{ #category : #'as yet unclassified' }
+{ #category : #testing }
+MbndSlovimFunctionCodeGenerator >> hasExceptions [
+	^ codeModuleGenerator hasExceptions
+]
+
+{ #category : #enumerating }
+MbndSlovimFunctionCodeGenerator >> inCleanUpContextDo: aBlock [
+	inCleanUpContextCount := inCleanUpContextCount + 1.
+	aBlock ensure: [ inCleanUpContextCount := inCleanUpContextCount - 1 ]
+]
+
+{ #category : #initialization }
 MbndSlovimFunctionCodeGenerator >> initializeArgumentVariable: argument [
 	| debugInformation convertedPosition ssaValue |
 
@@ -990,34 +1168,32 @@ MbndSlovimFunctionCodeGenerator >> initializeArgumentVariable: argument [
 	].
 ]
 
-{ #category : #'as yet unclassified' }
+{ #category : #initialization }
 MbndSlovimFunctionCodeGenerator >> initializeArgumentVariables [
 	concreteMethod arguments do: [ :argument |
 		self initializeArgumentVariable: argument
 	]
 ]
 
-{ #category : #'as yet unclassified' }
-MbndSlovimFunctionCodeGenerator >> initializeCleanUpActionStates [
-	implicitCleanUpActionStates do: [ :cleanUpState |
-		cleanUpState finalizationActivated ifNotNil: [ :activatedFlag |
-			cleanUpState isActuallyExecuted ifTrue: [ 
-				slvmBuilder allocaBuilder store: (slvmBuilder constBool: false) in: activatedFlag.
-			] ifFalse: [
-				"Remove any reference to an unused clean-up action state."
-				activatedFlag instructionReferences do: [ :ref |
-					self assert: ref isStore.
-					ref removeFromBlock.
-				].
-				activatedFlag removeFromBlock
-			].
-		].
-	]
-]
-
-{ #category : #'as yet unclassified' }
+{ #category : #initialization }
 MbndSlovimFunctionCodeGenerator >> initializeEntryPointLocals [
 	entryPointLocalInitializations do: [ :each | each value]
+]
+
+{ #category : #visiting }
+MbndSlovimFunctionCodeGenerator >> initializeImplicitCleanUpFlagsInScope: cleanUpScope [
+	| falseConstant initializationInstructions |
+	falseConstant := SLVMConstant bool: false.
+	initializationInstructions := OrderedCollection new.
+	cleanUpScope implicitFinalizationStateDictionary valuesDo: [ :implicitState |
+		implicitState finalizationActivated ifNotNil: [ :var |
+			initializationInstructions add: ((SLVMStoreInstruction value: falseConstant variable: var)
+				name: ssaFunction generateSymbol)
+		].
+	].
+
+	cleanUpScope scopeEntryBlock addInstructions: initializationInstructions after: nil.
+
 ]
 
 { #category : #'as yet unclassified' }
@@ -1031,6 +1207,22 @@ MbndSlovimFunctionCodeGenerator >> processIntrinsic: intrinsicName callArguments
 	].
 
 	^ processedArguments
+]
+
+{ #category : #removing }
+MbndSlovimFunctionCodeGenerator >> removeUnusedCleanUpActionStates [
+	implicitCleanUpActionStates do: [ :cleanUpState |
+		cleanUpState finalizationActivated ifNotNil: [ :activatedFlag |
+			cleanUpState isActuallyExecuted ifFalse: [
+				"Remove any reference to an unused clean-up action state."
+				activatedFlag instructionReferences asArray do: [ :ref |
+					self assert: ref isStore.
+					ref removeFromBlock.
+				].
+				activatedFlag removeFromBlock
+			].
+		].
+	]
 ]
 
 { #category : #visiting }
@@ -1077,11 +1269,13 @@ MbndSlovimFunctionCodeGenerator >> setStorageCreationNode: node variableForCopyE
 MbndSlovimFunctionCodeGenerator >> setupBuilders [
 	"Create the main slvm builder."	
 	| initialDebugPosition |
-	slvmBuilder := SLVMBuilder on: ssaFunction.
+	slvmBuilder := MbndSLVMBuilder on: ssaFunction.
 	ssaFunctionEntryBlock := slvmBuilder newBasicBlockHere: #entry.
 	entryPointLocalInitializations := OrderedCollection new.
 	implicitCleanUpActionStates := OrderedCollection new.
+	allCleanUpScopes := OrderedCollection new.
 	storageCreationNodeVariableMapForCopyEllision := IdentityDictionary new.
+	inCleanUpContextCount := 0.
 
 	"Create the alloca builder."
 	slvmBuilder allocaBuilder: ((SLVMBuilder on: ssaFunction)
@@ -1143,6 +1337,16 @@ MbndSlovimFunctionCodeGenerator >> storeValueInTemporary: value [
 { #category : #visiting }
 MbndSlovimFunctionCodeGenerator >> translateLiteralValue: value [
 	^ codeModuleGenerator translateLiteralValue: value value ofType: value type
+]
+
+{ #category : #accessing }
+MbndSlovimFunctionCodeGenerator >> unwindExceptionPointerVariable [
+	^ unwindExceptionPointerVariable ifNil: [ unwindExceptionPointerVariable := slvmBuilder allocaBuilder alloca: self slvmCompilationTarget voidPointerType name: #exceptionPointer ]
+]
+
+{ #category : #accessing }
+MbndSlovimFunctionCodeGenerator >> unwindExceptionSelectorVariable [
+	^ unwindExceptionSelectorVariable ifNil: [ unwindExceptionSelectorVariable := slvmBuilder allocaBuilder alloca: self slvmCompilationTarget int name: #exceptionSelector ]
 ]
 
 { #category : #'as yet unclassified' }
@@ -1233,53 +1437,6 @@ MbndSlovimFunctionCodeGenerator >> visitCharacterToDynamicObjectCastNode: node [
 ]
 
 { #category : #visiting }
-MbndSlovimFunctionCodeGenerator >> visitCleanUpScopeNode: node [
-	| cleanUpScope resultTemporary resultValue resultImplicitFinalization |
-	cleanUpScope := MbndSlovimCleanUpScope new parent: currentCleanUpScope.
-	cleanUpScope allowedNodesWithImplicitFinalization: node nodesWithImplicitFinalization.
-
-	node explicitCleanUpActions ifNotEmpty: [ 
-		cleanUpScope explicitFinalizationAction: [
-			node explicitCleanUpActions do: [ :cleanUpAction | self visitNode: cleanUpAction ]
-		].
-	].
-
-	resultTemporary := nil.
-	resultImplicitFinalization := nil.
-	self withCleanUpScope: cleanUpScope do: [ 
-		resultValue := self visitNode: node expression.
-		(resultValue isNotNil and: [node type isVoidType not]) ifTrue: [ 
-			"If the result value has an implicit finalization, we may be able to delay its finalization."
-			cleanUpScope implicitFinalizationStateDictionary at: resultValue asCanonicalLocalReference ifPresent: [ :finalizationAction |
-				resultImplicitFinalization := finalizationAction.
-				cleanUpScope implicitFinalizationStateDictionary removeKey: finalizationAction token
-			] ifAbsent: [
-				node type hasTrivialFinalization ifFalse: [
-					self assert: node type isMemoryReturnedType.
-					resultTemporary := slvmBuilder allocaBuilder alloca: (self translateType: node type).
-					self generateVariable: resultTemporary withValueType: node type initializationWithValue: resultValue initialValueKind: #move.
-				].
-			].
-		].
-	].
-
-	currentCleanUpScope ifNotNil: [
-		"Delay the implicit finalization of the result by lifting it up to the outer finalization scope."
-		resultImplicitFinalization ifNotNil: [
-			currentCleanUpScope implicitFinalizationStateDictionary at: resultImplicitFinalization token ifPresent: [ :previous |
-				self error: 'Local variable with multiple finalization contexts.'
-			] ifAbsentPut: [ resultImplicitFinalization ]
-		].
-	
-		resultTemporary ifNotNil: [ 
-			self addLocalVariable: resultTemporary withValueType: node type cleanUpActionForNode: node.
-		].
-	].
-
-	^ resultValue
-]
-
-{ #category : #visiting }
 MbndSlovimFunctionCodeGenerator >> visitConcretizeUndefinedValueCastNode: node [
 	"Visit the node for the side effects."
 	| defaultValue |
@@ -1353,7 +1510,6 @@ MbndSlovimFunctionCodeGenerator >> visitDoWhileLoopNode: node [
 
 	slvmBuilder currentBlock: loopMerge.
 	loopMerge predecessors ifEmpty: [
-		loopHeader addUnreachableStructuredSuccessors.
 		slvmBuilder unreachable.
 	].
 
@@ -1389,6 +1545,76 @@ MbndSlovimFunctionCodeGenerator >> visitDynamicObjectToIntegerCastNode: node [
 	source := self visitNode: node expression.
 	targetType := self translateType: node type.
 	^ slvmBuilder dynamicObjectToIntCast: source target: targetType
+]
+
+{ #category : #visiting }
+MbndSlovimFunctionCodeGenerator >> visitExceptionScopeNode: node [
+	| cleanUpScope resultTemporary resultValue resultImplicitFinalization |
+	cleanUpScope := MbndSlovimExceptionScope new parent: currentCleanUpScope.
+	allCleanUpScopes add: cleanUpScope.
+	cleanUpScope allowedNodesWithImplicitFinalization: node nodesWithImplicitFinalization.
+	
+	(slvmBuilder currentBlock isEmpty and: [ slvmBuilder currentBlock unwindBlock isNil ]) ifTrue: [ 
+		cleanUpScope scopeEntryBlock: slvmBuilder currentBlock.
+	] ifFalse: [
+		cleanUpScope scopeEntryBlock: (slvmBuilder newBasicBlock: #cleanUpScope).
+		slvmBuilder jump: cleanUpScope scopeEntryBlock.
+		slvmBuilder currentBlock: cleanUpScope scopeEntryBlock.
+	].
+
+	cleanUpScope isInCleanUpAction: inCleanUpContextCount > 0.
+	self hasExceptions ifTrue: [
+		cleanUpScope isInCleanUpAction ifTrue: [ 
+			cleanUpScope unwindBlock: self forbiddenExceptionDuringCleanupTarget
+		] ifFalse: [ 
+			cleanUpScope unwindBlock: (slvmBuilder newBasicBlock: #cleanUpUnwind).
+			cleanUpScope scopeEntryBlock unwindBlock: cleanUpScope unwindBlock.
+			cleanUpScope unwindBlock unwindBlock: nil.
+		].
+	].
+
+	node explicitCleanUpActions ifNotEmpty: [ 
+		cleanUpScope explicitFinalizationAction: [
+			node explicitCleanUpActions do: [ :cleanUpAction | self visitNode: cleanUpAction ]
+		].
+	].
+
+	resultTemporary := nil.
+	resultImplicitFinalization := nil.
+	self withCleanUpScope: cleanUpScope do: [ 
+		resultValue := self visitNode: node expression.
+		(resultValue isNotNil and: [node type isVoidType not]) ifTrue: [ 
+			"If the result value has an implicit finalization, we may be able to delay its finalization."
+			cleanUpScope implicitFinalizationStateDictionary at: resultValue asCanonicalLocalReference ifPresent: [ :finalizationAction |
+				resultImplicitFinalization := finalizationAction.
+				cleanUpScope implicitFinalizationStateDictionary removeKey: finalizationAction token
+			] ifAbsent: [
+				node type hasTrivialFinalization ifFalse: [
+					self assert: node type isMemoryReturnedType.
+					resultTemporary := slvmBuilder allocaBuilder alloca: (self translateType: node type).
+					self generateVariable: resultTemporary withValueType: node type initializationWithValue: resultValue initialValueKind: #move.
+				].
+			].
+		].
+	].
+
+	currentCleanUpScope ifNotNil: [
+		"Delay the implicit finalization of the result by lifting it up to the outer finalization scope."
+		resultImplicitFinalization ifNotNil: [
+			currentCleanUpScope implicitFinalizationStateDictionary at: resultImplicitFinalization token ifPresent: [ :previous |
+				self error: 'Local variable with multiple finalization contexts.'
+			] ifAbsentPut: [ resultImplicitFinalization ]
+		].
+	
+		resultTemporary ifNotNil: [ 
+			self addLocalVariable: resultTemporary withValueType: node type cleanUpActionForNode: node.
+		].
+	].
+
+	"Set the initialized flags to false at the beginning of the clean-up scope."
+	self initializeImplicitCleanUpFlagsInScope: cleanUpScope.
+
+	^ resultValue
 ]
 
 { #category : #visiting }
@@ -1493,7 +1719,7 @@ MbndSlovimFunctionCodeGenerator >> visitFunctionCallNode: node [
 	
 	^ self generateCall: functionValue
 		arguments: (self visitNodesAndCollect: node arguments)
-		argumentTypes: (node arguments collect: #type)
+		argumentTypes: (node arguments collect: [:each | each type])
 		expectedResultType: expectedResultType
 		hiddenReceiverArgument: hiddenReceiverArgument
 		storageCreationNode: node storageCreationNode cleanUpActionNode: node
@@ -1653,7 +1879,6 @@ MbndSlovimFunctionCodeGenerator >> visitIfConditionNode: node [
 		self assert: hasTrueResult not.
 		self assert: resultType isReturnType.
 		slvmBuilder unreachable.
-		branchBlock addUnreachableStructuredSuccessors.
 		^ nil
 	].
 
@@ -1732,7 +1957,7 @@ MbndSlovimFunctionCodeGenerator >> visitIntegerToPointerCastNode: node [
 { #category : #visiting }
 MbndSlovimFunctionCodeGenerator >> visitLexicalScopeNode: node [
 	^ self withLexicalScope: node lexicalScope do: [
-		self visitCleanUpScopeNode: node
+		self visitExceptionScopeNode: node
 	]
 ]
 
@@ -1930,22 +2155,26 @@ MbndSlovimFunctionCodeGenerator >> visitReturnStatementNode: node [
 		suppresedCleanUpTokens := { ssaFunction arguments first }
 	].
 
-	self executeAllScopeCleanUpExceptForTokens: suppresedCleanUpTokens.
-	slvmBuilder isLastTerminator ifTrue: [ ^ nil ].
-	self generateAutomaticEpilogueCode.
-	concreteMethod returnType isVoidType ifTrue: [
-		slvmBuilder returnVoid.
+	self withUnwindBlock: nil do: [ 
+		self executeAllScopeCleanUpExceptForTokens: suppresedCleanUpTokens.
+		slvmBuilder isLastTerminator ifTrue: [ ^ nil ].
+		self generateAutomaticEpilogueCode.
+		concreteMethod returnType isVoidType ifTrue: [
+			slvmBuilder returnVoid.
+			^ nil
+		].
+
+		self assert: result isNotNil.
+		
+		concreteMethod returnType isMemoryReturnedType ifTrue: [ 
+			slvmBuilder returnVoid
+		] ifFalse: [
+			slvmBuilder return: result
+		].
+
 		^ nil
 	].
 
-	self assert: result isNotNil.
-		
-	concreteMethod returnType isMemoryReturnedType ifTrue: [ 
-		slvmBuilder returnVoid
-	] ifFalse: [
-		slvmBuilder return: result
-	].
-	^ nil
 ]
 
 { #category : #visiting }
@@ -2275,7 +2504,6 @@ MbndSlovimFunctionCodeGenerator >> visitWhileLoopNode: node [
 
 	slvmBuilder currentBlock: loopMerge.
 	loopMerge predecessors ifEmpty: [
-		loopHeader addUnreachableStructuredSuccessors.
 		slvmBuilder unreachable.
 	].
 
@@ -2310,16 +2538,28 @@ MbndSlovimFunctionCodeGenerator >> withBreakBlock: newBreakBlock continueBlock: 
 
 { #category : #visiting }
 MbndSlovimFunctionCodeGenerator >> withCleanUpScope: newCleanUpScope do: aBlock [
-	| result oldCleanUpScope |
+	| oldCleanUpScope oldUnwindBlock newUnwindBlock |
 	oldCleanUpScope := currentCleanUpScope.
+	oldUnwindBlock := slvmBuilder currentUnwindBlock.
+	newUnwindBlock := newCleanUpScope unwindBlock.
+	
 	currentCleanUpScope := newCleanUpScope.
-	[
-		result := aBlock value.
-		slvmBuilder isLastTerminator ifFalse: [
-			self executeScopeCleanUpActions: currentCleanUpScope
+	^ [
+		newUnwindBlock ifNotNil: [
+			slvmBuilder currentUnwindBlock: currentCleanUpScope unwindBlock
 		].
-	] ensure: [ currentCleanUpScope := oldCleanUpScope ].
-	^ result
+	
+		aBlock value.
+	] ensure: [
+		currentCleanUpScope := oldCleanUpScope.
+		newUnwindBlock ifNotNil: [
+			slvmBuilder currentUnwindBlock: oldUnwindBlock.
+		].
+
+		slvmBuilder isLastTerminator ifFalse: [
+			self executeScopeCleanUpActions: newCleanUpScope
+		].
+	]
 ]
 
 { #category : #'as yet unclassified' }
@@ -2357,6 +2597,14 @@ MbndSlovimFunctionCodeGenerator >> withLexicalScope: lexicalScope do: aBlock [
 		activeLexicalScope := debugLexicalScope.
 		aBlock value
 	] ensure: [ activeLexicalScope := oldActiveLexicalScope ]
+]
+
+{ #category : #visiting }
+MbndSlovimFunctionCodeGenerator >> withUnwindBlock: newUnwindBlock do: aBlock [
+	| oldUnwindBlock |
+	oldUnwindBlock := slvmBuilder currentUnwindBlock.
+	slvmBuilder currentUnwindBlock: newUnwindBlock.
+	aBlock ensure: [ slvmBuilder currentUnwindBlock: oldUnwindBlock ]
 ]
 
 { #category : #'as yet unclassified' }

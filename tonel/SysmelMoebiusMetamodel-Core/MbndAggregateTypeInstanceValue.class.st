@@ -92,7 +92,7 @@ MbndAggregateTypeInstanceValue >> setField: fieldName value: newFieldValue [
 
 { #category : #evaluating }
 MbndAggregateTypeInstanceValue >> slotValues [
-	^ slots collect: #value
+	^ slots collect: [:each | each value]
 ]
 
 { #category : #accessing }

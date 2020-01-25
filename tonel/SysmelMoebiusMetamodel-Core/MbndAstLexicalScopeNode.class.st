@@ -1,6 +1,6 @@
 Class {
 	#name : #MbndAstLexicalScopeNode,
-	#superclass : #MbndAstCleanUpScopeNode,
+	#superclass : #MbndAstExceptionScopeNode,
 	#instVars : [
 		'lexicalScope'
 	],

@@ -52,7 +52,7 @@ function shader computeShader externC() => Void := {
 	
 	callWithLocalSize := shaderImplementation basicBlocks second firstInstruction.
 	self assert: callWithLocalSize arguments first isConstantVectorValue.
-	self assert: (callWithLocalSize arguments first slots collect: #value) equals: #(4 1 1).
+	self assert: (callWithLocalSize arguments first slots collect: [:each | each value]) equals: #(4 1 1).
 ]
 
 { #category : #tests }
@@ -89,7 +89,7 @@ function shader computeShader externC() => Void := {
 	
 	callWithLocalSize := shaderImplementation basicBlocks second firstInstruction.
 	self assert: callWithLocalSize arguments first isConstantVectorValue.
-	self assert: (callWithLocalSize arguments first slots collect: #value) equals: #(4 3 1).
+	self assert: (callWithLocalSize arguments first slots collect: [:each | each value]) equals: #(4 3 1).
 ]
 
 { #category : #tests }
@@ -126,7 +126,7 @@ function shader computeShader externC() => Void := {
 	
 	callWithLocalSize := shaderImplementation basicBlocks second firstInstruction.
 	self assert: callWithLocalSize arguments first isConstantVectorValue.
-	self assert: (callWithLocalSize arguments first slots collect: #value) equals: #(4 3 7).
+	self assert: (callWithLocalSize arguments first slots collect: [:each | each value]) equals: #(4 3 7).
 ]
 
 { #category : #tests }

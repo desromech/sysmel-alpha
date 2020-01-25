@@ -20,7 +20,10 @@ Class {
 		'dynamicFunctionCallsAdapters',
 		'shaderEntryPointInfoDictionary',
 		'compilationTargetOverride',
-		'shaderEntryPoints'
+		'shaderEntryPoints',
+		'landingPathResultType',
+		'personalityFunction',
+		'forbiddenExceptionHandlingFunction'
 	],
 	#classVars : [
 		'ShaderBuiltInLocationMap',
@@ -256,6 +259,21 @@ MbndSlovimCodeModuleGenerator >> fetchShader: functionMethod inputsOfType: input
 		inputGlobal := self getShaderIOField: slotField storage: SLVMType inputStorage forStage: functionMethod specialSemantics.
 		builder store: (builder load: inputGlobal)
 			in: (builder getReference: inputFetchedLocation element: (builder constInt: slotField slotIndex))
+	]
+]
+
+{ #category : #accessing }
+MbndSlovimCodeModuleGenerator >> forbiddenExceptionHandlingFunction [
+	^ forbiddenExceptionHandlingFunction ifNil: [
+		self compilationTarget forbiddenExceptionHandlingFunction ifNotNil: [ 
+			forbiddenExceptionHandlingFunction := (self translateProgramEntity: self compilationTarget forbiddenExceptionHandlingFunction) ssaValue
+		] ifNil: [
+			forbiddenExceptionHandlingFunction := SLVMFunction module: ssaModule
+				name: #__sysmel_eh_handleForbiddenException
+				functionType: ((SLVMFunctionType arguments: #() returnType: SLVMType voidType)
+					variadic: true
+				)
+		]
 	]
 ]
 
@@ -612,6 +630,12 @@ MbndSlovimCodeModuleGenerator >> gpuTypeMapping [
 	)
 ]
 
+{ #category : #testing }
+MbndSlovimCodeModuleGenerator >> hasExceptions [
+	self compilationTarget isGPU ifTrue: [ ^ false ].
+	^ sourceModule hasExceptions
+]
+
 { #category : #initialization }
 MbndSlovimCodeModuleGenerator >> initialize [
 	super initialize.
@@ -644,6 +668,15 @@ MbndSlovimCodeModuleGenerator >> intrinsicConstantBuiltInFunction: intrinsicName
 { #category : #visiting }
 MbndSlovimCodeModuleGenerator >> isEmittingDebugInformation [
 	^ self slvmCompilationTarget emittingDebugInformation
+]
+
+{ #category : #accessing }
+MbndSlovimCodeModuleGenerator >> landingPathResultType [
+	^ landingPathResultType ifNil: [
+		landingPathResultType := SLVMStructureType name: nil
+			types: { self slvmCompilationTarget voidPointerType . self slvmCompilationTarget int }
+			kind: SLVMStructureType genericKind names: #(exception selector)
+		]
 ]
 
 { #category : #'code generation' }
@@ -684,6 +717,21 @@ MbndSlovimCodeModuleGenerator >> mangleProgramEntityNestedName: programEntity [
 { #category : #visiting }
 MbndSlovimCodeModuleGenerator >> newSymbolNameMangler [
 	^ self symbolNameManglerPrototype copy
+]
+
+{ #category : #accessing }
+MbndSlovimCodeModuleGenerator >> personalityFunction [
+	^ personalityFunction ifNil: [
+		self compilationTarget personalityFunction ifNotNil: [ 
+			personalityFunction := (self translateProgramEntity: self compilationTarget personalityFunction) ssaValue
+		] ifNil: [
+			personalityFunction := SLVMFunction module: ssaModule
+				name: #__sysmel_eh_personality
+				functionType: ((SLVMFunctionType arguments: #() returnType: SLVMType voidType)
+					variadic: true
+				)
+		]
+	]
 ]
 
 { #category : #'as yet unclassified' }

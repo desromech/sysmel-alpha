@@ -710,31 +710,6 @@ MbndAstSemanticAnalyzer >> visitClassDefinitionNode: node [
 ]
 
 { #category : #visiting }
-MbndAstSemanticAnalyzer >> visitCleanUpScopeNode: node [
-	| result analyzedContent |
-	result := node copy.
-	
-	self withCleanUpScope: result do: [
-		analyzedContent := self analyzeNodeIfNeeded: result expression.
-		(analyzedContent isLiteralValueNode and: [result explicitCleanUpActions isEmpty]) ifTrue: [ ^ analyzedContent ].
-
-		analyzedContent := (self ensureLiteralIsConcreted: analyzedContent).
-		result
-			expression: analyzedContent;
-			type: analyzedContent type.
-	].
-	result
-		explicitCleanUpActions: (self visitNodesAndCollect: result explicitCleanUpActions).
-	
-	currentCleanUpScope ifNotNil: [
-		result type hasTrivialFinalization ifFalse: [
-			self addNodeWithImplicitFinalization: result
-		].
-	].
-	^ result
-]
-
-{ #category : #visiting }
 MbndAstSemanticAnalyzer >> visitCompileTimeConstantDefinitionNode: node [
 	| aliasName owner alias |
 	aliasName := node name.
@@ -821,6 +796,31 @@ MbndAstSemanticAnalyzer >> visitEnumDefinitionNode: node [
 	
 	"Pass through the declaration result."
 	result type: result declaration type.
+	^ result
+]
+
+{ #category : #visiting }
+MbndAstSemanticAnalyzer >> visitExceptionScopeNode: node [
+	| result analyzedContent |
+	result := node copy.
+	
+	self withCleanUpScope: result do: [
+		analyzedContent := self analyzeNodeIfNeeded: result expression.
+		(analyzedContent isLiteralValueNode and: [result explicitCleanUpActions isEmpty]) ifTrue: [ ^ analyzedContent ].
+
+		analyzedContent := (self ensureLiteralIsConcreted: analyzedContent).
+		result
+			expression: analyzedContent;
+			type: analyzedContent type.
+	].
+	result
+		explicitCleanUpActions: (self visitNodesAndCollect: result explicitCleanUpActions).
+	
+	currentCleanUpScope ifNotNil: [
+		result type hasTrivialFinalization ifFalse: [
+			self addNodeWithImplicitFinalization: result
+		].
+	].
 	^ result
 ]
 
@@ -1370,7 +1370,7 @@ MbndAstSemanticAnalyzer >> visitLexicalScopeNode: node [
 	result := node copy.
 	result lexicalScope: (scope newLexicalScopeAt: result).
 	^ self withScope: result lexicalScope do: [
-		self visitCleanUpScopeNode: result
+		self visitExceptionScopeNode: result
 	].
 
 ]
@@ -1720,7 +1720,7 @@ MbndAstSemanticAnalyzer >> visitMessagePrototypeNode: node [
 	].
 		
 	result functionType: (self compilationTarget
-		functionTypeWithArguments: (result arguments collect: #valueType)
+		functionTypeWithArguments: (result arguments collect: [:each | each valueType])
 		returnType: result returnType).
 	result type: result functionType ref.
 	
@@ -2114,7 +2114,7 @@ MbndAstSemanticAnalyzer >> visitTupleNode: node [
 	| result |
 	result := super visitTupleNode: node.
 	^ result
-		type: (self compilationTarget tuple: (result elements collect: #type));
+		type: (self compilationTarget tuple: (result elements collect: [:each | each type]));
 		yourself
 ]
 

@@ -118,6 +118,10 @@ MbndCompilerCommandLineHandler >> activate [
 			compilationOptions add: [ :c | c noGC ].
 		].
 
+		arg = '-no-exceptions' ifTrue: [
+			compilationOptions add: [ :c | c noExceptions ].
+		].
+
 		arg = '-freestanding' ifTrue: [
 			compilationOptions add: [ :c | c freestanding ].
 		].

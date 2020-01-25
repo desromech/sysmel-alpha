@@ -123,14 +123,6 @@ MbndAstTransformVisitor >> visitClassDefinitionNode: node [
 ]
 
 { #category : #visiting }
-MbndAstTransformVisitor >> visitCleanUpScopeNode: node [
-	^ node copy
-		expression: (self visitNode: node expression);
-		explicitCleanUpActions: (self visitNodesAndCollect: node explicitCleanUpActions);
-		yourself
-]
-
-{ #category : #visiting }
 MbndAstTransformVisitor >> visitCompileTimeConstantDefinitionNode: node [
 	^ node copy
 		value: (self visitNode: node value);
@@ -215,6 +207,14 @@ MbndAstTransformVisitor >> visitEnumDefinitionNode: node [
 		valueType: (node valueType ifNotNil: [:n | self visitNode: n]);
 		values: (node values ifNotNil: [:n | n isMbndAstNode ifTrue: [ self visitNode: n ] ifFalse: [n]]);
 		body: (node body ifNotNil: [:n | self visitNode: n]);
+		yourself
+]
+
+{ #category : #visiting }
+MbndAstTransformVisitor >> visitExceptionScopeNode: node [
+	^ node copy
+		expression: (self visitNode: node expression);
+		explicitCleanUpActions: (self visitNodesAndCollect: node explicitCleanUpActions);
 		yourself
 ]
 

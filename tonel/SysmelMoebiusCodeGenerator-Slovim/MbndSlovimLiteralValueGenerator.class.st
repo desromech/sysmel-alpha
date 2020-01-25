@@ -110,7 +110,7 @@ MbndSlovimLiteralValueGenerator >> visitAggregateType: type [
 	].
 
 	hasBiggerArrayAtTheEnd ifTrue: [
-		slvmType := SLVMStructureType name: nil types: (convertedSlots collect: #type) kind: slvmType kind names: slvmType names.
+		slvmType := SLVMStructureType name: nil types: (convertedSlots collect: [:each | each type]) kind: slvmType kind names: slvmType names.
 	].
 
 	^ SLVMConstant structure: slvmType slots: convertedSlots

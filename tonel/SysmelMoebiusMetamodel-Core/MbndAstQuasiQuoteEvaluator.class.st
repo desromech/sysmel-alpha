@@ -63,7 +63,7 @@ MbndAstQuasiQuoteEvaluator >> visitMacroExpansionInlineBlockNode: node [
 
 	"The node is not a block, ignore the arguments."	
 	basicExpansion ensureNode ifNotNil: [:ensureNode |
-		^ MbndAstCleanUpScopeNode new 
+		^ MbndAstExceptionScopeNode new 
 			position: node;
 			expression: bodyNode;
 			explicitCleanUpActions: { ensureNode lexicallyScoped };

@@ -80,11 +80,6 @@ MbndAstVisitor >> visitClassDefinitionNode: node [
 ]
 
 { #category : #visiting }
-MbndAstVisitor >> visitCleanUpScopeNode: node [
-	self subclassResponsibility
-]
-
-{ #category : #visiting }
 MbndAstVisitor >> visitCompileTimeConstantDefinitionNode: node [
 	self subclassResponsibility
 ]
@@ -156,6 +151,11 @@ MbndAstVisitor >> visitEnumDeclarationNode: node [
 
 { #category : #visiting }
 MbndAstVisitor >> visitEnumDefinitionNode: node [
+	self subclassResponsibility
+]
+
+{ #category : #visiting }
+MbndAstVisitor >> visitExceptionScopeNode: node [
 	self subclassResponsibility
 ]
 

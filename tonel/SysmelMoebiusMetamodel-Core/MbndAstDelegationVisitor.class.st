@@ -83,11 +83,6 @@ MbndAstDelegationVisitor >> visitClassDefinitionNode: node [
 ]
 
 { #category : #visiting }
-MbndAstDelegationVisitor >> visitCleanUpScopeNode: node [
-	^ self delegateNodeVisit: node
-]
-
-{ #category : #visiting }
 MbndAstDelegationVisitor >> visitCompileTimeConstantDefinitionNode: node [
 	^ self delegateNodeVisit: node
 ]
@@ -159,6 +154,11 @@ MbndAstDelegationVisitor >> visitEnumDeclarationNode: node [
 
 { #category : #visiting }
 MbndAstDelegationVisitor >> visitEnumDefinitionNode: node [
+	^ self delegateNodeVisit: node
+]
+
+{ #category : #visiting }
+MbndAstDelegationVisitor >> visitExceptionScopeNode: node [
 	^ self delegateNodeVisit: node
 ]
 

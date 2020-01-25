@@ -67,7 +67,7 @@ MbndAbstractTemplate >> argumentDefinitions: anObject [
 
 { #category : #accessing }
 MbndAbstractTemplate >> argumentTupleType [
-	^ argumentTupleType ifNil: [argumentTupleType := self compilationTarget tuple: (argumentDefinitions collect: #valueType)]
+	^ argumentTupleType ifNil: [argumentTupleType := self compilationTarget tuple: (argumentDefinitions collect: [:each | each valueType])]
 ]
 
 { #category : #'semantic analysis' }

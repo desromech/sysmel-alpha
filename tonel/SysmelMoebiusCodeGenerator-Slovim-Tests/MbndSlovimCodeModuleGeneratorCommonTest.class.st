@@ -12,6 +12,11 @@ MbndSlovimCodeModuleGeneratorCommonTest class >> isAbstract [
 	^ self  == MbndSlovimCodeModuleGeneratorCommonTest
 ]
 
+{ #category : #'as yet unclassified' }
+MbndSlovimCodeModuleGeneratorCommonTest >> disableExceptions [
+	semanticModule noExceptions
+]
+
 { #category : #running }
 MbndSlovimCodeModuleGeneratorCommonTest >> generateSSAModule [
 	semanticModule finishSemanticAnalysis.

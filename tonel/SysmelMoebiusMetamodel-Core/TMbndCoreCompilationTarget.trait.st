@@ -30,7 +30,9 @@ Trait {
 		'temporaryReferenceTypes',
 		'nativeBlockClosureTypes',
 		'shaderModuleInfo',
-		'shaderEntryPointInfo'
+		'shaderEntryPointInfo',
+		'personalityFunction',
+		'forbiddenExceptionHandlingFunction'
 	],
 	#traits : 'TMbndAbstractCompilationTarget',
 	#classTraits : 'TMbndAbstractCompilationTarget classTrait',
@@ -360,6 +362,16 @@ TMbndCoreCompilationTarget >> ensureTypeHasSimpleMetaType: type [
 		supertype: type supertype type;
 		initializeNonTraitType;
 		yourself)
+]
+
+{ #category : #accessing }
+TMbndCoreCompilationTarget >> forbiddenExceptionHandlingFunction [
+	^ forbiddenExceptionHandlingFunction
+]
+
+{ #category : #accessing }
+TMbndCoreCompilationTarget >> forbiddenExceptionHandlingFunction: aFunction [
+	forbiddenExceptionHandlingFunction := aFunction
 ]
 
 { #category : #'derived types' }
@@ -959,6 +971,16 @@ TMbndCoreCompilationTarget >> outputChannelImplementationType [
 { #category : #accessing }
 TMbndCoreCompilationTarget >> outputChannelImplementationType: anObject [
 	outputChannelImplementationType := anObject
+]
+
+{ #category : #accessing }
+TMbndCoreCompilationTarget >> personalityFunction [
+	^ personalityFunction
+]
+
+{ #category : #accessing }
+TMbndCoreCompilationTarget >> personalityFunction: aPersonalityFunction [
+	personalityFunction := aPersonalityFunction
 ]
 
 { #category : #'derived types' }

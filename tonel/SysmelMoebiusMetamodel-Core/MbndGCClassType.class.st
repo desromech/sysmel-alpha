@@ -120,7 +120,7 @@ MbndGCClassType >> asInstanceObjectForTypeInfoGeneration [
 		setField: #variableInstanceElementSize value: (variableDataType ifNil: [ 0 ] ifNotNil: [variableDataType instanceSize]);
 		setField: #variableInstanceElementAlignment value: (variableDataType ifNil: [ 1 ] ifNotNil: [variableDataType instanceAlignment]);
 		setField: #name ifExistsWith: [ name ];
-		setField: #subclasses ifExistsWith: [ (self subtypes select: #isGCClassType) asArray ];
+		setField: #subclasses ifExistsWith: [ (self subtypes select: [:each | each isGCClassType]) asArray ];
 		yourself
 ]
 

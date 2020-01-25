@@ -11,7 +11,8 @@ Class {
 		'hasLibC',
 		'optimizationLevel',
 		'hasGPUSupport',
-		'linkerArguments'
+		'linkerArguments',
+		'hasExceptions'
 	],
 	#category : #'SysmelMoebiusMetamodel-Core-Module'
 }
@@ -66,6 +67,17 @@ MbndStandaloneModule >> freestanding [
 	^ self
 		noLibC;
 		noRTTI.
+]
+
+{ #category : #parameters }
+MbndStandaloneModule >> hasExceptions [
+	^ hasExceptions ifNil: [ hasExceptions := true ]
+]
+
+{ #category : #parameters }
+MbndStandaloneModule >> hasExceptions: aBoolean [
+	<compileTime>
+	hasExceptions := aBoolean
 ]
 
 { #category : #parameters }
@@ -156,6 +168,12 @@ MbndStandaloneModule >> linkerArguments [
 { #category : #'as yet unclassified' }
 MbndStandaloneModule >> loadRuntimeCoreLibrary [
 	^ self evaluateFileNamedOnce: MbndCoreAssets location  / 'lib' / 'kernel' / 'kernel.sysmel'. 
+]
+
+{ #category : #parameters }
+MbndStandaloneModule >> noExceptions [
+	<compileTime>
+	self hasExceptions: false
 ]
 
 { #category : #parameters }

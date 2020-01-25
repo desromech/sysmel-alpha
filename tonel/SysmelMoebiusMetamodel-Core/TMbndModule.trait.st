@@ -125,7 +125,7 @@ TMbndModule >> finishSemanticAnalysis [
 	[ self pendingDelayedSemanticAnalysisSet isNotEmpty ] whileTrue: [
 		toAnalyze := self pendingDelayedSemanticAnalysisSet asArray.
 		self pendingDelayedSemanticAnalysisSet removeAll.
-		toAnalyze do: #ensureSemanticAnalysis
+		toAnalyze do: [:each | each ensureSemanticAnalysis ]
 	]
 ]
 
@@ -162,6 +162,11 @@ TMbndModule >> globalNamespace [
 { #category : #parameters }
 TMbndModule >> hasConservativeGarbageCollector [
 	^ self hasGarbageCollectionSupport and: [ self hasPreciseGarbageCollector not or: [ self hasGarbageCollectionStackMap not ] ]
+]
+
+{ #category : #testing }
+TMbndModule >> hasExceptions [
+	^ true
 ]
 
 { #category : #parameters }

@@ -1,5 +1,5 @@
 Class {
-	#name : #MbndSlovimCleanUpScopeImplicitFinalizationState,
+	#name : #MbndSlovimExceptionScopeImplicitFinalizationState,
 	#superclass : #Object,
 	#instVars : [
 		'token',
@@ -11,53 +11,53 @@ Class {
 }
 
 { #category : #adding }
-MbndSlovimCleanUpScopeImplicitFinalizationState >> addFinalizationActionBlock: aBlock [
+MbndSlovimExceptionScopeImplicitFinalizationState >> addFinalizationActionBlock: aBlock [
 	finalizationActionBlocks add: aBlock
 ]
 
 { #category : #accessing }
-MbndSlovimCleanUpScopeImplicitFinalizationState >> finalizationActionBlocks [
+MbndSlovimExceptionScopeImplicitFinalizationState >> finalizationActionBlocks [
 	^ finalizationActionBlocks
 ]
 
 { #category : #accessing }
-MbndSlovimCleanUpScopeImplicitFinalizationState >> finalizationActionBlocks: anObject [
+MbndSlovimExceptionScopeImplicitFinalizationState >> finalizationActionBlocks: anObject [
 	finalizationActionBlocks := anObject
 ]
 
 { #category : #accessing }
-MbndSlovimCleanUpScopeImplicitFinalizationState >> finalizationActivated [
+MbndSlovimExceptionScopeImplicitFinalizationState >> finalizationActivated [
 	^ finalizationActivated
 ]
 
 { #category : #accessing }
-MbndSlovimCleanUpScopeImplicitFinalizationState >> finalizationActivated: anObject [
+MbndSlovimExceptionScopeImplicitFinalizationState >> finalizationActivated: anObject [
 	finalizationActivated := anObject
 ]
 
 { #category : #initialization }
-MbndSlovimCleanUpScopeImplicitFinalizationState >> initialize [
+MbndSlovimExceptionScopeImplicitFinalizationState >> initialize [
 	super initialize.
 	finalizationActionBlocks := OrderedCollection new.
 	isActuallyExecuted := false.
 ]
 
 { #category : #accessing }
-MbndSlovimCleanUpScopeImplicitFinalizationState >> isActuallyExecuted [
+MbndSlovimExceptionScopeImplicitFinalizationState >> isActuallyExecuted [
 	^ isActuallyExecuted
 ]
 
 { #category : #accessing }
-MbndSlovimCleanUpScopeImplicitFinalizationState >> isActuallyExecuted: anObject [
+MbndSlovimExceptionScopeImplicitFinalizationState >> isActuallyExecuted: anObject [
 	isActuallyExecuted := anObject
 ]
 
 { #category : #accessing }
-MbndSlovimCleanUpScopeImplicitFinalizationState >> token [
+MbndSlovimExceptionScopeImplicitFinalizationState >> token [
 	^ token
 ]
 
 { #category : #accessing }
-MbndSlovimCleanUpScopeImplicitFinalizationState >> token: anObject [
+MbndSlovimExceptionScopeImplicitFinalizationState >> token: anObject [
 	token := anObject
 ]

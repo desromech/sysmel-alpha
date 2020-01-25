@@ -123,7 +123,7 @@ MbndAstBuilder >> casesOfCase: pattern do: action [
 MbndAstBuilder >> cleanUpScope: expression actions: cleanUpActions [
 	<compileTime>
 	<returnType: #_ASTNodeType>
-	^ MbndAstCleanUpScopeNode new
+	^ MbndAstExceptionScopeNode new
 		expression: expression;
 		explicitCleanUpActions: cleanUpActions;
 		yourself

@@ -39,7 +39,7 @@ MbndConcreteFunclet >> preprocessDefinitionBody: node [
 { #category : #initialization }
 MbndConcreteFunclet >> setArguments: newArguments returnType: returnType [
 	| functionType |
-	functionType := (self compilationTarget functionTypeWithArguments: (newArguments collect: #type) returnType: returnType).
+	functionType := (self compilationTarget functionTypeWithArguments: (newArguments collect: [:each | each type]) returnType: returnType).
 	self
 		receiverType: self compilationTarget voidType;
 		type: functionType;
