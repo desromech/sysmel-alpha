@@ -16,5 +16,7 @@ if: Compiler compilationTarget isGPU not then: {
 	}.
 
 	loadFileOnce: "explicit-memory-collections/collections.sysmel".
-	loadFileOnce: "fatalError.sysmel".
+	loadFileOnce: "Object.sysmel".
+	loadFileOnce: "RTTI.sysmel".
+	loadFileOnce: "BasicExceptions.sysmel".
 }.

@@ -1,0 +1,24 @@
+namespace StdNative definition: {
+
+class TypeInformation.
+
+## I am a native object that supports the basic constructors/finalizers and some
+## reflective operations.
+class Object definition: {
+    virtual method initialize ::=> Void := {
+    }.
+
+    virtual method initializeMovingFrom: (other: Object tempRef) ::=> Void := {
+    }.
+
+    virtual method initializeFromCopy: (other: Object const ref) ::=> Void := {
+    }.
+
+    virtual method finalize ::=> Void := {
+    }.
+
+    const inline method __typeInformation => TypeInformation pointer
+        := typeInformationFromPointerToVTable(self address).
+}.
+
+}.

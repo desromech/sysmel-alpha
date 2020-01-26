@@ -1,1 +1,3 @@
-loadFileOnce: "unwind.sysmel".
+if: Compiler hasExceptions then: {
+    loadFileOnce: "unwind.sysmel".
+}.

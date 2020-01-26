@@ -39,12 +39,24 @@ function _Unwind_SetIP externC(context: _Unwind_Context pointer, newValue: UInt6
 function _Unwind_GetLanguageSpecificData externC(context: _Unwind_Context pointer) => UInt64.
 function _Unwind_GetRegionStart externC(context: _Unwind_Context pointer) => UInt64.
 
-
 compileTimeConstant _Unwind_Action := Int32.
 compileTimeConstant _UA_SEARCH_PHASE := 1.
 compileTimeConstant _UA_CLEANUP_PHASE := 2.
 compileTimeConstant _UA_HANDLER_FRAME := 4.
 compileTimeConstant _UA_FORCE_UNWIND := 8.
+
+enum SysmelExceptionKind valueType: Int32; values: #{
+    NonLocalReturn: 0.
+    Native: 1.
+    GCException: 2.
+    Foreign: 3.
+}.
+
+struct SysmelUnwindExceptionData definition: {
+    public field kind type: SysmelExceptionKind.
+    public field exceptionObjectPointer type: Void pointer.
+    public field unwindException type: _Unwind_Exception.
+}.
 
 function __sysmel_eh_personality externC(
     version: Int32, actions: _Unwind_Action,
@@ -57,15 +69,42 @@ function __sysmel_eh_personality externC(
 }.
 
 function __sysmel_eh_handleForbiddenException externC(exceptionData: Void pointer) => Void := {
-    stdout << "TODO: Handle forbidden exception in cleanup"; nl.
-    native_abort().
+	raiseForbiddenExceptionDuringCleanUp().
+}.
+
+function allocateNativeExceptionData(typeInfo: TypeInformation const pointer) => SysmelUnwindExceptionData pointer := {
+    let heapExceptionObject := zmalloc(typeInfo _ instanceSize).
+    typeInfo _ basicInitializationFunctionPointer(heapExceptionObject).
+
+    let exceptionData := SysmelUnwindExceptionData basicNativeNew.
+
+    exceptionData _
+        kind: SysmelExceptionKind Native;
+        exceptionObjectPointer: heapExceptionObject.
+	exceptionData
+}.
+
+if: Compiler hasExceptions then: {
+    Exception extend: {
+        method signal ::=> Void := {
+            ## Use the RTTI type information for cloning the exception object into the heap.
+            let exceptionData := allocateNativeExceptionData(self __typeInformation).
+            (exceptionData _ exceptionObjectPointer reinterpretCastTo: Exception pointer) _
+                initializeFromCopy: self.
+
+            ## Raise the actual exception.
+			_Unwind_RaiseException(exceptionData _ unwindException address).
+
+            ##stderr << "TODO raise: [" << self address << "]: " << self; nl.
+            native_abort().
+        }.
+    }
 }.
 
 Compiler compilationTarget
     personalityFunction: __sysmel_eh_personality;
     forbiddenExceptionHandlingFunction: __sysmel_eh_handleForbiddenException;
     yourself.
-
 }.
 
 }.

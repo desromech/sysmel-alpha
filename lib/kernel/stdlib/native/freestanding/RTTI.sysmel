@@ -1,0 +1,20 @@
+namespace StdNative definition: {
+function typeInformationFromPointerToVTable(vtablePointer: Void const pointer) => TypeInformation pointer
+    := (vtablePointer reinterpretCastTo: TypeInformation pointer const pointer const pointer)
+        _ [-1].
+
+compileTimeConstant NativeBasicInitializeFunctionPointerType := ((Void pointer) => Void) pointer.
+
+## I am an instance of basic type information. I provide the bare minimun that is
+## required for moving/copying any native object from one location to another by
+## erasing its type. I am used for implementing the throwing of native exceptions.
+class TypeInformation definition: {
+    public field instanceSize type: UIntPointer.
+    public field instanceAlignment type: UIntPointer.
+    public field basicInitializationFunctionPointer type: NativeBasicInitializeFunctionPointerType.
+}.
+
+Compiler compilationTarget
+    typeInformationNativeClass: TypeInformation.
+
+}.

@@ -167,6 +167,11 @@ class TextStreamWriter definition: {
 
     method << (double: Float64) => SelfType ref
         := self nextPutDouble: double; yourself.
+
+    method << (exception: Exception const ref) => SelfType ref := {
+        exception printOnNativeTextStreamWriter: self.
+        self
+    }.
 }.
 
 _PrimitiveVectorTypeTemplate extend: {

@@ -1,0 +1,116 @@
+namespace StdNative definition: {
+
+## Opaque declarations do not make any harm.
+class TextStreamWriter.
+
+## Native exception base class.
+class Exception superclass: Object; definition: {
+    public field messageText type: String const pointer.
+
+    compileTimeIf: Compiler compilationTarget hasNoOperatingSystem then: {
+        method signal => Void := {
+            ## TODO: Use a trap instruction here.
+        }.
+    } else: {
+        const virtual method printOnNativeTextStreamWriter: (writer: StdNative TextStreamWriter ref) ::=> Void := {
+            writer << messageText _
+        }.
+
+        compileTimeIf: Compiler hasExceptions not then: {
+            method signal => Void := {
+                stderr << "Fatal error: " << self; nl.
+                native_abort().
+            }.
+        }.
+    }.
+}.
+
+## A programming error that is typically not possible to recover from.
+class Error superclass: Exception; definition: {}.
+
+## A notification for aborting a task.
+class Abort superclass: Error; definition: {}.
+
+## A fatal programming error that is typically impossible to recover from.
+class FatalError superclass: Error; definition: {}.
+
+## An assesertion failure.
+class AssertionFailure superclass: Error; definition: {}.
+
+## Throwing exceptions during clean up actions is forbidden
+class ForbiddenExceptionDuringCleanUp superclass: Error; definition: {}.
+
+## Raises a generic error exception.
+function raiseError(errorMessage: StringLiteral) ::=> Void := {
+    ## FIXME: do not separate these because of a missing cast.
+    let exception mutable := Error newValue.
+    exception
+        messageText: errorMessage address;
+        signal.
+}.
+
+## Raises a fatal error exception.
+function raiseFatalError(errorMessage: StringLiteral) ::=> Void := {
+    ## FIXME: do not separate these because of a missing cast.
+    let exception mutable := FatalError newValue.
+    exception
+        messageText: errorMessage address;
+        signal.
+}.
+
+## Raises an assertion failure exception.
+function raiseAssertionFailure(errorMessage: StringLiteral) ::=> Void := {
+    ## FIXME: do not separate these because of a missing cast.
+    let exception mutable := AssertionFailure newValue.
+    exception
+        messageText: errorMessage address;
+        signal.
+}.
+
+function raiseForbiddenExceptionDuringCleanUp() => Void := {
+    ## FIXME: do not separate these because of a missing cast.
+    let exception mutable := ForbiddenExceptionDuringCleanUp newValue.
+    exception signal.
+}.
+
+## Raises an Abort exception.
+function abort() => Void := {
+    let exception mutable := Abort newValue.
+    exception signal
+}.
+
+macro method error: message
+    :=``(StdNative raiseError(`,message)).
+
+macro method fatalError: message
+    :=``(StdNative raiseFatalError(`,message)).
+
+#**
+ * assert: an assertion that can be disabled in compile time.
+ *#
+macro method assert: condition := {
+    let position := condition asSourcePositionString.
+    let expression := condition originalSourceCode.
+    let errorMessage := "Assertion " -- expression -- " FAILED in " -- position.
+    let messageNode := __astBuilder literalString: errorMessage position: condition position.
+
+    ``(`,condition ifFalse: {
+        StdNative raiseAssertionFailure(`,messageNode)
+    })
+}.
+
+#**
+ * assertAlways: An assertion that is always active.
+ *#
+macro method assertAlways: condition := {
+    let position := condition asSourcePositionString.
+    let expression := condition originalSourceCode.
+    let errorMessage := "Assertion " -- expression -- " FAILED in " -- position.
+    let messageNode := __astBuilder literalString: errorMessage position: condition position.
+
+    ``(`,condition ifFalse: {
+        StdNative raiseAssertionFailure(`,messageNode)
+    })
+}.
+
+}.
