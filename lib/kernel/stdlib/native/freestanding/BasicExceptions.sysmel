@@ -12,10 +12,6 @@ class Exception superclass: Object; definition: {
             ## TODO: Use a trap instruction here.
         }.
     } else: {
-        const virtual method printOnNativeTextStreamWriter: (writer: StdNative TextStreamWriter ref) ::=> Void := {
-            writer << messageText _
-        }.
-
         compileTimeIf: Compiler hasExceptions not then: {
             method signal => Void := {
                 stderr << "Fatal error: " << self; nl.
