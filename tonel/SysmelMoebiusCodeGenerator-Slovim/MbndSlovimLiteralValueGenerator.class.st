@@ -70,12 +70,13 @@ MbndSlovimLiteralValueGenerator >> translateLiteralValue: theLiteralValueToTrans
 MbndSlovimLiteralValueGenerator >> translateTypeInfoContent: targetType [
 	| metaType |
 	metaType := targetType type.
-	literalValue := targetType.
+	literalValue := targetType asInstanceObjectForTypeInfoGeneration.
 	targetType isGarbageCollectedType ifTrue: [ 
-		literalValue := targetType asInstanceObjectForTypeInfoGeneration.
 		^ self visitAggregateType: metaType
 	].
-	^ (self translateType: metaType) defaultConstant
+
+	literalValue ifNil: [ ^ (self translateType: metaType) baseType defaultConstant ].
+	^ self visitAggregateType: literalValue type
 ]
 
 { #category : #visiting }

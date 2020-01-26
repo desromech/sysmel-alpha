@@ -141,6 +141,11 @@ MbndDecoratedType >> printOn: aStream [
 
 ]
 
+{ #category : #accessing }
+MbndDecoratedType >> slotLayout [
+	^ baseType slotLayout
+]
+
 { #category : #'testing methods' }
 MbndDecoratedType >> withoutDecorations [
 	^ baseType withoutDecorations

@@ -270,7 +270,14 @@ MbndSlovimTypeTranslator >> visitSamplerType: type [
 
 { #category : #visiting }
 MbndSlovimTypeTranslator >> visitSimpleMetaType: metaType [
+	metaType instanceType ifNotNil: [ :it |
+		it nativeClassForMetaTypeGeneration ifNotNil: [ :typeInfoClass |
+			^ self translateType: typeInfoClass pointer
+		].
+	].
+
 	^ self slvmCompilationTarget voidPointerPointerType
+
 ]
 
 { #category : #visiting }

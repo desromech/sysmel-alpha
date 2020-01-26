@@ -973,7 +973,7 @@ MbndSlovimCodeModuleGenerator >> translateTypeInfoDefinition: type [
 	metaType := type type.
 	ssaTypeInfoType := self translateType: metaType.
 
-	(sourceModule hasRuntimeTypeInformation not or: [self slvmCompilationTarget isGPU ]) ifTrue: [
+	((sourceModule hasRuntimeTypeInformation or: [ sourceModule hasExceptions ]) not or: [self slvmCompilationTarget isGPU]) ifTrue: [
 		self assert: type isGarbageCollectedType not.
 		ssaTypeInfo := SLVMConstant nullPointer: ssaTypeInfoType.
 		self setProgramEntity: type ssaValue: ssaTypeInfo.

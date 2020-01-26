@@ -12,10 +12,9 @@ MbndGCClassMetaType class >> typeName [
 ]
 
 { #category : #converting }
-MbndGCClassMetaType >> asInstanceObjectForTypeInfoGeneration [
-	^ super asInstanceObjectForTypeInfoGeneration
-		setField: #thisClass ifExistsWith: [ instanceType ];
-		yourself
+MbndGCClassMetaType >> fillTypeInfoInstance: typeInfoInstance [
+	super fillTypeInfoInstance: typeInfoInstance.
+	typeInfoInstance setField: #thisClass ifExistsWith: [ instanceType ]
 ]
 
 { #category : #accessing }

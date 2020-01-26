@@ -32,7 +32,8 @@ Trait {
 		'shaderModuleInfo',
 		'shaderEntryPointInfo',
 		'personalityFunction',
-		'forbiddenExceptionHandlingFunction'
+		'forbiddenExceptionHandlingFunction',
+		'typeInformationNativeClass'
 	],
 	#traits : 'TMbndAbstractCompilationTarget',
 	#classTraits : 'TMbndAbstractCompilationTarget classTrait',
@@ -1077,6 +1078,16 @@ TMbndCoreCompilationTarget >> tuple: elements [
 TMbndCoreCompilationTarget >> type: baseType withDecorations: decorations [
 	decorations ifEmpty: [ ^ baseType ].
 	^ decoratedTypes getOrCreateInstanceWithArguments: { baseType . decorations }
+]
+
+{ #category : #accessing }
+TMbndCoreCompilationTarget >> typeInformationNativeClass [
+	^ typeInformationNativeClass
+]
+
+{ #category : #accessing }
+TMbndCoreCompilationTarget >> typeInformationNativeClass: anObject [
+	typeInformationNativeClass := anObject
 ]
 
 { #category : #'derived types' }

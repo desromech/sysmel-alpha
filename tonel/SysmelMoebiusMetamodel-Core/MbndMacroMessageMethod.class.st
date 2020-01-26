@@ -48,8 +48,12 @@ MbndMacroMessageMethod >> expandMessageNode: node with: analyzer [
 	compilerObjectType := self compilationTarget compilerObjectType.
 	nodeType := self compilationTarget astNodeType.
 	receiverType := node receiver ifNil: [ self compilationTarget voidType ] ifNotNil: [ node receiver type ].
+	concreteMethod receiverType isVoidType ifTrue: [ 
+		receiverType := self compilationTarget voidType.
+	].
+
 	result := concreteMethod evaluateWithReceiver:
-			(node receiver ifNotNil: [MbndValue value: node receiver type: nodeType])
+			(receiverType isVoidType ifTrue: [nil] ifFalse: [MbndValue value: node receiver type: nodeType])
 		arguments: ({
 			MbndValue value: receiverType type: receiverType type.
 			MbndValue value: builder type: compilerObjectType.

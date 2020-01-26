@@ -102,26 +102,10 @@ MbndGCClassType >> asImmutableValueType [
 
 { #category : #converting }
 MbndGCClassType >> asInstanceObjectForTypeInfoGeneration [
-	| result variableDataType |
+	| result |
 	result := self type makeInstance: 0 identityHash: self identityHash at: MbndSourcePosition empty.
-	self flag: 'TODO: Set the GC layout.'.
-	
-	variableDataType := nil.
-	(fields isNotEmpty and: [ fields last valueType isGCClassVariableDataArrayType ]) ifTrue: [ 
-		variableDataType := fields last valueType elementType.
-	].
-
+	self fillTypeInfoInstance: result.
 	^ result
-		setField: #superclass value: self superclass;
-		setField: #methodDict value: self methodDictionaryInstanceObject;
-		setField: #basicInitializeFunctionPointer value: self basicInitializeMethod;
-		setField: #instanceDataSize value: self instanceDataSize;
-		setField: #instanceDataAlignment value: self instanceDataAlignment;
-		setField: #variableInstanceElementSize value: (variableDataType ifNil: [ 0 ] ifNotNil: [variableDataType instanceSize]);
-		setField: #variableInstanceElementAlignment value: (variableDataType ifNil: [ 1 ] ifNotNil: [variableDataType instanceAlignment]);
-		setField: #name ifExistsWith: [ name ];
-		setField: #subclasses ifExistsWith: [ (self subtypes select: [:each | each isGCClassType]) asArray ];
-		yourself
 ]
 
 { #category : #converting }
@@ -153,6 +137,27 @@ MbndGCClassType >> defaultReturnType [
 { #category : #'default values' }
 MbndGCClassType >> defaultValueAt: position [
 	^ MbndValue value: nil type: self
+]
+
+{ #category : #converting }
+MbndGCClassType >> fillTypeInfoInstance: typeInfoInstance [
+	| variableDataType |
+	self flag: 'TODO: Set the GC layout'.
+	variableDataType := nil.
+	(fields isNotEmpty and: [ fields last valueType isGCClassVariableDataArrayType ]) ifTrue: [ 
+		variableDataType := fields last valueType elementType.
+	].
+
+	typeInfoInstance
+		setField: #superclass value: self superclass;
+		setField: #methodDict value: self methodDictionaryInstanceObject;
+		setField: #basicInitializeFunctionPointer value: self basicInitializeMethod;
+		setField: #instanceDataSize value: self instanceDataSize;
+		setField: #instanceDataAlignment value: self instanceDataAlignment;
+		setField: #variableInstanceElementSize value: (variableDataType ifNil: [ 0 ] ifNotNil: [variableDataType instanceSize]);
+		setField: #variableInstanceElementAlignment value: (variableDataType ifNil: [ 1 ] ifNotNil: [variableDataType instanceAlignment]);
+		setField: #name ifExistsWith: [ name ];
+		setField: #subclasses ifExistsWith: [ (self subtypes select: [:each | each isGCClassType]) asArray ].
 ]
 
 { #category : #testing }

@@ -348,6 +348,17 @@ TMbndAbstractType >> asImmutableValueType [
 	^ self
 ]
 
+{ #category : #converting }
+TMbndAbstractType >> asInstanceObjectForTypeInfoGeneration [
+	^ self nativeClassForMetaTypeGeneration ifNotNil: [ :typeInfoClass |
+		| typeInfoInstance |
+		typeInfoInstance := typeInfoClass defaultValue.
+		self fillTypeInfoInstance: typeInfoInstance.
+		typeInfoInstance
+	].
+
+]
+
 { #category : #'semantic analysis' }
 TMbndAbstractType >> asLiteralValueNode [
 	^ MbndAstLiteralValueNode new
@@ -509,6 +520,18 @@ TMbndAbstractType >> defaultValueAt: aPosition [
 { #category : #'meta builder factories' }
 TMbndAbstractType >> extraMetaBuilderFactories [
 	^ extraMetaBuilderFactories ifNil: [ extraMetaBuilderFactories := self createExtraMetaBuilderFactories ]
+]
+
+{ #category : #converting }
+TMbndAbstractType >> fillTypeInfoInstance: typeInfoInstance [
+	typeInfoInstance
+		setField: #instanceSize value: self instanceSize;
+		setField: #instanceAlignment value: self instanceSize;
+		setField: #basicInitializationFunctionPointer value: 
+			(self hasTrivialBasicInitialization
+				ifTrue: [ nil ]
+				ifFalse: [ self basicInitializeMethod ])
+
 ]
 
 { #category : #converting }
@@ -1246,6 +1269,11 @@ TMbndAbstractType >> mbndLiteralTypeWithTarget: compilationTarget [
 TMbndAbstractType >> meta [
 	<compileTime>
 	^ self type
+]
+
+{ #category : #converting }
+TMbndAbstractType >> nativeClassForMetaTypeGeneration [
+	^ self compilationTarget typeInformationNativeClass
 ]
 
 { #category : #converting }
