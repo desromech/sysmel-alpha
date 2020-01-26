@@ -1,0 +1,9 @@
+namespace StdNative definition: {
+
+Exception extend: {
+    const virtual method printOnNativeTextStreamWriter: (writer: StdNative TextStreamWriter ref) ::=> Void := {
+        writer << messageText _
+    }.
+}.
+
+}. ## End of namespace StdNative
