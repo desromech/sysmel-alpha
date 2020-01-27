@@ -23,7 +23,9 @@ Class {
 		'shaderEntryPoints',
 		'landingPathResultType',
 		'personalityFunction',
-		'forbiddenExceptionHandlingFunction'
+		'forbiddenExceptionHandlingFunction',
+		'exceptionCatchEndFunction',
+		'exceptionCatchBeginFunction'
 	],
 	#classVars : [
 		'ShaderBuiltInLocationMap',
@@ -247,6 +249,36 @@ MbndSlovimCodeModuleGenerator >> csymbolForProgramEntity: programEntity [
 { #category : #accessing }
 MbndSlovimCodeModuleGenerator >> debugInformationTranslator [
 	^ debugTypeTranslator ifNil: [ debugTypeTranslator := MbndSlovimDebugInformationTranslator new codeModuleGenerator: self ]
+]
+
+{ #category : #accessing }
+MbndSlovimCodeModuleGenerator >> exceptionCatchBeginFunction [
+	^ exceptionCatchBeginFunction ifNil: [
+		self compilationTarget exceptionCatchBeginFunction ifNotNil: [ :function |
+			exceptionCatchBeginFunction := (self translateProgramEntity: function) ssaValue
+		] ifNil: [
+			exceptionCatchBeginFunction := SLVMFunction module: ssaModule
+				name: #__sysmel_eh_catchBegin
+				functionType: ((SLVMFunctionType arguments: #() returnType: self slvmCompilationTarget voidPointerType)
+					variadic: true
+				)
+		]
+	]
+]
+
+{ #category : #accessing }
+MbndSlovimCodeModuleGenerator >> exceptionCatchEndFunction [
+	^ exceptionCatchEndFunction ifNil: [
+		self compilationTarget exceptionCatchEndFunction ifNotNil: [ :function |
+			exceptionCatchEndFunction := (self translateProgramEntity: function) ssaValue
+		] ifNil: [
+			exceptionCatchEndFunction := SLVMFunction module: ssaModule
+				name: #__sysmel_eh_catchEnd
+				functionType: ((SLVMFunctionType arguments: #() returnType: SLVMType voidType)
+					variadic: true
+				)
+		]
+	]
 ]
 
 { #category : #visiting }

@@ -105,6 +105,27 @@ MbndGenericMacroLanguageTopLevelScope >> addControlFlowMacros [
 		onMacroSelector: #of:selectCase: do: [ :node :builder |
 			(builder casesOf: node arguments first cases: node arguments second)
 				position: node
+		];
+		onMacroSelector: #try:catch:doing: do: [ :node :builder |
+			(builder exceptionLexicalScope: node arguments first
+				catchExpressions: {
+					(builder exceptionCatch: node arguments second doing: node arguments third)
+						position: node
+				} cleanUpActions: #())
+				position: node
+		];
+		onMacroSelector: #try:finally: do: [ :node :builder |
+			(builder exceptionLexicalScope: node arguments first
+				catchExpressions: #() cleanUpActions: { node arguments second lexicallyScoped })
+				position: node
+		];
+		onMacroSelector: #try:catch:doing:finally: do: [ :node :builder |
+			(builder exceptionLexicalScope: node arguments first
+				catchExpressions: {
+					(builder exceptionCatch: node arguments second doing: node arguments third)
+						position: node
+				} cleanUpActions: { node arguments fourth lexicallyScoped})
+				position: node
 		].
 ]
 

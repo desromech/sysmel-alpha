@@ -800,18 +800,78 @@ MbndAstSemanticAnalyzer >> visitEnumDefinitionNode: node [
 ]
 
 { #category : #visiting }
+MbndAstSemanticAnalyzer >> visitExceptionCatchExpressionNode: node [
+	| result |
+	result := node copy.
+	result exceptionTypeExpression: (self analyzeNodeIfNeeded: node exceptionTypeExpression).
+	result exceptionTypeExpression type isMetaType ifFalse: [ 
+		self error: 'An exception type expression is expected in the catch clause instead of an expression with type "{1}".' format: { result exceptionTypeExpression type asString } at: result.
+	].
+
+	result exceptionTypeExpression isLiteralValueNode ifTrue: [
+		result exceptionTypeExpression value isMbndType ifFalse: [ 
+			self error: 'Exception catch literal "{1}" is not a type.' format: { result exceptionTypeExpression value asString } at: result.
+		].
+	
+		result
+			exceptionType: result exceptionTypeExpression value;
+			exceptionTypeIsLiteral: true.
+	] ifFalse: [
+		"Allow the exception type to be an object for implementing BlockClosure >> #on:do:"
+		self error: 'TODO: check the legality of this case.'.
+		result
+			exceptionType: result exceptionTypeExpression type;
+			exceptionTypeIsLiteral: false.
+	].
+
+	"Assist the block closure type inference machinery."
+	result catchAction isBlockClosureNode ifTrue: [
+		result catchAction arguments > 1 ifTrue: [ 
+			self error: 'Exception catch action can only receive at most one argument.' at: result
+		].
+	
+		result catchAction arguments ifNotEmpty: [
+			self halt
+		].
+	].
+
+	result catchAction: (self analyzeNodeIfNeeded: result catchAction).
+	
+	result catchAction isLexicalScopeNode ifFalse: [ 
+		result catchAction type isBlockClosureType ifTrue: [
+			"TODO: Validate the block closure argument type."
+			self halt.
+
+			"Mark the immediate activiation of the block closure node."
+			result catchAction isBlockClosureNode ifTrue: [ 
+				result catchAction blockClosureProgramEntity makeBlockClosureWithImmediateActivation.
+			].
+		].
+	].
+
+	self flag: 'TODO: Allow returning my result value'.
+	result type: self compilationTarget voidType.
+	^ result
+]
+
+{ #category : #visiting }
 MbndAstSemanticAnalyzer >> visitExceptionScopeNode: node [
 	| result analyzedContent |
 	result := node copy.
 	
-	self withCleanUpScope: result do: [
+	self withExceptionScope: result do: [
 		analyzedContent := self analyzeNodeIfNeeded: result expression.
 		(analyzedContent isLiteralValueNode and: [result explicitCleanUpActions isEmpty]) ifTrue: [ ^ analyzedContent ].
 
 		analyzedContent := (self ensureLiteralIsConcreted: analyzedContent).
 		result
 			expression: analyzedContent;
+			catchExpressions: (self analyzeNodesIfNeeded: result catchExpressions);
 			type: analyzedContent type.
+		result catchExpressions ifNotEmpty: [ 
+			self flag: 'TODO: Compute a proper coercion type for the catch case.'.
+			result type: self compilationTarget voidType
+		].
 	].
 	result
 		explicitCleanUpActions: (self visitNodesAndCollect: result explicitCleanUpActions).
@@ -821,6 +881,7 @@ MbndAstSemanticAnalyzer >> visitExceptionScopeNode: node [
 			self addNodeWithImplicitFinalization: result
 		].
 	].
+
 	^ result
 ]
 
@@ -2336,15 +2397,6 @@ MbndAstSemanticAnalyzer >> visitWhileLoopNode: node [
 ]
 
 { #category : #visiting }
-MbndAstSemanticAnalyzer >> withCleanUpScope: cleanUpScope do: aBlock [
-	| oldCleanUpScope |
-	oldCleanUpScope := currentCleanUpScope.
-	currentCleanUpScope := cleanUpScope.
-	
-	aBlock ensure: [ currentCleanUpScope := oldCleanUpScope ]
-]
-
-{ #category : #visiting }
 MbndAstSemanticAnalyzer >> withContinueAndBreakOwnerNode: continueAndBreakOwner do: aBlock [
 	| oldContinueOwner oldBreakOwner |
 	oldContinueOwner := continueOwner.
@@ -2356,4 +2408,13 @@ MbndAstSemanticAnalyzer >> withContinueAndBreakOwnerNode: continueAndBreakOwner 
 		continueOwner := oldContinueOwner.
 		breakOwner := oldBreakOwner.
 	]
+]
+
+{ #category : #visiting }
+MbndAstSemanticAnalyzer >> withExceptionScope: cleanUpScope do: aBlock [
+	| oldCleanUpScope |
+	oldCleanUpScope := currentCleanUpScope.
+	currentCleanUpScope := cleanUpScope.
+	
+	aBlock ensure: [ currentCleanUpScope := oldCleanUpScope ]
 ]

@@ -33,7 +33,9 @@ Trait {
 		'shaderEntryPointInfo',
 		'personalityFunction',
 		'forbiddenExceptionHandlingFunction',
-		'typeInformationNativeClass'
+		'typeInformationNativeClass',
+		'exceptionCatchBeginFunction',
+		'exceptionCatchEndFunction'
 	],
 	#traits : 'TMbndAbstractCompilationTarget',
 	#classTraits : 'TMbndAbstractCompilationTarget classTrait',
@@ -363,6 +365,26 @@ TMbndCoreCompilationTarget >> ensureTypeHasSimpleMetaType: type [
 		supertype: type supertype type;
 		initializeNonTraitType;
 		yourself)
+]
+
+{ #category : #accessing }
+TMbndCoreCompilationTarget >> exceptionCatchBeginFunction [
+	^ exceptionCatchBeginFunction
+]
+
+{ #category : #accessing }
+TMbndCoreCompilationTarget >> exceptionCatchBeginFunction: anObject [
+	exceptionCatchBeginFunction := anObject
+]
+
+{ #category : #accessing }
+TMbndCoreCompilationTarget >> exceptionCatchEndFunction [
+	^ exceptionCatchEndFunction
+]
+
+{ #category : #accessing }
+TMbndCoreCompilationTarget >> exceptionCatchEndFunction: anObject [
+	exceptionCatchEndFunction := anObject
 ]
 
 { #category : #accessing }

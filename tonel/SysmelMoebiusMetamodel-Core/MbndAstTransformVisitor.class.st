@@ -211,9 +211,18 @@ MbndAstTransformVisitor >> visitEnumDefinitionNode: node [
 ]
 
 { #category : #visiting }
+MbndAstTransformVisitor >> visitExceptionCatchExpressionNode: node [
+	^ node copy
+		exceptionTypeExpression: (self visitNode: node exceptionTypeExpression);
+		catchAction: (self visitNode: node catchAction);
+		yourself
+]
+
+{ #category : #visiting }
 MbndAstTransformVisitor >> visitExceptionScopeNode: node [
 	^ node copy
 		expression: (self visitNode: node expression);
+		catchExpressions: (self visitNodesAndCollect: node explicitCleanUpActions);
 		explicitCleanUpActions: (self visitNodesAndCollect: node explicitCleanUpActions);
 		yourself
 ]

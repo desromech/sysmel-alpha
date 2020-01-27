@@ -158,6 +158,11 @@ MbndAstDelegationVisitor >> visitEnumDefinitionNode: node [
 ]
 
 { #category : #visiting }
+MbndAstDelegationVisitor >> visitExceptionCatchExpressionNode: node [
+	^ self delegateNodeVisit: node
+]
+
+{ #category : #visiting }
 MbndAstDelegationVisitor >> visitExceptionScopeNode: node [
 	^ self delegateNodeVisit: node
 ]

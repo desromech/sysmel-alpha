@@ -3,6 +3,7 @@ Class {
 	#superclass : #MbndAstNode,
 	#instVars : [
 		'expression',
+		'catchExpressions',
 		'nodesWithImplicitFinalization',
 		'explicitCleanUpActions'
 	],
@@ -17,6 +18,16 @@ MbndAstExceptionScopeNode >> accept: aVisitor [
 { #category : #adding }
 MbndAstExceptionScopeNode >> addNodeWithImplicitFinalization: node [
 	self nodesWithImplicitFinalization add: node
+]
+
+{ #category : #accessing }
+MbndAstExceptionScopeNode >> catchExpressions [
+	^ catchExpressions
+]
+
+{ #category : #accessing }
+MbndAstExceptionScopeNode >> catchExpressions: anObject [
+	catchExpressions := anObject
 ]
 
 { #category : #accessing }
@@ -42,6 +53,7 @@ MbndAstExceptionScopeNode >> expression: anObject [
 { #category : #initialization }
 MbndAstExceptionScopeNode >> initialize [
 	super initialize.
+	catchExpressions := #().
 	explicitCleanUpActions := #().
 ]
 

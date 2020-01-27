@@ -87,8 +87,8 @@ class ClassWithGuard definition: {
 	self assert: function allInstructionsMnemonics equals: #(
 		(entry (jump))
 		(body (getElementPointer call #jump))
-		(#cleanUpScope (#jump))
-		(#cleanUpScope (call returnVoid))
+		(tryScope (#jump))
+		(tryScope (call returnVoid))
 	).
 	self assert: function basicBlocks second firstInstruction nextInstruction functionValue name equals: #'_ZN5Guard11.initializeERNS_E'.
 	self assert: function basicBlocks fourth firstInstruction functionValue name equals: #'methodWithSideEffect'.
@@ -98,7 +98,7 @@ class ClassWithGuard definition: {
 	self assert: function allInstructionsMnemonics equals: #(
 		(entry (jump))
 		(body (jump))
-		(cleanUpScope (call getElementPointer call returnVoid))
+		(tryScope (call getElementPointer call returnVoid))
 	).
 	self assert: function basicBlocks third firstInstruction functionValue name equals: #'methodWithSideEffect'.
 	self assert: function basicBlocks third firstInstruction nextInstruction nextInstruction functionValue name equals: #'_ZN5Guard9.finalizeERNS_E'.
@@ -196,7 +196,7 @@ class SubClassWithGuard superclass: ClassWithGuard; definition: {
 	self assert: function allInstructionsMnemonics equals: #(
 		(entry (jump))
 		(body (jump))
-		(cleanUpScope (bitcast call call returnVoid))
+		(tryScope (bitcast call call returnVoid))
 	).
 	self assert: function basicBlocks third firstInstruction nextInstruction functionValue name equals: #'_ZN14ClassWithGuard11.initializeERNS_E'.
 	self assert: function basicBlocks third firstInstruction nextInstruction nextInstruction functionValue name equals: #methodWithSideEffect.
@@ -206,7 +206,7 @@ class SubClassWithGuard superclass: ClassWithGuard; definition: {
 	self assert: function allInstructionsMnemonics equals: #(
 		(entry (jump))
 		(body (jump))
-		(cleanUpScope (call bitcast call returnVoid))
+		(tryScope (call bitcast call returnVoid))
 	).
 	self assert: function basicBlocks third firstInstruction functionValue name equals: #methodWithSideEffect.
 	self assert: function basicBlocks third firstInstruction nextInstruction nextInstruction functionValue name equals: #'_ZN14ClassWithGuard9.finalizeERNS_E'.
@@ -254,8 +254,8 @@ class SubClassWithGuard superclass: ClassWithGuard; definition: {
 	self assert: function allInstructionsMnemonics equals: #(
 		(entry (jump))
 		(body (bitcast call jump))
-		(cleanUpScope #(jump))
-		(cleanUpScope #(call returnVoid))
+		(tryScope #(jump))
+		(tryScope #(call returnVoid))
 	).
 	self assert: function basicBlocks second firstInstruction nextInstruction functionValue name equals: #'_ZN14ClassWithGuard11.initializeERNS_E'.
 	self assert: function basicBlocks fourth firstInstruction functionValue name equals: #methodWithSideEffect.
@@ -265,7 +265,7 @@ class SubClassWithGuard superclass: ClassWithGuard; definition: {
 	self assert: function allInstructionsMnemonics equals: #(
 		(entry (jump))
 		(body (jump))
-		(cleanUpScope (call bitcast call returnVoid))
+		(tryScope (call bitcast call returnVoid))
 	).
 	self assert: function basicBlocks third firstInstruction functionValue name equals: #methodWithSideEffect.
 	self assert: function basicBlocks third firstInstruction nextInstruction nextInstruction functionValue name equals: #'_ZN14ClassWithGuard9.finalizeERNS_E'.
@@ -297,7 +297,7 @@ function withSomeResource externC() => Void := {
 	self assert: function allInstructionsMnemonics equals: #(
 		(entry (alloca jump))
 		(body (jump))
-		(cleanUpScope (store call call returnVoid))
+		(tryScope (store call call returnVoid))
 	).
 ]
 
@@ -331,8 +331,9 @@ function useGuard externC() => Void := {
 	self assert: function allInstructionsMnemonics equals: #(
 		(entry (alloca alloca alloca alloca jump))
 		(body (jump))
-		(cleanUpScope #(#store #store #call #store #call #load #branch))
-		(cleanUpUnwind #(#landingpath #extractValue #store #extractValue #store #jump))
+		(tryScope #(#store #store #call #store #call #jump))
+		(normalCleanUpBlock #(#load #branch))
+		(tryUnwind #(#landingpath #extractValue #store #extractValue #store #jump))
 		(implicitCleanUpAction #(#call #jump))
 		(implicitCleanUpMerge #(#returnVoid))
 		(unwindCleanUp #(#load #branch))
@@ -408,8 +409,8 @@ function useGuard externC() => Int32 := {
 	self assert: function allInstructionsMnemonics equals: #(
 		#(#entry #(#alloca #alloca #alloca #alloca #jump))
 		#(#body #(#jump))
-		#(#cleanUpScope #(#store #store #call #store #call #load #branch))
-		#(#cleanUpUnwind #(#landingpath #extractValue #store #extractValue #store #jump))
+		#(#tryScope #(#store #store #call #store #call #load #branch))
+		#(#tryUnwind #(#landingpath #extractValue #store #extractValue #store #jump))
 		#(#implicitCleanUpAction #(#call #jump))
 		#(#implicitCleanUpMerge #(#return))
 		#(#unwindCleanUp #(#load #branch))
@@ -491,15 +492,65 @@ function useMutex externC() => Void := {
 	self assert: function allInstructionsMnemonics equals: #(
 		#(#entry #(#alloca #alloca #alloca #jump))
 		#(#body #(#jump))
-		#(#cleanUpScope #(#store #jump))
-		#(#cleanUpScope #(#call #jump))
-		#(#cleanUpScope #(#jump))
-		#(#cleanUpUnwind #(#landingpath #extractValue #store #extractValue #store #jump))
-		#(#cleanUpScope #(#call #jump))
-		#(#cleanUpScope #(#call #returnVoid))
+		#(#tryScope #(#store #jump))
+		#(#tryScope #(#call #jump))
+		#(#tryScope #(#jump))
+		#(#normalCleanUpBlock #(#jump))
+		#(#tryUnwind #(#landingpath #extractValue #store #extractValue #store #jump))
+		#(#tryScope #(#call #jump))
+		#(#tryScope #(#call #returnVoid))
 		#(#forbiddenExceptionTarget #(#landingpath #extractValue #call #unreachable))
 		#(#unwindCleanUp #(#jump))
-		#(#cleanUpScope #(#call #load #insertValue #load #insertValue #resumeException))
+		#(#tryScope #(#call #load #insertValue #load #insertValue #resumeException))
+	).
+]
+
+{ #category : #tests }
+MbndSlovimCodeModuleGeneratorTest >> testAggregateWithLock2 [
+	| function |
+	self
+		evaluateSysmelSource: '
+class Mutex definition: { 
+	method lock => Void
+		:= grabLock().
+	method unlock => Void
+		:= releaseLock().
+
+    macro method withLock: aBlock := ``{
+		`,self lock.
+		try: `,aBlock __macroInlineBlock finally: `,self unlock.
+    }.
+}.
+
+function grabLock externC() => Void.
+function sideEffect externC() => Void.
+function releaseLock externC() => Void.
+
+function useMutex externC() => Void := {
+	let mutex mutable type: Mutex.
+	mutex withLock: { 
+		sideEffect().
+	}
+}.
+';
+		generateSSAModule.
+
+	function := ssaModule globalNamed: #useMutex.
+	self assert: function isFunction.
+	
+	self assert: function allInstructionsMnemonics equals: #(
+		#(#entry #(#alloca #alloca #alloca #jump))
+		#(#body #(#jump))
+		#(#tryScope #(#store #jump))
+		#(#tryScope #(#call #jump))
+		#(#tryScope #(#jump))
+		#(#normalCleanUpBlock #(#jump))
+		#(#tryUnwind #(#landingpath #extractValue #store #extractValue #store #jump))
+		#(#tryScope #(#call #jump))
+		#(#tryScope #(#call #returnVoid))
+		#(#forbiddenExceptionTarget #(#landingpath #extractValue #call #unreachable))
+		#(#unwindCleanUp #(#jump))
+		#(#tryScope #(#call #load #insertValue #load #insertValue #resumeException))
 	).
 ]
 
@@ -542,15 +593,15 @@ function useMutex externC() => Int32 := {
 	self assert: function allInstructionsMnemonics equals: #(
 		#(#entry #(#alloca #alloca #alloca #jump))
 		#(#body #(#jump))
-		#(#cleanUpScope #(#store #jump))
-		#(#cleanUpScope #(#call #jump))
-		#(#cleanUpScope #(#jump))
-		#(#cleanUpUnwind #(#landingpath #extractValue #store #extractValue #store #jump))
-		#(#cleanUpScope #(#call #jump))
-		#(#cleanUpScope #(#call #return))
+		#(#tryScope #(#store #jump))
+		#(#tryScope #(#call #jump))
+		#(#tryScope #(#jump))
+		#(#tryUnwind #(#landingpath #extractValue #store #extractValue #store #jump))
+		#(#tryScope #(#call #jump))
+		#(#tryScope #(#call #return))
 		#(#forbiddenExceptionTarget #(#landingpath #extractValue #call #unreachable))
 		#(#unwindCleanUp #(#jump))
-		#(#cleanUpScope #(#call #load #insertValue #load #insertValue #resumeException))
+		#(#tryScope #(#call #load #insertValue #load #insertValue #resumeException))
 	).
 ]
 
@@ -594,9 +645,9 @@ function useMutex externC() => Int32 := {
 	self assert: function allInstructionsMnemonics equals: #(
 		(entry (alloca jump))
 		(body (store jump))
-		(cleanUpScope (call jump))
-		(cleanUpScope (call jump))
-		(cleanUpScope (call return))
+		(tryScope (call jump))
+		(tryScope (call jump))
+		(tryScope (call return))
 	).
 ]
 
@@ -637,9 +688,9 @@ function useMutex externC() => Void := {
 	self assert: function allInstructionsMnemonics equals: #(
 		(entry (alloca jump))
 		(body (store jump))
-		(cleanUpScope (call jump))
-		(cleanUpScope (call jump))
-		(cleanUpScope (call returnVoid))
+		(tryScope (call jump))
+		(tryScope (call jump))
+		(tryScope (call returnVoid))
 	).
 ]
 
@@ -871,7 +922,7 @@ MbndSlovimCodeModuleGeneratorTest >> testBooleanLocal [
 	self assert: function allInstructionsMnemonics equals: #(
 		(entry (alloca jump))
 		(body (jump))
-		(cleanUpScope (
+		(tryScope (
 			store
 			load
 			truncate
@@ -1131,6 +1182,112 @@ function callWithNativeBlockClosure externC(v: Int32) => Int32
 ]
 
 { #category : #tests }
+MbndSlovimCodeModuleGeneratorTest >> testCatchNativeExceptionIgnore [
+	| function |
+	self
+		evaluateMiniRTTI;
+		evaluateMiniExceptionRuntime;
+		evaluateSysmelSource: '
+
+function mayThrow externC() => Void.
+function catchSideEffect externC() => Void.
+
+function withCatch externC() => Void := { 
+	try: { 
+		mayThrow()
+	} catch: Error doing: { 
+		catchSideEffect()
+	}
+}
+';
+		generateSSAModule.
+
+	function := ssaModule globalNamed: #withCatch.
+	self assert: function isFunction.
+	self assert: function allInstructionsMnemonics equals: #(
+		(entry #(#alloca #alloca #jump))
+		(body #(#jump))
+		(tryScope #(#jump))
+		(catchAction #(#load #call #jump))
+		(tryScope #(#jump))
+		(normalCleanUpBlock #(#returnVoid))
+		(tryUnwind #(#landingpath #extractValue #store #extractValue #store #jump))
+		(tryScope #(#call #jump))
+		(catchNormalCleanUp #(#call #jump))
+		(catchUnwind #(#landingpath #extractValue #store #extractValue #store #jump))
+		(tryScope #(#call #jump))
+		(unwindCleanUp #(#load #insertValue #load #insertValue #resumeException))
+		(forbiddenExceptionTarget #(#landingpath #extractValue #call #unreachable))
+		(unwindCatchSelection #(#load #getExceptionSelectorFromTypeInfo #ieq #branch))
+		(unwindCleanUp #(#jump))
+		(catchSelectContinue #(#jump))
+	).
+]
+
+{ #category : #tests }
+MbndSlovimCodeModuleGeneratorTest >> testCatchNativeNestedException [
+	| function |
+	
+"Try inside of try gets merged."
+	self
+		evaluateMiniRTTI;
+		evaluateMiniExceptionRuntime;
+		evaluateSysmelSource: '
+function mayThrow externC() => Void.
+function mayThrow2 externC() => Void.
+function catchSideEffect externC() => Void.
+
+function withCatch externC() => Void := { 
+	try: { 
+		try: { 
+			mayThrow()
+		} catch: AssertionFailure doing: { 
+			catchSideEffect()
+		}.
+		mayThrow2()
+	} catch: Error doing: { 
+		catchSideEffect()
+	}
+}
+';
+		generateSSAModule.
+
+	function := ssaModule globalNamed: #withCatch.
+	self assert: function isFunction.
+	self flag: 'TODO: Double check that this generated code is correct.'.
+	self assert: function allInstructionsMnemonics equals: #(
+		#(#entry #(#alloca #alloca #jump))
+		#(#body #(#jump))
+		#(#tryScope #(#jump))
+		#(#catchAction #(#load #call #jump))
+		#(#tryScope #(#jump))
+		#(#normalCleanUpBlock #(#returnVoid))
+		#(#tryUnwind #(#landingpath #extractValue #store #extractValue #store #jump))
+		#(#tryScope #(#jump))
+		#(#catchAction #(#load #call #jump))
+		#(#tryScope #(#jump))
+		#(#normalCleanUpBlock #(#call #jump))
+		#(#tryUnwind #(#landingpath #extractValue #store #extractValue #store #jump))
+		#(#tryScope #(#call #jump))
+		#(#catchNormalCleanUp #(#call #jump))
+		#(#catchUnwind #(#landingpath #extractValue #store #extractValue #store #jump))
+		#(#tryScope #(#call #jump))
+		#(#catchNormalCleanUp #(#call #jump))
+		#(#catchUnwind #(#landingpath #extractValue #store #extractValue #store #jump))
+		#(#tryScope #(#call #jump))
+		#(#unwindCleanUp #(#load #insertValue #load #insertValue #resumeException))
+		#(#forbiddenExceptionTarget #(#landingpath #extractValue #call #unreachable))
+		#(#unwindCatchSelection #(#load #getExceptionSelectorFromTypeInfo #ieq #branch))
+		#(#unwindCleanUp #(#jump))
+		#(#unwindCatchSelection #(#load #getExceptionSelectorFromTypeInfo #ieq #branch))
+		#(#unwindCleanUp #(#jump))
+		#(#unwindCleanUp #(#jump))
+		#(#catchSelectContinue #(#jump))
+		#(#catchSelectContinue #(#jump))
+	).
+]
+
+{ #category : #tests }
 MbndSlovimCodeModuleGeneratorTest >> testCharacterToDynamicObject [
 	| function |
 	self
@@ -1364,12 +1521,12 @@ MbndSlovimCodeModuleGeneratorTest >> testCountTwiceCFunction [
 	self assert: function allInstructionsMnemonics equals: #(
 		(entry (alloca alloca jump))
 		(body (jump))
-		(cleanUpScope (store store jump))
+		(tryScope (store store jump))
 		(whileHeader (load ilt branch))
 		(whileBody (jump))
 		(whileContinue (load add store jump))
 		(whileMerge (load return))
-		(cleanUpScope (load add store jump))
+		(tryScope (load add store jump))
 	).
 ]
 
@@ -3799,7 +3956,7 @@ MbndSlovimCodeModuleGeneratorTest >> testIdentityScopedCFunction [
 	self assert: function allInstructionsMnemonics equals: #(
 		(entry (jump))
 		(body (jump))
-		(cleanUpScope (return))
+		(tryScope (return))
 	)
 ]
 
@@ -3815,7 +3972,7 @@ MbndSlovimCodeModuleGeneratorTest >> testIdentityScopedSequenceCFunction [
 	self assert: function allInstructionsMnemonics equals: #(
 		(entry (jump))
 		(body (jump))
-		(cleanUpScope (return))
+		(tryScope (return))
 	)
 ]
 
@@ -4859,7 +5016,7 @@ function increase externC() => Void := {
 	self assert: function allInstructionsMnemonics equals: #(
 		(entry (jump))
 		(body (jump))
-		(cleanUpScope (
+		(tryScope (
 			load
 			add
 			store
@@ -4883,7 +5040,7 @@ MbndSlovimCodeModuleGeneratorTest >> testLetZeroCFunction [
 	self assert: function allInstructionsMnemonics equals: #(
 		(entry (jump))
 		(body (jump))
-		(cleanUpScope (return))
+		(tryScope (return))
 	)
 ]
 
@@ -4903,7 +5060,7 @@ MbndSlovimCodeModuleGeneratorTest >> testLetZeroMutableAssignmentCFunction [
 	self assert: function allInstructionsMnemonics equals: #(
 		(entry (alloca jump))
 		(body (jump))
-		(cleanUpScope (store store load return))
+		(tryScope (store store load return))
 	)
 ]
 
@@ -4922,7 +5079,7 @@ MbndSlovimCodeModuleGeneratorTest >> testLetZeroMutableCFunction [
 	self assert: function allInstructionsMnemonics equals: #(
 		(entry (alloca jump))
 		(body (jump))
-		(cleanUpScope (store load return))
+		(tryScope (store load return))
 	)
 ]
 
@@ -4945,7 +5102,7 @@ MbndSlovimCodeModuleGeneratorTest >> testMainPutsCFunction [
 	self assert: function allInstructionsMnemonics equals: #(
 		(entry (jump))
 		(body (jump))
-		(cleanUpScope (call return))
+		(tryScope (call return))
 	)
 ]
 
@@ -4968,7 +5125,7 @@ MbndSlovimCodeModuleGeneratorTest >> testMainPutsThenReturnCFunction [
 	self assert: function allInstructionsMnemonics equals: #(
 		(entry (jump))
 		(body (jump))
-		(cleanUpScope (call return))
+		(tryScope (call return))
 	)
 ]
 
@@ -5022,7 +5179,7 @@ MbndSlovimCodeModuleGeneratorTest >> testMultipleChainsFunction [
 	self assert: function allInstructionsMnemonics equals: #(
 		(entry (alloca alloca jump))
 		(body (jump))
-		(cleanUpScope (store load add store load return))
+		(tryScope (store load add store load return))
 	)
 ]
 
@@ -5048,7 +5205,7 @@ function callWithAggregate externC() => Void
 	self assert: function allInstructionsMnemonics equals: #(
 		#(#entry #(#alloca #alloca #alloca #alloca #jump))
 		#(#body #(#store #store #call #store #call #load #branch))
-		#(#cleanUpUnwind #(#landingpath #extractValue #store #extractValue #store #jump))
+		#(#tryUnwind #(#landingpath #extractValue #store #extractValue #store #jump))
 		#(#implicitCleanUpAction #(#call #jump))
 		#(#implicitCleanUpMerge #(#returnVoid))
 		#(#unwindCleanUp #(#load #branch))
@@ -5063,7 +5220,7 @@ function callWithAggregate externC() => Void
 	self assert: function allInstructionsMnemonics equals: #(
 		(entry (jump))
 		(body (jump))
-		(#cleanUpScope (returnVoid))
+		(#tryScope (returnVoid))
 	).
 ]
 
@@ -5135,7 +5292,7 @@ function caller externC() => Void
 	self assert: function allInstructionsMnemonics equals: #(
 		#(#entry #(#alloca #alloca #alloca #alloca #jump))
 		#(#body #(#store #call #store #load #branch))
-		#(#cleanUpUnwind #(#landingpath #extractValue #store #extractValue #store #jump))
+		#(#tryUnwind #(#landingpath #extractValue #store #extractValue #store #jump))
 		#(#implicitCleanUpAction #(#call #jump))
 		#(#implicitCleanUpMerge #(#returnVoid))
 		#(#unwindCleanUp #(#load #branch))
@@ -5170,7 +5327,7 @@ function caller externC() => Void
 	self assert: function allInstructionsMnemonics equals: #(
 		(entry (jump))
 		(body (jump))
-		(cleanUpScope(store call returnVoid))
+		(tryScope(store call returnVoid))
 	).
 	
 	function := ssaModule globalNamed: #caller.
@@ -5178,7 +5335,7 @@ function caller externC() => Void
 	self assert: function allInstructionsMnemonics equals: #(
 		#(#entry #(#alloca #alloca #alloca #alloca #jump))
 		#(#body #(#store #call #store #load #branch))
-		#(#cleanUpUnwind #(#landingpath #extractValue #store #extractValue #store #jump))
+		#(#tryUnwind #(#landingpath #extractValue #store #extractValue #store #jump))
 		#(#implicitCleanUpAction #(#call #jump))
 		#(#implicitCleanUpMerge #(#returnVoid))
 		#(#unwindCleanUp #(#load #branch))
@@ -5258,7 +5415,7 @@ function caller externC() => Void
 	self assert: function allInstructionsMnemonics equals: #(
 		#(#entry #(#alloca #alloca #alloca #alloca #jump))
 		#(#body #(#store #call #store #load #branch))
-		#(#cleanUpUnwind #(#landingpath #extractValue #store #extractValue #store #jump))
+		#(#tryUnwind #(#landingpath #extractValue #store #extractValue #store #jump))
 		#(#implicitCleanUpAction #(#call #jump))
 		#(#implicitCleanUpMerge #(#returnVoid))
 		#(#unwindCleanUp #(#load #branch))
@@ -5340,7 +5497,7 @@ function caller externC() => Void
 	self assert: function allInstructionsMnemonics equals: #(
 		#(#entry #(#alloca #alloca #alloca #alloca #jump))
 		#(#body #(#store #call #store #load #branch))
-		#(#cleanUpUnwind #(#landingpath #extractValue #store #extractValue #store #jump))
+		#(#tryUnwind #(#landingpath #extractValue #store #extractValue #store #jump))
 		#(#implicitCleanUpAction #(#call #jump))
 		#(#implicitCleanUpMerge #(#returnVoid))
 		#(#unwindCleanUp #(#load #branch))
@@ -5486,7 +5643,7 @@ function caller externC() => Aggregate
 	self assert: function allInstructionsMnemonics equals: #(
 		(entry (jump))
 		(body (jump))
-		(cleanUpScope (store call returnVoid))
+		(tryScope (store call returnVoid))
 	).
 	
 	function := ssaModule globalNamed: #caller.
@@ -5864,7 +6021,7 @@ MbndSlovimCodeModuleGeneratorTest >> testPointerNull2 [
 	self assert: function isFunction.self assert: function allInstructionsMnemonics equals: #(
 		(entry (jump))
 		(body (jump))
-		(cleanUpScope (call return))
+		(tryScope (call return))
 	)
 ]
 
@@ -6099,10 +6256,10 @@ MbndSlovimCodeModuleGeneratorTest >> testRefCountedMethods [
 	self assert: function allInstructionsMnemonics equals: #(
 		(entry (jump))
 		(body (jump))
-		(cleanUpScope (getElementPointer load ine branch))
+		(tryScope (getElementPointer load ine branch))
 		(ifThen (jump))
 		(ifMerge (returnVoid))
-		(cleanUpScope (getElementPointer load call jump))
+		(tryScope (getElementPointer load call jump))
 	).
 
 	function := ssaModule globalNamed: #'_ZN16IntrusivePointerIN10RefCountedEE16.initializeWith.ERNS0_EPNS1_E'.
@@ -6111,7 +6268,7 @@ MbndSlovimCodeModuleGeneratorTest >> testRefCountedMethods [
 	self assert: function allInstructionsMnemonics equals: #(
 		(entry (jump))
 		(body (jump))
-		(cleanUpScope (getElementPointer store returnVoid))
+		(tryScope (getElementPointer store returnVoid))
 	).
 
 	function := ssaModule globalNamed: #'_ZN16IntrusivePointerIN10RefCountedEE16.initializeFrom.ERNS0_ERKNS0_E'.
@@ -6120,10 +6277,10 @@ MbndSlovimCodeModuleGeneratorTest >> testRefCountedMethods [
 	self assert: function allInstructionsMnemonics equals: #(
 		(entry (jump))
 		(body (jump))
-		(cleanUpScope (getElementPointer load getElementPointer store getElementPointer load #ine branch))
+		(tryScope (getElementPointer load getElementPointer store getElementPointer load #ine branch))
 		(ifThen (jump))
 		(ifMerge (returnVoid))
-		(cleanUpScope (getElementPointer load call jump))
+		(tryScope (getElementPointer load call jump))
 	).
 	
 	function := ssaModule globalNamed: #'_ZN16IntrusivePointerIN10RefCountedEE22.initializeMovingFrom.ERNS0_EONS0_E'.
@@ -6132,7 +6289,7 @@ MbndSlovimCodeModuleGeneratorTest >> testRefCountedMethods [
 	self assert: function allInstructionsMnemonics equals: #(
 		(entry (jump))
 		(body (jump))
-		(cleanUpScope (getElementPointer load getElementPointer store getElementPointer store returnVoid))
+		(tryScope (getElementPointer load getElementPointer store getElementPointer store returnVoid))
 	).
 	
 	function := ssaModule globalNamed: #'_ZN16IntrusivePointerIN10RefCountedEE13.assignValue.ERNS0_ERKNS0_E'.
@@ -6141,13 +6298,13 @@ MbndSlovimCodeModuleGeneratorTest >> testRefCountedMethods [
 	self assert: function allInstructionsMnemonics equals: #(
 		(entry (jump))
 		(body (jump))
-		(cleanUpScope (getElementPointer load ine branch))
+		(tryScope (getElementPointer load ine branch))
 		(ifThen (jump))
 		(ifMerge (getElementPointer load ine branch))
-		(cleanUpScope (call jump))
+		(tryScope (call jump))
 		(ifThen (jump))
 		(ifMerge (getElementPointer store return))
-		(cleanUpScope (getElementPointer load call jump))
+		(tryScope (getElementPointer load call jump))
 	).
 	
 	function := ssaModule globalNamed: #'_ZN16IntrusivePointerIN10RefCountedEE13.assignValue.ERNS0_EONS0_E'.
@@ -6156,10 +6313,10 @@ MbndSlovimCodeModuleGeneratorTest >> testRefCountedMethods [
 	self assert: function allInstructionsMnemonics equals: #(
 		(entry (jump))
 		(body (jump))
-		(cleanUpScope (getElementPointer load getElementPointer store getElementPointer load ine branch))
+		(tryScope (getElementPointer load getElementPointer store getElementPointer load ine branch))
 		(ifThen (jump))
 		(ifMerge (getElementPointer store return))
-		(cleanUpScope (getElementPointer load call jump))
+		(tryScope (getElementPointer load call jump))
 	).
 ]
 
@@ -6296,7 +6453,7 @@ function makeRefCountedPtr externC(p: RefCounted pointer) => Void
 	self assert: function allInstructionsMnemonics equals: #(
 		#(#entry #(#alloca #alloca #alloca #alloca #jump))
 		#(#body #(#store #call #store #load #branch))
-		#(#cleanUpUnwind #(#landingpath #extractValue #store #extractValue #store #jump))
+		#(#tryUnwind #(#landingpath #extractValue #store #extractValue #store #jump))
 		#(#implicitCleanUpAction #(#call #jump))
 		#(#implicitCleanUpMerge #(#returnVoid))
 		#(#unwindCleanUp #(#load #branch))
@@ -6347,8 +6504,8 @@ function makeRefCountedPtr externC(p: RefCounted pointer) => RefCountedPtr := {
 	self assert: function allInstructionsMnemonics equals: #(
 		#(#entry #(#alloca #alloca #alloca #alloca #alloca #jump))
 		#(#body #(#store #store #jump))
-		#(#cleanUpUnwind #(#landingpath #extractValue #store #extractValue #store #jump))
-		#(#cleanUpScope #(#call #store #store #call #store #load #branch))
+		#(#tryUnwind #(#landingpath #extractValue #store #extractValue #store #jump))
+		#(#tryScope #(#call #store #store #call #store #load #branch))
 		#(#implicitCleanUpAction #(#call #jump))
 		#(#implicitCleanUpMerge #(#returnVoid))
 		#(#unwindCleanUp #(#load #branch))
@@ -6404,8 +6561,8 @@ function makeRefCountedPtr externC(p: RefCounted pointer) => Void := {
 	self assert: function allInstructionsMnemonics equals: #(
 		(entry (alloca alloca alloca alloca jump))
 		(body (store jump))
-		(cleanUpUnwind (landingpath extractValue store extractValue store jump))
-		(cleanUpScope (call store load branch))
+		(tryUnwind (landingpath extractValue store extractValue store jump))
+		(tryScope (call store load branch))
 		(implicitCleanUpAction (call jump))
 		(implicitCleanUpMerge (returnVoid))
 		(unwindCleanUp (load branch))

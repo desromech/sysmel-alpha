@@ -155,6 +155,11 @@ MbndAstVisitor >> visitEnumDefinitionNode: node [
 ]
 
 { #category : #visiting }
+MbndAstVisitor >> visitExceptionCatchExpressionNode: node [
+	self subclassResponsibility
+]
+
+{ #category : #visiting }
 MbndAstVisitor >> visitExceptionScopeNode: node [
 	self subclassResponsibility
 ]

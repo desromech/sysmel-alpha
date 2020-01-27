@@ -123,10 +123,7 @@ MbndAstBuilder >> casesOfCase: pattern do: action [
 MbndAstBuilder >> cleanUpScope: expression actions: cleanUpActions [
 	<compileTime>
 	<returnType: #_ASTNodeType>
-	^ MbndAstExceptionScopeNode new
-		expression: expression;
-		explicitCleanUpActions: cleanUpActions;
-		yourself
+	^ self exceptionScope: expression catchExpressions: #() cleanUpActions: cleanUpActions
 ]
 
 { #category : #accessing }
@@ -459,6 +456,38 @@ MbndAstBuilder >> do: action while: condition [
 	^ MbndAstDoWhileLoopNode new
 		action: action;
 		condition: condition;
+		yourself
+]
+
+{ #category : #'builder methods' }
+MbndAstBuilder >> exceptionCatch: exceptionTypeExpression doing: catchAction [
+	<compileTime>
+	<returnType: #_ASTNodeType>
+	^ MbndAstExceptionCatchExpressionNode new
+		exceptionTypeExpression: exceptionTypeExpression;
+		catchAction: catchAction;
+		yourself
+]
+
+{ #category : #'builder methods' }
+MbndAstBuilder >> exceptionLexicalScope: expression catchExpressions: catchExpressions cleanUpActions: cleanUpActions [
+	<compileTime>
+	<returnType: #_ASTNodeType>
+	^ MbndAstLexicalScopeNode new
+		expression: expression;
+		catchExpressions: catchExpressions;
+		explicitCleanUpActions: cleanUpActions;
+		yourself
+]
+
+{ #category : #'builder methods' }
+MbndAstBuilder >> exceptionScope: expression catchExpressions: catchExpressions cleanUpActions: cleanUpActions [
+	<compileTime>
+	<returnType: #_ASTNodeType>
+	^ MbndAstExceptionScopeNode new
+		expression: expression;
+		catchExpressions: catchExpressions;
+		explicitCleanUpActions: cleanUpActions;
 		yourself
 ]
 

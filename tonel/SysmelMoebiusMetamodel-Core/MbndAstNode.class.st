@@ -226,6 +226,11 @@ MbndAstNode >> isEnumDefinitionNode [
 ]
 
 { #category : #testing }
+MbndAstNode >> isExceptionCatchExpressionNode [
+	^ false
+]
+
+{ #category : #testing }
 MbndAstNode >> isExceptionScopeNode [
 	^ false
 ]

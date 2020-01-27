@@ -107,6 +107,16 @@ template IntrusivePointer(PT: Type)
 ]
 
 { #category : #tests }
+MbndSysmelLanguageTestCommon >> evaluateMiniExceptionRuntime [
+	^ self evaluateSource: '
+class Exception definition: {}.
+class Error superclass: Exception; definition: {}.
+class AssertionFailure superclass: Error; definition: {}.
+'
+	
+]
+
+{ #category : #tests }
 MbndSysmelLanguageTestCommon >> evaluateMiniObjectModelRuntime [
 	^ self evaluateSource: '
 compileTimeConstant _BasicInitializeFunctionPointerType := ((Void pointer) => Void) pointer.
@@ -280,6 +290,23 @@ Compiler compilationTarget managedObjectModel
 	blockClosureHeaderClass: BlockClosureHeaderClass;
 	blockClosureClass: BlockClosure;
     yourself
+'
+	
+]
+
+{ #category : #tests }
+MbndSysmelLanguageTestCommon >> evaluateMiniRTTI [
+	^ self evaluateSource: '
+compileTimeConstant NativeBasicInitializeFunctionPointerType := ((Void pointer) => Void) pointer.
+
+class TypeInformation definition: {
+    public field instanceSize type: UIntPointer.
+    public field instanceAlignment type: UIntPointer.
+    public field basicInitializationFunctionPointer type: NativeBasicInitializeFunctionPointerType.
+}.
+
+Compiler compilationTarget
+    typeInformationNativeClass: TypeInformation.
 '
 	
 ]
