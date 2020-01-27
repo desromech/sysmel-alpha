@@ -5,15 +5,15 @@ namespace Unwind definition: {
 ## libunwind bindings according to the Itanium C++:
 ## https://itanium-cxx-abi.github.io/cxx-abi/abi-eh.html
 enum _Unwind_Reason_Code valueType: Int32; values: #{
-    _URC_NO_REASON: 0.
-	_URC_FOREIGN_EXCEPTION_CAUGHT: 1.
-	_URC_FATAL_PHASE2_ERROR: 2.
-	_URC_FATAL_PHASE1_ERROR: 3.
-	_URC_NORMAL_STOP: 4.
-	_URC_END_OF_STACK: 5.
-	_URC_HANDLER_FOUND: 6.
-	_URC_INSTALL_CONTEXT: 7.
-	_URC_CONTINUE_UNWIND: 8.
+    NoReason: 0.
+	ForeignExceptionCaught: 1.
+	FatalPhase2Error: 2.
+	FatalPhase1Error: 3.
+	NormalStop: 4.
+	EndOfStack: 5.
+	HandlerFound: 6.
+	InstallContext: 7.
+	ContinueUnwind: 8.
 }.
 
 struct _Unwind_Exception.
@@ -32,12 +32,12 @@ function _Unwind_RaiseException externC(exception_object: _Unwind_Exception poin
 function _Unwind_Resume externC(exception_object: _Unwind_Exception pointer) => Void.
 function _Unwind_DeleteException externC(exception_object: _Unwind_Exception pointer) => Void.
 
-function _Unwind_GetGR externC(context: _Unwind_Context pointer, index: Int32) => UInt64.
-function _Unwind_SetGR externC(context: _Unwind_Context pointer, index: Int32, newValue: UInt64) => UInt64.
-function _Unwind_GetIP externC(context: _Unwind_Context pointer) => UInt64.
-function _Unwind_SetIP externC(context: _Unwind_Context pointer, newValue: UInt64) => UInt64.
-function _Unwind_GetLanguageSpecificData externC(context: _Unwind_Context pointer) => UInt64.
-function _Unwind_GetRegionStart externC(context: _Unwind_Context pointer) => UInt64.
+function _Unwind_GetGR externC(context: _Unwind_Context pointer, index: Int32) => UIntPointer.
+function _Unwind_SetGR externC(context: _Unwind_Context pointer, index: Int32, newValue: UIntPointer) => UIntPointer.
+function _Unwind_GetIP externC(context: _Unwind_Context pointer) => UIntPointer.
+function _Unwind_SetIP externC(context: _Unwind_Context pointer, newValue: UIntPointer) => UIntPointer.
+function _Unwind_GetLanguageSpecificData externC(context: _Unwind_Context pointer) => UIntPointer.
+function _Unwind_GetRegionStart externC(context: _Unwind_Context pointer) => UIntPointer.
 
 compileTimeConstant _Unwind_Action := Int32.
 compileTimeConstant _UA_SEARCH_PHASE := 1.
@@ -52,24 +52,56 @@ enum SysmelExceptionKind valueType: Int32; values: #{
     Foreign: 3.
 }.
 
+compileTimeConstant OurExceptionClass := 16r5359534D454C4C00. ## SYSMELL\0
+compileTimeConstant ExceptionClassVendorAndLanguageMask := 16rFFFFFFFFFFFFFF00.
+
 struct SysmelUnwindExceptionData definition: {
+
+    meta method fromUnwindException: (exceptionObject: _Unwind_Exception pointer) ::=> SelfType pointer
+        := (exceptionObject[1] address reinterpretCastTo: SysmelUnwindExceptionData pointer)[-1] address.
+
     public field kind type: SysmelExceptionKind.
     public field exceptionObjectPointer type: Void pointer.
     public field unwindException type: _Unwind_Exception.
 }.
 
+## Sysmel personality function.
+## For documentation on how this is typically implemented, check the LLVM
+## libc++ implementation at: https://github.com/llvm/llvm-project/blob/master/libcxxabi/src/cxa_personality.cpp
 function __sysmel_eh_personality externC(
     version: Int32, actions: _Unwind_Action,
     exceptionClass: UInt64,
     exceptionObject: _Unwind_Exception pointer, context: _Unwind_Context pointer) => _Unwind_Reason_Code := {
 
-    stdout << "TODO: Implement personality function"; nl.
-    native_abort().
-    _Unwind_Reason_Code _URC_NO_REASON.
+    version ~= 1 || exceptionObject isNil || context isNil ifTrue: {
+        return: _Unwind_Reason_Code FatalPhase1Error
+    }.
+
+    let isOurExceptionClass := (exceptionClass & ExceptionClassVendorAndLanguageMask) == OurExceptionClass.
+
+    (actions anyMask: _UA_SEARCH_PHASE) ifTrue: {
+        stdout << "TODO: Implement personality function search phase"; nl.
+        native_abort().
+    }.
+
+    (actions anyMask: _UA_CLEANUP_PHASE) ifTrue: {
+        stdout << "TODO: Implement personality function cleanup phase"; nl.
+        native_abort().
+    }.
+
+    ## Not handled action, this must be a fatal error
+    return: _Unwind_Reason_Code FatalPhase1Error
 }.
 
 function __sysmel_eh_handleForbiddenException externC(exceptionData: Void pointer) => Void := {
 	raiseForbiddenExceptionDuringCleanUp().
+}.
+
+function __sysmel_eh_catchBegin externC(exceptionObject: Void pointer) => Void pointer
+    := SysmelUnwindExceptionData fromUnwindException: (exceptionObject reinterpretCastTo: _Unwind_Exception pointer).
+
+function __sysmel_eh_catchEnd externC() => Void := {
+    stdout << "TODO: __sysmel_eh_catchEnd"; nl.
 }.
 
 function allocateNativeExceptionData(typeInfo: TypeInformation const pointer) => SysmelUnwindExceptionData pointer := {
@@ -81,6 +113,8 @@ function allocateNativeExceptionData(typeInfo: TypeInformation const pointer) =>
     exceptionData _
         kind: SysmelExceptionKind Native;
         exceptionObjectPointer: heapExceptionObject.
+    exceptionData _ unwindException
+        exceptionClass: OurExceptionClass.
 	exceptionData
 }.
 
@@ -103,6 +137,8 @@ if: Compiler hasExceptions then: {
 
 Compiler compilationTarget
     personalityFunction: __sysmel_eh_personality;
+    exceptionCatchBeginFunction: __sysmel_eh_catchBegin;
+    exceptionCatchEndFunction: __sysmel_eh_catchEnd;
     forbiddenExceptionHandlingFunction: __sysmel_eh_handleForbiddenException;
     yourself.
 }.

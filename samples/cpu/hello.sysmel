@@ -15,7 +15,11 @@ function testNativeErrorThrow() => Void := {
 }.
 
 function testNativeError() => Void := {
-    testNativeErrorThrow().
+    try: {
+        testNativeErrorThrow().
+    } catch: StdNative Error doing: {
+        StdNative stdout << "Caught error exception"; nl.
+    }.
 }.
 
 function main externC (argc: Int32, argv: Char8 const pointer pointer) => Int32 := {
