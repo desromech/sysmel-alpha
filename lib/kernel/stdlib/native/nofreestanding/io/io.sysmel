@@ -1,3 +1,12 @@
+## Binary stream.
 loadFileOnce: "Stream.sysmel".
+loadFileOnce: "FixedMemoryStream.sysmel".
+loadFileOnce: "FileStream.sysmel".
+
+## Binary data stream reader.
+loadFileOnce: "BinaryDataStreamReader.sysmel".
+loadFileOnce: "BinaryDataStreamWriter.sysmel".
+
+## Text stream writer.
 loadFileOnce: "TextStreamWriter.sysmel".
 loadFileOnce: "TextStreamReader.sysmel".

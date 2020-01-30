@@ -2,16 +2,10 @@ namespace StdNative definition: {
 
 class TypeInformation.
 
-## I am a native object that supports the basic constructors/finalizers and some
-## reflective operations.
+## I am a native object that supports the basic construction and finalization
+## methods, and I provide a convenient method for retrieving my type information.
 class Object definition: {
     virtual method initialize ::=> Void := {
-    }.
-
-    virtual method initializeMovingFrom: (other: Object tempRef) ::=> Void := {
-    }.
-
-    virtual method initializeFromCopy: (other: Object const ref) ::=> Void := {
     }.
 
     virtual method finalize ::=> Void := {

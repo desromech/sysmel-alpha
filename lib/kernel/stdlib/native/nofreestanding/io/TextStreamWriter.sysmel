@@ -1,12 +1,13 @@
 namespace StdNative definition: {
+namespace IO definition: {
 
 #**
  * Text stream writer
  *#
 class TextStreamWriter definition: {
-    field stream public type: BinaryStream pointer.
+    field stream public type: Stream pointer.
 
-    meta method for: (stream: BinaryStream pointer) ::=> SelfType
+    meta method for: (stream: Stream pointer) ::=> SelfType
         := SelfType newValue
             stream: stream;
             yourself.
@@ -96,7 +97,7 @@ class TextStreamWriter definition: {
         self nextPutBasicValuePrinterBuffer: integerPrinter
     }.
 
-    method nextPutHexPointer: (pointer: Void pointer) ::=> Void := {
+    method nextPutHexPointer: (pointer: Void const pointer) ::=> Void := {
         self nextPutHexPointer: (pointer reinterpretCastTo: UIntPointer).
     }.
 
@@ -159,7 +160,7 @@ class TextStreamWriter definition: {
     method << (integer: UInt64) => SelfType ref
         := self nextPutUnsignedInteger: integer; yourself.
 
-    method << (pointer: Void pointer) => SelfType ref
+    method << (pointer: Void const pointer) => SelfType ref
         := self nextPutHexPointer: pointer; yourself.
 
     method << (float: Float32) => SelfType ref
@@ -202,6 +203,9 @@ _PrimitiveVectorTypeTemplate extend: {
     }.
 }.
 
-global stdout mutable := TextStreamWriter for: stdoutFile address.
-global stderr mutable := TextStreamWriter for: stderrFile address.
-}.
+}. ## End of namespace IO
+
+global stdout mutable := IO TextStreamWriter for: IO stdoutFile address.
+global stderr mutable := IO TextStreamWriter for: IO stderrFile address.
+
+}. ## End of namespace StdNative

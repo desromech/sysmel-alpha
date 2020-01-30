@@ -1,9 +1,19 @@
 namespace StdNative definition: {
+namespace IO definition: {
 
 #**
- * This is a generic byte oriented stream
+ * The mode for seeking a file.
  *#
-class BinaryStream definition: {
+enum SeekMode valueType: Int32; values: #{
+    Set: 0.
+    Current: 1.
+    End: 2.
+}.
+
+#**
+ * This is a generic byte oriented stream.
+ *#
+class Stream definition: {
     #**
      * Tells the current position of the stream in the file.
      * Negative for error or not supported.
@@ -12,21 +22,17 @@ class BinaryStream definition: {
         := -1.
 
     #**
-     * This sets the current file position.
+     * Tells whether the current position is at the end of the stream.
      *#
-    virtual method position: (newPosition: Int64) ::=> Boolean8
-        := false.
+    virtual method atEnd => Boolean8
+        := true.
 
     #**
-     * This sets the current file position, from the end of the file.
+     * This methods is used form moving the internal position pointer. If the
+     * underlying stream cannot be seek (e.g: Pipes, Sockets), then this method
+     * always returns false.
      *#
-    virtual method positionFromEnd: (newPosition: Int64) ::=> Boolean8
-        := false.
-
-    #**
-     * This moves the file pointer the requested amount.
-     *#
-    virtual method skip: (byteCount: Int64) ::=> Boolean8
+    virtual method seek: (offset: Int64) mode: (mode: SeekMode) ::=> Boolean8
         := false.
 
     #**
@@ -42,39 +48,5 @@ class BinaryStream definition: {
          := -1.
 }.
 
-#**
- * File stream class.
- *#
-class BinaryFileStream superclass: BinaryStream;
-definition: {
-    field nativeFileHandle public type: NativeFileHandle.
-
-    meta method fromNativeFileHandle: (handle: NativeFileHandle) ::=> SelfType
-        := SelfType newValue
-            nativeFileHandle: handle;
-            yourself.
-
-    override method position => Int64
-        := nativeFile_tell(nativeFileHandle).
-
-    override method position: (newPosition: Int64) ::=> Boolean8
-        := nativeFile_seek(nativeFileHandle, newPosition, NativeFile_SeekSet).
-
-    override method positionFromEnd: (newPosition: Int64) ::=> Boolean8
-        := nativeFile_seek(nativeFileHandle, newPosition, NativeFile_SeekEnd).
-
-    override method skip: (byteCount: Int64) ::=> Boolean8
-        := nativeFile_seek(nativeFileHandle, byteCount, NativeFile_SeekCur).
-
-    override method write: (buffer: Void const pointer) size: (size: UIntPointer) ::=> IntPointer
-        := nativeFile_write(nativeFileHandle, buffer, size).
-
-    override method read: (buffer: Void pointer) size: (size: UIntPointer) ::=> IntPointer
-        := nativeFile_read(nativeFileHandle, buffer, size).
-}.
-
-global stdinFile mutable := BinaryFileStream fromNativeFileHandle: stdinNativeFileHandle.
-global stdoutFile mutable := BinaryFileStream fromNativeFileHandle: stdoutNativeFileHandle.
-global stderrFile mutable := BinaryFileStream fromNativeFileHandle: stderrNativeFileHandle.
-
-}.
+}. ## End of namespace IO
+}. ## End of namespace StdNative

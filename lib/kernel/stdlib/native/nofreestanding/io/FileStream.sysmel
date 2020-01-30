@@ -1,0 +1,77 @@
+namespace StdNative definition: {
+namespace IO definition: {
+
+#**
+ * FileOpenMode flags.
+ * Flags for opening a fiel
+ *#
+enum FileOpenMode valueType: Int32; bitMask; values: #{
+    ## The file is opened with read permissions.
+    Read: 1.
+
+    ## The file is opened with write permissions.
+    Write: 2.
+
+    Append: 4.
+
+    ## An existent file is truncated. If the file does not exist, it may be created.
+    Truncate: 8.
+
+    ## Opens an existent file.
+    Existent: 16.
+
+    ## Allows supporting asynchronous I/O.
+    AsyncIO: 32.
+
+    CreateNew: Truncate | Write.
+}.
+
+#**
+ * File stream class.
+ *#
+class FileStream superclass: Stream;
+definition: {
+    field nativeFileHandle public type: NativeFileHandle.
+    field eofDetected_ private type: Boolean8.
+
+    meta method fromNativeFileHandle: (handle: NativeFileHandle) ::=> SelfType
+        := SelfType newValue
+            nativeFileHandle: handle;
+            yourself.
+
+    override method atEnd => Boolean8
+        := eofDetected_.
+
+    override method position => Int64
+        := nativeFile_tell(nativeFileHandle).
+
+    override method seek: (offset: Int64) mode: (mode: SeekMode) ::=> Boolean8 := {
+        let nativeSeekMode mutable := NativeFile_SeekSet.
+        mode selectCase: #{
+        SeekMode Set : nativeSeekMode := NativeFile_SeekSet.
+        SeekMode Current : nativeSeekMode := NativeFile_SeekCur.
+        SeekMode End : nativeSeekMode := NativeFile_SeekEnd.
+        }.
+
+        eofDetected_ := false.
+        nativeFile_seek(nativeFileHandle, offset, nativeSeekMode)
+    }.
+
+    override method write: (buffer: Void const pointer) size: (size: UIntPointer) ::=> IntPointer := {
+        eofDetected_ := false.
+        nativeFile_write(nativeFileHandle, buffer, size).
+    }.
+
+    override method read: (buffer: Void pointer) size: (size: UIntPointer) ::=> IntPointer := {
+        let result := nativeFile_read(nativeFileHandle, buffer, size).
+        eofDetected_ := result = 0.
+        result
+    }.
+}.
+
+global stdinFile mutable := FileStream fromNativeFileHandle: stdinNativeFileHandle.
+global stdoutFile mutable := FileStream fromNativeFileHandle: stdoutNativeFileHandle.
+global stderrFile mutable := FileStream fromNativeFileHandle: stderrNativeFileHandle.
+
+}. ## End of namespace IO
+}. ## End of namespace StdNative

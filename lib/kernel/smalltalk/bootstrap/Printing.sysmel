@@ -1,7 +1,7 @@
 namespace Smalltalk definition: {
 
 ProtoObject extend: {
-    method printOnNativeTextStreamWriter: (writer: StdNative TextStreamWriter ref) := {
+    method printOnNativeTextStreamWriter: (writer: StdNative IO TextStreamWriter ref) := {
         self asString printOnNativeTextStreamWriter: writer.
 		self
     }.
@@ -55,7 +55,7 @@ String extend: {
 	method asString
 		:= self.
 
-    method printOnNativeTextStreamWriter: (writer: StdNative TextStreamWriter ref) := {
+    method printOnNativeTextStreamWriter: (writer: StdNative IO TextStreamWriter ref) := {
 		__data size > 0 ifTrue: {
 		    writer write: __data [0] address size: __data size
 		}.
@@ -85,7 +85,7 @@ Class extend: {
 }.
 
 Metaclass extend: {
-    method printOnNativeTextStreamWriter: (writer: StdNative TextStreamWriter ref) := {
+    method printOnNativeTextStreamWriter: (writer: StdNative IO TextStreamWriter ref) := {
 		thisClass printOnNativeTextStreamWriter: writer.
         writer << " class".
 		self
@@ -94,20 +94,20 @@ Metaclass extend: {
 }.
 
 SmallInteger extend: {
-    method printOnNativeTextStreamWriter: (writer: StdNative TextStreamWriter ref) := {
+    method printOnNativeTextStreamWriter: (writer: StdNative IO TextStreamWriter ref) := {
         writer << self __decodeSmallInteger.
 		self
     }.
 }.
 
 Character extend: {
-    method printOnNativeTextStreamWriter: (writer: StdNative TextStreamWriter ref) := {
+    method printOnNativeTextStreamWriter: (writer: StdNative IO TextStreamWriter ref) := {
         writer << self __decodeCharacter.
 		self
     }.
 }.
 
-StdNative TextStreamWriter extend: {
+StdNative IO TextStreamWriter extend: {
     method << (object: ProtoObject) => SelfType ref := {
         object printOnNativeTextStreamWriter: self.
         self

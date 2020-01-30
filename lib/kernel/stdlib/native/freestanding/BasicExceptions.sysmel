@@ -1,8 +1,5 @@
 namespace StdNative definition: {
 
-## Opaque declarations do not make any harm.
-class TextStreamWriter.
-
 ## Native exception base class.
 class Exception superclass: Object; definition: {
     public field messageText type: String const pointer.

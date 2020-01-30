@@ -1,5 +1,10 @@
 namespace StdNative definition: {
 
+namespace IO definition: {
+    class FixedMemoryStream.
+    class BinaryDataStreamReader.
+}.
+
 namespace Unwind definition: {
 
 ## libunwind bindings according to the Itanium C++:
@@ -36,7 +41,7 @@ function _Unwind_GetGR externC(context: _Unwind_Context pointer, index: Int32) =
 function _Unwind_SetGR externC(context: _Unwind_Context pointer, index: Int32, newValue: UIntPointer) => UIntPointer.
 function _Unwind_GetIP externC(context: _Unwind_Context pointer) => UIntPointer.
 function _Unwind_SetIP externC(context: _Unwind_Context pointer, newValue: UIntPointer) => UIntPointer.
-function _Unwind_GetLanguageSpecificData externC(context: _Unwind_Context pointer) => UIntPointer.
+function _Unwind_GetLanguageSpecificData externC(context: _Unwind_Context pointer) => Void pointer.
 function _Unwind_GetRegionStart externC(context: _Unwind_Context pointer) => UIntPointer.
 
 compileTimeConstant _Unwind_Action := Int32.
@@ -44,6 +49,107 @@ compileTimeConstant _UA_SEARCH_PHASE := 1.
 compileTimeConstant _UA_CLEANUP_PHASE := 2.
 compileTimeConstant _UA_HANDLER_FRAME := 4.
 compileTimeConstant _UA_FORCE_UNWIND := 8.
+
+enum DW_EH_PE valueType: UInt8; values: #{
+    absptr:   16r00.
+    uleb128:  16r01.
+    udata2:   16r02.
+    udata4:   16r03.
+    udata8:   16r04.
+    sleb128:  16r09.
+    sdata2:   16r0A.
+    sdata4:   16r0B.
+    sdata8:   16r0C.
+    pcrel:    16r10.
+    textrel:  16r20.
+    datarel:  16r30.
+    funcrel:  16r40.
+    aligned:  16r50.
+    indirect: 16r80.
+    omit:     16rFF.
+}.
+
+function fetchPointerEncoding(reader: StdNative IO BinaryDataStreamReader ref) => DW_EH_PE := {
+    reader nextUInt8 castTo: DW_EH_PE
+}.
+
+function fetchPointerWithEncoding(in: StdNative IO FixedMemoryStream ref, reader: StdNative IO BinaryDataStreamReader ref, encoding: DW_EH_PE, defaultValue: Void pointer) => Void pointer := {
+    encoding == DW_EH_PE omit ifTrue: {
+        return: defaultValue
+    }.
+
+    let result mutable type: UIntPointer := 0.
+    let basePointer := in currentPointer reinterpretCastTo: UIntPointer.
+
+    ## fetch the data encoding.
+    let dataEncoding := (encoding value & 16r0F) castTo: DW_EH_PE.
+    dataEncoding selectCase: #{
+    DW_EH_PE absptr : {
+            compileTimeIf: UIntPointer instanceSize = 4 then: {
+                result := reader nextUInt32
+            } else: {
+                result := reader nextUInt64
+            }
+        }.
+    DW_EH_PE uleb128 : {
+            result := reader nextULEB128 castTo: UIntPointer
+        }.
+    DW_EH_PE udata2 : {
+            result := reader nextUInt16
+        }.
+    DW_EH_PE udata4 : {
+            result := reader nextUInt32
+        }.
+    DW_EH_PE udata8 : {
+            result := reader nextUInt64 castTo: UIntPointer
+        }.
+    DW_EH_PE sleb128 : {
+            result := reader nextSLEB128 castTo: UIntPointer
+        }.
+    DW_EH_PE sdata2 : {
+            result := (reader nextInt16 castTo: IntPointer) castTo: UIntPointer
+        }.
+    DW_EH_PE sdata4 : {
+            result := (reader nextInt32 castTo: IntPointer) castTo: UIntPointer
+        }.
+    DW_EH_PE sdata8 : {
+            result := (reader nextInt64 castTo: IntPointer) castTo: UIntPointer
+        }.
+    let _ : {
+            StdNative stderr << "Unsupport EH DWARF pointer data encoding."; nl.
+            native_abort().
+        }.
+    }.
+
+    ## Apply the relative offset, if required.
+    let relativeEncoding := (encoding value & 16r70) castTo: DW_EH_PE.
+    relativeEncoding selectCase: #{
+    DW_EH_PE absptr : {
+            ## Nothing is required in this case.
+        }.
+    DW_EH_PE pcrel : {
+            result ~= 0 ifTrue: {
+                result := result + basePointer
+            }.
+        }.
+    let _ : {
+            StdNative stderr << "Unsupport EH DWARF pointer relative encoding."; nl.
+            native_abort().
+        }.
+    }.
+
+    ## Do we need to de-reference the pointer?
+    (encoding value anyMask: DW_EH_PE indirect value) ifTrue: {
+        result := (result reinterpretCastTo: UIntPointer pointer) _
+    }.
+
+    result reinterpretCastTo: Void pointer.
+}.
+
+function fetchTaggedPointer(in: StdNative IO FixedMemoryStream ref, reader: StdNative IO BinaryDataStreamReader ref, defaultValue: Void pointer) => Void pointer := {
+    let encoding := fetchPointerEncoding(reader).
+    fetchPointerWithEncoding(in, reader, encoding, defaultValue)
+}.
 
 enum SysmelExceptionKind valueType: Int32; values: #{
     NonLocalReturn: 0.
@@ -55,38 +161,355 @@ enum SysmelExceptionKind valueType: Int32; values: #{
 compileTimeConstant OurExceptionClass := 16r5359534D454C4C00. ## SYSMELL\0
 compileTimeConstant ExceptionClassVendorAndLanguageMask := 16rFFFFFFFFFFFFFF00.
 
+compileTimeConstant LandingPadStructurePointerRegister := Compiler compilationTarget landingPadStructurePointerRegisterIndex.
+compileTimeConstant LandingPadSelectorRegister := Compiler compilationTarget landingPadSelectorRegisterIndex.
+
+TypeInformation extend: {
+    const method canCatchException: (exceptionObjectPointer: Void pointer)
+        withKind: (exceptionKind: SysmelExceptionKind) withTypeInfo: (exceptionTypeInfo: TypeInformation const pointer) ::=> Boolean8
+    := exceptionTypeInfo _ isPointerReinterpretableTo: self address.
+}.
+
+struct SysmelUnwindScanCacheableResult definition: {
+	public field lsda type: UInt8 pointer.
+	public field lsdaSize type: UIntPointer.
+    public field landingPad type: UInt8 pointer.
+    public field actionRecord type: UInt8 pointer.
+    public field typeInfoTableIndex type: IntPointer.
+    public field exceptionObjectPointer type: Void pointer
+}.
+
 struct SysmelUnwindExceptionData definition: {
 
     meta method fromUnwindException: (exceptionObject: _Unwind_Exception pointer) ::=> SelfType pointer
         := (exceptionObject[1] address reinterpretCastTo: SysmelUnwindExceptionData pointer)[-1] address.
 
+    public field previousCatchedException type: SysmelUnwindExceptionData pointer.
     public field kind type: SysmelExceptionKind.
+	public field exceptionTypeInfo type: TypeInformation const pointer.
     public field exceptionObjectPointer type: Void pointer.
+	public field scanResultCache type: SysmelUnwindScanCacheableResult.
     public field unwindException type: _Unwind_Exception.
 }.
 
+function getThrownObjectPointer(exceptionObject: _Unwind_Exception pointer) ::=> Void pointer := {
+    let adjustedPointer mutable := exceptionObject[1] address.
+    let isOurExceptionClass := (exceptionObject _ exceptionClass & ExceptionClassVendorAndLanguageMask) == OurExceptionClass.
+    isOurExceptionClass ifTrue: {
+        return: (adjustedPointer reinterpretCastTo: SysmelUnwindExceptionData pointer)[-1] address
+    }.
+
+    adjustedPointer
+}.
+
+function getCatchExceptionInfo(typeInfoTableIndex: UIntPointer, typeInfoTable: UInt8 pointer,
+    typeInfoTableEncoding: DW_EH_PE, isOurExceptionClass: Boolean8,
+    unwindException: _Unwind_Exception pointer) => TypeInformation const pointer := {
+
+    typeInfoTable ifNil: {
+        ## This should never happen.
+        native_abort()
+    }.
+
+    let dataEncoding := (typeInfoTableEncoding value & 16r0F) castTo: DW_EH_PE.
+    let typeInfoOffset mutable := typeInfoTableIndex.
+    dataEncoding selectCase: #{
+    DW_EH_PE absptr : {
+        typeInfoOffset := typeInfoOffset * UIntPointer instanceSize.
+    }.
+    DW_EH_PE udata2 : {
+        typeInfoOffset := typeInfoOffset * 2.
+    }.
+    DW_EH_PE sdata2 : {
+        typeInfoOffset := typeInfoOffset * 2.
+    }.
+    DW_EH_PE udata4 : {
+        typeInfoOffset := typeInfoOffset * 4.
+    }.
+    DW_EH_PE sdata4 : {
+        typeInfoOffset := typeInfoOffset * 4.
+    }.
+    DW_EH_PE udata8 : {
+        typeInfoOffset := typeInfoOffset * 8.
+    }.
+    DW_EH_PE sdata8 : {
+        typeInfoOffset := typeInfoOffset * 8.
+    }.
+    let _ : {
+        ## This is an invalid case.
+        native_abort().
+    }.
+	}.
+
+	let typeInfoTableStream mutable := StdNative IO FixedMemoryStream for: typeInfoTable[typeInfoOffset negated] address withSize: (-1 castTo: UIntPointer).
+	let typeInfoTableReader mutable := StdNative IO BinaryDataStreamReader for: typeInfoTableStream address.
+
+    fetchPointerWithEncoding(typeInfoTableStream, typeInfoTableReader, typeInfoTableEncoding, nil) reinterpretCastTo: TypeInformation const pointer
+}.
+
+function unwindingFatalError(isOurExceptionClass: Boolean8, unwindException: _Unwind_Exception pointer) ::=> Void := {
+    native_abort().
+}.
+
+struct SysmelUnwindScanResult definition: {
+    public field reasonCode type: _Unwind_Reason_Code.
+	public field cacheableResult type: SysmelUnwindScanCacheableResult.
+
+	#*
+	 * Scans an unwinding frame for actions.
+	 * The implementation of this method is based in the one provided by LLVM libc++ internal scan_eh_tab function in file:
+	 * https://github.com/llvm/llvm-project/blob/master/libcxxabi/src/cxa_personality.cpp
+	 *#
+    method scanFrameForActions: (actions: _Unwind_Action) isOurExceptionClass: (isOurExceptionClass: Boolean8)
+        exceptionObject: (unwindException: _Unwind_Exception pointer) context: (context: _Unwind_Context pointer) ::=> Void := {
+
+		reasonCode := _Unwind_Reason_Code FatalPhase1Error.
+
+		(actions anyMask: _UA_SEARCH_PHASE) ifTrue: {
+			(actions anyMask: _UA_CLEANUP_PHASE | _UA_HANDLER_FRAME | _UA_FORCE_UNWIND) ifTrue: {
+				reasonCode := _Unwind_Reason_Code FatalPhase1Error.
+	            return: nil
+			}.
+		} ifFalse: {
+			(actions anyMask: _UA_CLEANUP_PHASE) ifTrue: {
+				(actions anyMask: _UA_HANDLER_FRAME) && (actions anyMask: _UA_FORCE_UNWIND) ifTrue: {
+					reasonCode := _Unwind_Reason_Code FatalPhase1Error.
+					return: nil
+				}.
+			} ifFalse: {
+				## Unsupported phase.
+				reasonCode := _Unwind_Reason_Code FatalPhase1Error.
+				return: nil
+			}.
+		}.
+
+		## Fetch the language specific data area pointer.
+		let lsda := _Unwind_GetLanguageSpecificData(context) reinterpretCastTo: UInt8 pointer.
+		lsda ifNil: {
+			## No exception table is present in this case.
+	        reasonCode := _Unwind_Reason_Code ContinueUnwind.
+			return: nil.
+		}.
+
+		let lsdaSize := -1 castTo: UIntPointer. ## Unbounded size.
+		cacheableResult
+			lsda: lsda;
+			lsdaSize: lsdaSize.
+		let lsdaStream mutable := StdNative IO FixedMemoryStream for: lsda withSize: lsdaSize.
+		let lsdaReader mutable := StdNative IO BinaryDataStreamReader for: lsdaStream address.
+
+		## Fetch the IP before the throw continuation.
+		let throwIP := _Unwind_GetIP(context) - 1.
+		let functionStartAddress := _Unwind_GetRegionStart(context).
+		let functionIPOffset := throwIP - functionStartAddress.
+
+        let landingPathStart := fetchTaggedPointer(lsdaStream, lsdaReader, functionStartAddress reinterpretCastTo: Void pointer) reinterpretCastTo: UInt8 pointer.
+
+        ## Fetch the type info table pointer.
+        let typeInfoTable mutable type: UInt8 pointer := nil.
+        let typeInfoTableEncoding := fetchPointerEncoding(lsdaReader).
+        typeInfoTableEncoding ~~ DW_EH_PE omit ifTrue: {
+            let typeInfoOffset := lsdaReader nextULEB128.
+            typeInfoTable := lsdaStream currentPointer[typeInfoOffset] address
+        }.
+
+        ## Fetch the call site reading streams.
+        let callSiteTableEncoding := fetchPointerEncoding(lsdaReader).
+        let callSiteTableLength := lsdaReader nextULEB128.
+        ##stdout << "callSiteTableEncoding " << callSiteTableEncoding;nl.
+
+        let callSiteTableStart := lsdaStream currentPointer.
+        let callSiteTableStream mutable := StdNative IO FixedMemoryStream for: callSiteTableStart withSize: callSiteTableLength.
+        let callSiteTableReader mutable := StdNative IO BinaryDataStreamReader for: callSiteTableStream address.
+
+        let actionTableStart := callSiteTableStart[callSiteTableLength] address.
+
+        ##stdout << "landingPathStart " << landingPathStart << " typeInfoTable "  << typeInfoTable; nl.
+        ##stdout << "callSiteTableStart " << callSiteTableStart << " callSiteTableLength "  << callSiteTableLength; nl.
+
+        until: callSiteTableStream atEnd do: {
+            let rangeStart := fetchPointerWithEncoding(callSiteTableStream, callSiteTableReader, callSiteTableEncoding, nil) reinterpretCastTo: UIntPointer.
+            let rangeLength := fetchPointerWithEncoding(callSiteTableStream, callSiteTableReader, callSiteTableEncoding, nil) reinterpretCastTo: UIntPointer.
+            let landingPathOffset := fetchPointerWithEncoding(callSiteTableStream, callSiteTableReader, callSiteTableEncoding, nil) reinterpretCastTo: UIntPointer..
+            let actionEntry := callSiteTableReader nextULEB128.
+
+            ##stdout << "rangeStart " << rangeStart << " rangeLength "  << rangeLength << " landingPathOffset " << landingPathOffset << " actionEntry " << actionEntry; nl.
+            rangeStart <= functionIPOffset && functionIPOffset < (rangeStart + rangeLength) ifTrue: {
+                ##stdout << "Found call site range"; nl.
+
+                ## Do we have a landing path?
+                landingPathOffset == 0 ifTrue: {
+                    reasonCode := _Unwind_Reason_Code ContinueUnwind.
+                    return: nil
+                }.
+                let landingPad := landingPathStart[landingPathOffset] address.
+
+                ## Is this a cleanup?
+                actionEntry == 0 ifTrue: {
+
+                    (actions anyMask: _UA_CLEANUP_PHASE) && !(actions anyMask: _UA_HANDLER_FRAME) ifTrue: {
+                        cacheableResult
+							typeInfoTableIndex: 0;
+							landingPad: landingPad.
+                        reasonCode := _Unwind_Reason_Code HandlerFound.
+                        return: nil
+                    }.
+
+                    ## We do not care about cleanups in this phase.
+                    reasonCode := _Unwind_Reason_Code ContinueUnwind.
+                    return: nil
+                }.
+
+                let actionRecord mutable := actionTableStart[actionEntry - 1] address.
+                while: true do: {
+                    let actionStream mutable := StdNative IO FixedMemoryStream for: actionRecord withSize: (-1 castTo: UIntPointer).
+                    let actionReader mutable := StdNative IO BinaryDataStreamReader for: actionStream address.
+                    let typeInfoTableIndex := actionReader nextSLEB128.
+                    ##stdout << "typeInfoTableIndex " << typeInfoTableIndex; nl.
+
+                    let exceptionObjectPointer := getThrownObjectPointer(unwindException).
+                    typeInfoTableIndex > 0 ifTrue: {
+                        let catchExceptionTypeInfo := getCatchExceptionInfo(typeInfoTableIndex castTo: UIntPointer, typeInfoTable,
+                            typeInfoTableEncoding, isOurExceptionClass, unwindException).
+
+                        ##stdout << "catchExceptionTypeInfo " << catchExceptionTypeInfo; nl.
+						catchExceptionTypeInfo ifNil: {
+                            ## Foreign exception, or forbidden catch in a cleanup context.
+                            (actions anyMask: _UA_SEARCH_PHASE) || (actions anyMask: _UA_HANDLER_FRAME) ifTrue: {
+                                cacheableResult
+                                    landingPad: landingPad;
+                                    actionRecord: actionRecord;
+                                    typeInfoTableIndex: typeInfoTableIndex;
+                                    exceptionObjectPointer: exceptionObjectPointer.
+                                reasonCode :=  _Unwind_Reason_Code HandlerFound.
+                                return: nil
+                            }.
+
+                            (actions anyMask: _UA_FORCE_UNWIND) ifFalse: {
+                                unwindingFatalError(isOurExceptionClass, unwindException).
+                            }.
+						} ifNotNil: {
+							isOurExceptionClass ifTrue: {
+								let exceptionData := SysmelUnwindExceptionData fromUnwindException: unwindException.
+                                let exceptionKind := exceptionData _ kind.
+								let exceptionTypeInfo := exceptionData _ exceptionTypeInfo.
+
+								##stdout << "exceptionTypeInfo " << exceptionTypeInfo; nl.
+                                (catchExceptionTypeInfo _
+                                    canCatchException: exceptionObjectPointer withKind: exceptionKind withTypeInfo: exceptionTypeInfo) ifTrue: {
+                                    ## Found a matching handler.
+                                    (actions anyMask: _UA_SEARCH_PHASE) ifTrue: {
+                                        cacheableResult
+                                            landingPad: landingPad;
+                                            actionRecord: actionRecord;
+                                            typeInfoTableIndex: typeInfoTableIndex;
+                                            exceptionObjectPointer: exceptionObjectPointer.
+                                        reasonCode :=  _Unwind_Reason_Code HandlerFound.
+                                        return: nil
+                                    }.
+                                }
+							}.
+						}.
+                    } ifFalse: {
+                        typeInfoTableIndex < 0 ifTrue: {
+                            ## This is a filter. This is are not supported.
+                            unwindingFatalError(isOurExceptionClass, unwindException).
+                        } ifFalse: {
+                            ## This is a cleanup
+                            (actions anyMask: _UA_CLEANUP_PHASE) && (actions anyMask: _UA_HANDLER_FRAME) not ifTrue: {
+                                cacheableResult
+                                    landingPad: landingPad;
+                                    actionRecord: actionRecord;
+                                    typeInfoTableIndex: typeInfoTableIndex;
+                                    exceptionObjectPointer: exceptionObjectPointer.
+                                reasonCode :=  _Unwind_Reason_Code HandlerFound.
+                                return: nil
+                            }.
+                        }
+                    }.
+
+                    let temp := actionStream currentPointer.
+                    let nextActionOffset := actionReader nextSLEB128.
+                    nextActionOffset == 0 ifTrue: {
+                        ## End of the list, which implies that we must continue with the unwinding.
+                        reasonCode := _Unwind_Reason_Code ContinueUnwind.
+                        return: nil
+                    }.
+                    actionRecord := temp[nextActionOffset] address.
+                }.
+            } ifFalse: {
+                functionIPOffset < rangeStart ifTrue: {
+                    unwindingFatalError(isOurExceptionClass, unwindException).
+                }.
+            }
+        }.
+        unwindingFatalError(isOurExceptionClass, unwindException).
+    }.
+
+}.
+
+function setLandingPathRegisters(unwindException: _Unwind_Exception pointer, context: _Unwind_Context pointer,
+    scanResult: SysmelUnwindScanCacheableResult ref) => Void := {
+
+    _Unwind_SetGR(context, LandingPadStructurePointerRegister, unwindException reinterpretCastTo: UIntPointer).
+    _Unwind_SetGR(context, LandingPadSelectorRegister, scanResult typeInfoTableIndex castTo: UIntPointer).
+    _Unwind_SetIP(context, scanResult landingPad reinterpretCastTo: UIntPointer).
+}.
+
 ## Sysmel personality function.
-## For documentation on how this is typically implemented, check the LLVM
-## libc++ implementation at: https://github.com/llvm/llvm-project/blob/master/libcxxabi/src/cxa_personality.cpp
+## The implementation of this function is strongly based in the implementation from LLVM libc++
+## available at the following file: https://github.com/llvm/llvm-project/blob/master/libcxxabi/src/cxa_personality.cpp
 function __sysmel_eh_personality externC(
     version: Int32, actions: _Unwind_Action,
     exceptionClass: UInt64,
-    exceptionObject: _Unwind_Exception pointer, context: _Unwind_Context pointer) => _Unwind_Reason_Code := {
+    unwindException: _Unwind_Exception pointer, context: _Unwind_Context pointer) => _Unwind_Reason_Code := {
 
-    version ~= 1 || exceptionObject isNil || context isNil ifTrue: {
+    version ~= 1 || unwindException isNil || context isNil ifTrue: {
         return: _Unwind_Reason_Code FatalPhase1Error
     }.
 
     let isOurExceptionClass := (exceptionClass & ExceptionClassVendorAndLanguageMask) == OurExceptionClass.
 
+    let scanResult mutable type: SysmelUnwindScanResult.
     (actions anyMask: _UA_SEARCH_PHASE) ifTrue: {
-        stdout << "TODO: Implement personality function search phase"; nl.
-        native_abort().
+        scanResult scanFrameForActions: actions isOurExceptionClass: isOurExceptionClass exceptionObject: unwindException context: context.
+
+		scanResult reasonCode == _Unwind_Reason_Code HandlerFound ifTrue: {
+            isOurExceptionClass ifTrue: {
+                (SysmelUnwindExceptionData fromUnwindException: unwindException) _
+                    scanResultCache: scanResult cacheableResult.
+            }.
+        }.
+
+        return: scanResult reasonCode
     }.
 
     (actions anyMask: _UA_CLEANUP_PHASE) ifTrue: {
-        stdout << "TODO: Implement personality function cleanup phase"; nl.
-        native_abort().
+        ## Did we find the handler?
+        (actions anyMask: _UA_HANDLER_FRAME) ifTrue: {
+            isOurExceptionClass ifTrue: {
+                scanResult cacheableResult: ((SysmelUnwindExceptionData fromUnwindException: unwindException) _
+                    scanResultCache)
+            } ifFalse: {
+                scanResult scanFrameForActions: actions isOurExceptionClass: isOurExceptionClass exceptionObject: unwindException context: context.
+                ## Handler found in Phase 1 is not found anymore.
+                scanResult reasonCode == _Unwind_Reason_Code HandlerFound ifFalse: {
+                    unwindingFatalError(isOurExceptionClass, unwindException).
+                }.
+            }.
+
+            setLandingPathRegisters(unwindException, context, scanResult cacheableResult).
+            return: _Unwind_Reason_Code InstallContext
+        }.
+
+        ## Search for cleanup handler.
+        scanResult scanFrameForActions: actions isOurExceptionClass: isOurExceptionClass exceptionObject: unwindException context: context.
+        scanResult reasonCode == _Unwind_Reason_Code HandlerFound ifTrue: {
+            setLandingPathRegisters(unwindException, context, scanResult cacheableResult).
+            return: _Unwind_Reason_Code InstallContext
+        }.
+
+        return: scanResult reasonCode
     }.
 
     ## Not handled action, this must be a fatal error
@@ -97,24 +520,55 @@ function __sysmel_eh_handleForbiddenException externC(exceptionData: Void pointe
 	raiseForbiddenExceptionDuringCleanUp().
 }.
 
-function __sysmel_eh_catchBegin externC(exceptionObject: Void pointer) => Void pointer
-    := SysmelUnwindExceptionData fromUnwindException: (exceptionObject reinterpretCastTo: _Unwind_Exception pointer).
+global catchedExceptionStack mutable threadLocal type: SysmelUnwindExceptionData pointer.
 
-function __sysmel_eh_catchEnd externC() => Void := {
-    stdout << "TODO: __sysmel_eh_catchEnd"; nl.
+function __sysmel_eh_catchBegin externC(exceptionObject: Void pointer) => Void pointer := {
+    let newExceptionData := SysmelUnwindExceptionData fromUnwindException: (exceptionObject reinterpretCastTo: _Unwind_Exception pointer).
+    ##stderr << "__sysmel_eh_catchBegin " << exceptionObject << " " << newExceptionData; nl.
+
+    newExceptionData _ previousCatchedException: catchedExceptionStack.
+    catchedExceptionStack := newExceptionData.
+    newExceptionData _ exceptionObjectPointer.
 }.
 
-function allocateNativeExceptionData(typeInfo: TypeInformation const pointer) => SysmelUnwindExceptionData pointer := {
+function __sysmel_eh_catchEnd externC() => Void := {
+    ##stderr << "__sysmel_eh_catchEnd " << catchedExceptionStack; nl.
+    let exceptionData := catchedExceptionStack.
+    exceptionData ifNil: {
+        stderr << "Catched exception unbalance"; nl.
+        native_abort().
+    }.
+
+    catchedExceptionStack := exceptionData _  previousCatchedException.
+    exceptionData _ unwindException exceptionCleanup(_Unwind_Reason_Code NormalStop, exceptionData _ unwindException address).
+}.
+
+function nativeExceptionCleanUpFunction(reasonCode: _Unwind_Reason_Code, unwindException: _Unwind_Exception pointer) => Void := {
+	let exceptionData := SysmelUnwindExceptionData fromUnwindException: unwindException.
+
+	(exceptionData _ exceptionObjectPointer reinterpretCastTo: Exception pointer)
+		nativeDelete.
+	free(exceptionData)
+}.
+
+function allocateNativeExceptionDataFor(object: Void pointer, typeInfo: TypeInformation const pointer) => SysmelUnwindExceptionData pointer := {
     let heapExceptionObject := zmalloc(typeInfo _ instanceSize).
     typeInfo _ basicInitializationFunctionPointer(heapExceptionObject).
+    typeInfo _ copyConstructorFunctionPointer ifNil: {
+        memcpy(heapExceptionObject, object, typeInfo _ instanceSize).
+    } ifNotNil: {
+        typeInfo _ copyConstructorFunctionPointer(heapExceptionObject, object).
+    }.
 
     let exceptionData := SysmelUnwindExceptionData basicNativeNew.
 
     exceptionData _
         kind: SysmelExceptionKind Native;
+		exceptionTypeInfo: typeInfo;
         exceptionObjectPointer: heapExceptionObject.
     exceptionData _ unwindException
-        exceptionClass: OurExceptionClass.
+        exceptionClass: OurExceptionClass;
+		exceptionCleanup: nativeExceptionCleanUpFunction address.
 	exceptionData
 }.
 
@@ -122,14 +576,14 @@ if: Compiler hasExceptions then: {
     Exception extend: {
         method signal ::=> Void := {
             ## Use the RTTI type information for cloning the exception object into the heap.
-            let exceptionData := allocateNativeExceptionData(self __typeInformation).
-            (exceptionData _ exceptionObjectPointer reinterpretCastTo: Exception pointer) _
-                initializeFromCopy: self.
+            let exceptionData := allocateNativeExceptionDataFor(self address, self __typeInformation).
 
             ## Raise the actual exception.
-			_Unwind_RaiseException(exceptionData _ unwindException address).
+			let reasonCode := _Unwind_RaiseException(exceptionData _ unwindException address).
 
-            ##stderr << "TODO raise: [" << self address << "]: " << self; nl.
+            stderr << "Unhandled native exception:"; nl.
+            self printOnNativeTextStreamWriter: stderr. stderr nl.
+            stderr << "Aborting the program execution."; nl.
             native_abort().
         }.
     }
