@@ -85,7 +85,7 @@ template OrderedCollection(ET: Type)
 
         storage_[size_]
             basicInitialize;
-            initializeFromCopy: newElement.
+            initializeCopyingFrom: newElement.
         size_ := size_ + 1.
     }.
 

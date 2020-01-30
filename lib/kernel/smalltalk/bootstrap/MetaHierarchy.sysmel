@@ -539,7 +539,7 @@ BlockClosureHeaderClass definition: {
 	protected field dynamicCallAdapter type: Void pointer.
 	protected field numArgs type: UInt32.
 
-	virtual method initializeFrom: o
+	virtual method initializeCopyingFrom: o
 		:= self.
 	virtual method initializeMovingFrom: o
 		:= self.
