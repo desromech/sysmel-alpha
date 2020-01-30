@@ -6271,7 +6271,7 @@ MbndSlovimCodeModuleGeneratorTest >> testRefCountedMethods [
 		(tryScope (getElementPointer store returnVoid))
 	).
 
-	function := ssaModule globalNamed: #'_ZN16IntrusivePointerIN10RefCountedEE16.initializeFrom.ERNS0_ERKNS0_E'.
+	function := ssaModule globalNamed: #'_ZN16IntrusivePointerIN10RefCountedEE23.initializeCopyingFrom.ERNS0_ERKNS0_E'.
 	self assert: function isFunction.
 	self deny: function isEmpty.
 	self assert: function allInstructionsMnemonics equals: #(
@@ -6347,7 +6347,7 @@ MbndSlovimCodeModuleGeneratorTest >> testRefCountedMethodsNoExceptions [
 		(body (getElementPointer store returnVoid))
 	).
 
-	function := ssaModule globalNamed: #'_ZN16IntrusivePointerIN10RefCountedEE16.initializeFrom.ERNS0_ERKNS0_E'.
+	function := ssaModule globalNamed: #'_ZN16IntrusivePointerIN10RefCountedEE23.initializeCopyingFrom.ERNS0_ERKNS0_E'.
 	self assert: function isFunction.
 	self deny: function isEmpty.
 	self assert: function allInstructionsMnemonics equals: #(

@@ -918,6 +918,16 @@ TMbndCoreCompilationTarget >> inputChannelImplementationType: anObject [
 	inputChannelImplementationType := anObject
 ]
 
+{ #category : #'as yet unclassified' }
+TMbndCoreCompilationTarget >> landingPadSelectorRegisterIndex [
+	^ 1
+]
+
+{ #category : #'as yet unclassified' }
+TMbndCoreCompilationTarget >> landingPadStructurePointerRegisterIndex [
+	^ 0
+]
+
 { #category : #initialization }
 TMbndCoreCompilationTarget >> linkMetaHierarchy [
 	| simpleMetaType |

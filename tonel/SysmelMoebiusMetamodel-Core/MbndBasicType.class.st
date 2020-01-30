@@ -106,6 +106,16 @@ MbndBasicType >> analyzeExpandedMessageNode: node with: analyzer [
 
 ]
 
+{ #category : #'semantic analysis' }
+MbndBasicType >> analyzeInitializationFromCopyNode: node with: analyzer [
+	self hasTrivialInitializationCopyingFrom ifTrue: [
+		^ analyzer visitNode: (node asUnexpandedMessageSend
+			selector: ((analyzer astBuilder literalSymbol: #assignValue:)
+				position: node))
+	].
+	^ analyzer visitNode: node asExpandedMessageSend
+]
+
 { #category : #adding }
 MbndBasicType >> children [
 	^ children ifNil: [ children := OrderedCollection new ]
@@ -114,6 +124,35 @@ MbndBasicType >> children [
 { #category : #'semantic analysis' }
 MbndBasicType >> enqueueDelayedSemanticAnalysis [
 	self module enqueueProgramEntityWithDelayedSemanticAnalysis: self
+]
+
+{ #category : #'as yet unclassified' }
+MbndBasicType >> ensureSyntheticMethodExists: aSelector [
+	aSelector = #basicInitialize ifTrue: [^ self basicInitializeMethod ].
+	aSelector = #initialize ifTrue: [^ self initializeMethod ].
+	aSelector = #initializeCopyingFrom: ifTrue: [^ self initializeCopyingFromMethod ].
+	aSelector = #initializeMovingFrom: ifTrue: [^ self initializeMovingFromMethod ].
+	^ nil
+]
+
+{ #category : #converting }
+MbndBasicType >> fillTypeInfoInstance: typeInfoInstance [
+	typeInfoInstance
+		setField: #instanceSize value: self instanceSize;
+		setField: #instanceAlignment value: self instanceSize;
+		setField: #basicInitializationFunctionPointer value: 
+			(self hasTrivialBasicInitialization
+				ifTrue: [ nil ]
+				ifFalse: [ self basicInitializeMethod ]);
+		setField: #copyConstructorFunctionPointer value: 
+			(self hasTrivialInitializationCopyingFrom
+				ifTrue: [ nil ]
+				ifFalse: [ self initializeCopyingFromMethod ]);
+		setField: #moveConstructorFunctionPointer value: 
+			(self hasTrivialInitializationMovingFrom
+				ifTrue: [ nil ]
+				ifFalse: [ self initializeMovingFromMethod ])
+
 ]
 
 { #category : #'as yet unclassified' }
@@ -139,6 +178,11 @@ MbndBasicType >> generateNewValueForNode: node with: builder andWith: analyzer [
 	| basicValueNode |
 	basicValueNode := self generateBasicNewValueForNode: node with: builder andWith: analyzer.
 	^ self initializeAndReturnValueNode: basicValueNode with: builder andWith: analyzer.
+]
+
+{ #category : #testing }
+MbndBasicType >> hasTrivialInitializationCopyingFrom [
+	^ self hasTrivialInstanceInitializationCopyingFrom
 ]
 
 { #category : #initialization }
@@ -184,6 +228,24 @@ MbndBasicType >> initializeNonTraitType [
 { #category : #'semantic analysis' }
 MbndBasicType >> isDefined [
 	^ self hasFlag: #defined
+]
+
+{ #category : #testing }
+MbndBasicType >> isPOD [
+	^ self hasTrivialBasicInitialization and: [
+	  self hasTrivialInitialization and: [
+	  self hasTrivialFinalization and: [
+	  self hasTrivialInitializationCopyingFrom and: [
+	  self hasTrivialInitializationMovingFrom ]]]]
+]
+
+{ #category : #testing }
+MbndBasicType >> isPODInstance [
+	^ self hasTrivialInstanceBasicInitialization and: [
+	  self hasTrivialInstanceInitialization and: [
+	  self hasTrivialInstanceFinalization and: [
+	  self hasTrivialInstanceInitializationCopyingFrom and: [
+	  self hasTrivialInstanceInitializationMovingFrom ]]]]
 ]
 
 { #category : #'as yet unclassified' }

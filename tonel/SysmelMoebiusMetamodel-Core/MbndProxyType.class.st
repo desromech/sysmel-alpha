@@ -21,3 +21,56 @@ MbndProxyType >> analyzeExpandedMessageNode: node with: analyzer [
 	^ self analyzeUnboundExpandedMessageSendNode: node with: analyzer
 
 ]
+
+{ #category : #'semantic analysis' }
+MbndProxyType >> analyzeInitializationFromCopyNode: node with: analyzer [
+	self hasTrivialInitializationCopyingFrom ifTrue: [
+		^ analyzer visitNode: (node asUnexpandedMessageSend
+			selector: ((analyzer astBuilder literalSymbol: #assignValue:)
+				position: node))
+	].
+	^ analyzer visitNode: node asExpandedMessageSend
+]
+
+{ #category : #converting }
+MbndProxyType >> fillTypeInfoInstance: typeInfoInstance [
+	typeInfoInstance
+		setField: #instanceSize value: self instanceSize;
+		setField: #instanceAlignment value: self instanceSize;
+		setField: #basicInitializationFunctionPointer value: 
+			(self hasTrivialBasicInitialization
+				ifTrue: [ nil ]
+				ifFalse: [ self basicInitializeMethod ]);
+		setField: #copyConstructorFunctionPointer value: 
+			(self hasTrivialInitializationCopyingFrom
+				ifTrue: [ nil ]
+				ifFalse: [ self initializeCopyingFromMethod ]);
+		setField: #moveConstructorFunctionPointer value: 
+			(self hasTrivialInitializationMovingFrom
+				ifTrue: [ nil ]
+				ifFalse: [ self initializeMovingFromMethod ])
+
+]
+
+{ #category : #testing }
+MbndProxyType >> hasTrivialInitializationCopyingFrom [
+	^ self hasTrivialInstanceInitializationCopyingFrom
+]
+
+{ #category : #testing }
+MbndProxyType >> isPOD [
+	^ self hasTrivialBasicInitialization and: [
+	  self hasTrivialInitialization and: [
+	  self hasTrivialFinalization and: [
+	  self hasTrivialInitializationCopyingFrom and: [
+	  self hasTrivialInitializationMovingFrom ]]]]
+]
+
+{ #category : #testing }
+MbndProxyType >> isPODInstance [
+	^ self hasTrivialInstanceBasicInitialization and: [
+	  self hasTrivialInstanceInitialization and: [
+	  self hasTrivialInstanceFinalization and: [
+	  self hasTrivialInstanceInitializationCopyingFrom and: [
+	  self hasTrivialInstanceInitializationMovingFrom ]]]]
+]

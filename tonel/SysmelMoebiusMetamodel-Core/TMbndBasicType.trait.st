@@ -27,18 +27,53 @@ TMbndBasicType >> analyzeExpandedMessageNode: node with: analyzer [
 
 ]
 
+{ #category : #'semantic analysis' }
+TMbndBasicType >> analyzeInitializationFromCopyNode: node with: analyzer [
+	self hasTrivialInitializationCopyingFrom ifTrue: [
+		^ analyzer visitNode: (node asUnexpandedMessageSend
+			selector: ((analyzer astBuilder literalSymbol: #assignValue:)
+				position: node))
+	].
+	^ analyzer visitNode: node asExpandedMessageSend
+]
+
 { #category : #'as yet unclassified' }
 TMbndBasicType >> ensureSyntheticMethodExists: aSelector [
 	aSelector = #basicInitialize ifTrue: [^ self basicInitializeMethod ].
 	aSelector = #initialize ifTrue: [^ self initializeMethod ].
-	aSelector = #initializeFrom: ifTrue: [^ self initializeFromCopyMethod ].
+	aSelector = #initializeCopyingFrom: ifTrue: [^ self initializeCopyingFromMethod ].
 	aSelector = #initializeMovingFrom: ifTrue: [^ self initializeMovingFromMethod ].
 	^ nil
+]
+
+{ #category : #converting }
+TMbndBasicType >> fillTypeInfoInstance: typeInfoInstance [
+	typeInfoInstance
+		setField: #instanceSize value: self instanceSize;
+		setField: #instanceAlignment value: self instanceSize;
+		setField: #basicInitializationFunctionPointer value: 
+			(self hasTrivialBasicInitialization
+				ifTrue: [ nil ]
+				ifFalse: [ self basicInitializeMethod ]);
+		setField: #copyConstructorFunctionPointer value: 
+			(self hasTrivialInitializationCopyingFrom
+				ifTrue: [ nil ]
+				ifFalse: [ self initializeCopyingFromMethod ]);
+		setField: #moveConstructorFunctionPointer value: 
+			(self hasTrivialInitializationMovingFrom
+				ifTrue: [ nil ]
+				ifFalse: [ self initializeMovingFromMethod ])
+
 ]
 
 { #category : #testing }
 TMbndBasicType >> hasPublicVisibility [
 	^ self visibilityMode == #public
+]
+
+{ #category : #testing }
+TMbndBasicType >> hasTrivialInitializationCopyingFrom [
+	^ self hasTrivialInstanceInitializationCopyingFrom
 ]
 
 { #category : #'as yet unclassified' }
@@ -56,6 +91,24 @@ TMbndBasicType >> implicitMethodReceiverType [
 	^ self asReceiverType
 ]
 
+{ #category : #testing }
+TMbndBasicType >> isPOD [
+	^ self hasTrivialBasicInitialization and: [
+	  self hasTrivialInitialization and: [
+	  self hasTrivialFinalization and: [
+	  self hasTrivialInitializationCopyingFrom and: [
+	  self hasTrivialInitializationMovingFrom ]]]]
+]
+
+{ #category : #testing }
+TMbndBasicType >> isPODInstance [
+	^ self hasTrivialInstanceBasicInitialization and: [
+	  self hasTrivialInstanceInitialization and: [
+	  self hasTrivialInstanceFinalization and: [
+	  self hasTrivialInstanceInitializationCopyingFrom and: [
+	  self hasTrivialInstanceInitializationMovingFrom ]]]]
+]
+
 { #category : #methods }
 TMbndBasicType >> lookupLocalOverloadedSelector: aSelector [
 	^ self overloadedMethodDict at: aSelector ifAbsent: [ nil ].
@@ -64,7 +117,7 @@ TMbndBasicType >> lookupLocalOverloadedSelector: aSelector [
 { #category : #'macro expansion' }
 TMbndBasicType >> lookupOverloadedSelector: aSelector [
 	| method |
-	(#(basicInitialize initialize initializeFromCopy: initializeMovingFrom: finalize) includes: aSelector) ifTrue: [
+	(#(basicInitialize initialize initializeCopyingFrom: initializeMovingFrom: finalize) includes: aSelector) ifTrue: [
 		self ensureSyntheticMethodExists: aSelector
 	].
 	method := self overloadedMethodDict at: aSelector ifAbsent: [ nil ].

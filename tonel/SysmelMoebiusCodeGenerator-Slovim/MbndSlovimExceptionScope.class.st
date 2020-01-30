@@ -13,7 +13,8 @@ Class {
 		'isInCleanUpAction',
 		'catchSelectionBlock',
 		'unwindCleanUpBlock',
-		'catchedExceptions'
+		'catchedExceptions',
+		'flattenedCatchedExceptions'
 	],
 	#category : #'SysmelMoebiusCodeGenerator-Slovim-Module'
 }
@@ -58,6 +59,25 @@ MbndSlovimExceptionScope >> explicitFinalizationAction: anObject [
 	explicitFinalizationAction := anObject
 ]
 
+{ #category : #testing }
+MbndSlovimExceptionScope >> flattenedCatchedExceptions [
+	flattenedCatchedExceptions ifNil: [
+		flattenedCatchedExceptions := #().
+		parentCatchAction ifNil: [ 
+			parent ifNotNil: [
+				flattenedCatchedExceptions := parent flattenedCatchedExceptions
+			]
+		] ifNotNil: [
+			flattenedCatchedExceptions := parentCatchAction scope parent
+				ifNil: [ #() ]
+				ifNotNil: [ :p | p flattenedCatchedExceptions ]
+		].
+	
+		flattenedCatchedExceptions := catchedExceptions collect: [ :each | each node exceptionType ]
+	].
+	^ flattenedCatchedExceptions
+]
+
 { #category : #accessing }
 MbndSlovimExceptionScope >> implicitFinalizationStateDictionary [
 	^ implicitFinalizationStateDictionary
@@ -68,6 +88,17 @@ MbndSlovimExceptionScope >> initialize [
 	super initialize.
 	catchedExceptions := #().
 	implicitFinalizationStateDictionary := LLVMOrderedDictionary new.
+]
+
+{ #category : #testing }
+MbndSlovimExceptionScope >> isCleanUpScopeOrParentCleanUp [
+	parentCatchAction ifNotNil: [ ^ true ].
+	explicitFinalizationAction ifNotNil: [ ^ true ].
+	implicitFinalizationStateDictionary valuesDo: [ :state |
+		state isActuallyExecuted ifTrue: [ ^ true ]
+	].
+
+	^ parent ifNil: [false] ifNotNil: [ parent isCleanUpScopeOrParentCleanUp ]
 ]
 
 { #category : #accessing }

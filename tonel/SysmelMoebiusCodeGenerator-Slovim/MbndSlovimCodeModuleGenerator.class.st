@@ -1374,6 +1374,7 @@ MbndSlovimCodeModuleGenerator >> visitGlobalVariable: globalVariable [
 	storage := SLVMType genericStorage.
 	isReadOnly := globalVariable type isReferenceType not or: [globalVariable type withoutReferences isConstantType]. 
 	hasInitialValue := globalVariable hasExternalVisibility not.
+
 	self compilationTarget isGPU ifTrue: [
 		(isReadOnly and: [ hasInitialValue ]) ifTrue: [
 			initialValue := globalVariable currentRawValue.
@@ -1387,8 +1388,13 @@ MbndSlovimCodeModuleGenerator >> visitGlobalVariable: globalVariable [
 	ssaGlobalVariable := SLVMGlobalVariable module: ssaModule name: csymbol valueType: ssaValueType storage: storage.
 	ssaGlobalVariable unmangledName: unmangledName.
 	ssaGlobalVariable minimalAlignment: globalVariable minimalAlignment.
+	globalVariable isThreadLocal ifTrue: [
+		ssaGlobalVariable withGeneralDynamicTLSModel
+	].
+
 	self setProgramEntity: globalVariable ssaValue: ssaGlobalVariable.
 	ssaModule addHighLevelEntity: globalVariable mapToGlobalValue: ssaGlobalVariable.
+
 
 	self isEmittingDebugInformation ifTrue: [ 
 		ssaGlobalVariable

@@ -102,11 +102,16 @@ MbndGlobalVariable >> isStatic [
 ]
 
 { #category : #testing }
+MbndGlobalVariable >> isThreadLocal [
+	^ self hasFlag: #threadLocal
+]
+
+{ #category : #testing }
 MbndGlobalVariable >> needsConstructor [
 	(self hasFlag: #notInCompileTime) ifTrue: [ ^ true ].
 	initialValueKind = #evaluated ifTrue: [ ^ false ].
 	initialValueKind = #default ifTrue: [ ^ valueType hasTrivialInitialization not ].
-	initialValueKind = #copy ifTrue: [ ^ valueType hasTrivialInitializationFromCopy not ].
+	initialValueKind = #copy ifTrue: [ ^ valueType hasTrivialInitializationCopyingFrom not ].
 	^ false
 ]
 

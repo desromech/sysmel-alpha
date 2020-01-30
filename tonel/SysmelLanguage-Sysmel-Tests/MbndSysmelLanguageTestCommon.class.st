@@ -51,7 +51,7 @@ template IntrusivePointer(PT: Type)
 		pointer_ := pointer
 	}.
 	
-	method initializeFrom: (o: SelfType const ref) ::=> Void := {
+	method initializeCopyingFrom: (o: SelfType const ref) ::=> Void := {
 		pointer_ := o __private pointer_.
 		if: pointer_ ~~ nil then: {
 			pointer_ _ retain
@@ -298,11 +298,16 @@ Compiler compilationTarget managedObjectModel
 MbndSysmelLanguageTestCommon >> evaluateMiniRTTI [
 	^ self evaluateSource: '
 compileTimeConstant NativeBasicInitializeFunctionPointerType := ((Void pointer) => Void) pointer.
+compileTimeConstant CopyConstructorFunctionPointerType := ((Void pointer -- Void pointer) => Void) pointer.
+compileTimeConstant MoveConstructorFunctionPointerType := ((Void pointer -- Void pointer) => Void) pointer.
 
 class TypeInformation definition: {
-    public field instanceSize type: UIntPointer.
-    public field instanceAlignment type: UIntPointer.
-    public field basicInitializationFunctionPointer type: NativeBasicInitializeFunctionPointerType.
+	public field superclass type: TypeInformation pointer.
+	public field instanceSize type: UIntPointer.
+	public field instanceAlignment type: UIntPointer.
+	public field basicInitializationFunctionPointer type: NativeBasicInitializeFunctionPointerType.
+	public field copyConstructorFunctionPointer type: CopyConstructorFunctionPointerType.
+	public field moveConstructorFunctionPointer type: MoveConstructorFunctionPointerType.
 }.
 
 Compiler compilationTarget

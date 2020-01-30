@@ -181,7 +181,7 @@ MbndGCClassType >> hasTrivialInitialization [
 ]
 
 { #category : #testing }
-MbndGCClassType >> hasTrivialInitializationFromCopy [
+MbndGCClassType >> hasTrivialInitializationCopyingFrom [
 	^ true
 ]
 
@@ -271,13 +271,6 @@ MbndGCClassType >> metaClassClass: theClassForTheMetaClass [
 MbndGCClassType >> ref [
 	<compileTime>
 	^ self refFor: #gc
-]
-
-{ #category : #converting }
-MbndGCClassType >> superclass [
-	^ supertype isTrait
-		ifTrue: [ nil ]
-		ifFalse: [ self supertype ].
 ]
 
 { #category : #'as yet unclassified' }

@@ -61,8 +61,8 @@ MbndAggregateSlotLayout >> hasTrivialInitialization [
 ]
 
 { #category : #accessing }
-MbndAggregateSlotLayout >> hasTrivialInitializationFromCopy [
-	^ self checkForTypeTriviality: #hasTrivialInitializationFromCopy
+MbndAggregateSlotLayout >> hasTrivialInitializationCopyingFrom [
+	^ self checkForTypeTriviality: #hasTrivialInitializationCopyingFrom
 ]
 
 { #category : #accessing }

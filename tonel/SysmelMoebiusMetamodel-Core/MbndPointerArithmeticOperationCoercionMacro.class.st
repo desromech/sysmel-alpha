@@ -5,12 +5,43 @@ Class {
 }
 
 { #category : #'as yet unclassified' }
+MbndPointerArithmeticOperationCoercionMacro >> computeAddressSpaceCoercionTypeAt: node left: leftAddressSpace right: rightAddressSpace [
+	leftAddressSpace = rightAddressSpace ifTrue: [ ^ leftAddressSpace ].
+	self error: 'Cannot compute coercion address space for {1} and {2}' format: { leftAddressSpace printString . rightAddressSpace printString } at: node
+	
+]
+
+{ #category : #'as yet unclassified' }
+MbndPointerArithmeticOperationCoercionMacro >> computeBaseCoercionTypeAt: node left: leftBaseType right: rightBaseType [
+	leftBaseType == rightBaseType ifTrue: [ ^ leftBaseType ].
+	self halt
+]
+
+{ #category : #'as yet unclassified' }
 MbndPointerArithmeticOperationCoercionMacro >> computePointerArithmetic: node coercionTypeOf: leftValueType with: rightValueType [
+	| addressSpace leftBaseType rightBaseType constantResult baseCoercionType |
 	leftValueType == rightValueType ifTrue: [ ^ leftValueType ].
 	leftValueType isUndefinedType ifTrue: [ ^ rightValueType withoutReferences ].
 	rightValueType isUndefinedType ifTrue: [ ^ leftValueType withoutReferences ].
 	
-	self halt
+	(leftValueType isPointerType and: [ rightValueType isPointerType ]) ifTrue: [
+		addressSpace := self computeAddressSpaceCoercionTypeAt: node left: leftValueType addressSpace right: rightValueType addressSpace.
+
+		leftBaseType := leftValueType baseType.
+		rightBaseType := rightValueType baseType.
+		constantResult := leftBaseType isConstantType or: [ rightBaseType isConstantType ].
+		
+		leftBaseType := leftBaseType withoutDecorations.
+		rightBaseType := rightBaseType withoutDecorations.
+		
+		baseCoercionType := self computeBaseCoercionTypeAt: node left: leftBaseType right: rightBaseType.
+		^ (constantResult
+			ifTrue: [ baseCoercionType const ]
+			ifFalse: [ baseCoercionType ])
+			pointerFor: addressSpace
+	].
+	
+	self error: 'Unsupported pointer arithmetic between {1} and {2}.' format: { leftValueType asString . rightValueType asString } at: node
 ]
 
 { #category : #'as yet unclassified' }

@@ -43,6 +43,16 @@ TMbndType >> analyzeExpandedMessageNode: node with: analyzer [
 
 ]
 
+{ #category : #'semantic analysis' }
+TMbndType >> analyzeInitializationFromCopyNode: node with: analyzer [
+	self hasTrivialInitializationCopyingFrom ifTrue: [
+		^ analyzer visitNode: (node asUnexpandedMessageSend
+			selector: ((analyzer astBuilder literalSymbol: #assignValue:)
+				position: node))
+	].
+	^ analyzer visitNode: node asExpandedMessageSend
+]
+
 { #category : #'as yet unclassified' }
 TMbndType >> createMacroMethodEntityForPrototype: prototype [
 	^ self createMacroMethodEntityForPrototype: prototype withReceiverType: self compilationTarget astNodeType
@@ -58,9 +68,52 @@ TMbndType >> explicitConversionRules [
 	^ explicitConversionRules ifNil: [ explicitConversionRules := OrderedCollection new ]
 ]
 
+{ #category : #converting }
+TMbndType >> fillTypeInfoInstance: typeInfoInstance [
+	typeInfoInstance
+		setField: #instanceSize value: self instanceSize;
+		setField: #instanceAlignment value: self instanceSize;
+		setField: #basicInitializationFunctionPointer value: 
+			(self hasTrivialBasicInitialization
+				ifTrue: [ nil ]
+				ifFalse: [ self basicInitializeMethod ]);
+		setField: #copyConstructorFunctionPointer value: 
+			(self hasTrivialInitializationCopyingFrom
+				ifTrue: [ nil ]
+				ifFalse: [ self initializeCopyingFromMethod ]);
+		setField: #moveConstructorFunctionPointer value: 
+			(self hasTrivialInitializationMovingFrom
+				ifTrue: [ nil ]
+				ifFalse: [ self initializeMovingFromMethod ])
+
+]
+
+{ #category : #testing }
+TMbndType >> hasTrivialInitializationCopyingFrom [
+	^ self hasTrivialInstanceInitializationCopyingFrom
+]
+
 { #category : #accessing }
 TMbndType >> implicitConversionRules [
 	^ implicitConversionRules ifNil: [ implicitConversionRules := OrderedCollection new ]
+]
+
+{ #category : #testing }
+TMbndType >> isPOD [
+	^ self hasTrivialBasicInitialization and: [
+	  self hasTrivialInitialization and: [
+	  self hasTrivialFinalization and: [
+	  self hasTrivialInitializationCopyingFrom and: [
+	  self hasTrivialInitializationMovingFrom ]]]]
+]
+
+{ #category : #testing }
+TMbndType >> isPODInstance [
+	^ self hasTrivialInstanceBasicInitialization and: [
+	  self hasTrivialInstanceInitialization and: [
+	  self hasTrivialInstanceFinalization and: [
+	  self hasTrivialInstanceInitializationCopyingFrom and: [
+	  self hasTrivialInstanceInitializationMovingFrom ]]]]
 ]
 
 { #category : #testing }

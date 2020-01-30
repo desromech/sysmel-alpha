@@ -140,7 +140,7 @@ MbndAstSemanticAnalyzer >> analyzeVariableDefinition: definition initialValue: i
 			].
 		].
 	
-		valueType hasTrivialInitializationFromCopy ifTrue: [ 
+		valueType hasTrivialInitializationCopyingFrom ifTrue: [ 
 			definition
 				initialValueKind: #copy;
 				initialValue: (self addImplicitCastFor: initialValueNode to: valueType)

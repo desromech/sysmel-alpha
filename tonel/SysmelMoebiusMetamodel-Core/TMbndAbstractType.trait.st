@@ -151,7 +151,7 @@ TMbndAbstractType >> analyzeFinalizationNode: node with: analyzer [
 
 { #category : #'semantic analysis' }
 TMbndAbstractType >> analyzeInitializationFromCopyNode: node with: analyzer [
-	self hasTrivialInitializationFromCopy ifTrue: [
+	self hasTrivialInitializationCopyingFrom ifTrue: [
 		^ analyzer visitNode: (node asUnexpandedMessageSend
 			selector: ((analyzer astBuilder literalSymbol: #assignValue:)
 				position: node))
@@ -530,7 +530,15 @@ TMbndAbstractType >> fillTypeInfoInstance: typeInfoInstance [
 		setField: #basicInitializationFunctionPointer value: 
 			(self hasTrivialBasicInitialization
 				ifTrue: [ nil ]
-				ifFalse: [ self basicInitializeMethod ])
+				ifFalse: [ self basicInitializeMethod ]);
+		setField: #copyConstructorFunctionPointer value: 
+			(self hasTrivialInitializationCopyingFrom
+				ifTrue: [ nil ]
+				ifFalse: [ self initializeCopyingFromMethod ]);
+		setField: #moveConstructorFunctionPointer value: 
+			(self hasTrivialInitializationMovingFrom
+				ifTrue: [ nil ]
+				ifFalse: [ self initializeMovingFromMethod ])
 
 ]
 
@@ -658,8 +666,8 @@ TMbndAbstractType >> hasTrivialInitialization [
 ]
 
 { #category : #testing }
-TMbndAbstractType >> hasTrivialInitializationFromCopy [
-	^ self hasTrivialInstanceInitializationFromCopy
+TMbndAbstractType >> hasTrivialInitializationCopyingFrom [
+	^ self hasTrivialInstanceInitializationCopyingFrom
 ]
 
 { #category : #testing }
@@ -683,7 +691,7 @@ TMbndAbstractType >> hasTrivialInstanceInitialization [
 ]
 
 { #category : #testing }
-TMbndAbstractType >> hasTrivialInstanceInitializationFromCopy [
+TMbndAbstractType >> hasTrivialInstanceInitializationCopyingFrom [
 	^ true
 ]
 
@@ -713,7 +721,7 @@ TMbndAbstractType >> inferValueTypeForNode: initialValueNode inScope: scope [
 ]
 
 { #category : #accessing }
-TMbndAbstractType >> initializeFromCopyMethod [
+TMbndAbstractType >> initializeCopyingFromMethod [
 	^ nil
 ]
 
@@ -1014,7 +1022,7 @@ TMbndAbstractType >> isPOD [
 	^ self hasTrivialBasicInitialization and: [
 	  self hasTrivialInitialization and: [
 	  self hasTrivialFinalization and: [
-	  self hasTrivialInitializationFromCopy and: [
+	  self hasTrivialInitializationCopyingFrom and: [
 	  self hasTrivialInitializationMovingFrom ]]]]
 ]
 
@@ -1023,7 +1031,7 @@ TMbndAbstractType >> isPODInstance [
 	^ self hasTrivialInstanceBasicInitialization and: [
 	  self hasTrivialInstanceInitialization and: [
 	  self hasTrivialInstanceFinalization and: [
-	  self hasTrivialInstanceInitializationFromCopy and: [
+	  self hasTrivialInstanceInitializationCopyingFrom and: [
 	  self hasTrivialInstanceInitializationMovingFrom ]]]]
 ]
 

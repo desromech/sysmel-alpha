@@ -124,7 +124,7 @@ MbndAggregateTypeWithFields >> defaultValueAt: position [
 MbndAggregateTypeWithFields >> ensureGeneratedMethodsExist [
 	self hasTrivialInstanceBasicInitialization ifFalse: [ self basicInitializeMethod ].
 	self hasTrivialInstanceInitialization ifFalse: [ self initializeMethod ].
-	self hasTrivialInstanceInitializationFromCopy ifFalse: [ self initializeFromCopyMethod ].
+	self hasTrivialInstanceInitializationCopyingFrom ifFalse: [ self initializeCopyingFromMethod ].
 	self hasTrivialInstanceInitializationMovingFrom ifFalse: [ self initializeMovingFromMethod ].
 	self hasTrivialInstanceFinalization ifFalse: [ self finalizeMethod ].
 
@@ -154,6 +154,15 @@ MbndAggregateTypeWithFields >> ensureSlotLayoutIsComputed [
 { #category : #accessing }
 MbndAggregateTypeWithFields >> fields [
 	^ fields ifNil: [ fields := OrderedCollection new ]
+]
+
+{ #category : #converting }
+MbndAggregateTypeWithFields >> fillTypeInfoInstance: typeInfoInstance [
+	super fillTypeInfoInstance: typeInfoInstance.
+	self superclass ifNotNil: [:sc |
+		typeInfoInstance
+			setField: #superclass value: sc.
+	].
 ]
 
 { #category : #'initialize-destroy' }
@@ -231,13 +240,13 @@ MbndAggregateTypeWithFields >> hasTrivialInstanceInitialization [
 ]
 
 { #category : #testing }
-MbndAggregateTypeWithFields >> hasTrivialInstanceInitializationFromCopy [
-	self isTrait ifTrue: [ ^ super hasTrivialInstanceInitializationFromCopy ].
+MbndAggregateTypeWithFields >> hasTrivialInstanceInitializationCopyingFrom [
+	self isTrait ifTrue: [ ^ super hasTrivialInstanceInitializationCopyingFrom ].
 	
 	^ hasTrivialInstanceInitializationFromCopy ifNil: [
-		hasTrivialInstanceInitializationFromCopy := self supertype hasTrivialInstanceInitializationFromCopy
-		and: [self slotLayout hasTrivialInitializationFromCopy
-		and: [ (self hasNonCompilerGeneratedMethod: #initializeFrom:) not ] ]
+		hasTrivialInstanceInitializationFromCopy := self supertype hasTrivialInstanceInitializationCopyingFrom
+		and: [self slotLayout hasTrivialInitializationCopyingFrom
+		and: [ (self hasNonCompilerGeneratedMethod: #initializeCopyingFrom:) not ] ]
 	]
 ]
 
@@ -253,8 +262,8 @@ MbndAggregateTypeWithFields >> hasTrivialInstanceInitializationMovingFrom [
 ]
 
 { #category : #'initialize-destroy' }
-MbndAggregateTypeWithFields >> initializeFromCopyMethod [
-	^ initializeFromCopyMethod ifNil: [ initializeFromCopyMethod := self getOrCreateOptionallyGeneratedMethod: #initializeFrom: ofKind: MbndAggregateInitializeFromCopyMethod argumentTypes: {self asCopyConstructorParameter} ]
+MbndAggregateTypeWithFields >> initializeCopyingFromMethod [
+	^ initializeFromCopyMethod ifNil: [ initializeFromCopyMethod := self getOrCreateOptionallyGeneratedMethod: #initializeCopyingFrom: ofKind: MbndAggregateInitializeFromCopyMethod argumentTypes: {self asCopyConstructorParameter} ]
 ]
 
 { #category : #'initialize-destroy' }
@@ -313,4 +322,11 @@ MbndAggregateTypeWithFields >> slotLayout [
 { #category : #layout }
 MbndAggregateTypeWithFields >> slotLayoutBuilderClass [
 	^ MbndAggregateSlotLayoutBuilder
+]
+
+{ #category : #converting }
+MbndAggregateTypeWithFields >> superclass [
+	^ supertype isTrait
+		ifTrue: [ nil ]
+		ifFalse: [ self supertype ].
 ]

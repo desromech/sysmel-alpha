@@ -6,7 +6,8 @@ Class {
 		'returnTypeNode',
 		'functionPrototype',
 		'functionDefinition',
-		'specialSemantics'
+		'specialSemantics',
+		'callingConvention'
 	],
 	#category : #'SysmelMoebiusMetamodel-Core-MetaBuilder'
 }
@@ -24,6 +25,12 @@ MbndAbstractFunctionMetaBuilder >> CVariadic [
 	self addFlag: #cvariadic
 ]
 
+{ #category : #'calling conventions' }
+MbndAbstractFunctionMetaBuilder >> apicall [
+	<compileTime>
+	self callingConvention: #apicall
+]
+
 { #category : #'as yet unclassified' }
 MbndAbstractFunctionMetaBuilder >> applyWithArguments: prototypeTemplate [
 	functionArguments ifNotNil: [ self abortMetaBuilding ].
@@ -34,6 +41,22 @@ MbndAbstractFunctionMetaBuilder >> applyWithArguments: prototypeTemplate [
 { #category : #definition }
 MbndAbstractFunctionMetaBuilder >> assignValue: aNode [
 	^ self definition: aNode
+]
+
+{ #category : #accessing }
+MbndAbstractFunctionMetaBuilder >> callingConvention [
+	^ callingConvention
+]
+
+{ #category : #accessing }
+MbndAbstractFunctionMetaBuilder >> callingConvention: aCallingConvention [
+	callingConvention := aCallingConvention
+]
+
+{ #category : #'calling conventions' }
+MbndAbstractFunctionMetaBuilder >> cdecl [
+	<compileTime>
+	self callingConvention: #cdecl
 ]
 
 { #category : #'special semantics' }
@@ -70,6 +93,18 @@ MbndAbstractFunctionMetaBuilder >> definition: aNode [
 	functionDefinition body: aNode
 ]
 
+{ #category : #flags }
+MbndAbstractFunctionMetaBuilder >> dllexport [
+	<compileTime>
+	self addFlag: #dllexport
+]
+
+{ #category : #flags }
+MbndAbstractFunctionMetaBuilder >> dllimport [
+	<compileTime>
+	self addFlag: #dllimport
+]
+
 { #category : #'as yet unclassified' }
 MbndAbstractFunctionMetaBuilder >> ensureFunctionPrototype [
 	functionPrototype ifNotNil: [ ^ self ].
@@ -86,12 +121,19 @@ MbndAbstractFunctionMetaBuilder >> ensureFunctionPrototype [
 
 { #category : #flags }
 MbndAbstractFunctionMetaBuilder >> externC [
+	<compileTime>
 	self addFlag: #externC
 ]
 
 { #category : #'special semantics' }
 MbndAbstractFunctionMetaBuilder >> fragmentShader [
 	^ self specialSemantics: #fragment
+]
+
+{ #category : #'calling conventions' }
+MbndAbstractFunctionMetaBuilder >> naked [
+	<compileTime>
+	self callingConvention: #naked
 ]
 
 { #category : #copying }
@@ -118,6 +160,12 @@ MbndAbstractFunctionMetaBuilder >> specialSemantics [
 { #category : #accessing }
 MbndAbstractFunctionMetaBuilder >> specialSemantics: anObject [
 	specialSemantics := anObject
+]
+
+{ #category : #'calling conventions' }
+MbndAbstractFunctionMetaBuilder >> stdcall [
+	<compileTime>
+	self callingConvention: #stdcall
 ]
 
 { #category : #'special semantics' }

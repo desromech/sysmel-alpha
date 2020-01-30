@@ -56,7 +56,7 @@ MbndReferenceType >> addInstanceMacros [
 		onMacroSelector: #initialize do: [ :node :builder :analyzer |
 			node receiver type baseType analyzeInitializationNode: node with: analyzer
 		];
-		onMacroSelector: #initializeFromCopy: do: [ :node :builder :analyzer |
+		onMacroSelector: #initializeCopyingFrom: do: [ :node :builder :analyzer |
 			node receiver type baseType analyzeInitializationFromCopyNode: node with: analyzer
 		];
 		onMacroSelector: #initializeMovingFrom: do: [ :node :builder :analyzer |

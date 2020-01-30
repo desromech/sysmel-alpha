@@ -46,6 +46,11 @@ MbndUnionType >> slotLayoutBuilderClass [
 	^ MbndUnionSlotLayoutBuilder
 ]
 
+{ #category : #converting }
+MbndUnionType >> superclass [
+	^ nil
+]
+
 { #category : #'as yet unclassified' }
 MbndUnionType >> unmangledStructureTypePrefix [
 	^ 'union.'

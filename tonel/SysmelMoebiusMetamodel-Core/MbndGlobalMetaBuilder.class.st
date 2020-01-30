@@ -38,7 +38,25 @@ MbndGlobalMetaBuilder >> constructionPriority: anObject [
 ]
 
 { #category : #flags }
+MbndGlobalMetaBuilder >> dllexport [
+	<compileTime>
+	self addFlag: #dllexport
+]
+
+{ #category : #flags }
+MbndGlobalMetaBuilder >> dllimport [
+	<compileTime>
+	self addFlag: #dllimport
+]
+
+{ #category : #flags }
 MbndGlobalMetaBuilder >> externC [
 	<compileTime>
 	self addFlag: #externC
+]
+
+{ #category : #flags }
+MbndGlobalMetaBuilder >> threadLocal [
+	<compileTime>
+	self addFlag: #threadLocal
 ]

@@ -98,6 +98,16 @@ MbndSlovimCompilationTarget >> isWin32 [
 	^ slvmCompilationTarget isWin32
 ]
 
+{ #category : #'as yet unclassified' }
+MbndSlovimCompilationTarget >> landingPadSelectorRegisterIndex [
+	^ slvmCompilationTarget landingPadSelectorRegisterIndex
+]
+
+{ #category : #'as yet unclassified' }
+MbndSlovimCompilationTarget >> landingPadStructurePointerRegisterIndex [
+	^ slvmCompilationTarget landingPadStructurePointerRegisterIndex
+]
+
 { #category : #accessing }
 MbndSlovimCompilationTarget >> machineAttributes [
 	^ slvmCompilationTarget machineAttributes

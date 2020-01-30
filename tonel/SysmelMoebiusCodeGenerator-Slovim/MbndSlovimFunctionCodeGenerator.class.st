@@ -1137,7 +1137,9 @@ MbndSlovimFunctionCodeGenerator >> generateUnwindingLandingPadFor: exceptionScop
 	ssaFunction personalityFunction: codeModuleGenerator personalityFunction.
 
 	landingPath := slvmBuilder landingPath: codeModuleGenerator landingPathResultType.
-	landingPath cleanup: true.
+	landingPath
+		catchedExceptions: (exceptionScope flattenedCatchedExceptions collect: [:each | (self translateProgramEntity: each) ssaValue ]);
+		cleanup: exceptionScope isCleanUpScopeOrParentCleanUp.
 
 	slvmBuilder store: (slvmBuilder extractValue: landingPath indices: {0}) in: self unwindExceptionPointerVariable.
 	slvmBuilder store: (slvmBuilder extractValue: landingPath indices: {1}) in: self unwindExceptionSelectorVariable.
@@ -1174,7 +1176,7 @@ MbndSlovimFunctionCodeGenerator >> generateVariable: ssaValue withValueType: val
 			initialValue == ssaValue ifTrue: [ ^ self ].
 		].
 
-		valueType hasTrivialInitializationFromCopy ifTrue: [
+		valueType hasTrivialInitializationCopyingFrom ifTrue: [
 			initialLoadedValue := initialValue.
 			valueType isTypePassedByReference ifTrue: [
 				self assert: initialLoadedValue type isPointerType.
@@ -1185,7 +1187,7 @@ MbndSlovimFunctionCodeGenerator >> generateVariable: ssaValue withValueType: val
 		] ifFalse: [
 			self generateVariable: ssaValue basicInitializationWithValueType: valueType.
 			self assert: initialValue type isPointerType.
-			slvmBuilder call: (self translateProgramEntity: valueType initializeFromCopyMethod) ssaValue arguments: {ssaValue . initialValue}
+			slvmBuilder call: (self translateProgramEntity: valueType initializeCopyingFromMethod) ssaValue arguments: {ssaValue . initialValue}
 		].
 		^ self
 	].

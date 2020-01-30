@@ -9,6 +9,11 @@ MbndEnumMetaBuilder class >> globalBindingName [
 	^ #enum
 ]
 
+{ #category : #accessing }
+MbndEnumMetaBuilder >> bitMask [
+	self addFlag: #bitMask
+]
+
 { #category : #'semantic analysis' }
 MbndEnumMetaBuilder >> typeDeclarationNodeClass [
 	^ MbndAstEnumDeclarationNode
