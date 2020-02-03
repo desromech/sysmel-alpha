@@ -4,7 +4,10 @@ Class {
 	#instVars : [
 		'expression',
 		'implicitReturn',
-		'isInImmediatelyActivatedClosure'
+		'isInImmediatelyActivatedClosure',
+		'expectedReturnType',
+		'nonLocalReturnTarget',
+		'nonLocalResultVariable'
 	],
 	#category : #'SysmelMoebiusMetamodel-Core-AST'
 }
@@ -12,6 +15,16 @@ Class {
 { #category : #visiting }
 MbndAstReturnStatementNode >> accept: aVisitor [
 	^ aVisitor visitReturnStatementNode: self
+]
+
+{ #category : #accessing }
+MbndAstReturnStatementNode >> expectedReturnType [
+	^ expectedReturnType
+]
+
+{ #category : #accessing }
+MbndAstReturnStatementNode >> expectedReturnType: anObject [
+	expectedReturnType := anObject
 ]
 
 { #category : #accessing }
@@ -54,6 +67,26 @@ MbndAstReturnStatementNode >> isInImmediatelyActivatedClosure: anObject [
 { #category : #testing }
 MbndAstReturnStatementNode >> isReturnStatementNode [
 	^ true
+]
+
+{ #category : #accessing }
+MbndAstReturnStatementNode >> nonLocalResultVariable [
+	^ nonLocalResultVariable
+]
+
+{ #category : #accessing }
+MbndAstReturnStatementNode >> nonLocalResultVariable: anObject [
+	nonLocalResultVariable := anObject
+]
+
+{ #category : #accessing }
+MbndAstReturnStatementNode >> nonLocalReturnTarget [
+	^ nonLocalReturnTarget
+]
+
+{ #category : #accessing }
+MbndAstReturnStatementNode >> nonLocalReturnTarget: anObject [
+	nonLocalReturnTarget := anObject
 ]
 
 { #category : #accessing }

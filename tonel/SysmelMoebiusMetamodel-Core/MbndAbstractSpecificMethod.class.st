@@ -5,7 +5,10 @@ Class {
 		'receiverType',
 		'type',
 		'boundType',
-		'lambdaCount'
+		'lambdaCount',
+		'nonLocalReturnTarget',
+		'lambdaChildren',
+		'nonLocalResultVariable'
 	],
 	#category : #'SysmelMoebiusMetamodel-Core-Method'
 }
@@ -14,6 +17,7 @@ Class {
 MbndAbstractSpecificMethod >> addLambdaChild: aLambda [
 	aLambda lambdaIndex: lambdaCount.
 	lambdaCount := lambdaCount + 1.
+	lambdaChildren add: aLambda.
 	^ super addLambdaChild: aLambda
 ]
 
@@ -116,6 +120,18 @@ MbndAbstractSpecificMethod >> computeMatchingCostWithArguments: callArguments re
 ]
 
 { #category : #'as yet unclassified' }
+MbndAbstractSpecificMethod >> getNonLocalResultVariable [
+	^ nonLocalResultVariable ifNil: [
+		self returnType isVoidType ifTrue: [ ^ nil ].
+		nonLocalResultVariable := MbndFunctionNonLocalReturnResultVariable new parent: self; valueType: self returnType asNonLocalReturnResultVariableType; yourself ]
+]
+
+{ #category : #'as yet unclassified' }
+MbndAbstractSpecificMethod >> getNonLocalReturnTarget [
+	^ nonLocalReturnTarget ifNil: [ nonLocalReturnTarget := MbndFunctionReturnContextVariable new parent: self; valueType: self compilationTarget voidType pointer; yourself ]
+]
+
+{ #category : #'as yet unclassified' }
 MbndAbstractSpecificMethod >> getOrCreateCapturedVariableDefinition: capturedVariable [
 	"At the end, just return the captured variable definition."
 	self assert: capturedVariable parent == self.
@@ -126,6 +142,7 @@ MbndAbstractSpecificMethod >> getOrCreateCapturedVariableDefinition: capturedVar
 MbndAbstractSpecificMethod >> initialize [
 	super initialize.
 	lambdaCount := 0.
+	lambdaChildren := OrderedCollection new.
 ]
 
 { #category : #testing }

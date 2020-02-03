@@ -207,6 +207,7 @@ MbndAbstractConcreteMethod >> ensureSemanticAnalysis [
 	analyzedBody ifNotNil: [ ^ self ].
 	
 	self defineArguments.
+	self getNonLocalReturnTarget.
 	analysisScope := self createSemanticAnalysisScope.
 
 	"Analyze the function body."	

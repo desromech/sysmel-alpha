@@ -23,6 +23,11 @@ MbndFunctionCapturedVariable >> definitionPosition [
 ]
 
 { #category : #testing }
+MbndFunctionCapturedVariable >> isCaptureInNonInlineBlock [
+	^ parent isBlockClosureWithImmediateActivation not
+]
+
+{ #category : #testing }
 MbndFunctionCapturedVariable >> isFunctionCapturedVariable [
 	^ true
 ]

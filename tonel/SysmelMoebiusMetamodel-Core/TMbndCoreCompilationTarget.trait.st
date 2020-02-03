@@ -35,7 +35,10 @@ Trait {
 		'forbiddenExceptionHandlingFunction',
 		'typeInformationNativeClass',
 		'exceptionCatchBeginFunction',
-		'exceptionCatchEndFunction'
+		'exceptionCatchEndFunction',
+		'nonLocalReturnRaiseFunction',
+		'nonLocalReturnCatchFunction',
+		'internalNonLocalReturnExceptionClass'
 	],
 	#traits : 'TMbndAbstractCompilationTarget',
 	#classTraits : 'TMbndAbstractCompilationTarget classTrait',
@@ -918,6 +921,18 @@ TMbndCoreCompilationTarget >> inputChannelImplementationType: anObject [
 	inputChannelImplementationType := anObject
 ]
 
+{ #category : #accessing }
+TMbndCoreCompilationTarget >> internalNonLocalReturnExceptionClass [
+	<compileTime>
+	^ internalNonLocalReturnExceptionClass
+]
+
+{ #category : #accessing }
+TMbndCoreCompilationTarget >> internalNonLocalReturnExceptionClass: aClass [
+	<compileTime>
+	internalNonLocalReturnExceptionClass := aClass
+]
+
 { #category : #'as yet unclassified' }
 TMbndCoreCompilationTarget >> landingPadSelectorRegisterIndex [
 	^ 1
@@ -963,6 +978,8 @@ TMbndCoreCompilationTarget >> linkMetaHierarchy [
 	
 		bt initializeBasicTypeTrait
 	].
+
+	self basicType type supertype: self behaviorType
 ]
 
 { #category : #'builder methods' }
@@ -989,6 +1006,26 @@ TMbndCoreCompilationTarget >> nativeBlockClosureTypeWithSignature: functionType 
 { #category : #'instance creation' }
 TMbndCoreCompilationTarget >> newCodeModuleGenerator [
 	self explicitRequirement
+]
+
+{ #category : #accessing }
+TMbndCoreCompilationTarget >> nonLocalReturnCatchFunction [
+	^ nonLocalReturnCatchFunction
+]
+
+{ #category : #accessing }
+TMbndCoreCompilationTarget >> nonLocalReturnCatchFunction: anObject [
+	nonLocalReturnCatchFunction := anObject
+]
+
+{ #category : #accessing }
+TMbndCoreCompilationTarget >> nonLocalReturnRaiseFunction [
+	^ nonLocalReturnRaiseFunction
+]
+
+{ #category : #accessing }
+TMbndCoreCompilationTarget >> nonLocalReturnRaiseFunction: anObject [
+	nonLocalReturnRaiseFunction := anObject
 ]
 
 { #category : #'as yet unclassified' }

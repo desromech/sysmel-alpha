@@ -34,6 +34,11 @@ MbndPointerLikeType >> addressSpace: anObject [
 ]
 
 { #category : #converting }
+MbndPointerLikeType >> asNonLocalReturnResultVariableType [
+	^ self asPointerType pointer
+]
+
+{ #category : #converting }
 MbndPointerLikeType >> asPointerType [
 	^ baseType pointerFor: addressSpace
 ]

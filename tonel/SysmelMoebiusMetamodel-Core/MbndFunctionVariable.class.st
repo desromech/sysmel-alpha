@@ -1,8 +1,16 @@
 Class {
 	#name : #MbndFunctionVariable,
 	#superclass : #MbndAbstractVariable,
+	#instVars : [
+		'immediateCaptures'
+	],
 	#category : #'SysmelMoebiusMetamodel-Core-Variables'
 }
+
+{ #category : #accessing }
+MbndFunctionVariable >> addImmediateCapture: aCapture [
+	(immediateCaptures ifNil: [immediateCaptures := OrderedCollection new]) add: aCapture
+]
 
 { #category : #'semantic analysis' }
 MbndFunctionVariable >> analyzeReferenceNode: referenceNode with: analyzer [
@@ -20,4 +28,27 @@ MbndFunctionVariable >> analyzeReferenceNode: referenceNode with: analyzer [
 	].
 
 	^ super analyzeReferenceNode: referenceNode with: analyzer
+]
+
+{ #category : #testing }
+MbndFunctionVariable >> hasCaptureInNonInlinedBlock [
+	self immediateCaptures do: [ :each |
+		each isCaptureInNonInlineBlock ifTrue: [
+			^ true
+		] ifFalse: [ 
+			each hasCaptureInNonInlinedBlock ifTrue: [ ^ true ]
+		].
+	].
+
+	^ false
+]
+
+{ #category : #accessing }
+MbndFunctionVariable >> immediateCaptures [
+	^ immediateCaptures ifNil: [ #() ]
+]
+
+{ #category : #testing }
+MbndFunctionVariable >> isCaptureInNonInlineBlock [
+	^ false
 ]

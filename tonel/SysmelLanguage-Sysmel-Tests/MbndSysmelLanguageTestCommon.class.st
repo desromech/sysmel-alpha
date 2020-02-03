@@ -112,6 +112,8 @@ MbndSysmelLanguageTestCommon >> evaluateMiniExceptionRuntime [
 class Exception definition: {}.
 class Error superclass: Exception; definition: {}.
 class AssertionFailure superclass: Error; definition: {}.
+class InternalNonLocalReturn superclass: Exception; definition: {}.
+Compiler compilationTarget internalNonLocalReturnExceptionClass: InternalNonLocalReturn.
 '
 	
 ]

@@ -1182,6 +1182,48 @@ function callWithNativeBlockClosure externC(v: Int32) => Int32
 ]
 
 { #category : #tests }
+MbndSlovimCodeModuleGeneratorTest >> testCallWithNativeBlockClosureWithNonLocalReturn [
+	| function closure |
+	self
+		evaluateMiniRTTI;
+		evaluateMiniExceptionRuntime;
+		evaluateSysmelSource: '
+function calledWithNativeBlockClosure externC(f: (Void => Int32) nativeStackBlockClosure) => Int32
+	:= f() * 10.
+
+function callWithNativeBlockClosure externC(v: Int32) => Int32
+	:= calledWithNativeBlockClosure({ :: Int32 | return: 42 }).
+';
+		generateSSAModule.
+
+	function := ssaModule globalNamed: #calledWithNativeBlockClosure.
+	self assert: function allInstructionsMnemonics equals: #(
+		(entry (jump))
+		(body (getElementPointer load bitcast call mul return
+		))
+
+	).
+	
+	function := ssaModule globalNamed: #callWithNativeBlockClosure.
+	self assert: function allInstructionsMnemonics equals: #(
+		#(#entry #(#alloca #alloca #alloca #jump))
+		#(#body #(#getThisContext #jump))
+		#(#tryScope #(#instantiateClosure #bitcast #call #return))
+		#(#tryUnwind #(#landingpath #extractValue #store #extractValue #store #jump))
+		#(#unwindCleanUp #(#load #getExceptionSelectorFromTypeInfo #ieq #branch))
+		#(#nonLocalReturn #(#load #call #load #return))
+		#(#unwindResume #(#load #insertValue #load #insertValue #resumeException))
+	).
+
+	closure := function basicBlocks third firstInstruction definition.
+	self assert: closure allInstructionsMnemonics equals: #(
+		#(#entry #(#jump))
+		#(#body #(#store #call unreachable))
+	).
+
+]
+
+{ #category : #tests }
 MbndSlovimCodeModuleGeneratorTest >> testCatchNativeExceptionIgnore [
 	| function |
 	self

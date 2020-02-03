@@ -13,6 +13,16 @@ TMbndAbstractCompilationTarget >> astNodeType [
 	^ self getBasicTypeNamed: MbndASTNodeType typeName
 ]
 
+{ #category : #'convenience type accessors' }
+TMbndAbstractCompilationTarget >> basicType [
+	^ self getBasicTypeNamed: MbndBasicType typeName
+]
+
+{ #category : #'convenience type accessors' }
+TMbndAbstractCompilationTarget >> behaviorType [
+	^ self getBasicTypeNamed: MbndBehaviorType typeName
+]
+
 { #category : #'derived types' }
 TMbndAbstractCompilationTarget >> blockClosureTypeWithArguments: argumentTypes returnType: returnType [
 	^ (self functionTypeWithArguments: argumentTypes returnType: returnType) asGCBlockClosureType
@@ -591,6 +601,11 @@ TMbndAbstractCompilationTarget >> uintPointerType [
 { #category : #'convenience type accessors' }
 TMbndAbstractCompilationTarget >> undefinedType [
 	^ self getBasicTypeNamed: MbndUndefinedType typeName
+]
+
+{ #category : #'as yet unclassified' }
+TMbndAbstractCompilationTarget >> usesExceptionsForNonLocalReturns [
+	^ self isGPU not
 ]
 
 { #category : #'derived types' }

@@ -383,6 +383,11 @@ TMbndAbstractType >> asMutableValueType [
 ]
 
 { #category : #converting }
+TMbndAbstractType >> asNonLocalReturnResultVariableType [
+	^ self pointer
+]
+
+{ #category : #converting }
 TMbndAbstractType >> asPointerType [
 	self error: 'Cannot convert type {1} into a pointer type version.' format: { self asString }
 ]

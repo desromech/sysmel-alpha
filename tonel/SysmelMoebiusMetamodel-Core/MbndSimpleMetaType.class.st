@@ -1,6 +1,6 @@
 Class {
 	#name : #MbndSimpleMetaType,
-	#superclass : #MbndBasicType,
+	#superclass : #MbndBehaviorType,
 	#traits : 'TMbndMetaType',
 	#classTraits : 'TMbndMetaType classTrait',
 	#category : #'SysmelMoebiusMetamodel-Core-Type'
@@ -16,15 +16,13 @@ MbndSimpleMetaType >> accept: aVisitor [
 	^ aVisitor visitSimpleMetaType: self
 ]
 
-{ #category : #initialization }
-MbndSimpleMetaType >> addInstanceMacros [
-	self class == MbndSimpleMetaType ifFalse: [ ^ self ].
-	self isTrait ifFalse: [ ^ self ].
-	
-	self
-		onMacroSelectors: #( definition: extend: )do: [ :node :builder |
-			builder programEntity: node receiver extension: node arguments first
-		]
+{ #category : #converting }
+MbndSimpleMetaType >> analyzeReinterpretCastNode: node to: targetType with: analyzer [
+	node expression isLiteralValueNode ifFalse: [ 
+		self error: 'Metatype reinterpret cast is only supported with literal types.' at: node
+	].
+
+	^ node expression copy type: targetType
 ]
 
 { #category : #accessing }

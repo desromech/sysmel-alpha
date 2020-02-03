@@ -21,7 +21,9 @@ Class {
 		'unwindExceptionPointerVariable',
 		'unwindExceptionSelectorVariable',
 		'inCleanUpContextCount',
-		'forbiddenExceptionDuringCleanupTarget'
+		'forbiddenExceptionDuringCleanupTarget',
+		'nonLocalReturnContext',
+		'nonLocalReturnResultVariable'
 	],
 	#classVars : [
 		'AdditionalIntrinsicsDictionary',
@@ -711,6 +713,7 @@ MbndSlovimFunctionCodeGenerator >> generateCatchedExceptionAction: scopeCatchedE
 	catchExceptionScope := MbndSlovimExceptionScope new
 		parent: currentCleanUpScope;
 		parentCatchAction: scopeCatchedExceptionAction;
+		compilationTarget: self compilationTarget;
 		scopeEntryBlock: scopeCatchedExceptionAction catchActionBlock;
 		normalCleanUpBlock: (slvmBuilder newBasicBlock: #catchNormalCleanUp);
 		unwindBlock: (slvmBuilder newBasicBlock: #catchUnwind);
@@ -1022,6 +1025,9 @@ MbndSlovimFunctionCodeGenerator >> generateUnwindingCleanUpFor: exceptionScope [
 	].
 	
 	slvmBuilder isLastTerminator ifTrue: [ ^ self ].
+
+	"If this block is empty, it cannot have an unwind destination anymore."
+	slvmBuilder currentBlock isEmpty ifTrue: [ slvmBuilder currentBlock unwindBlock: nil ].
 	
 	exceptionScope parent ifNotNil: [ :parent |
 		"If this is inside a catch, we need to skip the catch selection clauses from the parent."
@@ -1032,6 +1038,12 @@ MbndSlovimFunctionCodeGenerator >> generateUnwindingCleanUpFor: exceptionScope [
 	
 		parent catchSelectionBlock ifNotNil: [ :parentCleanUp |
 			^ slvmBuilder jump: parent catchSelectionBlock
+		].
+	].
+
+	self compilationTarget usesExceptionsForNonLocalReturns ifTrue: [ 
+		exceptionScope nonLocalReturnContext ifNotNil: [
+			self generateUnwindingNonLocalReturnCatch.
 		].
 	].
 
@@ -1145,6 +1157,31 @@ MbndSlovimFunctionCodeGenerator >> generateUnwindingLandingPadFor: exceptionScop
 	slvmBuilder store: (slvmBuilder extractValue: landingPath indices: {1}) in: self unwindExceptionSelectorVariable.
 	
 	slvmBuilder jump: exceptionScope catchSelectionBlock
+]
+
+{ #category : #'as yet unclassified' }
+MbndSlovimFunctionCodeGenerator >> generateUnwindingNonLocalReturnCatch [
+	| typeInfoConstant currentSelector typeInfoSelector isNonLocalReturnException nonLocalReturnBlock unwindResumeBlock |
+	typeInfoConstant := (codeModuleGenerator translateProgramEntity: self compilationTarget internalNonLocalReturnExceptionClass) ssaValue.
+	currentSelector := slvmBuilder load: self unwindExceptionSelectorVariable.
+	typeInfoSelector := slvmBuilder getExceptionSelectorForTypeInfo: typeInfoConstant.
+	isNonLocalReturnException := slvmBuilder ieq: currentSelector with: typeInfoSelector.
+	nonLocalReturnBlock := slvmBuilder newBasicBlock: #nonLocalReturn.
+	unwindResumeBlock := slvmBuilder newBasicBlock: #unwindResume.
+	slvmBuilder currentBlock mergeBlock: unwindResumeBlock.
+	slvmBuilder branch: isNonLocalReturnException ifTrue: nonLocalReturnBlock ifFalse: unwindResumeBlock.
+	
+	slvmBuilder currentBlock: nonLocalReturnBlock.
+	slvmBuilder call: codeModuleGenerator nonLocalReturnCatchFunction arguments: { slvmBuilder load: self unwindExceptionPointerVariable }.
+	nonLocalReturnResultVariable ifNil: [
+		self assert: concreteMethod returnType isVoidType.
+		slvmBuilder returnVoid
+	] ifNotNil: [
+		self assert: concreteMethod returnType isVoidType not.
+		slvmBuilder return: (slvmBuilder load: nonLocalReturnResultVariable)
+	].
+
+	slvmBuilder currentBlock: unwindResumeBlock
 ]
 
 { #category : #'as yet unclassified' }
@@ -1298,6 +1335,39 @@ MbndSlovimFunctionCodeGenerator >> initializeImplicitCleanUpFlagsInScope: cleanU
 ]
 
 { #category : #'as yet unclassified' }
+MbndSlovimFunctionCodeGenerator >> initializeNonLocalReturnContext [
+	| nonLocalReturnTargetVar |
+	concreteMethod isNonLocalReturnTargetEntity ifFalse: [ ^ self ].
+	nonLocalReturnTargetVar := concreteMethod getNonLocalReturnTarget.
+	nonLocalReturnTargetVar ifNil: [ ^ self ].
+	nonLocalReturnTargetVar hasCaptureInNonInlinedBlock ifFalse: [
+		"This may still be captured in a block with immediate activation."
+		functionVariables at: nonLocalReturnTargetVar put: #dummyNonLocalReturnTargetVar.
+		concreteMethod getNonLocalResultVariable ifNotNil: [ :var |
+			functionVariables at: var put: #dummyNonLocalResultVariable.
+		].
+		^ self
+	].
+
+	nonLocalReturnContext := slvmBuilder getThisContext type: (self translateType: concreteMethod getNonLocalReturnTarget type).
+	nonLocalReturnResultVariable := nil.
+	functionVariables at: nonLocalReturnTargetVar put: nonLocalReturnContext.
+	
+	concreteMethod getNonLocalResultVariable ifNotNil: [ :var |
+		ssaFunction functionType returnType isVoidType ifTrue: [
+			concreteMethod returnType isMemoryReturnedType ifTrue: [
+				nonLocalReturnResultVariable := ssaFunction arguments first.
+			].
+		] ifFalse: [ 
+			nonLocalReturnResultVariable := slvmBuilder allocaBuilder alloca: ssaFunction functionType returnType
+		].
+	
+		functionVariables at: var put: nonLocalReturnResultVariable.
+	].
+
+]
+
+{ #category : #'as yet unclassified' }
 MbndSlovimFunctionCodeGenerator >> processIntrinsic: intrinsicName callArguments: callArguments [
 	| processedArguments |
 	processedArguments := callArguments.
@@ -1418,6 +1488,7 @@ MbndSlovimFunctionCodeGenerator >> setupSSAFunction: aSSAFunction definitionWith
 	
 	"Initialize the argument variables."
 	self initializeArgumentVariables.
+	self initializeNonLocalReturnContext.
 	
 	^ false
 ]
@@ -1651,7 +1722,13 @@ MbndSlovimFunctionCodeGenerator >> visitDynamicObjectToIntegerCastNode: node [
 { #category : #visiting }
 MbndSlovimFunctionCodeGenerator >> visitExceptionScopeNode: node [
 	| cleanUpScope resultTemporary resultValue resultImplicitFinalization |
-	cleanUpScope := MbndSlovimExceptionScope new parent: currentCleanUpScope.
+	cleanUpScope := MbndSlovimExceptionScope new
+		parent: currentCleanUpScope;
+		compilationTarget: self compilationTarget.
+	(currentCleanUpScope isNil and: nonLocalReturnContext isNotNil) ifTrue: [ 
+		cleanUpScope nonLocalReturnContext: nonLocalReturnContext
+	].
+
 	allCleanUpScopes add: cleanUpScope.
 	cleanUpScope allowedNodesWithImplicitFinalization: node nodesWithImplicitFinalization.
 	self hasExceptions ifTrue: [
@@ -2251,37 +2328,61 @@ MbndSlovimFunctionCodeGenerator >> visitReferenceLoadNode: node [
 
 { #category : #visiting }
 MbndSlovimFunctionCodeGenerator >> visitReturnStatementNode: node [
-	| result suppresedCleanUpTokens |
+	| result suppresedCleanUpTokens nonLocalReturnTargetRef nonLocalReturnResultRef memoryReturnedValueTarget |
 	(node implicitReturn and: [ node isInImmediatelyActivatedClosure ]) ifTrue: [
 		^ node expression ifNotNil: [ :expr | ^ self visitNode: expr ]
 	].
 
-	concreteMethod returnType isMemoryReturnedType ifTrue: [
-		self setStorageCreationNode: node variableForCopyEllision: ssaFunction arguments first
+	nonLocalReturnTargetRef := node nonLocalReturnTarget ifNotNil: [ :var | functionVariables at: var ] .
+	nonLocalReturnResultRef := node nonLocalResultVariable ifNotNil: [ :var | functionVariables at: var ].
+	nonLocalReturnTargetRef isSymbol ifTrue: [
+		self assert: (nonLocalReturnTargetRef beginsWith: #dummy).
+		nonLocalReturnTargetRef := nil.
+		nonLocalReturnResultRef := nil.
+	].
+
+	node expectedReturnType isMemoryReturnedType ifTrue: [
+		memoryReturnedValueTarget := nonLocalReturnResultRef ifNil: [ssaFunction arguments first].
+		self setStorageCreationNode: node variableForCopyEllision: memoryReturnedValueTarget
 	].
 
 	result := node expression ifNotNil: [ :expr | self visitNode: expr ].
 	slvmBuilder isLastTerminator ifTrue: [ ^ nil ].
 
 	suppresedCleanUpTokens := #().
-	concreteMethod returnType isMemoryReturnedType ifTrue: [ 
+	node expectedReturnType isMemoryReturnedType ifTrue: [ 
 		self assert: result isNotNil.
-		self generateVariable: ssaFunction arguments first withValueType: concreteMethod returnType initializationWithValue: result initialValueKind: #move.
-		suppresedCleanUpTokens := { ssaFunction arguments first }
+		self assert: memoryReturnedValueTarget isNotNil.
+		self generateVariable: memoryReturnedValueTarget withValueType: node expectedReturnType initializationWithValue: result initialValueKind: #move.
+		suppresedCleanUpTokens := { memoryReturnedValueTarget }
 	].
 
 	self withUnwindBlock: nil do: [ 
 		self executeAllScopeCleanUpExceptForTokens: suppresedCleanUpTokens.
 		slvmBuilder isLastTerminator ifTrue: [ ^ nil ].
 		self generateAutomaticEpilogueCode.
-		concreteMethod returnType isVoidType ifTrue: [
+		nonLocalReturnTargetRef ifNotNil: [ :targetContext |
+			node expectedReturnType isVoidType ifFalse: [ 
+				node expectedReturnType isMemoryReturnedType ifFalse: [
+					self compilationTarget usesExceptionsForNonLocalReturns ifTrue: [ 
+						self assert: nonLocalReturnResultRef isNotNil.
+						slvmBuilder store: result in: nonLocalReturnResultRef
+					] ifFalse: [
+						^ slvmBuilder return: result fromContext: nonLocalReturnTargetRef
+					].
+				].
+			].
+			slvmBuilder call: codeModuleGenerator nonLocalReturnRaiseFunction arguments: { nonLocalReturnTargetRef }.
+			^ slvmBuilder unreachable
+		].
+		node expectedReturnType isVoidType ifTrue: [
 			slvmBuilder returnVoid.
 			^ nil
 		].
 
 		self assert: result isNotNil.
 		
-		concreteMethod returnType isMemoryReturnedType ifTrue: [ 
+		node expectedReturnType isMemoryReturnedType ifTrue: [ 
 			slvmBuilder returnVoid
 		] ifFalse: [
 			slvmBuilder return: result

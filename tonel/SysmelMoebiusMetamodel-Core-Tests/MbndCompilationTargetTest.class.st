@@ -804,6 +804,11 @@ MbndCompilationTargetTest >> testReturnType [
 ]
 
 { #category : #'basic types' }
+MbndCompilationTargetTest >> testShortCircuit [
+	self assert: compilationTarget basicType type supertype equals: compilationTarget behaviorType
+]
+
+{ #category : #'basic types' }
 MbndCompilationTargetTest >> testSimpleMetaType [
 	self assert: compilationTarget simpleMetaType isMetaType
 ]

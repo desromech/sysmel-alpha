@@ -13,3 +13,8 @@ MbndLiteralByteArrayType class >> typeName [
 MbndLiteralByteArrayType >> isLiteralByteArrayType [
 	^ true
 ]
+
+{ #category : #'semantic analysis' }
+MbndLiteralByteArrayType >> standardConcreteTypeForLiteralValueNode: literalValueNode inScope: scope [
+	self halt
+]

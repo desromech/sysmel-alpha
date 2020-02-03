@@ -25,7 +25,9 @@ Class {
 		'personalityFunction',
 		'forbiddenExceptionHandlingFunction',
 		'exceptionCatchEndFunction',
-		'exceptionCatchBeginFunction'
+		'exceptionCatchBeginFunction',
+		'nonLocalReturnRaiseFunction',
+		'nonLocalReturnCatchFunction'
 	],
 	#classVars : [
 		'ShaderBuiltInLocationMap',
@@ -258,7 +260,7 @@ MbndSlovimCodeModuleGenerator >> exceptionCatchBeginFunction [
 			exceptionCatchBeginFunction := (self translateProgramEntity: function) ssaValue
 		] ifNil: [
 			exceptionCatchBeginFunction := SLVMFunction module: ssaModule
-				name: #__sysmel_eh_catchBegin
+				name: #__sysmel_eh_nonLocalReturnRaise
 				functionType: ((SLVMFunctionType arguments: #() returnType: self slvmCompilationTarget voidPointerType)
 					variadic: true
 				)
@@ -749,6 +751,36 @@ MbndSlovimCodeModuleGenerator >> mangleProgramEntityNestedName: programEntity [
 { #category : #visiting }
 MbndSlovimCodeModuleGenerator >> newSymbolNameMangler [
 	^ self symbolNameManglerPrototype copy
+]
+
+{ #category : #accessing }
+MbndSlovimCodeModuleGenerator >> nonLocalReturnCatchFunction [
+	^ nonLocalReturnCatchFunction ifNil: [
+		self compilationTarget nonLocalReturnCatchFunction ifNotNil: [ :function |
+			nonLocalReturnCatchFunction := (self translateProgramEntity: function) ssaValue
+		] ifNil: [
+			nonLocalReturnCatchFunction := SLVMFunction module: ssaModule
+				name: #__sysmel_eh_nonLocalReturnCatch
+				functionType: ((SLVMFunctionType arguments: { self slvmCompilationTarget voidPointerType } returnType: self slvmCompilationTarget void)
+					variadic: true
+				)
+		]
+	]
+]
+
+{ #category : #accessing }
+MbndSlovimCodeModuleGenerator >> nonLocalReturnRaiseFunction [
+	^ nonLocalReturnRaiseFunction ifNil: [
+		self compilationTarget nonLocalReturnRaiseFunction ifNotNil: [ :function |
+			nonLocalReturnRaiseFunction := (self translateProgramEntity: function) ssaValue
+		] ifNil: [
+			nonLocalReturnRaiseFunction := SLVMFunction module: ssaModule
+				name: #__sysmel_eh_catchBegin
+				functionType: ((SLVMFunctionType arguments: { self slvmCompilationTarget voidPointerType } returnType: self slvmCompilationTarget void)
+					variadic: true
+				)
+		]
+	]
 ]
 
 { #category : #accessing }

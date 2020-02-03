@@ -141,6 +141,18 @@ MbndBlockClosureMethod >> definitionPosition: anObject [
 ]
 
 { #category : #'as yet unclassified' }
+MbndBlockClosureMethod >> getNonLocalResultVariable [
+	self isNonLocalReturnTargetEntity ifTrue: [ ^ super getNonLocalReturnTarget ].
+	^ nonLocalResultVariable ifNil: [ nonLocalResultVariable := self getOrCreateCapturedVariableDefinition: parent getNonLocalResultVariable ]
+]
+
+{ #category : #'as yet unclassified' }
+MbndBlockClosureMethod >> getNonLocalReturnTarget [
+	self isNonLocalReturnTargetEntity ifTrue: [ ^ super getNonLocalReturnTarget ].
+	^ nonLocalReturnTarget ifNil: [ nonLocalReturnTarget := self getOrCreateCapturedVariableDefinition: parent getNonLocalReturnTarget ]
+]
+
+{ #category : #'as yet unclassified' }
 MbndBlockClosureMethod >> getOrCreateCapturedVariableDefinition: originalVariable [
 	originalVariable parent == self ifTrue: [ ^ super getOrCreateCapturedVariableDefinition: originalVariable ].
 	^ capturedVariableMap at: originalVariable ifAbsentPut: [ 
@@ -150,6 +162,7 @@ MbndBlockClosureMethod >> getOrCreateCapturedVariableDefinition: originalVariabl
 			name: parentVar name;
 			upperContextVariable: parentVar;
 			yourself.
+		parentVar addImmediateCapture: capturedVariable.
 		self addChild: capturedVariable.
 		capturedVariables add: capturedVariable.
 		capturedVariable

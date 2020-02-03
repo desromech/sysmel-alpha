@@ -571,7 +571,7 @@ MbndAstSemanticAnalyzer >> visitAssociationNode: node [
 
 { #category : #visiting }
 MbndAstSemanticAnalyzer >> visitBlockClosureNode: node [
-	| result bodyScope resultType blockClosureEntity owner functionType needsGC preprocessedBody |
+	| result bodyScope blockClosureEntity owner functionType needsGC preprocessedBody |
 	result := node copy.
 	result
 		arguments: (self visitNodesAndCollect: result arguments);
@@ -589,7 +589,6 @@ MbndAstSemanticAnalyzer >> visitBlockClosureNode: node [
 	result blockClosureProgramEntity: blockClosureEntity.
 	
 	blockClosureEntity boundType: (self compilationTarget functionTypeWithArguments: (blockClosureEntity arguments collect: #type as: Array) returnType: result returnType).
-
 
 	bodyScope := blockClosureEntity createSemanticAnalysisScopeWithParent: scope.
 	
@@ -1962,26 +1961,37 @@ MbndAstSemanticAnalyzer >> visitReinterpretCastNode: node [
 
 { #category : #visiting }
 MbndAstSemanticAnalyzer >> visitReturnStatementNode: node [
-	| result expectedReturnType returnTypeProgramEntity |
+	| result expectedReturnType returnTypeProgramEntity localReturnTypeProgramEntity |
 	result := node copy
 		expression: (self analyzeNodeIfNeeded: node expression);
 		type: self compilationTarget returnType.
 
-	result expression type isReturnType ifTrue: [ ^ result ].
+	result expression type isReturnType ifTrue: [
+		result expectedReturnType: result expression type.
+		^ result
+	].
 	
+	localReturnTypeProgramEntity := scope returnTypeProgramEntity.
 	node implicitReturn ifTrue: [
 		expectedReturnType := scope returnType.
-		returnTypeProgramEntity := scope returnTypeProgramEntity.
+		returnTypeProgramEntity := localReturnTypeProgramEntity.
 	] ifFalse: [
 		expectedReturnType := scope nonLocalReturnType.
 		returnTypeProgramEntity := scope nonLocalReturnTypeProgramEntity.
 	].
-	
+	result expectedReturnType: expectedReturnType.
 	expectedReturnType ifNotNil: [
-		result expression: (self addImplicitCastFor: result expression to: (expectedReturnType asConcreteTypeForAnalysisOfFunction: scope returnTypeProgramEntity)).
+		result expression: (self addImplicitCastFor: result expression to: (expectedReturnType asConcreteTypeForAnalysisOfFunction: returnTypeProgramEntity)).
 		
 		expectedReturnType isMemoryReturnedType ifTrue: [
 			result expression markStorageCreationNodeForCopyEllision: result
+		].
+	].
+
+	localReturnTypeProgramEntity ~~ returnTypeProgramEntity ifTrue: [
+		result nonLocalReturnTarget: localReturnTypeProgramEntity getNonLocalReturnTarget.
+		expectedReturnType isVoidType ifFalse: [
+			result nonLocalResultVariable: localReturnTypeProgramEntity getNonLocalResultVariable
 		].
 	].
 

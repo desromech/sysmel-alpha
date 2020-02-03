@@ -6,3 +6,8 @@ Class {
 	#superclass : #MbndAbstractSpecificMethod,
 	#category : #'SysmelMoebiusMetamodel-Core-Method'
 }
+
+{ #category : #'as yet unclassified' }
+MbndDummyMethod >> getNonLocalReturnTarget [
+	^ nil
+]

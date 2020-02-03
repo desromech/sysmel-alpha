@@ -14,7 +14,9 @@ Class {
 		'catchSelectionBlock',
 		'unwindCleanUpBlock',
 		'catchedExceptions',
-		'flattenedCatchedExceptions'
+		'flattenedCatchedExceptions',
+		'nonLocalReturnContext',
+		'compilationTarget'
 	],
 	#category : #'SysmelMoebiusCodeGenerator-Slovim-Module'
 }
@@ -50,6 +52,16 @@ MbndSlovimExceptionScope >> catchedExceptions: anObject [
 ]
 
 { #category : #accessing }
+MbndSlovimExceptionScope >> compilationTarget [
+	^ compilationTarget
+]
+
+{ #category : #accessing }
+MbndSlovimExceptionScope >> compilationTarget: anObject [
+	compilationTarget := anObject
+]
+
+{ #category : #accessing }
 MbndSlovimExceptionScope >> explicitFinalizationAction [
 	^ explicitFinalizationAction
 ]
@@ -73,7 +85,10 @@ MbndSlovimExceptionScope >> flattenedCatchedExceptions [
 				ifNotNil: [ :p | p flattenedCatchedExceptions ]
 		].
 	
-		flattenedCatchedExceptions := catchedExceptions collect: [ :each | each node exceptionType ]
+		flattenedCatchedExceptions := catchedExceptions collect: [ :each | each node exceptionType ].
+		self nonLocalReturnContext ifNotNil: [
+			flattenedCatchedExceptions := flattenedCatchedExceptions , { compilationTarget internalNonLocalReturnExceptionClass }
+		].
 	].
 	^ flattenedCatchedExceptions
 ]
@@ -119,6 +134,7 @@ MbndSlovimExceptionScope >> isNopExceptionScope [
 	implicitFinalizationStateDictionary valuesDo: [ :state |
 		state isActuallyExecuted ifTrue: [ ^ false ]
 	].
+	nonLocalReturnContext ifNotNil: [ ^ false ].
 	^ true
 ]
 
@@ -128,7 +144,18 @@ MbndSlovimExceptionScope >> mustBeNopExceptionScope [
 	parentCatchAction ifNotNil: [ ^ false ].
 	explicitFinalizationAction ifNotNil: [ ^ false ].
 	implicitFinalizationStateDictionary ifNotEmpty: [ ^ false ].
+	nonLocalReturnContext ifNotNil: [ ^ false ].
 	^ true
+]
+
+{ #category : #accessing }
+MbndSlovimExceptionScope >> nonLocalReturnContext [
+	^ nonLocalReturnContext
+]
+
+{ #category : #accessing }
+MbndSlovimExceptionScope >> nonLocalReturnContext: anObject [
+	nonLocalReturnContext := anObject
 ]
 
 { #category : #accessing }

@@ -20,3 +20,8 @@ MbndLiteralArrayType >> addDefaultConversionRules [
 MbndLiteralArrayType >> isLiteralArrayType [
 	^ true
 ]
+
+{ #category : #'semantic analysis' }
+MbndLiteralArrayType >> standardConcreteTypeForLiteralValueNode: literalValueNode inScope: scope [
+	self halt
+]
