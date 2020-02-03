@@ -34,6 +34,10 @@ class TypeInformation definition: {
     }.
 }.
 
+_BehaviorType extend: {
+    macro method asTypeInformation := ``(`,self reinterpretCastTo: StdNative TypeInformation const pointer).
+}.
+
 Compiler compilationTarget
     typeInformationNativeClass: TypeInformation.
 

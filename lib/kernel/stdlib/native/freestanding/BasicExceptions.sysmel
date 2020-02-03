@@ -33,6 +33,10 @@ class AssertionFailure superclass: Error; definition: {}.
 ## Throwing exceptions during clean up actions is forbidden
 class ForbiddenExceptionDuringCleanUp superclass: Error; definition: {}.
 
+## An internal exception that is used for implementing non-local returns.
+class InternalNonLocalReturn superclass: Exception; definition: {}.
+
+Compiler compilationTarget internalNonLocalReturnExceptionClass: InternalNonLocalReturn.
 ## Raises a generic error exception.
 function raiseError(errorMessage: StringLiteral) ::=> Void := {
     ## FIXME: do not separate these because of a missing cast.

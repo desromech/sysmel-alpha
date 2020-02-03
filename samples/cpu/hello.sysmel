@@ -22,6 +22,18 @@ function testNativeError() => Void := {
     }.
 }.
 
+function testNonLocalReturn() => Void := {
+    let array type: Smalltalk ProtoObject := #(1 2 3 4 5).
+    StdNative stdout << "Should print until 3"; nl.
+    array do: {:(Smalltalk ProtoObject)v :: Void |
+        StdNative stdout << v; nl.
+        v == 3 ifTrue: {
+            StdNative stdout << "Found 3, do non-local return."; nl.
+            return: nil
+        }.
+    }.
+}.
+
 function main externC (argc: Int32, argv: Char8 const pointer pointer) => Int32 := {
     StdNative stdout << "testGlobal " << testGlobal; nl.
 	StdNative stdout << "TestChar " << 'c'; nl.
@@ -108,6 +120,7 @@ function main externC (argc: Int32, argv: Char8 const pointer pointer) => Int32 
 	}.
 
     testNativeError().
+    testNonLocalReturn().
 
     return: 0.
 }.

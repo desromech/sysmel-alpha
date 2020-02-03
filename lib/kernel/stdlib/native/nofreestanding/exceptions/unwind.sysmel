@@ -41,6 +41,7 @@ function _Unwind_GetGR externC(context: _Unwind_Context pointer, index: Int32) =
 function _Unwind_SetGR externC(context: _Unwind_Context pointer, index: Int32, newValue: UIntPointer) => UIntPointer.
 function _Unwind_GetIP externC(context: _Unwind_Context pointer) => UIntPointer.
 function _Unwind_SetIP externC(context: _Unwind_Context pointer, newValue: UIntPointer) => UIntPointer.
+function _Unwind_GetCFA externC(context: _Unwind_Context pointer) => UIntPointer.
 function _Unwind_GetLanguageSpecificData externC(context: _Unwind_Context pointer) => Void pointer.
 function _Unwind_GetRegionStart externC(context: _Unwind_Context pointer) => UIntPointer.
 
@@ -167,7 +168,8 @@ compileTimeConstant LandingPadSelectorRegister := Compiler compilationTarget lan
 TypeInformation extend: {
     const method canCatchException: (exceptionObjectPointer: Void pointer)
         withKind: (exceptionKind: SysmelExceptionKind) withTypeInfo: (exceptionTypeInfo: TypeInformation const pointer) ::=> Boolean8
-    := exceptionTypeInfo _ isPointerReinterpretableTo: self address.
+    := (exceptionKind ~~ SysmelExceptionKind NonLocalReturn) &&
+        (exceptionTypeInfo _ isPointerReinterpretableTo: self address).
 }.
 
 struct SysmelUnwindScanCacheableResult definition: {
@@ -390,24 +392,41 @@ struct SysmelUnwindScanResult definition: {
                             }.
 						} ifNotNil: {
 							isOurExceptionClass ifTrue: {
-								let exceptionData := SysmelUnwindExceptionData fromUnwindException: unwindException.
+								let exceptionData := exceptionObjectPointer reinterpretCastTo: SysmelUnwindExceptionData pointer.
                                 let exceptionKind := exceptionData _ kind.
 								let exceptionTypeInfo := exceptionData _ exceptionTypeInfo.
 
 								##stdout << "exceptionTypeInfo " << exceptionTypeInfo; nl.
-                                (catchExceptionTypeInfo _
-                                    canCatchException: exceptionObjectPointer withKind: exceptionKind withTypeInfo: exceptionTypeInfo) ifTrue: {
-                                    ## Found a matching handler.
-                                    (actions anyMask: _UA_SEARCH_PHASE) ifTrue: {
-                                        cacheableResult
-                                            landingPad: landingPad;
-                                            actionRecord: actionRecord;
-                                            typeInfoTableIndex: typeInfoTableIndex;
-                                            exceptionObjectPointer: exceptionObjectPointer.
-                                        reasonCode :=  _Unwind_Reason_Code HandlerFound.
-                                        return: nil
+                                exceptionKind == SysmelExceptionKind NonLocalReturn ifTrue: {
+                                    ## If this is a non-local return, then we are looking for the matching frame.
+                                    let cfa := _Unwind_GetCFA(context) reinterpretCastTo: Void pointer.
+                                    cfa == exceptionData _ exceptionObjectPointer ifTrue: {
+                                        (actions anyMask: _UA_SEARCH_PHASE) ifTrue: {
+                                            cacheableResult
+                                                landingPad: landingPad;
+                                                actionRecord: actionRecord;
+                                                typeInfoTableIndex: typeInfoTableIndex;
+                                                exceptionObjectPointer: exceptionObjectPointer.
+                                            reasonCode :=  _Unwind_Reason_Code HandlerFound.
+                                            return: nil
+                                        }.
+                                    }
+                                } ifFalse: {
+
+                                    (catchExceptionTypeInfo _
+                                        canCatchException: exceptionObjectPointer withKind: exceptionKind withTypeInfo: exceptionTypeInfo) ifTrue: {
+                                        ## Found a matching handler.
+                                        (actions anyMask: _UA_SEARCH_PHASE) ifTrue: {
+                                            cacheableResult
+                                                landingPad: landingPad;
+                                                actionRecord: actionRecord;
+                                                typeInfoTableIndex: typeInfoTableIndex;
+                                                exceptionObjectPointer: exceptionObjectPointer.
+                                            reasonCode :=  _Unwind_Reason_Code HandlerFound.
+                                            return: nil
+                                        }.
                                     }.
-                                }
+                                }.
 							}.
 						}.
                     } ifFalse: {
@@ -521,6 +540,7 @@ function __sysmel_eh_handleForbiddenException externC(exceptionData: Void pointe
 }.
 
 global catchedExceptionStack mutable threadLocal type: SysmelUnwindExceptionData pointer.
+global nonLocalReturnExceptionSingleton mutable threadLocal type: SysmelUnwindExceptionData.
 
 function __sysmel_eh_catchBegin externC(exceptionObject: Void pointer) => Void pointer := {
     let newExceptionData := SysmelUnwindExceptionData fromUnwindException: (exceptionObject reinterpretCastTo: _Unwind_Exception pointer).
@@ -541,6 +561,29 @@ function __sysmel_eh_catchEnd externC() => Void := {
 
     catchedExceptionStack := exceptionData _  previousCatchedException.
     exceptionData _ unwindException exceptionCleanup(_Unwind_Reason_Code NormalStop, exceptionData _ unwindException address).
+}.
+
+function __sysmel_eh_nonLocalReturnRaise externC(targetContext: Void pointer) => Void := {
+    ##stderr << "Do non local return into: " << targetContext; nl.
+
+    let exceptionData := nonLocalReturnExceptionSingleton address.
+    exceptionData _
+        kind: SysmelExceptionKind NonLocalReturn;
+        exceptionTypeInfo: InternalNonLocalReturn asTypeInformation;
+        exceptionObjectPointer: targetContext.
+    exceptionData _ unwindException
+        exceptionClass: OurExceptionClass.
+
+    let reasonCode := _Unwind_RaiseException(exceptionData _ unwindException address).
+
+    stderr << "Cannot perform non-local return"; nl.
+    stderr << "Aborting the program execution."; nl.
+    native_abort().
+}.
+
+function __sysmel_eh_nonLocalReturnCatch externC(exceptionObject: Void pointer) => Void := {
+    ## stderr << "Non local return catch"; nl.
+    ## Since we are using TLS, nothing is required here.
 }.
 
 function nativeExceptionCleanUpFunction(reasonCode: _Unwind_Reason_Code, unwindException: _Unwind_Exception pointer) => Void := {
@@ -593,6 +636,8 @@ Compiler compilationTarget
     personalityFunction: __sysmel_eh_personality;
     exceptionCatchBeginFunction: __sysmel_eh_catchBegin;
     exceptionCatchEndFunction: __sysmel_eh_catchEnd;
+    nonLocalReturnRaiseFunction: __sysmel_eh_nonLocalReturnRaise;
+    nonLocalReturnCatchFunction: __sysmel_eh_nonLocalReturnCatch;
     forbiddenExceptionHandlingFunction: __sysmel_eh_handleForbiddenException;
     yourself.
 }.
