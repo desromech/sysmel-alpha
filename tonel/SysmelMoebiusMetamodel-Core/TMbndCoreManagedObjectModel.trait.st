@@ -33,7 +33,13 @@ Trait {
 		'float64ToFloatFunction',
 		'blockClosureHeaderClass',
 		'blockClosureClass',
-		'gcBlockClosureAllocationFunction'
+		'gcBlockClosureAllocationFunction',
+		'objectToUInt32Function',
+		'objectToInt32Function',
+		'objectToUInt64Function',
+		'objectToInt64Function',
+		'objectToChar32Function',
+		'objectToFloat64Function'
 	],
 	#traits : 'TMbndAbstractManagedObjectModel',
 	#classTraits : 'TMbndAbstractManagedObjectModel classTrait',
@@ -312,6 +318,66 @@ TMbndCoreManagedObjectModel >> methodDictionaryClass [
 { #category : #accessing }
 TMbndCoreManagedObjectModel >> methodDictionaryClass: anObject [
 	methodDictionaryClass := anObject
+]
+
+{ #category : #accessing }
+TMbndCoreManagedObjectModel >> objectToChar32Function [
+	^ objectToChar32Function
+]
+
+{ #category : #accessing }
+TMbndCoreManagedObjectModel >> objectToChar32Function: anObject [
+	objectToChar32Function := anObject
+]
+
+{ #category : #accessing }
+TMbndCoreManagedObjectModel >> objectToFloat64Function [
+	^ objectToFloat64Function
+]
+
+{ #category : #accessing }
+TMbndCoreManagedObjectModel >> objectToFloat64Function: anObject [
+	objectToFloat64Function := anObject
+]
+
+{ #category : #accessing }
+TMbndCoreManagedObjectModel >> objectToInt32Function [
+	^ objectToInt32Function
+]
+
+{ #category : #accessing }
+TMbndCoreManagedObjectModel >> objectToInt32Function: anObject [
+	objectToInt32Function := anObject
+]
+
+{ #category : #accessing }
+TMbndCoreManagedObjectModel >> objectToInt64Function [
+	^ objectToInt64Function
+]
+
+{ #category : #accessing }
+TMbndCoreManagedObjectModel >> objectToInt64Function: anObject [
+	objectToInt64Function := anObject
+]
+
+{ #category : #accessing }
+TMbndCoreManagedObjectModel >> objectToUInt32Function [
+	^ objectToUInt32Function
+]
+
+{ #category : #accessing }
+TMbndCoreManagedObjectModel >> objectToUInt32Function: anObject [
+	objectToUInt32Function := anObject
+]
+
+{ #category : #accessing }
+TMbndCoreManagedObjectModel >> objectToUInt64Function [
+	^ objectToUInt64Function
+]
+
+{ #category : #accessing }
+TMbndCoreManagedObjectModel >> objectToUInt64Function: anObject [
+	objectToUInt64Function := anObject
 ]
 
 { #category : #accessing }

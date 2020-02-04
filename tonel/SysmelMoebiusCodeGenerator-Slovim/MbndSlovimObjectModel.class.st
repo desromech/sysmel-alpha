@@ -23,7 +23,13 @@ Class {
 		'gcBlockClosureHeaderConstant',
 		'gcBlockClosureHeaderNumArgsSlotIndex',
 		'gcBlockClosureHeaderDynamicCallAdapterSlotIndex',
-		'dynamicObjectType'
+		'dynamicObjectType',
+		'objectToUInt32Function',
+		'objectToInt32Function',
+		'objectToUInt64Function',
+		'objectToInt64Function',
+		'objectToChar32Function',
+		'objectToFloat64Function'
 	],
 	#category : #'SysmelMoebiusCodeGenerator-Slovim-CompilationTarget'
 }
@@ -396,6 +402,42 @@ MbndSlovimObjectModel >> moduleCodeGenerator: anObject [
 { #category : #'as yet unclassified' }
 MbndSlovimObjectModel >> nativeClosureHeaderType [
 	^ nativeClosureHeaderType ifNil: [ nativeClosureHeaderType := target voidPointerPointerType ]
+]
+
+{ #category : #accessing }
+MbndSlovimObjectModel >> objectToChar32Function [
+	<compileTime>
+	^ objectToChar32Function ifNil: [objectToChar32Function := (moduleCodeGenerator translateProgramEntity: managedObjectModel objectToChar32) ssaValue ]
+]
+
+{ #category : #accessing }
+MbndSlovimObjectModel >> objectToFloat64Function [
+	<compileTime>
+	^ objectToFloat64Function ifNil: [objectToFloat64Function := (moduleCodeGenerator translateProgramEntity: managedObjectModel objectToFloat64) ssaValue ]
+]
+
+{ #category : #accessing }
+MbndSlovimObjectModel >> objectToInt32Function [
+	<compileTime>
+	^ objectToInt32Function ifNil: [objectToInt32Function := (moduleCodeGenerator translateProgramEntity: managedObjectModel objectToInt32Function) ssaValue ]
+]
+
+{ #category : #accessing }
+MbndSlovimObjectModel >> objectToInt64Function [
+	<compileTime>
+	^ objectToInt64Function ifNil: [objectToInt64Function := (moduleCodeGenerator translateProgramEntity: managedObjectModel objectToInt32Function) ssaValue ]
+]
+
+{ #category : #accessing }
+MbndSlovimObjectModel >> objectToUInt32Function [
+	<compileTime>
+	^ objectToUInt32Function ifNil: [objectToUInt32Function := (moduleCodeGenerator translateProgramEntity: managedObjectModel objectToUInt32Function) ssaValue ]
+]
+
+{ #category : #accessing }
+MbndSlovimObjectModel >> objectToUInt64Function [
+	<compileTime>
+	^ objectToUInt64Function ifNil: [objectToUInt64Function := (moduleCodeGenerator translateProgramEntity: managedObjectModel objectToInt32Function) ssaValue ]
 ]
 
 { #category : #accessing }

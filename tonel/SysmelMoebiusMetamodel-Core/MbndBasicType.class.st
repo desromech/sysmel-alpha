@@ -11,8 +11,24 @@ Class {
 		'parent',
 		'children'
 	],
+	#classVars : [
+		'PerformMessageSelectors'
+	],
 	#category : #'SysmelMoebiusMetamodel-Core-Type'
 }
+
+{ #category : #'class initialization' }
+MbndBasicType class >> initialize [
+	PerformMessageSelectors := #(
+		#perform:
+		#perform:with:
+		#perform:with:with:
+		#perform:with:with:with:
+		#perform:with:with:with:with:
+		#perform:with:with:with:with:with:
+		#perform:with:with:with:with:with:with:
+	)
+]
 
 { #category : #accessing }
 MbndBasicType class >> typeName [
@@ -64,6 +80,12 @@ MbndBasicType >> addInstanceMacros [
 		onMacroSelector: #reinterpretCastTo: do: [ :node :builder |
 			(builder reinterpretCast: node receiver to: node arguments first)
 				position: node
+		];
+		onMacroSelectors: PerformMessageSelectors do: [ :node :builder |
+			node copy
+				selector: node arguments first;
+				arguments: node arguments allButFirst;
+				yourself
 		].
 	self addMetaTypeMacrosTo: self type.
 ]
