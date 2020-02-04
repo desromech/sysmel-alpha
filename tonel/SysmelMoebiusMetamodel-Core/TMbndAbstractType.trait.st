@@ -522,6 +522,11 @@ TMbndAbstractType >> defaultValueAt: aPosition [
 
 ]
 
+{ #category : #'as yet unclassified' }
+TMbndAbstractType >> defaultVariableType [
+	^ nil
+]
+
 { #category : #'meta builder factories' }
 TMbndAbstractType >> extraMetaBuilderFactories [
 	^ extraMetaBuilderFactories ifNil: [ extraMetaBuilderFactories := self createExtraMetaBuilderFactories ]

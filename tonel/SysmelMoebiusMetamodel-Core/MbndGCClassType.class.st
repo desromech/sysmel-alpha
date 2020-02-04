@@ -22,19 +22,6 @@ MbndGCClassType >> addDefaultConversionRules [
 		addImplicitConversionRule: MbndClassImplicitUpcastTypeConversionRule new
 ]
 
-{ #category : #adding }
-MbndGCClassType >> addMainVTableFieldNamed: fieldName [
-	<compileTime>
-	| fieldType vtableField |
-	fieldType := self vtableFieldType.
-	vtableField := MbndVTablePointerFieldVariable new
-		name: fieldName;
-		valueType: fieldType;
-		type: fieldType ref.
-	self addField: vtableField.
-	^ vtableField
-]
-
 { #category : #'semantic analysis' }
 MbndGCClassType >> analyzeMessageSendNodeWithDynamicSelector: node with: analyzer [
 	^ analyzer visitNode: node asExpandedDynamicMessageSend
@@ -137,6 +124,11 @@ MbndGCClassType >> defaultReturnType [
 { #category : #'default values' }
 MbndGCClassType >> defaultValueAt: position [
 	^ MbndValue value: nil type: self
+]
+
+{ #category : #'as yet unclassified' }
+MbndGCClassType >> defaultVariableType [
+	^ self compilationTarget dynamicObjectType
 ]
 
 { #category : #converting }

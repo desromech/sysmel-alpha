@@ -24,6 +24,12 @@ MbndProgramEntityScope >> defaultReturnType [
 	^ super defaultReturnType
 ]
 
+{ #category : #accessing }
+MbndProgramEntityScope >> defaultVariableType [
+	programEntity isMbndType ifTrue: [ ^ programEntity defaultVariableType ].
+	^ super defaultVariableType
+]
+
 { #category : #testing }
 MbndProgramEntityScope >> isProgramEntityScope [
 	^ true

@@ -20,6 +20,19 @@ MbndAbstractClassType >> addChild: aChild [
 	].
 ]
 
+{ #category : #adding }
+MbndAbstractClassType >> addMainVTableFieldNamed: fieldName [
+	<compileTime>
+	| fieldType vtableField |
+	fieldType := self vtableFieldType.
+	vtableField := MbndVTablePointerFieldVariable new
+		name: fieldName;
+		valueType: fieldType;
+		type: fieldType ref.
+	self addField: vtableField.
+	^ vtableField
+]
+
 { #category : #'as yet unclassified' }
 MbndAbstractClassType >> addVirtualMethod: aMethod [
 	virtualMethods add: aMethod

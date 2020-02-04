@@ -35,6 +35,11 @@ MbndAbstractScope >> defaultReturnType [
 ]
 
 { #category : #accessing }
+MbndAbstractScope >> defaultVariableType [
+	^ parent ifNotNil: [ parent defaultVariableType ]
+]
+
+{ #category : #accessing }
 MbndAbstractScope >> definitionPosition [
 	^ nil
 ]

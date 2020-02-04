@@ -939,7 +939,11 @@ MbndAstSemanticAnalyzer >> visitFieldDefinitionNode: node [
 
 	result initialValue ifNil: [
 		result valueType ifNil: [
-			self error: 'field {1} requires an explicit type.' format: { result name asPrettySymbolName } at: result
+			scope defaultVariableType ifNil: [ 
+				self error: 'field {1} requires an explicit type.' format: { result name asPrettySymbolName } at: result
+			] ifNotNil: [ :defaultType |
+				result valueType: defaultType
+			].
 		]
 	] ifNotNil: [ 
 		result initialValue: node initialValue.
