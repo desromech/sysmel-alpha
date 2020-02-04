@@ -1,0 +1,39 @@
+namespace Smalltalk definition: {
+
+gcclass Exception definition: {
+    protected field messageText.
+
+    method signal: signalerMessage := {
+        messageText := signalerMessage.
+        self signal.
+    }.
+}.
+
+gcclass Error superclass: Exception; definition: {
+}.
+
+gcclass MessageNotUnderstood superclass: Error; definition: {
+    public field message.
+    public field receiver.
+}.
+
+gcclass Halt superclass: Exception; definition: {
+}.
+
+gcclass UnhandledError superclass: Exception; definition: {
+}.
+
+ProtoObject extend: {
+    method doesNotUnderstand: aMessage
+        := MessageNotUnderstood new
+            message: aMessage;
+            receiver: self;
+            signal.
+}.
+
+Object extend: {
+    method error: message
+        := Error new signal: message.
+}.
+
+}.

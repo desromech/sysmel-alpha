@@ -1,0 +1,32 @@
+namespace SysmelKernel definition: {
+
+compileTimeConstant _BasicInitializeFunctionPointerType := ((Void pointer) => Void) pointer.
+compileTimeConstant _CopyConstructorFunctionPointerType := ((Void pointer -- Void pointer) => Void) pointer.
+compileTimeConstant _MoveConstructorFunctionPointerType := ((Void pointer -- Void pointer) => Void) pointer.
+
+class _GCObjectHeader definition: {
+    ## If we do not use the garbage collector, save space by omitting these fields.
+    compileTimeIf: Compiler hasGarbageCollectionSupport then: {
+        ## Pointer towards the main virtual table. Objects that implement interfaces
+        ## can have additional vtables.
+        (SelfType addMainVTableFieldNamed: #__vtable) public.
+
+        if: UIntPointer instanceSize == 4 then: {
+            ## TODO: Support big-endian.
+            field __padding public type: UInt32.
+        }.
+
+        ## 32 bits: gc color, isPinned, isImmutable.
+        field _ public bits: 5; type: UInt32.
+
+        field __gcBits public type: UInt32; bits: 3.
+        field __isPinned public type: UInt32; bits: 1.
+        field __isImmutable public type: UInt32; bits: 1.
+        field __identityHash public type: UInt32; bits: 22.
+
+        ## Variable data size
+        field __variableDataSize public type: UInt32.
+    }.
+}.
+
+}. ## End of namespace SysmelKernel

@@ -7,7 +7,9 @@ gcclass Metaclass.
 ProtoObject metaClassClass: Metaclass.
 Metaclass metaClassClass: Metaclass.
 
-Compiler compilationTarget dynamicObjectType: ProtoObject.
+Compiler compilationTarget
+	dynamicObjectType: ProtoObject;
+	defaultGCClassSuperClass: ProtoObject.
 }.
 
 namespace SysmelKernel definition: {
@@ -102,20 +104,28 @@ ProtoObject definition: {
 
     ## Variable data size
     field __variableDataSize private type: UInt32.
+
+	method initialize
+		:= self. ## By default do nothing.
 }.
 
 Behavior definition: {
-    field superclass public type: Behavior.
-    field methodDict public type: MethodDictionary.
-    field gclayout public type: GCLayout.
-    field basicInitializeFunctionPointer public type: _BasicInitializeFunctionPointerType.
-    field slots public type: Array.
+	## These first fields must match the fields in _TypeInformation so that
+	## exception handling can work.
+    public field superclass public type: Behavior.
+	public field instanceDataSize public type: UInt32.
+    public field instanceDataAlignment public type: UInt32.
 
-    field instanceDataSize public type: UInt32.
-    field instanceDataAlignment public type: UInt32.
+	public field basicInitializeFunctionPointer type: _BasicInitializeFunctionPointerType.
+	public field copyConstructorFunctionPointer type: _CopyConstructorFunctionPointerType.
+    public field moveConstructorFunctionPointer type: _MoveConstructorFunctionPointerType.
 
-    field variableInstanceElementSize public type: UInt32.
-    field variableInstanceElementAlignment public type: UInt32.
+    public field methodDict public type: MethodDictionary.
+    public field gclayout public type: GCLayout.
+    public field slots public type: Array.
+
+    public field variableInstanceElementSize public type: UInt32.
+    public field variableInstanceElementAlignment public type: UInt32.
 
     ## The type of the instance is actually a dependent type because of the meta-circular hierarchy.
     method basicNew => _DependentInstanceType := {
@@ -137,6 +147,12 @@ Behavior definition: {
         ## Convert the allocated object.
         return: (allocatedObject reinterpretCastTo: ProtoObject)
     }.
+
+	method new => _DependentInstanceType
+		:= self basicNew initialize; yourself.
+
+    method new: (initialSize: UInt32) ::=> _DependentInstanceType
+		:= (self basicNew: initialSize) initialize; yourself.
 
     method lookupSelector: (selector: ProtoObject) ::=> ProtoObject := {
         <staticBinding>

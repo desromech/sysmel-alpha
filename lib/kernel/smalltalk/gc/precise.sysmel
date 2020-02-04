@@ -53,13 +53,13 @@ class SysmelGC definition: {
     method allocate: (objectSize: UIntPointer)
         variableDataSize: (variableDataSize: UInt32)
         initializingWith: (basicInitializer: _BasicInitializeFunctionPointerType)
-          ::=> _ObjectHeader pointer := {
+          ::=> _GCObjectHeader pointer := {
         <nogc>
 
         ##self printStackMap.
 
         ## Allocate the object memory.
-        let allocatedObject := (memoryHeap allocate: objectSize) reinterpretCastTo: _ObjectHeader pointer.
+        let allocatedObject := (memoryHeap allocate: objectSize) reinterpretCastTo: _GCObjectHeader pointer.
         LibC memset(allocatedObject, 0, objectSize).
 
         ## Set the allocated object class.

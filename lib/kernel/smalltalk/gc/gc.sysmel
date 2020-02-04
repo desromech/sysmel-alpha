@@ -1,5 +1,3 @@
-loadFileOnce: "objectModel.sysmel".
-
 if: Compiler hasGarbageCollectionStackMap && Compiler hasPreciseGarbageCollector then: {
     loadFileOnce: "precise.sysmel".
 } else: {

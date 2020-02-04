@@ -22,6 +22,18 @@ function testNativeError() => Void := {
     }.
 }.
 
+function testSmalltalkErrorThrow() => Void := {
+    Smalltalk Object error: "Test smalltalk error".
+}.
+
+function testGCError() => Void := {
+    try: {
+        testSmalltalkErrorThrow().
+    } catch: Smalltalk Error doing: {
+        StdNative stdout << "Caught Smalltalk error exception"; nl.
+    }.
+}.
+
 function testNonLocalReturn() => Void := {
     let array type: Smalltalk ProtoObject := #(1 2 3 4 5).
     StdNative stdout << "Should print until 3"; nl.
@@ -121,6 +133,7 @@ function main externC (argc: Int32, argv: Char8 const pointer pointer) => Int32 
 
     testNativeError().
     testNonLocalReturn().
+    testGCError().
 
     return: 0.
 }.

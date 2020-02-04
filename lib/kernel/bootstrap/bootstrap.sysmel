@@ -5,3 +5,8 @@ loadFileOnce: "atomic.sysmel".
 loadFileOnce: "boolean.sysmel".
 loadFileOnce: "primitive-macros.sysmel".
 loadFileOnce: "math.sysmel".
+
+if: Compiler compilationTarget isGPU not then: {
+    loadFileOnce: "ObjectModel.sysmel".
+    loadFileOnce: "RTTI.sysmel".
+}.

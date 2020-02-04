@@ -1,0 +1,41 @@
+namespace SysmelKernel definition: {
+
+## I am an instance of basic type information. I provide the bare minimun that is
+## required for moving/copying any native object from one location to another by
+## erasing its type. I am used for implementing the throwing of native exceptions.
+class _TypeInformation superclass: _GCObjectHeader; definition: {
+    public field superclass type: _TypeInformation pointer.
+    public field instanceSize type: UIntPointer.
+    public field instanceAlignment type: UIntPointer.
+
+    public field basicInitializationFunctionPointer type: _BasicInitializeFunctionPointerType.
+    public field copyConstructorFunctionPointer type: _CopyConstructorFunctionPointerType.
+    public field moveConstructorFunctionPointer type: _MoveConstructorFunctionPointerType.
+
+    const method isPointerReinterpretableTo: (other: _TypeInformation const pointer) ::=> Boolean8 := {
+        ## Am I the other type information?
+        self address == other ifTrue: {
+            return: true.
+        }.
+
+        ## Check in my base class.
+        superclass ifNotNil: {
+            return: (superclass _ isPointerReinterpretableTo: other)
+        }.
+
+        false
+    }.
+}.
+
+function typeInformationFromPointerToVTable(vtablePointer: Void const pointer) => _TypeInformation pointer
+    := (vtablePointer reinterpretCastTo: _TypeInformation pointer const pointer const pointer)
+        _ [-1].
+
+_BehaviorType extend: {
+    macro method asTypeInformation := ``(`,self reinterpretCastTo: SysmelKernel _TypeInformation const pointer).
+}.
+
+Compiler compilationTarget
+    typeInformationNativeClass: _TypeInformation.
+
+}.
