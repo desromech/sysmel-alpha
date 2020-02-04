@@ -655,6 +655,42 @@ BlockClosure definition: {
 }.
 
 ##-----------------------------------------------------------------------------
+## Object perform
+Object definition: {
+	## perform:(with:)* is defined as a macro that generates a message send with
+	## the symbol argument as a selector, so exploit the macro expansion machinery
+	## for implementing #perform: in terms of #perform:
+	method perform: aSymbol
+		:= self perform: aSymbol.
+
+	method perform: aSymbol with: anObject
+		:= self perform: aSymbol with: anObject.
+
+	method perform: aSymbol with: firstObject with: secondObject
+		:= self perform: aSymbol with: firstObject with: secondObject.
+
+	method perform: aSymbol with: firstObject with: secondObject with: thirdObject
+		:= self perform: aSymbol with: firstObject with: secondObject with: thirdObject.
+
+	method perform: aSymbol with: firstObject with: secondObject with: thirdObject with: fourthObject
+		:= self perform: aSymbol with: firstObject with: secondObject with: thirdObject with: fourthObject.
+
+	method perform: aSymbol withArguments: anArray := {
+		anArray size asUInt32 selectCase: #{
+		0 : {return: (self perform: aSymbol)}.
+		1 : {return: (self perform: aSymbol with: anArray first)}.
+		2 : {return: (self perform: aSymbol with: anArray first with: anArray second)}.
+		3 : {return: (self perform: aSymbol with: anArray first with: anArray second with: anArray third)}.
+		4 : {return: (self perform: aSymbol with: anArray first with: anArray second with: anArray third with: anArray fourth)}.
+		5 : {return: (self perform: aSymbol with: anArray first with: anArray second with: anArray third with: anArray fourth with: anArray fifth)}.
+		6 : {return: (self perform: aSymbol with: anArray first with: anArray second with: anArray third with: anArray fourth with: anArray fifth with: anArray sixth)}.
+		7 : {return: (self perform: aSymbol with: anArray first with: anArray second with: anArray third with: anArray fourth with: anArray fifth with: anArray sixth with: anArray seventh)}.
+		let _ : self error: "Unsupported argument count for  #perform:withArguments:."
+		}.
+	}
+}.
+
+##-----------------------------------------------------------------------------
 ## Normal method lookup
 namespace Runtime definition: {
 function messageLookupFromBehavior(behavior: Behavior, object: ProtoObject, selector: Object, fallbackTrampoline: Void pointer) => Void pointer := {

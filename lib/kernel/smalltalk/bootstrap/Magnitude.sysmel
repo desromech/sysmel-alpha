@@ -65,7 +65,6 @@ compileTimeIf: UIntPointer instanceSize = 4 then: {
 	function uint32ToInteger(v: UInt32) => Integer
 		:= encodeSmallInteger(v).
 
-
 	function float64ToFloat(v: Float64) => Float := {
 		BoxedFloat64 basicNew
 			__float64Value: v;
@@ -102,6 +101,24 @@ function uint64ToInteger(v: UInt64) => Integer := {
 	return: largePositiveInteger
 }.
 
+function objectToUInt32(object: ProtoObject) => UInt32
+	:= object asUInt32.
+
+function objectToInt32(object: ProtoObject) => Int32
+	:= object asInt32.
+
+function objectToUInt64(object: ProtoObject) => UInt64
+	:= object asUInt64.
+
+function objectToInt64(object: ProtoObject) => Int64
+	:= object asInt64.
+
+function objectToChar32(object: ProtoObject) => Char32
+	:= object asChar32.
+
+function objectToFloat64(object: ProtoObject) => Float64
+	:= object asFloat64.
+
 Compiler compilationTarget managedObjectModel
     ## Primitive integer <-> Integer object.
 	int32ToIntegerFunction: int32ToInteger;
@@ -109,14 +126,54 @@ Compiler compilationTarget managedObjectModel
 	int64ToIntegerFunction: int64ToInteger;
 	uint64ToIntegerFunction: uint64ToInteger;
 
+	objectToUInt32Function: objectToUInt32;
+	objectToInt32Function: objectToInt32;
+	objectToUInt64Function: objectToUInt64;
+	objectToInt64Function: objectToInt64;
+
     ## Primitive character <-> Integer object.
 	uint32ToCharacterFunction: uint32ToCharacter;
+	objectToChar32Function: objectToChar32;
 
     ## Primitive float <-> Float object.
 	float64ToFloatFunction: float64ToFloat;
+	objectToFloat64Function: objectToFloat64;
 	yourself.
 }.
 
+
+ProtoObject extend: {
+	method asInt32 => Int32 := {
+		CannotPerformCastError new signal.
+		return: 0
+	}.
+
+	method asUInt32 => UInt32 := {
+		CannotPerformCastError new signal.
+		return: 0
+	}.
+
+	method asInt64 => Int64 := {
+		CannotPerformCastError new signal.
+		return: 0
+	}.
+
+	method asUInt64 => UInt64 := {
+		CannotPerformCastError new signal.
+		return: 0
+	}.
+
+	method asFloat64 => Float64 := {
+		CannotPerformCastError new signal.
+		return: 0
+	}.
+
+	method asChar32 => Char32 := {
+		CannotPerformCastError new signal.
+		return: 0
+	}.
+
+}.
 
 Object extend: {
     method isNumber := false.
@@ -151,6 +208,24 @@ Fraction extend: {
 }.
 
 SmallInteger extend: {
+	method asInt32 => Int32
+		:= self __decodeSmallInteger castTo: Int32.
+
+	method asUInt32 => UInt32
+		:= self __decodeSmallInteger castTo: UInt32.
+
+	method asInt64 => Int64
+		:= self __decodeSmallInteger castTo: Int64.
+
+	method asUInt64 => UInt64
+		:= self __decodeSmallInteger castTo: UInt64.
+
+	method asFloat64 => Float64
+		:= self __decodeSmallInteger castTo: Float64.
+
+	method asChar32 => Char32
+		:= self __decodeSmallInteger castTo: Char32.
+
     method + aNumber := {
 		aNumber __isSmallInteger ifTrue: {
 			let a := self __decodeSmallInteger.

@@ -12,9 +12,39 @@ gcclass Exception definition: {
 gcclass Error superclass: Exception; definition: {
 }.
 
+
+gcclass ArithmeticError superclass: Error; definition: {}.
+gcclass DomainError superclass: ArithmeticError; definition: {
+    public field from.
+    public field to.
+}.
+gcclass FloatingPointException superclass: ArithmeticError; definition: {}.
+gcclass NaNException superclass: ArithmeticError; definition: {}.
+gcclass ZeroDivide superclass: ArithmeticError; definition: {}.
+
+gcclass AssertionFailure superclass: Error; definition: {}.
+gcclass CannotReturn superclass: Error; definition: {}.
+gcclass BlockCannotReturn superclass: CannotReturn; definition: {}.
+gcclass ContextCannotReturn superclass: CannotReturn; definition: {}.
+
 gcclass MessageNotUnderstood superclass: Error; definition: {
     public field message.
     public field receiver.
+}.
+
+gcclass CannotPerformCastError superclass: Error; definition: {}.
+
+gcclass SelectorException superclass: Error; definition: {}.
+gcclass NotYetImplemented superclass: SelectorException; definition: {}.
+gcclass PrimitiveFailed superclass: SelectorException; definition: {}.
+gcclass ShouldBeImplemented superclass: SelectorException; definition: {}.
+gcclass ShouldNotImplement superclass: SelectorException; definition: {}.
+gcclass SubclassResponsibility superclass: SelectorException; definition: {}.
+
+gcclass SubscriptOutOfBounds superclass: Error; definition: {
+    public field subscript.
+    public field lowerBound.
+    public field upperBound.
 }.
 
 gcclass Halt superclass: Exception; definition: {
