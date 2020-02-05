@@ -1,0 +1,38 @@
+namespace Smalltalk definition: {
+
+gcclass TestRunner definition: {
+    protected field runTestCount.
+    protected field passedTestCount.
+    protected field failureTestCount.
+    protected field errorTestCount.
+
+    meta extend: {
+        method runTestCases: aCollectionOfCases
+            := self new runTestCases: aCollectionOfCases.
+
+        method runTestCase: aCase
+            := self new runTestCase: aCase.
+    }.
+
+    method initialize := {
+        runTestCount := 0.
+        passedTestCount := 0.
+        failureTestCount := 0.
+        errorTestCount := 0.
+        self
+    }.
+
+    method runTestCases: aCollectionOfCases := {
+        aCollectionOfCases do: {:testCase :: Void |
+            self runTestCase: testCase
+        }
+    }.
+
+    method runTestCase: aTestCase := {
+        StdNative stdout << "TODO: Run test case.".
+        self
+    }.
+
+}.
+
+}. ## End of namespace Smalltalk

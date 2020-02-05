@@ -1,7 +1,8 @@
 namespace StdNative definition: {
+namespace Collections definition: {
 
-template OrderedCollection(ET: Type)
-	:= struct definition: {
+template Vector(ET: Type)
+	:= class definition: {
     compileTimeConstant ElementType := ET.
 
     private field capacity_ type: UIntPointer.
@@ -151,4 +152,5 @@ template OrderedCollection(ET: Type)
 	}.
 }.
 
-}.
+}. ## End of namespace Collections
+}. ## End of namespace StdNative

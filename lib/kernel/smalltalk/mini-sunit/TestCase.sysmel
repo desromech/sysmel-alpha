@@ -1,0 +1,7 @@
+namespace Smalltalk definition: {
+
+gcclass TestCase superclass: TestAsserter; definition: {
+
+}.
+
+}. ## End of namespace Smalltalk

@@ -1,0 +1,17 @@
+namespace StdNative definition: {
+namespace Collections definition: {
+
+template Dictionary(KT: Type, VT: Type)
+    := class definition: {
+    compileTimeConstant KeyType := KT.
+    compileTimeConstant ValueType := VT.
+    compileTimeConstant AssociationType := Association(KeyType, ValueType).
+
+    private field capacity_ type: UIntPointer.
+    private field size_ type: UIntPointer.
+    private field storage_ type: AssociationType pointer.
+
+}.
+
+}. ## End of namespace Collections
+}. ## End of namespace StdNative

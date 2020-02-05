@@ -1,0 +1,26 @@
+namespace StdNative definition: {
+
+## UInt64 integer hashing function from: https://nullprogram.com/blog/2018/07/31/
+function hashForUInt64(v: UInt64) => UIntPointer := {
+    let r mutable := v ^ (v >> 30).
+    r := r * 16rbf58476d1ce4e5b9.
+    r := r ^ (r >> 27).
+    r := r * 16r94d049bb133111eb.
+    r := r ^ (r >> 31).
+    return: (r castTo: UIntPointer)
+}.
+
+function hashForUInt32(v: UInt32) => UIntPointer := {
+    let r mutable := v ^ (v >> 16).
+    r := r * 16r7feb352d.
+    r := r ^ (r >> 15).
+    r := r * 16r846ca68b.
+    r := r ^ (r >> 16).
+    return: (r castTo: UIntPointer)
+}.
+
+(UInt8 | Int8 | UInt16 | Int16 | Int32 | UInt32) macro method hash := ``(StdNative hashForUInt32(`,self castTo: UInt32)).
+(Int64 | UInt64) macro method hash := ``(StdNative hashForUInt64(`,self castTo: UInt64)).
+_PointerType macro method hash := ``((`,self reinterpretCastTo: UIntPointer) hash).
+
+}. ## End of namespace StdNative

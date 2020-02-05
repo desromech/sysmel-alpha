@@ -1,0 +1,3 @@
+loadFileOnce: "TestAsserter.sysmel".
+loadFileOnce: "TestCase.sysmel".
+loadFileOnce: "TestRunner.sysmel".

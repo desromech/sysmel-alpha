@@ -89,7 +89,7 @@ class Entity definition: {
 
 	method boundingBoxExpandedWith: (extraHalfExtent: Float32x2) ::=> Box2D
 		:= Box2D center: position halfExtent: halfExtent + extraHalfExtent.
-		
+
 	virtual method currentColor => Float32x4
 		:= color.
 
@@ -140,7 +140,7 @@ class Character superclass: Entity; definition: {
 	override method shotAt: (bulletHitPoint: Float32x2) withDamage: (damage: Float32) ::=> Void := {
 		## Invincibility period.
 		hitFlashRemainingTime > 0.0f ifTrue: { return: 0.0f }.
-		
+
 		hitPoints := hitPoints - damage.
 		hitFlashRemainingTime := 0.05f.
 	}.
@@ -200,7 +200,7 @@ class Character superclass: Entity; definition: {
 		hitFlashRemainingTime > 0.0f ifTrue: {
 			hitFlashRemainingTime := hitFlashRemainingTime - delta.
 		}.
-		
+
 		velocity := velocity + Gravity * delta.
 		let newPosition := position + velocity * delta.
 
@@ -296,7 +296,7 @@ class Player superclass: Character; definition: {
 			}.
 		}.
 	}.
-	
+
 	method moveLeftInput: (state: Boolean8) ::=> Void := {
 		state ifTrue: {
 			direction x: -1.0.
@@ -353,7 +353,7 @@ class Player superclass: Character; definition: {
 		} ifFalse: {
 			velocity x: direction x * speed.
 		}.
-	
+
 		super update: delta.
 
 		isOnFloor ifTrue: {
@@ -482,8 +482,8 @@ compileTimeConstant SawChannel := ToneFunctionSoundChannel(
 		:= x fract*2.0f - 1.0f
 ).
 
-global entities mutable type: (StdNative OrderedCollection(Entity pointer)).
-global soundChannels mutable type: (StdNative OrderedCollection(SoundChannel pointer)).
+global entities mutable type: (StdNative Collections Vector(Entity pointer)).
+global soundChannels mutable type: (StdNative Collections Vector(SoundChannel pointer)).
 
 global player mutable type: Player pointer.
 global viewMatrix mutable type: Float32x2x3.
@@ -565,17 +565,17 @@ function drawHealth() => Void := {
 		w: 250;
 		h: 15;
 		yourself.
-		
+
 	let currentHealthRect mutable := fullHealthRect.
 	let healthPercentage := player _ hitPoints / 100.0f clampMin: 0.0f max: 1.0.
 	currentHealthRect w: (fullHealthRect w * healthPercentage castTo: Int32).
 
 	SDL_SetRenderDrawColor(renderer, 255, 160, 0, 255).
 	SDL_RenderFillRect(renderer, fullHealthRect address).
-	
+
 	SDL_SetRenderDrawColor(renderer, 255, 0, 0, 255).
 	SDL_RenderDrawRect(renderer, fullHealthRect address).
-	
+
 }.
 
 function renderHUD() => Void := {
@@ -611,7 +611,7 @@ function render() => Void := {
 	entities do: {:(Entity pointer)entity :: Void |
 		entity _ render.
 	}.
-	
+
 	## Draw the HUD.
 	renderHUD().
 
@@ -709,7 +709,7 @@ function main externC (argc: Int32, argv: Char8 const pointer pointer) => Int32 
 	## Create the floor
 	{
 		createWallMin: Float32x2(-5.0f, -5.0f) max: Float32x2(20.0f, -4.0f) color: Float32x4(0.2f, 0.2f, 0.2f, 0.2f).
-		
+
 		createWallMin: Float32x2(3.0f, -1.0f) max: Float32x2(8.0f, 0.0f) color: Float32x4(0.2f, 0.2f, 0.2f, 0.2f).
 	}.
 

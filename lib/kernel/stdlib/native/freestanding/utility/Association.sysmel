@@ -1,0 +1,12 @@
+namespace StdNative definition: {
+
+template Association(KT: Type, VT: Type)
+    := class definition: {
+    compileTimeConstant KeyType := KT.
+    compileTimeConstant ValueType := VT.
+
+    public field key type: KeyType.
+    public field value type: ValueType.
+}.
+
+}. ## End of namespace StdNative
