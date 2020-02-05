@@ -22,6 +22,14 @@ MbndGCClassType >> addDefaultConversionRules [
 		addImplicitConversionRule: MbndClassImplicitUpcastTypeConversionRule new
 ]
 
+{ #category : #'as yet unclassified' }
+MbndGCClassType >> addMetaTypeMacrosTo: metaType [
+	metaType
+		onMacroSelectors: #( definition: extend: )do: [ :node :builder |
+			builder programEntity: node receiver extension: node arguments first
+		]
+]
+
 { #category : #'semantic analysis' }
 MbndGCClassType >> analyzeMessageSendNodeWithDynamicSelector: node with: analyzer [
 	^ analyzer visitNode: node asExpandedDynamicMessageSend
@@ -256,7 +264,11 @@ MbndGCClassType >> makeInstance: variableSize identityHash: identityHash at: aPo
 MbndGCClassType >> metaClassClass: theClassForTheMetaClass [
 	<compileTime>
 	type type: theClassForTheMetaClass.
-	self addMetaTypeMacrosTo: type
+	self addMetaTypeMacrosTo: type.
+	(theClassForTheMetaClass hasFlag: #metaClassClass) ifFalse: [ 
+		theClassForTheMetaClass addFlag: #metaClassClass.
+		self addMetaTypeMacrosTo: theClassForTheMetaClass
+	]
 ]
 
 { #category : #'type composition' }
