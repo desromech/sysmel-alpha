@@ -65,6 +65,11 @@ MbndAstVisitor >> visitCasesOfNode: node [
 ]
 
 { #category : #visiting }
+MbndAstVisitor >> visitCaughtExceptionReferenceNode: node [
+	self subclassResponsibility
+]
+
+{ #category : #visiting }
 MbndAstVisitor >> visitCharacterToDynamicObjectCastNode: node [
 	self subclassResponsibility
 ]

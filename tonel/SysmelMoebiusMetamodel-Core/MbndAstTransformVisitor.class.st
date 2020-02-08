@@ -108,6 +108,11 @@ MbndAstTransformVisitor >> visitCasesOfNode: node [
 ]
 
 { #category : #visiting }
+MbndAstTransformVisitor >> visitCaughtExceptionReferenceNode: node [
+	^ node
+]
+
+{ #category : #visiting }
 MbndAstTransformVisitor >> visitCharacterToDynamicObjectCastNode: node [
 	^ self visitSpecificCastNode: node
 ]

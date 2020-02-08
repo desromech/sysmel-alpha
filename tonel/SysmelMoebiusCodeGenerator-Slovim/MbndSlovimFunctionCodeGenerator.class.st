@@ -725,7 +725,12 @@ MbndSlovimFunctionCodeGenerator >> generateCatchedExceptionAction: scopeCatchedE
 	allCleanUpScopes add: catchExceptionScope.
 
 	slvmBuilder withBasicBlock: scopeCatchedExceptionAction catchActionBlock do: [
-		self generateExceptionCatchBeginFor: scopeCatchedExceptionAction.
+		| caughtExceptionReference |
+		caughtExceptionReference := self generateExceptionCatchBeginFor: scopeCatchedExceptionAction.
+		scopeCatchedExceptionAction node caughtExceptionReferenceNode ifNotNil: [ :refNode |
+			functionVariables at: refNode put: caughtExceptionReference
+		].
+	
 		self withExceptionScope: catchExceptionScope do: [ 
 			self visitNode: scopeCatchedExceptionAction node catchAction.
 		].
@@ -1635,6 +1640,11 @@ MbndSlovimFunctionCodeGenerator >> visitCasesOfNode: node [
 	matchedValue := self visitNode: node matchedExpression.
 	literalGroupStream := node cases readStream.
 	^ self generateCasesOfNode: node matchedValue: matchedValue caseStream: literalGroupStream
+]
+
+{ #category : #visiting }
+MbndSlovimFunctionCodeGenerator >> visitCaughtExceptionReferenceNode: node [
+	^ functionVariables at: node
 ]
 
 { #category : #visiting }

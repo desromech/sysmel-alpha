@@ -181,6 +181,21 @@ MbndAstSemanticAnalyzer >> arithmeticCoercionTypeFor: leftType with: rightType l
 	^ coercionType
 ]
 
+{ #category : #'as yet unclassified' }
+MbndAstSemanticAnalyzer >> computeArithmethicCoercionTypeNodeFor: leftNode with: rightNode fallbackTo: fallbackType at: position [
+	<compileTime>
+	<returnType: #_ASTNodeType>
+	
+	| leftAnalyzedNode rightAnalyzedNode coercionType |
+	leftAnalyzedNode := self analyzeNodeIfNeeded: leftNode.
+	rightAnalyzedNode := self analyzeNodeIfNeeded: rightNode.
+	coercionType := self compilationTarget computeArithmeticCoercionTypeFor: leftAnalyzedNode type with: rightAnalyzedNode type leftNode: leftAnalyzedNode rightNode: rightAnalyzedNode inScope: scope.
+	coercionType ifNil: [ coercionType := fallbackType ].
+	
+	^ coercionType asLiteralValueNode
+		position: position
+]
+
 { #category : #'implicit casting' }
 MbndAstSemanticAnalyzer >> computeImplicitCoercionCostFor: argumentNode to: expectedType at: node [
 	| conversionRule |
@@ -800,7 +815,7 @@ MbndAstSemanticAnalyzer >> visitEnumDefinitionNode: node [
 
 { #category : #visiting }
 MbndAstSemanticAnalyzer >> visitExceptionCatchExpressionNode: node [
-	| result |
+	| result exceptionReferenceType caughtExceptionReferenceNode hasAddedImmediateActivationNode |
 	result := node copy.
 	result exceptionTypeExpression: (self analyzeNodeIfNeeded: node exceptionTypeExpression).
 	result exceptionTypeExpression type isMetaType ifFalse: [ 
@@ -823,27 +838,46 @@ MbndAstSemanticAnalyzer >> visitExceptionCatchExpressionNode: node [
 			exceptionTypeIsLiteral: false.
 	].
 
+	exceptionReferenceType := result exceptionType isGarbageCollectedType
+		ifTrue: [ result exceptionType ]
+		ifFalse: [ result exceptionType ref ].
+	caughtExceptionReferenceNode := MbndAstCaughtExceptionReferenceNode new
+		position: node;
+		catchExpressionNode: result;
+		type: exceptionReferenceType;
+		yourself.
+	result caughtExceptionReferenceNode: caughtExceptionReferenceNode.
+
 	"Assist the block closure type inference machinery."
+	hasAddedImmediateActivationNode := false.
 	result catchAction isBlockClosureNode ifTrue: [
-		result catchAction arguments > 1 ifTrue: [ 
+		result catchAction: result catchAction copy.
+
+		result catchAction arguments size > 1 ifTrue: [ 
 			self error: 'Exception catch action can only receive at most one argument.' at: result
 		].
 	
-		result catchAction arguments ifNotEmpty: [
-			self halt
-		].
+		result catchAction: (MbndAstImmediateBlockClosureActivationNode new
+			position: node;
+			blockNode: result catchAction;
+			arguments: (result catchAction arguments
+				ifEmpty: [ #() ]
+				ifNotEmpty: [ { caughtExceptionReferenceNode } ]);
+				yourself).
+			hasAddedImmediateActivationNode := true.
 	].
 
 	result catchAction: (self analyzeNodeIfNeeded: result catchAction).
 	
 	result catchAction isLexicalScopeNode ifFalse: [ 
 		result catchAction type isBlockClosureType ifTrue: [
-			"TODO: Validate the block closure argument type."
-			self halt.
-
-			"Mark the immediate activiation of the block closure node."
-			result catchAction isBlockClosureNode ifTrue: [ 
-				result catchAction blockClosureProgramEntity makeBlockClosureWithImmediateActivation.
+			hasAddedImmediateActivationNode ifFalse: [
+				result catchAction: (self analyzeNodeIfNeeded: (MbndAstFunctionCallNode new
+					position: node;
+					function: result catchAction;
+					arguments: (result catchAction type argumentTypes
+						ifEmpty: [ #() ]
+						ifNotEmpty: [ { caughtExceptionReferenceNode } ] )))
 			].
 		].
 	].
@@ -1333,17 +1367,32 @@ MbndAstSemanticAnalyzer >> visitIfConditionNode: node [
 { #category : #visiting }
 MbndAstSemanticAnalyzer >> visitImmediateBlockClosureActivationNode: node [
 	| result blockClosureType expectedArgumentTypes |
-	self flag: 'TODO: Assist the type inference machinery.'.
 
-	"Analyze the block node."
+	"Initial analysis of the arguments"
 	result := node copy
-		blockNode: (self analyzeNodeIfNeeded: node blockNode);
+		arguments: (node arguments collect: [:arg | self analyzeNodeIfNeeded: arg]);
 		yourself.
+		
+	"Infer the argument block argument node"
+	result blockNode: (node blockNode copy
+		arguments: (node blockNode arguments collectWithIndex: [:argDefinition :index |
+			argDefinition valueType
+				ifNotNil: [ argDefinition ]
+				ifNil: [
+					| argumentNode |
+					argumentNode := result arguments at: index.
+					argDefinition copy
+						valueType: (argumentNode type inferValueTypeForNode: argumentNode inScope: scope)
+			].
+	])).		
+	
+	"Analyze the block node."
+	result blockNode: (self analyzeNodeIfNeeded: result blockNode).
 
 	"Analyze and coerce the arguments."
 	blockClosureType := result blockNode type.
 	expectedArgumentTypes := blockClosureType argumentTypes.
-	result arguments: (node arguments collectWithIndex: [:arg :index |
+	result arguments: (result arguments collectWithIndex: [:arg :index |
 		self addImplicitCastFor: arg to: (expectedArgumentTypes at: index)
 	]).
 

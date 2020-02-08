@@ -68,6 +68,11 @@ MbndAstDelegationVisitor >> visitCasesOfNode: node [
 ]
 
 { #category : #visiting }
+MbndAstDelegationVisitor >> visitCaughtExceptionReferenceNode: node [
+	^ self delegateNodeVisit: node
+]
+
+{ #category : #visiting }
 MbndAstDelegationVisitor >> visitCharacterToDynamicObjectCastNode: node [
 	^ self delegateNodeVisit: node
 ]

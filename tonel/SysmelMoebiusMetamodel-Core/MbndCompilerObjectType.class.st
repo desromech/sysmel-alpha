@@ -51,6 +51,11 @@ MbndCompilerObjectType >> analyzeUnboundExpandedMessageSendNode: node with: anal
 	^ analyzer visitNode: (result asMoebiusLiteralValueNodeWithTarget: self compilationTarget)
 ]
 
+{ #category : #'default values' }
+MbndCompilerObjectType >> defaultValueAt: aPosition [
+	^ MbndValue value: nil type: self
+]
+
 { #category : #testing }
 MbndCompilerObjectType >> isCompilerObjectType [
 	^ true

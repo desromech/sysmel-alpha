@@ -130,6 +130,11 @@ MbndAstNode >> isCasesOfNode [
 	^ false
 ]
 
+{ #category : #visiting }
+MbndAstNode >> isCaughtExceptionReferenceNode [
+	^ false
+]
+
 { #category : #testing }
 MbndAstNode >> isCharacterToDynamicObjectCastNode [
 	^ false

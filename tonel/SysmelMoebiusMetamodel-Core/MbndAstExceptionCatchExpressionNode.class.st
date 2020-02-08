@@ -5,7 +5,8 @@ Class {
 		'exceptionTypeExpression',
 		'catchAction',
 		'exceptionType',
-		'exceptionTypeIsLiteral'
+		'exceptionTypeIsLiteral',
+		'caughtExceptionReferenceNode'
 	],
 	#category : #'SysmelMoebiusMetamodel-Core-AST'
 }
@@ -23,6 +24,16 @@ MbndAstExceptionCatchExpressionNode >> catchAction [
 { #category : #accessing }
 MbndAstExceptionCatchExpressionNode >> catchAction: anObject [
 	catchAction := anObject
+]
+
+{ #category : #accessing }
+MbndAstExceptionCatchExpressionNode >> caughtExceptionReferenceNode [
+	^ caughtExceptionReferenceNode
+]
+
+{ #category : #accessing }
+MbndAstExceptionCatchExpressionNode >> caughtExceptionReferenceNode: anObject [
+	caughtExceptionReferenceNode := anObject
 ]
 
 { #category : #accessing }

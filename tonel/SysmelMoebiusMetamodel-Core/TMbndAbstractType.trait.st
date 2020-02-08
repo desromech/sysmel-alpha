@@ -472,6 +472,13 @@ TMbndAbstractType >> canValueBeCreatedForNode: node [
 ]
 
 { #category : #'as yet unclassified' }
+TMbndAbstractType >> coercedConditionallyWithUndefinedType [
+	^ self isPointerLikeValueType
+		ifTrue: [ self ]
+		ifFalse: [ self compilationTarget voidType ]
+]
+
+{ #category : #'as yet unclassified' }
 TMbndAbstractType >> conditionalResultCoercionTypeWith: rightType leftNode: leftNode rightNode: rightNode inScope: aScope [
 	^ self compilationTarget computeConditionalResultCoercionTypeFor: self with: rightType leftNode: leftNode rightNode: rightNode inScope: aScope
 ]
