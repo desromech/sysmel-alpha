@@ -2,7 +2,9 @@ loadFileOnce: "MetaHierarchy.sysmel".
 loadFileOnce: "Macros.sysmel".
 loadFileOnce: "Boolean.sysmel".
 loadFileOnce: "Magnitude.sysmel".
+
 loadFileOnce: "Collections.sysmel".
+loadFileOnce: "Streams.sysmel".
 loadFileOnce: "Exceptions.sysmel".
 loadFileOnce: "ExceptionsUnwind.sysmel".
 loadFileOnce: "Printing.sysmel".

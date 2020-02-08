@@ -182,6 +182,16 @@ Object extend: {
     method isFloat := false.
 }.
 
+Magnitude extend: {
+	method < other
+		:= self subclassResponsibility.
+
+    method min: other
+		:= self < other ifTrue: self ifFalse: other.
+	method max: other
+		:= self > other ifTrue: self ifFalse: other.
+}.
+
 Number extend: {
     method isNumber := true.
 
@@ -245,6 +255,38 @@ SmallInteger extend: {
 
 	method asChar32 => Char32
 		:= self __decodeSmallInteger castTo: Char32.
+
+	method < aNumber := {
+		aNumber __isSmallInteger ifTrue: {
+			let a := self __decodeSmallInteger.
+			let b := aNumber __decodeSmallInteger.
+			return: a < b
+		}.
+
+		aNumber __isCharacter ifTrue: {
+			let a := self __decodeSmallInteger.
+			let b := aNumber __decodeCharacter.
+			return: a < b
+		}.
+
+        super < aNumber
+    }.
+
+	method > aNumber := {
+		aNumber __isSmallInteger ifTrue: {
+			let a := self __decodeSmallInteger.
+			let b := aNumber __decodeSmallInteger.
+			return: a > b
+		}.
+
+		aNumber __isCharacter ifTrue: {
+			let a := self __decodeSmallInteger.
+			let b := aNumber __decodeCharacter.
+			return: a > b
+		}.
+
+        super > aNumber
+    }.
 
     method + aNumber := {
 		aNumber __isSmallInteger ifTrue: {

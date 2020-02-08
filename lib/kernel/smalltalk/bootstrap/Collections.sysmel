@@ -1,10 +1,53 @@
 namespace Smalltalk definition: {
 SequenceableCollection definition: {
+	meta definition: {
+		method streamSpecies
+			:= self.
+
+		method streamContents: unaryBlock
+			:= self new: 100 streamContents: unaryBlock.
+
+		method new: initialSize streamContents: unaryBlock := {
+			let stream := WriteStream on: (self streamSpecies new: initialSize).
+			unaryBlock value: stream.
+			stream contents
+		}.
+
+		method streamContents: unaryBlock limitedTo: sizeLimit := {
+			let stream mutable.
+			stream := LimitedWriteStream
+				on: (self streamSpecies new: (sizeLimit min: 100))
+				limit: sizeLimit
+				limitBlock: {:: Void | return: stream contents }.
+			unaryBlock value: stream.
+			stream contents
+		}.
+	}.
+
 	method do: aBlock := {
 		1 to: self size do: {:i :: Void|
 			aBlock value: (self at: i)
 		}.
 		nil
+	}.
+
+	method collect: aBlock := {
+		let result := self species new: self size.
+		1 to: self size do: {:i :: Void|
+			result at: i put: (aBlock value: (self at: i))
+		}.
+		nil
+	}.
+
+	method select: aPredicate := {
+		self class new: self size streamContents: {:stream :: Void |
+			1 to: self size do: {:i :: Void|
+				let element := self at: i.
+				(aPredicate value: element) ifTrue: {
+					stream nextPut: element
+				}
+			}
+		}
 	}.
 
 	method copyWithSize: (newSize: UInt32) := {
@@ -15,6 +58,9 @@ SequenceableCollection definition: {
 		}.
 		result
 	}.
+
+	method grownBy: (extraSize: UInt32)
+		:= self copyWithSize: self size + extraSize.
 
 	method replaceFrom: (startIndex: UInt32) until: (endIndex: UInt32) with: other := {
 		startIndex until: endIndex do: {:(UInt32)i :: Void |
@@ -33,8 +79,6 @@ SequenceableCollection definition: {
 }.
 
 String definition: {
-	method species := String.
-
 	method beginsWith: prefix := {
 		prefix class == String || prefix class == Symbol ifTrue: {
 			let prefixString := prefix reinterpretCastTo: String.
@@ -62,6 +106,15 @@ String definition: {
 		}.
 		return: (super endsWith: suffix)
 	}.
+}.
+
+Symbol definition: {
+	meta definition: {
+		method streamSpecies
+			:= String.
+	}.
+
+	method species := String.
 }.
 
 Behavior definition: {

@@ -2,53 +2,42 @@ namespace Smalltalk definition: {
 
 ProtoObject extend: {
     method printOnNativeTextStreamWriter: (writer: StdNative IO TextStreamWriter ref) := {
-        self asString printOnNativeTextStreamWriter: writer.
+        self printString printOnNativeTextStreamWriter: writer.
 		self
     }.
 }.
 
 Object extend: {
     method asString
-		:= self printString.
-
+        := self printString.
     method printString
-		:= "TODO: Object >>#printString".
+		:= self printStringLimitedTo: 50000.
+    method printStringLimitedTo: limit
+        := self printStringLimitedTo: limit using: {:stream :: Void | self printOn: stream}.
+
+    method printStringLimitedTo: limit using: printBlock
+        := String streamContents: printBlock limitedTo: limit.
+
+    method printOn: aStream
+        := aStream nextPutAll: "a "; nextPutAll: self class name.
 
     method storeString
 		:= "TODO: Object >>#storeString".
 }.
 
 UndefinedObject extend: {
-    method asString
-		:= "nil".
-
-    method printString
-		:= "nil".
-
-    method storeString
-		:= "nil".
+    method printOn: aStream
+		:= aStream nextPutAll: "nil".
 }.
 
 True extend: {
-    method asString
-		:= "true".
-
-    method printString
-		:= "true".
-
-    method storeString
-		:= "true".
+    method printOn: aStream
+        := aStream nextPutAll: "true".
 }.
 
 False extend: {
-    method asString
-		:= "false".
-
-    method printString
-		:= "false".
-
-    method storeString
-		:= "false".
+    method printOn: aStream
+        := aStream nextPutAll: "falseClass".
 }.
 
 String extend: {
@@ -69,30 +58,13 @@ Behavior extend: {
 	method name
 		:= "A subclass of something".
 
-    method asString
-		:= self name.
-
-    method printString
-		:= self name.
-
-    method storeString
-		:= self name.
+    method printOn: aStream
+		:= aStream nextPutAll: self name.
 }.
 
 Metaclass extend: {
-    method asString
-        := thisClass asString -- " class".
-    method printString
-        := thisClass printString -- " class".
-    method storeString
-        := thisClass storeString -- " class".
-
-    method printOnNativeTextStreamWriter: (writer: StdNative IO TextStreamWriter ref) := {
-		thisClass printOnNativeTextStreamWriter: writer.
-        writer << " class".
-		self
-    }.
-
+    method printOn: aStream
+        := aStream print: thisClass; nextPutAll: " class".
 }.
 
 SmallInteger extend: {

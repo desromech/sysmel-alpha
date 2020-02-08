@@ -57,21 +57,28 @@ gcclass Object superclass: ProtoObject. Compiler compilationTarget defaultGCClas
 
     gcclass GCLayout superclass: Object.
 
-## Essential collections
+## The core collections
 gcclass Collection superclass: Object.
     gcclass HashedCollection superclass: Collection.
         gcclass Dictionary superclass: HashedCollection.
             gcclass MethodDictionary superclass: Dictionary.
+			gcclass IdentityDictionary superclass: Dictionary.
+		gcclass Set superclass: HashedCollection.
+			gcclass IdentitySet superclass: Set.
     gcclass SequenceableCollection superclass: Collection.
-        gcclass ArrayedCollection superclass: SequenceableCollection.
-            gcclass Array superclass: ArrayedCollection.
-            gcclass ByteArray superclass: ArrayedCollection.
-            gcclass FloatArray superclass: ArrayedCollection.
-            gcclass IntegerArray superclass: ArrayedCollection.
-            gcclass WordArray superclass: ArrayedCollection.
+		gcclass ArrayedCollection superclass: SequenceableCollection.
+			gcclass Array superclass: ArrayedCollection.
+			gcclass ByteArray superclass: ArrayedCollection.
+			gcclass FloatArray superclass: ArrayedCollection.
+			gcclass IntegerArray superclass: ArrayedCollection.
+			gcclass WordArray superclass: ArrayedCollection.
 
-            gcclass String superclass: ArrayedCollection.
-                gcclass Symbol superclass: String.
+			gcclass String superclass: ArrayedCollection.
+				gcclass Symbol superclass: String.
+		gcclass Interval superclass: SequenceableCollection.
+		gcclass LinkedList superclass: SequenceableCollection.
+		gcclass OrderedCollection superclass: SequenceableCollection.
+
 
 ## Block closures
 gcclass BlockClosureHeaderClass superclass: Object.
@@ -80,6 +87,19 @@ gcclass BlockClosure superclass: BlockClosureHeaderClass.
 ## Methods
 gcclass CompiledMethod superclass: Object.
 gcclass AdditionalMethodState superclass: Object.
+
+## Message
+gcclass Message superclass: Object.
+
+## Streams
+gcclass Stream superclass: Object.
+	gcclass DecoratorStream superclass: Stream.
+	gcclass GeneratorStream superclass: Stream.
+	gcclass NullStream superclass: Stream.
+	gcclass PositionableStream superclass: Stream.
+		gcclass ReadStream superclass: PositionableStream.
+		gcclass WriteStream superclass: PositionableStream.
+			gcclass LimitedWriteStream superclass: WriteStream.
 
 ## ProtoObject
 ProtoObject type supertype: Class.
@@ -411,8 +431,20 @@ CompiledMethod definition: {
 ##-----------------------------------------------------------------------------
 ## Important collections
 Object definition: {
-	method species => ProtoObject
+	method species
 		:= self class.
+
+	method = other
+		:= self == other.
+
+	method ~= other
+		:= (self = other) == false.
+
+	method hash
+		:= self identityHash.
+
+	method -> value
+		:= Association basicNew key: self; value: value; yourself
 }.
 
 LookupKey definition: {
@@ -683,6 +715,14 @@ Object definition: {
 }.
 
 ##-----------------------------------------------------------------------------
+## Message definition, for #doesNotUnderstand:
+Message definition: {
+	public field selector.
+	public field args.
+	public field lookupClass.
+}.
+
+##-----------------------------------------------------------------------------
 ## Normal method lookup
 namespace Runtime definition: {
 function messageLookupFromBehavior(behavior: Behavior, object: ProtoObject, selector: Object, fallbackTrampoline: Void pointer) => Void pointer := {
@@ -735,6 +775,7 @@ Compiler compilationTarget managedObjectModel
     dictionaryClass: Dictionary;
     methodDictionaryClass: MethodDictionary;
 	additionalMethodStateClass: AdditionalMethodState;
+	messageClass: Message;
     symbolClass: Symbol;
     stringClass: String;
 	characterClass: Character;
