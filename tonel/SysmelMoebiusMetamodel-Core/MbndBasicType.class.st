@@ -150,6 +150,10 @@ MbndBasicType >> enqueueDelayedSemanticAnalysis [
 
 { #category : #'semantic analysis' }
 MbndBasicType >> ensureSemanticAnalysis [
+	self isMetaType ifFalse: [
+		self type ensureSemanticAnalysis
+	].
+
 	self ensureLookupMethodDictIsBuilt
 ]
 

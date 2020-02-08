@@ -40,7 +40,8 @@ Trait {
 		'objectToInt64Function',
 		'objectToChar32Function',
 		'objectToFloat64Function',
-		'objectToBoolean8Function'
+		'objectToBoolean8Function',
+		'messageClass'
 	],
 	#traits : 'TMbndAbstractManagedObjectModel',
 	#classTraits : 'TMbndAbstractManagedObjectModel classTrait',
@@ -299,6 +300,16 @@ TMbndCoreManagedObjectModel >> integerClass: anObject [
 	compilationTarget dynamicObjectType addExplicitConversionRule: (MbndDynamicObjectToIntegerConversionRule when: [:sourceType :targetType |
 		targetType isPrimitiveIntegerType and: [ targetType isPrimitiveCharacterCodeType not ]
 	]).
+]
+
+{ #category : #accessing }
+TMbndCoreManagedObjectModel >> messageClass [
+	^ messageClass
+]
+
+{ #category : #accessing }
+TMbndCoreManagedObjectModel >> messageClass: anObject [
+	messageClass := anObject
 ]
 
 { #category : #accessing }

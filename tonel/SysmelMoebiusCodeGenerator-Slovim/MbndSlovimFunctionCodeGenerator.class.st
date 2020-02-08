@@ -597,6 +597,7 @@ isSuperSend: isSuperSend declaredMethod: declaredMethod expectedResultType: expe
 	
 	hasDynamicMessageLookup ifTrue:[
 		selectorValue isSymbol ifTrue: [ selectorValue := slvmBuilder addDynamicLiteral: selectorValue ].
+
 		self assert: selectorValue type isDynamicObjectPointerType.
 		result := slvmBuilder send: selectorValue returnType: actualReturnType receiver: receiver arguments: arguments.
 		isSuperSend ifTrue: [

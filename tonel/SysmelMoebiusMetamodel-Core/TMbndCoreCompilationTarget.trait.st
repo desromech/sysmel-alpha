@@ -185,6 +185,8 @@ TMbndCoreCompilationTarget >> computeArithmeticCoercionTypeFor: leftType with: r
 	"Promote to dynobject type."
 	(leftType isGarbageCollectedType or: [ rightType isGarbageCollectedType ]) ifTrue: [ 
 		(leftType isGarbageCollectedType and: [ rightType isGarbageCollectedType ]) ifTrue: [ 
+			(leftType isSubtypeOf: rightType) ifTrue: [ ^ rightType ].
+			(rightType isSubtypeOf: leftType) ifTrue: [ ^ leftType ].
 			"TODO: Find a common ancestor"
 			self halt.
 		].

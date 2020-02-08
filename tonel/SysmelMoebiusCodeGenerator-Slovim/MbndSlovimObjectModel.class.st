@@ -432,7 +432,7 @@ MbndSlovimObjectModel >> objectToInt32Function [
 { #category : #accessing }
 MbndSlovimObjectModel >> objectToInt64Function [
 	<compileTime>
-	^ objectToInt64Function ifNil: [objectToInt64Function := (moduleCodeGenerator translateProgramEntity: managedObjectModel objectToInt32Function) ssaValue ]
+	^ objectToInt64Function ifNil: [objectToInt64Function := (moduleCodeGenerator translateProgramEntity: managedObjectModel objectToInt64Function) ssaValue ]
 ]
 
 { #category : #accessing }
@@ -444,7 +444,7 @@ MbndSlovimObjectModel >> objectToUInt32Function [
 { #category : #accessing }
 MbndSlovimObjectModel >> objectToUInt64Function [
 	<compileTime>
-	^ objectToUInt64Function ifNil: [objectToUInt64Function := (moduleCodeGenerator translateProgramEntity: managedObjectModel objectToInt32Function) ssaValue ]
+	^ objectToUInt64Function ifNil: [objectToUInt64Function := (moduleCodeGenerator translateProgramEntity: managedObjectModel objectToUInt64Function) ssaValue ]
 ]
 
 { #category : #accessing }

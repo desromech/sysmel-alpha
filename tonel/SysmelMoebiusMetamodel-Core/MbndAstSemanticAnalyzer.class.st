@@ -1497,12 +1497,16 @@ MbndAstSemanticAnalyzer >> visitLocalVariableDefinitionNode: node [
 	"Infer the value type, if needed"
 	result valueType ifNil: [
 		result initialValue ifNil: [
-			self error: 'Variable {1} without an explicit type requires an initial value.' format: { node name asPrettySymbolName } at: node
-		].
-	
-		result valueType: (result initialValue type inferValueTypeForNode: result initialValue inScope: scope).
-		(result isAccessedByReference or: [ result isForwardingValue ]) ifFalse: [ 
-			result valueType: result valueType withoutReferences
+			scope defaultVariableType ifNil: [ 
+				self error: 'Variable {1} without an explicit type requires an initial value.' format: { node name asPrettySymbolName } at: node
+			] ifNotNil: [ :defaultType |
+				result valueType: defaultType
+			]
+		] ifNotNil: [ 
+			result valueType: (result initialValue type inferValueTypeForNode: result initialValue inScope: scope).
+			(result isAccessedByReference or: [ result isForwardingValue ]) ifFalse: [ 
+				result valueType: result valueType withoutReferences
+			].
 		].
 	].
 

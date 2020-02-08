@@ -73,8 +73,7 @@ MbndBlockClosureMethod >> computeGarbageCollectionNeed [
 	].
 
 	capturedVariables do: [ :capturedVariable |
-		capturedVariable type isGarbageCollectedType ifTrue: [ 
-			needsGarbageCollection := true.
+		(capturedVariable type isGarbageCollectedType or: [capturedVariable type isReferenceType and: [capturedVariable type baseType isGarbageCollectedType]]) ifTrue: [ 			needsGarbageCollection := true.
 			^ self
 		].
 	].
