@@ -1,23 +1,67 @@
 namespace Smalltalk definition: {
 SequenceableCollection definition: {
-	#*method do: aBlock := {
+	method do: aBlock := {
 		1 to: self size do: {:i :: Void|
 			aBlock value: (self at: i)
 		}.
-	}.*#
-}.
+		nil
+	}.
 
-Array definition: {
-	method do: aBlock := {
-		0 until: __data size do: {:(UIntPointer)i :: Void|
-			aBlock value: __data[i]
+	method copyWithSize: (newSize: UInt32) := {
+		let result := self species new: newSize.
+		let copySize := newSize min: self size.
+		1 to: copySize + 1 do: {:(UInt32)i :: Void |
+			result at: i put: (self at: i)
+		}.
+		result
+	}.
+
+	method replaceFrom: (startIndex: UInt32) until: (endIndex: UInt32) with: other := {
+		startIndex until: endIndex do: {:(UInt32)i :: Void |
+			self at: i + 1 put: (other at: i - startIndex + 1)
 		}.
 		self
+	}.
+
+	method -- other := {
+		let mySize := self size.
+		let otherSize := other size.
+		let result := self copyWithSize: mySize + otherSize.
+		result replaceFrom: mySize until: mySize + otherSize with: other.
+		result
 	}.
 }.
 
 String definition: {
 	method species := String.
+
+	method beginsWith: prefix := {
+		prefix class == String || prefix class == Symbol ifTrue: {
+			let prefixString := prefix reinterpretCastTo: String.
+			let mySize := __data size.
+			let prefixSize := prefixString __private __data size.
+			mySize < prefixSize ifTrue: {
+				return: false.
+			}.
+
+			return: (StdNative memcmp(__data[0] address, prefixString __private __data [0] address, prefixSize) == 0)
+		}.
+		return: (super beginsWith: prefix)
+	}.
+
+	method endsWith: suffix := {
+		suffix class == String || suffix class == Symbol ifTrue: {
+			let suffixString := suffix reinterpretCastTo: String.
+			let mySize := __data size.
+			let suffixSize := suffixString __private __data size.
+			mySize < suffixSize ifTrue: {
+				return: false.
+			}.
+
+			return: (StdNative memcmp(__data[mySize - suffixSize] address, suffixString __private __data [0] address, suffixSize) == 0)
+		}.
+		return: (super endsWith: suffix)
+	}.
 }.
 
 Behavior definition: {

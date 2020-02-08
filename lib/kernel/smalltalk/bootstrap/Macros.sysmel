@@ -9,7 +9,7 @@ ProtoObject extend: {
     macro method ifTrue: trueAction ifFalse: falseAction :=
         ``(if: `,self == true then: `,trueAction else: `,falseAction).
     macro method ifFalse: falseAction ifTrue: trueAction :=
-        ``(if: `,self == true  then: `,trueAction else: `,falseAction).
+        ``(if: `,self == true then: `,trueAction else: `,falseAction).
 
     ## TODO: Add higienic symbols.
     macro method ifNil: nilAction :=

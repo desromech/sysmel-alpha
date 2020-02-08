@@ -79,12 +79,14 @@ Behavior extend: {
 		:= self name.
 }.
 
-Class extend: {
-	method name
-		:= name.
-}.
-
 Metaclass extend: {
+    method asString
+        := thisClass asString -- " class".
+    method printString
+        := thisClass printString -- " class".
+    method storeString
+        := thisClass storeString -- " class".
+
     method printOnNativeTextStreamWriter: (writer: StdNative IO TextStreamWriter ref) := {
 		thisClass printOnNativeTextStreamWriter: writer.
         writer << " class".

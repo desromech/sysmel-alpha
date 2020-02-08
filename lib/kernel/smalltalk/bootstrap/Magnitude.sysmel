@@ -207,6 +207,26 @@ Fraction extend: {
     }.
 }.
 
+Character extend: {
+	method asInt32 => Int32
+		:= self __decodeCharacter castTo: Int32.
+
+	method asUInt32 => UInt32
+		:= self __decodeCharacter castTo: UInt32.
+
+	method asInt64 => Int64
+		:= self __decodeCharacter castTo: Int64.
+
+	method asUInt64 => UInt64
+		:= self __decodeCharacter castTo: UInt64.
+
+	method asFloat64 => Float64
+		:= self __decodeCharacter castTo: Float64.
+
+	method asChar32 => Char32
+		:= self __decodeCharacter castTo: Char32.
+}.
+
 SmallInteger extend: {
 	method asInt32 => Int32
 		:= self __decodeSmallInteger castTo: Int32.

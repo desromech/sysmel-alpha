@@ -135,5 +135,7 @@ function main externC (argc: Int32, argv: Char8 const pointer pointer) => Int32 
     testNonLocalReturn().
     testGCError().
 
+    StdNative stdout << (Smalltalk Object name -- " with concat"); nl.
+
     return: 0.
 }.

@@ -8,8 +8,7 @@ ProtoObject metaClassClass: Metaclass.
 Metaclass metaClassClass: Metaclass.
 
 Compiler compilationTarget
-	dynamicObjectType: ProtoObject;
-	defaultGCClassSuperClass: ProtoObject.
+	dynamicObjectType: ProtoObject
 }.
 
 namespace SysmelKernel definition: {
@@ -18,7 +17,7 @@ namespace SysmelKernel definition: {
 
 namespace Smalltalk definition: {
 
-gcclass Object superclass: ProtoObject.
+gcclass Object superclass: ProtoObject. Compiler compilationTarget defaultGCClassSuperClass: Object.
     gcclass Behavior superclass: Object.
         gcclass ClassDescription superclass: Behavior.
             gcclass Class superclass: ClassDescription.
@@ -107,6 +106,12 @@ ProtoObject definition: {
 
 	method initialize
 		:= self. ## By default do nothing.
+
+	method basicSize => UInt32
+	 	:= __variableDataSize.
+
+	method size => UInt32
+	 	:= __variableDataSize.
 }.
 
 Behavior definition: {
@@ -418,59 +423,46 @@ Association definition: {
 	public field value type: ProtoObject.
 }.
 
+macro method generateBasicAtAccessorsForArrayField: arrayField elementType: elementType := ``{
+	method basicAt: (index: UInt32) ::=> `,elementType := {
+		return: (`,arrayField at: index)
+	}.
+
+	method basicAt: (index: UInt32) put: (value: `,elementType) ::=> `,elementType := {
+		(`,arrayField at: index) := value.
+		return: value
+	}.
+
+	method basicSubscriptAt: (index: UInt32) ::=> `,elementType ref := {
+		return: `,arrayField[index]
+	}.
+}.
+
+macro method generateAtAccessorsForArrayField: arrayField elementType: elementType := ``{
+	method at: (index: UInt32) ::=> ProtoObject := {
+		return: (`,arrayField at: index)
+	}.
+
+	method at: (index: UInt32) put: (value: `,elementType) ::=> `,elementType := {
+		(`,arrayField at: index) := value.
+		return: value
+	}.
+
+	method subscriptAt: (index: UInt32) ::=> `,elementType ref := {
+		return: `,arrayField[index]
+	}.
+}.
+
+String definition: {
+	Smalltalk generateBasicAtAccessorsForArrayField: __data elementType: Char8.
+	Smalltalk generateAtAccessorsForArrayField: __data elementType: Char8.
+}.
+
 Array definition: {
     field __data protected type: ProtoObject array.
 
-    method basicSize => UInt32 := {
-        <compileTime>
-        <staticBinding>
-        <nogc>
-        return: __data size
-    }.
-
-    method basicAt: (index: UInt32) ::=> ProtoObject := {
-        <compileTime>
-        <staticBinding>
-        <nogc>
-        return: (__data at: index)
-    }.
-
-    method basicAt: (index: Int32) ::=> ProtoObject := {
-        <compileTime>
-        <staticBinding>
-        <nogc>
-        return: (__data at: index)
-    }.
-
-    method basicAt: (index: UInt32) put: (value: ProtoObject) ::=> ProtoObject := {
-        <compileTime>
-        <staticBinding>
-        <nogc>
-        (__data at: index) := value.
-        return: value
-    }.
-
-    method basicAt: (index: Int32) put: (value: ProtoObject) ::=> ProtoObject := {
-        <compileTime>
-        <staticBinding>
-        <nogc>
-        (__data at: index) := value.
-        return: value
-    }.
-
-    method subscriptAt: (index: Int32) ::=> ProtoObject ref := {
-        <compileTime>
-        <staticBinding>
-        <nogc>
-        return: __data[index]
-    }.
-
-    method subscriptAt: (index: UInt32) ::=> ProtoObject ref := {
-        <compileTime>
-        <staticBinding>
-        <nogc>
-        return: __data[index]
-    }.
+	Smalltalk generateBasicAtAccessorsForArrayField: __data elementType: ProtoObject.
+	Smalltalk generateAtAccessorsForArrayField: __data elementType: ProtoObject.
 }.
 
 HashedCollection definition: {
@@ -493,18 +485,18 @@ MethodDictionary definition: {
         <nogc>
 
         ## Make sure we at least have a size.
-        let keyCount := array basicSize. ## TODO: Fix these casts.
+        let keyCount := array __private __data size.
         if: keyCount = 0 then: {
             return: -1
         }.
 
         ## Find the natural key slot.
-        let keySlot := key identityHash % array basicSize.
+        let keySlot := key identityHash % keyCount.
 
         ## Perform linear probing.
         let i mutable := keySlot.
         while: i < keyCount do: {
-            let slotKey := array[i].
+            let slotKey := array __private __data[i].
             if: slotKey == key || slotKey == nil then: {
                 return: (i castTo: Int32)
             }.
@@ -512,7 +504,7 @@ MethodDictionary definition: {
 
         i := 0.
         while: i < keySlot do: {
-            let slotKey := array[i].
+            let slotKey := array __private __data[i].
             if: slotKey == key || slotKey == nil then: {
                 return: (i castTo: Int32)
             }.
@@ -528,8 +520,8 @@ MethodDictionary definition: {
             return: self
         }.
 
-        array[slot] := key.
-        values[slot] := value.
+        array __private __data[slot] := key.
+        values __private __data[slot] := value.
         tally := tally + 1.
         return: self
     }.
@@ -544,7 +536,7 @@ MethodDictionary definition: {
         }.
 
         ##LibC printf("Found key %p in slot %d\n", array[slot], slot).
-        return: values[slot]
+        return: values __private __data[slot]
     }.
 }.
 
@@ -676,7 +668,7 @@ Object definition: {
 		:= self perform: aSymbol with: firstObject with: secondObject with: thirdObject with: fourthObject.
 
 	method perform: aSymbol withArguments: anArray := {
-		anArray size asUInt32 selectCase: #{
+		anArray size selectCase: #{
 		0 : {return: (self perform: aSymbol)}.
 		1 : {return: (self perform: aSymbol with: anArray first)}.
 		2 : {return: (self perform: aSymbol with: anArray first with: anArray second)}.

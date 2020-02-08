@@ -1,5 +1,6 @@
 loadFileOnce: "MetaHierarchy.sysmel".
 loadFileOnce: "Macros.sysmel".
+loadFileOnce: "Boolean.sysmel".
 loadFileOnce: "Magnitude.sysmel".
 loadFileOnce: "Collections.sysmel".
 loadFileOnce: "Exceptions.sysmel".
