@@ -1,8 +1,34 @@
 namespace Smalltalk definition: {
+Object definition: {
+    method putOn: aStream := {
+        aStream nextPut: self.
+        self.
+    }.
+}.
+
+SequenceableCollection definition: {
+    method putOn: aStream := {
+        self do: {:each :: Void | aStream nextPut: each }.
+        self.
+    }.
+}.
+
+String definition: {
+    method putOn: aStream := {
+        aStream nextPutAll: self.
+        self.
+    }.
+}.
+
 Stream definition: {
     meta definition: {
         method new
             := self error: "Streams are created with on: and with:"
+    }.
+
+    method << object := {
+        object putOn: self.
+        self.
     }.
 
     method contents
@@ -41,9 +67,9 @@ PositionableStream definition: {
 
     meta definition: {
         method on: aCollection
-            := self new on: aCollection.
+            := self basicNew on: aCollection.
         method on: aCollection from: firstIndex to: lastIndex
-            := self new on: aCollection from: firstIndex to: lastIndex.
+            := self basicNew on: aCollection from: firstIndex to: lastIndex.
     }.
 
     method print: anObject := {
@@ -83,6 +109,7 @@ WriteStream definition: {
         super on: aCollection.
         readLimit := 0.
         writeLimit := aCollection size.
+        self
     }.
 
     method contents := {

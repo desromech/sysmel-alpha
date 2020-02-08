@@ -1,4 +1,25 @@
 namespace Smalltalk definition: {
+Object extend: {
+	method isEmptyOrNil
+		:= false.
+}.
+
+Collection definition: {
+	method isEmpty
+		:= self size == 0.
+
+	method isNotEmpty
+		:= self isEmpty not.
+
+	method isEmptyOrNil
+		:= self size == 0.
+}.
+
+UndefinedObject extend: {
+	method isEmptyOrNil
+		:= true.
+}.
+
 SequenceableCollection definition: {
 	meta definition: {
 		method streamSpecies
@@ -31,12 +52,27 @@ SequenceableCollection definition: {
 		nil
 	}.
 
+	method doWithIndex: aBlock := {
+		1 to: self size do: {:i :: Void|
+			aBlock value: (self at: i) value: i
+		}.
+		nil
+	}.
+
 	method collect: aBlock := {
 		let result := self species new: self size.
 		1 to: self size do: {:i :: Void|
 			result at: i put: (aBlock value: (self at: i))
 		}.
-		nil
+		result
+	}.
+
+	method collectWithIndex: aBlock := {
+		let result := self species new: self size.
+		1 to: self size do: {:i :: Void|
+			result at: i put: (aBlock value: (self at: i) value: i)
+		}.
+		result
 	}.
 
 	method select: aPredicate := {
@@ -44,6 +80,17 @@ SequenceableCollection definition: {
 			1 to: self size do: {:i :: Void|
 				let element := self at: i.
 				(aPredicate value: element) ifTrue: {
+					stream nextPut: element
+				}
+			}
+		}
+	}.
+
+	method reject: aPredicate := {
+		self class new: self size streamContents: {:stream :: Void |
+			1 to: self size do: {:i :: Void|
+				let element := self at: i.
+				(aPredicate value: element) ifFalse: {
 					stream nextPut: element
 				}
 			}

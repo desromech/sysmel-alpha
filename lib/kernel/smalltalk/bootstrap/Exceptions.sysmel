@@ -3,9 +3,36 @@ namespace Smalltalk definition: {
 gcclass Exception definition: {
     protected field messageText.
 
+    meta definition: {
+        method signal
+            := self new signal.
+
+        method signal: signalerMessage
+            := self new signal: signalerMessage.
+    }.
+
     method signal: signalerMessage := {
         messageText := signalerMessage.
         self signal.
+    }.
+
+    method messageText := {
+        messageText ifNil: {return: ""}.
+        messageText
+    }.
+
+    method description := {
+        String streamContents: {:out :: Void |
+            out << self class name.
+            let messageText := self messageText.
+            messageText isEmptyOrNil ifFalse: {
+                out << ": " << messageText
+            }
+        }.
+    }.
+
+    method printOn: aStream := {
+        aStream nextPutAll: self description
     }.
 }.
 
