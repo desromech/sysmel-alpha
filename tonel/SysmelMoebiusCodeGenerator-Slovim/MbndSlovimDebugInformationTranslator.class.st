@@ -332,6 +332,11 @@ MbndSlovimDebugInformationTranslator >> visitDecoratedType: type [
 ]
 
 { #category : #visiting }
+MbndSlovimDebugInformationTranslator >> visitDynamicMethodWrapper: method [
+	^ self visitConcreteMessageMethod: method
+]
+
+{ #category : #visiting }
 MbndSlovimDebugInformationTranslator >> visitEnumType: enumType [
 	| debugType |
 	enumType isTrait ifTrue: [ ^ self visitTraitType: enumType ].

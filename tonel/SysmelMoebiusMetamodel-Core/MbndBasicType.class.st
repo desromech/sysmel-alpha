@@ -148,6 +148,11 @@ MbndBasicType >> enqueueDelayedSemanticAnalysis [
 	self module enqueueProgramEntityWithDelayedSemanticAnalysis: self
 ]
 
+{ #category : #'semantic analysis' }
+MbndBasicType >> ensureSemanticAnalysis [
+	self ensureLookupMethodDictIsBuilt
+]
+
 { #category : #'as yet unclassified' }
 MbndBasicType >> ensureSyntheticMethodExists: aSelector [
 	aSelector = #basicInitialize ifTrue: [^ self basicInitializeMethod ].

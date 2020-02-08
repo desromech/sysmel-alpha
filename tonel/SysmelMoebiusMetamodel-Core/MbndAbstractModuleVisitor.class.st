@@ -77,6 +77,11 @@ MbndAbstractModuleVisitor >> visitDecoratedType: type [
 ]
 
 { #category : #visiting }
+MbndAbstractModuleVisitor >> visitDynamicMethodWrapper: method [
+	self subclassResponsibility
+]
+
+{ #category : #visiting }
 MbndAbstractModuleVisitor >> visitEnumType: type [
 	self subclassResponsibility
 ]

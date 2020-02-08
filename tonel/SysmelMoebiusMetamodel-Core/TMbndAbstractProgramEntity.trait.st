@@ -170,3 +170,8 @@ TMbndAbstractProgramEntity >> parent [
 TMbndAbstractProgramEntity >> publicMetaBuilderFactories [
 	^ Dictionary new
 ]
+
+{ #category : #testing }
+TMbndAbstractProgramEntity >> requiresDynamicMethodWrappers [
+	^ false
+]

@@ -79,6 +79,21 @@ MbndAbstractConcreteMethod >> constructEvaluationScopeWithReceiver: receiverValu
 ]
 
 { #category : #'as yet unclassified' }
+MbndAbstractConcreteMethod >> createDynamicMethodWrapper [
+	| wrapper |
+	self compilationTarget dynamicObjectType ifNil: [ ^ nil ].
+	wrapper := MbndDynamicMethodWrapper new
+		parent: parent;
+		wrappedMethod: self;
+		name: name;
+		receiverType: receiverType asDynamicMethodWrapperReceiverType;
+		boundType: boundType asDynamicMethodWrapperType;
+		yourself.
+	wrapper type: (wrapper boundType withExplicitReceiverType: wrapper receiverType).
+	^ wrapper
+]
+
+{ #category : #'as yet unclassified' }
 MbndAbstractConcreteMethod >> createExtraImplicitArgument: argumentName withType: argumentType [
 	^ MbndAstArgumentDefinitionNode new
 		position: definitionNode position;

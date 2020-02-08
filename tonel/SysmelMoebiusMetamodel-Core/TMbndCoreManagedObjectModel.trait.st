@@ -39,7 +39,8 @@ Trait {
 		'objectToUInt64Function',
 		'objectToInt64Function',
 		'objectToChar32Function',
-		'objectToFloat64Function'
+		'objectToFloat64Function',
+		'objectToBoolean8Function'
 	],
 	#traits : 'TMbndAbstractManagedObjectModel',
 	#classTraits : 'TMbndAbstractManagedObjectModel classTrait',
@@ -318,6 +319,16 @@ TMbndCoreManagedObjectModel >> methodDictionaryClass [
 { #category : #accessing }
 TMbndCoreManagedObjectModel >> methodDictionaryClass: anObject [
 	methodDictionaryClass := anObject
+]
+
+{ #category : #accessing }
+TMbndCoreManagedObjectModel >> objectToBoolean8Function [
+	^ objectToBoolean8Function
+]
+
+{ #category : #accessing }
+TMbndCoreManagedObjectModel >> objectToBoolean8Function: aFunction [
+	objectToBoolean8Function := aFunction
 ]
 
 { #category : #accessing }

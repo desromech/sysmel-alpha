@@ -29,7 +29,8 @@ Class {
 		'objectToUInt64Function',
 		'objectToInt64Function',
 		'objectToChar32Function',
-		'objectToFloat64Function'
+		'objectToFloat64Function',
+		'objectToBoolean8Function'
 	],
 	#category : #'SysmelMoebiusCodeGenerator-Slovim-CompilationTarget'
 }
@@ -402,6 +403,12 @@ MbndSlovimObjectModel >> moduleCodeGenerator: anObject [
 { #category : #'as yet unclassified' }
 MbndSlovimObjectModel >> nativeClosureHeaderType [
 	^ nativeClosureHeaderType ifNil: [ nativeClosureHeaderType := target voidPointerPointerType ]
+]
+
+{ #category : #accessing }
+MbndSlovimObjectModel >> objectToBoolean8Function [
+	<compileTime>
+	^ objectToBoolean8Function ifNil: [objectToBoolean8Function := (moduleCodeGenerator translateProgramEntity: managedObjectModel objectToBoolean8Function) ssaValue ]
 ]
 
 { #category : #accessing }

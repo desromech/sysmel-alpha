@@ -22,6 +22,11 @@ MbndPointerLikeType class >> typeName [
 	^ #_PointerLikeType
 ]
 
+{ #category : #'as yet unclassified' }
+MbndPointerLikeType >> MbndPointerLikeType [
+	^ true
+]
+
 { #category : #accessing }
 MbndPointerLikeType >> addressSpace [
 	<compileTime>
@@ -68,4 +73,9 @@ MbndPointerLikeType >> instanceAlignment [
 MbndPointerLikeType >> instanceSize [
 	<compileTime>
 	^ self compilationTarget pointerSize
+]
+
+{ #category : #testing }
+MbndPointerLikeType >> isPointerLikeType [
+	^ true
 ]

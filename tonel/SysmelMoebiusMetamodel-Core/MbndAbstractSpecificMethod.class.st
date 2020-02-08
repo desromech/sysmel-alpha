@@ -8,7 +8,8 @@ Class {
 		'lambdaCount',
 		'nonLocalReturnTarget',
 		'lambdaChildren',
-		'nonLocalResultVariable'
+		'nonLocalResultVariable',
+		'typedSelector'
 	],
 	#category : #'SysmelMoebiusMetamodel-Core-Method'
 }
@@ -120,6 +121,31 @@ MbndAbstractSpecificMethod >> computeMatchingCostWithArguments: callArguments re
 ]
 
 { #category : #'as yet unclassified' }
+MbndAbstractSpecificMethod >> createDynamicMethodWrapper [
+	^ nil
+]
+
+{ #category : #'as yet unclassified' }
+MbndAbstractSpecificMethod >> ensureLookupSelectorIsRegisteredIn: programEntity [
+	programEntity methodDict at: self typedSelector put: self.
+	"programEntity methodDict at: name put: self."
+	
+	programEntity requiresDynamicMethodWrappers ifFalse: [ ^ self ].
+	programEntity overloadedMethodDict at: name ifPresent: [ :existent |
+		existent == self ifTrue: [
+			boundType needsSpecialTypedSelector ifTrue: [ 
+				self createDynamicMethodWrapper ifNotNil: [ :wrapper |
+					programEntity methodDict at: name put: wrapper
+				].
+			] ifFalse: [ 
+				programEntity methodDict at: name put: self.
+			]
+		].
+	].
+
+]
+
+{ #category : #'as yet unclassified' }
 MbndAbstractSpecificMethod >> getNonLocalResultVariable [
 	^ nonLocalResultVariable ifNil: [
 		self returnType isVoidType ifTrue: [ ^ nil ].
@@ -190,6 +216,11 @@ MbndAbstractSpecificMethod >> receiverType: anObject [
 	receiverType := anObject
 ]
 
+{ #category : #'as yet unclassified' }
+MbndAbstractSpecificMethod >> sendTypedSelector [
+	^ self typedSelector
+]
+
 { #category : #accessing }
 MbndAbstractSpecificMethod >> specialSemantics [
 	^ nil
@@ -203,4 +234,15 @@ MbndAbstractSpecificMethod >> type [
 { #category : #accessing }
 MbndAbstractSpecificMethod >> type: anObject [
 	type := anObject
+]
+
+{ #category : #'as yet unclassified' }
+MbndAbstractSpecificMethod >> typedSelector [
+	typedSelector ifNil: [
+		typedSelector := super typedSelector.
+		boundType needsSpecialTypedSelector ifTrue: [
+			typedSelector := (typedSelector , '|' , boundType typedSelectorSpec) asSymbol.
+		].
+	].
+	^ typedSelector
 ]

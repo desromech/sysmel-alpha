@@ -441,6 +441,11 @@ MbndSlovimSymbolNameMangler >> visitDecoratedType: type [
 ]
 
 { #category : #visiting }
+MbndSlovimSymbolNameMangler >> visitDynamicMethodWrapper: method [
+	^ self visitGenericFunction: method
+]
+
+{ #category : #visiting }
 MbndSlovimSymbolNameMangler >> visitEnumType: type [
 	^ self visitGenericType: type
 ]

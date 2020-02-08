@@ -2396,10 +2396,14 @@ MbndAstSemanticAnalyzer >> visitVectorSetElementsNode: node [
 
 { #category : #visiting }
 MbndAstSemanticAnalyzer >> visitWhileLoopNode: node [
-	| result |
+	| result condition booleanType |
 	result := node copy.
+	condition := self analyzeNodeIfNeeded: result condition.
+	booleanType := condition type isGarbageCollectedType
+		ifTrue: [ self compilationTarget dynamicObjectType ]
+		ifFalse: [ self compilationTarget booleanType ].
 	result
-		condition: (self addImplicitCastFor: result condition to: self compilationTarget booleanType);
+		condition: (self addImplicitCastFor: condition to: booleanType);
 		type: self compilationTarget voidType.
 	
 	self withContinueAndBreakOwnerNode: node do: [ 

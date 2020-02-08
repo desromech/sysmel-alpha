@@ -84,6 +84,14 @@ MbndFunctionType >> argumentTypes: anObject [
 	argumentTypes := anObject
 ]
 
+{ #category : #converting }
+MbndFunctionType >> asDynamicMethodWrapperType [
+	^ self compilationTarget
+		functionTypeWithArguments: (argumentTypes collect: [:each | each asDynamicMethodWrapperType])
+		returnType: returnType
+		asDynamicMethodWrapperType callingConvention: callingConvention cvariadic: false
+]
+
 { #category : #'as yet unclassified' }
 MbndFunctionType >> asGCBlockClosureType [
 	^ self compilationTarget blockClosureTypeWithSignature: self
@@ -157,6 +165,20 @@ MbndFunctionType >> nativeStackBlockClosure [
 	^ self asNativeBlockClosureType 
 ]
 
+{ #category : #testing }
+MbndFunctionType >> needsSpecialTypedSelector [
+	| dynobjectType |
+	dynobjectType := self compilationTarget dynamicObjectType.
+	dynobjectType ifNil: [ ^ true ].
+	cvariadic ifTrue: [ ^ true ].
+	
+	argumentTypes do: [ :arg |
+		arg ~~ dynobjectType ifTrue: [ ^ true ].
+	].
+
+	^ returnType isGarbageCollectedType not
+]
+
 { #category : #'as yet unclassified' }
 MbndFunctionType >> prependArguments: newArguments [
 	^ self compilationTarget functionTypeWithArguments: newArguments , argumentTypes returnType: returnType callingConvention: callingConvention cvariadic: cvariadic
@@ -186,6 +208,22 @@ MbndFunctionType >> returnType [
 { #category : #accessing }
 MbndFunctionType >> returnType: anObject [
 	returnType := anObject
+]
+
+{ #category : #testing }
+MbndFunctionType >> typedSelectorSpec [
+	^ ByteString streamContents: [ :out |
+		argumentTypes doWithIndex: [ :arg :index|
+			index > 1 ifTrue: [ 
+				out nextPut: $,.
+			].
+			out nextPutAll: arg asString.
+		].
+
+		out nextPutAll: '::';
+			nextPutAll: 	returnType asString
+	].
+
 ]
 
 { #category : #'as yet unclassified' }

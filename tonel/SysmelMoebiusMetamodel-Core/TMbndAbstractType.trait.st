@@ -329,6 +329,16 @@ TMbndAbstractType >> asCopyConstructorParameter [
 ]
 
 { #category : #converting }
+TMbndAbstractType >> asDynamicMethodWrapperReceiverType [
+	^ self asDynamicMethodWrapperType
+]
+
+{ #category : #converting }
+TMbndAbstractType >> asDynamicMethodWrapperType [
+	^ self compilationTarget dynamicObjectType
+]
+
+{ #category : #converting }
 TMbndAbstractType >> asFieldTypeFor: owner [
 	^ self
 ]
@@ -1043,6 +1053,11 @@ TMbndAbstractType >> isPODInstance [
 	  self hasTrivialInstanceFinalization and: [
 	  self hasTrivialInstanceInitializationCopyingFrom and: [
 	  self hasTrivialInstanceInitializationMovingFrom ]]]]
+]
+
+{ #category : #testing }
+TMbndAbstractType >> isPointerLikeType [
+	^ false
 ]
 
 { #category : #'testing methods' }

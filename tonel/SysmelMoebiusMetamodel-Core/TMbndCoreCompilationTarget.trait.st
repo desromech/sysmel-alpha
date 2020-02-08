@@ -182,6 +182,15 @@ TMbndCoreCompilationTarget >> computeArithmeticCoercionTypeFor: leftType with: r
 		bestRightType := bestRightType asUnsignedType
 	].
 
+	"Promote to dynobject type."
+	(leftType isGarbageCollectedType or: [ rightType isGarbageCollectedType ]) ifTrue: [ 
+		(leftType isGarbageCollectedType and: [ rightType isGarbageCollectedType ]) ifTrue: [ 
+			"TODO: Find a common ancestor"
+			self halt.
+		].
+	
+		^ self dynamicObjectType
+	].
 
 	^ self computeArithmeticCoercionTypeFor: bestLeftType with: bestRightType.
 ]

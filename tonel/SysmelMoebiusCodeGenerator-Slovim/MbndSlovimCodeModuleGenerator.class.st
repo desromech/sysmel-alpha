@@ -610,9 +610,6 @@ MbndSlovimCodeModuleGenerator >> getOrCreateDynamicFunctionCallAdapterFor: funct
 			
 			"Compute the actual result type."
 			callResultType := functionType returnType.
-			callResultType isMemoryReturnedType ifTrue: [ 
-				callResultType := callResultType tempRef.
-			].
 		
 			"Wrap the result."
 			convertedResult := functionCodeGenerator wrapValue: result withType: callResultType intoDynamicObjectWithType: dynamicObjectType.
@@ -1350,6 +1347,51 @@ MbndSlovimCodeModuleGenerator >> visitConcreteMessageMethod: functionMethod [
 	].
 	
 	^ ssaFunction
+]
+
+{ #category : #visiting }
+MbndSlovimCodeModuleGenerator >> visitDynamicMethodWrapper: generatedMethod [
+	^ self translateCompilerGeneratedMethod: generatedMethod with: [ :ssaFunction :builder :functionCodeGenerator |
+		| dynamicObjectType wrappedMethod wrappedMethodBoundType unwrappedReceiver unwrappedArguments unwrappedAllArguments callResultType calledFunction result convertedResult |
+		dynamicObjectType := self compilationTarget dynamicObjectType.
+
+		wrappedMethod := generatedMethod wrappedMethod.
+		wrappedMethodBoundType := wrappedMethod boundType.
+		
+		unwrappedReceiver := wrappedMethod receiverType isVoidType ifTrue: [
+			nil
+		] ifFalse: [ 
+			functionCodeGenerator unwrapDynamicObject: ssaFunction arguments first withType: dynamicObjectType intoValueOfType: wrappedMethod receiverType
+		].
+				
+		unwrappedArguments := ssaFunction arguments allButFirst collectWithIndex: [ :argValue :argIndex |
+			functionCodeGenerator unwrapDynamicObject: argValue withType: dynamicObjectType intoValueOfType: (wrappedMethodBoundType argumentTypes at: argIndex)
+		].
+	
+		unwrappedAllArguments := unwrappedArguments.
+		unwrappedReceiver ifNotNil: [
+			unwrappedAllArguments := {unwrappedReceiver} , unwrappedArguments.
+		].
+	
+		"Generate the call."
+		calledFunction := (self translateProgramEntity: wrappedMethod) ssaValue.
+		result := functionCodeGenerator generateCall: calledFunction arguments: unwrappedAllArguments calledFunctionType: wrappedMethod type.
+
+		"Compute the actual result type."
+		callResultType := wrappedMethodBoundType returnType.
+		
+		"Wrap the result."
+		convertedResult := functionCodeGenerator wrapValue: result withType: callResultType intoDynamicObjectWithType: dynamicObjectType.
+			
+		"Finalize the temporary result."
+		wrappedMethodBoundType returnType hasTrivialFinalization ifFalse: [
+			self flag: 'FIXME: Make this finalization implicit by using clean-up actions.'.
+			functionCodeGenerator generateVariable: result finalizationForValueType: wrappedMethodBoundType returnType
+		].
+
+		builder return: convertedResult
+	]
+
 ]
 
 { #category : #visiting }

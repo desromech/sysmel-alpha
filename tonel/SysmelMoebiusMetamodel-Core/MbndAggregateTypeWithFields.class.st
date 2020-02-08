@@ -132,11 +132,12 @@ MbndAggregateTypeWithFields >> ensureGeneratedMethodsExist [
 
 { #category : #'semantic analysis' }
 MbndAggregateTypeWithFields >> ensureSemanticAnalysis [
-	super ensureSemanticAnalysis.
 	self isDefined ifTrue: [ 
 		self ensureSlotLayoutIsComputed.
 		self ensureGeneratedMethodsExist.
 	].
+	super ensureSemanticAnalysis.
+
 ]
 
 { #category : #layout }

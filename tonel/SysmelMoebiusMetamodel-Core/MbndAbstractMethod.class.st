@@ -31,6 +31,11 @@ MbndAbstractMethod >> canBeEvaluatedInCompileTime [
 	^ true
 ]
 
+{ #category : #'as yet unclassified' }
+MbndAbstractMethod >> ensureLookupSelectorIsRegisteredIn: programEntity [
+
+]
+
 { #category : #evaluation }
 MbndAbstractMethod >> evaluateApplicationWithArguments: arguments withEvaluator: evaluator at: node [
 	self assert: self receiverType isVoidType.

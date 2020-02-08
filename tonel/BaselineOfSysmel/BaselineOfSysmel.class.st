@@ -17,7 +17,7 @@ BaselineOfSysmel >> baseline: spec [
 			spec baseline: #'PetitParser2Core' with: [
 					"Pick a stable version of PP2"
 					spec
-						repository: 'github://kursjan/petitparser2:9e90d58f71a430f5ed7f2893216990fc5b6a8a43' ].
+						repository: 'github://kursjan/petitparser2' ].
 		].
 		spec baseline: #'Slovim' with: [
 				spec

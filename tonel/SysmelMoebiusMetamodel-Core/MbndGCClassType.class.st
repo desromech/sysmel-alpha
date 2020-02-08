@@ -91,6 +91,11 @@ MbndGCClassType >> asDefaultInstanceType [
 ]
 
 { #category : #converting }
+MbndGCClassType >> asDynamicMethodWrapperReceiverType [
+	^ self
+]
+
+{ #category : #converting }
 MbndGCClassType >> asImmutableValueType [
 	^ self
 ]
@@ -275,6 +280,11 @@ MbndGCClassType >> metaClassClass: theClassForTheMetaClass [
 MbndGCClassType >> ref [
 	<compileTime>
 	^ self refFor: #gc
+]
+
+{ #category : #testing }
+MbndGCClassType >> requiresDynamicMethodWrappers [
+	^ true
 ]
 
 { #category : #'as yet unclassified' }

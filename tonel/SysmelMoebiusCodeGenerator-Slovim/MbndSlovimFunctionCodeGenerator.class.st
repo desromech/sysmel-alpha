@@ -524,7 +524,7 @@ MbndSlovimFunctionCodeGenerator >> generateCall: calledFunction arguments: argum
 { #category : #'as yet unclassified' }
 MbndSlovimFunctionCodeGenerator >> generateCall: calledFunction arguments: arguments calledFunctionType: functionType [
 	^ self generateCall: calledFunction arguments: arguments
-		argumentTypes: functionType argumentTypes expectedResultType: functionType returnType
+		argumentTypes: functionType argumentTypes expectedResultType: (functionType returnType asConcreteTypeForAnalysisOfFunctionType: functionType)
 		hiddenReceiverArgument: nil storageCreationNode: nil cleanUpActionNode: nil
 ]
 
@@ -786,7 +786,11 @@ MbndSlovimFunctionCodeGenerator >> generateExpandedMessageSendNode: node withDec
 	].
 
 	"Process the selector and the remaining arguments."
-	selectorValue := self visitNode: node selector.
+	selectorValue :=
+		declaredMethod
+			ifNil: [ self visitNode: node selector ]
+			ifNotNil: [ declaredMethod sendTypedSelector ].
+	
 	arguments := self visitNodesAndCollect: node arguments.
 	receiverType := node receiver ifNil: [ self compilationTarget voidType ]
 		ifNotNil: [ node receiver type ].
@@ -1530,6 +1534,27 @@ MbndSlovimFunctionCodeGenerator >> unwrapDynamicObject: dynamicObjectValue withT
 		^ slvmBuilder bitCast: dynamicObjectValue target: (self translateType: targetType)
 	].
 
+	targetType isPrimitiveBooleanType ifTrue: [ 
+		^ slvmBuilder dynamicObjectToBoolCast: dynamicObjectValue target: (self translateType: targetType)
+	].
+
+	targetType isPrimitiveCharacterCodeType ifTrue: [ 
+		^ slvmBuilder dynamicObjectToCharCast: dynamicObjectValue target: (self translateType: targetType)
+	].
+
+	targetType isPrimitiveIntegerType ifTrue: [ 
+		^ slvmBuilder dynamicObjectToIntCast: dynamicObjectValue target: (self translateType: targetType)
+	].
+
+	targetType isPrimitiveFloatType ifTrue: [ 
+		^ slvmBuilder dynamicObjectToFloatCast: dynamicObjectValue target: (self translateType: targetType)
+	].
+
+	targetType isPointerLikeType ifTrue: [
+		self flag: 'TODO: Implement this case properly.'.
+		^ SLVMConstant nullPointer: (self translateType: targetType) 
+	].
+
 	self error: 'TODO: Implement this case.'
 ]
 
@@ -1582,6 +1607,17 @@ MbndSlovimFunctionCodeGenerator >> visitBlockClosureNode: node [
 	captures := node blockClosureProgramEntity capturedVariables collect: [ :var | functionVariables at: var upperContextVariable ].
 	closureInstance := slvmBuilder instantiateClosure: closureDefinition captures: captures.
 	^ slvmBuilder bitCast: closureInstance target: (self translateType: node type)
+]
+
+{ #category : #visiting }
+MbndSlovimFunctionCodeGenerator >> visitBooleanNode: node [
+	| result expectedType |
+	result := self visitNode: node.
+	expectedType := self slvmCompilationTarget bool.
+	node type isGarbageCollectedType ifTrue: [
+		result := slvmBuilder dynamicObjectToBoolCast: result target: expectedType
+	].
+	^ self sanitizeValue: result withExpectedType: expectedType
 ]
 
 { #category : #visiting }
@@ -2026,7 +2062,7 @@ MbndSlovimFunctionCodeGenerator >> visitIOChannelSendAction: node [
 { #category : #visiting }
 MbndSlovimFunctionCodeGenerator >> visitIfConditionNode: node [
 	| condition mergeBlock thenBlock elseBlock trueResult falseResult hasTrueResult hasFalseResult resultType branchBlock |
-	condition := self visitNode: node condition.
+	condition := self visitBooleanNode: node condition.
 	thenBlock := node trueValue ifNotNil: [slvmBuilder newBasicBlock: #ifThen ].
 	elseBlock := node falseValue ifNotNil: [slvmBuilder newBasicBlock: #ifElse].
 	mergeBlock := slvmBuilder newBasicBlock: #ifMerge.
@@ -2692,7 +2728,7 @@ MbndSlovimFunctionCodeGenerator >> visitWhileLoopNode: node [
 	node condition ifNil: [
 		slvmBuilder jump: loopBody.
 	] ifNotNil: [ :expr |
-		slvmBuilder branch: (self visitNode: expr) ifTrue: loopBody ifFalse: loopMerge
+		slvmBuilder branch: (self visitBooleanNode: expr) ifTrue: loopBody ifFalse: loopMerge
 	].
 
 	"Generate the loop body."
@@ -2852,6 +2888,26 @@ MbndSlovimFunctionCodeGenerator >> wrapValue: value withType: valueType intoDyna
 	].
 
 	valueType isVoidType ifTrue: [
+		wrappedValue := slvmBuilder addDynamicLiteral: nil
+	].
+
+	valueType isPrimitiveBooleanType ifTrue: [ 
+		wrappedValue := slvmBuilder boolToDynamicObjectCast: value target: (self translateType: dynamicObjectType)
+	].
+
+	valueType isPrimitiveCharacterCodeType ifTrue: [ 
+		wrappedValue := slvmBuilder charToDynamicObjectCast: value target: (self translateType: dynamicObjectType)
+	].
+
+	valueType isPrimitiveIntegerType ifTrue: [ 
+		wrappedValue := slvmBuilder intToDynamicObjectCast: value target: (self translateType: dynamicObjectType)
+	].
+
+	valueType isPrimitiveFloatType ifTrue: [ 
+		wrappedValue := slvmBuilder floatToDynamicObjectCast: value target: (self translateType: dynamicObjectType)
+	].
+
+	valueType isPointerLikeType ifTrue: [
 		wrappedValue := slvmBuilder addDynamicLiteral: nil
 	].
 
