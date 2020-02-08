@@ -238,6 +238,7 @@ MbndAbstractSpecificMethod >> type: anObject [
 
 { #category : #'as yet unclassified' }
 MbndAbstractSpecificMethod >> typedSelector [
+	name ifNil: [ ^ nil ].
 	typedSelector ifNil: [
 		typedSelector := super typedSelector.
 		boundType needsSpecialTypedSelector ifTrue: [

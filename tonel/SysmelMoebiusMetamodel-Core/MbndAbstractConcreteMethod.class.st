@@ -349,7 +349,7 @@ MbndAbstractConcreteMethod >> preprocessDefinitionBody: node [
 
 { #category : #testing }
 MbndAbstractConcreteMethod >> requiresCompiledMethodMetadata [
-	^ self module hasRuntimeTypeInformation
+	^ self module hasGarbageCollectionSupport
 ]
 
 { #category : #testing }
