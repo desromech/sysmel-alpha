@@ -160,7 +160,7 @@ class Character superclass: Entity; definition: {
 		let bestCollisionEntity mutable type: Entity pointer := nil.
 		let bestCollisionExpandedBound mutable type: Box2D.
 
-		entities do: {:(Entity pointer)entity :: Void |
+		entities do: {:entity :: Void |
 			## FIXME: Make this cast redundant.
 			entity ~~ (self address castTo: Entity pointer) &&
 			entity _ isDead not &&
@@ -237,7 +237,7 @@ class Bullet superclass: Entity; definition: {
 		let bestCollisionAlpha mutable := rayLength.
 		let bestCollisionEntity mutable type: Entity pointer := nil.
 
-		entities do: {:(Entity pointer)entity :: Void |
+		entities do: {:entity :: Void |
 			## FIXME: Make this cast redundant.
 			entity ~~ shooter &&
 			entity _ isDead not &&
@@ -434,7 +434,7 @@ class NoiseChannel; superclass: SoundChannelWithEnvelope; definition: {
 		paused ifTrue: {return: nil}.
 
 		## Mix the samples
-		0 until: sampleCount do: {:(UInt32)i :: Void |
+		0 until: sampleCount do: {:i :: Void |
 			let absoluteSampleTime := (currentSampleIndex + i)*samplePeriod.
 			let envelopeFactor := self computeEnvelopeFactorAt: absoluteSampleTime.
 			let sample := self nextRandomSample * amplitude * envelopeFactor.
@@ -456,7 +456,7 @@ template ToneFunctionSoundChannel(toneFunction: _FunctionType ref)
 		paused ifTrue: {return: nil}.
 
 		## Mix the samples
-		0 until: sampleCount do: {:(UInt32)i :: Void |
+		0 until: sampleCount do: {:i :: Void |
 			let absoluteSampleTime := (currentSampleIndex + i)*samplePeriod.
 			let envelopeFactor := self computeEnvelopeFactorAt: absoluteSampleTime.
 			let sample := toneFunction(absoluteSampleTime * frequency + phase, extraParam) * amplitude * envelopeFactor.
@@ -539,13 +539,13 @@ function fillRectangle(worldRectangle: Box2D, color: Float32x4) => Void := {
 }.
 
 function update(delta: Float32) => Void := {
-	entities do: {:(Entity pointer)entity :: Void |
+	entities do: {:entity :: Void |
 		entity _ update: delta.
 	}.
 
 	## Remove the dead entities
 	let destIndex mutable type: UIntPointer := 0.
-	0 until: entities size do: {:(UIntPointer)i :: Void |
+	0 until: entities size do: {:i :: Void |
 		let entity := entities[i].
 		entity _ shouldBeRemoved ifTrue: {
 			entity nativeDelete
@@ -608,7 +608,7 @@ function render() => Void := {
 	}.
 
 	## Draw the entities.
-	entities do: {:(Entity pointer)entity :: Void |
+	entities do: {:entity :: Void |
 		entity _ render.
 	}.
 
@@ -626,7 +626,7 @@ function mixAudioSamples(mixBuffer: Float32x2 pointer, sampleCount: UInt32) => V
 
 	audioMutex withLock: {
 		## Add each one of the sound channels into the mixing buffer.
-		soundChannels do: {:(SoundChannel pointer)channel :: Void |
+		soundChannels do: {:channel :: Void |
 			channel _ mixSamples: sampleCount samplePeriod: samplePeriod intoBuffer: mixBuffer
 		}.
 	}.
@@ -647,7 +647,7 @@ function audioCallback(userdata: Void pointer, stream: UInt8 pointer, len: Int32
 	audioDeviceSpec format selectCase: #{
 		AUDIO_S16 : {
 			let targetBuffer := stream reinterpretCastTo: Int16x2 pointer.
-			0 until: sampleCount do: {:(UInt32)i :: Void |
+			0 until: sampleCount do: {:i :: Void |
 				let sample := audioTemporaryBuffer[i].
 				let convertedSample := (sample clampMin: -1.0 max: 1.0)*32767.0 castTo: Int16x2.
 				targetBuffer[i] := convertedSample.
@@ -655,7 +655,7 @@ function audioCallback(userdata: Void pointer, stream: UInt8 pointer, len: Int32
 		}.
 		AUDIO_U16 : {
 			let targetBuffer := stream reinterpretCastTo: UInt16x2 pointer.
-			0 until: sampleCount do: {:(UInt32)i :: Void |
+			0 until: sampleCount do: {:i :: Void |
 				let sample := audioTemporaryBuffer[i].
 				let convertedSample := (sample*0.5 + 0.5 clampMin: 0.0 max: 1.0)*65535.0 castTo: UInt16x2.
 				targetBuffer[i] := convertedSample.

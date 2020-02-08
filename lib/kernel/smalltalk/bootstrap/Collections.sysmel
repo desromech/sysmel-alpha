@@ -97,20 +97,20 @@ SequenceableCollection definition: {
 		}
 	}.
 
-	method copyWithSize: (newSize: UInt32) := {
+	method copyWithSize: (newSize: UIntPointer) := {
 		let result := self species new: newSize.
 		let copySize := newSize min: self size.
-		1 to: copySize + 1 do: {:(UInt32)i :: Void |
+		1 to: copySize + 1 do: {:i :: Void |
 			result at: i put: (self at: i)
 		}.
 		result
 	}.
 
-	method grownBy: (extraSize: UInt32)
+	method grownBy: (extraSize: UIntPointer)
 		:= self copyWithSize: self size + extraSize.
 
-	method replaceFrom: (startIndex: UInt32) until: (endIndex: UInt32) with: other := {
-		startIndex until: endIndex do: {:(UInt32)i :: Void |
+	method replaceFrom: (startIndex: UIntPointer) until: (endIndex: UIntPointer) with: other := {
+		startIndex until: endIndex do: {:i :: Void |
 			self at: i + 1 put: (other at: i - startIndex + 1)
 		}.
 		self
@@ -164,56 +164,11 @@ Symbol definition: {
 	method species := String.
 }.
 
-Behavior definition: {
-	method subclasses := #().
-
-	method subclassesDo: aBlock
-		:= self subclasses do: aBlock.
-
-	method allSubclassesDo: aBlock := {
-		self subclassesDo: {:cls :: Void |
-			aBlock value: cls.
-			cls allSubclassesDo: aBlock
-		}.
-		self
-	}.
-
-	method withAllSubclassesDo: aBlock := {
-		aBlock value: self.
-		self allSubclassesDo: aBlock
+MethodDictionary definition: {
+	method values := {
+		let result := Array new: tally.
+		result.
 	}.
 }.
 
-Class definition: {
-	method classSide
-		:= self class.
-
-	method instanceSide
-		:= self.
-}.
-
-Metaclass definition: {
-	method classSide
-		:= self.
-
-	method instanceSide
-		:= thisClass.
-
-	method isMetaclassOfClassOrNil := {
-		thisClass ifNil: { true }
-			ifNotNil: {thisClass == Class }
-	}.
-
-	method subclassesDo: aBlock := {
-		## Method taken from Pharo
-		## Evaluate aBlock for each of the receiver's immediate subclasses.
-
-		self isMetaclassOfClassOrNil ifFalse: {
-			self instanceSide subclassesDo: { :each :: Void | aBlock value: each classSide }
-		}.
-
-		self
-	}.
-}.
-
-}.
+}. ## End of namespace Smalltalk

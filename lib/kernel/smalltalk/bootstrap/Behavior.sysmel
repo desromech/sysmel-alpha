@@ -1,0 +1,55 @@
+namespace Smalltalk definition: {
+
+Behavior definition: {
+	method subclasses := #().
+
+	method subclassesDo: aBlock
+		:= self subclasses do: aBlock.
+
+	method allSubclassesDo: aBlock := {
+		self subclassesDo: {:cls :: Void |
+			aBlock value: cls.
+			cls allSubclassesDo: aBlock
+		}.
+		self
+	}.
+
+	method withAllSubclassesDo: aBlock := {
+		aBlock value: self.
+		self allSubclassesDo: aBlock
+	}.
+}.
+
+Class definition: {
+	method classSide
+		:= self class.
+
+	method instanceSide
+		:= self.
+}.
+
+Metaclass definition: {
+	method classSide
+		:= self.
+
+	method instanceSide
+		:= thisClass.
+
+	method isMetaclassOfClassOrNil := {
+		thisClass ifNil: { true }
+			ifNotNil: {thisClass == Class }
+	}.
+
+	method subclassesDo: aBlock := {
+		## Method taken from Pharo
+		## Evaluate aBlock for each of the receiver's immediate subclasses.
+
+		self isMetaclassOfClassOrNil ifFalse: {
+			self instanceSide subclassesDo: { :each :: Void | aBlock value: each classSide }
+		}.
+
+		self
+	}.
+}.
+
+}. ## End of namespace Smalltalk

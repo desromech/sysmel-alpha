@@ -39,7 +39,7 @@ Stream definition: {
 
     method next: (elementsToRead: UInt32) := {
         let result := Array new: elementsToRead.
-        0 until: elementsToRead do: {:(UInt32)i :: Void |
+        0 until: elementsToRead do: {:i :: Void |
             result[i] := self next
         }.
         result
@@ -94,7 +94,7 @@ PositionableStream definition: {
         := position.
 
     method contents := {
-        return: (collection copyWithSize: (readLimit castTo: UInt32))
+        return: (collection copyWithSize: readLimit)
     }.
 }.
 
@@ -114,7 +114,7 @@ WriteStream definition: {
 
     method contents := {
         readLimit := readLimit max: position.
-        return: (collection copyWithSize: (readLimit castTo: UInt32))
+        return: (collection copyWithSize: readLimit)
     }.
 
     method nextPut: anObject := {

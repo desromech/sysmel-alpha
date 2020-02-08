@@ -17,8 +17,8 @@ function testNativeErrorThrow() => Void := {
 function testNativeError() => Void := {
     try: {
         testNativeErrorThrow().
-    } catch: StdNative Error doing: {
-        StdNative stdout << "Caught error exception"; nl.
+    } catch: StdNative Error doing: {:exception :: Void |
+        StdNative stdout << "Caught error exception: " << exception; nl.
     }.
 }.
 
@@ -29,8 +29,8 @@ function testSmalltalkErrorThrow() => Void := {
 function testGCError() => Void := {
     try: {
         testSmalltalkErrorThrow().
-    } catch: Smalltalk Error doing: {
-        StdNative stdout << "Caught Smalltalk error exception"; nl.
+    } catch: Smalltalk Error doing: {:exception :: Void |
+        StdNative stdout << "Caught Smalltalk exception: " << exception; nl.
     }.
 }.
 
@@ -52,7 +52,7 @@ function main externC (argc: Int32, argv: Char8 const pointer pointer) => Int32 
 
     ##let s type: SomeStruct.
 
-    1 to: 3 do: {:(UInt32)i :: Void |
+    1 to: 3 do: {:i :: Void |
         StdNative stdout << "Loop iteration " << i; nl
     }.
 
@@ -90,7 +90,7 @@ function main externC (argc: Int32, argv: Char8 const pointer pointer) => Int32 
     printValue(1).
     printValue(1.0).
 
-    1 until: argc do: {:(Int32)i :: Void |
+    1 until: argc do: {:i :: Void |
         i = 1 ifTrue: {
             StdNative stdout << "First "
         } ifFalse: {

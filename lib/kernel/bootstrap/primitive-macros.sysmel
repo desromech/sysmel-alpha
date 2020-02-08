@@ -87,30 +87,25 @@ namespace SysmelKernel definition: {
         let index := __astBuilder gensym: #index.
         let stopValue := __astBuilder gensym: #stopValue.
         let incrementValue := __astBuilder gensym: #incrementValue.
+        let stopAnalyzedNode := (__analyzer analyzeNodeIfNeeded: stop) castTo: _ASTNodeType.
+        let indexType mutable type: _ASTNodeType.
 
 		aBlock isBlockClosureNode && aBlock arguments size = 1
 			&& aBlock arguments first valueType isNotNil ifTrue: {
-            let indexType := aBlock arguments first valueType castTo: _ASTNodeType.
-
-            ``{
-                let `,index mutable type: `,indexType := `,self.
-                let `,stopValue type: `,indexType := `,stop.
-                let `,incrementValue type: `,indexType := `,increment.
-
-                while: (`,index <= `,stopValue) do: {
-                    `,aBlock  __macroInlineBlock: `,index
-                } continueWith: (`,index := `,index + `,incrementValue)
-            }
+            indexType := aBlock arguments first valueType castTo: _ASTNodeType
         } ifFalse: {
-            ``{
-                let `,index mutable := `,self.
-                let `,stopValue := `,stop.
-                let `,incrementValue := `,increment.
+            indexType := (__analyzer computeArithmethicCoercionTypeNodeFor: self with: stopAnalyzedNode fallbackTo: Int32 at: self)
+                castTo: _ASTNodeType
+        }.
 
-                while: (`,index <= `,stopValue) do: {
-                    `,aBlock __macroInlineBlock: `,index
-                } continueWith: (`,index := `,index + `,incrementValue)
-            }
+        ``{
+            let `,index mutable type: `,indexType := `,self.
+            let `,stopValue type: `,indexType := `,stopAnalyzedNode.
+            let `,incrementValue type: `,indexType := `,increment.
+
+            while: (`,index <= `,stopValue) do: {
+                `,aBlock  __macroInlineBlock: `,index
+            } continueWith: (`,index := `,index + `,incrementValue)
         }
     }.
 
@@ -120,30 +115,25 @@ namespace SysmelKernel definition: {
         let index := __astBuilder gensym: #index.
         let stopValue := __astBuilder gensym: #stopValue.
         let incrementValue := __astBuilder gensym: #incrementValue.
+        let stopAnalyzedNode := (__analyzer analyzeNodeIfNeeded: stop) castTo: _ASTNodeType.
+        let indexType mutable type: _ASTNodeType.
 
-        aBlock isBlockClosureNode && aBlock arguments size = 1
+		aBlock isBlockClosureNode && aBlock arguments size = 1
 			&& aBlock arguments first valueType isNotNil ifTrue: {
-            let indexType := aBlock arguments first valueType castTo: _ASTNodeType.
-
-            ``{
-                let `,index mutable type: `,indexType := `,self.
-                let `,stopValue type: `,indexType := `,stop.
-                let `,incrementValue type: `,indexType := `,increment.
-
-                while: (`,index < `,stopValue) do: {
-                    `,aBlock  __macroInlineBlock: `,index
-                } continueWith: (`,index := `,index + `,incrementValue)
-            }
+            indexType := aBlock arguments first valueType castTo: _ASTNodeType
         } ifFalse: {
-            ``{
-                let `,index mutable := `,self.
-                let `,stopValue := `,stop.
-                let `,incrementValue := `,increment.
+            indexType := (__analyzer computeArithmethicCoercionTypeNodeFor: self with: stopAnalyzedNode fallbackTo: Int32 at: self)
+                castTo: _ASTNodeType
+        }.
 
-                while: (`,index < `,stopValue) do: {
-                    `,aBlock __macroInlineBlock: `,index
-                } continueWith: (`,index := `,index + `,incrementValue)
-            }
+        ``{
+            let `,index mutable type: `,indexType := `,self.
+            let `,stopValue type: `,indexType := `,stopAnalyzedNode.
+            let `,incrementValue type: `,indexType := `,increment.
+
+            while: (`,index < `,stopValue) do: {
+                `,aBlock  __macroInlineBlock: `,index
+            } continueWith: (`,index := `,index + `,incrementValue)
         }
     }.
 

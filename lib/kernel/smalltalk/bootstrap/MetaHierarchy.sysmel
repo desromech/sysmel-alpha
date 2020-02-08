@@ -127,10 +127,10 @@ ProtoObject definition: {
 	method initialize
 		:= self. ## By default do nothing.
 
-	method basicSize => UInt32
+	method basicSize => UIntPointer
 	 	:= __variableDataSize.
 
-	method size => UInt32
+	method size => UIntPointer
 	 	:= __variableDataSize.
 }.
 
@@ -158,7 +158,7 @@ Behavior definition: {
         return: (self basicNew: 0)
     }.
 
-    method basicNew: (initialSize: UInt32) ::=> _DependentInstanceType := {
+    method basicNew: (initialSize: UIntPointer) ::=> _DependentInstanceType := {
 		<intrinsic: #"gc.object.basicNew.variable">
         ## Compute the object size.
         let objectSize := instanceDataSize + initialSize*variableInstanceElementSize.
@@ -176,7 +176,7 @@ Behavior definition: {
 	method new => _DependentInstanceType
 		:= self basicNew initialize; yourself.
 
-    method new: (initialSize: UInt32) ::=> _DependentInstanceType
+    method new: (initialSize: UIntPointer) ::=> _DependentInstanceType
 		:= (self basicNew: initialSize) initialize; yourself.
 
     method lookupSelector: (selector: ProtoObject) ::=> ProtoObject := {
@@ -380,12 +380,12 @@ ProtoObject definition: {
         __vtable[-1] reinterpretCastTo: Behavior
     }.
 
-    method identityHash => UInt32 := {
+    method identityHash => UIntPointer := {
         <staticBinding>
         <nogc>
         <intrinsic: #"dynobject.identityHash">
         self __isImmediateValue ifTrue: {
-            (self reinterpretCastTo: UIntPointer) castTo: UInt32.
+            (self reinterpretCastTo: UIntPointer) castTo: UIntPointer.
         } ifFalse: {
             __identityHash
         }
@@ -456,31 +456,31 @@ Association definition: {
 }.
 
 macro method generateBasicAtAccessorsForArrayField: arrayField elementType: elementType := ``{
-	method basicAt: (index: UInt32) ::=> `,elementType := {
+	method basicAt: (index: UIntPointer) ::=> `,elementType := {
 		return: (`,arrayField at: index)
 	}.
 
-	method basicAt: (index: UInt32) put: (value: `,elementType) ::=> `,elementType := {
+	method basicAt: (index: UIntPointer) put: (value: `,elementType) ::=> `,elementType := {
 		(`,arrayField at: index) := value.
 		return: value
 	}.
 
-	method basicSubscriptAt: (index: UInt32) ::=> `,elementType ref := {
+	method basicSubscriptAt: (index: UIntPointer) ::=> `,elementType ref := {
 		return: `,arrayField[index]
 	}.
 }.
 
 macro method generateAtAccessorsForArrayField: arrayField elementType: elementType := ``{
-	method at: (index: UInt32) ::=> ProtoObject := {
+	method at: (index: UIntPointer) ::=> ProtoObject := {
 		return: (`,arrayField at: index)
 	}.
 
-	method at: (index: UInt32) put: (value: `,elementType) ::=> `,elementType := {
+	method at: (index: UIntPointer) put: (value: `,elementType) ::=> `,elementType := {
 		(`,arrayField at: index) := value.
 		return: value
 	}.
 
-	method subscriptAt: (index: UInt32) ::=> `,elementType ref := {
+	method subscriptAt: (index: UIntPointer) ::=> `,elementType ref := {
 		return: `,arrayField[index]
 	}.
 }.
@@ -505,7 +505,7 @@ HashedCollection definition: {
 MethodDictionary definition: {
     field values protected type: Array.
 
-    method initializeForCapacity: (initialCapacity: UInt32) ::=> SelfType := {
+    method initializeForCapacity: (initialCapacity: UIntPointer) ::=> SelfType := {
         tally := 0.
         array := Array basicNew: initialCapacity.
         values := Array basicNew: initialCapacity.
