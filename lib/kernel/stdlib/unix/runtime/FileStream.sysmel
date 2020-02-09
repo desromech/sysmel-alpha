@@ -15,10 +15,40 @@ definition: {
             fd: handle;
             yourself.
 
-    meta method open: (path: CTypes ConstString) mode: (mode: FileOpenMode) permissions: (permissions: FilePermissions) ::=> SelfType := {
-        let fd := 0.
-        self fromFD: fd
+    method open: (path: CTypes ConstString) mode: (mode: FileOpenMode) permissions: (permissions: FilePermissions) ::=> Boolean8 := {
+        let convertedMode mutable type: Int32 := Unix O_RDONLY.
+        (mode value anyMask: FileOpenMode Write value) ifTrue: {
+            (mode value anyMask: FileOpenMode Read value) ifTrue: {
+                convertedMode := Unix O_RDWR.
+            } ifFalse: {
+                convertedMode := Unix O_WRONLY.
+            }.
+
+            (mode value anyMask: FileOpenMode Existent value) ifFalse: {
+                convertedMode := convertedMode | Unix O_CREAT
+            }.
+
+            (mode value anyMask: FileOpenMode Append value) ifTrue: {
+                convertedMode := convertedMode | Unix O_APPEND
+            }.
+
+            (mode value anyMask: FileOpenMode Truncate value) ifTrue: {
+                convertedMode := convertedMode | Unix O_TRUNC
+            }.
+        } ifFalse: {
+            convertedMode := Unix O_RDONLY.
+        }.
+
+        (mode value anyMask: FileOpenMode AsyncIO value) ifTrue: {
+            convertedMode := convertedMode | Unix O_NONBLOCK
+        }.
+
+        fd := Unix open(path, convertedMode, permissions value).
+        return: fd >= 0
     }.
+
+    method open: (path: CTypes ConstString) mode: (mode: FileOpenMode) ::=> Boolean8
+        := self open: path mode: mode permissions: FilePermissions DefaultFilePermissions.
 
     method close => Void := {
         self isValid ifTrue: {

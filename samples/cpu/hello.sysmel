@@ -46,6 +46,16 @@ function testNonLocalReturn() => Void := {
     }.
 }.
 
+function testWriteFile() => Void := {
+    let outFile mutable type: StdNative IO FileStream.
+    (outFile open: "test.txt" mode: StdNative IO FileOpenMode CreateNew) ifTrue: {
+        let out mutable := StdNative IO TextStreamWriter for: outFile address.
+        out << "Hello World"; nl.
+        out << "File written from sysmel"; nl.
+        outFile close
+    }.
+}.
+
 function main externC (argc: Int32, argv: Char8 const pointer pointer) => Int32 := {
     StdNative stdout << "testGlobal " << testGlobal; nl.
 	StdNative stdout << "TestChar " << 'c'; nl.
@@ -134,6 +144,7 @@ function main externC (argc: Int32, argv: Char8 const pointer pointer) => Int32 
     testNativeError().
     testNonLocalReturn().
     testGCError().
+    testWriteFile().
 
     StdNative stdout << (Smalltalk Object name -- " with concat"); nl.
 
