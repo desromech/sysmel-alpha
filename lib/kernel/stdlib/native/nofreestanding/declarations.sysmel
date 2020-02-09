@@ -3,7 +3,6 @@ namespace StdNative definition: {
 class Mutex.
 class ConditionVariable.
 class Semaphore.
-
-compileTimeConstant MemoryHeapMutex := Mutex.
+class MemoryHeapMutex.
 
 }. ## End of namespace StdNative

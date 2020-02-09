@@ -30,6 +30,8 @@ class Mutex superclass: AbstractMutex; definition: {
     }.
 }.
 
+class MemoryHeapMutex superclass: Mutex; definition: {}.
+
 #**
  * Pthread recursive mutex wrapper.
  *#

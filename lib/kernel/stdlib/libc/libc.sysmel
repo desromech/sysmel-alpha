@@ -1,4 +1,3 @@
-loadFileOnce: "ctypes.sysmel".
 loadFileOnce: "stddef.sysmel".
 loadFileOnce: "stdlib.sysmel".
 loadFileOnce: "stdio.sysmel".
