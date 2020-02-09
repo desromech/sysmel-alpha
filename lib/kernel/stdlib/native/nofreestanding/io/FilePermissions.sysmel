@@ -1,0 +1,9 @@
+namespace StdNative definition: {
+namespace IO definition: {
+
+enum FilePermissions valueType: UInt32; bitMask; values: #{
+    None: 0
+}.
+
+}. ## End of namespace IO
+}. ## End of namespace StdNative

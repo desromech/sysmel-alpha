@@ -1,0 +1,74 @@
+namespace StdNative definition: {
+namespace IO definition: {
+
+
+#**
+ * File stream class.
+ *#
+class FileStream superclass: Stream;
+definition: {
+    public field fd type: Int32.
+    private field eofDetected_ private type: Boolean8.
+
+    meta method fromFD: (handle: Int32) ::=> SelfType
+        := SelfType basicNewValue
+            fd: handle;
+            yourself.
+
+    meta method open: (path: CTypes ConstString) mode: (mode: FileOpenMode) permissions: (permissions: FilePermissions) ::=> SelfType := {
+        let fd := 0.
+        self fromFD: fd
+    }.
+
+    method close => Void := {
+        self isValid ifTrue: {
+            Unix close(fd).
+            fd := -1
+        }.
+    }.
+
+    method isValid => Boolean8
+        := fd >= 0.
+
+    override method atEnd => Boolean8
+        := eofDetected_.
+
+    override method position => Int64
+        := Unix lseek64(fd, 0, LibC SEEK_CUR).
+
+    override method seek: (offset: Int64) mode: (mode: SeekMode) ::=> Boolean8 := {
+        let nativeSeekMode mutable := LibC SEEK_SET.
+        mode selectCase: #{
+        SeekMode Set : nativeSeekMode := LibC SEEK_SET.
+        SeekMode Current : nativeSeekMode := LibC SEEK_CUR.
+        SeekMode End : nativeSeekMode := LibC SEEK_END.
+        }.
+
+        eofDetected_ := false.
+        Unix lseek64(fd, offset, nativeSeekMode) ~= (-1 castTo: Unix OFF_T)
+    }.
+
+    override method write: (buffer: Void const pointer) size: (size: UIntPointer) ::=> IntPointer := {
+        eofDetected_ := false.
+        Unix write(fd, buffer, size) castTo: IntPointer.
+    }.
+
+    override method read: (buffer: Void pointer) size: (size: UIntPointer) ::=> IntPointer := {
+        let result := Unix read(fd, buffer, size) castTo: IntPointer.
+        eofDetected_ := result = 0.
+        result
+    }.
+
+    method isConsole ::=> Boolean8
+        := Unix isatty(fd) = 1.
+}.
+
+global stdinFile mutable := FileStream fromFD: Unix STDIN_FILENO.
+global stdoutFile mutable := FileStream fromFD: Unix STDOUT_FILENO.
+global stderrFile mutable := FileStream fromFD: Unix STDERR_FILENO.
+
+}. ## End of namespace IO
+
+global stdout mutable := IO TextStreamWriter for: IO stdoutFile address.
+global stderr mutable := IO TextStreamWriter for: IO stderrFile address.
+}. ## End of namespace StdNative

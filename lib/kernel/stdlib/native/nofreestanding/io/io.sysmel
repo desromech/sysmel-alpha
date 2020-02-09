@@ -1,7 +1,10 @@
 ## Binary stream.
 loadFileOnce: "Stream.sysmel".
 loadFileOnce: "FixedMemoryStream.sysmel".
-loadFileOnce: "FileStream.sysmel".
+loadFileOnce: "MemoryStream.sysmel".
+loadFileOnce: "BufferedStream.sysmel".
+loadFileOnce: "FileOpenMode.sysmel".
+loadFileOnce: "FilePermissions.sysmel".
 
 ## Binary data stream reader.
 loadFileOnce: "BinaryDataStreamReader.sysmel".

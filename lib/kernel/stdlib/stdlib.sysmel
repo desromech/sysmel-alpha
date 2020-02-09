@@ -1,3 +1,6 @@
+## Evaluate the native stdlib
+loadFileOnce: "native/native.sysmel".
+
 ## Evaluate the platform specific library bindings, that we depend on.
 if: Compiler hasLibC then: {
     loadFileOnce: "libc/libc.sysmel".
@@ -10,6 +13,3 @@ if: Compiler hasLibC then: {
         loadFileOnce: "win32/win32.sysmel".
     }.
 }.
-
-## Evaluate the native stdlib
-loadFileOnce: "native/native.sysmel".

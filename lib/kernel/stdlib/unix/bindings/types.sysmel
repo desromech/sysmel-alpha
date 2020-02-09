@@ -6,5 +6,5 @@ namespace Unix definition: {
     compileTimeConstant PID_T := Int32.
     compileTimeConstant OFF_T := IntPointer.
     compileTimeConstant OFF64_T := Int64.
-
+    compileTimeConstant USeconds_T := UInt32.
 }.

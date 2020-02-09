@@ -1,15 +1,7 @@
 namespace StdNative definition: {
 
-#**
- * Pthread mutex wrapper.
- *#
-class Mutex
-definition: {
+class AbstractMutex definition: {
     field handle public type: Unix pthread_mutex_t.
-
-    method initialize => Void := {
-        Unix pthread_mutex_init(handle address, nil).
-    }.
 
     method finalize => Void := {
         Unix pthread_mutex_destroy(handle address).
@@ -24,8 +16,32 @@ definition: {
     }.
 
     macro method withLock: aBlock := ``{
-		`,self lock.
+        `,self lock.
         `,aBlock __macroInlineBlockEnsure: `,self unlock.
+    }.
+}.
+
+#**
+ * Pthread mutex wrapper.
+ *#
+class Mutex superclass: AbstractMutex; definition: {
+    method initialize => Void := {
+        Unix pthread_mutex_init(handle address, nil).
+    }.
+}.
+
+#**
+ * Pthread recursive mutex wrapper.
+ *#
+class RecursiveMutex superclass: AbstractMutex; definition: {
+    method initialize => Void := {
+        let attributes mutable type: Unix pthread_mutexattr_t.
+        Unix pthread_mutexattr_init(attributes address).
+        Unix pthread_mutexattr_settype(attributes address, Unix PTHREAD_MUTEX_RECURSIVE).
+
+        Unix pthread_mutex_init(handle address, attributes address).
+
+        Unix pthread_mutexattr_destroy(attributes address).
     }.
 }.
 
@@ -115,5 +131,4 @@ definition: {
 
 }.
 
-compileTimeConstant MemoryHeapMutex := Mutex.
 }. ## End of namespace StdNative

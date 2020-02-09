@@ -1,0 +1,17 @@
+namespace Unix definition: {
+struct timespec definition: {
+    public field tv_sec type: IntPointer.
+    public field tv_nsec type: IntPointer.
+}.
+
+struct timeval definition: {
+    public field tv_sec type: IntPointer.
+    public field tv_usec type: IntPointer.
+}.
+
+struct timezone definition: {}.
+
+function gettimeofday externC(tv: timeval pointer, tz: timezone pointer) => Int32.
+function settimeofday externC(tv: timeval pointer, tz: timezone pointer) => Int32.
+
+}. ## End of namespace Unix

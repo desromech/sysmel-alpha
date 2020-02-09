@@ -1,0 +1,36 @@
+namespace StdNative definition: {
+namespace Chrono definition: {
+    compileTimeConstant Time := Int64.
+    compileTimeConstant TicksPerMicrosecond := 1.
+    compileTimeConstant TicksPerMillisecond := TicksPerMicrosecond*1000.
+    compileTimeConstant TicksPerSecond := TicksPerMillisecond*1000.
+
+    function microsecondClockValue() => Time := {
+        let tv mutable type: Unix timeval.
+        Unix gettimeofday(tv address, nil).
+
+        (tv tv_sec castTo: Int64)*1000000 + tv tv_usec
+    }.
+
+    inline function now() => Time
+        := microsecondClockValue()*1000.
+
+    inline function microseconds(time: Time) => Time
+        := time * TicksPerMicrosecond.
+
+    inline function milliseconds(time: Time) => Time
+        := time * TicksPerMillisecond.
+
+    inline function seconds(time: Time) => Time
+        := time * TicksPerSecond.
+
+    inline function sleepFor(time: Time) => Void := {
+        time > 0 ifTrue: {
+            Unix usleep(time castTo: Unix USeconds_T)
+        }.
+    }.
+
+    inline function sleepUntil(time: Time) => Void
+        := sleepFor(time - now()).
+}.
+}.

@@ -1,0 +1,9 @@
+namespace StdNative definition: {
+
+class Mutex.
+class ConditionVariable.
+class Semaphore.
+
+compileTimeConstant MemoryHeapMutex := Mutex.
+
+}. ## End of namespace StdNative

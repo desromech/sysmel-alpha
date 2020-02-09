@@ -102,6 +102,7 @@ namespace Unix definition: {
 
     function unlink externC (path: ConstString) => Int.
     function unlinkat externC (dirfd: Int, path: ConstString, flags: Int) => Int.
+    function usleep externC (useconds: USeconds_T) => Int.
 
     function write externC (fd: Int, buf: Void const pointer, count: SizeT,) => SSizeT.
 }.

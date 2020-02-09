@@ -1,3 +1,5 @@
+Compiler addLinkerArguments: #("-pthreads").
+
 namespace Unix definition: {
     compileTimeConstant pthread_t := UIntPointer.
     compileTimeConstant pthread_key_t := UIntPointer.
@@ -73,14 +75,14 @@ namespace Unix definition: {
 
     ## Posix threads
 
-	## The Boehm conservative garbage collector requires hooking some pthread functions.
+	## The Boehm conservative garbage collector requires hooking some PThread functions.
 	if: Compiler hasConservativeGarbageCollector then: {
 	    function GC_pthread_create externC (pthread: pthread_t pointer, attributes: pthread_attr_t const pointer, entrypoint: pthread_start_routine_t pointer, argument: Void pointer) => Int32.
 	    function GC_pthread_detach externC (pthread: pthread_t) => Int32.
 	    function GC_pthread_join externC (pthread: pthread_t, returnValue: Void pointer pointer) => Int32.
 	    function GC_pthread_exit externC (returnValue: Void pointer) => Void.
 	    function GC_pthread_cancel externC (pthread: pthread_t) => Int32.
-	
+
 		compileTimeConstant pthread_create := GC_pthread_create.
 		compileTimeConstant pthread_detach := GC_pthread_detach.
 		compileTimeConstant pthread_join := GC_pthread_join.
@@ -93,7 +95,7 @@ namespace Unix definition: {
 	    function pthread_exit externC (returnValue: Void pointer) => Void.
 	    function pthread_cancel externC (pthread: pthread_t) => Int32.
 	}.
-	
+
     function pthread_equal externC (left: pthread_t, right: pthread_t) => Int32.
     function pthread_kill externC (pthread: pthread_t, sig: Int32) => Int32.
     ## TODO: pthread_once"
@@ -124,7 +126,7 @@ namespace Unix definition: {
     function pthread_cond_signal externC (cond: pthread_cond_t pointer) => Int32.
     function pthread_cond_broadcast externC (cond: pthread_cond_t pointer) => Int32.
     function pthread_cond_wait externC (cond: pthread_cond_t pointer, mutex: pthread_mutex_t pointer) => Int32.
-    function pthread_cond_timewait externC (cond: pthread_cond_t pointer, mutex: pthread_mutex_t pointer, abstime: timespec pointer) => Int32.
+    function pthread_cond_timedwait externC (cond: pthread_cond_t pointer, mutex: pthread_mutex_t pointer, abstime: timespec pointer) => Int32.
 
     ## Read/Write lock"
     function pthread_rwlockattr_init externC (attributes: pthread_rwlockattr_t pointer) => Int32.

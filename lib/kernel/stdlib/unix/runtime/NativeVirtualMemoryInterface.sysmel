@@ -3,11 +3,11 @@ namespace StdNative definition: {
 #**
  * Unix virtual memory interface.
  *#
-namespace UnixVirtualMemoryInterface definition: {
+namespace NativeVirtualMemoryInterface definition: {
 
     method reserveAndCommitAddressSpace: (size: UIntPointer) alignment: (alignment: UIntPointer) ::=> Void pointer := {
         alignment <= 4096 ifTrue: {
-            return: (UnixVirtualMemoryInterface reserveAndCommitAddressSpace: size)
+            return: (NativeVirtualMemoryInterface reserveAndCommitAddressSpace: size)
         }.
 
         let optimisticResult := Unix mmap(nil, size, Unix PROT_READ | Unix PROT_WRITE, Unix MAP_PRIVATE | Unix MAP_ANONYMOUS, -1, 0).
@@ -15,14 +15,14 @@ namespace UnixVirtualMemoryInterface definition: {
             return: nil.
         }.
 
-        ## Since we cannot specify, the alignment first just try to map hoping for the best cast.
+        ## Since we cannot specify, the alignment first just try to map hoping for the best case.
         ## Otherwise, then map with excess and then trim the mapping.
         ## This technique is taken from the implementation in jemalloc.
         (optimisticResult isAlignedTo: alignment) ifTrue: {
             return: optimisticResult.
         } ifFalse: {
             Unix munmap(optimisticResult, size).
-            return: (UnixVirtualMemoryInterface slowReserveAndCommitAddressSpace: size alignment: alignment)
+            return: (NativeVirtualMemoryInterface slowReserveAndCommitAddressSpace: size alignment: alignment)
         }
     }.
 
@@ -108,5 +108,4 @@ namespace UnixVirtualMemoryInterface definition: {
 
 }.
 
-compileTimeConstant NativeVirtualMemoryInterface := UnixVirtualMemoryInterface.
 }. ## End of namespace StdNative
