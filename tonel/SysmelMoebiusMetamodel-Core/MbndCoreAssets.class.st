@@ -14,7 +14,7 @@ MbndCoreAssets class >> findCoreAssets [
 	location := Smalltalk imageDirectory.
 	testElement := 'lib/kernel/kernel.sysmel' asFileReference.
 	(location resolve: testElement) exists ifFalse: [
-		location := IceLibgitRepository repositoriesLocation / #'ronsaldo' / #sysmel
+		location := IceLibgitRepository repositoriesLocation asFileReference / #'ronsaldo' / #sysmel
 	].
 
 	(location resolve: testElement) exists ifFalse: [
