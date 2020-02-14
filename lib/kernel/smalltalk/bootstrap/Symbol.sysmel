@@ -1,0 +1,37 @@
+namespace Smalltalk definition: {
+
+String definition: {
+    method asSymbol
+        := Symbol intern: self.
+}.
+Symbol definition: {
+    meta extend: {
+        method intern: stringOrSymbol := {
+            stringOrSymbol class == Symbol ifTrue: {
+                return: (self internSymbolInstance: stringOrSymbol reinterpretCastTo: Symbol)
+            }.
+
+            stringOrSymbol class == String ifFalse: {
+                return: (self intern: stringOrSymbol asString)
+            }.
+
+            let string := stringOrSymbol reinterpretCastTo: String.
+            let stringSize := string __private __data size.
+            let symbolInstance := self basicNew: stringSize.
+            StdNative memcpy(symbolInstance __private __data[0] address, string __private __data[0] address, stringSize).
+
+            self internSymbolInstance: symbolInstance.
+        }.
+
+        method internSymbolInstance: (symbolInstance: Symbol) ::=> Symbol := {
+            ## TODO: implement this.
+            StdNative stdout << "TODO: internSymbolInstance: " << symbolInstance; nl.
+            symbolInstance.
+        }
+    }.
+
+    method asSymbol
+        := self.
+}.
+
+}.

@@ -1,10 +1,37 @@
 namespace Smalltalk definition: {
 
-function registerModuleRoots(roots: _GCRootPointerDescriptor pointer, rootCount: UIntPointer) => Void := {
-    StdNative stdout << "registerModuleRoots rootsPointer " << roots << " rootCount " << rootCount; nl.
+struct ModuleGCRootPointerDescriptor definition: {
+    public field pointer type: ProtoObject pointer.
+    public field count type: UIntPointer.
 }.
-function unregisterModuleRoots(roots: _GCRootPointerDescriptor pointer, rootCount: UIntPointer) => Void := {
-    StdNative stdout << "unregisterModuleRoots rootsPointer " << roots << " rootCount " << rootCount; nl.
+
+function registerModuleRoots(rootPointerDescriptors: ModuleGCRootPointerDescriptor pointer, rootPointerDescriptorCount: UIntPointer) => Void := {
+    ##StdNative stdout << "registerModuleRoots rootPointerDescriptors " << rootPointerDescriptors << " rootPointerDescriptorCount " << rootPointerDescriptorCount; nl.
+
+    ## We need to iterate through all the root pointers in order to ensure that equal symbols have the same identities.
+    ## This is a special case of #become: where the garbage collector support is not actually required.
+    0 until: rootPointerDescriptorCount do: {:i :: Void |
+        let rootDescriptor ref := rootPointerDescriptors[i].
+        ##StdNative stdout << "descriptor count " << rootDescriptor count; nl.
+        0 until: rootDescriptor count do: {:j :: Void |
+            let rootPointer ref := rootDescriptor pointer[j].
+            let rootPointerClass := rootPointer class.
+            rootPointerClass == Symbol ifTrue: {
+                rootPointer := Symbol internSymbolInstance: (rootPointer reinterpretCastTo: Symbol)
+            } ifFalse: {
+                ## We need to apply this same transformation to the instance variables.
+                rootPointerClass __manipulateInstance: rootPointer gcSlotsWith: {:(ProtoObject pointer)slotPointer :: Void |
+                    let originalSlotValue := slotPointer _.
+                    originalSlotValue class == Symbol ifTrue: {
+                        slotPointer _ := Symbol internSymbolInstance: (originalSlotValue reinterpretCastTo: Symbol)
+                    }.
+                }.
+            }.
+        }
+    }
+}.
+function unregisterModuleRoots(rootPointerDescriptors: ModuleGCRootPointerDescriptor pointer, rootPointerDescriptorCount: UIntPointer) => Void := {
+    ## StdNative stdout << "unregisterModuleRoots rootPointerDescriptors " << rootPointerDescriptors << " rootPointerDescriptorCount " << rootPointerDescriptorCount; nl.
 }.
 
 Compiler compilationTarget managedObjectModel

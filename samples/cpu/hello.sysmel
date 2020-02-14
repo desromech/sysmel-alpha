@@ -141,6 +141,13 @@ function main externC (argc: Int32, argv: Char8 const pointer pointer) => Int32 
 	    StdNative stdout << cls; nl.
 	}.
 
+    {
+        let string type: ProtoObject := "class".
+        let symbol := string asSymbol.
+
+        StdNative stdout << "String '"  << string << "' asSymbol #'" << symbol << "' unique: " << (string == symbol); nl.
+    }.
+
     testNativeError().
     testNonLocalReturn().
     testGCError().

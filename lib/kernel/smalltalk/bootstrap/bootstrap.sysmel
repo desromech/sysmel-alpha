@@ -9,4 +9,5 @@ loadFileOnce: "Streams.sysmel".
 loadFileOnce: "Exceptions.sysmel".
 loadFileOnce: "ExceptionsUnwind.sysmel".
 loadFileOnce: "Printing.sysmel".
+loadFileOnce: "Symbol.sysmel".
 loadFileOnce: "ModuleRootRegistration.sysmel".

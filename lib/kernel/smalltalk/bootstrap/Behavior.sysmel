@@ -18,6 +18,28 @@ Behavior definition: {
 		aBlock value: self.
 		self allSubclassesDo: aBlock
 	}.
+
+	method __manipulateInstance: instance gcSlotsWith: (manipulationBlock: ((ProtoObject pointer) => Void) nativeStackBlockClosure) ::=> Void := {
+		instance __isImmediateValue ifTrue: {return: nil}.
+
+		let fixedSlotCount := instanceDataSize / UIntPointer instanceSize.
+		let fixedSlots := instance reinterpretCastTo: ProtoObject pointer.
+
+		0 until: fixedSlotCount do: {:i :: Void |
+			(gcLayout isSlotIndexGCPointer: i) ifTrue: {
+				manipulationBlock(fixedSlots[i] address)
+			}.
+		}.
+
+		gcLayout variableDataIsGCPointers ifTrue: {
+			let variableDataSize := (instance reinterpretCastTo: _GCObjectHeader pointer) _ __variableDataSize * variableInstanceElementSize.
+			let variableSlotCount := variableDataSize / UIntPointer instanceSize.
+			let variableSlots := fixedSlots[fixedSlotCount] address.
+			0 until: variableSlotCount do: {:i :: Void |
+				manipulationBlock(variableSlots[i] address)
+			}
+		}.
+	}.
 }.
 
 Class definition: {

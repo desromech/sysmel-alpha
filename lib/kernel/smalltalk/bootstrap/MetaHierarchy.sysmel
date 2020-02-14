@@ -146,7 +146,7 @@ Behavior definition: {
     public field moveConstructorFunctionPointer type: _MoveConstructorFunctionPointerType.
 
     public field methodDict public type: MethodDictionary.
-    public field gclayout public type: GCLayout.
+    public field gcLayout public type: GCLayout.
     public field slots public type: Array.
 
     public field variableInstanceElementSize public type: UInt32.
@@ -219,16 +219,26 @@ Metaclass definition: {
     }.
 }.
 
-## GCLayoutRecord
-struct GCLayoutRecord definition: {
-    field type public type: UIntPointer.
-    field offset public type: UIntPointer.
-    field size public type: UIntPointer.
-}.
-
 ## GCLayout
 GCLayout definition: {
-    field records public type: GCLayoutRecord array.
+	compileTimeConstant BitsPerWord := UIntPointer instanceSize castTo: UIntPointer.
+
+	field variableDataIsGCPointers public type: Boolean8.
+    field bitmap public type: UIntPointer array.
+
+	method isSlotIndexGCPointer: (slotIndex: UIntPointer) ::=> Boolean8 := {
+		<staticBinding>
+		<nogc>
+		(slotIndex >= bitmap size * BitsPerWord) ifTrue: {
+			return: false.
+		}.
+
+		let wordIndex := slotIndex / BitsPerWord.
+		let bitIndex := slotIndex % BitsPerWord.
+		let bit := (1 castTo: UIntPointer) << bitIndex.
+
+		bitmap[wordIndex] anyMask: bit
+	}.
 }.
 
 ## String
@@ -768,6 +778,7 @@ function gcBlockClosureAllocator(instanceSize: UIntPointer, instanceAlignment: U
 Compiler compilationTarget managedObjectModel
     messageLookupFunction: normalMessageLookup;
 	superMessageLookupFunction: superMessageLookup;
+	gcLayoutClass: GCLayout;
     arrayClass: Array;
     associationClass: Association;
     byteArrayClass: ByteArray;
