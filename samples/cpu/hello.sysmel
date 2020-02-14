@@ -145,7 +145,7 @@ function main externC (argc: Int32, argv: Char8 const pointer pointer) => Int32 
         let string type: ProtoObject := "class".
         let symbol := string asSymbol.
 
-        StdNative stdout << "String '"  << string << "' asSymbol #'" << symbol << "' unique: " << (string == symbol); nl.
+        StdNative stdout << "String '"  << string << "' asSymbol #'" << symbol << "' unique: " << (symbol == #class) << " sameResult: " << (symbol == string asSymbol); nl.
     }.
 
     testNativeError().

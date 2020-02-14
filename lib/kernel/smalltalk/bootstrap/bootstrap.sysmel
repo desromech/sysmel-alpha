@@ -4,6 +4,8 @@ loadFileOnce: "Boolean.sysmel".
 loadFileOnce: "Magnitude.sysmel".
 
 loadFileOnce: "Collections.sysmel".
+loadFileOnce: "String.sysmel".
+loadFileOnce: "HashedCollections.sysmel".
 loadFileOnce: "Behavior.sysmel".
 loadFileOnce: "Streams.sysmel".
 loadFileOnce: "Exceptions.sysmel".

@@ -1,0 +1,71 @@
+namespace Smalltalk definition: {
+Object extend: {
+	method isString := false.
+}.
+
+String definition: {
+    method isString := true.
+
+	method beginsWith: prefix := {
+		prefix class == String || prefix class == Symbol ifTrue: {
+			let prefixString := prefix reinterpretCastTo: String.
+			let mySize := __data size.
+			let prefixSize := prefixString __private __data size.
+			mySize < prefixSize ifTrue: {
+				return: false.
+			}.
+
+			return: (StdNative memcmp(__data[0] address, prefixString __private __data [0] address, prefixSize) == 0)
+		}.
+		return: (super beginsWith: prefix)
+	}.
+
+	method endsWith: suffix := {
+		suffix class == String || suffix class == Symbol ifTrue: {
+			let suffixString := suffix reinterpretCastTo: String.
+			let mySize := __data size.
+			let suffixSize := suffixString __private __data size.
+			mySize < suffixSize ifTrue: {
+				return: false.
+			}.
+
+			return: (StdNative memcmp(__data[mySize - suffixSize] address, suffixString __private __data [0] address, suffixSize) == 0)
+		}.
+		return: (super endsWith: suffix)
+	}.
+
+    method hash := self stringHash.
+    method = other := self stringEquals: other.
+
+    inline method speciesHash => UIntPointer
+        := 13312.
+
+    method stringHash := {
+        let result mutable := self speciesHash.
+        0 until: __data size do: {:i :: Void |
+            let c := __data[i].
+            result := (result + c) * 1664525
+        }.
+
+        return: result & ObjectModel SmallIntegerMaxValue
+    }.
+
+    method stringEquals: other := {
+        self == other ifTrue: {
+            return: true
+        }.
+        other isString ifFalse: {
+            return: false.
+        }.
+
+        let otherString := other reinterpretCastTo: String.
+        __data size == otherString __private __data size ifFalse: {
+            return: false.
+        }.
+
+        return: StdNative memcmp(__data[0] address, otherString __private __data[0] address, __data size) == 0.
+    }.
+
+}.
+
+}. ## End of namespace Smalltalk

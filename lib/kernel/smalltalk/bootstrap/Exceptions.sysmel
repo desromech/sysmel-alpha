@@ -91,6 +91,22 @@ ProtoObject extend: {
 Object extend: {
     method error: message
         := Error new signal: message.
+
+    method assert: condition
+        := condition ifFalse: {AssertionFailure signal}.
+
+    method notYetImplemented
+        := NotYetImplemented signal.
+
+    method subclassResponsibility
+        := SubclassResponsibility signal.
+
+    method shouldBeImplemented
+        := ShouldBeImplemented signal.
+
+    method shouldNotImplement
+        := ShouldNotImplement signal.
+
 }.
 
 }.

@@ -125,45 +125,6 @@ SequenceableCollection definition: {
 	}.
 }.
 
-String definition: {
-	method beginsWith: prefix := {
-		prefix class == String || prefix class == Symbol ifTrue: {
-			let prefixString := prefix reinterpretCastTo: String.
-			let mySize := __data size.
-			let prefixSize := prefixString __private __data size.
-			mySize < prefixSize ifTrue: {
-				return: false.
-			}.
-
-			return: (StdNative memcmp(__data[0] address, prefixString __private __data [0] address, prefixSize) == 0)
-		}.
-		return: (super beginsWith: prefix)
-	}.
-
-	method endsWith: suffix := {
-		suffix class == String || suffix class == Symbol ifTrue: {
-			let suffixString := suffix reinterpretCastTo: String.
-			let mySize := __data size.
-			let suffixSize := suffixString __private __data size.
-			mySize < suffixSize ifTrue: {
-				return: false.
-			}.
-
-			return: (StdNative memcmp(__data[mySize - suffixSize] address, suffixString __private __data [0] address, suffixSize) == 0)
-		}.
-		return: (super endsWith: suffix)
-	}.
-}.
-
-Symbol definition: {
-	meta definition: {
-		method streamSpecies
-			:= String.
-	}.
-
-	method species := String.
-}.
-
 MethodDictionary definition: {
 	method values := {
 		let result := Array new: tally.

@@ -1,0 +1,127 @@
+namespace Smalltalk definition: {
+
+HashedCollection definition: {
+    meta extend: {
+        method new
+            := self basicNew initialize: 5; yourself.
+        method new: (initialCapacity: UIntPointer)
+            := self basicNew initialize: initialCapacity; yourself.
+    }.
+
+    method initialize: (initialCapacity: UIntPointer) := {
+        array := Array new: initialCapacity
+    }.
+
+    method capacity => UIntPointer
+        := array __private __data size.
+
+    method size => UIntPointer
+        := tally.
+
+    method findElementOrNil: key := {
+        let index := self scanFor: key.
+        index > 0 ifTrue: {
+            return: (array at: index)
+        }.
+
+        ## This case should never happen with a normal HashedCollection.
+        self errorNoFreeSpace.
+    }.
+
+    method scanFor: key ::=> UIntPointer := {
+        self subclassResponsibility.
+        return: 0
+    }.
+
+    inline method atNewIndex: (newIndex: UIntPointer) put: newSetElement := {
+        array at: newIndex put: newSetElement.
+        tally := tally + 1.
+        self fullCheck.
+    }.
+
+    method fullCheck := {
+        let currentCapacity := array __private __data size.
+        let currentSize := tally.
+        let remainingCapacity := currentCapacity - currentSize.
+        let growThreshold := remainingCapacity // 4 max: 1.
+        remainingCapacity < growThreshold ifTrue: {
+            self grow
+        }
+    }.
+
+    method grow := {
+        let oldElements := array.
+        let oldCapacity := oldElements __private __data size.
+        tally := 0.
+        array := Array new: (oldCapacity * 2 max: 5).
+        0 until: oldCapacity do: {:i :: Void |
+            let element := oldElements[i].
+            element ifNotNil: {
+                self noCheckAdd: element
+            }.
+        }.
+
+        self.
+    }.
+
+    method noCheckAdd: element := {
+        array at: (self scanFor: element) put: element.
+        tally := tally + 1
+    }.
+
+    method errorNoFreeSpace
+        := self error: "There is no free space in this collection!".
+}.
+
+Object extend: {
+    method enclosedSetElement := self.
+    method asSetElement := self.
+}.
+
+Set definition: {
+    method add: newObject := {
+        let index := self scanFor: newObject.
+        (array at: index) ifNil: {
+            self atNewIndex: index put: newObject asSetElement
+        }.
+
+        newObject
+    }.
+
+    method scanFor: key ::=> UIntPointer := {
+        ## Make sure we at least have a size.
+        let keyCount := self capacity.
+        keyCount = 0 ifTrue: {
+            self errorNoFreeSpace
+        }.
+
+        ## Find the natural key slot.
+        let keySlot := (key hash castTo: UIntPointer) % keyCount.
+
+        ## Perform linear probing.
+        let i mutable := keySlot.
+        while: i < keyCount do: {
+            let slotKey := array __private __data[i].
+            slotKey == nil || slotKey = key ifTrue: {
+                return: (i + 1 castTo: UIntPointer)
+            }.
+        } continueWith: { i := i + 1 }.
+
+        i := 0.
+        while: i < keySlot do: {
+            let slotKey := array __private __data[i].
+            slotKey == nil || slotKey = key ifTrue: {
+                return: (i + 1 castTo: UIntPointer)
+            }.
+        } continueWith: { i := i + 1 }.
+
+        self errorNoFreeSpace.
+        return: 0
+    }.
+
+    method like: key := {
+        (array at: (self scanFor: key)) enclosedSetElement
+    }.
+}.
+
+}. ## End of namespace Smalltalk

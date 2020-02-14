@@ -4,8 +4,44 @@ String definition: {
     method asSymbol
         := Symbol intern: self.
 }.
+
+gcclass SymbolTableSet superclass: Set; definition: {
+
+    method scanFor: key ::=> UIntPointer := {
+        ## Make sure we at least have a size.
+        let keyCount := self capacity.
+        keyCount = 0 ifTrue: {
+            self errorNoFreeSpace
+        }.
+
+        ## Find the natural key slot.
+        let keySlot := (key stringHash castTo: UIntPointer) % keyCount.
+
+        ## Perform linear probing.
+        keySlot until: keyCount do: {:i :: Void |
+            let slotKey := array __private __data[i].
+            slotKey == nil || (key stringEquals: slotKey) ifTrue: {
+                return: (i + 1 castTo: UIntPointer)
+            }.
+        }.
+
+        0 until: keySlot do: {:i :: Void |
+            let slotKey := array __private __data[i].
+            slotKey == nil || (key stringEquals: slotKey) ifTrue: {
+                return: (i + 1 castTo: UIntPointer)
+            }.
+        }.
+
+        self errorNoFreeSpace.
+        return: 0
+    }.
+}.
+
 Symbol definition: {
     meta extend: {
+        let SymbolTableMutex mutable type: StdNative Mutex.
+        let SymbolTable mutable := SymbolTableSet new.
+
         method intern: stringOrSymbol := {
             stringOrSymbol class == Symbol ifTrue: {
                 return: (self internSymbolInstance: stringOrSymbol reinterpretCastTo: Symbol)
@@ -15,6 +51,15 @@ Symbol definition: {
                 return: (self intern: stringOrSymbol asString)
             }.
 
+            ## Avoid having to allocate a new symbol by doing an initial check in the symbol table.
+            SymbolTableMutex withLock: {
+                let existentDefinition := SymbolTable like: stringOrSymbol.
+                existentDefinition ifNotNil: {
+                    return: existentDefinition
+                }
+            }.
+
+            ## Allocate a new symbol object.
             let string := stringOrSymbol reinterpretCastTo: String.
             let stringSize := string __private __data size.
             let symbolInstance := self basicNew: stringSize.
@@ -24,11 +69,34 @@ Symbol definition: {
         }.
 
         method internSymbolInstance: (symbolInstance: Symbol) ::=> Symbol := {
-            ## TODO: implement this.
-            StdNative stdout << "TODO: internSymbolInstance: " << symbolInstance; nl.
-            symbolInstance.
-        }
+            SymbolTableMutex withLock: {
+                let previousDefinition := SymbolTable like: symbolInstance.
+                previousDefinition ifNil: {
+                    SymbolTable add: symbolInstance.
+                    return: symbolInstance
+                } ifNotNil: {
+                    return: (previousDefinition reinterpretCastTo: Symbol)
+                }
+            }.
+        }.
+
+        method streamSpecies := String.
     }.
+
+compileTimeIf: Compiler compilationTarget areSymbolsEqualsToString then: {
+    method = other := {
+        self == other ifTrue: { return: true }.
+        other class == Symbol ifTrue: { return: false }.
+        return: super = other
+    }.
+} else: {
+    method hash
+        := self identityHash.
+    method = other
+        := self == other.
+}.
+
+	method species := String.
 
     method asSymbol
         := self.

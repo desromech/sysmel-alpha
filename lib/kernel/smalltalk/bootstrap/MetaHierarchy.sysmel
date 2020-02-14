@@ -530,14 +530,14 @@ MethodDictionary definition: {
         return: self
     }.
 
-    method scanFor: (key: ProtoObject) ::=> Int32 := {
+    method scanFor: (key: ProtoObject) ::=> UIntPointer := {
         <staticBinding>
         <nogc>
 
         ## Make sure we at least have a size.
         let keyCount := array __private __data size.
         if: keyCount = 0 then: {
-            return: -1
+            return: 0
         }.
 
         ## Find the natural key slot.
@@ -548,7 +548,7 @@ MethodDictionary definition: {
         while: i < keyCount do: {
             let slotKey := array __private __data[i].
             if: slotKey == key || slotKey == nil then: {
-                return: (i castTo: Int32)
+                return: (i + 1 castTo: UIntPointer)
             }.
         } continueWith: { i := i + 1 }.
 
@@ -556,22 +556,22 @@ MethodDictionary definition: {
         while: i < keySlot do: {
             let slotKey := array __private __data[i].
             if: slotKey == key || slotKey == nil then: {
-                return: (i castTo: Int32)
+                return: (i + 1 castTo: UIntPointer)
             }.
         } continueWith: { i := i + 1 }.
 
-        return: -1
+        return: 0
     }.
 
     method at: (key: ProtoObject) putNoSpaceCheck: (value: ProtoObject) ::=> SelfType := {
         <staticBinding>
         let slot := self scanFor: key.
-        if: slot < 0 then: {
+        if: slot == 0 then: {
             return: self
         }.
 
-        array __private __data[slot] := key.
-        values __private __data[slot] := value.
+        array __private __data[slot - 1] := key.
+        values __private __data[slot - 1] := value.
         tally := tally + 1.
         return: self
     }.
@@ -581,12 +581,12 @@ MethodDictionary definition: {
         <nogc>
         ## LibC printf("atOrNil: %p | tally %zu array [%d]%p values [%d]%p\n", key, tally, array basicSize, array, values basicSize, values).
         let slot := self scanFor: key.
-        if: slot < 0 then: {
+        if: slot == 0 then: {
             return: nil
         }.
 
         ##LibC printf("Found key %p in slot %d\n", array[slot], slot).
-        return: values __private __data[slot]
+        return: values __private __data[slot - 1]
     }.
 }.
 
