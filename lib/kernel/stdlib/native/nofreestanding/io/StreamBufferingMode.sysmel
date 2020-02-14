@@ -1,0 +1,14 @@
+namespace StdNative definition: {
+namespace IO definition: {
+
+#**
+ * The mode for buffering a stream.
+ *#
+enum StreamBufferingMode valueType: Int32; values: #{
+    None: 0.
+    Block: 1.
+    Line: 2.
+}.
+
+}. ## End of namespace IO
+}. ## End of namespace StdNative

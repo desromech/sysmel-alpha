@@ -1,0 +1,253 @@
+namespace StdNative definition: {
+namespace IO definition: {
+
+class UnbufferedFileStream.
+
+class FileStream superclass: UnbufferedFileStream; definition: {
+    compileTimeConstant BufferCapacity := 4096.
+
+    public field bufferingMode type: StreamBufferingMode.
+    protected field buffer_ type: UInt8 pointer.
+
+    private field readPosition_ type: UIntPointer.
+    private field readCapacity_ type: UIntPointer.
+
+    private field writePosition_ type: UIntPointer.
+
+    method initialize => Void := {
+        bufferingMode := StreamBufferingMode Block
+    }.
+
+    override method finalize => Void := {
+        self close.
+        free(buffer_)
+    }.
+
+    override method position => Int64 := {
+        readPosition_ < readCapacity_ ifTrue: {
+            return: super position - (readCapacity_ - readPosition_ castTo: Int64).
+        }.
+
+        writePosition_ > 0 ifTrue: {
+            return: super position + (writePosition_ castTo: Int64)
+        }.
+
+        return: super position
+    }.
+
+    override method atEnd => Boolean8 := {
+        readPosition_ < readCapacity_ ifTrue: {
+            return: false.
+        }.
+
+        writePosition_ > 0 ifTrue: {
+            self flushWriteBuffer
+        }.
+
+        super atEnd
+    }.
+
+    override method seek: (offset: Int64) mode: (mode: SeekMode) ::=> Boolean8 := {
+        self flush.
+        super seek: offset mode: mode.
+    }.
+
+    override method flush => Void := {
+        bufferingMode == StreamBufferingMode None ifTrue: { return: nil }.
+
+        writePosition_ > 0 ifTrue: {
+            self flushWriteBuffer
+        }.
+    }.
+
+    override method read: (buffer: Void pointer) size: (size: UIntPointer) ::=> IntPointer := {
+        bufferingMode == StreamBufferingMode None ifTrue: {
+            return: (super read: buffer size: size)
+        }.
+
+        self beginReading.
+        let availableReadData := readCapacity_ - readPosition_.
+        let destination mutable := buffer reinterpretCastTo: UInt8 pointer.
+        let readBuffer := self validBuffer.
+
+        ## Do we have the required data?
+        size <= availableReadData ifTrue: {
+            memcpy(destination, readBuffer[readPosition_] address, size).
+            readPosition_ := readPosition_ + size.
+            return: (availableReadData castTo: IntPointer)
+        }.
+
+        ## Read the available data from the buffer.
+        let remainingToRead := size - availableReadData.
+        availableReadData > 0 ifTrue: {
+            memcpy(destination, readBuffer[readPosition_] address, availableReadData).
+            destination := destination[availableReadData] address.
+
+            ## Clear the read buffer capacity
+            readPosition_ := 0.
+            readCapacity_ := 0.
+        }.
+
+        ## If the remaining data is smaller than the buffer capacity, fill the buffer and copy the remaining data.
+        remainingToRead < BufferCapacity ifTrue: {
+            let filledAmount := self fillReadBuffer.
+            filledAmount < 0 ifTrue: {
+                return: (availableReadData castTo: IntPointer)
+            }.
+
+            let remainingReadedData := (filledAmount castTo: UIntPointer) min: remainingToRead.
+            memcpy(destination, readBuffer[0] address, remainingReadedData).
+            return: (availableReadData + remainingReadedData castTo: IntPointer).
+        }.
+
+        let remainingReadResult := super read: destination size: remainingToRead.
+        availableReadData > 0 ifTrue: {
+            remainingReadResult < 0 ifTrue: {
+                return: (availableReadData castTo: IntPointer)
+            } ifFalse: {
+                return: (availableReadData + (remainingReadResult castTo: UIntPointer) castTo: IntPointer)
+            }.
+        }.
+
+        return: remainingReadResult
+    }.
+
+    override method write: (buffer: Void const pointer) size: (size: UIntPointer) ::=> IntPointer := {
+        bufferingMode == StreamBufferingMode None ifTrue: {
+            return: (super write: buffer size: size)
+        }.
+
+        self beginWriting.
+        let writeBuffer := self validBuffer.
+        let remainingWriteCapacity mutable := BufferCapacity - writePosition_ castTo: UIntPointer.
+        size > remainingWriteCapacity ifTrue: {
+            self flushWriteBuffer.
+            remainingWriteCapacity := BufferCapacity.
+        }.
+
+        size <= remainingWriteCapacity ifTrue: {
+            let oldWritePosition := writePosition_.
+            memcpy(writeBuffer[writePosition_] address, buffer, size).
+            writePosition_ := writePosition_ + size.
+
+            bufferingMode == StreamBufferingMode Line ifTrue: {
+                self flushWriteBufferIfLineIsWrittenFrom: oldWritePosition
+            }.
+
+            return: (size castTo: IntPointer)
+        }.
+
+        super write: buffer size: size.
+    }.
+
+    override method close => Void := {
+        self flush.
+        super close.
+    }.
+
+    inline method beginReading => Void := {
+        writePosition_ > 0 ifTrue: {
+            self flushWriteBuffer
+        }
+    }.
+
+    inline method fillReadBuffer => IntPointer := {
+        let readResult := super read: self validBuffer size: BufferCapacity.
+        readPosition_ := 0.
+        readCapacity_ := 0.
+        readResult >= 0 ifTrue: {
+            readCapacity_ := readResult castTo: UIntPointer
+        }.
+
+        readResult
+    }.
+
+    inline method rewindReadBuffer => Void := {
+        let toRewind := readCapacity_ - readPosition_.
+        toRewind > 0 ifTrue: {
+            super seek: (toRewind castTo: IntPointer) negated mode: SeekMode Current
+        }.
+
+        readPosition_ := 0.
+        readCapacity_ := 0.
+    }.
+
+    inline method beginWriting => Void := {
+        readPosition_ < readCapacity_ ifTrue: {
+            self rewindReadBuffer
+        }.
+    }.
+
+    inline method flushWriteBuffer => IntPointer := {
+        writePosition_ > 0 ifTrue: {
+            let writeCount := super write: self validBuffer size: writePosition_.
+            writePosition_ := 0.
+            return: writeCount
+        }.
+
+        return: 0
+    }.
+
+    inline method validBuffer => UInt8 pointer := {
+        buffer_ ifNil: {
+            buffer_ := malloc(BufferCapacity) reinterpretCastTo: UInt8 pointer
+        }.
+
+        buffer_
+    }.
+
+    inline method flushWriteBufferIfLineIsWrittenFrom: (oldWritePosition: UIntPointer) ::=> Void := {
+        ## Check for a linefeed or carriage return in the specified range.
+        let newWritePosition := writePosition_.
+        let lastLineFeedPosition mutable := oldWritePosition.
+        let lineFeedFound mutable := false.
+        oldWritePosition until: newWritePosition do: {:i :: Void |
+            let char := buffer_[i].
+            char == '\n' || char == '\r' ifTrue: {
+                lastLineFeedPosition := i.
+                lineFeedFound := true.
+            }.
+        }.
+
+        ## If we have found a linefeed or carriage return, then we should perform a partial flush.
+        lineFeedFound ifTrue: {
+            let partialFlushSize := lastLineFeedPosition + 1.
+            super write: buffer_ size: partialFlushSize.
+
+            let remainingBufferData := writePosition_ - partialFlushSize.
+            remainingBufferData > 0 ifTrue: {
+                memcpy(buffer_, buffer_[partialFlushSize] address, remainingBufferData).
+            }.
+            writePosition_ := remainingBufferData
+        }
+    }.
+
+}.
+
+class AtomicFileStream superclass: FileStream; definition: {
+    private field mutex type: RecursiveMutex.
+
+    override method position => Int64
+        := mutex withLock: {super position}.
+
+    override method atEnd => Boolean8
+        := mutex withLock: {super atEnd}.
+
+    override method seek: (offset: Int64) mode: (mode: SeekMode) ::=> Boolean8
+        := mutex withLock: {super seek: offset mode: mode}.
+
+    override method write: (buffer: Void const pointer) size: (size: UIntPointer) ::=> IntPointer
+        := mutex withLock: {super write: buffer size: size}.
+
+    override method read: (buffer: Void pointer) size: (size: UIntPointer) ::=> IntPointer
+        := mutex withLock: {super read: buffer size: size}.
+
+    override method flush => Void
+        := mutex withLock: {super flush}.
+
+    override method close => Void
+        := mutex withLock: {super close}.
+}.
+
+}. ## End of namespace IO
+}. ## End of namespace StdNative

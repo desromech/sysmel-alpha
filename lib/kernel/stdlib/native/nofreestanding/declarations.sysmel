@@ -1,6 +1,7 @@
 namespace StdNative definition: {
 
 class Mutex.
+class RecursiveMutex.
 class ConditionVariable.
 class Semaphore.
 class MemoryHeapMutex.

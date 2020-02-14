@@ -28,6 +28,12 @@ class TextStreamWriter definition: {
         (stream _ write: string size: size) == (size castTo: IntPointer)
     }.
 
+    method flush => Void
+        := stream _ flush.
+
+    method close => Void
+        := stream _ close.
+
     method nextPutBasicValuePrinterBuffer: (valuePrinter: BasicValuePrinter const ref) ::=> Boolean8 := {
         valuePrinter bufferSize > 0 ifTrue: {
             (stream _ write: valuePrinter buffer [0] address size: valuePrinter bufferSize) == (valuePrinter bufferSize castTo: IntPointer)

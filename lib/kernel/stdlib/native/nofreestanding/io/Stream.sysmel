@@ -2,18 +2,11 @@ namespace StdNative definition: {
 namespace IO definition: {
 
 #**
- * The mode for seeking a file.
- *#
-enum SeekMode valueType: Int32; values: #{
-    Set: 0.
-    Current: 1.
-    End: 2.
-}.
-
-#**
  * This is a generic byte oriented stream.
  *#
 class Stream definition: {
+    virtual method finalize => Void := {}.
+
     #**
      * Tells the current position of the stream in the file.
      * Negative for error or not supported.
@@ -46,6 +39,16 @@ class Stream definition: {
      *#
      virtual method read: (buffer: Void pointer) size: (size: UIntPointer) ::=> IntPointer
          := -1.
+
+    #**
+     * Flushes the buffered stream data. Any decorated stream is also flushed.
+     *#
+    virtual method flush => Void := {}.
+
+    #**
+     * Closes the stream. This closes any underlyng stream and file handle.
+     *#
+    virtual method close => Void := {}.
 }.
 
 }. ## End of namespace IO

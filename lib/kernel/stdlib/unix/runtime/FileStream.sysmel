@@ -5,7 +5,7 @@ namespace IO definition: {
 #**
  * File stream class.
  *#
-class FileStream superclass: Stream;
+class UnbufferedFileStream superclass: Stream;
 definition: {
     public field fd type: Int32.
     private field eofDetected_ private type: Boolean8.
@@ -14,6 +14,9 @@ definition: {
         := SelfType basicNewValue
             fd: handle;
             yourself.
+
+    override method finalize => Void
+        := self close.
 
     method open: (path: CTypes ConstString) mode: (mode: FileOpenMode) permissions: (permissions: FilePermissions) ::=> Boolean8 := {
         let convertedMode mutable type: Int32 := Unix O_RDONLY.
@@ -88,14 +91,35 @@ definition: {
         eofDetected_ := result = 0.
         result
     }.
-
-    method isConsole ::=> Boolean8
-        := Unix isatty(fd) = 1.
 }.
 
-global stdinFile mutable := FileStream fromFD: Unix STDIN_FILENO.
-global stdoutFile mutable := FileStream fromFD: Unix STDOUT_FILENO.
-global stderrFile mutable := FileStream fromFD: Unix STDERR_FILENO.
+class FileStream definition: {
+    meta method fromFD: (handle: Int32) bufferingMode: (mode: StreamBufferingMode) ::=> SelfType := {
+        <notInCompileTime>
+        SelfType basicNewValue
+            fd: handle;
+            initialize;
+            bufferingMode: mode;
+            yourself.
+    }
+}.
+
+class AtomicFileStream definition: {
+    meta method fromFD: (handle: Int32) bufferingMode: (mode: StreamBufferingMode) ::=> SelfType := {
+        <notInCompileTime>
+        SelfType basicNewValue
+            fd: handle;
+            initialize;
+            bufferingMode: mode;
+            yourself.
+    }
+}.
+
+global stdinFile mutable := AtomicFileStream fromFD: Unix STDIN_FILENO bufferingMode: StreamBufferingMode Block.
+global stdoutFile mutable := AtomicFileStream fromFD: Unix STDOUT_FILENO
+    bufferingMode: (if: Unix isatty(Unix STDOUT_FILENO) == 1 then: StreamBufferingMode Line else: StreamBufferingMode Block).
+##global stdoutFile mutable := AtomicFileStream fromFD: Unix STDOUT_FILENO bufferingMode: StreamBufferingMode Line.
+global stderrFile mutable := AtomicFileStream fromFD: Unix STDERR_FILENO bufferingMode: StreamBufferingMode None.
 
 }. ## End of namespace IO
 

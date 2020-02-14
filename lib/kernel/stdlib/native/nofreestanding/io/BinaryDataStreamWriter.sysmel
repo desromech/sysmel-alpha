@@ -1,2 +1,20 @@
 namespace StdNative definition: {
+namespace IO definition: {
+
+#**
+ * Binary data stream reader
+ *#
+class BinaryDataStreamWriter definition: {
+    public field stream type: Stream pointer.
+    public field activeEndianness type: BinaryDataStreamEndianness.
+    public field isGood type: Boolean8.
+
+    meta method for: (stream: Stream pointer) ::=> SelfType
+        := SelfType newValue
+            stream: stream;
+            isGood: true;
+            yourself.
 }.
+
+}. ## End of namespace IO
+}. ## End of namespace StdNative

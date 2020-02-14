@@ -1,0 +1,17 @@
+namespace StdNative definition: {
+namespace IO definition: {
+
+#**
+ * Text stream reader
+ *#
+class TextStreamReader definition: {
+    field stream public type: Stream pointer.
+
+    meta method for: (stream: Stream pointer) ::=> SelfType
+        := SelfType newValue
+            stream: stream;
+            yourself.
+}.
+
+}. ## End of namespace IO
+}. ## End of namespace StdNative

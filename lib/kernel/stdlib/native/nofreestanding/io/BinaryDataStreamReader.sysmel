@@ -2,20 +2,6 @@ namespace StdNative definition: {
 namespace IO definition: {
 
 #**
- * Binary data stream endianness mode.
- *#
-enum BinaryDataStreamEndianness valueType: Int32; values: #{
-    ## No byte swapping.
-    Native: 0.
-
-    ## Little endian encoding.
-    Little: 1.
-
-    ## Big endian encoding.
-    Big: 2
-}.
-
-#**
  * Binary data stream reader
  *#
 class BinaryDataStreamReader definition: {
