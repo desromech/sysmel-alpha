@@ -41,7 +41,9 @@ Trait {
 		'objectToChar32Function',
 		'objectToFloat64Function',
 		'objectToBoolean8Function',
-		'messageClass'
+		'messageClass',
+		'moduleRootRegistrationFunction',
+		'moduleRootUnregistrationFunction'
 	],
 	#traits : 'TMbndAbstractManagedObjectModel',
 	#classTraits : 'TMbndAbstractManagedObjectModel classTrait',
@@ -162,6 +164,11 @@ TMbndCoreManagedObjectModel >> classVariableClass [
 { #category : #accessing }
 TMbndCoreManagedObjectModel >> classVariableClass: anObject [
 	classVariableClass := anObject
+]
+
+{ #category : #accessing }
+TMbndCoreManagedObjectModel >> compilationTarget [
+	^ compilationTarget
 ]
 
 { #category : #accessing }
@@ -330,6 +337,26 @@ TMbndCoreManagedObjectModel >> methodDictionaryClass [
 { #category : #accessing }
 TMbndCoreManagedObjectModel >> methodDictionaryClass: anObject [
 	methodDictionaryClass := anObject
+]
+
+{ #category : #accessing }
+TMbndCoreManagedObjectModel >> moduleRootRegistrationFunction [
+	^ moduleRootRegistrationFunction
+]
+
+{ #category : #accessing }
+TMbndCoreManagedObjectModel >> moduleRootRegistrationFunction: anObject [
+	moduleRootRegistrationFunction := anObject
+]
+
+{ #category : #accessing }
+TMbndCoreManagedObjectModel >> moduleRootUnregistrationFunction [
+	^ moduleRootUnregistrationFunction
+]
+
+{ #category : #accessing }
+TMbndCoreManagedObjectModel >> moduleRootUnregistrationFunction: anObject [
+	moduleRootUnregistrationFunction := anObject
 ]
 
 { #category : #accessing }

@@ -30,7 +30,9 @@ Class {
 		'objectToInt64Function',
 		'objectToChar32Function',
 		'objectToFloat64Function',
-		'objectToBoolean8Function'
+		'objectToBoolean8Function',
+		'moduleRootRegistrationFunction',
+		'moduleRootUnregistrationFunction'
 	],
 	#category : #'SysmelMoebiusCodeGenerator-Slovim-CompilationTarget'
 }
@@ -130,7 +132,7 @@ MbndSlovimObjectModel >> convertDynamicLiteralToConstant: dynamicLiteralValue wi
 		dynamicLiteralValue createNonInlineLiteralObjectForMbndObjectModel: self .
 	]).
 
-	literalGlobal := SLVMGlobalVariable module: moduleCodeGenerator ssaModule name: dynamicLiteralName valueType: initialValue type storage: SLVMType genericStorage.
+	literalGlobal := SLVMGlobalVariable module: moduleCodeGenerator ssaModule name: dynamicLiteralName valueType: initialValue type storage: SLVMType gcStorage.
 	literalGlobal makePrivate; initialValue: initialValue.
 	
 	convertedValue value: literalGlobal targetType: targetType.
@@ -324,6 +326,11 @@ MbndSlovimObjectModel >> gcClosureHeaderType [
 	^ gcClosureHeaderType ifNil: [ gcClosureHeaderType := (moduleCodeGenerator translateType: managedObjectModel blockClosureHeaderClass) baseType ]
 ]
 
+{ #category : #'as yet unclassified' }
+MbndSlovimObjectModel >> gcModuleRootRegistrationPriority [
+	^ managedObjectModel compilationTarget gcModuleRootRegistrationPriority
+]
+
 { #category : #accessing }
 MbndSlovimObjectModel >> gcrootIntrinsic [
 	^ gcrootIntrinsic ifNil: [
@@ -398,6 +405,18 @@ MbndSlovimObjectModel >> moduleCodeGenerator [
 { #category : #accessing }
 MbndSlovimObjectModel >> moduleCodeGenerator: anObject [
 	moduleCodeGenerator := anObject
+]
+
+{ #category : #accessing }
+MbndSlovimObjectModel >> moduleRootRegistrationFunction [
+	<compileTime>
+	^ moduleRootRegistrationFunction ifNil: [moduleRootRegistrationFunction := (moduleCodeGenerator translateProgramEntity: managedObjectModel moduleRootRegistrationFunction) ssaValue ]
+]
+
+{ #category : #accessing }
+MbndSlovimObjectModel >> moduleRootUnregistrationFunction [
+	<compileTime>
+	^ moduleRootUnregistrationFunction ifNil: [moduleRootUnregistrationFunction := (moduleCodeGenerator translateProgramEntity: managedObjectModel moduleRootUnregistrationFunction) ssaValue ]
 ]
 
 { #category : #'as yet unclassified' }

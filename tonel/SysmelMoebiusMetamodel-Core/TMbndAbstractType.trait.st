@@ -647,6 +647,11 @@ TMbndAbstractType >> hasDynamicMessageLookup [
 	^ false
 ]
 
+{ #category : #'testing methods' }
+TMbndAbstractType >> hasGarbageCollectedAddressSpace [
+	^ self isGarbageCollectedType
+]
+
 { #category : #'type hierarchy' }
 TMbndAbstractType >> hasImmediateSupertype: aType [
 	^ self supertype == aType

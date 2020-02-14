@@ -104,6 +104,11 @@ MbndArrayType >> elements: anObject [
 	elements := anObject
 ]
 
+{ #category : #'testing methods' }
+MbndArrayType >> hasGarbageCollectedAddressSpace [
+	^ elementType hasGarbageCollectedAddressSpace
+]
+
 { #category : #sizes }
 MbndArrayType >> instanceAlignment [
 	<compileTime>

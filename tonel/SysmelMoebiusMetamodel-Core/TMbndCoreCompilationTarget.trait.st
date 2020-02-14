@@ -422,6 +422,16 @@ TMbndCoreCompilationTarget >> gcClassVariableDataArrayOf: elementType [
 	^ gcClassVariableDataArrayTypes getOrCreateInstanceWithArguments: { elementType }
 ]
 
+{ #category : #'as yet unclassified' }
+TMbndCoreCompilationTarget >> gcInitializationPriority [
+	^ -1000
+]
+
+{ #category : #'as yet unclassified' }
+TMbndCoreCompilationTarget >> gcModuleRootRegistrationPriority [
+	^ self gcInitializationPriority + 1
+]
+
 { #category : #accessing }
 TMbndCoreCompilationTarget >> getBasicTypeNamed: typeName [
 	^ basicTypes at: typeName

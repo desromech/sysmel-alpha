@@ -1052,7 +1052,7 @@ MbndSlovimCodeModuleGenerator >> translateTypeInfoDefinition: type [
 	].
 
 	self assert: ssaTypeInfoType isPointerType.
-	ssaTypeInfo := SLVMGlobalVariable module: ssaModule name: (self newSymbolNameMangler mangleTypeInfo: type) valueType: ssaTypeInfoType baseType storage: SLVMType genericStorage.
+	ssaTypeInfo := SLVMGlobalVariable module: ssaModule name: (self newSymbolNameMangler mangleTypeInfo: type) valueType: ssaTypeInfoType baseType storage: (metaType hasGarbageCollectedAddressSpace ifTrue: [SLVMType gcStorage] ifFalse: [SLVMType genericStorage]).
 	self setProgramEntity: type ssaValue: ssaTypeInfo.
 	ssaModule addHighLevelEntity: type mapToGlobalValue: ssaTypeInfo.
 	
@@ -1256,7 +1256,7 @@ MbndSlovimCodeModuleGenerator >> visitCompileTimeVariable: compileTimeVariable [
 	].
 	
 	csymbol := (self generatedNameForAnynomousEntity: compileTimeVariable) asSymbol.
-	ssaCompileTimeVariable := SLVMGlobalVariable module: ssaModule name: csymbol valueType: ssaValueType storage: SLVMType genericStorage.
+	ssaCompileTimeVariable := SLVMGlobalVariable module: ssaModule name: csymbol valueType: ssaValueType storage: (compileTimeVariable valueType hasGarbageCollectedAddressSpace ifTrue: [ SLVMType gcStorage ] ifFalse: [ SLVMType genericStorage ]).
 	ssaCompileTimeVariable unmangledName: csymbol.
 	self setProgramEntity: compileTimeVariable ssaValue: ssaCompileTimeVariable.
 	ssaModule addHighLevelEntity: compileTimeVariable mapToGlobalValue: ssaCompileTimeVariable.
@@ -1456,6 +1456,10 @@ MbndSlovimCodeModuleGenerator >> visitGlobalVariable: globalVariable [
 	].
 
 	storage := SLVMType genericStorage.
+	globalVariable valueType hasGarbageCollectedAddressSpace ifTrue: [ 
+		storage := SLVMType gcStorage
+	].
+
 	isReadOnly := globalVariable type isReferenceType not or: [globalVariable type withoutReferences isConstantType]. 
 	hasInitialValue := globalVariable hasExternalVisibility not.
 
