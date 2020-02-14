@@ -362,7 +362,7 @@ TMbndAbstractType >> asImmutableValueType [
 TMbndAbstractType >> asInstanceObjectForTypeInfoGeneration [
 	^ self nativeClassForMetaTypeGeneration ifNotNil: [ :typeInfoClass |
 		| typeInfoInstance |
-		typeInfoInstance := typeInfoClass defaultValue.
+		typeInfoInstance := typeInfoClass makeInstance.
 		self fillTypeInfoInstance: typeInfoInstance.
 		typeInfoInstance
 	].

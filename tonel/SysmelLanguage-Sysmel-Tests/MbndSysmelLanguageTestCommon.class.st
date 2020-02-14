@@ -216,13 +216,14 @@ ProtoObject definition: {
 
 Behavior definition: {
     field superclass public type: Behavior.
-    field methodDict public type: MethodDictionary.
-    field gclayout public type: GCLayout.
-    field basicInitializeFunctionPointer public type: _BasicInitializeFunctionPointerType.
-    field slots public type: Array.
-
     field instanceDataSize public type: UInt32.
     field instanceDataAlignment public type: UInt32.
+
+    field basicInitializationFunctionPointer public type: _BasicInitializeFunctionPointerType.
+
+    field methodDict public type: MethodDictionary.
+    field gclayout public type: GCLayout.
+    field slots public type: Array.
 
     field variableInstanceElementSize public type: UInt32.
     field variableInstanceElementAlignment public type: UInt32.
@@ -305,8 +306,8 @@ compileTimeConstant MoveConstructorFunctionPointerType := ((Void pointer -- Void
 
 class TypeInformation definition: {
 	public field superclass type: TypeInformation pointer.
-	public field instanceSize type: UIntPointer.
-	public field instanceAlignment type: UIntPointer.
+	public field instanceDataSize type: UIntPointer.
+	public field instanceDataAlignment type: UIntPointer.
 	public field basicInitializationFunctionPointer type: NativeBasicInitializeFunctionPointerType.
 	public field copyConstructorFunctionPointer type: CopyConstructorFunctionPointerType.
 	public field moveConstructorFunctionPointer type: MoveConstructorFunctionPointerType.

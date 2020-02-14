@@ -303,6 +303,11 @@ MbndAggregateTypeWithFields >> instanceSize [
 	^ self instanceDataSize
 ]
 
+{ #category : #'default values' }
+MbndAggregateTypeWithFields >> makeInstance [
+	^ self defaultValueAt: nil
+]
+
 { #category : #layout }
 MbndAggregateTypeWithFields >> nonTraitSuperType [
 	^ (self compilationTarget getBasicTypeNamed: self class typeName) == supertype

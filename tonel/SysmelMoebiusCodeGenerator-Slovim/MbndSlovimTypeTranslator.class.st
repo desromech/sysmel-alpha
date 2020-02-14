@@ -272,7 +272,9 @@ MbndSlovimTypeTranslator >> visitSamplerType: type [
 MbndSlovimTypeTranslator >> visitSimpleMetaType: metaType [
 	metaType instanceType ifNotNil: [ :it |
 		it nativeClassForMetaTypeGeneration ifNotNil: [ :typeInfoClass |
-			^ self translateType: typeInfoClass pointer
+			^ self translateType: (typeInfoClass isGarbageCollectedType
+				ifTrue: [ typeInfoClass ]
+				ifFalse: [typeInfoClass pointer])
 		].
 	].
 

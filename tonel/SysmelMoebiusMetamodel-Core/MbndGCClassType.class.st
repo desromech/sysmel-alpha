@@ -183,7 +183,7 @@ MbndGCClassType >> fillTypeInfoInstance: typeInfoInstance [
 	typeInfoInstance
 		setField: #superclass value: self superclass;
 		setField: #methodDict value: self methodDictionaryInstanceObject;
-		setField: #basicInitializeFunctionPointer value: self basicInitializeMethod;
+		setField: #basicInitializationFunctionPointer value: self basicInitializeMethod;
 		setField: #instanceDataSize value: self instanceDataSize;
 		setField: #instanceDataAlignment value: self instanceDataAlignment;
 		setField: #variableInstanceElementSize value: (variableDataType ifNil: [ 0 ] ifNotNil: [variableDataType instanceSize]);
@@ -267,6 +267,11 @@ MbndGCClassType >> isReferenceLikeValueType [
 { #category : #testing }
 MbndGCClassType >> isTypePassedByReference [
 	^ false
+]
+
+{ #category : #'default values' }
+MbndGCClassType >> makeInstance [
+	^ self makeInstance: 0 identityHash: 0
 ]
 
 { #category : #'as yet unclassified' }

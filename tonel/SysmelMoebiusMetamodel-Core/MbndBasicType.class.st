@@ -169,8 +169,8 @@ MbndBasicType >> ensureSyntheticMethodExists: aSelector [
 { #category : #converting }
 MbndBasicType >> fillTypeInfoInstance: typeInfoInstance [
 	typeInfoInstance
-		setField: #instanceSize value: self instanceSize;
-		setField: #instanceAlignment value: self instanceSize;
+		setField: #instanceDataSize value: self instanceSize;
+		setField: #instanceDataAlignment value: self instanceAlignment;
 		setField: #basicInitializationFunctionPointer value: 
 			(self hasTrivialBasicInitialization
 				ifTrue: [ nil ]
