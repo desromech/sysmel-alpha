@@ -1,0 +1,8 @@
+namespace SysmelKernel definition: {
+
+struct _GCRootPointerDescriptor definition: {
+    public field pointer type: Void pointer.
+    public field elementCount type: UIntPointer.
+}.
+
+}.

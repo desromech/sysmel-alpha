@@ -1,0 +1,14 @@
+namespace Smalltalk definition: {
+
+function registerModuleRoots(roots: _GCRootPointerDescriptor pointer, rootCount: UIntPointer) => Void := {
+    StdNative stdout << "registerModuleRoots rootsPointer " << roots << " rootCount " << rootCount; nl.
+}.
+function unregisterModuleRoots(roots: _GCRootPointerDescriptor pointer, rootCount: UIntPointer) => Void := {
+    StdNative stdout << "unregisterModuleRoots rootsPointer " << roots << " rootCount " << rootCount; nl.
+}.
+
+Compiler compilationTarget managedObjectModel
+    moduleRootRegistrationFunction: registerModuleRoots;
+    moduleRootUnregistrationFunction: unregisterModuleRoots.
+
+}. ## End of namespace Smalltalk

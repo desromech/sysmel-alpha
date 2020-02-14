@@ -52,6 +52,6 @@ class SysmelGC definition: {
 	}.
 }.
 
-global globalSysmelGC mutable type: SysmelGC; constructionPriority: -1000.
+global globalSysmelGC mutable type: SysmelGC; constructionPriority: Compiler compilationTarget gcInitializationPriority.
 
 }.
