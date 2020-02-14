@@ -43,7 +43,8 @@ Trait {
 		'objectToBoolean8Function',
 		'messageClass',
 		'moduleRootRegistrationFunction',
-		'moduleRootUnregistrationFunction'
+		'moduleRootUnregistrationFunction',
+		'gcLayoutClass'
 	],
 	#traits : 'TMbndAbstractManagedObjectModel',
 	#classTraits : 'TMbndAbstractManagedObjectModel classTrait',
@@ -257,6 +258,16 @@ TMbndCoreManagedObjectModel >> gcBlockClosureAllocationFunction [
 { #category : #accessing }
 TMbndCoreManagedObjectModel >> gcBlockClosureAllocationFunction: aFunction [
 	gcBlockClosureAllocationFunction := aFunction
+]
+
+{ #category : #accessing }
+TMbndCoreManagedObjectModel >> gcLayoutClass [
+	^ gcLayoutClass
+]
+
+{ #category : #accessing }
+TMbndCoreManagedObjectModel >> gcLayoutClass: anObject [
+	gcLayoutClass := anObject
 ]
 
 { #category : #accessing }

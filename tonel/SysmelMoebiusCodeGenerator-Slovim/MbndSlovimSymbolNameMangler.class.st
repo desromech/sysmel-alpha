@@ -468,6 +468,13 @@ MbndSlovimSymbolNameMangler >> visitFunctionType: type [
 ]
 
 { #category : #visiting }
+MbndSlovimSymbolNameMangler >> visitGCBlockClosureType: type [
+	output nextPut: $U.
+	self emitSubstitutionElement: #gcBlockClosure.
+	self mangleType: type functionType
+]
+
+{ #category : #visiting }
 MbndSlovimSymbolNameMangler >> visitGCClassType: type [
 	^ self visitGenericType: type
 ]
@@ -504,6 +511,13 @@ MbndSlovimSymbolNameMangler >> visitInputChannelType: type [
 	output nextPut: $U.
 	self emitSubstitutionElement: #inputChannel.
 	self mangleType: type messageType
+]
+
+{ #category : #visiting }
+MbndSlovimSymbolNameMangler >> visitNativeBlockClosureType: type [
+	output nextPut: $U.
+	self emitSubstitutionElement: #nativeBlockClosure.
+	self mangleType: type functionType
 ]
 
 { #category : #visiting }

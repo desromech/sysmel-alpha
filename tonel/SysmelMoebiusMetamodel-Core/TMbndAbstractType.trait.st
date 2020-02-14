@@ -466,6 +466,11 @@ TMbndAbstractType >> buildTypeConversionChainUntil: targetType fromVisitedTypes:
 ]
 
 { #category : #testing }
+TMbndAbstractType >> canHaveDynamicMethodWrapper [
+	^ true
+]
+
+{ #category : #testing }
 TMbndAbstractType >> canValueBeCreatedForNode: node [
 	"This allows the opportunity of creating values of types with a specific kind of node, and avoiding of type conversion machinery. This is useful to convert tuple creation nodes into arrays without creating an intermediate tuple value in the process."
 	^ false

@@ -217,7 +217,8 @@ MbndSlovimDebugInformationTranslator >> visitArrayType: arrayType [
 { #category : #visiting }
 MbndSlovimDebugInformationTranslator >> visitBlockClosureMethod: blockClosureMethod [
 	| debugInfo |
-	self assert: blockClosureMethod isBlockClosureWithImmediateActivation not.
+	blockClosureMethod isBlockClosureWithImmediateActivation ifTrue: [ ^ self translateProgramEntityDebugInformation: blockClosureMethod parent ].
+
 	debugInfo := SLVMDebugSubprogram new.
 
 	translatedEntities at: blockClosureMethod put: debugInfo.

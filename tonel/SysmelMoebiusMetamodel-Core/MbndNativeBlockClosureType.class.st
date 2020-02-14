@@ -17,6 +17,11 @@ MbndNativeBlockClosureType >> accept: aVisitor [
 	^ aVisitor visitNativeBlockClosureType: self
 ]
 
+{ #category : #testing }
+MbndNativeBlockClosureType >> canHaveDynamicMethodWrapper [
+	^ false
+]
+
 { #category : #accessing }
 MbndNativeBlockClosureType >> functionTypeWithGenericClosurePointer [
 	^ functionTypeWithGenericClosurePointer ifNil: [

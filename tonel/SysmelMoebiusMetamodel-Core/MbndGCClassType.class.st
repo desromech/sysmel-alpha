@@ -147,10 +147,37 @@ MbndGCClassType >> defaultVariableType [
 { #category : #converting }
 MbndGCClassType >> fillTypeInfoInstance: typeInfoInstance [
 	| variableDataType |
-	self flag: 'TODO: Set the GC layout'.
 	variableDataType := nil.
-	(fields isNotEmpty and: [ fields last valueType isGCClassVariableDataArrayType ]) ifTrue: [ 
-		variableDataType := fields last valueType elementType.
+	self slotLayout slots last type isGCClassVariableDataArrayType ifTrue: [ 
+		variableDataType := self slotLayout slots last type elementType.
+	].
+
+	self compilationTarget managedObjectModel gcLayoutClass ifNotNil: [ :gcLayoutClass |
+		| wordSize bitsPerWord wordCount gcLayout bitmap |
+		wordSize := self compilationTarget pointerSize.
+		wordCount := (self instanceDataSize alignedTo: self instanceDataAlignment) / wordSize.
+		bitsPerWord := wordSize * 8.
+		gcLayout := gcLayoutClass makeInstance: wordCount identityHash: 0.
+		bitmap := gcLayout slots last slots.
+		variableDataType ifNotNil: [
+			variableDataType hasGarbageCollectedAddressSpace ifTrue: [
+				gcLayout setField: #variableDataIsGCPointers value: true.
+			].
+		].
+	
+		self slotLayout slots do: [ :slot |
+			slot type hasGarbageCollectedAddressSpace ifTrue: [ 
+				| baseWord |
+				baseWord := slot offset // wordSize.
+				0 to: slot type instanceSize // wordSize - 1 do: [ :i |
+					| wordIndex bitIndex |
+					wordIndex := (baseWord + i) // bitsPerWord + 1.
+					bitIndex := (baseWord + i) % bitsPerWord.
+					bitmap at: wordIndex put: (bitmap at: wordIndex) | (1 << bitIndex).
+				].
+			].
+		].
+		typeInfoInstance setField: #gcLayout value: gcLayout.
 	].
 
 	typeInfoInstance

@@ -85,6 +85,8 @@ MbndAbstractConcreteMethod >> constructEvaluationScopeWithReceiver: receiverValu
 MbndAbstractConcreteMethod >> createDynamicMethodWrapper [
 	| wrapper |
 	self compilationTarget dynamicObjectType ifNil: [ ^ nil ].
+	boundType canHaveDynamicMethodWrapper ifFalse: [ ^ nil ].
+	
 	wrapper := MbndDynamicMethodWrapper new
 		parent: parent;
 		wrappedMethod: self;

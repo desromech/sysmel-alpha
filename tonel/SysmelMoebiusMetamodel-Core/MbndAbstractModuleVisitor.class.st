@@ -132,6 +132,11 @@ MbndAbstractModuleVisitor >> visitFunctionType: type [
 ]
 
 { #category : #visiting }
+MbndAbstractModuleVisitor >> visitGCBlockClosureType: type [
+	self subclassResponsibility
+]
+
+{ #category : #visiting }
 MbndAbstractModuleVisitor >> visitGCClassType: type [
 	self subclassResponsibility
 ]
@@ -193,6 +198,11 @@ MbndAbstractModuleVisitor >> visitNamespace: namespace [
 
 { #category : #visiting }
 MbndAbstractModuleVisitor >> visitNamespaceType: type [
+	self subclassResponsibility
+]
+
+{ #category : #visiting }
+MbndAbstractModuleVisitor >> visitNativeBlockClosureType: type [
 	self subclassResponsibility
 ]
 

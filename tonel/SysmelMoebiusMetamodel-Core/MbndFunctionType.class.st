@@ -113,6 +113,15 @@ MbndFunctionType >> callingConvention: anObject [
 	callingConvention := anObject
 ]
 
+{ #category : #testing }
+MbndFunctionType >> canHaveDynamicMethodWrapper [
+	argumentTypes do: [ :each |
+		each canHaveDynamicMethodWrapper ifFalse: [ ^ false ]
+	].
+	returnType canHaveDynamicMethodWrapper ifFalse: [ ^ false ].
+	^ true
+]
+
 { #category : #accessing }
 MbndFunctionType >> cvariadic [
 	<compileTime>
