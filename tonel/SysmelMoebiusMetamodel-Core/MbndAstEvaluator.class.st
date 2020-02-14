@@ -313,6 +313,15 @@ MbndAstEvaluator >> visitPointerAsReferenceNode: node [
 ]
 
 { #category : #visiting }
+MbndAstEvaluator >> visitPointerReinterpretCastNode: node [
+	| pointer |
+	pointer := self visitNode: node expression.
+	^ pointer copy
+		type: node type;
+		yourself
+]
+
+{ #category : #visiting }
 MbndAstEvaluator >> visitQuasiQuoteNode: node [
 	| result |
 	result := MbndAstQuasiQuoteEvaluator new
@@ -473,6 +482,19 @@ MbndAstEvaluator >> visitTupleNode: node [
 	| result |
 	result := node elements collect: [ :el | (self visitNode: el) unwrapMbndValue ].
 	^ MbndValue value: result type: node type
+]
+
+{ #category : #visiting }
+MbndAstEvaluator >> visitTupleSplicingNode: node [
+	| tuple |
+	node elementIndex = 1 ifTrue: [ 
+		tuple := self visitNode: node tupleExpression.
+		scope setBinding: node storage: tuple.
+	] ifFalse: [
+		tuple := scope lookBindingStorage: node tupleExpression.
+	].
+
+	^ (tuple value at: node elementIndex) asMoebiusValueWithType: node type
 ]
 
 { #category : #visiting }

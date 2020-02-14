@@ -62,6 +62,11 @@ MbndAbstractModuleVisitor >> visitCompilerObjectType: type [
 ]
 
 { #category : #visiting }
+MbndAbstractModuleVisitor >> visitConcreteFunclet: method [
+	self subclassResponsibility
+]
+
+{ #category : #visiting }
 MbndAbstractModuleVisitor >> visitConcreteFunctionMethod: method [
 	self subclassResponsibility
 ]

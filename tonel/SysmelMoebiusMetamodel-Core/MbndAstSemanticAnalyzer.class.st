@@ -308,9 +308,10 @@ MbndAstSemanticAnalyzer >> ensureIntegerValue: node at: position [
 
 { #category : #'implicit casting' }
 MbndAstSemanticAnalyzer >> ensureLiteralIsConcreted: node [
-	node type isLiteralValueType ifFalse: [ ^ node ].
-	self assert: node isLiteralValueNode.
-	^ self addImplicitCastFor: node to: (node type standardConcreteTypeForLiteralValueNode: node inScope: scope)
+	| concreteType |
+	concreteType := node type standardConcreteTypeForLiteralValueNode: node inScope: scope.
+	concreteType == node type ifTrue: [ ^ node ].
+	^ self addImplicitCastFor: node to: concreteType
 ]
 
 { #category : #'implicit casting' }
@@ -1199,7 +1200,7 @@ MbndAstSemanticAnalyzer >> visitGetGCVariableDataArraySizeNode: node [
 
 { #category : #visiting }
 MbndAstSemanticAnalyzer >> visitGlobalVariableDefinitionNode: node [
-	| result valueType globalVariable owner |
+	| result valueType globalVariable owner initialValueFunclet |
 	result := node copy.
 	
 	"Make sure the value type is evaluated."
@@ -1210,8 +1211,18 @@ MbndAstSemanticAnalyzer >> visitGlobalVariableDefinitionNode: node [
 			self error: 'Global variable {1} without an explicit type, or an initial value.' format: { result name asPrettySymbolName } at: node
 		].
 
-		result initialValue: (self analyzeNodeIfNeeded: result initialValue).
-		result valueType: (result initialValue type inferValueTypeForNode: result initialValue inScope: scope).
+		initialValueFunclet := self createFuncletWithNode: result initialValue lexicallyScoped.
+		initialValueFunclet 
+			parent: (node ownerProgramEntity ifNil: [scope lookupProgramEntityForNewDefinitions]);
+			setArguments: #() returnType: nil.
+		result isAccessedByReference ifTrue: [ 
+			initialValueFunclet addFlag: #ref.
+		].
+		result isForwardingValue ifTrue: [ 
+			initialValueFunclet addFlag: #tempRef.
+		].
+			
+		result valueType: initialValueFunclet inferResultValueType.
 		(result isAccessedByReference or: [ result isForwardingValue ]) ifFalse: [ 
 			result valueType: result valueType withoutReferences
 		].
@@ -1273,8 +1284,12 @@ MbndAstSemanticAnalyzer >> visitGlobalVariableDefinitionNode: node [
 	].
 
 	"Turn the initial value into a funclet."
-	result initialValue ifNotNil: [ :valueNode |
-		globalVariable initialValueFunclet: (self createFuncletWithNode: valueNode )
+	initialValueFunclet ifNil: [ 
+		result initialValue ifNotNil: [ :valueNode |
+			globalVariable initialValueFunclet: (self createFuncletWithNode: valueNode )
+		].
+	] ifNotNil: [ 
+		globalVariable initialValueFunclet: initialValueFunclet
 	].
 
 	result binding: globalVariable.
@@ -2165,10 +2180,35 @@ MbndAstSemanticAnalyzer >> visitSpliceNode: node [
 
 { #category : #visiting }
 MbndAstSemanticAnalyzer >> visitSplicingTupleNode: nodeOrList [
+	| tupleType firstElement |
 	nodeOrList isMbndAstNode ifFalse: [ ^ self analyzeNodesIfNeeded: nodeOrList ].
 	nodeOrList isTupleNode ifTrue: [ ^ self analyzeNodesIfNeeded: nodeOrList elements ].
 	
-	self halt
+	nodeOrList type ifNil: [ ^ self visitSplicingTupleNode: (self analyzeNodeIfNeeded: nodeOrList) ].
+	tupleType := nodeOrList type.
+	(tupleType isReferenceType or: [ tupleType isTemporaryReferenceType ]) ifTrue: [
+		^ self visitSplicingTupleNode: (self addImplicitCastFor: nodeOrList to: tupleType withoutReferences)
+	].
+
+	tupleType isTupleType ifFalse: [ 
+		self error: 'Expected a tuple value.' at: nodeOrList.
+	].
+
+	tupleType elements ifEmpty: [ ^ #() ].
+	
+	firstElement := MbndAstTupleSplicingNode new
+		position: nodeOrList;
+		tupleExpression: nodeOrList;
+		elementIndex: 1;
+		type: tupleType elements first;
+		yourself.
+	^ { firstElement } , ((2 to: tupleType elements size) collect: [ :i | MbndAstTupleSplicingNode new
+		position: nodeOrList;
+		tupleExpression: firstElement;
+		elementIndex: i;
+		type: (tupleType elements at: i);
+		yourself.
+	])
 ]
 
 { #category : #visiting }

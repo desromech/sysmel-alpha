@@ -732,6 +732,11 @@ MbndAstNode >> isTupleNode [
 	^ false
 ]
 
+{ #category : #visiting }
+MbndAstNode >> isTupleSplicingNode [
+	^ false
+]
+
 { #category : #testing }
 MbndAstNode >> isTupleToArrayCastNode [
 	^ false

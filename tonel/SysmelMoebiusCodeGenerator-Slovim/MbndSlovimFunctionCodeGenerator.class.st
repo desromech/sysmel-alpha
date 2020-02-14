@@ -151,6 +151,9 @@ MbndSlovimFunctionCodeGenerator >> buildSSAFunction: aSSAFunction at: sourcePosi
 		codeGenerationBlock value: ssaFunction value: slvmBuilder value: self.
 	].
 
+	"Initialize the required clean up action states in the alloca block."
+	self generateUnwindingCode.
+	
 	"Jump from the alloca block into the body."
 	slvmBuilder allocaBuilder jump: ssaFunctionBodyBlock.
 	

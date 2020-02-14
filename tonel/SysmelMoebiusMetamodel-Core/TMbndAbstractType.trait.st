@@ -1029,6 +1029,11 @@ TMbndAbstractType >> isNativeBlockClosureType [
 	^ false
 ]
 
+{ #category : #testing }
+TMbndAbstractType >> isNonConcreteType [
+	^ false
+]
+
 { #category : #'testing methods' }
 TMbndAbstractType >> isOpaqueHandleType [
 	^ false

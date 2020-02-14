@@ -40,6 +40,9 @@ MbndAbstractConcreteMethod >> arguments [
 MbndAbstractConcreteMethod >> canBeEvaluatedInCompileTime [
 	definitionNode ifNil: [ ^ false ].
 	self hasExternalVisibility ifTrue: [ ^ false ].
+	(self hasPragmaNamed: #notInCompileTime) ifTrue: [ ^ false ].
+	self ensureSemanticAnalysis.
+	
 	^ super canBeEvaluatedInCompileTime
 ]
 
@@ -187,7 +190,7 @@ MbndAbstractConcreteMethod >> defineArguments [
 
 { #category : #'as yet unclassified' }
 MbndAbstractConcreteMethod >> definitionBody [
-	^ definitionNode body
+	^ definitionNode ifNotNil: [definitionNode body]
 ]
 
 { #category : #accessing }
@@ -236,6 +239,10 @@ MbndAbstractConcreteMethod >> ensureSemanticAnalysis [
 	analyzedBody := MbndProfiler component: #methodAnalysis with: [analyzer visitNode: analyzedBody].
 
 	"Cast the result into the required return type."
+	self returnType ifNil: [
+		self applyInferredReturnType: (analyzedBody type inferValueTypeForNode: analyzedBody inScope: analysisScope) at: analyzedBody.
+	].
+
 	self returnType isVoidType ifFalse: [ 
 		analyzedBody type isReturnType ifFalse: [
 			analyzedBody := analyzer addImplicitCastFor: analyzedBody to: self returnType
@@ -290,6 +297,15 @@ MbndAbstractConcreteMethod >> extraImplicitArguments [
 ]
 
 { #category : #testing }
+MbndAbstractConcreteMethod >> hasPragmaNamed: pragmaName [
+	self definitionBody ifNotNil: [:body |
+		^ body pragmaAt: pragmaName ifAbsent: [false] ifPresent: [:f | true]
+	].
+
+	^ super hasPragmaNamed: pragmaName
+]
+
+{ #category : #testing }
 MbndAbstractConcreteMethod >> hasVirtualTableEntry [
 	^ self isNewVirtualTableEntry or: [ self isVirtualTableOverride ]
 ]
@@ -301,6 +317,11 @@ MbndAbstractConcreteMethod >> initialize [
 ]
 
 { #category : #testing }
+MbndAbstractConcreteMethod >> isAccessedByReference [
+	^ self hasFlag: #ref
+]
+
+{ #category : #testing }
 MbndAbstractConcreteMethod >> isConcreteMethod [
 	^ true
 ]
@@ -308,6 +329,11 @@ MbndAbstractConcreteMethod >> isConcreteMethod [
 { #category : #testing }
 MbndAbstractConcreteMethod >> isDefinition [
 	^ definitionNode isNotNil
+]
+
+{ #category : #testing }
+MbndAbstractConcreteMethod >> isForwardingValue [
+	^ self hasFlag: #tempRef
 ]
 
 { #category : #testing }
@@ -322,8 +348,10 @@ MbndAbstractConcreteMethod >> isVirtualTableOverride [
 
 { #category : #'as yet unclassified' }
 MbndAbstractConcreteMethod >> lookupBoundReceiverSymbol: aSymbol [
-	(receiverType withoutReferences withoutDecorations lookupSymbol: aSymbol) ifNotNil: [ :receiverSymbol |
-		^ receiverSymbol asSymbolBoundWithReceiverBinding: arguments first
+	receiverType isVoidType ifFalse: [ 
+		(receiverType withoutReferences withoutDecorations lookupSymbol: aSymbol) ifNotNil: [ :receiverSymbol |
+			^ receiverSymbol asSymbolBoundWithReceiverBinding: arguments first
+		].
 	].
 	
 	^ nil

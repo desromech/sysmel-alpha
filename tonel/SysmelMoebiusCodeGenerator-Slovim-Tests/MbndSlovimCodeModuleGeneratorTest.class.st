@@ -3329,7 +3329,7 @@ function callMessage externC(o: SubClass) => Float64
 		))
 	).
 	
-	function := ssaModule globalNamed: #'_ZN8SubClass9.getValueEPNS_E'.
+	function := ssaModule globalNamed: #'_ZN8SubClass9.getValueEPNS_Ed'.
 	self assert: function allInstructionsMnemonics equals: #(
 		(entry (jump))
 		(body (
@@ -3849,6 +3849,168 @@ struct Resource definition: {
 }.
 
 global globalHandle externC mutable type: Resource';
+		generateSSAModule.
+
+	global := ssaModule globalNamed: #globalHandle.
+	self assert: global isGlobalVariable.
+	self assert: global valueType isStructureType.
+	self assert: global initialValue isNotNil.
+	
+	self assert: ssaModule globalDestructors isNotEmpty.
+	dtor := ssaModule globalDestructors first.
+	self assert: dtor global equals: global.
+	self assert: dtor priority equals: 0.
+
+	globalDtor := dtor function.
+	self assert: globalDtor allInstructionsMnemonics equals: #(
+		(entry (jump))
+		(body (call returnVoid))
+	).
+	
+	callInstruction := globalDtor basicBlocks second firstInstruction.
+	self assert: callInstruction isCall.
+	self assert: callInstruction functionValue name equals: #'_ZN8Resource9.finalizeERNS_E'.
+]
+
+{ #category : #tests }
+MbndSlovimCodeModuleGeneratorTest >> testGlobalVariableWithDestructorAndInitialization [
+	| global dtor globalDtor callInstruction |
+	self
+		evaluateSysmelSource: '
+function destroyHandle externC(handle: Int32) => Void.
+
+struct Resource definition: { 
+	public field handle type: Int32.
+	
+	method finalize => Void := { 
+		destroyHandle(handle).
+	}.
+}.
+
+global globalHandle externC mutable := Resource basicNewValue handle: 42';
+		generateSSAModule.
+
+	global := ssaModule globalNamed: #globalHandle.
+	self assert: global isGlobalVariable.
+	self assert: global valueType isStructureType.
+	self assert: global initialValue isNotNil.
+	
+	self assert: ssaModule globalDestructors isNotEmpty.
+	dtor := ssaModule globalDestructors first.
+	self assert: dtor global equals: global.
+	self assert: dtor priority equals: 0.
+
+	globalDtor := dtor function.
+	self assert: globalDtor allInstructionsMnemonics equals: #(
+		(entry (jump))
+		(body (call returnVoid))
+	).
+	
+	callInstruction := globalDtor basicBlocks second firstInstruction.
+	self assert: callInstruction isCall.
+	self assert: callInstruction functionValue name equals: #'_ZN8Resource9.finalizeERNS_E'.
+]
+
+{ #category : #tests }
+MbndSlovimCodeModuleGeneratorTest >> testGlobalVariableWithDestructorAndInitialization2 [
+	| global dtor globalDtor callInstruction |
+	self
+		evaluateSysmelSource: '
+function destroyHandle externC(handle: Int32) => Void.
+
+struct Resource definition: { 
+	public field handle type: Int32.
+	
+	method finalize => Void := { 
+		destroyHandle(handle).
+	}.
+}.
+
+global globalHandle externC mutable type: Resource := Resource basicNewValue handle: 42';
+		generateSSAModule.
+
+	global := ssaModule globalNamed: #globalHandle.
+	self assert: global isGlobalVariable.
+	self assert: global valueType isStructureType.
+	self assert: global initialValue isNotNil.
+	
+	self assert: ssaModule globalDestructors isNotEmpty.
+	dtor := ssaModule globalDestructors first.
+	self assert: dtor global equals: global.
+	self assert: dtor priority equals: 0.
+
+	globalDtor := dtor function.
+	self assert: globalDtor allInstructionsMnemonics equals: #(
+		(entry (jump))
+		(body (call returnVoid))
+	).
+	
+	callInstruction := globalDtor basicBlocks second firstInstruction.
+	self assert: callInstruction isCall.
+	self assert: callInstruction functionValue name equals: #'_ZN8Resource9.finalizeERNS_E'.
+]
+
+{ #category : #tests }
+MbndSlovimCodeModuleGeneratorTest >> testGlobalVariableWithDestructorAndInitialization3 [
+	| global dtor globalDtor callInstruction |
+	self
+		evaluateSysmelSource: '
+function destroyHandle externC(handle: Int32) => Void.
+
+struct Resource definition: { 
+	public field handle type: Int32.
+	
+	meta method for: (theHandle: Int32) ::=> SelfType
+		:= SelfType basicNewValue handle: 42; yourself.
+	
+	method finalize => Void := { 
+		destroyHandle(handle).
+	}.
+}.
+
+global globalHandle externC mutable := Resource for: 42';
+		generateSSAModule.
+
+	global := ssaModule globalNamed: #globalHandle.
+	self assert: global isGlobalVariable.
+	self assert: global valueType isStructureType.
+	self assert: global initialValue isNotNil.
+	
+	self assert: ssaModule globalDestructors isNotEmpty.
+	dtor := ssaModule globalDestructors first.
+	self assert: dtor global equals: global.
+	self assert: dtor priority equals: 0.
+
+	globalDtor := dtor function.
+	self assert: globalDtor allInstructionsMnemonics equals: #(
+		(entry (jump))
+		(body (call returnVoid))
+	).
+	
+	callInstruction := globalDtor basicBlocks second firstInstruction.
+	self assert: callInstruction isCall.
+	self assert: callInstruction functionValue name equals: #'_ZN8Resource9.finalizeERNS_E'.
+]
+
+{ #category : #tests }
+MbndSlovimCodeModuleGeneratorTest >> testGlobalVariableWithDestructorAndInitialization4 [
+	| global dtor globalDtor callInstruction |
+	self
+		evaluateSysmelSource: '
+function destroyHandle externC(handle: Int32) => Void.
+
+struct Resource definition: { 
+	public field handle type: Int32.
+	
+	meta method for: (theHandle: Int32) ::=> SelfType
+		:= SelfType basicNewValue handle: 42; yourself.
+	
+	method finalize => Void := { 
+		destroyHandle(handle).
+	}.
+}.
+
+global globalHandle externC mutable type: Resource := Resource for: 42';
 		generateSSAModule.
 
 	global := ssaModule globalNamed: #globalHandle.

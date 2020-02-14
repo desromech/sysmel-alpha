@@ -78,6 +78,11 @@ MbndLiteralValueType >> isLiteralValueType [
 ]
 
 { #category : #testing }
+MbndLiteralValueType >> isNonConcreteType [
+	^ true
+]
+
+{ #category : #testing }
 MbndLiteralValueType >> isTrait [
 	^ self class subclasses isEmpty
 ]

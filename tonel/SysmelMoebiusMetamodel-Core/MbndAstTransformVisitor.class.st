@@ -841,6 +841,11 @@ MbndAstTransformVisitor >> visitTupleNode: node [
 ]
 
 { #category : #visiting }
+MbndAstTransformVisitor >> visitTupleSplicingNode: node [
+	 self error: 'Cannot transform this node.'
+]
+
+{ #category : #visiting }
 MbndAstTransformVisitor >> visitTupleToArrayCastNode: node [
 	^ self visitSpecificCastNode: node
 ]

@@ -26,7 +26,7 @@ MbndAbstractMethod >> analyzeReferenceNode: referenceNode with: analyzer [
 
 { #category : #evaluation }
 MbndAbstractMethod >> canBeEvaluatedInCompileTime [
-	(self hasPragmaNamed: #notInCompileTime) ifTrue: [^ false ].
+	(self hasPragmaNamed: #notInCompileTime) ifTrue: [ ^ false ].
 	(self hasFlag: #notInCompileTime) ifTrue: [ ^ false ].
 	^ true
 ]
@@ -110,6 +110,11 @@ MbndAbstractMethod >> pragmaAt: pragmaName ifAbsent: absentBlock ifPresent: pres
 { #category : #testing }
 MbndAbstractMethod >> pragmaAt: pragmaName ifPresent: presentBlock [
 	^ self pragmaAt: pragmaName ifAbsent: [nil] ifPresent: presentBlock
+]
+
+{ #category : #asserting }
+MbndAbstractMethod >> shouldMangleReturnType [
+	^ false
 ]
 
 { #category : #'as yet unclassified' }

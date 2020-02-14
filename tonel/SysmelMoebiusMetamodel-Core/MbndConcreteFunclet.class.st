@@ -4,6 +4,11 @@ Class {
 	#category : #'SysmelMoebiusMetamodel-Core-Method'
 }
 
+{ #category : #visiting }
+MbndConcreteFunclet >> accept: visitor [
+	^ visitor visitConcreteFunclet: self
+]
+
 { #category : #accessing }
 MbndConcreteFunclet >> argumentNodes [
 	^ #()
@@ -26,6 +31,13 @@ MbndConcreteFunclet >> definitionBody [
 	^ definitionNode
 ]
 
+{ #category : #'as yet unclassified' }
+MbndConcreteFunclet >> inferResultValueType [
+	self ensureSemanticAnalysis.
+	self assert: self returnType isNotNil.
+	^ self returnType
+]
+
 { #category : #testing }
 MbndConcreteFunclet >> isFunclet [
 	^ true
@@ -33,7 +45,7 @@ MbndConcreteFunclet >> isFunclet [
 
 { #category : #'semantic analysis' }
 MbndConcreteFunclet >> preprocessDefinitionBody: node [
-	^ node
+	^ node lexicallyScoped
 ]
 
 { #category : #initialization }

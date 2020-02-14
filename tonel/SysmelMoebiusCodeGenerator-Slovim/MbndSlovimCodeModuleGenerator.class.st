@@ -524,6 +524,16 @@ MbndSlovimCodeModuleGenerator >> generateInitializationOfGlobalVariable: globalV
 			at: globalVariable definitionNode
 			with: [ :ssaFunction :builder :functionCodeGenerator |
 			| funcletValue |
+			self isEmittingDebugInformation ifTrue: [
+				ssaFunction debugInformation: (SLVMDebugSubprogram new
+					isLocal: true;
+					isDefinition: true;
+					type: (self translateDebugType: globalCtorFunctionType);
+					yourself).
+				(self translateProgramEntityDebugInformation: globalVariable initialValueFunclet)
+					parentScope: ssaFunction debugInformation
+			].
+		
 			funcletValue := functionCodeGenerator generateFuncletValue: globalVariable initialValueFunclet withArguments: #().
 
 			functionCodeGenerator generateVariable: ssaGlobalVariable withValueType: valueType initializationWithValue: funcletValue initialValueKind: globalVariable initialValueKind.

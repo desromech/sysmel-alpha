@@ -84,6 +84,15 @@ MbndAbstractSpecificMethod >> analyzeExpandedMessageSendNode: node with: analyze
 	^ result
 ]
 
+{ #category : #'semantic analysis' }
+MbndAbstractSpecificMethod >> applyInferredReturnType: aType at: aPosition [
+	(self isForwardingValue or: self isAccessedByReference) ifTrue: [
+		self returnType: aType
+	] ifFalse: [
+		self returnType: aType withoutReferences
+	]
+]
+
 { #category : #accessing }
 MbndAbstractSpecificMethod >> arguments [
 	^ #()
@@ -216,9 +225,21 @@ MbndAbstractSpecificMethod >> receiverType: anObject [
 	receiverType := anObject
 ]
 
+{ #category : #accessing }
+MbndAbstractSpecificMethod >> returnType: newReturnType [
+	self assert: self returnType isNil.
+	boundType := boundType withReturnType: newReturnType.
+	type := type withReturnType: newReturnType.
+]
+
 { #category : #'as yet unclassified' }
 MbndAbstractSpecificMethod >> sendTypedSelector [
 	^ self typedSelector
+]
+
+{ #category : #asserting }
+MbndAbstractSpecificMethod >> shouldMangleReturnType [
+	^ parent isMbndType and: [ parent isGarbageCollectedType ]
 ]
 
 { #category : #accessing }

@@ -620,6 +620,11 @@ MbndAstVisitor >> visitTupleNode: node [
 ]
 
 { #category : #visiting }
+MbndAstVisitor >> visitTupleSplicingNode: node [
+	self subclassResponsibility
+]
+
+{ #category : #visiting }
 MbndAstVisitor >> visitTupleToArrayCastNode: node [
 	self subclassResponsibility
 ]

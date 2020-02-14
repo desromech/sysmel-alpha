@@ -479,7 +479,11 @@ MbndSlovimSymbolNameMangler >> visitGenericFunction: function [
 	functionType := function type.
 	functionType isBlockClosureType ifTrue: [ functionType := functionType functionType ].
 	functionType argumentTypes do: [ :argumentType |
-		self mangleType: argumentType
+		self mangleType: (argumentType asConcreteTypeForAnalysisOfFunctionType: functionType)
+	].
+
+	function shouldMangleReturnType ifTrue: [ 
+		self mangleType: (functionType returnType asConcreteTypeForAnalysisOfFunctionType: functionType)
 	].
 
 	functionType isCVariadic ifTrue: [ output nextPut: $z ]

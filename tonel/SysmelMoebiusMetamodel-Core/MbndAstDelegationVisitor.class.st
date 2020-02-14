@@ -588,6 +588,11 @@ MbndAstDelegationVisitor >> visitTupleNode: node [
 ]
 
 { #category : #visiting }
+MbndAstDelegationVisitor >> visitTupleSplicingNode: node [
+	^ self delegateNodeVisit: node
+]
+
+{ #category : #visiting }
 MbndAstDelegationVisitor >> visitTupleToArrayCastNode: node [
 	^ self delegateNodeVisit: node
 ]

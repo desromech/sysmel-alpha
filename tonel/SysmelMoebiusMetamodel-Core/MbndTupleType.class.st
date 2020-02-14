@@ -5,7 +5,8 @@ Class {
 		'elements',
 		'instanceSize',
 		'instanceAlignment',
-		'elementOffsets'
+		'elementOffsets',
+		'isNonConcreteType'
 	],
 	#category : #'SysmelMoebiusMetamodel-Core-Type'
 }
@@ -47,6 +48,16 @@ MbndTupleType >> addDefaultConversionRules [
 		]);
 		addConversionRule: MbndTupleToArrayTypeConversionRule new.
 
+]
+
+{ #category : #'semantic analysis' }
+MbndTupleType >> bestConcreteTypeForLiteralValueNode: node inScope: scope [
+	| concreteElements |
+	self isNonConcreteType ifFalse: [ ^ self ].
+	self assert: node isTupleNode.
+	concreteElements := elements collectWithIndex: [ :el :index | el bestConcreteTypeForLiteralValueNode: (node elements at: index) inScope: scope ].
+
+	^ self compilationTarget tuple: concreteElements
 ]
 
 { #category : #sizes }
@@ -99,6 +110,19 @@ MbndTupleType >> instanceSize [
 ]
 
 { #category : #testing }
+MbndTupleType >> isNonConcreteType [
+	^ isNonConcreteType ifNil: [
+		isNonConcreteType := false.
+		elements do: [ :el |
+			el isNonConcreteType ifTrue: [ 
+				isNonConcreteType := true.
+				^ true
+			 ]
+		]
+	]
+]
+
+{ #category : #testing }
 MbndTupleType >> isTupleType [
 	^ true
 ]
@@ -114,4 +138,17 @@ MbndTupleType >> printOn: aStream [
 	].
 	aStream nextPut: $).
 
+]
+
+{ #category : #'semantic analysis' }
+MbndTupleType >> standardConcreteTypeForLiteralValueNode: node inScope: scope [
+	| concreteElements |
+	self isNonConcreteType ifFalse: [ ^ self ].
+	concreteElements := node isTupleNode ifTrue: [ 
+		elements collectWithIndex: [ :el :index | el standardConcreteTypeForLiteralValueNode: (node elements at: index) inScope: scope ]		
+	] ifFalse: [
+		elements collect: [ :el | el standardConcreteTypeForLiteralValueNode: node inScope: scope ]
+	].
+
+	^ self compilationTarget tuple: concreteElements
 ]

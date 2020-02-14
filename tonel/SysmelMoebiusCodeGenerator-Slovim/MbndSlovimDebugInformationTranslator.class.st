@@ -283,6 +283,23 @@ MbndSlovimDebugInformationTranslator >> visitCompileTimeVariable: compileTimeVar
 ]
 
 { #category : #visiting }
+MbndSlovimDebugInformationTranslator >> visitConcreteFunclet: funclet [
+	| funcletScope |
+	funcletScope := SLVMDebugLexicalScope new.
+	funclet definitionPosition ifNotNil: [ :scopePositionNode |
+		| scopePosition |
+		scopePosition := scopePositionNode asActualSourcePosition.
+		funcletScope
+			file: (codeModuleGenerator convertDebugSourceFile: scopePosition collection);
+			startLine: scopePosition line;
+			startColumn: scopePosition column;
+			endLine: scopePosition endLine;
+			endColumn: scopePosition endColumn
+	].
+	^ funcletScope
+]
+
+{ #category : #visiting }
 MbndSlovimDebugInformationTranslator >> visitConcreteFunctionMethod: method [
 	| debugInfo |
 	debugInfo := SLVMDebugSubprogram new.
