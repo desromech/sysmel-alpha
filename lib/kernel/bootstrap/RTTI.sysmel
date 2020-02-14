@@ -5,13 +5,17 @@ namespace SysmelKernel definition: {
 ## erasing its type. I am used for implementing the throwing of native exceptions.
 class _TypeInformation superclass: _GCObjectHeader; definition: {
     public field superclass type: _TypeInformation pointer.
-    public field instanceSize type: UIntPointer.
-    public field instanceAlignment type: UIntPointer.
+    public field instanceDataSize type: UIntPointer.
+    public field instanceDataAlignment type: UIntPointer.
 
     public field basicInitializationFunctionPointer type: _BasicInitializeFunctionPointerType.
     public field copyConstructorFunctionPointer type: _CopyConstructorFunctionPointerType.
     public field moveConstructorFunctionPointer type: _MoveConstructorFunctionPointerType.
 
+    const inline method instanceSize => UIntPointer
+        := instanceDataSize.
+    const inline method instanceAlignment => UIntPointer
+        := instanceDataAlignment.
     const method isPointerReinterpretableTo: (other: _TypeInformation const pointer) ::=> Boolean8 := {
         ## Am I the other type information?
         self address == other ifTrue: {

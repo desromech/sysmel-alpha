@@ -18,10 +18,12 @@ namespace SysmelKernel definition: {
 namespace Smalltalk definition: {
 
 gcclass Object superclass: ProtoObject. Compiler compilationTarget defaultGCClassSuperClass: Object.
-    gcclass Behavior superclass: Object.
-        gcclass ClassDescription superclass: Behavior.
-            gcclass Class superclass: ClassDescription.
-            gcclass Metaclass superclass: ClassDescription.
+	gcclass TypeInformation superclass: Object.
+	    gcclass Behavior superclass: TypeInformation.
+	        gcclass ClassDescription superclass: Behavior.
+	            gcclass Class superclass: ClassDescription.
+	            gcclass Metaclass superclass: ClassDescription.
+		gcclass NativeTypeInformation superclass: TypeInformation.
 
     ## Boolean8
     gcclass Boolean superclass: Object.
@@ -134,18 +136,43 @@ ProtoObject definition: {
 	 	:= __variableDataSize.
 }.
 
-Behavior definition: {
+TypeInformation definition: {
 	## These first fields must match the fields in _TypeInformation so that
 	## exception handling can work.
-    public field superclass public type: Behavior.
-	public field instanceDataSize public type: UInt32.
-    public field instanceDataAlignment public type: UInt32.
+	public field superclass public type: TypeInformation.
+	public field instanceDataSize public type: UIntPointer.
+	public field instanceDataAlignment public type: UIntPointer.
 
-	public field basicInitializeFunctionPointer type: _BasicInitializeFunctionPointerType.
+	public field basicInitializationFunctionPointer type: _BasicInitializeFunctionPointerType.
 	public field copyConstructorFunctionPointer type: _CopyConstructorFunctionPointerType.
-    public field moveConstructorFunctionPointer type: _MoveConstructorFunctionPointerType.
+	public field moveConstructorFunctionPointer type: _MoveConstructorFunctionPointerType.
 
-    public field methodDict public type: MethodDictionary.
+	public field methodDict public type: MethodDictionary.
+
+	method lookupSelector: (selector: ProtoObject) ::=> ProtoObject := {
+        <staticBinding>
+        <nogc>
+        ##LibC printf("Behavior %p >> lookupSelector: %p\n", self, selector).
+
+        if: methodDict ~~ nil then: {
+            let methodObject := methodDict atOrNil: selector.
+            if: methodObject  ~~ nil then: {
+                return: methodObject
+            }.
+        }.
+
+        if: superclass == nil then: {
+            return: nil.
+        }.
+
+        return: (superclass lookupSelector: selector)
+    }.
+}.
+
+Compiler compilationTarget
+	typeInformationNativeClass: TypeInformation.
+
+Behavior definition: {
     public field gcLayout public type: GCLayout.
     public field slots public type: Array.
 
@@ -167,7 +194,7 @@ Behavior definition: {
         let allocatedObject := globalSysmelGC
             allocate: objectSize
             variableDataSize: (if: variableInstanceElementSize > 0 then: initialSize else: 0)
-            initializingWith: basicInitializeFunctionPointer.
+            initializingWith: basicInitializationFunctionPointer.
 
         ## Convert the allocated object.
         return: (allocatedObject reinterpretCastTo: ProtoObject)
@@ -178,25 +205,6 @@ Behavior definition: {
 
     method new: (initialSize: UIntPointer) ::=> _DependentInstanceType
 		:= (self basicNew: initialSize) initialize; yourself.
-
-    method lookupSelector: (selector: ProtoObject) ::=> ProtoObject := {
-        <staticBinding>
-        <nogc>
-        ##LibC printf("Behavior %p >> lookupSelector: %p\n", self, selector).
-
-        if: methodDict ~~ nil then: {
-            let methodObject := methodDict atOrNil: selector.
-            if: methodObject  ~~ nil then: {
-                return: methodObject
-            }.
-        }.
-
-        if: superclass == nil then: {
-            return: nil.
-        }.
-
-        return: (superclass lookupSelector: selector)
-    }.
 }.
 
 Class definition: {
@@ -735,10 +743,10 @@ Message definition: {
 ##-----------------------------------------------------------------------------
 ## Normal method lookup
 namespace Runtime definition: {
-function messageLookupFromBehavior(behavior: Behavior, object: ProtoObject, selector: Object, fallbackTrampoline: Void pointer) => Void pointer := {
+function messageLookupFromTypeInformation(typeInfo: TypeInformation, object: ProtoObject, selector: Object, fallbackTrampoline: Void pointer) => Void pointer := {
     <nogc>
     ##LibC printf("messageLookupFromBehavior behavior %p object %p selector %p\n", behavior, object, selector).
-    let methodObject := behavior lookupSelector: selector.
+    let methodObject := typeInfo lookupSelector: selector.
 
     if: methodObject == nil then: {
         if: selector == #doesNotUnderstand: then: {
@@ -757,13 +765,13 @@ function messageLookupFromBehavior(behavior: Behavior, object: ProtoObject, sele
 function normalMessageLookup(object: ProtoObject, selector: Object, fallbackTrampoline: Void pointer) => Void pointer := {
     <nogc>
     ##LibC printf("normalMessageLookup object %p selector %p fallbackTrampoline %p\n", object, selector, fallbackTrampoline).
-    return: messageLookupFromBehavior(object class, object, selector, fallbackTrampoline).
+    return: messageLookupFromTypeInformation(object class, object, selector, fallbackTrampoline).
 }.
 
 function superMessageLookup(object: ProtoObject, selector: Object, selfClass: Behavior, fallbackTrampoline: Void pointer) => Void pointer := {
     <nogc>
     ##LibC printf("superMessageLookup object [%p] %p selector %p fallbackTrampoline %p\n", object, selfClass, selector, fallbackTrampoline).
-    return: messageLookupFromBehavior(selfClass superclass, object, selector, fallbackTrampoline).
+    return: messageLookupFromTypeInformation(selfClass superclass, object, selector, fallbackTrampoline).
 }.
 
 function gcBlockClosureAllocator(instanceSize: UIntPointer, instanceAlignment: UIntPointer, prototype: Void pointer) => BlockClosure := {
