@@ -118,7 +118,6 @@ class AtomicFileStream definition: {
 global stdinFile mutable := AtomicFileStream fromFD: Unix STDIN_FILENO bufferingMode: StreamBufferingMode Block.
 global stdoutFile mutable := AtomicFileStream fromFD: Unix STDOUT_FILENO
     bufferingMode: (if: Unix isatty(Unix STDOUT_FILENO) == 1 then: StreamBufferingMode Line else: StreamBufferingMode Block).
-##global stdoutFile mutable := AtomicFileStream fromFD: Unix STDOUT_FILENO bufferingMode: StreamBufferingMode Line.
 global stderrFile mutable := AtomicFileStream fromFD: Unix STDERR_FILENO bufferingMode: StreamBufferingMode None.
 
 }. ## End of namespace IO
