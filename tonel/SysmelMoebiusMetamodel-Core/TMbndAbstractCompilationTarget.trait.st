@@ -4,6 +4,12 @@ Trait {
 }
 
 { #category : #'as yet unclassified' }
+TMbndAbstractCompilationTarget >> areSymbolsEqualsToString [
+	"This is the default Pharo behavior"
+	^ true
+]
+
+{ #category : #'as yet unclassified' }
 TMbndAbstractCompilationTarget >> arrayOf: elementType elements: elementCount [
 	self explicitRequirement
 ]
