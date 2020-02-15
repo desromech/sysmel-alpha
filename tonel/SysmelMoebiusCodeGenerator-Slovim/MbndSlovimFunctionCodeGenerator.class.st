@@ -603,6 +603,7 @@ isSuperSend: isSuperSend declaredMethod: declaredMethod expectedResultType: expe
 
 		self assert: selectorValue type isDynamicObjectPointerType.
 		result := slvmBuilder send: selectorValue returnType: actualReturnType receiver: receiver arguments: arguments.
+		result highLevelMessageSendFunctionType: declaredMethod type asCanonicalMessageSendFunctionType.
 		isSuperSend ifTrue: [
 			result setSuperSend
 		].
@@ -1381,6 +1382,32 @@ MbndSlovimFunctionCodeGenerator >> initializeNonLocalReturnContext [
 ]
 
 { #category : #'as yet unclassified' }
+MbndSlovimFunctionCodeGenerator >> makeDynamicArrayInstanceWithFixedSize: fixedSize [
+	| arrayClass method requiredArgumentType receiver argument constructor |
+	arrayClass := self compilationTarget managedObjectModel arrayClass.
+	fixedSize = 0 ifTrue: [
+		| emptyArray |
+		emptyArray := slvmBuilder addDynamicLiteral: #().
+		^ slvmBuilder bitCast: emptyArray target: (self translateType: arrayClass)
+	].
+
+	method := arrayClass type lookupOverloadedSelector: #basicNew:.
+	self assert: method isNotNil.
+	self assert: method isConcreteMethod.
+	self assert: method boundType argumentTypes size = 1.
+	
+	requiredArgumentType := method boundType argumentTypes first.
+	self assert: requiredArgumentType isPrimitiveIntegerType.
+	
+	receiver := slvmBuilder bitCast: (slvmBuilder addDynamicLiteral: arrayClass)
+		target: (self translateType: method receiverType).
+	constructor := (self translateProgramEntity: method) ssaValue.
+	argument := SLVMConstant type: (self translateType: requiredArgumentType) value: fixedSize.
+	^ slvmBuilder bitCast: (slvmBuilder call: constructor arguments: { receiver . argument })
+		target: (self translateType: arrayClass)
+]
+
+{ #category : #'as yet unclassified' }
 MbndSlovimFunctionCodeGenerator >> processIntrinsic: intrinsicName callArguments: callArguments [
 	| processedArguments |
 	processedArguments := callArguments.
@@ -1563,6 +1590,8 @@ MbndSlovimFunctionCodeGenerator >> unwrapDynamicObject: dynamicObjectValue withT
 		self flag: 'TODO: Implement this case properly.'.
 		^ SLVMConstant nullPointer: (self translateType: targetType) 
 	].
+
+	targetType isVoidType ifTrue: [ ^ nil ].
 
 	self error: 'TODO: Implement this case.'
 ]
@@ -1893,6 +1922,10 @@ MbndSlovimFunctionCodeGenerator >> visitExpandedDynamicMessageSendNode: node [
 	arguments := self visitNodesAndCollect: node arguments.
 	returnType := self translateType: node type.
 	sendInstruction := slvmBuilder send: selector returnType: returnType receiver: receiver arguments: arguments.
+	sendInstruction highLevelMessageSendFunctionType: (self compilationTarget
+		functionTypeWithArguments: { node receiver type } , (node arguments collect: [:arg | arg type])
+		returnType: node type
+	) asCanonicalMessageSendFunctionType.
 	node receiver isSuperReference ifTrue: [ 
 		sendInstruction setSuperSend
 	].
@@ -2037,7 +2070,7 @@ MbndSlovimFunctionCodeGenerator >> visitGetFieldValueNode: node [
 
 { #category : #visiting }
 MbndSlovimFunctionCodeGenerator >> visitIOChannelReceiveAction: node [
-	| channel messageType |
+	| channel messageType result |
 	channel := self visitNode: node channel.
 	messageType := self translateType: node channel type messageType.
 	
@@ -2050,12 +2083,14 @@ MbndSlovimFunctionCodeGenerator >> visitIOChannelReceiveAction: node [
 	].
 
 	self assert: channel type isDynamicObjectPointerType.
-	^ slvmBuilder send: (slvmBuilder addDynamicLiteral: #receive) returnType: messageType receiver: channel arguments: #()
+	result := slvmBuilder send: (slvmBuilder addDynamicLiteral: #receive) returnType: messageType receiver: channel arguments: #().
+	self halt.
+	^ result
 ]
 
 { #category : #visiting }
 MbndSlovimFunctionCodeGenerator >> visitIOChannelSendAction: node [
-	| channel message |
+	| channel message send |
 	channel := self visitNode: node channel.
 	message := self visitNode: node message.
 	
@@ -2069,7 +2104,8 @@ MbndSlovimFunctionCodeGenerator >> visitIOChannelSendAction: node [
 	].
 
 	self assert: channel type isDynamicObjectPointerType.
-	slvmBuilder send: (slvmBuilder addDynamicLiteral: #send:) returnType: channel type receiver: channel arguments: { message }.
+	send := slvmBuilder send: (slvmBuilder addDynamicLiteral: #send:) returnType: channel type receiver: channel arguments: { message }.
+	self halt.
 	^ channel
 ]
 

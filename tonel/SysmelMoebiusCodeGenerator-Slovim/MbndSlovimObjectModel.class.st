@@ -32,7 +32,10 @@ Class {
 		'objectToFloat64Function',
 		'objectToBoolean8Function',
 		'moduleRootRegistrationFunction',
-		'moduleRootUnregistrationFunction'
+		'moduleRootUnregistrationFunction',
+		'receiverClassGetter',
+		'methodSuperClassGetter',
+		'inlineCacheStructure'
 	],
 	#category : #'SysmelMoebiusCodeGenerator-Slovim-CompilationTarget'
 }
@@ -212,6 +215,12 @@ MbndSlovimObjectModel >> createFunctionContextMetaData: aFunction [
 	^ compiledMethod
 ]
 
+{ #category : #'code generation' }
+MbndSlovimObjectModel >> createNativeMethodDispatchTrampolineWithType: functionType [
+	self assert: functionType isMbndType.
+	^ moduleCodeGenerator getOrCreateNativeMethodDispatchTrampolineWithType: functionType
+]
+
 { #category : #converting }
 MbndSlovimObjectModel >> createNonInlineLiteralConstant: aLiteral withCodeGenerator: aCodeGenerator [
 	^ moduleCodeGenerator translateDynamicObjectInstanceContent:( aLiteral createNonInlineLiteralObjectForMbndObjectModel: self)
@@ -237,6 +246,12 @@ MbndSlovimObjectModel >> createObjectBytes: bytes class: class identityHash: ide
 	object := class makeInstance: bytes size identityHash: identityHash.
 	object slots last slots: bytes.
 	^ object
+]
+
+{ #category : #'code generation' }
+MbndSlovimObjectModel >> createObjectMethodDispatchTrampolineWithType: functionType [
+	self assert: functionType isMbndType.
+	^ moduleCodeGenerator getOrCreateObjectMethodDispatchTrampolineWithType: functionType
 ]
 
 { #category : #converting }
@@ -365,6 +380,12 @@ MbndSlovimObjectModel >> initialize [
 ]
 
 { #category : #accessing }
+MbndSlovimObjectModel >> inlineCacheStructure [
+	<compileTime>
+	^ inlineCacheStructure ifNil: [inlineCacheStructure := moduleCodeGenerator translateType: managedObjectModel inlineCacheStructure ]
+]
+
+{ #category : #accessing }
 MbndSlovimObjectModel >> int32ToIntegerFunction [
 	<compileTime>
 	^ int32ToIntegerFunction ifNil: [int32ToIntegerFunction := (moduleCodeGenerator translateProgramEntity: managedObjectModel int32ToIntegerFunction) ssaValue ]
@@ -395,6 +416,12 @@ MbndSlovimObjectModel >> managedObjectModel: anObject [
 MbndSlovimObjectModel >> messageLookupFunction [
 	<compileTime>
 	^ messageLookupFunction ifNil: [messageLookupFunction := (moduleCodeGenerator translateProgramEntity: managedObjectModel messageLookupFunction) ssaValue ]
+]
+
+{ #category : #accessing }
+MbndSlovimObjectModel >> methodSuperClassGetter [
+	<compileTime>
+	^ methodSuperClassGetter ifNil: [methodSuperClassGetter := (moduleCodeGenerator translateProgramEntity: managedObjectModel methodSuperClassGetter) ssaValue ]
 ]
 
 { #category : #accessing }
@@ -439,7 +466,7 @@ MbndSlovimObjectModel >> objectToChar32Function [
 { #category : #accessing }
 MbndSlovimObjectModel >> objectToFloat64Function [
 	<compileTime>
-	^ objectToFloat64Function ifNil: [objectToFloat64Function := (moduleCodeGenerator translateProgramEntity: managedObjectModel objectToFloat64) ssaValue ]
+	^ objectToFloat64Function ifNil: [objectToFloat64Function := (moduleCodeGenerator translateProgramEntity: managedObjectModel objectToFloat64Function) ssaValue ]
 ]
 
 { #category : #accessing }
@@ -464,6 +491,12 @@ MbndSlovimObjectModel >> objectToUInt32Function [
 MbndSlovimObjectModel >> objectToUInt64Function [
 	<compileTime>
 	^ objectToUInt64Function ifNil: [objectToUInt64Function := (moduleCodeGenerator translateProgramEntity: managedObjectModel objectToUInt64Function) ssaValue ]
+]
+
+{ #category : #accessing }
+MbndSlovimObjectModel >> receiverClassGetter [
+	<compileTime>
+	^ receiverClassGetter ifNil: [receiverClassGetter := (moduleCodeGenerator translateProgramEntity: managedObjectModel receiverClassGetter) ssaValue ]
 ]
 
 { #category : #accessing }

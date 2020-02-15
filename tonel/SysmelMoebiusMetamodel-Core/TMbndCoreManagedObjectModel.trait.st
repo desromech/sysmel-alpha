@@ -20,7 +20,6 @@ Trait {
 		'trueClass',
 		'falseClass',
 		'boolClass',
-		'superMessageLookupFunction',
 		'undeclaredVariableClass',
 		'workspaceVariableClass',
 		'associationValueOffset',
@@ -44,7 +43,10 @@ Trait {
 		'messageClass',
 		'moduleRootRegistrationFunction',
 		'moduleRootUnregistrationFunction',
-		'gcLayoutClass'
+		'gcLayoutClass',
+		'receiverClassGetter',
+		'methodSuperClassGetter',
+		'inlineCacheStructure'
 	],
 	#traits : 'TMbndAbstractManagedObjectModel',
 	#classTraits : 'TMbndAbstractManagedObjectModel classTrait',
@@ -286,6 +288,16 @@ TMbndCoreManagedObjectModel >> identityHashForSymbol: aSymbol [
 ]
 
 { #category : #accessing }
+TMbndCoreManagedObjectModel >> inlineCacheStructure [
+	^ inlineCacheStructure
+]
+
+{ #category : #accessing }
+TMbndCoreManagedObjectModel >> inlineCacheStructure: anObject [
+	inlineCacheStructure := anObject
+]
+
+{ #category : #accessing }
 TMbndCoreManagedObjectModel >> int32ToIntegerFunction [
 	^ int32ToIntegerFunction
 ]
@@ -348,6 +360,16 @@ TMbndCoreManagedObjectModel >> methodDictionaryClass [
 { #category : #accessing }
 TMbndCoreManagedObjectModel >> methodDictionaryClass: anObject [
 	methodDictionaryClass := anObject
+]
+
+{ #category : #accessing }
+TMbndCoreManagedObjectModel >> methodSuperClassGetter [
+	^ methodSuperClassGetter
+]
+
+{ #category : #accessing }
+TMbndCoreManagedObjectModel >> methodSuperClassGetter: anObject [
+	methodSuperClassGetter := anObject
 ]
 
 { #category : #accessing }
@@ -441,6 +463,16 @@ TMbndCoreManagedObjectModel >> objectToUInt64Function: anObject [
 ]
 
 { #category : #accessing }
+TMbndCoreManagedObjectModel >> receiverClassGetter [
+	^ receiverClassGetter
+]
+
+{ #category : #accessing }
+TMbndCoreManagedObjectModel >> receiverClassGetter: anObject [
+	receiverClassGetter := anObject
+]
+
+{ #category : #accessing }
 TMbndCoreManagedObjectModel >> stringClass [
 	^ stringClass
 ]
@@ -449,16 +481,6 @@ TMbndCoreManagedObjectModel >> stringClass [
 TMbndCoreManagedObjectModel >> stringClass: anObject [
 	stringClass := anObject.
 	compilationTarget literalStringType addConversionTo: stringClass rule: MbndLiteralValueTypeChangeConversionRule.
-]
-
-{ #category : #accessing }
-TMbndCoreManagedObjectModel >> superMessageLookupFunction [
-	^ superMessageLookupFunction
-]
-
-{ #category : #accessing }
-TMbndCoreManagedObjectModel >> superMessageLookupFunction: anObject [
-	superMessageLookupFunction := anObject
 ]
 
 { #category : #accessing }

@@ -75,6 +75,11 @@ MbndGCClassType >> asCVariadicTypeRequiredAt: position [
 	^ self
 ]
 
+{ #category : #converting }
+MbndGCClassType >> asCanonicalMessageSendValueType [
+	^ self compilationTarget dynamicObjectType
+]
+
 { #category : #'as yet unclassified' }
 MbndGCClassType >> asConstReceiverType [
 	^ self const

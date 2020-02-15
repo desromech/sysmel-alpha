@@ -309,6 +309,11 @@ TMbndAbstractType >> asCVariadicTypeRequiredAt: aPosition [
 ]
 
 { #category : #converting }
+TMbndAbstractType >> asCanonicalMessageSendValueType [
+	^ self
+]
+
+{ #category : #converting }
 TMbndAbstractType >> asConcreteTypeForAnalysisOfFunction: aFunction [
 	^ self
 ]

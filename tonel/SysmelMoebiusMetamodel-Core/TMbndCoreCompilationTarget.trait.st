@@ -1139,6 +1139,10 @@ TMbndCoreCompilationTarget >> specificCompilerObjectTypeFor: aBehavior [
 { #category : #initialization }
 TMbndCoreCompilationTarget >> standardConcreteTypeForLiteralStringInScope: aScope [
 	aScope isCompilationEvaluationScope ifTrue: [ ^ self compilerObjectType ].
+	dynamicObjectType ifNotNil: [ 
+		aScope defaultVariableType == dynamicObjectType ifTrue: [ ^ self managedObjectModel stringClass ]
+	].
+
 	nativePrefixedStringLiteralType ifNotNil: [ ^ nativePrefixedStringLiteralType ].
 	^ self char8Type const pointer
 ]
@@ -1146,7 +1150,7 @@ TMbndCoreCompilationTarget >> standardConcreteTypeForLiteralStringInScope: aScop
 { #category : #initialization }
 TMbndCoreCompilationTarget >> standardConcreteTypeForSymbolInScope: aScope [
 	aScope isCompilationEvaluationScope ifTrue: [ ^ self compilerObjectType ].
-	self objectModel symbolClass ifNotNil: [ ^ self objectModel symbolClass ].
+	self managedObjectModel symbolClass ifNotNil: [ ^ self managedObjectModel symbolClass ].
 	self error: 'Unsupported symbols at this context.'
 ]
 

@@ -85,6 +85,14 @@ MbndFunctionType >> argumentTypes: anObject [
 ]
 
 { #category : #converting }
+MbndFunctionType >> asCanonicalMessageSendFunctionType [
+	argumentTypes ifEmpty: [ ^ self ].
+	^ self compilationTarget functionTypeWithArguments: (argumentTypes collect: [:each |
+		(each asConcreteTypeForAnalysisOfFunctionType: self) asCanonicalMessageSendValueType
+	]) returnType: (returnType asConcreteTypeForAnalysisOfFunctionType: self) asCanonicalMessageSendValueType
+]
+
+{ #category : #converting }
 MbndFunctionType >> asDynamicMethodWrapperType [
 	^ self compilationTarget
 		functionTypeWithArguments: (argumentTypes collect: [:each | each asDynamicMethodWrapperType])

@@ -27,7 +27,8 @@ Class {
 		'exceptionCatchEndFunction',
 		'exceptionCatchBeginFunction',
 		'nonLocalReturnRaiseFunction',
-		'nonLocalReturnCatchFunction'
+		'nonLocalReturnCatchFunction',
+		'objectMethodDispatchTrampolines'
 	],
 	#classVars : [
 		'ShaderBuiltInLocationMap',
@@ -635,6 +636,106 @@ MbndSlovimCodeModuleGenerator >> getOrCreateDynamicFunctionCallAdapterFor: funct
 	].
 ]
 
+{ #category : #'code generation' }
+MbndSlovimCodeModuleGenerator >> getOrCreateNativeMethodDispatchTrampolineWithType: messageFunctionType [
+	| dynobjectType trampolineFunctionType trampoline |
+	dynobjectType := self compilationTarget dynamicObjectType.
+	trampolineFunctionType := messageFunctionType prependArguments: {
+		"methodFunctionPointer" messageFunctionType pointer . "selector" dynobjectType
+	}.
+	
+	trampoline := self generateAnonCompilerGeneratedMethodWithType: trampolineFunctionType allowGC: true
+	debugInformationWith: [ self debugInformationTranslator createForTrampolineWithFunctionType: trampolineFunctionType ]
+	with: [:ssaFunction :builder :functionCodeGenerator |
+		| calledFunction nativeArguments result |
+		trampolineFunctionType returnType isMemoryReturnedType ifTrue: [
+			calledFunction := ssaFunction arguments second.
+			nativeArguments := {ssaFunction arguments first} , (ssaFunction arguments allButFirst: 3)
+		] ifFalse: [
+			calledFunction := ssaFunction arguments first.
+			nativeArguments := ssaFunction arguments allButFirst: 2
+		].
+	
+		result := builder call: calledFunction arguments: nativeArguments.
+		result type isVoidType ifTrue: [
+			builder returnVoid
+		] ifFalse: [
+			builder return: result
+		].
+	].
+
+	^ SLVMConstant value: trampoline bitcast: self slvmCompilationTarget voidPointerType
+]
+
+{ #category : #'code generation' }
+MbndSlovimCodeModuleGenerator >> getOrCreateObjectMethodDispatchTrampolineWithType: messageFunctionType [
+	| dynobjectType trampolineFunctionType trampoline runWithInFunctionType |
+	dynobjectType := self compilationTarget dynamicObjectType.
+	runWithInFunctionType := self compilationTarget functionTypeWithArguments: {
+		"self" dynobjectType .
+		"run: selector" dynobjectType .
+		"with: arguments" dynobjectType .
+		"in: receiver" dynobjectType } returnType: dynobjectType.
+	messageFunctionType canHaveDynamicMethodWrapper ifFalse: [ 
+		^ self slvmCompilationTarget voidPointerType defaultConstant
+	].
+
+	trampolineFunctionType := messageFunctionType prependArguments: {
+		"methodObject" dynobjectType . "selector" dynobjectType .
+	}.
+	
+	trampoline := objectMethodDispatchTrampolines at: messageFunctionType ifAbsentPut: [
+		self generateAnonCompilerGeneratedMethodWithType: trampolineFunctionType allowGC: true
+		debugInformationWith: [ self debugInformationTranslator createForTrampolineWithFunctionType: trampolineFunctionType ]
+		with: [:ssaFunction :builder :functionCodeGenerator |
+			| selector methodObject result receiver unmarshalledArguments marshalledArguments marshalledArgumentsStoragePointer unmarshalledResult |
+			trampolineFunctionType returnType isMemoryReturnedType ifTrue: [
+				methodObject := ssaFunction arguments second.
+				selector := ssaFunction arguments third.
+				receiver := ssaFunction arguments fourth.
+				unmarshalledArguments := ssaFunction arguments allButFirst: 4
+			] ifFalse: [
+				methodObject := ssaFunction arguments first.
+				selector := ssaFunction arguments second.
+				receiver := ssaFunction arguments third.
+				unmarshalledArguments := ssaFunction arguments allButFirst: 3
+			].
+
+			marshalledArguments := functionCodeGenerator makeDynamicArrayInstanceWithFixedSize: unmarshalledArguments size.
+			marshalledArgumentsStoragePointer := builder getReference: marshalledArguments
+				element: (builder constInt: marshalledArguments type baseType types size - 1).
+			
+			unmarshalledArguments doWithIndex: [:nativeArgument :index |
+				| wrappedArgument |
+				wrappedArgument := functionCodeGenerator wrapValue: nativeArgument withType: (messageFunctionType argumentTypes at: index + 1) intoDynamicObjectWithType: dynobjectType.
+				builder store: wrappedArgument in: (builder getReference: marshalledArgumentsStoragePointer element: (builder constInt: index - 1))
+			].
+		
+			result := builder send: (builder addDynamicLiteral: #run:with:in:) returnType: (self translateType: dynobjectType) receiver: methodObject arguments: {selector . marshalledArguments . receiver}.
+			result highLevelMessageSendFunctionType: runWithInFunctionType.
+		
+			messageFunctionType returnType isMemoryReturnedType ifTrue: [ 
+				self halt
+			] ifFalse: [
+				unmarshalledResult := functionCodeGenerator unwrapDynamicObject: result withType: dynobjectType intoValueOfType: messageFunctionType returnType.
+			].
+	
+			ssaFunction functionType returnType isVoidType ifTrue: [
+				builder returnVoid
+			] ifFalse: [
+				builder return: unmarshalledResult
+			].
+	
+			ssaFunction
+				addRequiredDynamicLiteral: #trampoline;
+				addRequiredDynamicLiteral: nil;
+				hasSelectorAndClassBinding: true
+		].
+	].
+
+	^ SLVMConstant value: trampoline bitcast: self slvmCompilationTarget voidPointerType
+]
+
 { #category : #'as yet unclassified' }
 MbndSlovimCodeModuleGenerator >> getOrCreateShaderEntryPointInfoFor: concreteMethod [
 	^ shaderEntryPointInfoDictionary at: concreteMethod ifAbsentPut: [
@@ -691,6 +792,7 @@ MbndSlovimCodeModuleGenerator >> initialize [
 	structuresWithAdditionalKinds := Dictionary new.
 	generatedNameTable := IdentityDictionary new.
 	dynamicFunctionCallsAdapters := IdentityDictionary new.
+	objectMethodDispatchTrampolines := IdentityDictionary new.
 	shaderEntryPointInfoDictionary := IdentityDictionary new.
 	shaderEntryPoints := OrderedCollection new.
 ]
