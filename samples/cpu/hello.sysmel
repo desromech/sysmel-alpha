@@ -56,6 +56,14 @@ function testWriteFile() => Void := {
     }.
 }.
 
+function testMessageNotUnderstood() => Void := {
+    try: {
+        Smalltalk Object someMessageThatIsNotImplemented: #hello with: #world and: 42
+    } catch: Smalltalk MessageNotUnderstood doing: {:exception :: Void |
+        StdNative stdout << "Caught message not understood exception: " << exception; nl.
+    }.
+}.
+
 function main externC (argc: Int32, argv: Char8 const pointer pointer) => Int32 := {
     StdNative stdout << "testGlobal " << testGlobal; nl.
 	StdNative stdout << "TestChar " << 'c'; nl.
@@ -152,6 +160,7 @@ function main externC (argc: Int32, argv: Char8 const pointer pointer) => Int32 
     testNonLocalReturn().
     testGCError().
     testWriteFile().
+    testMessageNotUnderstood().
 
     StdNative stdout << (Smalltalk Object name -- " with concat"); nl.
 

@@ -205,6 +205,15 @@ Behavior definition: {
 
     method new: (initialSize: UIntPointer) ::=> _DependentInstanceType
 		:= (self basicNew: initialSize) initialize; yourself.
+
+	method run: selector with: arguments in: receiver := {
+		let message := Message new
+			selector: selector;
+			args: arguments;
+			lookupClass: self;
+			yourself.
+		return: (receiver doesNotUnderstand: message)
+	}.
 }.
 
 Class definition: {
@@ -430,20 +439,8 @@ ProtoObject definition: {
 ## Compiled method
 
 CompiledMethod definition: {
-    field entryPoint type: Void pointer.
+    public field entryPoint type: Void pointer.
     field __literals protected type: ProtoObject array.
-
-    method entryPoint => Void pointer := {
-        <staticBinding>
-        <nogc>
-        return: entryPoint
-    }.
-
-    method entryPoint:(newEntryPoint: Void pointer)  ::=> Void pointer := {
-        <staticBinding>
-        <nogc>
-        return: entryPoint
-    }.
 }.
 
 ##-----------------------------------------------------------------------------
@@ -743,10 +740,30 @@ Message definition: {
 ##-----------------------------------------------------------------------------
 ## Normal method lookup
 namespace Runtime definition: {
-function messageLookupFromTypeInformation(typeInfo: TypeInformation, object: ProtoObject, selector: Object, fallbackTrampoline: Void pointer) => Void pointer := {
-    <nogc>
-    ##LibC printf("messageLookupFromBehavior behavior %p object %p selector %p\n", behavior, object, selector).
-    let methodObject := typeInfo lookupSelector: selector.
+
+struct MessageLookupResult definition: {
+	public field methodObject type: Void pointer.
+	public field dispatchTrampoline type: Void pointer.
+}.
+
+struct InlineCacheRecord definition: {
+	public field lookupClass type: AtomicUIntPointer.
+	public field lookupMethod type: AtomicUIntPointer.
+}.
+
+struct InlineCache definition: {
+	compileTimeConstant RecordCount := 5.
+	public field lastWrittenSlot type: AtomicUIntPointer.
+	public field records type: (InlineCacheRecord array: RecordCount).
+}.
+
+function genericMessageLookup(receiver: ProtoObject, selector: Object, typeInfo: TypeInformation,
+	nativeDispatchTrampoline: Void pointer, objectDispatchTrampoline: Void pointer,
+	inlineCache: InlineCache pointer) => MessageLookupResult := {
+	<nogc>
+
+	let lookupResult mutable type: MessageLookupResult.
+	let methodObject := typeInfo lookupSelector: selector.
 
     if: methodObject == nil then: {
         if: selector == #doesNotUnderstand: then: {
@@ -754,25 +771,27 @@ function messageLookupFromTypeInformation(typeInfo: TypeInformation, object: Pro
             LibC abort().
         }.
 
-        return: fallbackTrampoline
-    }.
+        lookupResult methodObject: (typeInfo reinterpretCastTo: Void pointer).
+		lookupResult dispatchTrampoline: objectDispatchTrampoline.
+    } else: {
+		if: methodObject class == CompiledMethod then: {
+			let compiledMethod := methodObject reinterpretCastTo: CompiledMethod.
+			lookupResult methodObject: compiledMethod entryPoint.
+			lookupResult dispatchTrampoline: nativeDispatchTrampoline.
+		} else: {
+			lookupResult methodObject: (methodObject reinterpretCastTo: Void pointer)..
+			lookupResult dispatchTrampoline: objectDispatchTrampoline.
+		}.
+	}.
 
-    let compiledMethod := methodObject reinterpretCastTo: CompiledMethod.
-    ##LibC printf("Found method: %p entryPoint: %p\n", compiledMethod, compiledMethod entryPoint).
-    return: compiledMethod entryPoint
+	return: lookupResult
 }.
 
-function normalMessageLookup(object: ProtoObject, selector: Object, fallbackTrampoline: Void pointer) => Void pointer := {
-    <nogc>
-    ##LibC printf("normalMessageLookup object %p selector %p fallbackTrampoline %p\n", object, selector, fallbackTrampoline).
-    return: messageLookupFromTypeInformation(object class, object, selector, fallbackTrampoline).
-}.
+function receiverClassGetter(receiver: ProtoObject) => TypeInformation
+	:= receiver class.
 
-function superMessageLookup(object: ProtoObject, selector: Object, selfClass: Behavior, fallbackTrampoline: Void pointer) => Void pointer := {
-    <nogc>
-    ##LibC printf("superMessageLookup object [%p] %p selector %p fallbackTrampoline %p\n", object, selfClass, selector, fallbackTrampoline).
-    return: messageLookupFromTypeInformation(selfClass superclass, object, selector, fallbackTrampoline).
-}.
+function methodSuperClassGetter(methodClass: TypeInformation) => TypeInformation
+	:= methodClass superclass.
 
 function gcBlockClosureAllocator(instanceSize: UIntPointer, instanceAlignment: UIntPointer, prototype: Void pointer) => BlockClosure := {
 	<nogc>
@@ -784,8 +803,11 @@ function gcBlockClosureAllocator(instanceSize: UIntPointer, instanceAlignment: U
 }.
 
 Compiler compilationTarget managedObjectModel
-    messageLookupFunction: normalMessageLookup;
-	superMessageLookupFunction: superMessageLookup;
+    messageLookupFunction: genericMessageLookup;
+	receiverClassGetter: receiverClassGetter;
+	methodSuperClassGetter: methodSuperClassGetter;
+	inlineCacheStructure: InlineCache;
+
 	gcLayoutClass: GCLayout;
     arrayClass: Array;
     associationClass: Association;
