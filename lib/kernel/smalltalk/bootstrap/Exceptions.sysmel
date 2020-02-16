@@ -61,8 +61,6 @@ gcclass MessageNotUnderstood superclass: Error; definition: {
     method messageText := {
         messageText ifNil: {
             message ifNotNil: {
-                ## FIXME: Generate the dynamic wrappers for public accessors.
-                let message := message reinterpretCastTo: Message.
                 message lookupClass == UndefinedObject ifTrue: {
                     return: "receiver of #'" -- message selector asString -- "' is nil"
                 } ifFalse:{
