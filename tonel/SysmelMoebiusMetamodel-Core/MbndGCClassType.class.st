@@ -22,6 +22,12 @@ MbndGCClassType >> addDefaultConversionRules [
 		addImplicitConversionRule: MbndClassImplicitUpcastTypeConversionRule new
 ]
 
+{ #category : #accessing }
+MbndGCClassType >> addInstanceAccessor: accessor for: selector [
+	super addInstanceAccessor: accessor for: selector.
+	accessor createMethodAccessorForReceiver: self withSelector: selector
+]
+
 { #category : #'as yet unclassified' }
 MbndGCClassType >> addMetaTypeMacrosTo: metaType [
 	metaType

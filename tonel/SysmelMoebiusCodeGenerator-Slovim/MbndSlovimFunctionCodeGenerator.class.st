@@ -255,7 +255,7 @@ MbndSlovimFunctionCodeGenerator >> defineArgumentValues [
 	concreteMethod arguments do: [ :argVariable |
 		argumentValue := ssaFunction arguments at: argIndex.
 		argVariable name isMbndAnonymousSymbol ifFalse: [
-			argumentValue name: argVariable name
+			argumentValue name: argVariable name asPrettySymbolName
 		].
 	
 		functionVariables at: argVariable put: argumentValue.

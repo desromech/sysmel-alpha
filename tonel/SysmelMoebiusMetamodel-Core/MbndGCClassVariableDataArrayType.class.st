@@ -39,6 +39,11 @@ MbndGCClassVariableDataArrayType >> addInstanceMacros [
 		]
 ]
 
+{ #category : #testing }
+MbndGCClassVariableDataArrayType >> canHaveDynamicMethodWrapper [
+	^ false
+]
+
 { #category : #'default values' }
 MbndGCClassVariableDataArrayType >> defaultValueAt: aPosition [
 	^ MbndAggregateTypeInstanceValue new

@@ -1031,6 +1031,8 @@ MbndAstSemanticAnalyzer >> visitFieldDefinitionNode: node [
 	].
 	
 	field := MbndFieldVariable new
+		definitionScope: scope;
+		definitionNode: node;
 		name: fieldName;
 		flags: result flags;
 		valueType: valueType;
