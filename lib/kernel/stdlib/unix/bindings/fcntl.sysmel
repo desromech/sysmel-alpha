@@ -1,29 +1,4 @@
 namespace Unix definition: {
     function open64 externC CVariadic (path: ConstString, flags: Int32) => Int32.
     compileTimeConstant open := open64.
-
-    if: Compiler compilationTarget isLinux then: {
-        compileTimeConstant O_RDONLY := 8r0.
-        compileTimeConstant O_WRONLY := 8r1.
-        compileTimeConstant O_RDWR := 8r2.
-        compileTimeConstant O_CREAT := 8r100.
-        compileTimeConstant O_EXCL := 8r200.
-        compileTimeConstant O_NOCTTY := 8r400.
-        compileTimeConstant O_TRUNC := 8r1000.
-        compileTimeConstant O_APPEND := 8r2000.
-        compileTimeConstant O_NONBLOCK := 8r4000.
-        compileTimeConstant O_NDELAY := O_NONBLOCK.
-        compileTimeConstant O_SYNC := 8r4010000.
-        compileTimeConstant O_FSYNC := O_SYNC.
-        compileTimeConstant O_ASYNC := 8r20000.
-        compileTimeConstant O_LARGEFILE := 8r100000.
-        compileTimeConstant O_DIRECTORY := 8r200000.
-        compileTimeConstant O_NOFOLLOW := 8r400000.
-        compileTimeConstant O_CLOEXEC := 8r2000000.
-        compileTimeConstant O_DIRECT := 8r40000.
-        compileTimeConstant O_NOATIME := 8r1000000.
-        compileTimeConstant O_PATH := 8r10000000.
-        compileTimeConstant O_DSYNC := 8r10000.
-        compileTimeConstant O_TMPFILE := 020000000 | O_DIRECTORY.
-    }.
 }.

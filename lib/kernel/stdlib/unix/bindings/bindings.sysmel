@@ -1,6 +1,8 @@
 loadFileOnce: "types.sysmel".
+loadFileOnce: "constants.sysmel".
 loadFileOnce: "unistd.sysmel".
 loadFileOnce: "fcntl.sysmel".
 loadFileOnce: "time.sysmel".
 loadFileOnce: "pthreads.sysmel".
 loadFileOnce: "mmap.sysmel".
+loadFileOnce: "socket.sysmel".
