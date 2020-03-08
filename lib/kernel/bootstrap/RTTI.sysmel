@@ -11,6 +11,7 @@ class _TypeInformation superclass: _GCObjectHeader; definition: {
     public field basicInitializationFunctionPointer type: _BasicInitializeFunctionPointerType.
     public field copyConstructorFunctionPointer type: _CopyConstructorFunctionPointerType.
     public field moveConstructorFunctionPointer type: _MoveConstructorFunctionPointerType.
+    public field finalizeFunctionPointer type: _FinalizeFunctionPointerType.
 
     const inline method instanceSize => UIntPointer
         := instanceDataSize.

@@ -3,6 +3,7 @@ namespace SysmelKernel definition: {
 compileTimeConstant _BasicInitializeFunctionPointerType := ((Void pointer) => Void) pointer.
 compileTimeConstant _CopyConstructorFunctionPointerType := ((Void pointer -- Void pointer) => Void) pointer.
 compileTimeConstant _MoveConstructorFunctionPointerType := ((Void pointer -- Void pointer) => Void) pointer.
+compileTimeConstant _FinalizeFunctionPointerType := ((Void pointer) => Void) pointer.
 
 class _GCObjectHeader definition: {
     ## If we do not use the garbage collector, save space by omitting these fields.

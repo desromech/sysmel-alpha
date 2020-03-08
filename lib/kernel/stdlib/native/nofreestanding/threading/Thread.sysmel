@@ -12,7 +12,7 @@ class Thread definition: {
     }.
 
     method entryPointWithFunctionObject => Void := {
-        StdNative stdout << "TODO: entryPointWithFunctionObject"; nl.
+        entryPointFunctionObject()
     }.
 }.
 

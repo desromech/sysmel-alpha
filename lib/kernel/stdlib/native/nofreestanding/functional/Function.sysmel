@@ -1,17 +1,65 @@
 namespace StdNative definition: {
 
+struct _NativeStackBlockClosureHeader definition: {
+    public field vtable type: _TypeInformation pointer pointer.
+    public field functionPointer type: (Void => Void) pointer.
+    public field captures type: Void pointer array.
+
+    inline method typeInfo => _TypeInformation pointer
+        := vtable[-1].
+}.
+
 template Function(FT: Type)
 	:= struct definition: {
     compileTimeConstant FunctionType := FT.
+    compileTimeConstant ArgumentTypesTuple := FunctionType argumentTypesTuple.
+    compileTimeConstant ReturnType := FunctionType returnType.
+
     compileTimeConstant NativeStackBlockClosureType := FT nativeStackBlockClosure.
+    compileTimeConstant InlineStorageType := Void pointer array: 4.
+
+    enum WrapperType valueType: UInt8; values: #{
+        Invalid: 0.
+        FunctionPointer: 1.
+        InlineNativeClosure: 2.
+        HeapNativeClosure: 3.
+        GCClosure: 4
+    }.
+
+    ## Inline storage for typical closures.
+    field type type: WrapperType.
+    field inlineStorage type: InlineStorageType.
 
     method assignValue: (blockClosure: NativeStackBlockClosureType) ::=> SelfType ref := {
-        StdNative stdout << "TODO: Assign blockClosure to StdNative::Function"; nl.
+        let blockClosureHeader := blockClosure reinterpretCastTo: _NativeStackBlockClosureHeader pointer.
+        let typeInfo := blockClosureHeader _ typeInfo.
+        let instanceSize := typeInfo _ instanceDataSize.
+        let instanceAlignment := typeInfo _ instanceDataAlignment.
+        let storagePointer mutable type: Void pointer := inlineStorage [0] address.
+
+        instanceSize <= InlineStorageType instanceSize && instanceAlignment <= InlineStorageType instanceAlignment ifTrue: {
+            type := WrapperType InlineNativeClosure.
+        } ifFalse: {
+            type := WrapperType HeapNativeClosure.
+            storagePointer := StdNative malloc(instanceSize).
+            inlineStorage[0] := storagePointer.
+        }.
+
+        typeInfo _ copyConstructorFunctionPointer ifNil: {
+            StdNative memcpy(storagePointer, blockClosureHeader, instanceSize)
+        } ifNotNil: {
+            typeInfo _ copyConstructorFunctionPointer(storagePointer, blockClosureHeader)
+        }.
+
         self
     }.
 
+    method finalize => Void := {
+    }.
+
     method assignValue: (functionPointer: FunctionType pointer) ::=> SelfType ref := {
-        StdNative stdout << "TODO: Assign function pointer to StdNative::Function"; nl.
+        type := WrapperType FunctionPointer.
+        inlineStorage[0] := functionPointer.
         self
     }.
 
@@ -20,6 +68,30 @@ template Function(FT: Type)
         self
     }.
 
+    inline method applyWithArguments: (arguments: ArgumentTypesTuple) ::=> ReturnType := {
+        type selectCase: #{
+        WrapperType FunctionPointer : {
+            let fp := inlineStorage[0] reinterpretCastTo: FunctionType pointer.
+            return: (fp applyWithArguments: arguments).
+        }.
+
+        WrapperType InlineNativeClosure : {
+            let closure := inlineStorage[0] address reinterpretCastTo: NativeStackBlockClosureType.
+            let blockClosureHeader := closure reinterpretCastTo: _NativeStackBlockClosureHeader pointer.
+
+            return: (closure applyWithArguments: arguments).
+        }.
+
+        WrapperType HeapNativeClosure : {
+            let closure := inlineStorage[0] reinterpretCastTo: NativeStackBlockClosureType.
+            return: (closure applyWithArguments: arguments).
+        }.
+
+        let _ : {
+            error: "Trying to call invalid StdNative Function wrapper."
+        }
+        }.
+    }.
 }.
 
 }. ## End of namespace StdNative
