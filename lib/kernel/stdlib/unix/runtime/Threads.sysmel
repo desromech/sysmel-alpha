@@ -1,7 +1,7 @@
 namespace StdNative definition: {
 
 class AbstractMutex definition: {
-    field handle public type: Unix pthread_mutex_t.
+    public field handle type: Unix pthread_mutex_t.
 
     method finalize => Void := {
         Unix pthread_mutex_destroy(handle address).
@@ -52,7 +52,7 @@ class RecursiveMutex superclass: AbstractMutex; definition: {
  *#
 class ConditionVariable
 definition: {
-    field handle public type: Unix pthread_cond_t.
+    public field handle type: Unix pthread_cond_t.
 
     method initialize => Void := {
         Unix pthread_cond_init(handle address, nil).
@@ -130,7 +130,22 @@ definition: {
             count := count - n
         }.
     }.
+}.
 
+Thread extend: {
+    public field handle type: Unix pthread_t.
+
+    method start: (entryPoint: NativeEntryPointFunctionType pointer) with: (argument: Void pointer)::=> Void := {
+        Unix pthread_create(handle address, nil, entryPoint reinterpretCastTo: Unix pthread_start_routine_t pointer, argument).
+    }.
+
+    method detach => Void := {
+        Unix pthread_detach(handle).
+    }.
+
+    method join => Void := {
+        Unix pthread_join(handle, nil).
+    }.
 }.
 
 }. ## End of namespace StdNative

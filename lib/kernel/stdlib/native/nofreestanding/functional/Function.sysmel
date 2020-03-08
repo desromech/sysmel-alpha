@@ -1,0 +1,25 @@
+namespace StdNative definition: {
+
+template Function(FT: Type)
+	:= struct definition: {
+    compileTimeConstant FunctionType := FT.
+    compileTimeConstant NativeStackBlockClosureType := FT nativeStackBlockClosure.
+
+    method assignValue: (blockClosure: NativeStackBlockClosureType) ::=> SelfType ref := {
+        StdNative stdout << "TODO: Assign blockClosure to StdNative::Function"; nl.
+        self
+    }.
+
+    method assignValue: (functionPointer: FunctionType pointer) ::=> SelfType ref := {
+        StdNative stdout << "TODO: Assign function pointer to StdNative::Function"; nl.
+        self
+    }.
+
+    method assignValue: (other: SelfType const ref) ::=> SelfType ref := {
+        StdNative stdout << "TODO: Assign StdNative::Function to StdNative::Function"; nl.
+        self
+    }.
+
+}.
+
+}. ## End of namespace StdNative

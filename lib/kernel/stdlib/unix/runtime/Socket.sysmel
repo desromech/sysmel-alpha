@@ -1,0 +1,206 @@
+namespace StdNative definition: {
+namespace IO definition: {
+
+
+Endpoint extend: {
+    method asSockAddrIn => Unix sockaddr_in := {
+        let result mutable type: Unix sockaddr_in.
+        result sin_family: Unix AF_INET.
+        result sin_port: port.
+        result sin_addr s_addr: addr ipv4 addr.
+        result
+    }.
+
+    method asSockAddrIn6 => Unix sockaddr_in6 := {
+        let result mutable type: Unix sockaddr_in6.
+        result sin6_family: Unix AF_INET.
+        result sin6_port: port.
+        result sin6_addr s6_addr: addr ipv6 addr.
+        result
+    }.
+
+    meta method fromSockaddrIn: (sockaddr: Unix sockaddr_in const ref) ::=> SelfType := {
+        let result mutable := SelfType basicNewValue.
+        result type: EndpointType IPv4.
+        result port: sockaddr sin_port.
+        result addr ipv4 addr: sockaddr sin_addr s_addr.
+        result
+    }.
+
+    meta method fromSockaddrIn6: (sockaddr: Unix sockaddr_in6 const ref) ::=> SelfType := {
+        let result mutable := SelfType basicNewValue.
+        result type: EndpointType IPv6.
+        result port: sockaddr sin6_port.
+        result addr ipv6 addr: sockaddr sin6_addr s6_addr.
+        result
+    }.
+}.
+
+#**
+ * Socket.
+ *#
+class Socket superclass: Stream;
+definition: {
+    public field fd type: Int32.
+    field addressFamily type: EndpointType.
+    field endpoint type: Endpoint.
+
+    meta method withAddressFamilty: (addressFamily: EndpointType) fd: (handle: Int32) ::=> SelfType
+        := self basicNewValue
+            initializeWithAddressFamily: addressFamily fd: handle;
+            yourself.
+
+    meta method withEndpoint: (endpoint: Endpoint) fd: (handle: Int32) ::=> SelfType
+        := self basicNewValue
+            initializeWithEndpoint: endpoint fd: handle;
+            yourself.
+
+    meta method invalid => SelfType
+        := self withAddressFamilty: EndpointType Invalid fd: -1.
+
+    meta method tcpIPv4 => SelfType := {
+        self withAddressFamilty: EndpointType IPv4 fd: (Unix socket(Unix AF_INET, Unix SOCK_STREAM, 0))
+    }.
+
+    meta method udpIPv4 => SelfType := {
+        self withAddressFamilty: EndpointType IPv4 fd: (Unix socket(Unix AF_INET, Unix SOCK_DGRAM, 0))
+    }.
+
+    meta method tcpIPv6 => SelfType := {
+        self withAddressFamilty: EndpointType IPv6 fd: (Unix socket(Unix AF_INET6, Unix SOCK_STREAM, 0))
+    }.
+
+    meta method udpIPv6 => SelfType := {
+        self withAddressFamilty: EndpointType IPv6 fd: (Unix socket(Unix AF_INET6, Unix SOCK_DGRAM, 0))
+    }.
+
+    method initialize => Void
+        := fd := -1.
+
+    method initializeWithAddressFamily: (theAddressFamily: EndpointType) fd: (handle: Int32) ::=> Void := {
+        addressFamily := theAddressFamily.
+        fd := handle.
+    }.
+
+    method initializeWithEndpoint: (theEndpoint: Endpoint) fd: (handle: Int32) ::=> Void := {
+        addressFamily := theEndpoint type.
+        endpoint := theEndpoint.
+        fd := handle.
+    }.
+
+    method initializeMovingFrom: (other: Socket tempRef) ::=> Void := {
+        addressFamily := other __private addressFamily.
+        endpoint := other __private endpoint.
+        fd := other __private fd.
+
+        other __private addressFamily := EndpointType Invalid.
+        other __private endpoint := Endpoint basicNewValue.
+        other __private fd := -1.
+    }.
+
+    override method finalize => Void
+        := self close.
+
+    method close => Void := {
+        self isValid ifTrue: {
+            Unix close(fd).
+            fd := -1
+        }.
+    }.
+
+    method isValid => Boolean8
+        := fd >= 0.
+
+    override method atEnd => Boolean8
+        := false.
+
+    override method position => Int64
+        := 0.
+
+    override method seek: (offset: Int64) mode: (mode: SeekMode) ::=> Boolean8
+        := false.
+
+    override method write: (buffer: Void const pointer) size: (size: UIntPointer) ::=> IntPointer := {
+        Unix send(fd, buffer, size, 0) castTo: IntPointer.
+    }.
+
+    override method read: (buffer: Void pointer) size: (size: UIntPointer) ::=> IntPointer := {
+        Unix recv(fd, buffer, size, 0) castTo: IntPointer.
+    }.
+
+    method setOption: (option: SocketOption) value: (value: Int32) ::=> Void := {
+        let newValue mutable type: Int32 := value.
+        option selectCase: #{
+            SocketOption ReuseAddress : {
+                Unix setsockopt(fd, Unix SOL_SOCKET, Unix SO_REUSEADDR, newValue address, 4).
+            }.
+            SocketOption ReusePort : {
+                Unix setsockopt(fd, Unix SOL_SOCKET, Unix SO_REUSEPORT, newValue address, 4).
+            }.
+        }.
+    }.
+
+    method bind: (endpoint: Endpoint) ::=> Boolean8 := {
+        addressFamily selectCase: #{
+        EndpointType IPv4 : {
+            let sockaddr mutable := endpoint asSockAddrIn.
+            return: Unix bind(fd, sockaddr address reinterpretCastTo: Unix sockaddr pointer, Unix sockaddr_in instanceSize) == 0.
+        }.
+        EndpointType IPv6 : {
+            let sockaddr mutable := endpoint asSockAddrIn6.
+            return: Unix bind(fd, sockaddr address reinterpretCastTo: Unix sockaddr pointer, Unix sockaddr_in6 instanceSize) == 0.
+        }.
+    	}.
+
+        return: false.
+    }.
+
+    method listen: (backlog: Int32) ::=> Boolean8 := {
+        Unix listen(fd, backlog) == 0
+    }.
+
+    method accept ::=> Socket := {
+        addressFamily selectCase: #{
+        EndpointType IPv4 : {
+            let sockaddr mutable type: Unix sockaddr_in.
+            let sockaddrLen mutable type: Unix socklen_t := Unix sockaddr_in instanceSize.
+
+            let clientFD := Unix accept(fd, sockaddr address reinterpretCastTo: Unix sockaddr pointer, sockaddrLen address).
+            clientFD >= 0 ifTrue: {
+                let clientEndpoint := Endpoint fromSockaddrIn: sockaddr.
+                return: (Socket withEndpoint: clientEndpoint fd: clientFD)
+            }.
+        }.
+        EndpointType IPv6 : {
+            let sockaddr mutable type: Unix sockaddr_in6.
+            let sockaddrLen mutable type: Unix socklen_t := Unix sockaddr_in6 instanceSize.
+
+            let clientFD := Unix accept(fd, sockaddr address reinterpretCastTo: Unix sockaddr pointer, sockaddrLen address).
+            clientFD >= 0 ifTrue: {
+                let clientEndpoint := Endpoint fromSockaddrIn6: sockaddr.
+                return: (Socket withEndpoint: clientEndpoint fd: clientFD)
+            }.
+        }.
+        }.
+
+        return: Socket invalid
+    }.
+
+    method assignValue: (other: Socket tempRef) ::=> SelfType ref := {
+        addressFamily := other __private addressFamily.
+        endpoint := other __private endpoint.
+        fd := other __private fd.
+
+        other __private addressFamily := EndpointType Invalid.
+        other __private endpoint := Endpoint basicNewValue.
+        other __private fd := -1.
+
+        self
+    }.
+
+    method endpoint => Endpoint
+        := endpoint.
+
+}.
+}. ## End of namespace IO
+}. ## End of namespace StdNative

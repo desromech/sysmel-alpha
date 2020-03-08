@@ -1,0 +1,66 @@
+class ClientProcessor definition: {
+    field clientSocket type: StdNative IO Socket.
+    field clientThread type: StdNative Thread.
+
+    method startProcessingNewClient: (theClientSocket: StdNative IO Socket ref) ::=> Void := {
+        clientSocket := theClientSocket asMoveReference.
+        clientThread start: { :: Void |
+            self echoLoop
+        }
+    }.
+
+    method echoLoop => Void := {
+        StdNative stdout << "Accepted client with endpoint " << clientSocket endpoint; nl.
+        let buffer mutable type: (UInt8 array: 2048).
+
+        while: clientSocket isValid do: {
+            let readCount := clientSocket read: buffer[0] address size: 2048.
+            readCount > 0 ifTrue: {
+                clientSocket write: buffer[0] address size: (readCount castTo: UIntPointer)
+            } ifFalse: {
+                clientSocket close.
+            }
+        }.
+    }.
+}.
+
+function handleClient(clientSocket: StdNative IO Socket ref) => Void := {
+
+}.
+
+function main externC (argc: Int32, argv: Char8 const pointer pointer) => Int32 := {
+    let port mutable type: UInt16 := 1234.
+    argc > 1 ifTrue: {
+        port := LibC atoi(argv[1]) castTo: UInt16
+    }.
+
+    let endpoint := StdNative IO Endpoint ipv4SourcePort: port.
+    let socket mutable := StdNative IO Socket tcpIPv4.
+    socket isValid ifFalse: {
+        StdNative stdout << "Failed to create the socket."; nl.
+        return: 1.
+    }.
+
+    socket setOption: StdNative IO SocketOption ReuseAddress value: 1.
+
+    (socket bind: endpoint) ifFalse: {
+        StdNative stdout << "Failed to bind listening port " << port; nl.
+        return: 1.
+    }.
+
+    ## Start listening on the socket.
+    socket listen: 10.
+
+    ## Main loop.
+    while: socket isValid do: {
+        let clientSocket mutable := socket accept.
+        clientSocket isValid ifTrue: {
+            let processor := ClientProcessor nativeNew.
+            processor _ startProcessingNewClient: clientSocket.
+        }
+    }.
+
+    socket close.
+
+    return: 0.
+}.

@@ -4,8 +4,8 @@ compileTimeConstant socklen_t := SizeT.
 compileTimeConstant sa_family_t := UInt16.
 
 struct sockaddr definition: {
-    field sa_family type: sa_family_t.
-    field sa_data type: (UInt8 array: 14).
+    public field sa_family type: sa_family_t.
+    public field sa_data type: (UInt8 array: 14).
 }.
 
 struct msghdr definition: {
@@ -15,30 +15,37 @@ struct msghdr definition: {
 compileTimeConstant in_port_t := UInt16.
 
 struct in_addr_t definition: {
-    field s_addr type: UInt32.
-}.
-
-struct sockaddr_in6 definition: {
-    field sin6_family type: sa_family_t.
-    field sin6_port type: in_port_t.
-    field sin6_flowinfo type: UInt32.
-    field sin6_addr type: in_addr_t.
-    field sin6_scope_id type: UInt32.
-}.
-
-struct in6_addr_t definition: {
-    field s6_addr type: (UInt8 array: 16).
+    public field s_addr type: UInt32.
 }.
 
 struct sockaddr_in definition: {
-    field sin_family type: sa_family_t.
-    field sin_port type: in_port_t.
-    field sin_addr type: in_addr_t.
+    public field sin_family type: sa_family_t.
+    public field sin_port type: in_port_t.
+    public field sin_addr type: in_addr_t.
+
+    public field sin_zero type: (UInt8 array: sockaddr instanceSize
+        - sa_family_t instanceSize
+        - in_port_t instanceSize
+        - in_addr_t instanceSize).
 }.
 
+struct in6_addr_t definition: {
+    public field s6_addr type: (UInt8 array: 16).
+}.
+
+struct sockaddr_in6 definition: {
+    public field sin6_family type: sa_family_t.
+    public field sin6_port type: in_port_t.
+    public field sin6_flowinfo type: UInt32.
+    public field sin6_addr type: in6_addr_t.
+    public field sin6_scope_id type: UInt32.
+}.
+
+function accept externC(sockfd: Int32, addr: sockaddr pointer, addrlen: socklen_t pointer) => Int32.
 function bind externC(sockfd: Int32, addr: sockaddr const pointer, addrlen: socklen_t) => Int32.
 function connect externC(sockfd: Int32, addr: sockaddr const pointer, addrlen: socklen_t) => Int32.
 function getsockopt externC(sockfd: Int32, level: Int32, optname: Int32, optval: Void pointer, optlen: socklen_t pointer) => Int32.
+function listen externC(sockfd: Int32, backlog: Int32) => Int32.
 function recv externC(sockfd: Int32, buf: Void pointer, len: SizeT, flags: Int32) => SSizeT.
 function recvfrom externC(sockfd: Int32, buf: Void pointer, len: SizeT, flags: Int32, addr: sockaddr pointer, addrlen: socklen_t) => SSizeT.
 function recvmsg externC(sockfd: Int32, msg: msghdr const pointer, flags: Int32) => SSizeT.

@@ -1,0 +1,11 @@
+namespace StdNative definition: {
+namespace IO definition: {
+
+enum SocketOption valueType: Int32; values: #{
+    None: 0.
+    ReuseAddress: 1.
+    ReusePort: 2.
+}.
+
+}. ## End of namespace IO
+}. ## End of namespace StdNative

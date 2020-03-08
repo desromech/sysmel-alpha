@@ -5,5 +5,6 @@ class RecursiveMutex.
 class ConditionVariable.
 class Semaphore.
 class MemoryHeapMutex.
+class Thread.
 
 }. ## End of namespace StdNative

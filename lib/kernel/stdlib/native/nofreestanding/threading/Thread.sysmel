@@ -1,0 +1,24 @@
+namespace StdNative definition: {
+
+class Thread definition: {
+    compileTimeConstant NativeEntryPointFunctionType := (Void pointer) => Void.
+    compileTimeConstant EntryPointFunctionType := (Void) => Void.
+
+    field entryPointFunctionObject type: Function(EntryPointFunctionType).
+
+    method start: (entryPoint: EntryPointFunctionType nativeStackBlockClosure) ::=> Void := {
+        entryPointFunctionObject := entryPoint.
+        self start: callThreadEntryPointWithFunctionObject address with: self address
+    }.
+
+    method entryPointWithFunctionObject => Void := {
+        StdNative stdout << "TODO: entryPointWithFunctionObject"; nl.
+    }.
+}.
+
+function callThreadEntryPointWithFunctionObject(threadPointer: Void pointer) => Void := {
+    (threadPointer reinterpretCastTo: Thread pointer)
+        _ entryPointWithFunctionObject
+}.
+
+}.

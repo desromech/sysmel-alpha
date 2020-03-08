@@ -15,5 +15,15 @@ enum BinaryDataStreamEndianness valueType: Int32; values: #{
     Big: 2
 }.
 
+function swapUInt16(value: UInt16) => UInt16
+    := ((value & 16rff00u) >> 8u) |
+        ((value & 16r00ffu) << 8u) castTo: UInt16.
+
+function swapUInt32(value: UInt32) => UInt32
+    := ((value & 16rff000000u) >> 24u) |
+       ((value & 16r00ff0000u) >> 8u) |
+       ((value & 16r0000ff00u) << 8u) |
+       ((value & 16r000000ffu) << 24u).
+
 }. ## End of namespace IO
 }. ## End of namespace StdNative
