@@ -55,6 +55,25 @@ template Function(FT: Type)
     }.
 
     method finalize => Void := {
+        type selectCase: #{
+        WrapperType InlineNativeClosure : {
+            let closure := inlineStorage[0] address reinterpretCastTo: _NativeStackBlockClosureHeader pointer.
+            let finalizerMethod := closure _ typeInfo _ finalizeFunctionPointer.
+            finalizerMethod ifNotNil: {
+                finalizerMethod(closure)
+            }.
+        }.
+
+        WrapperType HeapNativeClosure : {
+            let closure := inlineStorage[0] reinterpretCastTo: _NativeStackBlockClosureHeader pointer.
+            let finalizerMethod := closure _ typeInfo _ finalizeFunctionPointer.
+            finalizerMethod ifNotNil: {
+                finalizerMethod(closure)
+            }.
+
+            free(closure)
+        }.
+        }.
     }.
 
     method assignValue: (functionPointer: FunctionType pointer) ::=> SelfType ref := {

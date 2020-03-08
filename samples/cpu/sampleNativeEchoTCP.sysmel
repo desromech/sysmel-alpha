@@ -21,11 +21,10 @@ class ClientProcessor definition: {
                 clientSocket close.
             }
         }.
+
+        StdNative stdout << "Client with endpoint has " << clientSocket endpoint << " has closed its connection."; nl.
+        self address nativeDelete.
     }.
-}.
-
-function handleClient(clientSocket: StdNative IO Socket ref) => Void := {
-
 }.
 
 function main externC (argc: Int32, argv: Char8 const pointer pointer) => Int32 := {
