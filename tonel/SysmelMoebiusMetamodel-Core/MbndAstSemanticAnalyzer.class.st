@@ -703,6 +703,10 @@ MbndAstSemanticAnalyzer >> visitCasesOfNode: node [
 	].
 
 	resultType ifNil: [ resultType := self compilationTarget voidType ].
+	(resultType isReturnType and: [ node hasDefaultCase not ]) ifTrue: [ 
+		resultType := self compilationTarget voidType
+	].
+
 	resultType isVoidType ifFalse: [
 		result cases do: [ :case |
 			case action: (self addImplicitCastFor: case action to: resultType)

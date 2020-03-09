@@ -136,6 +136,12 @@ MbndAbstractFunctionMetaBuilder >> naked [
 	self callingConvention: #naked
 ]
 
+{ #category : #flags }
+MbndAbstractFunctionMetaBuilder >> noReturn [
+	<compileTime>
+	self addFlag: #noReturn
+]
+
 { #category : #copying }
 MbndAbstractFunctionMetaBuilder >> ownerProgramEntity: newOwner [
 	super ownerProgramEntity: newOwner.

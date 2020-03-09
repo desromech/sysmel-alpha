@@ -302,6 +302,11 @@ MbndAbstractModuleVisitor >> visitTextureType: type [
 ]
 
 { #category : #visiting }
+MbndAbstractModuleVisitor >> visitTupleType: type [
+	self subclassResponsibility
+]
+
+{ #category : #visiting }
 MbndAbstractModuleVisitor >> visitUndefinedType: type [
 	self subclassResponsibility
 ]

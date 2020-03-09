@@ -5388,6 +5388,28 @@ MbndSlovimCodeModuleGeneratorTest >> testMultipleChainsFunction [
 ]
 
 { #category : #tests }
+MbndSlovimCodeModuleGeneratorTest >> testNoReturn [
+	| function |
+	self
+		evaluateSysmelSource: '
+function abort noReturn externC() => Void.
+
+function callAbort externC() => Int32 := {
+	abort()
+}.
+
+';
+		generateSSAModule.
+
+	function := ssaModule globalNamed: #callAbort.
+	self assert: function allInstructionsMnemonics equals: #(
+		(entry (jump))
+		(body #(jump))
+		(tryScope #(call unreachable))
+	)
+]
+
+{ #category : #tests }
 MbndSlovimCodeModuleGeneratorTest >> testNonPODAggregatePassing [
 	| function |
 	self
@@ -7126,6 +7148,28 @@ MbndSlovimCodeModuleGeneratorTest >> testTempReferenceLoad [
 	self deny: function isEmpty.
 	self assert: function basicBlocks size equals: 2.
 	self assert: function basicBlocks second firstInstruction isLoad.
+]
+
+{ #category : #tests }
+MbndSlovimCodeModuleGeneratorTest >> testTupleParameter [
+	| function |
+	self
+		evaluateSysmelSource: '
+function called externC(tuple: (Int32 -- Float32)) => Void.
+
+function callWithTuple externC() => Void := {
+	called((1, 42.0))
+}.
+
+';
+		generateSSAModule.
+
+	function := ssaModule globalNamed: #callWithTuple.
+	self assert: function allInstructionsMnemonics equals: #(
+		#(#entry #(#jump))
+		#(#body #(#jump))
+		#(#tryScope #(#insertValue #insertValue #call #returnVoid))
+	)
 ]
 
 { #category : #tests }

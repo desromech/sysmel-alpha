@@ -47,6 +47,11 @@ MbndAstFunctionPrototypeNode >> name: anObject [
 	name := anObject
 ]
 
+{ #category : #flags }
+MbndAstFunctionPrototypeNode >> noReturn [
+	^ self addFlag: #noReturn
+]
+
 { #category : #'as yet unclassified' }
 MbndAstFunctionPrototypeNode >> override [
 	<compileTime>

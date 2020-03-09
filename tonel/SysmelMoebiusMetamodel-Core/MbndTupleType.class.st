@@ -6,7 +6,9 @@ Class {
 		'instanceSize',
 		'instanceAlignment',
 		'elementOffsets',
-		'isNonConcreteType'
+		'isNonConcreteType',
+		'isTypePassedByReference',
+		'isMemoryReturnedType'
 	],
 	#category : #'SysmelMoebiusMetamodel-Core-Type'
 }
@@ -109,6 +111,11 @@ MbndTupleType >> instanceSize [
 	^ instanceSize
 ]
 
+{ #category : #'testing methods' }
+MbndTupleType >> isMemoryReturnedType [
+	^ isMemoryReturnedType ifNil: [ isMemoryReturnedType := elements detect: [ :each | each isMemoryReturnedType ] ifFound: [ true ] ifNone: [ false ]]
+]
+
 { #category : #testing }
 MbndTupleType >> isNonConcreteType [
 	^ isNonConcreteType ifNil: [
@@ -125,6 +132,11 @@ MbndTupleType >> isNonConcreteType [
 { #category : #testing }
 MbndTupleType >> isTupleType [
 	^ true
+]
+
+{ #category : #'testing methods' }
+MbndTupleType >> isTypePassedByReference [
+	^ isTypePassedByReference ifNil: [ isTypePassedByReference := elements detect: [ :each | each isTypePassedByReference ] ifFound: [ true ] ifNone: [ false ]]
 ]
 
 { #category : #printing }

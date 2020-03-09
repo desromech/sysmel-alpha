@@ -303,6 +303,18 @@ MbndSlovimTypeTranslator >> visitTextureType: type [
 ]
 
 { #category : #visiting }
+MbndSlovimTypeTranslator >> visitTupleType: tupleType [
+	| ssaValueType |
+	ssaValueType := SLVMStructureType name: nil
+		types: (tupleType elements collect: [:each | self translateType: each])
+		kind: SLVMStructureType genericKind
+		names: ((0 to: tupleType elements size) collect: [:each | ('element', each asString) asSymbol]).
+	translatedTypes at: tupleType put: ssaValueType.
+	
+	^ ssaValueType
+]
+
+{ #category : #visiting }
 MbndSlovimTypeTranslator >> visitUnionType: structureType [
 	^ self translateAggregateType: structureType withKind: SLVMUnionType
 

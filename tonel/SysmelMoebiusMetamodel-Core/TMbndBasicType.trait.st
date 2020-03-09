@@ -46,26 +46,6 @@ TMbndBasicType >> ensureSyntheticMethodExists: aSelector [
 	^ nil
 ]
 
-{ #category : #converting }
-TMbndBasicType >> fillTypeInfoInstance: typeInfoInstance [
-	typeInfoInstance
-		setField: #instanceSize value: self instanceSize;
-		setField: #instanceAlignment value: self instanceSize;
-		setField: #basicInitializationFunctionPointer value: 
-			(self hasTrivialBasicInitialization
-				ifTrue: [ nil ]
-				ifFalse: [ self basicInitializeMethod ]);
-		setField: #copyConstructorFunctionPointer value: 
-			(self hasTrivialInitializationCopyingFrom
-				ifTrue: [ nil ]
-				ifFalse: [ self initializeCopyingFromMethod ]);
-		setField: #moveConstructorFunctionPointer value: 
-			(self hasTrivialInitializationMovingFrom
-				ifTrue: [ nil ]
-				ifFalse: [ self initializeMovingFromMethod ])
-
-]
-
 { #category : #testing }
 TMbndBasicType >> hasPublicVisibility [
 	^ self visibilityMode == #public

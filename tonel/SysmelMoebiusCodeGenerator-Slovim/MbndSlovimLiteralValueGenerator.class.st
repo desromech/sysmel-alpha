@@ -269,6 +269,11 @@ MbndSlovimLiteralValueGenerator >> visitReferenceType: referenceType [
 	^ SLVMConstant pointerToConstant: (referenceType baseType accept: self) pointerType: (self translateType: referenceType)
 ]
 
+{ #category : #'code generation' }
+MbndSlovimLiteralValueGenerator >> visitReturnType: voidType [
+	^ nil
+]
+
 { #category : #visiting }
 MbndSlovimLiteralValueGenerator >> visitSimpleMetaType: type [
 	^ (self translateProgramEntity: literalValue) ssaValue

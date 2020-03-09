@@ -28,7 +28,8 @@ Class {
 		'exceptionCatchBeginFunction',
 		'nonLocalReturnRaiseFunction',
 		'nonLocalReturnCatchFunction',
-		'objectMethodDispatchTrampolines'
+		'objectMethodDispatchTrampolines',
+		'nativeClosureTypeInfos'
 	],
 	#classVars : [
 		'ShaderBuiltInLocationMap',
@@ -637,6 +638,67 @@ MbndSlovimCodeModuleGenerator >> getOrCreateDynamicFunctionCallAdapterFor: funct
 ]
 
 { #category : #'code generation' }
+MbndSlovimCodeModuleGenerator >> getOrCreateNativeClosureTypeInfoFor: closureFunctionType withCaptures: capturedTypes for: prototype [
+	| typeInfoClass typeInfoObjectInstance instanceSize instanceAlignment |
+	typeInfoClass := self compilationTarget typeInformationNativeClass.
+	typeInfoClass ifNil: [ ^ nil ].
+	
+	instanceSize := prototype type size.
+	instanceAlignment := prototype type alignment.
+	
+	^ nativeClosureTypeInfos at: { closureFunctionType . capturedTypes} ifAbsentPut: [
+		| needsCopyConstructor needsMoveConstructor needsFinalizer ssaClosureTypeInfo
+		vtableEntryType vtableEntries vtableType vtable |
+		typeInfoObjectInstance := typeInfoClass makeInstance. 
+		typeInfoObjectInstance setField: #instanceDataSize value: instanceSize.
+		typeInfoObjectInstance setField: #instanceDataAlignment value: instanceAlignment.
+
+		needsCopyConstructor := false.
+		needsMoveConstructor := false.
+		needsFinalizer := false.
+		capturedTypes do: [ :each |
+			each hasTrivialInitializationCopyingFrom ifFalse: [
+				needsCopyConstructor := true.
+			].
+			each hasTrivialInitializationMovingFrom ifFalse: [
+				needsMoveConstructor := true.
+			].
+			each hasTrivialFinalization ifFalse: [
+				needsFinalizer := true.
+			].
+		].
+		
+		needsCopyConstructor ifTrue: [
+			self halt
+		].
+		needsMoveConstructor ifTrue: [
+			self halt
+		].
+		needsFinalizer ifTrue: [
+			self halt
+		].
+
+		ssaClosureTypeInfo := SLVMGlobalVariable module: ssaModule name: nil valueType: (self translateType: typeInfoClass) storage: (typeInfoClass hasGarbageCollectedAddressSpace ifTrue: [SLVMType gcStorage] ifFalse: [SLVMType genericStorage]).
+		typeInfoClass isGarbageCollectedType ifTrue: [
+			ssaClosureTypeInfo initialValue: (self literalValueGenerator translateDynamicObjectInstanceContent: typeInfoObjectInstance).
+		] ifFalse: [ 
+			ssaClosureTypeInfo initialValue: (self literalValueGenerator translateLiteralValue: typeInfoObjectInstance ofType: typeInfoClass).
+		].
+		
+		vtableEntryType := self slvmCompilationTarget voidPointerType.
+		vtableEntries := {
+			"Offset" SLVMConstant type: vtableEntryType value: 0.
+			"Type info" . SLVMConstant value: ssaClosureTypeInfo bitcast: self slvmCompilationTarget voidPointerType.
+		}.
+		vtableType := SLVMArrayType baseType: vtableEntryType elements: vtableEntries size.
+		vtable := SLVMGlobalVariable module: ssaModule name: nil valueType: vtableType storage:  SLVMType genericStorage.
+		vtable initialValue: (SLVMConstant array: vtableType slots: vtableEntries).
+		
+		SLVMConstant getReference: vtable element: vtableEntries size
+	].
+]
+
+{ #category : #'code generation' }
 MbndSlovimCodeModuleGenerator >> getOrCreateNativeMethodDispatchTrampolineWithType: messageFunctionType [
 	| dynobjectType trampolineFunctionType trampoline |
 	dynobjectType := self compilationTarget dynamicObjectType.
@@ -795,6 +857,7 @@ MbndSlovimCodeModuleGenerator >> initialize [
 	objectMethodDispatchTrampolines := IdentityDictionary new.
 	shaderEntryPointInfoDictionary := IdentityDictionary new.
 	shaderEntryPoints := OrderedCollection new.
+	nativeClosureTypeInfos := Dictionary new.
 ]
 
 { #category : #'as yet unclassified' }
@@ -1396,6 +1459,8 @@ MbndSlovimCodeModuleGenerator >> visitConcreteFunctionMethod: functionMethod [
 
 	unmangledName := self unmangledNameForProgramEntity: functionMethod.
 	ssaFunction := SLVMFunction module: ssaModule name: csymbol functionType: ssaFunctionType.
+	ssaFunction
+		setNoReturn: functionMethod isNoReturn.
 	
 	addHighLevelMap ifTrue: [ 
 		ssaModule addHighLevelEntity: functionMethod mapToGlobalValue: ssaFunction
@@ -1437,6 +1502,8 @@ MbndSlovimCodeModuleGenerator >> visitConcreteMessageMethod: functionMethod [
 	csymbol := self csymbolForProgramEntity: functionMethod.
 	unmangledName := self unmangledNameForProgramEntity: functionMethod.
 	ssaFunction := SLVMFunction module: ssaModule name: csymbol functionType: ssaFunctionType.
+	ssaFunction
+		setNoReturn: functionMethod isNoReturn.
 	ssaFunction unmangledName: unmangledName.
 	self setProgramEntity: functionMethod ssaValue: ssaFunction.
 	ssaModule addHighLevelEntity: functionMethod mapToGlobalValue: ssaFunction.

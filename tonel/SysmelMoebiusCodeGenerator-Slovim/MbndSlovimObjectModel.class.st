@@ -86,10 +86,18 @@ MbndSlovimObjectModel >> compiledMethodLiteralsOffset [
 
 { #category : #'as yet unclassified' }
 MbndSlovimObjectModel >> constructClosurePrototypeFor: closureDefinition [
-	| prototype mbndFunctionType header dynamicCallAdapterSlotIndex numArgsSlotIndex dynamicCallAdapter |
+	| prototype mbndFunctionType header dynamicCallAdapterSlotIndex numArgsSlotIndex dynamicCallAdapter capturedTypes closureTypeInfo |
 	prototype := super constructClosurePrototypeFor: closureDefinition.
+	mbndFunctionType := closureDefinition propertyAt: #mbndFunctionType.
+	closureDefinition kind = #nativeStack ifTrue: [
+		capturedTypes := closureDefinition captures collect: [ :each | each propertyAt: #mbndType ].
+		closureTypeInfo := moduleCodeGenerator getOrCreateNativeClosureTypeInfoFor: mbndFunctionType withCaptures: capturedTypes for: prototype.
+		closureTypeInfo ifNotNil: [
+			prototype slots at: 1 put: closureTypeInfo
+		].
+	].
+
 	closureDefinition kind = #gc ifTrue: [
-		mbndFunctionType := closureDefinition propertyAt: #mbndFunctionType.
 		dynamicCallAdapter := moduleCodeGenerator getOrCreateDynamicFunctionCallAdapterFor: mbndFunctionType.
 		dynamicCallAdapterSlotIndex := self gcBlockClosureHeaderDynamicCallAdapterSlotIndex + 1.
 		numArgsSlotIndex := self gcBlockClosureHeaderNumArgsSlotIndex + 1.

@@ -562,8 +562,8 @@ TMbndAbstractType >> extraMetaBuilderFactories [
 { #category : #converting }
 TMbndAbstractType >> fillTypeInfoInstance: typeInfoInstance [
 	typeInfoInstance
-		setField: #instanceSize value: self instanceSize;
-		setField: #instanceAlignment value: self instanceSize;
+		setField: #instanceDataSize value: self instanceSize;
+		setField: #instanceDataAlignment value: self instanceAlignment;
 		setField: #basicInitializationFunctionPointer value: 
 			(self hasTrivialBasicInitialization
 				ifTrue: [ nil ]
@@ -575,7 +575,11 @@ TMbndAbstractType >> fillTypeInfoInstance: typeInfoInstance [
 		setField: #moveConstructorFunctionPointer value: 
 			(self hasTrivialInitializationMovingFrom
 				ifTrue: [ nil ]
-				ifFalse: [ self initializeMovingFromMethod ])
+				ifFalse: [ self initializeMovingFromMethod ]);
+		setField: #finalizeFunctionPointer value: 
+			(self hasTrivialFinalization
+				ifTrue: [ nil ]
+				ifFalse: [ self finalizeMethod ])
 
 ]
 

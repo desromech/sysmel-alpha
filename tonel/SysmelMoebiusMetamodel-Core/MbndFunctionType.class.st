@@ -70,6 +70,12 @@ MbndFunctionType >> analyzeFunctionCallNode: node with: analyzer [
 		node type: returnType tempRef
 	].
 
+	node function calledFunctionBinding ifNotNil: [ :function |
+		function isNoReturn ifTrue: [
+			node type: self compilationTarget returnType.
+		]
+	].
+
 	^ node
 ]
 
@@ -82,6 +88,12 @@ MbndFunctionType >> argumentTypes [
 { #category : #accessing }
 MbndFunctionType >> argumentTypes: anObject [
 	argumentTypes := anObject
+]
+
+{ #category : #accessing }
+MbndFunctionType >> argumentTypesTuple [
+	<compileTime>
+	^ self compilationTarget tuple: argumentTypes
 ]
 
 { #category : #converting }

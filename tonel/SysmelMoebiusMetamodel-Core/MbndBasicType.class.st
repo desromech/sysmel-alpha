@@ -166,26 +166,6 @@ MbndBasicType >> ensureSyntheticMethodExists: aSelector [
 	^ nil
 ]
 
-{ #category : #converting }
-MbndBasicType >> fillTypeInfoInstance: typeInfoInstance [
-	typeInfoInstance
-		setField: #instanceDataSize value: self instanceSize;
-		setField: #instanceDataAlignment value: self instanceAlignment;
-		setField: #basicInitializationFunctionPointer value: 
-			(self hasTrivialBasicInitialization
-				ifTrue: [ nil ]
-				ifFalse: [ self basicInitializeMethod ]);
-		setField: #copyConstructorFunctionPointer value: 
-			(self hasTrivialInitializationCopyingFrom
-				ifTrue: [ nil ]
-				ifFalse: [ self initializeCopyingFromMethod ]);
-		setField: #moveConstructorFunctionPointer value: 
-			(self hasTrivialInitializationMovingFrom
-				ifTrue: [ nil ]
-				ifFalse: [ self initializeMovingFromMethod ])
-
-]
-
 { #category : #'as yet unclassified' }
 MbndBasicType >> fullName [
 	^ name ifNil: [ ^ self printString ]

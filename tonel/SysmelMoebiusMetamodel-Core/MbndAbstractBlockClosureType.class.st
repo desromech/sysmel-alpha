@@ -18,6 +18,22 @@ MbndAbstractBlockClosureType >> analyzeFunctionCallNode: node with: analyzer [
 	^ functionType analyzeFunctionCallNode: node with: analyzer
 ]
 
+{ #category : #converting }
+MbndAbstractBlockClosureType >> analyzeReinterpretCastNode: node to: targetType with: analyzer [
+	| undecoratedTargetType |
+	undecoratedTargetType := targetType withoutTopDecorations.
+	
+	undecoratedTargetType isPointerLikeValueType ifTrue: [
+		^ analyzer visitNode: (MbndAstPointerReinterpretCastNode new
+			position: node;
+			expression: node expression;
+			targetType: targetType;
+			yourself)
+	].
+
+	^ super analyzeReinterpretCastNode: node to: targetType with: analyzer
+]
+
 { #category : #accessing }
 MbndAbstractBlockClosureType >> argumentTypes [
 	<compileTime>
@@ -42,6 +58,11 @@ MbndAbstractBlockClosureType >> functionTypeWithClosureParameter [
 
 { #category : #'testing methods' }
 MbndAbstractBlockClosureType >> isBlockClosureType [
+	^ true
+]
+
+{ #category : #'testing methods' }
+MbndAbstractBlockClosureType >> isPointerLikeValueType [
 	^ true
 ]
 

@@ -689,6 +689,31 @@ MbndSlovimDebugInformationTranslator >> visitTemporaryReferenceType: referenceTy
 ]
 
 { #category : #visiting }
+MbndSlovimDebugInformationTranslator >> visitTupleType: tupleType [
+	| debugType |
+	tupleType isTrait ifTrue: [ ^ self visitTraitType: tupleType ].
+	
+	debugType := SLVMDebugCompositeType new makeStructure.
+	translatedEntities at: tupleType put: debugType.
+	self setCommonDebugType: debugType informationFrom: tupleType.
+	
+	debugType
+		byteSize: tupleType instanceSize;
+		byteAlignment: tupleType instanceAlignment;
+		members: (tupleType elements collectWithIndex: [ :fieldType :index |
+			SLVMDebugDerivedType new
+				makeMember;
+				name: ('element' , (index - 1)) asSymbol;
+				baseType: (self translateDebugType: fieldType);
+				byteSize: fieldType instanceSize;
+				byteOffset: (tupleType elementOffsets at: index);
+				yourself.
+		]).
+	
+	^ debugType
+]
+
+{ #category : #visiting }
 MbndSlovimDebugInformationTranslator >> visitUnionType: unionType [
 	| debugType |
 	unionType isTrait ifTrue: [ ^ self visitTraitType: unionType ].

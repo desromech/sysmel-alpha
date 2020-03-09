@@ -73,6 +73,11 @@ MbndSlovimCompilationTarget >> int64Alignment [
 	^ slvmCompilationTarget int64 alignment
 ]
 
+{ #category : #testing }
+MbndSlovimCompilationTarget >> isBigEndian [
+	^ slvmCompilationTarget isBigEndian
+]
+
 { #category : #'platform testing' }
 MbndSlovimCompilationTarget >> isFreeBSD [
 	^ slvmCompilationTarget isFreeBSD
@@ -86,6 +91,11 @@ MbndSlovimCompilationTarget >> isGPU [
 { #category : #'platform testing' }
 MbndSlovimCompilationTarget >> isLinux [
 	^ slvmCompilationTarget isLinux
+]
+
+{ #category : #testing }
+MbndSlovimCompilationTarget >> isLittleEndian [
+	^ slvmCompilationTarget isLittleEndian
 ]
 
 { #category : #'platform testing' }

@@ -191,6 +191,11 @@ MbndAbstractSpecificMethod >> isDefinition [
 ]
 
 { #category : #testing }
+MbndAbstractSpecificMethod >> isNoReturn [
+	^ self hasFlag: #noReturn
+]
+
+{ #category : #testing }
 MbndAbstractSpecificMethod >> matchesPrototypeNode: prototypeNode withReceiverType: prototypeReceiverType [
 	receiverType == prototypeReceiverType ifFalse: [ ^ false ].
 	boundType returnType == prototypeNode returnType ifFalse: [ ^ false ].

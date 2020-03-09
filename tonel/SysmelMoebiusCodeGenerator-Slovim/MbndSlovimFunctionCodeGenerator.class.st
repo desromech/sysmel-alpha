@@ -278,6 +278,7 @@ MbndSlovimFunctionCodeGenerator >> defineCapturedVariables [
 	concreteMethod isBlockClosureMethod ifFalse: [ ^ self ].
 	concreteMethod capturedVariables do: [ :variable |
 		capturedValue := ssaFunction createClosureCaptureOfType: (self translateType: variable type).
+		capturedValue propertyAt: #mbndType put: variable type.
 		functionVariables at: variable put: capturedValue
 	].
 
@@ -503,6 +504,10 @@ MbndSlovimFunctionCodeGenerator >> generateCall: calledFunction arguments: argum
 	].
 
 	result := slvmBuilder call: calledFunction arguments: allArguments.
+	(calledFunction isFunction and: [ calledFunction isNoReturn ]) ifTrue: [
+		slvmBuilder unreachable.
+		^ result
+	].
 	
 	memoryReturnTemporary ifNotNil: [
 		expectedResultType hasTrivialFinalization ifFalse: [
@@ -1985,10 +1990,13 @@ MbndSlovimFunctionCodeGenerator >> visitFunctionCallNode: node [
 	functionValue ifNil: [
 		functionValue := self visitNode: node function.
 		node function type isBlockClosureType ifTrue: [ 
+			| blockClosure |
+			blockClosure := functionValue.
 			functionValue := slvmBuilder load: (slvmBuilder getReference: functionValue element: (slvmBuilder constInt: 1)).
 			self assert: functionValue type isPointerType.
 			self assert: functionValue type baseType isFunctionType.
-			hiddenReceiverArgument := slvmBuilder bitCast: functionValue target: (functionValue type baseType arguments at: hiddenReceiverArgumentIndex).
+			
+			hiddenReceiverArgument := slvmBuilder bitCast: blockClosure target: (functionValue type baseType arguments at: hiddenReceiverArgumentIndex).
 		].
 	].
 	
@@ -2084,7 +2092,7 @@ MbndSlovimFunctionCodeGenerator >> visitIOChannelReceiveAction: node [
 
 	self assert: channel type isDynamicObjectPointerType.
 	result := slvmBuilder send: (slvmBuilder addDynamicLiteral: #receive) returnType: messageType receiver: channel arguments: #().
-	self halt.
+	result highLevelMessageSendFunctionType: (node channel type => node channel type messageType).
 	^ result
 ]
 
@@ -2105,7 +2113,7 @@ MbndSlovimFunctionCodeGenerator >> visitIOChannelSendAction: node [
 
 	self assert: channel type isDynamicObjectPointerType.
 	send := slvmBuilder send: (slvmBuilder addDynamicLiteral: #send:) returnType: channel type receiver: channel arguments: { message }.
-	self halt.
+	send highLevelMessageSendFunctionType: (node channel type , node message type => self compilationTarget voidType).
 	^ channel
 ]
 
@@ -2667,6 +2675,24 @@ MbndSlovimFunctionCodeGenerator >> visitTruncateCastNode: node [
 	source := self visitNode: node expression.
 	targetType := self translateType: node type.
 	^ slvmBuilder truncate: source target: targetType
+]
+
+{ #category : #visiting }
+MbndSlovimFunctionCodeGenerator >> visitTupleNode: node [
+	| elements resultType result |
+	elements := node elements collect: [ :each | self visitNode: each ].
+	resultType := self translateType: node type.
+	resultType isPointerType ifTrue: [ 
+		self halt
+	] ifFalse: [
+		self assert: resultType isStructureType.
+		result := SLVMConstant undefined: resultType.
+		elements doWithIndex: [ :el :index |
+			result := slvmBuilder insertValue: result value: el indices: { index - 1 }
+		].
+	].
+
+	^ result
 ]
 
 { #category : #visiting }

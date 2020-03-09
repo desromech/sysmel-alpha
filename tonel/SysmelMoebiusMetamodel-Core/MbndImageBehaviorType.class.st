@@ -42,26 +42,6 @@ MbndImageBehaviorType >> behavior: aBehavior [
 	behavior := aBehavior
 ]
 
-{ #category : #converting }
-MbndImageBehaviorType >> fillTypeInfoInstance: typeInfoInstance [
-	typeInfoInstance
-		setField: #instanceSize value: self instanceSize;
-		setField: #instanceAlignment value: self instanceSize;
-		setField: #basicInitializationFunctionPointer value: 
-			(self hasTrivialBasicInitialization
-				ifTrue: [ nil ]
-				ifFalse: [ self basicInitializeMethod ]);
-		setField: #copyConstructorFunctionPointer value: 
-			(self hasTrivialInitializationCopyingFrom
-				ifTrue: [ nil ]
-				ifFalse: [ self initializeCopyingFromMethod ]);
-		setField: #moveConstructorFunctionPointer value: 
-			(self hasTrivialInitializationMovingFrom
-				ifTrue: [ nil ]
-				ifFalse: [ self initializeMovingFromMethod ])
-
-]
-
 { #category : #testing }
 MbndImageBehaviorType >> hasTrivialInitializationCopyingFrom [
 	^ self hasTrivialInstanceInitializationCopyingFrom

@@ -134,8 +134,7 @@ MbndAstSemanticAnalyzerForExplicitMacroExpansion >> visitFunctionCallNode: node 
 		result arguments isTupleNode ifTrue: [
 			^ self visitNode: (result arguments: result arguments elements)
 		] ifFalse: [
-			self flag: 'TODO: Generate code for unwrapping the tuple.'.
-			self halt
+			^ self visitNode: (result arguments: (self visitSplicingTupleNode: result arguments))
 		]
 	].
 

@@ -68,26 +68,6 @@ TMbndType >> explicitConversionRules [
 	^ explicitConversionRules ifNil: [ explicitConversionRules := OrderedCollection new ]
 ]
 
-{ #category : #converting }
-TMbndType >> fillTypeInfoInstance: typeInfoInstance [
-	typeInfoInstance
-		setField: #instanceSize value: self instanceSize;
-		setField: #instanceAlignment value: self instanceSize;
-		setField: #basicInitializationFunctionPointer value: 
-			(self hasTrivialBasicInitialization
-				ifTrue: [ nil ]
-				ifFalse: [ self basicInitializeMethod ]);
-		setField: #copyConstructorFunctionPointer value: 
-			(self hasTrivialInitializationCopyingFrom
-				ifTrue: [ nil ]
-				ifFalse: [ self initializeCopyingFromMethod ]);
-		setField: #moveConstructorFunctionPointer value: 
-			(self hasTrivialInitializationMovingFrom
-				ifTrue: [ nil ]
-				ifFalse: [ self initializeMovingFromMethod ])
-
-]
-
 { #category : #testing }
 TMbndType >> hasTrivialInitializationCopyingFrom [
 	^ self hasTrivialInstanceInitializationCopyingFrom

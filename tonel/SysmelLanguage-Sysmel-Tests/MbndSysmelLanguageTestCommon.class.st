@@ -303,6 +303,7 @@ MbndSysmelLanguageTestCommon >> evaluateMiniRTTI [
 compileTimeConstant NativeBasicInitializeFunctionPointerType := ((Void pointer) => Void) pointer.
 compileTimeConstant CopyConstructorFunctionPointerType := ((Void pointer -- Void pointer) => Void) pointer.
 compileTimeConstant MoveConstructorFunctionPointerType := ((Void pointer -- Void pointer) => Void) pointer.
+compileTimeConstant FinalizeFunctionPointerType := ((Void pointer) => Void) pointer.
 
 class TypeInformation definition: {
 	public field superclass type: TypeInformation pointer.
@@ -311,6 +312,7 @@ class TypeInformation definition: {
 	public field basicInitializationFunctionPointer type: NativeBasicInitializeFunctionPointerType.
 	public field copyConstructorFunctionPointer type: CopyConstructorFunctionPointerType.
 	public field moveConstructorFunctionPointer type: MoveConstructorFunctionPointerType.
+   public field finalizeFunctionPointer type: FinalizeFunctionPointerType.
 }.
 
 Compiler compilationTarget

@@ -583,6 +583,17 @@ MbndSlovimSymbolNameMangler >> visitTextureType: type [
 ]
 
 { #category : #visiting }
+MbndSlovimSymbolNameMangler >> visitTupleType: type [
+	self emitSubstitutionElement: #tuple.
+	output nextPut: $I.
+	type elements do: [ :each |
+		self mangleType: each.
+	].
+	output nextPut: $E.	
+
+]
+
+{ #category : #visiting }
 MbndSlovimSymbolNameMangler >> visitUnionType: type [
 	^ self visitGenericType: type
 ]
