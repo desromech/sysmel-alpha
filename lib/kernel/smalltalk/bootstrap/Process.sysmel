@@ -1,0 +1,51 @@
+namespace Smalltalk definition: {
+namespace __Internal definition: {
+
+function callProcessEntryPoint(processPointer: Void pointer) => Void := {
+    (processPointer reinterpretCastTo: Smalltalk Process)
+        nativeThreadEntryPoint
+}.
+}.
+
+Process definition: {
+    field thread type: StdNative Thread.
+    field threadResultValue.
+    field entryPointBlock.
+
+    meta method startForBlock: aBlock
+        := self new startForBlock: aBlock.
+
+    method startForBlock: aBlock := {
+        entryPointBlock := aBlock.
+        thread start: __Internal callProcessEntryPoint address with: (self reinterpretCastTo: Void pointer).
+        self
+    }.
+
+    method join := {
+        thread join.
+        threadResultValue.
+    }.
+
+    method detach := {
+        thread detach.
+        self
+    }.
+
+    virtual method nativeThreadEntryPoint => Void := {
+        threadResultValue := entryPointBlock value
+    }.
+}.
+
+BlockClosure extend: {
+    method spawn := {
+        Process startForBlock: self
+    }.
+
+    method fork := {
+        (Process startForBlock: self)
+            detach;
+            yourself
+    }.
+}.
+
+}. ## End of namespace Smalltalk

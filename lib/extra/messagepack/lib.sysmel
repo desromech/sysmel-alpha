@@ -1,0 +1,5 @@
+loadFileOnce: "Decoder.sysmel".
+
+if: Compiler hasGarbageCollectionSupport then: {
+    loadFileOnce: "GCObjectDecoder.sysmel".
+}.

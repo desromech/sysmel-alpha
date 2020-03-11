@@ -4,6 +4,7 @@ loadFileOnce: "Boolean.sysmel".
 loadFileOnce: "Magnitude.sysmel".
 
 loadFileOnce: "Collections.sysmel".
+loadFileOnce: "AtomicCollections.sysmel".
 loadFileOnce: "String.sysmel".
 loadFileOnce: "HashedCollections.sysmel".
 loadFileOnce: "Behavior.sysmel".
@@ -12,4 +13,5 @@ loadFileOnce: "Exceptions.sysmel".
 loadFileOnce: "ExceptionsUnwind.sysmel".
 loadFileOnce: "Printing.sysmel".
 loadFileOnce: "Symbol.sysmel".
+loadFileOnce: "Process.sysmel".
 loadFileOnce: "ModuleRootRegistration.sysmel".

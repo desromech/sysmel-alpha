@@ -1,0 +1,84 @@
+namespace StdNative definition: {
+namespace Serialization definition: {
+namespace MessagePack definition: {
+
+compileTimeConstant GCObjectDecoder := Decoder(Smalltalk ProtoObject).
+class GCObjectDecoderCallback superclass: GCObjectDecoder Callback; definition: {
+    compileTimeConstant ResultType := Smalltalk ProtoObject.
+
+    public field decoder type: GCObjectDecoder pointer.
+
+    override method onInteger: (value: Int64) ::=> ResultType
+        := value.
+
+    override method onUnsignedInteger64: (value: UInt64) ::=> ResultType
+        := value.
+
+    override method onNil ::=> ResultType
+        := nil.
+
+    override method onBoolean: (value: Boolean8) ::=> ResultType
+        := value.
+
+    override method onFloat: (value: Float64) ::=> ResultType
+        := value.
+
+    override method onArray: (elementCount: UInt32) ::=> ResultType := {
+        let result := Smalltalk Array new: elementCount.
+        0 until: elementCount do: {:(UIntPointer) i :: Void |
+            result[i] := decoder _ decodeNextElement
+        }.
+
+        result
+    }.
+
+    override method onMap: (elementCount: UInt32) ::=> ResultType := {
+        let result := Smalltalk Dictionary new: elementCount.
+        0 until: elementCount do: {
+            let key := decoder _ decodeNextElement.
+            let value := decoder _ decodeNextElement.
+            result at: key put: value
+        }.
+
+        result
+    }.
+
+    override method onString: (dataSize: UInt32) ::=> ResultType := {
+        let result := Smalltalk String new: dataSize.
+        decoder _ readBytes: dataSize into: result[0] address.
+        result
+    }.
+
+    override method onBinary: (dataSize: UInt32) ::=> ResultType := {
+        let result := Smalltalk ByteArray new: dataSize.
+        decoder _ readBytes: dataSize into: result[0] address.
+        result
+    }.
+
+    override method onExtension: (dataSize: UInt32) type: (type: UInt8) ::=> ResultType
+        := nil.
+
+    override method onUnusedFormat ::=> ResultType
+        := nil.
+}.
+
+GCObjectDecoder extend: {
+    meta method decodeFrom: (buffer: Void pointer) withSize: (bufferSize: UIntPointer)::=> Smalltalk ProtoObject := {
+        let readStream mutable := StdNative IO FixedMemoryStream for: buffer withSize: bufferSize.
+        self decodeFrom: readStream address
+    }.
+
+    meta method decodeFrom: (stream: StdNative IO Stream pointer) ::=> Smalltalk ProtoObject := {
+        let callbackInstance mutable type: GCObjectDecoderCallback.
+        let decoder mutable type: SelfType.
+        callbackInstance decoder: decoder address.
+        decoder
+            callback: callbackInstance address;
+            beginDecodingStream: stream;
+            decodeNextElement.
+    }.
+}.
+
+}. ## End of namespace MessagePack
+}. ## End of namespace Serialization
+}. ## End of namespace StdNative

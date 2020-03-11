@@ -21,6 +21,9 @@ ProtoObject extend: {
         ``(if: `,self ~~ nil then: `,notNilAction else: `,nilAction).
     macro method ifNil: nilAction ifNotNil: notNilAction :=
         ``(if: `,self == nil then: `,nilAction else: `,notNilAction).
+
+    macro method isNil := ``(`,self == nil).
+    macro method isNotNil := ``(`,self ~~ nil).
 }.
 
 }.

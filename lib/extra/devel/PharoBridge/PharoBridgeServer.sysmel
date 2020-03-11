@@ -1,0 +1,129 @@
+namespace Smalltalk definition: {
+
+gcclass PharoBridgeServerClientConnection definition: {
+    public field server.
+    field clientSocket type: StdNative IO Socket.
+    field clientProcess.
+
+    method handleAcceptedClient: (theClientSocket: StdNative IO Socket ref) := {
+        clientSocket := theClientSocket asMoveReference.
+        clientProcess := {:: Void | self processClientConnection} fork.
+        self.
+    }.
+
+    method processClientConnection := {
+        StdNative stdout << "Accepted Pharo bridge client with endpoint " << clientSocket endpoint << "."; nl.
+        while: clientSocket isValid do: {
+            self receiveAndProcessCommand
+        }.
+        self
+    }.
+
+    inline method receiveBytes: (expectedByteCount: UIntPointer) into: (buffer: Void pointer) ::=> Boolean8 := {
+        let dest mutable := buffer reinterpretCastTo: UInt8 pointer.
+        let remainingToRead mutable := expectedByteCount.
+        while: remainingToRead > 0 do: {
+            let readedCount := clientSocket read: dest size: remainingToRead.
+            readedCount <= 0 ifTrue: {
+                clientSocket close.
+                return: false
+            }.
+
+            dest := dest[readedCount] address.
+            remainingToRead := remainingToRead - (readedCount castTo: UIntPointer).
+        }.
+
+        return: true
+    }.
+
+    method receiveAndProcessCommand := {
+        let messageSize mutable type: UInt32 := 0.
+        (self receiveBytes: 4 into: messageSize address) ifFalse: {
+            return: self
+        }.
+
+        ## FIXME: use an unique_ptr here.
+        let messageBuffer := StdNative malloc(messageSize) reinterpretCastTo: UInt8 pointer.
+        let decodedMessage mutable.
+        try: {
+            ## Receive the message.
+            (self receiveBytes: messageSize into: messageBuffer) ifFalse: {
+                return: self
+            }.
+
+            ## Decode the message.
+            decodedMessage := StdNative Serialization MessagePack GCObjectDecoder decodeFrom: messageBuffer withSize: messageSize.
+        } finally: {
+            StdNative free(messageBuffer)
+        }.
+
+        StdNative stdout << "Received message " << decodedMessage; nl.
+
+        self
+    }.
+}.
+
+gcclass PharoBridgeServer definition: {
+    field listenEndpoint type: StdNative IO Endpoint.
+    field listenSocket type: StdNative IO Socket.
+    field mainLoopCommandQueue.
+    field listeningThreadProcess.
+
+    method start := {
+        listenEndpoint := StdNative IO Endpoint ipv4SourcePort: 1234.
+        listenSocket := StdNative IO Socket tcpIPv4.
+        listenSocket isValid ifFalse: {
+            self error: "Failed to create the Pharo bridge server listening socket.".
+            return: nil
+        }.
+
+        listenSocket setOption: StdNative IO SocketOption ReuseAddress value: 1.
+
+        (listenSocket bind: listenEndpoint) ifFalse: {
+            self error: "Failed to bind the listening socket.".
+            return: nil
+        }.
+
+        listenSocket listen: 1.
+
+        self startListeningThread.
+    }.
+
+    method mainLoop := {
+        while: listenSocket isValid do: {
+            self waitForCommands
+        }.
+        self
+    }.
+
+    method waitForCommands := {
+        let command mutable.
+        while: (command := mainLoopCommandQueue next) isNotNil do: {
+            command value
+        }.
+        self.
+    }.
+
+    method startListeningThread := {
+        mainLoopCommandQueue := AtomicSharedQueue new.
+        listeningThreadProcess := {:: Void | self listeningThreadProcessLoop} fork.
+        self
+    }.
+
+    method listeningThreadProcessLoop := {
+        while: listenSocket isValid do: {
+            let clientSocket mutable := listenSocket accept.
+            clientSocket isValid ifTrue: {
+                PharoBridgeServerClientConnection new
+                    server: self;
+                    handleAcceptedClient: clientSocket.
+                nil
+            }.
+        }.
+
+        self
+    }.
+
+}.
+
+}.

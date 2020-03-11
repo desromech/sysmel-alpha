@@ -149,6 +149,26 @@ WriteStream definition: {
         writeLimit := collection size.
         self
     }.
+
+    method space
+        := self nextPut: ' '.
+
+    method tab
+        := self nextPut: '\t'.
+
+    method cr
+        := self nextPut: '\r'.
+
+    method lf
+        := self nextPut: '\n'.
+
+    method crlf
+        := self cr; lf.
+
+    ## TODO: Define according to the platform specific convention.
+    method nl
+        := self lf.
+
 }.
 
 LimitedWriteStream definition: {

@@ -1,0 +1,87 @@
+namespace Smalltalk definition: {
+
+gcclass AtomicQueueItem definition: {
+    public field next.
+    public field object.
+}.
+
+gcclass AtomicCollection definition: {
+    method newItem
+        := AtomicQueueItem new.
+}.
+
+gcclass WaitfreeQueue superclass: AtomicCollection; definition: {
+    field mutex type: StdNative Mutex.
+    field next.
+    field tail.
+
+    method nextOrNil
+        := self nextIfNone: nil.
+
+    method nextIfNone: aBlock := {
+        let result mutable type: ProtoObject := nil.
+
+        mutex withLock: {
+            next ifNotNil: {
+                result := next.
+                next := next next.
+                next ifNil: {
+                    tail := nil
+                }
+            }.
+        }.
+
+        result ifNil: {
+            aBlock value
+        } ifNotNil: {
+            result object
+        }
+    }.
+
+    method nextPut: value := {
+        mutex withLock: {
+            let newItem := self newItem.
+            newItem object: value.
+
+            tail ifNil: {
+                next := tail := newItem.
+                nil
+            } ifNotNil: {
+                tail next: newItem.
+                tail := newItem
+            }.
+
+            self signalAddedNewItem
+        }.
+
+        self
+    }.
+
+    virtual method signalAddedNewItem => Void := {}.
+}.
+
+gcclass AtomicSharedQueue superclass: WaitfreeQueue; definition: {
+    field itemAvailableCondition type: StdNative ConditionVariable.
+
+    override method signalAddedNewItem => Void := {
+        itemAvailableCondition notifyOne
+    }.
+
+    method next := {
+        mutex withLock: {
+            while: next isNil do: {
+                itemAvailableCondition wait: mutex
+            }.
+
+            let result := next object.
+            next := next next.
+            next ifNil: {
+                tail := nil
+            }.
+
+            result
+        }.
+    }
+}.
+
+}. ## End of namespace Smalltalk

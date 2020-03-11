@@ -15,6 +15,9 @@ class BinaryDataStreamReader definition: {
             isGood: true;
             yourself.
 
+    inline method nextBytes: (count: UIntPointer) into: (buffer: Void pointer) ::=> Boolean8
+        := ((stream _ read: buffer size: count) castTo: UIntPointer) == count .
+
     ## Native data fetching without byte swapping.
     inline method nextNativeUInt8Into: (dest: UInt8 ref) ::=> Boolean8
         := (stream _ read: dest address size: 1) == 1.

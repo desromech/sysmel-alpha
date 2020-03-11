@@ -103,6 +103,9 @@ gcclass Stream superclass: Object.
 		gcclass WriteStream superclass: PositionableStream.
 			gcclass LimitedWriteStream superclass: WriteStream.
 
+## Multi-threading
+gcclass Process superclass: Object.
+
 ## ProtoObject
 ProtoObject type supertype: Class.
 
@@ -504,6 +507,13 @@ macro method generateAtAccessorsForArrayField: arrayField elementType: elementTy
 String definition: {
 	Smalltalk generateBasicAtAccessorsForArrayField: __data elementType: Char8.
 	Smalltalk generateAtAccessorsForArrayField: __data elementType: Char8.
+}.
+
+ByteArray definition: {
+	field __data protected type: UInt8 array.
+
+	Smalltalk generateBasicAtAccessorsForArrayField: __data elementType: UInt8.
+	Smalltalk generateAtAccessorsForArrayField: __data elementType: UInt8.
 }.
 
 Array definition: {

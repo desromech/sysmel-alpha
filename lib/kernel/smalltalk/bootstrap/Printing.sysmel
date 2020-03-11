@@ -54,6 +54,37 @@ String extend: {
 
 }.
 
+Collection extend: {
+    method printNameOn: aStream
+        := super printOn: aStream.
+
+    method printOn: aStream := {
+        self printNameOn: aStream.
+        self printElementsOn: aStream.
+    }.
+
+    method printElementsOn: aStream := {
+        aStream nextPut: '('.
+        self do: {:each :: Void | each printOn: aStream} separatedBy: {:: Void | aStream space}.
+        aStream nextPut: ')'.
+    }.
+
+    method do: aBlock separatedBy: separatorBlock := {
+        let hasSeenFirst mutable := false.
+        self do: {:each :: Void |
+            hasSeenFirst ifTrue: {
+                separatorBlock value.
+            } ifFalse: {
+                hasSeenFirst := true.
+            }.
+
+            aBlock value: each
+        }.
+    }.
+
+}.
+
+
 Behavior extend: {
 	method name
 		:= "A subclass of something".
@@ -67,10 +98,68 @@ Metaclass extend: {
         := aStream print: thisClass; nextPutAll: " class".
 }.
 
+StdNative BasicValuePrinter extend: {
+    method printOn: (aStream: Smalltalk ProtoObject) ::=> Void := {
+        0 until: bufferSize do: {:(UIntPointer)i :: Void |
+            aStream nextPut: buffer[i]
+        }
+    }.
+}.
+
 SmallInteger extend: {
+
+    method printOn: aStream := {
+        let integerPrinter mutable type: StdNative BasicValueIntegerPrinter.
+        integerPrinter nextPutInteger: self __decodeSmallInteger.
+        integerPrinter printOn: aStream.
+
+        self
+    }.
+
+
     method printOnNativeTextStreamWriter: (writer: StdNative IO TextStreamWriter ref) := {
         writer << self __decodeSmallInteger.
 		self
+    }.
+}.
+
+String extend: {
+    method printOn: aStream
+        := self storeOn: aStream.
+
+    method storeOn: aStream := {
+        aStream nextPut: '\''.
+        0 until: __data size do: {:i :: Void|
+            let c := __data[i].
+            aStream nextPut: c.
+            c == '\'' ifTrue: {aStream nextPut: c}.
+        }.
+
+        aStream nextPut: '\''.
+        self
+    }.
+}.
+
+Symbol extend: {
+    method storeOn: aStream := {
+        aStream nextPut: '#'.
+        super storeOn: aStream
+    }.
+}.
+
+ByteArray extend: {
+    method printOn: aStream := {
+        aStream nextPutAll: "#[".
+        0 until: __data size do: {:i :: Void|
+            let b := __data[i].
+            i > 0 ifTrue: {
+                aStream nextPut: ' '
+            }.
+
+            aStream print: b.
+        }.
+        aStream nextPut: ']'.
+        self
     }.
 }.
 
