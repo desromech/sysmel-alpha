@@ -3,19 +3,63 @@ namespace Smalltalk definition: {
 gcclass PharoBridgeServerClientConnection definition: {
     public field server.
     field clientSocket type: StdNative IO Socket.
-    field clientProcess.
+    field clientReceptionProcess.
+    field clientTransmissionProcess.
+    field messageToClientQueue.
+
+    method initialize := {
+        messageToClientQueue := AtomicSharedQueue new.
+        self.
+    }.
 
     method handleAcceptedClient: (theClientSocket: StdNative IO Socket ref) := {
         clientSocket := theClientSocket asMoveReference.
-        clientProcess := {:: Void | self processClientConnection} fork.
+        clientReceptionProcess := {:: Void | self processClientConnection} fork.
+        clientTransmissionProcess := {:: Void | self sendMessagesToClient } fork.
         self.
     }.
 
     method processClientConnection := {
+        {
+            let magicCode mutable type: (UInt8 array: 4).
+
+            (self receiveBytes: 4 into: magicCode[0] address) && (StdNative memcmp(magicCode[0] address, "PHRS", 4) == 0) ifFalse: {
+                clientSocket close.
+                return: self.
+            }.
+        }.
+
         StdNative stdout << "Accepted Pharo bridge client with endpoint " << clientSocket endpoint << "."; nl.
         while: clientSocket isValid do: {
             self receiveAndProcessCommand
         }.
+        messageToClientQueue nextPut: nil.
+        self
+    }.
+
+    method sendMessagesToClient := {
+        while: clientSocket isValid do: {
+            let nextMessage := messageToClientQueue next.
+            nextMessage ifNotNil: {
+                self sendMessageToClient: nextMessage
+            }
+        }.
+
+        self.
+    }.
+
+    method sendMessageToClient: message := {
+        let outputStream mutable type: StdNative IO MemoryStream.
+        let encoder mutable type: StdNative Serialization MessagePack Encoder.
+        encoder
+            beginEncodingIntoStream: outputStream address;
+            encodeObject: message.
+
+        let messageSize mutable type: UInt32 := outputStream size castTo: UInt32.
+        self
+            sendBytes: 4 from: messageSize address;
+            sendBytes: messageSize from: outputStream buffer.
+
         self
     }.
 
@@ -34,6 +78,28 @@ gcclass PharoBridgeServerClientConnection definition: {
         }.
 
         return: true
+    }.
+
+    inline method sendBytes: (expectedByteCount: UIntPointer) from: (buffer: Void const pointer) ::=> Boolean8 := {
+        let source mutable := buffer reinterpretCastTo: UInt8 pointer.
+        let remainingToSend mutable := expectedByteCount.
+        while: remainingToSend > 0 do: {
+            let readedCount := clientSocket write: source size: remainingToSend.
+            readedCount <= 0 ifTrue: {
+                clientSocket close.
+                return: false
+            }.
+
+            source := source[readedCount] address.
+            remainingToSend := remainingToSend - (readedCount castTo: UIntPointer).
+        }.
+
+        return: true
+    }.
+
+    method enqueueMessageToClient: message := {
+        messageToClientQueue nextPut: message.
+        self
     }.
 
     method receiveAndProcessCommand := {
@@ -57,9 +123,59 @@ gcclass PharoBridgeServerClientConnection definition: {
             StdNative free(messageBuffer)
         }.
 
-        StdNative stdout << "Received message " << decodedMessage; nl.
+        self processClientCommand: decodedMessage.
 
         self
+    }.
+
+    method processClientCommand: command := {
+        ## Discard invalid commands.
+        command isArray && command size = 3 ifFalse: {
+            return: self
+        }.
+
+        let cookie := command first.
+        let callType := command second.
+        let request := command third.
+
+        ## Asynchronous call, with
+        callType == #cast ifTrue: {
+            return: (self processAsynchronousClientRequest: request)
+        }.
+        callType == #call ifTrue: {
+            return: (self processSynchronousClientRequest: request cookie: cookie)
+        }.
+
+        self
+    }.
+
+    method processAsynchronousClientRequest: request := {
+        server defer: { :: Void |
+            self tryToPerformClientRequest: request
+        }.
+
+        self
+    }.
+
+    method processSynchronousClientRequest: request cookie: cookie := {
+        server defer: { :: Void |
+            let result := self tryToPerformClientRequest: request.
+            self enqueueMessageToClient: (Array with: #response with: cookie with: result)
+        }.
+        self
+    }.
+
+    method performClientRequest: request := {
+        self error: "Unimplemented request".
+    }.
+
+    method tryToPerformClientRequest: request := {
+        try: {
+            return: (Array with: #result with: (self performClientRequest: request))
+        } catch: Smalltalk Error doing: { :error :: Void |
+            return: (Array with: #error with: error asString)
+        }.
+        nil
     }.
 }.
 
@@ -87,6 +203,11 @@ gcclass PharoBridgeServer definition: {
         listenSocket listen: 1.
 
         self startListeningThread.
+    }.
+
+    method defer: aBlock := {
+        mainLoopCommandQueue nextPut: aBlock.
+        self.
     }.
 
     method mainLoop := {

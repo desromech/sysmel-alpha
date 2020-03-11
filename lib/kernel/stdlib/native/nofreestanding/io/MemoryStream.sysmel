@@ -1,0 +1,53 @@
+namespace StdNative definition: {
+namespace IO definition: {
+
+#**
+ * File stream class.
+ *#
+class MemoryStream superclass: Stream;
+definition: {
+    protected field currentPosition type: UIntPointer.
+    public field storage type: StdNative Collections Vector(UInt8).
+
+    method buffer => UInt8 pointer
+        := storage isEmpty ifTrue: {nil} ifFalse: {storage [0] address}.
+    method size => UIntPointer
+        := storage size.
+
+    override method atEnd => Boolean8
+        := currentPosition >= storage size.
+
+    override method position => Int64
+        := currentPosition castTo: Int64.
+
+    override method seek: (offset: Int64) mode: (mode: SeekMode) ::=> Boolean8 := {
+        false
+    }.
+
+    override method write: (buffer: Void const pointer) size: (writeSize: UIntPointer) ::=> IntPointer := {
+        writeSize > 0 ifTrue: {
+            ## Ensure we have the required size.
+            let endPosition := currentPosition + writeSize.
+            storage size < endPosition ifTrue: {
+                storage resizeTo: endPosition.
+            }.
+
+            memcpy(storage[currentPosition] address, buffer, writeSize).
+            currentPosition := endPosition.
+        }.
+        writeSize castTo: IntPointer
+    }.
+
+    override method read: (buffer: Void pointer) size: (readSize: UIntPointer) ::=> IntPointer := {
+        let toRead := storage size - currentPosition min: readSize.
+        toRead > 0 ifTrue: {
+            memcpy(buffer, storage[currentPosition] address, toRead).
+            currentPosition := currentPosition + toRead
+        }.
+
+        toRead castTo: IntPointer
+    }.
+}.
+
+}. ## End of namespace IO
+}. ## End of namespace StdNative

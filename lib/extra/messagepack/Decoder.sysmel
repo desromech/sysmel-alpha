@@ -182,7 +182,7 @@ template Decoder(RT: Type)
         }.
         ## fixext 16
         16rD8 : {
-            return: (callback _ onExtension: 2 type: reader nextUInt8)
+            return: (callback _ onExtension: 16 type: reader nextUInt8)
         }.
         ## str8
         16rD9 : {

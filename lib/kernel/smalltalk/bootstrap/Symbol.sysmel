@@ -1,8 +1,13 @@
 namespace Smalltalk definition: {
 
+Object definition: {
+    method isSymbol := false
+}.
+
 String definition: {
     method asSymbol
         := Symbol intern: self.
+
 }.
 
 gcclass SymbolTableSet superclass: Set; definition: {
@@ -100,6 +105,9 @@ compileTimeIf: Compiler compilationTarget areSymbolsEqualsToString then: {
 
     method asSymbol
         := self.
+
+    method isSymbol
+        := true.
 }.
 
 }.

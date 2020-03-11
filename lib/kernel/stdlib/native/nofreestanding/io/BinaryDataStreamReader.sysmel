@@ -4,11 +4,7 @@ namespace IO definition: {
 #**
  * Binary data stream reader
  *#
-class BinaryDataStreamReader definition: {
-    public field stream type: Stream pointer.
-    public field activeEndianness type: BinaryDataStreamEndianness.
-    public field isGood type: Boolean8.
-
+class BinaryDataStreamReader superclass: BinaryDataStreamReaderWriterCommon; definition: {
     meta method for: (stream: Stream pointer) ::=> SelfType
         := SelfType newValue
             stream: stream;
@@ -43,18 +39,6 @@ class BinaryDataStreamReader definition: {
         := (stream _ read: dest address size: 4) == 4.
     inline method nextNativeFloat64Into: (dest: Float64 ref) ::=> Boolean8
         := (stream _ read: dest address size: 8) == 8.
-
-    inline method swap16: (v: UInt16 pointer) endianness: (endianness: BinaryDataStreamEndianness) ::=> Boolean8 := {
-        true
-    }.
-
-    inline method swap32: (v: UInt32 pointer) endianness: (endianness: BinaryDataStreamEndianness) ::=> Boolean8 := {
-        true
-    }.
-
-    inline method swap64: (v: UInt64 pointer) endianness: (endianness: BinaryDataStreamEndianness) ::=> Boolean8 := {
-        true
-    }.
 
     inline method swapFromActiveEndianness16: (v: UInt16 pointer) ::=> Boolean8
 		:= self swap16: v endianness: activeEndianness.

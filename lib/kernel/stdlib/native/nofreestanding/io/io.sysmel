@@ -10,6 +10,7 @@ loadFileOnce: "FileStream.sysmel".
 
 ## Binary data stream reader.
 loadFileOnce: "BinaryDataStreamEndianness.sysmel".
+loadFileOnce: "BinaryDataStreamReaderWriterCommon.sysmel".
 loadFileOnce: "BinaryDataStreamReader.sysmel".
 loadFileOnce: "BinaryDataStreamWriter.sysmel".
 

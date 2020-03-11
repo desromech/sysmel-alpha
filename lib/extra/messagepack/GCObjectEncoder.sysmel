@@ -1,0 +1,137 @@
+namespace Smalltalk definition: {
+compileTimeConstant MessagePackEncoder := StdNative Serialization MessagePack Encoder.
+
+Object extend: {
+    ## FIXME: use a normal down cast here.
+    method encodeIntoMessagePackWith: (encoder: MessagePackEncoder ref)
+        := (self asObjectForMessagePackEncoding reinterpretCastTo: Object) encodeIntoMessagePackWith: encoder.
+
+    method asObjectForMessagePackEncoding
+        := self subclassResponsibility.
+}.
+
+UndefinedObject extend: {
+    method asObjectForMessagePackEncoding := self.
+
+    method encodeIntoMessagePackWith: (encoder: MessagePackEncoder ref) := {
+        encoder encodeNil.
+        self
+    }.
+}.
+
+Number extend: {
+    method asObjectForMessagePackEncoding := self asFloat.
+}.
+
+Float extend: {
+    method asObjectForMessagePackEncoding := self.
+
+    method encodeIntoMessagePackWith: (encoder: MessagePackEncoder ref) := {
+        encoder encodeFloat: self asFloat64.
+        self
+    }.
+}.
+
+Integer extend: {
+    method asObjectForMessagePackEncoding := self.
+
+    method encodeIntoMessagePackWith: (encoder: MessagePackEncoder ref) := {
+        self < 0 ifTrue: {
+            encoder encodeInteger: self asInt64.
+        } ifFalse: {
+            encoder encodeInteger: self asUInt64.
+        }.
+        self
+    }.
+}.
+
+Character extend: {
+    method asObjectForMessagePackEncoding := self.
+
+    method encodeIntoMessagePackWith: (encoder: MessagePackEncoder ref) := {
+        encoder encodeCharacter: self asUInt32.
+        self
+    }.
+}.
+
+Collection extend: {
+    method asObjectForMessagePackEncoding := self asArray.
+}.
+
+Dictionary extend: {
+    method asObjectForMessagePackEncoding := self.
+
+    method encodeIntoMessagePackWith: (encoder: MessagePackEncoder ref) := {
+        encoder encodeArraySize: (self size castTo: UInt32).
+        self keysAndValuesDo: {:key :value :: Void |
+            encoder encodeObject: key; encodeObject: value
+        }.
+        self
+    }.
+}.
+
+SequenceableCollection extend: {
+    method asObjectForMessagePackEncoding := self.
+
+    method encodeIntoMessagePackWith: (encoder: MessagePackEncoder ref) := {
+        encoder encodeArraySize: (self size castTo: UInt32).
+        self do: {:each :: Void |
+            encoder encodeObject: each
+        }.
+        self
+    }.
+}.
+
+String extend: {
+    method asObjectForMessagePackEncoding := self.
+
+    method encodeIntoMessagePackWith: (encoder: MessagePackEncoder ref) := {
+        encoder
+            encodeStringSize: (__data size castTo: UInt32);
+            writeBytes: __data size from: __data[0] address.
+        self
+    }.
+}.
+
+Symbol extend: {
+    method asObjectForMessagePackEncoding := self.
+
+    method encodeIntoMessagePackWith: (encoder: MessagePackEncoder ref) := {
+        encoder
+            encodeSymbolSize: (__data size castTo: UInt32);
+            writeBytes: __data size from: __data[0] address.
+        self
+    }.
+}.
+}.
+
+namespace StdNative definition: {
+namespace Serialization definition: {
+namespace MessagePack definition: {
+
+compileTimeConstant GCObjectEncoder := Encoder.
+
+GCObjectEncoder extend: {
+    #*meta method decodeFrom: (buffer: Void pointer) withSize: (bufferSize: UIntPointer)::=> Smalltalk ProtoObject := {
+        let readStream mutable := StdNative IO FixedMemoryStream for: buffer withSize: bufferSize.
+        self decodeFrom: readStream address
+    }.
+
+    meta method decodeFrom: (stream: StdNative IO Stream pointer) ::=> Smalltalk ProtoObject := {
+        let callbackInstance mutable type: GCObjectDecoderCallback.
+        let decoder mutable type: SelfType.
+        callbackInstance decoder: decoder address.
+        decoder
+            callback: callbackInstance address;
+            beginDecodingStream: stream;
+            decodeNextElement.
+    }.*#
+
+    method encodeObject: (object: Smalltalk ProtoObject) ::=> Void := {
+        (object reinterpretCastTo: Smalltalk Object) encodeIntoMessagePackWith: self.
+    }.
+}.
+
+}. ## End of namespace MessagePack
+}. ## End of namespace Serialization
+}. ## End of namespace StdNative

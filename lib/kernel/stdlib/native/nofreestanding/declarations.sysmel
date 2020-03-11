@@ -1,5 +1,11 @@
 namespace StdNative definition: {
 
+class Stream.
+class BinaryDataStreamReader.
+class BinaryDataStreamWriter.
+class TextStreamWriter.
+class TextStreamReader.
+
 class Mutex.
 class RecursiveMutex.
 class ConditionVariable.

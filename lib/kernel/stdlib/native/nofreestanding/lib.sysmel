@@ -1,7 +1,7 @@
 loadFileOnce: "declarations.sysmel".
+loadFileOnce: "collections/collections.sysmel".
 loadFileOnce: "io/io.sysmel".
 loadFileOnce: "memory/memory.sysmel".
 loadFileOnce: "functional/functional.sysmel".
 loadFileOnce: "threading/threading.sysmel".
-loadFileOnce: "collections/collections.sysmel".
 loadFileOnce: "exceptions/exceptions.sysmel".

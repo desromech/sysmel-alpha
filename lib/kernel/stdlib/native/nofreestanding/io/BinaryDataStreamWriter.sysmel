@@ -2,18 +2,91 @@ namespace StdNative definition: {
 namespace IO definition: {
 
 #**
- * Binary data stream reader
+ * Binary data stream writeer
  *#
-class BinaryDataStreamWriter definition: {
-    public field stream type: Stream pointer.
-    public field activeEndianness type: BinaryDataStreamEndianness.
-    public field isGood type: Boolean8.
-
+class BinaryDataStreamWriter superclass: BinaryDataStreamReaderWriterCommon; definition: {
     meta method for: (stream: Stream pointer) ::=> SelfType
         := SelfType newValue
             stream: stream;
             isGood: true;
             yourself.
+
+    inline method nextBytesPut: (count: UIntPointer) from: (buffer: Void const pointer) ::=> Boolean8
+        := ((stream _ write: buffer size: count) castTo: UIntPointer) == count .
+
+    ## Native data fetching without byte swapping.
+    inline method nextNativeUInt8Put: (dest: UInt8 const ref) ::=> Boolean8
+        := (stream _ write: dest address size: 1) == 1.
+    inline method nextNativeInt8Put: (dest: Int8 const ref) ::=> Boolean8
+        := (stream _ write: dest address size: 1) == 1.
+
+    inline method nextNativeUInt16Put: (dest: UInt16 const ref) ::=> Boolean8
+        := (stream _ write: dest address size: 2) == 2.
+    inline method nextNativeInt16Put: (dest: Int16 const ref) ::=> Boolean8
+        := (stream _ write: dest address size: 2) == 2.
+
+    inline method nextNativeUInt32Put: (dest: UInt32 const ref) ::=> Boolean8
+        := (stream _ write: dest address size: 4) == 4.
+    inline method nextNativeInt32Put: (dest: Int32 const ref) ::=> Boolean8
+        := (stream _ write: dest address size: 4) == 4.
+
+    inline method nextNativeUInt64Put: (dest: UInt64 const ref) ::=> Boolean8
+        := (stream _ write: dest address size: 8) == 8.
+    inline method nextNativeInt64Put: (dest: Int64 const ref) ::=> Boolean8
+        := (stream _ write: dest address size: 8) == 8.
+
+    inline method nextNativeFloat32Put: (dest: Float32 const ref) ::=> Boolean8
+        := (stream _ write: dest address size: 4) == 4.
+    inline method nextNativeFloat64Put: (dest: Float64 const ref) ::=> Boolean8
+        := (stream _ write: dest address size: 8) == 8.
+
+    inline method swapIntoActiveEndianness16: (v: UInt16) ::=> UInt16
+		:= self swap16: v endianness: activeEndianness.
+
+    inline method swapIntoActiveEndianness32: (v: UInt32) ::=> UInt32
+		:= self swap32: v endianness: activeEndianness.
+
+    inline method swapIntoActiveEndianness64: (v: UInt64) ::=> UInt64
+		:= self swap64: v endianness: activeEndianness.
+
+    inline method nextUInt8Put: (v: UInt8) ::=> Boolean8
+        := self nextNativeUInt8Put: v.
+
+    inline method nextInt8Put: (v: Int8) ::=> Boolean8
+        := self nextNativeInt8Put: v.
+
+    inline method nextUInt16Put: (v: UInt16) ::=> Boolean8
+        := self nextNativeUInt16Put: (self swapIntoActiveEndianness16: v).
+
+    inline method nextInt16Put: (v: Int16) ::=> Boolean8
+        := self nextNativeUInt16Put: (self swapIntoActiveEndianness16: (v castTo: UInt16)).
+
+    inline method nextUInt32Put: (v: UInt32) ::=> Boolean8
+        := self nextNativeUInt32Put: (self swapIntoActiveEndianness32: v).
+
+    inline method nextInt32Put: (v: Int32) ::=> Boolean8
+        := self nextNativeUInt32Put: (self swapIntoActiveEndianness32: (v castTo: UInt32)).
+
+    inline method nextUInt64Put: (v: UInt64) ::=> Boolean8
+        := self nextNativeUInt64Put: (self swapIntoActiveEndianness64: v).
+
+    inline method nextInt64Put: (v: Int64) ::=> Boolean8
+        := self nextNativeUInt64Put: (self swapIntoActiveEndianness64: (v castTo: UInt64)).
+
+    inline method nextFloat32Put: (v: Float32) ::=> Boolean8 := {
+        let fv mutable := v.
+        let iv mutable type: UInt32.
+        StdNative memcpy(iv address, fv address, 4).
+        self nextNativeUInt32Put: (self swapIntoActiveEndianness32: iv).
+    }.
+
+    inline method nextFloat64Put: (v: Float64) ::=> Boolean8 := {
+        let fv mutable := v.
+        let iv mutable type: UInt64.
+        StdNative memcpy(iv address, fv address, 8).
+        self nextNativeUInt64Put: (self swapIntoActiveEndianness64: iv).
+    }.
+
 }.
 
 }. ## End of namespace IO

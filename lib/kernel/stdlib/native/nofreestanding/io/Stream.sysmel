@@ -51,5 +51,9 @@ class Stream definition: {
     virtual method close => Void := {}.
 }.
 
+class NullStream superclass: Stream; definition: {
+
+}.
+
 }. ## End of namespace IO
 }. ## End of namespace StdNative

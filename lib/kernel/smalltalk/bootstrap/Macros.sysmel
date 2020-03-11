@@ -24,6 +24,12 @@ ProtoObject extend: {
 
     macro method isNil := ``(`,self == nil).
     macro method isNotNil := ``(`,self ~~ nil).
+
+    macro method and: other := ``(if: `,self == true then: `,other else: false).
+    macro method or: other := ``(if: `,self == true then: true else: `,other).
+
+    macro method && other := ``(`,self and: `,other).
+    macro method || other := ``(`,self or: `,other).
 }.
 
 }.

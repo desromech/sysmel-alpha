@@ -55,8 +55,21 @@ class GCObjectDecoderCallback superclass: GCObjectDecoder Callback; definition: 
         result
     }.
 
-    override method onExtension: (dataSize: UInt32) type: (type: UInt8) ::=> ResultType
-        := nil.
+    override method onExtension: (dataSize: UInt32) type: (type: UInt8) ::=> ResultType := {
+        ## Symbol
+        type == 1 ifTrue: {
+            return: (self onString: dataSize) asSymbol
+        }.
+
+        ## Character
+        type == 2 ifTrue: {
+            ## TODO: Use decode the utf8 codepoint.
+            return: (self onString: dataSize) first
+        }.
+
+        let data := self onBinary: dataSize.
+        data
+    }
 
     override method onUnusedFormat ::=> ResultType
         := nil.
