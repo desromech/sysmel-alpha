@@ -261,7 +261,7 @@ SysmelGrammar >> chainedMessage [
 
 { #category : #accessing }
 SysmelGrammar >> characterLiteral [
-	^ self token: $' asPParser , ($' asPParser negate / ($\ asPParser , #any asPParser)) star , $' asPParser
+	^ self token: $' asPParser , (($\ asPParser , #any asPParser) / $' asPParser negate) star , $' asPParser
 ]
 
 { #category : #accessing }
@@ -660,7 +660,7 @@ SysmelGrammar >> start [
 
 { #category : #accessing }
 SysmelGrammar >> stringLiteral [
-	^ self token: $" asPParser , ($" asPParser negate / ($\ asPParser , #any asPParser)) star , $" asPParser
+	^ self token: $" asPParser , (($\ asPParser , #any asPParser) / $" asPParser negate) star , $" asPParser
 ]
 
 { #category : #accessing }

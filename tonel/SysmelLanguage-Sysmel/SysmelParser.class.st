@@ -121,7 +121,7 @@ SysmelParser >> chainExpression [
 			chained := list third collect: #second.
 			list second ifNil: [
 				list first isMessageNode ifFalse: [ 
-					PPFailure message: 'a chain has to start with a message send'
+					PP2Failure message: 'a chain has to start with a message send'
 				] ifTrue: [
 					SYMLASTMessageChain new
 						position: position;

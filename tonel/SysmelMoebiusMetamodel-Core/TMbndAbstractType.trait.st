@@ -531,6 +531,7 @@ TMbndAbstractType >> defaultReturnType [
 
 { #category : #'default values' }
 TMbndAbstractType >> defaultValue [
+	<compileTime>
 	^ self defaultValueAt: MbndSourcePosition empty
 
 ]

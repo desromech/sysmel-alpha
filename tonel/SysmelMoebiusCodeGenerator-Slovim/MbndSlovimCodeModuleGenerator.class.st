@@ -648,7 +648,7 @@ MbndSlovimCodeModuleGenerator >> getOrCreateNativeClosureTypeInfoFor: closureFun
 	
 	^ nativeClosureTypeInfos at: { closureFunctionType . capturedTypes} ifAbsentPut: [
 		| needsCopyConstructor needsMoveConstructor needsFinalizer ssaClosureTypeInfo
-		vtableEntryType vtableEntries vtableType vtable |
+		vtableEntryType vtableEntries vtableType vtable ssaTypeInfoType |
 		typeInfoObjectInstance := typeInfoClass makeInstance. 
 		typeInfoObjectInstance setField: #instanceDataSize value: instanceSize.
 		typeInfoObjectInstance setField: #instanceDataAlignment value: instanceAlignment.
@@ -678,7 +678,9 @@ MbndSlovimCodeModuleGenerator >> getOrCreateNativeClosureTypeInfoFor: closureFun
 			self halt
 		].
 
-		ssaClosureTypeInfo := SLVMGlobalVariable module: ssaModule name: nil valueType: (self translateType: typeInfoClass) storage: (typeInfoClass hasGarbageCollectedAddressSpace ifTrue: [SLVMType gcStorage] ifFalse: [SLVMType genericStorage]).
+		ssaTypeInfoType := self translateType: typeInfoClass.
+		ssaTypeInfoType isPointerType ifTrue: [ ssaTypeInfoType := ssaTypeInfoType baseType ].
+		ssaClosureTypeInfo := SLVMGlobalVariable module: ssaModule name: nil valueType: ssaTypeInfoType storage: (typeInfoClass hasGarbageCollectedAddressSpace ifTrue: [SLVMType gcStorage] ifFalse: [SLVMType genericStorage]).
 		typeInfoClass isGarbageCollectedType ifTrue: [
 			ssaClosureTypeInfo initialValue: (self literalValueGenerator translateDynamicObjectInstanceContent: typeInfoObjectInstance).
 		] ifFalse: [ 

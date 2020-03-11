@@ -17,6 +17,11 @@ MbndGCBlockClosureType >> accept: aVisitor [
 	^ aVisitor visitGCBlockClosureType: self
 ]
 
+{ #category : #'as yet unclassified' }
+MbndGCBlockClosureType >> analyzeUnhandledUnboundExpandedMessageSendNode: node with: analyzer [
+	^ analyzer visitNode: node asExpandedDynamicMessageSend
+]
+
 { #category : #accessing }
 MbndGCBlockClosureType >> functionTypeWithGenericClosurePointer [
 	^ functionTypeWithGenericClosurePointer ifNil: [
