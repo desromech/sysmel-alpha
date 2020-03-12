@@ -149,16 +149,16 @@ ProgramEntity definition: {
 }.
 
 TypeInformation definition: {
-	## These first fields must match the fields in _TypeInformation so that
+	## These first fields must match the fields in StdNative Reflection TypeInformation so that
 	## exception handling can work.
 	public field superclass type: TypeInformation.
 	public field instanceDataSize type: UIntPointer.
 	public field instanceDataAlignment type: UIntPointer.
 
-	public field basicInitializationFunctionPointer type: _BasicInitializeFunctionPointerType.
-	public field copyConstructorFunctionPointer type: _CopyConstructorFunctionPointerType.
-	public field moveConstructorFunctionPointer type: _MoveConstructorFunctionPointerType.
-    public field finalizeFunctionPointer type: _FinalizeFunctionPointerType.
+	public field basicInitializationFunctionPointer type: StdNative Reflection BasicInitializeFunctionPointerType.
+	public field copyConstructorFunctionPointer type: StdNative Reflection CopyConstructorFunctionPointerType.
+	public field moveConstructorFunctionPointer type: StdNative Reflection MoveConstructorFunctionPointerType.
+    public field finalizeFunctionPointer type: StdNative Reflection FinalizeFunctionPointerType.
 
 	public field methodDict public type: MethodDictionary.
 

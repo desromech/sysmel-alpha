@@ -1,11 +1,12 @@
-namespace SysmelKernel definition: {
+namespace StdNative definition: {
+namespace Reflection definition: {
 
-compileTimeConstant _BasicInitializeFunctionPointerType := ((Void pointer) => Void) pointer.
-compileTimeConstant _CopyConstructorFunctionPointerType := ((Void pointer -- Void pointer) => Void) pointer.
-compileTimeConstant _MoveConstructorFunctionPointerType := ((Void pointer -- Void pointer) => Void) pointer.
-compileTimeConstant _FinalizeFunctionPointerType := ((Void pointer) => Void) pointer.
+compileTimeConstant BasicInitializeFunctionPointerType := ((Void pointer) => Void) pointer.
+compileTimeConstant CopyConstructorFunctionPointerType := ((Void pointer -- Void pointer) => Void) pointer.
+compileTimeConstant MoveConstructorFunctionPointerType := ((Void pointer -- Void pointer) => Void) pointer.
+compileTimeConstant FinalizeFunctionPointerType := ((Void pointer) => Void) pointer.
 
-class _GCObjectHeader definition: {
+class GCObjectHeader definition: {
     ## If we do not use the garbage collector, save space by omitting these fields.
     compileTimeIf: Compiler hasGarbageCollectionSupport then: {
         ## Pointer towards the main virtual table. Objects that implement interfaces
@@ -30,4 +31,5 @@ class _GCObjectHeader definition: {
     }.
 }.
 
-}. ## End of namespace SysmelKernel
+}. ## End of namespace Reflection
+}. ## End of namespace StdNative

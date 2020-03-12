@@ -9,8 +9,8 @@ class Object definition: {
     virtual method finalize ::=> Void := {
     }.
 
-    const inline method __typeInformation => _TypeInformation pointer
-        := typeInformationFromPointerToVTable(self address).
+    const inline method __typeInformation => StdNative Reflection TypeInformation pointer
+        := Reflection typeInformationFromPointerToVTable(self address).
 }.
 
 }.

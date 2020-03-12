@@ -1,11 +1,11 @@
 namespace StdNative definition: {
 
 struct _NativeStackBlockClosureHeader definition: {
-    public field vtable type: _TypeInformation pointer pointer.
+    public field vtable type: StdNative Reflection TypeInformation pointer pointer.
     public field functionPointer type: (Void => Void) pointer.
     public field captures type: Void pointer array.
 
-    inline method typeInfo => _TypeInformation pointer
+    inline method typeInfo => StdNative Reflection TypeInformation pointer
         := vtable[-1].
 }.
 

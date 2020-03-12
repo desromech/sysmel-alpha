@@ -6,7 +6,7 @@ function gcExceptionCleanUpFunction(reasonCode: _Unwind_Reason_Code, unwindExcep
 }.
 
 
-function allocateGCExceptionDataFor(object: Void pointer, typeInfo: _TypeInformation const pointer) => SysmelUnwindExceptionData pointer := {
+function allocateGCExceptionDataFor(object: Void pointer, typeInfo: StdNative Reflection TypeInformation const pointer) => SysmelUnwindExceptionData pointer := {
     let exceptionData := SysmelUnwindExceptionData basicNativeNew.
 
     exceptionData _
@@ -21,7 +21,7 @@ function allocateGCExceptionDataFor(object: Void pointer, typeInfo: _TypeInforma
 
 Smalltalk Exception extend: {
     method signal := {
-        let typeInfo := self class reinterpretCastTo: _TypeInformation pointer.
+        let typeInfo := self class reinterpretCastTo: StdNative Reflection TypeInformation pointer.
 
         ## Use the RTTI type information for cloning the exception object into the heap.
         let exceptionData := allocateGCExceptionDataFor(self reinterpretCastTo: Void pointer, typeInfo).

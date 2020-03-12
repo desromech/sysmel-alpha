@@ -165,9 +165,9 @@ compileTimeConstant ExceptionClassVendorAndLanguageMask := 16rFFFFFFFFFFFFFF00.
 compileTimeConstant LandingPadStructurePointerRegister := Compiler compilationTarget landingPadStructurePointerRegisterIndex.
 compileTimeConstant LandingPadSelectorRegister := Compiler compilationTarget landingPadSelectorRegisterIndex.
 
-_TypeInformation extend: {
+StdNative Reflection TypeInformation extend: {
     const method canCatchException: (exceptionObjectPointer: Void pointer)
-        withKind: (exceptionKind: SysmelExceptionKind) withTypeInfo: (exceptionTypeInfo: _TypeInformation const pointer) ::=> Boolean8
+        withKind: (exceptionKind: SysmelExceptionKind) withTypeInfo: (exceptionTypeInfo: StdNative Reflection TypeInformation const pointer) ::=> Boolean8
     := (exceptionKind ~~ SysmelExceptionKind NonLocalReturn) &&
         (exceptionTypeInfo _ isPointerReinterpretableTo: self address).
 }.
@@ -188,7 +188,7 @@ struct SysmelUnwindExceptionData definition: {
 
     public field previousCatchedException type: SysmelUnwindExceptionData pointer.
     public field kind type: SysmelExceptionKind.
-	public field exceptionTypeInfo type: _TypeInformation const pointer.
+	public field exceptionTypeInfo type: StdNative Reflection TypeInformation const pointer.
     public field exceptionObjectPointer type: Void pointer.
 	public field scanResultCache type: SysmelUnwindScanCacheableResult.
     public field unwindException type: _Unwind_Exception.
@@ -206,7 +206,7 @@ function getThrownObjectPointer(exceptionObject: _Unwind_Exception pointer) ::=>
 
 function getCatchExceptionInfo(typeInfoTableIndex: UIntPointer, typeInfoTable: UInt8 pointer,
     typeInfoTableEncoding: DW_EH_PE, isOurExceptionClass: Boolean8,
-    unwindException: _Unwind_Exception pointer) => _TypeInformation const pointer := {
+    unwindException: _Unwind_Exception pointer) => StdNative Reflection TypeInformation const pointer := {
 
     typeInfoTable ifNil: {
         ## This should never happen.
@@ -246,7 +246,7 @@ function getCatchExceptionInfo(typeInfoTableIndex: UIntPointer, typeInfoTable: U
 	let typeInfoTableStream mutable := StdNative IO FixedMemoryStream for: typeInfoTable[typeInfoOffset negated] address withSize: (-1 castTo: UIntPointer).
 	let typeInfoTableReader mutable := StdNative IO BinaryDataStreamReader for: typeInfoTableStream address.
 
-    fetchPointerWithEncoding(typeInfoTableStream, typeInfoTableReader, typeInfoTableEncoding, nil) reinterpretCastTo: _TypeInformation const pointer
+    fetchPointerWithEncoding(typeInfoTableStream, typeInfoTableReader, typeInfoTableEncoding, nil) reinterpretCastTo: StdNative Reflection TypeInformation const pointer
 }.
 
 function unwindingFatalError(isOurExceptionClass: Boolean8, unwindException: _Unwind_Exception pointer) ::=> Void := {
@@ -594,7 +594,7 @@ function nativeExceptionCleanUpFunction(reasonCode: _Unwind_Reason_Code, unwindE
 	exceptionData nativeDelete
 }.
 
-function allocateNativeExceptionDataFor(object: Void pointer, typeInfo: _TypeInformation const pointer) => SysmelUnwindExceptionData pointer := {
+function allocateNativeExceptionDataFor(object: Void pointer, typeInfo: StdNative Reflection TypeInformation const pointer) => SysmelUnwindExceptionData pointer := {
     let heapExceptionObject := zmalloc(typeInfo _ instanceSize).
     typeInfo _ basicInitializationFunctionPointer(heapExceptionObject).
     typeInfo _ copyConstructorFunctionPointer ifNil: {

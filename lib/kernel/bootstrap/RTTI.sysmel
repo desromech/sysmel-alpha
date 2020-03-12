@@ -1,27 +1,28 @@
-namespace SysmelKernel definition: {
+namespace StdNative definition: {
+namespace Reflection definition: {
 
 ## I am an instance of a program entity reflection data.
-class _ProgramEntity superclass: _GCObjectHeader; definition: {
+class ProgramEntity superclass: GCObjectHeader; definition: {
 }.
 
 ## I am an instance of basic type information. I provide the bare minimun that is
 ## required for moving/copying any native object from one location to another by
 ## erasing its type. I am used for implementing the throwing of native exceptions.
-class _TypeInformation superclass: _ProgramEntity; definition: {
-    public field superclass type: _TypeInformation pointer.
+class TypeInformation superclass: ProgramEntity; definition: {
+    public field superclass type: TypeInformation pointer.
     public field instanceDataSize type: UIntPointer.
     public field instanceDataAlignment type: UIntPointer.
 
-    public field basicInitializationFunctionPointer type: _BasicInitializeFunctionPointerType.
-    public field copyConstructorFunctionPointer type: _CopyConstructorFunctionPointerType.
-    public field moveConstructorFunctionPointer type: _MoveConstructorFunctionPointerType.
-    public field finalizeFunctionPointer type: _FinalizeFunctionPointerType.
+    public field basicInitializationFunctionPointer type: BasicInitializeFunctionPointerType.
+    public field copyConstructorFunctionPointer type: CopyConstructorFunctionPointerType.
+    public field moveConstructorFunctionPointer type: MoveConstructorFunctionPointerType.
+    public field finalizeFunctionPointer type: FinalizeFunctionPointerType.
 
     const inline method instanceSize => UIntPointer
         := instanceDataSize.
     const inline method instanceAlignment => UIntPointer
         := instanceDataAlignment.
-    const method isPointerReinterpretableTo: (other: _TypeInformation const pointer) ::=> Boolean8 := {
+    const method isPointerReinterpretableTo: (other: TypeInformation const pointer) ::=> Boolean8 := {
         ## Am I the other type information?
         self address == other ifTrue: {
             return: true.
@@ -36,24 +37,26 @@ class _TypeInformation superclass: _ProgramEntity; definition: {
     }.
 }.
 
-class _NamespaceInformation superclass: _ProgramEntity; definition: {
+class NamespaceInformation superclass: ProgramEntity; definition: {
 }.
 
-class _ModuleInformation superclass: _ProgramEntity; definition: {
-    public field globalNamespace type: _NamespaceInformation pointer.
+class ModuleInformation superclass: ProgramEntity; definition: {
+    public field globalNamespace type: NamespaceInformation pointer.
 }.
 
 
-function typeInformationFromPointerToVTable(vtablePointer: Void const pointer) => _TypeInformation pointer
-    := (vtablePointer reinterpretCastTo: _TypeInformation pointer const pointer const pointer)
+function typeInformationFromPointerToVTable(vtablePointer: Void const pointer) => TypeInformation pointer
+    := (vtablePointer reinterpretCastTo: TypeInformation pointer const pointer const pointer)
         _ [-1].
 
 _BehaviorType extend: {
-    macro method asTypeInformation := ``(`,self reinterpretCastTo: SysmelKernel _TypeInformation const pointer).
+    macro method asTypeInformation := ``(`,self reinterpretCastTo: StdNative Reflection TypeInformation const pointer).
 }.
 
 Compiler compilationTarget
-    typeInformationNativeClass: _TypeInformation;
-    namespaceInformationNativeClass: _NamespaceInformation;
-    moduleInformationNativeClass: _ModuleInformation.
-}.
+    typeInformationNativeClass: TypeInformation;
+    namespaceInformationNativeClass: NamespaceInformation;
+    moduleInformationNativeClass: ModuleInformation.
+
+}. ## End of namespace Reflection
+}. ## End of namespace StdNative
