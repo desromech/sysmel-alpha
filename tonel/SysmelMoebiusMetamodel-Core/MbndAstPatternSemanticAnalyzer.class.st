@@ -13,6 +13,7 @@ MbndAstPatternSemanticAnalyzer >> delegateNodeVisit: node [
 	(node isMessageChainNode or: [ node isUnexpandedMessageSendNode or: [node isIdentifierReferenceNode ]]) ifTrue: [
 		^ self visitNode: (semanticAnalyzer visitNodeForMacroExpansion: node)
 	].
+	node isSpecificCastNode ifTrue: [ ^ node asSameValuePatternNode ].
 	self error: 'Unsupported node type {1} for specifying a pattern.' format: { node class name } at: node
 ]
 
@@ -39,7 +40,7 @@ MbndAstPatternSemanticAnalyzer >> semanticAnalyzer: anObject [
 { #category : #visiting }
 MbndAstPatternSemanticAnalyzer >> visitLiteralValueNode: node [
 	node type ~= patternValueType ifTrue: [
-		^ self visitNode: (semanticAnalyzer addImplicitCastFor: node to: patternValueType)
+		^ self visitNode: (semanticAnalyzer addImplicitCastFor: node to: patternValueType) 
 	].
 
 	^ node asLiteralValuePatternNode

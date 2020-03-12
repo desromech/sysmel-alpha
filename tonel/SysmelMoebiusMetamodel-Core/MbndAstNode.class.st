@@ -30,6 +30,14 @@ MbndAstNode >> asActualSourcePosition [
 ]
 
 { #category : #converting }
+MbndAstNode >> asSameValuePatternNode [
+	^ MbndAstPatternMatchingSameValuePatternNode new
+		position: self;
+		expectedValue: self;
+		yourself
+]
+
+{ #category : #converting }
 MbndAstNode >> asSourcePositionString [
 	^ position asSourcePositionString
 ]

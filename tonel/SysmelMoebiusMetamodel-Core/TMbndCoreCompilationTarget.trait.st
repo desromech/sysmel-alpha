@@ -34,6 +34,11 @@ Trait {
 		'personalityFunction',
 		'forbiddenExceptionHandlingFunction',
 		'typeInformationNativeClass',
+		'namespaceInformationNativeClass',
+		'moduleInformationNativeClass',
+		'typeInformationGCClass',
+		'namespaceInformationGCClass',
+		'moduleInformationGCClass',
 		'exceptionCatchBeginFunction',
 		'exceptionCatchEndFunction',
 		'nonLocalReturnRaiseFunction',
@@ -1020,6 +1025,46 @@ TMbndCoreCompilationTarget >> managedObjectModelClass [
 	^ MbndGenericManagedObjectModel
 ]
 
+{ #category : #accessing }
+TMbndCoreCompilationTarget >> moduleInformationGCClass [
+	^ moduleInformationGCClass
+]
+
+{ #category : #accessing }
+TMbndCoreCompilationTarget >> moduleInformationGCClass: anObject [
+	moduleInformationGCClass := anObject
+]
+
+{ #category : #accessing }
+TMbndCoreCompilationTarget >> moduleInformationNativeClass [
+	^ moduleInformationNativeClass
+]
+
+{ #category : #accessing }
+TMbndCoreCompilationTarget >> moduleInformationNativeClass: anObject [
+	moduleInformationNativeClass := anObject
+]
+
+{ #category : #accessing }
+TMbndCoreCompilationTarget >> namespaceInformationGCClass [
+	^ namespaceInformationGCClass
+]
+
+{ #category : #accessing }
+TMbndCoreCompilationTarget >> namespaceInformationGCClass: anObject [
+	namespaceInformationGCClass := anObject
+]
+
+{ #category : #accessing }
+TMbndCoreCompilationTarget >> namespaceInformationNativeClass [
+	^ namespaceInformationNativeClass
+]
+
+{ #category : #accessing }
+TMbndCoreCompilationTarget >> namespaceInformationNativeClass: anObject [
+	namespaceInformationNativeClass := anObject
+]
+
 { #category : #'derived types' }
 TMbndCoreCompilationTarget >> nativeBlockClosureTypeWithSignature: functionType [
 	^ nativeBlockClosureTypes getOrCreateInstanceWithArguments: { functionType }
@@ -1173,6 +1218,21 @@ TMbndCoreCompilationTarget >> tuple: elements [
 TMbndCoreCompilationTarget >> type: baseType withDecorations: decorations [
 	decorations ifEmpty: [ ^ baseType ].
 	^ decoratedTypes getOrCreateInstanceWithArguments: { baseType . decorations }
+]
+
+{ #category : #accessing }
+TMbndCoreCompilationTarget >> typeInformationClass [
+	^ typeInformationGCClass ifNil: [ typeInformationNativeClass ]
+]
+
+{ #category : #accessing }
+TMbndCoreCompilationTarget >> typeInformationGCClass [
+	^ typeInformationGCClass
+]
+
+{ #category : #accessing }
+TMbndCoreCompilationTarget >> typeInformationGCClass: anObject [
+	typeInformationGCClass := anObject
 ]
 
 { #category : #accessing }

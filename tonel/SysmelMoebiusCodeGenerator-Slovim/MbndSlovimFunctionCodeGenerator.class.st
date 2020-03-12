@@ -652,7 +652,7 @@ MbndSlovimFunctionCodeGenerator >> generateCasesOfNode: node matchedValue: match
 	matchedValue type isIntegerType ifTrue: [
 		| literalCases |
 		literalCases := Array streamContents: [ :out |
-			[ currentCase isNotNil and: [ currentCase pattern isPatternMatchingLiteralValuePatternNode] ] whileTrue: [ 
+			[ currentCase isNotNil and: [ currentCase pattern isPatternMatchingLiteralValuePatternNode ] ] whileTrue: [ 
 				out nextPut: caseStream next.
 				currentCase := caseStream peek.
 			]
@@ -2353,6 +2353,11 @@ MbndSlovimFunctionCodeGenerator >> visitPatternMatchingBindingPatternNode: node 
 { #category : #visiting }
 MbndSlovimFunctionCodeGenerator >> visitPatternMatchingLiteralValuePatternNode: node [
 	^ self visitLiteralValueNode: node
+]
+
+{ #category : #visiting }
+MbndSlovimFunctionCodeGenerator >> visitPatternMatchingSameValuePatternNode: node [
+	^ self visitNode: node expectedValue
 ]
 
 { #category : #visiting }

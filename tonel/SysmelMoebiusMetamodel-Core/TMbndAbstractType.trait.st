@@ -1338,7 +1338,7 @@ TMbndAbstractType >> meta [
 
 { #category : #converting }
 TMbndAbstractType >> nativeClassForMetaTypeGeneration [
-	^ self compilationTarget typeInformationNativeClass
+	^ self compilationTarget typeInformationClass
 ]
 
 { #category : #converting }

@@ -640,7 +640,7 @@ MbndSlovimCodeModuleGenerator >> getOrCreateDynamicFunctionCallAdapterFor: funct
 { #category : #'code generation' }
 MbndSlovimCodeModuleGenerator >> getOrCreateNativeClosureTypeInfoFor: closureFunctionType withCaptures: capturedTypes for: prototype [
 	| typeInfoClass typeInfoObjectInstance instanceSize instanceAlignment |
-	typeInfoClass := self compilationTarget typeInformationNativeClass.
+	typeInfoClass := self compilationTarget typeInformationClass.
 	typeInfoClass ifNil: [ ^ nil ].
 	
 	instanceSize := prototype type size.
@@ -1503,10 +1503,15 @@ MbndSlovimCodeModuleGenerator >> visitConcreteMessageMethod: functionMethod [
 	
 	csymbol := self csymbolForProgramEntity: functionMethod.
 	unmangledName := self unmangledNameForProgramEntity: functionMethod.
+	csymbol isString ifTrue: [ 
+		self assert: (ssaModule includesGlobalNamed: csymbol) not.
+	].
+
 	ssaFunction := SLVMFunction module: ssaModule name: csymbol functionType: ssaFunctionType.
 	ssaFunction
 		setNoReturn: functionMethod isNoReturn.
 	ssaFunction unmangledName: unmangledName.
+
 	self setProgramEntity: functionMethod ssaValue: ssaFunction.
 	ssaModule addHighLevelEntity: functionMethod mapToGlobalValue: ssaFunction.
 	
@@ -1774,6 +1779,16 @@ MbndSlovimCodeModuleGenerator >> visitVTablePointerFieldVariable: vtableField [
 	| ssaValueType csymbol ssaVTableDefinition vtableEntryType additionalFields methodFields unmangledName |
 	
 	vtableEntryType := self slvmCompilationTarget voidPointerType.
+
+	ssaValueType := SLVMArrayType baseType: vtableEntryType elements: 2 + vtableField vtableSlots size.
+	unmangledName := self unmangledNameForProgramEntity: vtableField.
+	csymbol := self mangleProgramEntityName: vtableField.
+	
+	ssaVTableDefinition := SLVMGlobalVariable module: ssaModule name: csymbol valueType: ssaValueType storage: SLVMType genericStorage.
+	ssaVTableDefinition unmangledName: unmangledName.
+	self setProgramEntity: vtableField ssaValue: ssaVTableDefinition.
+	ssaModule addHighLevelEntity: vtableField mapToGlobalValue: ssaVTableDefinition.
+
 	additionalFields := {
 		"Offset" SLVMConstant type: vtableEntryType value: 0.
 		"Type info" . SLVMConstant pointer: (self translateProgramEntity: vtableField parent) ssaValue castTo: vtableEntryType.
@@ -1784,14 +1799,6 @@ MbndSlovimCodeModuleGenerator >> visitVTablePointerFieldVariable: vtableField [
 			castTo: vtableEntryType
 	].
 	
-	ssaValueType := (SLVMArrayType baseType: vtableEntryType elements: additionalFields size + methodFields size ).
-	unmangledName := self unmangledNameForProgramEntity: vtableField.
-	csymbol := self mangleProgramEntityName: vtableField.
-	
-	ssaVTableDefinition := SLVMGlobalVariable module: ssaModule name: csymbol valueType: ssaValueType storage: SLVMType genericStorage.
-	ssaVTableDefinition unmangledName: unmangledName.
-	self setProgramEntity: vtableField ssaValue: ssaVTableDefinition.
-	ssaModule addHighLevelEntity: vtableField mapToGlobalValue: ssaVTableDefinition.
 	ssaVTableDefinition
 		readOnly: true;
 		initialValue: (SLVMConstant array: ssaValueType slots: additionalFields , methodFields).

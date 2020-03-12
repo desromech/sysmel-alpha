@@ -465,6 +465,11 @@ MbndAstVisitor >> visitPatternMatchingLiteralValuePatternNode: node [
 ]
 
 { #category : #visiting }
+MbndAstVisitor >> visitPatternMatchingSameValuePatternNode: node [
+	self subclassResponsibility
+]
+
+{ #category : #visiting }
 MbndAstVisitor >> visitPointerAsReferenceNode: node [
 	self subclassResponsibility
 ]
