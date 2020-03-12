@@ -2011,7 +2011,7 @@ MbndAstSemanticAnalyzer >> visitReferenceLoadNode: node [
 	].
 
 	"Return the reference after the assignment."
-	result type: referenceType baseType withoutDecorations.	
+	result type: referenceType baseType withoutTopDecorations.	
 	
 	"We may need to create a new temporary copy in some cases."
 	result type isTypePassedByReference ifTrue: [
