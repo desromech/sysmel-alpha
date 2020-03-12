@@ -124,4 +124,60 @@ Set definition: {
     }.
 }.
 
+Dictionary definition: {
+    method do: aBlock := {
+        0 until: array size do: {:(UIntPointer)i :: Void |
+            let element := array[i].
+            element ifNotNil: {
+                aBlock value: element
+            }
+        }.
+        nil
+    }.
+
+    method keysDo: aBlock := {
+        self do: {:association :: Void |
+            aBlock value: association key
+        }.
+    }.
+
+    method valuesDo: aBlock := {
+        self do: {:association :: Void |
+            aBlock value: association value
+        }.
+    }.
+
+    method keysAndValuesDo: aBlock := {
+        self do: {:association :: Void |
+            aBlock value: association key value: association value
+        }.
+    }.
+
+    method keys := {
+        let resultSize := self size.
+        let result := Array new: resultSize.
+        let destIndex mutable type: UIntPointer.
+
+        self keysDo: {:each :: Void |
+            result[destIndex] := each.
+            destIndex := destIndex + 1.
+        }.
+
+        result
+    }.
+
+    method values := {
+        let resultSize := self size.
+        let result := Array new: resultSize.
+        let destIndex mutable type: UIntPointer.
+
+        self valuesDo: {:each :: Void |
+            result[destIndex] := each.
+            destIndex := destIndex + 1.
+        }.
+
+        result
+    }.
+}.
+
 }. ## End of namespace Smalltalk

@@ -69,6 +69,7 @@ gcclass Collection superclass: Object.
         gcclass Dictionary superclass: HashedCollection.
             gcclass MethodDictionary superclass: Dictionary.
 			gcclass IdentityDictionary superclass: Dictionary.
+				gcclass SystemDictionary superclass: IdentityDictionary.
 		gcclass Set superclass: HashedCollection.
 			gcclass IdentitySet superclass: Set.
     gcclass SequenceableCollection superclass: Collection.
@@ -187,7 +188,7 @@ gcclass ModuleInformation definition: {
 }.
 
 gcclass NamespaceInformation definition: {
-
+	public field localSymbolTable type: SystemDictionary.
 }.
 
 Compiler compilationTarget
@@ -844,6 +845,8 @@ Compiler compilationTarget managedObjectModel
     byteArrayClass: ByteArray;
     compiledMethodClass: CompiledMethod;
     dictionaryClass: Dictionary;
+	identityDictionaryClass: IdentityDictionary;
+	systemDictionaryClass: SystemDictionary;
     methodDictionaryClass: MethodDictionary;
 	additionalMethodStateClass: AdditionalMethodState;
 	messageClass: Message;
