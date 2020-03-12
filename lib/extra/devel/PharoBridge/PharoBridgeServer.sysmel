@@ -166,6 +166,16 @@ gcclass PharoBridgeServerClientConnection definition: {
     }.
 
     method performClientRequest: request := {
+        request == #listSystemDictionary ifTrue: {
+            ##let nmspace := Smalltalk castTo: ProtoObject.
+
+            let result := OrderedCollection new.
+            Object withAllSubclassesDo: {:each :: Void |
+                result add: each asString
+            }.
+            return: result
+        }.
+
         self error: "Unimplemented request".
     }.
 

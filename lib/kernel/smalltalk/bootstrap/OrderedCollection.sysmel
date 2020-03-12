@@ -1,0 +1,87 @@
+namespace Smalltalk definition: {
+
+#**
+ * A vector where elements can be added at the end and in the beginning with amortized O(1) cost.
+ * Most of this implementation is copied from Pharo.
+ *#
+OrderedCollection definition: {
+    field array type: Array.
+    field firstIndex type: UIntPointer.
+    field lastIndex type: UIntPointer.
+
+    meta extend: {
+        method new
+            := self new: 10.
+        method new: (initialCapacity: UIntPointer)
+            := self basicNew setCollection: (Array new: initialCapacity).
+    }.
+
+    method add: newObject
+        := self addLast: newObject.
+
+    method addLast: newObject := {
+        lastIndex == array size ifTrue: {self makeRoomAtLast}.
+        lastIndex := lastIndex + 1 .
+        array at: lastIndex put: newObject.
+        newObject
+    }.
+
+    method at: (index: UIntPointer) := {
+        index < 1 ifTrue: {self errorSubscriptBounds: index}.
+        let elementIndex := index + firstIndex - 1.
+        elementIndex > lastIndex ifTrue: { self errorSubscriptBounds: index}.
+        array at: elementIndex
+    }.
+
+    method setCollection: (theArray: Array) := {
+        array := theArray.
+        self reset.
+        self
+    }.
+
+    method reset
+        := self resetTo: 1.
+
+    method resetTo: (index: UIntPointer) := {
+        firstIndex := index.
+        lastIndex := index - 1.
+        self
+    }.
+
+    method makeRoomAtLast := {
+        let tally := self size.
+        tally * 2 >= lastIndex ifTrue: {
+            return: self growAtLast.
+        }.
+        tally == 0 ifTrue: {
+            return: (self resetTo: 1)
+        }.
+
+        let newLastIndex := lastIndex // 2.
+    	let newFirstIndex := newLastIndex - lastIndex + firstIndex.
+        0 until: tally do: {:(UIntPointer)i :: Void |
+            array at: newFirstIndex + i put: (array at: firstIndex + i).
+        }.
+
+        firstIndex := newFirstIndex.
+        lastIndex := newLastIndex.
+        self
+    }.
+
+    method size => UIntPointer
+        := lastIndex - firstIndex + 1.
+
+    method growAtLast := {
+        let newCapacity := array size * 2 max: 1.
+        let newArray := Array new: newCapacity.
+        let size := self size.
+        firstIndex to: lastIndex do: {:(UIntPointer)i :: Void |
+            newArray at: i put: (array at: i)
+        }.
+
+        array := newArray.
+        self
+    }.
+}.
+
+}.

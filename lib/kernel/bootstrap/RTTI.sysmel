@@ -1,9 +1,13 @@
 namespace SysmelKernel definition: {
 
+## I am an instance of a program entity reflection data.
+class _ProgramEntity superclass: _GCObjectHeader; definition: {
+}.
+
 ## I am an instance of basic type information. I provide the bare minimun that is
 ## required for moving/copying any native object from one location to another by
 ## erasing its type. I am used for implementing the throwing of native exceptions.
-class _TypeInformation superclass: _GCObjectHeader; definition: {
+class _TypeInformation superclass: _ProgramEntity; definition: {
     public field superclass type: _TypeInformation pointer.
     public field instanceDataSize type: UIntPointer.
     public field instanceDataAlignment type: UIntPointer.
@@ -32,6 +36,14 @@ class _TypeInformation superclass: _GCObjectHeader; definition: {
     }.
 }.
 
+class _NamespaceInformation superclass: _ProgramEntity; definition: {
+}.
+
+class _ModuleInformation superclass: _ProgramEntity; definition: {
+    public field globalNamespace type: _NamespaceInformation pointer.
+}.
+
+
 function typeInformationFromPointerToVTable(vtablePointer: Void const pointer) => _TypeInformation pointer
     := (vtablePointer reinterpretCastTo: _TypeInformation pointer const pointer const pointer)
         _ [-1].
@@ -41,6 +53,7 @@ _BehaviorType extend: {
 }.
 
 Compiler compilationTarget
-    typeInformationNativeClass: _TypeInformation.
-
+    typeInformationNativeClass: _TypeInformation;
+    namespaceInformationNativeClass: _NamespaceInformation;
+    moduleInformationNativeClass: _ModuleInformation.
 }.

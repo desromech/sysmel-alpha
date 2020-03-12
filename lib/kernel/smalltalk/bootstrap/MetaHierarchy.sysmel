@@ -18,12 +18,16 @@ namespace SysmelKernel definition: {
 namespace Smalltalk definition: {
 
 gcclass Object superclass: ProtoObject. Compiler compilationTarget defaultGCClassSuperClass: Object.
-	gcclass TypeInformation superclass: Object.
-	    gcclass Behavior superclass: TypeInformation.
-	        gcclass ClassDescription superclass: Behavior.
-	            gcclass Class superclass: ClassDescription.
-	            gcclass Metaclass superclass: ClassDescription.
-		gcclass NativeTypeInformation superclass: TypeInformation.
+	## Reflection types.
+	gcclass ProgramEntity superclass: Object.
+		gcclass TypeInformation superclass: ProgramEntity.
+		    gcclass Behavior superclass: TypeInformation.
+		        gcclass ClassDescription superclass: Behavior.
+		            gcclass Class superclass: ClassDescription.
+		            gcclass Metaclass superclass: ClassDescription.
+			gcclass NativeTypeInformation superclass: TypeInformation.
+		gcclass ModuleInformation superclass: ProgramEntity.
+		gcclass NamespaceInformation superclass: ProgramEntity.
 
     ## Boolean8
     gcclass Boolean superclass: Object.
@@ -139,12 +143,17 @@ ProtoObject definition: {
 	 	:= __variableDataSize.
 }.
 
+ProgramEntity definition: {
+	## These first fields must match the fields in _ProgramEntity so that
+	## exception handling can work.
+}.
+
 TypeInformation definition: {
 	## These first fields must match the fields in _TypeInformation so that
 	## exception handling can work.
-	public field superclass public type: TypeInformation.
-	public field instanceDataSize public type: UIntPointer.
-	public field instanceDataAlignment public type: UIntPointer.
+	public field superclass type: TypeInformation.
+	public field instanceDataSize type: UIntPointer.
+	public field instanceDataAlignment type: UIntPointer.
 
 	public field basicInitializationFunctionPointer type: _BasicInitializeFunctionPointerType.
 	public field copyConstructorFunctionPointer type: _CopyConstructorFunctionPointerType.
@@ -173,8 +182,18 @@ TypeInformation definition: {
     }.
 }.
 
+gcclass ModuleInformation definition: {
+	public field globalNamespace type: NamespaceInformation.
+}.
+
+gcclass NamespaceInformation definition: {
+
+}.
+
 Compiler compilationTarget
-	typeInformationNativeClass: TypeInformation.
+	typeInformationGCClass: TypeInformation;
+	moduleInformationGCClass: ModuleInformation;
+	namespaceInformationGCClass: NamespaceInformation.
 
 Behavior definition: {
     public field gcLayout public type: GCLayout.
