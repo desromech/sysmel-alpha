@@ -166,7 +166,7 @@ gcclass PharoBridgeServerClientConnection definition: {
     }.
 
     method evalMethod: encodedCompiledMethod := {
-        StdNative stdout << "Decoding method: " << encodedCompiledMethod; nl.
+        ##StdNative stdout << "Decoding method: " << encodedCompiledMethod; nl.
         let interpretedMethod := encodedCompiledMethod decodeFromSysmelBridge.
         interpretedMethod run: #eval with: #() in: nil
     }.

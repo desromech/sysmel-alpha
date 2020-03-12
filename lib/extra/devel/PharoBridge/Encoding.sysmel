@@ -26,15 +26,19 @@ Array extend: {
 
 Dictionary extend: {
     method decodeFromSysmelBridge := {
-        StdNative stdout << "decodeFromSysmelBridge " << self; nl.
+        ## StdNative stdout << "decodeFromSysmelBridge " << self; nl.
         let type := self at: #type.
         type == #Dictionary ifTrue: {
             return: (self at: #value).
         }.
 
         type == #CompiledMethod ifTrue: {
-            return: (InterpretedMethod literals: (self at: #literals) decodeFromSysmelBridge
-                bytecodes: (self at: #bytecodes)).
+            let result := InterpretedMethod
+                literals: (self at: #literals) decodeFromSysmelBridge
+                bytecodes: (self at: #bytecodes).
+            result numArgs: (self at: #numArgs) asUInt32.
+            result numTemps: (self at: #numTemps) asUInt32.
+            return: result.
         }.
 
         type == #GlobalVariable ifTrue: {

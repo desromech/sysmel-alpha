@@ -1,3 +1,249 @@
+namespace SmalltalkVM definition: {
+class BytecodeInterpreter definition: {
+    compileTimeConstant MaxFrameSize := 60.
+
+    public field numTemps type: UInt32.
+    public field receiver type: Smalltalk ProtoObject.
+    public field arguments type: Smalltalk Array.
+    public field literals type: Smalltalk Array.
+    public field bytecodes type: UInt8 pointer.
+    public field bytecodeCount type: UInt32.
+
+    field numArgs type: UInt32.
+    field returnValue type: Smalltalk ProtoObject.
+    field nonLocalReturnBlock type: (Void => Void) nativeStackBlockClosure.
+    field pc type: UInt32.
+    field stackStorage type: (Smalltalk ProtoObject array: MaxFrameSize).
+    field stackSize type: UInt32.
+
+    macro method assert: condition :=
+        ``(`,condition ifFalse: {Smalltalk AssertionFailure signal}).
+
+    inline method fetchUInt8 => UInt8 := {
+        self assert: pc < bytecodeCount.
+        let result := bytecodes[pc].
+        pc := pc + 1.
+        result
+    }.
+
+    inline method pushReceiverVariable: (index: UInt32) ::=> Boolean8 := {
+        StdNative stdout << "TODO: pushReceiverVariable" << index; nl.
+        return: true
+    }.
+
+    inline method pushTemporary: (index: UInt32) ::=> Boolean8 := {
+        self push: (self temporaryAt: index).
+        return: true
+    }.
+
+    inline method pushLiteral: (index: UInt32) ::=> Boolean8 := {
+        self push: (self literalAt: index).
+        return: true
+    }.
+
+    inline method pushLiteralVariable: (index: UInt32) ::=> Boolean8 := {
+        self push: (self literalAt: index) value
+    }.
+
+    inline method popAndStoreReceiverVariable: (index: UInt32) ::=> Boolean8 := {
+        StdNative stdout << "TODO: popAndStoreReceiverVariable" << index; nl.
+        return: true
+    }.
+
+    inline method popAndStoreTemporary: (index: UInt32) ::=> Boolean8 := {
+        StdNative stdout << "TODO: popAndStoreTemporary" << index; nl.
+        return: true
+    }.
+
+    inline method pushReceiver => Boolean8
+        := self push: receiver.
+
+    inline method pushTrue => Boolean8
+        := self push: true.
+
+    inline method pushFalse => Boolean8
+        := self push: false.
+
+    inline method pushNil => Boolean8
+        := self push: nil.
+
+    inline method pushMinusOne => Boolean8
+        := self push: -1.
+
+    inline method pushZero => Boolean8
+        := self push: 0.
+
+    inline method pushOne => Boolean8
+        := self push: 1.
+
+    inline method pushTwo => Boolean8
+        := self push: 2.
+
+    inline method returnReceiver => Boolean8
+        := self performValueReturn: receiver.
+
+    inline method returnTrue => Boolean8
+        := self performValueReturn: true.
+
+    inline method returnFalse => Boolean8
+        := self performValueReturn: false.
+
+    inline method returnNil => Boolean8
+        := self performValueReturn: nil.
+
+    inline method doPopTop ::=> Boolean8
+        := self pop: 1.
+
+    inline method duplicateTop ::=> Boolean8
+        := self push: self stackTop.
+
+    inline method pushThisContext ::=> Boolean8 := {
+        StdNative stdout << "TODO: pushThisContext"; nl.
+        return: true
+    }.
+
+    inline method returnStackTop ::=> Boolean8
+        := self performValueReturn: self popTop.
+
+    inline method blockReturnStackTop ::=> Boolean8
+        := self performLocalValueReturn: self popTop.
+
+    inline method performValueReturn: (value: Smalltalk ProtoObject) ::=> Boolean8
+        := self performLocalValueReturn: value.
+
+    inline method performLocalValueReturn: (value: Smalltalk ProtoObject) ::=> Boolean8 := {
+        returnValue := value.
+        return: false
+    }.
+
+    inline method sendSelector: (selector: Smalltalk ProtoObject) argumentCount: (argumentCount: UInt32) ::=> Boolean8 := {
+        self checkPopSize: 1 + argumentCount.
+        let baseIndex := stackSize - argumentCount - 1.
+
+        let receiver := stackStorage[baseIndex].
+        let arguments := Smalltalk Array new: argumentCount.
+        0 until: argumentCount do: {:(UInt32)i :: Void |
+            arguments __private __data[i] := stackStorage[baseIndex + i + 1]
+        }.
+
+        ##StdNative stdout << receiver << " perform: " << selector << " withArguments: " << arguments; nl.
+        let result := receiver perform: selector withArguments: arguments.
+        self pop: argumentCount + 1.
+        self push: result.
+        return: true
+    }.
+
+    inline method sendLiteralSelector: (selectorIndex: UInt32) argumentCount: (argumentCount: UInt32) ::=> Boolean8 := {
+        return: (self sendSelector: (self literalAt: selectorIndex) argumentCount: argumentCount)
+    }.
+
+    inline method interpretNextBytecodeV3 => Boolean8 := {
+        let bytecode := self fetchUInt8.
+        bytecode selectCase: #{
+        (0 to: 15) : (return: (self pushReceiverVariable: (bytecode - 0 castTo: UInt32) )).
+        (16 to: 31) : (return: (self pushTemporary: (bytecode - 16 castTo: UInt32) )).
+        (32 to: 63) : (return: (self pushLiteral: (bytecode - 32 castTo: UInt32) )).
+        (64 to: 95) : (return: (self pushLiteralVariable: (bytecode - 64 castTo: UInt32) )).
+        (96 to: 103) : (return: (self popAndStoreReceiverVariable: (bytecode - 96 castTo: UInt32) )).
+        (104 to: 111) : (return: (self popAndStoreTemporary: (bytecode - 104 castTo: UInt32) )).
+        112: (return: self pushReceiver).
+        113: (return: self pushTrue).
+        114: (return: self pushFalse).
+        115: (return: self pushNil).
+        116: (return: self pushMinusOne).
+        117: (return: self pushZero).
+        118: (return: self pushOne).
+        119: (return: self pushTwo).
+        120: (return: self returnReceiver).
+        121: (return: self returnTrue).
+        122: (return: self returnFalse).
+        123: (return: self returnNil).
+        124: (return: self returnStackTop).
+        125: (return: self blockReturnStackTop).
+
+        135: (return: self doPopTop).
+        136: (return: self duplicateTop).
+        137: (return: self pushThisContext).
+
+        176: (return: (self sendSelector: #+ argumentCount: 1)).
+
+        (208 to: 223) : (return: (self sendLiteralSelector: (bytecode - 208 castTo: UInt32) argumentCount: 0)).
+        (224 to: 239) : (return: (self sendLiteralSelector: (bytecode - 224 castTo: UInt32) argumentCount: 1)).
+        (240 to: 255) : (return: (self sendLiteralSelector: (bytecode - 240 castTo: UInt32) argumentCount: 2)).
+
+        let _ : {
+            StdNative stdout << "Unsupported bytecode " << bytecode; nl
+        }.
+        }.
+
+        false
+    }.
+
+    inline method push: (object: Smalltalk ProtoObject) ::=> Boolean8 := {
+        self assert: stackSize < MaxFrameSize.
+        stackStorage[stackSize] := object.
+        stackSize := stackSize + 1.
+        return: true
+    }.
+
+    inline method stackTop ::=> Smalltalk ProtoObject := {
+        self assert: stackSize > numTemps.
+        return: stackStorage[stackSize - 1].
+    }.
+
+    inline method popTop ::=> Smalltalk ProtoObject := {
+        self assert: stackSize > numTemps.
+        let result := stackStorage[stackSize - 1].
+        stackSize := stackSize - 1.
+        return: result
+    }.
+
+    inline method checkPopSize: (count: UInt32) ::=> Void := {
+        self assert: stackSize - numTemps >= count.
+    }.
+
+    inline method pop: (count: UInt32) ::=> Boolean8 := {
+        self checkPopSize: count.
+        stackSize := stackSize - count.
+        return: true
+    }.
+
+    inline method temporaryAt: (index: UInt32) ::=> Smalltalk ProtoObject := {
+        index < numArgs ifTrue: {
+            return: arguments __private __data[index]
+        }.
+
+        let stackIndex := index - numArgs.
+        self assert: stackIndex < stackSize.
+        return: stackStorage[stackIndex].
+    }.
+
+    inline method literalAt: (index: UInt32) ::=> Smalltalk ProtoObject := {
+        self assert: index < literals __private __data size.
+        return: literals __private __data[index].
+    }.
+
+    inline method run => Smalltalk ProtoObject := {
+        nonLocalReturnBlock := {:: Void |
+            return: returnValue
+        }.
+
+        numArgs := arguments __private __data size.
+        pc := 0.
+        stackSize := numTemps.
+        0 until: numTemps do: {:i :: Void |
+            stackStorage[i] := nil
+        }.
+
+        while: self interpretNextBytecodeV3 do: {
+
+        }.
+
+        return: returnValue
+    }.
+}.
+}. ## End of namespace SmalltalkVM
+
 namespace Smalltalk definition: {
 InterpretedMethod definition: {
     public field numTemps type: UInt32.
@@ -18,7 +264,14 @@ InterpretedMethod definition: {
     }.
 
     method run: aSelector with: arguments in: receiver := {
-        self error: "TODO: run:with:in:"
+        let interpreter mutable type: SmalltalkVM BytecodeInterpreter.
+        interpreter
+            arguments: (arguments reinterpretCastTo: Array);
+            numTemps: numTemps;
+            literals: literals;
+            bytecodes: bytecodes[0] address;
+            bytecodeCount: (bytecodes size castTo: UInt32).
+        interpreter run
     }.
 }.
 }. ## End of namespace Smalltalk.
