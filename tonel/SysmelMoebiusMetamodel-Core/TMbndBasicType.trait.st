@@ -120,6 +120,11 @@ TMbndBasicType >> lookupSymbol: aSymbol [
 	^ self supertype ifNotNil: [ :st | st lookupSymbol: aSymbol ]
 ]
 
+{ #category : #'as yet unclassified' }
+TMbndBasicType >> programEntitionInformationData [
+	^ self programEntityInformationData
+]
+
 { #category : #initialization }
 TMbndBasicType >> setSupertypeFromDefinition: newSupertype [
 	self supertype: newSupertype.

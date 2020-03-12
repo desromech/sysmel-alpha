@@ -363,17 +363,6 @@ TMbndAbstractType >> asImmutableValueType [
 	^ self
 ]
 
-{ #category : #converting }
-TMbndAbstractType >> asInstanceObjectForTypeInfoGeneration [
-	^ self nativeClassForMetaTypeGeneration ifNotNil: [ :typeInfoClass |
-		| typeInfoInstance |
-		typeInfoInstance := typeInfoClass makeInstance.
-		self fillTypeInfoInstance: typeInfoInstance.
-		typeInfoInstance
-	].
-
-]
-
 { #category : #'semantic analysis' }
 TMbndAbstractType >> asLiteralValueNode [
 	^ MbndAstLiteralValueNode new
@@ -561,7 +550,8 @@ TMbndAbstractType >> extraMetaBuilderFactories [
 ]
 
 { #category : #converting }
-TMbndAbstractType >> fillTypeInfoInstance: typeInfoInstance [
+TMbndAbstractType >> fillProgramEntityInfoInstance: typeInfoInstance [
+	self fillProgramEntityCommonInfoInstance: typeInfoInstance.
 	typeInfoInstance
 		setField: #instanceDataSize value: self instanceSize;
 		setField: #instanceDataAlignment value: self instanceAlignment;
@@ -1337,11 +1327,6 @@ TMbndAbstractType >> meta [
 ]
 
 { #category : #converting }
-TMbndAbstractType >> nativeClassForMetaTypeGeneration [
-	^ self compilationTarget typeInformationClass
-]
-
-{ #category : #converting }
 TMbndAbstractType >> node: node convertedExplicitlyInto: targetType [
 	^ self findConversionRuleInto: targetType node: node rulesExtractor: #explicitConversionRules
 
@@ -1373,6 +1358,16 @@ TMbndAbstractType >> pointerFor: addressSpace [
 { #category : #testing }
 TMbndAbstractType >> pointerRank [
 	^ #()
+]
+
+{ #category : #'as yet unclassified' }
+TMbndAbstractType >> programEntitionInformationData [
+	^ self programEntityInformationData
+]
+
+{ #category : #'as yet unclassified' }
+TMbndAbstractType >> programEntityInformationDataClass [
+	^ self compilationTarget typeInformationClass
 ]
 
 { #category : #accessing }

@@ -447,6 +447,11 @@ TMbndCoreCompilationTarget >> identityHashForSymbol: symbol [
 	^ self managedObjectModel identityHashForSymbol: symbol
 ]
 
+{ #category : #'as yet unclassified' }
+TMbndCoreCompilationTarget >> identityHashForSymbolInDictionary: symbol [
+	^ (self managedObjectModel identityHashForSymbol: symbol) & (self managedObjectModel identityHashFieldBitMask)
+]
+
 { #category : #initialization }
 TMbndCoreCompilationTarget >> initializeArithmeticCoercionTable [
 	| left right coercionType |
@@ -1046,13 +1051,19 @@ TMbndCoreCompilationTarget >> moduleInformationNativeClass: anObject [
 ]
 
 { #category : #accessing }
+TMbndCoreCompilationTarget >> namespaceInformationClass [
+	^ namespaceInformationGCClass ifNil: [ namespaceInformationNativeClass ]
+]
+
+{ #category : #accessing }
 TMbndCoreCompilationTarget >> namespaceInformationGCClass [
 	^ namespaceInformationGCClass
 ]
 
 { #category : #accessing }
 TMbndCoreCompilationTarget >> namespaceInformationGCClass: anObject [
-	namespaceInformationGCClass := anObject
+	namespaceInformationGCClass := anObject.
+	self namespaceType addConversionTo: namespaceInformationGCClass rule: MbndPointerReinterpretTypeConversionRule.
 ]
 
 { #category : #accessing }
@@ -1062,7 +1073,8 @@ TMbndCoreCompilationTarget >> namespaceInformationNativeClass [
 
 { #category : #accessing }
 TMbndCoreCompilationTarget >> namespaceInformationNativeClass: anObject [
-	namespaceInformationNativeClass := anObject
+	namespaceInformationNativeClass := anObject.
+	self namespaceType addConversionTo: namespaceInformationNativeClass pointer rule: MbndPointerReinterpretTypeConversionRule.
 ]
 
 { #category : #'derived types' }

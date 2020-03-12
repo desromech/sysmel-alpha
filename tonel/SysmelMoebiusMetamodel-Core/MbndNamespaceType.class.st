@@ -55,3 +55,8 @@ MbndNamespaceType >> analyzeUnboundUnexpandedMessageSendNode: node with: analyze
 MbndNamespaceType >> isNamespaceType [
 	^ true
 ]
+
+{ #category : #testing }
+MbndNamespaceType >> isTrait [
+	^ false
+]

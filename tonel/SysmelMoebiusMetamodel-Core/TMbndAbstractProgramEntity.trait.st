@@ -47,6 +47,15 @@ TMbndAbstractProgramEntity >> definitionPosition [
 		ifNil: [ MbndSourcePosition empty ]
 ]
 
+{ #category : #'as yet unclassified' }
+TMbndAbstractProgramEntity >> fillProgramEntityCommonInfoInstance: programEntityInfoInstance [
+]
+
+{ #category : #'as yet unclassified' }
+TMbndAbstractProgramEntity >> fillProgramEntityInfoInstance: programEntityInfoInstance [
+	self fillProgramEntityCommonInfoInstance: programEntityInfoInstance
+]
+
 { #category : #accessing }
 TMbndAbstractProgramEntity >> fullName [
 	^ self name
@@ -163,6 +172,21 @@ TMbndAbstractProgramEntity >> markCompileTimeEvaluationImpossibility [
 
 { #category : #accessing }
 TMbndAbstractProgramEntity >> parent [
+	^ nil
+]
+
+{ #category : #'as yet unclassified' }
+TMbndAbstractProgramEntity >> programEntityInformationData [
+	^ self programEntityInformationDataClass ifNotNil: [ :programEntityInfoClass |
+		| programEntityInfoInstance |
+		programEntityInfoInstance := programEntityInfoClass makeInstance.
+		self fillProgramEntityInfoInstance: programEntityInfoInstance.
+		programEntityInfoInstance
+	]
+]
+
+{ #category : #'as yet unclassified' }
+TMbndAbstractProgramEntity >> programEntityInformationDataClass [
 	^ nil
 ]
 

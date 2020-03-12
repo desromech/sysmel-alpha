@@ -12,8 +12,8 @@ MbndGCClassMetaType class >> typeName [
 ]
 
 { #category : #converting }
-MbndGCClassMetaType >> fillTypeInfoInstance: typeInfoInstance [
-	super fillTypeInfoInstance: typeInfoInstance.
+MbndGCClassMetaType >> fillProgramEntityInfoInstance: typeInfoInstance [
+	super fillProgramEntityInfoInstance: typeInfoInstance.
 	typeInfoInstance setField: #thisClass ifExistsWith: [ instanceType ]
 ]
 

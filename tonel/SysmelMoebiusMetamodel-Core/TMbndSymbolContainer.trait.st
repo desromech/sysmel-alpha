@@ -13,6 +13,26 @@ TMbndSymbolContainer >> localSymbolTable [
 	^ localSymbolTable ifNil: [ localSymbolTable := Dictionary new. ]
 ]
 
+{ #category : #'as yet unclassified' }
+TMbndSymbolContainer >> localSymbolTableContent [
+	| result |
+	result := MbndSystemDictionaryContent for: self localSymbolTable size.
+	
+	localSymbolTable keysAndValuesDo: [ :key :value |
+		(value isMbndType or: [ value isNamespace ]) ifTrue: [ 
+			result withHash: (self compilationTarget identityHashForSymbolInDictionary: key)
+				putKey: key value: value globalBindingAssociation
+		].
+	].
+
+	^ result
+]
+
+{ #category : #'as yet unclassified' }
+TMbndSymbolContainer >> localSymbolTableInstanceObject [
+	^ self localSymbolTableContent makeInstanceForCompilationTarget: self compilationTarget
+]
+
 { #category : #'member symbols' }
 TMbndSymbolContainer >> lookupLocalSymbol: aSymbol [
 	localSymbolTable ifNil: [ ^ nil ].

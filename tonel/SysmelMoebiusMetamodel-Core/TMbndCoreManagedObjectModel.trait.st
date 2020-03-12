@@ -10,6 +10,8 @@ Trait {
 		'classVariableClass',
 		'compiledMethodClass',
 		'dictionaryClass',
+		'identityDictionaryClass',
+		'systemDictionaryClass',
 		'methodDictionaryClass',
 		'symbolClass',
 		'stringClass',
@@ -46,7 +48,8 @@ Trait {
 		'gcLayoutClass',
 		'receiverClassGetter',
 		'methodSuperClassGetter',
-		'inlineCacheStructure'
+		'inlineCacheStructure',
+		'identityHashFieldBitMask'
 	],
 	#traits : 'TMbndAbstractManagedObjectModel',
 	#classTraits : 'TMbndAbstractManagedObjectModel classTrait',
@@ -282,6 +285,25 @@ TMbndCoreManagedObjectModel >> globalVariableClass: anObject [
 	globalVariableClass := anObject
 ]
 
+{ #category : #accessing }
+TMbndCoreManagedObjectModel >> identityDictionaryClass [
+	^ identityDictionaryClass
+]
+
+{ #category : #accessing }
+TMbndCoreManagedObjectModel >> identityDictionaryClass: anObject [
+	identityDictionaryClass := anObject
+]
+
+{ #category : #accessing }
+TMbndCoreManagedObjectModel >> identityHashFieldBitMask [
+	^ identityHashFieldBitMask ifNil: [
+		| identityHashField |
+		identityHashField := symbolClass slotLayout identityHashField.
+		identityHashFieldBitMask := (1 << (identityHashField bits ifNil: [ identityHashField valueType instanceSize * 8 ])) - 1
+	]
+]
+
 { #category : #'as yet unclassified' }
 TMbndCoreManagedObjectModel >> identityHashForSymbol: aSymbol [
 	^ self computeBytesHash: aSymbol utf8Encoded initialHash: 5381
@@ -492,6 +514,16 @@ TMbndCoreManagedObjectModel >> symbolClass [
 TMbndCoreManagedObjectModel >> symbolClass: anObject [
 	symbolClass := anObject.
 	compilationTarget literalSymbolType addConversionTo: symbolClass rule: MbndLiteralValueTypeChangeConversionRule.
+]
+
+{ #category : #accessing }
+TMbndCoreManagedObjectModel >> systemDictionaryClass [
+	^ systemDictionaryClass
+]
+
+{ #category : #accessing }
+TMbndCoreManagedObjectModel >> systemDictionaryClass: anObject [
+	systemDictionaryClass := anObject
 ]
 
 { #category : #accessing }

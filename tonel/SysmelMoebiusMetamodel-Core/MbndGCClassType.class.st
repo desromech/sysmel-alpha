@@ -112,14 +112,6 @@ MbndGCClassType >> asImmutableValueType [
 ]
 
 { #category : #converting }
-MbndGCClassType >> asInstanceObjectForTypeInfoGeneration [
-	| result |
-	result := self type makeInstance: 0 identityHash: self identityHash at: MbndSourcePosition empty.
-	self fillTypeInfoInstance: result.
-	^ result
-]
-
-{ #category : #converting }
 MbndGCClassType >> asMovementConstructorParameter [
 	^ self
 ]
@@ -156,7 +148,7 @@ MbndGCClassType >> defaultVariableType [
 ]
 
 { #category : #converting }
-MbndGCClassType >> fillTypeInfoInstance: typeInfoInstance [
+MbndGCClassType >> fillProgramEntityInfoInstance: typeInfoInstance [
 	| variableDataType |
 	variableDataType := nil.
 	self slotLayout slots last type isGCClassVariableDataArrayType ifTrue: [ 
@@ -317,6 +309,14 @@ MbndGCClassType >> metaClassClass: theClassForTheMetaClass [
 		theClassForTheMetaClass addFlag: #metaClassClass.
 		self addMetaTypeMacrosTo: theClassForTheMetaClass
 	]
+]
+
+{ #category : #converting }
+MbndGCClassType >> programEntityInformationData [
+	| result |
+	result := self type makeInstance: 0 identityHash: self identityHash at: MbndSourcePosition empty.
+	self fillProgramEntityInfoInstance: result.
+	^ result
 ]
 
 { #category : #'type composition' }

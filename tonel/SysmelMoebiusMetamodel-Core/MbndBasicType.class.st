@@ -298,3 +298,8 @@ MbndBasicType >> printOn: aStream [
 	]
 	
 ]
+
+{ #category : #'as yet unclassified' }
+MbndBasicType >> programEntitionInformationData [
+	^ self programEntityInformationData
+]

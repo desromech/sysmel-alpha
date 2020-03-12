@@ -114,6 +114,11 @@ TMbndType >> module [
 	^ definitionModule
 ]
 
+{ #category : #'as yet unclassified' }
+TMbndType >> programEntitionInformationData [
+	^ self programEntityInformationData
+]
+
 { #category : #'type hierarchy' }
 TMbndType >> subtypeAdded: aSubtype [
 	self subtypes ifEmpty: [ subtypes := OrderedCollection new ].

@@ -188,6 +188,19 @@ MbndSlovimTypeTranslator >> visitInputChannelType: type [
 ]
 
 { #category : #visiting }
+MbndSlovimTypeTranslator >> visitNamespaceType: namespaceType [
+	^ self compilationTarget namespaceInformationClass ifNotNil: [ :cls |
+		cls isGarbageCollectedType ifTrue: [
+			self translateType: cls
+		] ifFalse: [
+			self translateType: cls pointer
+		]
+	] ifNil: [
+		self slvmCompilationTarget voidPointerType
+	]
+]
+
+{ #category : #visiting }
 MbndSlovimTypeTranslator >> visitNativeBlockClosureType: type [
 	^ self visitBlockClosureType: type kind: #nativeStack addressSpace: #generic
 ]
@@ -271,7 +284,7 @@ MbndSlovimTypeTranslator >> visitSamplerType: type [
 { #category : #visiting }
 MbndSlovimTypeTranslator >> visitSimpleMetaType: metaType [
 	metaType instanceType ifNotNil: [ :it |
-		it nativeClassForMetaTypeGeneration ifNotNil: [ :typeInfoClass |
+		it programEntityInformationDataClass ifNotNil: [ :typeInfoClass |
 			^ self translateType: (typeInfoClass isGarbageCollectedType
 				ifTrue: [ typeInfoClass ]
 				ifFalse: [typeInfoClass pointer])

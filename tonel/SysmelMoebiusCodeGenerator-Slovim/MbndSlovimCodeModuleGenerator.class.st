@@ -1173,6 +1173,11 @@ MbndSlovimCodeModuleGenerator >> translateProgramEntity: programEntity [
 ]
 
 { #category : #visiting }
+MbndSlovimCodeModuleGenerator >> translateProgramEntity: programEntity informationData: informationDataContent [
+	self halt
+]
+
+{ #category : #visiting }
 MbndSlovimCodeModuleGenerator >> translateProgramEntityChildren: programEntity [
 	programEntity children do: [ :child |
 		self translateProgramEntity: child
@@ -1183,6 +1188,32 @@ MbndSlovimCodeModuleGenerator >> translateProgramEntityChildren: programEntity [
 MbndSlovimCodeModuleGenerator >> translateProgramEntityDebugInformation: aProgramEntity [
 	aProgramEntity isMbndType ifTrue: [ ^ self translateDebugType: aProgramEntity ].
 	^ self debugInformationTranslator translateProgramEntityDebugInformation: aProgramEntity
+]
+
+{ #category : #visiting }
+MbndSlovimCodeModuleGenerator >> translateProgramEntityInformationData: programEntity [
+	| ssaProgramEntityInfoType ssaProgramEntityInfo programEntityType |
+	programEntityType := programEntity type.
+	ssaProgramEntityInfoType := self translateType: programEntityType.
+	self assert: ssaProgramEntityInfoType isPointerType.
+	
+	(ssaProgramEntityInfoType baseType isIntegerType or: [
+	((sourceModule hasRuntimeTypeInformation or: [ programEntity isMbndType and: [sourceModule hasExceptions] ]) not or: [self slvmCompilationTarget isGPU])]) ifTrue: [
+		self assert: (programEntity isMbndType not or: [programEntity isGarbageCollectedType not]).
+		ssaProgramEntityInfo := SLVMConstant nullPointer: ssaProgramEntityInfoType.
+		self setProgramEntity: programEntity ssaValue: ssaProgramEntityInfo.
+		^ ssaProgramEntityInfo
+	].
+
+	ssaProgramEntityInfo := SLVMGlobalVariable module: ssaModule name: (self newSymbolNameMangler mangleProgramEntityInfo: programEntity) valueType: ssaProgramEntityInfoType baseType storage: (programEntityType hasGarbageCollectedAddressSpace
+		ifTrue: [SLVMType gcStorage]
+		ifFalse: [SLVMType genericStorage]).
+	self setProgramEntity: programEntity ssaValue: ssaProgramEntityInfo.
+	ssaModule addHighLevelEntity: programEntity mapToGlobalValue: ssaProgramEntityInfo.
+	
+	ssaProgramEntityInfo initialValue: (self literalValueGenerator translateObject: programEntityType content: programEntity programEntityInformationData).
+
+	^ ssaProgramEntityInfo
 ]
 
 { #category : #'code generation' }
@@ -1207,25 +1238,7 @@ MbndSlovimCodeModuleGenerator >> translateType: aType [
 
 { #category : #visiting }
 MbndSlovimCodeModuleGenerator >> translateTypeInfoDefinition: type [
-	| ssaTypeInfo ssaTypeInfoType metaType |
-	metaType := type type.
-	ssaTypeInfoType := self translateType: metaType.
-
-	((sourceModule hasRuntimeTypeInformation or: [ sourceModule hasExceptions ]) not or: [self slvmCompilationTarget isGPU]) ifTrue: [
-		self assert: type isGarbageCollectedType not.
-		ssaTypeInfo := SLVMConstant nullPointer: ssaTypeInfoType.
-		self setProgramEntity: type ssaValue: ssaTypeInfo.
-		^ ssaTypeInfo
-	].
-
-	self assert: ssaTypeInfoType isPointerType.
-	ssaTypeInfo := SLVMGlobalVariable module: ssaModule name: (self newSymbolNameMangler mangleTypeInfo: type) valueType: ssaTypeInfoType baseType storage: (metaType hasGarbageCollectedAddressSpace ifTrue: [SLVMType gcStorage] ifFalse: [SLVMType genericStorage]).
-	self setProgramEntity: type ssaValue: ssaTypeInfo.
-	ssaModule addHighLevelEntity: type mapToGlobalValue: ssaTypeInfo.
-	
-	ssaTypeInfo initialValue: (self literalValueGenerator translateTypeInfoContent: type).
-
-	^ ssaTypeInfo
+	^ self translateProgramEntityInformationData: type
 ]
 
 { #category : #'code generation' }
@@ -1733,8 +1746,12 @@ MbndSlovimCodeModuleGenerator >> visitModule: module [
 
 { #category : #visiting }
 MbndSlovimCodeModuleGenerator >> visitNamespace: namespace [
+	| ssaNamespaceType ssaValue |
+	ssaNamespaceType := self translateType: namespace type.
+	ssaValue := self translateProgramEntityInformationData: namespace.
+
 	self translateProgramEntityChildren: namespace.
-	^ nil
+	^ ssaValue
 ]
 
 { #category : #visiting }

@@ -67,15 +67,13 @@ MbndSlovimLiteralValueGenerator >> translateLiteralValue: theLiteralValueToTrans
 ]
 
 { #category : #'code generation' }
-MbndSlovimLiteralValueGenerator >> translateTypeInfoContent: targetType [
-	| metaType |
-	metaType := targetType type.
-	literalValue := targetType asInstanceObjectForTypeInfoGeneration.
+MbndSlovimLiteralValueGenerator >> translateObject: targetType content: content [
+	literalValue := content.
 	targetType isGarbageCollectedType ifTrue: [ 
-		^ self visitAggregateType: metaType
+		^ self visitAggregateType: targetType
 	].
 
-	literalValue ifNil: [ ^ (self translateType: metaType) baseType defaultConstant ].
+	literalValue ifNil: [ ^ (self translateType: targetType) baseType defaultConstant ].
 	^ self visitAggregateType: literalValue type
 ]
 
@@ -181,6 +179,11 @@ MbndSlovimLiteralValueGenerator >> visitGCClassVariableDataArrayType: type [
 { #category : #visiting }
 MbndSlovimLiteralValueGenerator >> visitLiteralValueType: type [
 	^ literalValue
+]
+
+{ #category : #visiting }
+MbndSlovimLiteralValueGenerator >> visitNamespaceType: type [
+	^ (codeModuleGenerator translateProgramEntity: literalValue) ssaValue
 ]
 
 { #category : #'code generation' }

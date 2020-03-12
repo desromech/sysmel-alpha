@@ -158,8 +158,8 @@ MbndAggregateTypeWithFields >> fields [
 ]
 
 { #category : #converting }
-MbndAggregateTypeWithFields >> fillTypeInfoInstance: typeInfoInstance [
-	super fillTypeInfoInstance: typeInfoInstance.
+MbndAggregateTypeWithFields >> fillProgramEntityInfoInstance: typeInfoInstance [
+	super fillProgramEntityInfoInstance: typeInfoInstance.
 	self superclass ifNotNil: [:sc |
 		typeInfoInstance
 			setField: #superclass value: sc.

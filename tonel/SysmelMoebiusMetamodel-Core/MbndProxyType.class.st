@@ -54,3 +54,8 @@ MbndProxyType >> isPODInstance [
 	  self hasTrivialInstanceInitializationCopyingFrom and: [
 	  self hasTrivialInstanceInitializationMovingFrom ]]]]
 ]
+
+{ #category : #'as yet unclassified' }
+MbndProxyType >> programEntitionInformationData [
+	^ self programEntityInformationData
+]

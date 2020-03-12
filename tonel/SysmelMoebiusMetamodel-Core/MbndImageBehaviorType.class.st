@@ -65,6 +65,11 @@ MbndImageBehaviorType >> isPODInstance [
 	  self hasTrivialInstanceInitializationMovingFrom ]]]]
 ]
 
+{ #category : #'as yet unclassified' }
+MbndImageBehaviorType >> programEntitionInformationData [
+	^ self programEntityInformationData
+]
+
 { #category : #'type hierarchy' }
 MbndImageBehaviorType >> supertype [
 	^ behavior superclass ifNotNil: [ :st | st asMoebiusType ]

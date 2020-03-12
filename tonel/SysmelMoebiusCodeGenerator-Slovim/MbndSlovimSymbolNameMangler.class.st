@@ -266,6 +266,12 @@ MbndSlovimSymbolNameMangler >> mangleProgramEntityContentName: programEntity [
 ]
 
 { #category : #visiting }
+MbndSlovimSymbolNameMangler >> mangleProgramEntityInfo: programEntity [
+	programEntity isMbndType ifTrue: [ ^ self mangleTypeInfo: programEntity ].
+	^ self mangleProgramEntityName: programEntity suffixes: #('..info..')
+]
+
+{ #category : #visiting }
 MbndSlovimSymbolNameMangler >> mangleProgramEntityName: programEntity [
 	^ self mangleProgramEntityName: programEntity prefix: '_Z'
 ]
@@ -511,6 +517,11 @@ MbndSlovimSymbolNameMangler >> visitInputChannelType: type [
 	output nextPut: $U.
 	self emitSubstitutionElement: #inputChannel.
 	self mangleType: type messageType
+]
+
+{ #category : #visiting }
+MbndSlovimSymbolNameMangler >> visitNamespace: namespace [
+	self mangleProgramEntityNestedName: namespace
 ]
 
 { #category : #visiting }
