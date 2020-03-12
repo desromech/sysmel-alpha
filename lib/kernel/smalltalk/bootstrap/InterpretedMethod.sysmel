@@ -1,0 +1,24 @@
+namespace Smalltalk definition: {
+InterpretedMethod definition: {
+    public field numTemps type: UInt32.
+    public field numArgs type: UInt32.
+
+    public field literals type: Array.
+    field bytecodes type: UInt8 array.
+
+    meta method literals: literals bytecodes: bytecodes
+        := (self new: bytecodes size)
+            literals: (literals reinterpretCastTo: Array);
+            setBytecodesFrom: (bytecodes reinterpretCastTo: ByteArray);
+            yourself.
+
+    method setBytecodesFrom: (newBytecodes: ByteArray) := {
+        StdNative memcpy(bytecodes[0] address, newBytecodes __private __data[0] address, bytecodes size).
+        self
+    }.
+
+    method run: aSelector with: arguments in: receiver := {
+        self error: "TODO: run:with:in:"
+    }.
+}.
+}. ## End of namespace Smalltalk.

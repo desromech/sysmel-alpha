@@ -1,0 +1,13 @@
+namespace Smalltalk definition: {
+gcclass Transcript definition: {
+    meta definition: {
+        method show: anObject
+            := {StdNative stdout << anObject . self}.
+        method cr
+            := {StdNative stdout cr . self}.
+        method nl
+            := {StdNative stdout nl . self}.
+    }
+}.
+
+}. ## End of namespace Smalltalk.

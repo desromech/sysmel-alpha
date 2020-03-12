@@ -1,0 +1,62 @@
+namespace Smalltalk definition: {
+Object extend: {
+    method decodeFromSysmelBridge
+        := self subclassResponsibility
+}.
+
+Number extend: {
+    method decodeFromSysmelBridge
+        := self
+}.
+
+String extend: {
+    method decodeFromSysmelBridge
+        := self
+}.
+
+Character extend: {
+    method decodeFromSysmelBridge
+        := self
+}.
+
+Array extend: {
+    method decodeFromSysmelBridge
+        := self collect: {:each :: ProtoObject | each decodeFromSysmelBridge}.
+}.
+
+Dictionary extend: {
+    method decodeFromSysmelBridge := {
+        StdNative stdout << "decodeFromSysmelBridge " << self; nl.
+        let type := self at: #type.
+        type == #Dictionary ifTrue: {
+            return: (self at: #value).
+        }.
+
+        type == #CompiledMethod ifTrue: {
+            return: (InterpretedMethod literals: (self at: #literals) decodeFromSysmelBridge
+                bytecodes: (self at: #bytecodes)).
+        }.
+
+        type == #GlobalVariable ifTrue: {
+            let key := self at: #key.
+            let systemDictionary := (Smalltalk castTo: ProtoObject) localSymbolTable.
+            return: (systemDictionary associationAt: key)
+        }.
+
+        type == #Class ifTrue: {
+            let key := self at: #name.
+            let systemDictionary := (Smalltalk castTo: ProtoObject) localSymbolTable.
+            return: (systemDictionary associationAt: key)
+        }.
+
+        type == #Metaclass ifTrue: {
+            let key := self at: #name.
+            let systemDictionary := (Smalltalk castTo: ProtoObject) localSymbolTable.
+            return: (systemDictionary associationAt: key) class
+        }.
+
+        self error: "Unsupported object encoded as a dictionary: " -- type asString.
+    }.
+}.
+
+}. ## End of namespace Smalltalk

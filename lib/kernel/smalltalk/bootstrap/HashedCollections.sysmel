@@ -18,14 +18,15 @@ HashedCollection definition: {
     method size => UIntPointer
         := tally.
 
-    method findElementOrNil: key := {
+    inline method findElementIndex: key ::=> UIntPointer := {
         let index := self scanFor: key.
         index > 0 ifTrue: {
-            return: (array at: index)
+            return: (index castTo: UIntPointer)
         }.
 
         ## This case should never happen with a normal HashedCollection.
         self errorNoFreeSpace.
+        0
     }.
 
     method scanFor: key ::=> UIntPointer := {
@@ -153,6 +154,37 @@ Dictionary definition: {
         }.
     }.
 
+    method scanFor: key ::=> UIntPointer := {
+        ## Make sure we at least have a size.
+        let keyCount := self capacity.
+        keyCount = 0 ifTrue: {
+            self errorNoFreeSpace
+        }.
+
+        ## Find the natural key slot.
+        let keySlot := (key hash castTo: UIntPointer) % keyCount.
+
+        ## Perform linear probing.
+        let i mutable := keySlot.
+        while: i < keyCount do: {
+            let assoc := array __private __data[i].
+            assoc == nil || assoc key = key ifTrue: {
+                return: (i + 1 castTo: UIntPointer)
+            }.
+        } continueWith: { i := i + 1 }.
+
+        i := 0.
+        while: i < keySlot do: {
+            let assoc := array __private __data[i].
+            assoc == nil || assoc key = key ifTrue: {
+                return: (i + 1 castTo: UIntPointer)
+            }.
+        } continueWith: { i := i + 1 }.
+
+        self errorNoFreeSpace.
+        return: 0
+    }.
+
     method keys := {
         let resultSize := self size.
         let result := Array new: resultSize.
@@ -177,6 +209,71 @@ Dictionary definition: {
         }.
 
         result
+    }.
+
+    method associationAt: key
+        := self associationAt: key ifAbsent: {:: Void | self errorKeyNotFound: key}.
+
+    method associationAt: key ifAbsent: aBlock := {
+        let element := array at: (self findElementIndex: key).
+        return: (element ifNil: {aBlock value} ifNotNil: {element})
+    }.
+
+    method at: key
+        := self at: key ifAbsent: {:: Void | self errorKeyNotFound: key}.
+
+    method at: key ifAbsent: aBlock := {
+        let element := array at: (self findElementIndex: key).
+        return: (element ifNil: {aBlock} ifNotNil: {element}) value
+    }.
+
+    method at: key put: anObject := {
+        let index := self findElementIndex: key.
+        let assoc := array at: index.
+        assoc ifNil: {
+            self atNewIndex: index put: (Association key: key value: anObject)
+        } ifNotNil: {
+            assoc value: anObject
+        }.
+        anObject
+    }.
+
+    method noCheckAdd: element := {
+        array at: (self scanFor: element key) put: element.
+        tally := tally + 1
+    }.
+}.
+
+IdentityDictionary definition: {
+    method scanFor: key ::=> UIntPointer := {
+        ## Make sure we at least have a size.
+        let keyCount := self capacity.
+        keyCount = 0 ifTrue: {
+            self errorNoFreeSpace
+        }.
+
+        ## Find the natural key slot.
+        let keySlot := (key identityHash castTo: UIntPointer) % keyCount.
+
+        ## Perform linear probing.
+        let i mutable := keySlot.
+        while: i < keyCount do: {
+            let assoc := array __private __data[i].
+            assoc == nil || assoc key == key ifTrue: {
+                return: (i + 1 castTo: UIntPointer)
+            }.
+        } continueWith: { i := i + 1 }.
+
+        i := 0.
+        while: i < keySlot do: {
+            let assoc := array __private __data[i].
+            assoc == nil || assoc key == key ifTrue: {
+                return: (i + 1 castTo: UIntPointer)
+            }.
+        } continueWith: { i := i + 1 }.
+
+        self errorNoFreeSpace.
+        return: 0
     }.
 }.
 

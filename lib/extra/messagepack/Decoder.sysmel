@@ -77,8 +77,8 @@ template Decoder(RT: Type)
             }.
 
             ## Fixmap
-            16r8F <= format ifTrue: {
-                return: (callback _ onMap: (format - 16r8f castTo: UInt32))
+            16r80 <= format ifTrue: {
+                return: (callback _ onMap: (format - 16r80 castTo: UInt32))
             }.
         }.
 

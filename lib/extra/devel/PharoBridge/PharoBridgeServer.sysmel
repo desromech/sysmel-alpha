@@ -165,10 +165,24 @@ gcclass PharoBridgeServerClientConnection definition: {
         self
     }.
 
+    method evalMethod: encodedCompiledMethod := {
+        StdNative stdout << "Decoding method: " << encodedCompiledMethod; nl.
+        let interpretedMethod := encodedCompiledMethod decodeFromSysmelBridge.
+        interpretedMethod run: #eval with: #() in: nil
+    }.
+
     method performClientRequest: request := {
         request == #listSystemDictionary ifTrue: {
             let symbols := (Smalltalk castTo: ProtoObject) localSymbolTable keys.
             return: symbols
+        }.
+
+        request isArray ifTrue: {
+            let verb := request first.
+            let argument := request second.
+            verb == #evalMethod ifTrue: {
+                return: (self evalMethod: argument)
+            }
         }.
 
         self error: "Unimplemented request".

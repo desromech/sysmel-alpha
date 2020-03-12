@@ -93,6 +93,7 @@ gcclass BlockClosure superclass: BlockClosureHeaderClass.
 
 ## Methods
 gcclass CompiledMethod superclass: Object.
+gcclass InterpretedMethod superclass: Object.
 gcclass AdditionalMethodState superclass: Object.
 
 ## Message
@@ -492,6 +493,9 @@ LookupKey definition: {
 
 Association definition: {
 	public field value type: ProtoObject.
+
+	meta method key: key value: value
+		:= self new key: key; value: value; yourself.
 }.
 
 macro method generateBasicAtAccessorsForArrayField: arrayField elementType: elementType := ``{
