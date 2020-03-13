@@ -11,6 +11,7 @@ Class {
 
 { #category : #initialization }
 MbndProfiler class >> activate [
+	<script>
 	ProfilerActive := true
 ]
 
@@ -31,6 +32,7 @@ MbndProfiler class >> component: elementName with: aBlock [
 
 { #category : #initialization }
 MbndProfiler class >> deactivate [
+	<script>
 	ProfilerActive := false
 ]
 
@@ -41,10 +43,12 @@ MbndProfiler class >> isActive [
 
 { #category : #initialization }
 MbndProfiler class >> report [
+	<script: 'self report inspect'>
 	^ ProfilerReports ifNil: [ ProfilerReports := OrderedDictionary new ]
 ]
 
 { #category : #initialization }
 MbndProfiler class >> reset [
+	<script>
 	self report removeAll
 ]
