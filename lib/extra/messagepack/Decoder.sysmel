@@ -56,33 +56,27 @@ template Decoder(RT: Type)
     method decodeNextElement => ResultType := {
         let format := reader nextUInt8.
 
+        format selectCase: #{
         ## Positive fixint
-        format <= 16r7f ifTrue: {
+        (0 to: 16r7f) : {
             return: (callback _ onInteger: format & 16r7f)
         }.
 
-        ## Negative fixint
-        16rE0 <= format  ifTrue: {
-            return: (callback _ onInteger: (format castTo: Int8))
+        ## Fixmap
+        (16r80 to: 16r8F) : {
+            return: (callback _ onMap: (format - 16r80 castTo: UInt32))
         }.
 
-        format < 16rC0 ifTrue: {
-            ## Fixstring
-            16rA0 <= format ifTrue: {
-                return: (callback _ onString: (format - 16rA0 castTo: UInt32))
-            }.
-            ## Fixarray
-            16r90 <= format  ifTrue: {
-                return: (callback _ onArray: (format - 16r90 castTo: UInt32))
-            }.
-
-            ## Fixmap
-            16r80 <= format ifTrue: {
-                return: (callback _ onMap: (format - 16r80 castTo: UInt32))
-            }.
+        ## Fixarray
+        (16r90 to: 16r9F) : {
+            return: (callback _ onArray: (format - 16r90 castTo: UInt32))
         }.
 
-        format selectCase: #{
+        ## Fixstring
+        (16rA0 to: 16rBF) : {
+            return: (callback _ onString: (format - 16rA0 castTo: UInt32))
+        }.
+
         ## nil
         16rC0 : {
             return: callback _ onNil
@@ -212,6 +206,12 @@ template Decoder(RT: Type)
         16rDF : {
             return: (callback _ onMap: reader nextUInt32)
         }.
+
+        ## Negative fixint
+        (16rE0 to: 16rFF) : {
+            return: (callback _ onInteger: (format castTo: Int8))
+        }.
+
         }.
 
         ## We should never reach here. All possible format values are covered by the spec.
