@@ -560,7 +560,17 @@ MbndAstNode >> isPatternMatchingBindingPatternNode [
 ]
 
 { #category : #testing }
+MbndAstNode >> isPatternMatchingIntervalPatternNode [
+	^ true
+]
+
+{ #category : #testing }
 MbndAstNode >> isPatternMatchingLiteralValuePatternNode [
+	^ false
+]
+
+{ #category : #testing }
+MbndAstNode >> isPatternMatchingLiteralValueSetPatternNode [
 	^ false
 ]
 

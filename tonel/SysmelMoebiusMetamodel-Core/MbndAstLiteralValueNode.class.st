@@ -13,6 +13,16 @@ MbndAstLiteralValueNode >> accept: aVisitor [
 ]
 
 { #category : #'as yet unclassified' }
+MbndAstLiteralValueNode >> asIntervalPatternNode [
+	^ MbndAstPatternMatchingIntervalPatternNode new
+		position: self;
+		start: value first;
+		stop: value last;
+		type: type;
+		yourself
+]
+
+{ #category : #'as yet unclassified' }
 MbndAstLiteralValueNode >> asLiteralValuePatternNode [
 	^ MbndAstPatternMatchingLiteralValuePatternNode new
 		position: self;

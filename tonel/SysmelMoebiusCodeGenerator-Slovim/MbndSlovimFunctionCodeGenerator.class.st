@@ -652,22 +652,32 @@ MbndSlovimFunctionCodeGenerator >> generateCasesOfNode: node matchedValue: match
 	matchedValue type isIntegerType ifTrue: [
 		| literalCases |
 		literalCases := Array streamContents: [ :out |
-			[ currentCase isNotNil and: [ currentCase pattern isPatternMatchingLiteralValuePatternNode ] ] whileTrue: [ 
+			[ currentCase isNotNil and: [ currentCase pattern isPatternMatchingLiteralValueSetPatternNode ] ] whileTrue: [ 
 				out nextPut: caseStream next.
 				currentCase := caseStream peek.
 			]
 		].
 	
 		literalCases ifNotEmpty: [
-			| caseConstants caseBlocks defaultBlock mergeBlock switchBlock |
-			caseConstants := literalCases collect: [ :case | self visitNode: case pattern ].
+			| caseConstants caseConstantBlocks caseBlocks defaultBlock mergeBlock switchBlock |
 			caseBlocks := literalCases collect: [ :case | slvmBuilder newBasicBlock: #casesOfCase ].
+			caseConstants := OrderedCollection new.
+			caseConstantBlocks := OrderedCollection new.
+			literalCases doWithIndex: [ :case :index |
+				| block |
+				block := caseBlocks at: index.
+				(self visitNode: case pattern) do: [ :literalConstant |
+					caseConstants add: literalConstant.
+					caseConstantBlocks add: block
+				]
+			].
+
 			defaultBlock := slvmBuilder newBasicBlock: #casesOfDefault.
 			mergeBlock := slvmBuilder newBasicBlock: #casesOfMerge.
 
 			switchBlock := slvmBuilder currentBlock.
 			slvmBuilder currentBlock mergeBlock: mergeBlock.
-			slvmBuilder switch: matchedValue caseConstants: caseConstants caseBlocks: caseBlocks defaultBlock: defaultBlock.
+			slvmBuilder switch: matchedValue caseConstants: caseConstants asArray caseBlocks: caseConstantBlocks asArray defaultBlock: defaultBlock.
 			node type isVoidType ifFalse: [
 				slvmBuilder currentBlock: mergeBlock.
 				mergeValue := slvmBuilder phi: (self translateType: node type) name: #casesResult
@@ -2351,8 +2361,22 @@ MbndSlovimFunctionCodeGenerator >> visitPatternMatchingBindingPatternNode: node 
 ]
 
 { #category : #visiting }
+MbndSlovimFunctionCodeGenerator >> visitPatternMatchingIntervalPatternNode: node [
+	| type startConstant endConstant |
+	self assert: node isPatternMatchingLiteralValueSetPatternNode.
+	type := node type.
+	startConstant := self visitNode: node start.
+	endConstant := self visitNode: node stop.
+	self assert: startConstant isConstantValue.
+	self assert: endConstant isConstantValue.
+	^ (startConstant value to: endConstant value) collect: [ :value |
+		SLVMConstant type: startConstant type value: value
+	]
+]
+
+{ #category : #visiting }
 MbndSlovimFunctionCodeGenerator >> visitPatternMatchingLiteralValuePatternNode: node [
-	^ self visitLiteralValueNode: node
+	^ {self visitLiteralValueNode: node}
 ]
 
 { #category : #visiting }

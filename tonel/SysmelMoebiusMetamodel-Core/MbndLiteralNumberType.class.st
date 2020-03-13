@@ -23,6 +23,14 @@ MbndLiteralNumberType >> addInstanceMacros [
 	).
 	self addLiteralHostDelegationMacroFor: #'prefix--' to: #negated.
 	self
+		onMacroSelector: #to: do: [ :node :builder |
+			node arguments first type isLiteralNumberType ifTrue: [
+				builder literal: {node receiver .node arguments first} type: self compilationTarget literalIntervalType
+			] ifFalse: [ 
+				node asExpandedMessageSend
+			]
+		];
+
 		onMacroSelector: #u do: [ :node :builder |
 			builder explicitCast: node receiver to: self compilationTarget uint32Type
 		];

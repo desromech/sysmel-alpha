@@ -460,6 +460,11 @@ MbndAstVisitor >> visitPatternMatchingBindingPatternNode: node [
 ]
 
 { #category : #visiting }
+MbndAstVisitor >> visitPatternMatchingIntervalPatternNode: node [
+	self subclassResponsibility
+]
+
+{ #category : #visiting }
 MbndAstVisitor >> visitPatternMatchingLiteralValuePatternNode: node [
 	self subclassResponsibility
 ]

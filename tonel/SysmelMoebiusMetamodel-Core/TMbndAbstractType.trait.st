@@ -970,6 +970,11 @@ TMbndAbstractType >> isLiteralIntegerType [
 ]
 
 { #category : #'testing methods' }
+TMbndAbstractType >> isLiteralIntervalType [
+	^ false
+]
+
+{ #category : #'testing methods' }
 TMbndAbstractType >> isLiteralNumberType [
 	^ false
 ]

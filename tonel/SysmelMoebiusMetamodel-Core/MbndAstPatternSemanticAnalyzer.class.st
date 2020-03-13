@@ -39,6 +39,15 @@ MbndAstPatternSemanticAnalyzer >> semanticAnalyzer: anObject [
 
 { #category : #visiting }
 MbndAstPatternSemanticAnalyzer >> visitLiteralValueNode: node [
+	node type isLiteralIntervalType ifTrue: [
+		| intervalNode |
+		intervalNode := node asIntervalPatternNode.	
+		^ intervalNode copy
+			start: (semanticAnalyzer addImplicitCastFor: intervalNode start to: patternValueType);
+			stop: (semanticAnalyzer addImplicitCastFor: intervalNode stop to: patternValueType);
+			yourself
+	].
+
 	node type ~= patternValueType ifTrue: [
 		^ self visitNode: (semanticAnalyzer addImplicitCastFor: node to: patternValueType) 
 	].

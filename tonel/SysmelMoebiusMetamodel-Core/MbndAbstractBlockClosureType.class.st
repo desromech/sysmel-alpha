@@ -40,6 +40,11 @@ MbndAbstractBlockClosureType >> argumentTypes [
 	^ functionType argumentTypes
 ]
 
+{ #category : #'as yet unclassified' }
+MbndAbstractBlockClosureType >> defaultValueAt: aPosition [
+	^ MbndValue value: nil type: self
+]
+
 { #category : #accessing }
 MbndAbstractBlockClosureType >> functionType [
 	<compileTime>
@@ -54,6 +59,16 @@ MbndAbstractBlockClosureType >> functionType: anObject [
 { #category : #accessing }
 MbndAbstractBlockClosureType >> functionTypeWithClosureParameter [
 	^ functionTypeWithClosureParameter ifNil: [ functionTypeWithClosureParameter := functionType prependArguments: { self } ]
+]
+
+{ #category : #sizes }
+MbndAbstractBlockClosureType >> instanceAlignment [
+	^ self compilationTarget pointerAlignment
+]
+
+{ #category : #sizes }
+MbndAbstractBlockClosureType >> instanceSize [
+	^ self compilationTarget pointerSize
 ]
 
 { #category : #'testing methods' }

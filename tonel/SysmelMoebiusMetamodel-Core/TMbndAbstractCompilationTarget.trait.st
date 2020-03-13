@@ -395,6 +395,11 @@ TMbndAbstractCompilationTarget >> literalIntegerType [
 ]
 
 { #category : #'convenience type accessors' }
+TMbndAbstractCompilationTarget >> literalIntervalType [
+	^ self getBasicTypeNamed: #_LiteralInterval
+]
+
+{ #category : #'convenience type accessors' }
 TMbndAbstractCompilationTarget >> literalStringType [
 	^ self getBasicTypeNamed: #_LiteralString
 ]

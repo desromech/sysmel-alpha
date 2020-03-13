@@ -186,6 +186,12 @@ MbndSlovimLiteralValueGenerator >> visitNamespaceType: type [
 	^ (codeModuleGenerator translateProgramEntity: literalValue) ssaValue
 ]
 
+{ #category : #'as yet unclassified' }
+MbndSlovimLiteralValueGenerator >> visitNativeBlockClosureType: type [
+	literalValue ifNil: [ ^ self visitPointerType: type ].
+	self halt
+]
+
 { #category : #'code generation' }
 MbndSlovimLiteralValueGenerator >> visitPointerType: pointerType [
 	| baseType undecoratedBaseType |

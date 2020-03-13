@@ -17,6 +17,11 @@ MbndAstPatternMatchingLiteralValuePatternNode >> isPatternMatchingLiteralValuePa
 	^ true
 ]
 
+{ #category : #testing }
+MbndAstPatternMatchingLiteralValuePatternNode >> isPatternMatchingLiteralValueSetPatternNode [
+	^ true
+]
+
 { #category : #accessing }
 MbndAstPatternMatchingLiteralValuePatternNode >> value [
 	^ value
