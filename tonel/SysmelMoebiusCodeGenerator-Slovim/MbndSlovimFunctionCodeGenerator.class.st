@@ -1354,8 +1354,7 @@ MbndSlovimFunctionCodeGenerator >> initializeImplicitCleanUpFlagsInScope: cleanU
 	initializationInstructions := OrderedCollection new.
 	cleanUpScope implicitFinalizationStateDictionary valuesDo: [ :implicitState |
 		implicitState finalizationActivated ifNotNil: [ :var |
-			initializationInstructions add: ((SLVMStoreInstruction value: falseConstant variable: var)
-				name: ssaFunction generateSymbol)
+			initializationInstructions add: (SLVMStoreInstruction value: falseConstant variable: var)
 		].
 	].
 
