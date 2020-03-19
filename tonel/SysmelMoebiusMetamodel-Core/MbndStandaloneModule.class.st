@@ -50,7 +50,8 @@ MbndStandaloneModule class >> initialize [
 		MbndAbstractModule . MbndAbstractNamespace .
 		MbndAbstractTemplate . MbndAbstractTemplateInstance.
 		MbndAbstractVariable . MbndTemplateDefinitionFragment .
-		MbndAbstractScope . MbndAstNode . MbndAggregateSlotLayout . MbndAggregateSlotDescription
+		MbndAbstractScope . MbndAstNode . MbndAggregateSlotLayout .
+		MbndAggregateSlotDescription . MbndGeneratedSymbol
 	} do: [:eachBase | eachBase withAllSubclassesDo: [ :each |
 		each messagePackTypeName ifNotNil: [ :typeName |
 			self assert: (MessagePackTypeMapTable includesKey: typeName) not.

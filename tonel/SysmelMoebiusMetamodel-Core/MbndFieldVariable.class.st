@@ -53,6 +53,8 @@ MbndFieldVariable >> bits: anObject [
 MbndFieldVariable >> encodeFieldsForMessagePackWith: graphEncoder [
 	^ (super encodeFieldsForMessagePackWith: graphEncoder) , {
 		#bits . bits.
+		#bitOffset . bitOffset .
+		#bitMask . bitMask
 	}
 ]
 
@@ -82,4 +84,6 @@ MbndFieldVariable >> isFieldVariable [
 MbndFieldVariable >> materializeWithGraphDecoder: graphDecoder withFields: encodedFields [
 	super materializeWithGraphDecoder: graphDecoder withFields: encodedFields.
 	bits := encodedFields at: #bits ifAbsent: [ nil ].
+	bitOffset := encodedFields at: #bitOffset ifAbsent: [ nil ].
+	bitMask := encodedFields at: #bitMask ifAbsent: [ nil ].
 ]

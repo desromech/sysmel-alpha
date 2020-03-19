@@ -1198,7 +1198,7 @@ MbndSlovimCodeModuleGenerator >> translateProgramEntityInformationData: programE
 	self assert: ssaProgramEntityInfoType isPointerType.
 	
 	(ssaProgramEntityInfoType baseType isVoidType or: [
-	((sourceModule hasRuntimeTypeInformation or: [ programEntity isMbndType and: [sourceModule hasExceptions] ]) not or: [self slvmCompilationTarget isGPU])]) ifTrue: [
+	((sourceModule hasRuntimeTypeInformation or: [ programEntity isMbndType and: [programEntity isAbstractClassType and: [sourceModule hasExceptions]] ]) not or: [self slvmCompilationTarget isGPU])]) ifTrue: [
 		self assert: (programEntity isMbndType not or: [programEntity isGarbageCollectedType not]).
 		ssaProgramEntityInfo := SLVMConstant nullPointer: ssaProgramEntityInfoType.
 		self setProgramEntity: programEntity ssaValue: ssaProgramEntityInfo.

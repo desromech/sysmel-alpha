@@ -361,8 +361,11 @@ TMbndCoreCompilationTarget >> dynamicObjectType: anObjectType [
 TMbndCoreCompilationTarget >> encodeBootstrapDefinedObjectsForMessagePackWith: graphEncoder [
 	^ {
 		#nativePrefixedStringLiteralType . nativePrefixedStringLiteralType encodeGraphForMessagePackWith: graphEncoder. 
+		#typeInformationNativeClass . typeInformationNativeClass encodeGraphForMessagePackWith: graphEncoder. 
+		#typeInformationGCClass . typeInformationGCClass encodeGraphForMessagePackWith: graphEncoder. 
 		#namespaceInformationNativeClass . namespaceInformationNativeClass encodeGraphForMessagePackWith: graphEncoder. 
 		#namespaceInformationGCClass . namespaceInformationGCClass encodeGraphForMessagePackWith: graphEncoder. 
+		#dynamicObjectType . dynamicObjectType encodeGraphForMessagePackWith: graphEncoder.
 		#managedObjectModel . managedObjectModel encodeBootstrapDefinedObjectsForMessagePackWith: graphEncoder.
 	}
 ]
@@ -1059,6 +1062,12 @@ TMbndCoreCompilationTarget >> managedObjectModelClass [
 TMbndCoreCompilationTarget >> materializeBootstrapDefinedObjectWithGraphDecoder: graphDecoder withFields: encodedFields [
 	encodedFields at: #nativePrefixedStringLiteralType ifPresent: [ :object |
 		self setNativePrefixedStringLiteralType: object ].
+	encodedFields at: #dynamicObjectType ifPresent: [ :object |
+		self dynamicObjectType: object ].
+	encodedFields at: #typeInformationNativeClass ifPresent: [ :object |
+		self typeInformationNativeClass: object ].
+	encodedFields at: #typeInformationGCClass ifPresent: [ :object |
+		self typeInformationGCClass: object ].
 	encodedFields at: #namespaceInformationNativeClass ifPresent: [ :object |
 		self namespaceInformationNativeClass: object ].
 	encodedFields at: #namespaceInformationGCClass ifPresent: [ :object |

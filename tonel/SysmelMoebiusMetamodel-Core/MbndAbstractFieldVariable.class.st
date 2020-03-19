@@ -74,7 +74,11 @@ MbndAbstractFieldVariable >> defaultVisibilityMode [
 { #category : #serialization }
 MbndAbstractFieldVariable >> encodeFieldsForMessagePackWith: graphEncoder [
 	^ (super encodeFieldsForMessagePackWith: graphEncoder) , {
-		#type . type encodeGraphForMessagePackWith: graphEncoder
+		#type . type encodeGraphForMessagePackWith: graphEncoder.
+		#byteOffset . byteOffset.
+		#slotIndex . slotIndex.
+		#location . location encodeGraphForMessagePackWith: graphEncoder..
+		#intrinsic . intrinsic encodeGraphForMessagePackWith: graphEncoder..
 	}
 ]
 
@@ -137,7 +141,11 @@ MbndAbstractFieldVariable >> location: anObject [
 { #category : #serialization }
 MbndAbstractFieldVariable >> materializeWithGraphDecoder: graphDecoder withFields: encodedFields [
 	super materializeWithGraphDecoder: graphDecoder withFields: encodedFields.
-	type := encodedFields at: #type
+	type := encodedFields at: #type.
+	byteOffset := encodedFields at: #byteOffset.
+	slotIndex := encodedFields at: #slotIndex.
+	location := encodedFields at: #location.
+	intrinsic := encodedFields at: #intrinsic.
 ]
 
 { #category : #accessing }

@@ -44,7 +44,7 @@ MbndAggregateSlotLayout >> encodeFieldsForMessagePackWith: graphEncoder [
 	#identityHashField . identityHashField encodeGraphForMessagePackWith: graphEncoder.
 	#mainVirtualTable.  mainVirtualTable encodeGraphForMessagePackWith: graphEncoder.
 	#virtualTables. virtualTables encodeGraphForMessagePackWith: graphEncoder.
-	#variableDataSizeField . variableDataSizeField .
+	#variableDataSizeField . variableDataSizeField encodeGraphForMessagePackWith: graphEncoder.
 	#instanceSize . instanceSize.
 	#instanceAlignment . instanceAlignment.
 	#hasTrivialBasicInitialization . hasTrivialBasicInitialization

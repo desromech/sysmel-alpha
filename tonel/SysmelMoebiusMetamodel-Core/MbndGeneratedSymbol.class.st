@@ -8,6 +8,11 @@ Class {
 	#category : #'SysmelMoebiusMetamodel-Core-AST'
 }
 
+{ #category : #serialization }
+MbndGeneratedSymbol class >> messagePackTypeName [
+	^ #GeneratedSymbol
+]
+
 { #category : #printing }
 MbndGeneratedSymbol >> = other [
 	^ self class == other class and: [ name == other name and: [ context == other context ] ]
@@ -28,6 +33,19 @@ MbndGeneratedSymbol >> context: anObject [
 	context := anObject
 ]
 
+{ #category : #serialization }
+MbndGeneratedSymbol >> encodeFieldsForMessagePackWith: graphEncoder [
+	^ {
+		#name . name encodeGraphForMessagePackWith: graphEncoder.
+		#context . context encodeGraphForMessagePackWith: graphEncoder.
+	}
+]
+
+{ #category : #serialization }
+MbndGeneratedSymbol >> encodeGraphForMessagePackWith: graphEncoder [
+	^ graphEncoder encodeObject: self type: self messagePackTypeName fields: [self encodeFieldsForMessagePackWith: graphEncoder]
+]
+
 { #category : #printing }
 MbndGeneratedSymbol >> hash [
 	^ (self class identityHash bitXor: name identityHash) bitXor: context identityHash
@@ -41,6 +59,17 @@ MbndGeneratedSymbol >> isMbndGeneratedSymbol [
 { #category : #accessing }
 MbndGeneratedSymbol >> isSymbol [
 	^ true
+]
+
+{ #category : #serialization }
+MbndGeneratedSymbol >> materializeWithGraphDecoder: graphDecoder withFields: encodedFields [
+	name := encodedFields at: #name.
+	context := encodedFields at: #context.
+]
+
+{ #category : #serialization }
+MbndGeneratedSymbol >> messagePackTypeName [
+	^ self class messagePackTypeName
 ]
 
 { #category : #accessing }

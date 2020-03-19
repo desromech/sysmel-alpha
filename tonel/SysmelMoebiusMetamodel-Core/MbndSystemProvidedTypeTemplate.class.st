@@ -42,9 +42,10 @@ MbndSystemProvidedTypeTemplate >> compilationTarget: anObject [
 
 { #category : #template }
 MbndSystemProvidedTypeTemplate >> getOrCreateInstanceWithArguments: arguments [
-	^ instances at: arguments ifAbsentPut: [
+	^ instances at: arguments ifAbsent: [
 		| newInstance |
 		newInstance := mainDefinitionConstructionBlock valueWithArguments: arguments.
+		self assert: (instances includesKey: arguments) not.
 		instances at: arguments put: newInstance.
 		
 		MbndSystemProvidedTypeTemplateInstance new
@@ -60,7 +61,7 @@ MbndSystemProvidedTypeTemplate >> getOrCreateInstanceWithArguments: arguments [
 { #category : #initialization }
 MbndSystemProvidedTypeTemplate >> initialize [
 	super initialize.
-	instances := WeakValueDictionary new.
+	instances := Dictionary new.
 ]
 
 { #category : #accessing }
