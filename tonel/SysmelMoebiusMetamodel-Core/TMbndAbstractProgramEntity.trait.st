@@ -155,6 +155,11 @@ TMbndAbstractProgramEntity >> isMethod [
 ]
 
 { #category : #testing }
+TMbndAbstractProgramEntity >> isModuleSpecificProgramEntity [
+	^ false
+]
+
+{ #category : #testing }
 TMbndAbstractProgramEntity >> isNamespace [
 	^ false
 ]

@@ -24,6 +24,11 @@ MbndAbstractIntrinsicMethod >> intrinsicName: anObject [
 	intrinsicName := anObject
 ]
 
+{ #category : #testing }
+MbndAbstractIntrinsicMethod >> isModuleSpecificProgramEntity [
+	^ true
+]
+
 { #category : #serialization }
 MbndAbstractIntrinsicMethod >> materializeWithGraphDecoder: graphDecoder withFields: encodedFields [
 	super materializeWithGraphDecoder: graphDecoder withFields: encodedFields.
