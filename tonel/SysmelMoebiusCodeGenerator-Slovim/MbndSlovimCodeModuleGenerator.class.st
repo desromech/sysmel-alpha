@@ -1136,6 +1136,7 @@ MbndSlovimCodeModuleGenerator >> translateCompilerGeneratedMethod: generatedMeth
 	unmangledName := self unmangledNameForProgramEntity: generatedMethod.
 	ssaFunction := SLVMFunction module: ssaModule name: csymbol functionType: ssaFunctionType.
 	ssaFunction unmangledName: unmangledName.
+	ssaModule addHighLevelEntity: generatedMethod mapToGlobalValue: ssaFunction.
 	
 	self setProgramEntity: generatedMethod ssaValue: ssaFunction.
 

@@ -400,7 +400,7 @@ TMbndCoreCompilationTarget >> ensureTypeHasSimpleMetaType: type [
 		metaTypeType := stMetaType.
 	].
 	type type: (type createMetaTypeBasicInstance
-		definitionModule: coreDefinitionsModule;
+		definitionModule: type module;
 		instanceType: type;
 		type: metaTypeType;
 		supertype: type supertype type;
