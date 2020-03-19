@@ -218,6 +218,31 @@ TMbndCoreManagedObjectModel >> dictionaryClass: anObject [
 	dictionaryClass := anObject
 ]
 
+{ #category : #serialization }
+TMbndCoreManagedObjectModel >> encodeBootstrapDefinedObjectsForMessagePackWith: graphEncoder [
+	^ Array streamContents: [:out |
+		#(
+			additionalBindingClass additionalMethodStateClass arrayClass associationClass
+			byteArrayClass classVariableClass compiledMethodClass dictionaryClass identityDictionaryClass
+			systemDictionaryClass methodDictionaryClass symbolClass stringClass integerClass floatClass
+			globalVariableClass messageLookupFunction trueClass falseClass boolClass
+			undeclaredVariableClass workspaceVariableClass characterClass
+			int32ToIntegerFunction uint32ToIntegerFunction int64ToIntegerFunction uint64ToIntegerFunction
+			uint32ToCharacterFunction float64ToFloatFunction blockClosureHeaderClass blockClosureClass
+			gcBlockClosureAllocationFunction objectToUInt32Function objectToInt32Function objectToUInt64Function
+			objectToInt64Function objectToChar32Function objectToFloat64Function
+			objectToBoolean8Function messageClass moduleRootRegistrationFunction
+			moduleRootUnregistrationFunction gcLayoutClass receiverClassGetter methodSuperClassGetter
+			inlineCacheStructure) do: [ :selector |
+				| object|
+				object := self perform: selector.
+				object ifNotNil: [
+					out nextPut: selector; nextPut: (object encodeGraphForMessagePackWith: graphEncoder)
+				]
+		]
+	]
+]
+
 { #category : #accessing }
 TMbndCoreManagedObjectModel >> falseClass [
 	^ falseClass
@@ -352,6 +377,13 @@ TMbndCoreManagedObjectModel >> integerClass: anObject [
 	compilationTarget dynamicObjectType addExplicitConversionRule: (MbndDynamicObjectToIntegerConversionRule when: [:sourceType :targetType |
 		targetType isPrimitiveIntegerType and: [ targetType isPrimitiveCharacterCodeType not ]
 	]).
+]
+
+{ #category : #serialization }
+TMbndCoreManagedObjectModel >> materializeBootstrapDefinedObjectWithGraphDecoder: graphDecoder withFields: encodedFields [
+	encodedFields keysAndValuesDo: [ :key :value |
+		value ifNotNil: [ self perform: (key , ':') asSymbol with: value ]
+	]
 ]
 
 { #category : #accessing }

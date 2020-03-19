@@ -45,13 +45,13 @@ MbndSystemProvidedTypeTemplate >> getOrCreateInstanceWithArguments: arguments [
 	^ instances at: arguments ifAbsentPut: [
 		| newInstance |
 		newInstance := mainDefinitionConstructionBlock valueWithArguments: arguments.
+		instances at: arguments put: newInstance.
 		
 		MbndSystemProvidedTypeTemplateInstance new
 			parent: self;
 			instanceArguments: arguments;
 			addChild: newInstance.
 		
-		instances at: arguments put: newInstance.
 		definitionFragments do: [ :fragment | fragment applyToInstance: newInstance ].
 		newInstance
 	]

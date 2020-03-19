@@ -357,6 +357,16 @@ TMbndCoreCompilationTarget >> dynamicObjectType: anObjectType [
 	dynamicObjectType := anObjectType
 ]
 
+{ #category : #serialization }
+TMbndCoreCompilationTarget >> encodeBootstrapDefinedObjectsForMessagePackWith: graphEncoder [
+	^ {
+		#nativePrefixedStringLiteralType . nativePrefixedStringLiteralType encodeGraphForMessagePackWith: graphEncoder. 
+		#namespaceInformationNativeClass . namespaceInformationNativeClass encodeGraphForMessagePackWith: graphEncoder. 
+		#namespaceInformationGCClass . namespaceInformationGCClass encodeGraphForMessagePackWith: graphEncoder. 
+		#managedObjectModel . managedObjectModel encodeBootstrapDefinedObjectsForMessagePackWith: graphEncoder.
+	}
+]
+
 { #category : #'basic types' }
 TMbndCoreCompilationTarget >> ensureBasicTypeIsLinkedToTheHierarchy: basicType [
 	basicType module ifNil: [ 
@@ -1045,6 +1055,19 @@ TMbndCoreCompilationTarget >> managedObjectModelClass [
 	^ MbndGenericManagedObjectModel
 ]
 
+{ #category : #serialization }
+TMbndCoreCompilationTarget >> materializeBootstrapDefinedObjectWithGraphDecoder: graphDecoder withFields: encodedFields [
+	encodedFields at: #nativePrefixedStringLiteralType ifPresent: [ :object |
+		self setNativePrefixedStringLiteralType: object ].
+	encodedFields at: #namespaceInformationNativeClass ifPresent: [ :object |
+		self namespaceInformationNativeClass: object ].
+	encodedFields at: #namespaceInformationGCClass ifPresent: [ :object |
+		self namespaceInformationGCClass: object ].
+	encodedFields at: #managedObjectModel ifPresent: [ :objects |
+		self managedObjectModel materializeBootstrapDefinedObjectWithGraphDecoder: graphDecoder withFields: (Dictionary newFromPairs: objects)
+	].
+]
+
 { #category : #accessing }
 TMbndCoreCompilationTarget >> moduleInformationGCClass [
 	^ moduleInformationGCClass
@@ -1078,7 +1101,10 @@ TMbndCoreCompilationTarget >> namespaceInformationGCClass [
 { #category : #accessing }
 TMbndCoreCompilationTarget >> namespaceInformationGCClass: anObject [
 	namespaceInformationGCClass := anObject.
-	self namespaceType addConversionTo: namespaceInformationGCClass rule: MbndPointerReinterpretTypeConversionRule.
+	namespaceInformationGCClass ifNotNil: [ 
+		self namespaceType addConversionTo: namespaceInformationGCClass rule: MbndPointerReinterpretTypeConversionRule.
+	]
+
 ]
 
 { #category : #accessing }
@@ -1089,7 +1115,10 @@ TMbndCoreCompilationTarget >> namespaceInformationNativeClass [
 { #category : #accessing }
 TMbndCoreCompilationTarget >> namespaceInformationNativeClass: anObject [
 	namespaceInformationNativeClass := anObject.
-	self namespaceType addConversionTo: namespaceInformationNativeClass pointer rule: MbndPointerReinterpretTypeConversionRule.
+	namespaceInformationNativeClass ifNotNil: [ 
+		self namespaceType addConversionTo: namespaceInformationNativeClass pointer rule: MbndPointerReinterpretTypeConversionRule.
+	].
+
 ]
 
 { #category : #'derived types' }
@@ -1180,7 +1209,10 @@ TMbndCoreCompilationTarget >> samplerImplementationType: aType [
 { #category : #initialization }
 TMbndCoreCompilationTarget >> setNativePrefixedStringLiteralType: aType [
 	nativePrefixedStringLiteralType := aType.
-	self literalStringType addConversionTo: nativePrefixedStringLiteralType rule: MbndLiteralStringToNativePrefixedStringConversionRule.
+	nativePrefixedStringLiteralType ifNotNil: [
+		self literalStringType addConversionTo: nativePrefixedStringLiteralType rule: MbndLiteralStringToNativePrefixedStringConversionRule.
+	].
+
 ]
 
 { #category : #accessing }

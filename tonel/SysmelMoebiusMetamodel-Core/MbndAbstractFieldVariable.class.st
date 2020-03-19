@@ -137,7 +137,7 @@ MbndAbstractFieldVariable >> location: anObject [
 { #category : #serialization }
 MbndAbstractFieldVariable >> materializeWithGraphDecoder: graphDecoder withFields: encodedFields [
 	super materializeWithGraphDecoder: graphDecoder withFields: encodedFields.
-	"type := encodedFields at: #type"
+	type := encodedFields at: #type
 ]
 
 { #category : #accessing }

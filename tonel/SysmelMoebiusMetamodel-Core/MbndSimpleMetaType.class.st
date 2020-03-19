@@ -97,3 +97,24 @@ MbndSimpleMetaType >> printOn: aStream [
 	].
 	aStream nextPutAll: ' type'.
 ]
+
+{ #category : #'as yet unclassified' }
+MbndSimpleMetaType >> recordMacroMethodAddition: method withSelector: selector [
+	instanceType ifNotNil: [ 
+		(instanceType isCoreBasicType and: [ self compilationTarget isTheTypeSystemInitialized ]) ifTrue: [
+		^	method recordAsExtensionFor: self withSelector: selector
+		]
+	].
+	^ super recordMacroMethodAddition: method withSelector: selector
+]
+
+{ #category : #'as yet unclassified' }
+MbndSimpleMetaType >> recordOverloadedMethodAddition: method withSelector: selector [
+	instanceType ifNotNil: [ 
+		(instanceType isCoreBasicType and: [ self compilationTarget isTheTypeSystemInitialized ]) ifTrue: [
+			^ method recordAsExtensionFor: self withSelector: selector
+		].
+	].
+
+	^ super recordOverloadedMethodAddition: method withSelector: selector
+]

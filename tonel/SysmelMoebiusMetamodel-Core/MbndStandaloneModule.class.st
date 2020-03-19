@@ -132,6 +132,7 @@ MbndStandaloneModule >> encodeFieldsForMessagePackWith: graphEncoder [
 		#globalNamespace . self globalNamespace encodeGraphForMessagePackWith: graphEncoder.
 		#extensionMacros . self extensionMacros encodeGraphForMessagePackWith: graphEncoder.
 		#extensionOverloadedMethods . self extensionOverloadedMethods encodeGraphForMessagePackWith: graphEncoder.
+		#bootstrapObjects . self compilationTarget encodeBootstrapDefinedObjectsForMessagePackWith: graphEncoder
 	}.
 	
 	^ resultHead , { 
@@ -320,6 +321,9 @@ MbndStandaloneModule >> materializeWithGraphDecoder: graphDecoder withFields: en
 	globalNamespace := encodedFields at: #globalNamespace.
 	extensionMacros := encodedFields at: #extensionMacros.
 	extensionOverloadedMethods := encodedFields at: #extensionOverloadedMethods.
+	encodedFields at: #bootstrapObjects ifPresent: [ :bootstrapObjects |
+		self compilationTarget materializeBootstrapDefinedObjectWithGraphDecoder: graphDecoder withFields: (Dictionary newFromPairs: bootstrapObjects)
+	]
 ]
 
 { #category : #parameters }

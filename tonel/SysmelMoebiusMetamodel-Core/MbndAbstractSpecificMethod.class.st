@@ -140,7 +140,7 @@ MbndAbstractSpecificMethod >> encodeFieldsForMessagePackWith: graphEncoder [
 		#name . name .
 		#receiverType . receiverType encodeGraphForMessagePackWith: graphEncoder.
 		#type . type encodeGraphForMessagePackWith: graphEncoder.
-		#boundType . type encodeGraphForMessagePackWith: graphEncoder.
+		#boundType . boundType encodeGraphForMessagePackWith: graphEncoder.
 	} , (self canBeEvaluatedInCompileTime ifTrue: [ { 
 		#nonLocalResultVariable . nonLocalResultVariable encodeGraphForMessagePackWith: graphEncoder.
 		#typedSelector . typedSelector .
