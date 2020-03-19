@@ -85,6 +85,13 @@ MbndEnumType >> defaultValueAt: aPosition [
 	^ (baseType defaultValueAt: aPosition) copy type: self
 ]
 
+{ #category : #serialization }
+MbndEnumType >> encodeLazyFieldsForMessagePackWith: graphEncoder [
+	^ (super encodeLazyFieldsForMessagePackWith: graphEncoder) , {
+		#values . values encodeGraphForMessagePackWith: graphEncoder.
+	}
+]
+
 { #category : #initialization }
 MbndEnumType >> initialize [
 	super initialize.
@@ -114,6 +121,12 @@ MbndEnumType >> lookupStaticMacroSelector: selector [
 		^ enumValue asMacroExpandedToConstant
 	].
 	^ super lookupStaticMacroSelector: selector
+]
+
+{ #category : #serialization }
+MbndEnumType >> materializeWithGraphDecoder: graphDecoder withLazyFields: encodedFields [
+	super materializeWithGraphDecoder: graphDecoder withLazyFields: encodedFields.
+	values := encodedFields at: #values.
 ]
 
 { #category : #accessing }

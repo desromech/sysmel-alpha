@@ -12,6 +12,13 @@ MbndAstPatternMatchingLiteralValuePatternNode >> accept: visitor [
 	^ visitor visitPatternMatchingLiteralValuePatternNode: self
 ]
 
+{ #category : #serialization }
+MbndAstPatternMatchingLiteralValuePatternNode >> encodeFieldsForMessagePackWith: graphEncoder [
+	^ {
+		#value . value encodeGraphForMessagePackWith: graphEncoder.
+	} , (super encodeFieldsForMessagePackWith: graphEncoder)
+]
+
 { #category : #testing }
 MbndAstPatternMatchingLiteralValuePatternNode >> isPatternMatchingLiteralValuePatternNode [
 	^ true
@@ -20,6 +27,12 @@ MbndAstPatternMatchingLiteralValuePatternNode >> isPatternMatchingLiteralValuePa
 { #category : #testing }
 MbndAstPatternMatchingLiteralValuePatternNode >> isPatternMatchingLiteralValueSetPatternNode [
 	^ true
+]
+
+{ #category : #serialization }
+MbndAstPatternMatchingLiteralValuePatternNode >> materializeWithGraphDecoder: graphDecoder withFields: encodedFields [
+	super materializeWithGraphDecoder: graphDecoder withFields: encodedFields.
+	value := encodedFields at: #value.
 ]
 
 { #category : #accessing }

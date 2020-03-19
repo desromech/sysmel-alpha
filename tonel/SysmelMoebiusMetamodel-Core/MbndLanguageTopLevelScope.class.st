@@ -5,6 +5,7 @@ Class {
 	#name : #MbndLanguageTopLevelScope,
 	#superclass : #MbndAbstractScope,
 	#instVars : [
+		'languageName',
 		'topLevelMacros',
 		'topLevelSymbols',
 		'module',
@@ -17,6 +18,20 @@ Class {
 { #category : #'instance creation' }
 MbndLanguageTopLevelScope class >> for: aModule [
 	^ self new initializeWithModule: aModule
+]
+
+{ #category : #serialization }
+MbndLanguageTopLevelScope class >> materializeObjectWithType: objectType earlyFields: earlyFields withMessagePackGraphDecoder: graphDecoder [
+	objectType == #LanguageTopLevelScope ifTrue: [
+		| result |
+		self assert: earlyFields isSymbol.
+		result := graphDecoder targetModule newSourceEvaluationScopeForLanguageNamed: earlyFields.
+		graphDecoder registerObjectInstance: result.
+		graphDecoder decodeNext. "Ignore the normal fields"
+		^ result
+	].
+
+	^ super materializeObjectWithType: objectType earlyFields: earlyFields withMessagePackGraphDecoder: graphDecoder
 ]
 
 { #category : #initialization }
@@ -34,6 +49,12 @@ MbndLanguageTopLevelScope >> addUsedNamespace: namespace [
 	self usedNamespaces add: namespace
 ]
 
+{ #category : #serialization }
+MbndLanguageTopLevelScope >> encodeGraphForMessagePackWith: graphEncoder [
+	self assert: languageName isNotNil.
+	^ graphEncoder encodeObject: self type: self messagePackTypeName earlyFields: languageName fields: [nil]
+]
+
 { #category : #initialization }
 MbndLanguageTopLevelScope >> initializeWithModule: aModule [
 	module := aModule.
@@ -43,6 +64,16 @@ MbndLanguageTopLevelScope >> initializeWithModule: aModule [
 	self
 		addTopLevelMacros;
 		addTopLevelSymbols
+]
+
+{ #category : #accessing }
+MbndLanguageTopLevelScope >> languageName [
+	^ languageName
+]
+
+{ #category : #accessing }
+MbndLanguageTopLevelScope >> languageName: anObject [
+	languageName := anObject
 ]
 
 { #category : #'macro expansion' }
@@ -66,6 +97,12 @@ MbndLanguageTopLevelScope >> lookupSymbol: aSymbol [
 	].
 
 	^ super lookupSymbol: aSymbol
+]
+
+{ #category : #serialization }
+MbndLanguageTopLevelScope >> messagePackTypeName [
+	languageName ifNotNil: [ ^ MbndLanguageTopLevelScope messagePackTypeName ].
+	^ super messagePackTypeName
 ]
 
 { #category : #'macro addition' }

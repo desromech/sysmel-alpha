@@ -7,6 +7,11 @@ Class {
 	#category : #'SysmelMoebiusMetamodel-Core-Module'
 }
 
+{ #category : #serialization }
+MbndDummyModule class >> messagePackTypeName [
+	^ #DummyModule
+]
+
 { #category : #accessing }
 MbndDummyModule >> compilationTarget [
 	compilationTarget ifNil: [

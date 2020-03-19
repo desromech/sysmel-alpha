@@ -12,7 +12,9 @@ MbndAbstractPharoLanguage class >> initialize [
 
 { #category : #scope }
 MbndAbstractPharoLanguage >> constructTopLevelLanguageScopeFor: aModule [
-	^ MbndEmptyLanguageTopLevelScope for: aModule
+	^ (MbndEmptyLanguageTopLevelScope for: aModule)
+		languageName: self languageName;
+		yourself
 ]
 
 { #category : #'as yet unclassified' }

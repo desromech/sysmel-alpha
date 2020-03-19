@@ -10,6 +10,11 @@ Class {
 	#category : #'SysmelMoebiusMetamodel-Core-Method'
 }
 
+{ #category : #serialization }
+MbndAbstractMethod class >> messagePackTypeName [
+	^ nil
+]
+
 { #category : #'semantic analysis' }
 MbndAbstractMethod >> analyzeExpandedMessageSendNode: node with: analyzer [
 	self subclassResponsibility
@@ -29,6 +34,11 @@ MbndAbstractMethod >> canBeEvaluatedInCompileTime [
 	(self hasPragmaNamed: #notInCompileTime) ifTrue: [ ^ false ].
 	(self hasFlag: #notInCompileTime) ifTrue: [ ^ false ].
 	^ true
+]
+
+{ #category : #serialization }
+MbndAbstractMethod >> encodeFieldsForMessagePackWith: graphEncoder [
+	self subclassResponsibility
 ]
 
 { #category : #'as yet unclassified' }
@@ -77,6 +87,11 @@ MbndAbstractMethod >> markExplicitSuperSend [
 	self addFlag: #hasExplicitSuperSend.
 ]
 
+{ #category : #serialization }
+MbndAbstractMethod >> messagePackTypeName [
+	^ self class messagePackTypeName
+]
+
 { #category : #accessing }
 MbndAbstractMethod >> module [
 	^ parent module
@@ -100,6 +115,14 @@ MbndAbstractMethod >> parent [
 { #category : #accessing }
 MbndAbstractMethod >> parent: anObject [
 	parent := anObject
+]
+
+{ #category : #accessing }
+MbndAbstractMethod >> postMaterializeSetupParent: newParent withModule: newModule [
+	self parent: newParent.
+	self childrenDo: [ :child |
+		child postMaterializeSetupParent: self withModule: newModule
+	].
 ]
 
 { #category : #testing }

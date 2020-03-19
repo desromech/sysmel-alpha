@@ -7,6 +7,11 @@ Class {
 	#category : #'SysmelMoebiusMetamodel-Core-Method'
 }
 
+{ #category : #serialization }
+MbndDummyMethod class >> messagePackTypeName [
+	^ #DummyMethod
+]
+
 { #category : #'as yet unclassified' }
 MbndDummyMethod >> getNonLocalReturnTarget [
 	^ nil

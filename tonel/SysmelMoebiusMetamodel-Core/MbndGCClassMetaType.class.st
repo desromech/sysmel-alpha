@@ -11,6 +11,13 @@ MbndGCClassMetaType class >> typeName [
 	^ #_GCClassMetaType
 ]
 
+{ #category : #serialization }
+MbndGCClassMetaType >> encodeLazyFieldsForMessagePackWith: graphEncoder [
+	^ (super encodeLazyFieldsForMessagePackWith: graphEncoder) , {
+		#instanceType . instanceType encodeGraphForMessagePackWith: graphEncoder.
+	}
+]
+
 { #category : #converting }
 MbndGCClassMetaType >> fillProgramEntityInfoInstance: typeInfoInstance [
 	super fillProgramEntityInfoInstance: typeInfoInstance.
@@ -21,6 +28,13 @@ MbndGCClassMetaType >> fillProgramEntityInfoInstance: typeInfoInstance [
 MbndGCClassMetaType >> instanceType: anObject [
 	instanceType := anObject.
 	name := nil.
+]
+
+{ #category : #serialization }
+MbndGCClassMetaType >> materializeWithGraphDecoder: graphDecoder withLazyFields: encodedFields [
+	super materializeWithGraphDecoder: graphDecoder withLazyFields: encodedFields.
+	
+	instanceType := encodedFields at: #instanceType.
 ]
 
 { #category : #accessing }

@@ -12,6 +12,13 @@ MbndAstQuoteNode >> accept: aVisitor [
 	^ aVisitor visitQuoteNode: self
 ]
 
+{ #category : #serialization }
+MbndAstQuoteNode >> encodeFieldsForMessagePackWith: graphEncoder [
+	^ {
+		#expression . expression encodeGraphForMessagePackWith: graphEncoder.
+	} , (super encodeFieldsForMessagePackWith: graphEncoder)
+]
+
 { #category : #accessing }
 MbndAstQuoteNode >> expression [
 	^ expression
@@ -25,4 +32,10 @@ MbndAstQuoteNode >> expression: anObject [
 { #category : #testing }
 MbndAstQuoteNode >> isQuoteNode [
 	^ true
+]
+
+{ #category : #serialization }
+MbndAstQuoteNode >> materializeWithGraphDecoder: graphDecoder withFields: encodedFields [
+	super materializeWithGraphDecoder: graphDecoder withFields: encodedFields.
+	expression := encodedFields at: #expression.
 ]

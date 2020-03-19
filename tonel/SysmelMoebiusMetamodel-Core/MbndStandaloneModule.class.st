@@ -14,6 +14,9 @@ Class {
 		'linkerArguments',
 		'hasExceptions'
 	],
+	#classVars : [
+		'MessagePackTypeMapTable'
+	],
 	#category : #'SysmelMoebiusMetamodel-Core-Module'
 }
 
@@ -30,6 +33,32 @@ MbndStandaloneModule class >> disableSLVMOptimizations [
 	^ true
 ]
 
+{ #category : #'class initialization' }
+MbndStandaloneModule class >> initialize [
+	MessagePackTypeMapTable := Dictionary newFromPairs: {
+	#CoreBasicType . MbndBasicType.
+	#CoreBasicMetaType . MbndSimpleMetaType.
+	#SystemProvidedTypeTemplateInstance . MbndSystemProvidedTypeTemplateInstance.
+	#SystemProvidedTypeTemplateInstanceMainChild . MbndSystemProvidedTypeTemplateInstance.
+	#SystemProvidedTypeTemplateInstanceMainChildType . MbndSystemProvidedTypeTemplateInstance.
+	#TargetModule . MbndStandaloneModule .
+	#ReferenceModule . MbndStandaloneModule .
+	}.
+	{
+		MbndAbstractCompileTimeConstant . MbndAbstractMethod .
+		MbndAbstractMacro . MbndBasicType . MbndAbstractValue . 
+		MbndAbstractModule . MbndAbstractNamespace .
+		MbndAbstractTemplate . MbndAbstractTemplateInstance.
+		MbndAbstractVariable . MbndTemplateDefinitionFragment .
+		MbndAbstractScope . MbndAstNode . MbndAggregateSlotLayout . MbndAggregateSlotDescription
+	} do: [:eachBase | eachBase withAllSubclassesDo: [ :each |
+		each messagePackTypeName ifNotNil: [ :typeName |
+			self assert: (MessagePackTypeMapTable includesKey: typeName) not.
+			MessagePackTypeMapTable at: typeName put: each.
+		]
+	]].
+]
+
 { #category : #'as yet unclassified' }
 MbndStandaloneModule class >> llvm_x86 [
 	^ self compilationTarget: MbndSlovimCompilationTarget llvm_x86
@@ -38,6 +67,29 @@ MbndStandaloneModule class >> llvm_x86 [
 { #category : #'as yet unclassified' }
 MbndStandaloneModule class >> llvm_x86_64 [
 	^ self compilationTarget: MbndSlovimCompilationTarget llvm_x86_64
+]
+
+{ #category : #serialization }
+MbndStandaloneModule class >> materializeObjectWithType: objectType earlyFields: earlyFields withMessagePackGraphDecoder: graphDecoder [
+	(objectType == #TargetModule) ifTrue: [
+		| fields objectInstance |
+		objectInstance := graphDecoder targetModule.
+		graphDecoder registerObjectInstance: objectInstance.
+		fields := Dictionary newFromPairs: graphDecoder decodeNext.
+		objectInstance materializeWithGraphDecoder: graphDecoder withFields: fields.
+		^ objectInstance
+	].
+
+	(objectType == #ReferenceModule) ifTrue: [	
+		self halt
+	].
+
+	^ super materializeObjectWithType: objectType earlyFields: earlyFields withMessagePackGraphDecoder: graphDecoder
+]
+
+{ #category : #serialization }
+MbndStandaloneModule class >> messagePackTypeName [
+	^ #StandaloneModule
 ]
 
 { #category : #'as yet unclassified' }
@@ -59,6 +111,67 @@ MbndStandaloneModule >> compilationTarget [
 { #category : #accessing }
 MbndStandaloneModule >> disableSLVMOptimizations [
 	^ self class disableSLVMOptimizations
+]
+
+{ #category : #serialization }
+MbndStandaloneModule >> encodeFieldsForMessagePackWith: graphEncoder [
+	| resultHead resultTail |
+	resultHead := {
+		"Hack: Ensure types are defined first to prevent a nasty circular border condition on deserialization."
+		#definedTypes . Array streamContents: [ :out |
+			self globalNamespace allChildrenDo: [ :child |
+				child isMbndType ifTrue: [
+					out nextPut: (child encodeGraphForMessagePackWith: graphEncoder)
+				]
+			]
+		].
+	}.
+	
+	resultTail := 
+	{
+		#globalNamespace . self globalNamespace encodeGraphForMessagePackWith: graphEncoder.
+		#extensionMacros . self extensionMacros encodeGraphForMessagePackWith: graphEncoder.
+		#extensionOverloadedMethods . self extensionOverloadedMethods encodeGraphForMessagePackWith: graphEncoder.
+	}.
+	
+	^ resultHead , { 
+		#definedTypesLazyFields . graphEncoder typeLazyFields.
+	} , resultTail
+]
+
+{ #category : #serialization }
+MbndStandaloneModule >> encodeGraphForMessagePackWith: graphEncoder [
+	self == graphEncoder targetModule ifTrue: [ 
+		^ graphEncoder encodeObject: self type: #TargetModule fields: [self encodeFieldsForMessagePackWith: graphEncoder]
+	].
+
+	^ super encodeGraphForMessagePackWith: graphEncoder
+]
+
+{ #category : #'as yet unclassified' }
+MbndStandaloneModule >> encodeModulePublicInterfaceWithSSAModule: ssaModule [
+	| graphEncoder result exportedSSAModule |
+	graphEncoder := MbndSerializationGraphEncoder new
+		setExportMode;
+		typeMapTable: MessagePackTypeMapTable;
+		targetModule: self;
+		yourself.
+		exportedSSAModule := ssaModule asPublicInterfaceDeclarationModule.
+	result := {
+		#module . self encodeGraphForMessagePackWith: graphEncoder.
+		#exportedSSAModule . exportedSSAModule asFullSExpression .
+	}.
+	
+	^ SLVMMessagePackGraphEncoder encodeObject: result
+]
+
+{ #category : #'as yet unclassified' }
+MbndStandaloneModule >> exportModulePublicInterfaceTo: outputFileName withSSAModule: ssaModule [
+	| publicModuleEncodedMessage |
+	publicModuleEncodedMessage := self encodeModulePublicInterfaceWithSSAModule: ssaModule.
+	outputFileName asFileReference binaryWriteStreamDo: [ :out |
+		out truncate; nextPutAll: publicModuleEncodedMessage
+	]
 ]
 
 { #category : #parameters }
@@ -151,6 +264,34 @@ MbndStandaloneModule >> hasStandardLibrary: aBoolean [
 	hasStandardLibrary := aBoolean
 ]
 
+{ #category : #serialization }
+MbndStandaloneModule >> importModuleFrom: aModuleExportFileDefinition [
+	| moduleExportFileContents decodedExportedModuleAttributes |
+	moduleExportFileContents := aModuleExportFileDefinition asFileReference binaryReadStreamDo: [ :in | in contents ].
+	decodedExportedModuleAttributes := Dictionary newFromPairs: (MbndMessagePackGraphDecoder new
+		typeTable: MessagePackTypeMapTable;
+		compilationTarget: compilationTarget;
+		targetModule: self;
+		decode: moduleExportFileContents).
+	self assert: (decodedExportedModuleAttributes at: #module) == self.
+
+	self globalNamespace
+		postMaterializeSetupParent: nil withModule: self.
+	
+	self extensionMacros do: [ :each |
+		| parentEntity macro |
+		parentEntity := each first.
+		macro := each third.
+		macro parent ifNil: [ macro postMaterializeSetupParent: parentEntity withModule: self ]
+	].
+
+	self
+		applyExtensionMacros;
+		applyExtensionOverloadedMethods.
+	
+	"TODO: Store the SSA module for future code generation."
+]
+
 { #category : #accessing }
 MbndStandaloneModule >> initializeWithCompilationTarget: aCompilationTarget [
 	compilationTarget := aCompilationTarget.
@@ -168,6 +309,17 @@ MbndStandaloneModule >> linkerArguments [
 { #category : #'as yet unclassified' }
 MbndStandaloneModule >> loadRuntimeCoreLibrary [
 	^ self evaluateFileNamedOnce: MbndCoreAssets location  / 'lib' / 'kernel' / 'kernel.sysmel'. 
+]
+
+{ #category : #serialization }
+MbndStandaloneModule >> materializeWithGraphDecoder: graphDecoder withFields: encodedFields [
+	(encodedFields at: #definedTypesLazyFields) do: [ :each |
+		each first materializeWithGraphDecoder: graphDecoder withLazyFields: (Dictionary newFromPairs: each second)
+	].
+
+	globalNamespace := encodedFields at: #globalNamespace.
+	extensionMacros := encodedFields at: #extensionMacros.
+	extensionOverloadedMethods := encodedFields at: #extensionOverloadedMethods.
 ]
 
 { #category : #parameters }
@@ -251,9 +403,11 @@ MbndStandaloneModule >> writeLLVMAssemblyToFileNamed: outputFileName [
 
 { #category : #writing }
 MbndStandaloneModule >> writeMode: writeMode toFileNamed: outputFileName [
-	| lowLevelModule ssaModule |
+	| lowLevelModule ssaModule outputFileReference outputExportModuleFileReference |
 	self finishSemanticAnalysis.
 	ssaModule := self generateTargetCodeModule.
+	outputFileReference := outputFileName asFileReference.
+	outputExportModuleFileReference := outputFileReference parent / (outputFileReference basenameWithoutExtension , '.smpmodule').
 	
 	ssaModule disableSLVMOptimizations: self disableSLVMOptimizations.
 	ssaModule disableSLVMOptimizations ifFalse: [ 
@@ -267,6 +421,7 @@ MbndStandaloneModule >> writeMode: writeMode toFileNamed: outputFileName [
 		lowLevelModule linkerArguments: linkerArguments.
 	].
 	
+	self exportModulePublicInterfaceTo: outputExportModuleFileReference withSSAModule: ssaModule.
 	writeMode == #assembly ifTrue: [
 		^ lowLevelModule writeAssemblyToFileNamed: outputFileName
 	].

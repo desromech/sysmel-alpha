@@ -23,9 +23,24 @@ MbndAstPragmaNode >> arguments: anObject [
 	arguments := anObject
 ]
 
+{ #category : #serialization }
+MbndAstPragmaNode >> encodeFieldsForMessagePackWith: graphEncoder [
+	^ {
+		#selector . selector encodeGraphForMessagePackWith: graphEncoder.
+		#arguments . arguments encodeGraphForMessagePackWith: graphEncoder.
+	} , (super encodeFieldsForMessagePackWith: graphEncoder)
+]
+
 { #category : #testing }
 MbndAstPragmaNode >> isPragmaNode [
 	^ true
+]
+
+{ #category : #serialization }
+MbndAstPragmaNode >> materializeWithGraphDecoder: graphDecoder withFields: encodedFields [
+	super materializeWithGraphDecoder: graphDecoder withFields: encodedFields.
+	selector := encodedFields at: #selector.
+	arguments := encodedFields at: #arguments.
 ]
 
 { #category : #accessing }

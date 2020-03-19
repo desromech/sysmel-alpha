@@ -23,6 +23,13 @@ MbndDerivedType >> baseType: anObject [
 	baseType := anObject
 ]
 
+{ #category : #serialization }
+MbndDerivedType >> encodeLazyFieldsForMessagePackWith: graphEncoder [
+	^ (super encodeLazyFieldsForMessagePackWith: graphEncoder) , {
+		#baseType . baseType encodeGraphForMessagePackWith: graphEncoder.
+	}
+]
+
 { #category : #initialization }
 MbndDerivedType >> initialize [
 	super initialize.
@@ -31,4 +38,11 @@ MbndDerivedType >> initialize [
 { #category : #'testing methods' }
 MbndDerivedType >> isDerivedType [
 	^ true
+]
+
+{ #category : #serialization }
+MbndDerivedType >> materializeWithGraphDecoder: graphDecoder withLazyFields: encodedFields [
+	super materializeWithGraphDecoder: graphDecoder withLazyFields: encodedFields.
+	
+	baseType := encodedFields at: #baseType.
 ]

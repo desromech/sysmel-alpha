@@ -9,6 +9,23 @@ Class {
 	#category : #'SysmelMoebiusMetamodel-Core-AST'
 }
 
+{ #category : #serialization }
+MbndAstAbstractSampleTextureNode >> encodeFieldsForMessagePackWith: graphEncoder [
+	^ {
+		#sampler . sampler encodeGraphForMessagePackWith: graphEncoder.
+		#texcoord . texcoord encodeGraphForMessagePackWith: graphEncoder.
+		#texture . texture encodeGraphForMessagePackWith: graphEncoder.
+	} , (super encodeFieldsForMessagePackWith: graphEncoder)
+]
+
+{ #category : #serialization }
+MbndAstAbstractSampleTextureNode >> materializeWithGraphDecoder: graphDecoder withFields: encodedFields [
+	super materializeWithGraphDecoder: graphDecoder withFields: encodedFields.
+	sampler := encodedFields at: #sampler.
+	texcoord := encodedFields at: #texcoord.
+	texture := encodedFields at: #texture.
+]
+
 { #category : #accessing }
 MbndAstAbstractSampleTextureNode >> sampler [
 	^ sampler

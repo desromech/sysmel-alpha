@@ -44,7 +44,24 @@ MbndAstWhileLoopNode >> continueAction: anObject [
 	continueAction := anObject
 ]
 
+{ #category : #serialization }
+MbndAstWhileLoopNode >> encodeFieldsForMessagePackWith: graphEncoder [
+	^ {
+		#condition . condition encodeGraphForMessagePackWith: graphEncoder.
+		#action . action encodeGraphForMessagePackWith: graphEncoder.
+		#continueAction . continueAction encodeGraphForMessagePackWith: graphEncoder.
+	} , (super encodeFieldsForMessagePackWith: graphEncoder)
+]
+
 { #category : #testing }
 MbndAstWhileLoopNode >> isWhileLoopNode [
 	^ true
+]
+
+{ #category : #serialization }
+MbndAstWhileLoopNode >> materializeWithGraphDecoder: graphDecoder withFields: encodedFields [
+	super materializeWithGraphDecoder: graphDecoder withFields: encodedFields.
+	condition := encodedFields at: #condition.
+	action := encodedFields at: #action.
+	continueAction := encodedFields at: #continueAction.
 ]

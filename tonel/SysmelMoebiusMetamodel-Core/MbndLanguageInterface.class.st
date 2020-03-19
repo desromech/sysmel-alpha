@@ -70,6 +70,11 @@ MbndLanguageInterface >> initialize [
 	topLevelLanguageScopeCache := IdentityDictionary new.
 ]
 
+{ #category : #accessing }
+MbndLanguageInterface >> languageName [
+	^ self class languageName
+]
+
 { #category : #parsing }
 MbndLanguageInterface >> parse: sourceCollectionWithContext [
 	self subclassResponsibility

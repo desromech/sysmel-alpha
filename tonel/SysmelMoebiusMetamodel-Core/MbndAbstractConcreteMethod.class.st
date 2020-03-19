@@ -220,6 +220,21 @@ MbndAbstractConcreteMethod >> definitionScope: anObject [
 	definitionScope := anObject
 ]
 
+{ #category : #serialization }
+MbndAbstractConcreteMethod >> encodeFieldsForMessagePackWith: graphEncoder [
+	^ (super encodeFieldsForMessagePackWith: graphEncoder) , {
+		#arguments . arguments encodeGraphForMessagePackWith: graphEncoder.
+		#argumentsWithoutReceiver . argumentsWithoutReceiver encodeGraphForMessagePackWith: graphEncoder.
+		#specialSemantics . specialSemantics.
+		#computeShaderLocalSize . computeShaderLocalSize encodeGraphForMessagePackWith: graphEncoder.
+	},  (self "canBeEvaluatedInCompileTime" isConcreteMacroMessage ifTrue: [ { 
+		#definitionNode . definitionNode encodeGraphForMessagePackWith: graphEncoder.
+		#definitionScope . definitionScope encodeGraphForMessagePackWith: graphEncoder.
+		#analyzedBody . analyzedBody encodeGraphForMessagePackWith: graphEncoder.
+		#children . children encodeGraphForMessagePackWith: graphEncoder.
+	}] ifFalse: [ #() ])
+]
+
 { #category : #'semantic analysis' }
 MbndAbstractConcreteMethod >> ensureSemanticAnalysis [
 	| analyzer analysisScope |
@@ -357,6 +372,20 @@ MbndAbstractConcreteMethod >> lookupBoundReceiverSymbol: aSymbol [
 	].
 	
 	^ nil
+]
+
+{ #category : #serialization }
+MbndAbstractConcreteMethod >> materializeWithGraphDecoder: graphDecoder withFields: encodedFields [
+	super materializeWithGraphDecoder: graphDecoder withFields: encodedFields.
+	arguments := encodedFields at: #arguments.
+	argumentsWithoutReceiver := encodedFields at: #argumentsWithoutReceiver.
+	specialSemantics := encodedFields at: #specialSemantics ifAbsent: [nil].
+	computeShaderLocalSize := encodedFields at: #computeShaderLocalSize ifAbsent: [nil].
+
+	definitionNode := encodedFields at: #definitionNode ifAbsent: [nil].
+	definitionScope := encodedFields at: #definitionScope ifAbsent: [nil].
+	analyzedBody := encodedFields at: #analyzedBody ifAbsent: [nil].
+	children := encodedFields at: #children ifAbsent: [nil].
 ]
 
 { #category : #testing }

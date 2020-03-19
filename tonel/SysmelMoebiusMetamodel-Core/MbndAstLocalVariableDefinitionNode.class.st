@@ -12,6 +12,13 @@ MbndAstLocalVariableDefinitionNode >> accept: aVisitor [
 	^ aVisitor visitLocalVariableDefinitionNode: self
 ]
 
+{ #category : #serialization }
+MbndAstLocalVariableDefinitionNode >> encodeFieldsForMessagePackWith: graphEncoder [
+	^ {
+		#storageCreationNode . storageCreationNode encodeGraphForMessagePackWith: graphEncoder.
+	} , (super encodeFieldsForMessagePackWith: graphEncoder)
+]
+
 { #category : #testing }
 MbndAstLocalVariableDefinitionNode >> isLocalVariableDefinitionNode [
 	^ true
@@ -24,6 +31,12 @@ MbndAstLocalVariableDefinitionNode >> markStorageCreationNodeForCopyEllision: aS
 	valueType isTypePassedByReference ifTrue: [
 		storageCreationNode := aStorageCreationNode
 	].
+]
+
+{ #category : #serialization }
+MbndAstLocalVariableDefinitionNode >> materializeWithGraphDecoder: graphDecoder withFields: encodedFields [
+	super materializeWithGraphDecoder: graphDecoder withFields: encodedFields.
+	storageCreationNode := encodedFields at: #storageCreationNode.
 ]
 
 { #category : #accessing }

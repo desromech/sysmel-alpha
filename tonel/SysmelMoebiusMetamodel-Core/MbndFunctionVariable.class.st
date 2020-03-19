@@ -30,6 +30,13 @@ MbndFunctionVariable >> analyzeReferenceNode: referenceNode with: analyzer [
 	^ super analyzeReferenceNode: referenceNode with: analyzer
 ]
 
+{ #category : #serialization }
+MbndFunctionVariable >> encodeFieldsForMessagePackWith: graphEncoder [
+	^ (super encodeFieldsForMessagePackWith: graphEncoder) , {
+		#immediateCaptures . immediateCaptures encodeGraphForMessagePackWith: graphEncoder
+	}
+]
+
 { #category : #testing }
 MbndFunctionVariable >> hasCaptureInNonInlinedBlock [
 	self immediateCaptures do: [ :each |
@@ -51,4 +58,10 @@ MbndFunctionVariable >> immediateCaptures [
 { #category : #testing }
 MbndFunctionVariable >> isCaptureInNonInlineBlock [
 	^ false
+]
+
+{ #category : #serialization }
+MbndFunctionVariable >> materializeWithGraphDecoder: graphDecoder withFields: encodedFields [
+	super materializeWithGraphDecoder: graphDecoder withFields: encodedFields.
+	immediateCaptures := encodedFields at: #immediateCaptures.
 ]

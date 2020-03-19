@@ -10,17 +10,21 @@ Trait {
 
 { #category : #accessing }
 TMbndMacroMethodContainer >> addInstanceAccessor: accessor for: selector [
-	self macroMethodDict at: selector put: accessor
+	self macroMethodDict at: selector put: accessor.
+	self recordMacroMethodAddition: accessor withSelector: selector.
+	
 ]
 
 { #category : #adding }
 TMbndMacroMethodContainer >> addMacroMethod: macroMethod [
-	self macroMethodDict at: macroMethod selector put: macroMethod
+	self macroMethodDict at: macroMethod selector put: macroMethod.
+	self recordMacroMethodAddition: macroMethod withSelector: macroMethod selector.
 ]
 
 { #category : #accessing }
 TMbndMacroMethodContainer >> addStaticAccessor: accessor for: selector [
-	self macroMethodDict at: selector put: accessor
+	self macroMethodDict at: selector put: accessor.
+	self recordMacroMethodAddition: accessor withSelector: selector.
 ]
 
 { #category : #'macro expansion' }
@@ -58,4 +62,9 @@ TMbndMacroMethodContainer >> onMacroSelectors: aCollectionOfSelectors do: aBlock
 	aCollectionOfSelectors do: [:selector |
 		self onMacroSelector: selector do: aBlock
 	]
+]
+
+{ #category : #'as yet unclassified' }
+TMbndMacroMethodContainer >> recordMacroMethodAddition: method withSelector: selector [
+	"Hook: for recording macro extension methods"
 ]

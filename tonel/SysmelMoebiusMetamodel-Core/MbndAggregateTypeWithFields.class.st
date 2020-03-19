@@ -120,6 +120,23 @@ MbndAggregateTypeWithFields >> defaultValueAt: position [
 	^ self defaultAggregateValueAt: position
 ]
 
+{ #category : #serialization }
+MbndAggregateTypeWithFields >> encodeLazyFieldsForMessagePackWith: graphEncoder [
+	^ (super encodeLazyFieldsForMessagePackWith: graphEncoder) , {
+		#fields . fields encodeGraphForMessagePackWith: graphEncoder.
+		#slotLayout . slotLayout encodeGraphForMessagePackWith: graphEncoder.
+		#hasTrivialInstanceInitialization. hasTrivialInstanceInitialization.
+		#hasTrivialInstanceFinalization. hasTrivialInstanceFinalization.
+		#hasTrivialInstanceInitializationFromCopy. hasTrivialInstanceInitializationFromCopy.
+		#hasTrivialInstanceInitializationMovingFrom. hasTrivialInstanceInitializationMovingFrom.
+		#basicInitializeMethod. basicInitializeMethod encodeGraphForMessagePackWith: graphEncoder.
+		#initializeMethod. initializeMethod encodeGraphForMessagePackWith: graphEncoder.
+		#finalizeMethod. finalizeMethod encodeGraphForMessagePackWith: graphEncoder.
+		#initializeFromCopyMethod. initializeFromCopyMethod encodeGraphForMessagePackWith: graphEncoder.
+		#initializeMovingFromMethod. initializeMovingFromMethod encodeGraphForMessagePackWith: graphEncoder.
+	}
+]
+
 { #category : #'semantic analysis' }
 MbndAggregateTypeWithFields >> ensureGeneratedMethodsExist [
 	self hasTrivialInstanceBasicInitialization ifFalse: [ self basicInitializeMethod ].
@@ -306,6 +323,23 @@ MbndAggregateTypeWithFields >> instanceSize [
 { #category : #'default values' }
 MbndAggregateTypeWithFields >> makeInstance [
 	^ self defaultValueAt: nil
+]
+
+{ #category : #serialization }
+MbndAggregateTypeWithFields >> materializeWithGraphDecoder: graphDecoder withLazyFields: encodedFields [
+	super materializeWithGraphDecoder: graphDecoder withLazyFields: encodedFields.
+	
+	fields := encodedFields at: #fields.
+	slotLayout := encodedFields at: #slotLayout.
+	hasTrivialInstanceInitialization := encodedFields at: #hasTrivialInstanceInitialization.
+	hasTrivialInstanceFinalization := encodedFields at: #hasTrivialInstanceFinalization.
+	hasTrivialInstanceInitializationFromCopy := encodedFields at: #hasTrivialInstanceInitializationFromCopy.
+	hasTrivialInstanceInitializationMovingFrom := encodedFields at: #hasTrivialInstanceInitializationMovingFrom.
+	basicInitializeMethod := encodedFields at: #basicInitializeMethod.
+	initializeMethod := encodedFields at: #initializeMethod.
+	finalizeMethod := encodedFields at: #finalizeMethod.
+	initializeFromCopyMethod := encodedFields at: #initializeFromCopyMethod.
+	initializeMovingFromMethod := encodedFields at: #initializeMovingFromMethod.
 ]
 
 { #category : #layout }

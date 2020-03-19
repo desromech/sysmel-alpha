@@ -7,6 +7,11 @@ Class {
 	#category : #'SysmelMoebiusMetamodel-Core-Method'
 }
 
+{ #category : #serialization }
+MbndDynamicMethodWrapper class >> messagePackTypeName [
+	^ #DynamicMethodWrapper
+]
+
 { #category : #visiting }
 MbndDynamicMethodWrapper >> accept: aVisitor [
 	^ aVisitor visitDynamicMethodWrapper: self

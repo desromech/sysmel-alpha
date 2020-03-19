@@ -31,6 +31,13 @@ MbndAstLiteralValueNode >> asLiteralValuePatternNode [
 		yourself
 ]
 
+{ #category : #serialization }
+MbndAstLiteralValueNode >> encodeFieldsForMessagePackWith: graphEncoder [
+	^ {
+		#value . value encodeGraphForMessagePackWith: graphEncoder.
+	} , (super encodeFieldsForMessagePackWith: graphEncoder)
+]
+
 { #category : #'as yet unclassified' }
 MbndAstLiteralValueNode >> evaluateMbndValue [
 	^ value asMoebiusValueWithType: type
@@ -44,6 +51,12 @@ MbndAstLiteralValueNode >> isLiteralSymbolValueNode [
 { #category : #testing }
 MbndAstLiteralValueNode >> isLiteralValueNode [
 	^ true
+]
+
+{ #category : #serialization }
+MbndAstLiteralValueNode >> materializeWithGraphDecoder: graphDecoder withFields: encodedFields [
+	super materializeWithGraphDecoder: graphDecoder withFields: encodedFields.
+	value := encodedFields at: #value.
 ]
 
 { #category : #printing }

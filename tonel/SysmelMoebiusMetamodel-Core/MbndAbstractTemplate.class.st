@@ -1,8 +1,8 @@
 Class {
 	#name : #MbndAbstractTemplate,
 	#superclass : #Object,
-	#traits : 'TMbndProgramEntity',
-	#classTraits : 'TMbndProgramEntity classTrait',
+	#traits : 'TMbndProgramEntity - {#hasPublicVisibility} + TMbndFlagContainer + TMbndEntityWithVisibility',
+	#classTraits : 'TMbndProgramEntity classTrait + TMbndFlagContainer classTrait + TMbndEntityWithVisibility classTrait',
 	#instVars : [
 		'name',
 		'parent',
@@ -13,6 +13,11 @@ Class {
 	],
 	#category : #'SysmelMoebiusMetamodel-Core-Template'
 }
+
+{ #category : #serialization }
+MbndAbstractTemplate class >> messagePackTypeName [
+	^ nil
+]
 
 { #category : #adding }
 MbndAbstractTemplate >> addChild: aChild [
@@ -99,6 +104,11 @@ MbndAbstractTemplate >> isTemplate [
 	^ true
 ]
 
+{ #category : #serialization }
+MbndAbstractTemplate >> messagePackTypeName [
+	^ self class messagePackTypeName
+]
+
 { #category : #accessing }
 MbndAbstractTemplate >> module [
 	^ parent module
@@ -122,6 +132,14 @@ MbndAbstractTemplate >> parent [
 { #category : #accessing }
 MbndAbstractTemplate >> parent: anObject [
 	parent := anObject
+]
+
+{ #category : #accessing }
+MbndAbstractTemplate >> postMaterializeSetupParent: newParent withModule: newModule [
+	self parent: newParent.
+	self childrenDo: [ :child |
+		child postMaterializeSetupParent: self withModule: newModule
+	].
 ]
 
 { #category : #accessing }

@@ -4,6 +4,8 @@ Trait {
 		'globalNamespace',
 		'evaluatedFileSet',
 		'pendingDelayedSemanticAnalysisSet',
+		'extensionMacros',
+		'extensionOverloadedMethods',
 		'languageInterfaceCache',
 		'moduleLevelInlineAssembly',
 		'embeddedShaderCopyOutputFile'
@@ -57,6 +59,22 @@ TMbndModule >> analyzeReferenceNode: referenceNode with: analyzer [
 	^ (self asMoebiusLiteralValueNodeWithTarget: self compilationTarget)
 		position: referenceNode;
 		yourself
+]
+
+{ #category : #extensions }
+TMbndModule >> applyExtensionMacros [
+	self extensionMacros do: [ :each |
+		| parentEntity selector macro |
+		parentEntity := each first.
+		selector := each second.
+		macro := each third.
+	
+		parentEntity macroMethodDict at: selector put: macro.
+	]
+]
+
+{ #category : #extensions }
+TMbndModule >> applyExtensionOverloadedMethods [
 ]
 
 { #category : #'as yet unclassified' }
@@ -117,6 +135,16 @@ TMbndModule >> evaluateLanguage: languageName source: sourceString [
 { #category : #evaluation }
 TMbndModule >> evaluatedFileSet [
 	^ evaluatedFileSet ifNil: [ evaluatedFileSet := Set new ]
+]
+
+{ #category : #accessing }
+TMbndModule >> extensionMacros [
+	^ extensionMacros ifNil: [ extensionMacros := OrderedCollection new ]
+]
+
+{ #category : #accessing }
+TMbndModule >> extensionOverloadedMethods [
+	^ extensionOverloadedMethods ifNil: [ extensionOverloadedMethods := OrderedCollection new ]
 ]
 
 { #category : #'semantic analysis' }
@@ -304,6 +332,16 @@ TMbndModule >> pendingDelayedSemanticAnalysisSet [
 { #category : #scope }
 TMbndModule >> programEntityScopeClass [
 	^ MbndNamespaceScope 
+]
+
+{ #category : #extensions }
+TMbndModule >> recordExtensionFor: parentEntity macroMethod: macroMethod withSelector: selector [
+	self extensionMacros add: { parentEntity . selector . macroMethod }
+]
+
+{ #category : #extensions }
+TMbndModule >> recordExtensionFor: parentEntity overloadedMethod: method withSelector: selector [
+	self extensionOverloadedMethods add: { parentEntity . selector . method }
 ]
 
 { #category : #parameters }

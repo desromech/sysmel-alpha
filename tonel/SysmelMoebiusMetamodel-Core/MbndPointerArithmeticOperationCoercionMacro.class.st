@@ -4,6 +4,11 @@ Class {
 	#category : #'SysmelMoebiusMetamodel-Core-Macro'
 }
 
+{ #category : #serialization }
+MbndPointerArithmeticOperationCoercionMacro class >> messagePackTypeName [
+	^ #MacroPointerArithmeticCoercion
+]
+
 { #category : #'as yet unclassified' }
 MbndPointerArithmeticOperationCoercionMacro >> computeAddressSpaceCoercionTypeAt: node left: leftAddressSpace right: rightAddressSpace [
 	leftAddressSpace = rightAddressSpace ifTrue: [ ^ leftAddressSpace ].
@@ -44,6 +49,11 @@ MbndPointerArithmeticOperationCoercionMacro >> computePointerArithmetic: node co
 	self error: 'Unsupported pointer arithmetic between {1} and {2}.' format: { leftValueType asString . rightValueType asString } at: node
 ]
 
+{ #category : #serialization }
+MbndPointerArithmeticOperationCoercionMacro >> encodeFieldsForMessagePackWith: graphEncoder [
+	^ #()
+]
+
 { #category : #'as yet unclassified' }
 MbndPointerArithmeticOperationCoercionMacro >> expandMessageNode: node with: analyzer [
 	| leftAnalyzedNode rightAnalyzedNode leftValueType rightValueType coercionType leftOperand rightOperand |
@@ -70,4 +80,8 @@ MbndPointerArithmeticOperationCoercionMacro >> expandMessageNode: node with: ana
 		send: node selector to: leftOperand withArguments: { rightOperand })
 		position: node;
 		yourself)
+]
+
+{ #category : #serialization }
+MbndPointerArithmeticOperationCoercionMacro >> materializeWithGraphDecoder: graphDecoder withFields: encodedFields [
 ]

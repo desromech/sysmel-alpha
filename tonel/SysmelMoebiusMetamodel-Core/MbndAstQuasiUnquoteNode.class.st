@@ -12,6 +12,13 @@ MbndAstQuasiUnquoteNode >> accept: aVisitor [
 	^ aVisitor visitQuasiUnquoteNode: self
 ]
 
+{ #category : #serialization }
+MbndAstQuasiUnquoteNode >> encodeFieldsForMessagePackWith: graphEncoder [
+	^ {
+		#expression . expression encodeGraphForMessagePackWith: graphEncoder.
+	} , (super encodeFieldsForMessagePackWith: graphEncoder)
+]
+
 { #category : #accessing }
 MbndAstQuasiUnquoteNode >> expression [
 	^ expression
@@ -25,4 +32,10 @@ MbndAstQuasiUnquoteNode >> expression: anObject [
 { #category : #testing }
 MbndAstQuasiUnquoteNode >> isQuasiUnquoteNode [
 	^ true
+]
+
+{ #category : #serialization }
+MbndAstQuasiUnquoteNode >> materializeWithGraphDecoder: graphDecoder withFields: encodedFields [
+	super materializeWithGraphDecoder: graphDecoder withFields: encodedFields.
+	expression := encodedFields at: #expression.
 ]

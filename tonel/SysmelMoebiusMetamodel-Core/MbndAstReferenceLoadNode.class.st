@@ -24,6 +24,15 @@ MbndAstReferenceLoadNode >> createsImplicitTemporary: anObject [
 	createsImplicitTemporary := anObject
 ]
 
+{ #category : #serialization }
+MbndAstReferenceLoadNode >> encodeFieldsForMessagePackWith: graphEncoder [
+	^ {
+		#reference . reference encodeGraphForMessagePackWith: graphEncoder.
+		#createsImplicitTemporary . createsImplicitTemporary.
+		#storageCreationNode . storageCreationNode encodeGraphForMessagePackWith: graphEncoder.
+	} , (super encodeFieldsForMessagePackWith: graphEncoder)
+]
+
 { #category : #initialization }
 MbndAstReferenceLoadNode >> initialize [
 	super initialize.
@@ -47,6 +56,14 @@ MbndAstReferenceLoadNode >> markStorageCreationNodeForCopyEllision: aStorageCrea
 	].
 
 	storageCreationNode := aStorageCreationNode
+]
+
+{ #category : #serialization }
+MbndAstReferenceLoadNode >> materializeWithGraphDecoder: graphDecoder withFields: encodedFields [
+	super materializeWithGraphDecoder: graphDecoder withFields: encodedFields.
+	reference := encodedFields at: #reference.
+	createsImplicitTemporary := encodedFields at: #createsImplicitTemporary.
+	storageCreationNode := encodedFields at: #storageCreationNode.
 ]
 
 { #category : #accessing }

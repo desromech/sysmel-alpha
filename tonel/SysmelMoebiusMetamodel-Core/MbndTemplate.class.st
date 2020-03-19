@@ -10,6 +10,11 @@ Class {
 	#category : #'SysmelMoebiusMetamodel-Core-Template'
 }
 
+{ #category : #serialization }
+MbndTemplate class >> messagePackTypeName [
+	^ #Template
+]
+
 { #category : #visiting }
 MbndTemplate >> accept: aVisitor [
 	^ aVisitor visitTemplate: self
@@ -30,6 +35,18 @@ MbndTemplate >> definitionPosition [
 { #category : #accessing }
 MbndTemplate >> definitionPosition: anObject [
 	definitionPosition := anObject
+]
+
+{ #category : #serialization }
+MbndTemplate >> encodeFieldsForMessagePackWith: graphEncoder [
+	^ {
+		#name . name.
+		#type . self type encodeGraphForMessagePackWith: graphEncoder.
+		#argumentDefinitions . argumentDefinitions collect: [:each | each encodeGraphForMessagePackWith: graphEncoder].
+		#argumentTupleType . argumentTupleType encodeGraphForMessagePackWith: graphEncoder.
+		#mainDefinitionFragment . mainDefinitionFragment encodeGraphForMessagePackWith: graphEncoder.
+		#definitionFragments . definitionFragments collect: [ :each | each encodeGraphForMessagePackWith: graphEncoder ].
+	}
 ]
 
 { #category : #template }
@@ -88,6 +105,16 @@ MbndTemplate >> mainDefinitionBody: node scope: scope [
 		node: node;
 		scope: scope;
 		yourself
+]
+
+{ #category : #serialization }
+MbndTemplate >> materializeWithGraphDecoder: graphDecoder withFields: encodedFields [
+	name := encodedFields at: #name ifAbsent: [ nil ].
+	type := encodedFields at: #type.
+	argumentDefinitions := encodedFields at: #argumentDefinitions.
+	argumentTupleType := encodedFields at: #argumentTupleType.
+	mainDefinitionFragment := encodedFields at: #mainDefinitionFragment.
+	definitionFragments := (encodedFields at: #definitionFragments ifAbsent: [ #() ]) asOrderedCollection.
 ]
 
 { #category : #accessing }

@@ -10,6 +10,11 @@ Class {
 	#category : #'SysmelMoebiusMetamodel-Core-Values'
 }
 
+{ #category : #serialization }
+MbndAggregateTypeInstanceValue class >> messagePackTypeName [
+	^ #AggregateTypeInstanceValue
+]
+
 { #category : #accessing }
 MbndAggregateTypeInstanceValue >> __identityHashValue [
 	^ type identityHashField evaluateAggregateValue: self

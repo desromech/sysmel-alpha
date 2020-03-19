@@ -7,6 +7,11 @@ Class {
 	#category : #'SysmelMoebiusMetamodel-Core-Macro'
 }
 
+{ #category : #serialization }
+MbndBlockClosureMacro class >> messagePackTypeName [
+	^ #BlockClosureMacro
+]
+
 { #category : #accessing }
 MbndBlockClosureMacro >> block [
 	^ block
@@ -15,6 +20,11 @@ MbndBlockClosureMacro >> block [
 { #category : #accessing }
 MbndBlockClosureMacro >> block: anObject [
 	block := anObject
+]
+
+{ #category : #serialization }
+MbndBlockClosureMacro >> encodeFieldsForMessagePackWith: graphEncoder [
+	^ #()
 ]
 
 { #category : #accessing }
@@ -26,4 +36,8 @@ MbndBlockClosureMacro >> expandMessageNode: node with: analyzer [
 		^ analyzer visitNode: result
 	].
 	^ result
+]
+
+{ #category : #serialization }
+MbndBlockClosureMacro >> materializeWithGraphDecoder: graphDecoder withFields: encodedFields [
 ]

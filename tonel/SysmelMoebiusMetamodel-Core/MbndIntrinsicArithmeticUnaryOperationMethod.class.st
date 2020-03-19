@@ -15,6 +15,11 @@ MbndIntrinsicArithmeticUnaryOperationMethod class >> initialize [
 	)
 ]
 
+{ #category : #serialization }
+MbndIntrinsicArithmeticUnaryOperationMethod class >> messagePackTypeName [
+	^ #IntrinsicArithmeticUnaryOperationMethod
+]
+
 { #category : #visiting }
 MbndIntrinsicArithmeticUnaryOperationMethod >> accept: aVisitor [
 	^ aVisitor visitIntrinsicArithmeticUnaryOperationMethod: self

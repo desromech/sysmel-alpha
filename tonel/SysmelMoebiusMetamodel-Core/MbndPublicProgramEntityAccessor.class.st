@@ -7,9 +7,26 @@ Class {
 	#category : #'SysmelMoebiusMetamodel-Core-Macro'
 }
 
+{ #category : #serialization }
+MbndPublicProgramEntityAccessor class >> messagePackTypeName [
+	^ #MacroPublicProgramEntityAccessors
+]
+
+{ #category : #serialization }
+MbndPublicProgramEntityAccessor >> encodeFieldsForMessagePackWith: graphEncoder [
+	^ {
+		#programEntity . programEntity encodeGraphForMessagePackWith: graphEncoder
+	}
+]
+
 { #category : #'as yet unclassified' }
 MbndPublicProgramEntityAccessor >> expandMessageNode: node with: analyzer [
 	^ programEntity analyzeReferenceNode: node with: analyzer
+]
+
+{ #category : #serialization }
+MbndPublicProgramEntityAccessor >> materializeWithGraphDecoder: graphDecoder withFields: encodedFields [
+	programEntity := encodedFields at: #programEntity.
 ]
 
 { #category : #accessing }

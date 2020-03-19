@@ -13,6 +13,14 @@ MbndAstPatternMatchingIntervalPatternNode >> accept: visitor [
 	^ visitor visitPatternMatchingIntervalPatternNode: self
 ]
 
+{ #category : #serialization }
+MbndAstPatternMatchingIntervalPatternNode >> encodeFieldsForMessagePackWith: graphEncoder [
+	^ {
+		#start . start encodeGraphForMessagePackWith: graphEncoder.
+		#stop . stop encodeGraphForMessagePackWith: graphEncoder.
+	} , (super encodeFieldsForMessagePackWith: graphEncoder)
+]
+
 { #category : #testing }
 MbndAstPatternMatchingIntervalPatternNode >> isPatternMatchingIntervalPatternNode [
 	^ true
@@ -21,6 +29,13 @@ MbndAstPatternMatchingIntervalPatternNode >> isPatternMatchingIntervalPatternNod
 { #category : #testing }
 MbndAstPatternMatchingIntervalPatternNode >> isPatternMatchingLiteralValueSetPatternNode [
 	^ true
+]
+
+{ #category : #serialization }
+MbndAstPatternMatchingIntervalPatternNode >> materializeWithGraphDecoder: graphDecoder withFields: encodedFields [
+	super materializeWithGraphDecoder: graphDecoder withFields: encodedFields.
+	start := encodedFields at: #start.
+	stop := encodedFields at: #stop.
 ]
 
 { #category : #accessing }

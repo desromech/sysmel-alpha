@@ -13,6 +13,11 @@ Class {
 	#category : #'SysmelMoebiusMetamodel-Core-Values'
 }
 
+{ #category : #serialization }
+MbndValue class >> messagePackTypeName [
+	^ #Value
+]
+
 { #category : #'instance creation' }
 MbndValue class >> value: aValue type: aType [
 	^ self new value: aValue; type: aType; yourself
@@ -49,6 +54,20 @@ MbndValue >> asTupleWithCompileTimeValuesFor: compilationTarget [
 	^ self copy
 		type: (compilationTarget tuple: (value collect: [:v | v mbndLiteralTypeWithTarget: compilationTarget]));
 		yourself
+]
+
+{ #category : #serialization }
+MbndValue >> encodeFieldsForMessagePackWith: graphEncoder [
+	^ {
+		#type . type encodeGraphForMessagePackWith: graphEncoder.
+		#value . value encodeGraphForMessagePackWith: graphEncoder
+	}
+]
+
+{ #category : #serialization }
+MbndValue >> materializeWithGraphDecoder: graphDecoder withFields: encodedFields [
+	type := encodedFields at: #type.
+	value := encodedFields at: #value.
 ]
 
 { #category : #printing }

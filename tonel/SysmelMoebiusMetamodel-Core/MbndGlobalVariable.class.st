@@ -13,6 +13,11 @@ Class {
 	#category : #'SysmelMoebiusMetamodel-Core-Variables'
 }
 
+{ #category : #serialization }
+MbndGlobalVariable class >> messagePackTypeName [
+	^ #GlobalVariable
+]
+
 { #category : #visiting }
 MbndGlobalVariable >> accept: aVisitor [
 	^ aVisitor visitGlobalVariable: self
@@ -53,6 +58,13 @@ MbndGlobalVariable >> currentValue [
 MbndGlobalVariable >> currentValue: anObject [
 	self validateCurrentValue.
 	currentValue := anObject
+]
+
+{ #category : #serialization }
+MbndGlobalVariable >> encodeFieldsForMessagePackWith: graphEncoder [
+	^ (super encodeFieldsForMessagePackWith: graphEncoder) , {
+		#type . valueType encodeGraphForMessagePackWith: graphEncoder.
+	}
 ]
 
 { #category : #'semantic analysis' }
@@ -106,6 +118,12 @@ MbndGlobalVariable >> isThreadLocal [
 	^ self hasFlag: #threadLocal
 ]
 
+{ #category : #serialization }
+MbndGlobalVariable >> materializeWithGraphDecoder: graphDecoder withFields: encodedFields [
+	super materializeWithGraphDecoder: graphDecoder withFields: encodedFields.
+	type := encodedFields at: #type.
+]
+
 { #category : #testing }
 MbndGlobalVariable >> needsConstructor [
 	(self hasFlag: #notInCompileTime) ifTrue: [ ^ true ].
@@ -118,6 +136,11 @@ MbndGlobalVariable >> needsConstructor [
 { #category : #testing }
 MbndGlobalVariable >> needsDestructor [
 	^ valueType hasTrivialFinalization not
+]
+
+{ #category : #printing }
+MbndGlobalVariable >> printOn: aStream [
+	aStream nextPutAll: 'global '; nextPutAll: self qualifiedName asPrettySymbolName
 ]
 
 { #category : #accessing }

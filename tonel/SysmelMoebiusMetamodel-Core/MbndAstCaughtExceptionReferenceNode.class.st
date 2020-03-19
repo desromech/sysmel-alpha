@@ -22,7 +22,20 @@ MbndAstCaughtExceptionReferenceNode >> catchExpressionNode: anObject [
 	catchExpressionNode := anObject
 ]
 
+{ #category : #serialization }
+MbndAstCaughtExceptionReferenceNode >> encodeFieldsForMessagePackWith: graphEncoder [
+	^ {
+		#catchExpressionNode . catchExpressionNode encodeGraphForMessagePackWith: graphEncoder.
+	} , (super encodeFieldsForMessagePackWith: graphEncoder)
+]
+
 { #category : #testing }
 MbndAstCaughtExceptionReferenceNode >> isCaughtExceptionReferenceNode [
 	^ true
+]
+
+{ #category : #serialization }
+MbndAstCaughtExceptionReferenceNode >> materializeWithGraphDecoder: graphDecoder withFields: encodedFields [
+	super materializeWithGraphDecoder: graphDecoder withFields: encodedFields.
+	catchExpressionNode := encodedFields at: #catchExpressionNode.
 ]

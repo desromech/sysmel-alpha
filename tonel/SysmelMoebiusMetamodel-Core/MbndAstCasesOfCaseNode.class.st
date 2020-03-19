@@ -35,6 +35,16 @@ MbndAstCasesOfCaseNode >> bindings: anObject [
 	bindings := anObject
 ]
 
+{ #category : #serialization }
+MbndAstCasesOfCaseNode >> encodeFieldsForMessagePackWith: graphEncoder [
+	^ {
+		#patternValueType . patternValueType encodeGraphForMessagePackWith: graphEncoder.
+		#pattern . pattern encodeGraphForMessagePackWith: graphEncoder.
+		#bindings . bindings encodeGraphForMessagePackWith: graphEncoder.
+		#action . action encodeGraphForMessagePackWith: graphEncoder.
+	} , (super encodeFieldsForMessagePackWith: graphEncoder)
+]
+
 { #category : #testing }
 MbndAstCasesOfCaseNode >> hasDefaultPattern [
 	^ pattern isDefaultPattern
@@ -43,6 +53,15 @@ MbndAstCasesOfCaseNode >> hasDefaultPattern [
 { #category : #testing }
 MbndAstCasesOfCaseNode >> isCasesOfCaseNode [
 	^ true
+]
+
+{ #category : #serialization }
+MbndAstCasesOfCaseNode >> materializeWithGraphDecoder: graphDecoder withFields: encodedFields [
+	super materializeWithGraphDecoder: graphDecoder withFields: encodedFields.
+	patternValueType := encodedFields at: #patternValueType.
+	pattern := encodedFields at: #pattern.
+	bindings := encodedFields at: #bindings.
+	action := encodedFields at: #action.
 ]
 
 { #category : #accessing }

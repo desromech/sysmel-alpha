@@ -9,6 +9,11 @@ Class {
 	#category : #'SysmelMoebiusMetamodel-Core-Values'
 }
 
+{ #category : #serialization }
+MbndVTablePointerValue class >> messagePackTypeName [
+	^ #VTablePointerValue
+]
+
 { #category : #'as yet unclassified' }
 MbndVTablePointerValue >> isMbndVTablePointerValue [
 	^ true

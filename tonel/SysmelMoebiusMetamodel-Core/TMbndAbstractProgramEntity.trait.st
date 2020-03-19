@@ -25,6 +25,14 @@ TMbndAbstractProgramEntity >> addPrivateChild: aChild [
 	aChild parent: self
 ]
 
+{ #category : #enumerating }
+TMbndAbstractProgramEntity >> allChildrenDo: aBlock [
+	self childrenDo: [ :each |
+		aBlock value: each.
+		each allChildrenDo: aBlock
+	]
+]
+
 { #category : #testing }
 TMbndAbstractProgramEntity >> canHaveNamespaces [
 	^ false
@@ -33,6 +41,11 @@ TMbndAbstractProgramEntity >> canHaveNamespaces [
 { #category : #accessing }
 TMbndAbstractProgramEntity >> children [ 
 	^ #()
+]
+
+{ #category : #enumerating }
+TMbndAbstractProgramEntity >> childrenDo: aBlock [
+	self children do: aBlock
 ]
 
 { #category : #accessing }
@@ -152,6 +165,16 @@ TMbndAbstractProgramEntity >> isNonLocalReturnTargetEntity [
 ]
 
 { #category : #testing }
+TMbndAbstractProgramEntity >> isSystemProvidedTypeTemplate [
+	^ false
+]
+
+{ #category : #testing }
+TMbndAbstractProgramEntity >> isSystemProvidedTypeTemplateInstance [
+	^ false
+]
+
+{ #category : #testing }
 TMbndAbstractProgramEntity >> isTemplate [
 	^ false
 ]
@@ -175,6 +198,11 @@ TMbndAbstractProgramEntity >> parent [
 	^ nil
 ]
 
+{ #category : #enumerating }
+TMbndAbstractProgramEntity >> postMaterializeSetupParent: newParent withModule: newModule [
+	self explicitRequirement
+]
+
 { #category : #'as yet unclassified' }
 TMbndAbstractProgramEntity >> programEntityInformationData [
 	^ self programEntityInformationDataClass ifNotNil: [ :programEntityInfoClass |
@@ -195,7 +223,38 @@ TMbndAbstractProgramEntity >> publicMetaBuilderFactories [
 	^ Dictionary new
 ]
 
+{ #category : #printing }
+TMbndAbstractProgramEntity >> qualifiedName [
+	| parentQualifiedName p |
+	p := self parent.
+	
+	parentQualifiedName := p ifNil: [''] ifNotNil: [ p qualifiedNameForParent ].
+	(p isNotNil and: [p isTemplateInstance]) ifTrue: [
+		^ parentQualifiedName 
+	].
+
+	^ 
+	(parentQualifiedName ifEmpty: [ '' ] ifNotEmpty: [ parentQualifiedName , ' ']) , self validName
+
+]
+
+{ #category : #printing }
+TMbndAbstractProgramEntity >> qualifiedNameForParent [
+	^ self qualifiedName
+]
+
 { #category : #testing }
 TMbndAbstractProgramEntity >> requiresDynamicMethodWrappers [
 	^ false
+]
+
+{ #category : #accessing }
+TMbndAbstractProgramEntity >> validName [
+	^ self name asPrettySymbolName
+]
+
+{ #category : #enumerating }
+TMbndAbstractProgramEntity >> withAllChildrenDo: aBlock [
+	aBlock value: self.
+	self allChildrenDo: aBlock.
 ]

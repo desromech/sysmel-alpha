@@ -134,6 +134,21 @@ MbndAbstractSpecificMethod >> createDynamicMethodWrapper [
 	^ nil
 ]
 
+{ #category : #serialization }
+MbndAbstractSpecificMethod >> encodeFieldsForMessagePackWith: graphEncoder [
+	^ {
+		#name . name .
+		#receiverType . receiverType encodeGraphForMessagePackWith: graphEncoder.
+		#type . type encodeGraphForMessagePackWith: graphEncoder.
+		#boundType . type encodeGraphForMessagePackWith: graphEncoder.
+	} , (self canBeEvaluatedInCompileTime ifTrue: [ { 
+		#nonLocalResultVariable . nonLocalResultVariable encodeGraphForMessagePackWith: graphEncoder.
+		#typedSelector . typedSelector .
+		#lambdaCount . lambdaCount.
+		#lambdaChildren . lambdaChildren encodeGraphForMessagePackWith: graphEncoder.
+	}] ifFalse: [ #() ])
+]
+
 { #category : #'as yet unclassified' }
 MbndAbstractSpecificMethod >> ensureLookupSelectorIsRegisteredIn: programEntity [
 	programEntity methodDict at: self typedSelector put: self.
@@ -209,6 +224,19 @@ MbndAbstractSpecificMethod >> matchesPrototypeNode: prototypeNode withReceiverTy
 	^ true
 ]
 
+{ #category : #serialization }
+MbndAbstractSpecificMethod >> materializeWithGraphDecoder: graphDecoder withFields: encodedFields [
+	name := encodedFields at: #name.
+	receiverType := encodedFields at: #receiverType.
+	type := encodedFields at: #type.
+	boundType := encodedFields at: #boundType.
+
+	nonLocalResultVariable := encodedFields at: #nonLocalResultVariable ifAbsent: [nil].
+	typedSelector := encodedFields at: #typedSelector ifAbsent: [nil].
+	lambdaCount := encodedFields at: #lambdaCount ifAbsent: [0].
+	lambdaChildren := encodedFields at: #lambdaChildren ifAbsent: [OrderedCollection new].
+]
+
 { #category : #composition }
 MbndAbstractSpecificMethod >> mbndLiteralTypeWithTarget: compilationTarget [
 	^ type ref
@@ -228,6 +256,11 @@ MbndAbstractSpecificMethod >> receiverType [
 { #category : #accessing }
 MbndAbstractSpecificMethod >> receiverType: anObject [
 	receiverType := anObject
+]
+
+{ #category : #'as yet unclassified' }
+MbndAbstractSpecificMethod >> recordAsExtensionFor: ownerProgramEntity withSelector: registeredSelector [
+	self module recordExtensionFor: ownerProgramEntity overloadedMethod: self withSelector: registeredSelector
 ]
 
 { #category : #accessing }

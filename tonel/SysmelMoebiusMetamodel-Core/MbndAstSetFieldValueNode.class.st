@@ -12,9 +12,22 @@ MbndAstSetFieldValueNode >> accept: aVisitor [
 	^ aVisitor visitSetFieldValueNode: self
 ]
 
+{ #category : #serialization }
+MbndAstSetFieldValueNode >> encodeFieldsForMessagePackWith: graphEncoder [
+	^ {
+		#newValue . newValue encodeGraphForMessagePackWith: graphEncoder.
+	} , (super encodeFieldsForMessagePackWith: graphEncoder)
+]
+
 { #category : #testing }
 MbndAstSetFieldValueNode >> isSetFieldValueNode [
 	^ true
+]
+
+{ #category : #serialization }
+MbndAstSetFieldValueNode >> materializeWithGraphDecoder: graphDecoder withFields: encodedFields [
+	super materializeWithGraphDecoder: graphDecoder withFields: encodedFields.
+	newValue := encodedFields at: #newValue.
 ]
 
 { #category : #accessing }

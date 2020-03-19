@@ -8,6 +8,11 @@ Class {
 	#category : #'SysmelMoebiusMetamodel-Core-Variables'
 }
 
+{ #category : #serialization }
+MbndVTablePointerFieldVariable class >> messagePackTypeName [
+	^ #VTablePointerField
+]
+
 { #category : #visiting }
 MbndVTablePointerFieldVariable >> accept: aVisitor [
 	^ aVisitor visitVTablePointerFieldVariable: self

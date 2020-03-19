@@ -59,6 +59,18 @@ MbndAstInlineAssembly >> dialect: anObject [
 	dialect := anObject
 ]
 
+{ #category : #serialization }
+MbndAstInlineAssembly >> encodeFieldsForMessagePackWith: graphEncoder [
+	^ {
+		#assembly . assembly encodeGraphForMessagePackWith: graphEncoder.
+		#architecture . architecture encodeGraphForMessagePackWith: graphEncoder.
+		#dialect . dialect encodeGraphForMessagePackWith: graphEncoder.
+		#inputList . inputList encodeGraphForMessagePackWith: graphEncoder.
+		#outputList . outputList encodeGraphForMessagePackWith: graphEncoder.
+		#clobberList . clobberList encodeGraphForMessagePackWith: graphEncoder.
+	} , (super encodeFieldsForMessagePackWith: graphEncoder)
+]
+
 { #category : #accessing }
 MbndAstInlineAssembly >> inputList [
 	^ inputList
@@ -87,6 +99,17 @@ MbndAstInlineAssembly >> isVolatile [
 { #category : #testing }
 MbndAstInlineAssembly >> markAsModuleLevel [
 	^ self addFlag: #moduleLevel
+]
+
+{ #category : #serialization }
+MbndAstInlineAssembly >> materializeWithGraphDecoder: graphDecoder withFields: encodedFields [
+	super materializeWithGraphDecoder: graphDecoder withFields: encodedFields.
+	assembly := encodedFields at: #assembly.
+	architecture := encodedFields at: #architecture.
+	dialect := encodedFields at: #dialect.
+	inputList := encodedFields at: #inputList.
+	outputList := encodedFields at: #outputList.
+	clobberList := encodedFields at: #clobberList.
 ]
 
 { #category : #accessing }

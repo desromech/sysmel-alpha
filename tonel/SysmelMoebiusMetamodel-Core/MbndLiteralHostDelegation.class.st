@@ -10,6 +10,18 @@ Class {
 	#category : #'SysmelMoebiusMetamodel-Core-Macro'
 }
 
+{ #category : #serialization }
+MbndLiteralHostDelegation class >> messagePackTypeName [
+	^ #LiteralHostDelegation
+]
+
+{ #category : #serialization }
+MbndLiteralHostDelegation >> encodeFieldsForMessagePackWith: graphEncoder [
+	^ {
+		#hostSelector . hostSelector.
+	}
+]
+
 { #category : #'as yet unclassified' }
 MbndLiteralHostDelegation >> expandMessageNode: node with: analyzer [
 	| receiver arguments result |
@@ -42,4 +54,9 @@ MbndLiteralHostDelegation >> hostSelector [
 { #category : #accessing }
 MbndLiteralHostDelegation >> hostSelector: anObject [
 	hostSelector := anObject
+]
+
+{ #category : #serialization }
+MbndLiteralHostDelegation >> materializeWithGraphDecoder: graphDecoder withFields: encodedFields [
+	hostSelector := encodedFields at: #hostSelector.
 ]

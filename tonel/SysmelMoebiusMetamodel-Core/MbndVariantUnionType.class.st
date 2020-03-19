@@ -41,6 +41,17 @@ MbndVariantUnionType >> isVariantUnionType [
 	^ true
 ]
 
+{ #category : #printing }
+MbndVariantUnionType >> printOn: aStream [
+	aStream nextPut: $(.
+	components doWithIndex: [ :each :index|
+		index > 1 ifTrue: [ aStream nextPutAll: ' | ' ].
+		aStream print: each.
+	].
+	aStream nextPut: $).
+
+]
+
 { #category : #'type composition' }
 MbndVariantUnionType >> | otherType [
 	<compileTime>

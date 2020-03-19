@@ -4,6 +4,11 @@ Class {
 	#category : #'SysmelMoebiusMetamodel-Core-Method'
 }
 
+{ #category : #serialization }
+MbndIntrinsicArithmeticBinaryOperationMethod class >> messagePackTypeName [
+	^ #IntrinsicArithmeticBinaryOperationMethod
+]
+
 { #category : #visiting }
 MbndIntrinsicArithmeticBinaryOperationMethod >> accept: aVisitor [
 	^ aVisitor visitIntrinsicArithmeticBinaryOperationMethod: self

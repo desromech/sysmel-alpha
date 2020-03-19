@@ -161,6 +161,7 @@ MbndSourcePosition >> printOn: aStream [
 
 { #category : #accessing }
 MbndSourcePosition >> sourceCode [
+	collection ifNil: [ ^ '' ].
 	^ collection copyFrom: start to: stop
 ]
 

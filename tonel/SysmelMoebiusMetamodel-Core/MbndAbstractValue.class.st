@@ -7,6 +7,11 @@ Class {
 	#category : #'SysmelMoebiusMetamodel-Core-Values'
 }
 
+{ #category : #serialization }
+MbndAbstractValue class >> messagePackTypeName [
+	^ nil
+]
+
 { #category : #converting }
 MbndAbstractValue >> asMacroExpandedToConstant [
 	^ MbndMacroExpandedToConstant new constantValue: self
@@ -32,6 +37,16 @@ MbndAbstractValue >> copyForValueAssignment [
 	^ self
 ]
 
+{ #category : #serialization }
+MbndAbstractValue >> encodeFieldsForMessagePackWith: graphEncoder [
+	self subclassResponsibility
+]
+
+{ #category : #serialization }
+MbndAbstractValue >> encodeGraphForMessagePackWith: graphEncoder [
+	^ graphEncoder encodeObject: self type: self messagePackTypeName fields: [self encodeFieldsForMessagePackWith: graphEncoder]
+]
+
 { #category : #evaluation }
 MbndAbstractValue >> evaluateReference [
 	self assert: self type isReferenceType.
@@ -46,6 +61,11 @@ MbndAbstractValue >> isAggregateTypeInstanceValue [
 { #category : #testing }
 MbndAbstractValue >> isMbndAbstractValue [
 	^ true
+]
+
+{ #category : #serialization }
+MbndAbstractValue >> messagePackTypeName [
+	^ self class messagePackTypeName
 ]
 
 { #category : #accessing }

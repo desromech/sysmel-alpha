@@ -19,6 +19,15 @@ MbndAstSubscriptElementReferenceNode >> container: anObject [
 	container := anObject
 ]
 
+{ #category : #serialization }
+MbndAstSubscriptElementReferenceNode >> encodeFieldsForMessagePackWith: graphEncoder [
+	^ {
+		#container . container encodeGraphForMessagePackWith: graphEncoder.
+		#index. index encodeGraphForMessagePackWith: graphEncoder.
+		#isOneBasedIndex. isOneBasedIndex.
+	} , (super encodeFieldsForMessagePackWith: graphEncoder)
+]
+
 { #category : #accessing }
 MbndAstSubscriptElementReferenceNode >> index [
 	^ index
@@ -48,4 +57,12 @@ MbndAstSubscriptElementReferenceNode >> isOneBasedIndex: anObject [
 { #category : #testing }
 MbndAstSubscriptElementReferenceNode >> isSubscriptElementReferenceNode [
 	^ true
+]
+
+{ #category : #serialization }
+MbndAstSubscriptElementReferenceNode >> materializeWithGraphDecoder: graphDecoder withFields: encodedFields [
+	super materializeWithGraphDecoder: graphDecoder withFields: encodedFields.
+	container := encodedFields at: #container.
+	index := encodedFields at: #index.
+	isOneBasedIndex := encodedFields at: #isOneBasedIndex.
 ]

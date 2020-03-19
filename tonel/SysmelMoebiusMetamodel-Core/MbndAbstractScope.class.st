@@ -14,6 +14,12 @@ MbndAbstractScope class >> empty [
 	^ self new
 ]
 
+{ #category : #serialization }
+MbndAbstractScope class >> messagePackTypeName [
+	self assert: (name beginsWith: 'Mbnd').
+	^ (self name allButFirst: 'Mbnd' size) asSymbol
+]
+
 { #category : #accessing }
 MbndAbstractScope class >> parent: aParent [
 	^ self new parent: aParent
@@ -42,6 +48,18 @@ MbndAbstractScope >> defaultVariableType [
 { #category : #accessing }
 MbndAbstractScope >> definitionPosition [
 	^ nil
+]
+
+{ #category : #serialization }
+MbndAbstractScope >> encodeFieldsForMessagePackWith: graphEncoder [
+	^ {
+		#parent . parent encodeGraphForMessagePackWith: graphEncoder.
+	}
+]
+
+{ #category : #serialization }
+MbndAbstractScope >> encodeGraphForMessagePackWith: graphEncoder [
+	^ graphEncoder encodeObject: self type: self messagePackTypeName fields: [self encodeFieldsForMessagePackWith: graphEncoder]
 ]
 
 { #category : #testing }
@@ -110,6 +128,16 @@ MbndAbstractScope >> lookupSymbolRecursively: aSymbol ifAbsent: aBlock [
 	] ifNotNil: [
 		^ parent lookupSymbolRecursively: aSymbol ifAbsent: aBlock
 	]
+]
+
+{ #category : #serialization }
+MbndAbstractScope >> materializeWithGraphDecoder: graphDecoder withFields: encodedFields [
+	parent := encodedFields at: #parent
+]
+
+{ #category : #serialization }
+MbndAbstractScope >> messagePackTypeName [
+	^ self class messagePackTypeName
 ]
 
 { #category : #'instance creation' }

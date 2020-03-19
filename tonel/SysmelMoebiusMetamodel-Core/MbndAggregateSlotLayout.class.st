@@ -16,6 +16,11 @@ Class {
 	#category : #'SysmelMoebiusMetamodel-Core-Type'
 }
 
+{ #category : #serialization }
+MbndAggregateSlotLayout class >> messagePackTypeName [
+	^ #AggregateSlotLayout
+]
+
 { #category : #accessing }
 MbndAggregateSlotLayout >> checkForTrivialBasicInitialization [
 	virtualTables ifNotEmpty: [ ^ false ].
@@ -28,6 +33,27 @@ MbndAggregateSlotLayout >> checkForTypeTriviality: aBlock [
 		(aBlock value: slot type) ifFalse: [ ^ false ]
 	].
 	^ true
+]
+
+{ #category : #serialization }
+MbndAggregateSlotLayout >> encodeFieldsForMessagePackWith: graphEncoder [
+	^ {
+	#slots . slots encodeGraphForMessagePackWith: graphEncoder.
+	#typeStartLocations . typeStartLocations encodeGraphForMessagePackWith: graphEncoder.
+	#typeEndLocations . typeEndLocations encodeGraphForMessagePackWith: graphEncoder.
+	#identityHashField . identityHashField encodeGraphForMessagePackWith: graphEncoder.
+	#mainVirtualTable.  mainVirtualTable encodeGraphForMessagePackWith: graphEncoder.
+	#virtualTables. virtualTables encodeGraphForMessagePackWith: graphEncoder.
+	#variableDataSizeField . variableDataSizeField .
+	#instanceSize . instanceSize.
+	#instanceAlignment . instanceAlignment.
+	#hasTrivialBasicInitialization . hasTrivialBasicInitialization
+}
+]
+
+{ #category : #serialization }
+MbndAggregateSlotLayout >> encodeGraphForMessagePackWith: graphEncoder [
+	^ graphEncoder encodeObject: self type: self messagePackTypeName fields: [self encodeFieldsForMessagePackWith: graphEncoder]
 ]
 
 { #category : #'as yet unclassified' }
@@ -111,6 +137,25 @@ MbndAggregateSlotLayout >> mainVirtualTable [
 { #category : #accessing }
 MbndAggregateSlotLayout >> mainVirtualTable: anObject [
 	mainVirtualTable := anObject
+]
+
+{ #category : #serialization }
+MbndAggregateSlotLayout >> materializeWithGraphDecoder: graphDecoder withFields: encodedFields [
+	slots := encodedFields at: #slots.
+	typeStartLocations := encodedFields at: #typeStartLocations.
+	typeEndLocations := encodedFields at: #typeEndLocations.
+	identityHashField := encodedFields at: #identityHashField.
+	mainVirtualTable := encodedFields at: #mainVirtualTable.
+	virtualTables := encodedFields at: #virtualTables.
+	variableDataSizeField := encodedFields at: #variableDataSizeField.
+	instanceSize := encodedFields at: #instanceSize.
+	instanceAlignment := encodedFields at: #instanceAlignment.
+	hasTrivialBasicInitialization := encodedFields at: #hasTrivialBasicInitialization.
+]
+
+{ #category : #serialization }
+MbndAggregateSlotLayout >> messagePackTypeName [
+	^ self class messagePackTypeName
 ]
 
 { #category : #accessing }

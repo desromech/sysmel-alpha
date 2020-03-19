@@ -30,6 +30,13 @@ MbndProgramEntityScope >> defaultVariableType [
 	^ super defaultVariableType
 ]
 
+{ #category : #serialization }
+MbndProgramEntityScope >> encodeFieldsForMessagePackWith: graphEncoder [
+	^ (super encodeFieldsForMessagePackWith: graphEncoder) , {
+		#programEntity . programEntity encodeGraphForMessagePackWith: graphEncoder.
+	}
+]
+
 { #category : #testing }
 MbndProgramEntityScope >> isProgramEntityScope [
 	^ true
@@ -61,6 +68,13 @@ MbndProgramEntityScope >> lookupProgramEntityForNewDefinitions [
 { #category : #'macro expansion' }
 MbndProgramEntityScope >> lookupSymbol: aSymbol [
 	^ programEntity lookupSymbol: aSymbol
+]
+
+{ #category : #serialization }
+MbndProgramEntityScope >> materializeWithGraphDecoder: graphDecoder withFields: encodedFields [
+	super materializeWithGraphDecoder: graphDecoder withFields: encodedFields.
+	programEntity := encodedFields at: #programEntity.
+
 ]
 
 { #category : #accessing }

@@ -17,6 +17,13 @@ MbndAstPatternMatchingSameValuePatternNode >> asSameValuePatternNode [
 	^ self
 ]
 
+{ #category : #serialization }
+MbndAstPatternMatchingSameValuePatternNode >> encodeFieldsForMessagePackWith: graphEncoder [
+	^ {
+		#expectedValue . expectedValue encodeGraphForMessagePackWith: graphEncoder.
+	} , (super encodeFieldsForMessagePackWith: graphEncoder)
+]
+
 { #category : #accessing }
 MbndAstPatternMatchingSameValuePatternNode >> expectedValue [
 	^ expectedValue
@@ -30,4 +37,10 @@ MbndAstPatternMatchingSameValuePatternNode >> expectedValue: anObject [
 { #category : #testing }
 MbndAstPatternMatchingSameValuePatternNode >> isPatternMatchingSameValuePatternNode [
 	^ true
+]
+
+{ #category : #serialization }
+MbndAstPatternMatchingSameValuePatternNode >> materializeWithGraphDecoder: graphDecoder withFields: encodedFields [
+	super materializeWithGraphDecoder: graphDecoder withFields: encodedFields.
+	expectedValue := encodedFields at: #expectedValue.
 ]

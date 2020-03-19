@@ -17,6 +17,18 @@ MbndAstReturnStatementNode >> accept: aVisitor [
 	^ aVisitor visitReturnStatementNode: self
 ]
 
+{ #category : #serialization }
+MbndAstReturnStatementNode >> encodeFieldsForMessagePackWith: graphEncoder [
+	^ {
+		#expression . expression encodeGraphForMessagePackWith: graphEncoder.
+		#implicitReturn. implicitReturn encodeGraphForMessagePackWith: graphEncoder.
+		#isInImmediatelyActivatedClosure. isInImmediatelyActivatedClosure.
+		#expectedReturnType. expectedReturnType encodeGraphForMessagePackWith: graphEncoder.
+		#nonLocalReturnTarget. nonLocalReturnTarget encodeGraphForMessagePackWith: graphEncoder.
+		#nonLocalResultVariable . nonLocalResultVariable encodeGraphForMessagePackWith: graphEncoder.
+	} , (super encodeFieldsForMessagePackWith: graphEncoder)
+]
+
 { #category : #accessing }
 MbndAstReturnStatementNode >> expectedReturnType [
 	^ expectedReturnType
@@ -67,6 +79,17 @@ MbndAstReturnStatementNode >> isInImmediatelyActivatedClosure: anObject [
 { #category : #testing }
 MbndAstReturnStatementNode >> isReturnStatementNode [
 	^ true
+]
+
+{ #category : #serialization }
+MbndAstReturnStatementNode >> materializeWithGraphDecoder: graphDecoder withFields: encodedFields [
+	super materializeWithGraphDecoder: graphDecoder withFields: encodedFields.
+	expression := encodedFields at: #expression.
+	implicitReturn := encodedFields at: #implicitReturn.
+	isInImmediatelyActivatedClosure := encodedFields at: #isInImmediatelyActivatedClosure.
+	expectedReturnType := encodedFields at: #expectedReturnType.
+	nonLocalReturnTarget := encodedFields at: #nonLocalReturnTarget.
+	nonLocalResultVariable := encodedFields at: #nonLocalResultVariable.
 ]
 
 { #category : #accessing }

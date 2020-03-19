@@ -36,6 +36,14 @@ MbndAbstractMethodGroup >> analyzeFunctionCallNode: node with: analyzer [
 	^ analyzer visitNode: newCallNode
 ]
 
+{ #category : #serialization }
+MbndAbstractMethodGroup >> encodeFieldsForMessagePackWith: graphEncoder [
+	^ {
+		#name . name.
+		#overloadedEntities . graphEncoder encodeProgramEntityList: overloadedEntities
+	}
+]
+
 { #category : #evaluation }
 MbndAbstractMethodGroup >> evaluateWithReceiver: receiver arguments: arguments withEvaluator: evaluator at: node [
 	self error: 'Cannot evaluate a method/function group with arguments.'
@@ -98,6 +106,12 @@ MbndAbstractMethodGroup >> initialize [
 { #category : #testing }
 MbndAbstractMethodGroup >> isMethodGroup [
 	^ true
+]
+
+{ #category : #serialization }
+MbndAbstractMethodGroup >> materializeWithGraphDecoder: graphDecoder withFields: encodedFields [
+	name := encodedFields at: #name ifAbsent: [ nil ].
+	overloadedEntities := (encodedFields at: #overloadedEntities ifAbsent: [ #() ]) asOrderedCollection
 ]
 
 { #category : #accessing }

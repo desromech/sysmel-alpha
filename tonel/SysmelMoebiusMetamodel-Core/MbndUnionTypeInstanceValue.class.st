@@ -10,6 +10,11 @@ Class {
 	#category : #'SysmelMoebiusMetamodel-Core-Values'
 }
 
+{ #category : #serialization }
+MbndUnionTypeInstanceValue class >> messagePackTypeName [
+	^ #UnionTypeInstanceValue
+]
+
 { #category : #'semantic analysis' }
 MbndUnionTypeInstanceValue >> analyzeReferenceNode: referenceNode with: analyzer [
 	^ self asLiteralValueNode 

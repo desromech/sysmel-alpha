@@ -18,6 +18,14 @@ MbndAstMessageChainNode >> asPrettySymbolName [
 	^ 'Message chain receiver'
 ]
 
+{ #category : #serialization }
+MbndAstMessageChainNode >> encodeFieldsForMessagePackWith: graphEncoder [
+	^ {
+		#receiver . receiver encodeGraphForMessagePackWith: graphEncoder.
+		#messages . messages encodeGraphForMessagePackWith: graphEncoder.
+	} , (super encodeFieldsForMessagePackWith: graphEncoder)
+]
+
 { #category : #converting }
 MbndAstMessageChainNode >> isMbndGenerateSymbolRemovedFromDebug [
 	^ true
@@ -31,6 +39,13 @@ MbndAstMessageChainNode >> isMessageChainNode [
 { #category : #'as yet unclassified' }
 MbndAstMessageChainNode >> markStorageCreationNodeForCopyEllision: node [
 	self shouldNotImplement
+]
+
+{ #category : #serialization }
+MbndAstMessageChainNode >> materializeWithGraphDecoder: graphDecoder withFields: encodedFields [
+	super materializeWithGraphDecoder: graphDecoder withFields: encodedFields.
+	receiver := encodedFields at: #receiver.
+	messages := encodedFields at: #messages.
 ]
 
 { #category : #accessing }

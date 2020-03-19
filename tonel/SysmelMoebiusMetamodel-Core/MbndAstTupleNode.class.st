@@ -22,6 +22,13 @@ MbndAstTupleNode >> elements: anObject [
 	elements := anObject
 ]
 
+{ #category : #serialization }
+MbndAstTupleNode >> encodeFieldsForMessagePackWith: graphEncoder [
+	^ {
+		#elements . elements encodeGraphForMessagePackWith: graphEncoder.
+	} , (super encodeFieldsForMessagePackWith: graphEncoder)
+]
+
 { #category : #initialization }
 MbndAstTupleNode >> initialize [
 	super initialize.
@@ -31,6 +38,12 @@ MbndAstTupleNode >> initialize [
 { #category : #'as yet unclassified' }
 MbndAstTupleNode >> isTupleNode [
 	^ true
+]
+
+{ #category : #serialization }
+MbndAstTupleNode >> materializeWithGraphDecoder: graphDecoder withFields: encodedFields [
+	super materializeWithGraphDecoder: graphDecoder withFields: encodedFields.
+	elements := encodedFields at: #elements.
 ]
 
 { #category : #parsing }

@@ -11,6 +11,11 @@ Class {
 	#category : #'SysmelMoebiusMetamodel-Core-Type'
 }
 
+{ #category : #serialization }
+MbndAggregateSlotDescription class >> messagePackTypeName [
+	^ #AggregateSlotDescription
+]
+
 { #category : #defaults }
 MbndAggregateSlotDescription >> defaultValueAt: aPosition [
 	(fields size = 1 and: [ fields first isVTablePointerField ]) ifTrue: [ 
@@ -18,6 +23,22 @@ MbndAggregateSlotDescription >> defaultValueAt: aPosition [
 	].
 
 	^ type defaultValueAt: aPosition
+]
+
+{ #category : #serialization }
+MbndAggregateSlotDescription >> encodeFieldsForMessagePackWith: graphEncoder [
+	^ {
+		#name . name encodeGraphForMessagePackWith: graphEncoder.
+		#type . type encodeGraphForMessagePackWith: graphEncoder.
+		#fields . fields encodeGraphForMessagePackWith: graphEncoder.
+		#slotIndex . slotIndex encodeGraphForMessagePackWith: graphEncoder.
+		#offset.  offset encodeGraphForMessagePackWith: graphEncoder.
+	}
+]
+
+{ #category : #serialization }
+MbndAggregateSlotDescription >> encodeGraphForMessagePackWith: graphEncoder [
+	^ graphEncoder encodeObject: self type: self messagePackTypeName fields: [self encodeFieldsForMessagePackWith: graphEncoder]
 ]
 
 { #category : #accessing }
@@ -28,6 +49,20 @@ MbndAggregateSlotDescription >> fields [
 { #category : #accessing }
 MbndAggregateSlotDescription >> fields: anObject [
 	fields := anObject
+]
+
+{ #category : #serialization }
+MbndAggregateSlotDescription >> materializeWithGraphDecoder: graphDecoder withFields: encodedFields [
+	name := encodedFields at: #name.
+	type := encodedFields at: #type.
+	fields := encodedFields at: #fields.
+	slotIndex := encodedFields at: #slotIndex.
+	offset := encodedFields at: #offset.
+]
+
+{ #category : #serialization }
+MbndAggregateSlotDescription >> messagePackTypeName [
+	^ self class messagePackTypeName
 ]
 
 { #category : #accessing }

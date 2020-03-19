@@ -36,6 +36,17 @@ MbndAstExceptionCatchExpressionNode >> caughtExceptionReferenceNode: anObject [
 	caughtExceptionReferenceNode := anObject
 ]
 
+{ #category : #serialization }
+MbndAstExceptionCatchExpressionNode >> encodeFieldsForMessagePackWith: graphEncoder [
+	^ {
+		#exceptionTypeExpression . exceptionTypeExpression encodeGraphForMessagePackWith: graphEncoder.
+		#catchAction . catchAction encodeGraphForMessagePackWith: graphEncoder.
+		#exceptionType . exceptionType encodeGraphForMessagePackWith: graphEncoder.
+		#caughtExceptionReferenceNode . caughtExceptionReferenceNode encodeGraphForMessagePackWith: graphEncoder.
+		#exceptionTypeIsLiteral . exceptionTypeIsLiteral.
+	} , (super encodeFieldsForMessagePackWith: graphEncoder)
+]
+
 { #category : #accessing }
 MbndAstExceptionCatchExpressionNode >> exceptionType [
 	^ exceptionType
@@ -69,4 +80,14 @@ MbndAstExceptionCatchExpressionNode >> exceptionTypeIsLiteral: anObject [
 { #category : #testing }
 MbndAstExceptionCatchExpressionNode >> isExceptionCatchExpressionNode [
 	^ true
+]
+
+{ #category : #serialization }
+MbndAstExceptionCatchExpressionNode >> materializeWithGraphDecoder: graphDecoder withFields: encodedFields [
+	super materializeWithGraphDecoder: graphDecoder withFields: encodedFields.
+	exceptionTypeExpression := encodedFields at: #exceptionTypeExpression.
+	catchAction := encodedFields at: #catchAction.
+	exceptionType := encodedFields at: #exceptionType.
+	caughtExceptionReferenceNode := encodedFields at: #caughtExceptionReferenceNode.
+	exceptionTypeIsLiteral := encodedFields at: #exceptionTypeIsLiteral.
 ]

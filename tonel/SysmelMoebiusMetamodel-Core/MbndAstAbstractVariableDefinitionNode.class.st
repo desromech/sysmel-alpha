@@ -15,6 +15,16 @@ MbndAstAbstractVariableDefinitionNode >> constructionPriority [
 	^ nil
 ]
 
+{ #category : #serialization }
+MbndAstAbstractVariableDefinitionNode >> encodeFieldsForMessagePackWith: graphEncoder [
+	^ {
+		#initialValue . initialValue encodeGraphForMessagePackWith: graphEncoder.
+		#initialValueKind . initialValueKind.
+		#valueType. valueType encodeGraphForMessagePackWith: graphEncoder.
+		#minimalAlignment. minimalAlignment.
+	} , (super encodeFieldsForMessagePackWith: graphEncoder)
+]
+
 { #category : #flags }
 MbndAstAbstractVariableDefinitionNode >> immutable [
 	self removeFlag: #mutable
@@ -58,6 +68,15 @@ MbndAstAbstractVariableDefinitionNode >> isMutable [
 { #category : #testing }
 MbndAstAbstractVariableDefinitionNode >> isStatic [
 	^ self hasFlag: #static
+]
+
+{ #category : #serialization }
+MbndAstAbstractVariableDefinitionNode >> materializeWithGraphDecoder: graphDecoder withFields: encodedFields [
+	super materializeWithGraphDecoder: graphDecoder withFields: encodedFields.
+	initialValue := encodedFields at: #initialValue.
+	initialValueKind := encodedFields at: #initialValueKind.
+	valueType := encodedFields at: #valueType.
+	minimalAlignment := encodedFields at: #minimalAlignment.
 ]
 
 { #category : #accessing }

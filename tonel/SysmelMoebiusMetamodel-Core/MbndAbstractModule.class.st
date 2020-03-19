@@ -6,6 +6,11 @@ Class {
 	#category : #'SysmelMoebiusMetamodel-Core-Module'
 }
 
+{ #category : #serialization }
+MbndAbstractModule class >> messagePackTypeName [
+	^ nil
+]
+
 { #category : #evaluation }
 MbndAbstractModule >> analyzeAndEvaluateAST: ast [
 	| parsedSource |
@@ -30,4 +35,9 @@ MbndAbstractModule >> generateTargetCodeModule [
 	| codeGenerator |
 	codeGenerator := self compilationTarget newCodeModuleGenerator.
 	^ MbndProfiler component: #irCodeGeneration with: [codeGenerator generateCodeModuleFor: self]
+]
+
+{ #category : #serialization }
+MbndAbstractModule >> messagePackTypeName [
+	^ self class messagePackTypeName
 ]

@@ -23,9 +23,24 @@ MbndAstProgramEntityExtensionNode >> body: anObject [
 	body := anObject
 ]
 
+{ #category : #serialization }
+MbndAstProgramEntityExtensionNode >> encodeFieldsForMessagePackWith: graphEncoder [
+	^ {
+		#programEntity . programEntity encodeGraphForMessagePackWith: graphEncoder.
+		#body . body encodeGraphForMessagePackWith: graphEncoder.
+	} , (super encodeFieldsForMessagePackWith: graphEncoder)
+]
+
 { #category : #testing }
 MbndAstProgramEntityExtensionNode >> isProgramEntityExtensionNode [
 	^ true
+]
+
+{ #category : #serialization }
+MbndAstProgramEntityExtensionNode >> materializeWithGraphDecoder: graphDecoder withFields: encodedFields [
+	super materializeWithGraphDecoder: graphDecoder withFields: encodedFields.
+	programEntity := encodedFields at: #programEntity.
+	body := encodedFields at: #body.
 ]
 
 { #category : #accessing }

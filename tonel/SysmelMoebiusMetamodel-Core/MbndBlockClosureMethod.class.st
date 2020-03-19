@@ -14,6 +14,11 @@ Class {
 	#category : #'SysmelMoebiusMetamodel-Core-Method'
 }
 
+{ #category : #serialization }
+MbndBlockClosureMethod class >> messagePackTypeName [
+	^ #BlockClosureMethod
+]
+
 { #category : #visiting }
 MbndBlockClosureMethod >> accept: aVisitor [
 	^ aVisitor visitBlockClosureMethod: self

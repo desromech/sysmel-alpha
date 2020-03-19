@@ -17,6 +17,13 @@ MbndAstMetaBuilderInstanceNode >> concretizeNodeWithAnalyzer: analyzer [
 	^ instance concretizeGenericNode: self withAnalyzer: analyzer
 ]
 
+{ #category : #serialization }
+MbndAstMetaBuilderInstanceNode >> encodeFieldsForMessagePackWith: graphEncoder [
+	^ {
+		#instance . instance encodeGraphForMessagePackWith: graphEncoder.
+	} , (super encodeFieldsForMessagePackWith: graphEncoder)
+]
+
 { #category : #accessing }
 MbndAstMetaBuilderInstanceNode >> instance [
 	^ instance
@@ -40,4 +47,10 @@ MbndAstMetaBuilderInstanceNode >> isNonConcreteNode [
 { #category : #'as yet unclassified' }
 MbndAstMetaBuilderInstanceNode >> isTemplatedMetaBuilderInstanceNode [
 	^ true
+]
+
+{ #category : #serialization }
+MbndAstMetaBuilderInstanceNode >> materializeWithGraphDecoder: graphDecoder withFields: encodedFields [
+	super materializeWithGraphDecoder: graphDecoder withFields: encodedFields.
+	instance := encodedFields at: #instance.
 ]

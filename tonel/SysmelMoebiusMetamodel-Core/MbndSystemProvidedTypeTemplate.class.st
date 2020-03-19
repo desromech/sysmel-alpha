@@ -10,6 +10,11 @@ Class {
 	#category : #'SysmelMoebiusMetamodel-Core-Template'
 }
 
+{ #category : #serialization }
+MbndSystemProvidedTypeTemplate class >> messagePackTypeName [
+	^ #SystemProvidedTypeTemplate
+]
+
 { #category : #visiting }
 MbndSystemProvidedTypeTemplate >> accept: aVisitor [
 	^ aVisitor visitSystemProvidedTypeTemplate: self
@@ -40,6 +45,12 @@ MbndSystemProvidedTypeTemplate >> getOrCreateInstanceWithArguments: arguments [
 	^ instances at: arguments ifAbsentPut: [
 		| newInstance |
 		newInstance := mainDefinitionConstructionBlock valueWithArguments: arguments.
+		
+		MbndSystemProvidedTypeTemplateInstance new
+			parent: self;
+			instanceArguments: arguments;
+			addChild: newInstance.
+		
 		instances at: arguments put: newInstance.
 		definitionFragments do: [ :fragment | fragment applyToInstance: newInstance ].
 		newInstance
@@ -60,6 +71,11 @@ MbndSystemProvidedTypeTemplate >> instances [
 { #category : #accessing }
 MbndSystemProvidedTypeTemplate >> instances: anObject [
 	instances := anObject
+]
+
+{ #category : #testing }
+MbndSystemProvidedTypeTemplate >> isSystemProvidedTypeTemplate [
+	^ true
 ]
 
 { #category : #accessing }

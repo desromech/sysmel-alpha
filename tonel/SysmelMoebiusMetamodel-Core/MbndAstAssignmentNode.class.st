@@ -13,9 +13,24 @@ MbndAstAssignmentNode >> accept: aVisitor [
 	^ aVisitor visitAssignmentNode: self
 ]
 
+{ #category : #serialization }
+MbndAstAssignmentNode >> encodeFieldsForMessagePackWith: graphEncoder [
+	^ {
+		#reference . reference encodeGraphForMessagePackWith: graphEncoder.
+		#value . value encodeGraphForMessagePackWith: graphEncoder.
+	} , (super encodeFieldsForMessagePackWith: graphEncoder)
+]
+
 { #category : #testing }
 MbndAstAssignmentNode >> isAssignmentNode [
 	^ true
+]
+
+{ #category : #serialization }
+MbndAstAssignmentNode >> materializeWithGraphDecoder: graphDecoder withFields: encodedFields [
+	super materializeWithGraphDecoder: graphDecoder withFields: encodedFields.
+	reference := encodedFields at: #reference.
+	value := encodedFields at: #value.
 ]
 
 { #category : #accessing }

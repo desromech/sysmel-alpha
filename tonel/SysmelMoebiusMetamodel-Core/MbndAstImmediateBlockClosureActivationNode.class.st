@@ -33,7 +33,22 @@ MbndAstImmediateBlockClosureActivationNode >> blockNode: anObject [
 	blockNode := anObject
 ]
 
+{ #category : #serialization }
+MbndAstImmediateBlockClosureActivationNode >> encodeFieldsForMessagePackWith: graphEncoder [
+	^ {
+		#blockNode . blockNode encodeGraphForMessagePackWith: graphEncoder.
+		#arguments . arguments encodeGraphForMessagePackWith: graphEncoder.
+	} , (super encodeFieldsForMessagePackWith: graphEncoder)
+]
+
 { #category : #testing }
 MbndAstImmediateBlockClosureActivationNode >> isImmediateBlockClosureActivationNode [
 	^ true
+]
+
+{ #category : #serialization }
+MbndAstImmediateBlockClosureActivationNode >> materializeWithGraphDecoder: graphDecoder withFields: encodedFields [
+	super materializeWithGraphDecoder: graphDecoder withFields: encodedFields.
+	blockNode := encodedFields at: #blockNode.
+	arguments := encodedFields at: #arguments.
 ]

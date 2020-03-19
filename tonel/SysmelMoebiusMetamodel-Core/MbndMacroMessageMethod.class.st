@@ -8,6 +8,11 @@ Class {
 	#category : #'SysmelMoebiusMetamodel-Core-Macro'
 }
 
+{ #category : #serialization }
+MbndMacroMessageMethod class >> messagePackTypeName [
+	^ #MacroMessageMethod
+]
+
 { #category : #visiting }
 MbndMacroMessageMethod >> accept: aVisitor [
 	^ aVisitor visitMacroMessageMethod: self
@@ -31,6 +36,13 @@ MbndMacroMessageMethod >> concreteMethod: aConcreteMethod [
 	concreteMethod := aConcreteMethod.
 	concreteMethod parent: self.
 	
+]
+
+{ #category : #serialization }
+MbndMacroMessageMethod >> encodeFieldsForMessagePackWith: graphEncoder [
+	^ {
+		#concreteMethod . concreteMethod encodeGraphForMessagePackWith: graphEncoder
+	}
 ]
 
 { #category : #'semantic analysis' }
@@ -64,6 +76,11 @@ MbndMacroMessageMethod >> expandMessageNode: node with: analyzer [
 	^ analyzer visitNode: result value
 ]
 
+{ #category : #serialization }
+MbndMacroMessageMethod >> materializeWithGraphDecoder: graphDecoder withFields: encodedFields [
+	concreteMethod := encodedFields at: #concreteMethod.
+]
+
 { #category : #accessing }
 MbndMacroMessageMethod >> module [
 	^ parent module
@@ -77,6 +94,14 @@ MbndMacroMessageMethod >> parent [
 { #category : #accessing }
 MbndMacroMessageMethod >> parent: anObject [
 	parent := anObject
+]
+
+{ #category : #enumerating }
+MbndMacroMessageMethod >> postMaterializeSetupParent: newParent withModule: newModule [
+	self parent: newParent.
+	self childrenDo: [ :child |
+		child postMaterializeSetupParent: self withModule: newModule
+	].
 ]
 
 { #category : #accessing }

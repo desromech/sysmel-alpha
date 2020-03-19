@@ -30,6 +30,15 @@ MbndAstPatternMatchingBindingPatternNode >> collectBindingsInto: out [
 	value ifNotNil: [ value collectBindingsInto: out ]
 ]
 
+{ #category : #serialization }
+MbndAstPatternMatchingBindingPatternNode >> encodeFieldsForMessagePackWith: graphEncoder [
+	^ {
+		#name . name encodeGraphForMessagePackWith: graphEncoder.
+		#value . value encodeGraphForMessagePackWith: graphEncoder.
+		#binding . binding encodeGraphForMessagePackWith: graphEncoder.
+	} , (super encodeFieldsForMessagePackWith: graphEncoder)
+]
+
 { #category : #testing }
 MbndAstPatternMatchingBindingPatternNode >> isDefaultPattern [
 	^ value isNil
@@ -38,6 +47,14 @@ MbndAstPatternMatchingBindingPatternNode >> isDefaultPattern [
 { #category : #testing }
 MbndAstPatternMatchingBindingPatternNode >> isPatternMatchingBindingPatternNode [
 	^ true
+]
+
+{ #category : #serialization }
+MbndAstPatternMatchingBindingPatternNode >> materializeWithGraphDecoder: graphDecoder withFields: encodedFields [
+	super materializeWithGraphDecoder: graphDecoder withFields: encodedFields.
+	name := encodedFields at: #name.
+	value := encodedFields at: #value.
+	binding := encodedFields at: #binding.
 ]
 
 { #category : #accessing }

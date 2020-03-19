@@ -30,6 +30,16 @@ MbndAstExceptionScopeNode >> catchExpressions: anObject [
 	catchExpressions := anObject
 ]
 
+{ #category : #serialization }
+MbndAstExceptionScopeNode >> encodeFieldsForMessagePackWith: graphEncoder [
+	^ {
+		#expression . expression encodeGraphForMessagePackWith: graphEncoder.
+		#catchExpressions . catchExpressions encodeGraphForMessagePackWith: graphEncoder.
+		#nodesWithImplicitFinalization . nodesWithImplicitFinalization encodeGraphForMessagePackWith: graphEncoder.
+		#explicitCleanUpActions . explicitCleanUpActions encodeGraphForMessagePackWith: graphEncoder.
+	} , (super encodeFieldsForMessagePackWith: graphEncoder)
+]
+
 { #category : #accessing }
 MbndAstExceptionScopeNode >> explicitCleanUpActions [
 	^ explicitCleanUpActions
@@ -65,6 +75,15 @@ MbndAstExceptionScopeNode >> isExceptionScopeNode [
 { #category : #'as yet unclassified' }
 MbndAstExceptionScopeNode >> markStorageCreationNodeForCopyEllision: node [
 	expression markStorageCreationNodeForCopyEllision: node
+]
+
+{ #category : #serialization }
+MbndAstExceptionScopeNode >> materializeWithGraphDecoder: graphDecoder withFields: encodedFields [
+	super materializeWithGraphDecoder: graphDecoder withFields: encodedFields.
+	expression := encodedFields at: #expression.
+	catchExpressions := encodedFields at: #catchExpressions.
+	nodesWithImplicitFinalization := encodedFields at: #nodesWithImplicitFinalization.
+	explicitCleanUpActions := encodedFields at: #explicitCleanUpActions.
 ]
 
 { #category : #accessing }

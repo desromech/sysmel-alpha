@@ -9,5 +9,7 @@ Class {
 
 { #category : #scope }
 MbndGenericMacroLanguageInterface >> constructTopLevelLanguageScopeFor: aModule [
-	^ MbndGenericMacroLanguageTopLevelScope for: aModule
+	^ (MbndGenericMacroLanguageTopLevelScope for: aModule)
+		languageName: self languageName;
+		yourself
 ]

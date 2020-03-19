@@ -18,6 +18,21 @@ MbndAstAbstractVectorAccessNode >> elements: anObject [
 	elements := anObject
 ]
 
+{ #category : #serialization }
+MbndAstAbstractVectorAccessNode >> encodeFieldsForMessagePackWith: graphEncoder [
+	^ {
+		#vector . vector encodeGraphForMessagePackWith: graphEncoder.
+		#elements . elements encodeGraphForMessagePackWith: graphEncoder.
+	} , (super encodeFieldsForMessagePackWith: graphEncoder)
+]
+
+{ #category : #serialization }
+MbndAstAbstractVectorAccessNode >> materializeWithGraphDecoder: graphDecoder withFields: encodedFields [
+	super materializeWithGraphDecoder: graphDecoder withFields: encodedFields.
+	vector := encodedFields at: #vector.
+	elements := encodedFields at: #elements.
+]
+
 { #category : #accessing }
 MbndAstAbstractVectorAccessNode >> vector [
 	^ vector

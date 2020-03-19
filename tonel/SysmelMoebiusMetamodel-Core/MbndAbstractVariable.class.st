@@ -14,6 +14,11 @@ Class {
 	#category : #'SysmelMoebiusMetamodel-Core-Variables'
 }
 
+{ #category : #serialization }
+MbndAbstractVariable class >> messagePackTypeName [
+	^ nil
+]
+
 { #category : #'semantic analysis' }
 MbndAbstractVariable >> analyzeReferenceNode: referenceNode with: analyzer [
 	^ MbndAstVariableReference new
@@ -54,6 +59,14 @@ MbndAbstractVariable >> definitionScope: anObject [
 	definitionScope := anObject
 ]
 
+{ #category : #serialization }
+MbndAbstractVariable >> encodeFieldsForMessagePackWith: graphEncoder [
+	^ {
+		#name . name encodeGraphForMessagePackWith: graphEncoder.
+		#valueType . valueType encodeGraphForMessagePackWith: graphEncoder.
+	}
+]
+
 { #category : #'compile time evaluation' }
 MbndAbstractVariable >> evaluateLocalDefinition: node withEvaluator: evaluator [
 	| compileTimeVariable |
@@ -76,6 +89,17 @@ MbndAbstractVariable >> evaluateLocalDefinition: node withEvaluator: evaluator [
 { #category : #'as yet unclassified' }
 MbndAbstractVariable >> hasPublicVisibility [
 	^ false
+]
+
+{ #category : #serialization }
+MbndAbstractVariable >> materializeWithGraphDecoder: graphDecoder withFields: encodedFields [
+	name := encodedFields at: #name ifAbsent: [ nil ].
+	valueType := encodedFields at: #valueType.
+]
+
+{ #category : #serialization }
+MbndAbstractVariable >> messagePackTypeName [
+	^ self class messagePackTypeName
 ]
 
 { #category : #accessing }
@@ -111,6 +135,14 @@ MbndAbstractVariable >> parent [
 { #category : #accessing }
 MbndAbstractVariable >> parent: anObject [
 	parent := anObject
+]
+
+{ #category : #accessing }
+MbndAbstractVariable >> postMaterializeSetupParent: newParent withModule: newModule [
+	self parent: newParent.
+	self childrenDo: [ :child |
+		child postMaterializeSetupParent: self withModule: newModule
+	].
 ]
 
 { #category : #accessing }

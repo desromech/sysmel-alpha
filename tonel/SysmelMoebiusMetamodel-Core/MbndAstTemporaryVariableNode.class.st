@@ -15,6 +15,16 @@ MbndAstTemporaryVariableNode >> accept: visitor [
 	^ visitor visitTemporaryVariableNode: self
 ]
 
+{ #category : #serialization }
+MbndAstTemporaryVariableNode >> encodeFieldsForMessagePackWith: graphEncoder [
+	^ {
+		#valueType . valueType encodeGraphForMessagePackWith: graphEncoder.
+		#hasBasicInitialization . hasBasicInitialization.
+		#hasInitialization . hasInitialization.
+		#storageCreationNode . storageCreationNode encodeGraphForMessagePackWith: graphEncoder.
+	} , (super encodeFieldsForMessagePackWith: graphEncoder)
+]
+
 { #category : #accessing }
 MbndAstTemporaryVariableNode >> hasBasicInitialization [
 	^ hasBasicInitialization
@@ -50,6 +60,15 @@ MbndAstTemporaryVariableNode >> isTemporaryVariableNode [
 { #category : #'as yet unclassified' }
 MbndAstTemporaryVariableNode >> markStorageCreationNodeForCopyEllision: aStorageCreationNode [
 	storageCreationNode := aStorageCreationNode
+]
+
+{ #category : #serialization }
+MbndAstTemporaryVariableNode >> materializeWithGraphDecoder: graphDecoder withFields: encodedFields [
+	super materializeWithGraphDecoder: graphDecoder withFields: encodedFields.
+	valueType := encodedFields at: #valueType.
+	hasBasicInitialization := encodedFields at: #hasBasicInitialization.
+	hasInitialization := encodedFields at: #hasInitialization.
+	storageCreationNode := encodedFields at: #storageCreationNode.
 ]
 
 { #category : #accessing }

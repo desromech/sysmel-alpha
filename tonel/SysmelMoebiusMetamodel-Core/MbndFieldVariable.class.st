@@ -9,6 +9,11 @@ Class {
 	#category : #'SysmelMoebiusMetamodel-Core-Variables'
 }
 
+{ #category : #serialization }
+MbndFieldVariable class >> messagePackTypeName [
+	^ #Field
+]
+
 { #category : #visiting }
 MbndFieldVariable >> accept: aVisitor [
 	^ aVisitor visitFieldVariable: self
@@ -44,6 +49,13 @@ MbndFieldVariable >> bits: anObject [
 	bits := anObject
 ]
 
+{ #category : #serialization }
+MbndFieldVariable >> encodeFieldsForMessagePackWith: graphEncoder [
+	^ (super encodeFieldsForMessagePackWith: graphEncoder) , {
+		#bits . bits.
+	}
+]
+
 { #category : #'as yet unclassified' }
 MbndFieldVariable >> evaluateAggregateValue: aggregate [
 	bits ifNil: [ ^ super evaluateAggregateValue: aggregate ].
@@ -64,4 +76,10 @@ MbndFieldVariable >> evaluateSetAggregate: aggregate value: newValue [
 { #category : #testing }
 MbndFieldVariable >> isFieldVariable [
 	^ true
+]
+
+{ #category : #serialization }
+MbndFieldVariable >> materializeWithGraphDecoder: graphDecoder withFields: encodedFields [
+	super materializeWithGraphDecoder: graphDecoder withFields: encodedFields.
+	bits := encodedFields at: #bits ifAbsent: [ nil ].
 ]

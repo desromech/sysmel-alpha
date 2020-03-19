@@ -41,6 +41,23 @@ MbndAstAbstractFunctionDefinitionNode >> concreteMethod [
 	^ prototype concreteMethod
 ]
 
+{ #category : #serialization }
+MbndAstAbstractFunctionDefinitionNode >> encodeFieldsForMessagePackWith: graphEncoder [
+	^ {
+		#flags . flags.
+		#prototype . prototype encodeGraphForMessagePackWith: graphEncoder.
+		#body . body encodeGraphForMessagePackWith: graphEncoder.
+	} , (super encodeFieldsForMessagePackWith: graphEncoder)
+]
+
+{ #category : #serialization }
+MbndAstAbstractFunctionDefinitionNode >> materializeWithGraphDecoder: graphDecoder withFields: encodedFields [
+	super materializeWithGraphDecoder: graphDecoder withFields: encodedFields.
+	flags := encodedFields at: #flags.
+	prototype := encodedFields at: #prototype.
+	body := encodedFields at: #body.
+]
+
 { #category : #accessing }
 MbndAstAbstractFunctionDefinitionNode >> prototype [
 	^ prototype

@@ -26,6 +26,14 @@ MbndAstSequenceNode >> elements: anObject [
 	elements := anObject
 ]
 
+{ #category : #serialization }
+MbndAstSequenceNode >> encodeFieldsForMessagePackWith: graphEncoder [
+	^ {
+		#pragmas . pragmas encodeGraphForMessagePackWith: graphEncoder.
+		#elements . elements encodeGraphForMessagePackWith: graphEncoder.
+	} , (super encodeFieldsForMessagePackWith: graphEncoder)
+]
+
 { #category : #initialization }
 MbndAstSequenceNode >> initialize [
 	super initialize.
@@ -41,6 +49,13 @@ MbndAstSequenceNode >> isSequenceNode [
 { #category : #'as yet unclassified' }
 MbndAstSequenceNode >> markStorageCreationNodeForCopyEllision: node [
 	elements ifNotEmpty: [ elements last markStorageCreationNodeForCopyEllision: node ]
+]
+
+{ #category : #serialization }
+MbndAstSequenceNode >> materializeWithGraphDecoder: graphDecoder withFields: encodedFields [
+	super materializeWithGraphDecoder: graphDecoder withFields: encodedFields.
+	pragmas := encodedFields at: #pragmas.
+	elements := encodedFields at: #elements.
 ]
 
 { #category : #accessing }

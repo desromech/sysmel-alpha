@@ -24,9 +24,26 @@ MbndAstMacroSendMessageWithArgumentsNode >> arguments: anObject [
 	arguments := anObject
 ]
 
+{ #category : #serialization }
+MbndAstMacroSendMessageWithArgumentsNode >> encodeFieldsForMessagePackWith: graphEncoder [
+	^ {
+		#receiver . receiver encodeGraphForMessagePackWith: graphEncoder.
+		#selector . selector encodeGraphForMessagePackWith: graphEncoder.
+		#arguments . arguments encodeGraphForMessagePackWith: graphEncoder.
+	} , (super encodeFieldsForMessagePackWith: graphEncoder)
+]
+
 { #category : #testing }
 MbndAstMacroSendMessageWithArgumentsNode >> isMacroSendMessageWithArgumentsNode [
 	^ true
+]
+
+{ #category : #serialization }
+MbndAstMacroSendMessageWithArgumentsNode >> materializeWithGraphDecoder: graphDecoder withFields: encodedFields [
+	super materializeWithGraphDecoder: graphDecoder withFields: encodedFields.
+	receiver := encodedFields at: #receiver.
+	selector := encodedFields at: #selector.
+	arguments := encodedFields at: #arguments.
 ]
 
 { #category : #accessing }

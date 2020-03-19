@@ -32,9 +32,24 @@ MbndAstMessageChainMessageNode >> asUnexpandedMessageSend [
 		yourself
 ]
 
+{ #category : #serialization }
+MbndAstMessageChainMessageNode >> encodeFieldsForMessagePackWith: graphEncoder [
+	^ {
+		#selector . selector encodeGraphForMessagePackWith: graphEncoder.
+		#arguments . arguments encodeGraphForMessagePackWith: graphEncoder.
+	} , (super encodeFieldsForMessagePackWith: graphEncoder)
+]
+
 { #category : #testing }
 MbndAstMessageChainMessageNode >> isMessageChainMessageNode [
 	^ true
+]
+
+{ #category : #serialization }
+MbndAstMessageChainMessageNode >> materializeWithGraphDecoder: graphDecoder withFields: encodedFields [
+	super materializeWithGraphDecoder: graphDecoder withFields: encodedFields.
+	selector := encodedFields at: #selector.
+	arguments := encodedFields at: #arguments.
 ]
 
 { #category : #accessing }

@@ -26,6 +26,15 @@ MbndAstFieldDefinitionNode >> bits: anObject [
 	bits := anObject
 ]
 
+{ #category : #serialization }
+MbndAstFieldDefinitionNode >> encodeFieldsForMessagePackWith: graphEncoder [
+	^ {
+		#bits . bits encodeGraphForMessagePackWith: graphEncoder.
+		#location . location encodeGraphForMessagePackWith: graphEncoder.
+		#intrinsic . location encodeGraphForMessagePackWith: graphEncoder.
+	} , (super encodeFieldsForMessagePackWith: graphEncoder)
+]
+
 { #category : #accessing }
 MbndAstFieldDefinitionNode >> intrinsic [
 	^ intrinsic
@@ -49,4 +58,12 @@ MbndAstFieldDefinitionNode >> location [
 { #category : #accessing }
 MbndAstFieldDefinitionNode >> location: anObject [
 	location := anObject
+]
+
+{ #category : #serialization }
+MbndAstFieldDefinitionNode >> materializeWithGraphDecoder: graphDecoder withFields: encodedFields [
+	super materializeWithGraphDecoder: graphDecoder withFields: encodedFields.
+	bits := encodedFields at: #bits.
+	location := encodedFields at: #location.
+	intrinsic := encodedFields at: #intrinsic.
 ]

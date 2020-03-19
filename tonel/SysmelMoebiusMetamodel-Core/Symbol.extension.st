@@ -1,11 +1,6 @@
 Extension { #name : #Symbol }
 
 { #category : #'*SysmelMoebiusMetamodel-Core' }
-Symbol >> asPrettySymbolName [
-	^ self
-]
-
-{ #category : #'*SysmelMoebiusMetamodel-Core' }
 Symbol >> isMbndAnonymousSymbol [
 	^ self = #_
 ]

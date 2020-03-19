@@ -20,6 +20,13 @@ MbndAstIdentifierReferenceNode >> asLiteralSymbolNodeFor: aCompilationTarget [
 		yourself
 ]
 
+{ #category : #serialization }
+MbndAstIdentifierReferenceNode >> encodeFieldsForMessagePackWith: graphEncoder [
+	^ {
+		#symbol . symbol encodeGraphForMessagePackWith: graphEncoder.
+	} , (super encodeFieldsForMessagePackWith: graphEncoder)
+]
+
 { #category : #testing }
 MbndAstIdentifierReferenceNode >> isGeneratedIdentifierNode [
 	^ symbol isMbndGeneratedSymbol
@@ -28,6 +35,12 @@ MbndAstIdentifierReferenceNode >> isGeneratedIdentifierNode [
 { #category : #testing }
 MbndAstIdentifierReferenceNode >> isIdentifierReferenceNode [
 	^ true
+]
+
+{ #category : #serialization }
+MbndAstIdentifierReferenceNode >> materializeWithGraphDecoder: graphDecoder withFields: encodedFields [
+	super materializeWithGraphDecoder: graphDecoder withFields: encodedFields.
+	symbol := encodedFields at: #symbol.
 ]
 
 { #category : #parsing }

@@ -26,6 +26,8 @@ TMbndMethodContainer >> addOverloadedMethod: method [
 		].
 		methodGroup addOverloadedEntity: method
 	] ifAbsentPut: [ method ].
+	self recordOverloadedMethodAddition: method withSelector: method name.
+
 ]
 
 { #category : #'as yet unclassified' }
@@ -61,4 +63,9 @@ TMbndMethodContainer >> methodDict [
 { #category : #accessing }
 TMbndMethodContainer >> overloadedMethodDict [
 	^ overloadedMethodDict ifNil: [ overloadedMethodDict := Dictionary new ]
+]
+
+{ #category : #'as yet unclassified' }
+TMbndMethodContainer >> recordOverloadedMethodAddition: method withSelector: selector [
+	"Hook: for recording extension methods"
 ]

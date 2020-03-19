@@ -14,6 +14,11 @@ Class {
 }
 
 { #category : #'as yet unclassified' }
+MbndCompileTimeConstant class >> messagePackTypeName [
+	^ #CompileTimeConstant
+]
+
+{ #category : #'as yet unclassified' }
 MbndCompileTimeConstant >> accept: aVisitor [
 	^ aVisitor visitCompileTimeConstant: self
 ]
@@ -32,6 +37,14 @@ MbndCompileTimeConstant >> compilationTarget [
 { #category : #accessing }
 MbndCompileTimeConstant >> defaultVisibilityMode [
 	^ #public
+]
+
+{ #category : #serialization }
+MbndCompileTimeConstant >> encodeFieldsForMessagePackWith: graphEncoder [
+	^ {
+		#name . name.
+		#value . evaluatedValue encodeGraphForMessagePackWith: graphEncoder
+	}
 ]
 
 { #category : #'semantic analysis' }
@@ -68,6 +81,12 @@ MbndCompileTimeConstant >> isCompileTimeConstant [
 	^ true
 ]
 
+{ #category : #serialization }
+MbndCompileTimeConstant >> materializeWithGraphDecoder: graphDecoder withFields: encodedFields [
+	name := encodedFields at: #name ifAbsent: [ nil ].
+	evaluatedValue := encodedFields at: #value.
+]
+
 { #category : #accessing }
 MbndCompileTimeConstant >> module [
 	^ parent module
@@ -91,6 +110,16 @@ MbndCompileTimeConstant >> parent [
 { #category : #accessing }
 MbndCompileTimeConstant >> parent: anObject [
 	parent := anObject
+]
+
+{ #category : #accessing }
+MbndCompileTimeConstant >> postMaterializeSetupParent: newParent withModule: newModule [
+	self parent: newParent.
+]
+
+{ #category : #printing }
+MbndCompileTimeConstant >> printOn: aStream [
+	aStream nextPutAll: 'compileTimeConstant '; nextPutAll: self qualifiedName asPrettySymbolName
 ]
 
 { #category : #accessing }

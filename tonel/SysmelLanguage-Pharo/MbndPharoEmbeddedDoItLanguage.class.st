@@ -11,5 +11,7 @@ MbndPharoEmbeddedDoItLanguage class >> languageName [
 
 { #category : #scope }
 MbndPharoEmbeddedDoItLanguage >> constructTopLevelLanguageScopeFor: aModule [
-	^ MbndGenericLanguageTopLevelScope for: aModule
+	^ (MbndGenericLanguageTopLevelScope for: aModule)
+		languageName: self languageName;
+		yourself
 ]

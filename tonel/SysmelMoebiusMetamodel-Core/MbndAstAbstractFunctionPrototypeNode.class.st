@@ -42,6 +42,18 @@ MbndAstAbstractFunctionPrototypeNode >> concreteMethod: anObject [
 	concreteMethod := anObject
 ]
 
+{ #category : #serialization }
+MbndAstAbstractFunctionPrototypeNode >> encodeFieldsForMessagePackWith: graphEncoder [
+	^ {
+		#flags . flags.
+		#arguments . arguments encodeGraphForMessagePackWith: graphEncoder.
+		#returnType . returnType encodeGraphForMessagePackWith: graphEncoder.
+		#functionType . functionType encodeGraphForMessagePackWith: graphEncoder.
+		#concreteMethod . concreteMethod encodeGraphForMessagePackWith: graphEncoder.
+		#ownerProgramEntity . ownerProgramEntity encodeGraphForMessagePackWith: graphEncoder.
+	} , (super encodeFieldsForMessagePackWith: graphEncoder)
+]
+
 { #category : #accessing }
 MbndAstAbstractFunctionPrototypeNode >> functionType [
 	^ functionType
@@ -62,6 +74,17 @@ MbndAstAbstractFunctionPrototypeNode >> initialize [
 { #category : #testing }
 MbndAstAbstractFunctionPrototypeNode >> isCVariadic [
 	^ false
+]
+
+{ #category : #serialization }
+MbndAstAbstractFunctionPrototypeNode >> materializeWithGraphDecoder: graphDecoder withFields: encodedFields [
+	super materializeWithGraphDecoder: graphDecoder withFields: encodedFields.
+	flags := encodedFields at: #flags.
+	arguments := encodedFields at: #arguments.
+	returnType := encodedFields at: #returnType.
+	functionType := encodedFields at: #functionType.
+	concreteMethod := encodedFields at: #concreteMethod.
+	ownerProgramEntity := encodedFields at: #ownerProgramEntity.
 ]
 
 { #category : #accessing }

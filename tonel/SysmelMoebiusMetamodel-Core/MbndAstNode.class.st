@@ -19,6 +19,12 @@ MbndAstNode class >> dummy [
 	^ self new
 ]
 
+{ #category : #serialization }
+MbndAstNode class >> messagePackTypeName [
+	self assert: (name beginsWith: 'MbndAst').
+	^ (self name allButFirst: 'MbndAst' size) asSymbol
+]
+
 { #category : #visiting }
 MbndAstNode >> accept: aVisitor [
 	self subclassResponsibility
@@ -50,6 +56,18 @@ MbndAstNode >> calledFunctionBinding [
 { #category : #composition }
 MbndAstNode >> concretizeNodeWithAnalyzer: analyzer [
 	^ self
+]
+
+{ #category : #serialization }
+MbndAstNode >> encodeFieldsForMessagePackWith: graphEncoder [
+	^ {
+		#type . type encodeGraphForMessagePackWith: graphEncoder
+	}
+]
+
+{ #category : #serialization }
+MbndAstNode >> encodeGraphForMessagePackWith: graphEncoder [
+	^ graphEncoder encodeObject: self type: self messagePackTypeName fields: [self encodeFieldsForMessagePackWith: graphEncoder]
 ]
 
 { #category : #composition }
@@ -830,9 +848,19 @@ MbndAstNode >> markStorageCreationNodeForCopyEllision: storageCreationNode [
 	"Transcript show: self class name; cr."
 ]
 
+{ #category : #serialization }
+MbndAstNode >> materializeWithGraphDecoder: graphDecoder withFields: encodedFields [
+	type := encodedFields at: #type.
+]
+
 { #category : #composition }
 MbndAstNode >> mbndLiteralTypeWithTarget: compilationTarget [
 	^ compilationTarget astNodeType
+]
+
+{ #category : #serialization }
+MbndAstNode >> messagePackTypeName [
+	^ self class messagePackTypeName
 ]
 
 { #category : #composition }

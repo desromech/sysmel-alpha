@@ -7,6 +7,11 @@ Class {
 	#category : #'SysmelMoebiusMetamodel-Core-Variables'
 }
 
+{ #category : #serialization }
+MbndFunctionCapturedVariable class >> messagePackTypeName [
+	^ #FunctionCapturedVariable
+]
+
 { #category : #visiting }
 MbndFunctionCapturedVariable >> accept: visitor [
 	^ visitor visitFunctionCapturedVariable: self
@@ -20,6 +25,13 @@ MbndFunctionCapturedVariable >> definitionNode [
 { #category : #accessing }
 MbndFunctionCapturedVariable >> definitionPosition [
 	^ upperContextVariable definitionPosition
+]
+
+{ #category : #serialization }
+MbndFunctionCapturedVariable >> encodeFieldsForMessagePackWith: graphEncoder [
+	^ (super encodeFieldsForMessagePackWith: graphEncoder) , {
+		#upperContextVariable . upperContextVariable encodeGraphForMessagePackWith: graphEncoder
+	}
 ]
 
 { #category : #testing }

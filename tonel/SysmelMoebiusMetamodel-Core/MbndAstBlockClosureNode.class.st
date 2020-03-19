@@ -61,6 +61,17 @@ MbndAstBlockClosureNode >> body: anObject [
 	body := anObject
 ]
 
+{ #category : #serialization }
+MbndAstBlockClosureNode >> encodeFieldsForMessagePackWith: graphEncoder [
+	^ {
+		#isBlockWithNonLocalReturn . isBlockWithNonLocalReturn.
+		#arguments . arguments encodeGraphForMessagePackWith: graphEncoder.
+		#returnType . returnType encodeGraphForMessagePackWith: graphEncoder.
+		#body . body encodeGraphForMessagePackWith: graphEncoder.
+		#blockClosureProgramEntity . blockClosureProgramEntity encodeGraphForMessagePackWith: graphEncoder.
+	} , (super encodeFieldsForMessagePackWith: graphEncoder)
+]
+
 { #category : #initialization }
 MbndAstBlockClosureNode >> initialize [
 	super initialize.
@@ -85,6 +96,16 @@ MbndAstBlockClosureNode >> isBlockWithNonLocalReturn [
 { #category : #accessing }
 MbndAstBlockClosureNode >> isBlockWithNonLocalReturn: anObject [
 	isBlockWithNonLocalReturn := anObject
+]
+
+{ #category : #serialization }
+MbndAstBlockClosureNode >> materializeWithGraphDecoder: graphDecoder withFields: encodedFields [
+	super materializeWithGraphDecoder: graphDecoder withFields: encodedFields.
+	isBlockWithNonLocalReturn := encodedFields at: #isBlockWithNonLocalReturn.
+	arguments := encodedFields at: #arguments.
+	returnType := encodedFields at: #returnType.
+	body := encodedFields at: #body.
+	blockClosureProgramEntity := encodedFields at: #blockClosureProgramEntity.
 ]
 
 { #category : #accessing }

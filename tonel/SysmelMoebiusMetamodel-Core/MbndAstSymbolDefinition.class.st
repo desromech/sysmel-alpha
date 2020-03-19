@@ -21,10 +21,29 @@ MbndAstSymbolDefinition >> binding: anObject [
 	binding := anObject
 ]
 
+{ #category : #serialization }
+MbndAstSymbolDefinition >> encodeFieldsForMessagePackWith: graphEncoder [
+	^ {
+		#flags . flags.
+		#name . name encodeGraphForMessagePackWith: graphEncoder.
+		#binding. binding encodeGraphForMessagePackWith: graphEncoder.
+		#ownerProgramEntity. ownerProgramEntity.
+	} , (super encodeFieldsForMessagePackWith: graphEncoder)
+]
+
 { #category : #initialization }
 MbndAstSymbolDefinition >> initialize [
 	super initialize.
 	flags := #().
+]
+
+{ #category : #serialization }
+MbndAstSymbolDefinition >> materializeWithGraphDecoder: graphDecoder withFields: encodedFields [
+	super materializeWithGraphDecoder: graphDecoder withFields: encodedFields.
+	flags := encodedFields at: #flags.
+	name := encodedFields at: #name.
+	binding := encodedFields at: #binding.
+	ownerProgramEntity := encodedFields at: #ownerProgramEntity.
 ]
 
 { #category : #accessing }

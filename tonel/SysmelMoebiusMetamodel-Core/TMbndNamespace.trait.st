@@ -15,6 +15,11 @@ TMbndNamespace >> canHaveNamespaces [
 	^ true
 ]
 
+{ #category : #testing }
+TMbndNamespace >> hasPublicOrExternalVisibility [
+	^ true
+]
+
 { #category : #'as yet unclassified' }
 TMbndNamespace >> isNamespace [
 	^ true

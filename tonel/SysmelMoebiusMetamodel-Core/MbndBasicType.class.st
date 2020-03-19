@@ -30,6 +30,30 @@ MbndBasicType class >> initialize [
 	)
 ]
 
+{ #category : #'as yet unclassified' }
+MbndBasicType class >> makeInstanceForMessagePackGraphMaterializationWith: graphDecoder [
+	^ self basicNew
+]
+
+{ #category : #serialization }
+MbndBasicType class >> materializeObjectWithType: objectType earlyFields: earlyFields withMessagePackGraphDecoder: graphDecoder [
+	objectType == #CoreBasicType ifTrue: [
+		| fields basicType|
+		fields := Dictionary newFromPairs: graphDecoder decodeNext.
+		basicType := graphDecoder compilationTarget getBasicTypeNamed: (fields at: #name).
+		graphDecoder registerObjectInstance: basicType.
+		^ basicType
+	].
+
+	^ super materializeObjectWithType: objectType earlyFields: earlyFields withMessagePackGraphDecoder: graphDecoder
+]
+
+{ #category : #serialization }
+MbndBasicType class >> messagePackTypeName [
+	self assert: (self name beginsWith: 'Mbnd').
+	^ (self name allButFirst: 'Mbnd' size) asSymbol
+]
+
 { #category : #accessing }
 MbndBasicType class >> typeName [
 	^ self == MbndBasicType ifTrue: [ #AnyValue ] ifFalse: [ nil ]
@@ -143,6 +167,54 @@ MbndBasicType >> children [
 	^ children ifNil: [ children := OrderedCollection new ]
 ]
 
+{ #category : #serialization }
+MbndBasicType >> encodeFieldsForMessagePackWith: graphEncoder [
+	graphEncoder recordType: self lazyFields: (self encodeLazyFieldsForMessagePackWith: graphEncoder).
+	^ { 
+		#flags . flags.
+		#name . name.
+		#definitionModule . definitionModule encodeGraphForMessagePackWith: graphEncoder.
+		#supertype . supertype encodeGraphForMessagePackWith: graphEncoder.
+		#type . type encodeGraphForMessagePackWith: graphEncoder.
+	}
+]
+
+{ #category : #serialization }
+MbndBasicType >> encodeGraphForMessagePackWith: graphEncoder [
+	self isCoreBasicType ifTrue: [ 
+		^ graphEncoder encodeObject: self type: #CoreBasicType fields: [
+			self assert: name isNotNil.
+			self assert: (self compilationTarget getBasicTypeNamed: name) == self.
+
+			{#name . name}
+		]
+	].
+
+	self isSystemProvidedTypeTemplateInstanceMainChild ifTrue: [
+		^ graphEncoder encodeObject: self type: #SystemProvidedTypeTemplateInstanceMainChild fields: [
+			self assert: parent isSystemProvidedTypeTemplateInstance.
+			self assert: parent parent isSystemProvidedTypeTemplate.
+			self assert: (self compilationTarget getBasicTypeNamed: parent parent name) == parent parent.
+
+			{#systemTypeTemplate . parent parent name.
+			 #instanceArguments . parent instanceArguments collect: [:each | each encodeGraphForMessagePackWith: graphEncoder]}
+		]
+	].
+
+	^ graphEncoder encodeObject: self type: self messagePackTypeName fields: [self encodeFieldsForMessagePackWith: graphEncoder]
+]
+
+{ #category : #serialization }
+MbndBasicType >> encodeLazyFieldsForMessagePackWith: graphEncoder [
+	^ {
+		#macroMethodDict . graphEncoder encodeSymbolTable: macroMethodDict.
+		#methodDict . graphEncoder encodeSymbolTable: methodDict.
+		#overloadedMethodDict . graphEncoder encodeSymbolTable: overloadedMethodDict.
+		#localSymbolTable . graphEncoder encodeSymbolTable: localSymbolTable.
+		#children . graphEncoder encodeProgramEntityList: children
+	}
+]
+
 { #category : #'semantic analysis' }
 MbndBasicType >> enqueueDelayedSemanticAnalysis [
 	self module enqueueProgramEntityWithDelayedSemanticAnalysis: self
@@ -220,7 +292,7 @@ MbndBasicType >> initializeAndReturnValueNode: basicValueNode with: builder andW
 MbndBasicType >> initializeBasicTypeTrait [
 	super initialize.
 	name := self class typeName.
-	flags := #().
+	flags ifNil: [ flags := #() ].
 	self markAsTrait.
 	self addInstanceMacros
 ]
@@ -234,6 +306,11 @@ MbndBasicType >> initializeNonTraitType [
 		self initialize
 	].
 	
+]
+
+{ #category : #testing }
+MbndBasicType >> isCoreBasicType [
+	^ self hasFlag: #coreBasicType
 ]
 
 { #category : #'semantic analysis' }
@@ -260,6 +337,11 @@ MbndBasicType >> isPODInstance [
 ]
 
 { #category : #'as yet unclassified' }
+MbndBasicType >> isSystemProvidedTypeTemplateInstanceMainChild [
+	^ parent isNotNil and: [ parent isSystemProvidedTypeTemplateInstance ]
+]
+
+{ #category : #'as yet unclassified' }
 MbndBasicType >> markAsDefined [
 	self addFlag: #defined
 ]
@@ -267,6 +349,29 @@ MbndBasicType >> markAsDefined [
 { #category : #initialization }
 MbndBasicType >> markAsTrait [
 	^ self addFlag: #trait
+]
+
+{ #category : #serialization }
+MbndBasicType >> materializeWithGraphDecoder: graphDecoder withFields: encodedFields [
+	flags := encodedFields at: #flags.
+	definitionModule := encodedFields at: #definitionModule.
+	name := encodedFields at: #name ifAbsent: [ nil ].
+	supertype := encodedFields at: #supertype ifAbsent: [ nil ].
+	type := encodedFields at: #type ifAbsent: [ nil ].
+]
+
+{ #category : #serialization }
+MbndBasicType >> materializeWithGraphDecoder: graphDecoder withLazyFields: encodedFields [
+	macroMethodDict := Dictionary newFromPairs: (encodedFields at: #macroMethodDict).
+	methodDict := Dictionary newFromPairs: (encodedFields at: #methodDict).
+	overloadedMethodDict := Dictionary newFromPairs: (encodedFields at: #overloadedMethodDict).
+	localSymbolTable := Dictionary newFromPairs: (encodedFields at: #localSymbolTable).
+	children := 	(encodedFields at: #children ifAbsent: [ #() ]) asOrderedCollection
+]
+
+{ #category : #serialization }
+MbndBasicType >> messagePackTypeName [
+	^ self class messagePackTypeName
 ]
 
 { #category : #accessing }
@@ -289,17 +394,36 @@ MbndBasicType >> parent: aParent [
 	parent := aParent
 ]
 
-{ #category : #printing }
+{ #category : #accessing }
+MbndBasicType >> postMaterializeSetupParent: newParent withModule: newModule [
+	self parent: newParent.
+	self childrenDo: [ :child |
+		child postMaterializeSetupParent: self withModule: newModule
+	].
+]
+
+{ #category : #'as yet unclassified' }
 MbndBasicType >> printOn: aStream [
-	self name ifNotNil: [ :name |
-		aStream nextPutAll: name
-	] ifNil: [
-		^ super printOn: aStream
-	]
-	
+	aStream nextPutAll: self qualifiedName
 ]
 
 { #category : #'as yet unclassified' }
 MbndBasicType >> programEntitionInformationData [
 	^ self programEntityInformationData
+]
+
+{ #category : #'as yet unclassified' }
+MbndBasicType >> recordMacroMethodAddition: method withSelector: selector [
+	(self isCoreBasicType and: [ self compilationTarget isTheTypeSystemInitialized ]) ifTrue: [
+		method recordAsExtensionFor: self withSelector: selector
+	]
+
+]
+
+{ #category : #'as yet unclassified' }
+MbndBasicType >> recordOverloadedMethodAddition: method withSelector: selector [
+	(self isCoreBasicType and: [ self compilationTarget isTheTypeSystemInitialized ]) ifTrue: [
+		method recordAsExtensionFor: self withSelector: selector
+	]
+
 ]

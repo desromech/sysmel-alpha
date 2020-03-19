@@ -4,6 +4,11 @@ Class {
 	#category : #'SysmelMoebiusMetamodel-Core-Macro'
 }
 
+{ #category : #serialization }
+MbndFieldGetterAccessorMacro class >> messagePackTypeName [
+	^ #MacroFieldGetter
+]
+
 { #category : #converting }
 MbndFieldGetterAccessorMacro >> createMethodAccessorForReceiver: receiverType withSelector: accessorSelector [
 	| astBuilder methodDefinitionNode |
@@ -22,6 +27,13 @@ MbndFieldGetterAccessorMacro >> createMethodAccessorForReceiver: receiverType wi
 		visitNode: methodDefinitionNode
 ]
 
+{ #category : #serialization }
+MbndFieldGetterAccessorMacro >> encodeFieldsForMessagePackWith: graphEncoder [
+	^ { 
+		#field . field encodeGraphForMessagePackWith: graphEncoder
+	}
+]
+
 { #category : #'as yet unclassified' }
 MbndFieldGetterAccessorMacro >> expandMessageNode: node with: analyzer [
 	| receiverType |
@@ -38,4 +50,9 @@ MbndFieldGetterAccessorMacro >> expandMessageNode: node with: analyzer [
 		field: field;
 		yourself)
 
+]
+
+{ #category : #serialization }
+MbndFieldGetterAccessorMacro >> materializeWithGraphDecoder: graphDecoder withFields: encodedFields [
+	field := encodedFields at: #field.
 ]

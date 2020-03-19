@@ -43,7 +43,8 @@ Trait {
 		'exceptionCatchEndFunction',
 		'nonLocalReturnRaiseFunction',
 		'nonLocalReturnCatchFunction',
-		'internalNonLocalReturnExceptionClass'
+		'internalNonLocalReturnExceptionClass',
+		'typeSystemInitialized'
 	],
 	#traits : 'TMbndAbstractCompilationTarget',
 	#classTraits : 'TMbndAbstractCompilationTarget classTrait',
@@ -107,6 +108,7 @@ TMbndCoreCompilationTarget >> addGpuTextureTypeNamed: name sampled: sampled dime
 		multisampling: multisampling;
 		layered: layered;
 		initializeNonTraitType;
+		addFlag: #coreBasicType;
 		yourself.
 	basicTypes at: name put: textureType.
 	^ textureType
@@ -658,10 +660,10 @@ TMbndCoreCompilationTarget >> initializeBasicTypes [
 	| basicType typesToInitialize | 
 	basicTypes := Dictionary new.
 	MbndBasicType withAllSubclassesDo: [ :sc |
-		sc typeName ifNotNil: [ 
+		sc typeName ifNotNil: [
 			basicType := sc basicNew
 				definitionModule: coreDefinitionsModule.
-			basicTypes at: sc typeName put: basicType
+			basicTypes at: sc typeName put: basicType.
 		]
 	].
 
@@ -700,8 +702,11 @@ TMbndCoreCompilationTarget >> initializeBasicTypes [
 
 	typesToInitialize do: [:bt | 
 		bt initializeNonTraitType.
-		bt type initializeNonTraitType
+		bt type initializeNonTraitType.
+		bt addFlag: #coreBasicType.
 	].
+
+	basicTypes valuesDo: [ :each | self assert: each isCoreBasicType ].
 
 	self systemProvidedTypeTemplates do: [ :template |
 		basicTypes at: template name put: template
@@ -755,7 +760,7 @@ TMbndCoreCompilationTarget >> initializeDerivedTypeCaches [
 	blockClosureTypes := self createSystemProvidedTypeTemplate: #_BlockClosureTypeTemplate
 		argumentNames: #(FunctionType)
 		doing: [ :functionType |
-			(self ensureBasicTypeIsLinkedToTheHierarchy: MbndAbstractBlockClosureType basicNew)
+			(self ensureBasicTypeIsLinkedToTheHierarchy: MbndGCBlockClosureType basicNew)
 				functionType: functionType;
 				initializeNonTraitType;
 				yourself.
@@ -857,19 +862,21 @@ TMbndCoreCompilationTarget >> initializeDerivedTypeCaches [
 	].
 
 	inputChannelTypes := self createSystemProvidedTypeTemplate: #_InputChannelTypeTemplate
-		argumentNames: #(MessageType)
-		doing: [ :messageType |
+		argumentNames: #(MessageType SpecialSemantics)
+		doing: [ :messageType :specialSemantics |
 			(self ensureBasicTypeIsLinkedToTheHierarchy: MbndInputChannelType basicNew)
 				messageType: messageType;
+				specialSemantics: specialSemantics;
 				initializeNonTraitType;
 				yourself.
 	].
 
 	outputChannelTypes := self createSystemProvidedTypeTemplate: #_OutputChannelTypeTemplate
-		argumentNames: #(MessageType)
-		doing: [ :messageType |
+		argumentNames: #(MessageType SpecialSemantics)
+		doing: [ :messageType :specialSemantics |
 			(self ensureBasicTypeIsLinkedToTheHierarchy: MbndOutputChannelType basicNew)
 				messageType: messageType;
+				specialSemantics: specialSemantics;
 				initializeNonTraitType;
 				yourself.
 	].
@@ -904,6 +911,7 @@ TMbndCoreCompilationTarget >> initializePrimitiveMatrixTypes [
 				matrixTypeName := (baseTypeName , 'x' , rowCount asString , 'x' , columnCount asString).
 				matrixType := baseType primitiveMatrixWithRows: rowCount columns: columnCount.
 				matrixType name: matrixTypeName.
+				matrixType addFlag: #coreBasicType.
 				basicTypes at: matrixTypeName put: matrixType.
 			].
 		].
@@ -920,6 +928,7 @@ TMbndCoreCompilationTarget >> initializePrimitiveVectorTypes [
 			vectorTypeName := (baseTypeName , 'x' , elementCount asString).
 			vectorType := baseType primitiveVectorWithElements: elementCount.
 			vectorType name: vectorTypeName.
+			vectorType addFlag: #coreBasicType.
 			basicTypes at: vectorTypeName put: vectorType.
 		].
 	] 
@@ -935,7 +944,8 @@ TMbndCoreCompilationTarget >> initializeTypeSystem [
 		initializePrimitiveMatrixTypes;
 		initializeGpuTypes;
 		initializeArithmeticCoercionTable;
-		initializeArithmeticConversionRules
+		initializeArithmeticConversionRules.
+	typeSystemInitialized := true.
 ]
 
 { #category : #'as yet unclassified' }
@@ -963,6 +973,11 @@ TMbndCoreCompilationTarget >> internalNonLocalReturnExceptionClass [
 TMbndCoreCompilationTarget >> internalNonLocalReturnExceptionClass: aClass [
 	<compileTime>
 	internalNonLocalReturnExceptionClass := aClass
+]
+
+{ #category : #initialization }
+TMbndCoreCompilationTarget >> isTheTypeSystemInitialized [
+	^ typeSystemInitialized ifNil: [ typeSystemInitialized := false ]
 ]
 
 { #category : #'as yet unclassified' }

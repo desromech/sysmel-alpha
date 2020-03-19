@@ -8,6 +8,14 @@ Class {
 	#category : #'SysmelMoebiusMetamodel-Core-AST'
 }
 
+{ #category : #serialization }
+MbndAstAbstractCastNode >> encodeFieldsForMessagePackWith: graphEncoder [
+	^ {
+		#expression . expression encodeGraphForMessagePackWith: graphEncoder.
+		#targetType . targetType encodeGraphForMessagePackWith: graphEncoder.
+	} , (super encodeFieldsForMessagePackWith: graphEncoder)
+]
+
 { #category : #accessing }
 MbndAstAbstractCastNode >> expression [
 	^ expression
@@ -21,6 +29,13 @@ MbndAstAbstractCastNode >> expression: anObject [
 { #category : #testing }
 MbndAstAbstractCastNode >> isAbstractCastNode [
 	^ true
+]
+
+{ #category : #serialization }
+MbndAstAbstractCastNode >> materializeWithGraphDecoder: graphDecoder withFields: encodedFields [
+	super materializeWithGraphDecoder: graphDecoder withFields: encodedFields.
+	expression := encodedFields at: #expression.
+	targetType := encodedFields at: #targetType.
 ]
 
 { #category : #accessing }

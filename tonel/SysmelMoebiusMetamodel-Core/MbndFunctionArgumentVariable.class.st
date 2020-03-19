@@ -7,6 +7,11 @@ Class {
 	#category : #'SysmelMoebiusMetamodel-Core-Variables'
 }
 
+{ #category : #serialization }
+MbndFunctionArgumentVariable class >> messagePackTypeName [
+	^ #FunctionArgumentVariable
+]
+
 { #category : #visiting }
 MbndFunctionArgumentVariable >> accept: visitor [
 	^ visitor visitFunctionArgumentVariable: self
@@ -31,4 +36,17 @@ MbndFunctionArgumentVariable >> asCompileTimeValueReferenceOfType: referenceType
 { #category : #'as yet unclassified' }
 MbndFunctionArgumentVariable >> createStorageInFunctionActivationScope: scope withValue: activationValue [
 	^ scope setBinding: self storage: activationValue
+]
+
+{ #category : #serialization }
+MbndFunctionArgumentVariable >> encodeFieldsForMessagePackWith: graphEncoder [
+	^ (super encodeFieldsForMessagePackWith: graphEncoder) , {
+		#argumentIndex . argumentIndex
+	}
+]
+
+{ #category : #serialization }
+MbndFunctionArgumentVariable >> materializeWithGraphDecoder: graphDecoder withFields: encodedFields [
+	super materializeWithGraphDecoder: graphDecoder withFields: encodedFields.
+	argumentIndex := encodedFields at: #argumentIndex.
 ]

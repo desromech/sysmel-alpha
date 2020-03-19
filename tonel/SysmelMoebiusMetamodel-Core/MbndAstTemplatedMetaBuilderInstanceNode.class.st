@@ -12,9 +12,22 @@ MbndAstTemplatedMetaBuilderInstanceNode >> accept: aVisitor [
 	^ aVisitor visitTemplatedMetaBuilderInstanceNode: self
 ]
 
+{ #category : #serialization }
+MbndAstTemplatedMetaBuilderInstanceNode >> encodeFieldsForMessagePackWith: graphEncoder [
+	^ {
+		#templateNode . templateNode encodeGraphForMessagePackWith: graphEncoder.
+	} , (super encodeFieldsForMessagePackWith: graphEncoder)
+]
+
 { #category : #'as yet unclassified' }
 MbndAstTemplatedMetaBuilderInstanceNode >> isTemplatedMetaBuilderInstanceNode [
 	^ true
+]
+
+{ #category : #serialization }
+MbndAstTemplatedMetaBuilderInstanceNode >> materializeWithGraphDecoder: graphDecoder withFields: encodedFields [
+	super materializeWithGraphDecoder: graphDecoder withFields: encodedFields.
+	templateNode := encodedFields at: #templateNode.
 ]
 
 { #category : #accessing }

@@ -48,9 +48,31 @@ MbndAstTemplateDefinitionNode >> body: anObject [
 	body := anObject
 ]
 
+{ #category : #serialization }
+MbndAstTemplateDefinitionNode >> encodeFieldsForMessagePackWith: graphEncoder [
+	^ {
+		#flags . flags.
+		#name . name encodeGraphForMessagePackWith: graphEncoder.
+		#arguments . arguments encodeGraphForMessagePackWith: graphEncoder.
+		#body . body encodeGraphForMessagePackWith: graphEncoder.
+		#ownerProgramEntity . ownerProgramEntity encodeGraphForMessagePackWith: graphEncoder.
+		#binding . binding encodeGraphForMessagePackWith: graphEncoder.
+	} , (super encodeFieldsForMessagePackWith: graphEncoder)
+]
+
 { #category : #testing }
 MbndAstTemplateDefinitionNode >> isTemplateDefinitionNode [
 	^ true
+]
+
+{ #category : #serialization }
+MbndAstTemplateDefinitionNode >> materializeWithGraphDecoder: graphDecoder withFields: encodedFields [
+	super materializeWithGraphDecoder: graphDecoder withFields: encodedFields.
+	flags := encodedFields at: #flags.
+	name := encodedFields at: #name.
+	arguments := encodedFields at: #arguments.
+	body := encodedFields at: #body.
+	ownerProgramEntity := encodedFields at: #ownerProgra
 ]
 
 { #category : #accessing }

@@ -43,6 +43,14 @@ MbndLexicalScope >> definitionPosition: anObject [
 	definitionPosition := anObject
 ]
 
+{ #category : #serialization }
+MbndLexicalScope >> encodeFieldsForMessagePackWith: graphEncoder [
+	^ (super encodeFieldsForMessagePackWith: graphEncoder) , {
+		#symbolTable . graphEncoder encodeCompleteSymbolTable: symbolTable .
+		#usedNamespaces . usedNamespaces encodeGraphForMessagePackWith: graphEncoder.
+	}
+]
+
 { #category : #initialization }
 MbndLexicalScope >> initialize [
 	super initialize.
@@ -87,6 +95,13 @@ MbndLexicalScope >> lookupSymbolOnUsedSymbols: symbol [
 		]
 	].
 	^ nil
+]
+
+{ #category : #serialization }
+MbndLexicalScope >> materializeWithGraphDecoder: graphDecoder withFields: encodedFields [
+	super materializeWithGraphDecoder: graphDecoder withFields: encodedFields.
+	symbolTable := Dictionary newFromPairs: (encodedFields at: #symbolTable).
+	usedNamespaces := encodedFields at: #usedNamespaces.
 ]
 
 { #category : #storage }

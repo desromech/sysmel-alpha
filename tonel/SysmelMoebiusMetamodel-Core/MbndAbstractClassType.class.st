@@ -58,6 +58,13 @@ MbndAbstractClassType >> buildSlotLayoutWith: builder [
 
 ]
 
+{ #category : #serialization }
+MbndAbstractClassType >> encodeLazyFieldsForMessagePackWith: graphEncoder [
+	^ (super encodeLazyFieldsForMessagePackWith: graphEncoder) , {
+		#virtualMethods . virtualMethods encodeGraphForMessagePackWith: graphEncoder.
+	}
+]
+
 { #category : #initialization }
 MbndAbstractClassType >> initialize [
 	super initialize.
@@ -77,6 +84,13 @@ MbndAbstractClassType >> isMetaTypeType [
 { #category : #'as yet unclassified' }
 MbndAbstractClassType >> markAsMetaTypeType [
 	^ self addFlag: #metaTypeType
+]
+
+{ #category : #serialization }
+MbndAbstractClassType >> materializeWithGraphDecoder: graphDecoder withLazyFields: encodedFields [
+	super materializeWithGraphDecoder: graphDecoder withLazyFields: encodedFields.
+	
+	virtualMethods := encodedFields at: #virtualMethods.
 ]
 
 { #category : #'as yet unclassified' }

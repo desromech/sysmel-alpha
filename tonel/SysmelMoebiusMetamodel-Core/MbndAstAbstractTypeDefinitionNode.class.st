@@ -17,6 +17,13 @@ MbndAstAbstractTypeDefinitionNode >> body: anObject [
 	body := anObject
 ]
 
+{ #category : #serialization }
+MbndAstAbstractTypeDefinitionNode >> encodeFieldsForMessagePackWith: graphEncoder [
+	^ {
+		#body . body encodeGraphForMessagePackWith: graphEncoder.
+	} , (super encodeFieldsForMessagePackWith: graphEncoder)
+]
+
 { #category : #'as yet unclassified' }
 MbndAstAbstractTypeDefinitionNode >> inferTemplateKindWithCompilationTarget: compilationTarget [
 	^ compilationTarget typeTemplateType
@@ -25,6 +32,12 @@ MbndAstAbstractTypeDefinitionNode >> inferTemplateKindWithCompilationTarget: com
 { #category : #testing }
 MbndAstAbstractTypeDefinitionNode >> isAbstractTypeDefinitionNode [
 	^ true
+]
+
+{ #category : #serialization }
+MbndAstAbstractTypeDefinitionNode >> materializeWithGraphDecoder: graphDecoder withFields: encodedFields [
+	super materializeWithGraphDecoder: graphDecoder withFields: encodedFields.
+	body := encodedFields at: #body.
 ]
 
 { #category : #'as yet unclassified' }

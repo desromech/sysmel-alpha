@@ -20,6 +20,21 @@ TMbndProgramEntity >> createPublicMetaBuilderFactories [
 	^ Dictionary newFromPairs: self getPublicMetaBuilderFactoryList
 ]
 
+{ #category : #serialization }
+TMbndProgramEntity >> encodeFieldsForMessagePackWith: graphEncoder [
+	^ self explicitRequirement
+]
+
+{ #category : #serialization }
+TMbndProgramEntity >> encodeGraphForMessagePack [
+	^ self encodeGraphForMessagePackWith: SLVMSerializationGraphEncoder new.
+]
+
+{ #category : #serialization }
+TMbndProgramEntity >> encodeGraphForMessagePackWith: graphEncoder [
+	^ graphEncoder encodeObject: self type: self messagePackTypeName fields: [self encodeFieldsForMessagePackWith: graphEncoder]
+]
+
 { #category : #'semantic analysis' }
 TMbndProgramEntity >> enqueueDelayedSemanticAnalysis [
 	self module enqueueProgramEntityWithDelayedSemanticAnalysis: self
@@ -60,6 +75,11 @@ TMbndProgramEntity >> isMessageMethod [
 { #category : #testing }
 TMbndProgramEntity >> isVTablePointerField [
 	^ false
+]
+
+{ #category : #serialization }
+TMbndProgramEntity >> materializeWithGraphDecoder: graphDecoder withFields: encodedFields [
+	^ self explicitRequirement
 ]
 
 { #category : #accessing }

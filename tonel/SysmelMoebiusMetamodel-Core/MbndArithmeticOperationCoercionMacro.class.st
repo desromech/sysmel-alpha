@@ -4,6 +4,16 @@ Class {
 	#category : #'SysmelMoebiusMetamodel-Core-Macro'
 }
 
+{ #category : #serialization }
+MbndArithmeticOperationCoercionMacro class >> messagePackTypeName [
+	^ #MacroArithmeticOperationCoercion
+]
+
+{ #category : #serialization }
+MbndArithmeticOperationCoercionMacro >> encodeFieldsForMessagePackWith: graphEncoder [
+	^ #()
+]
+
 { #category : #'as yet unclassified' }
 MbndArithmeticOperationCoercionMacro >> ensureLiteralNode: literalNode hasConcreteType: literalConcreteType [
 	literalNode isLiteralValueNode ifFalse: [ ^ literalNode ].
@@ -57,4 +67,8 @@ MbndArithmeticOperationCoercionMacro >> expandMessageNode: node with: analyzer [
 		send: node selector to: leftOperand withArguments: { rightOperand })
 		position: node;
 		yourself)
+]
+
+{ #category : #serialization }
+MbndArithmeticOperationCoercionMacro >> materializeWithGraphDecoder: graphDecoder withFields: encodedFields [
 ]

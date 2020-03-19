@@ -4,6 +4,11 @@ Class {
 	#category : #'SysmelMoebiusMetamodel-Core-Method'
 }
 
+{ #category : #serialization }
+MbndConcreteFunctionMethod class >> messagePackTypeName [
+	^ #ConcreteFunctionMethod
+]
+
 { #category : #visiting }
 MbndConcreteFunctionMethod >> accept: aVisitor [
 	^ aVisitor visitConcreteFunctionMethod: self

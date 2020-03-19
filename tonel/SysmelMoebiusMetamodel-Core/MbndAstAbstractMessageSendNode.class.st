@@ -49,6 +49,15 @@ MbndAstAbstractMessageSendNode >> asUnexpandedMessageSend [
 		yourself
 ]
 
+{ #category : #serialization }
+MbndAstAbstractMessageSendNode >> encodeFieldsForMessagePackWith: graphEncoder [
+	^ {
+		#receiver . receiver encodeGraphForMessagePackWith: graphEncoder.
+		#selector . selector encodeGraphForMessagePackWith: graphEncoder.
+		#arguments . arguments encodeGraphForMessagePackWith: graphEncoder.
+	} , (super encodeFieldsForMessagePackWith: graphEncoder)
+]
+
 { #category : #testing }
 MbndAstAbstractMessageSendNode >> hasOnlyLiterals [
 	receiver ifNotNil: [ 
@@ -61,6 +70,14 @@ MbndAstAbstractMessageSendNode >> hasOnlyLiterals [
 
 	^ true
 	
+]
+
+{ #category : #serialization }
+MbndAstAbstractMessageSendNode >> materializeWithGraphDecoder: graphDecoder withFields: encodedFields [
+	super materializeWithGraphDecoder: graphDecoder withFields: encodedFields.
+	receiver := encodedFields at: #receiver.
+	selector := encodedFields at: #selector.
+	arguments := encodedFields at: #arguments.
 ]
 
 { #category : #parsing }

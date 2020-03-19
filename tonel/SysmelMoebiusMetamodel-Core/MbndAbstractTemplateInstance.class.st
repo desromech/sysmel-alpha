@@ -11,6 +11,11 @@ Class {
 	#category : #'SysmelMoebiusMetamodel-Core-Template'
 }
 
+{ #category : #serialization }
+MbndAbstractTemplateInstance class >> messagePackTypeName [
+	^ nil
+]
+
 { #category : #adding }
 MbndAbstractTemplateInstance >> addChild: aChild [
 	self assert: aChild parent isNil.
@@ -38,6 +43,14 @@ MbndAbstractTemplateInstance >> children: anObject [
 	children := anObject
 ]
 
+{ #category : #serialization }
+MbndAbstractTemplateInstance >> encodeFieldsForMessagePackWith: graphEncoder [
+	^ {
+		#mainChild . mainChild encodeGraphForMessagePackWith: graphEncoder.
+		#children . graphEncoder encodeProgramEntityList: children.
+	}
+]
+
 { #category : #testing }
 MbndAbstractTemplateInstance >> isTemplateInstance [
 	^ true
@@ -46,6 +59,17 @@ MbndAbstractTemplateInstance >> isTemplateInstance [
 { #category : #accessing }
 MbndAbstractTemplateInstance >> mainChild [
 	^ mainChild
+]
+
+{ #category : #serialization }
+MbndAbstractTemplateInstance >> materializeWithGraphDecoder: graphDecoder withFields: encodedFields [
+	mainChild := encodedFields at: #mainChild.
+	children := encodedFields at: #children.
+]
+
+{ #category : #serialization }
+MbndAbstractTemplateInstance >> messagePackTypeName [
+	^ self class messagePackTypeName
 ]
 
 { #category : #accessing }
@@ -66,4 +90,12 @@ MbndAbstractTemplateInstance >> parent [
 { #category : #accessing }
 MbndAbstractTemplateInstance >> parent: anObject [
 	parent := anObject
+]
+
+{ #category : #accessing }
+MbndAbstractTemplateInstance >> postMaterializeSetupParent: newParent withModule: newModule [
+	self parent: newParent.
+	self childrenDo: [ :child |
+		child postMaterializeSetupParent: self withModule: newModule
+	].
 ]

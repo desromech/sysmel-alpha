@@ -71,6 +71,13 @@ MbndAbstractFieldVariable >> defaultVisibilityMode [
 	^ #protected
 ]
 
+{ #category : #serialization }
+MbndAbstractFieldVariable >> encodeFieldsForMessagePackWith: graphEncoder [
+	^ (super encodeFieldsForMessagePackWith: graphEncoder) , {
+		#type . type encodeGraphForMessagePackWith: graphEncoder
+	}
+]
+
 { #category : #'as yet unclassified' }
 MbndAbstractFieldVariable >> evaluateAggregateValue: aggregate [
 	^ (aggregate slots at: slotIndex + 1) asMoebiusValueWithType: valueType
@@ -125,6 +132,12 @@ MbndAbstractFieldVariable >> location [
 { #category : #accessing }
 MbndAbstractFieldVariable >> location: anObject [
 	location := anObject
+]
+
+{ #category : #serialization }
+MbndAbstractFieldVariable >> materializeWithGraphDecoder: graphDecoder withFields: encodedFields [
+	super materializeWithGraphDecoder: graphDecoder withFields: encodedFields.
+	"type := encodedFields at: #type"
 ]
 
 { #category : #accessing }

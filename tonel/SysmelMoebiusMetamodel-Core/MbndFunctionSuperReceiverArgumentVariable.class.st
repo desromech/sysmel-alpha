@@ -7,6 +7,11 @@ Class {
 	#category : #'SysmelMoebiusMetamodel-Core-Variables'
 }
 
+{ #category : #serialization }
+MbndFunctionSuperReceiverArgumentVariable class >> messagePackTypeName [
+	^ #FunctionSuperReceiver
+]
+
 { #category : #'semantic analysis' }
 MbndFunctionSuperReceiverArgumentVariable >> analyzeReferenceNode: referenceNode with: analyzer [
 	"I could be a captured global variable."

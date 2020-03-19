@@ -4,6 +4,11 @@ Class {
 	#category : #'SysmelMoebiusMetamodel-Core-Method'
 }
 
+{ #category : #serialization }
+MbndConcreteFunclet class >> messagePackTypeName [
+	^ #ConcreteFunclet
+]
+
 { #category : #visiting }
 MbndConcreteFunclet >> accept: visitor [
 	^ visitor visitConcreteFunclet: self

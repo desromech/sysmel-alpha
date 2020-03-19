@@ -27,7 +27,8 @@ MbndSysmelLanguage class >> languageName [
 MbndSysmelLanguage >> constructTopLevelLanguageScopeFor: aModule [
 	^ (MbndGenericMacroLanguageTopLevelScope for: aModule)
 		addUsedNamespace: (aModule globalNamespace ensureSymbolIsNamespace: #SysmelKernel);
-		yourself.
+		languageName: self languageName;
+		yourself
 ]
 
 { #category : #parsing }

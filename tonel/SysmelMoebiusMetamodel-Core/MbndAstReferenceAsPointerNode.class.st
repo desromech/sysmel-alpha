@@ -12,9 +12,22 @@ MbndAstReferenceAsPointerNode >> accept: aVisitor [
 	^ aVisitor visitReferenceAsPointerNode: self
 ]
 
+{ #category : #serialization }
+MbndAstReferenceAsPointerNode >> encodeFieldsForMessagePackWith: graphEncoder [
+	^ {
+		#reference . reference encodeGraphForMessagePackWith: graphEncoder.
+	} , (super encodeFieldsForMessagePackWith: graphEncoder)
+]
+
 { #category : #testing }
 MbndAstReferenceAsPointerNode >> isReferenceAsPointerNode [
 	^ true
+]
+
+{ #category : #serialization }
+MbndAstReferenceAsPointerNode >> materializeWithGraphDecoder: graphDecoder withFields: encodedFields [
+	super materializeWithGraphDecoder: graphDecoder withFields: encodedFields.
+	reference := encodedFields at: #reference.
 ]
 
 { #category : #accessing }

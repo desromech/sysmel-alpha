@@ -12,6 +12,13 @@ MbndAstLexicalScopeNode >> accept: aVisitor [
 	^ aVisitor visitLexicalScopeNode: self
 ]
 
+{ #category : #serialization }
+MbndAstLexicalScopeNode >> encodeFieldsForMessagePackWith: graphEncoder [
+	^ {
+		#lexicalScope . lexicalScope encodeGraphForMessagePackWith: graphEncoder.
+	} , (super encodeFieldsForMessagePackWith: graphEncoder)
+]
+
 { #category : #testing }
 MbndAstLexicalScopeNode >> isLexicalScopeNode [
 	^ true
@@ -30,4 +37,10 @@ MbndAstLexicalScopeNode >> lexicalScope: anObject [
 { #category : #'as yet unclassified' }
 MbndAstLexicalScopeNode >> lexicallyScoped [
 	^ self
+]
+
+{ #category : #serialization }
+MbndAstLexicalScopeNode >> materializeWithGraphDecoder: graphDecoder withFields: encodedFields [
+	super materializeWithGraphDecoder: graphDecoder withFields: encodedFields.
+	lexicalScope := encodedFields at: #lexicalScope.
 ]

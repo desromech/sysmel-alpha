@@ -148,6 +148,7 @@ MbndSlovimDebugInformationTranslator >> translateLexicalScope: lexicalScope [
 { #category : #visiting }
 MbndSlovimDebugInformationTranslator >> translateParentScope: parentScope [
 	| debugScope |
+	parentScope isSystemProvidedTypeTemplateInstance ifTrue: [ ^ nil ].
 	debugScope := self translateProgramEntityDebugInformation: parentScope.
 	parentScope isMbndType ifTrue: [ 
 		parentScope isGarbageCollectedType ifTrue: [ 

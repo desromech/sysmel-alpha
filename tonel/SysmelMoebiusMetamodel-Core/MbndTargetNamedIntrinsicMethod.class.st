@@ -7,6 +7,11 @@ Class {
 	#category : #'SysmelMoebiusMetamodel-Core-Method'
 }
 
+{ #category : #serialization }
+MbndTargetNamedIntrinsicMethod class >> messagePackTypeName [
+	^ #TargetNamedIntrinsicMethod
+]
+
 { #category : #visiting }
 MbndTargetNamedIntrinsicMethod >> accept: aVisitor [
 	^ aVisitor visitTargetNamedIntrinsicMethod: self
