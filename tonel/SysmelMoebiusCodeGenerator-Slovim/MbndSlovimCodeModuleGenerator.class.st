@@ -1788,6 +1788,10 @@ MbndSlovimCodeModuleGenerator >> visitModule: module [
 	self slvmCompilationTarget objectModel moduleCodeGenerator: self.
 	module moduleLevelInlineAssembly do: [ :inlineAssembly | self translateModuleLevelInlineAssembly: inlineAssembly ].
 	self translateProgramEntity: module globalNamespace.
+	module allExtensionsDo: [ :extension |
+		self translateProgramEntity: extension
+	].
+
 	self generateEmbeddedShaderModule.
 	^ nil
 ]

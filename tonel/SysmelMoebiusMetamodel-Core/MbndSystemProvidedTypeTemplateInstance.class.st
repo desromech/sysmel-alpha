@@ -52,3 +52,8 @@ MbndSystemProvidedTypeTemplateInstance >> instanceArguments: anObject [
 MbndSystemProvidedTypeTemplateInstance >> isSystemProvidedTypeTemplateInstance [
 	^ true
 ]
+
+{ #category : #accessing }
+MbndSystemProvidedTypeTemplateInstance >> module [
+	^ parent module
+]

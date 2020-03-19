@@ -88,6 +88,11 @@ MbndAbstractTemplate >> children [
 	^ children ifNil: [ children := OrderedCollection new ]
 ]
 
+{ #category : #accessing }
+MbndAbstractTemplate >> compilationEnvironment [
+	^ parent compilationEnvironment
+]
+
 { #category : #template }
 MbndAbstractTemplate >> getOrCreateInstanceWithArguments: arguments [
 	self subclassResponsibility

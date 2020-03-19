@@ -43,6 +43,11 @@ MbndAbstractTemplateInstance >> children: anObject [
 	children := anObject
 ]
 
+{ #category : #accessing }
+MbndAbstractTemplateInstance >> compilationEnvironment [
+	^ parent compilationEnvironment
+]
+
 { #category : #serialization }
 MbndAbstractTemplateInstance >> encodeFieldsForMessagePackWith: graphEncoder [
 	^ {

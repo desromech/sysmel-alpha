@@ -56,6 +56,7 @@ MbndTemplate >> getOrCreateInstanceWithArguments: arguments [
 	
 	"Create the template instance meta object."
 	templateInstance := MbndTemplateInstance new
+		module: self compilationEnvironment currentModule;
 		instanceArguments: (arguments collectWithIndex: [ :argumentValue :index |
 			| argDefinition |
 			argDefinition := argumentDefinitions at: index.
@@ -69,6 +70,10 @@ MbndTemplate >> getOrCreateInstanceWithArguments: arguments [
 	"Link the instance to the hierarchy."
 	self addChild: templateInstance.
 	instances at: arguments put: templateInstance.
+
+	templateInstance module ~~ self module ifTrue: [
+		templateInstance module recordTemplate: self instanceDefinition: templateInstance.
+	].
 	
 	"Apply the main definition fragment."
 	mainDefinitionEvaluationResult := mainDefinitionFragment applyToInstance: templateInstance.

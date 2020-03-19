@@ -15,10 +15,13 @@ MbndTemplateDefinitionFragment class >> messagePackTypeName [
 
 { #category : #'semantic analysis' }
 MbndTemplateDefinitionFragment >> applyToInstance: templateInstance [
-	| evaluationScope |
-	evaluationScope := templateInstance programEntityScope parent: scope.
+	| evaluationScope module |
+	module := templateInstance compilationEnvironment currentModule.
+	Transcript show: 'Evaluate module '; show: module; space; show: module identityHash; cr.
+	evaluationScope := module moduleScope
+		parent: (templateInstance programEntityScope parent: scope).
 	^ MbndAstSemanticAnalyzerAndEvaluator new
-		module: templateInstance module;
+		module: module;
 		evaluateNode: node withReturnContextInScope: evaluationScope
 ]
 

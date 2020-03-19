@@ -8,7 +8,8 @@ Trait {
 		'extensionOverloadedMethods',
 		'languageInterfaceCache',
 		'moduleLevelInlineAssembly',
-		'embeddedShaderCopyOutputFile'
+		'embeddedShaderCopyOutputFile',
+		'externalTemplateInstances'
 	],
 	#traits : 'TMbndProgramEntity',
 	#classTraits : 'TMbndProgramEntity classTrait',
@@ -23,6 +24,14 @@ TMbndModule >> accept: aVisitor [
 { #category : #adding }
 TMbndModule >> addModuleLevelInlineAssembly: node [
 	self moduleLevelInlineAssembly add: node
+]
+
+{ #category : #accessing }
+TMbndModule >> allExtensionsDo: aBlock [
+	self extensionMacros do: [ :each | aBlock value: each last ].
+	self extensionOverloadedMethods do: [ :each | aBlock value: each last ].
+	self externalTemplateInstances do: [ :each | aBlock value: each second ].
+
 ]
 
 { #category : #evaluation }
@@ -145,6 +154,11 @@ TMbndModule >> extensionMacros [
 { #category : #accessing }
 TMbndModule >> extensionOverloadedMethods [
 	^ extensionOverloadedMethods ifNil: [ extensionOverloadedMethods := OrderedCollection new ]
+]
+
+{ #category : #accessing }
+TMbndModule >> externalTemplateInstances [
+	^ externalTemplateInstances ifNil: [ externalTemplateInstances := OrderedCollection new ]
 ]
 
 { #category : #'semantic analysis' }
@@ -336,12 +350,20 @@ TMbndModule >> programEntityScopeClass [
 
 { #category : #extensions }
 TMbndModule >> recordExtensionFor: parentEntity macroMethod: macroMethod withSelector: selector [
+	self assert: macroMethod module == self.
 	self extensionMacros add: { parentEntity . selector . macroMethod }
 ]
 
 { #category : #extensions }
 TMbndModule >> recordExtensionFor: parentEntity overloadedMethod: method withSelector: selector [
+	self assert: method module == self.
 	self extensionOverloadedMethods add: { parentEntity . selector . method }
+]
+
+{ #category : #extensions }
+TMbndModule >> recordTemplate: template instanceDefinition: templateInstance [
+	self assert: templateInstance module == self.
+	self externalTemplateInstances add: { template . templateInstance }
 ]
 
 { #category : #parameters }

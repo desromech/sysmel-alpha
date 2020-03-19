@@ -167,6 +167,11 @@ MbndBasicType >> children [
 	^ children ifNil: [ children := OrderedCollection new ]
 ]
 
+{ #category : #accessing }
+MbndBasicType >> compilationEnvironment [
+	^ self module compilationEnvironment
+]
+
 { #category : #serialization }
 MbndBasicType >> encodeFieldsForMessagePackWith: graphEncoder [
 	graphEncoder recordType: self lazyFields: (self encodeLazyFieldsForMessagePackWith: graphEncoder).

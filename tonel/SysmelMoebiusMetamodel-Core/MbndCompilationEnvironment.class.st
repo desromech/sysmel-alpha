@@ -64,6 +64,11 @@ MbndCompilationEnvironment >> coreModule [
 	^ coreModule
 ]
 
+{ #category : #accessing }
+MbndCompilationEnvironment >> currentModule [
+	^ currentModule
+]
+
 { #category : #'module construction' }
 MbndCompilationEnvironment >> evaluateFileNamed: fileName [
 	^ self validCurrentModule evaluateFileNamed: fileName
@@ -267,9 +272,11 @@ MbndCompilationEnvironment >> useLibC: aBoolean [
 { #category : #'module construction' }
 MbndCompilationEnvironment >> validCurrentModule [
 	currentModule ifNil: [
+		self halt.
 		currentModule := (MbndStandaloneModule for: self)
 			importedModules: importedModules asArray copy;
-			yourself
+			yourself.
+		importedModules add: currentModule.
 	].
 
 	^ currentModule

@@ -43,6 +43,11 @@ MbndNamespace >> children [
 	^ children ifNil: [ children := OrderedCollection new ]
 ]
 
+{ #category : #accessing }
+MbndNamespace >> compilationEnvironment [
+	^ module compilationEnvironment
+]
+
 { #category : #serialization }
 MbndNamespace >> encodeFieldsForMessagePackWith: graphEncoder [
 	^ {

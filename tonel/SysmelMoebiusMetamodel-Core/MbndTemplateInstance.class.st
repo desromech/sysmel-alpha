@@ -4,6 +4,7 @@ Class {
 	#traits : 'TMbndSymbolContainer',
 	#classTraits : 'TMbndSymbolContainer classTrait',
 	#instVars : [
+		'module',
 		'instanceArguments'
 	],
 	#category : #'SysmelMoebiusMetamodel-Core-Template'
@@ -54,6 +55,16 @@ MbndTemplateInstance >> instanceArguments: aListWithInstanceArguments [
 MbndTemplateInstance >> materializeWithGraphDecoder: graphDecoder withFields: encodedFields [
 	super materializeWithGraphDecoder: graphDecoder withFields: encodedFields.
 	instanceArguments := encodedFields at: #instanceArguments.
+]
+
+{ #category : #accessing }
+MbndTemplateInstance >> module [
+	^ module
+]
+
+{ #category : #accessing }
+MbndTemplateInstance >> module: anObject [
+	module := anObject
 ]
 
 { #category : #'member symbols' }

@@ -276,6 +276,12 @@ MbndStandaloneModule >> importedModules: anObject [
 	importedModules := anObject
 ]
 
+{ #category : #initialization }
+MbndStandaloneModule >> initialize [
+	super initialize.
+	Transcript show: self; space; show: self identityHash; cr.
+]
+
 { #category : #accessing }
 MbndStandaloneModule >> initializeWithCompilationEnvironment: aCompilationEnvironment [
 	compilationEnvironment := aCompilationEnvironment.
@@ -305,6 +311,11 @@ MbndStandaloneModule >> materializeWithGraphDecoder: graphDecoder withFields: en
 	encodedFields at: #bootstrapObjects ifPresent: [ :bootstrapObjects |
 		self compilationTarget materializeBootstrapDefinedObjectWithGraphDecoder: graphDecoder withFields: (Dictionary newFromPairs: bootstrapObjects)
 	]
+]
+
+{ #category : #'as yet unclassified' }
+MbndStandaloneModule >> moduleScope [
+	^ MbndModuleScope new module: self
 ]
 
 { #category : #parameters }
