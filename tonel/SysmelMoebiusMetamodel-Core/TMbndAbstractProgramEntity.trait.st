@@ -155,7 +155,7 @@ TMbndAbstractProgramEntity >> isMethod [
 ]
 
 { #category : #testing }
-TMbndAbstractProgramEntity >> isModuleSpecificProgramEntity [
+TMbndAbstractProgramEntity >> isModuleSpecializedProgramEntity [
 	^ false
 ]
 

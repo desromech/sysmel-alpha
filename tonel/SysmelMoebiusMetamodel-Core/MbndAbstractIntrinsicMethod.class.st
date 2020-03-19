@@ -25,7 +25,7 @@ MbndAbstractIntrinsicMethod >> intrinsicName: anObject [
 ]
 
 { #category : #testing }
-MbndAbstractIntrinsicMethod >> isModuleSpecificProgramEntity [
+MbndAbstractIntrinsicMethod >> isModuleSpecializedProgramEntity [
 	^ true
 ]
 
