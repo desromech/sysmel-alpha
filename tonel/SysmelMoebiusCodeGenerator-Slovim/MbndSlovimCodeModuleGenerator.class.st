@@ -29,7 +29,8 @@ Class {
 		'nonLocalReturnRaiseFunction',
 		'nonLocalReturnCatchFunction',
 		'objectMethodDispatchTrampolines',
-		'nativeClosureTypeInfos'
+		'nativeClosureTypeInfos',
+		'targetCodeModuleName'
 	],
 	#classVars : [
 		'ShaderBuiltInLocationMap',
@@ -115,6 +116,11 @@ MbndSlovimCodeModuleGenerator >> addPrimitiveTypeTranslations [
 { #category : #visiting }
 MbndSlovimCodeModuleGenerator >> addUnmangledProgramEntity: programEntity suffixInto: out [
 	"TODO: Add the function type string here."
+]
+
+{ #category : #accessing }
+MbndSlovimCodeModuleGenerator >> compilationEnvironment [
+	^ sourceModule compilationEnvironment
 ]
 
 { #category : #accessing }
@@ -349,10 +355,17 @@ MbndSlovimCodeModuleGenerator >> generateCodeModuleFor: aModule [
 ]
 
 { #category : #'code generation' }
-MbndSlovimCodeModuleGenerator >> generateCodeModuleFor: aModule programEntities: programEntitities [
+MbndSlovimCodeModuleGenerator >> generateCodeModuleFor: aModule name: codeModuleName [
+	^ self generateCodeModuleFor: aModule programEntities: { aModule } name: codeModuleName
+]
+
+{ #category : #'code generation' }
+MbndSlovimCodeModuleGenerator >> generateCodeModuleFor: aModule programEntities: programEntitities name: theTargetCodeModuleName [
 	sourceModule := aModule.
 	ssaModule := SLVMModule new compilationTarget: self slvmCompilationTarget.
 	ssaModule sourceLanguageName: 'C++'. "HACK"
+	theTargetCodeModuleName ifNotNil: [ aModule namedTargetCodeModules at: theTargetCodeModuleName put: ssaModule ].
+	targetCodeModuleName := theTargetCodeModuleName.
 	
 	self addPrimitiveTypeTranslations.
 	programEntitities do: [ :each | self translateProgramEntity: each ].
@@ -368,7 +381,7 @@ MbndSlovimCodeModuleGenerator >> generateEmbeddedShaderModule [
 	shaderCompilationTarget := self compilationTarget asSpirVCompilationTarget.
 	shaderModuleCodeGenerator := shaderCompilationTarget newCodeModuleGenerator.
 	shaderModuleCodeGenerator compilationTargetOverride: shaderCompilationTarget.
-	shaderSSAModule := MbndProfiler component: #shaderIRCodeGeneration with: [shaderModuleCodeGenerator generateCodeModuleFor: sourceModule programEntities: shaderEntryPoints].
+	shaderSSAModule := MbndProfiler component: #shaderIRCodeGeneration with: [shaderModuleCodeGenerator generateCodeModuleFor: sourceModule programEntities: shaderEntryPoints name: #spirv].
 	
 	spirVModule := shaderSSAModule asLowLevelModuleWithOptimizationLevel: sourceModule optimizationLevel.
 	spirVModuleBlobData := spirVModule bytes.
@@ -842,6 +855,20 @@ MbndSlovimCodeModuleGenerator >> hasExceptions [
 	^ sourceModule hasExceptions
 ]
 
+{ #category : #'as yet unclassified' }
+MbndSlovimCodeModuleGenerator >> importTranslatedProgramEntity: externalProgramEntity [
+	| importedModule importedSSAModule programEntitySymbol externalProgramEntityValue |
+	importedModule := externalProgramEntity module.
+	importedSSAModule := importedModule namedTargetCodeModules at: targetCodeModuleName.
+	programEntitySymbol := importedSSAModule highLevelMapToSymbol at: externalProgramEntity.
+	ssaModule globalNamed: programEntitySymbol ifPresent: [ :alreadyImported |
+		^ alreadyImported
+	].
+
+	externalProgramEntityValue := importedSSAModule globalNamed: programEntitySymbol.
+	^ ssaModule importGlobalValue: externalProgramEntityValue fromModule: ssaModule
+]
+
 { #category : #initialization }
 MbndSlovimCodeModuleGenerator >> initialize [
 	super initialize.
@@ -1062,6 +1089,11 @@ MbndSlovimCodeModuleGenerator >> slvmCompilationTarget [
 	^ sourceModule compilationTarget slvmCompilationTarget
 ]
 
+{ #category : #accessing }
+MbndSlovimCodeModuleGenerator >> sourceModule [
+	^ sourceModule
+]
+
 { #category : #initialization }
 MbndSlovimCodeModuleGenerator >> ssaModule [
 	^ ssaModule
@@ -1088,6 +1120,11 @@ MbndSlovimCodeModuleGenerator >> symbolNameManglerPrototype [
 			codeModuleGenerator: self;
 			yourself
 	]
+]
+
+{ #category : #accessing }
+MbndSlovimCodeModuleGenerator >> targetCodeModuleName [
+	^ targetCodeModuleName
 ]
 
 { #category : #visiting }
@@ -1165,16 +1202,22 @@ MbndSlovimCodeModuleGenerator >> translateModuleLevelInlineAssembly: inlineAssem
 MbndSlovimCodeModuleGenerator >> translateProgramEntity: programEntity [
 	^ translatedProgramEntities at: programEntity ifAbsent: [
 		| ssaValue |
-		ssaValue := programEntity accept: self.
-		translatedProgramEntities at: programEntity ifAbsent: [
-			self setProgramEntity: programEntity ssaValue: ssaValue
+		programEntity module ~~ sourceModule ifTrue: [ 
+			ssaValue := self importTranslatedProgramEntity: programEntity.
+			ssaValue ifNotNil: [ 
+				self setProgramEntity: programEntity ssaValue: ssaValue
+			].
 		].
+	
+		ssaValue ifNil: [ 
+			ssaValue := programEntity accept: self.
+			translatedProgramEntities at: programEntity ifAbsent: [
+				self setProgramEntity: programEntity ssaValue: ssaValue
+			].
+		].
+	
+		translatedProgramEntities at: programEntity 
 	]
-]
-
-{ #category : #visiting }
-MbndSlovimCodeModuleGenerator >> translateProgramEntity: programEntity informationData: informationDataContent [
-	self halt
 ]
 
 { #category : #visiting }
@@ -1360,11 +1403,15 @@ MbndSlovimCodeModuleGenerator >> visitAggregateTypeWithFields: type [
 	type isGCClassType ifTrue: [
 		type isMetaType ifFalse: [ 
 			ssaModule addStructure: ssaType baseType.
+			ssaModule addHighLevelEntity: type mapToStructureType: ssaType baseType.
+
 			ssaModule addStructure: ssaTypeValueType baseType.
+			ssaModule addHighLevelEntity: type type mapToStructureType: ssaTypeValueType baseType.
 		].
 	] ifFalse: [
 		(ssaType isStructureType and: [ ssaType name isNotNil ]) ifTrue: [ 
-			ssaModule addStructure: ssaType
+			ssaModule addStructure: ssaType.
+			ssaModule addHighLevelEntity: type mapToStructureType: ssaType.
 		]
 	].
 

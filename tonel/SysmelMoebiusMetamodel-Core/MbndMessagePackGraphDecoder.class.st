@@ -3,10 +3,21 @@ Class {
 	#superclass : #SLVMMessagePackGraphDecoder,
 	#instVars : [
 		'compilationTarget',
+		'compilationEnvironment',
 		'targetModule'
 	],
 	#category : #'SysmelMoebiusMetamodel-Core-Serialization'
 }
+
+{ #category : #accessing }
+MbndMessagePackGraphDecoder >> compilationEnvironment [
+	^ compilationEnvironment
+]
+
+{ #category : #accessing }
+MbndMessagePackGraphDecoder >> compilationEnvironment: anObject [
+	compilationEnvironment := anObject
+]
 
 { #category : #accessing }
 MbndMessagePackGraphDecoder >> compilationTarget [

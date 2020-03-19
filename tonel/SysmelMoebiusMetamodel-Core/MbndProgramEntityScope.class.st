@@ -8,6 +8,11 @@ Class {
 }
 
 { #category : #accessing }
+MbndProgramEntityScope >> compilationEnvironment [
+	^ programEntity compilationEnvironment
+]
+
+{ #category : #accessing }
 MbndProgramEntityScope >> compilationTarget [
 	^ programEntity compilationTarget
 ]

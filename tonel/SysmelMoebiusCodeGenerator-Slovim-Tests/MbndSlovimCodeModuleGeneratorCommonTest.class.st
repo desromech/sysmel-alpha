@@ -25,5 +25,5 @@ MbndSlovimCodeModuleGeneratorCommonTest >> generateSSAModule [
 
 { #category : #running }
 MbndSlovimCodeModuleGeneratorCommonTest >> setUp [
-	semanticModule := MbndStandaloneModule llvm_x86_64.
+	semanticModule := MbndCompilationEnvironment llvm_x86_64 coreModule.
 ]

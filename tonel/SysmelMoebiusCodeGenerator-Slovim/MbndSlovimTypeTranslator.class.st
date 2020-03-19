@@ -28,6 +28,18 @@ MbndSlovimTypeTranslator class >> initialize [
 	).
 ]
 
+{ #category : #'as yet unclassified' }
+MbndSlovimTypeTranslator >> importTranslatedType: aType fromModule: typeDefinitionModule [
+	| importedSSAModule importedType |
+	self assert: aType isAggregateType.
+	importedSSAModule := typeDefinitionModule namedTargetCodeModules at: codeModuleGenerator targetCodeModuleName.
+	importedType := importedSSAModule highLevelMapToStructureType at: aType.
+	codeModuleGenerator ssaModule
+		importType: importedType fromModule: importedSSAModule;
+		addHighLevelEntity: aType mapToStructureType: importedType.
+	^ importedType
+]
+
 { #category : #initialization }
 MbndSlovimTypeTranslator >> initialize [
 	super initialize.
@@ -79,11 +91,15 @@ MbndSlovimTypeTranslator >> translateAggregateType: aggregateType withKind: type
 { #category : #visiting }
 MbndSlovimTypeTranslator >> translateType: aType [
 	^ translatedTypes at: aType ifAbsentPut: [
-		aType isTrait ifFalse: [
-			aType accept: self
-		] ifTrue: [
-			self halt
-		].
+		(aType isModuleSpecificType and: [aType module ~~ codeModuleGenerator sourceModule]) ifTrue: [
+			self importTranslatedType: aType fromModule: aType module
+		] ifFalse: [ 
+			aType isTrait ifFalse: [
+				aType accept: self
+			] ifTrue: [
+				self halt
+			].
+		]
 	]
 
 ]

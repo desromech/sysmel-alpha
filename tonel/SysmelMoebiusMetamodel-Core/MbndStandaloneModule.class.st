@@ -2,17 +2,9 @@ Class {
 	#name : #MbndStandaloneModule,
 	#superclass : #MbndAbstractModule,
 	#instVars : [
-		'compilationTarget',
-		'useLibC',
-		'hasRuntimeTypeInformation',
-		'hasStandardLibrary',
-		'hasGarbageCollectionSupport',
-		'hasGarbageCollectionStackMap',
-		'hasLibC',
-		'optimizationLevel',
-		'hasGPUSupport',
+		'compilationEnvironment',
 		'linkerArguments',
-		'hasExceptions'
+		'importedModules'
 	],
 	#classVars : [
 		'MessagePackTypeMapTable'
@@ -20,17 +12,14 @@ Class {
 	#category : #'SysmelMoebiusMetamodel-Core-Module'
 }
 
-{ #category : #'as yet unclassified' }
-MbndStandaloneModule class >> compilationTarget: aCompilationTarget [
-	^ self basicNew
-		initializeWithCompilationTarget: aCompilationTarget;
-		yourself
-
-]
-
 { #category : #accessing }
 MbndStandaloneModule class >> disableSLVMOptimizations [
 	^ true
+]
+
+{ #category : #'instance creation' }
+MbndStandaloneModule class >> for: aCompilationEnvironment [
+	^ self basicNew initializeWithCompilationEnvironment: aCompilationEnvironment; yourself
 ]
 
 { #category : #'class initialization' }
@@ -60,16 +49,6 @@ MbndStandaloneModule class >> initialize [
 	]].
 ]
 
-{ #category : #'as yet unclassified' }
-MbndStandaloneModule class >> llvm_x86 [
-	^ self compilationTarget: MbndSlovimCompilationTarget llvm_x86
-]
-
-{ #category : #'as yet unclassified' }
-MbndStandaloneModule class >> llvm_x86_64 [
-	^ self compilationTarget: MbndSlovimCompilationTarget llvm_x86_64
-]
-
 { #category : #serialization }
 MbndStandaloneModule class >> materializeObjectWithType: objectType earlyFields: earlyFields withMessagePackGraphDecoder: graphDecoder [
 	(objectType == #TargetModule) ifTrue: [
@@ -93,20 +72,20 @@ MbndStandaloneModule class >> messagePackTypeName [
 	^ #StandaloneModule
 ]
 
-{ #category : #'as yet unclassified' }
-MbndStandaloneModule class >> spirv_vulkan [
-	^ self compilationTarget: MbndSlovimCompilationTarget spirv_vulkan
-]
-
 { #category : #adding }
 MbndStandaloneModule >> addLinkerArguments: arguments [
 	<compileTime>
-	self linkerArguments addAll: arguments
+	self compilationEnvironment addLinkerArguments: arguments
+]
+
+{ #category : #accessing }
+MbndStandaloneModule >> compilationEnvironment [
+	^ compilationEnvironment
 ]
 
 { #category : #accessing }
 MbndStandaloneModule >> compilationTarget [
-	^ compilationTarget
+	^ compilationEnvironment compilationTarget
 ]
 
 { #category : #accessing }
@@ -151,119 +130,92 @@ MbndStandaloneModule >> encodeGraphForMessagePackWith: graphEncoder [
 ]
 
 { #category : #'as yet unclassified' }
-MbndStandaloneModule >> encodeModulePublicInterfaceWithSSAModule: ssaModule [
-	| graphEncoder result exportedSSAModule |
+MbndStandaloneModule >> encodeModulePublicInterface [
+	| graphEncoder result |
 	graphEncoder := MbndSerializationGraphEncoder new
 		setExportMode;
 		typeMapTable: MessagePackTypeMapTable;
 		targetModule: self;
 		yourself.
-		exportedSSAModule := ssaModule asPublicInterfaceDeclarationModule.
 	result := {
 		#module . self encodeGraphForMessagePackWith: graphEncoder.
-		#exportedSSAModule . exportedSSAModule asFullSExpression .
+		#exportedSSAModules . Array streamContents: [ :out |
+			self namedTargetCodeModules keys sorted do: [ :ssaModuleName |
+				| ssaModule exportSSAModule |
+				ssaModule := namedTargetCodeModules at: ssaModuleName.
+				exportSSAModule := ssaModule asPublicInterfaceDeclarationModule.
+				out nextPut: ssaModuleName; nextPut: {
+					#module . exportSSAModule asFullSExpression.
+					#programEntityMapToAggregateType . ((exportSSAModule highLevelMapToStructureType associations collect: [ :assoc |
+						{ assoc key encodeGraphForMessagePackWith: graphEncoder.  assoc value name asSymbol }
+					] as: Array) sorted: [:a :b | a second < b second]) flattened. 
+						
+					#programEntityMapToSymbol. ((exportSSAModule highLevelMapToSymbol associations collect: [ :assoc |
+						{ assoc key encodeGraphForMessagePackWith: graphEncoder. assoc value asSymbol }
+					] as: Array) sorted: [:a :b | a second < b second]) flattened.
+				}
+			]
+		]
 	}.
-	
+
 	^ SLVMMessagePackGraphEncoder encodeObject: result
 ]
 
 { #category : #'as yet unclassified' }
-MbndStandaloneModule >> exportModulePublicInterfaceTo: outputFileName withSSAModule: ssaModule [
+MbndStandaloneModule >> exportModulePublicInterfaceTo: outputFileName [
 	| publicModuleEncodedMessage |
-	publicModuleEncodedMessage := self encodeModulePublicInterfaceWithSSAModule: ssaModule.
+	publicModuleEncodedMessage := self encodeModulePublicInterface.
 	outputFileName asFileReference binaryWriteStreamDo: [ :out |
 		out truncate; nextPutAll: publicModuleEncodedMessage
 	]
 ]
 
 { #category : #parameters }
-MbndStandaloneModule >> freestanding [
-	<compileTime>
-	^ self
-		noLibC;
-		noRTTI.
-]
-
-{ #category : #parameters }
 MbndStandaloneModule >> hasExceptions [
-	^ hasExceptions ifNil: [ hasExceptions := true ]
-]
-
-{ #category : #parameters }
-MbndStandaloneModule >> hasExceptions: aBoolean [
 	<compileTime>
-	hasExceptions := aBoolean
+	^ compilationEnvironment hasExceptions
 ]
 
 { #category : #parameters }
 MbndStandaloneModule >> hasGPUSupport [
 	<compileTime>
-	^ hasGPUSupport ifNil: [ hasGPUSupport := true ]
+	^ compilationEnvironment hasGPUSupport
 ]
 
 { #category : #parameters }
 MbndStandaloneModule >> hasGarbageCollectionStackMap [
 	<compileTime>
-	^ hasGarbageCollectionStackMap ifNil: [ hasGarbageCollectionStackMap := false ]
-]
-
-{ #category : #parameters }
-MbndStandaloneModule >> hasGarbageCollectionStackMap: aBoolean [
-	<compileTime>
-	hasGarbageCollectionStackMap := aBoolean
+	^ compilationEnvironment hasGarbageCollectionStackMap
 ]
 
 { #category : #parameters }
 MbndStandaloneModule >> hasGarbageCollectionSupport [
 	<compileTime>
-	^ hasGarbageCollectionSupport ifNil: [ hasGarbageCollectionSupport := self hasRuntimeTypeInformation ]
-]
-
-{ #category : #parameters }
-MbndStandaloneModule >> hasGarbageCollectionSupport: aBoolean [
-	<compileTime>
-	hasGarbageCollectionSupport := aBoolean
+	^ compilationEnvironment hasGarbageCollectionSupport
 ]
 
 { #category : #parameters }
 MbndStandaloneModule >> hasLibC [
 	<compileTime>
-	^ hasLibC ifNil: [ hasLibC := self compilationTarget isGPU not ]
-]
-
-{ #category : #parameters }
-MbndStandaloneModule >> hasLibC: aBoolean [
-	<compileTime>
-	hasLibC := aBoolean
+	^ compilationEnvironment hasLibC
 ]
 
 { #category : #parameters }
 MbndStandaloneModule >> hasPreciseGarbageCollector [
-	^ false
+	<compileTime>
+	^ compilationEnvironment hasPreciseGarbageCollector
 ]
 
 { #category : #parameters }
 MbndStandaloneModule >> hasRuntimeTypeInformation [
 	<compileTime>
-	^ hasRuntimeTypeInformation ifNil: [ hasRuntimeTypeInformation := self compilationTarget isGPU not ]
-]
-
-{ #category : #parameters }
-MbndStandaloneModule >> hasRuntimeTypeInformation: aBoolean [
-	<compileTime>
-	hasRuntimeTypeInformation := aBoolean
+	^ compilationEnvironment hasRuntimeTypeInformation
 ]
 
 { #category : #parameters }
 MbndStandaloneModule >> hasStandardLibrary [
 	<compileTime>
-	^ hasStandardLibrary ifNil: [ hasStandardLibrary := true ]
-]
-
-{ #category : #parameters }
-MbndStandaloneModule >> hasStandardLibrary: aBoolean [
-	<compileTime>
-	hasStandardLibrary := aBoolean
+	^ compilationEnvironment hasStandardLibrary
 ]
 
 { #category : #serialization }
@@ -272,7 +224,8 @@ MbndStandaloneModule >> importModuleFrom: aModuleExportFileDefinition [
 	moduleExportFileContents := aModuleExportFileDefinition asFileReference binaryReadStreamDo: [ :in | in contents ].
 	decodedExportedModuleAttributes := Dictionary newFromPairs: (MbndMessagePackGraphDecoder new
 		typeTable: MessagePackTypeMapTable;
-		compilationTarget: compilationTarget;
+		compilationTarget: self compilationTarget;
+		compilationEnvironment: self compilationEnvironment;
 		targetModule: self;
 		decode: moduleExportFileContents).
 	self assert: (decodedExportedModuleAttributes at: #module) == self.
@@ -291,21 +244,48 @@ MbndStandaloneModule >> importModuleFrom: aModuleExportFileDefinition [
 		applyExtensionMacros;
 		applyExtensionOverloadedMethods.
 	
-	"TODO: Store the SSA module for future code generation."
+	decodedExportedModuleAttributes at: #exportedSSAModules ifPresent: [ :exportedSSAModules |
+		| exportedNamedSSAModules |
+		exportedNamedSSAModules := Dictionary newFromPairs: exportedSSAModules.
+		exportedNamedSSAModules keysAndValuesDo: [ :moduleName :moduleAttributesList |
+			| moduleAttributes exportedSSAModule |
+			moduleAttributes := Dictionary newFromPairs: moduleAttributesList.
+			exportedSSAModule := SLVMModule new
+				compilationTarget: self compilationTarget slvmCompilationTarget;
+				decodeFromFullSExpression: (moduleAttributes at: #module).
+			(moduleAttributes at: #programEntityMapToAggregateType) pairsDo: [ :programEntity :aggregateTypeName |
+				exportedSSAModule addHighLevelEntity: programEntity
+					mapToStructureType: (exportedSSAModule structureNamed: aggregateTypeName)
+			].
+			(moduleAttributes at: #programEntityMapToSymbol) pairsDo: [ :programEntity :globalSymbol |
+				exportedSSAModule addHighLevelEntity: programEntity mapToGlobalValue: (exportedSSAModule globalNamed: globalSymbol)
+			].
+			
+			self namedTargetCodeModules at: moduleName put: exportedSSAModule
+		]
+	].
 ]
 
 { #category : #accessing }
-MbndStandaloneModule >> initializeWithCompilationTarget: aCompilationTarget [
-	compilationTarget := aCompilationTarget.
-	compilationTarget
-		coreDefinitionsModule: self;
-		initialize.
+MbndStandaloneModule >> importedModules [
+	^ importedModules ifNil: [ #() ]
+]
+
+{ #category : #accessing }
+MbndStandaloneModule >> importedModules: anObject [
+	importedModules := anObject
+]
+
+{ #category : #accessing }
+MbndStandaloneModule >> initializeWithCompilationEnvironment: aCompilationEnvironment [
+	compilationEnvironment := aCompilationEnvironment.
+	compilationEnvironment compilationTarget coreDefinitionsModule ifNil: [ 
+		compilationEnvironment compilationTarget
+			coreDefinitionsModule: self;
+			initialize.
+	].
+
 	self initialize
-]
-
-{ #category : #accessing }
-MbndStandaloneModule >> linkerArguments [
-	^ linkerArguments ifNil: [ linkerArguments := OrderedCollection new ]
 ]
 
 { #category : #'as yet unclassified' }
@@ -328,67 +308,8 @@ MbndStandaloneModule >> materializeWithGraphDecoder: graphDecoder withFields: en
 ]
 
 { #category : #parameters }
-MbndStandaloneModule >> noExceptions [
-	<compileTime>
-	self hasExceptions: false
-]
-
-{ #category : #parameters }
-MbndStandaloneModule >> noGC [
-	<compileTime>
-	self hasGarbageCollectionSupport: false
-]
-
-{ #category : #parameters }
-MbndStandaloneModule >> noLibC [
-	<compileTime>
-	self
-		hasLibC: false;
-		useLibC: false
-]
-
-{ #category : #parameters }
-MbndStandaloneModule >> noRTTI [
-	<compileTime>
-	self hasRuntimeTypeInformation: false
-]
-
-{ #category : #parameters }
-MbndStandaloneModule >> noStandardLibrary [
-	<compileTime>
-	self hasStandardLibrary: false
-]
-
-{ #category : #parameters }
 MbndStandaloneModule >> optimizationLevel [
-	^ optimizationLevel ifNil: [ optimizationLevel := 0 ]
-]
-
-{ #category : #parameters }
-MbndStandaloneModule >> optimizationLevel: anInteger [
-	^ optimizationLevel := anInteger
-]
-
-{ #category : #parameters }
-MbndStandaloneModule >> useLibC [
-	<compileTime>
-	^ useLibC ifNil: [ useLibC := self hasLibC ]
-]
-
-{ #category : #parameters }
-MbndStandaloneModule >> useLibC: aBoolean [
-	<compileTime>
-	useLibC := aBoolean
-]
-
-{ #category : #initialization }
-MbndStandaloneModule >> withDebugInformation [
-	compilationTarget withDebugInformation
-]
-
-{ #category : #initialization }
-MbndStandaloneModule >> withPositionIndependentCode [
-	compilationTarget withPositionIndependentCode
+	^ compilationEnvironment optimizationLevel
 ]
 
 { #category : #writing }
@@ -412,7 +333,6 @@ MbndStandaloneModule >> writeMode: writeMode toFileNamed: outputFileName [
 	self finishSemanticAnalysis.
 	ssaModule := self generateTargetCodeModule.
 	outputFileReference := outputFileName asFileReference.
-	outputExportModuleFileReference := outputFileReference parent / (outputFileReference basenameWithoutExtension , '.smpmodule').
 	
 	ssaModule disableSLVMOptimizations: self disableSLVMOptimizations.
 	ssaModule disableSLVMOptimizations ifFalse: [ 
@@ -422,11 +342,10 @@ MbndStandaloneModule >> writeMode: writeMode toFileNamed: outputFileName [
 	].
 
 	MbndProfiler component: #lirCodeGeneration with: [ 
-		lowLevelModule := ssaModule asLowLevelModuleWithOptimizationLevel: optimizationLevel.
+		lowLevelModule := ssaModule asLowLevelModuleWithOptimizationLevel: self optimizationLevel.
 		lowLevelModule linkerArguments: linkerArguments.
 	].
 	
-	self exportModulePublicInterfaceTo: outputExportModuleFileReference withSSAModule: ssaModule.
 	writeMode == #assembly ifTrue: [
 		^ lowLevelModule writeAssemblyToFileNamed: outputFileName
 	].

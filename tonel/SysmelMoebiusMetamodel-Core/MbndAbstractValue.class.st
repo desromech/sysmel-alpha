@@ -28,6 +28,11 @@ MbndAbstractValue >> asMoebiusValueWithType: aType [
 ]
 
 { #category : #accessing }
+MbndAbstractValue >> compilationEnvironment [
+	^ self type compilationEnvironment
+]
+
+{ #category : #accessing }
 MbndAbstractValue >> compilationTarget [
 	^ self type compilationTarget
 ]

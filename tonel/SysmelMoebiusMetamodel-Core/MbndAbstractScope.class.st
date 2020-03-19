@@ -26,6 +26,11 @@ MbndAbstractScope class >> parent: aParent [
 ]
 
 { #category : #accessing }
+MbndAbstractScope >> compilationEnvironment [
+	^ parent compilationEnvironment
+]
+
+{ #category : #accessing }
 MbndAbstractScope >> compilationTarget [
 	^ parent compilationTarget
 ]
@@ -138,6 +143,11 @@ MbndAbstractScope >> materializeWithGraphDecoder: graphDecoder withFields: encod
 { #category : #serialization }
 MbndAbstractScope >> messagePackTypeName [
 	^ self class messagePackTypeName
+]
+
+{ #category : #accessing }
+MbndAbstractScope >> module [
+	^ parent ifNotNil: [ parent module ]
 ]
 
 { #category : #'instance creation' }

@@ -15,17 +15,19 @@ TMbndAbstractMethodContainer >> addOverloadedMethod: method argumentTypes: argum
 
 { #category : #adding }
 TMbndAbstractMethodContainer >> addOverloadedMethod: method receiverType: receiverType argumentTypes: argumentTypes returnType: returnType [
-	| functionType boundFunctionType |
+	| functionType boundFunctionType concreteMethod |
 	boundFunctionType := self compilationTarget functionTypeWithArguments: argumentTypes returnType: returnType.
 	functionType := receiverType isVoidType
 		ifTrue: [ boundFunctionType ]
 		ifFalse: [ self compilationTarget functionTypeWithArguments: {receiverType} , argumentTypes returnType: returnType ].
 	 
-	^ self addOverloadedMethod: (method copy
+	concreteMethod := method copy
 		receiverType: receiverType;
 		type: functionType;
 		boundType: boundFunctionType;
-		yourself)
+		yourself.
+	self addChild: concreteMethod.
+	^ self addOverloadedMethod: concreteMethod
 ]
 
 { #category : #adding }

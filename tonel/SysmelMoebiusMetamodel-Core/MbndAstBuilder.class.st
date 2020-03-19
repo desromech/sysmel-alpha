@@ -143,6 +143,11 @@ MbndAstBuilder >> cleanUpScope: expression actions: cleanUpActions [
 ]
 
 { #category : #accessing }
+MbndAstBuilder >> compilationEnvironment [
+	^ module compilationEnvironment
+]
+
+{ #category : #accessing }
 MbndAstBuilder >> compilationTarget [
 	^ module compilationTarget
 ]

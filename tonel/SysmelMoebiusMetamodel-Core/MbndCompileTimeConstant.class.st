@@ -30,6 +30,11 @@ MbndCompileTimeConstant >> analyzeReferenceNode: referenceNode with: analyzer [
 ]
 
 { #category : #'as yet unclassified' }
+MbndCompileTimeConstant >> compilationEnvironment [
+	^ parent compilationEnvironment
+]
+
+{ #category : #'as yet unclassified' }
 MbndCompileTimeConstant >> compilationTarget [
 	^ parent compilationTarget
 ]

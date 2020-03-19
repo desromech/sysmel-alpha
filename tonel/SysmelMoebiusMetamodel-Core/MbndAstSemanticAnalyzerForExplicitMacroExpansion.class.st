@@ -7,7 +7,8 @@ Class {
 		'compilationTarget',
 		'astBuilder',
 		'continueOwner',
-		'breakOwner'
+		'breakOwner',
+		'compilationEnvironment'
 	],
 	#category : #'SysmelMoebiusMetamodel-Core-SemanticAnalysis'
 }
@@ -47,6 +48,11 @@ MbndAstSemanticAnalyzerForExplicitMacroExpansion >> checkForRestrictedSymbol: sy
 		self warning: 'Symbol #{1} bound to metabuild is overriden at this scope.' format: { symbolName asPrettySymbolName } at: node
 	].
 
+]
+
+{ #category : #accessing }
+MbndAstSemanticAnalyzerForExplicitMacroExpansion >> compilationEnvironment [
+	^ compilationEnvironment ifNil: [ compilationEnvironment := module compilationEnvironment ]
 ]
 
 { #category : #accessing }

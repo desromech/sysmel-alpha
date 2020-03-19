@@ -1034,6 +1034,11 @@ TMbndAbstractType >> isMethodTemplateType [
 	^ false
 ]
 
+{ #category : #testing }
+TMbndAbstractType >> isModuleSpecificType [
+	^ false
+]
+
 { #category : #'testing methods' }
 TMbndAbstractType >> isNamespaceType [
 	^ false

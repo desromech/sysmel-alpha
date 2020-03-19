@@ -8,6 +8,11 @@ Class {
 }
 
 { #category : #accessing }
+MbndAstQuasiQuoteSemanticAnalyzer >> compilationEnvironment [
+	^ unquoteAnalyzer compilationEnvironment
+]
+
+{ #category : #accessing }
 MbndAstQuasiQuoteSemanticAnalyzer >> compilationTarget [
 	^ unquoteAnalyzer compilationTarget
 ]

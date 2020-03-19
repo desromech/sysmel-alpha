@@ -5,6 +5,6 @@ Class {
 }
 
 { #category : #'as yet unclassified' }
-MbndAbstractCodeModuleGenerator >> generateCodeModuleFor: aModule [
+MbndAbstractCodeModuleGenerator >> generateCodeModuleFor: aModule name: codeModuleName [
 	self subclassResponsibility
 ]

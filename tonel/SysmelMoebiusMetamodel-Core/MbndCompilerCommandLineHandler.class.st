@@ -182,7 +182,7 @@ MbndCompilerCommandLineHandler >> activate [
 		target withDebugInformation
 	].
 
-	compiler := MbndStandaloneModule compilationTarget: target.
+	compiler := MbndCompilationEnvironment compilationTarget: target.
 	compilationOptions do: [ :option |
 		option value: compiler.
 	].

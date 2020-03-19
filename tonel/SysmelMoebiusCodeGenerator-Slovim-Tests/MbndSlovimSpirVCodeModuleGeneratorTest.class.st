@@ -15,7 +15,7 @@ MbndSlovimSpirVCodeModuleGeneratorTest >> generateSpirV [
 
 { #category : #running }
 MbndSlovimSpirVCodeModuleGeneratorTest >> setUp [
-	semanticModule := MbndStandaloneModule spirv_vulkan.
+	semanticModule := MbndCompilationEnvironment spirv_vulkan coreModule.
 ]
 
 { #category : #tests }

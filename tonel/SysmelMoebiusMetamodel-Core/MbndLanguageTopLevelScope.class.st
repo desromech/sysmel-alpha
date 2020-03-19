@@ -105,6 +105,11 @@ MbndLanguageTopLevelScope >> messagePackTypeName [
 	^ super messagePackTypeName
 ]
 
+{ #category : #accessing }
+MbndLanguageTopLevelScope >> module [
+	^ module
+]
+
 { #category : #'macro addition' }
 MbndLanguageTopLevelScope >> onMacroSelector: aSelector do: aBlock [
 	topLevelMacros at: aSelector

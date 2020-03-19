@@ -7,7 +7,8 @@ Class {
 		'parent',
 		'children',
 		'name',
-		'module'
+		'module',
+		'importedNamespaces'
 	],
 	#category : #'SysmelMoebiusMetamodel-Core-ProgramEntity'
 }
@@ -52,6 +53,31 @@ MbndNamespace >> encodeFieldsForMessagePackWith: graphEncoder [
 		#localSymbolTable . graphEncoder encodeSymbolTable: localSymbolTable.
 		#children.  graphEncoder encodeProgramEntityList: children
 	}
+]
+
+{ #category : #enumerating }
+MbndNamespace >> importedNamespaces [
+	importedNamespaces ifNotNil: [ ^ importedNamespaces ].
+	parent ifNil: [
+		self assert: name == #__global.
+		^ importedNamespaces := module importedModules collect: [ :each | each globalNamespace ].
+	].
+
+	name isMbndAnonymousSymbol ifTrue: [
+		^ importedNamespaces := #()
+	].
+
+	self assert: parent isNamespace.
+	importedNamespaces := parent importedNamespaces collect: [ :parentImportedNamespace |
+		parentImportedNamespace localSymbolTable at: name ifAbsent: [ nil ]
+	] thenSelect: [ :each | each isNotNil and: [ each isNamespace ] ].
+	^ importedNamespaces
+
+]
+
+{ #category : #enumerating }
+MbndNamespace >> importedNamespacesDo: aBlock [
+	^ self importedNamespaces do: aBlock
 ]
 
 { #category : #serialization }

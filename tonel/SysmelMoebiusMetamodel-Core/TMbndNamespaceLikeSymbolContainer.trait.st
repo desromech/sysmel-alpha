@@ -8,10 +8,18 @@ Trait {
 	#category : #'SysmelMoebiusMetamodel-Core-ProgramEntity'
 }
 
+{ #category : #enumerating }
+TMbndNamespaceLikeSymbolContainer >> importedNamespacesDo: aBlock [
+	"By default do nothing. This delegates the lookup into the namespaces with the same name that are defined in imported modules."
+]
+
 { #category : #methods }
 TMbndNamespaceLikeSymbolContainer >> lookupOverloadedSelector: aSelector [
 	(self lookupLocalOverloadedSelector: aSelector) ifNotNil: [ :found | ^ found ].
 	self usedNamespaces do: [ :namespace |
+		(namespace lookupOverloadedSelector: aSelector) ifNotNil: [ :found | ^ found ].
+	].
+	self importedNamespacesDo: [ :namespace |
 		(namespace lookupOverloadedSelector: aSelector) ifNotNil: [ :found | ^ found ].
 	].
 	
@@ -24,6 +32,9 @@ TMbndNamespaceLikeSymbolContainer >> lookupSelector: aSelector [
 	self usedNamespaces do: [ :namespace |
 		(namespace lookupSelector: aSelector) ifNotNil: [ :found | ^ found ].
 	].
+	self importedNamespacesDo: [ :namespace |
+		(namespace lookupSelector: aSelector) ifNotNil: [ :found | ^ found ].
+	].
 	
 	^ nil
 ]
@@ -32,6 +43,9 @@ TMbndNamespaceLikeSymbolContainer >> lookupSelector: aSelector [
 TMbndNamespaceLikeSymbolContainer >> lookupSymbol: aSymbol [
 	(self lookupLocalSymbol: aSymbol) ifNotNil: [ :found | ^ found ].
 	self usedNamespaces do: [ :namespace |
+		(namespace lookupSymbol: aSymbol) ifNotNil: [ :found | ^ found ].
+	].
+	self importedNamespacesDo: [ :namespace |
 		(namespace lookupSymbol: aSymbol) ifNotNil: [ :found | ^ found ].
 	].
 

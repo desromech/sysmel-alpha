@@ -162,7 +162,7 @@ SGPUCompilationEnvironment >> getShaderTemplateNamed: templateName instanceWithA
 { #category : #initialization }
 SGPUCompilationEnvironment >> initialize [
 	super initialize.
-	compilationModule := MbndStandaloneModule spirv_vulkan
+	compilationModule := MbndCompilationEnvironment spirv_vulkan
 		loadRuntimeCoreLibrary;
 		evaluateFileNamedOnce: MbndCoreAssets location / 'lib' / 'gpu' / 'blocks' / 'blocks.sysmel'.
 		

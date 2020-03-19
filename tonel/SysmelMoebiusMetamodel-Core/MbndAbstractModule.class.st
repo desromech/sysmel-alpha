@@ -3,6 +3,9 @@ Class {
 	#superclass : #Object,
 	#traits : 'TMbndModule',
 	#classTraits : 'TMbndModule classTrait',
+	#instVars : [
+		'namedTargetCodeModules'
+	],
 	#category : #'SysmelMoebiusMetamodel-Core-Module'
 }
 
@@ -32,12 +35,29 @@ MbndAbstractModule >> analyzeAndEvaluateAST: ast inScope: scope [
 
 { #category : #'as yet unclassified' }
 MbndAbstractModule >> generateTargetCodeModule [
-	| codeGenerator |
-	codeGenerator := self compilationTarget newCodeModuleGenerator.
-	^ MbndProfiler component: #irCodeGeneration with: [codeGenerator generateCodeModuleFor: self]
+	^ self getTargetCodeModuleNamed: #main orCreateWith: [
+		| codeGenerator |
+		codeGenerator := self compilationTarget newCodeModuleGenerator.
+	 	MbndProfiler component: #irCodeGeneration with: [codeGenerator generateCodeModuleFor: self name: #main]
+	]
+]
+
+{ #category : #'as yet unclassified' }
+MbndAbstractModule >> getTargetCodeModuleNamed: codeModuleName orCreateWith: aBlock [
+	^ self namedTargetCodeModules at: codeModuleName ifAbsent: aBlock
+]
+
+{ #category : #accessing }
+MbndAbstractModule >> importedModules [
+	^ #()
 ]
 
 { #category : #serialization }
 MbndAbstractModule >> messagePackTypeName [
 	^ self class messagePackTypeName
+]
+
+{ #category : #accessing }
+MbndAbstractModule >> namedTargetCodeModules [
+	^ namedTargetCodeModules ifNil: [ namedTargetCodeModules := Dictionary new ]
 ]

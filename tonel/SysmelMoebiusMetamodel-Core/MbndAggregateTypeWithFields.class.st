@@ -320,6 +320,11 @@ MbndAggregateTypeWithFields >> instanceSize [
 	^ self instanceDataSize
 ]
 
+{ #category : #testing }
+MbndAggregateTypeWithFields >> isModuleSpecificType [
+	^ true
+]
+
 { #category : #'default values' }
 MbndAggregateTypeWithFields >> makeInstance [
 	^ self defaultValueAt: nil

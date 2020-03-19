@@ -31,6 +31,11 @@ MbndSystemProvidedTypeTemplate >> argumentNames: anObject [
 ]
 
 { #category : #accessing }
+MbndSystemProvidedTypeTemplate >> compilationEnvironment [
+	^ compilationTarget coreDefinitionsModule compilationEnvironment
+]
+
+{ #category : #accessing }
 MbndSystemProvidedTypeTemplate >> compilationTarget [
 	^ compilationTarget
 ]
