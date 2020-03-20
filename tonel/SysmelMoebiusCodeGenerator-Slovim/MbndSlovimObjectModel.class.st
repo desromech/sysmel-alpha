@@ -219,7 +219,7 @@ MbndSlovimObjectModel >> createFunctionContextMetaData: aFunction [
 	compiledMethod := managedObjectModel compiledMethodClass makeInstance: literals size identityHash: 0.
 
 	compiledMethod setField: #entryPoint value: aFunction.
-	compiledMethod slots last slots: (literals collect: #value as: Array).
+	compiledMethod slots last slots: (literals collect: [:each | each value] as: Array).
 	^ compiledMethod
 ]
 

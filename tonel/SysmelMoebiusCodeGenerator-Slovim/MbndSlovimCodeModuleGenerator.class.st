@@ -261,6 +261,19 @@ MbndSlovimCodeModuleGenerator >> debugInformationTranslator [
 	^ debugTypeTranslator ifNil: [ debugTypeTranslator := MbndSlovimDebugInformationTranslator new codeModuleGenerator: self ]
 ]
 
+{ #category : #'as yet unclassified' }
+MbndSlovimCodeModuleGenerator >> ensureRequiredStructuresAreDefined [
+	self compilationTarget managedObjectModel runtimeImportantFunctions do: [:eachFunction |
+		self translateProgramEntity: eachFunction
+	].
+	self compilationTarget managedObjectModel runtimeImportantClasses do: [:eachClass |
+		ssaModule importType: (self translateType: eachClass) fromModule: nil.
+		eachClass isGCClassType ifTrue: [ 
+			ssaModule importType: (self translateType: eachClass type) fromModule: nil.
+		]
+	].
+]
+
 { #category : #accessing }
 MbndSlovimCodeModuleGenerator >> exceptionCatchBeginFunction [
 	^ exceptionCatchBeginFunction ifNil: [
@@ -268,7 +281,7 @@ MbndSlovimCodeModuleGenerator >> exceptionCatchBeginFunction [
 			exceptionCatchBeginFunction := (self translateProgramEntity: function) ssaValue
 		] ifNil: [
 			exceptionCatchBeginFunction := SLVMFunction module: ssaModule
-				name: #__sysmel_eh_nonLocalReturnRaise
+				name: #__sysmel_eh_catchBegin
 				functionType: ((SLVMFunctionType arguments: #() returnType: self slvmCompilationTarget voidPointerType)
 					variadic: true
 				)
@@ -369,7 +382,8 @@ MbndSlovimCodeModuleGenerator >> generateCodeModuleFor: aModule programEntities:
 	
 	self addPrimitiveTypeTranslations.
 	programEntitities do: [ :each | self translateProgramEntity: each ].
-	
+	ssaModule nonInlineLiterals do: [ :each | self generateNonInlineLiteralValue: each ].
+	self ensureRequiredStructuresAreDefined.
 	^ ssaModule
 ]
 
@@ -562,6 +576,21 @@ MbndSlovimCodeModuleGenerator >> generateInitializationOfGlobalVariable: globalV
 	].
 
 	ssaModule addGlobal: ssaGlobalVariable constructor: ctor priority: (globalVariable constructionPriority ifNil: [0])
+]
+
+{ #category : #'as yet unclassified' }
+MbndSlovimCodeModuleGenerator >> generateNonInlineLiteralValue: nonInlineLiteral [
+	| codeGeneratioValue |
+	nonInlineLiteral codeGenerationValue ifNotNil: [ ^ self ].
+	
+	codeGeneratioValue := self slvmCompilationTarget objectModel convertDynamicLiteralToConstant: nonInlineLiteral literalValue.
+	codeGeneratioValue ifNil: [ 
+		codeGeneratioValue := self slvmCompilationTarget objectModel createNonInlineLiteralConstant: nonInlineLiteral literalValue withCodeGenerator: nil.
+		self halt.
+	].
+
+	ssaModule importType: codeGeneratioValue type fromModule: nil.
+	nonInlineLiteral codeGenerationValue: codeGeneratioValue
 ]
 
 { #category : #'code generation' }
@@ -976,7 +1005,7 @@ MbndSlovimCodeModuleGenerator >> nonLocalReturnRaiseFunction [
 			nonLocalReturnRaiseFunction := (self translateProgramEntity: function) ssaValue
 		] ifNil: [
 			nonLocalReturnRaiseFunction := SLVMFunction module: ssaModule
-				name: #__sysmel_eh_catchBegin
+				name: #__sysmel_eh_nonLocalReturnRaise
 				functionType: ((SLVMFunctionType arguments: { self slvmCompilationTarget voidPointerType } returnType: self slvmCompilationTarget void)
 					variadic: true
 				)
@@ -1311,14 +1340,17 @@ MbndSlovimCodeModuleGenerator >> unmangledNameForProgramEntity: programEntity [
 
 { #category : #visiting }
 MbndSlovimCodeModuleGenerator >> unmangledNameForProgramEntity: programEntity into: out [
-	programEntity parent ifNotNil: [
-		programEntity parent parent ifNotNil: [ "Remove __global"
-			self unmangledNameForProgramEntity: programEntity parent into: out.
-			(programEntity name isMbndAnonymousSymbol and: [ programEntity parent isTemplateInstance ]) ifTrue: [  ^ self ].
+	programEntity parent ifNil: [
+		programEntity isNamespace ifTrue: [
+			out nextPutAll: programEntity module name.
+			^ self.
+		].
+	] ifNotNil: [
+		self unmangledNameForProgramEntity: programEntity parent into: out.
+		(programEntity name isMbndAnonymousSymbol and: [ programEntity parent isTemplateInstance ]) ifTrue: [  ^ self ].
 			
-			programEntity isTemplateInstance ifFalse: [ 
-				out nextPutAll: '::'
-			].
+		programEntity isTemplateInstance ifFalse: [ 
+			out nextPutAll: '::'
 		].
 	].
 
@@ -1890,6 +1922,11 @@ MbndSlovimCodeModuleGenerator >> visitReferenceType: type [
 { #category : #'typeinfo translation' }
 MbndSlovimCodeModuleGenerator >> visitReturnType: type [
 	^ self visitCoreBasicType: type
+]
+
+{ #category : #'typeinfo translation' }
+MbndSlovimCodeModuleGenerator >> visitSimpleMetaType: type [
+	^ self translateProgramEntityInformationData: type
 ]
 
 { #category : #visiting }

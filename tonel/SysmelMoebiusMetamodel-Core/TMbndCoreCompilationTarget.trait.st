@@ -34,9 +34,11 @@ Trait {
 		'personalityFunction',
 		'forbiddenExceptionHandlingFunction',
 		'typeInformationNativeClass',
+		'moduleNamespaceInformationNativeClass',
 		'namespaceInformationNativeClass',
 		'moduleInformationNativeClass',
 		'typeInformationGCClass',
+		'moduleNamespaceInformationGCClass',
 		'namespaceInformationGCClass',
 		'moduleInformationGCClass',
 		'exceptionCatchBeginFunction',
@@ -365,19 +367,36 @@ TMbndCoreCompilationTarget >> dynamicObjectType: anObjectType [
 
 { #category : #serialization }
 TMbndCoreCompilationTarget >> encodeBootstrapDefinedObjectsForMessagePackWith: graphEncoder [
-	^ {
-		#nativePrefixedStringLiteralType . nativePrefixedStringLiteralType encodeGraphForMessagePackWith: graphEncoder. 
-		#typeInformationNativeClass . typeInformationNativeClass encodeGraphForMessagePackWith: graphEncoder. 
-		#typeInformationGCClass . typeInformationGCClass encodeGraphForMessagePackWith: graphEncoder. 
-		#namespaceInformationNativeClass . namespaceInformationNativeClass encodeGraphForMessagePackWith: graphEncoder. 
-		#namespaceInformationGCClass . namespaceInformationGCClass encodeGraphForMessagePackWith: graphEncoder. 
-		#moduleInformationNativeClass . moduleInformationNativeClass encodeGraphForMessagePackWith: graphEncoder. 
-		#moduleInformationGCClass . moduleInformationGCClass encodeGraphForMessagePackWith: graphEncoder. 
-		#internalNonLocalReturnExceptionClass . internalNonLocalReturnExceptionClass encodeGraphForMessagePackWith: graphEncoder.
-		#dynamicObjectType . dynamicObjectType encodeGraphForMessagePackWith: graphEncoder.
-		#defaultGCClassSuperClass . defaultGCClassSuperClass encodeGraphForMessagePackWith: graphEncoder.
-		#managedObjectModel . managedObjectModel encodeBootstrapDefinedObjectsForMessagePackWith: graphEncoder.
-	}
+	^ Array streamContents: [:out |
+		#(
+			"Strings"
+			nativePrefixedStringLiteralType
+			
+			"RTTI"
+			typeInformationNativeClass typeInformationGCClass 
+			namespaceInformationNativeClass namespaceInformationGCClass 
+			moduleNamespaceInformationNativeClass moduleNamespaceInformationGCClass 
+			moduleInformationNativeClass moduleInformationGCClass 
+			
+			"EH"
+			exceptionCatchBeginFunction
+			exceptionCatchEndFunction
+			forbiddenExceptionHandlingFunction
+			internalNonLocalReturnExceptionClass
+			personalityFunction
+			nonLocalReturnCatchFunction
+			nonLocalReturnRaiseFunction
+			
+			"GC runtime"
+			defaultGCClassSuperClass
+			dynamicObjectType
+		) do: [ :selector |
+			out nextPut: selector; nextPut: ((self perform: selector) encodeGraphForMessagePackWith: graphEncoder)
+		].
+	
+		out nextPut: #managedObjectModel; nextPut: (managedObjectModel encodeBootstrapDefinedObjectsForMessagePackWith: graphEncoder)
+	].
+
 ]
 
 { #category : #'basic types' }
@@ -1070,26 +1089,14 @@ TMbndCoreCompilationTarget >> managedObjectModelClass [
 
 { #category : #serialization }
 TMbndCoreCompilationTarget >> materializeBootstrapDefinedObjectWithGraphDecoder: graphDecoder withFields: encodedFields [
-	encodedFields at: #nativePrefixedStringLiteralType ifPresent: [ :object |
-		self setNativePrefixedStringLiteralType: object ].
-	encodedFields at: #dynamicObjectType ifPresent: [ :object |
-		self dynamicObjectType: object ].
-	encodedFields at: #typeInformationNativeClass ifPresent: [ :object |
-		self typeInformationNativeClass: object ].
-	encodedFields at: #typeInformationGCClass ifPresent: [ :object |
-		self typeInformationGCClass: object ].
-	encodedFields at: #namespaceInformationNativeClass ifPresent: [ :object |
-		self namespaceInformationNativeClass: object ].
-	encodedFields at: #namespaceInformationGCClass ifPresent: [ :object |
-		self namespaceInformationGCClass: object ].
-	encodedFields at: #moduleInformationNativeClass ifPresent: [ :object |
-		self moduleInformationNativeClass: object ].
-	encodedFields at: #moduleInformationGCClass ifPresent: [ :object |
-		self moduleInformationGCClass: object ].
-	encodedFields at: #internalNonLocalReturnExceptionClass ifPresent: [ :object |
-		self internalNonLocalReturnExceptionClass: object ].
-	encodedFields at: #defaultGCClassSuperClass ifPresent: [ :object |
-		self defaultGCClassSuperClass: object ].
+	encodedFields keysAndValuesDo: [ :key :value |
+		key ~~ #managedObjectModel ifTrue: [
+			| selector |
+			selector := (key , ':') asSymbol.
+			self perform: selector with: value.
+		].
+	].
+
 	encodedFields at: #managedObjectModel ifPresent: [ :objects |
 		self managedObjectModel materializeBootstrapDefinedObjectWithGraphDecoder: graphDecoder withFields: (Dictionary newFromPairs: objects)
 	].
@@ -1116,6 +1123,37 @@ TMbndCoreCompilationTarget >> moduleInformationNativeClass: anObject [
 ]
 
 { #category : #accessing }
+TMbndCoreCompilationTarget >> moduleNamespaceInformationClass [
+	^ moduleNamespaceInformationGCClass ifNil: [ moduleNamespaceInformationNativeClass ]
+]
+
+{ #category : #accessing }
+TMbndCoreCompilationTarget >> moduleNamespaceInformationGCClass [
+	^ moduleNamespaceInformationGCClass
+]
+
+{ #category : #accessing }
+TMbndCoreCompilationTarget >> moduleNamespaceInformationGCClass: anObject [
+	moduleNamespaceInformationGCClass := anObject.
+	moduleNamespaceInformationGCClass ifNotNil: [ 
+		self namespaceType addConversionTo: moduleNamespaceInformationGCClass rule: MbndPointerReinterpretTypeConversionRule.
+	]
+]
+
+{ #category : #accessing }
+TMbndCoreCompilationTarget >> moduleNamespaceInformationNativeClass [
+	^ moduleNamespaceInformationNativeClass
+]
+
+{ #category : #accessing }
+TMbndCoreCompilationTarget >> moduleNamespaceInformationNativeClass: anObject [
+	moduleNamespaceInformationNativeClass := anObject.
+	moduleNamespaceInformationNativeClass ifNotNil: [ 
+		self namespaceType addConversionTo: moduleNamespaceInformationNativeClass rule: MbndPointerReinterpretTypeConversionRule.
+	]
+]
+
+{ #category : #accessing }
 TMbndCoreCompilationTarget >> namespaceInformationClass [
 	^ namespaceInformationGCClass ifNil: [ namespaceInformationNativeClass ]
 ]
@@ -1128,9 +1166,6 @@ TMbndCoreCompilationTarget >> namespaceInformationGCClass [
 { #category : #accessing }
 TMbndCoreCompilationTarget >> namespaceInformationGCClass: anObject [
 	namespaceInformationGCClass := anObject.
-	namespaceInformationGCClass ifNotNil: [ 
-		self namespaceType addConversionTo: namespaceInformationGCClass rule: MbndPointerReinterpretTypeConversionRule.
-	]
 
 ]
 
@@ -1142,15 +1177,17 @@ TMbndCoreCompilationTarget >> namespaceInformationNativeClass [
 { #category : #accessing }
 TMbndCoreCompilationTarget >> namespaceInformationNativeClass: anObject [
 	namespaceInformationNativeClass := anObject.
-	namespaceInformationNativeClass ifNotNil: [ 
-		self namespaceType addConversionTo: namespaceInformationNativeClass pointer rule: MbndPointerReinterpretTypeConversionRule.
-	].
 
 ]
 
 { #category : #'derived types' }
 TMbndCoreCompilationTarget >> nativeBlockClosureTypeWithSignature: functionType [
 	^ nativeBlockClosureTypes getOrCreateInstanceWithArguments: { functionType }
+]
+
+{ #category : #accessing }
+TMbndCoreCompilationTarget >> nativePrefixedStringLiteralType [
+	^ nativePrefixedStringLiteralType
 ]
 
 { #category : #'instance creation' }

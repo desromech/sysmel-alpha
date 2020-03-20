@@ -8,7 +8,8 @@ Class {
 		'substitutionDictionary',
 		'output',
 		'substitutionNameCount',
-		'nestedNamedComponentsSuffixes'
+		'nestedNamedComponentsSuffixes',
+		'ommitModuleName'
 	],
 	#classVars : [
 		'CharacterSubstitutionTable',
@@ -208,7 +209,13 @@ MbndSlovimSymbolNameMangler >> extractProgramEntityNestedNameComponents: program
 	| validName |
 	
 	"Remove the __global namespace."
-	(programEntity parent isNil and: [ programEntity name = #__global ]) ifTrue: [ ^ self ].
+	(programEntity parent isNil and: [ programEntity name = #__global ]) ifTrue: [
+		ommitModuleName ifFalse: [
+			out nextPut: programEntity module name
+		].
+	
+		^ self
+	].
 
 	"Put meta types inside their instance type."
 	(programEntity isMbndType and: [programEntity isMetaType]) ifTrue: [ 
@@ -255,6 +262,18 @@ MbndSlovimSymbolNameMangler >> generateSubstitutionName [
 { #category : #visiting }
 MbndSlovimSymbolNameMangler >> generatedNameForAnynomousEntity: anonEntity [
 	^ codeModuleGenerator generatedNameForAnynomousEntity: anonEntity
+]
+
+{ #category : #visiting }
+MbndSlovimSymbolNameMangler >> initialize [
+	super initialize.
+	ommitModuleName := false.
+]
+
+{ #category : #visiting }
+MbndSlovimSymbolNameMangler >> mangleProgramEntityCommonInfo: programEntity [
+	ommitModuleName := true.
+	^ self mangleProgramEntityInfo: programEntity
 ]
 
 { #category : #visiting }

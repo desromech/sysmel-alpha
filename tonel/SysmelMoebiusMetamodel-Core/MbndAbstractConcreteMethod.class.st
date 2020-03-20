@@ -408,7 +408,10 @@ MbndAbstractConcreteMethod >> preprocessDefinitionBody: node [
 
 { #category : #testing }
 MbndAbstractConcreteMethod >> requiresCompiledMethodMetadata [
-	^ self module hasGarbageCollectionSupport
+	self module hasGarbageCollectionSupport ifFalse: [ ^ false ].
+	(parent isMbndType and: [parent isGarbageCollectedType]) ifTrue: [ ^ true ].
+	(parent isAbstractSpecificMethod and: [parent requiresCompiledMethodMetadata]) ifTrue: [ ^ true ].
+	^ false
 ]
 
 { #category : #testing }

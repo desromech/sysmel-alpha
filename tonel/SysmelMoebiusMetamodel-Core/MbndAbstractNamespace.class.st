@@ -32,5 +32,5 @@ MbndAbstractNamespace >> postMaterializeSetupParent: newParent withModule: newMo
 
 { #category : #'as yet unclassified' }
 MbndAbstractNamespace >> programEntityInformationDataClass [
-	^ self compilationTarget namespaceInformationClass
+	^ self compilationTarget moduleNamespaceInformationClass
 ]

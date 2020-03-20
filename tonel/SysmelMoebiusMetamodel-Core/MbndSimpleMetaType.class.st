@@ -69,10 +69,25 @@ MbndSimpleMetaType >> encodeGraphForMessagePackWith: graphEncoder [
 	^ super encodeGraphForMessagePackWith: graphEncoder
 ]
 
+{ #category : #sizes }
+MbndSimpleMetaType >> instanceAlignment [
+	^ self compilationTarget pointerAlignment
+]
+
+{ #category : #sizes }
+MbndSimpleMetaType >> instanceSize [
+	^ self compilationTarget pointerSize
+]
+
 { #category : #accessing }
 MbndSimpleMetaType >> instanceType: anObject [
 	instanceType := anObject.
 	name := nil.
+]
+
+{ #category : #testing }
+MbndSimpleMetaType >> isTrait [
+	^ false
 ]
 
 { #category : #serialization }

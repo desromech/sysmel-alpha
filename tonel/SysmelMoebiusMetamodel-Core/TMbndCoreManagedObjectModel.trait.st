@@ -526,6 +526,37 @@ TMbndCoreManagedObjectModel >> receiverClassGetter: anObject [
 	receiverClassGetter := anObject
 ]
 
+{ #category : #runtime }
+TMbndCoreManagedObjectModel >> runtimeImportantClasses [
+	^ {
+		arrayClass.
+		associationClass.
+		compiledMethodClass.
+		dictionaryClass.
+		falseClass.
+		globalVariableClass.
+		inlineCacheStructure.
+		messageClass.
+		methodDictionaryClass.
+		systemDictionaryClass.
+		trueClass.
+		stringClass.
+		symbolClass.
+	} select: [ :each | each isNotNil ]
+]
+
+{ #category : #runtime }
+TMbndCoreManagedObjectModel >> runtimeImportantFunctions [
+	^ {
+		receiverClassGetter.
+		gcBlockClosureAllocationFunction.
+		messageLookupFunction.
+		methodSuperClassGetter.
+		moduleRootRegistrationFunction.
+		moduleRootUnregistrationFunction.
+	} select: [ :each | each isNotNil ]
+]
+
 { #category : #accessing }
 TMbndCoreManagedObjectModel >> stringClass [
 	^ stringClass

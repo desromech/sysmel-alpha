@@ -49,6 +49,12 @@ MbndCompilationEnvironment >> addLinkerArguments: arguments [
 	self linkerArguments addAll: arguments
 ]
 
+{ #category : #'as yet unclassified' }
+MbndCompilationEnvironment >> beginModule: moduleName [
+	currentModule := nil.
+	self validCurrentModule name: moduleName
+]
+
 { #category : #accessing }
 MbndCompilationEnvironment >> compilationTarget [
 	^ compilationTarget
@@ -212,7 +218,9 @@ MbndCompilationEnvironment >> linkerArguments [
 { #category : #'as yet unclassified' }
 MbndCompilationEnvironment >> loadRuntimeCoreLibrary [
 	self flag: 'TODO: support importing this runtime core library.'.
-	coreModule loadRuntimeCoreLibrary
+	coreModule
+		name: #SysmelCore;
+		loadRuntimeCoreLibrary
 ]
 
 { #category : #parameters }

@@ -449,6 +449,11 @@ TMbndAbstractCompilationTarget >> nativeBlockClosureTypeWithSignature: functionT
 	self explicitRequirement
 ]
 
+{ #category : #initialization }
+TMbndAbstractCompilationTarget >> nativePrefixedStringLiteralType: aType [
+	self setNativePrefixedStringLiteralType: aType
+]
+
 { #category : #'convenience type accessors' }
 TMbndAbstractCompilationTarget >> opaqueType [
 	^ self getBasicTypeNamed: MbndOpaqueType typeName

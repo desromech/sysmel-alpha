@@ -316,6 +316,12 @@ MbndSlovimTypeTranslator >> visitSimpleMetaType: metaType [
 		].
 	].
 
+	metaType programEntityInformationDataClass ifNotNil: [ :typeInfoClass |
+		^ self translateType: (typeInfoClass isGarbageCollectedType
+			ifTrue: [ typeInfoClass ]
+			ifFalse: [typeInfoClass pointer])
+	].
+
 	^ self slvmCompilationTarget voidPointerPointerType
 
 ]

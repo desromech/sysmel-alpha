@@ -4,6 +4,7 @@ Class {
 	#traits : 'TMbndModule',
 	#classTraits : 'TMbndModule classTrait',
 	#instVars : [
+		'name',
 		'namedTargetCodeModules'
 	],
 	#category : #'SysmelMoebiusMetamodel-Core-Module'
@@ -55,6 +56,16 @@ MbndAbstractModule >> importedModules [
 { #category : #serialization }
 MbndAbstractModule >> messagePackTypeName [
 	^ self class messagePackTypeName
+]
+
+{ #category : #accessing }
+MbndAbstractModule >> name [
+	^ name ifNil: [ name := #__AnonModule__ ]
+]
+
+{ #category : #accessing }
+MbndAbstractModule >> name: anObject [
+	name := anObject
 ]
 
 { #category : #accessing }
