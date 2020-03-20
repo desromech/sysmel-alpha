@@ -90,6 +90,11 @@ TMbndAbstractProgramEntity >> isAbstractSpecificMethod [
 ]
 
 { #category : #testing }
+TMbndAbstractProgramEntity >> isAlwaysExported [
+	^ false
+]
+
+{ #category : #testing }
 TMbndAbstractProgramEntity >> isBlockClosureMethod [
 	^ false
 ]

@@ -183,6 +183,7 @@ MbndSlovimSymbolNameMangler >> escapeCharacterForMangling: c into: out [
 
 { #category : #visiting }
 MbndSlovimSymbolNameMangler >> escapeNameForMangling: name [
+	(name beginsWith: '..') ifTrue: [ ^ name ].
 	name ifNil: [ ^ '_anon' ].
 	^ ByteString streamContents: [ :out |
 		name do: [ :c |
@@ -426,6 +427,11 @@ MbndSlovimSymbolNameMangler >> visitConcreteMessageMethod: method [
 ]
 
 { #category : #visiting }
+MbndSlovimSymbolNameMangler >> visitCoreBasicType: basicType [
+	^ self mangleProgramEntityContentName: basicType
+]
+
+{ #category : #visiting }
 MbndSlovimSymbolNameMangler >> visitDecoratedType: type [
 	| currentType |
 	type decorations do: [ :decoration |
@@ -543,6 +549,26 @@ MbndSlovimSymbolNameMangler >> visitPointerType: type [
 	output nextPut: $P.
 	self mangleType: type baseType.
 	self recordNewSubstitutionElement: { #pointer . type baseType }.
+]
+
+{ #category : #visiting }
+MbndSlovimSymbolNameMangler >> visitPrimitiveBooleanType: type [
+	^ self visitCoreBasicType: type
+]
+
+{ #category : #visiting }
+MbndSlovimSymbolNameMangler >> visitPrimitiveCharacterCodeType: type [
+	^ self visitCoreBasicType: type
+]
+
+{ #category : #visiting }
+MbndSlovimSymbolNameMangler >> visitPrimitiveFloatType: type [
+	^ self visitCoreBasicType: type
+]
+
+{ #category : #visiting }
+MbndSlovimSymbolNameMangler >> visitPrimitiveIntegerType: type [
+	^ self visitCoreBasicType: type
 ]
 
 { #category : #visiting }

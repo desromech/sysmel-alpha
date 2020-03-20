@@ -12,6 +12,11 @@ MbndVariantUnionType class >> typeName [
 	^ #_VariantUnion
 ]
 
+{ #category : #visiting }
+MbndVariantUnionType >> accept: visitor [
+	^ visitor visitVariantUnionType: self
+]
+
 { #category : #converting }
 MbndVariantUnionType >> addExplicitConversionTo: targetType rule: conversionRule [
 	components do: [ :comp |

@@ -285,6 +285,11 @@ MbndSlovimDebugInformationTranslator >> visitCompileTimeVariable: compileTimeVar
 ]
 
 { #category : #visiting }
+MbndSlovimDebugInformationTranslator >> visitCompilerObjectType: type [
+	^ self translateProgramEntityDebugInformation: type underlyingObjectType
+]
+
+{ #category : #visiting }
 MbndSlovimDebugInformationTranslator >> visitConcreteFunclet: funclet [
 	| funcletScope |
 	funcletScope := SLVMDebugLexicalScope new.

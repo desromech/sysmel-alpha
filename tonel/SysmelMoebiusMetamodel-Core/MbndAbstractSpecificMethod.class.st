@@ -141,7 +141,7 @@ MbndAbstractSpecificMethod >> encodeFieldsForMessagePackWith: graphEncoder [
 		#receiverType . receiverType encodeGraphForMessagePackWith: graphEncoder.
 		#type . type encodeGraphForMessagePackWith: graphEncoder.
 		#boundType . boundType encodeGraphForMessagePackWith: graphEncoder.
-	} , (self canBeEvaluatedInCompileTime ifTrue: [ { 
+	} , ((self needsDefinitionSerializedWith: graphEncoder) ifTrue: [ { 
 		#nonLocalResultVariable . nonLocalResultVariable encodeGraphForMessagePackWith: graphEncoder.
 		#typedSelector . typedSelector .
 		#lambdaCount . lambdaCount.
@@ -242,10 +242,25 @@ MbndAbstractSpecificMethod >> mbndLiteralTypeWithTarget: compilationTarget [
 	^ type ref
 ]
 
+{ #category : #testing }
+MbndAbstractSpecificMethod >> needsDefinitionSerializedWith: graphEncoder [
+	self canBeEvaluatedInCompileTime ifFalse: [ ^ false ].
+	^ self isConcreteMacroMessage
+]
+
+{ #category : #accessing }
+MbndAbstractSpecificMethod >> parent: aParent [
+	super parent: aParent.
+	
+	(name isMbndAnonymousSymbol and: [self isFunclet not and: [self isModuleSpecializedProgramEntity not]]) ifTrue: [
+		name := self module generateAnonymousSymbolName
+	].
+]
+
 { #category : #printing }
 MbndAbstractSpecificMethod >> printOn: aStream [
-	name ifNotNil: [ ^ aStream nextPutAll: name ].
-	aStream nextPutAll: '__anon'
+	aStream nextPutAll: 'function '.
+	^ aStream nextPutAll: self qualifiedName.
 ]
 
 { #category : #accessing }

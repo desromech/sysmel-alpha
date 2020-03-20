@@ -37,6 +37,10 @@ MbndSlovimTypeTranslator >> importTranslatedType: aType fromModule: typeDefiniti
 	codeModuleGenerator ssaModule
 		importType: importedType fromModule: importedSSAModule;
 		addHighLevelEntity: aType mapToStructureType: importedType.
+	aType isGCClassType ifTrue: [
+		^ SLVMPointerType size: self slvmCompilationTarget pointerSize baseType: importedType storage: SLVMType gcStorage
+	].
+
 	^ importedType
 ]
 
@@ -132,6 +136,11 @@ MbndSlovimTypeTranslator >> visitBlockClosureType: type kind: closureKind addres
 MbndSlovimTypeTranslator >> visitClassType: structureType [
 	^ self translateAggregateType: structureType
 
+]
+
+{ #category : #visiting }
+MbndSlovimTypeTranslator >> visitCompilerObjectType: type [
+	^ self translateType: type underlyingObjectType
 ]
 
 { #category : #visiting }

@@ -71,10 +71,6 @@ MbndTemplate >> getOrCreateInstanceWithArguments: arguments [
 	self addChild: templateInstance.
 	instances at: arguments put: templateInstance.
 
-	templateInstance module ~~ self module ifTrue: [
-		templateInstance module recordTemplate: self instanceDefinition: templateInstance.
-	].
-	
 	"Apply the main definition fragment."
 	mainDefinitionEvaluationResult := mainDefinitionFragment applyToInstance: templateInstance.
 	
@@ -82,6 +78,10 @@ MbndTemplate >> getOrCreateInstanceWithArguments: arguments [
 	templateInstance mainChild ifNil: [
 		instances at: arguments put: mainDefinitionEvaluationResult.
 		^ mainDefinitionEvaluationResult
+	].
+
+	templateInstance module ~~ self module ifTrue: [
+		templateInstance module recordTemplate: self instanceDefinition: templateInstance.
 	].
 
 	"Apply the extension fragments."

@@ -35,6 +35,13 @@ MbndVTablePointerFieldVariable >> defaultValueAt: aPosition [
 	^ MbndVTablePointerValue new vtableFieldDefinition: self
 ]
 
+{ #category : #serialization }
+MbndVTablePointerFieldVariable >> encodeFieldsForMessagePackWith: graphEncoder [
+	^ (super encodeFieldsForMessagePackWith: graphEncoder) , {
+		#vtableSlots . vtableSlots encodeGraphForMessagePackWith: graphEncoder.
+	}
+]
+
 { #category : #accessing }
 MbndVTablePointerFieldVariable >> firstMethodSlotIndex [
 	^ 2
@@ -55,6 +62,18 @@ MbndVTablePointerFieldVariable >> initialize [
 { #category : #testing }
 MbndVTablePointerFieldVariable >> isVTablePointerField [
 	^ true
+]
+
+{ #category : #serialization }
+MbndVTablePointerFieldVariable >> materializeWithGraphDecoder: graphDecoder withFields: encodedFields [
+	super materializeWithGraphDecoder: graphDecoder withFields: encodedFields.
+	vtableSlots := encodedFields at: #vtableSlots ifAbsent: [ nil ].
+	vtableSlots doWithIndex: [ :vslotMethod :vslotIndex |
+		| selector |
+		selector := vslotMethod name.
+		self assert: selector isNotNil.
+		vtableSelectorDictionary at: selector put: vslotIndex - 1
+	]
 ]
 
 { #category : #'vtable slots' }

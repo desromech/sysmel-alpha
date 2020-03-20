@@ -88,9 +88,50 @@ MbndStandaloneModule >> compilationTarget [
 	^ compilationEnvironment compilationTarget
 ]
 
+{ #category : #serialization }
+MbndStandaloneModule >> decodeImportedSSAModules: importedSSAModules [
+	importedSSAModules keysAndValuesDo: [ :moduleName :moduleAttributesList |
+		| moduleAttributes exportedSSAModule |
+		moduleAttributes := Dictionary newFromPairs: moduleAttributesList.
+		exportedSSAModule := SLVMModule new
+			compilationTarget: self compilationTarget slvmCompilationTarget;
+			decodeFromFullSExpression: (moduleAttributes at: #module).
+		(moduleAttributes at: #programEntityMapToAggregateType) pairsDo: [ :programEntity :aggregateTypeName |
+			exportedSSAModule addHighLevelEntity: programEntity
+				mapToStructureType: (exportedSSAModule structureNamed: aggregateTypeName)
+		].
+		(moduleAttributes at: #programEntityMapToSymbol) pairsDo: [ :programEntity :globalSymbol |
+			exportedSSAModule addHighLevelEntity: programEntity mapToGlobalValue: (exportedSSAModule globalNamed: globalSymbol)
+		].
+			
+		self namedTargetCodeModules at: moduleName put: exportedSSAModule
+	]
+]
+
 { #category : #accessing }
 MbndStandaloneModule >> disableSLVMOptimizations [
 	^ self class disableSLVMOptimizations
+]
+
+{ #category : #'as yet unclassified' }
+MbndStandaloneModule >> encodeExportedSSAModuleWith: graphEncoder [
+	^ Array streamContents: [ :out |
+		self namedTargetCodeModules keys sorted do: [ :ssaModuleName |
+			| ssaModule exportSSAModule |
+			ssaModule := namedTargetCodeModules at: ssaModuleName.
+			exportSSAModule := ssaModule asPublicInterfaceDeclarationModule.
+			out nextPut: ssaModuleName; nextPut: {
+				#module . exportSSAModule asFullSExpression.
+				#programEntityMapToAggregateType . ((exportSSAModule highLevelMapToStructureType associations collect: [ :assoc |
+					{ assoc key encodeGraphForMessagePackWith: graphEncoder.  assoc value name asSymbol }
+					] as: Array) sorted: [:a :b | a second < b second]) flattened. 
+						
+				#programEntityMapToSymbol. ((exportSSAModule highLevelMapToSymbol associations collect: [ :assoc |
+					{ assoc key encodeGraphForMessagePackWith: graphEncoder. assoc value asSymbol }
+				] as: Array) sorted: [:a :b | a second < b second]) flattened.
+			}
+		]
+	]
 ]
 
 { #category : #serialization }
@@ -132,42 +173,36 @@ MbndStandaloneModule >> encodeGraphForMessagePackWith: graphEncoder [
 { #category : #'as yet unclassified' }
 MbndStandaloneModule >> encodeModulePublicInterface [
 	| graphEncoder result |
-	graphEncoder := MbndSerializationGraphEncoder new
-		setExportMode;
-		typeMapTable: MessagePackTypeMapTable;
-		targetModule: self;
-		yourself.
+		graphEncoder := MbndSerializationGraphEncoder new
+			setExportMode;
+			typeMapTable: MessagePackTypeMapTable;
+			targetModule: self;
+			yourself.
+
 	result := {
-		#module . self encodeGraphForMessagePackWith: graphEncoder.
-		#exportedSSAModules . Array streamContents: [ :out |
-			self namedTargetCodeModules keys sorted do: [ :ssaModuleName |
-				| ssaModule exportSSAModule |
-				ssaModule := namedTargetCodeModules at: ssaModuleName.
-				exportSSAModule := ssaModule asPublicInterfaceDeclarationModule.
-				out nextPut: ssaModuleName; nextPut: {
-					#module . exportSSAModule asFullSExpression.
-					#programEntityMapToAggregateType . ((exportSSAModule highLevelMapToStructureType associations collect: [ :assoc |
-						{ assoc key encodeGraphForMessagePackWith: graphEncoder.  assoc value name asSymbol }
-					] as: Array) sorted: [:a :b | a second < b second]) flattened. 
-						
-					#programEntityMapToSymbol. ((exportSSAModule highLevelMapToSymbol associations collect: [ :assoc |
-						{ assoc key encodeGraphForMessagePackWith: graphEncoder. assoc value asSymbol }
-					] as: Array) sorted: [:a :b | a second < b second]) flattened.
-				}
-			]
-		]
+		#module . MbndProfiler component: #exportModulePublicInterfaceEncodeGraph with: [ 
+			self encodeGraphForMessagePackWith: graphEncoder.
+		].
+		#exportedSSAModules . MbndProfiler component: #exportModulePublicInterfaceEncodeSSA with: [
+			self encodeExportedSSAModuleWith: graphEncoder
+		].
 	}.
 
-	^ SLVMMessagePackGraphEncoder encodeObject: result
+	^ MbndProfiler component: #exportModulePublicInterfaceEncodeMessagePack with: [ 
+		SLVMMessagePackGraphEncoder encodeObject: result
+	]
 ]
 
 { #category : #'as yet unclassified' }
 MbndStandaloneModule >> exportModulePublicInterfaceTo: outputFileName [
 	| publicModuleEncodedMessage |
 	publicModuleEncodedMessage := self encodeModulePublicInterface.
-	outputFileName asFileReference binaryWriteStreamDo: [ :out |
-		out truncate; nextPutAll: publicModuleEncodedMessage
-	]
+	
+	MbndProfiler component: #exportModulePublicInterfaceStore with: [ 
+		outputFileName asFileReference binaryWriteStreamDo: [ :out |
+			out truncate; nextPutAll: publicModuleEncodedMessage
+		]
+	].
 ]
 
 { #category : #parameters }
@@ -222,48 +257,37 @@ MbndStandaloneModule >> hasStandardLibrary [
 MbndStandaloneModule >> importModuleFrom: aModuleExportFileDefinition [
 	| moduleExportFileContents decodedExportedModuleAttributes |
 	moduleExportFileContents := aModuleExportFileDefinition asFileReference binaryReadStreamDo: [ :in | in contents ].
-	decodedExportedModuleAttributes := Dictionary newFromPairs: (MbndMessagePackGraphDecoder new
-		typeTable: MessagePackTypeMapTable;
-		compilationTarget: self compilationTarget;
-		compilationEnvironment: self compilationEnvironment;
-		targetModule: self;
-		decode: moduleExportFileContents).
-	self assert: (decodedExportedModuleAttributes at: #module) == self.
-
-	self globalNamespace
-		postMaterializeSetupParent: nil withModule: self.
-	
-	self extensionMacros do: [ :each |
-		| parentEntity macro |
-		parentEntity := each first.
-		macro := each third.
-		macro parent ifNil: [ macro postMaterializeSetupParent: parentEntity withModule: self ]
+	MbndProfiler component: #importModuleDecode with: [
+		decodedExportedModuleAttributes := Dictionary newFromPairs: (MbndMessagePackGraphDecoder new
+			typeTable: MessagePackTypeMapTable;
+			compilationTarget: self compilationTarget;
+			compilationEnvironment: self compilationEnvironment;
+			targetModule: self;
+			decode: moduleExportFileContents).
+		self assert: (decodedExportedModuleAttributes at: #module) == self.
 	].
 
-	self
-		applyExtensionMacros;
-		applyExtensionOverloadedMethods.
+	MbndProfiler component: #importModulePostMaterialize with: [
+		self globalNamespace
+			postMaterializeSetupParent: nil withModule: self.
 	
-	decodedExportedModuleAttributes at: #exportedSSAModules ifPresent: [ :exportedSSAModules |
-		| exportedNamedSSAModules |
-		exportedNamedSSAModules := Dictionary newFromPairs: exportedSSAModules.
-		exportedNamedSSAModules keysAndValuesDo: [ :moduleName :moduleAttributesList |
-			| moduleAttributes exportedSSAModule |
-			moduleAttributes := Dictionary newFromPairs: moduleAttributesList.
-			exportedSSAModule := SLVMModule new
-				compilationTarget: self compilationTarget slvmCompilationTarget;
-				decodeFromFullSExpression: (moduleAttributes at: #module).
-			(moduleAttributes at: #programEntityMapToAggregateType) pairsDo: [ :programEntity :aggregateTypeName |
-				exportedSSAModule addHighLevelEntity: programEntity
-					mapToStructureType: (exportedSSAModule structureNamed: aggregateTypeName)
-			].
-			(moduleAttributes at: #programEntityMapToSymbol) pairsDo: [ :programEntity :globalSymbol |
-				exportedSSAModule addHighLevelEntity: programEntity mapToGlobalValue: (exportedSSAModule globalNamed: globalSymbol)
-			].
-			
-			self namedTargetCodeModules at: moduleName put: exportedSSAModule
+		self extensionMacros do: [ :each |
+			| parentEntity macro |
+			parentEntity := each first.
+			macro := each third.
+			macro parent ifNil: [ macro postMaterializeSetupParent: parentEntity withModule: self ]
+		].
+
+		self
+			applyExtensionMacros;
+			applyExtensionOverloadedMethods.
+	].
+	
+	decodedExportedModuleAttributes at: #exportedSSAModules ifPresent: [ :exportedSSAModules |			
+		MbndProfiler component: #importModuleSSADecode with: [
+			self decodeImportedSSAModules: (Dictionary newFromPairs: exportedSSAModules) 
 		]
-	].
+	]
 ]
 
 { #category : #accessing }
@@ -274,12 +298,6 @@ MbndStandaloneModule >> importedModules [
 { #category : #accessing }
 MbndStandaloneModule >> importedModules: anObject [
 	importedModules := anObject
-]
-
-{ #category : #initialization }
-MbndStandaloneModule >> initialize [
-	super initialize.
-	Transcript show: self; space; show: self identityHash; cr.
 ]
 
 { #category : #accessing }
@@ -311,11 +329,6 @@ MbndStandaloneModule >> materializeWithGraphDecoder: graphDecoder withFields: en
 	encodedFields at: #bootstrapObjects ifPresent: [ :bootstrapObjects |
 		self compilationTarget materializeBootstrapDefinedObjectWithGraphDecoder: graphDecoder withFields: (Dictionary newFromPairs: bootstrapObjects)
 	]
-]
-
-{ #category : #'as yet unclassified' }
-MbndStandaloneModule >> moduleScope [
-	^ MbndModuleScope new module: self
 ]
 
 { #category : #parameters }

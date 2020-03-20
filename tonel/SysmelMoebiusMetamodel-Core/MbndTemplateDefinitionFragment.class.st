@@ -17,7 +17,6 @@ MbndTemplateDefinitionFragment class >> messagePackTypeName [
 MbndTemplateDefinitionFragment >> applyToInstance: templateInstance [
 	| evaluationScope module |
 	module := templateInstance compilationEnvironment currentModule.
-	Transcript show: 'Evaluate module '; show: module; space; show: module identityHash; cr.
 	evaluationScope := module moduleScope
 		parent: (templateInstance programEntityScope parent: scope).
 	^ MbndAstSemanticAnalyzerAndEvaluator new

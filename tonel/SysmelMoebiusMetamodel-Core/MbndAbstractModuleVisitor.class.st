@@ -37,6 +37,11 @@ MbndAbstractModuleVisitor >> visitArrayType: type [
 ]
 
 { #category : #visiting }
+MbndAbstractModuleVisitor >> visitAssociationType: type [
+	self subclassResponsibility
+]
+
+{ #category : #visiting }
 MbndAbstractModuleVisitor >> visitBlockClosureMethod: method [
 	self subclassResponsibility
 ]
@@ -318,6 +323,11 @@ MbndAbstractModuleVisitor >> visitUnionType: type [
 
 { #category : #visiting }
 MbndAbstractModuleVisitor >> visitVTablePointerFieldVariable: vtableFieldVariable [
+	self subclassResponsibility
+]
+
+{ #category : #visiting }
+MbndAbstractModuleVisitor >> visitVariantUnionType: type [
 	self subclassResponsibility
 ]
 

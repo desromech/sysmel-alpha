@@ -1260,6 +1260,13 @@ MbndSlovimCodeModuleGenerator >> translateProgramEntityInformationData: programE
 	^ ssaProgramEntityInfo
 ]
 
+{ #category : #visiting }
+MbndSlovimCodeModuleGenerator >> translateProgramEntityMetaChildren: programEntity [
+	programEntity children do: [ :child |
+		self translateProgramEntity: child
+	]
+]
+
 { #category : #'code generation' }
 MbndSlovimCodeModuleGenerator >> translateStructureType: type withKind: structureKind [
 	| ssaStructureType |
@@ -1400,6 +1407,7 @@ MbndSlovimCodeModuleGenerator >> visitAggregateTypeWithFields: type [
 	| ssaType ssaValue ssaTypeValueType |
 	ssaType := self translateType: type.
 	ssaTypeValueType := self translateType: type type.
+	
 
 	type isGCClassType ifTrue: [
 		type isMetaType ifFalse: [ 
@@ -1417,8 +1425,21 @@ MbndSlovimCodeModuleGenerator >> visitAggregateTypeWithFields: type [
 	].
 
 	ssaValue := self translateTypeInfoDefinition: type.
+	type isGCClassType ifFalse: [
+		self translateProgramEntityChildren: type type.
+	].  
 	self translateProgramEntityChildren: type.
 	^ ssaValue
+]
+
+{ #category : #'typeinfo translation' }
+MbndSlovimCodeModuleGenerator >> visitArrayType: type [
+	^ self visitCoreBasicType: type
+]
+
+{ #category : #'typeinfo translation' }
+MbndSlovimCodeModuleGenerator >> visitAssociationType: type [
+	^ self visitCoreBasicType: type
 ]
 
 { #category : #visiting }
@@ -1505,6 +1526,11 @@ MbndSlovimCodeModuleGenerator >> visitCompileTimeVariable: compileTimeVariable [
 	
 		
 	^ ssaCompileTimeVariable
+]
+
+{ #category : #'typeinfo translation' }
+MbndSlovimCodeModuleGenerator >> visitCompilerObjectType: type [
+	^ self visitCoreBasicType: type
 ]
 
 { #category : #visiting }
@@ -1594,6 +1620,11 @@ MbndSlovimCodeModuleGenerator >> visitConcreteMessageMethod: functionMethod [
 	].
 	
 	^ ssaFunction
+]
+
+{ #category : #'typeinfo translation' }
+MbndSlovimCodeModuleGenerator >> visitCoreBasicType: coreBasicType [
+	^ self translateTypeInfoDefinition: coreBasicType.
 ]
 
 { #category : #visiting }
@@ -1749,6 +1780,11 @@ MbndSlovimCodeModuleGenerator >> visitGlobalVariable: globalVariable [
 	^ ssaGlobalVariable
 ]
 
+{ #category : #'typeinfo translation' }
+MbndSlovimCodeModuleGenerator >> visitInputChannelType: type [
+	^ self visitCoreBasicType: type
+]
+
 { #category : #visiting }
 MbndSlovimCodeModuleGenerator >> visitIntrinsicArithmeticBinaryOperationMethod: intrinsicMethod [
 	^ self setProgramEntity: intrinsicMethod translation: (MbndSlovimTranslatedIntrinsicArithmeticBinaryOperation new programEntity: intrinsicMethod)
@@ -1806,6 +1842,56 @@ MbndSlovimCodeModuleGenerator >> visitNamespace: namespace [
 	^ ssaValue
 ]
 
+{ #category : #'typeinfo translation' }
+MbndSlovimCodeModuleGenerator >> visitNamespaceType: type [
+	^ self visitCoreBasicType: type
+]
+
+{ #category : #'typeinfo translation' }
+MbndSlovimCodeModuleGenerator >> visitOutputChannelType: type [
+	^ self visitCoreBasicType: type
+]
+
+{ #category : #'typeinfo translation' }
+MbndSlovimCodeModuleGenerator >> visitPointerType: type [
+	^ self visitCoreBasicType: type
+]
+
+{ #category : #'typeinfo translation' }
+MbndSlovimCodeModuleGenerator >> visitPrimitiveBooleanType: type [
+	^ self visitCoreBasicType: type
+]
+
+{ #category : #'typeinfo translation' }
+MbndSlovimCodeModuleGenerator >> visitPrimitiveCharacterCodeType: type [
+	^ self visitCoreBasicType: type
+]
+
+{ #category : #'typeinfo translation' }
+MbndSlovimCodeModuleGenerator >> visitPrimitiveFloatType: type [
+	^ self visitCoreBasicType: type
+]
+
+{ #category : #'typeinfo translation' }
+MbndSlovimCodeModuleGenerator >> visitPrimitiveIntegerType: type [
+	^ self visitCoreBasicType: type
+]
+
+{ #category : #'typeinfo translation' }
+MbndSlovimCodeModuleGenerator >> visitPrimitiveVectorType: type [
+	^ self visitCoreBasicType: type
+]
+
+{ #category : #'typeinfo translation' }
+MbndSlovimCodeModuleGenerator >> visitReferenceType: type [
+	^ self visitCoreBasicType: type
+]
+
+{ #category : #'typeinfo translation' }
+MbndSlovimCodeModuleGenerator >> visitReturnType: type [
+	^ self visitCoreBasicType: type
+]
+
 { #category : #visiting }
 MbndSlovimCodeModuleGenerator >> visitStructureType: type [
 	^ self visitAggregateTypeWithFields: type
@@ -1829,6 +1915,21 @@ MbndSlovimCodeModuleGenerator >> visitTemplateInstance: templateInstance [
 	^ nil
 ]
 
+{ #category : #'typeinfo translation' }
+MbndSlovimCodeModuleGenerator >> visitTemporaryReferenceType: type [
+	^ self visitCoreBasicType: type
+]
+
+{ #category : #'typeinfo translation' }
+MbndSlovimCodeModuleGenerator >> visitTupleType: type [
+	^ self visitCoreBasicType: type
+]
+
+{ #category : #'typeinfo translation' }
+MbndSlovimCodeModuleGenerator >> visitUndefinedType: type [
+	^ self visitCoreBasicType: type
+]
+
 { #category : #visiting }
 MbndSlovimCodeModuleGenerator >> visitUnionType: type [
 	^ self visitAggregateTypeWithFields: type
@@ -1847,6 +1948,7 @@ MbndSlovimCodeModuleGenerator >> visitUserDefinedType: type [
 MbndSlovimCodeModuleGenerator >> visitVTablePointerFieldVariable: vtableField [
 	| ssaValueType csymbol ssaVTableDefinition vtableEntryType additionalFields methodFields unmangledName |
 	
+	self assert: vtableField parent isNotNil.
 	vtableEntryType := self slvmCompilationTarget voidPointerType.
 
 	ssaValueType := SLVMArrayType baseType: vtableEntryType elements: 2 + vtableField vtableSlots size.
@@ -1877,4 +1979,14 @@ MbndSlovimCodeModuleGenerator >> visitVTablePointerFieldVariable: vtableField [
 	].
 
 	^ ssaVTableDefinition
+]
+
+{ #category : #'typeinfo translation' }
+MbndSlovimCodeModuleGenerator >> visitVariantUnionType: type [
+	^ self visitCoreBasicType: type
+]
+
+{ #category : #'typeinfo translation' }
+MbndSlovimCodeModuleGenerator >> visitVoidType: type [
+	^ self visitCoreBasicType: type
 ]

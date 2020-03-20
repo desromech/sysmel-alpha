@@ -227,7 +227,7 @@ MbndAbstractConcreteMethod >> encodeFieldsForMessagePackWith: graphEncoder [
 		#argumentsWithoutReceiver . argumentsWithoutReceiver encodeGraphForMessagePackWith: graphEncoder.
 		#specialSemantics . specialSemantics.
 		#computeShaderLocalSize . computeShaderLocalSize encodeGraphForMessagePackWith: graphEncoder.
-	},  (self "canBeEvaluatedInCompileTime" isConcreteMacroMessage ifTrue: [ { 
+	},  ((self needsDefinitionSerializedWith: graphEncoder) ifTrue: [ { 
 		#definitionNode . definitionNode encodeGraphForMessagePackWith: graphEncoder.
 		#definitionScope . definitionScope encodeGraphForMessagePackWith: graphEncoder.
 		#analyzedBody . analyzedBody encodeGraphForMessagePackWith: graphEncoder.

@@ -61,7 +61,18 @@ MbndCompilerObjectType >> isCompilerObjectType [
 	^ true
 ]
 
+{ #category : #testing }
+MbndCompilerObjectType >> isTrait [
+	^ false
+]
+
 { #category : #'semantic analysis' }
 MbndCompilerObjectType >> resultTypeForMessageSendToHost: selector [
 	^ self compilationTarget compilerObjectType
+]
+
+{ #category : #'as yet unclassified' }
+MbndCompilerObjectType >> underlyingObjectType [
+	self compilationTarget dynamicObjectType ifNotNil: [ :dynobjectType | ^ dynobjectType ].
+	^ self compilationTarget voidType pointer
 ]

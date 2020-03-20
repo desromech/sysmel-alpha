@@ -2,7 +2,8 @@ Class {
 	#name : #MbndDummyModule,
 	#superclass : #MbndAbstractModule,
 	#instVars : [
-		'compilationTarget'
+		'compilationTarget',
+		'compilationEnvironment'
 	],
 	#category : #'SysmelMoebiusMetamodel-Core-Module'
 }
@@ -10,6 +11,14 @@ Class {
 { #category : #serialization }
 MbndDummyModule class >> messagePackTypeName [
 	^ #DummyModule
+]
+
+{ #category : #accessing }
+MbndDummyModule >> compilationEnvironment [
+	compilationEnvironment ifNil: [
+		compilationEnvironment := MbndDummyCompilationEnvironment new dummyModule: self.
+	].
+	^ compilationEnvironment
 ]
 
 { #category : #accessing }

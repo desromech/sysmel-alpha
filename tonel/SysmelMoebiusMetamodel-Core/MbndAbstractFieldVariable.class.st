@@ -128,6 +128,11 @@ MbndAbstractFieldVariable >> intrinsic: anObject [
 	intrinsic := anObject
 ]
 
+{ #category : #testing }
+MbndAbstractFieldVariable >> isAlwaysExported [
+	^ true
+]
+
 { #category : #accessing }
 MbndAbstractFieldVariable >> location [
 	^ location

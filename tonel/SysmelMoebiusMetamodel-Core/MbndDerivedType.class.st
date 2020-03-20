@@ -44,5 +44,5 @@ MbndDerivedType >> isDerivedType [
 MbndDerivedType >> materializeWithGraphDecoder: graphDecoder withLazyFields: encodedFields [
 	super materializeWithGraphDecoder: graphDecoder withLazyFields: encodedFields.
 	
-	baseType := encodedFields at: #baseType.
+	self baseType: (encodedFields at: #baseType).
 ]

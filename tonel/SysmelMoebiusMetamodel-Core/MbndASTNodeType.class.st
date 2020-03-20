@@ -18,3 +18,8 @@ MbndASTNodeType >> behavior [
 MbndASTNodeType >> isASTNodeType [
 	^ true
 ]
+
+{ #category : #testing }
+MbndASTNodeType >> isTrait [
+	^ false
+]

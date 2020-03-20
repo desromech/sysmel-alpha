@@ -14,7 +14,7 @@ MbndSlovimCodeModuleGeneratorCommonTest class >> isAbstract [
 
 { #category : #'as yet unclassified' }
 MbndSlovimCodeModuleGeneratorCommonTest >> disableExceptions [
-	semanticModule noExceptions
+	semanticModule compilationEnvironment noExceptions
 ]
 
 { #category : #running }

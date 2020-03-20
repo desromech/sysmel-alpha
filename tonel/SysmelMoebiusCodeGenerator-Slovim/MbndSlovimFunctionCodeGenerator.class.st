@@ -1712,6 +1712,21 @@ MbndSlovimFunctionCodeGenerator >> visitConcretizeUndefinedValueCastNode: node [
 ]
 
 { #category : #visiting }
+MbndSlovimFunctionCodeGenerator >> visitConvertToCompilerObjectCastNode: node [
+	| underlyingObjectType castedValued convertedValue expectedType |
+	underlyingObjectType := node type underlyingObjectType.
+	underlyingObjectType type isGCClassType ifFalse: [
+		^ (self translateType: underlyingObjectType) defaultConstant
+	].
+
+	castedValued := self visitNode: node expression.
+	convertedValue := self wrapValue: castedValued withType: node expression type intoDynamicObjectWithType: underlyingObjectType.
+	expectedType := self translateType: node type.
+	self assert: convertedValue type == expectedType.
+	^ convertedValue 
+]
+
+{ #category : #visiting }
 MbndSlovimFunctionCodeGenerator >> visitDecorationChangeTypeCastNode: node [
 	| source |
 	source := self visitNode: node expression.
@@ -3013,6 +3028,10 @@ MbndSlovimFunctionCodeGenerator >> wrapValue: value withType: valueType intoDyna
 
 	valueType isPointerLikeType ifTrue: [
 		wrappedValue := slvmBuilder addDynamicLiteral: nil
+	].
+
+	valueType isMetaType ifTrue: [
+		wrappedValue := value
 	].
 
 	wrappedValue ifNil: [ 

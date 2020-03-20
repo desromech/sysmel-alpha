@@ -37,6 +37,7 @@ MbndEnumType >> addComparison: selector intrinsic: intrinsicName [
 
 { #category : #initialization }
 MbndEnumType >> addComparisonIntrinsics [
+	baseType ifNotNil: [ self halt ].
 	self
 		addComparison: #= intrinsic: #eq;
 		addComparison: #== intrinsic: #eq;

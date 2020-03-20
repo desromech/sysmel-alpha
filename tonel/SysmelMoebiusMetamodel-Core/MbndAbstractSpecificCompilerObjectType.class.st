@@ -14,6 +14,11 @@ MbndAbstractSpecificCompilerObjectType >> behavior [
 	self subclassResponsibility
 ]
 
+{ #category : #testing }
+MbndAbstractSpecificCompilerObjectType >> isTrait [
+	^ true
+]
+
 { #category : #'semantic analysis' }
 MbndAbstractSpecificCompilerObjectType >> resultTypeForMessageSendToHost: selector [
 	| selectorValue returnTypeName |

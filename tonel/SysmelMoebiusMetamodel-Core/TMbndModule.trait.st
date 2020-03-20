@@ -9,7 +9,8 @@ Trait {
 		'languageInterfaceCache',
 		'moduleLevelInlineAssembly',
 		'embeddedShaderCopyOutputFile',
-		'externalTemplateInstances'
+		'externalTemplateInstances',
+		'anonSymbolCount'
 	],
 	#traits : 'TMbndProgramEntity',
 	#classTraits : 'TMbndProgramEntity classTrait',
@@ -30,7 +31,7 @@ TMbndModule >> addModuleLevelInlineAssembly: node [
 TMbndModule >> allExtensionsDo: aBlock [
 	self extensionMacros do: [ :each | aBlock value: each last ].
 	self extensionOverloadedMethods do: [ :each | aBlock value: each last ].
-	self externalTemplateInstances do: [ :each | aBlock value: each second ].
+	self externalTemplateInstances do: [ :each |  aBlock value: each second ].
 
 ]
 
@@ -172,6 +173,15 @@ TMbndModule >> finishSemanticAnalysis [
 ]
 
 { #category : #'as yet unclassified' }
+TMbndModule >> generateAnonymousSymbolName [
+	| result |
+	anonSymbolCount ifNil: [ anonSymbolCount := 0 ].
+	result := ('..anon.' , anonSymbolCount asString, '..') asSymbol.
+	anonSymbolCount := anonSymbolCount + 1.
+	^ result
+]
+
+{ #category : #'as yet unclassified' }
 TMbndModule >> generateTargetCodeModule [
 	| codeGenerator |
 	codeGenerator := self compilationTarget newCodeModuleGenerator.
@@ -264,6 +274,11 @@ TMbndModule >> module [
 { #category : #accessing }
 TMbndModule >> moduleLevelInlineAssembly [
 	^ moduleLevelInlineAssembly ifNil: [ moduleLevelInlineAssembly := OrderedCollection new ]
+]
+
+{ #category : #'as yet unclassified' }
+TMbndModule >> moduleScope [
+	^ MbndModuleScope new module: self
 ]
 
 { #category : #scope }

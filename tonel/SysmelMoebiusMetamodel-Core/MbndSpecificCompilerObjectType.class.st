@@ -44,3 +44,8 @@ MbndSpecificCompilerObjectType >> encodeGraphForMessagePackWith: graphEncoder [
 
 	^ graphEncoder encodeObject: self type: self messagePackTypeName fields: [self encodeFieldsForMessagePackWith: graphEncoder]
 ]
+
+{ #category : #testing }
+MbndSpecificCompilerObjectType >> isTrait [
+	^ behavior isNotNil
+]

@@ -30,7 +30,7 @@ MbndBasicType class >> initialize [
 	)
 ]
 
-{ #category : #'as yet unclassified' }
+{ #category : #serialization }
 MbndBasicType class >> makeInstanceForMessagePackGraphMaterializationWith: graphDecoder [
 	^ self basicNew
 ]
@@ -402,9 +402,16 @@ MbndBasicType >> parent: aParent [
 { #category : #accessing }
 MbndBasicType >> postMaterializeSetupParent: newParent withModule: newModule [
 	self parent: newParent.
+	self addDefaultConversionRules.
+	self isMetaType ifFalse: [ 
+		self type postMaterializeSetupParent: nil withModule: newModule
+	].
+	self assert: self type module == newModule.
+	
 	self childrenDo: [ :child |
 		child postMaterializeSetupParent: self withModule: newModule
 	].
+	
 ]
 
 { #category : #'as yet unclassified' }

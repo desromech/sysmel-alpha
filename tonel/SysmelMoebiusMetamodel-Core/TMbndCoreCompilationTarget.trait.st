@@ -371,7 +371,11 @@ TMbndCoreCompilationTarget >> encodeBootstrapDefinedObjectsForMessagePackWith: g
 		#typeInformationGCClass . typeInformationGCClass encodeGraphForMessagePackWith: graphEncoder. 
 		#namespaceInformationNativeClass . namespaceInformationNativeClass encodeGraphForMessagePackWith: graphEncoder. 
 		#namespaceInformationGCClass . namespaceInformationGCClass encodeGraphForMessagePackWith: graphEncoder. 
+		#moduleInformationNativeClass . moduleInformationNativeClass encodeGraphForMessagePackWith: graphEncoder. 
+		#moduleInformationGCClass . moduleInformationGCClass encodeGraphForMessagePackWith: graphEncoder. 
+		#internalNonLocalReturnExceptionClass . internalNonLocalReturnExceptionClass encodeGraphForMessagePackWith: graphEncoder.
 		#dynamicObjectType . dynamicObjectType encodeGraphForMessagePackWith: graphEncoder.
+		#defaultGCClassSuperClass . defaultGCClassSuperClass encodeGraphForMessagePackWith: graphEncoder.
 		#managedObjectModel . managedObjectModel encodeBootstrapDefinedObjectsForMessagePackWith: graphEncoder.
 	}
 ]
@@ -1078,6 +1082,14 @@ TMbndCoreCompilationTarget >> materializeBootstrapDefinedObjectWithGraphDecoder:
 		self namespaceInformationNativeClass: object ].
 	encodedFields at: #namespaceInformationGCClass ifPresent: [ :object |
 		self namespaceInformationGCClass: object ].
+	encodedFields at: #moduleInformationNativeClass ifPresent: [ :object |
+		self moduleInformationNativeClass: object ].
+	encodedFields at: #moduleInformationGCClass ifPresent: [ :object |
+		self moduleInformationGCClass: object ].
+	encodedFields at: #internalNonLocalReturnExceptionClass ifPresent: [ :object |
+		self internalNonLocalReturnExceptionClass: object ].
+	encodedFields at: #defaultGCClassSuperClass ifPresent: [ :object |
+		self defaultGCClassSuperClass: object ].
 	encodedFields at: #managedObjectModel ifPresent: [ :objects |
 		self managedObjectModel materializeBootstrapDefinedObjectWithGraphDecoder: graphDecoder withFields: (Dictionary newFromPairs: objects)
 	].
