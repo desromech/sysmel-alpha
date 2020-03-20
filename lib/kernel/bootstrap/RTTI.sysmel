@@ -40,8 +40,13 @@ class TypeInformation superclass: ProgramEntity; definition: {
 class NamespaceInformation superclass: ProgramEntity; definition: {
 }.
 
+
+class ModuleNamespaceInformation superclass: ProgramEntity; definition: {
+    public field sharedNamespace type: NamespaceInformation pointer.
+}.
+
 class ModuleInformation superclass: ProgramEntity; definition: {
-    public field globalNamespace type: NamespaceInformation pointer.
+    public field globalNamespace type: ModuleNamespaceInformation pointer.
 }.
 
 
@@ -56,6 +61,7 @@ _BehaviorType extend: {
 Compiler compilationTarget
     typeInformationNativeClass: TypeInformation;
     namespaceInformationNativeClass: NamespaceInformation;
+    moduleNamespaceInformationNativeClass: ModuleNamespaceInformation;
     moduleInformationNativeClass: ModuleInformation.
 
 }. ## End of namespace Reflection

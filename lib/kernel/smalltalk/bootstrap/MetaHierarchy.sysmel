@@ -27,6 +27,7 @@ gcclass Object superclass: ProtoObject. Compiler compilationTarget defaultGCClas
 		            gcclass Metaclass superclass: ClassDescription.
 			gcclass NativeTypeInformation superclass: TypeInformation.
 		gcclass ModuleInformation superclass: ProgramEntity.
+		gcclass ModuleNamespaceInformation superclass: ProgramEntity.
 		gcclass NamespaceInformation superclass: ProgramEntity.
 
     ## Boolean8
@@ -188,13 +189,18 @@ gcclass ModuleInformation definition: {
 	public field globalNamespace type: NamespaceInformation.
 }.
 
-gcclass NamespaceInformation definition: {
+gcclass ModuleNamespaceInformation definition: {
+	public field sharedNamespace type: NamespaceInformation.
 	public field localSymbolTable type: SystemDictionary.
+}.
+
+gcclass NamespaceInformation definition: {
 }.
 
 Compiler compilationTarget
 	typeInformationGCClass: TypeInformation;
 	moduleInformationGCClass: ModuleInformation;
+	moduleNamespaceInformationGCClass: ModuleNamespaceInformation;
 	namespaceInformationGCClass: NamespaceInformation.
 
 Behavior definition: {
