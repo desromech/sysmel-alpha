@@ -14,6 +14,19 @@ TMbndNamespaceLikeSymbolContainer >> importedNamespacesDo: aBlock [
 ]
 
 { #category : #methods }
+TMbndNamespaceLikeSymbolContainer >> lookupMacroSelector: aSelector [
+	(self lookupLocalMacroSelector: aSelector) ifNotNil: [ :found | ^ found ].
+	self usedNamespaces do: [ :namespace |
+		(namespace lookupMacroSelector: aSelector) ifNotNil: [ :found | ^ found ].
+	].
+	self importedNamespacesDo: [ :namespace |
+		(namespace lookupMacroSelector: aSelector) ifNotNil: [ :found | ^ found ].
+	].
+	
+	^ nil
+]
+
+{ #category : #methods }
 TMbndNamespaceLikeSymbolContainer >> lookupOverloadedSelector: aSelector [
 	(self lookupLocalOverloadedSelector: aSelector) ifNotNil: [ :found | ^ found ].
 	self usedNamespaces do: [ :namespace |

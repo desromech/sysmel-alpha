@@ -17,8 +17,9 @@ TMbndMethodContainer >> addOverloadedMethod: method [
 		| methodGroup|
 		methodGroup := existent.
 		existent isMethodGroup ifFalse: [ 
-			methodGroup := MbndFunctionGroup new
+			methodGroup := MbndMessageGroup new
 				name: existent name;
+				module: method module;
 				addOverloadedEntity: existent;
 				yourself.
 			self addChild: methodGroup.

@@ -25,13 +25,12 @@ MbndAggregateTypeWithFields class >> typeName [
 { #category : #adding }
 MbndAggregateTypeWithFields >> addField: aField [
 	self addChild: aField.
-
+	
 	aField name isMbndAnonymousSymbol ifFalse: [ 
 		self setLocalSymbol: aField name value: aField.
 	].
 
 	self fields add: aField.
-
 ]
 
 { #category : #initialization }
@@ -150,7 +149,8 @@ MbndAggregateTypeWithFields >> ensureGeneratedMethodsExist [
 { #category : #'semantic analysis' }
 MbndAggregateTypeWithFields >> ensureSemanticAnalysis [
 	self isDefined ifTrue: [ 
-		self ensureSlotLayoutIsComputed.
+		"self ensureSlotLayoutIsComputed."
+		self slotLayout.
 		self ensureGeneratedMethodsExist.
 	].
 	super ensureSemanticAnalysis.
@@ -231,6 +231,7 @@ MbndAggregateTypeWithFields >> hasNonCompilerGeneratedMethod: selector [
 { #category : #testing }
 MbndAggregateTypeWithFields >> hasTrivialInstanceBasicInitialization [
 	self isTrait ifTrue: [ ^ super hasTrivialInstanceBasicInitialization ].
+	self isDefined ifFalse: [ ^ true ].
 	
 	^ self slotLayout hasTrivialBasicInitialization
 ]
@@ -238,6 +239,7 @@ MbndAggregateTypeWithFields >> hasTrivialInstanceBasicInitialization [
 { #category : #testing }
 MbndAggregateTypeWithFields >> hasTrivialInstanceFinalization [
 	self isTrait ifTrue: [ ^ super hasTrivialInstanceFinalization ].
+	self isDefined ifFalse: [ ^ true ].
 	
 	^ hasTrivialInstanceFinalization ifNil: [
 		hasTrivialInstanceFinalization := self supertype hasTrivialInstanceFinalization
@@ -249,6 +251,7 @@ MbndAggregateTypeWithFields >> hasTrivialInstanceFinalization [
 { #category : #testing }
 MbndAggregateTypeWithFields >> hasTrivialInstanceInitialization [
 	self isTrait ifTrue: [ ^ super hasTrivialInstanceInitialization ].
+	self isDefined ifFalse: [ ^ true ].
 
 	^ hasTrivialInstanceInitialization ifNil: [
 		hasTrivialInstanceInitialization := self supertype hasTrivialInstanceInitialization
@@ -260,6 +263,7 @@ MbndAggregateTypeWithFields >> hasTrivialInstanceInitialization [
 { #category : #testing }
 MbndAggregateTypeWithFields >> hasTrivialInstanceInitializationCopyingFrom [
 	self isTrait ifTrue: [ ^ super hasTrivialInstanceInitializationCopyingFrom ].
+	self isDefined ifFalse: [ ^ true ].
 	
 	^ hasTrivialInstanceInitializationFromCopy ifNil: [
 		hasTrivialInstanceInitializationFromCopy := self supertype hasTrivialInstanceInitializationCopyingFrom
@@ -271,6 +275,7 @@ MbndAggregateTypeWithFields >> hasTrivialInstanceInitializationCopyingFrom [
 { #category : #testing }
 MbndAggregateTypeWithFields >> hasTrivialInstanceInitializationMovingFrom [
 	self isTrait ifTrue: [ ^ super hasTrivialInstanceInitializationMovingFrom ].
+	self isDefined ifFalse: [ ^ true ].
 	
 	^ hasTrivialInstanceInitializationMovingFrom ifNil: [
 		hasTrivialInstanceInitializationMovingFrom := self supertype hasTrivialInstanceInitializationMovingFrom
@@ -303,15 +308,15 @@ MbndAggregateTypeWithFields >> instanceAlignment [
 { #category : #accessing }
 MbndAggregateTypeWithFields >> instanceDataAlignment [
 	<compileTime>
-	slotLayout ifNil: [self ensureSlotLayoutIsComputed].
-	^ slotLayout instanceAlignment
+	self isDefined ifFalse: [ ^ 1 ].
+	^ self slotLayout instanceAlignment
 ]
 
 { #category : #accessing }
 MbndAggregateTypeWithFields >> instanceDataSize [
 	<compileTime>
-	slotLayout ifNil: [self ensureSlotLayoutIsComputed].
-	^ slotLayout instanceSize
+	self isDefined ifFalse: [ ^ 0 ].
+	^ self slotLayout instanceSize
 ]
 
 { #category : #accessing }

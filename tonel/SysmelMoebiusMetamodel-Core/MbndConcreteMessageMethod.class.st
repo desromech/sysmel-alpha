@@ -15,6 +15,11 @@ MbndConcreteMessageMethod >> accept: aVisitor [
 ]
 
 { #category : #testing }
+MbndConcreteMessageMethod >> hasAnonymousName [
+	^ name isNil
+]
+
+{ #category : #testing }
 MbndConcreteMessageMethod >> isMessageMethod [
 	^ true
 ]

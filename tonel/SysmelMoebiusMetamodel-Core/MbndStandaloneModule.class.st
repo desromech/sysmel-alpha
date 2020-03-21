@@ -138,6 +138,7 @@ MbndStandaloneModule >> encodeExportedSSAModuleWith: graphEncoder [
 MbndStandaloneModule >> encodeFieldsForMessagePackWith: graphEncoder [
 	| resultHead resultTail |
 	resultHead := {
+		#name . name.
 		"Hack: Ensure types are defined first to prevent a nasty circular border condition on deserialization."
 		#definedTypes . Array streamContents: [ :out |
 			self globalNamespace allChildrenDo: [ :child |
@@ -319,6 +320,7 @@ MbndStandaloneModule >> loadRuntimeCoreLibrary [
 
 { #category : #serialization }
 MbndStandaloneModule >> materializeWithGraphDecoder: graphDecoder withFields: encodedFields [
+	name := encodedFields at: #name.
 	(encodedFields at: #definedTypesLazyFields) do: [ :each |
 		each first materializeWithGraphDecoder: graphDecoder withLazyFields: (Dictionary newFromPairs: each second)
 	].

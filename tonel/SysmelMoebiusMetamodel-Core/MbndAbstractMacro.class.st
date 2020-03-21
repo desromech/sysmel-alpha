@@ -16,6 +16,11 @@ MbndAbstractMacro >> messagePackTypeName [
 	^ self class messagePackTypeName
 ]
 
+{ #category : #accessing }
+MbndAbstractMacro >> module [
+	^ self parent module
+]
+
 { #category : #'as yet unclassified' }
 MbndAbstractMacro >> recordAsExtensionFor: ownerProgramEntity withSelector: registeredSelector [
 	self module recordExtensionFor: ownerProgramEntity macroMethod: self withSelector: registeredSelector

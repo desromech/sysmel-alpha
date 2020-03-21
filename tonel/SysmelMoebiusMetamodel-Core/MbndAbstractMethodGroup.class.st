@@ -2,7 +2,8 @@ Class {
 	#name : #MbndAbstractMethodGroup,
 	#superclass : #MbndAbstractMethod,
 	#instVars : [
-		'overloadedEntities'
+		'overloadedEntities',
+		'module'
 	],
 	#category : #'SysmelMoebiusMetamodel-Core-Method'
 }
@@ -40,6 +41,7 @@ MbndAbstractMethodGroup >> analyzeFunctionCallNode: node with: analyzer [
 MbndAbstractMethodGroup >> encodeFieldsForMessagePackWith: graphEncoder [
 	^ {
 		#name . name.
+		#module . module encodeGraphForMessagePackWith: graphEncoder.
 		#overloadedEntities . graphEncoder encodeProgramEntityList: overloadedEntities
 	}
 ]
@@ -111,7 +113,18 @@ MbndAbstractMethodGroup >> isMethodGroup [
 { #category : #serialization }
 MbndAbstractMethodGroup >> materializeWithGraphDecoder: graphDecoder withFields: encodedFields [
 	name := encodedFields at: #name ifAbsent: [ nil ].
+	module := encodedFields at: #module ifAbsent: [ nil ].
 	overloadedEntities := (encodedFields at: #overloadedEntities ifAbsent: [ #() ]) asOrderedCollection
+]
+
+{ #category : #accessing }
+MbndAbstractMethodGroup >> module [
+	^ module
+]
+
+{ #category : #accessing }
+MbndAbstractMethodGroup >> module: anObject [
+	module := anObject
 ]
 
 { #category : #accessing }

@@ -232,6 +232,7 @@ MbndAstSemanticAnalyzer >> createBindingPatternLocalVariable: bindingPattern [
 { #category : #'as yet unclassified' }
 MbndAstSemanticAnalyzer >> createFuncletWithNode: node [
 	^ MbndConcreteFunclet new
+		module: scope module;
 		contentNode: node;
 		definitionScope: scope;
 		yourself
@@ -1003,6 +1004,9 @@ MbndAstSemanticAnalyzer >> visitFieldDefinitionNode: node [
 
 	fieldName := node name.
 	owner := node ownerProgramEntity ifNil: [scope lookupProgramEntityForNewDefinitions].
+	owner module ~~ scope module ifTrue: [ 
+		self error: 'It is forbbiden to extend "{1}" which is defined in another module with additional fields.' format: { owner asString } at: { node }
+	].
 	fieldName isMbndAnonymousSymbol ifFalse: [ 
 		(owner lookupLocalSymbol: fieldName) ifNotNil: [ :previousDefintion |
 			self error: 'Cannot redefine field {1}.' format: { fieldName asPrettySymbolName } at: result
@@ -1045,6 +1049,7 @@ MbndAstSemanticAnalyzer >> visitFieldDefinitionNode: node [
 		location: location;
 		intrinsic: intrinsic;
 		yourself.
+
 	owner addField: field.
 
 	result
@@ -1105,7 +1110,7 @@ MbndAstSemanticAnalyzer >> visitFunctionPrototypeNode: node [
 	].
 	
 	result ownerProgramEntity ifNotNil: [ :newOwner |
-		newOwner findOrAddOverloadedFunctionPrototype: result
+		newOwner findOrAddOverloadedFunctionPrototype: result defineInModule: scope module
 	].
 
 	result concreteMethod specialSemantics: node specialSemantics.
@@ -1662,7 +1667,7 @@ MbndAstSemanticAnalyzer >> visitMacroMessagePrototypeNode: node [
 	].
 
 	result ownerProgramEntity ifNotNil: [ :newOwner |
-		newOwner findOrAddMacroSelectorPrototype: result
+		newOwner findOrAddMacroSelectorPrototype: result defineInModule: scope module
 	].
 	
 	^ result
@@ -1867,7 +1872,7 @@ MbndAstSemanticAnalyzer >> visitMessagePrototypeNode: node [
 	].
 
 	result ownerProgramEntity ifNotNil: [ :newOwner |
-		newOwner findOrAddOverloadedSelectorPrototype: result
+		newOwner findOrAddOverloadedSelectorPrototype: result defineInModule: scope module
 	].
 	
 	^ result

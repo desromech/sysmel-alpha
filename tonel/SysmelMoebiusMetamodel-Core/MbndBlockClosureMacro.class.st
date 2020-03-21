@@ -38,6 +38,11 @@ MbndBlockClosureMacro >> expandMessageNode: node with: analyzer [
 	^ result
 ]
 
+{ #category : #testing }
+MbndBlockClosureMacro >> isNeverExported [
+	^ true
+]
+
 { #category : #serialization }
 MbndBlockClosureMacro >> materializeWithGraphDecoder: graphDecoder withFields: encodedFields [
 ]

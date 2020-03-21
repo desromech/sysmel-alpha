@@ -54,7 +54,7 @@ MbndAbstractSpecificMethod >> analyzeExpandedMessageSendNode: node with: analyze
 		analyzer markCompileTimeEvaluationImpossibility
 	].
 
-	name isMbndAnonymousSymbol ifFalse: [ 
+	self hasAnonymousName ifFalse: [ 
 		newReceiverNode ifNotNil: [ 
 			newReceiverNode isSuperReference ifTrue: [
 				analyzer scope lookupFunctionProgramEntity ifNotNil: [ :callingFunction |
@@ -137,6 +137,7 @@ MbndAbstractSpecificMethod >> createDynamicMethodWrapper [
 { #category : #serialization }
 MbndAbstractSpecificMethod >> encodeFieldsForMessagePackWith: graphEncoder [
 	^ {
+		#flags . flags.
 		#name . name .
 		#receiverType . receiverType encodeGraphForMessagePackWith: graphEncoder.
 		#type . type encodeGraphForMessagePackWith: graphEncoder.
@@ -188,6 +189,11 @@ MbndAbstractSpecificMethod >> getOrCreateCapturedVariableDefinition: capturedVar
 	^ capturedVariable
 ]
 
+{ #category : #testing }
+MbndAbstractSpecificMethod >> hasAnonymousName [
+	^ name isMbndAnonymousSymbol
+]
+
 { #category : #initialization }
 MbndAbstractSpecificMethod >> initialize [
 	super initialize.
@@ -226,6 +232,7 @@ MbndAbstractSpecificMethod >> matchesPrototypeNode: prototypeNode withReceiverTy
 
 { #category : #serialization }
 MbndAbstractSpecificMethod >> materializeWithGraphDecoder: graphDecoder withFields: encodedFields [
+	flags := encodedFields at: #flags.
 	name := encodedFields at: #name.
 	receiverType := encodedFields at: #receiverType.
 	type := encodedFields at: #type.
@@ -252,7 +259,7 @@ MbndAbstractSpecificMethod >> needsDefinitionSerializedWith: graphEncoder [
 MbndAbstractSpecificMethod >> parent: aParent [
 	super parent: aParent.
 	
-	(name isMbndAnonymousSymbol and: [self isFunclet not and: [self isModuleSpecializedProgramEntity not]]) ifTrue: [
+	(self hasAnonymousName and: [self isFunclet not and: [self isModuleSpecializedProgramEntity not]]) ifTrue: [
 		name := self module generateAnonymousSymbolName
 	].
 ]

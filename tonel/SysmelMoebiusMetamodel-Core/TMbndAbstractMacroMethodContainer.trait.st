@@ -4,16 +4,17 @@ Trait {
 }
 
 { #category : #'as yet unclassified' }
-TMbndAbstractMacroMethodContainer >> createMacroMethodEntityForPrototype: prototype [
-	^ self createMacroMethodEntityForPrototype: prototype withReceiverType: self compilationTarget voidType
+TMbndAbstractMacroMethodContainer >> createMacroMethodEntityForPrototype: prototype defineInModule: moduleForDefinition [
+	^ self createMacroMethodEntityForPrototype: prototype withReceiverType: self compilationTarget voidType defineInModule: moduleForDefinition
 ]
 
 { #category : #'as yet unclassified' }
-TMbndAbstractMacroMethodContainer >> createMacroMethodEntityForPrototype: methodPrototype withReceiverType: receiverType [
+TMbndAbstractMacroMethodContainer >> createMacroMethodEntityForPrototype: methodPrototype withReceiverType: receiverType defineInModule: moduleForDefinition [
 	| method macroMethod |
 	macroMethod := MbndMacroMessageMethod new.
 	
 	method := MbndConcreteMacroMessageMethod new
+		module: moduleForDefinition;
 		name: methodPrototype selector;
 		flags: methodPrototype flags;
 		declarationPosition: methodPrototype;
@@ -33,9 +34,9 @@ TMbndAbstractMacroMethodContainer >> createMacroMethodEntityForPrototype: method
 ]
 
 { #category : #'as yet unclassified' }
-TMbndAbstractMacroMethodContainer >> findOrAddMacroSelectorPrototype: prototype [
+TMbndAbstractMacroMethodContainer >> findOrAddMacroSelectorPrototype: prototype defineInModule: moduleForDefinition [
 	(self lookupLocalMacroSelector: prototype selector) ifNil: [
-		self addMacroMethod: (self createMacroMethodEntityForPrototype: prototype)
+		self addMacroMethod: (self createMacroMethodEntityForPrototype: prototype defineInModule: moduleForDefinition)
 	] ifNotNil: [ :existent |
 		self halt
 	]

@@ -150,6 +150,11 @@ TMbndAbstractProgramEntity >> isGlobalVariable [
 ]
 
 { #category : #testing }
+TMbndAbstractProgramEntity >> isMacroMessageMethod [
+	^ false
+]
+
+{ #category : #testing }
 TMbndAbstractProgramEntity >> isMbndProgramEntity [
 	^ true
 ]
@@ -166,6 +171,11 @@ TMbndAbstractProgramEntity >> isModuleSpecializedProgramEntity [
 
 { #category : #testing }
 TMbndAbstractProgramEntity >> isNamespace [
+	^ false
+]
+
+{ #category : #testing }
+TMbndAbstractProgramEntity >> isNeverExported [
 	^ false
 ]
 

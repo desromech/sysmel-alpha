@@ -53,8 +53,6 @@ MbndNamespace >> encodeFieldsForMessagePackWith: graphEncoder [
 	^ {
 		#name . name.
 		#macroMethodDict . graphEncoder encodeSymbolTable: macroMethodDict.
-		#methodDict . graphEncoder encodeSymbolTable: methodDict.
-		#overloadedMethodDict . graphEncoder encodeSymbolTable: overloadedMethodDict.
 		#localSymbolTable . graphEncoder encodeSymbolTable: localSymbolTable.
 		#children.  graphEncoder encodeProgramEntityList: children
 	}
@@ -89,8 +87,6 @@ MbndNamespace >> importedNamespacesDo: aBlock [
 MbndNamespace >> materializeWithGraphDecoder: graphDecoder withFields: encodedFields [
 	name := encodedFields at: #name ifAbsent: [nil].
 	macroMethodDict := Dictionary newFromPairs: (encodedFields at: #macroMethodDict).
-	methodDict := Dictionary newFromPairs: (encodedFields at: #methodDict).
-	overloadedMethodDict := Dictionary newFromPairs: (encodedFields at: #overloadedMethodDict).
 	localSymbolTable := Dictionary newFromPairs: (encodedFields at: #localSymbolTable).
 	children := (encodedFields at: #children ifAbsent: [#()]) asOrderedCollection.
 ]

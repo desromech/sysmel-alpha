@@ -4,14 +4,15 @@ Trait {
 }
 
 { #category : #'overloaded methods' }
-TMbndAbstractSymbolContainer >> createFunctionEntityForPrototype: functionPrototype [
-	^ self createFunctionEntityForPrototype: functionPrototype withReceiverType: (functionPrototype computeReceiverTypeForEntity: self)
+TMbndAbstractSymbolContainer >> createFunctionEntityForPrototype: functionPrototype defineInModule: moduleForDefinition [
+	^ self createFunctionEntityForPrototype: functionPrototype withReceiverType: (functionPrototype computeReceiverTypeForEntity: self) defineInModule: moduleForDefinition
 ]
 
 { #category : #'overloaded methods' }
-TMbndAbstractSymbolContainer >> createFunctionEntityForPrototype: functionPrototype withReceiverType: receiverType [
+TMbndAbstractSymbolContainer >> createFunctionEntityForPrototype: functionPrototype withReceiverType: receiverType defineInModule: moduleForDefinition [
 	| method |
 	method := MbndConcreteFunctionMethod new
+		module: moduleForDefinition;
 		name: functionPrototype name;
 		flags: functionPrototype flags;
 		declarationPosition: functionPrototype;
@@ -91,16 +92,16 @@ TMbndAbstractSymbolContainer >> findOrAddGlobalVariableNamed: name valueType: va
 ]
 
 { #category : #'overloaded methods' }
-TMbndAbstractSymbolContainer >> findOrAddOverloadedFunctionPrototype: functionPrototype [
+TMbndAbstractSymbolContainer >> findOrAddOverloadedFunctionPrototype: functionPrototype defineInModule: moduleForDefinition [
 	| localSymbolDefinition |
 	functionPrototype name isMbndAnonymousSymbol ifTrue: [ 
-		self createFunctionEntityForPrototype: functionPrototype.
+		self createFunctionEntityForPrototype: functionPrototype defineInModule: moduleForDefinition.
 		^ self
 	].
 
 	localSymbolDefinition := self lookupLocalSymbol: functionPrototype name.
 	localSymbolDefinition ifNil: [
-		self setLocalSymbol: functionPrototype name value: (self createFunctionEntityForPrototype: functionPrototype)
+		self setLocalSymbol: functionPrototype name value: (self createFunctionEntityForPrototype: functionPrototype defineInModule: moduleForDefinition)
 	] ifNotNil: [
 		localSymbolDefinition isMethodGroup ifFalse: [
 			(localSymbolDefinition matchesPrototypeNode: functionPrototype withReceiverType: (functionPrototype computeReceiverTypeForEntity: self)) ifTrue: [
@@ -109,6 +110,7 @@ TMbndAbstractSymbolContainer >> findOrAddOverloadedFunctionPrototype: functionPr
 			].
 			
 			localSymbolDefinition := MbndFunctionGroup new
+				module: moduleForDefinition;
 				name: localSymbolDefinition name;
 				addOverloadedEntity: localSymbolDefinition;
 				yourself.
@@ -121,7 +123,7 @@ TMbndAbstractSymbolContainer >> findOrAddOverloadedFunctionPrototype: functionPr
 			^ self
 		].
 	
-		localSymbolDefinition addOverloadedEntity: (self createFunctionEntityForPrototype: functionPrototype)
+		localSymbolDefinition addOverloadedEntity: (self createFunctionEntityForPrototype: functionPrototype defineInModule: moduleForDefinition)
 	].
 
 ]

@@ -54,8 +54,8 @@ TMbndType >> analyzeInitializationFromCopyNode: node with: analyzer [
 ]
 
 { #category : #'as yet unclassified' }
-TMbndType >> createMacroMethodEntityForPrototype: prototype [
-	^ self createMacroMethodEntityForPrototype: prototype withReceiverType: self compilationTarget astNodeType
+TMbndType >> createMacroMethodEntityForPrototype: prototype defineInModule: moduleForDefinition [
+	^ self createMacroMethodEntityForPrototype: prototype withReceiverType: self compilationTarget astNodeType defineInModule: moduleForDefinition
 ]
 
 { #category : #accessing }

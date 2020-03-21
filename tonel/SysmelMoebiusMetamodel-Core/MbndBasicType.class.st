@@ -426,16 +426,31 @@ MbndBasicType >> programEntitionInformationData [
 
 { #category : #'as yet unclassified' }
 MbndBasicType >> recordMacroMethodAddition: method withSelector: selector [
-	(self isCoreBasicType and: [ self compilationTarget isTheTypeSystemInitialized ]) ifTrue: [
-		^ method recordAsExtensionFor: self withSelector: selector
+	self isCoreBasicType ifTrue: [ 
+		self compilationTarget isTheTypeSystemInitialized ifTrue: [
+			^ method recordAsExtensionFor: self withSelector: selector
+		]
+	] ifFalse: [
+		method isMacroMessageMethod ifTrue: [ 
+			method module == self module ifFalse: [
+				method recordAsExtensionFor: self withSelector: selector
+			]
+		].
 	]
 
 ]
 
 { #category : #'as yet unclassified' }
 MbndBasicType >> recordOverloadedMethodAddition: method withSelector: selector [
-	(self isCoreBasicType and: [ self compilationTarget isTheTypeSystemInitialized ]) ifTrue: [
-		^ method recordAsExtensionFor: self withSelector: selector
-	]
+	self isCoreBasicType ifTrue: [ 
+		self compilationTarget isTheTypeSystemInitialized ifTrue: [
+			^ method recordAsExtensionFor: self withSelector: selector
+		]
+	] ifFalse: [
+		self assert: method module isNotNil.
+		method module == self module ifFalse: [
+			method recordAsExtensionFor: self withSelector: selector
+		]
+	].
 
 ]

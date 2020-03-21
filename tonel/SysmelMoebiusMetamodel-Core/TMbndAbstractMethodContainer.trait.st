@@ -31,14 +31,15 @@ TMbndAbstractMethodContainer >> addOverloadedMethod: method receiverType: receiv
 ]
 
 { #category : #adding }
-TMbndAbstractMethodContainer >> createMethodEntityForPrototype: functionPrototype [
-	^ self createMethodEntityForPrototype: functionPrototype withReceiverType: (functionPrototype computeReceiverTypeForEntity: self)
+TMbndAbstractMethodContainer >> createMethodEntityForPrototype: functionPrototype defineInModule: moduleForDefinition [
+	^ self createMethodEntityForPrototype: functionPrototype withReceiverType: (functionPrototype computeReceiverTypeForEntity: self) defineInModule: moduleForDefinition
 ]
 
 { #category : #adding }
-TMbndAbstractMethodContainer >> createMethodEntityForPrototype: methodPrototype withReceiverType: receiverType [
+TMbndAbstractMethodContainer >> createMethodEntityForPrototype: methodPrototype withReceiverType: receiverType defineInModule: moduleForDefinition [
 	| method |
 	method := MbndConcreteMessageMethod new
+		module: moduleForDefinition;
 		name: methodPrototype selector;
 		flags: methodPrototype flags;
 		declarationPosition: methodPrototype;
@@ -57,9 +58,9 @@ TMbndAbstractMethodContainer >> createMethodEntityForPrototype: methodPrototype 
 ]
 
 { #category : #adding }
-TMbndAbstractMethodContainer >> findOrAddOverloadedSelectorPrototype: prototype [
+TMbndAbstractMethodContainer >> findOrAddOverloadedSelectorPrototype: prototype defineInModule: moduleForDefinition [
 	(self lookupLocalOverloadedSelector: prototype selector) ifNil: [
-		self addOverloadedMethod: (self createMethodEntityForPrototype: prototype)
+		self addOverloadedMethod: (self createMethodEntityForPrototype: prototype defineInModule: moduleForDefinition)
 	] ifNotNil: [ :existent |
 		existent isMethodGroup ifTrue: [
 			(existent findMatchingPrototypeNode: prototype withReceiverType: (prototype computeReceiverTypeForEntity: self)) ifNotNil: [ :previousDefinition |
@@ -72,7 +73,7 @@ TMbndAbstractMethodContainer >> findOrAddOverloadedSelectorPrototype: prototype 
 				^ self
 			].
 		].
-		self addOverloadedMethod: (self createMethodEntityForPrototype: prototype)
+		self addOverloadedMethod: (self createMethodEntityForPrototype: prototype defineInModule: moduleForDefinition)
 	]
 ]
 

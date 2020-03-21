@@ -24,6 +24,11 @@ MbndConcreteMacroMessageMethod >> extraImplicitArguments [
 ]
 
 { #category : #testing }
+MbndConcreteMacroMessageMethod >> hasAnonymousName [
+	^ name isNil
+]
+
+{ #category : #testing }
 MbndConcreteMacroMessageMethod >> isConcreteMacroMessage [
 	^ true
 ]

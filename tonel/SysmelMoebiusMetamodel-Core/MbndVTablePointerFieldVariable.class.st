@@ -70,7 +70,7 @@ MbndVTablePointerFieldVariable >> materializeWithGraphDecoder: graphDecoder with
 	vtableSlots := encodedFields at: #vtableSlots ifAbsent: [ nil ].
 	vtableSlots doWithIndex: [ :vslotMethod :vslotIndex |
 		| selector |
-		selector := vslotMethod name.
+		selector := vslotMethod virtualTableSelector.
 		self assert: selector isNotNil.
 		vtableSelectorDictionary at: selector put: vslotIndex - 1
 	]
@@ -81,6 +81,11 @@ MbndVTablePointerFieldVariable >> overrideVirtualMethodEntryWith: method [
 	(self tryToOverrideVirtualMethodEntryWith: method) ifFalse: [ 
 		self error: 'Method {1} does not override any method defined in a super class.' format: { method name asPrettySymbolName } at: method declarationPosition
 	].
+]
+
+{ #category : #printing }
+MbndVTablePointerFieldVariable >> printOn: aStream [
+	aStream nextPutAll: parent qualifiedName; nextPutAll: '::<vtable:'; print: slotIndex; nextPut: $>
 ]
 
 { #category : #'vtable slots' }

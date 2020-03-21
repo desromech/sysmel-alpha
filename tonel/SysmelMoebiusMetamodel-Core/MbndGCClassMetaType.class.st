@@ -35,6 +35,9 @@ MbndGCClassMetaType >> materializeWithGraphDecoder: graphDecoder withLazyFields:
 	super materializeWithGraphDecoder: graphDecoder withLazyFields: encodedFields.
 	
 	instanceType := encodedFields at: #instanceType.
+	instanceType ifNotNil: [ 
+		instanceType addMetaTypeMacrosTo: self
+	].
 ]
 
 { #category : #accessing }
@@ -52,6 +55,15 @@ MbndGCClassMetaType >> printOn: aStream [
 	instanceType ifNil: [ ^ super printOn: aStream ].
 	instanceType printOn: aStream.
 	aStream nextPutAll: ' class'.
+]
+
+{ #category : #printing }
+MbndGCClassMetaType >> qualifiedName [
+	instanceType ifNotNil: [ 
+		self assert: name isMbndAnonymousSymbol.
+		^ instanceType qualifiedName , ' class' 
+	].
+	^ super qualifiedName
 ]
 
 { #category : #accessing }

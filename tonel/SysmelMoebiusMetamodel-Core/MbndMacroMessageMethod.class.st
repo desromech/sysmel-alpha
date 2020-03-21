@@ -76,6 +76,11 @@ MbndMacroMessageMethod >> expandMessageNode: node with: analyzer [
 	^ analyzer visitNode: result value
 ]
 
+{ #category : #testing }
+MbndMacroMessageMethod >> isMacroMessageMethod [
+	^ true
+]
+
 { #category : #serialization }
 MbndMacroMessageMethod >> materializeWithGraphDecoder: graphDecoder withFields: encodedFields [
 	concreteMethod := encodedFields at: #concreteMethod.
@@ -83,7 +88,7 @@ MbndMacroMessageMethod >> materializeWithGraphDecoder: graphDecoder withFields: 
 
 { #category : #accessing }
 MbndMacroMessageMethod >> module [
-	^ parent module
+	^ concreteMethod module
 ]
 
 { #category : #accessing }

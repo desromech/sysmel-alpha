@@ -1232,6 +1232,7 @@ MbndSlovimCodeModuleGenerator >> translateModuleLevelInlineAssembly: inlineAssem
 MbndSlovimCodeModuleGenerator >> translateProgramEntity: programEntity [
 	^ translatedProgramEntities at: programEntity ifAbsent: [
 		| ssaValue |
+		self assert: programEntity module isNotNil.
 		(programEntity isModuleSpecializedProgramEntity not and: [programEntity module ~~ sourceModule]) ifTrue: [ 
 			ssaValue := self importTranslatedProgramEntity: programEntity.
 			ssaValue ifNotNil: [ 

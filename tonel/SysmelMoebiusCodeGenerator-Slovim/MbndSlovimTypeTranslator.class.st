@@ -214,7 +214,7 @@ MbndSlovimTypeTranslator >> visitInputChannelType: type [
 
 { #category : #visiting }
 MbndSlovimTypeTranslator >> visitNamespaceType: namespaceType [
-	^ self compilationTarget namespaceInformationClass ifNotNil: [ :cls |
+	^ self compilationTarget moduleNamespaceInformationClass ifNotNil: [ :cls |
 		cls isGarbageCollectedType ifTrue: [
 			self translateType: cls
 		] ifFalse: [

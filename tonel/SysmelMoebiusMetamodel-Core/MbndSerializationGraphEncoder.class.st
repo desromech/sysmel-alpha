@@ -55,6 +55,7 @@ MbndSerializationGraphEncoder >> initialize [
 
 { #category : #'as yet unclassified' }
 MbndSerializationGraphEncoder >> isProgramEntityExported: programEntity [
+	programEntity isNeverExported ifTrue: [ ^ false ].
 	^ self isExportMode not or: [programEntity hasPublicOrExternalVisibility or: [programEntity isAlwaysExported]]
 ]
 

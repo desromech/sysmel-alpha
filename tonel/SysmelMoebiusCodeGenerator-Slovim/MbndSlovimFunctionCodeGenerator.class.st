@@ -2485,6 +2485,7 @@ MbndSlovimFunctionCodeGenerator >> visitReturnStatementNode: node [
 
 	result := node expression ifNotNil: [ :expr | self visitNode: expr ].
 	slvmBuilder isLastTerminator ifTrue: [ ^ nil ].
+	self assert: node expectedReturnType isReturnType not.
 
 	suppresedCleanUpTokens := #().
 	node expectedReturnType isMemoryReturnedType ifTrue: [ 

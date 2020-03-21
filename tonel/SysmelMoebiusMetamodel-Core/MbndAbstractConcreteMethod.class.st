@@ -2,6 +2,7 @@ Class {
 	#name : #MbndAbstractConcreteMethod,
 	#superclass : #MbndAbstractSpecificMethod,
 	#instVars : [
+		'module',
 		'declarationPosition',
 		'definitionNode',
 		'definitionScope',
@@ -223,6 +224,7 @@ MbndAbstractConcreteMethod >> definitionScope: anObject [
 { #category : #serialization }
 MbndAbstractConcreteMethod >> encodeFieldsForMessagePackWith: graphEncoder [
 	^ (super encodeFieldsForMessagePackWith: graphEncoder) , {
+		#module . module encodeGraphForMessagePackWith: graphEncoder.
 		#arguments . arguments encodeGraphForMessagePackWith: graphEncoder.
 		#argumentsWithoutReceiver . argumentsWithoutReceiver encodeGraphForMessagePackWith: graphEncoder.
 		#specialSemantics . specialSemantics.
@@ -377,6 +379,7 @@ MbndAbstractConcreteMethod >> lookupBoundReceiverSymbol: aSymbol [
 { #category : #serialization }
 MbndAbstractConcreteMethod >> materializeWithGraphDecoder: graphDecoder withFields: encodedFields [
 	super materializeWithGraphDecoder: graphDecoder withFields: encodedFields.
+	module := encodedFields at: #module.
 	arguments := encodedFields at: #arguments.
 	argumentsWithoutReceiver := encodedFields at: #argumentsWithoutReceiver.
 	specialSemantics := encodedFields at: #specialSemantics ifAbsent: [nil].
@@ -386,6 +389,16 @@ MbndAbstractConcreteMethod >> materializeWithGraphDecoder: graphDecoder withFiel
 	definitionScope := encodedFields at: #definitionScope ifAbsent: [nil].
 	analyzedBody := encodedFields at: #analyzedBody ifAbsent: [nil].
 	children := encodedFields at: #children ifAbsent: [nil].
+]
+
+{ #category : #accessing }
+MbndAbstractConcreteMethod >> module [
+	^ module
+]
+
+{ #category : #accessing }
+MbndAbstractConcreteMethod >> module: aModule [
+	module := aModule
 ]
 
 { #category : #testing }
