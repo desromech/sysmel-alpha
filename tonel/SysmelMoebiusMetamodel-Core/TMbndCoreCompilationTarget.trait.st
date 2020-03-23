@@ -35,11 +35,9 @@ Trait {
 		'forbiddenExceptionHandlingFunction',
 		'typeInformationNativeClass',
 		'moduleNamespaceInformationNativeClass',
-		'namespaceInformationNativeClass',
 		'moduleInformationNativeClass',
 		'typeInformationGCClass',
 		'moduleNamespaceInformationGCClass',
-		'namespaceInformationGCClass',
 		'moduleInformationGCClass',
 		'exceptionCatchBeginFunction',
 		'exceptionCatchEndFunction',
@@ -374,7 +372,6 @@ TMbndCoreCompilationTarget >> encodeBootstrapDefinedObjectsForMessagePackWith: g
 			
 			"RTTI"
 			typeInformationNativeClass typeInformationGCClass 
-			namespaceInformationNativeClass namespaceInformationGCClass 
 			moduleNamespaceInformationNativeClass moduleNamespaceInformationGCClass 
 			moduleInformationNativeClass moduleInformationGCClass 
 			
@@ -1151,33 +1148,6 @@ TMbndCoreCompilationTarget >> moduleNamespaceInformationNativeClass: anObject [
 	moduleNamespaceInformationNativeClass ifNotNil: [ 
 		self namespaceType addConversionTo: moduleNamespaceInformationNativeClass rule: MbndPointerReinterpretTypeConversionRule.
 	]
-]
-
-{ #category : #accessing }
-TMbndCoreCompilationTarget >> namespaceInformationClass [
-	^ namespaceInformationGCClass ifNil: [ namespaceInformationNativeClass ]
-]
-
-{ #category : #accessing }
-TMbndCoreCompilationTarget >> namespaceInformationGCClass [
-	^ namespaceInformationGCClass
-]
-
-{ #category : #accessing }
-TMbndCoreCompilationTarget >> namespaceInformationGCClass: anObject [
-	namespaceInformationGCClass := anObject.
-
-]
-
-{ #category : #accessing }
-TMbndCoreCompilationTarget >> namespaceInformationNativeClass [
-	^ namespaceInformationNativeClass
-]
-
-{ #category : #accessing }
-TMbndCoreCompilationTarget >> namespaceInformationNativeClass: anObject [
-	namespaceInformationNativeClass := anObject.
-
 ]
 
 { #category : #'derived types' }
