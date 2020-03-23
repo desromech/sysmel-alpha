@@ -200,8 +200,7 @@ gcclass NamespaceInformation definition: {
 Compiler compilationTarget
 	typeInformationGCClass: TypeInformation;
 	moduleInformationGCClass: ModuleInformation;
-	moduleNamespaceInformationGCClass: ModuleNamespaceInformation;
-	namespaceInformationGCClass: NamespaceInformation.
+	moduleNamespaceInformationGCClass: ModuleNamespaceInformation.
 
 Behavior definition: {
     public field gcLayout public type: GCLayout.
