@@ -39,6 +39,12 @@ Trait {
 		'typeInformationGCClass',
 		'moduleNamespaceInformationGCClass',
 		'moduleInformationGCClass',
+		'extensionMacroMessageGCClass',
+		'extensionMacroMessageNativeClass',
+		'extensionOverloadedMethodGCClass',
+		'extensionOverloadedMethodNativeClass',
+		'extensionMethodGCClass',
+		'extensionMethodNativeClass',
 		'exceptionCatchBeginFunction',
 		'exceptionCatchEndFunction',
 		'nonLocalReturnRaiseFunction',
@@ -373,7 +379,11 @@ TMbndCoreCompilationTarget >> encodeBootstrapDefinedObjectsForMessagePackWith: g
 			"RTTI"
 			typeInformationNativeClass typeInformationGCClass 
 			moduleNamespaceInformationNativeClass moduleNamespaceInformationGCClass 
-			moduleInformationNativeClass moduleInformationGCClass 
+			moduleInformationNativeClass moduleInformationGCClass
+			
+			extensionMacroMessageGCClass extensionMacroMessageNativeClass
+			extensionOverloadedMethodGCClass extensionOverloadedMethodNativeClass
+			extensionMethodGCClass extensionMethodNativeClass
 			
 			"EH"
 			exceptionCatchBeginFunction
@@ -449,6 +459,81 @@ TMbndCoreCompilationTarget >> exceptionCatchEndFunction: anObject [
 ]
 
 { #category : #accessing }
+TMbndCoreCompilationTarget >> extensionMacroMessageClass [
+	^ extensionMacroMessageGCClass ifNil: [ extensionMacroMessageNativeClass ]
+]
+
+{ #category : #accessing }
+TMbndCoreCompilationTarget >> extensionMacroMessageGCClass [
+	^ extensionMacroMessageGCClass
+]
+
+{ #category : #accessing }
+TMbndCoreCompilationTarget >> extensionMacroMessageGCClass: anObject [
+	extensionMacroMessageGCClass := anObject
+]
+
+{ #category : #accessing }
+TMbndCoreCompilationTarget >> extensionMacroMessageNativeClass [
+	^ extensionMacroMessageNativeClass
+]
+
+{ #category : #accessing }
+TMbndCoreCompilationTarget >> extensionMacroMessageNativeClass: anObject [
+	extensionMacroMessageNativeClass := anObject
+]
+
+{ #category : #'as yet unclassified' }
+TMbndCoreCompilationTarget >> extensionMethodClass [
+	^ extensionMethodGCClass ifNil: [ extensionMethodNativeClass ]
+]
+
+{ #category : #accessing }
+TMbndCoreCompilationTarget >> extensionMethodGCClass [
+	^ extensionMethodGCClass
+]
+
+{ #category : #accessing }
+TMbndCoreCompilationTarget >> extensionMethodGCClass: anObject [
+	extensionMethodGCClass := anObject
+]
+
+{ #category : #accessing }
+TMbndCoreCompilationTarget >> extensionMethodNativeClass [
+	^ extensionMethodNativeClass
+]
+
+{ #category : #accessing }
+TMbndCoreCompilationTarget >> extensionMethodNativeClass: anObject [
+	extensionMethodNativeClass := anObject
+]
+
+{ #category : #accessing }
+TMbndCoreCompilationTarget >> extensionOverloadedMethodClass [
+	^ extensionOverloadedMethodGCClass ifNil: [ extensionOverloadedMethodNativeClass ]
+]
+
+{ #category : #accessing }
+TMbndCoreCompilationTarget >> extensionOverloadedMethodGCClass [
+	^ extensionOverloadedMethodGCClass
+]
+
+{ #category : #accessing }
+TMbndCoreCompilationTarget >> extensionOverloadedMethodGCClass: anObject [
+	extensionOverloadedMethodGCClass := anObject
+]
+
+{ #category : #accessing }
+TMbndCoreCompilationTarget >> extensionOverloadedMethodNativeClass [
+	^ extensionOverloadedMethodNativeClass
+]
+
+{ #category : #accessing }
+TMbndCoreCompilationTarget >> extensionOverloadedMethodNativeClass: anObject [
+	extensionOverloadedMethodNativeClass := anObject
+]
+
+{ #category : #accessing }
 TMbndCoreCompilationTarget >> forbiddenExceptionHandlingFunction [
 	^ forbiddenExceptionHandlingFunction
 ]
@@ -476,6 +561,11 @@ TMbndCoreCompilationTarget >> gcInitializationPriority [
 { #category : #'as yet unclassified' }
 TMbndCoreCompilationTarget >> gcModuleRootRegistrationPriority [
 	^ self gcInitializationPriority + 1
+]
+
+{ #category : #'as yet unclassified' }
+TMbndCoreCompilationTarget >> gcModuleStartUpPriority [
+	^ self gcModuleRootRegistrationPriority + 1
 ]
 
 { #category : #accessing }
@@ -1097,6 +1187,11 @@ TMbndCoreCompilationTarget >> materializeBootstrapDefinedObjectWithGraphDecoder:
 	encodedFields at: #managedObjectModel ifPresent: [ :objects |
 		self managedObjectModel materializeBootstrapDefinedObjectWithGraphDecoder: graphDecoder withFields: (Dictionary newFromPairs: objects)
 	].
+]
+
+{ #category : #accessing }
+TMbndCoreCompilationTarget >> moduleInformationClass [
+	^ moduleInformationGCClass ifNil: [ moduleInformationNativeClass ]
 ]
 
 { #category : #accessing }

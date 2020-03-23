@@ -282,7 +282,11 @@ MbndAbstractSpecificMethod >> receiverType: anObject [
 
 { #category : #'as yet unclassified' }
 MbndAbstractSpecificMethod >> recordAsExtensionFor: ownerProgramEntity withSelector: registeredSelector [
-	self module recordExtensionFor: ownerProgramEntity overloadedMethod: self withSelector: registeredSelector
+	self assert: registeredSelector = name.
+	self module
+		recordExtensionFor: ownerProgramEntity overloadedMethod: self withSelector: registeredSelector;
+		recordExtensionFor: ownerProgramEntity method: self withSelector: self typedSelector.
+	
 ]
 
 { #category : #accessing }

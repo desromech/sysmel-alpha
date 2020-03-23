@@ -436,6 +436,12 @@ MbndSlovimSymbolNameMangler >> visitClassType: type [
 ]
 
 { #category : #visiting }
+MbndSlovimSymbolNameMangler >> visitCompilerObjectType: type [
+	output nextPut: $u.
+	self emitSubstitutionElement: type name
+]
+
+{ #category : #visiting }
 MbndSlovimSymbolNameMangler >> visitConcreteFunctionMethod: method [
 	^ self visitGenericFunction: method
 ]
@@ -542,6 +548,11 @@ MbndSlovimSymbolNameMangler >> visitInputChannelType: type [
 	output nextPut: $U.
 	self emitSubstitutionElement: #inputChannel.
 	self mangleType: type messageType
+]
+
+{ #category : #visiting }
+MbndSlovimSymbolNameMangler >> visitModule: module [
+	self mangleProgramEntityNestedName: module
 ]
 
 { #category : #visiting }

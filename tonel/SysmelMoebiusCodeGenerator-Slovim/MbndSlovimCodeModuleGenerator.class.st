@@ -170,10 +170,71 @@ MbndSlovimCodeModuleGenerator >> convertDebugSourceFile: aSourceCollection [
 ]
 
 { #category : #'as yet unclassified' }
+MbndSlovimCodeModuleGenerator >> convertExtensionMacroInformation: extensionDescription [
+	^ self compilationTarget extensionMacroMessageClass makeInstance
+		setField: #extendedParent value: extensionDescription first;
+		setField: #name value: extensionDescription second;
+		setField: #extension value: extensionDescription third;
+		yourself
+]
+
+{ #category : #'as yet unclassified' }
+MbndSlovimCodeModuleGenerator >> convertExtensionMethodInformation: extensionDescription [
+	^ self compilationTarget extensionMethodClass makeInstance
+		setField: #extendedParent value: extensionDescription first;
+		setField: #name value: extensionDescription second;
+		setField: #extension value: extensionDescription third;
+		yourself
+]
+
+{ #category : #'as yet unclassified' }
+MbndSlovimCodeModuleGenerator >> convertExtensionOverloadedMethodInformation: extensionDescription [
+	^ self compilationTarget extensionOverloadedMethodClass makeInstance
+		setField: #extendedParent value: extensionDescription first;
+		setField: #name value: extensionDescription second;
+		setField: #extension value: extensionDescription third;
+		yourself
+]
+
+{ #category : #'as yet unclassified' }
 MbndSlovimCodeModuleGenerator >> createFunctionCodeGenerator [
 	^ MbndSlovimFunctionCodeGenerator new
 		codeModuleGenerator: self;
 		yourself
+]
+
+{ #category : #visiting }
+MbndSlovimCodeModuleGenerator >> createModuleInfoStartupConstructors: moduleInfoGlobal [
+	| moduleStartUpFunction moduleShutDownFunction functionType ctor dtor |
+	moduleStartUpFunction := self compilationTarget managedObjectModel moduleStartUpFunction.
+	moduleShutDownFunction := self compilationTarget managedObjectModel moduleShutDownFunction.
+	(moduleStartUpFunction isNil or: [moduleShutDownFunction isNil]) ifTrue: [ ^ self ].
+	
+	functionType := self compilationTarget voidType => self compilationTarget voidType.
+	ctor := self translateCompilerGeneratedMethodNamed: #'..sysmel.module.startUp..' functionType: functionType
+		at: MbndSourcePosition empty
+		with: [:ssaFunction :builder :functionCodeGenerator |
+		ssaFunction makePrivate.
+		
+		builder
+			call: (self translateProgramEntity: moduleStartUpFunction) ssaValue arguments: { moduleInfoGlobal };
+			returnVoid
+	].
+
+	dtor := self translateCompilerGeneratedMethodNamed: #'..sysmel.module.shutdown..' functionType: functionType
+		at: MbndSourcePosition empty
+		with: [:ssaFunction :builder :functionCodeGenerator |
+		ssaFunction makePrivate.
+		
+		builder
+			call: (self translateProgramEntity: moduleShutDownFunction) ssaValue arguments: { moduleInfoGlobal };
+			returnVoid
+	].
+	
+	ssaModule
+		addGlobal: moduleInfoGlobal constructor: ctor priority: self compilationTarget gcModuleStartUpPriority;
+		addGlobal: moduleInfoGlobal destructor: dtor priority: self compilationTarget gcModuleStartUpPriority.
+
 ]
 
 { #category : #visiting }
@@ -317,6 +378,29 @@ MbndSlovimCodeModuleGenerator >> fetchShader: functionMethod inputsOfType: input
 	]
 ]
 
+{ #category : #visiting }
+MbndSlovimCodeModuleGenerator >> fillModuleInfoInstance: moduleInfoInstance [
+	moduleInfoInstance
+		setField: #name ifExistsWith: [ sourceModule name asSymbol ];
+		setField: #globalNamespace ifExistsWith: [ sourceModule globalNamespace ].
+			
+	"self compilationTarget extensionMacroMessageClass ifNotNil: [
+		moduleInfoInstance
+			setField: #extensionMacros ifExistsWith: [ sourceModule extensionMacros collect: [ :each | self convertExtensionMacroInformation: each ] as: Array ]
+	]."
+
+	self compilationTarget extensionOverloadedMethodClass ifNotNil: [
+		moduleInfoInstance	
+			setField: #extensionOverloadedMethods ifExistsWith: [ sourceModule extensionOverloadedMethods collect: [ :each | self convertExtensionOverloadedMethodInformation: each ] as: Array ].
+	].
+
+	self compilationTarget extensionOverloadedMethodClass ifNotNil: [	
+		moduleInfoInstance	
+			setField: #extensionMethods ifExistsWith: [ sourceModule extensionMethods collect: [ :each | self convertExtensionMethodInformation: each ] as: Array ]
+	].
+
+]
+
 { #category : #accessing }
 MbndSlovimCodeModuleGenerator >> forbiddenExceptionHandlingFunction [
 	^ forbiddenExceptionHandlingFunction ifNil: [
@@ -390,8 +474,8 @@ MbndSlovimCodeModuleGenerator >> generateCodeModuleFor: aModule programEntities:
 { #category : #'code generation' }
 MbndSlovimCodeModuleGenerator >> generateEmbeddedShaderModule [
 	| shaderCompilationTarget shaderModuleCodeGenerator shaderSSAModule spirVModule spirVModuleBlobData spirVModuleBlob spirVModuleInfoGlobal |
-	self compilationTarget isGPU ifTrue: [ ^ self ].
-	shaderEntryPoints ifEmpty: [ ^ self ].
+	self compilationTarget isGPU ifTrue: [ ^ nil ].
+	shaderEntryPoints ifEmpty: [ ^ nil ].
 	shaderCompilationTarget := self compilationTarget asSpirVCompilationTarget.
 	shaderModuleCodeGenerator := shaderCompilationTarget newCodeModuleGenerator.
 	shaderModuleCodeGenerator compilationTargetOverride: shaderCompilationTarget.
@@ -425,6 +509,7 @@ MbndSlovimCodeModuleGenerator >> generateEmbeddedShaderModule [
 				setField: #blobStartPointer value: spirVModuleBlob)
 		ofType: self compilationTarget shaderModuleInfo).
 
+	^ spirVModuleInfoGlobal
 ]
 
 { #category : #'code generation' }
@@ -1854,21 +1939,66 @@ MbndSlovimCodeModuleGenerator >> visitMessageGroup: functionGroup [
 
 { #category : #visiting }
 MbndSlovimCodeModuleGenerator >> visitModule: module [
+	| moduleInfoClass moduleInfoPointerTypeClass moduleInfoSSAType moduleInfoInstance moduleInfoSSAValue |
 	self slvmCompilationTarget objectModel moduleCodeGenerator: self.
+	moduleInfoClass := self compilationTarget moduleInformationClass.
+	
+	moduleInfoPointerTypeClass := moduleInfoClass
+		ifNil: [ self compilationTarget voidType pointer ]
+		ifNotNil: [ moduleInfoClass isGCClassType
+			ifTrue: [ moduleInfoClass ]
+			ifFalse: [ moduleInfoClass pointer ] ].
+	(moduleInfoClass isNil or: [ self compilationEnvironment hasRuntimeTypeInformation not or: [ self compilationTarget isGPU ] ])
+		ifTrue: [ moduleInfoInstance := nil ]
+		ifFalse: [ moduleInfoInstance := moduleInfoClass makeInstance ].
+	
+	moduleInfoSSAType := self translateType: moduleInfoPointerTypeClass.
+	moduleInfoInstance ifNil: [
+		moduleInfoSSAValue := moduleInfoSSAType defaultConstant.
+		self setProgramEntity: module ssaValue: moduleInfoSSAValue
+	] ifNotNil: [
+		moduleInfoSSAValue := SLVMGlobalVariable
+			module: ssaModule name: (self newSymbolNameMangler mangleProgramEntityInfo: module) valueType: moduleInfoSSAType baseType storage: (moduleInfoClass hasGarbageCollectedAddressSpace
+		ifTrue: [SLVMType gcStorage]
+		ifFalse: [SLVMType genericStorage]).
+		self setProgramEntity: module ssaValue: moduleInfoSSAValue.
+		ssaModule addHighLevelEntity: module mapToGlobalValue: moduleInfoSSAValue.
+	].
+
 	module moduleLevelInlineAssembly do: [ :inlineAssembly | self translateModuleLevelInlineAssembly: inlineAssembly ].
+
+	"Translate the global namespace."
 	self translateProgramEntity: module globalNamespace.
+
+	"Translate the extension program entities."
 	module allExtensionsDo: [ :extension |
 		self translateProgramEntity: extension
 	].
 
-	self generateEmbeddedShaderModule.
-	^ nil
+	"Set the module information fields."
+	moduleInfoInstance ifNotNil: [
+		self fillModuleInfoInstance: moduleInfoInstance	
+	].
+
+
+	self generateEmbeddedShaderModule ifNotNil: [ :embeddedShaderModule |
+		"TODO: Store the embedded shader module in the module object."
+	].
+
+	"Set the module info global data."
+	moduleInfoInstance ifNotNil: [
+		self assert: moduleInfoSSAValue isGlobalVariable.
+		moduleInfoSSAValue initialValue: (self literalValueGenerator translateObject: moduleInfoClass content: moduleInfoInstance).
+		
+		self createModuleInfoStartupConstructors: moduleInfoSSAValue
+	].
+
+	^ moduleInfoSSAValue
 ]
 
 { #category : #visiting }
 MbndSlovimCodeModuleGenerator >> visitNamespace: namespace [
-	| ssaNamespaceType ssaValue |
-	ssaNamespaceType := self translateType: namespace type.
+	| ssaValue |
 	ssaValue := self translateProgramEntityInformationData: namespace.
 
 	self translateProgramEntityChildren: namespace.

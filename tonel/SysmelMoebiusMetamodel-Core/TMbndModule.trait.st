@@ -10,7 +10,8 @@ Trait {
 		'moduleLevelInlineAssembly',
 		'embeddedShaderCopyOutputFile',
 		'externalTemplateInstances',
-		'anonSymbolCount'
+		'anonSymbolCount',
+		'extensionMethods'
 	],
 	#traits : 'TMbndProgramEntity',
 	#classTraits : 'TMbndProgramEntity classTrait',
@@ -31,7 +32,7 @@ TMbndModule >> addModuleLevelInlineAssembly: node [
 TMbndModule >> allExtensionsDo: aBlock [
 	self extensionMacros do: [ :each | aBlock value: each last ].
 	self extensionOverloadedMethods do: [ :each | aBlock value: each last ].
-	self externalTemplateInstances do: [ :each |  aBlock value: each second ].
+	self externalTemplateInstances do: [ :each | aBlock value: each second ].
 
 ]
 
@@ -150,6 +151,11 @@ TMbndModule >> evaluatedFileSet [
 { #category : #accessing }
 TMbndModule >> extensionMacros [
 	^ extensionMacros ifNil: [ extensionMacros := OrderedCollection new ]
+]
+
+{ #category : #accessing }
+TMbndModule >> extensionMethods [
+	^ extensionMethods ifNil: [ extensionMethods := OrderedCollection new ]
 ]
 
 { #category : #accessing }
@@ -367,6 +373,12 @@ TMbndModule >> programEntityScopeClass [
 TMbndModule >> recordExtensionFor: parentEntity macroMethod: macroMethod withSelector: selector [
 	self assert: macroMethod module == self.
 	self extensionMacros add: { parentEntity . selector . macroMethod }
+]
+
+{ #category : #extensions }
+TMbndModule >> recordExtensionFor: parentEntity method: method withSelector: selector [
+	self assert: method module == self.
+	self extensionMethods add: { parentEntity . selector . method }
 ]
 
 { #category : #extensions }

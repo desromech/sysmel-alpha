@@ -56,6 +56,16 @@ MbndCompilerObjectType >> defaultValueAt: aPosition [
 	^ MbndValue value: nil type: self
 ]
 
+{ #category : #sizes }
+MbndCompilerObjectType >> instanceAlignment [
+	^ self compilationTarget pointerAlignment
+]
+
+{ #category : #sizes }
+MbndCompilerObjectType >> instanceSize [
+	^ self compilationTarget pointerSize
+]
+
 { #category : #testing }
 MbndCompilerObjectType >> isCompilerObjectType [
 	^ true

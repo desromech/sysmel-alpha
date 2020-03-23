@@ -45,6 +45,8 @@ Trait {
 		'messageClass',
 		'moduleRootRegistrationFunction',
 		'moduleRootUnregistrationFunction',
+		'moduleStartUpFunction',
+		'moduleShutDownFunction',
 		'gcLayoutClass',
 		'receiverClassGetter',
 		'methodSuperClassGetter',
@@ -232,7 +234,9 @@ TMbndCoreManagedObjectModel >> encodeBootstrapDefinedObjectsForMessagePackWith: 
 			gcBlockClosureAllocationFunction objectToUInt32Function objectToInt32Function objectToUInt64Function
 			objectToInt64Function objectToChar32Function objectToFloat64Function
 			objectToBoolean8Function messageClass moduleRootRegistrationFunction
-			moduleRootUnregistrationFunction gcLayoutClass receiverClassGetter methodSuperClassGetter
+			moduleRootUnregistrationFunction
+			moduleStartUpFunction moduleShutDownFunction
+			gcLayoutClass receiverClassGetter methodSuperClassGetter
 			inlineCacheStructure) do: [ :selector |
 				| object|
 				object := self perform: selector.
@@ -444,6 +448,26 @@ TMbndCoreManagedObjectModel >> moduleRootUnregistrationFunction [
 { #category : #accessing }
 TMbndCoreManagedObjectModel >> moduleRootUnregistrationFunction: anObject [
 	moduleRootUnregistrationFunction := anObject
+]
+
+{ #category : #accessing }
+TMbndCoreManagedObjectModel >> moduleShutDownFunction [
+	^ moduleShutDownFunction
+]
+
+{ #category : #accessing }
+TMbndCoreManagedObjectModel >> moduleShutDownFunction: anObject [
+	moduleShutDownFunction := anObject
+]
+
+{ #category : #accessing }
+TMbndCoreManagedObjectModel >> moduleStartUpFunction [
+	^ moduleStartUpFunction
+]
+
+{ #category : #accessing }
+TMbndCoreManagedObjectModel >> moduleStartUpFunction: anObject [
+	moduleStartUpFunction := anObject
 ]
 
 { #category : #accessing }

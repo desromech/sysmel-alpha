@@ -231,6 +231,7 @@ MbndBasicType >> ensureSemanticAnalysis [
 		self type ensureSemanticAnalysis
 	].
 
+	self flag: 'TODO: try to remove this ensure lookup method dict is built call if possible'.
 	self ensureLookupMethodDictIsBuilt
 ]
 
