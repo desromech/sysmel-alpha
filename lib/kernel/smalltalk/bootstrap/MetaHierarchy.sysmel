@@ -29,6 +29,10 @@ gcclass Object superclass: ProtoObject. Compiler compilationTarget defaultGCClas
 		gcclass ModuleInformation superclass: ProgramEntity.
 		gcclass ModuleNamespaceInformation superclass: ProgramEntity.
 		gcclass NamespaceInformation superclass: ProgramEntity.
+	gcclass ProgramEntityExtensionElement superclass: Object.
+		gcclass ExtensionMacroMessage superclass: ProgramEntityExtensionElement.
+		gcclass ExtensionOverloadedMethod superclass: ProgramEntityExtensionElement.
+		gcclass ExtensionMethod superclass: ProgramEntityExtensionElement.
 
     ## Boolean8
     gcclass Boolean superclass: Object.
@@ -185,22 +189,52 @@ TypeInformation definition: {
     }.
 }.
 
-gcclass ModuleInformation definition: {
-	public field globalNamespace type: NamespaceInformation.
+ModuleInformation definition: {
+	public field name.
+	public field globalNamespace type: ModuleNamespaceInformation.
+	public field extensionMacros type: Array.
+	public field extensionOverloadedMethods type: Array.
+	public field extensionMethods type: Array.
 }.
 
-gcclass ModuleNamespaceInformation definition: {
+ModuleNamespaceInformation definition: {
 	public field sharedNamespace type: NamespaceInformation.
 	public field localSymbolTable type: SystemDictionary.
 }.
 
-gcclass NamespaceInformation definition: {
+NamespaceInformation definition: {
+}.
+
+ProgramEntityExtensionElement definition: {
+	public field extendedParent.
+	public field name.
+	public field extension.
+
+	method apply :=
+		self subclassResponsibility.
+}.
+
+ExtensionMacroMessage definition: {
+
+}.
+
+ExtensionOverloadedMethod definition: {
+
+}.
+
+ExtensionMethod definition: {
+
 }.
 
 Compiler compilationTarget
 	typeInformationGCClass: TypeInformation;
 	moduleInformationGCClass: ModuleInformation;
-	moduleNamespaceInformationGCClass: ModuleNamespaceInformation.
+	moduleNamespaceInformationGCClass: ModuleNamespaceInformation;
+
+	## For registering/unregistering the extension methods on module load/unload time.
+	extensionMacroMessageGCClass: ExtensionMacroMessage;
+	extensionOverloadedMethodGCClass: ExtensionOverloadedMethod;
+	extensionMethodGCClass: ExtensionMethod.
 
 Behavior definition: {
     public field gcLayout public type: GCLayout.

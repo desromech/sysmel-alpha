@@ -1,0 +1,28 @@
+namespace Smalltalk definition: {
+
+ModuleInformation definition: {
+    method startUp => Void  := {
+        ##StdNative stdout << "Module " << name << " startup called."; nl
+    }.
+
+    method shutDown => Void  := {
+        ##StdNative stdout << "Module " << name << " shutDown called."; nl
+    }.
+}.
+
+namespace Runtime definition: {
+
+function callModuleStartUp(module: ModuleInformation) => Void := {
+    module startUp
+}.
+
+function callModuleShutdown(module: ModuleInformation) => Void := {
+    module shutDown
+}.
+
+Compiler compilationTarget managedObjectModel
+    moduleStartUpFunction: callModuleStartUp;
+    moduleShutDownFunction: callModuleShutdown.
+}. ## End of namespace Runtime
+
+}. ## End of namespace Smalltalk

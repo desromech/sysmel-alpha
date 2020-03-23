@@ -16,5 +16,6 @@ loadFileOnce: "Printing.sysmel".
 loadFileOnce: "Symbol.sysmel".
 loadFileOnce: "Process.sysmel".
 loadFileOnce: "ModuleRootRegistration.sysmel".
+loadFileOnce: "ModuleInitialization.sysmel".
 loadFileOnce: "InterpretedMethod.sysmel".
 loadFileOnce: "Transcript.sysmel".

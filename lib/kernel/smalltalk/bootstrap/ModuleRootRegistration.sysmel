@@ -1,5 +1,5 @@
 namespace Smalltalk definition: {
-
+namespace Runtime definition: {
 struct ModuleGCRootPointerDescriptor definition: {
     public field pointer type: ProtoObject pointer.
     public field count type: UIntPointer.
@@ -38,4 +38,6 @@ Compiler compilationTarget managedObjectModel
     moduleRootRegistrationFunction: registerModuleRoots;
     moduleRootUnregistrationFunction: unregisterModuleRoots.
 
+
+}. ## End of namespace Runtime
 }. ## End of namespace Smalltalk
