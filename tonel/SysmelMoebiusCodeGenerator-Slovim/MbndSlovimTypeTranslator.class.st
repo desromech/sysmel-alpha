@@ -207,8 +207,8 @@ MbndSlovimTypeTranslator >> visitInputChannelType: type [
 		^ self slvmCompilationTarget pointerTo: messageType storage: SLVMType functionStorage
 	].
 
-	codeModuleGenerator compilationTarget inputChannelImplementationType ifNotNil: [ :targetType | ^ self translateType: type ].
-	codeModuleGenerator compilationTarget dynamicObjectType ifNotNil: [ :targetType | ^ self translateType: type ].
+	codeModuleGenerator compilationTarget inputChannelImplementationType ifNotNil: [ :targetType | ^ self translateType: targetType ].
+	codeModuleGenerator compilationTarget dynamicObjectType ifNotNil: [ :targetType | ^ self translateType: targetType ].
 	^ self slvmCompilationTarget dynamicObjectType
 ]
 
@@ -238,8 +238,8 @@ MbndSlovimTypeTranslator >> visitOutputChannelType: type [
 		^ self slvmCompilationTarget pointerTo: messageType storage: SLVMType functionStorage
 	].
 
-	codeModuleGenerator compilationTarget outputChannelImplementationType ifNotNil: [ :targetType | ^ self translateType: type ].
-	codeModuleGenerator compilationTarget dynamicObjectType ifNotNil: [ :targetType | ^ self translateType: type ].
+	codeModuleGenerator compilationTarget outputChannelImplementationType ifNotNil: [ :targetType | ^ self translateType: targetType ].
+	codeModuleGenerator compilationTarget dynamicObjectType ifNotNil: [ :targetType | ^ self translateType: targetType ].
 	^ self slvmCompilationTarget dynamicObjectType
 ]
 

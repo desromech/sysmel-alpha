@@ -85,7 +85,7 @@ MbndSlovimExceptionScope >> flattenedCatchedExceptions [
 				ifNotNil: [ :p | p flattenedCatchedExceptions ]
 		].
 	
-		flattenedCatchedExceptions := catchedExceptions collect: [ :each | each node exceptionType ].
+		flattenedCatchedExceptions := flattenedCatchedExceptions , (catchedExceptions collect: [ :each | each node exceptionType ] thenReject: [:each | flattenedCatchedExceptions includes: each]).
 		self nonLocalReturnContext ifNotNil: [
 			flattenedCatchedExceptions := flattenedCatchedExceptions , { compilationTarget internalNonLocalReturnExceptionClass }
 		].

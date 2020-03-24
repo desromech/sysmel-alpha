@@ -16,6 +16,7 @@ MbndSlovimSpirVCodeModuleGeneratorTest >> generateSpirV [
 { #category : #running }
 MbndSlovimSpirVCodeModuleGeneratorTest >> setUp [
 	semanticModule := MbndCompilationEnvironment spirv_vulkan coreModule.
+	semanticModule name: #TestModule.
 ]
 
 { #category : #tests }
@@ -147,7 +148,7 @@ class Shader definition:
 	generateSSAModule;
 	validateSpirV.
 	
-	shaderController := ssaModule globalNamed: #_ZN6Shader4mainERNS_E.
+	shaderController := ssaModule globalNamed: #_ZN10TestModule6Shader4mainERNS0_E.
 	self assert: shaderController allInstructionsMnemonics equals: #(
 		(entry (
 			alloca
@@ -253,7 +254,7 @@ class ShaderInterface definition: {
 	generateSSAModule;
 	validateSpirV.
 	
-	shaderImplementation := ssaModule globalNamed: #'_ZN15ShaderInterface6shader6__implERNS_EU12inputChannelN5InputEU13outputChannelN6OutputE'.
+	shaderImplementation := ssaModule globalNamed: #'_ZN10TestModule15ShaderInterface6shader6__implERNS0_EU12inputChannelNS_5InputEU13outputChannelNS_6OutputE'.
 	self assert: shaderImplementation allInstructionsMnemonics equals: #(
 		(entry (
 			jump
@@ -307,7 +308,7 @@ class ShaderInterface definition: {
 	generateSSAModule;
 	validateSpirV.
 	
-	shaderImplementation := ssaModule globalNamed: #'_ZN15ShaderInterface6shader6__implERNS_EU12inputChannelN5InputEU13outputChannelN6OutputE'.
+	shaderImplementation := ssaModule globalNamed: #'_ZN10TestModule15ShaderInterface6shader6__implERNS0_EU12inputChannelNS_5InputEU13outputChannelNS_6OutputE'.
 	self assert: shaderImplementation allInstructionsMnemonics equals: #(
 		(entry (
 			jump
@@ -361,7 +362,7 @@ class ShaderInterface definition: {
 	generateSSAModule;
 	validateSpirV.
 	
-	shaderImplementation := ssaModule globalNamed: #'_ZN15ShaderInterface6shader6__implERNS_EU12inputChannelN5InputEU13outputChannelN6OutputE'.
+	shaderImplementation := ssaModule globalNamed: #'_ZN10TestModule15ShaderInterface6shader6__implERNS0_EU12inputChannelNS_5InputEU13outputChannelNS_6OutputE'.
 	self assert: shaderImplementation allInstructionsMnemonics equals: #(
 		(entry (
 			jump

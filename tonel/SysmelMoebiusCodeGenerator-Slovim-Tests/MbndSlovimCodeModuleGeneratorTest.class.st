@@ -32,23 +32,23 @@ class ClassWithGuard definition: {
 	self deny: classWithGuard hasTrivialInitialization.
 	self deny: classWithGuard hasTrivialFinalization.
 
-	function := ssaModule globalNamed: #'_ZN14ClassWithGuard11.initializeERNS_E'.
+	function := ssaModule globalNamed: #'_ZN10TestModule14ClassWithGuard11.initializeERNS0_E'.
 	self assert: function isFunction.
 	self assert: function basicBlocks size equals: 2.
 	self assert: function allInstructionsMnemonics equals: #(
 		(entry (jump))
 		(body (getElementPointer call return))
 	).
-	self assert: function basicBlocks second firstInstruction nextInstruction functionValue name equals: #'_ZN5Guard11.initializeERNS_E'.
+	self assert: function basicBlocks second firstInstruction nextInstruction functionValue name equals: #'_ZN10TestModule5Guard11.initializeERNS0_E'.
 	
-	function := ssaModule globalNamed: #'_ZN14ClassWithGuard9.finalizeERNS_E'.
+	function := ssaModule globalNamed: #'_ZN10TestModule14ClassWithGuard9.finalizeERNS0_E'.
 	self assert: function isFunction.
 	self assert: function basicBlocks size equals: 2.
 	self assert: function allInstructionsMnemonics equals: #(
 		(entry (jump))
 		(body (getElementPointer call return))
 	).
-	self assert: function basicBlocks second firstInstruction nextInstruction functionValue name equals: #'_ZN5Guard9.finalizeERNS_E'.
+	self assert: function basicBlocks second firstInstruction nextInstruction functionValue name equals: #'_ZN10TestModule5Guard9.finalizeERNS0_E'.
 ]
 
 { #category : #tests }
@@ -82,7 +82,7 @@ class ClassWithGuard definition: {
 	self deny: classWithGuard hasTrivialInitialization.
 	self deny: classWithGuard hasTrivialFinalization.
 
-	function := ssaModule globalNamed: #'_ZN14ClassWithGuard11.initializeERNS_E'.
+	function := ssaModule globalNamed: #'_ZN10TestModule14ClassWithGuard11.initializeERNS0_E'.
 	self assert: function isFunction.
 	self assert: function allInstructionsMnemonics equals: #(
 		(entry (jump))
@@ -90,10 +90,10 @@ class ClassWithGuard definition: {
 		(tryScope (#jump))
 		(tryScope (call returnVoid))
 	).
-	self assert: function basicBlocks second firstInstruction nextInstruction functionValue name equals: #'_ZN5Guard11.initializeERNS_E'.
+	self assert: function basicBlocks second firstInstruction nextInstruction functionValue name equals: #'_ZN10TestModule5Guard11.initializeERNS0_E'.
 	self assert: function basicBlocks fourth firstInstruction functionValue name equals: #'methodWithSideEffect'.
 	
-	function := ssaModule globalNamed: #'_ZN14ClassWithGuard9.finalizeERNS_E'.
+	function := ssaModule globalNamed: #'_ZN10TestModule14ClassWithGuard9.finalizeERNS0_E'.
 	self assert: function isFunction.
 	self assert: function allInstructionsMnemonics equals: #(
 		(entry (jump))
@@ -101,7 +101,7 @@ class ClassWithGuard definition: {
 		(tryScope (call getElementPointer call returnVoid))
 	).
 	self assert: function basicBlocks third firstInstruction functionValue name equals: #'methodWithSideEffect'.
-	self assert: function basicBlocks third firstInstruction nextInstruction nextInstruction functionValue name equals: #'_ZN5Guard9.finalizeERNS_E'.
+	self assert: function basicBlocks third firstInstruction nextInstruction nextInstruction functionValue name equals: #'_ZN10TestModule5Guard9.finalizeERNS0_E'.
 ]
 
 { #category : #tests }
@@ -133,23 +133,23 @@ class SubClassWithGuard superclass: ClassWithGuard; definition: {
 	self deny: subclassWithGuard hasTrivialInitialization.
 	self deny: subclassWithGuard hasTrivialFinalization.
 
-	function := ssaModule globalNamed: #'_ZN17SubClassWithGuard11.initializeERNS_E'.
+	function := ssaModule globalNamed: #'_ZN10TestModule17SubClassWithGuard11.initializeERNS0_E'.
 	self assert: function isFunction.
 	self assert: function basicBlocks size equals: 2.
 	self assert: function allInstructionsMnemonics equals: #(
 		(entry (jump))
 		(body (bitcast call return))
 	).
-	self assert: function basicBlocks second firstInstruction nextInstruction functionValue name equals: #'_ZN14ClassWithGuard11.initializeERNS_E'.
+	self assert: function basicBlocks second firstInstruction nextInstruction functionValue name equals: #'_ZN10TestModule14ClassWithGuard11.initializeERNS0_E'.
 	
-	function := ssaModule globalNamed: #'_ZN17SubClassWithGuard9.finalizeERNS_E'.
+	function := ssaModule globalNamed: #'_ZN10TestModule17SubClassWithGuard9.finalizeERNS0_E'.
 	self assert: function isFunction.
 	self assert: function basicBlocks size equals: 2.
 	self assert: function allInstructionsMnemonics equals: #(
 		(entry (jump))
 		(body (bitcast call return))
 	).
-	self assert: function basicBlocks second firstInstruction nextInstruction functionValue name equals: #'_ZN14ClassWithGuard9.finalizeERNS_E'.
+	self assert: function basicBlocks second firstInstruction nextInstruction functionValue name equals: #'_ZN10TestModule14ClassWithGuard9.finalizeERNS0_E'.
 ]
 
 { #category : #tests }
@@ -191,17 +191,17 @@ class SubClassWithGuard superclass: ClassWithGuard; definition: {
 	self deny: subclassWithGuard hasTrivialInitialization.
 	self deny: subclassWithGuard hasTrivialFinalization.
 
-	function := ssaModule globalNamed: #'_ZN17SubClassWithGuard11.initializeERNS_E'.
+	function := ssaModule globalNamed: #'_ZN10TestModule17SubClassWithGuard11.initializeERNS0_E'.
 	self assert: function isFunction.
 	self assert: function allInstructionsMnemonics equals: #(
 		(entry (jump))
 		(body (jump))
 		(tryScope (bitcast call call returnVoid))
 	).
-	self assert: function basicBlocks third firstInstruction nextInstruction functionValue name equals: #'_ZN14ClassWithGuard11.initializeERNS_E'.
+	self assert: function basicBlocks third firstInstruction nextInstruction functionValue name equals: #'_ZN10TestModule14ClassWithGuard11.initializeERNS0_E'.
 	self assert: function basicBlocks third firstInstruction nextInstruction nextInstruction functionValue name equals: #methodWithSideEffect.
 	
-	function := ssaModule globalNamed: #'_ZN17SubClassWithGuard9.finalizeERNS_E'.
+	function := ssaModule globalNamed: #'_ZN10TestModule17SubClassWithGuard9.finalizeERNS0_E'.
 	self assert: function isFunction.
 	self assert: function allInstructionsMnemonics equals: #(
 		(entry (jump))
@@ -209,7 +209,7 @@ class SubClassWithGuard superclass: ClassWithGuard; definition: {
 		(tryScope (call bitcast call returnVoid))
 	).
 	self assert: function basicBlocks third firstInstruction functionValue name equals: #methodWithSideEffect.
-	self assert: function basicBlocks third firstInstruction nextInstruction nextInstruction functionValue name equals: #'_ZN14ClassWithGuard9.finalizeERNS_E'.
+	self assert: function basicBlocks third firstInstruction nextInstruction nextInstruction functionValue name equals: #'_ZN10TestModule14ClassWithGuard9.finalizeERNS0_E'.
 ]
 
 { #category : #tests }
@@ -249,7 +249,7 @@ class SubClassWithGuard superclass: ClassWithGuard; definition: {
 	self deny: subclassWithGuard hasTrivialInitialization.
 	self deny: subclassWithGuard hasTrivialFinalization.
 
-	function := ssaModule globalNamed: #'_ZN17SubClassWithGuard11.initializeERNS_E'.
+	function := ssaModule globalNamed: #'_ZN10TestModule17SubClassWithGuard11.initializeERNS0_E'.
 	self assert: function isFunction.
 	self assert: function allInstructionsMnemonics equals: #(
 		(entry (jump))
@@ -257,10 +257,10 @@ class SubClassWithGuard superclass: ClassWithGuard; definition: {
 		(tryScope #(jump))
 		(tryScope #(call returnVoid))
 	).
-	self assert: function basicBlocks second firstInstruction nextInstruction functionValue name equals: #'_ZN14ClassWithGuard11.initializeERNS_E'.
+	self assert: function basicBlocks second firstInstruction nextInstruction functionValue name equals: #'_ZN10TestModule14ClassWithGuard11.initializeERNS0_E'.
 	self assert: function basicBlocks fourth firstInstruction functionValue name equals: #methodWithSideEffect.
 	
-	function := ssaModule globalNamed: #'_ZN17SubClassWithGuard9.finalizeERNS_E'.
+	function := ssaModule globalNamed: #'_ZN10TestModule17SubClassWithGuard9.finalizeERNS0_E'.
 	self assert: function isFunction.
 	self assert: function allInstructionsMnemonics equals: #(
 		(entry (jump))
@@ -268,7 +268,7 @@ class SubClassWithGuard superclass: ClassWithGuard; definition: {
 		(tryScope (call bitcast call returnVoid))
 	).
 	self assert: function basicBlocks third firstInstruction functionValue name equals: #methodWithSideEffect.
-	self assert: function basicBlocks third firstInstruction nextInstruction nextInstruction functionValue name equals: #'_ZN14ClassWithGuard9.finalizeERNS_E'.
+	self assert: function basicBlocks third firstInstruction nextInstruction nextInstruction functionValue name equals: #'_ZN10TestModule14ClassWithGuard9.finalizeERNS0_E'.
 ]
 
 { #category : #tests }
@@ -730,7 +730,7 @@ class AtomicFlag definition: {
 ';
 		generateSSAModule.
 
-	function := ssaModule globalNamed: #'_ZN10AtomicFlag10.loadWith.ERNS_Ei'.
+	function := ssaModule globalNamed: #'_ZN10TestModule10AtomicFlag10.loadWith.ERNS0_Ei'.
 	self assert: function isFunction.
 	self deny: function isEmpty.
 	self assert: function basicBlocks size equals: 1.
@@ -1389,7 +1389,7 @@ class SubClass superclass: SuperClass; definition: {
 ';
 		generateSSAModule.
 
-	function := ssaModule globalNamed: #'_ZN8SubClass9.getFieldERNS_E'.
+	function := ssaModule globalNamed: #'_ZN10TestModule8SubClass9.getFieldERNS0_E'.
 	self assert: function isFunction.
 	self deny: function isEmpty.
 	self assert: function basicBlocks size equals: 2.
@@ -1527,7 +1527,7 @@ function callVirtual externC(o: SuperClass ref) => Float64
 		))
 	).
 	
-	function := ssaModule globalNamed: #'_ZN8SubClass9.getValueERNS_E'.
+	function := ssaModule globalNamed: #'_ZN10TestModule8SubClass9.getValueERNS0_E'.
 	self assert: function allInstructionsMnemonics equals: #(
 		(entry (jump))
 		(body (
@@ -3329,7 +3329,7 @@ function callMessage externC(o: SubClass) => Float64
 		))
 	).
 	
-	function := ssaModule globalNamed: #'_ZN8SubClass9.getValueEPNS_Ed'.
+	function := ssaModule globalNamed: #'_ZN10TestModule8SubClass9.getValueEPNS0_Ed'.
 	self assert: function allInstructionsMnemonics equals: #(
 		(entry (jump))
 		(body (
@@ -3781,7 +3781,7 @@ global globalHandle externC mutable type: Resource';
 	self assert: ssaModule globalConstructors isNotEmpty.
 	ctor := ssaModule globalConstructors first.
 	self assert: ctor global equals: global.
-	self assert: ctor priority equals: 0.
+	self assert: ctor priority equals: semanticModule compilationTarget normalConstructorPriority.
 
 	globalCtor := ctor function.
 	self assert: globalCtor allInstructionsMnemonics equals: #(
@@ -3791,7 +3791,7 @@ global globalHandle externC mutable type: Resource';
 	
 	callInstruction := globalCtor basicBlocks second firstInstruction.
 	self assert: callInstruction isCall.
-	self assert: callInstruction functionValue name equals: #'_ZN8Resource11.initializeERNS_E'. 
+	self assert: callInstruction functionValue name equals: #'_ZN10TestModule8Resource11.initializeERNS0_E'. 
 ]
 
 { #category : #tests }
@@ -3830,7 +3830,7 @@ global globalHandle externC mutable type: Resource; constructionPriority: -100';
 	
 	callInstruction := globalCtor basicBlocks second firstInstruction.
 	self assert: callInstruction isCall.
-	self assert: callInstruction functionValue name equals: #'_ZN8Resource11.initializeERNS_E'.
+	self assert: callInstruction functionValue name equals: #'_ZN10TestModule8Resource11.initializeERNS0_E'.
 ]
 
 { #category : #tests }
@@ -3859,7 +3859,7 @@ global globalHandle externC mutable type: Resource';
 	self assert: ssaModule globalDestructors isNotEmpty.
 	dtor := ssaModule globalDestructors first.
 	self assert: dtor global equals: global.
-	self assert: dtor priority equals: 0.
+	self assert: dtor priority equals: semanticModule compilationTarget normalConstructorPriority.
 
 	globalDtor := dtor function.
 	self assert: globalDtor allInstructionsMnemonics equals: #(
@@ -3869,7 +3869,7 @@ global globalHandle externC mutable type: Resource';
 	
 	callInstruction := globalDtor basicBlocks second firstInstruction.
 	self assert: callInstruction isCall.
-	self assert: callInstruction functionValue name equals: #'_ZN8Resource9.finalizeERNS_E'.
+	self assert: callInstruction functionValue name equals: #'_ZN10TestModule8Resource9.finalizeERNS0_E'.
 ]
 
 { #category : #tests }
@@ -3898,7 +3898,7 @@ global globalHandle externC mutable := Resource basicNewValue handle: 42';
 	self assert: ssaModule globalDestructors isNotEmpty.
 	dtor := ssaModule globalDestructors first.
 	self assert: dtor global equals: global.
-	self assert: dtor priority equals: 0.
+	self assert: dtor priority equals: semanticModule compilationTarget normalConstructorPriority.
 
 	globalDtor := dtor function.
 	self assert: globalDtor allInstructionsMnemonics equals: #(
@@ -3908,7 +3908,7 @@ global globalHandle externC mutable := Resource basicNewValue handle: 42';
 	
 	callInstruction := globalDtor basicBlocks second firstInstruction.
 	self assert: callInstruction isCall.
-	self assert: callInstruction functionValue name equals: #'_ZN8Resource9.finalizeERNS_E'.
+	self assert: callInstruction functionValue name equals: #'_ZN10TestModule8Resource9.finalizeERNS0_E'.
 ]
 
 { #category : #tests }
@@ -3937,7 +3937,7 @@ global globalHandle externC mutable type: Resource := Resource basicNewValue han
 	self assert: ssaModule globalDestructors isNotEmpty.
 	dtor := ssaModule globalDestructors first.
 	self assert: dtor global equals: global.
-	self assert: dtor priority equals: 0.
+	self assert: dtor priority equals: semanticModule compilationTarget normalConstructorPriority.
 
 	globalDtor := dtor function.
 	self assert: globalDtor allInstructionsMnemonics equals: #(
@@ -3947,7 +3947,7 @@ global globalHandle externC mutable type: Resource := Resource basicNewValue han
 	
 	callInstruction := globalDtor basicBlocks second firstInstruction.
 	self assert: callInstruction isCall.
-	self assert: callInstruction functionValue name equals: #'_ZN8Resource9.finalizeERNS_E'.
+	self assert: callInstruction functionValue name equals: #'_ZN10TestModule8Resource9.finalizeERNS0_E'.
 ]
 
 { #category : #tests }
@@ -3979,7 +3979,7 @@ global globalHandle externC mutable := Resource for: 42';
 	self assert: ssaModule globalDestructors isNotEmpty.
 	dtor := ssaModule globalDestructors first.
 	self assert: dtor global equals: global.
-	self assert: dtor priority equals: 0.
+	self assert: dtor priority equals: semanticModule compilationTarget normalConstructorPriority.
 
 	globalDtor := dtor function.
 	self assert: globalDtor allInstructionsMnemonics equals: #(
@@ -3989,7 +3989,7 @@ global globalHandle externC mutable := Resource for: 42';
 	
 	callInstruction := globalDtor basicBlocks second firstInstruction.
 	self assert: callInstruction isCall.
-	self assert: callInstruction functionValue name equals: #'_ZN8Resource9.finalizeERNS_E'.
+	self assert: callInstruction functionValue name equals: #'_ZN10TestModule8Resource9.finalizeERNS0_E'.
 ]
 
 { #category : #tests }
@@ -4021,7 +4021,7 @@ global globalHandle externC mutable type: Resource := Resource for: 42';
 	self assert: ssaModule globalDestructors isNotEmpty.
 	dtor := ssaModule globalDestructors first.
 	self assert: dtor global equals: global.
-	self assert: dtor priority equals: 0.
+	self assert: dtor priority equals: semanticModule compilationTarget normalConstructorPriority.
 
 	globalDtor := dtor function.
 	self assert: globalDtor allInstructionsMnemonics equals: #(
@@ -4031,7 +4031,7 @@ global globalHandle externC mutable type: Resource := Resource for: 42';
 	
 	callInstruction := globalDtor basicBlocks second firstInstruction.
 	self assert: callInstruction isCall.
-	self assert: callInstruction functionValue name equals: #'_ZN8Resource9.finalizeERNS_E'.
+	self assert: callInstruction functionValue name equals: #'_ZN10TestModule8Resource9.finalizeERNS0_E'.
 ]
 
 { #category : #tests }
@@ -4070,7 +4070,7 @@ global globalHandle externC mutable type: Resource; constructionPriority: -100';
 	
 	callInstruction := globalDtor basicBlocks second firstInstruction.
 	self assert: callInstruction isCall.
-	self assert: callInstruction functionValue name equals: #'_ZN8Resource9.finalizeERNS_E'.
+	self assert: callInstruction functionValue name equals: #'_ZN10TestModule8Resource9.finalizeERNS0_E'.
 ]
 
 { #category : #tests }
@@ -4109,7 +4109,7 @@ global globalHandle externC mutable type: Resource := (Resource newValue handle:
 	self assert: ssaModule globalConstructors isNotEmpty.
 	ctor := ssaModule globalConstructors first.
 	self assert: ctor global equals: global.
-	self assert: ctor priority equals: 0.
+	self assert: ctor priority equals: semanticModule compilationTarget normalConstructorPriority.
 
 	globalCtor := ctor function.
 	self assert: globalCtor allInstructionsMnemonics equals: #(
@@ -4200,6 +4200,7 @@ MbndSlovimCodeModuleGeneratorTest >> testIfIntegerLiteralCoercion [
 MbndSlovimCodeModuleGeneratorTest >> testInputChannelReceiveInteger [
 	| function |
 	self
+		evaluateMiniObjectModelRuntime;
 		evaluateSysmelSource: 'function receive externC(inputChannel: Int32 inputChannel) => Int32
 			:= inputChannel receive';
 		generateSSAModule.
@@ -5628,7 +5629,7 @@ function caller externC() => Void
 ;
 		generateSSAModule.
 
-	function := ssaModule globalNamed: #'_ZN9Aggregate8__Meta__5.makeENS0_E'.
+	function := ssaModule globalNamed: #'_ZN10TestModule9Aggregate8__Meta__5.makeENS1_E'.
 	self assert: function isFunction.
 	self assert: function arguments first isStructReturnPointer.
 	self assert: function allInstructionsMnemonics equals: #(
@@ -5671,7 +5672,7 @@ function caller externC() => Void
 ;
 		generateSSAModule.
 
-	function := ssaModule globalNamed: #'_ZN9Aggregate8__Meta__5.makeENS0_E'.
+	function := ssaModule globalNamed: #'_ZN10TestModule9Aggregate8__Meta__5.makeENS1_E'.
 	self assert: function isFunction.
 	self assert: function arguments first isStructReturnPointer.
 	self assert: function allInstructionsMnemonics equals: #(
@@ -5710,7 +5711,7 @@ function caller externC() => Void
 ;
 		generateSSAModule.
 
-	function := ssaModule globalNamed: #'_ZN9Aggregate8__Meta__5.makeENS0_E'.
+	function := ssaModule globalNamed: #'_ZN10TestModule9Aggregate8__Meta__5.makeENS1_E'.
 	self assert: function isFunction.
 	self assert: function arguments first isStructReturnPointer.
 	self assert: function allInstructionsMnemonics equals: #(
@@ -5755,7 +5756,7 @@ function caller externC() => Void
 ;
 		generateSSAModule.
 
-	function := ssaModule globalNamed: #'_ZN9Aggregate8__Meta__5.makeENS0_E'.
+	function := ssaModule globalNamed: #'_ZN10TestModule9Aggregate8__Meta__5.makeENS1_E'.
 	self assert: function isFunction.
 	self assert: function arguments first isStructReturnPointer.
 	self assert: function allInstructionsMnemonics equals: #(
@@ -5792,7 +5793,7 @@ function caller externC() => Aggregate
 ;
 		generateSSAModule.
 
-	function := ssaModule globalNamed: #'_ZN9Aggregate8__Meta__5.makeENS0_E'.
+	function := ssaModule globalNamed: #'_ZN10TestModule9Aggregate8__Meta__5.makeENS1_E'.
 	self assert: function isFunction.
 	self assert: function arguments first isStructReturnPointer.
 	self assert: function allInstructionsMnemonics equals: #(
@@ -5828,7 +5829,7 @@ function caller externC() => Aggregate
 ;
 		generateSSAModule.
 
-	function := ssaModule globalNamed: #'_ZN9Aggregate8__Meta__5.makeENS0_E'.
+	function := ssaModule globalNamed: #'_ZN10TestModule9Aggregate8__Meta__5.makeENS1_E'.
 	self assert: function isFunction.
 	self assert: function arguments first isStructReturnPointer.
 	self assert: function allInstructionsMnemonics equals: #(
@@ -5922,6 +5923,7 @@ function caller externC() => Void
 MbndSlovimCodeModuleGeneratorTest >> testOutputChannelSendInteger [
 	| function |
 	self
+		evaluateMiniObjectModelRuntime;
 		evaluateSysmelSource: 'function send externC(outputChannel: Int32 outputChannel, message: Int32) => Void
 			:= outputChannel send: message';
 		generateSSAModule.
@@ -5954,7 +5956,7 @@ function call externC(x: Int32) => Int32
 	self assert: function basicBlocks size equals: 2.
 	call := function basicBlocks second firstInstruction.
 	self assert: call isCall.
-	self assert: call functionValue name equals: #_ZN6calledEi.
+	self assert: call functionValue name equals: #_ZN10TestModule6calledEi.
 ]
 
 { #category : #tests }
@@ -5978,7 +5980,7 @@ function call externC() => Int32
 	self assert: function basicBlocks size equals: 2.
 	call := function basicBlocks second firstInstruction.
 	self assert: call isCall.
-	self assert: call functionValue name equals: #_ZN6calledEi.
+	self assert: call functionValue name equals: #_ZN10TestModule6calledEi.
 ]
 
 { #category : #tests }
@@ -6005,7 +6007,7 @@ function call externC(x: Int32) => Int32
 	self assert: function basicBlocks second firstInstruction isStore.
 	call := function basicBlocks second firstInstruction nextInstruction.
 	self assert: call isCall.
-	self assert: call functionValue name equals:  #'_ZN10TestStruct7.addTo.ERNS_Ei'
+	self assert: call functionValue name equals:  #'_ZN10TestModule10TestStruct7.addTo.ERNS0_Ei'
 ]
 
 { #category : #tests }
@@ -6427,10 +6429,10 @@ struct TreeNode definition: {
 }.';
 		generateSSAModule.
 
-	function := ssaModule globalNamed: #'_ZN8TreeNode5.sizeERNS_E'.
+	function := ssaModule globalNamed: #'_ZN10TestModule8TreeNode5.sizeERNS0_E'.
 	structureType := function arguments first type baseType.
 	self assert: structureType isStructureType.
-	self assert: structureType name equals: #'struct.TreeNode'.
+	self assert: structureType name equals: #'struct.TestModule::TreeNode'.
 
 ]
 
@@ -6476,7 +6478,7 @@ MbndSlovimCodeModuleGeneratorTest >> testRefCountedMethods [
 		evaluateSysmelSource: 'RefCountedPtr';
 		generateSSAModule.
 
-	function := ssaModule globalNamed: #'_ZN16IntrusivePointerIN10RefCountedEE9.finalizeERNS0_E'.
+	function := ssaModule globalNamed: #'_ZN10TestModule16IntrusivePointerINS_10RefCountedEE9.finalizeERNS1_E'.
 	self assert: function isFunction.
 	self deny: function isEmpty.
 	self assert: function allInstructionsMnemonics equals: #(
@@ -6488,7 +6490,7 @@ MbndSlovimCodeModuleGeneratorTest >> testRefCountedMethods [
 		(tryScope (getElementPointer load call jump))
 	).
 
-	function := ssaModule globalNamed: #'_ZN16IntrusivePointerIN10RefCountedEE16.initializeWith.ERNS0_EPNS1_E'.
+	function := ssaModule globalNamed: #'_ZN10TestModule16IntrusivePointerINS_10RefCountedEE16.initializeWith.ERNS1_EPNS2_E'.
 	self assert: function isFunction.
 	self deny: function isEmpty.
 	self assert: function allInstructionsMnemonics equals: #(
@@ -6497,7 +6499,7 @@ MbndSlovimCodeModuleGeneratorTest >> testRefCountedMethods [
 		(tryScope (getElementPointer store returnVoid))
 	).
 
-	function := ssaModule globalNamed: #'_ZN16IntrusivePointerIN10RefCountedEE23.initializeCopyingFrom.ERNS0_ERKNS0_E'.
+	function := ssaModule globalNamed: #'_ZN10TestModule16IntrusivePointerINS_10RefCountedEE23.initializeCopyingFrom.ERNS1_ERKNS1_E'.
 	self assert: function isFunction.
 	self deny: function isEmpty.
 	self assert: function allInstructionsMnemonics equals: #(
@@ -6509,7 +6511,7 @@ MbndSlovimCodeModuleGeneratorTest >> testRefCountedMethods [
 		(tryScope (getElementPointer load call jump))
 	).
 	
-	function := ssaModule globalNamed: #'_ZN16IntrusivePointerIN10RefCountedEE22.initializeMovingFrom.ERNS0_EONS0_E'.
+	function := ssaModule globalNamed: #'_ZN10TestModule16IntrusivePointerINS_10RefCountedEE22.initializeMovingFrom.ERNS1_EONS1_E'.
 	self assert: function isFunction.
 	self deny: function isEmpty.
 	self assert: function allInstructionsMnemonics equals: #(
@@ -6518,7 +6520,7 @@ MbndSlovimCodeModuleGeneratorTest >> testRefCountedMethods [
 		(tryScope (getElementPointer load getElementPointer store getElementPointer store returnVoid))
 	).
 	
-	function := ssaModule globalNamed: #'_ZN16IntrusivePointerIN10RefCountedEE13.assignValue.ERNS0_ERKNS0_E'.
+	function := ssaModule globalNamed: #'_ZN10TestModule16IntrusivePointerINS_10RefCountedEE13.assignValue.ERNS1_ERKNS1_E'.
 	self assert: function isFunction.
 	self deny: function isEmpty.
 	self assert: function allInstructionsMnemonics equals: #(
@@ -6533,7 +6535,7 @@ MbndSlovimCodeModuleGeneratorTest >> testRefCountedMethods [
 		(tryScope (getElementPointer load call jump))
 	).
 	
-	function := ssaModule globalNamed: #'_ZN16IntrusivePointerIN10RefCountedEE13.assignValue.ERNS0_EONS0_E'.
+	function := ssaModule globalNamed: #'_ZN10TestModule16IntrusivePointerINS_10RefCountedEE13.assignValue.ERNS1_EONS1_E'.
 	self assert: function isFunction.
 	self deny: function isEmpty.
 	self assert: function allInstructionsMnemonics equals: #(
@@ -6555,7 +6557,7 @@ MbndSlovimCodeModuleGeneratorTest >> testRefCountedMethodsNoExceptions [
 		evaluateSysmelSource: 'RefCountedPtr';
 		generateSSAModule.
 
-	function := ssaModule globalNamed: #'_ZN16IntrusivePointerIN10RefCountedEE9.finalizeERNS0_E'.
+	function := ssaModule globalNamed: #'_ZN10TestModule16IntrusivePointerINS_10RefCountedEE9.finalizeERNS1_E'.
 	self assert: function isFunction.
 	self deny: function isEmpty.
 	self assert: function allInstructionsMnemonics equals: #(
@@ -6565,7 +6567,7 @@ MbndSlovimCodeModuleGeneratorTest >> testRefCountedMethodsNoExceptions [
 		(ifMerge (returnVoid))
 	).
 
-	function := ssaModule globalNamed: #'_ZN16IntrusivePointerIN10RefCountedEE16.initializeWith.ERNS0_EPNS1_E'.
+	function := ssaModule globalNamed: #'_ZN10TestModule16IntrusivePointerINS_10RefCountedEE16.initializeWith.ERNS1_EPNS2_E'.
 	self assert: function isFunction.
 	self deny: function isEmpty.
 	self assert: function allInstructionsMnemonics equals: #(
@@ -6573,7 +6575,7 @@ MbndSlovimCodeModuleGeneratorTest >> testRefCountedMethodsNoExceptions [
 		(body (getElementPointer store returnVoid))
 	).
 
-	function := ssaModule globalNamed: #'_ZN16IntrusivePointerIN10RefCountedEE23.initializeCopyingFrom.ERNS0_ERKNS0_E'.
+	function := ssaModule globalNamed: #'_ZN10TestModule16IntrusivePointerINS_10RefCountedEE23.initializeCopyingFrom.ERNS1_ERKNS1_E'.
 	self assert: function isFunction.
 	self deny: function isEmpty.
 	self assert: function allInstructionsMnemonics equals: #(
@@ -6583,7 +6585,7 @@ MbndSlovimCodeModuleGeneratorTest >> testRefCountedMethodsNoExceptions [
 		(ifMerge (returnVoid))
 	).
 	
-	function := ssaModule globalNamed: #'_ZN16IntrusivePointerIN10RefCountedEE22.initializeMovingFrom.ERNS0_EONS0_E'.
+	function := ssaModule globalNamed: #'_ZN10TestModule16IntrusivePointerINS_10RefCountedEE22.initializeMovingFrom.ERNS1_EONS1_E'.
 	self assert: function isFunction.
 	self deny: function isEmpty.
 	self assert: function allInstructionsMnemonics equals: #(
@@ -6591,7 +6593,7 @@ MbndSlovimCodeModuleGeneratorTest >> testRefCountedMethodsNoExceptions [
 		(body (getElementPointer load getElementPointer store getElementPointer store returnVoid))
 	).
 	
-	function := ssaModule globalNamed: #'_ZN16IntrusivePointerIN10RefCountedEE13.assignValue.ERNS0_ERKNS0_E'.
+	function := ssaModule globalNamed: #'_ZN10TestModule16IntrusivePointerINS_10RefCountedEE13.assignValue.ERNS1_ERKNS1_E'.
 	self assert: function isFunction.
 	self deny: function isEmpty.
 	self assert: function allInstructionsMnemonics equals: #(
@@ -6603,7 +6605,7 @@ MbndSlovimCodeModuleGeneratorTest >> testRefCountedMethodsNoExceptions [
 		(ifMerge (getElementPointer store return))
 	).
 	
-	function := ssaModule globalNamed: #'_ZN16IntrusivePointerIN10RefCountedEE13.assignValue.ERNS0_EONS0_E'.
+	function := ssaModule globalNamed: #'_ZN10TestModule16IntrusivePointerINS_10RefCountedEE13.assignValue.ERNS1_EONS1_E'.
 	self assert: function isFunction.
 	self deny: function isEmpty.
 	self assert: function allInstructionsMnemonics equals: #(
@@ -6645,7 +6647,7 @@ function makeRefCountedPtr externC(p: RefCounted pointer) => RefCountedPtr
 ';
 		generateSSAModule.
 
-	function := ssaModule globalNamed: #'_ZN16IntrusivePointerIN10RefCountedEE8__Meta__5.for.ENS2_EPNS1_E'.
+	function := ssaModule globalNamed: #'_ZN10TestModule16IntrusivePointerINS_10RefCountedEE8__Meta__5.for.ENS3_EPNS2_E'.
 	self assert: function isFunction.
 	self deny: function isEmpty.
 	self assert: function allInstructionsMnemonics equals: #(
@@ -7020,7 +7022,7 @@ struct TestStruct definition: {
 ';
 		generateSSAModule.
 
-	function := ssaModule globalNamed: #'_ZN10TestStruct2.fERNS_E'.
+	function := ssaModule globalNamed: #'_ZN10TestModule10TestStruct2.fERNS0_E'.
 	self assert: function isFunction.
 	self deny: function isEmpty.
 	self assert: function basicBlocks size equals: 2.
@@ -7039,7 +7041,7 @@ struct TestStruct definition: {
 ';
 		generateSSAModule.
 
-	function := ssaModule globalNamed: #'_ZN10TestStruct2.fERNS_E'.
+	function := ssaModule globalNamed: #'_ZN10TestModule10TestStruct2.fERNS0_E'.
 	self assert: function isFunction.
 	self deny: function isEmpty.
 	self assert: function basicBlocks size equals: 2.
