@@ -555,7 +555,7 @@ TMbndCoreCompilationTarget >> gcClassVariableDataArrayOf: elementType [
 
 { #category : #'as yet unclassified' }
 TMbndCoreCompilationTarget >> gcInitializationPriority [
-	^ -1000
+	^ 50
 ]
 
 { #category : #'as yet unclassified' }
@@ -1278,6 +1278,11 @@ TMbndCoreCompilationTarget >> nonLocalReturnRaiseFunction [
 { #category : #accessing }
 TMbndCoreCompilationTarget >> nonLocalReturnRaiseFunction: anObject [
 	nonLocalReturnRaiseFunction := anObject
+]
+
+{ #category : #'as yet unclassified' }
+TMbndCoreCompilationTarget >> normalConstructorPriority [
+	^ 100
 ]
 
 { #category : #'as yet unclassified' }

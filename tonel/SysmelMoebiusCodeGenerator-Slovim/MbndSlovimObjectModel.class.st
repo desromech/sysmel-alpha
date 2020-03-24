@@ -288,18 +288,9 @@ MbndSlovimObjectModel >> encodeInlineLiteral: literal [
 	self error: 'Should not reach here.'
 ]
 
-{ #category : #accessing }
-MbndSlovimObjectModel >> falseClass [
-	^ managedObjectModel falseClass
-]
-
 { #category : #'as yet unclassified' }
 MbndSlovimObjectModel >> falseLiteralValue [
-	| literalValue |
-	^ falseLiteralValue ifNil: [ 
-		literalValue := self falseClass makeInstance: 0 identityHash: self generateIdentityHash.
-		falseLiteralValue := self convertDynamicLiteralToConstant: literalValue withName: '_S9Smalltalk_false'.
-	]
+	^ falseLiteralValue ifNil: [ falseLiteralValue := moduleCodeGenerator getOrCreateFalseLiteralValue ]
 ]
 
 { #category : #accessing }
@@ -518,18 +509,9 @@ MbndSlovimObjectModel >> superMessageLookupFunction [
 	^ superMessageLookupFunction ifNil: [superMessageLookupFunction := (moduleCodeGenerator translateProgramEntity: managedObjectModel superMessageLookupFunction) ssaValue ]
 ]
 
-{ #category : #accessing }
-MbndSlovimObjectModel >> trueClass [
-	^ managedObjectModel trueClass
-]
-
 { #category : #'as yet unclassified' }
 MbndSlovimObjectModel >> trueLiteralValue [
-	| literalValue |
-	^ trueLiteralValue ifNil: [ 
-		literalValue := self trueClass makeInstance: 0 identityHash: self generateIdentityHash.
-		trueLiteralValue := self convertDynamicLiteralToConstant: literalValue withName: '_S9Smalltalk_true'.
-	]
+	^ trueLiteralValue ifNil: [ trueLiteralValue := moduleCodeGenerator getOrCreateTrueLiteralValue ]
 ]
 
 { #category : #accessing }

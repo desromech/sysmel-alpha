@@ -394,7 +394,7 @@ MbndSlovimCodeModuleGenerator >> fillModuleInfoInstance: moduleInfoInstance [
 			setField: #extensionOverloadedMethods ifExistsWith: [ sourceModule extensionOverloadedMethods collect: [ :each | self convertExtensionOverloadedMethodInformation: each ] as: Array ].
 	].
 
-	self compilationTarget extensionOverloadedMethodClass ifNotNil: [	
+	self compilationTarget extensionMethodClass ifNotNil: [
 		moduleInfoInstance	
 			setField: #extensionMethods ifExistsWith: [ sourceModule extensionMethods collect: [ :each | self convertExtensionMethodInformation: each ] as: Array ]
 	].
@@ -529,7 +529,7 @@ MbndSlovimCodeModuleGenerator >> generateFinalizationOfGlobalVariable: globalVar
 			returnVoid
 	].
 
-	ssaModule addGlobal: ssaGlobalVariable destructor: dtor priority: (globalVariable constructionPriority ifNil: [0])
+	ssaModule addGlobal: ssaGlobalVariable destructor: dtor priority: (globalVariable constructionPriority ifNil: [self compilationTarget normalConstructorPriority])
 ]
 
 { #category : #'as yet unclassified' }
@@ -660,7 +660,7 @@ MbndSlovimCodeModuleGenerator >> generateInitializationOfGlobalVariable: globalV
 		self error: 'Unsupported global initialization kind'	
 	].
 
-	ssaModule addGlobal: ssaGlobalVariable constructor: ctor priority: (globalVariable constructionPriority ifNil: [0])
+	ssaModule addGlobal: ssaGlobalVariable constructor: ctor priority: (globalVariable constructionPriority ifNil: [self compilationTarget normalConstructorPriority])
 ]
 
 { #category : #'as yet unclassified' }
@@ -762,6 +762,12 @@ MbndSlovimCodeModuleGenerator >> getOrCreateDynamicFunctionCallAdapterFor: funct
 			builder return: convertedResult
 		]
 	].
+]
+
+{ #category : #'as yet unclassified' }
+MbndSlovimCodeModuleGenerator >> getOrCreateFalseLiteralValue [
+	^ SLVMConstant pointer: (self getOrCreateSpecialSingletonNamed: #false withClass: self compilationTarget managedObjectModel falseClass)
+		castTo: (self translateType: self compilationTarget dynamicObjectType)
 ]
 
 { #category : #'code generation' }
@@ -935,6 +941,34 @@ MbndSlovimCodeModuleGenerator >> getOrCreateShaderEntryPointInfoFor: concreteMet
 ]
 
 { #category : #'as yet unclassified' }
+MbndSlovimCodeModuleGenerator >> getOrCreateSpecialSingletonNamed: singletonName withClass: singletonClass [
+	| mangledName pointerType ssaPointerType singletonVar importedSSAModule |
+	mangledName := self newSymbolNameMangler mangleNestedNameComponents: { self compilationEnvironment coreModule name . #'..s..' . singletonName }.
+	pointerType := singletonClass isGCClassType
+		ifTrue: [singletonClass]
+		ifFalse: [singletonClass pointer].
+	ssaPointerType := self translateType: pointerType.
+
+	sourceModule == self compilationEnvironment coreModule ifTrue: [ 
+		singletonVar := SLVMGlobalVariable module: ssaModule name: mangledName valueType: ssaPointerType baseType storage: ssaPointerType storage.
+		singletonVar makePublic.
+		singletonVar unmangledName: singletonName.
+		singletonVar initialValue: (self literalValueGenerator translateObject: singletonClass content: singletonClass makeInstance).
+	] ifFalse: [
+		importedSSAModule := self compilationEnvironment coreModule namedTargetCodeModules at: targetCodeModuleName.
+		singletonVar := ssaModule importGlobalValue: (importedSSAModule globalNamed: mangledName) fromModule: importedSSAModule.
+	].
+
+	^ singletonVar
+]
+
+{ #category : #'as yet unclassified' }
+MbndSlovimCodeModuleGenerator >> getOrCreateTrueLiteralValue [
+	^ SLVMConstant pointer: (self getOrCreateSpecialSingletonNamed: #true withClass: self compilationTarget managedObjectModel trueClass)
+		castTo: (self translateType: self compilationTarget dynamicObjectType)
+]
+
+{ #category : #'as yet unclassified' }
 MbndSlovimCodeModuleGenerator >> getShaderIOField: field storage: storage forStage: specialSemantics [
 	^ convertedShaderIOFields at: {field . storage . specialSemantics} ifAbsentPut: [ 
 		self generateGlobalField: field forShader: specialSemantics storage: storage
@@ -1037,30 +1071,6 @@ MbndSlovimCodeModuleGenerator >> literalValueGenerator [
 { #category : #visiting }
 MbndSlovimCodeModuleGenerator >> mangleProgramEntityName: programEntity [
 	^ self newSymbolNameMangler mangleProgramEntityName: programEntity
-]
-
-{ #category : #visiting }
-MbndSlovimCodeModuleGenerator >> mangleProgramEntityNestedName: programEntity [
-	| escapedNamed validName result |
-	programEntity ifNil: [ ^ #N ].
-	(programEntity name isMbndAnonymousSymbol and: [ programEntity isMbndType and: [programEntity isMetaType] ]) ifTrue: [
-		^ ((self mangleProgramEntityNestedName: programEntity instanceType) , '8__Type__') asSymbol
-	].
-	(programEntity parent isNil and: [ programEntity isNamespace ]) ifTrue: [ ^ #N ].
-	
-	validName := programEntity name.
-	programEntity isTemplateInstance ifTrue: [ validName := '' ].
-	(validName isMbndAnonymousSymbol and: [ programEntity parent isNotNil and: [ programEntity parent isTemplateInstance ] ]) ifTrue: [ validName := '' ].
-	validName isMbndAnonymousSymbol ifTrue: [ validName := self generatedNameForAnynomousEntity: programEntity ].
-	
-	escapedNamed := self escapeNameForMangling: validName.
-
-	result := self mangleProgramEntityNestedName: programEntity parent.
-	escapedNamed ifNotEmpty: [ 
-		result := result , escapedNamed size asString , escapedNamed.
-	].
-	
-	^ result
 ]
 
 { #category : #visiting }

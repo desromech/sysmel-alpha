@@ -271,6 +271,22 @@ MbndSlovimSymbolNameMangler >> initialize [
 ]
 
 { #category : #visiting }
+MbndSlovimSymbolNameMangler >> mangleNestedNameComponents: components [
+	^ self mangleNestedNameComponents: components prefix: #_Z
+]
+
+{ #category : #visiting }
+MbndSlovimSymbolNameMangler >> mangleNestedNameComponents: components prefix: prefix [
+	^ (ByteString streamContents: [ :outStream |
+		output := outStream.
+		substitutionDictionary := Dictionary new.
+		output nextPutAll: prefix.
+		
+		self mangleProgramEntityNestedNameComponents: components
+	]) asSymbol
+]
+
+{ #category : #visiting }
 MbndSlovimSymbolNameMangler >> mangleProgramEntityCommonInfo: programEntity [
 	ommitModuleName := true.
 	^ self mangleProgramEntityInfo: programEntity
