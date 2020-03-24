@@ -20,6 +20,11 @@ MbndConcreteMessageMethod >> hasAnonymousName [
 ]
 
 { #category : #testing }
+MbndConcreteMessageMethod >> hasProgramEntityReflectiveNode [
+	^ self isDefinition
+]
+
+{ #category : #testing }
 MbndConcreteMessageMethod >> isMessageMethod [
 	^ true
 ]

@@ -5,6 +5,11 @@ Class {
 }
 
 { #category : #testing }
+MbndCompilerGeneratedMethod >> hasProgramEntityReflectiveNode [
+	^ true
+]
+
+{ #category : #testing }
 MbndCompilerGeneratedMethod >> isCompilerGeneratedMethod [
 	^ true
 ]

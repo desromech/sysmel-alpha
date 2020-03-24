@@ -58,6 +58,11 @@ MbndNamespace >> encodeFieldsForMessagePackWith: graphEncoder [
 	}
 ]
 
+{ #category : #testing }
+MbndNamespace >> hasProgramEntityReflectiveNode [
+	^ true
+]
+
 { #category : #enumerating }
 MbndNamespace >> importedNamespaces [
 	importedNamespaces ifNotNil: [ ^ importedNamespaces ].

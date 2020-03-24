@@ -1374,9 +1374,7 @@ MbndSlovimCodeModuleGenerator >> translateProgramEntityInformationData: programE
 		^ ssaProgramEntityInfo
 	].
 
-	ssaProgramEntityInfo := SLVMGlobalVariable module: ssaModule name: (self newSymbolNameMangler mangleProgramEntityInfo: programEntity) valueType: ssaProgramEntityInfoType baseType storage: (programEntityType hasGarbageCollectedAddressSpace
-		ifTrue: [SLVMType gcStorage]
-		ifFalse: [SLVMType genericStorage]).
+	ssaProgramEntityInfo := SLVMGlobalVariable module: ssaModule name: (self newSymbolNameMangler mangleProgramEntityInfo: programEntity) valueType: ssaProgramEntityInfoType baseType storage: ssaProgramEntityInfoType storage.
 	self setProgramEntity: programEntity ssaValue: ssaProgramEntityInfo.
 	ssaModule addHighLevelEntity: programEntity mapToGlobalValue: ssaProgramEntityInfo.
 	

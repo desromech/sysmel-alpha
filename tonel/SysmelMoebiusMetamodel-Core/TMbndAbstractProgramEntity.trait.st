@@ -62,6 +62,10 @@ TMbndAbstractProgramEntity >> definitionPosition [
 
 { #category : #'as yet unclassified' }
 TMbndAbstractProgramEntity >> fillProgramEntityCommonInfoInstance: programEntityInfoInstance [
+	self compilationEnvironment hasRuntimeTypeInformation ifFalse: [ ^ self ].
+	programEntityInfoInstance
+		setField: #name ifExistsWith: [ self name ];
+		setField: #children ifExistsWith: [ (self children select: [:child | child hasProgramEntityReflectiveNode ]) asArray]
 ]
 
 { #category : #'as yet unclassified' }
@@ -77,6 +81,11 @@ TMbndAbstractProgramEntity >> fullName [
 { #category : #'as yet unclassified' }
 TMbndAbstractProgramEntity >> globalBindingAssociation [
 	^ self explicitRequirement
+]
+
+{ #category : #testing }
+TMbndAbstractProgramEntity >> hasProgramEntityReflectiveNode [
+	^ false
 ]
 
 { #category : #testing }

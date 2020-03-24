@@ -15,6 +15,11 @@ MbndConcreteFunctionMethod >> accept: aVisitor [
 ]
 
 { #category : #testing }
+MbndConcreteFunctionMethod >> hasProgramEntityReflectiveNode [
+	^ self isDefinition
+]
+
+{ #category : #testing }
 MbndConcreteFunctionMethod >> isFunctionMethod [
 	^ true
 ]
