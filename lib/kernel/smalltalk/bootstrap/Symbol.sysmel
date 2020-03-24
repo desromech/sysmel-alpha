@@ -44,8 +44,8 @@ gcclass SymbolTableSet superclass: Set; definition: {
 
 Symbol definition: {
     meta extend: {
-        let SymbolTableMutex mutable type: StdNative Mutex.
-        let SymbolTable mutable type: ProtoObject.
+        static global SymbolTableMutex mutable type: StdNative Mutex; constructionPriority: Compiler compilationTarget gcInitializationPriority.
+        static global SymbolTable mutable type: ProtoObject.
 
         method intern: stringOrSymbol := {
             stringOrSymbol class == Symbol ifTrue: {

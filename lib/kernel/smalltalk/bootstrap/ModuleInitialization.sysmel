@@ -42,13 +42,15 @@ ModuleInformation definition: {
     method startUp => Void := {
         ##StdNative stdout << "Module startup: " << name; nl.
         ## Fix the parent relationships.
-        parent := nil.
-        globalNamespace ifNotNil: {
-            globalNamespace setupProgramEntityParent: self fromModule: self.
-        }.
+        Smalltalk Runtime withReflectionLockedWrite: {
+            parent := nil.
+            globalNamespace ifNotNil: {
+                globalNamespace setupProgramEntityParent: self fromModule: self.
+            }.
 
-        ## Apply all of the extensions.
-        self allExtensionsDo: {:each :: Void | each apply }
+            ## Apply all of the extensions.
+            self allExtensionsDo: {:each :: Void | each apply }
+        }.
     }.
 
     method shutDown => Void  := {
@@ -121,10 +123,12 @@ NamespaceInformation definition: {
         := self associationAt: key ifAbsent: {:: Void | self errorKeyNotFound: key}.
 
     method associationAt: key ifAbsent: aBlock := {
-        moduleNamespaces do: {:eachModuleNamespace :: Void |
-            eachModuleNamespace localSymbolTable associationAt: key ifPresent: {:found :: Void |
-                return: found
-            }
+        Smalltalk Runtime withReflectionLockedRead: {
+            moduleNamespaces do: {:eachModuleNamespace :: Void |
+                eachModuleNamespace localSymbolTable associationAt: key ifPresent: {:found :: Void |
+                    return: found
+                }
+            }.
         }.
 
         return: aBlock value

@@ -4,19 +4,23 @@ Behavior definition: {
 	method subclasses := #().
 
 	method subclassesDo: aBlock
-		:= self subclasses do: aBlock.
+		:= Smalltalk Runtime withReflectionLockedRead: {self subclasses do: aBlock}.
 
 	method allSubclassesDo: aBlock := {
-		self subclassesDo: {:cls :: Void |
-			aBlock value: cls.
-			cls allSubclassesDo: aBlock
+		Smalltalk Runtime withReflectionLockedRead: {
+			self subclassesDo: {:cls :: Void |
+				aBlock value: cls.
+				cls allSubclassesDo: aBlock
+			}.
 		}.
 		self
 	}.
 
 	method withAllSubclassesDo: aBlock := {
-		aBlock value: self.
-		self allSubclassesDo: aBlock
+		Smalltalk Runtime withReflectionLockedRead: {
+			aBlock value: self.
+			self allSubclassesDo: aBlock
+		}
 	}.
 
 	method __manipulateInstance: instance gcSlotsWith: (manipulationBlock: ((ProtoObject pointer) => Void) nativeStackBlockClosure) ::=> Void := {

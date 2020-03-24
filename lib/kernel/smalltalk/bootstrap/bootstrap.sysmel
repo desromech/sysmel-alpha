@@ -8,6 +8,7 @@ loadFileOnce: "OrderedCollection.sysmel".
 loadFileOnce: "AtomicCollections.sysmel".
 loadFileOnce: "String.sysmel".
 loadFileOnce: "HashedCollections.sysmel".
+loadFileOnce: "ReflectionLock.sysmel".
 loadFileOnce: "Behavior.sysmel".
 loadFileOnce: "Streams.sysmel".
 loadFileOnce: "Exceptions.sysmel".
