@@ -45,7 +45,7 @@ gcclass SymbolTableSet superclass: Set; definition: {
 Symbol definition: {
     meta extend: {
         let SymbolTableMutex mutable type: StdNative Mutex.
-        let SymbolTable mutable := SymbolTableSet new.
+        let SymbolTable mutable type: ProtoObject.
 
         method intern: stringOrSymbol := {
             stringOrSymbol class == Symbol ifTrue: {
@@ -58,10 +58,12 @@ Symbol definition: {
 
             ## Avoid having to allocate a new symbol by doing an initial check in the symbol table.
             SymbolTableMutex withLock: {
-                let existentDefinition := SymbolTable like: stringOrSymbol.
-                existentDefinition ifNotNil: {
-                    return: existentDefinition
-                }
+                SymbolTable ifNotNil: {
+                    let existentDefinition := SymbolTable like: stringOrSymbol.
+                    existentDefinition ifNotNil: {
+                        return: existentDefinition
+                    }
+                }.
             }.
 
             ## Allocate a new symbol object.
@@ -75,6 +77,11 @@ Symbol definition: {
 
         method internSymbolInstance: (symbolInstance: Symbol) ::=> Symbol := {
             SymbolTableMutex withLock: {
+                SymbolTable ifNil: {
+                    SymbolTable := SymbolTableSet new.
+                    nil
+                }.
+
                 let previousDefinition := SymbolTable like: symbolInstance.
                 previousDefinition ifNil: {
                     SymbolTable add: symbolInstance.

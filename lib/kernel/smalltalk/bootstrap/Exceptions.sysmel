@@ -123,4 +123,25 @@ Object extend: {
 
 }.
 
+
+gcclass NotFound superclass: Error; definition: {
+    public field object.
+    public field collection.
+
+    meta method signalFor: anObject
+        := self new object: anObject; signal.
+
+    meta method signalFor: anObject in: aCollection
+        := self new object: anObject; collection: aCollection; signal.
+
+}.
+
+gcclass KeyNotFound superclass: NotFound; definition: {
+
+}.
+
+gcclass ValueNotFound superclass: NotFound; definition: {
+
+}.
+
 }.

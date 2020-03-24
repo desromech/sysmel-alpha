@@ -242,6 +242,9 @@ Dictionary definition: {
         array at: (self scanFor: element key) put: element.
         tally := tally + 1
     }.
+
+    method errorKeyNotFound: aKey
+        := KeyNotFound signalFor: aKey.
 }.
 
 IdentityDictionary definition: {
@@ -274,6 +277,40 @@ IdentityDictionary definition: {
 
         self errorNoFreeSpace.
         return: 0
+    }.
+}.
+
+MethodDictionary definition: {
+
+    method at: key put: anObject := {
+        self at: key putNoSpaceCheck: anObject.
+        self fullCheck.
+        anObject
+    }.
+
+    method grow := {
+        let oldKeys := array.
+        let oldValues := values.
+        let oldCapacity := oldKeys __private __data size.
+        let newCapacity := oldCapacity * 2 max: 5.
+        tally := 0.
+
+        let newArray := Array new: newCapacity.
+        let newValues := Array new: newCapacity.
+
+        ## WARNING: From this point until the end of this method,
+        ## dynamic message lookup is FORBIDDEN.
+        array := newArray.
+        values := newValues.
+
+        0 until: oldCapacity do: {:i :: Void |
+            let key := oldKeys[i].
+            key ifNotNil: {
+                self at: key putNoSpaceCheck: oldValues[i]
+            }.
+        }.
+
+        self.
     }.
 }.
 

@@ -1,12 +1,60 @@
 namespace Smalltalk definition: {
 
 ModuleInformation definition: {
-    method startUp => Void  := {
-        ##StdNative stdout << "Module " << name << " startup called."; nl
+
+    method allExtensionsDo: aBlock ::=> Void := {
+        extensionMacros ifNotNil: {
+            extensionMacros do: aBlock
+        }.
+
+        extensionOverloadedMethods ifNotNil: {
+            extensionOverloadedMethods do: aBlock
+        }.
+
+        extensionMethods ifNotNil: {
+            extensionMethods do: aBlock
+        }.
+    }.
+
+    method startUp => Void := {
+        StdNative stdout << "Module startup: " << name; nl.
+        ## Apply all of the extensions.
+        self allExtensionsDo: {:each :: Void | each apply }
     }.
 
     method shutDown => Void  := {
         ##StdNative stdout << "Module " << name << " shutDown called."; nl
+    }.
+}.
+
+ProgramEntityExtensionElement definition: {
+    method printOn: aStream := {
+        super printOn: aStream.
+        aStream nextPutAll: " extendedParent: "; print: extendedParent;
+        	  nextPutAll: " name: "; print: name;
+              nextPutAll: " extension: "; print: extension.
+    }.
+}.
+
+ExtensionMacroMessage definition: {
+    method apply := {
+        ##StdNative stdout << "TODO: Apply " << self; nl.
+        self
+    }.
+}.
+
+ExtensionOverloadedMethod definition: {
+    method apply := {
+        ##StdNative stdout << "TODO: Apply " << self; nl.
+        self
+    }.
+}.
+
+ExtensionMethod definition: {
+    method apply := {
+        StdNative stdout << "Apply " << self; nl.
+        extendedParent methodDict at: name put: extension.
+        self
     }.
 }.
 
