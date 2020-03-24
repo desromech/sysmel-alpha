@@ -219,12 +219,21 @@ Dictionary definition: {
         return: (element ifNil: {aBlock value} ifNotNil: {element})
     }.
 
+    method associationAt: key ifPresent: aBlock := {
+        let element := array at: (self findElementIndex: key).
+        return: (element ifNotNil: {aBlock cull: element})
+    }.
+
     method at: key
         := self at: key ifAbsent: {:: Void | self errorKeyNotFound: key}.
 
     method at: key ifAbsent: aBlock := {
         let element := array at: (self findElementIndex: key).
         return: (element ifNil: {aBlock} ifNotNil: {element}) value
+    }.
+
+    method at: key ifAbsentPut: aBlock := {
+        self at: key ifAbsent: { :: ProtoObject | self at: key put: aBlock value}
     }.
 
     method at: key put: anObject := {

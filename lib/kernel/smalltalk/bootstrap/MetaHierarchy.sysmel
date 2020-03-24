@@ -20,15 +20,17 @@ namespace Smalltalk definition: {
 gcclass Object superclass: ProtoObject. Compiler compilationTarget defaultGCClassSuperClass: Object.
 	## Reflection types.
 	gcclass ProgramEntity superclass: Object.
-		gcclass TypeInformation superclass: ProgramEntity.
-		    gcclass Behavior superclass: TypeInformation.
-		        gcclass ClassDescription superclass: Behavior.
-		            gcclass Class superclass: ClassDescription.
-		            gcclass Metaclass superclass: ClassDescription.
-			gcclass NativeTypeInformation superclass: TypeInformation.
+		gcclass SharedProgramEntity superclass: ProgramEntity.
+			gcclass NamespaceInformation superclass: SharedProgramEntity.
+		gcclass ModuleDefinedProgramEntity superclass: ProgramEntity.
+			gcclass TypeInformation superclass: ModuleDefinedProgramEntity.
+			    gcclass Behavior superclass: TypeInformation.
+			        gcclass ClassDescription superclass: Behavior.
+			            gcclass Class superclass: ClassDescription.
+			            gcclass Metaclass superclass: ClassDescription.
+				gcclass NativeTypeInformation superclass: TypeInformation.
+			gcclass ModuleNamespaceInformation superclass: ModuleDefinedProgramEntity.
 		gcclass ModuleInformation superclass: ProgramEntity.
-		gcclass ModuleNamespaceInformation superclass: ProgramEntity.
-		gcclass NamespaceInformation superclass: ProgramEntity.
 	gcclass ProgramEntityExtensionElement superclass: Object.
 		gcclass ExtensionMacroMessage superclass: ProgramEntityExtensionElement.
 		gcclass ExtensionOverloadedMethod superclass: ProgramEntityExtensionElement.
@@ -151,8 +153,20 @@ ProtoObject definition: {
 }.
 
 ProgramEntity definition: {
-	## These first fields must match the fields in _ProgramEntity so that
+	## These first fields must match the fields in StdNative Reflection ProgramEntity so that
 	## exception handling can work.
+	public field parent type: ProgramEntity.
+}.
+
+SharedProgramEntity definition: {
+
+}.
+
+ModuleDefinedProgramEntity definition: {
+	## These first fields must match the fields in StdNative Reflection ModuleDefinedProgramEntity so that
+	## exception handling can work.
+	public field module type: ModuleInformation.
+	protected field children.
 }.
 
 TypeInformation definition: {
@@ -190,7 +204,7 @@ TypeInformation definition: {
 }.
 
 ModuleInformation definition: {
-	public field name.
+	public field name type: Symbol.
 	public field globalNamespace type: ModuleNamespaceInformation.
 	public field extensionMacros type: Array.
 	public field extensionOverloadedMethods type: Array.
@@ -199,10 +213,15 @@ ModuleInformation definition: {
 
 ModuleNamespaceInformation definition: {
 	public field sharedNamespace type: NamespaceInformation.
+	public field name type: Symbol.
 	public field localSymbolTable type: SystemDictionary.
 }.
 
 NamespaceInformation definition: {
+	public field name type: Symbol.
+	public field moduleNamespaces.
+	protected field children.
+	protected field childrenTable.
 }.
 
 ProgramEntityExtensionElement definition: {

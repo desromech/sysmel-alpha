@@ -1,14 +1,29 @@
 namespace StdNative definition: {
 namespace Reflection definition: {
 
+class ProgramEntity superclass: GCObjectHeader.
+class ModuleInformation superclass: ProgramEntity.
+class SharedProgramEntity superclass: ProgramEntity.
+class ModuleDefinedProgramEntity superclass: ProgramEntity.
+
+class TypeInformation superclass: ModuleDefinedProgramEntity.
+class NamespaceInformation superclass: SharedProgramEntity.
+class ModuleNamespaceInformation superclass: ModuleDefinedProgramEntity.
+
 ## I am an instance of a program entity reflection data.
-class ProgramEntity superclass: GCObjectHeader; definition: {
+ProgramEntity definition: {
+    public field parent type: ProgramEntity pointer.
+}.
+
+ModuleDefinedProgramEntity definition: {
+    public field module type: ModuleInformation pointer.
+    protected field __children__ type: Void pointer. ## For now suppress the generation of these children.
 }.
 
 ## I am an instance of basic type information. I provide the bare minimun that is
 ## required for moving/copying any native object from one location to another by
 ## erasing its type. I am used for implementing the throwing of native exceptions.
-class TypeInformation superclass: ProgramEntity; definition: {
+TypeInformation definition: {
     public field superclass type: TypeInformation pointer.
     public field instanceDataSize type: UIntPointer.
     public field instanceDataAlignment type: UIntPointer.
@@ -37,15 +52,15 @@ class TypeInformation superclass: ProgramEntity; definition: {
     }.
 }.
 
-class NamespaceInformation superclass: ProgramEntity; definition: {
+NamespaceInformation definition: {
 }.
 
 
-class ModuleNamespaceInformation superclass: ProgramEntity; definition: {
+ModuleNamespaceInformation definition: {
     public field sharedNamespace type: NamespaceInformation pointer.
 }.
 
-class ModuleInformation superclass: ProgramEntity; definition: {
+ModuleInformation definition: {
     public field globalNamespace type: ModuleNamespaceInformation pointer.
 }.
 

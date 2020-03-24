@@ -1,5 +1,28 @@
 namespace Smalltalk definition: {
 
+LiteralVariable definition: {
+    method setupProgramEntityParent: (theParent: ProgramEntity) fromModule: (theModule: ModuleInformation) ::=> Void := {
+    }.
+}.
+
+CompiledMethod definition: {
+    method setupProgramEntityParent: (theParent: ProgramEntity) fromModule: (theModule: ModuleInformation) ::=> Void := {
+    }.
+}.
+
+ProgramEntity definition: {
+    method setupProgramEntityParent: (theParent: ProgramEntity) fromModule: (theModule: ModuleInformation) ::=> Void := {
+        parent := theParent.
+    }.
+}.
+
+ModuleDefinedProgramEntity definition: {
+    method setupProgramEntityParent: (theParent: ProgramEntity) fromModule: (theModule: ModuleInformation) ::=> Void := {
+        parent := theParent.
+        module := theModule.
+    }.
+}.
+
 ModuleInformation definition: {
 
     method allExtensionsDo: aBlock ::=> Void := {
@@ -17,13 +40,94 @@ ModuleInformation definition: {
     }.
 
     method startUp => Void := {
-        StdNative stdout << "Module startup: " << name; nl.
+        ##StdNative stdout << "Module startup: " << name; nl.
+        ## Fix the parent relationships.
+        parent := nil.
+        globalNamespace ifNotNil: {
+            globalNamespace setupProgramEntityParent: self fromModule: self.
+        }.
+
         ## Apply all of the extensions.
         self allExtensionsDo: {:each :: Void | each apply }
     }.
 
     method shutDown => Void  := {
         ##StdNative stdout << "Module " << name << " shutDown called."; nl
+    }.
+}.
+
+ModuleNamespaceInformation definition: {
+    method setupProgramEntityParent: (theParent: ProgramEntity) fromModule: (theModule: ModuleInformation) ::=> Void := {
+        name ifNotNil: {
+            theParent == theModule ifTrue: {
+                sharedNamespace := NamespaceInformation globalNamespace.
+            } ifFalse: {
+                sharedNamespace := (theParent sharedNamespace reinterpretCastTo: NamespaceInformation)
+                    getOrCreateSharedNamespaceNamed: name
+            }.
+
+            sharedNamespace addModuleNamespaceInformation: self.
+            children do: {:each :: Void |
+                ## StdNative stdout << "Namespace child " << each; nl.
+                each setupProgramEntityParent: self fromModule: theModule.
+            }
+        }.
+
+        super setupProgramEntityParent: theParent fromModule: theModule.
+
+    }.
+
+}.
+
+NamespaceInformation definition: {
+    meta definition: {
+        let GlobalNamespaceSingleton mutable type: NamespaceInformation.
+
+        method globalNamespace => NamespaceInformation := {
+            ## TODO: Use an once flag here.
+            GlobalNamespaceSingleton ifNil: {
+                GlobalNamespaceSingleton := NamespaceInformation new.
+                GlobalNamespaceSingleton name: #__global.
+            }.
+
+            GlobalNamespaceSingleton
+        }.
+    }.
+
+    method initialize := {
+        moduleNamespaces := OrderedCollection new.
+        children := OrderedCollection new.
+        childrenTable := Dictionary new.
+        self
+    }.
+
+    method addModuleNamespaceInformation: (moduleNamespace: ModuleNamespaceInformation) ::=> Void := {
+        moduleNamespaces add: moduleNamespace
+    }.
+
+    method removeModuleNamespaceInformation: (moduleNamespace: ModuleNamespaceInformation) ::=> Void := {
+        moduleNamespaces remove: moduleNamespace
+    }.
+
+    method getOrCreateSharedNamespaceNamed: (childName: Symbol) ::=> NamespaceInformation := {
+        (childrenTable at: childName ifAbsentPut: { :: ProtoObject |
+            let newChild := NamespaceInformation new name: childName; yourself.
+            children add: newChild.
+            newChild
+        }) reinterpretCastTo: NamespaceInformation.
+    }.
+
+    method associationAt: key
+        := self associationAt: key ifAbsent: {:: Void | self errorKeyNotFound: key}.
+
+    method associationAt: key ifAbsent: aBlock := {
+        moduleNamespaces do: {:eachModuleNamespace :: Void |
+            eachModuleNamespace localSymbolTable associationAt: key ifPresent: {:found :: Void |
+                return: found
+            }
+        }.
+
+        return: aBlock value
     }.
 }.
 
@@ -52,7 +156,7 @@ ExtensionOverloadedMethod definition: {
 
 ExtensionMethod definition: {
     method apply := {
-        StdNative stdout << "Apply " << self; nl.
+        ##StdNative stdout << "Apply " << self; nl.
         extendedParent methodDict at: name put: extension.
         self
     }.

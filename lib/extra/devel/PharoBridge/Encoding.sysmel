@@ -43,20 +43,20 @@ Dictionary extend: {
 
         type == #GlobalVariable ifTrue: {
             let key := self at: #key.
-            let systemDictionary := (Smalltalk castTo: ProtoObject) localSymbolTable.
-            return: (systemDictionary associationAt: key)
+            let nspace := (Smalltalk castTo: ProtoObject) sharedNamespace.
+            return: (nspace associationAt: key)
         }.
 
         type == #Class ifTrue: {
             let key := self at: #name.
-            let systemDictionary := (Smalltalk castTo: ProtoObject) localSymbolTable.
-            return: (systemDictionary associationAt: key)
+            let nspace := (Smalltalk castTo: ProtoObject) sharedNamespace.
+            return: (nspace associationAt: key)
         }.
 
         type == #Metaclass ifTrue: {
             let key := self at: #name.
-            let systemDictionary := (Smalltalk castTo: ProtoObject) localSymbolTable.
-            return: (systemDictionary associationAt: key) class
+            let nspace := (Smalltalk castTo: ProtoObject) sharedNamespace.
+            return: (nspace associationAt: key) class
         }.
 
         self error: "Unsupported object encoded as a dictionary: " -- type asString.
