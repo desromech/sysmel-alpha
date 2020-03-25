@@ -1,5 +1,4 @@
-namespace SysmelKernel definition: {
-
+namespace NStd definition: {
 
 enum MemoryOrder values: #{
     Relaxed: 0.

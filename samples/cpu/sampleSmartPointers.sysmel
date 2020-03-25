@@ -1,0 +1,88 @@
+struct TestStruct definition: {
+    public field value type: Int64.
+
+    method initialize => Void := {
+        NStd stdout << "TestStruct " << self address << " initialize"; nl.
+        value := 13
+    }.
+
+    method finalize => Void := {
+        NStd stdout << "TestStruct " << self address << " finalize"; nl.
+    }.
+}.
+
+function main externC (argc: Int32, argv: UInt8 const pointer pointer) => Int32 := {
+    {
+        let uniqueInt64Pointer mutable := Int64 uniqueNew.
+        NStd stdout << "uniqueInt64Pointer " << uniqueInt64Pointer getPointer << " : " << uniqueInt64Pointer _; nl.
+        uniqueInt64Pointer _ := 42.
+        NStd stdout << "uniqueInt64Pointer " << uniqueInt64Pointer getPointer << " : " << uniqueInt64Pointer _; nl.
+    }.
+
+    {
+        let smartPtr mutable := TestStruct uniqueNew.
+        NStd stdout << "TestStruct uniquePtr " << smartPtr getPointer << " : " << smartPtr _ value; nl.
+        smartPtr _ value := 42.
+        NStd stdout << "TestStruct uniquePtr " << smartPtr getPointer << " : " << smartPtr _ value; nl.
+    }.
+
+    NStd stdout << "UniquePtr movement assignment"; nl.
+    {
+        let outerSmartPtr mutable type: TestStruct uniquePtr.
+        NStd stdout << "outerSmartPtr " << outerSmartPtr getPointer; nl.
+        {
+            let innerSmartPtr mutable := TestStruct uniqueNew.
+            NStd stdout << "innerSmartPtr " << innerSmartPtr getPointer << " : " << innerSmartPtr _ value; nl.
+            innerSmartPtr _ value := 42.
+            NStd stdout << "innerSmartPtr " << innerSmartPtr getPointer << " : " << innerSmartPtr _ value; nl.
+
+            outerSmartPtr := innerSmartPtr asMoveReference.
+        }.
+        NStd stdout << "outerSmartPtr " << outerSmartPtr getPointer << " : " << outerSmartPtr _ value; nl.
+    }.
+
+    NStd stdout << "UniquePtr swap"; nl.
+    {
+        let outerSmartPtr mutable := TestStruct uniqueNew.
+        NStd stdout << "outerSmartPtr " << outerSmartPtr getPointer << " : " << outerSmartPtr _ value; nl.
+        {
+            let innerSmartPtr mutable := TestStruct uniqueNew.
+            NStd stdout << "innerSmartPtr " << innerSmartPtr getPointer << " : " << innerSmartPtr _ value; nl.
+            innerSmartPtr _ value := 42.
+            NStd stdout << "innerSmartPtr " << innerSmartPtr getPointer << " : " << innerSmartPtr _ value; nl.
+
+            outerSmartPtr swapWith: innerSmartPtr.
+            NStd stdout << "innerSmartPtr " << innerSmartPtr getPointer; nl.
+        }.
+        NStd stdout << "outerSmartPtr " << outerSmartPtr getPointer << " : " << outerSmartPtr _ value; nl.
+    }.
+
+    {
+        let sharedInt64Pointer mutable := Int64 sharedNew.
+        NStd stdout << "sharedInt64Pointer " << sharedInt64Pointer getPointer << " : " << sharedInt64Pointer _; nl.
+        sharedInt64Pointer _ := 42.
+        NStd stdout << "sharedInt64Pointer " << sharedInt64Pointer getPointer << " : " << sharedInt64Pointer _; nl.
+    }.
+
+    {
+        let smartPtr mutable := TestStruct sharedNew.
+        NStd stdout << "TestStruct sharedPtr " << smartPtr getPointer << " : " << smartPtr _ value; nl.
+        smartPtr _ value := 42.
+        NStd stdout << "TestStruct sharedPtr " << smartPtr getPointer << " : " << smartPtr _ value; nl.
+    }.
+
+    NStd stdout << "SharedPtr assign"; nl.
+    {
+        let outerSmartPtr mutable := TestStruct sharedNew.
+        NStd stdout << "outerSmartPtr " << outerSmartPtr getPointer << " : " << outerSmartPtr _ value; nl.
+        {
+            let innerSmartPtr mutable := outerSmartPtr.
+            NStd stdout << "innerSmartPtr " << innerSmartPtr getPointer << " : " << innerSmartPtr _ value; nl.
+            innerSmartPtr _ value := 42.
+            NStd stdout << "innerSmartPtr " << innerSmartPtr getPointer << " : " << innerSmartPtr _ value; nl.
+        }.
+        NStd stdout << "outerSmartPtr " << outerSmartPtr getPointer << " : " << outerSmartPtr _ value; nl.
+    }.
+
+    return: 0.
+}.

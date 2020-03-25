@@ -1,0 +1,243 @@
+namespace NStd definition: {
+
+template SharedRefCounter(PT: Type)
+    := struct definition: {
+    compileTimeConstant PointedType := PT.
+	compileTimeConstant PointerType := PointedType pointer.
+    compileTimeConstant CounterType := SelfType.
+
+    meta extend: {
+        inline method for: (pointer: PointerType) ::=> CounterType pointer := {
+            pointer ifNil: {
+                nil
+            } ifNotNil: {
+                CounterType basicNativeNew _
+                    initializeWith: pointer;
+                    address.
+            }
+        }.
+    }.
+
+    private field strongCounter_ type: AtomicUIntPointer.
+    private field weakCounter_ type: AtomicUIntPointer.
+    private field pointer_ type: PointerType.
+
+    inline method initializeWith: (pointer: PointerType) ::=> Void := {
+        strongCounter_ store: 1 with: MemoryOrder Release.
+        weakCounter_ store: 1 with: MemoryOrder Release.
+        pointer_ := pointer
+    }.
+
+    inline const method getPointer => PointerType
+        := pointer_.
+
+    inline method strongRetain => Void := {
+        strongCounter_ fetchAndAdd: 1 with: MemoryOrder AcquireAndRelease
+    }.
+
+    inline method strongRelease => Void := {
+        let oldCount := strongCounter_ fetchAndSubtract: 1 with: MemoryOrder AcquireAndRelease.
+        NStd stdout << "Old strong release count " << oldCount; nl.
+        oldCount == 1 ifTrue: {
+            NStd stdout << "No more strong counts delete the object " << pointer_; nl.
+            pointer_ nativeDelete.
+            self weakRelease.
+        }.
+
+    }.
+
+    inline method weakRetain => Void := {
+        weakCounter_ fetchAndAdd: 1 with: MemoryOrder AcquireAndRelease.
+    }.
+
+    inline method weakRelease => Void := {
+        let oldCount := weakCounter_ fetchAndSubtract: 1 with: MemoryOrder AcquireAndRelease.
+        NStd stdout << "Old weak release count " << oldCount; nl.
+        oldCount == 1 ifTrue: {
+            NStd stdout << "No more weak count, delete the counter " << self address; nl.
+            self address nativeDelete
+        }
+    }.
+
+    inline method weakLock => Boolean8 := {
+        let oldCount mutable type: UIntPointer.
+        while: (oldCount := strongCounter_ loadWith: MemoryOrder Acquire) ~= 0 do: {
+            (strongCounter_ atomicCompare: oldCount andSet: oldCount + 1 with: MemoryOrder AcquireAndRelease) ifTrue: {
+                return: true
+            }
+        }.
+
+        return: false
+    }.
+}.
+
+template SharedPtr(PT: Type)
+    := struct definition: {
+    compileTimeConstant PointedType := PT.
+	compileTimeConstant PointerType := PointedType pointer.
+    compileTimeConstant CounterType := SharedRefCounter(PT).
+	compileTimeConstant SmartPointerType := SelfType.
+	compileTimeConstant WeakPointerType := WeakPtr(PT).
+
+    meta extend: {
+        inline method for: (pointer: PointerType) ::=> SmartPointerType
+            := SmartPointerType basicNewValue initializeWith: (CounterType for: pointer); yourself.
+        macro method nil := ``(`,self basicNewValue).
+    }.
+
+    private field counter_ type: CounterType pointer.
+
+    inline method finalize => Void := {
+        counter_ ifNotNil: {
+            counter_ _ strongRelease.
+        }.
+    }.
+
+    inline method initializeWith: (counter: CounterType pointer) ::=> Void := {
+        counter_ := counter
+    }.
+
+    inline method initializeCopyingFrom: (o: SelfType const ref) ::=> Void := {
+		counter_ := o __private counter_.
+		counter_ ifNotNil: {
+			counter_ _ strongRetain
+		}.
+	}.
+
+	inline method initializeMovingFrom: (o: SelfType tempRef) ::=> Void := {
+		counter_ := o __private counter_.
+		o __private counter_ := nil
+	}.
+
+    inline const method _ => PointedType ref
+        := self getPointer _.
+
+    inline const method getPointer => PointerType := {
+        counter_ ifNil: {
+            return: nil
+        }.
+
+        return: counter_ _ getPointer.
+    }.
+
+    inline method reset: (newPointer: PointerType) ::=> Void := {
+        counter_ ifNil: {
+            counter_ _ strongRelease.
+        }.
+
+        counter_ := CounterType for: newPointer
+	}.
+
+	inline method reset => Void
+		:=  self reset: nil.
+
+    inline method assignValue: (o: SelfType const ref) ::=> SelfType const ref := {
+		let newCounter := o __private counter_.
+		newCounter ifNotNil: {
+			counter_ _ strongRetain
+		}.
+        counter_ ifNotNil: {
+			counter_ _ strongRelease
+		}.
+
+		counter_ := newCounter.
+		self
+	}.
+
+	inline method assignValue: (o: SelfType tempRef) ::=> SelfType const ref := {
+		let newCounter := o __private counter_.
+		o __private counter_ := nil.
+		counter_ ifNotNil: {
+			counter_ _ strongRelease
+		}.
+
+		counter_ := newCounter.
+		self
+	}.
+
+    inline method asWeakPtr => WeakPointerType
+        := WeakPointerType for: self.
+}.
+
+template WeakPtr(PT: Type)
+    := struct definition: {
+    compileTimeConstant PointedType := PT.
+	compileTimeConstant PointerType := PointedType pointer.
+    compileTimeConstant CounterType := SharedRefCounter(PT).
+	compileTimeConstant WeakPointerType := SelfType.
+	compileTimeConstant StrongPointerType := SharedPtr(PT).
+
+    private field counter_ type: CounterType pointer.
+
+    meta extend: {
+        inline method for: (strongRef: StrongPointerType const ref) ::=> WeakPointerType
+            := WeakPointerType basicNewValue initializeWith: strongRef __private counter_; yourself.
+        macro method nil := ``(`,self basicNewValue).
+    }.
+
+    inline method finalize => Void := {
+        counter_ ifNotNil: {
+            counter_ _ weakRelease.
+        }.
+    }.
+
+    inline method initializeWith: (theCounter: CounterType pointer) ::=> Void := {
+        counter_ := theCounter.
+        counter_ ifNotNil: {
+            counter_ _ weakRetain.
+        }.
+    }.
+
+    inline method initializeCopyingFrom: (o: SelfType const ref) ::=> Void := {
+		self initializeWith: o __private counter_.
+	}.
+
+	inline method initializeMovingFrom: (o: SelfType tempRef) ::=> Void := {
+		counter_ := o __private counter_.
+		o __private counter_ := nil
+	}.
+
+    inline method assignValue: (o: StrongPointerType const ref) ::=> SelfType const ref := {
+		let newCounter := o __private counter_.
+		newCounter ifNotNil: {
+			counter_ _ weakRetain
+		}.
+        counter_ ifNotNil: {
+			counter_ _ weakRelease
+		}.
+
+		counter_ := newCounter.
+		self
+	}.
+
+    inline method assignValue: (o: SelfType const ref) ::=> SelfType const ref := {
+		let newCounter := o __private counter_.
+		newCounter ifNotNil: {
+			counter_ _ weakRetain
+		}.
+        counter_ ifNotNil: {
+			counter_ _ weakRelease
+		}.
+
+		counter_ := newCounter.
+		self
+	}.
+
+	inline method assignValue: (o: SelfType tempRef) ::=> SelfType const ref := {
+		let newCounter := o __private counter_.
+		o __private counter_ := nil.
+		counter_ ifNotNil: {
+			counter_ _ weakRelease
+		}.
+
+		counter_ := newCounter.
+		self
+	}.
+}.
+
+_NativeType meta macro method sharedPtr := ``(NStd SharedPtr(`,self)).
+_NativeType meta macro method weakPtr := ``(NStd WeakPtr(`,self)).
+
+_NativeType meta macro method sharedNew := ``(`,self sharedPtr for: `,self nativeNew).
+
+}. ## End of namespace NStd

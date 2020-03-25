@@ -840,13 +840,13 @@ struct MessageLookupResult definition: {
 }.
 
 struct InlineCacheRecord definition: {
-	public field lookupClass type: AtomicUIntPointer.
-	public field lookupMethod type: AtomicUIntPointer.
+	public field lookupClass type: NStd AtomicUIntPointer.
+	public field lookupMethod type: NStd AtomicUIntPointer.
 }.
 
 struct InlineCache definition: {
 	compileTimeConstant RecordCount := 5.
-	public field lastWrittenSlot type: AtomicUIntPointer.
+	public field lastWrittenSlot type: NStd AtomicUIntPointer.
 	public field records type: (InlineCacheRecord array: RecordCount).
 }.
 

@@ -15,3 +15,9 @@ if: Compiler useLibC then: {
 
 ## Native new and native delete.
 loadFileOnce: "nativeNew.sysmel".
+
+## UniquePtr
+loadFileOnce: "UniquePtr.sysmel".
+
+## SharedPtr
+loadFileOnce: "SharedPtr.sysmel".
