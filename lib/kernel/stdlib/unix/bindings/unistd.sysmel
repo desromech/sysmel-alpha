@@ -69,7 +69,7 @@ namespace Unix definition: {
     function pread externC (fd: Int, buf: Void pointer, count: SizeT, offset: OFF_T) => SSizeT.
     function pwrite externC (fd: Int, buf: Void const pointer, count: SizeT, offset: OFF_T) => SSizeT.
 
-    function read externC (fd: Int, buf: Void pointer, count: SizeT,) => SSizeT.
+    function read externC (fd: Int, buf: Void pointer, count: SizeT) => SSizeT.
     function readlink externC (pathname: ConstString, buf: String, bufsize: SizeT) => SSizeT.
     function readlinkat externC (dirfd: Int, pathname: ConstString, buf: String, bufsize: SizeT) => SSizeT.
 
@@ -104,5 +104,5 @@ namespace Unix definition: {
     function unlinkat externC (dirfd: Int, path: ConstString, flags: Int) => Int.
     function usleep externC (useconds: USeconds_T) => Int.
 
-    function write externC (fd: Int, buf: Void const pointer, count: SizeT,) => SSizeT.
+    function write externC (fd: Int, buf: Void const pointer, count: SizeT) => SSizeT.
 }.
