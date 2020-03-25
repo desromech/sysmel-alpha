@@ -1,10 +1,7 @@
 Class {
 	#name : #MbndSysmelLanguage,
 	#superclass : #MbndGenericMacroLanguageInterface,
-	#instVars : [
-		'parser'
-	],
-	#category : #'SysmelLanguage-Sysmel-Parser'
+	#category : #'SysmelLanguage-Sysmel-IRAST'
 }
 
 { #category : #'class initialization' }
@@ -33,27 +30,36 @@ MbndSysmelLanguage >> constructTopLevelLanguageScopeFor: aModule [
 
 { #category : #parsing }
 MbndSysmelLanguage >> parse: sourceCollectionWithContext [
-	| astOrFailure position convertedAST |
-	astOrFailure := MbndProfiler component: #parseSysmel with: [self parser parse: sourceCollectionWithContext].
-	astOrFailure isPetit2Failure ifTrue: [
-		position := MbndSourcePosition new
+	| ast convertedAST |
+	[
+		ast := MbndProfiler component: #parseSysmel with: [SysmelParser parse: sourceCollectionWithContext collection].	
+	] on: SmaCCParserError do: [ :ex |
+		| errorPosition errorMessage |
+		errorMessage := 'Parse error' .
+		ex tag errorToken ifNotNil: [ :errorToken |
+			| errorTokenValue |
+			errorTokenValue := errorToken value.
+			errorTokenValue ifNotEmpty: [ 
+				errorMessage := 'Unexpected token {1}.' format: { errorTokenValue }
+			].
+		].
+	
+		errorPosition := MbndSourcePosition new
 			collection: sourceCollectionWithContext;
-			start: astOrFailure position + 1;
-			stop: astOrFailure position + 1;
+			start: ex tag position;
+			stop: ex tag position;
 			yourself.
 		^ MbndParseError new
-			sourcePosition: position;
-			signal: astOrFailure message.
+			sourcePosition: errorPosition;
+			signal: errorMessage
 	].
 
-	convertedAST :=  MbndProfiler component: #convertSysmelAST with: [astOrFailure buildMoebiusAST: (MbndAstBuilder forModule: targetModule)].
+	convertedAST :=  MbndProfiler component: #convertSysmelAST with: [SysmelMoebiusASTBuilder new
+		collectionWithContext: sourceCollectionWithContext;
+		builder: (MbndAstBuilder forModule: targetModule);
+		convertNode: ast].
 	^ MbndLanguageParsedSource new
 		ast: convertedAST;
 		language: self;
 		yourself
-]
-
-{ #category : #accessing }
-MbndSysmelLanguage >> parser [
-	^ parser ifNil: [parser := SysmelParser optimizedParser ]
 ]

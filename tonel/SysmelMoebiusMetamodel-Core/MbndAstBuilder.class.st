@@ -797,6 +797,13 @@ MbndAstBuilder >> literal: literalValue typeName: typeSelector [
 ]
 
 { #category : #'builder methods' }
+MbndAstBuilder >> literalArray: literalValue [
+	<compileTime>
+	<returnType: #_ASTNodeType>
+	^ self literal: literalValue typeName: #_LiteralArray
+]
+
+{ #category : #'builder methods' }
 MbndAstBuilder >> literalBoolean: literalValue [
 	<compileTime>
 	<returnType: #_ASTNodeType>
@@ -817,6 +824,13 @@ MbndAstBuilder >> literalBooleanTrue [
 	<compileTime>
 	<returnType: #_ASTNodeType>
 	^ self literal: true typeName: #_LiteralBooleanTrue
+]
+
+{ #category : #'builder methods' }
+MbndAstBuilder >> literalCharacter: literalValue [
+	<compileTime>
+	<returnType: #_ASTNodeType>
+	^ self literal: literalValue typeName: #_LiteralCharacter
 ]
 
 { #category : #'builder methods' }

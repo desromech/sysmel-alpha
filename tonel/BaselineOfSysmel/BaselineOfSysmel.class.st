@@ -12,12 +12,12 @@ BaselineOfSysmel >> baseline: spec [
 	spec for: #common do: [
 		"Omit pp2 from the baseline to avoid Metacello conflicts when loading in GToolkit."
 		conditionalDeps := #().
-		Smalltalk globals at: #PP2CompositeNode ifAbsent: [ 
-			conditionalDeps := { #'PetitParser2Core' }.
-			spec baseline: #'PetitParser2Core' with: [
-					"Pick a stable version of PP2"
+		Smalltalk globals at: #SmaCCParser ifAbsent: [ 
+			conditionalDeps := { #'SmaCC' }.
+			spec baseline: #'SmaCC' with: [
 					spec
-						repository: 'github://kursjan/petitparser2' ].
+						repository: 'github://SmaCCRefactoring/SmaCC';
+						loads: #(#'Runtime') ].
 		].
 		spec baseline: #'Slovim' with: [
 				spec
