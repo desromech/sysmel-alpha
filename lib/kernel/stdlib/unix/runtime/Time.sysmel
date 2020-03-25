@@ -1,4 +1,4 @@
-namespace StdNative definition: {
+namespace NStd definition: {
 namespace Chrono definition: {
     compileTimeConstant Time := Int64.
     compileTimeConstant TicksPerMicrosecond := 1.

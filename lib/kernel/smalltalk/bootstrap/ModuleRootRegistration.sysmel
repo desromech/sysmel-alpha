@@ -1,4 +1,4 @@
-namespace Smalltalk definition: {
+namespace GCStd definition: {
 namespace Runtime definition: {
 struct ModuleGCRootPointerDescriptor definition: {
     public field pointer type: ProtoObject pointer.
@@ -7,13 +7,13 @@ struct ModuleGCRootPointerDescriptor definition: {
 
 function registerModuleRoots(rootPointerDescriptors: ModuleGCRootPointerDescriptor pointer, rootPointerDescriptorCount: UIntPointer) => Void := {
     withReflectionLockedWrite: {
-        ##StdNative stdout << "registerModuleRoots rootPointerDescriptors " << rootPointerDescriptors << " rootPointerDescriptorCount " << rootPointerDescriptorCount; nl.
+        ##NStd stdout << "registerModuleRoots rootPointerDescriptors " << rootPointerDescriptors << " rootPointerDescriptorCount " << rootPointerDescriptorCount; nl.
 
         ## We need to iterate through all the root pointers in order to ensure that equal symbols have the same identities.
         ## This is a special case of #become: where the garbage collector support is not actually required.
         0 until: rootPointerDescriptorCount do: {:i :: Void |
             let rootDescriptor ref := rootPointerDescriptors[i].
-            ##StdNative stdout << "descriptor count " << rootDescriptor count; nl.
+            ##NStd stdout << "descriptor count " << rootDescriptor count; nl.
             0 until: rootDescriptor count do: {:j :: Void |
                 let rootPointer ref := rootDescriptor pointer[j].
                 let rootPointerClass := rootPointer class.
@@ -34,7 +34,7 @@ function registerModuleRoots(rootPointerDescriptors: ModuleGCRootPointerDescript
 }.
 
 function unregisterModuleRoots(rootPointerDescriptors: ModuleGCRootPointerDescriptor pointer, rootPointerDescriptorCount: UIntPointer) => Void := {
-    ## StdNative stdout << "unregisterModuleRoots rootPointerDescriptors " << rootPointerDescriptors << " rootPointerDescriptorCount " << rootPointerDescriptorCount; nl.
+    ## NStd stdout << "unregisterModuleRoots rootPointerDescriptors " << rootPointerDescriptors << " rootPointerDescriptorCount " << rootPointerDescriptorCount; nl.
 }.
 
 Compiler compilationTarget managedObjectModel
@@ -43,4 +43,4 @@ Compiler compilationTarget managedObjectModel
 
 
 }. ## End of namespace Runtime
-}. ## End of namespace Smalltalk
+}. ## End of namespace GCStd

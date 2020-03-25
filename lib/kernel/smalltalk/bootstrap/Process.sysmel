@@ -1,14 +1,14 @@
-namespace Smalltalk definition: {
+namespace GCStd definition: {
 namespace __Internal definition: {
 
 function callProcessEntryPoint(processPointer: Void pointer) => Void := {
-    (processPointer reinterpretCastTo: Smalltalk Process)
+    (processPointer reinterpretCastTo: GCStd Process)
         nativeThreadEntryPoint
 }.
 }.
 
 Process definition: {
-    field thread type: StdNative Thread.
+    field thread type: NStd Thread.
     field threadResultValue.
     field entryPointBlock.
 
@@ -48,4 +48,4 @@ BlockClosure extend: {
     }.
 }.
 
-}. ## End of namespace Smalltalk
+}. ## End of namespace GCStd

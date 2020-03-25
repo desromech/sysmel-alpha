@@ -1,4 +1,4 @@
-namespace StdNative definition: {
+namespace NStd definition: {
 namespace Collections definition: {
 
 template SortedDictionary(KT: Type, VT: Type)
@@ -10,4 +10,4 @@ template SortedDictionary(KT: Type, VT: Type)
 }.
 
 }. ## End of namespace Collections
-}. ## End of namespace StdNative
+}. ## End of namespace NStd

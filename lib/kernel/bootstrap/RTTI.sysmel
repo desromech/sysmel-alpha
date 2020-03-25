@@ -1,4 +1,4 @@
-namespace StdNative definition: {
+namespace NStd definition: {
 namespace Reflection definition: {
 
 class ProgramEntity superclass: GCObjectHeader.
@@ -69,7 +69,7 @@ function typeInformationFromPointerToVTable(vtablePointer: Void const pointer) =
         _ [-1].
 
 _BehaviorType extend: {
-    macro method asTypeInformation := ``(`,self reinterpretCastTo: StdNative Reflection TypeInformation const pointer).
+    macro method asTypeInformation := ``(`,self reinterpretCastTo: NStd Reflection TypeInformation const pointer).
 }.
 
 Compiler compilationTarget
@@ -78,4 +78,4 @@ Compiler compilationTarget
     moduleInformationNativeClass: ModuleInformation.
 
 }. ## End of namespace Reflection
-}. ## End of namespace StdNative
+}. ## End of namespace NStd

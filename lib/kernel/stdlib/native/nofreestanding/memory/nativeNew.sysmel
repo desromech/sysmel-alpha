@@ -1,15 +1,15 @@
-namespace StdNative definition: {
+namespace NStd definition: {
 
 ## basicNativeNew macro
 _NativeType meta macro method basicNativeNew := ``(
-    (StdNative zmalloc(`,self instanceSize) reinterpretCastTo: `,self pointer) _
+    (NStd zmalloc(`,self instanceSize) reinterpretCastTo: `,self pointer) _
         basicInitialize;
         address
 ).
 
 ## basicNativeDelete
 _PointerType macro method basicNativeDelete := ``(
-    StdNative free(`,self)
+    NStd free(`,self)
 ).
 
 ## Native new
@@ -28,5 +28,5 @@ _PointerType macro method nativeDelete := ``(
     }
 ).
 
-}. ## End of StdNative
+}. ## End of NStd
 

@@ -19,13 +19,13 @@ class SysmelGC definition: {
 
     method allocate: (objectSize: UIntPointer)
         variableDataSize: (variableDataSize: UIntPointer)
-        initializingWith: (basicInitializer: StdNative Reflection BasicInitializeFunctionPointerType)
-          ::=> StdNative Reflection GCObjectHeader pointer := {
+        initializingWith: (basicInitializer: NStd Reflection BasicInitializeFunctionPointerType)
+          ::=> NStd Reflection GCObjectHeader pointer := {
         <nogc>
 
         ## Allocate the object memory.
-        let allocatedObject := BoehmGC GC_malloc(objectSize) reinterpretCastTo: StdNative Reflection GCObjectHeader pointer.
-        StdNative memset(allocatedObject, 0, objectSize).
+        let allocatedObject := BoehmGC GC_malloc(objectSize) reinterpretCastTo: NStd Reflection GCObjectHeader pointer.
+        NStd memset(allocatedObject, 0, objectSize).
 
         ## Set the allocated object class.
         allocatedObject value
@@ -39,14 +39,14 @@ class SysmelGC definition: {
 
 	method allocate: (instanceSize: UIntPointer) instanceAlignment: (instanceAligment: UIntPointer)
 		copyingFromPrototype: (prototype: Void pointer)
-		  ::=> StdNative Reflection GCObjectHeader pointer := {
+		  ::=> NStd Reflection GCObjectHeader pointer := {
 		<nogc>
 
         ## Allocate the object memory.
-        let allocatedObject := BoehmGC GC_malloc(instanceSize) reinterpretCastTo: StdNative Reflection GCObjectHeader pointer.
+        let allocatedObject := BoehmGC GC_malloc(instanceSize) reinterpretCastTo: NStd Reflection GCObjectHeader pointer.
 
 		## Copy the data from the prototype
-        StdNative memcpy(allocatedObject, prototype, instanceSize).
+        NStd memcpy(allocatedObject, prototype, instanceSize).
 
         return: allocatedObject
 	}.

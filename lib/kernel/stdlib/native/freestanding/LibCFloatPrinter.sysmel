@@ -1,4 +1,4 @@
-namespace StdNative definition: {
+namespace NStd definition: {
 
 class BasicValueFloatPrinter superclass: BasicValueIntegerPrinter; definition: {
     method nextPutDouble: (double: Float64) ::=> Void := {

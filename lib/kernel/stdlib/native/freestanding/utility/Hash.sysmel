@@ -1,4 +1,4 @@
-namespace StdNative definition: {
+namespace NStd definition: {
 
 ## UInt64 integer hashing function from: https://nullprogram.com/blog/2018/07/31/
 function hashForUInt64(v: UInt64) => UIntPointer := {
@@ -19,8 +19,8 @@ function hashForUInt32(v: UInt32) => UIntPointer := {
     return: (r castTo: UIntPointer)
 }.
 
-(UInt8 | Int8 | UInt16 | Int16 | Int32 | UInt32) macro method hash := ``(StdNative hashForUInt32(`,self castTo: UInt32)).
-(Int64 | UInt64) macro method hash := ``(StdNative hashForUInt64(`,self castTo: UInt64)).
+(UInt8 | Int8 | UInt16 | Int16 | Int32 | UInt32) macro method hash := ``(NStd hashForUInt32(`,self castTo: UInt32)).
+(Int64 | UInt64) macro method hash := ``(NStd hashForUInt64(`,self castTo: UInt64)).
 _PointerType macro method hash := ``((`,self reinterpretCastTo: UIntPointer) hash).
 
-}. ## End of namespace StdNative
+}. ## End of namespace NStd

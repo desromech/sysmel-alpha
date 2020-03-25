@@ -1,13 +1,13 @@
-namespace Smalltalk definition: {
+namespace GCStd definition: {
 
 Behavior definition: {
 	method subclasses := #().
 
 	method subclassesDo: aBlock
-		:= Smalltalk Runtime withReflectionLockedRead: {self subclasses do: aBlock}.
+		:= GCStd Runtime withReflectionLockedRead: {self subclasses do: aBlock}.
 
 	method allSubclassesDo: aBlock := {
-		Smalltalk Runtime withReflectionLockedRead: {
+		GCStd Runtime withReflectionLockedRead: {
 			self subclassesDo: {:cls :: Void |
 				aBlock value: cls.
 				cls allSubclassesDo: aBlock
@@ -17,7 +17,7 @@ Behavior definition: {
 	}.
 
 	method withAllSubclassesDo: aBlock := {
-		Smalltalk Runtime withReflectionLockedRead: {
+		GCStd Runtime withReflectionLockedRead: {
 			aBlock value: self.
 			self allSubclassesDo: aBlock
 		}
@@ -36,7 +36,7 @@ Behavior definition: {
 		}.
 
 		gcLayout variableDataIsGCPointers ifTrue: {
-			let variableDataSize := (instance reinterpretCastTo: StdNative Reflection GCObjectHeader pointer) _ __variableDataSize * variableInstanceElementSize.
+			let variableDataSize := (instance reinterpretCastTo: NStd Reflection GCObjectHeader pointer) _ __variableDataSize * variableInstanceElementSize.
 			let variableSlotCount := variableDataSize / UIntPointer instanceSize.
 			let variableSlots := fixedSlots[fixedSlotCount] address.
 			0 until: variableSlotCount do: {:i :: Void |
@@ -78,4 +78,4 @@ Metaclass definition: {
 	}.
 }.
 
-}. ## End of namespace Smalltalk
+}. ## End of namespace GCStd

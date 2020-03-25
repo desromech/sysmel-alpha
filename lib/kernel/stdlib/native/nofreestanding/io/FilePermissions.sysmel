@@ -1,4 +1,4 @@
-namespace StdNative definition: {
+namespace NStd definition: {
 namespace IO definition: {
 
 enum FilePermissions valueType: UInt32; bitMask; values: #{
@@ -21,4 +21,4 @@ enum FilePermissions valueType: UInt32; bitMask; values: #{
 }.
 
 }. ## End of namespace IO
-}. ## End of namespace StdNative
+}. ## End of namespace NStd

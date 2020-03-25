@@ -1,4 +1,4 @@
-namespace Smalltalk definition: {
+namespace GCStd definition: {
 
 HashedCollection definition: {
     meta extend: {
@@ -323,4 +323,4 @@ MethodDictionary definition: {
     }.
 }.
 
-}. ## End of namespace Smalltalk
+}. ## End of namespace GCStd

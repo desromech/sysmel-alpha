@@ -1,4 +1,4 @@
-namespace StdNative definition: {
+namespace NStd definition: {
 namespace IO definition: {
 
 class UnbufferedFileStream.
@@ -250,4 +250,4 @@ class AtomicFileStream superclass: FileStream; definition: {
 }.
 
 }. ## End of namespace IO
-}. ## End of namespace StdNative
+}. ## End of namespace NStd

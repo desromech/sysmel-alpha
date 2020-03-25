@@ -1,4 +1,4 @@
-namespace Smalltalk definition: {
+namespace GCStd definition: {
 
 Object definition: {
     method isSymbol := false
@@ -44,7 +44,7 @@ gcclass SymbolTableSet superclass: Set; definition: {
 
 Symbol definition: {
     meta extend: {
-        static global SymbolTableMutex mutable type: StdNative Mutex; constructionPriority: Compiler compilationTarget gcInitializationPriority.
+        static global SymbolTableMutex mutable type: NStd Mutex; constructionPriority: Compiler compilationTarget gcInitializationPriority.
         static global SymbolTable mutable type: ProtoObject.
 
         method intern: stringOrSymbol := {
@@ -70,7 +70,7 @@ Symbol definition: {
             let string := stringOrSymbol reinterpretCastTo: String.
             let stringSize := string __private __data size.
             let symbolInstance := self basicNew: stringSize.
-            StdNative memcpy(symbolInstance __private __data[0] address, string __private __data[0] address, stringSize).
+            NStd memcpy(symbolInstance __private __data[0] address, string __private __data[0] address, stringSize).
 
             self internSymbolInstance: symbolInstance.
         }.

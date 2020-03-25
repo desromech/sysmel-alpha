@@ -37,29 +37,29 @@ global __sysmel_gc_section_start external externC mutable type: GCFunctionStackM
 global __sysmel_gc_section_end external externC mutable type: GCFunctionStackMapEntry.
 
 class SysmelGC definition: {
-    field memoryHeap mutable type: StdNative NativeMemoryHeap.
+    field memoryHeap mutable type: NStd NativeMemoryHeap.
     method printStackMap => Void := {
         <nogc>
 
         let start := __sysmel_gc_section_start address.
         let end := __sysmel_gc_section_end address.
-        StdNative stdout << "Stack map start " << start << " end " << end; nl.
+        NStd stdout << "Stack map start " << start << " end " << end; nl.
 
         for: (let position mutable := start) while: (position ~~ end) do: {
-            StdNative stdout << "position " << position << " roots " << position _ rootCount << " safePoints " << position _ safePointCount; nl.
+            NStd stdout << "position " << position << " roots " << position _ rootCount << " safePoints " << position _ safePointCount; nl.
         } continueWith: (position := position _ next).
     }.
 
     method allocate: (objectSize: UIntPointer)
         variableDataSize: (variableDataSize: UInt32)
-        initializingWith: (basicInitializer: StdNative Reflection BasicInitializeFunctionPointerType)
-          ::=> StdNative Reflection GCObjectHeader pointer := {
+        initializingWith: (basicInitializer: NStd Reflection BasicInitializeFunctionPointerType)
+          ::=> NStd Reflection GCObjectHeader pointer := {
         <nogc>
 
         ##self printStackMap.
 
         ## Allocate the object memory.
-        let allocatedObject := (memoryHeap allocate: objectSize) reinterpretCastTo: StdNative Reflection GCObjectHeader pointer.
+        let allocatedObject := (memoryHeap allocate: objectSize) reinterpretCastTo: NStd Reflection GCObjectHeader pointer.
         LibC memset(allocatedObject, 0, objectSize).
 
         ## Set the allocated object class.

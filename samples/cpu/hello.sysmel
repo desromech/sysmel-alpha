@@ -3,53 +3,53 @@
 global testGlobal mutable := 42.
 
 function printValue(value: Int32) => Void := {
-    StdNative stdout << "printValue Int32: " << value; nl.
+    NStd stdout << "printValue Int32: " << value; nl.
 }.
 
 function printValue(value: Float32) => Void := {
-    StdNative stdout << "printValue Float32: " << value; nl.
+    NStd stdout << "printValue Float32: " << value; nl.
 }.
 
 function testNativeErrorThrow() => Void := {
-    StdNative error: "Test error"
+    NStd error: "Test error"
 }.
 
 function testNativeError() => Void := {
     try: {
         testNativeErrorThrow().
-    } catch: StdNative Error doing: {:exception :: Void |
-        StdNative stdout << "Caught error exception: " << exception; nl.
+    } catch: NStd Error doing: {:exception :: Void |
+        NStd stdout << "Caught error exception: " << exception; nl.
     }.
 }.
 
-function testSmalltalkErrorThrow() => Void := {
-    Smalltalk Object error: "Test smalltalk error".
+function testGCStdErrorThrow() => Void := {
+    GCStd Object error: "Test smalltalk error".
 }.
 
 function testGCError() => Void := {
     try: {
-        testSmalltalkErrorThrow().
-    } catch: Smalltalk Error doing: {:exception :: Void |
-        StdNative stdout << "Caught Smalltalk exception: " << exception; nl.
+        testGCStdErrorThrow().
+    } catch: GCStd Error doing: {:exception :: Void |
+        NStd stdout << "Caught GCStd exception: " << exception; nl.
     }.
 }.
 
 function testNonLocalReturn() => Void := {
-    let array type: Smalltalk ProtoObject := #(1 2 3 4 5).
-    StdNative stdout << "Should print until 3"; nl.
-    array do: {:(Smalltalk ProtoObject)v :: Void |
-        StdNative stdout << v; nl.
+    let array type: GCStd ProtoObject := #(1 2 3 4 5).
+    NStd stdout << "Should print until 3"; nl.
+    array do: {:(GCStd ProtoObject)v :: Void |
+        NStd stdout << v; nl.
         v == 3 ifTrue: {
-            StdNative stdout << "Found 3, do non-local return."; nl.
+            NStd stdout << "Found 3, do non-local return."; nl.
             return: nil
         }.
     }.
 }.
 
 function testWriteFile() => Void := {
-    let outFile mutable type: StdNative IO FileStream.
-    (outFile open: "test.txt" mode: StdNative IO FileOpenMode CreateNew) ifTrue: {
-        let out mutable := StdNative IO TextStreamWriter for: outFile address.
+    let outFile mutable type: NStd IO FileStream.
+    (outFile open: "test.txt" mode: NStd IO FileOpenMode CreateNew) ifTrue: {
+        let out mutable := NStd IO TextStreamWriter for: outFile address.
         out << "Hello World"; nl.
         out << "File written from sysmel"; nl.
         outFile close
@@ -58,102 +58,102 @@ function testWriteFile() => Void := {
 
 function testMessageNotUnderstood() => Void := {
     try: {
-        Smalltalk Object someMessageThatIsNotImplemented: #hello with: #world and: 42
-    } catch: Smalltalk MessageNotUnderstood doing: {:exception :: Void |
-        StdNative stdout << "Caught message not understood exception: " << exception; nl.
+        GCStd Object someMessageThatIsNotImplemented: #hello with: #world and: 42
+    } catch: GCStd MessageNotUnderstood doing: {:exception :: Void |
+        NStd stdout << "Caught message not understood exception: " << exception; nl.
     }.
 }.
 
 function main externC (argc: Int32, argv: Char8 const pointer pointer) => Int32 := {
-    StdNative stdout << "testGlobal " << testGlobal; nl.
-	StdNative stdout << "TestChar " << 'c'; nl.
+    NStd stdout << "testGlobal " << testGlobal; nl.
+	NStd stdout << "TestChar " << 'c'; nl.
 
     ##let s type: SomeStruct.
 
     1 to: 3 do: {:i :: Void |
-        StdNative stdout << "Loop iteration " << i; nl
+        NStd stdout << "Loop iteration " << i; nl
     }.
 
     let v3f := Float32x3 x: 1.0 y: 2.0 z: 3.0.
-    StdNative stdout << "v3f " << v3f; nl.
+    NStd stdout << "v3f " << v3f; nl.
 
     let vp := v3f + (Float32x3 x: 4.0 y: 5.0 z: 6.0).
-    StdNative stdout << "vp " << v3f; nl.
+    NStd stdout << "vp " << v3f; nl.
 
     let vps := v3f + 3.0.
-    StdNative stdout << "vps " << v3f; nl.
+    NStd stdout << "vps " << v3f; nl.
 
     let v3d := Float64x3 x: v3f x y: v3f y z: v3f z.
-    StdNative stdout << "v3d " << v3f; nl.
+    NStd stdout << "v3d " << v3f; nl.
 
     ##let matrix := Float32x3x3 identity + Float32x3x3 identity.
     ##let matrix := Float32x3x3 ones * Float32x3x3 ones.
     let matrix := Float32x3x3 rowMajorIndices.
     ##let matrix mutable := Float32x3x3 identity + Float32x3x3 identity.
-    StdNative stdout nextPutAll: "zm "; nl;
+    NStd stdout nextPutAll: "zm "; nl;
 	tab; nextPutVector: matrix firstRow; nl;
 	tab; nextPutVector: matrix secondRow; nl;
 	tab; nextPutVector: matrix thirdRow; nl.
 
     let mv3f := matrix * v3f.
-    StdNative stdout << "mv3f " << mv3f; nl.
+    NStd stdout << "mv3f " << mv3f; nl.
 
     let v3fm := v3f * matrix.
-    StdNative stdout << "v3fm " << v3fm; nl.
-    StdNative stdout << "v3f dot: v3f" << (v3f dot: v3f); nl.
+    NStd stdout << "v3fm " << v3fm; nl.
+    NStd stdout << "v3f dot: v3f" << (v3f dot: v3f); nl.
 
     let v3fc := v3f cross: v3f.
-    StdNative stdout << "v3fc cross: v3f " << v3fc; nl.
+    NStd stdout << "v3fc cross: v3f " << v3fc; nl.
 
     printValue(1).
     printValue(1.0).
 
     1 until: argc do: {:i :: Void |
         i = 1 ifTrue: {
-            StdNative stdout << "First "
+            NStd stdout << "First "
         } ifFalse: {
-            StdNative stdout << "Not first "
+            NStd stdout << "Not first "
 
         }.
 
-        StdNative stdout << "argv " << i << " " << (argv[i] address) << " " << (argv + i) << " "; nextPutCString: argv[i]; nl
+        NStd stdout << "argv " << i << " " << (argv[i] address) << " " << (argv + i) << " "; nextPutCString: argv[i]; nl
     }.
 
-    StdNative stdout << "Hello World: "; nextPutCString: argv value; nl.
+    NStd stdout << "Hello World: "; nextPutCString: argv value; nl.
 
-    StdNative stdout << "Object: " << (Smalltalk Object reinterpretCastTo: Void pointer); nl.
-    StdNative stdout << "Object class: " << (Smalltalk Object class reinterpretCastTo: Void pointer); nl.
+    NStd stdout << "Object: " << (GCStd Object reinterpretCastTo: Void pointer); nl.
+    NStd stdout << "Object class: " << (GCStd Object class reinterpretCastTo: Void pointer); nl.
 
-    useNamespace: Smalltalk.
+    useNamespace: GCStd.
 
     let o := Object.
-    StdNative stdout << "o: " << (o reinterpretCastTo: Void pointer) << " " << o; nl.
-    StdNative stdout << "o class: " << (o class reinterpretCastTo: Void pointer) << " " << o class; nl.
-    StdNative stdout << "Object basicNew: " << Object basicNew; nl.
+    NStd stdout << "o: " << (o reinterpretCastTo: Void pointer) << " " << o; nl.
+    NStd stdout << "o class: " << (o class reinterpretCastTo: Void pointer) << " " << o class; nl.
+    NStd stdout << "Object basicNew: " << Object basicNew; nl.
 
 	let n mutable type: ProtoObject := 42.
 	let sumResult := n + 7.
-    StdNative stdout << "(ProtoObject)42 + (ProtoObject)7 = " << sumResult; nl.
+    NStd stdout << "(ProtoObject)42 + (ProtoObject)7 = " << sumResult; nl.
 
     let boolValue := true.
     let boolCast type: ProtoObject := boolValue.
-    StdNative stdout << "Bool cast " << (boolCast reinterpretCastTo: Void pointer) << " " << boolCast; nl.
+    NStd stdout << "Bool cast " << (boolCast reinterpretCastTo: Void pointer) << " " << boolCast; nl.
 
 	let testArray type: ProtoObject := #("Hello world" 1 #symbol 2 3 4 5).
 	testArray do: {:(ProtoObject)el :: Void |
-	    StdNative stdout << "Array element " << el; nl.
+	    NStd stdout << "Array element " << el; nl.
 	}.
 
-    StdNative stdout << "Printing ProtoObject with all subclasses"; nl.
+    NStd stdout << "Printing ProtoObject with all subclasses"; nl.
     ProtoObject withAllSubclassesDo: {:(ProtoObject)cls :: Void |
-	    StdNative stdout << cls; nl.
+	    NStd stdout << cls; nl.
 	}.
 
     {
         let string type: ProtoObject := "class".
         let symbol := string asSymbol.
 
-        StdNative stdout << "String '"  << string << "' asSymbol #'" << symbol << "' unique: " << (symbol == #class) << " sameResult: " << (symbol == string asSymbol); nl.
+        NStd stdout << "String '"  << string << "' asSymbol #'" << symbol << "' unique: " << (symbol == #class) << " sameResult: " << (symbol == string asSymbol); nl.
     }.
 
     testNativeError().
@@ -162,7 +162,7 @@ function main externC (argc: Int32, argv: Char8 const pointer pointer) => Int32 
     testWriteFile().
     testMessageNotUnderstood().
 
-    StdNative stdout << (Smalltalk Object name -- " with concat"); nl.
+    NStd stdout << (GCStd Object name -- " with concat"); nl.
 
     return: 0.
 }.

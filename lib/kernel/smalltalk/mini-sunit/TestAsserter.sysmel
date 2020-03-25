@@ -1,7 +1,7 @@
-namespace Smalltalk definition: {
+namespace GCStd definition: {
 
 gcclass TestAsserter definition: {
 
 }.
 
-}. ## End of namespace Smalltalk
+}. ## End of namespace GCStd

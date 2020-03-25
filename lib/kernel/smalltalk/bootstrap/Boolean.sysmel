@@ -1,4 +1,4 @@
-namespace Smalltalk definition: {
+namespace GCStd definition: {
 
 namespace ObjectModel definition: {
 
@@ -18,4 +18,4 @@ Compiler compilationTarget managedObjectModel
 	objectToBoolean8Function: objectToBoolean8.
 
 }. ## End of namespace ObjectModel
-}. ## End of namespace Smalltalk
+}. ## End of namespace GCStd

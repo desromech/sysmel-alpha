@@ -1,4 +1,4 @@
-namespace StdNative definition: {
+namespace NStd definition: {
 
 class BasicValuePrinter definition: {
     compileTimeConstant bufferCapacity := 256.
@@ -12,7 +12,7 @@ class BasicValuePrinter definition: {
         }
     }.
 
-    method nextPutAll: (string: StdNative StringLiteral) ::=> Void := {
+    method nextPutAll: (string: NStd StringLiteral) ::=> Void := {
         bufferSize + string size < bufferCapacity ifTrue: {
             memcpy(buffer[bufferSize] address, string[0] address, string size).
             bufferSize := bufferSize + string size.

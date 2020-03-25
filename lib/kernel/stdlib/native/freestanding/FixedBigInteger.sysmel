@@ -1,4 +1,4 @@
-namespace StdNative definition: {
+namespace NStd definition: {
 
 #**
  * I am a big integer with a maximum fixed length. I am used to implement
@@ -152,4 +152,4 @@ template FixedBigInteger(WC: _LiteralInteger)
     }.
 }.
 
-}. ## End of namespace StdNative
+}. ## End of namespace NStd

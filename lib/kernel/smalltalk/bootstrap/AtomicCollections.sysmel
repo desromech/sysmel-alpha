@@ -1,4 +1,4 @@
-namespace Smalltalk definition: {
+namespace GCStd definition: {
 
 gcclass AtomicQueueItem definition: {
     public field next.
@@ -11,7 +11,7 @@ gcclass AtomicCollection definition: {
 }.
 
 gcclass WaitfreeQueue superclass: AtomicCollection; definition: {
-    field mutex type: StdNative Mutex.
+    field mutex type: NStd Mutex.
     field next.
     field tail.
 
@@ -61,7 +61,7 @@ gcclass WaitfreeQueue superclass: AtomicCollection; definition: {
 }.
 
 gcclass AtomicSharedQueue superclass: WaitfreeQueue; definition: {
-    field itemAvailableCondition type: StdNative ConditionVariable.
+    field itemAvailableCondition type: NStd ConditionVariable.
 
     override method signalAddedNewItem => Void := {
         itemAvailableCondition notifyOne
@@ -84,4 +84,4 @@ gcclass AtomicSharedQueue superclass: WaitfreeQueue; definition: {
     }
 }.
 
-}. ## End of namespace Smalltalk
+}. ## End of namespace GCStd

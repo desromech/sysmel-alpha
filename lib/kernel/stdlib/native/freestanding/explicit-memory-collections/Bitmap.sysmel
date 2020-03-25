@@ -1,4 +1,4 @@
-namespace StdNative definition: {
+namespace NStd definition: {
 namespace ExplicitMemoryCollections definition: {
 
 #**
@@ -166,4 +166,4 @@ struct Bitmap definition: {
 }.
 
 }. ## End of namespaces ExplicitMemoryCollections
-}. ## End of namespace StdNative
+}. ## End of namespace NStd

@@ -1,9 +1,9 @@
-namespace Smalltalk definition: {
+namespace GCStd definition: {
 namespace Runtime definition: {
 
-static global globalReflectionLockStateChangedCondition mutable type: StdNative ConditionVariable;
+static global globalReflectionLockStateChangedCondition mutable type: NStd ConditionVariable;
     constructionPriority: Compiler compilationTarget gcInitializationPriority.
-static global globalReflectionLockStateMutex mutable type: StdNative Mutex;
+static global globalReflectionLockStateMutex mutable type: NStd Mutex;
     constructionPriority: Compiler compilationTarget gcInitializationPriority.
 static global globalReflectionReadLockCount mutable type: UIntPointer.
 static global globalReflectionWriteLockWaitingCount mutable type: UIntPointer. ## We give priority to the writers to prevent starvation.
@@ -34,13 +34,13 @@ function enterReflectionLockedRead() => Void := {
 
 function leaveReflectionLockedRead() => Void := {
     <nogc>
-    StdNative assert: globalReflectionThisThreadReadEnterCount > 0.
+    NStd assert: globalReflectionThisThreadReadEnterCount > 0.
     globalReflectionThisThreadReadEnterCount := globalReflectionThisThreadReadEnterCount - 1.
 
     globalReflectionThisThreadReadEnterCount == 0 && globalReflectionThisThreadWriteEnterCount == 0 ifTrue: {
         globalReflectionLockStateMutex withLock: {
-            StdNative assert: globalReflectionReadLockCount > 0.
-            StdNative assert: globalReflectionWriteLockTaken not.
+            NStd assert: globalReflectionReadLockCount > 0.
+            NStd assert: globalReflectionWriteLockTaken not.
 
             globalReflectionReadLockCount := globalReflectionReadLockCount - 1.
 
@@ -53,9 +53,9 @@ function leaveReflectionLockedRead() => Void := {
 }.
 
 macro method withReflectionLockedRead: aBlock := ``{
-    Smalltalk Runtime enterReflectionLockedRead().
+    GCStd Runtime enterReflectionLockedRead().
     try: `,aBlock finally: {
-        Smalltalk Runtime leaveReflectionLockedRead()
+        GCStd Runtime leaveReflectionLockedRead()
     }
 }.
 
@@ -67,7 +67,7 @@ function enterReflectionLockedWrite() => Void := {
             ## release the read lock to prevent a deadlock where multiple
             ## readers would like to upgrade its lock.
             globalReflectionThisThreadReadEnterCount > 0 ifTrue: {
-                StdNative assert: globalReflectionReadLockCount > 0.
+                NStd assert: globalReflectionReadLockCount > 0.
                 globalReflectionReadLockCount := globalReflectionReadLockCount - 1.
                 globalReflectionReadLockCount == 0 ifTrue: {
                     globalReflectionLockStateChangedCondition notifyAll
@@ -95,12 +95,12 @@ function enterReflectionLockedWrite() => Void := {
 
 function leaveReflectionLockedWrite() => Void := {
     <nogc>
-    StdNative assert: globalReflectionThisThreadWriteEnterCount > 0.
+    NStd assert: globalReflectionThisThreadWriteEnterCount > 0.
     globalReflectionThisThreadWriteEnterCount := globalReflectionThisThreadWriteEnterCount - 1.
 
     globalReflectionThisThreadWriteEnterCount == 0 ifTrue: {
         globalReflectionLockStateMutex withLock: {
-            StdNative assert: globalReflectionWriteLockTaken.
+            NStd assert: globalReflectionWriteLockTaken.
             globalReflectionWriteLockTaken := false.
             globalReflectionLockStateChangedCondition notifyAll.
 
@@ -113,11 +113,11 @@ function leaveReflectionLockedWrite() => Void := {
 }.
 
 macro method withReflectionLockedWrite: aBlock := ``{
-    Smalltalk Runtime enterReflectionLockedWrite().
+    GCStd Runtime enterReflectionLockedWrite().
     try: `,aBlock finally: {
-        Smalltalk Runtime leaveReflectionLockedWrite()
+        GCStd Runtime leaveReflectionLockedWrite()
     }
 }.
 
 }. ## End of namespace Runtime
-}. ## End of namespace Smalltalk
+}. ## End of namespace GCStd

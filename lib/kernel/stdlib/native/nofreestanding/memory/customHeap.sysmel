@@ -1,4 +1,4 @@
-namespace StdNative definition: {
+namespace NStd definition: {
 
 template FixedSizeBuddyMemoryAllocator(MNOSB: _LiteralInteger)
     := class definition: {
@@ -470,7 +470,7 @@ class NativeMemoryHeap definition: {
     method allocateInitializedWithZero: (size: UIntPointer) ::=> Void pointer := {
         let result := self allocate: size.
         result ifNotNil: {
-            StdNative memset(result, 0, size).
+            NStd memset(result, 0, size).
         }.
 
         result
@@ -886,4 +886,4 @@ class NativeMemoryHeap definition: {
     }.
 }.
 
-}. ## End of namespace StdNative
+}. ## End of namespace NStd

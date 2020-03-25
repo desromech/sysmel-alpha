@@ -1,4 +1,4 @@
-namespace StdNative definition: {
+namespace NStd definition: {
 
 class BasicValueIntegerPrinter superclass: BasicValuePrinter; definition: {
 
@@ -78,4 +78,4 @@ class BasicValueIntegerPrinter superclass: BasicValuePrinter; definition: {
     }.
 }.
 
-}. ## End of namespace StdNative
+}. ## End of namespace NStd

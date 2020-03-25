@@ -1,4 +1,4 @@
-namespace StdNative definition: {
+namespace NStd definition: {
 namespace IO definition: {
 
 #**
@@ -196,4 +196,4 @@ class BinaryDataStreamReader superclass: BinaryDataStreamReaderWriterCommon; def
 }.
 
 }. ## End of namespace IO
-}. ## End of namespace StdNative
+}. ## End of namespace NStd

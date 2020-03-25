@@ -1,4 +1,4 @@
-namespace StdNative definition: {
+namespace NStd definition: {
 
 global globalNativeMemoryHeap mutable type: NativeMemoryHeap.
 
@@ -17,5 +17,5 @@ function realloc(pointer: Void pointer, size: UIntPointer) => Void pointer
 function free(pointer: Void pointer) => Void
     := globalNativeMemoryHeap free: pointer.
 
-}. ## End of StdNative
+}. ## End of NStd
 

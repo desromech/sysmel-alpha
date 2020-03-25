@@ -1,8 +1,8 @@
-namespace Smalltalk definition: {
+namespace GCStd definition: {
 
 gcclass PharoBridgeServerClientConnection definition: {
     public field server.
-    field clientSocket type: StdNative IO Socket.
+    field clientSocket type: NStd IO Socket.
     field clientReceptionProcess.
     field clientTransmissionProcess.
     field messageToClientQueue.
@@ -12,7 +12,7 @@ gcclass PharoBridgeServerClientConnection definition: {
         self.
     }.
 
-    method handleAcceptedClient: (theClientSocket: StdNative IO Socket ref) := {
+    method handleAcceptedClient: (theClientSocket: NStd IO Socket ref) := {
         clientSocket := theClientSocket asMoveReference.
         clientReceptionProcess := {:: Void | self processClientConnection} fork.
         clientTransmissionProcess := {:: Void | self sendMessagesToClient } fork.
@@ -23,13 +23,13 @@ gcclass PharoBridgeServerClientConnection definition: {
         {
             let magicCode mutable type: (UInt8 array: 4).
 
-            (self receiveBytes: 4 into: magicCode[0] address) && (StdNative memcmp(magicCode[0] address, "PHRS", 4) == 0) ifFalse: {
+            (self receiveBytes: 4 into: magicCode[0] address) && (NStd memcmp(magicCode[0] address, "PHRS", 4) == 0) ifFalse: {
                 clientSocket close.
                 return: self.
             }.
         }.
 
-        StdNative stdout << "Accepted Pharo bridge client with endpoint " << clientSocket endpoint << "."; nl.
+        NStd stdout << "Accepted Pharo bridge client with endpoint " << clientSocket endpoint << "."; nl.
         while: clientSocket isValid do: {
             self receiveAndProcessCommand
         }.
@@ -49,8 +49,8 @@ gcclass PharoBridgeServerClientConnection definition: {
     }.
 
     method sendMessageToClient: message := {
-        let outputStream mutable type: StdNative IO MemoryStream.
-        let encoder mutable type: StdNative Serialization MessagePack Encoder.
+        let outputStream mutable type: NStd IO MemoryStream.
+        let encoder mutable type: NStd Serialization MessagePack Encoder.
         encoder
             beginEncodingIntoStream: outputStream address;
             encodeObject: message.
@@ -109,7 +109,7 @@ gcclass PharoBridgeServerClientConnection definition: {
         }.
 
         ## FIXME: use an unique_ptr here.
-        let messageBuffer := StdNative malloc(messageSize) reinterpretCastTo: UInt8 pointer.
+        let messageBuffer := NStd malloc(messageSize) reinterpretCastTo: UInt8 pointer.
         let decodedMessage mutable.
         try: {
             ## Receive the message.
@@ -118,9 +118,9 @@ gcclass PharoBridgeServerClientConnection definition: {
             }.
 
             ## Decode the message.
-            decodedMessage := StdNative Serialization MessagePack GCObjectDecoder decodeFrom: messageBuffer withSize: messageSize.
+            decodedMessage := NStd Serialization MessagePack GCObjectDecoder decodeFrom: messageBuffer withSize: messageSize.
         } finally: {
-            StdNative free(messageBuffer)
+            NStd free(messageBuffer)
         }.
 
         self processClientCommand: decodedMessage.
@@ -166,14 +166,14 @@ gcclass PharoBridgeServerClientConnection definition: {
     }.
 
     method evalMethod: encodedCompiledMethod := {
-        ##StdNative stdout << "Decoding method: " << encodedCompiledMethod; nl.
+        ##NStd stdout << "Decoding method: " << encodedCompiledMethod; nl.
         let interpretedMethod := encodedCompiledMethod decodeFromSysmelBridge.
         interpretedMethod run: #eval with: #() in: nil
     }.
 
     method performClientRequest: request := {
         request == #listSystemDictionary ifTrue: {
-            let symbols := (Smalltalk castTo: ProtoObject) localSymbolTable keys.
+            let symbols := (GCStd castTo: ProtoObject) localSymbolTable keys.
             return: symbols
         }.
 
@@ -191,7 +191,7 @@ gcclass PharoBridgeServerClientConnection definition: {
     method tryToPerformClientRequest: request := {
         try: {
             return: (Array with: #result with: (self performClientRequest: request))
-        } catch: Smalltalk Error doing: { :error :: Void |
+        } catch: GCStd Error doing: { :error :: Void |
             return: (Array with: #error with: error asString)
         }.
         nil
@@ -199,20 +199,20 @@ gcclass PharoBridgeServerClientConnection definition: {
 }.
 
 gcclass PharoBridgeServer definition: {
-    field listenEndpoint type: StdNative IO Endpoint.
-    field listenSocket type: StdNative IO Socket.
+    field listenEndpoint type: NStd IO Endpoint.
+    field listenSocket type: NStd IO Socket.
     field mainLoopCommandQueue.
     field listeningThreadProcess.
 
     method start := {
-        listenEndpoint := StdNative IO Endpoint ipv4SourcePort: 1234.
-        listenSocket := StdNative IO Socket tcpIPv4.
+        listenEndpoint := NStd IO Endpoint ipv4SourcePort: 1234.
+        listenSocket := NStd IO Socket tcpIPv4.
         listenSocket isValid ifFalse: {
             self error: "Failed to create the Pharo bridge server listening socket.".
             return: nil
         }.
 
-        listenSocket setOption: StdNative IO SocketOption ReuseAddress value: 1.
+        listenSocket setOption: NStd IO SocketOption ReuseAddress value: 1.
 
         (listenSocket bind: listenEndpoint) ifFalse: {
             self error: "Failed to bind the listening socket.".

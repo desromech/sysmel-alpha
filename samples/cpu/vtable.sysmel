@@ -1,6 +1,6 @@
 class Expression definition: {
     virtual method evaluate => Int32 := {
-        StdNative fatalError: "Evaluating pure virtual method.".
+        NStd fatalError: "Evaluating pure virtual method.".
         0
     }.
 }.
@@ -62,6 +62,6 @@ Expression pointer extend: {
 function main externC (argc: Int32, argv: Char const pointer pointer) => Int32 := {
     let expression := 5 asExpression * 2 + 4.
 
-    StdNative stdout << "Expression value " << expression _ evaluate; nl.
+    NStd stdout << "Expression value " << expression _ evaluate; nl.
     return: 0.
 }.

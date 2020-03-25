@@ -1,4 +1,4 @@
-namespace Smalltalk definition: {
+namespace GCStd definition: {
 Object extend: {
     method decodeFromSysmelBridge
         := self subclassResponsibility
@@ -26,7 +26,7 @@ Array extend: {
 
 Dictionary extend: {
     method decodeFromSysmelBridge := {
-        ## StdNative stdout << "decodeFromSysmelBridge " << self; nl.
+        ## NStd stdout << "decodeFromSysmelBridge " << self; nl.
         let type := self at: #type.
         type == #Dictionary ifTrue: {
             return: (self at: #value).
@@ -43,19 +43,19 @@ Dictionary extend: {
 
         type == #GlobalVariable ifTrue: {
             let key := self at: #key.
-            let nspace := (Smalltalk castTo: ProtoObject) sharedNamespace.
+            let nspace := (GCStd castTo: ProtoObject) sharedNamespace.
             return: (nspace associationAt: key)
         }.
 
         type == #Class ifTrue: {
             let key := self at: #name.
-            let nspace := (Smalltalk castTo: ProtoObject) sharedNamespace.
+            let nspace := (GCStd castTo: ProtoObject) sharedNamespace.
             return: (nspace associationAt: key)
         }.
 
         type == #Metaclass ifTrue: {
             let key := self at: #name.
-            let nspace := (Smalltalk castTo: ProtoObject) sharedNamespace.
+            let nspace := (GCStd castTo: ProtoObject) sharedNamespace.
             return: (nspace associationAt: key) class
         }.
 
@@ -63,4 +63,4 @@ Dictionary extend: {
     }.
 }.
 
-}. ## End of namespace Smalltalk
+}. ## End of namespace GCStd

@@ -1,4 +1,4 @@
-namespace StdNative definition: {
+namespace NStd definition: {
 namespace IO definition: {
 
 #**
@@ -11,4 +11,4 @@ enum StreamBufferingMode valueType: Int32; values: #{
 }.
 
 }. ## End of namespace IO
-}. ## End of namespace StdNative
+}. ## End of namespace NStd

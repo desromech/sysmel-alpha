@@ -1,4 +1,4 @@
-namespace StdNative definition: {
+namespace NStd definition: {
 if: Compiler useLibC then: {
 	compileTimeConstant memchr := LibC memchr.
 	compileTimeConstant memcmp := LibC memcmp.

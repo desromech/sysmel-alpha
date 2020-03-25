@@ -1,4 +1,4 @@
-namespace StdNative definition: {
+namespace NStd definition: {
 
 #**
  * Unix virtual memory interface.
@@ -108,4 +108,4 @@ namespace NativeVirtualMemoryInterface definition: {
 
 }.
 
-}. ## End of namespace StdNative
+}. ## End of namespace NStd

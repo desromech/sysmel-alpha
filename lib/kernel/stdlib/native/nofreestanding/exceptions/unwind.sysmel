@@ -1,4 +1,4 @@
-namespace StdNative definition: {
+namespace NStd definition: {
 
 namespace IO definition: {
     class FixedMemoryStream.
@@ -70,11 +70,11 @@ enum DW_EH_PE valueType: UInt8; values: #{
     omit:     16rFF.
 }.
 
-function fetchPointerEncoding(reader: StdNative IO BinaryDataStreamReader ref) => DW_EH_PE := {
+function fetchPointerEncoding(reader: NStd IO BinaryDataStreamReader ref) => DW_EH_PE := {
     reader nextUInt8 castTo: DW_EH_PE
 }.
 
-function fetchPointerWithEncoding(in: StdNative IO FixedMemoryStream ref, reader: StdNative IO BinaryDataStreamReader ref, encoding: DW_EH_PE, defaultValue: Void pointer) => Void pointer := {
+function fetchPointerWithEncoding(in: NStd IO FixedMemoryStream ref, reader: NStd IO BinaryDataStreamReader ref, encoding: DW_EH_PE, defaultValue: Void pointer) => Void pointer := {
     encoding == DW_EH_PE omit ifTrue: {
         return: defaultValue
     }.
@@ -117,7 +117,7 @@ function fetchPointerWithEncoding(in: StdNative IO FixedMemoryStream ref, reader
             result := (reader nextInt64 castTo: IntPointer) castTo: UIntPointer
         }.
     let _ : {
-            StdNative stderr << "Unsupport EH DWARF pointer data encoding."; nl.
+            NStd stderr << "Unsupport EH DWARF pointer data encoding."; nl.
             native_abort().
         }.
     }.
@@ -134,7 +134,7 @@ function fetchPointerWithEncoding(in: StdNative IO FixedMemoryStream ref, reader
             }.
         }.
     let _ : {
-            StdNative stderr << "Unsupport EH DWARF pointer relative encoding."; nl.
+            NStd stderr << "Unsupport EH DWARF pointer relative encoding."; nl.
             native_abort().
         }.
     }.
@@ -147,7 +147,7 @@ function fetchPointerWithEncoding(in: StdNative IO FixedMemoryStream ref, reader
     result reinterpretCastTo: Void pointer.
 }.
 
-function fetchTaggedPointer(in: StdNative IO FixedMemoryStream ref, reader: StdNative IO BinaryDataStreamReader ref, defaultValue: Void pointer) => Void pointer := {
+function fetchTaggedPointer(in: NStd IO FixedMemoryStream ref, reader: NStd IO BinaryDataStreamReader ref, defaultValue: Void pointer) => Void pointer := {
     let encoding := fetchPointerEncoding(reader).
     fetchPointerWithEncoding(in, reader, encoding, defaultValue)
 }.
@@ -165,9 +165,9 @@ compileTimeConstant ExceptionClassVendorAndLanguageMask := 16rFFFFFFFFFFFFFF00.
 compileTimeConstant LandingPadStructurePointerRegister := Compiler compilationTarget landingPadStructurePointerRegisterIndex.
 compileTimeConstant LandingPadSelectorRegister := Compiler compilationTarget landingPadSelectorRegisterIndex.
 
-StdNative Reflection TypeInformation extend: {
+NStd Reflection TypeInformation extend: {
     const method canCatchException: (exceptionObjectPointer: Void pointer)
-        withKind: (exceptionKind: SysmelExceptionKind) withTypeInfo: (exceptionTypeInfo: StdNative Reflection TypeInformation const pointer) ::=> Boolean8
+        withKind: (exceptionKind: SysmelExceptionKind) withTypeInfo: (exceptionTypeInfo: NStd Reflection TypeInformation const pointer) ::=> Boolean8
     := (exceptionKind ~~ SysmelExceptionKind NonLocalReturn) &&
         (exceptionTypeInfo _ isPointerReinterpretableTo: self address).
 }.
@@ -188,7 +188,7 @@ struct SysmelUnwindExceptionData definition: {
 
     public field previousCatchedException type: SysmelUnwindExceptionData pointer.
     public field kind type: SysmelExceptionKind.
-	public field exceptionTypeInfo type: StdNative Reflection TypeInformation const pointer.
+	public field exceptionTypeInfo type: NStd Reflection TypeInformation const pointer.
     public field exceptionObjectPointer type: Void pointer.
 	public field scanResultCache type: SysmelUnwindScanCacheableResult.
     public field unwindException type: _Unwind_Exception.
@@ -206,7 +206,7 @@ function getThrownObjectPointer(exceptionObject: _Unwind_Exception pointer) ::=>
 
 function getCatchExceptionInfo(typeInfoTableIndex: UIntPointer, typeInfoTable: UInt8 pointer,
     typeInfoTableEncoding: DW_EH_PE, isOurExceptionClass: Boolean8,
-    unwindException: _Unwind_Exception pointer) => StdNative Reflection TypeInformation const pointer := {
+    unwindException: _Unwind_Exception pointer) => NStd Reflection TypeInformation const pointer := {
 
     typeInfoTable ifNil: {
         ## This should never happen.
@@ -243,10 +243,10 @@ function getCatchExceptionInfo(typeInfoTableIndex: UIntPointer, typeInfoTable: U
     }.
 	}.
 
-	let typeInfoTableStream mutable := StdNative IO FixedMemoryStream for: typeInfoTable[typeInfoOffset negated] address withSize: (-1 castTo: UIntPointer).
-	let typeInfoTableReader mutable := StdNative IO BinaryDataStreamReader for: typeInfoTableStream address.
+	let typeInfoTableStream mutable := NStd IO FixedMemoryStream for: typeInfoTable[typeInfoOffset negated] address withSize: (-1 castTo: UIntPointer).
+	let typeInfoTableReader mutable := NStd IO BinaryDataStreamReader for: typeInfoTableStream address.
 
-    fetchPointerWithEncoding(typeInfoTableStream, typeInfoTableReader, typeInfoTableEncoding, nil) reinterpretCastTo: StdNative Reflection TypeInformation const pointer
+    fetchPointerWithEncoding(typeInfoTableStream, typeInfoTableReader, typeInfoTableEncoding, nil) reinterpretCastTo: NStd Reflection TypeInformation const pointer
 }.
 
 function unwindingFatalError(isOurExceptionClass: Boolean8, unwindException: _Unwind_Exception pointer) ::=> Void := {
@@ -297,8 +297,8 @@ struct SysmelUnwindScanResult definition: {
 		cacheableResult
 			lsda: lsda;
 			lsdaSize: lsdaSize.
-		let lsdaStream mutable := StdNative IO FixedMemoryStream for: lsda withSize: lsdaSize.
-		let lsdaReader mutable := StdNative IO BinaryDataStreamReader for: lsdaStream address.
+		let lsdaStream mutable := NStd IO FixedMemoryStream for: lsda withSize: lsdaSize.
+		let lsdaReader mutable := NStd IO BinaryDataStreamReader for: lsdaStream address.
 
 		## Fetch the IP before the throw continuation.
 		let throwIP := _Unwind_GetIP(context) - 1.
@@ -321,8 +321,8 @@ struct SysmelUnwindScanResult definition: {
         ##stdout << "callSiteTableEncoding " << callSiteTableEncoding;nl.
 
         let callSiteTableStart := lsdaStream currentPointer.
-        let callSiteTableStream mutable := StdNative IO FixedMemoryStream for: callSiteTableStart withSize: callSiteTableLength.
-        let callSiteTableReader mutable := StdNative IO BinaryDataStreamReader for: callSiteTableStream address.
+        let callSiteTableStream mutable := NStd IO FixedMemoryStream for: callSiteTableStart withSize: callSiteTableLength.
+        let callSiteTableReader mutable := NStd IO BinaryDataStreamReader for: callSiteTableStream address.
 
         let actionTableStart := callSiteTableStart[callSiteTableLength] address.
 
@@ -364,8 +364,8 @@ struct SysmelUnwindScanResult definition: {
 
                 let actionRecord mutable := actionTableStart[actionEntry - 1] address.
                 while: true do: {
-                    let actionStream mutable := StdNative IO FixedMemoryStream for: actionRecord withSize: (-1 castTo: UIntPointer).
-                    let actionReader mutable := StdNative IO BinaryDataStreamReader for: actionStream address.
+                    let actionStream mutable := NStd IO FixedMemoryStream for: actionRecord withSize: (-1 castTo: UIntPointer).
+                    let actionReader mutable := NStd IO BinaryDataStreamReader for: actionStream address.
                     let typeInfoTableIndex := actionReader nextSLEB128.
                     ##stdout << "typeInfoTableIndex " << typeInfoTableIndex; nl.
 
@@ -594,7 +594,7 @@ function nativeExceptionCleanUpFunction(reasonCode: _Unwind_Reason_Code, unwindE
 	exceptionData nativeDelete
 }.
 
-function allocateNativeExceptionDataFor(object: Void pointer, typeInfo: StdNative Reflection TypeInformation const pointer) => SysmelUnwindExceptionData pointer := {
+function allocateNativeExceptionDataFor(object: Void pointer, typeInfo: NStd Reflection TypeInformation const pointer) => SysmelUnwindExceptionData pointer := {
     let heapExceptionObject := zmalloc(typeInfo _ instanceSize).
     typeInfo _ basicInitializationFunctionPointer(heapExceptionObject).
     typeInfo _ copyConstructorFunctionPointer ifNil: {

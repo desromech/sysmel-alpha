@@ -1,4 +1,4 @@
-namespace StdNative definition: {
+namespace NStd definition: {
 namespace IO definition: {
 
 #**
@@ -27,4 +27,4 @@ enum FileOpenMode valueType: Int32; bitMask; values: #{
 }.
 
 }. ## End of namespace IO
-}. ## End of namespace StdNative
+}. ## End of namespace NStd

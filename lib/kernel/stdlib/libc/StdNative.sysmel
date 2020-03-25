@@ -1,4 +1,0 @@
-namespace StdNative definition: {
-function native_abort() => Void
-    := LibC abort().
-}.

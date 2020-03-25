@@ -1,4 +1,4 @@
-namespace StdNative definition: {
+namespace NStd definition: {
 
 ## Native exception base class.
 class Exception superclass: Object; definition: {
@@ -77,10 +77,10 @@ function abort noReturn() => Void := {
 }.
 
 macro method error: message
-    :=``(StdNative raiseError(`,message)).
+    :=``(NStd raiseError(`,message)).
 
 macro method fatalError: message
-    :=``(StdNative raiseFatalError(`,message)).
+    :=``(NStd raiseFatalError(`,message)).
 
 #**
  * assert: an assertion that can be disabled in compile time.
@@ -92,7 +92,7 @@ macro method assert: condition := {
     let messageNode := __astBuilder literalString: errorMessage position: condition position.
 
     ``(`,condition ifFalse: {
-        StdNative raiseAssertionFailure(`,messageNode)
+        NStd raiseAssertionFailure(`,messageNode)
     })
 }.
 
@@ -106,7 +106,7 @@ macro method assertAlways: condition := {
     let messageNode := __astBuilder literalString: errorMessage position: condition position.
 
     ``(`,condition ifFalse: {
-        StdNative raiseAssertionFailure(`,messageNode)
+        NStd raiseAssertionFailure(`,messageNode)
     })
 }.
 

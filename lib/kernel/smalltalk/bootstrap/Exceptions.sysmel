@@ -1,4 +1,4 @@
-namespace Smalltalk definition: {
+namespace GCStd definition: {
 
 gcclass Exception definition: {
     protected field messageText.

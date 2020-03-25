@@ -1,4 +1,4 @@
-namespace StdNative definition: {
+namespace NStd definition: {
 
 template Association(KT: Type, VT: Type)
     := class definition: {
@@ -9,4 +9,4 @@ template Association(KT: Type, VT: Type)
     public field value type: ValueType.
 }.
 
-}. ## End of namespace StdNative
+}. ## End of namespace NStd

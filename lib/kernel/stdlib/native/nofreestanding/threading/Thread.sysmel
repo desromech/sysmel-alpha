@@ -1,4 +1,4 @@
-namespace StdNative definition: {
+namespace NStd definition: {
 
 class Thread definition: {
     compileTimeConstant NativeEntryPointFunctionType := (Void pointer) => Void.

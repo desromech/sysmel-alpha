@@ -1,4 +1,4 @@
-namespace StdNative definition: {
+namespace NStd definition: {
 namespace IO definition: {
 
 #**
@@ -7,7 +7,7 @@ namespace IO definition: {
 class MemoryStream superclass: Stream;
 definition: {
     protected field currentPosition type: UIntPointer.
-    public field storage type: StdNative Collections Vector(UInt8).
+    public field storage type: NStd Collections Vector(UInt8).
 
     method buffer => UInt8 pointer
         := storage isEmpty ifTrue: {nil} ifFalse: {storage [0] address}.
@@ -50,4 +50,4 @@ definition: {
 }.
 
 }. ## End of namespace IO
-}. ## End of namespace StdNative
+}. ## End of namespace NStd

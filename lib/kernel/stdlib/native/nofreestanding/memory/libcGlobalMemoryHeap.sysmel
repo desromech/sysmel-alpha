@@ -1,4 +1,4 @@
-namespace StdNative definition: {
+namespace NStd definition: {
 
 compileTimeConstant malloc := LibC malloc.
 compileTimeConstant calloc := LibC calloc.
@@ -13,4 +13,4 @@ function zmalloc(size: UIntPointer) => Void pointer := {
     allocated
 }.
 
-}. ## End of StdNative
+}. ## End of NStd
