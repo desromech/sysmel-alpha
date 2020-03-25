@@ -16,7 +16,7 @@ MbndCollectionWithContext >> asMoebiusBandCollectionWithContext [
 
 { #category : #converting }
 MbndCollectionWithContext >> asPetit2Stream [
-	^ PP2Stream on: self
+	^ (Smalltalk globals at: #PP2Stream) on: self
 ]
 
 { #category : #converting }
