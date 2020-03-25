@@ -72,15 +72,6 @@ TMbndBasicType >> implicitMethodReceiverType [
 ]
 
 { #category : #testing }
-TMbndBasicType >> isPOD [
-	^ self hasTrivialBasicInitialization and: [
-	  self hasTrivialInitialization and: [
-	  self hasTrivialFinalization and: [
-	  self hasTrivialInitializationCopyingFrom and: [
-	  self hasTrivialInitializationMovingFrom ]]]]
-]
-
-{ #category : #testing }
 TMbndBasicType >> isPODInstance [
 	^ self hasTrivialInstanceBasicInitialization and: [
 	  self hasTrivialInstanceInitialization and: [

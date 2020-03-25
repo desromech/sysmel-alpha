@@ -744,6 +744,11 @@ MbndAstNode >> isTemplatedMetaBuilderInstanceNode [
 ]
 
 { #category : #testing }
+MbndAstNode >> isTemporaryReferenceLoadNode [
+	^ false
+]
+
+{ #category : #testing }
 MbndAstNode >> isTemporaryVariableNode [
 	^ false
 ]

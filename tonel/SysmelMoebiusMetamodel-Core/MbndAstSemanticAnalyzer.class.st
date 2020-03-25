@@ -132,12 +132,20 @@ MbndAstSemanticAnalyzer >> analyzeVariableDefinition: definition initialValue: i
 	initialValueNode ifNotNil: [
 		initialValueType := initialValueNode type.
 		(initialValueType isTemporaryReferenceType and: [initialValueType baseType == valueType]) ifTrue: [
+			(valueType isNonMoveable and: [valueType isNonCopyable]) ifTrue: [
+				self error: 'Cannot initialize variable with non-moveable and non-copyable value type "{1}".' format: {valueType asString} at: definition
+			].
+		
 			valueType hasTrivialInitializationMovingFrom ifFalse: [ 
 				definition
 					initialValueKind: #move;
 					initialValue: initialValueNode.
 				^ self
 			].
+		].
+
+		valueType isNonCopyable ifTrue: [
+			self error: 'Cannot initialize variable with non-copyable value type "{1}".' format: {valueType asString} at: definition
 		].
 	
 		valueType hasTrivialInitializationCopyingFrom ifTrue: [ 
@@ -554,7 +562,7 @@ MbndAstSemanticAnalyzer >> visitArrayElementReferenceNode: node [
 
 { #category : #visiting }
 MbndAstSemanticAnalyzer >> visitAssignmentNode: node [
-	| result |
+	| result expectedValueType |
 	result := node copy.
 	result value: (self analyzeNodeIfNeeded: node value);
 		reference: (self analyzeNodeIfNeeded: node reference);
@@ -570,6 +578,16 @@ MbndAstSemanticAnalyzer >> visitAssignmentNode: node [
 
 	"Add an implicit cast to the assigned value."
 	result value: (self addImplicitCastFor: result value to: result reference type baseType withoutTopDecorations).
+
+	result value isTemporaryReferenceLoadNode ifTrue: [ 
+		(result value type isNonMoveable and: [ result value type isNonCopyable ]) ifTrue: [
+			self error: 'Cannot assign into a variable with a non-moveable and non-copyable value type "{1}".' format: { result value type asString } at: node
+		].
+	] ifFalse: [ 
+		result value type isNonCopyable ifTrue: [
+			self error: 'Cannot assign into a variable with a non-copyable value type "{1}".' format: { result value type asString } at: node
+		].
+	].
 	
 	"Return the reference after the assignment."
 	result type: result reference type.	
@@ -2017,6 +2035,19 @@ MbndAstSemanticAnalyzer >> visitReferenceLoadNode: node [
 
 	"Return the reference after the assignment."
 	result type: referenceType baseType withoutTopDecorations.	
+		
+	"We cannot load non-copyable types."
+	referenceType isReferenceType ifTrue: [ 
+		result type isNonCopyable ifTrue: [
+			self error: 'It is not possible to load a reference into non-copyable value of type {1}.' format: { result type asString } at: result
+		]
+	].
+
+	referenceType isTemporaryReferenceType ifFalse: [
+		(result type isNonCopyable and: [ result type isNonMoveable ]) ifTrue: [ 
+			self error: 'It is not possible to move or load a reference into non-moveable and non-copyable value of type {1}.' format: { result type asString } at: result
+		].
+	].
 	
 	"We may need to create a new temporary copy in some cases."
 	result type isTypePassedByReference ifTrue: [

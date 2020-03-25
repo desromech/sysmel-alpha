@@ -243,6 +243,10 @@ MbndAbstractConcreteMethod >> ensureSemanticAnalysis [
 	definitionNode ifNil: [ ^ self ].
 	analyzedBody ifNotNil: [ ^ self ].
 	
+	(self returnType isNotNil and: [ self returnType isNonMoveable ]) ifTrue: [
+		self error: 'Non-moveable type {1} is not allowed as a function return types.' format: {self returnType asString } at: self definitionPosition
+	].
+
 	self defineArguments.
 	self getNonLocalReturnTarget.
 	analysisScope := self createSemanticAnalysisScope.

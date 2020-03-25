@@ -1054,6 +1054,16 @@ TMbndAbstractType >> isNonConcreteType [
 	^ false
 ]
 
+{ #category : #testing }
+TMbndAbstractType >> isNonCopyable [
+	^ false
+]
+
+{ #category : #testing }
+TMbndAbstractType >> isNonMoveable [
+	^ false
+]
+
 { #category : #'testing methods' }
 TMbndAbstractType >> isOpaqueHandleType [
 	^ false
@@ -1071,11 +1081,13 @@ TMbndAbstractType >> isOutputChannelType [
 
 { #category : #testing }
 TMbndAbstractType >> isPOD [
-	^ self hasTrivialBasicInitialization and: [
-	  self hasTrivialInitialization and: [
-	  self hasTrivialFinalization and: [
-	  self hasTrivialInitializationCopyingFrom and: [
-	  self hasTrivialInitializationMovingFrom ]]]]
+	^ self isNonCopyable not and: [
+		self isNonMoveable not and: [
+		self hasTrivialBasicInitialization and: [
+		self hasTrivialInitialization and: [
+		self hasTrivialFinalization and: [
+		self hasTrivialInitializationCopyingFrom and: [
+		self hasTrivialInitializationMovingFrom ]]]]]]
 ]
 
 { #category : #testing }

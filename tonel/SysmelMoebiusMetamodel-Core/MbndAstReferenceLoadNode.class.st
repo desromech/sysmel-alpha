@@ -44,6 +44,11 @@ MbndAstReferenceLoadNode >> isReferenceLoadNode [
 	^ true
 ]
 
+{ #category : #testing }
+MbndAstReferenceLoadNode >> isTemporaryReferenceLoadNode [
+	^ reference type isNotNil and: [ reference type isTemporaryReferenceType ]
+]
+
 { #category : #'as yet unclassified' }
 MbndAstReferenceLoadNode >> markStorageCreationNodeForCopyEllision: aStorageCreationNode [
 	self type isTypePassedByReference ifFalse: [

@@ -116,3 +116,75 @@ MbndSysmelLanguageSemanticEvaluationTest >> testGCClassVTable [
 	self assert: sampleClass supertype name equals: #Object.
 	self assert: sampleClass slotLayout virtualTables size equals: 1.
 ]
+
+{ #category : #tests }
+MbndSysmelLanguageSemanticEvaluationTest >> testNonCopyable [
+	self evaluateSource: '
+		struct NonCopyableStruct definition: {
+			SelfType makeNonCopyable.
+		
+			public field someField type: Int32.
+		}.
+		
+		function makeNonCopyable(v: Int32) => NonCopyableStruct
+			:= NonCopyableStruct basicNewValue someField: v; yourself.
+		function makeNonCopyable() => NonCopyableStruct
+			:= NonCopyableStruct basicNewValue.
+	'.
+	semanticModule finishSemanticAnalysis
+]
+
+{ #category : #tests }
+MbndSysmelLanguageSemanticEvaluationTest >> testNonCopyableError [
+	self should: [self evaluateSource: '
+		struct NonCopyableStruct definition: {
+			SelfType makeNonCopyable.
+		
+			public field someField type: Int32.
+		}.
+		
+		function withError(r: NonCopyableStruct ref) => NonCopyableStruct
+			:= r
+	'.
+	semanticModule finishSemanticAnalysis
+	] raise: MbndSemanticError
+]
+
+{ #category : #tests }
+MbndSysmelLanguageSemanticEvaluationTest >> testNonCopyableError2 [
+	self should: [self evaluateSource: '
+		struct NonCopyableStruct definition: {
+			SelfType makeNonCopyable.
+		
+			public field someField type: Int32.
+		}.
+		
+		function withError(r: NonCopyableStruct ref) => Int32 :=
+		{
+			let x mutable := r.
+			x someField
+		}
+	'.
+	semanticModule finishSemanticAnalysis
+	] raise: MbndSemanticError
+]
+
+{ #category : #tests }
+MbndSysmelLanguageSemanticEvaluationTest >> testNonCopyableError3 [
+	self should: [self evaluateSource: '
+		struct NonCopyableStruct definition: {
+			SelfType makeNonCopyable.
+		
+			public field someField type: Int32.
+		}.
+		
+		function withError(r: NonCopyableStruct ref) => Int32 :=
+		{
+			let x mutable type: NonCopyableStruct.
+			x := r.
+			x someField
+		}
+	'.
+	semanticModule finishSemanticAnalysis
+	] raise: MbndSemanticError
+]

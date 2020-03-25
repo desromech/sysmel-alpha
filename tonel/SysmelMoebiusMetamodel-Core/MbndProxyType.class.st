@@ -38,15 +38,6 @@ MbndProxyType >> hasTrivialInitializationCopyingFrom [
 ]
 
 { #category : #testing }
-MbndProxyType >> isPOD [
-	^ self hasTrivialBasicInitialization and: [
-	  self hasTrivialInitialization and: [
-	  self hasTrivialFinalization and: [
-	  self hasTrivialInitializationCopyingFrom and: [
-	  self hasTrivialInitializationMovingFrom ]]]]
-]
-
-{ #category : #testing }
 MbndProxyType >> isPODInstance [
 	^ self hasTrivialInstanceBasicInitialization and: [
 	  self hasTrivialInstanceInitialization and: [

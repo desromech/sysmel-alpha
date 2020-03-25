@@ -48,15 +48,6 @@ MbndImageBehaviorType >> hasTrivialInitializationCopyingFrom [
 ]
 
 { #category : #testing }
-MbndImageBehaviorType >> isPOD [
-	^ self hasTrivialBasicInitialization and: [
-	  self hasTrivialInitialization and: [
-	  self hasTrivialFinalization and: [
-	  self hasTrivialInitializationCopyingFrom and: [
-	  self hasTrivialInitializationMovingFrom ]]]]
-]
-
-{ #category : #testing }
 MbndImageBehaviorType >> isPODInstance [
 	^ self hasTrivialInstanceBasicInitialization and: [
 	  self hasTrivialInstanceInitialization and: [

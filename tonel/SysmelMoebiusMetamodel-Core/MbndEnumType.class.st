@@ -116,6 +116,16 @@ MbndEnumType >> isEnumType [
 	^ true
 ]
 
+{ #category : #testing }
+MbndEnumType >> isNonCopyable [
+	^ baseType isNonCopyable
+]
+
+{ #category : #testing }
+MbndEnumType >> isNonMoveable [
+	^ baseType isNonMoveable
+]
+
 { #category : #'as yet unclassified' }
 MbndEnumType >> lookupStaticMacroSelector: selector [
 	values at: selector ifPresent: [ :enumValue |

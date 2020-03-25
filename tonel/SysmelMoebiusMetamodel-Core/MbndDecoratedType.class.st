@@ -116,6 +116,16 @@ MbndDecoratedType >> isDecorationType [
 	^ true
 ]
 
+{ #category : #testing }
+MbndDecoratedType >> isNonCopyable [
+	^ baseType isNonCopyable
+]
+
+{ #category : #testing }
+MbndDecoratedType >> isNonMoveable [
+	^ baseType isNonMoveable
+]
+
 { #category : #'testing methods' }
 MbndDecoratedType >> isPossibleToLoadReferences [
 	^ baseType isPossibleToLoadReferences

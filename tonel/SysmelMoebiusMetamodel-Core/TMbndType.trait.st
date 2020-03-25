@@ -79,15 +79,6 @@ TMbndType >> implicitConversionRules [
 ]
 
 { #category : #testing }
-TMbndType >> isPOD [
-	^ self hasTrivialBasicInitialization and: [
-	  self hasTrivialInitialization and: [
-	  self hasTrivialFinalization and: [
-	  self hasTrivialInitializationCopyingFrom and: [
-	  self hasTrivialInitializationMovingFrom ]]]]
-]
-
-{ #category : #testing }
 TMbndType >> isPODInstance [
 	^ self hasTrivialInstanceBasicInitialization and: [
 	  self hasTrivialInstanceInitialization and: [

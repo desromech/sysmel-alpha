@@ -244,7 +244,7 @@ SysmelMoebiusASTBuilder >> visitCommaExpression: commaExpression [
 
 { #category : #visitor }
 SysmelMoebiusASTBuilder >> visitDictionaryElement: dictionaryElement [
-	^ (builder associationKey: (self convertNode: dictionaryElement key) value: (self convertNode: dictionaryElement value))
+	^ (builder associationKey: (self convertNode: dictionaryElement key) value: (dictionaryElement value ifNotNil: [:vn | self convertNode: vn]))
 		position: (self convertNodePosition: dictionaryElement);
 		yourself
 ]

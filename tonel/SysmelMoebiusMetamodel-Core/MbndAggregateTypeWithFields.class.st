@@ -330,9 +330,33 @@ MbndAggregateTypeWithFields >> isModuleSpecificType [
 	^ true
 ]
 
+{ #category : #testing }
+MbndAggregateTypeWithFields >> isNonCopyable [
+	<compileTime>
+	^ self hasFlag: #nonCopyable
+]
+
+{ #category : #testing }
+MbndAggregateTypeWithFields >> isNonMoveable [
+	<compileTime>
+	^ self hasFlag: #nonMoveable
+]
+
 { #category : #'default values' }
 MbndAggregateTypeWithFields >> makeInstance [
 	^ self defaultValueAt: nil
+]
+
+{ #category : #'as yet unclassified' }
+MbndAggregateTypeWithFields >> makeNonCopyable [
+	<compileTime>
+	^ self addFlag: #nonCopyable
+]
+
+{ #category : #'as yet unclassified' }
+MbndAggregateTypeWithFields >> makeNonMoveable [
+	<compileTime>
+	^ self addFlag: #nonMoveable
 ]
 
 { #category : #serialization }
