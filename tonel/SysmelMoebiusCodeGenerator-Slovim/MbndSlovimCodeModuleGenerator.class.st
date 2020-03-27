@@ -1461,6 +1461,11 @@ MbndSlovimCodeModuleGenerator >> unmangledNameForProgramEntity: programEntity in
 	].
 
 	programEntity isTemplateInstance ifTrue: [ 
+		programEntity module == programEntity parent module ifFalse: [ 
+			out nextPut: $[.
+			out nextPutAll: programEntity module name.
+			out nextPut: $].
+		].
 		out nextPut: $(.
 		programEntity instanceArguments doWithIndex: [ :arg :index |
 			index > 1 ifTrue: [ out nextPut: $, ].

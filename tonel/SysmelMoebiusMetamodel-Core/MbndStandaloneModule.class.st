@@ -318,6 +318,11 @@ MbndStandaloneModule >> initializeWithCompilationEnvironment: aCompilationEnviro
 	self initialize
 ]
 
+{ #category : #testing }
+MbndStandaloneModule >> isStandaloneModule [
+	^ true
+]
+
 { #category : #'as yet unclassified' }
 MbndStandaloneModule >> loadRuntimeCoreLibrary [
 	^ self evaluateFileNamedOnce: MbndCoreAssets location  / 'lib' / 'kernel' / 'kernel.sysmel'. 

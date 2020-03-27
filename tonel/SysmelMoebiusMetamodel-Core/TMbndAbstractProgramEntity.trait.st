@@ -194,6 +194,11 @@ TMbndAbstractProgramEntity >> isNonLocalReturnTargetEntity [
 ]
 
 { #category : #testing }
+TMbndAbstractProgramEntity >> isStandaloneModule [
+	^ false
+]
+
+{ #category : #testing }
 TMbndAbstractProgramEntity >> isSystemProvidedTypeTemplate [
 	^ false
 ]

@@ -396,9 +396,11 @@ MbndBasicType >> postMaterializeSetupParent: newParent withModule: newModule [
 	self parent: newParent.
 	self addDefaultConversionRules.
 	self isMetaType ifFalse: [ 
-		self type postMaterializeSetupParent: nil withModule: newModule
+		self type postMaterializeSetupParent: nil withModule: newModule.
+		self assert: self type module == newModule.
+	] ifTrue: [
+		self assert: self instanceType module == newModule.
 	].
-	self assert: self type module == newModule.
 	
 	self childrenDo: [ :child |
 		child postMaterializeSetupParent: self withModule: newModule

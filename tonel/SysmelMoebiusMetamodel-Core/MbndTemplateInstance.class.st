@@ -67,6 +67,11 @@ MbndTemplateInstance >> module: anObject [
 	module := anObject
 ]
 
+{ #category : #printing }
+MbndTemplateInstance >> printOn: aStream [
+	aStream nextPutAll: 'templateInstance '; nextPutAll: self qualifiedName
+]
+
 { #category : #'member symbols' }
 MbndTemplateInstance >> setLocalSymbol: aSymbol value: aValue [
 	^ self localSymbolTable at: aSymbol put: aValue
@@ -75,6 +80,13 @@ MbndTemplateInstance >> setLocalSymbol: aSymbol value: aValue [
 { #category : #accessing }
 MbndTemplateInstance >> validName [
 	^ ByteString streamContents: [:out |
+		self assert: module isNotNil.
+		module == parent module ifFalse: [ 
+			out nextPut: $[.
+			out nextPutAll: module name.
+			out nextPut: $].
+		].
+
 		out nextPut: $(.
 		instanceArguments doWithIndex: [ :each :index |
 			index > 1 ifTrue: [ out nextPutAll: ', ' ].

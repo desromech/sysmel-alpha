@@ -132,8 +132,7 @@ MbndSlovimSymbolNameMangler >> emitTemplateInstanceArgument: argument [
 
 	argumentValue isMbndProgramEntity	ifTrue: [
 		argumentType isMetaType ifFalse: [ 
-			output nextPutAll: 'L_Z'.
-			self mangleProgramEntityContentName: argumentValue.
+			output nextPutAll: 'L'; nextPutAll: (codeModuleGenerator newSymbolNameMangler mangleProgramEntityName: argumentValue).
 			output nextPut: $E.
 			^ self
 		].
@@ -164,8 +163,18 @@ MbndSlovimSymbolNameMangler >> emitTemplateInstanceArgument: argument [
 
 { #category : #visiting }
 MbndSlovimSymbolNameMangler >> emitTemplateInstanceArguments: instanceArguments [
+	| actualInstanceArguments moduleName |
 	output nextPut: $I.
-	instanceArguments do: [ :arg |
+	actualInstanceArguments := instanceArguments.
+	(instanceArguments size = 2 and: [ instanceArguments first isMbndProgramEntity and: [ instanceArguments first isStandaloneModule ] ]) ifTrue: [
+		moduleName := self escapeNameForMangling: instanceArguments first name.
+		output nextPutAll: 'L_Z';
+			nextPutAll: moduleName size asString; nextPutAll: moduleName;
+			nextPut: $E.
+		actualInstanceArguments := instanceArguments second.
+	].
+
+	actualInstanceArguments do: [ :arg |
 		self emitTemplateInstanceArgument: arg
 	].
 	output nextPut: $E.
@@ -221,7 +230,7 @@ MbndSlovimSymbolNameMangler >> extractProgramEntityNestedNameComponents: program
 	(programEntity isMbndType and: [programEntity isMetaType]) ifTrue: [ 
 		programEntity name isMbndAnonymousSymbol ifTrue: [
 			self extractProgramEntityNestedNameComponents: programEntity instanceType into: out.
-			out nextPut: #__Meta__.
+			out nextPut: #'..meta..'.
 			^ self
 		].
 	].
@@ -231,7 +240,13 @@ MbndSlovimSymbolNameMangler >> extractProgramEntityNestedNameComponents: program
 	].
 
 	programEntity isTemplateInstance ifTrue: [
-		out nextPut: (programEntity instanceArguments collect: [ :arg | arg evaluatedValue ]).
+		| instanceArguments |
+		instanceArguments := programEntity instanceArguments collect: [ :arg | arg evaluatedValue ].
+		programEntity parent module == programEntity module ifTrue: [ 
+			out nextPut: instanceArguments.
+		] ifFalse: [ 
+			out nextPut: {programEntity module . instanceArguments}.
+		].
 		^ self
 	].
 
