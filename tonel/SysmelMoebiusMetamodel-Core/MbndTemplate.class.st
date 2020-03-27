@@ -122,6 +122,11 @@ MbndTemplate >> materializeWithGraphDecoder: graphDecoder withFields: encodedFie
 	definitionFragments := (encodedFields at: #definitionFragments ifAbsent: [ #() ]) asOrderedCollection.
 ]
 
+{ #category : #printing }
+MbndTemplate >> printOn: aStream [
+	aStream nextPutAll: 'template '; nextPutAll: self qualifiedName
+]
+
 { #category : #accessing }
 MbndTemplate >> type [
 	^ type ifNil: [ type := self inferTemplateKind ]

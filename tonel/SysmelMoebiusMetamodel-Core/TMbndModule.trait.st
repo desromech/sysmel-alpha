@@ -217,6 +217,16 @@ TMbndModule >> globalNamespace [
 	]
 ]
 
+{ #category : #'gt inspector extensions' }
+TMbndModule >> gtTreeViewIn: composite [
+	<gtInspectorPresentationOrder: 0>
+	composite tree 
+		title: 'Program Entities';
+		display: [ :node | self ];
+		children: [ :each | each children];
+		format: [ :node | node asString ]
+]
+
 { #category : #parameters }
 TMbndModule >> hasConservativeGarbageCollector [
 	^ self hasGarbageCollectionSupport and: [ self hasPreciseGarbageCollector not or: [ self hasGarbageCollectionStackMap not ] ]

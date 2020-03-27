@@ -1,6 +1,6 @@
 Class {
 	#name : #MbndSourcePosition,
-	#superclass : #Object,
+	#superclass : #MbndAbstractSourcePosition,
 	#instVars : [
 		'collection',
 		'start',
@@ -30,26 +30,6 @@ MbndSourcePosition >> = other [
 		[ collection  == other collection and:
 		[ start = other start and:
 		[ stop = other stop ] ] ]
-]
-
-{ #category : #converting }
-MbndSourcePosition >> asActualSourcePosition [
-	^ self
-]
-
-{ #category : #converting }
-MbndSourcePosition >> asMoebiusBandSourcePosition [
-	^ self
-]
-
-{ #category : #converting }
-MbndSourcePosition >> asSourcePositionString [
-	^ self asString
-]
-
-{ #category : #converting }
-MbndSourcePosition >> asSysmelSourcePosition [
-	^ self
 ]
 
 { #category : #accessing }

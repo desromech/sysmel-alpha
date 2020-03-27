@@ -87,3 +87,8 @@ MbndFieldVariable >> materializeWithGraphDecoder: graphDecoder withFields: encod
 	bitOffset := encodedFields at: #bitOffset ifAbsent: [ nil ].
 	bitMask := encodedFields at: #bitMask ifAbsent: [ nil ].
 ]
+
+{ #category : #printing }
+MbndFieldVariable >> printOn: aStream [
+	aStream nextPutAll: 'field '; nextPutAll: self qualifiedName
+]

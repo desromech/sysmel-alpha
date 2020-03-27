@@ -92,6 +92,11 @@ MbndMacroMessageMethod >> module [
 ]
 
 { #category : #accessing }
+MbndMacroMessageMethod >> name [
+	^ self selector
+]
+
+{ #category : #accessing }
 MbndMacroMessageMethod >> parent [
 	^ parent
 ]
@@ -107,6 +112,11 @@ MbndMacroMessageMethod >> postMaterializeSetupParent: newParent withModule: newM
 	self childrenDo: [ :child |
 		child postMaterializeSetupParent: self withModule: newModule
 	].
+]
+
+{ #category : #printing }
+MbndMacroMessageMethod >> printOn: aStream [
+	aStream nextPutAll: 'macroMessageMethod '; nextPutAll: self selector asString
 ]
 
 { #category : #accessing }

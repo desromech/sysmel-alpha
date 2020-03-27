@@ -32,3 +32,9 @@ MbndConcreteMacroMessageMethod >> hasAnonymousName [
 MbndConcreteMacroMessageMethod >> isConcreteMacroMessage [
 	^ true
 ]
+
+{ #category : #printing }
+MbndConcreteMacroMessageMethod >> qualifiedName [
+	parent isMacroMessageMethod ifTrue: [ ^ parent qualifiedName ].
+	^ super qualifiedName
+]

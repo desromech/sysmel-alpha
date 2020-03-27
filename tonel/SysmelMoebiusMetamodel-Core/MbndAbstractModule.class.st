@@ -72,3 +72,8 @@ MbndAbstractModule >> name: anObject [
 MbndAbstractModule >> namedTargetCodeModules [
 	^ namedTargetCodeModules ifNil: [ namedTargetCodeModules := Dictionary new ]
 ]
+
+{ #category : #printing }
+MbndAbstractModule >> printOn: aStream [
+	aStream nextPutAll: 'module '; nextPutAll: name asString
+]

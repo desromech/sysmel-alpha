@@ -81,6 +81,11 @@ MbndAbstractClassType >> isMetaTypeType [
 	^ self hasFlag: #metaTypeType
 ]
 
+{ #category : #testing }
+MbndAbstractClassType >> isThrowable [
+	^ (self hasFlag: #throwable) or: [ supertype isThrowable ]
+]
+
 { #category : #'as yet unclassified' }
 MbndAbstractClassType >> markAsMetaTypeType [
 	^ self addFlag: #metaTypeType

@@ -8,6 +8,7 @@ Trait {
 
 { #category : #flags }
 TMbndFlagContainer >> addFlag: aFlag [
+	<compileTime>
 	flags := (self flags copyWithout: aFlag) copyWith: aFlag
 ]
 

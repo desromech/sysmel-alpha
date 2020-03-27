@@ -376,6 +376,9 @@ TMbndCoreCompilationTarget >> encodeBootstrapDefinedObjectsForMessagePackWith: g
 			"Strings"
 			nativePrefixedStringLiteralType
 			
+			"Embedded shaders"
+			shaderEntryPointInfo shaderModuleInfo
+			
 			"RTTI"
 			typeInformationNativeClass typeInformationGCClass 
 			moduleNamespaceInformationNativeClass moduleNamespaceInformationGCClass 

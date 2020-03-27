@@ -1227,6 +1227,11 @@ TMbndAbstractType >> isTextureType [
 	^ false
 ]
 
+{ #category : #testing }
+TMbndAbstractType >> isThrowable [
+	^ false
+]
+
 { #category : #'testing methods' }
 TMbndAbstractType >> isTrait [
 	^ false

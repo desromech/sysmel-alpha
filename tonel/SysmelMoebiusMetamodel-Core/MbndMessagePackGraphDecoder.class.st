@@ -4,7 +4,8 @@ Class {
 	#instVars : [
 		'compilationTarget',
 		'compilationEnvironment',
-		'targetModule'
+		'targetModule',
+		'moduleLocation'
 	],
 	#category : #'SysmelMoebiusMetamodel-Core-Serialization'
 }
@@ -27,6 +28,11 @@ MbndMessagePackGraphDecoder >> compilationTarget [
 { #category : #accessing }
 MbndMessagePackGraphDecoder >> compilationTarget: anObject [
 	compilationTarget := anObject
+]
+
+{ #category : #accessing }
+MbndMessagePackGraphDecoder >> moduleLocation [
+	^ moduleLocation ifNil: [moduleLocation := MbndImportedModulePosition new module: targetModule]
 ]
 
 { #category : #accessing }

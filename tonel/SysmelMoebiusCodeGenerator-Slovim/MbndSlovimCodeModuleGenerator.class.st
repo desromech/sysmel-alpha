@@ -1208,6 +1208,19 @@ MbndSlovimCodeModuleGenerator >> setupGCStrategyFor: ssaFunction generatedFrom: 
 	ssaFunction gcStrategy: #sysmel
 ]
 
+{ #category : #visiting }
+MbndSlovimCodeModuleGenerator >> shouldGenerateRTTIForProgramEntity: programEntity withSSAType: ssaProgramEntityInfoType [
+	ssaProgramEntityInfoType baseType isVoidType ifTrue: [ ^ false ].
+	self slvmCompilationTarget isGPU ifTrue: [ ^ false ].
+	sourceModule hasRuntimeTypeInformation ifTrue: [ ^ true ].
+	
+	(programEntity isMbndType and: [programEntity isAbstractClassType]) ifTrue: [
+		(sourceModule hasExceptions and: [programEntity isThrowable]) ifTrue: [ ^ true ].
+	].
+
+	^ false
+]
+
 { #category : #accessing }
 MbndSlovimCodeModuleGenerator >> slvmCompilationTarget [
 	^ sourceModule compilationTarget slvmCompilationTarget
@@ -1366,8 +1379,7 @@ MbndSlovimCodeModuleGenerator >> translateProgramEntityInformationData: programE
 	ssaProgramEntityInfoType := self translateType: programEntityType.
 	self assert: ssaProgramEntityInfoType isPointerType.
 	
-	(ssaProgramEntityInfoType baseType isVoidType or: [
-	((sourceModule hasRuntimeTypeInformation or: [ programEntity isMbndType and: [programEntity isAbstractClassType and: [sourceModule hasExceptions]] ]) not or: [self slvmCompilationTarget isGPU])]) ifTrue: [
+	(self shouldGenerateRTTIForProgramEntity: programEntity withSSAType: ssaProgramEntityInfoType) ifFalse: [
 		self assert: (programEntity isMbndType not or: [programEntity isGarbageCollectedType not]).
 		ssaProgramEntityInfo := SLVMConstant nullPointer: ssaProgramEntityInfoType.
 		self setProgramEntity: programEntity ssaValue: ssaProgramEntityInfo.

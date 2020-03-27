@@ -60,8 +60,12 @@ MbndStandaloneModule class >> materializeObjectWithType: objectType earlyFields:
 		^ objectInstance
 	].
 
-	(objectType == #ReferenceModule) ifTrue: [	
-		self halt
+	(objectType == #ReferenceModule) ifTrue: [
+		| referencedModuleName referencedModule|
+		referencedModuleName := graphDecoder decodeNext.
+		referencedModule := graphDecoder compilationEnvironment importModuleNamed: referencedModuleName.
+		graphDecoder registerObjectInstance: referencedModule.
+		^ referencedModule
 	].
 
 	^ super materializeObjectWithType: objectType earlyFields: earlyFields withMessagePackGraphDecoder: graphDecoder
@@ -168,7 +172,8 @@ MbndStandaloneModule >> encodeGraphForMessagePackWith: graphEncoder [
 		^ graphEncoder encodeObject: self type: #TargetModule fields: [self encodeFieldsForMessagePackWith: graphEncoder]
 	].
 
-	^ super encodeGraphForMessagePackWith: graphEncoder
+	self assert: name isNotNil.
+	^ graphEncoder encodeObject: self type: #ReferenceModule fields: [ self name ]
 ]
 
 { #category : #'as yet unclassified' }
@@ -355,7 +360,7 @@ MbndStandaloneModule >> writeLLVMAssemblyToFileNamed: outputFileName [
 
 { #category : #writing }
 MbndStandaloneModule >> writeMode: writeMode toFileNamed: outputFileName [
-	| lowLevelModule ssaModule outputFileReference outputExportModuleFileReference |
+	| lowLevelModule ssaModule outputFileReference |
 	self finishSemanticAnalysis.
 	ssaModule := self generateTargetCodeModule.
 	outputFileReference := outputFileName asFileReference.
@@ -377,7 +382,9 @@ MbndStandaloneModule >> writeMode: writeMode toFileNamed: outputFileName [
 	].
 
 	writeMode == #llvm_assembly ifTrue: [
-		^ lowLevelModule writeIRAssemblyToFileNamed: outputFileName
+		^ MbndProfiler component: #llvmAssemblyToFile with: [
+			lowLevelModule writeIRAssemblyToFileNamed: outputFileName
+		]
 	].
 
 	writeMode == #object ifTrue: [

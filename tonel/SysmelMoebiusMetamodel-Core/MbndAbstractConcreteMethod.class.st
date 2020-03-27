@@ -39,7 +39,7 @@ MbndAbstractConcreteMethod >> arguments [
 
 { #category : #evaluation }
 MbndAbstractConcreteMethod >> canBeEvaluatedInCompileTime [
-	definitionNode ifNil: [ ^ false ].
+	(definitionNode isNil and: [analyzedBody isNil]) ifTrue: [ ^ false ].
 	self hasExternalVisibility ifTrue: [ ^ false ].
 	(self hasPragmaNamed: #notInCompileTime) ifTrue: [ ^ false ].
 	self ensureSemanticAnalysis.
@@ -225,12 +225,11 @@ MbndAbstractConcreteMethod >> definitionScope: anObject [
 MbndAbstractConcreteMethod >> encodeFieldsForMessagePackWith: graphEncoder [
 	^ (super encodeFieldsForMessagePackWith: graphEncoder) , {
 		#module . module encodeGraphForMessagePackWith: graphEncoder.
-		#arguments . arguments encodeGraphForMessagePackWith: graphEncoder.
-		#argumentsWithoutReceiver . argumentsWithoutReceiver encodeGraphForMessagePackWith: graphEncoder.
 		#specialSemantics . specialSemantics.
 		#computeShaderLocalSize . computeShaderLocalSize encodeGraphForMessagePackWith: graphEncoder.
-	},  ((self needsDefinitionSerializedWith: graphEncoder) ifTrue: [ { 
-		#definitionNode . definitionNode encodeGraphForMessagePackWith: graphEncoder.
+	},  ((self needsDefinitionSerializedWith: graphEncoder) ifTrue: [ {
+		#arguments . arguments encodeGraphForMessagePackWith: graphEncoder.
+		#argumentsWithoutReceiver . argumentsWithoutReceiver encodeGraphForMessagePackWith: graphEncoder.
 		#definitionScope . definitionScope encodeGraphForMessagePackWith: graphEncoder.
 		#analyzedBody . analyzedBody encodeGraphForMessagePackWith: graphEncoder.
 		#children . children encodeGraphForMessagePackWith: graphEncoder.
@@ -289,7 +288,7 @@ MbndAbstractConcreteMethod >> evaluateWithReceiver: receiverValue arguments: arg
 { #category : #evaluation }
 MbndAbstractConcreteMethod >> evaluateWithReceiver: receiverValue arguments: argumentValues withEvaluator: evaluator at: position [
 	| evaluationScope callEvaluator |
-	definitionNode ifNil: [
+	(definitionNode isNil and: [ analyzedBody isNil]) ifTrue: [
 		self error: 'Cannot evaluate in compile time external function/method {1}.'
 			format: {name asPrettySymbolName} at: position
 	].
@@ -384,14 +383,15 @@ MbndAbstractConcreteMethod >> lookupBoundReceiverSymbol: aSymbol [
 MbndAbstractConcreteMethod >> materializeWithGraphDecoder: graphDecoder withFields: encodedFields [
 	super materializeWithGraphDecoder: graphDecoder withFields: encodedFields.
 	module := encodedFields at: #module.
-	arguments := encodedFields at: #arguments.
-	argumentsWithoutReceiver := encodedFields at: #argumentsWithoutReceiver.
+	arguments := encodedFields at: #arguments ifAbsent: [nil].
+	argumentsWithoutReceiver := encodedFields at: #argumentsWithoutReceiver ifAbsent: [nil].
 	specialSemantics := encodedFields at: #specialSemantics ifAbsent: [nil].
 	computeShaderLocalSize := encodedFields at: #computeShaderLocalSize ifAbsent: [nil].
 
-	definitionNode := encodedFields at: #definitionNode ifAbsent: [nil].
 	definitionScope := encodedFields at: #definitionScope ifAbsent: [nil].
 	analyzedBody := encodedFields at: #analyzedBody ifAbsent: [nil].
+
+	declarationPosition := graphDecoder moduleLocation.
 	children := encodedFields at: #children ifAbsent: [nil].
 ]
 

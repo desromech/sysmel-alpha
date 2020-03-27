@@ -15,7 +15,8 @@ Class {
 		'hasExceptions',
 		'linkerArguments',
 		'currentModule',
-		'importedModules'
+		'loadedModuleDictionary',
+		'loadedModules'
 	],
 	#category : #'SysmelMoebiusMetamodel-Core-Module'
 }
@@ -49,10 +50,17 @@ MbndCompilationEnvironment >> addLinkerArguments: arguments [
 	self linkerArguments addAll: arguments
 ]
 
+{ #category : #adding }
+MbndCompilationEnvironment >> addLoadedModule: module [
+	self loadedModules add: module.
+	module name ifNotNil: [ :name | self loadedModuleDictionary at: name put: module ].
+]
+
 { #category : #'as yet unclassified' }
 MbndCompilationEnvironment >> beginModule: moduleName [
 	currentModule := nil.
-	self validCurrentModule name: moduleName
+	self validCurrentModule name: moduleName.
+	self addLoadedModule: currentModule.
 ]
 
 { #category : #accessing }
@@ -194,13 +202,15 @@ MbndCompilationEnvironment >> hasStandardLibrary: aBoolean [
 MbndCompilationEnvironment >> importModuleFrom: moduleExportFileName [
 	currentModule == coreModule ifFalse: [ currentModule := nil ].
 	self validCurrentModule importModuleFrom: moduleExportFileName.
-	self importedModules add: currentModule.
+	self addLoadedModule: currentModule.
 	currentModule := nil
 ]
 
-{ #category : #accessing }
-MbndCompilationEnvironment >> importedModules [
-	^ importedModules ifNil: [ importedModules := OrderedCollection new ]
+{ #category : #adding }
+MbndCompilationEnvironment >> importModuleNamed: moduleName [
+	^ self importedModuleDictionary at: moduleName ifAbsent: [
+		self error: 'Automatic module importation mechanism is not yet implemented.'
+	]
 ]
 
 { #category : #initialization }
@@ -221,6 +231,16 @@ MbndCompilationEnvironment >> loadRuntimeCoreLibrary [
 	coreModule
 		name: #SysmelCore;
 		loadRuntimeCoreLibrary
+]
+
+{ #category : #accessing }
+MbndCompilationEnvironment >> loadedModuleDictionary [
+	^ loadedModuleDictionary ifNil: [ loadedModuleDictionary := Dictionary new ]
+]
+
+{ #category : #accessing }
+MbndCompilationEnvironment >> loadedModules [
+	^ loadedModules ifNil: [ loadedModules := OrderedCollection new ]
 ]
 
 { #category : #parameters }
@@ -281,9 +301,8 @@ MbndCompilationEnvironment >> useLibC: aBoolean [
 MbndCompilationEnvironment >> validCurrentModule [
 	currentModule ifNil: [
 		currentModule := (MbndStandaloneModule for: self)
-			importedModules: importedModules asArray copy;
-			yourself.
-		importedModules add: currentModule.
+			importedModules: loadedModules asArray copy;
+			yourself
 	].
 
 	^ currentModule
