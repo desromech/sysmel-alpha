@@ -2,6 +2,8 @@ namespace NStd definition: {
 
 ## Native exception base class.
 class Exception superclass: Object; definition: {
+    SelfType addFlag: #throwable.
+
     public field messageText type: String const pointer.
 
     compileTimeIf: Compiler compilationTarget hasNoOperatingSystem then: {
