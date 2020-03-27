@@ -54,17 +54,17 @@ struct SDL_AudioSpec definition: {
 
 compileTimeConstant SDL_AudioDeviceID := UInt32.
 
-function SDL_OpenAudioDevice externC(device: CTypes ConstString,
+function SDL_OpenAudioDevice externC dllimport (device: CTypes ConstString,
     iscapture: Int32, desired:
     SDL_AudioSpec const pointer, obtained: SDL_AudioSpec pointer,
     allowedChanges: Int32) => SDL_AudioDeviceID.
-function SDL_CloseAudioDevice externC(device: SDL_AudioDeviceID) => Void.
+function SDL_CloseAudioDevice externC dllimport (device: SDL_AudioDeviceID) => Void.
 
-function SDL_PauseAudio externC(pauseOn: Int32) => Void.
-function SDL_PauseAudioDevice externC(device: SDL_AudioDeviceID, pauseOn: Int32) => Void.
+function SDL_PauseAudio externC dllimport (pauseOn: Int32) => Void.
+function SDL_PauseAudioDevice externC dllimport (device: SDL_AudioDeviceID, pauseOn: Int32) => Void.
 
-function SDL_LockAudio externC() => Void.
-function SDL_LockAudioDevice externC(device: SDL_AudioDeviceID) => Void.
-function SDL_UnlockAudio externC() => Void.
-function SDL_UnlockAudioDevice externC(device: SDL_AudioDeviceID) => Void.
+function SDL_LockAudio externC dllimport () => Void.
+function SDL_LockAudioDevice externC dllimport (device: SDL_AudioDeviceID) => Void.
+function SDL_UnlockAudio externC dllimport () => Void.
+function SDL_UnlockAudioDevice externC dllimport (device: SDL_AudioDeviceID) => Void.
 }. ## End of namespace SDL2.

@@ -53,5 +53,5 @@ struct SDL_SysWMinfo definition: {
     public field info type: Info.
 }.
 
-function SDL_GetWindowWMInfo externC(window: SDL_Window pointer, info: SDL_SysWMinfo pointer) => Boolean8.
+function SDL_GetWindowWMInfo externC dllimport (window: SDL_Window pointer, info: SDL_SysWMinfo pointer) => Boolean8.
 }. ## End of namespace SDL2

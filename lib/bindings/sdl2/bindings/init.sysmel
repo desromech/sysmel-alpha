@@ -14,10 +14,10 @@ compileTimeConstant SDL_INIT_EVERYTHING :=
             SDL_INIT_TIMER | SDL_INIT_AUDIO | SDL_INIT_VIDEO | SDL_INIT_EVENTS |
             SDL_INIT_JOYSTICK | SDL_INIT_HAPTIC | SDL_INIT_GAMECONTROLLER.
 
-function SDL_Init externC (flags: UInt32) => Int32.
-function SDL_InitSubSystem externC(flags: UInt32) => Int32.
+function SDL_Init externC dllimport  (flags: UInt32) => Int32.
+function SDL_InitSubSystem externC dllimport (flags: UInt32) => Int32.
 
-function SDL_WasInit externC(flags: UInt32) => UInt32.
-function SDL_Quit externC() => Void.
+function SDL_WasInit externC dllimport (flags: UInt32) => UInt32.
+function SDL_Quit externC dllimport () => Void.
 
 }. ## End of namespace SDL2

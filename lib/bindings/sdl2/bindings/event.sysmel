@@ -162,7 +162,7 @@ union SDL_Event definition: {
     field padding public type: (UInt8 array: 56).
 }.
 
-function SDL_PollEvent externC (event: SDL_Event pointer) => Boolean8.
+function SDL_PollEvent externC dllimport  (event: SDL_Event pointer) => Boolean8.
 
 ## Rect
 struct SDL_Point definition: {

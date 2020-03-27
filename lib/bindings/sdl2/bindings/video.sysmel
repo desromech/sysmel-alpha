@@ -27,7 +27,7 @@ compileTimeConstant SDL_WINDOWPOS_CENTERED_MASK := 16r2FFF0000.
 ## #define SDL_WINDOWPOS_CENTERED_DISPLAY(X)  (SDL_WINDOWPOS_CENTERED_MASK|(X))
 compileTimeConstant SDL_WINDOWPOS_CENTERED := SDL_WINDOWPOS_CENTERED_MASK.
 
-function SDL_CreateWindow externC(title: CTypes ConstString, x: Int32, y: Int32, w: Int32, h: Int32, flags: UInt32) => SDL_Window pointer.
-function SDL_DestroyWindow externC(window: SDL_Window pointer) => Void.
+function SDL_CreateWindow externC dllimport (title: CTypes ConstString, x: Int32, y: Int32, w: Int32, h: Int32, flags: UInt32) => SDL_Window pointer.
+function SDL_DestroyWindow externC dllimport (window: SDL_Window pointer) => Void.
 
 }. ## End of namespace SDL2.

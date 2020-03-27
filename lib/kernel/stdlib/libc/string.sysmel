@@ -1,18 +1,18 @@
 ## Bindings for Stdlib
 namespace LibC definition: {
     ## Bytes
-    function memchr externC (ptr: Void const pointer, value: Int, num: SizeT) => Int.
-    function memcmp externC (left: Void const pointer, right: Void const pointer, num: SizeT) => Int.
-    function memcpy externC (destination: Void pointer, source: Void const pointer, num: SizeT) => Void pointer.
-    function memmove externC (destination: Void pointer, source: Void const pointer, num: SizeT) => Void pointer.
-    function memset externC (ptr: Void pointer, value: Int, num: SizeT) => Void pointer.
+    function memchr externC dllimport (ptr: Void const pointer, value: Int, num: SizeT) => Int.
+    function memcmp externC dllimport (left: Void const pointer, right: Void const pointer, num: SizeT) => Int.
+    function memcpy externC dllimport (destination: Void pointer, source: Void const pointer, num: SizeT) => Void pointer.
+    function memmove externC dllimport (destination: Void pointer, source: Void const pointer, num: SizeT) => Void pointer.
+    function memset externC dllimport (ptr: Void pointer, value: Int, num: SizeT) => Void pointer.
 
     ## Strings
-    function strlen externC (string: ConstString) => SizeT.
-    function strnlen externC (string: ConstString, maxlen: SizeT) => SizeT.
-    function strcpy externC (destination: String, source: ConstString) => Void pointer.
-    function strcmp externC (left: ConstString, right: ConstString) => Int.
-    function strncmp externC (left: ConstString, right: ConstString, num: SizeT) => Int.
-    function strncpy externC (destination: String, source: ConstString, num: SizeT) => Void pointer.
-    function strstr externC (haystack: UInt8 const pointer, needle: UInt8 const pointer) => UInt8 const pointer.
+    function strlen externC dllimport (string: ConstString) => SizeT.
+    function strnlen externC dllimport (string: ConstString, maxlen: SizeT) => SizeT.
+    function strcpy externC dllimport (destination: String, source: ConstString) => Void pointer.
+    function strcmp externC dllimport (left: ConstString, right: ConstString) => Int.
+    function strncmp externC dllimport (left: ConstString, right: ConstString, num: SizeT) => Int.
+    function strncpy externC dllimport (destination: String, source: ConstString, num: SizeT) => Void pointer.
+    function strstr externC dllimport (haystack: UInt8 const pointer, needle: UInt8 const pointer) => UInt8 const pointer.
 }.
