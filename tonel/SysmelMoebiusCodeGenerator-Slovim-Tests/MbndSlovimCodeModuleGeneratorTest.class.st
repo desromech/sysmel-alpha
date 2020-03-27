@@ -5629,7 +5629,7 @@ function caller externC() => Void
 ;
 		generateSSAModule.
 
-	function := ssaModule globalNamed: #'_ZN10TestModule9Aggregate8__Meta__5.makeENS1_E'.
+	function := ssaModule globalNamed: #'_ZN10TestModule9Aggregate8..meta..5.makeENS1_E'.
 	self assert: function isFunction.
 	self assert: function arguments first isStructReturnPointer.
 	self assert: function allInstructionsMnemonics equals: #(
@@ -5672,7 +5672,7 @@ function caller externC() => Void
 ;
 		generateSSAModule.
 
-	function := ssaModule globalNamed: #'_ZN10TestModule9Aggregate8__Meta__5.makeENS1_E'.
+	function := ssaModule globalNamed: #'_ZN10TestModule9Aggregate8..meta..5.makeENS1_E'.
 	self assert: function isFunction.
 	self assert: function arguments first isStructReturnPointer.
 	self assert: function allInstructionsMnemonics equals: #(
@@ -5711,7 +5711,7 @@ function caller externC() => Void
 ;
 		generateSSAModule.
 
-	function := ssaModule globalNamed: #'_ZN10TestModule9Aggregate8__Meta__5.makeENS1_E'.
+	function := ssaModule globalNamed: #'_ZN10TestModule9Aggregate8..meta..5.makeENS1_E'.
 	self assert: function isFunction.
 	self assert: function arguments first isStructReturnPointer.
 	self assert: function allInstructionsMnemonics equals: #(
@@ -5756,7 +5756,7 @@ function caller externC() => Void
 ;
 		generateSSAModule.
 
-	function := ssaModule globalNamed: #'_ZN10TestModule9Aggregate8__Meta__5.makeENS1_E'.
+	function := ssaModule globalNamed: #'_ZN10TestModule9Aggregate8..meta..5.makeENS1_E'.
 	self assert: function isFunction.
 	self assert: function arguments first isStructReturnPointer.
 	self assert: function allInstructionsMnemonics equals: #(
@@ -5793,7 +5793,7 @@ function caller externC() => Aggregate
 ;
 		generateSSAModule.
 
-	function := ssaModule globalNamed: #'_ZN10TestModule9Aggregate8__Meta__5.makeENS1_E'.
+	function := ssaModule globalNamed: #'_ZN10TestModule9Aggregate8..meta..5.makeENS1_E'.
 	self assert: function isFunction.
 	self assert: function arguments first isStructReturnPointer.
 	self assert: function allInstructionsMnemonics equals: #(
@@ -5829,7 +5829,7 @@ function caller externC() => Aggregate
 ;
 		generateSSAModule.
 
-	function := ssaModule globalNamed: #'_ZN10TestModule9Aggregate8__Meta__5.makeENS1_E'.
+	function := ssaModule globalNamed: #'_ZN10TestModule9Aggregate8..meta..5.makeENS1_E'.
 	self assert: function isFunction.
 	self assert: function arguments first isStructReturnPointer.
 	self assert: function allInstructionsMnemonics equals: #(
@@ -6647,7 +6647,7 @@ function makeRefCountedPtr externC(p: RefCounted pointer) => RefCountedPtr
 ';
 		generateSSAModule.
 
-	function := ssaModule globalNamed: #'_ZN10TestModule16IntrusivePointerINS_10RefCountedEE8__Meta__5.for.ENS3_EPNS2_E'.
+	function := ssaModule globalNamed: #'_ZN10TestModule16IntrusivePointerINS_10RefCountedEE8..meta..5.for.ENS3_EPNS2_E'.
 	self assert: function isFunction.
 	self deny: function isEmpty.
 	self assert: function allInstructionsMnemonics equals: #(
