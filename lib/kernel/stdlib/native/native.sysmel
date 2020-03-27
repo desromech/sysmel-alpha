@@ -1,5 +1,0 @@
-loadFileOnce: "freestanding/freestanding.sysmel".
-
-if: Compiler compilationTarget hasOperatingSystem then: {
-    loadFileOnce: "nofreestanding/lib.sysmel".
-}.

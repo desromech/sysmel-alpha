@@ -1,3 +1,0 @@
-if: Compiler hasGarbageCollectionSupport then: {
-    loadFileOnce: "PharoBridge/lib.sysmel".
-}.

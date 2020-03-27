@@ -1,4 +1,0 @@
-loadFileOnce: "gc/gc.sysmel".
-loadFileOnce: "bootstrap/bootstrap.sysmel".
-loadFileOnce: "mini-sunit/mini-sunit.sysmel".
-loadFileOnce: "tests/tests.sysmel".

@@ -1,0 +1,2 @@
+Compiler addLinkerArguments: #("-lSDL2");
+    loadPackage: #"SDL2-Bindings".
