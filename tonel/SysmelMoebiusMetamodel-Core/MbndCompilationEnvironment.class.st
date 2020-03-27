@@ -208,7 +208,7 @@ MbndCompilationEnvironment >> importModuleFrom: moduleExportFileName [
 
 { #category : #adding }
 MbndCompilationEnvironment >> importModuleNamed: moduleName [
-	^ self importedModuleDictionary at: moduleName ifAbsent: [
+	^ self loadedModuleDictionary at: moduleName ifAbsent: [
 		self error: 'Automatic module importation mechanism is not yet implemented.'
 	]
 ]
