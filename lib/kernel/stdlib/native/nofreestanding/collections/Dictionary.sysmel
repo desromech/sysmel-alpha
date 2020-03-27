@@ -1,4 +1,4 @@
-namespace NStd definition: {
+namespace Stdn definition: {
 namespace Collections definition: {
 
 template Dictionary(KT: Type, VT: Type)
@@ -14,4 +14,4 @@ template Dictionary(KT: Type, VT: Type)
 }.
 
 }. ## End of namespace Collections
-}. ## End of namespace NStd
+}. ## End of namespace Stdn

@@ -1,4 +1,4 @@
-namespace NStd definition: {
+namespace Stdn definition: {
 namespace IO definition: {
 
 #**
@@ -20,7 +20,7 @@ class TextStreamWriter definition: {
     method nextPut: (character: Int32) ::=> Boolean8
 		:= self nextPut: (character castTo: Char32).
 
-    method nextPutAll: (string: NStd StringLiteral) ::=> Boolean8 := {
+    method nextPutAll: (string: Stdn StringLiteral) ::=> Boolean8 := {
         (stream _ write: string [0] address size: string size) == (string size castTo: IntPointer)
     }.
 
@@ -136,7 +136,7 @@ class TextStreamWriter definition: {
     method << (character: Char32) => SelfType ref
         := self nextPut: character; yourself.
 
-    method << (string: NStd StringLiteral) => SelfType ref
+    method << (string: Stdn StringLiteral) => SelfType ref
         := self nextPutAll: string; yourself.
 
     method << (bool: Boolean8) => SelfType ref
@@ -210,4 +210,4 @@ _PrimitiveVectorTypeTemplate extend: {
 }.
 
 }. ## End of namespace IO
-}. ## End of namespace NStd
+}. ## End of namespace Stdn

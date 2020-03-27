@@ -1,4 +1,4 @@
-namespace NStd definition: {
+namespace Stdn definition: {
 namespace IO definition: {
 
 #**
@@ -76,18 +76,18 @@ class BinaryDataStreamWriter superclass: BinaryDataStreamReaderWriterCommon; def
     inline method nextFloat32Put: (v: Float32) ::=> Boolean8 := {
         let fv mutable := v.
         let iv mutable type: UInt32.
-        NStd memcpy(iv address, fv address, 4).
+        Stdn memcpy(iv address, fv address, 4).
         self nextNativeUInt32Put: (self swapIntoActiveEndianness32: iv).
     }.
 
     inline method nextFloat64Put: (v: Float64) ::=> Boolean8 := {
         let fv mutable := v.
         let iv mutable type: UInt64.
-        NStd memcpy(iv address, fv address, 8).
+        Stdn memcpy(iv address, fv address, 8).
         self nextNativeUInt64Put: (self swapIntoActiveEndianness64: iv).
     }.
 
 }.
 
 }. ## End of namespace IO
-}. ## End of namespace NStd
+}. ## End of namespace Stdn

@@ -1,4 +1,4 @@
-namespace NStd definition: {
+namespace Stdn definition: {
 namespace IO definition: {
 
 #**
@@ -14,4 +14,4 @@ class TextStreamReader definition: {
 }.
 
 }. ## End of namespace IO
-}. ## End of namespace NStd
+}. ## End of namespace Stdn

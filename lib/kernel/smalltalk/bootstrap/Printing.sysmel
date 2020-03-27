@@ -1,7 +1,7 @@
-namespace GCStd definition: {
+namespace Smalltalk definition: {
 
 ProtoObject extend: {
-    method printOnNativeTextStreamWriter: (writer: NStd IO TextStreamWriter ref) := {
+    method printOnNativeTextStreamWriter: (writer: Stdn IO TextStreamWriter ref) := {
         self printString printOnNativeTextStreamWriter: writer.
 		self
     }.
@@ -44,7 +44,7 @@ String extend: {
 	method asString
 		:= self.
 
-    method printOnNativeTextStreamWriter: (writer: NStd IO TextStreamWriter ref) := {
+    method printOnNativeTextStreamWriter: (writer: Stdn IO TextStreamWriter ref) := {
 		__data size > 0 ifTrue: {
 		    writer write: __data [0] address size: __data size
 		}.
@@ -111,8 +111,8 @@ Metaclass extend: {
         := aStream print: thisClass; nextPutAll: " class".
 }.
 
-NStd BasicValuePrinter extend: {
-    method printOn: (aStream: GCStd ProtoObject) ::=> Void := {
+Stdn BasicValuePrinter extend: {
+    method printOn: (aStream: Smalltalk ProtoObject) ::=> Void := {
         0 until: bufferSize do: {:(UIntPointer)i :: Void |
             aStream nextPut: buffer[i]
         }
@@ -122,7 +122,7 @@ NStd BasicValuePrinter extend: {
 SmallInteger extend: {
 
     method printOn: aStream := {
-        let integerPrinter mutable type: NStd BasicValueIntegerPrinter.
+        let integerPrinter mutable type: Stdn BasicValueIntegerPrinter.
         integerPrinter nextPutInteger: self __decodeSmallInteger.
         integerPrinter printOn: aStream.
 
@@ -130,7 +130,7 @@ SmallInteger extend: {
     }.
 
 
-    method printOnNativeTextStreamWriter: (writer: NStd IO TextStreamWriter ref) := {
+    method printOnNativeTextStreamWriter: (writer: Stdn IO TextStreamWriter ref) := {
         writer << self __decodeSmallInteger.
 		self
     }.
@@ -177,13 +177,13 @@ ByteArray extend: {
 }.
 
 Character extend: {
-    method printOnNativeTextStreamWriter: (writer: NStd IO TextStreamWriter ref) := {
+    method printOnNativeTextStreamWriter: (writer: Stdn IO TextStreamWriter ref) := {
         writer << self __decodeCharacter.
 		self
     }.
 }.
 
-NStd IO TextStreamWriter extend: {
+Stdn IO TextStreamWriter extend: {
     method << (object: ProtoObject) => SelfType ref := {
         object printOnNativeTextStreamWriter: self.
         self

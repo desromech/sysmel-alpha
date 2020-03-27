@@ -1,4 +1,4 @@
-namespace NStd definition: {
+namespace Stdn definition: {
 
 template SharedRefCounter(PT: Type)
     := struct definition: {
@@ -37,9 +37,9 @@ template SharedRefCounter(PT: Type)
 
     inline method strongRelease => Void := {
         let oldCount := strongCounter_ fetchAndSubtract: 1 with: MemoryOrder AcquireAndRelease.
-        NStd stdout << "Old strong release count " << oldCount; nl.
+        Stdn stdout << "Old strong release count " << oldCount; nl.
         oldCount == 1 ifTrue: {
-            NStd stdout << "No more strong counts delete the object " << pointer_; nl.
+            Stdn stdout << "No more strong counts delete the object " << pointer_; nl.
             pointer_ nativeDelete.
             self weakRelease.
         }.
@@ -52,9 +52,9 @@ template SharedRefCounter(PT: Type)
 
     inline method weakRelease => Void := {
         let oldCount := weakCounter_ fetchAndSubtract: 1 with: MemoryOrder AcquireAndRelease.
-        NStd stdout << "Old weak release count " << oldCount; nl.
+        Stdn stdout << "Old weak release count " << oldCount; nl.
         oldCount == 1 ifTrue: {
-            NStd stdout << "No more weak count, delete the counter " << self address; nl.
+            Stdn stdout << "No more weak count, delete the counter " << self address; nl.
             self address nativeDelete
         }
     }.
@@ -235,9 +235,9 @@ template WeakPtr(PT: Type)
 	}.
 }.
 
-_NativeType meta macro method sharedPtr := ``(NStd SharedPtr(`,self)).
-_NativeType meta macro method weakPtr := ``(NStd WeakPtr(`,self)).
+_NativeType meta macro method sharedPtr := ``(Stdn SharedPtr(`,self)).
+_NativeType meta macro method weakPtr := ``(Stdn WeakPtr(`,self)).
 
 _NativeType meta macro method sharedNew := ``(`,self sharedPtr for: `,self nativeNew).
 
-}. ## End of namespace NStd
+}. ## End of namespace Stdn

@@ -1,4 +1,4 @@
-namespace NStd definition: {
+namespace Stdn definition: {
 
 ## I am a native object that supports the basic construction and finalization
 ## methods, and I provide a convenient method for retrieving my type information.
@@ -9,7 +9,7 @@ class Object definition: {
     virtual method finalize ::=> Void := {
     }.
 
-    const inline method __typeInformation => NStd Reflection TypeInformation pointer
+    const inline method __typeInformation => Stdn Reflection TypeInformation pointer
         := Reflection typeInformationFromPointerToVTable(self address).
 }.
 

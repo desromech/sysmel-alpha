@@ -2,4 +2,4 @@ loadFileOnce: "stddef.sysmel".
 loadFileOnce: "stdlib.sysmel".
 loadFileOnce: "stdio.sysmel".
 loadFileOnce: "string.sysmel".
-loadFileOnce: "NStd.sysmel".
+loadFileOnce: "Stdn.sysmel".

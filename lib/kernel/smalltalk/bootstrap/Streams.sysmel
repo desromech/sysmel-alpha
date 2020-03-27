@@ -1,4 +1,4 @@
-namespace GCStd definition: {
+namespace Smalltalk definition: {
 Object definition: {
     method putOn: aStream := {
         aStream nextPut: self.
@@ -184,4 +184,4 @@ LimitedWriteStream definition: {
     }.
 }.
 
-} ## End of namespace GCStd
+} ## End of namespace Smalltalk

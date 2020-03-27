@@ -1,5 +1,5 @@
 ## The most essential declarations.
-namespace GCStd definition: {
+namespace Smalltalk definition: {
 
 gcclass ProtoObject.
 gcclass Metaclass.
@@ -12,10 +12,10 @@ Compiler compilationTarget
 }.
 
 namespace SysmelKernel definition: {
-	compileTimeConstant Dynobject := GCStd ProtoObject.
+	compileTimeConstant Dynobject := Smalltalk ProtoObject.
 }.
 
-namespace GCStd definition: {
+namespace Smalltalk definition: {
 
 gcclass Object superclass: ProtoObject. Compiler compilationTarget defaultGCClassSuperClass: Object.
 	## Reflection types.
@@ -153,7 +153,7 @@ ProtoObject definition: {
 }.
 
 ProgramEntity definition: {
-	## These first fields must match the fields in NStd Reflection ProgramEntity so that
+	## These first fields must match the fields in Stdn Reflection ProgramEntity so that
 	## exception handling can work.
 	public field parent type: ProgramEntity.
 }.
@@ -163,23 +163,23 @@ SharedProgramEntity definition: {
 }.
 
 ModuleDefinedProgramEntity definition: {
-	## These first fields must match the fields in NStd Reflection ModuleDefinedProgramEntity so that
+	## These first fields must match the fields in Stdn Reflection ModuleDefinedProgramEntity so that
 	## exception handling can work.
 	public field module type: ModuleInformation.
 	protected field children.
 }.
 
 TypeInformation definition: {
-	## These first fields must match the fields in NStd Reflection TypeInformation so that
+	## These first fields must match the fields in Stdn Reflection TypeInformation so that
 	## exception handling can work.
 	public field superclass type: TypeInformation.
 	public field instanceDataSize type: UIntPointer.
 	public field instanceDataAlignment type: UIntPointer.
 
-	public field basicInitializationFunctionPointer type: NStd Reflection BasicInitializeFunctionPointerType.
-	public field copyConstructorFunctionPointer type: NStd Reflection CopyConstructorFunctionPointerType.
-	public field moveConstructorFunctionPointer type: NStd Reflection MoveConstructorFunctionPointerType.
-    public field finalizeFunctionPointer type: NStd Reflection FinalizeFunctionPointerType.
+	public field basicInitializationFunctionPointer type: Stdn Reflection BasicInitializeFunctionPointerType.
+	public field copyConstructorFunctionPointer type: Stdn Reflection CopyConstructorFunctionPointerType.
+	public field moveConstructorFunctionPointer type: Stdn Reflection MoveConstructorFunctionPointerType.
+    public field finalizeFunctionPointer type: Stdn Reflection FinalizeFunctionPointerType.
 
 	public field methodDict public type: MethodDictionary.
 
@@ -587,22 +587,22 @@ macro method generateAtAccessorsForArrayField: arrayField elementType: elementTy
 }.
 
 String definition: {
-	GCStd generateBasicAtAccessorsForArrayField: __data elementType: Char8.
-	GCStd generateAtAccessorsForArrayField: __data elementType: Char8.
+	Smalltalk generateBasicAtAccessorsForArrayField: __data elementType: Char8.
+	Smalltalk generateAtAccessorsForArrayField: __data elementType: Char8.
 }.
 
 ByteArray definition: {
 	field __data protected type: UInt8 array.
 
-	GCStd generateBasicAtAccessorsForArrayField: __data elementType: UInt8.
-	GCStd generateAtAccessorsForArrayField: __data elementType: UInt8.
+	Smalltalk generateBasicAtAccessorsForArrayField: __data elementType: UInt8.
+	Smalltalk generateAtAccessorsForArrayField: __data elementType: UInt8.
 }.
 
 Array definition: {
     field __data protected type: ProtoObject array.
 
-	GCStd generateBasicAtAccessorsForArrayField: __data elementType: ProtoObject.
-	GCStd generateAtAccessorsForArrayField: __data elementType: ProtoObject.
+	Smalltalk generateBasicAtAccessorsForArrayField: __data elementType: ProtoObject.
+	Smalltalk generateAtAccessorsForArrayField: __data elementType: ProtoObject.
 }.
 
 HashedCollection definition: {
@@ -700,7 +700,7 @@ BlockClosure definition: {
 
 	inline method checkRequiredArgumentCount: (i: UInt32) ::=> Void := {
 		numArgs ~= i ifTrue: {
-			NStd fatalError: "Mismatching argument count for block closure activation."
+			Stdn fatalError: "Mismatching argument count for block closure activation."
 		}.
 	}.
 
@@ -840,13 +840,13 @@ struct MessageLookupResult definition: {
 }.
 
 struct InlineCacheRecord definition: {
-	public field lookupClass type: NStd AtomicUIntPointer.
-	public field lookupMethod type: NStd AtomicUIntPointer.
+	public field lookupClass type: Stdn AtomicUIntPointer.
+	public field lookupMethod type: Stdn AtomicUIntPointer.
 }.
 
 struct InlineCache definition: {
 	compileTimeConstant RecordCount := 5.
-	public field lastWrittenSlot type: NStd AtomicUIntPointer.
+	public field lastWrittenSlot type: Stdn AtomicUIntPointer.
 	public field records type: (InlineCacheRecord array: RecordCount).
 }.
 

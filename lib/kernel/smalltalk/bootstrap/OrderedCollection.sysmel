@@ -1,4 +1,4 @@
-namespace GCStd definition: {
+namespace Smalltalk definition: {
 
 #**
  * A vector where elements can be added at the end and in the beginning with amortized O(1) cost.

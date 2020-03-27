@@ -1,5 +1,5 @@
-namespace GCStd definition: {
-compileTimeConstant MessagePackEncoder := NStd Serialization MessagePack Encoder.
+namespace Smalltalk definition: {
+compileTimeConstant MessagePackEncoder := Stdn Serialization MessagePack Encoder.
 
 Object extend: {
     ## FIXME: use a normal down cast here.
@@ -105,19 +105,19 @@ Symbol extend: {
 }.
 }.
 
-namespace NStd definition: {
+namespace Stdn definition: {
 namespace Serialization definition: {
 namespace MessagePack definition: {
 
 compileTimeConstant GCObjectEncoder := Encoder.
 
 GCObjectEncoder extend: {
-    #*meta method decodeFrom: (buffer: Void pointer) withSize: (bufferSize: UIntPointer)::=> GCStd ProtoObject := {
-        let readStream mutable := NStd IO FixedMemoryStream for: buffer withSize: bufferSize.
+    #*meta method decodeFrom: (buffer: Void pointer) withSize: (bufferSize: UIntPointer)::=> Smalltalk ProtoObject := {
+        let readStream mutable := Stdn IO FixedMemoryStream for: buffer withSize: bufferSize.
         self decodeFrom: readStream address
     }.
 
-    meta method decodeFrom: (stream: NStd IO Stream pointer) ::=> GCStd ProtoObject := {
+    meta method decodeFrom: (stream: Stdn IO Stream pointer) ::=> Smalltalk ProtoObject := {
         let callbackInstance mutable type: GCObjectDecoderCallback.
         let decoder mutable type: SelfType.
         callbackInstance decoder: decoder address.
@@ -127,11 +127,11 @@ GCObjectEncoder extend: {
             decodeNextElement.
     }.*#
 
-    method encodeObject: (object: GCStd ProtoObject) ::=> Void := {
-        (object reinterpretCastTo: GCStd Object) encodeIntoMessagePackWith: self.
+    method encodeObject: (object: Smalltalk ProtoObject) ::=> Void := {
+        (object reinterpretCastTo: Smalltalk Object) encodeIntoMessagePackWith: self.
     }.
 }.
 
 }. ## End of namespace MessagePack
 }. ## End of namespace Serialization
-}. ## End of namespace NStd
+}. ## End of namespace Stdn

@@ -1,4 +1,4 @@
-namespace NStd definition: {
+namespace Stdn definition: {
 namespace ExplicitMemoryCollections definition: {
 
 struct DoubleLinkedList.
@@ -137,4 +137,4 @@ struct DoubleLinkedList definition: {
 }.
 
 }. ## End of namespaces ExplicitMemoryCollections
-}. ## End of namespace NStd
+}. ## End of namespace Stdn

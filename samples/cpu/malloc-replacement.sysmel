@@ -1,11 +1,11 @@
 function malloc externC(size: UIntPointer) => Void pointer
-    := NStd malloc(size).
+    := Stdn malloc(size).
 
 function calloc externC(numberOfElements: UIntPointer, elementSize: UIntPointer) => Void pointer
-    := NStd calloc(numberOfElements, elementSize).
+    := Stdn calloc(numberOfElements, elementSize).
 
 function realloc externC(pointer: Void pointer, size: UIntPointer) => Void pointer
-    := NStd realloc(pointer, size).
+    := Stdn realloc(pointer, size).
 
 function free externC(pointer: Void pointer) => Void
-    := NStd free(pointer).
+    := Stdn free(pointer).

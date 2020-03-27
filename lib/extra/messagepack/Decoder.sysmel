@@ -1,4 +1,4 @@
-namespace NStd definition: {
+namespace Stdn definition: {
 namespace Serialization definition: {
 namespace MessagePack definition: {
 
@@ -43,11 +43,11 @@ template Decoder(RT: Type)
     }.
 
     public field callback type: Callback pointer.
-    public field reader type: NStd IO BinaryDataStreamReader.
+    public field reader type: Stdn IO BinaryDataStreamReader.
 
-    method beginDecodingStream: (stream: NStd IO Stream pointer) ::=> Void := {
-        reader := NStd IO BinaryDataStreamReader for: stream.
-        reader activeEndianness: NStd IO BinaryDataStreamEndianness Little.
+    method beginDecodingStream: (stream: Stdn IO Stream pointer) ::=> Void := {
+        reader := Stdn IO BinaryDataStreamReader for: stream.
+        reader activeEndianness: Stdn IO BinaryDataStreamEndianness Little.
     }.
 
     method readBytes: (count: UIntPointer) into: (buffer: Void pointer) ::=> Boolean8
@@ -221,4 +221,4 @@ template Decoder(RT: Type)
 
 }. ## End of namespace MessagePack
 }. ## End of namespace Serialization
-}. ## End of namespace NStd
+}. ## End of namespace Stdn

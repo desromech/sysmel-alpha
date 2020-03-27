@@ -1,4 +1,4 @@
-namespace GCStd definition: {
+namespace Smalltalk definition: {
 
 ProtoObject extend: {
     ## ifTrue:ifFalse

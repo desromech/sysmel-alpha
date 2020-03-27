@@ -1,4 +1,4 @@
-namespace NStd definition: {
+namespace Stdn definition: {
 compileTimeConstant BigIntegerForFloat := FixedBigInteger(32). ## 1024 bits big integer.
 
 class BasicValueFloatPrinter superclass: BasicValueIntegerPrinter; definition: {

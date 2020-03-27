@@ -7,7 +7,7 @@ global window mutable type: SDL_Window pointer.
 global renderer mutable type: SDL_Renderer pointer.
 global isQuitting mutable := false.
 
-global audioMutex mutable type: NStd Mutex.
+global audioMutex mutable type: Stdn Mutex.
 global audioDeviceID mutable type: SDL_AudioDeviceID.
 global audioDeviceSpec mutable type: SDL_AudioSpec.
 global audioTemporaryBuffer mutable type: Float32x2 pointer.
@@ -482,8 +482,8 @@ compileTimeConstant SawChannel := ToneFunctionSoundChannel(
 		:= x fract*2.0f - 1.0f
 ).
 
-global entities mutable type: (NStd Collections Vector(Entity pointer)).
-global soundChannels mutable type: (NStd Collections Vector(SoundChannel pointer)).
+global entities mutable type: (Stdn Collections Vector(Entity pointer)).
+global soundChannels mutable type: (Stdn Collections Vector(SoundChannel pointer)).
 
 global player mutable type: Player pointer.
 global viewMatrix mutable type: Float32x2x3.
@@ -622,7 +622,7 @@ function mixAudioSamples(mixBuffer: Float32x2 pointer, sampleCount: UInt32) => V
 	let samplePeriod := 1.0f / audioDeviceSpec freq.
 
 	## Clear the mixing buffer.
-	NStd memset(mixBuffer, 0, sampleCount * Float32x2 instanceSize).
+	Stdn memset(mixBuffer, 0, sampleCount * Float32x2 instanceSize).
 
 	audioMutex withLock: {
 		## Add each one of the sound channels into the mixing buffer.
@@ -662,7 +662,7 @@ function audioCallback(userdata: Void pointer, stream: UInt8 pointer, len: Int32
 			}.
 		}.
 		let _ : {
-			NStd memset(stream, 0, len).
+			Stdn memset(stream, 0, len).
 		}.
 	}.
 }.
@@ -702,7 +702,7 @@ function main externC (argc: Int32, argv: Char8 const pointer pointer) => Int32 
 			yourself.
 		audioDeviceID := SDL_OpenAudioDevice(nil, 0, desiredAudioSpec address, audioDeviceSpec address, SDL_AUDIO_ALLOW_FREQUENCY_CHANGE | SDL_AUDIO_ALLOW_FORMAT_CHANGE | SDL_AUDIO_ALLOW_SAMPLES_CHANGE).
 		audioDeviceSpec format ~= AUDIO_F32 ifTrue: {
-			audioTemporaryBuffer := NStd malloc(audioDeviceSpec samples * 8) reinterpretCastTo: Float32x2 pointer.
+			audioTemporaryBuffer := Stdn malloc(audioDeviceSpec samples * 8) reinterpretCastTo: Float32x2 pointer.
 		}.
 	}.
 
@@ -800,10 +800,10 @@ function main externC (argc: Int32, argv: Char8 const pointer pointer) => Int32 
 		processEvents().
 
 		## Deterministic update.
-		##NStd stdout << "deltaTicks " << deltaTicks; nl.
-		##NStd stdout << "accumulatedTime " << accumulatedTime; nl.
+		##Stdn stdout << "deltaTicks " << deltaTicks; nl.
+		##Stdn stdout << "accumulatedTime " << accumulatedTime; nl.
 		while: accumulatedTime - updateDelta >= updateDelta  do: {
-			##NStd stdout << "update iter "; nl.
+			##Stdn stdout << "update iter "; nl.
 			update(updateDelta).
 			accumulatedTime := accumulatedTime - updateDelta
 		}.
@@ -816,7 +816,7 @@ function main externC (argc: Int32, argv: Char8 const pointer pointer) => Int32 
 		let renderEndTicks := SDL_GetTicks().
 		renderEndTicks < targetTicks ifTrue: {
 			let delayTicks := targetTicks - renderEndTicks - 2 castTo: Int32.
-			##NStd stdout << "delayTicks " << delayTicks; nl.
+			##Stdn stdout << "delayTicks " << delayTicks; nl.
 			delayTicks > 0 ifTrue: {
 				SDL_Delay(delayTicks castTo: UInt32).
 			}
@@ -826,7 +826,7 @@ function main externC (argc: Int32, argv: Char8 const pointer pointer) => Int32 
 
 	audioDeviceID ~= 0 ifTrue: {
 		SDL_CloseAudioDevice(audioDeviceID).
-		NStd free(audioTemporaryBuffer).
+		Stdn free(audioTemporaryBuffer).
 	}.
 
 	entities do: #nativeDelete.

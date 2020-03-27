@@ -1,4 +1,4 @@
-namespace GCStd definition: {
+namespace Smalltalk definition: {
 
 LiteralVariable definition: {
     method setupProgramEntityParent: (theParent: ProgramEntity) fromModule: (theModule: ModuleInformation) ::=> Void := {
@@ -40,9 +40,9 @@ ModuleInformation definition: {
     }.
 
     method startUp => Void := {
-        ##NStd stdout << "Module startup: " << name; nl.
+        ##Stdn stdout << "Module startup: " << name; nl.
         ## Fix the parent relationships.
-        GCStd Runtime withReflectionLockedWrite: {
+        Smalltalk Runtime withReflectionLockedWrite: {
             parent := nil.
             globalNamespace ifNotNil: {
                 globalNamespace setupProgramEntityParent: self fromModule: self.
@@ -54,7 +54,7 @@ ModuleInformation definition: {
     }.
 
     method shutDown => Void  := {
-        ##NStd stdout << "Module " << name << " shutDown called."; nl
+        ##Stdn stdout << "Module " << name << " shutDown called."; nl
     }.
 }.
 
@@ -70,7 +70,7 @@ ModuleNamespaceInformation definition: {
 
             sharedNamespace addModuleNamespaceInformation: self.
             children do: {:each :: Void |
-                ## NStd stdout << "Namespace child " << each; nl.
+                ## Stdn stdout << "Namespace child " << each; nl.
                 each setupProgramEntityParent: self fromModule: theModule.
             }
         }.
@@ -123,7 +123,7 @@ NamespaceInformation definition: {
         := self associationAt: key ifAbsent: {:: Void | self errorKeyNotFound: key}.
 
     method associationAt: key ifAbsent: aBlock := {
-        GCStd Runtime withReflectionLockedRead: {
+        Smalltalk Runtime withReflectionLockedRead: {
             moduleNamespaces do: {:eachModuleNamespace :: Void |
                 eachModuleNamespace localSymbolTable associationAt: key ifPresent: {:found :: Void |
                     return: found
@@ -146,21 +146,21 @@ ProgramEntityExtensionElement definition: {
 
 ExtensionMacroMessage definition: {
     method apply := {
-        ##NStd stdout << "TODO: Apply " << self; nl.
+        ##Stdn stdout << "TODO: Apply " << self; nl.
         self
     }.
 }.
 
 ExtensionOverloadedMethod definition: {
     method apply := {
-        ##NStd stdout << "TODO: Apply " << self; nl.
+        ##Stdn stdout << "TODO: Apply " << self; nl.
         self
     }.
 }.
 
 ExtensionMethod definition: {
     method apply := {
-        ##NStd stdout << "Apply " << self; nl.
+        ##Stdn stdout << "Apply " << self; nl.
         extendedParent methodDict at: name put: extension.
         self
     }.
@@ -181,4 +181,4 @@ Compiler compilationTarget managedObjectModel
     moduleShutDownFunction: callModuleShutdown.
 }. ## End of namespace Runtime
 
-}. ## End of namespace GCStd
+}. ## End of namespace Smalltalk

@@ -1,8 +1,8 @@
 class ClientProcessor definition: {
-    field clientSocket type: NStd IO Socket.
-    field clientThread type: NStd Thread.
+    field clientSocket type: Stdn IO Socket.
+    field clientThread type: Stdn Thread.
 
-    method startProcessingNewClient: (theClientSocket: NStd IO Socket ref) ::=> Void := {
+    method startProcessingNewClient: (theClientSocket: Stdn IO Socket ref) ::=> Void := {
         clientSocket := theClientSocket asMoveReference.
         clientThread start: { :: Void |
             self echoLoop
@@ -10,7 +10,7 @@ class ClientProcessor definition: {
     }.
 
     method echoLoop => Void := {
-        NStd stdout << "Accepted client with endpoint " << clientSocket endpoint; nl.
+        Stdn stdout << "Accepted client with endpoint " << clientSocket endpoint; nl.
         let buffer mutable type: (UInt8 array: 2048).
 
         while: clientSocket isValid do: {
@@ -22,7 +22,7 @@ class ClientProcessor definition: {
             }
         }.
 
-        NStd stdout << "Client with endpoint has " << clientSocket endpoint << " has closed its connection."; nl.
+        Stdn stdout << "Client with endpoint has " << clientSocket endpoint << " has closed its connection."; nl.
         self address nativeDelete.
     }.
 }.
@@ -33,17 +33,17 @@ function main externC (argc: Int32, argv: Char8 const pointer pointer) => Int32 
         port := LibC atoi(argv[1]) castTo: UInt16
     }.
 
-    let endpoint := NStd IO Endpoint ipv4SourcePort: port.
-    let socket mutable := NStd IO Socket tcpIPv4.
+    let endpoint := Stdn IO Endpoint ipv4SourcePort: port.
+    let socket mutable := Stdn IO Socket tcpIPv4.
     socket isValid ifFalse: {
-        NStd stdout << "Failed to create the socket."; nl.
+        Stdn stdout << "Failed to create the socket."; nl.
         return: 1.
     }.
 
-    socket setOption: NStd IO SocketOption ReuseAddress value: 1.
+    socket setOption: Stdn IO SocketOption ReuseAddress value: 1.
 
     (socket bind: endpoint) ifFalse: {
-        NStd stdout << "Failed to bind listening port " << port; nl.
+        Stdn stdout << "Failed to bind listening port " << port; nl.
         return: 1.
     }.
 

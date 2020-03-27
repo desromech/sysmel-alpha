@@ -1,4 +1,4 @@
-namespace NStd definition: {
+namespace Stdn definition: {
 namespace Collections definition: {
 
 template Vector(ET: Type)
@@ -63,7 +63,7 @@ template Vector(ET: Type)
 		newCapacity <= capacity_ ifTrue: {return: nil}.
 
 		let newStorageSize := newCapacity * ElementType instanceSize.
-		let newStorage := NStd zmalloc(newStorageSize) reinterpretCastTo: ElementType pointer.
+		let newStorage := Stdn zmalloc(newStorageSize) reinterpretCastTo: ElementType pointer.
 
         0 until: size_ do: {:(UIntPointer)i :: Void |.
             newStorage[i]
@@ -153,4 +153,4 @@ template Vector(ET: Type)
 }.
 
 }. ## End of namespace Collections
-}. ## End of namespace NStd
+}. ## End of namespace Stdn

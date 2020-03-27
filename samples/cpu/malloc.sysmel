@@ -9,9 +9,9 @@ let allocationResults mutable type: (Void pointer array: AllocationCount).
 
 function freeAll() => Void := {
     for: (let i mutable := 0) while: (i < AllocationCount) do: {
-        NStd free(allocationResults[i])
+        Stdn free(allocationResults[i])
     } continueWith: (i := i + 1).
-    NStd stdout << "================================================================"; nl
+    Stdn stdout << "================================================================"; nl
 }.
 
 
@@ -21,7 +21,7 @@ function freeAll() => Void := {
 function main externC (argc: Int32, argv: Char const pointer pointer) => Int32 := {
     ## First zmalloc - with some fixed size
     for: (let i mutable := 0) while: (i < AllocationCount) do: {
-        allocationResults[i] := NStd zmalloc(16)
+        allocationResults[i] := Stdn zmalloc(16)
     } continueWith: (i := i + 1).
 
     freeAll().
@@ -29,7 +29,7 @@ function main externC (argc: Int32, argv: Char const pointer pointer) => Int32 :
     ## Second zmalloc - with quantum fixed sizes.
     for: (let i mutable := 0) while: (i < AllocationCount) do: {
         let size := ((i%31) + 1)*16 castTo: UIntPointer.
-        allocationResults[i] := NStd zmalloc(size)
+        allocationResults[i] := Stdn zmalloc(size)
     } continueWith: (i := i + 1).
 
     freeAll().
@@ -37,18 +37,18 @@ function main externC (argc: Int32, argv: Char const pointer pointer) => Int32 :
     ## Second zmalloc - random with quantum fixed sizes.
     for: (let i mutable := 0) while: (i < AllocationCount) do: {
         let size := ((nextRandom() % 31) + 1)*16 castTo: UIntPointer.
-        allocationResults[i] := NStd zmalloc(size)
+        allocationResults[i] := Stdn zmalloc(size)
     } continueWith: (i := i + 1).
 
     freeAll().
 
     ## Second, zmalloc - with random sizes
     #*for: (let i mutable := 0) while: (i < AllocationCount) do: {
-        allocationResults[i] := NStd zmalloc(nextRandom() % (2<<20))
+        allocationResults[i] := Stdn zmalloc(nextRandom() % (2<<20))
     } continueWith: (i := i + 1).
     freeAll().*#
 
-    NStd stdout << "UInt32 basicNativeNew value " << UInt32 basicNativeNew value; nl.
+    Stdn stdout << "UInt32 basicNativeNew value " << UInt32 basicNativeNew value; nl.
     UInt32 basicNativeNew basicNativeDelete.
 
     0

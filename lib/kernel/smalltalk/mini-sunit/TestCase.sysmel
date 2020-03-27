@@ -1,7 +1,7 @@
-namespace GCStd definition: {
+namespace Smalltalk definition: {
 
 gcclass TestCase superclass: TestAsserter; definition: {
 
 }.
 
-}. ## End of namespace GCStd
+}. ## End of namespace Smalltalk

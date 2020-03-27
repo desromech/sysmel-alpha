@@ -1,4 +1,4 @@
-namespace NStd definition: {
+namespace Stdn definition: {
 namespace IO definition: {
 
 #**
@@ -11,4 +11,4 @@ enum SeekMode valueType: Int32; values: #{
 }.
 
 }. ## End of namespace IO
-}. ## End of namespace NStd
+}. ## End of namespace Stdn

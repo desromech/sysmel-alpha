@@ -1,4 +1,4 @@
-namespace NStd definition: {
+namespace Stdn definition: {
 
 namespace IO definition: {
     ## Opaque declarations do not make any harm.
@@ -6,11 +6,11 @@ namespace IO definition: {
 }.
 
 Exception extend: {
-    const virtual method printOnNativeTextStreamWriter: (writer: NStd IO TextStreamWriter ref) ::=> Void := {
+    const virtual method printOnNativeTextStreamWriter: (writer: Stdn IO TextStreamWriter ref) ::=> Void := {
         messageText ifNotNil: {
             writer << messageText _
         }
     }.
 }.
 
-}. ## End of namespace NStd
+}. ## End of namespace Stdn

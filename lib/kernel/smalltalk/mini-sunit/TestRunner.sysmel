@@ -1,4 +1,4 @@
-namespace GCStd definition: {
+namespace Smalltalk definition: {
 
 gcclass TestRunner definition: {
     protected field runTestCount.
@@ -29,10 +29,10 @@ gcclass TestRunner definition: {
     }.
 
     method runTestCase: aTestCase := {
-        NStd stdout << "TODO: Run test case.".
+        Stdn stdout << "TODO: Run test case.".
         self
     }.
 
 }.
 
-}. ## End of namespace GCStd
+}. ## End of namespace Smalltalk

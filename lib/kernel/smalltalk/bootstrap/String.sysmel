@@ -1,4 +1,4 @@
-namespace GCStd definition: {
+namespace Smalltalk definition: {
 Object extend: {
 	method isString := false.
 }.
@@ -15,7 +15,7 @@ String definition: {
 				return: false.
 			}.
 
-			return: (NStd memcmp(__data[0] address, prefixString __private __data [0] address, prefixSize) == 0)
+			return: (Stdn memcmp(__data[0] address, prefixString __private __data [0] address, prefixSize) == 0)
 		}.
 		return: (super beginsWith: prefix)
 	}.
@@ -29,7 +29,7 @@ String definition: {
 				return: false.
 			}.
 
-			return: (NStd memcmp(__data[mySize - suffixSize] address, suffixString __private __data [0] address, suffixSize) == 0)
+			return: (Stdn memcmp(__data[mySize - suffixSize] address, suffixString __private __data [0] address, suffixSize) == 0)
 		}.
 		return: (super endsWith: suffix)
 	}.
@@ -63,9 +63,9 @@ String definition: {
             return: false.
         }.
 
-        return: NStd memcmp(__data[0] address, otherString __private __data[0] address, __data size) == 0.
+        return: Stdn memcmp(__data[0] address, otherString __private __data[0] address, __data size) == 0.
     }.
 
 }.
 
-}. ## End of namespace GCStd
+}. ## End of namespace Smalltalk

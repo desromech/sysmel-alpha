@@ -1,4 +1,4 @@
-namespace NStd definition: {
+namespace Stdn definition: {
 namespace ExplicitMemoryCollections definition: {
 
 #**
@@ -340,4 +340,4 @@ template BalancedTree(KT: Type, VT: Type)
 }.
 
 }. ## End of namespace ExplicitMemoryCollections
-}. ## End of namespace NStd
+}. ## End of namespace Stdn

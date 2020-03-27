@@ -1,4 +1,4 @@
-namespace NStd definition: {
+namespace Stdn definition: {
 namespace IO definition: {
 
 #**
@@ -26,4 +26,4 @@ function swapUInt32(value: UInt32) => UInt32
        ((value & 16r000000ffu) << 24u).
 
 }. ## End of namespace IO
-}. ## End of namespace NStd
+}. ## End of namespace Stdn

@@ -1,4 +1,4 @@
-namespace NStd definition: {
+namespace Stdn definition: {
 
 ## Array
 template FixedArray(ET: Type)
@@ -27,4 +27,4 @@ compileTimeConstant StringLiteral := String const ref.
 
 Compiler compilationTarget setNativePrefixedStringLiteralType: StringLiteral.
 
-} ## End of namespace NStd
+} ## End of namespace Stdn

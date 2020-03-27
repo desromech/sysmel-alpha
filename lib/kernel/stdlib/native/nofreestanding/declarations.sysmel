@@ -1,4 +1,4 @@
-namespace NStd definition: {
+namespace Stdn definition: {
 namespace IO definition: {
     class Stream.
     class BinaryDataStreamReader.
@@ -14,4 +14,4 @@ class Semaphore.
 class MemoryHeapMutex.
 class Thread.
 
-}. ## End of namespace NStd
+}. ## End of namespace Stdn

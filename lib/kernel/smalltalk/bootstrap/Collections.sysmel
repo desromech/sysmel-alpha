@@ -1,4 +1,4 @@
-namespace GCStd definition: {
+namespace Smalltalk definition: {
 Object extend: {
 	method isEmptyOrNil
 		:= false.
@@ -254,4 +254,4 @@ Array definition: {
 	method isArray := true.
 }.
 
-}. ## End of namespace GCStd
+}. ## End of namespace Smalltalk

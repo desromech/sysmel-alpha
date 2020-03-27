@@ -1,4 +1,4 @@
-namespace NStd definition: {
+namespace Stdn definition: {
 namespace Serialization definition: {
 namespace MessagePack definition: {
 
@@ -9,11 +9,11 @@ enum ExtensionCode valueType: UInt8; values: #{
 }.
 
 class Encoder definition: {
-    public field writer type: NStd IO BinaryDataStreamWriter.
+    public field writer type: Stdn IO BinaryDataStreamWriter.
 
-    method beginEncodingIntoStream: (stream: NStd IO Stream pointer) ::=> Void := {
-        writer := NStd IO BinaryDataStreamWriter for: stream.
-        writer activeEndianness: NStd IO BinaryDataStreamEndianness Little.
+    method beginEncodingIntoStream: (stream: Stdn IO Stream pointer) ::=> Void := {
+        writer := Stdn IO BinaryDataStreamWriter for: stream.
+        writer activeEndianness: Stdn IO BinaryDataStreamEndianness Little.
     }.
 
     method writeBytes: (count: UIntPointer) from: (buffer: Void const pointer) ::=> Boolean8
@@ -69,7 +69,7 @@ class Encoder definition: {
     }.
 
     method encodeCharacter: (value: UInt32) ::=> Void := {
-        NStd stdout << "TODO: encodeCharacter"; nl.
+        Stdn stdout << "TODO: encodeCharacter"; nl.
     }.
 
     method encodeFloat: (value: Float64) ::=> Void := {
@@ -178,4 +178,4 @@ class Encoder definition: {
 
 }. ## End of namespace MessagePack
 }. ## End of namespace Serialization
-}. ## End of namespace NStd
+}. ## End of namespace Stdn

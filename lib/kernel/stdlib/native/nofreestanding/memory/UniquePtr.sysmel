@@ -1,4 +1,4 @@
-namespace NStd definition: {
+namespace Stdn definition: {
 
 template UniquePtr(PT: Type)
     := struct definition: {
@@ -76,8 +76,8 @@ template UniquePtr(PT: Type)
 	macro method ifNotNil: notNilAction ifNil: nilAction  := ``(`,self getPointer ifNotNil: `,notNilAction ifNil: `,nilAction).
 }.
 
-_NativeType meta macro method uniquePtr := ``(NStd UniquePtr(`,self)).
+_NativeType meta macro method uniquePtr := ``(Stdn UniquePtr(`,self)).
 
 _NativeType meta macro method uniqueNew := ``(`,self uniquePtr for: `,self nativeNew).
 
-}. ## End of namespace NStd
+}. ## End of namespace Stdn

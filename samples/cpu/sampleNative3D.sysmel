@@ -124,19 +124,19 @@ class Application definition: {
         let agpuPlatform mutable type: AGPU Platform pointer.
         AGPU agpuGetPlatforms(1, agpuPlatform address, nil).
         agpuPlatform ifNil: {
-            NStd stderr << "Failed to get AGPU platform"; nl.
+            Stdn stderr << "Failed to get AGPU platform"; nl.
             return: 1.
         }.
 
         ## Initialize SDL.
         SDL_Init(SDL_INIT_VIDEO | SDL_INIT_AUDIO | SDL_INIT_GAMECONTROLLER) < 0 ifTrue: {
-            NStd stderr << "Failed to initialize SDL2. "; nl.
+            Stdn stderr << "Failed to initialize SDL2. "; nl.
     		return: 1.
     	}.
 
     	window := SDL_CreateWindow("Sysmel SDL2 AGPU example", SDL_WINDOWPOS_CENTERED, SDL_WINDOWPOS_CENTERED, screenWidth castTo: Int32, screenHeight castTo: Int32, SDL_WINDOW_SHOWN).
     	window ifNil: {
-            NStd stderr << "Failed to create the window: "; nl.
+            Stdn stderr << "Failed to create the window: "; nl.
     		return: 1.
     	}.
 
@@ -163,7 +163,7 @@ class Application definition: {
                 swapChainCreateInfo window: windowInfo info cocoa window.
             }.
             let _ : {
-                NStd stderr << "Unsupported window system"; nl.
+                Stdn stderr << "Unsupported window system"; nl.
                 return: 1
             }.
             }.
@@ -180,7 +180,7 @@ class Application definition: {
             ## Open device.
             device := agpuPlatform _ openDevice: deviceOpenInfo address.
             device ifNil: {
-                NStd stderr << "Failed to open the device"; nl.
+                Stdn stderr << "Failed to open the device"; nl.
                 return: 1
             }.
 
@@ -190,7 +190,7 @@ class Application definition: {
             ## Create the swap chain.
             swapChain := device _ createSwapChain: commandQueue swapChainInfo: swapChainCreateInfo address.
             swapChain ifNil: {
-                NStd stderr << "Failed to create the swap chain."; nl.
+                Stdn stderr << "Failed to create the swap chain."; nl.
                 return: 1
             }.
 
@@ -273,10 +273,10 @@ class Application definition: {
     		self processEvents.
 
     		## Deterministic update.
-    		##NStd stdout << "deltaTicks " << deltaTicks; nl.
-    		##NStd stdout << "accumulatedTime " << accumulatedTime; nl.
+    		##Stdn stdout << "deltaTicks " << deltaTicks; nl.
+    		##Stdn stdout << "accumulatedTime " << accumulatedTime; nl.
     		while: accumulatedTime - updateDelta >= updateDelta  do: {
-    			##NStd stdout << "update iter "; nl.
+    			##Stdn stdout << "update iter "; nl.
     			self update: updateDelta.
     			accumulatedTime := accumulatedTime - updateDelta
     		}.
@@ -289,7 +289,7 @@ class Application definition: {
     		let renderEndTicks := SDL_GetTicks().
     		renderEndTicks < targetTicks ifTrue: {
     			let delayTicks := targetTicks - renderEndTicks - 2 castTo: Int32.
-    			##NStd stdout << "delayTicks " << delayTicks; nl.
+    			##Stdn stdout << "delayTicks " << delayTicks; nl.
     			delayTicks > 0 ifTrue: {
     				SDL_Delay(delayTicks castTo: UInt32).
     			}

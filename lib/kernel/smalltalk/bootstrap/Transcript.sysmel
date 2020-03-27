@@ -1,15 +1,15 @@
-namespace GCStd definition: {
+namespace Smalltalk definition: {
 
 ## TODO: Use a global variable here.
 gcclass Transcript definition: {
     meta definition: {
         method show: anObject
-            := {NStd stdout << anObject . self}.
+            := {Stdn stdout << anObject . self}.
         method cr
-            := {NStd stdout cr . self}.
+            := {Stdn stdout cr . self}.
         method nl
-            := {NStd stdout nl . self}.
+            := {Stdn stdout nl . self}.
     }
 }.
 
-}. ## End of namespace GCStd.
+}. ## End of namespace Smalltalk.

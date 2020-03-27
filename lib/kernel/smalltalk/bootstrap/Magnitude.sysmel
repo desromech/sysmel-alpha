@@ -1,4 +1,4 @@
-namespace GCStd definition: {
+namespace Smalltalk definition: {
 
 LargeInteger definition: {
 	public field __data type: ProtoObject gcclassVariableDataArray.
@@ -27,12 +27,12 @@ compileTimeIf: UIntPointer instanceSize = 4 then: {
 		v < 0 ifTrue: {
 			let largeNegativeInteger := LargeNegativeInteger basicNew: 4.
 			let spilledValue mutable := v negated.
-			NStd memcpy(largeNegativeInteger __data[0] address, spilledValue address, 4).
+			Stdn memcpy(largeNegativeInteger __data[0] address, spilledValue address, 4).
 			return: largeNegativeInteger
 		} ifFalse: {
 			let largePositiveInteger := LargePositiveInteger basicNew: 4.
 			let spilledValue mutable := v.
-			NStd memcpy(largePositiveInteger __data[0] address, spilledValue address, 8).
+			Stdn memcpy(largePositiveInteger __data[0] address, spilledValue address, 8).
 			return: largePositiveInteger
 		}.
 	}.
@@ -80,12 +80,12 @@ function int64ToInteger(v: Int64) => Integer := {
 	v < 0 ifTrue: {
 		let largeNegativeInteger := LargeNegativeInteger basicNew: 8.
 		let spilledValue mutable := v negated.
-		NStd memcpy(largeNegativeInteger __data[0] address, spilledValue address, 8).
+		Stdn memcpy(largeNegativeInteger __data[0] address, spilledValue address, 8).
 		return: largeNegativeInteger
 	} ifFalse: {
 		let largePositiveInteger := LargePositiveInteger basicNew: 8.
 		let spilledValue mutable := v.
-		NStd memcpy(largePositiveInteger __data[0] address, spilledValue address, 8).
+		Stdn memcpy(largePositiveInteger __data[0] address, spilledValue address, 8).
 		return: largePositiveInteger
 	}.
 }.
@@ -97,7 +97,7 @@ function uint64ToInteger(v: UInt64) => Integer := {
 
 	let largePositiveInteger := LargePositiveInteger basicNew: 8.
 	let spilledValue mutable := v.
-	NStd memcpy(largePositiveInteger __data[0] address, spilledValue address, 8).
+	Stdn memcpy(largePositiveInteger __data[0] address, spilledValue address, 8).
 	return: largePositiveInteger
 }.
 
@@ -196,7 +196,7 @@ Number extend: {
     method isNumber := true.
 
     method + aNumber := {
-        NStd fatalError: "Unimplemented Number >> #+".
+        Stdn fatalError: "Unimplemented Number >> #+".
 		self
     }.
 }.
@@ -329,4 +329,4 @@ Float extend: {
         super + aNumber
     }.
 }.
-}. ## End of namespace GCStd
+}. ## End of namespace Smalltalk

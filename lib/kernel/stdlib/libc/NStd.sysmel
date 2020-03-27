@@ -1,4 +1,0 @@
-namespace NStd definition: {
-function native_abort() => Void
-    := LibC abort().
-}.

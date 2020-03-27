@@ -1,4 +1,4 @@
-namespace NStd definition: {
+namespace Stdn definition: {
 namespace Reflection definition: {
 
 compileTimeConstant BasicInitializeFunctionPointerType := ((Void pointer) => Void) pointer.
@@ -32,4 +32,4 @@ class GCObjectHeader definition: {
 }.
 
 }. ## End of namespace Reflection
-}. ## End of namespace NStd
+}. ## End of namespace Stdn
