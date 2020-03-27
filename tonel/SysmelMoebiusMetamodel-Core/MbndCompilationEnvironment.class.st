@@ -16,7 +16,10 @@ Class {
 		'linkerArguments',
 		'currentModule',
 		'loadedModuleDictionary',
-		'loadedModules'
+		'loadedModules',
+		'moduleSourceLocations',
+		'moduleTranslationMode',
+		'currentModuleStack'
 	],
 	#category : #'SysmelMoebiusMetamodel-Core-Module'
 }
@@ -56,9 +59,16 @@ MbndCompilationEnvironment >> addLoadedModule: module [
 	module name ifNotNil: [ :name | self loadedModuleDictionary at: name put: module ].
 ]
 
-{ #category : #'as yet unclassified' }
+{ #category : #'semantic analysis' }
+MbndCompilationEnvironment >> analyzeReferenceNode: referenceNode with: analyzer [
+	^ (self asMoebiusLiteralValueNodeWithTarget: self compilationTarget)
+		position: referenceNode;
+		yourself
+]
+
+{ #category : #'module import' }
 MbndCompilationEnvironment >> beginModule: moduleName [
-	currentModule := nil.
+	self pushCurrentModule.
 	self validCurrentModule name: moduleName.
 	self addLoadedModule: currentModule.
 ]
@@ -83,17 +93,27 @@ MbndCompilationEnvironment >> currentModule [
 	^ currentModule
 ]
 
-{ #category : #'module construction' }
+{ #category : #initialization }
+MbndCompilationEnvironment >> defaultModuleTranslationMode [
+	self monolithic
+]
+
+{ #category : #'module import' }
+MbndCompilationEnvironment >> endModule [
+	self popCurrentModule
+]
+
+{ #category : #'module import' }
 MbndCompilationEnvironment >> evaluateFileNamed: fileName [
 	^ self validCurrentModule evaluateFileNamed: fileName
 ]
 
-{ #category : #'module construction' }
+{ #category : #'module import' }
 MbndCompilationEnvironment >> evaluateFileNamedOnce: fileName [
 	^ self validCurrentModule evaluateFileNamedOnce: fileName
 ]
 
-{ #category : #'module construction' }
+{ #category : #'module import' }
 MbndCompilationEnvironment >> evaluateLanguage: languageName source: sourceString [
 	^ self validCurrentModule evaluateLanguage: languageName source: sourceString
 ]
@@ -103,7 +123,7 @@ MbndCompilationEnvironment >> evaluateRuntimeCoreLibrary [
 	coreModule loadRuntimeCoreLibrary
 ]
 
-{ #category : #'module construction' }
+{ #category : #'module import' }
 MbndCompilationEnvironment >> finishSemanticAnalysis [
 	self validCurrentModule finishSemanticAnalysis
 ]
@@ -114,6 +134,11 @@ MbndCompilationEnvironment >> freestanding [
 	^ self
 		noLibC;
 		noRTTI.
+]
+
+{ #category : #testing }
+MbndCompilationEnvironment >> hasConservativeGarbageCollector [
+	^ self hasGarbageCollectionSupport and: [ self hasPreciseGarbageCollector not or: [ self hasGarbageCollectionStackMap not ] ]
 ]
 
 { #category : #parameters }
@@ -169,6 +194,11 @@ MbndCompilationEnvironment >> hasLibC: aBoolean [
 	hasLibC := aBoolean
 ]
 
+{ #category : #'module import' }
+MbndCompilationEnvironment >> hasMonolithicTranslationMode [
+	^ moduleTranslationMode = #monolithic.
+]
+
 { #category : #parameters }
 MbndCompilationEnvironment >> hasPreciseGarbageCollector [
 	^ false
@@ -198,26 +228,62 @@ MbndCompilationEnvironment >> hasStandardLibrary: aBoolean [
 	hasStandardLibrary := aBoolean
 ]
 
-{ #category : #serialization }
+{ #category : #'module import' }
 MbndCompilationEnvironment >> importModuleFrom: moduleExportFileName [
-	currentModule == coreModule ifFalse: [ currentModule := nil ].
+	| isCoreModule |
+	isCoreModule := currentModule == coreModule.
+	isCoreModule ifFalse: [ self pushCurrentModule ].
+	
 	self validCurrentModule importModuleFrom: moduleExportFileName.
 	self addLoadedModule: currentModule.
-	currentModule := nil
+	currentModule := nil.
+	
+	isCoreModule ifFalse: [ self popCurrentModule ].
+
 ]
 
-{ #category : #adding }
+{ #category : #'module import' }
 MbndCompilationEnvironment >> importModuleNamed: moduleName [
 	^ self loadedModuleDictionary at: moduleName ifAbsent: [
-		self error: 'Automatic module importation mechanism is not yet implemented.'
+		self importOrCompileModuleNamed: moduleName.
 	]
+]
+
+{ #category : #'module import' }
+MbndCompilationEnvironment >> importOrCompileModuleNamed: moduleName [
+	| importedModuleSourceLocations location resultModule |
+	importedModuleSourceLocations := OrderedCollection new.
+	moduleSourceLocations do: [ :each | 
+		location := each / moduleName. 
+		(location exists and: [ location isDirectory ]) ifTrue: [
+			importedModuleSourceLocations add: location
+		].
+	].
+
+	importedModuleSourceLocations ifEmpty: [
+		self error: 'Cannot import or compile module named {1}' format: { moduleName }
+	].
+
+	self validCurrentModule
+		name: moduleName;
+		sourceLocations: importedModuleSourceLocations asArray.
+	self addLoadedModule: currentModule.
+	resultModule := currentModule evaluateModuleLevelFilesIfExists: 'module.sysmel' asFileReference.
+	"currentModule := nil."
+	^ resultModule
+
 ]
 
 { #category : #initialization }
 MbndCompilationEnvironment >> initializeWithCompilationTarget: aCompilationTarget [
 	compilationTarget := aCompilationTarget.
+	moduleSourceLocations := OrderedCollection new.
+	moduleSourceLocations add: MbndCoreAssets location / 'module-sources'.
+	
 	coreModule := MbndStandaloneModule for: self.
+	currentModuleStack := OrderedCollection new.
 	currentModule := coreModule.
+	self defaultModuleTranslationMode.
 ]
 
 { #category : #accessing }
@@ -226,11 +292,20 @@ MbndCompilationEnvironment >> linkerArguments [
 ]
 
 { #category : #'as yet unclassified' }
+MbndCompilationEnvironment >> loadPackage: packageName [
+	<compileTime>
+	^ self validCurrentModule loadPackage: packageName
+]
+
+{ #category : #'as yet unclassified' }
+MbndCompilationEnvironment >> loadPackages: packageNames [
+	<compileTime>
+	^ self validCurrentModule loadPackages: packageNames
+]
+
+{ #category : #'as yet unclassified' }
 MbndCompilationEnvironment >> loadRuntimeCoreLibrary [
-	self flag: 'TODO: support importing this runtime core library.'.
-	coreModule
-		name: #SysmelCore;
-		loadRuntimeCoreLibrary
+	self importModuleNamed: #'Sysmel.Core'
 ]
 
 { #category : #accessing }
@@ -241,6 +316,21 @@ MbndCompilationEnvironment >> loadedModuleDictionary [
 { #category : #accessing }
 MbndCompilationEnvironment >> loadedModules [
 	^ loadedModules ifNil: [ loadedModules := OrderedCollection new ]
+]
+
+{ #category : #accessing }
+MbndCompilationEnvironment >> moduleTranslationMode [
+	^ moduleTranslationMode
+]
+
+{ #category : #accessing }
+MbndCompilationEnvironment >> moduleTranslationMode: anObject [
+	moduleTranslationMode := anObject
+]
+
+{ #category : #'as yet unclassified' }
+MbndCompilationEnvironment >> monolithic [
+	moduleTranslationMode := #monolithic.
 ]
 
 { #category : #parameters }
@@ -285,6 +375,31 @@ MbndCompilationEnvironment >> optimizationLevel: anInteger [
 	^ optimizationLevel := anInteger
 ]
 
+{ #category : #'module import' }
+MbndCompilationEnvironment >> popCurrentModule [
+	self hasMonolithicTranslationMode ifTrue: [
+		| oldState |
+		oldState := currentModuleStack last.
+		currentModule restoreMonolithicSubmoduleState: oldState.
+		currentModuleStack removeLast.
+		^ self.
+	].
+
+	currentModule := currentModuleStack last.
+	currentModuleStack removeLast.
+]
+
+{ #category : #'module import' }
+MbndCompilationEnvironment >> pushCurrentModule [
+	self hasMonolithicTranslationMode ifTrue: [ 
+		currentModuleStack add: currentModule monolithicSubmoduleState.
+		^ self
+	].
+
+	currentModuleStack add: currentModule.
+	currentModule := nil.
+]
+
 { #category : #parameters }
 MbndCompilationEnvironment >> useLibC [
 	<compileTime>
@@ -297,7 +412,7 @@ MbndCompilationEnvironment >> useLibC: aBoolean [
 	useLibC := aBoolean
 ]
 
-{ #category : #'module construction' }
+{ #category : #'module import' }
 MbndCompilationEnvironment >> validCurrentModule [
 	currentModule ifNil: [
 		currentModule := (MbndStandaloneModule for: self)

@@ -278,7 +278,7 @@ TMbndModule >> languageInterfaceCache [
 
 { #category : #'member symbols' }
 TMbndModule >> lookupSymbol: aSymbol [
-	aSymbol = #Compiler ifTrue: [ ^ self ].
+	aSymbol = #Compiler ifTrue: [ ^ self compilationEnvironment ].
 	^ nil
 ]
 

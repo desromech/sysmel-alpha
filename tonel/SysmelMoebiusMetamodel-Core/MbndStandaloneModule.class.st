@@ -3,8 +3,10 @@ Class {
 	#superclass : #MbndAbstractModule,
 	#instVars : [
 		'compilationEnvironment',
+		'sourceLocations',
 		'linkerArguments',
-		'importedModules'
+		'importedModules',
+		'loadedPackageStates'
 	],
 	#classVars : [
 		'MessagePackTypeMapTable'
@@ -200,6 +202,22 @@ MbndStandaloneModule >> encodeModulePublicInterface [
 ]
 
 { #category : #'as yet unclassified' }
+MbndStandaloneModule >> evaluateModuleLevelFilesIfExists: fileName [
+	| suffix location result |
+	suffix := fileName asFileReference.
+	result := false. 
+	sourceLocations do: [ :each |
+		location := each resolve: suffix.
+		(location exists and: [ location isFile ]) ifTrue: [
+			result := true.
+			self evaluateFileNamedOnce: location
+		] 
+	].
+
+	^ result
+]
+
+{ #category : #'as yet unclassified' }
 MbndStandaloneModule >> exportModulePublicInterfaceTo: outputFileName [
 	| publicModuleEncodedMessage |
 	publicModuleEncodedMessage := self encodeModulePublicInterface.
@@ -309,6 +327,7 @@ MbndStandaloneModule >> importedModules: anObject [
 { #category : #accessing }
 MbndStandaloneModule >> initializeWithCompilationEnvironment: aCompilationEnvironment [
 	compilationEnvironment := aCompilationEnvironment.
+	sourceLocations := #().
 	compilationEnvironment compilationTarget coreDefinitionsModule ifNil: [ 
 		compilationEnvironment compilationTarget
 			coreDefinitionsModule: self;
@@ -324,8 +343,35 @@ MbndStandaloneModule >> isStandaloneModule [
 ]
 
 { #category : #'as yet unclassified' }
+MbndStandaloneModule >> loadPackage: packageName [
+	self loadedPackageStates at: packageName ifPresent: [ :state |
+		state == #loading ifTrue: [ self error: 'Circular package dependency for package: {1}' format: {packageName} ].
+		^ self
+	] ifAbsentPut: [#loading].
+
+	(self evaluateModuleLevelFilesIfExists: packageName asFileReference / 'package.sysmel') ifFalse: [
+		self error: 'Failed to load package {1}: no sources have been found.' format: {packageName}
+	].
+	
+	loadedPackageStates at: packageName put: #loaded.
+]
+
+{ #category : #'as yet unclassified' }
+MbndStandaloneModule >> loadPackages: packageNames [
+	<compileTime>
+	packageNames do: [ :each |
+		self loadPackage: each
+	]
+]
+
+{ #category : #'as yet unclassified' }
 MbndStandaloneModule >> loadRuntimeCoreLibrary [
 	^ self evaluateFileNamedOnce: MbndCoreAssets location  / 'lib' / 'kernel' / 'kernel.sysmel'. 
+]
+
+{ #category : #accessing }
+MbndStandaloneModule >> loadedPackageStates [
+	^ loadedPackageStates ifNil: [ loadedPackageStates := Dictionary new ]
 ]
 
 { #category : #serialization }
@@ -343,9 +389,32 @@ MbndStandaloneModule >> materializeWithGraphDecoder: graphDecoder withFields: en
 	]
 ]
 
+{ #category : #'as yet unclassified' }
+MbndStandaloneModule >> monolithicSubmoduleState [
+	^ { name . sourceLocations . importedModules . loadedPackageStates }
+]
+
 { #category : #parameters }
 MbndStandaloneModule >> optimizationLevel [
 	^ compilationEnvironment optimizationLevel
+]
+
+{ #category : #'as yet unclassified' }
+MbndStandaloneModule >> restoreMonolithicSubmoduleState: state [
+	name := state first.
+	sourceLocations := state second.
+	importedModules := state third.
+	loadedPackageStates := state fourth.
+]
+
+{ #category : #accessing }
+MbndStandaloneModule >> sourceLocations [
+	^ sourceLocations
+]
+
+{ #category : #accessing }
+MbndStandaloneModule >> sourceLocations: anObject [
+	sourceLocations := anObject
 ]
 
 { #category : #writing }
