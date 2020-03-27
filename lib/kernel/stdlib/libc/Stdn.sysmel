@@ -1,0 +1,4 @@
+namespace Stdn definition: {
+function native_abort() => Void
+    := LibC abort().
+}.
