@@ -95,7 +95,12 @@ MbndCompilationEnvironment >> currentModule [
 
 { #category : #initialization }
 MbndCompilationEnvironment >> defaultModuleTranslationMode [
-	self monolithic
+	self object
+]
+
+{ #category : #'module translation mode' }
+MbndCompilationEnvironment >> dll [
+	moduleTranslationMode := #dll.
 ]
 
 { #category : #'module import' }
@@ -139,6 +144,11 @@ MbndCompilationEnvironment >> freestanding [
 { #category : #testing }
 MbndCompilationEnvironment >> hasConservativeGarbageCollector [
 	^ self hasGarbageCollectionSupport and: [ self hasPreciseGarbageCollector not or: [ self hasGarbageCollectionStackMap not ] ]
+]
+
+{ #category : #testing }
+MbndCompilationEnvironment >> hasDLLTranslationMode [
+	^ moduleTranslationMode = #dll.
 ]
 
 { #category : #parameters }
@@ -194,9 +204,14 @@ MbndCompilationEnvironment >> hasLibC: aBoolean [
 	hasLibC := aBoolean
 ]
 
-{ #category : #'module import' }
+{ #category : #testing }
 MbndCompilationEnvironment >> hasMonolithicTranslationMode [
 	^ moduleTranslationMode = #monolithic.
+]
+
+{ #category : #testing }
+MbndCompilationEnvironment >> hasObjectoTranslationMode [
+	^ moduleTranslationMode = #object.
 ]
 
 { #category : #parameters }
@@ -328,7 +343,7 @@ MbndCompilationEnvironment >> moduleTranslationMode: anObject [
 	moduleTranslationMode := anObject
 ]
 
-{ #category : #'as yet unclassified' }
+{ #category : #'module translation mode' }
 MbndCompilationEnvironment >> monolithic [
 	moduleTranslationMode := #monolithic.
 ]
@@ -363,6 +378,11 @@ MbndCompilationEnvironment >> noRTTI [
 MbndCompilationEnvironment >> noStandardLibrary [
 	<compileTime>
 	self hasStandardLibrary: false
+]
+
+{ #category : #'module translation mode' }
+MbndCompilationEnvironment >> object [
+	moduleTranslationMode := #object.
 ]
 
 { #category : #parameters }
