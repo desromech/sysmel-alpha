@@ -1,0 +1,216 @@
+namespace FreeType2 definition: {
+
+struct FT_Glyph_Metrics definition: {
+    public field width type: FT_Pos.
+    public field height type: FT_Pos.
+
+    public field horiBearingX type: FT_Pos.
+    public field horiBearingY type: FT_Pos.
+    public field horiAdvance type: FT_Pos.
+
+    public field vertBearingX type: FT_Pos.
+    public field vertBearingY type: FT_Pos.
+    public field vertAdvance type: FT_Pos.
+}.
+
+struct FT_Bitmap_Size definition: {
+    public field height type: FT_Pos.
+    public field width type: FT_Pos.
+
+    public field size type: FT_Pos.
+
+    public field x_ppem type: FT_Pos.
+    public field y_ppem type: FT_Pos.
+}.
+
+struct FT_LibraryRec_.
+compileTimeConstant FT_Library := FT_LibraryRec_ pointer.
+
+struct FT_ModuleRec_.
+compileTimeConstant FT_Module := FT_ModuleRec_ pointer.
+
+struct FT_DriverRec_.
+compileTimeConstant FT_Driver := FT_DriverRec_ pointer.
+
+struct FT_RendererRec_.
+compileTimeConstant FT_Renderer := FT_RendererRec_ pointer.
+
+struct FT_FaceRec_.
+compileTimeConstant FT_Face := FT_FaceRec_ pointer.
+
+struct FT_SizeRec_.
+compileTimeConstant FT_Size := FT_SizeRec_ pointer.
+
+struct FT_GlyphSlotRec_.
+compileTimeConstant FT_GlyphSlot := FT_GlyphSlotRec_ pointer.
+
+struct FT_CharMapRec_.
+compileTimeConstant FT_CharMap := FT_CharMapRec_ pointer.
+
+struct FT_Size_InternalRec_.
+compileTimeConstant FT_Size_Internal := FT_Size_InternalRec_ pointer.
+
+struct FT_Face_InternalRec_.
+compileTimeConstant FT_Face_Internal := FT_Face_InternalRec_ pointer.
+
+struct FT_MemoryRec_.
+compileTimeConstant FT_Memory := FT_MemoryRec_ pointer.
+
+struct FT_StreamRec_.
+compileTimeConstant FT_Stream := FT_StreamRec_ pointer.
+
+inline function encodingTag(a: Char8, b: Char8, c: Char8, d: Char8) => UInt32
+    := (a<<24) | (b<<16) | (c<<8) | d castTo: UInt32.
+
+enum FT_Encoding valueType: UInt32; values: #{
+    None: 0.
+    Unicode: encodingTag('u', 'n', 'i', 'c')
+}.
+
+FT_CharMapRec_ definition:
+{
+    public field face type: FT_Face.
+    public field encoding type: FT_Encoding.
+    public field platform_id type: FT_UShort.
+    public field encoding_id type: FT_UShort.
+}.
+
+enum FT_FaceFlag valueType: FT_Long; values: #{
+    Scalable: 1<<0.
+    FixedSizes: 1<<1.
+    FixedWidth: 1<<2.
+    SFNT: 1<<3.
+    Horizontal: 1<<4.
+    Vertical: 1<<5.
+    Kerning: 1<<6.
+    FastGlyphs: 1<<7.
+    MultipleMasters: 1<<8.
+    GlyphNames: 1<<9.
+    ExternalStream: 1<<10.
+    Hinter: 1<<11.
+    CidKeyed: 1<<12.
+    Tricky: 1<<13.
+    Color: 1<<14.
+    Variation: 1<<15.
+}.
+
+FT_FaceRec_ definition:
+{
+    public field num_faces type: FT_Long.
+    public field face_index type: FT_Long.
+
+    public field face_flags type: FT_FaceFlag.
+    public field style_flags type: FT_Long.
+
+    public field num_glyphs type: FT_Long.
+
+    public field family_name type: FT_String pointer.
+    public field style_name type: FT_String pointer.
+
+    public field num_fixed_sizes type: FT_Int pointer.
+    public field available_sizes type: FT_Bitmap_Size pointer.
+
+    public field num_charmaps type: FT_Int pointer.
+    public field charmaps type: FT_CharMap pointer.
+
+    public field generic type: FT_Generic.
+
+    public field bbox type: FT_BBox.
+
+    public field units_per_EM type: FT_UShort.
+    public field ascender type: FT_Short.
+    public field descender type: FT_Short.
+    public field height type: FT_Short.
+
+    public field max_advance_width type: FT_Short.
+    public field max_advance_height type: FT_Short.
+
+    public field underline_position type: FT_Short.
+    public field underline_thickness type: FT_Short.
+
+    public field glyph type: FT_GlyphSlot.
+    public field size type: FT_Size.
+    public field charmap type: FT_CharMap.
+
+    ##@private begin
+    public field driver type: FT_Driver.
+    public field memory type: FT_Memory.
+    public field stream type: FT_Stream.
+
+    public field sizes_list type: FT_ListRec.
+
+    public field autohint type: FT_Generic.
+    public field extensions type: Void pointer.
+
+    public field internal type: FT_Face_Internal.
+    ##@private end
+}.
+
+struct FT_Size_Metrics definition: {
+    public field x_ppem type: FT_UShort.
+    public field y_ppem type: FT_UShort.
+
+    public field x_scale type: FT_Fixed.
+    public field y_scale type: FT_Fixed.
+
+    public field ascender type: FT_Pos.
+    public field descender type: FT_Pos.
+    public field height type: FT_Pos.
+    public field max_advance type: FT_Pos.
+}.
+
+FT_SizeRec_ definition: {
+    public field face type: FT_Face.
+    public field generic type: FT_Generic.
+    public field metrics type: FT_Size_Metrics.
+    public field internal type: FT_Size_Internal.
+}.
+
+struct FT_SubGlyphRec_.
+compileTimeConstant FT_SubGlyph := FT_SubGlyphRec_ pointer.
+
+struct FT_Slot_InternalRec_.
+compileTimeConstant FT_Slot_Internal := FT_Slot_InternalRec_ pointer.
+
+struct FT_GlyphSlotRec_ definition: {
+    public field library type: FT_Library.
+    public field face type: FT_Face.
+    public field next type: FT_GlyphSlot.
+    public field reserved type: FT_UInt.
+    public field generic type: FT_Generic.
+
+    public field metrics type: FT_Glyph_Metrics.
+    public field linearHoriAdvance type: FT_Fixed.
+    public field linearVertAdvance type: FT_Fixed.
+    public field advance type: FT_Vector.
+
+    public field format type: FT_Glyph_Format.
+
+    public field bitmap type: FT_Bitmap.
+    public field bitmap_left type: FT_Int.
+    public field bitmap_top type: FT_Int.
+
+    public field outline type: FT_Outline.
+
+    public field num_subglyphs type: FT_UInt.
+    public field subglyphs type: FT_SubGlyph.
+
+    public field control_data type: Void pointer.
+    public field control_len type: CTypes Long.
+
+    public field lsb_delta type: FT_Pos.
+    public field rsb_delta type: FT_Pos.
+
+    public field other type: Void pointer.
+    public field internal type: FT_Slot_Internal.
+
+}.
+
+function FT_Init_FreeType externC dllimport (aLibrary: FT_Library pointer) => FT_Error.
+function FT_Done_FreeType externC dllimport (library: FT_Library) => FT_Error.
+
+function FT_New_Face externC dllimport (library: FT_Library, filepathname: Char8 const pointer, face_index: FT_Long, aface: FT_Face pointer) => FT_Error.
+function FT_New_Memory_Face externC dllimport (library: FT_Library, file_base: FT_Byte const pointer, file_size: FT_Long, face_index: FT_Long, aface: FT_Face pointer) => FT_Error.
+function FT_Done_Face externC dllimport (face: FT_Face) => FT_Error.
+
+}. ## End of namespace FreeType2

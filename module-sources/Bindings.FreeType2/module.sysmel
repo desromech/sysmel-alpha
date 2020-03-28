@@ -1,0 +1,2 @@
+Compiler addLinkerArguments: #("-lfreetype2");
+    loadPackage: #"FreeType2-Bindings".

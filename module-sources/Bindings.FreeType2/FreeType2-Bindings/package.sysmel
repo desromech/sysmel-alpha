@@ -1,0 +1,3 @@
+loadFileOnce: "types.sysmel".
+loadFileOnce: "image.sysmel".
+loadFileOnce: "freetype.sysmel".

@@ -1,0 +1,56 @@
+namespace FreeType2 definition: {
+
+compileTimeConstant FT_Pos := CTypes Long.
+
+struct FT_BBox definition: {
+    public field xMin type: FT_Pos.
+    public field yMin type: FT_Pos.
+
+    public field xMax type: FT_Pos.
+    public field yMax type: FT_Pos.
+}.
+
+struct FT_Vector definition: {
+    public field x type: FT_Pos.
+    public field y type: FT_Pos.
+}.
+
+enum FT_Pixel_Mode valueType: UInt8; values: #{
+    None: 0.
+    Mono: 1.
+    Gray: 2.
+    Gray2: 3.
+    Gray4: 4.
+    LCD: 5.
+    LCD_V: 6.
+    BGRA: 7.
+}.
+
+struct FT_Outline definition: {
+    public field n_contours type: Int16.
+    public field n_points type: Int16.
+
+    public field points type: FT_Vector.
+    public field tags type: UInt8 pointer.
+    public field contours type: Int16.
+
+    public field flags type: UInt32.
+}.
+
+struct FT_Bitmap definition: {
+    public field rows type: UInt32.
+    public field width type: UInt32.
+    public field pitch type: Int32.
+    public field buffer type: UInt8 pointer.
+    public field num_grays type: UInt16.
+    public field pixel_mode type: FT_Pixel_Mode.
+    public field palette_mode type: UInt8.
+    public field palette type: Void pointer.
+}.
+
+enum FT_Glyph_Format valueType: UInt32; values: #{
+    None: 9
+}.
+
+
+}. ## End of namespace FreeType2
