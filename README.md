@@ -55,8 +55,9 @@ Metacello new
 ## Compiler invocation in a playground
 ```smalltalk
 "CPU Hello sample"
-MbndStandaloneModule llvm_x86_64
+MbndCompilationEnvironment llvm_x86_64
 	withDebugInformation;
+    monolithic;
 	loadRuntimeCoreLibrary;
 	evaluateFileNamedOnce: 'samples/cpu/hello.sysmel';
 	finishSemanticAnalysis;
@@ -65,12 +66,14 @@ MbndStandaloneModule llvm_x86_64
     writeExecutableToFileNamed: 'hello'
 
 "CPU native sample game"
-MbndStandaloneModule llvm_x86_64
+MbndCompilationEnvironment llvm_x86_64
 	withDebugInformation;
 	noGC;
+    monolithic;
 	"optimizationLevel: 2;"
 	loadRuntimeCoreLibrary;
-	evaluateFileNamedOnce: 'lib/bindings/sdl2/sdl2.sysmel';
+	importModuleNamed: #'Bindings.SDL2';
+	beginModule: #SampleNativeGame;
 	evaluateFileNamedOnce: 'samples/cpu/sampleNativeGame.sysmel';
 	finishSemanticAnalysis;
 	"writeLLVMAssemblyToFileNamed: 'sampleNativeGame.ll';"
@@ -78,7 +81,7 @@ MbndStandaloneModule llvm_x86_64
 	writeExecutableToFileNamed: 'sampleNativeGame'
 
 "Sample Vulkan shaders"
-MbndStandaloneModule spirv_vulkan
+MbndCompilationEnvironment spirv_vulkan
 	loadRuntimeCoreLibrary;
 	evaluateFileNamedOnce: 'samples/gpu/solidRenderingShaders.sysmel';
 	finishSemanticAnalysis;
