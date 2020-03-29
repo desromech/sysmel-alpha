@@ -85,7 +85,16 @@ MbndPrimitiveVectorType >> addInstanceMacros [
 		self addVectorElementField: (fieldIndex - 1) % 4 withName: fieldName
 	].
 
+
 	self type
+		onMacroSelector: #zeros do: [ :node :builder |
+			self assert: node receiver value isPrimitiveVectorType.
+			node receiver value expandZerosVectorConstruction: node with: builder.
+		];
+		onMacroSelector: #ones do: [ :node :builder |
+			self assert: node receiver value isPrimitiveVectorType.
+			node receiver value expandOnesVectorConstruction: node with: builder.
+		];
 		onMacroSelector: #applyWithArguments: do: [ :node :builder :analyzer |
 			self assert: node receiver value isPrimitiveVectorType.
 			analyzer visitNode: ((builder constructVector: node receiver value withElements: node arguments first)
@@ -228,6 +237,23 @@ MbndPrimitiveVectorType >> elements [
 { #category : #accessing }
 MbndPrimitiveVectorType >> elements: anObject [
 	elements := anObject
+]
+
+{ #category : #initialization }
+MbndPrimitiveVectorType >> expandAllConstant: constantValue vectorConstruction: node with: builder [
+	| constantValueNode |
+	constantValueNode := constantValue asLiteralValueNode position: node.
+	^ builder constructVector: self withElements: ((1 to: elements) collect: [ :i | constantValueNode ])
+]
+
+{ #category : #initialization }
+MbndPrimitiveVectorType >> expandOnesVectorConstruction: node with: builder [
+	^ self expandAllConstant: elementType oneConstantValue vectorConstruction: node with: builder
+]
+
+{ #category : #initialization }
+MbndPrimitiveVectorType >> expandZerosVectorConstruction: node with: builder [
+	^ self expandAllConstant: elementType zeroConstantValue vectorConstruction: node with: builder
 ]
 
 { #category : #sizes }

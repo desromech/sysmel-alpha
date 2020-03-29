@@ -134,6 +134,16 @@ MbndEnumType >> lookupStaticMacroSelector: selector [
 	^ super lookupStaticMacroSelector: selector
 ]
 
+{ #category : #'member symbols' }
+MbndEnumType >> lookupSymbol: aSymbol [
+	values ifNotNil: [ 
+		values at: aSymbol ifPresent: [ :found |
+			^ found
+		]
+	].
+	^ super lookupSymbol: aSymbol
+]
+
 { #category : #serialization }
 MbndEnumType >> materializeWithGraphDecoder: graphDecoder withLazyFields: encodedFields [
 	super materializeWithGraphDecoder: graphDecoder withLazyFields: encodedFields.
