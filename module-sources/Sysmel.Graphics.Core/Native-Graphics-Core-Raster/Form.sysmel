@@ -1,0 +1,52 @@
+namespace Stdn definition: {
+namespace Graphics definition: {
+namespace Core definition: {
+
+#**
+ * I am a 2D bitmap which is located in the CPU.
+ *#
+class Form definition: {
+    public field extent type: UInt32x2.
+    public field pixelFormat type: PixelFormat.
+    public field pitch type: UInt32.
+    public field pixels type: UInt8 uniquePointer.
+
+    meta definition: {
+        method extent: (theExtent: UInt32x2) pixelFormat: (thePixelFormat: PixelFormat) ::=> Form sharedPointer := {
+            let result := Form sharedNew.
+            result _ initializeWithExtent: theExtent pixelFormat: thePixelFormat.
+            result
+        }.
+    }.
+
+    inline method width => UInt32
+        := extent x.
+
+    inline method height => UInt32
+        := extent y.
+
+    inline method initializeWithExtent: (theExtent: UInt32x2) pixelFormat: (thePixelFormat: PixelFormat) ::=> Void := {
+        Stdn assert: thePixelFormat bytesPerPixel ~= 0.
+        self initializeWithExtent: theExtent pixelFormat: thePixelFormat pitch: (thePixelFormat bytesPerPixel * theExtent x alignedTo: 4).
+    }.
+
+    inline method initializeWithExtent: (theExtent: UInt32x2) pixelFormat: (thePixelFormat: PixelFormat) pitch: (thePitch: UInt32) ::=> Void := {
+        extent := theExtent.
+        pixelFormat := thePixelFormat.
+        pitch := thePitch.
+        pixels := UInt8 uniquePointer for: (Stdn zmalloc(pitch * extent y) reinterpretCastTo: UInt8 pointer).
+    }.
+
+    inline method makeBlitter => Blitter
+        := Blitter basicNewValue
+            extent: extent;
+            pixelFormat: pixelFormat;
+            pitch: (pitch castTo: Int32);
+            pixels: pixels getPointer;
+            initializeCachedState;
+            yourself.
+}.
+
+}. ## End of namespace Core
+}. ## End of namespace Graphics
+}. ## End of namespace Stdn

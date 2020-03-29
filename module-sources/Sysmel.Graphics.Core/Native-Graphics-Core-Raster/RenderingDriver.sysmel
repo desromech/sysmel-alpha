@@ -1,0 +1,17 @@
+namespace Stdn definition: {
+namespace Graphics definition: {
+namespace Core definition: {
+
+class AbstractSurface.
+class Texture.
+
+#**
+ * I am an abstract rendering driver.
+ *#
+class RenderingDriver definition: {
+
+}.
+
+}. ## End of namespace Core
+}. ## End of namespace Graphics
+}. ## End of namespace Stdn

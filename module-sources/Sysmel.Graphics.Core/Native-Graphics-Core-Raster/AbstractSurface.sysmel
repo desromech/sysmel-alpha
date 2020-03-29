@@ -1,0 +1,13 @@
+namespace Stdn definition: {
+namespace Graphics definition: {
+namespace Core definition: {
+
+#**
+ * I am an abstract drawing surface onto which drawing commands can be issued.
+ *#
+AbstractSurface definition: {
+}.
+
+}. ## End of namespace Core
+}. ## End of namespace Graphics
+}. ## End of namespace Stdn

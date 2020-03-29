@@ -1,0 +1,238 @@
+namespace Stdn definition: {
+namespace Graphics definition: {
+namespace Core definition: {
+
+class UnsafePixelIterator definition: {
+    public field pixels type: UInt8 pointer.
+    public field pitch type: Int32.
+    public field bytesPerPixel type: UInt32.
+
+    method advanceColumn => Void := {
+        pixels := pixels + bytesPerPixel
+    }.
+
+    method advanceRow => Void := {
+        pixels := pixels + pitch
+    }.
+
+    method advanceRows: (deltaY: Int32) columns: (deltaX: Int32) ::=> Void := {
+        pixels := pixels + (deltaY*pitch + deltaX*bytesPerPixel)
+    }.
+
+    method advanceCoordinates: (coords: Int32x2) ::=> Void := {
+        self advanceRows: coords y columns: coords x
+    }.
+
+    method storePixelUNorm8x4: (newValue: UInt8x4) ::=> Void := {
+        bytesPerPixel selectCase: #{
+        1 : {
+            pixels _ := newValue x.
+        }.
+        2 : {
+            (pixels reinterpretCastTo: UInt8x2 pointer) _  := newValue xy.
+        }.
+        3 : {
+            pixels[0] := newValue x.
+            pixels[1] := newValue y.
+            pixels[2] := newValue z.
+        }.
+        4 : {
+            (pixels reinterpretCastTo: UInt8x4 pointer) _  := newValue.
+        }.
+        }.
+    }.
+
+    method storePixelFloat32x4: (newValue: Float32x4) ::=> Void := {
+        bytesPerPixel <= 4 ifTrue: {
+            let convertedPixelValue := (newValue clampMin: 0.0f max: 1.0f) * 255.0f castTo: UInt8x4.
+            self storePixelUNorm8x4: convertedPixelValue.
+            return: nil.
+        }.
+    }.
+
+    method loadPixelUNorm8x4 => UInt8x4 := {
+        bytesPerPixel selectCase: #{
+        1 : {
+            return: UInt8x4(pixels[0], 0, 0, 255).
+        }.
+        2 : {
+            return: UInt8x4(pixels[0], pixels[1], 0, 255).
+        }.
+        3 : {
+            return: UInt8x4(pixels[0], pixels[1], pixels[2], 255).
+        }.
+        4 : {
+            return: (pixels reinterpretCastTo: UInt8x4 pointer) _.
+        }.
+        }.
+
+        return: UInt8x4 zeros.
+    }.
+
+    method loadPixelFloat32x4 => Float32x4 := {
+        bytesPerPixel <= 4 ifTrue: {
+            return: (self loadPixelUNorm8x4 castTo: Float32x4) / 255.0f
+        }.
+
+        return: Float32x4 zeros.
+    }.
+}.
+
+#**
+ * I am a 2D CPU based blitter for pixels. I encapsulate pixel accessing and
+ * conversion operations, and I provide basic CPU based rasterization primitives.
+ *#
+class Blitter definition: {
+    ## Hold a copy of the surface components.
+
+    public field extent type: UInt32x2.
+    public field pitch type: Int32.
+    public field pixelFormat type: PixelFormat.
+    public field pixels type: UInt8 pointer.
+
+    field bytesPerPixel type: UInt32.
+
+    compileTimeConstant UNorm8RenderBlockType := ((UInt32x2) => UInt8x4) nativeBlockClosure.
+    compileTimeConstant Float32RenderBlockType := ((UInt32x2) => Float32x4) nativeBlockClosure.
+    compileTimeConstant Float32NormalizedRenderBlockType := ((Float32x2) => Float32x4) nativeBlockClosure.
+
+    method initializeCachedState => Void := {
+        bytesPerPixel := pixelFormat bytesPerPixel.
+    }.
+
+    const inline method setPixelsWith: (renderBlock: UNorm8RenderBlockType) ::=> Void := {
+        self setRectangleAt: Int32x2(0, 0) size: extent pixelsWith: renderBlock
+    }.
+
+    const inline method setRectangleAt: (rectangleOrigin: Int32x2) size: (rectangleSize: UInt32x2) pixelsWith: (renderBlock: UNorm8RenderBlockType) ::=> Void := {
+        self setRectangleFrom: rectangleOrigin to: (rectangleOrigin + (rectangleSize castTo: Int32x2)) pixelsWith: renderBlock
+    }.
+
+    const inline method makeUnsafePixelIterator => UnsafePixelIterator
+        := UnsafePixelIterator basicNewValue
+            pixels: pixels;
+            pitch: pitch;
+            bytesPerPixel: bytesPerPixel;
+            yourself.
+
+    const inline method makeUnsafePixelIteratorAt: (coordinates: Int32x2) ::=> UnsafePixelIterator
+        := self makeUnsafePixelIterator advanceCoordinates: coordinates; yourself.
+
+    const inline method setRectangleFrom: (rectangleMin: Int32x2) to: (rectangleMax: Int32x2) pixelsWith: (renderBlock: UNorm8RenderBlockType) ::=> Void := {
+        let clippedRectangleMin := rectangleMin max: Int32x2(0, 0).
+        let clippedRectangleMax := rectangleMax min: (extent castTo: Int32x2).
+        clippedRectangleMin x == clippedRectangleMax x || clippedRectangleMin y == clippedRectangleMax y ifTrue: {
+            return: nil.
+        }.
+
+        let destRow mutable := self makeUnsafePixelIteratorAt: clippedRectangleMin.
+        clippedRectangleMin y until: clippedRectangleMax y do: {:(Int32)y :: Void |
+            let destPixel mutable := destRow.
+            clippedRectangleMin x until: clippedRectangleMax x do: {:(Int32)x :: Void |
+                destPixel storePixelUNorm8x4: renderBlock(Int32x2(x, y) castTo: UInt32x2).
+                destPixel advanceColumn
+            }.
+
+            destRow advanceRow
+        }
+    }.
+
+    const inline method setPixelsWith: (renderBlock: Float32RenderBlockType) ::=> Void := {
+        self setRectangleAt: Int32x2(0, 0) size: extent pixelsWith: renderBlock
+    }.
+
+    const inline method setRectangleAt: (rectangleOrigin: Int32x2) size: (rectangleSize: UInt32x2) pixelsWith: (renderBlock: Float32RenderBlockType) ::=> Void := {
+        self setRectangleFrom: rectangleOrigin to: (rectangleOrigin + (rectangleSize castTo: Int32x2)) pixelsWith: renderBlock
+    }.
+
+    const inline method setRectangleFrom: (rectangleMin: Int32x2) to: (rectangleMax: Int32x2) pixelsWith: (renderBlock: Float32RenderBlockType) ::=> Void := {
+        let clippedRectangleMin := rectangleMin max: Int32x2(0, 0).
+        let clippedRectangleMax := rectangleMax min: (extent castTo: Int32x2).
+        clippedRectangleMin x == clippedRectangleMax x || clippedRectangleMin y == clippedRectangleMax y ifTrue: {
+            return: nil.
+        }.
+
+        let destRow mutable := self makeUnsafePixelIteratorAt: clippedRectangleMin.
+        clippedRectangleMin y until: clippedRectangleMax y do: {:(Int32)y :: Void |
+            let destPixel mutable := destRow.
+            clippedRectangleMin x until: clippedRectangleMax x do: {:(Int32)x :: Void |
+                destPixel storePixelFloat32x4: renderBlock(Int32x2(x, y) castTo: UInt32x2).
+                destPixel advanceColumn
+            }.
+
+            destRow advanceRow
+        }
+    }.
+
+    ## This one is used for generating procedural textures
+    const inline method setPixelsWith: (renderBlock: Float32NormalizedRenderBlockType) ::=> Void := {
+        self setPixelsWith: {:(UInt32x2)pixelCoord :: Float32x4 |
+            let normalizedCoord := (pixelCoord castTo: Float32x2) / (extent castTo: Float32x2).
+            renderBlock(normalizedCoord)
+        }
+    }.
+
+    const inline method setAllPixelsToColor: (color: UInt8x4) ::=> Void := {
+        self setPixelsWith: {:(UInt32x2)pixelCoord :: UInt8x4 |
+            color
+        }
+    }.
+
+    const inline method setAllPixelsToColor: (color: Float32x4) ::=> Void := {
+        self setPixelsWith: {:(UInt32x2)pixelCoord :: Float32x4 |
+            color
+        }
+    }.
+
+    const inline method copyPixelsFrom: (sourceBlitter: Blitter const ref) at: (sourceRectangleMin: Int32x2) to: (sourceRectangleMax: Int32x2)
+        at: (destinationPosition: Int32x2) ::=> Void := {
+
+        ## Clip the source rectangle.
+        let clippedSourceRectangleMin := sourceRectangleMin max: Int32x2(0, 0).
+        let clippedSourceRectangleMax := sourceRectangleMax min: (sourceBlitter extent castTo: Int32x2).
+
+        (clippedSourceRectangleMin x == clippedSourceRectangleMax x || clippedSourceRectangleMin y == clippedSourceRectangleMax y) ifTrue: {
+            return: nil
+        }.
+
+        let sourceCopyExtent := clippedSourceRectangleMax - clippedSourceRectangleMin.
+
+        ## Compute the destination rectangle.
+        let destinationMin := destinationPosition.
+        let destinationMax := destinationMin + sourceCopyExtent.
+        let clippedDestinationMin := destinationMin max: Int32x2(0, 0).
+        let clippedDestinationMax := destinationMax min: (extent castTo: Int32x2).
+
+        (clippedDestinationMin x == clippedDestinationMax x || clippedDestinationMin y == clippedDestinationMax y) ifTrue: {
+            return: nil
+        }.
+
+        let sourceClippedLocation := clippedSourceRectangleMin + (clippedDestinationMin - destinationMin).
+        let copyExtent := clippedDestinationMax - clippedDestinationMin.
+
+        let sourceRow mutable := sourceBlitter makeUnsafePixelIteratorAt: sourceClippedLocation.
+        let destRow mutable := self makeUnsafePixelIteratorAt: clippedDestinationMin.
+        clippedDestinationMin y until: clippedDestinationMax y do: {:(Int32)y :: Void |
+            let sourcePixel mutable := sourceRow.
+            let destPixel mutable := destRow.
+            clippedDestinationMin x until: clippedDestinationMax x do: {:(Int32)x :: Void |
+                destPixel storePixelUNorm8x4: sourcePixel loadPixelUNorm8x4.
+
+                sourcePixel advanceColumn.
+                destPixel advanceColumn.
+            }.
+
+            sourceRow advanceRow.
+            destRow advanceRow.
+        }
+    }.
+
+    const inline method copyPixelsFrom: (sourceBlitter: Blitter const ref) at: (targetPosition: Int32x2) ::=> Void := {
+        self copyPixelsFrom: sourceBlitter at: Int32x2(0, 0) to: (sourceBlitter extent castTo: Int32x2)
+            at: targetPosition.
+    }.
+}.
+
+}. ## End of namespace Core
+}. ## End of namespace Graphics
+}. ## End of namespace Stdn

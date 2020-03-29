@@ -1,0 +1,14 @@
+namespace Stdn definition: {
+namespace Graphics definition: {
+namespace Core definition: {
+
+#**
+ * I am a CPU software based rasterization drawing surface. My drawing is based on bitblit,
+ * I am slower than a GPU based surface, but I have zero overhead on direct accesses from the CPU.
+ *#
+class CPUSurface superclass: AbstractSurface; definition: {
+}.
+
+}. ## End of namespace Core
+}. ## End of namespace Graphics
+}. ## End of namespace Stdn

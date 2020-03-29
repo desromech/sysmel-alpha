@@ -1,0 +1,78 @@
+useNamespace: Stdn Graphics Core.
+
+function main externC (argc: Int32, argv: UInt8 const pointer pointer) => Int32 := {
+    ## Palette tga
+    {
+        let form := Form extent: UInt32x2(4, 4) pixelFormat: PixelFormat B8G8R8A8_UNorm.
+        form _ makeBlitter setPixelsWith: {:(UInt32x2)pixelCoord :: UInt8x4 |
+            let index := pixelCoord y*4 + pixelCoord x.
+            let color mutable := UInt8x4 zeros.
+
+            index selectCase: #{
+            0: color := UInt8x4(255, 0, 0, 255).
+            1: color := UInt8x4(0, 255, 0, 255).
+            2: color := UInt8x4(0, 0, 255, 255).
+            3: color := UInt8x4(255, 255, 0, 255).
+            4: color := UInt8x4(255, 0, 255, 255).
+            5: color := UInt8x4(0, 255, 255, 255).
+            6: color := UInt8x4(0, 0, 0, 255).
+            7: color := UInt8x4(255, 255, 255, 255).
+            }.
+
+            color
+        }.
+
+        form _ writeTGAfileNamed: "pixelUnormRenderPalette.tga".
+    }.
+
+    ## Palette tga
+    {
+        let form := Form extent: UInt32x2(4, 4) pixelFormat: PixelFormat B8G8R8A8_UNorm.
+        form _ makeBlitter setPixelsWith: {:(UInt32x2)pixelCoord :: Float32x4 |
+            let index := pixelCoord y*4 + pixelCoord x.
+            let color mutable := Float32x4 zeros.
+
+            index selectCase: #{
+            0: color := Float32x4(1.0f, 0.0f, 0.0f, 1.0f).
+            1: color := Float32x4(0.0f, 1.0f, 0.0f, 1.0f).
+            2: color := Float32x4(0.0f, 0.0f, 1.0f, 1.0f).
+            3: color := Float32x4(1.0f, 1.0f, 0.0f, 1.0f).
+            4: color := Float32x4(1.0f, 0.0f, 1.0f, 1.0f).
+            5: color := Float32x4(0.0f, 1.0f, 1.0f, 1.0f).
+            6: color := Float32x4(0.0f, 0.0f, 0.0f, 1.0f).
+            7: color := Float32x4(1.0f, 1.0f, 1.0f, 1.0f).
+            }.
+
+            color
+        }.
+        form _ writeTGAfileNamed: "pixelFloatRenderPalette.tga".
+    }.
+
+    ## Sine waves
+    {
+        let form := Form extent: UInt32x2(64, 64) pixelFormat: PixelFormat B8G8R8A8_UNorm.
+        form _ makeBlitter setPixelsWith: {:(Float32x2)pixelCoord :: Float32x4 |
+            let p := (pixelCoord*2.0f - 1.0f) *20.0f.
+            Float32x4(0.0f, 0.0f, 0.0f, 1.0f) interpolateTo: Float32x4 ones at: p length sin*0.5f + 0.5f.
+        }.
+        form _ writeTGAfileNamed: "sineWaveRender.tga".
+    }.
+
+    ## Sine waves
+    {
+        let sineWaves := Form extent: UInt32x2(64, 64) pixelFormat: PixelFormat B8G8R8A8_UNorm.
+        sineWaves _ makeBlitter setPixelsWith: {:(Float32x2)pixelCoord :: Float32x4 |
+            let p := (pixelCoord*2.0f - 1.0f) *20.0f.
+            Float32x4(0.0f, 0.0f, 0.0f, 1.0f) interpolateTo: Float32x4 ones at: p length sin*0.5f + 0.5f.
+        }.
+
+        let destForm := Form extent: UInt32x2(256, 256) pixelFormat: PixelFormat B8G8R8A8_UNorm.
+        destForm _ makeBlitter
+            setAllPixelsToColor: UInt8x4(255, 0, 255, 255);
+            copyPixelsFrom: sineWaves _ makeBlitter at: Int32x2(-50, 50).
+
+        destForm _ writeTGAfileNamed: "blitCopyRender.tga".
+    }.
+
+    return: 0.
+}.

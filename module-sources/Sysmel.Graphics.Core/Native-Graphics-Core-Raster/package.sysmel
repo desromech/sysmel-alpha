@@ -1,0 +1,17 @@
+## Some core objects that are independant of any particular rendering driver.
+loadFileOnce: "PixelFormat.sysmel".
+loadFileOnce: "Blitter.sysmel".
+loadFileOnce: "Form.sysmel".
+
+## 2D drawing driver.
+loadFileOnce: "RenderingDriver.sysmel".
+
+## 2D bitmaps.
+loadFileOnce: "Texture.sysmel".
+
+## 2D drawing surfaces.
+loadFileOnce: "AbstractSurface.sysmel".
+
+loadFileOnce: "CPUSurface.sysmel".
+loadFileOnce: "FormSurface.sysmel".
+loadFileOnce: "ExternalSurface.sysmel".

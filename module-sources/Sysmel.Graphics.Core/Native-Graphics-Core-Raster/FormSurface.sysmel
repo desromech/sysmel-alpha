@@ -1,0 +1,13 @@
+namespace Stdn definition: {
+namespace Graphics definition: {
+namespace Core definition: {
+
+#**
+ * I am a form based drawing surface. I am useful for rasterizing into a CPU held form.
+ *#
+class FormSurface superclass: CPUSurface; definition: {
+}.
+
+}. ## End of namespace Core
+}. ## End of namespace Graphics
+}. ## End of namespace Stdn

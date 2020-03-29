@@ -37,9 +37,9 @@ template SharedRefCounter(PT: Type)
 
     inline method strongRelease => Void := {
         let oldCount := strongCounter_ fetchAndSubtract: 1 with: MemoryOrder AcquireAndRelease.
-        Stdn stdout << "Old strong release count " << oldCount; nl.
+        ##Stdn stdout << "Old strong release count " << oldCount; nl.
         oldCount == 1 ifTrue: {
-            Stdn stdout << "No more strong counts delete the object " << pointer_; nl.
+            ##Stdn stdout << "No more strong counts delete the object " << pointer_; nl.
             pointer_ nativeDelete.
             self weakRelease.
         }.
@@ -52,9 +52,9 @@ template SharedRefCounter(PT: Type)
 
     inline method weakRelease => Void := {
         let oldCount := weakCounter_ fetchAndSubtract: 1 with: MemoryOrder AcquireAndRelease.
-        Stdn stdout << "Old weak release count " << oldCount; nl.
+        ##Stdn stdout << "Old weak release count " << oldCount; nl.
         oldCount == 1 ifTrue: {
-            Stdn stdout << "No more weak count, delete the counter " << self address; nl.
+            ##Stdn stdout << "No more weak count, delete the counter " << self address; nl.
             self address nativeDelete
         }
     }.
@@ -71,13 +71,13 @@ template SharedRefCounter(PT: Type)
     }.
 }.
 
-template SharedPtr(PT: Type)
+template SharedPointer(PT: Type)
     := struct definition: {
     compileTimeConstant PointedType := PT.
 	compileTimeConstant PointerType := PointedType pointer.
     compileTimeConstant CounterType := SharedRefCounter(PT).
 	compileTimeConstant SmartPointerType := SelfType.
-	compileTimeConstant WeakPointerType := WeakPtr(PT).
+	compileTimeConstant WeakPointerType := WeakPointer(PT).
 
     meta extend: {
         inline method for: (pointer: PointerType) ::=> SmartPointerType
@@ -155,17 +155,17 @@ template SharedPtr(PT: Type)
 		self
 	}.
 
-    inline method asWeakPtr => WeakPointerType
+    inline method asWeakPointer => WeakPointerType
         := WeakPointerType for: self.
 }.
 
-template WeakPtr(PT: Type)
+template WeakPointer(PT: Type)
     := struct definition: {
     compileTimeConstant PointedType := PT.
 	compileTimeConstant PointerType := PointedType pointer.
     compileTimeConstant CounterType := SharedRefCounter(PT).
 	compileTimeConstant WeakPointerType := SelfType.
-	compileTimeConstant StrongPointerType := SharedPtr(PT).
+	compileTimeConstant StrongPointerType := SharedPointer(PT).
 
     private field counter_ type: CounterType pointer.
 
@@ -235,9 +235,9 @@ template WeakPtr(PT: Type)
 	}.
 }.
 
-_NativeType meta macro method sharedPtr := ``(Stdn SharedPtr(`,self)).
-_NativeType meta macro method weakPtr := ``(Stdn WeakPtr(`,self)).
+_NativeType meta macro method sharedPointer := ``(Stdn SharedPointer(`,self)).
+_NativeType meta macro method weakPointer := ``(Stdn WeakPointer(`,self)).
 
-_NativeType meta macro method sharedNew := ``(`,self sharedPtr for: `,self nativeNew).
+_NativeType meta macro method sharedNew := ``(`,self sharedPointer for: `,self nativeNew).
 
 }. ## End of namespace Stdn

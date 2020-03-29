@@ -206,11 +206,40 @@ struct FT_GlyphSlotRec_ definition: {
 
 }.
 
+enum FT_Render_Mode valueType: UInt32; values: #{
+  Normal: 0.
+  Light: 1.
+  Mono: 2.
+  LCD: 3.
+  LCD_V: 4.
+}.
+
+enum FT_Kerning_Mode valueType: FT_UInt; values: #{
+    Default: 0.
+    Unfitted: 1.
+    Unscaled: 2.
+}.
+
 function FT_Init_FreeType externC dllimport (aLibrary: FT_Library pointer) => FT_Error.
 function FT_Done_FreeType externC dllimport (library: FT_Library) => FT_Error.
 
 function FT_New_Face externC dllimport (library: FT_Library, filepathname: Char8 const pointer, face_index: FT_Long, aface: FT_Face pointer) => FT_Error.
 function FT_New_Memory_Face externC dllimport (library: FT_Library, file_base: FT_Byte const pointer, file_size: FT_Long, face_index: FT_Long, aface: FT_Face pointer) => FT_Error.
 function FT_Done_Face externC dllimport (face: FT_Face) => FT_Error.
+
+function FT_Set_Char_Size externC dllimport (face: FT_Face, char_width: FT_F26Dot6, char_height: FT_F26Dot6, horz_resolution: FT_UInt, vert_resolution: FT_UInt) => FT_Error.
+function FT_Set_Pixel_Sizes externC dllimport (face: FT_Face, pixel_width: FT_UInt, pixel_height: FT_UInt) => FT_Error.
+
+function FT_Select_Charmap externC dllimport (face: FT_Face, encoding: FT_Encoding) => FT_Error.
+function FT_Set_Charmap externC dllimport (face: FT_Face, charmap: FT_CharMap) => FT_Error.
+
+function FT_Get_Char_Index externC dllimport (face: FT_Face, charcode: FT_ULong) => FT_UInt.
+
+function FT_Load_Glyph externC dllimport (face: FT_Face, glyph_index: FT_UInt, load_flags: FT_Int32) => FT_Error.
+function FT_Render_Glyph externC dllimport (slot: FT_GlyphSlot, render_mode: FT_Render_Mode) => FT_Error.
+
+function FT_Set_Transform externC dllimport (face: FT_Face, matrix: FT_Matrix pointer, delta: FT_Vector pointer) => Void.
+
+function FT_Get_Kerning externC dllimport (face: FT_Face, left_glyph: FT_UInt, right_glyph: FT_UInt, kern_mode: FT_Kerning_Mode, akerning: FT_Vector pointer) => FT_Error.
 
 }. ## End of namespace FreeType2

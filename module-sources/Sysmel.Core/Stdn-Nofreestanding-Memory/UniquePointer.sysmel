@@ -1,6 +1,6 @@
 namespace Stdn definition: {
 
-template UniquePtr(PT: Type)
+template UniquePointer(PT: Type)
     := struct definition: {
 	compileTimeConstant PointedType := PT.
 	compileTimeConstant PointerType := PointedType pointer.
@@ -76,7 +76,7 @@ template UniquePtr(PT: Type)
 	macro method ifNotNil: notNilAction ifNil: nilAction  := ``(`,self getPointer ifNotNil: `,notNilAction ifNil: `,nilAction).
 }.
 
-_NativeType meta macro method uniquePtr := ``(Stdn UniquePtr(`,self)).
+_NativeType meta macro method uniquePointer := ``(Stdn UniquePointer(`,self)).
 
 _NativeType meta macro method uniqueNew := ``(`,self uniquePtr for: `,self nativeNew).
 
