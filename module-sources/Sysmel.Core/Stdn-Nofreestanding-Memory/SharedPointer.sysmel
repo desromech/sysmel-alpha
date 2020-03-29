@@ -131,7 +131,7 @@ template SharedPointer(PT: Type)
 	inline method reset => Void
 		:=  self reset: nil.
 
-    inline method assignValue: (o: SelfType const ref) ::=> SelfType const ref := {
+    (inline method := (o: SelfType const ref)) ::=> SelfType const ref := {
 		let newCounter := o __private counter_.
 		newCounter ifNotNil: {
 			counter_ _ strongRetain
@@ -144,7 +144,7 @@ template SharedPointer(PT: Type)
 		self
 	}.
 
-	inline method assignValue: (o: SelfType tempRef) ::=> SelfType const ref := {
+	(inline method := (o: SelfType tempRef)) ::=> SelfType const ref := {
 		let newCounter := o __private counter_.
 		o __private counter_ := nil.
 		counter_ ifNotNil: {
@@ -197,7 +197,7 @@ template WeakPointer(PT: Type)
 		o __private counter_ := nil
 	}.
 
-    inline method assignValue: (o: StrongPointerType const ref) ::=> SelfType const ref := {
+    (inline method := (o: StrongPointerType const ref)) ::=> SelfType const ref := {
 		let newCounter := o __private counter_.
 		newCounter ifNotNil: {
 			counter_ _ weakRetain
@@ -210,7 +210,7 @@ template WeakPointer(PT: Type)
 		self
 	}.
 
-    inline method assignValue: (o: SelfType const ref) ::=> SelfType const ref := {
+    (inline method := (o: SelfType const ref)) ::=> SelfType const ref := {
 		let newCounter := o __private counter_.
 		newCounter ifNotNil: {
 			counter_ _ weakRetain
@@ -223,7 +223,7 @@ template WeakPointer(PT: Type)
 		self
 	}.
 
-	inline method assignValue: (o: SelfType tempRef) ::=> SelfType const ref := {
+	(inline method := (o: SelfType tempRef)) ::=> SelfType const ref := {
 		let newCounter := o __private counter_.
 		o __private counter_ := nil.
 		counter_ ifNotNil: {

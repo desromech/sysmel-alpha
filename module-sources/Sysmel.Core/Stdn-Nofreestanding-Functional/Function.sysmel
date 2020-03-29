@@ -30,7 +30,7 @@ template Function(FT: Type)
     field type type: WrapperType.
     field inlineStorage type: InlineStorageType.
 
-    method assignValue: (blockClosure: NativeStackBlockClosureType) ::=> SelfType ref := {
+    (method := (blockClosure: NativeStackBlockClosureType)) => SelfType ref := {
         let blockClosureHeader := blockClosure reinterpretCastTo: _NativeStackBlockClosureHeader pointer.
         let typeInfo := blockClosureHeader _ typeInfo.
         let instanceSize := typeInfo _ instanceDataSize.
@@ -76,13 +76,13 @@ template Function(FT: Type)
         }.
     }.
 
-    method assignValue: (functionPointer: FunctionType pointer) ::=> SelfType ref := {
+    (method := (functionPointer: FunctionType pointer)) ::=> SelfType ref := {
         type := WrapperType FunctionPointer.
         inlineStorage[0] := functionPointer.
         self
     }.
 
-    method assignValue: (other: SelfType const ref) ::=> SelfType ref := {
+    (method := (other: SelfType const ref)) ::=> SelfType ref := {
         Stdn stdout << "TODO: Assign Stdn::Function to Stdn::Function"; nl.
         self
     }.

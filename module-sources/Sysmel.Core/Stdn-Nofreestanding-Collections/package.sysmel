@@ -2,4 +2,4 @@ loadFileOnce: "Dictionary.sysmel".
 loadFileOnce: "SortedDictionary.sysmel".
 loadFileOnce: "Vector.sysmel".
 loadFileOnce: "LinkedList.sysmel".
-loadFileOnce: "MutableString.sysmel".
+loadFileOnce: "String.sysmel".

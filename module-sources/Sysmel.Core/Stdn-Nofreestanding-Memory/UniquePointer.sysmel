@@ -48,7 +48,7 @@ template UniquePointer(PT: Type)
     inline method reset => Void
 		:=  self reset: nil.
 
-    inline method assignValue: (o: SelfType tempRef) ::=> SelfType const ref := {
+    (inline method := (o: SelfType tempRef)) ::=> SelfType const ref := {
 		let newPointer := o __private pointer_.
 		o __private pointer_ := nil.
 		pointer_ ifNotNil: {

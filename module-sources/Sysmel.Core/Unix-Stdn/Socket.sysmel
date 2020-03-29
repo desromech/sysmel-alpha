@@ -45,6 +45,8 @@ definition: {
     field addressFamily type: EndpointType.
     field endpoint type: Endpoint.
 
+    SelfType makeNonCopyable.
+
     meta method withAddressFamilty: (addressFamily: EndpointType) fd: (handle: Int32) ::=> SelfType
         := self basicNewValue
             initializeWithAddressFamily: addressFamily fd: handle;
@@ -186,7 +188,7 @@ definition: {
         return: Socket invalid
     }.
 
-    method assignValue: (other: Socket tempRef) ::=> SelfType ref := {
+    (method := (other: Socket tempRef)) ::=> SelfType ref := {
         addressFamily := other __private addressFamily.
         endpoint := other __private endpoint.
         fd := other __private fd.

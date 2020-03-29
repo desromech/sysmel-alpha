@@ -50,8 +50,14 @@ definition: {
         return: fd >= 0
     }.
 
+    method open: (path: String const ref) mode: (mode: FileOpenMode) permissions: (permissions: FilePermissions) ::=> Boolean8
+        := self open: path asCString mode: mode permissions: permissions.
+
     method open: (path: CTypes ConstString) mode: (mode: FileOpenMode) ::=> Boolean8
         := self open: path mode: mode permissions: FilePermissions DefaultFilePermissions.
+
+    method open: (path: String const ref) mode: (mode: FileOpenMode) ::=> Boolean8
+        := self open: path asCString mode: mode permissions: FilePermissions DefaultFilePermissions.
 
     method close => Void := {
         self isValid ifTrue: {

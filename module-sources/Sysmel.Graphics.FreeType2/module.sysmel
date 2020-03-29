@@ -1,0 +1,4 @@
+Compiler
+    importModuleNamed: #"Sysmel.Graphics.Core";
+    importModuleNamed: #"Bindings.FreeType2";
+    loadPackage: #"Native-Graphics-FreeType2".

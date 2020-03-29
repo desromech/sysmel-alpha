@@ -4,7 +4,7 @@ namespace Stdn definition: {
 class Exception superclass: Object; definition: {
     SelfType addFlag: #throwable.
 
-    public field messageText type: String const pointer.
+    public field messageText type: FixedString const pointer.
 
     compileTimeIf: Compiler compilationTarget hasNoOperatingSystem then: {
         method signal => Void := {

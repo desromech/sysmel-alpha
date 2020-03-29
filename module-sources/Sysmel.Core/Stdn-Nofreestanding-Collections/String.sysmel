@@ -1,0 +1,133 @@
+namespace Stdn definition: {
+namespace Collections definition: {
+
+#**
+ * I am a mutable string
+ *#
+ template BasicString(CT: Type)
+ 	:= class definition: {
+    compileTimeConstant ValueType := CT.
+
+    ## Mutable field for asCString.
+    private field capacity_ mutable type: UIntPointer.
+    private field size_ mutable type: UIntPointer.
+    private field data_ mutable type: ValueType pointer.
+
+    meta method computeCStringLength: (cstring: ValueType const pointer) ::=> UIntPointer := {
+        cstring ifNil: { return: 0 }.
+
+        let result mutable type: UIntPointer.
+        while: cstring[result] ~= 0 do: {
+            result := result + 1
+        }.
+
+        return: result.
+    }.
+
+    inline method data => ValueType pointer
+        := data_.
+
+    inline method size => UIntPointer
+        := size_.
+
+    inline method capacity => UIntPointer
+        := capacity_.
+
+    const inline method asCString => ValueType const pointer := {
+        size_ == 0 ifTrue: { return: "" }.
+
+        capacity_ == size_ ifTrue: {
+            self setCapacityTo: size_ + 1
+        }.
+
+        return: data_
+    }.
+
+    inline method add: (element: ValueType) ::=> Void
+        := self addLast: element.
+
+    inline method addLast: (element: ValueType) ::=> Void := {
+        size_ >= capacity_ ifTrue: {
+            self increaseCapacity
+        }.
+
+        data_[size_] := element.
+        size_ := size_ + 1
+    }.
+
+    inline method removeLast: (element: ValueType) ::=> Void := {
+        assert: size_ > 0.
+        size_ := size_ - 1.
+        data_[size_] := 0.
+    }.
+
+    inline method increaseCapacity => Void := {
+        let newCapacity := capacity_ * 2u max: 10u.
+        self setCapacityTo: newCapacity.
+    }.
+
+    const inline method setCapacityTo: (newCapacity: UIntPointer) ::=> Void := {
+        let copySize := size_ min: newCapacity.
+        let newData := Stdn zmalloc(newCapacity) reinterpretCastTo: ValueType pointer.
+        Stdn memcpy(newData, data_, copySize * ValueType instanceSize).
+        size_ := copySize.
+    }.
+
+    (inline method := (other: SelfType const ref)) => SelfType ref := {
+        self address ~~ other address ifTrue: {
+            self setSizeNoCopy: other __private size_.
+            Stdn memcpy(data_, other __private data_, size_ * ValueType instanceSize).
+            self clearCapacityTail.
+        }.
+
+        self
+    }.
+
+    (inline method := (other: SelfType tempRef)) => SelfType ref := {
+        self address ~~ other address ifTrue: {
+            capacity_ := other __private capacity_.
+            size_ := other __private size_.
+            data_ := other __private data_.
+
+            other __private capacity_ := 0.
+            other __private size_ := 0.
+            other __private data_ := nil.
+        }.
+
+        self
+    }.
+
+    (inline method := (cstring: ValueType const pointer)) => SelfType ref := {
+        let newSize := SelfType computeCStringLength: cstring.
+        self setSizeNoCopy: newSize.
+        Stdn memcpy(data_, cstring, newSize * ValueType instanceSize).
+        self
+    }.
+
+    inline method setSizeNoCopy: (newSize: UIntPointer) ::=> Void := {
+        size_ := 0.
+        capacity_ < newSize ifTrue: {
+            self setCapacityTo: newSize
+        }.
+        size_ := newSize.
+
+        self clearCapacityTail.
+    }.
+
+    inline method clearCapacityTail => Void := {
+        let tailSize := capacity_ - size_.
+        Stdn memset(data_[size_] address, 0, tailSize * ValueType instanceSize)
+    }.
+}.
+
+compileTimeConstant String := BasicString(Char8).
+compileTimeConstant WString := BasicString(Char16). ## Used in multiple Win32 APIs
+compileTimeConstant LString := BasicString(Char32). ## Provided for utf8.
+
+}. ## End of namespace Collections
+
+compileTimeConstant String := Collections String.
+compileTimeConstant WString := Collections WString.
+compileTimeConstant LString := Collections LString.
+
+}. ## End of namespace Stdn

@@ -15,7 +15,7 @@ template FixedBigInteger(WC: _LiteralInteger)
 
     field words public type: (UInt32 array: WordCount).
 
-    method assignValue: (other: SelfType const ref) ::=> SelfType ref := {
+    (method := (other: SelfType const ref)) ::=> SelfType ref := {
         0 until: WordCount do: {:(UIntPointer)i :: Void |
             words[i] := other words[i].
         }.
@@ -23,7 +23,7 @@ template FixedBigInteger(WC: _LiteralInteger)
         self
     }.
 
-    method assignValue: (value: UInt32) ::=> SelfType ref := {
+    (method := (value: UInt32)) ::=> SelfType ref := {
         words[0] := value.
         1 until: WordCount do: {:(UIntPointer)i :: Void |
             words[i] := 0.
@@ -33,7 +33,7 @@ template FixedBigInteger(WC: _LiteralInteger)
     }.
 
     if: WordCount > 1 then: {
-        method assignValue: (value: UInt64) ::=> SelfType ref := {
+        (method := (value: UInt64)) ::=> SelfType ref := {
             words[0] := value castTo: UInt32.
             words[1] := value >> 32 castTo: UInt32.
             2 until: WordCount do: {:(UIntPointer)i :: Void |

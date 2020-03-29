@@ -22,8 +22,8 @@ template FixedArray(ET: Type)
 }.
 
 ## Convenience method for literal strings
-compileTimeConstant String := FixedArray(Char8).
-compileTimeConstant StringLiteral := String const ref.
+compileTimeConstant FixedString := FixedArray(Char8).
+compileTimeConstant StringLiteral := FixedString const ref.
 
 Compiler compilationTarget setNativePrefixedStringLiteralType: StringLiteral.
 
