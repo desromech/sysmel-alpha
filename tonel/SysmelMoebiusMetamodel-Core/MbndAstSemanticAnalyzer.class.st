@@ -2011,7 +2011,7 @@ MbndAstSemanticAnalyzer >> visitReferenceAsPointerNode: node [
 	| result basePointerType |
 	result := super visitReferenceAsPointerNode: node.
 	basePointerType := result reference type withoutTopDecorations.
-	basePointerType isReferenceType ifFalse: [
+	(basePointerType isReferenceType or: [basePointerType isTemporaryReferenceType]) ifFalse: [
 		self error: 'Expected a reference value.' at: node pointer.
 	].
 

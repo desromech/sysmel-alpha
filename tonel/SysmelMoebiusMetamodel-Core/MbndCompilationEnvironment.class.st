@@ -279,12 +279,13 @@ MbndCompilationEnvironment >> importOrCompileModuleNamed: moduleName [
 		self error: 'Cannot import or compile module named {1}' format: { moduleName }
 	].
 
+	self pushCurrentModule.
 	self validCurrentModule
 		name: moduleName;
 		sourceLocations: importedModuleSourceLocations asArray.
 	self addLoadedModule: currentModule.
 	resultModule := currentModule evaluateModuleLevelFilesIfExists: 'module.sysmel' asFileReference.
-	"currentModule := nil."
+	self popCurrentModule.
 	^ resultModule
 
 ]

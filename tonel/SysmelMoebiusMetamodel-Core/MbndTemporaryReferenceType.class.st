@@ -34,7 +34,11 @@ MbndTemporaryReferenceType >> addInstanceMacros [
 	self
 		onMacroSelector: #asMoveReference do: [ :node :builder |
 			node receiver
-		]
+		];
+		onMacroSelector: #address do: [ :node :builder |
+			(builder referenceAsPointer: node receiver)
+				position: node
+		].
 ]
 
 { #category : #converting }
