@@ -62,7 +62,7 @@ function main externC (argc: Int32, argv: UInt8 const pointer pointer) => Int32 
     ## TODO: Use factory to avoid using explicitly the freetype bindings here.
     let fontFace mutable := Stdn Graphics FT2Bindings FT2FontFace loadFromFile: "resources/fonts/dejavu/ttf/DejaVuSans.ttf".
     let fontFaceSize mutable := fontFace _ getOrCreateFaceSize: 24.
-    let glyph mutable := fontFaceSize _ getOrCreateGlyphForCodePoint: 'H'.
+    let glyph mutable := fontFaceSize _ getOrCreateGlyphForCodePoint: 'e'.
 
     ## Blitting
     {
@@ -78,11 +78,7 @@ function main externC (argc: Int32, argv: UInt8 const pointer pointer) => Int32 
             copyPixelsFrom: sineWaves _ makeBlitter at: Int32x2(-50, 50).
         glyph ifNotNil: {
             destForm _ makeBlitter
-                blendPixelsFrom: glyph _ form _ makeBlitter at: Int32x2(128, 128)
-                    with: {:(Int32x2)pixelCoord :(Float32x4)destColor :(Float32x4)sourceColor :: Float32x4 |
-
-                Float32x4((destColor rgb * (1.0f - sourceColor a)) + (sourceColor rgb * sourceColor a), destColor a + sourceColor a).
-            }
+                compositeAlphaBlendPixelsFrom: glyph _ form _ makeBlitter withColor: Float32x4(0.0f, 1.0f, 1.0f, 1.0f) at: Int32x2(128, 128).
         }.
 
         destForm _ writeTGAfileNamed: "blitCopyRender.tga".

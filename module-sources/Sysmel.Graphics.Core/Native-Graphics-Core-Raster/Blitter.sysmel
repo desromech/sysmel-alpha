@@ -290,6 +290,22 @@ class Blitter definition: {
             at: targetPosition with: blendFunction.
     }.
 
+    const inline method compositeAlphaBlendPixelsFrom: (sourceBlitter: Blitter const ref) at: (sourceRectangleMin: Int32x2) to: (sourceRectangleMax: Int32x2)
+        withColor: (modulationColor: Float32x4)
+        at: (destinationPosition: Int32x2) ::=> Void := {
+
+        self blendPixelsFrom: sourceBlitter at: sourceRectangleMin to: sourceRectangleMax
+            at: destinationPosition with: {:(Int32x2)pixelCoord :(Float32x4)destColor :(Float32x4)sourceColor :: Float32x4 |
+            let newColor := modulationColor * sourceColor.
+            Float32x4((destColor rgb * (1.0f - newColor a)) + (newColor rgb * newColor a), destColor a + newColor a).
+        }
+    }.
+
+    const inline method compositeAlphaBlendPixelsFrom: (sourceBlitter: Blitter const ref) withColor: (modulationColor: Float32x4) at: (targetPosition: Int32x2) ::=> Void := {
+        self compositeAlphaBlendPixelsFrom: sourceBlitter at: Int32x2(0, 0) to: (sourceBlitter extent castTo: Int32x2)
+            withColor: modulationColor
+            at: targetPosition
+    }.
 }.
 
 }. ## End of namespace Core

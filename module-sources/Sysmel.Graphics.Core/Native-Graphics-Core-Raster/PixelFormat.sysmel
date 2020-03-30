@@ -178,6 +178,13 @@ enum PixelFormat valueType: UInt32; values: #{
         self selectCase: #{
         A8_UNorm : {return: UInt8x4(255, 255, 255, value r)}.
 
+        B8G8R8A8_UNorm : {return: value bgra}.
+        B8G8R8X8_UNorm : {return: value bgra}.
+        B8G8R8A8_Typeless : {return: value bgra}.
+        B8G8R8A8_UNormSRGB : {return: value bgra}.
+        B8G8R8X8_Typeless : {return: value bgra}.
+        B8G8R8X8_UNormSRGB : {return: value bgra}.
+        
         let _ : {return: value}.
         }.
 
@@ -187,6 +194,13 @@ enum PixelFormat valueType: UInt32; values: #{
     inline method swizzleStoringUnorm8x4: (value: UInt8x4) ::=> UInt8x4 := {
         self selectCase: #{
         A8_UNorm : {return: value aaaa}.
+
+        B8G8R8A8_UNorm : {return: value bgra}.
+        B8G8R8X8_UNorm : {return: value bgra}.
+        B8G8R8A8_Typeless : {return: value bgra}.
+        B8G8R8A8_UNormSRGB : {return: value bgra}.
+        B8G8R8X8_Typeless : {return: value bgra}.
+        B8G8R8X8_UNormSRGB : {return: value bgra}.
 
         let _ : {return: value}.
         }.
