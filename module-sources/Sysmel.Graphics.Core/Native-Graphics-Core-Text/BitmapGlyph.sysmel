@@ -3,9 +3,10 @@ namespace Graphics definition: {
 namespace Core definition: {
 
 #**
- * I am an abstract drawing surface onto which drawing commands can be issued.
+ * I am a bitmap based glyph.
  *#
-class AbstractSurface definition: {
+class BitmapGlyph superclass: Glyph; definition: {
+    public field form type: Form sharedPointer.
 }.
 
 }. ## End of namespace Core

@@ -3,9 +3,10 @@ namespace Graphics definition: {
 namespace Core definition: {
 
 #**
- * I am an abstract drawing surface onto which drawing commands can be issued.
+ * I am an abstract font face.
  *#
-class AbstractSurface definition: {
+class FontFace superclass: Object; definition: {
+
 }.
 
 }. ## End of namespace Core

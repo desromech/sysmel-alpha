@@ -1,0 +1,52 @@
+namespace Stdn definition: {
+namespace Graphics definition: {
+namespace FT2Bindings definition: {
+
+useNamespace: Stdn Graphics Core.
+useNamespace: FreeType2.
+
+function convertError(error: FT_Error) => Boolean8 := {
+    error == 0 ifTrue: {
+        return: false.
+    }.
+
+    raiseError("Got freetype error.").
+    return: true.
+}.
+
+#**
+ * I represent a shared freetype library instance.
+ *#
+class FT2Library definition: {
+    meta definition: {
+        let defaultInstance mutable type: FT2Library sharedPointer.
+        let defaultInstanceOnceCreation mutable type: Stdn OnceFlag.
+
+        method defaultInstance => FT2Library sharedPointer := {
+            defaultInstanceOnceCreation do: {
+                defaultInstance := FT2Library sharedNew
+            }.
+
+            defaultInstance
+        }.
+    }.
+
+    public field handle type: FT_Library.
+    public field mutex type: Mutex.
+
+    method initialize => Void := {
+        let error := FT_Init_FreeType(handle address).
+        convertError(error).
+
+    }.
+
+    method finalize => Void := {
+        handle ifNotNil: {
+            FT_Done_FreeType(handle).
+        }
+    }.
+}.
+
+}. ## End of namespace Text
+}. ## End of namespace Graphics
+}. ## End of namespace Stdn

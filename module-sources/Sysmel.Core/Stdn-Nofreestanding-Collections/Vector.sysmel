@@ -150,6 +150,12 @@ template Vector(ET: Type)
 			}
 		}
 	}.
+
+	inline method swapWith: (other: SelfType ref) ::=> Void := {
+		Stdn swapValue: capacity_ with: other __private capacity_.
+		Stdn swapValue: size_ with: other __private size_.
+		Stdn swapValue: storage_ with: other __private storage_.
+	}.
 }.
 
 }. ## End of namespace Collections

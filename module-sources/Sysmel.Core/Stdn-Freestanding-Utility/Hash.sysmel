@@ -19,7 +19,8 @@ function hashForUInt32(v: UInt32) => UIntPointer := {
     return: (r castTo: UIntPointer)
 }.
 
-(UInt8 | Int8 | UInt16 | Int16 | Int32 | UInt32) macro method hash := ``(Stdn hashForUInt32(`,self castTo: UInt32)).
+(UInt8 | Int8 | UInt16 | Int16 | Int32 | UInt32 |
+ Char8 | Char16 | Char32) macro method hash := ``(Stdn hashForUInt32(`,self castTo: UInt32)).
 (Int64 | UInt64) macro method hash := ``(Stdn hashForUInt64(`,self castTo: UInt64)).
 _PointerType macro method hash := ``((`,self reinterpretCastTo: UIntPointer) hash).
 

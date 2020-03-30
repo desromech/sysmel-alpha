@@ -1,0 +1,15 @@
+namespace Stdn definition: {
+namespace Graphics definition: {
+namespace Core definition: {
+
+#**
+ * I am an abstract glyph representation. I hold standard metrics for drawing a
+ * particular glyph, but my subclasses define how I am actually being used for drawing.
+ *#
+class Glyph superclass: Object; definition: {
+    public field extent type: UInt32x2.
+}.
+
+}. ## End of namespace Core
+}. ## End of namespace Graphics
+}. ## End of namespace Stdn

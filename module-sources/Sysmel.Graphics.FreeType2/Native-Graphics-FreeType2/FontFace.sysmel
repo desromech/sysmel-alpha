@@ -1,0 +1,64 @@
+namespace Stdn definition: {
+namespace Graphics definition: {
+namespace FT2Bindings definition: {
+
+useNamespace: Stdn Graphics Core.
+useNamespace: FreeType2.
+
+class FT2FontFaceSize.
+
+#**
+ * I am a FreeType2 based font face.
+ *#
+class FT2FontFace superclass: FontFace; definition: {
+    meta definition: {
+        method loadFromFile: (path: CTypes ConstString) ::=> FT2FontFace sharedPointer := {
+            let library := FT2Library defaultInstance.
+            let handle mutable type: FT_Face.
+            let error := FT_New_Face(library _ handle, path, 0, handle address).
+            convertError(error) ifTrue: {
+                return: FT2FontFace sharedPointer nil.
+            }.
+
+            let result := FT2FontFace sharedNew.
+            result _ handle: handle.
+            return: result.
+        }
+    }.
+
+    public field handle type: FT_Face.
+    private field faceSizes type: Stdn Collections Dictionary(UInt32, FT2FontFaceSize sharedPointer).
+
+    override method finalize => Void := {
+        faceSizes valuesDo: {:(FT2FontFaceSize sharedPointer ref)each :: Void |
+            each _ releaseHandle.
+        }.
+
+        handle ifNotNil: {
+            FT_Done_Face(handle)
+        }.
+    }.
+
+    method getOrCreateFaceSize: (faceSize: UInt32) ::=> FT2FontFaceSize sharedPointer := {
+        faceSizes at: faceSize ifAbsentPut: { :: (FT2FontFaceSize sharedPointer) |
+            let sizeHandle mutable type: FT_Size.
+            let error := FT_New_Size(handle, sizeHandle address).
+            let result mutable := FT2FontFaceSize sharedPointer nil.
+            convertError(error) ifFalse: {
+                FT_Activate_Size(sizeHandle).
+                FT_Set_Char_Size(handle, 0, faceSize*64, 72, 72).
+
+                result := FT2FontFaceSize sharedNew.
+                result _ handle: sizeHandle; face: self address
+            }.
+
+            result
+        }
+    }.
+}.
+
+
+
+}. ## End of namespace Text
+}. ## End of namespace Graphics
+}. ## End of namespace Stdn

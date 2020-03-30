@@ -1,5 +1,8 @@
 ## Abstract font interface.
-loadFileOnce: "AbstractFontFace.sysmel"
-loadFileOnce: "Font.sysmel"
+loadFileOnce: "Glyph.sysmel".
+loadFileOnce: "FontFaceSize.sysmel".
+loadFileOnce: "FontFace.sysmel".
+loadFileOnce: "Font.sysmel".
 
 ## Bitmap font.
+loadFileOnce: "BitmapGlyph.sysmel".

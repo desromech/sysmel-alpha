@@ -1,0 +1,15 @@
+namespace Stdn definition: {
+namespace Graphics definition: {
+namespace Core definition: {
+
+#**
+ * I am an abstract font face size variant. I am used with the objective of
+ * managing glyphs at different sizes for an outline defined font.
+ *#
+class FontFaceSize superclass: Object; definition: {
+
+}.
+
+}. ## End of namespace Core
+}. ## End of namespace Graphics
+}. ## End of namespace Stdn

@@ -134,7 +134,7 @@ template SharedPointer(PT: Type)
     (inline method := (o: SelfType const ref)) ::=> SelfType const ref := {
 		let newCounter := o __private counter_.
 		newCounter ifNotNil: {
-			counter_ _ strongRetain
+			newCounter _ strongRetain
 		}.
         counter_ ifNotNil: {
 			counter_ _ strongRelease
@@ -157,6 +157,15 @@ template SharedPointer(PT: Type)
 
     inline method asWeakPointer => WeakPointerType
         := WeakPointerType for: self.
+
+    ## Some convenience macros.
+	macro method isNil := ``(`,self getPointer isNil).
+	macro method isNotNil := ``(`,self getPointer isNotNil).
+
+	macro method ifNil: nilAction := ``(`,self getPointer ifNil: `,nilAction).
+	macro method ifNil: nilAction ifNotNil: notNilAction := ``(`,self getPointer ifNil: `,nilAction ifNotNil: `, notNilAction).
+	macro method ifNotNil: notNilAction := ``(`,self getPointer ifNotNil: `,notNilAction).
+	macro method ifNotNil: notNilAction ifNil: nilAction  := ``(`,self getPointer ifNotNil: `,notNilAction ifNil: `,nilAction).
 }.
 
 template WeakPointer(PT: Type)

@@ -1,5 +1,5 @@
+loadFileOnce: "Vector.sysmel".
 loadFileOnce: "Dictionary.sysmel".
 loadFileOnce: "SortedDictionary.sysmel".
-loadFileOnce: "Vector.sysmel".
 loadFileOnce: "LinkedList.sysmel".
 loadFileOnce: "String.sysmel".

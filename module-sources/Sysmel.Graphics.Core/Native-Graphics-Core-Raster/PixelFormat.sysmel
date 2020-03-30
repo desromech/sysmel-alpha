@@ -140,6 +140,20 @@ enum PixelFormat valueType: UInt32; values: #{
 
     method bytesPerPixel => UInt32 := {
         self selectCase: #{
+
+        R8G8_Typeless : {return: 2}.
+        R8G8_UNorm : {return: 2}.
+        R8G8_UInt : {return: 2}.
+        R8G8_SNorm : {return: 2}.
+        R8G8_SInt : {return: 2}.
+
+        R8_Typeless : {return: 1}.
+        R8_UNorm : {return: 1}.
+        R8_UInt : {return: 1}.
+        R8_SNorm : {return: 1}.
+        R8_SInt : {return: 1}.
+        A8_UNorm : {return: 1}.
+
         R8G8B8A8_Typeless : {return: 4}.
         R8G8B8A8_UNorm : {return: 4}.
         R8G8B8A8_UNormSRGB : {return: 4}.
@@ -159,6 +173,27 @@ enum PixelFormat valueType: UInt32; values: #{
 
         Stdn abort().
     }.
+
+    inline method swizzleLoadedUnorm8x4: (value: UInt8x4) ::=> UInt8x4 := {
+        self selectCase: #{
+        A8_UNorm : {return: UInt8x4(255, 255, 255, value r)}.
+
+        let _ : {return: value}.
+        }.
+
+        Stdn abort().
+    }.
+
+    inline method swizzleStoringUnorm8x4: (value: UInt8x4) ::=> UInt8x4 := {
+        self selectCase: #{
+        A8_UNorm : {return: value aaaa}.
+
+        let _ : {return: value}.
+        }.
+
+        Stdn abort().
+    }.
+
 }.
 
 }. ## End of namespace Core

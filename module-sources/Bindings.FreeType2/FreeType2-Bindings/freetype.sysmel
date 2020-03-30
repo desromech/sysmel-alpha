@@ -75,7 +75,7 @@ FT_CharMapRec_ definition:
     public field encoding_id type: FT_UShort.
 }.
 
-enum FT_FaceFlag valueType: FT_Long; values: #{
+enum FT_FaceFlag bitMask valueType: FT_Long; values: #{
     Scalable: 1<<0.
     FixedSizes: 1<<1.
     FixedWidth: 1<<2.
@@ -241,5 +241,9 @@ function FT_Render_Glyph externC dllimport (slot: FT_GlyphSlot, render_mode: FT_
 function FT_Set_Transform externC dllimport (face: FT_Face, matrix: FT_Matrix pointer, delta: FT_Vector pointer) => Void.
 
 function FT_Get_Kerning externC dllimport (face: FT_Face, left_glyph: FT_UInt, right_glyph: FT_UInt, kern_mode: FT_Kerning_Mode, akerning: FT_Vector pointer) => FT_Error.
+
+function FT_New_Size externC dllimport (face: FT_Face, size: FT_Size pointer) => FT_Error.
+function FT_Done_Size externC dllimport (size: FT_Size) => FT_Error.
+function FT_Activate_Size externC dllimport (size: FT_Size) => FT_Error.
 
 }. ## End of namespace FreeType2

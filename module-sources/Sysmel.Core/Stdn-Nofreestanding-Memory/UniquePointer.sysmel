@@ -61,9 +61,7 @@ template UniquePointer(PT: Type)
 
     ## TODO: Check whether the corresponding C++ operation is atomic or not.
     inline method swapWith: (o: SelfType ref) ::=> Void := {
-        let temp := o __private pointer_.
-        o __private pointer_ := pointer_.
-        pointer_ := temp
+        Stdn swapValue: pointer_ with: o __private pointer_.
     }.
 
 	## Some convenience macros.

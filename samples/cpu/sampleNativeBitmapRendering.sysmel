@@ -58,7 +58,13 @@ function main externC (argc: Int32, argv: UInt8 const pointer pointer) => Int32 
         form _ writeTGAfileNamed: "sineWaveRender.tga".
     }.
 
-    ## Sine waves
+    ## Load the font
+    ## TODO: Use factory to avoid using explicitly the freetype bindings here.
+    let fontFace mutable := Stdn Graphics FT2Bindings FT2FontFace loadFromFile: "resources/fonts/dejavu/ttf/DejaVuSans.ttf".
+    let fontFaceSize mutable := fontFace _ getOrCreateFaceSize: 24.
+    let glyph mutable := fontFaceSize _ getOrCreateGlyphForCodePoint: 'H'.
+
+    ## Blitting
     {
         let sineWaves := Form extent: UInt32x2(64, 64) pixelFormat: PixelFormat B8G8R8A8_UNorm.
         sineWaves _ makeBlitter setPixelsWith: {:(Float32x2)pixelCoord :: Float32x4 |
@@ -70,6 +76,10 @@ function main externC (argc: Int32, argv: UInt8 const pointer pointer) => Int32 
         destForm _ makeBlitter
             setAllPixelsToColor: UInt8x4(255, 0, 255, 255);
             copyPixelsFrom: sineWaves _ makeBlitter at: Int32x2(-50, 50).
+        glyph ifNotNil: {
+            destForm _ makeBlitter
+                copyPixelsFrom: glyph _ form _ makeBlitter at: Int32x2(128, 128)
+        }.
 
         destForm _ writeTGAfileNamed: "blitCopyRender.tga".
     }.

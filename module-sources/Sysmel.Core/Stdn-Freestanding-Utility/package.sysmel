@@ -1,2 +1,4 @@
 loadFileOnce: "Hash.sysmel".
+loadFileOnce: "Swap.sysmel".
+loadFileOnce: "Optional.sysmel".
 loadFileOnce: "Association.sysmel".

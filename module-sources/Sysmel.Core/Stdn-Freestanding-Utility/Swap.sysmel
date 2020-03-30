@@ -1,0 +1,13 @@
+namespace Stdn definition: {
+
+
+macro method swapValue: left with: right := {
+    let temp := __astBuilder gensym: #temp.
+    ``{
+        let `,temp := `,left.
+        `,left := `,right.
+        `,right := `,temp.
+    }
+}.
+
+}. ## End of namespace Stdn

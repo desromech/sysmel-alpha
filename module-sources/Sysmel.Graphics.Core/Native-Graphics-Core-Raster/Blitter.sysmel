@@ -6,6 +6,7 @@ class UnsafePixelIterator definition: {
     public field pixels type: UInt8 pointer.
     public field pitch type: Int32.
     public field bytesPerPixel type: UInt32.
+    public field pixelFormat type: PixelFormat.
 
     method advanceColumn => Void := {
         pixels := pixels + bytesPerPixel
@@ -23,18 +24,20 @@ class UnsafePixelIterator definition: {
         self advanceRows: coords y columns: coords x
     }.
 
-    method storePixelUNorm8x4: (newValue: UInt8x4) ::=> Void := {
+    method storePixelUNorm8x4: (rawNewValue: UInt8x4) ::=> Void := {
+        let newValue := pixelFormat swizzleStoringUnorm8x4: rawNewValue.
+
         bytesPerPixel selectCase: #{
         1 : {
-            pixels _ := newValue x.
+            pixels _ := newValue r.
         }.
         2 : {
-            (pixels reinterpretCastTo: UInt8x2 pointer) _  := newValue xy.
+            (pixels reinterpretCastTo: UInt8x2 pointer) _  := newValue rg.
         }.
         3 : {
-            pixels[0] := newValue x.
-            pixels[1] := newValue y.
-            pixels[2] := newValue z.
+            pixels[0] := newValue r.
+            pixels[1] := newValue g.
+            pixels[2] := newValue b.
         }.
         4 : {
             (pixels reinterpretCastTo: UInt8x4 pointer) _  := newValue.
@@ -51,22 +54,23 @@ class UnsafePixelIterator definition: {
     }.
 
     method loadPixelUNorm8x4 => UInt8x4 := {
+        let result mutable := UInt8x4 zeros.
         bytesPerPixel selectCase: #{
         1 : {
-            return: UInt8x4(pixels[0], 0, 0, 255).
+            result := UInt8x4(pixels[0], 0, 0, 255).
         }.
         2 : {
-            return: UInt8x4(pixels[0], pixels[1], 0, 255).
+            result := UInt8x4(pixels[0], pixels[1], 0, 255).
         }.
         3 : {
-            return: UInt8x4(pixels[0], pixels[1], pixels[2], 255).
+            result := UInt8x4(pixels[0], pixels[1], pixels[2], 255).
         }.
         4 : {
-            return: (pixels reinterpretCastTo: UInt8x4 pointer) _.
+            result := (pixels reinterpretCastTo: UInt8x4 pointer) _.
         }.
         }.
 
-        return: UInt8x4 zeros.
+        pixelFormat swizzleLoadedUnorm8x4: result.
     }.
 
     method loadPixelFloat32x4 => Float32x4 := {
@@ -113,6 +117,7 @@ class Blitter definition: {
             pixels: pixels;
             pitch: pitch;
             bytesPerPixel: bytesPerPixel;
+            pixelFormat: pixelFormat;
             yourself.
 
     const inline method makeUnsafePixelIteratorAt: (coordinates: Int32x2) ::=> UnsafePixelIterator

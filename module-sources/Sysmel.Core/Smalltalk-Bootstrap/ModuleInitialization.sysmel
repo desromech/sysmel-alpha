@@ -84,10 +84,10 @@ ModuleNamespaceInformation definition: {
 NamespaceInformation definition: {
     meta definition: {
         let GlobalNamespaceSingleton mutable type: NamespaceInformation.
+        let GlobalNamespaceSingletonOnceCreation mutable type: Stdn OnceFlag.
 
         method globalNamespace => NamespaceInformation := {
-            ## TODO: Use an once flag here.
-            GlobalNamespaceSingleton ifNil: {
+            GlobalNamespaceSingletonOnceCreation do: {
                 GlobalNamespaceSingleton := NamespaceInformation new.
                 GlobalNamespaceSingleton name: #__global.
             }.
