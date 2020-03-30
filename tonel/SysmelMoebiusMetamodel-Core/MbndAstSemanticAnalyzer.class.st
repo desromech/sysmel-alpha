@@ -977,7 +977,7 @@ MbndAstSemanticAnalyzer >> visitExplicitCastNode: node [
 
 { #category : #visiting }
 MbndAstSemanticAnalyzer >> visitFieldDefinitionNode: node [
-	| result owner fieldName field visibility location intrinsic valueType referenceType |
+	| result owner fieldName field visibility location intrinsic valueType referenceType minimalAlignment |
 	result := node copy.
 
 	result valueType ifNotNil: [ 
@@ -1056,12 +1056,14 @@ MbndAstSemanticAnalyzer >> visitFieldDefinitionNode: node [
 		referenceType := valueType refFor: #crossWorkgroup
 	].
 	
+	minimalAlignment := node minimalAlignment ifNotNil: [ :ma | (self evaluateCompileTimeExpression: ma) value ].
 	field := MbndFieldVariable new
 		definitionScope: scope;
 		definitionNode: node;
 		name: fieldName;
 		flags: result flags;
 		valueType: valueType;
+		minimalAlignment: minimalAlignment;
 		type: referenceType;
 		bits: result bits;
 		location: location;
@@ -2181,7 +2183,7 @@ MbndAstSemanticAnalyzer >> visitSequenceNode: node [
 
 { #category : #visiting }
 MbndAstSemanticAnalyzer >> visitSetFieldValueNode: node [
-	| result aggregateType |
+	| result aggregateType valueType |
 	result := node copy
 		aggregate: (self analyzeNodeIfNeeded: node aggregate);
 		newValue: (self analyzeNodeIfNeeded: node newValue);
@@ -2196,7 +2198,18 @@ MbndAstSemanticAnalyzer >> visitSetFieldValueNode: node [
 		result aggregate: (self ensureReferencesAreEvaluated: result aggregate)
 	].
 	
-	result newValue: (self addImplicitCastFor: result newValue to: result field valueType).
+	"This is an special case where actually have to invoke an assign value operator, so replace myself with an unexpanded message send into assignValue:"
+	valueType := result field valueType.
+	((result newValue type isTemporaryReferenceType and: [ valueType hasTrivialMoveAssignment not]) or: [ valueType hasTrivialAssignment not ]) ifTrue: [
+		^ self visitNode: ((self astBuilder unexpandedSend: ((self astBuilder literalSymbol: #assignValue:) position: node position)
+			to: (MbndAstGetFieldReferenceNode new
+				position: node position;
+				aggregate: result aggregate;
+				field: result field;
+				yourself) withArguments: { result newValue })
+			position: node position)
+	].
+	result newValue: (self addImplicitCastFor: result newValue to: valueType).
 
 	^ result
 		type: result aggregate type;

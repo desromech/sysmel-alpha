@@ -83,6 +83,14 @@ MbndPrimitiveIntegerType >> analyzeReinterpretCastNode: node to: targetType with
 			yourself)
 	].
 
+	(undecoratedTargetType isPrimitiveFloatType and: [ undecoratedTargetType instanceSize = self instanceSize ]) ifTrue: [
+		^ analyzer visitNode: (MbndAstBitCastNode new
+			position: node;
+			expression: node expression;
+			targetType: targetType;
+			yourself)
+	].
+
 	^ super analyzeReinterpretCastNode: node to: targetType with: analyzer
 ]
 

@@ -64,11 +64,6 @@ MbndDecoratedType >> asSuperArgumentType [
 ]
 
 { #category : #converting }
-MbndDecoratedType >> asTemporaryReferenceType [
-	^ baseType asTemporaryReferenceType withDecorations: decorations
-]
-
-{ #category : #converting }
 MbndDecoratedType >> asUndecoratedClassType [
 	^ baseType asUndecoratedClassType
 ]
@@ -154,6 +149,12 @@ MbndDecoratedType >> printOn: aStream [
 { #category : #accessing }
 MbndDecoratedType >> slotLayout [
 	^ baseType slotLayout
+]
+
+{ #category : #'type composition' }
+MbndDecoratedType >> tempRefFor: anAddressSpace [
+	<compileTime>
+	^ baseType tempRefFor: anAddressSpace
 ]
 
 { #category : #'testing methods' }

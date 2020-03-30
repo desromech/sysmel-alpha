@@ -63,6 +63,7 @@ MbndAbstractVariable >> definitionScope: anObject [
 MbndAbstractVariable >> encodeFieldsForMessagePackWith: graphEncoder [
 	^ {
 		#name . name encodeGraphForMessagePackWith: graphEncoder.
+		#minimalAlignment . minimalAlignment.
 		#valueType . valueType encodeGraphForMessagePackWith: graphEncoder.
 	}
 ]
@@ -94,6 +95,7 @@ MbndAbstractVariable >> hasPublicVisibility [
 { #category : #serialization }
 MbndAbstractVariable >> materializeWithGraphDecoder: graphDecoder withFields: encodedFields [
 	name := encodedFields at: #name ifAbsent: [ nil ].
+	minimalAlignment := encodedFields at: #minimalAlignment ifAbsent: [ nil ].
 	valueType := encodedFields at: #valueType.
 ]
 

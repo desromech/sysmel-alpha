@@ -378,7 +378,7 @@ TMbndAbstractType >> asMoebiusLiteralValueNodeWithTarget: compilationTarget [
 
 { #category : #converting }
 TMbndAbstractType >> asMovementConstructorParameter [
-	^ self const tempRef
+	^ self tempRef
 ]
 
 { #category : #converting }
@@ -574,6 +574,11 @@ TMbndAbstractType >> fillProgramEntityInfoInstance: typeInfoInstance [
 
 ]
 
+{ #category : #accessing }
+TMbndAbstractType >> finalizeMethod [
+	^ nil
+]
+
 { #category : #converting }
 TMbndAbstractType >> findConversionRuleInto: targetType node: node rulesExtractor: rulesExtractor [
 	| visitedTypes pendingTypes currentTypeFromToCheck currentType incomingTypeAndRule implicitUpcastRule |
@@ -688,6 +693,11 @@ TMbndAbstractType >> hasPointerRankImplicitlyConvertibleTo: targetPointerRank [
 ]
 
 { #category : #testing }
+TMbndAbstractType >> hasTrivialAssignment [
+	^ self isPOD
+]
+
+{ #category : #testing }
 TMbndAbstractType >> hasTrivialBasicInitialization [
 	^ self hasTrivialInstanceBasicInitialization
 ]
@@ -735,6 +745,11 @@ TMbndAbstractType >> hasTrivialInstanceInitializationCopyingFrom [
 { #category : #testing }
 TMbndAbstractType >> hasTrivialInstanceInitializationMovingFrom [
 	^ true
+]
+
+{ #category : #testing }
+TMbndAbstractType >> hasTrivialMoveAssignment [
+	^ self isPOD
 ]
 
 { #category : #adding }

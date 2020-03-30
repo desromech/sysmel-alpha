@@ -110,7 +110,7 @@ MbndAbstractSpecificMethod >> boundType: anObject [
 
 { #category : #testing }
 MbndAbstractSpecificMethod >> computeMatchingCostWithArguments: callArguments receiverType: callReceiverType analyzer: analyzer at: node [
-	| coercionCost |
+	| coercionCost receiverConversionCost |
 	receiverType isVoidType = callReceiverType isVoidType ifFalse: [ ^ nil ].
 	boundType isCVariadic ifTrue: [
 		callArguments size >= boundType argumentTypes size ifFalse: [ ^ nil ].
@@ -118,7 +118,20 @@ MbndAbstractSpecificMethod >> computeMatchingCostWithArguments: callArguments re
 		callArguments size = boundType argumentTypes size ifFalse: [ ^ nil ].
 	].
 
-	coercionCost := 0.
+	receiverConversionCost := 0.
+	(receiverType isReferenceType and: [ callReceiverType isReferenceType or: [callReceiverType isTemporaryReferenceType ]]) ifTrue: [
+		"Cannot cast const ref into non-const ref."
+		callReceiverType baseType isConstantType ifTrue: [ 
+			receiverType baseType isConstantType ifFalse: [ ^ nil ]
+		].
+	
+		"Prefer the non-const version always."
+		receiverType baseType isConstantType ~= callReceiverType baseType isConstantType ifTrue: [
+			receiverConversionCost := 10.
+		]
+	].
+	
+	coercionCost := receiverConversionCost.
 	callArguments doWithIndex: [ :argumentNode :index |
 		| expectedType argumentCoercionCost |
 		expectedType := boundType argumentTypes at: index.

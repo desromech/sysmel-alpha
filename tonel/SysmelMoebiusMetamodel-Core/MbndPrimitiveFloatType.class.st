@@ -134,6 +134,22 @@ MbndPrimitiveFloatType >> addInstanceMacros [
 ]
 
 { #category : #converting }
+MbndPrimitiveFloatType >> analyzeReinterpretCastNode: node to: targetType with: analyzer [
+	| undecoratedTargetType |
+	undecoratedTargetType := targetType withoutTopDecorations.
+
+	(undecoratedTargetType isPrimitiveIntegerType and: [ undecoratedTargetType instanceSize = self instanceSize ]) ifTrue: [
+		^ analyzer visitNode: (MbndAstBitCastNode new
+			position: node;
+			expression: node expression;
+			targetType: targetType;
+			yourself)
+	].
+
+	^ super analyzeReinterpretCastNode: node to: targetType with: analyzer
+]
+
+{ #category : #converting }
 MbndPrimitiveFloatType >> asCVariadicTypeRequiredAt: position [
 	^ self compilationTarget float64Type
 ]

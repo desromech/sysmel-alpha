@@ -11,5 +11,5 @@ MbndUnionSlotLayoutBuilder >> countSlotForSizeAndAlignment: slot [
 	slot offset: 0.
 	
 	instanceSize := instanceSize max: slotType instanceSize.
-	instanceAlignment := instanceAlignment max: slotType instanceAlignment
+	instanceAlignment := instanceAlignment max: slot alignment
 ]

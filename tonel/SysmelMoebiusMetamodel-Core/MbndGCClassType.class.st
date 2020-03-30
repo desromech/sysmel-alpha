@@ -201,6 +201,11 @@ MbndGCClassType >> hasDynamicMessageLookup [
 ]
 
 { #category : #testing }
+MbndGCClassType >> hasTrivialAssignment [
+	^ true
+]
+
+{ #category : #testing }
 MbndGCClassType >> hasTrivialBasicInitialization [
 	^ true
 ]
@@ -222,6 +227,11 @@ MbndGCClassType >> hasTrivialInitializationCopyingFrom [
 
 { #category : #testing }
 MbndGCClassType >> hasTrivialInitializationMovingFrom [
+	^ true
+]
+
+{ #category : #testing }
+MbndGCClassType >> hasTrivialMoveAssignment [
 	^ true
 ]
 

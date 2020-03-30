@@ -55,6 +55,7 @@ MbndCompilationEnvironment >> addLinkerArguments: arguments [
 
 { #category : #adding }
 MbndCompilationEnvironment >> addLoadedModule: module [
+	self assert: module isNotNil.
 	self loadedModules add: module.
 	module name ifNotNil: [ :name | self loadedModuleDictionary at: name put: module ].
 ]
@@ -266,7 +267,7 @@ MbndCompilationEnvironment >> importModuleNamed: moduleName [
 
 { #category : #'module import' }
 MbndCompilationEnvironment >> importOrCompileModuleNamed: moduleName [
-	| importedModuleSourceLocations location resultModule |
+	| importedModuleSourceLocations location resultModule isCoreModule |
 	importedModuleSourceLocations := OrderedCollection new.
 	moduleSourceLocations do: [ :each | 
 		location := each / moduleName. 
@@ -279,13 +280,15 @@ MbndCompilationEnvironment >> importOrCompileModuleNamed: moduleName [
 		self error: 'Cannot import or compile module named {1}' format: { moduleName }
 	].
 
-	self pushCurrentModule.
+
+	isCoreModule := currentModule == coreModule and: [self hasMonolithicTranslationMode not].
+	isCoreModule ifFalse: [ self pushCurrentModule ].
 	self validCurrentModule
 		name: moduleName;
 		sourceLocations: importedModuleSourceLocations asArray.
 	self addLoadedModule: currentModule.
 	resultModule := currentModule evaluateModuleLevelFilesIfExists: 'module.sysmel' asFileReference.
-	self popCurrentModule.
+	isCoreModule ifFalse: [ self popCurrentModule ].
 	^ resultModule
 
 ]

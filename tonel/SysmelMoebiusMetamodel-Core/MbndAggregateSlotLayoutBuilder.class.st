@@ -61,9 +61,6 @@ MbndAggregateSlotLayoutBuilder >> addField: aField [
 MbndAggregateSlotLayoutBuilder >> addNormalField: aField [
 	| slot |
 	self flushBitFields.
-	aField slotIndex ifNil: [ 
-		aField slotIndex: self currentSlotIndex.
-	].
 
 	slot := MbndAggregateSlotDescription new
 		name: aField name;
@@ -72,8 +69,13 @@ MbndAggregateSlotLayoutBuilder >> addNormalField: aField [
 		slotIndex: aField slotIndex;
 		yourself.
 		
-	layout slots add: slot.
 	self countSlotForSizeAndAlignment: slot.
+	aField slotIndex ifNil: [ 
+		aField slotIndex: self currentSlotIndex.
+	].
+
+	layout slots add: slot.
+
 ]
 
 { #category : #adding }
@@ -110,10 +112,14 @@ MbndAggregateSlotLayoutBuilder >> aggregate: anObject [
 
 { #category : #adding }
 MbndAggregateSlotLayoutBuilder >> countSlotForSizeAndAlignment: slot [
-	| slotType |
+	| slotType naturalAlignedOffset |
 	slotType := slot type.
 	
-	instanceSize := instanceSize alignedTo: slotType instanceAlignment.
+	naturalAlignedOffset := instanceSize alignedTo: slotType instanceAlignment.
+	instanceSize := instanceSize alignedTo: slot alignment.
+	self flag: 'FIXME: This is not the proper location for generating this padding bytes.'.
+	self emitAdditionalPaddingBytes: instanceSize - naturalAlignedOffset.
+	
 	slot offset: instanceSize.
 	
 	instanceSize := instanceSize + slotType instanceSize.
@@ -145,6 +151,20 @@ MbndAggregateSlotLayoutBuilder >> createVirtualTable [
 { #category : #adding }
 MbndAggregateSlotLayoutBuilder >> currentSlotIndex [
 	^ layout slots size
+]
+
+{ #category : #'as yet unclassified' }
+MbndAggregateSlotLayoutBuilder >> emitAdditionalPaddingBytes: paddingByteCount [
+	paddingByteCount > 0 ifTrue: [
+		layout slots add: (MbndAggregateSlotDescription new
+			name: nil;
+			type: (aggregate compilationTarget uint8Type array: paddingByteCount);
+			fields: #();
+			slotIndex: self currentSlotIndex;
+			yourself
+		).
+	].
+
 ]
 
 { #category : #initialization }

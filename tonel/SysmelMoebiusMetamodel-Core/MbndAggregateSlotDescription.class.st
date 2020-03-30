@@ -16,6 +16,16 @@ MbndAggregateSlotDescription class >> messagePackTypeName [
 	^ #AggregateSlotDescription
 ]
 
+{ #category : #accessing }
+MbndAggregateSlotDescription >> alignment [
+	| alignment |
+	alignment := type instanceAlignment.
+	(fields size = 1 and: [ fields first minimalAlignment isNotNil ]) ifTrue: [
+		alignment := alignment max: fields first minimalAlignment
+	].
+	^ alignment
+]
+
 { #category : #defaults }
 MbndAggregateSlotDescription >> defaultValueAt: aPosition [
 	(fields size = 1 and: [ fields first isVTablePointerField ]) ifTrue: [ 
