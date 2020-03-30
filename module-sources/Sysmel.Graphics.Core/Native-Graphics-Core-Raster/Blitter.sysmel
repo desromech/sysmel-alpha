@@ -98,6 +98,7 @@ class Blitter definition: {
 
     compileTimeConstant UNorm8RenderBlockType := ((UInt32x2) => UInt8x4) nativeBlockClosure.
     compileTimeConstant Float32RenderBlockType := ((UInt32x2) => Float32x4) nativeBlockClosure.
+    compileTimeConstant Float32BlendRenderBlockType := ((Int32x2 -- Float32x4 -- Float32x4) => Float32x4) nativeBlockClosure.
     compileTimeConstant Float32NormalizedRenderBlockType := ((Float32x2) => Float32x4) nativeBlockClosure.
 
     method initializeCachedState => Void := {
@@ -236,6 +237,59 @@ class Blitter definition: {
         self copyPixelsFrom: sourceBlitter at: Int32x2(0, 0) to: (sourceBlitter extent castTo: Int32x2)
             at: targetPosition.
     }.
+
+    const inline method blendPixelsFrom: (sourceBlitter: Blitter const ref) at: (sourceRectangleMin: Int32x2) to: (sourceRectangleMax: Int32x2)
+        at: (destinationPosition: Int32x2) with: (blendFunction: Float32BlendRenderBlockType)::=> Void := {
+
+        ## Clip the source rectangle.
+        let clippedSourceRectangleMin := sourceRectangleMin max: Int32x2(0, 0).
+        let clippedSourceRectangleMax := sourceRectangleMax min: (sourceBlitter extent castTo: Int32x2).
+
+        (clippedSourceRectangleMin x == clippedSourceRectangleMax x || clippedSourceRectangleMin y == clippedSourceRectangleMax y) ifTrue: {
+            return: nil
+        }.
+
+        let sourceCopyExtent := clippedSourceRectangleMax - clippedSourceRectangleMin.
+
+        ## Compute the destination rectangle.
+        let destinationMin := destinationPosition.
+        let destinationMax := destinationMin + sourceCopyExtent.
+        let clippedDestinationMin := destinationMin max: Int32x2(0, 0).
+        let clippedDestinationMax := destinationMax min: (extent castTo: Int32x2).
+
+        (clippedDestinationMin x == clippedDestinationMax x || clippedDestinationMin y == clippedDestinationMax y) ifTrue: {
+            return: nil
+        }.
+
+        let sourceClippedLocation := clippedSourceRectangleMin + (clippedDestinationMin - destinationMin).
+        let copyExtent := clippedDestinationMax - clippedDestinationMin.
+
+        let sourceRow mutable := sourceBlitter makeUnsafePixelIteratorAt: sourceClippedLocation.
+        let destRow mutable := self makeUnsafePixelIteratorAt: clippedDestinationMin.
+        clippedDestinationMin y until: clippedDestinationMax y do: {:(Int32)y :: Void |
+            let sourcePixel mutable := sourceRow.
+            let destPixel mutable := destRow.
+            clippedDestinationMin x until: clippedDestinationMax x do: {:(Int32)x :: Void |
+                let currentDestColor := destPixel loadPixelFloat32x4.
+                let currentSourceColor := sourcePixel loadPixelFloat32x4.
+                let computedDestColor := blendFunction(Int32x2(x, y), currentDestColor, currentSourceColor).
+
+                destPixel storePixelFloat32x4: computedDestColor.
+
+                sourcePixel advanceColumn.
+                destPixel advanceColumn.
+            }.
+
+            sourceRow advanceRow.
+            destRow advanceRow.
+        }
+    }.
+
+    const inline method blendPixelsFrom: (sourceBlitter: Blitter const ref) at: (targetPosition: Int32x2) with: (blendFunction: Float32BlendRenderBlockType) ::=> Void := {
+        self blendPixelsFrom: sourceBlitter at: Int32x2(0, 0) to: (sourceBlitter extent castTo: Int32x2)
+            at: targetPosition with: blendFunction.
+    }.
+
 }.
 
 }. ## End of namespace Core

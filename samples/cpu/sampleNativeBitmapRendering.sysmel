@@ -78,7 +78,11 @@ function main externC (argc: Int32, argv: UInt8 const pointer pointer) => Int32 
             copyPixelsFrom: sineWaves _ makeBlitter at: Int32x2(-50, 50).
         glyph ifNotNil: {
             destForm _ makeBlitter
-                copyPixelsFrom: glyph _ form _ makeBlitter at: Int32x2(128, 128)
+                blendPixelsFrom: glyph _ form _ makeBlitter at: Int32x2(128, 128)
+                    with: {:(Int32x2)pixelCoord :(Float32x4)destColor :(Float32x4)sourceColor :: Float32x4 |
+
+                Float32x4((destColor rgb * (1.0f - sourceColor a)) + (sourceColor rgb * sourceColor a), destColor a + sourceColor a).
+            }
         }.
 
         destForm _ writeTGAfileNamed: "blitCopyRender.tga".
