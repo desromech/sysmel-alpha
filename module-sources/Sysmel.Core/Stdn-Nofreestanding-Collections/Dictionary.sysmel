@@ -24,7 +24,7 @@ template Dictionary(KT: Type, VT: Type)
         slotIndex until: currentCapacity do: {:(UIntPointer)i :: Void |
             let slot ref := storage_[i].
             slot isPresent not || slot _ key = key ifTrue: {
-                return: slotIndex
+                return: i
             }.
         }.
 
@@ -32,7 +32,7 @@ template Dictionary(KT: Type, VT: Type)
         0 until: slotIndex do: {:(UIntPointer)i :: Void |
             let slot ref := storage_[i].
             slot isPresent not || slot _ key = key ifTrue: {
-                return: slotIndex
+                return: i
             }.
         }.
 
@@ -134,13 +134,21 @@ template Dictionary(KT: Type, VT: Type)
         ## Reinsert all of the present elements.
         oldStorage do: {:(StorageElementType ref) element :: Void |
             element isPresent ifTrue: {
-                Stdn stdout << "TODO: Reinsert old element " << element _ key; nl
+                let slotIndex := self scanFor: element _ key.
+                Stdn assert: (self isValidIndex: slotIndex).
+                storage_[slotIndex] := element asMoveReference.
+                Stdn stdout << "Reinsert old element " << element _ key; nl
             }
         }.
     }.
 
     method checkFullCapacityCondition => Void := {
-        Stdn stdout << "TODO: Dictionary checkFullCapacityCondition"; nl
+        let capacity := storage_ capacity.
+        let remainingCapacity := capacity - size_.
+        let threshold := capacity / 4.
+        remainingCapacity < threshold ifTrue: {
+            self increaseCapacity
+        }
     }.
 
     method keysDo: (aBlock: ((KeyType const ref) => Void) nativeBlockClosure) ::=> Void := {

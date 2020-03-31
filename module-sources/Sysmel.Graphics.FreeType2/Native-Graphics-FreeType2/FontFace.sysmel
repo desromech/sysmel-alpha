@@ -13,7 +13,7 @@ class FT2FontFaceWithSize.
 class FT2FontFace superclass: FontFace; definition: {
     meta definition: {
         method loadFromFile: (path: CTypes ConstString) ::=> FT2FontFace sharedPointer := {
-            let library := FT2Library defaultInstance.
+            let library ref := FT2Library defaultInstance.
             let handle mutable type: FT_Face.
             let error := FT_New_Face(library _ handle, path, 0, handle address).
             convertError(error) ifTrue: {

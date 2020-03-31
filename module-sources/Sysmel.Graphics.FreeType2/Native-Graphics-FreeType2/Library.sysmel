@@ -27,7 +27,7 @@ class FT2Library definition: {
         let defaultInstance mutable type: FT2Library sharedPointer.
         let defaultInstanceOnceCreation mutable type: Stdn OnceFlag.
 
-        method defaultInstance => FT2Library sharedPointer := {
+        method defaultInstance => FT2Library sharedPointer const ref := {
             defaultInstanceOnceCreation do: {
                 defaultInstance := FT2Library sharedNew
             }.

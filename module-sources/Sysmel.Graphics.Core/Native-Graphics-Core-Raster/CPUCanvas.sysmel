@@ -37,8 +37,13 @@ class CPUCanvas superclass: Canvas; definition: {
         currentColor := linearColor.
     }.
 
-    override method fillRectangle: (rectangle: RectangleF32) ::=> Void := {
+    override method fillTriangle: (p1: Float32x2) tc: (tc1: Float32x2)
+        p2: (p2: Float32x2) tc: (tc2: Float32x2)
+        p3: (p3: Float32x2) tc: (tc: Float32x2) ::=> Void := {
+    }.
 
+    override method fillRectangle: (rectangle: RectangleF32) ::=> Void := {
+        ## TODO: Support rotations.
     }.
 
     override method copyTexture: (textureView: TextureView sharedPointer const ref) at: (targetPosition: Float32x2) ::=> Void := {
@@ -66,7 +71,7 @@ class CPUCanvas superclass: Canvas; definition: {
         ## Apply the kerning.
         newState previousCharacter ~= 0 ifTrue: {
             let kerningDelta := currentFontFaceWithSize _ getKerningForCharacter: newState previousCharacter with: character.
-            Stdn stdout << "kerningDelta " << kerningDelta; nl.
+            ## Stdn stdout << "kerningDelta " << kerningDelta; nl.
             newState currentPosition: newState currentPosition + kerningDelta.
         }.
         newState previousCharacter: character.

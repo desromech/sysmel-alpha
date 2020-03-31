@@ -10,7 +10,8 @@ class FT2FontFace.
 class FT2FontFaceWithSize superclass: FontFaceWithSize; definition: {
     public field handle type: FT_Size.
     public field face type: FT2FontFace pointer.
-    private field glyphs type: Stdn Collections Dictionary(Char32, Glyph sharedPointer).
+    private field glyphIndexDictionary type: Stdn Collections Dictionary(UInt32, Glyph sharedPointer).
+    private field glyphCodePointDictionary type: Stdn Collections Dictionary(Char32, Glyph sharedPointer).
 
     override method finalize => Void := {
         self releaseHandle.
@@ -24,7 +25,14 @@ class FT2FontFaceWithSize superclass: FontFaceWithSize; definition: {
     }.
 
     method createGlyphForIndex: (glyphIndex: UInt32) ::=> Glyph sharedPointer := {
-        Stdn stdout << "Glyph index " << glyphIndex; nl.
+        FT2Library defaultInstance _ mutex withLock: {
+            FT_Activate_Size(handle).
+            self doCreateGlyphForIndex: glyphIndex.
+        }.
+    }.
+
+    method doCreateGlyphForIndex: (glyphIndex: UInt32) ::=> Glyph sharedPointer := {
+        ##Stdn stdout << "Glyph index " << glyphIndex; nl.
         let error mutable := FT_Load_Glyph(face _ handle, glyphIndex, 0).
         convertError(error) ifTrue: {
             return: Glyph sharedPointer nil
@@ -68,13 +76,15 @@ class FT2FontFaceWithSize superclass: FontFaceWithSize; definition: {
         result upCastFor: Glyph
     }.
 
-    method createGlyphForCodePoint: (codePoint: Char32) ::=> Glyph sharedPointer := {
-        self createGlyphForIndex: FT_Get_Char_Index(face _ handle, codePoint)
+    inline method getOrCreateGlyphForIndex: (index: UInt32) ::=> Glyph sharedPointer := {
+        glyphIndexDictionary at: index ifAbsentPut: { :: (Glyph sharedPointer) |
+            self createGlyphForIndex: index
+        }
     }.
 
     override method getOrCreateGlyphForCodePoint: (codePoint: Char32) ::=> Glyph sharedPointer := {
-        glyphs at: codePoint ifAbsentPut: { :: (Glyph sharedPointer) |
-            self createGlyphForCodePoint: codePoint
+        glyphCodePointDictionary at: codePoint ifAbsentPut: { :: (Glyph sharedPointer) |
+            self getOrCreateGlyphForIndex: FT_Get_Char_Index(face _ handle, codePoint)
         }
     }.
 
@@ -85,7 +95,9 @@ class FT2FontFaceWithSize superclass: FontFaceWithSize; definition: {
         previousIndex ~= 0 ifTrue: {
             let index := FT_Get_Char_Index(face _ handle, rightCharacter).
             index ~= 0 ifTrue: {
-                FT_Get_Kerning(face _ handle, previousIndex, index, FT_Kerning_Mode Default, delta address).
+                FT2Library defaultInstance _ mutex withLock: {
+                    FT_Get_Kerning(face _ handle, previousIndex, index, FT_Kerning_Mode Unfitted, delta address).
+                }.
             }
         }.
 
