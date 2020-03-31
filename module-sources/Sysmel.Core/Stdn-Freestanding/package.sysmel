@@ -1,4 +1,8 @@
 ## Core definitions without a requirement on memory allocation, or an actual operating system.
+Compiler loadPackages: #(
+	#"Stdn-Freestanding-Utility"
+).
+
 if: Compiler compilationTarget isGPU not then: {
 	loadFileOnce: "FixedArray.sysmel".
 	loadFileOnce: "string.sysmel".
@@ -16,7 +20,6 @@ if: Compiler compilationTarget isGPU not then: {
 	}.
 
 	Compiler loadPackages: #(
-		#"Stdn-Freestanding-Utility"
 		#"Stdn-Freestanding-ExplicitMemoryCollections"
 	).
 	loadFileOnce: "Object.sysmel".

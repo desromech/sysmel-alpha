@@ -1,0 +1,20 @@
+namespace Stdn definition: {
+namespace Graphics definition: {
+namespace Core definition: {
+
+#**
+ * I am an abstract texture view that can be used for drawing patterns into a surface canvas.
+ * I am designed to be abstract in order to support GPU based accelerated implementations.
+ *#
+class TextureView definition: {
+    #**
+     * This method returns the my extent.
+     *#
+    virtual method extent => UInt32x2 := UInt32x2 zeros.
+
+
+}.
+
+}. ## End of namespace Core
+}. ## End of namespace Graphics
+}. ## End of namespace Stdn

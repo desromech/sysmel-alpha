@@ -6,6 +6,22 @@ namespace Core definition: {
  * I am a form based drawing surface. I am useful for rasterizing into a CPU held form.
  *#
 class FormSurface superclass: CPUSurface; definition: {
+    public field form type: Form sharedPointer.
+
+    meta definition: {
+        method for: (form: Form sharedPointer const ref) ::=> Surface sharedPointer
+        := Surface sharedPointer for: (FormSurface nativeNew _
+            form: form;
+            address).
+    }.
+
+    override method beginDrawing => Void := {
+        pixelsBlitter := form _ makeBlitter.
+    }.
+
+    override method endDrawing => Void := {
+        ## Nothing is required here.
+    }.
 }.
 
 }. ## End of namespace Core

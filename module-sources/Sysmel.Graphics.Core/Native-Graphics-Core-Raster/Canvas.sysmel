@@ -1,0 +1,92 @@
+namespace Stdn definition: {
+namespace Graphics definition: {
+namespace Core definition: {
+
+useNamespace: Stdn Math Geometry.
+
+class FontFaceWithSize.
+
+#**
+ * I am an abstract rendering canvas interface. I could be implemented through
+ * CPU based software rendering, or I could be implemented through a hardware based accelerator.
+ *#
+class Canvas superclass: Object; definition: {
+    ## This method clears the whole surface with the active color.
+    virtual method clear ::=> Void := {
+    }.
+
+    ## This method sets a white color.
+    virtual method white ::=> Void := {
+        self color: Float32x4 ones
+    }.
+
+    ## This method sets a black color.
+    virtual method black ::=> Void := {
+        self color: Float32x4(0.0f, 0.0f, 0.0f, 1.0f)
+    }.
+
+    ## This method sets a transparent color.
+    virtual method transparent ::=> Void := {
+        self color: Float32x4 zeros
+    }.
+
+    ## This sets the current blending mode.
+    virtual method blendingMode: (mode: BlendingMode) ::=> Void := {
+
+    }.
+
+    ## This sets the current active color. The color is in the sRGB space.
+    virtual method color: (srgbColor: UInt8x4) ::=> Void := {
+    }.
+
+    ## This sets the current active color. The color is in the linear RGB space.
+    virtual method color: (linearColor: Float32x4) ::=> Void := {
+    }.
+
+    ## Fill a rectangle.
+    virtual method fillRectangle: (rectangle: RectangleF32) ::=> Void := {
+
+    }.
+
+    ## Draw the rectangle lines.
+    virtual method drawRectangle: (rectangle: RectangleF32) ::=> Void := {
+
+    }.
+
+    ## Copy the pixels of a texture without any transformation.
+    virtual method copyTexture: (textureView: TextureView sharedPointer const ref) at: (targetPosition: Float32x2) ::=> Void := {
+
+    }.
+
+    ## Sets the current font face with size.
+    virtual method fontFaceWithSize: (font: FontFaceWithSize sharedPointer const ref) ::=> Void := {
+
+    }.
+
+    ## Draws a character with the font face and size. This returns the position for drawing the next character.
+    virtual method drawCharacter: (character: Char32) withState: (state: TextDrawingState) ::=> TextDrawingState
+        := state.
+
+    ## Draw an UTF-8 encoded string. Allow overriding for optiomization reasons.
+    virtual method drawUTF8String: (encodedString: Char8 const pointer) size: (encodedStringSize: UIntPointer) withState: (state: TextDrawingState) ::=> TextDrawingState := {
+        let currentState mutable := state.
+
+        ## TODO: Properly decode the utf8 encoded string by using a stream and an iterator.
+        0 until: encodedStringSize do: {:(UIntPointer)i :: Void |
+            currentState := self drawCharacter: encodedString[i] withState: currentState.
+        }.
+
+        currentState
+    }.
+
+    inline method drawUTF8String: (encodedString: Char8 const pointer) size: (encodedStringSize: UIntPointer) at: (position: Float32x2) ::=> TextDrawingState
+        := self drawUTF8String: encodedString size: encodedStringSize
+            withState: (TextDrawingState position: position).
+
+    inline method drawUTF8String: (encodedString: Char8 const pointer) at: (position: Float32x2) ::=> TextDrawingState
+        := self drawUTF8String: encodedString size: Stdn cstrlen(encodedString) at: position.
+}.
+
+}. ## End of namespace Core
+}. ## End of namespace Graphics
+}. ## End of namespace Stdn

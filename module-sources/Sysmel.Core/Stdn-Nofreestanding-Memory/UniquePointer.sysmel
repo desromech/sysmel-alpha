@@ -31,6 +31,12 @@ template UniquePointer(PT: Type)
 		o __private pointer_ := nil
 	}.
 
+    const inline method = (other: SelfType const ref) ::=> Boolean8
+        := pointer_ = other __private pointer_ .
+
+    const inline method hash ::=> Hash
+        := pointer_ hash.
+
     inline const method _ => PointedType ref
 		:= pointer_ _.
 

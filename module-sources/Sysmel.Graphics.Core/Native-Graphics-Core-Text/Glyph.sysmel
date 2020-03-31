@@ -7,7 +7,18 @@ namespace Core definition: {
  * particular glyph, but my subclasses define how I am actually being used for drawing.
  *#
 class Glyph superclass: Object; definition: {
-    public field extent type: UInt32x2.
+    public field drawOrigin type: Float32x2. ## The bitmap rendering origin.
+
+    public field extent type: Float32x2.
+
+    public field horizontalBearing type: Float32x2.
+    public field horizontalAdvance type: Float32x2.
+
+    public field verticalBearing type: Float32x2.
+    public field verticalAdvance type: Float32x2.
+
+    virtual method asForm => Form sharedPointer
+        := Form sharedPointer nil.
 }.
 
 }. ## End of namespace Core

@@ -1,0 +1,96 @@
+namespace Stdn definition: {
+namespace Graphics definition: {
+namespace Core definition: {
+
+useNamespace: Stdn Math Geometry.
+
+class CPUSurface.
+
+#**
+ * I am a software based rendering CPU canvas that draws into CPUSurface.
+ *#
+class CPUCanvas superclass: Canvas; definition: {
+    protected field targetSurface type: CPUSurface pointer.
+    protected field currentColor type: Float32x4.
+    protected field currentFontFaceWithSize type: FontFaceWithSize sharedPointer.
+
+    method initializeWithSurface: (theTargetSurface: CPUSurface pointer) ::=> Void := {
+        targetSurface := theTargetSurface.
+    }.
+
+    override method finalize => Void := {
+        targetSurface ifNotNil: {
+            targetSurface _ endDrawing
+        }
+    }.
+
+    override method clear ::=> Void := {
+        targetSurface _ pixelsBlitter setAllPixelsToColor: currentColor
+    }.
+
+    override method color: (srgbColor: UInt8x4) ::=> Void := {
+        ## TODO: Perform the sRGB -> linear conversion.
+        self color: (srgbColor castTo: Float32x4) / 255.0f
+    }.
+
+    override method color: (linearColor: Float32x4) ::=> Void := {
+        currentColor := linearColor.
+    }.
+
+    override method fillRectangle: (rectangle: RectangleF32) ::=> Void := {
+
+    }.
+
+    override method copyTexture: (textureView: TextureView sharedPointer const ref) at: (targetPosition: Float32x2) ::=> Void := {
+        ## Fixme: use a normal downcast here.
+        let cpuTextureView := textureView getPointer reinterpretCastTo: CPUTextureView pointer.
+
+        let sourceBlitter := cpuTextureView _ pixelsBlitter.
+        targetSurface _ pixelsBlitter
+            compositeAlphaBlendPixelsFrom: sourceBlitter withColor: currentColor at: (targetPosition floor castTo: Int32x2)
+    }.
+
+    ## Sets the current font face with size.
+    override method fontFaceWithSize: (font: FontFaceWithSize sharedPointer const ref) ::=> Void := {
+        currentFontFaceWithSize := font.
+    }.
+
+    ## Draws a character with the font face and size. This returns the position for drawing the next character.
+    override method drawCharacter: (character: Char32) withState: (state: TextDrawingState) ::=> TextDrawingState := {
+        let newState mutable := state.
+
+        currentFontFaceWithSize ifNil: {
+            return: newState.
+        }.
+
+        ## Apply the kerning.
+        newState previousCharacter ~= 0 ifTrue: {
+            let kerningDelta := currentFontFaceWithSize _ getKerningForCharacter: newState previousCharacter with: character.
+            Stdn stdout << "kerningDelta " << kerningDelta; nl.
+            newState currentPosition: newState currentPosition + kerningDelta.
+        }.
+        newState previousCharacter: character.
+
+        ## Get the glyph for the character
+        let glyph := currentFontFaceWithSize _ getOrCreateGlyphForCodePoint: character.
+        glyph ifNil: {
+            return: newState
+        }.
+
+        ## Convert the glyph into a form. We can always do this operation with fonts.
+        let form := glyph _ asForm.
+        form ifNotNil: {
+            let sourceBlitter := form _ makeBlitter.
+            targetSurface _ pixelsBlitter
+                compositeAlphaBlendPixelsFrom: sourceBlitter withColor: currentColor
+                at: ((newState currentPosition + glyph _ drawOrigin) floor castTo: Int32x2).
+        }.
+
+        newState currentPosition: newState currentPosition + glyph _ horizontalAdvance.
+        return: newState.
+    }.
+}.
+
+}. ## End of namespace Core
+}. ## End of namespace Graphics
+}. ## End of namespace Stdn

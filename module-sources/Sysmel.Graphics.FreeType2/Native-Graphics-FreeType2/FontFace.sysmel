@@ -5,7 +5,7 @@ namespace FT2Bindings definition: {
 useNamespace: Stdn Graphics Core.
 useNamespace: FreeType2.
 
-class FT2FontFaceSize.
+class FT2FontFaceWithSize.
 
 #**
  * I am a FreeType2 based font face.
@@ -27,11 +27,12 @@ class FT2FontFace superclass: FontFace; definition: {
     }.
 
     public field handle type: FT_Face.
-    private field faceSizes type: Stdn Collections Dictionary(UInt32, FT2FontFaceSize sharedPointer).
+    private field faceSizes type: Stdn Collections Dictionary(UInt32, FontFaceWithSize sharedPointer).
 
     override method finalize => Void := {
-        faceSizes valuesDo: {:(FT2FontFaceSize sharedPointer ref)each :: Void |
-            each _ releaseHandle.
+        faceSizes valuesDo: {:(FontFaceWithSize sharedPointer ref)each :: Void |
+            (each getPointer reinterpretCastTo: FT2FontFaceWithSize pointer)
+                _ releaseHandle.
         }.
 
         handle ifNotNil: {
@@ -39,20 +40,22 @@ class FT2FontFace superclass: FontFace; definition: {
         }.
     }.
 
-    method getOrCreateFaceSize: (faceSize: UInt32) ::=> FT2FontFaceSize sharedPointer := {
-        faceSizes at: faceSize ifAbsentPut: { :: (FT2FontFaceSize sharedPointer) |
+    override method getOrCreateFaceWithSize: (faceSize: UInt32) ::=> FontFaceWithSize sharedPointer := {
+        faceSizes at: faceSize ifAbsentPut: { :: (FontFaceWithSize sharedPointer) |
             let sizeHandle mutable type: FT_Size.
             let error := FT_New_Size(handle, sizeHandle address).
-            let result mutable := FT2FontFaceSize sharedPointer nil.
+            let result mutable := FT2FontFaceWithSize sharedPointer nil.
             convertError(error) ifFalse: {
                 FT_Activate_Size(sizeHandle).
                 FT_Set_Char_Size(handle, 0, faceSize*64, 72, 72).
 
-                result := FT2FontFaceSize sharedNew.
-                result _ handle: sizeHandle; face: self address
+                result := FT2FontFaceWithSize sharedNew.
+                result _
+                    handle: sizeHandle;
+                    face: self address.
             }.
 
-            result
+            result upCastFor: FontFaceWithSize
         }
     }.
 }.

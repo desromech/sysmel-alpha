@@ -1,0 +1,15 @@
+namespace Stdn definition: {
+namespace Graphics definition: {
+namespace Core definition: {
+
+#**
+ * I am a CPU software based rasterization texture view. I am used blitting pixels into other canvases.
+ *#
+class CPUTextureView superclass: TextureView; definition: {
+    public field pixelsBlitter type: Blitter.
+
+}.
+
+}. ## End of namespace Core
+}. ## End of namespace Graphics
+}. ## End of namespace Stdn

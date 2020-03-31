@@ -7,6 +7,9 @@ namespace Core definition: {
  *#
 class BitmapGlyph superclass: Glyph; definition: {
     public field form type: Form sharedPointer.
+
+    override method asForm => Form sharedPointer
+        := form.
 }.
 
 }. ## End of namespace Core

@@ -1,6 +1,6 @@
 ## Abstract font interface.
 loadFileOnce: "Glyph.sysmel".
-loadFileOnce: "FontFaceSize.sysmel".
+loadFileOnce: "FontFaceWithSize.sysmel".
 loadFileOnce: "FontFace.sysmel".
 loadFileOnce: "Font.sysmel".
 

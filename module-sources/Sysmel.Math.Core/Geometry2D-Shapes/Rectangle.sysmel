@@ -1,0 +1,65 @@
+namespace Stdn definition: {
+namespace Math definition: {
+namespace Geometry definition: {
+
+
+template GenericRectangle(ST: Type)
+    := class superclass: GenericGeometricShape(ST); definition: {
+    public field min type: Vector2.
+    public field max type: Vector2.
+
+    meta definition: {
+        inline method min: (theMinCorner: Vector2) max: (theMaxCorner: Vector2) ::=> Rectangle
+            := Rectangle basicNewValue min: theMinCorner; max: theMaxCorner; yourself.
+
+        inline method center: (theCenter: Vector2) halfExtent: (theHalfExtent: Vector2) ::=> Rectangle
+            := Rectangle min: theCenter - theHalfExtent max: theCenter + theHalfExtent.
+
+        inline method extent: (theExtent: Vector2) ::=> Rectangle
+            := Rectangle min: Vector2 zeros max: theExtent.
+
+    }.
+
+    const inline method center => Vector2
+        := min + (max - min) / (2 castTo: Scalar).
+
+    const inline method halfExtent => Vector2
+        := (max - min) / (2 castTo: Scalar).
+
+    const inline method extent => Vector2
+        := max - min.
+
+    const inline method isEmpty ::=> Boolean8
+        := min x > max x || min y > max y.
+
+    const inline method includesPoint: (point: Vector2) ::=> Boolean8
+        := (min x <= point x && point x <= max x) &&
+           (min y <= point y && point y <= max y).
+
+    const inline method includesRectangle: (other: Rectangle const ref) ::=> Boolean8
+        := (min x <= other min x && other max x <= max x) &&
+           (min y <= other min x && other max x <= max y).
+
+    const inline method includesPointExclusively: (point: Vector2) ::=> Boolean8
+        := (min x <= point x && point x < max x) &&
+           (min y <= point y && point y < max y).
+
+    const inline method includesRectangleExclusively: (other: Rectangle const ref) ::=> Boolean8
+        := (min x <= other min x && other max x < max x) &&
+           (min y <= other min x && other max x < max y).
+
+    const inline method intersectionWith: (other: Rectangle const ref) ::=> SelfType
+        := SelfType min: (min max: other min) max: (max min: other max).
+
+    compileTimeIf: Scalar isPrimitiveFloatType then: {
+
+    }.
+}.
+
+compileTimeConstant RectangleI32 := GenericRectangle(Int32).
+compileTimeConstant RectangleF32 := GenericRectangle(Float32).
+compileTimeConstant RectangleF64 := GenericRectangle(Float64).
+
+} ## End of namespace Geometry
+} ## End of namespace Math
+} ## End of namespace Stdn

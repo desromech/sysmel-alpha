@@ -1,0 +1,22 @@
+namespace Stdn definition: {
+namespace Math definition: {
+namespace Geometry definition: {
+
+template GenericGeometricShape(ST: Type)
+    := class definition: {
+    compileTimeConstant Scalar := ST.
+    compileTimeConstant Vector2 := ST primitiveVectorWithElements: 2.
+    compileTimeConstant Vector3 := Scalar primitiveVectorWithElements: 3.
+    compileTimeConstant Vector4 := ST primitiveVectorWithElements: 4.
+
+    compileTimeConstant Rectangle := GenericRectangle(Scalar).
+
+    compileTimeIf: Scalar isPrimitiveFloatType then: {
+        compileTimeConstant Circle := GenericCircle(Scalar).
+    }.
+}.
+
+
+} ## End of namespace Geometry
+} ## End of namespace Math
+} ## End of namespace Stdn

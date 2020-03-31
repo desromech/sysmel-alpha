@@ -1,0 +1,26 @@
+namespace Stdn definition: {
+namespace Graphics definition: {
+namespace Core definition: {
+
+
+#**
+ * I am a CPU based rendering driver. Since I do not require special graphical support, I am constructed as a singleton.
+ *#
+class CPURenderingDriver superclass: RenderingDriver; definition: {
+    meta definition: {
+        let uniqueInstance mutable type: RenderingDriver sharedPointer.
+        let uniqueInstanceOnceCreation mutable type: Stdn OnceFlag.
+
+        method uniqueInstance => RenderingDriver sharedPointer := {
+            uniqueInstanceOnceCreation do: {
+                uniqueInstance := RenderingDriver sharedPointer for: CPURenderingDriver nativeNew.
+            }.
+
+            uniqueInstance
+        }.
+    }.
+}.
+
+}. ## End of namespace Core
+}. ## End of namespace Graphics
+}. ## End of namespace Stdn

@@ -3,10 +3,12 @@ namespace Graphics definition: {
 namespace Core definition: {
 
 class AbstractSurface.
-class Texture.
+class TextureView.
+class Surface.
 
 #**
- * I am an abstract rendering driver.
+ * I am an abstract rendering driver. I am typically used as a factory for generating
+ * device dependant objects such textures and drawing surfaces.
  *#
 class RenderingDriver definition: {
 

@@ -6,7 +6,8 @@ namespace Core definition: {
  * I am an abstract font face.
  *#
 class FontFace superclass: Object; definition: {
-
+    virtual method getOrCreateFaceWithSize: (faceSize: UInt32) ::=> FontFaceWithSize sharedPointer
+        := FontFaceWithSize sharedPointer nil.
 }.
 
 }. ## End of namespace Core

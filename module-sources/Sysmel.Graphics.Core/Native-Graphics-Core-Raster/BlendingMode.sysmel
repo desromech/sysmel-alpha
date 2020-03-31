@@ -1,0 +1,18 @@
+namespace Stdn definition: {
+namespace Graphics definition: {
+namespace Core definition: {
+
+enum BlendingMode valueType: UInt8; values: #{
+    Copy: 0.
+    Discard: 1.
+    AlphaOver: 2.
+    PremultipliedAlphaOver: 3.
+    CompositeAlphaOver: 4.
+    CompositePremultipliedAlphaOver: 5.
+}; definition: {
+
+}.
+
+}. ## End of namespace Core
+}. ## End of namespace Graphics
+}. ## End of namespace Stdn

@@ -49,36 +49,44 @@ function main externC (argc: Int32, argv: UInt8 const pointer pointer) => Int32 
     }.
 
     ## Sine waves
-    {
-        let form := Form extent: UInt32x2(64, 64) pixelFormat: PixelFormat B8G8R8A8_UNorm.
-        form _ makeBlitter setPixelsWith: {:(Float32x2)pixelCoord :: Float32x4 |
-            let p := (pixelCoord*2.0f - 1.0f) *20.0f.
-            Float32x4(0.0f, 0.0f, 0.0f, 1.0f) interpolateTo: Float32x4 ones at: p length sin*0.5f + 0.5f.
-        }.
-        form _ writeTGAfileNamed: "sineWaveRender.tga".
-    }.
-
-    ## Load the font
-    ## TODO: Use factory to avoid using explicitly the freetype bindings here.
-    let fontFace mutable := Stdn Graphics FT2Bindings FT2FontFace loadFromFile: "resources/fonts/dejavu/ttf/DejaVuSans.ttf".
-    let fontFaceSize mutable := fontFace _ getOrCreateFaceSize: 24.
-    let glyph mutable := fontFaceSize _ getOrCreateGlyphForCodePoint: 'e'.
-
-    ## Blitting
+    let sineWavesTexture :=
     {
         let sineWaves := Form extent: UInt32x2(64, 64) pixelFormat: PixelFormat B8G8R8A8_UNorm.
         sineWaves _ makeBlitter setPixelsWith: {:(Float32x2)pixelCoord :: Float32x4 |
             let p := (pixelCoord*2.0f - 1.0f) *20.0f.
             Float32x4(0.0f, 0.0f, 0.0f, 1.0f) interpolateTo: Float32x4 ones at: p length sin*0.5f + 0.5f.
         }.
+        sineWaves _ writeTGAfileNamed: "sineWaveRender.tga".
 
+        FormTextureView for: sineWaves
+    }.
+
+    ## Load the font
+    ## TODO: Use factory to avoid using explicitly the freetype bindings here.
+    let fontFace mutable := Stdn Graphics FT2Bindings FT2FontFace loadFromFile: "resources/fonts/dejavu/ttf/DejaVuSans.ttf".
+    let fontFaceWithSize mutable := fontFace _ getOrCreateFaceWithSize: 24.
+    ##let glyph mutable := fontFaceSize _ getOrCreateGlyphForCodePoint: 'e'.
+    ##let glyphTexture mutable := FormTextureView for: glyph _ form.
+
+    ## Canvas rendering.
+    {
         let destForm := Form extent: UInt32x2(256, 256) pixelFormat: PixelFormat B8G8R8A8_UNorm.
-        destForm _ makeBlitter
-            setAllPixelsToColor: UInt8x4(255, 0, 255, 255);
-            copyPixelsFrom: sineWaves _ makeBlitter at: Int32x2(-50, 50).
-        glyph ifNotNil: {
-            destForm _ makeBlitter
-                compositeAlphaBlendPixelsFrom: glyph _ form _ makeBlitter withColor: Float32x4(0.0f, 1.0f, 1.0f, 1.0f) at: Int32x2(128, 128).
+        let destSurface := FormSurface for: destForm.
+
+        {
+            let canvas := destSurface _ beginDrawingWithCanvas.
+
+            canvas _
+                color: Float32x4(0.4f, 0.4f, 0.4f, 1.0f);
+                clear;
+                white;
+                copyTexture: sineWavesTexture at: Float32x2(-50.0f, 50.0f);
+
+                fontFaceWithSize: fontFaceWithSize;
+                color: Float32x4(0.0f, 1.0f, 1.0f, 1.0f);
+                drawUTF8String: "Hello World" at: Float32x2(80.0f, 128.0f).
+
+            void.
         }.
 
         destForm _ writeTGAfileNamed: "blitCopyRender.tga".

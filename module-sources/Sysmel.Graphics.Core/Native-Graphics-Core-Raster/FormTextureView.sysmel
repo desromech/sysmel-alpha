@@ -1,0 +1,23 @@
+namespace Stdn definition: {
+namespace Graphics definition: {
+namespace Core definition: {
+
+#**
+ * I am a form based texture view.
+ *#
+class FormTextureView superclass: CPUTextureView; definition: {
+    public field form type: Form sharedPointer.
+
+    meta definition: {
+        method for: (form: Form sharedPointer const ref) ::=> TextureView sharedPointer
+        := TextureView sharedPointer for: (FormTextureView nativeNew _
+            form: form;
+            pixelsBlitter: form _ makeBlitter;
+            address).
+    }.
+
+}.
+
+}. ## End of namespace Core
+}. ## End of namespace Graphics
+}. ## End of namespace Stdn

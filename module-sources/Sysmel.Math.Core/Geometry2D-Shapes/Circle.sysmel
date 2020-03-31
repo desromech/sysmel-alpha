@@ -1,0 +1,17 @@
+namespace Stdn definition: {
+namespace Math definition: {
+namespace Geometry definition: {
+
+template GenericCircle(ST: Type)
+    := class superclass: GenericGeometricShape(ST); definition: {
+    public field center type: Vector2.
+    public field radius type: Scalar.
+
+}.
+
+compileTimeConstant CircleF32 := GenericCircle(Float32).
+compileTimeConstant CircleF64 := GenericCircle(Float64).
+
+} ## End of namespace Geometry
+} ## End of namespace Math
+} ## End of namespace Stdn

@@ -1,0 +1,5 @@
+Compiler loadPackages: #(
+    #"Geometry-Common"
+    #"Geometry2D-Shapes"
+    #"Geometry3D-Shapes"
+).

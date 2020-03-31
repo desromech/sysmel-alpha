@@ -1,0 +1,31 @@
+namespace Stdn definition: {
+namespace Graphics definition: {
+namespace Core definition: {
+
+class Canvas.
+
+#**
+ * I am an abstract drawing surface onto which drawing commands can be issued.
+ *#
+class Surface definition: {
+    #**
+     * This method returns the drawing surface extent.
+     *#
+    virtual method extent => UInt32x2 := UInt32x2 zeros.
+
+    #**
+     * This method creates a drawing canvas. When the canvas goes out of scope,
+     * the drawing commands are actually issued.
+     *#
+    virtual method beginDrawingWithCanvas => Canvas uniquePointer := Canvas uniquePointer nil.
+
+    #**
+     * This method returns a pointer to the underlying rendering driver that I belong to.
+     *#
+    virtual method renderingDriver => RenderingDriver pointer := nil.
+
+}.
+
+}. ## End of namespace Core
+}. ## End of namespace Graphics
+}. ## End of namespace Stdn

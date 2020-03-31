@@ -1,0 +1,98 @@
+namespace Stdn definition: {
+namespace Graphics definition: {
+namespace FT2Bindings definition: {
+
+useNamespace: Stdn Graphics Core.
+useNamespace: FreeType2.
+
+class FT2FontFace.
+
+class FT2FontFaceWithSize superclass: FontFaceWithSize; definition: {
+    public field handle type: FT_Size.
+    public field face type: FT2FontFace pointer.
+    private field glyphs type: Stdn Collections Dictionary(Char32, Glyph sharedPointer).
+
+    override method finalize => Void := {
+        self releaseHandle.
+    }.
+
+    method releaseHandle => Void := {
+        handle ifNotNil: {
+            FT_Done_Size(handle).
+            handle := nil.
+        }
+    }.
+
+    method createGlyphForIndex: (glyphIndex: UInt32) ::=> Glyph sharedPointer := {
+        Stdn stdout << "Glyph index " << glyphIndex; nl.
+        let error mutable := FT_Load_Glyph(face _ handle, glyphIndex, 0).
+        convertError(error) ifTrue: {
+            return: Glyph sharedPointer nil
+        }.
+
+        let glyphSlot := face _ handle _ glyph.
+        error := FT_Render_Glyph(glyphSlot, FT_Render_Mode Normal).
+        convertError(error) ifTrue: {
+            return: Glyph sharedPointer nil
+        }.
+
+        let glyphBitmap ref := glyphSlot _ bitmap.
+
+        ## Create glyph form.
+        let form mutable := Form extent: UInt32x2(glyphBitmap width, glyphBitmap rows) pixelFormat: PixelFormat A8_UNorm.
+        {
+            let destRow mutable := form _ makeBlitter makeUnsafePixelIterator.
+            let sourceRow mutable := glyphBitmap buffer reinterpretCastTo: UInt8 pointer.
+            let sourcePitch := glyphBitmap pitch.
+            0 until: glyphBitmap rows do: {:(UInt32)y :: Void |
+                Stdn memcpy(destRow pixels, sourceRow, glyphBitmap width).
+                destRow advanceRow.
+                sourceRow := sourceRow + sourcePitch
+            }.
+        }.
+
+        let metrics ref := glyphSlot _ metrics.
+        ## Create the bitmap glyph form.
+        let result mutable := BitmapGlyph sharedNew.
+        result _
+            extent: Float32x2(convert26d6(metrics width), convert26d6(metrics height));
+            drawOrigin: Float32x2(glyphSlot _ bitmap_left, glyphSlot _ bitmap_top negated);
+            horizontalBearing: Float32x2(convert26d6(metrics horiBearingX), convert26d6(metrics horiBearingY));
+            horizontalAdvance: Float32x2(convert26d6(metrics horiAdvance), 0.0f);
+
+            verticalBearing: Float32x2(convert26d6(metrics vertBearingX), convert26d6(metrics vertBearingY));
+            verticalAdvance: Float32x2(0.0f, convert26d6(metrics vertAdvance));
+
+            form: form.
+
+        result upCastFor: Glyph
+    }.
+
+    method createGlyphForCodePoint: (codePoint: Char32) ::=> Glyph sharedPointer := {
+        self createGlyphForIndex: FT_Get_Char_Index(face _ handle, codePoint)
+    }.
+
+    override method getOrCreateGlyphForCodePoint: (codePoint: Char32) ::=> Glyph sharedPointer := {
+        glyphs at: codePoint ifAbsentPut: { :: (Glyph sharedPointer) |
+            self createGlyphForCodePoint: codePoint
+        }
+    }.
+
+    override method getKerningForCharacter: (leftCharacter: Char32) with: (rightCharacter: Char32) ::=> Float32x2 := {
+        ## TODO: Cache these values in a dictionary.
+        let delta mutable type: FT_Vector.
+        let previousIndex := FT_Get_Char_Index(face _ handle, leftCharacter).
+        previousIndex ~= 0 ifTrue: {
+            let index := FT_Get_Char_Index(face _ handle, rightCharacter).
+            index ~= 0 ifTrue: {
+                FT_Get_Kerning(face _ handle, previousIndex, index, FT_Kerning_Mode Default, delta address).
+            }
+        }.
+
+        Float32x2(convert26d6(delta x), 0.0f)
+    }
+}
+
+}. ## End of namespace Text
+}. ## End of namespace Graphics
+}. ## End of namespace Stdn

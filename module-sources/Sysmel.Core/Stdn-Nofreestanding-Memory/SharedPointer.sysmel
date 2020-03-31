@@ -81,7 +81,7 @@ template SharedPointer(PT: Type)
 
     meta extend: {
         inline method for: (pointer: PointerType) ::=> SmartPointerType
-            := SmartPointerType basicNewValue initializeWith: (CounterType for: pointer); yourself.
+            := SmartPointerType basicNewValue initializeWithNewCounter: (CounterType for: pointer) andPointer: pointer; yourself.
         macro method nil := ``(`,self basicNewValue).
     }.
 
@@ -93,7 +93,7 @@ template SharedPointer(PT: Type)
         }.
     }.
 
-    inline method initializeWith: (counter: CounterType pointer) ::=> Void := {
+    inline method initializeWithNewCounter: (counter: CounterType pointer) andPointer: (pointer: PointerType)::=> Void := {
         counter_ := counter
     }.
 
@@ -109,8 +109,17 @@ template SharedPointer(PT: Type)
 		o __private counter_ := nil
 	}.
 
+    const inline method = (other: SelfType const ref) ::=> Boolean8
+        := counter_ = other __private counter_ .
+
+    const inline method hash ::=> Hash
+        := counter_ hash.
+
     inline const method _ => PointedType ref
         := self getPointer _.
+
+    inline const method getCounter => CounterType pointer
+        := counter_ .
 
     inline const method getPointer => PointerType := {
         counter_ ifNil: {
@@ -119,6 +128,14 @@ template SharedPointer(PT: Type)
 
         return: counter_ _ getPointer.
     }.
+
+    inline method intializeWithExistingCounter: (newCounter: CounterType pointer) andPointer: (newPointer: PointerType) ::=> Void := {
+        newCounter ifNotNil: {
+            newCounter _ strongRetain.
+        }.
+
+        counter_ := newCounter
+	}.
 
     inline method reset: (newPointer: PointerType) ::=> Void := {
         counter_ ifNil: {
@@ -157,6 +174,30 @@ template SharedPointer(PT: Type)
 
     inline method asWeakPointer => WeakPointerType
         := WeakPointerType for: self.
+
+    macro method upCastFor: targetType := {
+        let tempRef := __astBuilder gensym: #smartPointer.
+        ``{
+            let `,tempRef ref := `,self.
+
+            SharedPointer(`,targetType) basicNewValue
+                intializeWithExistingCounter: (`,tempRef getCounter reinterpretCastTo: SharedRefCounter(`,targetType) pointer)
+                andPointer: `,tempRef getPointer;
+                yourself
+        }
+    }.
+
+    macro method downCastFor: targetType := {
+        let tempRef := __astBuilder gensym: #smartPointer.
+        ``{
+            let `,tempRef ref := `,self.
+
+            SharedPointer(`,targetType) basicNewValue
+                intializeWithExistingCounter: (`,tempRef getCounter reinterpretCastTo: SharedRefCounter(`,targetType) pointer)
+                andPointer: (`,tempRef getPointer castTo: `,targetType);
+                yourself
+        }
+    }.
 
     ## Some convenience macros.
 	macro method isNil := ``(`,self getPointer isNil).
