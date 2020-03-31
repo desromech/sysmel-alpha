@@ -128,6 +128,11 @@ MbndAbstractMethodGroup >> module: anObject [
 ]
 
 { #category : #accessing }
+MbndAbstractMethodGroup >> overloadedEntities [
+	^ overloadedEntities
+]
+
+{ #category : #accessing }
 MbndAbstractMethodGroup >> type [
 	^ self compilationTarget functionGroupType
 ]

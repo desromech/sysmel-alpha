@@ -1513,7 +1513,11 @@ MbndSlovimCodeModuleGenerator >> visitAggregateBasicInitializeMethod: generatedM
 MbndSlovimCodeModuleGenerator >> visitAggregateFinalizeMethod: generatedMethod [
 	^ self translateCompilerGeneratedMethod: generatedMethod with: [ :ssaFunction :builder :functionCodeGenerator |
 		functionCodeGenerator generateAutomaticFinalizationCode.
-		builder return: ssaFunction arguments first.
+		ssaFunction returnType isVoidType ifTrue: [ 
+			builder returnVoid.
+		] ifFalse: [ 
+			builder return: ssaFunction arguments first.
+		]
 	]
 
 ]
@@ -1522,7 +1526,11 @@ MbndSlovimCodeModuleGenerator >> visitAggregateFinalizeMethod: generatedMethod [
 MbndSlovimCodeModuleGenerator >> visitAggregateInitializeFromCopyMethod: generatedMethod [
 	^ self translateCompilerGeneratedMethod: generatedMethod with: [ :ssaFunction :builder :functionCodeGenerator |
 		functionCodeGenerator generateAutomaticInitializationFromCopyCode.
-		builder return: ssaFunction arguments first
+		ssaFunction returnType isVoidType ifTrue: [ 
+			builder returnVoid.
+		] ifFalse: [ 
+			builder return: ssaFunction arguments first.
+		]
 	]
 
 ]
@@ -1531,7 +1539,11 @@ MbndSlovimCodeModuleGenerator >> visitAggregateInitializeFromCopyMethod: generat
 MbndSlovimCodeModuleGenerator >> visitAggregateInitializeMethod: generatedMethod [
 	^ self translateCompilerGeneratedMethod: generatedMethod with: [ :ssaFunction :builder :functionCodeGenerator |
 		functionCodeGenerator generateAutomaticInitializationCode.
-		builder return: ssaFunction arguments first
+		ssaFunction returnType isVoidType ifTrue: [ 
+			builder returnVoid.
+		] ifFalse: [ 
+			builder return: ssaFunction arguments first.
+		]
 	]
 
 ]
@@ -1540,7 +1552,12 @@ MbndSlovimCodeModuleGenerator >> visitAggregateInitializeMethod: generatedMethod
 MbndSlovimCodeModuleGenerator >> visitAggregateInitializeMovingFromMethod: generatedMethod [
 	^ self translateCompilerGeneratedMethod: generatedMethod with: [ :ssaFunction :builder :functionCodeGenerator |
 		functionCodeGenerator generateAutomaticInitializationMovingFromCode.
-		builder return: ssaFunction arguments first
+		ssaFunction returnType isVoidType ifTrue: [ 
+			builder returnVoid.
+		] ifFalse: [ 
+			builder return: ssaFunction arguments first.
+		]
+
 	]
 
 ]

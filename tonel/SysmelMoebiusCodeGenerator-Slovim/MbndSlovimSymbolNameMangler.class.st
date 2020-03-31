@@ -241,11 +241,16 @@ MbndSlovimSymbolNameMangler >> extractProgramEntityNestedNameComponents: program
 
 	programEntity isTemplateInstance ifTrue: [
 		| instanceArguments |
-		instanceArguments := programEntity instanceArguments collect: [ :arg | arg evaluatedValue ].
-		programEntity parent module == programEntity module ifTrue: [ 
+		programEntity isSystemProvidedTypeTemplateInstance ifTrue: [ 
+			instanceArguments := programEntity instanceArguments asArray.
 			out nextPut: instanceArguments.
 		] ifFalse: [ 
-			out nextPut: {programEntity module . instanceArguments}.
+			instanceArguments := programEntity instanceArguments collect: [ :arg | arg evaluatedValue ].
+			programEntity parent module == programEntity module ifTrue: [ 
+				out nextPut: instanceArguments.
+			] ifFalse: [ 
+				out nextPut: {programEntity module . instanceArguments}.
+			].
 		].
 		^ self
 	].

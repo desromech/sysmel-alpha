@@ -52,6 +52,24 @@ TMbndMethodContainer >> lookupOverloadedSelector: aSelector [
 ]
 
 { #category : #methods }
+TMbndMethodContainer >> lookupOverloadedSelector: selector withBoundType: expectedBoundType [
+	| methodOrMethodGroup methods |
+	methodOrMethodGroup := self lookupOverloadedSelector: selector.
+	methodOrMethodGroup ifNil: [ ^ nil ].
+	
+	methods := methodOrMethodGroup isMethodGroup
+		ifTrue: [ methodOrMethodGroup overloadedEntities ]
+		ifFalse: [{ methodOrMethodGroup }].
+		
+	((self asString includesSubstring: #Canvas) and: [selector = #finalize]) ifTrue: [ self halt ].
+	methods do: [ :method |
+		method boundType = expectedBoundType ifTrue: [ ^ method ] 
+	].
+
+	^ nil
+]
+
+{ #category : #methods }
 TMbndMethodContainer >> lookupSelector: aSelector [
 	^ self lookupLocalSelector: aSelector
 ]

@@ -23,3 +23,8 @@ MbndConcreteFunctionMethod >> hasProgramEntityReflectiveNode [
 MbndConcreteFunctionMethod >> isFunctionMethod [
 	^ true
 ]
+
+{ #category : #'as yet unclassified' }
+MbndConcreteFunctionMethod >> vtableEntryKind [
+	^ #function
+]

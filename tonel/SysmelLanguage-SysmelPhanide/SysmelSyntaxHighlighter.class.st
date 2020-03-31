@@ -21,7 +21,7 @@ SysmelSyntaxHighlighter class >> initialize [
 	
 	"In Sysmel we do not have keywords. We fake them here."
 	Keywords := Set newFrom: #(
-		#true #false #nil
+		#true #false #nil #void
 		thisContext self super
 		
 		let namespace struct union class gcclass enum function template macro message method field

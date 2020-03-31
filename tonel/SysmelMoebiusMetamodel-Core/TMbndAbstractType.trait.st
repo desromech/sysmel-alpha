@@ -1146,6 +1146,7 @@ TMbndAbstractType >> isPrimitiveCharacterCodeType [
 
 { #category : #'testing methods' }
 TMbndAbstractType >> isPrimitiveFloatType [
+	<compileTime>
 	^ false
 ]
 

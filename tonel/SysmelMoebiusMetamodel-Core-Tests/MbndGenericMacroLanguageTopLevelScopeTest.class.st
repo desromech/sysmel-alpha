@@ -85,3 +85,13 @@ MbndGenericMacroLanguageTopLevelScopeTest >> testTrueConstant [
 	self assert: literal value equals: true.
 	self assert: literal type equals: compilationTarget literalBooleanTrueType.
 ]
+
+{ #category : #tests }
+MbndGenericMacroLanguageTopLevelScopeTest >> testVoidConstant [
+	| identifier literal |
+	identifier := builder identifier: #void.
+	literal := analyzer visitNode: identifier.
+	self assert: literal isLiteralValueNode.
+	self assert: literal value equals: nil.
+	self assert: literal type equals: compilationTarget voidType.
+]

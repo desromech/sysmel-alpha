@@ -327,11 +327,6 @@ MbndAbstractConcreteMethod >> hasPragmaNamed: pragmaName [
 	^ super hasPragmaNamed: pragmaName
 ]
 
-{ #category : #testing }
-MbndAbstractConcreteMethod >> hasVirtualTableEntry [
-	^ self isNewVirtualTableEntry or: [ self isVirtualTableOverride ]
-]
-
 { #category : #initialization }
 MbndAbstractConcreteMethod >> initialize [
 	super initialize.
@@ -356,16 +351,6 @@ MbndAbstractConcreteMethod >> isDefinition [
 { #category : #testing }
 MbndAbstractConcreteMethod >> isForwardingValue [
 	^ self hasFlag: #tempRef
-]
-
-{ #category : #testing }
-MbndAbstractConcreteMethod >> isNewVirtualTableEntry [
-	^ self hasFlag: #virtual
-]
-
-{ #category : #testing }
-MbndAbstractConcreteMethod >> isVirtualTableOverride [
-	^ self hasFlag: #override
 ]
 
 { #category : #'as yet unclassified' }
@@ -497,9 +482,4 @@ MbndAbstractConcreteMethod >> specialSemantics [
 { #category : #accessing }
 MbndAbstractConcreteMethod >> specialSemantics: anObject [
 	specialSemantics := anObject
-]
-
-{ #category : #'as yet unclassified' }
-MbndAbstractConcreteMethod >> virtualTableSelector [
-	^ {name . self class . boundType }
 ]

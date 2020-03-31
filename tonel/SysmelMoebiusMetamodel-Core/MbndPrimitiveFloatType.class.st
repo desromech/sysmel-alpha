@@ -166,6 +166,7 @@ MbndPrimitiveFloatType >> isAcceptableLiteralValue: literalValue [
 
 { #category : #'testing methods' }
 MbndPrimitiveFloatType >> isPrimitiveFloatType [
+	<compileTime>
 	^ true
 ]
 

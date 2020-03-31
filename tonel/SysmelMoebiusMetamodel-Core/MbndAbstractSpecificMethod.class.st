@@ -207,6 +207,11 @@ MbndAbstractSpecificMethod >> hasAnonymousName [
 	^ name isMbndAnonymousSymbol
 ]
 
+{ #category : #testing }
+MbndAbstractSpecificMethod >> hasVirtualTableEntry [
+	^ self isNewVirtualTableEntry or: [ self isVirtualTableOverride ]
+]
+
 { #category : #initialization }
 MbndAbstractSpecificMethod >> initialize [
 	super initialize.
@@ -225,8 +230,18 @@ MbndAbstractSpecificMethod >> isDefinition [
 ]
 
 { #category : #testing }
+MbndAbstractSpecificMethod >> isNewVirtualTableEntry [
+	^ self hasFlag: #virtual
+]
+
+{ #category : #testing }
 MbndAbstractSpecificMethod >> isNoReturn [
 	^ self hasFlag: #noReturn
+]
+
+{ #category : #testing }
+MbndAbstractSpecificMethod >> isVirtualTableOverride [
+	^ self hasFlag: #override
 ]
 
 { #category : #testing }
@@ -344,4 +359,14 @@ MbndAbstractSpecificMethod >> typedSelector [
 		].
 	].
 	^ typedSelector
+]
+
+{ #category : #'as yet unclassified' }
+MbndAbstractSpecificMethod >> virtualTableSelector [
+	^ {name . self vtableEntryKind . boundType }
+]
+
+{ #category : #'as yet unclassified' }
+MbndAbstractSpecificMethod >> vtableEntryKind [
+	^ #message
 ]

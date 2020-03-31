@@ -185,7 +185,7 @@ MbndAggregateTypeWithFields >> fillProgramEntityInfoInstance: typeInfoInstance [
 
 { #category : #'initialize-destroy' }
 MbndAggregateTypeWithFields >> finalizeMethod [
-	^ finalizeMethod ifNil: [ finalizeMethod := self getOrCreateOptionallyGeneratedMethod: #finalize ofKind: MbndAggregateFinalizeMethod argumentTypes: #() ]
+	^ finalizeMethod ifNil: [ finalizeMethod := self getOrCreateOptionallyGeneratedMethod: #finalize ofKind: MbndAggregateFinalizeMethod argumentTypes: #() returnType: self compilationTarget voidType]
 ]
 
 { #category : #'as yet unclassified' }
@@ -202,8 +202,8 @@ MbndAggregateTypeWithFields >> getExtraMetaBuilderFactoryList [
 ]
 
 { #category : #'initialize-destroy' }
-MbndAggregateTypeWithFields >> getOrCreateOptionallyGeneratedMethod: selector ofKind: generatedMethodClass argumentTypes: argumentTypes [
-	| method asReceiverType |
+MbndAggregateTypeWithFields >> getOrCreateOptionallyGeneratedMethod: selector ofKind: generatedMethodClass argumentTypes: argumentTypes returnType: returnType [
+	| method parentVersion asReceiverType |
 	self overloadedMethodDict at: selector ifPresent: [ :existent |
 		self flag: 'TODO: Check the existent method argument types.'.
 		^ existent
@@ -213,8 +213,16 @@ MbndAggregateTypeWithFields >> getOrCreateOptionallyGeneratedMethod: selector of
 	method := generatedMethodClass new
 		name: selector;
 		receiverType: asReceiverType;
-		type: (self compilationTarget functionTypeWithArguments: {asReceiverType} , argumentTypes returnType: asReceiverType);
-		boundType: (self compilationTarget functionTypeWithArguments: argumentTypes returnType: asReceiverType).
+		type: (self compilationTarget functionTypeWithArguments: {asReceiverType} , argumentTypes returnType: returnType);
+		boundType: (self compilationTarget functionTypeWithArguments: argumentTypes returnType: returnType).
+
+	self supertype isTrait not ifTrue: [
+		parentVersion := self supertype lookupOverloadedSelector: selector withBoundType: method boundType.
+		(parentVersion isNotNil and: [ parentVersion hasVirtualTableEntry ]) ifTrue: [
+			method addFlag: #override
+		].
+	].
+
 	self
 		addChild: method;
 		addOverloadedMethod: method.
@@ -286,17 +294,18 @@ MbndAggregateTypeWithFields >> hasTrivialInstanceInitializationMovingFrom [
 
 { #category : #'initialize-destroy' }
 MbndAggregateTypeWithFields >> initializeCopyingFromMethod [
-	^ initializeFromCopyMethod ifNil: [ initializeFromCopyMethod := self getOrCreateOptionallyGeneratedMethod: #initializeCopyingFrom: ofKind: MbndAggregateInitializeFromCopyMethod argumentTypes: {self asCopyConstructorParameter} ]
+	^ initializeFromCopyMethod ifNil: [ initializeFromCopyMethod := self getOrCreateOptionallyGeneratedMethod: #initializeCopyingFrom: ofKind: MbndAggregateInitializeFromCopyMethod argumentTypes: {self asCopyConstructorParameter} returnType: self compilationTarget voidType ]
 ]
 
 { #category : #'initialize-destroy' }
 MbndAggregateTypeWithFields >> initializeMethod [
-	^ initializeMethod ifNil: [ initializeMethod := self getOrCreateOptionallyGeneratedMethod: #initialize ofKind: MbndAggregateInitializeMethod argumentTypes: #() ]
+	^ initializeMethod ifNil: [ initializeMethod := self getOrCreateOptionallyGeneratedMethod: #initialize ofKind: MbndAggregateInitializeMethod argumentTypes: #() returnType: (self isGCClassType 		ifTrue: [self asReceiverType]
+		ifFalse: [self compilationTarget voidType]) ]
 ]
 
 { #category : #'initialize-destroy' }
 MbndAggregateTypeWithFields >> initializeMovingFromMethod [
-	^ initializeMovingFromMethod ifNil: [ initializeMovingFromMethod := self getOrCreateOptionallyGeneratedMethod: #initializeMovingFrom: ofKind: MbndAggregateInitializeMovingFromMethod argumentTypes: {self asMovementConstructorParameter} ]
+	^ initializeMovingFromMethod ifNil: [ initializeMovingFromMethod := self getOrCreateOptionallyGeneratedMethod: #initializeMovingFrom: ofKind: MbndAggregateInitializeMovingFromMethod argumentTypes: {self asMovementConstructorParameter} returnType: self compilationTarget voidType ]
 ]
 
 { #category : #accessing }
