@@ -1,0 +1,20 @@
+namespace Stdn definition: {
+namespace Graphics definition: {
+namespace GUI definition: {
+
+#**
+ * I hold the parameters that are used for creating a window.
+ *#
+class WindowCreationInfo definition: {
+    public field title type: Stdn String.
+    public field position type: Stdn Optional(Int32x2).
+    public field extent type: Int32x2.
+    public field hidden type: Boolean8.
+    public field borderless type: Boolean8.
+    public field fullscreen type: Boolean8.
+
+}.
+
+}. ## End of namespace GUI
+}. ## End of namespace Graphics
+}. ## End of namespace Stdn

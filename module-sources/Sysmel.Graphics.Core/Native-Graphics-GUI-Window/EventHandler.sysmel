@@ -1,0 +1,31 @@
+namespace Stdn definition: {
+namespace Graphics definition: {
+namespace GUI definition: {
+
+#**
+ * I am a window event handler. I implement a visitor pattern on the events.
+ *#
+class EventHandler superclass: Object; definition: {
+    virtual method processEvent: (event: Event ref) ::=> Void := {
+        event acceptEventHandler: self
+    }.
+
+    virtual method visitTickEvent: (event: TickEvent ref) ::=> Void
+        := void.
+
+    virtual method visitKeyDownEvent: (event: KeyDownEvent ref) ::=> Void
+        := void.
+
+    virtual method visitKeyUpEvent: (event: KeyUpEvent ref) ::=> Void
+        := void.
+
+    virtual method visitExposeEvent: (event: ExposeEvent ref) ::=> Void
+        := void.
+
+    virtual method visitWindowCloseRequestEvent: (event: WindowCloseRequestEvent ref) ::=> Void
+        := void.
+}.
+
+}. ## End of namespace GUI
+}. ## End of namespace Graphics
+}. ## End of namespace Stdn

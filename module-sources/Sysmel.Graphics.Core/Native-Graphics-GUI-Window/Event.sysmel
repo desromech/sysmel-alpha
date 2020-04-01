@@ -1,0 +1,66 @@
+namespace Stdn definition: {
+namespace Graphics definition: {
+namespace GUI definition: {
+
+class EventHandler.
+
+#**
+ * I represent a basic event for a window.
+ * Different GUI toolkit should convert my instances into something more suitable for their specific behavior.
+ *#
+class Event definition: {
+    virtual method acceptEventHandler: (eventHandler: EventHandler ref) ::=> Void
+        := void.
+}.
+
+#**
+ * I am a ticking time notification.
+ *#
+class TickEvent superclass: Event; definition: {
+    override method acceptEventHandler: (eventHandler: EventHandler ref) ::=> Void
+        := eventHandler visitTickEvent: self.
+}.
+
+#**
+ * I am a keyboard event.
+ *#
+class KeyboardEvent superclass: Event; definition: {
+
+}.
+
+#**
+ * I am a key down event.
+ *#
+class KeyDownEvent superclass: KeyboardEvent; definition: {
+    override method acceptEventHandler: (eventHandler: EventHandler ref) ::=> Void
+        := eventHandler visitKeyDownEvent: self.
+}.
+
+#**
+ * I am a key up event.
+ *#
+class KeyUpEvent superclass: KeyboardEvent; definition: {
+    override method acceptEventHandler: (eventHandler: EventHandler ref) ::=> Void
+        := eventHandler visitKeyUpEvent: self.
+}.
+
+#**
+ * I am an expose event. I am sent when a Window needs to be redraw.
+ *#
+class ExposeEvent superclass: Event; definition: {
+    override method acceptEventHandler: (eventHandler: EventHandler ref) ::=> Void
+        := eventHandler visitExposeEvent: self.
+
+}.
+
+#**
+ * I am a window close requestevent. I am sent when the close button of a window is hit.
+ *#
+class WindowCloseRequestEvent superclass: Event; definition: {
+    override method acceptEventHandler: (eventHandler: EventHandler ref) ::=> Void
+        := eventHandler visitWindowCloseRequestEvent: self.
+}.
+
+}. ## End of namespace GUI
+}. ## End of namespace Graphics
+}. ## End of namespace Stdn

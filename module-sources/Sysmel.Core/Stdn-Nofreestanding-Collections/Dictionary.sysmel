@@ -60,10 +60,15 @@ template Dictionary(KT: Type, VT: Type)
         Stdn assert: (self isValidIndex: slotIndex).
         let isNewElement := storage_[slotIndex] isPresent not.
         isNewElement ifTrue: {
-            storage_[slotIndex] := AssociationType newValue
+            ## FIXME: Make this first version working.
+            #*storage_[slotIndex] := AssociationType newValue
                 key: key;
                 value: value;
-                yourself.
+                yourself.*#
+            storage_[slotIndex] := AssociationType newValue.
+            storage_[slotIndex] _
+                key: key;
+                value: value.
             size_ := size_ + 1.
             self checkFullCapacityCondition.
         } ifFalse: {
@@ -71,6 +76,24 @@ template Dictionary(KT: Type, VT: Type)
         }.
 
         isNewElement
+    }.
+
+    inline method at: (key: KeyType const ref)::=> ValueType := {
+        let slotIndex mutable := self scanFor: key.
+        (self isValidIndex: slotIndex) && storage_[slotIndex] isPresent ifFalse: {
+            Stdn raiseError("Failed to find key in dictionary").
+        }.
+
+        storage_[slotIndex] _ value
+    }.
+
+    inline method at: (key: KeyType const ref) ifAbsent: (absentBlock: (Void => ValueType) nativeBlockClosure) ::=> ValueType := {
+        let slotIndex mutable := self scanFor: key.
+        (self isValidIndex: slotIndex) && storage_[slotIndex] isPresent ifTrue: {
+            return: storage_[slotIndex] _ value
+        } ifFalse: {
+            return: absentBlock()
+        }.
     }.
 
     inline method at: (key: KeyType const ref) ifAbsentPut: (absentBlock: (Void => ValueType) nativeBlockClosure) ::=> ValueType ref := {
@@ -165,6 +188,10 @@ template Dictionary(KT: Type, VT: Type)
                 aBlock(each _ value)
             }
         }
+    }.
+
+    method removeKey: (key: KeyType const ref) ::=> Void := {
+        Stdn stdout << "TODO: remove key " << key; nl.
     }.
 
     method removeAll => Void := {

@@ -4,4 +4,5 @@ Compiler
         #"Native-Graphics-Core-Raster"
         #"Native-Graphics-Core-ImageFormats"
         #"Native-Graphics-Core-Text"
+        #"Native-Graphics-GUI-Window"
     ).

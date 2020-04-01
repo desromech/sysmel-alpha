@@ -1,0 +1,80 @@
+namespace Stdn definition: {
+namespace Graphics definition: {
+namespace GUI definition: {
+
+class Window.
+class WindowCreationInfo.
+
+#**
+ * I represent an interface into a window system window.
+ *#
+class WindowSystem superclass: Object; definition: {
+
+    virtual method createWindow: (description: WindowCreationInfo const ref) ::=> Window sharedPointer
+        := Window sharedPointer nil.
+
+    virtual method createWindowWithTitle: (title: Stdn String const ref) extent: (extent: Int32x2) ::=> Window sharedPointer := {
+        let creationInfo mutable type: WindowCreationInfo.
+        creationInfo
+            title: title;
+            extent: extent.
+
+        self createWindow: creationInfo.
+    }.
+
+    virtual method createWindowWithTitle: (title: Stdn String const ref) position: (position: Int32x2) extent: (extent: Int32x2) ::=> Window sharedPointer := {
+        let creationInfo mutable type: WindowCreationInfo.
+        creationInfo
+            title: title;
+            position: position;
+            extent: extent.
+
+        self createWindow: creationInfo.
+    }.
+
+    ## Do we have to finish the main loop?
+    virtual method isQuitting => Boolean8
+        := false.
+
+    ## Run the default main loop.
+    virtual method runMainLoop => Int32 := {
+        until: self isQuitting do: {
+            self waitAndPumpEvents.
+            self sendTickEvents.
+        }.
+
+        return: 0
+    }.
+
+    #**
+     * Wait for events blockingly and then pump the events into the actual windows.
+     *#
+    virtual method waitAndPumpEvents => Void := {
+
+    }.
+
+    #**
+     * Poll for events non-blockingly and then pump the events into the actual windows.
+     *#
+    virtual method pollAndPumpEvents => Void := {
+
+    }.
+
+    #**
+     * Broadcast and event into all of the windows.
+     *#
+    virtual method broadcastEvent: (event: Event ref) ::=> Void := {
+
+    }.
+
+    virtual method sendTickEvents => Void := {
+        let event mutable type: TickEvent.
+        self broadcastEvent: event.
+    }.
+
+}.
+
+
+}. ## End of namespace GUI
+}. ## End of namespace Graphics
+}. ## End of namespace Stdn

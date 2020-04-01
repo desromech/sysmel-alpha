@@ -15,8 +15,9 @@ class FormSurface superclass: CPUSurface; definition: {
             address).
     }.
 
-    override method beginDrawing => Void := {
+    override method beginDrawing => Boolean8 := {
         pixelsBlitter := form _ makeBlitter.
+        true
     }.
 
     override method endDrawing => Void := {

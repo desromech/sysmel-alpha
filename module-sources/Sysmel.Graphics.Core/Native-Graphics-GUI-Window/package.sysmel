@@ -1,0 +1,7 @@
+## Abstract Window interface.
+loadFileOnce: "KeySymbol.sysmel".
+loadFileOnce: "Event.sysmel".
+loadFileOnce: "EventHandler.sysmel".
+loadFileOnce: "WindowSystem.sysmel".
+loadFileOnce: "WindowCreationInfo.sysmel".
+loadFileOnce: "Window.sysmel".

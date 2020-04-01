@@ -1,0 +1,117 @@
+namespace Stdn definition: {
+namespace Graphics definition: {
+namespace GUI definition: {
+
+useNamespace: Stdn Graphics Core.
+useNamespace: SDL2.
+
+class SDL2SoftwareRendererSurface superclass: CPUSurface; definition: {
+    protected field window type: SDL2Window pointer.
+    protected field rendererHandle type: SDL_Renderer pointer.
+    protected field textureHandle type: SDL_Texture pointer.
+    protected field textureExtent type: UInt32x2.
+
+    meta method for: (window: SDL2Window ref) ::=> SDL2SoftwareRendererSurface sharedPointer := {
+        let renderer := SDL_CreateRenderer(window handle, -1, SDL_RENDERER_PRESENTVSYNC).
+        renderer ifNil: {
+            return: SDL2SoftwareRendererSurface sharedPointer nil
+        }.
+
+        let result := SDL2SoftwareRendererSurface sharedNew.
+        result _ initializeWithWindow: window address handle: renderer.
+        result.
+    }.
+
+    method initializeWithWindow: (theWindow: SDL2Window pointer) handle: (theRenderer: SDL_Renderer pointer) ::=> Void := {
+        window := theWindow.
+        rendererHandle := theRenderer.
+    }.
+
+    override method finalize => Void := {
+        self destroy.
+    }.
+
+    method destroy => Void := {
+        textureHandle ifNotNil: {
+            SDL_DestroyTexture(textureHandle).
+            rendererHandle := nil.
+        }.
+
+        rendererHandle ifNotNil: {
+            SDL_DestroyRenderer(rendererHandle).
+            rendererHandle := nil.
+        }.
+
+        window := nil.
+    }.
+
+    override method beginDrawing => Boolean8 := {
+        self validateTexture ifFalse: {
+            return: false.
+        }.
+
+        let pixels mutable type: UInt8 pointer.
+        let pitch mutable type: Int32.
+
+        SDL_LockTexture(textureHandle, nil, pixels address reinterpretCastTo: Void pointer pointer, pitch address) = 0 ifFalse: {
+            return: false.
+        }.
+
+        pixelsBlitter := Blitter newValue
+            extent: textureExtent;
+            pitch: pitch;
+            pixelFormat: PixelFormat B8G8R8A8_UNorm;
+            pixels: pixels;
+            initializeCachedState;
+            yourself.
+        true
+    }.
+
+    override method endDrawing => Void := {
+        ## Unlock the texture
+        SDL_UnlockTexture(textureHandle).
+
+        ## Copy the texture
+        SDL_RenderCopy(rendererHandle, textureHandle, nil, nil).
+
+        ## Present the rendering output.
+        SDL_RenderPresent(rendererHandle).
+    }.
+
+    method outputExtent => UInt32x2 := {
+        let result mutable type: Int32x2.
+        SDL_GetRendererOutputSize(rendererHandle, result x address, result y address).
+
+        result castTo: UInt32x2
+    }.
+
+
+    method validateTexture => Boolean8 := {
+        ## We need a renderer here.
+        rendererHandle ifNil: {
+            return: false.
+        }.
+
+        let requiredExtent := self outputExtent.
+        textureHandle isNil || textureExtent x ~= requiredExtent x || textureExtent y ~= requiredExtent y ifTrue: {
+            self createNewTextureWithExtent: requiredExtent
+        }.
+
+        textureHandle isNotNil.
+    }.
+
+    method createNewTextureWithExtent: (newExtent: UInt32x2) ::=> Void := {
+        ## Destroy the old texture handle.
+        textureHandle ifNotNil: {
+            SDL_DestroyTexture(textureHandle).
+            textureHandle := nil.
+        }.
+
+        textureHandle := SDL_CreateTexture(rendererHandle, SDL_PIXELFORMAT_BGRA32, SDL_TEXTUREACCESS_STREAMING, newExtent x castTo: Int32, newExtent y castTo: Int32).
+        textureExtent := newExtent
+    }.
+}.
+
+}. ## End of namespace GUI
+}. ## End of namespace Graphics
+}. ## End of namespace Stdn

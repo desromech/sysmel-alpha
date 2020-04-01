@@ -1,0 +1,37 @@
+namespace Stdn definition: {
+namespace Graphics definition: {
+namespace GUI definition: {
+
+useNamespace: Stdn Graphics Core.
+
+#**
+ * I represent an interface into a window system window.
+ *#
+class Window superclass: Object; definition: {
+    public field eventHandler type: EventHandler sharedPointer.
+
+    #**
+     * This method closes the window.
+     *#
+    virtual method close => Void
+        := void.
+
+    #**
+     * This method delivers an event into an event handler that is present in the window.
+     *#
+    virtual method deliverEvent: (event: Event ref) ::=> Void := {
+        eventHandler ifNotNil: {
+            eventHandler _ processEvent: event
+        }
+    }.
+
+    #**
+     * This method creates a default drawing surface whose rendering method is chosen by the backend.
+     *#
+    virtual method createDefaultDrawingSurface => Surface sharedPointer
+        := Surface sharedPointer nil.
+}.
+
+}. ## End of namespace GUI
+}. ## End of namespace Graphics
+}. ## End of namespace Stdn

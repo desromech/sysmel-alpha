@@ -63,6 +63,24 @@ enum SDL_EventType valueType: UInt32; values: #{
     SDL_LASTEVENT: 16rffff.
 }.
 
+## Event
+compileTimeConstant SDL_WINDOWEVENT_NONE := 0.
+compileTimeConstant SDL_WINDOWEVENT_SHOWN := 1.
+compileTimeConstant SDL_WINDOWEVENT_HIDDEN := 2.
+compileTimeConstant SDL_WINDOWEVENT_EXPOSED := 3.
+compileTimeConstant SDL_WINDOWEVENT_MOVED := 4.
+compileTimeConstant SDL_WINDOWEVENT_RESIZED := 5.
+compileTimeConstant SDL_WINDOWEVENT_SIZE_CHANGED := 6.
+compileTimeConstant SDL_WINDOWEVENT_MINIMIZED := 7.
+compileTimeConstant SDL_WINDOWEVENT_MAXIMIZED := 8.
+compileTimeConstant SDL_WINDOWEVENT_RESTORED := 9.
+compileTimeConstant SDL_WINDOWEVENT_ENTER := 10.
+compileTimeConstant SDL_WINDOWEVENT_LEAVE := 11.
+compileTimeConstant SDL_WINDOWEVENT_FOCUS_GAINED := 12.
+compileTimeConstant SDL_WINDOWEVENT_FOCUS_LOST := 13.
+compileTimeConstant SDL_WINDOWEVENT_CLOSE := 14.
+compileTimeConstant SDL_WINDOWEVENT_TAKE_FOCUS := 15.
+compileTimeConstant SDL_WINDOWEVENT_HIT_TEST := 16.
 
 struct SDL_CommonEvent definition: {
     field type public type: SDL_EventType.
@@ -162,7 +180,9 @@ union SDL_Event definition: {
     field padding public type: (UInt8 array: 56).
 }.
 
-function SDL_PollEvent externC dllimport  (event: SDL_Event pointer) => Boolean8.
+function SDL_PollEvent externC dllimport (event: SDL_Event pointer) => Boolean8.
+function SDL_WaitEvent externC dllimport (event: SDL_Event pointer) => Boolean8.
+function SDL_WaitEventTimeout externC dllimport (event: SDL_Event pointer, timeout: Int32) => Boolean8.
 
 ## Rect
 struct SDL_Point definition: {

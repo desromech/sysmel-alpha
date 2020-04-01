@@ -1,0 +1,68 @@
+useNamespace: Stdn Graphics Core.
+useNamespace: Stdn Graphics GUI.
+
+let mainWindow mutable type: Window sharedPointer.
+let mainDrawingSurface mutable type: Surface sharedPointer.
+let fontFaceWithSize mutable type: FontFaceWithSize sharedPointer.
+
+
+class MainWindowEventHandler superclass: EventHandler; definition: {
+    method render ::=> Void := {
+        let canvas := mainDrawingSurface _ beginDrawingWithCanvas.
+        canvas ifNil: {return: void}.
+
+        let time := SDL2 SDL_GetTicks() * 0.001f.
+
+        canvas _
+            color: Float32x4(0.4f, 0.4f, 0.4f, 1.0f);
+            clear;
+
+            fontFaceWithSize: fontFaceWithSize;
+            color: Float32x4(0.0f, (time *5.0f) cos*0.5f + 0.5f, 1.0f, 1.0f);
+            drawUTF8String: "Hello World" at: Float32x2(80.0f, 128.0f).
+    }.
+
+    override method visitTickEvent: (event: TickEvent ref) ::=> Void := {
+        self render
+    }.
+
+    override method visitExposeEvent: (event: ExposeEvent ref) ::=> Void := {
+        self render
+    }.
+
+    override method visitWindowCloseRequestEvent: (event: WindowCloseRequestEvent ref) ::=> Void := {
+        mainWindow _ close
+    }.
+}.
+
+function main externC (argc: Int32, argv: UInt8 const pointer pointer) => Int32 := {
+    let windowSystem mutable := createWindowSystem().
+    windowSystem ifNil: {
+        return: 0
+    }.
+
+    ## Create the main window.
+    mainWindow := windowSystem _ createWindowWithTitle: "Test Window" asMutableString extent: Int32x2(640, 480).
+    mainWindow ifNil: {
+        return: 0.
+    }.
+
+    ## Create the main window drawing surface.
+    mainDrawingSurface := mainWindow _ createDefaultDrawingSurface.
+    mainDrawingSurface ifNil: {
+        return: 0.
+    }.
+
+    ## TODO: Use a factory to avoid using explicitly the freetype bindings here.
+    let fontFace mutable := Stdn Graphics FT2Bindings FT2FontFace loadFromFile: "resources/fonts/dejavu/ttf/DejaVuSans.ttf".
+    fontFaceWithSize := fontFace _ getOrCreateFaceWithSize: 24.
+
+    ## Create the event handler.
+    {
+        let eventHandler := MainWindowEventHandler sharedNew.
+        mainWindow _ eventHandler: (eventHandler upCastFor: EventHandler)
+    }.
+
+    ## Run the actual main loop.
+    return: windowSystem _ runMainLoop.
+}.

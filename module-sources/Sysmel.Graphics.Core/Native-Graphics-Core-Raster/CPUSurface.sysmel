@@ -10,20 +10,22 @@ class CPUSurface superclass: Surface; definition: {
     public field pixelsBlitter type: Blitter.
 
     override method beginDrawingWithCanvas => Canvas uniquePointer := {
+        self beginDrawing ifFalse: {
+            return: Canvas uniquePointer nil.
+        }.
+
         let result := CPUCanvas nativeNew _
             initializeWithSurface: self address;
             address.
 
-        self beginDrawing.
         Canvas uniquePointer for: result.
     }.
 
     override method renderingDriver => RenderingDriver pointer
         := CPURenderingDriver uniqueInstance getPointer.
 
-    virtual method beginDrawing => Void := {
-        ## Hook for locking a surface, and setting the actual blitter.
-    }.
+    virtual method beginDrawing => Boolean8
+        := false.
 
     virtual method endDrawing => Void := {
         ## Hook for unlocking the surface and invalidating the blitter.

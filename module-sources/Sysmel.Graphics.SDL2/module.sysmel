@@ -1,0 +1,6 @@
+Compiler
+    importModuleNamed: #"Sysmel.Graphics.Core";
+    importModuleNamed: #"Bindings.SDL2";
+    loadPackages: #(
+        #"SDL2-Native-Window"
+    ).

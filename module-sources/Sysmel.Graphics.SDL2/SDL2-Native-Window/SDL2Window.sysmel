@@ -1,0 +1,38 @@
+namespace Stdn definition: {
+namespace Graphics definition: {
+namespace GUI definition: {
+
+useNamespace: Stdn Graphics Core.
+useNamespace: SDL2.
+
+class SDL2WindowSystem.
+
+class SDL2Window superclass: Window; definition: {
+    public field handle type: SDL_Window pointer.
+    public field windowSystem type: SDL2WindowSystem pointer.
+
+    override method finalize => Void := {
+        handle ifNotNil: {
+            self close.
+        }.
+    }.
+
+    override method close => Void := {
+        handle ifNotNil: {
+            SDL_DestroyWindow(handle).
+            windowSystem ifNotNil: {
+                windowSystem _ windowDestroyed: self address.
+                windowSystem := nil.
+            }.
+
+            handle := nil.
+        }.
+    }.
+
+    override method createDefaultDrawingSurface => Surface sharedPointer
+        := (SDL2SoftwareRendererSurface for: self) upCastFor: Surface.
+}.
+
+}. ## End of namespace GUI
+}. ## End of namespace Graphics
+}. ## End of namespace Stdn

@@ -129,7 +129,7 @@ template SharedPointer(PT: Type)
         return: counter_ _ getPointer.
     }.
 
-    inline method intializeWithExistingCounter: (newCounter: CounterType pointer) andPointer: (newPointer: PointerType) ::=> Void := {
+    inline method initializeWithExistingCounter: (newCounter: CounterType pointer) andPointer: (newPointer: PointerType) ::=> Void := {
         newCounter ifNotNil: {
             newCounter _ strongRetain.
         }.
@@ -180,11 +180,11 @@ template SharedPointer(PT: Type)
         ``{
             let `,tempRef ref := `,self.
 
-            SharedPointer(`,targetType) basicNewValue
-                intializeWithExistingCounter: (`,tempRef getCounter reinterpretCastTo: SharedRefCounter(`,targetType) pointer)
+            Stdn SharedPointer(`,targetType) basicNewValue
+                initializeWithExistingCounter: (`,tempRef getCounter reinterpretCastTo: Stdn SharedRefCounter(`,targetType) pointer)
                 andPointer: `,tempRef getPointer;
                 yourself
-        }
+        } asSequenceWithoutLexicalScope
     }.
 
     macro method downCastFor: targetType := {
@@ -192,11 +192,11 @@ template SharedPointer(PT: Type)
         ``{
             let `,tempRef ref := `,self.
 
-            SharedPointer(`,targetType) basicNewValue
-                intializeWithExistingCounter: (`,tempRef getCounter reinterpretCastTo: SharedRefCounter(`,targetType) pointer)
+            Stdn SharedPointer(`,targetType) basicNewValue
+                initializeWithExistingCounter: (`,tempRef getCounter reinterpretCastTo: Stdn SharedRefCounter(`,targetType) pointer)
                 andPointer: (`,tempRef getPointer castTo: `,targetType);
                 yourself
-        }
+        } asSequenceWithoutLexicalScope
     }.
 
     ## Some convenience macros.

@@ -7,7 +7,7 @@ class Canvas.
 #**
  * I am an abstract drawing surface onto which drawing commands can be issued.
  *#
-class Surface definition: {
+class Surface superclass: Object; definition: {
     #**
      * This method returns the drawing surface extent.
      *#

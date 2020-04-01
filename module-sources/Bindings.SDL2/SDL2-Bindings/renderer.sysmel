@@ -6,6 +6,10 @@ compileTimeConstant SDL_RENDERER_ACCELERATED value: 16r00000002.
 compileTimeConstant SDL_RENDERER_PRESENTVSYNC value: 16r00000004.
 compileTimeConstant SDL_RENDERER_TARGETTEXTURE value: 16r00000008.
 
+compileTimeConstant SDL_TEXTUREACCESS_STATIC := 0.
+compileTimeConstant SDL_TEXTUREACCESS_STREAMING := 1.
+compileTimeConstant SDL_TEXTUREACCESS_TARGET := 2.
+
 struct SDL_Renderer.
 struct SDL_Texture.
 
@@ -29,9 +33,15 @@ function SDL_RenderDrawRects externC dllimport (renderer: SDL_Renderer pointer, 
 function SDL_RenderFillRect externC dllimport (renderer: SDL_Renderer pointer, rect: SDL_Rect const pointer) => Int32.
 function SDL_RenderFillRects externC dllimport (renderer: SDL_Renderer pointer, rect: SDL_Rect const pointer, count: Int32) => Int32.
 
+function SDL_RenderCopy externC dllimport (renderer: SDL_Renderer pointer, texture: SDL_Texture pointer, srcrect: SDL_Rect const pointer, dstrect: SDL_Rect const pointer) => Int32.
+
 function SDL_RenderPresent externC dllimport (renderer: SDL_Renderer pointer) => Void.
 
 function SDL_DestroyTexture externC dllimport (texture: SDL_Texture pointer) => Void.
 function SDL_DestroyRenderer externC dllimport (renderer: SDL_Renderer pointer) => Void.
 
+function SDL_GetRendererOutputSize externC dllimport (renderer: SDL_Renderer pointer, x: Int32 pointer, y: Int32 pointer) => Void.
+
+function SDL_LockTexture externC dllimport (texture: SDL_Texture pointer, rect: SDL_Rect const pointer, pixels: Void pointer pointer, pitch: Int32 pointer) => Int32.
+function SDL_UnlockTexture externC dllimport (texture: SDL_Texture pointer) => Void.
 }. ## End of namespace SDL2

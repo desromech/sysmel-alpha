@@ -7,6 +7,7 @@ namespace Collections definition: {
  template BasicString(CT: Type)
  	:= class definition: {
     compileTimeConstant ValueType := CT.
+    compileTimeConstant LiteralType := FixedArray(ValueType) const ref.
 
     ## Mutable field for asCString.
     private field capacity_ mutable type: UIntPointer.
@@ -23,6 +24,24 @@ namespace Collections definition: {
 
         return: result.
     }.
+
+    meta macro method fromCString: cstring := ``(`,self basicNewValue initializeFromCString: `,cstring; yourself).
+    meta macro method fromLiteral: literalString := ``(`,self basicNewValue initializeFromLiteral: `,literalString; yourself).
+
+    inline method initializeFromCString: (cstring: ValueType const pointer) ::=> Void := {
+        self := cstring
+    }.
+
+    inline method initializeFromLiteral: (literalString: LiteralType) ::=> Void := {
+        self := literalString
+    }.
+
+    inline method finalize => Void := {
+        data_ ifNotNil: {
+            Stdn free(data_)
+        }
+    }.
+
 
     inline method data => ValueType pointer
         := data_.
@@ -70,7 +89,13 @@ namespace Collections definition: {
         let copySize := size_ min: newCapacity.
         let newData := Stdn zmalloc(newCapacity) reinterpretCastTo: ValueType pointer.
         Stdn memcpy(newData, data_, copySize * ValueType instanceSize).
+        data_ ifNotNil: {
+            Stdn free(data_)
+        }.
+
         size_ := copySize.
+        capacity_ := newCapacity.
+        data_ := newData.
     }.
 
     (inline method := (other: SelfType const ref)) => SelfType ref := {
@@ -104,6 +129,12 @@ namespace Collections definition: {
         self
     }.
 
+    (inline method := (literalString: LiteralType)) => SelfType ref := {
+        self setSizeNoCopy: literalString size.
+        Stdn memcpy(data_, literalString elements[0] address, literalString size * ValueType instanceSize).
+        self
+    }.
+
     inline method setSizeNoCopy: (newSize: UIntPointer) ::=> Void := {
         size_ := 0.
         capacity_ < newSize ifTrue: {
@@ -124,6 +155,9 @@ compileTimeConstant String := BasicString(Char8).
 compileTimeConstant WString := BasicString(Char16). ## Used in multiple Win32 APIs
 compileTimeConstant LString := BasicString(Char32). ## Provided for utf8.
 
+_LiteralString macro method asMutableString := ``(Stdn String fromLiteral: `,self).
+_LiteralString macro method asMutableWString := ``(Stdn WString fromLiteral: `,self).
+_LiteralString macro method asMutableLString := ``(Stdn LString fromLiteral: `,self).
 }. ## End of namespace Collections
 
 compileTimeConstant String := Collections String.

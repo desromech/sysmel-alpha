@@ -18,7 +18,7 @@ class AbstractMutex definition: {
     macro method withLock: aBlock := ``{
         `,self lock.
         `,aBlock __macroInlineBlockEnsure: `,self unlock.
-    }.
+    } asSequenceWithoutLexicalScope.
 }.
 
 #**

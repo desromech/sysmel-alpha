@@ -1,0 +1,146 @@
+namespace Stdn definition: {
+namespace Graphics definition: {
+namespace GUI definition: {
+
+useNamespace: SDL2.
+class SDL2Window.
+
+class SDL2WindowSystem superclass: WindowSystem; definition: {
+
+    private field aliveWindowCount type: UInt32.
+    private field isQuitRequested type: Boolean8.
+    private field windowIDDictionary type: Stdn Collections Dictionary(UInt32, SDL2Window sharedPointer).
+
+    override method finalize => Void := {
+        SDL_Quit().
+    }.
+
+    override method isQuitting => Boolean8
+        := isQuitRequested || aliveWindowCount == 0.
+
+    method nextWaitEventTimeout => Int32
+        := 32.
+
+    override method createWindow: (creationInfo: WindowCreationInfo const ref) ::=> Window sharedPointer := {
+        let position mutable := Int32x2(SDL_WINDOWPOS_CENTERED, SDL_WINDOWPOS_CENTERED).
+        creationInfo position isPresent ifTrue: {
+            position := creationInfo position _
+        }.
+
+        let extent := creationInfo extent.
+        let flags mutable type: Int32 := 0.
+        creationInfo hidden ifTrue: {
+            flags := flags | SDL_WINDOW_HIDDEN
+        } ifFalse: {
+            flags := flags | SDL_WINDOW_SHOWN
+        }.
+
+        creationInfo borderless ifTrue: {
+            flags := flags | SDL_WINDOW_BORDERLESS
+        }.
+
+        creationInfo fullscreen ifTrue: {
+            flags := flags | SDL_WINDOW_FULLSCREEN
+        }.
+
+        let windowHandle := SDL_CreateWindow(creationInfo title asCString, position x, position y, extent x, extent y, 0).
+        windowHandle ifNil: {
+            return: Window sharedPointer nil.
+        }.
+
+        aliveWindowCount := aliveWindowCount + 1.
+        let result := SDL2Window sharedNew.
+        result _
+            handle: windowHandle;
+            windowSystem: self address;
+            yourself.
+
+
+        windowIDDictionary at: SDL_GetWindowID(windowHandle) put: result.
+        result upCastFor: Window.
+    }.
+
+    override method waitAndPumpEvents => Void := {
+        let event mutable type: SDL_Event.
+        while: SDL_WaitEventTimeout(event address, self nextWaitEventTimeout) do: {
+            self pumpSDLEvent: event
+        }.
+    }.
+
+    override method pollAndPumpEvents => Void := {
+        let event mutable type: SDL_Event.
+        while: SDL_PollEvent(event address) do: {
+            self pumpSDLEvent: event
+        }
+    }.
+
+    method windowDestroyed: (windowWrapper: SDL2Window pointer) ::=> Void := {
+        let handle := windowWrapper _ handle.
+        handle ifNotNil: {
+            let id := SDL_GetWindowID(handle).
+            windowIDDictionary removeKey: id
+        }.
+
+        aliveWindowCount := aliveWindowCount - 1.
+    }.
+
+    method pumpSDLEvent: (event: SDL_Event) ::=> Void := {
+        event type selectCase: #{
+        SDL_EventType SDL_WINDOWEVENT : { self processWindowEvent: event window. }.
+        SDL_EventType SDL_KEYDOWN : { self processKeyDown: event key }.
+        SDL_EventType SDL_KEYUP  : { self processKeyUp: event key }.
+        }.
+    }.
+
+    method findWrapperForWindowID: (id: UInt32) ::=> Window sharedPointer := {
+        let wrapper mutable := (windowIDDictionary at: id ifAbsent: { :: (SDL2Window sharedPointer) |
+            SDL2Window sharedPointer nil
+        }).
+
+        wrapper upCastFor: Window.
+    }.
+
+    method processWindowEvent: (event: SDL_WindowEvent const ref) ::=> Void := {
+        let wrapper mutable := self findWrapperForWindowID: event windowID.
+        wrapper ifNil: {return: nil}.
+
+        event event selectCase: #{
+            SDL_WINDOWEVENT_CLOSE : {
+                let convertedEvent mutable type: WindowCloseRequestEvent.
+                wrapper _ deliverEvent: convertedEvent.
+            }.
+            SDL_WINDOWEVENT_EXPOSED : {
+                let convertedEvent mutable type: ExposeEvent.
+                wrapper _ deliverEvent: convertedEvent.
+            }.
+        }
+    }.
+
+    method processKeyDown: (event: SDL_KeyboardEvent const ref) ::=> Void := {
+    }.
+
+    method processKeyUp: (event: SDL_KeyboardEvent const ref) ::=> Void := {
+    }.
+
+    override method broadcastEvent: (event: Event ref) ::=> Void := {
+        windowIDDictionary valuesDo: {:(SDL2Window sharedPointer ref) window :: Void |
+            window _ deliverEvent: event
+        }
+    }.
+}.
+
+function createSDL2WindowSystem() => WindowSystem sharedPointer := {
+    SDL_Init(SDL_INIT_EVERYTHING) ~= 0 ifTrue: {
+        Stdn stdout << "Failed to initialize SDL2"; nl.
+        return: WindowSystem sharedPointer nil
+    }.
+
+    SDL2WindowSystem sharedNew upCastFor: WindowSystem.
+}.
+
+function createWindowSystem() => WindowSystem sharedPointer
+    := createSDL2WindowSystem().
+
+}. ## End of namespace GUI
+}. ## End of namespace Graphics
+}. ## End of namespace Stdn
