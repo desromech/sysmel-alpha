@@ -141,32 +141,58 @@ enum PixelFormat valueType: UInt32; values: #{
     method bytesPerPixel => UInt32 := {
         self selectCase: #{
 
-        R8G8_Typeless : {return: 2}.
-        R8G8_UNorm : {return: 2}.
-        R8G8_UInt : {return: 2}.
-        R8G8_SNorm : {return: 2}.
-        R8G8_SInt : {return: 2}.
+        ## 1 Bytes types.
+        (
+            R8_Typeless, R8_UNorm, R8_UInt, R8_SNorm, R8_SInt, A8_UNorm,
+        ) asValueInSetPattern : {
+            return: 1
+        }.
 
-        R8_Typeless : {return: 1}.
-        R8_UNorm : {return: 1}.
-        R8_UInt : {return: 1}.
-        R8_SNorm : {return: 1}.
-        R8_SInt : {return: 1}.
-        A8_UNorm : {return: 1}.
+        ## 2 Bytes types.
+        (
+            R16_Typeless, R16_Float, D16_UNorm, R16_UNorm, R16_UInt, R16_SNorm, R16_SInt,
 
-        R8G8B8A8_Typeless : {return: 4}.
-        R8G8B8A8_UNorm : {return: 4}.
-        R8G8B8A8_UNormSRGB : {return: 4}.
-        R8G8B8A8_UInt : {return: 4}.
-        R8G8B8A8_SNorm : {return: 4}.
-        R8G8B8A8_SInt : {return: 4}.
+            R8G8_Typeless, R8G8_UNorm, R8G8_UInt, R8G8_SNorm, R8G8_SInt,
+        ) asValueInSetPattern : {
+            return: 2
+        }.
 
-        B8G8R8A8_UNorm : {return: 4}.
-        B8G8R8X8_UNorm : {return: 4}.
-        B8G8R8A8_Typeless : {return: 4}.
-        B8G8R8A8_UNormSRGB : {return: 4}.
-        B8G8R8X8_Typeless : {return: 4}.
-        B8G8R8X8_UNormSRGB : {return: 4}.
+        ## 4 Bytes types.
+        (
+
+            D32_Float_S8X24_UInt, R32_Float_S8X24_Typeless, X32_Typeless_G8X24_UInt, R10G10B10A2_Typeless,
+            R10G10B10A2_UNorm, R10G10B10A2_UInt, R11G11B10_Float,
+
+            R8G8B8A8_Typeless, R8G8B8A8_UNorm, R8G8B8A8_UNormSRGB, R8G8B8A8_UInt,
+            R8G8B8A8_SNorm, R8G8B8A8_SInt,
+
+            B8G8R8A8_UNorm, B8G8R8X8_UNorm, B8G8R8A8_Typeless,
+            B8G8R8A8_UNormSRGB, B8G8R8X8_Typeless, B8G8R8X8_UNormSRGB,
+
+        ) asValueInSetPattern : {
+            return: 4
+        }.
+
+        ## 8 Bytes.
+        (
+            R32G32_Typeless, R32G32_Float, R32G32_UInt, R32G32_SInt, R32G8X24_Typeless,
+        ) asValueInSetPattern : {
+            return: 8
+        }.
+
+        ## 12 Bytes.
+        (
+            R32G32B32_Typeless, R32G32B32_Float, R32G32B32_UInt, R32G32B32_SInt
+        ) asValueInSetPattern : {
+            return: 12
+        }.
+
+        ## 16 Bytes.
+        (
+            R32G32B32A32_Typeless, R32G32B32A32_Float, R32G32B32A32_UInt, R32G32B32A32_SInt,
+        ) asValueInSetPattern : {
+            return: 16
+        }.
 
         let _ : {return: 0}.
         }.
@@ -178,13 +204,14 @@ enum PixelFormat valueType: UInt32; values: #{
         self selectCase: #{
         A8_UNorm : {return: UInt8x4(255, 255, 255, value r)}.
 
-        B8G8R8A8_UNorm : {return: value bgra}.
-        B8G8R8X8_UNorm : {return: value bgra}.
-        B8G8R8A8_Typeless : {return: value bgra}.
-        B8G8R8A8_UNormSRGB : {return: value bgra}.
-        B8G8R8X8_Typeless : {return: value bgra}.
-        B8G8R8X8_UNormSRGB : {return: value bgra}.
-        
+        ## BGRA types.
+        (
+            B8G8R8A8_UNorm, B8G8R8X8_UNorm, B8G8R8A8_Typeless, B8G8R8A8_UNormSRGB,
+            B8G8R8X8_Typeless, B8G8R8X8_UNormSRGB,
+        ) asValueInSetPattern : {
+            return: value bgra
+        }.
+
         let _ : {return: value}.
         }.
 
@@ -195,12 +222,13 @@ enum PixelFormat valueType: UInt32; values: #{
         self selectCase: #{
         A8_UNorm : {return: value aaaa}.
 
-        B8G8R8A8_UNorm : {return: value bgra}.
-        B8G8R8X8_UNorm : {return: value bgra}.
-        B8G8R8A8_Typeless : {return: value bgra}.
-        B8G8R8A8_UNormSRGB : {return: value bgra}.
-        B8G8R8X8_Typeless : {return: value bgra}.
-        B8G8R8X8_UNormSRGB : {return: value bgra}.
+        ## BGRA types.
+        (
+            B8G8R8A8_UNorm, B8G8R8X8_UNorm, B8G8R8A8_Typeless, B8G8R8A8_UNormSRGB,
+            B8G8R8X8_Typeless, B8G8R8X8_UNormSRGB,
+        ) asValueInSetPattern : {
+            return: value bgra
+        }.
 
         let _ : {return: value}.
         }.
