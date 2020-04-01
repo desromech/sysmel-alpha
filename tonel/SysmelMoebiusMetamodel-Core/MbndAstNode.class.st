@@ -43,6 +43,13 @@ MbndAstNode >> asSameValuePatternNode [
 		yourself
 ]
 
+{ #category : #composition }
+MbndAstNode >> asSequenceWithoutLexicalScope [
+	<compileTime>
+	<returnType: #_ASTNodeType>
+	^ self
+]
+
 { #category : #converting }
 MbndAstNode >> asSourcePositionString [
 	^ position asSourcePositionString

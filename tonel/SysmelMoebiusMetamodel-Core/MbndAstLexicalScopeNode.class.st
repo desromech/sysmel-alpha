@@ -12,6 +12,13 @@ MbndAstLexicalScopeNode >> accept: aVisitor [
 	^ aVisitor visitLexicalScopeNode: self
 ]
 
+{ #category : #composition }
+MbndAstLexicalScopeNode >> asSequenceWithoutLexicalScope [
+	<compileTime>
+	<returnType: #_ASTNodeType>
+	^ expression
+]
+
 { #category : #serialization }
 MbndAstLexicalScopeNode >> encodeFieldsForMessagePackWith: graphEncoder [
 	^ {

@@ -29,6 +29,10 @@ MbndPointerArithmeticOperationCoercionMacro >> computePointerArithmetic: node co
 	leftValueType isUndefinedType ifTrue: [ ^ rightValueType withoutReferences ].
 	rightValueType isUndefinedType ifTrue: [ ^ leftValueType withoutReferences ].
 	
+	(leftValueType isConstantType or: [ rightValueType isConstantType ]) ifTrue: [
+		^ self computePointerArithmetic: node coercionTypeOf: leftValueType withoutTopDecorations with: rightValueType withoutTopDecorations
+	].
+	
 	(leftValueType isPointerType and: [ rightValueType isPointerType ]) ifTrue: [
 		addressSpace := self computeAddressSpaceCoercionTypeAt: node left: leftValueType addressSpace right: rightValueType addressSpace.
 

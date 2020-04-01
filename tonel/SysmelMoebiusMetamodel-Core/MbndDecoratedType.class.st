@@ -26,6 +26,11 @@ MbndDecoratedType >> addDefaultConversionRules [
 
 ]
 
+{ #category : #converting }
+MbndDecoratedType >> analyzeReinterpretCastNode: node to: targetType with: analyzer [
+	^ baseType analyzeReinterpretCastNode: node to: targetType with: analyzer
+]
+
 { #category : #'semantic analysis' }
 MbndDecoratedType >> analyzeUnboundExpandedMessageSendNode: node with: analyzer [
 	"Try to delegate to the base type."
