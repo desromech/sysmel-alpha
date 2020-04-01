@@ -2333,15 +2333,6 @@ MbndAstSemanticAnalyzer >> visitTraitDefinitionNode: node [
 ]
 
 { #category : #visiting }
-MbndAstSemanticAnalyzer >> visitTupleNode: node [
-	| result |
-	result := super visitTupleNode: node.
-	^ result
-		type: (self compilationTarget tuple: (result elements collect: [:each | each type]));
-		yourself
-]
-
-{ #category : #visiting }
 MbndAstSemanticAnalyzer >> visitTupleToArrayCastNode: node [
 	| tupleNodes tupleElements targetType expectedElementType |
 	tupleNodes := self visitSplicingTupleNode: node expression.

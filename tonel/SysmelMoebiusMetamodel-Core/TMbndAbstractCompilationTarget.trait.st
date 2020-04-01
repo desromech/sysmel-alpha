@@ -464,6 +464,11 @@ TMbndAbstractCompilationTarget >> outputChannelFor: messageType specialSemantics
 	self explicitRequirement
 ]
 
+{ #category : #'convenience type accessors' }
+TMbndAbstractCompilationTarget >> patternMatchingPatternType [
+	^ self getBasicTypeNamed: MbndPatternMatchingPattern typeName
+]
+
 { #category : #accessing }
 TMbndAbstractCompilationTarget >> pointerAlignment [
 	^ self explicitRequirement

@@ -475,6 +475,11 @@ MbndAstVisitor >> visitPatternMatchingSameValuePatternNode: node [
 ]
 
 { #category : #visiting }
+MbndAstVisitor >> visitPatternMatchingSetPatternNode: node [
+	self subclassResponsibility
+]
+
+{ #category : #visiting }
 MbndAstVisitor >> visitPointerAsReferenceNode: node [
 	self subclassResponsibility
 ]

@@ -2399,6 +2399,12 @@ MbndSlovimFunctionCodeGenerator >> visitPatternMatchingSameValuePatternNode: nod
 ]
 
 { #category : #visiting }
+MbndSlovimFunctionCodeGenerator >> visitPatternMatchingSetPatternNode: node [
+	self assert: node isPatternMatchingLiteralValueSetPatternNode.
+	^ node elements collect: [ :each | self visitNode: each ]
+]
+
+{ #category : #visiting }
 MbndSlovimFunctionCodeGenerator >> visitPointerAsReferenceNode: node [
 	^ self visitNode: node pointer
 ]

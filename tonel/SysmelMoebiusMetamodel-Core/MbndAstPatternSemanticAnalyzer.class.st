@@ -10,8 +10,12 @@ Class {
 
 { #category : #delegate }
 MbndAstPatternSemanticAnalyzer >> delegateNodeVisit: node [
+	
+	| analyzedNode |
 	(node isMessageChainNode or: [ node isUnexpandedMessageSendNode or: [node isIdentifierReferenceNode ]]) ifTrue: [
-		^ self visitNode: (semanticAnalyzer visitNodeForMacroExpansion: node)
+		analyzedNode := semanticAnalyzer visitNodeForMacroExpansion: node.
+		analyzedNode isPatternMatchingPatternNode ifTrue: [ ^ analyzedNode ].
+		^ self visitNode: analyzedNode
 	].
 	node isSpecificCastNode ifTrue: [ ^ node asSameValuePatternNode ].
 	self error: 'Unsupported node type {1} for specifying a pattern.' format: { node class name } at: node

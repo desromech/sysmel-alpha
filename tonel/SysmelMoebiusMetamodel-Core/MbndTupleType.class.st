@@ -52,6 +52,21 @@ MbndTupleType >> addDefaultConversionRules [
 
 ]
 
+{ #category : #initialization }
+MbndTupleType >> addInstanceMacros [
+	super addInstanceMacros.
+	self class == MbndTupleType ifFalse: [ ^ self ].
+	self isTrait ifFalse: [ ^ self ].
+	
+	self
+		onMacroSelector: #asValueInSetPattern do: [ :node :builder |
+			MbndAstPatternMatchingSetValuePatternNode new
+				position: node position;
+				elements: node receiver elements;
+				yourself
+		]
+]
+
 { #category : #'semantic analysis' }
 MbndTupleType >> bestConcreteTypeForLiteralValueNode: node inScope: scope [
 	| concreteElements |

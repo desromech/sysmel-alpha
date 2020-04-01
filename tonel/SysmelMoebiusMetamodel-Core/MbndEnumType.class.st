@@ -69,6 +69,24 @@ MbndEnumType >> addInstanceMacros [
 	self class == MbndEnumType ifFalse: [ ^ self ].
 	self isTrait ifFalse: [ ^ self ].
 	self
+		onMacroSelector: #to: do: [ :node :builder :analyzer |
+			| result |
+			result := node asExpandedMessageSend.
+			node receiver type baseType isPrimitiveNumberType ifTrue: [ 
+				node receiver isLiteralValueNode ifTrue: [ 
+					| argument |
+					argument := analyzer visitNode: node arguments first.
+					(argument type = node receiver type and: [argument isLiteralValueNode]) ifTrue: [
+						result := builder literal: { node receiver . argument } type: builder compilationTarget literalIntervalType 
+					] ifFalse: [
+						"Do not analyze more than onces the argument."
+						result arguments: {argument}
+					]
+				]. 
+			].
+		
+			analyzer visitNode: result
+		];
 		onMacroSelector: #value do: [ :node :builder |
 			builder unwrapEnumValue: node receiver.
 		]

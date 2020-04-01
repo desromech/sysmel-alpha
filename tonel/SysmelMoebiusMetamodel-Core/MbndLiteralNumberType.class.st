@@ -11,6 +11,7 @@ MbndLiteralNumberType class >> typeName [
 
 { #category : #initialization }
 MbndLiteralNumberType >> addInstanceMacros [
+	super addInstanceMacros.
 	self class == MbndLiteralNumberType ifFalse: [ ^ self ].
 	self addLiteralHostDelegationMacrosFor: #(
 		+ - * / %

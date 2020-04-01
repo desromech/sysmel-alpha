@@ -1675,11 +1675,144 @@ enum TestEnum values: #{
 		generateSSAModule.
 
 	function := ssaModule globalNamed: #selectCaseTest.
-	self assert: function isFunction.
-	self deny: function isEmpty.
-	self assert: function basicBlocks size equals: 6.
-	self assert: function basicBlocks second firstInstruction isSwitch.
-	self assert: function basicBlocks last lastInstruction isReturn.
+	self assert: function asFullSExpressionForTesting equals: #(
+	function selectCaseTest cdecl f32
+		arguments ((value #i32 ()))
+	literals ()
+	blocks (
+		(() 
+			(nil #jump #void #() #() #(#block 2 #body))
+		)
+		((#merge #(#block 6 #casesOfMerge))
+			(nil #switch #void #() 
+				((local nil #value) #(#const #i32 1) #(#const #i32 2))
+				(((#block 3 #casesOfCase) (#block 4 #casesOfCase))
+				 #(#block 5 #casesOfDefault))
+			)
+		) 
+		(#() 
+			(nil jump void #() #() #(#block 6 #casesOfMerge))
+		)
+		(#()
+			(nil #jump #void #() #() #(#block 6 #casesOfMerge))
+		)
+		(#()
+			(nil #jump #void #() #() #(#block 6 #casesOfMerge))
+		)
+		(#()
+			(#casesResult #phi #f32 #()
+				(#(#const #f32 0.0) #(#const #f32 1.0) #(#const #f32 0.0))
+				(#(#block 3 #casesOfCase) #(#block 4 #casesOfCase) #(#block 5 #casesOfDefault)))
+			(nil #return #void #() #(#(#local nil #casesResult))))
+	)
+	).
+]
+
+{ #category : #tests }
+MbndSlovimCodeModuleGeneratorTest >> testEnumSelectIntervalCase [
+	| function |
+	self
+		evaluateSysmelSource: '
+enum TestEnum values: #{
+	First: 1.
+	Second: 2.
+	Third: 3.
+	Fourth: 4.
+}.
+
+		function selectCaseTest externC(value: TestEnum) => Float32
+			:= value selectCase: #{
+	(TestEnum First to: TestEnum Third) : 0.0.
+	TestEnum Fourth : 1.0.
+}';
+		generateSSAModule.
+
+	function := ssaModule globalNamed: #selectCaseTest.
+	self assert: function asFullSExpressionForTesting equals: #(
+	function selectCaseTest cdecl f32
+		arguments ((value #i32 ()))
+	literals ()
+	blocks 
+    (
+        (()
+            (nil jump void () () (block 2 body))
+        )
+        ((merge (block 6 casesOfMerge))
+            (nil switch void ()
+                ((local nil value) (const i32 1) (const i32 2) (const i32 3) (const i32 4))
+                (((block 3 casesOfCase) (block 3 casesOfCase) (block 3 casesOfCase) (block 4 casesOfCase)) (block 5 casesOfDefault)))
+        )
+        (()
+            (nil jump void () () (block 6 casesOfMerge))
+        )
+        (()
+            (nil jump void () () (block 6 casesOfMerge))
+        )
+        (()
+            (nil jump void () () (block 6 casesOfMerge)))
+        (()
+            (casesResult phi f32 ()
+                ((const f32 0.0) (const f32 1.0) (const f32 0.0))
+                ((block 3 casesOfCase) (block 4 casesOfCase) (block 5 casesOfDefault))
+            )
+            (nil return void () ((local nil casesResult)))
+        )
+    )
+	).
+]
+
+{ #category : #tests }
+MbndSlovimCodeModuleGeneratorTest >> testEnumSelectSetCase [
+	| function |
+	self
+		evaluateSysmelSource: '
+enum TestEnum values: #{
+	First: 1.
+	Second: 2.
+	Third: 3.
+	Fourth: 4.
+}.
+
+		function selectCaseTest externC(value: TestEnum) => Float32
+			:= value selectCase: #{
+	(TestEnum First, TestEnum Third, TestEnum Fourth) asValueInSetPattern : 0.0.
+	TestEnum Second : 1.0.
+}';
+		generateSSAModule.
+
+	function := ssaModule globalNamed: #selectCaseTest.
+	self assert: function asFullSExpressionForTesting equals: #(
+	function selectCaseTest cdecl f32
+		arguments ((value #i32 ()))
+		literals ()
+		blocks 
+    (
+        (()
+            (nil jump void () () (block 2 body))
+        )
+        ((merge (block 6 casesOfMerge))
+            (nil switch void ()
+                ((local nil value) (const i32 1) (const i32 3) (const i32 4) (const i32 2))
+                (((block 3 casesOfCase) (block 3 casesOfCase) (block 3 casesOfCase) (block 4 casesOfCase)) (block 5 casesOfDefault))
+            )
+        )
+        (()
+            (nil jump void () () (block 6 casesOfMerge))
+        )
+        (()
+            (nil jump void () () (block 6 casesOfMerge))
+        )
+        (()
+            (nil jump void () () (block 6 casesOfMerge))
+        )
+        (()
+            (casesResult phi f32 ()
+                ((const f32 0.0) (const f32 1.0) (const f32 0.0))
+                ((block 3 casesOfCase) (block 4 casesOfCase) (block 5 casesOfDefault)))
+            (nil return void () ((local nil casesResult)))
+        )
+    )
+	).
 ]
 
 { #category : #tests }
@@ -1699,11 +1832,35 @@ enum TestEnum values: #{
 		generateSSAModule.
 
 	function := ssaModule globalNamed: #selectCaseTest.
-	self assert: function isFunction.
-	self deny: function isEmpty.
-	self assert: function basicBlocks size equals: 5.
-	self assert: function basicBlocks second firstInstruction isSwitch.
-	self assert: function basicBlocks last lastInstruction isReturn.
+	self assert: function asFullSExpressionForTesting equals: #(
+	function selectCaseTest cdecl f32
+		arguments ((value i32 ()))
+		literals ()
+		blocks (
+			(()
+				(nil jump void () () (block 2 body))
+			) 
+			((merge (block 5 casesOfMerge))
+				(nil switch void ()
+					((local nil value) (const i32 1))
+					(((block 3 casesOfCase)) (block 4 casesOfDefault))
+				)
+			)
+			(()
+				(nil jump void () () (block 5 casesOfMerge))
+			)
+			(()
+				(nil jump void () () (block 5 casesOfMerge))
+			)
+			(()
+				(casesResult phi f32 ()
+					((const f32 42.0) (const f32 0.0))
+					((block 3 casesOfCase) (block 4 casesOfDefault))
+				)
+				(nil return void () ((local nil casesResult)))
+			)
+		)
+	)
 ]
 
 { #category : #tests }

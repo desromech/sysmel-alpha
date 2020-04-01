@@ -31,6 +31,15 @@ MbndAstLiteralValueNode >> asLiteralValuePatternNode [
 		yourself
 ]
 
+{ #category : #'as yet unclassified' }
+MbndAstLiteralValueNode >> asSetValuePatternNode [
+	^ MbndAstPatternMatchingSetValuePatternNode new
+		position: self;
+		elements: value;
+		type: type;
+		yourself
+]
+
 { #category : #serialization }
 MbndAstLiteralValueNode >> encodeFieldsForMessagePackWith: graphEncoder [
 	^ {

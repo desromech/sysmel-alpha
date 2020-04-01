@@ -605,6 +605,11 @@ MbndAstNode >> isPatternMatchingPatternNode [
 ]
 
 { #category : #testing }
+MbndAstNode >> isPatternMatchingSetValuePatternNode [
+	^ false
+]
+
+{ #category : #testing }
 MbndAstNode >> isPointerAsReferenceNode [
 	^ false
 ]

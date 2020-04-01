@@ -241,6 +241,25 @@ MbndAstSemanticAnalyzerForExplicitMacroExpansion >> visitNonConcreteNode: node [
 ]
 
 { #category : #visiting }
+MbndAstSemanticAnalyzerForExplicitMacroExpansion >> visitPatternMatchingSetPatternNode: node [
+	| elements |
+	elements := self analyzeNodesIfNeeded: node elements.
+	^ node copy
+		elements: elements;
+		type: self compilationTarget patternMatchingPatternType;
+		yourself
+]
+
+{ #category : #visiting }
+MbndAstSemanticAnalyzerForExplicitMacroExpansion >> visitTupleNode: node [
+	| result |
+	result := super visitTupleNode: node.
+	^ result
+		type: (self compilationTarget tuple: (result elements collect: [:each | each type]));
+		yourself
+]
+
+{ #category : #visiting }
 MbndAstSemanticAnalyzerForExplicitMacroExpansion >> visitUnexpandedMessageSendNode: node [
 	| result selector macroMethod |
 	result := node copy
