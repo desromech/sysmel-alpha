@@ -1,0 +1,31 @@
+namespace Stdn definition: {
+namespace Graphics definition: {
+namespace GUI definition: {
+
+#**
+ * I bit combination of different key modifiers.
+ * My constant values are the sames as the ones that are provided by SDL2.
+ *#
+enum KeyModifiers bitMask valueType: UInt32; values: #{
+    None: 0.
+    LShift: 16r0001.
+    RShift: 16r0002.
+    LCtrl: 16r0040.
+    RCtrl: 16r0080.
+    LAlt: 16r0100.
+    RAlt: 16r0200.
+    LGUI: 16r0400.
+    RGUI: 16r0800.
+    Num: 16r1000.
+    Caps: 16r2000.
+    Mode: 16r4000.
+
+    Ctrl: LCtrl | RCtrl castTo: UInt32.
+    Shift: LShift | RShift castTo: UInt32.
+    Alt: LAlt | RAlt castTo: UInt32.
+    GUI: LGUI | RGUI castTo: UInt32.
+}.
+
+}. ## End of namespace GUI
+}. ## End of namespace Graphics
+}. ## End of namespace Stdn

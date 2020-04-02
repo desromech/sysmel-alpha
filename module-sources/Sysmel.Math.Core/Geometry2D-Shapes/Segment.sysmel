@@ -1,0 +1,14 @@
+namespace Stdn definition: {
+namespace Math definition: {
+namespace Geometry definition: {
+
+template GenericSegment2d(ST: Type)
+    := class superclass: GenericGeometricShape(ST); definition: {
+}.
+
+compileTimeConstant Segment2dF32 := GenericSegment2d(Float32).
+compileTimeConstant Segment2dF64 := GenericSegment2d(Float64).
+
+} ## End of namespace Geometry
+} ## End of namespace Math
+} ## End of namespace Stdn

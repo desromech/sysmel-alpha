@@ -1,0 +1,22 @@
+namespace Stdn definition: {
+namespace Math definition: {
+namespace Geometry definition: {
+
+template GenericRay2d(ST: Type)
+    := class superclass: GenericParametricLine2d(ST); definition: {
+
+    meta definition: {
+        inline method origin: (theOrigin: Vector2) direction: (theDirection: Vector2) ::=> InstanceType
+            := InstanceType basicNewValue origin: theOrigin; direction: theDirection; yourself.
+
+        inline method from: (startPoint: Vector2) to: (endpoint: Vector2) ::=> InstanceType
+            := InstanceType origin: startPoint direction: (endpoint - startPoint) normalized.
+    }.
+}.
+
+compileTimeConstant Ray2dF32 := GenericRay2d(Float32).
+compileTimeConstant Ray2dF64 := GenericRay2d(Float64).
+
+} ## End of namespace Geometry
+} ## End of namespace Math
+} ## End of namespace Stdn

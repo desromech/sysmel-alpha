@@ -6,6 +6,10 @@ let mainWindow mutable type: Window sharedPointer.
 let mainDrawingSurface mutable type: Surface sharedPointer.
 let fontFaceWithSize mutable type: FontFaceWithSize sharedPointer.
 
+let mainRectangle mutable := RectangleF32 min: Float32x2(-25.0f, 5.0f) extent: Float32x2(200.0f, 100.0f).
+let mainRectangleNormalColor := Float32x4(0.8f, 0.2f, 0.2f, 1.0f).
+let mainRectangleHighlightColor := Float32x4(0.2f, 0.8f, 0.8f, 1.0f).
+let mainRectangleColor mutable := mainRectangleNormalColor.
 
 class MainWindowEventHandler superclass: EventHandler; definition: {
     method render ::=> Void := {
@@ -18,11 +22,11 @@ class MainWindowEventHandler superclass: EventHandler; definition: {
             color: Float32x4(0.4f, 0.4f, 0.4f, 1.0f);
             clear;
 
-            color: Float32x4(0.8f, 0.2f, 0.2f, 1.0f);
-            fillRectangle: (RectangleF32 min: Float32x2(-25.0f, 5.0f) extent: Float32x2(200.0f, 100.0f));
+            color: mainRectangleColor;
+            fillRectangle: mainRectangle;
 
             black;
-            drawRectangle: (RectangleF32 min: Float32x2(-25.0f, 5.0f) extent: Float32x2(200.0f, 100.0f));
+            drawRectangle: mainRectangle;
 
             white;
             fillTriangle: Float32x2(40.0f, 300.0f) color: Float32x4(1.0f, 0.0f, 0.0f, 1.0)
@@ -34,15 +38,25 @@ class MainWindowEventHandler superclass: EventHandler; definition: {
             drawUTF8String: "Hello World" at: Float32x2(80.0f, 128.0f).
     }.
 
-    override method visitTickEvent: (event: TickEvent ref) ::=> Void := {
+    override method onMouseMoveEvent: (event: MouseMoveEvent ref) ::=> Void := {
+        (mainRectangle includesPoint: (event position castTo: Float32x2)) ifTrue: {
+            mainRectangleColor := mainRectangleHighlightColor.
+            self render.
+        } ifFalse: {
+            mainRectangleColor := mainRectangleNormalColor.
+            self render.
+        }
+    }.
+
+    override method onTickEvent: (event: TickEvent ref) ::=> Void := {
         self render
     }.
 
-    override method visitExposeEvent: (event: ExposeEvent ref) ::=> Void := {
+    override method onExposeEvent: (event: ExposeEvent ref) ::=> Void := {
         self render
     }.
 
-    override method visitWindowCloseRequestEvent: (event: WindowCloseRequestEvent ref) ::=> Void := {
+    override method onWindowCloseRequestEvent: (event: WindowCloseRequestEvent ref) ::=> Void := {
         mainWindow _ close
     }.
 }.

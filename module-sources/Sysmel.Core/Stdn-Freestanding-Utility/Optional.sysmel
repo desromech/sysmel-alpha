@@ -11,6 +11,16 @@ template Optional(VT: Type)
         type: (UInt8 array: ValueType instanceSize);
         alignment: ValueType instanceAlignment.
 
+    meta definition: {
+        inline method empty ::=> InstanceType
+            := InstanceType basicNewValue.
+
+        inline method with: (theValue: ValueType const ref) ::=> InstanceType
+            := InstanceType basicNewValue
+                setValue: theValue;
+                yourself.
+    }.
+
     const inline method isPresent => Boolean8
         := present_.
 

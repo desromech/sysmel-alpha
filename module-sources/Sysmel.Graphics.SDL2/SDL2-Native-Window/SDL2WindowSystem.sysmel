@@ -10,6 +10,8 @@ class SDL2WindowSystem superclass: WindowSystem; definition: {
     private field aliveWindowCount type: UInt32.
     private field isQuitRequested type: Boolean8.
     private field windowIDDictionary type: Stdn Collections Dictionary(UInt32, SDL2Window sharedPointer).
+    private field lastMousePosition type: Int32x2.
+    private field lastKeyModifiers type: KeyModifiers.
 
     override method finalize => Void := {
         SDL_Quit().
@@ -20,6 +22,12 @@ class SDL2WindowSystem superclass: WindowSystem; definition: {
 
     method nextWaitEventTimeout => Int32
         := 32.
+
+    method currentMousePosition => Int32x2
+        := lastMousePosition.
+
+    method currentKeyModifiers => KeyModifiers
+        := lastKeyModifiers.
 
     override method createWindow: (creationInfo: WindowCreationInfo const ref) ::=> Window sharedPointer := {
         let position mutable := Int32x2(SDL_WINDOWPOS_CENTERED, SDL_WINDOWPOS_CENTERED).
@@ -89,6 +97,12 @@ class SDL2WindowSystem superclass: WindowSystem; definition: {
         SDL_EventType SDL_WINDOWEVENT : { self processWindowEvent: event window. }.
         SDL_EventType SDL_KEYDOWN : { self processKeyDown: event key }.
         SDL_EventType SDL_KEYUP  : { self processKeyUp: event key }.
+        SDL_EventType SDL_TEXTEDITING : { self processTextEditing: event edit }.
+        SDL_EventType SDL_TEXTINPUT  : { self processTextInput: event text }.
+        SDL_EventType SDL_MOUSEMOTION  : { self processMouseMotion: event motion }.
+        SDL_EventType SDL_MOUSEBUTTONUP  : { self processMouseButtonUp: event button }.
+        SDL_EventType SDL_MOUSEBUTTONDOWN  : { self processMouseButtonDown: event button }.
+        SDL_EventType SDL_MOUSEWHEEL  : { self processMouseWheel: event wheel }.
         }.
     }.
 
@@ -102,7 +116,7 @@ class SDL2WindowSystem superclass: WindowSystem; definition: {
 
     method processWindowEvent: (event: SDL_WindowEvent const ref) ::=> Void := {
         let wrapper mutable := self findWrapperForWindowID: event windowID.
-        wrapper ifNil: {return: nil}.
+        wrapper ifNil: {return: void}.
 
         event event selectCase: #{
             SDL_WINDOWEVENT_CLOSE : {
@@ -117,9 +131,85 @@ class SDL2WindowSystem superclass: WindowSystem; definition: {
     }.
 
     method processKeyDown: (event: SDL_KeyboardEvent const ref) ::=> Void := {
+        let wrapper mutable := self findWrapperForWindowID: event windowID.
+        wrapper ifNil: {return: void}.
     }.
 
     method processKeyUp: (event: SDL_KeyboardEvent const ref) ::=> Void := {
+        let wrapper mutable := self findWrapperForWindowID: event windowID.
+        wrapper ifNil: {return: void}.
+    }.
+
+    method processTextEditing: (event: SDL_TextEditingEvent const ref) ::=> Void := {
+    }.
+
+    method processTextInput: (event: SDL_TextInputEvent const ref) ::=> Void := {
+        let wrapper mutable := self findWrapperForWindowID: event windowID.
+        wrapper ifNil: {return: void}.
+    }.
+
+    method processMouseMotion: (event: SDL_MouseMotionEvent const ref) ::=> Void := {
+        let wrapper mutable := self findWrapperForWindowID: event windowID.
+        wrapper ifNil: {return: void}.
+
+        let convertedEvent mutable := MouseMoveEvent newValue
+            mouseId: event which;
+            position: Int32x2(event x, event y);
+            modifiers: self currentKeyModifiers;
+            buttonState: (event state castTo: MouseButtonMask);
+            delta: Int32x2(event xrel, event yrel);
+            yourself.
+
+        lastMousePosition := convertedEvent position.
+
+        wrapper _ deliverEvent: convertedEvent.
+    }.
+
+    method processMouseButtonDown: (event: SDL_MouseButtonEvent const ref) ::=> Void := {
+        let wrapper mutable := self findWrapperForWindowID: event windowID.
+        wrapper ifNil: {return: void}.
+
+        let convertedEvent mutable := MouseButtonPressedEvent newValue
+            mouseId: event which;
+            position: Int32x2(event x, event y);
+            modifiers: self currentKeyModifiers;
+            button: (event button castTo: MouseButton);
+            yourself.
+
+        lastMousePosition := convertedEvent position.
+
+        wrapper _ deliverEvent: convertedEvent.
+    }.
+
+    method processMouseButtonUp: (event: SDL_MouseButtonEvent const ref) ::=> Void := {
+        let wrapper mutable := self findWrapperForWindowID: event windowID.
+        wrapper ifNil: {return: void}.
+
+        let convertedEvent mutable := MouseButtonReleasedEvent newValue
+            mouseId: event which;
+            position: Int32x2(event x, event y);
+            modifiers: self currentKeyModifiers;
+            button: (event button castTo: MouseButton);
+            yourself.
+
+        lastMousePosition := convertedEvent position.
+
+        wrapper _ deliverEvent: convertedEvent.
+    }.
+
+    method processMouseWheel: (event: SDL_MouseWheelEvent const ref) ::=> Void := {
+        let wrapper mutable := self findWrapperForWindowID: event windowID.
+        wrapper ifNil: {return: void}.
+
+        let convertedEvent mutable := MouseWheelEvent newValue
+            mouseId: event which;
+            position: self currentMousePosition;
+            modifiers: self currentKeyModifiers;
+            scrollDelta: Int32x2(event x, event y);
+            isFlipped: event direction == SDL_MOUSEWHEEL_FLIPPED;
+            yourself.
+
+        wrapper _ deliverEvent: convertedEvent.
     }.
 
     override method broadcastEvent: (event: Event ref) ::=> Void := {

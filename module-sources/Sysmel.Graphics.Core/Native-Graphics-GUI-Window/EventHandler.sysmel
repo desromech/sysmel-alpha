@@ -10,19 +10,31 @@ class EventHandler superclass: Object; definition: {
         event acceptEventHandler: self
     }.
 
-    virtual method visitTickEvent: (event: TickEvent ref) ::=> Void
+    virtual method onTickEvent: (event: TickEvent ref) ::=> Void
         := void.
 
-    virtual method visitKeyDownEvent: (event: KeyDownEvent ref) ::=> Void
+    virtual method onKeyPressedEvent: (event: KeyPressedEvent ref) ::=> Void
         := void.
 
-    virtual method visitKeyUpEvent: (event: KeyUpEvent ref) ::=> Void
+    virtual method onKeyReleasedEvent: (event: KeyReleasedEvent ref) ::=> Void
         := void.
 
-    virtual method visitExposeEvent: (event: ExposeEvent ref) ::=> Void
+    virtual method onTextInputEvent: (event: TextInputEvent ref) ::=> Void
         := void.
 
-    virtual method visitWindowCloseRequestEvent: (event: WindowCloseRequestEvent ref) ::=> Void
+    virtual method onMouseMoveEvent: (event: MouseMoveEvent ref) ::=> Void
+        := void.
+
+    virtual method onMouseButtonPressedEvent: (event: MouseButtonPressedEvent ref) ::=> Void
+        := void.
+
+    virtual method onMouseButtonReleasedEvent: (event: MouseButtonReleasedEvent ref) ::=> Void
+        := void.
+
+    virtual method onExposeEvent: (event: ExposeEvent ref) ::=> Void
+        := void.
+
+    virtual method onWindowCloseRequestEvent: (event: WindowCloseRequestEvent ref) ::=> Void
         := void.
 }.
 

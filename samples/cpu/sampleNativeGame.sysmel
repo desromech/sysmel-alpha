@@ -1,8 +1,17 @@
+Compiler
+	importModuleNamed: #"Sysmel.Graphics.SDL2";
+	importModuleNamed: #"Sysmel.Graphics.FreeType2".
+
+useNamespace: Stdn Graphics Core.
+useNamespace: Stdn Graphics GUI.
+useNamespace: Stdn Math Geometry.
+
 useNamespace: SDL2.
 
 class SoundChannelWithEnvelope.
 
 let Gravity := Float32x2(0.0, -9.8).
+
 global window mutable type: SDL_Window pointer.
 global renderer mutable type: SDL_Renderer pointer.
 global isQuitting mutable := false.
@@ -16,63 +25,6 @@ global jumpSound mutable type: SoundChannelWithEnvelope pointer.
 global dashSound mutable type: SoundChannelWithEnvelope pointer.
 global shootSound mutable type: SoundChannelWithEnvelope pointer.
 
-struct Box2D definition: {
-	public field min type: Float32x2.
-	public field max type: Float32x2.
-
-	meta method center: (center: Float32x2) halfExtent: (halfExtent: Float32x2) ::=> SelfType
-		:= SelfType newValue
-			min: center - halfExtent;
-			max: center + halfExtent;
-			yourself.
-
-	method extent => Float32x2
-		:= max - min.
-
-	method halfExtent => Float32x2
-		:= (max - min) * 0.5.
-
-	method center => Float32x2
-		:= (max + min) * 0.5.
-
-	method containsPoint: (point: Float32x2) ::=> Boolean8
-		:= min x <= point x && point x <= max x &&
-		   min y <= point y && point y <= max y.
-
-	method hasIntersectionWithRayOrigin: (rayOrigin: Float32x2) direction: (rayDirection: Float32x2) at: (intersectionT: Float32 pointer) ::=> Boolean8 := {
-		## Ray box intersection algorithm from: https://www.scratchapixel.com/lessons/3d-basic-rendering/minimal-ray-tracer-rendering-simple-shapes/ray-box-intersection
-		let directionReciprocal := 1.0f / rayDirection.
-		let tNegative := (min - rayOrigin) * directionReciprocal.
-		let tPositive := (max - rayOrigin) * directionReciprocal.
-
-		let tmin := tNegative min: tPositive.
-		let tmax := tNegative max: tPositive.
-
-		(tmin x > tmax y || tmin y > tmax x) ifTrue: {
-			false
-		} ifFalse: {
-			intersectionT _ := (tmin x max: tmin y) max: 0.0f.
-			tmin x >= 0.0f || tmin y >= 0.0f
-		}
-	}.
-
-	method computePenetrationDistanceForPoint: (point: Float32x2) withNormal: (normal: Float32x2) ::=> Float32 := {
-		##let delta := point - self center.
-		##((self halfExtent - delta) dot: normal) max: 0.0
-		0.0f
-	}.
-
-	method computeCollisionNormalForPoint: (point: Float32x2) ::=> Float32x2 := {
-		let delta := point - self center.
-		let deltaAbsolute := delta abs / self halfExtent.
-		deltaAbsolute x >= deltaAbsolute y ifTrue: {
-			Float32x2(delta x sign, 0.0f)
-		} ifFalse: {
-			Float32x2(0.0f, delta y sign)
-		}
-	}.
-}.
-
 class Entity definition: {
 	public field position type: Float32x2.
 	public field halfExtent type: Float32x2.
@@ -84,11 +36,11 @@ class Entity definition: {
 	virtual method isDead => Boolean8
 		:= false.
 
-	method boundingBox => Box2D
-		:= Box2D center: position halfExtent: halfExtent.
+	method boundingBox => RectangleF32
+		:= RectangleF32 center: position halfExtent: halfExtent.
 
-	method boundingBoxExpandedWith: (extraHalfExtent: Float32x2) ::=> Box2D
-		:= Box2D center: position halfExtent: halfExtent + extraHalfExtent.
+	method boundingBoxExpandedWith: (extraHalfExtent: Float32x2) ::=> RectangleF32
+		:= RectangleF32 center: position halfExtent: halfExtent + extraHalfExtent.
 
 	virtual method currentColor => Float32x4
 		:= color.
@@ -154,11 +106,12 @@ class Character superclass: Entity; definition: {
 		let rayLength := rayDirection length2 sqrt.##rayDirection length.
 		rayLength < 0.00001f ifTrue: { return: nil }.
 		rayDirection := rayDirection / rayLength.
+		let ray := Ray2dF32 origin: rayOrigin direction: rayDirection.
 
 		## Perform Minkowski difference based collision detection with the boxes.
 		let bestCollisionAlpha mutable := rayLength.
 		let bestCollisionEntity mutable type: Entity pointer := nil.
-		let bestCollisionExpandedBound mutable type: Box2D.
+		let bestCollisionExpandedBound mutable type: RectangleF32.
 
 		entities do: {:entity :: Void |
 			## FIXME: Make this cast redundant.
@@ -166,8 +119,9 @@ class Character superclass: Entity; definition: {
 			entity _ isDead not &&
 			entity _ hasCollisionResponse ifTrue: {
 				let entityExpandedBoundingBox mutable := entity _ boundingBoxExpandedWith: halfExtent.
-				let intersectionAlpha mutable type: Float32.
-				(entityExpandedBoundingBox hasIntersectionWithRayOrigin: rayOrigin direction: rayDirection at: intersectionAlpha address) ifTrue: {
+				let intersectionResult mutable := entityExpandedBoundingBox intersectionWithRay: ray.
+				intersectionResult isPresent ifTrue: {
+					let intersectionAlpha := intersectionResult _.
 					intersectionAlpha < bestCollisionAlpha ifTrue: {
 						bestCollisionExpandedBound := entityExpandedBoundingBox.
 						bestCollisionAlpha := intersectionAlpha.
@@ -236,6 +190,7 @@ class Bullet superclass: Entity; definition: {
 		## Perform Minkowski difference based collision detection with the boxes.
 		let bestCollisionAlpha mutable := rayLength.
 		let bestCollisionEntity mutable type: Entity pointer := nil.
+		let ray := Ray2dF32 origin: rayOrigin direction: rayDirection.
 
 		entities do: {:entity :: Void |
 			## FIXME: Make this cast redundant.
@@ -243,8 +198,9 @@ class Bullet superclass: Entity; definition: {
 			entity _ isDead not &&
 			entity _ canBeShot ifTrue: {
 				let entityExpandedBoundingBox mutable := entity _ boundingBoxExpandedWith: halfExtent.
-				let intersectionAlpha mutable type: Float32.
-				(entityExpandedBoundingBox hasIntersectionWithRayOrigin: rayOrigin direction: rayDirection at: intersectionAlpha address) ifTrue: {
+				let intersectionResult mutable := entityExpandedBoundingBox intersectionWithRay: ray.
+				intersectionResult isPresent ifTrue: {
+					let intersectionAlpha := intersectionResult _.
 					intersectionAlpha < bestCollisionAlpha ifTrue: {
 						bestCollisionAlpha := intersectionAlpha.
 						bestCollisionEntity := entity
@@ -519,7 +475,7 @@ function processEvents() => Void := {
 	}
 }.
 
-function fillRectangle(worldRectangle: Box2D, color: Float32x4) => Void := {
+function fillRectangle(worldRectangle: RectangleF32, color: Float32x4) => Void := {
 	let color32 := (color clampMin: 0.0 max: 1.0)*255.0 castTo: UInt8x4.
 
 	let negativeCorner := (viewMatrix * Float32x3(worldRectangle min, 1.0)) floor castTo: Int32x2.
@@ -678,9 +634,7 @@ method createWallMin: (min: Float32x2) max: (max: Float32x2) color: (color: Floa
 
 function main externC (argc: Int32, argv: Char8 const pointer pointer) => Int32 := {
 
-	SDL_Init(SDL_INIT_VIDEO | SDL_INIT_AUDIO | SDL_INIT_GAMECONTROLLER) < 0 ifTrue: {
-		return: 1.
-	}.
+	let windowSystem := createSDL2WindowSystem().
 
 	window := SDL_CreateWindow("Sysmel Hello SDL2", SDL_WINDOWPOS_CENTERED, SDL_WINDOWPOS_CENTERED, 640, 480, SDL_WINDOW_SHOWN).
 	window ifNil: {

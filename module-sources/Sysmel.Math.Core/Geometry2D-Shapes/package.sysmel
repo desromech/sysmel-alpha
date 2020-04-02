@@ -1,2 +1,5 @@
 loadFileOnce: "Circle.sysmel".
 loadFileOnce: "Rectangle.sysmel".
+loadFileOnce: "Line.sysmel".
+loadFileOnce: "Ray.sysmel".
+loadFileOnce: "Segment.sysmel".

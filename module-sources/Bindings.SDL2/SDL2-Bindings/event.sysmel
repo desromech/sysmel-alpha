@@ -162,6 +162,9 @@ struct SDL_MouseButtonEvent definition: {
     field y public type: Int32.
 }.
 
+compileTimeConstant SDL_MOUSEWHEEL_NORMAL := 0.
+compileTimeConstant SDL_MOUSEWHEEL_FLIPPED := 1.
+
 struct SDL_MouseWheelEvent definition: {
     field type public type: SDL_EventType.
     field timestamp public type: UInt32.
@@ -177,6 +180,12 @@ union SDL_Event definition: {
     field common public type: SDL_CommonEvent.
     field window public type: SDL_WindowEvent.
     field key public type: SDL_KeyboardEvent.
+    field edit public type: SDL_TextEditingEvent.
+    field text public type: SDL_TextInputEvent.
+    field motion public type: SDL_MouseMotionEvent.
+    field button public type: SDL_MouseButtonEvent.
+    field wheel public type: SDL_MouseWheelEvent.
+
     field padding public type: (UInt8 array: 56).
 }.
 

@@ -1,5 +1,7 @@
 ## Abstract Window interface.
 loadFileOnce: "KeySymbol.sysmel".
+loadFileOnce: "KeyModifiers.sysmel".
+loadFileOnce: "MouseButton.sysmel".
 loadFileOnce: "Event.sysmel".
 loadFileOnce: "EventHandler.sysmel".
 loadFileOnce: "WindowSystem.sysmel".

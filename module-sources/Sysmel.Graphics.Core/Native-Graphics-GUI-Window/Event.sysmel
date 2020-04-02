@@ -18,30 +18,93 @@ class Event definition: {
  *#
 class TickEvent superclass: Event; definition: {
     override method acceptEventHandler: (eventHandler: EventHandler ref) ::=> Void
-        := eventHandler visitTickEvent: self.
+        := eventHandler onTickEvent: self.
 }.
 
 #**
  * I am a keyboard event.
  *#
 class KeyboardEvent superclass: Event; definition: {
+    public field symbol type: KeySymbol.
+    public field modifiers type: KeyModifiers.
 
 }.
 
 #**
- * I am a key down event.
+ * I am a key pressed event.
  *#
-class KeyDownEvent superclass: KeyboardEvent; definition: {
+class KeyPressedEvent superclass: KeyboardEvent; definition: {
     override method acceptEventHandler: (eventHandler: EventHandler ref) ::=> Void
-        := eventHandler visitKeyDownEvent: self.
+        := eventHandler onKeyPressedEvent: self.
 }.
 
 #**
- * I am a key up event.
+ * I am a key released event.
  *#
-class KeyUpEvent superclass: KeyboardEvent; definition: {
+class KeyReleasedEvent superclass: KeyboardEvent; definition: {
     override method acceptEventHandler: (eventHandler: EventHandler ref) ::=> Void
-        := eventHandler visitKeyUpEvent: self.
+        := eventHandler onKeyReleasedEvent: self.
+}.
+
+#**
+ * I am a text input event
+ *#
+class TextInputEvent superclass: KeyboardEvent; definition: {
+
+    override method acceptEventHandler: (eventHandler: EventHandler ref) ::=> Void
+        := eventHandler onTextInputEvent: self.
+}.
+
+#**
+ * I am a mouse move event.
+ *#
+class MouseEvent superclass: Event; definition: {
+    public field mouseId type: UInt32.
+    public field position type: Int32x2.
+    public field modifiers type: KeyModifiers.
+}.
+
+#**
+ * I am a mouse move event.
+ *#
+class MouseMoveEvent superclass: MouseEvent; definition: {
+    public field buttonState type: MouseButtonMask.
+    public field delta type: Int32x2.
+
+    override method acceptEventHandler: (eventHandler: EventHandler ref) ::=> Void
+        := eventHandler onMouseMoveEvent: self.
+}.
+
+#**
+ * I am a mouse button event.
+ *#
+class MouseButtonEvent superclass: MouseEvent; definition: {
+    public field button type: MouseButton.
+    public field clickCount type: UInt8.
+}.
+
+#**
+ * I am a mouse wheel event.
+ *#
+class MouseWheelEvent superclass: MouseEvent; definition: {
+    public field scrollDelta type: Int32x2.
+    public field isFlipped type: Boolean8.
+}.
+
+#**
+ * I am a mouse button pressed event.
+ *#
+class MouseButtonPressedEvent superclass: MouseButtonEvent; definition: {
+    override method acceptEventHandler: (eventHandler: EventHandler ref) ::=> Void
+        := eventHandler onMouseButtonPressedEvent: self.
+}.
+
+#**
+ * I am a mouse button down event.
+ *#
+class MouseButtonReleasedEvent superclass: MouseButtonEvent; definition: {
+    override method acceptEventHandler: (eventHandler: EventHandler ref) ::=> Void
+        := eventHandler onMouseButtonReleasedEvent: self.
 }.
 
 #**
@@ -49,7 +112,7 @@ class KeyUpEvent superclass: KeyboardEvent; definition: {
  *#
 class ExposeEvent superclass: Event; definition: {
     override method acceptEventHandler: (eventHandler: EventHandler ref) ::=> Void
-        := eventHandler visitExposeEvent: self.
+        := eventHandler onExposeEvent: self.
 
 }.
 
@@ -58,7 +121,7 @@ class ExposeEvent superclass: Event; definition: {
  *#
 class WindowCloseRequestEvent superclass: Event; definition: {
     override method acceptEventHandler: (eventHandler: EventHandler ref) ::=> Void
-        := eventHandler visitWindowCloseRequestEvent: self.
+        := eventHandler onWindowCloseRequestEvent: self.
 }.
 
 }. ## End of namespace GUI

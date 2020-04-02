@@ -1,0 +1,47 @@
+namespace Stdn definition: {
+namespace Math definition: {
+namespace Geometry definition: {
+
+#**
+ * I represent a parametric line that complies with the following equation:
+ * L: P := Lc + Ld*t , with t in R.
+ *#
+template GenericParametricLine2d(ST: Type)
+    := class superclass: GenericGeometricShape(ST); definition: {
+
+    public field origin type: Vector2.
+    public field direction type: Vector2.
+
+    meta definition: {
+        inline method origin: (theOrigin: Vector2) direction: (theDirection: Vector2) ::=> InstanceType
+            := InstanceType basicNewValue origin: theOrigin; direction: theDirection; yourself.
+
+        inline method from: (startPoint: Vector2) to: (endpoint: Vector2) ::=> ParametricLine2d
+            := InstanceType origin: startPoint direction: (endpoint - startPoint) normalized.
+    }.
+
+    inline method pointAtDistance: (distance: Scalar) ::=> Vector2
+        := origin + direction*distance.
+}.
+
+compileTimeConstant ParametricLine2dF32 := GenericParametricLine2d(Float32).
+compileTimeConstant ParametricLine2dF64 := GenericParametricLine2d(Float64).
+
+#**
+ * I represent an implicit line equation of the form:
+ * <N, P> = d.
+ *#
+template GenericLine2d(ST: Type)
+    := class superclass: GenericGeometricShape(ST); definition: {
+
+    public field normal type: Vector2.
+    public field distance type: Scalar.
+
+}.
+
+compileTimeConstant Line2dF32 := GenericLine2d(Float32).
+compileTimeConstant Line2dF64 := GenericLine2d(Float64).
+
+} ## End of namespace Geometry
+} ## End of namespace Math
+} ## End of namespace Stdn

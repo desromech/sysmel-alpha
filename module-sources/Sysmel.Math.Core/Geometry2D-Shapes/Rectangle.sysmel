@@ -69,7 +69,43 @@ template GenericRectangle(ST: Type)
         := SelfType min: (min max: other min) max: (max min: other max).
 
     compileTimeIf: Scalar isPrimitiveFloatType then: {
+        method intersectionWithRay: (ray: Ray2d const ref) ::=> ParametricCurveIntersectionResult := {
+            ## Ray box intersection algorithm from: https://www.scratchapixel.com/lessons/3d-basic-rendering/minimal-ray-tracer-rendering-simple-shapes/ray-box-intersection
+            let directionReciprocal := 1.0f / ray direction.
+            let tNegative := (min - ray origin) * directionReciprocal.
+            let tPositive := (max - ray origin) * directionReciprocal.
 
+            let tmin := tNegative min: tPositive.
+            let tmax := tNegative max: tPositive.
+
+            (tmin x > tmax y || tmin y > tmax x) ifFalse: {
+                let intersectionPosition := (tmin x max: tmin y) max: 0.0f.
+                tmin x >= 0.0f || tmin y >= 0.0f ifTrue: {
+                    return: (ParametricCurveIntersectionResult with: intersectionPosition)
+                }
+            }.
+
+            return: ParametricCurveIntersectionResult empty.
+        }.
+
+        method hasIntersectionWithRay: (ray: Ray2d const ref) ::=> Boolean8
+            := (self intersectionWithRay: ray) isPresent.
+
+        method computePenetrationDistanceForPoint: (point: Vector2) withNormal: (normal: Float32x2) ::=> Float32 := {
+    		##let delta := point - self center.
+    		##((self halfExtent - delta) dot: normal) max: Vector2 zeros
+    		0.0f
+    	}.
+
+    	method computeCollisionNormalForPoint: (point: Vector2) ::=> Vector2 := {
+    		let delta := point - self center.
+    		let deltaAbsolute := delta abs / self halfExtent.
+    		deltaAbsolute x >= deltaAbsolute y ifTrue: {
+    			Vector2(delta x sign, 0)
+    		} ifFalse: {
+    			Vector2(0, delta y sign)
+    		}
+    	}.
     }.
 }.
 
