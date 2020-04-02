@@ -10,19 +10,27 @@ class UnsafePixelIterator definition: {
     public field bytesPerPixel type: UInt32.
     public field pixelFormat type: PixelFormat.
 
-    method advanceColumn => Void := {
+    inline method advanceColumn => Void := {
         pixels := pixels + bytesPerPixel
     }.
 
-    method advanceRow => Void := {
+    inline method advanceColumns: (deltaX: Int32) ::=> Void := {
+        pixels := pixels + (deltaX*bytesPerPixel)
+    }.
+
+    inline method advanceRow => Void := {
         pixels := pixels + pitch
     }.
 
-    method advanceRows: (deltaY: Int32) columns: (deltaX: Int32) ::=> Void := {
+    inline method advanceRows: (deltaY: Int32) ::=> Void := {
+        pixels := pixels + (deltaY*pitch)
+    }.
+
+    inline method advanceRows: (deltaY: Int32) columns: (deltaX: Int32) ::=> Void := {
         pixels := pixels + (deltaY*pitch + deltaX*bytesPerPixel)
     }.
 
-    method advanceCoordinates: (coords: Int32x2) ::=> Void := {
+    inline method advanceCoordinates: (coords: Int32x2) ::=> Void := {
         self advanceRows: coords y columns: coords x
     }.
 
@@ -103,8 +111,11 @@ class Blitter definition: {
 
     compileTimeConstant UNorm8RenderBlockType := ((UInt32x2) => UInt8x4) nativeBlockClosure.
     compileTimeConstant Float32RenderBlockType := ((UInt32x2) => Float32x4) nativeBlockClosure.
-    compileTimeConstant Float32BlendRenderBlockType := ((Int32x2 -- Float32x4 -- Float32x4) => Float32x4) nativeBlockClosure.
+    compileTimeConstant Float32BlendRenderBlockType := ((UInt32x2 -- Float32x4) => Float32x4) nativeBlockClosure.
+    compileTimeConstant Float32BlendTriangleBlockType := ((Float32x2 -- Float32x3 -- Float32x4) => Float32x4) nativeBlockClosure.
+    compileTimeConstant Float32BlendCopyBlockType := ((Int32x2 -- Float32x4 -- Float32x4) => Float32x4) nativeBlockClosure.
     compileTimeConstant Float32NormalizedRenderBlockType := ((Float32x2) => Float32x4) nativeBlockClosure.
+
 
     method initializeCachedState => Void := {
         bytesPerPixel := pixelFormat bytesPerPixel.
@@ -156,6 +167,151 @@ class Blitter definition: {
             let destPixel mutable := destRow.
             clippedRectangle min x until: clippedRectangle max x do: {:(Int32)x :: Void |
                 destPixel storePixelFloat32x4: renderBlock(Int32x2(x, y) castTo: UInt32x2).
+                destPixel advanceColumn
+            }.
+
+            destRow advanceRow
+        }
+    }.
+
+    const inline method blendRectangle: (rectangle: RectangleI32) pixelsWith: (renderBlock: Float32BlendRenderBlockType) ::=> Void := {
+        let clippedRectangle := rectangle intersectionWith: self bounds.
+        clippedRectangle isEmpty ifTrue: {
+            return: void
+        }.
+
+        let destRow mutable := self makeUnsafePixelIteratorAt: clippedRectangle min.
+        clippedRectangle min y until: clippedRectangle max y do: {:(Int32)y :: Void |
+            let destPixel mutable := destRow.
+            clippedRectangle min x until: clippedRectangle max x do: {:(Int32)x :: Void |
+                destPixel storePixelFloat32x4: renderBlock(Int32x2(x, y) castTo: UInt32x2, destPixel loadPixelFloat32x4).
+                destPixel advanceColumn
+            }.
+
+            destRow advanceRow
+        }
+    }.
+
+    const inline method blendVerticalSegmentStart: (startPoint: Int32x2) end: (endPoint: Int32x2) pixelsWith: (renderBlock: Float32BlendRenderBlockType) ::=> Void := {
+        let w := extent x castTo: Int32.
+        0 <= startPoint x && startPoint x < w ifFalse: {
+            return: void
+        }.
+
+        let x := startPoint x.
+        let dy := startPoint y <= endPoint y ifTrue: 1 ifFalse: -1.
+        let y mutable := startPoint y max: 0.
+        let destPixel mutable := self makeUnsafePixelIteratorAt: Int32x2(x, y).
+        let h := extent y castTo: Int32.
+        while: y ~= endPoint y do: {
+            0 <= y && y < h ifTrue: {
+                destPixel storePixelFloat32x4: renderBlock(Int32x2(x, y) castTo: UInt32x2, destPixel loadPixelFloat32x4).
+            }.
+            destPixel advanceRows: dy.
+            y := y + dy
+        }.
+    }.
+
+    const inline method blendHorizontalSegmentStart: (startPoint: Int32x2) end: (endPoint: Int32x2) pixelsWith: (renderBlock: Float32BlendRenderBlockType) ::=> Void := {
+        let h := extent x castTo: Int32.
+        0 <= startPoint y && startPoint y < h ifFalse: {
+            return: void
+        }.
+
+        let y := startPoint y.
+        let dx := startPoint x <= endPoint x ifTrue: 1 ifFalse: -1.
+        let x mutable := startPoint x max: 0.
+        let destPixel mutable := self makeUnsafePixelIteratorAt: Int32x2(x, y).
+        let w := extent x castTo: Int32.
+        while: x ~= endPoint x do: {
+            0 <= x && x < w ifTrue: {
+                destPixel storePixelFloat32x4: renderBlock(Int32x2(x, y) castTo: UInt32x2, destPixel loadPixelFloat32x4).
+            }.
+            destPixel advanceColumns: dx.
+            x := x + dx
+        }.
+    }.
+
+    const inline method blendSegmentStart: (startPoint: Int32x2) end: (endPoint: Int32x2) pixelsWith: (renderBlock: Float32BlendRenderBlockType) ::=> Void := {
+        ## Vertical line
+        startPoint x == endPoint x ifTrue: {
+            self blendVerticalSegmentStart: startPoint end: endPoint pixelsWith: renderBlock.
+            return: void
+        }.
+
+        ## Horizontal line
+        startPoint y == endPoint y ifTrue: {
+            self blendHorizontalSegmentStart: startPoint end: endPoint pixelsWith: renderBlock.
+            return: void
+        }.
+
+        ## TODO: Add proper clipping support for the segment.
+        ## Bresenham algorithm from: https://en.wikipedia.org/wiki/Bresenham%27s_line_algorithm [April 2th, 2020]
+        let delta := endPoint - startPoint.
+        let d := Int32x2(delta x abs, delta y abs negated).
+        let step := delta sign.
+
+        let currentPoint mutable := startPoint.
+        let currentError mutable := d x + d y.
+        let destPixel mutable := self makeUnsafePixelIteratorAt: currentPoint.
+        let myBounds := self bounds.
+        while: currentPoint x ~= endPoint x || currentPoint y ~= endPoint y do: {
+            (myBounds includesPoint: currentPoint) ifTrue: {
+                destPixel storePixelFloat32x4: renderBlock(currentPoint castTo: UInt32x2, destPixel loadPixelFloat32x4).
+            }.
+
+            let e2 := currentError * 2.
+            e2 >= d y ifTrue: {
+                currentError := currentError + d y.
+                currentPoint := Int32x2(currentPoint x + step x, currentPoint y).
+                destPixel advanceColumns: step x.
+            }.
+            e2 <= d x ifTrue: {
+                currentError := currentError + d x.
+                currentPoint := Int32x2(currentPoint x, currentPoint y + step y).
+                destPixel advanceRows: step y.
+            }.
+        }.
+    }.
+
+    const inline method blendSegmentStart: (startPoint: Float32x2) end: (endPoint: Float32x2) pixelsWith: (renderBlock: Float32BlendRenderBlockType) ::=> Void := {
+        self blendSegmentStart: (startPoint floor castTo: Int32x2) end: (endPoint castTo: Int32x2) pixelsWith: renderBlock
+    }.
+
+    const inline method blendTriangle: (p1: Float32x2) p2: (p2: Float32x2) p3: (p3: Float32x2) pixelsWith: (renderBlock: Float32BlendTriangleBlockType) ::=> Void := {
+        let rectangle := RectangleF32 min: (p1 min: (p2 min: p3))
+            max: (p1 max: (p2 max: p3)).
+
+        let clippedRectangle := rectangle intersectionWith: (RectangleF32 extent: (extent castTo: Float32x2)).
+        clippedRectangle isEmpty ifTrue: {
+            return: void
+        }.
+
+        let triangleArea := p2 - p1 cross: p3 - p1.
+        triangleArea = 0.0f ifTrue: {
+            return: void
+        }.
+
+        let den := 1.0f / triangleArea.
+
+        ## FIXME: optimize properly this rendering loop.
+
+        let fractionalOffset := clippedRectangle min fract.
+        let clippedRectangleI := RectangleI32 min: (clippedRectangle min floor castTo: Int32x2) max: (clippedRectangle max floor castTo: Int32x2).
+        let destRow mutable := self makeUnsafePixelIteratorAt: clippedRectangleI min.
+        clippedRectangleI min y until: clippedRectangleI max y do: {:(Int32)y :: Void |
+            let destPixel mutable := destRow.
+            clippedRectangleI min x until: clippedRectangleI max x do: {:(Int32)x :: Void |
+                let p := Float32x2(x, y).## + fractionalOffset.
+
+                let w3 := (p2 - p1 cross: p - p1)*den.
+                let w1 := (p3 - p2 cross: p - p2)*den.
+                let w2 := (p1 - p3 cross: p - p3)*den.
+                let barycentricCoordinates := Float32x3(w1, w2, w3).
+
+                w1 >= 0 && w2 >= 0 && w3 >= 0 ifTrue: {
+                    destPixel storePixelFloat32x4: renderBlock(p, Float32x3(w1, w2, w3), destPixel loadPixelFloat32x4).
+                }.
                 destPixel advanceColumn
             }.
 
@@ -228,7 +384,7 @@ class Blitter definition: {
     }.
 
     const inline method blendPixelsFrom: (sourceBlitter: Blitter const ref) at: (sourceRectangleMin: Int32x2) to: (sourceRectangleMax: Int32x2)
-        at: (destinationPosition: Int32x2) with: (blendFunction: Float32BlendRenderBlockType)::=> Void := {
+        at: (destinationPosition: Int32x2) with: (blendFunction: Float32BlendCopyBlockType)::=> Void := {
 
         ## Clip the source rectangle.
         let clippedSourceRectangleMin := sourceRectangleMin max: Int32x2(0, 0).
@@ -274,7 +430,7 @@ class Blitter definition: {
         }
     }.
 
-    const inline method blendPixelsFrom: (sourceBlitter: Blitter const ref) at: (targetPosition: Int32x2) with: (blendFunction: Float32BlendRenderBlockType) ::=> Void := {
+    const inline method blendPixelsFrom: (sourceBlitter: Blitter const ref) at: (targetPosition: Int32x2) with: (blendFunction: Float32BlendCopyBlockType) ::=> Void := {
         self blendPixelsFrom: sourceBlitter at: Int32x2(0, 0) to: (sourceBlitter extent castTo: Int32x2)
             at: targetPosition with: blendFunction.
     }.

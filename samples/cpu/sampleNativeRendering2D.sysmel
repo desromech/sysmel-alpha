@@ -1,5 +1,6 @@
 useNamespace: Stdn Graphics Core.
 useNamespace: Stdn Graphics GUI.
+useNamespace: Stdn Math Geometry.
 
 let mainWindow mutable type: Window sharedPointer.
 let mainDrawingSurface mutable type: Surface sharedPointer.
@@ -16,6 +17,17 @@ class MainWindowEventHandler superclass: EventHandler; definition: {
         canvas _
             color: Float32x4(0.4f, 0.4f, 0.4f, 1.0f);
             clear;
+
+            color: Float32x4(0.8f, 0.2f, 0.2f, 1.0f);
+            fillRectangle: (RectangleF32 min: Float32x2(-25.0f, 5.0f) extent: Float32x2(200.0f, 100.0f));
+
+            black;
+            drawRectangle: (RectangleF32 min: Float32x2(-25.0f, 5.0f) extent: Float32x2(200.0f, 100.0f));
+
+            white;
+            fillTriangle: Float32x2(40.0f, 300.0f) color: Float32x4(1.0f, 0.0f, 0.0f, 1.0)
+                p2: Float32x2(440.0f, 300.0f) color: Float32x4(0.0f, 1.0f, 0.0f, 1.0)
+                p3: Float32x2(240.0f, 50.0f) color: Float32x4(0.0f, 0.0f, 1.0f, 1.0);
 
             fontFaceWithSize: fontFaceWithSize;
             color: Float32x4(0.0f, (time *5.0f) cos*0.5f + 0.5f, 1.0f, 1.0f);

@@ -13,8 +13,10 @@ class CPUCanvas superclass: Canvas; definition: {
     protected field targetSurface type: CPUSurface pointer.
     protected field currentColor type: Float32x4.
     protected field currentFontFaceWithSize type: FontFaceWithSize sharedPointer.
+    protected field blendingMode type: BlendingMode.
 
     method initializeWithSurface: (theTargetSurface: CPUSurface pointer) ::=> Void := {
+        blendingMode := BlendingMode AlphaOver.
         targetSurface := theTargetSurface.
     }.
 
@@ -37,13 +39,32 @@ class CPUCanvas superclass: Canvas; definition: {
         currentColor := linearColor.
     }.
 
-    override method fillTriangle: (p1: Float32x2) tc: (tc1: Float32x2)
-        p2: (p2: Float32x2) tc: (tc2: Float32x2)
-        p3: (p3: Float32x2) tc: (tc: Float32x2) ::=> Void := {
+    override method fillTriangle: (p1: Float32x2) color: (c1: Float32x4) tc: (tc1: Float32x2)
+        p2: (p2: Float32x2) color: (c2: Float32x4) tc: (tc2: Float32x2)
+        p3: (p3: Float32x2) color: (c3: Float32x4) tc: (tc3: Float32x2) ::=> Void := {
+
+        targetSurface _ pixelsBlitter
+            blendTriangle: p1 p2: p2 p3: p3 pixelsWith: {:(Float32x2)p :(Float32x3)barycentricCoordinates :(Float32x4)originalDestPixelValue :: Float32x4 |
+            let interpolatedColor := c1*barycentricCoordinates x + c2*barycentricCoordinates y + c3*barycentricCoordinates z.
+            interpolatedColor * currentColor
+        }
     }.
 
     override method fillRectangle: (rectangle: RectangleF32) ::=> Void := {
-        ## TODO: Support rotations.
+        let convertedRectangle := RectangleI32 min: (rectangle min floor castTo: Int32x2) max: (rectangle max floor castTo: Int32x2).
+
+        targetSurface _ pixelsBlitter
+            blendRectangle: convertedRectangle pixelsWith: {:(UInt32x2)destPixelCoordinate :(Float32x4)originalDestPixelValue :: Float32x4 |
+            currentColor
+        }
+    }.
+
+    ## Draw the rectangle lines.
+    override method drawSegmentStart: (startPoint: Float32x2) end: (endPoint: Float32x2) ::=> Void := {
+        targetSurface _ pixelsBlitter
+            blendSegmentStart: (startPoint floor castTo: Int32x2) end: (endPoint floor castTo: Int32x2) pixelsWith: {:(UInt32x2)destPixelCoordinate :(Float32x4)originalDestPixelValue :: Float32x4 |
+            currentColor
+        }
     }.
 
     override method copyTexture: (textureView: TextureView sharedPointer const ref) at: (targetPosition: Float32x2) ::=> Void := {

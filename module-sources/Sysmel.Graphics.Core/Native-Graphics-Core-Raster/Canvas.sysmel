@@ -44,15 +44,26 @@ class Canvas superclass: Object; definition: {
     }.
 
     ## Fill a triangle.
-    virtual method fillTriangle: (p1: Float32x2) tc: (tc1: Float32x2)
-        p2: (p2: Float32x2) tc: (tc2: Float32x2)
-        p3: (p3: Float32x2) tc: (tc: Float32x2) ::=> Void := {
+    virtual method fillTriangle: (p1: Float32x2) color: (c1: Float32x4) tc: (tc1: Float32x2)
+        p2: (p2: Float32x2) color: (c2: Float32x4) tc: (tc2: Float32x2)
+        p3: (p3: Float32x2) color: (c3: Float32x4) tc: (tc3: Float32x2) ::=> Void := {
+    }.
+
+    inline method fillTriangle: (p1: Float32x2) color: (c1: Float32x4) p2: (p2: Float32x2) color: (c2: Float32x4) p3: (p3: Float32x2) color: (c3: Float32x4)::=> Void := {
+        self fillTriangle: p1 color: c1 tc: Float32x2 zeros
+            p2: p2 color: c2 tc: Float32x2 zeros
+            p3: p3 color: c3 tc: Float32x2 zeros
     }.
 
     inline method fillTriangle: (p1: Float32x2) p2: (p2: Float32x2) p3: (p3: Float32x2) ::=> Void := {
-        self fillTriangle: p1 tc: Float32x2 zeros
-            p2: p2 tc: Float32x2 zeros
-            p3: p3 tc: Float32x2 zeros
+        self fillTriangle: p1 color: Float32x4 ones tc: Float32x2 zeros
+            p2: p2 color: Float32x4 ones tc: Float32x2 zeros
+            p3: p3 color: Float32x4 ones tc: Float32x2 zeros
+    }.
+
+    ## Draw the rectangle lines.
+    virtual method drawSegmentStart: (startPoint: Float32x2) end: (endPoint: Float32x2) ::=> Void := {
+
     }.
 
     ## Fill a rectangle.
@@ -62,7 +73,11 @@ class Canvas superclass: Object; definition: {
 
     ## Draw the rectangle lines.
     virtual method drawRectangle: (rectangle: RectangleF32) ::=> Void := {
-
+        self
+            drawSegmentStart: rectangle bottomLeft end: rectangle bottomRight;
+            drawSegmentStart: rectangle bottomRight end: rectangle topRight;
+            drawSegmentStart: rectangle topRight end: rectangle topLeft;
+            drawSegmentStart: rectangle topLeft end: rectangle bottomLeft.
     }.
 
     ## Copy the pixels of a texture without any transformation.
