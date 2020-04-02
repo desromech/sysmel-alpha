@@ -40,12 +40,14 @@ MbndFieldGetterAccessorMacro >> expandMessageNode: node with: analyzer [
 	receiverType := node receiver type withoutTopDecorations.
 	receiverType isReferenceLikeValueType ifTrue: [
 		^ analyzer visitNode: (MbndAstGetFieldReferenceNode new
+			position: node;
 			aggregate: node receiver;
 			field: field;
 			yourself)
 	].
 	
 	^ analyzer visitNode: (MbndAstGetFieldValueNode new
+		position: node;
 		aggregate: node receiver;
 		field: field;
 		yourself)

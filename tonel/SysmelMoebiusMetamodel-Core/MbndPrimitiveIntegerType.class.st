@@ -49,7 +49,14 @@ MbndPrimitiveIntegerType >> addArithmeticIntrinsicsToVectorOrScalarType: vectorO
 			];
 			addBuiltIn: #max: intrinsicNamed: 'math.smax' argumentTypes: {vectorOrScalarType} returnType: vectorOrScalarType evaluatedWith: [:receiver :arguments :evaluator :node |
 				self halt.
-			].
+			];
+			addBuiltIn: #abs intrinsicNamed: 'math.sabs' argumentTypes: #() returnType: vectorOrScalarType evaluatedWith: [:receiver :arguments :evaluator :node |
+				self halt.
+			];
+			addBuiltIn: #sign intrinsicNamed: 'math.ssign' argumentTypes: #() returnType: vectorOrScalarType evaluatedWith: [:receiver :arguments :evaluator :node |
+				self halt.
+			]
+
 	] ifFalse: [ 
 		vectorOrScalarType
 			addBuiltIn: #min: intrinsicNamed: 'math.umin' argumentTypes: {vectorOrScalarType} returnType: vectorOrScalarType evaluatedWith: [:receiver :arguments :evaluator :node |

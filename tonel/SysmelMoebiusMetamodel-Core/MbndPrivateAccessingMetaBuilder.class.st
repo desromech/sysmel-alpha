@@ -34,12 +34,14 @@ MbndPrivateAccessingMetaBuilder >> analyzeField: field getter: node with: analyz
 	receiverType := aggregateNode type withoutTopDecorations.
 	receiverType isReferenceLikeValueType ifTrue: [
 		^ analyzer visitNode: (MbndAstGetFieldReferenceNode new
+			position: node;
 			aggregate: aggregateNode;
 			field: field;
 			yourself)
 	].
 	
 	^ analyzer visitNode: (MbndAstGetFieldValueNode new
+		position: node;
 		aggregate: aggregateNode;
 		field: field;
 		yourself)

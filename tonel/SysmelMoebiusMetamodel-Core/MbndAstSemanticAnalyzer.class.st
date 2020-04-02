@@ -355,7 +355,7 @@ MbndAstSemanticAnalyzer >> ensureValue: valueNode isVectorOrScalarOfType: requir
 	self flag: 'TODO: Support implicit casting of vectors.'.
 	cleanValueType isPrimitiveVectorType ifTrue: [
 		cleanValueType elementType ~~ requiredElementType ifTrue: [ 
-			self error: 'Expected a scalar or vector whose elements are of type {1} instead of a value of type {2}.' format: { requiredElementType asString . cleanValueType asString }.
+			self error: 'Expected a scalar or vector whose elements are of type {1} instead of a value of type {2}.' format: { requiredElementType asString . cleanValueType asString } at: valueNode.
 		].
 		^ self addImplicitCastFor: valueNode to: cleanValueType
 	] ifFalse: [

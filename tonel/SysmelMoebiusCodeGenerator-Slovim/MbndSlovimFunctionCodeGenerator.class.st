@@ -1286,15 +1286,15 @@ MbndSlovimFunctionCodeGenerator >> generateVectorCross2DIntrinsic: node [
 	vectorType := leftVector type. 
 	self assert: vectorType elements = 2.
 	
-	leftOperand := slvmBuilder shuffleVector: leftVector with: rightVector components: #(0 3).
-	rightOperand := slvmBuilder shuffleVector: leftVector with: rightVector components: #(2 1).
+	leftOperand := slvmBuilder shuffleVector: leftVector with: rightVector components: #(0 2).
+	rightOperand := slvmBuilder shuffleVector: leftVector with: rightVector components: #(3 1).
 	multiplication := slvmBuilder vectorMul: leftOperand with: rightOperand.
 	leftProduct := slvmBuilder extractVector: multiplication element: (slvmBuilder constInt: 0).
 	rightProduct := slvmBuilder extractVector: multiplication element: (slvmBuilder constInt: 1).
 	^ vectorType baseType isFloatType ifTrue: [ 
-		slvmBuilder fadd: leftProduct with: rightProduct
+		slvmBuilder fsub: leftProduct with: rightProduct
 	] ifFalse: [ 
-		slvmBuilder add: leftProduct with: rightProduct
+		slvmBuilder sub: leftProduct with: rightProduct
 	]
 ]
 
