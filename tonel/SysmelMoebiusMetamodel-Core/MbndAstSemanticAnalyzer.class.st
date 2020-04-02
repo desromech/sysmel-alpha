@@ -1960,7 +1960,7 @@ MbndAstSemanticAnalyzer >> visitPointerElementReferenceNode: node [
 
 { #category : #visiting }
 MbndAstSemanticAnalyzer >> visitProgramEntityExtensionNode: node [
-	| programEntity |
+	| programEntity definitionScope |
 	programEntity := node programEntity.
 	programEntity isMbndAstNode ifTrue: [ 
 		programEntity := (self evaluateCompileTimeExpression: programEntity) unwrapMbndValue.
@@ -1975,9 +1975,12 @@ MbndAstSemanticAnalyzer >> visitProgramEntityExtensionNode: node [
 	].
 
 	programEntity markAsDefined.
-	self withScope: ((programEntity programEntityScope parent: scope) newLexicalScopeAt: node) do: [ 
-		self evaluateCompileTimeExpression: node body
-	].
+	definitionScope := (programEntity programEntityScope parent: scope) newLexicalScopeAt: node.
+	programEntity addPendingDefinitionFragment: (MbndPendingDefinitionBody new
+			module: module;
+			node: node body;
+			scope: definitionScope;
+			yourself).
 
 	^ self astBuilder literalVoid
 ]
@@ -2414,14 +2417,13 @@ MbndAstSemanticAnalyzer >> visitTypeDefinitionNode: node ofKind: typeKindClass [
 	definitionScope := ((result binding programEntityScope parent: scope) newLexicalScopeAt: result).
 	
 	"Analyze the definition body."
-	result body ifNotNil: [ 
-		self withScope: definitionScope do: [ 
-			result body: (self evaluateCompileTimeExpression: result body)
-		].
+	result body ifNotNil: [
+		result binding addPendingDefinitionFragment: (MbndPendingDefinitionBody new
+			module: module;
+			node: result body;
+			scope: definitionScope;
+			yourself).
 	].
-
-	"Enqueue the result semantic analysis."
-	result binding enqueueDelayedSemanticAnalysis.
 	
 	"Pass through the declaration result."
 	result type: result declaration type.

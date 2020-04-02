@@ -30,19 +30,6 @@ TMbndType >> addImplicitConversionRule: conversionRule [
 
 ]
 
-{ #category : #'as yet unclassified' }
-TMbndType >> analyzeExpandedMessageNode: node with: analyzer [
-	| method |
-	method := self lookupOverloadedSelector: node selector value.
-	method ifNotNil: [
-		^ method analyzeExpandedMessageSendNode: node with: analyzer
-	].
-	
-	"We failed to find the method, then ask the receiver type to interpret this message."
-	^ self analyzeUnboundExpandedMessageSendNode: node with: analyzer
-
-]
-
 { #category : #'semantic analysis' }
 TMbndType >> analyzeInitializationFromCopyNode: node with: analyzer [
 	self hasTrivialInitializationCopyingFrom ifTrue: [
@@ -61,6 +48,19 @@ TMbndType >> createMacroMethodEntityForPrototype: prototype defineInModule: modu
 { #category : #accessing }
 TMbndType >> definitionModule: aModule [
 	definitionModule := aModule
+]
+
+{ #category : #'as yet unclassified' }
+TMbndType >> evaluatePendingDefinitionFragmentsForMacroSelector: aSelector [
+	(self macroMethodDict includesKey: aSelector) ifTrue: [ ^ self ]. 
+	self evaluatePendingDefinitionFragmentsForOverloadedSelector: aSelector
+
+]
+
+{ #category : #'as yet unclassified' }
+TMbndType >> evaluatePendingDefinitionFragmentsForOverloadedSelector: aSelector [
+	(self overloadedMethodDict includesKey: aSelector) ifTrue: [ ^ self ].
+	self evaluateAllPendingDefinitionFragments
 ]
 
 { #category : #accessing }
@@ -95,7 +95,8 @@ TMbndType >> isTrait [
 { #category : #'as yet unclassified' }
 TMbndType >> lookupMacroSelector: aSelector [
 	| macro |
-	macro := self macroMethodDict at: aSelector ifAbsent: [ nil ]..
+	self evaluatePendingDefinitionFragmentsForMacroSelector: aSelector.
+	macro := self macroMethodDict at: aSelector ifAbsent: [ nil ].
 	macro ifNotNil: [ ^ macro ].
 	^ self supertype ifNotNil: [ :st | st lookupMacroSelector: aSelector ]
 ]

@@ -14,19 +14,6 @@ TMbndBasicType >> addStaticAccessor: accessor for: selector [
 	self type macroMethodDict at: selector put: accessor
 ]
 
-{ #category : #'as yet unclassified' }
-TMbndBasicType >> analyzeExpandedMessageNode: node with: analyzer [
-	| method |
-	method := self lookupOverloadedSelector: node selector value.
-	method ifNotNil: [
-		^ method analyzeExpandedMessageSendNode: node with: analyzer
-	].
-	
-	"We failed to find the method, then ask the receiver type to interpret this message."
-	^ self analyzeUnboundExpandedMessageSendNode: node with: analyzer
-
-]
-
 { #category : #'semantic analysis' }
 TMbndBasicType >> analyzeInitializationFromCopyNode: node with: analyzer [
 	self hasTrivialInitializationCopyingFrom ifTrue: [
@@ -88,6 +75,8 @@ TMbndBasicType >> lookupLocalOverloadedSelector: aSelector [
 { #category : #'macro expansion' }
 TMbndBasicType >> lookupOverloadedSelector: aSelector [
 	| method |
+	self evaluatePendingDefinitionFragmentsForOverloadedSelector: aSelector.
+	
 	(#(basicInitialize initialize initializeCopyingFrom: initializeMovingFrom: finalize) includes: aSelector) ifTrue: [
 		self ensureSyntheticMethodExists: aSelector
 	].
@@ -99,7 +88,10 @@ TMbndBasicType >> lookupOverloadedSelector: aSelector [
 { #category : #'macro expansion' }
 TMbndBasicType >> lookupSelector: aSelector [
 	| method |
-	method := self methodDict at: aSelector ifAbsent: [ nil ].
+	method := self methodDict at: aSelector ifAbsent: [
+		self evaluateAllPendingDefinitionFragments.
+		self methodDict at: aSelector ifAbsent: [ nil ]
+	].
 	method ifNotNil: [ ^ method ].
 	^ self supertype ifNotNil: [ :st | st lookupSelector: aSelector ]
 ]

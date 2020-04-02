@@ -68,6 +68,7 @@ MbndAggregateTypeWithFields >> buildSlotLayout [
 
 { #category : #layout }
 MbndAggregateTypeWithFields >> buildSlotLayoutWith: builder [
+	self evaluateAllPendingDefinitionFragments.
 	builder recordTypeStartLocation: self.
 	self buildSuperTypesSlotLayoutWith: builder.
 	self fields do: [ :field |
@@ -148,6 +149,7 @@ MbndAggregateTypeWithFields >> ensureGeneratedMethodsExist [
 
 { #category : #'semantic analysis' }
 MbndAggregateTypeWithFields >> ensureSemanticAnalysis [
+	self evaluateAllPendingDefinitionFragments.
 	self isDefined ifTrue: [ 
 		"self ensureSlotLayoutIsComputed."
 		self slotLayout.

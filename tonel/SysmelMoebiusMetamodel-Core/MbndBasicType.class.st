@@ -9,7 +9,8 @@ Class {
 	#instVars : [
 		'name',
 		'parent',
-		'children'
+		'children',
+		'pendingDefinitionFragments'
 	],
 	#classVars : [
 		'PerformMessageSelectors'
@@ -139,6 +140,16 @@ MbndBasicType >> addMetaTypeMacrosTo: metaType [
 
 ]
 
+{ #category : #adding }
+MbndBasicType >> addPendingDefinitionFragment: pendingDefinitionFragment [
+	(self isCoreBasicType or: [ self isMetaType and: [ self instanceType isNotNil and: [self instanceType isCoreBasicType] ] ]) ifTrue: [ 
+		pendingDefinitionFragment evaluate
+	] ifFalse: [
+		self pendingDefinitionFragments add: pendingDefinitionFragment.
+		self enqueueDelayedSemanticAnalysis
+	].
+]
+
 { #category : #'as yet unclassified' }
 MbndBasicType >> analyzeExpandedMessageNode: node with: analyzer [
 	| method |
@@ -227,6 +238,7 @@ MbndBasicType >> enqueueDelayedSemanticAnalysis [
 
 { #category : #'semantic analysis' }
 MbndBasicType >> ensureSemanticAnalysis [
+	self evaluateAllPendingDefinitionFragments.
 	self isMetaType ifFalse: [
 		self type ensureSemanticAnalysis
 	].
@@ -243,6 +255,19 @@ MbndBasicType >> ensureSyntheticMethodExists: aSelector [
 	aSelector = #initializeMovingFrom: ifTrue: [^ self initializeMovingFromMethod ].
 	aSelector = #finalize ifTrue: [^ self finalizeMethod ].
 	^ nil
+]
+
+{ #category : #'as yet unclassified' }
+MbndBasicType >> evaluateAllPendingDefinitionFragments [
+	| toEvaluate |
+	self isMetaType ifTrue: [ 
+		self instanceType ifNotNil: [:it | it evaluateAllPendingDefinitionFragments ]
+	].
+
+	(pendingDefinitionFragments isNil or: [pendingDefinitionFragments isEmpty]) ifTrue: [ ^ self ].
+	toEvaluate := pendingDefinitionFragments asArray.
+	pendingDefinitionFragments removeAll.
+	toEvaluate do: [ :each | each evaluate ]
 ]
 
 { #category : #'as yet unclassified' }
@@ -390,6 +415,11 @@ MbndBasicType >> parent [
 { #category : #accessing }
 MbndBasicType >> parent: aParent [
 	parent := aParent
+]
+
+{ #category : #accessing }
+MbndBasicType >> pendingDefinitionFragments [
+	^ pendingDefinitionFragments ifNil: [ pendingDefinitionFragments := OrderedCollection new ]
 ]
 
 { #category : #accessing }

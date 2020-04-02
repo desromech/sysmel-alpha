@@ -159,7 +159,7 @@ MbndPrimitiveMatrixType >> columns: anObject [
 MbndPrimitiveMatrixType >> defaultValueAt: aPosition [
 	| defaultElementValue |
 	defaultElementValue := self columnType defaultValueAt: aPosition.
-	^ MbndAggregateTypeInstanceValue new
+	^ MbndMatrixTypeInstanceValue new
 		type: self;
 		slots: ((1 to: columns) collect: [:i | defaultElementValue copy]);
 		yourself

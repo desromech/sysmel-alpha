@@ -38,12 +38,18 @@ TMbndMethodContainer >> ensureLookupMethodDictIsBuilt [
 
 { #category : #methods }
 TMbndMethodContainer >> lookupLocalOverloadedSelector: aSelector [
-	^ self overloadedMethodDict at: aSelector ifAbsent: [ nil ].
+	^ self overloadedMethodDict at: aSelector ifAbsent: [
+		self evaluateAllPendingDefinitionFragments.
+		self overloadedMethodDict at: aSelector ifAbsent: [nil]
+	].
 ]
 
 { #category : #methods }
 TMbndMethodContainer >> lookupLocalSelector: aSelector [
-	^ self methodDict at: aSelector ifAbsent: [ nil ].
+	^ self methodDict at: aSelector ifAbsent: [ 
+		self evaluateAllPendingDefinitionFragments.
+		self methodDict at: aSelector ifAbsent: [ nil ]
+	].
 ]
 
 { #category : #methods }
@@ -55,7 +61,7 @@ TMbndMethodContainer >> lookupOverloadedSelector: aSelector [
 TMbndMethodContainer >> lookupOverloadedSelector: selector withBoundType: expectedBoundType [
 	| methodOrMethodGroup methods |
 	methodOrMethodGroup := self lookupOverloadedSelector: selector.
-	methodOrMethodGroup ifNil: [ ^ nil ].
+	methodOrMethodGroup ifNil: [^ nil ].
 	
 	methods := methodOrMethodGroup isMethodGroup
 		ifTrue: [ methodOrMethodGroup overloadedEntities ]

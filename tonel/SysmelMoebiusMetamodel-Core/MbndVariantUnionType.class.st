@@ -48,6 +48,7 @@ MbndVariantUnionType >> isVariantUnionType [
 
 { #category : #printing }
 MbndVariantUnionType >> printOn: aStream [
+	name ifNotNil: [ ^ super printOn: aStream ].
 	aStream nextPut: $(.
 	components doWithIndex: [ :each :index|
 		index > 1 ifTrue: [ aStream nextPutAll: ' | ' ].

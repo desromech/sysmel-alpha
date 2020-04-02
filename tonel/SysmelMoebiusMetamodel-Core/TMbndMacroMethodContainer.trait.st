@@ -29,14 +29,17 @@ TMbndMacroMethodContainer >> addStaticAccessor: accessor for: selector [
 
 { #category : #'macro expansion' }
 TMbndMacroMethodContainer >> lookupLocalMacroSelector: aSelector [
+	(macroMethodDict isNil or: [ (macroMethodDict includesKey: aSelector) not ]) ifTrue: [ 
+		self evaluateAllPendingDefinitionFragments.
+	].
+
 	macroMethodDict ifNil: [ ^ nil ].
 	^ self macroMethodDict at: aSelector ifAbsent: [ nil ].
 ]
 
 { #category : #'macro expansion' }
 TMbndMacroMethodContainer >> lookupMacroSelector: aSelector [
-	macroMethodDict ifNil: [ ^ nil ].
-	^ self macroMethodDict at: aSelector ifAbsent: [ nil ].
+	^ self lookupLocalMacroSelector: aSelector
 ]
 
 { #category : #accessing }

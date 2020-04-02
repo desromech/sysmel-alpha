@@ -922,6 +922,11 @@ MbndAstNode >> sourceTextPosition [
 	^ position sourceTextPosition
 ]
 
+{ #category : #'as yet unclassified' }
+MbndAstNode >> storageDestinationForRecursion [
+	^ nil
+]
+
 { #category : #accessing }
 MbndAstNode >> type [
 	^ type

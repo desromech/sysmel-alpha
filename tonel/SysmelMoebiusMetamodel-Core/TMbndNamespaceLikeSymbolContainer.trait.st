@@ -28,6 +28,7 @@ TMbndNamespaceLikeSymbolContainer >> lookupMacroSelector: aSelector [
 
 { #category : #methods }
 TMbndNamespaceLikeSymbolContainer >> lookupOverloadedSelector: aSelector [
+	self evaluateAllPendingDefinitionFragments.
 	(self lookupLocalOverloadedSelector: aSelector) ifNotNil: [ :found | ^ found ].
 	self usedNamespaces do: [ :namespace |
 		(namespace lookupOverloadedSelector: aSelector) ifNotNil: [ :found | ^ found ].

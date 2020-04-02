@@ -21,6 +21,11 @@ TMbndAbstractProgramEntity >> addLambdaChild: aChild [
 ]
 
 { #category : #adding }
+TMbndAbstractProgramEntity >> addPendingDefinitionFragment: pendingDefinitionFragment [
+	pendingDefinitionFragment evaluate
+]
+
+{ #category : #adding }
 TMbndAbstractProgramEntity >> addPrivateChild: aChild [
 	aChild parent: self
 ]
@@ -58,6 +63,14 @@ TMbndAbstractProgramEntity >> definitionPosition [
 	^ self parent
 		ifNotNil: [ :p | p definitionPosition ]
 		ifNil: [ MbndSourcePosition empty ]
+]
+
+{ #category : #adding }
+TMbndAbstractProgramEntity >> ensurePendingDefinitionBodiesAreEvaluated [
+]
+
+{ #category : #adding }
+TMbndAbstractProgramEntity >> evaluateAllPendingDefinitionFragments [
 ]
 
 { #category : #'as yet unclassified' }

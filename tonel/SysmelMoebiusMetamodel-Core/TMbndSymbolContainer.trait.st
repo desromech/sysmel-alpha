@@ -35,6 +35,9 @@ TMbndSymbolContainer >> localSymbolTableInstanceObject [
 
 { #category : #'member symbols' }
 TMbndSymbolContainer >> lookupLocalSymbol: aSymbol [
+	(localSymbolTable isNil or: [ (localSymbolTable includesKey: aSymbol) not ]) ifTrue: [ 
+		self evaluateAllPendingDefinitionFragments.
+	].
 	localSymbolTable ifNil: [ ^ nil ].
 	^ localSymbolTable at: aSymbol ifAbsent: [ nil ]
 ]

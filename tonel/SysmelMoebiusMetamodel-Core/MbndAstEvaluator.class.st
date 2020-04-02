@@ -523,6 +523,11 @@ MbndAstEvaluator >> visitUnionDefinitionNode: node [
 ]
 
 { #category : #visiting }
+MbndAstEvaluator >> visitUnwrapEnumValueCastNode: node [
+	^ self visitBitCastNode: node
+]
+
+{ #category : #visiting }
 MbndAstEvaluator >> visitVariableReferenceNode: node [
 	self assert: node binding isNotNil.
 	^ node binding asCompileTimeValueReferenceOfType: node type withEvaluator: self at: node
@@ -542,7 +547,7 @@ MbndAstEvaluator >> visitVectorConstructionNode: node [
 		]
 	].
 	self assert: vectorElements size = node type elements.
-	^ MbndAggregateTypeInstanceValue new
+	^ MbndVectorTypeInstanceValue new
 		type: node type;
 		slots: vectorElements asArray;
 		yourself

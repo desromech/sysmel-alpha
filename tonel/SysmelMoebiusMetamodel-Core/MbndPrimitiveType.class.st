@@ -100,3 +100,9 @@ MbndPrimitiveType >> isPrimitiveType [
 MbndPrimitiveType >> literalTypeForValue: value [
 	^ nil
 ]
+
+{ #category : #printing }
+MbndPrimitiveType >> qualifiedName [
+	name ifNotNil: [ ^ name ].
+	^ super qualifiedName
+]

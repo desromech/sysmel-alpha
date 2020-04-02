@@ -40,6 +40,7 @@ MbndAbstractClassType >> addVirtualMethod: aMethod [
 
 { #category : #layout }
 MbndAbstractClassType >> buildSlotLayoutWith: builder [
+	self evaluateAllPendingDefinitionFragments.
 	builder recordTypeStartLocation: self.
 	self buildSuperTypesSlotLayoutWith: builder.
 	(virtualMethods isNotEmpty and: [ self fields isEmpty or: [ fields first isVTablePointerField not ] ]) ifTrue: [

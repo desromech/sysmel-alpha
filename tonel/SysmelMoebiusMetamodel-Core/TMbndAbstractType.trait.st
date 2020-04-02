@@ -1338,6 +1338,12 @@ TMbndAbstractType >> lookupSelector: aSelector [
 TMbndAbstractType >> lookupSpecialSymbol: aSymbol [
 	aSymbol == #SelfType ifTrue: [ ^ self ].
 	aSymbol == #meta ifTrue: [ ^ self meta ].
+	(aSymbol == #self or: [aSymbol == #InstanceType]) ifTrue: [ 
+		self isMetaType ifTrue: [ 
+			self instanceType ifNotNil: [ :instanceType | ^ instanceType ]
+		].
+	].
+
 	self extraMetaBuilderFactories at: aSymbol ifPresent: [ :binding | ^ binding ].
 	^ nil
 ]

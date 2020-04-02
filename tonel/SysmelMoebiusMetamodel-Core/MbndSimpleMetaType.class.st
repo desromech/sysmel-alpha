@@ -69,6 +69,19 @@ MbndSimpleMetaType >> encodeGraphForMessagePackWith: graphEncoder [
 	^ super encodeGraphForMessagePackWith: graphEncoder
 ]
 
+{ #category : #'as yet unclassified' }
+MbndSimpleMetaType >> evaluatePendingDefinitionFragmentsForOverloadedSelector: aSelector [
+	instanceType ifNotNil: [ 
+		(instanceType class lookupSelector: aSelector) ifNotNil: [ :compiledMethod |
+			(compiledMethod hasPragmaNamed: #compileTime) ifTrue: [
+				^ self
+			]
+		]
+	].
+
+	^ super evaluatePendingDefinitionFragmentsForOverloadedSelector: aSelector
+]
+
 { #category : #sizes }
 MbndSimpleMetaType >> instanceAlignment [
 	^ self compilationTarget pointerAlignment

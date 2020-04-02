@@ -64,8 +64,18 @@ MbndAbstractValue >> isAggregateTypeInstanceValue [
 ]
 
 { #category : #testing }
+MbndAbstractValue >> isMatrixTypeInstanceValue [
+	^ false
+]
+
+{ #category : #testing }
 MbndAbstractValue >> isMbndAbstractValue [
 	^ true
+]
+
+{ #category : #testing }
+MbndAbstractValue >> isVectorTypeInstanceValue [
+	^ false
 ]
 
 { #category : #serialization }

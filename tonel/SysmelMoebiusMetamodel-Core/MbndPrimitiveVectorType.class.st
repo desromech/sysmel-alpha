@@ -211,7 +211,7 @@ MbndPrimitiveVectorType >> analyzeUnboundUnexpandedMessageSendNode: node with: a
 MbndPrimitiveVectorType >> defaultValueAt: aPosition [
 	| defaultElementValue |
 	defaultElementValue := (elementType defaultValueAt: aPosition) unwrapMbndValue.
-	^ MbndAggregateTypeInstanceValue new
+	^ MbndVectorTypeInstanceValue new
 		type: self;
 		slots: ((1 to: elements) collect: [:i | defaultElementValue]);
 		yourself
