@@ -138,7 +138,7 @@ template SharedPointer(PT: Type)
 	}.
 
     inline method reset: (newPointer: PointerType) ::=> Void := {
-        counter_ ifNil: {
+        counter_ ifNotNil: {
             counter_ _ strongRelease.
         }.
 

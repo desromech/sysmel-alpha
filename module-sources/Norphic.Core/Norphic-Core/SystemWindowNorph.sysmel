@@ -1,0 +1,90 @@
+namespace Norphic definition: {
+
+useNamespace: Stdn Graphics Core.
+useNamespace: Stdn Graphics GUI.
+useNamespace: Stdn Math Geometry.
+
+#**
+ * I am a root norph that is a wrapper for a window created by a Window system.
+ *#
+class SystemWindowNorph superclass: Norph; definition: {
+    protected field windowSystem type: WindowSystem sharedPointer.
+    protected field window type: Window sharedPointer.
+    protected field drawingSurface type: Surface sharedPointer.
+
+    meta definition: {
+        method createFor: (windowSystem: WindowSystem sharedPointer const ref)
+            title: (theTitle: Stdn String const ref) extent: (theExtent: Int32x2) ::=> InstanceType sharedPointer := {
+
+            let window := windowSystem _ createWindowWithTitle: "Test Norphic" asMutableString extent: Int32x2(640, 480).
+            window ifNil: {
+                return: InstanceType sharedPointer nil
+            }.
+
+            ## Create the drawing surface.
+            let surface := window _ createDefaultDrawingSurface.
+            surface ifNil: {
+                window _ close.
+                return: InstanceType sharedPointer nil
+            }.
+
+            ## Create the system window norph.
+            let result := SystemWindowNorph sharedNew.
+            result _
+                bounds: (RectangleF32 min: Float32x2 zeros extent: (theExtent castTo: Float32x2));
+                initializeWithWindowSystem: windowSystem window: window drawingSurface: surface.
+
+            ## Create the event handler
+            let eventHandler := SystemWindowNorphEventHandler sharedNew.
+            eventHandler _ norph: result getPointer.
+            window _ eventHandler: (eventHandler upCastFor: EventHandler).
+
+            return: result
+        }
+    }.
+
+    inline method initializeWithWindowSystem: (theWindowSystem: WindowSystem sharedPointer const ref)
+        window: (theWindow: Window sharedPointer const ref)
+        drawingSurface: (theDrawingSurface: Surface sharedPointer const ref) ::=> Void := {
+
+        windowSystem := theWindowSystem.
+        window := theWindow.
+        drawingSurface := theDrawingSurface.
+    }.
+
+    method render => Void := {
+        let canvas := drawingSurface _ beginDrawingWithCanvas.
+        canvas ifNil: {return: void}.
+
+        canvas _ color: self color; clear.
+        self renderSubnorphsOn: canvas _
+    }.
+
+    override method destroy => Void := {
+        window ifNotNil: {
+            window _ close.
+        }.
+        window reset.
+        windowSystem reset.
+
+        super destroy.
+    }.
+}.
+
+class SystemWindowNorphEventHandler superclass: EventHandler; definition: {
+    public field norph type: SystemWindowNorph pointer.
+
+    override method onTickEvent: (event: TickEvent ref) ::=> Void := {
+        norph _ render
+    }.
+
+    override method onExposeEvent: (event: ExposeEvent ref) ::=> Void := {
+        norph _ render
+    }.
+
+    override method onWindowCloseRequestEvent: (event: WindowCloseRequestEvent ref) ::=> Void := {
+        norph _ destroy
+    }.
+}.
+
+}. ## End of namespace Norphic

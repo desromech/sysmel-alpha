@@ -1,0 +1,53 @@
+namespace Norphic definition: {
+
+useNamespace: Stdn Graphics Core.
+useNamespace: Stdn Math Geometry.
+
+#**
+ * I am a norph, my name comes from Native (M)orph in honor to the old
+ * Smalltalk morph.
+ *#
+class Norph superclass: Stdn Object; definition: {
+    public field bounds type: RectangleF32.
+    public field color type: Float32x4.
+    public field backgroundColor type: Float32x4.
+
+    ##public field owner type: Norph weakPointer.
+    public field subnorphs type: Stdn Collections Vector(Norph sharedPointer).
+
+    inline method extent => Float32x2
+        := bounds extent.
+
+    inline method localBounds => RectangleF32
+        := RectangleF32 min: Float32x2 zeros extent: self extent.
+
+    override method initialize => Void := {
+
+    }.
+
+    override method finalize => Void := {
+        self destroy
+    }.
+
+    virtual method renderOn: (canvas: Canvas ref) ::=> Void := {
+        canvas
+            color: color;
+            fillRectangle: self localBounds
+    }.
+
+    virtual method renderSubnorphsOn: (canvas: Canvas ref) ::=> Void := {
+    }.
+
+    virtual method fullRenderOn: (canvas: Canvas ref) ::=> Void := {
+        canvas transform translateBy: bounds min.
+        self
+            renderOn: canvas;
+            renderSubnorphsOn: canvas.
+    }.
+
+    virtual method destroy ::=> Void := {
+
+    }.
+}.
+
+}. ## End of namespace Norphic

@@ -1,0 +1,5 @@
+Compiler
+	importModuleNamed: #"Sysmel.Graphics.Core";
+    loadPackages: #(
+        #"Norphic-Core"
+    )

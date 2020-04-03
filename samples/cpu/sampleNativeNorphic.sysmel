@@ -1,0 +1,29 @@
+Compiler
+    importModuleNamed: #"Norphic.Core";
+	importModuleNamed: #"Sysmel.Graphics.SDL2";
+	importModuleNamed: #"Sysmel.Graphics.FreeType2".
+
+useNamespace: Stdn Graphics Core.
+useNamespace: Stdn Graphics GUI.
+useNamespace: Stdn Math Geometry.
+useNamespace: Norphic.
+
+function main externC (argc: Int32, argv: UInt8 const pointer pointer) => Int32 := {
+    let windowSystem mutable := createWindowSystem().
+    windowSystem ifNil: {
+        return: 0
+    }.
+    windowSystem _ targetFrameRate: 20.
+
+    ## Create the main window.
+    let mainWindow := SystemWindowNorph createFor: windowSystem title: "Test Norphic" asMutableString extent: Int32x2(640, 480).
+    mainWindow ifNil: {
+        return: 0.
+    }.
+
+    mainWindow _ color: Float32x4(0.3f, 0.8f, 0.3f, 1.0f).
+    ##windowSystem _ createWindowWithTitle: "Test Norphic" asMutableString extent: Int32x2(640, 480).
+
+    ## Run the actual main loop.
+    return: windowSystem _ runMainLoop.
+}.

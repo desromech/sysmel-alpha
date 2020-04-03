@@ -624,7 +624,7 @@ method createWallMin: (min: Float32x2) max: (max: Float32x2) color: (color: Floa
 
 function main externC (argc: Int32, argv: Char8 const pointer pointer) => Int32 := {
 	## Create the window system.
-	let windowSystem := createSDL2WindowSystem().
+	let windowSystem := createWindowSystem().
 	windowSystem _ targetFrameRate: 60.
 
 	## Create the main window.

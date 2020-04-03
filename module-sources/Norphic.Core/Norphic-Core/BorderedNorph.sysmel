@@ -1,0 +1,20 @@
+namespace Norphic definition: {
+
+useNamespace: Stdn Graphics Core.
+useNamespace: Stdn Math Geometry.
+
+#**
+ * I am a norph with a borderd
+ *#
+class BorderedNorph: Norph; definition: {
+    public field borderColor type: Float32x4.
+
+    virtual method renderOn: (canvas: Canvas ref) ::=> Void := {
+        super renderOn: canvas.
+        canvas
+            color: borderColor;
+            drawRectangle: self localBounds
+    }.
+}.
+
+}. ## End of namespace Norphic
