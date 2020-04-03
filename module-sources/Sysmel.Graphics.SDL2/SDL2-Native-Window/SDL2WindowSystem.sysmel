@@ -68,18 +68,18 @@ class SDL2WindowSystem superclass: WindowSystem; definition: {
         result upCastFor: Window.
     }.
 
-    override method waitAndPumpEvents => Void := {
-        let event mutable type: SDL_Event.
-        while: SDL_WaitEventTimeout(event address, self nextWaitEventTimeout) do: {
-            self pumpSDLEvent: event
-        }.
-    }.
-
     override method pollAndPumpEvents => Void := {
         let event mutable type: SDL_Event.
         while: SDL_PollEvent(event address) do: {
             self pumpSDLEvent: event
         }
+    }.
+
+    override method waitForNextEventOrTimeout => Void := {
+        let event mutable type: SDL_Event.
+        if: SDL_WaitEventTimeout(event address, self nextWaitEventTimeout) then: {
+            self pumpSDLEvent: event
+        }.
     }.
 
     method windowDestroyed: (windowWrapper: SDL2Window pointer) ::=> Void := {
@@ -133,11 +133,31 @@ class SDL2WindowSystem superclass: WindowSystem; definition: {
     method processKeyDown: (event: SDL_KeyboardEvent const ref) ::=> Void := {
         let wrapper mutable := self findWrapperForWindowID: event windowID.
         wrapper ifNil: {return: void}.
+
+        let convertedEvent mutable := KeyPressedEvent newValue
+            symbol: (event keysym sym castTo: KeySymbol);
+            modifiers: (event keysym mod castTo: KeyModifiers);
+            isRepeat: (event repeat ~= 0);
+            yourself.
+
+        lastKeyModifiers := convertedEvent modifiers.
+
+        wrapper _ deliverEvent: convertedEvent.
     }.
 
     method processKeyUp: (event: SDL_KeyboardEvent const ref) ::=> Void := {
         let wrapper mutable := self findWrapperForWindowID: event windowID.
         wrapper ifNil: {return: void}.
+
+        let convertedEvent mutable := KeyReleasedEvent newValue
+            symbol: (event keysym sym castTo: KeySymbol);
+            modifiers: (event keysym mod castTo: KeyModifiers);
+            isRepeat: (event repeat ~= 0);
+            yourself.
+
+        lastKeyModifiers := convertedEvent modifiers.
+
+        wrapper _ deliverEvent: convertedEvent.
     }.
 
     method processTextEditing: (event: SDL_TextEditingEvent const ref) ::=> Void := {

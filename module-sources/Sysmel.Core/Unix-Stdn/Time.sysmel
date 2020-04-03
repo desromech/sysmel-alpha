@@ -13,7 +13,7 @@ namespace Chrono definition: {
     }.
 
     inline function now() => Time
-        := microsecondClockValue()*1000.
+        := microsecondClockValue().
 
     inline function microseconds(time: Time) => Time
         := time * TicksPerMicrosecond.
@@ -29,6 +29,9 @@ namespace Chrono definition: {
             Unix usleep(time castTo: Unix USeconds_T)
         }.
     }.
+
+    inline function ticksToFloatSeconds(ticks: Time) => Float64
+        := (ticks castTo: Float64) / TicksPerSecond.
 
     inline function sleepUntil(time: Time) => Void
         := sleepFor(time - now()).

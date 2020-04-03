@@ -18,6 +18,7 @@ class CPUCanvas superclass: Canvas; definition: {
     method initializeWithSurface: (theTargetSurface: CPUSurface pointer) ::=> Void := {
         blendingMode := BlendingMode AlphaOver.
         targetSurface := theTargetSurface.
+        transform setIdentity.
     }.
 
     override method finalize => Void := {
@@ -43,26 +44,40 @@ class CPUCanvas superclass: Canvas; definition: {
         p2: (p2: Float32x2) color: (c2: Float32x4) tc: (tc2: Float32x2)
         p3: (p3: Float32x2) color: (c3: Float32x4) tc: (tc3: Float32x2) ::=> Void := {
 
+        let tp1 := transform transformPoint: p1.
+        let tp2 := transform transformPoint: p2.
+        let tp3 := transform transformPoint: p3.
+
         targetSurface _ pixelsBlitter
-            blendTriangle: p1 p2: p2 p3: p3 pixelsWith: {:(Float32x2)p :(Float32x3)barycentricCoordinates :(Float32x4)originalDestPixelValue :: Float32x4 |
+            blendTriangle: tp1 p2: tp2 p3: tp3 pixelsWith: {:(Float32x2)p :(Float32x3)barycentricCoordinates :(Float32x4)originalDestPixelValue :: Float32x4 |
             let interpolatedColor := c1*barycentricCoordinates x + c2*barycentricCoordinates y + c3*barycentricCoordinates z.
             interpolatedColor * currentColor
         }
     }.
 
     override method fillRectangle: (rectangle: RectangleF32) ::=> Void := {
-        let convertedRectangle := RectangleI32 min: (rectangle min floor castTo: Int32x2) max: (rectangle max floor castTo: Int32x2).
+        transform isTranslationOnly ifTrue: {
+            let transformedRectangle := rectangle translatedBy: transform translation.
+            let convertedRectangle := RectangleI32 min: (transformedRectangle min floor castTo: Int32x2) max: (transformedRectangle max floor castTo: Int32x2).
 
-        targetSurface _ pixelsBlitter
-            blendRectangle: convertedRectangle pixelsWith: {:(UInt32x2)destPixelCoordinate :(Float32x4)originalDestPixelValue :: Float32x4 |
-            currentColor
-        }
+            targetSurface _ pixelsBlitter
+                blendRectangle: convertedRectangle pixelsWith: {:(UInt32x2)destPixelCoordinate :(Float32x4)originalDestPixelValue :: Float32x4 |
+                currentColor
+            }
+
+        } ifFalse: {
+            self
+                fillTriangle: rectangle bottomLeft p2: rectangle bottomRight p3: rectangle topRight;
+                fillTriangle: rectangle topRight p2: rectangle topLeft p3: rectangle bottomLeft
+        }.
     }.
 
     ## Draw the rectangle lines.
     override method drawSegmentStart: (startPoint: Float32x2) end: (endPoint: Float32x2) ::=> Void := {
+        let transformedStartPoint := transform transformPoint: startPoint.
+        let transformedEndPoint := transform transformPoint: endPoint.
         targetSurface _ pixelsBlitter
-            blendSegmentStart: (startPoint floor castTo: Int32x2) end: (endPoint floor castTo: Int32x2) pixelsWith: {:(UInt32x2)destPixelCoordinate :(Float32x4)originalDestPixelValue :: Float32x4 |
+            blendSegmentStart: (transformedStartPoint floor castTo: Int32x2) end: (transformedEndPoint floor castTo: Int32x2) pixelsWith: {:(UInt32x2)destPixelCoordinate :(Float32x4)originalDestPixelValue :: Float32x4 |
             currentColor
         }
     }.
@@ -107,9 +122,10 @@ class CPUCanvas superclass: Canvas; definition: {
         let form := glyph _ asForm.
         form ifNotNil: {
             let sourceBlitter := form _ makeBlitter.
+            let drawPosition := transform transformPoint: newState currentPosition + glyph _ drawOrigin.
             targetSurface _ pixelsBlitter
                 compositeAlphaBlendPixelsFrom: sourceBlitter withColor: currentColor
-                at: ((newState currentPosition + glyph _ drawOrigin) floor castTo: Int32x2).
+                at: (drawPosition floor castTo: Int32x2).
         }.
 
         newState currentPosition: newState currentPosition + glyph _ horizontalAdvance.

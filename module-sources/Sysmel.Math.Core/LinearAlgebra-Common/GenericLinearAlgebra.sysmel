@@ -1,0 +1,27 @@
+namespace Stdn definition: {
+namespace Math definition: {
+namespace LinearAlgebra definition: {
+
+template GenericLinearAlgebra(ST: Type)
+    := class definition: {
+    compileTimeConstant Scalar := ST.
+    compileTimeConstant Vector2 := ST primitiveVectorWithElements: 2.
+    compileTimeConstant Vector3 := Scalar primitiveVectorWithElements: 3.
+    compileTimeConstant Vector4 := ST primitiveVectorWithElements: 4.
+
+    compileTimeConstant Matrix2x2 := ST primitiveMatrixWithRows: 2 columns: 2.
+    compileTimeConstant Matrix2x3 := ST primitiveMatrixWithRows: 2 columns: 3.
+    compileTimeConstant Matrix3x3 := ST primitiveMatrixWithRows: 3 columns: 3.
+    compileTimeConstant Matrix3x4 := ST primitiveMatrixWithRows: 3 columns: 4.
+    compileTimeConstant Matrix4x4 := ST primitiveMatrixWithRows: 4 columns: 5.
+
+    compileTimeConstant AffineTransform2d := GenericAffineTransform2d(Scalar).
+    compileTimeConstant AffinePostTransform2d := GenericAffinePostTransform2d(Scalar).
+
+
+}.
+
+
+} ## End of namespace LinearAlgebra
+} ## End of namespace Math
+} ## End of namespace Stdn

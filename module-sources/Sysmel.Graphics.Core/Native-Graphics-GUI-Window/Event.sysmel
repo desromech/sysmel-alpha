@@ -14,9 +14,25 @@ class Event definition: {
 }.
 
 #**
- * I am a ticking time notification.
+ * I am a ticking time notification. I am an event that is broadcasted into all
+ * of the windows to give them an opportunity to redraw themselves.
  *#
 class TickEvent superclass: Event; definition: {
+    public field ticks type: Stdn Chrono Time.
+    public field delta type: Stdn Chrono Time.
+    public field deterministicDelta type: Stdn Chrono Time.
+    public field deterministicRemainingDelta type: Stdn Chrono Time.
+    public field deterministicFrameCount type: UInt32.
+
+    inline method seconds => Float64
+        := Stdn Chrono ticksToFloatSeconds(ticks).
+
+    inline method deltaSeconds => Float64
+        := Stdn Chrono ticksToFloatSeconds(delta).
+
+    inline method deterministicDelta => Float64
+        := Stdn Chrono ticksToFloatSeconds(deterministicDelta).
+
     override method acceptEventHandler: (eventHandler: EventHandler ref) ::=> Void
         := eventHandler onTickEvent: self.
 }.
@@ -27,6 +43,7 @@ class TickEvent superclass: Event; definition: {
 class KeyboardEvent superclass: Event; definition: {
     public field symbol type: KeySymbol.
     public field modifiers type: KeyModifiers.
+    public field isRepeat type: Boolean8.
 
 }.
 

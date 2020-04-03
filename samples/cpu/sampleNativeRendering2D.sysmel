@@ -10,13 +10,17 @@ let mainRectangle mutable := RectangleF32 min: Float32x2(-25.0f, 5.0f) extent: F
 let mainRectangleNormalColor := Float32x4(0.8f, 0.2f, 0.2f, 1.0f).
 let mainRectangleHighlightColor := Float32x4(0.2f, 0.8f, 0.8f, 1.0f).
 let mainRectangleColor mutable := mainRectangleNormalColor.
+let currentTime mutable type: Float32.
 
 class MainWindowEventHandler superclass: EventHandler; definition: {
     method render ::=> Void := {
         let canvas := mainDrawingSurface _ beginDrawingWithCanvas.
         canvas ifNil: {return: void}.
 
-        let time := SDL2 SDL_GetTicks() * 0.001f.
+        canvas _ transform
+            setIdentity;
+            rotateByRadians: currentTime negated;
+            translateBy: Float32x2(currentTime cos *100.0f, currentTime sin *100.0f).
 
         canvas _
             color: Float32x4(0.4f, 0.4f, 0.4f, 1.0f);
@@ -34,7 +38,7 @@ class MainWindowEventHandler superclass: EventHandler; definition: {
                 p3: Float32x2(240.0f, 50.0f) color: Float32x4(0.0f, 0.0f, 1.0f, 1.0);
 
             fontFaceWithSize: fontFaceWithSize;
-            color: Float32x4(0.0f, (time *5.0f) cos*0.5f + 0.5f, 1.0f, 1.0f);
+            color: Float32x4(0.0f, (currentTime *5.0f) cos*0.5f + 0.5f, 1.0f, 1.0f);
             drawUTF8String: "Hello World" at: Float32x2(80.0f, 128.0f).
     }.
 
@@ -49,6 +53,7 @@ class MainWindowEventHandler superclass: EventHandler; definition: {
     }.
 
     override method onTickEvent: (event: TickEvent ref) ::=> Void := {
+        currentTime := event seconds castTo: Float32.
         self render
     }.
 
@@ -66,6 +71,7 @@ function main externC (argc: Int32, argv: UInt8 const pointer pointer) => Int32 
     windowSystem ifNil: {
         return: 0
     }.
+    windowSystem _ targetFrameRate: 60.
 
     ## Create the main window.
     mainWindow := windowSystem _ createWindowWithTitle: "Test Window" asMutableString extent: Int32x2(640, 480).

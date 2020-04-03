@@ -2,8 +2,10 @@ namespace Stdn definition: {
 namespace Math definition: {
 namespace Geometry definition: {
 
+useNamespace: Stdn Math LinearAlgebra.
+
 template GenericGeometricShape(ST: Type)
-    := class definition: {
+    := class superclass: GenericLinearAlgebra(ST); definition: {
     compileTimeConstant Scalar := ST.
     compileTimeConstant Vector2 := ST primitiveVectorWithElements: 2.
     compileTimeConstant Vector3 := Scalar primitiveVectorWithElements: 3.

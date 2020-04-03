@@ -2,6 +2,7 @@ namespace Stdn definition: {
 namespace Graphics definition: {
 namespace Core definition: {
 
+useNamespace: Stdn Math LinearAlgebra.
 useNamespace: Stdn Math Geometry.
 
 class FontFaceWithSize.
@@ -11,6 +12,8 @@ class FontFaceWithSize.
  * CPU based software rendering, or I could be implemented through a hardware based accelerator.
  *#
 class Canvas superclass: Object; definition: {
+    public field transform type: AffinePostTransform2dF32.
+
     ## This method clears the whole surface with the active color.
     virtual method clear ::=> Void := {
     }.

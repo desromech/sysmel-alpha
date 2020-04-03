@@ -12,9 +12,8 @@ class SoundChannelWithEnvelope.
 
 let Gravity := Float32x2(0.0, -9.8).
 
-global window mutable type: SDL_Window pointer.
-global renderer mutable type: SDL_Renderer pointer.
-global isQuitting mutable := false.
+global mainWindow mutable type: Window sharedPointer.
+global mainDrawingSurface mutable type: Surface sharedPointer.
 
 global audioMutex mutable type: Stdn Mutex.
 global audioDeviceID mutable type: SDL_AudioDeviceID.
@@ -55,8 +54,10 @@ class Entity definition: {
 		## By default do nothing when shot.
 	}.
 
-	virtual method render => Void := {
-		fillRectangle(self boundingBox, self currentColor).
+	virtual method renderOn: (canvas: Canvas ref) ::=> Void := {
+		canvas
+			color: self currentColor;
+			fillRectangle: self boundingBox.
 	}.
 
 	virtual method update: (delta: Float32) ::=> Void := {
@@ -444,54 +445,104 @@ global soundChannels mutable type: (Stdn Collections Vector(SoundChannel pointer
 global player mutable type: Player pointer.
 global viewMatrix mutable type: Float32x2x3.
 
-function onKeyDown(event: SDL_KeyboardEvent ref) => Void := {
-	event keysym sym selectCase: #{
-	Keycode SDLK_ESCAPE : {isQuitting := true.}.
-	Keycode SDLK_a : {player _ moveLeftInput: true}.
-	Keycode SDLK_d : {player _ moveRightInput: true}.
-	Keycode SDLK_w : {player _ jump}.
-	Keycode SDLK_SPACE : {player _ shoot}.
-	Keycode SDLK_LSHIFT : {player _ dash}.
-	}.
-}.
+class MainWindowEventHandler superclass: EventHandler; definition: {
+	method renderEntitiesOn: (canvas: Canvas ref) ::=> Void := {
+		## Compute the view transform
+		{
+			canvas transform
+				setIdentity;
 
-function onKeyUp(event: SDL_KeyboardEvent ref) => Void := {
-	event keysym sym selectCase: #{
-	Keycode SDLK_ESCAPE : {isQuitting := true.}.
-	Keycode SDLK_a : {player _ moveLeftInput: false}.
-	Keycode SDLK_d : {player _ moveRightInput: false}.
-	}.
-}.
+				## Convert into NDC space.
+				scaleBy: Float32x2(320.0f, -240.0f);
+				translateBy: Float32x2(1.0f, -1.0f);
 
-function processEvents() => Void := {
-	let event mutable type: SDL_Event.
+				## Scale the view.
+				scaleBy: 0.2f;
 
-	while: SDL_PollEvent(event address) do: {
-		event type selectCase: #{
-		SDL_EventType SDL_QUIT : { isQuitting := true }.
-		SDL_EventType SDL_KEYDOWN : { onKeyDown(event key) }.
-		SDL_EventType SDL_KEYUP  : { onKeyUp(event key) }.
+				## Set the camera position.
+				translateBy: player _ position negated + Float32x2(-2.0f, -2.0f).
+
 		}.
-	}
-}.
 
-function fillRectangle(worldRectangle: RectangleF32, color: Float32x4) => Void := {
-	let color32 := (color clampMin: 0.0 max: 1.0)*255.0 castTo: UInt8x4.
 
-	let negativeCorner := (viewMatrix * Float32x3(worldRectangle min, 1.0)) floor castTo: Int32x2.
-	let positiveCorner := (viewMatrix * Float32x3(worldRectangle max, 1.0)) floor castTo: Int32x2.
+		## Draw the entities.
+		entities do: {:entity :: Void |
+			entity _ renderOn: canvas.
+		}.
+	}.
 
-	let minCorner := negativeCorner min: positiveCorner.
-	let maxCorner := negativeCorner max: positiveCorner.
-	let extent := maxCorner - minCorner.
+	method drawHealthOn: (canvas: Canvas ref) ::=> Void := {
+		## Red border
+		let fullHealthRect := RectangleF32 min: Float32x2(20, 20) extent: Float32x2(250, 15).
 
-	let rect mutable := SDL_Rect newValue
-		x: (minCorner x);
-		y: (minCorner y);
-		w: (extent x);
-		h: (extent y).
-	SDL_SetRenderDrawColor(renderer, color32 r, color32 g, color32 b, color32 a).
-	SDL_RenderFillRect(renderer, rect address).
+		let healthPercentage := player _ hitPoints / 100.0f clampMin: 0.0f max: 1.0.
+		let currentHealthRect := RectangleF32 min: fullHealthRect min extent: fullHealthRect extent * Float32x2(healthPercentage, 1.0f).
+
+		canvas
+			color: Float32x4(1.0f, 0.6f, 0.0f, 1.0f);
+			fillRectangle: fullHealthRect;
+
+			color: Float32x4(1.0f, 0.0f, 0.0f, 1.0f);
+			drawRectangle: currentHealthRect.
+	}.
+
+	method renderHUDOn: (canvas: Canvas ref) ::=> Void := {
+		canvas transform setIdentity.
+
+		self drawHealthOn: canvas
+	}.
+
+	method render => Void := {
+		let canvas := mainDrawingSurface _ beginDrawingWithCanvas.
+		canvas ifNil: {return: void}.
+
+		canvas _
+			color: Float32x4(0.1f, 0.4f, 0.4f, 1.0f);
+			clear.
+
+		self
+			renderEntitiesOn: canvas _;
+			renderHUDOn: canvas _.
+	}.
+
+	override method onExposeEvent: (event: ExposeEvent ref) ::=> Void := {
+		self render
+	}.
+
+	override method onTickEvent: (event: TickEvent ref) ::=> Void := {
+		let updateDelta := event deterministicDeltaSeconds.
+		0 until: event deterministicFrameCount do: {
+			update(updateDelta).
+		}.
+
+        self render
+    }.
+
+	override method onWindowCloseRequestEvent: (event: WindowCloseRequestEvent ref) ::=> Void := {
+		mainWindow _ close
+	}.
+
+	override method onKeyPressedEvent: (event: KeyPressedEvent ref) ::=> Void := {
+		event isRepeat ifTrue: {return: void}.
+
+		event symbol selectCase: #{
+		KeySymbol Escape : {mainWindow _ close}.
+		KeySymbol A : {player _ moveLeftInput: true}.
+		KeySymbol D : {player _ moveRightInput: true}.
+		KeySymbol W : {player _ jump}.
+		KeySymbol Space : {player _ shoot}.
+		KeySymbol LShift : {player _ dash}.
+		}
+	}.
+
+	override method onKeyReleasedEvent: (event: KeyReleasedEvent ref) ::=> Void := {
+		event isRepeat ifTrue: {return: void}.
+
+		event symbol selectCase: #{
+		KeySymbol A : {player _ moveLeftInput: false}.
+		KeySymbol D : {player _ moveRightInput: false}.
+		}
+	}.
 }.
 
 function update(delta: Float32) => Void := {
@@ -511,67 +562,6 @@ function update(delta: Float32) => Void := {
 		}.
 	}.
 	entities resizeTo: destIndex.
-}.
-
-function drawHealth() => Void := {
-	## Red border
-	let fullHealthRect mutable := SDL_Rect newValue
-		x: 20;
-		y: 20;
-		w: 250;
-		h: 15;
-		yourself.
-
-	let currentHealthRect mutable := fullHealthRect.
-	let healthPercentage := player _ hitPoints / 100.0f clampMin: 0.0f max: 1.0.
-	currentHealthRect w: (fullHealthRect w * healthPercentage castTo: Int32).
-
-	SDL_SetRenderDrawColor(renderer, 255, 160, 0, 255).
-	SDL_RenderFillRect(renderer, fullHealthRect address).
-
-	SDL_SetRenderDrawColor(renderer, 255, 0, 0, 255).
-	SDL_RenderDrawRect(renderer, fullHealthRect address).
-
-}.
-
-function renderHUD() => Void := {
-	drawHealth().
-}.
-
-function render() => Void := {
-	## Clear the screen.
-	SDL_SetRenderDrawColor(renderer, 0, 0, 0, 255).
-	SDL_RenderClear(renderer).
-
-	## Compute the view matrix
-	{
-		let viewScale := 1.0 / 10.0 castTo: Float32.
-		let viewScaleMatrix := Float32x3x3(
-			Float32x3(640.0f*viewScale, 0.0f, 0.0f),
-			Float32x3(0.0f, -480.0f*viewScale, 0.0f),
-			Float32x3(320.0f, 240.0f, 1.0f)
-		).
-		let cameraMatrix := Float32x3x3(
-			Float32x3(1.0f, 0.0f, 0.0f),
-			Float32x3(0.0f, 1.0f, 0.0f),
-			Float32x3(player _ position negated + Float32x2(-2.0f, -2.0f), 1.0f)).
-		let fullViewMatrix := viewScaleMatrix * cameraMatrix.
-
-		viewMatrix := Float32x2x3(
-			fullViewMatrix firstColumn xy,
-			fullViewMatrix secondColumn xy,
-			fullViewMatrix thirdColumn xy).
-	}.
-
-	## Draw the entities.
-	entities do: {:entity :: Void |
-		entity _ render.
-	}.
-
-	## Draw the HUD.
-	renderHUD().
-
-	SDL_RenderPresent(renderer).
 }.
 
 function mixAudioSamples(mixBuffer: Float32x2 pointer, sampleCount: UInt32) => Void := {
@@ -633,18 +623,27 @@ method createWallMin: (min: Float32x2) max: (max: Float32x2) color: (color: Floa
 }.
 
 function main externC (argc: Int32, argv: Char8 const pointer pointer) => Int32 := {
-
+	## Create the window system.
 	let windowSystem := createSDL2WindowSystem().
+	windowSystem _ targetFrameRate: 60.
 
-	window := SDL_CreateWindow("Sysmel Hello SDL2", SDL_WINDOWPOS_CENTERED, SDL_WINDOWPOS_CENTERED, 640, 480, SDL_WINDOW_SHOWN).
-	window ifNil: {
-		return: 1.
-	}.
+	## Create the main window.
+    mainWindow := windowSystem _ createWindowWithTitle: "Sample Native Game" asMutableString extent: Int32x2(640, 480).
+    mainWindow ifNil: {
+        return: 0.
+    }.
 
-	renderer := SDL_CreateRenderer(window, -1, SDL_RENDERER_PRESENTVSYNC).
-	renderer ifNil: {
-		return: 1.
-	}.
+    ## Create the main window drawing surface.
+    mainDrawingSurface := mainWindow _ createDefaultDrawingSurface.
+    mainDrawingSurface ifNil: {
+        return: 0.
+    }.
+
+	## Create the event handler.
+    {
+        let eventHandler := MainWindowEventHandler sharedNew.
+        mainWindow _ eventHandler: (eventHandler upCastFor: EventHandler)
+    }.
 
 	{
 		let desiredAudioSpec mutable := SDL_AudioSpec newValue
@@ -742,41 +741,8 @@ function main externC (argc: Int32, argv: Char8 const pointer pointer) => Int32 
 		SDL_PauseAudioDevice(audioDeviceID, 0).
 	}.
 
-	let oldTicks mutable := SDL_GetTicks().
-	let updateDelta := 1.0 / 60.0 castTo: Float32.
-	let accumulatedTime mutable type: Float32 := 0.0.
-	until: isQuitting do: {
-		let newTicks := SDL_GetTicks().
-		let deltaTicks := newTicks - oldTicks.
-		accumulatedTime := accumulatedTime + deltaTicks *0.001 castTo: Float32.
-
-		## Process the event.
-		processEvents().
-
-		## Deterministic update.
-		##Stdn stdout << "deltaTicks " << deltaTicks; nl.
-		##Stdn stdout << "accumulatedTime " << accumulatedTime; nl.
-		while: accumulatedTime - updateDelta >= updateDelta  do: {
-			##Stdn stdout << "update iter "; nl.
-			update(updateDelta).
-			accumulatedTime := accumulatedTime - updateDelta
-		}.
-
-		## Perform the actual rendering.
-		render().
-
-		## Compute the sleep time to achieve 60 fps.
-		let targetTicks := newTicks + 16 - (accumulatedTime castTo: UInt32).
-		let renderEndTicks := SDL_GetTicks().
-		renderEndTicks < targetTicks ifTrue: {
-			let delayTicks := targetTicks - renderEndTicks - 2 castTo: Int32.
-			##Stdn stdout << "delayTicks " << delayTicks; nl.
-			delayTicks > 0 ifTrue: {
-				SDL_Delay(delayTicks castTo: UInt32).
-			}
-		}.
-		oldTicks := newTicks.
-	}.
+	## Enter into the main loop.
+	windowSystem _ runMainLoop.
 
 	audioDeviceID ~= 0 ifTrue: {
 		SDL_CloseAudioDevice(audioDeviceID).
@@ -786,8 +752,6 @@ function main externC (argc: Int32, argv: Char8 const pointer pointer) => Int32 
 	entities do: #nativeDelete.
 	soundChannels do: #nativeDelete.
 
-	SDL_DestroyRenderer(renderer).
-	SDL_DestroyWindow(window).
 	SDL_Quit().
 
     return: 0.

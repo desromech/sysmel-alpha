@@ -200,7 +200,8 @@ class Blitter definition: {
 
         let x := startPoint x.
         let dy := startPoint y <= endPoint y ifTrue: 1 ifFalse: -1.
-        let y mutable := startPoint y max: 0.
+        let y mutable := startPoint y.
+
         let destPixel mutable := self makeUnsafePixelIteratorAt: Int32x2(x, y).
         let h := extent y castTo: Int32.
         while: y ~= endPoint y do: {
@@ -220,7 +221,7 @@ class Blitter definition: {
 
         let y := startPoint y.
         let dx := startPoint x <= endPoint x ifTrue: 1 ifFalse: -1.
-        let x mutable := startPoint x max: 0.
+        let x mutable := startPoint x.
         let destPixel mutable := self makeUnsafePixelIteratorAt: Int32x2(x, y).
         let w := extent x castTo: Int32.
         while: x ~= endPoint x do: {

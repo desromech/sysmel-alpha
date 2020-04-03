@@ -46,6 +46,9 @@ template GenericRectangle(ST: Type)
     inline method topLeft => Vector2
         := Vector2 x: min x y: max y .
 
+    const inline method translatedBy: (translation: Vector2) ::=> SelfType
+        := SelfType min: min + translation max: max + translation.
+
     const inline method isEmpty ::=> Boolean8
         := min x > max x || min y > max y.
 

@@ -1,0 +1,67 @@
+namespace Stdn definition: {
+namespace Math definition: {
+namespace LinearAlgebra definition: {
+
+template GenericAffineTransform2d(ST: Type)
+    := class superclass: GenericLinearAlgebra(ST); definition: {
+    public field matrix type: Matrix2x2.
+    public field translation type: Vector2.
+
+    const inline method asMatrix2x3 => Matrix2x3
+        := Matrix2x3(matrix firstColumn, matrix secondColumn, translation).
+
+    inline method setIdentity => Void := {
+        matrix := Matrix2x2 identity.
+        translation := Vector2 zeros.
+    }.
+
+    const inline method isTranslationOnly => Boolean8
+        := matrix firstColumn x == 1 && matrix firstColumn y == 0 &&
+        matrix secondColumn x == 0 && matrix secondColumn y == 1.
+
+    inline method translateBy: (newTranslation: Vector2) ::=> Void := {
+        translation := newTranslation + translation.
+    }.
+
+    inline method applyMatrix: (newMatrix: Matrix2x2) ::=> Void := {
+        matrix := newMatrix * matrix.
+        translation := newMatrix * translation.
+    }.
+
+    inline method scaleBy: (scale: Vector2) ::=> Void := {
+        self applyMatrix: Matrix2x2(
+            Vector2(scale x, 0),
+            Vector2(0, scale y)
+        )
+    }.
+
+    compileTimeIf: Scalar isPrimitiveFloatType then: {
+        inline method rotateByRadians: (angle: Scalar) ::=> Void := {
+            let c := angle cos.
+            let s := angle sin.
+            self applyMatrix: Matrix2x2(
+                Vector2(c, s negated),
+                Vector2(s, c)
+            )
+        }.
+
+        inline method rotateByDegrees: (angle: Scalar) ::=> Void := {
+            self rotateByRadians: angle degreesToRadians
+        }.
+    }.
+
+    const inline method transformVector: (vector: Vector2) ::=> Vector2
+        := matrix * vector.
+
+    const  inline method transformPoint: (point: Vector2) ::=> Vector2
+        := matrix * point + translation.
+
+}.
+
+compileTimeConstant AffineTransform2dI32 := GenericAffineTransform2d(Int32).
+compileTimeConstant AffineTransform2dF32 := GenericAffineTransform2d(Float32).
+compileTimeConstant AffineTransform2dF64 := GenericAffineTransform2d(Float64).
+
+} ## End of namespace LinearAlgebra
+} ## End of namespace Math
+} ## End of namespace Stdn

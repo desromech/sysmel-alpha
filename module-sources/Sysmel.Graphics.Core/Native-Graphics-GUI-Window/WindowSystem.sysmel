@@ -9,6 +9,7 @@ class WindowCreationInfo.
  * I represent an interface into a window system window.
  *#
 class WindowSystem superclass: Object; definition: {
+    public field targetFrameRate type: Stdn Chrono Time.
 
     virtual method createWindow: (description: WindowCreationInfo const ref) ::=> Window sharedPointer
         := Window sharedPointer nil.
@@ -38,19 +39,45 @@ class WindowSystem superclass: Object; definition: {
 
     ## Run the default main loop.
     virtual method runMainLoop => Int32 := {
+        let oldTicks mutable := Stdn Chrono now().
+        let accumulatedTicks mutable type: Stdn Chrono Time.
+        let mainLoopStartTicks := Stdn Chrono now().
+
         until: self isQuitting do: {
-            self waitAndPumpEvents.
-            self sendTickEvents.
+            let frameStartTicks := Stdn Chrono now().
+            self pollAndPumpEvents.
+
+            let ticksPerFrame := Stdn Chrono TicksPerSecond / targetFrameRate.
+
+            let deltaTicks := frameStartTicks - oldTicks.
+            accumulatedTicks := accumulatedTicks + deltaTicks.
+
+            let deterministicFrameCount := accumulatedTicks / ticksPerFrame.
+            accumulatedTicks := deterministicFrameCount - deterministicFrameCount*ticksPerFrame.
+
+            ## Send the tick events
+            {
+                let event mutable type: TickEvent.
+                event
+                    ticks: frameStartTicks - mainLoopStartTicks;
+                    deterministicDelta: ticksPerFrame;
+                    deterministicRemainingDelta: accumulatedTicks;
+                    deterministicFrameCount: (deterministicFrameCount castTo: UInt32);
+                    delta: deltaTicks.
+                self broadcastEvent: event.
+            }.
+
+            targetFrameRate > 0 ifTrue: {
+                let targetNextFrameTime := frameStartTicks + ticksPerFrame.
+                Stdn Chrono sleepUntil(targetNextFrameTime)
+            } ifFalse: {
+                self waitForNextEventOrTimeout.
+            }.
+
+            oldTicks := frameStartTicks.
         }.
 
         return: 0
-    }.
-
-    #**
-     * Wait for events blockingly and then pump the events into the actual windows.
-     *#
-    virtual method waitAndPumpEvents => Void := {
-
     }.
 
     #**
@@ -61,17 +88,18 @@ class WindowSystem superclass: Object; definition: {
     }.
 
     #**
+     * Wait and pump the next, or until something times out.
+     *#
+    virtual method waitForNextEventOrTimeout => Void := {
+
+    }.
+
+    #**
      * Broadcast and event into all of the windows.
      *#
     virtual method broadcastEvent: (event: Event ref) ::=> Void := {
 
     }.
-
-    virtual method sendTickEvents => Void := {
-        let event mutable type: TickEvent.
-        self broadcastEvent: event.
-    }.
-
 }.
 
 

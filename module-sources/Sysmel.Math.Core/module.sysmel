@@ -1,4 +1,6 @@
 Compiler loadPackages: #(
+    #"LinearAlgebra-Common"
+    #"LinearAlgebra-Transforms"
     #"Geometry-Common"
     #"Geometry2D-Shapes"
     #"Geometry3D-Shapes"
