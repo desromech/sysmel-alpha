@@ -9,20 +9,23 @@ template GenericRectangle(ST: Type)
     public field max type: Vector2.
 
     meta definition: {
-        inline method min: (theMinCorner: Vector2) max: (theMaxCorner: Vector2) ::=> Rectangle
+        const inline method min: (theMinCorner: Vector2) max: (theMaxCorner: Vector2) ::=> Rectangle
             := Rectangle basicNewValue min: theMinCorner; max: theMaxCorner; yourself.
 
-        inline method center: (theCenter: Vector2) halfExtent: (theHalfExtent: Vector2) ::=> Rectangle
-            := Rectangle min: theCenter - theHalfExtent max: theCenter + theHalfExtent.
+        const inline method empty ::=> Rectangle
+            := self min: Vector2 infinityOrMaxValue max: Vector2 negativeInfinityOrMinValue.
 
-        inline method center: (theCenter: Vector2) extent: (theExtent: Vector2) ::=> Rectangle
+        const inline method center: (theCenter: Vector2) halfExtent: (theHalfExtent: Vector2) ::=> Rectangle
+            := self min: theCenter - theHalfExtent max: theCenter + theHalfExtent.
+
+        const inline method center: (theCenter: Vector2) extent: (theExtent: Vector2) ::=> Rectangle
             := self center: theCenter halfExtent: theExtent / 2.
 
-        inline method extent: (theExtent: Vector2) ::=> Rectangle
-            := Rectangle min: Vector2 zeros max: theExtent.
+        const inline method extent: (theExtent: Vector2) ::=> Rectangle
+            := self min: Vector2 zeros max: theExtent.
 
-        inline method min: (theMinCorner: Vector2) extent: (theExtent: Vector2) ::=> Rectangle
-            := Rectangle min: theMinCorner max: theMinCorner + theExtent.
+        const inline method min: (theMinCorner: Vector2) extent: (theExtent: Vector2) ::=> Rectangle
+            := self min: theMinCorner max: theMinCorner + theExtent.
     }.
 
     const inline method center => Vector2
