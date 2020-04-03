@@ -6,10 +6,18 @@ useNamespace: Stdn Math Geometry.
 #**
  * I am a norph with a borderd
  *#
-class BorderedNorph: Norph; definition: {
-    public field borderColor type: Float32x4.
+class BorderedNorph superclass: Norph; definition: {
+    protected field borderColor type: Float32x4.
 
-    virtual method renderOn: (canvas: Canvas ref) ::=> Void := {
+    virtual method borderColor => Float32x4
+        := borderColor.
+
+    virtual method borderColor: (theNewColor: Float32x4 const ref) ::=> Void := {
+        borderColor := theNewColor.
+        self changed.
+    }.
+
+    override method renderOn: (canvas: Canvas ref) ::=> Void := {
         super renderOn: canvas.
         canvas
             color: borderColor;

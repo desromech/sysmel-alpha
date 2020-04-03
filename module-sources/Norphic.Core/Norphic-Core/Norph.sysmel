@@ -8,9 +8,8 @@ useNamespace: Stdn Math Geometry.
  * Smalltalk morph.
  *#
 class Norph superclass: Stdn Object; definition: {
-    public field bounds type: RectangleF32.
-    public field color type: Float32x4.
-    public field backgroundColor type: Float32x4.
+    protected field bounds type: RectangleF32.
+    protected field color type: Float32x4.
 
     ##public field owner type: Norph weakPointer.
     public field subnorphs type: Stdn Collections Vector(Norph sharedPointer).
@@ -29,6 +28,22 @@ class Norph superclass: Stdn Object; definition: {
         self destroy
     }.
 
+    virtual method bounds => RectangleF32
+        := bounds.
+
+    virtual method bounds: (theNewBounds: RectangleF32 const ref) ::=> Void := {
+        bounds := theNewBounds.
+        self boundsChanged.
+    }.
+
+    virtual method color => Float32x4
+        := color.
+
+    virtual method color: (theNewColor: Float32x4 const ref) ::=> Void := {
+        color := theNewColor.
+        self changed.
+    }.
+
     virtual method renderOn: (canvas: Canvas ref) ::=> Void := {
         canvas
             color: color;
@@ -36,17 +51,34 @@ class Norph superclass: Stdn Object; definition: {
     }.
 
     virtual method renderSubnorphsOn: (canvas: Canvas ref) ::=> Void := {
+        subnorphs do: {:(Norph sharedPointer const ref)child :: Void |
+            child _ fullRenderOn: canvas
+        }
     }.
 
     virtual method fullRenderOn: (canvas: Canvas ref) ::=> Void := {
-        canvas transform translateBy: bounds min.
-        self
-            renderOn: canvas;
-            renderSubnorphsOn: canvas.
+        canvas transform restoreAfter: {
+            canvas transform translateBy: bounds min.
+            self
+                renderOn: canvas;
+                renderSubnorphsOn: canvas.
+        }
+    }.
+
+    virtual method changed ::=> Void := {
+
+    }.
+
+    virtual method boundsChanged ::=> Void := {
+        self changed
     }.
 
     virtual method destroy ::=> Void := {
 
+    }.
+
+    virtual method addSubnorph: (newSubnorph: Norph sharedPointer const ref) ::=> Void := {
+        subnorphs add: newSubnorph
     }.
 }.
 

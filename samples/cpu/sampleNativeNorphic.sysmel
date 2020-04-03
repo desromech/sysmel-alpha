@@ -21,9 +21,18 @@ function main externC (argc: Int32, argv: UInt8 const pointer pointer) => Int32 
         return: 0.
     }.
 
-    mainWindow _ color: Float32x4(0.3f, 0.8f, 0.3f, 1.0f).
-    ##windowSystem _ createWindowWithTitle: "Test Norphic" asMutableString extent: Int32x2(640, 480).
+    mainWindow _ color: Float32x4 ones.
 
+    ## Rectangle with border.
+    {
+        let borderedNorph := BorderedNorph sharedNew.
+        borderedNorph _
+            bounds: (RectangleF32 min: Float32x2(50.0f, 50.0f) extent: Float32x2(100.0f, 100.0f));
+            color: Float32x4(1.0f, 0.0f, 0.0f, 1.0f);
+            borderColor: Float32x4(0.0f, 0.0f, 0.0f, 1.0f).
+        mainWindow _ addSubnorph: (borderedNorph upCastFor: Norph).
+    }.
+    
     ## Run the actual main loop.
     return: windowSystem _ runMainLoop.
 }.

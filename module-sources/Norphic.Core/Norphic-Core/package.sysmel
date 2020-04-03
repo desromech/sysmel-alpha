@@ -2,3 +2,5 @@ loadFileOnce: "Events.sysmel".
 loadFileOnce: "Norph.sysmel".
 loadFileOnce: "RootNorph.sysmel".
 loadFileOnce: "SystemWindowNorph.sysmel".
+
+loadFileOnce: "BorderedNorph.sysmel".

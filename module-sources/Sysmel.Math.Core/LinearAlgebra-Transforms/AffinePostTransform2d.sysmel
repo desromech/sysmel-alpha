@@ -55,9 +55,18 @@ template GenericAffinePostTransform2d(ST: Type)
     const inline method transformVector: (vector: Vector2) ::=> Vector2
         := matrix * vector.
 
-    const  inline method transformPoint: (point: Vector2) ::=> Vector2
+    const inline method transformPoint: (point: Vector2) ::=> Vector2
         := matrix * point + translation.
 
+    macro method restoreAfter: aBlock := {
+        let oldTransform := __astBuilder gensym: #oldTransform.
+        ``{
+            let `,oldTransform := `,self.
+            try: `,aBlock finally: {
+                `,self := `,oldTransform
+            }.
+        } asSequenceWithoutLexicalScope
+    }.
 }.
 
 compileTimeConstant AffinePostTransform2dI32 := GenericAffinePostTransform2d(Int32).
