@@ -95,6 +95,22 @@ MbndPrimitiveVectorType >> addInstanceMacros [
 			self assert: node receiver value isPrimitiveVectorType.
 			node receiver value expandOnesVectorConstruction: node with: builder.
 		];
+		onMacroSelector: #infinity do: [ :node :builder |
+			self assert: node receiver value isPrimitiveVectorType.
+			node receiver value expandInfinityVectorConstruction: node with: builder.
+		];
+		onMacroSelector: #negativeInfinity do: [ :node :builder |
+			self assert: node receiver value isPrimitiveVectorType.
+			node receiver value expandNegativeInfinityVectorConstruction: node with: builder.
+		];
+		onMacroSelector: #infinityOrMaxValue do: [ :node :builder |
+			self assert: node receiver value isPrimitiveVectorType.
+			node receiver value expandInfinityOrMaxValueVectorConstruction: node with: builder.
+		];
+		onMacroSelector: #negativeInfinityOrMinValue do: [ :node :builder |
+			self assert: node receiver value isPrimitiveVectorType.
+			node receiver value expandNegativeInfinityOrMinValueVectorConstruction: node with: builder.
+		];
 		onMacroSelector: #applyWithArguments: do: [ :node :builder :analyzer |
 			self assert: node receiver value isPrimitiveVectorType.
 			analyzer visitNode: ((builder constructVector: node receiver value withElements: node arguments first)
@@ -244,6 +260,26 @@ MbndPrimitiveVectorType >> expandAllConstant: constantValue vectorConstruction: 
 	| constantValueNode |
 	constantValueNode := constantValue asLiteralValueNode position: node.
 	^ builder constructVector: self withElements: ((1 to: elements) collect: [ :i | constantValueNode ])
+]
+
+{ #category : #initialization }
+MbndPrimitiveVectorType >> expandInfinityOrMaxValueVectorConstruction: node with: builder [
+	^ self expandAllConstant: elementType infinityOrMaxValueConstantValue vectorConstruction: node with: builder
+]
+
+{ #category : #initialization }
+MbndPrimitiveVectorType >> expandInfinityVectorConstruction: node with: builder [
+	^ self expandAllConstant: elementType infinityConstantValue vectorConstruction: node with: builder
+]
+
+{ #category : #initialization }
+MbndPrimitiveVectorType >> expandNegativeInfinityOrMinValueVectorConstruction: node with: builder [
+	^ self expandAllConstant: elementType negativeInfinityOrMinValueConstantValue vectorConstruction: node with: builder
+]
+
+{ #category : #initialization }
+MbndPrimitiveVectorType >> expandNegativeInfinityVectorConstruction: node with: builder [
+	^ self expandAllConstant: elementType negativeInfinityConstantValue vectorConstruction: node with: builder
 ]
 
 { #category : #initialization }

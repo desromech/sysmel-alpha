@@ -111,6 +111,22 @@ MbndPrimitiveFloatType >> addInstanceMacros [
 	self isTrait ifFalse: [ ^ self ].
 	
 	self type
+		onMacroSelectors: #(negativeInfinity negativeInfinityOrMinValue) do: [ :node :builder |
+			(builder explicitCast: ((builder literalFloat: Float negativeInfinity)
+				position: node) to: node receiver)
+				position: node
+		];
+	
+		onMacroSelectors: #(infinity infinityOrMaxValue) do: [ :node :builder |
+			(builder explicitCast: ((builder literalFloat: Float infinity)
+				position: node) to: node receiver)
+				position: node
+		];
+		onMacroSelector: #nan do: [ :node :builder |
+			(builder explicitCast: ((builder literalFloat: Float nan)
+				position: node) to: node receiver)
+				position: node
+		];
 		onMacroSelector: #pi do: [ :node :builder |
 			(builder explicitCast: ((builder literalFloat: 3.141592653589793)
 				position: node) to: node receiver)
@@ -159,6 +175,16 @@ MbndPrimitiveFloatType >> defaultValueAt: aPosition [
 	^ MbndValue value: 0.0 type: self
 ]
 
+{ #category : #'as yet unclassified' }
+MbndPrimitiveFloatType >> infinityConstantValue [
+	^ MbndValue value: Float infinity type: self
+]
+
+{ #category : #'as yet unclassified' }
+MbndPrimitiveFloatType >> infinityOrMaxValueConstantValue [
+	^ self infinityConstantValue
+]
+
 { #category : #testing }
 MbndPrimitiveFloatType >> isAcceptableLiteralValue: literalValue [
 	^ literalValue isNumber
@@ -186,6 +212,16 @@ MbndPrimitiveFloatType >> literalTypeForValue: value [
 { #category : #adding }
 MbndPrimitiveFloatType >> literalTypesThatCanBeConvertedToMe [
 	^ {self compilationTarget literalCharacterType . self compilationTarget literalIntegerType . self compilationTarget literalFloatType }
+]
+
+{ #category : #'as yet unclassified' }
+MbndPrimitiveFloatType >> negativeInfinityConstantValue [
+	^ MbndValue value: Float negativeInfinity type: self
+]
+
+{ #category : #'as yet unclassified' }
+MbndPrimitiveFloatType >> negativeInfinityOrMinValueConstantValue [
+	^ self negativeInfinityConstantValue
 ]
 
 { #category : #'as yet unclassified' }

@@ -69,6 +69,12 @@ MbndPrimitiveIntegerType >> addArithmeticIntrinsicsToVectorOrScalarType: vectorO
 
 ]
 
+{ #category : #initialization }
+MbndPrimitiveIntegerType >> addInstanceMacros [
+	self class == MbndPrimitiveIntegerType ifFalse: [ ^ self ].
+	self isTrait ifFalse: [ ^ self ].
+]
+
 { #category : #converting }
 MbndPrimitiveIntegerType >> analyzeReinterpretCastNode: node to: targetType with: analyzer [
 	| undecoratedTargetType |
@@ -131,6 +137,17 @@ MbndPrimitiveIntegerType >> defaultValueAt: aPosition [
 ]
 
 { #category : #testing }
+MbndPrimitiveIntegerType >> infinityOrMaxValue [
+	<compileTime>
+	^ self minValue
+]
+
+{ #category : #'as yet unclassified' }
+MbndPrimitiveIntegerType >> infinityOrMaxValueConstantValue [
+	^ self maxValueConstantValue
+]
+
+{ #category : #testing }
 MbndPrimitiveIntegerType >> isAcceptableLiteralValue: literalValue [
 	^ literalValue isInteger
 ]
@@ -179,6 +196,7 @@ MbndPrimitiveIntegerType >> literalTypesThatCanBeConvertedToMe [
 
 { #category : #testing }
 MbndPrimitiveIntegerType >> maxValue [
+	<compileTime>
 	maxValue ifNil: [
 		signed ifTrue: [
 			maxValue := (1 << (instanceSize * 8 - 1)) - 1
@@ -190,8 +208,14 @@ MbndPrimitiveIntegerType >> maxValue [
 	^ maxValue
 ]
 
+{ #category : #'as yet unclassified' }
+MbndPrimitiveIntegerType >> maxValueConstantValue [
+	^ MbndValue value: self maxValue type: self
+]
+
 { #category : #testing }
 MbndPrimitiveIntegerType >> minValue [
+	<compileTime>
 	minValue ifNil: [
 		signed ifTrue: [
 			minValue := (1 << (instanceSize * 8 - 1)) negated
@@ -201,6 +225,22 @@ MbndPrimitiveIntegerType >> minValue [
 	].
 
 	^ minValue
+]
+
+{ #category : #'as yet unclassified' }
+MbndPrimitiveIntegerType >> minValueConstantValue [
+	^ MbndValue value: self minValue type: self
+]
+
+{ #category : #testing }
+MbndPrimitiveIntegerType >> negativeInfinityOrMinValue [
+	<compileTime>
+	^ self minValue
+]
+
+{ #category : #'as yet unclassified' }
+MbndPrimitiveIntegerType >> negativeInfinityOrMinValueConstantValue [
+	^ self minValueConstantValue
 ]
 
 { #category : #'as yet unclassified' }
