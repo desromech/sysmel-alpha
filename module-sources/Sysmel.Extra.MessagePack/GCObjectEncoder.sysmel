@@ -4,7 +4,7 @@ compileTimeConstant MessagePackEncoder := Stdn Serialization MessagePack Encoder
 Object extend: {
     ## FIXME: use a normal down cast here.
     method encodeIntoMessagePackWith: (encoder: MessagePackEncoder ref)
-        := (self asObjectForMessagePackEncoding reinterpretCastTo: Object) encodeIntoMessagePackWith: encoder.
+        := (self asObjectForMessagePackEncoding castTo: Object) encodeIntoMessagePackWith: encoder.
 
     method asObjectForMessagePackEncoding
         := self subclassResponsibility.

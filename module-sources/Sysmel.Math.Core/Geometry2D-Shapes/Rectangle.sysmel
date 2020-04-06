@@ -2,8 +2,7 @@ namespace Stdn definition: {
 namespace Math definition: {
 namespace Geometry definition: {
 
-
-template GenericRectangle(ST: Type)
+sealed template GenericRectangle(ST: Type)
     := class superclass: GenericGeometricShape(ST); definition: {
     public field min type: Vector2.
     public field max type: Vector2.

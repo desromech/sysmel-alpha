@@ -1,0 +1,16 @@
+namespace Norphic definition: {
+
+useNamespace: Stdn Graphics Core.
+useNamespace: Stdn Math Geometry.
+
+#**
+ * I am a label widget norph.
+ *#
+class LabelNorph superclass: Norph; definition: {
+    public field text type: Stdn String.
+
+    override method renderOn: (canvas: Canvas ref) ::=> Void := {
+    }.
+}.
+
+}. ## End of namespace Norphic

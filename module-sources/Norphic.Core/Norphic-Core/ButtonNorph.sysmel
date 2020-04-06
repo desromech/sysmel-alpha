@@ -1,0 +1,12 @@
+namespace Norphic definition: {
+
+useNamespace: Stdn Graphics Core.
+useNamespace: Stdn Math Geometry.
+
+#**
+ * I am a button widget norph.
+ *#
+class ButtonNorph superclass: Norph; definition: {
+}.
+
+}. ## End of namespace Norphic

@@ -2,7 +2,7 @@ namespace Stdn definition: {
 namespace Math definition: {
 namespace Geometry definition: {
 
-template GenericRay2d(ST: Type)
+sealed template GenericRay2d(ST: Type)
     := class superclass: GenericParametricLine2d(ST); definition: {
 
     meta definition: {

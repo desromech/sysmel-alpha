@@ -2,7 +2,7 @@ namespace Stdn definition: {
 namespace Math definition: {
 namespace LinearAlgebra definition: {
 
-template GenericLinearAlgebra(ST: Type)
+sealed template GenericLinearAlgebra(ST: Type)
     := class definition: {
     compileTimeConstant Scalar := ST.
     compileTimeConstant Vector2 := ST primitiveVectorWithElements: 2.

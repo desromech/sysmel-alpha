@@ -254,8 +254,8 @@ InterpretedMethod definition: {
 
     meta method literals: literals bytecodes: bytecodes
         := (self new: bytecodes size)
-            literals: (literals reinterpretCastTo: Array);
-            setBytecodesFrom: (bytecodes reinterpretCastTo: ByteArray);
+            literals: (literals castTo: Array);
+            setBytecodesFrom: (bytecodes castTo: ByteArray);
             yourself.
 
     method setBytecodesFrom: (newBytecodes: ByteArray) := {
@@ -266,7 +266,7 @@ InterpretedMethod definition: {
     method run: aSelector with: arguments in: receiver := {
         let interpreter mutable type: SmalltalkVM BytecodeInterpreter.
         interpreter
-            arguments: (arguments reinterpretCastTo: Array);
+            arguments: (arguments castTo: Array);
             numTemps: numTemps;
             literals: literals;
             bytecodes: bytecodes[0] address;

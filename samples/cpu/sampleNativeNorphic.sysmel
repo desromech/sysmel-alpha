@@ -32,7 +32,17 @@ function main externC (argc: Int32, argv: UInt8 const pointer pointer) => Int32 
             borderColor: Float32x4(0.0f, 0.0f, 0.0f, 1.0f).
         mainWindow _ addSubnorph: (borderedNorph upCastFor: Norph).
     }.
-    
+
+    ## Sample label
+    {
+        let label := LabelNorph sharedNew.
+        label _
+            bounds: (RectangleF32 min: Float32x2(80.0f, 80.0f) extent: Float32x2(100.0f, 100.0f));
+            color: Float32x4(0.0f, 0.0f, 1.0f, 1.0f);
+            text: "Hello World" asMutableString.
+        mainWindow _ addSubnorph: (label upCastFor: Norph).
+    }.
+
     ## Run the actual main loop.
     return: windowSystem _ runMainLoop.
 }.

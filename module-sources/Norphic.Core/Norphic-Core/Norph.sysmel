@@ -7,11 +7,11 @@ useNamespace: Stdn Math Geometry.
  * I am a norph, my name comes from Native (M)orph in honor to the old
  * Smalltalk morph.
  *#
-class Norph superclass: Stdn Object; definition: {
+class Norph superclass: NorphEventHandler; definition: {
     protected field bounds type: RectangleF32.
     protected field color type: Float32x4.
 
-    ##public field owner type: Norph weakPointer.
+    public field owner type: Norph weakPointer.
     public field subnorphs type: Stdn Collections Vector(Norph sharedPointer).
 
     inline method extent => Float32x2
@@ -65,8 +65,15 @@ class Norph superclass: Stdn Object; definition: {
         }
     }.
 
-    virtual method changed ::=> Void := {
+    virtual method childChanged ::=> Void := {
+        self changed
+    }.
 
+    virtual method changed ::=> Void := {
+        let parentStrong := owner lock.
+        parentStrong ifNotNil: {
+            parentStrong _ childChanged.
+        }.
     }.
 
     virtual method boundsChanged ::=> Void := {
@@ -77,8 +84,19 @@ class Norph superclass: Stdn Object; definition: {
 
     }.
 
+    virtual method addedToOwner: (newOwner: Norph ref) ::=> Void := {
+        owner := newOwner asWeakPointer.
+    }.
+
+    virtual method removedFromOwner: (newOwner: Norph ref) ::=> Void := {
+
+    }.
+
     virtual method addSubnorph: (newSubnorph: Norph sharedPointer const ref) ::=> Void := {
-        subnorphs add: newSubnorph
+        newSubnorph ifNil: { return: void }.
+
+        subnorphs add: newSubnorph.
+        newSubnorph _ addedToOwner: self
     }.
 }.
 

@@ -190,8 +190,35 @@ template Dictionary(KT: Type, VT: Type)
         }
     }.
 
-    method removeKey: (key: KeyType const ref) ::=> Void := {
-        Stdn stdout << "TODO: remove key " << key; nl.
+    inline method removeKey: (key: KeyType const ref) ::=> Void := {
+        self removeKey: key ifAbsent: {:: Void | Stdn raiseError("Failed to find key in dictionary"). }
+    }.
+
+    inline method removeKey: (key: KeyType const ref) ifAbsent: (absentBlock: (Void => Void) nativeBlockClosure) ::=> Void := {
+        let slotIndex := self scanFor: key.
+        (self isValidIndex: slotIndex) && storage_[slotIndex] isPresent ifFalse: {
+            return: absentBlock()
+        }.
+
+        storage_[slotIndex] reset.
+        size_ := size_ - 1.
+        self fixCollisionsFrom: slotIndex
+    }.
+
+    inline method fixCollisionsFrom: (start: UIntPointer) ::=> Void := {
+        let currentIndex mutable := start.
+        let capacity := storage_ size.
+        let element mutable type: StorageElementType pointer.
+        while: {
+            currentIndex := (currentIndex + 1) % capacity.
+            element := storage_[currentIndex] address.
+            element _ isPresent
+        } do: {
+            let newIndex := self scanFor: element _ _ key.
+            newIndex ~= currentIndex ifTrue: {
+                Stdn swapValue: storage_[currentIndex] with: storage_[newIndex]
+            }.
+        }
     }.
 
     method removeAll => Void := {

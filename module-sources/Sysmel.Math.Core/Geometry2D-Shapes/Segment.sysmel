@@ -2,7 +2,7 @@ namespace Stdn definition: {
 namespace Math definition: {
 namespace Geometry definition: {
 
-template GenericSegment2d(ST: Type)
+sealed template GenericSegment2d(ST: Type)
     := class superclass: GenericGeometricShape(ST); definition: {
 }.
 

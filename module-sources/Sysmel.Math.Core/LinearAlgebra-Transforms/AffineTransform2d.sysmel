@@ -2,7 +2,7 @@ namespace Stdn definition: {
 namespace Math definition: {
 namespace LinearAlgebra definition: {
 
-template GenericAffineTransform2d(ST: Type)
+sealed template GenericAffineTransform2d(ST: Type)
     := class superclass: GenericLinearAlgebra(ST); definition: {
     public field matrix type: Matrix2x2.
     public field translation type: Vector2.

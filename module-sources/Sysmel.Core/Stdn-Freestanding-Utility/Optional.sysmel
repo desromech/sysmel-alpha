@@ -47,7 +47,7 @@ template Optional(VT: Type)
     inline method reset => Void := {
         present_ ifTrue: {
             self _ finalize.
-            present_ := true.
+            present_ := false.
         }.
     }.
 

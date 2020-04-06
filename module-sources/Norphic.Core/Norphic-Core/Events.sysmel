@@ -1,3 +1,72 @@
 namespace Norphic definition: {
 
+useNamespace: Stdn Graphics GUI.
+
+class NorphEventHandler.
+
+class NorphEvent superclass: Stdn Object; definition: {
+    virtual method acceptEventHandler: (eventHandler: NorphEventHandler ref) ::=> Void := {
+    }.
+}.
+
+class NorphKeyboardEvent superclass: NorphEvent; definition: {
+    public field symbol type: KeySymbol.
+    public field modifiers type: KeyModifiers.
+    public field isRepeat type: Boolean8.
+
+}.
+
+class NorphKeyPressedEvent superclass: NorphKeyboardEvent; definition: {
+    override method acceptEventHandler: (eventHandler: NorphEventHandler ref) ::=> Void := {
+        eventHandler onKeyPressedEvent: self
+    }.
+}.
+
+class NorphKeyReleasedEvent superclass: NorphKeyboardEvent; definition: {
+    override method acceptEventHandler: (eventHandler: NorphEventHandler ref) ::=> Void := {
+        eventHandler onKeyReleasedEvent: self
+    }.
+}.
+
+class NorphMouseEvent superclass: NorphEvent; definition: {
+    public field mouseId type: UInt32.
+    public field position type: Int32x2.
+    public field modifiers type: KeyModifiers.
+}.
+
+class NorphMouseButtonEvent superclass: NorphMouseEvent; definition: {
+    public field button type: MouseButton.
+    public field clickCount type: UInt8.
+}.
+
+class NorphMouseButtonPressedEvent superclass: NorphMouseButtonEvent; definition: {
+    override method acceptEventHandler: (eventHandler: NorphEventHandler ref) ::=> Void := {
+        eventHandler onMouseButtonPressedEvent: self
+    }.
+}.
+
+class NorphMouseButtonReleasedEvent superclass: NorphMouseButtonEvent; definition: {
+    override method acceptEventHandler: (eventHandler: NorphEventHandler ref) ::=> Void := {
+        eventHandler onMouseButtonReleasedEvent: self
+    }.
+}.
+
+class NorphMouseMoveEvent superclass: NorphMouseEvent; definition: {
+    public field buttonState type: MouseButtonMask.
+    public field delta type: Int32x2.
+
+    override method acceptEventHandler: (eventHandler: NorphEventHandler ref) ::=> Void := {
+        eventHandler onMouseMoveEvent: self
+    }.
+}.
+
+class NorphMouseWheelEvent superclass: NorphMouseEvent; definition: {
+    public field scrollDelta type: Int32x2.
+    public field isFlipped type: Boolean8.
+
+    override method acceptEventHandler: (eventHandler: NorphEventHandler ref) ::=> Void := {
+        eventHandler onMouseWheelEvent: self
+    }.
+}.
+
 }.

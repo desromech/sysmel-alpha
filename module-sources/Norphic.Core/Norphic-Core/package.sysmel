@@ -1,6 +1,10 @@
 loadFileOnce: "Events.sysmel".
+loadFileOnce: "NorphEventHandler.sysmel".
+loadFileOnce: "Theme.sysmel".
 loadFileOnce: "Norph.sysmel".
 loadFileOnce: "RootNorph.sysmel".
 loadFileOnce: "SystemWindowNorph.sysmel".
+loadFileOnce: "LabelNorph.sysmel".
+loadFileOnce: "ButtonNorph.sysmel".
 
 loadFileOnce: "BorderedNorph.sysmel".

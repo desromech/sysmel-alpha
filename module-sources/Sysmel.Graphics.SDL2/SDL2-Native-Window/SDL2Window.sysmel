@@ -19,11 +19,13 @@ class SDL2Window superclass: Window; definition: {
 
     override method close => Void := {
         handle ifNotNil: {
-            SDL_DestroyWindow(handle).
+            ## Remove myself from the window dictionary before actually destroying the window.
             windowSystem ifNotNil: {
                 windowSystem _ windowDestroyed: self address.
                 windowSystem := nil.
             }.
+
+            SDL_DestroyWindow(handle).
 
             handle := nil.
         }.

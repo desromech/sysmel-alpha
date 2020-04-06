@@ -1,5 +1,7 @@
 namespace Stdn definition: {
 
+class SharedObject.
+
 template SharedRefCounter(PT: Type)
     := struct definition: {
     compileTimeConstant PointedType := PT.
@@ -25,7 +27,11 @@ template SharedRefCounter(PT: Type)
     inline method initializeWith: (pointer: PointerType) ::=> Void := {
         strongCounter_ store: 1 with: MemoryOrder Release.
         weakCounter_ store: 1 with: MemoryOrder Release.
-        pointer_ := pointer
+        pointer_ := pointer.
+        compileTimeIf: (PointedType isSubtypeOf: SharedObject) then: {
+            let downWeakPointer := WeakPointer(PointedType) basicNewValue initializeWith: self address andPointer: pointer; yourself.
+            pointer_ _ initializeInternalSelfWeakPointer: (downWeakPointer upCastFor: SharedObject)
+        }.
     }.
 
     inline const method getPointer => PointerType
@@ -86,15 +92,18 @@ template SharedPointer(PT: Type)
     }.
 
     private field counter_ type: CounterType pointer.
+    private field pointer_ type: PointerType.
 
     inline method finalize => Void := {
         counter_ ifNotNil: {
             counter_ _ strongRelease.
         }.
+        pointer_ := nil.
     }.
 
-    inline method initializeWithNewCounter: (counter: CounterType pointer) andPointer: (pointer: PointerType)::=> Void := {
-        counter_ := counter
+    inline method initializeWithNewCounter: (counter: CounterType pointer) andPointer: (pointer: PointerType) ::=> Void := {
+        counter_ := counter.
+        pointer_ := pointer.
     }.
 
     inline method initializeCopyingFrom: (o: SelfType const ref) ::=> Void := {
@@ -102,11 +111,14 @@ template SharedPointer(PT: Type)
 		counter_ ifNotNil: {
 			counter_ _ strongRetain
 		}.
+        pointer_ := o __private pointer_
 	}.
 
 	inline method initializeMovingFrom: (o: SelfType tempRef) ::=> Void := {
 		counter_ := o __private counter_.
-		o __private counter_ := nil
+        pointer_ := o __private pointer_.
+		o __private counter_ := nil.
+        o __private pointer_ := nil.
 	}.
 
     const inline method = (other: SelfType const ref) ::=> Boolean8
@@ -116,17 +128,13 @@ template SharedPointer(PT: Type)
         := counter_ hash.
 
     inline const method _ => PointedType ref
-        := self getPointer _.
+        := pointer_ _.
 
     inline const method getCounter => CounterType pointer
         := counter_ .
 
     inline const method getPointer => PointerType := {
-        counter_ ifNil: {
-            return: nil
-        }.
-
-        return: counter_ _ getPointer.
+        return: pointer_.
     }.
 
     inline method initializeWithExistingCounter: (newCounter: CounterType pointer) andPointer: (newPointer: PointerType) ::=> Void := {
@@ -134,7 +142,8 @@ template SharedPointer(PT: Type)
             newCounter _ strongRetain.
         }.
 
-        counter_ := newCounter
+        counter_ := newCounter.
+        pointer_ := newPointer.
 	}.
 
     inline method reset: (newPointer: PointerType) ::=> Void := {
@@ -142,7 +151,8 @@ template SharedPointer(PT: Type)
             counter_ _ strongRelease.
         }.
 
-        counter_ := CounterType for: newPointer
+        counter_ := CounterType for: newPointer.
+        pointer_ := newPointer.
 	}.
 
 	inline method reset => Void
@@ -150,6 +160,7 @@ template SharedPointer(PT: Type)
 
     (inline method := (o: SelfType const ref)) ::=> SelfType const ref := {
 		let newCounter := o __private counter_.
+        let newPointer := o __private pointer_.
 		newCounter ifNotNil: {
 			newCounter _ strongRetain
 		}.
@@ -158,17 +169,21 @@ template SharedPointer(PT: Type)
 		}.
 
 		counter_ := newCounter.
+        pointer_ := newPointer.
 		self
 	}.
 
 	(inline method := (o: SelfType tempRef)) ::=> SelfType const ref := {
 		let newCounter := o __private counter_.
+        let newPointer := o __private pointer_.
 		o __private counter_ := nil.
+        o __private pointer_ := nil.
 		counter_ ifNotNil: {
 			counter_ _ strongRelease
 		}.
 
 		counter_ := newCounter.
+        pointer_ := newPointer.
 		self
 	}.
 
@@ -218,10 +233,11 @@ template WeakPointer(PT: Type)
 	compileTimeConstant StrongPointerType := SharedPointer(PT).
 
     private field counter_ type: CounterType pointer.
+    private field pointer_ type: PointerType.
 
     meta extend: {
         inline method for: (strongRef: StrongPointerType const ref) ::=> WeakPointerType
-            := WeakPointerType basicNewValue initializeWith: strongRef __private counter_; yourself.
+            := WeakPointerType basicNewValue initializeWith: strongRef __private counter_ andPointer: strongRef __private pointer_; yourself.
         macro method nil := ``(`,self basicNewValue).
     }.
 
@@ -229,26 +245,31 @@ template WeakPointer(PT: Type)
         counter_ ifNotNil: {
             counter_ _ weakRelease.
         }.
+        pointer_ := nil.
     }.
 
-    inline method initializeWith: (theCounter: CounterType pointer) ::=> Void := {
+    inline method initializeWith: (theCounter: CounterType pointer) andPointer: (thePointer: PointerType) ::=> Void := {
         counter_ := theCounter.
+        pointer_ := thePointer.
         counter_ ifNotNil: {
             counter_ _ weakRetain.
         }.
     }.
 
     inline method initializeCopyingFrom: (o: SelfType const ref) ::=> Void := {
-		self initializeWith: o __private counter_.
+		self initializeWith: o __private counter_ andPointer: o __private pointer_.
 	}.
 
 	inline method initializeMovingFrom: (o: SelfType tempRef) ::=> Void := {
 		counter_ := o __private counter_.
-		o __private counter_ := nil
+        pointer_ := o __private pointer_.
+		o __private counter_ := nil.
+        o __private pointer_ := nil.
 	}.
 
     (inline method := (o: StrongPointerType const ref)) ::=> SelfType const ref := {
 		let newCounter := o __private counter_.
+        let newPointer := o __private pointer_.
 		newCounter ifNotNil: {
 			counter_ _ weakRetain
 		}.
@@ -257,11 +278,13 @@ template WeakPointer(PT: Type)
 		}.
 
 		counter_ := newCounter.
+        pointer_ := newPointer.
 		self
 	}.
 
     (inline method := (o: SelfType const ref)) ::=> SelfType const ref := {
 		let newCounter := o __private counter_.
+        let newPointer := o __private pointer_.
 		newCounter ifNotNil: {
 			counter_ _ weakRetain
 		}.
@@ -270,19 +293,74 @@ template WeakPointer(PT: Type)
 		}.
 
 		counter_ := newCounter.
+        pointer_ := newPointer.
 		self
 	}.
 
 	(inline method := (o: SelfType tempRef)) ::=> SelfType const ref := {
 		let newCounter := o __private counter_.
+        let newPointer := o __private pointer_.
 		o __private counter_ := nil.
+		o __private pointer_ := nil.
 		counter_ ifNotNil: {
 			counter_ _ weakRelease
 		}.
 
 		counter_ := newCounter.
+        pointer_ := newPointer.
 		self
 	}.
+
+    inline method lock => StrongPointerType := {
+        counter_ isNotNil && counter_ _ weakLock ifTrue: {
+            return: (StrongPointerType basicNewValue initializeWithNewCounter: counter_ andPointer: pointer_; yourself)
+        }.
+
+        return: StrongPointerType nil
+    }.
+
+    macro method upCastFor: targetType := {
+        let tempRef := __astBuilder gensym: #smartPointer.
+        ``{
+            let `,tempRef ref := `,self.
+
+            Stdn WeakPointer(`,targetType) basicNewValue
+                initializeWith: (`,tempRef __private counter_ reinterpretCastTo: Stdn SharedRefCounter(`,targetType) pointer)
+                andPointer: `,tempRef __private pointer_;
+                yourself
+        } asSequenceWithoutLexicalScope
+    }.
+
+    macro method downCastFor: targetType := {
+        let tempRef := __astBuilder gensym: #smartPointer.
+        ``{
+            let `,tempRef ref := `,self.
+
+            Stdn WeakPointer(`,targetType) basicNewValue
+                initializeWith: (`,tempRef __private counter_ reinterpretCastTo: Stdn SharedRefCounter(`,targetType) pointer)
+                andPointer: (`,tempRef __private pointer_ castTo: `,targetType pointer);
+                yourself
+        } asSequenceWithoutLexicalScope
+    }.
+}.
+
+#**
+ * I am an that holds a pointer into its reference counter.
+ *#
+class SharedObject superclass: Object; definition: {
+    private field internalSelfWeakPointer type: Stdn WeakPointer(SelfType).
+
+    method initializeInternalSelfWeakPointer: (weakPointer: Stdn WeakPointer(SelfType) tempRef) ::=> Void
+        := internalSelfWeakPointer := weakPointer.
+
+    method asSharedObjectWeakPointer => Stdn WeakPointer(SelfType) ref
+        := internalSelfWeakPointer.
+
+    method asSharedObjectPointer => Stdn SharedPointer(SelfType)
+        := internalSelfWeakPointer lock.
+
+    macro method asWeakPointer := ``(`,self asSharedObjectWeakPointer downCastFor: `,SelfType).
+    macro method asSharedPointer := ``(`,self asSharedObjectPointer downCastFor: `,SelfType).
 }.
 
 _NativeType meta macro method sharedPointer := ``(Stdn SharedPointer(`,self)).

@@ -6,7 +6,7 @@ namespace Geometry definition: {
  * I represent a parametric line that complies with the following equation:
  * L: P := Lc + Ld*t , with t in R.
  *#
-template GenericParametricLine2d(ST: Type)
+sealed template GenericParametricLine2d(ST: Type)
     := class superclass: GenericGeometricShape(ST); definition: {
 
     public field origin type: Vector2.

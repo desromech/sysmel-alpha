@@ -15,6 +15,10 @@ class RootNorph superclass: Norph; definition: {
 
     }.
 
+    override method changed => Void := {
+        Stdn stdout << "Root norph changed notification received."
+    }.
+
 }.
 
 }. ## End of namespace Norphic

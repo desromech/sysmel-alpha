@@ -5,7 +5,7 @@ namespace LinearAlgebra definition: {
 #**
  * I am an affine transform which is constructed by post multiplication of transformations
  *#
-template GenericAffinePostTransform2d(ST: Type)
+sealed template GenericAffinePostTransform2d(ST: Type)
     := class superclass: GenericLinearAlgebra(ST); definition: {
     public field matrix type: Matrix2x2.
     public field translation type: Vector2.

@@ -2,7 +2,7 @@ namespace Stdn definition: {
 namespace Math definition: {
 namespace Geometry definition: {
 
-template GenericCircle(ST: Type)
+sealed template GenericCircle(ST: Type)
     := class superclass: GenericGeometricShape(ST); definition: {
     public field center type: Vector2.
     public field radius type: Scalar.

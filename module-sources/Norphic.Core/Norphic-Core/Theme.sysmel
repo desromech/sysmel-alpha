@@ -1,0 +1,10 @@
+namespace Norphic definition: {
+
+#**
+ * I represent a norph Theme
+ *#
+class Theme superclass: Stdn Object; definition: {
+
+}.
+
+}. ## End of namespace Norphic

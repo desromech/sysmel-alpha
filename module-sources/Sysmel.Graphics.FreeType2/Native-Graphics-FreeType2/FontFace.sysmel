@@ -31,7 +31,7 @@ class FT2FontFace superclass: FontFace; definition: {
 
     override method finalize => Void := {
         faceSizes valuesDo: {:(FontFaceWithSize sharedPointer ref)each :: Void |
-            (each getPointer reinterpretCastTo: FT2FontFaceWithSize pointer)
+            (each getPointer castTo: FT2FontFaceWithSize pointer)
                 _ releaseHandle.
         }.
 

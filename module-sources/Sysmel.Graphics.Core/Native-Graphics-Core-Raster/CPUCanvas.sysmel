@@ -83,8 +83,7 @@ class CPUCanvas superclass: Canvas; definition: {
     }.
 
     override method copyTexture: (textureView: TextureView sharedPointer const ref) at: (targetPosition: Float32x2) ::=> Void := {
-        ## Fixme: use a normal downcast here.
-        let cpuTextureView := textureView getPointer reinterpretCastTo: CPUTextureView pointer.
+        let cpuTextureView := textureView getPointer castTo: CPUTextureView pointer.
 
         let sourceBlitter := cpuTextureView _ pixelsBlitter.
         targetSurface _ pixelsBlitter
