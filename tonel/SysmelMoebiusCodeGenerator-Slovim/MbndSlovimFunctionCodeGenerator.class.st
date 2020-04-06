@@ -2690,7 +2690,8 @@ MbndSlovimFunctionCodeGenerator >> visitStaticClassPointerCastNode: node [
 	
 	"Is this a down cast?"
 	(targetType isSubtypeOf: sourceType) ifTrue: [
-		self halt.
+		self flag: 'TODO: Implement down-casting in a proper way'.
+		 ^ slvmBuilder bitCast: sourceValue target: targetSSAType
 	].
 
 	self error: 'Unsupported class pointer casting type.'

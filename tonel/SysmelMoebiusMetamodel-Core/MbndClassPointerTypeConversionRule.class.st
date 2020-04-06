@@ -14,7 +14,7 @@ MbndClassPointerTypeConversionRule >> canBeUsedToConvertNode: node from: sourceT
 	
 	(sourceClassType isAbstractClassType or: [ targetClassType isAbstractClassType ]) ifFalse: [ ^ false ].
 	
-	^ (sourceClassType isSubtypeOf: targetClassType) or: [ targetClassType isSubtypeOf: targetClassType]
+	^ (sourceClassType isSubtypeOf: targetClassType) or: [ targetClassType isSubtypeOf: sourceClassType]
 ]
 
 { #category : #hooks }

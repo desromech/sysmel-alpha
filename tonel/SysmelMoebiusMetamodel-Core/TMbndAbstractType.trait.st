@@ -1218,6 +1218,7 @@ TMbndAbstractType >> isStructureType [
 
 { #category : #'type hierarchy' }
 TMbndAbstractType >> isSubtypeOf: aType [
+	<compileTime>
 	| currentType |
 	currentType := self.
 	[ currentType ] whileNotNil: [ 

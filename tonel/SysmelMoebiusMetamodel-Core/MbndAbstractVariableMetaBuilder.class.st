@@ -46,6 +46,11 @@ MbndAbstractVariableMetaBuilder >> ref [
 	self addFlag: #ref
 ]
 
+{ #category : #mutability }
+MbndAbstractVariableMetaBuilder >> tempRef [
+	self addFlag: #tempRef
+]
+
 { #category : #accessing }
 MbndAbstractVariableMetaBuilder >> type: typeExpression [
 	valueType := typeExpression.
