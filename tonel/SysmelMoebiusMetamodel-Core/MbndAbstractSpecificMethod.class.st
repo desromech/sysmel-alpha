@@ -225,13 +225,18 @@ MbndAbstractSpecificMethod >> isAbstractSpecificMethod [
 ]
 
 { #category : #testing }
+MbndAbstractSpecificMethod >> isAbstractVirtualMethod [
+	^ self hasFlag: #abstract
+]
+
+{ #category : #testing }
 MbndAbstractSpecificMethod >> isDefinition [
 	^ false
 ]
 
 { #category : #testing }
 MbndAbstractSpecificMethod >> isNewVirtualTableEntry [
-	^ self hasFlag: #virtual
+	^ (self hasFlag: #virtual) or: [ self isAbstractVirtualMethod ]
 ]
 
 { #category : #testing }

@@ -1123,6 +1123,11 @@ MbndSlovimCodeModuleGenerator >> personalityFunction [
 	]
 ]
 
+{ #category : #visiting }
+MbndSlovimCodeModuleGenerator >> pureVirtualFunctionConstantWithType: ssaFunctionType [
+	^ ssaFunctionType defaultConstant
+]
+
 { #category : #'as yet unclassified' }
 MbndSlovimCodeModuleGenerator >> sanitizeStructureFieldType: fieldType [
 	self slvmCompilationTarget isGPU ifTrue: [ 
@@ -1567,7 +1572,6 @@ MbndSlovimCodeModuleGenerator >> visitAggregateTypeWithFields: type [
 	| ssaType ssaValue ssaTypeValueType |
 	ssaType := self translateType: type.
 	ssaTypeValueType := self translateType: type type.
-	
 
 	type isGCClassType ifTrue: [
 		type isMetaType ifFalse: [ 
@@ -1696,8 +1700,11 @@ MbndSlovimCodeModuleGenerator >> visitCompilerObjectType: type [
 { #category : #visiting }
 MbndSlovimCodeModuleGenerator >> visitConcreteFunctionMethod: functionMethod [
 	| ssaFunctionType csymbol ssaFunction unmangledName addHighLevelMap |
-	ssaFunctionType := self translateType: functionMethod type.
+	functionMethod isAbstractVirtualMethod ifTrue: [
+		^ self pureVirtualFunctionConstantWithType: (self translateType: functionMethod type pointer)
+	].
 	
+	ssaFunctionType := self translateType: functionMethod type.
 	csymbol := self csymbolForProgramEntity: functionMethod.
 	addHighLevelMap := true.
 	functionMethod specialSemantics ifNotNil: [ shaderEntryPoints add: functionMethod ].
@@ -1746,8 +1753,12 @@ MbndSlovimCodeModuleGenerator >> visitConcreteFunctionMethod: functionMethod [
 { #category : #visiting }
 MbndSlovimCodeModuleGenerator >> visitConcreteMessageMethod: functionMethod [
 	| ssaFunctionType csymbol ssaFunction unmangledName |
+	functionMethod isAbstractVirtualMethod ifTrue: [
+		^ self pureVirtualFunctionConstantWithType: (self translateType: functionMethod type pointer)
+	].
+
 	ssaFunctionType := self translateType: functionMethod type.
-	
+
 	csymbol := self csymbolForProgramEntity: functionMethod.
 	unmangledName := self unmangledNameForProgramEntity: functionMethod.
 	csymbol isString ifTrue: [ 

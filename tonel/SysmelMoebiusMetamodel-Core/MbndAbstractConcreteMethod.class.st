@@ -345,7 +345,7 @@ MbndAbstractConcreteMethod >> isConcreteMethod [
 
 { #category : #testing }
 MbndAbstractConcreteMethod >> isDefinition [
-	^ definitionNode isNotNil
+	^ definitionNode isNotNil or: [ self isAbstractVirtualMethod ]
 ]
 
 { #category : #testing }

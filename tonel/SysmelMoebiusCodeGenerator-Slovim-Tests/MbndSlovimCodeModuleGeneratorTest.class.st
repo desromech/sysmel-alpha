@@ -1452,6 +1452,44 @@ function upcast externC(x: SubClass pointer) => SuperClass pointer := x
 ]
 
 { #category : #tests }
+MbndSlovimCodeModuleGeneratorTest >> testClassVirtualAbstractMessageSend [
+	| function |
+	self
+		evaluateSysmelSource: '
+class SuperClass definition: { 
+	field int32Field type: Int32.
+	
+	abstract method getValue => Float64.
+}.
+
+function callVirtual externC(o: SuperClass ref) => Float64
+	:= o getValue.
+';
+		generateSSAModule.
+
+	function := ssaModule globalNamed: #callVirtual.
+	self assert: function asFullSExpressionForTesting equals: #(
+	function callVirtual cdecl f64
+    arguments ((o (pointer (struct 'class.TestModule::SuperClass') generic) ()))
+    literals ()
+    blocks (
+        (()
+            (nil jump void () () (block 2 body))
+        )
+        (()
+            (nil getElementPointer (pointer (pointer (pointer void generic) generic) generic) () ((local nil o) (const i32 0) (const i32 0)))
+            (nil load (pointer (pointer void generic) generic) () ((local nil nil)))
+            (nil getElementPointer (pointer (pointer void generic) generic) () ((local nil nil) (const i32 0)))
+            (nil load (pointer void generic) () ((local nil nil)))
+            (nil bitcast (pointer (function cdecl ((pointer (struct 'class.TestModule::SuperClass') generic)) false f64) generic) () ((local nil nil)))
+            (nil call f64 () ((local nil nil) (local nil o)))
+            (nil return void () ((local nil nil)))
+        )
+    )
+	).
+]
+
+{ #category : #tests }
 MbndSlovimCodeModuleGeneratorTest >> testClassVirtualMessageSend [
 	| function |
 	self
