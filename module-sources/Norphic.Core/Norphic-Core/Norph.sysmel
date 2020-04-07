@@ -21,12 +21,19 @@ class Norph superclass: NorphEventHandler; definition: {
         := RectangleF32 min: Float32x2 zeros extent: self extent.
 
     override method initialize => Void := {
-
+        bounds := self defaultBounds.
+        color := self defaultColor.
     }.
 
     override method finalize => Void := {
         self destroy
     }.
+
+    virtual method defaultBounds => RectangleF32
+        := RectangleF32 min: Float32x2 zeros extent: Float32x2(50.0f, 40.0f).
+
+    virtual method defaultColor => Float32x4
+        := Float32x4(0.0f, 0.0f, 1.0f, 1.0f).
 
     virtual method bounds => RectangleF32
         := bounds.
@@ -46,7 +53,7 @@ class Norph superclass: NorphEventHandler; definition: {
 
     virtual method renderOn: (canvas: Canvas ref) ::=> Void := {
         canvas
-            color: color;
+            color: self color;
             fillRectangle: self localBounds
     }.
 
@@ -98,6 +105,9 @@ class Norph superclass: NorphEventHandler; definition: {
         subnorphs add: newSubnorph.
         newSubnorph _ addedToOwner: self
     }.
+
+    inline method theme => Theme sharedPointer const ref
+        := ThemeRegistry uniqueInstance defaultTheme.
 }.
 
 }. ## End of namespace Norphic

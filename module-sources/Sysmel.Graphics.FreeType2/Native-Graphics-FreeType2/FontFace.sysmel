@@ -21,11 +21,14 @@ class FT2FontFace superclass: FontFace; definition: {
             }.
 
             let result := FT2FontFace sharedNew.
-            result _ handle: handle.
+            result _
+                ft2Library: library;
+                handle: handle.
             return: result.
         }
     }.
 
+    public field ft2Library type: FT2Library sharedPointer.
     public field handle type: FT_Face.
     private field faceSizes type: Stdn Collections Dictionary(UInt32, FontFaceWithSize sharedPointer).
 
@@ -49,10 +52,17 @@ class FT2FontFace superclass: FontFace; definition: {
                 FT_Activate_Size(sizeHandle).
                 FT_Set_Char_Size(handle, 0, faceSize*64, 72, 72).
 
+                let metrics ref := handle _ size _ metrics.
+
                 result := FT2FontFaceWithSize sharedNew.
                 result _
                     handle: sizeHandle;
-                    face: self address.
+                    face: self address;
+
+                    ascender: convert26d6(metrics ascender);
+                    descender: convert26d6(metrics descender);
+                    height: convert26d6(metrics height);
+                    maxAdvance: Float32x2(convert26d6(metrics max_advance), 0.0f).
             }.
 
             result upCastFor: FontFaceWithSize
@@ -60,7 +70,13 @@ class FT2FontFace superclass: FontFace; definition: {
     }.
 }.
 
+class FreeTypeFontFaceLoader superclass: FontFaceLoader; definition: {
+    global Factory mutable type: FontFaceLoaderFactory(FreeTypeFontFaceLoader).
 
+    override method loadFromFileNamed: (fileName: Stdn String const ref) ::=> FontFace sharedPointer := {
+        (FT2FontFace loadFromFile: fileName asCString) upCastFor: FontFace
+    }.
+}.
 
 }. ## End of namespace Text
 }. ## End of namespace Graphics

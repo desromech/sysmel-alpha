@@ -10,8 +10,7 @@ class TextureView definition: {
     #**
      * This method returns the my extent.
      *#
-    virtual method extent => UInt32x2 := UInt32x2 zeros.
-
+    abstract method extent => UInt32x2.
 
 }.
 

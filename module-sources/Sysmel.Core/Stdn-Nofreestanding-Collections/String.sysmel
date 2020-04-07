@@ -4,10 +4,11 @@ namespace Collections definition: {
 #**
  * I am a mutable string
  *#
- template BasicString(CT: Type)
+ sealed template BasicString(CT: Type)
  	:= class definition: {
     compileTimeConstant ValueType := CT.
     compileTimeConstant LiteralType := FixedArray(ValueType) const ref.
+    compileTimeConstant PositionNotFound := UIntPointer maxValue.
 
     ## Mutable field for asCString.
     private field capacity_ mutable type: UIntPointer.
@@ -28,6 +29,18 @@ namespace Collections definition: {
     meta macro method fromCString: cstring := ``(`,self basicNewValue initializeFromCString: `,cstring; yourself).
     meta macro method fromLiteral: literalString := ``(`,self basicNewValue initializeFromLiteral: `,literalString; yourself).
 
+    const inline method hash => UIntPointer := {
+        let result mutable type: UIntPointer := 0.
+        result
+    }.
+
+    const inline method = (other: SelfType const ref) ::=> Boolean8 := {
+        let otherSize := other __private size_.
+        let otherData := other __private data_.
+
+        size_ == otherSize && memcmp(data_ , otherData, size_ * ValueType instanceSize) == 0
+    }.
+
     inline method initializeFromCString: (cstring: ValueType const pointer) ::=> Void := {
         self := cstring
     }.
@@ -42,14 +55,13 @@ namespace Collections definition: {
         }
     }.
 
-
-    inline method data => ValueType pointer
+    const inline method data => ValueType pointer
         := data_.
 
-    inline method size => UIntPointer
+    const inline method size => UIntPointer
         := size_.
 
-    inline method capacity => UIntPointer
+    const inline method capacity => UIntPointer
         := capacity_.
 
     const inline method asCString => ValueType const pointer := {
@@ -149,6 +161,50 @@ namespace Collections definition: {
         let tailSize := capacity_ - size_.
         Stdn memset(data_[size_] address, 0, tailSize * ValueType instanceSize)
     }.
+
+    method indexOf: (element: ValueType) ::=> UIntPointer := {
+        0 until: size_ do: {:(UIntPointer)i :: Void |
+            data_[i] == element ifTrue: {
+                return: i
+            }
+        }.
+        PositionNotFound
+    }.
+
+    method lastIndexOf: (element: ValueType) ::=> UIntPointer := {
+        let lastFound mutable type: UIntPointer := PositionNotFound.
+        0 until: size_ do: {:(UIntPointer)i :: Void |
+            data_[i] == element ifTrue: {
+                lastFound := i.
+            }
+        }.
+        lastFound
+    }.
+
+    method copyFrom: (startIndex: UIntPointer) until: (endIndex: UIntPointer) ::=> SelfType := {
+        let clippedStartIndex := startIndex min: size_.
+        let clippedEndIndex := endIndex min: size_.
+
+        let copySize := clippedEndIndex - clippedStartIndex.
+        let result mutable type: SelfType.
+        copySize > 0 ifTrue: {
+            let copyByteSize := copySize * ValueType instanceSize.
+            result __private capacity_ := copyByteSize + 1.
+            result __private size_ := copyByteSize.
+            result __private data_ := Stdn malloc(copyByteSize + ValueType instanceSize) reinterpretCastTo: ValueType pointer.
+            Stdn memcpy(result __private data_, data_[clippedStartIndex] address, copyByteSize).
+            ## FIXME: Fix this code generator backend bug.
+            void
+        }.
+
+        result asMoveReference
+    }.
+
+    method allButFirst: (ignoredCount: UIntPointer) ::=> SelfType
+        := self copyFrom: ignoredCount until: size_.
+
+    method first: (extractedCount: UIntPointer) ::=> SelfType
+        := self copyFrom: 0 until: extractedCount.
 }.
 
 compileTimeConstant String := BasicString(Char8).
@@ -158,6 +214,18 @@ compileTimeConstant LString := BasicString(Char32). ## Provided for utf8.
 _LiteralString macro method asMutableString := ``(Stdn String fromLiteral: `,self).
 _LiteralString macro method asMutableWString := ``(Stdn WString fromLiteral: `,self).
 _LiteralString macro method asMutableLString := ``(Stdn LString fromLiteral: `,self).
+
+Stdn IO TextStreamWriter extend: {
+    method nextPutAll: (string: String const ref) ::=> Boolean8 := {
+        (stream _ write: string data size: string size) == (string size castTo: IntPointer)
+    }.
+
+    inline method << (string: String const ref) ::=> SelfType ref := {
+        self nextPutAll: string.
+        self
+    }.
+}.
+
 }. ## End of namespace Collections
 
 compileTimeConstant String := Collections String.

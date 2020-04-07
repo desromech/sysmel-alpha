@@ -160,7 +160,6 @@ template Dictionary(KT: Type, VT: Type)
                 let slotIndex := self scanFor: element _ key.
                 Stdn assert: (self isValidIndex: slotIndex).
                 storage_[slotIndex] := element asMoveReference.
-                Stdn stdout << "Reinsert old element " << element _ key; nl
             }
         }.
     }.

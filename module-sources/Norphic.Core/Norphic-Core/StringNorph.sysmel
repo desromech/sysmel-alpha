@@ -1,0 +1,27 @@
+namespace Norphic definition: {
+
+useNamespace: Stdn Graphics Core.
+useNamespace: Stdn Math Geometry.
+
+#**
+ * I am a norph that displays a text.
+ *#
+class StringNorph superclass: Norph; definition: {
+    public field text type: Stdn String.
+
+    override method renderOn: (canvas: Canvas ref) ::=> Void := {
+        let fontFaceWithSize ref := self theme _ normalFontFaceWithSize.
+        canvas
+            fontFaceWithSize: fontFaceWithSize;
+            color: self stringColor;
+            drawUTF8String: text at: Float32x2 (0.0f, fontFaceWithSize _ ascender).
+    }.
+
+    override method defaultColor => Float32x4
+        := self theme _ textColor.
+
+    virtual method stringColor => Float32x4
+        := self color.
+}.
+
+}. ## End of namespace Norphic

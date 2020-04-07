@@ -4,9 +4,29 @@ useNamespace: Stdn Graphics Core.
 useNamespace: Stdn Math Geometry.
 
 #**
- * I am a button widget norph.
+ * I am an abstract button widget norph.
  *#
-class ButtonNorph superclass: Norph; definition: {
+class AbstractButtonMorph superclass: BorderedNorph; definition: {
+}.
+
+#**
+ * I am a button widget norph with a text label.
+ *#
+class SimpleButtonMorph superclass: AbstractButtonMorph; definition: {
+    protected field label type: StringNorph sharedPointer.
+
+    method initialize => Void := {
+        label := StringNorph sharedNew.
+        self addSubnorph: (label upCastFor: Norph)
+    }.
+
+    method text => Stdn String ref
+        := label _ text.
+
+    method text: (newLabel: Stdn String const ref) ::=> Void := {
+        label _ text: newLabel
+    }.
+
 }.
 
 }. ## End of namespace Norphic

@@ -6,11 +6,7 @@ useNamespace: Stdn Math Geometry.
 #**
  * I am a label widget norph.
  *#
-class LabelNorph superclass: Norph; definition: {
-    public field text type: Stdn String.
-
-    override method renderOn: (canvas: Canvas ref) ::=> Void := {
-    }.
+class LabelNorph superclass: StringNorph; definition: {
 }.
 
 }. ## End of namespace Norphic

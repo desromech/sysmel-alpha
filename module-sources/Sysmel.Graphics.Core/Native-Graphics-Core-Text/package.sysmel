@@ -4,5 +4,7 @@ loadFileOnce: "FontFaceWithSize.sysmel".
 loadFileOnce: "FontFace.sysmel".
 loadFileOnce: "Font.sysmel".
 
+loadFileOnce: "FontRegistry.sysmel".
+
 ## Bitmap font.
 loadFileOnce: "BitmapGlyph.sysmel".

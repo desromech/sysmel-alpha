@@ -1,0 +1,144 @@
+namespace Stdn definition: {
+namespace Graphics definition: {
+namespace Core definition: {
+
+#**
+ * I am a font face loader
+ *#
+class FontFaceLoader superclass: Object; definition: {
+    abstract method loadFromFileNamed: (fileName: Stdn String const ref) ::=> FontFace sharedPointer.
+}.
+
+template FontFaceLoaderFactory(FT: Type)
+    := class definition: {
+    compileTimeConstant FontFaceLoaderType := FT.
+
+    private field faceLoaderInstance type: FontFaceLoaderType.
+
+    method initialize => Void := {
+        FontRegistry uniqueInstance registerFontFaceLoader: faceLoaderInstance address
+    }.
+
+    method finalize => Void := {
+        FontRegistry uniqueInstance unregisterFontFaceLoader: faceLoaderInstance address
+    }.
+}.
+
+#**
+ * I am a registry for loaded fonts.
+ *#
+class FontRegistry definition: {
+    private field fontFaceLoaders type: Stdn Collections Vector(FontFaceLoader pointer).
+
+    private field fontDictionaryMutex type: Stdn Mutex.
+    private field fontDictionary type: Stdn Collections Dictionary(Stdn String, Font sharedPointer).
+
+    private field fontFaceDictionaryMutex type: Stdn Mutex.
+    private field fontFaceDictionary type: Stdn Collections Dictionary(Stdn String, FontFace sharedPointer).
+
+    private field defaultSans type: Font sharedPointer.
+    private field defaultSerif type: Font sharedPointer.
+    private field defaultMonospaced type: Font sharedPointer.
+
+    meta definition: {
+        let uniqueInstance mutable type: FontRegistry uniquePointer.
+        let uniqueInstanceOnceCreation mutable type: Stdn OnceFlag.
+
+        method uniqueInstance => FontRegistry ref := {
+            uniqueInstanceOnceCreation do: {
+                uniqueInstance reset: FontRegistry nativeNew.
+            }.
+
+            uniqueInstance _
+        }.
+    }.
+
+    method loadFontNamed: (fontName: Stdn String const ref) with: (fontFillingBlock: ((Font ref) => Void) nativeBlockClosure) ::=> Font sharedPointer := {
+        fontDictionaryMutex withLock: {
+            fontDictionary at: fontName ifAbsentPut: {:: (Font sharedPointer) |
+                let font mutable := Font sharedNew.
+                fontFillingBlock(font _).
+                font
+            }
+        }
+    }.
+
+    method loadFontFace: (faceFileName: Stdn String const ref) ::=> FontFace sharedPointer := {
+        fontFaceDictionaryMutex withLock: {
+            fontFaceDictionary at: faceFileName ifAbsentPut: {:: (FontFace sharedPointer) |
+                self doFontFaceLoading: faceFileName
+            }
+        }
+    }.
+
+    method registerFontFaceLoader: (loader: FontFaceLoader pointer) ::=> Void := {
+        fontDictionaryMutex withLock: {
+            fontFaceLoaders add: loader.
+        }.
+    }.
+
+    method unregisterFontFaceLoader: (loader: FontFaceLoader pointer) ::=> Void := {
+        Stdn stdout << "TODO: unregisterFontFaceLoader"; nl.
+    }.
+
+    method doFontFaceLoading: (faceFileName: Stdn String const ref) ::=> FontFace sharedPointer := {
+        fontFaceLoaders do: {:(FontFaceLoader pointer)faceLoader :: Void |
+            let face mutable := faceLoader _ loadFromFileNamed: faceFileName.
+            face ifNotNil: {
+                return: face
+            }
+        }.
+
+        FontFace sharedPointer nil
+    }.
+
+    method defaultSans => Font sharedPointer := {
+        defaultSans ifNil: {
+            defaultSans := self loadFontNamed: "DejaVuSans" asMutableString
+                with: {:(Font ref) font :: Void |
+                font
+                    normalFace: (self loadFontFace: "resources/fonts/dejavu/ttf/DejaVuSans.ttf" asMutableString);
+                    boldFace: (self loadFontFace: "resources/fonts/dejavu/ttf/DejaVuSans-Bold.ttf" asMutableString);
+                    italicFace: (self loadFontFace: "resources/fonts/dejavu/ttf/DejaVuSans-Oblique.ttf" asMutableString);
+                    italicBoldFace: (self loadFontFace: "resources/fonts/dejavu/ttf/DejaVuSans-BoldOblique.ttf" asMutableString).
+            }
+        }.
+
+        defaultSans.
+    }.
+
+    method defaultSerif => Font sharedPointer := {
+        defaultSerif ifNil: {
+            defaultSerif := self loadFontNamed: "DejaVuSerif" asMutableString
+                with: {:(Font ref) font :: Void |
+                font
+                    normalFace: (self loadFontFace: "resources/fonts/dejavu/ttf/DejaVuSerif.ttf" asMutableString);
+                    boldFace: (self loadFontFace: "resources/fonts/dejavu/ttf/DejaVuSerif-Bold.ttf" asMutableString);
+                    italicFace: (self loadFontFace: "resources/fonts/dejavu/ttf/DejaVuSerif-Oblique.ttf" asMutableString);
+                    italicBoldFace: (self loadFontFace: "resources/fonts/dejavu/ttf/DejaVuSerif-BoldOblique.ttf" asMutableString).
+            }
+        }.
+
+        defaultSerif
+    }.
+
+    method defaultMonospaced => Font sharedPointer := {
+        defaultMonospaced ifNil: {
+            defaultMonospaced := self loadFontNamed: "DejaVuMono" asMutableString
+                with: {:(Font ref) font :: Void |
+                font
+                    normalFace: (self loadFontFace: "resources/fonts/dejavu/ttf/DejaVuMono.ttf" asMutableString);
+                    boldFace: (self loadFontFace: "resources/fonts/dejavu/ttf/DejaVuMono-Bold.ttf" asMutableString);
+                    italicFace: (self loadFontFace: "resources/fonts/dejavu/ttf/DejaVuMono-Oblique.ttf" asMutableString);
+                    italicBoldFace: (self loadFontFace: "resources/fonts/dejavu/ttf/DejaVuMono-BoldOblique.ttf" asMutableString).
+            }
+        }.
+
+        defaultMonospaced
+    }.
+
+}.
+
+}. ## End of namespace Core
+}. ## End of namespace Graphics
+}. ## End of namespace Stdn

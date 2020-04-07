@@ -15,8 +15,7 @@ class Canvas superclass: Object; definition: {
     public field transform type: AffinePostTransform2dF32.
 
     ## This method clears the whole surface with the active color.
-    virtual method clear ::=> Void := {
-    }.
+    abstract method clear ::=> Void.
 
     ## This method sets a white color.
     virtual method white ::=> Void := {
@@ -34,23 +33,18 @@ class Canvas superclass: Object; definition: {
     }.
 
     ## This sets the current blending mode.
-    virtual method blendingMode: (mode: BlendingMode) ::=> Void := {
-
-    }.
+    abstract method blendingMode: (mode: BlendingMode) ::=> Void.
 
     ## This sets the current active color. The color is in the sRGB space.
-    virtual method color: (srgbColor: UInt8x4) ::=> Void := {
-    }.
+    abstract method color: (srgbColor: UInt8x4) ::=> Void.
 
     ## This sets the current active color. The color is in the linear RGB space.
-    virtual method color: (linearColor: Float32x4) ::=> Void := {
-    }.
+    abstract method color: (linearColor: Float32x4) ::=> Void.
 
     ## Fill a triangle.
-    virtual method fillTriangle: (p1: Float32x2) color: (c1: Float32x4) tc: (tc1: Float32x2)
+    abstract method fillTriangle: (p1: Float32x2) color: (c1: Float32x4) tc: (tc1: Float32x2)
         p2: (p2: Float32x2) color: (c2: Float32x4) tc: (tc2: Float32x2)
-        p3: (p3: Float32x2) color: (c3: Float32x4) tc: (tc3: Float32x2) ::=> Void := {
-    }.
+        p3: (p3: Float32x2) color: (c3: Float32x4) tc: (tc3: Float32x2) ::=> Void.
 
     inline method fillTriangle: (p1: Float32x2) color: (c1: Float32x4) p2: (p2: Float32x2) color: (c2: Float32x4) p3: (p3: Float32x2) color: (c3: Float32x4)::=> Void := {
         self fillTriangle: p1 color: c1 tc: Float32x2 zeros
@@ -65,14 +59,10 @@ class Canvas superclass: Object; definition: {
     }.
 
     ## Draw the rectangle lines.
-    virtual method drawSegmentStart: (startPoint: Float32x2) end: (endPoint: Float32x2) ::=> Void := {
-
-    }.
+    abstract method drawSegmentStart: (startPoint: Float32x2) end: (endPoint: Float32x2) ::=> Void.
 
     ## Fill a rectangle.
-    virtual method fillRectangle: (rectangle: RectangleF32) ::=> Void := {
-
-    }.
+    abstract method fillRectangle: (rectangle: RectangleF32) ::=> Void.
 
     ## Draw the rectangle lines.
     virtual method drawRectangle: (rectangle: RectangleF32) ::=> Void := {
@@ -84,14 +74,10 @@ class Canvas superclass: Object; definition: {
     }.
 
     ## Copy the pixels of a texture without any transformation.
-    virtual method copyTexture: (textureView: TextureView sharedPointer const ref) at: (targetPosition: Float32x2) ::=> Void := {
-
-    }.
+    abstract method copyTexture: (textureView: TextureView sharedPointer const ref) at: (targetPosition: Float32x2) ::=> Void.
 
     ## Sets the current font face with size.
-    virtual method fontFaceWithSize: (font: FontFaceWithSize sharedPointer const ref) ::=> Void := {
-
-    }.
+    abstract method fontFaceWithSize: (font: FontFaceWithSize sharedPointer const ref) ::=> Void.
 
     ## Draws a character with the font face and size. This returns the position for drawing the next character.
     virtual method drawCharacter: (character: Char32) withState: (state: TextDrawingState) ::=> TextDrawingState
@@ -112,6 +98,9 @@ class Canvas superclass: Object; definition: {
     inline method drawUTF8String: (encodedString: Char8 const pointer) size: (encodedStringSize: UIntPointer) at: (position: Float32x2) ::=> TextDrawingState
         := self drawUTF8String: encodedString size: encodedStringSize
             withState: (TextDrawingState position: position).
+
+    inline method drawUTF8String: (string: Stdn String const ref) at: (position: Float32x2) ::=> TextDrawingState
+        := self drawUTF8String: string data size: string size at: position.
 
     inline method drawUTF8String: (encodedString: Char8 const pointer) at: (position: Float32x2) ::=> TextDrawingState
         := self drawUTF8String: encodedString size: Stdn cstrlen(encodedString) at: position.

@@ -27,6 +27,11 @@ class CPUCanvas superclass: Canvas; definition: {
         }
     }.
 
+
+    override method blendingMode: (newMode: BlendingMode) ::=> Void := {
+        blendingMode := newMode
+    }.
+    
     override method clear ::=> Void := {
         targetSurface _ pixelsBlitter setAllPixelsToColor: currentColor
     }.

@@ -1,0 +1,27 @@
+namespace Norphic definition: {
+
+#**
+ * I am a norph theme registry.
+ *#
+class ThemeRegistry definition: {
+    meta definition: {
+        let uniqueInstance mutable type: ThemeRegistry uniquePointer.
+        let uniqueInstanceOnceCreation mutable type: Stdn OnceFlag.
+
+        method uniqueInstance => ThemeRegistry ref := {
+            uniqueInstanceOnceCreation do: {
+                uniqueInstance reset: ThemeRegistry nativeNew.
+            }.
+
+            uniqueInstance _
+        }.
+    }.
+
+    public field defaultTheme type: Theme sharedPointer.
+
+    method initialize => Void := {
+        defaultTheme := Theme sharedNew
+    }.
+}.
+
+}. ## End of namespace Norphic

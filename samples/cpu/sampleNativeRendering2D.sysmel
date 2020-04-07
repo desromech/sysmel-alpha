@@ -85,8 +85,8 @@ function main externC (argc: Int32, argv: UInt8 const pointer pointer) => Int32 
         return: 0.
     }.
 
-    ## TODO: Use a factory to avoid using explicitly the freetype bindings here.
-    let fontFace mutable := Stdn Graphics FT2Bindings FT2FontFace loadFromFile: "resources/fonts/dejavu/ttf/DejaVuSans.ttf".
+    ## Use the default font face.
+    let fontFace mutable := FontRegistry uniqueInstance defaultSans _ normalFace.
     fontFaceWithSize := fontFace _ getOrCreateFaceWithSize: 24.
 
     ## Create the event handler.
