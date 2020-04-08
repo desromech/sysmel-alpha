@@ -1,9 +1,11 @@
 namespace Stdn definition: {
 namespace Collections definition: {
 
-template Vector(ET: Type)
+template Vector(ET: Stdn Concepts Copyable)
 	:= class definition: {
     compileTime constant ElementType := ET.
+    compileTime constant PositionNotFound := UIntPointer maxValue.
+	compileTime constant PredicateType := ((ElementType const ref) => Boolean8) nativeBlockClosure.
 
     private field capacity_ type: UIntPointer.
 	private field size_ type: UIntPointer.
@@ -155,6 +157,84 @@ template Vector(ET: Type)
 		Stdn swapValue: capacity_ with: other __private capacity_.
 		Stdn swapValue: size_ with: other __private size_.
 		Stdn swapValue: storage_ with: other __private storage_.
+	}.
+
+	inline method removeAt: (index: UIntPointer) ::=> Void := {
+		size_ == 0 || index >= size_ ifTrue: {
+			return: void
+		}.
+
+		index until: size_ - 1 do: {:(UIntPointer)destIndex :: Void |
+			storage_[destIndex] := storage_[destIndex + 1] asMoveReference
+		}.
+
+		size_ := size_ - 1.
+		storage_[size_] finalize
+	}.
+
+	inline method removeAllSuchThat: (predicate: PredicateType) ::=> Void := {
+		let destIndex mutable type: UIntPointer := 0.
+		0 until: size_ do: {:(UIntPointer)i :: Void |
+			predicate(storage_[i]) ifFalse: {
+				destIndex ~~ i ifTrue: {
+					storage_[destIndex] := storage_[i] asMoveReference.
+					destIndex := destIndex + 1
+				}
+			}
+		}.
+
+		destIndex until: size_ do: {:(UIntPointer)i :: Void |
+			storage_[i] finalize.
+		}.
+
+		size_ := destIndex.
+	}.
+
+	Stdn Concepts Equalable ifType: ElementType complies: {
+		method = (other: SelfType const ref) ::=> Boolean8 := {
+			size_ = other __private size_ ifFalse: { return: false }.
+			0 until: size_ do: {:(UIntPointer)i :: Void |
+				storage_[i] = other __private storage_[i] ifFalse: {
+					return: false
+				}
+			}.
+
+			true
+		}.
+
+		inline method indexOf: (value: ElementType const ref) ::=> UIntPointer := {
+			0 until: size_ do: {:(UIntPointer)i :: Void |
+				storage_[i] = value ifTrue: {
+					return: i
+				}
+			}.
+
+			return: PositionNotFound
+		}.
+
+		inline method remove: (value: ElementType const ref) ifAbsent: (absentBlock: (Void => Void) nativeBlockClosure) ::=> Void := {
+			let elementIndex := self indexOf: value.
+			elementIndex == PositionNotFound ifTrue: {
+				return: absentBlock()
+			}.
+
+			self removeAt: elementIndex
+		}.
+
+		inline method remove: (value: ElementType const ref) ::=> Void := {
+			self remove: value ifAbsent: {:: Void | Stdn raiseError("Failed to find element in Vector"). }
+		}.
+	}.
+
+	Stdn Concepts HashKey ifType: ElementType complies: {
+		method hash => UIntPointer := {
+			let result mutable  := size_ hash.
+			0 until: size_ do: {:(UIntPointer)i :: Void |
+				result := (result + storage_[i] hash) * 1664525 ## TODO: Find a more suitable constant here.
+			}.
+
+			result
+		}.
 	}.
 }.
 

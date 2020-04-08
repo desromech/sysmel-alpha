@@ -1,7 +1,7 @@
 namespace Stdn definition: {
 namespace Collections definition: {
 
-template Dictionary(KT: Type, VT: Type)
+template Dictionary(KT: Stdn Concepts HashKey, VT: Stdn Concepts Copyable)
     := class definition: {
     compileTime constant KeyType := KT.
     compileTime constant ValueType := VT.

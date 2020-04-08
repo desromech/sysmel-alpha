@@ -54,7 +54,9 @@ class FontFaceLoaderRegistry definition: {
     }.
 
     method unregisterFontFaceLoader: (loader: FontFaceLoader pointer) ::=> Void := {
-        Stdn stdout << "TODO: unregisterFontFaceLoader"; nl.
+        loadersMutex withLock: {
+            loaders remove: loader.
+        }.
     }.
 
     method loadFontFaceFromFileNamed: (faceFileName: Stdn String const ref) ::=> FontFace sharedPointer := {

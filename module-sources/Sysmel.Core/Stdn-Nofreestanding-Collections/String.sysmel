@@ -31,6 +31,9 @@ namespace Collections definition: {
 
     const inline method hash => UIntPointer := {
         let result mutable type: UIntPointer := 0.
+        0 until: size_ do: {:(UIntPointer)i :: Void |
+            result := (result + data_[i]) * 1664525
+        }.
         result
     }.
 
