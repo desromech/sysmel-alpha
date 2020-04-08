@@ -2,7 +2,7 @@ namespace Stdn definition: {
 
 template Optional(VT: Type)
     := class definition: {
-    compileTimeConstant ValueType := VT.
+    compileTime constant ValueType := VT.
 
     private field present_ type: Boolean8.
 

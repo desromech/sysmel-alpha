@@ -22,7 +22,7 @@ enum _Unwind_Reason_Code valueType: Int32; values: #{
 }.
 
 struct _Unwind_Exception.
-compileTimeConstant _Unwind_Exception_Cleanup_Fn := ((_Unwind_Reason_Code -- _Unwind_Exception pointer) => Void) pointer.
+compileTime constant _Unwind_Exception_Cleanup_Fn := ((_Unwind_Reason_Code -- _Unwind_Exception pointer) => Void) pointer.
 
 _Unwind_Exception definition: {
     public field exceptionClass type: UInt64.
@@ -45,11 +45,11 @@ function _Unwind_GetCFA externC(context: _Unwind_Context pointer) => UIntPointer
 function _Unwind_GetLanguageSpecificData externC(context: _Unwind_Context pointer) => Void pointer.
 function _Unwind_GetRegionStart externC(context: _Unwind_Context pointer) => UIntPointer.
 
-compileTimeConstant _Unwind_Action := Int32.
-compileTimeConstant _UA_SEARCH_PHASE := 1.
-compileTimeConstant _UA_CLEANUP_PHASE := 2.
-compileTimeConstant _UA_HANDLER_FRAME := 4.
-compileTimeConstant _UA_FORCE_UNWIND := 8.
+compileTime constant _Unwind_Action := Int32.
+compileTime constant _UA_SEARCH_PHASE := 1.
+compileTime constant _UA_CLEANUP_PHASE := 2.
+compileTime constant _UA_HANDLER_FRAME := 4.
+compileTime constant _UA_FORCE_UNWIND := 8.
 
 enum DW_EH_PE valueType: UInt8; values: #{
     absptr:   16r00.
@@ -86,7 +86,7 @@ function fetchPointerWithEncoding(in: Stdn IO FixedMemoryStream ref, reader: Std
     let dataEncoding := (encoding value & 16r0F) castTo: DW_EH_PE.
     dataEncoding selectCase: #{
     DW_EH_PE absptr : {
-            compileTimeIf: UIntPointer instanceSize = 4 then: {
+            compileTime if: UIntPointer instanceSize = 4 then: {
                 result := reader nextUInt32
             } else: {
                 result := reader nextUInt64
@@ -159,11 +159,11 @@ enum SysmelExceptionKind valueType: Int32; values: #{
     Foreign: 3.
 }.
 
-compileTimeConstant OurExceptionClass := 16r5359534D454C4C00. ## SYSMELL\0
-compileTimeConstant ExceptionClassVendorAndLanguageMask := 16rFFFFFFFFFFFFFF00.
+compileTime constant OurExceptionClass := 16r5359534D454C4C00. ## SYSMELL\0
+compileTime constant ExceptionClassVendorAndLanguageMask := 16rFFFFFFFFFFFFFF00.
 
-compileTimeConstant LandingPadStructurePointerRegister := Compiler compilationTarget landingPadStructurePointerRegisterIndex.
-compileTimeConstant LandingPadSelectorRegister := Compiler compilationTarget landingPadSelectorRegisterIndex.
+compileTime constant LandingPadStructurePointerRegister := Compiler compilationTarget landingPadStructurePointerRegisterIndex.
+compileTime constant LandingPadSelectorRegister := Compiler compilationTarget landingPadSelectorRegisterIndex.
 
 Stdn Reflection TypeInformation extend: {
     const method canCatchException: (exceptionObjectPointer: Void pointer)

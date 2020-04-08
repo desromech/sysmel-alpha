@@ -1,14 +1,14 @@
 namespace Stdn definition: {
 namespace Reflection definition: {
 
-compileTimeConstant BasicInitializeFunctionPointerType := ((Void pointer) => Void) pointer.
-compileTimeConstant CopyConstructorFunctionPointerType := ((Void pointer -- Void pointer) => Void) pointer.
-compileTimeConstant MoveConstructorFunctionPointerType := ((Void pointer -- Void pointer) => Void) pointer.
-compileTimeConstant FinalizeFunctionPointerType := ((Void pointer) => Void) pointer.
+compileTime constant BasicInitializeFunctionPointerType := ((Void pointer) => Void) pointer.
+compileTime constant CopyConstructorFunctionPointerType := ((Void pointer -- Void pointer) => Void) pointer.
+compileTime constant MoveConstructorFunctionPointerType := ((Void pointer -- Void pointer) => Void) pointer.
+compileTime constant FinalizeFunctionPointerType := ((Void pointer) => Void) pointer.
 
 class GCObjectHeader definition: {
     ## If we do not use the garbage collector, save space by omitting these fields.
-    compileTimeIf: Compiler hasGarbageCollectionSupport then: {
+    compileTime if: Compiler hasGarbageCollectionSupport then: {
         ## Pointer towards the main virtual table. Objects that implement interfaces
         ## can have additional vtables.
         (SelfType addMainVTableFieldNamed: #__vtable) public.

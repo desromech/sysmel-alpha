@@ -6,12 +6,12 @@ class Exception superclass: Object; definition: {
 
     public field messageText type: FixedString const pointer.
 
-    compileTimeIf: Compiler compilationTarget hasNoOperatingSystem then: {
+    compileTime if: Compiler compilationTarget hasNoOperatingSystem then: {
         method signal => Void := {
             ## TODO: Use a trap instruction here.
         }.
     } else: {
-        compileTimeIf: Compiler hasExceptions not then: {
+        compileTime if: Compiler hasExceptions not then: {
             method signal => Void := {
                 stderr << "Fatal error: " << self; nl.
                 native_abort().

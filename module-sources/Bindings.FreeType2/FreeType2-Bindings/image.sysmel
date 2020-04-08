@@ -1,6 +1,6 @@
 namespace FreeType2 definition: {
 
-compileTimeConstant FT_Pos := CTypes Long.
+compileTime constant FT_Pos := CTypes Long.
 
 struct FT_BBox definition: {
     public field xMin type: FT_Pos.

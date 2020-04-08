@@ -30,7 +30,7 @@ union EndpointAddress definition: {
     public field ipv6 type: EndpointAddressIPv6.
 }.
 
-compileTimeIf: Compiler compilationTarget isLittleEndian then: {
+compileTime if: Compiler compilationTarget isLittleEndian then: {
     function hostToNetworkShort(value: UInt16) => UInt16
         := swapUInt16(value).
     function hostToNetworkLong(value: UInt32) => UInt32

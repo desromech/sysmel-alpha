@@ -95,7 +95,7 @@ Symbol definition: {
         method streamSpecies := String.
     }.
 
-compileTimeIf: Compiler compilationTarget areSymbolsEqualsToString then: {
+compileTime if: Compiler compilationTarget areSymbolsEqualsToString then: {
     method = other := {
         self == other ifTrue: { return: true }.
         other class == Symbol ifTrue: { return: false }.

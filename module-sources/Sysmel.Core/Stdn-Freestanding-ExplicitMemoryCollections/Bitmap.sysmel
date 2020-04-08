@@ -6,9 +6,9 @@ namespace ExplicitMemoryCollections definition: {
  * A bitmap whose data memory is managed explicitly by the user.
  *#
 struct Bitmap definition: {
-    compileTimeConstant BitsPerWord := UIntPointer instanceSize * 8.
-    compileTimeConstant BytesPerWord := UIntPointer instanceSize.
-    compileTimeConstant InvalidBitIndex := -1 castTo: UIntPointer.
+    compileTime constant BitsPerWord := UIntPointer instanceSize * 8.
+    compileTime constant BytesPerWord := UIntPointer instanceSize.
+    compileTime constant InvalidBitIndex := -1 castTo: UIntPointer.
 
     field bitmap public type: UIntPointer pointer.
     field wordCount public type: UIntPointer.

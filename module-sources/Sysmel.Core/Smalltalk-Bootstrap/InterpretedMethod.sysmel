@@ -1,6 +1,6 @@
 namespace SmalltalkVM definition: {
 class BytecodeInterpreter definition: {
-    compileTimeConstant MaxFrameSize := 60.
+    compileTime constant MaxFrameSize := 60.
 
     public field numTemps type: UInt32.
     public field receiver type: Smalltalk ProtoObject.

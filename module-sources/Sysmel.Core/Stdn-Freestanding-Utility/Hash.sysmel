@@ -1,6 +1,6 @@
 namespace Stdn definition: {
 
-compileTimeConstant Hash := UIntPointer.
+compileTime constant Hash := UIntPointer.
 
 ## UInt64 integer hashing function from: https://nullprogram.com/blog/2018/07/31/
 function hashForUInt64(v: UInt64) => Hash := {
@@ -40,11 +40,11 @@ _PointerType macro method hash := ``((`,self reinterpretCastTo: UIntPointer) has
 
     inline method hash => Hash := {
         let r mutable := self x hash.
-        compileTimeIf: VectorSize > 1 then: {
+        compileTime if: VectorSize > 1 then: {
             r := r ^ self y hash.
-            compileTimeIf: VectorSize > 2 then: {
+            compileTime if: VectorSize > 2 then: {
                 r := r ^ self z hash.
-                compileTimeIf: VectorSize > 3 then: {
+                compileTime if: VectorSize > 3 then: {
                 r := r ^ self w hash.
                 }
             }

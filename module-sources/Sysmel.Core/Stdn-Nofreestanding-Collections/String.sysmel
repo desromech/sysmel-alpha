@@ -6,9 +6,9 @@ namespace Collections definition: {
  *#
  sealed template BasicString(CT: Type)
  	:= class definition: {
-    compileTimeConstant ValueType := CT.
-    compileTimeConstant LiteralType := FixedArray(ValueType) const ref.
-    compileTimeConstant PositionNotFound := UIntPointer maxValue.
+    compileTime constant ValueType := CT.
+    compileTime constant LiteralType := FixedArray(ValueType) const ref.
+    compileTime constant PositionNotFound := UIntPointer maxValue.
 
     ## Mutable field for asCString.
     private field capacity_ mutable type: UIntPointer.
@@ -207,9 +207,9 @@ namespace Collections definition: {
         := self copyFrom: 0 until: extractedCount.
 }.
 
-compileTimeConstant String := BasicString(Char8).
-compileTimeConstant WString := BasicString(Char16). ## Used in multiple Win32 APIs
-compileTimeConstant LString := BasicString(Char32). ## Provided for utf8.
+compileTime constant String := BasicString(Char8).
+compileTime constant WString := BasicString(Char16). ## Used in multiple Win32 APIs
+compileTime constant LString := BasicString(Char32). ## Provided for utf8.
 
 _LiteralString macro method asMutableString := ``(Stdn String fromLiteral: `,self).
 _LiteralString macro method asMutableWString := ``(Stdn WString fromLiteral: `,self).
@@ -228,8 +228,8 @@ Stdn IO TextStreamWriter extend: {
 
 }. ## End of namespace Collections
 
-compileTimeConstant String := Collections String.
-compileTimeConstant WString := Collections WString.
-compileTimeConstant LString := Collections LString.
+compileTime constant String := Collections String.
+compileTime constant WString := Collections WString.
+compileTime constant LString := Collections LString.
 
 }. ## End of namespace Stdn

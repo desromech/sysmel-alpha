@@ -4,9 +4,9 @@ class SharedObject.
 
 template SharedRefCounter(PT: Type)
     := struct definition: {
-    compileTimeConstant PointedType := PT.
-	compileTimeConstant PointerType := PointedType pointer.
-    compileTimeConstant CounterType := SelfType.
+    compileTime constant PointedType := PT.
+	compileTime constant PointerType := PointedType pointer.
+    compileTime constant CounterType := SelfType.
 
     meta extend: {
         inline method for: (pointer: PointerType) ::=> CounterType pointer := {
@@ -28,7 +28,7 @@ template SharedRefCounter(PT: Type)
         strongCounter_ store: 1 with: MemoryOrder Release.
         weakCounter_ store: 1 with: MemoryOrder Release.
         pointer_ := pointer.
-        compileTimeIf: (PointedType isSubtypeOf: SharedObject) then: {
+        compileTime if: (PointedType isSubtypeOf: SharedObject) then: {
             let downWeakPointer := WeakPointer(PointedType) basicNewValue initializeWith: self address andPointer: pointer; yourself.
             pointer_ _ initializeInternalSelfWeakPointer: (downWeakPointer upCastFor: SharedObject)
         }.
@@ -79,11 +79,11 @@ template SharedRefCounter(PT: Type)
 
 template SharedPointer(PT: Type)
     := struct definition: {
-    compileTimeConstant PointedType := PT.
-	compileTimeConstant PointerType := PointedType pointer.
-    compileTimeConstant CounterType := SharedRefCounter(PT).
-	compileTimeConstant SmartPointerType := SelfType.
-	compileTimeConstant WeakPointerType := WeakPointer(PT).
+    compileTime constant PointedType := PT.
+	compileTime constant PointerType := PointedType pointer.
+    compileTime constant CounterType := SharedRefCounter(PT).
+	compileTime constant SmartPointerType := SelfType.
+	compileTime constant WeakPointerType := WeakPointer(PT).
 
     meta extend: {
         inline method for: (pointer: PointerType) ::=> SmartPointerType
@@ -226,11 +226,11 @@ template SharedPointer(PT: Type)
 
 template WeakPointer(PT: Type)
     := struct definition: {
-    compileTimeConstant PointedType := PT.
-	compileTimeConstant PointerType := PointedType pointer.
-    compileTimeConstant CounterType := SharedRefCounter(PT).
-	compileTimeConstant WeakPointerType := SelfType.
-	compileTimeConstant StrongPointerType := SharedPointer(PT).
+    compileTime constant PointedType := PT.
+	compileTime constant PointerType := PointedType pointer.
+    compileTime constant CounterType := SharedRefCounter(PT).
+	compileTime constant WeakPointerType := SelfType.
+	compileTime constant StrongPointerType := SharedPointer(PT).
 
     private field counter_ type: CounterType pointer.
     private field pointer_ type: PointerType.

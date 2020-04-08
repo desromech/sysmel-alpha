@@ -1,4 +1,4 @@
 namespace Unix definition: {
     function open64 externC CVariadic (path: ConstString, flags: Int32) => Int32.
-    compileTimeConstant open := open64.
+    compileTime constant open := open64.
 }.

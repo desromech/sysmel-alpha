@@ -3,7 +3,7 @@ namespace Stdn definition: {
 ## Array
 template FixedArray(ET: Type)
 	:= struct definition: {
-    compileTimeConstant ElementType := ET.
+    compileTime constant ElementType := ET.
 
     meta method elementType => _CompilerObjectType := {
         return: ElementType
@@ -22,8 +22,8 @@ template FixedArray(ET: Type)
 }.
 
 ## Convenience method for literal strings
-compileTimeConstant FixedString := FixedArray(Char8).
-compileTimeConstant StringLiteral := FixedString const ref.
+compileTime constant FixedString := FixedArray(Char8).
+compileTime constant StringLiteral := FixedString const ref.
 
 Compiler compilationTarget setNativePrefixedStringLiteralType: StringLiteral.
 

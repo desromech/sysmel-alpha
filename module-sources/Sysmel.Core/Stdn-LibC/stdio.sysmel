@@ -1,7 +1,7 @@
 namespace LibC definition: {
-    compileTimeConstant SEEK_SET := 0.
-    compileTimeConstant SEEK_CUR := 1.
-    compileTimeConstant SEEK_END := 2.
+    compileTime constant SEEK_SET := 0.
+    compileTime constant SEEK_CUR := 1.
+    compileTime constant SEEK_END := 2.
 
     struct FILE definition: {}.
 

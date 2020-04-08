@@ -3,11 +3,11 @@ namespace Collections definition: {
 
 template Dictionary(KT: Type, VT: Type)
     := class definition: {
-    compileTimeConstant KeyType := KT.
-    compileTimeConstant ValueType := VT.
-    compileTimeConstant AssociationType := Association(KeyType, ValueType).
-    compileTimeConstant StorageElementType := Optional(AssociationType).
-    compileTimeConstant StorageType := Vector(StorageElementType).
+    compileTime constant KeyType := KT.
+    compileTime constant ValueType := VT.
+    compileTime constant AssociationType := Association(KeyType, ValueType).
+    compileTime constant StorageElementType := Optional(AssociationType).
+    compileTime constant StorageType := Vector(StorageElementType).
 
     private field size_ type: UIntPointer.
     private field storage_ type: StorageType.

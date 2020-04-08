@@ -24,8 +24,8 @@ sealed template GenericParametricLine2d(ST: Type)
         := origin + direction*distance.
 }.
 
-compileTimeConstant ParametricLine2dF32 := GenericParametricLine2d(Float32).
-compileTimeConstant ParametricLine2dF64 := GenericParametricLine2d(Float64).
+compileTime constant ParametricLine2dF32 := GenericParametricLine2d(Float32).
+compileTime constant ParametricLine2dF64 := GenericParametricLine2d(Float64).
 
 #**
  * I represent an implicit line equation of the form:
@@ -39,8 +39,8 @@ template GenericLine2d(ST: Type)
 
 }.
 
-compileTimeConstant Line2dF32 := GenericLine2d(Float32).
-compileTimeConstant Line2dF64 := GenericLine2d(Float64).
+compileTime constant Line2dF32 := GenericLine2d(Float32).
+compileTime constant Line2dF64 := GenericLine2d(Float64).
 
 } ## End of namespace Geometry
 } ## End of namespace Math

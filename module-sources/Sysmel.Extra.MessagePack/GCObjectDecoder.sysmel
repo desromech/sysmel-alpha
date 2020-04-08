@@ -2,9 +2,9 @@ namespace Stdn definition: {
 namespace Serialization definition: {
 namespace MessagePack definition: {
 
-compileTimeConstant GCObjectDecoder := Decoder(Smalltalk ProtoObject).
+compileTime constant GCObjectDecoder := Decoder(Smalltalk ProtoObject).
 class GCObjectDecoderCallback superclass: GCObjectDecoder Callback; definition: {
-    compileTimeConstant ResultType := Smalltalk ProtoObject.
+    compileTime constant ResultType := Smalltalk ProtoObject.
 
     public field decoder type: GCObjectDecoder pointer.
 

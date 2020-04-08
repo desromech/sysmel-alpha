@@ -3,29 +3,29 @@ namespace SDL2 definition: {
 ## SDL_video.h
 struct SDL_Window.
 
-compileTimeConstant SDL_WINDOW_FULLSCREEN := 16r00000001.
-compileTimeConstant SDL_WINDOW_OPENGL := 16r00000002.
-compileTimeConstant SDL_WINDOW_SHOWN := 16r00000004.
-compileTimeConstant SDL_WINDOW_HIDDEN := 16r00000008.
-compileTimeConstant SDL_WINDOW_BORDERLESS := 16r00000010.
-compileTimeConstant SDL_WINDOW_RESIZABLE := 16r00000020.
-compileTimeConstant SDL_WINDOW_MINIMIZED := 16r00000040.
-compileTimeConstant SDL_WINDOW_MAXIMIZED := 16r00000080.
-compileTimeConstant SDL_WINDOW_INPUT_GRABBED := 16r00000100.
-compileTimeConstant SDL_WINDOW_INPUT_FOCUS := 16r00000200.
-compileTimeConstant SDL_WINDOW_MOUSE_FOCUS := 16r00000400.
-compileTimeConstant SDL_WINDOW_FULLSCREEN_DESKTOP := ( SDL_WINDOW_FULLSCREEN | 16r00001000 ).
-compileTimeConstant SDL_WINDOW_FOREIGN := 16r00000800.
-compileTimeConstant SDL_WINDOW_ALLOW_HIGHDPI := 16r00002000.
-compileTimeConstant SDL_WINDOW_MOUSE_CAPTURE := 16r00004000.
+compileTime constant SDL_WINDOW_FULLSCREEN := 16r00000001.
+compileTime constant SDL_WINDOW_OPENGL := 16r00000002.
+compileTime constant SDL_WINDOW_SHOWN := 16r00000004.
+compileTime constant SDL_WINDOW_HIDDEN := 16r00000008.
+compileTime constant SDL_WINDOW_BORDERLESS := 16r00000010.
+compileTime constant SDL_WINDOW_RESIZABLE := 16r00000020.
+compileTime constant SDL_WINDOW_MINIMIZED := 16r00000040.
+compileTime constant SDL_WINDOW_MAXIMIZED := 16r00000080.
+compileTime constant SDL_WINDOW_INPUT_GRABBED := 16r00000100.
+compileTime constant SDL_WINDOW_INPUT_FOCUS := 16r00000200.
+compileTime constant SDL_WINDOW_MOUSE_FOCUS := 16r00000400.
+compileTime constant SDL_WINDOW_FULLSCREEN_DESKTOP := ( SDL_WINDOW_FULLSCREEN | 16r00001000 ).
+compileTime constant SDL_WINDOW_FOREIGN := 16r00000800.
+compileTime constant SDL_WINDOW_ALLOW_HIGHDPI := 16r00002000.
+compileTime constant SDL_WINDOW_MOUSE_CAPTURE := 16r00004000.
 
-compileTimeConstant SDL_WINDOWPOS_UNDEFINED_MASK := 16r1FFF0000.
+compileTime constant SDL_WINDOWPOS_UNDEFINED_MASK := 16r1FFF0000.
 ## #define SDL_WINDOWPOS_UNDEFINED_DISPLAY(X)  (SDL_WINDOWPOS_UNDEFINED_MASK|(X))
-compileTimeConstant SDL_WINDOWPOS_UNDEFINED := SDL_WINDOWPOS_UNDEFINED_MASK.
+compileTime constant SDL_WINDOWPOS_UNDEFINED := SDL_WINDOWPOS_UNDEFINED_MASK.
 
-compileTimeConstant SDL_WINDOWPOS_CENTERED_MASK := 16r2FFF0000.
+compileTime constant SDL_WINDOWPOS_CENTERED_MASK := 16r2FFF0000.
 ## #define SDL_WINDOWPOS_CENTERED_DISPLAY(X)  (SDL_WINDOWPOS_CENTERED_MASK|(X))
-compileTimeConstant SDL_WINDOWPOS_CENTERED := SDL_WINDOWPOS_CENTERED_MASK.
+compileTime constant SDL_WINDOWPOS_CENTERED := SDL_WINDOWPOS_CENTERED_MASK.
 
 function SDL_CreateWindow externC dllimport (title: CTypes ConstString, x: Int32, y: Int32, w: Int32, h: Int32, flags: UInt32) => SDL_Window pointer.
 function SDL_DestroyWindow externC dllimport (window: SDL_Window pointer) => Void.

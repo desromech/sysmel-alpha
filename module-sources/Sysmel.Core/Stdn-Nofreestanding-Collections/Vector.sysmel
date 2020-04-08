@@ -3,7 +3,7 @@ namespace Collections definition: {
 
 template Vector(ET: Type)
 	:= class definition: {
-    compileTimeConstant ElementType := ET.
+    compileTime constant ElementType := ET.
 
     private field capacity_ type: UIntPointer.
 	private field size_ type: UIntPointer.

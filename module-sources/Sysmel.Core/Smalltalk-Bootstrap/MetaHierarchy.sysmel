@@ -12,7 +12,7 @@ Compiler compilationTarget
 }.
 
 namespace SysmelKernel definition: {
-	compileTimeConstant Dynobject := Smalltalk ProtoObject.
+	compileTime constant Dynobject := Smalltalk ProtoObject.
 }.
 
 namespace Smalltalk definition: {
@@ -321,7 +321,7 @@ Metaclass definition: {
 
 ## GCLayout
 GCLayout definition: {
-	compileTimeConstant BitsPerWord := UIntPointer instanceSize castTo: UIntPointer.
+	compileTime constant BitsPerWord := UIntPointer instanceSize castTo: UIntPointer.
 
 	field variableDataIsGCPointers public type: Boolean8.
     field bitmap public type: UIntPointer array.
@@ -845,7 +845,7 @@ struct InlineCacheRecord definition: {
 }.
 
 struct InlineCache definition: {
-	compileTimeConstant RecordCount := 5.
+	compileTime constant RecordCount := 5.
 	public field lastWrittenSlot type: Stdn AtomicUIntPointer.
 	public field records type: (InlineCacheRecord array: RecordCount).
 }.

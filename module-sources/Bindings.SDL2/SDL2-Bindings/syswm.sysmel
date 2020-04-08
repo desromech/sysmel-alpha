@@ -1,19 +1,19 @@
 namespace SDL2 definition: {
 
-compileTimeConstant SDL_SYSWM_TYPE := Int32.
+compileTime constant SDL_SYSWM_TYPE := Int32.
 
-compileTimeConstant SDL_SYSWM_UNKNOWN := 0.
-compileTimeConstant SDL_SYSWM_WINDOWS := 1.
-compileTimeConstant SDL_SYSWM_X11 := 2.
-compileTimeConstant SDL_SYSWM_DIRECTFB := 3.
-compileTimeConstant SDL_SYSWM_COCOA := 4.
-compileTimeConstant SDL_SYSWM_UIKIT := 5.
-compileTimeConstant SDL_SYSWM_WAYLAND := 6.
-compileTimeConstant SDL_SYSWM_MIR := 7.
-compileTimeConstant SDL_SYSWM_WINRT := 8.
-compileTimeConstant SDL_SYSWM_ANDROID := 9.
-compileTimeConstant SDL_SYSWM_VIVANTE := 10.
-compileTimeConstant SDL_SYSWM_OS2 := 11.
+compileTime constant SDL_SYSWM_UNKNOWN := 0.
+compileTime constant SDL_SYSWM_WINDOWS := 1.
+compileTime constant SDL_SYSWM_X11 := 2.
+compileTime constant SDL_SYSWM_DIRECTFB := 3.
+compileTime constant SDL_SYSWM_COCOA := 4.
+compileTime constant SDL_SYSWM_UIKIT := 5.
+compileTime constant SDL_SYSWM_WAYLAND := 6.
+compileTime constant SDL_SYSWM_MIR := 7.
+compileTime constant SDL_SYSWM_WINRT := 8.
+compileTime constant SDL_SYSWM_ANDROID := 9.
+compileTime constant SDL_SYSWM_VIVANTE := 10.
+compileTime constant SDL_SYSWM_OS2 := 11.
 
 struct SDL_SysWMinfo definition: {
     public field version type: SDL_version.

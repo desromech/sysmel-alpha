@@ -24,40 +24,40 @@ struct FT_Bitmap_Size definition: {
 }.
 
 struct FT_LibraryRec_.
-compileTimeConstant FT_Library := FT_LibraryRec_ pointer.
+compileTime constant FT_Library := FT_LibraryRec_ pointer.
 
 struct FT_ModuleRec_.
-compileTimeConstant FT_Module := FT_ModuleRec_ pointer.
+compileTime constant FT_Module := FT_ModuleRec_ pointer.
 
 struct FT_DriverRec_.
-compileTimeConstant FT_Driver := FT_DriverRec_ pointer.
+compileTime constant FT_Driver := FT_DriverRec_ pointer.
 
 struct FT_RendererRec_.
-compileTimeConstant FT_Renderer := FT_RendererRec_ pointer.
+compileTime constant FT_Renderer := FT_RendererRec_ pointer.
 
 struct FT_FaceRec_.
-compileTimeConstant FT_Face := FT_FaceRec_ pointer.
+compileTime constant FT_Face := FT_FaceRec_ pointer.
 
 struct FT_SizeRec_.
-compileTimeConstant FT_Size := FT_SizeRec_ pointer.
+compileTime constant FT_Size := FT_SizeRec_ pointer.
 
 struct FT_GlyphSlotRec_.
-compileTimeConstant FT_GlyphSlot := FT_GlyphSlotRec_ pointer.
+compileTime constant FT_GlyphSlot := FT_GlyphSlotRec_ pointer.
 
 struct FT_CharMapRec_.
-compileTimeConstant FT_CharMap := FT_CharMapRec_ pointer.
+compileTime constant FT_CharMap := FT_CharMapRec_ pointer.
 
 struct FT_Size_InternalRec_.
-compileTimeConstant FT_Size_Internal := FT_Size_InternalRec_ pointer.
+compileTime constant FT_Size_Internal := FT_Size_InternalRec_ pointer.
 
 struct FT_Face_InternalRec_.
-compileTimeConstant FT_Face_Internal := FT_Face_InternalRec_ pointer.
+compileTime constant FT_Face_Internal := FT_Face_InternalRec_ pointer.
 
 struct FT_MemoryRec_.
-compileTimeConstant FT_Memory := FT_MemoryRec_ pointer.
+compileTime constant FT_Memory := FT_MemoryRec_ pointer.
 
 struct FT_StreamRec_.
-compileTimeConstant FT_Stream := FT_StreamRec_ pointer.
+compileTime constant FT_Stream := FT_StreamRec_ pointer.
 
 inline function encodingTag(a: Char8, b: Char8, c: Char8, d: Char8) => UInt32
     := (a<<24) | (b<<16) | (c<<8) | d castTo: UInt32.
@@ -167,10 +167,10 @@ FT_SizeRec_ definition: {
 }.
 
 struct FT_SubGlyphRec_.
-compileTimeConstant FT_SubGlyph := FT_SubGlyphRec_ pointer.
+compileTime constant FT_SubGlyph := FT_SubGlyphRec_ pointer.
 
 struct FT_Slot_InternalRec_.
-compileTimeConstant FT_Slot_Internal := FT_Slot_InternalRec_ pointer.
+compileTime constant FT_Slot_Internal := FT_Slot_InternalRec_ pointer.
 
 struct FT_GlyphSlotRec_ definition: {
     public field library type: FT_Library.

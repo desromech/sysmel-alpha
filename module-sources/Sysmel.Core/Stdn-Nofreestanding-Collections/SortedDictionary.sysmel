@@ -3,10 +3,10 @@ namespace Collections definition: {
 
 template SortedDictionary(KT: Type, VT: Type)
     := class definition: {
-    compileTimeConstant KeyType := KT.
-    compileTimeConstant ValueType := VT.
-    compileTimeConstant AssociationType := Association(KeyType, ValueType).
-    ##compileTimeConstant NodeType := ExplicitMemoryCollections BalancedTreeNode(AssociationType).
+    compileTime constant KeyType := KT.
+    compileTime constant ValueType := VT.
+    compileTime constant AssociationType := Association(KeyType, ValueType).
+    ##compileTime constant NodeType := ExplicitMemoryCollections BalancedTreeNode(AssociationType).
 }.
 
 }. ## End of namespace Collections

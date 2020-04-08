@@ -2,9 +2,9 @@ namespace Stdn definition: {
 
 template UniquePointer(PT: Type)
     := struct definition: {
-	compileTimeConstant PointedType := PT.
-	compileTimeConstant PointerType := PointedType pointer.
-	compileTimeConstant SmartPointerType := SelfType.
+	compileTime constant PointedType := PT.
+	compileTime constant PointerType := PointedType pointer.
+	compileTime constant SmartPointerType := SelfType.
 
     SelfType makeNonCopyable.
 

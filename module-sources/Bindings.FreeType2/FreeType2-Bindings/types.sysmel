@@ -1,35 +1,35 @@
 namespace FreeType2 definition: {
 
-compileTimeConstant FT_Int16 := Int16.
-compileTimeConstant FT_UInt16 := UInt16.
-compileTimeConstant FT_Int32 := Int32.
-compileTimeConstant FT_UInt32 := UInt32.
-compileTimeConstant FT_Fast := Int32.
-compileTimeConstant FT_UFast := UInt32.
-compileTimeConstant FT_Int64 := Int64.
-compileTimeConstant FT_UInt64 := UInt64.
+compileTime constant FT_Int16 := Int16.
+compileTime constant FT_UInt16 := UInt16.
+compileTime constant FT_Int32 := Int32.
+compileTime constant FT_UInt32 := UInt32.
+compileTime constant FT_Fast := Int32.
+compileTime constant FT_UFast := UInt32.
+compileTime constant FT_Int64 := Int64.
+compileTime constant FT_UInt64 := UInt64.
 
-compileTimeConstant FT_Bool := Boolean8.
-compileTimeConstant FT_FWord := Int16.
-compileTimeConstant FT_UFWord := UInt16.
-compileTimeConstant FT_Char := Char8.
-compileTimeConstant FT_Byte := UInt8.
-compileTimeConstant FT_Bytes := FT_Byte pointer.
-compileTimeConstant FT_Tag := FT_UInt32.
-compileTimeConstant FT_String := Char8.
-compileTimeConstant FT_Short := Int16.
-compileTimeConstant FT_UShort := UInt16.
-compileTimeConstant FT_Int := Int32.
-compileTimeConstant FT_UInt := UInt32.
-compileTimeConstant FT_Long := CTypes Long.
-compileTimeConstant FT_ULong := CTypes ULong.
-compileTimeConstant FT_F2Dot14 := Int16.
-compileTimeConstant FT_F26Dot6 := CTypes Long.
-compileTimeConstant FT_Fixed := CTypes Long.
-compileTimeConstant FT_Error := Int32.
-compileTimeConstant FT_Pointer := Void pointer.
-compileTimeConstant FT_Offset := UIntPointer.
-compileTimeConstant ft_ptrdiff_t := IntPointer.
+compileTime constant FT_Bool := Boolean8.
+compileTime constant FT_FWord := Int16.
+compileTime constant FT_UFWord := UInt16.
+compileTime constant FT_Char := Char8.
+compileTime constant FT_Byte := UInt8.
+compileTime constant FT_Bytes := FT_Byte pointer.
+compileTime constant FT_Tag := FT_UInt32.
+compileTime constant FT_String := Char8.
+compileTime constant FT_Short := Int16.
+compileTime constant FT_UShort := UInt16.
+compileTime constant FT_Int := Int32.
+compileTime constant FT_UInt := UInt32.
+compileTime constant FT_Long := CTypes Long.
+compileTime constant FT_ULong := CTypes ULong.
+compileTime constant FT_F2Dot14 := Int16.
+compileTime constant FT_F26Dot6 := CTypes Long.
+compileTime constant FT_Fixed := CTypes Long.
+compileTime constant FT_Error := Int32.
+compileTime constant FT_Pointer := Void pointer.
+compileTime constant FT_Offset := UIntPointer.
+compileTime constant ft_ptrdiff_t := IntPointer.
 
 struct FT_UnitVector definition: {
     public field x type: FT_F2Dot14.
@@ -48,7 +48,7 @@ struct FT_Data definition: {
     public field length type: FT_Int.
 }.
 
-compileTimeConstant FT_Generic_Finalizer := ((Void pointer) => Void) pointer.
+compileTime constant FT_Generic_Finalizer := ((Void pointer) => Void) pointer.
 
 struct FT_Generic definition: {
     public field data type: Void pointer.
@@ -60,7 +60,7 @@ struct FT_ListNodeRec definition: {
     public field next type: FT_ListNodeRec pointer.
     public field data type: Void pointer.
 }.
-compileTimeConstant FT_ListNode := FT_ListNodeRec pointer.
+compileTime constant FT_ListNode := FT_ListNodeRec pointer.
 
 struct FT_ListRec definition: {
     public field head type: FT_ListNode.
@@ -70,6 +70,6 @@ struct FT_ListRec definition: {
         := head isNil.
 }.
 
-compileTimeConstant FT_List := FT_ListRec pointer.
+compileTime constant FT_List := FT_ListRec pointer.
 
 }. ## End of namespace FreeType2

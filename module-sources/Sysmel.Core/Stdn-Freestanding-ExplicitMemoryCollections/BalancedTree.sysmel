@@ -8,12 +8,12 @@ namespace ExplicitMemoryCollections definition: {
 template BalancedTree(KT: Type, VT: Type)
     := struct definition: {
 
-    compileTimeConstant Node := SelfType.
-    compileTimeConstant KeyType := KT.
-    compileTimeConstant ValueType := VT.
+    compileTime constant Node := SelfType.
+    compileTime constant KeyType := KT.
+    compileTime constant ValueType := VT.
 
-    compileTimeConstant BalanceFactorMask := 3 castTo: UIntPointer.
-    compileTimeConstant ChildPointerMask := ~BalanceFactorMask.
+    compileTime constant BalanceFactorMask := 3 castTo: UIntPointer.
+    compileTime constant ChildPointerMask := ~BalanceFactorMask.
 
     field left_ type: UIntPointer. ## Use the left pointer to encode the balance factor.
     field parent public type: Node pointer.

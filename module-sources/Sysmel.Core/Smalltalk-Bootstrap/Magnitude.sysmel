@@ -9,9 +9,9 @@ BoxedFloat64 definition: {
 }.
 
 namespace ObjectModel definition: {
-compileTimeIf: UIntPointer instanceSize = 4 then: {
-	compileTimeConstant SmallIntegerMinValue := #*(1<<31) negated*# -1073741824.
-	compileTimeConstant SmallIntegerMaxValue := #*(1<<31)-1*# 1073741823.
+compileTime if: UIntPointer instanceSize = 4 then: {
+	compileTime constant SmallIntegerMinValue := #*(1<<31) negated*# -1073741824.
+	compileTime constant SmallIntegerMaxValue := #*(1<<31)-1*# 1073741823.
 
 	function encodeSmallInteger(v: IntPointer) => SmallInteger
 		:= (v << 1) | 1 reinterpretCastTo: SmallInteger.
@@ -50,8 +50,8 @@ compileTimeIf: UIntPointer instanceSize = 4 then: {
 			__float64Value: v;
 			yourself
 } else: {
-	compileTimeConstant SmallIntegerMinValue := #*(1<<60) negated*# -1152921504606846976.
-	compileTimeConstant SmallIntegerMaxValue := #*(1<<60)-1*# 1152921504606846975.
+	compileTime constant SmallIntegerMinValue := #*(1<<60) negated*# -1152921504606846976.
+	compileTime constant SmallIntegerMaxValue := #*(1<<60)-1*# 1152921504606846975.
 
 	function encodeSmallInteger(v: IntPointer) => SmallInteger
 		:= (v << 3) | 1 reinterpretCastTo: SmallInteger.

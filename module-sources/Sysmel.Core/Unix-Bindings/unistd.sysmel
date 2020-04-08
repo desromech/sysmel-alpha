@@ -1,8 +1,8 @@
 ## http:##pubs.opengroup.org/onlinepubs/9699919799/basedefs/unistd.h.html
 namespace Unix definition: {
-    compileTimeConstant STDIN_FILENO := 0.
-    compileTimeConstant STDOUT_FILENO := 1.
-    compileTimeConstant STDERR_FILENO := 2.
+    compileTime constant STDIN_FILENO := 0.
+    compileTime constant STDOUT_FILENO := 1.
+    compileTime constant STDERR_FILENO := 2.
 
     function access externC (pathname: ConstString, mode: Int) => Int.
     function alarm externC (seconds: UInt) => UInt.

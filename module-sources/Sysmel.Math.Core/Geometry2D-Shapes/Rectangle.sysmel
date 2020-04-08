@@ -73,7 +73,7 @@ sealed template GenericRectangle(ST: Type)
     const inline method intersectionWith: (other: Rectangle const ref) ::=> SelfType
         := SelfType min: (min max: other min) max: (max min: other max).
 
-    compileTimeIf: Scalar isPrimitiveFloatType then: {
+    compileTime if: Scalar isPrimitiveFloatType then: {
         method intersectionWithRay: (ray: Ray2d const ref) ::=> ParametricCurveIntersectionResult := {
             ## Ray box intersection algorithm from: https://www.scratchapixel.com/lessons/3d-basic-rendering/minimal-ray-tracer-rendering-simple-shapes/ray-box-intersection
             let directionReciprocal := 1.0f / ray direction.
@@ -114,9 +114,9 @@ sealed template GenericRectangle(ST: Type)
     }.
 }.
 
-compileTimeConstant RectangleI32 := GenericRectangle(Int32).
-compileTimeConstant RectangleF32 := GenericRectangle(Float32).
-compileTimeConstant RectangleF64 := GenericRectangle(Float64).
+compileTime constant RectangleI32 := GenericRectangle(Int32).
+compileTime constant RectangleF32 := GenericRectangle(Float32).
+compileTime constant RectangleF64 := GenericRectangle(Float64).
 
 } ## End of namespace Geometry
 } ## End of namespace Math

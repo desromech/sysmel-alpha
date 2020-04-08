@@ -188,13 +188,13 @@ _PrimitiveVectorTypeTemplate extend: {
     TextStreamWriter extend: {
         method nextPutVector: (vector: VectorType) ::=> Void := {
             self << vector x.
-            compileTimeIf: VectorSize > 1 then: {
+            compileTime if: VectorSize > 1 then: {
                 self nextPut: ' '.
                 self << vector y.
-                compileTimeIf: VectorSize > 2 then: {
+                compileTime if: VectorSize > 2 then: {
                     self nextPut: ' '.
                     self << vector z.
-                    compileTimeIf: VectorSize > 3 then: {
+                    compileTime if: VectorSize > 3 then: {
                         self nextPut: ' '.
                         self << vector w.
                     }

@@ -8,10 +8,10 @@ namespace Stdn definition: {
  *#
 template FixedBigInteger(WC: _LiteralInteger)
     := struct definition: {
-    compileTimeConstant WordCount := WC.
-    compileTimeConstant BitCount := WordCount*32.
-    compileTimeConstant MaxNumberOfDecimalDigits := (WordCount * 3.3219280948873626) ceiling.
-    compileTimeConstant WordMask := 16rFFFFFFFF.
+    compileTime constant WordCount := WC.
+    compileTime constant BitCount := WordCount*32.
+    compileTime constant MaxNumberOfDecimalDigits := (WordCount * 3.3219280948873626) ceiling.
+    compileTime constant WordMask := 16rFFFFFFFF.
 
     field words public type: (UInt32 array: WordCount).
 

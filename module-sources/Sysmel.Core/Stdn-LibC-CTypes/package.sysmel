@@ -1,31 +1,31 @@
 namespace CTypes definition: {
     ## CTypes
-    compileTimeConstant String := Char8 pointer.
-    compileTimeConstant ConstString := Char8 const pointer.
+    compileTime constant String := Char8 pointer.
+    compileTime constant ConstString := Char8 const pointer.
 
-    compileTimeConstant Short := Int16.
-    compileTimeConstant UShort := UInt16.
+    compileTime constant Short := Int16.
+    compileTime constant UShort := UInt16.
 
-    compileTimeConstant Int := Int32.
-    compileTimeConstant UInt := UInt32.
+    compileTime constant Int := Int32.
+    compileTime constant UInt := UInt32.
 
-    compileTimeConstant LongLong := Int64.
-    compileTimeConstant ULongLong := UInt64.
+    compileTime constant LongLong := Int64.
+    compileTime constant ULongLong := UInt64.
 
     ## Select the correct long type according to the target platform."
     if: Compiler compilationTarget isWin32 then: {
-        compileTimeConstant Long := Int32.
-        compileTimeConstant ULong := UInt32.
+        compileTime constant Long := Int32.
+        compileTime constant ULong := UInt32.
     } else: {
-        compileTimeConstant Long := IntPointer.
-        compileTimeConstant ULong := UIntPointer.
+        compileTime constant Long := IntPointer.
+        compileTime constant ULong := UIntPointer.
     }.
 
-    compileTimeConstant Float := Float32.
-    compileTimeConstant Double := Float64.
+    compileTime constant Float := Float32.
+    compileTime constant Double := Float64.
 
-    compileTimeConstant SizeT := UIntPointer.
-    compileTimeConstant SSizeT := IntPointer.
+    compileTime constant SizeT := UIntPointer.
+    compileTime constant SSizeT := IntPointer.
 }.
 
 namespace LibC definition: {

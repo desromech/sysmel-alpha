@@ -4,8 +4,8 @@ namespace MessagePack definition: {
 
 template Decoder(RT: Type)
  := class definition: {
-    compileTimeConstant ResultType := RT.
-    compileTimeConstant DefaultResult := RT defaultValue.
+    compileTime constant ResultType := RT.
+    compileTime constant DefaultResult := RT defaultValue.
 
     class Callback definition: {
         virtual method onInteger: (value: Int64) ::=> ResultType

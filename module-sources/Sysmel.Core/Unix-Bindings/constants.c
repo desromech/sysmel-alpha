@@ -7,8 +7,8 @@
 #include <netinet/ip.h>
 
 #define EMIT_COMMENT(str) printf("## " str "\n");
-#define EMIT_CONSTANT_INT(name) printf("compileTimeConstant " #name " := %d.\n", (int)name)
-#define EMIT_CONSTANT_HEX_INT(name) printf("compileTimeConstant " #name " := 16r%08x.\n", (int)name)
+#define EMIT_CONSTANT_INT(name) printf("compileTime constant " #name " := %d.\n", (int)name)
+#define EMIT_CONSTANT_HEX_INT(name) printf("compileTime constant " #name " := 16r%08x.\n", (int)name)
 
 int main()
 {

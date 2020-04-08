@@ -1,16 +1,16 @@
 namespace SDL2 definition: {
 
 ## SDL.h
-compileTimeConstant SDL_INIT_TIMER          := 16r00000001.
-compileTimeConstant SDL_INIT_AUDIO          := 16r00000010.
-compileTimeConstant SDL_INIT_VIDEO          := 16r00000020.
-compileTimeConstant SDL_INIT_JOYSTICK       := 16r00000200.
-compileTimeConstant SDL_INIT_HAPTIC         := 16r00001000.
-compileTimeConstant SDL_INIT_GAMECONTROLLER := 16r00002000.
-compileTimeConstant SDL_INIT_EVENTS         := 16r00004000.
-compileTimeConstant SDL_INIT_NOPARACHUTE    := 16r00100000.
+compileTime constant SDL_INIT_TIMER          := 16r00000001.
+compileTime constant SDL_INIT_AUDIO          := 16r00000010.
+compileTime constant SDL_INIT_VIDEO          := 16r00000020.
+compileTime constant SDL_INIT_JOYSTICK       := 16r00000200.
+compileTime constant SDL_INIT_HAPTIC         := 16r00001000.
+compileTime constant SDL_INIT_GAMECONTROLLER := 16r00002000.
+compileTime constant SDL_INIT_EVENTS         := 16r00004000.
+compileTime constant SDL_INIT_NOPARACHUTE    := 16r00100000.
 
-compileTimeConstant SDL_INIT_EVERYTHING :=
+compileTime constant SDL_INIT_EVERYTHING :=
             SDL_INIT_TIMER | SDL_INIT_AUDIO | SDL_INIT_VIDEO | SDL_INIT_EVENTS |
             SDL_INIT_JOYSTICK | SDL_INIT_HAPTIC | SDL_INIT_GAMECONTROLLER.
 

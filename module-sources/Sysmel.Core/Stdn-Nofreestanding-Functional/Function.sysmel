@@ -11,12 +11,12 @@ struct _NativeStackBlockClosureHeader definition: {
 
 template Function(FT: Type)
 	:= struct definition: {
-    compileTimeConstant FunctionType := FT.
-    compileTimeConstant ArgumentTypesTuple := FunctionType argumentTypesTuple.
-    compileTimeConstant ReturnType := FunctionType returnType.
+    compileTime constant FunctionType := FT.
+    compileTime constant ArgumentTypesTuple := FunctionType argumentTypesTuple.
+    compileTime constant ReturnType := FunctionType returnType.
 
-    compileTimeConstant NativeStackBlockClosureType := FT nativeStackBlockClosure.
-    compileTimeConstant InlineStorageType := Void pointer array: 4.
+    compileTime constant NativeStackBlockClosureType := FT nativeStackBlockClosure.
+    compileTime constant InlineStorageType := Void pointer array: 4.
 
     enum WrapperType valueType: UInt8; values: #{
         Invalid: 0.

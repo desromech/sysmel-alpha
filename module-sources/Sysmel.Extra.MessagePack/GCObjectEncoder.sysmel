@@ -1,5 +1,5 @@
 namespace Smalltalk definition: {
-compileTimeConstant MessagePackEncoder := Stdn Serialization MessagePack Encoder.
+compileTime constant MessagePackEncoder := Stdn Serialization MessagePack Encoder.
 
 Object extend: {
     ## FIXME: use a normal down cast here.
@@ -109,7 +109,7 @@ namespace Stdn definition: {
 namespace Serialization definition: {
 namespace MessagePack definition: {
 
-compileTimeConstant GCObjectEncoder := Encoder.
+compileTime constant GCObjectEncoder := Encoder.
 
 GCObjectEncoder extend: {
     #*meta method decodeFrom: (buffer: Void pointer) withSize: (bufferSize: UIntPointer)::=> Smalltalk ProtoObject := {

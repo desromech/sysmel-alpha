@@ -14,7 +14,7 @@ class FontFaceLoader superclass: Object; definition: {
  *#
 template FontFaceLoaderFactory(FT: Type)
     := class definition: {
-    compileTimeConstant FontFaceLoaderType := FT.
+    compileTime constant FontFaceLoaderType := FT.
 
     private field faceLoaderInstance type: FontFaceLoaderType.
 

@@ -37,7 +37,7 @@ sealed template GenericAffinePostTransform2d(ST: Type)
         )
     }.
 
-    compileTimeIf: Scalar isPrimitiveFloatType then: {
+    compileTime if: Scalar isPrimitiveFloatType then: {
         inline method rotateByRadians: (angle: Scalar) ::=> Void := {
             let c := angle cos.
             let s := angle sin.
@@ -69,9 +69,9 @@ sealed template GenericAffinePostTransform2d(ST: Type)
     }.
 }.
 
-compileTimeConstant AffinePostTransform2dI32 := GenericAffinePostTransform2d(Int32).
-compileTimeConstant AffinePostTransform2dF32 := GenericAffinePostTransform2d(Float32).
-compileTimeConstant AffinePostTransform2dF64 := GenericAffinePostTransform2d(Float64).
+compileTime constant AffinePostTransform2dI32 := GenericAffinePostTransform2d(Int32).
+compileTime constant AffinePostTransform2dF32 := GenericAffinePostTransform2d(Float32).
+compileTime constant AffinePostTransform2dF64 := GenericAffinePostTransform2d(Float64).
 
 } ## End of namespace LinearAlgebra
 } ## End of namespace Math

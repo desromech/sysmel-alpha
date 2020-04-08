@@ -1,8 +1,8 @@
 namespace Stdn definition: {
 
 class Thread definition: {
-    compileTimeConstant NativeEntryPointFunctionType := (Void pointer) => Void.
-    compileTimeConstant EntryPointFunctionType := (Void) => Void.
+    compileTime constant NativeEntryPointFunctionType := (Void pointer) => Void.
+    compileTime constant EntryPointFunctionType := (Void) => Void.
 
     field entryPointFunctionObject type: Function(EntryPointFunctionType).
 

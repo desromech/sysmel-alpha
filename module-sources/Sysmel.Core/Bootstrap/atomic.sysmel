@@ -104,7 +104,7 @@ template Atomic(BaseType: Type)
     method atomicCompare: (comparedValue: BaseType) andSwap: (newValue: BaseType) ::=> BaseType
         := self atomicCompare: comparedValue andSwap: newValue with: MemoryOrder SequentiallyConsistent.
 
-    compileTimeIf: BaseType isPrimitiveIntegerType then: {
+    compileTime if: BaseType isPrimitiveIntegerType then: {
         method fetchAndAdd: (operand: BaseType) with: (ordering: MemoryOrder) ::=> BaseType := {
             <compileTime>
             <staticBinding>
@@ -132,7 +132,7 @@ template Atomic(BaseType: Type)
 
 }.
 
-compileTimeConstant AtomicUIntPointer := Atomic(UIntPointer).
-compileTimeConstant AtomicIntPointer := Atomic(IntPointer).
+compileTime constant AtomicUIntPointer := Atomic(UIntPointer).
+compileTime constant AtomicIntPointer := Atomic(IntPointer).
 
 }.

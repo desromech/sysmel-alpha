@@ -4,18 +4,18 @@ template FixedSizeBuddyMemoryAllocator(MNOSB: _LiteralInteger)
     := class definition: {
 
     ## Compute the size of the buddy bitmap.
-    compileTimeConstant MaxNumberOfSmallestBlocks := MNOSB.
+    compileTime constant MaxNumberOfSmallestBlocks := MNOSB.
 
     ## The size of the bitmap.
-    compileTimeConstant TotalBlockCount := MaxNumberOfSmallestBlocks*2.
-    compileTimeConstant BlockIndexType := UInt16.
+    compileTime constant TotalBlockCount := MaxNumberOfSmallestBlocks*2.
+    compileTime constant BlockIndexType := UInt16.
 
     ## The number of levels.
-    compileTimeConstant LevelCount := MaxNumberOfSmallestBlocks highBit.
-    compileTimeConstant LeafLevelBlockCount := 1<<(LevelCount - 1).
+    compileTime constant LevelCount := MaxNumberOfSmallestBlocks highBit.
+    compileTime constant LeafLevelBlockCount := 1<<(LevelCount - 1).
 
-    compileTimeConstant InvalidBlockIndex := -1 castTo: BlockIndexType.
-    compileTimeConstant InvalidAllocation := -1 castTo: UIntPointer.
+    compileTime constant InvalidBlockIndex := -1 castTo: BlockIndexType.
+    compileTime constant InvalidAllocation := -1 castTo: UIntPointer.
 
     field allBlocks_nextFreePointer type: (BlockIndexType array: TotalBlockCount).
     field leafBlocks_startRunIndex type: (BlockIndexType array: LeafLevelBlockCount).
@@ -257,21 +257,21 @@ template FixedSizeBuddyMemoryAllocator(MNOSB: _LiteralInteger)
  *       - Dedicated chunk allocation.
  *#
 class NativeMemoryHeap definition: {
-    compileTimeConstant MemoryChunkSize := 16r200000 castTo: UIntPointer.
-    compileTimeConstant MemoryChunkAlignment := 16r200000 castTo: UIntPointer.
-    compileTimeConstant HugeAllocationThreshold := MemoryChunkSize / 2 castTo: UIntPointer.
-    compileTimeConstant LargeAllocationThreshold := 16r1000 castTo: UIntPointer.
+    compileTime constant MemoryChunkSize := 16r200000 castTo: UIntPointer.
+    compileTime constant MemoryChunkAlignment := 16r200000 castTo: UIntPointer.
+    compileTime constant HugeAllocationThreshold := MemoryChunkSize / 2 castTo: UIntPointer.
+    compileTime constant LargeAllocationThreshold := 16r1000 castTo: UIntPointer.
 
-    compileTimeConstant MemoryChunkBlockSize := 16r800.
-    compileTimeConstant MemoryChunkBlockCount := MemoryChunkSize / MemoryChunkBlockSize.
+    compileTime constant MemoryChunkBlockSize := 16r800.
+    compileTime constant MemoryChunkBlockCount := MemoryChunkSize / MemoryChunkBlockSize.
 
-    compileTimeConstant ChunkBuddyMemoryAllocator := FixedSizeBuddyMemoryAllocator(MemoryChunkBlockCount).
+    compileTime constant ChunkBuddyMemoryAllocator := FixedSizeBuddyMemoryAllocator(MemoryChunkBlockCount).
 
-    compileTimeConstant AllocationType_Small := 0.
-    compileTimeConstant AllocationType_Large := 1.
-    compileTimeConstant AllocationType_Huge := 2.
+    compileTime constant AllocationType_Small := 0.
+    compileTime constant AllocationType_Large := 1.
+    compileTime constant AllocationType_Huge := 2.
 
-    compileTimeConstant QuantumSpacedCategories := 512 / 16.
+    compileTime constant QuantumSpacedCategories := 512 / 16.
 
     #**
      * A common chunk header
@@ -285,7 +285,7 @@ class NativeMemoryHeap definition: {
         field allocationSize public type: UIntPointer.
     }.
 
-    compileTimeConstant HugeChunkHeaderSize := HugeChunkHeader instanceSize alignedTo: 16.
+    compileTime constant HugeChunkHeaderSize := HugeChunkHeader instanceSize alignedTo: 16.
 
     #**
      * A memory allocation chunk header.
@@ -308,10 +308,10 @@ class NativeMemoryHeap definition: {
      * Quantum spaced category run
      *#
     struct SlabHeader definition: {
-        compileTimeConstant MaxNumberOfElements := 256.
-        compileTimeConstant WordBitCount := UIntPointer instanceSize*8.
-        compileTimeConstant BitmapWords := MaxNumberOfElements / WordBitCount.
-        compileTimeConstant FullWord := -1 castTo: UIntPointer.
+        compileTime constant MaxNumberOfElements := 256.
+        compileTime constant WordBitCount := UIntPointer instanceSize*8.
+        compileTime constant BitmapWords := MaxNumberOfElements / WordBitCount.
+        compileTime constant FullWord := -1 castTo: UIntPointer.
 
         ## Linked list between all slabs.
         field previousSlab public type: SlabHeader pointer.
@@ -383,7 +383,7 @@ class NativeMemoryHeap definition: {
             := freeCount == elementCount.
     }.
 
-    compileTimeConstant SlabHeaderSize := SlabHeader instanceSize alignedTo: 16.
+    compileTime constant SlabHeaderSize := SlabHeader instanceSize alignedTo: 16.
 
     #**
      * Quantum space category active run state.

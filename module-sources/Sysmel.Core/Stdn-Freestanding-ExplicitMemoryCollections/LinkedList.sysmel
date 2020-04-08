@@ -4,8 +4,8 @@ namespace ExplicitMemoryCollections definition: {
 struct DoubleLinkedList.
 
 struct DoubleLinkedListNode definition: {
-    compileTimeConstant Node := DoubleLinkedListNode.
-    compileTimeConstant List := DoubleLinkedList.
+    compileTime constant Node := DoubleLinkedListNode.
+    compileTime constant List := DoubleLinkedList.
 
     field list public type: List pointer.
     field previous public type: Node pointer.
@@ -13,7 +13,7 @@ struct DoubleLinkedListNode definition: {
 }.
 
 struct DoubleLinkedList definition: {
-    compileTimeConstant Node := DoubleLinkedListNode.
+    compileTime constant Node := DoubleLinkedListNode.
 
     field first public type: DoubleLinkedListNode pointer.
     field last public type: DoubleLinkedListNode pointer.

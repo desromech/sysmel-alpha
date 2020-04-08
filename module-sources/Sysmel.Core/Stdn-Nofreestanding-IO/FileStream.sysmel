@@ -4,7 +4,7 @@ namespace IO definition: {
 class UnbufferedFileStream.
 
 class FileStream superclass: UnbufferedFileStream; definition: {
-    compileTimeConstant BufferCapacity := 4096.
+    compileTime constant BufferCapacity := 4096.
 
     public field bufferingMode type: StreamBufferingMode.
     protected field buffer_ type: UInt8 pointer.

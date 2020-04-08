@@ -1,14 +1,14 @@
 namespace Stdn definition: {
 if: Compiler useLibC then: {
-	compileTimeConstant memchr := LibC memchr.
-	compileTimeConstant memcmp := LibC memcmp.
-	compileTimeConstant memcpy := LibC memcpy.
-	compileTimeConstant memmove := LibC memmove.
-	compileTimeConstant memset := LibC memset.
+	compileTime constant memchr := LibC memchr.
+	compileTime constant memcmp := LibC memcmp.
+	compileTime constant memcpy := LibC memcpy.
+	compileTime constant memmove := LibC memmove.
+	compileTime constant memset := LibC memset.
 
-	compileTimeConstant cstrlen := LibC strlen.
-	compileTimeConstant cstrnlen := LibC strnlen.
-	compileTimeConstant cstrstr := LibC strstr.
+	compileTime constant cstrlen := LibC strlen.
+	compileTime constant cstrnlen := LibC strnlen.
+	compileTime constant cstrstr := LibC strstr.
 
 } else: {
 #**

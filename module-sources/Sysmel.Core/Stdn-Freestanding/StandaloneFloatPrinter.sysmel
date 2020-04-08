@@ -1,5 +1,5 @@
 namespace Stdn definition: {
-compileTimeConstant BigIntegerForFloat := FixedBigInteger(32). ## 1024 bits big integer.
+compileTime constant BigIntegerForFloat := FixedBigInteger(32). ## 1024 bits big integer.
 
 class BasicValueFloatPrinter superclass: BasicValueIntegerPrinter; definition: {
 

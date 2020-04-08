@@ -1,8 +1,8 @@
 namespace SDL2 definition: {
 
-compileTimeConstant SDL_MAJOR_VERSION := 2.
-compileTimeConstant SDL_MINOR_VERSION := 0.
-compileTimeConstant SDL_PATCHLEVEL := 9.
+compileTime constant SDL_MAJOR_VERSION := 2.
+compileTime constant SDL_MINOR_VERSION := 0.
+compileTime constant SDL_PATCHLEVEL := 9.
 
 struct SDL_version definition: {
     public field major type: UInt8.

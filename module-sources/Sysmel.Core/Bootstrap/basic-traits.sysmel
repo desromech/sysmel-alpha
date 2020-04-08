@@ -1,7 +1,7 @@
 namespace SysmelKernel definition: {
 	## HACK: Until we reintroduce traits, properly.
-	compileTimeConstant _BooleanType := Boolean8.
-	compileTimeConstant _IntegerType := _PrimitiveIntegerType | _LiteralInteger.
-	compileTimeConstant _FloatType := _PrimitiveFloatType | _LiteralFloat.
-	compileTimeConstant _NumberType := _IntegerType | _FloatType.
+	compileTime constant _BooleanType := Boolean8.
+	compileTime constant _IntegerType := _PrimitiveIntegerType | _LiteralInteger.
+	compileTime constant _FloatType := _PrimitiveFloatType | _LiteralFloat.
+	compileTime constant _NumberType := _IntegerType | _FloatType.
 }.

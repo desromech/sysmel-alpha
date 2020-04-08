@@ -6,21 +6,21 @@ useNamespace: Stdn Math LinearAlgebra.
 
 sealed template GenericGeometricShape(ST: Type)
     := class superclass: GenericLinearAlgebra(ST); definition: {
-    compileTimeConstant Scalar := ST.
-    compileTimeConstant Vector2 := ST primitiveVectorWithElements: 2.
-    compileTimeConstant Vector3 := Scalar primitiveVectorWithElements: 3.
-    compileTimeConstant Vector4 := ST primitiveVectorWithElements: 4.
+    compileTime constant Scalar := ST.
+    compileTime constant Vector2 := ST primitiveVectorWithElements: 2.
+    compileTime constant Vector3 := Scalar primitiveVectorWithElements: 3.
+    compileTime constant Vector4 := ST primitiveVectorWithElements: 4.
 
-    compileTimeConstant Rectangle := GenericRectangle(Scalar).
+    compileTime constant Rectangle := GenericRectangle(Scalar).
 
-    compileTimeIf: Scalar isPrimitiveFloatType then: {
-        compileTimeConstant ParametricCurveIntersectionResult := Stdn Optional(Scalar).
+    compileTime if: Scalar isPrimitiveFloatType then: {
+        compileTime constant ParametricCurveIntersectionResult := Stdn Optional(Scalar).
 
-        compileTimeConstant Circle := GenericCircle(Scalar).
-        compileTimeConstant ParametricLine2d := GenericParametricLine2d(Scalar).
-        compileTimeConstant Line2d := GenericLine2d(Scalar).
-        compileTimeConstant Ray2d := GenericRay2d(Scalar).
-        compileTimeConstant Segment2d := GenericSegment2d(Scalar).
+        compileTime constant Circle := GenericCircle(Scalar).
+        compileTime constant ParametricLine2d := GenericParametricLine2d(Scalar).
+        compileTime constant Line2d := GenericLine2d(Scalar).
+        compileTime constant Ray2d := GenericRay2d(Scalar).
+        compileTime constant Segment2d := GenericSegment2d(Scalar).
     }.
 }.
 

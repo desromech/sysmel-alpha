@@ -1,77 +1,77 @@
 Compiler addLinkerArguments: #("-pthreads").
 
 namespace Unix definition: {
-    compileTimeConstant pthread_t := UIntPointer.
-    compileTimeConstant pthread_key_t := UIntPointer.
+    compileTime constant pthread_t := UIntPointer.
+    compileTime constant pthread_key_t := UIntPointer.
 
     if: Compiler compilationTarget isOSX then: {
         if: UIntPointer instanceSize = 4 then: {
-            compileTimeConstant pthread_attr_t := (UIntPointer array: 10). ## sizeof(pthread_attr_t) = 40"
-            compileTimeConstant pthread_mutex_t := (UIntPointer array: 11). ## sizeof(pthread_mutex_t) = 44"
-            compileTimeConstant pthread_mutexattr_t := (UIntPointer array: 3). ## sizeof(pthread_mutexattr_t) = 12"
-            compileTimeConstant pthread_cond_t := (UIntPointer array: 7). ## sizeof(pthread_cond_t) = 28"
-            compileTimeConstant pthread_condattr_t := (UIntPointer array: 2). ## sizeof(pthread_condattr_t) = 8"
-            compileTimeConstant pthread_rwlock_t := (UIntPointer array: 32). ## sizeof(pthread_rwlock_t) = 128"
-            compileTimeConstant pthread_rwlockattr_t := (UIntPointer array: 4). ## sizeof(pthread_rwlockattr_t) = 16"
+            compileTime constant pthread_attr_t := (UIntPointer array: 10). ## sizeof(pthread_attr_t) = 40"
+            compileTime constant pthread_mutex_t := (UIntPointer array: 11). ## sizeof(pthread_mutex_t) = 44"
+            compileTime constant pthread_mutexattr_t := (UIntPointer array: 3). ## sizeof(pthread_mutexattr_t) = 12"
+            compileTime constant pthread_cond_t := (UIntPointer array: 7). ## sizeof(pthread_cond_t) = 28"
+            compileTime constant pthread_condattr_t := (UIntPointer array: 2). ## sizeof(pthread_condattr_t) = 8"
+            compileTime constant pthread_rwlock_t := (UIntPointer array: 32). ## sizeof(pthread_rwlock_t) = 128"
+            compileTime constant pthread_rwlockattr_t := (UIntPointer array: 4). ## sizeof(pthread_rwlockattr_t) = 16"
         } else: {
-            compileTimeConstant pthread_attr_t := (UIntPointer array: 8). ## sizeof(pthread_attr_t) = 64"
-            compileTimeConstant pthread_mutex_t := (UIntPointer array: 8). ## sizeof(pthread_mutex_t) = 64"
-            compileTimeConstant pthread_mutexattr_t := (UIntPointer array: 2). ## sizeof(pthread_mutexattr_t) = 16"
-            compileTimeConstant pthread_cond_t := (UIntPointer array: 6). ## sizeof(pthread_cond_t) = 48"
-            compileTimeConstant pthread_condattr_t := (UIntPointer array: 2). ## sizeof(pthread_condattr_t) = 16"
-            compileTimeConstant pthread_rwlock_t := (UIntPointer array: 25). ## sizeof(pthread_rwlock_t) = 200"
-            compileTimeConstant pthread_rwlockattr_t := (UIntPointer array: 3). ## sizeof(pthread_rwlockattr_t) = 24"
+            compileTime constant pthread_attr_t := (UIntPointer array: 8). ## sizeof(pthread_attr_t) = 64"
+            compileTime constant pthread_mutex_t := (UIntPointer array: 8). ## sizeof(pthread_mutex_t) = 64"
+            compileTime constant pthread_mutexattr_t := (UIntPointer array: 2). ## sizeof(pthread_mutexattr_t) = 16"
+            compileTime constant pthread_cond_t := (UIntPointer array: 6). ## sizeof(pthread_cond_t) = 48"
+            compileTime constant pthread_condattr_t := (UIntPointer array: 2). ## sizeof(pthread_condattr_t) = 16"
+            compileTime constant pthread_rwlock_t := (UIntPointer array: 25). ## sizeof(pthread_rwlock_t) = 200"
+            compileTime constant pthread_rwlockattr_t := (UIntPointer array: 3). ## sizeof(pthread_rwlockattr_t) = 24"
         }.
 
-        compileTimeConstant PTHREAD_MUTEX_NORMAL := 0.
-        compileTimeConstant PTHREAD_MUTEX_ERRORCHECK := 1.
-        compileTimeConstant PTHREAD_MUTEX_RECURSIVE := 2.
-        compileTimeConstant PTHREAD_MUTEX_DEFAULT := 0.
+        compileTime constant PTHREAD_MUTEX_NORMAL := 0.
+        compileTime constant PTHREAD_MUTEX_ERRORCHECK := 1.
+        compileTime constant PTHREAD_MUTEX_RECURSIVE := 2.
+        compileTime constant PTHREAD_MUTEX_DEFAULT := 0.
     }.
 
     if: Compiler compilationTarget isLinux then: {
 
         if: UIntPointer instanceSize = 4 then: {
-            compileTimeConstant pthread_attr_t := (UIntPointer array: 9). ## sizeof(pthread_attr_t) = 36
-            compileTimeConstant pthread_mutex_t := (UIntPointer array: 6). ## sizeof(pthread_mutex_t) = 24"
-            compileTimeConstant pthread_mutexattr_t := (UIntPointer array: 1). ## sizeof(pthread_mutexattr_t) = 4"
-            compileTimeConstant pthread_cond_t := (UIntPointer array: 12). ## sizeof(pthread_cond_t) = 48"
-            compileTimeConstant pthread_condattr_t := (UIntPointer array: 1). ## sizeof(pthread_condattr_t) = 4"
-            compileTimeConstant pthread_rwlock_t := (UIntPointer array: 8). ## sizeof(pthread_rwlock_t) = 32"
-            compileTimeConstant pthread_rwlockattr_t := (UIntPointer array: 2). ## sizeof(pthread_rwlockattr_t) = 8"
+            compileTime constant pthread_attr_t := (UIntPointer array: 9). ## sizeof(pthread_attr_t) = 36
+            compileTime constant pthread_mutex_t := (UIntPointer array: 6). ## sizeof(pthread_mutex_t) = 24"
+            compileTime constant pthread_mutexattr_t := (UIntPointer array: 1). ## sizeof(pthread_mutexattr_t) = 4"
+            compileTime constant pthread_cond_t := (UIntPointer array: 12). ## sizeof(pthread_cond_t) = 48"
+            compileTime constant pthread_condattr_t := (UIntPointer array: 1). ## sizeof(pthread_condattr_t) = 4"
+            compileTime constant pthread_rwlock_t := (UIntPointer array: 8). ## sizeof(pthread_rwlock_t) = 32"
+            compileTime constant pthread_rwlockattr_t := (UIntPointer array: 2). ## sizeof(pthread_rwlockattr_t) = 8"
 
         } else: {
-            compileTimeConstant pthread_attr_t := (UIntPointer array: 7). ## sizeof(pthread_attr_t) = 56"
-            compileTimeConstant pthread_mutex_t := (UIntPointer array: 5). ## sizeof(pthread_mutex_t) = 40"
-            compileTimeConstant pthread_mutexattr_t := (UIntPointer array: 1). ## sizeof(pthread_mutexattr_t) = 4"
-            compileTimeConstant pthread_cond_t := (UIntPointer array: 6). ## sizeof(pthread_cond_t) = 48"
-            compileTimeConstant pthread_condattr_t := (UIntPointer array: 1). ## sizeof(pthread_condattr_t) = 4"
-            compileTimeConstant pthread_rwlock_t := (UIntPointer array: 7). ## sizeof(pthread_rwlock_t) = 56"
-            compileTimeConstant pthread_rwlockattr_t := (UIntPointer array: 1). ## sizeof(pthread_rwlockattr_t) = 8"
+            compileTime constant pthread_attr_t := (UIntPointer array: 7). ## sizeof(pthread_attr_t) = 56"
+            compileTime constant pthread_mutex_t := (UIntPointer array: 5). ## sizeof(pthread_mutex_t) = 40"
+            compileTime constant pthread_mutexattr_t := (UIntPointer array: 1). ## sizeof(pthread_mutexattr_t) = 4"
+            compileTime constant pthread_cond_t := (UIntPointer array: 6). ## sizeof(pthread_cond_t) = 48"
+            compileTime constant pthread_condattr_t := (UIntPointer array: 1). ## sizeof(pthread_condattr_t) = 4"
+            compileTime constant pthread_rwlock_t := (UIntPointer array: 7). ## sizeof(pthread_rwlock_t) = 56"
+            compileTime constant pthread_rwlockattr_t := (UIntPointer array: 1). ## sizeof(pthread_rwlockattr_t) = 8"
         }.
 
-        compileTimeConstant PTHREAD_MUTEX_NORMAL := 0.
-        compileTimeConstant PTHREAD_MUTEX_ERRORCHECK := 2.
-        compileTimeConstant PTHREAD_MUTEX_RECURSIVE := 1.
-        compileTimeConstant PTHREAD_MUTEX_DEFAULT := 0.
+        compileTime constant PTHREAD_MUTEX_NORMAL := 0.
+        compileTime constant PTHREAD_MUTEX_ERRORCHECK := 2.
+        compileTime constant PTHREAD_MUTEX_RECURSIVE := 1.
+        compileTime constant PTHREAD_MUTEX_DEFAULT := 0.
     }.
 
     if: Compiler compilationTarget isFreeBSD then: {
-        compileTimeConstant pthread_attr_t := (UIntPointer array: 1). ## sizeof(pthread_attr_t) = 8"
-        compileTimeConstant pthread_mutex_t := (UIntPointer array: 1). ## sizeof(pthread_mutex_t) = 8"
-        compileTimeConstant pthread_mutexattr_t := (UIntPointer array: 1). ## sizeof(pthread_mutexattr_t) = 8"
-        compileTimeConstant pthread_cond_t := (UIntPointer array: 1). ## sizeof(pthread_cond_t) = 8"
-        compileTimeConstant pthread_condattr_t := (UIntPointer array: 1). ## sizeof(pthread_condattr_t) = 8"
-        compileTimeConstant pthread_rwlock_t := (UIntPointer array: 1). ## sizeof(pthread_rwlock_t) = 8"
-        compileTimeConstant pthread_rwlockattr_t := (UIntPointer array: 1). ## sizeof(pthread_rwlockattr_t) = 8"
+        compileTime constant pthread_attr_t := (UIntPointer array: 1). ## sizeof(pthread_attr_t) = 8"
+        compileTime constant pthread_mutex_t := (UIntPointer array: 1). ## sizeof(pthread_mutex_t) = 8"
+        compileTime constant pthread_mutexattr_t := (UIntPointer array: 1). ## sizeof(pthread_mutexattr_t) = 8"
+        compileTime constant pthread_cond_t := (UIntPointer array: 1). ## sizeof(pthread_cond_t) = 8"
+        compileTime constant pthread_condattr_t := (UIntPointer array: 1). ## sizeof(pthread_condattr_t) = 8"
+        compileTime constant pthread_rwlock_t := (UIntPointer array: 1). ## sizeof(pthread_rwlock_t) = 8"
+        compileTime constant pthread_rwlockattr_t := (UIntPointer array: 1). ## sizeof(pthread_rwlockattr_t) = 8"
 
-        compileTimeConstant PTHREAD_MUTEX_NORMAL := 3.
-        compileTimeConstant PTHREAD_MUTEX_ERRORCHECK := 1.
-        compileTimeConstant PTHREAD_MUTEX_RECURSIVE := 2.
-        compileTimeConstant PTHREAD_MUTEX_DEFAULT := 1.
+        compileTime constant PTHREAD_MUTEX_NORMAL := 3.
+        compileTime constant PTHREAD_MUTEX_ERRORCHECK := 1.
+        compileTime constant PTHREAD_MUTEX_RECURSIVE := 2.
+        compileTime constant PTHREAD_MUTEX_DEFAULT := 1.
     }.
 
-    compileTimeConstant pthread_start_routine_t := (Void pointer) => Void pointer.
+    compileTime constant pthread_start_routine_t := (Void pointer) => Void pointer.
 
     ## Posix threads
 
@@ -83,11 +83,11 @@ namespace Unix definition: {
 	    function GC_pthread_exit externC (returnValue: Void pointer) => Void.
 	    function GC_pthread_cancel externC (pthread: pthread_t) => Int32.
 
-		compileTimeConstant pthread_create := GC_pthread_create.
-		compileTimeConstant pthread_detach := GC_pthread_detach.
-		compileTimeConstant pthread_join := GC_pthread_join.
-		compileTimeConstant pthread_exit := GC_pthread_exit.
-		compileTimeConstant pthread_cancel := GC_pthread_cancel.
+		compileTime constant pthread_create := GC_pthread_create.
+		compileTime constant pthread_detach := GC_pthread_detach.
+		compileTime constant pthread_join := GC_pthread_join.
+		compileTime constant pthread_exit := GC_pthread_exit.
+		compileTime constant pthread_cancel := GC_pthread_cancel.
 	} else: {
 	    function pthread_create externC (pthread: pthread_t pointer, attributes: pthread_attr_t const pointer, entrypoint: pthread_start_routine_t pointer, argument: Void pointer) => Int32.
 	    function pthread_detach externC (pthread: pthread_t) => Int32.
@@ -142,7 +142,7 @@ namespace Unix definition: {
     function pthread_rwlock_unlock externC (rwlock: pthread_rwlock_t pointer) => Int32.
 
     ## Thread local storage"
-    compileTimeConstant pthread_key_destructor_function_t := (Void pointer) => Void.
+    compileTime constant pthread_key_destructor_function_t := (Void pointer) => Void.
 
     function pthread_key_create externC (key: pthread_key_t pointer , destructor: pthread_key_destructor_function_t pointer) => Int32.
     function pthread_key_delete externC (key: pthread_key_t) => Int32.

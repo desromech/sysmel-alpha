@@ -1,7 +1,7 @@
 namespace Stdn definition: {
 
 class BasicValuePrinter definition: {
-    compileTimeConstant bufferCapacity := 256.
+    compileTime constant bufferCapacity := 256.
     public field bufferSize type: UIntPointer.
     public field buffer type: (Char8 array: bufferCapacity).
 

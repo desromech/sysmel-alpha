@@ -64,23 +64,23 @@ enum SDL_EventType valueType: UInt32; values: #{
 }.
 
 ## Event
-compileTimeConstant SDL_WINDOWEVENT_NONE := 0.
-compileTimeConstant SDL_WINDOWEVENT_SHOWN := 1.
-compileTimeConstant SDL_WINDOWEVENT_HIDDEN := 2.
-compileTimeConstant SDL_WINDOWEVENT_EXPOSED := 3.
-compileTimeConstant SDL_WINDOWEVENT_MOVED := 4.
-compileTimeConstant SDL_WINDOWEVENT_RESIZED := 5.
-compileTimeConstant SDL_WINDOWEVENT_SIZE_CHANGED := 6.
-compileTimeConstant SDL_WINDOWEVENT_MINIMIZED := 7.
-compileTimeConstant SDL_WINDOWEVENT_MAXIMIZED := 8.
-compileTimeConstant SDL_WINDOWEVENT_RESTORED := 9.
-compileTimeConstant SDL_WINDOWEVENT_ENTER := 10.
-compileTimeConstant SDL_WINDOWEVENT_LEAVE := 11.
-compileTimeConstant SDL_WINDOWEVENT_FOCUS_GAINED := 12.
-compileTimeConstant SDL_WINDOWEVENT_FOCUS_LOST := 13.
-compileTimeConstant SDL_WINDOWEVENT_CLOSE := 14.
-compileTimeConstant SDL_WINDOWEVENT_TAKE_FOCUS := 15.
-compileTimeConstant SDL_WINDOWEVENT_HIT_TEST := 16.
+compileTime constant SDL_WINDOWEVENT_NONE := 0.
+compileTime constant SDL_WINDOWEVENT_SHOWN := 1.
+compileTime constant SDL_WINDOWEVENT_HIDDEN := 2.
+compileTime constant SDL_WINDOWEVENT_EXPOSED := 3.
+compileTime constant SDL_WINDOWEVENT_MOVED := 4.
+compileTime constant SDL_WINDOWEVENT_RESIZED := 5.
+compileTime constant SDL_WINDOWEVENT_SIZE_CHANGED := 6.
+compileTime constant SDL_WINDOWEVENT_MINIMIZED := 7.
+compileTime constant SDL_WINDOWEVENT_MAXIMIZED := 8.
+compileTime constant SDL_WINDOWEVENT_RESTORED := 9.
+compileTime constant SDL_WINDOWEVENT_ENTER := 10.
+compileTime constant SDL_WINDOWEVENT_LEAVE := 11.
+compileTime constant SDL_WINDOWEVENT_FOCUS_GAINED := 12.
+compileTime constant SDL_WINDOWEVENT_FOCUS_LOST := 13.
+compileTime constant SDL_WINDOWEVENT_CLOSE := 14.
+compileTime constant SDL_WINDOWEVENT_TAKE_FOCUS := 15.
+compileTime constant SDL_WINDOWEVENT_HIT_TEST := 16.
 
 struct SDL_CommonEvent definition: {
     field type public type: SDL_EventType.
@@ -117,7 +117,7 @@ struct SDL_KeyboardEvent definition: {
     field keysym public type: SDL_Keysym.
 }.
 
-compileTimeConstant SDL_TEXTEDITINGEVENT_TEXT_SIZE := 32.
+compileTime constant SDL_TEXTEDITINGEVENT_TEXT_SIZE := 32.
 
 struct SDL_TextEditingEvent definition: {
     field type public type: SDL_EventType.
@@ -128,7 +128,7 @@ struct SDL_TextEditingEvent definition: {
     field length public type: Int32.
 }.
 
-compileTimeConstant SDL_TEXTINPUTEVENT_TEXT_SIZE := 32.
+compileTime constant SDL_TEXTINPUTEVENT_TEXT_SIZE := 32.
 
 struct SDL_TextInputEvent definition: {
     field type public type: SDL_EventType.
@@ -162,8 +162,8 @@ struct SDL_MouseButtonEvent definition: {
     field y public type: Int32.
 }.
 
-compileTimeConstant SDL_MOUSEWHEEL_NORMAL := 0.
-compileTimeConstant SDL_MOUSEWHEEL_FLIPPED := 1.
+compileTime constant SDL_MOUSEWHEEL_NORMAL := 0.
+compileTime constant SDL_MOUSEWHEEL_FLIPPED := 1.
 
 struct SDL_MouseWheelEvent definition: {
     field type public type: SDL_EventType.

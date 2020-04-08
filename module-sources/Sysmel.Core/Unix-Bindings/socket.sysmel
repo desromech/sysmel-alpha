@@ -1,7 +1,7 @@
 namespace Unix definition: {
 
-compileTimeConstant socklen_t := SizeT.
-compileTimeConstant sa_family_t := UInt16.
+compileTime constant socklen_t := SizeT.
+compileTime constant sa_family_t := UInt16.
 
 struct sockaddr definition: {
     public field sa_family type: sa_family_t.
@@ -12,7 +12,7 @@ struct msghdr definition: {
 
 }.
 
-compileTimeConstant in_port_t := UInt16.
+compileTime constant in_port_t := UInt16.
 
 struct in_addr_t definition: {
     public field s_addr type: UInt32.

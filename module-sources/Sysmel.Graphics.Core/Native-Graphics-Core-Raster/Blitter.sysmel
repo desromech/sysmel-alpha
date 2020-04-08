@@ -109,12 +109,12 @@ class Blitter definition: {
 
     field bytesPerPixel type: UInt32.
 
-    compileTimeConstant UNorm8RenderBlockType := ((UInt32x2) => UInt8x4) nativeBlockClosure.
-    compileTimeConstant Float32RenderBlockType := ((UInt32x2) => Float32x4) nativeBlockClosure.
-    compileTimeConstant Float32BlendRenderBlockType := ((UInt32x2 -- Float32x4) => Float32x4) nativeBlockClosure.
-    compileTimeConstant Float32BlendTriangleBlockType := ((Float32x2 -- Float32x3 -- Float32x4) => Float32x4) nativeBlockClosure.
-    compileTimeConstant Float32BlendCopyBlockType := ((Int32x2 -- Float32x4 -- Float32x4) => Float32x4) nativeBlockClosure.
-    compileTimeConstant Float32NormalizedRenderBlockType := ((Float32x2) => Float32x4) nativeBlockClosure.
+    compileTime constant UNorm8RenderBlockType := ((UInt32x2) => UInt8x4) nativeBlockClosure.
+    compileTime constant Float32RenderBlockType := ((UInt32x2) => Float32x4) nativeBlockClosure.
+    compileTime constant Float32BlendRenderBlockType := ((UInt32x2 -- Float32x4) => Float32x4) nativeBlockClosure.
+    compileTime constant Float32BlendTriangleBlockType := ((Float32x2 -- Float32x3 -- Float32x4) => Float32x4) nativeBlockClosure.
+    compileTime constant Float32BlendCopyBlockType := ((Int32x2 -- Float32x4 -- Float32x4) => Float32x4) nativeBlockClosure.
+    compileTime constant Float32NormalizedRenderBlockType := ((Float32x2) => Float32x4) nativeBlockClosure.
 
 
     method initializeCachedState => Void := {

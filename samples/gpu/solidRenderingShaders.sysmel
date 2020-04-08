@@ -32,7 +32,7 @@ class VertexOutput superclass: VertexIO; definition: {
     public field screenPosition type: Float32x4; intrinsic: #position.
 }.
 
-compileTimeConstant FragmentInput := VertexIO.
+compileTime constant FragmentInput := VertexIO.
 
 class FragmentOutput definition: {
     public field color type: Float32x4; location: 0.

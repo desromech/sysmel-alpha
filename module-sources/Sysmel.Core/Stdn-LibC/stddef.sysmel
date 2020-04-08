@@ -1,4 +1,4 @@
 namespace LibC definition: {
-    compileTimeConstant SizeT := UIntPointer.
-    compileTimeConstant PtrdiffT := IntPointer.
+    compileTime constant SizeT := UIntPointer.
+    compileTime constant PtrdiffT := IntPointer.
 }.

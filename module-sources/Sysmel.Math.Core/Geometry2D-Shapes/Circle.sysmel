@@ -9,8 +9,8 @@ sealed template GenericCircle(ST: Type)
 
 }.
 
-compileTimeConstant CircleF32 := GenericCircle(Float32).
-compileTimeConstant CircleF64 := GenericCircle(Float64).
+compileTime constant CircleF32 := GenericCircle(Float32).
+compileTime constant CircleF64 := GenericCircle(Float64).
 
 } ## End of namespace Geometry
 } ## End of namespace Math

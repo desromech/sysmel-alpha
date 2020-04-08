@@ -1,5 +1,5 @@
 namespace Unix definition: {
-    compileTimeConstant MAP_FAILED := -1 reinterpretCastTo: Void pointer.
+    compileTime constant MAP_FAILED := -1 reinterpretCastTo: Void pointer.
 
     function mmap externC (addr: Void pointer, length: SizeT, prot: Int, flags: Int, fd: Int, offset: OFF_T) => Void pointer.
     function munmap externC (addr: Void pointer, length: SizeT) => Int.

@@ -1,14 +1,14 @@
 namespace SDL2 definition: {
 
 ## Renderer
-compileTimeConstant SDL_RENDERER_SOFTWARE value: 16r00000001.
-compileTimeConstant SDL_RENDERER_ACCELERATED value: 16r00000002.
-compileTimeConstant SDL_RENDERER_PRESENTVSYNC value: 16r00000004.
-compileTimeConstant SDL_RENDERER_TARGETTEXTURE value: 16r00000008.
+compileTime constant SDL_RENDERER_SOFTWARE value: 16r00000001.
+compileTime constant SDL_RENDERER_ACCELERATED value: 16r00000002.
+compileTime constant SDL_RENDERER_PRESENTVSYNC value: 16r00000004.
+compileTime constant SDL_RENDERER_TARGETTEXTURE value: 16r00000008.
 
-compileTimeConstant SDL_TEXTUREACCESS_STATIC := 0.
-compileTimeConstant SDL_TEXTUREACCESS_STREAMING := 1.
-compileTimeConstant SDL_TEXTUREACCESS_TARGET := 2.
+compileTime constant SDL_TEXTUREACCESS_STATIC := 0.
+compileTime constant SDL_TEXTUREACCESS_STREAMING := 1.
+compileTime constant SDL_TEXTUREACCESS_TARGET := 2.
 
 struct SDL_Renderer.
 struct SDL_Texture.

@@ -6,8 +6,8 @@ sealed template GenericSegment2d(ST: Type)
     := class superclass: GenericGeometricShape(ST); definition: {
 }.
 
-compileTimeConstant Segment2dF32 := GenericSegment2d(Float32).
-compileTimeConstant Segment2dF64 := GenericSegment2d(Float64).
+compileTime constant Segment2dF32 := GenericSegment2d(Float32).
+compileTime constant Segment2dF64 := GenericSegment2d(Float64).
 
 } ## End of namespace Geometry
 } ## End of namespace Math
