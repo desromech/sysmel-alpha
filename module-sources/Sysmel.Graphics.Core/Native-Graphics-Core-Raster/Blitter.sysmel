@@ -57,7 +57,7 @@ class UnsafePixelIterator definition: {
 
     method storePixelFloat32x4: (newValue: Float32x4) ::=> Void := {
         bytesPerPixel <= 4 ifTrue: {
-            let convertedPixelValue := (newValue clampMin: 0.0f max: 1.0f) * 255.0f castTo: UInt8x4.
+            let convertedPixelValue := (pixelFormat encodeColorSpace: (newValue clampMin: 0.0f max: 1.0f)) * 255.0f castTo: UInt8x4.
             self storePixelUNorm8x4: convertedPixelValue.
             return: nil.
         }.
@@ -85,7 +85,7 @@ class UnsafePixelIterator definition: {
 
     method loadPixelFloat32x4 => Float32x4 := {
         bytesPerPixel <= 4 ifTrue: {
-            return: (self loadPixelUNorm8x4 castTo: Float32x4) / 255.0f
+            return: (pixelFormat decodeColorSpace: (self loadPixelUNorm8x4 castTo: Float32x4) / 255.0f)
         }.
 
         return: Float32x4 zeros.

@@ -1,0 +1,31 @@
+namespace Stdn definition: {
+namespace Math definition: {
+namespace Color definition: {
+
+inline function encodeSRGBChannel(u: Float32) => Float32 := {
+    ## Conversion formula from https://en.wikipedia.org/wiki/SRGB [April 8th, 2020]
+    u <= 0.0031308f ifTrue: {
+        12.92f*u
+    } ifFalse: {
+        1.055f*(u raisedTo: 1.0f/2.4f) - 0.055f
+    }
+}.
+
+inline function decodeSRGBChannel(u: Float32) => Float32 := {
+    ## Conversion formula from https://en.wikipedia.org/wiki/SRGB [April 8th, 2020]
+    u <= 0.04045f ifTrue: {
+        u / 12.92f
+    } ifFalse: {
+        (u + 0.055f) / 1.055f raisedTo: 2.4f
+    }
+}.
+
+function encodeSRGB(color: Float32x4) => Float32x4
+    := Float32x4(encodeSRGBChannel(color r), encodeSRGBChannel(color g), encodeSRGBChannel(color b), color a).
+
+function decodeSRGB(color: Float32x4) => Float32x4
+    := Float32x4(decodeSRGBChannel(color r), decodeSRGBChannel(color g), decodeSRGBChannel(color b), color a).
+
+} ## End of namespace Color
+} ## End of namespace Math
+} ## End of namespace Stdn

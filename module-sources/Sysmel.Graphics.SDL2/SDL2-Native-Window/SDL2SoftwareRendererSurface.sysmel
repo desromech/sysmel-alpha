@@ -60,7 +60,7 @@ class SDL2SoftwareRendererSurface superclass: CPUSurface; definition: {
         pixelsBlitter := Blitter newValue
             extent: textureExtent;
             pitch: pitch;
-            pixelFormat: PixelFormat B8G8R8A8_UNorm;
+            pixelFormat: PixelFormat B8G8R8A8_UNormSRGB;
             pixels: pixels;
             initializeCachedState;
             yourself.

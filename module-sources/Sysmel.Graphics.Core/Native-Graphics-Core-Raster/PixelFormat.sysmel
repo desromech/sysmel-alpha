@@ -236,6 +236,42 @@ enum PixelFormat valueType: UInt32; values: #{
         Stdn abort().
     }.
 
+    inline method isInSRGB => Boolean8 := {
+        self selectCase: #{
+        (
+            R8G8B8A8_UNormSRGB, BC1_UNormSRGB, BC2_UNormSRGB, BC3_UNormSRGB,
+            B8G8R8A8_UNormSRGB, B8G8R8X8_UNormSRGB, ETC2_R8G8B8_UNormSRGB,
+            ETC2_R8G8B8A1_UNormSRGB, ETC2_R8G8B8A8_UNormSRGB, ASTC4X4_UNormSRGB,
+            ASTC5X4_UNormSRGB, ASTC5X5_UNormSRGB, ASTC6X5_UNormSRGB, ASTC6X6_UNormSRGB,
+            ASTC8X5_UNormSRGB, ASTC8X6_UNormSRGB, ASTC8X8_UNormSRGB, ASTC10X5_UNormSRGB,
+            ASTC10X6_UNormSRGB, ASTC10X8_UNormSRGB, ASTC10X10_UNormSRGB, ASTC12X10_UNormSRGB,
+            ASTC12X12_UNormSRGB
+        ) asValueInSetPattern : {
+            return: true
+        }.
+
+        let _ : {return: false}.
+        }.
+
+        Stdn abort().
+    }.
+
+    inline method encodeColorSpace: (color: Float32x4) ::=> Float32x4 := {
+        self isInSRGB ifTrue: {
+            Stdn Math Color encodeSRGB(color)
+        } ifFalse: {
+            color
+        }
+    }.
+
+    inline method decodeColorSpace: (color: Float32x4) ::=> Float32x4 := {
+        self isInSRGB ifTrue: {
+            Stdn Math Color decodeSRGB(color)
+        } ifFalse: {
+            color
+        }
+    }.
+
 }.
 
 }. ## End of namespace Core
