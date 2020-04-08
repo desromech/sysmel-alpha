@@ -7,11 +7,6 @@ Class {
 	#category : #'SysmelMoebiusMetamodel-Core-MetaBuilder'
 }
 
-{ #category : #'as yet unclassified' }
-MbndCompileTimeConstantMetaBuilder class >> globalBindingName [
-	^ #compileTimeConstant
-]
-
 { #category : #definition }
 MbndCompileTimeConstantMetaBuilder >> assignValue: newValueNode [
 	self value: newValueNode

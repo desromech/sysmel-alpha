@@ -25,7 +25,7 @@ SysmelSyntaxHighlighter class >> initialize [
 		thisContext self super
 		
 		let namespace struct union class gcclass enum function template macro message method field
-		public private static virtual abstract override compileTimeConstant global
+		public private static virtual abstract override sealed trait concept compileTime global
 	).
 ]
 
