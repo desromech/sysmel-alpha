@@ -74,6 +74,16 @@ MbndAstEvaluator >> visitBitCastNode: node [
 ]
 
 { #category : #visiting }
+MbndAstEvaluator >> visitBlockClosureNode: node [
+	| capturedValues |
+	capturedValues := node blockClosureProgramEntity extractCapturedValuesFromEvaluationScope: scope.
+	^ MbndBlockClosureInstance new
+		closureProgramEntity: node blockClosureProgramEntity;
+		capturedValues: capturedValues;
+		yourself
+]
+
+{ #category : #visiting }
 MbndAstEvaluator >> visitClassDeclarationNode: node [
 	^ self visitTypeDeclarationNode: node
 ]
@@ -319,6 +329,11 @@ MbndAstEvaluator >> visitPointerReinterpretCastNode: node [
 	^ pointer copy
 		type: node type;
 		yourself
+]
+
+{ #category : #visiting }
+MbndAstEvaluator >> visitPredicatedTypeConceptDefinitionNode: node [
+	^ MbndValue value: node binding type: node type
 ]
 
 { #category : #visiting }

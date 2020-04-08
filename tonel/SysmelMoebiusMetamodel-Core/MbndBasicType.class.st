@@ -260,7 +260,7 @@ MbndBasicType >> ensureSyntheticMethodExists: aSelector [
 { #category : #'as yet unclassified' }
 MbndBasicType >> evaluateAllPendingDefinitionFragments [
 	| toEvaluate |
-	self isMetaType ifTrue: [ 
+	self isStrictMetaType ifTrue: [ 
 		self instanceType ifNotNil: [:it | it evaluateAllPendingDefinitionFragments ]
 	].
 

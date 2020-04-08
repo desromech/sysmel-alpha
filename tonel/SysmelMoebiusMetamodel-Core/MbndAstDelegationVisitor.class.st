@@ -468,6 +468,11 @@ MbndAstDelegationVisitor >> visitPragmaNode: node [
 ]
 
 { #category : #visiting }
+MbndAstDelegationVisitor >> visitPredicatedTypeConceptDefinitionNode: node [
+	^ self delegateNodeVisit: node
+]
+
+{ #category : #visiting }
 MbndAstDelegationVisitor >> visitProgramEntityExtensionNode: node [
 	^ self delegateNodeVisit: node
 ]

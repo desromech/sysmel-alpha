@@ -222,6 +222,11 @@ MbndAbstractModuleVisitor >> visitPointerType: type [
 ]
 
 { #category : #visiting }
+MbndAbstractModuleVisitor >> visitPredicatedTypeConcept: method [
+	self subclassResponsibility
+]
+
+{ #category : #visiting }
 MbndAbstractModuleVisitor >> visitPrimitiveBooleanType: type [
 	self subclassResponsibility
 ]

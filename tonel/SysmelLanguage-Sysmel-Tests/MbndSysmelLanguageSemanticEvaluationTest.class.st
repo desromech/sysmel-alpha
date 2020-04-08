@@ -188,3 +188,48 @@ MbndSysmelLanguageSemanticEvaluationTest >> testNonCopyableError3 [
 	semanticModule finishSemanticAnalysis
 	] raise: MbndSemanticError
 ]
+
+{ #category : #tests }
+MbndSysmelLanguageSemanticEvaluationTest >> testPredicateTypeConcept [
+	| concept testType |
+	concept := (self evaluateSource: 'concept AnyTypeConcept predicate: {:type | true}') unwrapMbndValue.
+	testType := semanticModule compilationTarget int32Type.
+	self assert: concept isPredicatedTypeConcept.
+	self assert: (concept doesTypeComplyWithConcept: testType).
+		
+	concept := (self evaluateSource: 'concept AnyTypeConcept2 := {:type | true}') unwrapMbndValue.
+	self assert: concept isPredicatedTypeConcept.
+	self assert: (concept doesTypeComplyWithConcept: testType).
+
+]
+
+{ #category : #tests }
+MbndSysmelLanguageSemanticEvaluationTest >> testTypeConceptEqualable [
+	self evaluateSource: '
+	concept Equalable := {:type | type canUnderstand: #= }.
+	struct TestStruct definition: { }.
+'.
+	self assert: (self evaluateSource: 'Equalable doesTypeComplyWithConcept: Int32') unwrapMbndValue.
+	self deny: (self evaluateSource: 'Equalable doesTypeComplyWithConcept: TestStruct') unwrapMbndValue.
+]
+
+{ #category : #tests }
+MbndSysmelLanguageSemanticEvaluationTest >> testTypeConceptHashKey [
+	self evaluateSource: '
+	concept HashKey := {:type | type canUnderstandAll: #(= hash) }.
+	Int32 macro method hash := self.
+	struct TestStruct definition: { }.
+'.
+	self assert: (self evaluateSource: 'HashKey doesTypeComplyWithConcept: Int32') unwrapMbndValue.
+	self deny: (self evaluateSource: 'HashKey doesTypeComplyWithConcept: TestStruct') unwrapMbndValue.
+]
+
+{ #category : #tests }
+MbndSysmelLanguageSemanticEvaluationTest >> testTypeConceptIfTypeCompliesElse [
+	| selectedType |
+	selectedType := (self evaluateSource: '
+	concept PointerSized predicate: {:type | type instanceSize = Compiler compilationTarget pointerSize}.
+		PointerSized ifType: UInt32 complies: UInt32 else: UInt64
+	') unwrapMbndValue.
+	self assert: selectedType instanceSize equals: semanticModule compilationTarget pointerSize
+]

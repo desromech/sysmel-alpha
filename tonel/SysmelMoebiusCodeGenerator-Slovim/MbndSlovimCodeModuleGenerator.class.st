@@ -2074,6 +2074,11 @@ MbndSlovimCodeModuleGenerator >> visitPointerType: type [
 ]
 
 { #category : #'typeinfo translation' }
+MbndSlovimCodeModuleGenerator >> visitPredicatedTypeConcept: type [
+	^ self visitUserDefinedType: type
+]
+
+{ #category : #'typeinfo translation' }
 MbndSlovimCodeModuleGenerator >> visitPrimitiveBooleanType: type [
 	^ self visitCoreBasicType: type
 ]

@@ -465,6 +465,20 @@ TMbndAbstractType >> canHaveDynamicMethodWrapper [
 ]
 
 { #category : #testing }
+TMbndAbstractType >> canUnderstand: aSelector [
+	<compileTime>
+	(self lookupMacroSelector: aSelector) ifNotNil: [ ^ true ].
+	(self lookupOverloadedSelector: aSelector) ifNotNil: [ ^ true ].
+	^ false
+]
+
+{ #category : #testing }
+TMbndAbstractType >> canUnderstandAll: selectors [
+	<compileTime>
+	^ selectors allSatisfy: [ :each | self canUnderstand: each ]
+]
+
+{ #category : #testing }
 TMbndAbstractType >> canValueBeCreatedForNode: node [
 	"This allows the opportunity of creating values of types with a specific kind of node, and avoiding of type conversion machinery. This is useful to convert tuple creation nodes into arrays without creating an intermediate tuple value in the process."
 	^ false
@@ -1134,6 +1148,11 @@ TMbndAbstractType >> isPossibleToLoadReferences [
 	^ true
 ]
 
+{ #category : #testing }
+TMbndAbstractType >> isPredicatedTypeConcept [
+	^ false
+]
+
 { #category : #'testing methods' }
 TMbndAbstractType >> isPrimitiveBooleanType [
 	^ false
@@ -1206,9 +1225,19 @@ TMbndAbstractType >> isSamplerType [
 	^ false
 ]
 
+{ #category : #testing }
+TMbndAbstractType >> isSimultaneousTypeConcept [
+	^ false
+]
+
 { #category : #'semantic analysis' }
 TMbndAbstractType >> isStandardConcreteTypeForLiteralValueNode: literalValueNode [
 	^ self == (literalValueNode type standardConcreteTypeForLiteralValueNode: literalValueNode inScope: MbndLexicalScope new)
+]
+
+{ #category : #testing }
+TMbndAbstractType >> isStrictMetaType [
+	^ false
 ]
 
 { #category : #'testing methods' }

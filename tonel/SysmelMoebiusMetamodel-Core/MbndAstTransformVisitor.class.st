@@ -656,6 +656,13 @@ MbndAstTransformVisitor >> visitPragmaNode: node [
 ]
 
 { #category : #visiting }
+MbndAstTransformVisitor >> visitPredicatedTypeConceptDefinitionNode: node [
+	^ node copy
+		predicate: (self visitNode: node predicate);
+		yourself
+]
+
+{ #category : #visiting }
 MbndAstTransformVisitor >> visitProgramEntityExtensionNode: node [
 	^ node copy
 		programEntity: (node programEntity isMbndAstNode

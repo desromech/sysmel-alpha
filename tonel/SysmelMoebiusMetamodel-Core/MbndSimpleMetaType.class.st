@@ -82,16 +82,6 @@ MbndSimpleMetaType >> evaluatePendingDefinitionFragmentsForOverloadedSelector: a
 	^ super evaluatePendingDefinitionFragmentsForOverloadedSelector: aSelector
 ]
 
-{ #category : #sizes }
-MbndSimpleMetaType >> instanceAlignment [
-	^ self compilationTarget pointerAlignment
-]
-
-{ #category : #sizes }
-MbndSimpleMetaType >> instanceSize [
-	^ self compilationTarget pointerSize
-]
-
 { #category : #accessing }
 MbndSimpleMetaType >> instanceType: anObject [
 	instanceType := anObject.

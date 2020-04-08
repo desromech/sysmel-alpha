@@ -12,5 +12,5 @@ MbndTypeTypeConcept class >> typeName [
 { #category : #'as yet unclassified' }
 MbndTypeTypeConcept >> doesTypeComplyWithConcept: aType [
 	<compileTime>
-	^ aType isMetaType or: [ aType isMetaTypeType ]
+	^ true
 ]

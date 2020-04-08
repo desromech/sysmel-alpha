@@ -50,7 +50,8 @@ Trait {
 		'nonLocalReturnRaiseFunction',
 		'nonLocalReturnCatchFunction',
 		'internalNonLocalReturnExceptionClass',
-		'typeSystemInitialized'
+		'typeSystemInitialized',
+		'simultaneousTypeConcepts'
 	],
 	#traits : 'TMbndAbstractCompilationTarget',
 	#classTraits : 'TMbndAbstractCompilationTarget classTrait',
@@ -916,10 +917,20 @@ TMbndCoreCompilationTarget >> initializeDerivedTypeCaches [
 				initializeNonTraitType;
 				yourself.
 	].
+
 	variantUnions := self createSystemProvidedTypeTemplate: #_VariantUnionTypeTemplate
 		argumentNames: #(Components)
 		doing: [ :components |
 			(self ensureBasicTypeIsLinkedToTheHierarchy: MbndVariantUnionType basicNew)
+				components: components;
+				initializeNonTraitType;
+				yourself.
+	].
+
+	simultaneousTypeConcepts := self createSystemProvidedTypeTemplate: #_SimultaneousTypeConceptsTemplate
+		argumentNames: #(Components)
+		doing: [ :components |
+			(self ensureBasicTypeIsLinkedToTheHierarchy: MbndSimultaneousTypeConcept basicNew)
 				components: components;
 				initializeNonTraitType;
 				yourself.
@@ -1370,6 +1381,13 @@ TMbndCoreCompilationTarget >> shaderModuleInfo [
 { #category : #accessing }
 TMbndCoreCompilationTarget >> shaderModuleInfo: anObject [
 	shaderModuleInfo := anObject
+]
+
+{ #category : #'derived types' }
+TMbndCoreCompilationTarget >> simultanousTypeConcepts: components [
+	| set |
+	set := Set newFrom: components.
+	^ simultaneousTypeConcepts getOrCreateInstanceWithArguments: {set}
 ]
 
 { #category : #'derived types' }

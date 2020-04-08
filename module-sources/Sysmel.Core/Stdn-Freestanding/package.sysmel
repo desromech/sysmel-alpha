@@ -1,6 +1,7 @@
 ## Core definitions without a requirement on memory allocation, or an actual operating system.
 Compiler loadPackages: #(
 	#"Stdn-Freestanding-Utility"
+	#"Stdn-Freestanding-Concepts"
 ).
 
 if: Compiler compilationTarget isGPU not then: {

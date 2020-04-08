@@ -13,6 +13,14 @@ MbndAbstractValue class >> messagePackTypeName [
 ]
 
 { #category : #converting }
+MbndAbstractValue >> asLiteralValueNode [
+	^ MbndAstLiteralValueNode new
+		value: self;
+		type: self type;
+		yourself
+]
+
+{ #category : #converting }
 MbndAbstractValue >> asMacroExpandedToConstant [
 	^ MbndMacroExpandedToConstant new constantValue: self
 ]
@@ -40,6 +48,19 @@ MbndAbstractValue >> compilationTarget [
 { #category : #copying }
 MbndAbstractValue >> copyForValueAssignment [
 	^ self
+]
+
+{ #category : #accessing }
+MbndAbstractValue >> createAnalyzerAndEvaluator [
+	^ MbndAstSemanticAnalyzerAndEvaluator new
+		module: self compilationEnvironment currentModule;
+		scope: self compilationEnvironment currentModule moduleScope;
+		yourself
+]
+
+{ #category : #accessing }
+MbndAbstractValue >> createEvaluator [
+	^ MbndAstEvaluator new module: self compilationEnvironment currentModule
 ]
 
 { #category : #serialization }
@@ -86,6 +107,21 @@ MbndAbstractValue >> messagePackTypeName [
 { #category : #accessing }
 MbndAbstractValue >> type [
 	self subclassResponsibility
+]
+
+{ #category : #accessing }
+MbndAbstractValue >> valueWithArguments: arguments [
+	| convertedArguments builder expression |
+	convertedArguments := arguments collect: [ :each | each asMoebiusValueWithTarget: self compilationTarget ].
+	self type withoutReferences isFunctionType ifTrue: [
+		^ self unwrapMbndValue evaluateApplicationWithArguments: convertedArguments withEvaluator: self createEvaluator at: MbndSourcePosition empty
+	].
+
+	builder := MbndAstBuilder forModule: self compilationEnvironment currentModule.
+	expression := builder unexpandedSend: (builder literalSymbol: #applyWithArguments:)
+		to: self asLiteralValueNode
+		withArguments: {builder tuple: (convertedArguments collect: [:each | each asLiteralValueNode ])}.
+	^ self createAnalyzerAndEvaluator analyzeAndEvaluateFunctionContent: expression.
 ]
 
 { #category : #evaluation }

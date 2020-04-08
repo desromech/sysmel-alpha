@@ -618,6 +618,11 @@ MbndSlovimSymbolNameMangler >> visitPointerType: type [
 ]
 
 { #category : #visiting }
+MbndSlovimSymbolNameMangler >> visitPredicatedTypeConcept: type [
+	^ self visitGenericType: type
+]
+
+{ #category : #visiting }
 MbndSlovimSymbolNameMangler >> visitPrimitiveBooleanType: type [
 	^ self visitCoreBasicType: type
 ]

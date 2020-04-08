@@ -30,7 +30,7 @@ MbndAstSemanticAnalyzerAndEvaluator >> analyzeAndEvaluateNode: aNode [
 
 { #category : #delegate }
 MbndAstSemanticAnalyzerAndEvaluator >> analyzeNode: aNode [
-	^ semanticAnalyzer visitNode: aNode
+	^ semanticAnalyzer analyzeNodeIfNeeded: aNode
 ]
 
 { #category : #delegate }

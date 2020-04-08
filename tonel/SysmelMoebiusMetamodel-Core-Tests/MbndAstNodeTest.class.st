@@ -150,6 +150,7 @@ MbndAstNodeTest >> testTestingMethods [
 	self deny: node isQuasiQuoteNode.
 	self deny: node isQuasiUnquoteNode.
 	self deny: node isQuoteNode.
+	self deny: node isPredicatedTypeConceptDefinitionNode.
 	self deny: node isPointerReinterpretCastNode.
 	self deny: node isPointerToIntegerCastNode.
 	self deny: node isReferenceAsPointerNode.

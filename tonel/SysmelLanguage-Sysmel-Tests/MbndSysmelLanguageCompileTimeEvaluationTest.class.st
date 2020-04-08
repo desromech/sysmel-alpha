@@ -14,6 +14,18 @@ MbndSysmelLanguageCompileTimeEvaluationTest >> testBitInvert [
 ]
 
 { #category : #tests }
+MbndSysmelLanguageCompileTimeEvaluationTest >> testBlockClosureValueWithArguments [
+	| function |
+	function := self evaluateSource: '
+{:(Int32)x :: Int32 | x + 42}
+'.
+
+	self assert: (function valueWithArguments: { 0 }) unwrapMbndValue equals: 42.
+	self assert: (function valueWithArguments: { 1 }) unwrapMbndValue equals: 43.
+	self assert: (function valueWithArguments: { 2 }) unwrapMbndValue equals: 44.
+]
+
+{ #category : #tests }
 MbndSysmelLanguageCompileTimeEvaluationTest >> testBooleanLiteralMessages [
 	self assert: (self evaluateSource: 'true and: false') value equals: false.
 	self assert: (self evaluateSource: 'true and: false') type isLiteralBooleanFalseType.
@@ -54,6 +66,19 @@ MbndSysmelLanguageCompileTimeEvaluationTest >> testFunctionNotInCompileTimeTrans
 		}.
 	'.
 	self deny: caller unwrapMbndValue canBeEvaluatedInCompileTime
+]
+
+{ #category : #tests }
+MbndSysmelLanguageCompileTimeEvaluationTest >> testFunctionValueWithArguments [
+	| function |
+	function := self evaluateSource: '
+function f(x: Int32) => Int64
+	:= x + 42.
+'.
+
+	self assert: (function valueWithArguments: { 0 }) unwrapMbndValue equals: 42.
+	self assert: (function valueWithArguments: { 1 }) unwrapMbndValue equals: 43.
+	self assert: (function valueWithArguments: { 2 }) unwrapMbndValue equals: 44.
 ]
 
 { #category : #tests }

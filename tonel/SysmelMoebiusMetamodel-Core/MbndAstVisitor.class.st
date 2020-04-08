@@ -505,6 +505,11 @@ MbndAstVisitor >> visitPragmaNode: node [
 ]
 
 { #category : #visiting }
+MbndAstVisitor >> visitPredicatedTypeConceptDefinitionNode: node [
+	self subclassResponsibility
+]
+
+{ #category : #visiting }
 MbndAstVisitor >> visitProgramEntityExtensionNode: node [
 	self subclassResponsibility
 ]

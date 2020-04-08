@@ -83,6 +83,64 @@ MbndAstSemanticAnalyzer >> addReceiverImplicitCastFor: nodeRequiringCasting to: 
 ]
 
 { #category : #visiting }
+MbndAstSemanticAnalyzer >> analyzeBlockNode: blockNode calledWithArgumentNodes: argumentNodes expectedReturnType: expectedReturnType [
+	"I take care of analyzing a block, and of also provide automatic block closure signature inference when possible."
+
+	| result |
+	blockNode isBlockClosureNode ifFalse: [ ^ self analyzeNodeIfNeeded: blockNode ].
+
+	result := blockNode.
+	 
+	argumentNodes ifNotNil: [
+		result := result copy
+			arguments: (result arguments collectWithIndex: [:argDefinition :index |
+				argDefinition valueType
+					ifNotNil: [ argDefinition ]
+					ifNil: [
+						| argumentNode |
+						argumentNode := argumentNodes at: index.
+						argDefinition copy
+						valueType: (argumentNode type inferValueTypeForNode: argumentNode inScope: scope)
+					].
+			])
+	].
+
+	(expectedReturnType isNotNil and: [result returnType isNil]) ifTrue: [
+		result := result copy returnType: expectedReturnType.
+	].
+
+	^ self analyzeNodeIfNeeded: result
+]
+
+{ #category : #visiting }
+MbndAstSemanticAnalyzer >> analyzeBlockNode: blockNode calledWithArgumentTypes: argumentTypes expectedReturnType: expectedReturnType [
+	"I take care of analyzing a block, and of also provide automatic block closure signature inference when possible."
+
+	| result |
+	blockNode isBlockClosureNode ifFalse: [ ^ self analyzeNodeIfNeeded: blockNode ].
+
+	result := blockNode.
+	argumentTypes ifNotNil: [
+		result arguments size = argumentTypes size ifFalse: [ 
+			^ self error: 'Block closure receives {1} arguments instead of the specified {2} arguments.' format: { argumentTypes size asString . result arguments size asString } at: blockNode
+		].
+	
+		result := result copy
+			arguments: (result arguments collectWithIndex: [:argDefinition :index |
+				argDefinition valueType
+					ifNotNil: [ argDefinition ]
+					ifNil: [ argDefinition copy valueType: (argumentTypes at: index) ].
+		])
+	].
+
+	(expectedReturnType isNotNil and: [result returnType isNil]) ifTrue: [
+		result := result copy returnType: expectedReturnType.
+	].
+
+	^ self analyzeNodeIfNeeded: result
+]
+
+{ #category : #visiting }
 MbndAstSemanticAnalyzer >> analyzeEnumDefinition: enumDefinition values: values [
 	| enumType evaluatedDictionary convertedDictionary valueType |
 	enumType := enumDefinition binding.
@@ -618,6 +676,7 @@ MbndAstSemanticAnalyzer >> visitBlockClosureNode: node [
 	blockClosureEntity := MbndBlockClosureMethod new
 		parent: owner;
 		definitionPosition: result;
+		definitionScope: scope;
 		analyzedNode: result;
 		setNonLocalReturnTarget: node isBlockWithNonLocalReturn not;
 		defineArguments.
@@ -626,7 +685,6 @@ MbndAstSemanticAnalyzer >> visitBlockClosureNode: node [
 	blockClosureEntity boundType: (self compilationTarget functionTypeWithArguments: (blockClosureEntity arguments collect: #type as: Array) returnType: result returnType).
 
 	bodyScope := blockClosureEntity createSemanticAnalysisScopeWithParent: scope.
-	
 	preprocessedBody := result body.
 	(preprocessedBody isLexicalScopeNode and: [ preprocessedBody expression isReturnStatementNode ]) ifFalse: [
 		preprocessedBody := (MbndAstReturnStatementNode new
@@ -1420,20 +1478,9 @@ MbndAstSemanticAnalyzer >> visitImmediateBlockClosureActivationNode: node [
 		yourself.
 		
 	"Infer the argument block argument node"
-	result blockNode: (node blockNode copy
-		arguments: (node blockNode arguments collectWithIndex: [:argDefinition :index |
-			argDefinition valueType
-				ifNotNil: [ argDefinition ]
-				ifNil: [
-					| argumentNode |
-					argumentNode := result arguments at: index.
-					argDefinition copy
-						valueType: (argumentNode type inferValueTypeForNode: argumentNode inScope: scope)
-			].
-	])).		
-	
-	"Analyze the block node."
-	result blockNode: (self analyzeNodeIfNeeded: result blockNode).
+	result blockNode: (self analyzeBlockNode: node blockNode
+		calledWithArgumentNodes: result arguments
+		expectedReturnType: nil).
 
 	"Analyze and coerce the arguments."
 	blockClosureType := result blockNode type.
@@ -1955,6 +2002,40 @@ MbndAstSemanticAnalyzer >> visitPointerElementReferenceNode: node [
 	
 	elementReferenceType := pointerType asReferenceType.
 	result type: elementReferenceType.
+	^ result
+]
+
+{ #category : #visiting }
+MbndAstSemanticAnalyzer >> visitPredicatedTypeConceptDefinitionNode: node [
+	| result predicate owner concept |
+	node name isMbndAnonymousSymbol ifTrue: [
+		self error: 'Anonymous type concepts are not allowed.' at: node
+	].
+
+	owner := node ownerProgramEntity ifNil: [scope lookupProgramEntityForNewDefinitions].
+
+	node name isMbndAnonymousSymbol ifFalse: [ 
+		(owner lookupLocalSymbol: node name) ifNotNil: [ :previousDefintion |
+			self error: 'Cannot redefine symbol {1} as a type of another kind.' format: { node name asPrettySymbolName } at: node
+		].
+	].
+
+	result := node copy
+		predicate: (self analyzeBlockNode: node predicate
+			calledWithArgumentTypes: {self compilationTarget compilerObjectType}
+			expectedReturnType: self compilationTarget compilerObjectType);
+		yourself.
+	predicate := self evaluateCompileTimeExpression: result predicate.
+
+	concept := self compilationTarget createNamedType: result name ofKind: MbndPredicatedTypeConcept inModule: scope module.
+	concept predicate: predicate.
+	concept addFlags: node flags.
+	owner addChild: concept.
+	owner setLocalSymbol: concept name value: concept.
+	result binding: concept.
+
+	concept enqueueDelayedSemanticAnalysis. "Not required"
+	result type: concept type.
 	^ result
 ]
 

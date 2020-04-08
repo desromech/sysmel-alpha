@@ -12,7 +12,7 @@ MbndToDerivedTypeConceptConversionRule >> canBeUsedToConvertNode: node from: sou
 	
 	sourceConcept := sourceType baseType.
 	targetConcept := targetType baseType.
-	(sourceConcept isTypeConcept and: [ targetType doesTypeComplyWithConcept: targetConcept ]) ifTrue: [ ^ true ].
+	(sourceConcept isTypeConcept and: [ targetType doesCoercionTypeComplyWithConcept: targetConcept ]) ifTrue: [ ^ true ].
 	(targetConcept isTrait and: [ sourceConcept isSubtypeOf: targetConcept ]) ifTrue: [ ^ true ].
 	^ false
 ]

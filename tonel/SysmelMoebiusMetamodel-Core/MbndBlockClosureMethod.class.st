@@ -3,6 +3,7 @@ Class {
 	#superclass : #MbndAbstractSpecificMethod,
 	#instVars : [
 		'definitionPosition',
+		'definitionScope',
 		'analyzedNode',
 		'arguments',
 		'children',
@@ -87,6 +88,24 @@ MbndBlockClosureMethod >> computeGarbageCollectionNeed [
 ]
 
 { #category : #'as yet unclassified' }
+MbndBlockClosureMethod >> constructEvaluationScopeWithArguments: argumentValues capturedValues: capturedValues [
+	| evaluationScope argumentDefinition |
+	evaluationScope := MbndFunctionEvaluationScope parent: definitionScope.
+	evaluationScope := evaluationScope newReturnContextScope newLexicalScope.
+
+	argumentValues doWithIndex: [ :argumentValue :index |
+		argumentDefinition := arguments at: index.
+		argumentDefinition createStorageInFunctionActivationScope: evaluationScope withValue: argumentValue
+	].
+
+	capturedValues doWithIndex: [ :value |
+		self halt
+	].
+
+	^ evaluationScope
+]
+
+{ #category : #'as yet unclassified' }
 MbndBlockClosureMethod >> createSemanticAnalysisScopeWithParent: parentScope [
 	| blockClosureScope analysisScope |
 	blockClosureScope := MbndBlockClosureScope parent: parentScope.
@@ -116,6 +135,7 @@ MbndBlockClosureMethod >> defineArgument: argumentNode [
 { #category : #'as yet unclassified' }
 MbndBlockClosureMethod >> defineArguments [
 	| usedNames |
+	self assert: arguments isNil.
 	usedNames := Set new.
 	arguments := analyzedNode arguments collectWithIndex: [ :argument :index |
 		argument name isMbndAnonymousSymbol ifFalse: [
@@ -142,6 +162,48 @@ MbndBlockClosureMethod >> definitionPosition [
 { #category : #accessing }
 MbndBlockClosureMethod >> definitionPosition: anObject [
 	definitionPosition := anObject
+]
+
+{ #category : #accessing }
+MbndBlockClosureMethod >> definitionScope [
+	^ definitionScope
+]
+
+{ #category : #accessing }
+MbndBlockClosureMethod >> definitionScope: anObject [
+	definitionScope := anObject
+]
+
+{ #category : #'as yet unclassified' }
+MbndBlockClosureMethod >> evaluateApplicationWithCapturedValues: capturedValues arguments: argumentValues withEvaluator: evaluator at: position [
+	| evaluationScope callEvaluator |
+	self analyzedBody ifNil: [
+		self error: 'Cannot evaluate in compile time external block closure {1}.'
+			format: {name asPrettySymbolName} at: position
+	].
+
+	self ensureSemanticAnalysis.
+	self assert: argumentValues size = arguments size.
+	
+	self pragmaAt: #intrinsic: ifPresent: [ :intrinsic |
+		self halt
+	].
+
+	self canBeEvaluatedInCompileTime ifFalse: [
+		self errorNotInCompileTime: 'Cannot evaluate method {1} in compile time.' format: { name asPrettySymbolName } at: position.
+	].
+
+	evaluationScope := self constructEvaluationScopeWithArguments: argumentValues capturedValues: capturedValues.
+	callEvaluator := MbndAstEvaluator new
+		module: evaluator module;
+		scope: evaluationScope.
+
+	^ callEvaluator evaluateFunctionContent: self analyzedBody.
+]
+
+{ #category : #'as yet unclassified' }
+MbndBlockClosureMethod >> extractCapturedValuesFromEvaluationScope: instantiationScope [
+	^ (capturedVariables collect: [ :var | self halt ] ) as: Array
 ]
 
 { #category : #'as yet unclassified' }

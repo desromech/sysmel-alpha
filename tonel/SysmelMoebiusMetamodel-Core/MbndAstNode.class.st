@@ -634,6 +634,11 @@ MbndAstNode >> isPragmaNode [
 	^ false
 ]
 
+{ #category : #visiting }
+MbndAstNode >> isPredicatedTypeConceptDefinitionNode [
+	^ false
+]
+
 { #category : #testing }
 MbndAstNode >> isProgramEntityExtensionNode [
 	^ false
