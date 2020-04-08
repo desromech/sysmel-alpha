@@ -298,6 +298,12 @@ MbndCompilationEnvironment >> initializeWithCompilationTarget: aCompilationTarge
 	compilationTarget := aCompilationTarget.
 	moduleSourceLocations := OrderedCollection new.
 	moduleSourceLocations add: MbndCoreAssets location / 'module-sources'.
+
+	"Optional dependency."
+	[
+		moduleSourceLocations add: MbndAbstractGPUAssets location / 'bindings' / 'sysmel'
+	]on: Error do: [:e |
+	].
 	
 	coreModule := MbndStandaloneModule for: self.
 	currentModuleStack := OrderedCollection new.
