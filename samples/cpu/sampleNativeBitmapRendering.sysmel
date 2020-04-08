@@ -61,12 +61,9 @@ function main externC (argc: Int32, argv: UInt8 const pointer pointer) => Int32 
         FormTextureView for: sineWaves
     }.
 
-    ## Load the font
-    ## TODO: Use factory to avoid using explicitly the freetype bindings here.
-    let fontFace mutable := Stdn Graphics FT2Bindings FT2FontFace loadFromFile: "resources/fonts/dejavu/ttf/DejaVuSans.ttf".
-    let fontFaceWithSize mutable := fontFace _ getOrCreateFaceWithSize: 24.
-    ##let glyph mutable := fontFaceSize _ getOrCreateGlyphForCodePoint: 'e'.
-    ##let glyphTexture mutable := FormTextureView for: glyph _ form.
+    ## Use the default font face.
+    let fontFace mutable := FontRegistry default defaultSans _ normalFace.
+    let fontFaceWithSize := fontFace _ getOrCreateFaceWithSize: 24.
 
     ## Canvas rendering.
     {

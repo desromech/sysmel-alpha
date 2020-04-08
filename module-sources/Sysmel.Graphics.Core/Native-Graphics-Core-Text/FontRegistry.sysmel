@@ -3,33 +3,9 @@ namespace Graphics definition: {
 namespace Core definition: {
 
 #**
- * I am a font face loader
- *#
-class FontFaceLoader superclass: Object; definition: {
-    abstract method loadFromFileNamed: (fileName: Stdn String const ref) ::=> FontFace sharedPointer.
-}.
-
-template FontFaceLoaderFactory(FT: Type)
-    := class definition: {
-    compileTimeConstant FontFaceLoaderType := FT.
-
-    private field faceLoaderInstance type: FontFaceLoaderType.
-
-    method initialize => Void := {
-        FontRegistry uniqueInstance registerFontFaceLoader: faceLoaderInstance address
-    }.
-
-    method finalize => Void := {
-        FontRegistry uniqueInstance unregisterFontFaceLoader: faceLoaderInstance address
-    }.
-}.
-
-#**
  * I am a registry for loaded fonts.
  *#
 class FontRegistry definition: {
-    private field fontFaceLoaders type: Stdn Collections Vector(FontFaceLoader pointer).
-
     private field fontDictionaryMutex type: Stdn Mutex.
     private field fontDictionary type: Stdn Collections Dictionary(Stdn String, Font sharedPointer).
 
@@ -41,15 +17,15 @@ class FontRegistry definition: {
     private field defaultMonospaced type: Font sharedPointer.
 
     meta definition: {
-        let uniqueInstance mutable type: FontRegistry uniquePointer.
-        let uniqueInstanceOnceCreation mutable type: Stdn OnceFlag.
+        let defaultInstance mutable type: FontRegistry uniquePointer.
+        let defaultInstanceOnceCreation mutable type: Stdn OnceFlag.
 
-        method uniqueInstance => FontRegistry ref := {
-            uniqueInstanceOnceCreation do: {
-                uniqueInstance reset: FontRegistry nativeNew.
+        method default => FontRegistry ref := {
+            defaultInstanceOnceCreation do: {
+                defaultInstance reset: FontRegistry nativeNew.
             }.
 
-            uniqueInstance _
+            defaultInstance _
         }.
     }.
 
@@ -66,30 +42,9 @@ class FontRegistry definition: {
     method loadFontFace: (faceFileName: Stdn String const ref) ::=> FontFace sharedPointer := {
         fontFaceDictionaryMutex withLock: {
             fontFaceDictionary at: faceFileName ifAbsentPut: {:: (FontFace sharedPointer) |
-                self doFontFaceLoading: faceFileName
+                FontFaceLoaderRegistry uniqueInstance loadFontFaceFromFileNamed: faceFileName
             }
         }
-    }.
-
-    method registerFontFaceLoader: (loader: FontFaceLoader pointer) ::=> Void := {
-        fontDictionaryMutex withLock: {
-            fontFaceLoaders add: loader.
-        }.
-    }.
-
-    method unregisterFontFaceLoader: (loader: FontFaceLoader pointer) ::=> Void := {
-        Stdn stdout << "TODO: unregisterFontFaceLoader"; nl.
-    }.
-
-    method doFontFaceLoading: (faceFileName: Stdn String const ref) ::=> FontFace sharedPointer := {
-        fontFaceLoaders do: {:(FontFaceLoader pointer)faceLoader :: Void |
-            let face mutable := faceLoader _ loadFromFileNamed: faceFileName.
-            face ifNotNil: {
-                return: face
-            }
-        }.
-
-        FontFace sharedPointer nil
     }.
 
     method defaultSans => Font sharedPointer := {

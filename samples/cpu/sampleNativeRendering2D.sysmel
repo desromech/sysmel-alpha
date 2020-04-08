@@ -86,7 +86,7 @@ function main externC (argc: Int32, argv: UInt8 const pointer pointer) => Int32 
     }.
 
     ## Use the default font face.
-    let fontFace mutable := FontRegistry uniqueInstance defaultSans _ normalFace.
+    let fontFace mutable := FontRegistry default defaultSans _ normalFace.
     fontFaceWithSize := fontFace _ getOrCreateFaceWithSize: 24.
 
     ## Create the event handler.

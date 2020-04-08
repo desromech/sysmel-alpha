@@ -1,0 +1,76 @@
+namespace Stdn definition: {
+namespace Graphics definition: {
+namespace Core definition: {
+
+#**
+ * I am a font face loader
+ *#
+class FontFaceLoader superclass: Object; definition: {
+    abstract method loadFromFileNamed: (fileName: Stdn String const ref) ::=> FontFace sharedPointer.
+}.
+
+#**
+ * I am a particular implementation for a font face loader.
+ *#
+template FontFaceLoaderFactory(FT: Type)
+    := class definition: {
+    compileTimeConstant FontFaceLoaderType := FT.
+
+    private field faceLoaderInstance type: FontFaceLoaderType.
+
+    method initialize => Void := {
+        FontFaceLoaderRegistry uniqueInstance registerFontFaceLoader: faceLoaderInstance address
+    }.
+
+    method finalize => Void := {
+        FontFaceLoaderRegistry uniqueInstance unregisterFontFaceLoader: faceLoaderInstance address
+    }.
+}.
+
+#**
+ * I am a registry for font face loaders.
+ *#
+class FontFaceLoaderRegistry definition: {
+    private field loadersMutex type: Stdn Mutex.
+    private field loaders type: Stdn Collections Vector(FontFaceLoader pointer).
+
+    meta definition: {
+        let uniqueInstance mutable type: FontFaceLoaderRegistry uniquePointer.
+        let uniqueInstanceOnceCreation mutable type: Stdn OnceFlag.
+
+        method uniqueInstance => FontFaceLoaderRegistry ref := {
+            uniqueInstanceOnceCreation do: {
+                uniqueInstance reset: FontFaceLoaderRegistry nativeNew.
+            }.
+
+            uniqueInstance _
+        }.
+    }.
+
+    method registerFontFaceLoader: (loader: FontFaceLoader pointer) ::=> Void := {
+        loadersMutex withLock: {
+            loaders add: loader.
+        }.
+    }.
+
+    method unregisterFontFaceLoader: (loader: FontFaceLoader pointer) ::=> Void := {
+        Stdn stdout << "TODO: unregisterFontFaceLoader"; nl.
+    }.
+
+    method loadFontFaceFromFileNamed: (faceFileName: Stdn String const ref) ::=> FontFace sharedPointer := {
+        loadersMutex withLock: {
+            loaders do: {:(FontFaceLoader pointer)faceLoader :: Void |
+                let face mutable := faceLoader _ loadFromFileNamed: faceFileName.
+                face ifNotNil: {
+                    return: face
+                }
+            }.
+        }.
+
+        FontFace sharedPointer nil
+    }.
+}.
+
+}. ## End of namespace Core
+}. ## End of namespace Graphics
+}. ## End of namespace Stdn

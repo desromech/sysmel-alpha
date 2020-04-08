@@ -13,7 +13,7 @@ class Theme superclass: Stdn Object; definition: {
     public field disabledTextColor type: Float32x4.
 
     override method initialize => Void := {
-        font := FontRegistry uniqueInstance defaultSans.
+        font := FontRegistry default defaultSans.
         fontPointSize := 14.
 
         textColor := Float32x4(0.0f, 0.0f, 0.0f, 1.0f).
