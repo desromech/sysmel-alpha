@@ -4,7 +4,6 @@ Trait {
 		'macroMethodDict'
 	],
 	#traits : 'TMbndAbstractMacroMethodContainer',
-	#classTraits : 'TMbndAbstractMacroMethodContainer classTrait',
 	#category : #'SysmelMoebiusMetamodel-Core-ProgramEntity'
 }
 

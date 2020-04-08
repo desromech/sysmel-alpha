@@ -62,7 +62,7 @@ MbndSysmelLanguageCompileTimeEvaluationTest >> testFunctorTemplate [
 	functionType := self evaluateSource: '
 template FunctorTemplate(F: _FunctionType ref)
 := class definition: {
-	compileTimeConstant FunctionType := F typeOfExpression.
+	compileTime constant FunctionType := F typeOfExpression.
 }.
 
 function f(x: Float32) => Float32 := x.
@@ -157,7 +157,7 @@ MbndSysmelLanguageCompileTimeEvaluationTest >> testMessageNotInCompileTimeTransi
 		}.
 	'.
 	
-	self deny: (structValue unwrapMbndValue overloadedMethodDict at: #caller) canBeEvaluatedInCompileTime
+	self deny: (structValue unwrapMbndValue lookupOverloadedSelector: #caller) canBeEvaluatedInCompileTime
 ]
 
 { #category : #tests }

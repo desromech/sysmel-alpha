@@ -37,7 +37,7 @@ class ClassWithGuard definition: {
 	self assert: function basicBlocks size equals: 2.
 	self assert: function allInstructionsMnemonics equals: #(
 		(entry (jump))
-		(body (getElementPointer call return))
+		(body (getElementPointer call returnVoid))
 	).
 	self assert: function basicBlocks second firstInstruction nextInstruction functionValue name equals: #'_ZN10TestModule5Guard11.initializeERNS0_E'.
 	
@@ -46,7 +46,7 @@ class ClassWithGuard definition: {
 	self assert: function basicBlocks size equals: 2.
 	self assert: function allInstructionsMnemonics equals: #(
 		(entry (jump))
-		(body (getElementPointer call return))
+		(body (getElementPointer call returnVoid))
 	).
 	self assert: function basicBlocks second firstInstruction nextInstruction functionValue name equals: #'_ZN10TestModule5Guard9.finalizeERNS0_E'.
 ]
@@ -138,7 +138,7 @@ class SubClassWithGuard superclass: ClassWithGuard; definition: {
 	self assert: function basicBlocks size equals: 2.
 	self assert: function allInstructionsMnemonics equals: #(
 		(entry (jump))
-		(body (bitcast call return))
+		(body (bitcast call returnVoid))
 	).
 	self assert: function basicBlocks second firstInstruction nextInstruction functionValue name equals: #'_ZN10TestModule14ClassWithGuard11.initializeERNS0_E'.
 	
@@ -147,7 +147,7 @@ class SubClassWithGuard superclass: ClassWithGuard; definition: {
 	self assert: function basicBlocks size equals: 2.
 	self assert: function allInstructionsMnemonics equals: #(
 		(entry (jump))
-		(body (bitcast call return))
+		(body (bitcast call returnVoid))
 	).
 	self assert: function basicBlocks second firstInstruction nextInstruction functionValue name equals: #'_ZN10TestModule14ClassWithGuard9.finalizeERNS0_E'.
 ]
@@ -6638,7 +6638,7 @@ MbndSlovimCodeModuleGeneratorTest >> testRecursiveTemplateStructure [
 		evaluateSysmelSource: '
 template TreeNode(KT: Type )
 	:= struct definition: {
-	compileTimeConstant KeyType := KT.
+	compileTime constant KeyType := KT.
 
 	public field left type: SelfType pointer.
 	public field right type: SelfType pointer.

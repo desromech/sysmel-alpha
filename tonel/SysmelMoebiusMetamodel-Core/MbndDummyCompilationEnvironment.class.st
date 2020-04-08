@@ -7,6 +7,13 @@ Class {
 	#category : #'SysmelMoebiusMetamodel-Core-Module'
 }
 
+{ #category : #'semantic analysis' }
+MbndDummyCompilationEnvironment >> analyzeReferenceNode: referenceNode with: analyzer [
+	^ (self asMoebiusLiteralValueNodeWithTarget: self compilationTarget)
+		position: referenceNode;
+		yourself
+]
+
 { #category : #accessing }
 MbndDummyCompilationEnvironment >> compilationTarget [
 	^ dummyModule compilationTarget

@@ -23,7 +23,7 @@ class RefCounted definition: {
 	}.
 }.
 
-compileTimeConstant RefCountedPtr := IntrusivePointer(RefCounted).
+compileTime constant RefCountedPtr := IntrusivePointer(RefCounted).
 '
 	
 ]
@@ -33,8 +33,8 @@ MbndSysmelLanguageTestCommon >> evaluateIntrusivePointerTemplate [
 	^ self evaluateSource: '
 template IntrusivePointer(PT: Type)
 	:= struct definition: {
-	compileTimeConstant PointedType := PT.
-	compileTimeConstant PointerType := PointedType pointer.
+	compileTime constant PointedType := PT.
+	compileTime constant PointerType := PointedType pointer.
 
 	private field pointer_ type: PointerType.
 	
@@ -121,7 +121,7 @@ Compiler compilationTarget internalNonLocalReturnExceptionClass: InternalNonLoca
 { #category : #tests }
 MbndSysmelLanguageTestCommon >> evaluateMiniObjectModelRuntime [
 	^ self evaluateSource: '
-compileTimeConstant _BasicInitializeFunctionPointerType := ((Void pointer) => Void) pointer.
+compileTime constant _BasicInitializeFunctionPointerType := ((Void pointer) => Void) pointer.
 
 gcclass ProtoObject.
 gcclass Metaclass.
@@ -300,10 +300,10 @@ Compiler compilationTarget managedObjectModel
 { #category : #tests }
 MbndSysmelLanguageTestCommon >> evaluateMiniRTTI [
 	^ self evaluateSource: '
-compileTimeConstant NativeBasicInitializeFunctionPointerType := ((Void pointer) => Void) pointer.
-compileTimeConstant CopyConstructorFunctionPointerType := ((Void pointer -- Void pointer) => Void) pointer.
-compileTimeConstant MoveConstructorFunctionPointerType := ((Void pointer -- Void pointer) => Void) pointer.
-compileTimeConstant FinalizeFunctionPointerType := ((Void pointer) => Void) pointer.
+compileTime constant NativeBasicInitializeFunctionPointerType := ((Void pointer) => Void) pointer.
+compileTime constant CopyConstructorFunctionPointerType := ((Void pointer -- Void pointer) => Void) pointer.
+compileTime constant MoveConstructorFunctionPointerType := ((Void pointer -- Void pointer) => Void) pointer.
+compileTime constant FinalizeFunctionPointerType := ((Void pointer) => Void) pointer.
 
 class TypeInformation definition: {
 	public field superclass type: TypeInformation pointer.

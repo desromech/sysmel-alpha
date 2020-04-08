@@ -118,6 +118,7 @@ MbndAbstractClassType >> methodDictionaryInstanceObject [
 
 { #category : #accessing }
 MbndAbstractClassType >> virtualMethods [
+	self evaluateAllPendingDefinitionFragments.
 	^ virtualMethods
 ]
 

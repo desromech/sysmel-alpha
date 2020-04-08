@@ -173,6 +173,7 @@ MbndAggregateTypeWithFields >> ensureSlotLayoutIsComputed [
 
 { #category : #accessing }
 MbndAggregateTypeWithFields >> fields [
+	self evaluateAllPendingDefinitionFragments.
 	^ fields ifNil: [ fields := OrderedCollection new ]
 ]
 

@@ -22,5 +22,5 @@ MbndDummyModuleTest >> testCompilationTarget [
 
 { #category : #running }
 MbndDummyModuleTest >> testCompilerLookup [
-	self assert: (module lookupSymbol: #Compiler) equals: module
+	self assert: (module lookupSymbol: #Compiler) equals: module compilationEnvironment
 ]
