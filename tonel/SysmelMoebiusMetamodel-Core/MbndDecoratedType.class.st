@@ -111,19 +111,19 @@ MbndDecoratedType >> isConstantType [
 	^ decorations includes: #const
 ]
 
+{ #category : #testing }
+MbndDecoratedType >> isCopyable [
+	^ baseType isCopyable
+]
+
 { #category : #'testing methods' }
 MbndDecoratedType >> isDecorationType [
 	^ true
 ]
 
 { #category : #testing }
-MbndDecoratedType >> isNonCopyable [
-	^ baseType isNonCopyable
-]
-
-{ #category : #testing }
-MbndDecoratedType >> isNonMoveable [
-	^ baseType isNonMoveable
+MbndDecoratedType >> isMoveable [
+	^ baseType isMoveable
 ]
 
 { #category : #'testing methods' }

@@ -129,19 +129,19 @@ MbndEnumType >> instanceSize [
 	^ baseType instanceSize
 ]
 
+{ #category : #testing }
+MbndEnumType >> isCopyable [
+	^ baseType isCopyable
+]
+
 { #category : #'testing methods' }
 MbndEnumType >> isEnumType [
 	^ true
 ]
 
 { #category : #testing }
-MbndEnumType >> isNonCopyable [
-	^ baseType isNonCopyable
-]
-
-{ #category : #testing }
-MbndEnumType >> isNonMoveable [
-	^ baseType isNonMoveable
+MbndEnumType >> isMoveable [
+	^ baseType isMoveable
 ]
 
 { #category : #'as yet unclassified' }

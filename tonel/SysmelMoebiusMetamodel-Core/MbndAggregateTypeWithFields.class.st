@@ -338,14 +338,20 @@ MbndAggregateTypeWithFields >> instanceSize [
 ]
 
 { #category : #testing }
+MbndAggregateTypeWithFields >> isCopyable [
+	<compileTime>
+	^ (self hasFlag: #nonCopyable) not
+]
+
+{ #category : #testing }
 MbndAggregateTypeWithFields >> isModuleSpecificType [
 	^ true
 ]
 
 { #category : #testing }
-MbndAggregateTypeWithFields >> isNonCopyable [
+MbndAggregateTypeWithFields >> isMoveable [
 	<compileTime>
-	^ self hasFlag: #nonCopyable
+	^ (self hasFlag: #nonMoveable) not
 ]
 
 { #category : #testing }

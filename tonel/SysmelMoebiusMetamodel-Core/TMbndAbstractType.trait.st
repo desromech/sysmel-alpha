@@ -873,6 +873,11 @@ TMbndAbstractType >> isConstantType [
 	^ false
 ]
 
+{ #category : #testing }
+TMbndAbstractType >> isCopyable [
+	^ true
+]
+
 { #category : #'testing methods' }
 TMbndAbstractType >> isDecorationType [
 	^ false
@@ -1068,6 +1073,11 @@ TMbndAbstractType >> isModuleSpecificType [
 	^ false
 ]
 
+{ #category : #testing }
+TMbndAbstractType >> isMoveable [
+	^ true
+]
+
 { #category : #'testing methods' }
 TMbndAbstractType >> isNamespaceType [
 	^ false
@@ -1085,12 +1095,12 @@ TMbndAbstractType >> isNonConcreteType [
 
 { #category : #testing }
 TMbndAbstractType >> isNonCopyable [
-	^ false
+	^ self isCopyable not
 ]
 
 { #category : #testing }
 TMbndAbstractType >> isNonMoveable [
-	^ false
+	^ self isMoveable not
 ]
 
 { #category : #'testing methods' }
