@@ -424,17 +424,17 @@ template ToneFunctionSoundChannel(toneFunction: _FunctionType ref)
 	}.
 }.
 
-compileTimeConstant SineChannel := ToneFunctionSoundChannel(
+compileTime constant SineChannel := ToneFunctionSoundChannel(
 	function(x: Float32, _: Float32) => Float32
 		:= (x * Float32 twoPi) sin
 ).
 
-compileTimeConstant PulseChannel := ToneFunctionSoundChannel(
+compileTime constant PulseChannel := ToneFunctionSoundChannel(
 	function(x: Float32, pulseWidth: Float32) => Float32
 		:= (x fract stepValue: pulseWidth)*2.0f - 1.0f
 ).
 
-compileTimeConstant SawChannel := ToneFunctionSoundChannel(
+compileTime constant SawChannel := ToneFunctionSoundChannel(
 	function(x: Float32, _: Float32) => Float32
 		:= x fract*2.0f - 1.0f
 ).
@@ -510,7 +510,7 @@ class MainWindowEventHandler superclass: EventHandler; definition: {
 	}.
 
 	override method onTickEvent: (event: TickEvent ref) ::=> Void := {
-		let updateDelta := event deterministicDeltaSeconds.
+		let updateDelta := event deterministicDeltaSeconds castTo: Float32.
 		0 until: event deterministicFrameCount do: {
 			update(updateDelta).
 		}.

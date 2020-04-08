@@ -52,8 +52,8 @@ class WindowSystem superclass: Object; definition: {
             let deltaTicks := frameStartTicks - oldTicks.
             accumulatedTicks := accumulatedTicks + deltaTicks.
 
-            let deterministicFrameCount := accumulatedTicks / ticksPerFrame.
-            accumulatedTicks := deterministicFrameCount - deterministicFrameCount*ticksPerFrame.
+            let deterministicFrameCount := accumulatedTicks / ticksPerFrame max: 0.
+            accumulatedTicks := accumulatedTicks - deterministicFrameCount*ticksPerFrame.
 
             ## Send the tick events
             {

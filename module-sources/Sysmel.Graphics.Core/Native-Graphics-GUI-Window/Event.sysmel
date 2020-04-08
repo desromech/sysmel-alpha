@@ -30,7 +30,7 @@ class TickEvent superclass: Event; definition: {
     inline method deltaSeconds => Float64
         := Stdn Chrono ticksToFloatSeconds(delta).
 
-    inline method deterministicDelta => Float64
+    inline method deterministicDeltaSeconds => Float64
         := Stdn Chrono ticksToFloatSeconds(deterministicDelta).
 
     override method acceptEventHandler: (eventHandler: EventHandler ref) ::=> Void
