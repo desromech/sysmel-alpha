@@ -4,6 +4,11 @@ Class {
 	#category : #'SysmelMoebiusMetamodel-Core-Values'
 }
 
+{ #category : #serialization }
+MbndMatrixTypeInstanceValue class >> messagePackTypeName [
+	^ #MatrixTypeInstanceValue
+]
+
 { #category : #arithmetic }
 MbndMatrixTypeInstanceValue >> %% other [
 	^ self elementWiseApply: #% to: other
