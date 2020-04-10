@@ -1,0 +1,12 @@
+namespace Stdn definition: {
+namespace Testing definition: {
+
+macro method generateTestSuiteProgramMain: testSuiteProgramName := ``(
+function main externC(argc: Int32, argv: Char8 const pointer) => Int32 := {
+    Stdn Testing TestRunner defaultInstance runAllTests.
+    return: 0
+}
+).
+
+} ## End of namespace Testing
+} ## End of namespace Stdn

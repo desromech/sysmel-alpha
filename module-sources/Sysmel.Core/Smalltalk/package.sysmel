@@ -1,6 +1,4 @@
 Compiler loadPackages: #(
     #"Smalltalk-GC"
     #"Smalltalk-Bootstrap"
-    #"Smalltalk-Mini-SUnit"
-    #"Smalltalk-Tests"
 ).

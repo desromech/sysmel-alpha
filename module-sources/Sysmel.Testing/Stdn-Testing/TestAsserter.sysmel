@@ -1,0 +1,13 @@
+namespace Stdn definition: {
+namespace Testing definition: {
+
+#**
+ * I am a class that provides useful macros that help on writing assertions for tests.
+ *#
+class TestAsserter superclass: Object; definition: {
+    macro method assert: expression := ``(Stdn assert: `,expression).
+
+}.
+
+} ## End of namespace Testing
+} ## End of namespace Stdn

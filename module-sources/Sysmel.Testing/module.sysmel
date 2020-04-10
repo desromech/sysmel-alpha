@@ -1,0 +1,6 @@
+Compiler
+    loadPackage: #"Stdn-Testing".
+
+if: Compiler hasRuntimeTypeInformation && Compiler hasGarbageCollectionSupport then: {
+    Compiler loadPackage: #"Smalltalk-Mini-SUnit".
+}.

@@ -1,0 +1,7 @@
+Compiler
+    importModuleNamed: #"Sysmel.Testing";
+    loadPackage: #"Stdn-Core-Tests".
+
+if: Compiler hasRuntimeTypeInformation && Compiler hasGarbageCollectionSupport then: {
+    Compiler loadPackage: #"Smalltalk-Tests".
+}.
