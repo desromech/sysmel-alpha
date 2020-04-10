@@ -1,0 +1,3 @@
+Compiler loadPackages: #(
+    #"Geometry2D-Shapes-Tests"
+).

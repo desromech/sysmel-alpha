@@ -3,6 +3,7 @@ Compiler
 	importModuleNamed: #"Sysmel.Math.Core.Tests";
     importModuleNamed: #"Sysmel.Graphics.Core.Tests".
 
+#*
 class TestingTestCase superclass: Stdn Testing TestCase; definition: {
     test: #testSuccess with: {
     }.
@@ -19,5 +20,6 @@ class TestingTestCase superclass: Stdn Testing TestCase; definition: {
         self skip
     }.
 }.
+*#
 
 Stdn Testing generateTestSuiteProgramMain: "RuntimeLibrariesTests".

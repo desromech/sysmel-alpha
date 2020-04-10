@@ -31,7 +31,7 @@ compileTime constant ParametricLine2dF64 := GenericParametricLine2d(Float64).
  * I represent an implicit line equation of the form:
  * <N, P> = d.
  *#
-template GenericLine2d(ST: Type)
+sealed template GenericLine2d(ST: Type)
     := class superclass: GenericGeometricShape(ST); definition: {
 
     public field normal type: Vector2.

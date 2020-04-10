@@ -5,8 +5,47 @@ namespace Testing definition: {
  * I am a class that provides useful macros that help on writing assertions for tests.
  *#
 class TestAsserter superclass: Object; definition: {
-    macro method assert: expression := ``(Stdn assert: `,expression).
+    macro method assert: condition := {
+        let position := condition asSourcePositionString.
+        let expression := condition originalSourceCode.
+        let errorMessage := position -- ": Expression (" -- expression -- ") value is not true.".
+        let messageNode := __astBuilder literalString: errorMessage position: condition position.
 
+        ``(`,condition ifFalse: {
+            Stdn raiseAssertionFailure(`,messageNode)
+        })
+    }.
+
+    macro method deny: condition := {
+        let position := condition asSourcePositionString.
+        let expression := condition originalSourceCode.
+        let errorMessage := position -- ": Expression (" -- expression -- ") value is not false.".
+        let messageNode := __astBuilder literalString: errorMessage position: condition position.
+
+        ``(`,condition ifTrue: {
+            Stdn raiseAssertionFailure(`,messageNode)
+        })
+    }.
+
+    macro method assert: expression equals: expectedValue := {
+        let position := expression asSourcePositionString.
+        let errorMessage := position -- ": Expression (" -- expression originalSourceCode -- ") is not equal to the expected value (" -- expectedValue originalSourceCode -- ").".
+        let messageNode := __astBuilder literalString: errorMessage position: expression position.
+
+        ``(`,expression = `,expectedValue ifFalse: {
+            Stdn raiseAssertionFailure(`,messageNode)
+        })
+    }.
+
+    macro method assert: expression notEquals: unexpectedValue := {
+        let position := expression asSourcePositionString.
+        let errorMessage := position -- ": Expression (" -- expression originalSourceCode -- ") is equal to the unexpected value (" -- unexpectedValue originalSourceCode -- ").".
+        let messageNode := __astBuilder literalString: errorMessage position: expression position.
+
+        ``(`,expression = `,unexpectedValue ifTrue: {
+            Stdn raiseAssertionFailure(`,messageNode)
+        })
+    }.
 }.
 
 } ## End of namespace Testing

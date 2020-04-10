@@ -1,0 +1,48 @@
+namespace Stdn definition: {
+namespace Collections definition: {
+namespace Tests definition: {
+
+class VectorCase superclass: Stdn Testing TestCase; definition: {
+    test: #testEmptyVector with: {
+        let vector mutable type: Vector(Int32).
+        self assert: vector size equals: 0.
+        self assert: vector isEmpty.
+        self deny: vector isNotEmpty.
+    }.
+
+    test: #testVectorAddOne with: {
+        let vector mutable type: Vector(Int32).
+        vector add: 1.
+        self deny: vector isEmpty.
+        self assert: vector isNotEmpty.
+
+        self assert: vector size equals: 1.
+        self assert: vector first equals: 1.
+        self assert: vector last equals: 1.
+        self assert: vector[0] equals: 1.
+        self assert: (vector at: 1) equals: 1.
+    }.
+
+    test: #testVectorAddTwo with: {
+        let vector mutable type: Vector(Int32).
+        vector add: 1.
+        vector add: 2.
+        self deny: vector isEmpty.
+        self assert: vector isNotEmpty.
+
+        self assert: vector size equals: 2.
+        self assert: vector first equals: 1.
+        self assert: vector last equals: 2.
+
+        self assert: vector[0] equals: 1.
+        self assert: (vector at: 1) equals: 1.
+
+        self assert: vector second equals: 2.
+        self assert: vector[1] equals: 2.
+        self assert: (vector at: 2) equals: 2.
+    }.
+}.
+
+}. ## namespace Tests
+}. ## namespace Collections
+}. ## namespace Stdn
