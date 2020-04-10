@@ -16,7 +16,7 @@ class TestingTestCase superclass: Stdn Testing TestCase; definition: {
     }.
 
 	test: #testSkiped with: {
-        Stdn stdout << "Hello world from test case."; nl.
+        self skip
     }.
 }.
 

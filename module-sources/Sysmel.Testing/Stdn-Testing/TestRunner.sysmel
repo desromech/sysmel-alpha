@@ -133,14 +133,14 @@ class TestRunner superclass: Object; definition: {
     }.
 
     method runTestCase: (factory: TestCaseFactory pointer) ::=> Void := {
-        Stdn stdout << "Running test case " << factory _ name; nl.
+        Stdn stdout << "--- Running test case " << factory _ name; nl.
         factory _ testFactories do: {:testCaseTestFactory :: Void |
             self runTestCaseTest: testCaseTestFactory
         }
     }.
 
     method runTestCaseTest: (factory: TestCaseTestFactory pointer) ::=> Void := {
-        Stdn stdout << "    " << factory _ name << "... ".
+        Stdn stdout << factory _ name << "... ".
         Stdn stdout flush.
 
         isCurrentTestPassing := true.
@@ -159,14 +159,21 @@ class TestRunner superclass: Object; definition: {
     method runTestCaseCatchingNativeExceptions: (factory: TestCaseTestFactory pointer) ::=> Void := {
         try: {
             try: {
-                factory _ execute
+                try: {
+                    factory _ execute
+                } catch: TestSkipException doing: {:exception :: Void |
+                    self countSkippedTest.
+                    Stdn stdout << "Skipped."; nl.
+                }
             } catch: Stdn AssertionFailure doing: {:exception :: Void |
                 self countFailingTest.
-                Stdn stdout << "Failure." << exception; nl.
+                Stdn stdout << "Failure:"; nl.
+                Stdn stdout << exception; nl.
             }
         } catch: Stdn Error doing: {:exception :: Void |
             self countErrorTest.
-            Stdn stdout << "Error. " << exception; nl.
+            Stdn stdout << "Error:"; nl.
+            Stdn stdout << exception; nl.
         }
     }.
 
@@ -190,9 +197,7 @@ class TestRunner superclass: Object; definition: {
         skippedTestCount := skippedTestCount + 1.
         isCurrentTestPassing  := false.
     }.
-
 }.
-
 
 } ## End of namespace Testing
 } ## End of namespace Stdn
