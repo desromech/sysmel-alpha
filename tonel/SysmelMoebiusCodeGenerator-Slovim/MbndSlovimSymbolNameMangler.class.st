@@ -157,6 +157,15 @@ MbndSlovimSymbolNameMangler >> emitTemplateInstanceArgument: argument [
 		^ self
 	].
 
+	(argumentType isLiteralStringType or: [argumentType isLiteralSymbolType]) ifTrue: [
+		|escapedString|
+		output nextPutAll: 'L_Z'.
+		escapedString := self escapeNameForMangling: argumentValue.
+		output nextPutAll: escapedString size asString; nextPutAll: escapedString.
+		output nextPut: $E.
+		^ self
+	].
+
 	self error: 'Unsupported template argument in mangling scheme yet'
 
 ]

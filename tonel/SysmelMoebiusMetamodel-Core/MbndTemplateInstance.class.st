@@ -79,6 +79,7 @@ MbndTemplateInstance >> setLocalSymbol: aSymbol value: aValue [
 
 { #category : #accessing }
 MbndTemplateInstance >> validName [
+	<compileTime>
 	^ ByteString streamContents: [:out |
 		self assert: module isNotNil.
 		module == parent module ifFalse: [ 

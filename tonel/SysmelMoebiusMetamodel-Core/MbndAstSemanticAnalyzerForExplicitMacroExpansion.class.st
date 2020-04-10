@@ -261,7 +261,7 @@ MbndAstSemanticAnalyzerForExplicitMacroExpansion >> visitTupleNode: node [
 
 { #category : #visiting }
 MbndAstSemanticAnalyzerForExplicitMacroExpansion >> visitUnexpandedMessageSendNode: node [
-	| result selector macroMethod |
+	| result selector macroMethod ownerEntity |
 	result := node copy
 		receiver: (node receiver ifNotNil: [self analyzeNonConcreteNodeIfNeeded: node receiver]);
 		selector: (self analyzeNodeIfNeeded: node selector);
@@ -277,6 +277,18 @@ MbndAstSemanticAnalyzerForExplicitMacroExpansion >> visitUnexpandedMessageSendNo
 
 	selector := result selector value.
 	macroMethod := scope lookupMacroSelector: selector.
+	
+	"HACK: Lookup the macro on the meta type. This should be fixed by bounding self into the receiver."
+	macroMethod ifNil: [
+		ownerEntity := scope lookupProgramEntityForNewDefinitions.
+		ownerEntity isMbndType ifTrue: [ 
+			macroMethod := ownerEntity type lookupMacroSelector: selector.
+			macroMethod ifNotNil: [
+				result receiver: (ownerEntity type asLiteralValueNode position: node)
+			].
+		].
+	].
+
 	macroMethod ifNil: [
 		^ self visitNode: result asExpandedMessageSend
 	].

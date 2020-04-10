@@ -35,6 +35,7 @@ MbndConcreteMacroMessageMethod >> isConcreteMacroMessage [
 
 { #category : #printing }
 MbndConcreteMacroMessageMethod >> qualifiedName [
+	<compileTime>
 	parent isMacroMessageMethod ifTrue: [ ^ parent qualifiedName ].
 	^ super qualifiedName
 ]

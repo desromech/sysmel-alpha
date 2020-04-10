@@ -1,6 +1,8 @@
 Class {
 	#name : #MbndCompilationEnvironment,
 	#superclass : #Object,
+	#traits : 'TMbndObject',
+	#classTraits : 'TMbndObject classTrait',
 	#instVars : [
 		'compilationTarget',
 		'coreModule',
@@ -40,6 +42,13 @@ MbndCompilationEnvironment class >> llvm_x86 [
 { #category : #'as yet unclassified' }
 MbndCompilationEnvironment class >> llvm_x86_64 [
 	^ self compilationTarget: MbndSlovimCompilationTarget llvm_x86_64
+]
+
+{ #category : #serialization }
+MbndCompilationEnvironment class >> materializeObjectWithType: objectType earlyFields: earlyFields withMessagePackGraphDecoder: graphDecoder [
+	graphDecoder registerObjectInstance: graphDecoder compilationEnvironment.
+	graphDecoder decodeNext.
+	^ graphDecoder compilationEnvironment
 ]
 
 { #category : #'as yet unclassified' }

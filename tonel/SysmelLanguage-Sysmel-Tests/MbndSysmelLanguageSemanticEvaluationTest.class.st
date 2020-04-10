@@ -118,6 +118,23 @@ MbndSysmelLanguageSemanticEvaluationTest >> testGCClassVTable [
 ]
 
 { #category : #tests }
+MbndSysmelLanguageSemanticEvaluationTest >> testMetaMacroMethod [
+	self evaluateSource: '
+class TestClass definition: {
+    meta macro method makeMethod: methodName with: body := ``{
+        method `,(methodName asLiteralSymbolNodeFor: Compiler compilationTarget) => Boolean8 := `,body
+    }.
+
+	makeMethod: returnAlwaysTrue with: true.	
+	makeMethod: returnAlwaysFalse with: false.	
+	
+}.'.
+	self assert: (self evaluateSource: 'TestClass newValue returnAlwaysTrue') unwrapMbndValue.
+	self deny: (self evaluateSource: 'TestClass newValue returnAlwaysFalse') unwrapMbndValue.
+
+]
+
+{ #category : #tests }
 MbndSysmelLanguageSemanticEvaluationTest >> testNonCopyable [
 	self evaluateSource: '
 		struct NonCopyableStruct definition: {

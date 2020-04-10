@@ -14,6 +14,8 @@ MbndAstIdentifierReferenceNode >> accept: aVisitor [
 
 { #category : #converting }
 MbndAstIdentifierReferenceNode >> asLiteralSymbolNodeFor: aCompilationTarget [
+	<compileTime>
+	<returnType: #_ASTNodeType>
 	^ MbndAstLiteralValueNode new
 		value: symbol;
 		type: aCompilationTarget literalSymbolType;

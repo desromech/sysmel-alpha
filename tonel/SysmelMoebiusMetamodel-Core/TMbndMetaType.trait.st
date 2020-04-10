@@ -24,6 +24,7 @@ TMbndMetaType >> instanceSize [
 
 { #category : #accessing }
 TMbndMetaType >> instanceType [
+	<compileTime>
 	^ instanceType
 ]
 

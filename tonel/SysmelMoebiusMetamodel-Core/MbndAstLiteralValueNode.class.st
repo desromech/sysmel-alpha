@@ -22,6 +22,14 @@ MbndAstLiteralValueNode >> asIntervalPatternNode [
 		yourself
 ]
 
+{ #category : #converting }
+MbndAstLiteralValueNode >> asLiteralSymbolNodeFor: aCompilationTarget [
+	<compileTime>
+	<returnType: #_ASTNodeType>
+	type isLiteralSymbolType ifTrue: [ ^ self ].
+	^ super asLiteralSymbolNodeFor: aCompilationTarget
+]
+
 { #category : #'as yet unclassified' }
 MbndAstLiteralValueNode >> asLiteralValuePatternNode [
 	^ MbndAstPatternMatchingLiteralValuePatternNode new

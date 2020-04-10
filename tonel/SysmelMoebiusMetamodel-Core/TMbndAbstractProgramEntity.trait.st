@@ -1,6 +1,7 @@
 Trait {
 	#name : #TMbndAbstractProgramEntity,
 	#traits : 'TMbndObject + TMbndSymbolBinding',
+	#classTraits : 'TMbndObject classTrait + TMbndSymbolBinding classTrait',
 	#category : #'SysmelMoebiusMetamodel-Core-ProgramEntity'
 }
 
@@ -271,6 +272,7 @@ TMbndAbstractProgramEntity >> publicMetaBuilderFactories [
 
 { #category : #printing }
 TMbndAbstractProgramEntity >> qualifiedName [
+	<compileTime>
 	| parentQualifiedName p |
 	p := self parent.
 	
@@ -296,6 +298,7 @@ TMbndAbstractProgramEntity >> requiresDynamicMethodWrappers [
 
 { #category : #accessing }
 TMbndAbstractProgramEntity >> validName [
+	<compileTime>
 	^ self name asPrettySymbolName
 ]
 

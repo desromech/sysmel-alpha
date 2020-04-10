@@ -1179,7 +1179,7 @@ MbndSlovimFunctionCodeGenerator >> generateUnwindingLandingPadFor: exceptionScop
 
 	landingPath := slvmBuilder landingPath: codeModuleGenerator landingPathResultType.
 	landingPath
-		catchedExceptions: (exceptionScope flattenedCatchedExceptions collect: [:each | (self translateProgramEntity: each) ssaValue ]);
+		catchedExceptions: (exceptionScope flattenedCatchedExceptions collect: [:each | (self translateProgramEntity: each) ssaValue ]) reversed;
 		cleanup: exceptionScope isCleanUpScopeOrParentCleanUp.
 
 	slvmBuilder store: (slvmBuilder extractValue: landingPath indices: {0}) in: self unwindExceptionPointerVariable.

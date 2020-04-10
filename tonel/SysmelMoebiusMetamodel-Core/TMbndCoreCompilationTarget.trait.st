@@ -54,6 +54,7 @@ Trait {
 		'simultaneousTypeConcepts'
 	],
 	#traits : 'TMbndAbstractCompilationTarget',
+	#classTraits : 'TMbndAbstractCompilationTarget classTrait',
 	#category : #'SysmelMoebiusMetamodel-Core-CompilationTarget'
 }
 
@@ -407,6 +408,11 @@ TMbndCoreCompilationTarget >> encodeBootstrapDefinedObjectsForMessagePackWith: g
 		out nextPut: #managedObjectModel; nextPut: (managedObjectModel encodeBootstrapDefinedObjectsForMessagePackWith: graphEncoder)
 	].
 
+]
+
+{ #category : #serialization }
+TMbndCoreCompilationTarget >> encodeGraphForMessagePackWith: graphEncoder [
+	^ graphEncoder encodeObject: self type: #CompilationTarget fields: [#()].
 ]
 
 { #category : #'basic types' }
@@ -1358,6 +1364,7 @@ TMbndCoreCompilationTarget >> setNativePrefixedStringLiteralType: aType [
 	nativePrefixedStringLiteralType := aType.
 	nativePrefixedStringLiteralType ifNotNil: [
 		self literalStringType addConversionTo: nativePrefixedStringLiteralType rule: MbndLiteralStringToNativePrefixedStringConversionRule.
+		self literalSymbolType addConversionTo: nativePrefixedStringLiteralType rule: MbndLiteralStringToNativePrefixedStringConversionRule.
 	].
 
 ]

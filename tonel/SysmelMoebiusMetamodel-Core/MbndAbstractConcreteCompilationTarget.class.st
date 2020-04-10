@@ -11,6 +11,13 @@ MbndAbstractConcreteCompilationTarget class >> for: aCompilationTarget [
 	^ self basicNew initializeWithCompilationTarget: aCompilationTarget
 ]
 
+{ #category : #serialization }
+MbndAbstractConcreteCompilationTarget class >> materializeObjectWithType: objectType earlyFields: earlyFields withMessagePackGraphDecoder: graphDecoder [
+	graphDecoder registerObjectInstance: graphDecoder compilationEnvironment.
+	graphDecoder decodeNext.
+	^ graphDecoder compilationEnvironment
+]
+
 { #category : #'derived types' }
 MbndAbstractConcreteCompilationTarget >> blockClosureTypeWithArguments: argumentTypes returnType: returnType [
 	^ (self functionTypeWithArguments: argumentTypes returnType: returnType) asGCBlockClosureType

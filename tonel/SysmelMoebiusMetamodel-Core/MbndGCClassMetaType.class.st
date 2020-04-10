@@ -59,6 +59,7 @@ MbndGCClassMetaType >> printOn: aStream [
 
 { #category : #printing }
 MbndGCClassMetaType >> qualifiedName [
+	<compileTime>
 	instanceType ifNotNil: [ 
 		self assert: name isMbndAnonymousSymbol.
 		^ instanceType qualifiedName , ' class' 

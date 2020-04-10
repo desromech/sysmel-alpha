@@ -29,6 +29,8 @@ MbndStandaloneModule class >> initialize [
 	MessagePackTypeMapTable := Dictionary newFromPairs: {
 	#CoreBasicType . MbndBasicType.
 	#CoreBasicMetaType . MbndSimpleMetaType.
+	#CompilationTarget . MbndAbstractConcreteCompilationTarget.
+	#CompilationEnvironment . MbndCompilationEnvironment.
 	#SystemProvidedTypeTemplateInstance . MbndSystemProvidedTypeTemplateInstance.
 	#SystemProvidedTypeTemplateInstanceMainChild . MbndSystemProvidedTypeTemplateInstance.
 	#SystemProvidedTypeTemplateInstanceMainChildType . MbndSystemProvidedTypeTemplateInstance.

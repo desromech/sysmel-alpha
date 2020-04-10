@@ -36,6 +36,13 @@ MbndAstNode >> asActualSourcePosition [
 ]
 
 { #category : #converting }
+MbndAstNode >> asLiteralSymbolNodeFor: aCompilationTarget [
+	<compileTime>
+	<returnType: #_ASTNodeType>
+	self error: 'Cannot convert ast node {1} into a literal symbol ast node.' format: {self asString} at: self
+]
+
+{ #category : #converting }
 MbndAstNode >> asSameValuePatternNode [
 	^ MbndAstPatternMatchingSameValuePatternNode new
 		position: self;

@@ -103,6 +103,7 @@ MbndPrimitiveType >> literalTypeForValue: value [
 
 { #category : #printing }
 MbndPrimitiveType >> qualifiedName [
+	<compileTime>
 	name ifNotNil: [ ^ name ].
 	^ super qualifiedName
 ]
