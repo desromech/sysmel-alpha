@@ -32,6 +32,11 @@ MbndSystemProvidedTypeTemplateInstance class >> materializeObjectWithType: objec
 	^ super materializeObjectWithType: objectType earlyFields: earlyFields withMessagePackGraphDecoder: graphDecoder
 ]
 
+{ #category : #'as yet unclassified' }
+MbndSystemProvidedTypeTemplateInstance >> attemptToSetMainAliasTo: aCompileTimeConstant [
+	"This method is ignored here."
+]
+
 { #category : #initialization }
 MbndSystemProvidedTypeTemplateInstance >> initialize [
 	super initialize.

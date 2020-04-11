@@ -29,4 +29,3 @@ _PointerType macro method nativeDelete := ``(
 ).
 
 }. ## End of Stdn
-

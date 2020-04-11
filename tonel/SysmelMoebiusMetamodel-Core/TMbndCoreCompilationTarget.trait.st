@@ -51,7 +51,9 @@ Trait {
 		'nonLocalReturnCatchFunction',
 		'internalNonLocalReturnExceptionClass',
 		'typeSystemInitialized',
-		'simultaneousTypeConcepts'
+		'simultaneousTypeConcepts',
+		'nativePrefixedWStringLiteralType',
+		'nativePrefixedLStringLiteralType'
 	],
 	#traits : 'TMbndAbstractCompilationTarget',
 	#classTraits : 'TMbndAbstractCompilationTarget classTrait',
@@ -376,6 +378,8 @@ TMbndCoreCompilationTarget >> encodeBootstrapDefinedObjectsForMessagePackWith: g
 		#(
 			"Strings"
 			nativePrefixedStringLiteralType
+			nativePrefixedWStringLiteralType
+			nativePrefixedLStringLiteralType
 			
 			"Embedded shaders"
 			shaderEntryPointInfo shaderModuleInfo
@@ -1270,8 +1274,48 @@ TMbndCoreCompilationTarget >> nativeBlockClosureTypeWithSignature: functionType 
 ]
 
 { #category : #accessing }
+TMbndCoreCompilationTarget >> nativePrefixedLStringLiteralType [
+	^ nativePrefixedLStringLiteralType
+]
+
+{ #category : #'as yet unclassified' }
+TMbndCoreCompilationTarget >> nativePrefixedLStringLiteralType: aType [
+	nativePrefixedLStringLiteralType := aType.
+	nativePrefixedLStringLiteralType ifNotNil: [
+		self literalStringType addConversionTo: nativePrefixedLStringLiteralType rule: MbndLiteralStringToNativePrefixedStringConversionRule.
+		self literalSymbolType addConversionTo: nativePrefixedLStringLiteralType rule: MbndLiteralStringToNativePrefixedStringConversionRule.
+	].
+
+]
+
+{ #category : #accessing }
 TMbndCoreCompilationTarget >> nativePrefixedStringLiteralType [
 	^ nativePrefixedStringLiteralType
+]
+
+{ #category : #'as yet unclassified' }
+TMbndCoreCompilationTarget >> nativePrefixedStringLiteralType: aType [
+	nativePrefixedStringLiteralType := aType.
+	nativePrefixedStringLiteralType ifNotNil: [
+		self literalStringType addConversionTo: nativePrefixedStringLiteralType rule: MbndLiteralStringToNativePrefixedStringConversionRule.
+		self literalSymbolType addConversionTo: nativePrefixedStringLiteralType rule: MbndLiteralStringToNativePrefixedStringConversionRule.
+	].
+
+]
+
+{ #category : #accessing }
+TMbndCoreCompilationTarget >> nativePrefixedWStringLiteralType [
+	^ nativePrefixedWStringLiteralType
+]
+
+{ #category : #'as yet unclassified' }
+TMbndCoreCompilationTarget >> nativePrefixedWStringLiteralType: aType [
+	nativePrefixedWStringLiteralType := aType.
+	nativePrefixedWStringLiteralType ifNotNil: [
+		self literalStringType addConversionTo: nativePrefixedWStringLiteralType rule: MbndLiteralStringToNativePrefixedStringConversionRule.
+		self literalSymbolType addConversionTo: nativePrefixedWStringLiteralType rule: MbndLiteralStringToNativePrefixedStringConversionRule.
+	].
+
 ]
 
 { #category : #'instance creation' }
@@ -1357,16 +1401,6 @@ TMbndCoreCompilationTarget >> samplerImplementationType [
 { #category : #accessing }
 TMbndCoreCompilationTarget >> samplerImplementationType: aType [
 	samplerImplementationType := aType
-]
-
-{ #category : #initialization }
-TMbndCoreCompilationTarget >> setNativePrefixedStringLiteralType: aType [
-	nativePrefixedStringLiteralType := aType.
-	nativePrefixedStringLiteralType ifNotNil: [
-		self literalStringType addConversionTo: nativePrefixedStringLiteralType rule: MbndLiteralStringToNativePrefixedStringConversionRule.
-		self literalSymbolType addConversionTo: nativePrefixedStringLiteralType rule: MbndLiteralStringToNativePrefixedStringConversionRule.
-	].
-
 ]
 
 { #category : #accessing }

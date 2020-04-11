@@ -56,7 +56,6 @@ MbndPrimitiveIntegerType >> addArithmeticIntrinsicsToVectorOrScalarType: vectorO
 			addBuiltIn: #sign intrinsicNamed: 'math.ssign' argumentTypes: #() returnType: vectorOrScalarType evaluatedWith: [:receiver :arguments :evaluator :node |
 				self halt.
 			]
-
 	] ifFalse: [ 
 		vectorOrScalarType
 			addBuiltIn: #min: intrinsicNamed: 'math.umin' argumentTypes: {vectorOrScalarType} returnType: vectorOrScalarType evaluatedWith: [:receiver :arguments :evaluator :node |

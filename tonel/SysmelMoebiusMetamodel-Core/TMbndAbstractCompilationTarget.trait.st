@@ -451,7 +451,6 @@ TMbndAbstractCompilationTarget >> nativeBlockClosureTypeWithSignature: functionT
 
 { #category : #initialization }
 TMbndAbstractCompilationTarget >> nativePrefixedStringLiteralType: aType [
-	self setNativePrefixedStringLiteralType: aType
 ]
 
 { #category : #'convenience type accessors' }
@@ -527,10 +526,6 @@ TMbndAbstractCompilationTarget >> referenceTo: baseType [
 { #category : #'convenience type accessors' }
 TMbndAbstractCompilationTarget >> returnType [
 	^ self getBasicTypeNamed: #_ReturnType
-]
-
-{ #category : #initialization }
-TMbndAbstractCompilationTarget >> setNativePrefixedStringLiteralType: aType [
 ]
 
 { #category : #'convenience type accessors' }

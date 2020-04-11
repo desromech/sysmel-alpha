@@ -7,4 +7,5 @@ Compiler loadPackages: #(
     #"Stdn-Nofreestanding-Functional"
     #"Stdn-Nofreestanding-Threading"
     #"Stdn-Nofreestanding-Exceptions"
+    #"Stdn-Nofreestanding-FileSystem"
 ).

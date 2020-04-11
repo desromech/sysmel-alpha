@@ -24,7 +24,14 @@ template FixedArray(ET: Type)
 ## Convenience method for literal strings
 compileTime constant FixedString := FixedArray(Char8).
 compileTime constant StringLiteral := FixedString const ref.
+compileTime constant FixedWString := FixedArray(Char16).
+compileTime constant WStringLiteral := FixedWString const ref.
+compileTime constant FixedLString := FixedArray(Char32).
+compileTime constant LStringLiteral := FixedLString const ref.
 
-Compiler compilationTarget setNativePrefixedStringLiteralType: StringLiteral.
+Compiler compilationTarget
+	nativePrefixedStringLiteralType: StringLiteral;
+	nativePrefixedWStringLiteralType: WStringLiteral;
+	nativePrefixedLStringLiteralType: LStringLiteral.
 
 } ## End of namespace Stdn

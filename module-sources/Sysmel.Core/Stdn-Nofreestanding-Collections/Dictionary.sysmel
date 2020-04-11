@@ -12,6 +12,14 @@ template Dictionary(KT: Stdn Concepts HashKey, VT: Stdn Concepts Copyable)
     private field size_ type: UIntPointer.
     private field storage_ type: StorageType.
 
+    const inline method size => UIntPointer
+        := size_.
+
+    const inline method capacity => UIntPointer
+        := storage_ size.
+
+    Stdn Collections DictionaryCollectionMixin.
+
     const inline method scanFor: (key: KeyType const ref) withHash: (hash: UIntPointer)::=> UIntPointer := {
         let currentCapacity := storage_ size.
         currentCapacity == 0 ifTrue: {

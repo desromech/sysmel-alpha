@@ -42,7 +42,7 @@ class TestAsserter superclass: Object; definition: {
         let errorMessage := position -- ": Expression (" -- expression originalSourceCode -- ") is equal to the unexpected value (" -- unexpectedValue originalSourceCode -- ").".
         let messageNode := __astBuilder literalString: errorMessage position: expression position.
 
-        ``(`,expression = `,unexpectedValue ifTrue: {
+        ``(`,expression ~= `,unexpectedValue ifFalse: {
             Stdn raiseAssertionFailure(`,messageNode)
         })
     }.

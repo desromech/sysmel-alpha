@@ -8,7 +8,6 @@ namespace Collections definition: {
  	:= class definition: {
     compileTime constant ValueType := CT.
     compileTime constant LiteralType := FixedArray(ValueType) const ref.
-    compileTime constant PositionNotFound := UIntPointer maxValue.
 
     ## Mutable field for asCString.
     private field capacity_ mutable type: UIntPointer.
@@ -44,6 +43,14 @@ namespace Collections definition: {
         size_ == otherSize && memcmp(data_ , otherData, size_ * ValueType instanceSize) == 0
     }.
 
+    inline method initializeCopyingFrom: (other: SelfType const ref) ::=> Void := {
+        self := other
+    }.
+
+    inline method initializeMovingFrom: (other: SelfType tempRef) ::=> Void := {
+        self := other
+    }.
+
     inline method initializeFromCString: (cstring: ValueType const pointer) ::=> Void := {
         self := cstring
     }.
@@ -66,6 +73,16 @@ namespace Collections definition: {
 
     const inline method capacity => UIntPointer
         := capacity_.
+
+    inline method [index: UIntPointer] ::=> ValueType ref := {
+		assert: index < size_.
+		data_[index].
+	}.
+
+    const inline method [index: UIntPointer] ::=> ValueType const ref := {
+		assert: index < size_.
+		data_[index].
+	}.
 
     const inline method asCString => ValueType const pointer := {
         size_ == 0 ifTrue: { return: "" }.
@@ -95,6 +112,13 @@ namespace Collections definition: {
         data_[size_] := 0.
     }.
 
+    inline method reserve: (reservationSize: UIntPointer) ::=> Void := {
+        let requiredCapacity := size_ + reservationSize.
+        capacity_ < requiredCapacity ifTrue: {
+            self setCapacityTo: requiredCapacity + 1
+        }.
+    }.
+
     inline method increaseCapacity => Void := {
         let newCapacity := capacity_ * 2u max: 10u.
         self setCapacityTo: newCapacity.
@@ -102,7 +126,7 @@ namespace Collections definition: {
 
     const inline method setCapacityTo: (newCapacity: UIntPointer) ::=> Void := {
         let copySize := size_ min: newCapacity.
-        let newData := Stdn zmalloc(newCapacity) reinterpretCastTo: ValueType pointer.
+        let newData := Stdn zmalloc(newCapacity * ValueType instanceSize) reinterpretCastTo: ValueType pointer.
         Stdn memcpy(newData, data_, copySize * ValueType instanceSize).
         data_ ifNotNil: {
             Stdn free(data_)
@@ -165,49 +189,29 @@ namespace Collections definition: {
         Stdn memset(data_[size_] address, 0, tailSize * ValueType instanceSize)
     }.
 
-    method indexOf: (element: ValueType) ::=> UIntPointer := {
-        0 until: size_ do: {:(UIntPointer)i :: Void |
-            data_[i] == element ifTrue: {
-                return: i
-            }
-        }.
-        PositionNotFound
-    }.
+    macro method doWithIndex: aBlock := {
+		let collection := __astBuilder gensym: #collection.
+		let index := __astBuilder gensym: #index.
+		``{
+			let `,collection ref := `,self.
+			0 until: `,self size do: {:(UIntPointer)`,index :: Void |
+				`,aBlock __macroInlineBlock: `,collection[`,index] with: `,index
+			}
+		}
+	}.
 
-    method lastIndexOf: (element: ValueType) ::=> UIntPointer := {
-        let lastFound mutable type: UIntPointer := PositionNotFound.
-        0 until: size_ do: {:(UIntPointer)i :: Void |
-            data_[i] == element ifTrue: {
-                lastFound := i.
-            }
-        }.
-        lastFound
-    }.
+    macro method do: aBlock := {
+		let collection := __astBuilder gensym: #collection.
+		let index := __astBuilder gensym: #index.
+		``{
+			let `,collection ref := `,self.
+			0 until: `,self size do: {:(UIntPointer)`,index :: Void |
+				`,aBlock __macroInlineBlock: `,collection[`,index]
+			}
+		}
+	}.
 
-    method copyFrom: (startIndex: UIntPointer) until: (endIndex: UIntPointer) ::=> SelfType := {
-        let clippedStartIndex := startIndex min: size_.
-        let clippedEndIndex := endIndex min: size_.
-
-        let copySize := clippedEndIndex - clippedStartIndex.
-        let result mutable type: SelfType.
-        copySize > 0 ifTrue: {
-            let copyByteSize := copySize * ValueType instanceSize.
-            result __private capacity_ := copyByteSize + 1.
-            result __private size_ := copyByteSize.
-            result __private data_ := Stdn malloc(copyByteSize + ValueType instanceSize) reinterpretCastTo: ValueType pointer.
-            Stdn memcpy(result __private data_, data_[clippedStartIndex] address, copyByteSize).
-            ## FIXME: Fix this code generator backend bug.
-            void
-        }.
-
-        result asMoveReference
-    }.
-
-    method allButFirst: (ignoredCount: UIntPointer) ::=> SelfType
-        := self copyFrom: ignoredCount until: size_.
-
-    method first: (extractedCount: UIntPointer) ::=> SelfType
-        := self copyFrom: 0 until: extractedCount.
+    Stdn Collections SequenceableCollectionMixin.
 }.
 
 compileTime constant String := BasicString(Char8).

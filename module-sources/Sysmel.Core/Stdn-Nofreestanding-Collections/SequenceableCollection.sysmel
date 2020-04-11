@@ -1,0 +1,163 @@
+namespace Stdn definition: {
+namespace Collections definition: {
+
+compileTime constant PositionNotFoundIndex := UIntPointer maxValue.
+
+macro method SequenceableCollectionMixin := ``{
+    Stdn Collections CollectionMixin.
+
+    inline method first => ValueType ref
+        := self [0].
+
+    const inline method first => ValueType const ref
+        := self [0].
+
+    inline method second => ValueType ref
+        := self [1].
+
+    const inline method second => ValueType const ref
+        := self [1].
+
+    inline method third => ValueType ref
+        := self [2].
+
+    const inline method third => ValueType const ref
+        := self [2].
+
+    inline method fourth => ValueType ref
+        := self [3].
+
+    const inline method fourth => ValueType const ref
+        := self [3].
+
+    inline method fifth => ValueType ref
+        := self [4].
+
+    const inline method fifth => ValueType const ref
+        := self [4].
+
+    inline method sixth => ValueType ref
+        := self [5].
+
+    const inline method sixth => ValueType const ref
+        := self [5].
+
+    inline method seventh => ValueType ref
+        := self [6].
+
+    const inline method seventh => ValueType const ref
+        := self [6].
+
+    inline method eighth => ValueType ref
+        := self [7].
+
+    const inline method eighth => ValueType const ref
+        := self [7].
+
+    inline method ninth => ValueType ref
+        := self [8].
+
+    const inline method ninth => ValueType const ref
+        := self [8].
+
+    inline method tenth => ValueType ref
+        := self [9].
+
+    const inline method tenth => ValueType const ref
+        := self [9].
+
+    inline method last => ValueType ref := {
+        assert: self isNotEmpty.
+        self[self size - 1].
+    }.
+
+	inline method at: (index: UIntPointer) ::=> ValueType ref := {
+		assert: index >= 1.
+		self [index - 1]
+	}.
+
+    const inline method at: (index: UIntPointer) ::=> ValueType const ref := {
+		assert: index >= 1.
+		self [index - 1]
+	}.
+
+    const method copyFrom: (startIndex: UIntPointer) until: (endIndex: UIntPointer) ::=> SelfType := {
+        let clippedStartIndex := startIndex min: self size.
+        let clippedEndIndex := endIndex min: self size.
+
+        let copySize := clippedEndIndex - clippedStartIndex.
+        let result mutable type: SelfType.
+        copySize > 0 ifTrue: {
+			result reserve: copySize.
+			clippedStartIndex until: clippedEndIndex do: {:i :: Void |
+				result add: self[i]
+			}
+        }.
+
+        result asMoveReference
+    }.
+
+    const method copyAfter: (startIndex: UIntPointer) until: (endIndex: UIntPointer) ::=> SelfType := {
+        startIndex = PositionNotFoundIndex ifTrue: {
+            return: SelfType newValue
+        }.
+
+        self copyFrom: startIndex + 1 until: endIndex
+    }.
+
+    const method allButFirst: (ignoredCount: UIntPointer) ::=> SelfType
+        := self copyFrom: ignoredCount until: self size.
+
+    const method first: (extractedCount: UIntPointer) ::=> SelfType
+        := self copyFrom: 0 until: extractedCount.
+
+    const inline method -- (other: SelfType const ref) ::=> SelfType := {
+        let result mutable type: SelfType.
+        result
+            reserve: self size + other size;
+            addAll: self;
+            addAll: other.
+        result
+    }.
+
+    inline method addAll: (other: SelfType const ref) ::=> Void := {
+        self reserve: other size.
+        other do: {:(ValueType const ref)each :: Void |
+            self add: each
+        }
+    }.
+
+    Stdn Concepts Equalable ifType: ValueType complies: {
+        const method indexOf: (value: ValueType const ref) ::=> UIntPointer := {
+            self doWithIndex: {:(ValueType const ref)each :index :: Void |
+                each = value ifTrue: {
+                    return: index
+                }
+            }.
+
+            return: PositionNotFoundIndex
+        }.
+
+        const method lastIndexOf: (value: ValueType) ::=> UIntPointer := {
+            let lastFound mutable type: UIntPointer := PositionNotFoundIndex.
+            self doWithIndex: {:(ValueType const ref)each :index :: Void |
+                each = value ifTrue: {
+                    lastFound := index.
+                }
+            }.
+            lastFound
+        }.
+
+        const method copyFromLast: (value: ValueType const ref) ::=> SelfType
+            := self copyFrom: (self lastIndexOf: value) until: self size.
+
+        const method copyAfterLast: (value: ValueType const ref) ::=> SelfType
+            := self copyAfter: (self lastIndexOf: value) until: self size.
+
+        const method copyUpToLast: (value: ValueType const ref) ::=> SelfType
+            := self copyFrom: 0 until: (self lastIndexOf: value).
+    }.
+}.
+
+}. ## End of namespace Collections
+}. ## End of namespace Stdn

@@ -1,1 +1,3 @@
-loadFileOnce: "Vector.sysmel"
+loadFileOnce: "Vector.sysmel".
+loadFileOnce: "MutableString.sysmel".
+loadFileOnce: "Dictionary.sysmel".

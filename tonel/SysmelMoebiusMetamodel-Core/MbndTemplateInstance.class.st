@@ -5,7 +5,8 @@ Class {
 	#classTraits : 'TMbndSymbolContainer classTrait',
 	#instVars : [
 		'module',
-		'instanceArguments'
+		'instanceArguments',
+		'mainAliasCompileTimeConstant'
 	],
 	#category : #'SysmelMoebiusMetamodel-Core-Template'
 }
@@ -20,10 +21,22 @@ MbndTemplateInstance >> accept: aVisitor [
 	^ aVisitor visitTemplateInstance: self
 ]
 
+{ #category : #accessing }
+MbndTemplateInstance >> attemptToSetMainAliasTo: aCompileTimeConstant [
+	mainAliasCompileTimeConstant ifNotNil: [ ^ self ].
+	self assert: (parent isNotNil and: [ parent isTemplate ]).
+	parent parent ifNil: [ ^ self ].
+	
+	aCompileTimeConstant parent == parent parent ifFalse: [ ^ self ].
+	
+	mainAliasCompileTimeConstant := aCompileTimeConstant.
+]
+
 { #category : #serialization }
 MbndTemplateInstance >> encodeFieldsForMessagePackWith: graphEncoder [
 	^ (super encodeFieldsForMessagePackWith: graphEncoder), {
 		#instanceArguments . instanceArguments encodeGraphForMessagePackWith: graphEncoder.
+		#mainAliasCompileTimeConstant . mainAliasCompileTimeConstant encodeGraphForMessagePackWith: graphEncoder.
 	}
 ]
 
@@ -55,6 +68,7 @@ MbndTemplateInstance >> instanceArguments: aListWithInstanceArguments [
 MbndTemplateInstance >> materializeWithGraphDecoder: graphDecoder withFields: encodedFields [
 	super materializeWithGraphDecoder: graphDecoder withFields: encodedFields.
 	instanceArguments := encodedFields at: #instanceArguments.
+	mainAliasCompileTimeConstant := encodedFields at: #mainAliasCompileTimeConstant ifAbsent: [nil].
 ]
 
 { #category : #accessing }
@@ -70,6 +84,12 @@ MbndTemplateInstance >> module: anObject [
 { #category : #printing }
 MbndTemplateInstance >> printOn: aStream [
 	aStream nextPutAll: 'templateInstance '; nextPutAll: self qualifiedName
+]
+
+{ #category : #accessing }
+MbndTemplateInstance >> qualifiedNameForParent [
+	mainAliasCompileTimeConstant ifNotNil: [ ^ mainAliasCompileTimeConstant qualifiedNameForParent ].
+	^ super qualifiedNameForParent
 ]
 
 { #category : #'member symbols' }

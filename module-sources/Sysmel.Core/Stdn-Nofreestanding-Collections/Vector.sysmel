@@ -3,13 +3,20 @@ namespace Collections definition: {
 
 template Vector(ET: Stdn Concepts Copyable)
 	:= class definition: {
-    compileTime constant ElementType := ET.
-    compileTime constant PositionNotFound := UIntPointer maxValue.
-	compileTime constant PredicateType := ((ElementType const ref) => Boolean8) nativeBlockClosure.
+    compileTime constant ValueType := ET.
+	compileTime constant PredicateType := ((ValueType const ref) => Boolean8) nativeBlockClosure.
 
     private field capacity_ type: UIntPointer.
 	private field size_ type: UIntPointer.
-    private field storage_ type: ElementType pointer.
+    private field storage_ type: ValueType pointer.
+
+	inline method initializeCopyingFrom: (other: SelfType const ref) ::=> Void := {
+        self := other
+    }.
+
+    inline method initializeMovingFrom: (other: SelfType tempRef) ::=> Void := {
+        self := other
+    }.
 
     method finalize => Void := {
         0 until: size_ do: {:(UIntPointer)i :: Void |.
@@ -21,51 +28,62 @@ template Vector(ET: Stdn Concepts Copyable)
         := capacity_.
     const inline method size => UIntPointer
         := size_.
-    const inline method data => ElementType pointer
+    const inline method data => ValueType pointer
         := storage_.
 
-    const inline method isEmpty => Boolean8
-        := size_ == 0.
-    const inline method isNotEmpty => Boolean8
-        := size_ ~= 0.
-
-	inline method first => ElementType ref := {
-		assert: size_ > 0.
-		storage_[0].
-	}.
-
-	inline method second => ElementType ref := {
-		assert: size_ > 0.
-		storage_[1].
-	}.
-
-	inline method third => ElementType ref := {
-		assert: size_ > 0.
-		storage_[2].
-	}.
-
-	inline method last => ElementType ref := {
-		assert: size_ > 0.
-		storage_[size_ - 1].
-	}.
-
-	inline method at: (index: UIntPointer) ::=> ElementType ref := {
-		assert: index >= 1.
-		assert: index <= size_.
-		storage_ at: index.
-	}.
-
-	inline method subscriptAt: (index: UIntPointer) ::=> ElementType ref := {
+	inline method [index: UIntPointer] ::=> ValueType ref := {
 		assert: index < size_.
 		storage_[index].
 	}.
 
+	const inline method [index: UIntPointer] ::=> ValueType const ref := {
+		assert: index < size_.
+		storage_[index].
+	}.
+
+	(inline method := (other: SelfType const ref)) => SelfType ref := {
+        self address ~~ other address ifTrue: {
+			let newSize := other size.
+			self removeAll.
+			capacity_ < newSize ifTrue: {
+				self increaseCapacityTo: newSize.
+			}.
+
+			## Perform the actual copy.
+			let sourceStorage := other __private storage_.
+			0 until: newSize do: {:(UIntPointer)i :: Void |
+				storage_[i] basicInitialize.
+				storage_[i] := sourceStorage[i].
+			}.
+			size_ := newSize.
+        }.
+
+        self
+    }.
+
+    (inline method := (other: SelfType tempRef)) => SelfType ref := {
+        self address ~~ other address ifTrue: {
+            capacity_ := other __private capacity_.
+            size_ := other __private size_.
+            storage_ := other __private storage_.
+
+            other __private capacity_ := 0.
+            other __private size_ := 0.
+            other __private storage_ := nil.
+        }.
+
+        self
+    }.
+
     method increaseCapacityToAtLeast: (requiredCapacity: UIntPointer) ::=> Void := {
-		let newCapacity := requiredCapacity asLargerPowerOfTwo max: 16.
+		self increaseCapacityTo: (requiredCapacity asLargerPowerOfTwo max: 16)
+    }.
+
+	method increaseCapacityTo: (newCapacity: UIntPointer) ::=> Void := {
 		newCapacity <= capacity_ ifTrue: {return: nil}.
 
-		let newStorageSize := newCapacity * ElementType instanceSize.
-		let newStorage := Stdn zmalloc(newStorageSize) reinterpretCastTo: ElementType pointer.
+		let newStorageSize := newCapacity * ValueType instanceSize.
+		let newStorage := Stdn zmalloc(newStorageSize) reinterpretCastTo: ValueType pointer.
 
         0 until: size_ do: {:(UIntPointer)i :: Void |.
             newStorage[i]
@@ -78,10 +96,10 @@ template Vector(ET: Stdn Concepts Copyable)
 		capacity_ := newCapacity.
     }.
 
-    inline method add: (newElement: ElementType const ref) ::=> Void
+    inline method add: (newElement: ValueType const ref) ::=> Void
         := self addLast: newElement.
 
-    inline method addLast: (newElement: ElementType const ref) ::=> Void := {
+    inline method addLast: (newElement: ValueType const ref) ::=> Void := {
         size_ >= capacity_ ifTrue: {
             self increaseCapacityToAtLeast: size_ + 1.
         }.
@@ -97,6 +115,10 @@ template Vector(ET: Stdn Concepts Copyable)
         size_ := size_ - 1.
         storage_[size_] finalize.
     }.
+
+	inline method removeAll => Void := {
+		self resizeTo: 0
+	}.
 
 	method reserve: (reservedElements: UIntPointer) ::=> Void := {
 		self increaseCapacityToAtLeast: size_ + reservedElements
@@ -124,33 +146,12 @@ template Vector(ET: Stdn Concepts Copyable)
 			size_ until: newSize do: {:(UIntPointer)i :: Void |
 				storage_[i] finalize
 			}.
+
+			let destroyedCount := size_ - newSize.
+			memset(storage_[newSize] address, 0, destroyedCount * ValueType instanceSize).
 		}.
 
 		size_ := newSize
-	}.
-
-	macro method do: aBlock := {
-		let collection := __astBuilder gensym: #collection.
-		let index := __astBuilder gensym: #index.
-		``{
-			let `,collection ref := `,self.
-			0 until: `,self size do: {:(UIntPointer)`,index :: Void |
-				`,aBlock __macroInlineBlock: `,collection[`,index]
-			}
-		}
-	}.
-
-	macro method select: aPredicate thenDo: aBlock := {
-		let collection := __astBuilder gensym: #collection.
-		let index := __astBuilder gensym: #index.
-		``{
-			let `,collection ref := `,self.
-			0 until: `,self size do: {:(UIntPointer)`,index :: Void |
-				if: (`,aPredicate __macroInlineBlock: `,collection[`,index]) then: {
-					`,aBlock __macroInlineBlock: `,collection[`,index]
-				}.
-			}
-		}
 	}.
 
 	inline method swapWith: (other: SelfType ref) ::=> Void := {
@@ -169,7 +170,8 @@ template Vector(ET: Stdn Concepts Copyable)
 		}.
 
 		size_ := size_ - 1.
-		storage_[size_] finalize
+		storage_[size_] finalize.
+		memset(storage_[size_] address, 0, ValueType instanceSize).
 	}.
 
 	inline method removeAllSuchThat: (predicate: PredicateType) ::=> Void := {
@@ -186,12 +188,13 @@ template Vector(ET: Stdn Concepts Copyable)
 		destIndex until: size_ do: {:(UIntPointer)i :: Void |
 			storage_[i] finalize.
 		}.
+		memset(storage_[destIndex] address, 0, (destIndex - size_)*ValueType instanceSize).
 
 		size_ := destIndex.
 	}.
 
-	Stdn Concepts Equalable ifType: ElementType complies: {
-		method = (other: SelfType const ref) ::=> Boolean8 := {
+	Stdn Concepts Equalable ifType: ValueType complies: {
+		const method = (other: SelfType const ref) ::=> Boolean8 := {
 			size_ = other __private size_ ifFalse: { return: false }.
 			0 until: size_ do: {:(UIntPointer)i :: Void |
 				storage_[i] = other __private storage_[i] ifFalse: {
@@ -202,31 +205,23 @@ template Vector(ET: Stdn Concepts Copyable)
 			true
 		}.
 
-		inline method indexOf: (value: ElementType const ref) ::=> UIntPointer := {
-			0 until: size_ do: {:(UIntPointer)i :: Void |
-				storage_[i] = value ifTrue: {
-					return: i
-				}
-			}.
+		Stdn Utility NotEqualsMethodMixin.
 
-			return: PositionNotFound
-		}.
-
-		inline method remove: (value: ElementType const ref) ifAbsent: (absentBlock: (Void => Void) nativeBlockClosure) ::=> Void := {
+		inline method remove: (value: ValueType const ref) ifAbsent: (absentBlock: (Void => Void) nativeBlockClosure) ::=> Void := {
 			let elementIndex := self indexOf: value.
-			elementIndex == PositionNotFound ifTrue: {
+			elementIndex == PositionNotFoundIndex ifTrue: {
 				return: absentBlock()
 			}.
 
 			self removeAt: elementIndex
 		}.
 
-		inline method remove: (value: ElementType const ref) ::=> Void := {
+		inline method remove: (value: ValueType const ref) ::=> Void := {
 			self remove: value ifAbsent: {:: Void | Stdn raiseError("Failed to find element in Vector"). }
 		}.
 	}.
 
-	Stdn Concepts HashKey ifType: ElementType complies: {
+	Stdn Concepts HashKey ifType: ValueType complies: {
 		method hash => UIntPointer := {
 			let result mutable  := size_ hash.
 			0 until: size_ do: {:(UIntPointer)i :: Void |
@@ -236,6 +231,43 @@ template Vector(ET: Stdn Concepts Copyable)
 			result
 		}.
 	}.
+
+	macro method do: aBlock := {
+		let collection := __astBuilder gensym: #collection.
+		let index := __astBuilder gensym: #index.
+		``{
+			let `,collection ref := `,self.
+			0 until: `,self size do: {:(UIntPointer)`,index :: Void |
+				`,aBlock __macroInlineBlock: `,collection[`,index]
+			}
+		}
+	}.
+
+	macro method doWithIndex: aBlock := {
+		let collection := __astBuilder gensym: #collection.
+		let index := __astBuilder gensym: #index.
+		``{
+			let `,collection ref := `,self.
+			0 until: `,self size do: {:(UIntPointer)`,index :: Void |
+				`,aBlock __macroInlineBlock: `,collection[`,index] with: `,index
+			}
+		}
+	}.
+
+	macro method select: aPredicate thenDo: aBlock := {
+		let collection := __astBuilder gensym: #collection.
+		let index := __astBuilder gensym: #index.
+		``{
+			let `,collection ref := `,self.
+			0 until: `,self size do: {:(UIntPointer)`,index :: Void |
+				if: (`,aPredicate __macroInlineBlock: `,collection[`,index]) then: {
+					`,aBlock __macroInlineBlock: `,collection[`,index]
+				}.
+			}
+		}
+	}.
+
+	Stdn Collections SequenceableCollectionMixin.
 }.
 
 }. ## End of namespace Collections

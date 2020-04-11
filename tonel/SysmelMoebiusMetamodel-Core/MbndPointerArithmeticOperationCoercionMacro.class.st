@@ -25,13 +25,21 @@ MbndPointerArithmeticOperationCoercionMacro >> computeBaseCoercionTypeAt: node l
 { #category : #'as yet unclassified' }
 MbndPointerArithmeticOperationCoercionMacro >> computePointerArithmetic: node coercionTypeOf: leftValueType with: rightValueType [
 	| addressSpace leftBaseType rightBaseType constantResult baseCoercionType |
-	leftValueType == rightValueType ifTrue: [ ^ leftValueType ].
-	leftValueType isUndefinedType ifTrue: [ ^ rightValueType withoutReferences ].
-	rightValueType isUndefinedType ifTrue: [ ^ leftValueType withoutReferences ].
-	
+	(leftValueType isReferenceType or:
+	[ leftValueType isTemporaryReferenceType or:
+	[ leftValueType isReferenceType or:
+	[ leftValueType isTemporaryReferenceType ]]]) ifTrue: [
+		^ self computePointerArithmetic: node coercionTypeOf: leftValueType withoutReferences with: rightValueType withoutReferences
+	].
+
 	(leftValueType isConstantType or: [ rightValueType isConstantType ]) ifTrue: [
 		^ self computePointerArithmetic: node coercionTypeOf: leftValueType withoutTopDecorations with: rightValueType withoutTopDecorations
 	].
+
+	leftValueType == rightValueType ifTrue: [ ^ leftValueType ].
+
+	leftValueType isUndefinedType ifTrue: [ ^ rightValueType withoutReferences ].
+	rightValueType isUndefinedType ifTrue: [ ^ leftValueType withoutReferences ].
 	
 	(leftValueType isPointerType and: [ rightValueType isPointerType ]) ifTrue: [
 		addressSpace := self computeAddressSpaceCoercionTypeAt: node left: leftValueType addressSpace right: rightValueType addressSpace.

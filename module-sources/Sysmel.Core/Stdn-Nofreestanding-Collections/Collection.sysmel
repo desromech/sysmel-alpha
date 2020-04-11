@@ -1,0 +1,13 @@
+namespace Stdn definition: {
+namespace Collections definition: {
+
+macro method CollectionMixin := ``{
+    const inline method isEmpty => Boolean8
+        := self size == 0.
+    const inline method isNotEmpty => Boolean8
+        := self size ~= 0.
+
+}.
+
+}. ## End of namespace Collections
+}. ## End of namespace Stdn

@@ -29,6 +29,14 @@ MbndCompileTimeConstant >> analyzeReferenceNode: referenceNode with: analyzer [
 	^ evaluatedValue asLiteralValueNode
 ]
 
+{ #category : #'semantic analysis' }
+MbndCompileTimeConstant >> attemptToSetTemplateInstanceMainAliasTo: value [
+	value isMbndProgramEntity ifFalse: [ ^ self ].
+	value parent ifNil: [ ^ self ].
+	value parent isTemplateInstance ifFalse: [ ^ self ].
+	value parent attemptToSetMainAliasTo: self
+]
+
 { #category : #'as yet unclassified' }
 MbndCompileTimeConstant >> compilationEnvironment [
 	^ parent compilationEnvironment
@@ -67,6 +75,9 @@ MbndCompileTimeConstant >> ensureSemanticAnalysis [
 		module: self module;
 		scope: valueScope;
 		evaluateCompileTimeExpression: valueNode.
+		
+	self attemptToSetTemplateInstanceMainAliasTo: evaluatedValue value.
+
 	self removeFlag: #evaluating.
 ]
 

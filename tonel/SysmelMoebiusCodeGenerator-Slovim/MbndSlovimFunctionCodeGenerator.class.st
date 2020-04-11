@@ -2455,7 +2455,7 @@ MbndSlovimFunctionCodeGenerator >> visitReferenceLoadNode: node [
 	node type isTypePassedByReference ifTrue: [
 		node createsImplicitTemporary ifTrue: [
 			tempVar := self allocateTemporaryStorageFor: (self translateType: valueType) withStorageCreationNode: node storageCreationNode.
-			self generateVariable: tempVar withValueType:node type initializationWithValue: reference initialValueKind: #copy.
+			self generateVariable: tempVar withValueType: node type initializationWithValue: reference initialValueKind: #copy.
 			valueType hasTrivialFinalization ifFalse: [
 				self addLocalVariable: tempVar withValueType: valueType cleanUpActionForNode: node
 			].
