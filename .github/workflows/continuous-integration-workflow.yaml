@@ -23,7 +23,7 @@ jobs:
               uses: actions/upload-artifact@v1
               with:
                   name: build-artifacts
-                  path: artifacts/deploy
+                  path: artifacts/dist
 
             - name: Run image tests
               continue-on-error: true
