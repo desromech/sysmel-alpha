@@ -4,8 +4,8 @@ set -ex
 DIST=artifacts/dist
 
 mkdir -p $DIST/module-sources $DIST/third-party
-cp --preserve=links -rf pharo-vm pharo pharo-ui $DIST
-cp -rf sysmel.* sysmelc sysmelc-ui $DIST
-cp -rf module-sources/* pharo-local/iceberg/**/abstract-gpu/bindings/sysmel/* $DIST/module-sources
-cp -rf pharo-local/phanapi/libs/abstract-gpu/ $DIST/third-party/abstract-gpu
-cp -rf LICENSE README.md docs tests samples $DIST
+cp -R pharo-vm pharo pharo-ui $DIST
+cp -R Pharo*.sources sysmel.* sysmelc sysmelc-ui $DIST
+cp -R module-sources/* pharo-local/iceberg/**/abstract-gpu/bindings/sysmel/* $DIST/module-sources
+cp -R pharo-local/phanapi/libs/abstract-gpu/ $DIST/third-party/abstract-gpu
+cp -R LICENSE README.md docs tests samples $DIST
