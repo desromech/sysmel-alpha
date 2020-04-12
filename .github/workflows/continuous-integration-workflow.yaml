@@ -35,3 +35,31 @@ jobs:
               with:
                   name: test-results
                   path: artifacts/test-results
+    build-windows:
+        name: Build Windows
+        runs-on: windows-2016
+        steps:
+            - uses: actions/checkout@v1
+
+            - name: Image loading
+              run: ./newImage.ps1
+
+            - name: Package artifacts
+              run: scripts/packageArtifacts.ps1
+
+            - name: Upload artifacts
+              uses: actions/upload-artifact@v1
+              with:
+                  name: build-artifacts
+                  path: artifacts/dist
+
+            - name: Run image tests
+              continue-on-error: true
+              run: scripts/runImageTests.ps1
+
+            - name: Upload test results
+              continue-on-error: true
+              uses: actions/upload-artifact@v1
+              with:
+                  name: test-results
+                  path: artifacts/test-results

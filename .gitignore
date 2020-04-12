@@ -1,0 +1,14 @@
+artifacts
+*.image
+*.changes
+*.sources
+*.zip
+*.version
+*.log
+pharo-local
+pharo-vm
+pharo
+pharo-ui
+*Test.xml
+stderr
+stdout
