@@ -112,6 +112,11 @@ TMbndAbstractProgramEntity >> isAbstractSpecificMethod [
 ]
 
 { #category : #testing }
+TMbndAbstractProgramEntity >> isAbstractVirtualMethod [
+	^ false
+]
+
+{ #category : #testing }
 TMbndAbstractProgramEntity >> isAlwaysExported [
 	^ false
 ]

@@ -426,7 +426,7 @@ MbndBasicType >> pendingDefinitionFragments [
 MbndBasicType >> postMaterializeSetupParent: newParent withModule: newModule [
 	self parent: newParent.
 	self addDefaultConversionRules.
-	self isMetaType ifFalse: [ 
+	self isStrictMetaType ifFalse: [ 
 		self type postMaterializeSetupParent: nil withModule: newModule.
 		self assert: self type module == newModule.
 	] ifTrue: [

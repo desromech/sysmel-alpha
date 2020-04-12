@@ -1008,7 +1008,18 @@ MbndSlovimCodeModuleGenerator >> importTranslatedProgramEntity: externalProgramE
 	| importedModule importedSSAModule programEntitySymbol externalProgramEntityValue |
 	importedModule := externalProgramEntity module.
 	importedSSAModule := importedModule namedTargetCodeModules at: targetCodeModuleName.
-	programEntitySymbol := importedSSAModule highLevelMapToSymbol at: externalProgramEntity.
+	programEntitySymbol := importedSSAModule highLevelMapToSymbol at: externalProgramEntity ifAbsent: [
+		"The symbol may not be found because it could not be needed. In those cases, translate it into a null constant."
+		externalProgramEntity isAbstractVirtualMethod ifTrue: [
+			^ (self translateType: externalProgramEntity type pointer) defaultConstant
+		].
+
+		self compilationEnvironment hasRuntimeTypeInformation ifFalse: [	
+			^ (self translateType: externalProgramEntity type) defaultConstant
+		].
+
+		self error: 'Compiled bug. Exported program entity {1} without an associated exported symbol.' format: { externalProgramEntity asString }
+	].
 	ssaModule globalNamed: programEntitySymbol ifPresent: [ :alreadyImported |
 		^ alreadyImported
 	].

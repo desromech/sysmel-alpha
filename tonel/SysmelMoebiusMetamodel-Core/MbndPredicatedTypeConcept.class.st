@@ -27,9 +27,23 @@ MbndPredicatedTypeConcept >> doesTypeComplyWithConcept: aType [
 	self error: 'Predicated type concept did not return a boolean value.'
 ]
 
+{ #category : #'as yet unclassified' }
+MbndPredicatedTypeConcept >> encodeLazyFieldsForMessagePackWith: graphEncoder [
+	^ (super encodeLazyFieldsForMessagePackWith: graphEncoder) , {
+		#predicate . predicate encodeGraphForMessagePackWith: graphEncoder.
+	}
+]
+
 { #category : #testing }
 MbndPredicatedTypeConcept >> isPredicatedTypeConcept [
 	^ true
+]
+
+{ #category : #'as yet unclassified' }
+MbndPredicatedTypeConcept >> materializeWithGraphDecoder: graphDecoder withLazyFields: encodedFields [
+	super materializeWithGraphDecoder: graphDecoder withLazyFields: encodedFields.
+	
+	predicate := encodedFields at: #predicate.
 ]
 
 { #category : #accessing }

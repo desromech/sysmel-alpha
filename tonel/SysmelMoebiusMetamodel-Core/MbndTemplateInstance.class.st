@@ -35,6 +35,7 @@ MbndTemplateInstance >> attemptToSetMainAliasTo: aCompileTimeConstant [
 { #category : #serialization }
 MbndTemplateInstance >> encodeFieldsForMessagePackWith: graphEncoder [
 	^ (super encodeFieldsForMessagePackWith: graphEncoder), {
+		#module . module encodeGraphForMessagePackWith: graphEncoder.
 		#instanceArguments . instanceArguments encodeGraphForMessagePackWith: graphEncoder.
 		#mainAliasCompileTimeConstant . mainAliasCompileTimeConstant encodeGraphForMessagePackWith: graphEncoder.
 	}
@@ -67,6 +68,7 @@ MbndTemplateInstance >> instanceArguments: aListWithInstanceArguments [
 { #category : #serialization }
 MbndTemplateInstance >> materializeWithGraphDecoder: graphDecoder withFields: encodedFields [
 	super materializeWithGraphDecoder: graphDecoder withFields: encodedFields.
+	module := encodedFields at: #module.
 	instanceArguments := encodedFields at: #instanceArguments.
 	mainAliasCompileTimeConstant := encodedFields at: #mainAliasCompileTimeConstant ifAbsent: [nil].
 ]

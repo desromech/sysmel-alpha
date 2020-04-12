@@ -41,11 +41,21 @@ MbndTemplate >> definitionPosition: anObject [
 MbndTemplate >> encodeFieldsForMessagePackWith: graphEncoder [
 	^ {
 		#name . name.
+		#flags . flags.
 		#type . self type encodeGraphForMessagePackWith: graphEncoder.
-		#argumentDefinitions . argumentDefinitions collect: [:each | each encodeGraphForMessagePackWith: graphEncoder].
 		#argumentTupleType . argumentTupleType encodeGraphForMessagePackWith: graphEncoder.
+	} , (self isSealed ifFalse: [{
+		#argumentDefinitions . argumentDefinitions collect: [:each | each encodeGraphForMessagePackWith: graphEncoder].
 		#mainDefinitionFragment . mainDefinitionFragment encodeGraphForMessagePackWith: graphEncoder.
 		#definitionFragments . definitionFragments collect: [ :each | each encodeGraphForMessagePackWith: graphEncoder ].
+	}]), {
+		#instances . (Array streamContents: [:out |
+			instances keysAndValuesDo: [ :key :value |
+				out nextPut: (key encodeGraphForMessagePackWith: graphEncoder);
+					nextPut: (value encodeGraphForMessagePackWith: graphEncoder)
+			]
+		]) .
+		#children . children encodeGraphForMessagePackWith: graphEncoder.
 	}
 ]
 
@@ -53,6 +63,10 @@ MbndTemplate >> encodeFieldsForMessagePackWith: graphEncoder [
 MbndTemplate >> getOrCreateInstanceWithArguments: arguments [
 	| templateInstance mainDefinitionEvaluationResult |
 	instances at: arguments ifPresent: [ :existent | ^ existent ].
+	
+	(self isSealed and: [ mainDefinitionFragment isNil ]) ifTrue: [
+		^ self error: 'Cannot create new instances of sealed template {1} outside its definition module.' format: { self asString } 
+	].
 	
 	"Create the template instance meta object."
 	templateInstance := MbndTemplateInstance new
@@ -100,8 +114,13 @@ MbndTemplate >> inferTemplateKind [
 MbndTemplate >> initialize [
 	super initialize.
 	definitionPosition := MbndSourcePosition empty.
-	instances := WeakValueDictionary new.
+	instances := OrderedDictionary new.
 	
+]
+
+{ #category : #testing }
+MbndTemplate >> isSealed [
+	^ self hasFlag: #sealed
 ]
 
 { #category : #accessing }
@@ -115,11 +134,16 @@ MbndTemplate >> mainDefinitionBody: node scope: scope [
 { #category : #serialization }
 MbndTemplate >> materializeWithGraphDecoder: graphDecoder withFields: encodedFields [
 	name := encodedFields at: #name ifAbsent: [ nil ].
+	flags := encodedFields at: #flags.
 	type := encodedFields at: #type.
-	argumentDefinitions := encodedFields at: #argumentDefinitions.
 	argumentTupleType := encodedFields at: #argumentTupleType.
-	mainDefinitionFragment := encodedFields at: #mainDefinitionFragment.
+	argumentDefinitions := encodedFields at: #argumentDefinitions ifAbsent: [nil].
+	mainDefinitionFragment := encodedFields at: #mainDefinitionFragment ifAbsent: [nil].
 	definitionFragments := (encodedFields at: #definitionFragments ifAbsent: [ #() ]) asOrderedCollection.
+	
+	instances := OrderedDictionary newFromPairs: (encodedFields at: #instances).
+	children := encodedFields at: #children.
+
 ]
 
 { #category : #printing }

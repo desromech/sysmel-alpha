@@ -627,7 +627,7 @@ isSuperSend: isSuperSend declaredMethod: declaredMethod expectedResultType: expe
 		result := memoryReturnTemporary
 	] ifNil: [ 
 		"We may need to adjust the result type in the case of dependent types."
-		result type ~~ expectedResultSSAType ifTrue: [ 
+		result type ~= expectedResultSSAType ifTrue: [ 
 			self assert: (result type isPointerType and: [ expectedResultSSAType isPointerType ]).
 			result := slvmBuilder bitCast: result target: expectedResultSSAType
 		].

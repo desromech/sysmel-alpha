@@ -174,6 +174,16 @@ MbndBlockClosureMethod >> definitionScope: anObject [
 	definitionScope := anObject
 ]
 
+{ #category : #serialization }
+MbndBlockClosureMethod >> encodeFieldsForMessagePackWith: graphEncoder [
+	^ (super encodeFieldsForMessagePackWith: graphEncoder) , {
+		#arguments . arguments encodeGraphForMessagePackWith: graphEncoder.
+		#definitionScope . definitionScope encodeGraphForMessagePackWith: graphEncoder.
+		#analyzedNode . analyzedNode encodeGraphForMessagePackWith: graphEncoder.
+		#children . children encodeGraphForMessagePackWith: graphEncoder.
+	}
+]
+
 { #category : #'as yet unclassified' }
 MbndBlockClosureMethod >> evaluateApplicationWithCapturedValues: capturedValues arguments: argumentValues withEvaluator: evaluator at: position [
 	| evaluationScope callEvaluator |
@@ -274,6 +284,18 @@ MbndBlockClosureMethod >> makeBlockClosureWithImmediateActivation [
 	self addFlag: #hasImmediateActivation.
 	self assert: self analyzedBody expression isReturnStatementNode.
 	self analyzedBody expression isInImmediatelyActivatedClosure: true
+]
+
+{ #category : #serialization }
+MbndBlockClosureMethod >> materializeWithGraphDecoder: graphDecoder withFields: encodedFields [
+	super materializeWithGraphDecoder: graphDecoder withFields: encodedFields.
+	arguments := encodedFields at: #arguments ifAbsent: [nil].
+
+	definitionScope := encodedFields at: #definitionScope ifAbsent: [nil].
+	analyzedNode := encodedFields at: #analyzedNode ifAbsent: [nil].
+
+	definitionPosition := graphDecoder moduleLocation.
+	children := encodedFields at: #children ifAbsent: [nil].
 ]
 
 { #category : #accessing }
