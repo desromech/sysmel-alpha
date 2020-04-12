@@ -1,0 +1,37 @@
+name: Continuous integration
+on: [push, pull_request]
+
+jobs:
+    build-unixes:
+        name: Build Unixes
+        runs-on: ${{ matrix.variant.os }}
+        strategy:
+            matrix:
+                variant:
+                    - os: ubuntu-18.04
+                    - os: macos-latest
+        steps:
+            - uses: actions/checkout@v1
+
+            - name: Image loading
+              run: ./newImage.sh
+
+            - name: Package artifacts
+              run: scripts/packageArtifacts.sh
+
+            - name: Upload artifacts
+              uses: actions/upload-artifact@v1
+              with:
+                  name: build-artifacts
+                  path: artifacts/deploy
+
+            - name: Run image tests
+              continue-on-error: true
+              run: scripts/runImageTests.sh
+
+            - name: Upload test results
+              continue-on-error: true
+              uses: actions/upload-artifact@v1
+              with:
+                  name: test-results
+                  path: artifacts/test-results
