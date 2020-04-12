@@ -1981,6 +1981,12 @@ MbndSlovimCodeModuleGenerator >> visitIntrinsicPointerComparisonMethod: intrinsi
 ]
 
 { #category : #visiting }
+MbndSlovimCodeModuleGenerator >> visitIntrinsicThreeWayComparisonMethod: intrinsicMethod [
+	^ self setProgramEntity: intrinsicMethod translation: (MbndSlovimTranslatedIntrinsicThreeWayComparison new)
+	
+]
+
+{ #category : #visiting }
 MbndSlovimCodeModuleGenerator >> visitMacroMessageMethod: macro [
 	^ nil
 ]

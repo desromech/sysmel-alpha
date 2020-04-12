@@ -443,6 +443,11 @@ MbndAstDelegationVisitor >> visitNodeWithDeferredAnalysis: node [
 ]
 
 { #category : #visiting }
+MbndAstDelegationVisitor >> visitNumberToBooleanCastNode: node [
+	^ self delegateNodeVisit: node
+]
+
+{ #category : #visiting }
 MbndAstDelegationVisitor >> visitPointerAsReferenceNode: node [
 	^ self delegateNodeVisit: node
 ]

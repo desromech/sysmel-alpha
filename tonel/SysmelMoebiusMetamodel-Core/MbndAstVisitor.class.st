@@ -455,6 +455,11 @@ MbndAstVisitor >> visitNodesAndCollect: nodes [
 ]
 
 { #category : #visiting }
+MbndAstVisitor >> visitNumberToBooleanCastNode: node [
+	self subclassResponsibility
+]
+
+{ #category : #visiting }
 MbndAstVisitor >> visitPatternMatchingBindingPatternNode: node [
 	self subclassResponsibility
 ]

@@ -698,7 +698,8 @@ TMbndCoreCompilationTarget >> initializeArithmeticCoercionTable [
 
 { #category : #initialization }
 TMbndCoreCompilationTarget >> initializeArithmeticConversionRules [
-	| char8Type char16Type char32Type int8Type int16Type int32Type int64Type uint8Type uint16Type uint32Type uint64Type float16Type float32Type float64Type |
+	| booleanType char8Type char16Type char32Type int8Type int16Type int32Type int64Type uint8Type uint16Type uint32Type uint64Type float16Type float32Type float64Type |
+	booleanType := self booleanType.
 	char8Type := self char8Type.
 	char16Type := self char16Type.
 	char32Type := self char32Type.
@@ -770,7 +771,7 @@ TMbndCoreCompilationTarget >> initializeArithmeticConversionRules [
 	uint8Type addConversionTo:
 		int16Type | uint16Type | int32Type | uint32Type | int64Type | uint64Type
 		rule: MbndZeroExtensionTypeConversionRule.
-	
+		
 	"Int -> FP"
 	int8Type | uint8Type |
 	int16Type | uint16Type |
@@ -795,6 +796,17 @@ TMbndCoreCompilationTarget >> initializeArithmeticConversionRules [
 
 	float64Type addExplicitConversionTo: float16Type | float32Type rule: MbndFloatingPointSizeTypeConversionRule.
 
+
+	"Bool -> Int"
+	booleanType addExplicitConversionTo: char8Type | char16Type | char32Type | uint8Type | int8Type | uint16Type | int16Type |
+		uint32Type | int32Type | uint64Type | int64Type
+		rule: MbndZeroExtensionTypeConversionRule.
+		
+	char8Type | char16Type | char32Type | uint8Type | int8Type | uint16Type | int16Type |
+		uint32Type | int32Type | uint64Type | int64Type |
+		float16Type | float32Type | float64Type
+		addExplicitConversionTo: booleanType
+		rule: MbndNumberToBooleanConversionRule
 ]
 
 { #category : #initialization }

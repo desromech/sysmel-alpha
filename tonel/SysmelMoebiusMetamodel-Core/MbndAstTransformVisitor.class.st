@@ -623,6 +623,11 @@ MbndAstTransformVisitor >> visitNodeWithDeferredAnalysis: node [
 ]
 
 { #category : #visiting }
+MbndAstTransformVisitor >> visitNumberToBooleanCastNode: node [
+	^ self visitSpecificCastNode: node
+]
+
+{ #category : #visiting }
 MbndAstTransformVisitor >> visitPointerAsReferenceNode: node [
 	^ node copy
 		pointer: (self visitNode: node pointer);

@@ -68,6 +68,14 @@ MbndPrimitiveType >> addComparisonIntrinsics [
 		addComparison: #~~ intrinsic: #ne
 ]
 
+{ #category : #initialization }
+MbndPrimitiveType >> addThreeWayComparisonIntrinsic: selector [
+	self
+		addArithmeticOperationCoercionMacro: selector;
+		addOverloadedMethod: (MbndIntrinsicThreeWayComparisonMethod new name: selector)
+			receiverType: self argumentTypes: { self } returnType: self compilationTarget int32Type
+]
+
 { #category : #'semantic analysis' }
 MbndPrimitiveType >> bestConcreteTypeForLiteralValueNode: literalValueNode inScope: scope [
 	| literalType |

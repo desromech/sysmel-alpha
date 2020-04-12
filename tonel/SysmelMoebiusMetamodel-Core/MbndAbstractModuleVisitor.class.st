@@ -182,6 +182,11 @@ MbndAbstractModuleVisitor >> visitIntrinsicPointerComparisonMethod: type [
 ]
 
 { #category : #visiting }
+MbndAbstractModuleVisitor >> visitIntrinsicThreeWayComparisonMethod: type [
+	self subclassResponsibility
+]
+
+{ #category : #visiting }
 MbndAbstractModuleVisitor >> visitMacroMessageMethod: type [
 	self subclassResponsibility
 ]

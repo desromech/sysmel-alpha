@@ -998,6 +998,33 @@ MbndSlovimCodeModuleGeneratorTest >> testBooleanNotEquality2 [
 ]
 
 { #category : #tests }
+MbndSlovimCodeModuleGeneratorTest >> testBooleanThreeWayComparison [
+	| function |
+	self
+		evaluateSysmelSource: 'function op externC(x: Boolean8, y: Boolean8) => Int32 := x <=> y';
+		generateSSAModule.
+
+	function := ssaModule globalNamed: #op.
+	self assert: function asFullSExpressionForTesting equals: #(
+    function op cdecl i32
+        arguments ((x b8 ()) (y b8 ()))
+        literals ()
+        blocks
+        (
+            (()
+                (nil jump void () () (block 2 body))
+            )
+            (()
+                (nil zext i32 () ((local 0 x)))
+                (nil zext i32 () ((local 1 y)))
+                (nil sub i32 () ((local 3 nil) (local 4 nil)))
+                (nil return void () ((local 5 nil)))
+            )
+        )
+	).
+]
+
+{ #category : #tests }
 MbndSlovimCodeModuleGeneratorTest >> testBooleanToDynamicObject [
 	| function |
 	self
@@ -1010,6 +1037,22 @@ MbndSlovimCodeModuleGeneratorTest >> testBooleanToDynamicObject [
 	self deny: function isEmpty.
 	self assert: function basicBlocks size equals: 2.
 	self assert: function basicBlocks second firstInstruction isBoolToDynamicObjectCast.
+	self assert: function basicBlocks second lastInstruction isReturn.
+]
+
+{ #category : #tests }
+MbndSlovimCodeModuleGeneratorTest >> testBooleanToInt32 [
+	| function |
+	self
+		evaluateMiniObjectModelRuntime;
+		evaluateSysmelSource: 'function cast externC(x: Boolean8) => Int32 := x castTo: Int32';
+		generateSSAModule.
+
+	function := ssaModule globalNamed: #cast.
+	self assert: function isFunction.
+	self deny: function isEmpty.
+	self assert: function basicBlocks size equals: 2.
+	self assert: function basicBlocks second firstInstruction isZeroExtend.
 	self assert: function basicBlocks second lastInstruction isReturn.
 ]
 
@@ -2730,6 +2773,32 @@ MbndSlovimCodeModuleGeneratorTest >> testFloatSubtract [
 	self assert: function basicBlocks second firstInstruction isBinaryOperation.
 	self assert: function basicBlocks second firstInstruction operation equals: #fsub.
 	self assert: function basicBlocks second lastInstruction isReturn.
+]
+
+{ #category : #tests }
+MbndSlovimCodeModuleGeneratorTest >> testFloatThreeWayComparison [
+	| function |
+	self
+		evaluateSysmelSource: 'function op externC(x: Float32, y: Float32) => Int32 := x <=> y';
+		generateSSAModule.
+
+	function := ssaModule globalNamed: #op.
+	self assert: function asFullSExpressionForTesting equals: #(
+    function op cdecl i32
+        arguments ((x f32 ()) (y f32 ()))
+        literals ()
+        blocks (
+            (()
+                (nil jump void () () (block 2 body))
+            )
+            (()
+                (nil fsub f32 () ((local 0 x) (local 1 y)))
+                (nil call f32 () ((builtInFunction (pointer (function cdecl (f32) false f32) generic) 'math.fsign')
+                (local 3 nil))) (nil fp2int i32 () ((local 4 nil)))
+                (nil return void () ((local 5 nil)))
+            )
+        )
+	).
 ]
 
 { #category : #tests }
@@ -5226,6 +5295,47 @@ MbndSlovimCodeModuleGeneratorTest >> testIntegerSubtractUInt64 [
 ]
 
 { #category : #tests }
+MbndSlovimCodeModuleGeneratorTest >> testIntegerThreeWayComparison [
+	| function |
+	self
+		evaluateSysmelSource: 'function op externC(x: Int32, y: Int32) => Int32 := x <=> y';
+		generateSSAModule.
+
+	function := ssaModule globalNamed: #op.
+	self assert: function asFullSExpressionForTesting equals: #(
+    function op cdecl i32
+        arguments ((x i32 ()) (y i32 ()))
+        literals ()
+        blocks
+        (
+            (()
+                (nil jump void () () (block 2 body))
+            )
+            (()
+                (nil sub i32 () ((local 0 x) (local 1 y)))
+                (nil return void () ((local 3 nil)))
+            )
+        )
+	).
+]
+
+{ #category : #tests }
+MbndSlovimCodeModuleGeneratorTest >> testIntegerToBoolean [
+	| function |
+	self
+		evaluateMiniObjectModelRuntime;
+		evaluateSysmelSource: 'function cast externC(x: Int32) => Boolean8 := x castTo: Boolean8';
+		generateSSAModule.
+
+	function := ssaModule globalNamed: #cast.
+	self assert: function isFunction.
+	self deny: function isEmpty.
+	self assert: function basicBlocks size equals: 2.
+	self assert: function basicBlocks second firstInstruction isBinaryOperation.
+	self assert: function basicBlocks second lastInstruction isReturn.
+]
+
+{ #category : #tests }
 MbndSlovimCodeModuleGeneratorTest >> testIntegerToDynamicObject [
 	| function |
 	self
@@ -5381,6 +5491,32 @@ MbndSlovimCodeModuleGeneratorTest >> testIntegerUnsignedLessOrEqual [
 	self assert: function basicBlocks second firstInstruction isBinaryOperation.
 	self assert: function basicBlocks second firstInstruction operation equals: #ule.
 	self assert: function basicBlocks second lastInstruction isReturn.
+]
+
+{ #category : #tests }
+MbndSlovimCodeModuleGeneratorTest >> testIntegerUnsignedThreeWayComparison [
+	| function |
+	self
+		evaluateSysmelSource: 'function op externC(x: UInt32, y: UInt32) => Int32 := x <=> y';
+		generateSSAModule.
+
+	function := ssaModule globalNamed: #op.
+	self assert: function asFullSExpressionForTesting equals: #(
+    function op cdecl i32
+        arguments ((x u32 ()) (y u32 ()))
+        literals ()
+        blocks
+        (
+            (()
+                (nil jump void () () (block 2 body))
+            )
+            (()
+                (nil sub u32 () ((local 0 x) (local 1 y)))
+					 (nil bitcast i32 () ((local 3 nil)))
+                (nil return void () ((local 4 nil)))
+            )
+        )
+	).
 ]
 
 { #category : #tests }

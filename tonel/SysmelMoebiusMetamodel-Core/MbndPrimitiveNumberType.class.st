@@ -27,7 +27,7 @@ MbndPrimitiveNumberType >> addArithmeticIntrinsicsToVectorOrScalarType: vectorOr
 		addArithmetic: #+ binaryIntrinsic: #add;
 		addArithmetic: #- binaryIntrinsic: #sub.
 		
-	vectorOrScalarType isPrimitiveMatrixType ifTrue: [ 
+	vectorOrScalarType isPrimitiveMatrixType ifTrue: [
 		vectorOrScalarType
 			addArithmetic: #%* binaryIntrinsic: #mul;
 			addArithmetic: #%/ binaryIntrinsic: #div;

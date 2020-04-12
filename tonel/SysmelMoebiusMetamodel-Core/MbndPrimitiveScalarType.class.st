@@ -26,6 +26,12 @@ MbndPrimitiveScalarType >> addArithmeticIntrinsicsToVectorOrScalarType: vectorOr
 	
 ]
 
+{ #category : #initialization }
+MbndPrimitiveScalarType >> addComparisonIntrinsics [
+	super addComparisonIntrinsics.
+	self addThreeWayComparisonIntrinsic: #<=>
+]
+
 { #category : #adding }
 MbndPrimitiveScalarType >> addConversionsFromLiteralTypes [
 	self literalTypesThatCanBeConvertedToMe do: [ :literalType |

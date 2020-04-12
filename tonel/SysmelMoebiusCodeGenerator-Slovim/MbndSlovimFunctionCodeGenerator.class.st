@@ -2369,6 +2369,21 @@ MbndSlovimFunctionCodeGenerator >> visitNode: node [
 ]
 
 { #category : #visiting }
+MbndSlovimFunctionCodeGenerator >> visitNumberToBooleanCastNode: node [
+	| number zeroConstant numberType |
+	number := self visitNode: node expression.
+	zeroConstant := number type defaultConstant.
+	numberType := number type.
+	(numberType isFloatType or: [ (numberType isVectorType or: [ numberType isMatrixType ]) and: [ numberType elementType isFloatType ] ]) ifTrue: [
+		^ slvmBuilder ufne: number with: zeroConstant
+	] ifFalse: [ 
+		^ slvmBuilder ine: number with: zeroConstant
+	].
+
+	self halt
+]
+
+{ #category : #visiting }
 MbndSlovimFunctionCodeGenerator >> visitPatternMatchingBindingPatternNode: node [
 	self assert: node value isNotNil.
 	^ self visitNode: node value

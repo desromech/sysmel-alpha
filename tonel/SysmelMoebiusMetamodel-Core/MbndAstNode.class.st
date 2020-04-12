@@ -582,6 +582,11 @@ MbndAstNode >> isNonConcreteNode [
 ]
 
 { #category : #testing }
+MbndAstNode >> isNumberToBooleanCastNode [
+	^ false
+]
+
+{ #category : #testing }
 MbndAstNode >> isNumericalCastNode [
 	^ false
 ]
