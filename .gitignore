@@ -1,4 +1,5 @@
 artifacts
+out
 *.image
 *.changes
 *.sources

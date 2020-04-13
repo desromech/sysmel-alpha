@@ -138,7 +138,7 @@ macro method SequenceableCollectionMixin := ``{
             return: PositionNotFoundIndex
         }.
 
-        const method lastIndexOf: (value: ValueType) ::=> UIntPointer := {
+        const method lastIndexOf: (value: ValueType const ref) ::=> UIntPointer := {
             let lastFound mutable type: UIntPointer := PositionNotFoundIndex.
             self doWithIndex: {:(ValueType const ref)each :index :: Void |
                 each = value ifTrue: {

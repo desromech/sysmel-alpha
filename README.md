@@ -19,22 +19,22 @@ frontend accepts gcc/clang style command line arguments:
 
 ```bash
 # Program direct compilation.
-./sysmelc -g -O2 -o hello samples/cpu/hello.sysmel
+./sysmelc -g -O2 -monolithic -o out/ -module-name Hello samples/cpu/hello.sysmel
 
 # Program direct compilation without GC support.
-./sysmelc -nogc -g -o sampleNativeGame lib/bindings/sdl2/sdl2.sysmel samples/cpu/sampleNativeGame.sysmel
+./sysmelc -no-gc -g -monolithic -o out/ samples/cpu/sampleNativeGame.sysmel
 
 # LLVM IR assembly.
-./sysmelc -g -O2 -emit-llvm -S -o hello.ll samples/cpu/hello.sysmel
-clang -o hello hello.o -lgc -lm
+./sysmelc -g -O2 -emit-llvm -S -monolithic -o out/ samples/cpu/hello.sysmel
+clang -o out/hello out/*.ll -lgc -lm -pthreads
 
 # Native assembly.
-./sysmelc -g -O2 -S -o hello.s samples/cpu/hello.sysmel
-clang -o hello hello.o -lgc -lm
+./sysmelc -g -O2 -S -monolithic -o out/ samples/cpu/hello.sysmel
+clang -o out/hello out/*.ll -lgc -lm -pthreads
 
 # Separate object file and linking.
-./sysmelc -g -O2 -c -o hello.o samples/cpu/hello.sysmel
-clang -o hello hello.o -lgc -lm
+./sysmelc -g -O2 -c -monolithic -o out/ samples/cpu/hello.sysmel
+clang -o out/hello out/*.o -lgc -lm -pthreads
 
 # Spir-V Vulkan shader compilation
 ./sysmelc -mvulkan -o solidRenderingShaders.spv samples/gpu/solidRenderingShaders.sysmel
@@ -48,7 +48,7 @@ closures into shaders.
 ```smalltalk
 Metacello new
    baseline: 'Sysmel';
-   repository: 'github://ronsaldo/sysmel/tonel';
+   repository: 'github://ronsaldo/sysmel';
    load
 ```
 
@@ -57,35 +57,44 @@ Metacello new
 "CPU Hello sample"
 MbndCompilationEnvironment llvm_x86_64
 	withDebugInformation;
-    monolithic;
+	monolithic;
+	executable; "shared" "object" "assembly" "llvmAssembly"
+	outputDirectory: 'out';
 	loadRuntimeCoreLibrary;
+	"beginModule: #Hello;"
 	evaluateFileNamedOnce: 'samples/cpu/hello.sysmel';
-	finishSemanticAnalysis;
-	"writeLLVMAssemblyToFileNamed: 'hello.ll';"
-    "writeAssemblyToFileNamed: 'hello.s';"
-    writeExecutableToFileNamed: 'hello'
+	finishAndEmitModule
 
 "CPU native sample game"
 MbndCompilationEnvironment llvm_x86_64
 	withDebugInformation;
-	noGC;
-    monolithic;
-	"optimizationLevel: 2;"
+	noRTTI;
+	monolithic;
+	executable;
+	outputDirectory: 'out';
 	loadRuntimeCoreLibrary;
-	importModuleNamed: #'Bindings.SDL2';
-	beginModule: #SampleNativeGame;
 	evaluateFileNamedOnce: 'samples/cpu/sampleNativeGame.sysmel';
-	finishSemanticAnalysis;
-	"writeLLVMAssemblyToFileNamed: 'sampleNativeGame.ll';"
-	"writeAssemblyToFileNamed: 'sampleNativeGame.s';"
-	writeExecutableToFileNamed: 'sampleNativeGame'
+	finishAndEmitModule
+
+"Runtime libraries tests"
+MbndCompilationEnvironment llvm_x86_64
+	withDebugInformation;
+	noRTTI;
+	monolithic;
+	executable;
+	outputDirectory: 'out';
+	loadRuntimeCoreLibrary;
+	evaluateFileNamedOnce: 'tests/RuntimeLibrariesTests.sysmel';
+	finishAndEmitModule
 
 "Sample Vulkan shaders"
 MbndCompilationEnvironment spirv_vulkan
+	monolithic;
+	executable;
 	loadRuntimeCoreLibrary;
+	outputDirectory: 'out';
 	evaluateFileNamedOnce: 'samples/gpu/solidRenderingShaders.sysmel';
-	finishSemanticAnalysis;
-	writeExecutableToFileNamed: 'solidRenderingShaders.spv'
+	finishAndEmitModule
 ```
 
 ## Syntax overview

@@ -1,3 +1,7 @@
+Compiler
+	importModuleNamed: #"Sysmel.Graphics.SDL2";
+	importModuleNamed: #"Sysmel.Graphics.FreeType2".
+
 useNamespace: Stdn Graphics Core.
 useNamespace: Stdn Graphics GUI.
 useNamespace: Stdn Math Geometry.
