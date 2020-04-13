@@ -1,3 +1,9 @@
+"
+sysmelc - Sysmel Command Line Compiler Frontend
+sysmelc <options> [sysmel source to evaluate]*
+Valid options:
+
+"
 Class {
 	#name : #MbndCompilerCommandLineHandler,
 	#superclass : #CommandLineHandler,
@@ -13,7 +19,7 @@ MbndCompilerCommandLineHandler class >> commandName [
 
 { #category : #activation }
 MbndCompilerCommandLineHandler >> activate [
-	| architecture outputFileName withDebugInformation arguments argumentIndex compilationCommands arg skipCount target compiler emitLLVM writeMode gpu compilationOptions targetVendor targetOS targetAttributes linkerArguments useLLVM |
+	| architecture outputDirectory withDebugInformation arguments argumentIndex compilationCommands arg skipCount target compiler emitLLVM writeMode gpu compilationOptions targetVendor targetOS targetAttributes linkerArguments useLLVM |
 	self activateHelp
 		ifTrue: [  ^ self ].
 		
@@ -21,7 +27,7 @@ MbndCompilerCommandLineHandler >> activate [
 	targetVendor := nil.
 	targetOS := nil.
 	targetAttributes := nil.
-	outputFileName := nil.
+	outputDirectory := nil.
 	withDebugInformation := false.
 	writeMode := #executable.
 	useLLVM := true.
@@ -66,7 +72,7 @@ MbndCompilerCommandLineHandler >> activate [
 			skipCount := 2
 		].
 
-		arg = '-nouse-llvm' ifTrue: [  
+		arg = '-no-use-llvm' ifTrue: [  
 			useLLVM := false.
 		].
 		arg = '-use-llvm' ifTrue: [  
@@ -102,24 +108,28 @@ MbndCompilerCommandLineHandler >> activate [
 			compilationOptions add: [ :c | c optimizationLevel: 2 ]
 		].
 	
-		arg = '-nostdlib' ifTrue: [ 
+		arg = '-no-stdlib' ifTrue: [ 
 			compilationOptions add: [ :c | c noStandardLibrary ].
 		].
 
-		arg = '-nolibc' ifTrue: [
+		arg = '-no-libc' ifTrue: [
 			compilationOptions add: [ :c | c noLibC ].
 		].
 
-		arg = '-nortti' ifTrue: [
+		arg = '-no-rtti' ifTrue: [
 			compilationOptions add: [ :c | c noRTTI ].
 		].
 
-		arg = '-nogc' ifTrue: [
+		arg = '-no-gc' ifTrue: [
 			compilationOptions add: [ :c | c noGC ].
 		].
 
 		arg = '-no-exceptions' ifTrue: [
 			compilationOptions add: [ :c | c noExceptions ].
+		].
+
+		arg = '-monolithic' ifTrue: [
+			compilationOptions add: [ :c | c monolithic ].
 		].
 
 		arg = '-freestanding' ifTrue: [
@@ -132,13 +142,21 @@ MbndCompilerCommandLineHandler >> activate [
 
 		arg = '-o' ifTrue: [
 			argumentIndex + 1 > arguments size ifTrue: [ self error: 'Expected an argument after -o' ].
-			outputFileName := arguments at: argumentIndex + 1.
+			outputDirectory := arguments at: argumentIndex + 1.
 			skipCount := 2
 		].
 
+		arg = '-module-name' ifTrue: [
+			| moduleName |
+			argumentIndex + 1 > arguments size ifTrue: [ self error: 'Expected an argument after -module-name' ].
+			moduleName := (arguments at: argumentIndex + 1) asSymbol.
+			compilationOptions add: [ :c | c beginModule: moduleName ].
+			skipCount := 2
+		].
+	
 		arg = '-oes' ifTrue: [
 			| embeddedShaderCopyOutputFile |
-			argumentIndex + 1 > arguments size ifTrue: [ self error: 'Expected an argument after -o' ].
+			argumentIndex + 1 > arguments size ifTrue: [ self error: 'Expected an argument after -oes' ].
 			embeddedShaderCopyOutputFile := arguments at: argumentIndex + 1.
 			compilationCommands add: [ :comp | comp evaluateFileNamed: embeddedShaderCopyOutputFile ].
 			skipCount := 2
@@ -183,20 +201,19 @@ MbndCompilerCommandLineHandler >> activate [
 	].
 
 	compiler := MbndCompilationEnvironment compilationTarget: target.
+	compiler outputDirectory: outputDirectory.
 	compilationOptions do: [ :option |
 		option value: compiler.
 	].
 
 	compiler addLinkerArguments: linkerArguments.
+	compiler outputMode: writeMode.
 
 	compiler loadRuntimeCoreLibrary.
 	[
 		[ 
 			compilationCommands do: [ :cmd | cmd cull: compiler ].
-
-			outputFileName ifNotNil: [
-				compiler writeMode: writeMode toFileNamed: outputFileName
-			].
+			compiler finishAndEmitModule
 		] on: MbndCompilationWarning do: [ :warning |
 			stderr nextPutAll: warning description; lf.
 			warning resume
@@ -204,7 +221,6 @@ MbndCompilerCommandLineHandler >> activate [
 	] on: MbndCompilationError do: [ :err |
 		Smalltalk isInteractive ifTrue: [ err debug ].
 		stderr nextPutAll: err description; lf.
-		outputFileName asFileReference exists ifTrue: [ outputFileName asFileReference delete ].
 		"err debug."
 		^ Exit new status: 1; signal
 	].

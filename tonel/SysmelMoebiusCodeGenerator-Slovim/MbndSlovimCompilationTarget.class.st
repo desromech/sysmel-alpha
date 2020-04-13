@@ -52,6 +52,15 @@ MbndSlovimCompilationTarget >> asSpirVCompilationTarget [
 		ifFalse: [SLVMLLVMCompilationTarget spirv_logical64])
 ]
 
+{ #category : #'as yet unclassified' }
+MbndSlovimCompilationTarget >> extensionForModuleOutputMode: mode [
+	slvmCompilationTarget isSpirV ifTrue: [
+		mode = #executable ifTrue: [ ^ '.spv' ]
+	].
+
+	^ super extensionForModuleOutputMode: mode
+]
+
 { #category : #accessing }
 MbndSlovimCompilationTarget >> float64Alignment [
 	^ slvmCompilationTarget float64 alignment

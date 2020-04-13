@@ -4,7 +4,6 @@ Class {
 	#instVars : [
 		'compilationEnvironment',
 		'sourceLocations',
-		'linkerArguments',
 		'importedModules',
 		'loadedPackageStates'
 	],
@@ -450,8 +449,8 @@ MbndStandaloneModule >> writeMode: writeMode toFileNamed: outputFileName [
 
 	MbndProfiler component: #lirCodeGeneration with: [ 
 		lowLevelModule := ssaModule asLowLevelModuleWithOptimizationLevel: self optimizationLevel.
-		lowLevelModule linkerArguments: linkerArguments.
 	].
+	lowLevelModule linkerArguments: self compilationEnvironment linkerArguments asArray.
 	
 	writeMode == #assembly ifTrue: [
 		^ lowLevelModule writeAssemblyToFileNamed: outputFileName

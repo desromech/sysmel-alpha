@@ -84,6 +84,27 @@ TMbndAbstractCompilationTarget >> dynamicObjectType [
 	self explicitRequirement
 ]
 
+{ #category : #'as yet unclassified' }
+TMbndAbstractCompilationTarget >> extensionForModuleOutputMode: outputMode [
+	outputMode = #llvm_assembly ifTrue: [ ^ '.ll' ].
+	outputMode = #assembly ifTrue: [ ^ '.s' ].
+	outputMode = #executable ifTrue: [
+		self isWin32 ifTrue: [ ^ '.exe' ].
+		^ ''
+	].
+	outputMode = #shared ifTrue: [ 
+		self isWin32 ifTrue: [ ^ '.dll' ].
+		self isOSX ifTrue: [ ^ '.dylib' ].
+		^ '.so'
+	].
+	outputMode = #object ifTrue: [ 
+		self isWin32 ifTrue: [ ^ '.obj' ].
+		^ '.o'
+	].
+
+	self error: 'Unsupported output mode.'
+]
+
 { #category : #'convenience type accessors' }
 TMbndAbstractCompilationTarget >> float16Type [
 	^ self getBasicTypeNamed: #Float16

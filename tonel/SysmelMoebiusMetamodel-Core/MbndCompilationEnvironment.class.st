@@ -21,7 +21,10 @@ Class {
 		'loadedModules',
 		'moduleSourceLocations',
 		'moduleTranslationMode',
-		'currentModuleStack'
+		'currentModuleStack',
+		'outputDirectory',
+		'outputMode',
+		'hasBeginModule'
 	],
 	#category : #'SysmelMoebiusMetamodel-Core-Module'
 }
@@ -76,8 +79,14 @@ MbndCompilationEnvironment >> analyzeReferenceNode: referenceNode with: analyzer
 		yourself
 ]
 
+{ #category : #'module output format' }
+MbndCompilationEnvironment >> assembly [
+	self outputMode: #assembly
+]
+
 { #category : #'module import' }
 MbndCompilationEnvironment >> beginModule: moduleName [
+	hasBeginModule := true.
 	self pushCurrentModule.
 	self validCurrentModule name: moduleName.
 	self addLoadedModule: currentModule.
@@ -108,8 +117,13 @@ MbndCompilationEnvironment >> defaultModuleTranslationMode [
 	self object
 ]
 
-{ #category : #'module translation mode' }
+{ #category : #'module output format' }
 MbndCompilationEnvironment >> dll [
+	self shared
+]
+
+{ #category : #'module translation mode' }
+MbndCompilationEnvironment >> dllPerModule [
 	moduleTranslationMode := #dll.
 ]
 
@@ -125,6 +139,10 @@ MbndCompilationEnvironment >> evaluateFileNamed: fileName [
 
 { #category : #'module import' }
 MbndCompilationEnvironment >> evaluateFileNamedOnce: fileName [
+	hasBeginModule ifFalse: [
+		self beginModule: fileName asFileReference basenameWithoutExtension asSymbol
+	].
+
 	^ self validCurrentModule evaluateFileNamedOnce: fileName
 ]
 
@@ -136,6 +154,24 @@ MbndCompilationEnvironment >> evaluateLanguage: languageName source: sourceStrin
 { #category : #'as yet unclassified' }
 MbndCompilationEnvironment >> evaluateRuntimeCoreLibrary [
 	coreModule loadRuntimeCoreLibrary
+]
+
+{ #category : #'module import' }
+MbndCompilationEnvironment >> executable [
+	self outputMode: #executable
+]
+
+{ #category : #'as yet unclassified' }
+MbndCompilationEnvironment >> finishAndEmitModule [
+	| outputFileName outputFileReference result |
+	currentModule ifNil: [ ^ self ].
+	self finishSemanticAnalysis.
+	
+	outputFileName := self validCurrentModule name , (compilationTarget extensionForModuleOutputMode: outputMode).
+	outputFileReference := self validOutputDirectory / outputFileName.
+	result := self validCurrentModule writeMode: outputMode toFileNamed:  outputFileReference.
+	self writeExportModuleFor: outputFileReference.
+	^ result
 ]
 
 { #category : #'module import' }
@@ -307,6 +343,8 @@ MbndCompilationEnvironment >> initializeWithCompilationTarget: aCompilationTarge
 	compilationTarget := aCompilationTarget.
 	moduleSourceLocations := OrderedCollection new.
 	moduleSourceLocations add: MbndCoreAssets location / 'module-sources'.
+	outputMode := #executable.
+	hasBeginModule := false.
 
 	"Optional dependency."
 	[
@@ -323,6 +361,11 @@ MbndCompilationEnvironment >> initializeWithCompilationTarget: aCompilationTarge
 { #category : #accessing }
 MbndCompilationEnvironment >> linkerArguments [
 	^ linkerArguments ifNil: [ linkerArguments := OrderedCollection new ]
+]
+
+{ #category : #'module output format' }
+MbndCompilationEnvironment >> llvmAssembly [
+	self outputMode: #llvm_assembly
 ]
 
 { #category : #'as yet unclassified' }
@@ -399,8 +442,13 @@ MbndCompilationEnvironment >> noStandardLibrary [
 	self hasStandardLibrary: false
 ]
 
-{ #category : #'module translation mode' }
+{ #category : #'module output format' }
 MbndCompilationEnvironment >> object [
+	self outputMode: #object.
+]
+
+{ #category : #'module translation mode' }
+MbndCompilationEnvironment >> objectPerModule [
 	moduleTranslationMode := #object.
 ]
 
@@ -414,7 +462,22 @@ MbndCompilationEnvironment >> optimizationLevel: anInteger [
 	^ optimizationLevel := anInteger
 ]
 
-{ #category : #'module import' }
+{ #category : #initialization }
+MbndCompilationEnvironment >> outputDirectory: anOutputDirectory [
+	outputDirectory := anOutputDirectory asFileReference asAbsolute canonicalize.
+]
+
+{ #category : #accessing }
+MbndCompilationEnvironment >> outputMode [
+	^ outputMode
+]
+
+{ #category : #accessing }
+MbndCompilationEnvironment >> outputMode: anObject [
+	outputMode := anObject
+]
+
+{ #category : #private }
 MbndCompilationEnvironment >> popCurrentModule [
 	self hasMonolithicTranslationMode ifTrue: [
 		| oldState |
@@ -428,7 +491,7 @@ MbndCompilationEnvironment >> popCurrentModule [
 	currentModuleStack removeLast.
 ]
 
-{ #category : #'module import' }
+{ #category : #private }
 MbndCompilationEnvironment >> pushCurrentModule [
 	self hasMonolithicTranslationMode ifTrue: [ 
 		currentModuleStack add: currentModule monolithicSubmoduleState.
@@ -437,6 +500,11 @@ MbndCompilationEnvironment >> pushCurrentModule [
 
 	currentModuleStack add: currentModule.
 	currentModule := nil.
+]
+
+{ #category : #'module output format' }
+MbndCompilationEnvironment >> shared [
+	self outputMode: #shared
 ]
 
 { #category : #parameters }
@@ -460,6 +528,18 @@ MbndCompilationEnvironment >> validCurrentModule [
 	].
 
 	^ currentModule
+]
+
+{ #category : #initialization }
+MbndCompilationEnvironment >> validOutputDirectory [
+	outputDirectory ifNil: [ outputDirectory := (FileSystem workingDirectory / 'sysmel-out-dir') asAbsolute  canonicalize ].
+	outputDirectory ensureCreateDirectory.
+
+	(outputDirectory exists and: [ outputDirectory isDirectory ]) ifFalse: [ 
+		self error: 'Output directory "{1}" could not be created.' format: { outputDirectory fullName }
+	].
+
+	^ outputDirectory
 ]
 
 { #category : #initialization }
@@ -494,8 +574,7 @@ MbndCompilationEnvironment >> writeExportModuleFor: outputFileName [
 
 { #category : #writing }
 MbndCompilationEnvironment >> writeLLVMAssemblyToFileNamed: outputFileName [
-	self validCurrentModule writeLLVMAssemblyToFileNamed: outputFileName.
-	self writeExportModuleFor: outputFileName.
+	^ self validCurrentModule writeLLVMAssemblyToFileNamed: outputFileName
 
 ]
 
