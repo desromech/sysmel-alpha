@@ -158,7 +158,7 @@ MbndCompilerCommandLineHandler >> activate [
 			| embeddedShaderCopyOutputFile |
 			argumentIndex + 1 > arguments size ifTrue: [ self error: 'Expected an argument after -oes' ].
 			embeddedShaderCopyOutputFile := arguments at: argumentIndex + 1.
-			compilationCommands add: [ :comp | comp evaluateFileNamed: embeddedShaderCopyOutputFile ].
+			compilationCommands add: [ :comp | comp evaluateFileNamedOnce: embeddedShaderCopyOutputFile ].
 			skipCount := 2
 		].
 	
@@ -183,7 +183,7 @@ MbndCompilerCommandLineHandler >> activate [
 		(arg beginsWith: '-') ifFalse: [
 			|fileName|
 			fileName := arg.
-			compilationCommands add: [ :comp | comp evaluateFileNamed: fileName ].
+			compilationCommands add: [ :comp | comp evaluateFileNamedOnce: fileName ].
 		].
 
 		argumentIndex := argumentIndex + skipCount
