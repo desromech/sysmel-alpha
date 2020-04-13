@@ -29,6 +29,10 @@ jobs:
               continue-on-error: true
               run: scripts/runImageTests.sh
 
+            - name: Run runtime libraries tests
+              continue-on-error: true
+              run: scripts/runRuntimeTests.sh
+
             - name: Upload test results
               continue-on-error: true
               uses: actions/upload-artifact@v1
