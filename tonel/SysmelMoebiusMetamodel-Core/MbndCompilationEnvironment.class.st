@@ -38,6 +38,11 @@ MbndCompilationEnvironment class >> compilationTarget: aCompilationTarget [
 ]
 
 { #category : #'as yet unclassified' }
+MbndCompilationEnvironment class >> coreModuleName [
+	^ #'Sysmel.Core'
+]
+
+{ #category : #'as yet unclassified' }
 MbndCompilationEnvironment class >> llvm_x86 [
 	^ self compilationTarget: MbndSlovimCompilationTarget llvm_x86
 ]
@@ -118,14 +123,13 @@ MbndCompilationEnvironment >> compileModuleNamed: moduleName [
 	].
 
 
-	isCoreModule := currentModule == coreModule and: [self hasMonolithicTranslationMode not].
-	isCoreModule ifFalse: [ self pushCurrentModule ].
+	self hasMonolithicTranslationMode ifTrue: [ self pushCurrentModule ].
 	self validCurrentModule
 		name: moduleName;
 		sourceLocations: importedModuleSourceLocations asArray.
 	self addLoadedModule: currentModule.
 	resultModule := currentModule evaluateModuleLevelFilesIfExists: 'module.sysmel' asFileReference.
-	isCoreModule ifFalse: [ self popCurrentModule ].
+	self hasMonolithicTranslationMode ifTrue: [self popCurrentModule ].
 	^ resultModule
 
 ]
@@ -133,6 +137,11 @@ MbndCompilationEnvironment >> compileModuleNamed: moduleName [
 { #category : #accessing }
 MbndCompilationEnvironment >> coreModule [
 	^ coreModule
+]
+
+{ #category : #'as yet unclassified' }
+MbndCompilationEnvironment >> coreModuleName [
+	^ self class coreModuleName
 ]
 
 { #category : #accessing }
@@ -344,8 +353,14 @@ MbndCompilationEnvironment >> importOrCompileModuleNamed: moduleName [
 	self hasMonolithicTranslationMode ifTrue: [ ^ self compileModuleNamed: moduleName ].
 
 	importModuleFileReference := self validOutputDirectory / (moduleName , '.smpmodule').
-	importModuleFileReference exists ifFalse: [ 
-		self newCompilationEnvironmentForCleanModuleBuilding
+	importModuleFileReference exists ifFalse: [
+		| moduleCompilationEnvironment |
+		moduleCompilationEnvironment := self newCompilationEnvironmentForCleanModuleBuilding.
+		moduleName ~= self coreModuleName ifTrue: [ 
+			moduleCompilationEnvironment loadRuntimeCoreLibrary
+		].
+			
+		moduleCompilationEnvironment
 			compileModuleNamed: moduleName;
 			finishAndEmitModule.
 	].
@@ -398,7 +413,7 @@ MbndCompilationEnvironment >> loadPackages: packageNames [
 
 { #category : #'as yet unclassified' }
 MbndCompilationEnvironment >> loadRuntimeCoreLibrary [
-	self importModuleNamed: #'Sysmel.Core'
+	self importModuleNamed: self coreModuleName
 ]
 
 { #category : #accessing }
@@ -439,6 +454,8 @@ MbndCompilationEnvironment >> newCompilationEnvironmentForCleanModuleBuilding [
 		hasLibC: self hasLibC;
 		useLibC: self useLibC;
 		optimizationLevel: self optimizationLevel;
+		moduleTranslationMode: moduleTranslationMode;
+		outputMode: self outputModeForDependencies;
 		outputDirectory: outputDirectory.
 
 	^ result.
@@ -509,6 +526,11 @@ MbndCompilationEnvironment >> outputMode [
 { #category : #accessing }
 MbndCompilationEnvironment >> outputMode: anObject [
 	outputMode := anObject
+]
+
+{ #category : #accessing }
+MbndCompilationEnvironment >> outputModeForDependencies [
+	^ outputMode
 ]
 
 { #category : #private }
