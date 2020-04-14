@@ -10,6 +10,10 @@ jobs:
                 variant:
                     - os: ubuntu-18.04
                     - os: macos-latest
+        env:
+            LLC: llc-9
+            CC: clang-9
+            CXX: clang++-9
         steps:
             - uses: actions/checkout@v1
 
