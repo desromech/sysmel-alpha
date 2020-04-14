@@ -4,6 +4,7 @@ Trait {
 		'usedNamespaces'
 	],
 	#traits : 'TMbndMacroMethodContainer + TMbndMethodContainer + TMbndSymbolContainer',
+	#classTraits : 'TMbndMacroMethodContainer classTrait + TMbndMethodContainer classTrait + TMbndSymbolContainer classTrait',
 	#category : #'SysmelMoebiusMetamodel-Core-ProgramEntity'
 }
 

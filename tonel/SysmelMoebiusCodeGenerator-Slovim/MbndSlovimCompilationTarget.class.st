@@ -2,31 +2,32 @@ Class {
 	#name : #MbndSlovimCompilationTarget,
 	#superclass : #MbndAbstractConcreteCompilationTarget,
 	#instVars : [
-		'slvmCompilationTarget'
+		'slvmCompilationTarget',
+		'targetName'
 	],
 	#category : #'SysmelMoebiusCodeGenerator-Slovim-CompilationTarget'
 }
 
 { #category : #'as yet unclassified' }
 MbndSlovimCompilationTarget class >> llvm_x86 [
-	^ self slvmCompilationTarget: SLVMLLVMCompilationTarget x86
+	^ self slvmCompilationTargetNamed: #llvm_x86
 ]
 
 { #category : #'as yet unclassified' }
 MbndSlovimCompilationTarget class >> llvm_x86_64 [
-	^ self slvmCompilationTarget: SLVMLLVMCompilationTarget x86_64
+	^ self slvmCompilationTargetNamed: #llvm_x86_64
 ]
 
 { #category : #'as yet unclassified' }
-MbndSlovimCompilationTarget class >> slvmCompilationTarget: slvmTarget [
+MbndSlovimCompilationTarget class >> slvmCompilationTargetNamed: slvmTargetName [
 	^ self basicNew
-		slvmCompilationTarget: slvmTarget;
+		slvmCompilationTargetNamed: slvmTargetName;
 		yourself
 ]
 
 { #category : #'as yet unclassified' }
 MbndSlovimCompilationTarget class >> spirv_vulkan [
-	^ self slvmCompilationTarget: SLVMLLVMCompilationTarget spirv_logical64
+	^ self slvmCompilationTargetNamed: #spirv_logical64
 ]
 
 { #category : #adding }
@@ -46,10 +47,24 @@ MbndSlovimCompilationTarget >> addSysmelLLVMGCPlugin [
 ]
 
 { #category : #converting }
+MbndSlovimCompilationTarget >> asCleanCompilationTarget [
+	| cleanTarget |
+	cleanTarget := self class slvmCompilationTargetNamed: targetName.
+	cleanTarget
+		machineAttributes: self machineAttributes;
+		operatingSystemName: self operatingSystemName;
+		systemVendor: self systemVendor.
+	cleanTarget slvmCompilationTarget
+		emittingDebugInformation: slvmCompilationTarget emittingDebugInformation.
+		
+	^ cleanTarget
+]
+
+{ #category : #converting }
 MbndSlovimCompilationTarget >> asSpirVCompilationTarget [
-	^ self slvmCompilationTarget: (self pointerSize = 4
-		ifTrue: [SLVMLLVMCompilationTarget spirv_logical32]
-		ifFalse: [SLVMLLVMCompilationTarget spirv_logical64])
+	^ self slvmCompilationTargetNamed: (self pointerSize = 4
+		ifTrue: [#spirv_logical32]
+		ifFalse: [#spirv_logical64])
 ]
 
 { #category : #'as yet unclassified' }
@@ -175,6 +190,12 @@ MbndSlovimCompilationTarget >> slvmCompilationTarget: anObject [
 		target: slvmCompilationTarget;
 		yourself).
 	self addSysmelLLVMGCPlugin
+]
+
+{ #category : #accessing }
+MbndSlovimCompilationTarget >> slvmCompilationTargetNamed: theTargetName [
+	targetName := theTargetName.
+	^ self slvmCompilationTarget: (SLVMCompilationTarget perform: targetName asSymbol)
 ]
 
 { #category : #accessing }

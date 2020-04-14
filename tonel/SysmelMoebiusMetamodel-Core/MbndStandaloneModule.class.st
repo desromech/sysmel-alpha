@@ -365,11 +365,6 @@ MbndStandaloneModule >> loadPackages: packageNames [
 	]
 ]
 
-{ #category : #'as yet unclassified' }
-MbndStandaloneModule >> loadRuntimeCoreLibrary [
-	^ self evaluateFileNamedOnce: MbndCoreAssets location  / 'lib' / 'kernel' / 'kernel.sysmel'. 
-]
-
 { #category : #accessing }
 MbndStandaloneModule >> loadedPackageStates [
 	^ loadedPackageStates ifNil: [ loadedPackageStates := Dictionary new ]

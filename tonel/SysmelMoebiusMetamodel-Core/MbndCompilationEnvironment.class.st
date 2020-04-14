@@ -102,6 +102,34 @@ MbndCompilationEnvironment >> compilationTarget: anObject [
 	compilationTarget := anObject
 ]
 
+{ #category : #'module import' }
+MbndCompilationEnvironment >> compileModuleNamed: moduleName [
+	| importedModuleSourceLocations location resultModule isCoreModule |
+	importedModuleSourceLocations := OrderedCollection new.
+	moduleSourceLocations do: [ :each | 
+		location := each / moduleName. 
+		(location exists and: [ location isDirectory ]) ifTrue: [
+			importedModuleSourceLocations add: location
+		].
+	].
+
+	importedModuleSourceLocations ifEmpty: [
+		self error: 'Cannot import or compile module named {1}' format: { moduleName }
+	].
+
+
+	isCoreModule := currentModule == coreModule and: [self hasMonolithicTranslationMode not].
+	isCoreModule ifFalse: [ self pushCurrentModule ].
+	self validCurrentModule
+		name: moduleName;
+		sourceLocations: importedModuleSourceLocations asArray.
+	self addLoadedModule: currentModule.
+	resultModule := currentModule evaluateModuleLevelFilesIfExists: 'module.sysmel' asFileReference.
+	isCoreModule ifFalse: [ self popCurrentModule ].
+	^ resultModule
+
+]
+
 { #category : #accessing }
 MbndCompilationEnvironment >> coreModule [
 	^ coreModule
@@ -312,30 +340,18 @@ MbndCompilationEnvironment >> importModuleNamed: moduleName [
 
 { #category : #'module import' }
 MbndCompilationEnvironment >> importOrCompileModuleNamed: moduleName [
-	| importedModuleSourceLocations location resultModule isCoreModule |
-	importedModuleSourceLocations := OrderedCollection new.
-	moduleSourceLocations do: [ :each | 
-		location := each / moduleName. 
-		(location exists and: [ location isDirectory ]) ifTrue: [
-			importedModuleSourceLocations add: location
-		].
+	| importModuleFileReference |
+	self hasMonolithicTranslationMode ifTrue: [ ^ self compileModuleNamed: moduleName ].
+
+	importModuleFileReference := self validOutputDirectory / (moduleName , '.smpmodule').
+	importModuleFileReference exists ifFalse: [ 
+		self newCompilationEnvironmentForCleanModuleBuilding
+			compileModuleNamed: moduleName;
+			finishAndEmitModule.
 	].
-
-	importedModuleSourceLocations ifEmpty: [
-		self error: 'Cannot import or compile module named {1}' format: { moduleName }
-	].
-
-
-	isCoreModule := currentModule == coreModule and: [self hasMonolithicTranslationMode not].
-	isCoreModule ifFalse: [ self pushCurrentModule ].
-	self validCurrentModule
-		name: moduleName;
-		sourceLocations: importedModuleSourceLocations asArray.
-	self addLoadedModule: currentModule.
-	resultModule := currentModule evaluateModuleLevelFilesIfExists: 'module.sysmel' asFileReference.
-	isCoreModule ifFalse: [ self popCurrentModule ].
-	^ resultModule
-
+	
+	
+	^ self importModuleFrom: importModuleFileReference
 ]
 
 { #category : #initialization }
@@ -408,6 +424,24 @@ MbndCompilationEnvironment >> moduleTranslationMode: anObject [
 { #category : #'module translation mode' }
 MbndCompilationEnvironment >> monolithic [
 	moduleTranslationMode := #monolithic.
+]
+
+{ #category : #'module import' }
+MbndCompilationEnvironment >> newCompilationEnvironmentForCleanModuleBuilding [
+	| result |
+	result := self class compilationTarget: compilationTarget asCleanCompilationTarget.
+	result
+		hasRuntimeTypeInformation: self hasRuntimeTypeInformation;
+		hasExceptions: self hasExceptions;
+		hasStandardLibrary: self hasStandardLibrary;
+		hasGarbageCollectionSupport: self hasGarbageCollectionSupport;
+		hasGarbageCollectionStackMap: self hasGarbageCollectionStackMap;
+		hasLibC: self hasLibC;
+		useLibC: self useLibC;
+		optimizationLevel: self optimizationLevel;
+		outputDirectory: outputDirectory.
+
+	^ result.
 ]
 
 { #category : #parameters }
