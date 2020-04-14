@@ -18,7 +18,7 @@ jobs:
             CXX: clang++
         steps:
             - name: Install dependencies homebrew
-              if: matrix.variant.os == macos-latest'
+              if: matrix.variant.os == 'macos-latest'
               run: brew install llvm
 
             - uses: actions/checkout@v1
