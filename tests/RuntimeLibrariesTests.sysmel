@@ -3,23 +3,4 @@ Compiler
 	importModuleNamed: #"Sysmel.Math.Core.Tests";
     importModuleNamed: #"Sysmel.Graphics.Core.Tests".
 
-#*
-class TestingTestCase superclass: Stdn Testing TestCase; definition: {
-    test: #testSuccess with: {
-    }.
-
-	test: #testFailure with: {
-		self assert: false.
-    }.
-
-	test: #testError with: {
-		Stdn abort().
-    }.
-
-	test: #testSkiped with: {
-        self skip
-    }.
-}.
-*#
-
 Stdn Testing generateTestSuiteProgramMain: "RuntimeLibrariesTests".

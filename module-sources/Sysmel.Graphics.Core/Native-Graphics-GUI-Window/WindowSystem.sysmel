@@ -102,6 +102,9 @@ class WindowSystem superclass: Object; definition: {
     }.
 }.
 
+compileTime constant WindowSystemRef := WindowSystem sharedPointer.
+compileTime constant WindowSystemWeakRef := WindowSystem weakPointer.
+
 
 }. ## End of namespace GUI
 }. ## End of namespace Graphics

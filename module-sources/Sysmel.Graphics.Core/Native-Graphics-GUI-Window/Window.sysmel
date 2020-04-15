@@ -32,6 +32,9 @@ class Window superclass: Object; definition: {
         := Surface sharedPointer nil.
 }.
 
+compileTime constant WindowRef := Window sharedPointer.
+compileTime constant WindowWeakRef := Window weakPointer.
+
 }. ## End of namespace GUI
 }. ## End of namespace Graphics
 }. ## End of namespace Stdn
