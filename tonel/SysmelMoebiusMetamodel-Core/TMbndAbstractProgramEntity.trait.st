@@ -1,6 +1,7 @@
 Trait {
 	#name : #TMbndAbstractProgramEntity,
 	#traits : 'TMbndObject + TMbndSymbolBinding',
+	#classTraits : 'TMbndObject classTrait + TMbndSymbolBinding classTrait',
 	#category : #'SysmelMoebiusMetamodel-Core-ProgramEntity'
 }
 
@@ -85,6 +86,18 @@ TMbndAbstractProgramEntity >> fillProgramEntityInfoInstance: programEntityInfoIn
 	self fillProgramEntityCommonInfoInstance: programEntityInfoInstance
 ]
 
+{ #category : #'as yet unclassified' }
+TMbndAbstractProgramEntity >> findChildWithMessagePackTypeName: expectedTypeName named: expectedName [
+	self childrenDo: [ :each |
+		each class messagePackTypeName = expectedTypeName ifTrue: [ 
+			each name = expectedName ifTrue: [
+				^ each
+			]
+		]
+	].
+	self error: 'Referenced named child is not found.'
+]
+
 { #category : #accessing }
 TMbndAbstractProgramEntity >> fullName [
 	^ self name
@@ -93,6 +106,11 @@ TMbndAbstractProgramEntity >> fullName [
 { #category : #'as yet unclassified' }
 TMbndAbstractProgramEntity >> globalBindingAssociation [
 	^ self explicitRequirement
+]
+
+{ #category : #testing }
+TMbndAbstractProgramEntity >> hasAnonymousName [
+	^ self name isMbndAnonymousSymbol
 ]
 
 { #category : #testing }

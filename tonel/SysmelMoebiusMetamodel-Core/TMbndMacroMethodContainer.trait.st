@@ -4,6 +4,7 @@ Trait {
 		'macroMethodDict'
 	],
 	#traits : 'TMbndAbstractMacroMethodContainer',
+	#classTraits : 'TMbndAbstractMacroMethodContainer classTrait',
 	#category : #'SysmelMoebiusMetamodel-Core-ProgramEntity'
 }
 
@@ -11,7 +12,7 @@ Trait {
 TMbndMacroMethodContainer >> addInstanceAccessor: accessor for: selector [
 	self macroMethodDict at: selector put: accessor.
 	self recordMacroMethodAddition: accessor withSelector: selector.
-	
+	accessor parent: self
 ]
 
 { #category : #adding }
@@ -24,6 +25,7 @@ TMbndMacroMethodContainer >> addMacroMethod: macroMethod [
 TMbndMacroMethodContainer >> addStaticAccessor: accessor for: selector [
 	self macroMethodDict at: selector put: accessor.
 	self recordMacroMethodAddition: accessor withSelector: selector.
+	accessor parent: self
 ]
 
 { #category : #'macro expansion' }

@@ -5,6 +5,7 @@ Trait {
 		'globalBindingAssociation'
 	],
 	#traits : 'TMbndAbstractProgramEntity + TMbndAbstractMacroMethodContainer + TMbndAbstractMethodContainer + TMbndAbstractSymbolContainer',
+	#classTraits : 'TMbndAbstractProgramEntity classTrait + TMbndAbstractMacroMethodContainer classTrait + TMbndAbstractMethodContainer classTrait + TMbndAbstractSymbolContainer classTrait',
 	#category : #'SysmelMoebiusMetamodel-Core-ProgramEntity'
 }
 
@@ -31,6 +32,8 @@ TMbndProgramEntity >> encodeGraphForMessagePack [
 
 { #category : #serialization }
 TMbndProgramEntity >> encodeGraphForMessagePackWith: graphEncoder [
+	(graphEncoder encodeExternalProgramEntityReferenceFor: self) ifNotNil: [ :ref | ^ ref ].
+
 	^ graphEncoder encodeObject: self type: self messagePackTypeName fields: [self encodeFieldsForMessagePackWith: graphEncoder]
 ]
 

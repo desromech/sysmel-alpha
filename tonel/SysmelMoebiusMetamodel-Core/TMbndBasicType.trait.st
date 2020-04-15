@@ -5,12 +5,14 @@ Trait {
 		'type'
 	],
 	#traits : 'TMbndType + TMbndMethodContainer + TMbndFlagContainer + TMbndSymbolContainer + TMbndEntityWithVisibility',
+	#classTraits : 'TMbndType classTrait + TMbndMethodContainer classTrait + TMbndFlagContainer classTrait + TMbndSymbolContainer classTrait + TMbndEntityWithVisibility classTrait',
 	#category : #'SysmelMoebiusMetamodel-Core-Type'
 }
 
 { #category : #adding }
 TMbndBasicType >> addStaticAccessor: accessor for: selector [
-	self type macroMethodDict at: selector put: accessor
+	self type macroMethodDict at: selector put: accessor.
+	accessor parent: self
 ]
 
 { #category : #'semantic analysis' }

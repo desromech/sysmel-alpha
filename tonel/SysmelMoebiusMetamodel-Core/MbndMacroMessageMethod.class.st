@@ -2,7 +2,6 @@ Class {
 	#name : #MbndMacroMessageMethod,
 	#superclass : #MbndAbstractMacro,
 	#instVars : [
-		'parent',
 		'concreteMethod'
 	],
 	#category : #'SysmelMoebiusMetamodel-Core-Macro'
@@ -100,16 +99,6 @@ MbndMacroMessageMethod >> module [
 { #category : #accessing }
 MbndMacroMessageMethod >> name [
 	^ self selector
-]
-
-{ #category : #accessing }
-MbndMacroMessageMethod >> parent [
-	^ parent
-]
-
-{ #category : #accessing }
-MbndMacroMessageMethod >> parent: anObject [
-	parent := anObject
 ]
 
 { #category : #enumerating }

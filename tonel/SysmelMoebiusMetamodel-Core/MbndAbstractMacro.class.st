@@ -3,6 +3,9 @@ Class {
 	#superclass : #Object,
 	#traits : 'TMbndMacro',
 	#classTraits : 'TMbndMacro classTrait',
+	#instVars : [
+		'parent'
+	],
 	#category : #'SysmelMoebiusMetamodel-Core-Macro'
 }
 
@@ -19,6 +22,16 @@ MbndAbstractMacro >> messagePackTypeName [
 { #category : #accessing }
 MbndAbstractMacro >> module [
 	^ self parent module
+]
+
+{ #category : #accessing }
+MbndAbstractMacro >> parent [
+	^ parent
+]
+
+{ #category : #accessing }
+MbndAbstractMacro >> parent: anObject [
+	parent := anObject
 ]
 
 { #category : #'as yet unclassified' }

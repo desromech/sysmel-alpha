@@ -60,6 +60,14 @@ MbndTemplate >> encodeFieldsForMessagePackWith: graphEncoder [
 ]
 
 { #category : #template }
+MbndTemplate >> getExistingInstanceWithArguments:  arguments [
+	^ instances at: arguments ifAbsent: [
+		self error: 'Requested existing instance for template {1} with arguments {2} does not exist.'
+			format: { self asString . arguments asString }
+	].
+]
+
+{ #category : #template }
 MbndTemplate >> getOrCreateInstanceWithArguments: arguments [
 	| templateInstance mainDefinitionEvaluationResult |
 	instances at: arguments ifPresent: [ :existent | ^ existent ].

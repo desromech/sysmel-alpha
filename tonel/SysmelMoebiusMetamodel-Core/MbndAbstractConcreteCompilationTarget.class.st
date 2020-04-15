@@ -13,9 +13,10 @@ MbndAbstractConcreteCompilationTarget class >> for: aCompilationTarget [
 
 { #category : #serialization }
 MbndAbstractConcreteCompilationTarget class >> materializeObjectWithType: objectType earlyFields: earlyFields withMessagePackGraphDecoder: graphDecoder [
-	graphDecoder registerObjectInstance: graphDecoder compilationEnvironment.
+	self assert: objectType = #CompilationTarget.
+	graphDecoder registerObjectInstance: graphDecoder compilationTarget.
 	graphDecoder decodeNext.
-	^ graphDecoder compilationEnvironment
+	^ graphDecoder compilationTarget
 ]
 
 { #category : #'derived types' }

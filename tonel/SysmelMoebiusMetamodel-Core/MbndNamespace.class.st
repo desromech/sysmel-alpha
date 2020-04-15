@@ -65,7 +65,10 @@ MbndNamespace >> hasProgramEntityReflectiveNode [
 
 { #category : #enumerating }
 MbndNamespace >> importedNamespaces [
-	importedNamespaces ifNotNil: [ ^ importedNamespaces ].
+	(importedNamespaces isNotNil and: [ importedNamespaces size = self module importedModules size ]) ifTrue: [
+		^ importedNamespaces
+	].
+
 	parent ifNil: [
 		self assert: name == #__global.
 		^ importedNamespaces := module importedModules collect: [ :each | each globalNamespace ].

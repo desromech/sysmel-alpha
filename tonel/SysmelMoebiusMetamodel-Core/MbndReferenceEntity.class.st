@@ -1,0 +1,57 @@
+Class {
+	#name : #MbndReferenceEntity,
+	#superclass : #Object,
+	#category : #'SysmelMoebiusMetamodel-Core-Module'
+}
+
+{ #category : #serialization }
+MbndReferenceEntity class >> materializeObjectWithType: objectType earlyFields: earlyFields withMessagePackGraphDecoder: graphDecoder [
+	| result |
+	objectType = #ReferenceMetaType ifTrue: [
+		self assert: earlyFields isMbndType.
+		result := earlyFields type
+	].
+
+	objectType = #ReferenceGlobalNamespace ifTrue: [
+		result := earlyFields globalNamespace.
+	].
+
+	objectType = #ReferenceTemplateInstance ifTrue: [
+		result := earlyFields first getExistingInstanceWithArguments: earlyFields second
+	].
+
+	objectType = #ReferenceMainChild ifTrue: [ 
+		result := earlyFields mainChild
+	].
+
+	objectType = #ReferenceNamedChild ifTrue: [
+		result := earlyFields first findChildWithMessagePackTypeName: earlyFields second named: earlyFields third.
+	].
+
+	result ifNil: [ self error: 'Failed to decode referenced program entity.' ].
+	graphDecoder registerObjectInstance: result.
+	graphDecoder decodeNext.
+
+	^ result
+]
+
+{ #category : #serialization }
+MbndReferenceEntity >> materializeObjectWithType: objectType earlyFields: earlyFields withMessagePackGraphDecoder: graphDecoder [
+	(objectType == #ReferenceGlobalNamespace) ifTrue: [
+		self halt
+	].
+
+	(objectType == #ReferenceNamedChild) ifTrue: [
+		self halt
+	].
+
+	(objectType == #ReferenceMainChild) ifTrue: [
+		self halt
+	].
+
+	(objectType == #ReferenceTemplateInstance) ifTrue: [
+		self halt
+	].
+
+	^ self error.
+]

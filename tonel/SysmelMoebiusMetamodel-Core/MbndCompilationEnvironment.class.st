@@ -54,6 +54,7 @@ MbndCompilationEnvironment class >> llvm_x86_64 [
 
 { #category : #serialization }
 MbndCompilationEnvironment class >> materializeObjectWithType: objectType earlyFields: earlyFields withMessagePackGraphDecoder: graphDecoder [
+	self assert: objectType = #CompilationEnvironment.
 	graphDecoder registerObjectInstance: graphDecoder compilationEnvironment.
 	graphDecoder decodeNext.
 	^ graphDecoder compilationEnvironment
@@ -328,15 +329,23 @@ MbndCompilationEnvironment >> hasStandardLibrary: aBoolean [
 
 { #category : #'module import' }
 MbndCompilationEnvironment >> importModuleFrom: moduleExportFileName [
-	| isCoreModule |
+	| isCoreModule oldLoadedModuleCount |
 	isCoreModule := currentModule == coreModule.
+	oldLoadedModuleCount := self loadedModules size. 
 	isCoreModule ifFalse: [ self pushCurrentModule ].
 	
-	self validCurrentModule importModuleFrom: moduleExportFileName.
+	self validCurrentModule
+		importModuleFrom: moduleExportFileName.
+	"Transcript show: self validCurrentModule name; space; show: self validCurrentModule importedModules; cr."
 	self addLoadedModule: currentModule.
 	currentModule := nil.
 	
 	isCoreModule ifFalse: [ self popCurrentModule ].
+	
+	currentModule ifNotNil: [
+		currentModule addImportedModules: (self loadedModules allButFirst: oldLoadedModuleCount).
+		"Transcript show: currentModule name; show: ' newImports '; show: currentModule importedModules ; cr."
+	].
 
 ]
 
@@ -579,7 +588,7 @@ MbndCompilationEnvironment >> useLibC: aBoolean [
 MbndCompilationEnvironment >> validCurrentModule [
 	currentModule ifNil: [
 		currentModule := (MbndStandaloneModule for: self)
-			importedModules: loadedModules asArray copy;
+			importedModules: self loadedModules asArray;
 			yourself
 	].
 

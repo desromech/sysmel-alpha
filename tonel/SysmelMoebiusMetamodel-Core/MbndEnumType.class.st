@@ -21,7 +21,7 @@ MbndEnumType >> accept: visitor [
 MbndEnumType >> addArithmeticOperationCoercionMacro: selector [
 	self macroMethodDict at: selector
 		ifPresent: [ self error: 'Duplicated macro selector.' ]
-		ifAbsentPut: (MbndArithmeticOperationCoercionMacro new)
+		ifAbsentPut: (MbndArithmeticOperationCoercionMacro new parent: self; yourself)
 ]
 
 { #category : #initialization }

@@ -35,6 +35,11 @@ MbndStandaloneModule class >> initialize [
 	#SystemProvidedTypeTemplateInstanceMainChildType . MbndSystemProvidedTypeTemplateInstance.
 	#TargetModule . MbndStandaloneModule .
 	#ReferenceModule . MbndStandaloneModule .
+	#ReferenceGlobalNamespace . MbndReferenceEntity .
+	#ReferenceNamedChild . MbndReferenceEntity .
+	#ReferenceMainChild . MbndReferenceEntity .
+	#ReferenceTemplateInstance . MbndReferenceEntity .
+	#ReferenceMetaType . MbndReferenceEntity .
 	}.
 	{
 		MbndAbstractCompileTimeConstant . MbndAbstractMethod .
@@ -77,6 +82,11 @@ MbndStandaloneModule class >> materializeObjectWithType: objectType earlyFields:
 { #category : #serialization }
 MbndStandaloneModule class >> messagePackTypeName [
 	^ #StandaloneModule
+]
+
+{ #category : #adding }
+MbndStandaloneModule >> addImportedModules: extraModules [
+	importedModules := self importedModules , extraModules asArray
 ]
 
 { #category : #adding }
@@ -158,11 +168,17 @@ MbndStandaloneModule >> encodeFieldsForMessagePackWith: graphEncoder [
 	
 	resultTail := 
 	{
+		#importedModules . self importedModules encodeGraphForMessagePackWith: graphEncoder.
 		#globalNamespace . self globalNamespace encodeGraphForMessagePackWith: graphEncoder.
 		#extensionMacros . self extensionMacros encodeGraphForMessagePackWith: graphEncoder.
 		#extensionOverloadedMethods . self extensionOverloadedMethods encodeGraphForMessagePackWith: graphEncoder.
-		#bootstrapObjects . self compilationTarget encodeBootstrapDefinedObjectsForMessagePackWith: graphEncoder
 	}.
+	self importedModules ifEmpty: [
+		resultTail := resultTail ,
+		{
+			#bootstrapObjects . self compilationTarget encodeBootstrapDefinedObjectsForMessagePackWith: graphEncoder
+		}.
+	].
 	
 	^ resultHead , { 
 		#definedTypesLazyFields . graphEncoder typeLazyFields.
@@ -281,6 +297,7 @@ MbndStandaloneModule >> hasStandardLibrary [
 { #category : #serialization }
 MbndStandaloneModule >> importModuleFrom: aModuleExportFileDefinition [
 	| moduleExportFileContents decodedExportedModuleAttributes |
+	importedModules := #().
 	moduleExportFileContents := aModuleExportFileDefinition asFileReference binaryReadStreamDo: [ :in | in contents ].
 	MbndProfiler component: #importModuleDecode with: [
 		decodedExportedModuleAttributes := Dictionary newFromPairs: (MbndMessagePackGraphDecoder new
@@ -377,6 +394,7 @@ MbndStandaloneModule >> materializeWithGraphDecoder: graphDecoder withFields: en
 		each first materializeWithGraphDecoder: graphDecoder withLazyFields: (Dictionary newFromPairs: each second)
 	].
 
+	importedModules := encodedFields at: #importedModules.
 	globalNamespace := encodedFields at: #globalNamespace.
 	extensionMacros := encodedFields at: #extensionMacros.
 	extensionOverloadedMethods := encodedFields at: #extensionOverloadedMethods.

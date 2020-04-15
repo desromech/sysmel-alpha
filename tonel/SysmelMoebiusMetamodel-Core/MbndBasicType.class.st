@@ -217,6 +217,8 @@ MbndBasicType >> encodeGraphForMessagePackWith: graphEncoder [
 		]
 	].
 
+	(graphEncoder encodeExternalProgramEntityReferenceFor: self) ifNotNil: [ :ref | ^ ref ].
+
 	^ graphEncoder encodeObject: self type: self messagePackTypeName fields: [self encodeFieldsForMessagePackWith: graphEncoder]
 ]
 
