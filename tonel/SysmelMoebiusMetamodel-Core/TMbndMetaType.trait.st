@@ -37,3 +37,12 @@ TMbndMetaType >> isMetaType [
 TMbndMetaType >> isStrictMetaType [
 	^ instanceType isNotNil
 ]
+
+{ #category : #printing }
+TMbndMetaType >> qualifiedNameForParent [
+	self isStrictMetaType ifTrue: [ 
+		^ instanceType qualifiedNameForParent , ' type'
+	].
+
+	^ super qualifiedNameForParent
+]

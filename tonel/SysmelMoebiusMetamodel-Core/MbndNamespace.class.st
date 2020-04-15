@@ -18,6 +18,15 @@ MbndNamespace class >> messagePackTypeName [
 	^ #Namespace
 ]
 
+{ #category : #'as yet unclassified' }
+MbndNamespace >> adaptImportedSymbolBinding: importedSymbolBinding [
+	importedSymbolBinding isNamespace ifTrue: [
+		^ self ensureSymbolIsNamespace: importedSymbolBinding name
+	].
+
+	^ importedSymbolBinding
+]
+
 { #category : #accessing }
 MbndNamespace >> addChild: aChild [
 	self assert: aChild parent isNil.
@@ -89,6 +98,19 @@ MbndNamespace >> importedNamespaces [
 { #category : #enumerating }
 MbndNamespace >> importedNamespacesDo: aBlock [
 	^ self importedNamespaces do: aBlock
+]
+
+{ #category : #'member symbols' }
+MbndNamespace >> lookupSymbol: aSymbol [
+	(self lookupLocalSymbol: aSymbol) ifNotNil: [ :found | ^ found ].
+	self usedNamespaces do: [ :namespace |
+		(namespace lookupSymbol: aSymbol) ifNotNil: [ :found | ^ found ].
+	].
+	self importedNamespacesDo: [ :namespace |
+		(namespace lookupSymbol: aSymbol) ifNotNil: [ :found | ^ self adaptImportedSymbolBinding: found ].
+	].
+
+	^ nil
 ]
 
 { #category : #serialization }

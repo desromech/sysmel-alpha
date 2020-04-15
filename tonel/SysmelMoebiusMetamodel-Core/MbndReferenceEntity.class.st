@@ -34,24 +34,3 @@ MbndReferenceEntity class >> materializeObjectWithType: objectType earlyFields: 
 
 	^ result
 ]
-
-{ #category : #serialization }
-MbndReferenceEntity >> materializeObjectWithType: objectType earlyFields: earlyFields withMessagePackGraphDecoder: graphDecoder [
-	(objectType == #ReferenceGlobalNamespace) ifTrue: [
-		self halt
-	].
-
-	(objectType == #ReferenceNamedChild) ifTrue: [
-		self halt
-	].
-
-	(objectType == #ReferenceMainChild) ifTrue: [
-		self halt
-	].
-
-	(objectType == #ReferenceTemplateInstance) ifTrue: [
-		self halt
-	].
-
-	^ self error.
-]

@@ -20,6 +20,13 @@ MbndTemplate >> accept: aVisitor [
 	^ aVisitor visitTemplate: self
 ]
 
+{ #category : #adding }
+MbndTemplate >> addInstance: anInstance importedFromExternalModule: externalModule [
+	| instanceArguments |
+	instanceArguments := (anInstance instanceArguments collect: [ :each | each evaluatedValue unwrapMbndValue ]).
+	instances at: instanceArguments ifAbsentPut: anInstance
+]
+
 { #category : #template }
 MbndTemplate >> createImmediateValue: argumentValue definitionType: definitionType [
 	| actualArgumentType |

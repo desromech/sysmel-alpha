@@ -329,13 +329,14 @@ MbndCompilationEnvironment >> hasStandardLibrary: aBoolean [
 
 { #category : #'module import' }
 MbndCompilationEnvironment >> importModuleFrom: moduleExportFileName [
-	| isCoreModule oldLoadedModuleCount |
+	| isCoreModule oldLoadedModuleCount importedModule |
 	isCoreModule := currentModule == coreModule.
 	oldLoadedModuleCount := self loadedModules size. 
 	isCoreModule ifFalse: [ self pushCurrentModule ].
 	
 	self validCurrentModule
 		importModuleFrom: moduleExportFileName.
+	importedModule := currentModule.
 	"Transcript show: self validCurrentModule name; space; show: self validCurrentModule importedModules; cr."
 	self addLoadedModule: currentModule.
 	currentModule := nil.
@@ -346,7 +347,7 @@ MbndCompilationEnvironment >> importModuleFrom: moduleExportFileName [
 		currentModule addImportedModules: (self loadedModules allButFirst: oldLoadedModuleCount).
 		"Transcript show: currentModule name; show: ' newImports '; show: currentModule importedModules ; cr."
 	].
-
+	^ importedModule
 ]
 
 { #category : #'module import' }

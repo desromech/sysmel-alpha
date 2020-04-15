@@ -172,6 +172,7 @@ MbndStandaloneModule >> encodeFieldsForMessagePackWith: graphEncoder [
 		#globalNamespace . self globalNamespace encodeGraphForMessagePackWith: graphEncoder.
 		#extensionMacros . self extensionMacros encodeGraphForMessagePackWith: graphEncoder.
 		#extensionOverloadedMethods . self extensionOverloadedMethods encodeGraphForMessagePackWith: graphEncoder.
+		#externalTemplateInstances . self externalTemplateInstances encodeGraphForMessagePackWith: graphEncoder.
 	}.
 	self importedModules ifEmpty: [
 		resultTail := resultTail ,
@@ -320,6 +321,10 @@ MbndStandaloneModule >> importModuleFrom: aModuleExportFileDefinition [
 			macro parent ifNil: [ macro postMaterializeSetupParent: parentEntity withModule: self ]
 		].
 
+		self externalTemplateInstances do: [ :each |
+			each second postMaterializeSetupParent: each first withModule: self
+		].
+
 		self
 			applyExtensionMacros;
 			applyExtensionOverloadedMethods.
@@ -398,6 +403,8 @@ MbndStandaloneModule >> materializeWithGraphDecoder: graphDecoder withFields: en
 	globalNamespace := encodedFields at: #globalNamespace.
 	extensionMacros := encodedFields at: #extensionMacros.
 	extensionOverloadedMethods := encodedFields at: #extensionOverloadedMethods.
+	externalTemplateInstances := encodedFields at: #externalTemplateInstances.
+	
 	encodedFields at: #bootstrapObjects ifPresent: [ :bootstrapObjects |
 		self compilationTarget materializeBootstrapDefinedObjectWithGraphDecoder: graphDecoder withFields: (Dictionary newFromPairs: bootstrapObjects)
 	]

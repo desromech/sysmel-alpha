@@ -83,6 +83,15 @@ MbndTemplateInstance >> module: anObject [
 	module := anObject
 ]
 
+{ #category : #accessing }
+MbndTemplateInstance >> postMaterializeSetupParent: newParent withModule: newModule [
+	newParent module ~~ newModule ifTrue: [ 
+		newParent addInstance: self importedFromExternalModule: newModule 
+	].
+
+	super postMaterializeSetupParent: newParent withModule: newModule.
+]
+
 { #category : #printing }
 MbndTemplateInstance >> printOn: aStream [
 	aStream nextPutAll: 'templateInstance '; nextPutAll: self qualifiedName
