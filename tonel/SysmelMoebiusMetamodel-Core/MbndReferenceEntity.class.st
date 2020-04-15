@@ -28,6 +28,10 @@ MbndReferenceEntity class >> materializeObjectWithType: objectType earlyFields: 
 		result := earlyFields first findChildWithMessagePackTypeName: earlyFields second named: earlyFields third.
 	].
 
+	objectType = #ReferenceFieldChild ifTrue: [
+		result := earlyFields first findFieldChildWithMessagePackTypeName: earlyFields second slotIndex: earlyFields third bitOffset: earlyFields fourth.
+	].
+
 	result ifNil: [ self error: 'Failed to decode referenced program entity.' ].
 	graphDecoder registerObjectInstance: result.
 	graphDecoder decodeNext.

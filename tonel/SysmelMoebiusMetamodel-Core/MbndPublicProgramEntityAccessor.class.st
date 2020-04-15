@@ -24,6 +24,11 @@ MbndPublicProgramEntityAccessor >> expandMessageNode: node with: analyzer [
 	^ programEntity analyzeReferenceNode: node with: analyzer
 ]
 
+{ #category : #testing }
+MbndPublicProgramEntityAccessor >> isPublicProgramEntityAccessor [
+	^ true
+]
+
 { #category : #serialization }
 MbndPublicProgramEntityAccessor >> materializeWithGraphDecoder: graphDecoder withFields: encodedFields [
 	programEntity := encodedFields at: #programEntity.

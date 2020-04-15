@@ -38,6 +38,7 @@ MbndStandaloneModule class >> initialize [
 	#ReferenceGlobalNamespace . MbndReferenceEntity .
 	#ReferenceNamedChild . MbndReferenceEntity .
 	#ReferenceMainChild . MbndReferenceEntity .
+	#ReferenceFieldChild . MbndReferenceEntity .
 	#ReferenceTemplateInstance . MbndReferenceEntity .
 	#ReferenceMetaType . MbndReferenceEntity .
 	}.

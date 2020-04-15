@@ -57,6 +57,16 @@ MbndSerializationGraphEncoder >> encodeExternalProgramEntityReferenceFor: progra
 		^ self encodeObject: programEntity type: #ReferenceMainChild earlyFields: encodedParent fields: []
 	].
 
+	programEntity hasAnonymousName ifTrue: [ 
+		(programEntity isVTablePointerField or: [programEntity isFieldVariable]) ifTrue: [
+			^ self encodeObject: programEntity type: #ReferenceFieldChild earlyFields: {encodedParent . programEntity class messagePackTypeName .
+				programEntity slotIndex . programEntity isFieldVariable
+					ifTrue: [ programEntity bitOffset ]
+					ifFalse: [ nil ] } fields: []
+		].
+
+	].
+
 	self assert: programEntity hasAnonymousName not.
 	^ self encodeObject: programEntity type: #ReferenceNamedChild earlyFields: {encodedParent . programEntity class messagePackTypeName . programEntity name encodeGraphForMessagePackWith: self } fields: []
 

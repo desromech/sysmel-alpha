@@ -1,6 +1,7 @@
 Trait {
 	#name : #TMbndAbstractProgramEntity,
 	#traits : 'TMbndObject + TMbndSymbolBinding',
+	#classTraits : 'TMbndObject classTrait + TMbndSymbolBinding classTrait',
 	#category : #'SysmelMoebiusMetamodel-Core-ProgramEntity'
 }
 
@@ -90,6 +91,18 @@ TMbndAbstractProgramEntity >> findChildWithMessagePackTypeName: expectedTypeName
 	self childrenDo: [ :each |
 		each class messagePackTypeName = expectedTypeName ifTrue: [ 
 			each name = expectedName ifTrue: [
+				^ each
+			]
+		]
+	].
+	self error: 'Referenced named child is not found.'
+]
+
+{ #category : #'as yet unclassified' }
+TMbndAbstractProgramEntity >> findFieldChildWithMessagePackTypeName: expectedTypeName slotIndex: slotIndex bitOffset: bitOffset [
+	self childrenDo: [ :each |
+		each class messagePackTypeName = expectedTypeName ifTrue: [ 
+			(each slotIndex = slotIndex and: [bitOffset isNil or: [each bitOffset = bitOffset]]) ifTrue: [
 				^ each
 			]
 		]
@@ -225,6 +238,11 @@ TMbndAbstractProgramEntity >> isNeverExported [
 { #category : #testing }
 TMbndAbstractProgramEntity >> isNonLocalReturnTargetEntity [
 	^ true
+]
+
+{ #category : #testing }
+TMbndAbstractProgramEntity >> isPublicProgramEntityAccessor [
+	^ false
 ]
 
 { #category : #testing }

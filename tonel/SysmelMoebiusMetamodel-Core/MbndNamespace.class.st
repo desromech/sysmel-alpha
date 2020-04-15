@@ -24,6 +24,16 @@ MbndNamespace >> adaptImportedSymbolBinding: importedSymbolBinding [
 		^ self ensureSymbolIsNamespace: importedSymbolBinding name
 	].
 
+	(importedSymbolBinding isPublicProgramEntityAccessor and: [ importedSymbolBinding programEntity isNamespace  ]) ifTrue: [ 
+		importedSymbolBinding programEntity name isMbndAnonymousSymbol ifFalse: [
+			| newAccessor |
+			self ensureSymbolIsNamespace: importedSymbolBinding programEntity name.
+			newAccessor := self lookupLocalMacroSelector: importedSymbolBinding programEntity name.
+			self assert: newAccessor isNotNil.
+			^ newAccessor
+		].
+	].
+
 	^ importedSymbolBinding
 ]
 

@@ -25,7 +25,7 @@ TMbndNamespaceLikeSymbolContainer >> lookupMacroSelector: aSelector [
 		(namespace lookupMacroSelector: aSelector) ifNotNil: [ :found | ^ found ].
 	].
 	self importedNamespacesDo: [ :namespace |
-		(namespace lookupMacroSelector: aSelector) ifNotNil: [ :found | ^ found ].
+		(namespace lookupMacroSelector: aSelector) ifNotNil: [ :found | ^ self adaptImportedSymbolBinding: found ].
 	].
 	
 	^ nil
@@ -39,7 +39,7 @@ TMbndNamespaceLikeSymbolContainer >> lookupOverloadedSelector: aSelector [
 		(namespace lookupOverloadedSelector: aSelector) ifNotNil: [ :found | ^ found ].
 	].
 	self importedNamespacesDo: [ :namespace |
-		(namespace lookupOverloadedSelector: aSelector) ifNotNil: [ :found | ^ found ].
+		(namespace lookupOverloadedSelector: aSelector) ifNotNil: [ :found | ^ self adaptImportedSymbolBinding: found ].
 	].
 	
 	^ nil
