@@ -1,3 +1,7 @@
+Compiler
+    importModuleNamed: #"Bindings.SDL2";
+	importModuleNamed: #"Bindings.AbstractGPU".
+
 useNamespace: SDL2.
 
 class TriangleShader definition: {

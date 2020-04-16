@@ -1,11 +1,13 @@
 namespace GPU definition: {
 ## Vertex Stage intrinsics
 class VertexStageInput definition: {
+	<gpu>
 	public field vertexID type: Int32; intrinsic: #vertexID.
 	public field instanceID type: Int32; intrinsic: #instanceID.
 }.
 
 class VertexStageOutput definition: {
+	<gpu>
 	public field screenPosition type: Float32x4; intrinsic: #position.
 }.
 
