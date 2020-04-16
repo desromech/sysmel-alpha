@@ -84,6 +84,17 @@ MbndAbstractSpecificMethod >> analyzeExpandedMessageSendNode: node with: analyze
 	^ result
 ]
 
+{ #category : #'as yet unclassified' }
+MbndAbstractSpecificMethod >> analyzePragmaInDefinitionBodyWithSelector: selector arguments: arguments [
+	super analyzePragmaInDefinitionBodyWithSelector: selector arguments: arguments.
+
+	"Turn some pragmas into flags."
+	(#(notInCompileTime compileTime gpu nogc staticBinding) includes: selector) ifTrue: [ 
+		self addFlag: selector.
+	].
+
+]
+
 { #category : #'semantic analysis' }
 MbndAbstractSpecificMethod >> applyInferredReturnType: aType at: aPosition [
 	(self isForwardingValue or: self isAccessedByReference) ifTrue: [
@@ -280,6 +291,11 @@ MbndAbstractSpecificMethod >> materializeWithGraphDecoder: graphDecoder withFiel
 { #category : #composition }
 MbndAbstractSpecificMethod >> mbndLiteralTypeWithTarget: compilationTarget [
 	^ type ref
+]
+
+{ #category : #testing }
+MbndAbstractSpecificMethod >> mustBeAvailableInTheGPU [
+	^ (self hasFlag: #gpu) or: [parent mustBeAvailableInTheGPU]
 ]
 
 { #category : #testing }

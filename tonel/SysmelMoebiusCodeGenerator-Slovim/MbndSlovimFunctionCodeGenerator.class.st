@@ -588,7 +588,7 @@ isSuperSend: isSuperSend declaredMethod: declaredMethod expectedResultType: expe
 	].
 
 	calledMethodSSAFunction := (self translateProgramEntity: declaredMethod) ssaValue.
-	hasStaticBinding := declaredMethod hasPragmaNamed: #staticBinding.
+	hasStaticBinding := declaredMethod hasFlag: #staticBinding.
 	
 	(declaredMethod hasVirtualTableEntry and: [ hasStaticBinding not and: [isSuperSend not]]) ifTrue: [
 		hasDynamicMessageLookup := false.

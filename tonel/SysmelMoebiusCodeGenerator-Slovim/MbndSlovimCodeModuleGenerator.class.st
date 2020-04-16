@@ -20,7 +20,6 @@ Class {
 		'dynamicFunctionCallsAdapters',
 		'shaderEntryPointInfoDictionary',
 		'compilationTargetOverride',
-		'shaderEntryPoints',
 		'landingPathResultType',
 		'personalityFunction',
 		'forbiddenExceptionHandlingFunction',
@@ -30,7 +29,8 @@ Class {
 		'nonLocalReturnCatchFunction',
 		'objectMethodDispatchTrampolines',
 		'nativeClosureTypeInfos',
-		'targetCodeModuleName'
+		'targetCodeModuleName',
+		'gpuUsableProgramEntitites'
 	],
 	#classVars : [
 		'ShaderBuiltInLocationMap',
@@ -473,13 +473,16 @@ MbndSlovimCodeModuleGenerator >> generateCodeModuleFor: aModule programEntities:
 
 { #category : #'code generation' }
 MbndSlovimCodeModuleGenerator >> generateEmbeddedShaderModule [
-	| shaderCompilationTarget shaderModuleCodeGenerator shaderSSAModule spirVModule spirVModuleBlobData spirVModuleBlob spirVModuleInfoGlobal |
+	| shaderCompilationTarget shaderModuleCodeGenerator shaderSSAModule spirVModule spirVModuleBlobData spirVModuleBlob spirVModuleInfoGlobal shaderEntryPoints |
 	self compilationTarget isGPU ifTrue: [ ^ nil ].
-	shaderEntryPoints ifEmpty: [ ^ nil ].
+	gpuUsableProgramEntitites ifEmpty: [ ^ nil ].
 	shaderCompilationTarget := self compilationTarget asSpirVCompilationTarget.
 	shaderModuleCodeGenerator := shaderCompilationTarget newCodeModuleGenerator.
 	shaderModuleCodeGenerator compilationTargetOverride: shaderCompilationTarget.
-	shaderSSAModule := MbndProfiler component: #shaderIRCodeGeneration with: [shaderModuleCodeGenerator generateCodeModuleFor: sourceModule programEntities: shaderEntryPoints name: #spirv].
+	shaderSSAModule := MbndProfiler component: #shaderIRCodeGeneration with: [shaderModuleCodeGenerator generateCodeModuleFor: sourceModule programEntities: gpuUsableProgramEntitites name: #spirv].
+	shaderEntryPoints := gpuUsableProgramEntitites select: [ :each | each isConcreteMethod and: [ each specialSemantics isNotNil ] ].
+
+	shaderEntryPoints ifEmpty: [^ nil].
 	
 	spirVModule := shaderSSAModule asLowLevelModuleWithOptimizationLevel: sourceModule optimizationLevel.
 	spirVModuleBlobData := spirVModule bytes.
@@ -1044,7 +1047,7 @@ MbndSlovimCodeModuleGenerator >> initialize [
 	dynamicFunctionCallsAdapters := IdentityDictionary new.
 	objectMethodDispatchTrampolines := IdentityDictionary new.
 	shaderEntryPointInfoDictionary := IdentityDictionary new.
-	shaderEntryPoints := OrderedCollection new.
+	gpuUsableProgramEntitites := OrderedCollection new.
 	nativeClosureTypeInfos := Dictionary new.
 ]
 
@@ -1583,6 +1586,7 @@ MbndSlovimCodeModuleGenerator >> visitAggregateTypeWithFields: type [
 	| ssaType ssaValue ssaTypeValueType |
 	ssaType := self translateType: type.
 	ssaTypeValueType := self translateType: type type.
+	type mustBeAvailableInTheGPU ifTrue: [ gpuUsableProgramEntitites add: type ].
 
 	type isGCClassType ifTrue: [
 		type isMetaType ifFalse: [ 
@@ -1718,7 +1722,7 @@ MbndSlovimCodeModuleGenerator >> visitConcreteFunctionMethod: functionMethod [
 	ssaFunctionType := self translateType: functionMethod type.
 	csymbol := self csymbolForProgramEntity: functionMethod.
 	addHighLevelMap := true.
-	functionMethod specialSemantics ifNotNil: [ shaderEntryPoints add: functionMethod ].
+	functionMethod mustBeAvailableInTheGPU ifTrue: [ gpuUsableProgramEntitites add: functionMethod ].
 	(self slvmCompilationTarget isGPU and: [functionMethod specialSemantics isNotNil ]) ifTrue: [ 
 		csymbol := self newSymbolNameMangler mangleProgramEntityName: functionMethod suffixes: {#__impl}.
 		addHighLevelMap := false.
@@ -1775,6 +1779,8 @@ MbndSlovimCodeModuleGenerator >> visitConcreteMessageMethod: functionMethod [
 	csymbol isString ifTrue: [ 
 		self assert: (ssaModule includesGlobalNamed: csymbol) not.
 	].
+
+	functionMethod mustBeAvailableInTheGPU ifTrue: [ gpuUsableProgramEntitites add: functionMethod ].
 
 	ssaFunction := SLVMFunction module: ssaModule name: csymbol functionType: ssaFunctionType.
 	ssaFunction
@@ -2018,7 +2024,7 @@ MbndSlovimCodeModuleGenerator >> visitModule: module [
 		ifNotNil: [ moduleInfoClass isGCClassType
 			ifTrue: [ moduleInfoClass ]
 			ifFalse: [ moduleInfoClass pointer ] ].
-	(moduleInfoClass isNil or: [ self compilationEnvironment hasRuntimeTypeInformation not or: [ self compilationTarget isGPU ] ])
+	(moduleInfoClass isNil or: [ self compilationEnvironment hasRuntimeTypeInformation not or: [ self slvmCompilationTarget isGPU ] ])
 		ifTrue: [ moduleInfoInstance := nil ]
 		ifFalse: [ moduleInfoInstance := moduleInfoClass makeInstance ].
 	

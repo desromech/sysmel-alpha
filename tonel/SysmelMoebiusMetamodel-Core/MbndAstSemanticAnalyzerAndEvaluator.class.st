@@ -102,6 +102,7 @@ MbndAstSemanticAnalyzerAndEvaluator >> visitLexicalScopeNode: node [
 { #category : #delegate }
 MbndAstSemanticAnalyzerAndEvaluator >> visitSequenceNode: node [
 	| result |
+	self visitNodes: node pragmas.
 	node elements ifEmpty: [
 		^ MbndValue value: nil type: node type
 	].

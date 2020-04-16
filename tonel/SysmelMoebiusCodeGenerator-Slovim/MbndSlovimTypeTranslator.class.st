@@ -32,7 +32,9 @@ MbndSlovimTypeTranslator class >> initialize [
 MbndSlovimTypeTranslator >> importTranslatedType: aType fromModule: typeDefinitionModule [
 	| importedSSAModule importedType |
 	self assert: aType isAggregateType.
-	importedSSAModule := typeDefinitionModule namedTargetCodeModules at: codeModuleGenerator targetCodeModuleName.
+	importedSSAModule := typeDefinitionModule namedTargetCodeModules at: codeModuleGenerator targetCodeModuleName ifAbsent: [
+		self error: 'Required translated type {1} imported from module [3]{2} target is not found.' format: { aType asString . typeDefinitionModule name . codeModuleGenerator targetCodeModuleName asString }
+	].
 	importedType := importedSSAModule highLevelMapToStructureType at: aType.
 	codeModuleGenerator ssaModule
 		importType: importedType fromModule: importedSSAModule;

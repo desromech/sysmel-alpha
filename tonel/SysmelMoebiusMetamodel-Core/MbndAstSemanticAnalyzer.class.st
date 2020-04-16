@@ -2006,6 +2006,20 @@ MbndAstSemanticAnalyzer >> visitPointerElementReferenceNode: node [
 ]
 
 { #category : #visiting }
+MbndAstSemanticAnalyzer >> visitPragmaNode: pragmaNode [
+	| selector result |
+	result := super visitPragmaNode: pragmaNode.
+	selector := pragmaNode selector.
+	(result arguments allSatisfy: [ :arg | arg isLiteralValueNode ]) ifTrue: [ 
+		scope lookupProgramEntityForNewDefinitions ifNotNil: [ :programEntity |
+			programEntity analyzePragmaInDefinitionBodyWithSelector: selector arguments: (result arguments collect: [:each | each evaluateMbndValue])
+		].
+	].
+
+	^ result
+]
+
+{ #category : #visiting }
 MbndAstSemanticAnalyzer >> visitPredicatedTypeConceptDefinitionNode: node [
 	| result predicate owner concept |
 	node name isMbndAnonymousSymbol ifTrue: [

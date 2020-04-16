@@ -38,6 +38,10 @@ TMbndAbstractProgramEntity >> allChildrenDo: aBlock [
 	]
 ]
 
+{ #category : #'as yet unclassified' }
+TMbndAbstractProgramEntity >> analyzePragmaInDefinitionBodyWithSelector: selector arguments: arguments [
+]
+
 { #category : #testing }
 TMbndAbstractProgramEntity >> canHaveNamespaces [
 	^ false
@@ -277,6 +281,11 @@ TMbndAbstractProgramEntity >> isVariable [
 
 { #category : #'as yet unclassified' }
 TMbndAbstractProgramEntity >> markCompileTimeEvaluationImpossibility [
+]
+
+{ #category : #testing }
+TMbndAbstractProgramEntity >> mustBeAvailableInTheGPU [
+	^ false
 ]
 
 { #category : #accessing }

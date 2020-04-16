@@ -173,6 +173,13 @@ MbndBasicType >> analyzeInitializationFromCopyNode: node with: analyzer [
 	^ analyzer visitNode: node asExpandedMessageSend
 ]
 
+{ #category : #testing }
+MbndBasicType >> analyzePragmaInDefinitionBodyWithSelector: selector arguments: arguments [
+	(#(gpu) includes: selector) ifTrue: [ 
+		self addFlag: selector
+	].
+]
+
 { #category : #adding }
 MbndBasicType >> children [
 	^ children ifNil: [ children := OrderedCollection new ]
@@ -397,6 +404,11 @@ MbndBasicType >> materializeWithGraphDecoder: graphDecoder withLazyFields: encod
 { #category : #serialization }
 MbndBasicType >> messagePackTypeName [
 	^ self class messagePackTypeName
+]
+
+{ #category : #testing }
+MbndBasicType >> mustBeAvailableInTheGPU [
+	^ self hasFlag: #gpu
 ]
 
 { #category : #accessing }

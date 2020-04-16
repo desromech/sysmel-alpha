@@ -332,6 +332,11 @@ MbndAstEvaluator >> visitPointerReinterpretCastNode: node [
 ]
 
 { #category : #visiting }
+MbndAstEvaluator >> visitPragmaNode: node [
+	^ node
+]
+
+{ #category : #visiting }
 MbndAstEvaluator >> visitPredicatedTypeConceptDefinitionNode: node [
 	^ MbndValue value: node binding type: node type
 ]

@@ -391,6 +391,11 @@ MbndAbstractConcreteMethod >> module: aModule [
 ]
 
 { #category : #testing }
+MbndAbstractConcreteMethod >> mustBeAvailableInTheGPU [
+	^ specialSemantics isNotNil or: [super mustBeAvailableInTheGPU]
+]
+
+{ #category : #testing }
 MbndAbstractConcreteMethod >> pragmaAt: pragmaName ifAbsent: absentBlock ifPresent: presentBlock [
 	definitionNode ifNil: [ ^ absentBlock value ].
 	self ensureSemanticAnalysis.

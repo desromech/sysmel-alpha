@@ -106,6 +106,13 @@ MbndStandaloneModule >> compilationTarget [
 	^ compilationEnvironment compilationTarget
 ]
 
+{ #category : #'as yet unclassified' }
+MbndStandaloneModule >> createExportedSSAModuleFor: ssaModule [
+	"ssaModule compilationTarget isGPU ifTrue: [^ ssaModule ]."
+
+	^ ssaModule asPublicInterfaceDeclarationModule
+]
+
 { #category : #serialization }
 MbndStandaloneModule >> decodeImportedSSAModules: importedSSAModules [
 	importedSSAModules keysAndValuesDo: [ :moduleName :moduleAttributesList |
@@ -137,7 +144,7 @@ MbndStandaloneModule >> encodeExportedSSAModuleWith: graphEncoder [
 		self namedTargetCodeModules keys sorted do: [ :ssaModuleName |
 			| ssaModule exportSSAModule |
 			ssaModule := namedTargetCodeModules at: ssaModuleName.
-			exportSSAModule := ssaModule asPublicInterfaceDeclarationModule.
+			exportSSAModule := self createExportedSSAModuleFor: ssaModule.
 			out nextPut: ssaModuleName; nextPut: {
 				#module . exportSSAModule asFullSExpression.
 				#programEntityMapToAggregateType . ((exportSSAModule highLevelMapToStructureType associations collect: [ :assoc |
