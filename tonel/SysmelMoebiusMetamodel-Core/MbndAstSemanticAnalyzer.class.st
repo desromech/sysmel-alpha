@@ -351,6 +351,22 @@ MbndAstSemanticAnalyzer >> ensureDirectMacrosAreExpanded: node [
 ]
 
 { #category : #'implicit casting' }
+MbndAstSemanticAnalyzer >> ensureIntegerIndexValue: node at: position [
+	| result resultType |
+	result := self ensureIntegerValue: node at: position.
+	resultType := result type.
+	self assert: resultType isPrimitiveIntegerType.
+	
+	resultType instanceSize < self compilationTarget pointerSize ifTrue: [
+		^ self addImplicitCastFor: result to: (resultType isSigned
+			ifTrue: [ self compilationTarget intPointerType ]
+			ifFalse: [ self compilationTarget uintPointerType ]) 
+	].
+
+	^ result
+]
+
+{ #category : #'implicit casting' }
 MbndAstSemanticAnalyzer >> ensureIntegerValue: node at: position [
 	| result resultType |
 	result := self analyzeNodeIfNeeded: node.
@@ -358,12 +374,12 @@ MbndAstSemanticAnalyzer >> ensureIntegerValue: node at: position [
 	resultType isLiteralIntegerType ifTrue: [
 		^ self ensureLiteralIsConcreted: result
 	].
-	resultType isPrimitiveIntegerType ifTrue: [ 
+	resultType isPrimitiveIntegerType ifTrue: [
 		^ result
 	].
 
 	resultType isReferenceType ifTrue: [
-		^ self ensureIntegerValue: (MbndAstReferenceLoadNode new
+		^ self ensureIntegerIndexValue: (MbndAstReferenceLoadNode new
 			reference: node;
 			position: position;
 			yourself)
@@ -598,7 +614,7 @@ MbndAstSemanticAnalyzer >> visitArrayElementReferenceNode: node [
 	| result containerType arrayType elementType |
 	result := node copy
 		container: (self analyzeNodeIfNeeded: node container);
-		index: (self ensureIntegerValue: (self analyzeNodeIfNeeded: node index) at: node);
+		index: (self ensureIntegerIndexValue: (self analyzeNodeIfNeeded: node index) at: node);
 		yourself.
 		
 	containerType := result container type.
@@ -1211,7 +1227,7 @@ MbndAstSemanticAnalyzer >> visitGCVariableDataArrayElementReferenceNode: node [
 	| result arrayType elementType containerType |
 	result := node copy
 		container: (self analyzeNodeIfNeeded: node container);
-		index: (self ensureIntegerValue: (self analyzeNodeIfNeeded: node index) at: node);
+		index: (self ensureIntegerIndexValue: (self analyzeNodeIfNeeded: node index) at: node);
 		yourself.
 		
 	containerType := result container type.
@@ -1994,7 +2010,7 @@ MbndAstSemanticAnalyzer >> visitPointerElementReferenceNode: node [
 	| result pointerType elementReferenceType |
 	result := node copy
 		container: (self ensurePointerValue: node container at: node);
-		index: (self ensureIntegerValue: node index at: node);
+		index: (self ensureIntegerIndexValue: node index at: node);
 		yourself.
 		
 	pointerType := result container type withoutTopDecorations.
