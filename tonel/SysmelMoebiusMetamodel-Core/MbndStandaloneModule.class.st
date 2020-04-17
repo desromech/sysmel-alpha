@@ -5,7 +5,9 @@ Class {
 		'compilationEnvironment',
 		'sourceLocations',
 		'importedModules',
-		'loadedPackageStates'
+		'loadedPackageStates',
+		'linkerArguments',
+		'linkerImportModule'
 	],
 	#classVars : [
 		'MessagePackTypeMapTable'
@@ -90,10 +92,46 @@ MbndStandaloneModule >> addImportedModules: extraModules [
 	importedModules := self importedModules , extraModules asArray
 ]
 
-{ #category : #adding }
+{ #category : #accessing }
 MbndStandaloneModule >> addLinkerArguments: arguments [
-	<compileTime>
-	self compilationEnvironment addLinkerArguments: arguments
+	self linkerArguments addAll: arguments
+]
+
+{ #category : #'as yet unclassified' }
+MbndStandaloneModule >> allImportedModules [
+	"This performs a topological sort of all of the imported modules."
+	| result visited |
+	result := OrderedCollection new.
+	visited := IdentitySet new.
+	self allImportedModulesInto: result visited: visited.
+	^ visited
+]
+
+{ #category : #'as yet unclassified' }
+MbndStandaloneModule >> allImportedModulesInto: result visited: visited [
+	(visited includes: self) ifTrue: [ ^ self ].
+	visited add: self.
+	
+	self importedModules do: [ :each |
+		each allImportedModulesInto: result visited: visited
+	].
+	result add: self.
+	^ result
+	
+]
+
+{ #category : #accessing }
+MbndStandaloneModule >> allLinkerArguments [
+	^ Array streamContents: [ :out |
+		self allImportedModules do: [:each |
+			each linkerImportModule ifNotNil: [ :importModule |
+				out nextPut: (self compilationEnvironment concretizeModuleImportObjectFileName: importModule)
+			].
+			out nextPutAll: each linkerArguments
+		].
+
+		out nextPutAll: self linkerArguments.
+	].
 ]
 
 { #category : #accessing }
@@ -181,6 +219,8 @@ MbndStandaloneModule >> encodeFieldsForMessagePackWith: graphEncoder [
 		#extensionMacros . self extensionMacros encodeGraphForMessagePackWith: graphEncoder.
 		#extensionOverloadedMethods . self extensionOverloadedMethods encodeGraphForMessagePackWith: graphEncoder.
 		#externalTemplateInstances . self externalTemplateInstances encodeGraphForMessagePackWith: graphEncoder.
+		#linkerArguments . self linkerArguments asArray.
+		#linkerImportModule . linkerImportModule
 	}.
 	self importedModules ifEmpty: [
 		resultTail := resultTail ,
@@ -373,6 +413,16 @@ MbndStandaloneModule >> isStandaloneModule [
 	^ true
 ]
 
+{ #category : #accessing }
+MbndStandaloneModule >> linkerArguments [
+	^ linkerArguments ifNil: [ linkerArguments := OrderedCollection new ]
+]
+
+{ #category : #accessing }
+MbndStandaloneModule >> linkerImportModule [
+	^ linkerImportModule
+]
+
 { #category : #'as yet unclassified' }
 MbndStandaloneModule >> loadPackage: packageName [
 	self loadedPackageStates at: packageName ifPresent: [ :state |
@@ -412,6 +462,8 @@ MbndStandaloneModule >> materializeWithGraphDecoder: graphDecoder withFields: en
 	extensionMacros := encodedFields at: #extensionMacros.
 	extensionOverloadedMethods := encodedFields at: #extensionOverloadedMethods.
 	externalTemplateInstances := encodedFields at: #externalTemplateInstances.
+	linkerArguments := encodedFields at: #linkerArguments.
+	linkerImportModule := encodedFields at: #linkerImportModule ifAbsent: [nil].
 	
 	encodedFields at: #bootstrapObjects ifPresent: [ :bootstrapObjects |
 		self compilationTarget materializeBootstrapDefinedObjectWithGraphDecoder: graphDecoder withFields: (Dictionary newFromPairs: bootstrapObjects)
@@ -478,7 +530,21 @@ MbndStandaloneModule >> writeMode: writeMode toFileNamed: outputFileName [
 	MbndProfiler component: #lirCodeGeneration with: [ 
 		lowLevelModule := ssaModule asLowLevelModuleWithOptimizationLevel: self optimizationLevel.
 	].
-	lowLevelModule linkerArguments: self compilationEnvironment linkerArguments asArray.
+	lowLevelModule linkerArguments: self allLinkerArguments.
+	linkerImportModule isNil ifTrue: [
+		(#(assembly llvm_assembly object) includes: writeMode) ifTrue: [ 
+				linkerImportModule := outputFileReference basename
+		] ifFalse: [ 
+			writeMode = #shared ifTrue: [
+				ssaModule compilationTarget sharedObjectsAreAlsoImports ifTrue: [ 
+					linkerImportModule := outputFileReference basename
+				] ifFalse: [
+					"TODO: Add the required flags/tools for generating the .lib for the Windows dll"
+					self halt
+				]
+			].
+		].
+	].
 	
 	writeMode == #assembly ifTrue: [
 		^ lowLevelModule writeAssemblyToFileNamed: outputFileName

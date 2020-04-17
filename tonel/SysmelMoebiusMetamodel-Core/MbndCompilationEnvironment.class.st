@@ -68,7 +68,7 @@ MbndCompilationEnvironment class >> spirv_vulkan [
 { #category : #parameters }
 MbndCompilationEnvironment >> addLinkerArguments: arguments [
 	<compileTime>
-	self linkerArguments addAll: arguments
+	self currentModule addLinkerArguments: arguments
 ]
 
 { #category : #adding }
@@ -133,6 +133,17 @@ MbndCompilationEnvironment >> compileModuleNamed: moduleName [
 	self hasMonolithicTranslationMode ifTrue: [self popCurrentModule ].
 	^ resultModule
 
+]
+
+{ #category : #'as yet unclassified' }
+MbndCompilationEnvironment >> concretizeModuleImportObjectFileName: aFileName [
+	| fileRef testFileRef |
+	fileRef := aFileName asFileReference.
+	fileRef exists ifTrue: [ ^ fileRef asAbsolute fullName ].
+	
+	testFileRef := outputDirectory resolve: fileRef.
+	testFileRef exists ifTrue: [ ^ testFileRef asAbsolute fullName ].
+	self error: 'Failed required import module object file {1}.' format: { aFileName }
 ]
 
 { #category : #accessing }
@@ -294,7 +305,7 @@ MbndCompilationEnvironment >> hasMonolithicTranslationMode [
 ]
 
 { #category : #testing }
-MbndCompilationEnvironment >> hasObjectoTranslationMode [
+MbndCompilationEnvironment >> hasObjectTranslationMode [
 	^ moduleTranslationMode = #object.
 ]
 
@@ -397,11 +408,6 @@ MbndCompilationEnvironment >> initializeWithCompilationTarget: aCompilationTarge
 	currentModuleStack := OrderedCollection new.
 	currentModule := coreModule.
 	self defaultModuleTranslationMode.
-]
-
-{ #category : #accessing }
-MbndCompilationEnvironment >> linkerArguments [
-	^ linkerArguments ifNil: [ linkerArguments := OrderedCollection new ]
 ]
 
 { #category : #'module output format' }
@@ -540,6 +546,11 @@ MbndCompilationEnvironment >> outputMode: anObject [
 
 { #category : #accessing }
 MbndCompilationEnvironment >> outputModeForDependencies [
+	outputMode = #executable ifTrue: [
+		self hasObjectTranslationMode ifTrue: [ ^ #object ].
+		self hasDLLTranslationMode ifTrue: [ ^ #shared ].
+	].
+
 	^ outputMode
 ]
 
