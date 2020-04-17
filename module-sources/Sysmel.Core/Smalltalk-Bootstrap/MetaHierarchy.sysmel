@@ -390,7 +390,7 @@ ProtoObject definition: {
             <notInCompileTime>
             <staticBinding>
             <nogc>
-            (self reinterpretCastTo: UIntPointer) & 1 = 1
+            ((self reinterpretCastTo: UIntPointer) & 1) = 1
         }.
 
 		method __decodeSmallInteger => IntPointer := {

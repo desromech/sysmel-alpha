@@ -12,7 +12,13 @@ loadFileOnce: "ReflectionLock.sysmel".
 loadFileOnce: "Behavior.sysmel".
 loadFileOnce: "Streams.sysmel".
 loadFileOnce: "Exceptions.sysmel".
-loadFileOnce: "ExceptionsUnwind.sysmel".
+
+if: Compiler hasExceptions then: {
+    loadFileOnce: "ExceptionsUnwind.sysmel".
+} else: {
+    loadFileOnce: "ExceptionsDummyUnwind.sysmel".
+}.
+
 loadFileOnce: "Printing.sysmel".
 loadFileOnce: "Symbol.sysmel".
 loadFileOnce: "Process.sysmel".

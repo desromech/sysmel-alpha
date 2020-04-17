@@ -26,7 +26,7 @@ HashedCollection definition: {
 
         ## This case should never happen with a normal HashedCollection.
         self errorNoFreeSpace.
-        0
+        0u
     }.
 
     method scanFor: key ::=> UIntPointer := {

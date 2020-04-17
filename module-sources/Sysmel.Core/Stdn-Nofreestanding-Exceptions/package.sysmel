@@ -1,4 +1,6 @@
 loadFileOnce: "Printing.sysmel".
 if: Compiler hasExceptions then: {
     loadFileOnce: "unwind.sysmel".
+} else: {
+    loadFileOnce: "dummyUnwind.sysmel"
 }.

@@ -1,0 +1,73 @@
+namespace Stdn definition: {
+
+class AbstractMutex definition: {
+    method lock => Void
+        := void.
+
+    method unlock => Void
+        := void.
+
+    macro method withLock: aBlock := ``{
+        `,self lock.
+        `,aBlock __macroInlineBlockEnsure: `,self unlock.
+    } asSequenceWithoutLexicalScope.
+}.
+
+#**
+ * Pthread mutex wrapper.
+ *#
+class Mutex superclass: AbstractMutex; definition: {}.
+class MemoryHeapMutex superclass: Mutex; definition: {}.
+class RecursiveMutex superclass: AbstractMutex; definition: {}.
+
+class ConditionVariable
+definition: {
+    method wait: (mutex: Mutex ref) ::=> Void
+        := void.
+
+    method notifyOne => Void
+        := void.
+
+    method notifyAll => Void
+        := void.
+}.
+
+#**
+ * Semaphore implementation.
+ *#
+class Semaphore
+definition: {
+    method initializeWithCount: (initialCount: UIntPointer) ::=> Void := {
+    }.
+
+    method lock => Void
+        := void.
+
+    method unlock => Void
+        := void.
+
+    method signal => Void
+        := void.
+
+    method wait => Void
+        := void.
+
+    method signal: (n: UIntPointer) ::=> Void
+        := void.
+
+    method wait: (n: UIntPointer) ::=> Void
+        := void.
+}.
+
+Thread extend: {
+    method start: (entryPoint: NativeEntryPointFunctionType pointer) with: (argument: Void pointer) ::=> Void
+         := void.
+
+    method detach => Void
+        := void.
+
+    method join => Void
+        := void.
+}.
+
+}. ## End of namespace Stdn

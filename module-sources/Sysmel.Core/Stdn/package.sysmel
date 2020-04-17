@@ -15,4 +15,8 @@ if: Compiler hasLibC then: {
     if: Compiler compilationTarget isWin32 then: {
         Compiler loadPackage: #Win32.
     }.
+
+    if: Compiler compilationTarget isWebAssembly then: {
+        Compiler loadPackage: #WebAssembly.
+    }.
 }.

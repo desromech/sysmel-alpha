@@ -1,0 +1,49 @@
+namespace SysmelKernel definition: {
+
+class SysmelGC definition: {
+    method allocate: (objectSize: UIntPointer)
+        variableDataSize: (variableDataSize: UInt32)
+        initializingWith: (basicInitializer: Stdn Reflection BasicInitializeFunctionPointerType)
+          ::=> Stdn Reflection GCObjectHeader pointer := {
+        <nogc>
+
+        ## Allocate the object memory.
+        let allocatedObject := (LibC malloc(objectSize)) reinterpretCastTo: Stdn Reflection GCObjectHeader pointer.
+        LibC memset(allocatedObject, 0, objectSize).
+
+        ## Set the allocated object class.
+        allocatedObject value
+            __variableDataSize: variableDataSize.
+
+        ## Perform the basic initialization. This sets the vtable pointers.
+        basicInitializer _ (allocatedObject).
+
+        return: allocatedObject
+    }.
+
+    method allocate: (instanceSize: UIntPointer) instanceAlignment: (instanceAligment: UIntPointer)
+		copyingFromPrototype: (prototype: Void pointer)
+		  ::=> Stdn Reflection GCObjectHeader pointer := {
+		<nogc>
+
+        ## Allocate the object memory.
+        let allocatedObject := LibC malloc(instanceSize) reinterpretCastTo: Stdn Reflection GCObjectHeader pointer.
+
+		## Copy the data from the prototype
+        LibC memcpy(allocatedObject, prototype, instanceSize).
+
+        return: allocatedObject
+	}.
+}.
+
+global globalSysmelGC mutable type: SysmelGC.
+
+}.
+
+#**
+ * This is the entry point for a sysmel image.
+ *#
+function __sylsif_entryPoint externC(sysmelImageMetadata: Void pointer, argc: Int32, argv: Char8 const pointer pointer) => Int32 := {
+    LibC printf("__sylsif_entryPoint executed. Image metadata: %p\n", sysmelImageMetadata).
+    return: 0.
+}.

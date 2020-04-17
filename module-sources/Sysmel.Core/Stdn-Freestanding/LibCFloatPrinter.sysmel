@@ -2,7 +2,7 @@ namespace Stdn definition: {
 
 class BasicValueFloatPrinter superclass: BasicValueIntegerPrinter; definition: {
     method nextPutDouble: (double: Float64) ::=> Void := {
-        bufferSize := LibC snprintf(buffer[0] address, bufferCapacity, "%g", double).
+        bufferSize := LibC snprintf(buffer[0] address, bufferCapacity, "%g", double) castTo: UIntPointer.
 
         ## Make sure a point or an exponent is present in the output.
         0 until: bufferSize do: {:(UIntPointer)i :: Void |.

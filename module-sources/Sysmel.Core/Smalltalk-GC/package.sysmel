@@ -3,5 +3,15 @@ loadFileOnce: "common.sysmel".
 if: Compiler hasGarbageCollectionStackMap && Compiler hasPreciseGarbageCollector then: {
     loadFileOnce: "precise.sysmel".
 } else: {
-    loadFileOnce: "conservative.sysmel".
+    if: Compiler hasNullGarbageCollector then: {
+        loadFileOnce: "null.sysmel".
+    }.
+
+    if: Compiler hasConservativeGarbageCollector then: {
+        loadFileOnce: "conservative.sysmel".
+    }.
+
+    if: Compiler hasReferenceCountingCollector then: {
+        loadFileOnce: "referenceCounting.sysmel".
+    }.
 }.

@@ -1,0 +1,12 @@
+namespace Stdn definition: {
+
+Smalltalk Exception extend: {
+    method signal := {
+        stderr << "Exception signaling is not supported:"; nl.
+        self printOnNativeTextStreamWriter: stderr. stderr nl.
+        stderr << "Aborting the program execution."; nl.
+        native_abort().
+        self
+    }.
+}.
+}. ## End of namespace Stdn

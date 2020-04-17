@@ -41,9 +41,12 @@ function _Unwind_GetGR externC(context: _Unwind_Context pointer, index: Int32) =
 function _Unwind_SetGR externC(context: _Unwind_Context pointer, index: Int32, newValue: UIntPointer) => UIntPointer.
 function _Unwind_GetIP externC(context: _Unwind_Context pointer) => UIntPointer.
 function _Unwind_SetIP externC(context: _Unwind_Context pointer, newValue: UIntPointer) => UIntPointer.
-function _Unwind_GetCFA externC(context: _Unwind_Context pointer) => UIntPointer.
 function _Unwind_GetLanguageSpecificData externC(context: _Unwind_Context pointer) => Void pointer.
 function _Unwind_GetRegionStart externC(context: _Unwind_Context pointer) => UIntPointer.
+
+compileTime if: Compiler compilationTarget supportsLocalAddressForThisContext then: {
+    function _Unwind_GetCFA externC(context: _Unwind_Context pointer) => UIntPointer.
+}.
 
 compileTime constant _Unwind_Action := Int32.
 compileTime constant _UA_SEARCH_PHASE := 1.
@@ -170,6 +173,9 @@ Stdn Reflection TypeInformation extend: {
         withKind: (exceptionKind: SysmelExceptionKind) withTypeInfo: (exceptionTypeInfo: Stdn Reflection TypeInformation const pointer) ::=> Boolean8
     := (exceptionKind ~~ SysmelExceptionKind NonLocalReturn) &&
         (exceptionTypeInfo _ isPointerReinterpretableTo: self address).
+
+    const method isNonLocalReturnExceptionType => Boolean8
+        := self address == (InternalNonLocalReturn reinterpretCastTo: SelfType const pointer).
 }.
 
 struct SysmelUnwindScanCacheableResult definition: {
@@ -321,7 +327,7 @@ struct SysmelUnwindScanResult definition: {
         ##stdout << "callSiteTableEncoding " << callSiteTableEncoding;nl.
 
         let callSiteTableStart := lsdaStream currentPointer.
-        let callSiteTableStream mutable := Stdn IO FixedMemoryStream for: callSiteTableStart withSize: callSiteTableLength.
+        let callSiteTableStream mutable := Stdn IO FixedMemoryStream for: callSiteTableStart withSize: (callSiteTableLength castTo: UIntPointer).
         let callSiteTableReader mutable := Stdn IO BinaryDataStreamReader for: callSiteTableStream address.
 
         let actionTableStart := callSiteTableStart[callSiteTableLength] address.
@@ -381,7 +387,7 @@ struct SysmelUnwindScanResult definition: {
                                 cacheableResult
                                     landingPad: landingPad;
                                     actionRecord: actionRecord;
-                                    typeInfoTableIndex: typeInfoTableIndex;
+                                    typeInfoTableIndex: (typeInfoTableIndex castTo: IntPointer);
                                     exceptionObjectPointer: exceptionObjectPointer.
                                 reasonCode :=  _Unwind_Reason_Code HandlerFound.
                                 return: nil
@@ -398,17 +404,32 @@ struct SysmelUnwindScanResult definition: {
 
 								##stdout << "exceptionTypeInfo " << exceptionTypeInfo; nl.
                                 exceptionKind == SysmelExceptionKind NonLocalReturn ifTrue: {
-                                    ## If this is a non-local return, then we are looking for the matching frame.
-                                    let cfa := _Unwind_GetCFA(context) reinterpretCastTo: Void pointer.
-                                    cfa == exceptionData _ exceptionObjectPointer ifTrue: {
-                                        (actions anyMask: _UA_SEARCH_PHASE) ifTrue: {
-                                            cacheableResult
-                                                landingPad: landingPad;
-                                                actionRecord: actionRecord;
-                                                typeInfoTableIndex: typeInfoTableIndex;
-                                                exceptionObjectPointer: exceptionObjectPointer.
-                                            reasonCode :=  _Unwind_Reason_Code HandlerFound.
-                                            return: nil
+                                    compileTime if: Compiler compilationTarget supportsLocalAddressForThisContext then: {
+                                        ## If this is a non-local return, then we are looking for the matching frame.
+                                        let cfa := _Unwind_GetCFA(context) reinterpretCastTo: Void pointer.
+                                        cfa == exceptionData _ exceptionObjectPointer ifTrue: {
+                                            (actions anyMask: _UA_SEARCH_PHASE) ifTrue: {
+                                                cacheableResult
+                                                    landingPad: landingPad;
+                                                    actionRecord: actionRecord;
+                                                    typeInfoTableIndex: (typeInfoTableIndex castTo: IntPointer);
+                                                    exceptionObjectPointer: exceptionObjectPointer.
+                                                reasonCode :=  _Unwind_Reason_Code HandlerFound.
+                                                return: nil
+                                            }.
+                                        }
+                                    } else: {
+                                        (catchExceptionTypeInfo _ isNonLocalReturnExceptionType) ifTrue: {
+                                            ## Found a matching handler.
+                                            (actions anyMask: _UA_SEARCH_PHASE) ifTrue: {
+                                                cacheableResult
+                                                    landingPad: landingPad;
+                                                    actionRecord: actionRecord;
+                                                    typeInfoTableIndex: (typeInfoTableIndex castTo: IntPointer);
+                                                    exceptionObjectPointer: exceptionObjectPointer.
+                                                reasonCode :=  _Unwind_Reason_Code HandlerFound.
+                                                return: nil
+                                            }.
                                         }.
                                     }
                                 } ifFalse: {
@@ -420,7 +441,7 @@ struct SysmelUnwindScanResult definition: {
                                             cacheableResult
                                                 landingPad: landingPad;
                                                 actionRecord: actionRecord;
-                                                typeInfoTableIndex: typeInfoTableIndex;
+                                                typeInfoTableIndex: (typeInfoTableIndex castTo: IntPointer);
                                                 exceptionObjectPointer: exceptionObjectPointer.
                                             reasonCode :=  _Unwind_Reason_Code HandlerFound.
                                             return: nil
@@ -439,7 +460,7 @@ struct SysmelUnwindScanResult definition: {
                                 cacheableResult
                                     landingPad: landingPad;
                                     actionRecord: actionRecord;
-                                    typeInfoTableIndex: typeInfoTableIndex;
+                                    typeInfoTableIndex: (typeInfoTableIndex castTo: IntPointer);
                                     exceptionObjectPointer: exceptionObjectPointer.
                                 reasonCode :=  _Unwind_Reason_Code HandlerFound.
                                 return: nil

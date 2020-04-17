@@ -1,0 +1,51 @@
+namespace Stdn definition: {
+namespace IO definition: {
+
+#**
+ * File stream class.
+ *#
+class UnbufferedFileStream superclass: Stream;
+definition: {
+    method open: (path: CTypes ConstString) mode: (mode: FileOpenMode) permissions: (permissions: FilePermissions) ::=> Boolean8
+        := false.
+
+    method open: (path: String const ref) mode: (mode: FileOpenMode) permissions: (permissions: FilePermissions) ::=> Boolean8
+        := self open: path asCString mode: mode permissions: permissions.
+
+    method open: (path: CTypes ConstString) mode: (mode: FileOpenMode) ::=> Boolean8
+        := self open: path mode: mode permissions: FilePermissions DefaultFilePermissions.
+
+    method open: (path: String const ref) mode: (mode: FileOpenMode) ::=> Boolean8
+        := self open: path asCString mode: mode permissions: FilePermissions DefaultFilePermissions.
+
+    method close => Void
+        := void.
+
+    method isValid => Boolean8
+        := false.
+
+    override method atEnd => Boolean8
+        := true.
+
+    override method position => Int64
+        := 0.
+
+    override method seek: (offset: Int64) mode: (mode: SeekMode) ::=> Boolean8
+        := false.
+
+    override method write: (buffer: Void const pointer) size: (size: UIntPointer) ::=> IntPointer
+        := size castTo: IntPointer.
+
+    override method read: (buffer: Void pointer) size: (size: UIntPointer) ::=> IntPointer
+        := size castTo: IntPointer.
+}.
+
+global stdinFile mutable type: UnbufferedFileStream.
+global stdoutFile mutable type: UnbufferedFileStream.
+global stderrFile mutable type: UnbufferedFileStream.
+
+}. ## End of namespace IO
+
+global stdout mutable := IO TextStreamWriter for: IO stdoutFile address.
+global stderr mutable := IO TextStreamWriter for: IO stderrFile address.
+}. ## End of namespace Stdn
