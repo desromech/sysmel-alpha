@@ -361,6 +361,11 @@ TMbndAbstractCompilationTarget >> isUnix [
 ]
 
 { #category : #'platform testing' }
+TMbndAbstractCompilationTarget >> isWebAssembly [
+	^ false
+]
+
+{ #category : #'platform testing' }
 TMbndAbstractCompilationTarget >> isWin32 [
 	^ false
 ]
@@ -563,6 +568,12 @@ TMbndAbstractCompilationTarget >> specificCompilerObjectTypeFor: aBehavior [
 TMbndAbstractCompilationTarget >> standardMathLibraryLinkerArguments [
 	self isUnix ifTrue: [ ^ #('-lm') ].
 	^ #()
+]
+
+{ #category : #testing }
+TMbndAbstractCompilationTarget >> supportsLocalAddressForThisContext [
+	<compileTime>
+	^ false
 ]
 
 { #category : #'convenience type accessors' }

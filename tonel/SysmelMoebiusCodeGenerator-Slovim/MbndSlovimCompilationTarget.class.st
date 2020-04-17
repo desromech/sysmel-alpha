@@ -9,6 +9,21 @@ Class {
 }
 
 { #category : #'as yet unclassified' }
+MbndSlovimCompilationTarget class >> llvm_webAssembly [
+	^ self slvmCompilationTargetNamed: #llvm_webAssembly
+]
+
+{ #category : #'as yet unclassified' }
+MbndSlovimCompilationTarget class >> llvm_webAssembly32 [
+	^ self slvmCompilationTargetNamed: #llvm_webAssembly32
+]
+
+{ #category : #'as yet unclassified' }
+MbndSlovimCompilationTarget class >> llvm_webAssembly64 [
+	^ self slvmCompilationTargetNamed: #llvm_webAssembly64
+]
+
+{ #category : #'as yet unclassified' }
 MbndSlovimCompilationTarget class >> llvm_x86 [
 	^ self slvmCompilationTargetNamed: #llvm_x86
 ]
@@ -62,7 +77,7 @@ MbndSlovimCompilationTarget >> asCleanCompilationTarget [
 
 { #category : #converting }
 MbndSlovimCompilationTarget >> asSpirVCompilationTarget [
-	^ self slvmCompilationTargetNamed: (self pointerSize = 4
+	^ self copy slvmCompilationTargetNamed: (self pointerSize = 4
 		ifTrue: [#spirv_logical32]
 		ifFalse: [#spirv_logical64])
 ]
@@ -71,6 +86,11 @@ MbndSlovimCompilationTarget >> asSpirVCompilationTarget [
 MbndSlovimCompilationTarget >> extensionForModuleOutputMode: mode [
 	slvmCompilationTarget isSpirV ifTrue: [
 		mode = #executable ifTrue: [ ^ '.spv' ]
+	].
+
+	slvmCompilationTarget isWebAssembly ifTrue: [
+		mode = #shared ifTrue: [ ^ '.wasm' ].
+		mode = #executable ifTrue: [ ^ '.html' ].
 	].
 
 	^ super extensionForModuleOutputMode: mode
@@ -125,6 +145,11 @@ MbndSlovimCompilationTarget >> isLittleEndian [
 { #category : #'platform testing' }
 MbndSlovimCompilationTarget >> isOSX [
 	^ slvmCompilationTarget isOSX
+]
+
+{ #category : #'platform testing' }
+MbndSlovimCompilationTarget >> isWebAssembly [
+	^ slvmCompilationTarget isWebAssembly
 ]
 
 { #category : #'platform testing' }
@@ -196,6 +221,12 @@ MbndSlovimCompilationTarget >> slvmCompilationTarget: anObject [
 MbndSlovimCompilationTarget >> slvmCompilationTargetNamed: theTargetName [
 	targetName := theTargetName.
 	^ self slvmCompilationTarget: (SLVMCompilationTarget perform: targetName asSymbol)
+]
+
+{ #category : #testing }
+MbndSlovimCompilationTarget >> supportsLocalAddressForThisContext [
+	<compileTime>
+	^ slvmCompilationTarget supportsLocalAddressForThisContext
 ]
 
 { #category : #accessing }

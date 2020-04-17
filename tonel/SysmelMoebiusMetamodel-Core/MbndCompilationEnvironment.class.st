@@ -43,6 +43,21 @@ MbndCompilationEnvironment class >> coreModuleName [
 ]
 
 { #category : #'as yet unclassified' }
+MbndCompilationEnvironment class >> llvm_webAssembly [
+	^ self compilationTarget: MbndSlovimCompilationTarget llvm_webAssembly
+]
+
+{ #category : #'as yet unclassified' }
+MbndCompilationEnvironment class >> llvm_webAssembly32 [
+	^ self compilationTarget: MbndSlovimCompilationTarget llvm_webAssembly32
+]
+
+{ #category : #'as yet unclassified' }
+MbndCompilationEnvironment class >> llvm_webAssembly64 [
+	^ self compilationTarget: MbndSlovimCompilationTarget llvm_webAssembly64
+]
+
+{ #category : #'as yet unclassified' }
 MbndCompilationEnvironment class >> llvm_x86 [
 	^ self compilationTarget: MbndSlovimCompilationTarget llvm_x86
 ]
@@ -238,7 +253,12 @@ MbndCompilationEnvironment >> freestanding [
 
 { #category : #testing }
 MbndCompilationEnvironment >> hasConservativeGarbageCollector [
-	^ self hasGarbageCollectionSupport and: [ self hasPreciseGarbageCollector not or: [ self hasGarbageCollectionStackMap not ] ]
+	^ self hasGarbageCollectionSupport and: [(
+		self hasPreciseGarbageCollector or: [
+		self hasGarbageCollectionStackMap or: [
+		self hasNullGarbageCollector or: [
+		self hasReferenceCountingCollector ] ] ] ) not
+	]
 ]
 
 { #category : #testing }
@@ -305,12 +325,24 @@ MbndCompilationEnvironment >> hasMonolithicTranslationMode [
 ]
 
 { #category : #testing }
+MbndCompilationEnvironment >> hasNullGarbageCollector [
+	<compileTime>
+	^ self compilationTarget isWebAssembly
+]
+
+{ #category : #testing }
 MbndCompilationEnvironment >> hasObjectTranslationMode [
 	^ moduleTranslationMode = #object.
 ]
 
 { #category : #parameters }
 MbndCompilationEnvironment >> hasPreciseGarbageCollector [
+	^ false
+]
+
+{ #category : #testing }
+MbndCompilationEnvironment >> hasReferenceCountingCollector [
+	<compileTime>
 	^ false
 ]
 

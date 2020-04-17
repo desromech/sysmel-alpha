@@ -324,6 +324,8 @@ MbndSlovimCodeModuleGenerator >> debugInformationTranslator [
 
 { #category : #'as yet unclassified' }
 MbndSlovimCodeModuleGenerator >> ensureRequiredStructuresAreDefined [
+	self slvmCompilationTarget isGPU ifTrue: [ ^ self ].
+	
 	self compilationTarget managedObjectModel runtimeImportantFunctions do: [:eachFunction |
 		self translateProgramEntity: eachFunction
 	].
