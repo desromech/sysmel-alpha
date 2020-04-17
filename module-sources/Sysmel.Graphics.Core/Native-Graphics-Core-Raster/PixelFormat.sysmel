@@ -272,6 +272,66 @@ enum PixelFormat valueType: UInt32; values: #{
         }
     }.
 
+    inline method fetchFromMemory: (memory: UInt8 const pointer) ::=> Float32x4 := {
+        self selectCase: #{
+
+        (R8_Typeless, R8_UNorm) asValueInSetPattern : {
+            return: Float32x4(memory _ / 255.0f, 0.0f, 0.0f, 1.0f)
+        }.
+        R8_SNorm : {
+            return: Float32x4((memory _ castTo: Int8)/127.0f, 0.0f, 0.0f, 1.0f)
+        }.
+        R8_UInt : {
+            return: Float32x4(memory _ , 0.0f, 0.0f, 1.0f)
+        }.
+        R8_SInt : {
+            return: Float32x4(memory _ castTo: Int8, 0.0f, 0.0f, 1.0f)
+        }.
+        A8_UNorm : {
+            return: Float32x4(1.0f, 1.0f, 1.0f, memory _ / 255.0f)
+        }.
+
+        (R8G8B8A8_Typeless, R8G8B8A8_UNorm) asValueInSetPattern : {
+            return: ((memory reinterpretCastTo: UInt8x4 pointer) _ castTo: Float32x4)/ 255.0f
+        }.
+
+        R8G8B8A8_UNormSRGB : {
+            return: Stdn Math Color decodeSRGBUnorm8((memory reinterpretCastTo: UInt8x4 pointer) _)
+        }.
+
+        (B8G8R8A8_Typeless, B8G8R8X8_Typeless, B8G8R8A8_UNorm, B8G8R8X8_UNorm) asValueInSetPattern : {
+            return: ((memory reinterpretCastTo: UInt8x4 pointer) _ bgra castTo: Float32x4) / 255.0f
+        }.
+
+        (B8G8R8A8_UNormSRGB, B8G8R8X8_UNormSRGB) asValueInSetPattern : {
+            return: Stdn Math Color decodeSRGBUnorm8((memory reinterpretCastTo: UInt8x4 pointer) _ bgra)
+        }
+        }.
+
+        Float32x4 zeros
+    }.
+
+    inline method store: (pixel: Float32x4) intoMemory: (memory: UInt8 pointer) ::=> Void := {
+        self selectCase: #{
+
+        (R8G8B8A8_Typeless, R8G8B8A8_UNorm) asValueInSetPattern : {
+            (memory reinterpretCastTo: UInt8x4 pointer) _ := (pixel clampMin: 0.0f max: 1.0f) * 255.0f castTo: UInt8x4
+        }.
+
+        R8G8B8A8_UNormSRGB : {
+            (memory reinterpretCastTo: UInt8x4 pointer) _ := Stdn Math Color encodeSRGBUnorm8(pixel clampMin: 0.0f max: 1.0f)
+        }.
+
+        (B8G8R8A8_Typeless, B8G8R8X8_Typeless, B8G8R8A8_UNorm, B8G8R8X8_UNorm) asValueInSetPattern : {
+            (memory reinterpretCastTo: UInt8x4 pointer) _ := (pixel bgra clampMin: 0.0f max: 1.0f) * 255.0f castTo: UInt8x4
+        }.
+
+        (B8G8R8A8_UNormSRGB, B8G8R8X8_UNormSRGB) asValueInSetPattern : {
+            (memory reinterpretCastTo: UInt8x4 pointer) _ := Stdn Math Color encodeSRGBUnorm8(pixel bgra clampMin: 0.0f max: 1.0f)
+        }
+        }
+    }.
+
 }.
 
 }. ## End of namespace Core
