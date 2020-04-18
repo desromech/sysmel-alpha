@@ -1,1 +1,2 @@
-Compiler loadPackage: #NullOS.
+loadFileOnce: "FileStream.sysmel".
+loadFileOnce: "../NullOS/Threads.sysmel".

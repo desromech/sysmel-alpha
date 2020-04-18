@@ -3,6 +3,9 @@ loadFileOnce: "constants.sysmel".
 loadFileOnce: "unistd.sysmel".
 loadFileOnce: "fcntl.sysmel".
 loadFileOnce: "time.sysmel".
-loadFileOnce: "pthreads.sysmel".
-loadFileOnce: "mmap.sysmel".
-loadFileOnce: "socket.sysmel".
+
+if: Compiler compilationTarget isWebAssembly not then: {
+    loadFileOnce: "pthreads.sysmel".
+    loadFileOnce: "mmap.sysmel".
+    loadFileOnce: "socket.sysmel".
+}.

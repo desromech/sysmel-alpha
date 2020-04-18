@@ -94,8 +94,8 @@ MbndAggregateTypeWithFields >> createBasicInitializeMethod [
 	basicInitializeMethod := MbndAggregateBasicInitializeMethod new
 		name: #basicInitialize;
 		receiverType: asReceiverType;
-		type: (self compilationTarget functionTypeWithArguments: {asReceiverType} returnType: asReceiverType);
-		boundType: (self compilationTarget functionTypeWithArguments: #() returnType: asReceiverType).
+		type: (self compilationTarget functionTypeWithArguments: {asReceiverType} returnType: self compilationTarget voidType);
+		boundType: (self compilationTarget functionTypeWithArguments: #() returnType: self compilationTarget voidType).
 	self
 		addChild: basicInitializeMethod;
 		addOverloadedMethod: basicInitializeMethod

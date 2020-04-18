@@ -1,0 +1,8 @@
+namespace Emscripten definition: {
+
+    compileTime constant em_callback_func := (Void => Void) pointer.
+    compileTime constant em_arg_callback_func := (Void pointer => Void) pointer.
+
+    function emscripten_set_main_loop externC(func: em_callback_func, fps: Int32, simulate_infinite_loop: Int32) => Void.
+    function emscripten_set_main_loop_arg externC(func: em_arg_callback_func, arg: Void pointer, fps: Int32, simulate_infinite_loop: Int32) => Void.
+}.

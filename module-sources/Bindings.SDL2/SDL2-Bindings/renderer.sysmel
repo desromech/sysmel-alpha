@@ -40,7 +40,7 @@ function SDL_RenderPresent externC dllimport (renderer: SDL_Renderer pointer) =>
 function SDL_DestroyTexture externC dllimport (texture: SDL_Texture pointer) => Void.
 function SDL_DestroyRenderer externC dllimport (renderer: SDL_Renderer pointer) => Void.
 
-function SDL_GetRendererOutputSize externC dllimport (renderer: SDL_Renderer pointer, x: Int32 pointer, y: Int32 pointer) => Void.
+function SDL_GetRendererOutputSize externC dllimport (renderer: SDL_Renderer pointer, x: Int32 pointer, y: Int32 pointer) => Int32.
 
 function SDL_LockTexture externC dllimport (texture: SDL_Texture pointer, rect: SDL_Rect const pointer, pixels: Void pointer pointer, pitch: Int32 pointer) => Int32.
 function SDL_UnlockTexture externC dllimport (texture: SDL_Texture pointer) => Void.

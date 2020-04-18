@@ -10,6 +10,8 @@ compileTime constant SDL_INIT_GAMECONTROLLER := 16r00002000.
 compileTime constant SDL_INIT_EVENTS         := 16r00004000.
 compileTime constant SDL_INIT_NOPARACHUTE    := 16r00100000.
 
+function SDL_SetHint externC (name: Char8 const pointer, value: Char8 const pointer) => Boolean8.
+
 compileTime constant SDL_INIT_EVERYTHING :=
             SDL_INIT_TIMER | SDL_INIT_AUDIO | SDL_INIT_VIDEO | SDL_INIT_EVENTS |
             SDL_INIT_JOYSTICK | SDL_INIT_HAPTIC | SDL_INIT_GAMECONTROLLER.

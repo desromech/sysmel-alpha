@@ -1,5 +1,8 @@
 loadFileOnce: "FileStream.sysmel".
-loadFileOnce: "Socket.sysmel".
 loadFileOnce: "Time.sysmel".
-loadFileOnce: "Threads.sysmel".
-loadFileOnce: "NativeVirtualMemoryInterface.sysmel".
+
+if: Compiler compilationTarget isWebAssembly not then: {
+    loadFileOnce: "Socket.sysmel".
+    loadFileOnce: "Threads.sysmel".
+    loadFileOnce: "NativeVirtualMemoryInterface.sysmel".
+}.

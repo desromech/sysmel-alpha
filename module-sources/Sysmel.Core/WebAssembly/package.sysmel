@@ -1,1 +1,3 @@
-Compiler loadPackage: #"LibC-FallbackOS".
+Compiler loadPackage: #"Unix".
+loadFileOnce: "../NullOS/Threads.sysmel".
+loadFileOnce: "emscripten.sysmel".

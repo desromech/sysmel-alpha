@@ -1,6 +1,5 @@
-Compiler
-	importModuleNamed: #"Sysmel.Graphics.SDL2";
-	importModuleNamed: #"Sysmel.Graphics.FreeType2".
+Compiler importModuleNamed: #"Sysmel.Graphics.SDL2".
+##Compiler importModuleNamed: #"Sysmel.Graphics.FreeType2".
 
 useNamespace: Stdn Graphics Core.
 useNamespace: Stdn Graphics GUI.
@@ -608,7 +607,7 @@ function audioCallback(userdata: Void pointer, stream: UInt8 pointer, len: Int32
 			}.
 		}.
 		let _ : {
-			Stdn memset(stream, 0, len).
+			Stdn memset(stream, 0, len castTo: UIntPointer).
 		}.
 	}.
 }.
@@ -625,6 +624,10 @@ method createWallMin: (min: Float32x2) max: (max: Float32x2) color: (color: Floa
 function main externC (argc: Int32, argv: Char8 const pointer pointer) => Int32 := {
 	## Create the window system.
 	let windowSystem := createWindowSystem().
+	windowSystem ifNil: {
+		return: 0.
+	}.
+
 	windowSystem _ targetFrameRate: 60.
 
 	## Create the main window.
@@ -655,7 +658,7 @@ function main externC (argc: Int32, argv: Char8 const pointer pointer) => Int32 
 			yourself.
 		audioDeviceID := SDL_OpenAudioDevice(nil, 0, desiredAudioSpec address, audioDeviceSpec address, SDL_AUDIO_ALLOW_FREQUENCY_CHANGE | SDL_AUDIO_ALLOW_FORMAT_CHANGE | SDL_AUDIO_ALLOW_SAMPLES_CHANGE).
 		audioDeviceSpec format ~= AUDIO_F32 ifTrue: {
-			audioTemporaryBuffer := Stdn malloc(audioDeviceSpec samples * 8) reinterpretCastTo: Float32x2 pointer.
+			audioTemporaryBuffer := Stdn malloc(audioDeviceSpec samples * 8 castTo: UIntPointer) reinterpretCastTo: Float32x2 pointer.
 		}.
 	}.
 

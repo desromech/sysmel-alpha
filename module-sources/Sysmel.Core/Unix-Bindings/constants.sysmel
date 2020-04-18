@@ -98,4 +98,51 @@ namespace Unix definition: {
         compileTime constant IPPROTO_TCP := 6.
         compileTime constant IPPROTO_IPV6 := 41.
     }.
+
+    if: Compiler compilationTarget isWebAssembly then: {
+        compileTime constant O_RDONLY := 16r00000000.
+        compileTime constant O_WRONLY := 16r00000001.
+        compileTime constant O_RDWR := 16r00000002.
+
+        compileTime constant O_CREAT       := 8r100.
+        compileTime constant O_EXCL        := 8r200.
+        compileTime constant O_NOCTTY      := 8r400.
+        compileTime constant O_TRUNC      := 8r1000.
+        compileTime constant O_APPEND     := 8r2000.
+        compileTime constant O_NONBLOCK   := 8r4000.
+        compileTime constant O_DSYNC     := 8r10000.
+        compileTime constant O_SYNC    := 8r4010000.
+        compileTime constant O_RSYNC   := 8r4010000.
+        compileTime constant O_DIRECTORY := 8r200000.
+        compileTime constant O_NOFOLLOW := 8r400000.
+        compileTime constant O_CLOEXEC := 8r2000000.
+
+        compileTime constant O_ASYNC     := 8r20000.
+        compileTime constant O_DIRECT    := 8r40000.
+        compileTime constant O_LARGEFILE := 8r100000.
+        compileTime constant O_NOATIME := 8r1000000.
+        compileTime constant O_PATH   := 8r10000000.
+        compileTime constant O_TMPFILE := 8r20000000.
+        compileTime constant O_NDELAY := O_NONBLOCK.
+
+        compileTime constant F_DUPFD  := 0.
+        compileTime constant F_GETFD  := 1.
+        compileTime constant F_SETFD  := 2.
+        compileTime constant F_GETFL  := 3.
+        compileTime constant F_SETFL  := 4.
+
+        compileTime constant F_SETOWN := 8.
+        compileTime constant F_GETOWN := 9.
+        compileTime constant F_SETSIG := 10.
+        compileTime constant F_GETSIG := 11.
+
+        compileTime constant F_GETLK := 12.
+        compileTime constant F_SETLK := 13.
+        compileTime constant F_SETLKW := 14.
+
+        compileTime constant F_SETOWN_EX := 15.
+        compileTime constant F_GETOWN_EX := 16.
+
+        compileTime constant F_GETOWNER_UIDS := 17.
+    }.
 }.

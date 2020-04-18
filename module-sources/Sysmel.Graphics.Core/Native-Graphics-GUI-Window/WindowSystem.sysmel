@@ -39,45 +39,60 @@ class WindowSystem superclass: Object; definition: {
 
     ## Run the default main loop.
     virtual method runMainLoop => Int32 := {
-        let oldTicks mutable := Stdn Chrono now().
-        let accumulatedTicks mutable type: Stdn Chrono Time.
-        let mainLoopStartTicks := Stdn Chrono now().
+        compileTime if: Compiler compilationTarget isWebAssembly then: {
+            Emscripten emscripten_set_main_loop_arg(windowSystemMainLoopCallback address, self address, targetFrameRate castTo: Int32, 1).
+        } else: {
+            let oldTicks mutable := Stdn Chrono now().
+            let accumulatedTicks mutable type: Stdn Chrono Time.
+            let mainLoopStartTicks := Stdn Chrono now().
 
-        until: self isQuitting do: {
-            let frameStartTicks := Stdn Chrono now().
-            self pollAndPumpEvents.
+            until: self isQuitting do: {
+                let frameStartTicks := Stdn Chrono now().
+                self pollAndPumpEvents.
 
-            let ticksPerFrame := Stdn Chrono TicksPerSecond / targetFrameRate.
+                let ticksPerFrame := Stdn Chrono TicksPerSecond / targetFrameRate.
 
-            let deltaTicks := frameStartTicks - oldTicks.
-            accumulatedTicks := accumulatedTicks + deltaTicks.
+                let deltaTicks := frameStartTicks - oldTicks.
+                accumulatedTicks := accumulatedTicks + deltaTicks.
 
-            let deterministicFrameCount := accumulatedTicks / ticksPerFrame max: 0.
-            accumulatedTicks := accumulatedTicks - deterministicFrameCount*ticksPerFrame.
+                let deterministicFrameCount := accumulatedTicks / ticksPerFrame max: 0.
+                accumulatedTicks := accumulatedTicks - deterministicFrameCount*ticksPerFrame.
 
-            ## Send the tick events
-            {
-                let event mutable type: TickEvent.
-                event
-                    ticks: frameStartTicks - mainLoopStartTicks;
-                    deterministicDelta: ticksPerFrame;
-                    deterministicRemainingDelta: accumulatedTicks;
-                    deterministicFrameCount: (deterministicFrameCount castTo: UInt32);
-                    delta: deltaTicks.
-                self broadcastEvent: event.
+                ## Send the tick events
+                {
+                    let event mutable type: TickEvent.
+                    event
+                        ticks: frameStartTicks - mainLoopStartTicks;
+                        deterministicDelta: ticksPerFrame;
+                        deterministicRemainingDelta: accumulatedTicks;
+                        deterministicFrameCount: (deterministicFrameCount castTo: UInt32);
+                        delta: deltaTicks.
+                    self broadcastEvent: event.
+                }.
+
+                targetFrameRate > 0 ifTrue: {
+                    let targetNextFrameTime := frameStartTicks + ticksPerFrame.
+                    Stdn Chrono sleepUntil(targetNextFrameTime)
+                } ifFalse: {
+                    self waitForNextEventOrTimeout.
+                }.
+
+                oldTicks := frameStartTicks.
             }.
-
-            targetFrameRate > 0 ifTrue: {
-                let targetNextFrameTime := frameStartTicks + ticksPerFrame.
-                Stdn Chrono sleepUntil(targetNextFrameTime)
-            } ifFalse: {
-                self waitForNextEventOrTimeout.
-            }.
-
-            oldTicks := frameStartTicks.
         }.
 
         return: 0
+    }.
+
+    #**
+     * A single iteration of the main loop.
+     *#
+    virtual method mainLoopIteration => Void := {
+        {
+            let event mutable type: TickEvent.
+            self broadcastEvent: event.
+        }.
+        self pollAndPumpEvents.
     }.
 
     #**
@@ -100,6 +115,12 @@ class WindowSystem superclass: Object; definition: {
     virtual method broadcastEvent: (event: Event ref) ::=> Void := {
 
     }.
+}.
+
+compileTime if: Compiler compilationTarget isWebAssembly then: {
+function windowSystemMainLoopCallback(windowSystemPointer: Void pointer) => Void := {
+    (windowSystemPointer reinterpretCastTo: WindowSystem pointer) _ mainLoopIteration
+}.
 }.
 
 compileTime constant WindowSystemRef := WindowSystem sharedPointer.

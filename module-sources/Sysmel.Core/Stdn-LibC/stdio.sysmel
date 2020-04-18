@@ -19,5 +19,9 @@ namespace LibC definition: {
     function fwrite externC dllimport (ptr: Void const pointer, size: SizeT, nmemb: SizeT, stream: FILE pointer) => SizeT.
     function ftell externC dllimport (stream: FILE pointer) => Int32.
 
-
+    compileTime if: Compiler compilationTarget isWebAssembly then: {
+        global stdin mutable externC type: FILE pointer.
+        global stdout mutable externC type: FILE pointer.
+        global stderr mutable externC type: FILE pointer.
+    }.
 }.

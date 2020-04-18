@@ -1525,7 +1525,7 @@ MbndSlovimCodeModuleGenerator >> visitAggregateBasicInitializeMethod: generatedM
 			]
 		].
 	
-		builder return: receiver
+		builder returnVoid
 	]
 
 ]
