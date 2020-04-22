@@ -24,7 +24,8 @@ Class {
 		'currentModuleStack',
 		'outputDirectory',
 		'outputMode',
-		'hasBeginModule'
+		'hasBeginModule',
+		'importedModuleModificationTimeCache'
 	],
 	#category : #'SysmelMoebiusMetamodel-Core-Module'
 }
@@ -225,6 +226,11 @@ MbndCompilationEnvironment >> executable [
 	self outputMode: #executable
 ]
 
+{ #category : #'module import' }
+MbndCompilationEnvironment >> findImportModuleFileReferenceFor: moduleName [
+	^ self validOutputDirectory / (moduleName , '.smpmodule')
+]
+
 { #category : #'as yet unclassified' }
 MbndCompilationEnvironment >> finishAndEmitModule [
 	| outputFileName outputFileReference result |
@@ -249,6 +255,32 @@ MbndCompilationEnvironment >> freestanding [
 	^ self
 		noLibC;
 		noRTTI.
+]
+
+{ #category : #'module import' }
+MbndCompilationEnvironment >> getLastModificationTimeOfModule: dependencyName [
+	| result importModuleFileReference depsFileReference |
+	
+	importedModuleModificationTimeCache at: dependencyName ifPresent: [ :found | ^ found ] ifAbsentPut: [ DateAndTime now ].
+	
+	importModuleFileReference := self findImportModuleFileReferenceFor: dependencyName.
+	importModuleFileReference exists ifFalse: [ ^ importedModuleModificationTimeCache at: dependencyName ].
+	
+	result := importModuleFileReference modificationTime.
+	
+	depsFileReference := importModuleFileReference withExtension: importModuleFileReference extension , '.deps'.
+	depsFileReference exists ifFalse: [
+		importedModuleModificationTimeCache at: dependencyName put: result.
+		^ result
+	].
+
+	result := result max: depsFileReference modificationTime.
+	(self parseModificationTimesOfDependencies: depsFileReference contents) do: [ :each |
+		result := result max: each.
+	].
+
+	importedModuleModificationTimeCache at: dependencyName put: result.
+	^ result
 ]
 
 { #category : #testing }
@@ -405,8 +437,8 @@ MbndCompilationEnvironment >> importOrCompileModuleNamed: moduleName [
 	| importModuleFileReference |
 	self hasMonolithicTranslationMode ifTrue: [ ^ self compileModuleNamed: moduleName ].
 
-	importModuleFileReference := self validOutputDirectory / (moduleName , '.smpmodule').
-	importModuleFileReference exists ifFalse: [
+	importModuleFileReference := self findImportModuleFileReferenceFor: moduleName.
+	(self shouldCompileModule: moduleName withFileReference: importModuleFileReference) ifTrue: [
 		| moduleCompilationEnvironment |
 		moduleCompilationEnvironment := self newCompilationEnvironmentForCleanModuleBuilding.
 		moduleName ~= self coreModuleName ifTrue: [ 
@@ -416,8 +448,8 @@ MbndCompilationEnvironment >> importOrCompileModuleNamed: moduleName [
 		moduleCompilationEnvironment
 			compileModuleNamed: moduleName;
 			finishAndEmitModule.
+		importedModuleModificationTimeCache at: moduleName put: importModuleFileReference modificationTime.
 	].
-	
 	
 	^ self importModuleFrom: importModuleFileReference
 ]
@@ -427,6 +459,7 @@ MbndCompilationEnvironment >> initializeWithCompilationTarget: aCompilationTarge
 	compilationTarget := aCompilationTarget.
 	moduleSourceLocations := OrderedCollection new.
 	moduleSourceLocations add: MbndCoreAssets location / 'module-sources'.
+	importedModuleModificationTimeCache := Dictionary new.
 	outputMode := #executable.
 	hasBeginModule := false.
 
@@ -586,6 +619,33 @@ MbndCompilationEnvironment >> outputModeForDependencies [
 	^ outputMode
 ]
 
+{ #category : #'module import' }
+MbndCompilationEnvironment >> parseModificationTimeOfDependency: each [
+	| typeDelimiterPosition dependencyType dependencyName dependencyFileRef |
+	typeDelimiterPosition := each indexOf: $:.
+	dependencyType := each first: typeDelimiterPosition - 1.
+	dependencyName := each allButFirst: typeDelimiterPosition.
+	
+	dependencyFileRef := nil.
+	dependencyType = 'file' ifTrue: [ 
+		dependencyFileRef := dependencyName asFileReference.
+	].
+	dependencyType = 'module' ifTrue: [ 
+		^ self getLastModificationTimeOfModule: dependencyName
+	].
+
+	(dependencyFileRef isNil or: [dependencyFileRef exists not]) ifTrue: [ 
+		^ DateAndTime now
+	].
+
+	^ dependencyFileRef modificationTime
+]
+
+{ #category : #'module import' }
+MbndCompilationEnvironment >> parseModificationTimesOfDependencies: dependencies [
+	^ dependencies lines collect: [ :each | self parseModificationTimeOfDependency: each ]
+]
+
 { #category : #private }
 MbndCompilationEnvironment >> popCurrentModule [
 	self hasMonolithicTranslationMode ifTrue: [
@@ -614,6 +674,14 @@ MbndCompilationEnvironment >> pushCurrentModule [
 { #category : #'module output format' }
 MbndCompilationEnvironment >> shared [
 	self outputMode: #shared
+]
+
+{ #category : #'module import' }
+MbndCompilationEnvironment >> shouldCompileModule: moduleName withFileReference: importModuleFileReference [
+	importModuleFileReference exists ifFalse: [ ^ true ].
+	
+	^ (self getLastModificationTimeOfModule: moduleName) > importModuleFileReference modificationTime.
+
 ]
 
 { #category : #parameters }
@@ -673,10 +741,13 @@ MbndCompilationEnvironment >> writeExecutableToFileNamed: outputFileName [
 
 { #category : #writing }
 MbndCompilationEnvironment >> writeExportModuleFor: outputFileName [
-	| outputFileReference outputExportModuleFileReference |
+	| outputFileReference outputExportModuleFileReference outputExportDepsFileReference |
 	outputFileReference := outputFileName asFileReference.
-	outputExportModuleFileReference := outputFileReference parent / (outputFileReference basenameWithoutExtension , '.smpmodule').
-	self validCurrentModule exportModulePublicInterfaceTo: outputExportModuleFileReference
+	outputExportModuleFileReference := outputFileReference withExtension: 'smpmodule'.
+	outputExportDepsFileReference := outputExportModuleFileReference withExtension: 'smpmodule.deps'.
+	self validCurrentModule
+		exportModulePublicInterfaceTo: outputExportModuleFileReference;
+		exportModuleDependenciesTo: outputExportDepsFileReference
 
 
 ]

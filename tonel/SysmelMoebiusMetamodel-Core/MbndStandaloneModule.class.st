@@ -7,7 +7,8 @@ Class {
 		'importedModules',
 		'loadedPackageStates',
 		'linkerArguments',
-		'linkerImportModule'
+		'linkerImportModule',
+		'modificationTime'
 	],
 	#classVars : [
 		'MessagePackTypeMapTable'
@@ -103,8 +104,9 @@ MbndStandaloneModule >> allImportedModules [
 	| result visited |
 	result := OrderedCollection new.
 	visited := IdentitySet new.
-	self allImportedModulesInto: result visited: visited.
-	^ visited
+	visited add: self. "Do not add me to the result."
+	self importedModules do: [ :each | each allImportedModulesInto: result visited: visited ].
+	^ result
 ]
 
 { #category : #'as yet unclassified' }
@@ -284,6 +286,20 @@ MbndStandaloneModule >> evaluateModuleLevelFilesIfExists: fileName [
 ]
 
 { #category : #'as yet unclassified' }
+MbndStandaloneModule >> exportModuleDependenciesTo: outputFileName [
+	outputFileName asFileReference writeStreamDo: [ :out |
+		out truncate.
+		self allImportedModules asArray do: [ :each |
+			self assert: each ~~ self.
+			out nextPutAll: 'module:'; nextPutAll: each name; lf
+		].
+		self evaluatedFileSet asArray sorted do: [ :each |
+			out nextPutAll: 'file:'; nextPutAll: each asFileReference asAbsolute canonicalize fullName; lf
+		].
+	]
+]
+
+{ #category : #'as yet unclassified' }
 MbndStandaloneModule >> exportModulePublicInterfaceTo: outputFileName [
 	| publicModuleEncodedMessage |
 	publicModuleEncodedMessage := self encodeModulePublicInterface.
@@ -345,9 +361,11 @@ MbndStandaloneModule >> hasStandardLibrary [
 
 { #category : #serialization }
 MbndStandaloneModule >> importModuleFrom: aModuleExportFileDefinition [
-	| moduleExportFileContents decodedExportedModuleAttributes |
+	| moduleExportFileReference moduleExportFileContents decodedExportedModuleAttributes |
 	importedModules := #().
-	moduleExportFileContents := aModuleExportFileDefinition asFileReference binaryReadStreamDo: [ :in | in contents ].
+	moduleExportFileReference := aModuleExportFileDefinition asFileReference.
+	modificationTime := moduleExportFileReference modificationTime.
+	moduleExportFileContents := moduleExportFileReference binaryReadStreamDo: [ :in | in contents ].
 	MbndProfiler component: #importModuleDecode with: [
 		decodedExportedModuleAttributes := Dictionary newFromPairs: (MbndMessagePackGraphDecoder new
 			typeTable: MessagePackTypeMapTable;
@@ -468,6 +486,16 @@ MbndStandaloneModule >> materializeWithGraphDecoder: graphDecoder withFields: en
 	encodedFields at: #bootstrapObjects ifPresent: [ :bootstrapObjects |
 		self compilationTarget materializeBootstrapDefinedObjectWithGraphDecoder: graphDecoder withFields: (Dictionary newFromPairs: bootstrapObjects)
 	]
+]
+
+{ #category : #accessing }
+MbndStandaloneModule >> modificationTime [
+	^ modificationTime
+]
+
+{ #category : #accessing }
+MbndStandaloneModule >> modificationTime: anObject [
+	modificationTime := anObject
 ]
 
 { #category : #'as yet unclassified' }
