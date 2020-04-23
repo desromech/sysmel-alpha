@@ -108,8 +108,7 @@ class Character superclass: Entity; definition: {
 		let bestCollisionExpandedBound mutable type: RectangleF32.
 
 		entities do: {:entity :: Void |
-			## FIXME: Make this cast redundant.
-			entity ~~ (self address castTo: Entity pointer) &&
+			entity ~~ self address &&
 			entity _ isDead not &&
 			entity _ hasCollisionResponse ifTrue: {
 				let entityExpandedBoundingBox mutable := entity _ boundingBoxExpandedWith: halfExtent.
@@ -172,26 +171,22 @@ class Bullet superclass: Entity; definition: {
 	override method isDead => Boolean8
 		:= hasHitTarget || flyingTime > maxFlyingTime.
 
+	override method hasCollisionResponse => Boolean8
+		:= false.
+
 	override method update: (delta: Float32) ::=> Void := {
 		let targetPosition := position + velocity * delta.
 		let oldPosition := position.
 		flyingTime := flyingTime + delta.
 
-		## Compute the ray direction and length.
-		let rayOrigin := oldPosition.
-		let rayDirection mutable := targetPosition - position.
-		let rayLength := rayDirection length2 sqrt.##rayDirection length.
-		rayLength < 0.00001f ifTrue: { return: nil }.
-		rayDirection := rayDirection / rayLength.
-
 		## Perform Minkowski difference based collision detection with the boxes.
-		let bestCollisionAlpha mutable := rayLength.
+		let ray := Ray2dF32 from: oldPosition to: targetPosition.
+		let bestCollisionAlpha mutable := ray tmax.
 		let bestCollisionEntity mutable type: Entity pointer := nil.
-		let ray := Ray2dF32 origin: rayOrigin direction: rayDirection.
 
 		entities do: {:entity :: Void |
-			## FIXME: Make this cast redundant.
 			entity ~~ shooter &&
+			entity ~~ self address &&
 			entity _ isDead not &&
 			entity _ canBeShot ifTrue: {
 				let entityExpandedBoundingBox mutable := entity _ boundingBoxExpandedWith: halfExtent.
@@ -208,7 +203,7 @@ class Bullet superclass: Entity; definition: {
 
 		bestCollisionEntity ifNotNil: {
 			hasHitTarget := true.
-			bestCollisionEntity _ shotAt: rayOrigin + bestCollisionAlpha*rayDirection withDamage: damage.
+			bestCollisionEntity _ shotAt: (ray pointAtDistance: bestCollisionAlpha) withDamage: damage.
 			return: nil
 		}.
 
