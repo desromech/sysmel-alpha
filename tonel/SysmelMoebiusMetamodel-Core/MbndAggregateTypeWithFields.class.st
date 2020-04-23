@@ -91,9 +91,11 @@ MbndAggregateTypeWithFields >> buildSuperTypesSlotLayoutWith: builder [
 MbndAggregateTypeWithFields >> createBasicInitializeMethod [
 	| asReceiverType |
 	asReceiverType := self asReceiverType.
+	self assert: self compilationEnvironment currentModule isNotNil.
 	basicInitializeMethod := MbndAggregateBasicInitializeMethod new
 		name: #basicInitialize;
 		receiverType: asReceiverType;
+		module: self compilationEnvironment currentModule;
 		type: (self compilationTarget functionTypeWithArguments: {asReceiverType} returnType: self compilationTarget voidType);
 		boundType: (self compilationTarget functionTypeWithArguments: #() returnType: self compilationTarget voidType).
 	self
@@ -213,7 +215,9 @@ MbndAggregateTypeWithFields >> getOrCreateOptionallyGeneratedMethod: selector of
 	].
 
 	asReceiverType := self asReceiverType.
+	self assert: self compilationEnvironment currentModule isNotNil.
 	method := generatedMethodClass new
+		module: self compilationEnvironment currentModule;
 		name: selector;
 		receiverType: asReceiverType;
 		type: (self compilationTarget functionTypeWithArguments: {asReceiverType} , argumentTypes returnType: returnType);

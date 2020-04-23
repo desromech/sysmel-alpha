@@ -70,3 +70,8 @@ MbndArraySliceType >> printOn: aStream [
 	aStream nextPutAll: ' arraySlice'.
 
 ]
+
+{ #category : #printing }
+MbndArraySliceType >> qualifiedName [
+	^ self asString
+]

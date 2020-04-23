@@ -1467,6 +1467,12 @@ MbndSlovimCodeModuleGenerator >> unmangledNameForProgramEntity: programEntity [
 
 { #category : #visiting }
 MbndSlovimCodeModuleGenerator >> unmangledNameForProgramEntity: programEntity into: out [
+	programEntity isMbndType ifTrue: [ 
+		(programEntity isCoreBasicType or: [programEntity isSystemProvidedTypeTemplateInstanceMainChild]) ifTrue: [
+			^ out nextPutAll: programEntity asString
+		] 
+	].
+
 	programEntity parent ifNil: [
 		programEntity isNamespace ifTrue: [
 			out nextPutAll: programEntity module name.

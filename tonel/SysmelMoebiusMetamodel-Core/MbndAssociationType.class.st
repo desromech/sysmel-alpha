@@ -74,6 +74,11 @@ MbndAssociationType >> printOn: aStream [
 
 ]
 
+{ #category : #printing }
+MbndAssociationType >> qualifiedName [
+	^ self asString
+]
+
 { #category : #accessing }
 MbndAssociationType >> valueType [
 	^ valueType

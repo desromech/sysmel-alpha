@@ -31,7 +31,7 @@ MbndSpecialStructureType >> initializeNonTraitType [
 	self isTrait ifFalse: [ 
 		self addFields.
 		self markAsDefined.
-		self ensureSemanticAnalysis
+		self compilationEnvironment currentModule enqueueProgramEntityWithDelayedSemanticAnalysis: self
 	].
 
 ]
@@ -42,8 +42,22 @@ MbndSpecialStructureType >> isModuleSpecificType [
 ]
 
 { #category : #testing }
+MbndSpecialStructureType >> isNonTrivial [
+	^ self isTrivial not
+]
+
+{ #category : #testing }
 MbndSpecialStructureType >> isSpecialStructureType [
 	^ true
+]
+
+{ #category : #testing }
+MbndSpecialStructureType >> isTrivial [
+	^ self hasTrivialInitialization and:
+	[ self hasTrivialFinalization and:
+	[ self hasTrivialInitializationCopyingFrom and:
+	[ self hasTrivialInstanceFinalization and:
+	[ self hasTrivialBasicInitialization ]]]]
 ]
 
 { #category : #'as yet unclassified' }

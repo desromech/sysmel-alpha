@@ -19,6 +19,8 @@ MbndPointerArithmeticOperationCoercionMacro >> computeAddressSpaceCoercionTypeAt
 { #category : #'as yet unclassified' }
 MbndPointerArithmeticOperationCoercionMacro >> computeBaseCoercionTypeAt: node left: leftBaseType right: rightBaseType [
 	leftBaseType == rightBaseType ifTrue: [ ^ leftBaseType ].
+	(leftBaseType isSubtypeOf: rightBaseType) ifTrue: [ ^ rightBaseType ].
+	(rightBaseType isSubtypeOf: leftBaseType) ifTrue: [ ^ leftBaseType ].
 	self halt
 ]
 

@@ -221,6 +221,7 @@ MbndStandaloneModule >> encodeFieldsForMessagePackWith: graphEncoder [
 		#extensionMacros . self extensionMacros encodeGraphForMessagePackWith: graphEncoder.
 		#extensionOverloadedMethods . self extensionOverloadedMethods encodeGraphForMessagePackWith: graphEncoder.
 		#externalTemplateInstances . self externalTemplateInstances encodeGraphForMessagePackWith: graphEncoder.
+		#nonTrivialSpecialStructures . (self specialStructures select: [ :each | each isNonTrivial ]) asArray encodeGraphForMessagePackWith: graphEncoder.
 		#linkerArguments . self linkerArguments asArray.
 		#linkerImportModule . linkerImportModule
 	}.

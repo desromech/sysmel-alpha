@@ -11,9 +11,11 @@ Trait {
 		'embeddedShaderCopyOutputFile',
 		'externalTemplateInstances',
 		'anonSymbolCount',
-		'extensionMethods'
+		'extensionMethods',
+		'specialStructures'
 	],
 	#traits : 'TMbndProgramEntity',
+	#classTraits : 'TMbndProgramEntity classTrait',
 	#category : #'SysmelMoebiusMetamodel-Core-Module'
 }
 
@@ -397,9 +399,24 @@ TMbndModule >> recordExtensionFor: parentEntity overloadedMethod: method withSel
 ]
 
 { #category : #extensions }
+TMbndModule >> recordSpecialNonTrivialStructure: specialStructure [
+	self specialNonTrivialStructures add: specialStructure
+]
+
+{ #category : #extensions }
+TMbndModule >> recordSpecialStructure: specialStructure [
+	self specialStructures add: specialStructure
+]
+
+{ #category : #extensions }
 TMbndModule >> recordTemplate: template instanceDefinition: templateInstance [
 	self assert: templateInstance module == self.
 	self externalTemplateInstances add: { template . templateInstance }
+]
+
+{ #category : #extensions }
+TMbndModule >> specialStructures [
+	^ specialStructures := OrderedCollection new.
 ]
 
 { #category : #parameters }
