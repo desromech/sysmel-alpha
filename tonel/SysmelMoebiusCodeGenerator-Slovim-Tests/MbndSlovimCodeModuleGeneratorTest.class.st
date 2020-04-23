@@ -7484,6 +7484,175 @@ MbndSlovimCodeModuleGeneratorTest >> testTempReferenceLoad [
 ]
 
 { #category : #tests }
+MbndSlovimCodeModuleGeneratorTest >> testTupleConstExtractElement [
+	| function |
+	self
+		evaluateSysmelSource: '
+function tupleFirst externC(argument: (Int32 -- Float32) const) => Int32
+	:= argument[0].
+
+';
+		generateSSAModule.
+
+	function := ssaModule globalNamed: #tupleFirst.
+	self assert: function asFullSExpressionForTesting equals: #(
+function tupleFirst cdecl i32
+    arguments ((argument (struct nil generic (i32 f32) (element0 element1 element2) ()) ()))
+    literals ()
+    blocks (
+        (()
+            (nil jump void () () (block 2 body))
+        )
+        (()
+            (nil extractValue i32 () ((local 0 argument)) (0))
+            (nil return void () ((local 2 nil)))
+        )
+    )
+	)
+]
+
+{ #category : #tests }
+MbndSlovimCodeModuleGeneratorTest >> testTupleConstRefExtractElement [
+	| function |
+	self
+		evaluateSysmelSource: '
+function tupleFirst externC(argument: (Int32 -- Float32) const ref) => Int32
+	:= argument[0].
+
+';
+		generateSSAModule.
+
+	function := ssaModule globalNamed: #tupleFirst.
+	self assert: function asFullSExpressionForTesting equals: #(
+function tupleFirst cdecl i32
+    arguments ((argument (pointer (struct nil generic (i32 f32) (element0 element1 element2) ()) generic) ()))
+    literals ()
+    blocks (
+        (()
+            (nil jump void () () (block 2 body))
+        )
+        (()
+            (nil getElementPointer (pointer i32 generic) () ((local 0 argument) (const i32 0) (const i32 0)))
+            (nil load i32 () ((local 2 nil)))
+            (nil return void () ((local 3 nil)))
+        )
+    )
+	)
+]
+
+{ #category : #tests }
+MbndSlovimCodeModuleGeneratorTest >> testTupleExtractElement [
+	| function |
+	self
+		evaluateSysmelSource: '
+function tupleFirst externC(argument: (Int32 -- Float32)) => Int32
+	:= argument[0].
+
+';
+		generateSSAModule.
+
+	function := ssaModule globalNamed: #tupleFirst.
+	self assert: function asFullSExpressionForTesting equals: #(
+function tupleFirst cdecl i32
+    arguments ((argument (struct nil generic (i32 f32) (element0 element1 element2) ()) ()))
+    literals ()
+    blocks (
+        (()
+            (nil jump void () () (block 2 body))
+        )
+        (()
+            (nil extractValue i32 () ((local 0 argument)) (0))
+            (nil return void () ((local 2 nil)))
+        )
+    )
+	)
+]
+
+{ #category : #tests }
+MbndSlovimCodeModuleGeneratorTest >> testTupleExtractElement2 [
+	| function |
+	self
+		evaluateSysmelSource: '
+function tupleFirst externC(argument: (Int32 -- Float32)) => Float32
+	:= argument[1].
+
+';
+		generateSSAModule.
+
+	function := ssaModule globalNamed: #tupleFirst.
+	self assert: function asFullSExpressionForTesting equals: #(
+function tupleFirst cdecl f32
+    arguments ((argument (struct nil generic (i32 f32) (element0 element1 element2) ()) ()))
+    literals ()
+    blocks (
+        (()
+            (nil jump void () () (block 2 body))
+        )
+        (()
+            (nil extractValue f32 () ((local 0 argument)) (1))
+            (nil return void () ((local 2 nil)))
+        )
+    )
+	)
+]
+
+{ #category : #tests }
+MbndSlovimCodeModuleGeneratorTest >> testTupleExtractElement3 [
+	| function |
+	self
+		evaluateSysmelSource: '
+function tupleFirst externC(argument: (Int32 -- Float32)) => Int32
+	:= argument at: 1.
+
+';
+		generateSSAModule.
+
+	function := ssaModule globalNamed: #tupleFirst.
+	self assert: function asFullSExpressionForTesting equals: #(
+function tupleFirst cdecl i32
+    arguments ((argument (struct nil generic (i32 f32) (element0 element1 element2) ()) ()))
+    literals ()
+    blocks (
+        (()
+            (nil jump void () () (block 2 body))
+        )
+        (()
+            (nil extractValue i32 () ((local 0 argument)) (0))
+            (nil return void () ((local 2 nil)))
+        )
+    )
+	)
+]
+
+{ #category : #tests }
+MbndSlovimCodeModuleGeneratorTest >> testTupleExtractElement4 [
+	| function |
+	self
+		evaluateSysmelSource: '
+function tupleFirst externC(argument: (Int32 -- Float32)) => Float32
+	:= argument at: 2.
+
+';
+		generateSSAModule.
+
+	function := ssaModule globalNamed: #tupleFirst.
+	self assert: function asFullSExpressionForTesting equals: #(
+function tupleFirst cdecl f32
+    arguments ((argument (struct nil generic (i32 f32) (element0 element1 element2) ()) ()))
+    literals ()
+    blocks (
+        (()
+            (nil jump void () () (block 2 body))
+        )
+        (()
+            (nil extractValue f32 () ((local 0 argument)) (1))
+            (nil return void () ((local 2 nil)))
+        )
+    )
+	)
+]
+
+{ #category : #tests }
 MbndSlovimCodeModuleGeneratorTest >> testTupleParameter [
 	| function |
 	self
@@ -7502,6 +7671,35 @@ function callWithTuple externC() => Void := {
 		#(#entry #(#jump))
 		#(#body #(#jump))
 		#(#tryScope #(#insertValue #insertValue #call #returnVoid))
+	)
+]
+
+{ #category : #tests }
+MbndSlovimCodeModuleGeneratorTest >> testTupleRefExtractElement [
+	| function |
+	self
+		evaluateSysmelSource: '
+function tupleFirst externC(argument: (Int32 -- Float32) ref) => Int32
+	:= argument[0].
+
+';
+		generateSSAModule.
+
+	function := ssaModule globalNamed: #tupleFirst.
+	self assert: function asFullSExpressionForTesting equals: #(
+function tupleFirst cdecl i32
+    arguments ((argument (pointer (struct nil generic (i32 f32) (element0 element1 element2) ()) generic) ()))
+    literals ()
+    blocks (
+        (()
+            (nil jump void () () (block 2 body))
+        )
+        (()
+            (nil getElementPointer (pointer i32 generic) () ((local 0 argument) (const i32 0) (const i32 0)))
+            (nil load i32 () ((local 2 nil)))
+            (nil return void () ((local 3 nil)))
+        )
+    )
 	)
 ]
 

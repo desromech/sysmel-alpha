@@ -1,6 +1,6 @@
 Class {
 	#name : #MbndArrayType,
-	#superclass : #MbndAggregateType,
+	#superclass : #MbndSequenceableAggregateType,
 	#instVars : [
 		'elementType',
 		'elements',

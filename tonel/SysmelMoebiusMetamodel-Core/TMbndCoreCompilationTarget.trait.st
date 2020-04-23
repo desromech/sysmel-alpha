@@ -1477,7 +1477,7 @@ TMbndCoreCompilationTarget >> temporaryReferenceFor: addressSpace to: baseType [
 
 { #category : #'derived types' }
 TMbndCoreCompilationTarget >> tuple: elements [
-	^ tupleTypes getOrCreateInstanceWithArguments: { elements }
+	^ tupleTypes getOrCreateInstanceWithArguments: { elements asArray }
 ]
 
 { #category : #'derived types' }

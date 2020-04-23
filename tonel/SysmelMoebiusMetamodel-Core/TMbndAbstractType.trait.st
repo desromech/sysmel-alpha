@@ -839,6 +839,11 @@ TMbndAbstractType >> isAggregateType [
 ]
 
 { #category : #'testing methods' }
+TMbndAbstractType >> isArraySliceType [
+	^ false
+]
+
+{ #category : #'testing methods' }
 TMbndAbstractType >> isArrayType [
 	^ false
 ]

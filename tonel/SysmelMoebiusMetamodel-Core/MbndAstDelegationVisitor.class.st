@@ -593,6 +593,11 @@ MbndAstDelegationVisitor >> visitTruncateCastNode: node [
 ]
 
 { #category : #visiting }
+MbndAstDelegationVisitor >> visitTupleElementReferenceNode: node [
+	^ self delegateNodeVisit: node
+]
+
+{ #category : #visiting }
 MbndAstDelegationVisitor >> visitTupleNode: node [
 	^ self delegateNodeVisit: node
 ]

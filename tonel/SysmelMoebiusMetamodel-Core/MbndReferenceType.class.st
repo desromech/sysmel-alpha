@@ -23,6 +23,10 @@ MbndReferenceType >> addDefaultConversionRules [
 			addImplicitConversionRule: MbndPointerAddConstConversionRule new.
 		self addConversionRule: MbndToDerivedTypeConceptConversionRule new.
 		baseType isPossibleToLoadReferences ifTrue: [
+			baseType isDecorationType ifTrue: [ 
+				self
+					addConversionTo: baseType rule: MbndReferenceLoadTypeConversionRule.
+			].
 			self
 				addConversionTo: baseType withoutTopDecorations rule: MbndReferenceLoadTypeConversionRule.
 			baseType isConstantType ifTrue: [ 

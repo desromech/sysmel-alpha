@@ -21,6 +21,12 @@ MbndAssociationType >> accept: aVisitor [
 	^ aVisitor visitAssociationType: self
 ]
 
+{ #category : #converting }
+MbndAssociationType >> asImmutableValueType [
+	self isPOD ifTrue: [ ^ self ].
+	^ super asImmutableValueType
+]
+
 { #category : #'testing methods' }
 MbndAssociationType >> computeLayout [
 	self assert: keyType isLiteralValueType not.

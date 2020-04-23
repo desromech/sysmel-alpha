@@ -709,7 +709,7 @@ MbndSlovimDebugInformationTranslator >> visitTupleType: tupleType [
 		members: (tupleType elements collectWithIndex: [ :fieldType :index |
 			SLVMDebugDerivedType new
 				makeMember;
-				name: ('element' , (index - 1)) asSymbol;
+				name: ('element' , (index - 1) asString) asSymbol;
 				baseType: (self translateDebugType: fieldType);
 				byteSize: fieldType instanceSize;
 				byteOffset: (tupleType elementOffsets at: index);

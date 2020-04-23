@@ -1,6 +1,6 @@
 Class {
 	#name : #MbndTupleType,
-	#superclass : #MbndAggregateType,
+	#superclass : #MbndSequenceableAggregateType,
 	#instVars : [
 		'elements',
 		'instanceSize',
@@ -64,7 +64,25 @@ MbndTupleType >> addInstanceMacros [
 				position: node position;
 				elements: node receiver elements;
 				yourself
+		];
+		onMacroSelector: #subscriptAt: do: [ :node :builder |
+			(builder tuple: node receiver elementReferenceAt: node arguments first)
+				position: node;
+				isOneBasedIndex: false;
+				yourself.
+		];
+		onMacroSelector: #at: do: [ :node :builder |
+			(builder tuple: node receiver elementReferenceAt: node arguments first)
+				position: node;
+				isOneBasedIndex: true;
+				yourself.
 		]
+]
+
+{ #category : #converting }
+MbndTupleType >> asImmutableValueType [
+	self isPOD ifTrue: [ ^ self ].
+	^ super asImmutableValueType
 ]
 
 { #category : #'semantic analysis' }

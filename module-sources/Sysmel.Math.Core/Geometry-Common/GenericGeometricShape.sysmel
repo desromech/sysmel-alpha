@@ -17,7 +17,6 @@ sealed template GenericGeometricShape(ST: Type)
         compileTime constant ParametricCurveIntersectionResult := Stdn Optional(Scalar).
 
         compileTime constant Circle := GenericCircle(Scalar).
-        compileTime constant ParametricLine2d := GenericParametricLine2d(Scalar).
         compileTime constant Line2d := GenericLine2d(Scalar).
         compileTime constant Ray2d := GenericRay2d(Scalar).
         compileTime constant Segment2d := GenericSegment2d(Scalar).

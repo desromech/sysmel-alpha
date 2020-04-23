@@ -2447,6 +2447,48 @@ MbndAstSemanticAnalyzer >> visitTraitDefinitionNode: node [
 ]
 
 { #category : #visiting }
+MbndAstSemanticAnalyzer >> visitTupleElementReferenceNode: node [
+	| result index referenceAddressSpace resultDecorations containerType tupleType rawIndex resultType |
+	result := node copy container: (self analyzeNodeIfNeeded: node container).
+	index := (self evaluateCompileTimeExpression: node index) unwrapMbndValue.
+	index isInteger ifFalse: [ 
+		self error: 'Tuple element access requires an index that can be evaluated in compile time. ' at: node.
+	].
+
+	rawIndex := index.
+	node isOneBasedIndex ifTrue: [ 
+		index := index - 1.
+	].
+	result index: index.
+
+	referenceAddressSpace := nil.
+	resultDecorations := #().
+	containerType := result container type.
+	containerType isReferenceType ifTrue: [ 
+		referenceAddressSpace := containerType addressSpace.
+		containerType := containerType baseType.
+		resultDecorations := 	containerType decorations.
+	].
+
+	tupleType := containerType withoutDecorations.
+	tupleType isTupleType ifFalse: [
+		self error: 'A tuple reference or value is required to access one of its elements.' at: node
+	].
+	
+	(index < 0 or: [ index >= tupleType elements size ]) ifTrue: [
+		self error: 'Tuple element index {1} is out of bounds for accessing an element of tuple with type "{2}".' format: { rawIndex asString . tupleType asString } at: node
+	].
+
+	resultType := tupleType elements at: index + 1.
+	referenceAddressSpace ifNotNil: [
+		resultType := (resultType withDecorations: resultDecorations) refFor: referenceAddressSpace
+	].
+
+	result type: resultType.
+	^ result
+]
+
+{ #category : #visiting }
 MbndAstSemanticAnalyzer >> visitTupleToArrayCastNode: node [
 	| tupleNodes tupleElements targetType expectedElementType |
 	tupleNodes := self visitSplicingTupleNode: node expression.

@@ -288,13 +288,13 @@ class Blitter definition: {
 
         ## FIXME: optimize properly this rendering loop.
 
-        let fractionalOffset := clippedRectangle min fract.
+        let fractionalOffset := Float32x2(0.5f, 0.5f). ## Sample on the pixel centers
         let clippedRectangleI := RectangleI32 min: (clippedRectangle min floor castTo: Int32x2) max: (clippedRectangle max floor castTo: Int32x2).
         let destRow mutable := self makeUnsafePixelIteratorAt: clippedRectangleI min.
         clippedRectangleI min y until: clippedRectangleI max y do: {:(Int32)y :: Void |
             let destPixel mutable := destRow.
             clippedRectangleI min x until: clippedRectangleI max x do: {:(Int32)x :: Void |
-                let p := Float32x2(x, y).## + fractionalOffset.
+                let p := Float32x2(x, y) + fractionalOffset.
 
                 let w3 := (p2 - p1 cross: p - p1)*den.
                 let w1 := (p3 - p2 cross: p - p2)*den.

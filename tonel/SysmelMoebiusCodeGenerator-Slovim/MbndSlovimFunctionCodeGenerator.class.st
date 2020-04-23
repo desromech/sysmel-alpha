@@ -2744,6 +2744,18 @@ MbndSlovimFunctionCodeGenerator >> visitTruncateCastNode: node [
 ]
 
 { #category : #visiting }
+MbndSlovimFunctionCodeGenerator >> visitTupleElementReferenceNode: node [
+	| tuple index |
+	tuple := self visitNode: node container.
+	tuple type isPointerType ifTrue: [
+		^ slvmBuilder getReference: tuple element: (slvmBuilder constInt: node index) 
+	].
+
+	self assert: tuple type isStructureType.
+	^ slvmBuilder extractValue: tuple indices: { node index }
+]
+
+{ #category : #visiting }
 MbndSlovimFunctionCodeGenerator >> visitTupleNode: node [
 	| elements resultType result |
 	elements := node elements collect: [ :each | self visitNode: each ].

@@ -798,6 +798,11 @@ MbndAstNode >> isTruncateCastNode [
 ]
 
 { #category : #testing }
+MbndAstNode >> isTupleElementReferenceNode [
+	^ false
+]
+
+{ #category : #testing }
 MbndAstNode >> isTupleNode [
 	^ false
 ]

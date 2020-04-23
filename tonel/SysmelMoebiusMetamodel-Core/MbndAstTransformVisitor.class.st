@@ -846,6 +846,14 @@ MbndAstTransformVisitor >> visitTruncateCastNode: node [
 ]
 
 { #category : #visiting }
+MbndAstTransformVisitor >> visitTupleElementReferenceNode: node [
+	^ node copy
+		container: (self visitNode: node container);
+		index: (self visitNode: node index);
+		yourself
+]
+
+{ #category : #visiting }
 MbndAstTransformVisitor >> visitTupleNode: node [
 	^ node copy
 		elements: (self visitNodesAndCollect: node elements);

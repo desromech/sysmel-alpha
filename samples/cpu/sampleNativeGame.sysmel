@@ -100,16 +100,10 @@ class Character superclass: Entity; definition: {
 	method sweepCollidingFrom: (oldPosition: Float32x2) into: (targetPosition: Float32x2) maxDepth: (maxDepth: UInt32)::=> Void := {
 		maxDepth = 0 ifTrue: { return: nil. }.
 
-		## Compute the ray direction and length.
-		let rayOrigin := oldPosition.
-		let rayDirection mutable := targetPosition - position.
-		let rayLength := rayDirection length2 sqrt.##rayDirection length.
-		rayLength < 0.00001f ifTrue: { return: nil }.
-		rayDirection := rayDirection / rayLength.
-		let ray := Ray2dF32 origin: rayOrigin direction: rayDirection.
+		let ray := Ray2dF32 from: oldPosition to: targetPosition.
 
 		## Perform Minkowski difference based collision detection with the boxes.
-		let bestCollisionAlpha mutable := rayLength.
+		let bestCollisionAlpha mutable := ray tmax.
 		let bestCollisionEntity mutable type: Entity pointer := nil.
 		let bestCollisionExpandedBound mutable type: RectangleF32.
 
@@ -131,17 +125,20 @@ class Character superclass: Entity; definition: {
 			}.
 		}.
 
-		bestCollisionAlpha < rayLength ifTrue: {
-			let collisionPoint := rayOrigin + bestCollisionAlpha*rayDirection.
-			let remainingDelta := (rayLength - bestCollisionAlpha)*rayDirection.
+		bestCollisionAlpha < ray tmax ifTrue: {
+			let collisionPoint := ray pointAtDistance: bestCollisionAlpha.
+			let remainingDelta := (ray tmax - bestCollisionAlpha)*ray direction.
 
-			let collisionNormal := bestCollisionExpandedBound computeCollisionNormalForPoint: collisionPoint.
-			let penetrationDistance := bestCollisionExpandedBound computePenetrationDistanceForPoint: collisionNormal withNormal: collisionNormal.
-			let slidingDelta := remainingDelta - (remainingDelta dot: collisionNormal)*collisionNormal.
+			let normalAndDistance := bestCollisionExpandedBound computePenetrationNormalAndDistanceForPoint: collisionPoint.
+			let collisionNormal := normalAndDistance first.
+			let penetrationDistance := normalAndDistance second.
+			let tangentMask := Float32x2 ones - collisionNormal abs.
+
+			let slidingDelta := remainingDelta*tangentMask.
 
 			isOnFloor := isOnFloor || collisionNormal y > 0.0.
-			velocity := velocity - (velocity dot: collisionNormal)*collisionNormal.
-			position := collisionPoint + collisionNormal*(penetrationDistance*0.1f).
+			velocity := velocity*tangentMask.
+			position := collisionPoint + collisionNormal*(penetrationDistance*0.1f + 0.00001f).
 
 			self sweepCollidingFrom: position into: position + slidingDelta maxDepth: maxDepth - 1.
 		} ifFalse: {

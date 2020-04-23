@@ -176,6 +176,7 @@ MbndAstNodeTest >> testTestingMethods [
 	self deny: node isTraitDefinitionNode.
 	self deny: node isTruncateCastNode.
 	self deny: node isTupleNode.
+	self deny: node isTupleElementReferenceNode.
 	self deny: node isTupleToArrayCastNode.
 	self deny: node isUnexpandedMessageSendNode.
 	self deny: node isUnionDeclarationNode.

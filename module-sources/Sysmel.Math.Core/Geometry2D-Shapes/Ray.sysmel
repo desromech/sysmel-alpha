@@ -3,15 +3,41 @@ namespace Math definition: {
 namespace Geometry definition: {
 
 sealed template GenericRay2d(ST: Type)
-    := class superclass: GenericParametricLine2d(ST); definition: {
+    := class superclass: GenericGeometricShape(ST); definition: {
+
+    public field origin type: Vector2.
+    public field direction type: Vector2.
+    public field inverseDirection type: Vector2.
+
+    public field tmin type: Scalar.
+    public field tmax type: Scalar.
 
     meta definition: {
-        inline method origin: (theOrigin: Vector2) direction: (theDirection: Vector2) ::=> InstanceType
-            := InstanceType basicNewValue origin: theOrigin; direction: theDirection; yourself.
+        inline method origin: (theOrigin: Vector2) direction: (theDirection: Vector2) tmin: (theTMin: Scalar) tmax: (theTMax: Scalar)::=> InstanceType
+            := InstanceType basicNewValue origin:
+                theOrigin;
+                direction: theDirection;
+                inverseDirection: 1 / theDirection;
+                tmin: theTMin;
+                tmax: theTMax;
+                yourself.
 
-        inline method from: (startPoint: Vector2) to: (endpoint: Vector2) ::=> InstanceType
-            := InstanceType origin: startPoint direction: (endpoint - startPoint) normalized.
+        inline method origin: (theOrigin: Vector2) direction: (theDirection: Vector2) tmax: (theTMax: Scalar)::=> InstanceType
+            := self origin: theOrigin direction: theDirection tmin: 0 tmax: theTMax.
+
+        inline method origin: (theOrigin: Vector2) direction: (theDirection: Vector2) ::=> InstanceType
+            := self origin: theOrigin direction: theDirection tmin: 0 tmax: Scalar infinity.
+
+        inline method from: (startPoint: Vector2) to: (endPoint: Vector2) ::=> InstanceType := {
+            let vector := endPoint - startPoint.
+            let vectorLength := vector length.
+            let direction := vector / (vectorLength ~= 0 ifTrue: vectorLength ifFalse: 1).
+            InstanceType origin: startPoint direction: direction tmin: 0 tmax:  vectorLength.
+        }.
     }.
+
+    const inline method pointAtDistance: (distance: Scalar) ::=> Vector2
+        := origin + distance*direction.
 }.
 
 compileTime constant Ray2dF32 := GenericRay2d(Float32).

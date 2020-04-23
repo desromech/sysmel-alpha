@@ -1148,6 +1148,17 @@ MbndAstBuilderTest >> testTruncateCastNode [
 ]
 
 { #category : #tests }
+MbndAstBuilderTest >> testTupleElementReferenceNode [
+	| node tuple index |
+	tuple := builder identifier: #tuple.
+	index := builder literalInteger: 42.
+	node := builder tuple: tuple elementReferenceAt: index.
+	self assert: node isTupleElementReferenceNode.
+	self assert: node container equals: tuple.
+	self assert: node index equals: index.
+]
+
+{ #category : #tests }
 MbndAstBuilderTest >> testTupleNode [
 	| node one two |
 	one := builder literalInteger: 1.

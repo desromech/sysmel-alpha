@@ -53,6 +53,7 @@ MbndAstTransformVisitorTest >> testArrayElementReferenceNode [
 	transformedNode := visitor visitNode: node.
 	self assert: transformedNode ~~ node.
 	self assert: transformedNode isArrayElementReferenceNode.
+	self assert: transformedNode isTupleElementReferenceNode.
 	self assert: transformedNode container equals: array.
 	self assert: transformedNode index equals: index.
 ]
@@ -1111,6 +1112,19 @@ MbndAstTransformVisitorTest >> testTruncateCastNode [
 	self assert: transformedNode isTruncateCastNode.
 	self assert: transformedNode expression equals: expression.
 	self assert: transformedNode targetType equals: targetType.
+]
+
+{ #category : #tests }
+MbndAstTransformVisitorTest >> testTupleElementReferenceNode [
+	| node tuple index transformedNode |
+	tuple := builder identifier: #tr.
+	index := builder literalInteger: 42.
+	node := builder tuple: tuple elementReferenceAt: index.
+	transformedNode := visitor visitNode: node.
+	self assert: transformedNode ~~ node.
+	self assert: transformedNode isTupleElementReferenceNode.
+	self assert: transformedNode container equals: tuple.
+	self assert: transformedNode index equals: index.
 ]
 
 { #category : #tests }

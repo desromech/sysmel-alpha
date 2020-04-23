@@ -1332,6 +1332,17 @@ MbndAstBuilder >> tuple: aSequenceOfNodes [
 ]
 
 { #category : #'builder methods' }
+MbndAstBuilder >> tuple: tuple elementReferenceAt: index [
+	<compileTime>
+	<returnType: #_ASTNodeType>
+	^ MbndAstTupleElementReferenceNode new
+		position: defaultPosition;
+		container: tuple;
+		index: index;
+		yourself
+]
+
+{ #category : #'builder methods' }
 MbndAstBuilder >> unexpandedCall: calledFunction withArguments: aCollectionOfArguments [
 	<compileTime>
 	<returnType: #_ASTNodeType>

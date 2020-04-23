@@ -640,6 +640,11 @@ MbndAstVisitor >> visitTruncateCastNode: node [
 ]
 
 { #category : #visiting }
+MbndAstVisitor >> visitTupleElementReferenceNode: node [
+	self subclassResponsibility
+]
+
+{ #category : #visiting }
 MbndAstVisitor >> visitTupleNode: node [
 	self subclassResponsibility
 ]

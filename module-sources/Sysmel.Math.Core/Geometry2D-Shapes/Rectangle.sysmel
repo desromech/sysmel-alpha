@@ -75,42 +75,40 @@ sealed template GenericRectangle(ST: Type)
 
     compileTime if: Scalar isPrimitiveFloatType then: {
         method intersectionWithRay: (ray: Ray2d const ref) ::=> ParametricCurveIntersectionResult := {
-            ## Ray box intersection algorithm from: https://www.scratchapixel.com/lessons/3d-basic-rendering/minimal-ray-tracer-rendering-simple-shapes/ray-box-intersection
-            let directionReciprocal := 1.0f / ray direction.
-            let tNegative := (min - ray origin) * directionReciprocal.
-            let tPositive := (max - ray origin) * directionReciprocal.
+            ## Slab testing algorithm from: A Ray-Box Intersection Algorithm andEfficient Dynamic Voxel Rendering. By Majercik et al
 
-            let tmin := tNegative min: tPositive.
-            let tmax := tNegative max: tPositive.
+            let t0 := (min - ray origin)*ray inverseDirection.
+            let t1 := (max - ray origin)*ray inverseDirection.
+            let tmin := t0 min: t1.
+            let tmax := t0 max: t1.
+            let maxTMin := (tmin x max: tmin y) max: ray tmin.
+            let minTMax := (tmax x min: tmax y) min: ray tmax.
 
-            (tmin x > tmax y || tmin y > tmax x) ifFalse: {
-                let intersectionPosition := (tmin x max: tmin y) max: 0.0f.
-                tmin x >= 0.0f || tmin y >= 0.0f ifTrue: {
-                    return: (ParametricCurveIntersectionResult with: intersectionPosition)
-                }
+            let hasIntersection := maxTMin <= minTMax.
+            hasIntersection ifFalse: {
+                return: ParametricCurveIntersectionResult empty.
             }.
 
-            return: ParametricCurveIntersectionResult empty.
+
+            return: (ParametricCurveIntersectionResult with: (maxTMin min: minTMax))
         }.
 
         method hasIntersectionWithRay: (ray: Ray2d const ref) ::=> Boolean8
             := (self intersectionWithRay: ray) isPresent.
 
-        method computePenetrationDistanceForPoint: (point: Vector2) withNormal: (normal: Float32x2) ::=> Float32 := {
-    		##let delta := point - self center.
-    		##((self halfExtent - delta) dot: normal) max: Vector2 zeros
-    		0.0f
+        method computePenetrationNormalAndDistanceForPoint: (point: Vector2) ::=> (Vector2 -- Scalar) := {
+            let delta := point - self center.
+            let deltaAbsolute := delta abs / self halfExtent.
+            let normal := deltaAbsolute x >= deltaAbsolute y ifTrue: {
+                Vector2(delta x sign, 0)
+            } ifFalse: {
+                Vector2(0, delta y sign)
+            }.
+
+            let penetrationDistance := delta - self halfExtent*normal dot: normal.
+            (normal, penetrationDistance)
     	}.
 
-    	method computeCollisionNormalForPoint: (point: Vector2) ::=> Vector2 := {
-    		let delta := point - self center.
-    		let deltaAbsolute := delta abs / self halfExtent.
-    		deltaAbsolute x >= deltaAbsolute y ifTrue: {
-    			Vector2(delta x sign, 0)
-    		} ifFalse: {
-    			Vector2(0, delta y sign)
-    		}
-    	}.
     }.
 }.
 
