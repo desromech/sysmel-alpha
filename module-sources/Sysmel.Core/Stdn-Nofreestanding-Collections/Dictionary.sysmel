@@ -5,7 +5,7 @@ template Dictionary(KT: Stdn Concepts HashKey, VT: Stdn Concepts Copyable)
     := class definition: {
     compileTime constant KeyType := KT.
     compileTime constant ValueType := VT.
-    compileTime constant AssociationType := Association(KeyType, ValueType).
+    compileTime constant AssociationType := KeyType --> ValueType.
     compileTime constant StorageElementType := Optional(AssociationType).
     compileTime constant StorageType := Vector(StorageElementType).
 
