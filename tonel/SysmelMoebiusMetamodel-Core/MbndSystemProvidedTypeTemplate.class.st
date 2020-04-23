@@ -11,6 +11,14 @@ Class {
 }
 
 { #category : #serialization }
+MbndSystemProvidedTypeTemplate class >> materializeObjectWithType: objectType earlyFields: earlyFields withMessagePackGraphDecoder: graphDecoder [
+	| systemProvidedTypeTemplate |
+	systemProvidedTypeTemplate := graphDecoder compilationTarget getBasicTypeNamed: earlyFields.
+	graphDecoder registerObjectInstance: systemProvidedTypeTemplate; decodeNext.
+	^ systemProvidedTypeTemplate
+]
+
+{ #category : #serialization }
 MbndSystemProvidedTypeTemplate class >> messagePackTypeName [
 	^ #SystemProvidedTypeTemplate
 ]
@@ -18,6 +26,21 @@ MbndSystemProvidedTypeTemplate class >> messagePackTypeName [
 { #category : #visiting }
 MbndSystemProvidedTypeTemplate >> accept: aVisitor [
 	^ aVisitor visitSystemProvidedTypeTemplate: self
+]
+
+{ #category : #'semantic analysis' }
+MbndSystemProvidedTypeTemplate >> analyzeAndEvaluateApplicationNode: node withAnalyzer: analyzer [
+	| argumentsNode arguments rawArguments result |
+	argumentsNode := node arguments first.
+	rawArguments := analyzer evaluateCompileTimeExpression: argumentsNode.
+	self assert: rawArguments type isTupleType.
+	
+	arguments := rawArguments unwrapMbndValue.
+	
+	result := self getOrCreateInstanceWithArguments: arguments.
+	^ result asLiteralValueNode
+		position: node;
+		yourself
 ]
 
 { #category : #accessing }
@@ -43,6 +66,12 @@ MbndSystemProvidedTypeTemplate >> compilationTarget [
 { #category : #accessing }
 MbndSystemProvidedTypeTemplate >> compilationTarget: anObject [
 	compilationTarget := anObject
+]
+
+{ #category : #serialization }
+MbndSystemProvidedTypeTemplate >> encodeGraphForMessagePackWith: graphEncoder [
+	self assert: name isNotNil.
+	^ graphEncoder encodeObject: self type: self messagePackTypeName earlyFields: name fields: [ nil ]
 ]
 
 { #category : #template }

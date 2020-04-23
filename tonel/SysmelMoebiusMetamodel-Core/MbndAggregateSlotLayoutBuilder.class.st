@@ -117,13 +117,12 @@ MbndAggregateSlotLayoutBuilder >> countSlotForSizeAndAlignment: slot [
 	
 	naturalAlignedOffset := instanceSize alignedTo: slotType instanceAlignment.
 	instanceSize := instanceSize alignedTo: slot alignment.
-	self flag: 'FIXME: This is not the proper location for generating this padding bytes.'.
 	self emitAdditionalPaddingBytes: instanceSize - naturalAlignedOffset.
 	
 	slot offset: instanceSize.
 	
 	instanceSize := instanceSize + slotType instanceSize.
-	instanceAlignment := instanceAlignment max: slotType instanceAlignment
+	instanceAlignment := (instanceAlignment max: slotType instanceAlignment) max: slot alignment
 ]
 
 { #category : #'as yet unclassified' }

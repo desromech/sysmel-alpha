@@ -32,6 +32,11 @@ MbndAbstractModuleVisitor >> visitAggregateInitializeMovingFromMethod: method [
 ]
 
 { #category : #visiting }
+MbndAbstractModuleVisitor >> visitArraySliceType: type [
+	self subclassResponsibility
+]
+
+{ #category : #visiting }
 MbndAbstractModuleVisitor >> visitArrayType: type [
 	self subclassResponsibility
 ]

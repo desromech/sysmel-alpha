@@ -1244,7 +1244,7 @@ MbndSlovimCodeModuleGenerator >> shouldGenerateRTTIForProgramEntity: programEnti
 
 { #category : #accessing }
 MbndSlovimCodeModuleGenerator >> slvmCompilationTarget [
-	^ sourceModule compilationTarget slvmCompilationTarget
+	^ self compilationTarget slvmCompilationTarget
 ]
 
 { #category : #accessing }
@@ -1614,13 +1614,18 @@ MbndSlovimCodeModuleGenerator >> visitAggregateTypeWithFields: type [
 ]
 
 { #category : #'typeinfo translation' }
+MbndSlovimCodeModuleGenerator >> visitArraySliceType: type [
+	^ self visitSpecialStructureType: type
+]
+
+{ #category : #'typeinfo translation' }
 MbndSlovimCodeModuleGenerator >> visitArrayType: type [
 	^ self visitCoreBasicType: type
 ]
 
 { #category : #'typeinfo translation' }
 MbndSlovimCodeModuleGenerator >> visitAssociationType: type [
-	^ self visitCoreBasicType: type
+	^ self visitSpecialStructureType: type
 ]
 
 { #category : #visiting }
@@ -2141,6 +2146,11 @@ MbndSlovimCodeModuleGenerator >> visitReturnType: type [
 { #category : #'typeinfo translation' }
 MbndSlovimCodeModuleGenerator >> visitSimpleMetaType: type [
 	^ self translateProgramEntityInformationData: type
+]
+
+{ #category : #'typeinfo translation' }
+MbndSlovimCodeModuleGenerator >> visitSpecialStructureType: specialStructureType [
+	^ self visitStructureType: specialStructureType
 ]
 
 { #category : #visiting }

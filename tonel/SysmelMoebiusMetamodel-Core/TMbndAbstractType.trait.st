@@ -1245,6 +1245,11 @@ TMbndAbstractType >> isSimultaneousTypeConcept [
 	^ false
 ]
 
+{ #category : #testing }
+TMbndAbstractType >> isSpecialStructureType [
+	^ false
+]
+
 { #category : #'semantic analysis' }
 TMbndAbstractType >> isStandardConcreteTypeForLiteralValueNode: literalValueNode [
 	^ self == (literalValueNode type standardConcreteTypeForLiteralValueNode: literalValueNode inScope: MbndLexicalScope new)

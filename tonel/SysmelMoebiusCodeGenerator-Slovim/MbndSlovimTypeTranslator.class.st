@@ -65,11 +65,18 @@ MbndSlovimTypeTranslator >> translateAggregateType: aggregateType [
 { #category : #visiting }
 MbndSlovimTypeTranslator >> translateAggregateType: aggregateType withKind: typeKindClass [
 	| structureName ssaStructureType ssaValueType |
-	structureName := (aggregateType name isNotNil or: [aggregateType parent isNotNil and: [aggregateType parent isTemplateInstance]]) ifTrue: [
-		(aggregateType unmangledStructureTypePrefix , (codeModuleGenerator unmangledNameForProgramEntity: aggregateType)) asSymbol
+	
+	aggregateType isSpecialStructureType ifTrue: [ 
+		structureName := aggregateType unmangledSpecialStructureName
 	].
-	(aggregateType isGCClassType and: [ aggregateType isMetaType ]) ifTrue: [ 
-		structureName := (aggregateType unmangledStructureTypePrefix ,  (codeModuleGenerator unmangledNameForProgramEntity: aggregateType instanceType) , '::__Meta__') asSymbol
+	
+	structureName ifNil: [ 
+		structureName := (aggregateType name isNotNil or: [aggregateType parent isNotNil and: [aggregateType parent isTemplateInstance]]) ifTrue: [
+			(aggregateType unmangledStructureTypePrefix , (codeModuleGenerator unmangledNameForProgramEntity: aggregateType)) asSymbol
+		].
+		(aggregateType isGCClassType and: [ aggregateType isMetaType ]) ifTrue: [ 
+			structureName := (aggregateType unmangledStructureTypePrefix ,  (codeModuleGenerator unmangledNameForProgramEntity: aggregateType instanceType) , '::__Meta__') asSymbol
+		].
 	].
 
 	ssaStructureType := typeKindClass name: structureName
@@ -85,10 +92,11 @@ MbndSlovimTypeTranslator >> translateAggregateType: aggregateType withKind: type
 
 	translatedTypes at: aggregateType put: ssaValueType.
 
-	aggregateType isDefined ifTrue: [ 
+	aggregateType isDefined ifTrue: [
 		ssaStructureType
 			names: (aggregateType slotLayout slots collect: [:each | each name]);
-			types: (aggregateType slotLayout slots collect: [:slot | self sanitizeStructureFieldType: (self translateType: slot type)]).
+			types: (aggregateType slotLayout slots collect: [:slot | self sanitizeStructureFieldType: (self translateType: slot type)]);
+			minimalAlignment: aggregateType slotLayout instanceAlignment.
 	].
 		
 	^ ssaValueType
@@ -116,10 +124,20 @@ MbndSlovimTypeTranslator >> translateTypes: aCollectionOfTypes [
 ]
 
 { #category : #visiting }
+MbndSlovimTypeTranslator >> visitArraySliceType: type [
+	^ self visitSpecialStructureType: type
+]
+
+{ #category : #visiting }
 MbndSlovimTypeTranslator >> visitArrayType: arrayType [
 	| elementType |
 	elementType := self translateType: arrayType elementType.
 	^ SLVMArrayType baseType: elementType elements: (arrayType elements > 0 ifTrue: [arrayType elements] ifFalse: [nil])
+]
+
+{ #category : #visiting }
+MbndSlovimTypeTranslator >> visitAssociationType: type [
+	^ self visitSpecialStructureType: type
 ]
 
 { #category : #visiting }
@@ -326,6 +344,17 @@ MbndSlovimTypeTranslator >> visitSimpleMetaType: metaType [
 
 	^ self slvmCompilationTarget voidPointerPointerType
 
+]
+
+{ #category : #visiting }
+MbndSlovimTypeTranslator >> visitSpecialStructureType: specialStructureType [
+	| result |
+	result := self visitStructureType: specialStructureType.
+	result name ifNotNil: [
+		codeModuleGenerator ssaModule addStructure: result
+	].
+
+	^ result
 ]
 
 { #category : #visiting }

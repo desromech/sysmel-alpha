@@ -706,10 +706,48 @@ function f externC(x: Int32) => Int32 ref
 		generateSSAModule.
 
 	function := ssaModule globalNamed: #f.
-	self assert: function isFunction.
-	self deny: function isEmpty.
-	self assert: function basicBlocks size equals: 2.
-	self assert: function basicBlocks second firstInstruction isGetElementPointer.
+	self assert: function asFullSExpressionForTesting equals: #(
+function f cdecl (pointer i32 generic) arguments ((x i32 ()))
+    literals ()
+    blocks
+    (
+        (()
+            (nil jump void () () (block 2 body))
+        )
+        (()
+            (nil sext i64 () ((local 0 x)))
+            (nil getElementPointer (pointer i32 generic) () ((global 0 _ZN10TestModule8theArrayE) (const i32 0) (local 2 nil)))
+            (nil return void () ((local 3 nil))))
+    )
+	)
+]
+
+{ #category : #tests }
+MbndSlovimCodeModuleGeneratorTest >> testAssociationExtractKeyElement [
+	| function |
+	self
+		evaluateSysmelSource: '
+function assocElement externC(assoc: (Int32 -->Float32)) => Int32
+	:= assoc key.
+
+';
+		generateSSAModule.
+
+	function := ssaModule globalNamed: #assocElement.
+	self assert: function asFullSExpressionForTesting equals: #(
+function assocElement cdecl i32
+arguments ((assoc (struct 'special.(Int32 --> Float32)') ()))
+literals ()
+blocks (
+    (()
+        (nil jump void () () (block 2 body))
+    )
+    (()
+        (nil extractValue i32 () ((local 0 assoc)) (0))
+        (nil return void () ((local 2 nil)))
+    )
+)
+	)
 ]
 
 { #category : #tests }
@@ -1718,7 +1756,7 @@ MbndSlovimCodeModuleGeneratorTest >> testDynamicObjectToInteger [
 ]
 
 { #category : #tests }
-MbndSlovimCodeModuleGeneratorTest >> testEmbedderShaderGeneration [
+MbndSlovimCodeModuleGeneratorTest >> testEmbeddedShaderGeneration [
 	self
 		evaluateShaderMetadata;
 		evaluateSysmelSource: 'class SampleShader definition: { 
@@ -2069,6 +2107,46 @@ function returnValue externC() => TestEnum := TestEnum First';
 	self assert: function functionType returnType isIntegerType.
 	self assert: function basicBlocks size equals: 2.
 	self assert: function basicBlocks second firstInstruction isReturn.
+]
+
+{ #category : #tests }
+MbndSlovimCodeModuleGeneratorTest >> testExtraFieldAlignment [
+	| fetchAlignedField structureType |
+	self
+		evaluateSysmelSource: '
+struct StructWithExtraAlignment definition: { 
+	public field byte type: Int8.
+
+	public field alignedField
+		type: Int8;
+		alignment: 16.
+	
+}.
+
+function fetchAlignedField externC(s: StructWithExtraAlignment ref) => Int8
+	:= s alignedField';
+		generateSSAModule.
+
+	structureType := ssaModule structureNamed: 'struct.TestModule::StructWithExtraAlignment'.
+	self assert: structureType size equals: 32.
+	self assert: structureType alignment equals: 16.
+	
+	fetchAlignedField := ssaModule globalNamed: #fetchAlignedField.
+	self assert: fetchAlignedField asFullSExpressionForTesting equals: #(
+function fetchAlignedField cdecl i8
+    arguments ((s (pointer (struct 'struct.TestModule::StructWithExtraAlignment') generic) ()))
+    literals ()
+    blocks (
+        (()
+            (nil jump void () () (block 2 body))
+        )
+        (()
+            (nil getElementPointer (pointer i8 generic) () ((local 0 s) (const i32 0) (const i32 2)))
+            (nil load i8 () ((local 2 nil)))
+            (nil return void () ((local 3 nil)))
+        )
+    )
+	)
 ]
 
 { #category : #tests }
@@ -3664,13 +3742,23 @@ function getPointerElement externC(pointer: Int32 pointer, index: Int32) => Int3
 		generateSSAModule.
 
 	function := ssaModule globalNamed: #getPointerElement.
-	self assert: function isFunction.
-	self deny: function isEmpty.
-	self assert: function basicBlocks size equals: 2.
-	self assert: function basicBlocks first firstInstruction isJump.
-	self assert: function basicBlocks second firstInstruction isBinaryOperation.
-	self assert: function basicBlocks second firstInstruction nextInstruction isGetElementPointer.
-	self assert: function basicBlocks second lastInstruction isReturn.
+	self assert: function asFullSExpressionForTesting equals: #(
+function getPointerElement cdecl i32
+    arguments ((pointer (pointer i32 generic) ()) (index i32 ()))
+    literals ()
+    blocks (
+        (()
+            (nil jump void () () (block 2 body))
+        )
+        (()
+            (nil sext i64 () ((local 1 index)))
+            (nil sub i64 () ((local 3 nil) (const i64 1)))
+            (nil getElementPointer (pointer i32 generic) () ((local 0 pointer) (local 4 nil)))
+            (nil load i32 () ((local 5 nil)))
+            (nil return void () ((local 6 nil)))
+        )
+    )
+	)
 ]
 
 { #category : #tests }
@@ -3683,12 +3771,22 @@ function getPointerElement externC(pointer: Int32 pointer, index: Int32) => Int3
 		generateSSAModule.
 
 	function := ssaModule globalNamed: #getPointerElement.
-	self assert: function isFunction.
-	self deny: function isEmpty.
-	self assert: function basicBlocks size equals: 2.
-	self assert: function basicBlocks first firstInstruction isJump.
-	self assert: function basicBlocks second firstInstruction isGetElementPointer.
-	self assert: function basicBlocks second lastInstruction isReturn.
+	self assert: function asFullSExpressionForTesting equals: #(
+function getPointerElement cdecl i32
+    arguments ((pointer (pointer i32 generic) ()) (index i32 ()))
+    literals ()
+    blocks (
+        (()
+            (nil jump void () () (block 2 body))
+        )
+        (()
+            (nil sext i64 () ((local 1 index)))
+            (nil getElementPointer (pointer i32 generic) () ((local 0 pointer) (local 3 nil)))
+            (nil load i32 () ((local 4 nil)))
+            (nil return void () ((local 5 nil)))
+        )
+    )
+	)
 ]
 
 { #category : #tests }

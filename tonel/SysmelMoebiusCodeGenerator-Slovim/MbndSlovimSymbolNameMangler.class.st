@@ -471,6 +471,25 @@ MbndSlovimSymbolNameMangler >> visitAggregateInitializeMovingFromMethod: method 
 ]
 
 { #category : #visiting }
+MbndSlovimSymbolNameMangler >> visitArraySliceType: type [
+	self emitSubstitutionElement: #ArraySlice.
+	output nextPut: $I.
+	self mangleType: type elementType.
+	output nextPut: $E.	
+
+]
+
+{ #category : #visiting }
+MbndSlovimSymbolNameMangler >> visitAssociationType: type [
+	self emitSubstitutionElement: #Association.
+	output nextPut: $I.
+	self mangleType: type keyType.
+	self mangleType: type valueType.
+	output nextPut: $E.	
+
+]
+
+{ #category : #visiting }
 MbndSlovimSymbolNameMangler >> visitBlockClosureMethod: method [
 	^ self visitGenericFunction: method
 ]

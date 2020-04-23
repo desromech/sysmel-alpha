@@ -1,12 +1,9 @@
 Class {
 	#name : #MbndAssociationType,
-	#superclass : #MbndAggregateType,
+	#superclass : #MbndSpecialStructureType,
 	#instVars : [
 		'keyType',
-		'valueType',
-		'instanceSize',
-		'instanceAlignment',
-		'elementOffsets'
+		'valueType'
 	],
 	#category : #'SysmelMoebiusMetamodel-Core-Type'
 }
@@ -21,29 +18,23 @@ MbndAssociationType >> accept: aVisitor [
 	^ aVisitor visitAssociationType: self
 ]
 
-{ #category : #converting }
-MbndAssociationType >> asImmutableValueType [
-	self isPOD ifTrue: [ ^ self ].
-	^ super asImmutableValueType
-]
-
-{ #category : #'testing methods' }
-MbndAssociationType >> computeLayout [
-	self assert: keyType isLiteralValueType not.
-	self assert: valueType isLiteralValueType not.
-
-	"Key"
-	instanceSize := keyType instanceSize.
-	instanceAlignment := keyType instanceAlignment.
-
-	"Value"
-	instanceSize := instanceSize alignedTo: valueType instanceAlignment.
-	instanceAlignment := instanceAlignment max: valueType instanceAlignment.
-	elementOffsets := { 0 . instanceSize}.
-	instanceSize := instanceSize + valueType instanceSize.
-
-	"Final alignment."
-	instanceSize := instanceSize alignedTo: valueType instanceAlignment.
+{ #category : #initialization }
+MbndAssociationType >> addFields [
+	self assert: keyType isNotNil.
+	self assert: valueType isNotNil.
+	
+	self addField: (MbndFieldVariable new
+		name: #key;
+		flags: #(public);
+		valueType: keyType;
+		type: keyType ref;
+		yourself).
+	self addField: (MbndFieldVariable new
+		name: #value;
+		flags: #(public);
+		valueType: valueType;
+		type: valueType ref;
+		yourself).
 
 ]
 
@@ -53,28 +44,13 @@ MbndAssociationType >> correctAssociationTypeForNode: node withAnalyzer: analyze
 ]
 
 { #category : #'testing methods' }
-MbndAssociationType >> elementOffsets [
-	elementOffsets ifNil: [ self computeLayout ].
-	^ elementOffsets
-]
-
-{ #category : #sizes }
-MbndAssociationType >> instanceAlignment [
-	<compileTime>
-	instanceAlignment ifNil: [ self computeLayout ].
-	^ instanceAlignment
-]
-
-{ #category : #sizes }
-MbndAssociationType >> instanceSize [
-	<compileTime>
-	instanceSize ifNil: [ self computeLayout ].
-	^ instanceSize
-]
-
-{ #category : #'testing methods' }
 MbndAssociationType >> isAssociationType [
 	^ true
+]
+
+{ #category : #testing }
+MbndAssociationType >> isTrait [
+	^ keyType isNil
 ]
 
 { #category : #accessing }

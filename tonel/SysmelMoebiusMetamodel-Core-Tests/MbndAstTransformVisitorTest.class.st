@@ -53,7 +53,6 @@ MbndAstTransformVisitorTest >> testArrayElementReferenceNode [
 	transformedNode := visitor visitNode: node.
 	self assert: transformedNode ~~ node.
 	self assert: transformedNode isArrayElementReferenceNode.
-	self assert: transformedNode isTupleElementReferenceNode.
 	self assert: transformedNode container equals: array.
 	self assert: transformedNode index equals: index.
 ]

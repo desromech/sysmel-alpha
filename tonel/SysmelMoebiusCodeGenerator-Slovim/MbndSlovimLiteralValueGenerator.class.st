@@ -115,6 +115,11 @@ MbndSlovimLiteralValueGenerator >> visitAggregateType: type [
 	^ SLVMConstant structure: slvmType slots: convertedSlots
 ]
 
+{ #category : #visiting }
+MbndSlovimLiteralValueGenerator >> visitArraySliceType: specialStructure [
+	^ self visitSpecialStructureType: specialStructure
+]
+
 { #category : #'code generation' }
 MbndSlovimLiteralValueGenerator >> visitArrayType: arrayType [
 	| elementType slvmElementType slvmArrayType convertedSlots |
@@ -134,6 +139,11 @@ MbndSlovimLiteralValueGenerator >> visitArrayType: arrayType [
 
 	^ SLVMConstant array: slvmArrayType slots: convertedSlots
 	
+]
+
+{ #category : #visiting }
+MbndSlovimLiteralValueGenerator >> visitAssociationType: specialStructure [
+	^ self visitSpecialStructureType: specialStructure
 ]
 
 { #category : #visiting }
@@ -294,6 +304,11 @@ MbndSlovimLiteralValueGenerator >> visitReturnType: voidType [
 { #category : #visiting }
 MbndSlovimLiteralValueGenerator >> visitSimpleMetaType: type [
 	^ (self translateProgramEntity: literalValue) ssaValue
+]
+
+{ #category : #visiting }
+MbndSlovimLiteralValueGenerator >> visitSpecialStructureType: specialStructure [
+	^ self visitStructureType: specialStructure
 ]
 
 { #category : #visiting }

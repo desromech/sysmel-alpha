@@ -200,6 +200,11 @@ MbndSlovimDebugInformationTranslator >> visitAggregateInitializeMovingFromMethod
 ]
 
 { #category : #visiting }
+MbndSlovimDebugInformationTranslator >> visitArraySliceType: type [
+	^ self visitSpecialStructureType: type
+]
+
+{ #category : #visiting }
 MbndSlovimDebugInformationTranslator >> visitArrayType: arrayType [
 	| debugType |
 	arrayType isTrait ifTrue: [ ^ self visitTraitType: arrayType ].
@@ -213,6 +218,11 @@ MbndSlovimDebugInformationTranslator >> visitArrayType: arrayType [
 		baseType: (self translateDebugType: arrayType elementType).
 	
 	^ debugType
+]
+
+{ #category : #visiting }
+MbndSlovimDebugInformationTranslator >> visitAssociationType: type [
+	^ self visitSpecialStructureType: type
 ]
 
 { #category : #visiting }
@@ -655,6 +665,11 @@ MbndSlovimDebugInformationTranslator >> visitSimpleMetaType: simpleMetaType [
 	self flag: 'TODO: Add the member fields.'.
 	
 	^ debugType
+]
+
+{ #category : #visiting }
+MbndSlovimDebugInformationTranslator >> visitSpecialStructureType: specialStructure [
+	^ self visitStructureType: specialStructure
 ]
 
 { #category : #visiting }
