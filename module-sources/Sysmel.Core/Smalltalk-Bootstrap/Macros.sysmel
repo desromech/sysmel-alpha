@@ -14,13 +14,29 @@ ProtoObject extend: {
     ## TODO: Add higienic symbols.
     macro method ifNil: nilAction :=
         ``(if: `,self == nil then: `,nilAction).
-    macro method ifNotNil: notNilAction :=
-        ``(if: `,self ~~ nil then: `,notNilAction).
+    macro method ifNotNil: notNilAction := {
+        let pointer := __astBuilder gensym: #pointer.
+        ``{
+            let `,pointer := `,self.
+            if: `,pointer ~~ nil then: (`,notNilAction __macroInlineBlock: `,pointer)
+        } asSequenceWithoutLexicalScope
+    }.
 
-    macro method ifNotNil: notNilAction ifNil: nilAction :=
-        ``(if: `,self ~~ nil then: `,notNilAction else: `,nilAction).
-    macro method ifNil: nilAction ifNotNil: notNilAction :=
-        ``(if: `,self == nil then: `,nilAction else: `,notNilAction).
+    macro method ifNotNil: notNilAction ifNil: nilAction := {
+        let pointer := __astBuilder gensym: #pointer.
+        ``{
+            let `,pointer := `,self.
+            if: `,pointer ~~ nil then: (`,notNilAction __macroInlineBlock: `,pointer) else: `,nilAction
+        } asSequenceWithoutLexicalScope
+    }.
+
+    macro method ifNil: nilAction ifNotNil: notNilAction := {
+        let pointer := __astBuilder gensym: #pointer.
+        ``{
+            let `,pointer := `,self.
+            if: `,pointer == nil then: `,nilAction else: (`,notNilAction __macroInlineBlock: `,pointer)
+        } asSequenceWithoutLexicalScope
+    }.
 
     macro method isNil := ``(`,self == nil).
     macro method isNotNil := ``(`,self ~~ nil).

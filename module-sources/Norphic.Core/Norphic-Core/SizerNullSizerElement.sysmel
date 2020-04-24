@@ -1,0 +1,22 @@
+namespace Norphic definition: {
+
+useNamespace: Stdn Math Geometry.
+
+#**
+ * I am a null sizer element. I provide an empty space with a minimal extent and a specified extent.
+ *#
+class SizerNullSizerElement superclass: SizerElement; definition: {
+    public field spaceExtent type: Float32x2.
+
+    override method minimalContentExtent => Float32x2
+        := spaceExtent.
+
+    override method contentExtent => Float32x2
+        := spaceExtent.
+
+    override method applyIntoBounds: (newBounds: RectangleF32) ::=> Void := {
+        ## Do nothing here
+    }.
+}.
+
+}. ## End of namespace Norphic

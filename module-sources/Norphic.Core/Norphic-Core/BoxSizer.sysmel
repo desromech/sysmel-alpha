@@ -16,7 +16,9 @@ class BoxSizer superclass: Sizer; definition: {
     }.
 
     override method applyIntoBounds: (newBounds: RectangleF32) ::=> Void := {
-        Stdn stdout << "BoxSizer " << newBounds min << " position " << newBounds extent; nl.
+        elements do: {:each :: Void |
+            each _ applyIntoBounds: newBounds
+        }
     }.
 }.
 

@@ -89,6 +89,7 @@ MbndAbstractConcreteMethod >> createDynamicMethodWrapper [
 	boundType canHaveDynamicMethodWrapper ifFalse: [ ^ nil ].
 	
 	wrapper := MbndDynamicMethodWrapper new
+		module: self module;
 		parent: parent;
 		wrappedMethod: self;
 		name: name;

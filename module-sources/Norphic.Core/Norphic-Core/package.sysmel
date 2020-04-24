@@ -10,6 +10,7 @@ loadFileOnce: "BorderedNorph.sysmel".
 
 loadFileOnce: "Sizer.sysmel".
 loadFileOnce: "SizerElement.sysmel".
+loadFileOnce: "SizerNullSizerElement.sysmel".
 loadFileOnce: "SizerNorphElement.sysmel".
 loadFileOnce: "SizerSubSizerElement.sysmel".
 loadFileOnce: "BoxSizer.sysmel".

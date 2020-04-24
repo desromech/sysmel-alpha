@@ -29,14 +29,13 @@ class FontFaceWithSize superclass: Object; definition: {
             return: (RectangleF32 newValue, 0)
         }.
 
-        let extent := glyph _ extent.
         let advance := glyph _ horizontalAdvance.
-        (RectangleF32 min: 0 max: extent, advance)
+        (glyph _ bounds, advance)
     }.
 
     virtual method computeBoundingBoxForUTF8String: (string: Char8 const pointer) size: (size: UIntPointer) previousCharacter: (thePreviousCharacter: Char32) ::=> RectangleF32 := {
-        let currentPosition mutable := Float32x2 zeros.
-        let result mutable := RectangleF32 newValue.
+        let currentPosition mutable := Float32x2(0, ascender).
+        let result mutable := RectangleF32 min: Float32x2 zeros max: Float32x2(0, height).
         let previousCharacter mutable := thePreviousCharacter.
 
         0 until: size do: {:(UIntPointer)i :: Void |

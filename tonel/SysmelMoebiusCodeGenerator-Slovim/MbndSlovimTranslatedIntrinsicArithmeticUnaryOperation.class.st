@@ -34,8 +34,12 @@ MbndSlovimTranslatedIntrinsicArithmeticUnaryOperation >> generateExpandedMessage
 	operand := codeGenerator visitNode: node receiver.
 	
 	scalarType := resultType.
-	(resultType isPrimitiveVectorType or: [ resultType isPrimitiveMatrixType ]) ifTrue: [
-		scalarType := resultType elementType
+	scalarType isEnumType ifTrue: [ 
+		scalarType := scalarType baseType.
+	].
+
+	(scalarType isPrimitiveVectorType or: [ scalarType isPrimitiveMatrixType ]) ifTrue: [
+		scalarType := scalarType elementType
 	].
 
 	scalarType isPrimitiveBooleanType ifTrue: [

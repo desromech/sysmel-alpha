@@ -6,53 +6,216 @@ useNamespace: Stdn Math Geometry.
  * I am a norph sizer element. I am a wrapper around a another norph, or another sizer.
  *#
 class SizerElement superclass: Stdn SharedObject; definition: {
+
+    enum Flags bitMask valueType: UInt32; values: #{
+        None: 0.
+        TopBorder: 1<<0.
+    	BottomBorder: 1<<1.
+    	LeftBorder: 1<<2.
+    	RightBorder: 1<<3.
+
+    	Expanded: 1<<4.
+    	Shaped: 1<<5.
+
+    	AllBorders: (TopBorder | BottomBorder | LeftBorder | RightBorder castTo: UInt32).
+
+        HorizontalAlignmentMask: 3<<6.
+        LeftAligned: 0<<6.
+        RightAligned: 1<<6.
+        HorizontallyCentered: 2<<6.
+
+        VerticalAlignmentMask: 3<<8.
+        TopAligned: 0<<8.
+        BottomAligned: 1<<8.
+        VerticallyCentered: 2<<8.
+    }.
+
+    public field flags type: Flags.
+    public field proportion type: Float32.
     public field borderSize type: Float32.
 
-    method borderExtent => Float32x2
+    method borderPosition => Float32x2 := {
+        let result mutable := Float32x2 zeros.
+        self hasLeftBorder ifTrue: {
+            result := Float32x2(borderSize, 0).
+        }.
+        self hasTopBorder ifTrue: {
+            result := result + Float32x2(0, borderSize).
+        }.
+
+        result
+    }.
+
+    method borderExtent => Float32x2 := {
+        let result mutable := Float32x2 zeros.
+        self hasLeftBorder ifTrue: {
+            result := Float32x2(borderSize, 0).
+        }.
+        self hasRightBorder ifTrue: {
+            result := result + Float32x2(borderSize, 0).
+        }.
+        self hasTopBorder ifTrue: {
+            result := result + Float32x2(0, borderSize).
+        }.
+        self hasBottomBorder ifTrue: {
+            result := result + Float32x2(0, borderSize).
+        }.
+
+        result
+    }.
+
+    inline method applyBorderToBounds: (bounds: RectangleF32) ::=> RectangleF32
+        := RectangleF32 min: bounds min + self borderPosition extent: (bounds extent - self borderExtent max: Float32x2 zeros).
+
+    inline method applyAlignmentToExtent: (extent: Float32x2) inBounds: (bounds: RectangleF32) ::=> RectangleF32 := {
+        let position mutable := bounds min.
+        let remainingExtent := bounds extent - extent max: Float32x2 zeros.
+
+        self horizontalAlignment selectCase: #{
+            Flags LeftAligned : {
+                ## Nothing required.
+            }.
+            Flags HorizontallyCentered : {
+                position := position + Float32x2(remainingExtent x / 2, 0).
+            }.
+            Flags RightAligned : {
+                position := position + Float32x2(remainingExtent x, 0).
+            }.
+        }.
+
+        self verticalAlignment selectCase: #{
+            Flags TopAligned : {
+                ## Nothing required.
+            }.
+            Flags VerticallyCentered : {
+                position := position + Float32x2(0, remainingExtent y / 2).
+            }.
+            Flags BottomAligned : {
+                position := position + Float32x2(0, remainingExtent y).
+            }.
+        }.
+
+        RectangleF32 min: position extent: extent
+    }.
+
+    inline method applyAlignmentToBounds: (bounds: RectangleF32) ::=> RectangleF32 := {
+        self isExpanded ifTrue: {
+            return: bounds.
+        }.
+
+        let contentExtent := self contentExtent max: self minimalContentExtent.
+        return: (self applyAlignmentToExtent: contentExtent inBounds: bounds)
+    }.
+
+    inline method applyBorderAndAlignmentToBounds: (bounds: RectangleF32) ::=> RectangleF32
+        := self applyAlignmentToBounds: (self applyBorderToBounds: bounds).
+
+    virtual method minimalContentExtent => Float32x2
         := Float32x2 zeros.
 
-    abstract method minimalExtent => Float32x2.
+    virtual method contentExtent  => Float32x2
+        := self minimalContentExtent.
+
     abstract method applyIntoBounds: (newBounds: RectangleF32) ::=> Void.
 
-    inline method allBorders => Void := {
+    inline method minimalExtent => Float32x2
+        := self minimalContentExtent + self borderExtent.
 
+    inline method allBorders => Void := {
+        flags := flags | Flags AllBorders
     }.
 
     inline method leftBorder => Void := {
-
+        flags := flags | Flags LeftBorder
     }.
 
     inline method rightBorder => Void := {
-
+        flags := flags | Flags RightBorder
     }.
 
     inline method bottomBorder => Void := {
-
+        flags := flags | Flags BottomBorder
     }.
 
     inline method topBorder => Void := {
-
+        flags := flags | Flags TopBorder
     }.
 
     inline method expanded => Void := {
-
+        flags := flags | Flags Expanded
     }.
 
     inline method shaped => Void := {
-
+        flags := flags | Flags Shaped
     }.
 
     inline method centered => Void := {
-
+        self horizontalCentered;
+            verticalCentered
     }.
 
-    inline method horizontalCentered => Void := {
+    const inline method horizontalAlignment => Flags
+        := flags & Flags HorizontalAlignmentMask.
 
+    inline method horizontalAlignment: (alignment: Flags) ::=> Void := {
+        flags := (flags & (~Flags HorizontalAlignmentMask)) | alignment
     }.
 
-    inline method verticalCentered => Void := {
+    const inline method verticalAlignment => Flags
+        := flags & Flags VerticalAlignmentMask.
 
+    inline method verticalAlignment: (alignment: Flags) ::=> Void := {
+        flags := (flags & (~Flags VerticalAlignmentMask)) | alignment
     }.
+
+    inline method leftAligned => Void
+        := self horizontalAlignment: Flags LeftAligned.
+
+    inline method rightAligned => Void
+        := self horizontalAlignment: Flags RightAligned.
+
+    inline method horizontalCentered => Void
+        := self horizontalAlignment: Flags HorizontallyCentered.
+
+    inline method topAligned => Void
+        := self verticalAlignment: Flags TopAligned.
+
+    inline method bottomAligned => Void
+        := self verticalAlignment: Flags BottomAligned.
+
+    inline method verticalCentered => Void
+        := self verticalAlignment: Flags VerticallyCentered.
+
+    const inline method hasLeftBorder => Boolean8
+        := flags anyMask: Flags LeftBorder.
+    const inline method hasRightBorder => Boolean8
+        := flags anyMask: Flags RightBorder.
+    const inline method hasTopBorder => Boolean8
+        := flags anyMask: Flags TopBorder.
+    const inline method hasBottomBorder => Boolean8
+        := flags anyMask: Flags BottomBorder.
+    const inline method hasAllBorders => Boolean8
+        := flags allMask: Flags AllBorders.
+
+    const inline method isExpanded => Boolean8
+        := flags anyMask: Flags Expanded.
+    const inline method isShaped => Boolean8
+        := flags anyMask: Flags Shaped.
+
+    const inline method isLeftAligned => Boolean8
+        := self horizontalAlignment = Flags LeftAligned.
+    const inline method isRightAligned => Boolean8
+        := self horizontalAlignment = Flags RightAligned.
+    const inline method isHorizontallyCentered => Boolean8
+        := self horizontalAlignment = Flags HorizontallyCentered.
+
+    const inline method isTopAligned => Boolean8
+        := self verticalAlignment = Flags TopAligned.
+    const inline method isBottomAligned => Boolean8
+        := self verticalAlignment = Flags BottomAligned.
+    const inline method isVerticallyCentered => Boolean8
+        := self verticalAlignment = Flags VerticallyCentered.
+
 }.
 
 

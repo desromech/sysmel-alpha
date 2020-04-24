@@ -16,14 +16,13 @@ class SizerSubSizerElement superclass: SizerElement; definition: {
         }
     }.
 
-    override method minimalExtent => Float32x2 := {
-        let result mutable := self borderExtent.
+    override method minimalContentExtent => Float32x2 := {
         let strongSizer := sizer lock.
         strongSizer ifNotNil: {
-            result := result + strongSizer _ minimalExtent
+            return: strongSizer _ minimalExtent
         }.
 
-        result
+        Float32x2 zeros
     }.
 
     override method applyIntoBounds: (newBounds: RectangleF32) ::=> Void := {

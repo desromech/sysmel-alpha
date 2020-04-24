@@ -16,18 +16,30 @@ class SizerNorphElement superclass: SizerElement; definition: {
         }
     }.
 
-    override method minimalExtent => Float32x2 := {
-        let result mutable := self borderExtent.
+    override method minimalContentExtent => Float32x2 := {
         let strongNorph := norph lock.
         strongNorph ifNotNil: {
-            result := result + strongNorph _ minimalExtent
+            return: strongNorph _ minimalExtent
         }.
 
-        result
+        Float32x2 zeros
+    }.
+
+    override method contentExtent => Float32x2 := {
+        let strongNorph := norph lock.
+        strongNorph ifNotNil: {
+            return: strongNorph _ extent
+        }.
+
+        Float32x2 zeros
     }.
 
     override method applyIntoBounds: (newBounds: RectangleF32) ::=> Void := {
-
+        let adjustedBounds := self applyBorderAndAlignmentToBounds: newBounds.
+        let strongNorph := norph lock.
+        strongNorph ifNotNil: {
+            strongNorph _ bounds: adjustedBounds
+        }.
     }.
 }.
 

@@ -1,0 +1,167 @@
+namespace Norphic definition: {
+namespace Core definition: {
+namespace Tests definition: {
+
+class SizerElementTestCase superclass: Stdn Testing TestCase; definition: {
+    test: testDefaultSizer with: {
+        let sizer mutable type: SizerNullSizerElement.
+        self assert: sizer borderSize equals: 0.
+
+        self deny: sizer hasLeftBorder.
+        self deny: sizer hasRightBorder.
+        self deny: sizer hasTopBorder.
+        self deny: sizer hasBottomBorder.
+        self deny: sizer hasAllBorders.
+
+        self assert: sizer isLeftAligned.
+        self deny: sizer isRightAligned.
+        self assert: sizer isTopAligned.
+        self deny: sizer isBottomAligned.
+    }.
+
+    test: testLeftBorder with: {
+        let sizer mutable type: SizerNullSizerElement.
+        sizer borderSize: 1.
+        self assert: sizer borderPosition x equals: 0.
+        self assert: sizer borderExtent x equals: 0.
+
+        self deny: sizer hasLeftBorder.
+        sizer leftBorder.
+        self assert: sizer hasLeftBorder.
+        self deny: sizer hasAllBorders.
+        self assert: sizer borderPosition x equals: 1.
+        self assert: sizer borderExtent x equals: 1.
+    }.
+
+    test: testRightBorder with: {
+        let sizer mutable type: SizerNullSizerElement.
+        sizer borderSize: 1.
+        self assert: sizer borderPosition x equals: 0.
+        self assert: sizer borderExtent x equals: 0.
+
+        self deny: sizer hasRightBorder.
+        sizer rightBorder.
+        self assert: sizer hasRightBorder.
+        self deny: sizer hasAllBorders.
+        self assert: sizer borderPosition x equals: 0.
+        self assert: sizer borderExtent x equals: 1.
+    }.
+
+    test: testLeftRightBorder with: {
+        let sizer mutable type: SizerNullSizerElement.
+        sizer borderSize: 1.
+        self assert: sizer borderPosition x equals: 0.
+        self assert: sizer borderExtent x equals: 0.
+
+        self deny: sizer hasLeftBorder.
+        self deny: sizer hasRightBorder.
+        sizer leftBorder; rightBorder.
+
+        self assert: sizer hasLeftBorder.
+        self assert: sizer hasRightBorder.
+        self deny: sizer hasAllBorders.
+        self assert: sizer borderPosition x equals: 1.
+        self assert: sizer borderExtent x equals: 2.
+    }.
+
+    test: testTopBorder with: {
+        let sizer mutable type: SizerNullSizerElement.
+        sizer borderSize: 1.
+        self assert: sizer borderPosition y equals: 0.
+        self assert: sizer borderExtent y equals: 0.
+
+        self deny: sizer hasTopBorder.
+        sizer topBorder.
+        self assert: sizer hasTopBorder.
+        self deny: sizer hasAllBorders.
+        self assert: sizer borderPosition y equals: 1.
+        self assert: sizer borderExtent y equals: 1.
+    }.
+
+    test: testBottomBorder with: {
+        let sizer mutable type: SizerNullSizerElement.
+        sizer borderSize: 1.
+        self assert: sizer borderPosition y equals: 0.
+        self assert: sizer borderExtent y equals: 0.
+
+        self deny: sizer hasBottomBorder.
+        sizer bottomBorder.
+        self assert: sizer hasBottomBorder.
+        self deny: sizer hasAllBorders.
+        self assert: sizer borderPosition y equals: 0.
+        self assert: sizer borderExtent y equals: 1.
+    }.
+
+    test: testTopBottomBorder with: {
+        let sizer mutable type: SizerNullSizerElement.
+        sizer borderSize: 1.
+        self assert: sizer borderPosition y equals: 0.
+        self assert: sizer borderExtent y equals: 0.
+
+        self deny: sizer hasTopBorder.
+        self deny: sizer hasBottomBorder.
+        sizer topBorder; bottomBorder.
+
+        self assert: sizer hasTopBorder.
+        self assert: sizer hasBottomBorder.
+        self deny: sizer hasAllBorders.
+        self assert: sizer borderPosition y equals: 1.
+        self assert: sizer borderExtent y equals: 2.
+    }.
+
+    test: testAllBorders with: {
+        let sizer mutable type: SizerNullSizerElement.
+        sizer borderSize: 1.
+        self assert: sizer borderPosition x equals: 0.
+        self assert: sizer borderPosition y equals: 0.
+        self assert: sizer borderExtent x equals: 0.
+        self assert: sizer borderExtent y equals: 0.
+
+        self deny: sizer hasLeftBorder.
+        self deny: sizer hasRightBorder.
+        self deny: sizer hasTopBorder.
+        self deny: sizer hasBottomBorder.
+        self deny: sizer hasAllBorders.
+        sizer leftBorder; rightBorder; topBorder; bottomBorder.
+
+        self assert: sizer hasLeftBorder.
+        self assert: sizer hasRightBorder.
+        self assert: sizer hasTopBorder.
+        self assert: sizer hasBottomBorder.
+        self assert: sizer hasAllBorders.
+        self assert: sizer borderPosition x equals: 1.
+        self assert: sizer borderPosition y equals: 1.
+        self assert: sizer borderExtent x equals: 2.
+        self assert: sizer borderExtent y equals: 2.
+    }.
+
+    test: testAllBorders2 with: {
+        let sizer mutable type: SizerNullSizerElement.
+        sizer borderSize: 1.
+        self assert: sizer borderPosition x equals: 0.
+        self assert: sizer borderPosition y equals: 0.
+        self assert: sizer borderExtent x equals: 0.
+        self assert: sizer borderExtent y equals: 0.
+
+        self deny: sizer hasLeftBorder.
+        self deny: sizer hasRightBorder.
+        self deny: sizer hasTopBorder.
+        self deny: sizer hasBottomBorder.
+        self deny: sizer hasAllBorders.
+        sizer allBorders.
+
+        self assert: sizer hasLeftBorder.
+        self assert: sizer hasRightBorder.
+        self assert: sizer hasTopBorder.
+        self assert: sizer hasBottomBorder.
+        self assert: sizer hasAllBorders.
+        self assert: sizer borderPosition x equals: 1.
+        self assert: sizer borderPosition y equals: 1.
+        self assert: sizer borderExtent x equals: 2.
+        self assert: sizer borderExtent y equals: 2.
+    }.
+}.
+
+}. ## namespace Tests
+}. ## namespace Collections
+}. ## namespace Stdn

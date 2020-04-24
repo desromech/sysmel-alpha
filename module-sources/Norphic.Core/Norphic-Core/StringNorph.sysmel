@@ -14,13 +14,15 @@ class StringNorph superclass: Norph; definition: {
 
     method text: (newText: Stdn String const ref) ::=> Void := {
         text := newText.
-        Stdn stdout << "Text minimal extent " << self minimalExtent; nl.
         self extent: self minimalExtent.
     }.
 
     override method renderOn: (canvas: Canvas ref) ::=> Void := {
         let fontFaceWithSize ref := self theme _ normalFontFaceWithSize.
         canvas
+            ##color: Float32x4(1, 0, 0, 1);
+            ##fillRectangle: self localBounds;
+
             fontFaceWithSize: fontFaceWithSize;
             color: self stringColor;
             drawUTF8String: text at: Float32x2 (0.0f, fontFaceWithSize _ ascender).
@@ -31,6 +33,9 @@ class StringNorph superclass: Norph; definition: {
 
     virtual method stringColor => Float32x4
         := self color.
+
+    override method defaultExtent => Float32x2
+        := self minimalContentExtent.
 
     override method minimalContentExtent => Float32x2 := {
         let fontFaceWithSize ref := self theme _ normalFontFaceWithSize.

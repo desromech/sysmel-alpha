@@ -15,17 +15,31 @@ namespace SysmelKernel definition: {
     _PointerType macro method isNotNil := ``(`,self ~~ nil).
 
     ## ifNil:ifNotNil
-    ## TODO: Add higienic symbols.
     _PointerType macro method ifNil: nilAction :=
         ``(if: `,self == nil then: `,nilAction).
-    _PointerType macro method ifNotNil: notNilAction :=
-        ``(if: `,self ~~ nil then: `,notNilAction).
+    _PointerType macro method ifNotNil: notNilAction := {
+        let pointer := __astBuilder gensym: #pointer.
+        ``{
+            let `,pointer := `,self.
+            if: `,pointer ~~ nil then: (`,notNilAction __macroInlineBlock: `,pointer)
+        } asSequenceWithoutLexicalScope
+    }.
 
-    _PointerType macro method ifNotNil: notNilAction ifNil: nilAction :=
-        ``(if: `,self ~~ nil then: `,notNilAction else: `,nilAction).
-    _PointerType macro method ifNil: nilAction ifNotNil: notNilAction :=
-        ``(if: `,self == nil then: `,nilAction else: `,notNilAction).
+    _PointerType macro method ifNotNil: notNilAction ifNil: nilAction := {
+        let pointer := __astBuilder gensym: #pointer.
+        ``{
+            let `,pointer := `,self.
+            if: `,pointer ~~ nil then: (`,notNilAction __macroInlineBlock: `,pointer) else: `,nilAction
+        } asSequenceWithoutLexicalScope
+    }.
 
+    _PointerType macro method ifNil: nilAction ifNotNil: notNilAction := {
+        let pointer := __astBuilder gensym: #pointer.
+        ``{
+            let `,pointer := `,self.
+            if: `,pointer == nil then: `,nilAction else: (`,notNilAction __macroInlineBlock: `,pointer)
+        } asSequenceWithoutLexicalScope
+    }.
 
     ## floorAlignedTo:
     _PrimitiveIntegerType macro method floorAlignedTo: alignment := ``(
@@ -64,10 +78,10 @@ namespace SysmelKernel definition: {
         ``(1 << `,self log2Ceil).
 
     ## Bitwise manipulation.
-    _PrimitiveIntegerType macro method bitClear: bits :=
+    (_PrimitiveIntegerType | _EnumType) macro method bitClear: bits :=
         ``(`,self & (`,bits bitInvert)).
 
-    _PrimitiveIntegerType macro method allMask: mask :=
+    (_PrimitiveIntegerType | _EnumType) macro method allMask: mask :=
         ``((`,self & `,mask) == `,mask).
 
     _PrimitiveIntegerType macro method anyMask: mask :=
@@ -75,6 +89,12 @@ namespace SysmelKernel definition: {
 
     _PrimitiveIntegerType macro method noMask: mask :=
         ``((`,self & `,mask) == 0).
+
+    _EnumType macro method anyMask: mask :=
+        ``((`,self & `,mask) value ~~ 0).
+
+    _EnumType macro method noMask: mask :=
+        ``((`,self & `,mask) value == 0).
 
     ## Some numerical testing methods.
     _PrimitiveIntegerType macro method isEven :=

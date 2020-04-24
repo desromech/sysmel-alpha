@@ -57,8 +57,11 @@ class Norph superclass: NorphEventHandler; definition: {
         self destroy
     }.
 
+    virtual method defaultExtent => Float32x2
+        := Float32x2(50, 40).
+
     virtual method defaultBounds => RectangleF32
-        := RectangleF32 min: Float32x2 zeros extent: Float32x2(50.0f, 40.0f).
+        := RectangleF32 min: Float32x2 zeros extent: self defaultExtent.
 
     virtual method defaultColor => Float32x4
         := Float32x4(0.0f, 0.0f, 1.0f, 1.0f).
@@ -121,26 +124,25 @@ class Norph superclass: NorphEventHandler; definition: {
             return: void
         }.
 
-        let parentStrong := owner lock.
-        parentStrong ifNotNil: {
-            parentStrong _ childChanged.
+        self owner ifNotNil: { :theOwner :: Void |
+            theOwner _ childChanged.
         }.
     }.
 
     virtual method boundsChanged ::=> Void := {
         self changed.
 
-        autolayout && isUpdatingLayout not ifTrue: {
+        autolayout ifTrue: {
             self updateLayout.
         }.
 
-        let parentStrong := owner lock.
-        parentStrong ifNotNil: {
-            parentStrong _ childBoundsChanged.
+        self owner ifNotNil: { :theOwner :: Void |
+            theOwner _ childBoundsChanged.
         }.
     }.
 
     virtual method updateLayout => Void := {
+        isUpdatingLayout ifTrue: { return: void }.
         isUpdatingLayout := true.
         try: {
             sizer ifNotNil: {
@@ -160,7 +162,7 @@ class Norph superclass: NorphEventHandler; definition: {
     }.
 
     virtual method removedFromOwner: (newOwner: Norph ref) ::=> Void := {
-
+        owner reset
     }.
 
     virtual method addSubnorph: (newSubnorph: Norph sharedPointer const ref) ::=> Void := {
@@ -169,6 +171,9 @@ class Norph superclass: NorphEventHandler; definition: {
         subnorphs add: newSubnorph.
         newSubnorph _ addedToOwner: self
     }.
+
+    const inline method owner => Norph sharedPointer
+        := owner lock.
 
     inline method theme => Theme sharedPointer const ref
         := ThemeRegistry uniqueInstance defaultTheme.

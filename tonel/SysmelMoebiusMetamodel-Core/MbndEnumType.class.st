@@ -17,11 +17,50 @@ MbndEnumType >> accept: visitor [
 	^ visitor visitEnumType: self
 ]
 
+{ #category : #accessing }
+MbndEnumType >> addArithmetic: selector binaryIntrinsic: intrinsicName [
+	self
+		addArithmeticOperationCoercionMacro: selector;
+		addOverloadedMethod: (MbndIntrinsicArithmeticBinaryOperationMethod new
+				name: selector;
+				intrinsicName: intrinsicName;
+				yourself)
+			receiverType: self argumentTypes: { self } returnType: self
+]
+
+{ #category : #adding }
+MbndEnumType >> addArithmetic: selector unaryIntrinsic: intrinsicName [
+	self
+		addOverloadedMethod: (MbndIntrinsicArithmeticUnaryOperationMethod new
+				name: selector;
+				intrinsicName: intrinsicName;
+				yourself)
+			receiverType: self argumentTypes: #() returnType: self
+]
+
 { #category : #initialization }
 MbndEnumType >> addArithmeticOperationCoercionMacro: selector [
 	self macroMethodDict at: selector
 		ifPresent: [ self error: 'Duplicated macro selector.' ]
 		ifAbsentPut: (MbndArithmeticOperationCoercionMacro new parent: self; yourself)
+]
+
+{ #category : #accessing }
+MbndEnumType >> addBitMaskArithmetic [
+	(self lookupOverloadedSelector: #bitAnd:) ifNotNil: [ ^ self ].
+	self
+		addArithmetic: #bitAnd: binaryIntrinsic: #bitand;
+		addArithmetic: #& binaryIntrinsic: #bitand;
+		addArithmetic: #bitOr: binaryIntrinsic: #bitor;
+		addArithmetic: #| binaryIntrinsic: #bitor;
+		addArithmetic: #bitXor: binaryIntrinsic: #bitxor;
+		addArithmetic: #'^' binaryIntrinsic: #bitxor;
+
+		addArithmetic: #<< binaryIntrinsic: #shiftleft;
+		addArithmetic: #>> binaryIntrinsic: #shiftright;
+		
+		addArithmetic: #bitInvert unaryIntrinsic: #not;
+		addArithmetic: #'prefix-~' unaryIntrinsic: #not
 ]
 
 { #category : #initialization }
@@ -97,6 +136,10 @@ MbndEnumType >> addInstanceMacros [
 MbndEnumType >> baseType: aBaseType [
 	super baseType: aBaseType.
 	self addConversionsBetweenBaseType.
+	
+	(self hasFlag: #bitMask) ifTrue: [
+		self addBitMaskArithmetic
+	]
 ]
 
 { #category : #'default values' }

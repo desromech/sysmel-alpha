@@ -1,6 +1,7 @@
 Compiler
 	importModuleNamed: #"Sysmel.Core.Tests";
 	importModuleNamed: #"Sysmel.Math.Core.Tests";
-    importModuleNamed: #"Sysmel.Graphics.Core.Tests".
+    importModuleNamed: #"Sysmel.Graphics.Core.Tests";
+	importModuleNamed: #"Norphic.Core.Tests".
 
 Stdn Testing generateTestSuiteProgramMain: "RuntimeLibrariesTests".

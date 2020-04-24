@@ -18,6 +18,16 @@ template SharedRefCounter(PT: Type)
                     address.
             }
         }.
+
+        inline method forNewInstance ::=> CounterType pointer := {
+            let pointer := PointedType basicNativeNew.
+            let result := self for: pointer.
+            pointer ifNotNil: {
+                pointer _ initialize
+            }.
+
+            result
+        }.
     }.
 
     private field strongCounter_ type: AtomicUIntPointer.
@@ -88,6 +98,12 @@ template SharedPointer(PT: Type)
     meta extend: {
         inline method for: (pointer: PointerType) ::=> SmartPointerType
             := SmartPointerType basicNewValue initializeWithNewCounter: (CounterType for: pointer) andPointer: pointer; yourself.
+
+        inline method forNewInstance ::=> SmartPointerType := {
+            let counter := CounterType forNewInstance.
+            SmartPointerType basicNewValue initializeWithNewCounter: counter andPointer: counter _ getPointer; yourself.
+        }.
+
         macro method nil := ``(`,self basicNewValue).
     }.
 
@@ -242,6 +258,10 @@ template WeakPointer(PT: Type)
     }.
 
     inline method finalize => Void := {
+        self reset.
+    }.
+
+    inline method reset => Void := {
         counter_ ifNotNil: {
             counter_ _ weakRelease.
         }.
@@ -366,6 +386,6 @@ class SharedObject superclass: Object; definition: {
 _NativeType meta macro method sharedPointer := ``(Stdn SharedPointer(`,self)).
 _NativeType meta macro method weakPointer := ``(Stdn WeakPointer(`,self)).
 
-_NativeType meta macro method sharedNew := ``(`,self sharedPointer for: `,self nativeNew).
+_NativeType meta macro method sharedNew := ``(`,self sharedPointer forNewInstance).
 
 }. ## End of namespace Stdn

@@ -2,6 +2,8 @@ namespace Stdn definition: {
 namespace Graphics definition: {
 namespace Core definition: {
 
+useNamespace: Stdn Math Geometry.
+
 #**
  * I am an abstract glyph representation. I hold standard metrics for drawing a
  * particular glyph, but my subclasses define how I am actually being used for drawing.
@@ -19,6 +21,9 @@ class Glyph superclass: Object; definition: {
 
     virtual method asForm => Form sharedPointer
         := Form sharedPointer nil.
+
+    inline method bounds => RectangleF32
+        := RectangleF32 min: drawOrigin extent: extent.
 }.
 
 }. ## End of namespace Core

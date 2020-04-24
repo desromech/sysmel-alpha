@@ -17,7 +17,6 @@ class Sizer superclass: Stdn SharedObject; definition: {
         := (SizerSubSizerElement for: self) upCastFor: SizerElement.
 
     method add: (newElement: SizerElement sharedPointer const ref) ::=> Void := {
-        Stdn stdout << "newElement borderSize " << newElement _ borderSize; nl.
         elements add: newElement
     }.
 

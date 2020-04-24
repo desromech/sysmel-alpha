@@ -1,6 +1,6 @@
 Compiler
     importModuleNamed: #"Sysmel.Testing";
-    importModuleNamed: #"Sysmel.Math.Core";
+    importModuleNamed: #"Norphic.Core";
     loadPackages: #(
-        #"Geometry2D-Shapes-Tests"
+        #"Norphic-Core-Tests"
     ).

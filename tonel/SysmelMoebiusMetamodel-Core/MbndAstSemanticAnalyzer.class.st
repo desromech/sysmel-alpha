@@ -456,7 +456,7 @@ MbndAstSemanticAnalyzer >> evaluateEnum: enumType literalDictionaryNode: diction
 			| association |
 			association := self evaluateEnum: enumType valueDefinition: valueDefinition lastValue: lastValue.
 			scope addSymbol: association key binding: association value ifPresent: [ 
-				self error: 'Enum {1} symbol {2} is duplicated.' format: { enumType asPrettySymbolName . association key asPrettySymbolName } at: valueDefinition
+				self error: 'Enum {1} symbol {2} is duplicated.' format: { enumType asString . association key asPrettySymbolName } at: valueDefinition
 			].
 		
 			dictionary add: association.

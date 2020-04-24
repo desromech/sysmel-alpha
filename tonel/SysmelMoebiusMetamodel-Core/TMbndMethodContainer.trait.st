@@ -5,6 +5,7 @@ Trait {
 		'methodDict'
 	],
 	#traits : 'TMbndAbstractMethodContainer',
+	#classTraits : 'TMbndAbstractMethodContainer classTrait',
 	#category : #'SysmelMoebiusMetamodel-Core-ProgramEntity'
 }
 

@@ -69,7 +69,11 @@ MbndSlovimTranslatedIntrinsicArithmeticBinaryOperation >> generateExpandedMessag
 	rightOperand := codeGenerator visitNode: node arguments first.
 
 	scalarType := resultType.
-	(resultType isPrimitiveVectorType or: [ resultType isPrimitiveMatrixType ]) ifTrue: [ 
+	scalarType isEnumType ifTrue: [ 
+		scalarType := scalarType valueType
+	].
+
+	(scalarType isPrimitiveVectorType or: [ scalarType isPrimitiveMatrixType ]) ifTrue: [ 
 		scalarType := resultType elementType
 	].
 	
