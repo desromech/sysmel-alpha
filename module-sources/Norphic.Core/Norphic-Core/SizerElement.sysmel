@@ -6,12 +6,53 @@ useNamespace: Stdn Math Geometry.
  * I am a norph sizer element. I am a wrapper around a another norph, or another sizer.
  *#
 class SizerElement superclass: Stdn SharedObject; definition: {
+    public field borderSize type: Float32.
 
     method borderExtent => Float32x2
         := Float32x2 zeros.
 
     abstract method minimalExtent => Float32x2.
     abstract method applyIntoBounds: (newBounds: RectangleF32) ::=> Void.
+
+    inline method allBorders => Void := {
+
+    }.
+
+    inline method leftBorder => Void := {
+
+    }.
+
+    inline method rightBorder => Void := {
+
+    }.
+
+    inline method bottomBorder => Void := {
+
+    }.
+
+    inline method topBorder => Void := {
+
+    }.
+
+    inline method expanded => Void := {
+
+    }.
+
+    inline method shaped => Void := {
+
+    }.
+
+    inline method centered => Void := {
+
+    }.
+
+    inline method horizontalCentered => Void := {
+
+    }.
+
+    inline method verticalCentered => Void := {
+
+    }.
 }.
 
 

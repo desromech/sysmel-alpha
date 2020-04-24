@@ -1,5 +1,7 @@
 namespace Norphic definition: {
 
+useNamespace: Stdn Math Geometry.
+
 #**
  * I am a norph sizer element. I am a wrapper around a another norph.
  *#
@@ -13,7 +15,20 @@ class SizerNorphElement superclass: SizerElement; definition: {
             result
         }
     }.
-}.
 
+    override method minimalExtent => Float32x2 := {
+        let result mutable := self borderExtent.
+        let strongNorph := norph lock.
+        strongNorph ifNotNil: {
+            result := result + strongNorph _ minimalExtent
+        }.
+
+        result
+    }.
+
+    override method applyIntoBounds: (newBounds: RectangleF32) ::=> Void := {
+
+    }.
+}.
 
 }. ## End of namespace Norphic

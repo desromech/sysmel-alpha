@@ -15,6 +15,21 @@ class Sizer superclass: Stdn SharedObject; definition: {
 
     inline method asSizerElement => SizerElement sharedPointer
         := (SizerSubSizerElement for: self) upCastFor: SizerElement.
+
+    method add: (newElement: SizerElement sharedPointer const ref) ::=> Void := {
+        Stdn stdout << "newElement borderSize " << newElement _ borderSize; nl.
+        elements add: newElement
+    }.
+
+    macro method element: aWidgetOrASizer do: aBlock :=  {
+        let sizerElement := __astBuilder gensym: #sizerElement.
+        (``{
+            let `,sizerElement mutable := `,aWidgetOrASizer _ asSizerElement.
+            `,aBlock __macroInlineBlock: `,sizerElement _.
+            `,self add: `,sizerElement
+        }) asSequenceWithoutLexicalScope
+    }.
+
 }.
 
 }. ## End of namespace Norphic

@@ -22,6 +22,10 @@ class SimpleButtonMorph superclass: AbstractButtonMorph; definition: {
         self addSubnorph: labelRef.
 
         let sizer := HorizontalBoxSizer sharedNew.
+        sizer _ element: label do: {:constraints :: Void |
+            constraints allBorders; borderSize: 2.
+        }.
+
         self
             sizer: (sizer upCastFor: Sizer);
             autolayout: true
