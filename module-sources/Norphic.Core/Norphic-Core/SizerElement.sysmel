@@ -1,0 +1,18 @@
+namespace Norphic definition: {
+
+useNamespace: Stdn Math Geometry.
+
+#**
+ * I am a norph sizer element. I am a wrapper around a another norph, or another sizer.
+ *#
+class SizerElement superclass: Stdn SharedObject; definition: {
+
+    method borderExtent => Float32x2
+        := Float32x2 zeros.
+
+    abstract method minimalExtent => Float32x2.
+    abstract method applyIntoBounds: (newBounds: RectangleF32) ::=> Void.
+}.
+
+
+}. ## End of namespace Norphic

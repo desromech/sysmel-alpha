@@ -3,6 +3,9 @@ namespace Norphic definition: {
 useNamespace: Stdn Graphics Core.
 useNamespace: Stdn Math Geometry.
 
+class Sizer.
+class SizerElement.
+
 #**
  * I am a norph, my name comes from Native (M)orph in honor to the old
  * Smalltalk morph.
@@ -11,11 +14,36 @@ class Norph superclass: NorphEventHandler; definition: {
     protected field bounds type: RectangleF32.
     protected field color type: Float32x4.
 
-    public field owner type: Norph weakPointer.
-    public field subnorphs type: Stdn Collections Vector(Norph sharedPointer).
+    protected field owner type: Norph weakPointer.
+    protected field subnorphs type: Stdn Collections Vector(Norph sharedPointer).
+
+    private field isDirtyInThisFrame type: Boolean8.
+    private field isUpdatingLayout type: Boolean8.
+
+    public field sizer type: Sizer sharedPointer.
+    public field autolayout type: Boolean8.
 
     inline method extent => Float32x2
         := bounds extent.
+
+    virtual method extent: (newExtent: Float32x2) ::=> Void := {
+        self bounds: (RectangleF32 min: self position extent: newExtent)
+    }.
+
+    inline method position => Float32x2
+        := bounds min.
+
+    virtual method position: (newPosition: Float32x2) ::=> Void := {
+        self bounds: (RectangleF32 min: newPosition extent: self extent)
+    }.
+
+    virtual method bounds => RectangleF32
+        := bounds.
+
+    virtual method bounds: (theNewBounds: RectangleF32 const ref) ::=> Void := {
+        bounds := theNewBounds.
+        self boundsChanged.
+    }.
 
     inline method localBounds => RectangleF32
         := RectangleF32 min: Float32x2 zeros extent: self extent.
@@ -35,12 +63,16 @@ class Norph superclass: NorphEventHandler; definition: {
     virtual method defaultColor => Float32x4
         := Float32x4(0.0f, 0.0f, 1.0f, 1.0f).
 
-    virtual method bounds => RectangleF32
-        := bounds.
+    virtual method minimalContentExtent => Float32x2
+        := Float32x2 zeros.
 
-    virtual method bounds: (theNewBounds: RectangleF32 const ref) ::=> Void := {
-        bounds := theNewBounds.
-        self boundsChanged.
+    virtual method minimalExtent => Float32x2 := {
+        let result mutable := self minimalContentExtent.
+        sizer ifNotNil: {
+            result max: sizer _ minimalExtent
+        }.
+
+        result.
     }.
 
     virtual method color => Float32x4
@@ -69,14 +101,26 @@ class Norph superclass: NorphEventHandler; definition: {
             self
                 renderOn: canvas;
                 renderSubnorphsOn: canvas.
-        }
+        }.
+
+        isDirtyInThisFrame := false.
     }.
 
     virtual method childChanged ::=> Void := {
         self changed
     }.
 
+    virtual method childBoundsChanged ::=> Void := {
+        autolayout ifTrue: {
+            self updateLayout
+        }
+    }.
+
     virtual method changed ::=> Void := {
+        isDirtyInThisFrame ifTrue: {
+            return: void
+        }.
+
         let parentStrong := owner lock.
         parentStrong ifNotNil: {
             parentStrong _ childChanged.
@@ -84,7 +128,27 @@ class Norph superclass: NorphEventHandler; definition: {
     }.
 
     virtual method boundsChanged ::=> Void := {
-        self changed
+        self changed.
+
+        autolayout && isUpdatingLayout not ifTrue: {
+            self updateLayout.
+        }.
+
+        let parentStrong := owner lock.
+        parentStrong ifNotNil: {
+            parentStrong _ childBoundsChanged.
+        }.
+    }.
+
+    virtual method updateLayout => Void := {
+        isUpdatingLayout := true.
+        try: {
+            sizer ifNotNil: {
+                sizer _ applyIntoBounds: self localBounds
+            }
+        } finally: {
+            isUpdatingLayout := false.
+        }
     }.
 
     virtual method destroy ::=> Void := {
@@ -108,6 +172,9 @@ class Norph superclass: NorphEventHandler; definition: {
 
     inline method theme => Theme sharedPointer const ref
         := ThemeRegistry uniqueInstance defaultTheme.
+
+    inline method asSizerElement => SizerElement sharedPointer
+        := (SizerNorphElement for: self) upCastFor: SizerElement.
 }.
 
 }. ## End of namespace Norphic

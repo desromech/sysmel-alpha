@@ -73,6 +73,12 @@ sealed template GenericRectangle(ST: Type)
     const inline method intersectionWith: (other: Rectangle const ref) ::=> SelfType
         := SelfType min: (min max: other min) max: (max min: other max).
 
+    const inline method unionWith: (other: Rectangle const ref) ::=> SelfType
+        := SelfType min: (min min: other min) max: (max max: other max).
+
+    const inline method unionWith: (other: Vector2 const ref) ::=> SelfType
+        := SelfType min: (min min: other) max: (max max: other).
+
     compileTime if: Scalar isPrimitiveFloatType then: {
         method intersectionWithRay: (ray: Ray2d const ref) ::=> ParametricCurveIntersectionResult := {
             ## Slab testing algorithm from: A Ray-Box Intersection Algorithm andEfficient Dynamic Voxel Rendering. By Majercik et al

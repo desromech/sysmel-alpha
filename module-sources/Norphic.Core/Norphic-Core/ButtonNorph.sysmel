@@ -17,11 +17,19 @@ class SimpleButtonMorph superclass: AbstractButtonMorph; definition: {
 
     method initialize => Void := {
         label := StringNorph sharedNew.
-        self addSubnorph: (label upCastFor: Norph)
+
+        let labelRef := label upCastFor: Norph.
+        self addSubnorph: labelRef.
+
+        let sizer := HorizontalBoxSizer sharedNew.
+        self
+            sizer: (sizer upCastFor: Sizer);
+            autolayout: true
     }.
 
-    method text => Stdn String ref
-        := label _ text.
+    method text => Stdn String const ref := {
+        label _ text.
+    }.
 
     method text: (newLabel: Stdn String const ref) ::=> Void := {
         label _ text: newLabel

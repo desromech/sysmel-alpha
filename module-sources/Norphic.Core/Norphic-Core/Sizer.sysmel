@@ -1,0 +1,20 @@
+namespace Norphic definition: {
+
+useNamespace: Stdn Math Geometry.
+
+class SizerElement.
+
+#**
+ * I am a norph sizer. My job is to size and align different norphs.
+ *#
+class Sizer superclass: Stdn SharedObject; definition: {
+    protected field elements type: Stdn Collections Vector(SizerElement sharedPointer).
+
+    abstract method minimalExtent => Float32x2.
+    abstract method applyIntoBounds: (newBounds: RectangleF32) ::=> Void.
+
+    inline method asSizerElement => SizerElement sharedPointer
+        := (SizerSubSizerElement for: self) upCastFor: SizerElement.
+}.
+
+}. ## End of namespace Norphic

@@ -1,0 +1,19 @@
+namespace Norphic definition: {
+
+#**
+ * I am a norph sizer element. I am a wrapper around a another norph.
+ *#
+class SizerNorphElement superclass: SizerElement; definition: {
+    public field norph type: Norph weakPointer.
+
+    meta definition: {
+        inline method for: (norph: Norph ref) ::=> InstanceType sharedPointer := {
+            let result := InstanceType sharedNew.
+            result _ norph := norph asWeakPointer.
+            result
+        }
+    }.
+}.
+
+
+}. ## End of namespace Norphic

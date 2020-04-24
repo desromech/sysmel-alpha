@@ -2,6 +2,8 @@ namespace Stdn definition: {
 namespace Graphics definition: {
 namespace Core definition: {
 
+useNamespace: Stdn Math Geometry.
+
 #**
  * I am an abstract font face size variant. I am used with the objective of
  * managing glyphs at different sizes for an outline defined font.
@@ -20,6 +22,51 @@ class FontFaceWithSize superclass: Object; definition: {
 
     virtual method getKerningForCharacter: (leftCharacter: Char32) with: (rightCharacter: Char32) ::=> Float32x2
         := Float32x2 zeros.
+
+    virtual method getBoundingBoxAndAdvanceForCharacter: (codePoint: Char32) ::=> (RectangleF32 -- Float32x2) := {
+        let glyph := self getOrCreateGlyphForCodePoint: codePoint.
+        glyph ifNil: {
+            return: (RectangleF32 newValue, 0)
+        }.
+
+        let extent := glyph _ extent.
+        let advance := glyph _ horizontalAdvance.
+        (RectangleF32 min: 0 max: extent, advance)
+    }.
+
+    virtual method computeBoundingBoxForUTF8String: (string: Char8 const pointer) size: (size: UIntPointer) previousCharacter: (thePreviousCharacter: Char32) ::=> RectangleF32 := {
+        let currentPosition mutable := Float32x2 zeros.
+        let result mutable := RectangleF32 newValue.
+        let previousCharacter mutable := thePreviousCharacter.
+
+        0 until: size do: {:(UIntPointer)i :: Void |
+            let character := string[i].
+
+            previousCharacter ~= 0 ifTrue: {
+                currentPosition := currentPosition + (self getKerningForCharacter: previousCharacter with: character)
+            }.
+
+            let boundingBoxAndAdvance := self getBoundingBoxAndAdvanceForCharacter: character.
+            let glyphBoundingBox := boundingBoxAndAdvance first.
+            let glyphAdvance := boundingBoxAndAdvance second.
+
+            result := result unionWith: (glyphBoundingBox translatedBy: currentPosition).
+
+            currentPosition := currentPosition + glyphAdvance.
+            previousCharacter := character.
+        }.
+
+        result
+    }.
+
+    virtual method computeBoundingBoxForUTF8String: (string: Char8 const pointer) size: (size: UIntPointer) ::=> RectangleF32
+        := self computeBoundingBoxForUTF8String: string size: size previousCharacter: 0.
+
+    virtual method computeBoundingBoxForString: (string: Stdn String const ref) ::=> RectangleF32
+        := self computeBoundingBoxForUTF8String: string data size: string size.
+
+    virtual method computeExtentForString: (string: Stdn String const ref) ::=> Float32x2
+        := (self computeBoundingBoxForString: string) extent.
 }.
 
 }. ## End of namespace Core

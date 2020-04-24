@@ -7,7 +7,16 @@ useNamespace: Stdn Math Geometry.
  * I am a norph that displays a text.
  *#
 class StringNorph superclass: Norph; definition: {
-    public field text type: Stdn String.
+    protected field text type: Stdn String.
+
+    method text => Stdn String const ref
+        := text.
+
+    method text: (newText: Stdn String const ref) ::=> Void := {
+        text := newText.
+        Stdn stdout << "Text minimal extent " << self minimalExtent; nl.
+        self extent: self minimalExtent.
+    }.
 
     override method renderOn: (canvas: Canvas ref) ::=> Void := {
         let fontFaceWithSize ref := self theme _ normalFontFaceWithSize.
@@ -22,6 +31,15 @@ class StringNorph superclass: Norph; definition: {
 
     virtual method stringColor => Float32x4
         := self color.
+
+    override method minimalContentExtent => Float32x2 := {
+        let fontFaceWithSize ref := self theme _ normalFontFaceWithSize.
+        fontFaceWithSize ifNotNil: {
+            return: (fontFaceWithSize _ computeExtentForString: text)
+        }.
+
+        Float32x2 zeros
+    }
 }.
 
 }. ## End of namespace Norphic

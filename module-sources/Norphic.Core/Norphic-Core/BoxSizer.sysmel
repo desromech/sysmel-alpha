@@ -1,0 +1,39 @@
+namespace Norphic definition: {
+
+useNamespace: Stdn Math Geometry.
+
+#**
+ * I am box sizer that packs its elements in a linear fashion.
+ *#
+class BoxSizer superclass: Sizer; definition: {
+    abstract method direction => Float32x2.
+
+    inline method oppositeDirection => Float32x2
+        := Float32x2 ones - self direction.
+
+    override method minimalExtent => Float32x2 := {
+        Float32x2 zeros.
+    }.
+
+    override method applyIntoBounds: (newBounds: RectangleF32) ::=> Void := {
+        Stdn stdout << "BoxSizer " << newBounds min << " position " << newBounds extent; nl.
+    }.
+}.
+
+#**
+ * I am box sizer that packs its elements in a vertical linear fashion.
+ *#
+class VerticalBoxSizer superclass: BoxSizer; definition: {
+    override method direction => Float32x2
+        := Float32x2(0, 1).
+}.
+
+#**
+ * I am box sizer that packs its elements in a vertical linear fashion.
+ *#
+class HorizontalBoxSizer superclass: BoxSizer; definition: {
+    override method direction => Float32x2
+        := Float32x2(1, 0).
+}.
+
+}. ## End of namespace Norphic

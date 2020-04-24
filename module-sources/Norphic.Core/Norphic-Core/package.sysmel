@@ -8,6 +8,12 @@ loadFileOnce: "RootNorph.sysmel".
 loadFileOnce: "SystemWindowNorph.sysmel".
 loadFileOnce: "BorderedNorph.sysmel".
 
+loadFileOnce: "Sizer.sysmel".
+loadFileOnce: "SizerElement.sysmel".
+loadFileOnce: "SizerNorphElement.sysmel".
+loadFileOnce: "SizerSubSizerElement.sysmel".
+loadFileOnce: "BoxSizer.sysmel".
+
 loadFileOnce: "StringNorph.sysmel".
 loadFileOnce: "LabelNorph.sysmel".
 loadFileOnce: "ButtonNorph.sysmel".
