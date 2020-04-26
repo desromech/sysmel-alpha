@@ -142,11 +142,6 @@ MbndPrimitiveVectorType >> addInstanceMacros [
 			self assert: node receiver value isPrimitiveVectorType.
 			node receiver value expandNegativeInfinityOrMinValueVectorConstruction: node with: builder.
 		];
-		onMacroSelector: #applyWithArguments: do: [ :node :builder :analyzer |
-			self assert: node receiver value isPrimitiveVectorType.
-			analyzer visitNode: ((builder constructVector: node receiver value withElements: node arguments first)
-				position: node)
-		];
 		onMacroSelectors: #(
 			x: x:y: x:y:z: x:y:z:w:
 			r: r:g: r:g:b: r:g:b:a:
@@ -225,6 +220,13 @@ MbndPrimitiveVectorType >> addVectorElementField: vectorElement withName: fieldN
 { #category : #'as yet unclassified' }
 MbndPrimitiveVectorType >> alignmentMultiplier [
 	^ elements asLargerPowerOfTwo
+]
+
+{ #category : #'semantic analysis' }
+MbndPrimitiveVectorType >> analyzeConstructionWithArguments: argumentsTupleNode at: position with: analyzer [
+	^ analyzer visitNode: ((analyzer astBuilder constructVector: (self asLiteralValueNode
+		position: position) withElements: argumentsTupleNode)
+		position: position)
 ]
 
 { #category : #'semantic analysis' }

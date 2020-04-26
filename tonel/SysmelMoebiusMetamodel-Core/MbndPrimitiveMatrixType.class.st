@@ -74,10 +74,6 @@ MbndPrimitiveMatrixType >> addInstanceMacros [
 			node receiver value expandConstantMatrixConstruction: node with: builder valuesComputedWith: [ :r :c :i :j |
 				i*r + j
 			].
-		];
-		onMacroSelector: #applyWithArguments: do: [ :node :builder :analyzer |
-			self assert: node receiver value isPrimitiveMatrixType.
-			node receiver value analyzeMatrixConstructionNode: node with: analyzer.
 		]
 ]
 
@@ -114,10 +110,10 @@ MbndPrimitiveMatrixType >> addMatrixRowAccessor: fieldIndex withName: fieldName 
 ]
 
 { #category : #initialization }
-MbndPrimitiveMatrixType >> analyzeMatrixConstructionNode: node with: analyzer [
+MbndPrimitiveMatrixType >> analyzeConstructionWithArguments: argumentsTupleNode at: node with: analyzer [
 	| builder splicedTuple |
 	builder := analyzer astBuilder.
-	splicedTuple := analyzer visitSplicingTupleNode: node arguments first.
+	splicedTuple := analyzer visitSplicingTupleNode: argumentsTupleNode.
 	splicedTuple size = 1 ifTrue: [ 
 		"The diagonal is set to the element. This case is equivalent to expanding a scalar into a matrix."
 		^ analyzer visitNode: (builder expandScalar: splicedTuple first toMatrixType: self)

@@ -118,6 +118,12 @@ MbndBasicType >> addInstanceMacros [
 { #category : #initialization }
 MbndBasicType >> addMetaTypeMacrosTo: metaType [
 	metaType
+		onMacroSelector: #applyWithArguments: do: [ :node :builder :analyzer |
+			(node receiver isLiteralValueNode
+					ifTrue: [ node receiver value unwrapMbndValue ]
+					ifFalse: [ node receiver type instanceType ])
+				analyzeConstructionWithArguments: node arguments first at: node with: analyzer
+		];
 		onMacroSelectors: #( definition: extend: )do: [ :node :builder |
 			builder programEntity: node receiver extension: node arguments first
 		];
@@ -148,6 +154,19 @@ MbndBasicType >> addPendingDefinitionFragment: pendingDefinitionFragment [
 		self pendingDefinitionFragments add: pendingDefinitionFragment.
 		self enqueueDelayedSemanticAnalysis
 	].
+]
+
+{ #category : #'semantic analysis' }
+MbndBasicType >> analyzeConstructionWithArguments: argumentsTupleNode at: position with: analyzer [
+	| constructionArguments argumentTypes |
+	constructionArguments := analyzer visitSplicingTupleNode: argumentsTupleNode.
+	
+	constructionArguments ifEmpty: [ 
+		^ analyzer analyzeNodeIfNeeded: (self generateNewValueForNode: position with: analyzer astBuilder andWith: analyzer)
+	].
+
+	argumentTypes := constructionArguments collect: [ :each | each type ].
+	self error: 'Failed to find a suitable constructor for {1} with arguments of types {2}' format: {  self asString . argumentTypes asString } at: position
 ]
 
 { #category : #'as yet unclassified' }

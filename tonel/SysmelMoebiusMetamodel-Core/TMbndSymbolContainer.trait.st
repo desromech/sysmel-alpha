@@ -4,7 +4,6 @@ Trait {
 		'localSymbolTable'
 	],
 	#traits : 'TMbndAbstractSymbolContainer',
-	#classTraits : 'TMbndAbstractSymbolContainer classTrait',
 	#category : #'SysmelMoebiusMetamodel-Core-ProgramEntity'
 }
 
