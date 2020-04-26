@@ -161,7 +161,9 @@ ExtensionOverloadedMethod definition: {
 ExtensionMethod definition: {
     method apply := {
         ##Stdn stdout << "Apply " << self; nl.
-        extendedParent methodDict at: name put: extension.
+        extendedParent methodDict ifNotNil: {:methodDict :: Void |
+            methodDict at: name put: extension.
+        }.
         self
     }.
 }.
