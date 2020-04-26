@@ -14,19 +14,32 @@ namespace Collections definition: {
     private field size_ mutable type: UIntPointer.
     private field data_ mutable type: ValueType pointer.
 
-    meta method computeCStringLength: (cstring: ValueType const pointer) ::=> UIntPointer := {
-        cstring ifNil: { return: 0 }.
+    meta definition: {
+        method computeCStringLength: (cstring: ValueType const pointer) ::=> UIntPointer := {
+            cstring ifNil: { return: 0 }.
 
-        let result mutable type: UIntPointer.
-        while: cstring[result] ~= 0 do: {
-            result := result + 1
+            let result mutable type: UIntPointer.
+            while: cstring[result] ~= 0 do: {
+                result := result + 1
+            }.
+
+            return: result.
         }.
 
-        return: result.
-    }.
+        inline method fromCString: (cstring: ValueType const pointer) ::=> InstanceType := {
+            <constructor>
+            InstanceType()
+                initializeFromCString: cstring;
+                yourself
+        }.
 
-    meta macro method fromCString: cstring := ``(`,self basicNewValue initializeFromCString: `,cstring; yourself).
-    meta macro method fromLiteral: literalString := ``(`,self basicNewValue initializeFromLiteral: `,literalString; yourself).
+        inline method fromLiteral: (literalString: LiteralType) ::=> InstanceType := {
+            <constructor>
+            InstanceType()
+                initializeFromLiteral: literalString;
+                yourself
+        }.
+    }.
 
     const inline method hash => UIntPointer := {
         let result mutable type: UIntPointer := 0.

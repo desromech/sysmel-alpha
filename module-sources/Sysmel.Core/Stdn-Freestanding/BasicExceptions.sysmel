@@ -42,7 +42,7 @@ Compiler compilationTarget internalNonLocalReturnExceptionClass: InternalNonLoca
 ## Raises a generic error exception.
 function raiseError noReturn(errorMessage: StringLiteral) ::=> Void := {
     ## FIXME: do not separate these because of a missing cast.
-    let exception mutable := Error newValue.
+    let exception mutable := Error().
     exception
         messageText: errorMessage address;
         signal.
@@ -51,7 +51,7 @@ function raiseError noReturn(errorMessage: StringLiteral) ::=> Void := {
 ## Raises a fatal error exception.
 function raiseFatalError noReturn(errorMessage: StringLiteral) ::=> Void := {
     ## FIXME: do not separate these because of a missing cast.
-    let exception mutable := FatalError newValue.
+    let exception mutable := FatalError().
     exception
         messageText: errorMessage address;
         signal.
@@ -60,7 +60,7 @@ function raiseFatalError noReturn(errorMessage: StringLiteral) ::=> Void := {
 ## Raises an assertion failure exception.
 function raiseAssertionFailure noReturn(errorMessage: StringLiteral) ::=> Void := {
     ## FIXME: do not separate these because of a missing cast.
-    let exception mutable := AssertionFailure newValue.
+    let exception mutable := AssertionFailure().
     exception
         messageText: errorMessage address;
         signal.
@@ -68,13 +68,13 @@ function raiseAssertionFailure noReturn(errorMessage: StringLiteral) ::=> Void :
 
 function raiseForbiddenExceptionDuringCleanUp noReturn() => Void := {
     ## FIXME: do not separate these because of a missing cast.
-    let exception mutable := ForbiddenExceptionDuringCleanUp newValue.
+    let exception mutable := ForbiddenExceptionDuringCleanUp().
     exception signal.
 }.
 
 ## Raises an Abort exception.
 function abort noReturn() => Void := {
-    let exception mutable := Abort newValue.
+    let exception mutable := Abort().
     exception signal
 }.
 
