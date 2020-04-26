@@ -85,7 +85,8 @@ MbndSlovimTranslatedIntrinsicArithmeticComparisonOperation >> generateExpandedMe
 	| result resultType operandType |
 	operandType := node receiver type.
 	operandType isEnumType ifTrue: [ operandType := operandType baseType ].
-	(operandType isPrimitiveVectorType or: [ operandType isPrimitiveMatrixType ]) ifTrue: [
+	((operandType isPrimitiveVectorType or: [ operandType isPrimitiveMatrixType ])
+	 and: [node type isPrimitiveBooleanType]) ifTrue: [
 		(#(eq ne) includes: self intrinsicName) ifFalse: [
 			^ self generateSyntheticVectorComparisonNode: node with: codeGenerator
 		]
