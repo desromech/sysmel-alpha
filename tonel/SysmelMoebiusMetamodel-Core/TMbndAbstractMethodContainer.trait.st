@@ -14,6 +14,23 @@ TMbndAbstractMethodContainer >> addOverloadedMethod: method argumentTypes: argum
 ]
 
 { #category : #adding }
+TMbndAbstractMethodContainer >> addOverloadedMethod: method receiverType: receiverType argumentTypes: argumentTypes lazyReturnType: returnTypeBlock [
+	| functionType boundFunctionType concreteMethod |
+	boundFunctionType := [self compilationTarget functionTypeWithArguments: argumentTypes returnType: returnTypeBlock value].
+	functionType := receiverType isVoidType
+		ifTrue: [ boundFunctionType ]
+		ifFalse: [ [self compilationTarget functionTypeWithArguments: {receiverType} , argumentTypes returnType: returnTypeBlock value] ].
+	 
+	concreteMethod := method copy
+		receiverType: receiverType;
+		type: functionType;
+		boundType: boundFunctionType;
+		yourself.
+	self addChild: concreteMethod.
+	^ self addOverloadedMethodNoCheck: concreteMethod
+]
+
+{ #category : #adding }
 TMbndAbstractMethodContainer >> addOverloadedMethod: method receiverType: receiverType argumentTypes: argumentTypes returnType: returnType [
 	| functionType boundFunctionType concreteMethod |
 	boundFunctionType := self compilationTarget functionTypeWithArguments: argumentTypes returnType: returnType.

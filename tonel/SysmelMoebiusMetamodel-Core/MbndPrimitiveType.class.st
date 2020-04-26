@@ -61,11 +61,25 @@ MbndPrimitiveType >> addComparison: selector intrinsic: intrinsicName [
 
 { #category : #initialization }
 MbndPrimitiveType >> addComparisonIntrinsics [
+]
+
+{ #category : #initialization }
+MbndPrimitiveType >> addElementWiseComparison: selector intrinsic: intrinsicName [
 	self
-		addComparison: #= intrinsic: #eq;
-		addComparison: #== intrinsic: #eq;
-		addComparison: #~= intrinsic: #ne;
-		addComparison: #~~ intrinsic: #ne
+		addArithmeticOperationCoercionMacro: selector;
+		addOverloadedMethod: (MbndIntrinsicArithmeticComparisonMethod new
+				name: selector;
+				intrinsicName: intrinsicName;
+				yourself)
+			receiverType: self argumentTypes: { self } lazyReturnType: [self elementWiseComparisonResult].
+]
+
+{ #category : #initialization }
+MbndPrimitiveType >> addElementWiseThreeWayComparisonIntrinsic: selector [
+	self
+		addArithmeticOperationCoercionMacro: selector;
+		addOverloadedMethod: (MbndIntrinsicThreeWayComparisonMethod new name: selector)
+			receiverType: self argumentTypes: { self } lazyReturnType: [self elementWiseThreeWayComparisonResult]
 ]
 
 { #category : #initialization }
@@ -89,6 +103,16 @@ MbndPrimitiveType >> bestConcreteTypeForLiteralValueNode: literalValueNode inSco
 	].
 	
 	^ super bestConcreteTypeForLiteralValueNode: literalValueNode inScope: scope
+]
+
+{ #category : #initialization }
+MbndPrimitiveType >> elementWiseComparisonResult [
+	self subclassResponsibility
+]
+
+{ #category : #initialization }
+MbndPrimitiveType >> elementWiseThreeWayComparisonResult [
+	self subclassResponsibility
 ]
 
 { #category : #initialization }

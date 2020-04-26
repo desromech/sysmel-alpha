@@ -10,9 +10,7 @@ Trait {
 }
 
 { #category : #adding }
-TMbndMethodContainer >> addOverloadedMethod: method [
-	self assert: method boundType isNotNil.
-	self assert: method boundType isFunctionType.
+TMbndMethodContainer >> addImportedOverloadedMethodNoCheck: method [
 	self overloadedMethodDict at: method name ifPresent: [ :existent |
 		| methodGroup|
 		methodGroup := existent.
@@ -27,6 +25,19 @@ TMbndMethodContainer >> addOverloadedMethod: method [
 		].
 		methodGroup addOverloadedEntity: method
 	] ifAbsentPut: [ method ].
+
+]
+
+{ #category : #adding }
+TMbndMethodContainer >> addOverloadedMethod: method [
+	self assert: method boundType isNotNil.
+	self assert: method boundType isFunctionType.
+	self addOverloadedMethodNoCheck: method
+]
+
+{ #category : #adding }
+TMbndMethodContainer >> addOverloadedMethodNoCheck: method [
+	self addImportedOverloadedMethodNoCheck: method.
 	self recordOverloadedMethodAddition: method withSelector: method name.
 
 ]

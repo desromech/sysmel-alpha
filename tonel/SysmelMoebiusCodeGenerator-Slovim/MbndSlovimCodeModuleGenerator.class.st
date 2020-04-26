@@ -1054,14 +1054,19 @@ MbndSlovimCodeModuleGenerator >> initialize [
 ]
 
 { #category : #'as yet unclassified' }
-MbndSlovimCodeModuleGenerator >> intrinsicConstantBuiltInFunction: intrinsicName withType: functionType [
-	| ssaFunctionType |
-	ssaFunctionType := self translateType: functionType.
+MbndSlovimCodeModuleGenerator >> intrinsicConstantBuiltInFunction: intrinsicName withSSAFunctionType: ssaFunctionType [
 	^ intrinsicConstantBuiltInFunctionCache at: { intrinsicName . ssaFunctionType } ifAbsentPut: [ 
 		SLVMConstantBuiltInFunction pointerSize: self slvmCompilationTarget pointerSize
 			name: intrinsicName
 			functionType: ssaFunctionType
 	]
+]
+
+{ #category : #'as yet unclassified' }
+MbndSlovimCodeModuleGenerator >> intrinsicConstantBuiltInFunction: intrinsicName withType: functionType [
+	| ssaFunctionType |
+	ssaFunctionType := self translateType: functionType.
+	^ self intrinsicConstantBuiltInFunction: intrinsicName withSSAFunctionType: ssaFunctionType
 ]
 
 { #category : #visiting }

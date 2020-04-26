@@ -20,21 +20,25 @@ MbndPrimitiveVectorType >> accept: visitor [
 
 { #category : #initialization }
 MbndPrimitiveVectorType >> addArithmeticIntrinsics [
-	elementType isPrimitiveNumberType ifTrue: [ 
+	elementType isPrimitiveNumberType ifTrue: [
 		self
-			addBuiltIn: #length intrinsicNamed: #'vector.length' argumentTypes: #() returnType: elementType evaluatedWith: [:receiver :arguments :evaluator :node |
-				self halt.
-			];
 			addBuiltIn: #length2 intrinsicNamed: #'vector.length2' argumentTypes: #() returnType: elementType evaluatedWith: [:receiver :arguments :evaluator :node |
-				self halt.
-			];
-			addBuiltIn: #normalized intrinsicNamed: #'vector.normalize' argumentTypes: #() returnType: self evaluatedWith: [:receiver :arguments :evaluator :node |
 				self halt.
 			];
 			addBuiltIn: #dot: intrinsicNamed: #'vector.dot' argumentTypes: {self} returnType: elementType evaluatedWith: [:receiver :arguments :evaluator :node |
 				self halt.
 		].
-	
+
+		elementType isPrimitiveFloatType ifTrue: [ 
+			self
+				addBuiltIn: #length intrinsicNamed: #'vector.length' argumentTypes: #() returnType: elementType evaluatedWith: [:receiver :arguments :evaluator :node |
+					self halt.
+				];
+				addBuiltIn: #normalized intrinsicNamed: #'vector.normalize' argumentTypes: #() returnType: self evaluatedWith: [:receiver :arguments :evaluator :node |
+					self halt.
+				]
+		].	
+
 		elements = 2 ifTrue: [ 
 			self
 				addBuiltIn: #cross: intrinsicNamed: #'vector.cross.2d' argumentTypes: {self} returnType: elementType evaluatedWith: [:receiver :arguments :evaluator :node |
@@ -50,10 +54,10 @@ MbndPrimitiveVectorType >> addArithmeticIntrinsics [
 			elementType isPrimitiveFloatType ifTrue: [
 				self
 					addBuiltIn: #reflectOn: intrinsicNamed: #'vector.reflect' argumentTypes: {self} returnType: self evaluatedWith: [:receiver :arguments :evaluator :node |
-					self halt.
+						self halt.
 					];
 					addBuiltIn: #refractOn:with: intrinsicNamed: #'vector.refract' argumentTypes: {self . elementType} returnType: self evaluatedWith: [:receiver :arguments :evaluator :node |
-					self halt.
+						self halt.
 				].
 			].
 		].
@@ -62,6 +66,33 @@ MbndPrimitiveVectorType >> addArithmeticIntrinsics [
 	elementType addArithmeticIntrinsicsToVectorOrScalarType: self.
 	self addPackingIntrinsics
 	
+]
+
+{ #category : #initialization }
+MbndPrimitiveVectorType >> addComparisonIntrinsics [
+	super addComparisonIntrinsics.
+	self
+		addComparison: #= intrinsic: #eq;
+		addComparison: #== intrinsic: #eq;
+		addComparison: #~= intrinsic: #ne;
+		addComparison: #~~ intrinsic: #ne;
+
+		addThreeWayComparisonIntrinsic: #<=>;
+		addComparison: #< intrinsic: #lt;
+		addComparison: #<= intrinsic: #le;
+		addComparison: #>= intrinsic: #ge;
+		addComparison: #> intrinsic: #gt;
+		
+		addElementWiseThreeWayComparisonIntrinsic: #%<=>;
+		addElementWiseComparison: #%= intrinsic: #eq;
+		addElementWiseComparison: #%== intrinsic: #eq;
+		addElementWiseComparison: #%~= intrinsic: #ne;
+		addElementWiseComparison: #%~~ intrinsic: #ne;
+
+		addElementWiseComparison: #%< intrinsic: #lt;
+		addElementWiseComparison: #%<= intrinsic: #le;
+		addElementWiseComparison: #%>= intrinsic: #ge;
+		addElementWiseComparison: #%> intrinsic: #gt
 ]
 
 { #category : #adding }
@@ -242,6 +273,18 @@ MbndPrimitiveVectorType >> elementType [
 { #category : #accessing }
 MbndPrimitiveVectorType >> elementType: anObject [
 	elementType := anObject
+]
+
+{ #category : #initialization }
+MbndPrimitiveVectorType >> elementWiseComparisonResult [
+	elementType == self compilationTarget booleanType ifTrue: [ ^ self ].
+	^ self compilationTarget booleanType primitiveVectorWithElements: elements
+]
+
+{ #category : #initialization }
+MbndPrimitiveVectorType >> elementWiseThreeWayComparisonResult [
+	elementType == self compilationTarget int32Type ifTrue: [ ^ self ].
+	^ self compilationTarget int32Type primitiveVectorWithElements: elements
 ]
 
 { #category : #accessing }

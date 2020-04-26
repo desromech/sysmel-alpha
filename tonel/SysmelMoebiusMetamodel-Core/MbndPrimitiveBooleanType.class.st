@@ -18,17 +18,27 @@ MbndPrimitiveBooleanType >> accept: aVisitor [
 MbndPrimitiveBooleanType >> addArithmeticIntrinsicsToVectorOrScalarType: vectorOrScalarType [
 	vectorOrScalarType
 		addArithmetic: #'prefix-!' unaryIntrinsic: #lnot;
-		addArithmetic: #not unaryIntrinsic: #lnot
+		addArithmetic: #not unaryIntrinsic: #lnot.
+	
+	vectorOrScalarType isPrimitiveVectorType ifTrue: [ 
+		vectorOrScalarType
+			addBuiltIn: #isAnySet intrinsicNamed: 'vector.any' argumentTypes: #() returnType: self compilationTarget booleanType evaluatedWith: [:receiver :arguments :evaluator :node |
+				self halt.
+			];
+			addBuiltIn: #isAllSet intrinsicNamed: 'vector.all' argumentTypes: #() returnType: self compilationTarget booleanType evaluatedWith: [:receiver :arguments :evaluator :node |
+				self halt.
+			]
+
+	].	
+
 ]
 
 { #category : #initialization }
-MbndPrimitiveBooleanType >> addComparisonIntrinsics [
-	super addComparisonIntrinsics.
+MbndPrimitiveBooleanType >> addInstanceMacros [
+	self class == MbndPrimitiveBooleanType ifFalse: [ ^ self ].
+	self isTrait ifFalse: [ ^ self ].
 	self
-		addComparison: #< intrinsic: #lt;
-		addComparison: #<= intrinsic: #le;
-		addComparison: #>= intrinsic: #ge;
-		addComparison: #> intrinsic: #gt
+		onMacroSelectors: #(isAllSet isAnySet) do: [ :node :builder | node receiver ]
 ]
 
 { #category : #converting }

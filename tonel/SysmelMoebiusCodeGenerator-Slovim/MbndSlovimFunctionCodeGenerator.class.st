@@ -789,6 +789,58 @@ MbndSlovimFunctionCodeGenerator >> generateDestructuringPattern: pattern assignm
 ]
 
 { #category : #'as yet unclassified' }
+MbndSlovimFunctionCodeGenerator >> generateElementWiseThreeWayComparisonOf: rawLeftOperand with: rawRightOperand resultType: resultType [
+	| leftOperand rightOperand operandType elementType rawOperandType |
+	leftOperand := rawLeftOperand.
+	rightOperand := rawRightOperand.
+	rawOperandType := leftOperand type.
+	operandType := rawOperandType.
+	elementType := operandType.
+	(elementType isVectorType or: [ elementType isMatrixType ]) ifTrue: [ 
+		elementType := elementType baseType
+	].
+	
+	elementType isPointerType ifTrue: [ 
+		operandType := self translateType: self compilationTarget intPointerType.
+		leftOperand := slvmBuilder pointerToIntCast: leftOperand target: operandType.
+		rightOperand := slvmBuilder pointerToIntCast: rightOperand target: operandType.
+	].
+
+	elementType isBooleanType ifTrue: [ 
+		leftOperand := slvmBuilder zeroExtend: leftOperand target: resultType.
+		rightOperand := slvmBuilder zeroExtend: rightOperand target: resultType.
+		^ slvmBuilder sub: leftOperand with: rightOperand
+	].
+
+	elementType isIntegerType ifTrue: [
+		| result |
+		result := slvmBuilder sub: leftOperand with: rightOperand.
+		result type ~= resultType ifTrue: [
+			result type size = resultType size ifTrue: [
+				result := slvmBuilder bitCast: result target: resultType
+			] ifFalse: [
+				result type size < resultType size ifTrue: [ 
+					result := slvmBuilder signExtend: result target: resultType
+				] ifFalse: [ 
+					result := slvmBuilder truncate: result target: resultType
+				]
+			]
+		].
+		^ result
+	].
+
+	elementType isFloatType ifTrue: [
+		| result signIntrinsic |
+		result := slvmBuilder fsub: leftOperand with: rightOperand.
+		signIntrinsic := self codeModuleGenerator intrinsicConstantBuiltInFunction: #'math.fsign' withSSAFunctionType: (SLVMFunctionType arguments: {operandType} returnType: operandType).
+		result := slvmBuilder call: signIntrinsic arguments: { result }.
+		^ slvmBuilder floatToIntCast: result target: resultType.
+	].
+
+	self error
+]
+
+{ #category : #'as yet unclassified' }
 MbndSlovimFunctionCodeGenerator >> generateExceptionCatchBeginFor: exceptionCatchAction [
 	| exceptionPointer |
 	exceptionPointer := slvmBuilder load: self unwindExceptionPointerVariable.
@@ -1006,6 +1058,32 @@ MbndSlovimFunctionCodeGenerator >> generateSuperSendPrologueWithSelector: select
 		selector = #finalize ifTrue: [ self generateAutomaticFinalizationCode ]
 	].
 
+]
+
+{ #category : #'as yet unclassified' }
+MbndSlovimFunctionCodeGenerator >> generateThreeWayComparisonOf: leftOperand with: rightOperand resultType: resultType [
+	| operandType elementWiseResultType elementWiseResult |
+	operandType := leftOperand type.
+	(operandType isVectorType or: [ operandType isMatrixType ]) ifFalse: [ 
+		^ self generateElementWiseThreeWayComparisonOf: leftOperand with: rightOperand resultType: resultType.
+	].
+
+	(resultType isVectorType or: [ resultType isMatrixType ]) ifTrue: [ 
+		^ self generateElementWiseThreeWayComparisonOf: leftOperand with: rightOperand resultType: resultType.
+	].
+
+	operandType isMatrixType ifTrue: [
+		self halt.
+	].
+
+	elementWiseResultType := resultType withRankOf: operandType.
+	self assert: elementWiseResultType isNotNil.
+	elementWiseResult := self generateElementWiseThreeWayComparisonOf: leftOperand with: rightOperand resultType: elementWiseResultType.
+	operandType baseType isFloatType ifFalse: [
+		elementWiseResult := self generateVectorSign: elementWiseResult
+	].
+	
+	^ self vectorThreeWayComparisonResultMerge: elementWiseResult
 ]
 
 { #category : #'as yet unclassified' }
@@ -1303,6 +1381,21 @@ MbndSlovimFunctionCodeGenerator >> generateVectorLength2Intrinsic: node [
 	| vector |
 	vector := self visitNode: node receiver.
 	^ slvmBuilder vectorDot: vector with: vector
+]
+
+{ #category : #visiting }
+MbndSlovimFunctionCodeGenerator >> generateVectorSign: vector [
+	| vectorElementType signIntrinsic vectorType |
+	vectorType := vector type.
+	vectorElementType := vectorType.
+	(vectorElementType isVectorType or: [ vectorElementType isMatrixType ]) ifTrue: [
+		vectorElementType := vectorElementType baseType.
+	].
+
+	signIntrinsic := self codeModuleGenerator intrinsicConstantBuiltInFunction:
+		(vectorElementType isFloatType ifTrue: [#'math.fsign'] ifFalse: [ #'math.ssign' ])
+		withSSAFunctionType: (SLVMFunctionType arguments: {vectorType} returnType: vectorType).
+	^ slvmBuilder call: signIntrinsic arguments: { vector }.
 ]
 
 { #category : #testing }
@@ -1608,6 +1701,18 @@ MbndSlovimFunctionCodeGenerator >> unwrapDynamicObject: dynamicObjectValue withT
 	targetType isVoidType ifTrue: [ ^ nil ].
 
 	self error: 'TODO: Implement this case.'
+]
+
+{ #category : #'as yet unclassified' }
+MbndSlovimFunctionCodeGenerator >> vectorThreeWayComparisonResultMerge: elementWiseResult [
+	| elementWiseResultType factors |
+	elementWiseResultType := elementWiseResult type.
+	self assert: elementWiseResultType elements < 16.
+	factors := SLVMConstant vector: elementWiseResultType elements: ((0 to: elementWiseResultType elements - 1) collect: [ :i |
+		SLVMConstant int: 1<<(30 - (i*2))
+	]).
+	
+	^ self slvmBuilder vectorDot: elementWiseResult with: factors
 ]
 
 { #category : #visiting }

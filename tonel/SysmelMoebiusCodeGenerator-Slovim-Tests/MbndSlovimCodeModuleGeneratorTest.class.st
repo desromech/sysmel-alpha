@@ -779,6 +779,54 @@ class AtomicFlag definition: {
 ]
 
 { #category : #tests }
+MbndSlovimCodeModuleGeneratorTest >> testBooleanAllSet [
+	| function |
+	self
+		evaluateMiniObjectModelRuntime;
+		evaluateSysmelSource: 'function op externC(x: Boolean8) => Boolean8 := x isAllSet';
+		generateSSAModule.
+
+	function := ssaModule globalNamed: #op.
+	self assert: function asFullSExpressionForTesting equals: #(
+	function op cdecl b8
+    arguments ((x b8 ()))
+    literals ()
+    blocks (
+        (()
+            (nil jump void () () (block 2 body))
+        )
+        (()
+            (nil return void () ((local 0 x)))
+        )
+    )
+	)
+]
+
+{ #category : #tests }
+MbndSlovimCodeModuleGeneratorTest >> testBooleanAnySet [
+	| function |
+	self
+		evaluateMiniObjectModelRuntime;
+		evaluateSysmelSource: 'function op externC(x: Boolean8) => Boolean8 := x isAnySet';
+		generateSSAModule.
+
+	function := ssaModule globalNamed: #op.
+	self assert: function asFullSExpressionForTesting equals: #(
+	function op cdecl b8
+    arguments ((x b8 ()))
+    literals ()
+    blocks (
+        (()
+            (nil jump void () () (block 2 body))
+        )
+        (()
+            (nil return void () ((local 0 x)))
+        )
+    )
+	)
+]
+
+{ #category : #tests }
 MbndSlovimCodeModuleGeneratorTest >> testBooleanEquality [
 	| function |
 	self
@@ -1092,6 +1140,56 @@ MbndSlovimCodeModuleGeneratorTest >> testBooleanToInt32 [
 	self assert: function basicBlocks size equals: 2.
 	self assert: function basicBlocks second firstInstruction isZeroExtend.
 	self assert: function basicBlocks second lastInstruction isReturn.
+]
+
+{ #category : #tests }
+MbndSlovimCodeModuleGeneratorTest >> testBooleanVectorIsAllSet [
+	| function |
+	self
+		evaluateMiniObjectModelRuntime;
+		evaluateSysmelSource: 'function op externC(x: Boolean8x4) => Boolean8 := x isAllSet';
+		generateSSAModule.
+
+	function := ssaModule globalNamed: #op.
+	self assert: function asFullSExpressionForTesting equals: #(
+	function op cdecl b8
+    arguments ((x (vector b8 4) ()))
+    literals ()
+    blocks (
+        (()
+            (nil jump void () () (block 2 body))
+        )
+        (()
+            (nil call b8 () ((builtInFunction (pointer (function cdecl ((vector b8 4)) false b8) generic) 'vector.all') (local 0 x)))
+            (nil return void () ((local 2 nil)))
+        )
+    )
+	)
+]
+
+{ #category : #tests }
+MbndSlovimCodeModuleGeneratorTest >> testBooleanVectorIsAnySet [
+	| function |
+	self
+		evaluateMiniObjectModelRuntime;
+		evaluateSysmelSource: 'function op externC(x: Boolean8x4) => Boolean8 := x isAnySet';
+		generateSSAModule.
+
+	function := ssaModule globalNamed: #op.
+	self assert: function asFullSExpressionForTesting equals: #(
+	function op cdecl b8
+    arguments ((x (vector b8 4) ()))
+    literals ()
+    blocks (
+        (()
+            (nil jump void () () (block 2 body))
+        )
+        (()
+            (nil call b8 () ((builtInFunction (pointer (function cdecl ((vector b8 4)) false b8) generic) 'vector.any') (local 0 x)))
+            (nil return void () ((local 2 nil)))
+        )
+    )
+	)
 ]
 
 { #category : #tests }
@@ -3108,6 +3206,210 @@ MbndSlovimCodeModuleGeneratorTest >> testFloatVectorDot [
 ]
 
 { #category : #tests }
+MbndSlovimCodeModuleGeneratorTest >> testFloatVectorElementEquality [
+	| function |
+	self
+		evaluateSysmelSource: 'function op externC(x: Float32x4, y: Float32x4) => Boolean8x4 := x %= y';
+		generateSSAModule.
+
+	function := ssaModule globalNamed: #op.
+	self assert: function isFunction.
+	self deny: function isEmpty.
+	self assert: function basicBlocks size equals: 2.
+	self assert: function basicBlocks second firstInstruction isBinaryOperation.
+	self assert: function basicBlocks second firstInstruction operation equals: #ufeq.
+	self assert: function basicBlocks second lastInstruction isReturn.
+]
+
+{ #category : #tests }
+MbndSlovimCodeModuleGeneratorTest >> testFloatVectorElementEquality2 [
+	| function |
+	self
+		evaluateSysmelSource: 'function op externC(x: Float32x4, y: Float32x4) => Boolean8x4 := x %== y';
+		generateSSAModule.
+
+	function := ssaModule globalNamed: #op.
+	self assert: function isFunction.
+	self deny: function isEmpty.
+	self assert: function basicBlocks size equals: 2.
+	self assert: function basicBlocks second firstInstruction isBinaryOperation.
+	self assert: function basicBlocks second firstInstruction operation equals: #ufeq.
+	self assert: function basicBlocks second lastInstruction isReturn.
+]
+
+{ #category : #tests }
+MbndSlovimCodeModuleGeneratorTest >> testFloatVectorElementGreaterOrEqual [
+	| function |
+	self
+		evaluateSysmelSource: 'function op externC(x: Float32x4, y: Float32x4) => Boolean8x4 := x %>= y';
+		generateSSAModule.
+
+	function := ssaModule globalNamed: #op.
+	self assert: function isFunction.
+	self deny: function isEmpty.
+	self assert: function basicBlocks size equals: 2.
+	self assert: function basicBlocks second firstInstruction isBinaryOperation.
+	self assert: function basicBlocks second firstInstruction operation equals: #ufge.
+	self assert: function basicBlocks second lastInstruction isReturn.
+]
+
+{ #category : #tests }
+MbndSlovimCodeModuleGeneratorTest >> testFloatVectorElementGreaterThan [
+	| function |
+	self
+		evaluateSysmelSource: 'function op externC(x: Float32x4, y: Float32x4) => Boolean8x4 := x %> y';
+		generateSSAModule.
+
+	function := ssaModule globalNamed: #op.
+	self assert: function isFunction.
+	self deny: function isEmpty.
+	self assert: function basicBlocks size equals: 2.
+	self assert: function basicBlocks second firstInstruction isBinaryOperation.
+	self assert: function basicBlocks second firstInstruction operation equals: #ufgt.
+	self assert: function basicBlocks second lastInstruction isReturn.
+]
+
+{ #category : #tests }
+MbndSlovimCodeModuleGeneratorTest >> testFloatVectorElementLessOrEqual [
+	| function |
+	self
+		evaluateSysmelSource: 'function op externC(x: Float32x4, y: Float32x4) => Boolean8x4 := x %<= y';
+		generateSSAModule.
+
+	function := ssaModule globalNamed: #op.
+	self assert: function isFunction.
+	self deny: function isEmpty.
+	self assert: function basicBlocks size equals: 2.
+	self assert: function basicBlocks second firstInstruction isBinaryOperation.
+	self assert: function basicBlocks second firstInstruction operation equals: #ufle.
+	self assert: function basicBlocks second lastInstruction isReturn.
+]
+
+{ #category : #tests }
+MbndSlovimCodeModuleGeneratorTest >> testFloatVectorElementLessThan [
+	| function |
+	self
+		evaluateSysmelSource: 'function op externC(x: Float32x4, y: Float32x4) => Boolean8x4 := x %< y';
+		generateSSAModule.
+
+	function := ssaModule globalNamed: #op.
+	self assert: function isFunction.
+	self deny: function isEmpty.
+	self assert: function basicBlocks size equals: 2.
+	self assert: function basicBlocks second firstInstruction isBinaryOperation.
+	self assert: function basicBlocks second firstInstruction operation equals: #uflt.
+	self assert: function basicBlocks second lastInstruction isReturn.
+]
+
+{ #category : #tests }
+MbndSlovimCodeModuleGeneratorTest >> testFloatVectorElementNotEquality [
+	| function |
+	self
+		evaluateSysmelSource: 'function op externC(x: Float32x4, y: Float32x4) => Boolean8x4 := x %~= y';
+		generateSSAModule.
+
+	function := ssaModule globalNamed: #op.
+	self assert: function isFunction.
+	self deny: function isEmpty.
+	self assert: function basicBlocks size equals: 2.
+	self assert: function basicBlocks second firstInstruction isBinaryOperation.
+	self assert: function basicBlocks second firstInstruction operation equals: #ufne.
+	self assert: function basicBlocks second lastInstruction isReturn.
+]
+
+{ #category : #tests }
+MbndSlovimCodeModuleGeneratorTest >> testFloatVectorElementNotEquality2 [
+	| function |
+	self
+		evaluateSysmelSource: 'function op externC(x: Float32x4, y: Float32x4) => Boolean8x4 := x %~~ y';
+		generateSSAModule.
+
+	function := ssaModule globalNamed: #op.
+	self assert: function isFunction.
+	self deny: function isEmpty.
+	self assert: function basicBlocks size equals: 2.
+	self assert: function basicBlocks second firstInstruction isBinaryOperation.
+	self assert: function basicBlocks second firstInstruction operation equals: #ufne.
+	self assert: function basicBlocks second lastInstruction isReturn.
+]
+
+{ #category : #tests }
+MbndSlovimCodeModuleGeneratorTest >> testFloatVectorElementThreeWayComparison [
+	| function |
+	self
+		evaluateSysmelSource: 'function op externC(x: Float32x4, y: Float32x4) => Int32x4 := x %<=> y';
+		generateSSAModule.
+
+	function := ssaModule globalNamed: #op.
+	self assert: function asFullSExpressionForTesting equals: #(
+	function op cdecl (vector i32 4)
+    arguments ((x (vector f32 4) ()) (y (vector f32 4) ()))
+    literals ()
+    blocks (
+        (()
+            (nil jump void () () (block 2 body))
+        )
+        (()
+            (nil fsub (vector f32 4) () ((local 0 x) (local 1 y)))
+            (nil call (vector f32 4) () ((builtInFunction (pointer (function cdecl ((vector f32 4)) false (vector f32 4)) generic) 'math.fsign') (local 3 nil)))
+            (nil fp2int (vector i32 4) () ((local 4 nil)))
+            (nil return void () ((local 5 nil)))
+        )
+    )
+	)
+]
+
+{ #category : #tests }
+MbndSlovimCodeModuleGeneratorTest >> testFloatVectorEquality [
+	| function |
+	self
+		evaluateSysmelSource: 'function op externC(x: Float32x4, y: Float32x4) => Boolean8 := x = y';
+		generateSSAModule.
+
+	function := ssaModule globalNamed: #op.
+	self assert: function asFullSExpressionForTesting equals: #(
+	function op cdecl b8
+    arguments ((x (vector f32 4) ()) (y (vector f32 4) ()))
+    literals ()
+    blocks (
+        (()
+            (nil jump void () () (block 2 body))
+        )
+        (()
+            (nil ufeq (vector b8 4) () ((local 0 x) (local 1 y)))
+            (nil call b8 () ((builtInFunction (pointer (function cdecl ((vector b8 4)) false b8) generic) 'vector.all') (local 3 nil)))
+            (nil return void () ((local 4 nil)))
+        )
+    )
+	)
+]
+
+{ #category : #tests }
+MbndSlovimCodeModuleGeneratorTest >> testFloatVectorEquality2 [
+	| function |
+	self
+		evaluateSysmelSource: 'function op externC(x: Float32x4, y: Float32x4) => Boolean8 := x == y';
+		generateSSAModule.
+
+	function := ssaModule globalNamed: #op.
+	self assert: function asFullSExpressionForTesting equals: #(
+	function op cdecl b8
+    arguments ((x (vector f32 4) ()) (y (vector f32 4) ()))
+    literals ()
+    blocks (
+        (()
+            (nil jump void () () (block 2 body))
+        )
+        (()
+            (nil ufeq (vector b8 4) () ((local 0 x) (local 1 y)))
+            (nil call b8 () ((builtInFunction (pointer (function cdecl ((vector b8 4)) false b8) generic) 'vector.all') (local 3 nil)))
+            (nil return void () ((local 4 nil)))
+        )
+    )
+	)
+]
+
+{ #category : #tests }
 MbndSlovimCodeModuleGeneratorTest >> testFloatVectorGetW [
 	| function |
 	self
@@ -3229,6 +3531,34 @@ MbndSlovimCodeModuleGeneratorTest >> testFloatVectorLength2 [
 ]
 
 { #category : #tests }
+MbndSlovimCodeModuleGeneratorTest >> testFloatVectorLessThan [
+	| function |
+	self
+		evaluateSysmelSource: 'function op externC(x: Float32x4, y: Float32x4) => Boolean8 := x < y';
+		generateSSAModule.
+
+	function := ssaModule globalNamed: #op.
+	self assert: function asFullSExpressionForTesting equals: #(
+function op cdecl b8
+    arguments ((x (vector f32 4) ()) (y (vector f32 4) ()))
+    literals ()
+    blocks (
+        (()
+            (nil jump void () () (block 2 body))
+        )
+        (()
+            (nil fsub (vector f32 4) () ((local 0 x) (local 1 y)))
+            (nil call (vector f32 4) () ((builtInFunction (pointer (function cdecl ((vector f32 4)) false (vector f32 4)) generic) 'math.fsign') (local 3 nil)))
+            (nil fp2int (vector i32 4) () ((local 4 nil)))
+            (nil call i32 () ((builtInFunction (pointer (function cdecl ((vector i32 4) (vector i32 4)) false i32) generic) 'vector.dot') (local 5 nil) (constVector (vector i32 4) ((const i32 1073741824) (const i32 268435456) (const i32 67108864) (const i32 16777216)))))
+            (nil ilt b8 () ((local 6 nil) (const i32 0)))
+            (nil return void () ((local 7 nil)))
+        )
+    )
+	)
+]
+
+{ #category : #tests }
 MbndSlovimCodeModuleGeneratorTest >> testFloatVectorMatrixMultiplication [
 	| function |
 	self
@@ -3326,6 +3656,56 @@ MbndSlovimCodeModuleGeneratorTest >> testFloatVectorNegate2 [
 	self assert: function basicBlocks second firstInstruction isUnaryOperation.
 	self assert: function basicBlocks second firstInstruction operation equals: #fneg.
 	self assert: function basicBlocks second lastInstruction isReturn.
+]
+
+{ #category : #tests }
+MbndSlovimCodeModuleGeneratorTest >> testFloatVectorNotEquality [
+	| function |
+	self
+		evaluateSysmelSource: 'function op externC(x: Float32x4, y: Float32x4) => Boolean8 := x ~= y';
+		generateSSAModule.
+
+	function := ssaModule globalNamed: #op.
+	self assert: function asFullSExpressionForTesting equals: #(
+	function op cdecl b8
+    arguments ((x (vector f32 4) ()) (y (vector f32 4) ()))
+    literals ()
+    blocks (
+        (()
+            (nil jump void () () (block 2 body))
+        )
+        (()
+            (nil ufne (vector b8 4) () ((local 0 x) (local 1 y)))
+            (nil call b8 () ((builtInFunction (pointer (function cdecl ((vector b8 4)) false b8) generic) 'vector.any') (local 3 nil)))
+            (nil return void () ((local 4 nil)))
+        )
+    )
+	)
+]
+
+{ #category : #tests }
+MbndSlovimCodeModuleGeneratorTest >> testFloatVectorNotEquality2 [
+	| function |
+	self
+		evaluateSysmelSource: 'function op externC(x: Float32x4, y: Float32x4) => Boolean8 := x ~~ y';
+		generateSSAModule.
+
+	function := ssaModule globalNamed: #op.
+	self assert: function asFullSExpressionForTesting equals: #(
+	function op cdecl b8
+    arguments ((x (vector f32 4) ()) (y (vector f32 4) ()))
+    literals ()
+    blocks (
+        (()
+            (nil jump void () () (block 2 body))
+        )
+        (()
+            (nil ufne (vector b8 4) () ((local 0 x) (local 1 y)))
+            (nil call b8 () ((builtInFunction (pointer (function cdecl ((vector b8 4)) false b8) generic) 'vector.any') (local 3 nil)))
+            (nil return void () ((local 4 nil)))
+        )
+    )
+	)
 ]
 
 { #category : #tests }
@@ -3534,6 +3914,33 @@ MbndSlovimCodeModuleGeneratorTest >> testFloatVectorSwizzle [
 	self assert: function basicBlocks second firstInstruction isShuffleVectors.
 	self assert: function basicBlocks second firstInstruction components value equals: #(3 2 1 0).
 	self assert: function basicBlocks second lastInstruction isReturn.
+]
+
+{ #category : #tests }
+MbndSlovimCodeModuleGeneratorTest >> testFloatVectorThreeWayComparison [
+	| function |
+	self
+		evaluateSysmelSource: 'function op externC(x: Float32x4, y: Float32x4) => Int32 := x <=> y';
+		generateSSAModule.
+
+	function := ssaModule globalNamed: #op.
+	self assert: function asFullSExpressionForTesting equals: #(
+function op cdecl i32
+    arguments ((x (vector f32 4) ()) (y (vector f32 4) ()))
+    literals ()
+    blocks (
+        (()
+            (nil jump void () () (block 2 body))
+        )
+        (()
+            (nil fsub (vector f32 4) () ((local 0 x) (local 1 y)))
+            (nil call (vector f32 4) () ((builtInFunction (pointer (function cdecl ((vector f32 4)) false (vector f32 4)) generic) 'math.fsign') (local 3 nil)))
+            (nil fp2int (vector i32 4) () ((local 4 nil)))
+            (nil call i32 () ((builtInFunction (pointer (function cdecl ((vector i32 4) (vector i32 4)) false i32) generic) 'vector.dot') (local 5 nil) (constVector (vector i32 4) ((const i32 1073741824) (const i32 268435456) (const i32 67108864) (const i32 16777216)))))
+            (nil return void () ((local 6 nil)))
+        )
+    )
+	).
 ]
 
 { #category : #tests }
@@ -7799,6 +8206,22 @@ function tupleFirst cdecl i32
         )
     )
 	)
+]
+
+{ #category : #tests }
+MbndSlovimCodeModuleGeneratorTest >> testVariantDefinitionFragment [
+	self
+		evaluateSysmelSource: '
+(Int32 | Float32 | Float64) definition: {
+	method plusOne => SelfType := self + 1
+}.
+';
+		generateSSAModule.
+
+	self assert: (ssaModule globalNamed: #'_ZN7Float328.plusOneEf') isNotNil.
+	self assert: (ssaModule globalNamed: #'_ZN5Int328.plusOneEi') isNotNil.
+	self assert: (ssaModule globalNamed: #'_ZN7Float648.plusOneEd') isNotNil.
+
 ]
 
 { #category : #tests }

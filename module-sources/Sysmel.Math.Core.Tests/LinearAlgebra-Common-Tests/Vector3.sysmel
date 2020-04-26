@@ -1,0 +1,24 @@
+namespace Stdn definition: {
+namespace Math definition: {
+namespace LinearAlgebra definition: {
+namespace Tests definition: {
+
+sealed template GenericVector3Test(ST: Type)
+    := class superclass: Stdn Testing TestCase; definition: {
+    compileTime constant GLA := GenericLinearAlgebra(ST).
+
+    compileTime constant Scalar := GLA Scalar.
+    compileTime constant Vector2 := GLA Vector2.
+    compileTime constant Vector3 := GLA Vector2.
+
+}.
+
+compileTime constant Int32x3Tests := GenericVector3Test(Int32).
+compileTime constant Int64x3Tests := GenericVector3Test(Int64).
+compileTime constant Float32x3Tests := GenericVector3Test(Float32).
+compileTime constant Float64x3Tests := GenericVector3Test(Float64).
+
+} ## End of namespace Tests
+} ## End of namespace LinearAlgebra
+} ## End of namespace Math
+} ## End of namespace Stdn

@@ -55,16 +55,6 @@ MbndPrimitiveNumberType >> addArithmeticIntrinsicsToVectorOrScalarType: vectorOr
 
 ]
 
-{ #category : #initialization }
-MbndPrimitiveNumberType >> addComparisonIntrinsics [
-	super addComparisonIntrinsics.
-	self
-		addComparison: #< intrinsic: #lt;
-		addComparison: #<= intrinsic: #le;
-		addComparison: #>= intrinsic: #ge;
-		addComparison: #> intrinsic: #gt
-]
-
 { #category : #'testing methods' }
 MbndPrimitiveNumberType >> isPrimitiveNumberType [
 	^ true

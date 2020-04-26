@@ -1,0 +1,173 @@
+namespace Stdn definition: {
+namespace Math definition: {
+namespace LinearAlgebra definition: {
+namespace Tests definition: {
+
+sealed template GenericVector2Test(ST: Type)
+    := class superclass: Stdn Testing TestCase; definition: {
+    compileTime constant GLA := GenericLinearAlgebra(ST).
+
+    compileTime constant Scalar := GLA Scalar.
+    compileTime constant Vector2 := GLA Vector2.
+
+    test: testEquals with: {
+        let a := Vector2 x: 1 y: 2.
+        let b := Vector2 x: 3 y: 4.
+        let c := Vector2 x: 3 y: 4.
+
+        self assert: b equals:  c.
+        self deny: a = b.
+        self deny: a = c.
+    }.
+
+    test: testCloseTo with: {
+        let a := Vector2 x: 1 y: 2.
+        let b := Vector2 x: 3 y: 4.
+        let c := Vector2 x: 3 y: 4.
+
+        self assert: b closeTo:  c.
+        self deny: (a closeTo: b).
+        self assert: a notCloseTo:  b.
+
+        self deny: (a closeTo: c).
+        self assert: a notCloseTo: c.
+    }.
+
+    test: testNotEquals with: {
+        let a := Vector2 x: 1 y: 2.
+        let b := Vector2 x: 3 y: 4.
+        let c := Vector2 x: 3 y: 4.
+
+        self deny: (b ~=  c).
+        self assert: a ~= b.
+        self assert: a ~= c.
+    }.
+
+    test: testHash with: {
+        let b := Vector2 x: 3 y: 4.
+        let c := Vector2 x: 3 y: 4.
+        self assert: b hash equals: c hash.
+    }.
+
+    test: testLessThan with: {
+        self deny: Vector2(0, 0) < Vector2(0, 0).
+        self assert: Vector2(0, 0) < Vector2(1, 0).
+        self deny: Vector2(1, 0) < Vector2(0, 0).
+
+        self assert: Vector2(0, 0) < Vector2(0, 1).
+        self deny: Vector2(0, 1) < Vector2(0, 0).
+        self deny: Vector2(0, 1) < Vector2(0, 1).
+    }.
+
+    test: testLessOrEqual with: {
+        self assert: Vector2(0, 0) <= Vector2(0, 0).
+        self assert: Vector2(0, 0) <= Vector2(1, 0).
+        self deny: Vector2(1, 0) <= Vector2(0, 0).
+
+        self assert: Vector2(0, 0) <= Vector2(0, 1).
+        self deny: Vector2(0, 1) <= Vector2(0, 0).
+        self assert: Vector2(0, 1) <= Vector2(0, 1).
+    }.
+
+    test: testGreaterThan with: {
+        self deny: Vector2(0, 0) > Vector2(0, 0).
+        self deny: Vector2(0, 0) > Vector2(1, 0).
+        self assert: Vector2(1, 0) > Vector2(0, 0).
+
+        self deny: Vector2(0, 0) > Vector2(0, 1).
+        self assert: Vector2(0, 1) > Vector2(0, 0).
+        self deny: Vector2(0, 1) > Vector2(0, 1).
+    }.
+
+    test: testGreaterOrEqual with: {
+        self assert: Vector2(0, 0) >= Vector2(0, 0).
+        self deny: Vector2(0, 0) >= Vector2(1, 0).
+        self assert: Vector2(1, 0) >= Vector2(0, 0).
+
+        self deny: Vector2(0, 0) >= Vector2(0, 1).
+        self assert: Vector2(0, 1) >= Vector2(0, 0).
+        self assert: Vector2(0, 1) >= Vector2(0, 1).
+    }.
+
+    test: testZeros with: {
+        self assert: Vector2 zeros equals: Vector2(0, 0).
+    }.
+
+    test: testOnes with: {
+        self assert: Vector2 ones equals: Vector2(1, 1).
+    }.
+
+    test: testAddition with: {
+        self assert: Vector2(0, 0) + Vector2(0, 0) equals: Vector2(0, 0).
+        self assert: Vector2(1, 2) + Vector2(0, 0) equals: Vector2(1, 2).
+        self assert: Vector2(1, 2) + Vector2(3, 4) equals: Vector2(4, 6).
+        self assert: Vector2(3, 4) + Vector2(1, 2) equals: Vector2(4, 6).
+    }.
+
+    test: testSubtraction with: {
+        self assert: Vector2(0, 0) - Vector2(0, 0) equals: Vector2(0, 0).
+        self assert: Vector2(1, 2) - Vector2(0, 0) equals: Vector2(1, 2).
+        self assert: Vector2(1, 2) - Vector2(3, 5) equals: Vector2(-2, -3).
+    }.
+
+    test: testMultiplication with: {
+        self assert: Vector2(0, 0) * Vector2(0, 0) equals: Vector2(0, 0).
+        self assert: Vector2(1, 2) * Vector2(0, 0) equals: Vector2(0, 0).
+        self assert: Vector2(1, 2) * Vector2(1, 1) equals: Vector2(1, 2).
+        self assert: Vector2(2, 3) * Vector2(3, 5) equals: Vector2(6, 15).
+    }.
+
+    test: testDivision with: {
+        self assert: Vector2(1, 2) / Vector2(1, 1) equals: Vector2(1, 2).
+        self assert: Vector2(20, 9) / Vector2(5, 3) equals: Vector2(4, 3).
+    }.
+
+    test: testConstruction with: {
+        let vector := Vector2 x: 2 y: 3.
+        self assert: vector x equals: 2.
+        self assert: vector y equals: 3.
+        self assert: vector equals: Vector2(2, 3).
+    }.
+
+    test: testConstruction2 with: {
+        let vector := Vector2(2, 3).
+        self assert: vector x equals: 2.
+        self assert: vector y equals: 3.
+        self assert: vector equals: Vector2(2, 3).
+    }.
+
+    test: testDot with: {
+        self assert: (Vector2(1, 2) dot: Vector2(4, 7)) equals: #* 4 + 14 *# 18.
+    }.
+
+    test: testLength2 with: {
+        self assert: Vector2(3, 4) length2 equals: 25.
+    }.
+
+    test: testAbsolute with: {
+        self assert: Vector2(0, 1) abs equals: Vector2(0, 1).
+        self assert: Vector2(0, -1) abs equals: Vector2(0, 1).
+        self assert: Vector2(1, 0) abs equals: Vector2(1, 0).
+        self assert: Vector2(-1, 0) abs equals: Vector2(1, 0).
+        self assert: Vector2(2, 3) abs equals: Vector2(2, 3).
+        self assert: Vector2(-2, 3) abs equals: Vector2(2, 3).
+        self assert: Vector2(2, -3) abs equals: Vector2(2, 3).
+        self assert: Vector2(-2, -3) abs equals: Vector2(2, 3).
+    }.
+
+    compileTime if: Scalar isPrimitiveFloatType then: {
+        test: testLength with: {
+            self assert: Vector2(3, 4) length equals: 5.
+        }.
+    }
+}.
+
+compileTime constant Int32x2Tests := GenericVector2Test(Int32).
+compileTime constant Int64x2Tests := GenericVector2Test(Int64).
+compileTime constant Float32x2Tests := GenericVector2Test(Float32).
+compileTime constant Float64x2Tests := GenericVector2Test(Float64).
+
+} ## End of namespace Tests
+} ## End of namespace LinearAlgebra
+} ## End of namespace Math
+} ## End of namespace Stdn

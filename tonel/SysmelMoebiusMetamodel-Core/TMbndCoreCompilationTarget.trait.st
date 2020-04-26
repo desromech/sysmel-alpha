@@ -1068,7 +1068,7 @@ TMbndCoreCompilationTarget >> initializeGpuTypes [
 { #category : #initialization }
 TMbndCoreCompilationTarget >> initializePrimitiveMatrixTypes [
 	| baseType matrixTypeName matrixType |
-	#(Boolean8 Int32 UInt32 Float32 Float64) do: [ :baseTypeName |
+	#(Boolean8 Int32 UInt32 Int64 UInt64 Float32 Float64) do: [ :baseTypeName |
 		baseType := self getBasicTypeNamed: baseTypeName.
 		2 to: 4 do: [ :rowCount |
 			2 to: 4 do: [ :columnCount |
@@ -1086,7 +1086,7 @@ TMbndCoreCompilationTarget >> initializePrimitiveMatrixTypes [
 { #category : #initialization }
 TMbndCoreCompilationTarget >> initializePrimitiveVectorTypes [
 	| baseType vectorTypeName vectorType |
-	#(Boolean8 Int8 UInt8 Int16 UInt16 Int32 UInt32 Float32 Float64) do: [ :baseTypeName |
+	#(Boolean8 Int8 UInt8 Int16 UInt16 Int32 UInt32 Int64 UInt64 Float32 Float64) do: [ :baseTypeName |
 		baseType := self getBasicTypeNamed: baseTypeName.
 		2 to: 4 do: [ :elementCount |
 			vectorTypeName := (baseTypeName , 'x' , elementCount asString).

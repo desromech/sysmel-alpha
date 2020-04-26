@@ -29,7 +29,17 @@ MbndPrimitiveScalarType >> addArithmeticIntrinsicsToVectorOrScalarType: vectorOr
 { #category : #initialization }
 MbndPrimitiveScalarType >> addComparisonIntrinsics [
 	super addComparisonIntrinsics.
-	self addThreeWayComparisonIntrinsic: #<=>
+	self
+		addComparison: #= intrinsic: #eq;
+		addComparison: #== intrinsic: #eq;
+		addComparison: #~= intrinsic: #ne;
+		addComparison: #~~ intrinsic: #ne;
+		
+		addThreeWayComparisonIntrinsic: #<=>;
+		addComparison: #< intrinsic: #lt;
+		addComparison: #<= intrinsic: #le;
+		addComparison: #>= intrinsic: #ge;
+		addComparison: #> intrinsic: #gt
 ]
 
 { #category : #adding }
@@ -45,6 +55,16 @@ MbndPrimitiveScalarType >> addDefaultConversionRules [
 	self isTrait ifFalse: [
 		self addConversionsFromLiteralTypes
 	].
+]
+
+{ #category : #initialization }
+MbndPrimitiveScalarType >> elementWiseComparisonResult [
+	^ self compilationTarget booleanType
+]
+
+{ #category : #initialization }
+MbndPrimitiveScalarType >> elementWiseThreeWayComparisonResult [
+	^ self compilationTarget int32Type
 ]
 
 { #category : #accessing }

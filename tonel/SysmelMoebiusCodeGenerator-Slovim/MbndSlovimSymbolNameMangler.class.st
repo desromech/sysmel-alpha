@@ -184,7 +184,7 @@ MbndSlovimSymbolNameMangler >> emitTemplateInstanceArguments: instanceArguments 
 	].
 
 	actualInstanceArguments do: [ :arg |
-		self emitTemplateInstanceArgument: arg
+		self emitTemplateInstanceArgument: (arg asMoebiusValueWithTarget: self compilationTarget)
 	].
 	output nextPut: $E.
 

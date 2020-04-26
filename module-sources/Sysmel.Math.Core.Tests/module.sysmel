@@ -3,4 +3,5 @@ Compiler
     importModuleNamed: #"Sysmel.Math.Core";
     loadPackages: #(
         #"Geometry2D-Shapes-Tests"
+        #"LinearAlgebra-Common-Tests"
     ).

@@ -2,6 +2,7 @@ loadFileOnce: "ComparisonMethodsMixin.sysmel".
 loadFileOnce: "NotEqualsMethodMixin.sysmel".
 
 loadFileOnce: "Hash.sysmel".
+loadFileOnce: "CloseTo.sysmel".
 loadFileOnce: "Swap.sysmel".
 loadFileOnce: "Optional.sysmel".
 loadFileOnce: "Association.sysmel".

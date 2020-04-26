@@ -2085,6 +2085,19 @@ MbndAstSemanticAnalyzer >> visitProgramEntityExtensionNode: node [
 		^ self astBuilder literalVoid
 	].
 
+	(programEntity isMbndType and: [programEntity isVariantUnionType]) ifTrue: [
+		programEntity components do: [ :each |
+			definitionScope := (each programEntityScope parent: scope) newLexicalScopeAt: node.
+			each addPendingDefinitionFragment: (MbndPendingDefinitionBody new
+				module: module;
+				node: node body;
+				scope: definitionScope;
+				yourself).
+
+		].
+		^ self astBuilder literalVoid
+	].
+
 	programEntity markAsDefined.
 	definitionScope := (programEntity programEntityScope parent: scope) newLexicalScopeAt: node.
 	programEntity addPendingDefinitionFragment: (MbndPendingDefinitionBody new

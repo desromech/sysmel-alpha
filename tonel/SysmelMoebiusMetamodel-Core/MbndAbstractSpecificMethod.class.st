@@ -111,6 +111,7 @@ MbndAbstractSpecificMethod >> arguments [
 
 { #category : #accessing }
 MbndAbstractSpecificMethod >> boundType [
+	boundType isClosure ifTrue: [ boundType := boundType value ].
 	^ boundType
 ]
 
@@ -123,10 +124,10 @@ MbndAbstractSpecificMethod >> boundType: anObject [
 MbndAbstractSpecificMethod >> computeMatchingCostWithArguments: callArguments receiverType: callReceiverType analyzer: analyzer at: node [
 	| coercionCost receiverConversionCost |
 	receiverType isVoidType = callReceiverType isVoidType ifFalse: [ ^ nil ].
-	boundType isCVariadic ifTrue: [
-		callArguments size >= boundType argumentTypes size ifFalse: [ ^ nil ].
+	self boundType isCVariadic ifTrue: [
+		callArguments size >= self boundType argumentTypes size ifFalse: [ ^ nil ].
 	] ifFalse: [
-		callArguments size = boundType argumentTypes size ifFalse: [ ^ nil ].
+		callArguments size = self boundType argumentTypes size ifFalse: [ ^ nil ].
 	].
 
 	receiverConversionCost := 0.
@@ -145,7 +146,7 @@ MbndAbstractSpecificMethod >> computeMatchingCostWithArguments: callArguments re
 	coercionCost := receiverConversionCost.
 	callArguments doWithIndex: [ :argumentNode :index |
 		| expectedType argumentCoercionCost |
-		expectedType := boundType argumentTypes at: index.
+		expectedType := self boundType argumentTypes at: index.
 		argumentCoercionCost := analyzer computeImplicitCoercionCostFor: argumentNode to: expectedType at: node.
 		argumentCoercionCost ifNil: [ ^ nil ].
 		coercionCost := coercionCost + argumentCoercionCost
@@ -164,8 +165,8 @@ MbndAbstractSpecificMethod >> encodeFieldsForMessagePackWith: graphEncoder [
 		#flags . flags.
 		#name . name .
 		#receiverType . receiverType encodeGraphForMessagePackWith: graphEncoder.
-		#type . type encodeGraphForMessagePackWith: graphEncoder.
-		#boundType . boundType encodeGraphForMessagePackWith: graphEncoder.
+		#type . self type encodeGraphForMessagePackWith: graphEncoder.
+		#boundType . self boundType encodeGraphForMessagePackWith: graphEncoder.
 	} , ((self needsDefinitionSerializedWith: graphEncoder) ifTrue: [ { 
 		#nonLocalResultVariable . nonLocalResultVariable encodeGraphForMessagePackWith: graphEncoder.
 		#typedSelector . typedSelector .
@@ -182,7 +183,7 @@ MbndAbstractSpecificMethod >> ensureLookupSelectorIsRegisteredIn: programEntity 
 	programEntity requiresDynamicMethodWrappers ifFalse: [ ^ self ].
 	programEntity overloadedMethodDict at: name ifPresent: [ :existent |
 		existent == self ifTrue: [
-			boundType needsSpecialTypedSelector ifTrue: [ 
+			self boundType needsSpecialTypedSelector ifTrue: [ 
 				self createDynamicMethodWrapper ifNotNil: [ :wrapper |
 					programEntity methodDict at: name put: wrapper
 				].
@@ -263,12 +264,12 @@ MbndAbstractSpecificMethod >> isVirtualTableOverride [
 { #category : #testing }
 MbndAbstractSpecificMethod >> matchesPrototypeNode: prototypeNode withReceiverType: prototypeReceiverType [
 	receiverType == prototypeReceiverType ifFalse: [ ^ false ].
-	boundType returnType == prototypeNode returnType ifFalse: [ ^ false ].
-	prototypeNode arguments size = boundType argumentTypes size ifFalse: [ ^ false ].
-	prototypeNode isCVariadic = boundType isCVariadic ifFalse: [ ^ false ].
+	self boundType returnType == prototypeNode returnType ifFalse: [ ^ false ].
+	prototypeNode arguments size = self boundType argumentTypes size ifFalse: [ ^ false ].
+	prototypeNode isCVariadic = self boundType isCVariadic ifFalse: [ ^ false ].
 	
 	(1 to: prototypeNode arguments size) do: [ :i |
-		(boundType argumentTypes at: i) = (prototypeNode arguments at: i) ifFalse: [ ^ false ].
+		(self boundType argumentTypes at: i) = (prototypeNode arguments at: i) ifFalse: [ ^ false ].
 	].
 	
 	^ true
@@ -290,7 +291,7 @@ MbndAbstractSpecificMethod >> materializeWithGraphDecoder: graphDecoder withFiel
 
 { #category : #composition }
 MbndAbstractSpecificMethod >> mbndLiteralTypeWithTarget: compilationTarget [
-	^ type ref
+	^ self type ref
 ]
 
 { #category : #testing }
@@ -341,8 +342,8 @@ MbndAbstractSpecificMethod >> recordAsExtensionFor: ownerProgramEntity withSelec
 { #category : #accessing }
 MbndAbstractSpecificMethod >> returnType: newReturnType [
 	self assert: self returnType isNil.
-	boundType := boundType withReturnType: newReturnType.
-	type := type withReturnType: newReturnType.
+	boundType := self boundType withReturnType: newReturnType.
+	type := self type withReturnType: newReturnType.
 ]
 
 { #category : #'as yet unclassified' }
@@ -362,6 +363,7 @@ MbndAbstractSpecificMethod >> specialSemantics [
 
 { #category : #accessing }
 MbndAbstractSpecificMethod >> type [
+	type isClosure ifTrue: [ type := type value ].
 	^ type
 ]
 
@@ -375,8 +377,8 @@ MbndAbstractSpecificMethod >> typedSelector [
 	name ifNil: [ ^ nil ].
 	typedSelector ifNil: [
 		typedSelector := super typedSelector.
-		boundType needsSpecialTypedSelector ifTrue: [
-			typedSelector := (typedSelector , '|' , boundType typedSelectorSpec) asSymbol.
+		self boundType needsSpecialTypedSelector ifTrue: [
+			typedSelector := (typedSelector , '|' , self boundType typedSelectorSpec) asSymbol.
 		].
 	].
 	^ typedSelector
@@ -384,7 +386,7 @@ MbndAbstractSpecificMethod >> typedSelector [
 
 { #category : #'as yet unclassified' }
 MbndAbstractSpecificMethod >> virtualTableSelector [
-	^ {name . self vtableEntryKind . boundType }
+	^ {name . self vtableEntryKind . self boundType }
 ]
 
 { #category : #'as yet unclassified' }

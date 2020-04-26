@@ -87,6 +87,15 @@ TMbndModule >> applyExtensionMacros [
 
 { #category : #extensions }
 TMbndModule >> applyExtensionOverloadedMethods [
+	self extensionOverloadedMethods do: [ :each |
+		| parentEntity method |
+		parentEntity := each first.
+		method := each third.
+		
+		parentEntity
+			addChild: method;
+			addImportedOverloadedMethodNoCheck: method
+	]
 ]
 
 { #category : #'as yet unclassified' }

@@ -46,6 +46,27 @@ class TestAsserter superclass: Object; definition: {
             Stdn raiseAssertionFailure(`,messageNode)
         })
     }.
+
+    macro method assert: expression closeTo: expectedValue := {
+        let position := expression asSourcePositionString.
+        let errorMessage := position -- ": Expression (" -- expression originalSourceCode -- ") is not close to the expected value (" -- expectedValue originalSourceCode -- ").".
+        let messageNode := __astBuilder literalString: errorMessage position: expression position.
+
+        ``( (`,expression closeTo: `,expectedValue) ifFalse: {
+            Stdn raiseAssertionFailure(`,messageNode)
+        })
+    }.
+
+    macro method assert: expression notCloseTo: expectedValue := {
+        let position := expression asSourcePositionString.
+        let errorMessage := position -- ": Expression (" -- expression originalSourceCode -- ") is close to the unexpected value (" -- expectedValue originalSourceCode -- ").".
+        let messageNode := __astBuilder literalString: errorMessage position: expression position.
+
+        ``( (`,expression closeTo: `,expectedValue) ifTrue: {
+            Stdn raiseAssertionFailure(`,messageNode)
+        })
+    }.
+
 }.
 
 } ## End of namespace Testing
