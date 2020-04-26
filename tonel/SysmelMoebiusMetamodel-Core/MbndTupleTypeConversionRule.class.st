@@ -6,7 +6,7 @@ Class {
 
 { #category : #'as yet unclassified' }
 MbndTupleTypeConversionRule >> postProcessCastNode: node withAnalyzer: analyzer [
-	| sourceExpression targetType |
+	| sourceExpression targetType tupleElements castedTupleElements |
 	sourceExpression := node expression.
 	targetType := node type.
 	self assert: targetType isTupleType.
@@ -36,5 +36,25 @@ MbndTupleTypeConversionRule >> postProcessCastNode: node withAnalyzer: analyzer 
 			yourself)
 	].
 
-	self halt
+	tupleElements := analyzer visitSplicingTupleNode: sourceExpression.
+	castedTupleElements := tupleElements collectWithIndex: [ :splicedTupleElement :index |
+		| targetElementType |
+		targetElementType := targetType elements at: index.
+		node isImplicitCastNode ifTrue: [
+			analyzer addImplicitCastFor: splicedTupleElement to: targetElementType
+		] ifFalse: [ 
+			self assert: node isExplicitCastNode.
+			analyzer visitNode: (MbndAstImplicitCastNode new
+				position: node;
+				expression: splicedTupleElement;
+				targetType: targetElementType;
+				yourself)
+		]
+	].
+
+	^ MbndAstTupleNode new
+		position: node;
+		elements: castedTupleElements;
+		type: targetType;
+		yourself
 ]

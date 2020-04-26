@@ -165,6 +165,14 @@ MbndAstTransformVisitor >> visitDecorationChangeTypeCastNode: node [
 ]
 
 { #category : #visiting }
+MbndAstTransformVisitor >> visitDestructuringAssignmentNode: node [
+	^ node copy
+		pattern: (self visitNode: node pattern);
+		value: (self visitNode: node value);
+		yourself
+]
+
+{ #category : #visiting }
 MbndAstTransformVisitor >> visitDictionaryNode: node [
 	^ node copy
 		elements: (self visitNodesAndCollect: node elements);

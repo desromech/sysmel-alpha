@@ -106,6 +106,9 @@ MbndBasicType >> addInstanceMacros [
 			(builder reinterpretCast: node receiver to: node arguments first)
 				position: node
 		];
+		onMacroSelector: #asPatternMatchingPattern do: [ :node :builder :analyzer |
+			node receiver type analyzeValueAsPatternMatchingPattern: node receiver with: analyzer
+		];
 		onMacroSelectors: PerformMessageSelectors do: [ :node :builder |
 			node copy
 				selector: node arguments first;
@@ -197,6 +200,13 @@ MbndBasicType >> analyzePragmaInDefinitionBodyWithSelector: selector arguments: 
 	(#(gpu) includes: selector) ifTrue: [ 
 		self addFlag: selector
 	].
+]
+
+{ #category : #initialization }
+MbndBasicType >> analyzeValueAsPatternMatchingPattern: node with: analyzer [
+	^ analyzer visitNode: (MbndAstPatternMatchingSameValuePatternNode new
+		expectedValue: node;
+		yourself)
 ]
 
 { #category : #adding }

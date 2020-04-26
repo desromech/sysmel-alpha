@@ -170,16 +170,16 @@ MbndAstSemanticAnalyzer >> analyzeEnumDefinition: enumDefinition values: values 
 ]
 
 { #category : #'as yet unclassified' }
-MbndAstSemanticAnalyzer >> analyzePatternMatchingPatternNode: node withValueOfType: patternValueType [
-	| pattern |
-	pattern := MbndAstPatternSemanticAnalyzer new
+MbndAstSemanticAnalyzer >> analyzePattern: pattern matchingWithValueOfType: patternValueType [
+	^ MbndAstPatternSemanticAnalyzer new
 		semanticAnalyzer: self;
 		patternValueType: patternValueType;
-		visitNode: node.
-	pattern isPatternMatchingPatternNode ifFalse: [ 
-		self error: 'Expected an expression that represents a pattern.' at: node
-	].
-	^ pattern
+		visitNode: pattern
+]
+
+{ #category : #'as yet unclassified' }
+MbndAstSemanticAnalyzer >> analyzePatternMatchingPatternNode: node withValueOfType: patternValueType [
+	^ self analyzePattern: (self parsePatternMatchingPatternNode: node) matchingWithValueOfType: patternValueType
 ]
 
 { #category : #visiting }
@@ -245,6 +245,18 @@ MbndAstSemanticAnalyzer >> arithmeticCoercionTypeFor: leftType with: rightType l
 	].
 	
 	^ coercionType
+]
+
+{ #category : #'as yet unclassified' }
+MbndAstSemanticAnalyzer >> attemptImplicitCast: baseNode intoType: targetType [
+	| sourceNode conversionRule |
+	sourceNode := self analyzeNodeIfNeeded: baseNode.
+	sourceNode type = targetType ifTrue: [ ^ sourceNode ].
+	
+	conversionRule := sourceNode type node: sourceNode convertedImplicitlyInto: targetType.
+	conversionRule ifNil: [ ^ nil ].
+	
+	^ self addImplicitCastFor: baseNode to: targetType.
 ]
 
 { #category : #'as yet unclassified' }
@@ -547,6 +559,18 @@ MbndAstSemanticAnalyzer >> markCompileTimeEvaluationImpossibility [
 	]
 ]
 
+{ #category : #'as yet unclassified' }
+MbndAstSemanticAnalyzer >> parsePatternMatchingPatternNode: node [
+	| pattern |
+	pattern := MbndAstPatternParsingAnalyzer new
+		semanticAnalyzer: self;
+		parseNode: node.
+	pattern isPatternMatchingPatternNode ifFalse: [ 
+		self error: 'Expected an expression that represents a pattern.' at: node
+	].
+	^ pattern
+]
+
 { #category : #visiting }
 MbndAstSemanticAnalyzer >> visitArgumentDefinitionNode: node [
 	| result defaultArgumentType |
@@ -796,9 +820,6 @@ MbndAstSemanticAnalyzer >> visitCasesOfNode: node [
 	].
 
 	resultType ifNil: [ resultType := self compilationTarget voidType ].
-	(resultType isReturnType and: [ node hasDefaultCase not ]) ifTrue: [ 
-		resultType := self compilationTarget voidType
-	].
 
 	resultType isVoidType ifFalse: [
 		result cases do: [ :case |
@@ -846,6 +867,25 @@ MbndAstSemanticAnalyzer >> visitCompileTimeConstantDefinitionNode: node [
 	alias enqueueDelayedSemanticAnalysis.
 
 	^ self astBuilder literalVoid
+]
+
+{ #category : #visiting }
+MbndAstSemanticAnalyzer >> visitDestructuringAssignmentNode: node [
+	| result |
+	result := node copy
+		value: (self ensureLiteralIsConcreted: (self analyzeNodeIfNeeded: node value));
+		pattern: (self parsePatternMatchingPatternNode: node pattern);
+		yourself.
+
+	result pattern: (self analyzePattern: result pattern matchingWithValueOfType: result value type).
+	result pattern isNeverPattern ifTrue: [
+		self error: 'Destructuring assignment pattern is never matched.' at: result
+	].
+	
+	result
+		bindings: result pattern collectBindings;
+		type: result value type.		
+	^ result
 ]
 
 { #category : #visiting }
@@ -1985,6 +2025,53 @@ MbndAstSemanticAnalyzer >> visitNamespaceDefinitionNode: node [
 MbndAstSemanticAnalyzer >> visitNodeWithDeferredAnalysis: node [
 	self assert: node type isNotNil.
 	^ node
+]
+
+{ #category : #visiting }
+MbndAstSemanticAnalyzer >> visitPatternMatchingAnyPatternNode: node [
+	^ self visitPatternMatchingPatternNode: node
+]
+
+{ #category : #visiting }
+MbndAstSemanticAnalyzer >> visitPatternMatchingBindingPatternNode: node [
+	^ self visitPatternMatchingPatternNode: node
+]
+
+{ #category : #visiting }
+MbndAstSemanticAnalyzer >> visitPatternMatchingIntervalPatternNode: node [
+	^ self visitPatternMatchingPatternNode: node
+]
+
+{ #category : #visiting }
+MbndAstSemanticAnalyzer >> visitPatternMatchingLiteralValuePatternNode: node [
+	^ self visitPatternMatchingPatternNode: node
+]
+
+{ #category : #visiting }
+MbndAstSemanticAnalyzer >> visitPatternMatchingNeverPatternNode: node [
+	^ self visitPatternMatchingPatternNode: node
+]
+
+{ #category : #visiting }
+MbndAstSemanticAnalyzer >> visitPatternMatchingPatternNode: node [
+	^ node copy
+		type: self compilationTarget patternMatchingPatternType;
+		yourself
+]
+
+{ #category : #visiting }
+MbndAstSemanticAnalyzer >> visitPatternMatchingSameValuePatternNode: node [
+	^ self visitPatternMatchingPatternNode: node
+]
+
+{ #category : #visiting }
+MbndAstSemanticAnalyzer >> visitPatternMatchingSetPatternNode: node [
+	^ self visitPatternMatchingPatternNode: node
+]
+
+{ #category : #visiting }
+MbndAstSemanticAnalyzer >> visitPatternMatchingTuplePatternNode: node [
+	^ self visitPatternMatchingPatternNode: node
 ]
 
 { #category : #visiting }

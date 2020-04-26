@@ -1790,6 +1790,145 @@ MbndSlovimCodeModuleGeneratorTest >> testCountTwiceCFunction [
 ]
 
 { #category : #tests }
+MbndSlovimCodeModuleGeneratorTest >> testDestructuringAssignment [
+	| function |
+	self
+		evaluateSysmelSource: '
+function tupleShuffle externC(tuple: (Int32 -- Int32)) => (Int32 -- Int32) := {
+	let (let a, let b) := tuple.
+	(b, a)
+}';
+		generateSSAModule.
+
+	function := ssaModule globalNamed: #tupleShuffle.
+	self assert: function asFullSExpressionForTesting equals: #(
+function tupleShuffle cdecl (struct nil generic (i32 i32) (element0 element1) ())
+    arguments ((tuple (struct nil generic (i32 i32) (element0 element1) ()) ()))
+    literals ()
+    blocks (
+        (()
+            (nil jump void () () (block 2 body))
+        )
+        (()
+            (nil jump void () () (block 3 tryScope))
+        )
+        (()
+            (nil extractValue i32 () ((local 0 tuple)) (0))
+            (nil extractValue i32 () ((local 0 tuple)) (1))
+            (nil insertValue (struct nil generic (i32 i32) (element0 element1) ()) () ((undef (struct nil generic (i32 i32) (element0 element1) ())) (local 4 nil)) (0))
+            (nil insertValue (struct nil generic (i32 i32) (element0 element1) ()) () ((local 5 nil) (local 3 nil)) (1))
+            (nil return void () ((local 6 nil)))
+        )
+    )
+	)
+]
+
+{ #category : #tests }
+MbndSlovimCodeModuleGeneratorTest >> testDestructuringAssignment2 [
+	| function |
+	self
+		evaluateSysmelSource: '
+function tupleFirst externC(tuple: (Int32 -- Int32)) => Int32 := {
+	let (let a, _) := tuple.
+	a
+}';
+		generateSSAModule.
+
+	function := ssaModule globalNamed: #tupleFirst.
+	self assert: function asFullSExpressionForTesting equals: #(
+function tupleFirst cdecl i32
+    arguments ((tuple (struct nil generic (i32 i32) (element0 element1) ()) ()))
+    literals ()
+    blocks (
+        (()
+            (nil jump void () () (block 2 body))
+        )
+        (()
+            (nil jump void () () (block 3 tryScope))
+        )
+        (()
+            (nil extractValue i32 () ((local 0 tuple)) (0))
+            (nil extractValue i32 () ((local 0 tuple)) (1))
+            (nil return void () ((local 3 nil)))
+        )
+    )
+	)
+]
+
+{ #category : #tests }
+MbndSlovimCodeModuleGeneratorTest >> testDestructuringAssignment3 [
+	| function |
+	self
+		evaluateSysmelSource: '
+function tupleShuffle externC(tuple: (Int32 -- Int32) const ref) => (Int32 -- Int32) := {
+	let (let a, let b) := tuple.
+	(b, a)
+}';
+		generateSSAModule.
+
+	function := ssaModule globalNamed: #tupleShuffle.
+	self assert: function asFullSExpressionForTesting equals: #(
+function tupleShuffle cdecl (struct nil generic (i32 i32) (element0 element1) ())
+    arguments ((tuple (pointer (struct nil generic (i32 i32) (element0 element1) ()) generic) ()))
+    literals ()
+    blocks (
+        (()
+            (nil jump void () () (block 2 body))
+        )
+        (()
+            (nil jump void () () (block 3 tryScope))
+        )
+        (()
+            (nil getElementPointer (pointer i32 generic) () ((local 0 tuple) (const i32 0) (const i32 0)))
+            (nil getElementPointer (pointer i32 generic) () ((local 0 tuple) (const i32 0) (const i32 1)))
+            (nil insertValue (struct nil generic ((pointer i32 generic) (pointer i32 generic)) (element0 element1) ()) () ((undef (struct nil generic ((pointer i32 generic) (pointer i32 generic)) (element0 element1) ())) (local 4 nil)) (0))
+            (nil insertValue (struct nil generic ((pointer i32 generic) (pointer i32 generic)) (element0 element1) ()) () ((local 5 nil) (local 3 nil)) (1))
+            (nil extractValue (pointer i32 generic) () ((local 6 nil)) (0))
+            (nil load i32 () ((local 7 nil)))
+            (nil extractValue (pointer i32 generic) () ((local 6 nil)) (1))
+            (nil load i32 () ((local 9 nil)))
+            (nil insertValue (struct nil generic (i32 i32) (element0 element1) ()) () ((undef (struct nil generic (i32 i32) (element0 element1) ())) (local 8 nil)) (0))
+            (nil insertValue (struct nil generic (i32 i32) (element0 element1) ()) () ((local 11 nil) (local 10 nil)) (1))
+            (nil return void () ((local 12 nil)))
+        )
+    )
+	)
+]
+
+{ #category : #tests }
+MbndSlovimCodeModuleGeneratorTest >> testDestructuringAssignment4 [
+	| function |
+	self
+		evaluateSysmelSource: '
+function tupleFirst externC(tuple: (Int32 -- Int32) const ref) => Int32 := {
+	let (let a, _) := tuple.
+	a
+}';
+		generateSSAModule.
+
+	function := ssaModule globalNamed: #tupleFirst.
+	self assert: function asFullSExpressionForTesting equals: #(
+function tupleFirst cdecl i32
+    arguments ((tuple (pointer (struct nil generic (i32 i32) (element0 element1) ()) generic) ()))
+    literals ()
+    blocks (
+        (()
+            (nil jump void () () (block 2 body))
+        )
+        (()
+            (nil jump void () () (block 3 tryScope))
+        )
+        (()
+            (nil getElementPointer (pointer i32 generic) () ((local 0 tuple) (const i32 0) (const i32 0)))
+            (nil getElementPointer (pointer i32 generic) () ((local 0 tuple) (const i32 0) (const i32 1)))
+            (nil load i32 () ((local 3 nil)))
+            (nil return void () ((local 5 nil)))
+        )
+    )
+	)
+]
+
+{ #category : #tests }
 MbndSlovimCodeModuleGeneratorTest >> testDynamicObjectToBoolean [
 	| function |
 	self
@@ -1897,30 +2036,26 @@ enum TestEnum values: #{
 		arguments ((value #i32 ()))
 	literals ()
 	blocks (
-		(() 
-			(nil #jump #void #() #() #(#block 2 #body))
-		)
-		((#merge #(#block 6 #casesOfMerge))
-			(nil #switch #void #() 
-				((local 0 #value) #(#const #i32 1) #(#const #i32 2))
-				(((#block 3 #casesOfCase) (#block 4 #casesOfCase))
-				 #(#block 5 #casesOfDefault))
-			)
-		) 
-		(#() 
-			(nil jump void #() #() #(#block 6 #casesOfMerge))
-		)
-		(#()
-			(nil #jump #void #() #() #(#block 6 #casesOfMerge))
-		)
-		(#()
-			(nil #jump #void #() #() #(#block 6 #casesOfMerge))
-		)
-		(#()
-			(#casesResult #phi #f32 #()
-				(#(#const #f32 0.0) #(#const #f32 1.0) #(#const #f32 0.0))
-				(#(#block 3 #casesOfCase) #(#block 4 #casesOfCase) #(#block 5 #casesOfDefault)))
-			(nil #return #void #() #(#(#local 6 #casesResult))))
+    (()
+        (nil jump void () () (block 2 body))
+    )
+    ((merge (block 6 casesOfMerge))
+        (nil switch void () ((local 0 value) (const i32 1) (const i32 2)) (((block 3 casesOfCase) (block 4 casesOfCase)) (block 5 casesOfDefault)))
+    )
+    (()
+        (nil jump void () () (block 6 casesOfMerge))
+    )
+    (()
+        (nil jump void () () (block 6 casesOfMerge))
+    )
+    (()
+        (nil call void () ((global 2 __sysmel_patternMatchingFailureRaise)))
+        (nil unreachable void () ())
+    )
+    (()
+        (casesResult phi f32 () ((const f32 0.0) (const f32 1.0)) ((block 3 casesOfCase) (block 4 casesOfCase)))
+        (nil return void () ((local 7 casesResult)))
+    )
 	)
 	).
 ]
@@ -1951,30 +2086,27 @@ enum TestEnum values: #{
 	literals ()
 	blocks 
     (
-        (()
-            (nil jump void () () (block 2 body))
-        )
-        ((merge (block 6 casesOfMerge))
-            (nil switch void ()
-                ((local 0 value) (const i32 1) (const i32 2) (const i32 3) (const i32 4))
-                (((block 3 casesOfCase) (block 3 casesOfCase) (block 3 casesOfCase) (block 4 casesOfCase)) (block 5 casesOfDefault)))
-        )
-        (()
-            (nil jump void () () (block 6 casesOfMerge))
-        )
-        (()
-            (nil jump void () () (block 6 casesOfMerge))
-        )
-        (()
-            (nil jump void () () (block 6 casesOfMerge)))
-        (()
-            (casesResult phi f32 ()
-                ((const f32 0.0) (const f32 1.0) (const f32 0.0))
-                ((block 3 casesOfCase) (block 4 casesOfCase) (block 5 casesOfDefault))
-            )
-            (nil return void () ((local 6 casesResult)))
-        )
+    (()
+        (nil jump void () () (block 2 body))
     )
+    ((merge (block 6 casesOfMerge))
+        (nil switch void () ((local 0 value) (const i32 1) (const i32 2) (const i32 3) (const i32 4)) (((block 3 casesOfCase) (block 3 casesOfCase) (block 3 casesOfCase) (block 4 casesOfCase)) (block 5 casesOfDefault)))
+    )
+    (()
+        (nil jump void () () (block 6 casesOfMerge))
+    )
+    (()
+        (nil jump void () () (block 6 casesOfMerge))
+    )
+    (()
+        (nil call void () ((global 2 __sysmel_patternMatchingFailureRaise)))
+        (nil unreachable void () ())
+    )
+    (()
+        (casesResult phi f32 () ((const f32 0.0) (const f32 1.0)) ((block 3 casesOfCase) (block 4 casesOfCase)))
+        (nil return void () ((local 7 casesResult)))
+    )
+)
 	).
 ]
 
@@ -2003,32 +2135,28 @@ enum TestEnum values: #{
 		arguments ((value #i32 ()))
 		literals ()
 		blocks 
-    (
-        (()
-            (nil jump void () () (block 2 body))
-        )
-        ((merge (block 6 casesOfMerge))
-            (nil switch void ()
-                ((local 0 value) (const i32 1) (const i32 3) (const i32 4) (const i32 2))
-                (((block 3 casesOfCase) (block 3 casesOfCase) (block 3 casesOfCase) (block 4 casesOfCase)) (block 5 casesOfDefault))
-            )
-        )
-        (()
-            (nil jump void () () (block 6 casesOfMerge))
-        )
-        (()
-            (nil jump void () () (block 6 casesOfMerge))
-        )
-        (()
-            (nil jump void () () (block 6 casesOfMerge))
-        )
-        (()
-            (casesResult phi f32 ()
-                ((const f32 0.0) (const f32 1.0) (const f32 0.0))
-                ((block 3 casesOfCase) (block 4 casesOfCase) (block 5 casesOfDefault)))
-            (nil return void () ((local 6 casesResult)))
-        )
+(
+    (()
+        (nil jump void () () (block 2 body))
     )
+    ((merge (block 6 casesOfMerge))
+        (nil switch void () ((local 0 value) (const i32 1) (const i32 3) (const i32 4) (const i32 2)) (((block 3 casesOfCase) (block 3 casesOfCase) (block 3 casesOfCase) (block 4 casesOfCase)) (block 5 casesOfDefault)))
+    )
+    (()
+        (nil jump void () () (block 6 casesOfMerge))
+    )
+    (()
+        (nil jump void () () (block 6 casesOfMerge))
+    )
+    (()
+        (nil call void () ((global 2 __sysmel_patternMatchingFailureRaise)))
+        (nil unreachable void () ())
+    )
+    (()
+        (casesResult phi f32 () ((const f32 0.0) (const f32 1.0)) ((block 3 casesOfCase) (block 4 casesOfCase)))
+        (nil return void () ((local 7 casesResult)))
+    )
+)
 	).
 ]
 
@@ -2053,30 +2181,26 @@ enum TestEnum values: #{
 	function selectCaseTest cdecl f32
 		arguments ((value i32 ()))
 		literals ()
-		blocks (
-			(()
-				(nil jump void () () (block 2 body))
-			) 
-			((merge (block 5 casesOfMerge))
-				(nil switch void ()
-					((local 0 value) (const i32 1))
-					(((block 3 casesOfCase)) (block 4 casesOfDefault))
-				)
-			)
-			(()
-				(nil jump void () () (block 5 casesOfMerge))
-			)
-			(()
-				(nil jump void () () (block 5 casesOfMerge))
-			)
-			(()
-				(casesResult phi f32 ()
-					((const f32 42.0) (const f32 0.0))
-					((block 3 casesOfCase) (block 4 casesOfDefault))
-				)
-				(nil return void () ((local 5 casesResult)))
-			)
-		)
+		blocks
+(
+    (()
+        (nil jump void () () (block 2 body))
+    )
+    ((merge (block 5 casesOfMerge))
+        (nil switch void () ((local 0 value) (const i32 1)) (((block 3 casesOfCase)) (block 4 casesOfDefault)))
+    )
+    (()
+        (nil jump void () () (block 5 casesOfMerge))
+    )
+    (()
+        (nil call void () ((global 2 __sysmel_patternMatchingFailureRaise)))
+        (nil unreachable void () ())
+    )
+    (()
+        (casesResult phi f32 () ((const f32 42.0)) ((block 3 casesOfCase)))
+        (nil return void () ((local 6 casesResult)))
+    )
+)
 	)
 ]
 
@@ -8002,7 +8126,7 @@ function tupleFirst externC(argument: (Int32 -- Float32) const) => Int32
 	function := ssaModule globalNamed: #tupleFirst.
 	self assert: function asFullSExpressionForTesting equals: #(
 function tupleFirst cdecl i32
-    arguments ((argument (struct nil generic (i32 f32) (element0 element1 element2) ()) ()))
+    arguments ((argument (struct nil generic (i32 f32) (element0 element1) ()) ()))
     literals ()
     blocks (
         (()
@@ -8030,7 +8154,7 @@ function tupleFirst externC(argument: (Int32 -- Float32) const ref) => Int32
 	function := ssaModule globalNamed: #tupleFirst.
 	self assert: function asFullSExpressionForTesting equals: #(
 function tupleFirst cdecl i32
-    arguments ((argument (pointer (struct nil generic (i32 f32) (element0 element1 element2) ()) generic) ()))
+    arguments ((argument (pointer (struct nil generic (i32 f32) (element0 element1) ()) generic) ()))
     literals ()
     blocks (
         (()
@@ -8059,7 +8183,7 @@ function tupleFirst externC(argument: (Int32 -- Float32)) => Int32
 	function := ssaModule globalNamed: #tupleFirst.
 	self assert: function asFullSExpressionForTesting equals: #(
 function tupleFirst cdecl i32
-    arguments ((argument (struct nil generic (i32 f32) (element0 element1 element2) ()) ()))
+    arguments ((argument (struct nil generic (i32 f32) (element0 element1) ()) ()))
     literals ()
     blocks (
         (()
@@ -8087,7 +8211,7 @@ function tupleFirst externC(argument: (Int32 -- Float32)) => Float32
 	function := ssaModule globalNamed: #tupleFirst.
 	self assert: function asFullSExpressionForTesting equals: #(
 function tupleFirst cdecl f32
-    arguments ((argument (struct nil generic (i32 f32) (element0 element1 element2) ()) ()))
+    arguments ((argument (struct nil generic (i32 f32) (element0 element1) ()) ()))
     literals ()
     blocks (
         (()
@@ -8115,7 +8239,7 @@ function tupleFirst externC(argument: (Int32 -- Float32)) => Int32
 	function := ssaModule globalNamed: #tupleFirst.
 	self assert: function asFullSExpressionForTesting equals: #(
 function tupleFirst cdecl i32
-    arguments ((argument (struct nil generic (i32 f32) (element0 element1 element2) ()) ()))
+    arguments ((argument (struct nil generic (i32 f32) (element0 element1) ()) ()))
     literals ()
     blocks (
         (()
@@ -8143,7 +8267,7 @@ function tupleFirst externC(argument: (Int32 -- Float32)) => Float32
 	function := ssaModule globalNamed: #tupleFirst.
 	self assert: function asFullSExpressionForTesting equals: #(
 function tupleFirst cdecl f32
-    arguments ((argument (struct nil generic (i32 f32) (element0 element1 element2) ()) ()))
+    arguments ((argument (struct nil generic (i32 f32) (element0 element1) ()) ()))
     literals ()
     blocks (
         (()
@@ -8193,7 +8317,7 @@ function tupleFirst externC(argument: (Int32 -- Float32) ref) => Int32
 	function := ssaModule globalNamed: #tupleFirst.
 	self assert: function asFullSExpressionForTesting equals: #(
 function tupleFirst cdecl i32
-    arguments ((argument (pointer (struct nil generic (i32 f32) (element0 element1 element2) ()) generic) ()))
+    arguments ((argument (pointer (struct nil generic (i32 f32) (element0 element1) ()) generic) ()))
     literals ()
     blocks (
         (()

@@ -31,15 +31,6 @@ MbndAstLiteralValueNode >> asLiteralSymbolNodeFor: aCompilationTarget [
 ]
 
 { #category : #'as yet unclassified' }
-MbndAstLiteralValueNode >> asLiteralValuePatternNode [
-	^ MbndAstPatternMatchingLiteralValuePatternNode new
-		position: self;
-		value: value;
-		type: type;
-		yourself
-]
-
-{ #category : #'as yet unclassified' }
 MbndAstLiteralValueNode >> asSetValuePatternNode [
 	^ MbndAstPatternMatchingSetValuePatternNode new
 		position: self;

@@ -30,7 +30,8 @@ Class {
 		'objectMethodDispatchTrampolines',
 		'nativeClosureTypeInfos',
 		'targetCodeModuleName',
-		'gpuUsableProgramEntitites'
+		'gpuUsableProgramEntitites',
+		'patternMatchingFailureRaiseFunction'
 	],
 	#classVars : [
 		'ShaderBuiltInLocationMap',
@@ -1125,6 +1126,20 @@ MbndSlovimCodeModuleGenerator >> nonLocalReturnRaiseFunction [
 				functionType: ((SLVMFunctionType arguments: { self slvmCompilationTarget voidPointerType } returnType: self slvmCompilationTarget void)
 					variadic: true
 				)
+		]
+	]
+]
+
+{ #category : #accessing }
+MbndSlovimCodeModuleGenerator >> patternMatchingFailureRaiseFunction [
+	^ patternMatchingFailureRaiseFunction ifNil: [
+		self compilationTarget patternMatchingFailureRaiseFunction ifNotNil: [ :function |
+			patternMatchingFailureRaiseFunction := (self translateProgramEntity: function) ssaValue
+		] ifNil: [
+			patternMatchingFailureRaiseFunction := SLVMFunction module: ssaModule
+				name: #__sysmel_patternMatchingFailureRaise
+				functionType: (SLVMFunctionType arguments: #() returnType: self slvmCompilationTarget void)
+
 		]
 	]
 ]

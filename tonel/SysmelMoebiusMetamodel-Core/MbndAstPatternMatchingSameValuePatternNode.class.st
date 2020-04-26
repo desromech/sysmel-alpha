@@ -12,11 +12,6 @@ MbndAstPatternMatchingSameValuePatternNode >> accept: visitor [
 	^ visitor visitPatternMatchingSameValuePatternNode: self
 ]
 
-{ #category : #converting }
-MbndAstPatternMatchingSameValuePatternNode >> asSameValuePatternNode [
-	^ self
-]
-
 { #category : #serialization }
 MbndAstPatternMatchingSameValuePatternNode >> encodeFieldsForMessagePackWith: graphEncoder [
 	^ {

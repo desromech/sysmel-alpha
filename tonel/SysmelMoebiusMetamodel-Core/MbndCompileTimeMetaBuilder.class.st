@@ -28,3 +28,8 @@ MbndCompileTimeMetaBuilder >> if: conditionNode then: thenNode else: elseNode [
 	condition == false ifTrue: [ ^ currentAnalyzer analyzeNodeIfNeeded: elseNode ].
 	currentAnalyzer error: 'Compile time condition must evaluate to a boolean value instead of: {1}.' format: { condition asString } at: conditionNode
 ]
+
+{ #category : #accessing }
+MbndCompileTimeMetaBuilder >> parsePatternNode: patternNode [
+	^ (currentAnalyzer parsePatternMatchingPatternNode: patternNode) asMoebiusLiteralValueNodeWithTarget: currentAnalyzer compilationTarget
+]

@@ -120,6 +120,11 @@ MbndAstVisitor >> visitDecorationChangeTypeCastNode: node [
 ]
 
 { #category : #visiting }
+MbndAstVisitor >> visitDestructuringAssignmentNode: node [
+	self subclassResponsibility
+]
+
+{ #category : #visiting }
 MbndAstVisitor >> visitDictionaryNode: node [
 	self subclassResponsibility
 ]
@@ -460,6 +465,11 @@ MbndAstVisitor >> visitNumberToBooleanCastNode: node [
 ]
 
 { #category : #visiting }
+MbndAstVisitor >> visitPatternMatchingAnyPatternNode: node [
+	self subclassResponsibility
+]
+
+{ #category : #visiting }
 MbndAstVisitor >> visitPatternMatchingBindingPatternNode: node [
 	self subclassResponsibility
 ]
@@ -475,12 +485,22 @@ MbndAstVisitor >> visitPatternMatchingLiteralValuePatternNode: node [
 ]
 
 { #category : #visiting }
+MbndAstVisitor >> visitPatternMatchingNeverPatternNode: node [
+	self subclassResponsibility
+]
+
+{ #category : #visiting }
 MbndAstVisitor >> visitPatternMatchingSameValuePatternNode: node [
 	self subclassResponsibility
 ]
 
 { #category : #visiting }
 MbndAstVisitor >> visitPatternMatchingSetPatternNode: node [
+	self subclassResponsibility
+]
+
+{ #category : #visiting }
+MbndAstVisitor >> visitPatternMatchingTuplePatternNode: node [
 	self subclassResponsibility
 ]
 

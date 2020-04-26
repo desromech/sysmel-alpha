@@ -3,7 +3,8 @@ Class {
 	#superclass : #MbndAstPatternMatchingPatternNode,
 	#instVars : [
 		'name',
-		'value',
+		'valuePattern',
+		'requiredType',
 		'binding'
 	],
 	#category : #'SysmelMoebiusMetamodel-Core-AST'
@@ -27,21 +28,21 @@ MbndAstPatternMatchingBindingPatternNode >> binding: anObject [
 { #category : #'as yet unclassified' }
 MbndAstPatternMatchingBindingPatternNode >> collectBindingsInto: out [
 	out nextPut: self.
-	value ifNotNil: [ value collectBindingsInto: out ]
+	valuePattern ifNotNil: [ valuePattern collectBindingsInto: out ]
 ]
 
 { #category : #serialization }
 MbndAstPatternMatchingBindingPatternNode >> encodeFieldsForMessagePackWith: graphEncoder [
 	^ {
 		#name . name encodeGraphForMessagePackWith: graphEncoder.
-		#value . value encodeGraphForMessagePackWith: graphEncoder.
+		#valuePattern . valuePattern encodeGraphForMessagePackWith: graphEncoder.
 		#binding . binding encodeGraphForMessagePackWith: graphEncoder.
 	} , (super encodeFieldsForMessagePackWith: graphEncoder)
 ]
 
 { #category : #testing }
 MbndAstPatternMatchingBindingPatternNode >> isDefaultPattern [
-	^ value isNil
+	^ valuePattern isNil
 ]
 
 { #category : #testing }
@@ -53,7 +54,7 @@ MbndAstPatternMatchingBindingPatternNode >> isPatternMatchingBindingPatternNode 
 MbndAstPatternMatchingBindingPatternNode >> materializeWithGraphDecoder: graphDecoder withFields: encodedFields [
 	super materializeWithGraphDecoder: graphDecoder withFields: encodedFields.
 	name := encodedFields at: #name.
-	value := encodedFields at: #value.
+	valuePattern := encodedFields at: #valuePattern.
 	binding := encodedFields at: #binding.
 ]
 
@@ -68,11 +69,21 @@ MbndAstPatternMatchingBindingPatternNode >> name: anObject [
 ]
 
 { #category : #accessing }
-MbndAstPatternMatchingBindingPatternNode >> value [
-	^ value
+MbndAstPatternMatchingBindingPatternNode >> requiredType [
+	^ requiredType
 ]
 
 { #category : #accessing }
-MbndAstPatternMatchingBindingPatternNode >> value: anObject [
-	value := anObject
+MbndAstPatternMatchingBindingPatternNode >> requiredType: anObject [
+	requiredType := anObject
+]
+
+{ #category : #accessing }
+MbndAstPatternMatchingBindingPatternNode >> valuePattern [
+	^ valuePattern
+]
+
+{ #category : #accessing }
+MbndAstPatternMatchingBindingPatternNode >> valuePattern: anObject [
+	valuePattern := anObject
 ]

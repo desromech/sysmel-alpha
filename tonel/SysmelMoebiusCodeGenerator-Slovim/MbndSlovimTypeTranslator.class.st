@@ -383,7 +383,7 @@ MbndSlovimTypeTranslator >> visitTupleType: tupleType [
 	ssaValueType := SLVMStructureType name: nil
 		types: (tupleType elements collect: [:each | self translateType: each])
 		kind: SLVMStructureType genericKind
-		names: ((0 to: tupleType elements size) collect: [:each | ('element', each asString) asSymbol]).
+		names: ((0 to: tupleType elements size - 1) collect: [:each | ('element', each asString) asSymbol]).
 	translatedTypes at: tupleType put: ssaValueType.
 	
 	^ ssaValueType

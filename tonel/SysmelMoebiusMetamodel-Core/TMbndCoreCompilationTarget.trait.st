@@ -53,9 +53,11 @@ Trait {
 		'typeSystemInitialized',
 		'simultaneousTypeConcepts',
 		'nativePrefixedWStringLiteralType',
-		'nativePrefixedLStringLiteralType'
+		'nativePrefixedLStringLiteralType',
+		'patternMatchingFailureRaiseFunction'
 	],
 	#traits : 'TMbndAbstractCompilationTarget',
+	#classTraits : 'TMbndAbstractCompilationTarget classTrait',
 	#category : #'SysmelMoebiusMetamodel-Core-CompilationTarget'
 }
 
@@ -400,6 +402,7 @@ TMbndCoreCompilationTarget >> encodeBootstrapDefinedObjectsForMessagePackWith: g
 			personalityFunction
 			nonLocalReturnCatchFunction
 			nonLocalReturnRaiseFunction
+			patternMatchingFailureRaiseFunction
 			
 			"GC runtime"
 			defaultGCClassSuperClass
@@ -1372,6 +1375,21 @@ TMbndCoreCompilationTarget >> outputChannelImplementationType [
 { #category : #accessing }
 TMbndCoreCompilationTarget >> outputChannelImplementationType: anObject [
 	outputChannelImplementationType := anObject
+]
+
+{ #category : #accessing }
+TMbndCoreCompilationTarget >> patternMatchingFailureRaiseFunction [
+	^ patternMatchingFailureRaiseFunction
+]
+
+{ #category : #accessing }
+TMbndCoreCompilationTarget >> patternMatchingFailureRaiseFunction: aFunction [
+	patternMatchingFailureRaiseFunction := aFunction
+]
+
+{ #category : #'convenience type accessors' }
+TMbndCoreCompilationTarget >> patternMatchingPatternType [
+	^ self getBasicTypeNamed: MbndPatternMatchingPatternType typeName
 ]
 
 { #category : #accessing }

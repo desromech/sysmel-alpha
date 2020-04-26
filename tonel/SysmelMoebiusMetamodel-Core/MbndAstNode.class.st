@@ -42,14 +42,6 @@ MbndAstNode >> asLiteralSymbolNodeFor: aCompilationTarget [
 	self error: 'Cannot convert ast node {1} into a literal symbol ast node.' format: {self asString} at: self
 ]
 
-{ #category : #converting }
-MbndAstNode >> asSameValuePatternNode [
-	^ MbndAstPatternMatchingSameValuePatternNode new
-		position: self;
-		expectedValue: self;
-		yourself
-]
-
 { #category : #composition }
 MbndAstNode >> asSequenceWithoutLexicalScope [
 	<compileTime>
@@ -222,6 +214,11 @@ MbndAstNode >> isConvertToCompilerObjectCastNode [
 
 { #category : #testing }
 MbndAstNode >> isDecorationChangeTypeCastNode [
+	^ false
+]
+
+{ #category : #testing }
+MbndAstNode >> isDestructuringAssignmentNode [
 	^ false
 ]
 

@@ -491,7 +491,7 @@ TMbndAbstractCompilationTarget >> outputChannelFor: messageType specialSemantics
 
 { #category : #'convenience type accessors' }
 TMbndAbstractCompilationTarget >> patternMatchingPatternType [
-	^ self getBasicTypeNamed: MbndPatternMatchingPattern typeName
+	^ self getBasicTypeNamed: MbndPatternMatchingPatternType typeName
 ]
 
 { #category : #accessing }

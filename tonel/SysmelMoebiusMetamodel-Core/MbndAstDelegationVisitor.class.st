@@ -123,6 +123,11 @@ MbndAstDelegationVisitor >> visitDecorationChangeTypeCastNode: node [
 ]
 
 { #category : #visiting }
+MbndAstDelegationVisitor >> visitDestructuringAssignmentNode: node [
+	^ self delegateNodeVisit: node
+]
+
+{ #category : #visiting }
 MbndAstDelegationVisitor >> visitDictionaryNode: node [
 	^ self delegateNodeVisit: node
 ]

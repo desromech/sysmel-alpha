@@ -7,6 +7,7 @@ Trait {
 		'extraMetaBuilderFactories'
 	],
 	#traits : 'TMbndProgramEntity',
+	#classTraits : 'TMbndProgramEntity classTrait',
 	#category : #'SysmelMoebiusMetamodel-Core-Type'
 }
 
@@ -1140,6 +1141,11 @@ TMbndAbstractType >> isPODInstance [
 	  self hasTrivialInstanceFinalization and: [
 	  self hasTrivialInstanceInitializationCopyingFrom and: [
 	  self hasTrivialInstanceInitializationMovingFrom ]]]]
+]
+
+{ #category : #'testing methods' }
+TMbndAbstractType >> isPatternMatchingPatternType [
+	^ false
 ]
 
 { #category : #testing }

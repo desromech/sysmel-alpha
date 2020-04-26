@@ -135,6 +135,11 @@ MbndAbstractConcreteCompilationTarget >> initializeArithmeticConversionRules [
 		rule: MbndNumberToBooleanConversionRule
 ]
 
+{ #category : #'convenience type accessors' }
+MbndAbstractConcreteCompilationTarget >> patternMatchingPatternType [
+	^ self getBasicTypeNamed: MbndPatternMatchingPatternType typeName
+]
+
 { #category : #accessing }
 MbndAbstractConcreteCompilationTarget >> pointerAlignment [
 	self subclassResponsibility

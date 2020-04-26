@@ -82,6 +82,7 @@ MbndAstNodeTest >> testTestingMethods [
 	self deny: node isCasesOfNode.
 	self deny: node isClassDeclarationNode.
 	self deny: node isClassDefinitionNode.
+	self deny: node isDestructuringAssignmentNode.
 	self deny: node isExceptionScopeNode.
 	self deny: node isCompileTimeConstantDefinitionNode.
 	self deny: node isConcretizeUndefinedValueCastNode.

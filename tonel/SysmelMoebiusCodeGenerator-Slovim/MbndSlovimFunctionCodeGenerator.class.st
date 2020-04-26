@@ -241,6 +241,13 @@ MbndSlovimFunctionCodeGenerator >> cleanUpStructuredControlFlow [
 
 ]
 
+{ #category : #visiting }
+MbndSlovimFunctionCodeGenerator >> computePatternConstantSet: pattern [
+	^ MbndSlovimFunctionConstantPatternMatchingSetCodeGenerator new
+		functionCodeGenerator: self;
+		visitNode: pattern
+]
+
 { #category : #accessing }
 MbndSlovimFunctionCodeGenerator >> defineArgumentValues [
 	| argumentValue superVariable argIndex |
@@ -282,6 +289,14 @@ MbndSlovimFunctionCodeGenerator >> defineCapturedVariables [
 		functionVariables at: variable put: capturedValue
 	].
 
+]
+
+{ #category : #'as yet unclassified' }
+MbndSlovimFunctionCodeGenerator >> emitPatternMatchingFailureTrap [
+	self compilationTarget isGPU ifFalse: [
+		slvmBuilder call: codeModuleGenerator patternMatchingFailureRaiseFunction arguments: #().
+	].
+	^ slvmBuilder unreachable
 ]
 
 { #category : #'as yet unclassified' }
@@ -638,37 +653,40 @@ isSuperSend: isSuperSend declaredMethod: declaredMethod expectedResultType: expe
 
 { #category : #visiting }
 MbndSlovimFunctionCodeGenerator >> generateCase: case withMatchedValue: matchedValue [
-	case bindings ifNotEmpty: [
-		self generateDestructuringPattern: case pattern assignment: matchedValue
-	].
+	self generatePattern: case pattern matchingBindingWithValue: matchedValue.
 	^ self visitNode: case action
 ]
 
 { #category : #visiting }
 MbndSlovimFunctionCodeGenerator >> generateCasesOfNode: node matchedValue: matchedValue caseStream: caseStream [
-	| currentCase mergeValue caseValue |
+	| currentCase mergeValue caseValue generatedConstants |
 	currentCase := caseStream peek.
 	mergeValue := nil.
 	matchedValue type isIntegerType ifTrue: [
 		| literalCases |
 		literalCases := Array streamContents: [ :out |
-			[ currentCase isNotNil and: [ currentCase pattern isPatternMatchingLiteralValueSetPatternNode ] ] whileTrue: [ 
-				out nextPut: caseStream next.
+			| constantSet |
+			[ currentCase isNotNil and: [ (constantSet := self computePatternConstantSet: currentCase pattern) isNotEmpty ] ] whileTrue: [ 
+				out nextPut: {caseStream next . constantSet}.
 				currentCase := caseStream peek.
 			]
 		].
 	
+		generatedConstants := Set new.
 		literalCases ifNotEmpty: [
 			| caseConstants caseConstantBlocks caseBlocks defaultBlock mergeBlock switchBlock |
 			caseBlocks := literalCases collect: [ :case | slvmBuilder newBasicBlock: #casesOfCase ].
 			caseConstants := OrderedCollection new.
 			caseConstantBlocks := OrderedCollection new.
-			literalCases doWithIndex: [ :case :index |
+			literalCases doWithIndex: [ :caseAndConstantSet :index |
 				| block |
 				block := caseBlocks at: index.
-				(self visitNode: case pattern) do: [ :literalConstant |
-					caseConstants add: literalConstant.
-					caseConstantBlocks add: block
+				caseAndConstantSet second do: [ :literalConstant |
+					(generatedConstants includes: literalConstant) ifFalse: [ 
+						generatedConstants add: literalConstant.
+						caseConstants add: literalConstant.
+						caseConstantBlocks add: block
+					].
 				]
 			].
 
@@ -684,9 +702,9 @@ MbndSlovimFunctionCodeGenerator >> generateCasesOfNode: node matchedValue: match
 			].
 
 			"Generate the literal cases."
-			literalCases doWithIndex: [ :case :index |
+			literalCases doWithIndex: [ :caseAndConstantSet :index |
 				slvmBuilder currentBlock: (caseBlocks at: index).
-				caseValue := self generateCase: case withMatchedValue: matchedValue.
+				caseValue := self generateCase: caseAndConstantSet first withMatchedValue: matchedValue.
 				slvmBuilder isLastTerminator ifFalse: [
 					mergeValue ifNotNil: [
 						mergeValue addValue: caseValue from: slvmBuilder currentBlock.
@@ -718,7 +736,7 @@ MbndSlovimFunctionCodeGenerator >> generateCasesOfNode: node matchedValue: match
 		]
 	].
 
-	currentCase ifNil: [ ^ self translateLiteralValue: node type defaultValue ].
+	currentCase ifNil: [ ^ self emitPatternMatchingFailureTrap ].
 	currentCase hasDefaultPattern ifTrue: [
 		^ self generateCase: currentCase withMatchedValue: matchedValue
 	].
@@ -778,14 +796,6 @@ MbndSlovimFunctionCodeGenerator >> generateCleanUpActionActivatedHereForNode: no
 		slvmBuilder store: (slvmBuilder constBool: true) in: activatedFlag.
 	].
 	cleanUpActionState addFinalizationActionBlock: aBlock.
-]
-
-{ #category : #'as yet unclassified' }
-MbndSlovimFunctionCodeGenerator >> generateDestructuringPattern: pattern assignment: assignmentValue [
-	^ MbndSlovimFunctionDestructuringPatternAssignmentCodeGenerator new
-		functionCodeGenerator: self;
-		assignmentValue: assignmentValue;
-		visitNode: pattern
 ]
 
 { #category : #'as yet unclassified' }
@@ -1037,6 +1047,33 @@ MbndSlovimFunctionCodeGenerator >> generateMethodBodyForIntrinsic: intrinsicName
 		slvmBuilder return: result
 	].
 	^ true
+]
+
+{ #category : #'as yet unclassified' }
+MbndSlovimFunctionCodeGenerator >> generatePattern: pattern matchingBindingWithValue: matchedValue [
+	^ MbndSlovimFunctionPatternMatchingBindingCodeGenerator new
+		functionCodeGenerator: self;
+		matchedValue: matchedValue;
+		visitNode: pattern
+]
+
+{ #category : #'as yet unclassified' }
+MbndSlovimFunctionCodeGenerator >> generatePattern: pattern matchingWithValue: matchedValue [
+	^ MbndSlovimFunctionPatternMatchingTestingCodeGenerator new
+		functionCodeGenerator: self;
+		matchedValue: matchedValue;
+		visitNode: pattern
+]
+
+{ #category : #'as yet unclassified' }
+MbndSlovimFunctionCodeGenerator >> generatePatternNotMatchedTrap: isPatternMatched [
+	self assert: isPatternMatched type isBooleanType.
+	isPatternMatched isConstantValue ifTrue: [
+		"The not matched case is a compilation error." 
+		self assert: isPatternMatched value.
+		^ self
+	].
+	self halt
 ]
 
 { #category : #'as yet unclassified' }
@@ -1839,6 +1876,15 @@ MbndSlovimFunctionCodeGenerator >> visitDecorationChangeTypeCastNode: node [
 ]
 
 { #category : #visiting }
+MbndSlovimFunctionCodeGenerator >> visitDestructuringAssignmentNode: node [
+	| matchedValue isPatternMatched |
+	matchedValue := self visitNode: node value.
+	isPatternMatched := self generatePattern: node pattern matchingWithValue: matchedValue.
+	self generatePatternNotMatchedTrap: isPatternMatched.
+	^ matchedValue
+]
+
+{ #category : #visiting }
 MbndSlovimFunctionCodeGenerator >> visitDoWhileLoopNode: node [
 	| loopHeader loopBody loopContinue loopMerge loopCondition |
 	loopHeader := slvmBuilder newBasicBlock: #doWhileHeader.
@@ -2489,42 +2535,6 @@ MbndSlovimFunctionCodeGenerator >> visitNumberToBooleanCastNode: node [
 ]
 
 { #category : #visiting }
-MbndSlovimFunctionCodeGenerator >> visitPatternMatchingBindingPatternNode: node [
-	self assert: node value isNotNil.
-	^ self visitNode: node value
-]
-
-{ #category : #visiting }
-MbndSlovimFunctionCodeGenerator >> visitPatternMatchingIntervalPatternNode: node [
-	| type startConstant endConstant |
-	self assert: node isPatternMatchingLiteralValueSetPatternNode.
-	type := node type.
-	startConstant := self visitNode: node start.
-	endConstant := self visitNode: node stop.
-	self assert: startConstant isConstantValue.
-	self assert: endConstant isConstantValue.
-	^ (startConstant value to: endConstant value) collect: [ :value |
-		SLVMConstant type: startConstant type value: value
-	]
-]
-
-{ #category : #visiting }
-MbndSlovimFunctionCodeGenerator >> visitPatternMatchingLiteralValuePatternNode: node [
-	^ {self visitLiteralValueNode: node}
-]
-
-{ #category : #visiting }
-MbndSlovimFunctionCodeGenerator >> visitPatternMatchingSameValuePatternNode: node [
-	^ self visitNode: node expectedValue
-]
-
-{ #category : #visiting }
-MbndSlovimFunctionCodeGenerator >> visitPatternMatchingSetPatternNode: node [
-	self assert: node isPatternMatchingLiteralValueSetPatternNode.
-	^ node elements collect: [ :each | self visitNode: each ]
-]
-
-{ #category : #visiting }
 MbndSlovimFunctionCodeGenerator >> visitPointerAsReferenceNode: node [
 	^ self visitNode: node pointer
 ]
@@ -2876,6 +2886,23 @@ MbndSlovimFunctionCodeGenerator >> visitTupleNode: node [
 	].
 
 	^ result
+]
+
+{ #category : #visiting }
+MbndSlovimFunctionCodeGenerator >> visitTupleSplicingNode: node [
+	| tuple |
+	node elementIndex = 1 ifTrue: [
+		tuple := self visitNode: node tupleExpression.
+		functionVariables at: node put: tuple.
+	] ifFalse: [ 
+		tuple := functionVariables at: node tupleExpression.
+	].
+
+	tuple type isPointerType ifFalse: [ 
+		^ slvmBuilder extractValue: tuple indices: {node elementIndex - 1}
+	].
+
+	self halt
 ]
 
 { #category : #visiting }

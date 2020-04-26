@@ -30,8 +30,8 @@ MbndAstPatternSemanticAnalyzerTest >> testLetPattern [
 	pattern := visitor analyzePatternMatchingPatternNode: node withValueOfType: compilationTarget int32Type.
 	self assert: pattern isPatternMatchingBindingPatternNode.
 	self assert: pattern name equals: #x.
-	self assert: pattern value equals: nil.
-	self assert: pattern type equals: compilationTarget int32Type.
+	self assert: pattern valuePattern equals: nil.
+	self assert: pattern matchedType equals: compilationTarget int32Type.
 	self assert: pattern binding isNotNil.
 	self assert: pattern collectBindings equals: {pattern}.
 ]
@@ -43,7 +43,7 @@ MbndAstPatternSemanticAnalyzerTest >> testLiteralIntegerPattern [
 	node := builder literalInteger: 42.
 	pattern := visitor analyzePatternMatchingPatternNode: node withValueOfType: compilationTarget int32Type.
 	self assert: pattern isPatternMatchingLiteralValuePatternNode.
-	self assert: pattern value equals: 42.
-	self assert: pattern type equals: compilationTarget int32Type.
+	self assert: pattern value value equals: 42.
+	self assert: pattern matchedType equals: compilationTarget int32Type.
 	self assert: pattern collectBindings equals: #().
 ]

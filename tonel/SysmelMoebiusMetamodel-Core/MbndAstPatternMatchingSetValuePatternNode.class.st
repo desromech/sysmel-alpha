@@ -22,6 +22,13 @@ MbndAstPatternMatchingSetValuePatternNode >> elements: anObject [
 	elements := anObject
 ]
 
+{ #category : #serialization }
+MbndAstPatternMatchingSetValuePatternNode >> encodeFieldsForMessagePackWith: graphEncoder [
+	^ {
+		#elements . elements encodeGraphForMessagePackWith: graphEncoder.
+	} , (super encodeFieldsForMessagePackWith: graphEncoder)
+]
+
 { #category : #testing }
 MbndAstPatternMatchingSetValuePatternNode >> isPatternMatchingLiteralValueSetPatternNode [
 	^ true
@@ -30,4 +37,11 @@ MbndAstPatternMatchingSetValuePatternNode >> isPatternMatchingLiteralValueSetPat
 { #category : #testing }
 MbndAstPatternMatchingSetValuePatternNode >> isPatternMatchingSetValuePatternNode [
 	^ true
+]
+
+{ #category : #serialization }
+MbndAstPatternMatchingSetValuePatternNode >> materializeWithGraphDecoder: graphDecoder withFields: encodedFields [
+	super materializeWithGraphDecoder: graphDecoder withFields: encodedFields.
+	elements := encodedFields at: #elements.
+
 ]
