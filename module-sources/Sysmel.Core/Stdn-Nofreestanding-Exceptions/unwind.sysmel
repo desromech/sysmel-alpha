@@ -119,7 +119,7 @@ function fetchPointerWithEncoding(in: Stdn IO FixedMemoryStream ref, reader: Std
     DW_EH_PE sdata8 : {
             result := (reader nextInt64 castTo: IntPointer) castTo: UIntPointer
         }.
-    let _ : {
+    _ : {
             Stdn stderr << "Unsupport EH DWARF pointer data encoding."; nl.
             native_abort().
         }.
@@ -136,7 +136,7 @@ function fetchPointerWithEncoding(in: Stdn IO FixedMemoryStream ref, reader: Std
                 result := result + basePointer
             }.
         }.
-    let _ : {
+    _ : {
             Stdn stderr << "Unsupport EH DWARF pointer relative encoding."; nl.
             native_abort().
         }.
@@ -243,7 +243,7 @@ function getCatchExceptionInfo(typeInfoTableIndex: UIntPointer, typeInfoTable: U
     DW_EH_PE sdata8 : {
         typeInfoOffset := typeInfoOffset * 8.
     }.
-    let _ : {
+    _ : {
         ## This is an invalid case.
         native_abort().
     }.

@@ -81,6 +81,7 @@ class SizerElement superclass: Stdn SharedObject; definition: {
             Flags RightAligned : {
                 position := position + Float32x2(remainingExtent x, 0).
             }.
+            _ : {}
         }.
 
         self verticalAlignment selectCase: #{
@@ -93,6 +94,7 @@ class SizerElement superclass: Stdn SharedObject; definition: {
             Flags BottomAligned : {
                 position := position + Float32x2(0, remainingExtent y).
             }.
+            _ : {}
         }.
 
         RectangleF32 min: position extent: extent

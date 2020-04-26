@@ -32,6 +32,9 @@ class FatalError superclass: Error; definition: {}.
 ## An assesertion failure.
 class AssertionFailure superclass: Error; definition: {}.
 
+## Pattern matching failure.
+class PatternMatchingFailure superclass: Error; definition: {}.
+
 ## Throwing exceptions during clean up actions is forbidden
 class ForbiddenExceptionDuringCleanUp superclass: Error; definition: {}.
 
@@ -77,6 +80,12 @@ function abort noReturn() => Void := {
     let exception mutable := Abort().
     exception signal
 }.
+
+function __sysmel_patternMatchingFailureRaise noReturn externC() => Void := {
+    let exception mutable := PatternMatchingFailure().
+    exception signal
+}.
+Compiler compilationTarget patternMatchingFailureRaiseFunction: __sysmel_patternMatchingFailureRaise.
 
 macro method error: message
     :=``(Stdn raiseError(`,message)).

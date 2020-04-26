@@ -194,7 +194,7 @@ enum PixelFormat valueType: UInt32; values: #{
             return: 16
         }.
 
-        let _ : {return: 0}.
+        _ : {return: 0}.
         }.
 
         Stdn abort().
@@ -212,7 +212,7 @@ enum PixelFormat valueType: UInt32; values: #{
             return: value bgra
         }.
 
-        let _ : {return: value}.
+        _ : {return: value}.
         }.
 
         Stdn abort().
@@ -230,7 +230,7 @@ enum PixelFormat valueType: UInt32; values: #{
             return: value bgra
         }.
 
-        let _ : {return: value}.
+        _ : {return: value}.
         }.
 
         Stdn abort().
@@ -250,7 +250,7 @@ enum PixelFormat valueType: UInt32; values: #{
             return: true
         }.
 
-        let _ : {return: false}.
+        _ : {return: false}.
         }.
 
         Stdn abort().
@@ -305,7 +305,8 @@ enum PixelFormat valueType: UInt32; values: #{
 
         (B8G8R8A8_UNormSRGB, B8G8R8X8_UNormSRGB) asValueInSetPattern : {
             return: Stdn Math Color decodeSRGBUnorm8((memory reinterpretCastTo: UInt8x4 pointer) _ bgra)
-        }
+        }.
+        _ : {}
         }.
 
         Float32x4 zeros
@@ -328,7 +329,8 @@ enum PixelFormat valueType: UInt32; values: #{
 
         (B8G8R8A8_UNormSRGB, B8G8R8X8_UNormSRGB) asValueInSetPattern : {
             (memory reinterpretCastTo: UInt8x4 pointer) _ := Stdn Math Color encodeSRGBUnorm8(pixel bgra clampMin: 0.0f max: 1.0f)
-        }
+        }.
+        _ : {}
         }
     }.
 

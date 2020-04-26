@@ -171,7 +171,7 @@ class BytecodeInterpreter definition: {
         (224 to: 239) : (return: (self sendLiteralSelector: (bytecode - 224 castTo: UInt32) argumentCount: 1)).
         (240 to: 255) : (return: (self sendLiteralSelector: (bytecode - 240 castTo: UInt32) argumentCount: 2)).
 
-        let _ : {
+        _ : {
             Stdn stdout << "Unsupported bytecode " << bytecode; nl
         }.
         }.

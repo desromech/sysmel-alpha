@@ -103,6 +103,7 @@ class SDL2WindowSystem superclass: WindowSystem; definition: {
         SDL_EventType SDL_MOUSEBUTTONUP  : { self processMouseButtonUp: event button }.
         SDL_EventType SDL_MOUSEBUTTONDOWN  : { self processMouseButtonDown: event button }.
         SDL_EventType SDL_MOUSEWHEEL  : { self processMouseWheel: event wheel }.
+        _ : {}
         }.
     }.
 
@@ -127,6 +128,7 @@ class SDL2WindowSystem superclass: WindowSystem; definition: {
                 let convertedEvent mutable type: ExposeEvent.
                 wrapper _ deliverEvent: convertedEvent.
             }.
+            _ : {}
         }
     }.
 

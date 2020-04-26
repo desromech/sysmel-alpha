@@ -523,6 +523,7 @@ class MainWindowEventHandler superclass: EventHandler; definition: {
 		KeySymbol W : {player _ jump}.
 		KeySymbol Space : {player _ shoot}.
 		KeySymbol LShift : {player _ dash}.
+		_ : {}.
 		}
 	}.
 
@@ -532,6 +533,7 @@ class MainWindowEventHandler superclass: EventHandler; definition: {
 		event symbol selectCase: #{
 		KeySymbol A : {player _ moveLeftInput: false}.
 		KeySymbol D : {player _ moveRightInput: false}.
+		_ : {}.
 		}
 	}.
 }.
@@ -598,7 +600,7 @@ function audioCallback(userdata: Void pointer, stream: UInt8 pointer, len: Int32
 				targetBuffer[i] := convertedSample.
 			}.
 		}.
-		let _ : {
+		_ : {
 			Stdn memset(stream, 0, len castTo: UIntPointer).
 		}.
 	}.

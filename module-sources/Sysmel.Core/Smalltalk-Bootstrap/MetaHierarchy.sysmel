@@ -817,7 +817,7 @@ Object definition: {
 		5 : {return: (self perform: aSymbol with: anArray first with: anArray second with: anArray third with: anArray fourth with: anArray fifth)}.
 		6 : {return: (self perform: aSymbol with: anArray first with: anArray second with: anArray third with: anArray fourth with: anArray fifth with: anArray sixth)}.
 		7 : {return: (self perform: aSymbol with: anArray first with: anArray second with: anArray third with: anArray fourth with: anArray fifth with: anArray sixth with: anArray seventh)}.
-		let _ : self error: "Unsupported argument count for  #perform:withArguments:."
+		_ : self error: "Unsupported argument count for  #perform:withArguments:."
 		}.
 	}
 }.

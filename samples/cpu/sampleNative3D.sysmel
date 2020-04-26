@@ -72,11 +72,13 @@ class Application definition: {
     method onKeyDown: (event: SDL_KeyboardEvent ref) ::=> Void := {
     	event keysym sym selectCase: #{
     	Keycode SDLK_ESCAPE : {isQuitting := true.}.
+        _ : {}.
     	}.
     }.
 
     method onKeyUp: (event: SDL_KeyboardEvent ref) ::=> Void := {
     	event keysym sym selectCase: #{
+        _ : {}.
     	}.
     }.
 
@@ -88,6 +90,7 @@ class Application definition: {
     		SDL_EventType SDL_QUIT : { isQuitting := true }.
     		SDL_EventType SDL_KEYDOWN : { self onKeyDown: event key }.
     		SDL_EventType SDL_KEYUP  : { self onKeyUp: event key }.
+            _ : {}.
     		}.
     	}
     }.
@@ -166,7 +169,7 @@ class Application definition: {
             SDL_SYSWM_COCOA : {
                 swapChainCreateInfo window: windowInfo info cocoa window.
             }.
-            let _ : {
+            _ : {
                 Stdn stderr << "Unsupported window system"; nl.
                 return: 1
             }.

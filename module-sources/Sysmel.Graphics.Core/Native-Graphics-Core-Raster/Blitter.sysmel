@@ -52,6 +52,7 @@ class UnsafePixelIterator definition: {
         4 : {
             (pixels reinterpretCastTo: UInt8x4 pointer) _  := newValue.
         }.
+        _ : {}
         }.
     }.
 
@@ -74,6 +75,7 @@ class UnsafePixelIterator definition: {
         4 : {
             result := (pixels reinterpretCastTo: UInt8x4 pointer) _.
         }.
+        _ : {}
         }.
 
         pixelFormat swizzleLoadedUnorm8x4: result.

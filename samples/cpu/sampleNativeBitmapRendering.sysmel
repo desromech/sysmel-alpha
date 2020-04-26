@@ -21,6 +21,7 @@ function main externC (argc: Int32, argv: UInt8 const pointer pointer) => Int32 
             5: color := UInt8x4(0, 255, 255, 255).
             6: color := UInt8x4(0, 0, 0, 255).
             7: color := UInt8x4(255, 255, 255, 255).
+			_ : {}.
             }.
 
             color
@@ -45,6 +46,7 @@ function main externC (argc: Int32, argv: UInt8 const pointer pointer) => Int32 
             5: color := Float32x4(0.0f, 1.0f, 1.0f, 1.0f).
             6: color := Float32x4(0.0f, 0.0f, 0.0f, 1.0f).
             7: color := Float32x4(1.0f, 1.0f, 1.0f, 1.0f).
+			_ : {}.
             }.
 
             color

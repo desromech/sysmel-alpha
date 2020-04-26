@@ -73,6 +73,7 @@ template Function(FT: Type)
 
             free(closure)
         }.
+        _ : {}
         }.
     }.
 
@@ -106,7 +107,7 @@ template Function(FT: Type)
             return: (closure applyWithArguments: arguments).
         }.
 
-        let _ : {
+        _ : {
             error: "Trying to call invalid Stdn Function wrapper."
         }
         }.

@@ -29,8 +29,7 @@ class FontFaceWithSize superclass: Object; definition: {
             return: (RectangleF32 newValue, 0)
         }.
 
-        let advance := glyph _ horizontalAdvance.
-        (glyph _ bounds, advance)
+        (glyph _ bounds, glyph _ horizontalAdvance)
     }.
 
     virtual method computeBoundingBoxForUTF8String: (string: Char8 const pointer) size: (size: UIntPointer) previousCharacter: (thePreviousCharacter: Char32) ::=> RectangleF32 := {
@@ -45,9 +44,7 @@ class FontFaceWithSize superclass: Object; definition: {
                 currentPosition := currentPosition + (self getKerningForCharacter: previousCharacter with: character)
             }.
 
-            let boundingBoxAndAdvance := self getBoundingBoxAndAdvanceForCharacter: character.
-            let glyphBoundingBox := boundingBoxAndAdvance first.
-            let glyphAdvance := boundingBoxAndAdvance second.
+            let (let glyphBoundingBox, let glyphAdvance) := self getBoundingBoxAndAdvanceForCharacter: character.
 
             result := result unionWith: (glyphBoundingBox translatedBy: currentPosition).
 
