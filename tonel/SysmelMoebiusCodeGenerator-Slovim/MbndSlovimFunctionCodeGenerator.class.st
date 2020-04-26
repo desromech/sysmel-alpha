@@ -391,6 +391,11 @@ MbndSlovimFunctionCodeGenerator >> forbiddenExceptionDuringCleanupTarget [
 ]
 
 { #category : #'as yet unclassified' }
+MbndSlovimFunctionCodeGenerator >> functionVariables [
+	^ functionVariables
+]
+
+{ #category : #'as yet unclassified' }
 MbndSlovimFunctionCodeGenerator >> generateAutomaticEpilogueCode [
 	concreteMethod ifNil: [ ^ self ].
 	(concreteMethod isMessageMethod and: [ concreteMethod name = #finalize and: [concreteMethod hasExplicitSuperSend not ]]) ifTrue: [
@@ -1067,13 +1072,24 @@ MbndSlovimFunctionCodeGenerator >> generatePattern: pattern matchingWithValue: m
 
 { #category : #'as yet unclassified' }
 MbndSlovimFunctionCodeGenerator >> generatePatternNotMatchedTrap: isPatternMatched [
+	| trapBlock successBlock |
 	self assert: isPatternMatched type isBooleanType.
 	isPatternMatched isConstantValue ifTrue: [
 		"The not matched case is a compilation error." 
 		self assert: isPatternMatched value.
 		^ self
 	].
-	self halt
+
+	trapBlock := slvmBuilder newBasicBlock: #patternMatchingFailureTrap.
+	successBlock := slvmBuilder newBasicBlock: #patternMatchingSuccess.
+	slvmBuilder currentBlock mergeBlock: successBlock.
+	slvmBuilder branch: isPatternMatched ifTrue: successBlock ifFalse: trapBlock.
+
+	slvmBuilder currentBlock: trapBlock.
+	self emitPatternMatchingFailureTrap.
+
+	slvmBuilder currentBlock: successBlock.
+
 ]
 
 { #category : #'as yet unclassified' }
@@ -2436,6 +2452,11 @@ MbndSlovimFunctionCodeGenerator >> visitLiteralValueNode: node [
 MbndSlovimFunctionCodeGenerator >> visitLocalVariableDefinitionNode: node [
 	self assert: node initialValue isNotNil.
 	^ self generateLocalVariable: node binding storageCreationNode: node storageCreationNode definitionAt: node withInitialValue: [self visitNode: node initialValue] initialValueKind: node initialValueKind
+]
+
+{ #category : #visiting }
+MbndSlovimFunctionCodeGenerator >> visitMatchingMatchedValueNode: node [
+	^ functionVariables at: node
 ]
 
 { #category : #visiting }

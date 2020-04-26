@@ -378,6 +378,11 @@ MbndAstDelegationVisitor >> visitMacroSendMessageWithArgumentsNode: node [
 ]
 
 { #category : #visiting }
+MbndAstDelegationVisitor >> visitMatchingMatchedValueNode: node [
+	^ self delegateNodeVisit: node
+]
+
+{ #category : #visiting }
 MbndAstDelegationVisitor >> visitMatrixConstructionNode: node [
 	^ self delegateNodeVisit: node
 ]
@@ -449,6 +454,36 @@ MbndAstDelegationVisitor >> visitNodeWithDeferredAnalysis: node [
 
 { #category : #visiting }
 MbndAstDelegationVisitor >> visitNumberToBooleanCastNode: node [
+	^ self delegateNodeVisit: node
+]
+
+{ #category : #visiting }
+MbndAstDelegationVisitor >> visitPatternMatchingAnyPatternNode: node [
+	^ self delegateNodeVisit: node
+]
+
+{ #category : #visiting }
+MbndAstDelegationVisitor >> visitPatternMatchingBindingPatternNode: node [
+	^ self delegateNodeVisit: node
+]
+
+{ #category : #visiting }
+MbndAstDelegationVisitor >> visitPatternMatchingIntervalPatternNode: node [
+	^ self delegateNodeVisit: node
+]
+
+{ #category : #visiting }
+MbndAstDelegationVisitor >> visitPatternMatchingSameValuePatternNode: node [
+	^ self delegateNodeVisit: node
+]
+
+{ #category : #visiting }
+MbndAstDelegationVisitor >> visitPatternMatchingSetPatternNode: node [
+	^ self delegateNodeVisit: node
+]
+
+{ #category : #visiting }
+MbndAstDelegationVisitor >> visitPatternMatchingTuplePatternNode: node [
 	^ self delegateNodeVisit: node
 ]
 

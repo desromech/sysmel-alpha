@@ -498,6 +498,11 @@ MbndAstNode >> isMacroSendMessageWithArgumentsNode [
 ]
 
 { #category : #testing }
+MbndAstNode >> isMatchingMatchedValueNode [
+	^ false
+]
+
+{ #category : #testing }
 MbndAstNode >> isMatrixConstructionNode [
 	^ false
 ]

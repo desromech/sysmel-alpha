@@ -1929,6 +1929,184 @@ function tupleFirst cdecl i32
 ]
 
 { #category : #tests }
+MbndSlovimCodeModuleGeneratorTest >> testDestructuringAssignment5 [
+	| function |
+	self
+		evaluateSysmelSource: '
+function tupleFirst externC(tuple: (Int32 -- Int32)) => Int32 := {
+	let (let a, 42) := tuple.
+	a
+}';
+		generateSSAModule.
+
+	function := ssaModule globalNamed: #tupleFirst.
+	self assert: function asFullSExpressionForTesting equals: #(
+function tupleFirst cdecl i32
+    arguments ((tuple (struct nil generic (i32 i32) (element0 element1) ()) ()))
+    literals ()
+    blocks (
+        (()
+            (nil jump void () () (block 2 body))
+        )
+        (()
+            (nil jump void () () (block 3 tryScope))
+        )
+        ((merge (block 5 patternMatchingSuccess))
+            (nil extractValue i32 () ((local 0 tuple)) (0))
+            (nil extractValue i32 () ((local 0 tuple)) (1))
+            (nil ieq b8 () ((local 4 nil) (const i32 42)))
+            (nil branch void () ((local 5 nil)) ((block 5 patternMatchingSuccess) (block 4 patternMatchingFailureTrap)))
+        )
+        (()
+            (nil call void () ((global 1 __sysmel_patternMatchingFailureRaise)))
+            (nil unreachable void () ())
+        )
+        (()
+            (nil return void () ((local 3 nil)))
+        )
+    )
+	)
+]
+
+{ #category : #tests }
+MbndSlovimCodeModuleGeneratorTest >> testDestructuringAssignment6 [
+	| function |
+	self
+		evaluateSysmelSource: '
+function tupleFirst externC(tuple: (Int32 -- Int32)) => Int32 := {
+	let (42, let a) := tuple.
+	a
+}';
+		generateSSAModule.
+
+	function := ssaModule globalNamed: #tupleFirst.
+	self assert: function asFullSExpressionForTesting equals: #(
+function tupleFirst cdecl i32
+    arguments ((tuple (struct nil generic (i32 i32) (element0 element1) ()) ()))
+    literals ()
+    blocks (
+        (()
+            (nil jump void () () (block 2 body))
+        )
+        (()
+            (nil jump void () () (block 3 tryScope))
+        )
+        ((merge (block 5 patternFailure))
+            (nil extractValue i32 () ((local 0 tuple)) (0))
+            (nil ieq b8 () ((local 3 nil) (const i32 42)))
+            (nil branch void () ((local 4 nil)) ((block 4 patternNextCheck) (block 5 patternFailure)))
+        )
+        (()
+            (nil extractValue i32 () ((local 0 tuple)) (1))
+            (nil jump void () () (block 5 patternFailure))
+        )
+        ((merge (block 7 patternMatchingSuccess))
+            (nil phi b8 () ((local 4 nil) (const b8 true)) ((block 3 tryScope) (block 4 patternNextCheck)))
+            (nil branch void () ((local 8 nil)) ((block 7 patternMatchingSuccess) (block 6 patternMatchingFailureTrap)))
+        )
+        (()
+            (nil call void () ((global 1 __sysmel_patternMatchingFailureRaise)))
+            (nil unreachable void () ())
+        )
+        (()
+            (nil return void () ((local 6 nil)))
+        )
+    )
+	)
+]
+
+{ #category : #tests }
+MbndSlovimCodeModuleGeneratorTest >> testDestructuringAssignment7 [
+	| function |
+	self
+		evaluateSysmelSource: '
+function tupleFirst externC(tuple: (Int32 -- Int32) const ref) => Int32 := {
+	let (let a, 42) := tuple.
+	a
+}';
+		generateSSAModule.
+
+	function := ssaModule globalNamed: #tupleFirst.
+	self assert: function asFullSExpressionForTesting equals: #(
+function tupleFirst cdecl i32
+    arguments ((tuple (pointer (struct nil generic (i32 i32) (element0 element1) ()) generic) ()))
+    literals ()
+    blocks (
+        (()
+            (nil jump void () () (block 2 body))
+        )
+        (()
+            (nil jump void () () (block 3 tryScope))
+        )
+        ((merge (block 5 patternMatchingSuccess))
+            (nil getElementPointer (pointer i32 generic) () ((local 0 tuple) (const i32 0) (const i32 0)))
+            (nil getElementPointer (pointer i32 generic) () ((local 0 tuple) (const i32 0) (const i32 1)))
+            (nil load i32 () ((local 4 nil)))
+            (nil ieq b8 () ((local 5 nil) (const i32 42)))
+            (nil branch void () ((local 6 nil)) ((block 5 patternMatchingSuccess) (block 4 patternMatchingFailureTrap)))
+        )
+        (()
+            (nil call void () ((global 1 __sysmel_patternMatchingFailureRaise)))
+            (nil unreachable void () ())
+        )
+        (()
+            (nil load i32 () ((local 3 nil)))
+            (nil return void () ((local 10 nil)))
+        )
+    )
+	)
+]
+
+{ #category : #tests }
+MbndSlovimCodeModuleGeneratorTest >> testDestructuringAssignment8 [
+	| function |
+	self
+		evaluateSysmelSource: '
+function tupleFirst externC(tuple: (Int32 -- Int32) const ref) => Int32 := {
+	let (42, let a) := tuple.
+	a
+}';
+		generateSSAModule.
+
+	function := ssaModule globalNamed: #tupleFirst.
+	self assert: function asFullSExpressionForTesting equals: #(
+function tupleFirst cdecl i32
+    arguments ((tuple (pointer (struct nil generic (i32 i32) (element0 element1) ()) generic) ()))
+    literals ()
+    blocks (
+        (()
+            (nil jump void () () (block 2 body))
+        )
+        (()
+            (nil jump void () () (block 3 tryScope))
+        )
+        ((merge (block 5 patternFailure))
+            (nil getElementPointer (pointer i32 generic) () ((local 0 tuple) (const i32 0) (const i32 0)))
+            (nil load i32 () ((local 3 nil)))
+            (nil ieq b8 () ((local 4 nil) (const i32 42)))
+            (nil branch void () ((local 5 nil)) ((block 4 patternNextCheck) (block 5 patternFailure)))
+        )
+        (()
+            (nil getElementPointer (pointer i32 generic) () ((local 0 tuple) (const i32 0) (const i32 1)))
+            (nil jump void () () (block 5 patternFailure))
+        )
+        ((merge (block 7 patternMatchingSuccess))
+            (nil phi b8 () ((local 5 nil) (const b8 true)) ((block 3 tryScope) (block 4 patternNextCheck)))
+            (nil branch void () ((local 9 nil)) ((block 7 patternMatchingSuccess) (block 6 patternMatchingFailureTrap)))
+        )
+        (()
+            (nil call void () ((global 1 __sysmel_patternMatchingFailureRaise)))
+            (nil unreachable void () ())
+        )
+        (()
+            (nil load i32 () ((local 7 nil)))
+            (nil return void () ((local 13 nil)))
+        )
+    )
+	)
+]
+
+{ #category : #tests }
 MbndSlovimCodeModuleGeneratorTest >> testDynamicObjectToBoolean [
 	| function |
 	self
@@ -5421,10 +5599,20 @@ MbndSlovimCodeModuleGeneratorTest >> testIntegerEmptySelectCase [
 		generateSSAModule.
 
 	function := ssaModule globalNamed: #selectCaseTest.
-	self assert: function isFunction.
-	self deny: function isEmpty.
-	self assert: function basicBlocks size equals: 2.
-	self assert: function basicBlocks second firstInstruction isReturnVoid.
+	self assert: function asFullSExpressionForTesting equals: #(
+function selectCaseTest cdecl void
+arguments ((value i32 ()))
+literals ()
+blocks (
+    (()
+        (nil jump void () () (block 2 body))
+    )
+    (()
+        (nil call void () ((global 1 __sysmel_patternMatchingFailureRaise)))
+        (nil unreachable void () ())
+    )
+)
+	)
 ]
 
 { #category : #tests }

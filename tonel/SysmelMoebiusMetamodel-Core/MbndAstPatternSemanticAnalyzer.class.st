@@ -95,18 +95,32 @@ MbndAstPatternSemanticAnalyzer >> visitPatternMatchingIntervalPatternNode: node 
 
 { #category : #visiting }
 MbndAstPatternSemanticAnalyzer >> visitPatternMatchingSameValuePatternNode: node [
-	| expectedValue |
-	expectedValue := semanticAnalyzer attemptImplicitCast: node expectedValue intoType: patternValueType.
+	| expectedValue matchedValue testingExpression builder |
+	expectedValue := semanticAnalyzer attemptImplicitCast: node expectedValue intoType: self patternConcreteValueType.
 	expectedValue ifNil: [ ^ node asNeverPatternNode ].
+	
+	matchedValue := MbndAstPatternMatchingMatchedValueNode new
+		position: node;
+		type: patternValueType;
+		yourself. 
+	builder := semanticAnalyzer astBuilder. 
+	testingExpression := semanticAnalyzer visitNode: (
+		builder unexpandedSend: (builder literalSymbol: #=)
+			to: matchedValue withArguments: { expectedValue }
+	).
 	
 	expectedValue isLiteralValueNode ifTrue: [ ^ MbndAstPatternMatchingLiteralValuePatternNode new
 		matchedType: patternValueType;
+		matchedValue: matchedValue;
+		testingExpression: testingExpression;
 		value: expectedValue;
 		yourself
 	].
 	
 	^ node copy
 		matchedType: patternValueType;
+		matchedValue: matchedValue;
+		testingExpression: testingExpression;
 		expectedValue: expectedValue;
 		yourself
 ]

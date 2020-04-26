@@ -1797,6 +1797,11 @@ MbndAstSemanticAnalyzer >> visitMacroMessagePrototypeNode: node [
 ]
 
 { #category : #visiting }
+MbndAstSemanticAnalyzer >> visitMatchingMatchedValueNode: node [
+	^ node
+]
+
+{ #category : #visiting }
 MbndAstSemanticAnalyzer >> visitMatrixConstructionNode: node [
 	| result expectedColumnType |
 	result := node copy

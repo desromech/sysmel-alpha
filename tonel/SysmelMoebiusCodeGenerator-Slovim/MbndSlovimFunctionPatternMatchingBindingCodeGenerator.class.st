@@ -5,13 +5,18 @@ Class {
 }
 
 { #category : #visiting }
-MbndSlovimFunctionPatternMatchingBindingCodeGenerator >> applyNextPattern: nextPattern to: nextMatchedValue [
-	functionCodeGenerator generatePattern: nextPattern matchingWithValue: nextMatchedValue
+MbndSlovimFunctionPatternMatchingBindingCodeGenerator >> andNextPatternResult: nextBlock [
+	^ nextBlock value
 ]
 
-{ #category : #'as yet unclassified' }
-MbndSlovimFunctionPatternMatchingBindingCodeGenerator >> buildAndingTowerWith: aBlock [
-	aBlock value.
+{ #category : #visiting }
+MbndSlovimFunctionPatternMatchingBindingCodeGenerator >> applyNextPattern: nextPattern to: nextMatchedValueBlock [
+	functionCodeGenerator generatePattern: nextPattern matchingWithValue: nextMatchedValueBlock value
+]
+
+{ #category : #visiting }
+MbndSlovimFunctionPatternMatchingBindingCodeGenerator >> generateTestingExpressionOf: node [
+	"Nothing is required here"
 ]
 
 { #category : #visiting }

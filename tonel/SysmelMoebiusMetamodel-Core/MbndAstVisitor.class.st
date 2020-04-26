@@ -375,6 +375,11 @@ MbndAstVisitor >> visitMacroSendMessageWithArgumentsNode: node [
 ]
 
 { #category : #visiting }
+MbndAstVisitor >> visitMatchingMatchedValueNode: node [
+	self subclassResponsibility
+]
+
+{ #category : #visiting }
 MbndAstVisitor >> visitMatrixConstructionNode: node [
 	self subclassResponsibility
 ]

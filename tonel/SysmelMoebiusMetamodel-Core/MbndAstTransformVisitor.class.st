@@ -523,6 +523,11 @@ MbndAstTransformVisitor >> visitMacroSendMessageWithArgumentsNode: node [
 ]
 
 { #category : #visiting }
+MbndAstTransformVisitor >> visitMatchingMatchedValueNode: node [
+	^ node
+]
+
+{ #category : #visiting }
 MbndAstTransformVisitor >> visitMatrixConstructionNode: node [
 	^ node copy
 		matrixType: (node matrixType isMbndAstNode
@@ -633,6 +638,60 @@ MbndAstTransformVisitor >> visitNodeWithDeferredAnalysis: node [
 { #category : #visiting }
 MbndAstTransformVisitor >> visitNumberToBooleanCastNode: node [
 	^ self visitSpecificCastNode: node
+]
+
+{ #category : #visiting }
+MbndAstTransformVisitor >> visitPatternMatchingAnyPatternNode: node [
+	^ node
+]
+
+{ #category : #visiting }
+MbndAstTransformVisitor >> visitPatternMatchingBindingPatternNode: node [
+	^ node copy
+		valuePattern: (node valuePattern ifNotNil: [:n | self visitNode: n]);
+		requiredType: (node requiredType ifNotNil: [:n | n isMbndAstNode ifTrue: [self visitNode: n] ifFalse: [n]]);
+		yourself
+]
+
+{ #category : #visiting }
+MbndAstTransformVisitor >> visitPatternMatchingIntervalPatternNode: node [
+	^ node copy
+		start: (self visitNode: node start);
+		stop: (self visitNode: node start);
+		yourself
+]
+
+{ #category : #visiting }
+MbndAstTransformVisitor >> visitPatternMatchingLiteralValuePatternNode: node [
+	^ node copy
+		value: (self visitNode: node value);
+		yourself
+]
+
+{ #category : #visiting }
+MbndAstTransformVisitor >> visitPatternMatchingNeverPatternNode: node [
+	^ node
+]
+
+{ #category : #visiting }
+MbndAstTransformVisitor >> visitPatternMatchingSameValuePatternNode: node [
+	^ node copy
+		expectedValue: (self visitNode: node expectedValue);
+		yourself
+]
+
+{ #category : #visiting }
+MbndAstTransformVisitor >> visitPatternMatchingSetPatternNode: node [
+	^ node copy
+		elements: (self visitNodes: node elements);
+		yourself
+]
+
+{ #category : #visiting }
+MbndAstTransformVisitor >> visitPatternMatchingTuplePatternNode: node [
+	^ node copy
+		expectedElements: (self visitNodes: node expectedElements);
+		yourself
 ]
 
 { #category : #visiting }

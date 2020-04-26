@@ -5,28 +5,50 @@ Class {
 	#classTraits : 'TMbndSlovimModulePartTranslator classTrait',
 	#instVars : [
 		'functionCodeGenerator',
-		'matchedValue'
+		'matchedValue',
+		'lastResult'
 	],
 	#category : #'SysmelMoebiusCodeGenerator-Slovim-Module'
 }
 
 { #category : #visiting }
-MbndSlovimFunctionPatternMatchingTestingCodeGenerator >> applyNextPattern: nextPattern to: nextMatchedValue [
-	| nextPatternResult |
-	nextPatternResult := functionCodeGenerator generatePattern: nextPattern matchingWithValue: nextMatchedValue.
-	nextPattern isDefaultPattern ifTrue: [ ^ self ].
-	self halt
-]
+MbndSlovimFunctionPatternMatchingTestingCodeGenerator >> andNextPatternResult: nextBlock [
+	| builder nextCheckBlock mergeBlock previousBlock nextResult nextResultBlock newResult |
+	lastResult isConstantValue ifTrue: [
+		lastResult value ifTrue: [
+			lastResult := nextBlock value.
+		].
+		^ self
+	].
 
-{ #category : #'as yet unclassified' }
-MbndSlovimFunctionPatternMatchingTestingCodeGenerator >> buildAndingTowerWith: aBlock [
-	aBlock value.
+	builder := functionCodeGenerator slvmBuilder.
 	
-	^ functionCodeGenerator slvmBuilder constBool: true
+	nextCheckBlock := builder newBasicBlock: #patternNextCheck.
+	mergeBlock := builder newBasicBlock: #patternFailure.
+	previousBlock := builder currentBlock.
+	builder currentBlock mergeBlock: mergeBlock.
+	builder branch: lastResult ifTrue: nextCheckBlock ifFalse: mergeBlock.
+	
+	builder currentBlock: nextCheckBlock.
+	 
+	nextResult := nextBlock value.
+	builder jump: mergeBlock.
+
+	nextResultBlock := builder currentBlock.
+	builder currentBlock: mergeBlock.
+	
+	newResult := builder phi: SLVMType boolType.
+	newResult
+		addValue: lastResult from: previousBlock;
+		addValue: nextResult from: nextResultBlock.
+	lastResult := newResult
 ]
 
 { #category : #visiting }
-MbndSlovimFunctionPatternMatchingTestingCodeGenerator >> finishPatternAndingTower [
+MbndSlovimFunctionPatternMatchingTestingCodeGenerator >> applyNextPattern: nextPattern to: nextMatchedValueBlock [
+	self andNextPatternResult: [
+		functionCodeGenerator generatePattern: nextPattern matchingWithValue: nextMatchedValueBlock value
+	]
 ]
 
 { #category : #accessing }
@@ -37,6 +59,12 @@ MbndSlovimFunctionPatternMatchingTestingCodeGenerator >> functionCodeGenerator [
 { #category : #accessing }
 MbndSlovimFunctionPatternMatchingTestingCodeGenerator >> functionCodeGenerator: anObject [
 	functionCodeGenerator := anObject
+]
+
+{ #category : #visiting }
+MbndSlovimFunctionPatternMatchingTestingCodeGenerator >> generateTestingExpressionOf: node [
+	functionCodeGenerator functionVariables at: node matchedValue put: matchedValue.
+	^ functionCodeGenerator visitNode: node testingExpression
 ]
 
 { #category : #accessing }
@@ -77,8 +105,7 @@ MbndSlovimFunctionPatternMatchingTestingCodeGenerator >> visitPatternMatchingBin
 
 { #category : #visiting }
 MbndSlovimFunctionPatternMatchingTestingCodeGenerator >> visitPatternMatchingLiteralValuePatternNode: node [
-	self flag: 'TODO: Generate this method properly'.
-	^ functionCodeGenerator slvmBuilder constBool: true 
+	^ self generateTestingExpressionOf: node
 ]
 
 { #category : #visiting }
@@ -88,8 +115,7 @@ MbndSlovimFunctionPatternMatchingTestingCodeGenerator >> visitPatternMatchingNev
 
 { #category : #visiting }
 MbndSlovimFunctionPatternMatchingTestingCodeGenerator >> visitPatternMatchingSameValuePatternNode: node [
-	self flag: 'TODO: Generate this method properly'.
-	^ functionCodeGenerator slvmBuilder constBool: true 
+	^ self generateTestingExpressionOf: node
 ]
 
 { #category : #visiting }
@@ -99,12 +125,13 @@ MbndSlovimFunctionPatternMatchingTestingCodeGenerator >> visitPatternMatchingTup
 	self assert: matchedTupleType isTupleType.
 
 	builder := functionCodeGenerator slvmBuilder.	
-	^ self buildAndingTowerWith: [(1 to: matchedTupleType elements size) do: [ :index |
+	lastResult := builder constBool: true.
+	(1 to: matchedTupleType elements size) do: [ :index |
 		self applyNextPattern: (node expectedElements at: index)
-			to: (matchedValue type isPointerType
+			to: [matchedValue type isPointerType
 				ifTrue: [builder getReference: matchedValue element: (builder constInt: index - 1)]
 				ifFalse: [builder extractValue: matchedValue indices: {index - 1}]
-			)
-	] ].
-
+			]
+	].
+	^ lastResult
 ]

@@ -2,7 +2,9 @@ Class {
 	#name : #MbndAstPatternMatchingPatternNode,
 	#superclass : #MbndAstNode,
 	#instVars : [
-		'matchedType'
+		'matchedType',
+		'matchedValue',
+		'testingExpression'
 	],
 	#category : #'SysmelMoebiusMetamodel-Core-AST'
 }
@@ -30,6 +32,8 @@ MbndAstPatternMatchingPatternNode >> collectBindingsInto: out [
 MbndAstPatternMatchingPatternNode >> encodeFieldsForMessagePackWith: graphEncoder [
 	^ {
 		#matchedType . matchedType encodeGraphForMessagePackWith: graphEncoder.
+		#matchedValue . matchedValue encodeGraphForMessagePackWith: graphEncoder.
+		#testingExpression . testingExpression encodeGraphForMessagePackWith: graphEncoder.
 	} , (super encodeFieldsForMessagePackWith: graphEncoder)
 ]
 
@@ -58,9 +62,30 @@ MbndAstPatternMatchingPatternNode >> matchedType: anObject [
 	matchedType := anObject
 ]
 
+{ #category : #accessing }
+MbndAstPatternMatchingPatternNode >> matchedValue [
+	^ matchedValue
+]
+
+{ #category : #accessing }
+MbndAstPatternMatchingPatternNode >> matchedValue: anObject [
+	matchedValue := anObject
+]
+
 { #category : #serialization }
 MbndAstPatternMatchingPatternNode >> materializeWithGraphDecoder: graphDecoder withFields: encodedFields [
 	super materializeWithGraphDecoder: graphDecoder withFields: encodedFields.
 	matchedType := encodedFields at: #matchedType.
+	matchedValue := matchedValue encodeGraphForMessagePackWith: #matchedType.
+	testingExpression := encodedFields at: #testingExpression.
+]
 
+{ #category : #accessing }
+MbndAstPatternMatchingPatternNode >> testingExpression [
+	^ testingExpression
+]
+
+{ #category : #accessing }
+MbndAstPatternMatchingPatternNode >> testingExpression: anObject [
+	testingExpression := anObject
 ]
