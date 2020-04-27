@@ -35,6 +35,9 @@ class AssertionFailure superclass: Error; definition: {}.
 ## Pattern matching failure.
 class PatternMatchingFailure superclass: Error; definition: {}.
 
+## Variant unexpected component type.
+class VariantUnexpectedComponentType superclass: Error; definition: {}.
+
 ## Throwing exceptions during clean up actions is forbidden
 class ForbiddenExceptionDuringCleanUp superclass: Error; definition: {}.
 
@@ -85,7 +88,15 @@ function __sysmel_patternMatchingFailureRaise noReturn externC() => Void := {
     let exception mutable := PatternMatchingFailure().
     exception signal
 }.
-Compiler compilationTarget patternMatchingFailureRaiseFunction: __sysmel_patternMatchingFailureRaise.
+
+function __sysmel_variantUnexpectedComponentRaise noReturn externC() => Void := {
+    let exception mutable := VariantUnexpectedComponentType().
+    exception signal
+}.
+
+Compiler compilationTarget
+    patternMatchingFailureRaiseFunction: __sysmel_patternMatchingFailureRaise;
+    variantUnexpectedComponentRaiseFunction: __sysmel_variantUnexpectedComponentRaise.
 
 macro method error: message
     :=``(Stdn raiseError(`,message)).
