@@ -31,7 +31,8 @@ Class {
 		'nativeClosureTypeInfos',
 		'targetCodeModuleName',
 		'gpuUsableProgramEntitites',
-		'patternMatchingFailureRaiseFunction'
+		'patternMatchingFailureRaiseFunction',
+		'variantUnexpectedComponentRaiseFunction'
 	],
 	#classVars : [
 		'ShaderBuiltInLocationMap',
@@ -1529,6 +1530,20 @@ MbndSlovimCodeModuleGenerator >> unmangledNameForProgramEntity: programEntity in
 	programEntity isMessageMethod ifTrue: [ out nextPut: $] ].
 		
 	self addUnmangledProgramEntity: programEntity suffixInto: out
+]
+
+{ #category : #accessing }
+MbndSlovimCodeModuleGenerator >> variantUnexpectedComponentRaiseFunction [
+	^ variantUnexpectedComponentRaiseFunction ifNil: [
+		self compilationTarget variantUnexpectedComponentRaiseFunction ifNotNil: [ :function |
+			variantUnexpectedComponentRaiseFunction := (self translateProgramEntity: function) ssaValue
+		] ifNil: [
+			variantUnexpectedComponentRaiseFunction := SLVMFunction module: ssaModule
+				name: #__sysmel_variantUnexpectedComponentRaise
+				functionType: (SLVMFunctionType arguments: #() returnType: self slvmCompilationTarget void)
+
+		]
+	]
 ]
 
 { #category : #visiting }

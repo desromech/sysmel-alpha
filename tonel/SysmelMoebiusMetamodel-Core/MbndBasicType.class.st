@@ -202,6 +202,26 @@ MbndBasicType >> analyzePragmaInDefinitionBodyWithSelector: selector arguments: 
 	].
 ]
 
+{ #category : #'as yet unclassified' }
+MbndBasicType >> analyzeReferenceAssignmentNode: node with: analyzer [
+	| newValue |
+	newValue := node value.
+	
+	newValue isTemporaryReferenceLoadNode ifTrue: [ 
+		(newValue type isNonMoveable and: [ newValue type isNonCopyable ]) ifTrue: [
+			self error: 'Cannot assign into a variable with a non-moveable and non-copyable value type "{1}".' format: { newValue type asString } at: node
+		].
+	] ifFalse: [ 
+		newValue type isNonCopyable ifTrue: [
+			self error: 'Cannot assign into a variable with a non-copyable value type "{1}".' format: { newValue type asString } at: node
+		].
+	].
+	
+	"By default, just add an implicit cast to the assigned value."
+	^ node copy value: (analyzer addImplicitCastFor: node value to: self).
+	
+]
+
 { #category : #initialization }
 MbndBasicType >> analyzeValueAsPatternMatchingPattern: node with: analyzer [
 	^ analyzer visitNode: (MbndAstPatternMatchingSameValuePatternNode new

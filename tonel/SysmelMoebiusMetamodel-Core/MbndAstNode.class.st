@@ -845,6 +845,26 @@ MbndAstNode >> isVariableReferenceNode [
 
 ]
 
+{ #category : #visiting }
+MbndAstNode >> isVariantBoxCreateNode [
+	^ false
+]
+
+{ #category : #visiting }
+MbndAstNode >> isVariantTypeSelectorExtractionNode [
+	^ false
+]
+
+{ #category : #visiting }
+MbndAstNode >> isVariantUnboxingAssignmentReferenceNode [
+	^ false
+]
+
+{ #category : #visiting }
+MbndAstNode >> isVariantUnboxingNode [
+	^ false
+]
+
 { #category : #testing }
 MbndAstNode >> isVectorConstructionNode [
 	^ false

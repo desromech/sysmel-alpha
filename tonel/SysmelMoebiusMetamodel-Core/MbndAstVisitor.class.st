@@ -710,6 +710,26 @@ MbndAstVisitor >> visitVariableReferenceNode: node [
 ]
 
 { #category : #visiting }
+MbndAstVisitor >> visitVariantBoxCreateNode: node [
+	self subclassResponsibility
+]
+
+{ #category : #visiting }
+MbndAstVisitor >> visitVariantTypeSelectorExtractionNode: node [
+	self subclassResponsibility
+]
+
+{ #category : #visiting }
+MbndAstVisitor >> visitVariantUnboxingAssignmentReferenceNode: node [
+	self subclassResponsibility
+]
+
+{ #category : #visiting }
+MbndAstVisitor >> visitVariantUnboxingNode: node [
+	self subclassResponsibility
+]
+
+{ #category : #visiting }
 MbndAstVisitor >> visitVectorConstructionNode: node [
 	self subclassResponsibility
 ]

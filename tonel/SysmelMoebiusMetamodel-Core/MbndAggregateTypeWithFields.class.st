@@ -4,15 +4,10 @@ Class {
 	#instVars : [
 		'fields',
 		'slotLayout',
-		'basicInitializeMethod',
-		'initializeMethod',
 		'hasTrivialInstanceInitialization',
 		'hasTrivialInstanceFinalization',
 		'hasTrivialInstanceInitializationFromCopy',
-		'hasTrivialInstanceInitializationMovingFrom',
-		'finalizeMethod',
-		'initializeFromCopyMethod',
-		'initializeMovingFromMethod'
+		'hasTrivialInstanceInitializationMovingFrom'
 	],
 	#category : #'SysmelMoebiusMetamodel-Core-Type'
 }
@@ -52,12 +47,6 @@ MbndAggregateTypeWithFields >> addInstanceMacros [
 		]
 ]
 
-{ #category : #accessing }
-MbndAggregateTypeWithFields >> basicInitializeMethod [
-	basicInitializeMethod ifNil: [ self createBasicInitializeMethod ].
-	^ basicInitializeMethod
-]
-
 { #category : #layout }
 MbndAggregateTypeWithFields >> buildSlotLayout [
 	| builder |
@@ -85,22 +74,6 @@ MbndAggregateTypeWithFields >> buildSuperTypesSlotLayoutWith: builder [
 			buildSlotLayoutWith: builder
 	]
 
-]
-
-{ #category : #'initialize-destroy' }
-MbndAggregateTypeWithFields >> createBasicInitializeMethod [
-	| asReceiverType |
-	asReceiverType := self asReceiverType.
-	self assert: self compilationEnvironment currentModule isNotNil.
-	basicInitializeMethod := MbndAggregateBasicInitializeMethod new
-		name: #basicInitialize;
-		receiverType: asReceiverType;
-		module: self compilationEnvironment currentModule;
-		type: (self compilationTarget functionTypeWithArguments: {asReceiverType} returnType: self compilationTarget voidType);
-		boundType: (self compilationTarget functionTypeWithArguments: #() returnType: self compilationTarget voidType).
-	self
-		addChild: basicInitializeMethod;
-		addOverloadedMethod: basicInitializeMethod
 ]
 
 { #category : #'default values' }
@@ -188,11 +161,6 @@ MbndAggregateTypeWithFields >> fillProgramEntityInfoInstance: typeInfoInstance [
 	].
 ]
 
-{ #category : #'initialize-destroy' }
-MbndAggregateTypeWithFields >> finalizeMethod [
-	^ finalizeMethod ifNil: [ finalizeMethod := self getOrCreateOptionallyGeneratedMethod: #finalize ofKind: MbndAggregateFinalizeMethod argumentTypes: #() returnType: self compilationTarget voidType]
-]
-
 { #category : #'as yet unclassified' }
 MbndAggregateTypeWithFields >> findFirstFieldNamed: fieldName [
 	^ self slotLayout findFirstFieldNamed: fieldName
@@ -204,36 +172,6 @@ MbndAggregateTypeWithFields >> getExtraMetaBuilderFactoryList [
 	^ super getExtraMetaBuilderFactoryList ,  { 
 		#field . MbndFieldMetaBuilder metaBuilderFactory.
 	}
-]
-
-{ #category : #'initialize-destroy' }
-MbndAggregateTypeWithFields >> getOrCreateOptionallyGeneratedMethod: selector ofKind: generatedMethodClass argumentTypes: argumentTypes returnType: returnType [
-	| method parentVersion asReceiverType |
-	self overloadedMethodDict at: selector ifPresent: [ :existent |
-		self flag: 'TODO: Check the existent method argument types.'.
-		^ existent
-	].
-
-	asReceiverType := self asReceiverType.
-	self assert: self compilationEnvironment currentModule isNotNil.
-	method := generatedMethodClass new
-		module: self compilationEnvironment currentModule;
-		name: selector;
-		receiverType: asReceiverType;
-		type: (self compilationTarget functionTypeWithArguments: {asReceiverType} , argumentTypes returnType: returnType);
-		boundType: (self compilationTarget functionTypeWithArguments: argumentTypes returnType: returnType).
-
-	self supertype isTrait not ifTrue: [
-		parentVersion := self supertype lookupOverloadedSelector: selector withBoundType: method boundType.
-		(parentVersion isNotNil and: [ parentVersion hasVirtualTableEntry ]) ifTrue: [
-			method addFlag: #override
-		].
-	].
-
-	self
-		addChild: method;
-		addOverloadedMethod: method.
-	^ method
 ]
 
 { #category : #testing }
@@ -299,22 +237,6 @@ MbndAggregateTypeWithFields >> hasTrivialInstanceInitializationMovingFrom [
 	]
 ]
 
-{ #category : #'initialize-destroy' }
-MbndAggregateTypeWithFields >> initializeCopyingFromMethod [
-	^ initializeFromCopyMethod ifNil: [ initializeFromCopyMethod := self getOrCreateOptionallyGeneratedMethod: #initializeCopyingFrom: ofKind: MbndAggregateInitializeFromCopyMethod argumentTypes: {self asCopyConstructorParameter} returnType: self compilationTarget voidType ]
-]
-
-{ #category : #'initialize-destroy' }
-MbndAggregateTypeWithFields >> initializeMethod [
-	^ initializeMethod ifNil: [ initializeMethod := self getOrCreateOptionallyGeneratedMethod: #initialize ofKind: MbndAggregateInitializeMethod argumentTypes: #() returnType: (self isGCClassType 		ifTrue: [self asReceiverType]
-		ifFalse: [self compilationTarget voidType]) ]
-]
-
-{ #category : #'initialize-destroy' }
-MbndAggregateTypeWithFields >> initializeMovingFromMethod [
-	^ initializeMovingFromMethod ifNil: [ initializeMovingFromMethod := self getOrCreateOptionallyGeneratedMethod: #initializeMovingFrom: ofKind: MbndAggregateInitializeMovingFromMethod argumentTypes: {self asMovementConstructorParameter} returnType: self compilationTarget voidType ]
-]
-
 { #category : #accessing }
 MbndAggregateTypeWithFields >> instanceAlignment [
 	<compileTime>
@@ -356,12 +278,6 @@ MbndAggregateTypeWithFields >> isModuleSpecificType [
 MbndAggregateTypeWithFields >> isMoveable [
 	<compileTime>
 	^ (self hasFlag: #nonMoveable) not
-]
-
-{ #category : #testing }
-MbndAggregateTypeWithFields >> isNonMoveable [
-	<compileTime>
-	^ self hasFlag: #nonMoveable
 ]
 
 { #category : #'default values' }

@@ -106,7 +106,38 @@ MbndArrayType >> elements: anObject [
 
 { #category : #'testing methods' }
 MbndArrayType >> hasGarbageCollectedAddressSpace [
+	elementType ifNil: [ ^ super hasGarbageCollectedAddressSpace ].
 	^ elementType hasGarbageCollectedAddressSpace
+]
+
+{ #category : #testing }
+MbndArrayType >> hasTrivialInstanceBasicInitialization [
+	elementType ifNil: [ ^ super hasTrivialInstanceBasicInitialization ].
+	^ elementType hasTrivialInstanceBasicInitialization
+]
+
+{ #category : #testing }
+MbndArrayType >> hasTrivialInstanceFinalization [
+	elementType ifNil: [ ^ super hasTrivialInstanceFinalization ].
+	^ elementType hasTrivialInstanceFinalization
+]
+
+{ #category : #testing }
+MbndArrayType >> hasTrivialInstanceInitialization [
+	elementType ifNil: [ ^ super hasTrivialInstanceInitialization ].
+	^ elementType hasTrivialInstanceInitialization
+]
+
+{ #category : #testing }
+MbndArrayType >> hasTrivialInstanceInitializationCopyingFrom [
+	elementType ifNil: [ ^ super hasTrivialInstanceInitializationCopyingFrom ].
+	^ elementType hasTrivialInstanceInitializationCopyingFrom
+]
+
+{ #category : #testing }
+MbndArrayType >> hasTrivialInstanceInitializationMovingFrom [
+	elementType ifNil: [ ^ super hasTrivialInstanceInitializationMovingFrom ].
+	^ elementType hasTrivialInstanceInitializationMovingFrom
 ]
 
 { #category : #sizes }
@@ -130,6 +161,18 @@ MbndArrayType >> instanceSize [
 { #category : #testing }
 MbndArrayType >> isArrayType [
 	^ true
+]
+
+{ #category : #testing }
+MbndArrayType >> isCopyable [
+	elementType ifNil: [ ^ super isCopyable ].
+	^ elementType isCopyable
+]
+
+{ #category : #testing }
+MbndArrayType >> isMoveable [
+	elementType ifNil: [ ^ super isMoveable ].
+	^ elementType isMoveable
 ]
 
 { #category : #printing }

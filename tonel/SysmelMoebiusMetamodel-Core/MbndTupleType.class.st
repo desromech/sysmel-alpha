@@ -130,6 +130,36 @@ MbndTupleType >> elements: anObject [
 	elements := anObject
 ]
 
+{ #category : #testing }
+MbndTupleType >> hasTrivialInstanceBasicInitialization [
+	elements ifNil: [ ^ super hasTrivialInstanceBasicInitialization ].
+	^ elements allSatisfy: [:each | each hasTrivialInstanceBasicInitialization ]
+]
+
+{ #category : #testing }
+MbndTupleType >> hasTrivialInstanceFinalization [
+	elements ifNil: [ ^ super hasTrivialInstanceFinalization ].
+	^ elements allSatisfy: [:each | each hasTrivialInstanceFinalization ]
+]
+
+{ #category : #testing }
+MbndTupleType >> hasTrivialInstanceInitialization [
+	elements ifNil: [ ^ super hasTrivialInstanceInitialization ].
+	^ elements allSatisfy: [:each | each hasTrivialInstanceInitialization ]
+]
+
+{ #category : #testing }
+MbndTupleType >> hasTrivialInstanceInitializationCopyingFrom [
+	elements ifNil: [ ^ super hasTrivialInstanceInitializationCopyingFrom ].
+	^ elements allSatisfy: [:each | each hasTrivialInstanceInitializationCopyingFrom ]
+]
+
+{ #category : #testing }
+MbndTupleType >> hasTrivialInstanceInitializationMovingFrom [
+	elements ifNil: [ ^ super hasTrivialInstanceInitializationMovingFrom ].
+	^ elements allSatisfy: [:each | each hasTrivialInstanceInitializationMovingFrom ]
+]
+
 { #category : #sizes }
 MbndTupleType >> instanceAlignment [
 	<compileTime>
@@ -144,9 +174,21 @@ MbndTupleType >> instanceSize [
 	^ instanceSize
 ]
 
+{ #category : #testing }
+MbndTupleType >> isCopyable [
+	elements ifNil: [ ^ super isCopyable ].
+	^ elements allSatisfy: [:each | each isCopyable ]
+]
+
 { #category : #'testing methods' }
 MbndTupleType >> isMemoryReturnedType [
 	^ isMemoryReturnedType ifNil: [ isMemoryReturnedType := elements detect: [ :each | each isMemoryReturnedType ] ifFound: [ true ] ifNone: [ false ]]
+]
+
+{ #category : #testing }
+MbndTupleType >> isMoveable [
+	elements ifNil: [ ^ super isMoveable ].
+	^ elements allSatisfy: [:each | each isMoveable ]
 ]
 
 { #category : #testing }

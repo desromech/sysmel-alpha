@@ -54,9 +54,11 @@ Trait {
 		'simultaneousTypeConcepts',
 		'nativePrefixedWStringLiteralType',
 		'nativePrefixedLStringLiteralType',
-		'patternMatchingFailureRaiseFunction'
+		'patternMatchingFailureRaiseFunction',
+		'variantUnexpectedComponentRaiseFunction'
 	],
 	#traits : 'TMbndAbstractCompilationTarget',
+	#classTraits : 'TMbndAbstractCompilationTarget classTrait',
 	#category : #'SysmelMoebiusMetamodel-Core-CompilationTarget'
 }
 
@@ -402,6 +404,7 @@ TMbndCoreCompilationTarget >> encodeBootstrapDefinedObjectsForMessagePackWith: g
 			nonLocalReturnCatchFunction
 			nonLocalReturnRaiseFunction
 			patternMatchingFailureRaiseFunction
+			variantUnexpectedComponentRaiseFunction
 			
 			"GC runtime"
 			defaultGCClassSuperClass
@@ -1527,9 +1530,27 @@ TMbndCoreCompilationTarget >> typeInformationNativeClass: anObject [
 	typeInformationNativeClass := anObject
 ]
 
+{ #category : #accessing }
+TMbndCoreCompilationTarget >> variantUnexpectedComponentRaiseFunction [
+	^ variantUnexpectedComponentRaiseFunction
+]
+
+{ #category : #accessing }
+TMbndCoreCompilationTarget >> variantUnexpectedComponentRaiseFunction: aFunction [
+	variantUnexpectedComponentRaiseFunction := aFunction
+]
+
 { #category : #'derived types' }
 TMbndCoreCompilationTarget >> variantUnionTypeWithComponents: components [
-	| set |
-	set := Set newFrom: components.
-	^ variantUnions getOrCreateInstanceWithArguments: {set}
+	| setElements nonDuplicated |
+	setElements := Set new.
+	nonDuplicated := OrderedCollection new.
+	components do: [ :each |
+		(setElements includes: each) ifFalse: [
+			setElements add: each.
+			nonDuplicated add: each
+		]
+	].
+
+	^ variantUnions getOrCreateInstanceWithArguments: {nonDuplicated asArray}.
 ]

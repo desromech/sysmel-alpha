@@ -299,6 +299,26 @@ MbndSlovimFunctionCodeGenerator >> emitPatternMatchingFailureTrap [
 	^ slvmBuilder unreachable
 ]
 
+{ #category : #visiting }
+MbndSlovimFunctionCodeGenerator >> emitVariantTypeSelectorCheck: typeSelector withExpectedTypeSelector: expectedTypeSelector [
+	| isMatchingTypeSelector variantTypeSelectorTrapBlock variantTypeSelectorMatchingBlock |
+	isMatchingTypeSelector := slvmBuilder ieq: typeSelector with: expectedTypeSelector.
+	
+	variantTypeSelectorTrapBlock := slvmBuilder newBasicBlock: #variantTypeSelectorTrap.
+	variantTypeSelectorMatchingBlock := slvmBuilder newBasicBlock: #variantTypeSelectorMatchingBlock.
+	slvmBuilder currentBlock mergeBlock: variantTypeSelectorMatchingBlock.
+	slvmBuilder branch: isMatchingTypeSelector ifTrue: variantTypeSelectorMatchingBlock ifFalse: variantTypeSelectorTrapBlock.
+
+	slvmBuilder currentBlock: variantTypeSelectorTrapBlock.
+	
+	slvmBuilder call: codeModuleGenerator variantUnexpectedComponentRaiseFunction arguments: #().
+	slvmBuilder unreachable.
+	
+	slvmBuilder currentBlock: variantTypeSelectorMatchingBlock.
+	
+
+]
+
 { #category : #'as yet unclassified' }
 MbndSlovimFunctionCodeGenerator >> executeAllScopeCleanUp [
 	^ self executeAllScopeCleanUpExceptForTokens: #()
@@ -2963,6 +2983,139 @@ MbndSlovimFunctionCodeGenerator >> visitVariableReferenceNode: node [
 		^ self slvmBuilder load: translatedBinding
 	].
 	^ translatedBinding
+]
+
+{ #category : #visiting }
+MbndSlovimFunctionCodeGenerator >> visitVariantBoxCreateNode: node [
+	| boxedValue variantStorage componentPointer variantType |
+	boxedValue := self visitNode: node boxedValue.
+	variantType := node variantType.
+	variantStorage := self allocateTemporaryStorageFor: (self translateType: node variantType) withStorageCreationNode: node storageCreationNode.
+	
+	"Set the type selector."
+	slvmBuilder store: (slvmBuilder constUChar: node typeSelector)
+		in: (slvmBuilder getReference: variantStorage element: (slvmBuilder constInt: 0)).
+		
+	"Get the component pointer"
+	componentPointer := slvmBuilder getPointer: variantStorage element: {
+		"Variant itself." slvmBuilder constInt: 0.
+		"Union." slvmBuilder constInt: 1.
+		"Component." slvmBuilder constInt: node typeSelector.
+	}.
+	self generateVariable: componentPointer withValueType: node boxedValue type withoutReferences withoutTopDecorations 
+		initializationWithValue: boxedValue initialValueKind: (node boxedValue type isTemporaryReferenceType
+			ifTrue: [ #move ]
+			ifFalse: [ #copy ]).
+	variantType hasTrivialFinalization ifFalse: [
+		self addLocalVariable: variantStorage withValueType: variantType cleanUpActionForNode: node
+	].
+
+	^ variantStorage
+]
+
+{ #category : #visiting }
+MbndSlovimFunctionCodeGenerator >> visitVariantTypeSelectorExtractionNode: node [
+	| variant |
+	variant := self visitNode: node variant.
+	variant type isPointerType ifTrue: [ 
+		self assert: variant type baseType isStructureType.
+		^ slvmBuilder load: (slvmBuilder getReference: variant element: (slvmBuilder constInt: 0))
+	] ifFalse: [
+		self assert: variant type isStructureType.
+		^ slvmBuilder extractValue: variant indices: {0}
+	].
+
+]
+
+{ #category : #visiting }
+MbndSlovimFunctionCodeGenerator >> visitVariantUnboxingAssignmentReferenceNode: node [
+	| variant variantType typeSelectorPointer elementType|
+	variantType := node variant type withoutReferences withoutTopDecorations.
+	self assert: variantType isVariantUnionType.
+	
+	variant := self visitNode: node variant.
+	self assert: variant type isPointerType.
+
+	typeSelectorPointer := slvmBuilder getReference: variant element: (slvmBuilder constInt: 0).
+	elementType := variantType typeWithSelector: node typeSelector.
+	 
+	(elementType hasTrivialBasicInitialization and: [elementType hasTrivialInitialization and: [ variantType hasTrivialFinalization ]]) ifTrue: [ 
+		"Set the selector and return reference."
+		slvmBuilder store: (slvmBuilder constUChar: node typeSelector) in: variant.
+	] ifFalse: [ 
+		| typeSelector isMatchingSelector nonMatchingSelectorBlock variantInitializedBlock |
+		"Non trivial case. Destroy and initialize the variant."
+		typeSelector := slvmBuilder load: typeSelectorPointer.
+		isMatchingSelector := slvmBuilder ieq: typeSelector with: (slvmBuilder constInt: 0).
+		nonMatchingSelectorBlock := slvmBuilder newBasicBlock: #variantNotMatchingType.
+		variantInitializedBlock := slvmBuilder newBasicBlock: #variantInitialized.
+		slvmBuilder currentBlock mergeBlock: variantInitializedBlock.
+		slvmBuilder branch: isMatchingSelector ifTrue: variantInitializedBlock ifFalse: nonMatchingSelectorBlock.
+
+		slvmBuilder currentBlock: nonMatchingSelectorBlock.
+
+		"Finalize the variant"		
+		variantType hasTrivialFinalization ifFalse: [ 
+			self halt.
+		].
+
+		elementType hasTrivialBasicInitialization ifFalse: [
+			self halt.
+		].
+		elementType hasTrivialInitialization ifFalse: [ 
+			self halt.
+		].
+	
+		"Set the new selector."
+		slvmBuilder store: (slvmBuilder constUChar: node typeSelector) in: variant.
+		
+		slvmBuilder jump: variantInitializedBlock.
+		slvmBuilder currentBlock: variantInitializedBlock.
+
+	].
+
+	^ slvmBuilder getPointer: variant element: {
+		"Variant itself" slvmBuilder constInt: 0.
+		"Union" slvmBuilder constInt: 1.
+		"Selected element" slvmBuilder constInt: node typeSelector
+	}
+
+]
+
+{ #category : #visiting }
+MbndSlovimFunctionCodeGenerator >> visitVariantUnboxingNode: node [
+	| variant typeSelector componentPointer |
+	variant := self visitNode: node variant.
+	
+	node unchecked ifFalse: [ 
+		typeSelector := variant type isPointerType ifTrue: [ 
+			slvmBuilder load: (slvmBuilder getReference: variant element: (slvmBuilder constInt: 0))
+		] ifFalse: [
+			slvmBuilder extractValue: variant indices: { 0 } 
+		].
+	
+		self emitVariantTypeSelectorCheck: typeSelector withExpectedTypeSelector: (slvmBuilder constUChar: node typeSelector)
+	].
+
+	componentPointer := slvmBuilder getPointer: ( 
+		variant type isPointerType ifTrue: [
+			variant
+		] ifFalse: [ 
+			| temporary |
+			temporary := slvmBuilder allocaBuilder alloca: variant type.
+			slvmBuilder store: variant in: temporary.
+			temporary
+		])  element: {
+		"Variant itself" slvmBuilder constInt: 0.
+		"Union" slvmBuilder constInt: 1.
+		"Type component" slvmBuilder constInt: node typeSelector.
+	}.
+
+	^ variant type isPointerType ifTrue: [
+		componentPointer 
+	] ifFalse: [
+		slvmBuilder load: componentPointer
+	]
 ]
 
 { #category : #visiting }

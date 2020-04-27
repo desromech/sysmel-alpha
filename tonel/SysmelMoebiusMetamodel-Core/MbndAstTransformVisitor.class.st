@@ -970,6 +970,41 @@ MbndAstTransformVisitor >> visitVariableReferenceNode: node [
 ]
 
 { #category : #visiting }
+MbndAstTransformVisitor >> visitVariantBoxCreateNode: node [
+	^ node copy
+		variantType: (node variantType isMbndAstNode
+			ifTrue: [ self visitNode: node variantType ]
+			ifFalse: [ node variantType ]);
+		typeSelector: (node typeSelector isMbndAstNode
+			ifTrue: [ self visitNode: node typeSelector ]
+			ifFalse: [node typeSelector]);
+		boxedValue: (self visitNode: node boxedValue);
+		yourself
+]
+
+{ #category : #visiting }
+MbndAstTransformVisitor >> visitVariantTypeSelectorExtractionNode: node [
+	^ node copy
+		variant: (self visitNode: node variant);
+		yourself
+]
+
+{ #category : #visiting }
+MbndAstTransformVisitor >> visitVariantUnboxingAssignmentReferenceNode: node [
+	^ self visitVariantUnboxingNode: node
+]
+
+{ #category : #visiting }
+MbndAstTransformVisitor >> visitVariantUnboxingNode: node [
+	^ node copy
+		variant: (self visitNode: node variant);
+		typeSelector: (node typeSelector isMbndAstNode
+			ifTrue: [ self visitNode: node typeSelector ]
+			ifFalse: [node typeSelector]);
+		yourself
+]
+
+{ #category : #visiting }
 MbndAstTransformVisitor >> visitVectorConstructionNode: node [
 	^ node copy
 		vectorType: (node vectorType isMbndAstNode

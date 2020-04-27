@@ -8537,6 +8537,224 @@ MbndSlovimCodeModuleGeneratorTest >> testVariantDefinitionFragment [
 ]
 
 { #category : #tests }
+MbndSlovimCodeModuleGeneratorTest >> testVariantExtractValue [
+	| function |
+	self
+		evaluateSysmelSource: '
+function variantExtractValue externC(variant: (Int32 | Float32) const ref) => Float32
+	:= variant get: Float32.
+';
+		generateSSAModule.
+
+	function := ssaModule globalNamed: #variantExtractValue.
+	self assert: function asFullSExpressionForTesting equals: #(
+function variantExtractValue cdecl f32
+    arguments ((variant (pointer (struct nil generic (u8 (union nil generic (i32 f32) (component0 component1) ())) (typeSelector union) ()) generic) ()))
+    literals ()
+    blocks (
+        (()
+            (nil jump void () () (block 2 body))
+        )
+        ((merge (block 4 variantTypeSelectorMatchingBlock))
+            (nil getElementPointer (pointer u8 generic) () ((local 0 variant) (const i32 0) (const i32 0)))
+            (nil load u8 () ((local 2 nil)))
+            (nil ieq b8 () ((local 3 nil) (const u8 1)))
+            (nil branch void () ((local 4 nil)) ((block 4 variantTypeSelectorMatchingBlock) (block 3 variantTypeSelectorTrap)))
+        )
+        (()
+            (nil call void () ((global 1 __sysmel_variantUnexpectedComponentRaise)))
+            (nil unreachable void () ())
+        )
+        (()
+            (nil getElementPointer (pointer f32 generic) () ((local 0 variant) (const i32 0) (const i32 1) (const i32 1)))
+            (nil load f32 () ((local 8 nil)))
+            (nil return void () ((local 9 nil)))
+        )
+    )
+	)
+]
+
+{ #category : #tests }
+MbndSlovimCodeModuleGeneratorTest >> testVariantExtractValue2 [
+	| function |
+	self
+		evaluateSysmelSource: '
+function variantExtractValue externC(variant: Int32 | Float32) => Float32
+	:= variant get: Float32.
+';
+		generateSSAModule.
+
+	function := ssaModule globalNamed: #variantExtractValue.
+	self assert: function asFullSExpressionForTesting equals: #(
+function variantExtractValue cdecl f32
+arguments ((variant (struct nil generic (u8 (union nil generic (i32 f32) (component0 component1) ())) (typeSelector union) ()) ()))
+literals ()
+blocks (
+    (()
+        (nil alloca (pointer (struct nil generic (u8 (union nil generic (i32 f32) (component0 component1) ())) (typeSelector union) ()) function) () ())
+        (nil jump void () () (block 2 body))
+    )
+    ((merge (block 4 variantTypeSelectorMatchingBlock))
+        (nil extractValue u8 () ((local 0 variant)) (0))
+        (nil ieq b8 () ((local 3 nil) (const u8 1)))
+        (nil branch void () ((local 4 nil)) ((block 4 variantTypeSelectorMatchingBlock) (block 3 variantTypeSelectorTrap)))
+    )
+    (()
+        (nil call void () ((global 1 __sysmel_variantUnexpectedComponentRaise)))
+        (nil unreachable void () ())
+    )
+    (()
+        (nil store void () ((local 0 variant) (local 1 nil)))
+        (nil getElementPointer (pointer f32 function) () ((local 1 nil) (const i32 0) (const i32 1) (const i32 1)))
+        (nil load f32 () ((local 9 nil)))
+        (nil return void () ((local 10 nil)))
+    )
+)
+	)
+]
+
+{ #category : #tests }
+MbndSlovimCodeModuleGeneratorTest >> testVariantParameter [
+	| function |
+	self
+		evaluateSysmelSource: '
+function called externC(variant: (Int32 | Float32)) => Void.
+
+function callWithVariant externC() => Void := {
+	called(1.0f)
+}.
+
+';
+		generateSSAModule.
+
+	function := ssaModule globalNamed: #callWithVariant.
+	self assert: function asFullSExpressionForTesting equals: #(
+function callWithVariant cdecl void
+arguments ()
+literals ()
+blocks (
+    (()
+        (nil alloca (pointer (struct nil generic (u8 (union nil generic (i32 f32) (component0 component1) ())) (typeSelector union) ()) function) () ())
+        (nil jump void () () (block 2 body))
+    )
+    (()
+        (nil jump void () () (block 3 tryScope))
+    )
+    (()
+        (nil getElementPointer (pointer u8 function) () ((local 0 nil) (const i32 0) (const i32 0)))
+        (nil store void () ((const u8 1) (local 3 nil)))
+        (nil getElementPointer (pointer f32 function) () ((local 0 nil) (const i32 0) (const i32 1) (const i32 1)))
+        (nil store void () ((const f32 1.0) (local 5 nil)))
+        (nil call void () ((global 0 called) (local 0 nil)))
+        (nil returnVoid void () ())
+    )
+)
+	)
+]
+
+{ #category : #tests }
+MbndSlovimCodeModuleGeneratorTest >> testVariantSetValue [
+	| function |
+	self
+		evaluateSysmelSource: '
+function variantSetValue externC(variant: (Int32 | Float32) ref) => Void := {
+	variant := 1.0f
+}.
+
+';
+		generateSSAModule.
+
+	function := ssaModule globalNamed: #variantSetValue.
+	self assert: function asFullSExpressionForTesting equals: #(
+function variantSetValue cdecl void
+    arguments ((variant (pointer (struct nil generic (u8 (union nil generic (i32 f32) (component0 component1) ())) (typeSelector union) ()) generic) ()))
+    literals ()
+    blocks (
+        (()
+            (nil jump void () () (block 2 body))
+        )
+        (()
+            (nil jump void () () (block 3 tryScope))
+        )
+        (()
+            (nil getElementPointer (pointer u8 generic) () ((local 0 variant) (const i32 0) (const i32 0)))
+            (nil store void () ((const u8 1) (local 0 variant)))
+            (nil getElementPointer (pointer f32 generic) () ((local 0 variant) (const i32 0) (const i32 1) (const i32 1)))
+            (nil store void () ((const f32 1.0) (local 5 nil)))
+            (nil returnVoid void () ())
+        )
+    )
+	)
+]
+
+{ #category : #tests }
+MbndSlovimCodeModuleGeneratorTest >> testVariantTypeSelector [
+	| function |
+	self
+		evaluateSysmelSource: '
+function calledWithVariant externC(param: (Int32 | Float32)) => Int32 := {
+	param typeSelector
+}.
+
+';
+		generateSSAModule.
+
+	function := ssaModule globalNamed: #calledWithVariant.
+	self assert: function asFullSExpressionForTesting equals: #(
+function calledWithVariant cdecl i32
+arguments ((param (struct nil generic (u8 (union nil generic (i32 f32) (component0 component1) ())) (typeSelector union) ()) ()))
+literals ()
+blocks (
+    (()
+        (nil jump void () () (block 2 body))
+    )
+    (()
+        (nil jump void () () (block 3 tryScope))
+    )
+    (()
+        (nil extractValue u8 () ((local 0 param)) (0))
+        (nil zext i32 () ((local 3 nil)))
+        (nil return void () ((local 4 nil)))
+    )
+)
+	)
+]
+
+{ #category : #tests }
+MbndSlovimCodeModuleGeneratorTest >> testVariantTypeSelector2 [
+	| function |
+	self
+		evaluateSysmelSource: '
+function calledWithVariant externC(param: (Int32 | Float32) const ref) => Int32 := {
+	param typeSelector
+}.
+
+';
+		generateSSAModule.
+
+	function := ssaModule globalNamed: #calledWithVariant.
+	self assert: function asFullSExpressionForTesting equals: #(
+function calledWithVariant cdecl
+    i32 arguments ((param (pointer (struct nil generic (u8 (union nil generic (i32 f32) (component0 component1) ())) (typeSelector union) ()) generic) ()))
+    literals ()
+    blocks (
+        (()
+            (nil jump void () () (block 2 body))
+        )
+        (()
+            (nil jump void () () (block 3 tryScope))
+        )
+        (()
+            (nil getElementPointer (pointer u8 generic) () ((local 0 param) (const i32 0) (const i32 0)))
+            (nil load u8 () ((local 3 nil)))
+            (nil zext i32 () ((local 4 nil)))
+            (nil return void () ((local 5 nil)))
+        )
+    )
+	)
+]
+
+{ #category : #tests }
 MbndSlovimCodeModuleGeneratorTest >> testZeroCFunction [
 	| function |
 	self

@@ -678,6 +678,26 @@ MbndAstDelegationVisitor >> visitVariableReferenceNode: node [
 ]
 
 { #category : #visiting }
+MbndAstDelegationVisitor >> visitVariantBoxCreateNode: node [
+	^ self delegateNodeVisit: node
+]
+
+{ #category : #visiting }
+MbndAstDelegationVisitor >> visitVariantTypeSelectorExtractionNode: node [
+	^ self delegateNodeVisit: node
+]
+
+{ #category : #visiting }
+MbndAstDelegationVisitor >> visitVariantUnboxingAssignmentReferenceNode: node [
+	^ self delegateNodeVisit: node
+]
+
+{ #category : #visiting }
+MbndAstDelegationVisitor >> visitVariantUnboxingNode: node [
+	^ self delegateNodeVisit: node
+]
+
+{ #category : #visiting }
 MbndAstDelegationVisitor >> visitVectorConstructionNode: node [
 	^ self delegateNodeVisit: node
 ]

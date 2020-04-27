@@ -674,22 +674,11 @@ MbndAstSemanticAnalyzer >> visitAssignmentNode: node [
 		self error: 'Cannot assign a value to a constant reference.' at: node
 	].
 
-	"Add an implicit cast to the assigned value."
-	result value: (self addImplicitCastFor: result value to: result reference type baseType withoutTopDecorations).
-
-	result value isTemporaryReferenceLoadNode ifTrue: [ 
-		(result value type isNonMoveable and: [ result value type isNonCopyable ]) ifTrue: [
-			self error: 'Cannot assign into a variable with a non-moveable and non-copyable value type "{1}".' format: { result value type asString } at: node
-		].
-	] ifFalse: [ 
-		result value type isNonCopyable ifTrue: [
-			self error: 'Cannot assign into a variable with a non-copyable value type "{1}".' format: { result value type asString } at: node
-		].
-	].
-	
 	"Return the reference after the assignment."
-	result type: result reference type.	
-	^ result
+	result type: result reference type.
+		
+	expectedValueType := result reference type baseType withoutTopDecorations.
+	^ expectedValueType analyzeReferenceAssignmentNode: result with: self
 
 ]
 
@@ -2718,6 +2707,101 @@ MbndAstSemanticAnalyzer >> visitUnwrapEnumValueCastNode: node [
 	^ result
 		type: result targetType;
 		yourself
+]
+
+{ #category : #visiting }
+MbndAstSemanticAnalyzer >> visitVariantBoxCreateNode: node [
+	| result expectedValueType |
+	result := node copy
+		variantType: (self evaluateTypeExpression: node variantType);
+		boxedValue: (self visitNode: node boxedValue);
+		yourself.
+
+	result variantType isVariantUnionType ifFalse: [ 
+		self error: 'Variant creation node requires a variant type to be creted.' at: result 
+	].
+		
+	result typeSelector isInteger ifFalse: [
+		result typeSelector: (self evaluateTypeExpression: result typeSelector).
+		result typeSelector: (result variantType getTypeSelectorFor: result typeSelector).
+		result typeSelector isInteger ifFalse: [
+			self error: 'Variant creation has an invalid type specified.' at: result 
+		]
+	].
+
+	expectedValueType := result variantType typeWithSelector: result typeSelector.
+	result boxedValue: (self addImplicitCastFor: result boxedValue to: expectedValueType).
+
+	result type: result variantType tempRef.
+
+	result variantType hasTrivialFinalization ifFalse: [ 
+		self addNodeWithImplicitFinalization: result
+	].
+
+	^ result
+]
+
+{ #category : #visiting }
+MbndAstSemanticAnalyzer >> visitVariantTypeSelectorExtractionNode: node [
+	| result |
+	result := super visitVariantTypeSelectorExtractionNode: node.
+	result variant type withoutReferences withoutTopDecorations isVariantUnionType ifFalse: [
+		self error: 'Expected a variant union type for extracting a type selector.' at: result.
+	].
+
+	result type: self compilationTarget uint8Type.
+	^ result
+]
+
+{ #category : #visiting }
+MbndAstSemanticAnalyzer >> visitVariantUnboxingAssignmentReferenceNode: node [
+	| result |
+	result := self visitVariantUnboxingNode: node.
+	(result type isReferenceType or: [ result type isTemporaryReferenceType ]) ifFalse: [ 
+		self error: 'Cannot create an assignment component reference for a variant that is not a reference.' at: result. 
+	].
+
+	result type baseType isConstantType ifTrue: [ 
+		self error: 'Cannot create an assignment component reference for a const referenced variant.' at: node. 
+	].
+
+	^ result
+]
+
+{ #category : #visiting }
+MbndAstSemanticAnalyzer >> visitVariantUnboxingNode: node [
+	| result variantType resultType referenceType |
+	result := node copy
+		variant: (self visitNode: node variant);
+		yourself.
+	
+	variantType := result variant type withoutReferences withoutTopDecorations.
+	self assert: variantType isVariantUnionType.
+	
+	result typeSelector isInteger ifFalse: [ 
+		| selector |
+		result typeSelector: (self evaluateTypeExpression: result typeSelector).
+		selector := variantType getTypeSelectorFor: result typeSelector.
+		selector ifNil: [
+			self error: 'Cannot extract value of type {1} of variant type {2}.'format: { result typeSelector asString .variantType asString } at: result
+		].
+	
+		result typeSelector: selector
+	].
+
+	resultType := variantType typeWithSelector: result typeSelector.
+	self assert: resultType isNotNil.
+	
+	referenceType := result variant type.
+	referenceType isReferenceType ifTrue: [ 
+		resultType := (resultType withDecorations: referenceType baseType decorations) refFor: referenceType addressSpace
+	].
+	referenceType isTemporaryReferenceType ifTrue: [ 
+		resultType := (resultType withDecorations: referenceType baseType decorations) tempRefFor: referenceType addressSpace
+	].
+
+	result type: resultType.
+	^ result
 ]
 
 { #category : #visiting }

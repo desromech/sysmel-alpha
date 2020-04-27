@@ -7,6 +7,7 @@ Trait {
 		'extraMetaBuilderFactories'
 	],
 	#traits : 'TMbndProgramEntity',
+	#classTraits : 'TMbndProgramEntity classTrait',
 	#category : #'SysmelMoebiusMetamodel-Core-Type'
 }
 
@@ -60,7 +61,9 @@ TMbndAbstractType >> addDefaultConversionRules [
 		addConversionRule: MbndIdentityTypeConversionRule new;
 		addConversionRule: MbndToCompilerObjectTypeConversionRule new;
 		addConversionRule: MbndToTypeConceptConversionRule new;
+		addConversionRule: MbndBoxValueInVariant new;
 		addExplicitConversionRule: MbndFromCompilerObjectTypeConversionRule new.
+	
 ]
 
 { #category : #converting }
@@ -1124,8 +1127,8 @@ TMbndAbstractType >> isOutputChannelType [
 
 { #category : #testing }
 TMbndAbstractType >> isPOD [
-	^ self isNonCopyable not and: [
-		self isNonMoveable not and: [
+	^ self isCopyable and: [
+		self isMoveable and: [
 		self hasTrivialBasicInitialization and: [
 		self hasTrivialInitialization and: [
 		self hasTrivialFinalization and: [

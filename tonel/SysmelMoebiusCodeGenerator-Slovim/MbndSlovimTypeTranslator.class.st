@@ -394,3 +394,19 @@ MbndSlovimTypeTranslator >> visitUnionType: structureType [
 	^ self translateAggregateType: structureType withKind: SLVMUnionType
 
 ]
+
+{ #category : #visiting }
+MbndSlovimTypeTranslator >> visitVariantUnionType: variantType [
+	| ssaUnionType ssaValueType |
+	ssaUnionType := SLVMUnionType name: nil
+		types: (variantType components collect: [:each | self translateType: each])
+		kind: SLVMStructureType genericKind
+		names: ((0 to: variantType components size - 1) collect: [:each | ('component', each asString) asSymbol]).
+	ssaValueType := SLVMStructureType name: nil
+		types: { SLVMType ucharType . ssaUnionType }
+		kind: SLVMStructureType genericKind
+		names: #(typeSelector union).
+	translatedTypes at: variantType put: ssaValueType.
+	
+	^ ssaValueType
+]

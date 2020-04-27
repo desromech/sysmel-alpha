@@ -586,6 +586,16 @@ MbndAstBuilder >> explicitCast: expression to: targetType [
 		yourself
 ]
 
+{ #category : #'as yet unclassified' }
+MbndAstBuilder >> extractVariantTypeSelector: variant [
+	<compileTime>
+	<returnType: #_ASTNodeType>
+	^ MbndAstVariantTypeSelectorExtractionNode new
+		position: defaultPosition;
+		variant: variant;
+		yourself
+]
+
 { #category : #'builder methods' }
 MbndAstBuilder >> floatingPoint: expression toInteger: targetType [
 	<compileTime>
@@ -1380,6 +1390,17 @@ MbndAstBuilder >> variableReference: binding [
 	^ MbndAstVariableReference new
 		position: defaultPosition;
 		binding: binding;
+		yourself
+]
+
+{ #category : #'as yet unclassified' }
+MbndAstBuilder >> variant: variant getFieldOfType: type [
+	<compileTime>
+	<returnType: #_ASTNodeType>
+	^ MbndAstVariantUnboxingNode new
+		position: defaultPosition;
+		variant: variant;
+		typeSelector: type;
 		yourself
 ]
 
