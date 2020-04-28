@@ -58,6 +58,7 @@ Trait {
 		'variantUnexpectedComponentRaiseFunction'
 	],
 	#traits : 'TMbndAbstractCompilationTarget',
+	#classTraits : 'TMbndAbstractCompilationTarget classTrait',
 	#category : #'SysmelMoebiusMetamodel-Core-CompilationTarget'
 }
 
@@ -721,8 +722,8 @@ TMbndCoreCompilationTarget >> initializeArithmeticConversionRules [
 	float64Type := self float64Type.
 	
 	"Positive literal -> Unsigned type"
-	int8Type | int16Type | int32Type | int64Type addImplicitConversionTo:
-		uint8Type | uint16Type | uint32Type | uint64Type
+	int8Type | int16Type | int32Type | int64Type addImplicitConversionToAll:
+		{uint8Type . uint16Type . uint32Type . uint64Type}
 	rule: MbndPositiveLiteralToUnsignedTypeConversionRule.
 
 	"Bit cast"
@@ -746,33 +747,33 @@ TMbndCoreCompilationTarget >> initializeArithmeticConversionRules [
 	int64Type | uint64Type |
 	int32Type | uint32Type |
 	int16Type | uint16Type
-		addExplicitConversionTo: int8Type | uint8Type rule: MbndTruncateTypeConversionRule.
+		addExplicitConversionToAll: {int8Type . uint8Type} rule: MbndTruncateTypeConversionRule.
 	int64Type | uint64Type |
 	int32Type | uint32Type
-		addExplicitConversionTo: int16Type | uint16Type rule: MbndTruncateTypeConversionRule.
+		addExplicitConversionToAll: {int16Type . uint16Type} rule: MbndTruncateTypeConversionRule.
 	int64Type | uint64Type
-		addExplicitConversionTo: int32Type | uint32Type rule: MbndTruncateTypeConversionRule.
+		addExplicitConversionToAll: {int32Type . uint32Type} rule: MbndTruncateTypeConversionRule.
 	
 	"Sign extension"
-	int8Type | int16Type | int32Type addConversionTo:
-		int64Type | uint64Type
+	int8Type | int16Type | int32Type addConversionToAll:
+		{int64Type . uint64Type}
 		rule: MbndSignExtensionTypeConversionRule.
-	int8Type | int16Type addConversionTo:
-		int32Type | uint32Type | int64Type | uint64Type
+	int8Type | int16Type addConversionToAll:
+		{int32Type . uint32Type . int64Type . uint64Type}
 		rule: MbndSignExtensionTypeConversionRule.
-	int8Type addConversionTo:
-		int16Type | uint16Type | int32Type | uint32Type | int64Type | uint64Type
+	int8Type addConversionToAll:
+		{int16Type . uint16Type . int32Type . uint32Type . int64Type . uint64Type}
 		rule: MbndSignExtensionTypeConversionRule.
 	
 	"Zero extension"
-	uint8Type | uint16Type | uint32Type addConversionTo:
-		int64Type | uint64Type
+	uint8Type | uint16Type | uint32Type addConversionToAll:
+		{int64Type . uint64Type}
 		rule: MbndZeroExtensionTypeConversionRule.
-	uint8Type | uint16Type addConversionTo:
-		int32Type | uint32Type | int64Type | uint64Type
+	uint8Type | uint16Type addConversionToAll:
+		{int32Type . uint32Type . int64Type . uint64Type}
 		rule: MbndZeroExtensionTypeConversionRule.
-	uint8Type addConversionTo:
-		int16Type | uint16Type | int32Type | uint32Type | int64Type | uint64Type
+	uint8Type addConversionToAll:
+		{int16Type . uint16Type . int32Type . uint32Type . int64Type . uint64Type}
 		rule: MbndZeroExtensionTypeConversionRule.
 		
 	"Int -> FP"
@@ -780,29 +781,29 @@ TMbndCoreCompilationTarget >> initializeArithmeticConversionRules [
 	int16Type | uint16Type |
 	int32Type | uint32Type |
 	int64Type | uint64Type addConversionTo:
-		float16Type | float32Type | float64Type
+		{float16Type . float32Type . float64Type}
 		rule: MbndIntegerToFloatingPointTypeConversionRule.
 	
 	"FP -> Int"
-	float16Type | float32Type | float64Type addExplicitConversionTo:
-		int8Type | uint8Type |
-		int16Type | uint16Type |
-		int32Type | uint32Type |
-		int64Type | uint64Type
+	float16Type | float32Type | float64Type addExplicitConversionToAll:
+		{int8Type . uint8Type .
+		int16Type . uint16Type .
+		int32Type . uint32Type .
+		int64Type . uint64Type}
 		rule: MbndFloatingPointToIntegerTypeConversionRule.
 
 	"FP -> FP"
-	float16Type addConversionTo: float32Type | float64Type rule: MbndFloatingPointSizeTypeConversionRule.
+	float16Type addConversionToAll: {float32Type . float64Type} rule: MbndFloatingPointSizeTypeConversionRule.
 
 	float32Type addConversionTo: float64Type rule: MbndFloatingPointSizeTypeConversionRule.
 	float32Type addExplicitConversionTo: float16Type rule: MbndFloatingPointSizeTypeConversionRule.
 
-	float64Type addExplicitConversionTo: float16Type | float32Type rule: MbndFloatingPointSizeTypeConversionRule.
+	float64Type addExplicitConversionToAll: {float16Type . float32Type} rule: MbndFloatingPointSizeTypeConversionRule.
 
 
 	"Bool -> Int"
-	booleanType addExplicitConversionTo: char8Type | char16Type | char32Type | uint8Type | int8Type | uint16Type | int16Type |
-		uint32Type | int32Type | uint64Type | int64Type
+	booleanType addExplicitConversionToAll: {char8Type . char16Type . char32Type . uint8Type . int8Type . uint16Type . int16Type .
+		uint32Type . int32Type . uint64Type . int64Type}
 		rule: MbndZeroExtensionTypeConversionRule.
 		
 	char8Type | char16Type | char32Type | uint8Type | int8Type | uint16Type | int16Type |

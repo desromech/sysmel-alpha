@@ -36,6 +36,18 @@ MbndUndefinedType >> defaultValueAt: aPosition [
 	^ MbndValue value: nil type: self
 ]
 
+{ #category : #sizes }
+MbndUndefinedType >> instanceAlignment [
+	<compileTime>
+	^ self compilationTarget pointerAlignment
+]
+
+{ #category : #sizes }
+MbndUndefinedType >> instanceSize [
+	<compileTime>
+	^ self compilationTarget pointerSize
+]
+
 { #category : #'testing methods' }
 MbndUndefinedType >> isUndefinedType [
 	^ true

@@ -55,6 +55,13 @@ TMbndAbstractType >> addConversionTo: targetType rule: conversionRule [
 		addImplicitConversionTo: targetType rule: conversionRule
 ]
 
+{ #category : #converting }
+TMbndAbstractType >> addConversionToAll: targetTypes rule: conversionRule [
+	self
+		addExplicitConversionToAll: targetTypes rule: conversionRule;
+		addImplicitConversionToAll: targetTypes rule: conversionRule
+]
+
 { #category : #adding }
 TMbndAbstractType >> addDefaultConversionRules [
 	self
@@ -85,6 +92,13 @@ TMbndAbstractType >> addExplicitConversionTo: targetType rule: conversionRule [
 ]
 
 { #category : #converting }
+TMbndAbstractType >> addExplicitConversionToAll: targetTypes rule: conversionRule [
+	targetTypes do: [ :each |
+		self addExplicitConversionTo: each rule: conversionRule		
+	].
+]
+
+{ #category : #converting }
 TMbndAbstractType >> addImplicitConversionRule: conversionRule [
 	self explicitRequirement
 ]
@@ -100,6 +114,13 @@ TMbndAbstractType >> addImplicitConversionTo: targetType rule: conversionRule [
 	].
 
 	self addImplicitConversionRule: (conversionRule asMbndTypeConversionRuleTo: targetType)
+]
+
+{ #category : #converting }
+TMbndAbstractType >> addImplicitConversionToAll: targetTypes rule: conversionRule [
+	targetTypes do: [ :each |
+		self addImplicitConversionTo: each rule: conversionRule		
+	].
 ]
 
 { #category : #sizes }
