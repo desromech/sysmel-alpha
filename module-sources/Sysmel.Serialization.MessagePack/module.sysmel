@@ -1,0 +1,7 @@
+loadFileOnce: "Encoder.sysmel".
+loadFileOnce: "Decoder.sysmel".
+
+if: Compiler hasGarbageCollectionSupport then: {
+    loadFileOnce: "GCObjectDecoder.sysmel".
+    loadFileOnce: "GCObjectEncoder.sysmel".
+}.

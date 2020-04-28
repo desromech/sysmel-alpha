@@ -1,0 +1,7 @@
+Compiler
+    importModuleNamed: #"Sysmel.Testing";
+    importModuleNamed: #"Sysmel.Serialization.JSON";
+    loadPackages: #(
+        #"JSON-Parsing-Tests"
+        #"JSON-Writing-Tests"
+    ).

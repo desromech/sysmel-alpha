@@ -1,0 +1,6 @@
+Compiler
+    importModuleNamed: #"Sysmel.Serialization.Core";
+    loadPackages: #(
+        #"JSON-Parsing"
+        #"JSON-Writing"
+    ).

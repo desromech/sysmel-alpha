@@ -1,0 +1,58 @@
+namespace Stdn definition: {
+namespace Serialization definition: {
+namespace JSON definition: {
+
+template Parser(RT: Type)
+ := class definition: {
+    compileTime constant ResultType := RT.
+    compileTime constant DefaultResult := RT defaultValue.
+
+    class Callback definition: {
+        virtual method onInteger: (value: Int64) ::=> ResultType
+            := DefaultResult.
+
+        virtual method onUnsignedInteger64: (value: UInt64) ::=> ResultType
+            := DefaultResult.
+
+        virtual method onNil ::=> ResultType
+            := DefaultResult.
+
+        virtual method onBoolean: (value: Boolean8) ::=> ResultType
+            := DefaultResult.
+
+        virtual method onFloat: (value: Float64) ::=> ResultType
+            := DefaultResult.
+
+        virtual method onArray: (elementCount: UInt32) ::=> ResultType
+            := DefaultResult.
+
+        virtual method onMap: (elementCount: UInt32) ::=> ResultType
+            := DefaultResult.
+
+        virtual method onString: (string: Stdn String const ref) ::=> ResultType
+            := DefaultResult.
+    }.
+
+    public field callback type: Callback pointer.
+    public field tokenStream type: TokenStream.
+
+    method beginReadingStream: (stream: Stdn IO Stream pointer) ::=> Void := {
+        tokenStream := TokenStream for: stream.
+    }.
+
+    method readBytes: (count: UIntPointer) into: (buffer: Void pointer) ::=> Boolean8
+        := reader nextBytes: count into: buffer.
+
+    method parseNextElement => ResultType := {
+        Stdn abort()
+    }.
+
+    method parseNextString => Stdn String := {
+        Stdn String()
+    }.
+
+}.
+
+}. ## End of namespace JSON
+}. ## End of namespace Serialization
+}. ## End of namespace Stdn

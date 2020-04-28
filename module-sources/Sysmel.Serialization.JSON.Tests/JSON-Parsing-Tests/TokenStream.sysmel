@@ -1,0 +1,80 @@
+namespace Stdn definition: {
+namespace Serialization definition: {
+namespace JSON definition: {
+namespace Tests definition: {
+
+class TokenStreamTest superclass: Stdn Testing TestCase; definition: {
+
+    test: testEOF with: {
+        self assert: (TokenStream for: "" asMutableString readMemoryStream address) next equals: TokenType EOF.
+        self assert: (TokenStream for: " " asMutableString readMemoryStream address) next equals: TokenType EOF.
+    }.
+
+    test: testBrackets with: {
+        self assert: (TokenStream for: "[" asMutableString readMemoryStream address) next equals: TokenType LeftBracket.
+        self assert: (TokenStream for: "]" asMutableString readMemoryStream address) next equals: TokenType RightBracket.
+        self assert: (TokenStream for: "{" asMutableString readMemoryStream address) next equals: TokenType LeftCurlyBracket.
+        self assert: (TokenStream for: "}" asMutableString readMemoryStream address) next equals: TokenType RightCurlyBracket.
+    }.
+
+    test: testPunctuation with: {
+        self assert: (TokenStream for: "," asMutableString readMemoryStream address) next equals: TokenType Comma.
+        self assert: (TokenStream for: ":" asMutableString readMemoryStream address) next equals: TokenType Colon.
+    }.
+
+    test: testIdentifer with: {
+        self assert: (TokenStream for: "nil" asMutableString readMemoryStream address) next equals: TokenType Identifier.
+        self assert: (TokenStream for: "nil" asMutableString readMemoryStream address) nextText equals: "nil" asMutableString.
+
+        self assert: (TokenStream for: "true" asMutableString readMemoryStream address) next equals: TokenType Identifier.
+        self assert: (TokenStream for: "true" asMutableString readMemoryStream address) nextText equals: "true" asMutableString.
+
+        self assert: (TokenStream for: "false" asMutableString readMemoryStream address) next equals: TokenType Identifier.
+        self assert: (TokenStream for: "false" asMutableString readMemoryStream address) nextText equals: "false" asMutableString.
+    }.
+
+    test: testInteger with: {
+        self assert: (TokenStream for: "0" asMutableString readMemoryStream address) next equals: TokenType Integer.
+        self assert: (TokenStream for: "0" asMutableString readMemoryStream address) nextText equals: "0" asMutableString.
+
+        self assert: (TokenStream for: "123456789" asMutableString readMemoryStream address) next equals: TokenType Integer.
+        self assert: (TokenStream for: "123456789" asMutableString readMemoryStream address) nextText equals: "123456789" asMutableString.
+
+        self assert: (TokenStream for: "-123456789" asMutableString readMemoryStream address) next equals: TokenType Integer.
+        self assert: (TokenStream for: "-123456789" asMutableString readMemoryStream address) nextText equals: "-123456789" asMutableString.
+    }.
+
+    test: testHexInteger with: {
+        self assert: (TokenStream for: "0x0123456789ABCDEFabcdef" asMutableString readMemoryStream address) next equals: TokenType HexInteger.
+        self assert: (TokenStream for: "0x0123456789ABCDEFabcdef" asMutableString readMemoryStream address) nextText equals: "0123456789ABCDEFabcdef" asMutableString.
+
+        self assert: (TokenStream for: "0X0123456789ABCDEFabcdef" asMutableString readMemoryStream address) next equals: TokenType HexInteger.
+        self assert: (TokenStream for: "0X0123456789ABCDEFabcdef" asMutableString readMemoryStream address) nextText equals: "0123456789ABCDEFabcdef" asMutableString.
+    }.
+
+    test: testFloat with: {
+        self assert: (TokenStream for: "1.0" asMutableString readMemoryStream address) next equals: TokenType Float.
+        self assert: (TokenStream for: "1.0" asMutableString readMemoryStream address) nextText equals: "1.0" asMutableString.
+
+        self assert: (TokenStream for: "-1.0" asMutableString readMemoryStream address) next equals: TokenType Float.
+        self assert: (TokenStream for: "-1.0" asMutableString readMemoryStream address) nextText equals: "-1.0" asMutableString.
+
+        self assert: (TokenStream for: "1.5e25" asMutableString readMemoryStream address) next equals: TokenType Float.
+        self assert: (TokenStream for: "1.5e25" asMutableString readMemoryStream address) nextText equals: "1.5e25" asMutableString.
+
+        self assert: (TokenStream for: "-1.0e-5" asMutableString readMemoryStream address) next equals: TokenType Float.
+        self assert: (TokenStream for: "-1.0e-5" asMutableString readMemoryStream address) nextText equals: "-1.0e-5" asMutableString.
+
+        self assert: (TokenStream for: "42.5e+25" asMutableString readMemoryStream address) next equals: TokenType Float.
+        self assert: (TokenStream for: "42.5e+25" asMutableString readMemoryStream address) nextText equals: "42.5e25" asMutableString.
+    }.
+
+    test: testString with: {
+        self assert: (TokenStream for: "\"Hello World\\n\"" asMutableString readMemoryStream address) next equals: TokenType String.
+    }.
+}.
+
+} ## End of namespace Tests
+}. ## End of namespace JSON
+}. ## End of namespace Serialization
+}. ## End of namespace Stdn

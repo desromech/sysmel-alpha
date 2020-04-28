@@ -1,0 +1,181 @@
+namespace Stdn definition: {
+namespace Serialization definition: {
+namespace MessagePack definition: {
+
+enum ExtensionCode valueType: UInt8; values: #{
+    Symbol: 1.
+    Character: 2.
+    Timestamp: 255
+}.
+
+class Encoder definition: {
+    public field writer type: Stdn IO BinaryDataStreamWriter.
+
+    method beginEncodingIntoStream: (stream: Stdn IO Stream pointer) ::=> Void := {
+        writer := Stdn IO BinaryDataStreamWriter for: stream.
+        writer activeEndianness: Stdn IO BinaryDataStreamEndianness Little.
+    }.
+
+    method writeBytes: (count: UIntPointer) from: (buffer: Void const pointer) ::=> Boolean8
+        := writer nextBytesPut: count from: buffer.
+
+    method encodeNil => Void := {
+        writer nextUInt8Put: 16rC0
+    }.
+
+    method encodeBoolean: (value: Boolean8) ::=> Void := {
+        value ifTrue: {
+            writer nextUInt8Put: 16rC3
+        } ifFalse: {
+            writer nextUInt8Put: 16rC2
+        }.
+    }.
+
+    method encodeInteger: (value: Int64) ::=> Void := {
+        value >= 0 ifTrue: {
+            return: (self encodeInteger: (value castTo: UInt64))
+        }.
+
+        value >= -32 ifTrue: {
+            return: (writer nextUInt8Put: (value castTo: UInt8))
+        }.
+        value >= 16r80 negated ifTrue: {
+            return: (writer nextUInt8Put: 16rD0; nextUInt8Put: (value castTo: UInt8))
+        }.
+        value >= 16r8000 negated ifTrue: {
+            return: (writer nextUInt8Put: 16rD1; nextUInt16Put: (value castTo: UInt16))
+        }.
+        value >= 16r80000000 negated ifTrue: {
+            return: (writer nextUInt8Put: 16rD2; nextUInt32Put: (value castTo: UInt32))
+        }.
+        return: (writer nextUInt8Put: 16rD3; nextInt64Put: value)
+
+    }.
+
+    method encodeInteger: (value: UInt64) ::=> Void := {
+        value <= 16r7f ifTrue: {
+            return: (writer nextUInt8Put: (value castTo: UInt8))
+        }.
+        value <= 16rff ifTrue: {
+            return: (writer nextUInt8Put: 16rCC; nextUInt8Put: (value castTo: UInt8))
+        }.
+        value <= 16rffff ifTrue: {
+            return: (writer nextUInt8Put: 16rCD; nextUInt16Put: (value castTo: UInt16))
+        }.
+        value <= 16rffffffff ifTrue: {
+            return: (writer nextUInt8Put: 16rCE; nextUInt32Put: (value castTo: UInt32))
+        }.
+        return: (writer nextUInt8Put: 16rCF; nextUInt64Put: value)
+    }.
+
+    method encodeCharacter: (value: UInt32) ::=> Void := {
+        Stdn stdout << "TODO: encodeCharacter"; nl.
+    }.
+
+    method encodeFloat: (value: Float64) ::=> Void := {
+        let singleFloat := value castTo: Float32.
+        singleFloat == value ifTrue: {
+            writer nextUInt8Put: 16rCA; nextFloat32Put: singleFloat
+        } ifFalse: {
+            writer nextUInt8Put: 16rCB; nextFloat64Put: singleFloat
+        }.
+    }.
+
+    method encodeArraySize: (size: UInt32) ::=> Void := {
+        size <= 16rf ifTrue: {
+    		writer nextUInt8Put: (16r90 + size castTo: UInt8).
+    	} ifFalse: {
+    		size <= 16rffff ifTrue: {
+    			writer nextUInt8Put: 16rDC.
+    			writer nextUInt16Put: (size castTo: UInt16)
+    		} ifFalse: {
+    			writer nextUInt8Put: 16rDD.
+    			writer nextUInt32Put: size
+    		}.
+    	}
+    }.
+
+    method encodeMapSize: (size: UInt32) ::=> Void := {
+        size <= 16rf ifTrue: {
+    		writer nextUInt8Put: (16r80 + size castTo: UInt8).
+    	} ifFalse: {
+    		size <= 16rffff ifTrue: {
+    			writer nextUInt8Put: 16rDE.
+    			writer nextUInt16Put: (size castTo: UInt16)
+    		} ifFalse: {
+    			writer nextUInt8Put: 16rDF.
+    			writer nextUInt32Put: size
+    		}.
+    	}
+    }.
+
+    method encodeStringSize: (size: UInt32) ::=> Void := {
+        size <= 31 ifTrue: {
+    		writer nextUInt8Put: (16rA0 + size castTo: UInt8).
+    	} ifFalse: {
+    		size <= 16rffff ifTrue: {
+    			writer nextUInt8Put: 16rDA.
+    			writer nextUInt16Put: (size castTo: UInt16)
+    		} ifFalse: {
+    			writer nextUInt8Put: 16rDB.
+    			writer nextUInt32Put: size
+    		}.
+    	}
+    }.
+
+    method encodeByteArraySize: (size: UInt32) ::=> Void := {
+        size <= 16rFF ifTrue: {
+    		writer nextUInt8Put: 16rC4; nextUInt8Put: (size castTo: UInt8).
+    	} ifFalse: {
+    		size <= 16rffff ifTrue: {
+    			writer nextUInt8Put: 16rC5.
+    			writer nextUInt16Put: (size castTo: UInt16)
+    		} ifFalse: {
+    			writer nextUInt8Put: 16rC6.
+    			writer nextUInt32Put: size
+    		}.
+    	}
+    }.
+    method encodeExtensionSize: (size: UInt32) ::=> Void := {
+        size == 1 ifTrue: {
+            return: (writer nextUInt8Put: 16rD4)
+        }.
+        size == 2 ifTrue: {
+            return: (writer nextUInt8Put: 16rD5)
+        }.
+        size == 4 ifTrue: {
+            return: (writer nextUInt8Put: 16rD6)
+        }.
+        size == 8 ifTrue: {
+            return: (writer nextUInt8Put: 16rD7)
+        }.
+        size == 16 ifTrue: {
+            return: (writer nextUInt8Put: 16rD8)
+        }.
+        size <= 16rFF ifTrue: {
+    		writer nextUInt8Put: 16rC7; nextUInt8Put: (size castTo: UInt8).
+    	} ifFalse: {
+    		size <= 16rffff ifTrue: {
+    			writer nextUInt8Put: 16rC8.
+    			writer nextUInt16Put: (size castTo: UInt16)
+    		} ifFalse: {
+    			writer nextUInt8Put: 16rC9.
+    			writer nextUInt32Put: size
+    		}.
+    	}
+    }.
+
+    method encodeExtensionSize: (size: UInt32) type: (type: UInt8) ::=> Void := {
+        self encodeExtensionSize: size.
+        writer nextUInt8Put: type
+    }.
+
+    method encodeSymbolSize: (value: UInt32) ::=> Void := {
+        self encodeExtensionSize: value type: ExtensionCode Symbol value
+    }.
+
+}.
+
+}. ## End of namespace MessagePack
+}. ## End of namespace Serialization
+}. ## End of namespace Stdn

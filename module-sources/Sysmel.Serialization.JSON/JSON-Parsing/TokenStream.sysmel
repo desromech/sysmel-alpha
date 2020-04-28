@@ -1,0 +1,241 @@
+namespace Stdn definition: {
+namespace Serialization definition: {
+namespace JSON definition: {
+
+enum TokenType valueType: UInt8; values: #{
+    EOF: 0.
+    Error:.
+    LeftCurlyBracket:.
+    RightCurlyBracket:.
+    LeftBracket:.
+    RightBracket:.
+    Comma:.
+    Colon:.
+    Identifier:.
+    HexInteger:.
+    Integer:.
+    Float:.
+    String:.
+}.
+
+sealed class TokenStream definition: {
+    public field stream type: Stdn IO Stream pointer.
+    public field text type: Stdn String.
+
+    field characterBuffer type: Int32.
+
+    meta method for: (stream: Stdn IO Stream pointer) ::=> SelfType
+        := SelfType()
+            initializeWith: stream;
+            yourself.
+
+    inline method initializeWith: (theStream: Stdn IO Stream pointer) ::=> Void := {
+        stream := theStream.
+        characterBuffer := -1.
+    }.
+
+    inline method peekCharacter => Int32 := {
+        characterBuffer < 0 ifTrue: {
+            let fetchedCharacter mutable type: Char8.
+            (stream _ read: fetchedCharacter address size: 1) = 1 ifTrue: {
+                characterBuffer := fetchedCharacter
+            }
+        }.
+
+        characterBuffer
+    }.
+
+    inline method nextCharacter => Int32 := {
+        let result := self peekCharacter.
+        characterBuffer := -1.
+        result
+    }.
+
+    method skipWhite => Void := {
+        while: {
+            let c := self peekCharacter.
+            0 <= c && c <= ' '
+        } do: { self nextCharacter }
+    }.
+
+    inline method nextIdentifier => TokenType := {
+        while: {
+            let c := self peekCharacter.
+            'a' <= c && c <= 'z'
+        } do: {
+            text add: (self nextCharacter castTo: Char8)
+        }.
+
+        TokenType Identifier
+    }.
+
+    inline method nextHexadecimalInteger => TokenType := {
+        while: (self isHexDigit: self peekCharacter) do: {
+            text add: (self nextCharacter castTo: Char8)
+        }.
+
+        TokenType HexInteger
+    }.
+
+    const inline method isDigit: (c: Int32) ::=> Boolean8
+        := ('0' <= c && c <= '9').
+
+    const inline method isHexDigit: (c: Int32) ::=> Boolean8
+        := (self isDigit: c) || ('a' <= c && c <= 'f') ||  ('A' <= c && c <= 'Z').
+
+    inline method nextInteger => TokenType := {
+        self peekCharacter selectCase: #{
+        '0' : {
+            self nextCharacter.
+            self peekCharacter selectCase: #{
+            'x' : {self nextCharacter . self nextHexadecimalInteger}.
+            'X' : {self nextCharacter . self nextHexadecimalInteger}.
+            ('1' to: '9') : {
+                TokenType Error
+            }.
+            _ : {
+                text add: '0'.
+                TokenType Integer
+            }
+            }.
+        }.
+        ('1' to: '9') : {self nextDecimalInteger}.
+        _ : {TokenType Error}
+        }
+    }.
+
+    inline method nextDecimalInteger => TokenType := {
+        while: (self isDigit: self peekCharacter) do: {
+            text add: (self nextCharacter castTo: Char8)
+        }.
+
+        TokenType Integer
+    }.
+
+    inline method nextExponent => TokenType := {
+        self peekCharacter selectCase: #{
+        '+': {self nextCharacter}.
+        '-': {self nextCharacter. text add: '-'}.
+        _ : {}
+        }.
+
+        return: (self peekCharacter selectCase: #{
+        ('0' to: '9') : {
+            self nextDecimalInteger.
+            TokenType Float
+        }.
+        _ : {TokenType Error}
+        })
+    }.
+
+    inline method nextFractionalPart => TokenType := {
+        return: (self peekCharacter selectCase: #{
+        ('0' to: '9') : {
+            self nextDecimalInteger.
+            self peekCharacter selectCase: #{
+            'e' : {self nextCharacter. text add: 'e'. self nextExponent}.
+            'E' : {self nextCharacter. text add: 'e'. self nextExponent}.
+            _ : {TokenType Float}.
+            }.
+        }.
+        _ : {TokenType Error}
+        })
+    }.
+
+    inline method nextNumber => TokenType := {
+        ## Leading sign
+        self peekCharacter selectCase: #{
+        '+' : {self nextCharacter}.
+        '-' : {
+            text add: (self nextCharacter castTo: Char8)
+        }.
+        _ : {}
+        }.
+
+        return: (self nextInteger selectCase: #{
+        TokenType Integer : {
+            self peekCharacter selectCase: #{
+            'e' : {self nextCharacter . text add: 'e'. self nextExponent}.
+            'E' : {self nextCharacter . text add: 'e'. self nextExponent}.
+            '.' : {self nextCharacter . text add: '.'. self nextFractionalPart}.
+            _ : {TokenType Integer}.
+            }
+        }.
+        let result : result.
+        }).
+    }.
+
+    inline method nextString => TokenType := {
+        while: {
+            let c := self peekCharacter.
+            c >= 0 && c ~= '"'
+        } do: {
+            self nextCharacter selectCase: #{
+                '\\' : {
+                    self nextCharacter selectCase: #{
+                    '"' : {text add: '"'}.
+                    '/' : {text add: '/'}.
+                    '\\' : {text add: '\\'}.
+                    'b' : {text add: '\b'}.
+                    'f' : {text add: '\f'}.
+                    'n' : {text add: '\n'}.
+                    'r' : {text add: '\r'}.
+                    't' : {text add: '\t'}.
+                    'u' : {
+                        let a := self nextCharacter.
+                        let b := self nextCharacter.
+                        let c := self nextCharacter.
+                        let d := self nextCharacter.
+                        (self isHexDigit: a) && (self isHexDigit: b) && (self isHexDigit: c) && (self isHexDigit: d) ifFalse: {
+                            return: TokenType Error
+                        }.
+
+                        abort()
+                    }.
+
+                    _ : {return: TokenType Error}
+                    }
+                }.
+
+                -1 : {return: TokenType Error}.
+                let c : {text add: (c castTo: Char8)}
+            }
+        }.
+
+        self nextCharacter = '"' ifTrue: {
+            TokenType String
+        } ifFalse: {
+            TokenType Error
+        }
+    }.
+
+    method next => TokenType := {
+        text removeAll.
+
+        self skipWhite.
+        return: (self peekCharacter selectCase: #{
+        '[' : TokenType LeftBracket.
+        ']' : TokenType RightBracket.
+        '{' : TokenType LeftCurlyBracket.
+        '}' : TokenType RightCurlyBracket.
+        ',' : TokenType Comma.
+        ':' : TokenType Colon.
+        '"' : self nextString.
+        ('a' to: 'z') : self nextIdentifier.
+        ('0' to: '9') : self nextNumber.
+        ('+', '-') asValueInSetPattern : self nextNumber.
+        -1 : TokenType EOF.
+        _ : TokenType Error.
+        })
+    }.
+
+    method nextText => Stdn String const ref := {
+        self next.
+        text
+    }.
+}.
+
+
+}. ## End of namespace JSON
+}. ## End of namespace Serialization
+}. ## End of namespace Stdn

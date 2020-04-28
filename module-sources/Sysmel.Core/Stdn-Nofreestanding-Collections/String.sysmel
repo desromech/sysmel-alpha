@@ -87,6 +87,11 @@ namespace Collections definition: {
     const inline method capacity => UIntPointer
         := capacity_.
 
+    inline method removeAll => Void := {
+        memset(data_[0] address, 0, size_ * ValueType instanceSize).
+        size_ := 0.
+    }.
+
     inline method [index: UIntPointer] ::=> ValueType ref := {
 		assert: index < size_.
 		data_[index].
@@ -223,6 +228,9 @@ namespace Collections definition: {
 			}
 		}
 	}.
+
+    inline method readMemoryStream => Stdn IO FixedMemoryStream
+        := Stdn IO FixedMemoryStream for: self data withSize: self size.
 
     Stdn Collections SequenceableCollectionMixin.
 }.
