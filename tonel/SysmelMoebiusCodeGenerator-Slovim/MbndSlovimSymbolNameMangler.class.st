@@ -562,17 +562,22 @@ MbndSlovimSymbolNameMangler >> visitFunctionType: type [
 	type argumentTypes do: [ :arg |
 		self mangleType: arg
 	].
-	self mangleType: type returnType.
+	(type argumentTypes isEmpty and: [type isCVariadic not]) ifTrue: [ 
+		output nextPut: $v
+	].
+
 	type isCVariadic ifTrue: [ output nextPut: $z ].
+	self mangleType: type returnType.
 	output nextPut: $E
 
 ]
 
 { #category : #visiting }
 MbndSlovimSymbolNameMangler >> visitGCBlockClosureType: type [
-	output nextPut: $U.
 	self emitSubstitutionElement: #gcBlockClosure.
-	self mangleType: type functionType
+	output nextPut: $I.
+	self mangleType: type functionType.
+	output nextPut: $E.
 ]
 
 { #category : #visiting }
@@ -609,9 +614,10 @@ MbndSlovimSymbolNameMangler >> visitGlobalVariable: globalVariable [
 
 { #category : #visiting }
 MbndSlovimSymbolNameMangler >> visitInputChannelType: type [
-	output nextPut: $U.
 	self emitSubstitutionElement: #inputChannel.
-	self mangleType: type messageType
+	output nextPut: $I.
+	self mangleType: type messageType.
+	output nextPut: $E.
 ]
 
 { #category : #visiting }
@@ -626,16 +632,18 @@ MbndSlovimSymbolNameMangler >> visitNamespace: namespace [
 
 { #category : #visiting }
 MbndSlovimSymbolNameMangler >> visitNativeBlockClosureType: type [
-	output nextPut: $U.
 	self emitSubstitutionElement: #nativeBlockClosure.
-	self mangleType: type functionType
+	output nextPut: $I.
+	self mangleType: type functionType.
+	output nextPut: $E
 ]
 
 { #category : #visiting }
 MbndSlovimSymbolNameMangler >> visitOutputChannelType: type [
-	output nextPut: $U.
 	self emitSubstitutionElement: #outputChannel.
-	self mangleType: type messageType
+	output nextPut: $I.
+	self mangleType: type messageType.
+	output nextPut: $E.
 ]
 
 { #category : #visiting }
@@ -720,7 +728,7 @@ MbndSlovimSymbolNameMangler >> visitTextureType: type [
 
 { #category : #visiting }
 MbndSlovimSymbolNameMangler >> visitTupleType: type [
-	self emitSubstitutionElement: #tuple.
+	self emitSubstitutionElement: #Tuple.
 	output nextPut: $I.
 	type elements do: [ :each |
 		self mangleType: each.
@@ -741,4 +749,15 @@ MbndSlovimSymbolNameMangler >> visitVTablePointerFieldVariable: fieldVariable [
 	fieldVariable slotIndex > 0 ifTrue: [ 
 		output print: fieldVariable slotIndex
 	]
+]
+
+{ #category : #visiting }
+MbndSlovimSymbolNameMangler >> visitVariantUnionType: type [
+	self emitSubstitutionElement: #Variant.
+	output nextPut: $I.
+	type components do: [ :each |
+		self mangleType: each.
+	].
+	output nextPut: $E.	
+
 ]
