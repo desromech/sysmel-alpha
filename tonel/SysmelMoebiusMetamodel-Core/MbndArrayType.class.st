@@ -113,31 +113,31 @@ MbndArrayType >> hasGarbageCollectedAddressSpace [
 { #category : #testing }
 MbndArrayType >> hasTrivialInstanceBasicInitialization [
 	elementType ifNil: [ ^ super hasTrivialInstanceBasicInitialization ].
-	^ elementType hasTrivialInstanceBasicInitialization
+	^ elementType hasTrivialBasicInitialization
 ]
 
 { #category : #testing }
 MbndArrayType >> hasTrivialInstanceFinalization [
 	elementType ifNil: [ ^ super hasTrivialInstanceFinalization ].
-	^ elementType hasTrivialInstanceFinalization
+	^ elementType hasTrivialFinalization
 ]
 
 { #category : #testing }
 MbndArrayType >> hasTrivialInstanceInitialization [
 	elementType ifNil: [ ^ super hasTrivialInstanceInitialization ].
-	^ elementType hasTrivialInstanceInitialization
+	^ elementType hasTrivialInitialization
 ]
 
 { #category : #testing }
 MbndArrayType >> hasTrivialInstanceInitializationCopyingFrom [
 	elementType ifNil: [ ^ super hasTrivialInstanceInitializationCopyingFrom ].
-	^ elementType hasTrivialInstanceInitializationCopyingFrom
+	^ elementType hasTrivialInitializationCopyingFrom
 ]
 
 { #category : #testing }
 MbndArrayType >> hasTrivialInstanceInitializationMovingFrom [
 	elementType ifNil: [ ^ super hasTrivialInstanceInitializationMovingFrom ].
-	^ elementType hasTrivialInstanceInitializationMovingFrom
+	^ elementType hasTrivialInitializationMovingFrom
 ]
 
 { #category : #sizes }

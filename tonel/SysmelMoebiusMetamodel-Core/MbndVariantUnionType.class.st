@@ -165,7 +165,7 @@ MbndVariantUnionType >> hasTrivialInstanceFinalization [
 { #category : #testing }
 MbndVariantUnionType >> hasTrivialInstanceInitialization [
 	components ifNil: [ ^ super hasTrivialInstanceInitialization ].
-	^ components allSatisfy: [:each | each hasTrivialInstanceInitialization ]
+	^ components allSatisfy: [:each | each hasTrivialInitialization ]
 ]
 
 { #category : #testing }
@@ -182,6 +182,7 @@ MbndVariantUnionType >> hasTrivialInstanceInitializationMovingFrom [
 
 { #category : #accessing }
 MbndVariantUnionType >> instanceAlignment [
+	<compileTime>
 	components ifNil: [ ^ super instanceAlignment ].
 	^ instanceAlignment ifNil: [
 		instanceAlignment := 1.
@@ -192,6 +193,7 @@ MbndVariantUnionType >> instanceAlignment [
 
 { #category : #accessing }
 MbndVariantUnionType >> instanceSize [
+	<compileTime>
 	components ifNil: [ ^ super instanceSize ].
 	^ instanceSize ifNil: [
 		instanceSize := (1 alignedTo: self instanceAlignment) + (self maxComponentSize alignedTo: self instanceAlignment).

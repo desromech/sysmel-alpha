@@ -33,6 +33,10 @@ MbndAggregateType >> asReceiverType [
 
 { #category : #'initialize-destroy' }
 MbndAggregateType >> basicInitializeMethod [
+	(self areSyntheticMethodsInternal and: [ self hasTrivialInstanceBasicInitialization ]) ifTrue: [
+		^ super basicInitializeMethod
+	].
+
 	basicInitializeMethod ifNil: [ self createBasicInitializeMethod ].
 	^ basicInitializeMethod
 ]
@@ -55,6 +59,10 @@ MbndAggregateType >> createBasicInitializeMethod [
 
 { #category : #'initialize-destroy' }
 MbndAggregateType >> finalizeMethod [
+	(self areSyntheticMethodsInternal and: [ self hasTrivialInstanceFinalization ]) ifTrue: [
+		^ super finalizeMethod
+	].
+	
 	^ finalizeMethod ifNil: [ finalizeMethod := self getOrCreateOptionallyGeneratedMethod: #finalize ofKind: MbndAggregateFinalizeMethod argumentTypes: #() returnType: self compilationTarget voidType]
 ]
 
@@ -95,17 +103,29 @@ MbndAggregateType >> getOrCreateOptionallyGeneratedMethod: selector ofKind: gene
 
 { #category : #'initialize-destroy' }
 MbndAggregateType >> initializeCopyingFromMethod [
+	(self areSyntheticMethodsInternal and: [ self hasTrivialInstanceInitializationCopyingFrom ]) ifTrue: [
+		^ super initializeCopyingFromMethod
+	].
+
 	^ initializeFromCopyMethod ifNil: [ initializeFromCopyMethod := self getOrCreateOptionallyGeneratedMethod: #initializeCopyingFrom: ofKind: MbndAggregateInitializeFromCopyMethod argumentTypes: {self asCopyConstructorParameter} returnType: self compilationTarget voidType ]
 ]
 
 { #category : #'initialize-destroy' }
 MbndAggregateType >> initializeMethod [
+	(self areSyntheticMethodsInternal and: [ self hasTrivialInstanceInitialization ]) ifTrue: [
+		^ super initializeMethod
+	].
+	
 	^ initializeMethod ifNil: [ initializeMethod := self getOrCreateOptionallyGeneratedMethod: #initialize ofKind: MbndAggregateInitializeMethod argumentTypes: #() returnType: (self isGCClassType 		ifTrue: [self asReceiverType]
 		ifFalse: [self compilationTarget voidType]) ]
 ]
 
 { #category : #'initialize-destroy' }
 MbndAggregateType >> initializeMovingFromMethod [
+	(self areSyntheticMethodsInternal and: [ self hasTrivialInstanceInitializationMovingFrom ]) ifTrue: [
+		^ super initializeMovingFromMethod
+	].
+	
 	^ initializeMovingFromMethod ifNil: [ initializeMovingFromMethod := self getOrCreateOptionallyGeneratedMethod: #initializeMovingFrom: ofKind: MbndAggregateInitializeMovingFromMethod argumentTypes: {self asMovementConstructorParameter} returnType: self compilationTarget voidType ]
 ]
 

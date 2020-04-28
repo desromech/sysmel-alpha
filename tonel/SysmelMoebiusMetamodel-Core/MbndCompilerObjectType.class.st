@@ -58,11 +58,13 @@ MbndCompilerObjectType >> defaultValueAt: aPosition [
 
 { #category : #sizes }
 MbndCompilerObjectType >> instanceAlignment [
+	<compileTime>
 	^ self compilationTarget pointerAlignment
 ]
 
 { #category : #sizes }
 MbndCompilerObjectType >> instanceSize [
+	<compileTime>
 	^ self compilationTarget pointerSize
 ]
 

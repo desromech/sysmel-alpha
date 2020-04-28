@@ -25,6 +25,18 @@ MbndVoidType >> defaultValueAt: aPosition [
 	^ MbndValue value: nil type: self
 ]
 
+{ #category : #sizes }
+MbndVoidType >> instanceAlignment [
+	<compileTime>
+	^ 0
+]
+
+{ #category : #sizes }
+MbndVoidType >> instanceSize [
+	<compileTime>
+	^ 0
+]
+
 { #category : #testing }
 MbndVoidType >> isVoidType [
 	<compileTime>

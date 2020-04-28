@@ -7,6 +7,7 @@ Trait {
 		'extraMetaBuilderFactories'
 	],
 	#traits : 'TMbndProgramEntity',
+	#classTraits : 'TMbndProgramEntity classTrait',
 	#category : #'SysmelMoebiusMetamodel-Core-Type'
 }
 
@@ -275,6 +276,11 @@ TMbndAbstractType >> analyzeUnhandledUnboundExpandedMessageSendNode: node with: 
 	].
 
 	self error: 'Cannot send unknown message {1} to value of type {2}.' format: {node selector printValueString. node receiver type fullName} at: node
+]
+
+{ #category : #testing }
+TMbndAbstractType >> areSyntheticMethodsInternal [
+	^ true
 ]
 
 { #category : #'as yet unclassified' }

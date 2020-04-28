@@ -47,6 +47,11 @@ MbndAggregateTypeWithFields >> addInstanceMacros [
 		]
 ]
 
+{ #category : #testing }
+MbndAggregateTypeWithFields >> areSyntheticMethodsInternal [
+	^ self isSpecialStructureType
+]
+
 { #category : #layout }
 MbndAggregateTypeWithFields >> buildSlotLayout [
 	| builder |

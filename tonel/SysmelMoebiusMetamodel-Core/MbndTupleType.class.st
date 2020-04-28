@@ -133,31 +133,31 @@ MbndTupleType >> elements: anObject [
 { #category : #testing }
 MbndTupleType >> hasTrivialInstanceBasicInitialization [
 	elements ifNil: [ ^ super hasTrivialInstanceBasicInitialization ].
-	^ elements allSatisfy: [:each | each hasTrivialInstanceBasicInitialization ]
+	^ elements allSatisfy: [:each | each hasTrivialBasicInitialization ]
 ]
 
 { #category : #testing }
 MbndTupleType >> hasTrivialInstanceFinalization [
 	elements ifNil: [ ^ super hasTrivialInstanceFinalization ].
-	^ elements allSatisfy: [:each | each hasTrivialInstanceFinalization ]
+	^ elements allSatisfy: [:each | each hasTrivialFinalization ]
 ]
 
 { #category : #testing }
 MbndTupleType >> hasTrivialInstanceInitialization [
 	elements ifNil: [ ^ super hasTrivialInstanceInitialization ].
-	^ elements allSatisfy: [:each | each hasTrivialInstanceInitialization ]
+	^ elements allSatisfy: [:each | each hasTrivialInitialization ]
 ]
 
 { #category : #testing }
 MbndTupleType >> hasTrivialInstanceInitializationCopyingFrom [
 	elements ifNil: [ ^ super hasTrivialInstanceInitializationCopyingFrom ].
-	^ elements allSatisfy: [:each | each hasTrivialInstanceInitializationCopyingFrom ]
+	^ elements allSatisfy: [:each | each hasTrivialInitializationCopyingFrom ]
 ]
 
 { #category : #testing }
 MbndTupleType >> hasTrivialInstanceInitializationMovingFrom [
 	elements ifNil: [ ^ super hasTrivialInstanceInitializationMovingFrom ].
-	^ elements allSatisfy: [:each | each hasTrivialInstanceInitializationMovingFrom ]
+	^ elements allSatisfy: [:each | each hasTrivialInitializationMovingFrom ]
 ]
 
 { #category : #sizes }
