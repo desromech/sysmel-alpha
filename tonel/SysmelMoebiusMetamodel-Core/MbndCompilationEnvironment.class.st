@@ -433,6 +433,11 @@ MbndCompilationEnvironment >> importModuleNamed: moduleName [
 ]
 
 { #category : #'module import' }
+MbndCompilationEnvironment >> importModulesNamed: moduleNames [
+	moduleNames do: [ :each | self importModuleNamed: each ]
+]
+
+{ #category : #'module import' }
 MbndCompilationEnvironment >> importOrCompileModuleNamed: moduleName [
 	| importModuleFileReference |
 	self hasMonolithicTranslationMode ifTrue: [ ^ self compileModuleNamed: moduleName ].
