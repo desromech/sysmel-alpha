@@ -111,24 +111,25 @@ template Parser(RT: Type)
         }.
 
         TokenType Identifier : {
-            #*tokenStream text selectCase: #{
+            tokenStream text selectCase: #{
             "nil" asMutableString : {
                 self advanceToken.
                 callback _ onNil
             }.
             "true" asMutableString : {
                 self advanceToken.
-                callback _ onTrue
+                callback _ onBoolean: true
             }.
             "false" asMutableString : {
                 self advanceToken.
-                callback _ onFalse
+                callback _ onBoolean: false
             }.
             _ : {
                 callback _ onError
             }.
-            }*#
-            callback _ onError
+            }
+
+            ##callback _ onError
         }.
 
         _ : {callback _ onError}
