@@ -4,8 +4,55 @@ namespace JSON definition: {
 
 compileTime constant ValueParser := Parser(Value).
 
-class ValueParserCallback superclass: ValueParser; definition: {
+class ValueParserCallback superclass: ValueParser Callback; definition: {
 
+    override method beginArray ::=> Void
+        := void.
+
+    override method endArray ::=> Value
+        := nil.
+
+    override method beginObject ::=> Void
+        := void.
+
+    override method endObject ::=> Value
+        := nil.
+
+    override method onInteger: (value: Int64) ::=> Value
+        := value.
+
+    override method onUnsignedInteger: (value: UInt64) ::=> Value
+        := value.
+
+    override method onNil ::=> Value
+        := nil.
+
+    override method onBoolean: (value: Boolean8) ::=> Value
+        := value.
+
+    override method onFloat: (value: Float64) ::=> Value
+        := value.
+
+    override method onString: (value: Stdn String const ref) ::=> Value
+        := value.
+
+    override method onError ::=> Value
+        := nil.
+
+}.
+
+ValueParser definition: {
+    meta definition: {
+        method parseString: (string: Stdn String const ref) ::=> Value := {
+            let callback mutable type: ValueParserCallback.
+            let parser mutable type: ValueParser.
+            parser
+                callback: callback address;
+                beginReadingStream: string readMemoryStream address;
+                parseNextValue
+        }.
+
+    }.
 }.
 
 }. ## End of namespace JSON

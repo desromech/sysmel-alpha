@@ -1,0 +1,31 @@
+namespace Stdn definition: {
+namespace Serialization definition: {
+namespace JSON definition: {
+namespace Tests definition: {
+
+class ValueParserTest superclass: Stdn Testing TestCase; definition: {
+
+    test: testInteger with: {
+        self assert: ((ValueParser parseString: "1" asMutableString) get: UInt64) equals: 1.
+        self assert: ((ValueParser parseString: "-1" asMutableString) get: Int64) equals: -1.
+    }.
+
+    test: testFloat with: {
+        self assert: ((ValueParser parseString: "1.0" asMutableString) get: Float64) equals: 1.0f.
+    }.
+
+    test: testString with: {
+        self assert: ((ValueParser parseString: "\"Hello World\"" asMutableString) get: Stdn String) equals: "Hello World" asMutableString.
+    }.
+
+    test: testKeywords with: {
+        ## self assert: ((ValueParser parseString: "nil" asMutableString) get: _UndefinedType) equals: nil.
+        self assert: ((ValueParser parseString: "true" asMutableString) get: Boolean8) equals: true.
+        self assert: ((ValueParser parseString: "false" asMutableString) get: Boolean8) equals: false.
+    }.
+}.
+
+} ## End of namespace Tests
+}. ## End of namespace JSON
+}. ## End of namespace Serialization
+}. ## End of namespace Stdn

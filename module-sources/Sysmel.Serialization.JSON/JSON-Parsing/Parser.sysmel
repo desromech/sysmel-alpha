@@ -23,7 +23,7 @@ template Parser(RT: Type)
         virtual method onInteger: (value: Int64) ::=> ResultType
             := DefaultResult.
 
-        virtual method onUnsignedInteger64: (value: UInt64) ::=> ResultType
+        virtual method onUnsignedInteger: (value: UInt64) ::=> ResultType
             := DefaultResult.
 
         virtual method onNil ::=> ResultType
@@ -33,12 +33,6 @@ template Parser(RT: Type)
             := DefaultResult.
 
         virtual method onFloat: (value: Float64) ::=> ResultType
-            := DefaultResult.
-
-        virtual method onArray: (elementCount: UInt32) ::=> ResultType
-            := DefaultResult.
-
-        virtual method onMap: (elementCount: UInt32) ::=> ResultType
             := DefaultResult.
 
         virtual method onString: (string: Stdn String const ref) ::=> ResultType
@@ -81,17 +75,32 @@ template Parser(RT: Type)
         self nextToken selectCase: #{
         TokenType Integer : {
             self advanceToken.
-            callback _ onInteger: 0
+            ## FIXME: Avoid these explicit returns.
+            tokenStream text first = '-' ifTrue: {
+                return: (callback _ onInteger: 0)
+            } ifFalse: {
+                return: (callback _ onUnsignedInteger: 0)
+            }
         }.
 
         TokenType HexInteger : {
             self advanceToken.
-            callback _ onInteger: 0
+            tokenStream text first = '-' ifTrue: {
+                return: (callback _ onInteger: 0)
+            } ifFalse: {
+                return: (callback _ onUnsignedInteger: 0)
+            }
         }.
 
         TokenType Float : {
             self advanceToken.
             callback _ onFloat: 0
+        }.
+
+        TokenType String : {
+            let stringCopy := tokenStream text.
+            self advanceToken.
+            callback _ onString: stringCopy
         }.
 
         TokenType LeftBracket : {

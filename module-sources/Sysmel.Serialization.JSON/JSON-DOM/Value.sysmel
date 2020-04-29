@@ -7,7 +7,7 @@ struct Object.
 compileTime constant ListPtr := List sharedPointer.
 compileTime constant ObjectPtr := Object sharedPointer.
 
-compileTime constant Value := _UndefinedType | Boolean8 | Int64 | UInt64 | Stdn String | List sharedPointer | Object sharedPointer.
+compileTime constant Value := _UndefinedType | Boolean8 | Int64 | UInt64 | Float64 | Stdn String | List sharedPointer | Object sharedPointer.
 Value.
 
 List definition: {

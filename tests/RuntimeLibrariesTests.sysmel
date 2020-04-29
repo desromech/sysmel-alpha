@@ -6,9 +6,10 @@ Compiler
 		#"Sysmel.Serialization.JSON.Tests"
 		#"Sysmel.Serialization.MessagePack.Tests"
 
+#*
 		#"Sysmel.Math.Core.Tests"
 		#"Sysmel.Graphics.Core.Tests"
-		#"Norphic.Core.Tests"
+		#"Norphic.Core.Tests" *#
 	).
 
 Stdn Testing generateTestSuiteProgramMain: "RuntimeLibrariesTests".

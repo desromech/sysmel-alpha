@@ -229,7 +229,7 @@ namespace Collections definition: {
 		}
 	}.
 
-    inline method readMemoryStream => Stdn IO FixedMemoryStream
+    const inline method readMemoryStream => Stdn IO FixedMemoryStream
         := Stdn IO FixedMemoryStream for: self data withSize: self size.
 
     Stdn Collections SequenceableCollectionMixin.
