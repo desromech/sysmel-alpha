@@ -8,6 +8,18 @@ template Parser(RT: Type)
     compileTime constant DefaultResult := RT defaultValue.
 
     class Callback definition: {
+        virtual method beginArray ::=> Void
+            := void.
+
+        virtual method endArray ::=> ResultType
+            := DefaultResult.
+
+        virtual method beginObject ::=> Void
+            := void.
+
+        virtual method endObject ::=> ResultType
+            := DefaultResult.
+
         virtual method onInteger: (value: Int64) ::=> ResultType
             := DefaultResult.
 
@@ -31,6 +43,10 @@ template Parser(RT: Type)
 
         virtual method onString: (string: Stdn String const ref) ::=> ResultType
             := DefaultResult.
+
+        virtual method onError ::=> ResultType
+            := DefaultResult.
+
     }.
 
     public field callback type: Callback pointer.
@@ -43,12 +59,46 @@ template Parser(RT: Type)
     method readBytes: (count: UIntPointer) into: (buffer: Void pointer) ::=> Boolean8
         := reader nextBytes: count into: buffer.
 
-    method parseNextElement => ResultType := {
-        Stdn abort()
+    method parseNextArray => ResultType := {
+        callback _ onError
     }.
 
-    method parseNextString => Stdn String := {
-        Stdn String()
+    method parseNextObject => ResultType := {
+        callback _ onError
+    }.
+
+    method parseNextValue => ResultType := {
+        self nextToken selectCase: #{
+        TokenType Integer : {
+            self advanceToken.
+            callback _ onInteger: 0
+        }.
+
+        TokenType HexInteger : {
+            self advanceToken.
+            callback _ onInteger: 0
+        }.
+
+        TokenType Float : {
+            self advanceToken.
+            callback _ onFloat: 0
+        }.
+
+        TokenType LeftBracket : {
+            self parseNextArray.
+        }.
+
+        TokenType LeftCurlyBracket : {
+            self parseNextObject.
+        }.
+
+        TokenType Identifier : {
+            self advanceToken.
+            callback _ onError
+        }.
+
+        _ : {callback _ onError}
+        }.
     }.
 
 }.

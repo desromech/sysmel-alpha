@@ -1,0 +1,23 @@
+namespace Stdn definition: {
+namespace Serialization definition: {
+namespace JSON definition: {
+
+struct List.
+struct Object.
+compileTime constant ListPtr := List sharedPointer.
+compileTime constant ObjectPtr := Object sharedPointer.
+
+compileTime constant Value := _UndefinedType | Boolean8 | Int64 | UInt64 | Stdn String | List sharedPointer | Object sharedPointer.
+Value.
+
+List definition: {
+    public field elements type: Stdn Collections Vector(Value).
+}.
+
+Object definition: {
+    public field elements type: Stdn Collections Dictionary(Stdn String, Value).
+}.
+
+}. ## End of namespace JSON
+}. ## End of namespace Serialization
+}. ## End of namespace Stdn

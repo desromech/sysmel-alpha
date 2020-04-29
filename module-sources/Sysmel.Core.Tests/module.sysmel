@@ -3,5 +3,5 @@ Compiler
     loadPackage: #"Stdn-Collections-Tests".
 
 if: Compiler hasRuntimeTypeInformation && Compiler hasGarbageCollectionSupport then: {
-    Compiler loadPackage: #"Smalltalk-Tests".
+    Compiler loadPackage: #"Smalltalk-Core-Tests".
 }.
