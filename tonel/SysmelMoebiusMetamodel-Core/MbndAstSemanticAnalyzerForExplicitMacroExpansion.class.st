@@ -254,9 +254,14 @@ MbndAstSemanticAnalyzerForExplicitMacroExpansion >> visitPatternMatchingSetPatte
 MbndAstSemanticAnalyzerForExplicitMacroExpansion >> visitTupleNode: node [
 	| result |
 	result := super visitTupleNode: node.
+	result type: (self compilationTarget tuple: (result elements collect: [:each | each type])).
+	result type hasTrivialFinalization ifFalse: [
+		self addNodeWithImplicitFinalization: result
+	].
+
+	result type isMemoryReturnedType ifTrue: [ result type: result type tempRef].
+	
 	^ result
-		type: (self compilationTarget tuple: (result elements collect: [:each | each type]));
-		yourself
 ]
 
 { #category : #visiting }

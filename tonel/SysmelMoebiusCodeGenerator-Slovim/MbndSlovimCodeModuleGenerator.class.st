@@ -1317,6 +1317,8 @@ MbndSlovimCodeModuleGenerator >> translateCompilerGeneratedMethod: generatedMeth
 	ssaFunction unmangledName: unmangledName.
 	ssaModule addHighLevelEntity: generatedMethod mapToGlobalValue: ssaFunction.
 	
+	generatedMethod parent areSyntheticMethodsInternal ifTrue: [ ssaFunction makePrivate ].
+	
 	self setProgramEntity: generatedMethod ssaValue: ssaFunction.
 
 	self isEmittingDebugInformation ifTrue: [

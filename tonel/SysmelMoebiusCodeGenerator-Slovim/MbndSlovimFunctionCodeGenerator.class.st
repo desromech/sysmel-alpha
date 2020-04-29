@@ -415,7 +415,59 @@ MbndSlovimFunctionCodeGenerator >> functionVariables [
 	^ functionVariables
 ]
 
-{ #category : #'as yet unclassified' }
+{ #category : #'automatic constructors' }
+MbndSlovimFunctionCodeGenerator >> generateAggregate: aggregatePointer type: aggregateType fieldIteration: fieldActionBlock when: fieldSelectionBlock [
+	self flag: 'TODO: Use a double dispatch here?'.
+	aggregateType isAggregateTypeWithFields ifTrue: [
+		^ self generateAggregateWithFields: aggregatePointer type: aggregateType fieldIteration: fieldActionBlock when: fieldSelectionBlock
+	].
+
+	aggregateType isTupleType ifTrue: [
+		^ self generateTuple: aggregatePointer type: aggregateType fieldIteration: fieldActionBlock when: fieldSelectionBlock
+	].
+
+	aggregateType isVariantUnionType ifTrue: [
+		^ self generateVariant: aggregatePointer type: aggregateType fieldIteration: fieldActionBlock when: fieldSelectionBlock
+	].
+	
+	aggregateType isArrayType ifTrue: [
+		^ self generateArray: aggregatePointer type: aggregateType fieldIteration: fieldActionBlock when: fieldSelectionBlock
+	].
+
+	self error: 'Unsupported aggregate type.'
+]
+
+{ #category : #'automatic constructors' }
+MbndSlovimFunctionCodeGenerator >> generateAggregateWithFields: aggregatePointer type: aggregateType fieldIteration: fieldActionBlock when: fieldSelectionBlock [
+	aggregateType fields do: [ :field |
+		| fieldReferenceType fieldValueType |
+		fieldReferenceType := field type.
+		fieldValueType := field valueType.
+		
+		(fieldSelectionBlock value: fieldValueType) ifTrue: [ 
+			| fieldPointer |
+			fieldPointer := slvmBuilder getReference: aggregatePointer element: (slvmBuilder constInt: field slotIndex).
+			fieldActionBlock value: fieldPointer value: fieldReferenceType value: fieldValueType
+		].
+	]
+]
+
+{ #category : #'automatic constructors' }
+MbndSlovimFunctionCodeGenerator >> generateArray: aggregatePointer type: aggregateType fieldIteration: fieldActionBlock when: fieldSelectionBlock [
+	| elementValueType elementReferenceType |
+	(aggregateType elements isNil or: [ aggregateType elements <= 0 ]) ifTrue: [ ^ self ].
+	elementValueType := aggregateType elementType.
+	(fieldSelectionBlock value: aggregateType elementType) ifFalse: [ ^ self ].
+
+	elementReferenceType := elementValueType ref.
+	0 to: aggregateType elements - 1 do: [:index |
+		| fieldPointer|
+		fieldPointer := slvmBuilder getReference: aggregatePointer element: index.
+		fieldActionBlock value: fieldPointer value: elementReferenceType value: elementValueType
+	]
+]
+
+{ #category : #'automatic constructors' }
 MbndSlovimFunctionCodeGenerator >> generateAutomaticEpilogueCode [
 	concreteMethod ifNil: [ ^ self ].
 	(concreteMethod isMessageMethod and: [ concreteMethod name = #finalize and: [concreteMethod hasExplicitSuperSend not ]]) ifTrue: [
@@ -423,52 +475,34 @@ MbndSlovimFunctionCodeGenerator >> generateAutomaticEpilogueCode [
 	].
 ]
 
-{ #category : #'as yet unclassified' }
-MbndSlovimFunctionCodeGenerator >> generateAutomaticFieldFinalization: field [
-	| fieldPointer fieldType finalizeMethod |
-
-	fieldType := field valueType.
-	fieldType hasTrivialFinalization ifTrue: [ ^ self ].
+{ #category : #'automatic constructors' }
+MbndSlovimFunctionCodeGenerator >> generateAutomaticFieldFinalization: fieldPointer type: referenceType valueType: valueType [
+	| finalizeMethod |
+	valueType hasTrivialFinalization ifTrue: [ ^ self ].
 	
-	fieldPointer := slvmBuilder getReference: ssaFunction arguments first element: (slvmBuilder constInt: field slotIndex).
-	finalizeMethod := fieldType finalizeMethod.
-	self generateCallWithReceiver: fieldPointer receiverType: field valueType selector: #finalize arguments: #()
+	finalizeMethod := valueType finalizeMethod.
+	self generateCallWithReceiver: fieldPointer receiverType: valueType selector: #finalize arguments: #()
 		isSuperSend: false declaredMethod: finalizeMethod expectedResultType: finalizeMethod returnType
 ]
 
-{ #category : #'as yet unclassified' }
-MbndSlovimFunctionCodeGenerator >> generateAutomaticFieldFinalizations: fields [
-	fields reverseDo: [ :field | self generateAutomaticFieldFinalization: field ]
-]
-
-{ #category : #'as yet unclassified' }
-MbndSlovimFunctionCodeGenerator >> generateAutomaticFieldInitialization: field [
-	| fieldPointer fieldType initializeMethod |
-	fieldType := field valueType.
-
-	field initialValueNode ifNotNil: [ 
-		self flag: 'TODO: Implement this case.'.
-		self halt
-	].
-
-	fieldType hasTrivialInitialization ifTrue: [ ^ self ].
+{ #category : #'automatic constructors' }
+MbndSlovimFunctionCodeGenerator >> generateAutomaticFieldInitialization: fieldPointer type: referenceType valueType: valueType [
+	| finalizeMethod |
+	valueType hasTrivialInitialization ifTrue: [ ^ self ].
 	
-	fieldPointer := slvmBuilder getReference: ssaFunction arguments first element: (slvmBuilder constInt: field slotIndex).
-	initializeMethod := fieldType initializeMethod.
-	self generateCallWithReceiver: fieldPointer receiverType: field valueType selector: #initialize arguments: #()
-		isSuperSend: false declaredMethod: initializeMethod expectedResultType: initializeMethod returnType
+	finalizeMethod := valueType initializeMethod.
+	self generateCallWithReceiver: fieldPointer receiverType: valueType selector: #initialize arguments: #()
+		isSuperSend: false declaredMethod: finalizeMethod expectedResultType: finalizeMethod returnType
 ]
 
-{ #category : #'as yet unclassified' }
-MbndSlovimFunctionCodeGenerator >> generateAutomaticFieldInitializations: fields [
-	fields do: [ :field | self generateAutomaticFieldInitialization: field ]
-]
-
-{ #category : #'as yet unclassified' }
+{ #category : #'automatic constructors' }
 MbndSlovimFunctionCodeGenerator >> generateAutomaticFinalizationCode [
 	| receiver superFinalize |
 	receiver := ssaFunction arguments first.
-	self generateAutomaticFieldFinalizations: concreteMethod parent fields.
+	self generateAggregate: receiver type: concreteMethod parent
+		fieldIteration: [ :fieldPointer :fieldReferenceType :fieldValueType |
+		self generateAutomaticFieldFinalization: fieldPointer type: fieldReferenceType valueType: fieldValueType
+	] when: [ :fieldType | fieldType hasTrivialFinalization not ].
 
 	concreteMethod hasExplicitSuperSend ifTrue: [ ^ self ].
 	
@@ -484,7 +518,7 @@ MbndSlovimFunctionCodeGenerator >> generateAutomaticFinalizationCode [
 
 ]
 
-{ #category : #'as yet unclassified' }
+{ #category : #'automatic constructors' }
 MbndSlovimFunctionCodeGenerator >> generateAutomaticInitializationCode [
 	| receiver superInitialize |
 	receiver := ssaFunction arguments first.
@@ -500,21 +534,25 @@ MbndSlovimFunctionCodeGenerator >> generateAutomaticInitializationCode [
 		].
 	].
 
-	self generateAutomaticFieldInitializations: concreteMethod parent fields.
+
+	self generateAggregate: receiver type: concreteMethod parent
+		fieldIteration: [ :fieldPointer :fieldReferenceType :fieldValueType |
+		self generateAutomaticFieldInitialization: fieldPointer type: fieldReferenceType valueType: fieldValueType
+	] when: [ :fieldType | fieldType hasTrivialInitialization not ].
 	
 ]
 
-{ #category : #'as yet unclassified' }
+{ #category : #'automatic constructors' }
 MbndSlovimFunctionCodeGenerator >> generateAutomaticInitializationFromCopyCode [
 	self flag: 'TODO: Implement this method properly.'.
 ]
 
-{ #category : #'as yet unclassified' }
+{ #category : #'automatic constructors' }
 MbndSlovimFunctionCodeGenerator >> generateAutomaticInitializationMovingFromCode [
 	self flag: 'TODO: Implement this method properly.'.
 ]
 
-{ #category : #'as yet unclassified' }
+{ #category : #'automatic constructors' }
 MbndSlovimFunctionCodeGenerator >> generateAutomaticPrologueCode [
 	concreteMethod ifNil: [ ^ self ].
 	(concreteMethod isMessageMethod and: [ concreteMethod name = #initialize and: [concreteMethod hasExplicitSuperSend not ]]) ifTrue: [
@@ -1159,7 +1197,18 @@ MbndSlovimFunctionCodeGenerator >> generateThreeWayComparisonOf: leftOperand wit
 	^ self vectorThreeWayComparisonResultMerge: elementWiseResult
 ]
 
-{ #category : #'as yet unclassified' }
+{ #category : #'automatic constructors' }
+MbndSlovimFunctionCodeGenerator >> generateTuple: aggregatePointer type: aggregateType fieldIteration: fieldActionBlock when: fieldSelectionBlock [
+	aggregateType elements doWithIndex: [ :elementValueType :index |
+		(fieldSelectionBlock value: elementValueType) ifTrue: [ 
+			| fieldPointer |
+			fieldPointer := slvmBuilder getReference: aggregatePointer element: (slvmBuilder constInt: index - 1).
+			fieldActionBlock value: fieldPointer value: elementValueType ref value: elementValueType
+		].
+	]
+]
+
+{ #category : #'exception handling' }
 MbndSlovimFunctionCodeGenerator >> generateUnwindingCatchSelectionFor: exceptionScope [
 	self assert: exceptionScope catchSelectionBlock isNotNil.
 	exceptionScope catchSelectionBlock == exceptionScope unwindCleanUpBlock ifTrue: [ ^ self ].
@@ -1174,7 +1223,7 @@ MbndSlovimFunctionCodeGenerator >> generateUnwindingCatchSelectionFor: exception
 	].
 ]
 
-{ #category : #'as yet unclassified' }
+{ #category : #'exception handling' }
 MbndSlovimFunctionCodeGenerator >> generateUnwindingCatchTestingForException: catchedException [
 	| typeInfoConstant typeInfoSelector currentSelector isMatchingTypeInfo exceptionSelectContinueBlock |
 	typeInfoConstant := (codeModuleGenerator translateProgramEntity: catchedException node exceptionType) ssaValue.
@@ -1194,7 +1243,7 @@ MbndSlovimFunctionCodeGenerator >> generateUnwindingCatchTestingForException: ca
 	slvmBuilder currentBlock: exceptionSelectContinueBlock
 ]
 
-{ #category : #'as yet unclassified' }
+{ #category : #'exception handling' }
 MbndSlovimFunctionCodeGenerator >> generateUnwindingCleanUpFor: exceptionScope [
 	| resumeValue |
 	self assert: slvmBuilder currentUnwindBlock isNil.
@@ -1233,7 +1282,7 @@ MbndSlovimFunctionCodeGenerator >> generateUnwindingCleanUpFor: exceptionScope [
 	^ slvmBuilder resumeException: resumeValue
 ]
 
-{ #category : #'as yet unclassified' }
+{ #category : #'exception handling' }
 MbndSlovimFunctionCodeGenerator >> generateUnwindingCode [
 	| unusedUnwindBlocks unwindBlockReplacementDictionary |
 	self assert: slvmBuilder currentUnwindBlock isNil.
@@ -1314,14 +1363,14 @@ MbndSlovimFunctionCodeGenerator >> generateUnwindingCode [
 
 ]
 
-{ #category : #'as yet unclassified' }
+{ #category : #'exception handling' }
 MbndSlovimFunctionCodeGenerator >> generateUnwindingCodeForExceptionScope: exceptionScope [
 	self generateUnwindingLandingPadFor: exceptionScope.
 	self generateUnwindingCatchSelectionFor: exceptionScope.
 	self generateUnwindingCleanUpFor: exceptionScope.
 ]
 
-{ #category : #'as yet unclassified' }
+{ #category : #'exception handling' }
 MbndSlovimFunctionCodeGenerator >> generateUnwindingLandingPadFor: exceptionScope [
 	| landingPath |
 	self assert: slvmBuilder currentUnwindBlock isNil.
@@ -1339,7 +1388,7 @@ MbndSlovimFunctionCodeGenerator >> generateUnwindingLandingPadFor: exceptionScop
 	slvmBuilder jump: exceptionScope catchSelectionBlock
 ]
 
-{ #category : #'as yet unclassified' }
+{ #category : #'exception handling' }
 MbndSlovimFunctionCodeGenerator >> generateUnwindingNonLocalReturnCatch [
 	| typeInfoConstant currentSelector typeInfoSelector isNonLocalReturnException nonLocalReturnBlock unwindResumeBlock |
 	typeInfoConstant := (codeModuleGenerator translateProgramEntity: self compilationTarget internalNonLocalReturnExceptionClass) ssaValue.
@@ -1426,6 +1475,51 @@ MbndSlovimFunctionCodeGenerator >> generateVariable: ssaValue withValueType: val
 	].
 
 	self error: 'Unsupported variable kind of initialization.'
+]
+
+{ #category : #'automatic constructors' }
+MbndSlovimFunctionCodeGenerator >> generateVariant: aggregatePointer type: aggregateType fieldIteration: fieldActionBlock when: fieldSelectionBlock [
+	| interestingTypes interestingConstants interestingBlocks mergeBlock typeSelector |
+	interestingTypes := OrderedCollection new.
+	interestingConstants := OrderedCollection new.
+	interestingBlocks := OrderedCollection new.
+	aggregateType components doWithIndex: [ :each :index |
+		(fieldSelectionBlock value: each) ifTrue: [
+			interestingTypes add: each.
+			interestingConstants add: (slvmBuilder constUChar: index - 1).
+			interestingBlocks add: (slvmBuilder newBasicBlock: #variantTypeCase).
+		]
+	].
+
+	interestingTypes ifEmpty: [ ^ self ].
+	
+	typeSelector := slvmBuilder load: (slvmBuilder getReference: aggregatePointer element: (slvmBuilder constInt: 0)).
+	mergeBlock := slvmBuilder newBasicBlock: #mergeBlock.
+	slvmBuilder currentBlock mergeBlock: mergeBlock.
+	
+	slvmBuilder switch: typeSelector caseConstants: interestingConstants asArray caseBlocks: interestingBlocks asArray defaultBlock: mergeBlock.
+	
+	interestingTypes doWithIndex: [ :variantValueType :caseIndex |
+		| variantReferenceType typeSelectorValue fieldPointer |
+		variantReferenceType := variantValueType ref.
+		slvmBuilder currentBlock: (interestingBlocks at: caseIndex).
+		typeSelectorValue := (interestingConstants at: caseIndex) value.
+		
+		fieldPointer := slvmBuilder getPointer: aggregatePointer element: {
+			"Variant itself" slvmBuilder constInt: 0.
+			"Union" slvmBuilder constInt: 1.
+			"Union field" slvmBuilder constInt: typeSelectorValue.
+		}.
+		
+		fieldActionBlock value: fieldPointer value: variantReferenceType value: variantValueType.
+		
+		slvmBuilder isLastTerminator ifFalse: [
+			slvmBuilder jump: mergeBlock
+		]
+	].
+
+	slvmBuilder currentBlock: mergeBlock.
+
 ]
 
 { #category : #visiting }
@@ -2245,10 +2339,6 @@ MbndSlovimFunctionCodeGenerator >> visitGetFieldReferenceNode: node [
 	aggregateType := node aggregate type withoutDecorations withoutReferences.
 	field := node field.
 	self assert: field bits isNil.
-	aggregateType isUnionType ifTrue: [
-		^ slvmBuilder bitCast: aggregate target: (self translateType: node type)
-	].
-
 	^ slvmBuilder getReference: aggregate element: (slvmBuilder constInt: field slotIndex).
 
 
@@ -2268,11 +2358,7 @@ MbndSlovimFunctionCodeGenerator >> visitGetFieldValueNode: node [
 	].
 	
 	aggregate type isPointerType ifTrue: [
-		aggregateType isUnionType ifTrue: [ 
-			fieldValue := slvmBuilder load: (slvmBuilder bitCast: aggregate target: (slvmBuilder pointerTypeFor: (self translateType: field valueType)))
-		] ifFalse: [
-			fieldValue := slvmBuilder load: (slvmBuilder getReference: aggregate element: (slvmBuilder constInt: field slotIndex))
-		].
+		fieldValue := slvmBuilder load: (slvmBuilder getReference: aggregate element: (slvmBuilder constInt: field slotIndex))
 	] ifFalse: [
 		fieldValue := slvmBuilder extractValue: aggregate indices: { field slotIndex }.
 	].
@@ -2786,12 +2872,7 @@ MbndSlovimFunctionCodeGenerator >> visitSetFieldValueNode: node [
 	].
 
 	aggregate type isPointerType ifTrue: [
-		fieldPointer := 
-			aggregateType isUnionType ifTrue: [
-				slvmBuilder bitCast: aggregate target: (slvmBuilder pointerTypeFor: (self translateType: field valueType))
-			] ifFalse: [
-				slvmBuilder getReference: aggregate element: (slvmBuilder constInt: field slotIndex)
-			].
+		fieldPointer := slvmBuilder getReference: aggregate element: (slvmBuilder constInt: field slotIndex).
 		
 		field bits ifNil: [
 			slvmBuilder store: (self sanitizeStoreValue: newValue inPointer: fieldPointer)
@@ -2913,11 +2994,28 @@ MbndSlovimFunctionCodeGenerator >> visitTupleElementReferenceNode: node [
 
 { #category : #visiting }
 MbndSlovimFunctionCodeGenerator >> visitTupleNode: node [
-	| elements resultType result |
+	| elements resultType result tupleType |
 	elements := node elements collect: [ :each | self visitNode: each ].
+	
 	resultType := self translateType: node type.
-	resultType isPointerType ifTrue: [ 
-		self halt
+	resultType isPointerType ifTrue: [
+		tupleType := node type baseType.
+		self assert: tupleType isTupleType.
+		result := self allocateTemporaryStorageFor: (self translateType: tupleType) withStorageCreationNode: node storageCreationNode.
+		0 to: tupleType elements size - 1 do: [ :i |
+			| elementPointer elementValue elementType |
+			elementPointer := slvmBuilder getReference: result element: (slvmBuilder constInt: i).
+			elementValue := elements at: i + 1.
+			elementType := (node elements at: i + 1) type.
+			self generateVariable: elementPointer withValueType: elementType withoutReferences withoutTopDecorations 
+		initializationWithValue: elementValue initialValueKind: (elementType isTemporaryReferenceType
+			ifTrue: [ #move ]
+			ifFalse: [ #copy ]).
+		].
+
+		tupleType hasTrivialFinalization ifFalse: [
+			self addLocalVariable: result withValueType: tupleType cleanUpActionForNode: node
+		].
 	] ifFalse: [
 		self assert: resultType isStructureType.
 		result := SLVMConstant undefined: resultType.

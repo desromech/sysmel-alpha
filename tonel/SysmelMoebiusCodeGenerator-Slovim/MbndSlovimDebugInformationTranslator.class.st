@@ -753,6 +753,41 @@ MbndSlovimDebugInformationTranslator >> visitUnionType: unionType [
 ]
 
 { #category : #visiting }
+MbndSlovimDebugInformationTranslator >> visitVariantUnionType: variantType [
+	| debugType |
+	variantType isTrait ifTrue: [ ^ self visitTraitType: variantType ].
+	
+	debugType := SLVMDebugCompositeType new makeStructure.
+	translatedEntities at: variantType put: debugType.
+	self setCommonDebugType: debugType informationFrom: variantType.
+	
+	debugType
+		byteSize: variantType instanceSize;
+		byteAlignment: variantType instanceAlignment;
+		members: {
+			SLVMDebugDerivedType new
+				makeMember;
+				name: #typeSelector;
+				baseType: (self translateDebugType: self compilationTarget uint8Type);
+				byteSize: 8;
+				byteOffset: 0;
+				yourself
+		}.
+		
+"		members: (tupleType elements collectWithIndex: [ :fieldType :index |
+			SLVMDebugDerivedType new
+				makeMember;
+				name: ('element' , (index - 1) asString) asSymbol;
+				baseType: (self translateDebugType: fieldType);
+				byteSize: fieldType instanceSize;
+				byteOffset: (tupleType elementOffsets at: index);
+				yourself.
+		]).
+"	
+	^ debugType
+]
+
+{ #category : #visiting }
 MbndSlovimDebugInformationTranslator >> visitVoidType: type [
 	^ SLVMDebugBasicType new
 		makeVoid;

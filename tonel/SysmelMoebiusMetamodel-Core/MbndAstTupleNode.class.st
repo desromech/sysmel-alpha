@@ -2,6 +2,7 @@ Class {
 	#name : #MbndAstTupleNode,
 	#superclass : #MbndAstNode,
 	#instVars : [
+		'storageCreationNode',
 		'elements'
 	],
 	#category : #'SysmelMoebiusMetamodel-Core-AST'
@@ -40,6 +41,11 @@ MbndAstTupleNode >> isTupleNode [
 	^ true
 ]
 
+{ #category : #'as yet unclassified' }
+MbndAstTupleNode >> markStorageCreationNodeForCopyEllision: aStorageCreationNode [
+	storageCreationNode := aStorageCreationNode
+]
+
 { #category : #serialization }
 MbndAstTupleNode >> materializeWithGraphDecoder: graphDecoder withFields: encodedFields [
 	super materializeWithGraphDecoder: graphDecoder withFields: encodedFields.
@@ -49,4 +55,14 @@ MbndAstTupleNode >> materializeWithGraphDecoder: graphDecoder withFields: encode
 { #category : #parsing }
 MbndAstTupleNode >> parseAsFunctionArgumentsPrototype [
 	^ elements collect: [:each | each parseAsArgumentDefinition]
+]
+
+{ #category : #accessing }
+MbndAstTupleNode >> storageCreationNode [
+	^ storageCreationNode
+]
+
+{ #category : #accessing }
+MbndAstTupleNode >> storageCreationNode: anObject [
+	storageCreationNode := anObject
 ]

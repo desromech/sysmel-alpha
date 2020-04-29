@@ -85,6 +85,11 @@ MbndAbstractValue >> isAggregateTypeInstanceValue [
 ]
 
 { #category : #testing }
+MbndAbstractValue >> isAllZeros [
+	^ false
+]
+
+{ #category : #testing }
 MbndAbstractValue >> isMatrixTypeInstanceValue [
 	^ false
 ]

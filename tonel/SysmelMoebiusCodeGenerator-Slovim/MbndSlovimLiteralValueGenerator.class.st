@@ -334,6 +334,16 @@ MbndSlovimLiteralValueGenerator >> visitUnionType: type [
 	^ SLVMConstant union: slvmType blob: literalValue data
 ]
 
+{ #category : #visiting }
+MbndSlovimLiteralValueGenerator >> visitVariantUnionType: type [
+	| slvmType |
+	slvmType := self translateType: type.
+	literalValue isAllZeros ifTrue: [ ^ slvmType defaultConstant ].
+	self halt.
+	^ SLVMConstant union: slvmType blob: literalValue data
+
+]
+
 { #category : #'code generation' }
 MbndSlovimLiteralValueGenerator >> visitVoidType: voidType [
 	^ nil

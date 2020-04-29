@@ -19,24 +19,6 @@ MbndVariantUnionType >> accept: visitor [
 	^ visitor visitVariantUnionType: self
 ]
 
-{ #category : #converting }
-MbndVariantUnionType >> addExplicitConversionTo: targetType rule: conversionRule [
-	components ifNil: [ ^ super addExplicitConversionTo: targetType rule: conversionRule ].
-
-	components do: [ :comp |
-		comp addExplicitConversionTo: targetType rule: conversionRule
-	].
-]
-
-{ #category : #converting }
-MbndVariantUnionType >> addImplicitConversionTo: targetType rule: conversionRule [
-	components ifNil: [ ^ super addImplicitConversionTo: targetType rule: conversionRule ].
-	
-	components do: [ :comp |
-		comp addImplicitConversionTo: targetType rule: conversionRule
-	].
-]
-
 { #category : #initialization }
 MbndVariantUnionType >> addInstanceMacros [
 	self class == MbndVariantUnionType ifFalse: [ ^ self ].
@@ -94,6 +76,19 @@ MbndVariantUnionType >> components [
 { #category : #accessing }
 MbndVariantUnionType >> components: anObject [
 	components := anObject
+]
+
+{ #category : #'default values' }
+MbndVariantUnionType >> defaultValueAt: aPosition [
+	| content |
+	
+	content := (components first defaultValueAt: aPosition) unwrapMbndValue..
+
+	^ MbndVariantTypeInstance new
+		type: self;
+		typeSelector: 0;
+		content: content;
+		yourself
 ]
 
 { #category : #'as yet unclassified' }

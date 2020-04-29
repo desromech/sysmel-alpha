@@ -114,6 +114,20 @@ MbndTupleType >> computeLayout [
 	instanceSize := instanceSize alignedTo: instanceAlignment
 ]
 
+{ #category : #'default values' }
+MbndTupleType >> defaultValueAt: aPosition [
+	| valueSlots |
+	
+	valueSlots := elements collect: [ :elementType |
+		(elementType defaultValueAt: aPosition) unwrapMbndValue
+	].
+
+	^ MbndAggregateTypeInstanceValue new
+		type: self;
+		slots: valueSlots;
+		yourself
+]
+
 { #category : #accessing }
 MbndTupleType >> elementOffsets [
 	elementOffsets ifNil: [ self computeLayout ].

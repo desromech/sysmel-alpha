@@ -4560,12 +4560,21 @@ MbndSlovimCodeModuleGeneratorTest >> testGetUnionFieldReference [
 		generateSSAModule.
 
 	function := ssaModule globalNamed: #getFieldRef.
-	self assert: function isFunction.
-	self deny: function isEmpty.
-	self assert: function basicBlocks size equals: 2.
-	self assert: function basicBlocks first firstInstruction isJump.
-	self assert: function basicBlocks second firstInstruction isBitCast.
-	self assert: function basicBlocks second lastInstruction isReturn.
+	self assert: function asFullSExpressionForTesting equals: #(
+function getFieldRef cdecl i32
+arguments ((s (pointer (union 'union.TestModule::TestUnion') generic) ()))
+literals ()
+blocks (
+    (()
+        (nil jump void () () (block 2 body))
+    )
+    (()
+        (nil getElementPointer (pointer i32 generic) () ((local 0 s) (const i32 0) (const i32 0)))
+        (nil load i32 () ((local 2 nil)))
+        (nil return void () ((local 3 nil)))
+    )
+)
+	)
 ]
 
 { #category : #tests }
@@ -4584,11 +4593,21 @@ MbndSlovimCodeModuleGeneratorTest >> testGetUnionFieldValue [
 		generateSSAModule.
 
 	function := ssaModule globalNamed: #getFieldValue.
-	self assert: function isFunction.
-	self assert: function allInstructionsMnemonics equals: #(
-		(entry (jump))
-		(body (bitcast load return))
-	).
+	self assert: function asFullSExpressionForTesting equals: #(
+function getFieldValue cdecl i32
+arguments ((s (pointer (union 'union.TestModule::TestUnion') generic) ()))
+literals ()
+blocks (
+    (()
+        (nil jump void () () (block 2 body))
+    )
+    (()
+        (nil getElementPointer (pointer i32 generic) () ((local 0 s) (const i32 0) (const i32 0)))
+        (nil load i32 () ((local 2 nil)))
+        (nil return void () ((local 3 nil)))
+    )
+)
+	)
 ]
 
 { #category : #tests }
@@ -8470,6 +8489,175 @@ function tupleFirst cdecl f32
 ]
 
 { #category : #tests }
+MbndSlovimCodeModuleGeneratorTest >> testTupleNonPODPass [
+	| function |
+	self
+		evaluateSysmelSource: '
+class Aggregate definition: {
+	method initialize => Void.
+	method finalize => Void.
+	
+	public field value type: Float32
+}.
+
+function calledWithTuple externC(tuple: (Float32 -- Aggregate) const ref) => Void.
+
+function callWithTuple externC(aggregate: Aggregate) => Void
+	:= calledWithTuple((1.0f, aggregate)).
+';
+		generateSSAModule.
+
+	function := ssaModule globalNamed: #callWithTuple.
+	self assert: function asFullSExpressionForTesting equals: #(
+function callWithTuple cdecl void
+arguments ((aggregate (pointer (struct 'class.TestModule::Aggregate') generic) ()))
+literals ()
+blocks (
+    (()
+        (nil alloca (pointer (struct nil generic (f32 (struct 'class.TestModule::Aggregate')) (element0 element1) ()) function) () ())
+        (nil alloca (pointer b8 function) () ())
+        (exceptionPointer alloca (pointer (pointer void generic) function) () ())
+        (exceptionSelector alloca (pointer i32 function) () ())
+        (nil jump void () () (block 2 body)))
+    ((merge (block 5 implicitCleanUpMerge) unwind (block 3 tryUnwind))
+        (nil store void () ((const b8 false) (local 2 nil)))
+        (nil getElementPointer (pointer f32 function) () ((local 1 nil) (const i32 0) (const i32 0)))
+        (nil store void () ((const f32 1.0) (local 7 nil)))
+        (nil getElementPointer (pointer (struct 'class.TestModule::Aggregate') function) () ((local 1 nil) (const i32 0) (const i32 1)))
+        (nil load (struct 'class.TestModule::Aggregate') () ((local 0 aggregate)))
+        (nil store void () ((local 10 nil) (local 9 nil)))
+        (nil store void () ((const b8 true) (local 2 nil)))
+        (nil bitcast (pointer (struct nil generic (f32 (struct 'class.TestModule::Aggregate')) (element0 element1) ()) generic) () ((local 1 nil)))
+        (nil call void () ((global 3 calledWithTuple) (local 13 nil)))
+        (nil load b8 () ((local 2 nil)))
+        (nil branch void () ((local 15 nil)) ((block 4 implicitCleanUpAction) (block 5 implicitCleanUpMerge)))
+    )
+
+    (()
+        (nil landingpath (struct nil generic ((pointer void generic) i32) (exception selector) ()) () ())
+        (nil extractValue (pointer void generic) () ((local 17 nil)) (0))
+        (nil store void () ((local 18 nil) (local 3 exceptionPointer)))
+        (nil extractValue i32 () ((local 17 nil)) (1))
+        (nil store void () ((local 20 nil) (local 4 exceptionSelector)))
+        (nil jump void () () (block 6 unwindCleanUp))
+    )
+    (()
+        (nil call void () ((global 5 '_ZN5TupleIfN10TestModule9AggregateEE9.finalizeERS_IfNS2_EE') (local 1 nil)))
+        (nil jump void () () (block 5 implicitCleanUpMerge))
+    )
+    (()
+        (nil returnVoid void () ())
+    )
+    ((merge (block 9 implicitCleanUpMerge) unwind (block 7 forbiddenExceptionTarget))
+        (nil load b8 () ((local 2 nil)))
+        (nil branch void () ((local 26 nil)) ((block 8 implicitCleanUpAction) (block 9 implicitCleanUpMerge)))
+    )
+    (()
+        (nil landingpath (struct nil generic ((pointer void generic) i32) (exception selector) ()) () ())
+        (nil extractValue (pointer void generic) () ((local 28 nil)) (0))
+        (nil call void () ((global 7 __sysmel_eh_handleForbiddenException) (local 29 nil)))
+        (nil unreachable void () ())
+    )
+    ((unwind (block 7 forbiddenExceptionTarget))
+        (nil call void () ((global 5 '_ZN5TupleIfN10TestModule9AggregateEE9.finalizeERS_IfNS2_EE') (local 1 nil)))
+        (nil jump void () () (block 9 implicitCleanUpMerge))
+    )
+    (()
+        (nil load (pointer void generic) () ((local 3 exceptionPointer)))
+        (nil insertValue (struct nil generic ((pointer void generic) i32) (exception selector) ()) () ((undef (struct nil generic ((pointer void generic) i32) (exception selector) ())) (local 34 nil)) (0))
+        (nil load i32 () ((local 4 exceptionSelector)))
+        (nil insertValue (struct nil generic ((pointer void generic) i32) (exception selector) ()) () ((local 35 nil) (local 36 nil)) (1))
+        (nil resumeException void () ((local 37 nil)))
+    )
+)
+	)
+]
+
+{ #category : #tests }
+MbndSlovimCodeModuleGeneratorTest >> testTupleNonPODPass2 [
+	| function |
+	self
+		evaluateSysmelSource: '
+class Aggregate definition: {
+	method initialize => Void.
+	method finalize => Void.
+	
+	public field value type: Float32
+}.
+
+function calledWithTuple externC(tuple: (Float32 -- Aggregate)) => Void.
+
+function callWithTuple externC(aggregate: Aggregate) => Void
+	:= calledWithTuple((1.0f, aggregate)).
+';
+		generateSSAModule.
+
+	function := ssaModule globalNamed: #callWithTuple.
+	self assert: function asFullSExpressionForTesting equals: #(
+function callWithTuple cdecl void
+arguments ((aggregate (pointer (struct 'class.TestModule::Aggregate') generic) ()))
+literals ()
+blocks (
+    (()
+        (nil alloca (pointer (struct nil generic (f32 (struct 'class.TestModule::Aggregate')) (element0 element1) ()) function) () ())
+        (nil alloca (pointer b8 function) () ())
+        (exceptionPointer alloca (pointer (pointer void generic) function) () ())
+        (exceptionSelector alloca (pointer i32 function) () ())
+        (nil jump void () () (block 2 body))
+    )
+    ((merge (block 5 implicitCleanUpMerge) unwind (block 3 tryUnwind))
+        (nil store void () ((const b8 false) (local 2 nil)))
+        (nil getElementPointer (pointer f32 function) () ((local 1 nil) (const i32 0) (const i32 0)))
+        (nil store void () ((const f32 1.0) (local 7 nil)))
+        (nil getElementPointer (pointer (struct 'class.TestModule::Aggregate') function) () ((local 1 nil) (const i32 0) (const i32 1)))
+        (nil load (struct 'class.TestModule::Aggregate') () ((local 0 aggregate)))
+        (nil store void () ((local 10 nil) (local 9 nil)))
+        (nil store void () ((const b8 true) (local 2 nil)))
+        (nil call void () ((global 3 calledWithTuple) (local 1 nil)))
+        (nil load b8 () ((local 2 nil)))
+        (nil branch void () ((local 14 nil)) ((block 4 implicitCleanUpAction) (block 5 implicitCleanUpMerge)))
+    )
+    (()
+        (nil landingpath (struct nil generic ((pointer void generic) i32) (exception selector) ()) () ())
+        (nil extractValue (pointer void generic) () ((local 16 nil)) (0))
+        (nil store void () ((local 17 nil) (local 3 exceptionPointer)))
+        (nil extractValue i32 () ((local 16 nil)) (1))
+        (nil store void () ((local 19 nil) (local 4 exceptionSelector)))
+        (nil jump void () () (block 6 unwindCleanUp))
+    )
+    (()
+        (nil call void () ((global 5 '_ZN5TupleIfN10TestModule9AggregateEE9.finalizeERS_IfNS2_EE') (local 1 nil)))
+        (nil jump void () () (block 5 implicitCleanUpMerge))
+    )
+    (()
+        (nil returnVoid void () ())
+    )
+    ((merge (block 9 implicitCleanUpMerge) unwind (block 7 forbiddenExceptionTarget))
+        (nil load b8 () ((local 2 nil)))
+        (nil branch void () ((local 25 nil)) ((block 8 implicitCleanUpAction) (block 9 implicitCleanUpMerge)))
+    )
+    (()
+        (nil landingpath (struct nil generic ((pointer void generic) i32) (exception selector) ()) () ())
+        (nil extractValue (pointer void generic) () ((local 27 nil)) (0))
+        (nil call void () ((global 7 __sysmel_eh_handleForbiddenException) (local 28 nil)))
+        (nil unreachable void () ())
+    )
+    ((unwind (block 7 forbiddenExceptionTarget))
+        (nil call void () ((global 5 '_ZN5TupleIfN10TestModule9AggregateEE9.finalizeERS_IfNS2_EE') (local 1 nil)))
+        (nil jump void () () (block 9 implicitCleanUpMerge))
+    )
+    (()
+        (nil load (pointer void generic) () ((local 3 exceptionPointer)))
+        (nil insertValue (struct nil generic ((pointer void generic) i32) (exception selector) ()) () ((undef (struct nil generic ((pointer void generic) i32) (exception selector) ())) (local 33 nil)) (0))
+        (nil load i32 () ((local 4 exceptionSelector)))
+        (nil insertValue (struct nil generic ((pointer void generic) i32) (exception selector) ()) () ((local 34 nil) (local 35 nil)) (1))
+        (nil resumeException void () ((local 36 nil)))
+    )
+)
+	)
+]
+
+{ #category : #tests }
 MbndSlovimCodeModuleGeneratorTest >> testTupleParameter [
 	| function |
 	self
@@ -8614,6 +8802,267 @@ blocks (
 ]
 
 { #category : #tests }
+MbndSlovimCodeModuleGeneratorTest >> testVariantNonPODExtractValue [
+	| function |
+	self
+		evaluateSysmelSource: '
+class Aggregate definition: {
+	method initialize => Void.
+	method finalize => Void.
+	
+	public field value type: Float32
+}.
+
+function variantExtractValue externC(variant: (_UndefinedType | Aggregate) const ref) => Float32
+	:= (variant get: Aggregate) value.
+';
+		generateSSAModule.
+
+	function := ssaModule globalNamed: #variantExtractValue.
+	self assert: function asFullSExpressionForTesting equals: #(
+function variantExtractValue cdecl f32
+arguments ((variant (pointer (struct nil generic (u8 (union nil generic ((pointer void generic) (struct 'class.TestModule::Aggregate')) (component0 component1) ())) (typeSelector union) ()) generic) ()))
+literals ()
+blocks (
+    (()
+        (nil jump void () () (block 2 body))
+    )
+    ((merge (block 4 variantTypeSelectorMatchingBlock))
+        (nil getElementPointer (pointer u8 generic) () ((local 0 variant) (const i32 0) (const i32 0)))
+        (nil load u8 () ((local 2 nil)))
+        (nil ieq b8 () ((local 3 nil) (const u8 1)))
+        (nil branch void () ((local 4 nil)) ((block 4 variantTypeSelectorMatchingBlock) (block 3 variantTypeSelectorTrap)))
+    )
+    (()
+        (nil call void () ((global 4 __sysmel_variantUnexpectedComponentRaise)))
+        (nil unreachable void () ())
+    )
+    (()
+        (nil getElementPointer (pointer (struct 'class.TestModule::Aggregate') generic) () ((local 0 variant) (const i32 0) (const i32 1) (const i32 1)))
+        (nil getElementPointer (pointer f32 generic) () ((local 8 nil) (const i32 0) (const i32 0)))
+        (nil load f32 () ((local 9 nil)))
+        (nil return void () ((local 10 nil)))
+    )
+)
+	)
+]
+
+{ #category : #tests }
+MbndSlovimCodeModuleGeneratorTest >> testVariantNonPODExtractValue2 [
+	| function |
+	self
+		evaluateSysmelSource: '
+class Aggregate definition: {
+	method initialize => Void.
+	method finalize => Void.
+	
+	public field value type: Float32
+}.
+
+function variantExtractValue externC(variant: (_UndefinedType | Aggregate)) => Float32
+	:= (variant get: Aggregate) value.
+';
+		generateSSAModule.
+
+	function := ssaModule globalNamed: #variantExtractValue.
+	self assert: function asFullSExpressionForTesting equals: #(
+function variantExtractValue cdecl f32
+arguments ((variant (pointer (struct nil generic (u8 (union nil generic ((pointer void generic) (struct 'class.TestModule::Aggregate')) (component0 component1) ())) (typeSelector union) ()) generic) ()))
+literals ()
+blocks (
+    (()
+        (nil jump void () () (block 2 body))
+    )
+    ((merge (block 4 variantTypeSelectorMatchingBlock))
+        (nil getElementPointer (pointer u8 generic) () ((local 0 variant) (const i32 0) (const i32 0)))
+        (nil load u8 () ((local 2 nil)))
+        (nil ieq b8 () ((local 3 nil) (const u8 1)))
+        (nil branch void () ((local 4 nil)) ((block 4 variantTypeSelectorMatchingBlock) (block 3 variantTypeSelectorTrap)))
+    )
+    (()
+        (nil call void () ((global 4 __sysmel_variantUnexpectedComponentRaise)))
+        (nil unreachable void () ())
+    )
+    (()
+        (nil getElementPointer (pointer (struct 'class.TestModule::Aggregate') generic) () ((local 0 variant) (const i32 0) (const i32 1) (const i32 1)))
+        (nil getElementPointer (pointer f32 generic) () ((local 8 nil) (const i32 0) (const i32 0)))
+        (nil load f32 () ((local 9 nil)))
+        (nil return void () ((local 10 nil)))
+    )
+)
+	)
+]
+
+{ #category : #tests }
+MbndSlovimCodeModuleGeneratorTest >> testVariantNonPODPass [
+	| function |
+	self
+		evaluateSysmelSource: '
+class Aggregate definition: {
+	method initialize => Void.
+	method finalize => Void.
+	
+	public field value type: Float32
+}.
+
+function calledWithVariant externC(variant: (_UndefinedType | Aggregate) const ref) => Void.
+
+function callWithVariant externC(aggregate: Aggregate) => Void
+	:= calledWithVariant(aggregate).
+';
+		generateSSAModule.
+
+	function := ssaModule globalNamed: #callWithVariant.
+	self assert: function asFullSExpressionForTesting equals: #(
+function callWithVariant cdecl void
+    arguments ((aggregate (pointer (struct 'class.TestModule::Aggregate') generic) ()))
+    literals ()
+    blocks (
+        (()
+            (nil alloca (pointer (struct nil generic (u8 (union nil generic ((pointer void generic) (struct 'class.TestModule::Aggregate')) (component0 component1) ())) (typeSelector union) ()) function) () ())
+            (nil alloca (pointer b8 function) () ())
+            (exceptionPointer alloca (pointer (pointer void generic) function) () ())
+            (exceptionSelector alloca (pointer i32 function) () ())
+            (nil jump void () () (block 2 body))
+        )
+        ((merge (block 5 implicitCleanUpMerge) unwind (block 3 tryUnwind))
+            (nil store void () ((const b8 false) (local 2 nil)))
+            (nil getElementPointer (pointer u8 function) () ((local 1 nil) (const i32 0) (const i32 0)))
+            (nil store void () ((const u8 1) (local 7 nil)))
+            (nil getElementPointer (pointer (struct 'class.TestModule::Aggregate') function) () ((local 1 nil) (const i32 0) (const i32 1) (const i32 1)))
+            (nil load (struct 'class.TestModule::Aggregate') () ((local 0 aggregate)))
+            (nil store void () ((local 10 nil) (local 9 nil)))
+            (nil store void () ((const b8 true) (local 2 nil)))
+            (nil bitcast (pointer (struct nil generic (u8 (union nil generic ((pointer void generic) (struct 'class.TestModule::Aggregate')) (component0 component1) ())) (typeSelector union) ()) generic) () ((local 1 nil)))
+            (nil call void () ((global 3 calledWithVariant) (local 13 nil)))
+            (nil load b8 () ((local 2 nil)))
+            (nil branch void () ((local 15 nil)) ((block 4 implicitCleanUpAction) (block 5 implicitCleanUpMerge)))
+        )
+        (()
+            (nil landingpath (struct nil generic ((pointer void generic) i32) (exception selector) ()) () ())
+            (nil extractValue (pointer void generic) () ((local 17 nil)) (0))
+            (nil store void () ((local 18 nil) (local 3 exceptionPointer)))
+            (nil extractValue i32 () ((local 17 nil)) (1))
+            (nil store void () ((local 20 nil) (local 4 exceptionSelector)))
+            (nil jump void () () (block 6 unwindCleanUp))
+        )
+        (()
+            (nil call void () ((global 5 '_ZN7VariantIDnN10TestModule9AggregateEE9.finalizeERS_IDnNS2_EE') (local 1 nil)))
+            (nil jump void () () (block 5 implicitCleanUpMerge))
+        )
+        (()
+            (nil returnVoid void () ())
+        )
+        ((merge (block 9 implicitCleanUpMerge) unwind (block 7 forbiddenExceptionTarget))
+            (nil load b8 () ((local 2 nil)))
+            (nil branch void () ((local 26 nil)) ((block 8 implicitCleanUpAction) (block 9 implicitCleanUpMerge)))
+        )
+        (()
+            (nil landingpath (struct nil generic ((pointer void generic) i32) (exception selector) ()) () ())
+            (nil extractValue (pointer void generic) () ((local 28 nil)) (0))
+            (nil call void () ((global 7 __sysmel_eh_handleForbiddenException) (local 29 nil)))
+            (nil unreachable void () ())
+        )
+        ((unwind (block 7 forbiddenExceptionTarget))
+            (nil call void () ((global 5 '_ZN7VariantIDnN10TestModule9AggregateEE9.finalizeERS_IDnNS2_EE') (local 1 nil)))
+            (nil jump void () () (block 9 implicitCleanUpMerge))
+        )
+        (()
+            (nil load (pointer void generic) () ((local 3 exceptionPointer)))
+            (nil insertValue (struct nil generic ((pointer void generic) i32) (exception selector) ()) () ((undef (struct nil generic ((pointer void generic) i32) (exception selector) ())) (local 34 nil)) (0))
+            (nil load i32 () ((local 4 exceptionSelector)))
+            (nil insertValue (struct nil generic ((pointer void generic) i32) (exception selector) ()) () ((local 35 nil) (local 36 nil)) (1))
+            (nil resumeException void () ((local 37 nil)))
+        )
+    )
+	)
+]
+
+{ #category : #tests }
+MbndSlovimCodeModuleGeneratorTest >> testVariantNonPODPass2 [
+	| function |
+	self
+		evaluateSysmelSource: '
+class Aggregate definition: {
+	method initialize => Void.
+	method finalize => Void.
+	
+	public field value type: Float32
+}.
+
+function calledWithVariant externC(variant: (_UndefinedType | Aggregate)) => Void.
+
+function callWithVariant externC(aggregate: Aggregate) => Void
+	:= calledWithVariant(aggregate).
+';
+		generateSSAModule.
+
+	function := ssaModule globalNamed: #callWithVariant.
+	self assert: function asFullSExpressionForTesting equals: #(
+function callWithVariant cdecl void
+arguments ((aggregate (pointer (struct 'class.TestModule::Aggregate') generic) ()))
+literals ()
+blocks (
+    (()
+        (nil alloca (pointer (struct nil generic (u8 (union nil generic ((pointer void generic) (struct 'class.TestModule::Aggregate')) (component0 component1) ())) (typeSelector union) ()) function) () ())
+        (nil alloca (pointer b8 function) () ())
+        (exceptionPointer alloca (pointer (pointer void generic) function) () ())
+        (exceptionSelector alloca (pointer i32 function) () ())
+        (nil jump void () () (block 2 body))
+    )
+    ((merge (block 5 implicitCleanUpMerge) unwind (block 3 tryUnwind))
+        (nil store void () ((const b8 false) (local 2 nil)))
+        (nil getElementPointer (pointer u8 function) () ((local 1 nil) (const i32 0) (const i32 0)))
+        (nil store void () ((const u8 1) (local 7 nil)))
+        (nil getElementPointer (pointer (struct 'class.TestModule::Aggregate') function) () ((local 1 nil) (const i32 0) (const i32 1) (const i32 1)))
+        (nil load (struct 'class.TestModule::Aggregate') () ((local 0 aggregate)))
+        (nil store void () ((local 10 nil) (local 9 nil)))
+        (nil store void () ((const b8 true) (local 2 nil)))
+        (nil call void () ((global 3 calledWithVariant) (local 1 nil)))
+        (nil load b8 () ((local 2 nil)))
+        (nil branch void () ((local 14 nil)) ((block 4 implicitCleanUpAction) (block 5 implicitCleanUpMerge)))
+    )
+    (()
+        (nil landingpath (struct nil generic ((pointer void generic) i32) (exception selector) ()) () ())
+        (nil extractValue (pointer void generic) () ((local 16 nil)) (0))
+        (nil store void () ((local 17 nil) (local 3 exceptionPointer)))
+        (nil extractValue i32 () ((local 16 nil)) (1))
+        (nil store void () ((local 19 nil) (local 4 exceptionSelector)))
+        (nil jump void () () (block 6 unwindCleanUp))
+    )
+    (()
+        (nil call void () ((global 5 '_ZN7VariantIDnN10TestModule9AggregateEE9.finalizeERS_IDnNS2_EE') (local 1 nil)))
+        (nil jump void () () (block 5 implicitCleanUpMerge))
+    )
+    (()
+        (nil returnVoid void () ())
+    )
+    ((merge (block 9 implicitCleanUpMerge) unwind (block 7 forbiddenExceptionTarget))
+        (nil load b8 () ((local 2 nil)))
+        (nil branch void () ((local 25 nil)) ((block 8 implicitCleanUpAction) (block 9 implicitCleanUpMerge)))
+    )
+    (()
+        (nil landingpath (struct nil generic ((pointer void generic) i32) (exception selector) ()) () ())
+        (nil extractValue (pointer void generic) () ((local 27 nil)) (0))
+        (nil call void () ((global 7 __sysmel_eh_handleForbiddenException) (local 28 nil)))
+        (nil unreachable void () ())
+    )
+    ((unwind (block 7 forbiddenExceptionTarget))
+        (nil call void () ((global 5 '_ZN7VariantIDnN10TestModule9AggregateEE9.finalizeERS_IDnNS2_EE') (local 1 nil)))
+        (nil jump void () () (block 9 implicitCleanUpMerge))
+    )
+    (()
+        (nil load (pointer void generic) () ((local 3 exceptionPointer)))
+        (nil insertValue (struct nil generic ((pointer void generic) i32) (exception selector) ()) () ((undef (struct nil generic ((pointer void generic) i32) (exception selector) ())) (local 33 nil)) (0))
+        (nil load i32 () ((local 4 exceptionSelector)))
+        (nil insertValue (struct nil generic ((pointer void generic) i32) (exception selector) ()) () ((local 34 nil) (local 35 nil)) (1))
+        (nil resumeException void () ((local 36 nil)))
+    )
+)
+	)
+]
+
+{ #category : #tests }
 MbndSlovimCodeModuleGeneratorTest >> testVariantParameter [
 	| function |
 	self
@@ -8645,7 +9094,8 @@ blocks (
         (nil store void () ((const u8 1) (local 3 nil)))
         (nil getElementPointer (pointer f32 function) () ((local 0 nil) (const i32 0) (const i32 1) (const i32 1)))
         (nil store void () ((const f32 1.0) (local 5 nil)))
-        (nil call void () ((global 0 called) (local 0 nil)))
+        (nil load (struct nil generic (u8 (union nil generic (i32 f32) (component0 component1) ())) (typeSelector union) ()) () ((local 0 nil)))
+        (nil call void () ((global 0 called) (local 7 nil)))
         (nil returnVoid void () ())
     )
 )

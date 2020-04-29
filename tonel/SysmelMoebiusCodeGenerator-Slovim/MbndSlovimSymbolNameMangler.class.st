@@ -74,6 +74,8 @@ MbndSlovimSymbolNameMangler >> buildBuiltInTypeManglingTable [
 		char8Type c
 		char16Type Ds
 		char32Type Di
+		
+		undefinedType Dn
 
 	) pairsDo: [ :typeName :mangledName |
 		builtInManglingTable at: (compilationTarget perform: typeName) put: mangledName
@@ -225,6 +227,19 @@ MbndSlovimSymbolNameMangler >> extractProgramEntityNestedNameComponents: program
 { #category : #visiting }
 MbndSlovimSymbolNameMangler >> extractProgramEntityNestedNameComponents: programEntity into: out [
 	| validName |
+
+	(programEntity isMbndType and: [ programEntity isSystemProvidedTypeTemplateInstanceMainChild ]) ifTrue: [
+		programEntity isVariantUnionType ifTrue: [
+			out nextPut: #Variant;
+				nextPut: programEntity components.
+			^ self
+		].		
+		programEntity isTupleType ifTrue: [
+			out nextPut: #Tuple;
+				nextPut: programEntity elements.
+			^ self
+		].		
+	].
 	
 	"Remove the __global namespace."
 	(programEntity parent isNil and: [ programEntity name = #__global ]) ifTrue: [

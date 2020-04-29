@@ -7,6 +7,7 @@ Trait {
 		'extraMetaBuilderFactories'
 	],
 	#traits : 'TMbndProgramEntity',
+	#classTraits : 'TMbndProgramEntity classTrait',
 	#category : #'SysmelMoebiusMetamodel-Core-Type'
 }
 
@@ -79,14 +80,6 @@ TMbndAbstractType >> addExplicitConversionRule: conversionRule [
 
 { #category : #converting }
 TMbndAbstractType >> addExplicitConversionTo: targetType rule: conversionRule [
-	targetType isVariantUnionType ifTrue: [ 
-		targetType components do: [ :comp |
-			self addExplicitConversionTo: comp rule: conversionRule
-		].
-	
-		^ self
-	].
-
 	self addExplicitConversionRule: (conversionRule asMbndTypeConversionRuleTo: targetType)
 ]
 
@@ -104,14 +97,6 @@ TMbndAbstractType >> addImplicitConversionRule: conversionRule [
 
 { #category : #converting }
 TMbndAbstractType >> addImplicitConversionTo: targetType rule: conversionRule [
-	targetType isVariantUnionType ifTrue: [ 
-		targetType components do: [ :comp |
-			self addImplicitConversionTo: comp rule: conversionRule
-		].
-	
-		^ self
-	].
-
 	self addImplicitConversionRule: (conversionRule asMbndTypeConversionRuleTo: targetType)
 ]
 
@@ -862,6 +847,11 @@ TMbndAbstractType >> isAcceptableLiteralValue: literalValue [
 
 { #category : #'testing methods' }
 TMbndAbstractType >> isAggregateType [
+	^ false
+]
+
+{ #category : #'testing methods' }
+TMbndAbstractType >> isAggregateTypeWithFields [
 	^ false
 ]
 

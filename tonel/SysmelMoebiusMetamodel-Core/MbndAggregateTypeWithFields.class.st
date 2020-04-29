@@ -268,6 +268,11 @@ MbndAggregateTypeWithFields >> instanceSize [
 	^ self instanceDataSize
 ]
 
+{ #category : #'testing methods' }
+MbndAggregateTypeWithFields >> isAggregateTypeWithFields [
+	^ true
+]
+
 { #category : #testing }
 MbndAggregateTypeWithFields >> isCopyable [
 	<compileTime>
