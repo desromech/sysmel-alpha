@@ -4,7 +4,8 @@ Class {
 	#instVars : [
 		'matchedExpression',
 		'cases',
-		'hasDefaultCase'
+		'hasDefaultCase',
+		'storageCreationNode'
 	],
 	#category : #'SysmelMoebiusMetamodel-Core-AST'
 }
@@ -30,6 +31,7 @@ MbndAstCasesOfNode >> encodeFieldsForMessagePackWith: graphEncoder [
 		#matchedExpression . matchedExpression encodeGraphForMessagePackWith: graphEncoder.
 		#cases . cases encodeGraphForMessagePackWith: graphEncoder.
 		#hasDefaultCase . hasDefaultCase.
+		#storageCreationNode . storageCreationNode encodeGraphForMessagePackWith: graphEncoder.
 	} , (super encodeFieldsForMessagePackWith: graphEncoder)
 ]
 
@@ -48,6 +50,11 @@ MbndAstCasesOfNode >> isCasesOfNode [
 	^ true
 ]
 
+{ #category : #'as yet unclassified' }
+MbndAstCasesOfNode >> markStorageCreationNodeForCopyEllision: aStorageCreationNode [
+	storageCreationNode := aStorageCreationNode
+]
+
 { #category : #accessing }
 MbndAstCasesOfNode >> matchedExpression [
 	^ matchedExpression
@@ -64,4 +71,15 @@ MbndAstCasesOfNode >> materializeWithGraphDecoder: graphDecoder withFields: enco
 	matchedExpression := encodedFields at: #matchedExpression.
 	cases := encodedFields at: #cases.
 	hasDefaultCase := encodedFields at: #hasDefaultCase.
+	storageCreationNode := encodedFields at: #storageCreationNode.
+]
+
+{ #category : #accessing }
+MbndAstCasesOfNode >> storageCreationNode [
+	^ storageCreationNode
+]
+
+{ #category : #accessing }
+MbndAstCasesOfNode >> storageCreationNode: anObject [
+	storageCreationNode := anObject
 ]

@@ -34,6 +34,11 @@ MbndAstSemanticAnalyzerForExplicitMacroExpansion >> analyzeNonConcreteNodeIfNeed
 		ifNotNil: [ node ]
 ]
 
+{ #category : #visiting }
+MbndAstSemanticAnalyzerForExplicitMacroExpansion >> asAnalyzer [
+	^ self as: MbndAstSemanticAnalyzer
+]
+
 { #category : #accessing }
 MbndAstSemanticAnalyzerForExplicitMacroExpansion >> astBuilder [
 	^ astBuilder ifNil: [ astBuilder := MbndAstBuilder forModule: module ]
@@ -103,32 +108,7 @@ MbndAstSemanticAnalyzerForExplicitMacroExpansion >> visitExpandedHostMessageSend
 
 { #category : #visiting }
 MbndAstSemanticAnalyzerForExplicitMacroExpansion >> visitExpandedMessageSendNode: node [
-	| result receiverType method |
-	result := node copy
-		receiver: (node receiver ifNotNil: [:receiver | self analyzeNodeIfNeeded: node receiver]);
-		selector: (self analyzeNodeIfNeeded: node selector);
-		arguments: (self analyzeNodesIfNeeded: node arguments).
-		
-	"Find the method in order to perform a typed message send."
-	result receiver ifNil: [ 
-		result selector isLiteralSymbolValueNode ifFalse: [ 
-			self error: 'Message send without a receiver cannot have non-constant selector.' at: result
-		].
-	
-		method := scope lookupOverloadedSelector: result selector value.
-		method ifNil: [
-			self error: 'Failed to find definition for scoped selector {1}.' format: { result selector value printString } at: result
-		].
-	
-		^ method analyzeExpandedMessageSendNode: result with: self
-	].
-
-	receiverType := result receiver type.
-	result selector isLiteralSymbolValueNode ifTrue: [
-		^ receiverType analyzeExpandedMessageSendNode: result with: self
-	].
-
-	^ receiverType analyzeMessageSendNodeWithDynamicSelector: result with: self
+	^ node
 ]
 
 { #category : #visiting }

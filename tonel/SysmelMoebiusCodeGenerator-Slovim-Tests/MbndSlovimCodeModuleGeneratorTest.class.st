@@ -8,6 +8,62 @@ Class {
 }
 
 { #category : #tests }
+MbndSlovimCodeModuleGeneratorTest >> testAggregateGeneratedInitializeCopyingFrom [
+	| function indirectClass |
+	self
+		evaluateSysmelSource: '
+class NonTrivialCopyable definition: { 
+	method initializeCopyingFrom: (other: SelfType const ref) ::=> Void.
+}.
+
+class SimpleSuper definition: {
+	field plain type: Float64.
+}.
+
+class IndirectNonTrivialCopyable superclass: SimpleSuper; definition: {
+	field a type: NonTrivialCopyable.
+	field b type: Int32.
+}.
+';
+		generateSSAModule.
+
+	indirectClass := (self evaluateSysmelSource: 'IndirectNonTrivialCopyable') unwrapMbndValue.
+	self deny: indirectClass hasTrivialInitializationCopyingFrom.
+
+	function := ssaModule globalNamed: #'_ZN10TestModule26IndirectNonTrivialCopyable23.initializeCopyingFrom.ERNS0_ERKNS0_E'.
+	self assert: function asFullSExpressionForTesting equals: #(
+function '_ZN10TestModule26IndirectNonTrivialCopyable23.initializeCopyingFrom.ERNS0_ERKNS0_E' cdecl void
+	arguments (
+		(nil (pointer (struct 'class.TestModule::IndirectNonTrivialCopyable') generic) ())
+		(nil (pointer (struct 'class.TestModule::IndirectNonTrivialCopyable') generic) ())
+	)
+	literals (
+	)
+	blocks (
+		(()
+			(nil jump void () () (block 2 body))
+		)
+		(()
+			(nil bitcast (pointer (struct 'class.TestModule::SimpleSuper') generic) () ((local 1 nil)))
+			(nil bitcast (pointer (struct 'class.TestModule::SimpleSuper') generic) () ((local 0 nil)))
+			(nil load (struct 'class.TestModule::SimpleSuper') () ((local 3 nil)))
+			(nil store void () ((local 5 nil) (local 4 nil)))
+			(nil getElementPointer (pointer (struct 'class.TestModule::NonTrivialCopyable') generic) () ((local 0 nil) (const i32 0) (const i32 1)))
+			(nil getElementPointer (pointer (struct 'class.TestModule::NonTrivialCopyable') generic) () ((local 1 nil) (const i32 0) (const i32 1)))
+			(nil store void () ((constStruct (struct 'class.TestModule::NonTrivialCopyable') ()) (local 7 nil)))
+			(nil call void () ((global 1 '_ZN10TestModule18NonTrivialCopyable23.initializeCopyingFrom.ERNS0_ERKNS0_E') (local 7 nil) (local 8 nil)))
+			(nil getElementPointer (pointer i32 generic) () ((local 0 nil) (const i32 0) (const i32 2)))
+			(nil getElementPointer (pointer i32 generic) () ((local 1 nil) (const i32 0) (const i32 2)))
+			(nil load i32 () ((local 12 nil)))
+			(nil store void () ((local 13 nil) (local 11 nil)))
+			(nil returnVoid void () ())
+		)
+	)
+
+	).
+]
+
+{ #category : #tests }
 MbndSlovimCodeModuleGeneratorTest >> testAggregateGeneratedInitializeFinalize [
 	| function classWithGuard |
 	self
@@ -102,6 +158,122 @@ class ClassWithGuard definition: {
 	).
 	self assert: function basicBlocks third firstInstruction functionValue name equals: #'methodWithSideEffect'.
 	self assert: function basicBlocks third firstInstruction nextInstruction nextInstruction functionValue name equals: #'_ZN10TestModule5Guard9.finalizeERNS0_E'.
+]
+
+{ #category : #tests }
+MbndSlovimCodeModuleGeneratorTest >> testAggregateGeneratedInitializeMovingFrom [
+	| function indirectClass |
+	self
+		evaluateSysmelSource: '
+class NonTrivialCopyable definition: { 
+	method initializeCopyingFrom: (other: SelfType const ref) ::=> Void.
+}.
+
+class NonTrivialMoveable definition: { 
+	method initializeMovingFrom: (other: SelfType tempRef) ::=> Void.
+}.
+
+class SimpleSuper definition: {
+	field plain type: Float64.
+}.
+
+class IndirectNonTrivialMoveable superclass: SimpleSuper; definition: {
+	field a type: NonTrivialCopyable.
+	field b type: NonTrivialMoveable.
+	field c type: Int32.
+}.
+';
+		generateSSAModule.
+
+	indirectClass := (self evaluateSysmelSource: 'IndirectNonTrivialMoveable') unwrapMbndValue.
+	self deny: indirectClass hasTrivialInitializationMovingFrom.
+
+	function := ssaModule globalNamed: #'_ZN10TestModule26IndirectNonTrivialMoveable22.initializeMovingFrom.ERNS0_EONS0_E'.
+	self assert: function asFullSExpressionForTesting equals: #(
+function '_ZN10TestModule26IndirectNonTrivialMoveable22.initializeMovingFrom.ERNS0_EONS0_E' cdecl void
+	arguments (
+		(nil (pointer (struct 'class.TestModule::IndirectNonTrivialMoveable') generic) ())
+		(nil (pointer (struct 'class.TestModule::IndirectNonTrivialMoveable') generic) ())
+	)
+	literals (
+	)
+	blocks (
+		(()
+			(nil jump void () () (block 2 body))
+		)
+		(()
+			(nil bitcast (pointer (struct 'class.TestModule::SimpleSuper') generic) () ((local 1 nil)))
+			(nil bitcast (pointer (struct 'class.TestModule::SimpleSuper') generic) () ((local 0 nil)))
+			(nil load (struct 'class.TestModule::SimpleSuper') () ((local 3 nil)))
+			(nil store void () ((local 5 nil) (local 4 nil)))
+			(nil getElementPointer (pointer (struct 'class.TestModule::NonTrivialCopyable') generic) () ((local 0 nil) (const i32 0) (const i32 1)))
+			(nil getElementPointer (pointer (struct 'class.TestModule::NonTrivialCopyable') generic) () ((local 1 nil) (const i32 0) (const i32 1)))
+			(nil store void () ((constStruct (struct 'class.TestModule::NonTrivialCopyable') ()) (local 7 nil)))
+			(nil call void () ((global 1 '_ZN10TestModule18NonTrivialCopyable23.initializeCopyingFrom.ERNS0_ERKNS0_E') (local 7 nil) (local 8 nil)))
+			(nil getElementPointer (pointer (struct 'class.TestModule::NonTrivialMoveable') generic) () ((local 0 nil) (const i32 0) (const i32 2)))
+			(nil getElementPointer (pointer (struct 'class.TestModule::NonTrivialMoveable') generic) () ((local 1 nil) (const i32 0) (const i32 2)))
+			(nil store void () ((constStruct (struct 'class.TestModule::NonTrivialMoveable') ()) (local 11 nil)))
+			(nil call void () ((global 3 '_ZN10TestModule18NonTrivialMoveable22.initializeMovingFrom.ERNS0_EONS0_E') (local 11 nil) (local 12 nil)))
+			(nil getElementPointer (pointer i32 generic) () ((local 0 nil) (const i32 0) (const i32 3)))
+			(nil getElementPointer (pointer i32 generic) () ((local 1 nil) (const i32 0) (const i32 3)))
+			(nil load i32 () ((local 16 nil)))
+			(nil store void () ((local 17 nil) (local 15 nil)))
+			(nil returnVoid void () ())
+		)
+	)
+
+	).
+]
+
+{ #category : #tests }
+MbndSlovimCodeModuleGeneratorTest >> testAggregateGeneratedSubclassInitializeCopyingFrom [
+	| function indirectClass |
+	self
+		evaluateSysmelSource: '
+class NonTrivialCopyable definition: { 
+	method initializeCopyingFrom: (other: SelfType const ref) ::=> Void.
+}.
+
+class IndirectNonTrivialCopyable definition: {
+	field a type: NonTrivialCopyable.
+	field b type: Int32.
+}.
+
+class Subclass superclass: IndirectNonTrivialCopyable; definition: {
+	field s type: Float32
+}.
+
+';
+		generateSSAModule.
+
+	indirectClass := (self evaluateSysmelSource: 'Subclass') unwrapMbndValue.
+	self deny: indirectClass hasTrivialInitializationCopyingFrom.
+
+	function := ssaModule globalNamed: #'_ZN10TestModule8Subclass23.initializeCopyingFrom.ERNS0_ERKNS0_E'.
+	self assert: function asFullSExpressionForTesting equals: #(
+function '_ZN10TestModule8Subclass23.initializeCopyingFrom.ERNS0_ERKNS0_E' cdecl void
+	arguments (
+		(nil (pointer (struct 'class.TestModule::Subclass') generic) ())
+		(nil (pointer (struct 'class.TestModule::Subclass') generic) ())
+	)
+	literals (
+	)
+	blocks (
+		(()
+			(nil jump void () () (block 2 body))
+		)
+		(()
+			(nil bitcast (pointer (struct 'class.TestModule::IndirectNonTrivialCopyable') generic) () ((local 0 nil)))
+			(nil bitcast (pointer (struct 'class.TestModule::IndirectNonTrivialCopyable') generic) () ((local 1 nil)))
+			(nil call void () ((global 3 '_ZN10TestModule26IndirectNonTrivialCopyable23.initializeCopyingFrom.ERNS0_ERKNS0_E') (local 3 nil) (local 4 nil)))
+			(nil getElementPointer (pointer f32 generic) () ((local 0 nil) (const i32 0) (const i32 2)))
+			(nil getElementPointer (pointer f32 generic) () ((local 1 nil) (const i32 0) (const i32 2)))
+			(nil load f32 () ((local 7 nil)))
+			(nil store void () ((local 8 nil) (local 6 nil)))
+			(nil returnVoid void () ())
+		)
+	)
+	).
 ]
 
 { #category : #tests }
@@ -269,6 +441,62 @@ class SubClassWithGuard superclass: ClassWithGuard; definition: {
 	).
 	self assert: function basicBlocks third firstInstruction functionValue name equals: #methodWithSideEffect.
 	self assert: function basicBlocks third firstInstruction nextInstruction nextInstruction functionValue name equals: #'_ZN10TestModule14ClassWithGuard9.finalizeERNS0_E'.
+]
+
+{ #category : #tests }
+MbndSlovimCodeModuleGeneratorTest >> testAggregateGeneratedSubclassInitializeMovingFrom [
+	| function indirectClass |
+	self
+		evaluateSysmelSource: '
+class NonTrivialCopyable definition: { 
+	method initializeCopyingFrom: (other: SelfType const ref) ::=> Void.
+}.
+
+class NonTrivialMoveable definition: { 
+	method initializeMovingFrom: (other: SelfType tempRef) ::=> Void.
+}.
+
+class IndirectNonTrivialCopyable definition: {
+	field a type: NonTrivialCopyable.
+	field b type: NonTrivialMoveable.
+	field c type: Int32.
+}.
+
+class Subclass superclass: IndirectNonTrivialCopyable; definition: {
+	field s type: Float32
+}.
+';
+		generateSSAModule.
+
+	indirectClass := (self evaluateSysmelSource: 'Subclass') unwrapMbndValue.
+	self deny: indirectClass hasTrivialInitializationMovingFrom.
+
+	function := ssaModule globalNamed: #'_ZN10TestModule8Subclass22.initializeMovingFrom.ERNS0_EONS0_E'.
+	self assert: function asFullSExpressionForTesting equals: #(
+function '_ZN10TestModule8Subclass22.initializeMovingFrom.ERNS0_EONS0_E' cdecl void
+	arguments (
+		(nil (pointer (struct 'class.TestModule::Subclass') generic) ())
+		(nil (pointer (struct 'class.TestModule::Subclass') generic) ())
+	)
+	literals (
+	)
+	blocks (
+		(()
+			(nil jump void () () (block 2 body))
+		)
+		(()
+			(nil bitcast (pointer (struct 'class.TestModule::IndirectNonTrivialCopyable') generic) () ((local 0 nil)))
+			(nil bitcast (pointer (struct 'class.TestModule::IndirectNonTrivialCopyable') generic) () ((local 1 nil)))
+			(nil call void () ((global 6 '_ZN10TestModule26IndirectNonTrivialCopyable22.initializeMovingFrom.ERNS0_EONS0_E') (local 3 nil) (local 4 nil)))
+			(nil getElementPointer (pointer f32 generic) () ((local 0 nil) (const i32 0) (const i32 3)))
+			(nil getElementPointer (pointer f32 generic) () ((local 1 nil) (const i32 0) (const i32 3)))
+			(nil load f32 () ((local 7 nil)))
+			(nil store void () ((local 8 nil) (local 6 nil)))
+			(nil returnVoid void () ())
+		)
+	)
+
+	).
 ]
 
 { #category : #tests }
@@ -6037,6 +6265,7 @@ MbndSlovimCodeModuleGeneratorTest >> testIntegerSelectCase [
 	2: 2.0.
 	3: 3.0.
 	4: 4.0.
+	2 + 3: 5.0.
 	let v : (v castTo: Float32) * 2.0
 }';
 		generateSSAModule.
@@ -6044,7 +6273,7 @@ MbndSlovimCodeModuleGeneratorTest >> testIntegerSelectCase [
 	function := ssaModule globalNamed: #selectCaseTest.
 	self assert: function isFunction.
 	self deny: function isEmpty.
-	self assert: function basicBlocks size equals: 9.
+	self assert: function basicBlocks size equals: 10.
 	self assert: function basicBlocks second firstInstruction isSwitch.
 	self assert: function basicBlocks last lastInstruction isReturn.
 ]
@@ -7084,6 +7313,416 @@ function caller externC() => Void
 		(implicitCleanUpAction (call jump))
 		(implicitCleanUpMerge (returnVoid))
 	).
+]
+
+{ #category : #tests }
+MbndSlovimCodeModuleGeneratorTest >> testNonPODIfSelect [
+	| function |
+	self
+		evaluateSysmelSource: '
+class Aggregate definition: {
+	method initialize => Void.
+	method finalize => Void.
+	method initializeCopyingFrom: (other: SelfType const ref) ::=> Void.
+	method initializeMovingFrom: (other: SelfType tempRef) ::=> Void.
+}.
+
+function selectNonPod externC(condition: Boolean8, a: Aggregate) => Void
+	:= if: condition then: a else: Aggregate newValue.
+'
+;
+		generateSSAModule.
+
+	function := ssaModule globalNamed: #selectNonPod.
+	self assert: function asFullSExpressionForTesting equals: #(
+function selectNonPod cdecl void
+	arguments (
+		(condition b8 ())
+		(a (pointer (struct 'class.TestModule::Aggregate') generic) ())
+	)
+	literals (
+	)
+	blocks (
+		(()
+			(nil alloca (pointer (struct 'class.TestModule::Aggregate') function) () ())
+			(nil alloca (pointer (struct 'class.TestModule::Aggregate') function) () ())
+			(nil alloca (pointer b8 function) () ())
+			(nil alloca (pointer b8 function) () ())
+			(exceptionPointer alloca (pointer (pointer void generic) function) () ())
+			(exceptionSelector alloca (pointer i32 function) () ())
+			(nil jump void () () (block 2 body))
+		)
+		((merge (block 6 ifMerge) unwind (block 3 tryUnwind))
+			(nil store void () ((const b8 false) (local 4 nil)))
+			(nil store void () ((const b8 false) (local 5 nil)))
+			(nil branch void () ((local 0 condition)) ((block 4 ifThen) (block 5 ifElse)))
+		)
+		(()
+			(nil landingpath (struct nil generic ((pointer void generic) i32) (exception selector) ()) () ())
+			(nil extractValue (pointer void generic) () ((local 12 nil)) (0))
+			(nil store void () ((local 13 nil) (local 6 exceptionPointer)))
+			(nil extractValue i32 () ((local 12 nil)) (1))
+			(nil store void () ((local 15 nil) (local 7 exceptionSelector)))
+			(nil jump void () () (block 11 unwindCleanUp))
+		)
+		((unwind (block 3 tryUnwind))
+			(nil store void () ((constStruct (struct 'class.TestModule::Aggregate') ()) (local 2 nil)))
+			(nil call void () ((global 3 '_ZN10TestModule9Aggregate23.initializeCopyingFrom.ERNS0_ERKNS0_E') (local 2 nil) (local 1 a)))
+			(nil jump void () () (block 6 ifMerge))
+		)
+		((unwind (block 3 tryUnwind))
+			(nil store void () ((constStruct (struct 'class.TestModule::Aggregate') ()) (local 3 nil)))
+			(nil call void () ((global 1 '_ZN10TestModule9Aggregate11.initializeERNS0_E') (local 3 nil)))
+			(nil store void () ((const b8 true) (local 4 nil)))
+			(nil store void () ((constStruct (struct 'class.TestModule::Aggregate') ()) (local 2 nil)))
+			(nil call void () ((global 4 '_ZN10TestModule9Aggregate22.initializeMovingFrom.ERNS0_EONS0_E') (local 2 nil) (local 3 nil)))
+			(nil jump void () () (block 6 ifMerge))
+		)
+		((merge (block 8 implicitCleanUpMerge) unwind (block 3 tryUnwind))
+			(nil store void () ((const b8 true) (local 5 nil)))
+			(nil load b8 () ((local 4 nil)))
+			(nil branch void () ((local 28 nil)) ((block 7 implicitCleanUpAction) (block 8 implicitCleanUpMerge)))
+		)
+		(()
+			(nil call void () ((global 2 '_ZN10TestModule9Aggregate9.finalizeERNS0_E') (local 3 nil)))
+			(nil jump void () () (block 8 implicitCleanUpMerge))
+		)
+		((merge (block 10 implicitCleanUpMerge))
+			(nil load b8 () ((local 5 nil)))
+			(nil branch void () ((local 32 nil)) ((block 9 implicitCleanUpAction) (block 10 implicitCleanUpMerge)))
+		)
+		(()
+			(nil call void () ((global 2 '_ZN10TestModule9Aggregate9.finalizeERNS0_E') (local 2 nil)))
+			(nil jump void () () (block 10 implicitCleanUpMerge))
+		)
+		(()
+			(nil returnVoid void () ())
+		)
+		((merge (block 14 implicitCleanUpMerge) unwind (block 12 forbiddenExceptionTarget))
+			(nil load b8 () ((local 4 nil)))
+			(nil branch void () ((local 37 nil)) ((block 13 implicitCleanUpAction) (block 14 implicitCleanUpMerge)))
+		)
+		(()
+			(nil landingpath (struct nil generic ((pointer void generic) i32) (exception selector) ()) () ())
+			(nil extractValue (pointer void generic) () ((local 39 nil)) (0))
+			(nil call void () ((global 7 __sysmel_eh_handleForbiddenException) (local 40 nil)))
+			(nil unreachable void () ())
+		)
+		((unwind (block 12 forbiddenExceptionTarget))
+			(nil call void () ((global 2 '_ZN10TestModule9Aggregate9.finalizeERNS0_E') (local 3 nil)))
+			(nil jump void () () (block 14 implicitCleanUpMerge))
+		)
+		((merge (block 16 implicitCleanUpMerge) unwind (block 12 forbiddenExceptionTarget))
+			(nil load b8 () ((local 5 nil)))
+			(nil branch void () ((local 45 nil)) ((block 15 implicitCleanUpAction) (block 16 implicitCleanUpMerge)))
+		)
+		((unwind (block 12 forbiddenExceptionTarget))
+			(nil call void () ((global 2 '_ZN10TestModule9Aggregate9.finalizeERNS0_E') (local 2 nil)))
+			(nil jump void () () (block 16 implicitCleanUpMerge))
+		)
+		(()
+			(nil load (pointer void generic) () ((local 6 exceptionPointer)))
+			(nil insertValue (struct nil generic ((pointer void generic) i32) (exception selector) ()) () ((undef (struct nil generic ((pointer void generic) i32) (exception selector) ())) (local 49 nil)) (0))
+			(nil load i32 () ((local 7 exceptionSelector)))
+			(nil insertValue (struct nil generic ((pointer void generic) i32) (exception selector) ()) () ((local 50 nil) (local 51 nil)) (1))
+			(nil resumeException void () ((local 52 nil)))
+		)
+	)
+
+	)
+]
+
+{ #category : #tests }
+MbndSlovimCodeModuleGeneratorTest >> testNonPODIfSelectNoExceptions [
+	| function |
+	self
+		disableExceptions;
+		evaluateSysmelSource: '
+class Aggregate definition: {
+	method initialize => Void.
+	method finalize => Void.
+	method initializeCopyingFrom: (other: SelfType const ref) ::=> Void.
+	method initializeMovingFrom: (other: SelfType tempRef) ::=> Void.
+}.
+
+function selectNonPod externC(condition: Boolean8, a: Aggregate) => Void
+	:= if: condition then: a else: Aggregate newValue.
+'
+;
+		generateSSAModule.
+
+	function := ssaModule globalNamed: #selectNonPod.
+	self assert: function asFullSExpressionForTesting equals: #(
+function selectNonPod cdecl void
+	arguments (
+		(condition b8 ())
+		(a (pointer (struct 'class.TestModule::Aggregate') generic) ())
+	)
+	literals (
+	)
+	blocks (
+		(()
+			(nil alloca (pointer (struct 'class.TestModule::Aggregate') function) () ())
+			(nil alloca (pointer (struct 'class.TestModule::Aggregate') function) () ())
+			(nil alloca (pointer b8 function) () ())
+			(nil alloca (pointer b8 function) () ())
+			(nil jump void () () (block 2 body))
+		)
+		((merge (block 5 ifMerge))
+			(nil store void () ((const b8 false) (local 4 nil)))
+			(nil store void () ((const b8 false) (local 5 nil)))
+			(nil branch void () ((local 0 condition)) ((block 3 ifThen) (block 4 ifElse)))
+		)
+		(()
+			(nil store void () ((constStruct (struct 'class.TestModule::Aggregate') ()) (local 2 nil)))
+			(nil call void () ((global 3 '_ZN10TestModule9Aggregate23.initializeCopyingFrom.ERNS0_ERKNS0_E') (local 2 nil) (local 1 a)))
+			(nil jump void () () (block 5 ifMerge))
+		)
+		(()
+			(nil store void () ((constStruct (struct 'class.TestModule::Aggregate') ()) (local 3 nil)))
+			(nil call void () ((global 1 '_ZN10TestModule9Aggregate11.initializeERNS0_E') (local 3 nil)))
+			(nil store void () ((const b8 true) (local 4 nil)))
+			(nil store void () ((constStruct (struct 'class.TestModule::Aggregate') ()) (local 2 nil)))
+			(nil call void () ((global 4 '_ZN10TestModule9Aggregate22.initializeMovingFrom.ERNS0_EONS0_E') (local 2 nil) (local 3 nil)))
+			(nil jump void () () (block 5 ifMerge))
+		)
+		((merge (block 7 implicitCleanUpMerge))
+			(nil store void () ((const b8 true) (local 5 nil)))
+			(nil load b8 () ((local 4 nil)))
+			(nil branch void () ((local 20 nil)) ((block 6 implicitCleanUpAction) (block 7 implicitCleanUpMerge)))
+		)
+		(()
+			(nil call void () ((global 2 '_ZN10TestModule9Aggregate9.finalizeERNS0_E') (local 3 nil)))
+			(nil jump void () () (block 7 implicitCleanUpMerge))
+		)
+		((merge (block 9 implicitCleanUpMerge))
+			(nil load b8 () ((local 5 nil)))
+			(nil branch void () ((local 24 nil)) ((block 8 implicitCleanUpAction) (block 9 implicitCleanUpMerge)))
+		)
+		(()
+			(nil call void () ((global 2 '_ZN10TestModule9Aggregate9.finalizeERNS0_E') (local 2 nil)))
+			(nil jump void () () (block 9 implicitCleanUpMerge))
+		)
+		(()
+			(nil returnVoid void () ())
+		)
+	)
+	)
+]
+
+{ #category : #tests }
+MbndSlovimCodeModuleGeneratorTest >> testNonPODSelectCaseSelect [
+	| function |
+	self
+		evaluateSysmelSource: '
+class Aggregate definition: {
+	method initialize => Void.
+	method finalize => Void.
+	method initializeCopyingFrom: (other: SelfType const ref) ::=> Void.
+	method initializeMovingFrom: (other: SelfType tempRef) ::=> Void.
+}.
+
+function selectNonPod externC(selectIndex: Int32, a: Aggregate, b: Aggregate) => Void
+	:= selectIndex selectCase: #{
+	0: a.
+	1: b.
+	_ : Aggregate newValue
+	}.
+'
+;
+		generateSSAModule.
+
+	function := ssaModule globalNamed: #selectNonPod.
+	self assert: function asFullSExpressionForTesting equals: #(
+function selectNonPod cdecl void
+	arguments (
+		(selectIndex i32 ())
+		(a (pointer (struct 'class.TestModule::Aggregate') generic) ())
+		(b (pointer (struct 'class.TestModule::Aggregate') generic) ())
+	)
+	literals (
+	)
+	blocks (
+		(()
+			(nil alloca (pointer (struct 'class.TestModule::Aggregate') function) () ())
+			(nil alloca (pointer (struct 'class.TestModule::Aggregate') function) () ())
+			(nil alloca (pointer b8 function) () ())
+			(nil alloca (pointer b8 function) () ())
+			(exceptionPointer alloca (pointer (pointer void generic) function) () ())
+			(exceptionSelector alloca (pointer i32 function) () ())
+			(nil jump void () () (block 2 body))
+		)
+		((merge (block 7 casesOfMerge) unwind (block 3 tryUnwind))
+			(nil store void () ((const b8 false) (local 5 nil)))
+			(nil store void () ((const b8 false) (local 6 nil)))
+			(nil switch void () ((local 0 selectIndex) (const i32 0) (const i32 1)) (((block 4 casesOfCase) (block 5 casesOfCase)) (block 6 casesOfDefault)))
+		)
+		(()
+			(nil landingpath (struct nil generic ((pointer void generic) i32) (exception selector) ()) () ())
+			(nil extractValue (pointer void generic) () ((local 13 nil)) (0))
+			(nil store void () ((local 14 nil) (local 7 exceptionPointer)))
+			(nil extractValue i32 () ((local 13 nil)) (1))
+			(nil store void () ((local 16 nil) (local 8 exceptionSelector)))
+			(nil jump void () () (block 12 unwindCleanUp))
+		)
+		((unwind (block 3 tryUnwind))
+			(nil store void () ((constStruct (struct 'class.TestModule::Aggregate') ()) (local 3 nil)))
+			(nil call void () ((global 3 '_ZN10TestModule9Aggregate23.initializeCopyingFrom.ERNS0_ERKNS0_E') (local 3 nil) (local 1 a)))
+			(nil jump void () () (block 7 casesOfMerge))
+		)
+		((unwind (block 3 tryUnwind))
+			(nil store void () ((constStruct (struct 'class.TestModule::Aggregate') ()) (local 3 nil)))
+			(nil call void () ((global 3 '_ZN10TestModule9Aggregate23.initializeCopyingFrom.ERNS0_ERKNS0_E') (local 3 nil) (local 2 b)))
+			(nil jump void () () (block 7 casesOfMerge))
+		)
+		((unwind (block 3 tryUnwind))
+			(nil store void () ((constStruct (struct 'class.TestModule::Aggregate') ()) (local 4 nil)))
+			(nil call void () ((global 1 '_ZN10TestModule9Aggregate11.initializeERNS0_E') (local 4 nil)))
+			(nil store void () ((const b8 true) (local 5 nil)))
+			(nil store void () ((constStruct (struct 'class.TestModule::Aggregate') ()) (local 3 nil)))
+			(nil call void () ((global 4 '_ZN10TestModule9Aggregate22.initializeMovingFrom.ERNS0_EONS0_E') (local 3 nil) (local 4 nil)))
+			(nil jump void () () (block 7 casesOfMerge))
+		)
+		((merge (block 9 implicitCleanUpMerge) unwind (block 3 tryUnwind))
+			(nil store void () ((const b8 true) (local 6 nil)))
+			(nil load b8 () ((local 5 nil)))
+			(nil branch void () ((local 32 nil)) ((block 8 implicitCleanUpAction) (block 9 implicitCleanUpMerge)))
+		)
+		(()
+			(nil call void () ((global 2 '_ZN10TestModule9Aggregate9.finalizeERNS0_E') (local 4 nil)))
+			(nil jump void () () (block 9 implicitCleanUpMerge))
+		)
+		((merge (block 11 implicitCleanUpMerge))
+			(nil load b8 () ((local 6 nil)))
+			(nil branch void () ((local 36 nil)) ((block 10 implicitCleanUpAction) (block 11 implicitCleanUpMerge)))
+		)
+		(()
+			(nil call void () ((global 2 '_ZN10TestModule9Aggregate9.finalizeERNS0_E') (local 3 nil)))
+			(nil jump void () () (block 11 implicitCleanUpMerge))
+		)
+		(()
+			(nil returnVoid void () ())
+		)
+		((merge (block 15 implicitCleanUpMerge) unwind (block 13 forbiddenExceptionTarget))
+			(nil load b8 () ((local 5 nil)))
+			(nil branch void () ((local 41 nil)) ((block 14 implicitCleanUpAction) (block 15 implicitCleanUpMerge)))
+		)
+		(()
+			(nil landingpath (struct nil generic ((pointer void generic) i32) (exception selector) ()) () ())
+			(nil extractValue (pointer void generic) () ((local 43 nil)) (0))
+			(nil call void () ((global 7 __sysmel_eh_handleForbiddenException) (local 44 nil)))
+			(nil unreachable void () ())
+		)
+		((unwind (block 13 forbiddenExceptionTarget))
+			(nil call void () ((global 2 '_ZN10TestModule9Aggregate9.finalizeERNS0_E') (local 4 nil)))
+			(nil jump void () () (block 15 implicitCleanUpMerge))
+		)
+		((merge (block 17 implicitCleanUpMerge) unwind (block 13 forbiddenExceptionTarget))
+			(nil load b8 () ((local 6 nil)))
+			(nil branch void () ((local 49 nil)) ((block 16 implicitCleanUpAction) (block 17 implicitCleanUpMerge)))
+		)
+		((unwind (block 13 forbiddenExceptionTarget))
+			(nil call void () ((global 2 '_ZN10TestModule9Aggregate9.finalizeERNS0_E') (local 3 nil)))
+			(nil jump void () () (block 17 implicitCleanUpMerge))
+		)
+		(()
+			(nil load (pointer void generic) () ((local 7 exceptionPointer)))
+			(nil insertValue (struct nil generic ((pointer void generic) i32) (exception selector) ()) () ((undef (struct nil generic ((pointer void generic) i32) (exception selector) ())) (local 53 nil)) (0))
+			(nil load i32 () ((local 8 exceptionSelector)))
+			(nil insertValue (struct nil generic ((pointer void generic) i32) (exception selector) ()) () ((local 54 nil) (local 55 nil)) (1))
+			(nil resumeException void () ((local 56 nil)))
+		)
+	)
+	)
+]
+
+{ #category : #tests }
+MbndSlovimCodeModuleGeneratorTest >> testNonPODSelectCaseSelectNoExceptions [
+	| function |
+	self
+		disableExceptions;
+		evaluateSysmelSource: '
+class Aggregate definition: {
+	method initialize => Void.
+	method finalize => Void.
+	method initializeCopyingFrom: (other: SelfType const ref) ::=> Void.
+	method initializeMovingFrom: (other: SelfType tempRef) ::=> Void.
+}.
+
+function selectNonPod externC(selectIndex: Int32, a: Aggregate, b: Aggregate) => Void
+	:= selectIndex selectCase: #{
+	0: a.
+	1: b.
+	_ : Aggregate newValue
+	}.
+'
+;
+		generateSSAModule.
+
+	function := ssaModule globalNamed: #selectNonPod.
+	self assert: function asFullSExpressionForTesting equals: #(
+function selectNonPod cdecl void
+	arguments (
+		(selectIndex i32 ())
+		(a (pointer (struct 'class.TestModule::Aggregate') generic) ())
+		(b (pointer (struct 'class.TestModule::Aggregate') generic) ())
+	)
+	literals (
+	)
+	blocks (
+		(()
+			(nil alloca (pointer (struct 'class.TestModule::Aggregate') function) () ())
+			(nil alloca (pointer (struct 'class.TestModule::Aggregate') function) () ())
+			(nil alloca (pointer b8 function) () ())
+			(nil alloca (pointer b8 function) () ())
+			(nil jump void () () (block 2 body))
+		)
+		((merge (block 6 casesOfMerge))
+			(nil store void () ((const b8 false) (local 5 nil)))
+			(nil store void () ((const b8 false) (local 6 nil)))
+			(nil switch void () ((local 0 selectIndex) (const i32 0) (const i32 1)) (((block 3 casesOfCase) (block 4 casesOfCase)) (block 5 casesOfDefault)))
+		)
+		(()
+			(nil store void () ((constStruct (struct 'class.TestModule::Aggregate') ()) (local 3 nil)))
+			(nil call void () ((global 3 '_ZN10TestModule9Aggregate23.initializeCopyingFrom.ERNS0_ERKNS0_E') (local 3 nil) (local 1 a)))
+			(nil jump void () () (block 6 casesOfMerge))
+		)
+		(()
+			(nil store void () ((constStruct (struct 'class.TestModule::Aggregate') ()) (local 3 nil)))
+			(nil call void () ((global 3 '_ZN10TestModule9Aggregate23.initializeCopyingFrom.ERNS0_ERKNS0_E') (local 3 nil) (local 2 b)))
+			(nil jump void () () (block 6 casesOfMerge))
+		)
+		(()
+			(nil store void () ((constStruct (struct 'class.TestModule::Aggregate') ()) (local 4 nil)))
+			(nil call void () ((global 1 '_ZN10TestModule9Aggregate11.initializeERNS0_E') (local 4 nil)))
+			(nil store void () ((const b8 true) (local 5 nil)))
+			(nil store void () ((constStruct (struct 'class.TestModule::Aggregate') ()) (local 3 nil)))
+			(nil call void () ((global 4 '_ZN10TestModule9Aggregate22.initializeMovingFrom.ERNS0_EONS0_E') (local 3 nil) (local 4 nil)))
+			(nil jump void () () (block 6 casesOfMerge))
+		)
+		((merge (block 8 implicitCleanUpMerge))
+			(nil store void () ((const b8 true) (local 6 nil)))
+			(nil load b8 () ((local 5 nil)))
+			(nil branch void () ((local 24 nil)) ((block 7 implicitCleanUpAction) (block 8 implicitCleanUpMerge)))
+		)
+		(()
+			(nil call void () ((global 2 '_ZN10TestModule9Aggregate9.finalizeERNS0_E') (local 4 nil)))
+			(nil jump void () () (block 8 implicitCleanUpMerge))
+		)
+		((merge (block 10 implicitCleanUpMerge))
+			(nil load b8 () ((local 6 nil)))
+			(nil branch void () ((local 28 nil)) ((block 9 implicitCleanUpAction) (block 10 implicitCleanUpMerge)))
+		)
+		(()
+			(nil call void () ((global 2 '_ZN10TestModule9Aggregate9.finalizeERNS0_E') (local 3 nil)))
+			(nil jump void () () (block 10 implicitCleanUpMerge))
+		)
+		(()
+			(nil returnVoid void () ())
+		)
+	)
+
+	)
 ]
 
 { #category : #tests }

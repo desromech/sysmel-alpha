@@ -208,11 +208,6 @@ MbndVariantUnionType >> isMoveable [
 ]
 
 { #category : #'testing methods' }
-MbndVariantUnionType >> isTypePassedByReference [
-	^ true
-]
-
-{ #category : #'testing methods' }
 MbndVariantUnionType >> isVariantUnionType [
 	^ true
 ]

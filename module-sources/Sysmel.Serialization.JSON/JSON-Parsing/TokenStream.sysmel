@@ -167,6 +167,8 @@ sealed class TokenStream definition: {
     }.
 
     inline method nextString => TokenType := {
+        self nextCharacter.
+
         while: {
             let c := self peekCharacter.
             c >= 0 && c ~= '"'
@@ -199,7 +201,7 @@ sealed class TokenStream definition: {
                 }.
 
                 -1 : {return: TokenType Error}.
-                let c : {text add: (c castTo: Char8)}
+                let c : { text add: (c castTo: Char8)}
             }
         }.
 

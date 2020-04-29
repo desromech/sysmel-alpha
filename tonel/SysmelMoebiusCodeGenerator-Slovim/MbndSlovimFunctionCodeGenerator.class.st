@@ -438,6 +438,28 @@ MbndSlovimFunctionCodeGenerator >> generateAggregate: aggregatePointer type: agg
 ]
 
 { #category : #'automatic constructors' }
+MbndSlovimFunctionCodeGenerator >> generateAggregate: aggregatePointer with: otherAggregatePointer type: aggregateType fieldIteration: fieldActionBlock [
+	self flag: 'TODO: Use a double dispatch here?'.
+	aggregateType isAggregateTypeWithFields ifTrue: [
+		^ self generateAggregateWithFields: aggregatePointer with: otherAggregatePointer type: aggregateType fieldIteration: fieldActionBlock
+	].
+
+	aggregateType isTupleType ifTrue: [
+		^ self generateTuple: aggregatePointer with: otherAggregatePointer type: aggregateType fieldIteration: fieldActionBlock
+	].
+
+	aggregateType isVariantUnionType ifTrue: [
+		^ self generateVariant: aggregatePointer with: otherAggregatePointer type: aggregateType fieldIteration: fieldActionBlock
+	].
+	
+	aggregateType isArrayType ifTrue: [
+		^ self generateArray: aggregatePointer with: otherAggregatePointer type: aggregateType fieldIteration: fieldActionBlock
+	].
+
+	self error: 'Unsupported aggregate type.'
+]
+
+{ #category : #initialization }
 MbndSlovimFunctionCodeGenerator >> generateAggregateWithFields: aggregatePointer type: aggregateType fieldIteration: fieldActionBlock when: fieldSelectionBlock [
 	aggregateType fields do: [ :field |
 		| fieldReferenceType fieldValueType |
@@ -453,6 +475,18 @@ MbndSlovimFunctionCodeGenerator >> generateAggregateWithFields: aggregatePointer
 ]
 
 { #category : #'automatic constructors' }
+MbndSlovimFunctionCodeGenerator >> generateAggregateWithFields: aggregatePointer with: otherAggregatePointer type: aggregateType fieldIteration: fieldActionBlock [
+	aggregateType fields do: [ :field |
+		| fieldValueType fieldIndex fieldPointer otherFieldPointer |
+		fieldValueType := field valueType.
+		fieldIndex := slvmBuilder constInt: field slotIndex.
+		fieldPointer := slvmBuilder getReference: aggregatePointer element: fieldIndex.
+		otherFieldPointer := slvmBuilder getReference: otherAggregatePointer element: fieldIndex.
+		fieldActionBlock value: fieldPointer value: otherFieldPointer value: fieldValueType
+	]
+]
+
+{ #category : #'automatic constructors' }
 MbndSlovimFunctionCodeGenerator >> generateArray: aggregatePointer type: aggregateType fieldIteration: fieldActionBlock when: fieldSelectionBlock [
 	| elementValueType elementReferenceType |
 	(aggregateType elements isNil or: [ aggregateType elements <= 0 ]) ifTrue: [ ^ self ].
@@ -460,10 +494,23 @@ MbndSlovimFunctionCodeGenerator >> generateArray: aggregatePointer type: aggrega
 	(fieldSelectionBlock value: aggregateType elementType) ifFalse: [ ^ self ].
 
 	elementReferenceType := elementValueType ref.
-	0 to: aggregateType elements - 1 do: [:index |
+	self generateFrom: 0 to: aggregateType elements - 1 do: [ :index |
 		| fieldPointer|
 		fieldPointer := slvmBuilder getReference: aggregatePointer element: index.
 		fieldActionBlock value: fieldPointer value: elementReferenceType value: elementValueType
+	]
+]
+
+{ #category : #'automatic constructors' }
+MbndSlovimFunctionCodeGenerator >> generateArray: aggregatePointer with: otherAggregatePointer type: aggregateType fieldIteration: fieldActionBlock [
+	| elementValueType |
+	(aggregateType elements isNil or: [ aggregateType elements <= 0 ]) ifTrue: [ ^ self ].
+	elementValueType := aggregateType elementType.
+	self generateFrom: 0 to: aggregateType elements - 1 do: [ :index |
+		| fieldPointer otherFieldPointer |
+		fieldPointer := slvmBuilder getReference: aggregatePointer element: index.
+		otherFieldPointer := slvmBuilder getReference: otherAggregatePointer element: index.
+		fieldActionBlock value: fieldPointer value: otherFieldPointer value: elementValueType
 	]
 ]
 
@@ -544,12 +591,90 @@ MbndSlovimFunctionCodeGenerator >> generateAutomaticInitializationCode [
 
 { #category : #'automatic constructors' }
 MbndSlovimFunctionCodeGenerator >> generateAutomaticInitializationFromCopyCode [
-	self flag: 'TODO: Implement this method properly.'.
+	| receiver other |
+	receiver := ssaFunction arguments first.
+	other := ssaFunction arguments second.
+	concreteMethod parent hasTrivialInstanceInitializationCopyingFrom ifTrue: [ 
+		^ self generateTrivialCopyFrom: other into: receiver valueType: concreteMethod parent.
+	].
+	
+	concreteMethod hasExplicitSuperSend ifFalse: [
+		concreteMethod parent supertype ifNotNil: [ :supertype |
+			supertype isTrait ifFalse: [ 
+				supertype hasTrivialInitializationCopyingFrom ifTrue: [
+					self generateTrivialCopyFrom: (slvmBuilder bitCast: other target: (self translateType: supertype ref))
+						into: (slvmBuilder bitCast: receiver target: (self translateType: supertype ref))
+						valueType: supertype.
+				] ifFalse: [
+					|superCopyMethod|
+					superCopyMethod := supertype initializeCopyingFromMethod.
+					self generateCallWithReceiver: (slvmBuilder bitCast: receiver target: (self translateType: superCopyMethod receiverType))
+						receiverType: superCopyMethod receiverType
+						selector: #initializeCopyingFrom: arguments: {
+							(slvmBuilder bitCast: other target: (self translateType: superCopyMethod boundType argumentTypes first))
+						} isSuperSend: true declaredMethod: superCopyMethod
+						expectedResultType: superCopyMethod returnType
+				]
+			]
+		]
+	].
+
+	self generateAggregate: receiver with: other type: concreteMethod parent
+		fieldIteration: [ :receiverFieldPointer :otherFieldPointer :fieldValueType |
+		fieldValueType hasTrivialInitializationCopyingFrom ifTrue: [ 
+			slvmBuilder store: (slvmBuilder load: otherFieldPointer) in: receiverFieldPointer
+		] ifFalse: [ 
+			self generateVariable: receiverFieldPointer withValueType: fieldValueType initializationWithValue: otherFieldPointer initialValueKind: #copy
+		].
+	].
 ]
 
 { #category : #'automatic constructors' }
 MbndSlovimFunctionCodeGenerator >> generateAutomaticInitializationMovingFromCode [
-	self flag: 'TODO: Implement this method properly.'.
+	| receiver other |
+	concreteMethod parent hasTrivialInstanceInitializationMovingFrom ifTrue: [ 
+		^ self generateAutomaticInitializationFromCopyCode.
+	].
+
+	receiver := ssaFunction arguments first.
+	other := ssaFunction arguments second.
+	
+	concreteMethod hasExplicitSuperSend ifFalse: [
+		concreteMethod parent supertype ifNotNil: [ :supertype |
+			supertype isTrait ifFalse: [ 
+				(supertype hasTrivialInitializationCopyingFrom and: [supertype hasTrivialInitializationMovingFrom ]) ifTrue: [
+					self generateTrivialCopyFrom: (slvmBuilder bitCast: other target: (self translateType: supertype ref))
+						into: (slvmBuilder bitCast: receiver target: (self translateType: supertype ref))
+						valueType: supertype.
+				] ifFalse: [
+					| superMoveMethod selector |
+					supertype hasTrivialInitializationMovingFrom ifTrue: [ 
+						selector := #initializeCopyingFrom:.
+						superMoveMethod := supertype initializeCopyingFromMethod.
+					] ifFalse: [ 
+						selector := #initializeMovingFrom:.
+						superMoveMethod := supertype initializeMovingFromMethod.
+					].
+					self generateCallWithReceiver: (slvmBuilder bitCast: receiver target: (self translateType: superMoveMethod receiverType))
+						receiverType: superMoveMethod receiverType
+						selector: selector arguments: {
+							(slvmBuilder bitCast: other target: (self translateType: superMoveMethod boundType argumentTypes first))
+						} isSuperSend: true declaredMethod: superMoveMethod
+						expectedResultType: superMoveMethod returnType
+				]
+			]
+		]
+	].
+
+	self generateAggregate: receiver with: other type: concreteMethod parent
+		fieldIteration: [ :receiverFieldPointer :otherFieldPointer :fieldValueType |
+		(fieldValueType hasTrivialInitializationCopyingFrom and: [ fieldValueType hasTrivialInitializationMovingFrom ]) ifTrue: [ 
+			slvmBuilder store: (slvmBuilder load: otherFieldPointer) in: receiverFieldPointer
+		] ifFalse: [ 
+			self generateVariable: receiverFieldPointer withValueType: fieldValueType initializationWithValue: otherFieldPointer initialValueKind: #move
+		].
+
+	].
 ]
 
 { #category : #'automatic constructors' }
@@ -721,7 +846,25 @@ MbndSlovimFunctionCodeGenerator >> generateCase: case withMatchedValue: matchedV
 ]
 
 { #category : #visiting }
-MbndSlovimFunctionCodeGenerator >> generateCasesOfNode: node matchedValue: matchedValue caseStream: caseStream [
+MbndSlovimFunctionCodeGenerator >> generateCase: case withMatchedValue: matchedValue temporaryResult: temporaryResult resultType: resultType [
+	| result |
+	self generatePattern: case pattern matchingBindingWithValue: matchedValue.
+	result := self visitNode: case action.
+	
+	temporaryResult ifNotNil: [
+		self assert: resultType isTemporaryReferenceType.
+		slvmBuilder isLastTerminator ifFalse: [ 
+			self generateVariable: temporaryResult withValueType: resultType baseType initializationWithValue: result
+				initialValueKind: (case action type isTemporaryReferenceType ifTrue: [#move] ifFalse: [#copy]).
+		].
+	
+		result := temporaryResult
+	].
+	^ result
+]
+
+{ #category : #visiting }
+MbndSlovimFunctionCodeGenerator >> generateCasesOfNode: node matchedValue: matchedValue temporaryResult: temporaryResult caseStream: caseStream [
 	| currentCase mergeValue caseValue generatedConstants |
 	currentCase := caseStream peek.
 	mergeValue := nil.
@@ -759,7 +902,7 @@ MbndSlovimFunctionCodeGenerator >> generateCasesOfNode: node matchedValue: match
 			switchBlock := slvmBuilder currentBlock.
 			slvmBuilder currentBlock mergeBlock: mergeBlock.
 			slvmBuilder switch: matchedValue caseConstants: caseConstants asArray caseBlocks: caseConstantBlocks asArray defaultBlock: defaultBlock.
-			node type isVoidType ifFalse: [
+			(node type isVoidType not and: [ temporaryResult isNil ]) ifTrue: [
 				slvmBuilder currentBlock: mergeBlock.
 				mergeValue := slvmBuilder phi: (self translateType: node type) name: #casesResult
 			].
@@ -767,7 +910,7 @@ MbndSlovimFunctionCodeGenerator >> generateCasesOfNode: node matchedValue: match
 			"Generate the literal cases."
 			literalCases doWithIndex: [ :caseAndConstantSet :index |
 				slvmBuilder currentBlock: (caseBlocks at: index).
-				caseValue := self generateCase: caseAndConstantSet first withMatchedValue: matchedValue.
+				caseValue := self generateCase: caseAndConstantSet first withMatchedValue: matchedValue temporaryResult: temporaryResult resultType: node type.
 				slvmBuilder isLastTerminator ifFalse: [
 					mergeValue ifNotNil: [
 						mergeValue addValue: caseValue from: slvmBuilder currentBlock.
@@ -778,7 +921,7 @@ MbndSlovimFunctionCodeGenerator >> generateCasesOfNode: node matchedValue: match
 		
 			"Generate the default case."
 			slvmBuilder currentBlock: defaultBlock.
-			caseValue := self generateCasesOfNode: node matchedValue: matchedValue caseStream: caseStream.
+			caseValue := self generateCasesOfNode: node matchedValue: matchedValue temporaryResult: temporaryResult caseStream: caseStream.
 
 			slvmBuilder isLastTerminator ifFalse: [
 				mergeValue ifNotNil: [
@@ -795,13 +938,13 @@ MbndSlovimFunctionCodeGenerator >> generateCasesOfNode: node matchedValue: match
 				^ nil
 			].
 			
-			^ mergeValue
+			^ temporaryResult ifNil: [mergeValue]
 		]
 	].
 
 	currentCase ifNil: [ ^ self emitPatternMatchingFailureTrap ].
 	currentCase hasDefaultPattern ifTrue: [
-		^ self generateCase: currentCase withMatchedValue: matchedValue
+		^ self generateCase: currentCase withMatchedValue: matchedValue temporaryResult: temporaryResult resultType: node type
 	].
 
 	self halt
@@ -991,6 +1134,16 @@ MbndSlovimFunctionCodeGenerator >> generateForbiddenExceptionDuringCleanupTarget
 	builder call: (codeModuleGenerator forbiddenExceptionHandlingFunction) arguments: { exceptionPointer }.
 	builder unreachable.
 
+]
+
+{ #category : #'code generation' }
+MbndSlovimFunctionCodeGenerator >> generateFrom: startIndex to: stopIndex do: aBlock [
+	self assert: startIndex isInteger.
+	self assert: stopIndex isInteger.
+	self flag: 'TODO: Do not unroll this with large indices.'.
+	startIndex to: stopIndex do: [ :i |
+		aBlock value: (slvmBuilder constInt: i)
+	]
 ]
 
 { #category : #'as yet unclassified' }
@@ -1198,6 +1351,18 @@ MbndSlovimFunctionCodeGenerator >> generateThreeWayComparisonOf: leftOperand wit
 ]
 
 { #category : #'automatic constructors' }
+MbndSlovimFunctionCodeGenerator >> generateTrivialCopyFrom: sourcePointer into: targetPointer valueType: valueType [
+	valueType hasTrivialBasicInitialization ifTrue: [ 
+		^ slvmBuilder store: (slvmBuilder load: sourcePointer) in: targetPointer
+	].
+
+	self generateAggregate: targetPointer with: sourcePointer type: valueType
+		fieldIteration: [ :targetFieldPointer :sourceFieldPointer :fieldValueType |
+			slvmBuilder store: (slvmBuilder load: sourceFieldPointer) in: targetFieldPointer
+	].
+]
+
+{ #category : #'automatic constructors' }
 MbndSlovimFunctionCodeGenerator >> generateTuple: aggregatePointer type: aggregateType fieldIteration: fieldActionBlock when: fieldSelectionBlock [
 	aggregateType elements doWithIndex: [ :elementValueType :index |
 		(fieldSelectionBlock value: elementValueType) ifTrue: [ 
@@ -1205,6 +1370,18 @@ MbndSlovimFunctionCodeGenerator >> generateTuple: aggregatePointer type: aggrega
 			fieldPointer := slvmBuilder getReference: aggregatePointer element: (slvmBuilder constInt: index - 1).
 			fieldActionBlock value: fieldPointer value: elementValueType ref value: elementValueType
 		].
+	]
+]
+
+{ #category : #'automatic constructors' }
+MbndSlovimFunctionCodeGenerator >> generateTuple: aggregatePointer with: otherAggregatePointer type: aggregateType fieldIteration: fieldActionBlock [
+	aggregateType elements doWithIndex: [ :fieldValueType :index |
+		| fieldIndex fieldPointer otherFieldPointer |
+		fieldIndex := (slvmBuilder constInt: index - 1).
+		
+		fieldPointer := slvmBuilder getReference: aggregatePointer element: fieldIndex.
+		otherFieldPointer := slvmBuilder getReference: otherAggregatePointer element: fieldIndex.
+		fieldActionBlock value: fieldPointer value: otherFieldPointer value: fieldValueType
 	]
 ]
 
@@ -1424,6 +1601,13 @@ MbndSlovimFunctionCodeGenerator >> generateVariable: variable finalizationForVal
 ]
 
 { #category : #visiting }
+MbndSlovimFunctionCodeGenerator >> generateVariable: ssaValue initializationWithValueType: valueType [
+	self halt
+	
+	"generateVariable: ssaValue withValueType: valueType initializationWithValue: initialValue initialValueKind: initialValueKind"
+]
+
+{ #category : #visiting }
 MbndSlovimFunctionCodeGenerator >> generateVariable: ssaValue withValueType: valueType initializationWithValue: initialValue initialValueKind: initialValueKind [
 	| initialLoadedValue |
 	self assert: initialValueKind isNotNil.
@@ -1512,6 +1696,57 @@ MbndSlovimFunctionCodeGenerator >> generateVariant: aggregatePointer type: aggre
 		}.
 		
 		fieldActionBlock value: fieldPointer value: variantReferenceType value: variantValueType.
+		
+		slvmBuilder isLastTerminator ifFalse: [
+			slvmBuilder jump: mergeBlock
+		]
+	].
+
+	slvmBuilder currentBlock: mergeBlock.
+
+]
+
+{ #category : #'automatic constructors' }
+MbndSlovimFunctionCodeGenerator >> generateVariant: aggregatePointer with: otherAggregatePointer type: aggregateType fieldIteration: fieldActionBlock [
+	| interestingTypes interestingConstants interestingBlocks mergeBlock typeSelector typeSelectorPointer otherTypeSelectorPointer |
+	interestingTypes := OrderedCollection new.
+	interestingConstants := OrderedCollection new.
+	interestingBlocks := OrderedCollection new.
+	aggregateType components doWithIndex: [ :each :index |
+		interestingTypes add: each.
+		interestingConstants add: (slvmBuilder constUChar: index - 1).
+		interestingBlocks add: (slvmBuilder newBasicBlock: #variantTypeCase).
+	].
+
+	interestingTypes ifEmpty: [ ^ self ].
+
+	typeSelectorPointer := slvmBuilder getReference: aggregatePointer element: (slvmBuilder constInt: 0).
+	otherTypeSelectorPointer := slvmBuilder getReference: otherAggregatePointer element: (slvmBuilder constInt: 0).
+	fieldActionBlock value: typeSelectorPointer value: otherTypeSelectorPointer value: self compilationTarget uint8Type.
+
+	typeSelector := slvmBuilder load: otherTypeSelectorPointer.
+	mergeBlock := slvmBuilder newBasicBlock: #mergeBlock.
+	slvmBuilder currentBlock mergeBlock: mergeBlock.
+	
+	slvmBuilder switch: typeSelector caseConstants: interestingConstants asArray caseBlocks: interestingBlocks asArray defaultBlock: mergeBlock.
+	
+	interestingTypes doWithIndex: [ :variantValueType :caseIndex |
+		| typeSelectorValue fieldPointer otherFieldPointer |
+		slvmBuilder currentBlock: (interestingBlocks at: caseIndex).
+		typeSelectorValue := (interestingConstants at: caseIndex) value.
+		
+		fieldPointer := slvmBuilder getPointer: aggregatePointer element: {
+			"Variant itself" slvmBuilder constInt: 0.
+			"Union" slvmBuilder constInt: 1.
+			"Union field" slvmBuilder constInt: typeSelectorValue.
+		}.
+		otherFieldPointer := slvmBuilder getPointer: otherAggregatePointer element: {
+			"Variant itself" slvmBuilder constInt: 0.
+			"Union" slvmBuilder constInt: 1.
+			"Union field" slvmBuilder constInt: typeSelectorValue.
+		}.
+		
+		fieldActionBlock value: fieldPointer value: otherFieldPointer value: variantValueType.
 		
 		slvmBuilder isLastTerminator ifFalse: [
 			slvmBuilder jump: mergeBlock
@@ -1954,10 +2189,25 @@ MbndSlovimFunctionCodeGenerator >> visitBooleanToDynamicObjectCastNode: node [
 
 { #category : #visiting }
 MbndSlovimFunctionCodeGenerator >> visitCasesOfNode: node [
-	| matchedValue literalGroupStream |
+	| matchedValue literalGroupStream temporaryResult valueType result |
 	matchedValue := self visitNode: node matchedExpression.
 	literalGroupStream := node cases readStream.
-	^ self generateCasesOfNode: node matchedValue: matchedValue caseStream: literalGroupStream
+	temporaryResult := nil.
+	node type isTemporaryReferenceType ifTrue: [
+		valueType := node type baseType.
+		temporaryResult := self allocateTemporaryStorageFor: (self translateType: valueType) withStorageCreationNode: node storageCreationNode.
+	].
+
+	result := self generateCasesOfNode: node matchedValue: matchedValue temporaryResult: temporaryResult caseStream: literalGroupStream.
+	
+	(slvmBuilder isLastTerminator not and: [temporaryResult isNotNil]) ifTrue: [ 
+		self assert: result == temporaryResult.
+		valueType hasTrivialFinalization ifFalse: [
+			self addLocalVariable: temporaryResult withValueType: valueType cleanUpActionForNode: node
+		].
+	].
+
+	^ result
 ]
 
 { #category : #visiting }
@@ -1996,6 +2246,29 @@ MbndSlovimFunctionCodeGenerator >> visitConvertToCompilerObjectCastNode: node [
 	expectedType := self translateType: node type.
 	self assert: convertedValue type == expectedType.
 	^ convertedValue 
+]
+
+{ #category : #visiting }
+MbndSlovimFunctionCodeGenerator >> visitCopyIntoTemporaryVariableNode: node [
+	| value valueType tempVar |
+	value := self visitNode: node value.
+	self assert: node type isTemporaryReferenceType. 
+	valueType := node type baseType.
+	tempVar := self allocateTemporaryStorageFor: (self translateType: valueType) withStorageCreationNode: node storageCreationNode.
+	
+	value type isPointerType ifTrue: [ 
+		slvmBuilder store: value in: tempVar.
+	] ifFalse: [
+		tempVar ~~ value ifTrue: [ 
+			self generateVariable: tempVar withValueType: valueType initializationWithValue: value initialValueKind: #copy
+		].
+	].
+
+	valueType hasTrivialFinalization ifFalse: [ 
+		self addLocalVariable: tempVar withValueType: valueType cleanUpActionForNode: node
+	].
+	
+	^ tempVar
 ]
 
 { #category : #visiting }
@@ -2417,6 +2690,9 @@ MbndSlovimFunctionCodeGenerator >> visitIOChannelSendAction: node [
 { #category : #visiting }
 MbndSlovimFunctionCodeGenerator >> visitIfConditionNode: node [
 	| condition mergeBlock thenBlock elseBlock trueResult falseResult hasTrueResult hasFalseResult resultType branchBlock |
+	"Special case where we cannot use a phi node."
+	node type isTemporaryReferenceType ifTrue: [ ^ self visitIfTemporaryCreatingConditionNode: node ].
+	
 	condition := self visitBooleanNode: node condition.
 	thenBlock := node trueValue ifNotNil: [slvmBuilder newBasicBlock: #ifThen ].
 	elseBlock := node falseValue ifNotNil: [slvmBuilder newBasicBlock: #ifElse].
@@ -2490,6 +2766,65 @@ MbndSlovimFunctionCodeGenerator >> visitIfConditionNode: node [
 
 	self error: 'Should not reach here.'
 
+]
+
+{ #category : #visiting }
+MbndSlovimFunctionCodeGenerator >> visitIfTemporaryCreatingConditionNode: node [
+	| condition mergeBlock thenBlock elseBlock valueType tempVar |
+	condition := self visitBooleanNode: node condition.
+
+	thenBlock := slvmBuilder newBasicBlock: #ifThen.
+	elseBlock := slvmBuilder newBasicBlock: #ifElse.
+	mergeBlock := slvmBuilder newBasicBlock: #ifMerge.
+		
+	slvmBuilder currentBlock mergeBlock: mergeBlock.
+	slvmBuilder branch: condition ifTrue: thenBlock ifFalse: elseBlock.
+	
+	self assert: node type isTemporaryReferenceType.
+	valueType := node type baseType.
+	tempVar := self allocateTemporaryStorageFor: (self translateType: valueType) withStorageCreationNode: node storageCreationNode.
+	
+	slvmBuilder currentBlock: thenBlock.
+	node trueValue ifNil: [
+		self generateVariable: tempVar initializationWithValueType: valueType
+	] ifNotNil: [
+		| trueResult |
+		trueResult := self visitNode: node trueValue.
+		slvmBuilder isLastTerminator ifFalse: [ 
+			self generateVariable: tempVar withValueType: valueType initializationWithValue: trueResult initialValueKind: (node trueValue type isTemporaryReferenceType
+				ifTrue: [#move] ifFalse: [#copy]).
+			slvmBuilder jump: mergeBlock.
+		]
+	].
+
+	slvmBuilder isLastTerminator ifFalse: [ 
+		slvmBuilder jump: mergeBlock.
+	].
+
+	slvmBuilder currentBlock: elseBlock.
+	node falseValue ifNil: [
+		self generateVariable: tempVar initializationWithValueType: valueType
+	] ifNotNil: [
+		| falseResult |
+		falseResult := self visitNode: node falseValue.
+		slvmBuilder isLastTerminator ifFalse: [ 
+			self generateVariable: tempVar withValueType: valueType initializationWithValue: falseResult initialValueKind: (node falseValue type isTemporaryReferenceType
+				ifTrue: [#move] ifFalse: [#copy]).
+		]
+	].
+
+	slvmBuilder isLastTerminator ifFalse: [ 
+		slvmBuilder jump: mergeBlock.
+	].
+
+	"Enter the merge block."
+	slvmBuilder currentBlock: mergeBlock.
+
+	valueType hasTrivialFinalization ifFalse: [
+		self addLocalVariable: tempVar withValueType: valueType cleanUpActionForNode: node
+	].
+
+	^ tempVar
 ]
 
 { #category : #visiting }

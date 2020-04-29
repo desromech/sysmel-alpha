@@ -22,7 +22,9 @@ MbndTemporaryReferenceType >> addDefaultConversionRules [
 			self
 				addConversionTo: baseType withoutTopDecorations rule: MbndReferenceLoadTypeConversionRule.
 		].
-
+	
+		"baseType addImplicitConversionTo: self rule: MbndCopyIntoTemporaryTypeConversionRule.
+		baseType const ref addImplicitConversionTo: self rule: MbndCopyIntoTemporaryTypeConversionRule."
 		self addImplicitConversionRule: MbndTemporaryReferenceAsReferenceRule new.
 	]
 ]

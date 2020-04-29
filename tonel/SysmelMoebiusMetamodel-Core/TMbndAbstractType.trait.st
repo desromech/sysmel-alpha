@@ -497,9 +497,14 @@ TMbndAbstractType >> canValueBeCreatedForNode: node [
 ]
 
 { #category : #'as yet unclassified' }
+TMbndAbstractType >> coercedAsConditionalResult [
+	^ self
+]
+
+{ #category : #'as yet unclassified' }
 TMbndAbstractType >> coercedConditionallyWithUndefinedType [
 	^ self isPointerLikeValueType
-		ifTrue: [ self ]
+		ifTrue: [ self coercedAsConditionalResult ]
 		ifFalse: [ self compilationTarget voidType ]
 ]
 

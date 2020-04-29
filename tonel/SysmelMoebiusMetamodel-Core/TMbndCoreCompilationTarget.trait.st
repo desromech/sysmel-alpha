@@ -229,10 +229,10 @@ TMbndCoreCompilationTarget >> computeConditionalResultCoercionTypeFor: leftType 
 	
 	leftValueType := leftType withoutReferences.
 	rightValueType := rightType withoutReferences.
-	leftValueType == rightValueType ifTrue: [ ^ leftValueType ].
+	leftValueType == rightValueType ifTrue: [ ^ leftValueType coercedAsConditionalResult ].
 
-	^ (self computeArithmeticCoercionTypeFor: leftType with: rightType leftNode: leftNode rightNode: rightNode inScope: aScope)
-		ifNil: [self voidType].
+	^ ((self computeArithmeticCoercionTypeFor: leftType with: rightType leftNode: leftNode rightNode: rightNode inScope: aScope)
+		ifNil: [self voidType]) coercedAsConditionalResult.
 	
 ]
 

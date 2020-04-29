@@ -29,7 +29,7 @@ MbndAbstractTypeConversionRule >> canBeUsedToConvertFrom: sourceType into: targe
 
 { #category : #testing }
 MbndAbstractTypeConversionRule >> canBeUsedToConvertNode: node from: sourceType into: targetType [
-	^ self subclassResponsibility
+	^ targetType isTemporaryReferenceType
 ]
 
 { #category : #acccessing }

@@ -75,20 +75,19 @@ template Parser(RT: Type)
         self nextToken selectCase: #{
         TokenType Integer : {
             self advanceToken.
-            ## FIXME: Avoid these explicit returns.
             tokenStream text first = '-' ifTrue: {
-                return: (callback _ onInteger: 0)
+                callback _ onInteger: 0
             } ifFalse: {
-                return: (callback _ onUnsignedInteger: 0)
+                callback _ onUnsignedInteger: 0
             }
         }.
 
         TokenType HexInteger : {
             self advanceToken.
             tokenStream text first = '-' ifTrue: {
-                return: (callback _ onInteger: 0)
+                callback _ onInteger: 0
             } ifFalse: {
-                return: (callback _ onUnsignedInteger: 0)
+                callback _ onUnsignedInteger: 0
             }
         }.
 
@@ -112,7 +111,23 @@ template Parser(RT: Type)
         }.
 
         TokenType Identifier : {
-            self advanceToken.
+            #*tokenStream text selectCase: #{
+            "nil" asMutableString : {
+                self advanceToken.
+                callback _ onNil
+            }.
+            "true" asMutableString : {
+                self advanceToken.
+                callback _ onTrue
+            }.
+            "false" asMutableString : {
+                self advanceToken.
+                callback _ onFalse
+            }.
+            _ : {
+                callback _ onError
+            }.
+            }*#
             callback _ onError
         }.
 

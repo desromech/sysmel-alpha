@@ -213,6 +213,11 @@ MbndAstNode >> isConvertToCompilerObjectCastNode [
 ]
 
 { #category : #testing }
+MbndAstNode >> isCopyIntoTemporaryVariableNode [
+	^ false
+]
+
+{ #category : #testing }
 MbndAstNode >> isDecorationChangeTypeCastNode [
 	^ false
 ]

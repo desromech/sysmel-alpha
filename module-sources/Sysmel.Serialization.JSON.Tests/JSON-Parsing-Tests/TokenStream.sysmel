@@ -71,6 +71,7 @@ class TokenStreamTest superclass: Stdn Testing TestCase; definition: {
 
     test: testString with: {
         self assert: (TokenStream for: "\"Hello World\\n\"" asMutableString readMemoryStream address) next equals: TokenType String.
+        self assert: (TokenStream for: "\"Hello World\\n\"" asMutableString readMemoryStream address) nextText equals: "Hello World\n" asMutableString.
     }.
 }.
 

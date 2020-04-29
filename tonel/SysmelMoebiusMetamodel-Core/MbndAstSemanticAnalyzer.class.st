@@ -50,6 +50,24 @@ MbndAstSemanticAnalyzer >> addImplicitCastFor: nodeRequiringCasting to: expected
 
 ]
 
+{ #category : #'implicit casting' }
+MbndAstSemanticAnalyzer >> addImplicitCastForOrMoveable: nodeRequiringCasting to: expectedTargetType [
+	| sourceType |
+	sourceType := nodeRequiringCasting type.
+	sourceType ifNil: [ 
+		(expectedTargetType canValueBeCreatedForNode: nodeRequiringCasting) ifTrue: [ 
+			^ self analyzeNodeIfNeeded: (expectedTargetType createValueForNode: nodeRequiringCasting withAnalyzer: self)
+		].
+		^ self addImplicitCastForOrMoveable: (self analyzeNodeIfNeeded: nodeRequiringCasting) to: expectedTargetType
+	].
+	
+	(sourceType isTemporaryReferenceType and: [ sourceType baseType = expectedTargetType ]) ifTrue: [ 
+		^ nodeRequiringCasting
+	].
+
+	^ self addImplicitCastFor: nodeRequiringCasting to: expectedTargetType
+]
+
 { #category : #visiting }
 MbndAstSemanticAnalyzer >> addNodeWithImplicitFinalization: node [
 	currentCleanUpScope ifNil: [
@@ -70,6 +88,10 @@ MbndAstSemanticAnalyzer >> addReceiverImplicitCastFor: nodeRequiringCasting to: 
 		(sourceType isReferenceType not and: [ sourceType isTemporaryReferenceType not ]) ifTrue: [
 			sourceType isTypePassedByReference ifTrue: [
 				self halt.
+				^ self visitNode: (MbndAstCopyIntoTemporaryVariableNode new
+					position: nodeRequiringCasting;
+					value: nodeRequiringCasting;
+					yourself)
 			] ifFalse: [
 				"Spill the receiver in a temporary."
 				self flag: 'TODO: convert this into a proper conversion rule/node.'.
@@ -810,14 +832,21 @@ MbndAstSemanticAnalyzer >> visitCasesOfNode: node [
 
 	resultType ifNil: [ resultType := self compilationTarget voidType ].
 
-	resultType isMemoryReturnedType ifTrue: [ 
-		resultType := resultType tempRef
-	].
-
 	resultType isVoidType ifFalse: [
-		result cases do: [ :case |
-			case action: (self addImplicitCastFor: case action to: resultType)
-		]
+		resultType isTypePassedByReference ifTrue: [ 
+			result cases do: [ :case |
+				case action: (self addImplicitCastForOrMoveable: case action to: resultType)
+			].
+		
+			resultType := resultType tempRef.
+			resultType baseType hasTrivialFinalization ifFalse: [
+				self addNodeWithImplicitFinalization: result
+			].
+		] ifFalse: [ 
+			result cases do: [ :case |
+				case action: (self addImplicitCastFor: case action to: resultType)
+			]
+		].
 	].
 	
 	^ result
@@ -860,6 +889,19 @@ MbndAstSemanticAnalyzer >> visitCompileTimeConstantDefinitionNode: node [
 	alias enqueueDelayedSemanticAnalysis.
 
 	^ self astBuilder literalVoid
+]
+
+{ #category : #visiting }
+MbndAstSemanticAnalyzer >> visitCopyIntoTemporaryVariableNode: node [
+	| result valueType |
+	result := super visitCopyIntoTemporaryVariableNode: node.
+	valueType := result value type withoutReferences withoutTopDecorations.
+	valueType hasTrivialFinalization ifFalse: [ 
+		self addNodeWithImplicitFinalization: result
+	].
+
+	result type: valueType tempRef.
+	^ result
 ]
 
 { #category : #visiting }
@@ -1060,6 +1102,36 @@ MbndAstSemanticAnalyzer >> visitExpandedDynamicMessageSendNode: node [
 			self addImplicitCastFor: arg to: dynobjectType
 		]);
 		type: dynobjectType
+]
+
+{ #category : #visiting }
+MbndAstSemanticAnalyzer >> visitExpandedMessageSendNode: node [
+	| result receiverType method |
+	result := node copy
+		receiver: (node receiver ifNotNil: [:receiver | self analyzeNodeIfNeeded: node receiver]);
+		selector: (self analyzeNodeIfNeeded: node selector);
+		arguments: (self analyzeNodesIfNeeded: node arguments).
+		
+	"Find the method in order to perform a typed message send."
+	result receiver ifNil: [ 
+		result selector isLiteralSymbolValueNode ifFalse: [ 
+			self error: 'Message send without a receiver cannot have non-constant selector.' at: result
+		].
+	
+		method := scope lookupOverloadedSelector: result selector value.
+		method ifNil: [
+			self error: 'Failed to find definition for scoped selector {1}.' format: { result selector value printString } at: result
+		].
+	
+		^ method analyzeExpandedMessageSendNode: result with: self
+	].
+
+	receiverType := result receiver type.
+	result selector isLiteralSymbolValueNode ifTrue: [
+		^ receiverType analyzeExpandedMessageSendNode: result with: self
+	].
+
+	^ receiverType analyzeMessageSendNodeWithDynamicSelector: result with: self
 ]
 
 { #category : #visiting }
@@ -1509,10 +1581,24 @@ MbndAstSemanticAnalyzer >> visitIfConditionNode: node [
 		(result falseValue isLiteralValueNode and: [ result falseValue type isUndefinedType ]) ifTrue: [ 			result falseValue: nil.
 		].
 	] ifFalse: [
-		result
-			trueValue: (self addImplicitCastFor: result trueValue to: resultCoercionType);
-			falseValue: (self addImplicitCastFor: result falseValue to: resultCoercionType).
+
+		resultCoercionType isTypePassedByReference ifTrue: [
+			result
+				trueValue: (self addImplicitCastForOrMoveable: result trueValue to: resultCoercionType);
+				falseValue: (self addImplicitCastForOrMoveable: result falseValue to: resultCoercionType).
+
+			resultCoercionType := resultCoercionType tempRef.
+			resultCoercionType baseType hasTrivialFinalization ifFalse: [
+				self addNodeWithImplicitFinalization: result
+			].
+		] ifFalse: [ 
+			result
+				trueValue: (self addImplicitCastFor: result trueValue to: resultCoercionType);
+				falseValue: (self addImplicitCastFor: result falseValue to: resultCoercionType).
+		]
 	].
+
+
 	result type: resultCoercionType.
 	^ result
 ]

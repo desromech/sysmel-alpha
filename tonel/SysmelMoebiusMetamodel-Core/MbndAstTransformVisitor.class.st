@@ -160,6 +160,13 @@ MbndAstTransformVisitor >> visitConvertToCompilerObjectCastNode: node [
 ]
 
 { #category : #visiting }
+MbndAstTransformVisitor >> visitCopyIntoTemporaryVariableNode: node [
+	^ node copy
+		value: (self visitNode: node value);
+		yourself
+]
+
+{ #category : #visiting }
 MbndAstTransformVisitor >> visitDecorationChangeTypeCastNode: node [
 	^ self visitSpecificCastNode: node
 ]

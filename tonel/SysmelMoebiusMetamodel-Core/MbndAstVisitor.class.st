@@ -115,6 +115,11 @@ MbndAstVisitor >> visitConvertToCompilerObjectCastNode: node [
 ]
 
 { #category : #visiting }
+MbndAstVisitor >> visitCopyIntoTemporaryVariableNode: node [
+	self subclassResponsibility
+]
+
+{ #category : #visiting }
 MbndAstVisitor >> visitDecorationChangeTypeCastNode: node [
 	self subclassResponsibility
 ]
