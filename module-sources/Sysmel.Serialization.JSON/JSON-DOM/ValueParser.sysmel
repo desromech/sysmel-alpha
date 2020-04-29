@@ -1,0 +1,13 @@
+namespace Stdn definition: {
+namespace Serialization definition: {
+namespace JSON definition: {
+
+compileTime constant ValueParser := Parser(Value).
+
+class ValueParserCallback superclass: ValueParser; definition: {
+
+}.
+
+}. ## End of namespace JSON
+}. ## End of namespace Serialization
+}. ## End of namespace Stdn

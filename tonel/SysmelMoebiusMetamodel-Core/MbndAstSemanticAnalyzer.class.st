@@ -810,6 +810,10 @@ MbndAstSemanticAnalyzer >> visitCasesOfNode: node [
 
 	resultType ifNil: [ resultType := self compilationTarget voidType ].
 
+	resultType isMemoryReturnedType ifTrue: [ 
+		resultType := resultType tempRef
+	].
+
 	resultType isVoidType ifFalse: [
 		result cases do: [ :case |
 			case action: (self addImplicitCastFor: case action to: resultType)

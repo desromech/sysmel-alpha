@@ -11,6 +11,19 @@ Class {
 	#category : #'SysmelMoebiusMetamodel-Core-Values'
 }
 
+{ #category : #serialization }
+MbndVariantTypeInstance class >> messagePackTypeName [
+	^ #VariantTypeInstance
+]
+
+{ #category : #converting }
+MbndVariantTypeInstance >> asLiteralValueNode [
+	^ MbndAstLiteralValueNode new
+		value: self;
+		type: (type isPOD ifTrue: [ type ] ifFalse: [ type const ref]);
+		yourself
+]
+
 { #category : #accessing }
 MbndVariantTypeInstance >> content [
 	^ content
@@ -21,10 +34,26 @@ MbndVariantTypeInstance >> content: anObject [
 	content := anObject
 ]
 
+{ #category : #serialization }
+MbndVariantTypeInstance >> encodeFieldsForMessagePackWith: graphEncoder [
+	^ {
+		#type . type encodeGraphForMessagePackWith: graphEncoder.
+		#typeSelector . typeSelector encodeGraphForMessagePackWith: graphEncoder.
+		#content . content encodeGraphForMessagePackWith: graphEncoder
+	}
+]
+
 { #category : #testing }
 MbndVariantTypeInstance >> isAllZeros [
 	^ typeSelector = 0 and: [ content = 0 or: [content isNil or:
 			[ content isMbndAbstractValue and: [ content isAllZeros ] ] ]]
+]
+
+{ #category : #serialization }
+MbndVariantTypeInstance >> materializeWithGraphDecoder: graphDecoder withFields: encodedFields [
+	type := encodedFields at: #type.
+	typeSelector := encodedFields at: #typeSelector.
+	content := encodedFields at: #content.
 ]
 
 { #category : #accessing }

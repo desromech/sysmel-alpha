@@ -1,2 +1,3 @@
 loadFileOnce: "Value.sysmel".
 loadFileOnce: "ValueVisitor.sysmel".
+loadFileOnce: "ValueParser.sysmel".

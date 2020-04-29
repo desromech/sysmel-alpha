@@ -51,13 +51,11 @@ template Parser(RT: Type)
 
     public field callback type: Callback pointer.
     public field tokenStream type: TokenStream.
+    field currentToken type: TokenType.
 
     method beginReadingStream: (stream: Stdn IO Stream pointer) ::=> Void := {
         tokenStream := TokenStream for: stream.
     }.
-
-    method readBytes: (count: UIntPointer) into: (buffer: Void pointer) ::=> Boolean8
-        := reader nextBytes: count into: buffer.
 
     method parseNextArray => ResultType := {
         callback _ onError
@@ -65,6 +63,18 @@ template Parser(RT: Type)
 
     method parseNextObject => ResultType := {
         callback _ onError
+    }.
+
+    method nextToken => TokenType := {
+        currentToken = TokenType None ifTrue: {
+            currentToken := tokenStream next
+        }.
+
+        currentToken
+    }.
+
+    method advanceToken => TokenType := {
+        currentToken := TokenType None
     }.
 
     method parseNextValue => ResultType := {

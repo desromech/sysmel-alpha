@@ -82,7 +82,7 @@ MbndVariantUnionType >> components: anObject [
 MbndVariantUnionType >> defaultValueAt: aPosition [
 	| content |
 	
-	content := (components first defaultValueAt: aPosition) unwrapMbndValue..
+	content := (components first defaultValueAt: aPosition) unwrapMbndValue.
 
 	^ MbndVariantTypeInstance new
 		type: self;
@@ -205,6 +205,11 @@ MbndVariantUnionType >> isCopyable [
 MbndVariantUnionType >> isMoveable [
 	components ifNil: [ ^ super isMoveable ].
 	^ components allSatisfy: [:each | each isMoveable ]
+]
+
+{ #category : #'testing methods' }
+MbndVariantUnionType >> isTypePassedByReference [
+	^ true
 ]
 
 { #category : #'testing methods' }

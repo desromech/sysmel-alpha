@@ -338,7 +338,10 @@ MbndSlovimLiteralValueGenerator >> visitUnionType: type [
 MbndSlovimLiteralValueGenerator >> visitVariantUnionType: type [
 	| slvmType |
 	slvmType := self translateType: type.
-	literalValue isAllZeros ifTrue: [ ^ slvmType defaultConstant ].
+	literalValue isAllZeros ifTrue: [
+		^ slvmType defaultConstant 
+	].
+
 	self halt.
 	^ SLVMConstant union: slvmType blob: literalValue data
 

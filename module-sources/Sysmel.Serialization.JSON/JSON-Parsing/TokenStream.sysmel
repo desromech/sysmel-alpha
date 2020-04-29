@@ -3,7 +3,8 @@ namespace Serialization definition: {
 namespace JSON definition: {
 
 enum TokenType valueType: UInt8; values: #{
-    EOF: 0.
+    None: 0.
+    EOF:.
     Error:.
     LeftCurlyBracket:.
     RightCurlyBracket:.
