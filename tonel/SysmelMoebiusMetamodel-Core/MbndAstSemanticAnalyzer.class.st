@@ -87,7 +87,6 @@ MbndAstSemanticAnalyzer >> addReceiverImplicitCastFor: nodeRequiringCasting to: 
 	(expectedTargetType isReferenceType and: [ expectedTargetType isConstantType not]) ifTrue: [
 		(sourceType isReferenceType not and: [ sourceType isTemporaryReferenceType not ]) ifTrue: [
 			sourceType isTypePassedByReference ifTrue: [
-				self halt.
 				^ self visitNode: (MbndAstCopyIntoTemporaryVariableNode new
 					position: nodeRequiringCasting;
 					value: nodeRequiringCasting;

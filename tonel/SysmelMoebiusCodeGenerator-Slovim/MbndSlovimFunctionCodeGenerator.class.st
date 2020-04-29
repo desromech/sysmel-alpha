@@ -865,9 +865,8 @@ MbndSlovimFunctionCodeGenerator >> generateCase: case withMatchedValue: matchedV
 
 { #category : #visiting }
 MbndSlovimFunctionCodeGenerator >> generateCasesOfNode: node matchedValue: matchedValue temporaryResult: temporaryResult caseStream: caseStream [
-	| currentCase mergeValue caseValue generatedConstants |
+	| currentCase |
 	currentCase := caseStream peek.
-	mergeValue := nil.
 	matchedValue type isIntegerType ifTrue: [
 		| literalCases |
 		literalCases := Array streamContents: [ :out |
@@ -878,67 +877,8 @@ MbndSlovimFunctionCodeGenerator >> generateCasesOfNode: node matchedValue: match
 			]
 		].
 	
-		generatedConstants := Set new.
 		literalCases ifNotEmpty: [
-			| caseConstants caseConstantBlocks caseBlocks defaultBlock mergeBlock switchBlock |
-			caseBlocks := literalCases collect: [ :case | slvmBuilder newBasicBlock: #casesOfCase ].
-			caseConstants := OrderedCollection new.
-			caseConstantBlocks := OrderedCollection new.
-			literalCases doWithIndex: [ :caseAndConstantSet :index |
-				| block |
-				block := caseBlocks at: index.
-				caseAndConstantSet second do: [ :literalConstant |
-					(generatedConstants includes: literalConstant) ifFalse: [ 
-						generatedConstants add: literalConstant.
-						caseConstants add: literalConstant.
-						caseConstantBlocks add: block
-					].
-				]
-			].
-
-			defaultBlock := slvmBuilder newBasicBlock: #casesOfDefault.
-			mergeBlock := slvmBuilder newBasicBlock: #casesOfMerge.
-
-			switchBlock := slvmBuilder currentBlock.
-			slvmBuilder currentBlock mergeBlock: mergeBlock.
-			slvmBuilder switch: matchedValue caseConstants: caseConstants asArray caseBlocks: caseConstantBlocks asArray defaultBlock: defaultBlock.
-			(node type isVoidType not and: [ temporaryResult isNil ]) ifTrue: [
-				slvmBuilder currentBlock: mergeBlock.
-				mergeValue := slvmBuilder phi: (self translateType: node type) name: #casesResult
-			].
-
-			"Generate the literal cases."
-			literalCases doWithIndex: [ :caseAndConstantSet :index |
-				slvmBuilder currentBlock: (caseBlocks at: index).
-				caseValue := self generateCase: caseAndConstantSet first withMatchedValue: matchedValue temporaryResult: temporaryResult resultType: node type.
-				slvmBuilder isLastTerminator ifFalse: [
-					mergeValue ifNotNil: [
-						mergeValue addValue: caseValue from: slvmBuilder currentBlock.
-					].
-					slvmBuilder jump: mergeBlock
-				]
-			].
-		
-			"Generate the default case."
-			slvmBuilder currentBlock: defaultBlock.
-			caseValue := self generateCasesOfNode: node matchedValue: matchedValue temporaryResult: temporaryResult caseStream: caseStream.
-
-			slvmBuilder isLastTerminator ifFalse: [
-				mergeValue ifNotNil: [
-					mergeValue addValue: caseValue from: slvmBuilder currentBlock.
-				].
-				slvmBuilder jump: mergeBlock
-			].
-
-			"Move back to the merge block."		
-			slvmBuilder currentBlock: mergeBlock.
-			mergeBlock predecessors ifEmpty: [
-				slvmBuilder unreachable.
-				mergeValue ifNotNil: [ mergeValue removeFromBlock ].
-				^ nil
-			].
-			
-			^ temporaryResult ifNil: [mergeValue]
+			^ self generateCasesOfNode: node matchedValue: matchedValue temporaryResult: temporaryResult caseStream: caseStream literalIntegerCases: literalCases
 		]
 	].
 
@@ -947,7 +887,124 @@ MbndSlovimFunctionCodeGenerator >> generateCasesOfNode: node matchedValue: match
 		^ self generateCase: currentCase withMatchedValue: matchedValue temporaryResult: temporaryResult resultType: node type
 	].
 
-	self halt
+	caseStream next.
+	^ self generateCasesOfNode: node matchedValue: matchedValue temporaryResult: temporaryResult caseStream: caseStream ifCascadeCase: currentCase
+]
+
+{ #category : #visiting }
+MbndSlovimFunctionCodeGenerator >> generateCasesOfNode: node matchedValue: matchedValue temporaryResult: temporaryResult caseStream: caseStream ifCascadeCase: case [
+	| isPatternMatched patternMatchedBlock nextPatternBlock mergeBlock patternMatchedResult patternMatchedResultBlock nextPatternResult nextPatternResultBlock phi |
+	isPatternMatched := self generatePattern: case pattern matchingWithValue: matchedValue.
+	patternMatchedBlock := slvmBuilder newBasicBlock: #patternMatched.
+	nextPatternBlock := slvmBuilder newBasicBlock: #nextPatternTesting.
+	mergeBlock := slvmBuilder newBasicBlock: #mergeBlock.
+
+	slvmBuilder currentBlock mergeBlock: mergeBlock.
+	slvmBuilder branch: isPatternMatched ifTrue: patternMatchedBlock ifFalse: nextPatternBlock.
+	
+	slvmBuilder currentBlock: patternMatchedBlock.
+	patternMatchedResult := self generateCase: case withMatchedValue: matchedValue temporaryResult: temporaryResult resultType: node type.
+	patternMatchedResultBlock := nil.
+	
+	slvmBuilder isLastTerminator ifFalse: [
+		patternMatchedResultBlock := slvmBuilder currentBlock.
+		slvmBuilder jump: mergeBlock.
+	].
+	
+	"Generate the next patterns."
+	slvmBuilder currentBlock: nextPatternBlock.
+	nextPatternResult := self generateCasesOfNode: node matchedValue: matchedValue temporaryResult: temporaryResult caseStream: caseStream.
+	nextPatternResultBlock := nil.
+	slvmBuilder isLastTerminator ifFalse: [
+		nextPatternResultBlock := slvmBuilder currentBlock.
+		slvmBuilder jump: mergeBlock.
+	].
+
+	"Merge the control flow."
+	slvmBuilder currentBlock: mergeBlock.
+	mergeBlock predecessors ifEmpty: [
+		mergeBlock unreachable.
+	].
+
+	temporaryResult ifNotNil: [
+		^ temporaryResult
+	].
+
+	node type isVoidType ifTrue: [ ^ nil ].
+	
+	phi := slvmBuilder phi: (self translateType: node type).
+	patternMatchedResultBlock ifNotNil: [ 
+		phi addValue: patternMatchedResult from: patternMatchedResultBlock
+	].
+	nextPatternResultBlock ifNotNil: [ 
+		phi addValue: nextPatternResult from: nextPatternResultBlock
+	].
+
+	^ phi
+]
+
+{ #category : #visiting }
+MbndSlovimFunctionCodeGenerator >> generateCasesOfNode: node matchedValue: matchedValue temporaryResult: temporaryResult caseStream: caseStream literalIntegerCases: literalCases [
+	| caseConstants caseConstantBlocks caseBlocks defaultBlock mergeBlock switchBlock generatedConstants mergeValue caseValue |
+	caseBlocks := literalCases collect: [ :case | slvmBuilder newBasicBlock: #casesOfCase ].
+	caseConstants := OrderedCollection new.
+	caseConstantBlocks := OrderedCollection new.
+	generatedConstants := Set new.
+	literalCases doWithIndex: [ :caseAndConstantSet :index |
+		| block |
+		block := caseBlocks at: index.
+		caseAndConstantSet second do: [ :literalConstant |
+		    (generatedConstants includes: literalConstant) ifFalse: [ 
+		        generatedConstants add: literalConstant.
+		        caseConstants add: literalConstant.
+		        caseConstantBlocks add: block
+		    ].
+		]
+	].
+
+	defaultBlock := slvmBuilder newBasicBlock: #casesOfDefault.
+	mergeBlock := slvmBuilder newBasicBlock: #casesOfMerge.
+
+	switchBlock := slvmBuilder currentBlock.
+	slvmBuilder currentBlock mergeBlock: mergeBlock.
+	slvmBuilder switch: matchedValue caseConstants: caseConstants asArray caseBlocks: caseConstantBlocks asArray defaultBlock: defaultBlock.
+	(node type isVoidType not and: [ temporaryResult isNil ]) ifTrue: [
+		slvmBuilder currentBlock: mergeBlock.
+		mergeValue := slvmBuilder phi: (self translateType: node type) name: #casesResult
+	].
+
+	"Generate the literal cases."
+	literalCases doWithIndex: [ :caseAndConstantSet :index |
+		slvmBuilder currentBlock: (caseBlocks at: index).
+		caseValue := self generateCase: caseAndConstantSet first withMatchedValue: matchedValue temporaryResult: temporaryResult resultType: node type.
+		slvmBuilder isLastTerminator ifFalse: [
+		    mergeValue ifNotNil: [
+		        mergeValue addValue: caseValue from: slvmBuilder currentBlock.
+		    ].
+		    slvmBuilder jump: mergeBlock
+		]
+	].
+
+	"Generate the default case."
+	slvmBuilder currentBlock: defaultBlock.
+	caseValue := self generateCasesOfNode: node matchedValue: matchedValue temporaryResult: temporaryResult caseStream: caseStream.
+
+	slvmBuilder isLastTerminator ifFalse: [
+		mergeValue ifNotNil: [
+		    mergeValue addValue: caseValue from: slvmBuilder currentBlock.
+		].
+		slvmBuilder jump: mergeBlock
+	].
+
+	"Move back to the merge block."		
+	slvmBuilder currentBlock: mergeBlock.
+	mergeBlock predecessors ifEmpty: [
+		slvmBuilder unreachable.
+		mergeValue ifNotNil: [ mergeValue removeFromBlock ].
+		^ nil
+	].
+
+	^ temporaryResult ifNil: [mergeValue]
 ]
 
 { #category : #'as yet unclassified' }
@@ -2256,9 +2313,9 @@ MbndSlovimFunctionCodeGenerator >> visitCopyIntoTemporaryVariableNode: node [
 	valueType := node type baseType.
 	tempVar := self allocateTemporaryStorageFor: (self translateType: valueType) withStorageCreationNode: node storageCreationNode.
 	
-	value type isPointerType ifTrue: [ 
+	value type isPointerType ifFalse: [
 		slvmBuilder store: value in: tempVar.
-	] ifFalse: [
+	] ifTrue: [
 		tempVar ~~ value ifTrue: [ 
 			self generateVariable: tempVar withValueType: valueType initializationWithValue: value initialValueKind: #copy
 		].
