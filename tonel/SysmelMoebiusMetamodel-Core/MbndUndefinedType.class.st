@@ -15,6 +15,38 @@ MbndUndefinedType >> accept: aVisitor [
 ]
 
 { #category : #adding }
+MbndUndefinedType >> addArithmeticOperationCoercionMacro: selector [
+	self macroMethodDict at: selector
+		ifPresent: [ self error: 'Duplicated macro selector.' ]
+		ifAbsentPut: (MbndPointerArithmeticOperationCoercionMacro new)
+]
+
+{ #category : #adding }
+MbndUndefinedType >> addComparison: selector intrinsic: intrinsicName [
+	self
+		addArithmeticOperationCoercionMacro: selector;
+		addOverloadedMethod: (MbndIntrinsicPointerComparisonMethod new
+				name: selector;
+				intrinsicName: intrinsicName;
+				yourself)
+			receiverType: self argumentTypes: { self } returnType: self compilationTarget booleanType
+]
+
+{ #category : #adding }
+MbndUndefinedType >> addComparisonIntrinsics [
+	self
+		addComparison: #= intrinsic: #eq;
+		addComparison: #== intrinsic: #eq;
+		addComparison: #~= intrinsic: #ne;
+		addComparison: #~~ intrinsic: #ne;
+		
+		addComparison: #< intrinsic: #lt;
+		addComparison: #<= intrinsic: #le;
+		addComparison: #> intrinsic: #gt;
+		addComparison: #>= intrinsic: #ge
+]
+
+{ #category : #adding }
 MbndUndefinedType >> addDefaultConversionRules [
 	super addDefaultConversionRules.
 	
@@ -36,6 +68,12 @@ MbndUndefinedType >> defaultValueAt: aPosition [
 	^ MbndValue value: nil type: self
 ]
 
+{ #category : #adding }
+MbndUndefinedType >> initialize [
+	super initialize.
+	self addComparisonIntrinsics
+]
+
 { #category : #sizes }
 MbndUndefinedType >> instanceAlignment [
 	<compileTime>
@@ -46,6 +84,11 @@ MbndUndefinedType >> instanceAlignment [
 MbndUndefinedType >> instanceSize [
 	<compileTime>
 	^ self compilationTarget pointerSize
+]
+
+{ #category : #testing }
+MbndUndefinedType >> isTrait [
+	^ false
 ]
 
 { #category : #'testing methods' }

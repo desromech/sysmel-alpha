@@ -9348,6 +9348,114 @@ function tupleFirst cdecl i32
 ]
 
 { #category : #tests }
+MbndSlovimCodeModuleGeneratorTest >> testUndefinedTypeEquality [
+	| function |
+	self
+		evaluateSysmelSource: 'function equals externC(a: _UndefinedType, b: _UndefinedType) => Boolean8 := a == b';
+		generateSSAModule.
+
+	function := ssaModule globalNamed: #equals.
+	self assert: function asFullSExpressionForTesting equals: #(
+function equals cdecl b8
+	arguments (
+		(a (pointer void generic) ())
+		(b (pointer void generic) ())
+	)
+	literals (
+	)
+	blocks (
+		(()
+			(nil jump void () () (block 2 body))
+		)
+		(()
+			(nil return void () ((const b8 true)))
+		)
+	)
+	)
+]
+
+{ #category : #tests }
+MbndSlovimCodeModuleGeneratorTest >> testUndefinedTypeEquality2 [
+	| function |
+	self
+		evaluateSysmelSource: 'function equals externC(a: _UndefinedType, b: _UndefinedType) => Boolean8 := a = b';
+		generateSSAModule.
+
+	function := ssaModule globalNamed: #equals.
+	self assert: function asFullSExpressionForTesting equals: #(
+function equals cdecl b8
+	arguments (
+		(a (pointer void generic) ())
+		(b (pointer void generic) ())
+	)
+	literals (
+	)
+	blocks (
+		(()
+			(nil jump void () () (block 2 body))
+		)
+		(()
+			(nil return void () ((const b8 true)))
+		)
+	)
+	)
+]
+
+{ #category : #tests }
+MbndSlovimCodeModuleGeneratorTest >> testUndefinedTypeNotEquality [
+	| function |
+	self
+		evaluateSysmelSource: 'function equals externC(a: _UndefinedType, b: _UndefinedType) => Boolean8 := a ~~ b';
+		generateSSAModule.
+
+	function := ssaModule globalNamed: #equals.
+	self assert: function asFullSExpressionForTesting equals: #(
+function equals cdecl b8
+	arguments (
+		(a (pointer void generic) ())
+		(b (pointer void generic) ())
+	)
+	literals (
+	)
+	blocks (
+		(()
+			(nil jump void () () (block 2 body))
+		)
+		(()
+			(nil return void () ((const b8 false)))
+		)
+	)
+	)
+]
+
+{ #category : #tests }
+MbndSlovimCodeModuleGeneratorTest >> testUndefinedTypeNotEquality2 [
+	| function |
+	self
+		evaluateSysmelSource: 'function equals externC(a: _UndefinedType, b: _UndefinedType) => Boolean8 := a ~= b';
+		generateSSAModule.
+
+	function := ssaModule globalNamed: #equals.
+	self assert: function asFullSExpressionForTesting equals: #(
+function equals cdecl b8
+	arguments (
+		(a (pointer void generic) ())
+		(b (pointer void generic) ())
+	)
+	literals (
+	)
+	blocks (
+		(()
+			(nil jump void () () (block 2 body))
+		)
+		(()
+			(nil return void () ((const b8 false)))
+		)
+	)
+	)
+]
+
+{ #category : #tests }
 MbndSlovimCodeModuleGeneratorTest >> testVariantDefinitionFragment [
 	self
 		evaluateSysmelSource: '

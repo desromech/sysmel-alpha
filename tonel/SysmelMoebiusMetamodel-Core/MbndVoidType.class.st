@@ -38,6 +38,11 @@ MbndVoidType >> instanceSize [
 ]
 
 { #category : #testing }
+MbndVoidType >> isTrait [
+	^ false
+]
+
+{ #category : #testing }
 MbndVoidType >> isVoidType [
 	<compileTime>
 	^ true

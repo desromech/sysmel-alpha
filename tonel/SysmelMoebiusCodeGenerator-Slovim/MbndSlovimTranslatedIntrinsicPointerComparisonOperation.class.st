@@ -24,6 +24,12 @@ MbndSlovimTranslatedIntrinsicPointerComparisonOperation >> generateExpandedMessa
 	| intrinsicName leftOperand rightOperand operandType |
 	intrinsicName := self intrinsicName.
 	operandType := node receiver type.
+	operandType isUndefinedType ifTrue: [
+		^ codeGenerator slvmBuilder constBool: (
+			#(eq le ge) includes: intrinsicName
+		)
+	].
+
 	leftOperand := codeGenerator visitNode: node receiver.
 	rightOperand := codeGenerator visitNode: node arguments first.
 	
