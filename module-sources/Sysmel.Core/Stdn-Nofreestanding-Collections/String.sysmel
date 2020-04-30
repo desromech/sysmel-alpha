@@ -39,6 +39,43 @@ namespace Collections definition: {
                 initializeFromLiteral: literalString;
                 yourself
         }.
+
+        inline method fromUTF8: (data: Char8 const pointer) size: (dataSize: UIntPointer) ::=> InstanceType := {
+            InstanceType()
+                setUTF8: data size: dataSize;
+                yourself
+        }.
+
+        inline method fromUTF16: (data: Char16 const pointer) size: (dataSize: UIntPointer) ::=> InstanceType := {
+            InstanceType()
+                setUTF16: data size: dataSize;
+                yourself
+        }.
+
+        inline method fromUTF32: (data: Char32 const pointer) size: (dataSize: UIntPointer) ::=> InstanceType := {
+            InstanceType()
+                setUTF32: data size: dataSize;
+                yourself
+        }.
+
+        macro method streamContents: aBlock := {
+            let memoryStream := __astBuilder gensym: #memoryStream.
+            ``{
+                let `,memoryStream mutable type: Stdn IO MemoryStream.
+                `,aBlock __macroInlineBlock: `,memoryStream.
+                Stdn String fromUTF8: (`,memoryStream storage data reinterpretCastTo: Char8 const pointer) size: `,memoryStream storage size
+            } asSequenceWithoutLexicalScope
+        }.
+
+        macro method textStreamContents: aBlock := {
+            let stream := __astBuilder gensym: #stream.
+            let textStream := __astBuilder gensym: #textStream.
+            ``(`,self streamContents: {:`,stream :: Void |
+                    let `,textStream mutable := TextStreamWriter for: `,stream address.
+                    `,aBlock __macroInlineBlock: `,textStream.
+                }
+            )
+        }.
     }.
 
     const inline method hash => UIntPointer := {
@@ -110,6 +147,23 @@ namespace Collections definition: {
         }.
 
         return: data_
+    }.
+
+    method setUTF8: (utf8EncodedData: Char8 const pointer) size: (dataSize: UIntPointer) ::=> Void := {
+        compileTime if: ValueType instanceSize = 1 then: {
+            data_ ~~ utf8EncodedData ifTrue: {
+                self setSizeNoCopy: dataSize.
+                Stdn memcpy(data_, utf8EncodedData, dataSize).
+            }
+        } else: {
+
+        }
+    }.
+
+    method setUTF16: (utf16EncodedData: Char16 const pointer) size: (dataSize: UIntPointer) ::=> Void := {
+    }.
+
+    method setUTF32: (utf32EncodedData: Char32 const pointer) size: (dataSize: UIntPointer) ::=> Void := {
     }.
 
     inline method add: (element: ValueType) ::=> Void
@@ -231,6 +285,8 @@ namespace Collections definition: {
 
     const inline method readMemoryStream => Stdn IO FixedMemoryStream
         := Stdn IO FixedMemoryStream for: self data withSize: self size.
+
+    macro method textStreamReader := ``(Stdn IO TextStreamReader for: `,self readMemoryStream address).
 
     Stdn Collections SequenceableCollectionMixin.
 }.

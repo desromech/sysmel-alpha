@@ -10,14 +10,17 @@ if: Compiler compilationTarget isGPU not then: {
 
 	loadFileOnce: "BasicValuePrinter.sysmel".
 	loadFileOnce: "StandaloneIntegerPrinter.sysmel".
+	loadFileOnce: "IntegerParser.sysmel".
 
 	## Our standalone float printer is not yet completely implemented, so for
 	## now just use the snprintf based implementation.
 	if: Compiler hasLibC then: {
 		loadFileOnce: "LibCFloatPrinter.sysmel".
+		loadFileOnce: "LibCFloatParser.sysmel".
 	} else: {
 		loadFileOnce: "FixedBigInteger.sysmel".
 		loadFileOnce: "StandaloneFloatPrinter.sysmel".
+		loadFileOnce: "StandaloneFloatParser.sysmel".
 	}.
 
 	Compiler loadPackages: #(

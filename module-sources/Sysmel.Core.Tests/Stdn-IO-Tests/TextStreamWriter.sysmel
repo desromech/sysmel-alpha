@@ -1,0 +1,51 @@
+namespace Stdn definition: {
+namespace IO definition: {
+namespace Tests definition: {
+
+class TextStreamWriterTestCase superclass: Stdn Testing TestCase; definition: {
+    test: testEmpty with: {
+        self assert: (Stdn String textStreamContents: {:out :: Void |
+        }) equals: "" asMutableString.
+
+        self assert: (Stdn String textStreamContents: {:out :: Void |
+        }) isEmpty.
+    }.
+
+    test: testControl with: {
+        self assert: (Stdn String textStreamContents: {:out :: Void |
+            out space; tab; cr; lf; crlf
+        }) equals: " \t\r\n\r\n" asMutableString.
+    }.
+
+    test: testInteger with: {
+        self assert: (Stdn String textStreamContents: {:out :: Void |
+            out << 42 << ' ' << -42 << ' ' << 0
+        }) equals: "42 -42 0" asMutableString.
+    }.
+
+    test: testFloat with: {
+        self assert: (Stdn String textStreamContents: {:out :: Void |
+            out << 0.0 << ' ' << 42.0 << ' ' << -42.5 << ' ' << Float64 infinity << ' ' << Float64 negativeInfinity << ' ' << Float64 nan
+        }) equals: "0.0 42.0 -42.5 inf -inf nan" asMutableString.
+
+        self assert: (Stdn String textStreamContents: {:out :: Void |
+            out << 0.0f << ' ' << 42.0f << ' ' << -42.5f << ' ' << Float32 infinity << ' ' << Float32 negativeInfinity << ' ' << Float32 nan
+        }) equals: "0.0 42.0 -42.5 inf -inf nan" asMutableString.
+    }.
+
+    test: testCharacter with: {
+        self assert: (Stdn String textStreamContents: {:out :: Void |
+            out << '$'
+        }) equals: "$" asMutableString.
+    }.
+
+    test: testString with: {
+        self assert: (Stdn String textStreamContents: {:out :: Void |
+            out << "Hello World"
+        }) equals: "Hello World" asMutableString.
+    }.
+}.
+
+}. ## namespace Tests
+}. ## namespace Collections
+}. ## namespace Stdn

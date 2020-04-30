@@ -1781,7 +1781,7 @@ MbndAstSemanticAnalyzer >> visitLocalVariableDefinitionNode: node [
 		] ifNotNil: [ 
 			result valueType: (result initialValue type inferValueTypeForNode: result initialValue inScope: scope).
 			(result isAccessedByReference or: [ result isForwardingValue ]) ifFalse: [ 
-				result valueType: result valueType withoutReferences
+				result valueType: result valueType withoutReferences withoutTopDecorations
 			].
 		].
 	].

@@ -1,0 +1,35 @@
+namespace Stdn definition: {
+namespace IO definition: {
+namespace Tests definition: {
+
+class TextStreamReaderTestCase superclass: Stdn Testing TestCase; definition: {
+    test: testInteger with: {
+        self assert: "0" asMutableString textStreamReader nextInt64 equals: 0.
+        self assert: "42" asMutableString textStreamReader nextInt64 equals: 42.
+        self assert: "-42" asMutableString textStreamReader nextInt64 equals: -42.
+        self assert: "0xab" asMutableString textStreamReader nextInt64 equals: 16rab.
+        self assert: "-0xab" asMutableString textStreamReader nextInt64 equals: 16rab negated.
+    }.
+
+    test: testFloat with: {
+        self assert: "0" asMutableString textStreamReader nextFloat64 equals: 0.
+        self assert: "42" asMutableString textStreamReader nextFloat64 equals: 42.
+        self assert: "-42" asMutableString textStreamReader nextFloat64 equals: -42.
+        self assert: "0xab" asMutableString textStreamReader nextFloat64 equals: 16rab.
+        self assert: "-0xab" asMutableString textStreamReader nextFloat64 equals: 16rab negated.
+
+        self assert: "0.5" asMutableString textStreamReader nextFloat64 equals: 0.5.
+        self assert: "42.5" asMutableString textStreamReader nextFloat64 equals: 42.5.
+        self assert: "-4.5" asMutableString textStreamReader nextFloat64 equals: -4.5.
+
+        self assert: "inf" asMutableString textStreamReader nextFloat64 equals: Float64 infinity.
+        self assert: "-inf" asMutableString textStreamReader nextFloat64 equals: Float64 negativeInfinity.
+
+        let nanParseResult := "nan" asMutableString textStreamReader nextFloat64.
+        self assert: nanParseResult notEquals: nanParseResult.
+    }.
+}.
+
+}. ## namespace Tests
+}. ## namespace Collections
+}. ## namespace Stdn

@@ -73,27 +73,22 @@ template Parser(RT: Type)
 
     method parseNextValue => ResultType := {
         self nextToken selectCase: #{
-        TokenType Integer : {
-            self advanceToken.
+        (TokenType Integer , TokenType HexInteger) asValueInSetPattern : {
             tokenStream text first = '-' ifTrue: {
-                callback _ onInteger: 0
+                let value := Stdn parseInt64(tokenStream text data, tokenStream text size).
+                self advanceToken.
+                callback _ onInteger: value
             } ifFalse: {
-                callback _ onUnsignedInteger: 0
-            }
-        }.
-
-        TokenType HexInteger : {
-            self advanceToken.
-            tokenStream text first = '-' ifTrue: {
-                callback _ onInteger: 0
-            } ifFalse: {
-                callback _ onUnsignedInteger: 0
+                let value := Stdn parseUInt64(tokenStream text data, tokenStream text size).
+                self advanceToken.
+                callback _ onUnsignedInteger: value
             }
         }.
 
         TokenType Float : {
+            let value := Stdn parseFloat64(tokenStream text data, tokenStream text size).
             self advanceToken.
-            callback _ onFloat: 0
+            callback _ onFloat: value
         }.
 
         TokenType String : {
@@ -128,8 +123,6 @@ template Parser(RT: Type)
                 callback _ onError
             }.
             }
-
-            ##callback _ onError
         }.
 
         _ : {callback _ onError}

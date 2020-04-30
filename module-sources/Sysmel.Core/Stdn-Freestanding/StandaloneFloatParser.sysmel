@@ -1,0 +1,7 @@
+namespace Stdn definition: {
+
+function parseFloat64(string: Char8 const pointer, stringSize: UIntPointer) => Float64 := {
+    0.0
+}.
+
+}. ## End of namespace Stdn

@@ -2,13 +2,26 @@ namespace Stdn definition: {
 
 class BasicValueFloatPrinter superclass: BasicValueIntegerPrinter; definition: {
     method nextPutDouble: (double: Float64) ::=> Void := {
+        double ~= double ifTrue: {
+            self nextPutAll: "nan".
+            return: void
+        }.
+        double == Float64 infinity ifTrue: {
+            self nextPutAll: "inf".
+            return: void
+        }.
+        double == Float64 negativeInfinity ifTrue: {
+            self nextPutAll: "-inf".
+            return: void
+        }.
+
         bufferSize := LibC snprintf(buffer[0] address, bufferCapacity, "%g", double) castTo: UIntPointer.
 
         ## Make sure a point or an exponent is present in the output.
         0 until: bufferSize do: {:(UIntPointer)i :: Void |.
             let c := buffer[i].
             c = '.' || c = 'e' ifTrue: {
-                return: nil
+                return: void
             }
         }.
 

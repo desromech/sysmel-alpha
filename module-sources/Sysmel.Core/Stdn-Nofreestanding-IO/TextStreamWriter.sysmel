@@ -117,6 +117,9 @@ class TextStreamWriter definition: {
     }.
 
     ## Special characters
+    method space => SelfType ref
+        := self nextPut: ' '; yourself.
+
     method tab => SelfType ref
         := self nextPut: '\t'; yourself.
 
