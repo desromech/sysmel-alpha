@@ -217,12 +217,12 @@ sealed class TokenStream definition: {
 
         self skipWhite.
         return: (self peekCharacter selectCase: #{
-        '[' : TokenType LeftBracket.
-        ']' : TokenType RightBracket.
-        '{' : TokenType LeftCurlyBracket.
-        '}' : TokenType RightCurlyBracket.
-        ',' : TokenType Comma.
-        ':' : TokenType Colon.
+        '[' : {self nextCharacter. TokenType LeftBracket}.
+        ']' : {self nextCharacter. TokenType RightBracket}.
+        '{' : {self nextCharacter. TokenType LeftCurlyBracket}.
+        '}' : {self nextCharacter. TokenType RightCurlyBracket}.
+        ',' : {self nextCharacter. TokenType Comma}.
+        ':' : {self nextCharacter. TokenType Colon}.
         '"' : self nextString.
         ('a' to: 'z') : self nextIdentifier.
         ('0' to: '9') : self nextNumber.

@@ -8,17 +8,23 @@ template Parser(RT: Type)
     compileTime constant DefaultResult := RT defaultValue.
 
     class Callback definition: {
-        virtual method beginArray ::=> Void
-            := void.
-
-        virtual method endArray ::=> ResultType
+        virtual method beginArray ::=> ResultType
             := DefaultResult.
 
-        virtual method beginObject ::=> Void
+        virtual method endArray: (theArray: ResultType ref) ::=> Void
             := void.
 
-        virtual method endObject ::=> ResultType
+        virtual method putValue: (theValue: ResultType) onArray: (theArray: ResultType ref) ::=> Void
+            := void.
+
+        virtual method beginObject ::=> ResultType
             := DefaultResult.
+
+        virtual method endObject: (theObject: ResultType ref) ::=> Void
+            := void.
+
+        virtual method putKey: (key: Stdn String const ref) value: (theValue: ResultType) onObject: (theObject: ResultType ref) ::=> Void
+            := void.
 
         virtual method onInteger: (value: Int64) ::=> ResultType
             := DefaultResult.
@@ -39,7 +45,7 @@ template Parser(RT: Type)
             := DefaultResult.
 
         virtual method onError ::=> ResultType
-            := DefaultResult.
+            := Stdn raiseError("JSON parse error").
 
     }.
 
@@ -51,12 +57,81 @@ template Parser(RT: Type)
         tokenStream := TokenStream for: stream.
     }.
 
-    method parseNextArray => ResultType := {
-        callback _ onError
+    method parseNextList => ResultType := {
+        self nextToken = TokenType LeftBracket ifFalse: {
+            return: callback _ onError
+        }.
+        self advanceToken.
+
+        let array mutable := callback _ beginArray.
+        self nextToken ~= TokenType RightBracket ifTrue: {
+            callback _ putValue: (self parseNextValue) onArray: array.
+
+            while: (self nextToken = TokenType Comma) do: {
+                self advanceToken.
+                callback _ putValue: (self parseNextValue) onArray: array.
+            }.
+
+            self nextToken = TokenType RightBracket ifFalse: {
+                return: callback _ onError
+            }
+        }.
+
+        self advanceToken.
+        callback _ endArray: array.
+        array.
+    }.
+
+    method parseNextObjectElementOnto: (object: ResultType ref) ::=> Boolean8 := {
+        ## Key
+        self nextToken = TokenType String ifFalse: {
+            return: false
+        }.
+        let key := tokenStream text.
+        self advanceToken.
+
+        ## Colon
+        self nextToken = TokenType Colon ifFalse: {
+            return: false
+        }.
+        self advanceToken.
+
+        ## Value.
+        let value := self parseNextValue.
+
+        ## Store the object element.
+        callback _ putKey: key value: value onObject: object.
+
+        true
     }.
 
     method parseNextObject => ResultType := {
-        callback _ onError
+        self nextToken = TokenType LeftCurlyBracket ifFalse: {
+            return: callback _ onError
+        }.
+        self advanceToken.
+
+        let object mutable := callback _ beginObject.
+        self nextToken ~= TokenType RightCurlyBracket ifTrue: {
+            (self parseNextObjectElementOnto: object) ifFalse: {
+                return: callback _ onError
+            }.
+
+            while: (self nextToken = TokenType Comma) do: {
+                self advanceToken.
+                (self parseNextObjectElementOnto: object) ifFalse: {
+                    return: callback _ onError
+                }.
+            }.
+
+            self nextToken = TokenType RightCurlyBracket ifFalse: {
+                return: callback _ onError
+            }
+        }.
+
+        self advanceToken.
+        callback _ endObject: object.
+        object.
     }.
 
     method nextToken => TokenType := {
@@ -98,7 +173,7 @@ template Parser(RT: Type)
         }.
 
         TokenType LeftBracket : {
-            self parseNextArray.
+            self parseNextList.
         }.
 
         TokenType LeftCurlyBracket : {

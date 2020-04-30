@@ -6,17 +6,23 @@ compileTime constant ValueParser := Parser(Value).
 
 class ValueParserCallback superclass: ValueParser Callback; definition: {
 
-    override method beginArray ::=> Void
+    override method beginArray ::=> Value
+        := List sharedNew.
+
+    override method endArray: (theArray: Value ref) ::=> Void
         := void.
 
-    override method endArray ::=> Value
-        := nil.
+    override method putValue: (theValue: Value) onArray: (theArray: Value ref) ::=> Void
+        := (theArray get: ListPtr) _ elements add: theValue.
 
-    override method beginObject ::=> Void
+    override method beginObject ::=> Value
+        := Object sharedNew.
+
+    override method endObject: (theObject: Value ref) ::=> Void
         := void.
 
-    override method endObject ::=> Value
-        := nil.
+    override method putKey: (key: Stdn String const ref) value: (theValue: Value) onObject: (theObject: Value ref) ::=> Void
+        := (theObject get: ObjectPtr) _ elements at: key put: theValue.
 
     override method onInteger: (value: Int64) ::=> Value
         := value.
@@ -35,9 +41,6 @@ class ValueParserCallback superclass: ValueParser Callback; definition: {
 
     override method onString: (value: Stdn String const ref) ::=> Value
         := value.
-
-    override method onError ::=> Value
-        := nil.
 
 }.
 
