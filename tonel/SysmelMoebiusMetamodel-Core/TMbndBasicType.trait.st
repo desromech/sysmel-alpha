@@ -31,6 +31,7 @@ TMbndBasicType >> ensureSyntheticMethodExists: aSelector [
 	aSelector = #initialize ifTrue: [^ self initializeMethod ].
 	aSelector = #initializeCopyingFrom: ifTrue: [^ self initializeCopyingFromMethod ].
 	aSelector = #initializeMovingFrom: ifTrue: [^ self initializeMovingFromMethod ].
+	aSelector = #finalize ifTrue: [^ self finalizeMethod ].
 	^ nil
 ]
 

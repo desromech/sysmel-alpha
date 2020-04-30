@@ -22,6 +22,12 @@ template Vector(ET: Stdn Concepts Copyable)
         0 until: size_ do: {:(UIntPointer)i :: Void |.
             storage_[i] finalize
         }.
+		storage_ ifNotNil: {
+			Stdn free(storage_).
+			storage_ := nil.
+			capacity_ := 0.
+		}.
+		size_ := 0.
     }.
 
     const inline method capacity => UIntPointer
@@ -63,6 +69,8 @@ template Vector(ET: Stdn Concepts Copyable)
 
     (inline method := (other: SelfType tempRef)) => SelfType ref := {
         self address ~~ other address ifTrue: {
+			self finalize.
+
             capacity_ := other __private capacity_.
             size_ := other __private size_.
             storage_ := other __private storage_.
@@ -91,6 +99,9 @@ template Vector(ET: Stdn Concepts Copyable)
 				initializeMovingFrom: storage_[i] asMoveReference.
 			storage_[i] finalize.
         }.
+		storage_ ifNotNil: {
+			Stdn free(storage_)
+		}.
 
 		storage_ := newStorage.
 		capacity_ := newCapacity.

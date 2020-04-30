@@ -141,6 +141,7 @@ MbndAggregateTypeWithFields >> ensureSemanticAnalysis [
 
 { #category : #layout }
 MbndAggregateTypeWithFields >> ensureSlotLayoutIsComputed [
+	self ensureVirtualGeneratedMethodsExist.
 	(self hasFlag: #computingSlotLayout) ifTrue: [ 
 		self error: 'Type with circular slot layout.'
 	].
@@ -148,6 +149,18 @@ MbndAggregateTypeWithFields >> ensureSlotLayoutIsComputed [
 		addFlag: #computingSlotLayout;
 		buildSlotLayout;
 		removeFlag: #computingSlotLayout.
+
+]
+
+{ #category : #layout }
+MbndAggregateTypeWithFields >> ensureVirtualGeneratedMethodsExist [
+	| superClass |
+	superClass := self supertype.
+	superClass isClassType ifFalse: [ ^ self ].
+	
+	"This should be enough to make sure those are entered into the vtable."
+	superClass hasTrivialInstanceInitialization ifFalse: [ self initializeMethod ].
+	superClass hasTrivialInstanceFinalization ifFalse: [ self finalizeMethod ].
 
 ]
 

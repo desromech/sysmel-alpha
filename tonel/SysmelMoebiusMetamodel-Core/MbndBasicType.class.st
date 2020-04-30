@@ -306,16 +306,6 @@ MbndBasicType >> ensureSemanticAnalysis [
 ]
 
 { #category : #'as yet unclassified' }
-MbndBasicType >> ensureSyntheticMethodExists: aSelector [
-	aSelector = #basicInitialize ifTrue: [^ self basicInitializeMethod ].
-	aSelector = #initialize ifTrue: [^ self initializeMethod ].
-	aSelector = #initializeCopyingFrom: ifTrue: [^ self initializeCopyingFromMethod ].
-	aSelector = #initializeMovingFrom: ifTrue: [^ self initializeMovingFromMethod ].
-	aSelector = #finalize ifTrue: [^ self finalizeMethod ].
-	^ nil
-]
-
-{ #category : #'as yet unclassified' }
 MbndBasicType >> evaluateAllPendingDefinitionFragments [
 	| toEvaluate |
 	self isStrictMetaType ifTrue: [ 
