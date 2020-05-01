@@ -108,6 +108,31 @@ class SystemWindowNorphEventHandler superclass: EventHandler; definition: {
         norph _ destroy
     }.
 
+    override method onKeyPressedEvent: (event: KeyPressedEvent ref) ::=> Void := {
+        let convertedEvent mutable := NorphKeyPressedEvent()
+            symbol: event symbol;
+            modifiers: event modifiers;
+            isRepeat: event isRepeat;
+            yourself.
+        norph _ dispatchKeyboardEvent: convertedEvent.
+    }.
+
+    override method onKeyReleasedEvent: (event: KeyReleasedEvent ref) ::=> Void := {
+        let convertedEvent mutable := NorphKeyReleasedEvent()
+            symbol: event symbol;
+            modifiers: event modifiers;
+            isRepeat: event isRepeat;
+            yourself.
+        norph _ dispatchKeyboardEvent: convertedEvent.
+    }.
+
+    override method onTextInputEvent: (event: TextInputEvent ref) ::=> Void := {
+        let convertedEvent mutable := NorphTextInputEvent()
+            text: event text;
+            yourself.
+        norph _ dispatchTextInputEvent: convertedEvent.
+    }.
+
     override method onMouseMoveEvent: (event: MouseMoveEvent ref) ::=> Void := {
         let convertedEvent mutable := NorphMouseMoveEvent()
             mouseId: event mouseId;

@@ -73,6 +73,56 @@ class RootNorph superclass: Norph; definition: {
             }
         }
     }.
+
+    virtual method setNewKeyboardFocus: (newKeyboardFocus: Norph pointer) ::=> Void := {
+        keyboardFocusNorph getPointer == newKeyboardFocus ifTrue: {
+            return: void
+        }.
+
+        keyboardFocusNorph ifNotNil: {
+            let lostFocusEvent mutable type: NorphLostFocusEvent.
+            mouseFocusNorph _ processEvent: lostFocusEvent
+        }.
+
+        keyboardFocusNorph := newKeyboardFocus _ asSharedPointer.
+
+        keyboardFocusNorph ifNotNil: {
+            let gotFocusEvent mutable type: NorphGotFocusEvent.
+            mouseFocusNorph _ processEvent: gotFocusEvent.
+        }.
+    }.
+
+    override method dispatchKeyboardEvent: (event: NorphKeyboardEvent ref) ::=> Void := {
+        keyboardFocusNorph ifNotNil: {
+            keyboardFocusNorph _ dispatchKeyboardEvent: event.
+
+            event wasHandled ifTrue: {
+                return: void
+            }.
+        }.
+
+        super dispatchKeyboardEvent: event.
+    }.
+
+    override method dispatchPropagatedKeyboardEvent: (event: NorphKeyboardEvent ref) ::=> Void := {
+        ## Do nothing
+    }.
+
+    override method dispatchTextInputEvent: (event: NorphTextInputEvent ref) ::=> Void := {
+        keyboardFocusNorph ifNotNil: {
+            keyboardFocusNorph _ dispatchTextInputEvent: event.
+
+            event wasHandled ifTrue: {
+                return: void
+            }.
+        }.
+
+        super dispatchTextInputEvent: event.
+    }.
+
+    override method dispatchPropagatedTextInputEvent: (event: NorphTextInputEvent ref) ::=> Void := {
+        ## Do nothing
+    }.
 }.
 
 }. ## End of namespace Norphic

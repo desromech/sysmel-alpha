@@ -32,6 +32,14 @@ class NorphKeyReleasedEvent superclass: NorphKeyboardEvent; definition: {
     }.
 }.
 
+class NorphTextInputEvent superclass: NorphEvent; definition: {
+    public field text type: Stdn String.
+
+    override method acceptEventHandler: (eventHandler: NorphEventHandler ref) ::=> Void := {
+        eventHandler onTextInputEvent: self
+    }.
+}.
+
 class NorphMouseEvent superclass: NorphEvent; definition: {
     public field mouseId type: UInt32.
     public field position type: Float32x2.
@@ -103,4 +111,19 @@ class NorphMouseLeaveEvent superclass: NorphMouseFocusEvent; definition: {
     }.
 }.
 
+class NorphKeyboardFocusEvent superclass: NorphEvent; definition: {
+}.
+
+
+class NorphGotFocusEvent superclass: NorphKeyboardFocusEvent; definition: {
+    override method acceptEventHandler: (eventHandler: NorphEventHandler ref) ::=> Void := {
+        eventHandler onGotFocusEvent: self
+    }.
+}.
+
+class NorphLostFocusEvent superclass: NorphKeyboardFocusEvent; definition: {
+    override method acceptEventHandler: (eventHandler: NorphEventHandler ref) ::=> Void := {
+        eventHandler onLostFocusEvent: self
+    }.
+}.
 }.

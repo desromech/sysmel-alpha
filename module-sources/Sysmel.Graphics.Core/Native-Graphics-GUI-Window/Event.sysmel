@@ -67,6 +67,7 @@ class KeyReleasedEvent superclass: KeyboardEvent; definition: {
  * I am a text input event
  *#
 class TextInputEvent superclass: Event; definition: {
+    public field text type: Stdn String.
 
     override method acceptEventHandler: (eventHandler: EventHandler ref) ::=> Void
         := eventHandler onTextInputEvent: self.

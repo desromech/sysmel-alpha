@@ -11,6 +11,8 @@ class BorderedNorph superclass: Norph; definition: {
 
     virtual method borderColor => Float32x4
         := borderColor.
+    virtual method focusedBorderColor => Float32x4
+        := self borderColor interpolateTo: Float32x4 blue lighter at: 0.5f.
 
     virtual method borderColor: (theNewColor: Float32x4 const ref) ::=> Void := {
         borderColor := theNewColor.
@@ -23,6 +25,15 @@ class BorderedNorph superclass: Norph; definition: {
             color: borderColor;
             drawRectangle: self localBounds
     }.
+
+    virtual method currentBorderColor => Float32x4 := {
+        self hasKeyboardFocus ifTrue: {
+            self focusedBorderColor
+        } ifFalse: {
+            self borderColor
+        }
+    }.
+
 }.
 
 }. ## End of namespace Norphic

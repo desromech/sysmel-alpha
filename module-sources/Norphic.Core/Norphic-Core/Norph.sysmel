@@ -232,10 +232,16 @@ class Norph superclass: NorphEventHandler; definition: {
         := owner lock.
 
     virtual method handlesKeyboardEvents => Boolean8
-        := true.
+        := false.
 
-    virtual method canHaveFocus => Boolean8
+    virtual method canHaveKeyboardFocus => Boolean8
         := self handlesKeyboardEvents.
+
+    method acquireKeyboardFocus => Void := {
+        self rootNorph ifNotNil: {:root :: Void |
+            root _ setNewKeyboardFocus: self address
+        }
+    }.
 
     inline method theme => Theme sharedPointer const ref
         := ThemeRegistry uniqueInstance defaultTheme.
@@ -251,6 +257,13 @@ class Norph superclass: NorphEventHandler; definition: {
 
     virtual method handlesMouseEvents => Boolean8
         := true.
+
+    override method onMouseButtonReleasedEvent: (event: NorphMouseButtonReleasedEvent ref) ::=> Void := {
+        self canHaveKeyboardFocus ifTrue: {
+            event wasHandled: true.
+            self acquireKeyboardFocus.
+        }.
+    }.
 
     virtual method dispatchMouseEventToChildren: (event: NorphMouseEvent ref) ::=> Void := {
         let mousePosition := event position.
@@ -287,6 +300,40 @@ class Norph superclass: NorphEventHandler; definition: {
         }.
 
         self processEvent: event.
+    }.
+
+    virtual method dispatchPropagatedKeyboardEvent: (event: NorphKeyboardEvent ref) ::=> Void := {
+        self dispatchKeyboardEvent: event
+    }.
+
+    virtual method dispatchKeyboardEvent: (event: NorphKeyboardEvent ref) ::=> Void := {
+        self handlesKeyboardEvents ifTrue: {
+            self processEvent: event.
+            event wasHandled ifTrue: {
+                return: void
+            }
+        }.
+
+        self owner ifNotNil: {:parent :: Void |
+            parent _ dispatchPropagatedKeyboardEvent: event
+        }.
+    }.
+
+    virtual method dispatchPropagatedTextInputEvent: (event: NorphTextInputEvent ref) ::=> Void := {
+        self dispatchTextInputEvent: event
+    }.
+
+    virtual method dispatchTextInputEvent: (event: NorphTextInputEvent ref) ::=> Void := {
+        self handlesKeyboardEvents ifTrue: {
+            self processEvent: event.
+            event wasHandled ifTrue: {
+                return: void
+            }
+        }.
+
+        self owner ifNotNil: {:parent :: Void |
+            parent _ dispatchPropagatedTextInputEvent: event
+        }.
     }.
 
     const inline method hasKeyboardFocus => Boolean8

@@ -12,6 +12,46 @@ class AbstractButtonMorph superclass: BorderedNorph; definition: {
     override method defaultColor => Float32x4
         := self theme _ buttonColor.
 
+    method raiseActivatedEvent => Void := {
+        Stdn stdout << "TODO: button raiseActivatedEvent"; nl.
+    }.
+
+    override method onKeyPressedEvent: (event: NorphKeyPressedEvent ref) ::=> Void := {
+        event isRepeat not &&
+        event symbol == Stdn Graphics GUI KeySymbol Return ifTrue: {
+            isDown := true.
+            self changed.
+            event wasHandled: true
+        }.
+
+        super onKeyPressedEvent: event
+    }.
+
+    override method onKeyReleasedEvent: (event: NorphKeyReleasedEvent ref) ::=> Void := {
+        event isRepeat not &&
+        event symbol == Stdn Graphics GUI KeySymbol Return ifTrue: {
+            isDown ifTrue: {
+                isDown := false.
+                self changed.
+                self raiseActivatedEvent
+            }.
+            event wasHandled: true
+        }.
+
+        super onKeyReleasedEvent: event
+    }.
+
+    override method onGotFocusEvent: (event: NorphGotFocusEvent ref) ::=> Void := {
+        self changed.
+    }.
+
+    override method onLostFocusEvent: (event: NorphLostFocusEvent ref) ::=> Void := {
+        isDown ifTrue: {
+            isDown := false.
+        }.
+        self changed.
+    }.
+
     override method onMouseEnterEvent: (event: NorphMouseEnterEvent ref) ::=> Void := {
         self changed.
     }.
@@ -20,7 +60,12 @@ class AbstractButtonMorph superclass: BorderedNorph; definition: {
         self changed.
     }.
 
+    override method handlesKeyboardEvents => Boolean8
+        := true.
+
     override method onMouseButtonPressedEvent: (event: NorphMouseButtonPressedEvent ref) ::=> Void := {
+        super onMouseButtonPressedEvent: event.
+
         event isLeftButton ifFalse: {
             return: void.
         }.
@@ -32,6 +77,8 @@ class AbstractButtonMorph superclass: BorderedNorph; definition: {
     }.
 
     override method onMouseButtonReleasedEvent: (event: NorphMouseButtonReleasedEvent ref) ::=> Void := {
+        super onMouseButtonReleasedEvent: event.
+
         event isLeftButton ifFalse: {
             return: void.
         }.
@@ -42,21 +89,20 @@ class AbstractButtonMorph superclass: BorderedNorph; definition: {
         self releaseMouseCapture.
 
         (self localBounds includesPoint: event position) ifTrue: {
-            Stdn stdout << "TODO: Button activated"; nl.
+            self raiseActivatedEvent
         }
     }.
 
-    override method color => Float32x4 := {
+    virtual method currentColor => Float32x4 := {
         self hasMouseFocus ifTrue: {
-            super color lighter lighter
+            self color lighter lighter
         } ifFalse: {
-            super color
+            self color
         }
     }.
-
 
     override method renderOn: (canvas: Canvas ref) ::=> Void := {
-        let baseColor := self color.
+        let baseColor := self currentColor.
         let topColor mutable := baseColor.
         let bottomColor mutable := baseColor muchDarker.
         isDown ifTrue: {
@@ -67,7 +113,7 @@ class AbstractButtonMorph superclass: BorderedNorph; definition: {
         canvas
             fillRectangle: self localBounds verticalGradientStart: topColor end: bottomColor;
 
-            color: borderColor;
+            color: self currentBorderColor;
             drawRectangle: self localBounds
     }.
 }.

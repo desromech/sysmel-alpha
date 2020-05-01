@@ -9,6 +9,7 @@ class NorphEventHandler superclass: Stdn SharedObject; definition: {
 
     virtual method onKeyPressedEvent: (event: NorphKeyPressedEvent ref) ::=> Void := {}.
     virtual method onKeyReleasedEvent: (event: NorphKeyReleasedEvent ref) ::=> Void := {}.
+    virtual method onTextInputEvent: (event: NorphTextInputEvent ref) ::=> Void := {}.
 
     virtual method onMouseButtonPressedEvent: (event: NorphMouseButtonPressedEvent ref) ::=> Void := {}.
     virtual method onMouseButtonReleasedEvent: (event: NorphMouseButtonReleasedEvent ref) ::=> Void := {}.
@@ -18,6 +19,8 @@ class NorphEventHandler superclass: Stdn SharedObject; definition: {
     virtual method onMouseEnterEvent: (event: NorphMouseEnterEvent ref) ::=> Void := {}.
     virtual method onMouseLeaveEvent: (event: NorphMouseLeaveEvent ref) ::=> Void := {}.
 
+    virtual method onGotFocusEvent: (event: NorphGotFocusEvent ref) ::=> Void := {}.
+    virtual method onLostFocusEvent: (event: NorphLostFocusEvent ref) ::=> Void := {}.
 }.
 
 }.
