@@ -14,6 +14,7 @@ Trait {
 		'implicitConversionRules'
 	],
 	#traits : 'TMbndAbstractType + TMbndMacroMethodContainer',
+	#classTraits : 'TMbndAbstractType classTrait + TMbndMacroMethodContainer classTrait',
 	#category : #'SysmelMoebiusMetamodel-Core-Type'
 }
 
@@ -58,7 +59,9 @@ TMbndType >> evaluatePendingDefinitionFragmentsForMacroSelector: aSelector [
 
 { #category : #'as yet unclassified' }
 TMbndType >> evaluatePendingDefinitionFragmentsForOverloadedSelector: aSelector [
-	(self overloadedMethodDict includesKey: aSelector) ifTrue: [ ^ self ].
+	self overloadedMethodDict at: aSelector ifPresent: [ :found |
+		found isMethodGroup ifFalse: [ ^ self ]
+	].
 	self evaluateAllPendingDefinitionFragments
 ]
 
