@@ -21,7 +21,6 @@ Endpoint extend: {
 
     meta method fromSockaddrIn: (sockaddr: Unix sockaddr_in const ref) ::=> SelfType := {
         let result mutable := SelfType basicNewValue.
-        Stdn stdout << "sin_port " << sockaddr sin_port << " " << Stdn IO networkToHostShort(sockaddr sin_port); nl.
         result type: EndpointType IPv4.
         result port: sockaddr sin_port.
         result addr ipv4 addr: sockaddr sin_addr s_addr.

@@ -133,6 +133,17 @@ NamespaceInformation definition: {
 
         return: aBlock value
     }.
+
+    method keys := {
+        let result := OrderedCollection new.
+        Smalltalk Runtime withReflectionLockedRead: {
+            moduleNamespaces do: {:eachModuleNamespace :: Void |
+                result addAll: eachModuleNamespace localSymbolTable keys
+            }.
+        }.
+
+        return: result asArray
+    }.
 }.
 
 ProgramEntityExtensionElement definition: {

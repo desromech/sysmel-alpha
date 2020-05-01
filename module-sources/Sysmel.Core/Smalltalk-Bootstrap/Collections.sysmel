@@ -7,55 +7,62 @@ Object extend: {
 }.
 
 Collection definition: {
-	meta method with: first := {
-		self new
-			add: first;
-			yourself
-	}.
+	meta definition: {
+		method with: first := {
+			self new
+				add: first;
+				yourself
+		}.
 
-	meta method with: first with: second := {
-		self new
-			add: first;
-			add: second;
-			yourself
-	}.
+		method with: first with: second := {
+			self new
+				add: first;
+				add: second;
+				yourself
+		}.
 
-	meta method with: first with: second with: third := {
-		self new
-			add: first;
-			add: second;
-			add: third;
-			yourself
-	}.
+		method with: first with: second with: third := {
+			self new
+				add: first;
+				add: second;
+				add: third;
+				yourself
+		}.
 
-	meta method with: first with: second with: third with: fourth := {
-		self new
-			add: first;
-			add: second;
-			add: third;
-			add: fourth;
-			yourself
-	}.
+		method with: first with: second with: third with: fourth := {
+			self new
+				add: first;
+				add: second;
+				add: third;
+				add: fourth;
+				yourself
+		}.
 
-	meta method with: first with: second with: third with: fourth with: fifth := {
-		self new
-			add: first;
-			add: second;
-			add: third;
-			add: fourth;
-			add: fifth;
-			yourself
-	}.
+		method with: first with: second with: third with: fourth with: fifth := {
+			self new
+				add: first;
+				add: second;
+				add: third;
+				add: fourth;
+				add: fifth;
+				yourself
+		}.
 
-	meta method with: first with: second with: third with: fourth with: fifth with: sixth := {
-		self new
-			add: first;
-			add: second;
-			add: third;
-			add: fourth;
-			add: fifth;
-			add: sixth;
-			yourself
+		method with: first with: second with: third with: fourth with: fifth with: sixth := {
+			self new
+				add: first;
+				add: second;
+				add: third;
+				add: fourth;
+				add: fifth;
+				add: sixth;
+				yourself
+		}.
+
+		method withAll: other
+			:= (self new: other size)
+				addAll: other;
+				yourself.
 	}.
 
 	method isEmpty
@@ -67,6 +74,15 @@ Collection definition: {
 	method isEmptyOrNil
 		:= self size == 0.
 
+	method addAll: otherCollection := {
+		otherCollection do: {:each :: Void |
+			self add: each
+		}.
+		self
+	}.
+
+	method asArray
+		:= Array withAll: self.
 }.
 
 UndefinedObject extend: {
@@ -190,55 +206,64 @@ SequenceableCollection definition: {
 }.
 
 ArrayedCollection definition: {
-	meta method with: first := {
-		let result := self new: 1.
-		result at: 1 put: first.
-		result
-	}.
+	meta definition: {
+		method with: first := {
+			let result := self new: 1.
+			result at: 1 put: first.
+			result
+		}.
 
-	meta method with: first with: second := {
-		let result := self new: 2.
-		result at: 1 put: first.
-		result at: 2 put: second.
-		result
-	}.
+		method with: first with: second := {
+			let result := self new: 2.
+			result at: 1 put: first.
+			result at: 2 put: second.
+			result
+		}.
 
-	meta method with: first with: second with: third := {
-		let result := self new: 3.
-		result at: 1 put: first.
-		result at: 2 put: second.
-		result at: 3 put: third.
-		result
-	}.
+		method with: first with: second with: third := {
+			let result := self new: 3.
+			result at: 1 put: first.
+			result at: 2 put: second.
+			result at: 3 put: third.
+			result
+		}.
 
-	meta method with: first with: second with: third with: fourth := {
-		let result := self new: 4.
-		result at: 1 put: first.
-		result at: 2 put: second.
-		result at: 3 put: third.
-		result at: 4 put: fourth.
-		result
-	}.
+		method with: first with: second with: third with: fourth := {
+			let result := self new: 4.
+			result at: 1 put: first.
+			result at: 2 put: second.
+			result at: 3 put: third.
+			result at: 4 put: fourth.
+			result
+		}.
 
-	meta method with: first with: second with: third with: fourth with: fifth := {
-		let result := self new: 5.
-		result at: 1 put: first.
-		result at: 2 put: second.
-		result at: 3 put: third.
-		result at: 4 put: fourth.
-		result at: 5 put: fifth.
-		result
-	}.
+		method with: first with: second with: third with: fourth with: fifth := {
+			let result := self new: 5.
+			result at: 1 put: first.
+			result at: 2 put: second.
+			result at: 3 put: third.
+			result at: 4 put: fourth.
+			result at: 5 put: fifth.
+			result
+		}.
 
-	meta method with: first with: second with: third with: fourth with: fifth with: sixth := {
-		let result := self new: 6.
-		result at: 1 put: first.
-		result at: 2 put: second.
-		result at: 3 put: third.
-		result at: 4 put: fourth.
-		result at: 5 put: fifth.
-		result at: 6 put: sixth.
-		result
+		method with: first with: second with: third with: fourth with: fifth with: sixth := {
+			let result := self new: 6.
+			result at: 1 put: first.
+			result at: 2 put: second.
+			result at: 3 put: third.
+			result at: 4 put: fourth.
+			result at: 5 put: fifth.
+			result at: 6 put: sixth.
+			result
+		}.
+
+		method withAll: other := {
+			let newSize := other size castTo: UIntPointer.
+			let result := self new: newSize.
+			result replaceFrom: 0 until: newSize with: other.
+			result
+		}.
 	}.
 
 }.

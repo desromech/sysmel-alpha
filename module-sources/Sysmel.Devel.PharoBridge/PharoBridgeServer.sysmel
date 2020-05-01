@@ -123,6 +123,7 @@ gcclass PharoBridgeServerClientConnection definition: {
             Stdn free(messageBuffer)
         }.
 
+        ##Stdn stdout << "Decode message " << decodedMessage; nl.
         self processClientCommand: decodedMessage.
 
         self
@@ -168,12 +169,13 @@ gcclass PharoBridgeServerClientConnection definition: {
     method evalMethod: encodedCompiledMethod := {
         ##Stdn stdout << "Decoding method: " << encodedCompiledMethod; nl.
         let interpretedMethod := encodedCompiledMethod decodeFromSysmelBridge.
-        interpretedMethod run: #eval with: #() in: nil
+        ##Stdn stdout << "Running method: " << interpretedMethod; nl.
+        (interpretedMethod run: #eval with: #() in: nil) printString
     }.
 
     method performClientRequest: request := {
         request == #listSystemDictionary ifTrue: {
-            let symbols := (Smalltalk castTo: ProtoObject) localSymbolTable keys.
+            let symbols := (Smalltalk castTo: ProtoObject) sharedNamespace keys.
             return: symbols
         }.
 
