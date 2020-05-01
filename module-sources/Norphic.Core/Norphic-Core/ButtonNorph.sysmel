@@ -47,17 +47,28 @@ class AbstractButtonMorph superclass: BorderedNorph; definition: {
     }.
 
     override method color => Float32x4 := {
-        let baseColor := super color.
-
-        isDown ifTrue: {
-            baseColor muchDarker.
+        self hasMouseFocus ifTrue: {
+            super color lighter lighter
         } ifFalse: {
-            self hasMouseFocus ifTrue: {
-                baseColor lighter lighter
-            } ifFalse: {
-                baseColor
-            }
+            super color
         }
+    }.
+
+
+    override method renderOn: (canvas: Canvas ref) ::=> Void := {
+        let baseColor := self color.
+        let topColor mutable := baseColor.
+        let bottomColor mutable := baseColor muchDarker.
+        isDown ifTrue: {
+            Stdn swapValue: topColor with: bottomColor
+        }.
+
+        let localBounds := self localBounds.
+        canvas
+            fillRectangle: self localBounds verticalGradientStart: topColor end: bottomColor;
+
+            color: borderColor;
+            drawRectangle: self localBounds
     }.
 }.
 

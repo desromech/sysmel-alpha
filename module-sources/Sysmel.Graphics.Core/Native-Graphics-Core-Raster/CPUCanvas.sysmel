@@ -11,7 +11,14 @@ class CPUSurface.
  *#
 class CPUCanvas superclass: Canvas; definition: {
     protected field targetSurface type: CPUSurface pointer.
-    protected field currentColor type: Float32x4.
+
+    protected field currentStartPosition type: Float32x2.
+    protected field currentStartColor type: Float32x4.
+
+    protected field currentEndPosition type: Float32x2.
+    protected field currentEndColor type: Float32x4.
+    protected field currentGradientVector type: Float32x2.
+
     protected field currentFontFaceWithSize type: FontFaceWithSize sharedPointer.
     protected field blendingMode type: BlendingMode.
 
@@ -27,22 +34,46 @@ class CPUCanvas superclass: Canvas; definition: {
         }
     }.
 
-
     override method blendingMode: (newMode: BlendingMode) ::=> Void := {
         blendingMode := newMode
     }.
-    
+
     override method clear ::=> Void := {
-        targetSurface _ pixelsBlitter setAllPixelsToColor: currentColor
+        targetSurface _ pixelsBlitter setAllPixelsToColor: currentStartColor
     }.
 
     override method color: (srgbColor: UInt8x4) ::=> Void := {
-        ## TODO: Perform the sRGB -> linear conversion.
-        self color: (srgbColor castTo: Float32x4) / 255.0f
+        self color: Stdn Math Color decodeSRGBUnorm8(srgbColor)
     }.
 
     override method color: (linearColor: Float32x4) ::=> Void := {
-        currentColor := linearColor.
+        self linearGradientStart: linearColor position: Float32x2 zeros end: linearColor position: Float32x2 zeros.
+    }.
+
+    override method linearGradientStart: (startColor: UInt8x4) position: (startPosition: Float32x2) end: (endColor: UInt8x4) position: (endPosition: Float32x2) ::=> Void := {
+        self linearGradientStart: Stdn Math Color decodeSRGBUnorm8(startColor)
+            position: startPosition end: Stdn Math Color decodeSRGBUnorm8(endColor) position: endPosition
+    }.
+
+    ## This sets the current active color. The color is in the linear RGB space.
+    override method linearGradientStart: (startColor: Float32x4) position: (startPosition: Float32x2) end: (endColor: Float32x4) position: (endPosition: Float32x2) ::=> Void := {
+        currentStartColor := startColor.
+        currentEndColor := endColor.
+        currentStartPosition := transform transformPoint: startPosition.
+        currentEndPosition := transform transformPoint: endPosition.
+
+        let v := endPosition - startPosition.
+        let l2 := v length2.
+        (l2 closeTo: 0.0) ifTrue: {
+            currentGradientVector := 0.0f.
+        } ifFalse: {
+            currentGradientVector := v / l2.
+        }.
+    }.
+
+    const inline method evaluatePaintColorAt: (position: Float32x2) ::=> Float32x4 := {
+        let alpha := (position - currentStartPosition) dot: currentGradientVector.
+        currentStartColor interpolateTo: currentEndColor at: (alpha clampMin: 0.0f max: 1.0f)
     }.
 
     override method fillTriangle: (p1: Float32x2) color: (c1: Float32x4) tc: (tc1: Float32x2)
@@ -53,10 +84,14 @@ class CPUCanvas superclass: Canvas; definition: {
         let tp2 := transform transformPoint: p2.
         let tp3 := transform transformPoint: p3.
 
+        let mc1 := c1 * (self evaluatePaintColorAt: p1).
+        let mc2 := c2 * (self evaluatePaintColorAt: p2).
+        let mc3 := c3 * (self evaluatePaintColorAt: p3).
+
         targetSurface _ pixelsBlitter
             blendTriangle: tp1 p2: tp2 p3: tp3 pixelsWith: {:(Float32x2)p :(Float32x3)barycentricCoordinates :(Float32x4)originalDestPixelValue :: Float32x4 |
-            let interpolatedColor := c1*barycentricCoordinates x + c2*barycentricCoordinates y + c3*barycentricCoordinates z.
-            interpolatedColor * currentColor
+            let interpolatedColor := mc1*barycentricCoordinates x + mc2*barycentricCoordinates y + mc3*barycentricCoordinates z.
+            interpolatedColor
         }
     }.
 
@@ -67,7 +102,7 @@ class CPUCanvas superclass: Canvas; definition: {
 
             targetSurface _ pixelsBlitter
                 blendRectangle: convertedRectangle pixelsWith: {:(UInt32x2)destPixelCoordinate :(Float32x4)originalDestPixelValue :: Float32x4 |
-                currentColor
+                self evaluatePaintColorAt: (destPixelCoordinate castTo: Float32x2)
             }
 
         } ifFalse: {
@@ -83,7 +118,7 @@ class CPUCanvas superclass: Canvas; definition: {
         let transformedEndPoint := transform transformPoint: endPoint.
         targetSurface _ pixelsBlitter
             blendSegmentStart: (transformedStartPoint floor castTo: Int32x2) end: (transformedEndPoint floor castTo: Int32x2) pixelsWith: {:(UInt32x2)destPixelCoordinate :(Float32x4)originalDestPixelValue :: Float32x4 |
-            currentColor
+            self evaluatePaintColorAt: (destPixelCoordinate castTo: Float32x2)
         }
     }.
 
@@ -92,7 +127,7 @@ class CPUCanvas superclass: Canvas; definition: {
 
         let sourceBlitter := cpuTextureView _ pixelsBlitter.
         targetSurface _ pixelsBlitter
-            compositeAlphaBlendPixelsFrom: sourceBlitter withColor: currentColor at: (targetPosition floor castTo: Int32x2)
+            compositeAlphaBlendPixelsFrom: sourceBlitter withColor: currentStartColor at: (targetPosition floor castTo: Int32x2)
     }.
 
     ## Sets the current font face with size.
@@ -128,7 +163,7 @@ class CPUCanvas superclass: Canvas; definition: {
             let sourceBlitter := form _ makeBlitter.
             let drawPosition := transform transformPoint: newState currentPosition + glyph _ drawOrigin.
             targetSurface _ pixelsBlitter
-                compositeAlphaBlendPixelsFrom: sourceBlitter withColor: currentColor
+                compositeAlphaBlendPixelsFrom: sourceBlitter withColor: currentStartColor
                 at: (drawPosition floor castTo: Int32x2).
         }.
 
