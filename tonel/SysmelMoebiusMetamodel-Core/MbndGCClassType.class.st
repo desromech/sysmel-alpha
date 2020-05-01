@@ -310,6 +310,14 @@ MbndGCClassType >> makeInstance: variableSize identityHash: identityHash at: aPo
 		yourself
 ]
 
+{ #category : #serialization }
+MbndGCClassType >> materializeWithGraphDecoder: graphDecoder withLazyFields: encodedFields [
+	super materializeWithGraphDecoder: graphDecoder withLazyFields: encodedFields.
+	(self hasFlag: #metaClassClass) ifTrue: [ 
+		self addMetaTypeMacrosTo: self
+	]
+]
+
 { #category : #'as yet unclassified' }
 MbndGCClassType >> metaClassClass: theClassForTheMetaClass [
 	<compileTime>

@@ -29,7 +29,7 @@ MbndSlovimSymbolNameMangler class >> initialize [
 	CharacterSubstitutionTable := Dictionary newFromPairs: #(
 		$: '.'
 		$$ '$$'
-		$. '$DT'
+		$. '$.'
 		$< '$LT'
 		$> '$GT'
 		$+ '$PL'
@@ -217,6 +217,12 @@ MbndSlovimSymbolNameMangler >> escapeNameForMangling: name [
 MbndSlovimSymbolNameMangler >> extractProgramEntityNestedNameComponents: programEntity [
 	^ Array streamContents: [ :out |
 		self extractProgramEntityNestedNameComponents: programEntity into: out.
+
+		"Add back the global namespace when we are mangling it."
+		(programEntity parent isNil and: [ programEntity name = #__global ]) ifTrue: [
+			out nextPut: #'..global..'
+		].
+	
 		nestedNamedComponentsSuffixes ifNotNil: [
 			out nextPutAll: nestedNamedComponentsSuffixes.
 			nestedNamedComponentsSuffixes := nil

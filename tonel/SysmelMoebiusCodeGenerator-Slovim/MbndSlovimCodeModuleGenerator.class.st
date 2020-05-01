@@ -1025,6 +1025,13 @@ MbndSlovimCodeModuleGenerator >> importTranslatedProgramEntity: externalProgramE
 			^ (self translateType: externalProgramEntity type) defaultConstant
 		].
 
+		(externalProgramEntity isMbndType and: [externalProgramEntity isModuleSpecificType not]) ifTrue: [
+			^ nil
+		].
+	
+		(externalProgramEntity parent isNotNil and: [externalProgramEntity parent isMbndType and: [externalProgramEntity parent isModuleSpecificType not]]) ifTrue: [
+			^ nil
+		].
 		self error: 'Compiled bug. Exported program entity {1} without an associated exported symbol.' format: { externalProgramEntity asString }
 	].
 	ssaModule globalNamed: programEntitySymbol ifPresent: [ :alreadyImported |

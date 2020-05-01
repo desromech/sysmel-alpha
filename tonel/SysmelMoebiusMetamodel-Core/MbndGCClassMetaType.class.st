@@ -35,7 +35,7 @@ MbndGCClassMetaType >> materializeWithGraphDecoder: graphDecoder withLazyFields:
 	super materializeWithGraphDecoder: graphDecoder withLazyFields: encodedFields.
 	
 	instanceType := encodedFields at: #instanceType.
-	instanceType ifNotNil: [ 
+	instanceType ifNotNil: [
 		instanceType addMetaTypeMacrosTo: self
 	].
 ]
