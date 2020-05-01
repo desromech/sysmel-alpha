@@ -15,6 +15,9 @@ class NorphEventHandler superclass: Stdn SharedObject; definition: {
     virtual method onMouseMoveEvent: (event: NorphMouseMoveEvent ref) ::=> Void := {}.
     virtual method onMouseWheelEvent: (event: NorphMouseWheelEvent ref) ::=> Void := {}.
 
+    virtual method onMouseEnterEvent: (event: NorphMouseEnterEvent ref) ::=> Void := {}.
+    virtual method onMouseLeaveEvent: (event: NorphMouseLeaveEvent ref) ::=> Void := {}.
+
 }.
 
 }.

@@ -1,0 +1,96 @@
+Float32x3x3 extend: {
+
+    meta definition: {
+        ## Linear sRGB <-> XYZ conversion matrices https://www.w3.org/Graphics/Color/sRGB
+        macro method fromSRGBintoCieXYZ := `'(Float32x3x3(
+            Float32x3(0.4124f, 0.2126f, 0.0193f),
+            Float32x3(0.3576f, 0.7152f, 0.1192f),
+            Float32x3(0.1805f, 0.0722f, 0.9505f)
+        )).
+
+        macro method fromCieXYZintoSRGB := `'(Float32x3x3(
+            Float32x3(3.2406255f, -0.9689307f, 0.0557101f),
+            Float32x3(-1.537208f, 1.8757561f, -0.2040211f),
+            Float32x3(-0.4986286f, 0.0415175f, 1.0569959f)
+        )).
+    }.
+
+}.
+
+Float32x3 extend: {
+    inline method muchDarker => SelfType := {
+        <gpu>
+
+        self interpolateTo: SelfType zeros at: 0.5f
+    }.
+
+    inline method muchLighter => SelfType := {
+        <gpu>
+
+        self interpolateTo: SelfType ones at: 0.5f
+    }.
+
+    inline method withAdjustedBrightness: (extraBrightness: Float32) ::=> SelfType := {
+        <gpu>
+        self + extraBrightness clampMin: SelfType zeros max: SelfType ones
+    }.
+
+    inline method lighter => SelfType := {
+        <gpu>
+
+        self withAdjustedBrightness: 0.08f.
+    }.
+
+    inline method darker => SelfType := {
+        <gpu>
+
+        self withAdjustedBrightness: -0.08f.
+    }.
+
+    inline method fromSRGBintoCieXYZ => SelfType := {
+        <gpu>
+        Float32x3x3 fromSRGBintoCieXYZ * self
+    }.
+
+    inline method fromCieXYZintoSRGB => SelfType := {
+        <gpu>
+        Float32x3x3 fromCieXYZintoSRGB * self
+    }.
+
+}.
+
+Float32x4 extend: {
+    inline method darker => SelfType := {
+        <gpu>
+
+        SelfType(self rgb darker, self a).
+    }.
+
+    inline method lighter => SelfType := {
+        <gpu>
+
+        SelfType(self rgb lighter, self a).
+    }.
+
+    inline method muchDarker => SelfType := {
+        <gpu>
+
+        SelfType(self rgb muchDarker, self a).
+    }.
+
+    inline method muchLighter => SelfType := {
+        <gpu>
+
+        SelfType(self rgb muchLighter, self a).
+    }.
+
+    inline method fromSRGBintoCieXYZ => SelfType := {
+        <gpu>
+        SelfType(self rgb fromSRGBintoCieXYZ, self a).
+    }.
+
+    inline method fromCieXYZintoSRGB => SelfType := {
+        <gpu>
+        SelfType(self rgb fromCieXYZintoSRGB, self a).
+    }.
+}.

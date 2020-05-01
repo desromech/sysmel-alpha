@@ -2,6 +2,7 @@ Compiler
     importModuleNamed: #"Sysmel.Testing";
     importModuleNamed: #"Sysmel.Math.Core";
     loadPackages: #(
+        #"Color-Tests"
         #"Geometry2D-Shapes-Tests"
         #"LinearAlgebra-Common-Tests"
     ).

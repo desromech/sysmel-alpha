@@ -7,6 +7,58 @@ useNamespace: Stdn Math Geometry.
  * I am an abstract button widget norph.
  *#
 class AbstractButtonMorph superclass: BorderedNorph; definition: {
+    protected field isDown type: Boolean8.
+
+    override method defaultColor => Float32x4
+        := self theme _ buttonColor.
+
+    override method onMouseEnterEvent: (event: NorphMouseEnterEvent ref) ::=> Void := {
+        self changed.
+    }.
+
+    override method onMouseLeaveEvent: (event: NorphMouseLeaveEvent ref) ::=> Void := {
+        self changed.
+    }.
+
+    override method onMouseButtonPressedEvent: (event: NorphMouseButtonPressedEvent ref) ::=> Void := {
+        event isLeftButton ifFalse: {
+            return: void.
+        }.
+
+        isDown := true.
+        self changed.
+        event wasHandled: true.
+        self grabMouseCapture.
+    }.
+
+    override method onMouseButtonReleasedEvent: (event: NorphMouseButtonReleasedEvent ref) ::=> Void := {
+        event isLeftButton ifFalse: {
+            return: void.
+        }.
+
+        isDown := false.
+        self changed.
+        event wasHandled: true.
+        self releaseMouseCapture.
+
+        (self localBounds includesPoint: event position) ifTrue: {
+            Stdn stdout << "TODO: Button activated"; nl.
+        }
+    }.
+
+    override method color => Float32x4 := {
+        let baseColor := super color.
+
+        isDown ifTrue: {
+            baseColor muchDarker.
+        } ifFalse: {
+            self hasMouseFocus ifTrue: {
+                baseColor lighter lighter
+            } ifFalse: {
+                baseColor
+            }
+        }
+    }.
 }.
 
 #**
@@ -38,7 +90,6 @@ class SimpleButtonMorph superclass: AbstractButtonMorph; definition: {
     method text: (newLabel: Stdn String const ref) ::=> Void := {
         label _ text: newLabel
     }.
-
 }.
 
 }. ## End of namespace Norphic

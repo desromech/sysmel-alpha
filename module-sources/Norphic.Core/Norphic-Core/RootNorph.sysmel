@@ -7,6 +7,22 @@ useNamespace: Stdn Math Geometry.
  * I am a root norph that roughly corresponds to a window in a Window system.
  *#
 class RootNorph superclass: Norph; definition: {
+    protected field mouseFocusNorph type: Norph sharedPointer.
+    protected field mouseCaptureNorph type: Norph sharedPointer.
+    protected field keyboardFocusNorph type: Norph sharedPointer.
+
+    const override method mouseFocusNorph => Norph pointer
+        := mouseFocusNorph getPointer.
+
+    const override method mouseCaptureNorph => Norph pointer
+        := mouseCaptureNorph getPointer.
+
+    const override method keyboardFocusNorph => Norph pointer
+        := keyboardFocusNorph getPointer.
+
+    const override method rootNorph => RootNorph pointer
+        := self address reinterpretCastTo: SelfType pointer.
+
     override method initialize => Void := {
 
     }.
@@ -15,10 +31,48 @@ class RootNorph superclass: Norph; definition: {
 
     }.
 
-    override method changed => Void := {
-        Stdn stdout << "Root norph changed notification received."
+    virtual method setMouseCaptureNorph: (norph: Norph pointer) ::=> Void := {
+        norph ifNil: {
+            mouseCaptureNorph reset
+        } ifNotNil: {
+            mouseCaptureNorph := norph _ asSharedPointer
+        }
     }.
 
+    method mouseEventHasFoundItsTarget: (event: NorphMouseEvent ref) ::=> Void := {
+        mouseFocusNorph == event targetNorph ifTrue: {
+            return: void.
+        }.
+
+        mouseFocusNorph ifNotNil: {
+            let leaveEvent mutable type: NorphMouseLeaveEvent.
+            leaveEvent setFrom: event.
+            mouseFocusNorph _ processEvent: leaveEvent
+        }.
+
+        mouseFocusNorph := event targetNorph.
+
+        mouseFocusNorph ifNotNil: {
+            let enterEvent mutable type: NorphMouseEnterEvent.
+            enterEvent setFrom: event.
+            mouseFocusNorph _ processEvent: enterEvent.
+        }.
+    }.
+
+
+    override method dispatchMouseEventToChildren: (event: NorphMouseEvent ref) ::=> Void := {
+        mouseCaptureNorph ifNil: {
+            super dispatchMouseEventToChildren: event
+        } ifNotNil: {
+            let oldPosition := event position.
+            try: {
+                event position: oldPosition - (mouseCaptureNorph _ globalPosition - self globalPosition).
+                mouseCaptureNorph _ dispatchMouseEvent: event
+            } finally: {
+                event position: oldPosition
+            }
+        }
+    }.
 }.
 
 }. ## End of namespace Norphic

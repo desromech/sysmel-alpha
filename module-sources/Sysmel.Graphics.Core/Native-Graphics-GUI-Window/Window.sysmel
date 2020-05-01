@@ -30,6 +30,21 @@ class Window superclass: Object; definition: {
      *#
     virtual method createDefaultDrawingSurface => Surface sharedPointer
         := Surface sharedPointer nil.
+
+
+    #**
+     * This method takes capture of grabbing a mouse capture.
+     *#
+    virtual method grabMouseCapture => Void := {
+
+    }.
+
+    #**
+     * This method takes capture of grabbing a mouse capture.
+     *#
+    virtual method releaseMouseCapture => Void := {
+
+    }.
 }.
 
 compileTime constant WindowRef := Window sharedPointer.

@@ -1,0 +1,38 @@
+namespace Stdn definition: {
+namespace Math definition: {
+namespace Color definition: {
+namespace Tests definition: {
+
+class LinearColorTest superclass: Stdn Testing TestCase; definition: {
+
+    test: testNamedColors with: {
+        self assert: Float32x4 transparent equals: Float32x4 zeros.
+        self assert: Float32x4 white equals: Float32x4 ones.
+        self assert: Float32x4 black equals: Float32x4(0.0f, 0.0f, 0.0f, 1.0f).
+
+        self assert: Float32x4 red equals: Float32x4(1.0f, 0.0f, 0.0f, 1.0f).
+        self assert: Float32x4 green equals: Float32x4(0.0f, 1.0f, 0.0f, 1.0f).
+        self assert: Float32x4 blue equals: Float32x4(0.0f, 0.0f, 1.0f, 1.0f).
+
+        self assert: Float32x4 yellow equals: Float32x4(1.0f, 1.0f, 0.0f, 1.0f).
+        self assert: Float32x4 cyan equals: Float32x4(0.0f, 1.0f, 1.0f, 1.0f).
+        self assert: Float32x4 magenta equals: Float32x4(1.0f, 0.0f, 1.0f, 1.0f).
+    }.
+
+    test: testMuchDarker with: {
+        self assert: Float32x4 white muchDarker equals: Float32x4(0.5f, 0.5f, 0.5f, 1.0f).
+        self assert: Float32x4 black muchDarker equals: Float32x4 black.
+    }.
+
+    test: testMuchLighter with: {
+        self assert: Float32x4 white muchLighter equals: Float32x4 ones.
+        self assert: Float32x4 black muchLighter equals: Float32x4(0.5f, 0.5f, 0.5f, 1.0f).
+    }.
+
+}.
+
+
+} ## End of namespace Tests
+} ## End of namespace Color
+} ## End of namespace Math
+} ## End of namespace Stdn

@@ -110,6 +110,11 @@ template SharedPointer(PT: Type)
     private field counter_ type: CounterType pointer.
     private field pointer_ type: PointerType.
 
+    const inline method == (other: SelfType const ref) ::=> Boolean8
+        := pointer_ == other getPointer.
+    const inline method ~~ (other: SelfType const ref) ::=> Boolean8
+        := pointer_ ~~ other getPointer.
+
     inline method finalize => Void := {
         counter_ ifNotNil: {
             counter_ _ strongRelease.
@@ -225,7 +230,7 @@ template SharedPointer(PT: Type)
 
             Stdn SharedPointer(`,targetType) basicNewValue
                 initializeWithExistingCounter: (`,tempRef getCounter reinterpretCastTo: Stdn SharedRefCounter(`,targetType) pointer)
-                andPointer: (`,tempRef getPointer castTo: `,targetType);
+                andPointer: (`,tempRef getPointer castTo: `,targetType pointer);
                 yourself
         } asSequenceWithoutLexicalScope
     }.

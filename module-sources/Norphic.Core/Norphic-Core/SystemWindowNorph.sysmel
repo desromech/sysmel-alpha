@@ -7,10 +7,11 @@ useNamespace: Stdn Math Geometry.
 #**
  * I am a root norph that is a wrapper for a window created by a Window system.
  *#
-class SystemWindowNorph superclass: Norph; definition: {
+class SystemWindowNorph superclass: RootNorph; definition: {
     protected field windowSystem type: WindowSystem sharedPointer.
     protected field window type: Window sharedPointer.
     protected field drawingSurface type: Surface sharedPointer.
+    protected field hasChanged type: Boolean8.
 
     meta definition: {
         method createFor: (windowSystem: WindowSystem sharedPointer const ref)
@@ -60,6 +61,16 @@ class SystemWindowNorph superclass: Norph; definition: {
         self renderSubnorphsOn: canvas _
     }.
 
+    override method setMouseCaptureNorph: (norph: Norph pointer) ::=> Void := {
+        super setMouseCaptureNorph: norph.
+
+        norph ifNil: {
+            window _ releaseMouseCapture
+        } ifNotNil: {
+            window _ grabMouseCapture
+        }
+    }.
+
     override method destroy => Void := {
         window ifNotNil: {
             window _ close.
@@ -69,13 +80,24 @@ class SystemWindowNorph superclass: Norph; definition: {
 
         super destroy.
     }.
+
+    override method changed => Void := {
+        hasChanged := true.
+    }.
+
+    inline method onTick => Void := {
+        hasChanged ifTrue: {
+            hasChanged := false.
+            self render
+        }
+    }.
 }.
 
 class SystemWindowNorphEventHandler superclass: EventHandler; definition: {
     public field norph type: SystemWindowNorph pointer.
 
     override method onTickEvent: (event: TickEvent ref) ::=> Void := {
-        norph _ render
+        norph _ onTick
     }.
 
     override method onExposeEvent: (event: ExposeEvent ref) ::=> Void := {
@@ -84,6 +106,39 @@ class SystemWindowNorphEventHandler superclass: EventHandler; definition: {
 
     override method onWindowCloseRequestEvent: (event: WindowCloseRequestEvent ref) ::=> Void := {
         norph _ destroy
+    }.
+
+    override method onMouseMoveEvent: (event: MouseMoveEvent ref) ::=> Void := {
+        let convertedEvent mutable := NorphMouseMoveEvent()
+            mouseId: event mouseId;
+            position: (event position castTo: Float32x2);
+            modifiers: event modifiers;
+            buttonState: event buttonState;
+            delta: (event delta castTo: Float32x2);
+            yourself.
+        norph _ dispatchMouseEvent: convertedEvent
+    }.
+
+    override method onMouseButtonPressedEvent: (event: MouseButtonPressedEvent ref) ::=> Void := {
+        let convertedEvent mutable := NorphMouseButtonPressedEvent()
+            mouseId: event mouseId;
+            position: (event position castTo: Float32x2);
+            modifiers: event modifiers;
+            button: event button;
+            clickCount: event clickCount;
+            yourself.
+        norph _ dispatchMouseEvent: convertedEvent
+    }.
+
+    override method onMouseButtonReleasedEvent: (event: MouseButtonReleasedEvent ref) ::=> Void := {
+        let convertedEvent mutable := NorphMouseButtonReleasedEvent()
+            mouseId: event mouseId;
+            position: (event position castTo: Float32x2);
+            modifiers: event modifiers;
+            button: event button;
+            clickCount: event clickCount;
+            yourself.
+        norph _ dispatchMouseEvent: convertedEvent
     }.
 }.
 

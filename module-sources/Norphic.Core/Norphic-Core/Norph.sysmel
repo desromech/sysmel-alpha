@@ -172,14 +172,126 @@ class Norph superclass: NorphEventHandler; definition: {
         newSubnorph _ addedToOwner: self
     }.
 
+    const virtual method globalPosition => Float32x2 := {
+        self owner ifNotNil: {:owner :: Void |
+            return: bounds min + owner _ globalPosition
+        }.
+
+        bounds min
+    }.
+
+    const virtual method keyboardFocusNorph => Norph pointer := {
+        self owner ifNotNil: {:owner :: Void |
+            return: owner _ keyboardFocusNorph
+        }.
+
+        nil
+    }.
+
+    const virtual method mouseFocusNorph => Norph pointer := {
+        self owner ifNotNil: {:owner :: Void |
+            return: owner _ mouseFocusNorph
+        }.
+
+        nil
+    }.
+
+    const virtual method mouseCaptureNorph => Norph pointer := {
+        self owner ifNotNil: {:owner :: Void |
+            return: owner _ mouseCaptureNorph
+        }.
+
+        nil
+    }.
+
+    const virtual method rootNorph => RootNorph pointer := {
+        self owner ifNotNil: {:owner :: Void |
+            return: owner _ rootNorph
+        }.
+
+        nil
+    }.
+
+    method grabMouseCapture => Void := {
+        self rootNorph ifNotNil: {:root :: Void |
+            root _ setMouseCaptureNorph: self address
+        }
+    }.
+
+    method releaseMouseCapture => Void := {
+        self hasMouseCapture ifFalse: {
+            return: void
+        }.
+
+        self rootNorph ifNotNil: {:root :: Void |
+            root _ setMouseCaptureNorph: nil
+        }
+    }.
+
     const inline method owner => Norph sharedPointer
         := owner lock.
+
+    virtual method handlesKeyboardEvents => Boolean8
+        := true.
+
+    virtual method canHaveFocus => Boolean8
+        := self handlesKeyboardEvents.
 
     inline method theme => Theme sharedPointer const ref
         := ThemeRegistry uniqueInstance defaultTheme.
 
     inline method asSizerElement => SizerElement sharedPointer
         := (SizerNorphElement for: self) upCastFor: SizerElement.
+
+    const inline method hasMouseFocus => Boolean8
+        := self mouseFocusNorph == self address.
+
+    const inline method hasMouseCapture => Boolean8
+        := self mouseCaptureNorph == self address.
+
+    virtual method handlesMouseEvents => Boolean8
+        := true.
+
+    virtual method dispatchMouseEventToChildren: (event: NorphMouseEvent ref) ::=> Void := {
+        let mousePosition := event position.
+        subnorphs do: {:child :: Void |
+            let childBounds := child _ bounds.
+            child _ handlesMouseEvents && (childBounds includesPoint: event position) ifTrue: {
+                event position: mousePosition - childBounds min.
+                try: {
+                    child _ dispatchMouseEvent: event
+                } finally: {
+                    event position: mousePosition
+                }.
+
+                event wasHandled ifTrue: {
+                    return: void
+                }
+            }
+        }.
+    }.
+
+    virtual method dispatchMouseEvent: (event: NorphMouseEvent ref) ::=> Void := {
+        self handlesMouseEvents ifFalse: {
+            return: void
+        }.
+
+        self dispatchMouseEventToChildren: event.
+
+        event targetNorph ifNil: {
+            event targetNorph: self asSharedPointer.
+
+            self rootNorph ifNotNil: {:rootNorph :: Void |
+                rootNorph _ mouseEventHasFoundItsTarget: event
+            }.
+        }.
+
+        self processEvent: event.
+    }.
+
+    const inline method hasKeyboardFocus => Boolean8
+        := self keyboardFocusNorph == self address.
+
 }.
 
 }. ## End of namespace Norphic

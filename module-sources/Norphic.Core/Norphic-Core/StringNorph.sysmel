@@ -44,7 +44,13 @@ class StringNorph superclass: Norph; definition: {
         }.
 
         Float32x2 zeros
-    }
+    }.
+
+    override method handlesMouseEvents => Boolean8
+        := false.
+
+    override method handlesKeyboardEvents => Boolean8
+        := false.
 }.
 
 }. ## End of namespace Norphic

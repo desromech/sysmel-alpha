@@ -1,0 +1,40 @@
+Float32x4 extend: {
+    meta definition: {
+        macro method transparent :=
+            `'(Float32x4(0.0f, 0.0f, 0.0f, 0.0f)).
+
+        macro method black :=
+            `'(Float32x4(0.0f, 0.0f, 0.0f, 1.0f)).
+
+        macro method white :=
+            `'(Float32x4(1.0f, 1.0f, 1.0f, 1.0f)).
+
+        macro method red :=
+            `'(Float32x4(1.0f, 0.0f, 0.0f, 1.0f)).
+
+        macro method green :=
+            `'(Float32x4(0.0f, 1.0f, 0.0f, 1.0f)).
+
+        macro method blue :=
+            `'(Float32x4(0.0f, 0.0f, 1.0f, 1.0f)).
+
+        macro method yellow :=
+            `'(Float32x4(1.0f, 1.0f, 0.0f, 1.0f)).
+
+        macro method cyan :=
+            `'(Float32x4(0.0f, 1.0f, 1.0f, 1.0f)).
+
+        macro method magenta :=
+            `'(Float32x4(1.0f, 0.0f, 1.0f, 1.0f)).
+
+        macro method lightGray :=
+            `'(Float32x4(0.8f, 0.8f, 0.8f, 1.0f)).
+
+        macro method gray :=
+            `'(Float32x4(0.5f, 0.5f, 0.5f, 1.0f)).
+
+        macro method darkGray :=
+            `'(Float32x4(0.2f, 0.2f, 0.2f, 1.0f)).
+    }.
+
+}.
