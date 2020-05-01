@@ -12,9 +12,11 @@ Trait {
 		'externalTemplateInstances',
 		'anonSymbolCount',
 		'extensionMethods',
-		'specialStructures'
+		'specialStructures',
+		'entitiesWithPendingDefinitionFragments'
 	],
 	#traits : 'TMbndProgramEntity',
+	#classTraits : 'TMbndProgramEntity classTrait',
 	#category : #'SysmelMoebiusMetamodel-Core-Module'
 }
 
@@ -126,6 +128,20 @@ TMbndModule >> enqueueProgramEntityWithDelayedSemanticAnalysis: programEntity [
 	self pendingDelayedSemanticAnalysisSet add: programEntity
 ]
 
+{ #category : #'semantic analysis' }
+TMbndModule >> entitiesWithPendingDefinitionFragments [
+	^ entitiesWithPendingDefinitionFragments ifNil: [ entitiesWithPendingDefinitionFragments := OrderedCollection new ]
+]
+
+{ #category : #'semantic analysis' }
+TMbndModule >> evaluateAllPendingDefinitionFragments [
+	| toEvaluate |
+	entitiesWithPendingDefinitionFragments ifNil: [ ^ self ].
+	toEvaluate := entitiesWithPendingDefinitionFragments asArray.
+	entitiesWithPendingDefinitionFragments removeAll.
+	toEvaluate do: [ :each | each evaluateAllPendingDefinitionFragments ]
+]
+
 { #category : #evaluation }
 TMbndModule >> evaluateFileNamed: fileName [
 	| parsedSource fileReference |
@@ -183,7 +199,8 @@ TMbndModule >> finishSemanticAnalysis [
 	[ self pendingDelayedSemanticAnalysisSet isNotEmpty ] whileTrue: [
 		toAnalyze := self pendingDelayedSemanticAnalysisSet asArray.
 		self pendingDelayedSemanticAnalysisSet removeAll.
-		toAnalyze do: [:each | each ensureSemanticAnalysis ]
+		toAnalyze do: [:each | each ensureSemanticAnalysis ].
+		self evaluateAllPendingDefinitionFragments
 	]
 ]
 
@@ -386,6 +403,11 @@ TMbndModule >> pendingDelayedSemanticAnalysisSet [
 { #category : #scope }
 TMbndModule >> programEntityScopeClass [
 	^ MbndNamespaceScope 
+]
+
+{ #category : #'semantic analysis' }
+TMbndModule >> recordEntityWithPendingDefinitionFragments: anEntity [
+	self entitiesWithPendingDefinitionFragments add: anEntity
 ]
 
 { #category : #extensions }

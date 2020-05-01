@@ -155,7 +155,11 @@ MbndBasicType >> addPendingDefinitionFragment: pendingDefinitionFragment [
 		pendingDefinitionFragment evaluate
 	] ifFalse: [
 		self pendingDefinitionFragments add: pendingDefinitionFragment.
-		self enqueueDelayedSemanticAnalysis
+		pendingDefinitionFragment module == self module ifTrue: [
+			self enqueueDelayedSemanticAnalysis
+		] ifFalse: [
+			pendingDefinitionFragment module recordEntityWithPendingDefinitionFragments: self
+		]
 	].
 ]
 
