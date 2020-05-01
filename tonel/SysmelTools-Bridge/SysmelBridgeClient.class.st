@@ -56,8 +56,8 @@ SysmelBridgeClient >> connectToHostNamed: hostName port: port [
 
 { #category : #evaluating }
 SysmelBridgeClient >> convertEvalResultError: erlangError [
-	erlangError second = #exception ifTrue: [
-		^ ErlangEvalExceptionError new
+"	erlangError second = #exception ifTrue: [
+		^ SysmelBridgeExceptionError new
 			erlangError: erlangError;
 			exception: erlangError third;
 			yourself
@@ -76,16 +76,11 @@ SysmelBridgeClient >> convertEvalResultError: erlangError [
 			errorInfo: erlangError third;
 			errorLocation: erlangError fourth;
 			yourself
-	].
+	]."
 
-	^ ErlangEvalError new
-		erlangError: erlangError;
+	^ SysmelBridgeEvalError new
+		sysmelError: erlangError;
 		yourself
-]
-
-{ #category : #evaluating }
-SysmelBridgeClient >> eval: aString [
-	^ self eval: aString bindings: ErlCons empty
 ]
 
 { #category : #evaluating }
