@@ -12,7 +12,7 @@ Class {
 { #category : #'instance creation' }
 MbndDictionaryContent class >> for: requiredSize [
 	| requiredCapacity |
-	requiredCapacity := (requiredSize / 0.8) ceiling.
+	requiredCapacity := (requiredSize / 0.8) ceiling max: 5.
 	^ self new
 		tally: 0;
 		keys: (Array new: requiredCapacity);
