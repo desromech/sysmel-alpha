@@ -1,4 +1,5 @@
 namespace Unix definition: {
+    useNamespace: CTypes.
 
 compileTime constant socklen_t := SizeT.
 compileTime constant sa_family_t := UInt16.

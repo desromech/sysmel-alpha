@@ -7,5 +7,4 @@ loadFileOnce: "time.sysmel".
 if: Compiler compilationTarget isWebAssembly not then: {
     loadFileOnce: "pthreads.sysmel".
     loadFileOnce: "mmap.sysmel".
-    loadFileOnce: "socket.sysmel".
 }.

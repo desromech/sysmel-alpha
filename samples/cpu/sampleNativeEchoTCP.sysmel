@@ -1,3 +1,5 @@
+Compiler importModuleNamed: #"Sysmel.Networking.Core".
+
 class ClientProcessor definition: {
     field clientSocket type: Stdn IO Socket.
     field clientThread type: Stdn Thread.

@@ -2,7 +2,6 @@ loadFileOnce: "FileStream.sysmel".
 loadFileOnce: "Time.sysmel".
 
 if: Compiler compilationTarget isWebAssembly not then: {
-    loadFileOnce: "Socket.sysmel".
     loadFileOnce: "Threads.sysmel".
     loadFileOnce: "NativeVirtualMemoryInterface.sysmel".
 }.

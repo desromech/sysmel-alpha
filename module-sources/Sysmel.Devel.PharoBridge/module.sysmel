@@ -1,2 +1,7 @@
+Compiler importModulesNamed: #(
+    #"Sysmel.Networking.Core"
+    #"Sysmel.Serialization.MessagePack"
+).
+
 loadFileOnce: "Encoding.sysmel".
 loadFileOnce: "PharoBridgeServer.sysmel".

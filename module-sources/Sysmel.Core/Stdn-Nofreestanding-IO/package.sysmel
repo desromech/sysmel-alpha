@@ -17,7 +17,3 @@ loadFileOnce: "BinaryDataStreamWriter.sysmel".
 ## Text stream writer.
 loadFileOnce: "TextStreamWriter.sysmel".
 loadFileOnce: "TextStreamReader.sysmel".
-
-## Sockets
-loadFileOnce: "Endpoint.sysmel".
-loadFileOnce: "SocketOption.sysmel".

@@ -1,0 +1,8 @@
+Compiler loadPackage: #"Stdn-Networking".
+
+if: Compiler compilationTarget isUnix then: {
+    Compiler loadPackages: #(
+        #"Unix-Bindings"
+        #"Stdn-Networking-Unix"
+    )
+}.

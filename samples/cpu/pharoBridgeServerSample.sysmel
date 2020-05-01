@@ -1,3 +1,5 @@
+Compiler importModuleNamed: #"Sysmel.Devel.PharoBridge".
+
 function main externC (argc: Int32, argv: Char8 const pointer pointer) => Int32 := {
     let server := Smalltalk PharoBridgeServer new.
     server start.
