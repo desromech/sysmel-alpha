@@ -501,6 +501,12 @@ MbndSlovimSymbolNameMangler >> visitArraySliceType: type [
 ]
 
 { #category : #visiting }
+MbndSlovimSymbolNameMangler >> visitArrayType: type [
+	output nextPut: $A; print: type elements; nextPut: $_.
+	self mangleType: type elementType.
+]
+
+{ #category : #visiting }
 MbndSlovimSymbolNameMangler >> visitAssociationType: type [
 	self emitSubstitutionElement: #Association.
 	output nextPut: $I.
