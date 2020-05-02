@@ -37,12 +37,36 @@ class Norph superclass: NorphEventHandler; definition: {
         self bounds: (RectangleF32 min: newPosition extent: self extent)
     }.
 
+    virtual method movedInto: (newPosition: Float32x2) ::=> Void := {
+        bounds := RectangleF32 min: newPosition extent: bounds extent.
+        self positionChanged.
+    }.
+
+    virtual method extentChangedInto: (newExtent: Float32x2) ::=> Void := {
+        bounds := RectangleF32 min: bounds min extent: newExtent.
+        self extentChanged.
+    }.
+
     virtual method bounds => RectangleF32
         := bounds.
 
     virtual method bounds: (theNewBounds: RectangleF32 const ref) ::=> Void := {
-        bounds := theNewBounds.
-        self boundsChanged.
+        bounds = theNewBounds ifTrue: {
+            return: void.
+        }.
+
+        bounds extent = theNewBounds extent ifTrue: {
+            bounds := theNewBounds.
+            self positionChanged.
+        } ifFalse: {
+            bounds min = theNewBounds min ifTrue: {
+                bounds := theNewBounds.
+                self extentChanged.
+            } ifFalse: {
+                bounds := theNewBounds.
+                self boundsChanged.
+            }
+        }
     }.
 
     inline method localBounds => RectangleF32
@@ -126,6 +150,24 @@ class Norph superclass: NorphEventHandler; definition: {
 
         self owner ifNotNil: { :theOwner :: Void |
             theOwner _ childChanged.
+        }.
+    }.
+
+    virtual method extentChanged ::=> Void := {
+        self changed.
+
+        autolayout ifTrue: {
+            self updateLayout.
+        }.
+
+        self owner ifNotNil: { :theOwner :: Void |
+            theOwner _ childBoundsChanged.
+        }.
+    }.
+
+    virtual method positionChanged ::=> Void := {
+        self owner ifNotNil: { :theOwner :: Void |
+            theOwner _ childBoundsChanged.
         }.
     }.
 

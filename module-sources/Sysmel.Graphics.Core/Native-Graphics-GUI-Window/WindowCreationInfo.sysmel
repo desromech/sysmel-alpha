@@ -10,6 +10,7 @@ class WindowCreationInfo definition: {
     public field position type: Stdn Optional(Int32x2).
     public field extent type: Int32x2.
     public field hidden type: Boolean8.
+    public field resizable type: Boolean8.
     public field borderless type: Boolean8.
     public field fullscreen type: Boolean8.
 

@@ -17,7 +17,17 @@ class SystemWindowNorph superclass: RootNorph; definition: {
         method createFor: (windowSystem: WindowSystem sharedPointer const ref)
             title: (theTitle: Stdn String const ref) extent: (theExtent: Int32x2) ::=> InstanceType sharedPointer := {
 
-            let window := windowSystem _ createWindowWithTitle: "Test Norphic" asMutableString extent: Int32x2(640, 480).
+            let creationInfo mutable type: WindowCreationInfo.
+            creationInfo
+                resizable: true;
+                extent: theExtent;
+                title: theTitle.
+            self createFor: windowSystem  creationInfo: creationInfo
+        }.
+
+        method createFor: (windowSystem: WindowSystem sharedPointer const ref) creationInfo: (creationInfo: WindowCreationInfo const ref) ::=> InstanceType sharedPointer := {
+
+            let window := windowSystem _ createWindow: creationInfo.
             window ifNil: {
                 return: InstanceType sharedPointer nil
             }.
@@ -32,7 +42,7 @@ class SystemWindowNorph superclass: RootNorph; definition: {
             ## Create the system window norph.
             let result := SystemWindowNorph sharedNew.
             result _
-                bounds: (RectangleF32 min: Float32x2 zeros extent: (theExtent castTo: Float32x2));
+                bounds: (RectangleF32 min: Float32x2 zeros extent: (creationInfo extent castTo: Float32x2));
                 initializeWithWindowSystem: windowSystem window: window drawingSurface: surface.
 
             ## Create the event handler
@@ -41,7 +51,7 @@ class SystemWindowNorph superclass: RootNorph; definition: {
             window _ eventHandler: (eventHandler upCastFor: EventHandler).
 
             return: result
-        }
+        }.
     }.
 
     inline method initializeWithWindowSystem: (theWindowSystem: WindowSystem sharedPointer const ref)
@@ -95,7 +105,6 @@ class SystemWindowNorph superclass: RootNorph; definition: {
     override method currentActiveMouseCursorChanged => Void := {
         window _ setCursor: self mouseFocusNorphCursor
     }.
-
 }.
 
 class SystemWindowNorphEventHandler superclass: EventHandler; definition: {
@@ -107,6 +116,18 @@ class SystemWindowNorphEventHandler superclass: EventHandler; definition: {
 
     override method onExposeEvent: (event: ExposeEvent ref) ::=> Void := {
         norph _ render
+    }.
+
+    override method onWindowMovedEvent: (event: WindowMovedEvent ref) ::=> Void := {
+        norph _ movedInto: event newPosition.
+    }.
+
+    override method onWindowResizingEvent: (event: WindowResizingEvent ref) ::=> Void := {
+        norph _ extentChangedInto: event newSize.
+    }.
+
+    override method onWindowSizeChangedEvent: (event: WindowSizeChangedEvent ref) ::=> Void := {
+        norph _ extentChangedInto: event newSize.
     }.
 
     override method onWindowCloseRequestEvent: (event: WindowCloseRequestEvent ref) ::=> Void := {

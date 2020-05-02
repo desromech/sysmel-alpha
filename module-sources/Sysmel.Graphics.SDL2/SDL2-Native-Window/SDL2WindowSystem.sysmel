@@ -63,7 +63,7 @@ class SDL2WindowSystem superclass: WindowSystem; definition: {
         }.
 
         let extent := creationInfo extent.
-        let flags mutable type: Int32 := 0.
+        let flags mutable type: UInt32 := 0.
         creationInfo hidden ifTrue: {
             flags := flags | SDL_WINDOW_HIDDEN
         } ifFalse: {
@@ -78,7 +78,11 @@ class SDL2WindowSystem superclass: WindowSystem; definition: {
             flags := flags | SDL_WINDOW_FULLSCREEN
         }.
 
-        let windowHandle := SDL_CreateWindow(creationInfo title asCString, position x, position y, extent x, extent y, 0).
+        creationInfo resizable ifTrue: {
+            flags := flags | SDL_WINDOW_RESIZABLE
+        }.
+
+        let windowHandle := SDL_CreateWindow(creationInfo title asCString, position x, position y, extent x, extent y, flags).
         windowHandle ifNil: {
             return: Window sharedPointer nil.
         }.
@@ -153,6 +157,57 @@ class SDL2WindowSystem superclass: WindowSystem; definition: {
             }.
             SDL_WINDOWEVENT_EXPOSED : {
                 let convertedEvent mutable type: ExposeEvent.
+                wrapper _ deliverEvent: convertedEvent.
+            }.
+            SDL_WINDOWEVENT_MOVED : {
+                let convertedEvent mutable type: WindowMovedEvent.
+                convertedEvent newPosition: Float32x2(event data1, event data2).
+                wrapper _ deliverEvent: convertedEvent.
+            }.
+            SDL_WINDOWEVENT_RESIZED : {
+                let convertedEvent mutable type: WindowResizingEvent.
+                convertedEvent newSize: Float32x2(event data1, event data2).
+                wrapper _ deliverEvent: convertedEvent.
+            }.
+            SDL_WINDOWEVENT_SIZE_CHANGED : {
+                let convertedEvent mutable type: WindowSizeChangedEvent.
+                convertedEvent newSize: Float32x2(event data1, event data2).
+                wrapper _ deliverEvent: convertedEvent.
+            }.
+            SDL_WINDOWEVENT_HIDDEN : {
+                let convertedEvent mutable type: WindowHiddenEvent.
+                wrapper _ deliverEvent: convertedEvent.
+            }.
+            SDL_WINDOWEVENT_SHOWN : {
+                let convertedEvent mutable type: WindowShownEvent.
+                wrapper _ deliverEvent: convertedEvent.
+            }.
+            SDL_WINDOWEVENT_MINIMIZED : {
+                let convertedEvent mutable type: WindowMinimizedEvent.
+                wrapper _ deliverEvent: convertedEvent.
+            }.
+            SDL_WINDOWEVENT_MAXIMIZED : {
+                let convertedEvent mutable type: WindowMaximizedEvent.
+                wrapper _ deliverEvent: convertedEvent.
+            }.
+            SDL_WINDOWEVENT_RESTORED : {
+                let convertedEvent mutable type: WindowRestoredEvent.
+                wrapper _ deliverEvent: convertedEvent.
+            }.
+            SDL_WINDOWEVENT_ENTER : {
+                let convertedEvent mutable type: MouseEnterEvent.
+                wrapper _ deliverEvent: convertedEvent.
+            }.
+            SDL_WINDOWEVENT_LEAVE : {
+                let convertedEvent mutable type: MouseLeaveEvent.
+                wrapper _ deliverEvent: convertedEvent.
+            }.
+            SDL_WINDOWEVENT_FOCUS_GAINED : {
+                let convertedEvent mutable type: WindowGotFocusEvent.
+                wrapper _ deliverEvent: convertedEvent.
+            }.
+            SDL_WINDOWEVENT_FOCUS_LOST : {
+                let convertedEvent mutable type: WindowLostFocusEvent.
                 wrapper _ deliverEvent: convertedEvent.
             }.
             _ : {}
@@ -291,7 +346,7 @@ class SDL2WindowSystem superclass: WindowSystem; definition: {
 }.
 
 function createSDL2WindowSystem() => WindowSystem sharedPointer := {
-    SDL_SetHint("SDL_HINT_NO_SIGNAL_HANDLERS", "1").
+    SDL_SetHint("SDL_NO_SIGNAL_HANDLERS", "1").
     SDL_Init(SDL_INIT_VIDEO | SDL_INIT_JOYSTICK | SDL_INIT_GAMECONTROLLER | SDL_INIT_AUDIO) ~= 0 ifTrue: {
         Stdn stdout << "Failed to initialize SDL2"; nl.
         return: WindowSystem sharedPointer nil

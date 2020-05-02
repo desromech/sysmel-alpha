@@ -27,6 +27,15 @@ sealed template GenericRectangle(ST: Type)
             := self min: theMinCorner max: theMinCorner + theExtent.
     }.
 
+    const inline method hash => Stdn Hash
+        := min hash ^ max hash.
+
+    const inline method = (other: SelfType const ref) ::=> Boolean8
+        := min = other min && max = other max.
+
+    const inline method ~= (other: SelfType const ref) ::=> Boolean8
+        := min ~= other min || max ~= other max.
+
     const inline method center => Vector2
         := min + (max - min) / (2 castTo: Scalar).
 

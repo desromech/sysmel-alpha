@@ -22,6 +22,12 @@ class EventHandler superclass: Object; definition: {
     virtual method onTextInputEvent: (event: TextInputEvent ref) ::=> Void
         := void.
 
+    virtual method onMouseEnterEvent: (event: MouseEnterEvent ref) ::=> Void
+        := void.
+
+    virtual method onMouseLeaveEvent: (event: MouseLeaveEvent ref) ::=> Void
+        := void.
+
     virtual method onMouseMoveEvent: (event: MouseMoveEvent ref) ::=> Void
         := void.
 
@@ -35,6 +41,36 @@ class EventHandler superclass: Object; definition: {
         := void.
 
     virtual method onWindowCloseRequestEvent: (event: WindowCloseRequestEvent ref) ::=> Void
+        := void.
+
+    virtual method onWindowMovedEvent: (event: WindowMovedEvent ref) ::=> Void
+        := void.
+
+    virtual method onWindowResizingEvent: (event: WindowResizingEvent ref) ::=> Void
+        := void.
+
+    virtual method onWindowSizeChangedEvent: (event: WindowSizeChangedEvent ref) ::=> Void
+        := void.
+
+    virtual method onWindowShownEvent: (event: WindowShownEvent ref) ::=> Void
+        := void.
+
+    virtual method onWindowHiddenEvent: (event: WindowHiddenEvent ref) ::=> Void
+        := void.
+
+    virtual method onWindowMinimizedEvent: (event: WindowMinimizedEvent ref) ::=> Void
+        := void.
+
+    virtual method onWindowMaximizedEvent: (event: WindowMaximizedEvent ref) ::=> Void
+        := void.
+
+    virtual method onWindowRestoredEvent: (event: WindowRestoredEvent ref) ::=> Void
+        := void.
+
+    virtual method onWindowGotFocusEvent: (event: WindowGotFocusEvent ref) ::=> Void
+        := void.
+
+    virtual method onWindowLostFocusEvent: (event: WindowLostFocusEvent ref) ::=> Void
         := void.
 }.
 

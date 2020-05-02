@@ -83,6 +83,22 @@ class MouseEvent superclass: Event; definition: {
 }.
 
 #**
+ * I am a mouse enter event.
+ *#
+class MouseEnterEvent superclass: MouseEvent; definition: {
+    override method acceptEventHandler: (eventHandler: EventHandler ref) ::=> Void
+        := eventHandler onMouseEnterEvent: self.
+}.
+
+#**
+ * I am a mouse enter event.
+ *#
+class MouseLeaveEvent superclass: MouseEvent; definition: {
+    override method acceptEventHandler: (eventHandler: EventHandler ref) ::=> Void
+        := eventHandler onMouseLeaveEvent: self.
+}.
+
+#**
  * I am a mouse move event.
  *#
 class MouseMoveEvent superclass: MouseEvent; definition: {
@@ -140,6 +156,92 @@ class ExposeEvent superclass: Event; definition: {
 class WindowCloseRequestEvent superclass: Event; definition: {
     override method acceptEventHandler: (eventHandler: EventHandler ref) ::=> Void
         := eventHandler onWindowCloseRequestEvent: self.
+}.
+
+#**
+ * I am a window moved event.
+ *#
+class WindowMovedEvent superclass: Event; definition: {
+    public field newPosition type: Float32x2.
+
+    override method acceptEventHandler: (eventHandler: EventHandler ref) ::=> Void
+        := eventHandler onWindowMovedEvent: self.
+}.
+
+#**
+ * I am a window resizing event.
+ *#
+class WindowResizingEvent superclass: Event; definition: {
+    public field newSize type: Float32x2.
+
+    override method acceptEventHandler: (eventHandler: EventHandler ref) ::=> Void
+        := eventHandler onWindowResizingEvent: self.
+}.
+
+#**
+ * I am a window size changed event.
+ *#
+class WindowSizeChangedEvent superclass: Event; definition: {
+    public field newSize type: Float32x2.
+
+    override method acceptEventHandler: (eventHandler: EventHandler ref) ::=> Void
+        := eventHandler onWindowSizeChangedEvent: self.
+}.
+
+#**
+ * I am a window shown event.
+ *#
+class WindowShownEvent superclass: Event; definition: {
+    override method acceptEventHandler: (eventHandler: EventHandler ref) ::=> Void
+        := eventHandler onWindowShownEvent: self.
+}.
+
+#**
+ * I am a window hidden event.
+ *#
+class WindowHiddenEvent superclass: Event; definition: {
+    override method acceptEventHandler: (eventHandler: EventHandler ref) ::=> Void
+        := eventHandler onWindowHiddenEvent: self.
+}.
+
+#**
+ * I am a window minimized event.
+ *#
+class WindowMinimizedEvent superclass: Event; definition: {
+    override method acceptEventHandler: (eventHandler: EventHandler ref) ::=> Void
+        := eventHandler onWindowMinimizedEvent: self.
+}.
+
+#**
+ * I am a window maximized event.
+ *#
+class WindowMaximizedEvent superclass: Event; definition: {
+    override method acceptEventHandler: (eventHandler: EventHandler ref) ::=> Void
+        := eventHandler onWindowMaximizedEvent: self.
+}.
+
+#**
+ * I am a window restored event.
+ *#
+class WindowRestoredEvent superclass: Event; definition: {
+    override method acceptEventHandler: (eventHandler: EventHandler ref) ::=> Void
+        := eventHandler onWindowRestoredEvent: self.
+}.
+
+#**
+ * I am a window got focus event.
+ *#
+class WindowGotFocusEvent superclass: Event; definition: {
+    override method acceptEventHandler: (eventHandler: EventHandler ref) ::=> Void
+        := eventHandler onWindowGotFocusEvent: self.
+}.
+
+#**
+ * I am a window lost focus event.
+ *#
+class WindowLostFocusEvent superclass: Event; definition: {
+    override method acceptEventHandler: (eventHandler: EventHandler ref) ::=> Void
+        := eventHandler onWindowLostFocusEvent: self.
 }.
 
 }. ## End of namespace GUI
