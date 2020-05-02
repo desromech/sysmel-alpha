@@ -1,0 +1,11 @@
+namespace Norphic definition: {
+
+#**
+ * I am a status bar norph.
+ *#
+class StatusBarNorph superclass: Norph; definition: {
+    override method minimalContentExtent => Float32x2
+        := Float32x2(0.0f, 10.0f).
+}.
+
+}. ## End of namespace Norphic

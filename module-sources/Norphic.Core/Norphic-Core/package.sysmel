@@ -13,6 +13,7 @@ loadFileOnce: "SizerElement.sysmel".
 loadFileOnce: "SizerNullSizerElement.sysmel".
 loadFileOnce: "SizerNorphElement.sysmel".
 loadFileOnce: "SizerSubSizerElement.sysmel".
+loadFileOnce: "FullSizer.sysmel".
 loadFileOnce: "BoxSizer.sysmel".
 
 loadFileOnce: "StringNorph.sysmel".
@@ -29,3 +30,8 @@ loadFileOnce: "AbstractTextEditorNorph.sysmel".
 loadFileOnce: "TextInputNorph.sysmel".
 loadFileOnce: "TextAreaNorph.sysmel".
 loadFileOnce: "TextEditorNorph.sysmel".
+
+loadFileOnce: "MenuBarNorph.sysmel".
+loadFileOnce: "MenuItemNorph.sysmel".
+loadFileOnce: "MenuNorph.sysmel".
+loadFileOnce: "StatusBarNorph.sysmel".

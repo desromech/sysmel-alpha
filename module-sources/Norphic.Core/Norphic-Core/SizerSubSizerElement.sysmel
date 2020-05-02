@@ -16,7 +16,7 @@ class SizerSubSizerElement superclass: SizerElement; definition: {
         }
     }.
 
-    override method minimalContentExtent => Float32x2 := {
+    const override method minimalContentExtent => Float32x2 := {
         let strongSizer := sizer lock.
         strongSizer ifNotNil: {
             return: strongSizer _ minimalExtent

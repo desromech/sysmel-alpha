@@ -5,7 +5,7 @@ useNamespace: Stdn Math Geometry.
 #**
  * I am box sizer that packs its elements in a linear fashion.
  *#
-class BoxSizer superclass: Sizer; definition: {
+class BoxSizer superclass: FullSizer; definition: {
     abstract method direction => Float32x2.
 
     inline method oppositeDirection => Float32x2
@@ -16,8 +16,44 @@ class BoxSizer superclass: Sizer; definition: {
     }.
 
     override method applyIntoBounds: (newBounds: RectangleF32) ::=> Void := {
+        ## If there is only a single element, then fallback into the behavior of a full sizer.
+        elements size <= 1 ifTrue: {
+            return: (super applyIntoBounds: newBounds)
+        }.
+
+        let direction := self direction.
+        let oppositeDirection := self oppositeDirection.
+        let boundsExtent := newBounds extent.
+
+        ## Compute the required extent and the total proportion sum.
+        let requiredExtent mutable := 0.0f.
+        let proportionSum mutable := 0.0f.
         elements do: {:each :: Void |
-            each _ applyIntoBounds: newBounds
+            let proportion := each _ proportion.
+            proportion <= 0.0f ifTrue: {
+                requiredExtent := requiredExtent + (each _ layoutComputationExtent dot: direction).
+            } ifFalse: {
+                proportionSum := proportionSum + proportion.
+            }.
+        }.
+
+        ## Lay out the different elements
+        let remainingDirectionExtent := ((boundsExtent dot: direction) - requiredExtent max: 0.0f)*direction.
+        let oppositeExtent := boundsExtent * oppositeDirection.
+        let currentPosition mutable := newBounds min.
+
+        elements do: {:each :: Void |
+            let proportion := each _ proportion.
+
+            let elementExtent := proportion <= 0.0f ifTrue: {
+                each _ layoutComputationExtent * direction + oppositeExtent.
+            } ifFalse: {
+                remainingDirectionExtent * proportion / proportionSum + oppositeExtent.
+            }.
+
+            let elementBounds := RectangleF32 min: currentPosition extent: elementExtent.
+            each _ applyIntoBounds: elementBounds.
+            currentPosition := currentPosition + elementExtent*direction.
         }
     }.
 }.

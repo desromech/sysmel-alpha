@@ -1,0 +1,14 @@
+namespace Norphic definition: {
+
+#**
+ * I am a menu item norph.
+ *#
+class MenuItemNorph superclass: Norph; definition: {
+    public field menu type: MenuNorph sharedPointer.
+    
+    override method initialize => Void := {
+
+    }.
+}.
+
+}. ## End of namespace Norphic

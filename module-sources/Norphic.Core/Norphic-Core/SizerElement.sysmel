@@ -46,7 +46,7 @@ class SizerElement superclass: Stdn SharedObject; definition: {
         result
     }.
 
-    method borderExtent => Float32x2 := {
+    const method borderExtent => Float32x2 := {
         let result mutable := Float32x2 zeros.
         self hasLeftBorder ifTrue: {
             result := Float32x2(borderSize, 0).
@@ -62,6 +62,14 @@ class SizerElement superclass: Stdn SharedObject; definition: {
         }.
 
         result
+    }.
+
+    const inline method layoutComputationExtent => Float32x2 := {
+        self isExpanded ifTrue: {
+            self minimalExtent
+        } ifFalse: {
+            self extent
+        }
     }.
 
     inline method applyBorderToBounds: (bounds: RectangleF32) ::=> RectangleF32
@@ -112,16 +120,19 @@ class SizerElement superclass: Stdn SharedObject; definition: {
     inline method applyBorderAndAlignmentToBounds: (bounds: RectangleF32) ::=> RectangleF32
         := self applyAlignmentToBounds: (self applyBorderToBounds: bounds).
 
-    virtual method minimalContentExtent => Float32x2
+    const virtual method minimalContentExtent => Float32x2
         := Float32x2 zeros.
 
-    virtual method contentExtent  => Float32x2
+    const virtual method contentExtent  => Float32x2
         := self minimalContentExtent.
 
     abstract method applyIntoBounds: (newBounds: RectangleF32) ::=> Void.
 
-    inline method minimalExtent => Float32x2
+    const inline method minimalExtent => Float32x2
         := self minimalContentExtent + self borderExtent.
+
+    const inline method extent => Float32x2
+        := self contentExtent + self borderExtent.
 
     inline method allBorders => Void := {
         flags := flags | Flags AllBorders

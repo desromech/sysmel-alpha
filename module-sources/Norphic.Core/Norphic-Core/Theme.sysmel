@@ -9,6 +9,8 @@ class Theme superclass: Stdn Object; definition: {
     public field font type: Font sharedPointer.
     public field fontPointSize type: UInt32.
 
+    public field defaultBorderColor type: Float32x4.
+
     public field textEditorBackground type: Float32x4.
     public field textColor type: Float32x4.
     public field disabledTextColor type: Float32x4.
@@ -19,6 +21,8 @@ class Theme superclass: Stdn Object; definition: {
         font := FontRegistry default defaultSans.
         fontPointSize := 14.
 
+        defaultBorderColor := Float32x4 black.
+        
         textColor := Float32x4(0.0f, 0.0f, 0.0f, 1.0f).
         disabledTextColor := Float32x4(0.0f, 0.0f, 0.0f, 0.5f).
 

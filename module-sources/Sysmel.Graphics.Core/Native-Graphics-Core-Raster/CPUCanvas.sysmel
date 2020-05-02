@@ -42,6 +42,9 @@ class CPUCanvas superclass: Canvas; definition: {
         targetSurface _ pixelsBlitter setAllPixelsToColor: currentStartColor
     }.
 
+    inline method isFullyTransparent => Boolean8
+        := currentStartColor a <= 0.0f && currentEndColor a <= 0.0f.
+
     override method color: (srgbColor: UInt8x4) ::=> Void := {
         self color: Stdn Math Color decodeSRGBUnorm8(srgbColor)
     }.
@@ -80,6 +83,10 @@ class CPUCanvas superclass: Canvas; definition: {
         p2: (p2: Float32x2) color: (c2: Float32x4) tc: (tc2: Float32x2)
         p3: (p3: Float32x2) color: (c3: Float32x4) tc: (tc3: Float32x2) ::=> Void := {
 
+        self isFullyTransparent ifTrue: {
+            return: void.
+        }.
+
         let tp1 := transform transformPoint: p1.
         let tp2 := transform transformPoint: p2.
         let tp3 := transform transformPoint: p3.
@@ -96,6 +103,10 @@ class CPUCanvas superclass: Canvas; definition: {
     }.
 
     override method fillRectangle: (rectangle: RectangleF32) ::=> Void := {
+        self isFullyTransparent ifTrue: {
+            return: void.
+        }.
+
         transform isTranslationOnly ifTrue: {
             let transformedRectangle := rectangle translatedBy: transform translation.
             let convertedRectangle := RectangleI32 min: (transformedRectangle min floor castTo: Int32x2) max: (transformedRectangle max floor castTo: Int32x2).
@@ -114,6 +125,10 @@ class CPUCanvas superclass: Canvas; definition: {
 
     ## Draw the rectangle lines.
     override method drawSegmentStart: (startPoint: Float32x2) end: (endPoint: Float32x2) ::=> Void := {
+        self isFullyTransparent ifTrue: {
+            return: void.
+        }.
+
         let transformedStartPoint := transform transformPoint: startPoint.
         let transformedEndPoint := transform transformPoint: endPoint.
         targetSurface _ pixelsBlitter

@@ -8,10 +8,10 @@ useNamespace: Stdn Math Geometry.
 class SizerNullSizerElement superclass: SizerElement; definition: {
     public field spaceExtent type: Float32x2.
 
-    override method minimalContentExtent => Float32x2
+    const override method minimalContentExtent => Float32x2
         := spaceExtent.
 
-    override method contentExtent => Float32x2
+    const override method contentExtent => Float32x2
         := spaceExtent.
 
     override method applyIntoBounds: (newBounds: RectangleF32) ::=> Void := {

@@ -22,6 +22,37 @@ function main externC (argc: Int32, argv: UInt8 const pointer pointer) => Int32 
     }.
 
     mainWindow _ color: 0.9.
+    let mainSizer := VerticalBoxSizer sharedNew.
+
+    ## Menu bar
+    {
+        let menuBar := MenuBarNorph sharedNew.
+        mainWindow _ addSubnorph: (menuBar upCastFor: Norph).
+        mainSizer _ element: menuBar do: {:constraints :: Void |
+            constraints expanded.
+        }.
+    }.
+
+    let contentPanel := Norph sharedNew.
+    contentPanel _ color: Float32x4 zeros.
+    mainWindow _ addSubnorph: (contentPanel upCastFor: Norph).
+    mainSizer _ element: contentPanel do: {:constraints :: Void |
+        constraints expanded; proportion: 1.0f.
+    }.
+
+    ## Status bar
+    {
+        let statusBar := StatusBarNorph sharedNew.
+        mainWindow _ addSubnorph: (statusBar upCastFor: Norph).
+        mainSizer _ element: statusBar do: {:constraints :: Void |
+            constraints expanded.
+        }.
+    }.
+
+    mainWindow _
+        sizer: (mainSizer upCastFor: Sizer);
+        autolayout: true;
+        updateLayout.
 
     ## Rectangle with border.
     {
@@ -30,7 +61,7 @@ function main externC (argc: Int32, argv: UInt8 const pointer pointer) => Int32 
             bounds: (RectangleF32 min: Float32x2(50.0f, 50.0f) extent: Float32x2(100.0f, 100.0f));
             color: Float32x4(1.0f, 0.0f, 0.0f, 1.0f);
             borderColor: Float32x4(0.0f, 0.0f, 0.0f, 1.0f).
-        mainWindow _ addSubnorph: (borderedNorph upCastFor: Norph).
+        contentPanel _ addSubnorph: (borderedNorph upCastFor: Norph).
     }.
 
     ## Sample label
@@ -39,7 +70,7 @@ function main externC (argc: Int32, argv: UInt8 const pointer pointer) => Int32 
         label _
             bounds: (RectangleF32 min: Float32x2(200.0f, 80.0f) extent: Float32x2(100.0f, 100.0f));
             text: "Hello World" asMutableString.
-        mainWindow _ addSubnorph: (label upCastFor: Norph).
+        contentPanel _ addSubnorph: (label upCastFor: Norph).
     }.
 
     ## Sample button
@@ -48,7 +79,7 @@ function main externC (argc: Int32, argv: UInt8 const pointer pointer) => Int32 
         label _
             bounds: (RectangleF32 min: Float32x2(200.0f, 250.0f) extent: Float32x2(100.0f, 40.0f));
             text: "Button" asMutableString.
-        mainWindow _ addSubnorph: (label upCastFor: Norph).
+        contentPanel _ addSubnorph: (label upCastFor: Norph).
     }.
 
     ## Sample text input
@@ -56,7 +87,7 @@ function main externC (argc: Int32, argv: UInt8 const pointer pointer) => Int32 
         let textInput := TextInputNorph sharedNew.
         textInput _
             bounds: (RectangleF32 min: Float32x2(400.0f, 50.0f) extent: Float32x2(200.0f, 40.0f)).
-        mainWindow _ addSubnorph: (textInput upCastFor: Norph).
+        contentPanel _ addSubnorph: (textInput upCastFor: Norph).
     }.
 
     ## Sample text area
@@ -64,7 +95,7 @@ function main externC (argc: Int32, argv: UInt8 const pointer pointer) => Int32 
         let textArea := TextAreaNorph sharedNew.
         textArea _
             bounds: (RectangleF32 min: Float32x2(400.0f, 150.0f) extent: Float32x2(200.0f, 200.0f)).
-        mainWindow _ addSubnorph: (textArea upCastFor: Norph).
+        contentPanel _ addSubnorph: (textArea upCastFor: Norph).
     }.
 
     ## Run the actual main loop.

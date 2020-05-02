@@ -16,7 +16,7 @@ class SizerNorphElement superclass: SizerElement; definition: {
         }
     }.
 
-    override method minimalContentExtent => Float32x2 := {
+    const override method minimalContentExtent => Float32x2 := {
         let strongNorph := norph lock.
         strongNorph ifNotNil: {
             return: strongNorph _ minimalExtent
@@ -25,7 +25,7 @@ class SizerNorphElement superclass: SizerElement; definition: {
         Float32x2 zeros
     }.
 
-    override method contentExtent => Float32x2 := {
+    const override method contentExtent => Float32x2 := {
         let strongNorph := norph lock.
         strongNorph ifNotNil: {
             return: strongNorph _ extent

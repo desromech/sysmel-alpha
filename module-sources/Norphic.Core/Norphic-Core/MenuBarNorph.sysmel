@@ -1,0 +1,19 @@
+namespace Norphic definition: {
+
+#**
+ * I am a menu bar norph.
+ *#
+class MenuBarNorph superclass: Norph; definition: {
+    protected field boxSizer type: HorizontalBoxSizer sharedPointer.
+    protected field items type: Stdn Collections Vector(MenuItemNorph sharedPointer).
+
+    override method initialize => Void := {
+
+    }.
+
+    override method minimalContentExtent => Float32x2
+        := Float32x2(0.0f, 10.0f).
+
+}.
+
+}. ## End of namespace Norphic

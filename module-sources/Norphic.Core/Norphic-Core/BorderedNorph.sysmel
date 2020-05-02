@@ -19,6 +19,10 @@ class BorderedNorph superclass: Norph; definition: {
         self changed.
     }.
 
+    override method initialize => Void := {
+        borderColor := self theme _ defaultBorderColor.
+    }.
+
     override method renderOn: (canvas: Canvas ref) ::=> Void := {
         super renderOn: canvas.
         canvas
