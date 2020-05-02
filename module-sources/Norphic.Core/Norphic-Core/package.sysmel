@@ -33,5 +33,6 @@ loadFileOnce: "TextEditorNorph.sysmel".
 
 loadFileOnce: "MenuBarNorph.sysmel".
 loadFileOnce: "MenuItemNorph.sysmel".
+loadFileOnce: "MenuBarItemNorph.sysmel".
 loadFileOnce: "MenuNorph.sysmel".
 loadFileOnce: "StatusBarNorph.sysmel".

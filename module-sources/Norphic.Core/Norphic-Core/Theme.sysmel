@@ -17,17 +17,24 @@ class Theme superclass: Stdn Object; definition: {
 
     public field buttonColor type: Float32x4.
 
+    public field activeMenuItemHighlightColor type: Float32x4.
+    public field menuBarBackground type: Float32x4.
+    public field statusBarBackground type: Float32x4.
+
     override method initialize => Void := {
         font := FontRegistry default defaultSans.
         fontPointSize := 14.
 
         defaultBorderColor := Float32x4 black.
-        
+
         textColor := Float32x4(0.0f, 0.0f, 0.0f, 1.0f).
         disabledTextColor := Float32x4(0.0f, 0.0f, 0.0f, 0.5f).
 
         buttonColor := Float32x4 lightGray.
         textEditorBackground := Float32x4 white.
+        menuBarBackground := Float32x4 lightGray.
+        statusBarBackground := Float32x4 lightGray.
+        activeMenuItemHighlightColor := menuBarBackground muchDarker.
     }.
 
     field normalFontFaceWithSize type: FontFaceWithSize sharedPointer.

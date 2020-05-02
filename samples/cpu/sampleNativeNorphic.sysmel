@@ -31,6 +31,14 @@ function main externC (argc: Int32, argv: UInt8 const pointer pointer) => Int32 
         mainSizer _ element: menuBar do: {:constraints :: Void |
             constraints expanded.
         }.
+
+        menuBar _
+            addMenu: "File" asMutableString with: {:menu :: Void |
+
+            };
+            addMenu: "About" asMutableString with: {:menu :: Void |
+
+            }
     }.
 
     let contentPanel := Norph sharedNew.

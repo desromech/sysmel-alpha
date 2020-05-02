@@ -12,7 +12,18 @@ class BoxSizer superclass: FullSizer; definition: {
         := Float32x2 ones - self direction.
 
     override method minimalExtent => Float32x2 := {
-        Float32x2 zeros.
+        let directionExtentSum mutable := Float32x2 zeros.
+        let maxOpppositeDirectionExtent mutable := Float32x2 zeros.
+
+        let direction := self direction.
+        let oppositeDirection := self oppositeDirection.
+
+        elements do: {:each :: Void |
+            let elementExtent := each _ minimalExtent.
+            directionExtentSum := directionExtentSum + elementExtent*direction.
+            maxOpppositeDirectionExtent := maxOpppositeDirectionExtent max: elementExtent * oppositeDirection.
+        }.
+        directionExtentSum + maxOpppositeDirectionExtent
     }.
 
     override method applyIntoBounds: (newBounds: RectangleF32) ::=> Void := {

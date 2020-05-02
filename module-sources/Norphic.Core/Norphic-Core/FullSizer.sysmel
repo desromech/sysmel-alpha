@@ -6,6 +6,14 @@ useNamespace: Stdn Math Geometry.
  * I am sizer that gives the full extent to all the elements.
  *#
 class FullSizer superclass: Sizer; definition: {
+    override method minimalExtent => Float32x2 := {
+        let result mutable := Float32x2 zeros.
+        elements do: {:each :: Void |
+            result := result max: each _ minimalExtent
+        }.
+        result
+    }.
+
     override method applyIntoBounds: (newBounds: RectangleF32) ::=> Void := {
         elements do: {:each :: Void |
             each _ applyIntoBounds: newBounds

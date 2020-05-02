@@ -4,16 +4,36 @@ namespace Norphic definition: {
  * I am a menu bar norph.
  *#
 class MenuBarNorph superclass: Norph; definition: {
-    protected field boxSizer type: HorizontalBoxSizer sharedPointer.
-    protected field items type: Stdn Collections Vector(MenuItemNorph sharedPointer).
+    protected field items type: Stdn Collections Vector(MenuBarItemNorph sharedPointer).
+
+    override method defaultColor => Float32x4
+        := self theme _ menuBarBackground.
 
     override method initialize => Void := {
-
+        self
+            sizer: (HorizontalBoxSizer sharedNew upCastFor: Sizer);
+            autolayout: true
     }.
 
-    override method minimalContentExtent => Float32x2
-        := Float32x2(0.0f, 10.0f).
+    method addMenu: (label: Stdn String const ref) ::=> MenuNorph sharedPointer := {
+        ## Create the menu item
+        let menuItem := MenuBarItemNorph sharedNew.
+        menuItem _ label: label.
+        self addSubnorph: (menuItem upCastFor: Norph).
+        items add: menuItem.
 
+        self sizer _
+            element: menuItem do: {:constraints :: Void |
+            }.
+
+        ## Create the menu itself.
+        let menu := MenuNorph sharedNew.
+        menuItem _ menu: menu.
+        menu
+    }.
+
+    macro method addMenu: menuName with: aBlock :=
+        ``(`,aBlock __macroInlineBlock: (`,self addMenu: `,menuName) _).
 }.
 
 }. ## End of namespace Norphic

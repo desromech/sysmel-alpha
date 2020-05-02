@@ -1,0 +1,9 @@
+namespace Norphic definition: {
+
+#**
+ * I am a menu bar norph.
+ *#
+class MenuBarItemNorph superclass: MenuItemNorph; definition: {
+}.
+
+}. ## End of namespace Norphic

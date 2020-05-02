@@ -96,7 +96,7 @@ class Norph superclass: NorphEventHandler; definition: {
     virtual method minimalExtent => Float32x2 := {
         let result mutable := self minimalContentExtent.
         sizer ifNotNil: {
-            result max: sizer _ minimalExtent
+            result := result max: sizer _ minimalExtent
         }.
 
         result.
@@ -181,6 +181,12 @@ class Norph superclass: NorphEventHandler; definition: {
         self owner ifNotNil: { :theOwner :: Void |
             theOwner _ childBoundsChanged.
         }.
+    }.
+
+    virtual method fit => Void := {
+        self
+            extent: self minimalExtent;
+            updateLayout
     }.
 
     virtual method updateLayout => Void := {
