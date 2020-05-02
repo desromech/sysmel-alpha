@@ -64,7 +64,7 @@ class Norph superclass: NorphEventHandler; definition: {
         := RectangleF32 min: Float32x2 zeros extent: self defaultExtent.
 
     virtual method defaultColor => Float32x4
-        := Float32x4(0.0f, 0.0f, 1.0f, 1.0f).
+        := Float32x4(0.25f, 0.8f, 0.25f, 1.0f).
 
     virtual method minimalContentExtent => Float32x2
         := Float32x2 zeros.
@@ -234,8 +234,22 @@ class Norph superclass: NorphEventHandler; definition: {
     virtual method handlesKeyboardEvents => Boolean8
         := false.
 
+    virtual method handlesTextInputEvents => Boolean8
+        := false.
+
     virtual method canHaveKeyboardFocus => Boolean8
         := self handlesKeyboardEvents.
+
+    virtual method canReceiveKeyboardEvents => Boolean8
+        := self handlesKeyboardEvents && (self canHaveKeyboardFocus ifTrue: {
+            self hasKeyboardFocus
+        } ifFalse: {
+            self owner ifNotNil: { :o :: Boolean8 |
+                o _ canReceiveKeyboardEvents
+            } ifNil: {
+                false
+            }
+        }).
 
     method acquireKeyboardFocus => Void := {
         self rootNorph ifNotNil: {:root :: Void |
@@ -273,9 +287,9 @@ class Norph superclass: NorphEventHandler; definition: {
     }.
 
     override method onMouseButtonReleasedEvent: (event: NorphMouseButtonReleasedEvent ref) ::=> Void := {
-        self canHaveKeyboardFocus ifTrue: {
-            event wasHandled: true.
+        event isLeftButton && event wasHandled not && self canHaveKeyboardFocus ifTrue: {
             self acquireKeyboardFocus.
+            event wasHandled: true.
         }.
     }.
 
@@ -299,10 +313,6 @@ class Norph superclass: NorphEventHandler; definition: {
     }.
 
     virtual method dispatchMouseEvent: (event: NorphMouseEvent ref) ::=> Void := {
-        self handlesMouseEvents ifFalse: {
-            return: void
-        }.
-
         self dispatchMouseEventToChildren: event.
 
         event targetNorph ifNil: {
@@ -313,37 +323,85 @@ class Norph superclass: NorphEventHandler; definition: {
             }.
         }.
 
-        self processEvent: event.
+        self handlesMouseEvents ifTrue: {
+            self processEvent: event.
+        }.
     }.
 
-    virtual method dispatchPropagatedKeyboardEvent: (event: NorphKeyboardEvent ref) ::=> Void := {
-        self dispatchKeyboardEvent: event
+    virtual method dispatchKeyboardEventFromParent: (event: NorphKeyboardEvent ref) ::=> Void := {
+        self
+            dispatchKeyboardEventToChildren: event;
+            dispatchKeyboardHereEvent: event.
+    }.
+
+    virtual method dispatchKeyboardEventToChildren: (event: NorphKeyboardEvent ref) ::=> Void := {
+        subnorphs do: {:each :: Void |
+            each _ canHaveKeyboardFocus ifFalse: {
+                each _ dispatchKeyboardEventFromParent: event.
+                event wasHandled ifTrue: {return: void}.
+            }.
+        }.
+    }.
+
+    virtual method dispatchKeyboardHereEvent: (event: NorphKeyboardEvent ref) ::=> Void := {
+        event wasHandled ifTrue: {return: void}.
+        self handlesKeyboardEvents ifTrue: {
+            self processEvent: event.
+        }.
     }.
 
     virtual method dispatchKeyboardEvent: (event: NorphKeyboardEvent ref) ::=> Void := {
-        self handlesKeyboardEvents ifTrue: {
-            self processEvent: event.
-            event wasHandled ifTrue: {
-                return: void
-            }
+        self dispatchKeyboardEventFromParent: event.
+
+        self hasKeyboardFocus ifTrue: {
+            self owner ifNotNil: {:parent :: Void |
+                parent _ dispatchPropagatedKeyboardEvent: event
+            }.
         }.
+    }.
+
+    virtual method dispatchPropagatedKeyboardEvent: (event: NorphKeyboardEvent ref) ::=> Void := {
+        self dispatchKeyboardHereEvent: event.
 
         self owner ifNotNil: {:parent :: Void |
             parent _ dispatchPropagatedKeyboardEvent: event
         }.
     }.
 
-    virtual method dispatchPropagatedTextInputEvent: (event: NorphTextInputEvent ref) ::=> Void := {
-        self dispatchTextInputEvent: event
+    virtual method dispatchTextInputEventFromParent: (event: NorphTextInputEvent ref) ::=> Void := {
+        self
+            dispatchTextInputEventToChildren: event;
+            dispatchTextInputHereEvent: event.
+    }.
+
+    virtual method dispatchTextInputEventToChildren: (event: NorphTextInputEvent ref) ::=> Void := {
+        subnorphs do: {:each :: Void |
+            each _ canHaveKeyboardFocus ifFalse: {
+                each _ dispatchTextInputEventFromParent: event.
+                event wasHandled ifTrue: {return: void}.
+            }.
+        }.
+    }.
+
+    virtual method dispatchTextInputHereEvent: (event: NorphTextInputEvent ref) ::=> Void := {
+        event wasHandled ifTrue: {return: void}.
+        self handlesTextInputEvents ifTrue: {
+            self processEvent: event.
+        }.
     }.
 
     virtual method dispatchTextInputEvent: (event: NorphTextInputEvent ref) ::=> Void := {
-        self handlesKeyboardEvents ifTrue: {
-            self processEvent: event.
-            event wasHandled ifTrue: {
-                return: void
-            }
+        self dispatchTextInputEventFromParent: event.
+
+        self hasKeyboardFocus ifTrue: {
+            self owner ifNotNil: {:parent :: Void |
+                parent _ dispatchPropagatedTextInputEvent: event
+            }.
         }.
+    }.
+
+    virtual method dispatchPropagatedTextInputEvent: (event: NorphTextInputEvent ref) ::=> Void := {
+        self dispatchTextInputHereEvent: event.
 
         self owner ifNotNil: {:parent :: Void |
             parent _ dispatchPropagatedTextInputEvent: event

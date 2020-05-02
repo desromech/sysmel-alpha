@@ -1,0 +1,121 @@
+namespace Norphic definition: {
+
+useNamespace: Stdn Graphics Core.
+useNamespace: Stdn Graphics GUI.
+useNamespace: Stdn Math Geometry.
+
+#**
+ * I am norph whose task is to displaying a text model.
+ *#
+class TextEditingAreaNorph superclass: TextModelNorph; definition: {
+    protected field textCursor type: TextModelCursor sharedPointer.
+    public field isMultiLineEditor type: Boolean8.
+
+    override method canHaveKeyboardFocus => Boolean8
+        := false.
+    override method handlesKeyboardEvents => Boolean8
+        := true.
+    override method handlesTextInputEvents => Boolean8
+        := true.
+
+    override method textModelChanged => Void := {
+        textModel ifNil: {
+            textCursor reset
+        } ifNotNil: {
+            textCursor := textModel _ newCursor
+        }.
+        super textModelChanged.
+    }.
+
+    override method currentMouseCursor => Cursor sharedPointer
+        := SystemCursor Ibeam upCastFor: Cursor.
+
+    override method onMouseButtonPressedEvent: (event: NorphMouseButtonPressedEvent ref) ::=> Void := {
+        super onMouseButtonPressedEvent: event.
+
+        event isLeftButton ifFalse: {
+            return: void.
+        }.
+
+        textCursor ifNotNil: {
+            textCursor _ setAtDrawingPosition: event position.
+            self changed.
+        }.
+    }.
+
+    override method onKeyPressedEvent: (event: NorphKeyPressedEvent ref) ::=> Void := {
+        super onKeyPressedEvent: event.
+
+        event isSuppressed || textCursor isNil ifTrue: {
+            return: void.
+        }.
+
+        event symbol selectCase: #{
+        KeySymbol Backspace : {
+            textCursor _ deletePrevious.
+            self changed.
+            event wasHandled: true.
+        }.
+
+        KeySymbol Delete : {
+            textCursor _ deleteNext.
+            self changed.
+            event wasHandled: true.
+        }.
+        KeySymbol Left : {
+            textCursor _ advanceCharacters: -1.
+            self changed.
+            event wasHandled: true.
+        }.
+        KeySymbol Right : {
+            textCursor _ advanceCharacters: 1.
+            self changed.
+            event wasHandled: true.
+        }.
+        _ : {}
+        }.
+
+        isMultiLineEditor ifTrue: {
+            event symbol selectCase: #{
+            KeySymbol Return : {
+                textCursor _ insertString: textModel _ newLineString.
+            }.
+            KeySymbol Up : {
+                textCursor _ advanceLines: -1.
+                self changed.
+                event wasHandled: true.
+            }.
+            KeySymbol Down : {
+                textCursor _ advanceLines: 1.
+                self changed.
+                event wasHandled: true.
+            }.
+            _ : {}
+            }.
+        }.
+    }.
+
+    override method onTextInputEvent: (event: NorphTextInputEvent ref) ::=> Void := {
+        super onTextInputEvent: event.
+        event isSuppressed ifTrue: {
+            return: void.
+        }.
+
+        textCursor ifNotNil: {
+            textCursor _ insertString: event text.
+            self changed
+        }
+    }.
+
+    override method renderOn: (canvas: Canvas ref) ::=> Void := {
+        self canReceiveKeyboardEvents && textCursor isNotNil && textModel isNotNil ifTrue: {
+            canvas
+                color: Float32x4 blue;
+                fillRectangle: (RectangleF32 min: textCursor _ drawingPosition extent: Float32x2(1.0f, textCursor _ drawingHeight)).
+        }.
+
+        super renderOn: canvas.
+    }.
+}.
+
+}. ## End of namespace Norphic

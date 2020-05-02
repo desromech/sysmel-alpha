@@ -6,34 +6,10 @@ useNamespace: Stdn Graphics GUI.
  * I am a multi-line text area editor norph.
  *#
 class TextAreaNorph superclass: AbstractTextEditorNorph; definition: {
-
-override method onKeyPressedEvent: (event: NorphKeyPressedEvent ref) ::=> Void := {
-    super onKeyPressedEvent: event.
-    event isSuppressed || textCursor isNil ifTrue: {
-        return: void.
+    override method createTextEditingArea => Void := {
+        super createTextEditingArea.
+        textEditingArea _ isMultiLineEditor: true.
     }.
-
-    event symbol selectCase: #{
-    KeySymbol Right : {
-        textCursor _ advanceCharacters: 1.
-        self changed.
-        event wasHandled: true.
-    }.
-    KeySymbol Up : {
-        textCursor _ advanceLines: -1.
-        self changed.
-        event wasHandled: true.
-    }.
-    KeySymbol Down : {
-        textCursor _ advanceLines: 1.
-        self changed.
-        event wasHandled: true.
-    }.
-
-    _ : {}
-    }.
-}.
-
 }.
 
 }. ## End of namespace Norphic

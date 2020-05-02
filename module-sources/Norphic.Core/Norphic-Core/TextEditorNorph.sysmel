@@ -1,0 +1,11 @@
+namespace Norphic definition: {
+
+useNamespace: Stdn Graphics GUI.
+
+#**
+ * I am a fully featured text editor norph.
+ *#
+class TextEditorNorph superclass: AbstractTextEditorNorph; definition: {
+}.
+
+}. ## End of namespace Norphic

@@ -1,0 +1,38 @@
+namespace Norphic definition: {
+
+useNamespace: Stdn Graphics Core.
+useNamespace: Stdn Graphics GUI.
+useNamespace: Stdn Math Geometry.
+
+#**
+ * I am norph whose task is to displaying a text model.
+ *#
+class TextModelNorph superclass: Norph; definition: {
+    protected field textModel type: TextModel sharedPointer.
+
+    const virtual method textModel => TextModel sharedPointer const ref
+        := textModel.
+
+    virtual method textModel: (theTextModel: TextModel sharedPointer const ref) ::=> Void := {
+        textModel := theTextModel.
+        self textModelChanged.
+    }.
+
+    virtual method textModelChanged => Void := {
+        self changed.
+    }.
+
+    override method renderOn: (canvas: Canvas ref) ::=> Void := {
+        textModel ifNil: { return: void }.
+
+        textModel _
+            textSpansInRectangle: self localBounds do: {:(TextModelSpan ref)span :: Void |
+                canvas
+                    fontFaceWithSize: span fontFaceWithSize;
+                    color: span color;
+                    drawUTF8String: span utf8StringPointer size: span utf8StringSize withState: span textDrawingState
+            }.
+    }.
+}.
+
+}. ## End of namespace Norphic

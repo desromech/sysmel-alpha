@@ -36,16 +36,16 @@ sealed template GenericRectangle(ST: Type)
     const inline method extent => Vector2
         := max - min.
 
-    inline method bottomLeft => Vector2
+    const inline method bottomLeft => Vector2
         := min.
 
-    inline method bottomRight => Vector2
+    const inline method bottomRight => Vector2
         := Vector2 x: max x y: min y .
 
-    inline method topRight => Vector2
+    const inline method topRight => Vector2
         := max.
 
-    inline method topLeft => Vector2
+    const inline method topLeft => Vector2
         := Vector2 x: min x y: max y .
 
     const inline method translatedBy: (translation: Vector2) ::=> SelfType

@@ -22,8 +22,28 @@ compileTime constant TextModelSpanIterationBlock := ((TextModelSpan ref) => Void
  * I am an abstract interface for a text model. I take care of actually keeping track of an internal text data structure.
  *#
 class TextModel superclass: Stdn SharedObject; definition: {
+    public field newLineString type: Stdn String.
+    public field tabSize type: UInt32.
+
+    override method initialize => Void := {
+        self useLF.
+        tabSize := 4.
+    }.
+
     abstract method newCursor => TextModelCursor sharedPointer.
     abstract method textSpansInRectangle: (rectangle: RectangleF32) do: (iterationBlock: TextModelSpanIterationBlock) ::=> Void.
+
+    method useLF => Void := {
+        newLineString := "\n" asMutableString.
+    }.
+
+    method useCRLF => Void := {
+        newLineString := "\r\n" asMutableString.
+    }.
+
+    method useCR => Void := {
+        newLineString := "\r" asMutableString.
+    }.
 }.
 
 #**
@@ -55,7 +75,7 @@ class TextModelCursor superclass: Stdn SharedObject; definition: {
 
     virtual method setAtDrawingPosition: (position: Float32x2) ::=> Void
         := {}.
-        
+
     virtual method advanceCharacters: (count: IntPointer) ::=> UIntPointer := {
         let result mutable type: UIntPointer := 0.
 

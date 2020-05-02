@@ -1,28 +1,30 @@
 namespace Norphic definition: {
 
-useNamespace: Stdn Graphics Core.
-useNamespace: Stdn Graphics GUI.
-useNamespace: Stdn Math Geometry.
-
 #**
- * I am an abstract text editor norph.
+ * I am abstract base for text editor widgets in Norphic.
  *#
 class AbstractTextEditorNorph superclass: BorderedNorph; definition: {
-    public field textModel type: TextModel sharedPointer.
-    public field textCursor type: TextModelCursor sharedPointer.
+    protected field textModel type: TextModel sharedPointer.
+    protected field textEditingArea type: TextEditingAreaNorph sharedPointer.
 
     override method initialize => Void := {
-        self createTextModel
+        self
+            buildLayout;
+            createTextModel
     }.
 
-    virtual method createTextModel => Void := {
-        let simpleTextModel := SimpleTextModel sharedNew.
-        simpleTextModel _
-            color: self theme _ textColor;
-            fontFaceWithSize: self theme _ normalFontFaceWithSize.
+    virtual method buildLayout => Void := {
+        self createTextEditingArea.
+        self addSubnorph: (textEditingArea upCastFor: Norph).
 
-        textModel := simpleTextModel upCastFor: TextModel.
-        textCursor := textModel _ newCursor.
+        let sizer := HorizontalBoxSizer sharedNew.
+        sizer _ element: textEditingArea do: {:constraints :: Void |
+            constraints expanded; centered; allBorders; proportion: 1.0; borderSize: 4.
+        }.
+
+        self
+            sizer: (sizer upCastFor: Sizer);
+            autolayout: true
     }.
 
     override method defaultColor => Float32x4
@@ -31,86 +33,25 @@ class AbstractTextEditorNorph superclass: BorderedNorph; definition: {
     override method handlesKeyboardEvents => Boolean8
         := true.
 
-    override method currentMouseCursor => Cursor sharedPointer
-        := SystemCursor Ibeam upCastFor: Cursor.
+    const virtual method textModel => TextModel sharedPointer const ref
+        := textModel.
 
-    override method onMouseButtonPressedEvent: (event: NorphMouseButtonPressedEvent ref) ::=> Void := {
-        super onMouseButtonPressedEvent: event.
-
-        event isLeftButton ifFalse: {
-            return: void.
-        }.
-
-        textCursor ifNotNil: {
-            textCursor _ setAtDrawingPosition: event position.
-            self changed.
-        }.
-
-        event wasHandled: true.
+    virtual method textModel: (aTextModel: TextModel sharedPointer const ref) ::=> Void := {
+        textModel := aTextModel.
+        textEditingArea _ textModel: aTextModel.
     }.
 
-    override method onKeyPressedEvent: (event: NorphKeyPressedEvent ref) ::=> Void := {
-        super onKeyPressedEvent: event.
-        event isSuppressed || textCursor isNil ifTrue: {
-            return: void.
-        }.
-
-        event symbol selectCase: #{
-        KeySymbol Backspace : {
-            textCursor _ deletePrevious.
-            self changed.
-            event wasHandled: true.
-        }.
-
-        KeySymbol Delete : {
-            textCursor _ deleteNext.
-            self changed.
-            event wasHandled: true.
-        }.
-        KeySymbol Left : {
-            textCursor _ advanceCharacters: -1.
-            self changed.
-            event wasHandled: true.
-        }.
-        KeySymbol Right : {
-            textCursor _ advanceCharacters: 1.
-            self changed.
-            event wasHandled: true.
-        }.
-        _ : {}
-        }.
+    virtual method createTextEditingArea => Void := {
+        textEditingArea := TextEditingAreaNorph sharedNew.
     }.
 
-    override method onTextInputEvent: (event: NorphTextInputEvent ref) ::=> Void := {
-        super onTextInputEvent: event.
-        event isSuppressed ifTrue: {
-            return: void.
-        }.
+    virtual method createTextModel => Void := {
+        let simpleTextModel := SimpleTextModel sharedNew.
+        simpleTextModel _
+            color: self theme _ textColor;
+            fontFaceWithSize: self theme _ normalFontFaceWithSize.
 
-        textCursor ifNotNil: {
-            textCursor _ insertString: event text.
-            self changed
-        }
-    }.
-
-    override method renderOn: (canvas: Canvas ref) ::=> Void := {
-        super renderOn: canvas.
-
-        textModel ifNil: { return: void }.
-
-        self hasMouseFocus ifTrue: {
-            canvas
-                color: Float32x4 blue;
-                fillRectangle: (RectangleF32 min: textCursor _ drawingPosition extent: Float32x2(1.0f, textCursor _ drawingHeight)).
-        }.
-
-        textModel _
-            textSpansInRectangle: self localBounds do: {:(TextModelSpan ref)span :: Void |
-                canvas
-                    fontFaceWithSize: span fontFaceWithSize;
-                    color: span color;
-                    drawUTF8String: span utf8StringPointer size: span utf8StringSize withState: span textDrawingState
-            }.
+        self textModel: (simpleTextModel upCastFor: TextModel).
     }.
 }.
 

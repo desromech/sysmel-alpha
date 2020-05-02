@@ -1,10 +1,23 @@
 namespace Norphic definition: {
 
+useNamespace: Stdn Graphics GUI.
+
 #**
- * I am a single-line text inpu norph.
+ * I am a single-line text input norph.
  *#
 class TextInputNorph superclass: AbstractTextEditorNorph; definition: {
+    override method onKeyPressedEvent: (event: NorphKeyPressedEvent ref) ::=> Void := {
+        super onKeyPressedEvent: event.
 
+        event wasHandled ifTrue: {
+            return: void
+        }.
+
+        self hasKeyboardFocus && event symbol == KeySymbol Return ifTrue: {
+            self raiseActivatedEvent.
+            event wasHandled: true
+        }.
+    }.
 }.
 
 }. ## End of namespace Norphic

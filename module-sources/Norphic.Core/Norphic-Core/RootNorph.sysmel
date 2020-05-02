@@ -95,24 +95,21 @@ class RootNorph superclass: Norph; definition: {
 
         keyboardFocusNorph ifNotNil: {
             let lostFocusEvent mutable type: NorphLostFocusEvent.
-            mouseFocusNorph _ processEvent: lostFocusEvent
+            keyboardFocusNorph _ processEvent: lostFocusEvent
         }.
 
         keyboardFocusNorph := newKeyboardFocus _ asSharedPointer.
 
         keyboardFocusNorph ifNotNil: {
             let gotFocusEvent mutable type: NorphGotFocusEvent.
-            mouseFocusNorph _ processEvent: gotFocusEvent.
+            keyboardFocusNorph _ processEvent: gotFocusEvent.
         }.
     }.
 
     override method dispatchKeyboardEvent: (event: NorphKeyboardEvent ref) ::=> Void := {
         keyboardFocusNorph ifNotNil: {
             keyboardFocusNorph _ dispatchKeyboardEvent: event.
-
-            event wasHandled ifTrue: {
-                return: void
-            }.
+            return: void
         }.
 
         super dispatchKeyboardEvent: event.
@@ -125,10 +122,7 @@ class RootNorph superclass: Norph; definition: {
     override method dispatchTextInputEvent: (event: NorphTextInputEvent ref) ::=> Void := {
         keyboardFocusNorph ifNotNil: {
             keyboardFocusNorph _ dispatchTextInputEvent: event.
-
-            event wasHandled ifTrue: {
-                return: void
-            }.
+            return: void
         }.
 
         super dispatchTextInputEvent: event.

@@ -92,11 +92,17 @@ class Canvas superclass: Object; definition: {
 
     ## Draw the rectangle lines.
     virtual method drawRectangle: (rectangle: RectangleF32) ::=> Void := {
+        rectangle isEmpty ifTrue: {
+            return: void.
+        }.
+
+        let inclusiveRectangle := RectangleF32 min: rectangle min max: ((rectangle max - 1) max: rectangle min).
+
         self
-            drawSegmentStart: rectangle bottomLeft end: rectangle bottomRight;
-            drawSegmentStart: rectangle bottomRight end: rectangle topRight;
-            drawSegmentStart: rectangle topRight end: rectangle topLeft;
-            drawSegmentStart: rectangle topLeft end: rectangle bottomLeft.
+            drawSegmentStart: inclusiveRectangle bottomLeft end: inclusiveRectangle bottomRight;
+            drawSegmentStart: inclusiveRectangle bottomRight end: inclusiveRectangle topRight;
+            drawSegmentStart: inclusiveRectangle topRight end: inclusiveRectangle topLeft;
+            drawSegmentStart: inclusiveRectangle topLeft end: inclusiveRectangle bottomLeft.
     }.
 
     ## Copy the pixels of a texture without any transformation.
