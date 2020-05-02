@@ -7,6 +7,7 @@ class Norph.
 
 class NorphEvent superclass: Stdn Object; definition: {
     public field wasHandled type: Boolean8.
+    public field isSuppressed type: Boolean8.
     public field targetNorph type: Norph sharedPointer.
 
     virtual method acceptEventHandler: (eventHandler: NorphEventHandler ref) ::=> Void := {

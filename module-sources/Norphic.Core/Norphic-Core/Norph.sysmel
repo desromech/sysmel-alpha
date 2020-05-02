@@ -339,6 +339,9 @@ class Norph superclass: NorphEventHandler; definition: {
     const inline method hasKeyboardFocus => Boolean8
         := self keyboardFocusNorph == self address.
 
+    method raiseActivatedEvent => Void := {
+        Stdn stdout << "TODO: button raiseActivatedEvent"; nl.
+    }.
 }.
 
 }. ## End of namespace Norphic

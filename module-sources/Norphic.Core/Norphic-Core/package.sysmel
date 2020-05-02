@@ -18,3 +18,10 @@ loadFileOnce: "BoxSizer.sysmel".
 loadFileOnce: "StringNorph.sysmel".
 loadFileOnce: "LabelNorph.sysmel".
 loadFileOnce: "ButtonNorph.sysmel".
+
+loadFileOnce: "TextModel.sysmel".
+loadFileOnce: "SimpleTextModel.sysmel".
+
+loadFileOnce: "AbstractTextEditorNorph.sysmel".
+loadFileOnce: "TextInputNorph.sysmel".
+loadFileOnce: "TextAreaNorph.sysmel".

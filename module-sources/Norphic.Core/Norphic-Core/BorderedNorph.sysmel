@@ -22,7 +22,7 @@ class BorderedNorph superclass: Norph; definition: {
     override method renderOn: (canvas: Canvas ref) ::=> Void := {
         super renderOn: canvas.
         canvas
-            color: borderColor;
+            color: self currentBorderColor;
             drawRectangle: self localBounds
     }.
 
@@ -34,6 +34,13 @@ class BorderedNorph superclass: Norph; definition: {
         }
     }.
 
+    override method onGotFocusEvent: (event: NorphGotFocusEvent ref) ::=> Void := {
+        self changed.
+    }.
+
+    override method onLostFocusEvent: (event: NorphLostFocusEvent ref) ::=> Void := {
+        self changed.
+    }.
 }.
 
 }. ## End of namespace Norphic

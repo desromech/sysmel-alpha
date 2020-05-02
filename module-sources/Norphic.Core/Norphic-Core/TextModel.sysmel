@@ -1,0 +1,85 @@
+namespace Norphic definition: {
+
+useNamespace: Stdn Graphics Core.
+useNamespace: Stdn Math Geometry.
+
+class TextModelCursor.
+
+#**
+ * I am accessor for a text model span. I am typically used for rendering purposes.
+ *#
+struct TextModelSpan definition: {
+    public field fontFaceWithSize type: FontFaceWithSize sharedPointer.
+    public field color type: Float32x4.
+    public field utf8StringPointer type: Char8 const pointer.
+    public field utf8StringSize type: UIntPointer.
+    public field textDrawingState type: TextDrawingState.
+}.
+
+compileTime constant TextModelSpanIterationBlock := ((TextModelSpan ref) => Void) nativeBlockClosure.
+
+#**
+ * I am an abstract interface for a text model. I take care of actually keeping track of an internal text data structure.
+ *#
+class TextModel superclass: Stdn SharedObject; definition: {
+    abstract method newCursor => TextModelCursor sharedPointer.
+    abstract method textSpansInRectangle: (rectangle: RectangleF32) do: (iterationBlock: TextModelSpanIterationBlock) ::=> Void.
+}.
+
+#**
+ * I am an abstract text model cursor interface. I am used to keep track
+ *#
+class TextModelCursor superclass: Stdn SharedObject; definition: {
+    abstract method model => TextModel ref.
+
+    virtual method drawingPosition => Float32x2 := Float32x2 zeros.
+    virtual method drawingHeight => Float32 := 10.0f.
+
+    virtual method nextCharacter ::=> Int32
+        := -1.
+
+    virtual method previousCharacter ::=> Int32
+        := -1.
+
+    virtual method moveIntoNextCharacter ::=> Void
+        := {}.
+    virtual method moveIntoPreviousCharacter ::=> Void
+        := {}.
+    virtual method insertString: (text: Stdn String const ref) ::=> Void
+        := {}.
+
+    virtual method deleteNext ::=> Boolean8
+        := true.
+    virtual method deletePrevious ::=> Boolean8
+        := true.
+
+    virtual method setAtDrawingPosition: (position: Float32x2) ::=> Void
+        := {}.
+        
+    virtual method advanceCharacters: (count: IntPointer) ::=> UIntPointer := {
+        let result mutable type: UIntPointer := 0.
+
+        count > 0 ifTrue: {
+            0 until: count do: {:i :: Void |
+                self moveIntoNextCharacter
+            }
+        }.
+
+        count < 0 ifTrue: {
+            0 until: count negated do: {:i :: Void |
+                self moveIntoPreviousCharacter
+            }
+        }.
+
+        result
+    }.
+
+    virtual method advanceLines: (count: IntPointer) ::=> UIntPointer
+        := self advanceCharacters: count.
+
+    virtual method advanceWords: (count: IntPointer) ::=> UIntPointer
+        := self advanceCharacters: count.
+
+}.
+
+}. ## End of namespace Norphic

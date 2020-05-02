@@ -21,7 +21,7 @@ function main externC (argc: Int32, argv: UInt8 const pointer pointer) => Int32 
         return: 0.
     }.
 
-    mainWindow _ color: Float32x4 ones.
+    mainWindow _ color: 0.9.
 
     ## Rectangle with border.
     {
@@ -49,6 +49,22 @@ function main externC (argc: Int32, argv: UInt8 const pointer pointer) => Int32 
             bounds: (RectangleF32 min: Float32x2(200.0f, 250.0f) extent: Float32x2(100.0f, 40.0f));
             text: "Button" asMutableString.
         mainWindow _ addSubnorph: (label upCastFor: Norph).
+    }.
+
+    ## Sample text input
+    {
+        let textInput := TextInputNorph sharedNew.
+        textInput _
+            bounds: (RectangleF32 min: Float32x2(400.0f, 50.0f) extent: Float32x2(200.0f, 40.0f)).
+        mainWindow _ addSubnorph: (textInput upCastFor: Norph).
+    }.
+
+    ## Sample text area
+    {
+        let textArea := TextAreaNorph sharedNew.
+        textArea _
+            bounds: (RectangleF32 min: Float32x2(400.0f, 150.0f) extent: Float32x2(200.0f, 200.0f)).
+        mainWindow _ addSubnorph: (textArea upCastFor: Norph).
     }.
 
     ## Run the actual main loop.

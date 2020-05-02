@@ -1,6 +1,7 @@
 namespace Norphic definition: {
 
 useNamespace: Stdn Graphics Core.
+useNamespace: Stdn Graphics GUI.
 useNamespace: Stdn Math Geometry.
 
 #**
@@ -12,13 +13,9 @@ class AbstractButtonMorph superclass: BorderedNorph; definition: {
     override method defaultColor => Float32x4
         := self theme _ buttonColor.
 
-    method raiseActivatedEvent => Void := {
-        Stdn stdout << "TODO: button raiseActivatedEvent"; nl.
-    }.
-
     override method onKeyPressedEvent: (event: NorphKeyPressedEvent ref) ::=> Void := {
         event isRepeat not &&
-        event symbol == Stdn Graphics GUI KeySymbol Return ifTrue: {
+        event symbol == KeySymbol Return ifTrue: {
             isDown := true.
             self changed.
             event wasHandled: true
@@ -29,7 +26,7 @@ class AbstractButtonMorph superclass: BorderedNorph; definition: {
 
     override method onKeyReleasedEvent: (event: NorphKeyReleasedEvent ref) ::=> Void := {
         event isRepeat not &&
-        event symbol == Stdn Graphics GUI KeySymbol Return ifTrue: {
+        event symbol == KeySymbol Return ifTrue: {
             isDown ifTrue: {
                 isDown := false.
                 self changed.
@@ -41,15 +38,11 @@ class AbstractButtonMorph superclass: BorderedNorph; definition: {
         super onKeyReleasedEvent: event
     }.
 
-    override method onGotFocusEvent: (event: NorphGotFocusEvent ref) ::=> Void := {
-        self changed.
-    }.
-
     override method onLostFocusEvent: (event: NorphLostFocusEvent ref) ::=> Void := {
         isDown ifTrue: {
             isDown := false.
         }.
-        self changed.
+        super onLostFocusEvent: event
     }.
 
     override method onMouseEnterEvent: (event: NorphMouseEnterEvent ref) ::=> Void := {

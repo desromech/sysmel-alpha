@@ -1,0 +1,10 @@
+namespace Norphic definition: {
+
+#**
+ * I am a single-line text inpu norph.
+ *#
+class TextInputNorph superclass: AbstractTextEditorNorph; definition: {
+
+}.
+
+}. ## End of namespace Norphic

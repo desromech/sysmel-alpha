@@ -123,7 +123,7 @@ struct SDL_TextEditingEvent definition: {
     field type public type: SDL_EventType.
     field timestamp public type: UInt32.
     field windowID public type: UInt32.
-    field text public type: (UInt8 array: SDL_TEXTEDITINGEVENT_TEXT_SIZE).
+    field text public type: (Char8 array: SDL_TEXTEDITINGEVENT_TEXT_SIZE).
     field start public type: Int32.
     field length public type: Int32.
 }.
@@ -134,7 +134,7 @@ struct SDL_TextInputEvent definition: {
     field type public type: SDL_EventType.
     field timestamp public type: UInt32.
     field windowID public type: UInt32.
-    field text public type: (UInt8 array: SDL_TEXTINPUTEVENT_TEXT_SIZE).
+    field text public type: (Char8 array: SDL_TEXTINPUTEVENT_TEXT_SIZE).
 }.
 
 struct SDL_MouseMotionEvent definition: {

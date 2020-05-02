@@ -1,0 +1,197 @@
+namespace Norphic definition: {
+
+useNamespace: Stdn Graphics Core.
+useNamespace: Stdn Math Geometry.
+
+class SimpleTextModelCursor.
+
+#**
+ * Simplistic and slow text model.
+ *#
+class SimpleTextModel superclass: TextModel; definition: {
+    public field fontFaceWithSize type: FontFaceWithSize sharedPointer.
+    public field color type: Float32x4.
+    public field textBuffer type: Stdn Collections Vector(Char8).
+
+    override method newCursor => TextModelCursor sharedPointer := {
+        let result := SimpleTextModelCursor sharedNew.
+        result _ model: self asSharedPointer.
+        result upCastFor: TextModelCursor
+    }.
+
+    override method textSpansInRectangle: (rectangle: RectangleF32) do: (iterationBlock: TextModelSpanIterationBlock) ::=> Void := {
+        textBuffer isEmpty ifTrue: { return: void }.
+
+        let span mutable := TextModelSpan ().
+        span
+            color: color;
+            fontFaceWithSize: fontFaceWithSize;
+            utf8StringPointer: textBuffer data;
+            utf8StringSize: textBuffer size;
+            textDrawingState: (TextDrawingState position: Float32x2(0, fontFaceWithSize _ ascender)).
+
+        iterationBlock(span).
+    }.
+
+    method topPositionOfCharacterAt: (bufferPosition: UIntPointer) ::=> Float32x2 := {
+
+        let currentPosition mutable := Float32x2 zeros.
+        let previousCharacter mutable type: Char32 := 0.
+
+        0 until: (bufferPosition min: textBuffer size) do: {:i :: Void |
+            let character := textBuffer[i].
+
+            previousCharacter ~= 0 ifTrue: {
+                currentPosition := currentPosition + (fontFaceWithSize _ getKerningForCharacter: previousCharacter with: character)
+            }.
+
+            let (_, let glyphAdvance) := fontFaceWithSize _ getBoundingBoxAndAdvanceForCharacter: character.
+
+            currentPosition := currentPosition + glyphAdvance.
+            previousCharacter := character.
+        }.
+
+        currentPosition
+    }.
+
+    method bufferPositionForDrawingPosition: (drawingPosition: Float32x2) ::=> UIntPointer := {
+
+        let currentPosition mutable := Float32x2(0, fontFaceWithSize _ ascender).
+        let previousCharacter mutable type: Char32 := 0.
+
+        let bestBufferPosition mutable type: UIntPointer := 0.
+        let bestBufferPositionDistance mutable := drawingPosition length.
+
+        0 until: textBuffer size do: {:i :: Void |
+            let character := textBuffer[i].
+
+            let distance := (currentPosition - drawingPosition) length.
+            distance < bestBufferPositionDistance ifTrue: {
+                bestBufferPositionDistance := distance.
+                bestBufferPosition := i.
+            }.
+
+            previousCharacter ~= 0 ifTrue: {
+                currentPosition := currentPosition + (fontFaceWithSize _ getKerningForCharacter: previousCharacter with: character)
+            }.
+
+            let (_, let glyphAdvance) := fontFaceWithSize _ getBoundingBoxAndAdvanceForCharacter: character.
+
+            currentPosition := currentPosition + glyphAdvance.
+            previousCharacter := character.
+        }.
+
+        {
+            let distance := (currentPosition - drawingPosition) length.
+            distance < bestBufferPositionDistance ifTrue: {
+                bestBufferPositionDistance := distance.
+                bestBufferPosition := textBuffer size.
+            }.
+        }.
+        
+        bestBufferPosition
+    }.
+}.
+
+#**
+ * Simplistic and slow text model cursor.
+ *#
+class SimpleTextModelCursor superclass: TextModelCursor; definition: {
+    protected field model type: SimpleTextModel sharedPointer.
+    private field bufferPosition type: UIntPointer.
+
+    method model: (theModel: SimpleTextModel sharedPointer const ref) ::=> Void := {
+        model := theModel
+    }.
+
+    override method drawingPosition => Float32x2
+        := model _ topPositionOfCharacterAt: bufferPosition.
+
+    override method drawingHeight => Float32
+        := model _ fontFaceWithSize _ height.
+
+    override method model => TextModel ref
+        := model _.
+
+    override method nextCharacter ::=> Int32 := {
+        let textBuffer ref := model _ textBuffer.
+        bufferPosition < textBuffer size ifTrue: {
+            return: textBuffer[bufferPosition]
+        }.
+
+        -1
+    }.
+
+    override method previousCharacter ::=> Int32 := {
+        let textBuffer ref := model _ textBuffer.
+        bufferPosition > 0 ifTrue: {
+            return: textBuffer[bufferPosition - 1]
+        }.
+
+        -1
+    }.
+
+    override method moveIntoNextCharacter ::=> Void := {
+        bufferPosition := bufferPosition + 1 min: model _ textBuffer size
+    }.
+
+    override method moveIntoPreviousCharacter ::=> Void := {
+        bufferPosition > 0 ifTrue: {
+            bufferPosition := bufferPosition - 1
+        }
+    }.
+
+    override method deleteNext ::=> Boolean8 := {
+        let textBuffer ref := model _ textBuffer.
+        bufferPosition := bufferPosition min: textBuffer size.
+        bufferPosition < textBuffer size ifTrue: {
+            bufferPosition until: textBuffer size - 1 do: {:i :: Void |
+                textBuffer[i] := textBuffer[i + 1]
+            }.
+            textBuffer removeLast.
+        }.
+
+        return: false.
+    }.
+
+    override method deletePrevious ::=> Boolean8 := {
+        bufferPosition > 0 ifFalse: {
+            return: false.
+        }.
+
+        bufferPosition := bufferPosition - 1.
+        self deleteNext.
+    }.
+
+    override method setAtDrawingPosition: (position: Float32x2) ::=> Void := {
+        bufferPosition := model _ bufferPositionForDrawingPosition: position
+    }.
+
+    override method insertString: (text: Stdn String const ref) ::=> Void := {
+        let textBuffer ref := model _ textBuffer.
+        let oldSize := textBuffer size.
+
+        ## FIXME: Implement resize.
+        ##textBuffer resize: textBuffer size + text size.
+        0 until: text size do: {:i :: Void |
+            textBuffer add: 0
+        }.
+
+        ## Move forward.
+        bufferPosition := bufferPosition min: textBuffer size.
+        let tailSize := oldSize - bufferPosition.
+        0 until: tailSize do: {:i :: Void |
+            textBuffer[textBuffer size - i - 1] := textBuffer[bufferPosition + tailSize - i - 1].
+        }.
+
+        ## Copy.
+        0 until: text size do: {:i :: Void |
+            textBuffer[bufferPosition + i] := text[i].
+        }.
+
+        bufferPosition := bufferPosition + text size min: textBuffer size.
+    }.
+
+}.
+
+}. ## End of namespace Norphic

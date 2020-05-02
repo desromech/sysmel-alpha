@@ -168,6 +168,10 @@ class SDL2WindowSystem superclass: WindowSystem; definition: {
     method processTextInput: (event: SDL_TextInputEvent const ref) ::=> Void := {
         let wrapper mutable := self findWrapperForWindowID: event windowID.
         wrapper ifNil: {return: void}.
+
+        let convertedEvent mutable := TextInputEvent newValue.
+        convertedEvent text := Stdn String fromCString: event text[0] address.
+        wrapper _ deliverEvent: convertedEvent.
     }.
 
     method processMouseMotion: (event: SDL_MouseMotionEvent const ref) ::=> Void := {
