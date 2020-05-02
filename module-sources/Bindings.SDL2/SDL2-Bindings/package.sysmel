@@ -2,6 +2,7 @@ loadFileOnce: "keysym.sysmel".
 loadFileOnce: "init.sysmel".
 loadFileOnce: "audio.sysmel".
 loadFileOnce: "video.sysmel".
+loadFileOnce: "cursor.sysmel".
 loadFileOnce: "event.sysmel".
 loadFileOnce: "timer.sysmel".
 loadFileOnce: "renderer.sysmel".

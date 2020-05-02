@@ -91,6 +91,11 @@ class SystemWindowNorph superclass: RootNorph; definition: {
             self render
         }
     }.
+
+    override method currentActiveMouseCursorChanged => Void := {
+        window _ setCursor: self mouseFocusNorphCursor
+    }.
+
 }.
 
 class SystemWindowNorphEventHandler superclass: EventHandler; definition: {

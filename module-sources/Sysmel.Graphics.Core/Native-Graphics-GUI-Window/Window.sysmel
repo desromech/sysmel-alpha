@@ -45,6 +45,13 @@ class Window superclass: Object; definition: {
     virtual method releaseMouseCapture => Void := {
 
     }.
+
+    #**
+     * This method sets the cursor that is active on the window.
+     *#
+    virtual method setCursor: (cursor: Cursor sharedPointer const ref) ::=> Void := {
+
+    }.
 }.
 
 compileTime constant WindowRef := Window sharedPointer.

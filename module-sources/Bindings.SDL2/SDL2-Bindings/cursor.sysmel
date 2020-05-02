@@ -1,0 +1,29 @@
+namespace SDL2 definition: {
+
+compileTime constant SDL_SystemCursor := Int32.
+
+compileTime constant SDL_SYSTEM_CURSOR_ARROW := 0.
+compileTime constant SDL_SYSTEM_CURSOR_IBEAM := 1.
+compileTime constant SDL_SYSTEM_CURSOR_WAIT := 2.
+compileTime constant SDL_SYSTEM_CURSOR_CROSSHAIR := 3.
+compileTime constant SDL_SYSTEM_CURSOR_WAITARROW := 4.
+compileTime constant SDL_SYSTEM_CURSOR_SIZENWSE := 5.
+compileTime constant SDL_SYSTEM_CURSOR_SIZENESW := 6.
+compileTime constant SDL_SYSTEM_CURSOR_SIZEWE := 7.
+compileTime constant SDL_SYSTEM_CURSOR_SIZENS := 8.
+compileTime constant SDL_SYSTEM_CURSOR_SIZEALL := 9.
+compileTime constant SDL_SYSTEM_CURSOR_NO := 10.
+compileTime constant SDL_SYSTEM_CURSOR_HAND := 11.
+compileTime constant SDL_NUM_SYSTEM_CURSORS := 12.
+
+
+struct SDL_Cursor definition: {
+
+}.
+
+function SDL_CreateSystemCursor externC dllimport (id: SDL_SystemCursor) => SDL_Cursor pointer.
+function SDL_ShowCursor externC dllimport (toggle: Int32) => Int32.
+function SDL_SetCursor externC dllimport (cursor: SDL_Cursor pointer) => Void.
+function SDL_FreeCursor externC dllimport (cursor: SDL_Cursor pointer) => Void.
+
+}. ## End of namespace SDL2

@@ -3,7 +3,26 @@ namespace Graphics definition: {
 namespace GUI definition: {
 
 useNamespace: SDL2.
+useNamespace: Stdn Graphics Core.
 class SDL2Window.
+
+function convertSystemCursorName(name: SystemCursorName) => SDL_SystemCursor := {
+    name selectCase: #{
+    SystemCursorName Arrow : SDL_SYSTEM_CURSOR_ARROW.
+    SystemCursorName IBeam : SDL_SYSTEM_CURSOR_IBEAM.
+    SystemCursorName Wait : SDL_SYSTEM_CURSOR_WAIT.
+    SystemCursorName CrossHair : SDL_SYSTEM_CURSOR_CROSSHAIR.
+    SystemCursorName WaitArrow : SDL_SYSTEM_CURSOR_WAITARROW.
+    SystemCursorName SizeNorthWestSouthEast : SDL_SYSTEM_CURSOR_SIZENWSE.
+    SystemCursorName SizeNorthEastSouthWest : SDL_SYSTEM_CURSOR_SIZENESW.
+    SystemCursorName SizeWestEast : SDL_SYSTEM_CURSOR_SIZEWE.
+    SystemCursorName SizeNorthSouth : SDL_SYSTEM_CURSOR_SIZENS.
+    SystemCursorName SizeAll : SDL_SYSTEM_CURSOR_SIZEALL.
+    SystemCursorName No : SDL_SYSTEM_CURSOR_NO.
+    SystemCursorName Hand : SDL_SYSTEM_CURSOR_HAND.
+    _ : SDL_SYSTEM_CURSOR_ARROW.
+    }.
+}.
 
 class SDL2WindowSystem superclass: WindowSystem; definition: {
 
@@ -12,8 +31,16 @@ class SDL2WindowSystem superclass: WindowSystem; definition: {
     private field windowIDDictionary type: Stdn Collections Dictionary(UInt32, SDL2Window sharedPointer).
     private field lastMousePosition type: Int32x2.
     private field lastKeyModifiers type: KeyModifiers.
+    private field allocatedSystemCursors type: (SDL_Cursor pointer array: SystemCursorName Count value).
 
     override method finalize => Void := {
+        0 until: SystemCursorName Count value do: {:i :: Void |
+            let cursor := allocatedSystemCursors[i].
+            cursor ifNotNil: {
+                SDL_FreeCursor(cursor)
+            }
+        }.
+
         SDL_Quit().
     }.
 
@@ -242,6 +269,24 @@ class SDL2WindowSystem superclass: WindowSystem; definition: {
         windowIDDictionary valuesDo: {:(SDL2Window sharedPointer ref) window :: Void |
             window _ deliverEvent: event
         }
+    }.
+
+    method getConvertedCursorFor: (cursor: Cursor sharedPointer) ::=> SDL_Cursor pointer := {
+        self getSystemCursor: cursor _ systemCursorName
+    }.
+
+    method getSystemCursor: (systemCursorName: SystemCursorName) ::=> SDL_Cursor pointer := {
+        systemCursorName >= SystemCursorName Count ifTrue: {
+            return: (self getSystemCursor: SystemCursorName Arrow)
+        }.
+
+        let result ref := allocatedSystemCursors[systemCursorName value].
+        result ifNil: {
+            let convertedName := convertSystemCursorName(systemCursorName).
+            result := SDL_CreateSystemCursor(convertedName)
+        }.
+
+        result
     }.
 }.
 

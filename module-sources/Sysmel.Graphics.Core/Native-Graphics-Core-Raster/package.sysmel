@@ -3,6 +3,8 @@ loadFileOnce: "PixelFormat.sysmel".
 loadFileOnce: "BlendingMode.sysmel".
 loadFileOnce: "Blitter.sysmel".
 loadFileOnce: "Form.sysmel".
+loadFileOnce: "Cursor.sysmel".
+loadFileOnce: "SystemCursor.sysmel".
 
 ## 2D rendering objects.
 loadFileOnce: "RenderingDriver.sysmel".

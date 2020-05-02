@@ -258,6 +258,20 @@ class Norph superclass: NorphEventHandler; definition: {
     virtual method handlesMouseEvents => Boolean8
         := true.
 
+    virtual method currentMouseCursor => Cursor sharedPointer := {
+        self owner ifNotNil: {:owner :: Void |
+            return: owner _ currentMouseCursor
+        }.
+
+        SystemCursor arrow upCastFor: Cursor.
+    }.
+
+    virtual method currentCursorChanged => Void := {
+        self hasMouseFocus ifTrue: {
+            self rootNorph _ currentActiveMouseCursorChanged.
+        }
+    }.
+
     override method onMouseButtonReleasedEvent: (event: NorphMouseButtonReleasedEvent ref) ::=> Void := {
         self canHaveKeyboardFocus ifTrue: {
             event wasHandled: true.

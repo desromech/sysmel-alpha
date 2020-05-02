@@ -10,6 +10,11 @@ class SDL2WindowSystem.
 class SDL2Window superclass: Window; definition: {
     public field handle type: SDL_Window pointer.
     public field windowSystem type: SDL2WindowSystem pointer.
+    protected field currentCursor type: Cursor sharedPointer.
+
+    override method initialize => Void := {
+        currentCursor := SystemCursor arrow upCastFor: Cursor.
+    }.
 
     override method finalize => Void := {
         handle ifNotNil: {
@@ -41,6 +46,26 @@ class SDL2Window superclass: Window; definition: {
     override method releaseMouseCapture => Void := {
         SDL_CaptureMouse(false)
     }.
+
+    override method setCursor: (cursor: Cursor sharedPointer const ref) ::=> Void := {
+        currentCursor == cursor ifTrue: {
+            return: void
+        }.
+
+        currentCursor := cursor.
+        self applyCurrentCursor.
+    }.
+
+    method applyCurrentCursor => Void := {
+        currentCursor isNil || currentCursor _ isFullyTransparent ifTrue: {
+            SDL_ShowCursor(SDL_DISABLE).
+        } ifFalse: {
+            SDL_ShowCursor(SDL_ENABLE).
+            let convertedCursor := windowSystem _ getConvertedCursorFor: currentCursor.
+            SDL_SetCursor(convertedCursor).
+        }
+    }.
+
 }.
 
 }. ## End of namespace GUI

@@ -1,0 +1,100 @@
+namespace Stdn definition: {
+namespace Graphics definition: {
+namespace Core definition: {
+
+#**
+ * I am the name for a system provided cursor. I am typically delegated into some
+ * operating system backend specific handle.
+ *#
+enum SystemCursorName valueType: UInt32; values: #{
+    None:.
+    Arrow:.
+    IBeam:.
+    Wait:.
+    CrossHair:.
+    WaitArrow:.
+    SizeNorthWestSouthEast:.
+    SizeNorthEastSouthWest:.
+    SizeWestEast:.
+    SizeNorthSouth:.
+    SizeAll:.
+    No:.
+    Hand:.
+    Count:.
+}.
+
+#**
+ * I represent a system cursor handle
+ *#
+class SystemCursor superclass: Cursor; definition: {
+    protected field name type: SystemCursorName.
+
+    override method isSystemCursor => Boolean8
+        := true.
+    override method isFullyTransparent => Boolean8
+        := name == SystemCursorName None.
+    override method systemCursorName => SystemCursorName
+        := name.
+
+    meta definition: {
+        let singletons mutable type: (SystemCursor sharedPointer array: SystemCursorName Count value).
+
+        method getWithName: (name: SystemCursorName) ::=> SystemCursor sharedPointer := {
+            let result ref := singletons[name value].
+            result ifNil: {
+                singletons[name value] := SystemCursor sharedNew.
+                result _ initializeWithName: name.
+            }.
+
+            result
+        }.
+
+        method none => SystemCursor sharedPointer
+            := self getWithName: SystemCursorName None.
+
+        method Ibeam => SystemCursor sharedPointer
+            := self getWithName: SystemCursorName IBeam.
+
+        method arrow => SystemCursor sharedPointer
+            := self getWithName: SystemCursorName Arrow.
+
+        method wait => SystemCursor sharedPointer
+            := self getWithName: SystemCursorName Wait.
+
+        method crossHair => SystemCursor sharedPointer
+            := self getWithName: SystemCursorName CrossHair.
+
+        method waitArrow => SystemCursor sharedPointer
+            := self getWithName: SystemCursorName WaitArrow.
+
+        method sizeNorthWestSouthEast => SystemCursor sharedPointer
+            := self getWithName: SystemCursorName SizeNorthWestSouthEast.
+
+        method sizeNorthEastSouthWest => SystemCursor sharedPointer
+            := self getWithName: SystemCursorName SizeNorthEastSouthWest.
+
+        method sizeWestEast => SystemCursor sharedPointer
+            := self getWithName: SystemCursorName SizeWestEast.
+
+        method sizeNorthSouth => SystemCursor sharedPointer
+            := self getWithName: SystemCursorName SizeNorthSouth.
+
+        method sizeAll => SystemCursor sharedPointer
+            := self getWithName: SystemCursorName SizeAll.
+
+        method no => SystemCursor sharedPointer
+            := self getWithName: SystemCursorName No.
+
+        method hand => SystemCursor sharedPointer
+            := self getWithName: SystemCursorName Hand.
+
+    }.
+
+    method initializeWithName: (theName: SystemCursorName) ::=> Void := {
+        name := theName
+    }.
+}.
+
+}. ## End of namespace Core
+}. ## End of namespace Graphics
+}. ## End of namespace Stdn

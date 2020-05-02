@@ -46,10 +46,12 @@ class AbstractButtonMorph superclass: BorderedNorph; definition: {
     }.
 
     override method onMouseEnterEvent: (event: NorphMouseEnterEvent ref) ::=> Void := {
+        super onMouseEnterEvent: event.
         self changed.
     }.
 
     override method onMouseLeaveEvent: (event: NorphMouseLeaveEvent ref) ::=> Void := {
+        super onMouseLeaveEvent: event.
         self changed.
     }.
 

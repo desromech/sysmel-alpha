@@ -206,4 +206,10 @@ struct SDL_Rect definition: {
     field h public type: Int32.
 }.
 
+compileTime constant SDL_QUERY := -1.
+compileTime constant SDL_IGNORE := 0.
+compileTime constant SDL_DISABLE := 0.
+compileTime constant SDL_ENABLE := 1.
+
+
 }. ## End of namespace SDL2
