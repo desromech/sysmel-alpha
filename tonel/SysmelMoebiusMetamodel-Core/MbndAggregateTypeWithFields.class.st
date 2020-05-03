@@ -109,11 +109,6 @@ MbndAggregateTypeWithFields >> encodeLazyFieldsForMessagePackWith: graphEncoder 
 		#hasTrivialInstanceFinalization. hasTrivialInstanceFinalization.
 		#hasTrivialInstanceInitializationFromCopy. hasTrivialInstanceInitializationFromCopy.
 		#hasTrivialInstanceInitializationMovingFrom. hasTrivialInstanceInitializationMovingFrom.
-		#basicInitializeMethod. basicInitializeMethod encodeGraphForMessagePackWith: graphEncoder.
-		#initializeMethod. initializeMethod encodeGraphForMessagePackWith: graphEncoder.
-		#finalizeMethod. finalizeMethod encodeGraphForMessagePackWith: graphEncoder.
-		#initializeFromCopyMethod. initializeFromCopyMethod encodeGraphForMessagePackWith: graphEncoder.
-		#initializeMovingFromMethod. initializeMovingFromMethod encodeGraphForMessagePackWith: graphEncoder.
 	}
 ]
 
@@ -129,6 +124,7 @@ MbndAggregateTypeWithFields >> ensureGeneratedMethodsExist [
 
 { #category : #'semantic analysis' }
 MbndAggregateTypeWithFields >> ensureSemanticAnalysis [
+	self isImported ifTrue: [ ^ super ensureSemanticAnalysis. ].
 	self evaluateAllPendingDefinitionFragments.
 	self isDefined ifTrue: [ 
 		"self ensureSlotLayoutIsComputed."
@@ -330,11 +326,6 @@ MbndAggregateTypeWithFields >> materializeWithGraphDecoder: graphDecoder withLaz
 	hasTrivialInstanceFinalization := encodedFields at: #hasTrivialInstanceFinalization.
 	hasTrivialInstanceInitializationFromCopy := encodedFields at: #hasTrivialInstanceInitializationFromCopy.
 	hasTrivialInstanceInitializationMovingFrom := encodedFields at: #hasTrivialInstanceInitializationMovingFrom.
-	basicInitializeMethod := encodedFields at: #basicInitializeMethod.
-	initializeMethod := encodedFields at: #initializeMethod.
-	finalizeMethod := encodedFields at: #finalizeMethod.
-	initializeFromCopyMethod := encodedFields at: #initializeFromCopyMethod.
-	initializeMovingFromMethod := encodedFields at: #initializeMovingFromMethod.
 ]
 
 { #category : #layout }

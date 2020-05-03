@@ -1,6 +1,21 @@
 namespace Smalltalk definition: {
 useNamespace: Norphic.
 
+ProtoObject definition: {
+    method simpleInspectorEmitItemsInto: inspector := {
+        self
+    }.
+}.
+
+Collection definition: {
+    method simpleInspectorEmitItemsInto: inspector := {
+        self doWithIndex: {:each :index :: Void |
+            inspector addKey: index value: each
+        }.
+        self
+    }.
+}.
+
 gcclass SimpleInspector definition: {
     public field inspectedObject.
     protected field norphicWindow type: SystemWindowNorph sharedPointer.
@@ -25,7 +40,13 @@ gcclass SimpleInspector definition: {
 
     method initializePresentation := {
         label _ text: ((inspectedObject printStringLimitedTo: 30) castTo: String) asStdnMutableString.
+        inspectedObject simpleInspectorEmitItemsInto: self.
         self
+    }.
+
+    method addKey: key value: value := {
+        Stdn stdout << "Inspector add key " << key << " value " << value; nl.
+        self.
     }.
 
     method buildLayout := {

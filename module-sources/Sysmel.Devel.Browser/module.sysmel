@@ -1,3 +1,5 @@
 Compiler importModulesNamed: #(
     #"Norphic.Core"
 ).
+
+loadFileOnce: "SimpleBrowser.sysmel".

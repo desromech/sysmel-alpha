@@ -5,6 +5,7 @@ Trait {
 		'type'
 	],
 	#traits : 'TMbndType + TMbndMethodContainer + TMbndFlagContainer + TMbndSymbolContainer + TMbndEntityWithVisibility',
+	#classTraits : 'TMbndType classTrait + TMbndMethodContainer classTrait + TMbndFlagContainer classTrait + TMbndSymbolContainer classTrait + TMbndEntityWithVisibility classTrait',
 	#category : #'SysmelMoebiusMetamodel-Core-Type'
 }
 
@@ -26,6 +27,8 @@ TMbndBasicType >> analyzeInitializationFromCopyNode: node with: analyzer [
 
 { #category : #'as yet unclassified' }
 TMbndBasicType >> ensureSyntheticMethodExists: aSelector [
+	self isImported ifTrue: [ ^ nil ].
+	self isTrait ifTrue: [ ^ nil ].
 	aSelector = #basicInitialize ifTrue: [^ self basicInitializeMethod ].
 	aSelector = #initialize ifTrue: [^ self initializeMethod ].
 	aSelector = #initializeCopyingFrom: ifTrue: [^ self initializeCopyingFromMethod ].

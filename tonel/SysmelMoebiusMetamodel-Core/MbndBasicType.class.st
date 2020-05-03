@@ -403,6 +403,11 @@ MbndBasicType >> isDefined [
 ]
 
 { #category : #testing }
+MbndBasicType >> isImported [
+	^ self hasFlag: #imported
+]
+
+{ #category : #testing }
 MbndBasicType >> isPODInstance [
 	^ self hasTrivialInstanceBasicInitialization and: [
 	  self hasTrivialInstanceInitialization and: [
@@ -438,6 +443,7 @@ MbndBasicType >> materializeWithGraphDecoder: graphDecoder withFields: encodedFi
 	name := encodedFields at: #name ifAbsent: [ nil ].
 	supertype := encodedFields at: #supertype ifAbsent: [ nil ].
 	type := encodedFields at: #type ifAbsent: [ nil ].
+	self addFlag: #imported.
 ]
 
 { #category : #serialization }

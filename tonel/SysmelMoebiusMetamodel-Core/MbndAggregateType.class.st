@@ -62,6 +62,17 @@ MbndAggregateType >> createBasicInitializeMethod [
 		addOverloadedMethod: basicInitializeMethod
 ]
 
+{ #category : #serialization }
+MbndAggregateType >> encodeLazyFieldsForMessagePackWith: graphEncoder [
+	^ (super encodeLazyFieldsForMessagePackWith: graphEncoder) , {
+		#basicInitializeMethod. basicInitializeMethod encodeGraphForMessagePackWith: graphEncoder.
+		#initializeMethod. initializeMethod encodeGraphForMessagePackWith: graphEncoder.
+		#finalizeMethod. finalizeMethod encodeGraphForMessagePackWith: graphEncoder.
+		#initializeFromCopyMethod. initializeFromCopyMethod encodeGraphForMessagePackWith: graphEncoder.
+		#initializeMovingFromMethod. initializeMovingFromMethod encodeGraphForMessagePackWith: graphEncoder.
+	}
+]
+
 { #category : #'initialize-destroy' }
 MbndAggregateType >> finalizeMethod [
 	(self areSyntheticMethodsInternal and: [ self hasTrivialInstanceFinalization ]) ifTrue: [
@@ -137,6 +148,17 @@ MbndAggregateType >> initializeMovingFromMethod [
 { #category : #'testing methods' }
 MbndAggregateType >> isAggregateType [
 	^ true
+]
+
+{ #category : #serialization }
+MbndAggregateType >> materializeWithGraphDecoder: graphDecoder withLazyFields: encodedFields [
+	super materializeWithGraphDecoder: graphDecoder withLazyFields: encodedFields.
+
+	basicInitializeMethod := encodedFields at: #basicInitializeMethod.
+	initializeMethod := encodedFields at: #initializeMethod.
+	finalizeMethod := encodedFields at: #finalizeMethod.
+	initializeFromCopyMethod := encodedFields at: #initializeFromCopyMethod.
+	initializeMovingFromMethod := encodedFields at: #initializeMovingFromMethod.
 ]
 
 { #category : #'as yet unclassified' }
