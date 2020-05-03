@@ -66,6 +66,15 @@ String definition: {
         return: Stdn memcmp(__data[0] address, otherString __private __data[0] address, __data size) == 0.
     }.
 
+	method asStdnMutableString => Stdn String := {
+		Stdn String fromUTF8: __data[0] address size: __data size
+	}.
+}.
+
+ProtoObject extend: {
+	method asStdnMutableString => Stdn String := {
+		self asString asStdnMutableString.
+	}
 }.
 
 }. ## End of namespace Smalltalk

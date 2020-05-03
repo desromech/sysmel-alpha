@@ -1,0 +1,5 @@
+Compiler importModulesNamed: #(
+    #"Norphic.Core"
+).
+
+loadFileOnce: "SimpleInspector.sysmel".

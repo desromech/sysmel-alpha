@@ -11,6 +11,16 @@ class WindowCreationInfo.
 class WindowSystem superclass: Object; definition: {
     public field targetFrameRate type: Stdn Chrono Time.
 
+    meta definition: {
+        global MainWindowSystem mutable type: WindowSystemRef.
+
+        method activeWindowSystem: (aWindowSystem: WindowSystemRef const ref) ::=> Void
+            := MainWindowSystem := aWindowSystem.
+
+        method validActiveWindowSystem => WindowSystemRef
+            := MainWindowSystem.
+    }.
+
     virtual method createWindow: (description: WindowCreationInfo const ref) ::=> Window sharedPointer
         := Window sharedPointer nil.
 
@@ -126,6 +136,7 @@ function windowSystemMainLoopCallback(windowSystemPointer: Void pointer) => Void
 compileTime constant WindowSystemRef := WindowSystem sharedPointer.
 compileTime constant WindowSystemWeakRef := WindowSystem weakPointer.
 
+## The main global window system. This one is used by the Smalltalk style IDE tools.
 
 }. ## End of namespace GUI
 }. ## End of namespace Graphics

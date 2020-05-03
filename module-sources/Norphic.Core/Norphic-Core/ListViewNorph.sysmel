@@ -1,0 +1,9 @@
+namespace Norphic definition: {
+
+#**
+ * I am a tree view norph.
+ *#
+class ListViewNorph superclass: BorderedNorph; definition: {
+}.
+
+}. ## End of namespace Norphic

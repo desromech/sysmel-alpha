@@ -1,0 +1,20 @@
+Compiler
+    importModuleNamed: #"Norphic.Core";
+    importModuleNamed: #"Sysmel.Devel.IDE";
+	importModuleNamed: #"Sysmel.Graphics.SDL2";
+	importModuleNamed: #"Sysmel.Graphics.FreeType2".
+
+function main externC (argc: Int32, argv: UInt8 const pointer pointer) => Int32 := {
+    Stdn Graphics GUI WindowSystem activeWindowSystem: Stdn Graphics GUI createWindowSystem().
+
+    let windowSystem := Stdn Graphics GUI WindowSystem validActiveWindowSystem.
+    windowSystem ifNil: {
+        return: 0
+    }.
+    windowSystem _ targetFrameRate: 20.
+
+    Smalltalk Object inspect.
+
+    ## Run the actual main loop.
+    return: windowSystem _ runMainLoop.
+}.

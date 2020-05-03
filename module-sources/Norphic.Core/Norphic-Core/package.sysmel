@@ -36,3 +36,7 @@ loadFileOnce: "MenuItemNorph.sysmel".
 loadFileOnce: "MenuBarItemNorph.sysmel".
 loadFileOnce: "MenuNorph.sysmel".
 loadFileOnce: "StatusBarNorph.sysmel".
+
+loadFileOnce: "TableViewNorph.sysmel".
+loadFileOnce: "ListViewNorph.sysmel".
+loadFileOnce: "TreeViewNorph.sysmel".

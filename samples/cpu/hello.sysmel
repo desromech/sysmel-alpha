@@ -163,6 +163,7 @@ function main externC (argc: Int32, argv: Char8 const pointer pointer) => Int32 
     testMessageNotUnderstood().
 
     Stdn stdout << (Smalltalk Object name -- " with concat"); nl.
+    Stdn stdout << (Smalltalk Object name -- " with concat") asStdnMutableString; nl.
 
     return: 0.
 }.

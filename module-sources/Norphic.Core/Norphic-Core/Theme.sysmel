@@ -17,6 +17,7 @@ class Theme superclass: Stdn Object; definition: {
 
     public field buttonColor type: Float32x4.
 
+    public field systemWindowBackground type: Float32x4.
     public field activeMenuItemHighlightColor type: Float32x4.
     public field menuBarBackground type: Float32x4.
     public field statusBarBackground type: Float32x4.
@@ -35,6 +36,7 @@ class Theme superclass: Stdn Object; definition: {
         menuBarBackground := Float32x4 lightGray.
         statusBarBackground := Float32x4 lightGray.
         activeMenuItemHighlightColor := menuBarBackground muchDarker.
+        systemWindowBackground := 0.9f.
     }.
 
     field normalFontFaceWithSize type: FontFaceWithSize sharedPointer.

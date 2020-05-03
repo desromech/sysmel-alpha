@@ -21,7 +21,6 @@ function main externC (argc: Int32, argv: UInt8 const pointer pointer) => Int32 
         return: 0.
     }.
 
-    mainWindow _ color: 0.9.
     let mainSizer := VerticalBoxSizer sharedNew.
 
     ## Menu bar

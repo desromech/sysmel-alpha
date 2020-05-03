@@ -13,6 +13,9 @@ class SystemWindowNorph superclass: RootNorph; definition: {
     protected field drawingSurface type: Surface sharedPointer.
     protected field hasChanged type: Boolean8.
 
+    override method defaultColor => Float32x4
+        := self theme _ systemWindowBackground.
+
     meta definition: {
         method createFor: (windowSystem: WindowSystem sharedPointer const ref)
             title: (theTitle: Stdn String const ref) extent: (theExtent: Int32x2) ::=> InstanceType sharedPointer := {

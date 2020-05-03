@@ -1,0 +1,86 @@
+namespace Smalltalk definition: {
+useNamespace: Norphic.
+
+gcclass SimpleInspector definition: {
+    public field inspectedObject.
+    protected field norphicWindow type: SystemWindowNorph sharedPointer.
+
+    protected field label type: LabelNorph sharedPointer.
+    protected field listView type: ListViewNorph sharedPointer.
+    protected field evaluationEditor type: TextAreaNorph sharedPointer.
+
+    meta definition: {
+        method openOn: anObject
+            := self new
+                openOn: anObject;
+                yourself
+    }.
+
+    method createWidgets := {
+        label := LabelNorph sharedNew.
+        listView := ListViewNorph sharedNew.
+        evaluationEditor := TextAreaNorph sharedNew.
+        self
+    }.
+
+    method initializePresentation := {
+        label _ text: ((inspectedObject printStringLimitedTo: 30) castTo: String) asStdnMutableString.
+        self
+    }.
+
+    method buildLayout := {
+        let sizer := VerticalBoxSizer sharedNew.
+
+        sizer _
+            element: label do: {:constraints :: Void |
+                constraints allBorders; borderSize: 2.
+            };
+            element: listView do: {:constraints :: Void |
+                constraints expanded; allBorders; borderSize: 2; proportion: 1.0f.
+            };
+            element: evaluationEditor do: {:constraints :: Void |
+                constraints expanded; allBorders; borderSize: 2; proportion: 1.0f.
+            }.
+
+        norphicWindow _
+            addSubnorph: (label upCastFor: Norph);
+            addSubnorph: (listView upCastFor: Norph);
+            addSubnorph: (evaluationEditor upCastFor: Norph);
+            sizer: (sizer upCastFor: Sizer);
+            autolayout: true;
+            updateLayout.
+        self
+    }.
+
+    method openOn: anObject := {
+        self
+            inspectedObject: anObject;
+            open
+    }.
+
+    method open := {
+        norphicWindow := SystemWindowNorph createFor: Stdn Graphics GUI WindowSystem validActiveWindowSystem
+            title: "Inspector" asMutableString extent: Int32x2(400, 400).
+        self
+            createWidgets;
+            buildLayout;
+            initializePresentation.
+        self
+    }.
+
+    method close := {
+        norphicWindow ifNotNil: {
+            norphicWindow _ destroy.
+            norphicWindow reset
+        }.
+
+        self
+    }.
+}.
+
+Object definition: {
+    method inspect
+        := SimpleInspector openOn: self
+}.
+
+}.
