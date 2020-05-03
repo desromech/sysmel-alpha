@@ -37,14 +37,18 @@ class SimpleTextModel superclass: TextModel; definition: {
 
         let currentState mutable := TextDrawingState().
 
-        0 until: (bufferPosition min: textBuffer size) do: {:i :: Void |
+        0 until: (bufferPosition + 1 min: textBuffer size) do: {:i :: Void |
             let character := textBuffer[i].
             currentState character: character.
 
             currentState := fontFaceWithSize _ computeNewDrawingState: currentState.
         }.
 
-        currentState currentPosition
+        bufferPosition < textBuffer size ifTrue: {
+            currentState previousPosition
+        } ifFalse: {
+            currentState currentPosition
+        }
     }.
 
     method bufferPositionForDrawingPosition: (drawingPosition: Float32x2) ::=> UIntPointer := {

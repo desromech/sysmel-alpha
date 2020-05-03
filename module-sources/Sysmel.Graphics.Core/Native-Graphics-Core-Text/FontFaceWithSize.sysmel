@@ -53,7 +53,7 @@ class FontFaceWithSize superclass: Object; definition: {
             ## Stdn stdout << "kerningDelta " << kerningDelta; nl.
             newState currentPosition: newState currentPosition + kerningDelta.
         }.
-        newState previousPosition: state currentPosition.
+        newState previousPosition: newState currentPosition.
 
         character selectCase: #{
         '\r' : {
