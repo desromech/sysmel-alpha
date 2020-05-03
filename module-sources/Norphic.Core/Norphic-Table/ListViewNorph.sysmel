@@ -5,15 +5,20 @@ namespace Norphic definition: {
  * I am just a single column table of strings.
  *#
 class ListViewNorph superclass: TableViewNorph; definition: {
+    protected field listDataSource type: SimpleListDataSource sharedPointer.
+
     override method defaultColor => Float32x4
         := self theme _ listViewBackground.
 
     override method initialize => Void := {
+        listDataSource := SimpleListDataSource sharedNew.
+        self dataSource: (listDataSource upCastFor: DataSource).
 
+        self addColumn: (SimpleStringDataSourceElementColumnView sharedNew upCastFor: TableViewColumn).
     }.
 
     method addItem: (item: Stdn String const ref) ::=> UIntPointer := {
-        0
+        listDataSource _ addItem: ((SimpleStringDataSourceElement for: item) upCastFor: DataSourceElement)
     }.
 }.
 

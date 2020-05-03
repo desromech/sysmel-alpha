@@ -23,6 +23,9 @@ class Theme superclass: Stdn Object; definition: {
     public field statusBarBackground type: Float32x4.
     public field listViewBackground type: Float32x4.
 
+    public field tableRowHighlightColor type: Float32x4.
+    public field tableRowSelectedColor type: Float32x4.
+
     override method initialize => Void := {
         font := FontRegistry default defaultSans.
         fontPointSize := 14.
@@ -37,8 +40,11 @@ class Theme superclass: Stdn Object; definition: {
         menuBarBackground := Float32x4 lightGray.
         statusBarBackground := Float32x4 lightGray.
         activeMenuItemHighlightColor := menuBarBackground muchDarker.
-        systemWindowBackground := 0.9f.
-        listViewBackground := Float32x4 white
+        systemWindowBackground := Float32x4(0.9f, 0.9f, 0.9f, 1.0f).
+
+        listViewBackground := Float32x4 white.
+        tableRowHighlightColor := Float32x4(0.9f, 0.9f, 0.9f, 1.0f).
+        tableRowSelectedColor := Float32x4 cyan muchLighter.
     }.
 
     field normalFontFaceWithSize type: FontFaceWithSize sharedPointer.

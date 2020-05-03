@@ -4,19 +4,92 @@ namespace Norphic definition: {
  * I am a table view norph.
  *#
 class TableViewNorph superclass: BorderedNorph; definition: {
-    protected field dataSource type: DataSource sharedPointer.
-    protected field columns type: Stdn Collections Vector(TableColumnView sharedPointer).
+    compileTime constant Columns := Stdn Collections Vector(TableViewColumnPtr).
+    compileTime constant RowSelection := Stdn Collections Vector(UIntPointer).
 
-    method dataSource => DataSource sharedPointer const ref
+    protected field dataSource type: DataSourcePtr.
+    protected field columns type: Columns.
+    protected field headerNorph type: TableViewHeaderNorph sharedPointer.
+    protected field contentNorph type: TableViewContentNorph sharedPointer.
+    protected field minimalRowExtent type: Float32x2.
+    protected field selectedRows type: RowSelection.
+
+    override method initialize => Void := {
+        contentNorph := TableViewContentNorph sharedNew.
+        self addSubnorph: (contentNorph upCastFor: Norph).
+
+        let sizer := VerticalBoxSizer sharedNew.
+        sizer _
+            element: contentNorph do: {:constraints :: Void |
+                constraints expanded; allBorders; borderSize: 2; proportion: 1.0.
+            }.
+
+        self
+            sizer: (sizer upCastFor: Sizer);
+            autolayout: true;
+            updateLayout.
+    }.
+
+    override method handlesKeyboardEvents => Boolean8
+        := true.
+
+    method withColumnHeaders => Void := {
+        headerNorph ifNotNil: { return: void. }.
+
+        headerNorph := TableViewHeaderNorph sharedNew.
+        self addSubnorph: (contentNorph upCastFor: Norph).
+
+        self sizer _
+            startElement: headerNorph do: {:constraints :: Void |
+                constraints expanded.
+            }.
+        self updateLayout.
+    }.
+
+    const method dataSource => DataSourcePtr const ref
         := dataSource.
 
-    method dataSource: (newDataSource: DataSource sharedPointer const ref) ::=> Void := {
+    const method columns => Columns const ref
+        := columns.
+
+    const method rowHeight => Float32
+        := minimalRowExtent y.
+
+    method dataSource: (newDataSource: DataSourcePtr const ref) ::=> Void := {
         dataSource := newDataSource.
     }.
 
-    method addColumn: (newColumn: TableColumnView sharedPointer) ::=> Void := {
-        columns add: newColumn
+    method computeNewColumnWidths => Void := {
+        columns do: {:each :: Void |
+            each _ width: (self extent x / (columns size castTo: Float32))
+        }.
     }.
+
+    override method updateLayout => Void := {
+        self computeNewColumnWidths.
+        super updateLayout.
+    }.
+
+    method addColumn: (newColumn: TableViewColumn sharedPointer) ::=> Void := {
+        columns add: newColumn.
+
+        let minimalCellExtent := newColumn _ minimalCellExtent.
+        minimalRowExtent := Float32x2(minimalRowExtent x + minimalCellExtent x, minimalRowExtent y max: minimalCellExtent y).
+    }.
+
+    method rowClicked: (rowIndex: UIntPointer) ::=> Void := {
+        (selectedRows includes: rowIndex) ifTrue: {
+            selectedRows removeAll
+        } ifFalse: {
+            selectedRows removeAll.
+            selectedRows add: rowIndex
+        }.
+
+        self changed.
+    }.
+
+    method isRowSelected: (rowIndex: UIntPointer) ::=> Boolean8
+        := selectedRows includes: rowIndex.
 }.
 
 }. ## End of namespace Norphic

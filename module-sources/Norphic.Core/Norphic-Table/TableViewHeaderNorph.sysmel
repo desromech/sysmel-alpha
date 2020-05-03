@@ -1,0 +1,9 @@
+namespace Norphic definition: {
+
+#**
+ * I am a table view content norph. I display the column headers of a table view norph.
+ *#
+class TableViewHeaderNorph superclass: Norph; definition: {
+}.
+
+}. ## End of namespace Norphic

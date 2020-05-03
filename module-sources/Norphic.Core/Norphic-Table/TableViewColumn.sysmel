@@ -3,7 +3,20 @@ namespace Norphic definition: {
 #**
  * I am a table column view.
  *#
-class TableColumnView superclass: Stdn SharedObject; definition: {
+class TableViewColumn superclass: Stdn SharedObject; definition: {
+    public field name type: Stdn String.
+    public field width type: Float32.
+
+    virtual method minimalCellExtent => Float32x2
+        := self createCellNorph _ minimalExtent.
+
+    virtual method createCellNorph => Norph sharedPointer
+        := Norph sharedNew.
+
+    virtual method updateCellNorph: (cellNorph: Norph sharedPointer const ref) withElement: (element: DataSourceElementPtr const ref) ::=> Void
+        := void.
 }.
+
+compileTime constant TableViewColumnPtr := TableViewColumn sharedPointer.
 
 }. ## End of namespace Norphic

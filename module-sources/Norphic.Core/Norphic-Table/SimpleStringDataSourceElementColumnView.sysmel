@@ -1,0 +1,21 @@
+namespace Norphic definition: {
+
+#**
+ * I am a simple list data size. I just hold a vector of data elements.
+ *#
+class SimpleStringDataSourceElementColumnView superclass: TableViewColumn; definition: {
+    override method createCellNorph => Norph sharedPointer
+        := StringNorph sharedNew upCastFor: Norph.
+
+    override method updateCellNorph: (cellNorph: Norph sharedPointer const ref) withElement: (element: DataSourceElementPtr const ref) ::=> Void := {
+        let stringNorph := cellNorph downCastFor: StringNorph.
+        let stringElement := element downCastFor: SimpleStringDataSourceElement.
+        stringElement ifNil: {
+            stringNorph _ text: "" asMutableString
+        } ifNotNil: {
+            stringNorph _ text: stringElement _ value
+        }.
+    }.
+}.
+
+}. ## End of namespace Norphic

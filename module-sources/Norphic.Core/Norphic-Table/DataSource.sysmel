@@ -4,6 +4,13 @@ namespace Norphic definition: {
  * I am an abstract table source.
  *#
 class DataSource superclass: Stdn SharedObject; definition: {
+    virtual method numberOfElements => UIntPointer
+        := UIntPointer maxValue.
+
+    virtual method elementAtRow: (rowIndex: UIntPointer) ::=> DataSourceElementPtr
+        := DataSourceElementPtr nil.
 }.
+
+compileTime constant DataSourcePtr := DataSource sharedPointer.
 
 }. ## End of namespace Norphic

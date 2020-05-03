@@ -45,7 +45,8 @@ gcclass SimpleInspector definition: {
     }.
 
     method addKey: key value: value := {
-        Stdn stdout << "Inspector add key " << key << " value " << value; nl.
+        listView _ addItem: (key asString -- ": " -- value printString) asStdnMutableString.
+        ##Stdn stdout << "Inspector add key " << key << " value " << value; nl.
         self.
     }.
 

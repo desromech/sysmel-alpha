@@ -1,0 +1,119 @@
+namespace Norphic definition: {
+
+useNamespace: Stdn Math Geometry.
+
+#**
+ * I am a table view content norph. I am a container for the scrollable rows in the table view.
+ *#
+class TableViewContentNorph superclass: Norph; definition: {
+    compileTime constant Columns := TableViewNorph Columns.
+    compileTime constant Rows := Stdn Collections Vector(TableViewRowNorphPtr).
+    protected field visibleRows type: Rows.
+
+    const method tableViewNorph => TableViewNorph sharedPointer
+        := self owner downCastFor: TableViewNorph.
+
+    const method dataSource => DataSourcePtr const ref
+        := self tableViewNorph _ dataSource.
+
+    const method columns => Columns const ref
+        := self tableViewNorph _ columns.
+
+    override method isClipped => Boolean8
+        := true.
+
+    override method defaultColor => Float32x4
+        := Float32x4 zeros.
+
+    override method validSubnorphs => Subnorphs const ref := {
+        self ensureThatVisibleRowsExist.
+        super validSubnorphs
+    }.
+
+    const method rowHeight => Float32
+        := self tableViewNorph _ rowHeight.
+
+    method computeVisibleRowRange => (UIntPointer -- UIntPointer) := {
+        let visibleBounds := self localBounds.
+        let rowHeight := self rowHeight.
+
+        let firstVisibleRow := ((visibleBounds min y / rowHeight) floor max: 0) castTo: UIntPointer.
+        let lastVisibleRow := ((visibleBounds max y / rowHeight) ceil max: 0) castTo: UIntPointer.
+
+        (firstVisibleRow min: self dataSource _ numberOfElements, lastVisibleRow + 1 min: self dataSource _ numberOfElements)
+    }.
+
+    method updateContent => Void := {
+        self ensureThatVisibleRowsExist.
+        visibleRows do: {:each :: Void |
+            each _ updateContent
+        }
+    }.
+
+    override method updateLayout => Void := {
+        let rowHeight := self rowHeight.
+        let rowExtent := Float32x2(self extent x, rowHeight).
+        visibleRows do: {:each :: Void |
+            let position := Float32x2(0, rowHeight * (each _ rowIndex castTo: Float32)).
+            each _ bounds: (RectangleF32 min: position extent: rowExtent)
+        }
+    }.
+
+    method ensureThatVisibleRowsExist => Void := {
+        self dataSource ifNil: {
+            return: void
+        }.
+
+        let (let startRange, let endRange) := self computeVisibleRowRange.
+
+        let createdRowsStart := visibleRows isNotEmpty ifTrue: {
+            visibleRows first _ rowIndex
+        } ifFalse: {
+            endRange
+        }.
+        let createdRowsEnd := visibleRows isNotEmpty ifTrue: {
+            visibleRows last _ rowIndex + 1
+        } ifFalse: {
+            endRange
+        }.
+
+        startRange == createdRowsStart && endRange == createdRowsEnd ifTrue: {
+            return: void.
+        }.
+
+        let newRows mutable type: Rows.
+
+        let overlappedStartRange := startRange max: createdRowsStart.
+        let overlappedEndRange := endRange min: createdRowsEnd.
+
+        ## Remove the old non-visible rows.
+        visibleRows do: {:each :: Void |
+            let rowIndex := each _ rowIndex.
+            startRange <= rowIndex && rowIndex < endRange ifFalse: {
+                Stdn stdout << "Destroy invisible row " << rowIndex; nl.
+                each _ destroy
+            }.
+        }.
+
+        ## Create the new list of rows.
+        startRange until: endRange do: {:rowIndex :: Void |
+            overlappedStartRange <= rowIndex && rowIndex < overlappedEndRange ifTrue: {
+                newRows add: visibleRows[rowIndex - createdRowsStart]
+            } ifFalse: {
+                let newRow := TableViewRowNorph sharedNew.
+                self addSubnorph: (newRow upCastFor: Norph).
+                newRows add: newRow.
+
+                newRow _
+                    rowIndex: rowIndex;
+                    createCells;
+                    updateContent.
+            }
+        }.
+
+        visibleRows swapWith: newRows.
+        self updateLayout.
+    }.
+}.
+
+}. ## End of namespace Norphic

@@ -202,7 +202,7 @@ class Blitter definition: {
 
     const inline method blendVerticalSegmentStart: (startPoint: Int32x2) end: (endPoint: Int32x2) pixelsWith: (renderBlock: Float32BlendRenderBlockType) ::=> Void := {
         let w := extent x castTo: Int32.
-        0 <= startPoint x && startPoint x < w ifFalse: {
+        clippedBounds min x <= startPoint x && startPoint x < clippedBounds max x ifFalse: {
             return: void
         }.
 
@@ -213,7 +213,7 @@ class Blitter definition: {
         let destPixel mutable := self makeUnsafePixelIteratorAt: Int32x2(x, y).
         let h := extent y castTo: Int32.
         while: y ~= endPoint y do: {
-            0 <= y && y < h ifTrue: {
+            clippedBounds min y <= y && y < clippedBounds max y ifTrue: {
                 destPixel storePixelFloat32x4: renderBlock(Int32x2(x, y) castTo: UInt32x2, destPixel loadPixelFloat32x4).
             }.
             destPixel advanceRows: dy.
@@ -222,8 +222,7 @@ class Blitter definition: {
     }.
 
     const inline method blendHorizontalSegmentStart: (startPoint: Int32x2) end: (endPoint: Int32x2) pixelsWith: (renderBlock: Float32BlendRenderBlockType) ::=> Void := {
-        let h := extent x castTo: Int32.
-        0 <= startPoint y && startPoint y < h ifFalse: {
+        clippedBounds min y <= startPoint y && startPoint y < clippedBounds max y ifFalse: {
             return: void
         }.
 
@@ -231,9 +230,8 @@ class Blitter definition: {
         let dx := startPoint x <= endPoint x ifTrue: 1 ifFalse: -1.
         let x mutable := startPoint x.
         let destPixel mutable := self makeUnsafePixelIteratorAt: Int32x2(x, y).
-        let w := extent x castTo: Int32.
         while: x ~= endPoint x do: {
-            0 <= x && x < w ifTrue: {
+            clippedBounds min x <= x && x < clippedBounds max x ifTrue: {
                 destPixel storePixelFloat32x4: renderBlock(Int32x2(x, y) castTo: UInt32x2, destPixel loadPixelFloat32x4).
             }.
             destPixel advanceColumns: dx.

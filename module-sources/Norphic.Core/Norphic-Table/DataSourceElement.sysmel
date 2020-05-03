@@ -6,4 +6,6 @@ namespace Norphic definition: {
 class DataSourceElement superclass: Stdn SharedObject; definition: {
 }.
 
+compileTime constant DataSourceElementPtr := DataSourceElement sharedPointer.
+
 }. ## End of namespace Norphic

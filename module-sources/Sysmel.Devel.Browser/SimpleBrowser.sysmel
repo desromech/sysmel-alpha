@@ -3,6 +3,8 @@ useNamespace: Norphic.
 
 gcclass SimpleBrowser definition: {
     protected field norphicWindow type: SystemWindowNorph sharedPointer.
+    protected field classesView type: ListViewNorph sharedPointer.
+    protected field methodsView type: ListViewNorph sharedPointer.
 
     meta definition: {
         method openOn: anObject
@@ -12,14 +14,36 @@ gcclass SimpleBrowser definition: {
     }.
 
     method createWidgets := {
+        classesView := ListViewNorph sharedNew.
+        methodsView := ListViewNorph sharedNew.
         self
     }.
 
     method initializePresentation := {
+        let nspace := (Smalltalk castTo: ProtoObject) sharedNamespace.
+        nspace keys do: {:key :: Void |
+            classesView _ addItem: key asStdnMutableString
+        }.
         self
     }.
 
     method buildLayout := {
+        let sizer := HorizontalBoxSizer sharedNew.
+
+        sizer _
+            element: classesView do: {:constraints :: Void |
+                constraints expanded; allBorders; borderSize: 2; proportion: 1.0f.
+            };
+            element: methodsView do: {:constraints :: Void |
+                constraints expanded; allBorders; borderSize: 2; proportion: 1.0f.
+            }.
+
+        norphicWindow _
+            addSubnorph: (classesView upCastFor: Norph);
+            addSubnorph: (methodsView upCastFor: Norph);
+            sizer: (sizer upCastFor: Sizer);
+            autolayout: true;
+            updateLayout.
         self
     }.
 

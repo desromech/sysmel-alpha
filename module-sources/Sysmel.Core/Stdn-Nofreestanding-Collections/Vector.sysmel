@@ -230,6 +230,11 @@ template Vector(ET: Stdn Concepts Copyable)
 		inline method remove: (value: ValueType const ref) ::=> Void := {
 			self remove: value ifAbsent: {:: Void | Stdn raiseError("Failed to find element in Vector"). }
 		}.
+
+		inline method removeIfPresent: (value: ValueType const ref) ::=> Void := {
+			self remove: value ifAbsent: {:: Void | }
+		}.
+
 	}.
 
 	Stdn Concepts HashKey ifType: ValueType complies: {

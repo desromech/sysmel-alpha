@@ -1,0 +1,19 @@
+namespace Norphic definition: {
+
+template SimpleDataSourceElement(VT: Type)
+    :=  class superclass: DataSourceElement; definition: {
+    compileTime constant ValueType := VT.
+    public field value type: ValueType.
+
+    meta definition: {
+        method for: (value: ValueType const ref) ::=> InstanceType sharedPointer := {
+            let result := InstanceType sharedNew.
+            result _ value: value.
+            result
+        }.
+    }.
+}.
+
+compileTime constant SimpleStringDataSourceElement := SimpleDataSourceElement(Stdn String).
+
+}. ## End of namespace

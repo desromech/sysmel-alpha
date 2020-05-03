@@ -11,11 +11,12 @@ class SizerElement.
  * Smalltalk morph.
  *#
 class Norph superclass: NorphEventHandler; definition: {
+    compileTime constant Subnorphs := Stdn Collections Vector(Norph sharedPointer).
     protected field bounds type: RectangleF32.
     protected field color type: Float32x4.
 
     protected field owner type: Norph weakPointer.
-    protected field subnorphs type: Stdn Collections Vector(Norph sharedPointer).
+    protected field subnorphs type: Subnorphs.
 
     private field isDirtyInThisFrame type: Boolean8.
     private field isUpdatingLayout type: Boolean8.
@@ -120,7 +121,7 @@ class Norph superclass: NorphEventHandler; definition: {
     }.
 
     virtual method renderSubnorphsOn: (canvas: Canvas ref) ::=> Void := {
-        subnorphs do: {:(Norph sharedPointer const ref)child :: Void |
+        self validSubnorphs do: {:(Norph sharedPointer const ref)child :: Void |
             child _ fullRenderOn: canvas
         }
     }.
@@ -214,8 +215,13 @@ class Norph superclass: NorphEventHandler; definition: {
     }.
 
     virtual method destroy ::=> Void := {
-
+        self owner ifNotNil: { :o :: Void |
+            o _ removeSubnorph: self asSharedPointer
+        }.
     }.
+
+    virtual method validSubnorphs => Subnorphs const ref
+        := subnorphs.
 
     virtual method addedToOwner: (newOwner: Norph ref) ::=> Void := {
         owner := newOwner asWeakPointer.
@@ -223,6 +229,13 @@ class Norph superclass: NorphEventHandler; definition: {
 
     virtual method removedFromOwner: (newOwner: Norph ref) ::=> Void := {
         owner reset
+    }.
+
+    virtual method removeSubnorph: (childSubnorph: Norph sharedPointer const ref) ::=> Void := {
+        childSubnorph ifNil: { return: void }.
+
+        subnorphs remove: childSubnorph.
+        childSubnorph _ removedFromOwner: self
     }.
 
     virtual method addSubnorph: (newSubnorph: Norph sharedPointer const ref) ::=> Void := {
@@ -355,7 +368,7 @@ class Norph superclass: NorphEventHandler; definition: {
 
     virtual method dispatchMouseEventToChildren: (event: NorphMouseEvent ref) ::=> Void := {
         let mousePosition := event position.
-        subnorphs do: {:child :: Void |
+        self validSubnorphs do: {:child :: Void |
             let childBounds := child _ bounds.
             child _ handlesMouseEvents && (childBounds includesPoint: event position) ifTrue: {
                 event position: mousePosition - childBounds min.
@@ -395,7 +408,7 @@ class Norph superclass: NorphEventHandler; definition: {
     }.
 
     virtual method dispatchKeyboardEventToChildren: (event: NorphKeyboardEvent ref) ::=> Void := {
-        subnorphs do: {:each :: Void |
+        self validSubnorphs do: {:each :: Void |
             each _ canHaveKeyboardFocus ifFalse: {
                 each _ dispatchKeyboardEventFromParent: event.
                 event wasHandled ifTrue: {return: void}.
@@ -435,7 +448,7 @@ class Norph superclass: NorphEventHandler; definition: {
     }.
 
     virtual method dispatchTextInputEventToChildren: (event: NorphTextInputEvent ref) ::=> Void := {
-        subnorphs do: {:each :: Void |
+        self validSubnorphs do: {:each :: Void |
             each _ canHaveKeyboardFocus ifFalse: {
                 each _ dispatchTextInputEventFromParent: event.
                 event wasHandled ifTrue: {return: void}.
