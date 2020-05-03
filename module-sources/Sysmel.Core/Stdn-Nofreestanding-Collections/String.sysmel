@@ -71,7 +71,7 @@ namespace Collections definition: {
             let stream := __astBuilder gensym: #stream.
             let textStream := __astBuilder gensym: #textStream.
             ``(`,self streamContents: {:`,stream :: Void |
-                    let `,textStream mutable := TextStreamWriter for: `,stream address.
+                    let `,textStream mutable := Stdn IO TextStreamWriter for: `,stream address.
                     `,aBlock __macroInlineBlock: `,textStream.
                 }
             )

@@ -7,6 +7,9 @@ class AbstractTextEditorNorph superclass: BorderedNorph; definition: {
     protected field textModel type: TextModel sharedPointer.
     protected field textEditingArea type: TextEditingAreaNorph sharedPointer.
 
+    override method isClipped => Boolean8
+        := true.
+
     override method initialize => Void := {
         self
             buildLayout;

@@ -35,5 +35,18 @@ namespace Chrono definition: {
 
     inline function sleepUntil(time: Time) => Void
         := sleepFor(time - now()).
+
+    macro method measureTicksToRun: aBlock := {
+        let startTicks := __astBuilder gensym: #startTicks.
+        let endTicks := __astBuilder gensym: #endTicks.
+        ``{
+            let `,startTicks := Stdn Chrono now().
+            `,aBlock __macroInlineBlock.
+            let `,endTicks := Stdn Chrono now().
+            `,endTicks - `,startTicks
+        }
+    }.
+
+    macro method measureTimeToRun: aBlock := ``(Stdn Chrono ticksToFloatSeconds(Stdn Chrono measureTicksToRun: `,aBlock)).
 }.
 }.

@@ -1,6 +1,5 @@
 Compiler
-	importModuleNamed: #"Sysmel.Graphics.SDL2";
-	importModuleNamed: #"Sysmel.Graphics.FreeType2".
+	importModuleNamed: #"Sysmel.Graphics.Headfull".
 
 useNamespace: Stdn Graphics Core.
 useNamespace: Stdn Graphics GUI.
@@ -15,44 +14,68 @@ let mainRectangleNormalColor := Float32x4(0.8f, 0.2f, 0.2f, 1.0f).
 let mainRectangleHighlightColor := Float32x4(0.2f, 0.8f, 0.8f, 1.0f).
 let mainRectangleColor mutable := mainRectangleNormalColor.
 let currentTime mutable type: Float32.
+let lastFrameRenderingTime mutable type: Float32.
+
+function doRenderOn(canvas: Canvas ref) => Void := {
+	canvas
+		color: Float32x4(0.4f, 0.4f, 0.4f, 1.0f);
+		clear.
+
+	##return: void.
+
+	canvas transform restoreAfter: {
+		canvas transform
+			setIdentity;
+			rotateByRadians: currentTime negated;
+			translateBy: Float32x2(currentTime cos *100.0f, currentTime sin *100.0f).
+
+			canvas
+				color: mainRectangleColor;
+				fillRectangle: mainRectangle;
+
+				black;
+				drawRectangle: mainRectangle;
+
+				white;
+				fillTriangle: Float32x2(40.0f, 300.0f) color: Float32x4(1.0f, 0.0f, 0.0f, 1.0)
+					p2: Float32x2(440.0f, 300.0f) color: Float32x4(0.0f, 1.0f, 0.0f, 1.0)
+					p3: Float32x2(240.0f, 50.0f) color: Float32x4(0.0f, 0.0f, 1.0f, 1.0);
+
+				fontFaceWithSize: fontFaceWithSize;
+				color: Float32x4(0.0f, (currentTime *5.0f) cos*0.5f + 0.5f, 1.0f, 1.0f);
+				drawUTF8String: "Hello World" at: Float32x2(80.0f, 128.0f).
+	}.
+
+	{
+		let frameTime := lastFrameRenderingTime * 1000.0f.
+		let frameTimeString := Stdn String textStreamContents: {:out :: Void |
+			out << "Current time " << currentTime; nl.
+			out << "Rendering time " << frameTime << " ms"
+		}.
+
+		canvas
+			fontFaceWithSize: fontFaceWithSize;
+			color: Float32x4 black;
+			drawUTF8String: frameTimeString at: Float32x2(15.0f, 30.0f).
+	}.
+
+}.
 
 class MainWindowEventHandler superclass: EventHandler; definition: {
     method render ::=> Void := {
-        let canvas := mainDrawingSurface _ beginDrawingWithCanvas.
-        canvas ifNil: {return: void}.
+		let canvas := mainDrawingSurface _ beginDrawingWithCanvas.
+		canvas ifNil: {return: void}.
 
-        canvas _ transform
-            setIdentity;
-            rotateByRadians: currentTime negated;
-            translateBy: Float32x2(currentTime cos *100.0f, currentTime sin *100.0f).
-
-        canvas _
-            color: Float32x4(0.4f, 0.4f, 0.4f, 1.0f);
-            clear;
-
-            color: mainRectangleColor;
-            fillRectangle: mainRectangle;
-
-            black;
-            drawRectangle: mainRectangle;
-
-            white;
-            fillTriangle: Float32x2(40.0f, 300.0f) color: Float32x4(1.0f, 0.0f, 0.0f, 1.0)
-                p2: Float32x2(440.0f, 300.0f) color: Float32x4(0.0f, 1.0f, 0.0f, 1.0)
-                p3: Float32x2(240.0f, 50.0f) color: Float32x4(0.0f, 0.0f, 1.0f, 1.0);
-
-            fontFaceWithSize: fontFaceWithSize;
-            color: Float32x4(0.0f, (currentTime *5.0f) cos*0.5f + 0.5f, 1.0f, 1.0f);
-            drawUTF8String: "Hello World" at: Float32x2(80.0f, 128.0f).
+		lastFrameRenderingTime := (Stdn Chrono measureTimeToRun: {
+			doRenderOn(canvas _).
+		}) castTo: Float32.
     }.
 
     override method onMouseMoveEvent: (event: MouseMoveEvent ref) ::=> Void := {
         (mainRectangle includesPoint: (event position castTo: Float32x2)) ifTrue: {
             mainRectangleColor := mainRectangleHighlightColor.
-            self render.
         } ifFalse: {
             mainRectangleColor := mainRectangleNormalColor.
-            self render.
         }
     }.
 

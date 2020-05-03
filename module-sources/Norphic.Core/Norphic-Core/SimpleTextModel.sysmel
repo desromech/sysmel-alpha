@@ -35,60 +35,45 @@ class SimpleTextModel superclass: TextModel; definition: {
 
     method topPositionOfCharacterAt: (bufferPosition: UIntPointer) ::=> Float32x2 := {
 
-        let currentPosition mutable := Float32x2 zeros.
-        let previousCharacter mutable type: Char32 := 0.
+        let currentState mutable := TextDrawingState().
 
         0 until: (bufferPosition min: textBuffer size) do: {:i :: Void |
             let character := textBuffer[i].
+            currentState character: character.
 
-            previousCharacter ~= 0 ifTrue: {
-                currentPosition := currentPosition + (fontFaceWithSize _ getKerningForCharacter: previousCharacter with: character)
-            }.
-
-            let (_, let glyphAdvance) := fontFaceWithSize _ getBoundingBoxAndAdvanceForCharacter: character.
-
-            currentPosition := currentPosition + glyphAdvance.
-            previousCharacter := character.
+            currentState := fontFaceWithSize _ computeNewDrawingState: currentState.
         }.
 
-        currentPosition
+        currentState currentPosition
     }.
 
     method bufferPositionForDrawingPosition: (drawingPosition: Float32x2) ::=> UIntPointer := {
 
-        let currentPosition mutable := Float32x2(0, fontFaceWithSize _ ascender).
-        let previousCharacter mutable type: Char32 := 0.
-
+        let currentState mutable := TextDrawingState position: Float32x2(0, fontFaceWithSize _ ascender).
         let bestBufferPosition mutable type: UIntPointer := 0.
-        let bestBufferPositionDistance mutable := drawingPosition length.
+        let bestBufferPositionDistance mutable := Float32 infinity.
 
         0 until: textBuffer size do: {:i :: Void |
             let character := textBuffer[i].
+            currentState character: character.
 
-            let distance := (currentPosition - drawingPosition) length.
+            currentState := fontFaceWithSize _ computeNewDrawingState: currentState.
+
+            let distance := (currentState previousPosition - drawingPosition) length.
             distance < bestBufferPositionDistance ifTrue: {
                 bestBufferPositionDistance := distance.
                 bestBufferPosition := i.
             }.
-
-            previousCharacter ~= 0 ifTrue: {
-                currentPosition := currentPosition + (fontFaceWithSize _ getKerningForCharacter: previousCharacter with: character)
-            }.
-
-            let (_, let glyphAdvance) := fontFaceWithSize _ getBoundingBoxAndAdvanceForCharacter: character.
-
-            currentPosition := currentPosition + glyphAdvance.
-            previousCharacter := character.
         }.
 
         {
-            let distance := (currentPosition - drawingPosition) length.
+            let distance := (currentState currentPosition - drawingPosition) length.
             distance < bestBufferPositionDistance ifTrue: {
                 bestBufferPositionDistance := distance.
                 bestBufferPosition := textBuffer size.
             }.
         }.
-        
+
         bestBufferPosition
     }.
 }.

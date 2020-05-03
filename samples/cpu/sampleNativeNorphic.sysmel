@@ -1,7 +1,6 @@
 Compiler
     importModuleNamed: #"Norphic.Core";
-	importModuleNamed: #"Sysmel.Graphics.SDL2";
-	importModuleNamed: #"Sysmel.Graphics.FreeType2".
+	importModuleNamed: #"Sysmel.Graphics.Headfull".
 
 useNamespace: Stdn Graphics Core.
 useNamespace: Stdn Graphics GUI.

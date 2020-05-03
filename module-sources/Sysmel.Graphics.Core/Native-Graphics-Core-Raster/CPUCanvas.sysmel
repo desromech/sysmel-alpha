@@ -11,6 +11,7 @@ class CPUSurface.
  *#
 class CPUCanvas superclass: Canvas; definition: {
     protected field targetSurface type: CPUSurface pointer.
+    protected field currentClipRectangle type: RectangleF32.
 
     protected field currentStartPosition type: Float32x2.
     protected field currentStartColor type: Float32x4.
@@ -19,12 +20,12 @@ class CPUCanvas superclass: Canvas; definition: {
     protected field currentEndColor type: Float32x4.
     protected field currentGradientVector type: Float32x2.
 
-    protected field currentFontFaceWithSize type: FontFaceWithSize sharedPointer.
     protected field blendingMode type: BlendingMode.
 
     method initializeWithSurface: (theTargetSurface: CPUSurface pointer) ::=> Void := {
         blendingMode := BlendingMode AlphaOver.
         targetSurface := theTargetSurface.
+        currentClipRectangle := RectangleF32 fullSpace.
         transform setIdentity.
     }.
 
@@ -150,40 +151,35 @@ class CPUCanvas superclass: Canvas; definition: {
         currentFontFaceWithSize := font.
     }.
 
-    ## Draws a character with the font face and size. This returns the position for drawing the next character.
-    override method drawCharacter: (character: Char32) withState: (state: TextDrawingState) ::=> TextDrawingState := {
-        let newState mutable := state.
-
-        currentFontFaceWithSize ifNil: {
-            return: newState.
-        }.
-
-        ## Apply the kerning.
-        newState previousCharacter ~= 0 ifTrue: {
-            let kerningDelta := currentFontFaceWithSize _ getKerningForCharacter: newState previousCharacter with: character.
-            ## Stdn stdout << "kerningDelta " << kerningDelta; nl.
-            newState currentPosition: newState currentPosition + kerningDelta.
-        }.
-        newState previousCharacter: character.
-
-        ## Get the glyph for the character
-        let glyph := currentFontFaceWithSize _ getOrCreateGlyphForCodePoint: character.
-        glyph ifNil: {
-            return: newState
-        }.
-
-        ## Convert the glyph into a form. We can always do this operation with fonts.
-        let form := glyph _ asForm.
+    override method drawGlyph: (glyph: Glyph ref) at: (aPosition: Float32x2) ::=> Void := {
+        let form := glyph asForm.
         form ifNotNil: {
             let sourceBlitter := form _ makeBlitter.
-            let drawPosition := transform transformPoint: newState currentPosition + glyph _ drawOrigin.
+            let drawPosition := transform transformPoint: aPosition + glyph drawOrigin.
             targetSurface _ pixelsBlitter
                 compositeAlphaBlendPixelsFrom: sourceBlitter withColor: currentStartColor
                 at: (drawPosition floor castTo: Int32x2).
         }.
+    }.
 
-        newState currentPosition: newState currentPosition + glyph _ horizontalAdvance.
-        return: newState.
+    inline method doSetClipRectangle: (aRectangle: RectangleF32) ::=> Void := {
+        let blitter ref := targetSurface _ pixelsBlitter.
+        let convertedClipRectangle := (aRectangle intersectionWith: blitter bounds asRectangleF32) asRectangleI32.
+        blitter applyClippingRectangle: convertedClipRectangle
+    }.
+
+    override method currentClipRectangle => RectangleF32 := {
+        currentClipRectangle
+    }.
+
+    override method applyClipRectangle: (aRectangle: RectangleF32) ::=> Void := {
+        currentClipRectangle := currentClipRectangle intersectionWith: aRectangle.
+        self doSetClipRectangle: currentClipRectangle.
+    }.
+
+    override method restoreClipRectangle: (aRectangle: RectangleF32) ::=> Void := {
+        currentClipRectangle := aRectangle.
+        self doSetClipRectangle: currentClipRectangle.
     }.
 }.
 

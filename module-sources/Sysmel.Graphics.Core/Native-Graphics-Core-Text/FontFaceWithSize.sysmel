@@ -23,40 +23,117 @@ class FontFaceWithSize superclass: Object; definition: {
     virtual method getKerningForCharacter: (leftCharacter: Char32) with: (rightCharacter: Char32) ::=> Float32x2
         := Float32x2 zeros.
 
-    virtual method getBoundingBoxAndAdvanceForCharacter: (codePoint: Char32) ::=> (RectangleF32 -- Float32x2) := {
+    virtual method getAdvanceForCharacter: (codePoint: Char32) ::=> Float32x2 := {
         let glyph := self getOrCreateGlyphForCodePoint: codePoint.
         glyph ifNil: {
-            return: (RectangleF32 newValue, 0)
+            return: Float32x2 zeros
         }.
 
-        (glyph _ bounds, glyph _ horizontalAdvance)
+        glyph _ horizontalAdvance
     }.
 
-    virtual method computeBoundingBoxForUTF8String: (string: Char8 const pointer) size: (size: UIntPointer) previousCharacter: (thePreviousCharacter: Char32) ::=> RectangleF32 := {
-        let currentPosition mutable := Float32x2(0, ascender).
-        let result mutable := RectangleF32 min: Float32x2 zeros max: Float32x2(0, height).
-        let previousCharacter mutable := thePreviousCharacter.
+    virtual method getBoundingBoxForCharacter: (codePoint: Char32) ::=> RectangleF32 := {
+        let glyph := self getOrCreateGlyphForCodePoint: codePoint.
+        glyph ifNil: {
+            return: RectangleF32 ()
+        }.
+
+        glyph _ bounds
+    }.
+
+    virtual method computeNewDrawingState: (state: TextDrawingState) ::=> TextDrawingState := {
+        let newState mutable := state.
+        let character := state character.
+        newState
+            isVisibleCharacter: false.
+
+        ## Always apply the kerning.
+        newState previousCharacter ~= 0 ifTrue: {
+            let kerningDelta := self getKerningForCharacter: newState previousCharacter with: character.
+            ## Stdn stdout << "kerningDelta " << kerningDelta; nl.
+            newState currentPosition: newState currentPosition + kerningDelta.
+        }.
+        newState previousPosition: state currentPosition.
+
+        character selectCase: #{
+        '\r' : {
+            newState
+                columnIndex: 0;
+                previousCharacter: character;
+                lineIndex: newState lineIndex + 1;
+                lineStartPosition: newState lineStartPosition + Float32x2(0.0f, self height);
+                currentPosition: newState lineStartPosition.
+            return: newState.
+        }.
+        '\n' : {
+            newState previousCharacter = '\r' ifTrue: {
+                return: newState.
+            }.
+
+            newState
+                columnIndex: 0;
+                previousCharacter: character;
+                lineIndex: newState lineIndex + 1;
+                lineStartPosition: newState lineStartPosition + Float32x2(0.0f, self height);
+                currentPosition: newState lineStartPosition.
+            return: newState.
+        }.
+        '\t' : {
+            let tabSize := newState tabSize max: 1u.
+            let newColumnIndex := (newState columnIndex + tabSize) / tabSize * tabSize.
+            let paddingSpaces := newColumnIndex - newState columnIndex.
+            let spaceAdvance := self getAdvanceForCharacter: ' '.
+
+            newState
+                isVisibleCharacter: false;
+                previousCharacter: character;
+                currentPosition: newState currentPosition + spaceAdvance*paddingSpaces;
+                columnIndex: newColumnIndex.
+            return: newState.
+        }.
+        _ : {}.
+        }.
+
+        newState previousCharacter: character.
+
+        ## Get the glyph for the character
+        let glyph := self getOrCreateGlyphForCodePoint: character.
+        glyph ifNil: {
+            return: newState
+        }.
+
+        newState
+            isVisibleCharacter: true;
+            currentPosition: newState currentPosition + glyph _ horizontalAdvance.
+        return: newState.
+    }.
+
+    inline method computeNewDrawingState: (state: TextDrawingState) for: (newCharacter: Char32) ::=> TextDrawingState := {
+        let stateWithCharacter mutable := state.
+        stateWithCharacter character: newCharacter.
+        self computeNewDrawingState: stateWithCharacter
+    }.
+
+    virtual method computeBoundingBoxForUTF8String: (string: Char8 const pointer) size: (size: UIntPointer) state: (initialState: TextDrawingState) ::=> RectangleF32 := {
+        let result mutable := (RectangleF32 min: Float32x2(0, ascender negated) max: Float32x2(0, height - ascender)) translatedBy: initialState currentPosition.
+        let currentState mutable := initialState.
 
         0 until: size do: {:(UIntPointer)i :: Void |
             let character := string[i].
+            currentState character: character.
+            currentState := self computeNewDrawingState: currentState.
 
-            previousCharacter ~= 0 ifTrue: {
-                currentPosition := currentPosition + (self getKerningForCharacter: previousCharacter with: character)
+            true || currentState isVisibleCharacter ifTrue: {
+                let glyphBoundingBox := self getBoundingBoxForCharacter: character.
+                result := result unionWith: (glyphBoundingBox translatedBy: currentState previousPosition).
             }.
-
-            let (let glyphBoundingBox, let glyphAdvance) := self getBoundingBoxAndAdvanceForCharacter: character.
-
-            result := result unionWith: (glyphBoundingBox translatedBy: currentPosition).
-
-            currentPosition := currentPosition + glyphAdvance.
-            previousCharacter := character.
         }.
 
         result
     }.
 
     virtual method computeBoundingBoxForUTF8String: (string: Char8 const pointer) size: (size: UIntPointer) ::=> RectangleF32
-        := self computeBoundingBoxForUTF8String: string size: size previousCharacter: 0.
+        := self computeBoundingBoxForUTF8String: string size: size state: (TextDrawingState position: Float32x2(0, ascender)).
 
     virtual method computeBoundingBoxForString: (string: Stdn String const ref) ::=> RectangleF32
         := self computeBoundingBoxForUTF8String: string data size: string size.

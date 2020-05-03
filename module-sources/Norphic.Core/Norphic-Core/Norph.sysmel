@@ -30,6 +30,9 @@ class Norph superclass: NorphEventHandler; definition: {
         self bounds: (RectangleF32 min: self position extent: newExtent)
     }.
 
+    virtual method isClipped => Boolean8
+        := false.
+
     inline method position => Float32x2
         := bounds min.
 
@@ -125,9 +128,18 @@ class Norph superclass: NorphEventHandler; definition: {
     virtual method fullRenderOn: (canvas: Canvas ref) ::=> Void := {
         canvas transform restoreAfter: {
             canvas transform translateBy: bounds min.
-            self
-                renderOn: canvas;
-                renderSubnorphsOn: canvas.
+
+            self isClipped ifTrue: {
+                canvas withLocalClipRectangle: self localBounds do: {
+                    self
+                        renderOn: canvas;
+                        renderSubnorphsOn: canvas.
+                }.
+            } ifFalse: {
+                self
+                    renderOn: canvas;
+                    renderSubnorphsOn: canvas.
+            }
         }.
 
         isDirtyInThisFrame := false.

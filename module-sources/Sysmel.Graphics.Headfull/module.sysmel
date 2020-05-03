@@ -1,0 +1,6 @@
+Compiler
+    importModuleNamed: #"Sysmel.Graphics.FreeType2".
+
+## TODO: This is the place for selecting the proper window system backend.
+Compiler
+    importModuleNamed: #"Sysmel.Graphics.SDL2".

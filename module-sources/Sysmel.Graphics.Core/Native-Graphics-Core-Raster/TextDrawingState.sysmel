@@ -8,13 +8,18 @@ struct TextDrawingState definition: {
     public field lineIndex type: UInt32.
 
     public field lineStartPosition type: Float32x2.
+    public field previousPosition type: Float32x2.
     public field currentPosition type: Float32x2.
+    public field tabSize type: UInt32.
 
+    public field character type: Char32.
+    public field isVisibleCharacter type: Boolean8.
 
     meta method position: (thePosition: Float32x2) ::=> SelfType
         := TextDrawingState newValue
             lineStartPosition: thePosition;
             currentPosition: thePosition;
+            tabSize: 4;
             yourself.
 }.
 

@@ -14,6 +14,9 @@ sealed template GenericRectangle(ST: Type)
         const inline method empty ::=> Rectangle
             := self min: Vector2 infinityOrMaxValue max: Vector2 negativeInfinityOrMinValue.
 
+        const inline method fullSpace ::=> Rectangle
+            := self min: Vector2 negativeInfinityOrMinValue max: Vector2 infinityOrMaxValue.
+
         const inline method center: (theCenter: Vector2) halfExtent: (theHalfExtent: Vector2) ::=> Rectangle
             := self min: theCenter - theHalfExtent max: theCenter + theHalfExtent.
 
@@ -25,6 +28,9 @@ sealed template GenericRectangle(ST: Type)
 
         const inline method min: (theMinCorner: Vector2) extent: (theExtent: Vector2) ::=> Rectangle
             := self min: theMinCorner max: theMinCorner + theExtent.
+
+        const inline method point: (thePoint: Vector2) ::=> Rectangle
+            := self min: thePoint max: thePoint.
     }.
 
     const inline method hash => Stdn Hash
@@ -60,6 +66,20 @@ sealed template GenericRectangle(ST: Type)
     const inline method translatedBy: (translation: Vector2) ::=> SelfType
         := SelfType min: min + translation max: max + translation.
 
+    const inline method transformedWith: (transform: AffineTransform2d const ref) ::=> SelfType := {
+        let result mutable := SelfType point: (transform transformPoint: self bottomLeft).
+        result := result unionWith: (transform transformPoint: self bottomRight).
+        result := result unionWith: (transform transformPoint: self topRight).
+        result unionWith: (transform transformPoint: self topLeft).
+    }.
+
+    const inline method transformedWith: (transform: AffinePostTransform2d const ref) ::=> SelfType := {
+        let result mutable := SelfType point: (transform transformPoint: self bottomLeft).
+        result := result unionWith: (transform transformPoint: self bottomRight).
+        result := result unionWith: (transform transformPoint: self topRight).
+        result unionWith: (transform transformPoint: self topLeft).
+    }.
+
     const inline method isEmpty ::=> Boolean8
         := min x > max x || min y > max y.
 
@@ -87,6 +107,15 @@ sealed template GenericRectangle(ST: Type)
 
     const inline method unionWith: (other: Vector2 const ref) ::=> SelfType
         := SelfType min: (min min: other) max: (max max: other).
+
+    const inline method asRectangleI32 => RectangleI32
+        := RectangleI32 min: (min castTo: Int32x2) max: (max castTo: Int32x2).
+
+    const inline method asRectangleF32 => RectangleF32
+        := RectangleF32 min: (min castTo: Float32x2) max: (max castTo: Float32x2).
+
+    const inline method asRectangleF64 => RectangleF64
+        := RectangleF64 min: (min castTo: Float64x2) max: (max castTo: Float64x2).
 
     compileTime if: Scalar isPrimitiveFloatType then: {
         method intersectionWithRay: (ray: Ray2d const ref) ::=> ParametricCurveIntersectionResult := {

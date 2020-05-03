@@ -13,6 +13,7 @@ class FontFaceWithSize.
  *#
 class Canvas superclass: Object; definition: {
     public field transform type: AffinePostTransform2dF32.
+    protected field currentFontFaceWithSize type: FontFaceWithSize sharedPointer.
 
     ## This method clears the whole surface with the active color.
     abstract method clear ::=> Void.
@@ -111,9 +112,30 @@ class Canvas superclass: Object; definition: {
     ## Sets the current font face with size.
     abstract method fontFaceWithSize: (font: FontFaceWithSize sharedPointer const ref) ::=> Void.
 
+    ## Draw a character glyph in a particular position.
+    virtual method drawGlyph: (glyph: Glyph ref) at: (aPosition: Float32x2) ::=> Void
+        := void.
+
     ## Draws a character with the font face and size. This returns the position for drawing the next character.
-    virtual method drawCharacter: (character: Char32) withState: (state: TextDrawingState) ::=> TextDrawingState
-        := state.
+    virtual method drawCharacterWithState: (state: TextDrawingState) ::=> TextDrawingState := {
+        currentFontFaceWithSize ifNil: {
+            return: state.
+        }.
+
+        let newState mutable := currentFontFaceWithSize _ computeNewDrawingState: state.
+        newState isVisibleCharacter ifTrue: {
+            ## Get the glyph for the character
+            let glyph := currentFontFaceWithSize _ getOrCreateGlyphForCodePoint: newState character.
+            glyph ifNil: {
+                return: newState
+            }.
+
+            ## Convert the glyph into a form. We can always do this operation with fonts.
+            self drawGlyph: glyph _ at: newState previousPosition.
+        }.
+
+        return: newState.
+    }.
 
     ## Draw an UTF-8 encoded string. Allow overriding for optiomization reasons.
     virtual method drawUTF8String: (encodedString: Char8 const pointer) size: (encodedStringSize: UIntPointer) withState: (state: TextDrawingState) ::=> TextDrawingState := {
@@ -121,7 +143,8 @@ class Canvas superclass: Object; definition: {
 
         ## TODO: Properly decode the utf8 encoded string by using a stream and an iterator.
         0 until: encodedStringSize do: {:(UIntPointer)i :: Void |
-            currentState := self drawCharacter: encodedString[i] withState: currentState.
+            currentState character: encodedString[i].
+            currentState := self drawCharacterWithState: currentState.
         }.
 
         currentState
@@ -136,6 +159,32 @@ class Canvas superclass: Object; definition: {
 
     inline method drawUTF8String: (encodedString: Char8 const pointer) at: (position: Float32x2) ::=> TextDrawingState
         := self drawUTF8String: encodedString size: Stdn cstrlen(encodedString) at: position.
+
+    virtual method currentClipRectangle => RectangleF32
+        := RectangleF32 fullSpace.
+
+    virtual method applyClipRectangle: (aRectangle: RectangleF32) ::=> Void
+        := void.
+
+    virtual method applyLocalClipRectangle: (aRectangle: RectangleF32) ::=> Void
+        := self applyClipRectangle: (aRectangle transformedWith: transform).
+
+    virtual method restoreClipRectangle: (aRectangle: RectangleF32) ::=> Void
+        := void.
+
+    macro method withLocalClipRectangle: aRectangle do: aBlock := {
+        let canvas := __astBuilder gensym: #canvas.
+        let clipRectangleMemento := __astBuilder gensym: #clipRectangleMemento.
+        ``{
+            let `,canvas ref := `,self.
+            let `,clipRectangleMemento := `,canvas currentClipRectangle.
+            `,canvas applyLocalClipRectangle: `,aRectangle.
+            try: `,aBlock finally: {
+                `,canvas restoreClipRectangle: `,clipRectangleMemento.
+            }.
+
+        } asSequenceWithoutLexicalScope
+    }.
 }.
 
 }. ## End of namespace Core

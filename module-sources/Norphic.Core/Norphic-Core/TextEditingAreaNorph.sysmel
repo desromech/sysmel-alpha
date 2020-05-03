@@ -77,8 +77,9 @@ class TextEditingAreaNorph superclass: TextModelNorph; definition: {
 
         isMultiLineEditor ifTrue: {
             event symbol selectCase: #{
-            KeySymbol Return : {
+            (KeySymbol Return, KeySymbol KpEnter) asValueInSetPattern  : {
                 textCursor _ insertString: textModel _ newLineString.
+                self changed.
             }.
             KeySymbol Up : {
                 textCursor _ advanceLines: -1.

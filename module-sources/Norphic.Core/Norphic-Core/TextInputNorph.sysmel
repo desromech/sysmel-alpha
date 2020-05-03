@@ -13,7 +13,7 @@ class TextInputNorph superclass: AbstractTextEditorNorph; definition: {
             return: void
         }.
 
-        self hasKeyboardFocus && event symbol == KeySymbol Return ifTrue: {
+        self hasKeyboardFocus && (event symbol == KeySymbol Return || event symbol == KeySymbol KpEnter) ifTrue: {
             self raiseActivatedEvent.
             event wasHandled: true
         }.

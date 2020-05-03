@@ -43,6 +43,7 @@ class Form definition: {
             pixelFormat: pixelFormat;
             pitch: (pitch castTo: Int32);
             pixels: pixels getPointer;
+            applyFullClippingBounds;
             initializeCachedState;
             yourself.
 }.

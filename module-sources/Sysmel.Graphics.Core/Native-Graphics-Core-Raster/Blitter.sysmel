@@ -96,6 +96,7 @@ class Blitter definition: {
     public field pitch type: Int32.
     public field pixelFormat type: PixelFormat.
     public field pixels type: UInt8 pointer.
+    public field clippedBounds type: RectangleI32.
 
     const inline method bounds => RectangleI32
         := RectangleI32 extent: (extent castTo: Int32x2).
@@ -109,6 +110,20 @@ class Blitter definition: {
     compileTime constant Float32BlendCopyBlockType := ((Int32x2 -- Float32x4 -- Float32x4) => Float32x4) nativeBlockClosure.
     compileTime constant Float32NormalizedRenderBlockType := ((Float32x2) => Float32x4) nativeBlockClosure.
 
+    inline method applyFullClippingBounds => Void := {
+        clippedBounds := self bounds.
+    }.
+
+    inline method applyZeroClippingBounds => Void := {
+        clippedBounds := RectangleI32 point: Int32x2 zeros
+    }.
+
+    inline method applyClippingRectangle: (aRectangle: RectangleI32) ::=> Void := {
+        clippedBounds := self bounds intersectionWith: aRectangle.
+        clippedBounds isEmpty ifTrue: {
+            self applyZeroClippingBounds
+        }
+    }.
 
     method initializeCachedState => Void := {
         bytesPerPixel := pixelFormat bytesPerPixel.
@@ -127,7 +142,7 @@ class Blitter definition: {
 
 
     const inline method setRectangle: (rectangle: RectangleI32) pixelsWith: (renderBlock: UNorm8RenderBlockType) ::=> Void := {
-        let clippedRectangle := rectangle intersectionWith: self bounds.
+        let clippedRectangle := rectangle intersectionWith: self clippedBounds.
         clippedRectangle isEmpty ifTrue: {
             Stdn stdout << "Empty clipped rectangle"; nl.
             return: void
@@ -146,11 +161,11 @@ class Blitter definition: {
     }.
 
     const inline method setPixelsWith: (renderBlock: UNorm8RenderBlockType) ::=> Void := {
-        self setRectangle: self bounds pixelsWith: renderBlock
+        self setRectangle: self clippedBounds pixelsWith: renderBlock
     }.
 
     const inline method setRectangle: (rectangle: RectangleI32) pixelsWith: (renderBlock: Float32RenderBlockType) ::=> Void := {
-        let clippedRectangle := rectangle intersectionWith: self bounds.
+        let clippedRectangle := rectangle intersectionWith: self clippedBounds.
         clippedRectangle isEmpty ifTrue: {
             return: void
         }.
@@ -168,7 +183,7 @@ class Blitter definition: {
     }.
 
     const inline method blendRectangle: (rectangle: RectangleI32) pixelsWith: (renderBlock: Float32BlendRenderBlockType) ::=> Void := {
-        let clippedRectangle := rectangle intersectionWith: self bounds.
+        let clippedRectangle := rectangle intersectionWith: self clippedBounds.
         clippedRectangle isEmpty ifTrue: {
             return: void
         }.
@@ -248,7 +263,7 @@ class Blitter definition: {
         let currentPoint mutable := startPoint.
         let currentError mutable := d x + d y.
         let destPixel mutable := self makeUnsafePixelIteratorAt: currentPoint.
-        let myBounds := self bounds.
+        let myBounds := self clippedBounds.
         while: currentPoint x ~= endPoint x || currentPoint y ~= endPoint y do: {
             (myBounds includesPoint: currentPoint) ifTrue: {
                 destPixel storePixelFloat32x4: renderBlock(currentPoint castTo: UInt32x2, destPixel loadPixelFloat32x4).
@@ -276,7 +291,7 @@ class Blitter definition: {
         let rectangle := RectangleF32 min: (p1 min: (p2 min: p3))
             max: (p1 max: (p2 max: p3)).
 
-        let clippedRectangle := rectangle intersectionWith: (RectangleF32 extent: (extent castTo: Float32x2)).
+        let clippedRectangle := rectangle intersectionWith: clippedBounds asRectangleF32.
         clippedRectangle isEmpty ifTrue: {
             return: void
         }.
@@ -314,7 +329,7 @@ class Blitter definition: {
     }.
 
     const inline method setPixelsWith: (renderBlock: Float32RenderBlockType) ::=> Void := {
-        self setRectangle: self bounds pixelsWith: renderBlock
+        self setRectangle: self clippedBounds pixelsWith: renderBlock
     }.
 
     ## This one is used for generating procedural textures
@@ -341,14 +356,14 @@ class Blitter definition: {
         into: (destinationPosition: Int32x2) ::=> Void := {
 
         ## Clip the source rectangle.
-        let clippedSourceRectangle := source intersectionWith: sourceBlitter bounds.
+        let clippedSourceRectangle := source intersectionWith: sourceBlitter clippedBounds.
         clippedSourceRectangle isEmpty ifTrue: {
             return: void
         }.
 
         ## Compute the destination rectangle.
         let destinationRectangle := RectangleI32 min: destinationPosition max: destinationPosition + clippedSourceRectangle extent.
-        let clippedDestinationRectangle := destinationRectangle intersectionWith: self bounds.
+        let clippedDestinationRectangle := destinationRectangle intersectionWith: self clippedBounds.
         clippedDestinationRectangle isEmpty ifTrue: {
             return: void
         }.
@@ -374,41 +389,34 @@ class Blitter definition: {
     }.
 
     const inline method copyPixelsFrom: (sourceBlitter: Blitter const ref) into: (targetPosition: Int32x2) ::=> Void := {
-        self copyPixelsFrom: sourceBlitter at: sourceBlitter bounds into: targetPosition.
+        self copyPixelsFrom: sourceBlitter at: sourceBlitter clippedBounds into: targetPosition.
     }.
 
-    const inline method blendPixelsFrom: (sourceBlitter: Blitter const ref) at: (sourceRectangleMin: Int32x2) to: (sourceRectangleMax: Int32x2)
-        at: (destinationPosition: Int32x2) with: (blendFunction: Float32BlendCopyBlockType)::=> Void := {
+    const inline method blendPixelsFrom: (sourceBlitter: Blitter const ref) at: (source: RectangleI32)
+        into: (destinationPosition: Int32x2) with: (blendFunction: Float32BlendCopyBlockType)::=> Void := {
 
         ## Clip the source rectangle.
-        let clippedSourceRectangleMin := sourceRectangleMin max: Int32x2(0, 0).
-        let clippedSourceRectangleMax := sourceRectangleMax min: (sourceBlitter extent castTo: Int32x2).
-
-        (clippedSourceRectangleMin x == clippedSourceRectangleMax x || clippedSourceRectangleMin y == clippedSourceRectangleMax y) ifTrue: {
-            return: nil
+        let clippedSourceRectangle := source intersectionWith: sourceBlitter clippedBounds.
+        clippedSourceRectangle isEmpty ifTrue: {
+            return: void
         }.
-
-        let sourceCopyExtent := clippedSourceRectangleMax - clippedSourceRectangleMin.
 
         ## Compute the destination rectangle.
-        let destinationMin := destinationPosition.
-        let destinationMax := destinationMin + sourceCopyExtent.
-        let clippedDestinationMin := destinationMin max: Int32x2(0, 0).
-        let clippedDestinationMax := destinationMax min: (extent castTo: Int32x2).
-
-        (clippedDestinationMin x == clippedDestinationMax x || clippedDestinationMin y == clippedDestinationMax y) ifTrue: {
-            return: nil
+        let destinationRectangle := RectangleI32 min: destinationPosition max: destinationPosition + clippedSourceRectangle extent.
+        let clippedDestinationRectangle := destinationRectangle intersectionWith: self clippedBounds.
+        clippedDestinationRectangle isEmpty ifTrue: {
+            return: void
         }.
 
-        let sourceClippedLocation := clippedSourceRectangleMin + (clippedDestinationMin - destinationMin).
-        let copyExtent := clippedDestinationMax - clippedDestinationMin.
+        let sourceClippedLocation := clippedSourceRectangle min + (clippedDestinationRectangle min - destinationPosition).
+        ##let copyExtent := clippedDestinationRectangle extent.
 
         let sourceRow mutable := sourceBlitter makeUnsafePixelIteratorAt: sourceClippedLocation.
-        let destRow mutable := self makeUnsafePixelIteratorAt: clippedDestinationMin.
-        clippedDestinationMin y until: clippedDestinationMax y do: {:(Int32)y :: Void |
+        let destRow mutable := self makeUnsafePixelIteratorAt: clippedDestinationRectangle min.
+        clippedDestinationRectangle min y until: clippedDestinationRectangle max y do: {:(Int32)y :: Void |
             let sourcePixel mutable := sourceRow.
             let destPixel mutable := destRow.
-            clippedDestinationMin x until: clippedDestinationMax x do: {:(Int32)x :: Void |
+            clippedDestinationRectangle min x until: clippedDestinationRectangle max x do: {:(Int32)x :: Void |
                 let currentDestColor := destPixel loadPixelFloat32x4.
                 let currentSourceColor := sourcePixel loadPixelFloat32x4.
                 let computedDestColor := blendFunction(Int32x2(x, y), currentDestColor, currentSourceColor).
@@ -424,26 +432,21 @@ class Blitter definition: {
         }
     }.
 
-    const inline method blendPixelsFrom: (sourceBlitter: Blitter const ref) at: (targetPosition: Int32x2) with: (blendFunction: Float32BlendCopyBlockType) ::=> Void := {
-        self blendPixelsFrom: sourceBlitter at: Int32x2(0, 0) to: (sourceBlitter extent castTo: Int32x2)
-            at: targetPosition with: blendFunction.
+    const inline method blendPixelsFrom: (sourceBlitter: Blitter const ref) into: (targetPosition: Int32x2) with: (blendFunction: Float32BlendCopyBlockType) ::=> Void := {
+        self blendPixelsFrom: sourceBlitter at: sourceBlitter clippedBounds into: targetPosition with: blendFunction.
     }.
 
-    const inline method compositeAlphaBlendPixelsFrom: (sourceBlitter: Blitter const ref) at: (sourceRectangleMin: Int32x2) to: (sourceRectangleMax: Int32x2)
-        withColor: (modulationColor: Float32x4)
-        at: (destinationPosition: Int32x2) ::=> Void := {
+    const inline method compositeAlphaBlendPixelsFrom: (sourceBlitter: Blitter const ref) at: (sourceRectangle: RectangleI32)
+        into: (destinationPosition: Int32x2) withColor: (modulationColor: Float32x4) ::=> Void := {
 
-        self blendPixelsFrom: sourceBlitter at: sourceRectangleMin to: sourceRectangleMax
-            at: destinationPosition with: {:(Int32x2)pixelCoord :(Float32x4)destColor :(Float32x4)sourceColor :: Float32x4 |
+        self blendPixelsFrom: sourceBlitter at: sourceRectangle into: destinationPosition with: {:(Int32x2)pixelCoord :(Float32x4)destColor :(Float32x4)sourceColor :: Float32x4 |
             let newColor := modulationColor * sourceColor.
             Float32x4((destColor rgb * (1.0f - newColor a)) + (newColor rgb * newColor a), destColor a + newColor a).
         }
     }.
 
     const inline method compositeAlphaBlendPixelsFrom: (sourceBlitter: Blitter const ref) withColor: (modulationColor: Float32x4) at: (targetPosition: Int32x2) ::=> Void := {
-        self compositeAlphaBlendPixelsFrom: sourceBlitter at: Int32x2(0, 0) to: (sourceBlitter extent castTo: Int32x2)
-            withColor: modulationColor
-            at: targetPosition
+        self compositeAlphaBlendPixelsFrom: sourceBlitter at: sourceBlitter clippedBounds into: targetPosition withColor: modulationColor
     }.
 }.
 

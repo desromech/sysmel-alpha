@@ -1,8 +1,7 @@
 Compiler
     importModuleNamed: #"Norphic.Core";
     importModuleNamed: #"Sysmel.Devel.IDE";
-	importModuleNamed: #"Sysmel.Graphics.SDL2";
-	importModuleNamed: #"Sysmel.Graphics.FreeType2".
+	importModuleNamed: #"Sysmel.Graphics.Headfull".
 
 function main externC (argc: Int32, argv: UInt8 const pointer pointer) => Int32 := {
     Stdn Graphics GUI WindowSystem activeWindowSystem: Stdn Graphics GUI createWindowSystem().
