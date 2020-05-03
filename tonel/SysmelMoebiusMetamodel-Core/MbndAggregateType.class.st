@@ -41,6 +41,11 @@ MbndAggregateType >> basicInitializeMethod [
 	^ basicInitializeMethod
 ]
 
+{ #category : #testing }
+MbndAggregateType >> canHaveDynamicMethodWrapper [
+	^ self isGarbageCollectedType
+]
+
 { #category : #'initialize-destroy' }
 MbndAggregateType >> createBasicInitializeMethod [
 	| asReceiverType |

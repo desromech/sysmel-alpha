@@ -791,7 +791,7 @@ isSuperSend: isSuperSend declaredMethod: declaredMethod expectedResultType: expe
 	].
 
 	calledMethodSSAFunction := (self translateProgramEntity: declaredMethod) ssaValue.
-	hasStaticBinding := declaredMethod hasFlag: #staticBinding.
+	hasStaticBinding := (declaredMethod hasFlag: #staticBinding) or: [declaredMethod isSealed].
 	
 	(declaredMethod hasVirtualTableEntry and: [ hasStaticBinding not and: [isSuperSend not]]) ifTrue: [
 		hasDynamicMessageLookup := false.
@@ -807,13 +807,22 @@ isSuperSend: isSuperSend declaredMethod: declaredMethod expectedResultType: expe
 	hasStaticBinding ifTrue: [ hasDynamicMessageLookup := false ].
 	
 	hasDynamicMessageLookup ifTrue:[
+		allArguments := arguments.
+		expectedResultType isMemoryReturnedType ifTrue: [
+			self assert: memoryReturnTemporary isNotNil.
+			allArguments := {memoryReturnTemporary} , allArguments
+		].
+	
 		selectorValue isSymbol ifTrue: [ selectorValue := slvmBuilder addDynamicLiteral: selectorValue ].
 
 		self assert: selectorValue type isDynamicObjectPointerType.
-		result := slvmBuilder send: selectorValue returnType: actualReturnType receiver: receiver arguments: arguments.
+		result := slvmBuilder send: selectorValue returnType: actualReturnType receiver: receiver arguments: allArguments.
 		result highLevelMessageSendFunctionType: declaredMethod type asCanonicalMessageSendFunctionType.
 		isSuperSend ifTrue: [
 			result setSuperSend
+		].
+		expectedResultType isMemoryReturnedType ifTrue: [
+			result setSRetPresence
 		].
 	] ifFalse: [
 		result := slvmBuilder call: calledMethodSSAFunction arguments: allArguments.

@@ -250,6 +250,11 @@ TMbndAbstractProgramEntity >> isPublicProgramEntityAccessor [
 ]
 
 { #category : #testing }
+TMbndAbstractProgramEntity >> isSealed [
+	^ false
+]
+
+{ #category : #testing }
 TMbndAbstractProgramEntity >> isStandaloneModule [
 	^ false
 ]

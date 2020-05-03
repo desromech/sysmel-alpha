@@ -257,6 +257,11 @@ MbndAbstractSpecificMethod >> isNoReturn [
 ]
 
 { #category : #testing }
+MbndAbstractSpecificMethod >> isSealed [
+	^ (self hasFlag: #sealed) or: [ parent isSealed ]
+]
+
+{ #category : #testing }
 MbndAbstractSpecificMethod >> isVirtualTableOverride [
 	^ self hasFlag: #override
 ]

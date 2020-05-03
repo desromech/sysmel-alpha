@@ -411,6 +411,11 @@ MbndBasicType >> isPODInstance [
 	  self hasTrivialInstanceInitializationMovingFrom ]]]]
 ]
 
+{ #category : #testing }
+MbndBasicType >> isSealed [
+	^ self hasFlag: #sealed
+]
+
 { #category : #'as yet unclassified' }
 MbndBasicType >> isSystemProvidedTypeTemplateInstanceMainChild [
 	^ parent isNotNil and: [ parent isSystemProvidedTypeTemplateInstance ]
