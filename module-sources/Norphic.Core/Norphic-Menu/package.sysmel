@@ -1,4 +1,6 @@
 loadFileOnce: "MenuBarNorph.sysmel".
+
+loadFileOnce: "AbstractMenuItemNorph.sysmel".
 loadFileOnce: "MenuItemNorph.sysmel".
 loadFileOnce: "MenuBarItemNorph.sysmel".
 loadFileOnce: "MenuNorph.sysmel".

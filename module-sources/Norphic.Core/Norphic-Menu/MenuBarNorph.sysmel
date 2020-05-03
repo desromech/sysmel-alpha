@@ -5,6 +5,7 @@ namespace Norphic definition: {
  *#
 class MenuBarNorph superclass: Norph; definition: {
     protected field items type: Stdn Collections Vector(MenuBarItemNorph sharedPointer).
+    protected field activeItem type: MenuBarItemNorph pointer.
 
     override method defaultColor => Float32x4
         := self theme _ menuBarBackground.
@@ -30,6 +31,29 @@ class MenuBarNorph superclass: Norph; definition: {
         let menu := MenuNorph sharedNew.
         menuItem _ menu: menu.
         menu
+    }.
+
+    method activeItem => MenuBarItemNorph pointer
+        := activeItem.
+
+    method itemClicked: (item: MenuBarItemNorph pointer) ::=> Void := {
+        let newActiveItem := activeItem == item ifTrue: nil ifFalse: item.
+
+        let oldActiveItem := activeItem.
+        activeItem := newActiveItem.
+
+        oldActiveItem ifNotNil: {
+            oldActiveItem _ deactivated.
+        }.
+        activeItem ifNotNil: {
+            activeItem _ activated.
+        }.
+    }.
+
+    method itemMouseEnter: (item: MenuBarItemNorph pointer) ::=> Void := {
+        activeItem isNotNil && item ~~ activeItem ifTrue: {
+            self itemClicked: item
+        }
     }.
 
     macro method addMenu: menuName with: aBlock :=

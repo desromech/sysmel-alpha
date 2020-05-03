@@ -3,7 +3,32 @@ namespace Norphic definition: {
 #**
  * I am a menu bar norph.
  *#
-class MenuBarItemNorph superclass: MenuItemNorph; definition: {
+class MenuBarItemNorph superclass: AbstractMenuItemNorph; definition: {
+    protected field isActive_ type: Boolean8.
+
+    method menuBar => MenuBarNorph sharedPointer
+        := self owner downCastFor: MenuBarNorph.
+
+    override method isHighlighted => Boolean8
+        := self menuBar _ activeItem == self address.
+
+    override method onMouseButtonPressedEvent: (event: NorphMouseButtonPressedEvent ref) ::=> Void := {
+        super onMouseButtonPressedEvent: event.
+        self menuBar _ itemClicked: self address.
+    }.
+
+    override method onMouseEnterEvent: (event: NorphMouseEnterEvent ref) ::=> Void := {
+        super onMouseEnterEvent: event.
+        self menuBar _ itemMouseEnter: self address.
+    }.
+
+    method deactivated => Void := {
+        self changed.
+    }.
+
+    method activated => Void := {
+        self changed.
+    }.
 }.
 
 }. ## End of namespace Norphic
