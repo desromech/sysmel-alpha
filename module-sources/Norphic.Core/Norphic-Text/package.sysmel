@@ -1,0 +1,13 @@
+loadFileOnce: "StringNorph.sysmel".
+loadFileOnce: "LabelNorph.sysmel".
+
+loadFileOnce: "TextModel.sysmel".
+loadFileOnce: "SimpleTextModel.sysmel".
+
+loadFileOnce: "TextModelNorph.sysmel".
+loadFileOnce: "TextEditingAreaNorph.sysmel".
+
+loadFileOnce: "AbstractTextEditorNorph.sysmel".
+loadFileOnce: "TextInputNorph.sysmel".
+loadFileOnce: "TextAreaNorph.sysmel".
+loadFileOnce: "TextEditorNorph.sysmel".

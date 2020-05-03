@@ -1,9 +1,0 @@
-namespace Norphic definition: {
-
-#**
- * I am a table view norph.
- *#
-class TableViewNorph superclass: BorderedNorph; definition: {
-}.
-
-}. ## End of namespace Norphic

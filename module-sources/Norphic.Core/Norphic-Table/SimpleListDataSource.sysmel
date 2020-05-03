@@ -1,0 +1,9 @@
+namespace Norphic definition: {
+
+#**
+ * I am a simple list data size. I just hold a vector of data elements.
+ *#
+class SimpleListDataSource superclass: DataSource; definition: {
+}.
+
+}. ## End of namespace Norphic

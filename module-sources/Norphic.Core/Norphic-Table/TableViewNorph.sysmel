@@ -1,0 +1,22 @@
+namespace Norphic definition: {
+
+#**
+ * I am a table view norph.
+ *#
+class TableViewNorph superclass: BorderedNorph; definition: {
+    protected field dataSource type: DataSource sharedPointer.
+    protected field columns type: Stdn Collections Vector(TableColumnView sharedPointer).
+
+    method dataSource => DataSource sharedPointer const ref
+        := dataSource.
+
+    method dataSource: (newDataSource: DataSource sharedPointer const ref) ::=> Void := {
+        dataSource := newDataSource.
+    }.
+
+    method addColumn: (newColumn: TableColumnView sharedPointer) ::=> Void := {
+        columns add: newColumn
+    }.
+}.
+
+}. ## End of namespace Norphic

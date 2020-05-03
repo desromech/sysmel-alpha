@@ -7,7 +7,7 @@ useNamespace: Stdn Math Geometry.
 #**
  * I am an abstract button widget norph.
  *#
-class AbstractButtonMorph superclass: BorderedNorph; definition: {
+class AbstractButtonNorph superclass: BorderedNorph; definition: {
     protected field isDown type: Boolean8.
 
     override method defaultColor => Float32x4
@@ -110,37 +110,6 @@ class AbstractButtonMorph superclass: BorderedNorph; definition: {
 
             color: self currentBorderColor;
             drawRectangle: self localBounds
-    }.
-}.
-
-#**
- * I am a button widget norph with a text label.
- *#
-class SimpleButtonMorph superclass: AbstractButtonMorph; definition: {
-    protected field label type: StringNorph sharedPointer.
-
-    method initialize => Void := {
-        label := StringNorph sharedNew.
-
-        let labelRef := label upCastFor: Norph.
-        self addSubnorph: labelRef.
-
-        let sizer := HorizontalBoxSizer sharedNew.
-        sizer _ element: label do: {:constraints :: Void |
-            constraints centered; allBorders; borderSize: 2.
-        }.
-
-        self
-            sizer: (sizer upCastFor: Sizer);
-            autolayout: true
-    }.
-
-    method text => Stdn String const ref := {
-        label _ text.
-    }.
-
-    method text: (newLabel: Stdn String const ref) ::=> Void := {
-        label _ text: newLabel
     }.
 }.
 

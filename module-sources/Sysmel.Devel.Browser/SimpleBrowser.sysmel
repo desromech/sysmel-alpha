@@ -29,7 +29,7 @@ gcclass SimpleBrowser definition: {
 
     method open := {
         norphicWindow := SystemWindowNorph createFor: Stdn Graphics GUI WindowSystem validActiveWindowSystem
-            title: "Browser" asMutableString extent: Int32x2(400, 400).
+            title: "Browser" asMutableString extent: Int32x2(800, 400).
         self
             createWidgets;
             buildLayout;

@@ -1,0 +1,9 @@
+loadFileOnce: "DataSource.sysmel".
+loadFileOnce: "DataSourceElement.sysmel".
+loadFileOnce: "SimpleListDataSource.sysmel".
+
+loadFileOnce: "TableViewColumn.sysmel".
+
+loadFileOnce: "TableViewNorph.sysmel".
+loadFileOnce: "ListViewNorph.sysmel".
+loadFileOnce: "TreeViewNorph.sysmel".

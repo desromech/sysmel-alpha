@@ -15,28 +15,3 @@ loadFileOnce: "SizerNorphElement.sysmel".
 loadFileOnce: "SizerSubSizerElement.sysmel".
 loadFileOnce: "FullSizer.sysmel".
 loadFileOnce: "BoxSizer.sysmel".
-
-loadFileOnce: "StringNorph.sysmel".
-loadFileOnce: "LabelNorph.sysmel".
-loadFileOnce: "ButtonNorph.sysmel".
-
-loadFileOnce: "TextModel.sysmel".
-loadFileOnce: "SimpleTextModel.sysmel".
-
-loadFileOnce: "TextModelNorph.sysmel".
-loadFileOnce: "TextEditingAreaNorph.sysmel".
-
-loadFileOnce: "AbstractTextEditorNorph.sysmel".
-loadFileOnce: "TextInputNorph.sysmel".
-loadFileOnce: "TextAreaNorph.sysmel".
-loadFileOnce: "TextEditorNorph.sysmel".
-
-loadFileOnce: "MenuBarNorph.sysmel".
-loadFileOnce: "MenuItemNorph.sysmel".
-loadFileOnce: "MenuBarItemNorph.sysmel".
-loadFileOnce: "MenuNorph.sysmel".
-loadFileOnce: "StatusBarNorph.sysmel".
-
-loadFileOnce: "TableViewNorph.sysmel".
-loadFileOnce: "ListViewNorph.sysmel".
-loadFileOnce: "TreeViewNorph.sysmel".

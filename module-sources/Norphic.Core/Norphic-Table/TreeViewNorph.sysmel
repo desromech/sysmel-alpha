@@ -3,7 +3,7 @@ namespace Norphic definition: {
 #**
  * I am a tree view norph.
  *#
-class ListViewNorph superclass: BorderedNorph; definition: {
+class TreeViewNorph superclass: TableViewNorph; definition: {
 }.
 
 }. ## End of namespace Norphic

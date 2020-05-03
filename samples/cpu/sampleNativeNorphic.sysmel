@@ -64,7 +64,7 @@ function main externC (argc: Int32, argv: UInt8 const pointer pointer) => Int32 
     {
         let borderedNorph := BorderedNorph sharedNew.
         borderedNorph _
-            bounds: (RectangleF32 min: Float32x2(50.0f, 50.0f) extent: Float32x2(100.0f, 100.0f));
+            bounds: (RectangleF32 min: Float32x2(50.0f, 50.0f) extent: Float32x2(50.0f, 50.0f));
             color: Float32x4(1.0f, 0.0f, 0.0f, 1.0f);
             borderColor: Float32x4(0.0f, 0.0f, 0.0f, 1.0f).
         contentPanel _ addSubnorph: (borderedNorph upCastFor: Norph).
@@ -74,18 +74,29 @@ function main externC (argc: Int32, argv: UInt8 const pointer pointer) => Int32 
     {
         let label := LabelNorph sharedNew.
         label _
-            bounds: (RectangleF32 min: Float32x2(200.0f, 80.0f) extent: Float32x2(100.0f, 100.0f));
+            bounds: (RectangleF32 min: Float32x2(150.0f, 50.0f) extent: Float32x2(100.0f, 100.0f));
             text: "Hello World" asMutableString.
         contentPanel _ addSubnorph: (label upCastFor: Norph).
     }.
 
     ## Sample button
     {
-        let label := SimpleButtonMorph sharedNew.
+        let label := SimpleButtonNorph sharedNew.
         label _
-            bounds: (RectangleF32 min: Float32x2(200.0f, 250.0f) extent: Float32x2(100.0f, 40.0f));
+            bounds: (RectangleF32 min: Float32x2(200.0f, 100.0f) extent: Float32x2(100.0f, 40.0f));
             text: "Button" asMutableString.
         contentPanel _ addSubnorph: (label upCastFor: Norph).
+    }.
+
+    ## List view
+    {
+        let list := ListViewNorph sharedNew.
+        list _
+            bounds: (RectangleF32 min: Float32x2(50.0f, 150.0f) extent: Float32x2(200.0f, 200.0f));
+            addItem: "First" asMutableString;
+            addItem: "Second" asMutableString;
+            addItem: "Third" asMutableString.
+        contentPanel _ addSubnorph: (list upCastFor: Norph).
     }.
 
     ## Sample text input

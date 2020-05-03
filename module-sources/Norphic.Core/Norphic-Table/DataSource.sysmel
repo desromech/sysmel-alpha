@@ -1,0 +1,9 @@
+namespace Norphic definition: {
+
+#**
+ * I am an abstract table source.
+ *#
+class DataSource superclass: Stdn SharedObject; definition: {
+}.
+
+}. ## End of namespace Norphic

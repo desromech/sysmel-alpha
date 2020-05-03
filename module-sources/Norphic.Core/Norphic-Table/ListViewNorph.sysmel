@@ -1,0 +1,20 @@
+namespace Norphic definition: {
+
+#**
+ * I am a simple list view norph.
+ * I am just a single column table of strings.
+ *#
+class ListViewNorph superclass: TableViewNorph; definition: {
+    override method defaultColor => Float32x4
+        := self theme _ listViewBackground.
+
+    override method initialize => Void := {
+
+    }.
+
+    method addItem: (item: Stdn String const ref) ::=> UIntPointer := {
+        0
+    }.
+}.
+
+}. ## End of namespace Norphic

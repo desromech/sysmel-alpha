@@ -13,8 +13,8 @@ function main externC (argc: Int32, argv: UInt8 const pointer pointer) => Int32 
     windowSystem _ targetFrameRate: 20.
 
     let object type: Smalltalk Object := #(1 hello "Hello World" 4.5 5).
-    object inspect.
     Smalltalk Object browse.
+    object inspect.
 
     ## Run the actual main loop.
     return: windowSystem _ runMainLoop.

@@ -1,0 +1,9 @@
+namespace Norphic definition: {
+
+#**
+ * I am a table column view.
+ *#
+class TableColumnView superclass: Stdn SharedObject; definition: {
+}.
+
+}. ## End of namespace Norphic

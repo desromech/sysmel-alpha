@@ -1,0 +1,34 @@
+namespace Norphic definition: {
+
+#**
+ * I am a button widget norph with a text label.
+ *#
+class SimpleButtonNorph superclass: AbstractButtonNorph; definition: {
+    protected field label type: StringNorph sharedPointer.
+
+    method initialize => Void := {
+        label := StringNorph sharedNew.
+
+        let labelRef := label upCastFor: Norph.
+        self addSubnorph: labelRef.
+
+        let sizer := HorizontalBoxSizer sharedNew.
+        sizer _ element: label do: {:constraints :: Void |
+            constraints centered; allBorders; borderSize: 2.
+        }.
+
+        self
+            sizer: (sizer upCastFor: Sizer);
+            autolayout: true
+    }.
+
+    method text => Stdn String const ref := {
+        label _ text.
+    }.
+
+    method text: (newLabel: Stdn String const ref) ::=> Void := {
+        label _ text: newLabel
+    }.
+}.
+
+}. ## End of namespace Norphic
