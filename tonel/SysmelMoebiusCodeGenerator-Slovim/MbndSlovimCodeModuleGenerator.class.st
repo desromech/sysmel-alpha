@@ -1265,6 +1265,7 @@ MbndSlovimCodeModuleGenerator >> shouldGenerateRTTIForProgramEntity: programEnti
 	
 	(programEntity isMbndType and: [programEntity isAbstractClassType]) ifTrue: [
 		(sourceModule hasExceptions and: [programEntity isThrowable]) ifTrue: [ ^ true ].
+		programEntity hasRequiredRTTI ifTrue: [ ^ true ].
 	].
 
 	^ false

@@ -61,6 +61,7 @@ function main externC (argc: Int32, argv: UInt8 const pointer pointer) => Int32 
         updateLayout.
 
     ## Rectangle with border.
+    let list := ListViewNorph sharedNew.
     {
         let borderedNorph := BorderedNorph sharedNew.
         borderedNorph _
@@ -81,16 +82,19 @@ function main externC (argc: Int32, argv: UInt8 const pointer pointer) => Int32 
 
     ## Sample button
     {
-        let label := SimpleButtonNorph sharedNew.
-        label _
+        let button := SimpleButtonNorph sharedNew.
+        button _
             bounds: (RectangleF32 min: Float32x2(200.0f, 100.0f) extent: Float32x2(100.0f, 40.0f));
             text: "Button" asMutableString.
-        contentPanel _ addSubnorph: (label upCastFor: Norph).
+        contentPanel _ addSubnorph: (button upCastFor: Norph).
+
+        button _ when: NorphActivatedEvent do: { :(NorphEvent ref) event :: Void |
+            list _ addItem: "Extra item" asMutableString.
+        }.
     }.
 
     ## List view
     {
-        let list := ListViewNorph sharedNew.
         list _
             bounds: (RectangleF32 min: Float32x2(50.0f, 150.0f) extent: Float32x2(200.0f, 200.0f));
             addItem: "First" asMutableString;

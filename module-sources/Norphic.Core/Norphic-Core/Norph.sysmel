@@ -6,6 +6,8 @@ useNamespace: Stdn Math Geometry.
 class Sizer.
 class SizerElement.
 
+compileTime constant EventHandlerFunctionType := (NorphEvent ref) => Void.
+
 #**
  * I am a norph, my name comes from Native (M)orph in honor to the old
  * Smalltalk morph.
@@ -17,6 +19,7 @@ class Norph superclass: NorphEventHandler; definition: {
 
     protected field owner type: Norph weakPointer.
     protected field subnorphs type: Subnorphs.
+    protected field eventSubscriptions type: Stdn Collections Vector(NorphEventSubscription sharedPointer).
 
     private field isDirtyInThisFrame type: Boolean8.
     private field isUpdatingLayout type: Boolean8.
@@ -484,9 +487,37 @@ class Norph superclass: NorphEventHandler; definition: {
     const inline method hasKeyboardFocus => Boolean8
         := self keyboardFocusNorph == self address.
 
-    method raiseActivatedEvent => Void := {
-        Stdn stdout << "TODO: button raiseActivatedEvent"; nl.
+    method addEventSubscription: (subscription: NorphEventSubscription sharedPointer const ref) ::=> Void := {
+        eventSubscriptions add: subscription
     }.
+
+    method registerEventHandler: (eventHandler: EventHandlerFunctionType nativeBlockClosure) forClassInfo: (eventClassInfo: Stdn Reflection TypeInformation const pointer) ::=> Void := {
+        let subscription := NorphEventFunctionSubscription sharedNew.
+        subscription _
+            handlingFunction: eventHandler;
+            expectedEventTypeInfo: eventClassInfo.
+
+        self addEventSubscription: (subscription upCastFor: NorphEventSubscription)
+    }.
+
+    macro method when: aClass do: aBlock
+        := ``(`,self registerEventHandler: `,aBlock forClassInfo: (`,aClass asTypeInformation)
+    ).
+
+    method raiseEvent: (event: NorphEvent sharedPointer) ::=> Void := {
+        self processEvent: event _.
+
+        eventSubscriptions do: {:each :: Void |
+            (each _ handlesEvent: event _) ifTrue: {
+                each _ handleEvent: event _
+            }.
+        }.
+    }.
+
+    method raiseActivatedEvent => Void := {
+        self raiseEvent: (NorphActivatedEvent sharedNew upCastFor: NorphEvent).
+    }.
+
 }.
 
 }. ## End of namespace Norphic

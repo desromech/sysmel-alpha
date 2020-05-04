@@ -348,6 +348,12 @@ MbndBasicType >> generateNewValueForNode: node with: builder andWith: analyzer [
 ]
 
 { #category : #testing }
+MbndBasicType >> hasRequiredRTTI [
+	^ (self hasFlag: #requiredRTTI) or: [
+			self supertype ifNil: [ false] ifNotNil: [:st | st hasRequiredRTTI ] ]
+]
+
+{ #category : #testing }
 MbndBasicType >> hasTrivialInitializationCopyingFrom [
 	^ self hasTrivialInstanceInitializationCopyingFrom
 ]
@@ -546,4 +552,10 @@ MbndBasicType >> recordOverloadedMethodAddition: method withSelector: selector [
 		]
 	].
 
+]
+
+{ #category : #initialization }
+MbndBasicType >> setRequiredRTTI [
+	<compileTime>
+	self addFlag: #requiredRTTI
 ]

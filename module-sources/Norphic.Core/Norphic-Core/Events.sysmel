@@ -6,9 +6,10 @@ class NorphEventHandler.
 class Norph.
 
 class NorphEvent superclass: Stdn Object; definition: {
+    SelfType setRequiredRTTI.
+
     public field wasHandled type: Boolean8.
     public field isSuppressed type: Boolean8.
-    public field targetNorph type: Norph sharedPointer.
 
     virtual method acceptEventHandler: (eventHandler: NorphEventHandler ref) ::=> Void := {
     }.
@@ -18,7 +19,6 @@ class NorphKeyboardEvent superclass: NorphEvent; definition: {
     public field symbol type: KeySymbol.
     public field modifiers type: KeyModifiers.
     public field isRepeat type: Boolean8.
-
 }.
 
 class NorphKeyPressedEvent superclass: NorphKeyboardEvent; definition: {
@@ -42,6 +42,8 @@ class NorphTextInputEvent superclass: NorphEvent; definition: {
 }.
 
 class NorphMouseEvent superclass: NorphEvent; definition: {
+    public field targetNorph type: Norph sharedPointer.
+
     public field mouseId type: UInt32.
     public field position type: Float32x2.
     public field modifiers type: KeyModifiers.
@@ -127,4 +129,26 @@ class NorphLostFocusEvent superclass: NorphKeyboardFocusEvent; definition: {
         eventHandler onLostFocusEvent: self
     }.
 }.
+
+class NorphWidgetEvent superclass: NorphEvent; definition: {
+}.
+
+class NorphActivatedEvent superclass: NorphWidgetEvent; definition: {
+    override method acceptEventHandler: (eventHandler: NorphEventHandler ref) ::=> Void := {
+        eventHandler onActivatedEvent: self
+    }.
+}.
+
+class NorphSelectionChangedEvent superclass: NorphWidgetEvent; definition: {
+    override method acceptEventHandler: (eventHandler: NorphEventHandler ref) ::=> Void := {
+        eventHandler onSelectionChangedEvent: self
+    }.
+}.
+
+class NorphContentChangedEvent superclass: NorphWidgetEvent; definition: {
+    override method acceptEventHandler: (eventHandler: NorphEventHandler ref) ::=> Void := {
+        eventHandler onContentChangedEvent: self
+    }.
+}.
+
 }.

@@ -1,5 +1,7 @@
 loadFileOnce: "Events.sysmel".
 loadFileOnce: "NorphEventHandler.sysmel".
+loadFileOnce: "NorphEventSubscription.sysmel".
+loadFileOnce: "NorphEventFunctionSubscription.sysmel".
 loadFileOnce: "Theme.sysmel".
 loadFileOnce: "ThemeRegistry.sysmel".
 
