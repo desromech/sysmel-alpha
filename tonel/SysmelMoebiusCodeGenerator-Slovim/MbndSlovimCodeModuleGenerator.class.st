@@ -1779,6 +1779,10 @@ MbndSlovimCodeModuleGenerator >> visitConcreteFunctionMethod: functionMethod [
 	
 	ssaFunctionType := self translateType: functionMethod type.
 	csymbol := self csymbolForProgramEntity: functionMethod.
+	csymbol isString ifTrue: [ 
+		self assert: (ssaModule includesGlobalNamed: csymbol) not.
+	].
+
 	addHighLevelMap := true.
 	functionMethod mustBeAvailableInTheGPU ifTrue: [ gpuUsableProgramEntitites add: functionMethod ].
 	(self slvmCompilationTarget isGPU and: [functionMethod specialSemantics isNotNil ]) ifTrue: [ 
@@ -1788,6 +1792,7 @@ MbndSlovimCodeModuleGenerator >> visitConcreteFunctionMethod: functionMethod [
 
 	unmangledName := self unmangledNameForProgramEntity: functionMethod.
 	ssaFunction := SLVMFunction module: ssaModule name: csymbol functionType: ssaFunctionType.
+
 	ssaFunction
 		setNoReturn: functionMethod isNoReturn.
 	
