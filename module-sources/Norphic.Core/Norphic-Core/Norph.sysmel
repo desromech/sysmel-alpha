@@ -230,7 +230,7 @@ class Norph superclass: NorphEventHandler; definition: {
         owner := newOwner asWeakPointer.
     }.
 
-    virtual method removedFromOwner: (newOwner: Norph ref) ::=> Void := {
+    virtual method removedFromOwner: (oldOwner: Norph ref) ::=> Void := {
         owner reset
     }.
 

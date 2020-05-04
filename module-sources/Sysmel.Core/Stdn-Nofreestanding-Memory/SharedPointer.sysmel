@@ -116,10 +116,12 @@ template SharedPointer(PT: Type)
         := pointer_ ~~ other getPointer.
 
     inline method finalize => Void := {
-        counter_ ifNotNil: {
-            counter_ _ strongRelease.
-        }.
+        let c := counter_.
         pointer_ := nil.
+        counter_ := nil.
+        c ifNotNil: {
+            c _ strongRelease.
+        }.
     }.
 
     inline method initializeWithNewCounter: (counter: CounterType pointer) andPointer: (pointer: PointerType) ::=> Void := {
@@ -168,45 +170,36 @@ template SharedPointer(PT: Type)
 	}.
 
     inline method reset: (newPointer: PointerType) ::=> Void := {
-        counter_ ifNotNil: {
-            counter_ _ strongRelease.
-        }.
-
-        counter_ := CounterType for: newPointer.
-        pointer_ := newPointer.
+        let newSharedPointer mutable := SelfType for: newPointer.
+        self swapWith: newSharedPointer
 	}.
 
 	inline method reset => Void
-		:=  self reset: nil.
+		:= self reset: nil.
 
     (inline method := (o: SelfType const ref)) ::=> SelfType const ref := {
-		let newCounter := o __private counter_.
-        let newPointer := o __private pointer_.
-		newCounter ifNotNil: {
-			newCounter _ strongRetain
-		}.
-        counter_ ifNotNil: {
-			counter_ _ strongRelease
-		}.
-
-		counter_ := newCounter.
-        pointer_ := newPointer.
+        self address ~~ o address ifTrue: {
+            let newSharedPointer mutable := o.
+            self swapWith: newSharedPointer
+        }.
 		self
 	}.
 
 	(inline method := (o: SelfType tempRef)) ::=> SelfType const ref := {
-		let newCounter := o __private counter_.
-        let newPointer := o __private pointer_.
-		o __private counter_ := nil.
-        o __private pointer_ := nil.
-		counter_ ifNotNil: {
-			counter_ _ strongRelease
-		}.
+        self address ~~ o address ifTrue: {
+            let newSharedPointer mutable := o.
+            o __private counter_ := nil.
+    		o __private pointer_ := nil.
+            self swapWith: newSharedPointer
+        }.
 
-		counter_ := newCounter.
-        pointer_ := newPointer.
 		self
 	}.
+
+    inline method swapWith: (o: SelfType ref) ::=> Void := {
+        Stdn swapValue: counter_ with: o __private counter_.
+        Stdn swapValue: pointer_ with: o __private pointer_.
+    }.
 
     inline method asWeakPointer => WeakPointerType
         := WeakPointerType for: self.
@@ -267,10 +260,13 @@ template WeakPointer(PT: Type)
     }.
 
     inline method reset => Void := {
-        counter_ ifNotNil: {
-            counter_ _ weakRelease.
-        }.
+        let c := counter_.
+        counter_ := nil.
         pointer_ := nil.
+
+        c ifNotNil: {
+            c _ weakRelease.
+        }.
     }.
 
     inline method initializeWith: (theCounter: CounterType pointer) andPointer: (thePointer: PointerType) ::=> Void := {
@@ -295,44 +291,35 @@ template WeakPointer(PT: Type)
     (inline method := (o: StrongPointerType const ref)) ::=> SelfType const ref := {
 		let newCounter := o __private counter_.
         let newPointer := o __private pointer_.
+        let oldCounter := counter_.
+        counter_ := newCounter.
+        pointer_ := newPointer.
+
 		newCounter ifNotNil: {
-			counter_ _ weakRetain
+			newCounter _ weakRetain
 		}.
-        counter_ ifNotNil: {
-			counter_ _ weakRelease
+        oldCounter ifNotNil: {
+			oldCounter _ weakRelease
 		}.
 
-		counter_ := newCounter.
-        pointer_ := newPointer.
 		self
 	}.
 
     (inline method := (o: SelfType const ref)) ::=> SelfType const ref := {
-		let newCounter := o __private counter_.
-        let newPointer := o __private pointer_.
-		newCounter ifNotNil: {
-			counter_ _ weakRetain
-		}.
-        counter_ ifNotNil: {
-			counter_ _ weakRelease
-		}.
-
-		counter_ := newCounter.
-        pointer_ := newPointer.
+        self address ~~ o address ifTrue: {
+            let copy mutable := o.
+            self swapWith: copy.
+        }.
 		self
 	}.
 
 	(inline method := (o: SelfType tempRef)) ::=> SelfType const ref := {
-		let newCounter := o __private counter_.
-        let newPointer := o __private pointer_.
-		o __private counter_ := nil.
-		o __private pointer_ := nil.
-		counter_ ifNotNil: {
-			counter_ _ weakRelease
-		}.
-
-		counter_ := newCounter.
-        pointer_ := newPointer.
+        self address ~~ o address ifTrue: {
+            let copy mutable := o.
+            o __private counter_ := nil.
+    		o __private pointer_ := nil.
+            self swapWith: copy.
+        }.
 		self
 	}.
 
@@ -342,6 +329,11 @@ template WeakPointer(PT: Type)
         }.
 
         return: StrongPointerType nil
+    }.
+
+    inline method swapWith: (o: SelfType ref) ::=> Void := {
+        Stdn swapValue: counter_ with: o __private counter_.
+        Stdn swapValue: pointer_ with: o __private pointer_.
     }.
 
     macro method upCastFor: targetType := {
@@ -378,7 +370,7 @@ class SharedObject superclass: Object; definition: {
     method initializeInternalSelfWeakPointer: (weakPointer: Stdn WeakPointer(SelfType) tempRef) ::=> Void
         := internalSelfWeakPointer := weakPointer.
 
-    method asSharedObjectWeakPointer => Stdn WeakPointer(SelfType) ref
+    method asSharedObjectWeakPointer => Stdn WeakPointer(SelfType) const ref
         := internalSelfWeakPointer.
 
     method asSharedObjectPointer => Stdn SharedPointer(SelfType)

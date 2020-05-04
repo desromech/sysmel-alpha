@@ -89,18 +89,18 @@ class TableViewContentNorph superclass: Norph; definition: {
         ## Remove the old non-visible rows.
         visibleRows do: {:each :: Void |
             let rowIndex := each _ rowIndex.
-            #*startRange <= rowIndex && rowIndex < endRange ifFalse: {
-                Stdn stdout << "Destroy invisible row " << rowIndex; nl.
+            startRange <= rowIndex && rowIndex < endRange ifFalse: {
+                ##Stdn stdout << "Destroy invisible row " << rowIndex; nl.
                 each _ destroy
-            }.*#
-            each _ destroy
+            }.
         }.
 
         ## Create the new list of rows.
         startRange until: endRange do: {:rowIndex :: Void |
-            false && overlappedStartRange <= rowIndex && rowIndex < overlappedEndRange ifTrue: {
+            overlappedStartRange <= rowIndex && rowIndex < overlappedEndRange ifTrue: {
                 newRows add: visibleRows[rowIndex - createdRowsStart]
             } ifFalse: {
+                ##Stdn stdout << "Create new row " << rowIndex; nl.
                 let newRow := TableViewRowNorph sharedNew.
                 self addSubnorph: (newRow upCastFor: Norph).
                 newRows add: newRow.

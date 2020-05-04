@@ -3,6 +3,7 @@ Compiler
     loadPackages: #(
         #"Stdn-Collections-Tests"
         #"Stdn-IO-Tests"
+        #"Stdn-Memory-Tests"
     ).
 
 if: Compiler hasRuntimeTypeInformation && Compiler hasGarbageCollectionSupport then: {

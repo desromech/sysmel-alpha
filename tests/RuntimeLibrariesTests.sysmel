@@ -7,8 +7,8 @@ Compiler
 		#"Sysmel.Serialization.MessagePack.Tests"
 
 		#"Sysmel.Math.Core.Tests"
-		#*#"Sysmel.Graphics.Core.Tests"
-		#"Norphic.Core.Tests"*#
+		#"Sysmel.Graphics.Core.Tests"
+		#"Norphic.Core.Tests"
 	).
 
 Stdn Testing generateTestSuiteProgramMain: "RuntimeLibrariesTests".

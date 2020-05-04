@@ -17,8 +17,10 @@ template UniquePointer(PT: Type)
 	}.
 
     inline method finalize => Void := {
-		pointer_ ifNotNil: {
-			pointer_ nativeDelete.
+        let p := pointer_.
+        pointer_ := nil.
+		p ifNotNil: {
+			p nativeDelete.
 		}.
 	}.
 
@@ -44,24 +46,23 @@ template UniquePointer(PT: Type)
 		:= pointer_.
 
 	inline method reset: (newPointer: PointerType) ::=> Void := {
-		pointer_ ifNotNil: {
-			pointer_ nativeDelete
-		}.
-
-		pointer_ := newPointer
+        let other mutable := SelfType for: newPointer.
+        self swapWith: other
 	}.
 
     inline method reset => Void
-		:=  self reset: nil.
+		:= self reset: nil.
+
+    inline method release => PointerType := {
+        let result := pointer_.
+        pointer_ := nil.
+        result.
+    }.
 
     (inline method := (o: SelfType tempRef)) ::=> SelfType const ref := {
 		let newPointer := o __private pointer_.
 		o __private pointer_ := nil.
-		pointer_ ifNotNil: {
-			pointer_ nativeDelete
-		}.
-
-		pointer_ := newPointer.
+		self reset: newPointer.
 		self
 	}.
 
@@ -82,6 +83,6 @@ template UniquePointer(PT: Type)
 
 _NativeType meta macro method uniquePointer := ``(Stdn UniquePointer(`,self)).
 
-_NativeType meta macro method uniqueNew := ``(`,self uniquePtr for: `,self nativeNew).
+_NativeType meta macro method uniqueNew := ``(`,self uniquePointer for: `,self nativeNew).
 
 }. ## End of namespace Stdn
