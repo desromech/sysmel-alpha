@@ -31,6 +31,8 @@ template Function(FT: Type)
     field inlineStorage type: InlineStorageType.
 
     (method := (blockClosure: NativeStackBlockClosureType)) => SelfType ref := {
+        self finalize.
+
         let blockClosureHeader := blockClosure reinterpretCastTo: _NativeStackBlockClosureHeader pointer.
         let typeInfo := blockClosureHeader _ typeInfo.
         let instanceSize := typeInfo _ instanceDataSize.
@@ -54,6 +56,20 @@ template Function(FT: Type)
         self
     }.
 
+    compileTime if: Compiler hasRuntimeTypeInformation && Compiler hasGarbageCollectionSupport then: {
+        compileTime constant GCBlockClosureType := FT gcBlockClosure.
+
+        (method := (blockClosure: GCBlockClosureType)) => SelfType ref := {
+            self finalize.
+
+            type := WrapperType GCClosure.
+            (inlineStorage [0] address reinterpretCastTo: GCBlockClosureType pointer) _ := blockClosure.
+
+            self
+        }.
+
+    }.
+
     method finalize => Void := {
         type selectCase: #{
         WrapperType InlineNativeClosure : {
@@ -73,8 +89,16 @@ template Function(FT: Type)
 
             free(closure)
         }.
+
+        WrapperType GCClosure : {
+            compileTime if: Compiler hasRuntimeTypeInformation && Compiler hasGarbageCollectionSupport then: {
+                inlineStorage [0] := nil.
+            }.
+        }.
         _ : {}
         }.
+
+        type := WrapperType Invalid.
     }.
 
     (method := (functionPointer: FunctionType pointer)) ::=> SelfType ref := {
@@ -105,6 +129,16 @@ template Function(FT: Type)
         WrapperType HeapNativeClosure : {
             let closure := inlineStorage[0] reinterpretCastTo: NativeStackBlockClosureType.
             return: (closure applyWithArguments: arguments).
+        }.
+
+        WrapperType GCClosure : {
+            compileTime if: Compiler hasRuntimeTypeInformation && Compiler hasGarbageCollectionSupport then: {
+                let closure := inlineStorage[0] reinterpretCastTo: GCBlockClosureType.
+                return: (closure applyWithArguments: arguments).
+            }
+            else: {
+                error: "Trying to call invalid Stdn Function wrapper."
+            }
         }.
 
         _ : {

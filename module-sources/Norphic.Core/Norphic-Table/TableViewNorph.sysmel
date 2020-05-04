@@ -77,6 +77,12 @@ class TableViewNorph superclass: BorderedNorph; definition: {
         minimalRowExtent := Float32x2(minimalRowExtent x + minimalCellExtent x, minimalRowExtent y max: minimalCellExtent y).
     }.
 
+    const method selectedRows => RowSelection const ref
+        := selectedRows.
+
+    method selectedRows: (newSelection: RowSelection const ref) ::=> Void
+        := selectedRows := newSelection.
+
     method rowClicked: (rowIndex: UIntPointer) ::=> Void := {
         (selectedRows includes: rowIndex) ifTrue: {
             selectedRows removeAll
@@ -85,6 +91,11 @@ class TableViewNorph superclass: BorderedNorph; definition: {
             selectedRows add: rowIndex
         }.
 
+        self selectionChanged.
+    }.
+
+    method selectionChanged => Void := {
+        self raiseEvent: (NorphSelectionChangedEvent sharedNew upCastFor: NorphEvent).
         self changed.
     }.
 

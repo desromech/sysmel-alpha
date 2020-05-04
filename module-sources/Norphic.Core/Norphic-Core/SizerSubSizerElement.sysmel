@@ -26,7 +26,11 @@ class SizerSubSizerElement superclass: SizerElement; definition: {
     }.
 
     override method applyIntoBounds: (newBounds: RectangleF32) ::=> Void := {
-
+        let adjustedBounds := self applyBorderAndAlignmentToBounds: newBounds.
+        let strongSizer := sizer lock.
+        strongSizer ifNotNil: {
+            strongSizer _ applyIntoBounds: adjustedBounds
+        }.
     }.
 }.
 

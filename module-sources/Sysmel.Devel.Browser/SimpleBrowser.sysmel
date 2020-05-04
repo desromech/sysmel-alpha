@@ -3,8 +3,12 @@ useNamespace: Norphic.
 
 gcclass SimpleBrowser definition: {
     protected field norphicWindow type: SystemWindowNorph sharedPointer.
-    protected field classesView type: ListViewNorph sharedPointer.
+    protected field classBindings.
+    protected field methodsBindings.
+
+    protected field classesListView type: ListViewNorph sharedPointer.
     protected field methodsView type: ListViewNorph sharedPointer.
+    protected field codeEditor type: TextAreaNorph sharedPointer.
 
     meta definition: {
         method openOn: anObject
@@ -14,33 +18,77 @@ gcclass SimpleBrowser definition: {
     }.
 
     method createWidgets := {
-        classesView := ListViewNorph sharedNew.
+        classesListView := ListViewNorph sharedNew.
         methodsView := ListViewNorph sharedNew.
+        codeEditor := TextAreaNorph sharedNew.
+        self
+    }.
+
+    method selectedClass: newClass := {
+        methodsView _ removeAll.
+        methodsBindings := newClass isNotNil && newClass methodDict isNotNil ifTrue: {
+            newClass methodDict associations
+        } ifFalse: {
+            #()
+        }.
+
+        methodsBindings do: {:binding :: Void |
+            methodsView _ addItem: binding key asStdnMutableString
+        }.
+        self
+    }.
+
+    method selectedMethod: newMethod := {
+        codeEditor _ text: newMethod asStdnMutableString.
         self
     }.
 
     method initializePresentation := {
         let nspace := (Smalltalk castTo: ProtoObject) sharedNamespace.
-        nspace keys do: {:key :: Void |
-            classesView _ addItem: key asStdnMutableString
+        classBindings := nspace associations select: {:each :: ProtoObject | each value isClass}.
+
+        classesListView _ when: NorphSelectionChangedEvent do: {:(NorphEvent ref)event :: Void |
+            let newSelection ref := classesListView _ selectedRows.
+            newSelection isNotEmpty && newSelection first < classBindings size ifTrue: {
+                self selectedClass: (classBindings at: newSelection first + 1) value.
+            }.
+        }.
+
+        methodsView _ when: NorphSelectionChangedEvent do: {:(NorphEvent ref)event :: Void |
+            let newSelection ref := methodsView _ selectedRows.
+            newSelection isNotEmpty && newSelection first < methodsBindings size ifTrue: {
+                self selectedMethod: (methodsBindings at: newSelection first + 1) value.
+            }.
+        }.
+
+        classBindings do: {:binding :: Void |
+            classesListView _ addItem: binding key asStdnMutableString
         }.
         self
     }.
 
     method buildLayout := {
-        let sizer := HorizontalBoxSizer sharedNew.
-
-        sizer _
-            element: classesView do: {:constraints :: Void |
+        let horizontalSizer := HorizontalBoxSizer sharedNew.
+        horizontalSizer _
+            element: classesListView do: {:constraints :: Void |
                 constraints expanded; allBorders; borderSize: 2; proportion: 1.0f.
             };
             element: methodsView do: {:constraints :: Void |
                 constraints expanded; allBorders; borderSize: 2; proportion: 1.0f.
             }.
+        let sizer := VerticalBoxSizer sharedNew.
+        sizer _
+            element: horizontalSizer do: {:constraints :: Void |
+                constraints expanded; allBorders; borderSize: 2; proportion: 1.0f.
+            };
+            element: codeEditor do: {:constraints :: Void |
+                constraints expanded; allBorders; borderSize: 2; proportion: 1.0f.
+            }.
 
         norphicWindow _
-            addSubnorph: (classesView upCastFor: Norph);
+            addSubnorph: (classesListView upCastFor: Norph);
             addSubnorph: (methodsView upCastFor: Norph);
+            addSubnorph: (codeEditor upCastFor: Norph);
             sizer: (sizer upCastFor: Sizer);
             autolayout: true;
             updateLayout.

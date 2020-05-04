@@ -136,6 +136,10 @@ Dictionary definition: {
         nil
     }.
 
+    method associationsDo: aBlock := {
+        self do: aBlock
+    }.
+
     method keysDo: aBlock := {
         self do: {:association :: Void |
             aBlock value: association key
@@ -204,6 +208,19 @@ Dictionary definition: {
         let destIndex mutable type: UIntPointer.
 
         self valuesDo: {:each :: Void |
+            result[destIndex] := each.
+            destIndex := destIndex + 1.
+        }.
+
+        result
+    }.
+
+    method associations := {
+        let resultSize := self size.
+        let result := Array new: resultSize.
+        let destIndex mutable type: UIntPointer.
+
+        self associationsDo: {:each :: Void |
             result[destIndex] := each.
             destIndex := destIndex + 1.
         }.
@@ -290,6 +307,24 @@ IdentityDictionary definition: {
 }.
 
 MethodDictionary definition: {
+
+    method associationsDo: aBlock := {
+        self keysAndValuesDo: {:key :value :: Void |
+            aBlock value: (Association key: key value: value)
+        }
+    }.
+
+    method keysAndValuesDo: aBlock := {
+        0 until: array __private __data size do: {:i :: Void |
+            let key := array[i].
+            key ifNotNil: {
+                let value := values[i].
+                aBlock value: key value: value.
+            }
+        }.
+
+        nil
+    }.
 
     method at: key put: anObject := {
         self at: key putNoSpaceCheck: anObject.

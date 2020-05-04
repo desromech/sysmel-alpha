@@ -500,6 +500,17 @@ class Norph superclass: NorphEventHandler; definition: {
         self addEventSubscription: (subscription upCastFor: NorphEventSubscription)
     }.
 
+    compileTime if: Compiler hasRuntimeTypeInformation && Compiler hasGarbageCollectionSupport then: {
+        method registerEventHandler: (eventHandler: EventHandlerFunctionType gcBlockClosure) forClassInfo: (eventClassInfo: Stdn Reflection TypeInformation const pointer) ::=> Void := {
+            let subscription := NorphEventFunctionSubscription sharedNew.
+            subscription _
+                handlingFunction: eventHandler;
+                expectedEventTypeInfo: eventClassInfo.
+
+            self addEventSubscription: (subscription upCastFor: NorphEventSubscription)
+        }.
+    }.
+
     macro method when: aClass do: aBlock
         := ``(`,self registerEventHandler: `,aBlock forClassInfo: (`,aClass asTypeInformation)
     ).

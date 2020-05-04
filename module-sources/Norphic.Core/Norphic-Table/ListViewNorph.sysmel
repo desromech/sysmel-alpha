@@ -17,8 +17,18 @@ class ListViewNorph superclass: TableViewNorph; definition: {
         self addColumn: (SimpleStringDataSourceElementColumnView sharedNew upCastFor: TableViewColumn).
     }.
 
+    const method listDataSource => SimpleListDataSource sharedPointer const ref
+        := listDataSource.
+
+    method removeAll ::=> Void := {
+        listDataSource _ removeAll.
+        self changed.
+    }.
+
     method addItem: (item: Stdn String const ref) ::=> UIntPointer := {
-        listDataSource _ addItem: ((SimpleStringDataSourceElement for: item) upCastFor: DataSourceElement)
+        let result := listDataSource _ addItem: ((SimpleStringDataSourceElement for: item) upCastFor: DataSourceElement).
+        self changed.
+        result
     }.
 }.
 

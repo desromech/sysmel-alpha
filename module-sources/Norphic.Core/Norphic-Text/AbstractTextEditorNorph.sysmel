@@ -39,6 +39,20 @@ class AbstractTextEditorNorph superclass: BorderedNorph; definition: {
     const virtual method textModel => TextModel sharedPointer const ref
         := textModel.
 
+    const method text ::=> Stdn String := {
+        textModel ifNil: {
+            Stdn String ()
+        } ifNotNil: {
+            textModel _ text
+        }
+    }.
+
+    method text: (newText: Stdn String const ref) ::=> Void := {
+        textModel ifNotNil: {
+            textModel _ text: newText
+        }
+    }.
+
     virtual method textModel: (aTextModel: TextModel sharedPointer const ref) ::=> Void := {
         textModel := aTextModel.
         textEditingArea _ textModel: aTextModel.

@@ -17,6 +17,10 @@ class SimpleListDataSource superclass: DataSource; definition: {
         DataSourceElementPtr nil
     }.
 
+    method removeAll => Void := {
+        items removeAll.
+    }.
+
     method addItem: (item: DataSourceElementPtr const ref) ::=> UIntPointer := {
         items add: item.
         items size

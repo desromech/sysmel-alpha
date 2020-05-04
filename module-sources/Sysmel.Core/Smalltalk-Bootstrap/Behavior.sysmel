@@ -1,6 +1,16 @@
 namespace Smalltalk definition: {
 
+Object extend: {
+	method isBehavior
+		:= false.
+	method isClass
+		:= false.
+}.
+
 Behavior definition: {
+	method isBehavior
+		:= true.
+
 	method subclasses := #().
 
 	method subclassesDo: aBlock
@@ -47,6 +57,9 @@ Behavior definition: {
 }.
 
 Class definition: {
+	method isClass
+		:= true.
+
 	method classSide
 		:= self class.
 

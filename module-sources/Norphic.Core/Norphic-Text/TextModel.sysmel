@@ -33,6 +33,9 @@ class TextModel superclass: Stdn SharedObject; definition: {
     abstract method newCursor => TextModelCursor sharedPointer.
     abstract method textSpansInRectangle: (rectangle: RectangleF32) do: (iterationBlock: TextModelSpanIterationBlock) ::=> Void.
 
+    abstract method text => Stdn String.
+    abstract method text: (newText: Stdn String const ref) ::=> Void.
+
     method useLF => Void := {
         newLineString := "\n" asMutableString.
     }.
