@@ -1,0 +1,125 @@
+namespace Stdn definition: {
+namespace Math definition: {
+namespace LinearAlgebra definition: {
+namespace Tests definition: {
+
+sealed template GenericMatrix4x4Test(ST: Type)
+    := class superclass: Stdn Testing TestCase; definition: {
+    compileTime constant GLA := GenericLinearAlgebra(ST).
+
+    compileTime constant Scalar := GLA Scalar.
+    compileTime constant Vector4 := GLA Vector4.
+    compileTime constant Matrix4x4 := GLA Matrix4x4.
+
+    test: testEquals with: {
+        self assert: Matrix4x4 ones equals: Matrix4x4 ones.
+        self assert: Matrix4x4 zeros closeTo: Matrix4x4 zeros.
+        self assert: Matrix4x4 identity closeTo: Matrix4x4 identity.
+    }.
+
+    test: testNotEquals with: {
+        self assert: Matrix4x4 ones notEquals: Matrix4x4 zeros.
+        self assert: Matrix4x4 ones notEquals: Matrix4x4 identity.
+        self assert: Matrix4x4 zeros notEquals: Matrix4x4 identity.
+    }.
+
+    test: testCloseTo with: {
+        self assert: Matrix4x4 ones closeTo: Matrix4x4 ones.
+        self assert: Matrix4x4 zeros closeTo: Matrix4x4 zeros.
+        self assert: Matrix4x4 identity closeTo: Matrix4x4 identity.
+
+        self assert: Matrix4x4 ones notCloseTo: Matrix4x4 zeros.
+        self assert: Matrix4x4 ones notCloseTo: Matrix4x4 identity.
+        self assert: Matrix4x4 zeros notCloseTo: Matrix4x4 identity.
+    }.
+
+    test: testHash with: {
+        self assert: Matrix4x4 ones hash equals: Matrix4x4 ones hash.
+        self assert: Matrix4x4 zeros hash equals: Matrix4x4 zeros hash.
+        self assert: Matrix4x4 identity hash equals: Matrix4x4 identity hash.
+
+        self assert: Matrix4x4 ones hash notEquals: Matrix4x4 zeros hash.
+        self assert: Matrix4x4 ones hash notEquals: Matrix4x4 identity hash.
+        self assert: Matrix4x4 zeros hash notEquals: Matrix4x4 identity hash.
+    }.
+
+    test: testZeros with: {
+        self assert: Matrix4x4 zeros equals: Matrix4x4(
+            0, 0, 0, 0,
+            0, 0, 0, 0,
+            0, 0, 0, 0,
+            0, 0, 0, 0
+        ).
+    }.
+
+    test: testOnes with: {
+        self assert: Matrix4x4 ones equals: Matrix4x4(
+            1, 1, 1, 1,
+            1, 1, 1, 1,
+            1, 1, 1, 1,
+            1, 1, 1, 1
+        ).
+    }.
+
+    test: testIdentity with: {
+        self assert: Matrix4x4 identity equals: Matrix4x4(
+            1, 0, 0, 0,
+            0, 1, 0, 0,
+            0, 0, 1, 0,
+            0, 0, 0, 1
+        ).
+    }.
+
+    test: testColumnMajorIndices with: {
+        self assert: Matrix4x4 columnMajorIndices equals: (Matrix4x4 columns: (
+            0, 1, 2, 3,
+            4, 5, 6, 7,
+            8, 9, 10, 11,
+            12, 13, 14, 15
+        )).
+
+        self assert: Matrix4x4 columnMajorIndices equals: (Matrix4x4 rows: (
+            0, 4, 8, 12,
+            1, 5, 9, 13,
+            2, 6, 10, 14,
+            3, 7, 11, 15
+        )).
+    }.
+
+    test: testRowMajorIndices with: {
+        self assert: Matrix4x4 rowMajorIndices equals: (Matrix4x4 rows: (
+            0, 1, 2, 3,
+            4, 5, 6, 7,
+            8, 9, 10, 11,
+            12, 13, 14, 15
+        )).
+        self assert: Matrix4x4 rowMajorIndices equals: (Matrix4x4 columns: (
+            0, 4, 8, 12,
+            1, 5, 9, 13,
+            2, 6, 10, 14,
+            3, 7, 11, 15
+        )).
+    }.
+
+    test: testTranspose with: {
+        self assert: Matrix4x4 columnMajorIndices transpose transpose equals: Matrix4x4 columnMajorIndices.
+
+        let a := Matrix4x4 columnMajorIndices.
+        let b := Matrix4x4 rowMajorIndices.
+        self assert: a transpose equals: b.
+        self assert: b transpose equals: a.
+        self assert: a transpose transpose equals: a.
+        self assert: b transpose transpose equals: b.
+    }.
+
+}.
+
+compileTime constant Int32x4x4Tests := GenericMatrix4x4Test(Int32).
+compileTime constant Int64x4x4Tests := GenericMatrix4x4Test(Int64).
+compileTime constant Float32x4x4Tests := GenericMatrix4x4Test(Float32).
+compileTime constant Float64x4x4Tests := GenericMatrix4x4Test(Float64).
+
+} ## End of namespace Tests
+} ## End of namespace LinearAlgebra
+} ## End of namespace Math
+} ## End of namespace Stdn

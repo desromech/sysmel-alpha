@@ -20,6 +20,16 @@ sealed template GenericVector2Test(ST: Type)
         self deny: a = c.
     }.
 
+    test: testNotEquals with: {
+        let a := Vector2 x: 1 y: 2.
+        let b := Vector2 x: 3 y: 4.
+        let c := Vector2 x: 3 y: 4.
+
+        self deny: (b ~=  c).
+        self assert: a ~= b.
+        self assert: a ~= c.
+    }.
+    
     test: testCloseTo with: {
         let a := Vector2 x: 1 y: 2.
         let b := Vector2 x: 3 y: 4.
@@ -31,16 +41,6 @@ sealed template GenericVector2Test(ST: Type)
 
         self deny: (a closeTo: c).
         self assert: a notCloseTo: c.
-    }.
-
-    test: testNotEquals with: {
-        let a := Vector2 x: 1 y: 2.
-        let b := Vector2 x: 3 y: 4.
-        let c := Vector2 x: 3 y: 4.
-
-        self deny: (b ~=  c).
-        self assert: a ~= b.
-        self assert: a ~= c.
     }.
 
     test: testHash with: {

@@ -13,7 +13,7 @@ sealed template GenericLinearAlgebra(ST: Type)
     compileTime constant Matrix2x3 := ST primitiveMatrixWithRows: 2 columns: 3.
     compileTime constant Matrix3x3 := ST primitiveMatrixWithRows: 3 columns: 3.
     compileTime constant Matrix3x4 := ST primitiveMatrixWithRows: 3 columns: 4.
-    compileTime constant Matrix4x4 := ST primitiveMatrixWithRows: 4 columns: 5.
+    compileTime constant Matrix4x4 := ST primitiveMatrixWithRows: 4 columns: 4.
 
     compileTime constant AffineTransform2d := GenericAffineTransform2d(Scalar).
     compileTime constant AffinePostTransform2d := GenericAffinePostTransform2d(Scalar).

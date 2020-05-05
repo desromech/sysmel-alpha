@@ -3,17 +3,17 @@ namespace Math definition: {
 namespace LinearAlgebra definition: {
 namespace Tests definition: {
 
-sealed template GenericVector3Test(ST: Type)
+sealed template GenericVector4Test(ST: Type)
     := class superclass: Stdn Testing TestCase; definition: {
     compileTime constant GLA := GenericLinearAlgebra(ST).
 
     compileTime constant Scalar := GLA Scalar.
-    compileTime constant Vector3 := GLA Vector3.
+    compileTime constant Vector4 := GLA Vector4.
 
     test: testEquals with: {
-        let a := Vector3 x: 1 y: 2 z: 4.
-        let b := Vector3 x: 3 y: 4 z: 5.
-        let c := Vector3 x: 3 y: 4 z: 5.
+        let a := Vector4 x: 1 y: 2 z: 4 w: 5.
+        let b := Vector4 x: 3 y: 4 z: 5 w: 6.
+        let c := Vector4 x: 3 y: 4 z: 5 w: 6.
 
         self assert: b equals:  c.
         self deny: a = b.
@@ -21,9 +21,9 @@ sealed template GenericVector3Test(ST: Type)
     }.
 
     test: testNotEquals with: {
-        let a := Vector3 x: 1 y: 2 z: 4.
-        let b := Vector3 x: 3 y: 4 z: 5.
-        let c := Vector3 x: 3 y: 4 z: 5.
+        let a := Vector4 x: 1 y: 2 z: 4 w: 5.
+        let b := Vector4 x: 3 y: 4 z: 5 w: 6.
+        let c := Vector4 x: 3 y: 4 z: 5 w: 6.
 
         self deny: (b ~=  c).
         self assert: a ~= b.
@@ -31,9 +31,9 @@ sealed template GenericVector3Test(ST: Type)
     }.
 
     test: testCloseTo with: {
-        let a := Vector3 x: 1 y: 2 z: 4.
-        let b := Vector3 x: 3 y: 4 z: 5.
-        let c := Vector3 x: 3 y: 4 z: 5.
+        let a := Vector4 x: 1 y: 2 z: 4 w: 5.
+        let b := Vector4 x: 3 y: 4 z: 5 w: 6.
+        let c := Vector4 x: 3 y: 4 z: 5 w: 6.
 
         self assert: b closeTo: c.
         self deny: (a closeTo: b).
@@ -44,17 +44,16 @@ sealed template GenericVector3Test(ST: Type)
     }.
 
     test: testHash with: {
-        let b := Vector3 x: 3 y: 4 z: 5.
-        let c := Vector3 x: 3 y: 4 z: 5.
+        let b := Vector4 x: 3 y: 4 z: 5 w: 6.
+        let c := Vector4 x: 3 y: 4 z: 5 w: 6.
         self assert: b hash equals: c hash.
     }.
-    
 }.
 
-compileTime constant Int32x3Tests := GenericVector3Test(Int32).
-compileTime constant Int64x3Tests := GenericVector3Test(Int64).
-compileTime constant Float32x3Tests := GenericVector3Test(Float32).
-compileTime constant Float64x3Tests := GenericVector3Test(Float64).
+compileTime constant Int32x4Tests := GenericVector4Test(Int32).
+compileTime constant Int64x4Tests := GenericVector4Test(Int64).
+compileTime constant Float32x4Tests := GenericVector4Test(Float32).
+compileTime constant Float64x4Tests := GenericVector4Test(Float64).
 
 } ## End of namespace Tests
 } ## End of namespace LinearAlgebra

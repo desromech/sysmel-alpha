@@ -1,4 +1,7 @@
 loadFileOnce: "Vector2.sysmel".
 loadFileOnce: "Vector3.sysmel".
+loadFileOnce: "Vector4.sysmel".
 
 loadFileOnce: "Matrix2x2.sysmel".
+loadFileOnce: "Matrix3x3.sysmel".
+loadFileOnce: "Matrix4x4.sysmel".

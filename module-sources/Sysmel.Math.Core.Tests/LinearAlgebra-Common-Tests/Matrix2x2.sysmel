@@ -103,7 +103,7 @@ sealed template GenericMatrix2x2Test(ST: Type)
 compileTime constant Int32x2x2Tests := GenericMatrix2x2Test(Int32).
 compileTime constant Int64x2x2Tests := GenericMatrix2x2Test(Int64).
 compileTime constant Float32x2x2Tests := GenericMatrix2x2Test(Float32).
-compileTime constant Float64x2Tx2ests := GenericMatrix2x2Test(Float64).
+compileTime constant Float64x2x2Tests := GenericMatrix2x2Test(Float64).
 
 } ## End of namespace Tests
 } ## End of namespace LinearAlgebra
