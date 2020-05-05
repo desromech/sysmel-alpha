@@ -18,7 +18,7 @@ MbndTemplateDefinitionFragment >> applyToInstance: templateInstance [
 	| evaluationScope module |
 	module := templateInstance compilationEnvironment currentModule.
 	evaluationScope := module moduleScope
-		parent: (templateInstance programEntityScope parent: scope).
+		parent: (templateInstance fragmentEvaluationScope parent: scope).
 	^ MbndAstSemanticAnalyzerAndEvaluator new
 		module: module;
 		evaluateNode: node withReturnContextInScope: evaluationScope

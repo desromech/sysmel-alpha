@@ -56,6 +56,11 @@ MbndAbstractTemplateInstance >> encodeFieldsForMessagePackWith: graphEncoder [
 	}
 ]
 
+{ #category : #'as yet unclassified' }
+MbndAbstractTemplateInstance >> fragmentEvaluationScope [
+	^ (mainChild ifNil: [ self ]) programEntityScope
+]
+
 { #category : #testing }
 MbndAbstractTemplateInstance >> isTemplateInstance [
 	^ true

@@ -21,6 +21,9 @@ MbndTemplateType >> addInstanceMacros [
 			].
 		
 			template analyzeAndEvaluateApplicationNode: node withAnalyzer: analyzer
+		];
+		onMacroSelectors: #( definition: extend: )do: [ :node :builder |
+			builder programEntity: node receiver extension: node arguments first
 		]
 ]
 

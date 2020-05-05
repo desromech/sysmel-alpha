@@ -133,6 +133,11 @@ MbndTemplate >> initialize [
 	
 ]
 
+{ #category : #accessing }
+MbndTemplate >> instances [
+	^ instances
+]
+
 { #category : #testing }
 MbndTemplate >> isSealed [
 	^ self hasFlag: #sealed
