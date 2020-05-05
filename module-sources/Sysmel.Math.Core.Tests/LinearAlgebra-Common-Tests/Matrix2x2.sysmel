@@ -23,6 +23,26 @@ sealed template GenericMatrix2x2Test(ST: Type)
         self assert: Matrix2x2 zeros notEquals: Matrix2x2 identity.
     }.
 
+    test: testCloseTo with: {
+        self assert: Matrix2x2 ones closeTo: Matrix2x2 ones.
+        self assert: Matrix2x2 zeros closeTo: Matrix2x2 zeros.
+        self assert: Matrix2x2 identity closeTo: Matrix2x2 identity.
+
+        self assert: Matrix2x2 ones notCloseTo: Matrix2x2 zeros.
+        self assert: Matrix2x2 ones notCloseTo: Matrix2x2 identity.
+        self assert: Matrix2x2 zeros notCloseTo: Matrix2x2 identity.
+    }.
+
+    test: testHash with: {
+        self assert: Matrix2x2 ones hash equals: Matrix2x2 ones hash.
+        self assert: Matrix2x2 zeros hash equals: Matrix2x2 zeros hash.
+        self assert: Matrix2x2 identity hash equals: Matrix2x2 identity hash.
+
+        self assert: Matrix2x2 ones hash notEquals: Matrix2x2 zeros hash.
+        self assert: Matrix2x2 ones hash notEquals: Matrix2x2 identity hash.
+        self assert: Matrix2x2 zeros hash notEquals: Matrix2x2 identity hash.
+    }.
+
     test: testZeros with: {
         self assert: Matrix2x2 zeros equals: Matrix2x2(
             0, 0,
@@ -67,24 +87,15 @@ sealed template GenericMatrix2x2Test(ST: Type)
         )).
     }.
 
-    test: testCloseTo with: {
-        self assert: Matrix2x2 ones closeTo: Matrix2x2 ones.
-        self assert: Matrix2x2 zeros closeTo: Matrix2x2 zeros.
-        self assert: Matrix2x2 identity closeTo: Matrix2x2 identity.
+    test: testTranspose with: {
+        self assert: Matrix2x2 columnMajorIndices transpose transpose equals: Matrix2x2 columnMajorIndices.
 
-        self assert: Matrix2x2 ones notCloseTo: Matrix2x2 zeros.
-        self assert: Matrix2x2 ones notCloseTo: Matrix2x2 identity.
-        self assert: Matrix2x2 zeros notCloseTo: Matrix2x2 identity.
-    }.
-
-    test: testHash with: {
-        self assert: Matrix2x2 ones hash equals: Matrix2x2 ones hash.
-        self assert: Matrix2x2 zeros hash equals: Matrix2x2 zeros hash.
-        self assert: Matrix2x2 identity hash equals: Matrix2x2 identity hash.
-
-        self assert: Matrix2x2 ones hash notEquals: Matrix2x2 zeros hash.
-        self assert: Matrix2x2 ones hash notEquals: Matrix2x2 identity hash.
-        self assert: Matrix2x2 zeros hash notEquals: Matrix2x2 identity hash.
+        let a := Matrix2x2 columnMajorIndices.
+        let b := Matrix2x2 rowMajorIndices.
+        self assert: a transpose equals: b.
+        self assert: b transpose equals: a.
+        self assert: a transpose transpose equals: a.
+        self assert: b transpose transpose equals: b.
     }.
 
 }.

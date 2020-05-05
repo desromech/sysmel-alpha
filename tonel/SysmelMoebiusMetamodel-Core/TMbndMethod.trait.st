@@ -1,6 +1,7 @@
 Trait {
 	#name : #TMbndMethod,
 	#traits : 'TMbndProgramEntity + TMbndFlagContainer + TMbndEntityWithVisibility',
+	#classTraits : 'TMbndProgramEntity classTrait + TMbndFlagContainer classTrait + TMbndEntityWithVisibility classTrait',
 	#category : #'SysmelMoebiusMetamodel-Core-Method'
 }
 
