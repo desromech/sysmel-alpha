@@ -1,1 +1,2 @@
 loadFileOnce: "GenericLinearAlgebra.sysmel".
+loadFileOnce: "SpecialMatrices.sysmel".

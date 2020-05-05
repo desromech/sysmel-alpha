@@ -49,6 +49,9 @@ sealed template GenericMatrix3x3Test(ST: Type)
             0, 0, 0,
             0, 0, 0
         ).
+        self deny: Matrix3x3 zeros isIdentity.
+        self assert: Matrix3x3 zeros isZeros.
+        self deny: Matrix3x3 zeros isOnes.
     }.
 
     test: testOnes with: {
@@ -57,6 +60,9 @@ sealed template GenericMatrix3x3Test(ST: Type)
             1, 1, 1,
             1, 1, 1
         ).
+        self assert: Matrix3x3 ones isOnes.
+        self deny: Matrix3x3 ones isZeros.
+        self deny: Matrix3x3 ones isIdentity.
     }.
 
     test: testIdentity with: {
@@ -65,6 +71,9 @@ sealed template GenericMatrix3x3Test(ST: Type)
             0, 1, 0,
             0, 0, 1
         ).
+        self assert: Matrix3x3 identity isIdentity.
+        self deny: Matrix3x3 identity isZeros.
+        self deny: Matrix3x3 identity isOnes.
     }.
 
     test: testColumnMajorIndices with: {

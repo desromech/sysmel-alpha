@@ -48,6 +48,9 @@ sealed template GenericMatrix2x2Test(ST: Type)
             0, 0,
             0, 0
         ).
+        self deny: Matrix2x2 zeros isIdentity.
+        self assert: Matrix2x2 zeros isZeros.
+        self deny: Matrix2x2 zeros isOnes.
     }.
 
     test: testOnes with: {
@@ -55,6 +58,9 @@ sealed template GenericMatrix2x2Test(ST: Type)
             1, 1,
             1, 1
         ).
+        self assert: Matrix2x2 ones isOnes.
+        self deny: Matrix2x2 ones isZeros.
+        self deny: Matrix2x2 ones isIdentity.
     }.
 
     test: testIdentity with: {
@@ -62,6 +68,9 @@ sealed template GenericMatrix2x2Test(ST: Type)
             1, 0,
             0, 1
         ).
+        self assert: Matrix2x2 identity isIdentity.
+        self deny: Matrix2x2 identity isZeros.
+        self deny: Matrix2x2 identity isOnes.
     }.
 
     test: testColumnMajorIndices with: {

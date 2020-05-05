@@ -1,0 +1,44 @@
+namespace Stdn definition: {
+namespace Math definition: {
+namespace LinearAlgebra definition: {
+
+_PrimitiveMatrixType extend: {
+    macro method isZeros := ``(`,self = `,SelfType zeros).
+    macro method isOnes := ``(`,self = `,SelfType ones).
+    macro method isIdentity := ``(`,self = `,SelfType identity).
+}.
+
+GenericLinearAlgebra extend: {
+    compileTime if: Scalar isPrimitiveFloatType then: {
+
+        Matrix2x2 extend: {
+            meta definition: {
+                const inline method rotation: (angle: Scalar) ::=> Matrix2x2 := {
+                    let c := angle cos.
+                    let s := angle sin.
+                    Matrix2x2 columns: (
+                        c, s,
+                        s negated, c
+                    )
+                }.
+            }.
+        }.
+    }.
+
+    Matrix2x2 extend: {
+        meta definition: {
+            const inline method scale: (scale: Vector2) ::=> Matrix2x2 := {
+                Matrix2x2 columns: (
+                    scale x, 0,
+                    0, scale y
+                )
+            }.
+        }.
+    }.
+
+}.
+
+
+} ## End of namespace LinearAlgebra
+} ## End of namespace Math
+} ## End of namespace Stdn

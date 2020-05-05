@@ -17,8 +17,6 @@ sealed template GenericLinearAlgebra(ST: Type)
 
     compileTime constant AffineTransform2d := GenericAffineTransform2d(Scalar).
     compileTime constant AffinePostTransform2d := GenericAffinePostTransform2d(Scalar).
-
-
 }.
 
 

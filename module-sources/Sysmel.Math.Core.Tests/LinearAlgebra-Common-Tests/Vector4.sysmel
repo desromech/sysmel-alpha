@@ -48,6 +48,49 @@ sealed template GenericVector4Test(ST: Type)
         let c := Vector4 x: 3 y: 4 z: 5 w: 6.
         self assert: b hash equals: c hash.
     }.
+
+    test: testNegated with: {
+        self assert: Vector4(1, 2, 3, 4) negated equals: Vector4(-1, -2, -3, -4).
+    }.
+
+    test: testAddition with: {
+        self assert: Vector4(0, 0, 0, 0) + Vector4(0, 0, 0, 0) equals: Vector4(0, 0, 0, 0).
+        self assert: Vector4(1, 2, 3, 4) + Vector4(0, 0, 0, 0) equals: Vector4(1, 2, 3, 4).
+        self assert: Vector4(1, 2, 3, 4) + Vector4(5, 6, 7, 8) equals: Vector4(6, 8, 10, 12).
+        self assert: Vector4(5, 6, 7, 8) + Vector4(1, 2, 3, 4) equals: Vector4(6, 8, 10, 12).
+    }.
+
+    test: testSubtraction with: {
+        self assert: Vector4(0, 0, 0, 0) - Vector4(0, 0, 0, 0) equals: Vector4(0, 0, 0, 0).
+        self assert: Vector4(1, 2, 3, 4) - Vector4(0, 0, 0, 0) equals: Vector4(1, 2, 3, 4).
+        self assert: Vector4(1, 2, 3, 4) - Vector4(10, 12, 14, 20) equals: Vector4(-9, -10, -11, -16).
+    }.
+
+    test: testMultiplication with: {
+        self assert: Vector4(0, 0, 0, 0) * Vector4(0, 0, 0, 0) equals: Vector4(0, 0, 0, 0).
+        self assert: Vector4(1, 2, 3, 4) * Vector4(0, 0, 0, 0) equals: Vector4(0, 0, 0, 0).
+        self assert: Vector4(1, 2, 3, 4) * Vector4(1, 1, 1, 1) equals: Vector4(1, 2, 3, 4).
+        self assert: Vector4(2, 3, 4, 5) * Vector4(3, 5, 7, 9) equals: Vector4(6, 15, 28, 45).
+    }.
+
+    test: testDivision with: {
+        self assert: Vector4(1, 2, 3, 4) / Vector4(1, 1, 1, 1) equals: Vector4(1, 2, 3, 4).
+        self assert: Vector4(20, 9, 50, 49) / Vector4(5, 3, 10, 7) equals: Vector4(4, 3, 5, 7).
+    }.
+
+    test: testDot with: {
+    	self assert: (Vector4(1, 2, 3, 4) dot: Vector4(4, 7, 8, 9)) equals: #* 4 + 14 + 24 + 36 *# 78.
+    }.
+
+    test: testLength2 with: {
+        self assert: Vector4(2, 2, 2, 2) length2 equals: 16.
+    }.
+
+    compileTime if: Scalar isPrimitiveFloatType then: {
+        test: testLength with: {
+            self assert: Vector4(2, 2, 2, 2) length equals: 4.
+        }.
+    }
 }.
 
 compileTime constant Int32x4Tests := GenericVector4Test(Int32).

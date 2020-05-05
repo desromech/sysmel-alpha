@@ -48,7 +48,59 @@ sealed template GenericVector3Test(ST: Type)
         let c := Vector3 x: 3 y: 4 z: 5.
         self assert: b hash equals: c hash.
     }.
-    
+
+    test: testNegated with: {
+        self assert: Vector3(1, 2, 3) negated equals: Vector3(-1, -2, -3).
+    }.
+
+    test: testAddition with: {
+        self assert: Vector3(0, 0, 0) + Vector3(0, 0, 0) equals: Vector3(0, 0, 0).
+        self assert: Vector3(1, 2, 3) + Vector3(0, 0, 0) equals: Vector3(1, 2, 3).
+        self assert: Vector3(1, 2, 3) + Vector3(4, 5, 6) equals: Vector3(5, 7, 9).
+        self assert: Vector3(4, 5, 6) + Vector3(1, 2, 3) equals: Vector3(5, 7, 9).
+    }.
+
+    test: testSubtraction with: {
+        self assert: Vector3(0, 0, 0) - Vector3(0, 0, 0) equals: Vector3(0, 0, 0).
+        self assert: Vector3(1, 2, 3) - Vector3(0, 0, 0) equals: Vector3(1, 2, 3).
+        self assert: Vector3(1, 2, 3) - Vector3(4, 6, 8) equals: Vector3(-3, -4, -5).
+    }.
+
+    test: testMultiplication with: {
+        self assert: Vector3(0, 0, 0) * Vector3(0, 0, 0) equals: Vector3(0, 0, 0).
+        self assert: Vector3(1, 2, 3) * Vector3(0, 0, 0) equals: Vector3(0, 0, 0).
+        self assert: Vector3(1, 2, 3) * Vector3(1, 1, 1) equals: Vector3(1, 2, 3).
+        self assert: Vector3(2, 3, 4) * Vector3(3, 5, 7) equals: Vector3(6, 15, 28).
+    }.
+
+    test: testDivision with: {
+        self assert: Vector3(1, 2, 3) / Vector3(1, 1, 1) equals: Vector3(1, 2, 3).
+        self assert: Vector3(20, 9, 50) / Vector3(5, 3, 10) equals: Vector3(4, 3, 5).
+    }.
+
+    test: testDot with: {
+        self assert: (Vector3(1, 2, 3) dot: Vector3(4, 7, 8)) equals: #*4 + 14 + 24 *# 42.
+    }.
+
+    test: testCross with: {
+        self assert: (Vector3(2, 0, 0) cross: Vector3(2, 0, 0)) equals: Vector3 zeros.
+        self assert: (Vector3(0, 2, 0) cross: Vector3(0, 2, 0)) equals: Vector3 zeros.
+        self assert: (Vector3(0, 0, 2) cross: Vector3(0, 0, 2)) equals: Vector3 zeros.
+
+        self assert: (Vector3(2, 0, 0) cross: Vector3(0, 3, 0)) equals: Vector3(0, 0, 6).
+        self assert: (Vector3(0, 2, 0) cross: Vector3(0, 0, 3)) equals: Vector3(6, 0, 0).
+        self assert: (Vector3(0, 0, 2) cross: Vector3(3, 0, 0)) equals: Vector3(0, 6, 0).
+    }.
+
+    test: testLength2 with: {
+        self assert: Vector3(3, 4, 5) length2 equals: 50.
+    }.
+
+    compileTime if: Scalar isPrimitiveFloatType then: {
+        test: testLength with: {
+            self assert: Vector3(1, 2, 2) length equals: 3.
+        }.
+    }
 }.
 
 compileTime constant Int32x3Tests := GenericVector3Test(Int32).

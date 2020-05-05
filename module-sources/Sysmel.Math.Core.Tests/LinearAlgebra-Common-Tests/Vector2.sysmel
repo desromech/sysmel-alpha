@@ -29,7 +29,7 @@ sealed template GenericVector2Test(ST: Type)
         self assert: a ~= b.
         self assert: a ~= c.
     }.
-    
+
     test: testCloseTo with: {
         let a := Vector2 x: 1 y: 2.
         let b := Vector2 x: 3 y: 4.
@@ -97,6 +97,10 @@ sealed template GenericVector2Test(ST: Type)
         self assert: Vector2 ones equals: Vector2(1, 1).
     }.
 
+    test: testNegated with: {
+        self assert: Vector2(1, 2) negated equals: Vector2(-1, -2).
+    }.
+
     test: testAddition with: {
         self assert: Vector2(0, 0) + Vector2(0, 0) equals: Vector2(0, 0).
         self assert: Vector2(1, 2) + Vector2(0, 0) equals: Vector2(1, 2).
@@ -139,6 +143,11 @@ sealed template GenericVector2Test(ST: Type)
     test: testDot with: {
         self assert: (Vector2(1, 2) dot: Vector2(4, 7)) equals: #* 4 + 14 *# 18.
     }.
+
+    test: testCross with: {
+        self assert: (Vector2(1, 2) cross: Vector2(3, 7)) equals: #* 7 - 6 *# 1.
+    }.
+
 
     test: testLength2 with: {
         self assert: Vector2(3, 4) length2 equals: 25.

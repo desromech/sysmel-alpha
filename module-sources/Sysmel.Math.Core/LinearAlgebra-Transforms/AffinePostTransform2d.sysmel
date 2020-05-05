@@ -13,14 +13,16 @@ sealed template GenericAffinePostTransform2d(ST: Type)
     const inline method asMatrix2x3 => Matrix2x3
         := Matrix2x3(matrix firstColumn, matrix secondColumn, translation).
 
+    const inline method asMatrix3x3 => Matrix3x3
+        := Matrix3x3(Vector3(matrix firstColumn, 0), Vector3(matrix secondColumn, 0), Vector3(translation, 1)).
+
     inline method setIdentity => Void := {
         matrix := Matrix2x2 identity.
         translation := Vector2 zeros.
     }.
 
     const inline method isTranslationOnly => Boolean8
-        := matrix firstColumn x == 1 && matrix firstColumn y == 0 &&
-        matrix secondColumn x == 0 && matrix secondColumn y == 1.
+        := matrix isIdentity.
 
     inline method translateBy: (newTranslation: Vector2) ::=> Void := {
         translation := translation + (self transformVector: newTranslation).
@@ -31,20 +33,12 @@ sealed template GenericAffinePostTransform2d(ST: Type)
     }.
 
     inline method scaleBy: (scale: Vector2) ::=> Void := {
-        self applyMatrix: Matrix2x2(
-            Vector2(scale x, 0),
-            Vector2(0, scale y)
-        )
+        self applyMatrix: (Matrix2x2 scale: scale)
     }.
 
     compileTime if: Scalar isPrimitiveFloatType then: {
         inline method rotateByRadians: (angle: Scalar) ::=> Void := {
-            let c := angle cos.
-            let s := angle sin.
-            self applyMatrix: Matrix2x2(
-                Vector2(c, s negated),
-                Vector2(s, c)
-            )
+            self applyMatrix: (Matrix2x2 rotation: angle)
         }.
 
         inline method rotateByDegrees: (angle: Scalar) ::=> Void := {
