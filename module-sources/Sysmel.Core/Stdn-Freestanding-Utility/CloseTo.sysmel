@@ -31,7 +31,6 @@ compileTime constant CloseToDefaultPrecision := 0.0001.
 }.
 
 _PrimitiveVectorTypeTemplate extend: {
-    let VectorType := SelfType.
     let VectorSize := SelfType elements.
 
     compileTime if: SelfType elementType isPrimitiveFloatType then: {
@@ -54,6 +53,39 @@ _PrimitiveVectorTypeTemplate extend: {
         inline method closeTo: (other: SelfType) ::=> Boolean8 := {
             <gpu>
             self closeTo: other precision: (CloseToDefaultPrecision castTo: SelfType).
+        }
+    } else: {
+        macro method closeTo: other precision: precision
+            := ``(`,self = `,other).
+
+        macro method closeTo: other
+            := ``(`,self = `,other).
+    }.
+}.
+
+_PrimitiveMatrixTypeTemplate extend: {
+    let MatrixColumns := SelfType columns.
+
+    compileTime if: SelfType elementType isPrimitiveFloatType then: {
+        inline method closeTo: (other: SelfType) precision: (precision: SelfType) ::=> Boolean8 := {
+            <gpu>
+            let r mutable := self firstColumn closeTo: other firstColumn precision: precision firstColumn.
+            compileTime if: MatrixColumns > 1 then: {
+                r := r && (self secondColumn closeTo: other secondColumn precision: precision secondColumn).
+                compileTime if: MatrixColumns > 2 then: {
+                    r := r && (self thirdColumn closeTo: other thirdColumn precision: precision thirdColumn).
+                    compileTime if: MatrixColumns > 3 then: {
+                        r := r && (self fourthColumn closeTo: other fourthColumn precision: precision fourthColumn).
+                    }
+                }
+            }.
+
+            return: r
+        }.
+
+        inline method closeTo: (other: SelfType) ::=> Boolean8 := {
+            <gpu>
+            self closeTo: other precision: (SelfType allWith: CloseToDefaultPrecision).
         }
     } else: {
         macro method closeTo: other precision: precision

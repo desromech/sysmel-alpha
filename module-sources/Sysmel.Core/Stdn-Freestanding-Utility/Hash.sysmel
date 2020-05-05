@@ -61,4 +61,25 @@ _PrimitiveVectorTypeTemplate extend: {
     }.
 }.
 
+_PrimitiveMatrixTypeTemplate extend: {
+    let MatrixType := SelfType.
+    let ColumnCount := SelfType columns.
+
+    inline method hash => Hash := {
+        <gpu>
+        let r mutable := self firstColumn hash.
+        compileTime if: ColumnCount > 1 then: {
+            r := concatenateHashes(r, self secondColumn hash).
+            compileTime if: ColumnCount > 2 then: {
+                r := concatenateHashes(r, self thirdColumn hash).
+                compileTime if: ColumnCount > 3 then: {
+                    r := concatenateHashes(r, self fourthColumn hash).
+                }
+            }
+        }.
+
+        return: r
+    }.
+}.
+
 }. ## End of namespace Stdn

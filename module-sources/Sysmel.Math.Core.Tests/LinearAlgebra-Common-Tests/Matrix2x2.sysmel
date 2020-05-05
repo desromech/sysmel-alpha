@@ -1,0 +1,100 @@
+namespace Stdn definition: {
+namespace Math definition: {
+namespace LinearAlgebra definition: {
+namespace Tests definition: {
+
+sealed template GenericMatrix2x2Test(ST: Type)
+    := class superclass: Stdn Testing TestCase; definition: {
+    compileTime constant GLA := GenericLinearAlgebra(ST).
+
+    compileTime constant Scalar := GLA Scalar.
+    compileTime constant Vector2 := GLA Vector2.
+    compileTime constant Matrix2x2 := GLA Matrix2x2.
+
+    test: testEquals with: {
+        self assert: Matrix2x2 ones equals: Matrix2x2 ones.
+        self assert: Matrix2x2 zeros closeTo: Matrix2x2 zeros.
+        self assert: Matrix2x2 identity closeTo: Matrix2x2 identity.
+    }.
+
+    test: testNotEquals with: {
+        self assert: Matrix2x2 ones notEquals: Matrix2x2 zeros.
+        self assert: Matrix2x2 ones notEquals: Matrix2x2 identity.
+        self assert: Matrix2x2 zeros notEquals: Matrix2x2 identity.
+    }.
+
+    test: testZeros with: {
+        self assert: Matrix2x2 zeros equals: Matrix2x2(
+            0, 0,
+            0, 0
+        ).
+    }.
+
+    test: testOnes with: {
+        self assert: Matrix2x2 ones equals: Matrix2x2(
+            1, 1,
+            1, 1
+        ).
+    }.
+
+    test: testIdentity with: {
+        self assert: Matrix2x2 identity equals: Matrix2x2(
+            1, 0,
+            0, 1
+        ).
+    }.
+
+    test: testColumnMajorIndices with: {
+        self assert: Matrix2x2 columnMajorIndices equals: (Matrix2x2 columns: (
+            0, 1,
+            2, 3
+        )).
+
+        self assert: Matrix2x2 columnMajorIndices equals: (Matrix2x2 rows: (
+            0, 2,
+            1, 3
+        )).
+    }.
+
+    test: testRowMajorIndices with: {
+        self assert: Matrix2x2 rowMajorIndices equals: (Matrix2x2 rows: (
+            0, 1,
+            2, 3
+        )).
+        self assert: Matrix2x2 rowMajorIndices equals: (Matrix2x2 columns: (
+            0, 2,
+            1, 3
+        )).
+    }.
+
+    test: testCloseTo with: {
+        self assert: Matrix2x2 ones closeTo: Matrix2x2 ones.
+        self assert: Matrix2x2 zeros closeTo: Matrix2x2 zeros.
+        self assert: Matrix2x2 identity closeTo: Matrix2x2 identity.
+
+        self assert: Matrix2x2 ones notCloseTo: Matrix2x2 zeros.
+        self assert: Matrix2x2 ones notCloseTo: Matrix2x2 identity.
+        self assert: Matrix2x2 zeros notCloseTo: Matrix2x2 identity.
+    }.
+
+    test: testHash with: {
+        self assert: Matrix2x2 ones hash equals: Matrix2x2 ones hash.
+        self assert: Matrix2x2 zeros hash equals: Matrix2x2 zeros hash.
+        self assert: Matrix2x2 identity hash equals: Matrix2x2 identity hash.
+
+        self assert: Matrix2x2 ones hash notEquals: Matrix2x2 zeros hash.
+        self assert: Matrix2x2 ones hash notEquals: Matrix2x2 identity hash.
+        self assert: Matrix2x2 zeros hash notEquals: Matrix2x2 identity hash.
+    }.
+
+}.
+
+compileTime constant Int32x2x2Tests := GenericMatrix2x2Test(Int32).
+compileTime constant Int64x2x2Tests := GenericMatrix2x2Test(Int64).
+compileTime constant Float32x2x2Tests := GenericMatrix2x2Test(Float32).
+compileTime constant Float64x2Tx2ests := GenericMatrix2x2Test(Float64).
+
+} ## End of namespace Tests
+} ## End of namespace LinearAlgebra
+} ## End of namespace Math
+} ## End of namespace Stdn
