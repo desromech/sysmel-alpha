@@ -2185,6 +2185,11 @@ MbndSlovimCodeModuleGenerator >> visitPrimitiveIntegerType: type [
 ]
 
 { #category : #'typeinfo translation' }
+MbndSlovimCodeModuleGenerator >> visitPrimitiveMatrixType: type [
+	^ self visitCoreBasicType: type
+]
+
+{ #category : #'typeinfo translation' }
 MbndSlovimCodeModuleGenerator >> visitPrimitiveVectorType: type [
 	^ self visitCoreBasicType: type
 ]

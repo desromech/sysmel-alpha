@@ -5,6 +5,7 @@ Trait {
 		'globalBindingAssociation'
 	],
 	#traits : 'TMbndAbstractProgramEntity + TMbndAbstractMacroMethodContainer + TMbndAbstractMethodContainer + TMbndAbstractSymbolContainer',
+	#classTraits : 'TMbndAbstractProgramEntity classTrait + TMbndAbstractMacroMethodContainer classTrait + TMbndAbstractMethodContainer classTrait + TMbndAbstractSymbolContainer classTrait',
 	#category : #'SysmelMoebiusMetamodel-Core-ProgramEntity'
 }
 
@@ -43,6 +44,11 @@ TMbndProgramEntity >> enqueueDelayedSemanticAnalysis [
 
 { #category : #'semantic analysis' }
 TMbndProgramEntity >> ensureSemanticAnalysis [
+]
+
+{ #category : #scope }
+TMbndProgramEntity >> extensionFragmentEvaluationScope [
+	^ self programEntityScope
 ]
 
 { #category : #'as yet unclassified' }

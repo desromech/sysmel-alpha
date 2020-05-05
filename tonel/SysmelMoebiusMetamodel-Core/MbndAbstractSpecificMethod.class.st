@@ -26,7 +26,7 @@ MbndAbstractSpecificMethod >> addLambdaChild: aLambda [
 MbndAbstractSpecificMethod >> analyzeExpandedMessageSendNode: node with: analyzer [
 	| newReceiverNode argumentTypes newArgumentNodes result |
 	node receiver ifNotNil: [ :receiverNode |
-		receiverNode type isNamespaceType ifTrue: [
+		(receiverNode type isNamespaceType or: [self isStatic]) ifTrue: [
 			^ self analyzeExpandedMessageSendNode: (node copy receiver: nil) with: analyzer
 		].
 	].
@@ -259,6 +259,11 @@ MbndAbstractSpecificMethod >> isNoReturn [
 { #category : #testing }
 MbndAbstractSpecificMethod >> isSealed [
 	^ (self hasFlag: #sealed) or: [ parent isSealed ]
+]
+
+{ #category : #testing }
+MbndAbstractSpecificMethod >> isStatic [
+	^ self hasFlag: #static
 ]
 
 { #category : #testing }

@@ -26,6 +26,10 @@ MbndAstAbstractFunctionPrototypeNode >> arguments: anObject [
 
 { #category : #'as yet unclassified' }
 MbndAstAbstractFunctionPrototypeNode >> computeReceiverTypeForEntity: entity [
+	(self hasFlag: #static) ifTrue: [ 
+		^ entity compilationTarget voidType
+	].
+ 
 	(self hasFlag: #const) ifTrue: [
 		^ entity implicitMethodConstReceiverType
 	].
