@@ -13,7 +13,8 @@ GenericLinearAlgebra extend: {
 
         Matrix2x2 extend: {
             meta definition: {
-                const inline method rotation: (angle: Scalar) ::=> Matrix2x2 := {
+                static inline method rotation: (angle: Scalar) ::=> Matrix2x2 := {
+                    <gpu>
                     let c := angle cos.
                     let s := angle sin.
                     Matrix2x2 columns: (
@@ -23,19 +24,282 @@ GenericLinearAlgebra extend: {
                 }.
             }.
         }.
+
+        Matrix3x3 extend: {
+            meta definition: {
+                static inline method xRotation: (angle: Scalar) ::=> Matrix3x3 := {
+                    <gpu>
+                    let c := angle cos.
+                    let s := angle sin.
+                    Matrix3x3 columns: (
+                        1, 0, 0,
+                        0, c, s,
+                        0, s negated, c
+                    )
+                }.
+
+                static inline method yRotation: (angle: Scalar) ::=> Matrix3x3 := {
+                    <gpu>
+                    let c := angle cos.
+                    let s := angle sin.
+                    Matrix3x3 columns: (
+                        c, 0, s negated,
+                        0, 0, 0,
+                        s, 0, c
+                    )
+                }.
+
+                static inline method zRotation: (angle: Scalar) ::=> Matrix3x3 := {
+                    <gpu>
+                    let c := angle cos.
+                    let s := angle sin.
+                    Matrix3x3 columns: (
+                        c, s, 0,
+                        s negated, c, 0,
+                        0, 0, 1
+                    )
+                }.
+
+                static inline method xyzRotation: (angles: Vector3) ::=> Matrix3x3 := {
+                    <gpu>
+                    (Matrix3x3 xRotation: angles x) * (Matrix3x3 yRotation: angles y) * (Matrix3x3 zRotation: angles z)
+                }.
+
+                static inline method zyxRotation: (angles: Vector3) ::=> Matrix3x3 := {
+                    <gpu>
+                    (Matrix3x3 zRotation: angles z) * (Matrix3x3 yRotation: angles y) * (Matrix3x3 xRotation: angles x)
+                }.
+
+                static inline method lookAtBack => Matrix3x3 := {
+                    <gpu>
+                    Matrix3x3 yRotation: Scalar pi
+                }.
+
+                static inline method lookAtBottom => Matrix3x3 := {
+                    <gpu>
+                    Matrix3x3 xRotation: Scalar halfPi negated
+                }.
+
+                static inline method lookAtFront => Matrix3x3 := {
+                    <gpu>
+                    Matrix3x3 identity
+                }.
+
+                static inline method lookAtLeft => Matrix3x3 := {
+                    <gpu>
+                    Matrix3x3 yRotation: Scalar halfPi
+                }.
+
+                static inline method lookAtRight => Matrix3x3 := {
+                    <gpu>
+                    Matrix3x3 yRotation: Scalar halfPi negated
+                }.
+
+                static inline method lookAtTop => Matrix3x3 := {
+                    <gpu>
+                    Matrix3x3 yRotation: Scalar halfPi
+                }.
+
+                static inline method lookAtDirection: (direction: Vector3) up: (upVector: Vector3) ::=> Matrix3x3 := {
+                    <gpu>
+                    ## This is the same as gluLookAt
+                    let up := upVector normalized.
+
+                    let f := direction normalized.
+                	let s := (direction cross: up) normalized.
+                	let u := s cross: f.
+
+                    Matrix3x3 columns: (s, u, f negated).
+                }.
+
+                static inline method ndcToTexcoord2D => Matrix3x3 := {
+                    <gpu>
+                    Matrix3x3 (
+                        0.5, 0, 0,
+                        0, 0.5, 0,
+                        0.5, 0.5, 1
+                    )
+                }.
+            }.
+        }.
+
+        Matrix4x4 extend: {
+            meta definition: {
+                static inline method shadowMapBias => Matrix4x4 := {
+                    <gpu>
+                    Matrix4x4 (
+                        0.5, 0, 0, 0,
+                        0, 0.5, 0, 0,
+                        0, 0, 0.5, 0,
+                        0.5, 0.5, 0.5, 1
+                    )
+                }.
+
+                static inline method frustumLeft: (left: Scalar) right: (right: Scalar)
+                    bottom: (bottom: Scalar) top: (top: Scalar)
+                    near: (near: Scalar) far: (far: Scalar)
+                    invertedY: (invertedY: Boolean8) ::=> Matrix4x4 := {
+
+                    let yAxisFactor := invertedY ifTrue: Vector4 ones negated ifFalse: Vector4 ones.
+
+                    Matrix4x4 rows: (
+                        Vector4(2*near /(right - left), 0, (right + left) / (right - left), 0),
+                        Vector4(0, 2*near /(top - bottom), (top + bottom) / (top - bottom), 0) * yAxisFactor,
+                        Vector4(0, 0, far negated / (far - near), near*far negated / (far - near)),
+                        Vector4(0, 0, -1, 0)
+                    )
+                }.
+
+                static inline method orthoLeft: (left: Scalar) right: (right: Scalar)
+                    bottom: (bottom: Scalar) top: (top: Scalar)
+                    near: (near: Scalar) far: (far: Scalar)
+                    invertedY: (invertedY: Boolean8) ::=> Matrix4x4 := {
+
+                    let yAxisFactor := invertedY ifTrue: Vector4 ones negated ifFalse: Vector4 ones.
+
+                    Matrix4x4 rows: (
+                        Vector4(2*near /(right - left), 0, 0, ((right + left) / (right - left)) negated),
+                        Vector4(0, 2*near /(top - bottom), 0, ((top + bottom) / (top - bottom)) negated) * yAxisFactor,
+                        Vector4(0, 0, -1 / (far - near), near / (far - near)),
+                        Vector4(0, 0, 0, 1)
+                    )
+                }.
+
+                static inline method perspectiveFovY: (fovy: Scalar) aspect: (aspect: Scalar)
+                    near: (near: Scalar) far: (far: Scalar) invertedY: (invertedY: Boolean8) ::=> Matrix4x4 := {
+
+                    let fovyRad := fovy degreesToRadians * 0.5.
+                	let top := near * fovyRad tan.
+                	let right := top * aspect.
+                	Matrix4x4 frustumLeft: right negated right: right bottom: top negated top: top near: near far: far invertedY: invertedY
+                }.
+
+                static inline method reverseDepthFrustumLeft: (left: Scalar) right: (right: Scalar)
+                    bottom: (bottom: Scalar) top: (top: Scalar)
+                    near: (near: Scalar) far: (far: Scalar)
+                    invertedY: (invertedY: Boolean8) ::=> Matrix4x4 := {
+
+                    let yAxisFactor := invertedY ifTrue: Vector4 ones negated ifFalse: Vector4 ones.
+
+                    Matrix4x4 rows: (
+                        Vector4(2*near /(right - left), 0, (right + left) / (right - left), 0),
+                        Vector4(0, 2*near /(top - bottom), (top + bottom) / (top - bottom), 0) * yAxisFactor,
+                        Vector4(0, 0, near / (far - near), near*far / (far - near)),
+                        Vector4(0, 0, -1, 0)
+                    )
+                }.
+
+                static inline method reverseDepthOrthoLeft: (left: Scalar) right: (right: Scalar)
+                    bottom: (bottom: Scalar) top: (top: Scalar)
+                    near: (near: Scalar) far: (far: Scalar)
+                    invertedY: (invertedY: Boolean8) ::=> Matrix4x4 := {
+
+                    let yAxisFactor := invertedY ifTrue: Vector4 ones negated ifFalse: Vector4 ones.
+
+                    Matrix4x4 rows: (
+                        Vector4(2*near /(right - left), 0, 0, ((right + left) / (right - left)) negated),
+                        Vector4(0, 2*near /(top - bottom), 0, ((top + bottom) / (top - bottom)) negated) * yAxisFactor,
+                        Vector4(0, 0, 1 / (far - near), far / (far - near)),
+                        Vector4(0, 0, 0, 1)
+                    )
+                }.
+
+                static inline method reverseDerspectiveFovY: (fovy: Scalar) aspect: (aspect: Scalar)
+                    near: (near: Scalar) far: (far: Scalar) invertedY: (invertedY: Boolean8) ::=> Matrix4x4 := {
+
+                    let fovyRad := fovy degreesToRadians * 0.5.
+                	let top := near * fovyRad tan.
+                	let right := top * aspect.
+                	Matrix4x4 reverseDepthFrustumLeft: right negated right: right bottom: top negated top: top near: near far: far invertedY: invertedY
+                }.
+
+            }.
+        }.
     }.
 
     Matrix2x2 extend: {
         meta definition: {
-            const inline method scale: (scale: Vector2) ::=> Matrix2x2 := {
+            static inline method scale: (scale: Vector2) ::=> Matrix2x2 := {
+                <gpu>
                 Matrix2x2 columns: (
                     scale x, 0,
                     0, scale y
                 )
             }.
+
+            static inline method scaleX: (scaleX: Scalar) y: (scaleY: Scalar) ::=> Matrix2x2 := {
+                <gpu>
+                self scale: Vector2(scaleX, scaleY)
+            }.
         }.
     }.
 
+    Matrix3x3 extend: {
+        meta definition: {
+            static inline method scale: (scale: Vector3) ::=> Matrix3x3 := {
+                <gpu>
+                Matrix3x3 columns: (
+                    scale x, 0, 0,
+                    0, scale y, 0,
+                    0, 0, scale z
+                )
+            }.
+
+            static inline method scaleX: (scaleX: Scalar) y: (scaleY: Scalar) z: (scaleZ: Scalar) ::=> Matrix3x3 := {
+                <gpu>
+                self scale: Vector3(scaleX, scaleY, scaleZ)
+            }.
+        }.
+    }.
+
+    Matrix4x4 extend: {
+        meta definition: {
+            static inline method mat3: (mat3: Matrix3x3) ::=> Matrix4x4 := {
+                <gpu>
+                Matrix4x4 columns: (
+                    Vector4(mat3 firstColumn, 0),
+                    Vector4(mat3 secondColumn, 0),
+                    Vector4(mat3 thirdColumn, 0),
+                    Vector4(0, 0, 0, 1)
+                )
+            }.
+
+            static inline method mat3: (mat3: Matrix3x3) translation: (vector: Vector3) ::=> Matrix4x4 := {
+                <gpu>
+                Matrix4x4 columns: (
+                    Vector4(mat3 firstColumn, 0),
+                    Vector4(mat3 secondColumn, 0),
+                    Vector4(mat3 thirdColumn, 0),
+                    Vector4(vector, 1)
+                )
+            }.
+
+            static inline method mat3: (mat3: Matrix3x3) translation4: (vector: Vector4) ::=> Matrix4x4 := {
+                <gpu>
+                Matrix4x4 columns: (
+                    Vector4(mat3 firstColumn, 0),
+                    Vector4(mat3 secondColumn, 0),
+                    Vector4(mat3 thirdColumn, 0),
+                    vector
+                )
+            }.
+
+            static inline method scale: (scale: Vector4) ::=> Matrix4x4 := {
+                <gpu>
+                Matrix4x4 columns: (
+                    scale x, 0, 0, 0,
+                    0, scale y, 0, 0,
+                    0, 0, scale z, 0,
+                    0, 0, 0, scale w
+                )
+            }.
+
+            static inline method scaleX: (scaleX: Scalar) y: (scaleY: Scalar) z: (scaleZ: Scalar) w: (scaleW: Scalar) ::=> Matrix4x4 := {
+                <gpu>
+                self scale: Vector4(scaleX, scaleY, scaleZ, scaleW).
+            }.
+        }.
+    }.
 }.
 
 

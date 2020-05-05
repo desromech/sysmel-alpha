@@ -107,6 +107,17 @@ sealed template GenericMatrix2x2Test(ST: Type)
         self assert: b transpose transpose equals: b.
     }.
 
+    test: testScale with: {
+        self assert: (Matrix2x2 scale: Vector2(2, 3)) equals: Matrix2x2(
+            2, 0,
+            0, 3
+        ).
+        self assert: (Matrix2x2 scaleX: 2 y: 3) equals: Matrix2x2(
+            2, 0,
+            0, 3
+        ).
+    }.
+
 }.
 
 compileTime constant Int32x2x2Tests := GenericMatrix2x2Test(Int32).

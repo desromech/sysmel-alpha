@@ -121,6 +121,20 @@ sealed template GenericMatrix4x4Test(ST: Type)
         self assert: b transpose transpose equals: b.
     }.
 
+    test: testScale with: {
+        self assert: (Matrix4x4 scale: Vector4(2, 3, 4, 5)) equals: Matrix4x4(
+            2, 0, 0, 0,
+            0, 3, 0, 0,
+            0, 0, 4, 0,
+            0, 0, 0, 5
+        ).
+        self assert: (Matrix4x4 scaleX: 2 y: 3 z: 4 w: 5) equals: Matrix4x4(
+            2, 0, 0, 0,
+            0, 3, 0, 0,
+            0, 0, 4, 0,
+            0, 0, 0, 5
+        ).
+    }.
 }.
 
 compileTime constant Int32x4x4Tests := GenericMatrix4x4Test(Int32).

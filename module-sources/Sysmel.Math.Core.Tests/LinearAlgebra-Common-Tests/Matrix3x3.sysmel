@@ -114,6 +114,18 @@ sealed template GenericMatrix3x3Test(ST: Type)
         self assert: b transpose transpose equals: b.
     }.
 
+    test: testScale with: {
+        self assert: (Matrix3x3 scale: Vector3(2, 3, 4)) equals: Matrix3x3(
+            2, 0, 0,
+            0, 3, 0,
+            0, 0, 4
+        ).
+        self assert: (Matrix3x3 scaleX: 2 y: 3 z: 4) equals: Matrix3x3(
+            2, 0, 0,
+            0, 3, 0,
+            0, 0, 4
+        ).
+    }.
 }.
 
 compileTime constant Int32x3x3Tests := GenericMatrix3x3Test(Int32).
