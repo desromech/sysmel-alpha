@@ -538,6 +538,11 @@ MbndAstNode >> isMatrixSetRowValueNode [
 ]
 
 { #category : #testing }
+MbndAstNode >> isMatrixTransposeNode [
+	^ false
+]
+
+{ #category : #testing }
 MbndAstNode >> isMbndAstNode [
 	^ true
 ]

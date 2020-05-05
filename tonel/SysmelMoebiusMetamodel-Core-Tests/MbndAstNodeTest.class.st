@@ -135,6 +135,7 @@ MbndAstNodeTest >> testTestingMethods [
 	self deny: node isMatrixMultiplicationOperationNode.
 	self deny: node isMatrixSetColumnValueNode.
 	self deny: node isMatrixSetRowValueNode.
+	self deny: node isMatrixTransposeNode.
 	self deny: node isMetaBuilderInstanceNode.
 	self deny: node isMessageChainNode.
 	self deny: node isMessageChainMessageNode.

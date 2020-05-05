@@ -760,6 +760,16 @@ MbndAstBuilderTest >> testMatrixSetRowValueNode [
 ]
 
 { #category : #tests }
+MbndAstBuilderTest >> testMatrixTransposeNode [
+	| node matrix |
+	matrix := builder identifier: #matrix.
+	node := builder transposeMatrix: matrix.
+	
+	self assert: node isMatrixTransposeNode.
+	self assert: node matrix equals: matrix.
+]
+
+{ #category : #tests }
 MbndAstBuilderTest >> testMessageChainMessageNode [
 	| node arguments selector |
 	arguments := { 

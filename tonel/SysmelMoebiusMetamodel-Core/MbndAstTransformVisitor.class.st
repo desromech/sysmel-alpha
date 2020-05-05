@@ -587,6 +587,13 @@ MbndAstTransformVisitor >> visitMatrixSetRowValueNode: node [
 ]
 
 { #category : #visiting }
+MbndAstTransformVisitor >> visitMatrixTransposeNode: node [
+	^ node copy
+		matrix: (self visitNode: node matrix);
+		yourself
+]
+
+{ #category : #visiting }
 MbndAstTransformVisitor >> visitMessageChainMessageNode: node [
 	^ node copy
 		selector: (self visitNode: node selector);

@@ -96,15 +96,20 @@ MbndSlovimTranslatedIntrinsicArithmeticComparisonOperation >> generateExpandedMe
 	node type isPrimitiveScalarType ifTrue: [ 
 		resultType := result type.
 		resultType isVectorType ifTrue: [
-			self intrinsicName = #eq ifTrue: [ 
+			self intrinsicName = #eq ifTrue: [
 				result := codeGenerator slvmBuilder vectorIsAllSet: result
 			] ifFalse: [ 
 				self assert: self intrinsicName = #ne.
 				result := codeGenerator slvmBuilder vectorIsAnySet: result
 			] 
 		].
-		resultType isMatrixType ifTrue: [ 
-			self halt
+		resultType isMatrixType ifTrue: [
+			self intrinsicName = #eq ifTrue: [
+				result := codeGenerator slvmBuilder matrixIsAllSet: result
+			] ifFalse: [ 
+				self assert: self intrinsicName = #ne.
+				result := codeGenerator slvmBuilder matrixIsAnySet: result
+			] 
 		].
 	].
 

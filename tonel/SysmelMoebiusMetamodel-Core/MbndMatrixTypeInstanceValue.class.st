@@ -57,3 +57,22 @@ MbndMatrixTypeInstanceValue >> elementWiseApply: selector to: other [
 MbndMatrixTypeInstanceValue >> isMatrixTypeInstanceValue [
 	^ false
 ]
+
+{ #category : #accessing }
+MbndMatrixTypeInstanceValue >> transpose [
+	| resultType result resultColumnType |
+	resultType := self type transpose.
+	resultColumnType := resultType columnType.
+	result := self class new
+		type: resultType;
+		slots: ((1 to: resultType columns) collect: [ :columnIndex |
+			| resultColumn |
+			resultColumn := resultColumnType defaultValue.
+			(1 to: resultType rows) do: [ :rowIndex |
+				resultColumn slots at: rowIndex put: ((slots at: rowIndex) slots at: columnIndex)
+			].
+			resultColumn
+		]);
+		yourself.
+	^ result
+]

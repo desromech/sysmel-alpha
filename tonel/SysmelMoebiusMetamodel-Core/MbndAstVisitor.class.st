@@ -415,6 +415,11 @@ MbndAstVisitor >> visitMatrixSetRowValueNode: node [
 ]
 
 { #category : #visiting }
+MbndAstVisitor >> visitMatrixTransposeNode: node [
+	self subclassResponsibility
+]
+
+{ #category : #visiting }
 MbndAstVisitor >> visitMessageChainMessageNode: node [
 	self subclassResponsibility
 ]

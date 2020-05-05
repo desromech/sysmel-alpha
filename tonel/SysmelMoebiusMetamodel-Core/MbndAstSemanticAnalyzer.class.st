@@ -1899,6 +1899,14 @@ MbndAstSemanticAnalyzer >> visitMatrixConstructionNode: node [
 
 	expectedColumnType := result matrixType columnType.
 	result columns: (result columns collect: [:column | self addImplicitCastFor: column to: expectedColumnType]).
+	(result columns allSatisfy: [ :each | each isLiteralValueNode ]) ifTrue: [
+		^ (MbndMatrixTypeInstanceValue new
+			type: result type;
+			slots: (result columns collect: [:each | each evaluateMbndValue unwrapMbndValue copy ]);
+			yourself) asLiteralValueNode
+				position: result;
+				yourself
+	].
 	
 	^ result
 ]
@@ -1956,12 +1964,12 @@ MbndAstSemanticAnalyzer >> visitMatrixGetRowNode: node [
 MbndAstSemanticAnalyzer >> visitMatrixMultiplicationOperationNode: node [
 	| result leftMatrixType rightMatrixType |
 	result := node copy
-		leftMatrix: (self analyzeNodeIfNeeded: node leftMatrix);
-		rightMatrix: (self analyzeNodeIfNeeded: node rightMatrix);
+		leftMatrix: (self ensureConcreteValue: (self analyzeNodeIfNeeded: node leftMatrix));
+		rightMatrix: (self ensureConcreteValue: (self analyzeNodeIfNeeded: node rightMatrix));
 		yourself.
 	
-	leftMatrixType := result leftMatrix type withoutReferences withoutTopDecorations.
-	rightMatrixType := result rightMatrix type withoutReferences withoutTopDecorations.
+	leftMatrixType := result leftMatrix type.
+	rightMatrixType := result rightMatrix type.
 	"The receiver must be always a matrix or a vector."
 	self assert: leftMatrixType isPrimitiveMatrixOrVectorType.
 	
@@ -2026,6 +2034,26 @@ MbndAstSemanticAnalyzer >> visitMatrixMultiplicationOperationNode: node [
 	^ result
 		type: (leftMatrixType elementType primitiveMatrixWithRows: leftMatrixType rows columns: rightMatrixType columns);
 		yourself
+]
+
+{ #category : #visiting }
+MbndAstSemanticAnalyzer >> visitMatrixTransposeNode: node [
+	| result  matrixType |
+	result := node copy
+		matrix: (self ensureConcreteValue: (self analyzeNodeIfNeeded: node matrix));
+		yourself.
+
+	matrixType := result matrix type.
+	self assert: matrixType isPrimitiveMatrixType.
+	result type: matrixType transpose.
+
+	result matrix isLiteralValueNode ifTrue: [
+		^ result matrix evaluateMbndValue transpose asLiteralValueNode
+			position: result;
+			yourself
+	].
+
+	^ result
 ]
 
 { #category : #visiting }
@@ -2919,6 +2947,26 @@ MbndAstSemanticAnalyzer >> visitVectorConstructionNode: node [
 		self error: 'Vector construction does not have sufficient elements for constructing a vector of type {1}.' format: { result vectorType asString } at: result
 	].
 	
+	(result elements allSatisfy: [ :each | each isLiteralValueNode ]) ifTrue: [
+		| literalSlots |
+		literalSlots := Array streamContents: [ :out |
+			result elements do: [ :each |
+				each type isPrimitiveVectorType ifTrue: [ 
+					out nextPutAll: each evaluateMbndValue unwrapMbndValue slots
+				] ifFalse: [ 
+					out nextPut: each evaluateMbndValue unwrapMbndValue
+				]
+			]
+		].
+	
+		^ (MbndVectorTypeInstanceValue new
+			type: result type;
+			slots: literalSlots;
+			yourself) asLiteralValueNode
+				position: result;
+				yourself
+	].
+
 	^ result
 ]
 

@@ -1395,11 +1395,10 @@ MbndAstSemanticAnalyzerTest >> testMatrixConstruction [
 	node := builder constructMatrix: (builder identifier: #Float32x2x2) withColumns: {firstColumn . secondColumn}.
 	analyzedNode := visitor visitNode: node.
 	
-	self assert: analyzedNode isMatrixConstructionNode.
-	self assert: analyzedNode matrixType isPrimitiveMatrixType.
-	self assert: analyzedNode matrixType elementType isPrimitiveFloatType.
-	self assert: analyzedNode matrixType rows equals: 2.
-	self assert: analyzedNode matrixType columns equals: 2.
+	self assert: analyzedNode isLiteralValueNode.
+	self assert: analyzedNode type isPrimitiveMatrixType.
+	self assert: analyzedNode type rows equals: 2.
+	self assert: analyzedNode type columns equals: 2.
 ]
 
 { #category : #tests }
@@ -2375,10 +2374,10 @@ MbndAstSemanticAnalyzerTest >> testVectorConstruction [
 	node := builder constructVector: vectorType withElements: { one . two }.
 	analyzedNode := visitor visitNode: node.
 	
-	self assert: analyzedNode isVectorConstructionNode.
-	self assert: analyzedNode vectorType isPrimitiveVectorType.
-	self assert: analyzedNode vectorType elementType isPrimitiveFloatType.
-	self assert: analyzedNode vectorType elements equals: 2.
+	self assert: analyzedNode isLiteralValueNode.
+	self assert: analyzedNode type isPrimitiveVectorType.
+	self assert: analyzedNode type elementType isPrimitiveFloatType.
+	self assert: analyzedNode type elements equals: 2.
 ]
 
 { #category : #tests }

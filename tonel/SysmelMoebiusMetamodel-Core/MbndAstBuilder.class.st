@@ -1321,6 +1321,16 @@ MbndAstBuilder >> temporaryVariableOfType: valueType [
 ]
 
 { #category : #'builder methods' }
+MbndAstBuilder >> transposeMatrix: matrix [
+	<compileTime>
+	<returnType: #_ASTNodeType>
+	^ MbndAstMatrixTransposeNode new
+		position: defaultPosition;
+		matrix: matrix;
+		yourself
+]
+
+{ #category : #'builder methods' }
 MbndAstBuilder >> truncate: expression to: targetType [
 	<compileTime>
 	<returnType: #_ASTNodeType>

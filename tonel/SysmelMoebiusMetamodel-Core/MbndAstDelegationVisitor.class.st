@@ -418,6 +418,11 @@ MbndAstDelegationVisitor >> visitMatrixSetRowValueNode: node [
 ]
 
 { #category : #visiting }
+MbndAstDelegationVisitor >> visitMatrixTransposeNode: node [
+	^ self delegateNodeVisit: node
+]
+
+{ #category : #visiting }
 MbndAstDelegationVisitor >> visitMessageChainMessageNode: node [
 	^ self delegateNodeVisit: node
 ]

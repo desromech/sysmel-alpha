@@ -1392,7 +1392,7 @@ MbndSlovimFunctionCodeGenerator >> generateSuperSendPrologueWithSelector: select
 
 { #category : #'as yet unclassified' }
 MbndSlovimFunctionCodeGenerator >> generateThreeWayComparisonOf: leftOperand with: rightOperand resultType: resultType [
-	| operandType elementWiseResultType elementWiseResult |
+	| operandType columnsComparisons columnsComparisonVector |
 	operandType := leftOperand type.
 	(operandType isVectorType or: [ operandType isMatrixType ]) ifFalse: [ 
 		^ self generateElementWiseThreeWayComparisonOf: leftOperand with: rightOperand resultType: resultType.
@@ -1402,10 +1402,29 @@ MbndSlovimFunctionCodeGenerator >> generateThreeWayComparisonOf: leftOperand wit
 		^ self generateElementWiseThreeWayComparisonOf: leftOperand with: rightOperand resultType: resultType.
 	].
 
-	operandType isMatrixType ifTrue: [
-		self halt.
+	operandType isVectorType ifTrue: [ 
+		^ self generateThreeWayComparisonOfVector: leftOperand with: rightOperand resultType: resultType
 	].
 
+	self assert: operandType isMatrixType.
+	self assert: leftOperand type = rightOperand type.
+	self assert: resultType isIntegerType.
+	columnsComparisons := (0 to: operandType columns - 1 ) collect: [ :columnIndex |
+		| leftColumn rightColumn |
+		leftColumn := slvmBuilder extractValue: leftOperand indices: { columnIndex }.
+		rightColumn := slvmBuilder extractValue: rightOperand indices: { columnIndex }.
+		self generateThreeWayComparisonOfVector: leftColumn with: rightColumn resultType: resultType
+	].
+
+	columnsComparisonVector := slvmBuilder makeVector: (SLVMVectorType baseType: resultType elements: columnsComparisons size) arguments: columnsComparisons.
+	columnsComparisonVector := self generateVectorSign: columnsComparisonVector.
+	^ self vectorThreeWayComparisonResultMerge: columnsComparisonVector
+]
+
+{ #category : #'as yet unclassified' }
+MbndSlovimFunctionCodeGenerator >> generateThreeWayComparisonOfVector: leftOperand with: rightOperand resultType: resultType [
+	| operandType elementWiseResultType elementWiseResult |
+	operandType := leftOperand type.
 	elementWiseResultType := resultType withRankOf: operandType.
 	self assert: elementWiseResultType isNotNil.
 	elementWiseResult := self generateElementWiseThreeWayComparisonOf: leftOperand with: rightOperand resultType: elementWiseResultType.
@@ -3029,6 +3048,13 @@ MbndSlovimFunctionCodeGenerator >> visitMatrixMultiplicationOperationNode: node 
 	self assert: leftMatrix type isMatrixType.
 	self assert: rightMatrix type isMatrixType.
 	^ slvmBuilder mulMatrix: leftMatrix withMatrix: rightMatrix
+]
+
+{ #category : #visiting }
+MbndSlovimFunctionCodeGenerator >> visitMatrixTransposeNode: node [
+	| matrix |
+	matrix := self visitNode: node matrix.
+	^ slvmBuilder matrixTranspose: matrix
 ]
 
 { #category : #visiting }
