@@ -719,7 +719,10 @@ MbndAstSemanticAnalyzer >> visitAssignmentNode: node [
 { #category : #visiting }
 MbndAstSemanticAnalyzer >> visitAssociationNode: node [
 	| result associationType |
-	result := super visitAssociationNode: node.
+	result := node copy
+		key: (node key ifNotNil: [:n | self analyzeNodeIfNeeded: n]);
+		value: (node value ifNotNil: [:n | self analyzeNodeIfNeeded: n]);
+		yourself.
 	associationType := result key type --> result value type.
 	result type: associationType.
 	^ result type correctAssociationTypeForNode: result withAnalyzer: self.
@@ -906,7 +909,9 @@ MbndAstSemanticAnalyzer >> visitCompileTimeConstantDefinitionNode: node [
 { #category : #visiting }
 MbndAstSemanticAnalyzer >> visitCopyIntoTemporaryVariableNode: node [
 	| result valueType |
-	result := super visitCopyIntoTemporaryVariableNode: node.
+	result := node copy
+		value: (self analyzeNodeIfNeeded: node value);
+		yourself.
 	valueType := result value type withoutReferences withoutTopDecorations.
 	valueType hasTrivialFinalization ifFalse: [ 
 		self addNodeWithImplicitFinalization: result
@@ -2235,7 +2240,10 @@ MbndAstSemanticAnalyzer >> visitPointerElementReferenceNode: node [
 { #category : #visiting }
 MbndAstSemanticAnalyzer >> visitPragmaNode: pragmaNode [
 	| selector result |
-	result := super visitPragmaNode: pragmaNode.
+	result := pragmaNode copy
+		selector: (pragmaNode selector);
+		arguments: (self analyzeNodesIfNeeded: pragmaNode arguments);
+		yourself.
 	selector := pragmaNode selector.
 	(result arguments allSatisfy: [ :arg | arg isLiteralValueNode ]) ifTrue: [ 
 		scope lookupProgramEntityForNewDefinitions ifNotNil: [ :programEntity |
@@ -2349,7 +2357,9 @@ MbndAstSemanticAnalyzer >> visitQuoteNode: node [
 { #category : #visiting }
 MbndAstSemanticAnalyzer >> visitReferenceAsPointerNode: node [
 	| result basePointerType |
-	result := super visitReferenceAsPointerNode: node.
+	result := node copy
+		reference: (self analyzeNodeIfNeeded: node reference);
+		yourself.
 	basePointerType := result reference type withoutTopDecorations.
 	(basePointerType isReferenceType or: [basePointerType isTemporaryReferenceType]) ifFalse: [
 		self error: 'Expected a reference value.' at: node pointer.
@@ -2500,7 +2510,10 @@ MbndAstSemanticAnalyzer >> visitSampleTextureWithImplicitLodNode: node [
 { #category : #visiting }
 MbndAstSemanticAnalyzer >> visitSequenceNode: node [
 	| result explicitReturnIndex |
-	result := super visitSequenceNode: node.
+	result := node copy
+		pragmas: (self analyzeNodesIfNeeded: node pragmas);
+		elements: (self analyzeNodesIfNeeded: node elements);
+		yourself.
 	result elements ifEmpty: [
 		result type: self compilationTarget voidType
 	] ifNotEmpty: [
@@ -2874,7 +2887,9 @@ MbndAstSemanticAnalyzer >> visitVariantBoxCreateNode: node [
 { #category : #visiting }
 MbndAstSemanticAnalyzer >> visitVariantTypeSelectorExtractionNode: node [
 	| result |
-	result := super visitVariantTypeSelectorExtractionNode: node.
+	result := node copy
+		variant: (self analyzeNodeIfNeeded: node variant);
+		yourself.
 	result variant type withoutReferences withoutTopDecorations isVariantUnionType ifFalse: [
 		self error: 'Expected a variant union type for extracting a type selector.' at: result.
 	].
@@ -2902,7 +2917,7 @@ MbndAstSemanticAnalyzer >> visitVariantUnboxingAssignmentReferenceNode: node [
 MbndAstSemanticAnalyzer >> visitVariantUnboxingNode: node [
 	| result variantType resultType referenceType |
 	result := node copy
-		variant: (self visitNode: node variant);
+		variant: (self analyzeNodeIfNeeded: node variant);
 		yourself.
 	
 	variantType := result variant type withoutReferences withoutTopDecorations.
