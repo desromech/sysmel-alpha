@@ -1,0 +1,225 @@
+namespace Stdn definition: {
+namespace Math definition: {
+
+sealed template GenericComplex(ST: Type)
+    := struct definition: {
+    compileTime constant Scalar := ST.
+    compileTime constant Vector2 := ST primitiveVectorWithElements: 2.
+    compileTime constant Matrix2x2 := ST primitiveMatrixWithRows: 2 columns: 2.
+
+    public field xy type: Vector2.
+
+    const method x => Scalar := {
+        <gpu>
+        xy x
+    }.
+
+    const method y => Scalar := {
+        <gpu>
+        xy y
+    }.
+
+    const method r => Scalar := {
+        <gpu>
+        xy x
+    }.
+
+    const method i => Scalar := {
+        <gpu>
+        xy y
+    }.
+
+    meta definition: {
+        static inline method xy: (v2: Vector2) ::=> InstanceType := {
+            <constructor>
+            <gpu>
+            InstanceType()
+                xy: v2;
+                yourself
+        }.
+
+        static inline method r: (r: Scalar) i: (i: Scalar) ::=> InstanceType := {
+            <constructor>
+            <gpu>
+            InstanceType xy: Vector2(r, i)
+        }.
+
+        static inline method x: (r: Scalar) y: (i: Scalar) ::=> InstanceType := {
+            <gpu>
+            InstanceType xy: Vector2(r, i)
+        }.
+
+        static inline method r: (r: Scalar) ::=> InstanceType := {
+            <constructor>
+            <gpu>
+            InstanceType xy: Vector2(r, 0)
+        }.
+
+        static inline method zero ::=> InstanceType := {
+            <constructor>
+            <gpu>
+            InstanceType xy: Vector2(0, 0)
+        }.
+
+        static inline method one ::=> InstanceType := {
+            <constructor>
+            <gpu>
+            InstanceType xy: Vector2(1, 0)
+        }.
+
+        static inline method identity ::=> InstanceType := {
+            <constructor>
+            <gpu>
+            InstanceType xy: Vector2(1, 0)
+        }.
+
+        static inline method radius: (r: Scalar) angle: (theta: Scalar) ::=> InstanceType := {
+            <gpu>
+            let c := theta cos.
+            let s := theta sin.
+            InstanceType xy: r*Vector2(c, s)
+        }.
+
+        static inline method angle: (theta: Scalar) ::=> InstanceType := {
+            <gpu>
+            let c := theta cos.
+            let s := theta sin.
+            InstanceType xy: Vector2(c, s)
+        }.
+    }.
+
+    const inline method = (o: SelfType const ref) ::=> Boolean8 := {
+        <gpu>
+        xy = o xy
+    }.
+
+    const inline method == (o: SelfType const ref) ::=> Boolean8 := {
+        <gpu>
+        xy == o xy
+    }.
+
+    const inline method ~= (o: SelfType const ref) ::=> Boolean8 := {
+        <gpu>
+        xy ~= o xy
+    }.
+
+    const inline method ~~ (o: SelfType const ref) ::=> Boolean8 := {
+        <gpu>
+        xy ~~ o xy
+    }.
+
+    const inline method closeTo: (o: SelfType const ref) ::=> Boolean8 := {
+        <gpu>
+        xy closeTo: o xy
+    }.
+
+    const inline method hash ::=> Stdn Hash := {
+        <gpu>
+        xy hash
+    }.
+
+    const inline method <=> (o: SelfType const ref) ::=> Int32 := {
+        <gpu>
+        xy <=> o xy
+    }.
+
+    Stdn Utility RelationshipComparisonMethodsMixin.
+
+    const inline method negated ::=> SelfType := {
+        <gpu>
+        SelfType xy: (xy negated)
+    }.
+
+    const inline method conjugated ::=> SelfType := {
+        <gpu>
+        SelfType xy: Vector2(xy x, xy y negated)
+    }.
+
+    const inline method inverse ::=> SelfType := {
+        <gpu>
+        self conjugated / xy length2
+    }.
+
+    const inline method + (o: SelfType const ref) ::=> SelfType := {
+        <gpu>
+        SelfType xy: (xy + o xy)
+    }.
+
+    const inline method - (o: SelfType const ref) ::=> SelfType := {
+        <gpu>
+        SelfType xy: (xy - o xy)
+    }.
+
+    const inline method * (o: SelfType const ref) ::=> SelfType := {
+        <gpu>
+        SelfType xy: Vector2(self x*o x - self y*o y, self x*o y + self y*o x)
+    }.
+
+    const inline method * (s: Scalar) ::=> SelfType := {
+        <gpu>
+        SelfType xy: xy * s
+    }.
+
+    const inline method / (o: SelfType const ref) ::=> SelfType := {
+        <gpu>
+        self * o inverse
+    }.
+
+    const inline method / (s: Scalar) ::=> SelfType := {
+        <gpu>
+        SelfType xy: xy / s
+    }.
+
+    const inline method dot: (o: SelfType const ref) ::=> Scalar := {
+        <gpu>
+        xy dot: o xy
+    }.
+
+    const inline method length2 ::=> Scalar := {
+        <gpu>
+        xy length2
+    }.
+
+    const inline method length ::=> Scalar := {
+        <gpu>
+        xy length
+    }.
+
+    const inline method abs ::=> Scalar := {
+        <gpu>
+        xy length
+    }.
+
+    const inline method arg ::=> Scalar := {
+        <gpu>
+        self y arcTan: self x
+    }.
+
+    const inline method angle ::=> Scalar := {
+        <gpu>
+        self y arcTan: self x
+    }.
+
+    const inline method asMatrix2x2 ::=> Matrix2x2 := {
+        Matrix2x2 columns: (
+            Vector2(self x, self y),
+            Vector2(self y negated, self x)
+        )
+    }.
+
+    const inline method asFloat32x2x2 ::=> Float32x2x2 := {
+        <gpu>
+        self asMatrix2x2 castTo: Float32x2x2
+    }.
+
+    const inline method asFloat64x2x2 ::=> Float64x2x2 := {
+        <gpu>
+        self asMatrix2x2 castTo: Float64x2x2
+    }.
+}.
+
+compileTime constant ComplexF32 := GenericComplex(Float32).
+compileTime constant ComplexF64 := GenericComplex(Float64).
+
+} ## End of namespace Math
+} ## End of namespace Math

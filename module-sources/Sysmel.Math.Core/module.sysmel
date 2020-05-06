@@ -1,4 +1,5 @@
 Compiler loadPackages: #(
+    #"Complex"
     #"Color-Common"
     #"LinearAlgebra-Common"
     #"LinearAlgebra-Transforms"

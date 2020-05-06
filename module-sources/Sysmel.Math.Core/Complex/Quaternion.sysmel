@@ -1,0 +1,262 @@
+namespace Stdn definition: {
+namespace Math definition: {
+
+sealed template GenericQuaternion(ST: Type)
+    := struct definition: {
+    compileTime constant Scalar := ST.
+    compileTime constant Vector3 := ST primitiveVectorWithElements: 3.
+    compileTime constant Vector4 := ST primitiveVectorWithElements: 4.
+    compileTime constant Matrix3x3 := ST primitiveMatrixWithRows: 3 columns: 3.
+
+    public field xyzw type: Vector4.
+
+    const method xyz => Vector3 := {
+        <gpu>
+        xyzw xyz
+    }.
+
+    const method rijk => Vector4 := {
+        <gpu>
+        xyzw wxyz
+    }.
+
+    const method ijkr => Vector4 := {
+        <gpu>
+        xyzw
+    }.
+
+    const method x => Scalar := {
+        <gpu>
+        xyzw x
+    }.
+
+    const method y => Scalar := {
+        <gpu>
+        xyzw y
+    }.
+
+    const method z => Scalar := {
+        <gpu>
+        xyzw z
+    }.
+
+    const method w => Scalar := {
+        <gpu>
+        xyzw w
+    }.
+
+    const method r => Scalar := {
+        <gpu>
+        xyzw w
+    }.
+
+    const method i => Scalar := {
+        <gpu>
+        xyzw x
+    }.
+
+    const method j => Scalar := {
+        <gpu>
+        xyzw y
+    }.
+
+    const method k => Scalar := {
+        <gpu>
+        xyzw z
+    }.
+
+    meta definition: {
+        static inline method xyzw: (v4: Vector4) ::=> InstanceType := {
+            <constructor>
+            <gpu>
+            InstanceType()
+                xyzw: v4;
+                yourself
+        }.
+
+        static inline method x: (x: Scalar) y: (y: Scalar) z: (z: Scalar) w: (w: Scalar) ::=> InstanceType := {
+            <gpu>
+            InstanceType xyzw: Vector4(x, y, z, w)
+        }.
+
+        static inline method r: (r: Scalar) i: (i: Scalar) j: (j: Scalar) k: (k: Scalar) ::=> InstanceType := {
+            <constructor>
+            <gpu>
+            InstanceType xyzw: Vector4(i, j, k, r)
+        }.
+
+        static inline method r: (r: Scalar) ::=> InstanceType := {
+            <constructor>
+            <gpu>
+            InstanceType xyzw: Vector4(0, 0, 0, r)
+        }.
+
+        static inline method zero ::=> InstanceType := {
+            <constructor>
+            <gpu>
+            InstanceType xyzw: Vector4(0, 0, 0, 0)
+        }.
+
+        static inline method one ::=> InstanceType := {
+            <constructor>
+            <gpu>
+            InstanceType xyzw: Vector4(0, 0, 0, 1)
+        }.
+
+        static inline method identity ::=> InstanceType := {
+            <constructor>
+            <gpu>
+            InstanceType xyzw: Vector4(0, 0, 0, 1)
+        }.
+
+        static inline method xRotation: (angle: Scalar) ::=> InstanceType := {
+            <constructor>
+            <gpu>
+            let halfAngle := angle / 2.
+            let c := halfAngle cos.
+            let s := halfAngle sin.
+            InstanceType r: c i: s j: 0 k: 0
+        }.
+
+        static inline method yRotation: (angle: Scalar) ::=> InstanceType := {
+            <constructor>
+            <gpu>
+            let halfAngle := angle / 2.
+            let c := halfAngle cos.
+            let s := halfAngle sin.
+            InstanceType r: c i: 0 j: s k: 0
+        }.
+
+        static inline method zRotation: (angle: Scalar) ::=> InstanceType := {
+            <constructor>
+            <gpu>
+            let halfAngle := angle / 2.
+            let c := halfAngle cos.
+            let s := halfAngle sin.
+            InstanceType r: c i: 0 j: 0 k: s
+        }.
+
+        static inline method axis: (axis: Vector3) angle: (angle: Scalar) ::=> InstanceType := {
+            <constructor>
+            <gpu>
+            let halfAngle := angle / 2.
+            let c := halfAngle cos.
+            let s := halfAngle sin.
+            InstanceType xyzw: Vector4(axis*s, c)
+        }.
+
+    }.
+
+    const inline method = (o: SelfType const ref) ::=> Boolean8 := {
+        <gpu>
+        xyzw = o xyzw
+    }.
+
+    const inline method == (o: SelfType const ref) ::=> Boolean8 := {
+        <gpu>
+        xyzw == o xyzw
+    }.
+
+    const inline method ~= (o: SelfType const ref) ::=> Boolean8 := {
+        <gpu>
+        xyzw ~= o xyzw
+    }.
+
+    const inline method ~~ (o: SelfType const ref) ::=> Boolean8 := {
+        <gpu>
+        xyzw ~~ o xyzw
+    }.
+
+    const inline method closeTo: (o: SelfType const ref) ::=> Boolean8 := {
+        <gpu>
+        xyzw closeTo: o xyzw
+    }.
+
+    const inline method hash ::=> Stdn Hash := {
+        <gpu>
+        xyzw hash
+    }.
+
+    const inline method <=> (o: SelfType const ref) ::=> Int32 := {
+        <gpu>
+        xyzw <=> o xyzw
+    }.
+
+    Stdn Utility RelationshipComparisonMethodsMixin.
+
+    const inline method negated ::=> SelfType := {
+        <gpu>
+        SelfType xyzw: (xyzw negated)
+    }.
+
+    const inline method conjugated ::=> SelfType := {
+        <gpu>
+        SelfType xyzw: Vector4(xyzw xyz negated, xyzw w)
+    }.
+
+    const inline method inverse ::=> SelfType := {
+        <gpu>
+        self conjugated / xyzw length2
+    }.
+
+    const inline method + (o: SelfType const ref) ::=> SelfType := {
+        <gpu>
+        SelfType xyzw: (xyzw + o xyzw)
+    }.
+
+    const inline method - (o: SelfType const ref) ::=> SelfType := {
+        <gpu>
+        SelfType xyzw: (xyzw - o xyzw)
+    }.
+
+    const inline method * (other: SelfType const ref) ::=> SelfType := {
+        <gpu>
+        SelfType
+            r: (self r * other r) - (self i * other i) - (self j * other j) - (self k * other k)
+            i: (self r * other i) + (self i * other r) + (self j * other k) - (self k * other j)
+            j: (self r * other j) - (self i * other k) + (self j * other r) + (self k * other i)
+            k: (self r * other k) + (self i * other j) - (self j * other i) + (self k * other r)
+    }.
+
+    const inline method * (s: Scalar) ::=> SelfType := {
+        <gpu>
+        SelfType xyzw: xyzw * s
+    }.
+
+    const inline method / (o: SelfType const ref) ::=> SelfType := {
+        <gpu>
+        self * o inverse
+    }.
+
+    const inline method / (s: Scalar) ::=> SelfType := {
+        <gpu>
+        SelfType xyzw: xyzw / s
+    }.
+
+    const inline method dot: (o: SelfType const ref) ::=> Scalar := {
+        <gpu>
+        xyzw dot: o xyzw
+    }.
+
+    const inline method length2 ::=> Scalar := {
+        <gpu>
+        xyzw length2
+    }.
+
+    const inline method length ::=> Scalar := {
+        <gpu>
+        xyzw length
+    }.
+
+    const inline method abs ::=> Scalar := {
+        <gpu>
+        xyzw length
+    }.
+
+}.
+
+compileTime constant QuaternionF32 := GenericQuaternion(Float32).
+compileTime constant QuaternionF64 := GenericQuaternion(Float64).
+
+} ## End of namespace Math
+} ## End of namespace Stdn

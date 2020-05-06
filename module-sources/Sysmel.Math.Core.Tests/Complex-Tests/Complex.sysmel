@@ -1,0 +1,242 @@
+namespace Stdn definition: {
+namespace Math definition: {
+namespace Tests definition: {
+
+sealed template GenericComplexTest(ST: Type)
+    := class superclass: Stdn Testing TestCase; definition: {
+
+    compileTime constant Complex := GenericComplex(ST).
+    compileTime constant Scalar := Complex Scalar.
+    compileTime constant Vector2 := Complex Vector2.
+    compileTime constant Matrix2x2 := Complex Matrix2x2.
+
+    test: testEquals with: {
+        let a := Complex r: 1 i: 2.
+        let b := Complex r: 3 i: 4.
+        let c := Complex r: 3 i: 4.
+
+        self assert: b equals:  c.
+        self deny: a = b.
+        self deny: a = c.
+    }.
+
+    test: testNotEquals with: {
+        let a := Complex r: 1 i: 2.
+        let b := Complex r: 3 i: 4.
+        let c := Complex r: 3 i: 4.
+
+        self deny: (b ~=  c).
+        self assert: a ~= b.
+        self assert: a ~= c.
+    }.
+
+    test: testCloseTo with: {
+        let a := Complex r: 1 i: 2.
+        let b := Complex r: 3 i: 4.
+        let c := Complex r: 3 i: 4.
+
+        self assert: b closeTo:  c.
+        self deny: (a closeTo: b).
+        self assert: a notCloseTo:  b.
+
+        self deny: (a closeTo: c).
+        self assert: a notCloseTo: c.
+    }.
+
+    test: testHash with: {
+        let b := Complex r: 3 i: 4.
+        let c := Complex r: 3 i: 4.
+        self assert: b hash equals: c hash.
+    }.
+
+    test: testLessThan with: {
+        self deny: Complex(0, 0) < Complex(0, 0).
+        self assert: Complex(0, 0) < Complex(1, 0).
+        self deny: Complex(1, 0) < Complex(0, 0).
+
+        self assert: Complex(0, 0) < Complex(0, 1).
+        self deny: Complex(0, 1) < Complex(0, 0).
+        self deny: Complex(0, 1) < Complex(0, 1).
+    }.
+
+    test: testLessOrEqual with: {
+        self assert: Complex(0, 0) <= Complex(0, 0).
+        self assert: Complex(0, 0) <= Complex(1, 0).
+        self deny: Complex(1, 0) <= Complex(0, 0).
+
+        self assert: Complex(0, 0) <= Complex(0, 1).
+        self deny: Complex(0, 1) <= Complex(0, 0).
+        self assert: Complex(0, 1) <= Complex(0, 1).
+    }.
+
+    test: testGreaterThan with: {
+        self deny: Complex(0, 0) > Complex(0, 0).
+        self deny: Complex(0, 0) > Complex(1, 0).
+        self assert: Complex(1, 0) > Complex(0, 0).
+
+        self deny: Complex(0, 0) > Complex(0, 1).
+        self assert: Complex(0, 1) > Complex(0, 0).
+        self deny: Complex(0, 1) > Complex(0, 1).
+    }.
+
+    test: testGreaterOrEqual with: {
+        self assert: Complex(0, 0) >= Complex(0, 0).
+        self deny: Complex(0, 0) >= Complex(1, 0).
+        self assert: Complex(1, 0) >= Complex(0, 0).
+
+        self deny: Complex(0, 0) >= Complex(0, 1).
+        self assert: Complex(0, 1) >= Complex(0, 0).
+        self assert: Complex(0, 1) >= Complex(0, 1).
+    }.
+
+    test: testZero with: {
+        self assert: Complex zero equals: Complex(0, 0).
+    }.
+
+    test: testOne with: {
+        self assert: Complex one equals: Complex(1, 0).
+    }.
+
+    test: testIdentity with: {
+        self assert: Complex identity equals: Complex(1, 0).
+    }.
+
+    test: testNegated with: {
+        self assert: Complex(1, 2) negated equals: Complex(-1, -2).
+    }.
+
+    test: testConjugated with: {
+        self assert: Complex(1, 2) conjugated equals: Complex(1, -2).
+    }.
+
+    test: testInverse with: {
+        self assert: Complex(1, 0) inverse equals: Complex(1, 0).
+        self assert: Complex one inverse equals: Complex one.
+    }.
+
+    test: testAddition with: {
+        self assert: Complex(0, 0) + Complex(0, 0) equals: Complex(0, 0).
+        self assert: Complex(1, 2) + Complex(0, 0) equals: Complex(1, 2).
+        self assert: Complex(1, 2) + Complex(3, 4) equals: Complex(4, 6).
+        self assert: Complex(3, 4) + Complex(1, 2) equals: Complex(4, 6).
+    }.
+
+    test: testSubtraction with: {
+        self assert: Complex(0, 0) - Complex(0, 0) equals: Complex(0, 0).
+        self assert: Complex(1, 2) - Complex(0, 0) equals: Complex(1, 2).
+        self assert: Complex(1, 2) - Complex(3, 5) equals: Complex(-2, -3).
+    }.
+
+    test: testMultiplicationScalar with: {
+        self assert: Complex(0, 0) * Complex(0, 0) equals: Complex(0, 0).
+        self assert: Complex(1, 2) * Complex(0, 0) equals: Complex(0, 0).
+        self assert: Complex(1, 2) * 0 equals: Complex(0, 0).
+
+        self assert: Complex(0, 0) * Complex(1, 0) equals: Complex(0, 0).
+        self assert: Complex(1, 2) * Complex(1, 0) equals: Complex(1, 2).
+        self assert: Complex(1, 2) * 1 equals: Complex(1, 2).
+
+        self assert: Complex(0, 0) * Complex(3, 0) equals: Complex(0, 0).
+        self assert: Complex(1, 2) * Complex(3, 0) equals: Complex(3, 6).
+        self assert: Complex(1, 2) * 3 equals: Complex(3, 6).
+    }.
+
+    test: testMultiplication with: {
+        self assert: Complex(2, 3) * Complex(4, 5) equals: Complex(-7, 22).
+    }.
+
+    test: testDivision with: {
+        self assert: Complex(1, 2) / Complex(1, 0) equals: Complex(1, 2).
+        self assert: Complex(20, 25) / Complex(5, 0) equals: Complex(4, 5).
+        self assert: Complex(4, 89) / Complex(4, 89) closeTo: Complex(1, 0).
+    }.
+
+    test: testConstruction with: {
+        let complex := Complex x: 2 y: 3.
+        self assert: complex x equals: 2.
+        self assert: complex y equals: 3.
+        self assert: complex equals: Complex(2, 3).
+    }.
+
+    test: testConstruction2 with: {
+        let complex := Complex(2, 3).
+        self assert: complex x equals: 2.
+        self assert: complex y equals: 3.
+        self assert: complex equals: Complex(2, 3).
+    }.
+
+    test: testConstruction3 with: {
+        let complex := Complex r: 2 i: 3.
+        self assert: complex x equals: 2.
+        self assert: complex y equals: 3.
+        self assert: complex equals: Complex(2, 3).
+    }.
+
+    test: testDot with: {
+        self assert: (Complex(1, 2) dot: Complex(4, 7)) equals: #* 4 + 14 *# 18.
+    }.
+
+    test: testLength2 with: {
+        self assert: Complex(3, 4) length2 equals: 25.
+    }.
+
+    test: testLength with: {
+        self assert: Complex(3, 4) length equals: 5.
+    }.
+
+    test: testAbsolute with: {
+        self assert: Complex(0, 1) abs equals: 1.
+        self assert: Complex(0, -1) abs equals: 1.
+        self assert: Complex(1, 0) abs equals: 1.
+        self assert: Complex(-1, 0) abs equals: 1.
+        self assert: Complex(3, 4) abs equals: 5.
+        self assert: Complex(-3, 4) abs equals: 5.
+        self assert: Complex(3, -4) abs equals: 5.
+        self assert: Complex(-3, -4) abs equals: 5.
+    }.
+
+    test: testArgument with: {
+        self assert: Complex(1, 0) arg closeTo: 0.
+        self assert: Complex(0, 1) arg closeTo: Scalar halfPi.
+        self assert: (Complex(-1, 0) arg closeTo: Scalar pi) || (Complex(-1, 0) arg closeTo: Scalar pi negated).
+        self assert: Complex(0, -1) arg closeTo: Scalar halfPi negated.
+    }.
+
+    test: testAngle with: {
+        self assert: Complex(1, 0) angle closeTo: 0.
+        self assert: Complex(0, 1) angle closeTo: Scalar halfPi.
+        self assert: (Complex(-1, 0) angle closeTo: Scalar pi) || (Complex(-1, 0) arg closeTo: Scalar pi negated).
+        self assert: Complex(0, -1) angle closeTo: Scalar halfPi negated.
+    }.
+
+    test: testAsMatrix2x2 with: {
+        self assert: Complex zero asMatrix2x2 equals: Matrix2x2 zeros.
+        self assert: Complex identity asMatrix2x2 equals: Matrix2x2 identity.
+        self assert: (Complex angle: Scalar halfPi) asMatrix2x2 closeTo: (Matrix2x2 rotation: Scalar halfPi).
+        self assert: (Complex angle: Scalar halfPi negated) asMatrix2x2 closeTo: (Matrix2x2 rotation: Scalar halfPi negated).
+        self assert: (Complex angle: Scalar pi) asMatrix2x2 closeTo: (Matrix2x2 rotation: Scalar pi).
+    }.
+
+    test: testAsFloat32x2x2 with: {
+        self assert: Complex zero asFloat32x2x2 equals: Float32x2x2 zeros.
+        self assert: Complex identity asFloat32x2x2 equals: Float32x2x2 identity.
+        self assert: (Complex angle: Scalar halfPi) asFloat32x2x2 closeTo: ((Matrix2x2 rotation: Scalar halfPi) castTo: Float32x2x2).
+        self assert: (Complex angle: Scalar halfPi negated) asFloat32x2x2 closeTo: ((Matrix2x2 rotation: Scalar halfPi negated) castTo: Float32x2x2).
+        self assert: (Complex angle: Scalar pi) asFloat32x2x2 closeTo: ((Matrix2x2 rotation: Scalar pi) castTo: Float32x2x2).
+    }.
+
+    test: testAsFloat64x2x2 with: {
+        self assert: Complex zero asFloat64x2x2 equals: Float64x2x2 zeros.
+        self assert: Complex identity asFloat64x2x2 equals: Float64x2x2 identity.
+        self assert: (Complex angle: Scalar halfPi) asFloat64x2x2 closeTo: ((Matrix2x2 rotation: Scalar halfPi) castTo: Float64x2x2).
+        self assert: (Complex angle: Scalar halfPi negated) asFloat64x2x2 closeTo: ((Matrix2x2 rotation: Scalar halfPi negated) castTo: Float64x2x2).
+        self assert: (Complex angle: Scalar pi) asFloat64x2x2 closeTo: ((Matrix2x2 rotation: Scalar pi) castTo: Float64x2x2).
+    }.
+}.
+
+compileTime constant ComplexF32Tests := GenericComplexTest(Float32).
+compileTime constant ComplexF64Tests := GenericComplexTest(Float64).
+
+} ## End of namespace Tests
+} ## End of namespace Math
+} ## End of namespace Stdn

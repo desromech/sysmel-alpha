@@ -1,0 +1,132 @@
+namespace Stdn definition: {
+namespace Math definition: {
+namespace Tests definition: {
+
+sealed template GenericQuaternionTest(ST: Type)
+    := class superclass: Stdn Testing TestCase; definition: {
+
+    compileTime constant Quaternion := GenericQuaternion(ST).
+    compileTime constant Scalar := Quaternion Scalar.
+    compileTime constant Vector4 := Quaternion Vector4.
+
+    test: testEquals with: {
+        let a := Quaternion x: 1 y: 2 z: 4 w: 5.
+        let b := Quaternion x: 3 y: 4 z: 5 w: 6.
+        let c := Quaternion x: 3 y: 4 z: 5 w: 6.
+
+        self assert: b equals:  c.
+        self deny: a = b.
+        self deny: a = c.
+    }.
+
+    test: testNotEquals with: {
+        let a := Quaternion x: 1 y: 2 z: 4 w: 5.
+        let b := Quaternion x: 3 y: 4 z: 5 w: 6.
+        let c := Quaternion x: 3 y: 4 z: 5 w: 6.
+
+        self deny: (b ~=  c).
+        self assert: a ~= b.
+        self assert: a ~= c.
+    }.
+
+    test: testCloseTo with: {
+        let a := Quaternion x: 1 y: 2 z: 4 w: 5.
+        let b := Quaternion x: 3 y: 4 z: 5 w: 6.
+        let c := Quaternion x: 3 y: 4 z: 5 w: 6.
+
+        self assert: b closeTo: c.
+        self deny: (a closeTo: b).
+        self assert: a notCloseTo:  b.
+
+        self deny: (a closeTo: c).
+        self assert: a notCloseTo: c.
+    }.
+
+    test: testHash with: {
+        let b := Quaternion x: 3 y: 4 z: 5 w: 6.
+        let c := Quaternion x: 3 y: 4 z: 5 w: 6.
+        self assert: b hash equals: c hash.
+    }.
+
+    test: testZero with: {
+        self assert: Quaternion zero equals: Quaternion(0, 0, 0, 0).
+    }.
+
+    test: testOne with: {
+        self assert: Quaternion one equals: Quaternion(1, 0, 0, 0).
+        self assert: Quaternion one xyzw equals: Vector4(0, 0, 0, 1).
+    }.
+
+    test: testIdentity with: {
+        self assert: Quaternion identity equals: Quaternion(1, 0, 0, 0).
+        self assert: Quaternion identity xyzw equals: Vector4(0, 0, 0, 1).
+    }.
+
+    test: testNegated with: {
+        self assert: Quaternion(1, 2, 3, 4) negated equals: Quaternion(-1, -2, -3, -4).
+    }.
+
+    test: testConjugated with: {
+        self assert: Quaternion(1, 2, 3, 4) conjugated equals: Quaternion(1, -2, -3, -4).
+        self assert: Quaternion(1, 2, 3, 4) conjugated xyzw equals: Vector4(-2, -3, -4, 1).
+    }.
+
+    test: testAddition with: {
+        self assert: Quaternion(0, 0, 0, 0) + Quaternion(0, 0, 0, 0) equals: Quaternion(0, 0, 0, 0).
+        self assert: Quaternion(1, 2, 3, 4) + Quaternion(0, 0, 0, 0) equals: Quaternion(1, 2, 3, 4).
+        self assert: Quaternion(1, 2, 3, 4) + Quaternion(5, 6, 7, 8) equals: Quaternion(6, 8, 10, 12).
+        self assert: Quaternion(5, 6, 7, 8) + Quaternion(1, 2, 3, 4) equals: Quaternion(6, 8, 10, 12).
+    }.
+
+    test: testSubtraction with: {
+        self assert: Quaternion(0, 0, 0, 0) - Quaternion(0, 0, 0, 0) equals: Quaternion(0, 0, 0, 0).
+        self assert: Quaternion(1, 2, 3, 4) - Quaternion(0, 0, 0, 0) equals: Quaternion(1, 2, 3, 4).
+        self assert: Quaternion(1, 2, 3, 4) - Quaternion(10, 12, 14, 20) equals: Quaternion(-9, -10, -11, -16).
+    }.
+
+    test: testMultiplicationScalar with: {
+        self assert: Quaternion(0, 0, 0, 0) * Quaternion(0, 0, 0, 0) equals: Quaternion(0, 0, 0, 0).
+        self assert: Quaternion(1, 2, 3, 4) * Quaternion(0, 0, 0, 0) equals: Quaternion(0, 0, 0, 0).
+        self assert: Quaternion(1, 2, 3, 4) * 0 equals: Quaternion(0, 0, 0, 0).
+
+        self assert: Quaternion(0, 0, 0, 0) * Quaternion(1, 0, 0, 0) equals: Quaternion(0, 0, 0, 0).
+        self assert: Quaternion(1, 2, 3, 4) * Quaternion(1, 0, 0, 0) equals: Quaternion(1, 2, 3, 4).
+        self assert: Quaternion(1, 2, 3, 4) * 1 equals: Quaternion(1, 2, 3, 4).
+
+        self assert: Quaternion(0, 0, 0, 0) * Quaternion(3, 0, 0, 0) equals: Quaternion(0, 0, 0, 0).
+        self assert: Quaternion(1, 2, 3, 4) * Quaternion(3, 0, 0, 0) equals: Quaternion(3, 6, 9, 12).
+        self assert: Quaternion(1, 2, 3, 4) * 3 equals: Quaternion(3, 6, 9, 12).
+    }.
+
+    test: testMultiplication with: {
+        self assert: Quaternion(1, 2, 3, 4) * Quaternion(20, 31, 41, 51) equals: Quaternion(-369, 60, 123, 120).
+    }.
+
+    test: testDivision with: {
+        self assert: Quaternion(1, 2, 3, 4) / Quaternion one equals: Quaternion(1, 2, 3, 4).
+        self assert: Quaternion(20, 9, 50, 49) / Quaternion(20, 9, 50, 49) closeTo: Quaternion one.
+    }.
+
+    test: testDot with: {
+    	self assert: (Quaternion(1, 2, 3, 4) dot: Quaternion(4, 7, 8, 9)) equals: #* 4 + 14 + 24 + 36 *# 78.
+    }.
+
+    test: testLength2 with: {
+        self assert: Quaternion(2, 2, 2, 2) length2 equals: 16.
+    }.
+
+    test: testLength with: {
+        self assert: Quaternion(2, 2, 2, 2) length equals: 4.
+    }.
+
+    test: testAbsolute with: {
+        self assert: Quaternion(2, 2, 2, 2) abs equals: 4.
+    }.
+}.
+
+compileTime constant QuaternionF32Tests := GenericQuaternionTest(Float32).
+compileTime constant QuaternionF64Tests := GenericQuaternionTest(Float64).
+
+} ## End of namespace Tests
+} ## End of namespace Math
+} ## End of namespace Stdn
