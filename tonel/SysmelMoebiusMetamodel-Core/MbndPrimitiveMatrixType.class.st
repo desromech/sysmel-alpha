@@ -225,6 +225,16 @@ MbndPrimitiveMatrixType >> columns: anObject [
 ]
 
 { #category : #'default values' }
+MbndPrimitiveMatrixType >> constructConstantWith: aBlock [
+	^ MbndMatrixTypeInstanceValue new
+		type: self;
+		slots: ((0 to: columns - 1) collect: [:j |
+			self columnType constructConstantWith: [:i | aBlock value: i value: j]
+		]);
+		yourself
+]
+
+{ #category : #'default values' }
 MbndPrimitiveMatrixType >> defaultValueAt: aPosition [
 	| defaultElementValue |
 	defaultElementValue := self columnType defaultValueAt: aPosition.

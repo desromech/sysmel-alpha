@@ -29,6 +29,20 @@ MbndMatrixTypeInstanceValue >> %\\ other [
 	^ self elementWiseApply: #\\ to: other
 ]
 
+{ #category : #converting }
+MbndMatrixTypeInstanceValue >> asRowMajorArray [
+	| result j i |
+	result := Array new: type columns * type rows.
+	slots doWithIndex: [ :column :columnIndex |
+		j := columnIndex - 1.
+		column slots doWithIndex: [ :slot :rowIndex |
+			i := rowIndex -1.
+			result at: (i*type columns) + j + 1 put: slot
+		]
+	].
+	^ result
+]
+
 { #category : #arithmetic }
 MbndMatrixTypeInstanceValue >> elementWiseApply: selector [
 	^ self class new

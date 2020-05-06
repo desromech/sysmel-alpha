@@ -142,6 +142,78 @@ MbndSysmelLanguageCompileTimeEvaluationTest >> testLogicalNot [
 ]
 
 { #category : #tests }
+MbndSysmelLanguageCompileTimeEvaluationTest >> testMatrixColumnMajorIndices [
+	| matrixValue |
+	matrixValue := self evaluateSource: 'Float32x3x3 columnMajorIndices'.
+
+	self assert: matrixValue asRowMajorArray equals: #(
+		0 3 6
+		1 4 7
+		2 5 8
+	)
+]
+
+{ #category : #tests }
+MbndSysmelLanguageCompileTimeEvaluationTest >> testMatrixIdentity [
+	| matrixValue |
+	matrixValue := self evaluateSource: 'Float32x3x3 identity'.
+
+	self assert: matrixValue asRowMajorArray equals: #(
+		1 0 0
+		0 1 0
+		0 0 1
+	)
+]
+
+{ #category : #tests }
+MbndSysmelLanguageCompileTimeEvaluationTest >> testMatrixOnes [
+	| matrixValue |
+	matrixValue := self evaluateSource: 'Float32x3x3 ones'.
+
+	self assert: matrixValue asRowMajorArray equals: #(
+		1 1 1
+		1 1 1
+		1 1 1
+	)
+]
+
+{ #category : #tests }
+MbndSysmelLanguageCompileTimeEvaluationTest >> testMatrixRowMajorIndices [
+	| matrixValue |
+	matrixValue := self evaluateSource: 'Float32x3x3 rowMajorIndices'.
+
+	self assert: matrixValue asRowMajorArray equals: #(
+		0 1 2
+		3 4 5
+		6 7 8
+	)
+]
+
+{ #category : #tests }
+MbndSysmelLanguageCompileTimeEvaluationTest >> testMatrixScale [
+	| matrixValue |
+	matrixValue := self evaluateSource: 'Float32x3x3(2)'.
+
+	self assert: matrixValue asRowMajorArray equals: #(
+		2 0 0
+		0 2 0
+		0 0 2
+	)
+]
+
+{ #category : #tests }
+MbndSysmelLanguageCompileTimeEvaluationTest >> testMatrixZeros [
+	| matrixValue |
+	matrixValue := self evaluateSource: 'Float32x3x3 zeros'.
+
+	self assert: matrixValue asRowMajorArray equals: #(
+		0 0 0
+		0 0 0
+		0 0 0
+	)
+]
+
+{ #category : #tests }
 MbndSysmelLanguageCompileTimeEvaluationTest >> testMaxFunction [
 	self evaluateSource: '
 function max(a: Int32, b: Int32) => Int32
@@ -266,6 +338,7 @@ function f(v: UInt32) => UInt8
 
 { #category : #tests }
 MbndSysmelLanguageCompileTimeEvaluationTest >> testVectorConstruction [
+	self assert: (self evaluateSource: '1.0 castTo: Float32x2') slots equals: #(1.0 1.0).
 	self assert: (self evaluateSource: 'Float32x2(1.0, 2.0)') slots equals: #(1.0 2.0).
 	self assert: (self evaluateSource: 'Float32x2 x: 1.0 y: 2.0') slots equals: #(1.0 2.0).
 	self assert: (self evaluateSource: 'Float32x3(Float32x2(1.0, 2.0), 3.0)') slots equals: #(1.0 2.0 3.0).

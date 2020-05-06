@@ -170,6 +170,28 @@ MbndAstEvaluator >> visitEnumDefinitionNode: node [
 ]
 
 { #category : #visiting }
+MbndAstEvaluator >> visitExpandScalarToMatrixCastNode: node [
+	| scalarValue zero |
+	scalarValue := (self visitNode: node expression) unwrapMbndValue.
+	self assert: node type isPrimitiveMatrixType.
+	zero := node type elementType zeroConstantValue unwrapMbndValue.
+	^ node type constructConstantWith: [ :i :j |
+		i = j
+			ifTrue: [ scalarValue ]
+			ifFalse: [ zero ]
+	]
+]
+
+{ #category : #visiting }
+MbndAstEvaluator >> visitExpandScalarToVectorCastNode: node [
+	| scalarValue |
+	scalarValue := (self visitNode: node expression) unwrapMbndValue.
+	^ node type constructConstantWith: [ :i |
+		scalarValue
+	]
+]
+
+{ #category : #visiting }
 MbndAstEvaluator >> visitExpandedHostMessageSendNode: node [
 	| receiver selector arguments result |
 	receiver := (self visitNode: node receiver) unwrapMbndValue.

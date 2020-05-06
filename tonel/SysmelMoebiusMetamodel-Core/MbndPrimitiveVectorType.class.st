@@ -257,6 +257,14 @@ MbndPrimitiveVectorType >> analyzeUnboundUnexpandedMessageSendNode: node with: a
 ]
 
 { #category : #'default values' }
+MbndPrimitiveVectorType >> constructConstantWith: aBlock [
+	^ MbndMatrixTypeInstanceValue new
+		type: self;
+		slots: ((0 to: elements - 1) collect: aBlock);
+		yourself
+]
+
+{ #category : #'default values' }
 MbndPrimitiveVectorType >> defaultValueAt: aPosition [
 	| defaultElementValue |
 	defaultElementValue := (elementType defaultValueAt: aPosition) unwrapMbndValue.
