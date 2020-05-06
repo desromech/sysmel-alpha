@@ -11,7 +11,13 @@ struct timeval definition: {
 
 struct timezone definition: {}.
 
+compileTime constant clockid_t := Int32.
+
 function gettimeofday externC(tv: timeval pointer, tz: timezone pointer) => Int32.
 function settimeofday externC(tv: timeval pointer, tz: timezone pointer) => Int32.
+
+function clock_getres externC(clk_id: clockid_t, ts: timespec pointer) => Int32.
+function clock_gettime externC(clk_id: clockid_t, ts: timespec pointer) => Int32.
+function clock_settime externC(clk_id: clockid_t, ts: timespec const pointer) => Int32.
 
 }. ## End of namespace Unix

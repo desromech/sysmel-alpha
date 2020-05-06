@@ -12,8 +12,29 @@ namespace Chrono definition: {
         (tv tv_sec castTo: Int64)*1000000 + tv tv_usec
     }.
 
+    function monotonicClockValue() => Time := {
+        let ts mutable type: Unix timespec.
+        Unix clock_gettime(Unix CLOCK_MONOTONIC, ts address).
+
+        (ts tv_sec castTo: Int64)*1000000 + ts tv_nsec/1000
+    }.
+
+    function processClockValue() => Time := {
+        let ts mutable type: Unix timespec.
+        Unix clock_gettime(Unix CLOCK_PROCESS_CPUTIME_ID, ts address).
+
+        (ts tv_sec castTo: Int64)*1000000 + ts tv_nsec/1000
+    }.
+
+    function threadClockValue() => Time := {
+        let ts mutable type: Unix timespec.
+        Unix clock_gettime(Unix CLOCK_THREAD_CPUTIME_ID, ts address).
+
+        (ts tv_sec castTo: Int64)*1000000 + ts tv_nsec/1000
+    }.
+
     inline function now() => Time
-        := microsecondClockValue().
+        := monotonicClockValue().
 
     inline function microseconds(time: Time) => Time
         := time * TicksPerMicrosecond.
@@ -36,17 +57,17 @@ namespace Chrono definition: {
     inline function sleepUntil(time: Time) => Void
         := sleepFor(time - now()).
 
-    macro method measureTicksToRun: aBlock := {
+    macro method profileTicksToRun: aBlock := {
         let startTicks := __astBuilder gensym: #startTicks.
         let endTicks := __astBuilder gensym: #endTicks.
         ``{
-            let `,startTicks := Stdn Chrono now().
+            let `,startTicks := Stdn Chrono processClockValue().
             `,aBlock __macroInlineBlock.
-            let `,endTicks := Stdn Chrono now().
+            let `,endTicks := Stdn Chrono processClockValue().
             `,endTicks - `,startTicks
         }
     }.
 
-    macro method measureTimeToRun: aBlock := ``(Stdn Chrono ticksToFloatSeconds(Stdn Chrono measureTicksToRun: `,aBlock)).
+    macro method profileTimeToRun: aBlock := ``(Stdn Chrono ticksToFloatSeconds(Stdn Chrono profileTicksToRun: `,aBlock)).
 }.
 }.

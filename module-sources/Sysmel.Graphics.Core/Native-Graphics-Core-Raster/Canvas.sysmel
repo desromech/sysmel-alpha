@@ -109,6 +109,8 @@ class Canvas superclass: Object; definition: {
     ## Copy the pixels of a texture without any transformation.
     abstract method copyTexture: (textureView: TextureView sharedPointer const ref) at: (targetPosition: Float32x2) ::=> Void.
 
+    abstract method blendTexture: (textureView: TextureView sharedPointer const ref) at: (targetPosition: Float32x2) ::=> Void.
+
     ## Sets the current font face with size.
     abstract method fontFaceWithSize: (font: FontFaceWithSize sharedPointer const ref) ::=> Void.
 

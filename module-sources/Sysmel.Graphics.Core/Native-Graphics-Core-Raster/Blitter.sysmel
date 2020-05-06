@@ -140,7 +140,6 @@ class Blitter definition: {
     const inline method makeUnsafePixelIteratorAt: (coordinates: Int32x2) ::=> UnsafePixelIterator
         := self makeUnsafePixelIterator advanceCoordinates: coordinates; yourself.
 
-
     const inline method setRectangle: (rectangle: RectangleI32) pixelsWith: (renderBlock: UNorm8RenderBlockType) ::=> Void := {
         let clippedRectangle := rectangle intersectionWith: self clippedBounds.
         clippedRectangle isEmpty ifTrue: {
@@ -161,7 +160,7 @@ class Blitter definition: {
     }.
 
     const inline method setPixelsWith: (renderBlock: UNorm8RenderBlockType) ::=> Void := {
-        self setRectangle: self clippedBounds pixelsWith: renderBlock
+        self setRectangle: self bounds pixelsWith: renderBlock
     }.
 
     const inline method setRectangle: (rectangle: RectangleI32) pixelsWith: (renderBlock: Float32RenderBlockType) ::=> Void := {
@@ -180,6 +179,77 @@ class Blitter definition: {
 
             destRow advanceRow
         }
+    }.
+
+    const inline method setPixelsWith: (renderBlock: Float32RenderBlockType) ::=> Void := {
+        self setRectangle: self bounds pixelsWith: renderBlock
+    }.
+
+    const inline method setRectangle: (rectangle: RectangleI32) pixelData: (encodedPixel: UInt8 const pointer) pixelSize: (pixelSize: UIntPointer) ::=> Void := {
+        let clippedRectangle := rectangle intersectionWith: self clippedBounds.
+        clippedRectangle isEmpty ifTrue: {
+            return: void
+        }.
+
+        let destRow mutable := self makeUnsafePixelIteratorAt: clippedRectangle min.
+        clippedRectangle min y until: clippedRectangle max y do: {:(Int32)y :: Void |
+            let destPixel mutable := destRow.
+            clippedRectangle min x until: clippedRectangle max x do: {:(Int32)x :: Void |
+                Stdn memcpy(destPixel pixels, encodedPixel, pixelSize).
+                destPixel advanceColumn
+            }.
+
+            destRow advanceRow
+        }
+    }.
+
+    const inline method setRectangle: (rectangle: RectangleI32) pixelsTo: (color: UInt8x4) ::=> Void := {
+        bytesPerPixel > 32 ifTrue: {
+            return: void
+        }.
+
+        let pixelData mutable type: (UInt8 array: 32).
+        pixelFormat store: color intoMemory: pixelData[0] address.
+        self setRectangle: rectangle pixelData: pixelData[0] address pixelSize: bytesPerPixel
+    }.
+
+    const inline method setRectangle: (rectangle: RectangleI32) pixelsTo: (color: Float32x4) ::=> Void := {
+        bytesPerPixel > 32 ifTrue: {
+            return: void
+        }.
+
+        let pixelData mutable type: (UInt8 array: 32).
+        pixelFormat store: color intoMemory: pixelData[0] address.
+        self setRectangle: rectangle pixelData: pixelData[0] address pixelSize: bytesPerPixel
+    }.
+
+    ## This one is used for generating procedural textures
+    const inline method setPixelsWith: (renderBlock: Float32NormalizedRenderBlockType) ::=> Void := {
+        self setPixelsWith: {:(UInt32x2)pixelCoord :: Float32x4 |
+            let normalizedCoord := (pixelCoord castTo: Float32x2) / (extent castTo: Float32x2).
+            renderBlock(normalizedCoord)
+        }
+    }.
+
+    const inline method setAllPixelsToColor: (color: UInt8x4) ::=> Void := {
+        clippedBounds = self bounds &&
+        (color r == color g && color g == color b && color b == color a) &&
+        pitch >= 0 ifTrue: {
+            Stdn memset(pixels, color r, pitch * extent y castTo: UIntPointer)
+        } ifFalse: {
+            self setRectangle: self bounds pixelsTo: color
+        }.
+    }.
+
+    const inline method setAllPixelsToColor: (color: Float32x4) ::=> Void := {
+        clippedBounds = self bounds &&
+        ((color == Float32x4 zeros) || (color == Float32x4 ones && bytesPerPixel <= 4)) &&
+        pitch >= 0 ifTrue: {
+            let pattern := color == Float32x4 zeros ifTrue: 0 ifFalse: -1.
+            Stdn memset(pixels, pattern, pitch * extent y castTo: UIntPointer)
+        } ifFalse: {
+            self setRectangle: self bounds pixelsTo: color
+        }.
     }.
 
     const inline method blendRectangle: (rectangle: RectangleI32) pixelsWith: (renderBlock: Float32BlendRenderBlockType) ::=> Void := {
@@ -326,30 +396,6 @@ class Blitter definition: {
         }
     }.
 
-    const inline method setPixelsWith: (renderBlock: Float32RenderBlockType) ::=> Void := {
-        self setRectangle: self clippedBounds pixelsWith: renderBlock
-    }.
-
-    ## This one is used for generating procedural textures
-    const inline method setPixelsWith: (renderBlock: Float32NormalizedRenderBlockType) ::=> Void := {
-        self setPixelsWith: {:(UInt32x2)pixelCoord :: Float32x4 |
-            let normalizedCoord := (pixelCoord castTo: Float32x2) / (extent castTo: Float32x2).
-            renderBlock(normalizedCoord)
-        }
-    }.
-
-    const inline method setAllPixelsToColor: (color: UInt8x4) ::=> Void := {
-        self setPixelsWith: {:(UInt32x2)pixelCoord :: UInt8x4 |
-            color
-        }
-    }.
-
-    const inline method setAllPixelsToColor: (color: Float32x4) ::=> Void := {
-        self setPixelsWith: {:(UInt32x2)pixelCoord :: Float32x4 |
-            color
-        }
-    }.
-
     const inline method copyPixelsFrom: (sourceBlitter: Blitter const ref) at: (source: RectangleI32)
         into: (destinationPosition: Int32x2) ::=> Void := {
 
@@ -367,7 +413,16 @@ class Blitter definition: {
         }.
 
         let sourceClippedLocation := clippedSourceRectangle min + (clippedDestinationRectangle min - destinationPosition).
-        ##let copyExtent := clippedDestinationRectangle extent.
+        let copyExtent := clippedDestinationRectangle extent.
+
+        sourceBlitter extent = extent &&
+        clippedDestinationRectangle = self bounds &&
+        sourceBlitter pixelFormat = pixelFormat &&
+        sourceBlitter pitch = pitch &&
+        pitch >= 0 ifTrue: {
+            Stdn memcpy(pixels, sourceBlitter pixels, pitch*extent y castTo: UIntPointer).
+            return: void.
+        }.
 
         let sourceRow mutable := sourceBlitter makeUnsafePixelIteratorAt: sourceClippedLocation.
         let destRow mutable := self makeUnsafePixelIteratorAt: clippedDestinationRectangle min.

@@ -97,6 +97,11 @@ namespace Unix definition: {
         compileTime constant IPPROTO_UDP := 17.
         compileTime constant IPPROTO_TCP := 6.
         compileTime constant IPPROTO_IPV6 := 41.
+
+        compileTime constant CLOCK_REALTIME := 0.
+        compileTime constant CLOCK_MONOTONIC := 1.
+        compileTime constant CLOCK_PROCESS_CPUTIME_ID := 2.
+        compileTime constant CLOCK_THREAD_CPUTIME_ID := 3.
     }.
 
     if: Compiler compilationTarget isWebAssembly then: {
@@ -144,5 +149,12 @@ namespace Unix definition: {
         compileTime constant F_GETOWN_EX := 16.
 
         compileTime constant F_GETOWNER_UIDS := 17.
+
+        ## TODO: Check on whether these are correct or not.
+        compileTime constant CLOCK_REALTIME := 0.
+        compileTime constant CLOCK_MONOTONIC := 1.
+        compileTime constant CLOCK_PROCESS_CPUTIME_ID := 2.
+        compileTime constant CLOCK_THREAD_CPUTIME_ID := 3.
     }.
+
 }.

@@ -44,7 +44,7 @@ GenericLinearAlgebra extend: {
                     let s := angle sin.
                     Matrix3x3 columns: (
                         c, 0, s negated,
-                        0, 0, 0,
+                        0, 1, 0,
                         s, 0, c
                     )
                 }.
@@ -204,7 +204,7 @@ GenericLinearAlgebra extend: {
                     )
                 }.
 
-                static inline method reverseDerspectiveFovY: (fovy: Scalar) aspect: (aspect: Scalar)
+                static inline method reversePerspectiveFovY: (fovy: Scalar) aspect: (aspect: Scalar)
                     near: (near: Scalar) far: (far: Scalar) invertedY: (invertedY: Boolean8) ::=> Matrix4x4 := {
 
                     let fovyRad := fovy degreesToRadians * 0.5.
@@ -280,6 +280,26 @@ GenericLinearAlgebra extend: {
                     Vector4(mat3 firstColumn, 0),
                     Vector4(mat3 secondColumn, 0),
                     Vector4(mat3 thirdColumn, 0),
+                    vector
+                )
+            }.
+
+            static inline method translation: (vector: Vector3) ::=> Matrix4x4 := {
+                <gpu>
+                Matrix4x4 columns: (
+                    Vector4(1, 0, 0, 0),
+                    Vector4(0, 1, 0, 0),
+                    Vector4(0, 0, 1, 0),
+                    Vector4(vector, 1)
+                )
+            }.
+
+            static inline method translation4: (vector: Vector4) ::=> Matrix4x4 := {
+                <gpu>
+                Matrix4x4 columns: (
+                    Vector4(1, 0, 0, 0),
+                    Vector4(0, 1, 0, 0),
+                    Vector4(0, 0, 1, 0),
                     vector
                 )
             }.

@@ -5,6 +5,7 @@
 #include <sys/socket.h>
 #include <netinet/in.h>
 #include <netinet/ip.h>
+#include <time.h>
 
 #define EMIT_COMMENT(str) printf("## " str "\n");
 #define EMIT_CONSTANT_INT(name) printf("compileTime constant " #name " := %d.\n", (int)name)
@@ -141,5 +142,10 @@ int main()
     EMIT_CONSTANT_INT(IPPROTO_UDP);
     EMIT_CONSTANT_INT(IPPROTO_TCP);
     EMIT_CONSTANT_INT(IPPROTO_IPV6);
+
+    EMIT_CONSTANT_INT(CLOCK_REALTIME);
+    EMIT_CONSTANT_INT(CLOCK_MONOTONIC);
+    EMIT_CONSTANT_INT(CLOCK_PROCESS_CPUTIME_ID);
+    EMIT_CONSTANT_INT(CLOCK_THREAD_CPUTIME_ID);
     return 0;
 }

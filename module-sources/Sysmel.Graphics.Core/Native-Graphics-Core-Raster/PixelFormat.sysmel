@@ -160,7 +160,7 @@ enum PixelFormat valueType: UInt32; values: #{
         ## 4 Bytes types.
         (
 
-            D32_Float_S8X24_UInt, R32_Float_S8X24_Typeless, X32_Typeless_G8X24_UInt, R10G10B10A2_Typeless,
+            D32_Float_S8X24_UInt, D32_Float, R32_Float_S8X24_Typeless, X32_Typeless_G8X24_UInt, R10G10B10A2_Typeless,
             R10G10B10A2_UNorm, R10G10B10A2_UInt, R11G11B10_Float,
 
             R8G8B8A8_Typeless, R8G8B8A8_UNorm, R8G8B8A8_UNormSRGB, R8G8B8A8_UInt,
@@ -310,6 +310,21 @@ enum PixelFormat valueType: UInt32; values: #{
         }.
 
         Float32x4 zeros
+    }.
+
+    inline method store: (pixel: UInt8x4) intoMemory: (memory: UInt8 pointer) ::=> Void := {
+        self selectCase: #{
+
+        (R8G8B8A8_Typeless, R8G8B8A8_UNorm, R8G8B8A8_UNormSRGB) asValueInSetPattern : {
+            (memory reinterpretCastTo: UInt8x4 pointer) _ := pixel
+        }.
+
+        (B8G8R8A8_Typeless, B8G8R8X8_Typeless, B8G8R8A8_UNorm, B8G8R8X8_UNorm, B8G8R8A8_UNormSRGB, B8G8R8X8_UNormSRGB) asValueInSetPattern : {
+            (memory reinterpretCastTo: UInt8x4 pointer) _ := pixel bgra
+        }.
+
+        _ : {}
+        }
     }.
 
     inline method store: (pixel: Float32x4) intoMemory: (memory: UInt8 pointer) ::=> Void := {

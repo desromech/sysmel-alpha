@@ -105,6 +105,21 @@ class MouseMoveEvent superclass: MouseEvent; definition: {
     public field buttonState type: MouseButtonMask.
     public field delta type: Int32x2.
 
+    const inline method isLeftButtonPressed => Boolean8
+        := buttonState anyMask: MouseButtonMask Left.
+
+    const inline method isMiddleButtonPressed => Boolean8
+        := buttonState anyMask: MouseButtonMask Middle.
+
+    const inline method isRightButtonPressed => Boolean8
+        := buttonState anyMask: MouseButtonMask Right.
+
+    const inline method isX1ButtonPressed => Boolean8
+        := buttonState anyMask: MouseButtonMask X1.
+
+    const inline method isX2ButtonPressed => Boolean8
+        := buttonState anyMask: MouseButtonMask X2.
+
     override method acceptEventHandler: (eventHandler: EventHandler ref) ::=> Void
         := eventHandler onMouseMoveEvent: self.
 }.
@@ -115,6 +130,21 @@ class MouseMoveEvent superclass: MouseEvent; definition: {
 class MouseButtonEvent superclass: MouseEvent; definition: {
     public field button type: MouseButton.
     public field clickCount type: UInt8.
+
+    const inline method isLeftButton => Boolean8
+        := button = MouseButton Left.
+
+    const inline method isMiddleButton => Boolean8
+        := button = MouseButton Middle.
+
+    const inline method isRightButton => Boolean8
+        := button = MouseButton Right.
+
+    const inline method isX1Button => Boolean8
+        := button = MouseButton X1.
+
+    const inline method isX2Button => Boolean8
+        := button = MouseButton X2.
 }.
 
 #**
@@ -123,6 +153,9 @@ class MouseButtonEvent superclass: MouseEvent; definition: {
 class MouseWheelEvent superclass: MouseEvent; definition: {
     public field scrollDelta type: Int32x2.
     public field isFlipped type: Boolean8.
+
+    override method acceptEventHandler: (eventHandler: EventHandler ref) ::=> Void
+        := eventHandler onMouseWheelEvent: self.
 }.
 
 #**

@@ -37,6 +37,9 @@ class EventHandler superclass: Object; definition: {
     virtual method onMouseButtonReleasedEvent: (event: MouseButtonReleasedEvent ref) ::=> Void
         := void.
 
+    virtual method onMouseWheelEvent: (event: MouseWheelEvent ref) ::=> Void
+        := void.
+
     virtual method onExposeEvent: (event: ExposeEvent ref) ::=> Void
         := void.
 
