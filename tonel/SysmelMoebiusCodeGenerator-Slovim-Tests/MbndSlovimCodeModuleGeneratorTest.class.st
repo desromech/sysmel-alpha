@@ -2966,6 +2966,22 @@ MbndSlovimCodeModuleGeneratorTest >> testFloatMatrixAdd [
 ]
 
 { #category : #tests }
+MbndSlovimCodeModuleGeneratorTest >> testFloatMatrixCastToIntMatrix [
+	| function |
+	self
+		evaluateSysmelSource: 'function cast externC(v: Float32x2x3) => Int32x2x3
+			:= v castTo: Int32x2x3';
+		generateSSAModule.
+
+	function := ssaModule globalNamed: #cast.
+	self assert: function isFunction.
+	self deny: function isEmpty.
+	self assert: function basicBlocks size equals: 2.
+	self assert: function basicBlocks second firstInstruction isFloatToIntCast.
+	self assert: function basicBlocks second lastInstruction isReturn.
+]
+
+{ #category : #tests }
 MbndSlovimCodeModuleGeneratorTest >> testFloatMatrixColumnMajorIndices [
 	| function |
 	self

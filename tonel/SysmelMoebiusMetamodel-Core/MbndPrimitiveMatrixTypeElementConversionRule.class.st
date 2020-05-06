@@ -6,7 +6,7 @@ Class {
 
 { #category : #testing }
 MbndPrimitiveMatrixTypeElementConversionRule >> canBeUsedToConvertNode: node from: sourceType into: targetType [
-	sourceType isPrimitiveVectorType ifFalse: [ ^ false ].
+	sourceType isPrimitiveMatrixType ifFalse: [ ^ false ].
 	targetType isPrimitiveMatrixType ifFalse: [ ^ false ].
 	sourceType rows = targetType rows ifFalse: [ ^ false ].
 	sourceType columns = targetType columns ifFalse: [ ^ false ].
