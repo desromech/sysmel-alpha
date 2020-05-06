@@ -8,6 +8,50 @@ Class {
 }
 
 { #category : #tests }
+MbndSlovimCodeModuleGeneratorTest >> testAggregateCustomConstructor [
+	| function |
+	self
+		disableExceptions;
+		evaluateSysmelSource: '
+struct Complex definition: { 
+	public field x type: Float32.
+	public field y type: Float32.
+	
+	meta definition: { 
+		static inline method x: (x: Float32) y: (y: Float32) ::=> Complex := {
+			<constructor>
+			Complex() x: x; y: y; yourself.
+		}.
+	}.
+}.
+
+function makeComplex externC(x: Float32, y: Float32) => Complex
+	:= Complex(x, y).
+';
+		generateSSAModule.
+
+	function := ssaModule globalNamed: #makeComplex.
+	self assert: function asFullSExpressionForTesting equals: #(
+function makeComplex cdecl (struct 'struct.TestModule::Complex')
+	arguments (
+		(x f32 ())
+		(y f32 ())
+	)
+	literals (
+	)
+	blocks (
+		(()
+			(nil jump void () () (block 2 body))
+		)
+		(()
+			(nil call (struct 'struct.TestModule::Complex') () ((global 1 '_ZN10TestModule7Complex8..meta..5.x.y.Eff') (local 0 x) (local 1 y)))
+			(nil return void () ((local 3 nil)))
+		)
+	)
+	).
+]
+
+{ #category : #tests }
 MbndSlovimCodeModuleGeneratorTest >> testAggregateGeneratedInitializeCopyingFrom [
 	| function indirectClass |
 	self

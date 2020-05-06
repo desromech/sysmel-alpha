@@ -573,6 +573,19 @@ MbndAstSemanticAnalyzer >> generateValueForEnum: enumType withLastValue: lastVal
 	^ MbndValue value: lastValue value + 1 type: lastValue type
 ]
 
+{ #category : #testing }
+MbndAstSemanticAnalyzer >> isEmptyTupleNode: node [
+	node isMbndAstNode ifFalse: [
+		^ node isEmpty
+	].
+
+	node isTupleNode ifTrue: [
+		^ node elements isEmpty
+	].
+
+	^ false.
+]
+
 { #category : #'as yet unclassified' }
 MbndAstSemanticAnalyzer >> markCompileTimeEvaluationImpossibility [
 	scope lookupProgramEntityForNewDefinitions ifNotNil: [ :programEntity |

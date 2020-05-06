@@ -1,6 +1,7 @@
 Trait {
 	#name : #TMbndAbstractProgramEntity,
 	#traits : 'TMbndObject + TMbndSymbolBinding',
+	#classTraits : 'TMbndObject classTrait + TMbndSymbolBinding classTrait',
 	#category : #'SysmelMoebiusMetamodel-Core-ProgramEntity'
 }
 
@@ -180,6 +181,11 @@ TMbndAbstractProgramEntity >> isCompilerGeneratedMethod [
 
 { #category : #testing }
 TMbndAbstractProgramEntity >> isConcreteMethod [
+	^ false
+]
+
+{ #category : #testing }
+TMbndAbstractProgramEntity >> isCustomConstructor [
 	^ false
 ]
 

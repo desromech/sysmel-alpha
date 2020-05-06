@@ -320,6 +320,11 @@ MbndAbstractConcreteMethod >> extraImplicitArguments [
 ]
 
 { #category : #testing }
+MbndAbstractConcreteMethod >> hasPendingAnalysis [
+	^ analyzedBody isNil
+]
+
+{ #category : #testing }
 MbndAbstractConcreteMethod >> hasPragmaNamed: pragmaName [
 	self definitionBody ifNotNil: [:body |
 		^ body pragmaAt: pragmaName ifAbsent: [false] ifPresent: [:f | true]
@@ -342,6 +347,11 @@ MbndAbstractConcreteMethod >> isAccessedByReference [
 { #category : #testing }
 MbndAbstractConcreteMethod >> isConcreteMethod [
 	^ true
+]
+
+{ #category : #testing }
+MbndAbstractConcreteMethod >> isCustomConstructor [
+	^ super isCustomConstructor or: [self hasPragmaNamed: #constructor]
 ]
 
 { #category : #testing }

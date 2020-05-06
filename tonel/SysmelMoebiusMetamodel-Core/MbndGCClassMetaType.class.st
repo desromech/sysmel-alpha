@@ -15,6 +15,7 @@ MbndGCClassMetaType class >> typeName [
 MbndGCClassMetaType >> encodeLazyFieldsForMessagePackWith: graphEncoder [
 	^ (super encodeLazyFieldsForMessagePackWith: graphEncoder) , {
 		#instanceType . instanceType encodeGraphForMessagePackWith: graphEncoder.
+		#constructorGroup . constructorGroup encodeGraphForMessagePackWith: graphEncoder.
 	}
 ]
 
@@ -35,6 +36,7 @@ MbndGCClassMetaType >> materializeWithGraphDecoder: graphDecoder withLazyFields:
 	super materializeWithGraphDecoder: graphDecoder withLazyFields: encodedFields.
 	
 	instanceType := encodedFields at: #instanceType.
+	constructorGroup := encodedFields at: #constructorGroup.
 	instanceType ifNotNil: [
 		instanceType addMetaTypeMacrosTo: self
 	].

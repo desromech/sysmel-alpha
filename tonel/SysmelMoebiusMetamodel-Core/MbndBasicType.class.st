@@ -77,6 +77,11 @@ MbndBasicType >> addChild: aChild [
 	self children add: aChild.
 ]
 
+{ #category : #adding }
+MbndBasicType >> addCustomConstructorMethod: method [
+	
+]
+
 { #category : #initialization }
 MbndBasicType >> addInstanceMacros [
 	self class == MbndBasicType ifFalse: [ ^ self ].
@@ -165,15 +170,22 @@ MbndBasicType >> addPendingDefinitionFragment: pendingDefinitionFragment [
 
 { #category : #'semantic analysis' }
 MbndBasicType >> analyzeConstructionWithArguments: argumentsTupleNode at: position with: analyzer [
-	| constructionArguments argumentTypes |
-	constructionArguments := analyzer visitSplicingTupleNode: argumentsTupleNode.
-	
-	constructionArguments ifEmpty: [ 
+	| constructorGroup callNode |
+	(analyzer isEmptyTupleNode: argumentsTupleNode) ifTrue: [ 
 		^ analyzer analyzeNodeIfNeeded: (self generateNewValueForNode: position with: analyzer astBuilder andWith: analyzer)
 	].
 
-	argumentTypes := constructionArguments collect: [ :each | each type ].
-	self error: 'Failed to find a suitable constructor for {1} with arguments of types {2}' format: {  self asString . argumentTypes asString } at: position
+	constructorGroup := self type constructorGroup.
+	constructorGroup ifNotNil: [
+		callNode := MbndAstFunctionCallNode new
+			position: position;
+			function: (constructorGroup analyzeReferenceNode: position with: analyzer);
+			arguments: argumentsTupleNode;
+			yourself.
+		^ analyzer visitNode: callNode
+	].
+
+	self error: 'Custom constructor are not avaiable for type {1}.' format: {  self asString } at: position
 ]
 
 { #category : #'as yet unclassified' }

@@ -1,15 +1,54 @@
 Trait {
 	#name : #TMbndMetaType,
 	#instVars : [
-		'instanceType'
+		'constructorGroup',
+		'instanceType',
+		'potentialConstructorMethods'
 	],
 	#category : #'SysmelMoebiusMetamodel-Core-Type'
 }
+
+{ #category : #adding }
+TMbndMetaType >> addCustomConstructorMethod: method [
+	constructorGroup ifNil: [
+		constructorGroup := MbndConstructorGroup new
+			module: method module;
+			yourself.
+		self addChild: constructorGroup.
+	].
+
+	constructorGroup addOverloadedEntity: method
+]
 
 { #category : #initialization }
 TMbndMetaType >> addDefaultConversionRules [
 	super addDefaultConversionRules.
 	self addConversionTo: self compilationTarget astNodeType rule: MbndWrapInLiteralValueNodeTypeConversionRule
+]
+
+{ #category : #adding }
+TMbndMetaType >> checkPotentialConstructors [
+	potentialConstructorMethods ifNil: [ ^ self ].
+	[ potentialConstructorMethods isNotEmpty ] whileTrue: [
+		| toCheck |
+		toCheck := potentialConstructorMethods asArray.
+		potentialConstructorMethods removeAll.
+		toCheck do: [:each | 
+			each isCustomConstructor ifTrue: [
+				self addCustomConstructorMethod: each
+			]
+		]
+	]
+]
+
+{ #category : #accessing }
+TMbndMetaType >> constructorGroup [
+	"We need to ensure that all of the constructors are in the group."
+	self
+		evaluateAllPendingDefinitionFragments;
+		checkPotentialConstructors.
+
+	^ constructorGroup
 ]
 
 { #category : #sizes }
@@ -45,4 +84,9 @@ TMbndMetaType >> qualifiedNameForParent [
 	].
 
 	^ super qualifiedNameForParent
+]
+
+{ #category : #adding }
+TMbndMetaType >> recordPotentialConstructorMethod: potentialConstructor [
+	(potentialConstructorMethods ifNil: [ potentialConstructorMethods := OrderedCollection new ]) add: potentialConstructor
 ]

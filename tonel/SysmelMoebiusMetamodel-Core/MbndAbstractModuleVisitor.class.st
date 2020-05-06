@@ -87,6 +87,11 @@ MbndAbstractModuleVisitor >> visitConcreteMessageMethod: method [
 ]
 
 { #category : #visiting }
+MbndAbstractModuleVisitor >> visitConstructorGroup: functionGroup [
+	self subclassResponsibility
+]
+
+{ #category : #visiting }
 MbndAbstractModuleVisitor >> visitDecoratedType: type [
 	self subclassResponsibility
 ]

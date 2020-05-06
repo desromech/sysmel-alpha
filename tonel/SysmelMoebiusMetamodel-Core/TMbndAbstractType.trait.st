@@ -7,6 +7,7 @@ Trait {
 		'extraMetaBuilderFactories'
 	],
 	#traits : 'TMbndProgramEntity',
+	#classTraits : 'TMbndProgramEntity classTrait',
 	#category : #'SysmelMoebiusMetamodel-Core-Type'
 }
 
@@ -516,6 +517,11 @@ TMbndAbstractType >> conditionalResultCoercionTypeWith: rightType leftNode: left
 TMbndAbstractType >> const [
 	<compileTime>
 	^ self withDecoration: #const
+]
+
+{ #category : #'as yet unclassified' }
+TMbndAbstractType >> constructorGroup [
+	^ nil
 ]
 
 { #category : #'meta builder factories' }

@@ -1873,6 +1873,11 @@ MbndSlovimCodeModuleGenerator >> visitConcreteMessageMethod: functionMethod [
 	^ ssaFunction
 ]
 
+{ #category : #visiting }
+MbndSlovimCodeModuleGenerator >> visitConstructorGroup: functionGroup [
+	^ nil
+]
+
 { #category : #'typeinfo translation' }
 MbndSlovimCodeModuleGenerator >> visitCoreBasicType: coreBasicType [
 	^ self translateTypeInfoDefinition: coreBasicType.

@@ -89,7 +89,7 @@ MbndAbstractSpecificMethod >> analyzePragmaInDefinitionBodyWithSelector: selecto
 	super analyzePragmaInDefinitionBodyWithSelector: selector arguments: arguments.
 
 	"Turn some pragmas into flags."
-	(#(notInCompileTime compileTime gpu nogc staticBinding) includes: selector) ifTrue: [ 
+	(#(notInCompileTime compileTime gpu nogc staticBinding constructor) includes: selector) ifTrue: [ 
 		self addFlag: selector.
 	].
 
@@ -220,6 +220,11 @@ MbndAbstractSpecificMethod >> hasAnonymousName [
 ]
 
 { #category : #testing }
+MbndAbstractSpecificMethod >> hasPendingAnalysis [
+	^ false
+]
+
+{ #category : #testing }
 MbndAbstractSpecificMethod >> hasVirtualTableEntry [
 	^ self isNewVirtualTableEntry or: [ self isVirtualTableOverride ]
 ]
@@ -239,6 +244,11 @@ MbndAbstractSpecificMethod >> isAbstractSpecificMethod [
 { #category : #testing }
 MbndAbstractSpecificMethod >> isAbstractVirtualMethod [
 	^ self hasFlag: #abstract
+]
+
+{ #category : #testing }
+MbndAbstractSpecificMethod >> isCustomConstructor [
+	^ self hasFlag: #constructor
 ]
 
 { #category : #testing }

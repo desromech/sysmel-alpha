@@ -5,8 +5,13 @@ Trait {
 		'methodDict'
 	],
 	#traits : 'TMbndAbstractMethodContainer',
+	#classTraits : 'TMbndAbstractMethodContainer classTrait',
 	#category : #'SysmelMoebiusMetamodel-Core-ProgramEntity'
 }
+
+{ #category : #adding }
+TMbndMethodContainer >> addCustomConstructorMethod: method [
+]
 
 { #category : #adding }
 TMbndMethodContainer >> addImportedOverloadedMethodNoCheck: method [
@@ -24,7 +29,14 @@ TMbndMethodContainer >> addImportedOverloadedMethodNoCheck: method [
 		].
 		methodGroup addOverloadedEntity: method
 	] ifAbsentPut: [ method ].
-
+	method isCustomConstructor ifTrue: [
+		self addCustomConstructorMethod: method
+	] ifFalse: [
+		method hasPendingAnalysis ifTrue: [
+			self recordPotentialConstructorMethod: method
+		]
+	]
+	
 ]
 
 { #category : #adding }
@@ -103,4 +115,8 @@ TMbndMethodContainer >> overloadedMethodDict [
 { #category : #'as yet unclassified' }
 TMbndMethodContainer >> recordOverloadedMethodAddition: method withSelector: selector [
 	"Hook: for recording extension methods"
+]
+
+{ #category : #adding }
+TMbndMethodContainer >> recordPotentialConstructorMethod: method [
 ]

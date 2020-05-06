@@ -41,7 +41,9 @@ MbndSimpleMetaType >> analyzeReinterpretCastNode: node to: targetType with: anal
 
 { #category : #serialization }
 MbndSimpleMetaType >> encodeFieldsForMessagePackWith: graphEncoder [
-	^ { #instanceType . instanceType encodeGraphForMessagePackWith: graphEncoder.
+	^ {
+		#instanceType . instanceType encodeGraphForMessagePackWith: graphEncoder.
+		#constructorGroup . constructorGroup encodeGraphForMessagePackWith: graphEncoder.
 	} , (super encodeFieldsForMessagePackWith: graphEncoder)
 ]
 
@@ -67,6 +69,12 @@ MbndSimpleMetaType >> encodeGraphForMessagePackWith: graphEncoder [
 	].
 
 	^ super encodeGraphForMessagePackWith: graphEncoder
+]
+
+{ #category : #'semantic analysis' }
+MbndSimpleMetaType >> ensureSemanticAnalysis [
+	super ensureSemanticAnalysis.
+	self constructorGroup.
 ]
 
 { #category : #'as yet unclassified' }
@@ -97,6 +105,7 @@ MbndSimpleMetaType >> isTrait [
 MbndSimpleMetaType >> materializeWithGraphDecoder: graphDecoder withFields: encodedFields [
 	super materializeWithGraphDecoder: graphDecoder withFields: encodedFields.
 	instanceType := encodedFields at: #instanceType.
+	constructorGroup := encodedFields at: #constructorGroup.
 ]
 
 { #category : #accessing }
