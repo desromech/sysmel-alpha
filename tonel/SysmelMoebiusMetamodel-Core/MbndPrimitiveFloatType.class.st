@@ -15,6 +15,20 @@ MbndPrimitiveFloatType >> accept: aVisitor [
 ]
 
 { #category : #initialization }
+MbndPrimitiveFloatType >> addArithmeticIntrinsicsToMatrixType: matrixType [
+	super addArithmeticIntrinsicsToMatrixType: matrixType.
+	matrixType isSquare ifTrue: [
+		matrixType
+			addBuiltIn: #determinant intrinsicNamed: 'matrix.determinant' argumentTypes: #() returnType: self evaluatedWith: [:receiver :arguments :evaluator :node |
+				self halt.
+			];
+			addBuiltIn: #inverse intrinsicNamed: 'matrix.inverse' argumentTypes: #() returnType: matrixType evaluatedWith: [:receiver :arguments :evaluator :node |
+				self halt.
+			]
+	].
+]
+
+{ #category : #initialization }
 MbndPrimitiveFloatType >> addArithmeticIntrinsicsToVectorOrScalarType: vectorOrScalarType [
 	super addArithmeticIntrinsicsToVectorOrScalarType: vectorOrScalarType.
 

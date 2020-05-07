@@ -331,6 +331,12 @@ MbndPrimitiveMatrixType >> isPrimitiveMatrixType [
 	^ true
 ]
 
+{ #category : #testing }
+MbndPrimitiveMatrixType >> isSquare [
+	<compileTime>
+	^ rows = columns
+]
+
 { #category : #accessing }
 MbndPrimitiveMatrixType >> rowType [
 	<compileTime>
