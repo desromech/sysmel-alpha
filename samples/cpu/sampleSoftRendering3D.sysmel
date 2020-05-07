@@ -17,21 +17,40 @@ let colorBufferTextureView mutable type: TextureView sharedPointer.
 let depthBuffer mutable type: Form sharedPointer.
 
 let cameraOrientation mutable := Float32x3x3 identity.
-let cameraPosition mutable := Float32x3(0, 0, 3).
+let cameraPosition mutable := Float32x3(0, 1, 3).
 let cameraAngle mutable := Float32x3(0, 0, 0).
 
 let projectionMatrix mutable type: Float32x4x4.
 let viewMatrix mutable type: Float32x4x4.
-let modelViewMatrix mutable type: Float32x4x4.
+let modelMatrix mutable type: Float32x4x4.
 
-let meshVertices mutable type: Stdn Collections Vector(Float32x3).
-let meshIndices mutable type: Stdn Collections Vector(UInt32).
+class Mesh definition: {
+	public field vertices type: Stdn Collections Vector(Float32x4).
+	public field indices type: Stdn Collections Vector(UInt32).
 
-function addQuad(i1: UInt32, i2: UInt32, i3: UInt32, i4: UInt32) => Void := {
-	meshIndices
-		add: i1; add: i2; add: i4;
-		add: i4; add: i3; add: i1
+	method addVertex: (p: Float32x3) ::=> Void := {
+		vertices add: Float32x4(p, 1)
+	}.
+
+	method addVertex: (p: Float32x4) ::=> Void := {
+		vertices add: p
+	}.
+
+	method addTriangle: (i1: UInt32) i2: (i2: UInt32) i3: (i3: UInt32) ::=> Void := {
+		indices
+			add: i1; add: i2; add: i3
+	}.
+
+	method addQuad: (i1: UInt32) i2: (i2: UInt32) i3: (i3: UInt32) i4: (i4: UInt32) ::=> Void := {
+		indices
+			add: i1; add: i2; add: i4;
+			add: i4; add: i3; add: i1
+	}.
+
 }.
+
+let planeMesh mutable type: Mesh.
+let cubeMesh mutable type: Mesh.
 
 class SoftwareGraphicsPipeline definition: {
 	public field colorBufferBlitter type: Blitter.
@@ -39,17 +58,20 @@ class SoftwareGraphicsPipeline definition: {
 
 	public method drawTriangleP1: (p1: Float32x4) p2: (p2: Float32x4) p3: (p3: Float32x4) fragmentShader: (fragmentShader: (Float32x3 => Float32x4) nativeBlockClosure) ::=> Void := {
 		let extent := colorBufferBlitter extent castTo: Float32x2.
+		##let viewportTransform := (Float32x2x2 scale: extent) * Float32x2x3(Float32x2(0.5f, 0.0f), Float32x2(0.0f, -0.5f), Float32x2(0.5f, 0.5f)).
+		let viewportTransform := (Float32x2x2 scale: extent) * Float32x2x3(Float32x2(0.5f, 0.0f), Float32x2(0.0f, 0.5f), Float32x2(0.5f, 0.5f)).
+
 		let iw1 := 1.0f / p1 w.
 		let iw2 := 1.0f / p2 w.
 		let iw3 := 1.0f / p3 w.
 
 		let w := Float32x3(p1 w, p2 w, p3 w).
 
-		let sv1 := ((p1 xy / p1 w)*0.5 + 0.5) * extent.
-		let sv2 := ((p2 xy / p2 w)*0.5 + 0.5) * extent.
-		let sv3 := ((p3 xy / p3 w)*0.5 + 0.5) * extent.
+		let sv1 := viewportTransform * Float32x3(p1 xy / p1 w, 1).
+		let sv2 := viewportTransform * Float32x3(p2 xy / p2 w, 1).
+		let sv3 := viewportTransform * Float32x3(p3 xy / p3 w, 1).
 
-		(sv2 - sv1 cross: sv3 - sv1) < 0 ifTrue: {
+		(sv2 - sv1 cross: sv3 - sv1) >= 0 ifTrue: {
 			return: void
 		}.
 
@@ -62,48 +84,75 @@ class SoftwareGraphicsPipeline definition: {
 	}.
 }.
 
+function fuzzyXor(a: Float32, b: Float32) => Float32 := {
+	(a max: b) - (a min: b)
+}.
+
+
+Mesh definition: {
+	method drawOn: (pipeline: SoftwareGraphicsPipeline ref) ::=> Void := {
+		let nextSourceIndex mutable := 0.
+		let projectionModelViewMatrix := projectionMatrix * (viewMatrix * modelMatrix).
+		0 until: indices size / 3 do: {:triangleIndex :: Void |
+			let v1 := vertices[indices[nextSourceIndex]].
+			let v2 := vertices[indices[nextSourceIndex + 1]].
+			let v3 := vertices[indices[nextSourceIndex + 2]].
+
+			let N := ((v2 xyz - v1 xyz) cross: (v3 xyz - v1 xyz)) normalized.
+
+			let c1 := Float32x4 red.
+			let c2 := Float32x4 green.
+			let c3 := Float32x4 blue.
+
+			let pv1 := projectionModelViewMatrix * v1.
+			let pv2 := projectionModelViewMatrix * v2.
+			let pv3 := projectionModelViewMatrix * v3.
+
+			pipeline drawTriangleP1: pv1 p2: pv2 p3: pv3 fragmentShader: {:(Float32x3)barycentricCoordinates :: Float32x4 |
+				##let v := v1*barycentricCoordinates x + v2*barycentricCoordinates y + v3*barycentricCoordinates z.
+				##let v := Float32x3x3(v1, v2, v3) * barycentricCoordinates.
+
+				let c := barycentricCoordinates * (Float32x3x4 rows: (c1, c2, c3)).
+				let vh := barycentricCoordinates * (Float32x3x4 rows: (v1, v2, v3)).
+				let v := vh xyz / vh w.
+
+				let x := v.
+				let edge := 0.48f smoothStepTo: 0.52f value: 2*(x - (x + 0.5f) floor) abs. ##((x - x floor)*2 - 1) abs.
+				let aliasFactor := 10.0f smoothStepTo: 30.0f value: v length.
+
+				let stipple := fuzzyXor(fuzzyXor(edge x, edge y), edge z) interpolateTo: 0.5f at: aliasFactor.
+				let albedo := stipple * Float32x3(1,1,1).
+				## let albedo := edge.
+				let L := Float32x3(1, 1, 1) normalized.
+				let NdotL := (N dot: L) max: 0.0f.
+
+				Float32x4(albedo*(0.2f + 0.8f*NdotL), 1.0f).
+				##Float32x4(N *0.5f + 0.5f, 1.0f).
+			}.
+
+			##Stdn stdout << "tv1 " << tv1; nl.
+			##Stdn stdout << "tv2 " << tv2; nl.
+			##Stdn stdout << "tv3 " << tv3; nl.
+
+			nextSourceIndex := nextSourceIndex + 3
+		}
+	}.
+}.
+
 function doRender3D => Void := {
 	let pipeline mutable type: SoftwareGraphicsPipeline.
 	pipeline
 		colorBufferBlitter: colorBuffer _ makeBlitter;
 		depthStencilBufferBlitter: depthBuffer _ makeBlitter.
 
-	pipeline colorBufferBlitter setAllPixelsToColor: UInt8x4(127, 127 , 127, 127). ##Float32x4 zeros.
+	pipeline colorBufferBlitter setAllPixelsToColor: UInt8x4(64, 64 , 64, 64). ##Float32x4 zeros.
 	pipeline depthStencilBufferBlitter setAllPixelsToColor: UInt8x4 zeros.
 
-	let nextSourceIndex mutable := 0.
-	0 until: meshIndices size / 3 do: {:triangleIndex :: Void |
-		let v1 := meshVertices[meshIndices[nextSourceIndex]].
-		let v2 := meshVertices[meshIndices[nextSourceIndex + 1]].
-		let v3 := meshVertices[meshIndices[nextSourceIndex + 2]].
+	modelMatrix := Float32x4x4 identity.
+	planeMesh drawOn: pipeline.
 
-		let c1 := Float32x4 red.
-		let c2 := Float32x4 green.
-		let c3 := Float32x4 blue.
-
-		let pv1 := projectionMatrix * (modelViewMatrix * Float32x4(v1, 1)).
-		let pv2 := projectionMatrix * (modelViewMatrix * Float32x4(v2, 1)).
-		let pv3 := projectionMatrix * (modelViewMatrix * Float32x4(v3, 1)).
-
-		pipeline drawTriangleP1: pv1 p2: pv2 p3: pv3 fragmentShader: {:(Float32x3)barycentricCoordinates :: Float32x4 |
-			##let v := v1*barycentricCoordinates x + v2*barycentricCoordinates y + v3*barycentricCoordinates z.
-			##let v := Float32x3x3(v1, v2, v3) * barycentricCoordinates.
-
-			let c := barycentricCoordinates * (Float32x3x4 rows: (c1, c2, c3)).
-			let v := barycentricCoordinates * (Float32x3x3 rows: (v1, v2, v3)).
-
-			let x := v.
-			let edge := 0.48f smoothStepTo: 0.52f value: 2*(x - (x + 0.5f) floor) abs. ##((x - x floor)*2 - 1) abs.
-
-			Float32x4(edge, 1.0f).
-		}.
-
-		##Stdn stdout << "tv1 " << tv1; nl.
-		##Stdn stdout << "tv2 " << tv2; nl.
-		##Stdn stdout << "tv3 " << tv3; nl.
-
-		nextSourceIndex := nextSourceIndex + 3
-	}
+	modelMatrix := Float32x4x4 translation: Float32x3(0, 1, 0).
+	cubeMesh drawOn: pipeline.
 }.
 
 function doRenderOn(canvas: Canvas ref) => Void := {
@@ -142,7 +191,6 @@ class MainWindowEventHandler superclass: EventHandler; definition: {
 
 		cameraOrientation := (Float32x3x3 yRotation: cameraAngle y) * (Float32x3x3 xRotation: cameraAngle x).
 		viewMatrix := (Float32x4x4 mat3: cameraOrientation transpose)*(Float32x4x4 translation: cameraPosition negated).
-		modelViewMatrix := viewMatrix.
 
         self render
     }.
@@ -157,11 +205,11 @@ class MainWindowEventHandler superclass: EventHandler; definition: {
 
 	override method onMouseMoveEvent: (event: MouseMoveEvent ref) ::=> Void := {
 		event isLeftButtonPressed ifTrue: {
-			cameraAngle := cameraAngle + Float32x3(event delta y, event delta x negated, 0.0f)*0.01f.
+			cameraAngle := cameraAngle + Float32x3(event delta y negated, event delta x negated, 0.0f)*0.01f.
 		}.
 
 		event isRightButtonPressed ifTrue: {
-			cameraPosition := cameraPosition + cameraOrientation * Float32x3(event delta x, event delta y, 0.0f) *0.01f.
+			cameraPosition := cameraPosition + cameraOrientation * Float32x3(event delta x, event delta y negated , 0.0f) *0.01f.
 		}.
     }.
 
@@ -195,33 +243,49 @@ function main externC (argc: Int32, argv: UInt8 const pointer pointer) => Int32 
 	depthBuffer := Form extent: UInt32x2(640, 480) pixelFormat: PixelFormat D32_Float.
 
 	## Set the projection and model view matrix.
-	projectionMatrix := Float32x4x4 reversePerspectiveFovY: 60.0f aspect: 640.0f / 480.0f near: 0.1f far: 100.0f invertedY: false.
+	## projectionMatrix := Float32x4x4 reversePerspectiveFovY: 60.0f aspect: 640.0f / 480.0f near: 0.1f far: 100.0f invertedY: false.
+	projectionMatrix := Float32x4x4 reversePerspectiveFovY: 60.0f aspect: 640.0f / 480.0f near: 0.1f far: 100.0f invertedY: true.
 
     ## Use the default font face.
     let fontFace mutable := FontRegistry default defaultSans _ normalFace.
     fontFaceWithSize := fontFace _ getOrCreateFaceWithSize: 12.
 
+	## Build the plane
+	{
+		planeMesh
+			addVertex: Float32x3(0, 0, 0);
+			addVertex: Float32x4(-1, 0, -1, 0);
+			addVertex: Float32x4(1, 0, -1, 0);
+			addVertex: Float32x4(-1, 0, 1, 0);
+			addVertex: Float32x4(1, 0, 1, 0);
+
+			addTriangle: 0 i2: 2 i3: 1;
+			addTriangle: 0 i2: 4 i3: 2;
+			addTriangle: 0 i2: 3 i3: 4;
+			addTriangle: 0 i2: 1 i3: 3
+	}.
+
 	## Build the cube
 	{
-		meshVertices
-			add: Float32x3(-1, -1, -1);
-			add: Float32x3(1, -1, -1);
-			add: Float32x3(-1, 1, -1);
-			add: Float32x3(1, 1, -1);
+		cubeMesh
+			addVertex: Float32x3(-1, -1, -1);
+			addVertex: Float32x3(1, -1, -1);
+			addVertex: Float32x3(-1, 1, -1);
+			addVertex: Float32x3(1, 1, -1);
 
-			add: Float32x3(-1, -1, 1);
-			add: Float32x3(1, -1, 1);
-			add: Float32x3(-1, 1, 1);
-			add: Float32x3(1, 1, 1).
+			addVertex: Float32x3(-1, -1, 1);
+			addVertex: Float32x3(1, -1, 1);
+			addVertex: Float32x3(-1, 1, 1);
+			addVertex: Float32x3(1, 1, 1);
 
-		addQuad(2, 0, 6, 4).
-		addQuad(1, 3, 5, 7).
+			addQuad: 2 i2: 0 i3: 6 i4: 4;
+			addQuad: 1 i2: 3 i3: 5 i4: 7;
 
-		addQuad(0, 1, 4, 5).
-		addQuad(3, 2, 7, 6).
+			addQuad: 0 i2: 1 i3: 4 i4: 5;
+			addQuad: 3 i2: 2 i3: 7 i4: 6;
 
-		addQuad(1, 0, 3, 2).
-		addQuad(4, 5, 6, 7).
+			addQuad: 1 i2: 0 i3: 3 i4: 2;
+			addQuad: 4 i2: 5 i3: 6 i4: 7.
 	}.
 
     ## Create the event handler.
