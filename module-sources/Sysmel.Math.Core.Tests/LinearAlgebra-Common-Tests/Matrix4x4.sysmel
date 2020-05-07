@@ -135,6 +135,35 @@ sealed template GenericMatrix4x4Test(ST: Type)
             0, 0, 0, 5
         ).
     }.
+
+    compileTime if: Scalar isPrimitiveFloatType then: {
+        test: testDeterminant with: {
+            self assert: Matrix4x4 ones determinant equals: 0.
+            self assert: Matrix4x4 zeros determinant equals: 0.
+            self assert: Matrix4x4 identity determinant equals: 1.
+            self assert: Matrix4x4 (
+                0, 1, 2, 4,
+                10, 8, 5, 3,
+                9, 3, 8, 1,
+                20, 21, 25, 24) determinant equals: 993.
+        }.
+
+        test: testInverse with: {
+            self assert: Matrix4x4 identity inverse equals: Matrix4x4 identity.
+            self assert: Matrix4x4 (
+                0, 1, 2, -3,
+                -4, 5, -6, 7,
+                8, -9, 10, -11,
+                12, 13, -14, 15
+            ) inverse closeTo: Matrix4x4 (
+                -0.00000,   0.04167,   0.08333,   0.04167,
+                0.50000,   1.00000,   0.50000,   0.00000,
+                1.00000,   4.62500,   2.50000,  -0.12500,
+                0.50000,   3.41667,   1.83333,  -0.08333
+            ).
+        }.
+
+    }.
 }.
 
 compileTime constant Int32x4x4Tests := GenericMatrix4x4Test(Int32).

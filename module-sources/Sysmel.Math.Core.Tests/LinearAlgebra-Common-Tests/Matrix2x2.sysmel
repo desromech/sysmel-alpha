@@ -118,6 +118,20 @@ sealed template GenericMatrix2x2Test(ST: Type)
         ).
     }.
 
+    compileTime if: Scalar isPrimitiveFloatType then: {
+        test: testDeterminant with: {
+            self assert: Matrix2x2 ones determinant equals: 0.
+            self assert: Matrix2x2 zeros determinant equals: 0.
+            self assert: Matrix2x2 identity determinant equals: 1.
+            self assert: Matrix2x2(1, 3, 2, 4) determinant equals: -2.
+            self assert: Matrix2x2(1, 2, 3, 4) determinant equals: -2.
+        }.
+
+        test: testInverse with: {
+            self assert: Matrix2x2 identity inverse equals: Matrix2x2 identity.
+            self assert: Matrix2x2(0, 1, 2, 3) inverse equals: Matrix2x2(-1.5, 0.5, 1.0, 0.0).
+        }.
+    }.
 }.
 
 compileTime constant Int32x2x2Tests := GenericMatrix2x2Test(Int32).

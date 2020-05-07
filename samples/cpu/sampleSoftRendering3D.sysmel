@@ -63,7 +63,7 @@ inline function intersectSegmentWithFrontPlane(pa: Float32x4, pb: Float32x4) => 
 	##let t := (ClipEpsilon - pa w) / d w.
 	let t := (ClipEpsilon - (pa dot: ClipPlane)) / (d dot: ClipPlane).
 	let result := pa + t*d.
-	Stdn stdout << pa << "|" << pb << " -> " << result; nl.
+	## Stdn stdout << pa << "|" << pb << " -> " << result; nl.
 	result.
 }.
 
@@ -147,7 +147,7 @@ class SoftwareGraphicsPipeline definition: {
 			}.
 		}.
 
-		Stdn stdout << "clippedPolygonDestIndex " << clippedPolygonDestIndex; nl.
+		## Stdn stdout << "clippedPolygonDestIndex " << clippedPolygonDestIndex; nl.
 		clippedPolygonDestIndex >= 3 ifTrue: {
 			self drawClippedTriangleP1: clippedPolygon[0] p2: clippedPolygon[1] p3: clippedPolygon[2] fragmentShader: {:(Float32x3)barycentricCoordinates :: Float32x4 |
 				Float32x4 red

@@ -126,6 +126,31 @@ sealed template GenericMatrix3x3Test(ST: Type)
             0, 0, 4
         ).
     }.
+
+    compileTime if: Scalar isPrimitiveFloatType then: {
+        test: testDeterminant with: {
+            self assert: Matrix3x3 ones determinant equals: 0.
+            self assert: Matrix3x3 zeros determinant equals: 0.
+            self assert: Matrix3x3 identity determinant equals: 1.
+            self assert: Matrix3x3 rowMajorIndices determinant equals: 0.
+            self assert: Matrix3x3(
+                0, 1, 2,
+                10, 15, 20,
+                -10, 7, 8) determinant equals: 160.
+        }.
+
+        test: testInverse with: {
+            self assert: Matrix3x3 identity inverse equals: Matrix3x3 identity.
+            self assert: Matrix3x3 (
+                0, 1, 2,
+                3, -4, 5,
+                -6, 7, -8
+            ) inverse closeTo: Matrix3x3(
+                0.25000, -1.83333, -1.08333,
+                0.50000, -1.00000, -0.50000,
+                0.25000, 0.50000, 0.25000).
+        }.
+    }.
 }.
 
 compileTime constant Int32x3x3Tests := GenericMatrix3x3Test(Int32).
