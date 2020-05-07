@@ -52,11 +52,26 @@ class Mesh definition: {
 let planeMesh mutable type: Mesh.
 let cubeMesh mutable type: Mesh.
 
+compileTime constant ClipEpsilon := 0.00001f.
+let ClipPlane := Float32x4(0f, 0f, 0f, 1f).
+
+inline function isFrontPoint(p: Float32x4) => Boolean8 := {
+	(p dot: ClipPlane) > ClipEpsilon.
+}.
+inline function intersectSegmentWithFrontPlane(pa: Float32x4, pb: Float32x4) => Float32x4 := {
+	let d := pb - pa.
+	##let t := (ClipEpsilon - pa w) / d w.
+	let t := (ClipEpsilon - (pa dot: ClipPlane)) / (d dot: ClipPlane).
+	let result := pa + t*d.
+	Stdn stdout << pa << "|" << pb << " -> " << result; nl.
+	result.
+}.
+
 class SoftwareGraphicsPipeline definition: {
 	public field colorBufferBlitter type: Blitter.
 	public field depthStencilBufferBlitter type: Blitter.
 
-	public method drawTriangleP1: (p1: Float32x4) p2: (p2: Float32x4) p3: (p3: Float32x4) fragmentShader: (fragmentShader: (Float32x3 => Float32x4) nativeBlockClosure) ::=> Void := {
+	public method drawClippedTriangleP1: (p1: Float32x4) p2: (p2: Float32x4) p3: (p3: Float32x4) fragmentShader: (fragmentShader: (Float32x3 => Float32x4) nativeBlockClosure) ::=> Void := {
 		let extent := colorBufferBlitter extent castTo: Float32x2.
 		##let viewportTransform := (Float32x2x2 scale: extent) * Float32x2x3(Float32x2(0.5f, 0.0f), Float32x2(0.0f, -0.5f), Float32x2(0.5f, 0.5f)).
 		let viewportTransform := (Float32x2x2 scale: extent) * Float32x2x3(Float32x2(0.5f, 0.0f), Float32x2(0.0f, 0.5f), Float32x2(0.5f, 0.5f)).
@@ -76,12 +91,76 @@ class SoftwareGraphicsPipeline definition: {
 		}.
 
 		colorBufferBlitter
-            blendTriangle: sv1 p2: sv2 p3: sv3 pixelsWith: {:(Float32x2)p :(Float32x3)barycentricCoordinates :(Float32x4)originalDestPixelValue :: Float32x4 |
+			blendTriangle: sv1 p2: sv2 p3: sv3 pixelsWith: {:(Float32x2)p :(Float32x3)barycentricCoordinates :(Float32x4)originalDestPixelValue :: Float32x4 |
 				let bc := barycentricCoordinates / w.
 
 				fragmentShader(bc / (bc dot: Float32x3 ones))
-        }.
+		}.
 	}.
+
+
+	public method drawTriangleP1: (p1: Float32x4) p2: (p2: Float32x4) p3: (p3: Float32x4) fragmentShader: (fragmentShader: (Float32x3 => Float32x4) nativeBlockClosure) ::=> Void := {
+		let sourcePolygon mutable type: (Float32x4 array: 4).
+		sourcePolygon[0] := p1.
+		sourcePolygon[1] := p2.
+		sourcePolygon[2] := p3.
+		sourcePolygon[3] := p1.
+
+		let sourcePolygonInFront mutable type: (Boolean8 array: 4).
+		sourcePolygonInFront[0] := isFrontPoint(p1).
+		sourcePolygonInFront[1] := isFrontPoint(p2).
+		sourcePolygonInFront[2] := isFrontPoint(p3).
+		sourcePolygonInFront[3] := sourcePolygonInFront[0].
+
+		## Passthrough the not clipped polygon.
+		sourcePolygonInFront[0] && sourcePolygonInFront[1] && sourcePolygonInFront[2] ifTrue: {
+			self drawClippedTriangleP1: p1 p2: p2 p3: p3 fragmentShader: fragmentShader.
+			return: void
+		}.
+
+		## Discard the completely clipped polygon.
+		sourcePolygonInFront[0] not && sourcePolygonInFront[1] not && sourcePolygonInFront[2] not ifTrue: {
+			return: void
+		}.
+
+		let clippedPolygon mutable type: (Float32x4 array: 6).
+		let clippedPolygonDestIndex mutable type: UIntPointer.
+		0 until: 3 do: {:i :: Void|
+			let pa := sourcePolygon[i].
+			let pb := sourcePolygon[i + 1].
+
+			let fa := sourcePolygonInFront[i].
+			let fb := sourcePolygonInFront[i + 1].
+
+			fa && fb ifTrue: {
+				clippedPolygon[clippedPolygonDestIndex] := pa.
+				clippedPolygonDestIndex := clippedPolygonDestIndex + 1
+			}.
+			fa not && fb ifTrue: {
+				clippedPolygon[clippedPolygonDestIndex] := intersectSegmentWithFrontPlane(pa, pb).
+				clippedPolygonDestIndex := clippedPolygonDestIndex + 1
+			}.
+			fa && fb not ifTrue: {
+				clippedPolygon[clippedPolygonDestIndex] := pa.
+				clippedPolygon[clippedPolygonDestIndex + 1] := intersectSegmentWithFrontPlane(pa, pb).
+				clippedPolygonDestIndex := clippedPolygonDestIndex + 2
+			}.
+		}.
+
+		Stdn stdout << "clippedPolygonDestIndex " << clippedPolygonDestIndex; nl.
+		clippedPolygonDestIndex >= 3 ifTrue: {
+			self drawClippedTriangleP1: clippedPolygon[0] p2: clippedPolygon[1] p3: clippedPolygon[2] fragmentShader: {:(Float32x3)barycentricCoordinates :: Float32x4 |
+				Float32x4 red
+			}.
+
+			clippedPolygonDestIndex >= 4 ifTrue: {
+				self drawClippedTriangleP1: clippedPolygon[0] p2: clippedPolygon[2] p3: clippedPolygon[3] fragmentShader: {:(Float32x3)barycentricCoordinates :: Float32x4 |
+					Float32x4 blue
+				}.
+			}
+		}.
+	}.
+
 }.
 
 function fuzzyXor(a: Float32, b: Float32) => Float32 := {
