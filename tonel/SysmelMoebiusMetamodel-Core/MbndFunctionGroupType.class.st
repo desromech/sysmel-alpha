@@ -16,7 +16,6 @@ MbndFunctionGroupType >> accept: aVisitor [
 
 { #category : #'as yet unclassified' }
 MbndFunctionGroupType >> analyzeFunctionCallNode: node with: analyzer [
-	| callTypes receiverType matchingEntity |
 	^ node function binding analyzeFunctionCallNode: node with: analyzer
 
 ]

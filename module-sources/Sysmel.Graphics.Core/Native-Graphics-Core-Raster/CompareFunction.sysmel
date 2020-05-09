@@ -5,39 +5,37 @@ namespace Core definition: {
 enum CompareFunction valueType: UInt8; values: #{
     Always: 0.
     Never:.
-    Less:.
-    LessEqual:.
+    LessThan:.
+    LessOrEqual:.
     Equal:.
     NotEqual:.
-    Greater:.
-    GreaterEqual:.
+    GreaterThan:.
+    GreaterOrEqual:.
 }; definition: {
 
-    inline method applyWithArguments: (args: Float32 -- Float32) ::=> Boolean8 := {
-        let (let a, let b) := args.
+    inline method compare: (a: Float32) with: (b: Float32) ::=> Boolean8 := {
         self selectCase: #{
         Always : true.
         Never : false.
-        Less : a < b.
-        LessEqual : a <= b.
+        LessThan : a < b.
+        LessOrEqual : a <= b.
         Equal : a = b.
         NotEqual : a ~= b.
-        Greater : a >b.
-        GreaterEqual : a >= b.
+        GreaterThan : a >b.
+        GreaterOrEqual : a >= b.
         }
     }.
 
-    inline method applyWithArguments: (args: Int32 -- Int32) ::=> Boolean8 := {
-        let (let a, let b) := args.
+    inline method compare: (a: Int32) with: (b: Int32) ::=> Boolean8 := {
         self selectCase: #{
         Always : true.
         Never : false.
-        Less : a < b.
-        LessEqual : a <= b.
+        LessThan : a < b.
+        LessOrEqual : a <= b.
         Equal : a = b.
         NotEqual : a ~= b.
-        Greater : a >b.
-        GreaterEqual : a >= b.
+        GreaterThan : a >b.
+        GreaterOrEqual : a >= b.
         }
     }.
 

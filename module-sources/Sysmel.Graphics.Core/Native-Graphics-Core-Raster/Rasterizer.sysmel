@@ -1,0 +1,273 @@
+namespace Stdn definition: {
+namespace Graphics definition: {
+namespace Core definition: {
+
+useNamespace: Stdn Math Geometry.
+
+#**
+ * A triangle rasterizer. A tool to simplify writing rasterization loops.
+ *#
+class TringleRasterizer definition: {
+    compileTime constant LoopSetupFunction := (Int32x2 => Void) nativeBlockClosure.
+    compileTime constant RowSetupFunction := (Void => Void) nativeBlockClosure.
+    compileTime constant AdvanceFunction := (Int32 => Void) nativeBlockClosure.
+    compileTime constant PixelRenderFunction := ((Float32x4 -- Boolean8 -- Float32x3 -- Float32x3) => Void) nativeBlockClosure.
+
+    public field clippingBounds type: RectangleI32.
+    public field viewportTransform type: Float32x4x4.
+    public field faceCullingMode type: FaceCullingMode.
+    public field frontFaceOrientation type: FrontFaceOrientation.
+
+    public field loopSetupFunction type: LoopSetupFunction.
+    public field rowSetupFunction type: RowSetupFunction.
+    public field columnAdvanceFunction type: AdvanceFunction.
+    public field rowAdvanceFunction type: AdvanceFunction.
+    public field pixelRenderFunction type: PixelRenderFunction.
+
+    method viewportExtent: (extent: Float32x2) ::=> Void := {
+        viewportTransform := (Float32x4x4 scale: Float32x4(extent, 1.0f, 1.0f)) *
+            Float32x4x4(
+                Float32x4(0.5f, 0.0f, 0.0f, 0.0f),
+                Float32x4(0.0f, 0.5f, 0.0f, 0.0f),
+                Float32x4(0.0f, 0.0f, 1.0f, 0.0f),
+                Float32x4(0.5f, 0.5f, 0.0f, 1.0f)).
+    }.
+
+    const inline method rasterizeTriangle2D: (p1: Float32x2) p2: (p2: Float32x2) p3: (p3: Float32x2) ::=> Void := {
+        self rasterizeTriangle2D: p1 p2: p2 p3: p3 with: pixelRenderFunction.
+    }.
+
+    const inline method rasterizeTriangle2D: (p1: Float32x2) p2: (p2: Float32x2) p3: (p3: Float32x2)
+        with: (thePixelRenderFunction: PixelRenderFunction) ::=> Void := {
+        let rectangle := RectangleF32 min: (p1 min: (p2 min: p3))
+            max: (p1 max: (p2 max: p3)).
+
+        let clippedRectangle := rectangle intersectionWith: clippingBounds asRectangleF32.
+        clippedRectangle isEmpty ifTrue: {
+            return: void
+        }.
+
+        let triangleArea := frontFaceOrientation adaptViewFaceArea: (p2 - p1 cross: p3 - p1).
+        (faceCullingMode isTriangleAreaCulled: triangleArea) ifTrue: {
+            return: void
+        }.
+
+        let den := 1.0f / triangleArea.
+        let isFrontFace := triangleArea > 0.0f.
+
+        ## FIXME: optimize properly this rendering loop.
+
+        let fractionalOffset := Float32x2(0.5f, 0.5f). ## Sample on the pixel centers
+        let clippedRectangleI := RectangleI32 min: (clippedRectangle min floor castTo: Int32x2) max: (clippedRectangle max floor castTo: Int32x2).
+
+        loopSetupFunction(clippedRectangleI min).
+        clippedRectangleI min y until: clippedRectangleI max y do: {:(Int32)y :: Void |
+            rowSetupFunction().
+            clippedRectangleI min x until: clippedRectangleI max x do: {:(Int32)x :: Void |
+                let p := Float32x2(x, y) + fractionalOffset.
+
+                let w3 := (p2 - p1 cross: p - p1)*den.
+                let w1 := (p3 - p2 cross: p - p2)*den.
+                let w2 := (p1 - p3 cross: p - p3)*den.
+                let barycentricCoordinates := Float32x3(w1, w2, w3).
+
+                w1 >= 0 && w2 >= 0 && w3 >= 0 ifTrue: {
+                    thePixelRenderFunction(Float32x4(p, 0.0f, 1.0f), isFrontFace, barycentricCoordinates, barycentricCoordinates)
+                }.
+                columnAdvanceFunction(1).
+            }.
+
+            rowAdvanceFunction(1).
+        }
+    }.
+
+    const inline method rasterizeClippedTriangleNDC: (p1: Float32x4) p2: (p2: Float32x4) p3: (p3: Float32x4)
+        ## Triangle Scan Conversion using 2D Homogeneous Coordinates. Olano et al.
+        ## Homogeneous Rasterization. Zwicker.
+        with: (thePixelRenderFunction: PixelRenderFunction) ::=> Void := {
+        let vp1 := viewportTransform * p1.
+        let vp2 := viewportTransform * p2.
+        let vp3 := viewportTransform * p3.
+
+        let m := (Float32x3x3 rows: (vp1 xyw, vp2 xyw, vp3 xyw)).
+        let det := frontFaceOrientation adaptViewFaceArea: m determinant.
+        (faceCullingMode isTriangleAreaCulled: det) ifTrue: {
+            return: void
+        }.
+
+        let isFrontFace := det > 0.0f.
+
+        ## Compute the rendering screen bounding box.
+        let screenBox := {
+            let sv1 := vp1 xy / vp1 w.
+            let sv2 := vp2 xy / vp2 w.
+            let sv3 := vp3 xy / vp3 w.
+
+            let rectangle := RectangleF32 min: (sv1 min: (sv2 min: sv3)) max: (sv1 max: (sv2 max: sv3)).
+            let clippedRectangle := rectangle intersectionWith: clippingBounds asRectangleF32.
+            clippedRectangle isEmpty ifTrue: {
+                return: void
+            }.
+
+            RectangleI32 min: (clippedRectangle min floor castTo: Int32x2) max: (clippedRectangle max floor castTo: Int32x2)
+        }.
+
+        let interpolationMatrix := m inverse.
+        let flatInterpolationMatrix := interpolationMatrix * (Float32x3x3 scale: Float32x3(p1 w, p2 w, p3 w)).
+
+        let zFunction := interpolationMatrix * Float32x3(p1 z, p2 z, p3 z). ##flatInterpolationMatrix * Float32x3(p1 z / p1 w, p2 z / p2 w, p3 z / p3 w).
+        let rwFunction := interpolationMatrix * Float32x3 ones.
+
+        let barycentricMatrix := interpolationMatrix.
+        let flatBarycentricMatrix := flatInterpolationMatrix.
+
+        let fractionalOffset := Float32x2(0.5f, 0.5f). ## Sample on the pixel centers
+        loopSetupFunction(screenBox min).
+        screenBox min y until: screenBox max y do: {:(Int32)y :: Void |
+            rowSetupFunction().
+            screenBox min x until: screenBox max x do: {:(Int32)x :: Void |
+                let hp := Float32x3(Float32x2(x, y) + fractionalOffset, 1.0f).
+
+                let barycentricW := hp * barycentricMatrix.
+                let rw := rwFunction dot: hp.
+
+                barycentricW x >= 0 && barycentricW y >= 0 && barycentricW z >= 0 ifTrue: {
+                    let w := 1.0f / rw.
+                    let flatBarycentric := hp * flatBarycentricMatrix.
+                    let z := zFunction dot: hp.
+
+                    0.0f <= z && z <= 1.0f ifTrue: {
+                        let barycentric := barycentricW *w.
+
+                        let fragCoord := Float32x4(hp xy, z, rw).
+
+                        thePixelRenderFunction(fragCoord, isFrontFace, flatBarycentric, barycentric)
+                    }.
+                }.
+
+                columnAdvanceFunction(1).
+            }.
+
+            rowAdvanceFunction(1).
+        }
+    }.
+
+    const inline method rasterizeClippedTriangleNDC: (p1: Float32x4) barycentric: (bc1: Float32x3)
+        p2: (p2: Float32x4) barycentric: (bc2: Float32x3)
+        p3: (p3: Float32x4) barycentric: (bc3: Float32x3)
+        with: (thePixelRenderFunction: PixelRenderFunction) ::=> Void := {
+
+        let interpolationMatrix := Float32x3x3 rows: (bc1, bc2, bc3).
+
+        self rasterizeClippedTriangleNDC: p1 p2: p2 p3: p3
+            with: {:(Float32x4)p :(Boolean8)isFrontFace :(Float32x3)flatBarycentric :(Float32x3)perspectiveBarycentric :: Void |
+            thePixelRenderFunction(p, isFrontFace, flatBarycentric * interpolationMatrix, perspectiveBarycentric * interpolationMatrix)
+        }.
+    }.
+
+    compileTime constant WClipEpsilon := 0.00001f.
+
+    const inline method isWFrontPoint: (p: Float32x4) ::=> Boolean8 := {
+    	p w > WClipEpsilon.
+    }.
+
+    const inline method intersectWClipPlaneWithSegmentStart: (a: Float32x4) end: (b: Float32x4) ::=> Float32 := {
+        let d := b - a.
+    	(WClipEpsilon - a w) / d w.
+    }.
+
+    const inline method rasterizeTriangleNDC: (p1: Float32x4) p2: (p2: Float32x4) p3: (p3: Float32x4) ::=> Void := {
+        let sourcePolygon mutable type: (Float32x4 array: 4).
+        sourcePolygon[0] := p1.
+        sourcePolygon[1] := p2.
+        sourcePolygon[2] := p3.
+        sourcePolygon[3] := p1.
+
+        let sourcePolygonInFront mutable type: (Boolean8 array: 4).
+        sourcePolygonInFront[0] := self isWFrontPoint: p1.
+        sourcePolygonInFront[1] := self isWFrontPoint: p2.
+        sourcePolygonInFront[2] := self isWFrontPoint: p3.
+        sourcePolygonInFront[3] := sourcePolygonInFront[0].
+
+        ## Passthrough the not clipped polygon.
+        sourcePolygonInFront[0] && sourcePolygonInFront[1] && sourcePolygonInFront[2] ifTrue: {
+            self rasterizeClippedTriangleNDC: p1 p2: p2 p3: p3 with: pixelRenderFunction.
+            return: void
+        }.
+
+        ## Discard the completely clipped polygon.
+        sourcePolygonInFront[0] not && sourcePolygonInFront[1] not && sourcePolygonInFront[2] not ifTrue: {
+            return: void
+        }.
+
+        let sourcePolygonBarycentric mutable type: (Float32x3 array: 4).
+        sourcePolygonBarycentric[0] := Float32x3(1.0f, 0.0f, 0.0f).
+        sourcePolygonBarycentric[1] := Float32x3(0.0f, 1.0f, 0.0f).
+        sourcePolygonBarycentric[2] := Float32x3(0.0f, 0.0f, 1.0f).
+        sourcePolygonBarycentric[3] := Float32x3(1.0f, 0.0f, 0.0f).
+
+        let clippedPolygon mutable type: (Float32x4 array: 4).
+        let clippedPolygonBarycentric mutable type: (Float32x3 array: 4).
+
+        let clippedPolygonDestIndex mutable type: UIntPointer.
+        0 until: 3 do: {:i :: Void|
+            let pa := sourcePolygon[i].
+            let ba := sourcePolygonBarycentric[i].
+            let pb := sourcePolygon[i + 1].
+            let bb := sourcePolygonBarycentric[i + 1].
+
+            let fa := sourcePolygonInFront[i].
+            let fb := sourcePolygonInFront[i + 1].
+
+            fa && fb ifTrue: {
+                clippedPolygon[clippedPolygonDestIndex] := pa.
+                clippedPolygonBarycentric[clippedPolygonDestIndex] := ba.
+
+                clippedPolygonDestIndex := clippedPolygonDestIndex + 1
+            }.
+            fa not && fb ifTrue: {
+                let alpha := self intersectWClipPlaneWithSegmentStart: pa end: pb.
+                let intersection := pa interpolateTo: pb at: alpha.
+                let intersectionBarycentric := ba interpolateTo: bb at: alpha.
+
+                clippedPolygon[clippedPolygonDestIndex] := intersection.
+                clippedPolygonBarycentric[clippedPolygonDestIndex] := intersectionBarycentric.
+                clippedPolygonDestIndex := clippedPolygonDestIndex + 1.
+            }.
+            fa && fb not ifTrue: {
+                let alpha := self intersectWClipPlaneWithSegmentStart: pa end: pb.
+                let intersection := pa interpolateTo: pb at: alpha.
+                let intersectionBarycentric := ba interpolateTo: bb at: alpha.
+
+                clippedPolygon[clippedPolygonDestIndex] := pa.
+                clippedPolygonBarycentric[clippedPolygonDestIndex] := ba.
+                clippedPolygonDestIndex := clippedPolygonDestIndex + 1.
+
+                clippedPolygon[clippedPolygonDestIndex] := intersection.
+                clippedPolygonBarycentric[clippedPolygonDestIndex] := intersectionBarycentric.
+                clippedPolygonDestIndex := clippedPolygonDestIndex + 1.
+            }.
+        }.
+
+        ## Stdn stdout << "clippedPolygonDestIndex " << clippedPolygonDestIndex; nl.
+        clippedPolygonDestIndex >= 3 ifTrue: {
+            self rasterizeClippedTriangleNDC: clippedPolygon[0] barycentric: clippedPolygonBarycentric[0]
+                p2: clippedPolygon[1] barycentric: clippedPolygonBarycentric[1]
+                p3: clippedPolygon[2] barycentric: clippedPolygonBarycentric[2]
+                with: pixelRenderFunction.
+
+            clippedPolygonDestIndex >= 4 ifTrue: {
+                self rasterizeClippedTriangleNDC: clippedPolygon[0] barycentric: clippedPolygonBarycentric[0]
+                    p2: clippedPolygon[2] barycentric: clippedPolygonBarycentric[2]
+                    p3: clippedPolygon[3] barycentric: clippedPolygonBarycentric[3]
+                    with: pixelRenderFunction.
+            }
+        }.
+    }.
+
+
+}.
+
+}. ## End of namespace Core
+}. ## End of namespace Graphics
+}. ## End of namespace Stdn

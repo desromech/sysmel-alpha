@@ -1,7 +1,17 @@
 ## Some core objects that are independant of any particular rendering driver.
 loadFileOnce: "PixelFormat.sysmel".
-loadFileOnce: "BlendingMode.sysmel".
+
 loadFileOnce: "CompareFunction.sysmel".
+loadFileOnce: "StencilOperation.sysmel".
+loadFileOnce: "BlendingFactor.sysmel".
+loadFileOnce: "BlendingOperation.sysmel".
+loadFileOnce: "BlendingEquation.sysmel".
+loadFileOnce: "BlendingMode.sysmel".
+
+loadFileOnce: "FrontFaceOrientation.sysmel".
+loadFileOnce: "FaceCullingMode.sysmel".
+
+loadFileOnce: "Rasterizer.sysmel".
 loadFileOnce: "Blitter.sysmel".
 loadFileOnce: "Form.sysmel".
 loadFileOnce: "Cursor.sysmel".

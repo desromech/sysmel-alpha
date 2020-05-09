@@ -1,0 +1,82 @@
+namespace Stdn definition: {
+namespace Graphics definition: {
+namespace Core definition: {
+
+struct BlendingEquation definition: {
+
+    public field sourceColorFactor type: BlendingFactor.
+    public field destColorFactor type: BlendingFactor.
+    public field colorOperation type: BlendingOperation.
+
+    public field sourceAlphaFactor type: BlendingFactor.
+    public field destAlphaFactor type: BlendingFactor.
+    public field alphaOperation type: BlendingOperation.
+
+    const inline method = (o: SelfType const ref) ::=> Boolean8 := {
+        sourceColorFactor = o sourceColorFactor &&
+        destColorFactor = o destColorFactor &&
+        colorOperation = o colorOperation &&
+
+        sourceAlphaFactor = o sourceAlphaFactor &&
+        destAlphaFactor = o destAlphaFactor &&
+        alphaOperation = o alphaOperation.
+    }.
+
+    Stdn Utility NotEqualsMethodMixin.
+
+    const inline method hash ::=> Stdn Hash := {
+        sourceColorFactor hash ^ destColorFactor hash ^ colorOperation hash ^
+        sourceAlphaFactor hash ^ destAlphaFactor hash ^ alphaOperation hash
+    }.
+
+    const inline method evaluateWithSource: (source: Float32x4) destination: (destination: Float32x4)
+        constantFactor: (constantFactor: Float32x4) alternateSource: (alternateSource: Float32x4) ::=> Float32x4 := {
+        let color := colorOperation
+                evaluateColor: source rgb * (sourceColorFactor evaluateColorWithSource: source destination: destination constantFactor: constantFactor alternateSource: alternateSource)
+                with: destination rgb * (destColorFactor evaluateColorWithSource: source destination: destination constantFactor: constantFactor alternateSource: alternateSource).
+        let alpha := alphaOperation
+                evaluateAlpha: source a * (sourceAlphaFactor evaluateAlphaWithSource: source destination: destination constantFactor: constantFactor alternateSource: alternateSource)
+                with: destination a * (destAlphaFactor evaluateAlphaWithSource: source destination: destination constantFactor: constantFactor alternateSource: alternateSource).
+        Float32x4(color, alpha)
+    }.
+
+    meta definition: {
+        method sourceColorFactor: (sourceColorFactor: BlendingFactor) destColorFactor: (destColorFactor: BlendingFactor)
+            sourceAlphaFactor: (sourceAlphaFactor: BlendingFactor) destAlphaFactor: (destAlphaFactor: BlendingFactor) ::=> BlendingEquation := {
+            BlendingEquation()
+                sourceColorFactor: sourceColorFactor;
+                destColorFactor: destColorFactor;
+                colorOperation: BlendingOperation Add;
+
+                sourceAlphaFactor: sourceAlphaFactor;
+                destAlphaFactor: destAlphaFactor;
+                alphaOperation: BlendingOperation Add;
+                yourself.
+        }.
+
+        method sourceFactor: (sourceFactor: BlendingFactor) destFactor: (destFactor: BlendingFactor) ::=> BlendingEquation := {
+            self sourceColorFactor: sourceFactor destColorFactor: destFactor
+                sourceAlphaFactor: sourceFactor destAlphaFactor: destFactor
+        }.
+
+        method forBlendingMode: (mode: BlendingMode) ::=> BlendingEquation := {
+            mode selectCase: #{
+            BlendingMode Copy : {BlendingEquation sourceFactor: BlendingFactor One destFactor: BlendingFactor Zero}.
+            BlendingMode Discard : {BlendingEquation sourceFactor: BlendingFactor Zero destFactor: BlendingFactor One}.
+            BlendingMode AlphaOver : {BlendingEquation sourceFactor: BlendingFactor SourceAlpha destFactor: BlendingFactor InvertedSourceAlpha}.
+            BlendingMode PremultipliedAlphaOver : {BlendingEquation sourceFactor: BlendingFactor One destFactor: BlendingFactor InvertedSourceAlpha}.
+            BlendingMode CompositeAlphaOver : {
+                BlendingEquation sourceColorFactor: BlendingFactor SourceAlpha destColorFactor: BlendingFactor InvertedSourceAlpha
+                    sourceAlphaFactor: BlendingFactor One destAlphaFactor: BlendingFactor One}.
+            BlendingMode CompositePremultipliedAlphaOver : {
+                BlendingEquation sourceColorFactor: BlendingFactor One destColorFactor: BlendingFactor InvertedSourceAlpha
+                    sourceAlphaFactor: BlendingFactor One destAlphaFactor: BlendingFactor One}.
+            _ : {BlendingEquation sourceFactor: BlendingFactor One destFactor: BlendingFactor Zero}.
+            }
+        }.
+    }.
+}.
+
+}. ## End of namespace Core
+}. ## End of namespace Graphics
+}. ## End of namespace Stdn

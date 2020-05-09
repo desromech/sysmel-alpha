@@ -1,0 +1,22 @@
+namespace Stdn definition: {
+namespace Graphics definition: {
+namespace Core definition: {
+
+enum StencilOperation valueType: UInt8; values: #{
+    Keep: 0.
+    Zero: 1.
+    Replace: 2.
+    Invert: 3.
+    Increase: 4.
+    IncreaseWrap: 5.
+    Decrease: 6.
+    DecreaseWrap: 7.
+}; definition: {
+    const inline method hash => Stdn Hash
+        := self value hash.
+
+}.
+
+}. ## End of namespace Core
+}. ## End of namespace Graphics
+}. ## End of namespace Stdn

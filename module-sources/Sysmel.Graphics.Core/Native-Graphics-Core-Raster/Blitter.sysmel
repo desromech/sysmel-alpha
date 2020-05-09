@@ -356,44 +356,27 @@ class Blitter definition: {
     }.
 
     const inline method blendTriangle: (p1: Float32x2) p2: (p2: Float32x2) p3: (p3: Float32x2) pixelsWith: (renderBlock: Float32BlendTriangleBlockType) ::=> Void := {
-        let rectangle := RectangleF32 min: (p1 min: (p2 min: p3))
-            max: (p1 max: (p2 max: p3)).
+        let destRow mutable type: UnsafePixelIterator.
+        let destPixel mutable type: UnsafePixelIterator.
 
-        let clippedRectangle := rectangle intersectionWith: clippedBounds asRectangleF32.
-        clippedRectangle isEmpty ifTrue: {
-            return: void
-        }.
-
-        let triangleArea := p2 - p1 cross: p3 - p1.
-        triangleArea = 0.0f ifTrue: {
-            return: void
-        }.
-
-        let den := 1.0f / triangleArea.
-
-        ## FIXME: optimize properly this rendering loop.
-
-        let fractionalOffset := Float32x2(0.5f, 0.5f). ## Sample on the pixel centers
-        let clippedRectangleI := RectangleI32 min: (clippedRectangle min floor castTo: Int32x2) max: (clippedRectangle max floor castTo: Int32x2).
-        let destRow mutable := self makeUnsafePixelIteratorAt: clippedRectangleI min.
-        clippedRectangleI min y until: clippedRectangleI max y do: {:(Int32)y :: Void |
-            let destPixel mutable := destRow.
-            clippedRectangleI min x until: clippedRectangleI max x do: {:(Int32)x :: Void |
-                let p := Float32x2(x, y) + fractionalOffset.
-
-                let w3 := (p2 - p1 cross: p - p1)*den.
-                let w1 := (p3 - p2 cross: p - p2)*den.
-                let w2 := (p1 - p3 cross: p - p3)*den.
-                let barycentricCoordinates := Float32x3(w1, w2, w3).
-
-                w1 >= 0 && w2 >= 0 && w3 >= 0 ifTrue: {
-                    destPixel storePixelFloat32x4: renderBlock(p, Float32x3(w1, w2, w3), destPixel loadPixelFloat32x4).
-                }.
-                destPixel advanceColumn
-            }.
-
-            destRow advanceRow
-        }
+        TringleRasterizer()
+            clippingBounds: self clippedBounds;
+            loopSetupFunction: {:(Int32x2)startPosition :: Void |
+                destRow := self makeUnsafePixelIteratorAt: startPosition.
+            };
+            rowSetupFunction: { :: Void |
+                destPixel := destRow.
+            };
+            rowAdvanceFunction: {:(Int32)delta :: Void |
+                destRow advanceRows: delta
+            };
+            columnAdvanceFunction: {:(Int32)delta :: Void |
+                destPixel advanceColumns: delta
+            };
+            pixelRenderFunction: {:(Float32x4)p :(Boolean8)isFrontFace :(Float32x3)flatBarycentric :(Float32x3)perspectiveBarycentric :: Void |
+                destPixel storePixelFloat32x4: renderBlock(p xy, perspectiveBarycentric, destPixel loadPixelFloat32x4).
+            };
+            rasterizeTriangle2D: p1 p2: p2 p3: p3.
     }.
 
     const inline method copyPixelsFrom: (sourceBlitter: Blitter const ref) at: (source: RectangleI32)

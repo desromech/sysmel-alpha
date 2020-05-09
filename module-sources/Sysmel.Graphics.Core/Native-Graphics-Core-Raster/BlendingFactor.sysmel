@@ -1,0 +1,79 @@
+namespace Stdn definition: {
+namespace Graphics definition: {
+namespace Core definition: {
+
+enum BlendingFactor valueType: UInt8; values: #{
+    Zero: 1.
+    One: 2.
+    SourceColor: 3.
+    InvertedSourceColor: 4.
+    SourceAlpha: 5.
+    InvertedSourceAlpha: 6.
+    DestAlpha: 7.
+    InvertedDestAlpha: 8.
+    DestColor: 9.
+    InvertedDestColor: 10.
+    SourceAlphaSaturated: 11.
+    ConstantFactor: 14.
+    InvertedConstantFactor: 15.
+    Source1Color: 16.
+    Inverted1SourceColor: 17.
+    Source1Alpha: 18.
+    Inverted1SourceAlpha: 19.
+}; definition: {
+    const inline method hash => Stdn Hash
+        := self value hash.
+        
+    inline method evaluateColorWithSource: (source: Float32x4) destination: (destination: Float32x4)
+        constantFactor: (constantFactor: Float32x4) alternateSource: (alternateSource: Float32x4) ::=> Float32x3 := {
+        self selectCase: #{
+        Zero : Float32x3 zeros.
+        One : Float32x3 ones.
+        SourceColor : source rgb.
+        InvertedSourceColor : Float32x3 ones - source rgb.
+        SourceAlpha : source a.
+        InvertedSourceAlpha : 1.0f - source a.
+        DestAlpha : destination a.
+        InvertedDestAlpha : 1.0f - destination a.
+        DestColor : destination rgb.
+        InvertedDestColor : Float32x3 ones - destination rgb.
+        SourceAlphaSaturated : (source a min: 1.0f - destination a).
+        ConstantFactor : constantFactor rgb.
+        InvertedConstantFactor : Float32x3 ones - constantFactor rgb.
+        Source1Color : alternateSource rgb.
+        Inverted1SourceColor : Float32x3 ones - alternateSource rgb.
+        Source1Alpha : alternateSource a.
+        Inverted1SourceAlpha : 1.0f - alternateSource a.
+        _ : source rgb
+        }
+    }.
+
+    inline method evaluateAlphaWithSource: (source: Float32x4) destination: (destination: Float32x4)
+        constantFactor: (constantFactor: Float32x4) alternateSource: (alternateSource: Float32x4) ::=> Float32 := {
+        self selectCase: #{
+        Zero : 0.0f.
+        One : 1.0.
+        SourceColor : source a.
+        InvertedSourceColor : 1.0 - source a.
+        SourceAlpha : source a.
+        InvertedSourceAlpha : 1.0f - source a.
+        DestAlpha : destination a.
+        InvertedDestAlpha : 1.0f - destination a.
+        DestColor : destination a.
+        InvertedDestColor : 1.0f - destination a.
+        SourceAlphaSaturated : 1.0f.
+        ConstantFactor : constantFactor a.
+        InvertedConstantFactor : 1.0f - constantFactor a.
+        Source1Color : alternateSource a.
+        Inverted1SourceColor : 1.0f - alternateSource a.
+        Source1Alpha : alternateSource a.
+        Inverted1SourceAlpha : 1.0f - alternateSource a.
+        _ : source a
+        }
+    }.
+
+}.
+
+}. ## End of namespace Core
+}. ## End of namespace Graphics
+}. ## End of namespace Stdn

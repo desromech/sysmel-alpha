@@ -1,0 +1,34 @@
+namespace Stdn definition: {
+namespace Graphics definition: {
+namespace Core definition: {
+
+enum FaceCullingMode valueType: UInt8; values: #{
+    None: 0.
+    Front: 1.
+    Back: 2.
+    FrontAndBack: 3.
+}; definition: {
+    compileTime constant TriangleAreaThreshold := 0.00001f.
+
+    inline method isTriangleAreaCulled: (area: Float32) ::=> Boolean8 := {
+        self selectCase: #{
+        None : {
+            TriangleAreaThreshold negated <= area && area <= TriangleAreaThreshold
+        }.
+        Back : {
+            TriangleAreaThreshold negated <= area
+        }.
+        Front : {
+            area <= TriangleAreaThreshold negated
+        }.
+        _ : {
+            true
+        }
+        }.
+    }.
+
+}.
+
+}. ## End of namespace Core
+}. ## End of namespace Graphics
+}. ## End of namespace Stdn

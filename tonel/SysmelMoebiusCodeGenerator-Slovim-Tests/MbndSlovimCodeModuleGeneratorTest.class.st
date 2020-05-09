@@ -1480,6 +1480,40 @@ MbndSlovimCodeModuleGeneratorTest >> testCStringCFunction [
 ]
 
 { #category : #tests }
+MbndSlovimCodeModuleGeneratorTest >> testCallNativeBlockClosure [
+	| function |
+	self
+		evaluateSysmelSource: '
+function calledWithNativeBlockClosure externC(f: (Void => Int32) nativeStackBlockClosure const ref) => Int32
+	:= f().
+';
+		generateSSAModule.
+
+	function := ssaModule globalNamed: #calledWithNativeBlockClosure.
+	self assert: function asFullSExpressionForTesting equals: #(
+function calledWithNativeBlockClosure cdecl i32
+	arguments (
+		(f (pointer (pointer (struct nil generic ((pointer (pointer void generic) generic) (pointer (function cdecl ((pointer void generic)) false i32) generic)) (vtable functionPointer) ()) generic) generic) ())
+	)
+	literals (
+	)
+	blocks (
+		(()
+			(nil jump void () () (block 2 body))
+		)
+		(()
+			(nil load (pointer (struct nil generic ((pointer (pointer void generic) generic) (pointer (function cdecl ((pointer void generic)) false i32) generic)) (vtable functionPointer) ()) generic) () ((local 0 f)))
+			(nil getElementPointer (pointer (pointer (function cdecl ((pointer void generic)) false i32) generic) generic) () ((local 2 nil) (const i32 0) (const i32 1)))
+			(nil load (pointer (function cdecl ((pointer void generic)) false i32) generic) () ((local 3 nil)))
+			(nil bitcast (pointer void generic) () ((local 2 nil)))
+			(nil call i32 () ((local 4 nil) (local 5 nil)))
+			(nil return void () ((local 6 nil)))
+		)
+	)
+	)
+]
+
+{ #category : #tests }
 MbndSlovimCodeModuleGeneratorTest >> testCallWithGCBlockClosure [
 	| function |
 	self

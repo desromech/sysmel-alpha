@@ -52,115 +52,67 @@ class Mesh definition: {
 let planeMesh mutable type: Mesh.
 let cubeMesh mutable type: Mesh.
 
-compileTime constant ClipEpsilon := 0.00001f.
-let ClipPlane := Float32x4(0f, 0f, 0f, 1f).
-
-inline function isFrontPoint(p: Float32x4) => Boolean8 := {
-	(p dot: ClipPlane) > ClipEpsilon.
-}.
-inline function intersectSegmentWithFrontPlane(pa: Float32x4, pb: Float32x4) => Float32x4 := {
-	let d := pb - pa.
-	##let t := (ClipEpsilon - pa w) / d w.
-	let t := (ClipEpsilon - (pa dot: ClipPlane)) / (d dot: ClipPlane).
-	let result := pa + t*d.
-	## Stdn stdout << pa << "|" << pb << " -> " << result; nl.
-	result.
-}.
-
 class SoftwareGraphicsPipeline definition: {
 	public field colorBufferBlitter type: Blitter.
 	public field depthStencilBufferBlitter type: Blitter.
 
-	public method drawClippedTriangleP1: (p1: Float32x4) p2: (p2: Float32x4) p3: (p3: Float32x4) fragmentShader: (fragmentShader: (Float32x3 => Float32x4) nativeBlockClosure) ::=> Void := {
-		let extent := colorBufferBlitter extent castTo: Float32x2.
-		##let viewportTransform := (Float32x2x2 scale: extent) * Float32x2x3(Float32x2(0.5f, 0.0f), Float32x2(0.0f, -0.5f), Float32x2(0.5f, 0.5f)).
-		let viewportTransform := (Float32x2x2 scale: extent) * Float32x2x3(Float32x2(0.5f, 0.0f), Float32x2(0.0f, 0.5f), Float32x2(0.5f, 0.5f)).
+	public field depthFunction type: CompareFunction.
+	public field stencilFunction type: CompareFunction.
+	public field stencilReference type: Int32.
 
-		let iw1 := 1.0f / p1 w.
-		let iw2 := 1.0f / p2 w.
-		let iw3 := 1.0f / p3 w.
+	public field blendingEquation type: BlendingEquation.
+	public field blendingConstant type: Float32x4.
 
-		let w := Float32x3(p1 w, p2 w, p3 w).
+    compileTime constant FragmentShaderFunction := ((Float32x4 -- Boolean8 -- Float32x3 -- Float32x3) => Float32x4) nativeBlockClosure.
 
-		let sv1 := viewportTransform * Float32x3(p1 xy / p1 w, 1).
-		let sv2 := viewportTransform * Float32x3(p2 xy / p2 w, 1).
-		let sv3 := viewportTransform * Float32x3(p3 xy / p3 w, 1).
+	public method drawTriangleP1: (p1: Float32x4) p2: (p2: Float32x4) p3: (p3: Float32x4) fragmentShader: (fragmentShader: FragmentShaderFunction) ::=> Void := {
+		let colorRow mutable type: UnsafePixelIterator.
+		let colorPixel mutable type: UnsafePixelIterator.
+		let depthRow mutable type: UnsafePixelIterator.
+		let depthPixel mutable type: UnsafePixelIterator.
 
-		(sv2 - sv1 cross: sv3 - sv1) >= 0 ifTrue: {
-			return: void
-		}.
+		TringleRasterizer()
+			clippingBounds: colorBufferBlitter clippedBounds;
+			viewportExtent: (colorBufferBlitter extent castTo: Float32x2);
+			loopSetupFunction: {:(Int32x2)startPosition :: Void |
+				colorRow := colorBufferBlitter makeUnsafePixelIteratorAt: startPosition.
+				depthRow := depthStencilBufferBlitter makeUnsafePixelIteratorAt: startPosition.
+			};
+			rowSetupFunction: { :: Void |
+				colorPixel := colorRow.
+				depthPixel := depthRow.
+			};
+			rowAdvanceFunction: {:(Int32)delta :: Void |
+				colorRow advanceRows: delta.
+				depthRow advanceRows: delta.
+			};
+			columnAdvanceFunction: {:(Int32)delta :: Void |
+				colorPixel advanceColumns: delta.
+				depthPixel advanceColumns: delta.
+			};
+			pixelRenderFunction: (function (fragCoord: Float32x4, isFrontFace: Boolean8, flatBarycentric: Float32x3, perspectiveBarycentric: Float32x3) => Void := {
+				let depth ref := (depthPixel pixels reinterpretCastTo: Float32 pointer) _.
 
-		colorBufferBlitter
-			blendTriangle: sv1 p2: sv2 p3: sv3 pixelsWith: {:(Float32x2)p :(Float32x3)barycentricCoordinates :(Float32x4)originalDestPixelValue :: Float32x4 |
-				let bc := barycentricCoordinates / w.
-
-				fragmentShader(bc / (bc dot: Float32x3 ones))
-		}.
-	}.
-
-
-	public method drawTriangleP1: (p1: Float32x4) p2: (p2: Float32x4) p3: (p3: Float32x4) fragmentShader: (fragmentShader: (Float32x3 => Float32x4) nativeBlockClosure) ::=> Void := {
-		let sourcePolygon mutable type: (Float32x4 array: 4).
-		sourcePolygon[0] := p1.
-		sourcePolygon[1] := p2.
-		sourcePolygon[2] := p3.
-		sourcePolygon[3] := p1.
-
-		let sourcePolygonInFront mutable type: (Boolean8 array: 4).
-		sourcePolygonInFront[0] := isFrontPoint(p1).
-		sourcePolygonInFront[1] := isFrontPoint(p2).
-		sourcePolygonInFront[2] := isFrontPoint(p3).
-		sourcePolygonInFront[3] := sourcePolygonInFront[0].
-
-		## Passthrough the not clipped polygon.
-		sourcePolygonInFront[0] && sourcePolygonInFront[1] && sourcePolygonInFront[2] ifTrue: {
-			self drawClippedTriangleP1: p1 p2: p2 p3: p3 fragmentShader: fragmentShader.
-			return: void
-		}.
-
-		## Discard the completely clipped polygon.
-		sourcePolygonInFront[0] not && sourcePolygonInFront[1] not && sourcePolygonInFront[2] not ifTrue: {
-			return: void
-		}.
-
-		let clippedPolygon mutable type: (Float32x4 array: 6).
-		let clippedPolygonDestIndex mutable type: UIntPointer.
-		0 until: 3 do: {:i :: Void|
-			let pa := sourcePolygon[i].
-			let pb := sourcePolygon[i + 1].
-
-			let fa := sourcePolygonInFront[i].
-			let fb := sourcePolygonInFront[i + 1].
-
-			fa && fb ifTrue: {
-				clippedPolygon[clippedPolygonDestIndex] := pa.
-				clippedPolygonDestIndex := clippedPolygonDestIndex + 1
-			}.
-			fa not && fb ifTrue: {
-				clippedPolygon[clippedPolygonDestIndex] := intersectSegmentWithFrontPlane(pa, pb).
-				clippedPolygonDestIndex := clippedPolygonDestIndex + 1
-			}.
-			fa && fb not ifTrue: {
-				clippedPolygon[clippedPolygonDestIndex] := pa.
-				clippedPolygon[clippedPolygonDestIndex + 1] := intersectSegmentWithFrontPlane(pa, pb).
-				clippedPolygonDestIndex := clippedPolygonDestIndex + 2
-			}.
-		}.
-
-		## Stdn stdout << "clippedPolygonDestIndex " << clippedPolygonDestIndex; nl.
-		clippedPolygonDestIndex >= 3 ifTrue: {
-			self drawClippedTriangleP1: clippedPolygon[0] p2: clippedPolygon[1] p3: clippedPolygon[2] fragmentShader: {:(Float32x3)barycentricCoordinates :: Float32x4 |
-				Float32x4 red
-			}.
-
-			clippedPolygonDestIndex >= 4 ifTrue: {
-				self drawClippedTriangleP1: clippedPolygon[0] p2: clippedPolygon[2] p3: clippedPolygon[3] fragmentShader: {:(Float32x3)barycentricCoordinates :: Float32x4 |
-					Float32x4 blue
+				## Depth testing.
+				(depthFunction compare: fragCoord z with: depth) ifFalse: {
+					return: void
 				}.
-			}
-		}.
-	}.
 
+				## TODO: Stencil testing.
+
+				depth := fragCoord z.
+
+				let fragmentColor := fragmentShader(fragCoord, isFrontFace, flatBarycentric, perspectiveBarycentric).
+				let alternateSource := fragmentColor.
+				let destinationColor := colorPixel loadPixelFloat32x4.
+
+				let blendedColor := blendingEquation evaluateWithSource: fragmentColor destination: destinationColor
+			        constantFactor: blendingConstant alternateSource: alternateSource.
+
+				colorPixel storePixelFloat32x4: blendedColor.
+			});
+			rasterizeTriangleNDC: p1 p2: p2 p3: p3.
+	}.
 }.
 
 function fuzzyXor(a: Float32, b: Float32) => Float32 := {
@@ -187,12 +139,12 @@ Mesh definition: {
 			let pv2 := projectionModelViewMatrix * v2.
 			let pv3 := projectionModelViewMatrix * v3.
 
-			pipeline drawTriangleP1: pv1 p2: pv2 p3: pv3 fragmentShader: {:(Float32x3)barycentricCoordinates :: Float32x4 |
+			pipeline drawTriangleP1: pv1 p2: pv2 p3: pv3 fragmentShader: {:(Float32x4)fragCoord :(Boolean8)isFrontFace :(Float32x3)flatBarycentric :(Float32x3)perspectiveBarycentric :: Float32x4 |
 				##let v := v1*barycentricCoordinates x + v2*barycentricCoordinates y + v3*barycentricCoordinates z.
 				##let v := Float32x3x3(v1, v2, v3) * barycentricCoordinates.
 
-				let c := barycentricCoordinates * (Float32x3x4 rows: (c1, c2, c3)).
-				let vh := barycentricCoordinates * (Float32x3x4 rows: (v1, v2, v3)).
+				let c := perspectiveBarycentric * (Float32x3x4 rows: (c1, c2, c3)).
+				let vh := perspectiveBarycentric * (Float32x3x4 rows: (v1, v2, v3)).
 				let v := vh xyz / vh w.
 
 				let x := v.
@@ -207,6 +159,7 @@ Mesh definition: {
 
 				Float32x4(albedo*(0.2f + 0.8f*NdotL), 1.0f).
 				##Float32x4(N *0.5f + 0.5f, 1.0f).
+				##Float32x4(perspectiveBarycentric, 1.0f)
 			}.
 
 			##Stdn stdout << "tv1 " << tv1; nl.
@@ -222,7 +175,9 @@ function doRender3D => Void := {
 	let pipeline mutable type: SoftwareGraphicsPipeline.
 	pipeline
 		colorBufferBlitter: colorBuffer _ makeBlitter;
-		depthStencilBufferBlitter: depthBuffer _ makeBlitter.
+		depthStencilBufferBlitter: depthBuffer _ makeBlitter;
+		depthFunction: CompareFunction GreaterOrEqual;
+		blendingEquation: BlendingMode CompositeAlphaOver asBlendingEquation.
 
 	pipeline colorBufferBlitter setAllPixelsToColor: UInt8x4(64, 64 , 64, 64). ##Float32x4 zeros.
 	pipeline depthStencilBufferBlitter setAllPixelsToColor: UInt8x4 zeros.

@@ -128,7 +128,7 @@ MbndAstSemanticAnalyzerForExplicitMacroExpansion >> visitFunctionCallNode: node 
 		function: (self analyzeNodeIfNeeded: node function);
 		arguments: (self analyzeNodesIfNeeded: result arguments).
 		
-	functionalType := result function type withoutReferences.
+	functionalType := result function type withoutReferences withoutTopDecorations.
 	self assert: functionalType isFunctionalType.
 	^ functionalType analyzeFunctionCallNode: result with: self
 ]

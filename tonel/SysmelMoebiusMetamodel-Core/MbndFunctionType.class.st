@@ -75,6 +75,9 @@ MbndFunctionType >> analyzeFunctionCallNode: node with: analyzer [
 			node type: self compilationTarget returnType.
 		]
 	].
+	node function type withoutReferences isFunctionType ifFalse: [ 
+		node function: (analyzer ensureReferencesAreEvaluated: node function)
+	].
 
 	^ node
 ]

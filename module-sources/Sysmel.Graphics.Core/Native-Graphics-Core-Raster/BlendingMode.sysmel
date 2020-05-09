@@ -10,7 +10,9 @@ enum BlendingMode valueType: UInt8; values: #{
     CompositeAlphaOver: 4.
     CompositePremultipliedAlphaOver: 5.
 }; definition: {
-
+    inline method asBlendingEquation => BlendingEquation := {
+        BlendingEquation forBlendingMode: self.
+    }.
 }.
 
 }. ## End of namespace Core

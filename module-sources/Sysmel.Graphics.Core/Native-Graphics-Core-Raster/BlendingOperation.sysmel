@@ -1,0 +1,65 @@
+namespace Stdn definition: {
+namespace Graphics definition: {
+namespace Core definition: {
+
+enum BlendingOperation valueType: UInt8; values: #{
+    Add: 1.
+    Subtract: 2.
+    ReverseSubtract: 3.
+    Min: 4.
+    Max: 5.
+}; definition: {
+    const inline method hash => Stdn Hash
+        := self value hash.
+
+    inline method evaluateColor: (left: Float32x3) with: (right: Float32x3) ::=> Float32x3 := {
+        self selectCase: #{
+        Add : {
+            left + right
+        }.
+        Subtract : {
+            left - right
+        }.
+        ReverseSubtract : {
+            right - left
+        }.
+        Min : {
+            right min: left
+        }.
+        Max : {
+            right max: left
+        }.
+        _ : {
+            left
+        }
+        }.
+    }.
+
+    inline method evaluateAlpha: (left: Float32) with: (right: Float32) ::=> Float32 := {
+        self selectCase: #{
+        Add : {
+            left + right
+        }.
+        Subtract : {
+            left - right
+        }.
+        ReverseSubtract : {
+            right - left
+        }.
+        Min : {
+            right min: left
+        }.
+        Max : {
+            right max: left
+        }.
+        _ : {
+            left
+        }
+        }.
+    }.
+
+}.
+
+}. ## End of namespace Core
+}. ## End of namespace Graphics
+}. ## End of namespace Stdn

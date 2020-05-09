@@ -1,0 +1,17 @@
+namespace Stdn definition: {
+namespace Graphics definition: {
+namespace Core definition: {
+
+enum FrontFaceOrientation valueType: UInt8; values: #{
+    CounterClockwise: 0.
+    Clockwise: 1.
+}; definition: {
+    inline method adaptViewFaceArea: (area: Float32) ::=> Float32 := {
+        self = Clockwise ifTrue: area negated ifFalse: area
+    }.
+
+}.
+
+}. ## End of namespace Core
+}. ## End of namespace Graphics
+}. ## End of namespace Stdn
