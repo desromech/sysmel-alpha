@@ -24,7 +24,7 @@ class TringleRasterizer definition: {
     public field rowAdvanceFunction type: AdvanceFunction.
     public field pixelRenderFunction type: PixelRenderFunction.
 
-    method viewportExtent: (extent: Float32x2) ::=> Void := {
+    inline method viewportExtent: (extent: Float32x2) ::=> Void := {
         viewportTransform := (Float32x4x4 scale: Float32x4(extent, 1.0f, 1.0f)) *
             Float32x4x4(
                 Float32x4(0.5f, 0.0f, 0.0f, 0.0f),

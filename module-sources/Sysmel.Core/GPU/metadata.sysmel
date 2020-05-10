@@ -1,4 +1,5 @@
 namespace GPU definition: {
+
 struct ShaderModuleInfo definition: {
 	public field blobSize type: UInt32.
 	public field blobStartPointer type: UInt8 const pointer.
@@ -6,14 +7,59 @@ struct ShaderModuleInfo definition: {
 
 struct ShaderEntryPointInfo definition: {
 	public field moduleInfo type: ShaderModuleInfo pointer.
+	public field nativeShaderEntryPoint type: Void pointer.
 	public field entryPointSymbol type: Char8 const pointer.
 	public field stageType type: Int32.
 	public field localSizeX type: UInt32.
 	public field localSizeY type: UInt32.
 	public field localSizeZ type: UInt32.
+
+	public field interpolatedInputMask type: UInt32.
+	public field flatInterpolatedInputMask type: UInt32.
+	public field usedInputMask type: UInt32.
 }.
+
+struct NativeComputeShaderIOInterface definition: {
+	class Inputs superclass: ComputeStageInput; definition: {
+	}.
+
+	public field inputs type: Inputs.
+}.
+
+struct NativeVertexShaderIOInterface definition: {
+	class Inputs superclass: VertexStageInput; definition: {
+		public field locations type: (Float32x4 array: 16).
+	}.
+
+	class Outputs superclass: VertexStageOutput; definition: {
+		public field locations type: (Float32x4 array: 16).
+	}.
+
+	public field inputs type: Inputs.
+	public field outputs type: Outputs.
+}.
+
+struct NativeFragmentShaderIOInterface definition: {
+	class Inputs superclass: FragmentStageInput; definition: {
+		public field locations type: (Float32x4 array: 16).
+	}.
+
+	class Outputs definition: {
+		public field locations type: (Float32x4 array: 16).
+	}.
+
+	public field inputs type: Inputs.
+	public field outputs type: Outputs.
+}.
+
+compileTime constant NativeVertexShaderEntryPointType := (Void pointer -- GPU NativeVertexShaderIOInterface ref) => Void.
+compileTime constant NativeFragmentShaderEntryPointType := (Void pointer -- GPU NativeFragmentShaderIOInterface ref) => Void.
 
 Compiler compilationTarget
 	shaderModuleInfo: ShaderModuleInfo;
-	shaderEntryPointInfo: ShaderEntryPointInfo.
+	shaderEntryPointInfo: ShaderEntryPointInfo;
+
+	nativeComputeShaderIOInterface: NativeComputeShaderIOInterface;
+	nativeVertexShaderIOInterface: NativeVertexShaderIOInterface;
+	nativeFragmentShaderIOInterface: NativeFragmentShaderIOInterface.
 }.

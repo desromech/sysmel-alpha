@@ -1,0 +1,98 @@
+namespace Stdn definition: {
+namespace Graphics definition: {
+namespace Core definition: {
+
+class SoftwareGraphicsPipeline definition: {
+	public field colorBufferBlitter type: Blitter.
+	public field depthStencilBufferBlitter type: Blitter.
+
+	public field depthFunction type: CompareFunction.
+	public field stencilFunction type: CompareFunction.
+	public field stencilReference type: Int32.
+
+	public field blendingEquation type: BlendingEquation.
+	public field blendingConstant type: Float32x4.
+
+	public field descriptorSetTable type: (Void pointer array: 16).
+
+	public field vertexShader type: GPU ShaderEntryPointInfo const pointer.
+	public field fragmentShader type: GPU ShaderEntryPointInfo const pointer.
+
+	const method drawTriangle: (v1: GPU NativeVertexShaderIOInterface Outputs ref)
+		v2: (v2: GPU NativeVertexShaderIOInterface Outputs ref)
+		v3: (v3: GPU NativeVertexShaderIOInterface Outputs ref) ::=> Void := {
+
+		fragmentShader ifNil: {
+			return: void
+		}.
+
+		let colorRow mutable type: UnsafePixelIterator.
+		let colorPixel mutable type: UnsafePixelIterator.
+		let depthRow mutable type: UnsafePixelIterator.
+		let depthPixel mutable type: UnsafePixelIterator.
+
+		TringleRasterizer()
+			clippingBounds: colorBufferBlitter clippedBounds;
+			viewportExtent: (colorBufferBlitter extent castTo: Float32x2);
+			loopSetupFunction: {:(Int32x2)startPosition :: Void |
+				colorRow := colorBufferBlitter makeUnsafePixelIteratorAt: startPosition.
+				depthRow := depthStencilBufferBlitter makeUnsafePixelIteratorAt: startPosition.
+			};
+			rowSetupFunction: { :: Void |
+				colorPixel := colorRow.
+				depthPixel := depthRow.
+			};
+			rowAdvanceFunction: {:(Int32)delta :: Void |
+				colorRow advanceRows: delta.
+				depthRow advanceRows: delta.
+			};
+			columnAdvanceFunction: {:(Int32)delta :: Void |
+				colorPixel advanceColumns: delta.
+				depthPixel advanceColumns: delta.
+			};
+			pixelRenderFunction: (function (fragCoord: Float32x4, isFrontFacing: Boolean8, flatBarycentric: Float32x3, perspectiveBarycentric: Float32x3) => Void := {
+				let depth ref := (depthPixel pixels reinterpretCastTo: Float32 pointer) _.
+
+				## Depth testing.
+				(depthFunction compare: fragCoord z with: depth) ifFalse: {
+					return: void
+				}.
+
+				## TODO: Stencil testing.
+				let fragment mutable type: GPU NativeFragmentShaderIOInterface.
+				{
+					fragment inputs
+						fragCoord: fragCoord;
+						isFrontFacing: isFrontFacing.
+					0 until: 16 do: {:i :: Void |
+						fragment inputs locations[i] := perspectiveBarycentric * (Float32x3x4 rows: (v1 locations[i], v2 locations[i], v3 locations[i])).
+					}.
+
+					let shaderFunction := fragmentShader _ nativeShaderEntryPoint reinterpretCastTo: GPU NativeFragmentShaderEntryPointType pointer.
+					shaderFunction(descriptorSetTable address, fragment)
+				}.
+
+				depth := fragCoord z.
+
+				let fragmentColor := fragment outputs locations[0].
+				let alternateSource := fragmentColor.
+				let destinationColor := colorPixel loadPixelFloat32x4.
+
+				let blendedColor := blendingEquation evaluateWithSource: fragmentColor destination: destinationColor
+			        constantFactor: blendingConstant alternateSource: alternateSource.
+
+				colorPixel storePixelFloat32x4: blendedColor.
+			});
+			rasterizeTriangleNDC: v1 screenPosition p2: v2 screenPosition p3: v3 screenPosition.
+	}.
+
+	const inline method invokeVertexShaderOn: (vertex: GPU NativeVertexShaderIOInterface ref) ::=> Void := {
+		let shaderFunction := vertexShader _ nativeShaderEntryPoint reinterpretCastTo: GPU NativeVertexShaderEntryPointType pointer.
+		shaderFunction(descriptorSetTable address, vertex)
+	}.
+}.
+
+
+}. ## End of namespace Core
+}. ## End of namespace Graphics
+}. ## End of namespace Stdn

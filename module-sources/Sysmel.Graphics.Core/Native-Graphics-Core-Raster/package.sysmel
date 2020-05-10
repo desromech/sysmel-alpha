@@ -16,6 +16,7 @@ loadFileOnce: "Blitter.sysmel".
 loadFileOnce: "Form.sysmel".
 loadFileOnce: "Cursor.sysmel".
 loadFileOnce: "SystemCursor.sysmel".
+loadFileOnce: "SoftwareGraphicsPipeline.sysmel".
 
 ## 2D rendering objects.
 loadFileOnce: "RenderingDriver.sysmel".
