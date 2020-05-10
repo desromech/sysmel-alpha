@@ -176,6 +176,12 @@ MbndAggregateTypeWithFields >> fillProgramEntityInfoInstance: typeInfoInstance [
 ]
 
 { #category : #'as yet unclassified' }
+MbndAggregateTypeWithFields >> findFieldWithIntrinsicNamed: intrinsicName [
+	^ self slotLayout findFieldWithIntrinsicNamed: intrinsicName
+	
+]
+
+{ #category : #'as yet unclassified' }
 MbndAggregateTypeWithFields >> findFirstFieldNamed: fieldName [
 	^ self slotLayout findFirstFieldNamed: fieldName
 	

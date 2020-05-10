@@ -324,23 +324,111 @@ Compiler compilationTarget
 { #category : #tests }
 MbndSysmelLanguageTestCommon >> evaluateShaderMetadata [
 	^ self evaluateSource: '
-struct ShaderModuleInfo definition: { 
-	public field blobSize type: UIntPointer.
-	public field blobStartPointer type: UInt8 pointer.
+class ComputeStageInput definition: {
+	<gpu>
+
+	public field numberOfWorkGroups type: UInt32x3; intrinsic: #workgroupCount.
+	public field workgroupID type: UInt32x3; intrinsic: #workgroupID.
+	public field localInvocationID type: UInt32x3; intrinsic: #localInvocationID.
+	public field globalInvocationID type: UInt32x3; intrinsic: #globalInvocationID.
+	public field localInvocationIndex type: UInt32; intrinsic: #localInvocationIndex.
+
+	method gridSizeForLocalSize: (localSize: UInt32x3) ::=> UInt32x3
+		:= numberOfWorkGroups*localSize.
+
+	method globalIndexForGridSize: (gridSize: UInt32x3) ::=> UInt32
+		:= globalInvocationID x +
+		   globalInvocationID y*gridSize x +
+		   globalInvocationID z*gridSize x*gridSize y.
+
+	method globalIndexForLocalSize: (localSize: UInt32x3) ::=> UInt32
+		:= self globalIndexForGridSize: (self gridSizeForLocalSize: localSize).
+
+	macro method gridSize := ``(`,self gridSizeForLocalSize: localSize).
+	macro method globalIndex := ``(`,self globalIndexForLocalSize: localSize).
 }.
 
-struct ShaderEntryPointInfo definition: { 
+class VertexStageInput definition: {
+	<gpu>
+	public field vertexID type: Int32; intrinsic: #vertexID.
+	public field instanceID type: Int32; intrinsic: #instanceID.
+}.
+
+class VertexStageOutput definition: {
+	<gpu>
+	public field screenPosition type: Float32x4; intrinsic: #position.
+}.
+
+class FragmentStageInput definition: {
+	<gpu>
+	public field fragCoord type: Float32x4; intrinsic: #fragCoord.
+	public field pointCoord type: Float32x2; intrinsic: #pointCoord.
+	public field isFrontFacing type: Boolean8; intrinsic: #frontFacing.
+}.
+
+struct ShaderModuleInfo definition: {
+	public field blobSize type: UInt32.
+	public field blobStartPointer type: UInt8 const pointer.
+}.
+
+struct ShaderEntryPointInfo definition: {
 	public field moduleInfo type: ShaderModuleInfo pointer.
+	public field nativeShaderEntryPoint type: Void pointer.
 	public field entryPointSymbol type: Char8 const pointer.
 	public field stageType type: Int32.
 	public field localSizeX type: UInt32.
 	public field localSizeY type: UInt32.
 	public field localSizeZ type: UInt32.
+
+	public field interpolatedInputMask type: UInt32.
+}.
+
+union NativeShaderIOLocation definition: {
+	public field floating type: Float32x4.
+	public field integer type: Int32x4.
+	public field unsignedInteger type: UInt32x4.
+}.
+
+struct NativeComputeShaderIOInterface definition: {
+	class Inputs superclass: ComputeStageInput; definition: {
+	}.
+
+	public field inputs type: Inputs.
+}.
+
+struct NativeVertexShaderIOInterface definition: {
+	class Inputs superclass: VertexStageInput; definition: {
+		public field locations type: (NativeShaderIOLocation array: 16).
+	}.
+
+	class Outputs superclass: VertexStageOutput; definition: {
+		public field locations type: (NativeShaderIOLocation array: 16).
+	}.
+
+	public field inputs type: Inputs.
+	public field outputs type: Outputs.
+}.
+
+struct NativeFragmentShaderIOInterface definition: {
+	class Inputs superclass: FragmentStageInput; definition: {
+		public field locations type: (NativeShaderIOLocation array: 16).
+	}.
+
+	class Outputs definition: {
+		public field locations type: (NativeShaderIOLocation array: 16).
+	}.
+
+	public field inputs type: Inputs.
+	public field outputs type: Outputs.
 }.
 
 Compiler compilationTarget
 	shaderModuleInfo: ShaderModuleInfo;
-	shaderEntryPointInfo: ShaderEntryPointInfo.
+	shaderEntryPointInfo: ShaderEntryPointInfo;
+
+	nativeComputeShaderIOInterface: NativeComputeShaderIOInterface;
+	nativeVertexShaderIOInterface: NativeVertexShaderIOInterface;
+	nativeFragmentShaderIOInterface: NativeFragmentShaderIOInterface.
 '
 ]
 

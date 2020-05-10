@@ -32,7 +32,8 @@ Class {
 		'targetCodeModuleName',
 		'gpuUsableProgramEntitites',
 		'patternMatchingFailureRaiseFunction',
-		'variantUnexpectedComponentRaiseFunction'
+		'variantUnexpectedComponentRaiseFunction',
+		'nativeShaderEntryPoints'
 	],
 	#classVars : [
 		'ShaderBuiltInLocationMap',
@@ -196,6 +197,97 @@ MbndSlovimCodeModuleGenerator >> convertExtensionOverloadedMethodInformation: ex
 		setField: #name value: extensionDescription second;
 		setField: #extension value: extensionDescription third;
 		yourself
+]
+
+{ #category : #visiting }
+MbndSlovimCodeModuleGenerator >> createCPUShaderControllerFor: functionMethod generatedAs: ssaFunction [
+	| csymbol stageioInterface receiverType controllerFunctionType ssaFunctionType controllerSSAFunction builder ioChannels inputsField outputsField inputsLocationsField outputsLocationsField receiver |
+	stageioInterface := self compilationTarget nativeShaderIOInterfaceWithSemantics: functionMethod specialSemantics.
+	stageioInterface ifNil: [ ^ nil ].
+	csymbol := self newSymbolNameMangler mangleProgramEntityName: functionMethod suffixes: {#'..shinterface..'}.
+
+	"We always keep a receiver pointer."
+	receiverType := functionMethod receiverType.
+	
+	controllerFunctionType := (self compilationTarget voidType pointer pointer , stageioInterface ref) => self compilationTarget voidType.
+	ssaFunctionType := self translateType: controllerFunctionType.
+	controllerSSAFunction := SLVMFunction module: ssaModule name: csymbol functionType: ssaFunctionType.
+	controllerSSAFunction unmangledName: functionMethod qualifiedName  , '[ShaderController]'.
+	nativeShaderEntryPoints at: functionMethod put: controllerSSAFunction.
+	self isEmittingDebugInformation ifTrue: [
+		controllerSSAFunction
+			debugInformation: (self debugInformationTranslator createForShader: functionMethod controllerWithFunctionType: controllerFunctionType)
+	].
+
+	builder := SLVMBuilder on: controllerSSAFunction.
+	builder newBasicBlockHere: #entry.
+	self isEmittingDebugInformation ifTrue: [ 
+		builder pushDebugSourcePosition: (self convertDebugPosition: functionMethod definitionPosition asActualSourcePosition scope: nil)
+	].
+	
+	inputsField := stageioInterface findFirstFieldNamed: #inputs.
+	outputsField := stageioInterface findFirstFieldNamed: #outputs.
+	inputsLocationsField := inputsField ifNotNil: [
+		inputsField valueType findFirstFieldNamed: #locations
+	].
+	outputsLocationsField := outputsField ifNotNil: [
+		outputsField valueType findFirstFieldNamed: #locations
+	].
+
+	"Alloca the receiver"
+	receiver := nil.
+	functionMethod receiverType isVoidType ifFalse: [ 
+		receiver := builder alloca: (self translateType: functionMethod receiverType baseType)
+	].
+
+
+	"Alloca the channels"
+	self assert: functionMethod returnType isVoidType.
+	self assert: (functionMethod boundType argumentTypes allSatisfy: [:each |
+		each isIOChannelType and: [ each specialSemantics = functionMethod specialSemantics ] 
+	]).
+
+	ioChannels := functionMethod boundType argumentTypes collect: [ :each |
+		builder alloca: (self translateType: each messageType)
+	].
+
+	ioChannels do: [:each |
+		builder store: (SLVMConstant zeroInitializer: each type baseType) in: each
+	].
+
+	receiver ifNotNil: [ 
+		builder store: (SLVMConstant zeroInitializer: receiver type baseType) in: receiver.
+		self fetchNativeShader: functionMethod rootDescriptorTable: functionMethod receiverType withoutReferences withoutTopDecorations constantsFrom: controllerSSAFunction arguments first into: receiver with: builder.
+	].
+
+	"Copy the inputs"
+	functionMethod boundType argumentTypes doWithIndex: [ :eachChannelType :index |
+		eachChannelType isInputChannelType ifTrue: [
+			self fetchNativeShader: functionMethod inputsOfType: eachChannelType messageType
+				into: (ioChannels at: index) from: controllerSSAFunction arguments second
+				inputsField: inputsField inputsLocationsField: inputsLocationsField
+				with: builder
+		]
+	].
+
+	"Invoke the shader itself"
+	functionMethod receiverType isVoidType ifTrue: [ 
+		builder call: ssaFunction arguments: ioChannels
+	] ifFalse: [ 
+		builder call: ssaFunction arguments: {receiver} , ioChannels
+	].
+	
+	"Copy the outputs"
+	functionMethod boundType argumentTypes doWithIndex: [ :eachChannelType :index |
+		eachChannelType isOutputChannelType ifTrue: [
+			self storeNativeShader: functionMethod outputsOfType: eachChannelType messageType
+				from: (ioChannels at: index) into: controllerSSAFunction arguments second
+				outputsField: outputsField outputsLocationsField: outputsLocationsField
+				with: builder
+		]
+	].
+
+	builder returnVoid
 ]
 
 { #category : #'as yet unclassified' }
@@ -370,6 +462,73 @@ MbndSlovimCodeModuleGenerator >> exceptionCatchEndFunction [
 ]
 
 { #category : #visiting }
+MbndSlovimCodeModuleGenerator >> fetchNativeShader: functionMethod inputsOfType: inputMessageType
+into: inputStorage from: ioInterface
+inputsField: inputsField inputsLocationsField: inputsLocationsField
+with: builder [
+	inputMessageType slotLayout slots do: [ :slot |
+		| slotField inputField |
+		self assert: slot fields size = 1.
+		slotField := slot fields first.
+		inputField := nil.
+		
+		slotField intrinsic ifNotNil: [ :intrinsicName |
+			| intrisicField |
+			intrisicField := inputsField valueType findFieldWithIntrinsicNamed: intrinsicName.
+			intrisicField ifNotNil: [
+				inputField := builder getPointer: ioInterface element: {
+					builder constInt: 0.
+					builder constInt: inputsField slotIndex.
+					builder constInt: intrisicField slotIndex.
+				}.
+			].
+		].
+		slotField location ifNotNil: [ :location |
+			(inputsLocationsField isNotNil and: [
+			location isInteger and: [
+			0 <= location and: [
+			location < inputsLocationsField valueType elements ]]]) ifTrue: [
+				inputField := builder getPointer: ioInterface element: {
+					builder constInt: 0.
+					builder constInt: inputsField slotIndex.
+					builder constInt: inputsLocationsField slotIndex.
+					builder constInt: location.
+				}.
+	 		]
+		].
+	
+		inputField ifNotNil: [ 
+			| inputStorageField |
+			inputStorageField := builder getReference: inputStorage element: (builder constInt: slotField slotIndex).
+	
+			inputField type baseType ~= inputStorageField type baseType ifTrue: [ 
+				inputField := builder bitCast: inputField target: inputStorageField type
+			].
+
+			builder store: (builder load: inputField) in: inputStorageField
+		].
+	]
+]
+
+{ #category : #visiting }
+MbndSlovimCodeModuleGenerator >> fetchNativeShader: functionMethod rootDescriptorTable: receiverType constantsFrom: rootDescriptorTablePointer into: receiver with: builder [
+	receiverType slotLayout slots do: [ :eachSlot |
+		eachSlot fields size = 1 ifTrue: [ 
+			| field valueType |
+			field := eachSlot fields first.
+			valueType := field valueType.
+			(valueType isPointerLikeValueType and: [ valueType addressSpace = #bindingSet ]) ifTrue: [
+				| setIndex setPointer |
+				setIndex := field asDescriptorSetIndex.
+				setPointer := builder load: (builder getPointer: rootDescriptorTablePointer element: {builder constInt: setIndex}).
+				setPointer := builder bitCast: setPointer target: (self translateType: valueType).
+				builder store: setPointer in: (builder getReference: receiver element: (builder constInt: field slotIndex)).
+			]
+		]
+	]
+]
+
+{ #category : #visiting }
 MbndSlovimCodeModuleGenerator >> fetchShader: functionMethod inputsOfType: inputMessageType into: inputFetchedLocation with: builder [
 	| slotField inputGlobal |
 	self assert: inputMessageType isAggregateType.
@@ -479,6 +638,7 @@ MbndSlovimCodeModuleGenerator >> generateCodeModuleFor: aModule programEntities:
 MbndSlovimCodeModuleGenerator >> generateEmbeddedShaderModule [
 	| shaderCompilationTarget shaderModuleCodeGenerator shaderSSAModule spirVModule spirVModuleBlobData spirVModuleBlob spirVModuleInfoGlobal shaderEntryPoints |
 	self compilationTarget isGPU ifTrue: [ ^ nil ].
+	self compilationTarget shaderModuleInfo ifNil: [ ^ nil ].
 	gpuUsableProgramEntitites ifEmpty: [ ^ nil ].
 	shaderCompilationTarget := self compilationTarget asSpirVCompilationTarget.
 	shaderModuleCodeGenerator := shaderCompilationTarget newCodeModuleGenerator.
@@ -505,7 +665,7 @@ MbndSlovimCodeModuleGenerator >> generateEmbeddedShaderModule [
 	
 	shaderEntryPoints do: [ :entryPoint |
 		shaderSSAModule highLevelMapToSymbol at: entryPoint ifPresent: [:shaderEntryPointName |
-			self setEmbedderShaderEntryPoint: entryPoint withName: shaderEntryPointName infoWithModuleInfo: spirVModuleInfoGlobal
+			self setEmbeddedShaderEntryPoint: entryPoint withName: shaderEntryPointName infoWithModuleInfo: spirVModuleInfoGlobal
 		].
 	].
 
@@ -1060,6 +1220,7 @@ MbndSlovimCodeModuleGenerator >> initialize [
 	shaderEntryPointInfoDictionary := IdentityDictionary new.
 	gpuUsableProgramEntitites := OrderedCollection new.
 	nativeClosureTypeInfos := Dictionary new.
+	nativeShaderEntryPoints := Dictionary new.
 ]
 
 { #category : #'as yet unclassified' }
@@ -1213,14 +1374,15 @@ MbndSlovimCodeModuleGenerator >> sanitizeValueTypeForMemory: valueType [
 	^ valueType
 ]
 
-{ #category : #initialization }
-MbndSlovimCodeModuleGenerator >> setEmbedderShaderEntryPoint: entryPoint withName: symbolName infoWithModuleInfo: shaderModuleInfoGlobal [
+{ #category : #'code generation' }
+MbndSlovimCodeModuleGenerator >> setEmbeddedShaderEntryPoint: entryPoint withName: symbolName infoWithModuleInfo: shaderModuleInfoGlobal [
 	| entryPointInfo entryPointInfoData |
 	entryPointInfo := self getOrCreateShaderEntryPointInfoFor: entryPoint.
 	entryPointInfoData := self compilationTarget shaderEntryPointInfo defaultValue.
 	entryPointInfoData
 		setField: #moduleInfo value: shaderModuleInfoGlobal;
 		setField: #entryPointSymbol value: (SLVMConstant cstringPointer: symbolName for: self compilationTarget);
+		setField: #nativeShaderEntryPoint value: (SLVMConstant pointer: (nativeShaderEntryPoints at: entryPoint) castTo: (self translateType: self compilationTarget voidType pointer));
 		setField: #stageType value: (ShaderTypeToStageType at: entryPoint specialSemantics).
 		
 	entryPoint specialSemantics = #compute ifTrue: [
@@ -1284,6 +1446,55 @@ MbndSlovimCodeModuleGenerator >> sourceModule [
 { #category : #initialization }
 MbndSlovimCodeModuleGenerator >> ssaModule [
 	^ ssaModule
+]
+
+{ #category : #visiting }
+MbndSlovimCodeModuleGenerator >> storeNativeShader: functionMethod outputsOfType: outputMessageType
+from: outputStorage into: ioInterface
+outputsField: outputsField outputsLocationsField: outputsLocationsField
+with: builder [
+	outputMessageType slotLayout slots do: [ :slot |
+		| slotField outputField |
+		self assert: slot fields size = 1.
+		slotField := slot fields first.
+		outputField := nil.
+		
+		slotField intrinsic ifNotNil: [ :intrinsicName |
+			| intrisicField |
+			intrisicField := outputsField valueType findFieldWithIntrinsicNamed: intrinsicName.
+			intrisicField ifNotNil: [
+				outputField := builder getPointer: ioInterface element: {
+					builder constInt: 0.
+					builder constInt: outputsField slotIndex.
+					builder constInt: intrisicField slotIndex.
+				}.
+			].
+		].
+		slotField location ifNotNil: [ :location |
+			(outputsLocationsField isNotNil and: [
+			location isInteger and: [
+			0 <= location and: [
+			location < outputsLocationsField valueType elements ]]]) ifTrue: [
+				outputField := builder getPointer: ioInterface element: {
+					builder constInt: 0.
+					builder constInt: outputsField slotIndex.
+					builder constInt: outputsLocationsField slotIndex.
+					builder constInt: location.
+				}.
+	 		]
+		].
+	
+		outputField ifNotNil: [ 
+			| outputStorageField |
+			outputStorageField := builder getReference: outputStorage element: (builder constInt: slotField slotIndex).
+	
+			outputField type baseType ~= outputStorageField type baseType ifTrue: [ 
+				outputField := builder bitCast: outputField target: outputStorageField type
+			].
+
+			builder store: (builder load: outputStorageField) in: outputField
+		].
+	]
 ]
 
 { #category : #visiting }
@@ -1821,9 +2032,14 @@ MbndSlovimCodeModuleGenerator >> visitConcreteFunctionMethod: functionMethod [
 			buildSSAFunction: ssaFunction definitionWithConcreteMethod: functionMethod
 	].
 	
-	(self slvmCompilationTarget isSpirV and: [functionMethod specialSemantics isNotNil ]) ifTrue: [ 
-		self createSpirVShaderControllerFor: functionMethod generatedAs: ssaFunction
+	functionMethod specialSemantics ifNotNil: [ 
+		self slvmCompilationTarget isGPU ifTrue: [ 
+			self createSpirVShaderControllerFor: functionMethod generatedAs: ssaFunction
+		] ifFalse: [ 
+			self createCPUShaderControllerFor: functionMethod generatedAs: ssaFunction
+		]
 	].
+
 
 	^ ssaFunction
 ]

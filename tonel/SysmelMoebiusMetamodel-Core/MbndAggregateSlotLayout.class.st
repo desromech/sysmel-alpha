@@ -57,6 +57,16 @@ MbndAggregateSlotLayout >> encodeGraphForMessagePackWith: graphEncoder [
 ]
 
 { #category : #'as yet unclassified' }
+MbndAggregateSlotLayout >> findFieldWithIntrinsicNamed: intrinsicName [
+	slots do: [ :slot |
+		slot fields do: [ :field |
+			field intrinsic == intrinsicName ifTrue: [ ^ field ]
+		]
+	].
+	^ nil
+]
+
+{ #category : #'as yet unclassified' }
 MbndAggregateSlotLayout >> findFirstFieldNamed: fieldName [
 	slots do: [ :slot |
 		slot fields do: [ :field |

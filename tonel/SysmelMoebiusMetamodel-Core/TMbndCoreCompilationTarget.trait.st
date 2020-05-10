@@ -55,7 +55,13 @@ Trait {
 		'nativePrefixedWStringLiteralType',
 		'nativePrefixedLStringLiteralType',
 		'patternMatchingFailureRaiseFunction',
-		'variantUnexpectedComponentRaiseFunction'
+		'variantUnexpectedComponentRaiseFunction',
+		'nativeComputeShaderIOInterface',
+		'nativeVertexShaderIOInterface',
+		'nativeFragmentShaderIOInterface',
+		'nativeGeometryShaderIOInterface',
+		'nativeTessellationControlShaderIOInterface',
+		'nativeTessellationEvaluationShaderIOInterface'
 	],
 	#traits : 'TMbndAbstractCompilationTarget',
 	#classTraits : 'TMbndAbstractCompilationTarget classTrait',
@@ -385,6 +391,8 @@ TMbndCoreCompilationTarget >> encodeBootstrapDefinedObjectsForMessagePackWith: g
 			
 			"Embedded shaders"
 			shaderEntryPointInfo shaderModuleInfo
+			nativeComputeShaderIOInterface nativeVertexShaderIOInterface nativeFragmentShaderIOInterface 			nativeGeometryShaderIOInterface nativeTessellationControlShaderIOInterface
+			nativeTessellationEvaluationShaderIOInterface
 			
 			"RTTI"
 			typeInformationNativeClass typeInformationGCClass 
@@ -1302,6 +1310,36 @@ TMbndCoreCompilationTarget >> nativeBlockClosureTypeWithSignature: functionType 
 ]
 
 { #category : #accessing }
+TMbndCoreCompilationTarget >> nativeComputeShaderIOInterface [
+	^ nativeComputeShaderIOInterface
+]
+
+{ #category : #accessing }
+TMbndCoreCompilationTarget >> nativeComputeShaderIOInterface: anObject [
+	nativeComputeShaderIOInterface := anObject
+]
+
+{ #category : #accessing }
+TMbndCoreCompilationTarget >> nativeFragmentShaderIOInterface [
+	^ nativeFragmentShaderIOInterface
+]
+
+{ #category : #accessing }
+TMbndCoreCompilationTarget >> nativeFragmentShaderIOInterface: anObject [
+	nativeFragmentShaderIOInterface := anObject
+]
+
+{ #category : #accessing }
+TMbndCoreCompilationTarget >> nativeGeometryShaderIOInterface [
+	^ nativeGeometryShaderIOInterface
+]
+
+{ #category : #accessing }
+TMbndCoreCompilationTarget >> nativeGeometryShaderIOInterface: anObject [
+	nativeGeometryShaderIOInterface := anObject
+]
+
+{ #category : #accessing }
 TMbndCoreCompilationTarget >> nativePrefixedLStringLiteralType [
 	^ nativePrefixedLStringLiteralType
 ]
@@ -1344,6 +1382,47 @@ TMbndCoreCompilationTarget >> nativePrefixedWStringLiteralType: aType [
 		self literalSymbolType addConversionTo: nativePrefixedWStringLiteralType rule: MbndLiteralStringToNativePrefixedStringConversionRule.
 	].
 
+]
+
+{ #category : #'as yet unclassified' }
+TMbndCoreCompilationTarget >> nativeShaderIOInterfaceWithSemantics: specialSemantics [
+	specialSemantics = #vertex ifTrue: [ ^ nativeVertexShaderIOInterface ].
+	specialSemantics = #fragment ifTrue: [ ^ nativeFragmentShaderIOInterface ].
+	specialSemantics = #compute ifTrue: [ ^ nativeComputeShaderIOInterface ].
+	specialSemantics = #geometry ifTrue: [ ^ nativeGeometryShaderIOInterface ].
+	specialSemantics = #tessellationControl ifTrue: [ ^ nativeTessellationControlShaderIOInterface ].
+	specialSemantics = #tessellationEvaluation ifTrue: [ ^ nativeTessellationEvaluationShaderIOInterface ].
+	^ nil
+]
+
+{ #category : #accessing }
+TMbndCoreCompilationTarget >> nativeTessellationControlShaderIOInterface [
+	^ nativeTessellationControlShaderIOInterface
+]
+
+{ #category : #accessing }
+TMbndCoreCompilationTarget >> nativeTessellationControlShaderIOInterface: anObject [
+	nativeTessellationControlShaderIOInterface := anObject
+]
+
+{ #category : #accessing }
+TMbndCoreCompilationTarget >> nativeTessellationEvaluationShaderIOInterface [
+	^ nativeTessellationEvaluationShaderIOInterface
+]
+
+{ #category : #accessing }
+TMbndCoreCompilationTarget >> nativeTessellationEvaluationShaderIOInterface: anObject [
+	nativeTessellationEvaluationShaderIOInterface := anObject
+]
+
+{ #category : #accessing }
+TMbndCoreCompilationTarget >> nativeVertexShaderIOInterface [
+	^ nativeVertexShaderIOInterface
+]
+
+{ #category : #accessing }
+TMbndCoreCompilationTarget >> nativeVertexShaderIOInterface: anObject [
+	nativeVertexShaderIOInterface := anObject
 ]
 
 { #category : #'instance creation' }

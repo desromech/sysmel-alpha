@@ -5027,6 +5027,72 @@ MbndSlovimCodeModuleGeneratorTest >> testFloatingPointCast [
 ]
 
 { #category : #tests }
+MbndSlovimCodeModuleGeneratorTest >> testFragmentShaderSolidColorIO [
+	| shaderController |
+	self 
+		evaluateShaderMetadata;
+		evaluateSysmelSource: '
+struct ShaderIO definition: {
+	public field color type: Float32x4; location: 0.
+
+}.
+
+function shader fragmentShader (stageOut: ShaderIO outputChannel) => Void := { 
+	stageOut send: (ShaderIO newValue color: Float32x4(1.0, 0.0, 0.0, 1.0))
+}
+
+';
+	generateSSAModule.
+	
+	self assert: (ssaModule globalNamed: #_ZN10TestModule6shaderE13outputChannelINS_8ShaderIOEE) asFullSExpressionForTesting equals: #(
+function _ZN10TestModule6shaderE13outputChannelINS_8ShaderIOEE cdecl void
+	arguments (
+		(stageOut (pointer (struct 'struct.TestModule::ShaderIO') function) ())
+	)
+	literals (
+	)
+	blocks (
+		(()
+			(nil jump void () () (block 2 body))
+		)
+		(()
+			(nil jump void () () (block 3 tryScope))
+		)
+		(()
+			(nil insertValue (struct 'struct.TestModule::ShaderIO') () ((constStruct (struct 'struct.TestModule::ShaderIO') ((constVector (vector f32 4) ((const f32 0.0) (const f32 0.0) (const f32 0.0) (const f32 0.0))))) (constVector (vector f32 4) ((const f32 1.0) (const f32 0.0) (const f32 0.0) (const f32 1.0)))) (0))
+			(nil store void () ((local 3 nil) (local 0 stageOut)))
+			(nil returnVoid void () ())
+		)
+	)
+	).
+	
+	shaderController := ssaModule globalNamed: #'_ZN10TestModule6shader15..shinterface..E13outputChannelINS_8ShaderIOEE'.
+	self assert: shaderController asFullSExpressionForTesting equals: #(
+function '_ZN10TestModule6shader15..shinterface..E13outputChannelINS_8ShaderIOEE' cdecl void
+	arguments (
+		(nil (pointer void generic) ())
+		(nil (pointer (struct 'struct.TestModule::NativeFragmentShaderIOInterface') generic) ())
+	)
+	literals (
+	)
+	blocks (
+		(()
+			(nil alloca (pointer (struct 'struct.TestModule::ShaderIO') function) () ())
+			(nil store void () ((zeroInitialized (struct 'struct.TestModule::ShaderIO')) (local 2 nil)))
+			(nil call void () ((global 19 _ZN10TestModule6shaderE13outputChannelINS_8ShaderIOEE) (local 1 nil)))
+			(nil getElementPointer (pointer (union 'union.TestModule::NativeShaderIOLocation') generic) () ((local 1 nil) (const i32 0) (const i32 1) (const i32 0) (const i32 0)))
+			(nil getElementPointer (pointer (vector f32 4) function) () ((local 2 nil) (const i32 0) (const i32 0)))
+			(nil bitcast (pointer (vector f32 4) function) () ((local 5 nil)))
+			(nil load (vector f32 4) () ((local 6 nil)))
+			(nil store void () ((local 8 nil) (local 7 nil)))
+			(nil returnVoid void () ())
+		)
+	)
+
+	).
+]
+
+{ #category : #tests }
 MbndSlovimCodeModuleGeneratorTest >> testGCClassGetPublicField [
 	| function |
 	self
@@ -10487,6 +10553,168 @@ function calledWithVariant cdecl
         )
     )
 	)
+]
+
+{ #category : #tests }
+MbndSlovimCodeModuleGeneratorTest >> testVertexShaderIO [
+	| shaderController |
+	self 
+		evaluateShaderMetadata;
+		evaluateSysmelSource: '
+		
+class TransformationState definition: {
+    public field projectionViewModelMatrix type: Float32x4x4.
+}.
+
+class ObjectState definition: {
+    public field transformationState type: TransformationState uniformBufferPointer.
+}.
+
+class ShaderInput superclass: VertexStageInput; definition: {
+	public field position type: Float32x3; location: 1.
+	public field color type: Float32x4; location: 0.
+}.
+
+
+class ShaderOutput superclass: VertexStageOutput; definition: {
+	public field position type: Float32x3; location: 1.
+	public field color type: Float32x4; location: 0.
+}.
+
+class ShaderClass definition: { 
+	public field objectState type: ObjectState bindingSetPointer.
+
+function shader vertexShader (stageIn: ShaderInput inputChannel, stageOut: ShaderOutput outputChannel) => Void := {
+	let input := stageIn receive.
+	let color := Float32x4(input vertexID/ 4.0f, input instanceID/ 4.0f, 1.0, 1.0) * input color.
+	
+	stageOut send: (ShaderOutput()
+		screenPosition: (objectState _ transformationState _ projectionViewModelMatrix * Float32x4(input position, 1.0f));
+		position: input position;
+		color: color;
+		yourself)
+}.
+
+}.
+
+
+';
+	generateSSAModule.
+	
+	self assert: (ssaModule globalNamed: #_ZN10TestModule11ShaderClass6shaderERNS0_E12inputChannelINS_11ShaderInputEE13outputChannelINS_12ShaderOutputEE) asFullSExpressionForTesting equals: #(
+function _ZN10TestModule11ShaderClass6shaderERNS0_E12inputChannelINS_11ShaderInputEE13outputChannelINS_12ShaderOutputEE cdecl void
+	arguments (
+		(self (pointer (struct 'class.TestModule::ShaderClass') generic) ())
+		(stageIn (pointer (struct 'class.TestModule::ShaderInput') function) ())
+		(stageOut (pointer (struct 'class.TestModule::ShaderOutput') function) ())
+	)
+	literals (
+	)
+	blocks (
+		(()
+			(nil alloca (pointer (struct 'class.TestModule::ShaderInput') function) () ())
+			(nil alloca (pointer (struct 'class.TestModule::ShaderOutput') function) () ())
+			(nil jump void () () (block 2 body))
+		)
+		(()
+			(nil jump void () () (block 3 tryScope))
+		)
+		(()
+			(nil load (struct 'class.TestModule::ShaderInput') () ((local 1 stageIn)))
+			(nil store void () ((local 7 nil) (local 3 nil)))
+			(nil getElementPointer (pointer i32 function) () ((local 3 nil) (const i32 0) (const i32 0)))
+			(nil load i32 () ((local 9 nil)))
+			(nil int2fp f32 () ((local 10 nil)))
+			(nil fdiv f32 () ((local 11 nil) (const f32 4.0)))
+			(nil getElementPointer (pointer i32 function) () ((local 3 nil) (const i32 0) (const i32 1)))
+			(nil load i32 () ((local 13 nil)))
+			(nil int2fp f32 () ((local 14 nil)))
+			(nil fdiv f32 () ((local 15 nil) (const f32 4.0)))
+			(nil makeVector (vector f32 4) () ((local 12 nil) (local 16 nil) (const f32 1.0) (const f32 1.0)))
+			(nil getElementPointer (pointer (vector f32 4) function) () ((local 3 nil) (const i32 0) (const i32 3)))
+			(nil load (vector f32 4) () ((local 18 nil)))
+			(nil fmul (vector f32 4) () ((local 17 nil) (local 19 nil)))
+			(nil store void () ((constStruct (struct 'class.TestModule::ShaderOutput') ((constVector (vector f32 4) ((const f32 0.0) (const f32 0.0) (const f32 0.0) (const f32 0.0))) (constVector (vector f32 3) ((const f32 0.0) (const f32 0.0) (const f32 0.0))) (constVector (vector f32 4) ((const f32 0.0) (const f32 0.0) (const f32 0.0) (const f32 0.0))))) (local 4 nil)))
+			(nil getElementPointer (pointer (pointer (struct 'class.TestModule::ObjectState') bindingSet) generic) () ((local 0 self) (const i32 0) (const i32 0)))
+			(nil load (pointer (struct 'class.TestModule::ObjectState') bindingSet) () ((local 22 nil)))
+			(nil getElementPointer (pointer (pointer (struct 'class.TestModule::TransformationState') uniformBuffer) bindingSet) () ((local 23 nil) (const i32 0) (const i32 0)))
+			(nil load (pointer (struct 'class.TestModule::TransformationState') uniformBuffer) () ((local 24 nil)))
+			(nil getElementPointer (pointer (matrix f32 4 4) uniformBuffer) () ((local 25 nil) (const i32 0) (const i32 0)))
+			(nil load (matrix f32 4 4) () ((local 26 nil)))
+			(nil getElementPointer (pointer (vector f32 3) function) () ((local 3 nil) (const i32 0) (const i32 2)))
+			(nil load (vector f32 3) () ((local 28 nil)))
+			(nil makeVector (vector f32 4) () ((local 29 nil) (const f32 1.0)))
+			(nil mulMatrixVector (vector f32 4) () ((local 27 nil) (local 30 nil)))
+			(nil getElementPointer (pointer (vector f32 4) function) () ((local 4 nil) (const i32 0) (const i32 0)))
+			(nil store void () ((local 31 nil) (local 32 nil)))
+			(nil getElementPointer (pointer (vector f32 3) function) () ((local 3 nil) (const i32 0) (const i32 2)))
+			(nil load (vector f32 3) () ((local 34 nil)))
+			(nil getElementPointer (pointer (vector f32 3) function) () ((local 4 nil) (const i32 0) (const i32 1)))
+			(nil store void () ((local 35 nil) (local 36 nil)))
+			(nil getElementPointer (pointer (vector f32 4) function) () ((local 4 nil) (const i32 0) (const i32 2)))
+			(nil store void () ((local 20 nil) (local 38 nil)))
+			(nil load (struct 'class.TestModule::ShaderOutput') () ((local 4 nil)))
+			(nil store void () ((local 40 nil) (local 2 stageOut)))
+			(nil returnVoid void () ())
+		)
+	)
+
+	).
+	
+	shaderController := ssaModule globalNamed: #'_ZN10TestModule11ShaderClass6shader15..shinterface..ERNS0_E12inputChannelINS_11ShaderInputEE13outputChannelINS_12ShaderOutputEE'.
+	self assert: shaderController asFullSExpressionForTesting equals: #(
+function '_ZN10TestModule6shader15..shinterface..E12inputChannelINS_11ShaderInputEE13outputChannelINS_12ShaderOutputEE' cdecl void
+	arguments (
+		(nil (pointer void generic) ())
+		(nil (pointer (struct 'struct.TestModule::NativeVertexShaderIOInterface') generic) ())
+	)
+	literals (
+	)
+	blocks (
+		(()
+			(nil alloca (pointer (struct 'class.TestModule::ShaderInput') function) () ())
+			(nil alloca (pointer (struct 'class.TestModule::ShaderOutput') function) () ())
+			(nil store void () ((zeroInitialized (struct 'class.TestModule::ShaderInput')) (local 2 nil)))
+			(nil store void () ((zeroInitialized (struct 'class.TestModule::ShaderOutput')) (local 3 nil)))
+			(nil getElementPointer (pointer i32 generic) () ((local 1 nil) (const i32 0) (const i32 0) (const i32 0)))
+			(nil getElementPointer (pointer i32 function) () ((local 2 nil) (const i32 0) (const i32 0)))
+			(nil load i32 () ((local 6 nil)))
+			(nil store void () ((local 8 nil) (local 7 nil)))
+			(nil getElementPointer (pointer i32 generic) () ((local 1 nil) (const i32 0) (const i32 0) (const i32 1)))
+			(nil getElementPointer (pointer i32 function) () ((local 2 nil) (const i32 0) (const i32 1)))
+			(nil load i32 () ((local 10 nil)))
+			(nil store void () ((local 12 nil) (local 11 nil)))
+			(nil getElementPointer (pointer (union 'union.TestModule::NativeShaderIOLocation') generic) () ((local 1 nil) (const i32 0) (const i32 0) (const i32 2) (const i32 1)))
+			(nil getElementPointer (pointer (vector f32 3) function) () ((local 2 nil) (const i32 0) (const i32 2)))
+			(nil bitcast (pointer (vector f32 3) function) () ((local 14 nil)))
+			(nil load (vector f32 3) () ((local 16 nil)))
+			(nil store void () ((local 17 nil) (local 15 nil)))
+			(nil getElementPointer (pointer (union 'union.TestModule::NativeShaderIOLocation') generic) () ((local 1 nil) (const i32 0) (const i32 0) (const i32 2) (const i32 0)))
+			(nil getElementPointer (pointer (vector f32 4) function) () ((local 2 nil) (const i32 0) (const i32 3)))
+			(nil bitcast (pointer (vector f32 4) function) () ((local 19 nil)))
+			(nil load (vector f32 4) () ((local 21 nil)))
+			(nil store void () ((local 22 nil) (local 20 nil)))
+			(nil call void () ((global 20 _ZN10TestModule6shaderE12inputChannelINS_11ShaderInputEE13outputChannelINS_12ShaderOutputEE) (local 1 nil)))
+			(nil getElementPointer (pointer (vector f32 4) generic) () ((local 1 nil) (const i32 0) (const i32 1) (const i32 0)))
+			(nil getElementPointer (pointer (vector f32 4) function) () ((local 3 nil) (const i32 0) (const i32 0)))
+			(nil load (vector f32 4) () ((local 26 nil)))
+			(nil store void () ((local 27 nil) (local 25 nil)))
+			(nil getElementPointer (pointer (union 'union.TestModule::NativeShaderIOLocation') generic) () ((local 1 nil) (const i32 0) (const i32 1) (const i32 1) (const i32 1)))
+			(nil getElementPointer (pointer (vector f32 3) function) () ((local 3 nil) (const i32 0) (const i32 1)))
+			(nil bitcast (pointer (vector f32 3) function) () ((local 29 nil)))
+			(nil load (vector f32 3) () ((local 30 nil)))
+			(nil store void () ((local 32 nil) (local 31 nil)))
+			(nil getElementPointer (pointer (union 'union.TestModule::NativeShaderIOLocation') generic) () ((local 1 nil) (const i32 0) (const i32 1) (const i32 1) (const i32 0)))
+			(nil getElementPointer (pointer (vector f32 4) function) () ((local 3 nil) (const i32 0) (const i32 2)))
+			(nil bitcast (pointer (vector f32 4) function) () ((local 34 nil)))
+			(nil load (vector f32 4) () ((local 35 nil)))
+			(nil store void () ((local 37 nil) (local 36 nil)))
+			(nil returnVoid void () ())
+		)
+	)
+
+	).
+
 ]
 
 { #category : #tests }

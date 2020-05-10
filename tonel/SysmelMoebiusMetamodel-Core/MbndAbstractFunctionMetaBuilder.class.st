@@ -130,6 +130,11 @@ MbndAbstractFunctionMetaBuilder >> fragmentShader [
 	^ self specialSemantics: #fragment
 ]
 
+{ #category : #'special semantics' }
+MbndAbstractFunctionMetaBuilder >> geometryShader [
+	^ self specialSemantics: #geometry
+]
+
 { #category : #'calling conventions' }
 MbndAbstractFunctionMetaBuilder >> naked [
 	<compileTime>
@@ -172,6 +177,16 @@ MbndAbstractFunctionMetaBuilder >> specialSemantics: anObject [
 MbndAbstractFunctionMetaBuilder >> stdcall [
 	<compileTime>
 	self callingConvention: #stdcall
+]
+
+{ #category : #'special semantics' }
+MbndAbstractFunctionMetaBuilder >> tessellationControlShader [
+	^ self specialSemantics: #tessellationControl
+]
+
+{ #category : #'special semantics' }
+MbndAbstractFunctionMetaBuilder >> tessellationEvaluationShader [
+	^ self specialSemantics: #tessellationEvaluation
 ]
 
 { #category : #'special semantics' }

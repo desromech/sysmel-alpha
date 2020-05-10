@@ -62,6 +62,16 @@ MbndSlovimDebugInformationTranslator >> addAggregateDebugType: debugType members
 ]
 
 { #category : #visiting }
+MbndSlovimDebugInformationTranslator >> createForShader: functionMethod controllerWithFunctionType: controllerFunctionType [
+	^ SLVMDebugSubprogram new
+		name:  functionMethod qualifiedName  , '[ShaderController]';
+		isLocal: true;
+		isDefinition: true;
+		type: (self translateDebugType: controllerFunctionType);
+		yourself
+]
+
+{ #category : #visiting }
 MbndSlovimDebugInformationTranslator >> createForTrampolineWithFunctionType: functionType [
 	^ SLVMDebugSubprogram new
 		name: #'<trampoline>';
