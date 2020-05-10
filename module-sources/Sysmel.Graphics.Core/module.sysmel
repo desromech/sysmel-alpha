@@ -2,6 +2,7 @@ Compiler
     importModuleNamed: #"Sysmel.Math.Core";
     loadPackages: #(
         #"Native-Graphics-Core-Raster"
+        #"Native-Graphics-Core-Raster3D"
         #"Native-Graphics-Core-ImageFormats"
         #"Native-Graphics-Core-Text"
         #"Native-Graphics-GUI-Window"

@@ -18,6 +18,9 @@ class SoftwareGraphicsPipeline definition: {
 	public field vertexShader type: GPU ShaderEntryPointInfo const pointer.
 	public field fragmentShader type: GPU ShaderEntryPointInfo const pointer.
 
+	public field vertexLayout type: SoftwareVertexLayout sharedPointer.
+	public field vertexBinding type: SoftwareVertexBinding sharedPointer.
+
 	const method drawTriangle: (v1: GPU NativeVertexShaderIOInterface Outputs ref)
 		v2: (v2: GPU NativeVertexShaderIOInterface Outputs ref)
 		v3: (v3: GPU NativeVertexShaderIOInterface Outputs ref) ::=> Void := {
@@ -89,6 +92,34 @@ class SoftwareGraphicsPipeline definition: {
 	const inline method invokeVertexShaderOn: (vertex: GPU NativeVertexShaderIOInterface ref) ::=> Void := {
 		let shaderFunction := vertexShader _ nativeShaderEntryPoint reinterpretCastTo: GPU NativeVertexShaderEntryPointType pointer.
 		shaderFunction(descriptorSetTable address, vertex)
+	}.
+
+	const method drawTriangleIndices: (i1: UInt32) i2: (i2: UInt32) i3: (i3: UInt32) instanceID: (instanceID: UInt32) ::=> Void := {
+		let v1 mutable type: GPU NativeVertexShaderIOInterface.
+		let v2 mutable type: GPU NativeVertexShaderIOInterface.
+		let v3 mutable type: GPU NativeVertexShaderIOInterface.
+
+		v1 inputs
+			vertexID: (i1 castTo: Int32);
+			instanceID: (instanceID castTo: Int32).
+		v2 inputs
+			vertexID: (i2 castTo: Int32);
+			instanceID: (instanceID castTo: Int32).
+		v3 inputs
+			vertexID: (i3 castTo: Int32);
+			instanceID: (instanceID castTo: Int32).
+		vertexBinding ifNotNil: {
+			vertexBinding _
+				fetchVertex: i1 instanceID: instanceID into: v1 inputs;
+				fetchVertex: i2 instanceID: instanceID into: v2 inputs;
+				fetchVertex: i3 instanceID: instanceID into: v3 inputs.
+		}.
+
+		self
+			invokeVertexShaderOn: v1;
+			invokeVertexShaderOn: v2;
+			invokeVertexShaderOn: v3;
+			drawTriangle: v1 outputs v2: v2 outputs v3: v3 outputs.
 	}.
 }.
 

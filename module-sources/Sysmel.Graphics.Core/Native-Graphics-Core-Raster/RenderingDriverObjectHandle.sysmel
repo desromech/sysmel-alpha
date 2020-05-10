@@ -1,0 +1,14 @@
+namespace Stdn definition: {
+namespace Graphics definition: {
+namespace Core definition: {
+
+#**
+ * I represent an abstract rendering driver object handle.
+ *#
+class RenderingDriverObjectHandle superclass: SharedObject; definition: {
+
+}.
+
+}. ## End of namespace Core
+}. ## End of namespace Graphics
+}. ## End of namespace Stdn

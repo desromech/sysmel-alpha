@@ -1,0 +1,18 @@
+namespace Stdn definition: {
+namespace Graphics definition: {
+namespace Core definition: {
+
+#**
+ * I am an specification for a vertex attribute.
+ *#
+struct VertexAttributeDescription definition: {
+    public field bufferIndex type: UInt32.
+    public field location type: UInt32.
+    public field format type: PixelFormat.
+    public field offset type: UInt32.
+    public field divisor type: UInt32.
+}.
+
+}. ## End of namespace Core
+}. ## End of namespace Graphics
+}. ## End of namespace Stdn

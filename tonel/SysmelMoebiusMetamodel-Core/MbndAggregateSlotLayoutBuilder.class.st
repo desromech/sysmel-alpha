@@ -233,6 +233,7 @@ MbndAggregateSlotLayoutBuilder >> layout [
 { #category : #'as yet unclassified' }
 MbndAggregateSlotLayoutBuilder >> recordTypeEndLocation: aType [
 	self flush.
+	instanceSize := instanceSize alignedTo: instanceAlignment.
 	typeEndLocations at: aType ifAbsentPut: [ layout slots size ].
 
 ]

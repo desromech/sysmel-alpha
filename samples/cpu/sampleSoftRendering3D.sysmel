@@ -5,6 +5,14 @@ useNamespace: Stdn Graphics Core.
 useNamespace: Stdn Graphics GUI.
 useNamespace: Stdn Math Geometry.
 
+struct SimpleVertex definition: {
+	public field position type: Float32x4.
+	public field color type: Float32x4.
+	public field normal type: Float32x3.
+}.
+
+let simpleVertexLayout mutable type: SoftwareVertexLayout sharedPointer.
+
 class TransformationState definition: {
     public field modelMatrix type: Float32x4x4.
 	public field viewMatrix type: Float32x4x4.
@@ -90,28 +98,45 @@ let currentTransformationState mutable type: TransformationState.
 let currentObjectState mutable type: ObjectState.
 
 class Mesh definition: {
-	public field vertices type: Stdn Collections Vector(Float32x4).
+	public field baseVertex type: UInt32.
+	public field vertices type: Stdn Collections Vector(SimpleVertex).
 	public field indices type: Stdn Collections Vector(UInt32).
+	public field vertexBinding type: SoftwareVertexBinding sharedPointer.
 
-	method addVertex: (p: Float32x3) ::=> Void := {
-		vertices add: Float32x4(p, 1)
+	method beginSubmesh => Void := {
+		baseVertex := vertices size castTo: UInt32.
 	}.
 
-	method addVertex: (p: Float32x4) ::=> Void := {
-		vertices add: p
+	method addVertex: (p: Float32x3) normal: (n: Float32x3) ::=> Void := {
+		self addVertex: Float32x4(p, 1) normal: n
+	}.
+
+	method addVertex: (p: Float32x3) normal: (n: Float32x3) texcoord: (tc: Float32x2)::=> Void := {
+		self addVertex: Float32x4(p, 1) normal: n texcoord: tc
+	}.
+
+	method addVertex: (p: Float32x4) normal: (n: Float32x3) ::=> Void := {
+		self addVertex: p normal: n texcoord: 0
+	}.
+
+	method addVertex: (p: Float32x4) normal: (n: Float32x3) texcoord: (tc: Float32x2) ::=> Void := {
+		vertices add: (SimpleVertex()
+			position: p;
+			normal: n;
+			color: Float32x4 ones;
+			yourself)
 	}.
 
 	method addTriangle: (i1: UInt32) i2: (i2: UInt32) i3: (i3: UInt32) ::=> Void := {
 		indices
-			add: i1; add: i2; add: i3
+			add: i1 + baseVertex; add: i2 + baseVertex; add: i3 + baseVertex
 	}.
 
-	method addQuad: (i1: UInt32) i2: (i2: UInt32) i3: (i3: UInt32) i4: (i4: UInt32) ::=> Void := {
-		indices
-			add: i1; add: i2; add: i4;
-			add: i4; add: i3; add: i1
+	method finish => Void := {
+		vertexBinding := SoftwareVertexBinding sharedNew.
+		vertexBinding _ layout: simpleVertexLayout.
+		vertexBinding _ bufferStartPointers add: (vertices[0] address reinterpretCastTo: UInt8 const pointer).
 	}.
-
 }.
 
 let planeMesh mutable type: Mesh.
@@ -135,43 +160,18 @@ Mesh definition: {
 			projectionMatrix: projectionMatrix.
 		currentObjectState transformationState := currentTransformationState address reinterpretCastTo: TransformationState uniformBufferPointer.
 		pipeline descriptorSetTable[0] := currentObjectState address.
+		pipeline
+			vertexLayout: simpleVertexLayout;
+			vertexBinding: vertexBinding.
 
 		0 until: indices size / 3 do: {:triangleIndex :: Void |
-			let v1 := vertices[indices[nextSourceIndex]].
-			let v2 := vertices[indices[nextSourceIndex + 1]].
-			let v3 := vertices[indices[nextSourceIndex + 2]].
-
-			let N := ((v2 xyz - v1 xyz) cross: (v3 xyz - v1 xyz)) normalized.
-
-			let c1 := Float32x4 red.
-			let c2 := Float32x4 green.
-			let c3 := Float32x4 blue.
-
-			let iov1 mutable type: GPU NativeVertexShaderIOInterface.
-			let iov2 mutable type: GPU NativeVertexShaderIOInterface.
-			let iov3 mutable type: GPU NativeVertexShaderIOInterface.
-
-			iov1 inputs locations[0] := v1.
-			iov1 inputs locations[1] := c1.
-			iov1 inputs locations[2] := Float32x4(N, 0.0f).
-
-			iov2 inputs locations[0] := v2.
-			iov2 inputs locations[1] := c2.
-			iov2 inputs locations[2] := Float32x4(N, 0.0f).
-
-			iov3 inputs locations[0] := v3.
-			iov3 inputs locations[1] := c3.
-			iov3 inputs locations[2] := Float32x4(N, 0.0f).
-
-			## Invoke the vertex shader.
-			pipeline
-				invokeVertexShaderOn: iov1;
-				invokeVertexShaderOn: iov2;
-				invokeVertexShaderOn: iov3;
-				drawTriangle: iov1 outputs v2: iov2 outputs v3: iov3 outputs.
-
+			let i1 := indices[nextSourceIndex].
+			let i2 := indices[nextSourceIndex + 1].
+			let i3 := indices[nextSourceIndex + 2].
+			pipeline drawTriangleIndices: i1 i2: i2 i3: i3 instanceID: 0.
 			nextSourceIndex := nextSourceIndex + 3
-		}
+		}.
+		
 	}.
 }.
 
@@ -291,42 +291,103 @@ function main externC (argc: Int32, argv: UInt8 const pointer pointer) => Int32 
     let fontFace mutable := FontRegistry default defaultSans _ normalFace.
     fontFaceWithSize := fontFace _ getOrCreateFaceWithSize: 12.
 
+	## Build the vertex layout.
+	simpleVertexLayout := SoftwareVertexLayout sharedNew.
+	simpleVertexLayout _ strides add: SimpleVertex instanceSize.
+	simpleVertexLayout _ attributes add: (VertexAttributeDescription()
+		location: 0;
+		format: PixelFormat R32G32B32A32_Float;
+		offset: 0;
+		yourself).
+	simpleVertexLayout _ attributes add: (VertexAttributeDescription()
+		location: 1;
+		format: PixelFormat R32G32B32A32_Float;
+		offset: 16;
+		yourself).
+	simpleVertexLayout _ attributes add: (VertexAttributeDescription()
+		location: 2;
+		format: PixelFormat R32G32B32_Float;
+		offset: 32;
+		yourself).
+
 	## Build the plane
 	{
 		planeMesh
-			addVertex: Float32x3(0, 0, 0);
-			addVertex: Float32x4(-1, 0, -1, 0);
-			addVertex: Float32x4(1, 0, -1, 0);
-			addVertex: Float32x4(-1, 0, 1, 0);
-			addVertex: Float32x4(1, 0, 1, 0);
+			addVertex: Float32x3(0, 0, 0) normal: Float32x3(0, 1, 0);
+			addVertex: Float32x4(-1, 0, -1, 0) normal: Float32x3(0, 1, 0);
+			addVertex: Float32x4(1, 0, -1, 0) normal: Float32x3(0, 1, 0);
+			addVertex: Float32x4(-1, 0, 1, 0) normal: Float32x3(0, 1, 0);
+			addVertex: Float32x4(1, 0, 1, 0) normal: Float32x3(0, 1, 0);
 
 			addTriangle: 0 i2: 2 i3: 1;
 			addTriangle: 0 i2: 4 i3: 2;
 			addTriangle: 0 i2: 3 i3: 4;
-			addTriangle: 0 i2: 1 i3: 3
+			addTriangle: 0 i2: 1 i3: 3;
+
+			finish
 	}.
 
 	## Build the cube
 	{
+		let max := Float32x3 ones.
+		let min := max negated.
+
 		cubeMesh
-			addVertex: Float32x3(-1, -1, -1);
-			addVertex: Float32x3(1, -1, -1);
-			addVertex: Float32x3(-1, 1, -1);
-			addVertex: Float32x3(1, 1, -1);
+			## Left
+	        beginSubmesh;
+	        addVertex: Float32x3(min x, min y, min z) normal: Float32x3(-1.0f, 0.0f, 0.0f) texcoord: Float32x2(0.0f, 1.0f);
+	        addVertex: Float32x3(min x, max y, min z) normal: Float32x3(-1.0f, 0.0f, 0.0f) texcoord: Float32x2(1.0f, 1.0f);
+	        addVertex: Float32x3(min x, max y, max z) normal: Float32x3(-1.0f, 0.0f, 0.0f) texcoord: Float32x2(1.0f, 0.0f);
+	        addVertex: Float32x3(min x, min y, max z) normal: Float32x3(-1.0f, 0.0f, 0.0f) texcoord: Float32x2(0.0f, 0.0f);
+	        addTriangle: 1 i2: 0 i3: 2;
+	        addTriangle: 3 i2: 2 i3: 0;
 
-			addVertex: Float32x3(-1, -1, 1);
-			addVertex: Float32x3(1, -1, 1);
-			addVertex: Float32x3(-1, 1, 1);
-			addVertex: Float32x3(1, 1, 1);
+	        ## Right
+	        beginSubmesh;
+	        addVertex: Float32x3(max x, min y, min z) normal: Float32x3(1.0f, 0.0f, 0.0f) texcoord: Float32x2(1.0f, 1.0f);
+	        addVertex: Float32x3(max x, max y, min z) normal: Float32x3(1.0f, 0.0f, 0.0f) texcoord: Float32x2(0.0f, 1.0f);
+	        addVertex: Float32x3(max x, max y, max z) normal: Float32x3(1.0f, 0.0f, 0.0f) texcoord: Float32x2(0.0f, 0.0f);
+	        addVertex: Float32x3(max x, min y, max z) normal: Float32x3(1.0f, 0.0f, 0.0f) texcoord: Float32x2(1.0f, 0.0f);
+	        addTriangle: 0 i2: 1 i3: 2;
+	        addTriangle: 2 i2: 3 i3: 0;
 
-			addQuad: 2 i2: 0 i3: 6 i4: 4;
-			addQuad: 1 i2: 3 i3: 5 i4: 7;
+	        ## Top
+	        beginSubmesh;
+	        addVertex: Float32x3(min x, max y, min z) normal: Float32x3(0.0f, 1.0f, 0.0f) texcoord: Float32x2(0.0f, 1.0f);
+	        addVertex: Float32x3(max x, max y, min z) normal: Float32x3(0.0f, 1.0f, 0.0f) texcoord: Float32x2(1.0f, 1.0f);
+	        addVertex: Float32x3(max x, max y, max z) normal: Float32x3(0.0f, 1.0f, 0.0f) texcoord: Float32x2(1.0f, 0.0f);
+	        addVertex: Float32x3(min x, max y, max z) normal: Float32x3(0.0f, 1.0f, 0.0f) texcoord: Float32x2(0.0f, 0.0f);
+			addTriangle: 1 i2: 0 i3: 2;
+	        addTriangle: 3 i2: 2 i3: 0;
 
-			addQuad: 0 i2: 1 i3: 4 i4: 5;
-			addQuad: 3 i2: 2 i3: 7 i4: 6;
+	        ## Bottom
+	        beginSubmesh;
+	        addVertex: Float32x3(min x, min y, min z) normal: Float32x3(0.0f, -1.0f, 0.0f) texcoord: Float32x2(1.0f, 1.0f);
+	        addVertex: Float32x3(max x, min y, min z) normal: Float32x3(0.0f, -1.0f, 0.0f) texcoord: Float32x2(0.0f, 1.0f);
+	        addVertex: Float32x3(max x, min y, max z) normal: Float32x3(0.0f, -1.0f, 0.0f) texcoord: Float32x2(0.0f, 0.0f);
+	        addVertex: Float32x3(min x, min y, max z) normal: Float32x3(0.0f, -1.0f, 0.0f) texcoord: Float32x2(1.0f, 0.0f);
+			addTriangle: 0 i2: 1 i3: 2;
+	        addTriangle: 2 i2: 3 i3: 0;
 
-			addQuad: 1 i2: 0 i3: 3 i4: 2;
-			addQuad: 4 i2: 5 i3: 6 i4: 7.
+	        ## Back
+	        beginSubmesh;
+	        addVertex: Float32x3(min x, min y, min z) normal: Float32x3(0.0f, 0.0f, -1.0f) texcoord: Float32x2(0.0f, 1.0f);
+	        addVertex: Float32x3(max x, min y, min z) normal: Float32x3(0.0f, 0.0f, -1.0f) texcoord: Float32x2(1.0f, 1.0f);
+	        addVertex: Float32x3(max x, max y, min z) normal: Float32x3(0.0f, 0.0f, -1.0f) texcoord: Float32x2(1.0f, 0.0f);
+	        addVertex: Float32x3(min x, max y, min z) normal: Float32x3(0.0f, 0.0f, -1.0f) texcoord: Float32x2(0.0f, 0.0f);
+			addTriangle: 1 i2: 0 i3: 2;
+	        addTriangle: 3 i2: 2 i3: 0;
+
+	        ## Front
+	        beginSubmesh;
+	        addVertex: Float32x3(min x, min y, max z) normal: Float32x3(0.0f, 0.0f, 1.0f) texcoord: Float32x2(0.0f, 1.0f);
+	        addVertex: Float32x3(max x, min y, max z) normal: Float32x3(0.0f, 0.0f, 1.0f) texcoord: Float32x2(1.0f, 1.0f);
+	        addVertex: Float32x3(max x, max y, max z) normal: Float32x3(0.0f, 0.0f, 1.0f) texcoord: Float32x2(1.0f, 0.0f);
+	        addVertex: Float32x3(min x, max y, max z) normal: Float32x3(0.0f, 0.0f, 1.0f) texcoord: Float32x2(0.0f, 0.0f);
+			addTriangle: 0 i2: 1 i3: 2;
+	        addTriangle: 2 i2: 3 i3: 0;
+
+			finish
 	}.
 
     ## Create the event handler.

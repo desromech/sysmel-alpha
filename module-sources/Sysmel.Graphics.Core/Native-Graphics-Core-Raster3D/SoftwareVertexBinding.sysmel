@@ -1,0 +1,34 @@
+namespace Stdn definition: {
+namespace Graphics definition: {
+namespace Core definition: {
+
+#**
+ * I am an specification for a vertex attribute.
+ *#
+class SoftwareVertexBinding superclass: VertexBinding; definition: {
+    public field layout type: SoftwareVertexLayout sharedPointer.
+
+    ## public field buffers type: Stdn Collections Vector(VertexAttributeDescription).
+    ## public field offsets type: Stdn Collections Vector(VertexAttributeDescription).
+    public field bufferStartPointers type: Stdn Collections Vector(UInt8 const pointer).
+
+
+    const inline method fetchVertex: (index: UInt32) instanceID: (instanceID: UInt32) into: (out: GPU NativeVertexShaderIOInterface Inputs ref) ::=> Void := {
+        let strides ref := layout _ strides.
+
+        layout _ attributes do: {:attribute :: Void |
+            let vertexIndex := attribute divisor == 0
+                ifTrue: {index}
+                ifFalse: {instanceID / attribute divisor}.
+            let attributeStride := strides[attribute bufferIndex].
+            let vertexPointer := bufferStartPointers[attribute bufferIndex] + (attributeStride*vertexIndex + attribute offset).
+            attribute location < 16 ifTrue: {
+                attribute format fetchFrom: vertexPointer intoShaderInput: out locations[attribute location] address
+            }
+        }.
+    }.
+}.
+
+}. ## End of namespace Core
+}. ## End of namespace Graphics
+}. ## End of namespace Stdn

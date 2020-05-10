@@ -1,0 +1,13 @@
+namespace Stdn definition: {
+namespace Graphics definition: {
+namespace Core definition: {
+
+#**
+ * I am a handle for a vertex binding.
+ *#
+class VertexBinding superclass: RenderingDriverObjectHandle; definition: {
+}.
+
+}. ## End of namespace Core
+}. ## End of namespace Graphics
+}. ## End of namespace Stdn

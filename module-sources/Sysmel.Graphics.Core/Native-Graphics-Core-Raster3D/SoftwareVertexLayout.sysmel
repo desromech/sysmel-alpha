@@ -1,0 +1,15 @@
+namespace Stdn definition: {
+namespace Graphics definition: {
+namespace Core definition: {
+
+#**
+ * I am an specification for a vertex attribute.
+ *#
+class SoftwareVertexLayout superclass: VertexLayout; definition: {
+    public field attributes type: Stdn Collections Vector(VertexAttributeDescription).
+    public field strides type: Stdn Collections Vector(UInt32).
+}.
+
+}. ## End of namespace Core
+}. ## End of namespace Graphics
+}. ## End of namespace Stdn

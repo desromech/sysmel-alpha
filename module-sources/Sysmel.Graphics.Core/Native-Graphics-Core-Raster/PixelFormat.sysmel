@@ -247,13 +247,36 @@ enum PixelFormat valueType: UInt32; values: #{
             ASTC10X6_UNormSRGB, ASTC10X8_UNormSRGB, ASTC10X10_UNormSRGB, ASTC12X10_UNormSRGB,
             ASTC12X12_UNormSRGB
         ) asValueInSetPattern : {
-            return: true
+            true
         }.
 
-        _ : {return: false}.
+        _ : false.
         }.
+    }.
 
-        Stdn abort().
+    inline method isIntegerFormat => Boolean8 := {
+        self selectCase: #{
+        (
+        R32G32B32A32_SInt, R32G32B32_SInt, R16G16B16A16_SInt, R32G32_SInt,
+        R8G8B8A8_SInt, R16G16_SInt, R32_SInt, R8G8_SInt, R16_SInt, R8_SInt
+        ) asValueInSetPattern : {
+            true
+        }.
+        _ : false.
+        }.
+    }.
+
+    inline method isUnsignedIntegerFormat => Boolean8 := {
+        self selectCase: #{
+        (
+        R32G32B32A32_UInt, R32G32B32_UInt, R16G16B16A16_UInt, R32G32_UInt,
+        R10G10B10A2_UInt, R8G8B8A8_UInt, R16G16_UInt, R32_UInt, X24TG8_UInt,
+        R8G8_UInt, R16_UInt, R8_UInt
+        ) asValueInSetPattern : {
+            true
+        }.
+        _ : false.
+        }.
     }.
 
     inline method encodeColorSpace: (color: Float32x4) ::=> Float32x4 := {
@@ -272,44 +295,67 @@ enum PixelFormat valueType: UInt32; values: #{
         }
     }.
 
+    inline method fetchUInt32x4FromMemory: (memory: UInt8 const pointer) ::=> UInt32x4 := {
+        UInt32x4 zeros
+    }.
+
+    inline method fetchInt32x4FromMemory: (memory: UInt8 const pointer) ::=> Int32x4 := {
+        Int32x4 zeros
+    }.
+
     inline method fetchFromMemory: (memory: UInt8 const pointer) ::=> Float32x4 := {
         self selectCase: #{
+        (R32G32B32A32_Typeless, R32G32B32A32_Float) asValueInSetPattern : {
+            (memory reinterpretCastTo: Float32x4 const pointer) _
+        }.
+
+        (R32G32B32_Typeless, R32G32B32_Float) asValueInSetPattern : {
+            ## Relax the alignment requirementes here.
+            let source := memory reinterpretCastTo: Float32 const pointer.
+            Float32x4(source[0], source[1], source[2], 1.0f)
+        }.
+
+        (R32G32_Typeless, R32G32_Float) asValueInSetPattern : {
+            Float32x4((memory reinterpretCastTo: Float32x2 const pointer) _, 0.0f, 1.0f)
+        }.
+
+        (R32_Typeless, R32_Float) asValueInSetPattern : {
+            Float32x4((memory reinterpretCastTo: Float32 const pointer) _, 0.0f, 0.0f, 1.0f)
+        }.
 
         (R8_Typeless, R8_UNorm) asValueInSetPattern : {
-            return: Float32x4(memory _ / 255.0f, 0.0f, 0.0f, 1.0f)
+            Float32x4(memory _ / 255.0f, 0.0f, 0.0f, 1.0f)
         }.
         R8_SNorm : {
-            return: Float32x4((memory _ castTo: Int8)/127.0f, 0.0f, 0.0f, 1.0f)
+            Float32x4((memory _ castTo: Int8)/127.0f, 0.0f, 0.0f, 1.0f)
         }.
         R8_UInt : {
-            return: Float32x4(memory _ , 0.0f, 0.0f, 1.0f)
+            Float32x4(memory _ , 0.0f, 0.0f, 1.0f)
         }.
         R8_SInt : {
-            return: Float32x4(memory _ castTo: Int8, 0.0f, 0.0f, 1.0f)
+            Float32x4(memory _ castTo: Int8, 0.0f, 0.0f, 1.0f)
         }.
         A8_UNorm : {
-            return: Float32x4(1.0f, 1.0f, 1.0f, memory _ / 255.0f)
+            Float32x4(1.0f, 1.0f, 1.0f, memory _ / 255.0f)
         }.
 
         (R8G8B8A8_Typeless, R8G8B8A8_UNorm) asValueInSetPattern : {
-            return: ((memory reinterpretCastTo: UInt8x4 pointer) _ castTo: Float32x4)/ 255.0f
+            ((memory reinterpretCastTo: UInt8x4 pointer) _ castTo: Float32x4)/ 255.0f
         }.
 
         R8G8B8A8_UNormSRGB : {
-            return: Stdn Math Color decodeSRGBUnorm8((memory reinterpretCastTo: UInt8x4 pointer) _)
+            Stdn Math Color decodeSRGBUnorm8((memory reinterpretCastTo: UInt8x4 pointer) _)
         }.
 
         (B8G8R8A8_Typeless, B8G8R8X8_Typeless, B8G8R8A8_UNorm, B8G8R8X8_UNorm) asValueInSetPattern : {
-            return: ((memory reinterpretCastTo: UInt8x4 pointer) _ bgra castTo: Float32x4) / 255.0f
+            ((memory reinterpretCastTo: UInt8x4 pointer) _ bgra castTo: Float32x4) / 255.0f
         }.
 
         (B8G8R8A8_UNormSRGB, B8G8R8X8_UNormSRGB) asValueInSetPattern : {
-            return: Stdn Math Color decodeSRGBUnorm8((memory reinterpretCastTo: UInt8x4 pointer) _ bgra)
+            Stdn Math Color decodeSRGBUnorm8((memory reinterpretCastTo: UInt8x4 pointer) _ bgra)
         }.
-        _ : {}
+        _ : {Float32x4 zeros }
         }.
-
-        Float32x4 zeros
     }.
 
     inline method store: (pixel: UInt8x4) intoMemory: (memory: UInt8 pointer) ::=> Void := {
@@ -349,6 +395,22 @@ enum PixelFormat valueType: UInt32; values: #{
         }
     }.
 
+    inline method fetchFrom: (memory: UInt8 const pointer) intoShaderInput: (shaderInputLocation: Void pointer) ::=> Void := {
+        self isIntegerFormat ifTrue: {
+            let destination := shaderInputLocation reinterpretCastTo: Int32x4 pointer.
+            destination _ := self fetchInt32x4FromMemory: memory.
+            return: void.
+        }.
+        self isUnsignedIntegerFormat ifTrue: {
+            let destination := shaderInputLocation reinterpretCastTo: UInt32x4 pointer.
+            destination _ := self fetchUInt32x4FromMemory: memory.
+            return: void.
+        }.
+        {
+            let destination := shaderInputLocation reinterpretCastTo: Float32x4 pointer.
+            destination _ := self fetchFromMemory: memory
+        }
+    }.
 }.
 
 }. ## End of namespace Core

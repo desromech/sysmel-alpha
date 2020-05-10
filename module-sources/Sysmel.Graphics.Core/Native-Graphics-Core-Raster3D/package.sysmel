@@ -1,0 +1,16 @@
+## 3D rendering types.
+loadFileOnce: "CompareFunction.sysmel".
+loadFileOnce: "StencilOperation.sysmel".
+loadFileOnce: "VertexAttributeDescription.sysmel".
+
+## 3D rendering handles
+loadFileOnce: "VertexLayout.sysmel".
+loadFileOnce: "VertexBinding.sysmel".
+loadFileOnce: "Framebuffer.sysmel".
+loadFileOnce: "Renderpass.sysmel".
+loadFileOnce: "GraphicsPipeline.sysmel".
+
+## CPU rendering driver
+loadFileOnce: "SoftwareVertexLayout.sysmel".
+loadFileOnce: "SoftwareVertexBinding.sysmel".
+loadFileOnce: "SoftwareGraphicsPipeline.sysmel".
