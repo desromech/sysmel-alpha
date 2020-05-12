@@ -9,21 +9,86 @@ ssaModule := semanticModule generateTargetCodeModule.
 ssaModule asLowLevelModule writeTextToFileNamed: 'test.ll'
 
 ===============================================================================
-MbndStandaloneModule llvm_x86_64
+MbndCompilationEnvironment llvm_x86_64
 	withDebugInformation;
+	noRTTI;
+	optimizationLevel: 2;
+	objectPerModule;
+	executable;
+	outputDirectory: 'out-modules';
 	loadRuntimeCoreLibrary;
-	evaluateFileNamedOnce: 'samples/cpu/hello.sysmel';
-	finishSemanticAnalysis;
-	writeAssemblyToFileNamed: 'hello.ll'
+	evaluateFileNamedOnce: 'samples/cpu/sampleNativeNorphic.sysmel';
+	finishAndEmitModule
+===============================================================================
+MbndCompilationEnvironment llvm_x86_64
+	withDebugInformation;
+	noRTTI;
+	monolithic;
+	executable;
+	outputDirectory: 'out';
+	loadRuntimeCoreLibrary;
+	evaluateFileNamedOnce: 'samples/cpu/sampleNativeBitmapRendering.sysmel';
+	finishAndEmitModule
+===============================================================================
+
+MbndCompilationEnvironment llvm_x86_64
+	withDebugInformation;
+	noRTTI;
+	objectPerModule;
+	optimizationLevel: 2;
+	executable;
+	outputDirectory: 'out-modules';
+	loadRuntimeCoreLibrary;
+	evaluateFileNamedOnce: 'samples/cpu/sampleNativeRendering2D.sysmel';
+	finishAndEmitModule
 
 ===============================================================================
-MbndStandaloneModule llvm_x86_64
+MbndCompilationEnvironment llvm_x86_64
 	withDebugInformation;
+	noRTTI;
+	objectPerModule;
+	optimizationLevel: 2;
+	executable;
+	outputDirectory: 'out-modules';
 	loadRuntimeCoreLibrary;
-	evaluateFileNamedOnce: 'lib/bindings/sdl2/sdl2.sysmel';
-	evaluateFileNamedOnce: 'samples/cpu/sampleNativeGame.sysmel';
-	finishSemanticAnalysis;
-	writeAssemblyToFileNamed: 'sampleNativeGame.ll'
+	evaluateFileNamedOnce: 'samples/cpu/sampleNative3D.sysmel';
+	finishAndEmitModule
+
+===============================================================================
+MbndCompilationEnvironment llvm_x86_64
+	withDebugInformation;
+	noRTTI;
+	objectPerModule;
+	optimizationLevel: 2;
+	executable;
+	outputDirectory: 'out-modules';
+	loadRuntimeCoreLibrary;
+	evaluateFileNamedOnce: 'samples/cpu/sampleSoftRendering3D.sysmel';
+	finishAndEmitModule
+
+===============================================================================
+MbndCompilationEnvironment llvm_x86_64
+	withDebugInformation;
+	objectPerModule;
+	optimizationLevel: 2;
+	executable;
+	outputDirectory: 'out-modules';
+	loadRuntimeCoreLibrary;
+	evaluateFileNamedOnce: 'samples/cpu/pharoBridgeServerSample.sysmel';
+	finishAndEmitModule
+
+===============================================================================
+MbndCompilationEnvironment llvm_x86_64
+	withDebugInformation;
+	noRTTI;
+	objectPerModule;
+	optimizationLevel: 2;
+	executable;
+	outputDirectory: 'out-modules';
+	loadRuntimeCoreLibrary;
+	evaluateFileNamedOnce: 'samples/cpu/sampleNativeEchoTCP.sysmel';
+	finishAndEmitModule
+
 ===============================================================================
 MbndStandaloneModule spirv_vulkan
 	loadRuntimeCoreLibrary;
