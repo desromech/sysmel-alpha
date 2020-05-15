@@ -1,0 +1,4 @@
+loadFileOnce: "CollectionMacros.sysmel".
+loadFileOnce: "SequenceableCollectionMacros.sysmel".
+loadFileOnce: "ArrayedCollection.sysmel".
+loadFileOnce: "PrimitiveCollections.sysmel".

@@ -1,0 +1,18 @@
+namespace Stdn definition: {
+namespace Collections definition: {
+
+macro method ArrayedCollectionMacrosMixin := ``{
+    macro method do: aBlock := {
+        let collection := __astBuilder gensym: #collection.
+        let index := __astBuilder gensym: #index.
+        ``{
+            let `,collection ref := `,self.
+            0 until: `,self size do: {:(UIntPointer)`,index :: Void |
+                `,aBlock __macroInlineBlock: `,collection[`,index]
+            }
+        }
+    }.
+}.
+
+}. ## End of namespace Collections
+}. ## End of namespace Stdn

@@ -2,6 +2,7 @@ loadFileOnce: "Collection.sysmel".
 loadFileOnce: "HashedCollection.sysmel".
 loadFileOnce: "DictionaryCollection.sysmel".
 loadFileOnce: "SequenceableCollection.sysmel".
+loadFileOnce: "ArrayedCollection.sysmel".
 
 loadFileOnce: "Vector.sysmel".
 loadFileOnce: "Dictionary.sysmel".

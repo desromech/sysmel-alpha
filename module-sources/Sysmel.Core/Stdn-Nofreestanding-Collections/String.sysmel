@@ -261,34 +261,12 @@ namespace Collections definition: {
         Stdn memset(data_[size_] address, 0, tailSize * ValueType instanceSize)
     }.
 
-    macro method doWithIndex: aBlock := {
-		let collection := __astBuilder gensym: #collection.
-		let index := __astBuilder gensym: #index.
-		``{
-			let `,collection ref := `,self.
-			0 until: `,self size do: {:(UIntPointer)`,index :: Void |
-				`,aBlock __macroInlineBlock: `,collection[`,index] with: `,index
-			}
-		}
-	}.
-
-    macro method do: aBlock := {
-		let collection := __astBuilder gensym: #collection.
-		let index := __astBuilder gensym: #index.
-		``{
-			let `,collection ref := `,self.
-			0 until: `,self size do: {:(UIntPointer)`,index :: Void |
-				`,aBlock __macroInlineBlock: `,collection[`,index]
-			}
-		}
-	}.
-
     const inline method readMemoryStream => Stdn IO FixedMemoryStream
         := Stdn IO FixedMemoryStream for: self data withSize: self size.
 
     macro method textStreamReader := ``(Stdn IO TextStreamReader for: `,self readMemoryStream address).
 
-    Stdn Collections SequenceableCollectionMixin.
+    Stdn Collections ArrayedCollectionMixin.
 }.
 
 compileTime constant String := BasicString(Char8).

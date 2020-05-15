@@ -86,11 +86,21 @@ MbndAstQuasiQuoteEvaluator >> visitMacroSendMessageWithArgumentsNode: node [
 ]
 
 { #category : #visiting }
+MbndAstQuasiQuoteEvaluator >> visitQuasiQuoteNode: node [
+	^ node
+]
+
+{ #category : #visiting }
 MbndAstQuasiQuoteEvaluator >> visitQuasiUnquoteNode: node [
 	| result |
 	result := unquoteEvaluator visitNode: node expression.
 	self assert: result type isASTNodeType.
 	^ result value
+]
+
+{ #category : #visiting }
+MbndAstQuasiQuoteEvaluator >> visitQuoteNode: node [
+	^ node
 ]
 
 { #category : #visiting }

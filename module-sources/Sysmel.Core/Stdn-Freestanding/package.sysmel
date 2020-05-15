@@ -25,6 +25,7 @@ if: Compiler compilationTarget isGPU not then: {
 
 	Compiler loadPackages: #(
 		#"Stdn-Freestanding-ExplicitMemoryCollections"
+		#"Stdn-Freestanding-Collections"
 	).
 	loadFileOnce: "Object.sysmel".
 	loadFileOnce: "BasicExceptions.sysmel".

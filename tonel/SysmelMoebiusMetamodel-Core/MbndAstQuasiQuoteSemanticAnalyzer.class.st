@@ -83,10 +83,20 @@ MbndAstQuasiQuoteSemanticAnalyzer >> visitExpandedMessageSendNode: node [
 ]
 
 { #category : #visiting }
+MbndAstQuasiQuoteSemanticAnalyzer >> visitQuasiQuoteNode: node [
+	^ node
+]
+
+{ #category : #visiting }
 MbndAstQuasiQuoteSemanticAnalyzer >> visitQuasiUnquoteNode: node [
 	^ node copy
 		expression: (unquoteAnalyzer addImplicitCastFor: (unquoteAnalyzer visitNode: node expression) to: self compilationTarget astNodeType);
 		yourself.
+]
+
+{ #category : #visiting }
+MbndAstQuasiQuoteSemanticAnalyzer >> visitQuoteNode: node [
+	^ node
 ]
 
 { #category : #visiting }

@@ -1,0 +1,10 @@
+namespace Stdn definition: {
+namespace Collections definition: {
+
+macro method CollectionMacrosMixin := ``{
+    macro method isEmpty := ``(`,self size = 0).
+    macro method isNotEmpty := ``(`,self size ~= 0).
+}.
+
+}. ## End of namespace Collections
+}. ## End of namespace Stdn

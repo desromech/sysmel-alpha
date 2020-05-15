@@ -1,0 +1,42 @@
+namespace Stdn definition: {
+namespace Collections definition: {
+
+macro method SequenceableCollectionMacrosMixin := ``{
+    macro method first := ``(`,self[0]).
+    macro method second := ``(`,self[1]).
+    macro method third := ``(`,self[2]).
+    macro method fourth := ``(`,self[3]).
+    macro method fifth := ``(`,self[4]).
+    macro method sixth := ``(`,self[5]).
+    macro method seventh := ``(`,self[6]).
+    macro method eighth := ``(`,self[7]).
+    macro method ninth := ``(`,self[8]).
+    macro method tenth := ``(`,self[9]).
+
+    macro method doWithIndex: aBlock := {
+		let collection := __astBuilder gensym: #collection.
+		let index := __astBuilder gensym: #index.
+		``{
+			let `,collection ref := `,self.
+			0 until: `,self size do: {:(UIntPointer)`,index :: Void |
+				`,aBlock __macroInlineBlock: `,collection[`,index] with: `,index
+			}
+		}
+	}.
+
+	macro method select: aPredicate thenDo: aBlock := {
+		let collection := __astBuilder gensym: #collection.
+		let index := __astBuilder gensym: #index.
+		``{
+			let `,collection ref := `,self.
+			0 until: `,self size do: {:(UIntPointer)`,index :: Void |
+				if: (`,aPredicate __macroInlineBlock: `,collection[`,index]) then: {
+					`,aBlock __macroInlineBlock: `,collection[`,index]
+				}.
+			}
+		}
+	}.
+}.
+
+}. ## End of namespace Collections
+}. ## End of namespace Stdn

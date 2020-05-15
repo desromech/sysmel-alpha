@@ -1,0 +1,10 @@
+namespace Stdn definition: {
+namespace Collections definition: {
+
+macro method ArrayedCollectionMixin := ``{
+    Stdn Collections SequenceableCollectionMixin.
+    Stdn Collections ArrayedCollectionMacrosMixin.
+}.
+
+}. ## End of namespace Collections
+}. ## End of namespace Stdn

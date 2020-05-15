@@ -5,66 +5,7 @@ compileTime constant PositionNotFoundIndex := UIntPointer maxValue.
 
 macro method SequenceableCollectionMixin := ``{
     Stdn Collections CollectionMixin.
-
-    inline method first => ValueType ref
-        := self [0].
-
-    const inline method first => ValueType const ref
-        := self [0].
-
-    inline method second => ValueType ref
-        := self [1].
-
-    const inline method second => ValueType const ref
-        := self [1].
-
-    inline method third => ValueType ref
-        := self [2].
-
-    const inline method third => ValueType const ref
-        := self [2].
-
-    inline method fourth => ValueType ref
-        := self [3].
-
-    const inline method fourth => ValueType const ref
-        := self [3].
-
-    inline method fifth => ValueType ref
-        := self [4].
-
-    const inline method fifth => ValueType const ref
-        := self [4].
-
-    inline method sixth => ValueType ref
-        := self [5].
-
-    const inline method sixth => ValueType const ref
-        := self [5].
-
-    inline method seventh => ValueType ref
-        := self [6].
-
-    const inline method seventh => ValueType const ref
-        := self [6].
-
-    inline method eighth => ValueType ref
-        := self [7].
-
-    const inline method eighth => ValueType const ref
-        := self [7].
-
-    inline method ninth => ValueType ref
-        := self [8].
-
-    const inline method ninth => ValueType const ref
-        := self [8].
-
-    inline method tenth => ValueType ref
-        := self [9].
-
-    const inline method tenth => ValueType const ref
-        := self [9].
+    Stdn Collections SequenceableCollectionMacrosMixin.
 
     inline method last => ValueType ref := {
         assert: self isNotEmpty.
