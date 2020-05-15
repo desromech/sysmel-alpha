@@ -47,6 +47,11 @@ MbndAggregateTypeWithFields >> addInstanceMacros [
 		]
 ]
 
+{ #category : #accessing }
+MbndAggregateTypeWithFields >> allNamedFields [
+	^ self slotLayout allNamedFields
+]
+
 { #category : #testing }
 MbndAggregateTypeWithFields >> areSyntheticMethodsInternal [
 	^ self isSpecialStructureType

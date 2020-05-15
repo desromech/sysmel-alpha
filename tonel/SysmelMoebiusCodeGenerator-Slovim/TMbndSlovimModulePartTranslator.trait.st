@@ -17,6 +17,11 @@ TMbndSlovimModulePartTranslator >> codeModuleGenerator: anObject [
 ]
 
 { #category : #accessing }
+TMbndSlovimModulePartTranslator >> compilationEnvironment [
+	^ codeModuleGenerator compilationEnvironment
+]
+
+{ #category : #accessing }
 TMbndSlovimModulePartTranslator >> compilationTarget [
 	^ codeModuleGenerator compilationTarget
 ]

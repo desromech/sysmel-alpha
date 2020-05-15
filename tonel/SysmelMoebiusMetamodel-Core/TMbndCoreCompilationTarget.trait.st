@@ -13,7 +13,6 @@ Trait {
 		'tupleTypes',
 		'specificCompilerObjects',
 		'blockClosureTypes',
-		'nativePrefixedStringLiteralType',
 		'associationTypes',
 		'primitiveVectorTypes',
 		'primitiveMatrixTypes',
@@ -52,8 +51,6 @@ Trait {
 		'internalNonLocalReturnExceptionClass',
 		'typeSystemInitialized',
 		'simultaneousTypeConcepts',
-		'nativePrefixedWStringLiteralType',
-		'nativePrefixedLStringLiteralType',
 		'patternMatchingFailureRaiseFunction',
 		'variantUnexpectedComponentRaiseFunction',
 		'nativeComputeShaderIOInterface',
@@ -61,7 +58,9 @@ Trait {
 		'nativeFragmentShaderIOInterface',
 		'nativeGeometryShaderIOInterface',
 		'nativeTessellationControlShaderIOInterface',
-		'nativeTessellationEvaluationShaderIOInterface'
+		'nativeTessellationEvaluationShaderIOInterface',
+		'arraySlicesTypes',
+		'indexOutOfBoundsRaiseFunction'
 	],
 	#traits : 'TMbndAbstractCompilationTarget',
 	#classTraits : 'TMbndAbstractCompilationTarget classTrait',
@@ -135,6 +134,11 @@ TMbndCoreCompilationTarget >> addGpuTextureTypeNamed: name sampled: sampled dime
 { #category : #'derived types' }
 TMbndCoreCompilationTarget >> arrayOf: elementType elements: elementCount [
 	^ arrayTypes getOrCreateInstanceWithArguments: { elementType . elementCount }
+]
+
+{ #category : #'derived types' }
+TMbndCoreCompilationTarget >> arraySliceOf: elementType [
+	^ arraySlicesTypes getOrCreateInstanceWithArguments: { elementType }
 ]
 
 { #category : #'derived types' }
@@ -384,11 +388,6 @@ TMbndCoreCompilationTarget >> dynamicObjectType: anObjectType [
 TMbndCoreCompilationTarget >> encodeBootstrapDefinedObjectsForMessagePackWith: graphEncoder [
 	^ Array streamContents: [:out |
 		#(
-			"Strings"
-			nativePrefixedStringLiteralType
-			nativePrefixedWStringLiteralType
-			nativePrefixedLStringLiteralType
-			
 			"Embedded shaders"
 			shaderEntryPointInfo shaderModuleInfo
 			nativeComputeShaderIOInterface nativeVertexShaderIOInterface nativeFragmentShaderIOInterface 			nativeGeometryShaderIOInterface nativeTessellationControlShaderIOInterface
@@ -413,6 +412,7 @@ TMbndCoreCompilationTarget >> encodeBootstrapDefinedObjectsForMessagePackWith: g
 			nonLocalReturnRaiseFunction
 			patternMatchingFailureRaiseFunction
 			variantUnexpectedComponentRaiseFunction
+			indexOutOfBoundsRaiseFunction
 			
 			"GC runtime"
 			defaultGCClassSuperClass
@@ -606,6 +606,27 @@ TMbndCoreCompilationTarget >> identityHashForSymbol: symbol [
 { #category : #'as yet unclassified' }
 TMbndCoreCompilationTarget >> identityHashForSymbolInDictionary: symbol [
 	^ (self managedObjectModel identityHashForSymbol: symbol) & (self managedObjectModel identityHashFieldBitMask)
+]
+
+{ #category : #accessing }
+TMbndCoreCompilationTarget >> indexOutOfBoundsRaiseFunction [
+	^ indexOutOfBoundsRaiseFunction
+]
+
+{ #category : #accessing }
+TMbndCoreCompilationTarget >> indexOutOfBoundsRaiseFunction: aFunction [
+	^ indexOutOfBoundsRaiseFunction := aFunction
+]
+
+{ #category : #initialization }
+TMbndCoreCompilationTarget >> initializeAdditionalConversionRules [
+	self literalStringType
+		addConversionTo: self char8Type const arraySlice rule: MbndLiteralStringToArraySliceConstantConversionRule;
+		addConversionTo: self char16Type const arraySlice rule: MbndLiteralStringToArraySliceConstantConversionRule;
+		addConversionTo: self char32Type const arraySlice rule: MbndLiteralStringToArraySliceConstantConversionRule;
+		addConversionTo: self uint8Type const arraySlice rule: MbndLiteralStringToArraySliceConstantConversionRule.
+	self literalSymbolType
+		addConversionTo: self char8Type const arraySlice rule: MbndLiteralStringToArraySliceConstantConversionRule
 ]
 
 { #category : #initialization }
@@ -991,6 +1012,15 @@ TMbndCoreCompilationTarget >> initializeDerivedTypeCaches [
 				yourself.
 	].
 
+	arraySlicesTypes := self createSystemProvidedTypeTemplate: #_ArraySliceTypeTemplate
+		argumentNames: #(ElementType)
+		doing: [ :elementType |
+			(self ensureBasicTypeIsLinkedToTheHierarchy: MbndArraySliceType basicNew)
+				elementType: elementType;
+				initializeNonTraitType;
+				yourself.
+	].
+
 	gcClassVariableDataArrayTypes := self createSystemProvidedTypeTemplate: #_GCClassVariableDataArrayTypeTemplate
 		argumentNames: #(ElementType)
 		doing: [ :elementType |
@@ -1134,6 +1164,7 @@ TMbndCoreCompilationTarget >> initializeTypeSystem [
 		initializeArithmeticCoercionTable;
 		initializeArithmeticConversionRules.
 	typeSystemInitialized := true.
+	self initializeAdditionalConversionRules
 ]
 
 { #category : #'as yet unclassified' }
@@ -1339,51 +1370,6 @@ TMbndCoreCompilationTarget >> nativeGeometryShaderIOInterface: anObject [
 	nativeGeometryShaderIOInterface := anObject
 ]
 
-{ #category : #accessing }
-TMbndCoreCompilationTarget >> nativePrefixedLStringLiteralType [
-	^ nativePrefixedLStringLiteralType
-]
-
-{ #category : #'as yet unclassified' }
-TMbndCoreCompilationTarget >> nativePrefixedLStringLiteralType: aType [
-	nativePrefixedLStringLiteralType := aType.
-	nativePrefixedLStringLiteralType ifNotNil: [
-		self literalStringType addConversionTo: nativePrefixedLStringLiteralType rule: MbndLiteralStringToNativePrefixedStringConversionRule.
-		self literalSymbolType addConversionTo: nativePrefixedLStringLiteralType rule: MbndLiteralStringToNativePrefixedStringConversionRule.
-	].
-
-]
-
-{ #category : #accessing }
-TMbndCoreCompilationTarget >> nativePrefixedStringLiteralType [
-	^ nativePrefixedStringLiteralType
-]
-
-{ #category : #'as yet unclassified' }
-TMbndCoreCompilationTarget >> nativePrefixedStringLiteralType: aType [
-	nativePrefixedStringLiteralType := aType.
-	nativePrefixedStringLiteralType ifNotNil: [
-		self literalStringType addConversionTo: nativePrefixedStringLiteralType rule: MbndLiteralStringToNativePrefixedStringConversionRule.
-		self literalSymbolType addConversionTo: nativePrefixedStringLiteralType rule: MbndLiteralStringToNativePrefixedStringConversionRule.
-	].
-
-]
-
-{ #category : #accessing }
-TMbndCoreCompilationTarget >> nativePrefixedWStringLiteralType [
-	^ nativePrefixedWStringLiteralType
-]
-
-{ #category : #'as yet unclassified' }
-TMbndCoreCompilationTarget >> nativePrefixedWStringLiteralType: aType [
-	nativePrefixedWStringLiteralType := aType.
-	nativePrefixedWStringLiteralType ifNotNil: [
-		self literalStringType addConversionTo: nativePrefixedWStringLiteralType rule: MbndLiteralStringToNativePrefixedStringConversionRule.
-		self literalSymbolType addConversionTo: nativePrefixedWStringLiteralType rule: MbndLiteralStringToNativePrefixedStringConversionRule.
-	].
-
-]
-
 { #category : #'as yet unclassified' }
 TMbndCoreCompilationTarget >> nativeShaderIOInterfaceWithSemantics: specialSemantics [
 	specialSemantics = #vertex ifTrue: [ ^ nativeVertexShaderIOInterface ].
@@ -1564,8 +1550,7 @@ TMbndCoreCompilationTarget >> standardConcreteTypeForLiteralStringInScope: aScop
 		aScope defaultVariableType == dynamicObjectType ifTrue: [ ^ self managedObjectModel stringClass ]
 	].
 
-	nativePrefixedStringLiteralType ifNotNil: [ ^ nativePrefixedStringLiteralType ].
-	^ self char8Type const pointer
+	^ self char8Type const arraySlice
 ]
 
 { #category : #initialization }

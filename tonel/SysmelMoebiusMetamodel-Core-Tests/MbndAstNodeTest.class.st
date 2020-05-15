@@ -69,6 +69,7 @@ MbndAstNodeTest >> testTestingMethods [
 	self deny: 1 isMbndAstNode.
 	self assert: node isMbndAstNode.
 	self deny: node isArrayElementReferenceNode.
+	self deny: node isArraySliceElementReferenceNode.
 	self deny: node isAbstractCastNode.
 	self deny: node isArgumentDefinitionNode.
 	self deny: node isAbstractTypeDefinitionNode.

@@ -14,6 +14,11 @@ TMbndAbstractCompilationTarget >> arrayOf: elementType elements: elementCount [
 	self explicitRequirement
 ]
 
+{ #category : #'as yet unclassified' }
+TMbndAbstractCompilationTarget >> arraySliceOf: elementType [
+	self explicitRequirement
+]
+
 { #category : #'convenience type accessors' }
 TMbndAbstractCompilationTarget >> astNodeType [
 	^ self getBasicTypeNamed: MbndASTNodeType typeName
@@ -275,6 +280,11 @@ TMbndAbstractCompilationTarget >> gpuTextureCubeType [
 	^ self getBasicTypeNamed: #GPUTextureCube
 ]
 
+{ #category : #initialization }
+TMbndAbstractCompilationTarget >> hasBoundsChecks [
+	^ self isGPU not
+]
+
 { #category : #'platform testing' }
 TMbndAbstractCompilationTarget >> hasNoOperatingSystem [
 	^ false
@@ -473,10 +483,6 @@ TMbndAbstractCompilationTarget >> nativeBlockClosureTypeWithArguments: argumentT
 { #category : #'derived types' }
 TMbndAbstractCompilationTarget >> nativeBlockClosureTypeWithSignature: functionType [
 	self explicitRequirement
-]
-
-{ #category : #initialization }
-TMbndAbstractCompilationTarget >> nativePrefixedStringLiteralType: aType [
 ]
 
 { #category : #'convenience type accessors' }

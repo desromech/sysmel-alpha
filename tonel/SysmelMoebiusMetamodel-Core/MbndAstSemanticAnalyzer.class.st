@@ -552,6 +552,40 @@ MbndAstSemanticAnalyzer >> evaluateTypeExpression: typeExpression [
 ]
 
 { #category : #visiting }
+MbndAstSemanticAnalyzer >> expandAggregate: aggregateType constructionWithFields: fields values: values at: position [
+	| resultValue receiverVariable receiverVariableReference fieldAssignments |
+	resultValue := self astBuilder temporaryVariableOfType: aggregateType.
+	receiverVariable := MbndAstLocalVariableDefinitionNode new
+		tempRef;
+		position: position;
+		name: position;
+		initialValue: resultValue;
+		yourself.
+	receiverVariableReference := MbndAstIdentifierReferenceNode new
+		position: position;
+		symbol: position;
+		yourself.
+		
+	fieldAssignments := values collectWithIndex: [ :fieldValue :fieldIndex |
+		| fieldReference |
+		fieldReference := MbndAstGetFieldReferenceNode new
+			position: position;
+			aggregate: receiverVariableReference;
+			field: (fields at: fieldIndex)
+			yourself.
+			
+			self astBuilder unexpandedSend: ((astBuilder literalSymbol: #'assignValue:') position: values) 
+				to: fieldReference withArguments: { fieldValue }
+	].
+
+	^ self visitNode: (MbndAstSequenceNode new
+		position: position;
+		elements: { receiverVariable } , fieldAssignments , { receiverVariableReference };
+		yourself)
+
+]
+
+{ #category : #visiting }
 MbndAstSemanticAnalyzer >> forNode: node deferAnalysisWith: aBlock [
 	^ MbndAstNodeWithDeferredAnalysis new
 		position: node;
@@ -603,6 +637,31 @@ MbndAstSemanticAnalyzer >> parsePatternMatchingPatternNode: node [
 		self error: 'Expected an expression that represents a pattern.' at: node
 	].
 	^ pattern
+]
+
+{ #category : #visiting }
+MbndAstSemanticAnalyzer >> visitAggregateConstructionWithNamedElementsNode: node [
+	| aggregateType |
+	aggregateType := self evaluateTypeExpression: node aggregate.
+	self assert: aggregateType isAggregateTypeWithFields.
+	
+	"TODO: Analyze the actual elements."
+	self halt.
+]
+
+{ #category : #visiting }
+MbndAstSemanticAnalyzer >> visitAggregateConstructionWithOrderedElementsNode: node [
+	| aggregateType elements fields |
+	aggregateType := self evaluateTypeExpression: node aggregate.
+	self assert: aggregateType isAggregateTypeWithFields.
+
+	elements := self visitSplicingTupleNode: node elements.
+	fields := aggregateType allNamedFields.
+	elements size > fields size ifTrue: [
+		self error: 'Aggregate construction of type {1} has is provided more fields than the ones supported by the aggregate. ' format: { aggregateType asString } at: node
+	].
+
+	^ self expandAggregate: aggregateType constructionWithFields: (fields first: elements size) values: elements at: node
 ]
 
 { #category : #visiting }
@@ -688,6 +747,26 @@ MbndAstSemanticAnalyzer >> visitArrayElementReferenceNode: node [
 	elementType := arrayType elementType.
 	result type: ((elementType withDecorations: containerType baseType decorations)
 		refFor: containerType addressSpace).
+	 
+	^ result
+]
+
+{ #category : #visiting }
+MbndAstSemanticAnalyzer >> visitArraySliceElementReferenceNode: node [
+	| result containerType arrayType elementType |
+	result := node copy
+		container: (self ensureConcreteValue: (self analyzeNodeIfNeeded: node container));
+		index: (self ensureIntegerIndexValue: (self analyzeNodeIfNeeded: node index) at: node);
+		yourself.
+	
+	containerType := result container type.
+	arrayType := containerType withoutDecorations.
+	arrayType isArraySliceType ifFalse: [
+		self error: 'An array slice is required for getting a refence to one of its elements.' at: node
+	].
+	
+	elementType := arrayType elementType.
+	result type: (elementType withDecorations: containerType decorations) ref.
 	 
 	^ result
 ]
@@ -2238,6 +2317,20 @@ MbndAstSemanticAnalyzer >> visitPointerElementReferenceNode: node [
 ]
 
 { #category : #visiting }
+MbndAstSemanticAnalyzer >> visitPointerToArraySliceNode: node [
+	| result |
+	result := node copy
+		pointer: (self ensureConcreteValue: (self analyzeNodeIfNeeded: node pointer));
+		firstIndex: (self ensureIntegerIndexValue: (self analyzeNodeIfNeeded: node firstIndex) at: node);
+		lastIndex: (self ensureIntegerIndexValue: (self analyzeNodeIfNeeded: node lastIndex) at: node);
+		yourself.
+	
+	self assert: result pointer type isPointerType.
+	result type: (result pointer type baseType arraySlice).
+	^ result
+]
+
+{ #category : #visiting }
 MbndAstSemanticAnalyzer >> visitPragmaNode: pragmaNode [
 	| selector result |
 	result := pragmaNode copy
@@ -2565,6 +2658,20 @@ MbndAstSemanticAnalyzer >> visitSetFieldValueNode: node [
 	^ result
 		type: result aggregate type;
 		yourself
+]
+
+{ #category : #visiting }
+MbndAstSemanticAnalyzer >> visitSignExtensionCastNode: node [
+	| result |
+	result := self visitSpecificCastNode: node.
+	(result expression isLiteralValueNode and: [ result expression value isInteger ]) ifTrue: [ 
+		^ node expression copy
+			position: result;
+			type: result type;
+			yourself
+	].
+
+	^ result
 ]
 
 { #category : #visiting }
@@ -3059,6 +3166,20 @@ MbndAstSemanticAnalyzer >> visitWhileLoopNode: node [
 	].
 
 	result	 continueAction: (result continueAction ifNotNil: [:action | self analyzeNodeIfNeeded: action]).
+	^ result
+]
+
+{ #category : #visiting }
+MbndAstSemanticAnalyzer >> visitZeroExtensionCastNode: node [
+	| result |
+	result := self visitSpecificCastNode: node.
+	(result expression isLiteralValueNode and: [ result expression value isInteger and: [ result expression value >= 0]]) ifTrue: [ 
+		^ node expression copy
+			position: result;
+			type: result type;
+			yourself
+	].
+
 	^ result
 ]
 

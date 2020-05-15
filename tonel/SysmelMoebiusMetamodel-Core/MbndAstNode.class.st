@@ -98,6 +98,21 @@ MbndAstNode >> isAbstractTypeDefinitionNode [
 ]
 
 { #category : #testing }
+MbndAstNode >> isAggregateConstructionNode [
+	^ false
+]
+
+{ #category : #testing }
+MbndAstNode >> isAggregateConstructionWithNamedElementsNode [
+	^ false
+]
+
+{ #category : #testing }
+MbndAstNode >> isAggregateConstructionWithOrderedElementsNode [
+	^ false
+]
+
+{ #category : #testing }
 MbndAstNode >> isArgumentDefinitionNode [
 	^ false
 ]
@@ -109,6 +124,11 @@ MbndAstNode >> isArrayConstructionNode [
 
 { #category : #testing }
 MbndAstNode >> isArrayElementReferenceNode [
+	^ false
+]
+
+{ #category : #testing }
+MbndAstNode >> isArraySliceElementReferenceNode [
 	^ false
 ]
 
@@ -645,6 +665,11 @@ MbndAstNode >> isPointerElementReferenceNode [
 
 { #category : #testing }
 MbndAstNode >> isPointerReinterpretCastNode [
+	^ false
+]
+
+{ #category : #testing }
+MbndAstNode >> isPointerToArraySliceNode [
 	^ false
 ]
 

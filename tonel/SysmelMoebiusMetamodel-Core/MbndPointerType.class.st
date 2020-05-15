@@ -103,6 +103,23 @@ MbndPointerType >> addInstanceMacros [
 		onMacroSelector: #- do: [ :node :builder |
 			self halt
 		];
+		onMacroSelectors: #(until: to:) do: [ :node :builder |
+			(builder pointer: node receiver
+				toArraySliceFrom: ((builder literalInteger: 0)
+					position: node) until: node arguments first)
+				position: node
+		];
+		onMacroSelector: #from:until: do: [ :node :builder |
+			(builder pointer: node receiver
+				toArraySliceFrom: node arguments first until: node arguments second)
+				position: node
+		];
+		onMacroSelector: #from:to: do: [ :node :builder |
+			(builder pointer: node receiver
+				toArraySliceFrom: node arguments first until: node arguments second)
+				isOneBasedIndex: true;
+				position: node
+		];
 		onMacroSelector: #applyWithArguments: do: [:node :builder |
 			builder unexpandedSend: node selector to:
 				((builder pointerAsReference: node receiver)

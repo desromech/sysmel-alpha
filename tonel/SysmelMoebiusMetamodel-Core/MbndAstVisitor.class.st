@@ -10,6 +10,16 @@ Class {
 }
 
 { #category : #visiting }
+MbndAstVisitor >> visitAggregateConstructionWithNamedElementsNode: node [
+	self subclassResponsibility
+]
+
+{ #category : #visiting }
+MbndAstVisitor >> visitAggregateConstructionWithOrderedElementsNode: node [
+	self subclassResponsibility
+]
+
+{ #category : #visiting }
 MbndAstVisitor >> visitArgumentDefinitionNode: node [
 	self subclassResponsibility
 ]
@@ -21,6 +31,11 @@ MbndAstVisitor >> visitArrayConstructionNode: node [
 
 { #category : #visiting }
 MbndAstVisitor >> visitArrayElementReferenceNode: node [
+	self subclassResponsibility
+]
+
+{ #category : #visiting }
+MbndAstVisitor >> visitArraySliceElementReferenceNode: node [
 	self subclassResponsibility
 ]
 
@@ -531,6 +546,11 @@ MbndAstVisitor >> visitPointerElementReferenceNode: node [
 
 { #category : #visiting }
 MbndAstVisitor >> visitPointerReinterpretCastNode: node [
+	self subclassResponsibility
+]
+
+{ #category : #visiting }
+MbndAstVisitor >> visitPointerToArraySliceNode: node [
 	self subclassResponsibility
 ]
 

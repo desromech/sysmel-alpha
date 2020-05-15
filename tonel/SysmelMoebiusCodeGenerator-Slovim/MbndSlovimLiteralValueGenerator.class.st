@@ -219,15 +219,15 @@ MbndSlovimLiteralValueGenerator >> visitPointerType: pointerType [
 		(baseType isConstantType and:
 		[ undecoratedBaseType isPrimitiveIntegerType]) ifTrue: [ 
 			undecoratedBaseType instanceSize = 1 ifTrue: [ 
-				^ SLVMConstant pointerToConstant: (SLVMConstant cstring: literalValue)
+				^ SLVMConstant pointerToConstant: (SLVMConstant cstring: literalValue slvmUTF8Encoded)
 					pointerType: (self translateType: pointerType)
 			].
 			undecoratedBaseType instanceSize = 2 ifTrue: [ 
-				^ SLVMConstant pointerToConstant: (SLVMConstant cwstring: literalValue)
+				^ SLVMConstant pointerToConstant: (SLVMConstant cwstring: literalValue slvmUTF16Encoded)
 					pointerType: (self translateType: pointerType)
 			].
 			undecoratedBaseType instanceSize = 4 ifTrue: [ 
-				^ SLVMConstant pointerToConstant: (SLVMConstant clstring: literalValue)
+				^ SLVMConstant pointerToConstant: (SLVMConstant clstring: literalValue slvmUTF32Encoded)
 					pointerType: (self translateType: pointerType)
 			].
 		].

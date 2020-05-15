@@ -26,8 +26,8 @@ MbndArraySliceType >> addFields [
 	self addField: (MbndFieldVariable new
 		name: #elements;
 		flags: #(public);
-		valueType: elementType pointer;
-		type: elementType pointer ref;
+		valueType: self elementPointerType;
+		type: self elementPointerType ref;
 		yourself).
 	self addField: (MbndFieldVariable new
 		name: #size;
@@ -38,9 +38,33 @@ MbndArraySliceType >> addFields [
 
 ]
 
+{ #category : #initialization }
+MbndArraySliceType >> addInstanceMacros [
+	self class == MbndArraySliceType ifFalse: [ ^ self ].
+	self isTrait ifFalse: [ ^ self ].
+	self
+		onMacroSelector: #subscriptAt: do: [ :node :builder |
+			(builder arraySlice: node receiver elementReferenceAt: node arguments first)
+				position: node;
+				isOneBasedIndex: false;
+				yourself.
+		];
+		onMacroSelector: #at: do: [ :node :builder |
+			(builder arraySlice: node receiver elementReferenceAt: node arguments first)
+				position: node;
+				isOneBasedIndex: true;
+				yourself.
+		]
+]
+
 { #category : #converting }
 MbndArraySliceType >> asImmutableValueType [
 	^ self
+]
+
+{ #category : #initialization }
+MbndArraySliceType >> elementPointerType [
+	^ elementType pointer
 ]
 
 { #category : #accessing }

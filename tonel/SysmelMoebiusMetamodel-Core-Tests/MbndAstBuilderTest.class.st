@@ -52,6 +52,17 @@ MbndAstBuilderTest >> testArrayElementReferenceNode [
 ]
 
 { #category : #tests }
+MbndAstBuilderTest >> testArraySliceElementReferenceNode [
+	| node array index |
+	array := builder identifier: #array.
+	index := builder literalInteger: 42.
+	node := builder arraySlice: array elementReferenceAt: index.
+	self assert: node isArraySliceElementReferenceNode.
+	self assert: node container equals: array.
+	self assert: node index equals: index.
+]
+
+{ #category : #tests }
 MbndAstBuilderTest >> testAssignmentExpression [
 	| node reference value|
 	reference := builder identifier: #x.

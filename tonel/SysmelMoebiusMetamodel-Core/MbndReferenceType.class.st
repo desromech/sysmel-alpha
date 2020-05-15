@@ -34,6 +34,9 @@ MbndReferenceType >> addDefaultConversionRules [
 			].
 		].
 		self addImplicitConversionRule: MbndClassImplicitUpcastTypeConversionRule new.
+		baseType isArrayType ifTrue: [
+			self addConversionRule: MbndArrayReferenceToArraySliceConversionRule new
+		]
 	]
 ]
 

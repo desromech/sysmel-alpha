@@ -33,7 +33,8 @@ Class {
 		'gpuUsableProgramEntitites',
 		'patternMatchingFailureRaiseFunction',
 		'variantUnexpectedComponentRaiseFunction',
-		'nativeShaderEntryPoints'
+		'nativeShaderEntryPoints',
+		'indexOutOfBoundsRaiseFunction'
 	],
 	#classVars : [
 		'ShaderBuiltInLocationMap',
@@ -1202,6 +1203,20 @@ MbndSlovimCodeModuleGenerator >> importTranslatedProgramEntity: externalProgramE
 	^ ssaModule importGlobalValue: externalProgramEntityValue fromModule: ssaModule
 ]
 
+{ #category : #accessing }
+MbndSlovimCodeModuleGenerator >> indexOutOfBoundsRaiseFunction [
+	^ indexOutOfBoundsRaiseFunction ifNil: [
+		self compilationTarget indexOutOfBoundsRaiseFunction ifNotNil: [ :function |
+			indexOutOfBoundsRaiseFunction := (self translateProgramEntity: function) ssaValue
+		] ifNil: [
+			indexOutOfBoundsRaiseFunction := SLVMFunction module: ssaModule
+				name: #__sysmel_indexOutOfBoundsRaiseFunction
+				functionType: (SLVMFunctionType arguments: {self slvmCompilationTarget intPointer . self slvmCompilationTarget intPointer} returnType: self slvmCompilationTarget void)
+
+		]
+	]
+]
+
 { #category : #initialization }
 MbndSlovimCodeModuleGenerator >> initialize [
 	super initialize.
@@ -1991,7 +2006,12 @@ MbndSlovimCodeModuleGenerator >> visitConcreteFunctionMethod: functionMethod [
 	ssaFunctionType := self translateType: functionMethod type.
 	csymbol := self csymbolForProgramEntity: functionMethod.
 	csymbol isString ifTrue: [ 
-		self assert: (ssaModule includesGlobalNamed: csymbol) not.
+		(ssaModule includesGlobalNamed: csymbol) ifTrue: [
+			"Some runtime methods may be defined before there actual usage."
+			ssaFunction := ssaModule globalNamed: csymbol.
+			self assert: (csymbol beginsWith: #__sysmel).
+			self assert: (ssaFunction isEmpty).
+		].
 	].
 
 	addHighLevelMap := true.
@@ -2002,7 +2022,9 @@ MbndSlovimCodeModuleGenerator >> visitConcreteFunctionMethod: functionMethod [
 	].
 
 	unmangledName := self unmangledNameForProgramEntity: functionMethod.
-	ssaFunction := SLVMFunction module: ssaModule name: csymbol functionType: ssaFunctionType.
+	ssaFunction ifNil: [ 
+		ssaFunction := SLVMFunction module: ssaModule name: csymbol functionType: ssaFunctionType.
+	].
 
 	ssaFunction
 		setNoReturn: functionMethod isNoReturn.

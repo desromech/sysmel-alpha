@@ -48,6 +48,17 @@ MbndAstBuilder >> array: array elementReferenceAt: index [
 ]
 
 { #category : #'builder methods' }
+MbndAstBuilder >> arraySlice: array elementReferenceAt: index [
+	<compileTime>
+	<returnType: #_ASTNodeType>
+	^ MbndAstArraySliceElementReferenceNode new
+		position: defaultPosition;
+		container: array;
+		index: index;
+		yourself
+]
+
+{ #category : #'builder methods' }
 MbndAstBuilder >> associationKey: key value: value [
 	<compileTime>
 	<returnType: #_ASTNodeType>
@@ -150,6 +161,28 @@ MbndAstBuilder >> compilationEnvironment [
 { #category : #accessing }
 MbndAstBuilder >> compilationTarget [
 	^ module compilationTarget
+]
+
+{ #category : #'builder methods' }
+MbndAstBuilder >> constructAggregate: aggregate withNamedElements: elements [
+	<compileTime>
+	<returnType: #_ASTNodeType>
+	^ MbndAstAggregateConstructionWithNamedElementsNode new
+		position: defaultPosition;
+		aggregate: aggregate;
+		elements: elements;
+		yourself
+]
+
+{ #category : #'builder methods' }
+MbndAstBuilder >> constructAggregate: aggregate withOrderedElements: elements [
+	<compileTime>
+	<returnType: #_ASTNodeType>
+	^ MbndAstAggregateConstructionWithOrderedElementsNode new
+		position: defaultPosition;
+		aggregate: aggregate;
+		elements: elements;
+		yourself
 ]
 
 { #category : #'builder methods' }
@@ -1070,6 +1103,18 @@ MbndAstBuilder >> pointer: pointer elementReferenceAt: index [
 		position: defaultPosition;
 		container: pointer;
 		index: index;
+		yourself
+]
+
+{ #category : #'builder methods' }
+MbndAstBuilder >> pointer: pointer toArraySliceFrom: firstIndex until: lastIndex [
+	<compileTime>
+	<returnType: #_ASTNodeType>
+	^ MbndAstPointerToArraySliceNode new
+		position: defaultPosition;
+		pointer: pointer;
+		firstIndex: firstIndex;
+		lastIndex: lastIndex;
 		yourself
 ]
 

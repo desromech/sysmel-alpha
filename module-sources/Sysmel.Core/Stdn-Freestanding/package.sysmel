@@ -5,7 +5,6 @@ Compiler loadPackages: #(
 ).
 
 if: Compiler compilationTarget isGPU not then: {
-	loadFileOnce: "FixedArray.sysmel".
 	loadFileOnce: "string.sysmel".
 
 	loadFileOnce: "BasicValuePrinter.sysmel".

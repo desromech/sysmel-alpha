@@ -13,6 +13,16 @@ MbndAstDelegationVisitor >> delegateNodeVisit: aNode [
 ]
 
 { #category : #visiting }
+MbndAstDelegationVisitor >> visitAggregateConstructionWithNamedElementsNode: node [
+	^ self delegateNodeVisit: node
+]
+
+{ #category : #visiting }
+MbndAstDelegationVisitor >> visitAggregateConstructionWithOrderedElementsNode: node [
+	^ self delegateNodeVisit: node
+]
+
+{ #category : #visiting }
 MbndAstDelegationVisitor >> visitArgumentDefinitionNode: node [
 	^ self delegateNodeVisit: node
 ]
@@ -24,6 +34,11 @@ MbndAstDelegationVisitor >> visitArrayConstructionNode: node [
 
 { #category : #visiting }
 MbndAstDelegationVisitor >> visitArrayElementReferenceNode: node [
+	^ self delegateNodeVisit: node
+]
+
+{ #category : #visiting }
+MbndAstDelegationVisitor >> visitArraySliceElementReferenceNode: node [
 	^ self delegateNodeVisit: node
 ]
 
@@ -509,6 +524,11 @@ MbndAstDelegationVisitor >> visitPointerElementReferenceNode: node [
 
 { #category : #visiting }
 MbndAstDelegationVisitor >> visitPointerReinterpretCastNode: node [
+	^ self delegateNodeVisit: node
+]
+
+{ #category : #visiting }
+MbndAstDelegationVisitor >> visitPointerToArraySliceNode: node [
 	^ self delegateNodeVisit: node
 ]
 

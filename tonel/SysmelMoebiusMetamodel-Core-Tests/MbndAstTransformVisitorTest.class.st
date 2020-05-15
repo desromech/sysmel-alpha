@@ -58,6 +58,19 @@ MbndAstTransformVisitorTest >> testArrayElementReferenceNode [
 ]
 
 { #category : #tests }
+MbndAstTransformVisitorTest >> testArraySliceElementReferenceNode [
+	| node array index transformedNode |
+	array := builder identifier: #tr.
+	index := builder literalInteger: 42.
+	node := builder arraySlice: array elementReferenceAt: index.
+	transformedNode := visitor visitNode: node.
+	self assert: transformedNode ~~ node.
+	self assert: transformedNode isArraySliceElementReferenceNode.
+	self assert: transformedNode container equals: array.
+	self assert: transformedNode index equals: index.
+]
+
+{ #category : #tests }
 MbndAstTransformVisitorTest >> testAssignmentExpression [
 	| node reference value transformedNode |
 	reference := builder identifier: #x.

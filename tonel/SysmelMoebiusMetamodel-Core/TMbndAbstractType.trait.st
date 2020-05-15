@@ -310,6 +310,12 @@ TMbndAbstractType >> array: elementCount [
 	^ self compilationTarget arrayOf: self elements: elementCount
 ]
 
+{ #category : #'type composition' }
+TMbndAbstractType >> arraySlice [
+	<compileTime>
+	^ self compilationTarget arraySliceOf: self
+]
+
 { #category : #converting }
 TMbndAbstractType >> asCVariadicType [
 	^ self asCVariadicTypeRequiredAt: MbndSourcePosition new

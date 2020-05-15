@@ -31,7 +31,7 @@ MbndSpecialStructureType >> initializeNonTraitType [
 	self isTrait ifFalse: [ 
 		self addFields.
 		self markAsDefined.
-		self compilationEnvironment currentModule enqueueProgramEntityWithDelayedSemanticAnalysis: self
+		(self compilationEnvironment currentModule ifNil: [ self assert: self isArraySliceType. definitionModule ]) 			enqueueProgramEntityWithDelayedSemanticAnalysis: self
 	].
 
 ]

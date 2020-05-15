@@ -25,6 +25,26 @@ MbndAstTransformVisitor >> visitAbstractTypeDefinitionNode: node [
 ]
 
 { #category : #visiting }
+MbndAstTransformVisitor >> visitAggregateConstructionWithNamedElementsNode: node [
+	^ node copy
+		aggregate: (node targetType isMbndAstNode
+			ifTrue: [self visitNode: node aggregate]
+			ifFalse: [node aggregate]);
+		elements: (self visitNodesAndCollect: node elements);
+		yourself
+]
+
+{ #category : #visiting }
+MbndAstTransformVisitor >> visitAggregateConstructionWithOrderedElementsNode: node [
+	^ node copy
+		aggregate: (node targetType isMbndAstNode
+			ifTrue: [self visitNode: node aggregate]
+			ifFalse: [node aggregate]);
+		elements: (self visitNodesAndCollect: node elements);
+		yourself
+]
+
+{ #category : #visiting }
 MbndAstTransformVisitor >> visitArgumentDefinitionNode: node [
 	^ node copy
 		name: (node name isMbndAstNode ifTrue: [ self visitNode: node name ] ifFalse: [node name]);
@@ -45,6 +65,14 @@ MbndAstTransformVisitor >> visitArrayConstructionNode: node [
 
 { #category : #visiting }
 MbndAstTransformVisitor >> visitArrayElementReferenceNode: node [
+	^ node copy
+		container: (self visitNode: node container);
+		index: (self visitNode: node index);
+		yourself
+]
+
+{ #category : #visiting }
+MbndAstTransformVisitor >> visitArraySliceElementReferenceNode: node [
 	^ node copy
 		container: (self visitNode: node container);
 		index: (self visitNode: node index);
@@ -726,6 +754,15 @@ MbndAstTransformVisitor >> visitPointerElementReferenceNode: node [
 { #category : #visiting }
 MbndAstTransformVisitor >> visitPointerReinterpretCastNode: node [
 	^ self visitSpecificCastNode: node
+]
+
+{ #category : #visiting }
+MbndAstTransformVisitor >> visitPointerToArraySliceNode: node [
+	^ node copy
+		pointer: (self analyzeNodeIfNeeded: node pointer);
+		firstIndex: (self analyzeNodeIfNeeded: node firstIndex);
+		lastIndex: (self analyzeNodeIfNeeded: node lastIndex);
+		yourself
 ]
 
 { #category : #visiting }

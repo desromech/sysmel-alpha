@@ -35,6 +35,15 @@ MbndArrayType >> addInstanceMacros [
 				position: node;
 				isOneBasedIndex: true;
 				yourself.
+		];
+		onMacroSelectors: #(until: to: from:until: from:to:) do: [ :node :builder |
+			| arrayFirstElementPointer |
+			arrayFirstElementPointer := builder referenceAsPointer: (
+				(builder array: node receiver elementReferenceAt: (builder literalInteger: 0))
+					position: node;
+					yourself
+			).
+			builder unexpandedSend: node selector to: arrayFirstElementPointer withArguments: node arguments
 		]
 ]
 

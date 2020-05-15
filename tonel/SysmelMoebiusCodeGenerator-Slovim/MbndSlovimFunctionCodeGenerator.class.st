@@ -1247,6 +1247,37 @@ MbndSlovimFunctionCodeGenerator >> generateIdentityNotEquals: node [
 ]
 
 { #category : #visiting }
+MbndSlovimFunctionCodeGenerator >> generateIndex: index sizeBoundsCheck: sizeValueBlock [
+	| sizeValue outOfBoundsRaiseFunction inBounds boundsCheckTrap boundsCheckMerge |
+	self compilationTarget hasBoundsChecks ifFalse: [ ^ self ].
+	self compilationEnvironment hasExceptions ifFalse: [ ^ self ].
+	
+	sizeValue := sizeValueBlock value.
+	(index isConstantValue and: [ sizeValue isConstantValue and: [index value < sizeValue value]]) ifTrue: [ ^ self ].
+	outOfBoundsRaiseFunction := self codeModuleGenerator indexOutOfBoundsRaiseFunction.
+	outOfBoundsRaiseFunction ifNil: [ ^ self ].
+	inBounds := slvmBuilder ilt: (slvmBuilder intCast: index target: sizeValue type) with: sizeValue.
+	
+	boundsCheckTrap := slvmBuilder newBasicBlock: #boundsCheckTrap.
+	boundsCheckMerge := slvmBuilder newBasicBlock: #boundsCheckMerge.
+	slvmBuilder currentBlock mergeBlock: boundsCheckMerge.
+	slvmBuilder branch: inBounds ifTrue: boundsCheckMerge ifFalse: boundsCheckTrap.
+	
+	"Trap"
+	slvmBuilder currentBlock: boundsCheckTrap.
+	
+	slvmBuilder call: outOfBoundsRaiseFunction arguments: {
+		slvmBuilder intCast: index target: outOfBoundsRaiseFunction functionType arguments first.
+		slvmBuilder intCast: sizeValue target: outOfBoundsRaiseFunction functionType arguments second.
+	}.
+	slvmBuilder unreachable.
+
+	"Bounds check success"
+	slvmBuilder currentBlock: boundsCheckMerge.
+
+]
+
+{ #category : #visiting }
 MbndSlovimFunctionCodeGenerator >> generateLocalVariable: localVariable definitionAt: position withInitialValue: initialValueBlock initialValueKind: initialValueKind [
 	^ self generateLocalVariable: localVariable storageCreationNode: nil definitionAt: position withInitialValue: initialValueBlock initialValueKind: initialValueKind
 ]
@@ -2204,7 +2235,7 @@ MbndSlovimFunctionCodeGenerator >> vectorThreeWayComparisonResultMerge: elementW
 
 { #category : #visiting }
 MbndSlovimFunctionCodeGenerator >> visitArrayElementReferenceNode: node [
-	| pointer index |
+	| pointer index arrayType |
 	pointer := self visitNode: node container.
 	index := self visitNode: node index.
 	self assert: index type isIntegerType.
@@ -2213,7 +2244,29 @@ MbndSlovimFunctionCodeGenerator >> visitArrayElementReferenceNode: node [
 		index := slvmBuilder sub: index with: (SLVMConstant type: index type value: 1)
 	].
 
+	arrayType := node container type withoutReferences withoutTopDecorations.
+	(arrayType isArrayType and: [ arrayType elements isNotNil and: [ arrayType elements > 0 ] ]) ifTrue: [ 
+		self generateIndex: index sizeBoundsCheck: [ (SLVMConstant type: index type value: arrayType elements) ]
+	].
+
 	^ slvmBuilder getReference: pointer element: index
+]
+
+{ #category : #visiting }
+MbndSlovimFunctionCodeGenerator >> visitArraySliceElementReferenceNode: node [
+	| arraySlice index elements |
+	arraySlice := self visitNode: node container.
+	index := self visitNode: node index.
+	self assert: index type isIntegerType.
+	"Convert one based indices into zero based indices."
+	node isOneBasedIndex ifTrue: [ 
+		index := slvmBuilder sub: index with: (SLVMConstant type: index type value: 1)
+	].
+
+	self generateIndex: index sizeBoundsCheck: [ slvmBuilder extractValue: arraySlice indices: { 1 } ].
+	
+	elements := slvmBuilder extractValue: arraySlice indices: { 0 }.
+	^ slvmBuilder getPointer: elements element: {index}
 ]
 
 { #category : #visiting }
@@ -3110,6 +3163,26 @@ MbndSlovimFunctionCodeGenerator >> visitPointerElementReferenceNode: node [
 { #category : #visiting }
 MbndSlovimFunctionCodeGenerator >> visitPointerReinterpretCastNode: node [
 	^ self visitBitCastNode: node
+]
+
+{ #category : #visiting }
+MbndSlovimFunctionCodeGenerator >> visitPointerToArraySliceNode: node [
+	| pointer firstIndex lastIndex size result |
+	pointer := self visitNode: node pointer.
+	firstIndex := self visitNode: node firstIndex.
+	lastIndex := self visitNode: node lastIndex.
+	
+	node isOneBasedIndex ifTrue: [ 
+		firstIndex := slvmBuilder sub: firstIndex with: (SLVMConstant type: firstIndex type value: 1).
+		lastIndex := slvmBuilder sub: lastIndex with: (SLVMConstant type: lastIndex type value: 1).
+	].
+
+	pointer := slvmBuilder getPointer: pointer element: { firstIndex }.
+	size := slvmBuilder sub: lastIndex with: firstIndex.
+	result := SLVMConstant undefined: (self translateType: node type).
+	result := slvmBuilder insertValue: result value: pointer indices: { 0 }.
+	result := slvmBuilder insertValue: result value: size indices: { 1 }.
+	^ result
 ]
 
 { #category : #visiting }

@@ -11,7 +11,8 @@ Class {
 		'virtualTables',
 		'identityHashField',
 		'variableDataSizeField',
-		'hasTrivialBasicInitialization'
+		'hasTrivialBasicInitialization',
+		'allNamedFields'
 	],
 	#category : #'SysmelMoebiusMetamodel-Core-Type'
 }
@@ -19,6 +20,22 @@ Class {
 { #category : #serialization }
 MbndAggregateSlotLayout class >> messagePackTypeName [
 	^ #AggregateSlotLayout
+]
+
+{ #category : #accessing }
+MbndAggregateSlotLayout >> allNamedFields [
+	allNamedFields ifNil: [
+		allNamedFields := Array streamContents: [ :out |
+			slots do: [ :each |
+				each fields do: [ :eachField |
+					eachField name isMbndAnonymousSymbol ifFalse: [
+						out nextPut: eachField
+					]
+				]
+			]
+		]
+	].
+	^ allNamedFields
 ]
 
 { #category : #accessing }

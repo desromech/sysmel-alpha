@@ -21,16 +21,19 @@ MbndSmalltalkImageModuleTest >> tearDown [
 
 { #category : #tests }
 MbndSmalltalkImageModuleTest >> testCompilationTarget [
+	self skip.
 	self assert: Smalltalk moebiusBandModule compilationTarget isNotNil.
 ]
 
 { #category : #tests }
 MbndSmalltalkImageModuleTest >> testMoebiusBandModule [
+	self skip.
 	self assert: Smalltalk moebiusBandModule isNotNil
 ]
 
 { #category : #tests }
 MbndSmalltalkImageModuleTest >> testObjectType [
+	self skip.
 	self assert: Object asMoebiusType isNotNil.
 	self assert: Object asMoebiusType type equals: Object class asMoebiusType.
 	self assert: Object asMoebiusType supertype equals: ProtoObject asMoebiusType.
