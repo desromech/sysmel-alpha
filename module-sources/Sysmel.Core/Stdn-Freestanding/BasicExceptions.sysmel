@@ -4,7 +4,7 @@ namespace Stdn definition: {
 class Exception superclass: Object; definition: {
     SelfType addFlag: #throwable.
 
-    public field messageText type: FixedString const pointer.
+    public field messageText type: ImmutableString.
 
     compileTime if: Compiler compilationTarget hasNoOperatingSystem then: {
         method signal => Void := {
@@ -38,6 +38,9 @@ class PatternMatchingFailure superclass: Error; definition: {}.
 ## Variant unexpected component type.
 class VariantUnexpectedComponentType superclass: Error; definition: {}.
 
+## Index out of bounds
+class IndexOutOfBounds superclass: Error; definition: {}.
+
 ## Throwing exceptions during clean up actions is forbidden
 class ForbiddenExceptionDuringCleanUp superclass: Error; definition: {}.
 
@@ -46,29 +49,29 @@ class InternalNonLocalReturn superclass: Exception; definition: {}.
 
 Compiler compilationTarget internalNonLocalReturnExceptionClass: InternalNonLocalReturn.
 ## Raises a generic error exception.
-function raiseError noReturn(errorMessage: StringLiteral) ::=> Void := {
+function raiseError noReturn(errorMessage: ImmutableString) ::=> Void := {
     ## FIXME: do not separate these because of a missing cast.
     let exception mutable := Error().
     exception
-        messageText: errorMessage address;
+        messageText: errorMessage;
         signal.
 }.
 
 ## Raises a fatal error exception.
-function raiseFatalError noReturn(errorMessage: StringLiteral) ::=> Void := {
+function raiseFatalError noReturn(errorMessage: ImmutableString) ::=> Void := {
     ## FIXME: do not separate these because of a missing cast.
     let exception mutable := FatalError().
     exception
-        messageText: errorMessage address;
+        messageText: errorMessage;
         signal.
 }.
 
 ## Raises an assertion failure exception.
-function raiseAssertionFailure noReturn(errorMessage: StringLiteral) ::=> Void := {
+function raiseAssertionFailure noReturn(errorMessage: ImmutableString) ::=> Void := {
     ## FIXME: do not separate these because of a missing cast.
     let exception mutable := AssertionFailure().
     exception
-        messageText: errorMessage address;
+        messageText: errorMessage;
         signal.
 }.
 
@@ -91,6 +94,11 @@ function __sysmel_patternMatchingFailureRaise noReturn externC() => Void := {
 
 function __sysmel_variantUnexpectedComponentRaise noReturn externC() => Void := {
     let exception mutable := VariantUnexpectedComponentType().
+    exception signal
+}.
+
+function __sysmel_indexOutOfBoundsRaiseFunction noReturn externC(index: IntPointer, size: IntPointer) => Void := {
+    let exception mutable := IndexOutOfBounds().
     exception signal
 }.
 

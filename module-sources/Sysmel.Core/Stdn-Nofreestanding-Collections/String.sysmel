@@ -7,7 +7,7 @@ namespace Collections definition: {
  sealed template BasicString(CT: Type)
  	:= class definition: {
     compileTime constant ValueType := CT.
-    compileTime constant LiteralType := FixedArray(ValueType) const ref.
+    compileTime constant LiteralType := ValueType const arraySlice.
 
     ## Mutable field for asCString.
     private field capacity_ mutable type: UIntPointer.

@@ -1,0 +1,8 @@
+namespace Stdn definition: {
+
+## Convenience method for literal strings
+compileTime constant ImmutableString := Char8 const arraySlice.
+compileTime constant WImmutableString := Char16 const arraySlice.
+compileTime constant LImmutableString := Char32 const arraySlice.
+
+} ## End of namespace Stdn

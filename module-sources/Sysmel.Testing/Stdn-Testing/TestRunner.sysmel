@@ -2,7 +2,7 @@ namespace Stdn definition: {
 namespace Testing definition: {
 
 class TestCaseTestFactory definition: {
-    abstract method name => StringLiteral.
+    abstract method name => ImmutableString.
     abstract method execute => Void.
 }.
 
@@ -17,7 +17,7 @@ class TestCaseFactory definition: {
         TestRunner defaultInstance unregisterTestCaseFactory: self address
     }.
 
-    abstract method name => StringLiteral.
+    abstract method name => ImmutableString.
 
     method addTestFactory: (testFactory: TestCaseTestFactory pointer) ::=> Void := {
         ## Assume this only happens in a single module, on module loading time
@@ -33,7 +33,7 @@ template TestCaseInstanceFactory(TC: Type)
 
     global Factory mutable type: SelfType.
 
-    override method name => StringLiteral
+    override method name => ImmutableString
         := TestCaseClass qualifiedName.
 }.
 
@@ -49,7 +49,7 @@ template TestCaseTestInstanceFactory(TC: Type, TS: _LiteralSymbol)
         TestCaseInstanceFactory(TC) Factory addTestFactory: self address.
     }.
 
-    override method name => StringLiteral
+    override method name => ImmutableString
         := TestSelector.
 
     override method execute => Void := {

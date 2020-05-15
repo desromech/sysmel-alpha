@@ -20,7 +20,7 @@ class TextStreamWriter definition: {
     method nextPut: (character: Int32) ::=> Boolean8
 		:= self nextPut: (character castTo: Char32).
 
-    method nextPutAll: (string: Stdn StringLiteral) ::=> Boolean8 := {
+    method nextPutAll: (string: Stdn ImmutableString) ::=> Boolean8 := {
         (stream _ write: string [0] address size: string size) == (string size castTo: IntPointer)
     }.
 
@@ -139,7 +139,7 @@ class TextStreamWriter definition: {
     method << (character: Char32) => SelfType ref
         := self nextPut: character; yourself.
 
-    method << (string: Stdn StringLiteral) => SelfType ref
+    method << (string: Stdn ImmutableString) => SelfType ref
         := self nextPutAll: string; yourself.
 
     method << (bool: Boolean8) => SelfType ref

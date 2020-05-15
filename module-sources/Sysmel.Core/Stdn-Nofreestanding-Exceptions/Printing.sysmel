@@ -7,8 +7,8 @@ namespace IO definition: {
 
 Exception extend: {
     const virtual method printOnNativeTextStreamWriter: (writer: Stdn IO TextStreamWriter ref) ::=> Void := {
-        messageText ifNotNil: {
-            writer << messageText _
+        messageText elements ifNotNil: {
+            writer << messageText
         }
     }.
 }.
