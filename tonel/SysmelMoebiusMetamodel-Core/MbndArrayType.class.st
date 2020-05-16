@@ -47,6 +47,25 @@ MbndArrayType >> addInstanceMacros [
 		]
 ]
 
+{ #category : #'semantic analysis' }
+MbndArrayType >> analyzeConstructionWithArguments: argumentsTupleNode at: node with: analyzer [
+	| splicedTuple arrayConstructionNode |
+	splicedTuple := analyzer visitSplicingTupleNode: argumentsTupleNode.
+	splicedTuple isEmpty ifTrue: [
+		^ analyzer analyzeNodeIfNeeded: (self generateNewValueForNode: node with: analyzer astBuilder andWith: analyzer)
+	].
+
+	(elements isNil or: [ elements = 0 ]) ifFalse: [
+		splicedTuple size ~= elements ifTrue: [ 
+			^ self error: 'Parameters supplied ({1}) for constructing an array of type {2} does not match the required parameters count.' format: { splicedTuple size asString . self asString } at: node
+		]
+	].
+	arrayConstructionNode := (analyzer astBuilder constructArrayOf: elementType withElements: splicedTuple)
+		position: node;
+		yourself.
+	^ analyzer visitNode: arrayConstructionNode
+]
+
 { #category : #converting }
 MbndArrayType >> asFieldTypeFor: owner [
 	(owner isGarbageCollectedType and: [ elements = 0 ]) ifTrue: [

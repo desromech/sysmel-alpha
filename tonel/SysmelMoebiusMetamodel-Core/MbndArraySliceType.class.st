@@ -17,6 +17,14 @@ MbndArraySliceType >> accept: aVisitor [
 	^ aVisitor visitArraySliceType: self
 ]
 
+{ #category : #adding }
+MbndArraySliceType >> addDefaultConversionRules [
+	super addDefaultConversionRules.
+	self
+		addConversionRule: MbndArraySliceDecorationChangeTypeConversionRule new.
+
+]
+
 { #category : #initialization }
 MbndArraySliceType >> addFields [
 	| sizeType |

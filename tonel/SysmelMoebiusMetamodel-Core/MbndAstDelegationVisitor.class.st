@@ -38,6 +38,11 @@ MbndAstDelegationVisitor >> visitArrayElementReferenceNode: node [
 ]
 
 { #category : #visiting }
+MbndAstDelegationVisitor >> visitArraySliceDecorationChangeCastNode: node [
+	^ self delegateNodeVisit: node
+]
+
+{ #category : #visiting }
 MbndAstDelegationVisitor >> visitArraySliceElementReferenceNode: node [
 	^ self delegateNodeVisit: node
 ]

@@ -470,6 +470,14 @@ MbndAstSemanticAnalyzer >> ensureValue: valueNode isVectorOrScalarOfType: requir
 	]
 ]
 
+{ #category : #visiting }
+MbndAstSemanticAnalyzer >> ensureValueIsSpilledInReference: node [
+	(node type isReferenceType or: [ node type isTemporaryReferenceType ]) ifTrue: [ ^ node ].
+	^ self visitNode: (MbndAstCopyIntoTemporaryVariableNode new
+		value: node;
+		yourself)
+]
+
 { #category : #'compile time evaluation' }
 MbndAstSemanticAnalyzer >> evaluateCompileTimeExpression: compileTimeExpression [
 	^ MbndAstSemanticAnalyzerAndEvaluator new
@@ -723,6 +731,11 @@ MbndAstSemanticAnalyzer >> visitArrayConstructionNode: node [
 			position: node
 	].
 	
+	result type hasTrivialFinalization ifFalse: [ 
+		self addNodeWithImplicitFinalization: result
+	].
+
+	result type: result type tempRef.
 	^ result
 ]
 
@@ -730,14 +743,12 @@ MbndAstSemanticAnalyzer >> visitArrayConstructionNode: node [
 MbndAstSemanticAnalyzer >> visitArrayElementReferenceNode: node [
 	| result containerType arrayType elementType |
 	result := node copy
-		container: (self analyzeNodeIfNeeded: node container);
+		container: (self ensureValueIsSpilledInReference: (self analyzeNodeIfNeeded: node container));
 		index: (self ensureIntegerIndexValue: (self analyzeNodeIfNeeded: node index) at: node);
 		yourself.
 		
 	containerType := result container type.
-	containerType isReferenceType ifFalse: [
-		self error: 'An array reference is required for getting a refence to one of its elements.' at: node
-	].
+	self assert:(containerType isReferenceType or: [ containerType isTemporaryReferenceType ]).
 
 	arrayType := containerType baseType withoutDecorations.
 	arrayType isArrayType ifFalse: [

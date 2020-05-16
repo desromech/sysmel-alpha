@@ -1137,6 +1137,44 @@ function f cdecl (struct 'special.Int32 arraySlice')
 ]
 
 { #category : #tests }
+MbndSlovimCodeModuleGeneratorTest >> testArrayAsArraySlice6 [
+	| function |
+	self
+		evaluateSysmelSource: '
+function f externC(array: (Int32 array: 32) ref) => Int32 const arraySlice
+	:= array.';
+		generateSSAModule.
+
+	function := ssaModule globalNamed: #f.
+	self assert: function asFullSExpressionForTesting equals: #(
+function f cdecl (struct 'special.Int32 const arraySlice')
+	arguments (
+		(array (pointer (array i32 32) generic) ())
+	)
+	literals (
+	)
+	blocks (
+		(()
+			(nil jump void () () (block 2 body))
+		)
+		(()
+			(nil getElementPointer (pointer i32 generic) () ((local 0 array) (const i32 0) (const i64 0)))
+			(nil getElementPointer (pointer i32 generic) () ((local 2 nil) (const i64 0)))
+			(nil sub i64 () ((const i64 32) (const i64 0)))
+			(nil insertValue (struct 'special.Int32 arraySlice') () ((undef (struct 'special.Int32 arraySlice')) (local 3 nil)) (0))
+			(nil insertValue (struct 'special.Int32 arraySlice') () ((local 5 nil) (local 4 nil)) (1))
+			(nil extractValue (pointer i32 generic) () ((local 6 nil)) (0))
+			(nil insertValue (struct 'special.Int32 const arraySlice') () ((undef (struct 'special.Int32 const arraySlice')) (local 7 nil)) (0))
+			(nil extractValue u64 () ((local 6 nil)) (1))
+			(nil insertValue (struct 'special.Int32 const arraySlice') () ((local 8 nil) (local 9 nil)) (1))
+			(nil return void () ((local 10 nil)))
+		)
+	)
+
+	)
+]
+
+{ #category : #tests }
 MbndSlovimCodeModuleGeneratorTest >> testArrayConstantSubscriptAt [
 	| function |
 	self
@@ -1163,6 +1201,76 @@ function f cdecl (pointer i32 generic)
 			(nil return void () ((local 1 nil)))
 		)
 	)
+	)
+]
+
+{ #category : #tests }
+MbndSlovimCodeModuleGeneratorTest >> testArrayConstruction [
+	| function |
+	self
+		evaluateSysmelSource: '
+function f externC() => Int32
+	:= Int32 array(0, 2, 3)[1]';
+		generateSSAModule.
+
+	function := ssaModule globalNamed: #f.
+	self assert: function asFullSExpressionForTesting equals: #(
+function f cdecl i32
+	arguments (
+	)
+	literals (
+	)
+	blocks (
+		(()
+			(nil alloca (pointer (array i32 3) function) () ())
+			(nil jump void () () (block 2 body))
+		)
+		(()
+			(nil store void () ((constArray (array i32 3) ((const i32 0) (const i32 2) (const i32 3))) (local 0 nil)))
+			(nil getElementPointer (pointer i32 function) () ((local 0 nil) (const i32 0) (const i64 1)))
+			(nil load i32 () ((local 3 nil)))
+			(nil return void () ((local 4 nil)))
+		)
+	)
+
+	)
+]
+
+{ #category : #tests }
+MbndSlovimCodeModuleGeneratorTest >> testArrayConstruction2 [
+	| function |
+	self
+		evaluateSysmelSource: '
+function f externC(second: Int32) => Int32
+	:= Int32 array(0, second, 3)[1]';
+		generateSSAModule.
+
+	function := ssaModule globalNamed: #f.
+	self assert: function asFullSExpressionForTesting equals: #(
+function f cdecl i32
+	arguments (
+		(second i32 ())
+	)
+	literals (
+	)
+	blocks (
+		(()
+			(nil alloca (pointer (array i32 3) function) () ())
+			(nil jump void () () (block 2 body))
+		)
+		(()
+			(nil getElementPointer (pointer i32 function) () ((local 1 nil) (const i32 0) (const i32 0)))
+			(nil store void () ((const i32 0) (local 3 nil)))
+			(nil getElementPointer (pointer i32 function) () ((local 1 nil) (const i32 0) (const i32 1)))
+			(nil store void () ((local 0 second) (local 5 nil)))
+			(nil getElementPointer (pointer i32 function) () ((local 1 nil) (const i32 0) (const i32 2)))
+			(nil store void () ((const i32 3) (local 7 nil)))
+			(nil getElementPointer (pointer i32 function) () ((local 1 nil) (const i32 0) (const i64 1)))
+			(nil load i32 () ((local 9 nil)))
+			(nil return void () ((local 10 nil)))
+		)
+	)
+
 	)
 ]
 
@@ -9184,6 +9292,44 @@ function f cdecl (struct 'special.Int32 arraySlice')
 		)
 	)
 
+	)
+]
+
+{ #category : #tests }
+MbndSlovimCodeModuleGeneratorTest >> testPointerAsArraySlice5 [
+	| function |
+	self
+		evaluateSysmelSource: '
+function f externC(array: Int32 pointer) => Int32 const arraySlice
+	:= array from: 5 to: 10.';
+		generateSSAModule.
+
+	function := ssaModule globalNamed: #f.
+	self assert: function asFullSExpressionForTesting equals: #(
+function f cdecl (struct 'special.Int32 const arraySlice')
+	arguments (
+		(array (pointer i32 generic) ())
+	)
+	literals (
+	)
+	blocks (
+		(()
+			(nil jump void () () (block 2 body))
+		)
+		(()
+			(nil sub i64 () ((const i64 5) (const i64 1)))
+			(nil sub i64 () ((const i64 10) (const i64 1)))
+			(nil getElementPointer (pointer i32 generic) () ((local 0 array) (local 2 nil)))
+			(nil sub i64 () ((local 3 nil) (local 2 nil)))
+			(nil insertValue (struct 'special.Int32 arraySlice') () ((undef (struct 'special.Int32 arraySlice')) (local 4 nil)) (0))
+			(nil insertValue (struct 'special.Int32 arraySlice') () ((local 6 nil) (local 5 nil)) (1))
+			(nil extractValue (pointer i32 generic) () ((local 7 nil)) (0))
+			(nil insertValue (struct 'special.Int32 const arraySlice') () ((undef (struct 'special.Int32 const arraySlice')) (local 8 nil)) (0))
+			(nil extractValue u64 () ((local 7 nil)) (1))
+			(nil insertValue (struct 'special.Int32 const arraySlice') () ((local 9 nil) (local 10 nil)) (1))
+			(nil return void () ((local 11 nil)))
+		)
+	)
 	)
 ]
 

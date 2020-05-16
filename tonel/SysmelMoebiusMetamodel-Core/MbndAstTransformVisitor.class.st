@@ -72,6 +72,11 @@ MbndAstTransformVisitor >> visitArrayElementReferenceNode: node [
 ]
 
 { #category : #visiting }
+MbndAstTransformVisitor >> visitArraySliceDecorationChangeCastNode: node [
+	^ self visitSpecificCastNode: node
+]
+
+{ #category : #visiting }
 MbndAstTransformVisitor >> visitArraySliceElementReferenceNode: node [
 	^ node copy
 		container: (self visitNode: node container);

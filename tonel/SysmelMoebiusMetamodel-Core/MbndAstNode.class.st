@@ -128,6 +128,11 @@ MbndAstNode >> isArrayElementReferenceNode [
 ]
 
 { #category : #testing }
+MbndAstNode >> isArraySliceDecorationChangeCastNode [
+	^ false
+]
+
+{ #category : #testing }
 MbndAstNode >> isArraySliceElementReferenceNode [
 	^ false
 ]

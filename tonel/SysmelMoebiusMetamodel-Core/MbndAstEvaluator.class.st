@@ -48,12 +48,18 @@ MbndAstEvaluator >> scope: anObject [
 { #category : #visiting }
 MbndAstEvaluator >> visitArrayConstructionNode: node [
 	| result |
-	result := node type defaultValueAt: node.
+	self assert: node type isTemporaryReferenceType.
+	result := node type baseType defaultValueAt: node.
 	
 	node elements doWithIndex: [ :el :index |
 		result slots at: index put: (self visitNode: el) unwrapMbndValue
 	].
 	^ result
+]
+
+{ #category : #visiting }
+MbndAstEvaluator >> visitArraySliceDecorationChangeCastNode: node [
+	self halt
 ]
 
 { #category : #visiting }

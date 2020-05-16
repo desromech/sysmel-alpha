@@ -35,6 +35,11 @@ MbndAstVisitor >> visitArrayElementReferenceNode: node [
 ]
 
 { #category : #visiting }
+MbndAstVisitor >> visitArraySliceDecorationChangeCastNode: node [
+	self subclassResponsibility
+]
+
+{ #category : #visiting }
 MbndAstVisitor >> visitArraySliceElementReferenceNode: node [
 	self subclassResponsibility
 ]

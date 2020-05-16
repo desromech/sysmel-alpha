@@ -2234,6 +2234,29 @@ MbndSlovimFunctionCodeGenerator >> vectorThreeWayComparisonResultMerge: elementW
 ]
 
 { #category : #visiting }
+MbndSlovimFunctionCodeGenerator >> visitArrayConstructionNode: node [
+	| elements tempVar arrayType slvmArrayType |
+	elements := self visitNodesAndCollect: node elements.
+	self assert: node type isTemporaryReferenceType.
+	arrayType := node type baseType.
+	slvmArrayType := self translateType: arrayType.
+	tempVar := self allocateTemporaryStorageFor: slvmArrayType withStorageCreationNode: node storageCreationNode.
+	elements doWithIndex: [ :element :index |
+		| destPointer sourceElementType |
+		sourceElementType := (node elements at: index) type.
+		destPointer := slvmBuilder getReference: tempVar element: (slvmBuilder constInt: index - 1).
+		self generateVariable: destPointer withValueType: arrayType elementType initializationWithValue: element
+			initialValueKind: (sourceElementType isTemporaryReferenceType ifTrue: [#move] ifFalse: [#copy])
+	].
+
+	arrayType hasTrivialFinalization ifFalse: [ 
+		self addLocalVariable: tempVar withValueType: arrayType cleanUpActionForNode: node
+	].
+
+	^ tempVar
+]
+
+{ #category : #visiting }
 MbndSlovimFunctionCodeGenerator >> visitArrayElementReferenceNode: node [
 	| pointer index arrayType |
 	pointer := self visitNode: node container.
@@ -2250,6 +2273,16 @@ MbndSlovimFunctionCodeGenerator >> visitArrayElementReferenceNode: node [
 	].
 
 	^ slvmBuilder getReference: pointer element: index
+]
+
+{ #category : #visiting }
+MbndSlovimFunctionCodeGenerator >> visitArraySliceDecorationChangeCastNode: node [
+	| sourceSlice targetSlice |
+	sourceSlice := self visitNode: node expression.
+	targetSlice := SLVMConstant undefined: (self translateType: node type).
+	targetSlice := slvmBuilder insertValue: targetSlice value: (slvmBuilder extractValue: sourceSlice indices: {0}) indices: {0}.
+	targetSlice := slvmBuilder insertValue: targetSlice value: (slvmBuilder extractValue: sourceSlice indices: {1}) indices: {1}.
+	^ targetSlice
 ]
 
 { #category : #visiting }
@@ -3167,7 +3200,7 @@ MbndSlovimFunctionCodeGenerator >> visitPointerReinterpretCastNode: node [
 
 { #category : #visiting }
 MbndSlovimFunctionCodeGenerator >> visitPointerToArraySliceNode: node [
-	| pointer firstIndex lastIndex size result |
+	| pointer firstIndex lastIndex size result sliceType sizeType |
 	pointer := self visitNode: node pointer.
 	firstIndex := self visitNode: node firstIndex.
 	lastIndex := self visitNode: node lastIndex.
@@ -3177,9 +3210,11 @@ MbndSlovimFunctionCodeGenerator >> visitPointerToArraySliceNode: node [
 		lastIndex := slvmBuilder sub: lastIndex with: (SLVMConstant type: lastIndex type value: 1).
 	].
 
+	sliceType := self translateType: node type.
+	sizeType := sliceType types second.
 	pointer := slvmBuilder getPointer: pointer element: { firstIndex }.
-	size := slvmBuilder sub: lastIndex with: firstIndex.
-	result := SLVMConstant undefined: (self translateType: node type).
+	size := slvmBuilder sub: (slvmBuilder intCast: lastIndex target: sizeType) with: (slvmBuilder intCast: firstIndex target: sizeType).
+	result := SLVMConstant undefined: sliceType.
 	result := slvmBuilder insertValue: result value: pointer indices: { 0 }.
 	result := slvmBuilder insertValue: result value: size indices: { 1 }.
 	^ result

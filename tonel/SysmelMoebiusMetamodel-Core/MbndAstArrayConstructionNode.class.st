@@ -3,7 +3,8 @@ Class {
 	#superclass : #MbndAstNode,
 	#instVars : [
 		'elementType',
-		'elements'
+		'elements',
+		'storageCreationNode'
 	],
 	#category : #'SysmelMoebiusMetamodel-Core-AST'
 }
@@ -38,6 +39,7 @@ MbndAstArrayConstructionNode >> encodeFieldsForMessagePackWith: graphEncoder [
 	^ {
 		#elementType . elementType encodeGraphForMessagePackWith: graphEncoder.
 		#elements . elements encodeGraphForMessagePackWith: graphEncoder.
+		#storageCreationNode . storageCreationNode encodeGraphForMessagePackWith: graphEncoder.
 	} , (super encodeFieldsForMessagePackWith: graphEncoder)
 ]
 
@@ -46,9 +48,25 @@ MbndAstArrayConstructionNode >> isArrayConstructionNode [
 	^ true
 ]
 
+{ #category : #'as yet unclassified' }
+MbndAstArrayConstructionNode >> markStorageCreationNodeForCopyEllision: aStorageCreationNode [
+	storageCreationNode := aStorageCreationNode
+]
+
 { #category : #serialization }
 MbndAstArrayConstructionNode >> materializeWithGraphDecoder: graphDecoder withFields: encodedFields [
 	super materializeWithGraphDecoder: graphDecoder withFields: encodedFields.
 	elementType := encodedFields at: #elementType.
 	elements := encodedFields at: #elements.
+	storageCreationNode := encodedFields at: #storageCreationNode.
+]
+
+{ #category : #accessing }
+MbndAstArrayConstructionNode >> storageCreationNode [
+	^ storageCreationNode
+]
+
+{ #category : #accessing }
+MbndAstArrayConstructionNode >> storageCreationNode: anObject [
+	storageCreationNode := anObject
 ]
