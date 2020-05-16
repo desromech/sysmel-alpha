@@ -21,9 +21,6 @@ enum BlendingFactor valueType: UInt8; values: #{
     Source1Alpha: 18.
     Inverted1SourceAlpha: 19.
 }; definition: {
-    const inline method hash => Stdn Hash
-        := self value hash.
-        
     inline method evaluateColorWithSource: (source: Float32x4) destination: (destination: Float32x4)
         constantFactor: (constantFactor: Float32x4) alternateSource: (alternateSource: Float32x4) ::=> Float32x3 := {
         self selectCase: #{

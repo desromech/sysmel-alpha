@@ -6,7 +6,7 @@ namespace Core definition: {
  * I am a CPU software based rasterization drawing surface. My drawing is based on bitblit,
  * I am slower than a GPU based surface, but I have zero overhead on direct accesses from the CPU.
  *#
-class CPUSurface superclass: Surface; definition: {
+class SoftSurface superclass: Surface; definition: {
     public field pixelsBlitter type: Blitter.
 
     override method beginDrawingWithCanvas => Canvas uniquePointer := {
@@ -14,7 +14,7 @@ class CPUSurface superclass: Surface; definition: {
             return: Canvas uniquePointer nil.
         }.
 
-        let result := CPUCanvas nativeNew _
+        let result := SoftCanvas nativeNew _
             initializeWithSurface: self address;
             address.
 
@@ -22,7 +22,7 @@ class CPUSurface superclass: Surface; definition: {
     }.
 
     override method renderingDriver => RenderingDriver pointer
-        := CPURenderingDriver uniqueInstance getPointer.
+        := SoftRenderingDriver uniqueInstance getPointer.
 
     virtual method beginDrawing => Boolean8
         := false.

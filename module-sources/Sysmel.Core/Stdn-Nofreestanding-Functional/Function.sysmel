@@ -30,6 +30,14 @@ template Function(FT: Type)
     field type type: WrapperType.
     field inlineStorage type: InlineStorageType.
 
+    method initializeCopyingFrom: (other: SelfType const ref) ::=> Void := {
+        self := other.
+    }.
+
+    method initializeMovingFrom: (other: SelfType tempRef) ::=> Void := {
+        self := other.
+    }.
+
     (method := (blockClosure: NativeStackBlockClosureType)) => SelfType ref := {
         self finalize.
 
@@ -108,7 +116,25 @@ template Function(FT: Type)
     }.
 
     (method := (other: SelfType const ref)) ::=> SelfType ref := {
-        Stdn stdout << "TODO: Assign Stdn::Function to Stdn::Function"; nl.
+        self address ~~ other address ifTrue: {
+            other __private type selectCase: #{
+            WrapperType InlineNativeClosure : {
+                let closure := other __private inlineStorage[0] address reinterpretCastTo: NativeStackBlockClosureType.
+                self := closure.
+                void.
+            }.
+
+            WrapperType HeapNativeClosure : {
+                let closure := other __private inlineStorage[0] reinterpretCastTo: NativeStackBlockClosureType.
+                self := closure.
+                void.
+            }.
+            _ : {
+                error: "Unsupported function wrapper type for copy assignment."
+            }
+            }.
+        }.
+
         self
     }.
 

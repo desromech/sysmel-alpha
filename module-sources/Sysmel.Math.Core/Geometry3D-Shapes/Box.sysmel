@@ -1,0 +1,106 @@
+namespace Stdn definition: {
+namespace Math definition: {
+namespace Geometry definition: {
+
+sealed template GenericBox(ST: Type)
+    := class superclass: GenericGeometricShape(ST); definition: {
+    public field min type: Vector3.
+    public field max type: Vector3.
+
+    meta definition: {
+        const inline method min: (theMinCorner: Vector3) max: (theMaxCorner: Vector3) ::=> Box
+            := Box basicNewValue min: theMinCorner; max: theMaxCorner; yourself.
+
+        const inline method empty ::=> Box
+            := self min: Vector3 infinityOrMaxValue max: Vector3 negativeInfinityOrMinValue.
+
+        const inline method fullSpace ::=> Box
+            := self min: Vector3 negativeInfinityOrMinValue max: Vector3 infinityOrMaxValue.
+
+        const inline method center: (theCenter: Vector3) halfExtent: (theHalfExtent: Vector3) ::=> Box
+            := self min: theCenter - theHalfExtent max: theCenter + theHalfExtent.
+
+        const inline method center: (theCenter: Vector3) extent: (theExtent: Vector3) ::=> Box
+            := self center: theCenter halfExtent: theExtent / 2.
+
+        const inline method extent: (theExtent: Vector3) ::=> Box
+            := self min: Vector3 zeros max: theExtent.
+
+        const inline method min: (theMinCorner: Vector3) extent: (theExtent: Vector3) ::=> Box
+            := self min: theMinCorner max: theMinCorner + theExtent.
+
+        const inline method point: (thePoint: Vector3) ::=> Box
+            := self min: thePoint max: thePoint.
+    }.
+
+    const inline method hash => Stdn Hash
+        := min hash ^ max hash.
+
+    const inline method = (other: SelfType const ref) ::=> Boolean8
+        := min = other min && max = other max.
+
+    const inline method ~= (other: SelfType const ref) ::=> Boolean8
+        := min ~= other min || max ~= other max.
+
+    const inline method center => Vector3
+        := min + (max - min) / (2 castTo: Scalar).
+
+    const inline method halfExtent => Vector3
+        := (max - min) / (2 castTo: Scalar).
+
+    const inline method extent => Vector3
+        := max - min.
+
+    const inline method translatedBy: (translation: Vector3) ::=> SelfType
+        := SelfType min: min + translation max: max + translation.
+
+    const inline method isEmpty ::=> Boolean8
+        := min x > max x || min y > max y || min z > max z.
+
+    const inline method includesPoint: (point: Vector3) ::=> Boolean8
+        := (min x <= point x && point x <= max x) &&
+           (min y <= point y && point y <= max y) &&
+           (min z <= point z && point z <= max z).
+
+    const inline method includesBox: (other: Box const ref) ::=> Boolean8
+        := (min x <= other min x && other max x <= max x) &&
+           (min y <= other min y && other max y <= max y) &&
+           (min y <= other min z && other max z <= max z).
+
+    const inline method includesPointExclusively: (point: Vector3) ::=> Boolean8
+        := (min x <= point x && point x < max x) &&
+           (min y <= point y && point y < max y) &&
+           (min z <= point z && point z < max z).
+
+    const inline method includesBoxExclusively: (other: Box const ref) ::=> Boolean8
+        := (min x <= other min x && other max x < max x) &&
+           (min y <= other min y && other max y < max y) &&
+           (min z <= other min z && other max z < max z).
+
+    const inline method intersectionWith: (other: Box const ref) ::=> SelfType
+        := SelfType min: (min max: other min) max: (max min: other max).
+
+    const inline method unionWith: (other: Box const ref) ::=> SelfType
+        := SelfType min: (min min: other min) max: (max max: other max).
+
+    const inline method unionWith: (other: Vector3 const ref) ::=> SelfType
+        := SelfType min: (min min: other) max: (max max: other).
+
+    const inline method asBoxI32 => BoxI32
+        := BoxI32 min: (min castTo: Int32x3) max: (max castTo: Int32x3).
+
+    const inline method asBoxF32 => BoxF32
+        := BoxF32 min: (min castTo: Float32x3) max: (max castTo: Float32x3).
+
+    const inline method asBoxF64 => BoxF64
+        := BoxF64 min: (min castTo: Float64x3) max: (max castTo: Float64x3).
+
+}.
+
+compileTime constant BoxI32 := GenericBox(Int32).
+compileTime constant BoxF32 := GenericBox(Float32).
+compileTime constant BoxF64 := GenericBox(Float64).
+
+} ## End of namespace Geometry
+} ## End of namespace Math
+} ## End of namespace Stdn

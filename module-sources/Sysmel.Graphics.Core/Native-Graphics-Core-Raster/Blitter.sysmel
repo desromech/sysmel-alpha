@@ -243,10 +243,25 @@ class Blitter definition: {
 
     const inline method setAllPixelsToColor: (color: Float32x4) ::=> Void := {
         clippedBounds = self bounds &&
-        ((color == Float32x4 zeros) || (color == Float32x4 ones && bytesPerPixel <= 4)) &&
+        (color r == color g && color g == color b && color b == color a && bytesPerPixel = 4) &&
         pitch >= 0 ifTrue: {
-            let pattern := color == Float32x4 zeros ifTrue: 0 ifFalse: -1.
-            Stdn memset(pixels, pattern, pitch * extent y castTo: UIntPointer)
+            let encodedPattern mutable type: UInt32.
+            pixelFormat store: color intoMemory: (encodedPattern address reinterpretCastTo: UInt8 pointer).
+            let wordCount := (pitch * extent y) / 4.
+            (wordCount % 16 == 0) && ((pixels reinterpretCastTo: UIntPointer) % 16 == 0) ifTrue: {
+                let vectorCount := wordCount / 4.
+                let dest := pixels reinterpretCastTo: UInt32x4 pointer.
+                let vectorPattern := UInt32x4(encodedPattern, encodedPattern, encodedPattern, encodedPattern).
+                0 until: vectorCount do: {:i :: Void |
+                    dest[i] := vectorPattern
+                }.
+            } ifFalse: {
+                let dest := pixels reinterpretCastTo: UInt32 pointer.
+                0 until: wordCount do: {:i :: Void |
+                    dest[i] := encodedPattern
+                }.
+
+            }.
         } ifFalse: {
             self setRectangle: self bounds pixelsTo: color
         }.

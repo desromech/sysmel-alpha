@@ -7,7 +7,7 @@ namespace Core definition: {
  * interfacing with bitmaps allocated by an external library such as the native
  * operating system window surface.
  *#
-class ExternalSurface superclass: CPUSurface; definition: {
+class ExternalSurface superclass: SoftSurface; definition: {
 }.
 
 }. ## End of namespace Core

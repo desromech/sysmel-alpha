@@ -1,14 +1,30 @@
 ## 3D rendering types.
-loadFileOnce: "CompareFunction.sysmel".
-loadFileOnce: "StencilOperation.sysmel".
-loadFileOnce: "VertexAttributeDescription.sysmel".
+loadFileOnce: "AccessMask.sysmel".
+loadFileOnce: "BufferDescription.sysmel".
+loadFileOnce: "BufferImageCopyRegion.sysmel".
 loadFileOnce: "BufferMappingFlags.sysmel".
 loadFileOnce: "BufferUsageMode.sysmel".
+loadFileOnce: "CompareFunction.sysmel".
+loadFileOnce: "ComputePipelineStateDescription.sysmel".
+loadFileOnce: "DepthStencilValue.sysmel".
+loadFileOnce: "GraphicsPipelineStateDescription.sysmel".
 loadFileOnce: "MemoryHeapType.sysmel".
+loadFileOnce: "PipelineStageMask.sysmel".
+loadFileOnce: "PrimitiveTopology.sysmel".
+loadFileOnce: "RenderPassAttachmentAction.sysmel".
+loadFileOnce: "RenderPassColorAttachmentDescription.sysmel".
+loadFileOnce: "RenderPassDepthStencilAttachmentDescription.sysmel".
+loadFileOnce: "SamplerDescription.sysmel".
+loadFileOnce: "ShaderSignatureDescription.sysmel".
+loadFileOnce: "StencilOperation.sysmel".
+loadFileOnce: "TextureAddressMode.sysmel".
+loadFileOnce: "TextureAspect.sysmel".
+loadFileOnce: "TextureDescription.sysmel".
+loadFileOnce: "TextureFilter.sysmel".
+loadFileOnce: "TextureSubResourceRange.sysmel".
 loadFileOnce: "TextureType.sysmel".
 loadFileOnce: "TextureUsageMode.sysmel".
-loadFileOnce: "BufferDescription.sysmel".
-loadFileOnce: "TextureDescription.sysmel".
+loadFileOnce: "VertexAttributeDescription.sysmel".
 
 ## 3D rendering handles
 loadFileOnce: "VertexLayout.sysmel".
@@ -16,9 +32,10 @@ loadFileOnce: "VertexBinding.sysmel".
 loadFileOnce: "Buffer.sysmel".
 loadFileOnce: "Texture.sysmel".
 loadFileOnce: "Framebuffer.sysmel".
-loadFileOnce: "Renderpass.sysmel".
+loadFileOnce: "RenderPass.sysmel".
+loadFileOnce: "Sampler.sysmel".
 loadFileOnce: "ShaderBindingType.sysmel".
-loadFileOnce: "ShaderResourceBinding.sysmel".
+loadFileOnce: "ShaderResourceBindings.sysmel".
 loadFileOnce: "ShaderSignature.sysmel".
 loadFileOnce: "ShaderSignatureBuilder.sysmel".
 loadFileOnce: "PipelineState.sysmel".
@@ -28,4 +45,4 @@ loadFileOnce: "CommandListAllocator.sysmel".
 loadFileOnce: "CommandList.sysmel".
 loadFileOnce: "CommandListType.sysmel".
 loadFileOnce: "CommandQueue.sysmel".
-loadFileOnce: "RenderingDriver.sysmel".
+loadFileOnce: "RenderingDevice.sysmel".

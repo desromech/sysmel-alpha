@@ -4,13 +4,15 @@ namespace Core definition: {
 
 #**
  * I am an abstract rendering driver. I am typically used as a factory for generating
- * device dependant objects such textures and drawing surfaces.
  *#
-RenderingDriver extend: {
+RenderingDevice extend: {
     abstract method createShaderSignatureBuilder ::=> ShaderSignatureBuilderPtr.
 
     abstract method createBuffer: (description: BufferDescription const ref) initialData: (initialData: Void const pointer) ::=> BufferPtr.
     abstract method createTexture: (description: TextureDescription const ref) ::=> TexturePtr.
+    abstract method createSampler: (description: SamplerDescription const ref) ::=> SamplerPtr.
+    abstract method createComputePipelineState: (description: ComputePipelineStateDescription const ref) ::=> PipelineStatePtr.
+    abstract method createGraphicsPipelineState: (description: GraphicsPipelineStateDescription const ref) ::=> PipelineStatePtr.
 
     abstract method createVertexLayout => VertexLayoutPtr.
     abstract method createVertexBindingFor: (layout: VertexLayout sharedPointer const ref) ::=> VertexBindingPtr.
@@ -19,8 +21,17 @@ RenderingDriver extend: {
     abstract method createCommandListOfType: (type: CommandListType) for: (allocator: CommandListAllocatorPtr const ref) initialPipelineState: (initialPipeline: PipelineStatePtr const ref) ::=> CommandListPtr.
     abstract method getDefaultCommandQueue => CommandQueuePtr.
 
+    abstract method createFramebuffer: (extent: UInt32x2) colorViews: (colorViews: TextureViewPtr const arraySlice) depthStencilView: (depthStencilView: TextureViewPtr const ref) ::=> FramebufferPtr.
+    abstract method createRenderPass: (colorAttachment: RenderPassColorAttachmentDescription const arraySlice) depthStencilAttachment: (depthAttachment: RenderPassDepthStencilAttachmentDescription const pointer) ::=> RenderPassPtr.
+
     virtual method createCommandListOfType: (type: CommandListType) for: (allocator: CommandListAllocatorPtr const ref) ::=> CommandListPtr
-        := self createCommandListOfType: type for: allocator initialPipelineState: PipelineStatePtr nil
+        := self createCommandListOfType: type for: allocator initialPipelineState: PipelineStatePtr nil.
+
+    abstract method hasTopLeftNdcOrigin => Boolean8.
+    abstract method hasBottomLeftTextureCoordinates => Boolean8.
+
+    virtual method shouldInvertProjectionY => Boolean8
+        := self hasTopLeftNdcOrigin ~= self hasBottomLeftTextureCoordinates.
 }.
 
 }. ## End of namespace Core

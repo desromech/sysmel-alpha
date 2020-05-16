@@ -5,7 +5,7 @@ namespace Core definition: {
 #**
  * I am a form based drawing surface. I am useful for rasterizing into a CPU held form.
  *#
-class FormSurface superclass: CPUSurface; definition: {
+class FormSurface superclass: SoftSurface; definition: {
     public field form type: Form sharedPointer.
 
     meta definition: {

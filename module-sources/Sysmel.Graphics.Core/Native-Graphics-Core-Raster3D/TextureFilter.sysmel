@@ -1,0 +1,24 @@
+namespace Stdn definition: {
+namespace Graphics definition: {
+namespace Core definition: {
+
+#**
+ * Texture filter.
+ * The values of these constants are the same as the ones that exposed in agpu.
+ *#
+enum TextureFilter bitMask; valueType: UInt8; values: #{
+    MipmapNearest: 0.
+    MipmapLinear: 1.
+
+    MagNearest: 0.
+    MagLinear: 4.
+
+    MinNearest: 0.
+    MinLinear: 16r10.
+
+    Anisotropic: 16r55.
+}.
+
+}. ## End of namespace Core
+}. ## End of namespace Graphics
+}. ## End of namespace Stdn

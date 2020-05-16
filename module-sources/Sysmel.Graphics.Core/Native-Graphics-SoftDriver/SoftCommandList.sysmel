@@ -1,0 +1,193 @@
+namespace Stdn definition: {
+namespace Graphics definition: {
+namespace Core definition: {
+
+useNamespace: Stdn Math Geometry.
+
+struct SoftCommandListExecutionState definition: {
+    public field renderPassExecutionContext type: SoftRenderPassExecutionContext.
+}.
+
+#**
+ * I am a CPU only implementation for a graphics list.
+ *#
+class SoftCommandList superclass: CommandList; definition: {
+    compileTime constant QueuedCommandFunction := Stdn Function(SoftCommandListExecutionState ref => Void).
+    public field commandListType type: CommandListType.
+    protected field commands type: Stdn Collections Vector(QueuedCommandFunction).
+
+    override method resetFor: (allocator: CommandListAllocatorPtr const ref) initialPipelineState: (initialPipeline: PipelineStatePtr const ref) ::=> Void := {
+        commands removeAll
+    }.
+
+    override method close => Void := {
+
+    }.
+
+    method addCommand: (commandFunction: (SoftCommandListExecutionState ref => Void) nativeBlockClosure) ::=> Void := {
+        let functionObject mutable type: QueuedCommandFunction.
+        functionObject := commandFunction.
+        commands add: functionObject
+    }.
+
+    override method useShaderSignature: (shaderSignature: ShaderSignaturePtr const ref) ::=> Void := {
+
+    }.
+
+    override method setViewport: (rectangle: RectangleI32) ::=> Void := {
+
+    }.
+
+    override method setScissor: (rectangle: RectangleI32) ::=> Void := {
+
+    }.
+
+    override method usePipelineState: (pipelineState: PipelineStatePtr const ref) ::=> Void := {
+
+    }.
+
+    override method useVertexBinding: (vertexBinding: VertexBindingPtr const ref) ::=> Void := {
+
+    }.
+
+    override method useIndexBuffer: (buffer: BufferPtr const ref) ::=> Void := {
+
+    }.
+
+    override method useIndexBuffer: (buffer: BufferPtr const ref) at: (offset: UIntPointer) stride: (stride: UIntPointer) ::=> Void := {
+
+    }.
+
+    override method useDrawIndirectBuffer: (buffer: BufferPtr const ref) ::=> Void := {
+
+    }.
+
+    override method useComputeDispatchIndirectBuffer: (buffer: BufferPtr const ref) ::=> Void := {
+
+    }.
+
+    override method useGraphicShaderBindings: (resourcesBinding: ShaderResourceBindingsPtr const ref) ::=> Void := {
+
+    }.
+
+    override method useComputeShaderBindings: (resourcesBinding: ShaderResourceBindingsPtr const ref) ::=> Void := {
+
+    }.
+
+    override method drawArrays: (vertexCount: UInt32) instanceCount: (instanceCount: UInt32) firstVertex: (firstVertex: UInt32) baseInstance: (baseInstance: UInt32) ::=> Void := {
+
+    }.
+
+    override method drawArraysIndirect: (offset: UIntPointer) drawCount: (drawCount: UIntPointer) ::=> Void := {
+
+    }.
+
+    override method drawElements: (indexCount: UInt32) instanceCount: (instanceCount: UInt32) firstIndex: (firstVertex: UInt32) baseVertex: (baseVertex: UInt32) baseInstance: (baseInstance: UInt32) ::=> Void := {
+
+    }.
+
+    override method drawElementsIndirect: (offset: UIntPointer) drawCount: (drawCount: UIntPointer) ::=> Void := {
+
+    }.
+
+    override method dispatchCompute: (groupCount: UInt32x3) ::=> Void := {
+
+    }.
+
+    override method dispatchComputeIndirect: (offset: UInt32x3) ::=> Void := {
+
+    }.
+
+    override method setStencilReference: (reference: UInt32) ::=> Void := {
+
+    }.
+
+    override method executeBundle: (bundle: CommandList sharedPointer const ref) ::=> Void := {
+
+    }.
+
+
+    override method beginRenderPass: (renderPass: RenderPassPtr const ref) on: (framebuffer: FramebufferPtr const ref) contentOnBundle: (contentOnBundle: Boolean8) ::=> Void := {
+        let softRenderPass := renderPass getPointer castTo: SoftRenderPass pointer.
+        let softFramebuffer := framebuffer getPointer castTo: SoftFramebuffer pointer.
+        softRenderPass isNil || softFramebuffer isNil ifTrue: {return: void}.
+
+        self addCommand: (function (state: SoftCommandListExecutionState ref) => Void := {
+            state renderPassExecutionContext := softRenderPass _ beginExecutionOn: softFramebuffer _
+        }).
+
+    }.
+
+    override method endRenderPass ::=> Void := {
+        self addCommand: (function (state: SoftCommandListExecutionState ref) => Void := {
+            state renderPassExecutionContext endExecution.
+        }).
+
+    }.
+
+    override method resolveFramebuffer: (source: FramebufferPtr const ref) into: (destination: FramebufferPtr const ref) ::=> Void := {
+
+    }.
+
+    override method resolveTexture: (source: TexturePtr const ref) level: (sourceLevel: UInt32) layer: (sourceLayer: UInt32)
+        into: (destination: TexturePtr const ref) level: (destinationLevel: UInt32) layer: (destinationLayer: UInt32)
+        aspect: (aspect: TextureAspect) ::=> Void := {
+
+    }.
+
+    override method pushConstants: (values: UInt8 const pointer) size: (size: UInt32) at: (offset: UInt32) ::=> Void := {
+
+    }.
+
+    override method memoryBarrierFrom: (sourceStage: PipelineStageMask) accesses: (sourceAccesses: AccessMask) to: (destStage: PipelineStageMask) accesses: (destAccesses: AccessMask) ::=> Void := {
+
+    }.
+
+    override method buffer: (buffer: BufferPtr const ref) offset: (offset: UIntPointer) size: (size: UIntPointer) memoryBarrierFrom: (sourceStage: PipelineStageMask) accesses: (sourceAccesses: AccessMask) to: (destStage: PipelineStageMask) accesses: (destAccesses: AccessMask) ::=> Void := {
+
+    }.
+
+    override method texture: (texture: TexturePtr const ref) subresourceRange: (subresourceRange: TextureSubResourceRange) memoryBarrierFrom: (sourceStage: PipelineStageMask) accesses: (sourceAccesses: AccessMask) to: (destStage: PipelineStageMask) accesses: (destAccesses: AccessMask) ::=> Void := {
+
+    }.
+
+    override method pushBuffer: (buffer: BufferPtr const ref) transitionBarrierInto: (newUsageMode: BufferUsageMode) ::=> Void := {
+
+    }.
+
+    override method texture: (texture: TexturePtr const ref) subresourceRange: (subresourceRange: TextureSubResourceRange) transitionBarrierInto: (newUsageMode: TextureUsageMode) ::=> Void := {
+
+    }.
+
+    override method popBufferTransitionBarrier ::=> Void := {
+
+    }.
+
+    override method popTextureTransitionBarrier ::=> Void := {
+
+    }.
+
+    override method copyFromBuffer: (sourceBuffer: BufferPtr const ref) offset: (sourceOffset: UIntPointer) into: (destBuffer: BufferPtr const ref) offset: (destOffset: UIntPointer) size: (copySize: UIntPointer) ::=> Void := {
+
+    }.
+
+    override method copyFromBuffer: (sourceBuffer: BufferPtr const ref) intoTexture: (destTexture: TexturePtr const ref) region: (copyRegion: BufferImageCopyRegion) ::=> Void := {
+
+    }.
+
+    override method copyFromTexture: (sourceTexture: TexturePtr const ref) intoBuffer: (destBuffer: BufferPtr const ref) region: (copyRegion: BufferImageCopyRegion) ::=> Void := {
+
+    }.
+
+
+    method executeAllCommands => Void := {
+        let executionState mutable type: SoftCommandListExecutionState.
+        commands do: {:each :: Void|
+            each(executionState)
+        }
+    }.
+}.
+
+}. ## End of namespace Core
+}. ## End of namespace Graphics
+}. ## End of namespace Stdn

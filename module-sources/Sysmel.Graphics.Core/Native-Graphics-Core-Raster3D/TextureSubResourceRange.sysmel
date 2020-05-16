@@ -1,0 +1,18 @@
+namespace Stdn definition: {
+namespace Graphics definition: {
+namespace Core definition: {
+
+#**
+ * Texture description.
+ *#
+struct TextureSubResourceRange definition: {
+    public field usageMode type: TextureUsageMode.
+    public field baseMipLevel type: UInt32.
+    public field levelCount type: UInt32.
+    public field baseArrayLayer type: UInt32.
+    public field layerCount type: UInt32.
+}.
+
+}. ## End of namespace Core
+}. ## End of namespace Graphics
+}. ## End of namespace Stdn

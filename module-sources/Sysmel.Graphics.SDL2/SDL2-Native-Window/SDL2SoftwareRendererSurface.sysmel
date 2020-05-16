@@ -5,7 +5,7 @@ namespace GUI definition: {
 useNamespace: Stdn Graphics Core.
 useNamespace: SDL2.
 
-class SDL2SoftwareRendererSurface superclass: CPUSurface; definition: {
+class SDL2SoftwareRendererSurface superclass: SoftSurface; definition: {
     protected field window type: SDL2Window pointer.
     protected field rendererHandle type: SDL_Renderer pointer.
     protected field textureHandle type: SDL_Texture pointer.

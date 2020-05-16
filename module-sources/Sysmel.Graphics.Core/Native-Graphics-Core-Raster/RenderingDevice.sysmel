@@ -1,0 +1,22 @@
+namespace Stdn definition: {
+namespace Graphics definition: {
+namespace Core definition: {
+
+class AbstractSurface.
+class TextureView.
+class Surface.
+
+#**
+ * I am an abstract rendering device. I am typically used as a factory for generating
+ * device dependant objects such textures and drawing surfaces.
+ *#
+class RenderingDevice superclass: RenderingDriverObjectHandle; definition: {
+    virtual method isCPURenderingDevice => Boolean8
+        := false.
+}.
+
+compileTime constant RenderingDevicePtr := RenderingDevice sharedPointer.
+
+}. ## End of namespace Core
+}. ## End of namespace Graphics
+}. ## End of namespace Stdn

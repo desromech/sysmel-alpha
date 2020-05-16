@@ -1,0 +1,19 @@
+namespace Stdn definition: {
+namespace Graphics definition: {
+namespace Core definition: {
+
+#**
+ * Texture address mode.
+ * The values of these constants are the same as the ones that exposed in agpu.
+ *#
+enum TextureAddressMode valueType: UInt8; values: #{
+    Wrap: 1.
+    Mirror: 2.
+    Clamp: 3.
+    Border: 4.
+    MirrorOnce: 5.
+}.
+
+}. ## End of namespace Core
+}. ## End of namespace Graphics
+}. ## End of namespace Stdn

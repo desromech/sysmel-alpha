@@ -3,10 +3,12 @@ namespace Graphics definition: {
 namespace Core definition: {
 
 #**
- * I am a CPU only implementation for a shader resource binding.
+ * I am a handle for a sampler.
  *#
-class SoftShaderResourceBinding superclass: ShaderResourceBinding; definition: {
+class Sampler superclass: RenderingDriverObjectHandle; definition: {
 }.
+
+compileTime constant SamplerPtr := Sampler sharedPointer.
 
 }. ## End of namespace Core
 }. ## End of namespace Graphics

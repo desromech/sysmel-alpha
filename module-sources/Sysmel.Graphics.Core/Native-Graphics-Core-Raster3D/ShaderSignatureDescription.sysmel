@@ -1,0 +1,14 @@
+namespace Stdn definition: {
+namespace Graphics definition: {
+namespace Core definition: {
+
+#**
+ * Shader signature description.
+ *#
+struct ShaderSignatureDescription definition: {
+
+}.
+
+}. ## End of namespace Core
+}. ## End of namespace Graphics
+}. ## End of namespace Stdn

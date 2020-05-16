@@ -1,0 +1,17 @@
+namespace Stdn definition: {
+namespace Graphics definition: {
+namespace Core definition: {
+
+#**
+ * Render pass attachment action
+ * The values of these constants are the same as the ones that exposed in agpu.
+ *#
+enum RenderPassAttachmentAction valueType: UInt8; values: #{
+    Keep: 0.
+    Clear: 1.
+    Discard: 2.
+}.
+
+}. ## End of namespace Core
+}. ## End of namespace Graphics
+}. ## End of namespace Stdn

@@ -89,7 +89,7 @@ sealed template GenericRectangle(ST: Type)
 
     const inline method includesRectangle: (other: Rectangle const ref) ::=> Boolean8
         := (min x <= other min x && other max x <= max x) &&
-           (min y <= other min x && other max x <= max y).
+           (min y <= other min y && other max y <= max y).
 
     const inline method includesPointExclusively: (point: Vector2) ::=> Boolean8
         := (min x <= point x && point x < max x) &&
@@ -97,7 +97,7 @@ sealed template GenericRectangle(ST: Type)
 
     const inline method includesRectangleExclusively: (other: Rectangle const ref) ::=> Boolean8
         := (min x <= other min x && other max x < max x) &&
-           (min y <= other min x && other max x < max y).
+           (min y <= other min y && other max y < max y).
 
     const inline method intersectionWith: (other: Rectangle const ref) ::=> SelfType
         := SelfType min: (min max: other min) max: (max min: other max).

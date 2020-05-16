@@ -5,10 +5,12 @@ namespace Core definition: {
 #**
  * I am a CPU software based rasterization texture view. I am used blitting pixels into other canvases.
  *#
-class CPUTextureView superclass: TextureView; definition: {
+class SoftTextureView superclass: TextureView; definition: {
     public field pixelsBlitter type: Blitter.
 
 }.
+
+compileTime constant SoftTextureViewPtr := SoftTextureView sharedPointer.
 
 }. ## End of namespace Core
 }. ## End of namespace Graphics

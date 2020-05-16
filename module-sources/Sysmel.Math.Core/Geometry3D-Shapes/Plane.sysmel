@@ -1,0 +1,22 @@
+namespace Stdn definition: {
+namespace Math definition: {
+namespace Geometry definition: {
+
+#**
+ * I represent an implicit line plane equation of the form:
+ * <N, P> = d.
+ *#
+sealed template GenericPlane(ST: Type)
+    := class superclass: GenericGeometricShape(ST); definition: {
+
+    public field normal type: Vector3.
+    public field distance type: Scalar.
+
+}.
+
+compileTime constant PlaneF32 := GenericPlane(Float32).
+compileTime constant PlaneF64 := GenericPlane(Float64).
+
+} ## End of namespace Geometry
+} ## End of namespace Math
+} ## End of namespace Stdn

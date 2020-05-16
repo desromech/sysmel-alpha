@@ -1,0 +1,95 @@
+namespace Stdn definition: {
+namespace Graphics definition: {
+namespace Core definition: {
+
+struct GraphicsPipelineStateColorAttachmentDescription definition: {
+    const inline method = (other: SelfType const ref) ::=> Boolean8
+        := format = other format &&
+            colorMask = other colorMask &&
+            blendingEnabled = other blendingEnabled &&
+            blendingEquation = other blendingEquation.
+
+    const inline method hash ::=> Stdn Hash
+        := format hash ^
+            colorMask hash ^
+            blendingEnabled hash ^
+            blendingEquation hash.
+
+    public field format type: PixelFormat.
+    public field colorMask type: Boolean8x4.
+
+    public field blendingEnabled type: Boolean8.
+    public field blendingEquation type: BlendingEquation.
+}.
+
+struct StencilFaceState definition: {
+    public field stencilFailOperation type: StencilOperation.
+    public field depthFailOperation type: StencilOperation.
+    public field depthPassOperation type: StencilOperation.
+    public field compareFunction type: CompareFunction.
+}.
+
+#**
+ * Graphics pipeline state description.
+ *#
+struct GraphicsPipelineStateDescription definition: {
+    method initialize => Void := {
+        polygonMode := PolygonMode Fill.
+        faceCullingMode := FaceCullingMode None.
+        frontFaceOrientation := FrontFaceOrientation CounterClockwise.
+
+        sampleCount := 1.
+    }.
+
+    public field shaderSignature type: ShaderSignaturePtr.
+
+    ## Rasterization state.
+    public field frontFaceOrientation type: FrontFaceOrientation.
+    public field faceCullingMode type: FaceCullingMode.
+    public field polygonMode type: PolygonMode.
+    public field primitiveTopology type: PrimitiveTopology.
+    public field vertexLayout type: VertexLayoutPtr.
+
+    ## Color attachments
+    public field colorAttachments type: Stdn Collections Vector(GraphicsPipelineStateColorAttachmentDescription).
+
+    ## Depth buffer.
+    public field depthTestingEnabled type: Boolean8.
+    public field depthWriteMask type: Boolean8.
+    public field depthStencilFormat type: PixelFormat.
+    public field depthFunction type: CompareFunction.
+
+    public field depthBiasConstantFactor type: Float32.
+    public field depthBiasSlopeFactor type: Float32.
+    public field depthBiasClamp type: Float32.
+
+    ## Multi sampling
+    public field sampleCount type: UInt32.
+    public field sampleQuality type: UInt32.
+
+    ## Stencil buffer.
+    public field stencilTestingEnabled type: Boolean8.
+    public field stencilReadMask type: Int32.
+    public field stencilWriteMask type: Int32.
+
+    public field stencilFrontFaceState type: StencilFaceState.
+    public field stencilBackFaceState type: StencilFaceState.
+
+    method addColorAttachmentWithFormat: (format: PixelFormat) ::=> Void := {
+        colorAttachments add: (GraphicsPipelineStateColorAttachmentDescription()
+            format: format;
+            yourself)
+    }.
+
+    method setAllBlendingEquationsTo: (equation: BlendingEquation const ref) ::=> Void := {
+        colorAttachments do: {:each :: Void |
+            each
+                blendingEnabled: true;
+                blendingEquation: equation.
+        }
+    }.
+}.
+
+}. ## End of namespace Core
+}. ## End of namespace Graphics
+}. ## End of namespace Stdn

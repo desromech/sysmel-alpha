@@ -1,0 +1,21 @@
+namespace Stdn definition: {
+namespace Graphics definition: {
+namespace Core definition: {
+
+#**
+ * Render pass color attachment description.
+ *#
+struct RenderPassDepthStencilAttachmentDescription definition: {
+    public field format type: PixelFormat.
+    public field sampleCount type: UInt32.
+    public field sampleQuality type: UInt32.
+    public field beginAction type: RenderPassAttachmentAction.
+    public field endAction type: RenderPassAttachmentAction.
+    public field stencilBeginAction type: RenderPassAttachmentAction.
+    public field stencilEndAction type: RenderPassAttachmentAction.
+    public field clearValue type: DepthStencilValue.
+}.
+
+}. ## End of namespace Core
+}. ## End of namespace Graphics
+}. ## End of namespace Stdn

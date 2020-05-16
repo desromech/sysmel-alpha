@@ -5,7 +5,7 @@ namespace Core definition: {
 #**
  * I am a form based texture view.
  *#
-class FormTextureView superclass: CPUTextureView; definition: {
+class FormTextureView superclass: SoftTextureView; definition: {
     public field form type: Form sharedPointer.
 
     meta definition: {

@@ -36,8 +36,8 @@ class SDL2Window superclass: Window; definition: {
         }.
     }.
 
-    override method renderingDriver => RenderingDriver sharedPointer
-        := CPURenderingDriver uniqueInstance.
+    override method renderingDevice => RenderingDevice sharedPointer
+        := SoftRenderingDriver uniqueInstance _ getMainDevice.
 
     override method createDefaultDrawingSurface => Surface sharedPointer
         := (SDL2SoftwareRendererSurface for: self) upCastFor: Surface.

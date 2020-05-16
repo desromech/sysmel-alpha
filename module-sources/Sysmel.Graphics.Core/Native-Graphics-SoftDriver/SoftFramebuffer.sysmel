@@ -1,0 +1,16 @@
+namespace Stdn definition: {
+namespace Graphics definition: {
+namespace Core definition: {
+
+#**
+ * I am a CPU only implementation for a framebuffer.
+ *#
+class SoftFramebuffer superclass: Framebuffer; definition: {
+    public field extent type: UInt32x2.
+    public field colorAttachments type: Stdn Collections Vector(SoftTextureViewPtr).
+    public field depthStencilAttachment type: SoftTextureViewPtr.
+}.
+
+}. ## End of namespace Core
+}. ## End of namespace Graphics
+}. ## End of namespace Stdn

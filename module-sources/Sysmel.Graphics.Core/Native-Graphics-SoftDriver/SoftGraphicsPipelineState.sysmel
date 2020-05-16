@@ -2,26 +2,10 @@ namespace Stdn definition: {
 namespace Graphics definition: {
 namespace Core definition: {
 
-class SoftGraphicsPipeline definition: {
-	public field colorBufferBlitter type: Blitter.
-	public field depthStencilBufferBlitter type: Blitter.
+class SoftGraphicsPipeline superclass: GraphicsPipelineState; definition: {
+	public field description type: GraphicsPipelineStateDescription.
 
-	public field depthFunction type: CompareFunction.
-	public field stencilFunction type: CompareFunction.
-	public field stencilReference type: Int32.
-
-	public field blendingEquation type: BlendingEquation.
-	public field blendingConstant type: Float32x4.
-
-	public field descriptorSetTable type: (Void pointer array: 16).
-
-	public field vertexShader type: GPU ShaderEntryPointInfo const pointer.
-	public field fragmentShader type: GPU ShaderEntryPointInfo const pointer.
-
-	public field vertexLayout type: SoftVertexLayout sharedPointer.
-	public field vertexBinding type: SoftVertexBinding sharedPointer.
-
-	const method drawTriangle: (v1: GPU NativeVertexShaderIOInterface Outputs ref)
+#*	const method drawTriangle: (v1: GPU NativeVertexShaderIOInterface Outputs ref)
 		v2: (v2: GPU NativeVertexShaderIOInterface Outputs ref)
 		v3: (v3: GPU NativeVertexShaderIOInterface Outputs ref) ::=> Void := {
 
@@ -121,6 +105,8 @@ class SoftGraphicsPipeline definition: {
 			invokeVertexShaderOn: v3;
 			drawTriangle: v1 outputs v2: v2 outputs v3: v3 outputs.
 	}.
+
+*#
 }.
 
 

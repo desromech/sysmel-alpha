@@ -1,0 +1,73 @@
+namespace Stdn definition: {
+namespace Graphics definition: {
+namespace Core definition: {
+
+class SoftRenderPassExecutionContext definition: {
+    public field renderPass type: SoftRenderPass const pointer.
+    public field framebuffer type: SoftFramebuffer const pointer.
+    public field extent type: UInt32x2.
+
+    public field colorAttachmentCount type: UInt32.
+    public field colorAttachmentBlitters type: (Blitter array: 16).
+
+    public field hasDepthStencilAttachment type: Boolean8.
+    public field depthAttachmentBlitter type: Blitter.
+
+    method startExecution => Void := {
+        extent := framebuffer _ extent.
+
+        colorAttachmentCount := (renderPass _ colorAttachments size min: 16) castTo: UInt32.
+        0 until: colorAttachmentCount do: {:i :: Void |
+            let attachmentBlitter ref := colorAttachmentBlitters[i].
+            let attachmentDescription ref := renderPass _ colorAttachments[i].
+            attachmentBlitter := framebuffer _ colorAttachments[i] _ pixelsBlitter.
+
+            attachmentDescription beginAction = RenderPassAttachmentAction Clear ifTrue: {
+                attachmentBlitter setAllPixelsToColor: attachmentDescription clearValue.
+            }.
+        }.
+
+        hasDepthStencilAttachment := renderPass _ hasDepthStencilAttachment.
+        hasDepthStencilAttachment ifTrue: {
+            let attachmentDescription ref := renderPass _ depthStencilAttachment.
+            depthAttachmentBlitter := framebuffer _ depthStencilAttachment _ pixelsBlitter.
+
+            attachmentDescription beginAction = RenderPassAttachmentAction Clear ifTrue: {
+                depthAttachmentBlitter setAllPixelsToColor: attachmentDescription clearValue depth.
+            }.
+        }.
+    }.
+
+    method endExecution => Void := {
+        renderPass := nil.
+        framebuffer := nil.
+    }.
+}.
+
+#**
+ * I am a CPU only implementation for a render pass.
+ *#
+class SoftRenderPass superclass: RenderPass; definition: {
+    public field colorAttachments type: Stdn Collections Vector(RenderPassColorAttachmentDescription).
+    public field depthStencilAttachment type: RenderPassDepthStencilAttachmentDescription.
+    public field hasDepthStencilAttachment type: Boolean8.
+
+    const method beginExecutionOn: (framebuffer: SoftFramebuffer ref) ::=> SoftRenderPassExecutionContext := {
+        SoftRenderPassExecutionContext()
+            renderPass: self address;
+            framebuffer: framebuffer address;
+            startExecution;
+            yourself.
+    }.
+
+    override method setColorAttachment: (attachmentIndex: UInt32) clearValue: (clearValue: Float32x4) ::=> Void := {
+        attachmentIndex < colorAttachments size ifTrue: {
+            colorAttachments[attachmentIndex] clearValue: clearValue
+        }
+    }.
+
+}.
+
+}. ## End of namespace Core
+}. ## End of namespace Graphics
+}. ## End of namespace Stdn

@@ -6,22 +6,32 @@ namespace Core definition: {
 #**
  * I am a CPU based rendering driver. Since I do not require special graphical support, I am constructed as a singleton.
  *#
-class CPURenderingDriver superclass: RenderingDriver; definition: {
+class SoftRenderingDriver superclass: RenderingDriver; definition: {
+    field mainDevice type: SoftRenderingDevice sharedPointer.
+
     meta definition: {
         let uniqueInstance mutable type: RenderingDriver sharedPointer.
         let uniqueInstanceOnceCreation mutable type: Stdn OnceFlag.
 
-        override method isCPURenderingDriver => Boolean8
+        override method isSoftRenderingDriver => Boolean8
             := true.
 
 
         method uniqueInstance => RenderingDriver sharedPointer := {
             uniqueInstanceOnceCreation do: {
-                uniqueInstance := RenderingDriver sharedPointer for: CPURenderingDriver nativeNew.
+                uniqueInstance := RenderingDriver sharedPointer for: SoftRenderingDriver nativeNew.
             }.
 
             uniqueInstance
         }.
+    }.
+
+    override method getMainDevice => RenderingDevice sharedPointer := {
+        mainDevice ifNil: {
+            mainDevice := SoftRenderingDevice sharedNew.
+        }.
+
+        mainDevice upCastFor: RenderingDevice
     }.
 }.
 

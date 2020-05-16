@@ -1,0 +1,16 @@
+namespace Stdn definition: {
+namespace Graphics definition: {
+namespace Core definition: {
+
+#**
+ * Depth stencil value
+ * The values of these constants are the same as the ones that exposed in agpu.
+ *#
+struct DepthStencilValue definition: {
+    public field depth type: Float32.
+    public field stencil type: UInt8.
+}.
+
+}. ## End of namespace Core
+}. ## End of namespace Graphics
+}. ## End of namespace Stdn

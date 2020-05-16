@@ -1,0 +1,16 @@
+namespace Stdn definition: {
+namespace Graphics definition: {
+namespace Core definition: {
+
+#**
+ * I am a handle for a render pass.
+ *#
+class RenderPass superclass: RenderingDriverObjectHandle; definition: {
+    abstract method setColorAttachment: (attachmentIndex: UInt32) clearValue: (clearValue: Float32x4) ::=> Void.
+}.
+
+compileTime constant RenderPassPtr := RenderPass sharedPointer.
+
+}. ## End of namespace Core
+}. ## End of namespace Graphics
+}. ## End of namespace Stdn

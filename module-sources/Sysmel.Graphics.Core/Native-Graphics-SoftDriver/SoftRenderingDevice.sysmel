@@ -6,10 +6,10 @@ namespace Core definition: {
 #**
  * I am a CPU based rendering driver. Since I do not require special graphical support, I am constructed as a singleton.
  *#
-CPURenderingDriver extend: {
+class SoftRenderingDevice superclass: RenderingDevice; definition: {
     field defaultCommandQueue type: CommandQueuePtr.
 
-    method initialize => Void := {
+    override method initialize => Void := {
         defaultCommandQueue := SoftCommandQueue sharedNew upCastFor: CommandQueue.
     }.
 
@@ -31,8 +31,23 @@ CPURenderingDriver extend: {
     override method createShaderSignatureBuilder ::=> ShaderSignatureBuilderPtr
         := SoftShaderSignatureBuilder sharedNew upCastFor: ShaderSignatureBuilder.
 
-    override method createTexture: (description: TextureDescription const ref) ::=> Texture sharedPointer := {
-        Texture sharedPointer nil
+    override method createTexture: (description: TextureDescription const ref) ::=> TexturePtr := {
+        TexturePtr nil
+    }.
+
+    override method createSampler: (description: SamplerDescription const ref) ::=> SamplerPtr := {
+        SamplerPtr nil
+    }.
+
+    override method createComputePipelineState: (description: ComputePipelineStateDescription const ref) ::=> PipelineStatePtr := {
+        PipelineStatePtr nil
+    }.
+
+    override method createGraphicsPipelineState: (description: GraphicsPipelineStateDescription const ref) ::=> PipelineStatePtr := {
+        let result := SoftGraphicsPipeline sharedNew.
+        result _ description := description.
+        result upCastFor: PipelineState.
+        ##PipelineStatePtr nil
     }.
 
     override method createVertexLayout => VertexLayout sharedPointer := {
@@ -73,10 +88,44 @@ CPURenderingDriver extend: {
         result upCastFor: CommandList
     }.
 
+    override method createFramebuffer: (extent: UInt32x2) colorViews: (colorViews: TextureViewPtr const arraySlice) depthStencilView: (depthStencilView: TextureViewPtr const ref) ::=> FramebufferPtr := {
+        let result := SoftFramebuffer sharedNew.
+
+        result _ colorAttachments reserve: colorViews size.
+        colorViews do: {:each :: Void |
+            result _ colorAttachments add: (each downCastFor: SoftTextureView)
+        }.
+
+        result _
+            extent: extent;
+            depthStencilAttachment: (depthStencilView downCastFor: SoftTextureView).
+
+        result upCastFor: Framebuffer
+    }.
+
+    override method createRenderPass: (colorAttachments: RenderPassColorAttachmentDescription const arraySlice) depthStencilAttachment: (depthStencilAttachment: RenderPassDepthStencilAttachmentDescription const pointer) ::=> RenderPassPtr := {
+        let result := SoftRenderPass sharedNew.
+        result _ colorAttachments addAll: colorAttachments.
+        depthStencilAttachment ifNil: {
+            result _ hasDepthStencilAttachment: false.
+        } ifNotNil: {
+            result _
+                hasDepthStencilAttachment: true;
+                depthStencilAttachment: depthStencilAttachment _.
+        }.
+
+        result upCastFor: RenderPass
+    }.
+
     override method getDefaultCommandQueue => CommandQueuePtr := {
         defaultCommandQueue
     }.
 
+    override method hasTopLeftNdcOrigin => Boolean8
+        := true.
+
+    override method hasBottomLeftTextureCoordinates => Boolean8
+        := false.
 }.
 
 }. ## End of namespace Core

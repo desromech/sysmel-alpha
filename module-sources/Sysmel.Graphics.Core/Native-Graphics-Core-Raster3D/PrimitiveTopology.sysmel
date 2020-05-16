@@ -1,0 +1,27 @@
+namespace Stdn definition: {
+namespace Graphics definition: {
+namespace Core definition: {
+
+#**
+ * Primitive topology.
+ * The values of these constants are the same as the ones that exposed in agpu.
+ *#
+enum PrimitiveTopology valueType: UInt8; values: #{
+    Points: 0.
+
+    Lines: 1.
+    LinesAdjacency: 2.
+    LineStrip: 3.
+    LineStripAdjacency: 4.
+
+    Triangles: 5.
+    TrianglesAdjacency: 6.
+    TriangleStrip: 7.
+    TriangleStripAdjacency: 8.
+
+    Patches: 9.
+}.
+
+}. ## End of namespace Core
+}. ## End of namespace Graphics
+}. ## End of namespace Stdn

@@ -4,13 +4,13 @@ namespace Core definition: {
 
 useNamespace: Stdn Math Geometry.
 
-class CPUSurface.
+class SoftSurface.
 
 #**
- * I am a software based rendering CPU canvas that draws into CPUSurface.
+ * I am a software based rendering CPU canvas that draws into SoftSurface.
  *#
-class CPUCanvas superclass: Canvas; definition: {
-    protected field targetSurface type: CPUSurface pointer.
+class SoftCanvas superclass: Canvas; definition: {
+    protected field targetSurface type: SoftSurface pointer.
     protected field currentClipRectangle type: RectangleF32.
 
     protected field currentStartPosition type: Float32x2.
@@ -22,7 +22,7 @@ class CPUCanvas superclass: Canvas; definition: {
 
     protected field blendingMode type: BlendingMode.
 
-    method initializeWithSurface: (theTargetSurface: CPUSurface pointer) ::=> Void := {
+    method initializeWithSurface: (theTargetSurface: SoftSurface pointer) ::=> Void := {
         blendingMode := BlendingMode AlphaOver.
         targetSurface := theTargetSurface.
         currentClipRectangle := RectangleF32 fullSpace.
@@ -139,7 +139,7 @@ class CPUCanvas superclass: Canvas; definition: {
     }.
 
     override method copyTexture: (textureView: TextureView sharedPointer const ref) at: (targetPosition: Float32x2) ::=> Void := {
-        let cpuTextureView := textureView getPointer castTo: CPUTextureView pointer.
+        let cpuTextureView := textureView getPointer castTo: SoftTextureView pointer.
 
         let sourceBlitter := cpuTextureView _ pixelsBlitter.
         targetSurface _ pixelsBlitter
@@ -147,7 +147,7 @@ class CPUCanvas superclass: Canvas; definition: {
     }.
 
     override method blendTexture: (textureView: TextureView sharedPointer const ref) at: (targetPosition: Float32x2) ::=> Void := {
-        let cpuTextureView := textureView getPointer castTo: CPUTextureView pointer.
+        let cpuTextureView := textureView getPointer castTo: SoftTextureView pointer.
 
         let sourceBlitter := cpuTextureView _ pixelsBlitter.
         targetSurface _ pixelsBlitter

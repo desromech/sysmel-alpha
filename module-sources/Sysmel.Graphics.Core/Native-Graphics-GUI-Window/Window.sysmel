@@ -26,9 +26,9 @@ class Window superclass: Object; definition: {
     }.
 
     #**
-     * This method creates a default drawing surface whose rendering method is chosen by the backend.
+     * This method creates gets or creates a default rendering device.
      *#
-    abstract method renderingDriver => RenderingDriver sharedPointer.
+    abstract method renderingDevice => RenderingDevice sharedPointer.
 
     #**
      * This method creates a default drawing surface whose rendering method is chosen by the backend.

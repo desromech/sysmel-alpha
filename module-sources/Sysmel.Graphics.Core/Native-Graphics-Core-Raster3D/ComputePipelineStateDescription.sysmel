@@ -1,0 +1,13 @@
+namespace Stdn definition: {
+namespace Graphics definition: {
+namespace Core definition: {
+
+#**
+ * Compute pipeline state description.
+ *#
+struct ComputePipelineStateDescription definition: {
+}.
+
+}. ## End of namespace Core
+}. ## End of namespace Graphics
+}. ## End of namespace Stdn

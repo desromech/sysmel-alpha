@@ -1,0 +1,20 @@
+namespace Stdn definition: {
+namespace Graphics definition: {
+namespace Core definition: {
+
+useNamespace: Stdn Math Geometry.
+
+#**
+ * Buffer image copy region.
+ *#
+struct BufferImageCopyRegion definition: {
+    public field bufferOffset type: UIntPointer.
+    public field bufferRowLength type: UIntPointer.
+    public field bufferImageHeight type: UIntPointer.
+    public field textureSubResourceRange type: TextureSubResourceRange.
+    public field textureRegion type: BoxI32.
+}.
+
+}. ## End of namespace Core
+}. ## End of namespace Graphics
+}. ## End of namespace Stdn

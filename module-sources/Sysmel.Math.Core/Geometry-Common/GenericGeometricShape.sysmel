@@ -12,6 +12,7 @@ sealed template GenericGeometricShape(ST: Type)
     compileTime constant Vector4 := ST primitiveVectorWithElements: 4.
 
     compileTime constant Rectangle := GenericRectangle(Scalar).
+    compileTime constant Box := GenericBox(Scalar).
 
     compileTime if: Scalar isPrimitiveFloatType then: {
         compileTime constant ParametricCurveIntersectionResult := Stdn Optional(Scalar).
@@ -20,6 +21,10 @@ sealed template GenericGeometricShape(ST: Type)
         compileTime constant Line2d := GenericLine2d(Scalar).
         compileTime constant Ray2d := GenericRay2d(Scalar).
         compileTime constant Segment2d := GenericSegment2d(Scalar).
+
+        compileTime constant Sphere := GenericSphere(Scalar).
+        compileTime constant Plane := GenericPlane(Scalar).
+        compileTime constant Ray3d := GenericRay3d(Scalar).
     }.
 }.
 

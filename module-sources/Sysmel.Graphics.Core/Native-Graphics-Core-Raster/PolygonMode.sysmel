@@ -1,0 +1,13 @@
+namespace Stdn definition: {
+namespace Graphics definition: {
+namespace Core definition: {
+
+enum PolygonMode valueType: UInt8; values: #{
+    Fill: 0.
+    Line: 1.
+    Point: 2.
+}.
+
+}. ## End of namespace Core
+}. ## End of namespace Graphics
+}. ## End of namespace Stdn

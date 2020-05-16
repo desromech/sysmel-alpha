@@ -1,5 +1,6 @@
 ## Some core objects that are independant of any particular rendering driver.
 loadFileOnce: "PixelFormat.sysmel".
+loadFileOnce: "PolygonMode.sysmel".
 
 loadFileOnce: "FrontFaceOrientation.sysmel".
 loadFileOnce: "FaceCullingMode.sysmel".
@@ -17,18 +18,8 @@ loadFileOnce: "SystemCursor.sysmel".
 ## 2D rendering objects.
 loadFileOnce: "RenderingDriver.sysmel".
 loadFileOnce: "RenderingDriverObjectHandle.sysmel".
+loadFileOnce: "RenderingDevice.sysmel".
 loadFileOnce: "TextureView.sysmel".
 loadFileOnce: "Surface.sysmel".
 loadFileOnce: "TextDrawingState.sysmel".
 loadFileOnce: "Canvas.sysmel".
-
-## CPU Rendering driver
-loadFileOnce: "CPURenderingDriver.sysmel".
-loadFileOnce: "CPUCanvas.sysmel".
-
-loadFileOnce: "CPUSurface.sysmel".
-loadFileOnce: "FormSurface.sysmel".
-loadFileOnce: "ExternalSurface.sysmel".
-
-loadFileOnce: "CPUTextureView.sysmel".
-loadFileOnce: "FormTextureView.sysmel".

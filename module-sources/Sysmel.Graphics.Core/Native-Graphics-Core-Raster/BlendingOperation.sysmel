@@ -9,9 +9,6 @@ enum BlendingOperation valueType: UInt8; values: #{
     Min: 4.
     Max: 5.
 }; definition: {
-    const inline method hash => Stdn Hash
-        := self value hash.
-
     inline method evaluateColor: (left: Float32x3) with: (right: Float32x3) ::=> Float32x3 := {
         self selectCase: #{
         Add : {

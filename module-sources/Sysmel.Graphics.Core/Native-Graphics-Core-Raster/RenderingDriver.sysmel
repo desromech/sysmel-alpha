@@ -7,13 +7,13 @@ class TextureView.
 class Surface.
 
 #**
- * I am an abstract rendering driver. I am typically used as a factory for generating
- * device dependant objects such textures and drawing surfaces.
+ * I am an abstract rendering driver. I am typically a factory for creating device instances.
  *#
 class RenderingDriver definition: {
-    virtual method isCPURenderingDriver => Boolean8
+    virtual method isSoftRenderingDriver => Boolean8
         := false.
 
+    abstract method getMainDevice => RenderingDevice sharedPointer.
 }.
 
 compileTime constant RenderingDriverPtr := RenderingDriver sharedPointer.

@@ -2,6 +2,8 @@ namespace Stdn definition: {
 namespace Graphics definition: {
 namespace Core definition: {
 
+useNamespace: Stdn Math Geometry.
+
 #**
  * I am a handle for a command list.
  *#
@@ -9,9 +11,47 @@ class CommandList superclass: RenderingDriverObjectHandle; definition: {
     abstract method resetFor: (allocator: CommandListAllocatorPtr const ref) initialPipelineState: (initialPipeline: PipelineStatePtr const ref) ::=> Void.
     abstract method close => Void.
 
-    virtual method resetFor: (allocator: CommandListAllocatorPtr const ref) ::=> Void
-        := self resetFor: allocator initialPipelineState: PipelineStatePtr nil
+    abstract method useShaderSignature: (shaderSignature: ShaderSignaturePtr const ref) ::=> Void.
+    abstract method setViewport: (rectangle: RectangleI32) ::=> Void.
+    abstract method setScissor: (rectangle: RectangleI32) ::=> Void.
+    abstract method usePipelineState: (pipelineState: PipelineStatePtr const ref) ::=> Void.
+    abstract method useVertexBinding: (vertexBinding: VertexBindingPtr const ref) ::=> Void.
+    abstract method useIndexBuffer: (buffer: BufferPtr const ref) ::=> Void.
+    abstract method useIndexBuffer: (buffer: BufferPtr const ref) at: (offset: UIntPointer) stride: (stride: UIntPointer) ::=> Void.
+    abstract method useDrawIndirectBuffer: (buffer: BufferPtr const ref) ::=> Void.
+    abstract method useComputeDispatchIndirectBuffer: (buffer: BufferPtr const ref) ::=> Void.
+    abstract method useGraphicShaderBindings: (resourcesBinding: ShaderResourceBindingsPtr const ref) ::=> Void.
+    abstract method useComputeShaderBindings: (resourcesBinding: ShaderResourceBindingsPtr const ref) ::=> Void.
+    abstract method drawArrays: (vertexCount: UInt32) instanceCount: (instanceCount: UInt32) firstVertex: (firstVertex: UInt32) baseInstance: (baseInstance: UInt32) ::=> Void.
+    abstract method drawArraysIndirect: (offset: UIntPointer) drawCount: (drawCount: UIntPointer) ::=> Void.
+    abstract method drawElements: (indexCount: UInt32) instanceCount: (instanceCount: UInt32) firstIndex: (firstVertex: UInt32) baseVertex: (baseVertex: UInt32) baseInstance: (baseInstance: UInt32) ::=> Void.
+    abstract method drawElementsIndirect: (offset: UIntPointer) drawCount: (drawCount: UIntPointer) ::=> Void.
+    abstract method dispatchCompute: (groupCount: UInt32x3) ::=> Void.
+    abstract method dispatchComputeIndirect: (offset: UInt32x3) ::=> Void.
+    abstract method setStencilReference: (reference: UInt32) ::=> Void.
+    abstract method executeBundle: (bundle: CommandList sharedPointer const ref) ::=> Void.
 
+    abstract method beginRenderPass: (renderPass: RenderPassPtr const ref) on: (framebuffer: FramebufferPtr const ref) contentOnBundle: (contentOnBundle: Boolean8) ::=> Void.
+    abstract method endRenderPass ::=> Void.
+
+    abstract method resolveFramebuffer: (source: FramebufferPtr const ref) into: (destination: FramebufferPtr const ref) ::=> Void.
+    abstract method resolveTexture: (source: TexturePtr const ref) level: (sourceLevel: UInt32) layer: (sourceLayer: UInt32)
+        into: (destination: TexturePtr const ref) level: (destinationLevel: UInt32) layer: (destinationLayer: UInt32)
+        aspect: (aspect: TextureAspect) ::=> Void.
+    abstract method pushConstants: (values: UInt8 const pointer) size: (size: UInt32) at: (offset: UInt32) ::=> Void.
+    abstract method memoryBarrierFrom: (sourceStage: PipelineStageMask) accesses: (sourceAccesses: AccessMask) to: (destStage: PipelineStageMask) accesses: (destAccesses: AccessMask) ::=> Void.
+    abstract method buffer: (buffer: BufferPtr const ref) offset: (offset: UIntPointer) size: (size: UIntPointer) memoryBarrierFrom: (sourceStage: PipelineStageMask) accesses: (sourceAccesses: AccessMask) to: (destStage: PipelineStageMask) accesses: (destAccesses: AccessMask) ::=> Void.
+    abstract method texture: (texture: TexturePtr const ref) subresourceRange: (subresourceRange: TextureSubResourceRange) memoryBarrierFrom: (sourceStage: PipelineStageMask) accesses: (sourceAccesses: AccessMask) to: (destStage: PipelineStageMask) accesses: (destAccesses: AccessMask) ::=> Void.
+    abstract method pushBuffer: (buffer: BufferPtr const ref) transitionBarrierInto: (newUsageMode: BufferUsageMode) ::=> Void.
+    abstract method texture: (texture: TexturePtr const ref) subresourceRange: (subresourceRange: TextureSubResourceRange) transitionBarrierInto: (newUsageMode: TextureUsageMode) ::=> Void.
+    abstract method popBufferTransitionBarrier ::=> Void.
+    abstract method popTextureTransitionBarrier ::=> Void.
+    abstract method copyFromBuffer: (sourceBuffer: BufferPtr const ref) offset: (sourceOffset: UIntPointer) into: (destBuffer: BufferPtr const ref) offset: (destOffset: UIntPointer) size: (copySize: UIntPointer) ::=> Void.
+    abstract method copyFromBuffer: (sourceBuffer: BufferPtr const ref) intoTexture: (destTexture: TexturePtr const ref) region: (copyRegion: BufferImageCopyRegion) ::=> Void.
+    abstract method copyFromTexture: (sourceTexture: TexturePtr const ref) intoBuffer: (destBuffer: BufferPtr const ref) region: (copyRegion: BufferImageCopyRegion) ::=> Void.
+
+    virtual method resetFor: (allocator: CommandListAllocatorPtr const ref) ::=> Void
+        := self resetFor: allocator initialPipelineState: PipelineStatePtr nil.
 }.
 
 compileTime constant CommandListPtr := CommandList sharedPointer.

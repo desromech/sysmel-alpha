@@ -1,0 +1,24 @@
+namespace Stdn definition: {
+namespace Graphics definition: {
+namespace Core definition: {
+
+#**
+ * Sampler description.
+ *#
+struct SamplerDescription definition: {
+    public field filter type: TextureFilter.
+    public field addressU type: TextureAddressMode.
+    public field addressV type: TextureAddressMode.
+    public field addressW type: TextureAddressMode.
+    public field mipLodBias type: Float32.
+    public field maxAnisotropy type: Float32.
+    public field comparisonEnabled type: Boolean8.
+    public field comparisonFunction type: CompareFunction.
+    public field borderColor type: Float32x4.
+    public field minLod type: Float32.
+    public field maxLod type: Float32.
+}.
+
+}. ## End of namespace Core
+}. ## End of namespace Graphics
+}. ## End of namespace Stdn

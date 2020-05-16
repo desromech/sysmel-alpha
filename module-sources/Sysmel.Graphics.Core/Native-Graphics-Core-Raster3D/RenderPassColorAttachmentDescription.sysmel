@@ -1,0 +1,19 @@
+namespace Stdn definition: {
+namespace Graphics definition: {
+namespace Core definition: {
+
+#**
+ * Render pass color attachment description.
+ *#
+struct RenderPassColorAttachmentDescription definition: {
+    public field format type: PixelFormat.
+    public field sampleCount type: UInt32.
+    public field sampleQuality type: UInt32.
+    public field beginAction type: RenderPassAttachmentAction.
+    public field endAction type: RenderPassAttachmentAction.
+    public field clearValue type: Float32x4.
+}.
+
+}. ## End of namespace Core
+}. ## End of namespace Graphics
+}. ## End of namespace Stdn

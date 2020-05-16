@@ -1,0 +1,17 @@
+namespace Stdn definition: {
+namespace Math definition: {
+namespace Geometry definition: {
+
+sealed template GenericSphere(ST: Type)
+    := class superclass: GenericGeometricShape(ST); definition: {
+    public field center type: Vector3.
+    public field radius type: Scalar.
+
+}.
+
+compileTime constant SphereF32 := GenericSphere(Float32).
+compileTime constant SphereF64 := GenericSphere(Float64).
+
+} ## End of namespace Geometry
+} ## End of namespace Math
+} ## End of namespace Stdn

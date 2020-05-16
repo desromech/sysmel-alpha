@@ -38,6 +38,7 @@ Boolean8 macro method hash := ``(Stdn hashForBoolean8(`,self)).
 (Int64 | UInt64) macro method hash := ``(Stdn hashForUInt64(`,self castTo: UInt64)).
 Float32 macro method hash := ``(Stdn hashForUInt32(`,self reinterpretCastTo: UInt32)).
 Float64 macro method hash := ``(Stdn hashForUInt64(`,self reinterpretCastTo: UInt64)).
+_EnumType macro method hash := ``(`,self value hash).
 _PointerType macro method hash := ``((`,self reinterpretCastTo: UIntPointer) hash).
 
 _PrimitiveVectorTypeTemplate extend: {
