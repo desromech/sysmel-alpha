@@ -1,0 +1,17 @@
+namespace Stdn definition: {
+namespace Graphics definition: {
+namespace Core definition: {
+
+#**
+ * I am a handle for a command queue.
+ *#
+class CommandQueue superclass: RenderingDriverObjectHandle; definition: {
+    abstract method submitCommandList: (commandList: CommandListPtr const ref) ::=> Void.
+    abstract method waitForIdle ::=> Void.
+}.
+
+compileTime constant CommandQueuePtr := CommandQueue sharedPointer.
+
+}. ## End of namespace Core
+}. ## End of namespace Graphics
+}. ## End of namespace Stdn

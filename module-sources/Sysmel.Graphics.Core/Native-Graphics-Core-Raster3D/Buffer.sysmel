@@ -1,0 +1,17 @@
+namespace Stdn definition: {
+namespace Graphics definition: {
+namespace Core definition: {
+
+#**
+ * I am a handle for a buffer.
+ *#
+class Buffer superclass: RenderingDriverObjectHandle; definition: {
+
+    const abstract method description => BufferDescription.
+}.
+
+compileTime constant BufferPtr := Buffer sharedPointer.
+
+}. ## End of namespace Core
+}. ## End of namespace Graphics
+}. ## End of namespace Stdn

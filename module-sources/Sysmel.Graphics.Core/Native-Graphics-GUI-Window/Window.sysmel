@@ -28,8 +28,12 @@ class Window superclass: Object; definition: {
     #**
      * This method creates a default drawing surface whose rendering method is chosen by the backend.
      *#
-    virtual method createDefaultDrawingSurface => Surface sharedPointer
-        := Surface sharedPointer nil.
+    abstract method renderingDriver => RenderingDriver sharedPointer.
+
+    #**
+     * This method creates a default drawing surface whose rendering method is chosen by the backend.
+     *#
+    abstract method createDefaultDrawingSurface => Surface sharedPointer.
 
 
     #**

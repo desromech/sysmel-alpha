@@ -13,6 +13,8 @@ definition: {
         := storage isEmpty ifTrue: {nil} ifFalse: {storage [0] address}.
     method size => UIntPointer
         := storage size.
+    method contents => UInt8 arraySlice
+        := storage asArraySlice.
 
     override method atEnd => Boolean8
         := currentPosition >= storage size.

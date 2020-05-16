@@ -1,0 +1,25 @@
+namespace Stdn definition: {
+namespace Graphics definition: {
+namespace Core definition: {
+
+#**
+ * Texture description.
+ *#
+struct TextureDescription definition: {
+    public field type: TextureType.
+    public field width type: UInt32.
+    public field height type: UInt32.
+    public field depth type: UInt32.
+    public field layers type: UInt32.
+    public field miplevels type: UInt32.
+    public field format type: PixelFormat.
+    public field usageModes type: TextureUsageMode.
+    public field mainUsageMode type: TextureUsageMode.
+    public field heapType type: MemoryHeapType.
+    public field sampleCount type: UInt32.
+    public field sampleQuality type: UInt32.
+}.
+
+}. ## End of namespace Core
+}. ## End of namespace Graphics
+}. ## End of namespace Stdn

@@ -1,0 +1,75 @@
+namespace Stdn definition: {
+namespace Graphics definition: {
+namespace Core definition: {
+
+#**
+ * I am an specification for a vertex attribute.
+ *#
+class SoftVertexBinding superclass: VertexBinding; definition: {
+    public field layout type: SoftVertexLayout sharedPointer.
+
+    public field buffers type: Stdn Collections Vector(SoftBuffer sharedPointer).
+    public field offsets type: Stdn Collections Vector(UIntPointer).
+    public field bufferStartPointers type: Stdn Collections Vector(UInt8 const pointer).
+
+    method initializeWithLayout: (vertexLayout: SoftVertexLayout sharedPointer const ref) ::=> Void := {
+        let bufferCount := vertexLayout _ strides size.
+        buffers resizeTo: bufferCount.
+        offsets resizeTo: bufferCount.
+        bufferStartPointers resizeTo: bufferCount.
+    }.
+
+    override method bindVertexBuffers: (theVertexBuffers: VertexBuffers) ::=> Void := {
+        Stdn assert: theVertexBuffers size = buffers size.
+        0 until: buffers size do: {:i :: Void |
+            buffers[i] := theVertexBuffers[i] downCastFor: SoftBuffer.
+            offsets[i] := 0
+        }.
+
+        self computeBufferStartPointers.
+    }.
+
+    override method bindVertexBuffers: (theVertexBuffers: VertexBuffers) offset: (theOffsets: Offsets) ::=> Void := {
+        Stdn assert: theVertexBuffers size = buffers size.
+        Stdn assert: offsets size = buffers size.
+        0 until: buffers size do: {:i :: Void |
+            buffers[i] := theVertexBuffers[i] downCastFor: SoftBuffer.
+            offsets[i] := theOffsets[i]
+        }.
+
+        self computeBufferStartPointers.
+    }.
+
+    method computeBufferStartPointers => Void := {
+        0 until: buffers size do: {:i :: Void |
+            let buffer ref := buffers[i].
+            buffer ifNil: {
+                bufferStartPointers[i] := nil
+            } ifNotNil: {
+                bufferStartPointers[i] := buffer _ memoryStartPointer + offsets[i]
+            }
+        }
+    }.
+
+    const inline method fetchVertex: (index: UInt32) instanceID: (instanceID: UInt32) into: (out: GPU NativeVertexShaderIOInterface Inputs ref) ::=> Void := {
+        let strides ref := layout _ strides.
+
+        layout _ attributes do: {:attribute :: Void |
+            let vertexIndex := attribute divisor == 0
+                ifTrue: {index}
+                ifFalse: {instanceID / attribute divisor}.
+            let attributeStride := strides[attribute bufferIndex].
+            let bufferPointer := bufferStartPointers[attribute bufferIndex].
+            bufferPointer ifNotNil: {
+                let vertexPointer := bufferPointer + (attributeStride*vertexIndex + attribute offset).
+                attribute location < 16 ifTrue: {
+                    attribute format fetchFrom: vertexPointer intoShaderInput: out locations[attribute location] address
+                }
+            }.
+        }.
+    }.
+}.
+
+}. ## End of namespace Core
+}. ## End of namespace Graphics
+}. ## End of namespace Stdn

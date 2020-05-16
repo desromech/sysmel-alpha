@@ -1,0 +1,12 @@
+## CPU rendering driver
+loadFileOnce: "SoftBuffer.sysmel".
+loadFileOnce: "SoftVertexLayout.sysmel".
+loadFileOnce: "SoftVertexBinding.sysmel".
+loadFileOnce: "SoftShaderSignature.sysmel".
+loadFileOnce: "SoftShaderSignatureBuilder.sysmel".
+loadFileOnce: "SoftShaderResourceBinding.sysmel".
+loadFileOnce: "SoftGraphicsPipelineState.sysmel".
+loadFileOnce: "SoftCommandListAllocator.sysmel".
+loadFileOnce: "SoftCommandList.sysmel".
+loadFileOnce: "SoftCommandQueue.sysmel".
+loadFileOnce: "CPURenderingDriver.sysmel".

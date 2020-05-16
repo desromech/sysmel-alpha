@@ -1,0 +1,19 @@
+namespace Stdn definition: {
+namespace Graphics definition: {
+namespace Core definition: {
+
+#**
+ * Buffer description.
+ *#
+struct BufferDescription definition: {
+    public field size type: UIntPointer.
+    public field heapType type: MemoryHeapType.
+    public field usageMode type: BufferUsageMode.
+    public field mainUsageMode type: BufferUsageMode.
+    public field mappingFlags type: BufferMappingFlags.
+    public field stride type: UIntPointer.
+}.
+
+}. ## End of namespace Core
+}. ## End of namespace Graphics
+}. ## End of namespace Stdn

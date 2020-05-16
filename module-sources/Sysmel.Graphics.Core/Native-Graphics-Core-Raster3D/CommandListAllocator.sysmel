@@ -1,0 +1,16 @@
+namespace Stdn definition: {
+namespace Graphics definition: {
+namespace Core definition: {
+
+#**
+ * I am a handle for a command list allocator.
+ *#
+class CommandListAllocator superclass: RenderingDriverObjectHandle; definition: {
+    abstract method resetAllocator => Void.
+}.
+
+compileTime constant CommandListAllocatorPtr := CommandListAllocator sharedPointer.
+
+}. ## End of namespace Core
+}. ## End of namespace Graphics
+}. ## End of namespace Stdn

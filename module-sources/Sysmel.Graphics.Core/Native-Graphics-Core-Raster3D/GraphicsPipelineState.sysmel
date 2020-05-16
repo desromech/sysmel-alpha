@@ -1,0 +1,16 @@
+namespace Stdn definition: {
+namespace Graphics definition: {
+namespace Core definition: {
+
+#**
+ * I am a handle for a graphics pipeline state.
+ *#
+class GraphicsPipelineState superclass: PipelineState; definition: {
+
+}.
+
+compileTime constant GraphicsPipelineStatePtr := GraphicsPipelineState sharedPointer.
+
+}. ## End of namespace Core
+}. ## End of namespace Graphics
+}. ## End of namespace Stdn

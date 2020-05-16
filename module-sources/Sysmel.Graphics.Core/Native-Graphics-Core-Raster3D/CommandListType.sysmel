@@ -1,0 +1,18 @@
+namespace Stdn definition: {
+namespace Graphics definition: {
+namespace Core definition: {
+
+#**
+ * Command list type.
+ * The values of these constants are the same as the ones that exposed in agpu.
+ *#
+enum CommandListType valueType: UInt8; values: #{
+    Direct: 1.
+    Bundle: 2.
+    Compute: 3.
+    Copy: 4.
+}.
+
+}. ## End of namespace Core
+}. ## End of namespace Graphics
+}. ## End of namespace Stdn

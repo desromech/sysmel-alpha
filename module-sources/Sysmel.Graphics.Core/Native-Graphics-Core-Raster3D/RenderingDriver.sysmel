@@ -1,0 +1,28 @@
+namespace Stdn definition: {
+namespace Graphics definition: {
+namespace Core definition: {
+
+#**
+ * I am an abstract rendering driver. I am typically used as a factory for generating
+ * device dependant objects such textures and drawing surfaces.
+ *#
+RenderingDriver extend: {
+    abstract method createShaderSignatureBuilder ::=> ShaderSignatureBuilderPtr.
+
+    abstract method createBuffer: (description: BufferDescription const ref) initialData: (initialData: Void const pointer) ::=> BufferPtr.
+    abstract method createTexture: (description: TextureDescription const ref) ::=> TexturePtr.
+
+    abstract method createVertexLayout => VertexLayoutPtr.
+    abstract method createVertexBindingFor: (layout: VertexLayout sharedPointer const ref) ::=> VertexBindingPtr.
+
+    abstract method createCommandAllocatorOfType: (type: CommandListType) for: (queue: CommandQueuePtr const ref) ::=> CommandListAllocatorPtr.
+    abstract method createCommandListOfType: (type: CommandListType) for: (allocator: CommandListAllocatorPtr const ref) initialPipelineState: (initialPipeline: PipelineStatePtr const ref) ::=> CommandListPtr.
+    abstract method getDefaultCommandQueue => CommandQueuePtr.
+
+    virtual method createCommandListOfType: (type: CommandListType) for: (allocator: CommandListAllocatorPtr const ref) ::=> CommandListPtr
+        := self createCommandListOfType: type for: allocator initialPipelineState: PipelineStatePtr nil
+}.
+
+}. ## End of namespace Core
+}. ## End of namespace Graphics
+}. ## End of namespace Stdn

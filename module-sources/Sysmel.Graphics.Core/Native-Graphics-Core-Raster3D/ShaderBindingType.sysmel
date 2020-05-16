@@ -1,0 +1,22 @@
+namespace Stdn definition: {
+namespace Graphics definition: {
+namespace Core definition: {
+
+#**
+ * Shader binding type.
+ * The values of these constants are the same as the ones that exposed in agpu.
+ *#
+enum ShaderBindingType valueType: UInt8; values: #{
+    SampledImage: 0.
+    StorageImage: 1.
+    UniformTexelBuffer: 2.
+    StorageTexelBuffer: 3.
+    UniformBuffer: 4.
+    StorageBuffer: 5.
+    Sampler: 6.
+    Count:.
+}.
+
+}. ## End of namespace Core
+}. ## End of namespace Graphics
+}. ## End of namespace Stdn

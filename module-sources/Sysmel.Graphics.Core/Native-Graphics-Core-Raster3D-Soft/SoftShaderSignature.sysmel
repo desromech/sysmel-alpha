@@ -3,12 +3,10 @@ namespace Graphics definition: {
 namespace Core definition: {
 
 #**
- * I am a handle for a render pass.
+ * I am a CPU only implementation for a shader signature.
  *#
-class Renderpass superclass: RenderingDriverObjectHandle; definition: {
+class SoftShaderSignature superclass: ShaderSignature; definition: {
 }.
-
-compileTime constant RenderpassPtr := Renderpass sharedPointer.
 
 }. ## End of namespace Core
 }. ## End of namespace Graphics

@@ -2,7 +2,7 @@ namespace Stdn definition: {
 namespace Graphics definition: {
 namespace Core definition: {
 
-class SoftwareGraphicsPipeline definition: {
+class SoftGraphicsPipeline definition: {
 	public field colorBufferBlitter type: Blitter.
 	public field depthStencilBufferBlitter type: Blitter.
 
@@ -18,8 +18,8 @@ class SoftwareGraphicsPipeline definition: {
 	public field vertexShader type: GPU ShaderEntryPointInfo const pointer.
 	public field fragmentShader type: GPU ShaderEntryPointInfo const pointer.
 
-	public field vertexLayout type: SoftwareVertexLayout sharedPointer.
-	public field vertexBinding type: SoftwareVertexBinding sharedPointer.
+	public field vertexLayout type: SoftVertexLayout sharedPointer.
+	public field vertexBinding type: SoftVertexBinding sharedPointer.
 
 	const method drawTriangle: (v1: GPU NativeVertexShaderIOInterface Outputs ref)
 		v2: (v2: GPU NativeVertexShaderIOInterface Outputs ref)

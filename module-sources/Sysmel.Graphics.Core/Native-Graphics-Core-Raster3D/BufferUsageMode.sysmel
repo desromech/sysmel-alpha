@@ -1,0 +1,26 @@
+namespace Stdn definition: {
+namespace Graphics definition: {
+namespace Core definition: {
+
+#**
+ * Buffer use mode.
+ * The values of these constants are the same as the ones that exposed in agpu.
+ *#
+enum BufferUsageMode bitMask valueType: UInt32; values: #{
+    CopyDestinationBuffer: 1<<0.
+    CopySource: 1<<1.
+    GenericData: (CopyDestinationBuffer | CopySource castTo: UInt32).
+
+    Array: 1<<2.
+    ElementArray: 1<<3.
+    Uniform: 1<<4.
+    DrawIndirect: 1<<5.
+    Storage: 1<<6.
+    UniformTexel: 1<<7.
+    StorageTexel: 1<<8.
+    ComputeDispatchIndirect: 1<<9.
+}.
+
+}. ## End of namespace Core
+}. ## End of namespace Graphics
+}. ## End of namespace Stdn

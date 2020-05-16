@@ -68,6 +68,13 @@ macro method SequenceableCollectionMixin := ``{
         }
     }.
 
+    inline method addAll: (elements: ValueType const arraySlice) ::=> Void := {
+        self reserve: elements size.
+        elements do: {:(ValueType const ref)each :: Void |
+            self add: each
+        }
+    }.
+
     Stdn Concepts Equalable ifType: ValueType complies: {
         const method indexOf: (value: ValueType const ref) ::=> UIntPointer := {
             self doWithIndex: {:(ValueType const ref)each :index :: Void |

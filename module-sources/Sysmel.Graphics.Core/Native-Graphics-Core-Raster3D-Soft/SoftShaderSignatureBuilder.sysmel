@@ -1,0 +1,26 @@
+namespace Stdn definition: {
+namespace Graphics definition: {
+namespace Core definition: {
+
+#**
+ * I am a CPU only implementation for a shader signature.
+ *#
+class SoftShaderSignatureBuilder superclass: ShaderSignatureBuilder; definition: {
+
+    override method beginBindingBank: (maxBindingsHint: UIntPointer) ::=> Void := {
+
+    }.
+
+    override method addBankElementWithType: (bindingType: ShaderBindingType) bindingPointCount: (bindingPointCount: UIntPointer) ::=> Void := {
+
+    }.
+
+    override method build => ShaderSignaturePtr := {
+        SoftShaderSignature sharedNew upCastFor: ShaderSignature
+    }.
+
+}.
+
+}. ## End of namespace Core
+}. ## End of namespace Graphics
+}. ## End of namespace Stdn

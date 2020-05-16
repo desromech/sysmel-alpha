@@ -1,0 +1,25 @@
+namespace Stdn definition: {
+namespace Graphics definition: {
+namespace Core definition: {
+
+#**
+ * Memory heap type.
+ * The values of these constants are the same as the ones that exposed in agpu.
+ *#
+enum MemoryHeapType bitMask valueType: UInt8; values: #{
+    DeviceLocal: 0.
+    HostToDevice: 1.
+    DeviceToHost: 2.
+    Host: 3.
+    Custom: 4.
+
+    StagingUpload: (Host castTo: UInt8).
+
+    Static: (DeviceLocal castTo: UInt8).
+    Dynamic: (HostToDevice castTo: UInt8).
+    Stream: (HostToDevice castTo: UInt8).
+}.
+
+}. ## End of namespace Core
+}. ## End of namespace Graphics
+}. ## End of namespace Stdn

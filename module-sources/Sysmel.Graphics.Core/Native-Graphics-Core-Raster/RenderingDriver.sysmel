@@ -11,8 +11,12 @@ class Surface.
  * device dependant objects such textures and drawing surfaces.
  *#
 class RenderingDriver definition: {
+    virtual method isCPURenderingDriver => Boolean8
+        := false.
 
 }.
+
+compileTime constant RenderingDriverPtr := RenderingDriver sharedPointer.
 
 }. ## End of namespace Core
 }. ## End of namespace Graphics

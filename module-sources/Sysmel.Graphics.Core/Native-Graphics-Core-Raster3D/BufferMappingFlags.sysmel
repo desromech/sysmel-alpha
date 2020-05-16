@@ -1,0 +1,19 @@
+namespace Stdn definition: {
+namespace Graphics definition: {
+namespace Core definition: {
+
+#**
+ * Buffer mapping flags.
+ * The values of these constants are the same as the ones that exposed in agpu.
+ *#
+enum BufferMappingFlags bitMask valueType: UInt32; values: #{
+    Read: 1<<0.
+    Write: 1<<1.
+    Persistent: 1<<2.
+    Coherent: 1<<3.
+    DynamicStorage: 1<<4.
+}.
+
+}. ## End of namespace Core
+}. ## End of namespace Graphics
+}. ## End of namespace Stdn

@@ -1,0 +1,84 @@
+namespace Stdn definition: {
+namespace Graphics definition: {
+namespace Core definition: {
+
+
+#**
+ * I am a CPU based rendering driver. Since I do not require special graphical support, I am constructed as a singleton.
+ *#
+CPURenderingDriver extend: {
+    field defaultCommandQueue type: CommandQueuePtr.
+
+    method initialize => Void := {
+        defaultCommandQueue := SoftCommandQueue sharedNew upCastFor: CommandQueue.
+    }.
+
+    override method createBuffer: (description: BufferDescription const ref) initialData: (initialData: Void const pointer) ::=> BufferPtr := {
+        let buffer := SoftBuffer sharedNew.
+        let memory := Stdn zmalloc(description size).
+        memory ifNil: {
+            return: BufferPtr nil.
+        }.
+
+        initialData ifNotNil: {
+            Stdn memcpy(memory, initialData, description size).
+        }.
+
+        buffer _ initializeWithDescription: description memory: memory.
+        buffer upCastFor: Buffer.
+    }.
+
+    override method createShaderSignatureBuilder ::=> ShaderSignatureBuilderPtr
+        := SoftShaderSignatureBuilder sharedNew upCastFor: ShaderSignatureBuilder.
+
+    override method createTexture: (description: TextureDescription const ref) ::=> Texture sharedPointer := {
+        Texture sharedPointer nil
+    }.
+
+    override method createVertexLayout => VertexLayout sharedPointer := {
+        SoftVertexLayout sharedNew upCastFor: VertexLayout
+    }.
+
+    override method createVertexBindingFor: (layout: VertexLayout sharedPointer const ref) ::=> VertexBinding sharedPointer := {
+        layout ifNil: {
+            return: VertexBinding sharedPointer nil.
+        }.
+
+        let softwareLayout := layout downCastFor: SoftVertexLayout.
+        let result := SoftVertexBinding sharedNew.
+        result _ initializeWithLayout: softwareLayout.
+        result upCastFor: VertexBinding
+    }.
+
+    override method createCommandAllocatorOfType: (type: CommandListType) for: (queue: CommandQueuePtr const ref) ::=> CommandListAllocatorPtr := {
+        let result := SoftCommandListAllocator sharedNew.
+        result _
+            commandListType: type.
+        result upCastFor: CommandListAllocator
+    }.
+
+    override method createCommandListOfType: (type: CommandListType) for: (allocator: CommandListAllocatorPtr const ref) initialPipelineState: (initialPipeline: PipelineStatePtr const ref) ::=> CommandListPtr := {
+        allocator ifNil: {
+            return: CommandListPtr nil
+        }.
+
+        let softAllocator := allocator downCastFor: SoftCommandListAllocator.
+        softAllocator _ commandListType = type ifFalse: {
+            return: CommandListPtr nil
+        }.
+
+        let result := SoftCommandList sharedNew.
+        result _
+            commandListType: type.
+        result upCastFor: CommandList
+    }.
+
+    override method getDefaultCommandQueue => CommandQueuePtr := {
+        defaultCommandQueue
+    }.
+
+}.
+
+}. ## End of namespace Core
+}. ## End of namespace Graphics
+}. ## End of namespace Stdn

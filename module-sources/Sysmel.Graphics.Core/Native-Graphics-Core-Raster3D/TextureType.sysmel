@@ -1,0 +1,20 @@
+namespace Stdn definition: {
+namespace Graphics definition: {
+namespace Core definition: {
+
+#**
+ * Texture type.
+ * The values of these constants are the same as the ones that exposed in agpu.
+ *#
+enum TextureType valueType: UInt8; values: #{
+    Unknown: 0.
+    Buffer: 1.
+    Texture1D: 2.
+    Texture2D: 3.
+    TextureCube: 4.
+    Texture3D: 5.
+}.
+
+}. ## End of namespace Core
+}. ## End of namespace Graphics
+}. ## End of namespace Stdn

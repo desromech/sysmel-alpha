@@ -37,6 +37,11 @@ template Vector(ET: Stdn Concepts Copyable)
 	const inline method data => ValueType pointer
         := storage_.
 
+	const inline method asArraySlice => ValueType const arraySlice
+        := storage_ until: size_.
+	inline method asArraySlice => ValueType arraySlice
+        := storage_ until: size_.
+
 	inline method [index: UIntPointer] ::=> ValueType ref := {
 		assert: index < size_.
 		storage_[index].

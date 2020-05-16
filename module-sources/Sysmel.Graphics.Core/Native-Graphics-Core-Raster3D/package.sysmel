@@ -2,15 +2,30 @@
 loadFileOnce: "CompareFunction.sysmel".
 loadFileOnce: "StencilOperation.sysmel".
 loadFileOnce: "VertexAttributeDescription.sysmel".
+loadFileOnce: "BufferMappingFlags.sysmel".
+loadFileOnce: "BufferUsageMode.sysmel".
+loadFileOnce: "MemoryHeapType.sysmel".
+loadFileOnce: "TextureType.sysmel".
+loadFileOnce: "TextureUsageMode.sysmel".
+loadFileOnce: "BufferDescription.sysmel".
+loadFileOnce: "TextureDescription.sysmel".
 
 ## 3D rendering handles
 loadFileOnce: "VertexLayout.sysmel".
 loadFileOnce: "VertexBinding.sysmel".
+loadFileOnce: "Buffer.sysmel".
+loadFileOnce: "Texture.sysmel".
 loadFileOnce: "Framebuffer.sysmel".
 loadFileOnce: "Renderpass.sysmel".
-loadFileOnce: "GraphicsPipeline.sysmel".
-
-## CPU rendering driver
-loadFileOnce: "SoftwareVertexLayout.sysmel".
-loadFileOnce: "SoftwareVertexBinding.sysmel".
-loadFileOnce: "SoftwareGraphicsPipeline.sysmel".
+loadFileOnce: "ShaderBindingType.sysmel".
+loadFileOnce: "ShaderResourceBinding.sysmel".
+loadFileOnce: "ShaderSignature.sysmel".
+loadFileOnce: "ShaderSignatureBuilder.sysmel".
+loadFileOnce: "PipelineState.sysmel".
+loadFileOnce: "ComputePipelineState.sysmel".
+loadFileOnce: "GraphicsPipelineState.sysmel".
+loadFileOnce: "CommandListAllocator.sysmel".
+loadFileOnce: "CommandList.sysmel".
+loadFileOnce: "CommandListType.sysmel".
+loadFileOnce: "CommandQueue.sysmel".
+loadFileOnce: "RenderingDriver.sysmel".

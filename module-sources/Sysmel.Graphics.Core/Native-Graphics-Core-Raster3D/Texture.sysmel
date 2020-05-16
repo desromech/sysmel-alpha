@@ -1,0 +1,16 @@
+namespace Stdn definition: {
+namespace Graphics definition: {
+namespace Core definition: {
+
+#**
+ * I am a handle for a texture.
+ *#
+class Texture superclass: RenderingDriverObjectHandle; definition: {
+    abstract method description => TextureDescription.
+
+}.
+compileTime constant TexturePtr := Texture sharedPointer.
+
+}. ## End of namespace Core
+}. ## End of namespace Graphics
+}. ## End of namespace Stdn

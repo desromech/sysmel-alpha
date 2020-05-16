@@ -11,19 +11,27 @@ struct SimpleVertex definition: {
 	public field normal type: Float32x3.
 }.
 
-let simpleVertexLayout mutable type: SoftwareVertexLayout sharedPointer.
+let simpleVertexLayout mutable type: VertexLayoutPtr.
 
-class TransformationState definition: {
-    public field modelMatrix type: Float32x4x4.
+class CameraTransformationState definition: {
 	public field viewMatrix type: Float32x4x4.
     public field projectionMatrix type: Float32x4x4.
 }.
 
+class CameraState definition: {
+    public field transformationState type: CameraTransformationState uniformBufferPointer.
+}.
+
+class ObjectTransformationState definition: {
+    public field modelMatrix type: Float32x4x4.
+}.
+
 class ObjectState definition: {
-    public field transformationState type: TransformationState uniformBufferPointer.
+    public field transformationState type: ObjectTransformationState uniformBufferPointer.
 }.
 
 class CheckboardShader definition: {
+	public field cameraState type: CameraState bindingSetPointer.
 	public field objectState type: ObjectState bindingSetPointer.
 
 	class VertexIO definition: {
@@ -40,8 +48,8 @@ class CheckboardShader definition: {
         let input := in receive.
 
 		let worldPosition := objectState _ transformationState _ modelMatrix * input position.
-		let viewPosition := objectState _ transformationState _ viewMatrix * worldPosition.
-		let screenPosition := objectState _ transformationState _ projectionMatrix * viewPosition.
+		let viewPosition := cameraState _ transformationState _ viewMatrix * worldPosition.
+		let screenPosition := cameraState _ transformationState _ projectionMatrix * viewPosition.
 
 		let output mutable := input.
 		output position: worldPosition.
@@ -79,9 +87,16 @@ class CheckboardShader definition: {
 let mainWindow mutable type: Window sharedPointer.
 let mainDrawingSurface mutable type: Surface sharedPointer.
 let fontFaceWithSize mutable type: FontFaceWithSize sharedPointer.
+let renderingDriver mutable type: RenderingDriverPtr.
+
+let shaderSignature mutable type: ShaderSignaturePtr.
 
 let currentTime mutable type: Float32.
 let lastFrameRenderingTime mutable type: Float32.
+
+let renderingCommandQueue mutable type: CommandQueuePtr.
+let commandListAllocator mutable type: CommandListAllocatorPtr.
+let commandList mutable type: CommandListPtr.
 
 let colorBuffer mutable type: Form sharedPointer.
 let colorBufferTextureView mutable type: TextureView sharedPointer.
@@ -94,14 +109,20 @@ let cameraAngle mutable := Float32x3(0, 0, 0).
 let projectionMatrix mutable type: Float32x4x4.
 let viewMatrix mutable type: Float32x4x4.
 let modelMatrix mutable type: Float32x4x4.
-let currentTransformationState mutable type: TransformationState.
-let currentObjectState mutable type: ObjectState.
+##let currentTransformationState mutable type: TransformationState.
+##let currentObjectState mutable type: ObjectState.
 
 class Mesh definition: {
+	public field vertexBinding type: VertexBindingPtr.
+	public field indexBuffer type: BufferPtr.
+	public field indexCount type: UInt32.
+}.
+compileTime constant MeshPtr := Mesh sharedPointer.
+
+class MeshBuilder definition: {
 	public field baseVertex type: UInt32.
 	public field vertices type: Stdn Collections Vector(SimpleVertex).
 	public field indices type: Stdn Collections Vector(UInt32).
-	public field vertexBinding type: SoftwareVertexBinding sharedPointer.
 
 	method beginSubmesh => Void := {
 		baseVertex := vertices size castTo: UInt32.
@@ -132,15 +153,39 @@ class Mesh definition: {
 			add: i1 + baseVertex; add: i2 + baseVertex; add: i3 + baseVertex
 	}.
 
-	method finish => Void := {
-		vertexBinding := SoftwareVertexBinding sharedNew.
-		vertexBinding _ layout: simpleVertexLayout.
-		vertexBinding _ bufferStartPointers add: (vertices[0] address reinterpretCastTo: UInt8 const pointer).
+	method finish => MeshPtr := {
+		let vertexBuffers mutable := BufferPtr array (
+			renderingDriver _ createBuffer: (BufferDescription()
+				size: vertices size * SimpleVertex instanceSize;
+				heapType: MemoryHeapType DeviceLocal;
+				usageMode: BufferUsageMode Array;
+				mainUsageMode: BufferUsageMode Array;
+				stride: SimpleVertex instanceSize;
+				yourself) initialData: vertices asArraySlice elements
+		).
+
+		let indexBuffer := renderingDriver _ createBuffer: (BufferDescription()
+			size: indices size * 4;
+			heapType: MemoryHeapType DeviceLocal;
+			usageMode: BufferUsageMode ElementArray;
+			mainUsageMode: BufferUsageMode ElementArray;
+			stride: 4;
+			yourself) initialData: indices asArraySlice elements.
+
+		let vertexBinding := renderingDriver _ createVertexBindingFor: simpleVertexLayout.
+		vertexBinding _ bindVertexBuffers: vertexBuffers.
+
+		let result := Mesh sharedNew.
+		result _
+			vertexBinding: vertexBinding;
+			indexBuffer: indexBuffer;
+			indexCount: (indices size castTo: UInt32).
+		result
 	}.
 }.
 
-let planeMesh mutable type: Mesh.
-let cubeMesh mutable type: Mesh.
+let planeMesh mutable type: MeshPtr.
+let cubeMesh mutable type: MeshPtr.
 
 function fuzzyXor(a: Float32, b: Float32) => Float32 := {
 	(a max: b) - (a min: b)
@@ -148,11 +193,12 @@ function fuzzyXor(a: Float32, b: Float32) => Float32 := {
 
 
 Mesh definition: {
-	method drawOn: (pipeline: SoftwareGraphicsPipeline ref) ::=> Void := {
+	method drawOn: (pipeline: SoftGraphicsPipeline ref) ::=> Void := {
 		pipeline vertexShader ifNil: {
 			return: void
 		}.
 
+		#*
 		let nextSourceIndex mutable := 0.
 		currentTransformationState
 			modelMatrix: modelMatrix;
@@ -171,12 +217,23 @@ Mesh definition: {
 			pipeline drawTriangleIndices: i1 i2: i2 i3: i3 instanceID: 0.
 			nextSourceIndex := nextSourceIndex + 3
 		}.
-		
+		*#
 	}.
 }.
 
 function doRender3D => Void := {
-	let pipeline mutable type: SoftwareGraphicsPipeline.
+	commandListAllocator _ resetAllocator.
+	commandList _
+		resetFor: commandListAllocator;
+
+		close.
+
+	renderingCommandQueue _
+		submitCommandList: commandList;
+		waitForIdle.
+
+	#**
+	let pipeline mutable type: SoftGraphicsPipeline.
 	pipeline
 		colorBufferBlitter: colorBuffer _ makeBlitter;
 		depthStencilBufferBlitter: depthBuffer _ makeBlitter;
@@ -190,10 +247,11 @@ function doRender3D => Void := {
 	pipeline depthStencilBufferBlitter setAllPixelsToColor: UInt8x4 zeros.
 
 	modelMatrix := Float32x4x4 identity.
-	planeMesh drawOn: pipeline.
+	planeMesh _ drawOn: pipeline.
 
 	modelMatrix := Float32x4x4 translation: Float32x3(0, 1, 0).
-	cubeMesh drawOn: pipeline.
+	cubeMesh _ drawOn: pipeline.
+	*#
 }.
 
 function doRenderOn(canvas: Canvas ref) => Void := {
@@ -272,6 +330,8 @@ function main externC (argc: Int32, argv: UInt8 const pointer pointer) => Int32 
         return: 0.
     }.
 
+	renderingDriver := mainWindow _ renderingDriver.
+
     ## Create the main window drawing surface.
     mainDrawingSurface := mainWindow _ createDefaultDrawingSurface.
     mainDrawingSurface ifNil: {
@@ -291,28 +351,57 @@ function main externC (argc: Int32, argv: UInt8 const pointer pointer) => Int32 
     let fontFace mutable := FontRegistry default defaultSans _ normalFace.
     fontFaceWithSize := fontFace _ getOrCreateFaceWithSize: 12.
 
+	## Build the shader signature.
+	{
+		shaderSignature := renderingDriver _ createShaderSignatureBuilder _
+			## Camera state
+			beginBindingBank;
+			addBankElementWithType: ShaderBindingType UniformBuffer;
+
+			## Object state
+			beginBindingBank;
+			addBankElementWithType: ShaderBindingType UniformBuffer;
+			build
+	}.
+
 	## Build the vertex layout.
-	simpleVertexLayout := SoftwareVertexLayout sharedNew.
-	simpleVertexLayout _ strides add: SimpleVertex instanceSize.
-	simpleVertexLayout _ attributes add: (VertexAttributeDescription()
-		location: 0;
-		format: PixelFormat R32G32B32A32_Float;
-		offset: 0;
-		yourself).
-	simpleVertexLayout _ attributes add: (VertexAttributeDescription()
-		location: 1;
-		format: PixelFormat R32G32B32A32_Float;
-		offset: 16;
-		yourself).
-	simpleVertexLayout _ attributes add: (VertexAttributeDescription()
-		location: 2;
-		format: PixelFormat R32G32B32_Float;
-		offset: 32;
-		yourself).
+	{
+		let attributes mutable := VertexAttributeDescription array (
+			VertexAttributeDescription()
+				location: 0;
+				format: PixelFormat R32G32B32A32_Float;
+				offset: 0;
+				yourself,
+			VertexAttributeDescription()
+				location: 1;
+				format: PixelFormat R32G32B32A32_Float;
+				offset: 16;
+				yourself,
+			VertexAttributeDescription()
+				location: 2;
+				format: PixelFormat R32G32B32_Float;
+				offset: 32;
+				yourself
+		).
+
+		let strides mutable := UInt32 array(VertexAttributeDescription instanceSize).
+
+		simpleVertexLayout := renderingDriver _ createVertexLayout.
+		simpleVertexLayout _ addVertexBuffers: strides withAttributes: attributes.
+	}.
+
+	## Get the rendering command queue.
+	renderingCommandQueue := renderingDriver _ getDefaultCommandQueue.
+
+	## Build the command allocator and list.
+	{
+		commandListAllocator := renderingDriver _ createCommandAllocatorOfType: CommandListType Direct for: renderingCommandQueue.
+		commandList := renderingDriver _ createCommandListOfType: CommandListType Direct for: commandListAllocator.
+	}.
 
 	## Build the plane
 	{
-		planeMesh
+		planeMesh := MeshBuilder()
 			addVertex: Float32x3(0, 0, 0) normal: Float32x3(0, 1, 0);
 			addVertex: Float32x4(-1, 0, -1, 0) normal: Float32x3(0, 1, 0);
 			addVertex: Float32x4(1, 0, -1, 0) normal: Float32x3(0, 1, 0);
@@ -332,7 +421,7 @@ function main externC (argc: Int32, argv: UInt8 const pointer pointer) => Int32 
 		let max := Float32x3 ones.
 		let min := max negated.
 
-		cubeMesh
+		cubeMesh := MeshBuilder()
 			## Left
 	        beginSubmesh;
 	        addVertex: Float32x3(min x, min y, min z) normal: Float32x3(-1.0f, 0.0f, 0.0f) texcoord: Float32x2(0.0f, 1.0f);

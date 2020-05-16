@@ -11,6 +11,10 @@ class CPURenderingDriver superclass: RenderingDriver; definition: {
         let uniqueInstance mutable type: RenderingDriver sharedPointer.
         let uniqueInstanceOnceCreation mutable type: Stdn OnceFlag.
 
+        override method isCPURenderingDriver => Boolean8
+            := true.
+
+
         method uniqueInstance => RenderingDriver sharedPointer := {
             uniqueInstanceOnceCreation do: {
                 uniqueInstance := RenderingDriver sharedPointer for: CPURenderingDriver nativeNew.

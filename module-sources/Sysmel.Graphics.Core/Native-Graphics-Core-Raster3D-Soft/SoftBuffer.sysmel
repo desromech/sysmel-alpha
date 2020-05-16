@@ -1,0 +1,30 @@
+namespace Stdn definition: {
+namespace Graphics definition: {
+namespace Core definition: {
+
+#**
+ * I am a CPU only implementation for a buffer.
+ *#
+class SoftBuffer superclass: Buffer; definition: {
+    protected field description type: BufferDescription.
+    protected field memory type: Void pointer.
+
+    method initializeWithDescription: (theDescription: BufferDescription const ref) memory: (theMemory: Void pointer) ::=> Void := {
+        description := theDescription.
+        memory := theMemory.
+    }.
+
+    override method finalize => Void := {
+        Stdn free(memory)
+    }.
+
+    const override method description => BufferDescription
+        := description.
+
+    const inline method memoryStartPointer => UInt8 pointer
+        := memory reinterpretCastTo: UInt8 pointer.
+}.
+
+}. ## End of namespace Core
+}. ## End of namespace Graphics
+}. ## End of namespace Stdn

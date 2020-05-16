@@ -1,0 +1,18 @@
+namespace Stdn definition: {
+namespace Graphics definition: {
+namespace Core definition: {
+
+#**
+ * I am a CPU only implementation for a graphics command list allocator.
+ *#
+class SoftCommandListAllocator superclass: CommandListAllocator; definition: {
+    public field commandListType type: CommandListType.
+
+    override method resetAllocator => Void := {
+        ## Nothing required here.
+    }.
+}.
+
+}. ## End of namespace Core
+}. ## End of namespace Graphics
+}. ## End of namespace Stdn

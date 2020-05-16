@@ -1,0 +1,21 @@
+namespace Stdn definition: {
+namespace Graphics definition: {
+namespace Core definition: {
+
+#**
+ * I am a handle for a command list.
+ *#
+class CommandList superclass: RenderingDriverObjectHandle; definition: {
+    abstract method resetFor: (allocator: CommandListAllocatorPtr const ref) initialPipelineState: (initialPipeline: PipelineStatePtr const ref) ::=> Void.
+    abstract method close => Void.
+
+    virtual method resetFor: (allocator: CommandListAllocatorPtr const ref) ::=> Void
+        := self resetFor: allocator initialPipelineState: PipelineStatePtr nil
+
+}.
+
+compileTime constant CommandListPtr := CommandList sharedPointer.
+
+}. ## End of namespace Core
+}. ## End of namespace Graphics
+}. ## End of namespace Stdn

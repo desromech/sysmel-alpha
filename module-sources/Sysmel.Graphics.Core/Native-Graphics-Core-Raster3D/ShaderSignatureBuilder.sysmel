@@ -1,0 +1,24 @@
+namespace Stdn definition: {
+namespace Graphics definition: {
+namespace Core definition: {
+
+#**
+ * I am a handle for a shader signature builder.
+ *#
+class ShaderSignatureBuilder superclass: RenderingDriverObjectHandle; definition: {
+    abstract method beginBindingBank: (maxBindingsHint: UIntPointer) ::=> Void.
+    abstract method addBankElementWithType: (bindingType: ShaderBindingType) bindingPointCount: (bindingPointCount: UIntPointer) ::=> Void.
+    abstract method build => ShaderSignaturePtr.
+
+    virtual method beginBindingBank => Void
+        := self beginBindingBank: 1024.
+
+    virtual method addBankElementWithType: (bindingType: ShaderBindingType) ::=> Void
+        := self addBankElementWithType: bindingType bindingPointCount: 1.
+}.
+
+compileTime constant ShaderSignatureBuilderPtr := ShaderSignatureBuilder sharedPointer.
+
+}. ## End of namespace Core
+}. ## End of namespace Graphics
+}. ## End of namespace Stdn

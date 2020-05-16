@@ -5,9 +5,14 @@ namespace Core definition: {
 #**
  * I am an specification for a vertex attribute.
  *#
-class SoftwareVertexLayout superclass: VertexLayout; definition: {
+class SoftVertexLayout superclass: VertexLayout; definition: {
     public field attributes type: Stdn Collections Vector(VertexAttributeDescription).
     public field strides type: Stdn Collections Vector(UInt32).
+
+    override method addVertexBuffers: (newStrides: UInt32 const arraySlice) withAttributes: (newAttributes: VertexAttributeDescription const arraySlice) ::=> Void := {
+        strides addAll: newStrides.
+        attributes addAll: newAttributes.
+    }.
 }.
 
 }. ## End of namespace Core
