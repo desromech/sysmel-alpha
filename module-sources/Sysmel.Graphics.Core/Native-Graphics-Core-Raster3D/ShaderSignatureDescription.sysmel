@@ -6,6 +6,8 @@ namespace Core definition: {
  * Shader signature description.
  *#
 struct ShaderSignatureDescription definition: {
+    public field banks type: Stdn Collections Vector(ShaderSignatureBankDescription).
+    public field pushConstantsSize type: UIntPointer.
 
 }.
 

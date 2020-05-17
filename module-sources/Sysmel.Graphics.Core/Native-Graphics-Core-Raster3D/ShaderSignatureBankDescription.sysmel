@@ -1,0 +1,16 @@
+namespace Stdn definition: {
+namespace Graphics definition: {
+namespace Core definition: {
+
+#**
+ * Shader signature description.
+ *#
+struct ShaderSignatureBankDescription definition: {
+    ## A hint on the max number of binding points that may be actually created.
+    public field maxBindingPointCountHint type: UIntPointer.
+    public field elements type: Stdn Collections Vector(ShaderBindingType).
+}.
+
+}. ## End of namespace Core
+}. ## End of namespace Graphics
+}. ## End of namespace Stdn

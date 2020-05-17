@@ -23,6 +23,34 @@ class SoftBuffer superclass: Buffer; definition: {
 
     const inline method memoryStartPointer => UInt8 pointer
         := memory reinterpretCastTo: UInt8 pointer.
+
+    const override method stride => UIntPointer
+        := description stride.
+
+    const override method size => UIntPointer
+        := description size.
+
+    override method map: (access: MappingAccessMask) ::=> Void pointer
+        := memory.
+
+    override method unmap ::=> Void
+        := void.
+
+    override method uploadAt: (offset: UIntPointer) size: (size: UIntPointer) data: (data: Void const pointer) ::=> Void := {
+        let uploadEnd := offset + size min: description size.
+        uploadEnd < offset ifTrue: {return: void}.
+
+        let clippedSize := uploadEnd - offset.
+        Stdn memcpy(self memoryStartPointer + offset, data, clippedSize).
+    }.
+
+    override method readAt: (offset: UIntPointer) size: (size: UIntPointer) into: (buffer: Void pointer) ::=> Void := {
+        let readEnd := offset + size min: description size.
+        readEnd < offset ifTrue: {return: void}.
+
+        let clippedSize := readEnd - offset.
+        Stdn memcpy(buffer, self memoryStartPointer + offset, clippedSize).
+    }.
 }.
 
 }. ## End of namespace Core

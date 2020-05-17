@@ -6,7 +6,24 @@ namespace Core definition: {
  * I am a CPU only implementation for a shader signature.
  *#
 class SoftShaderSignature superclass: ShaderSignature; definition: {
+    public field description type: ShaderSignatureDescription.
+
+    override method createShaderResourceBinding: (elementIndex: UIntPointer) ::=> ShaderResourceBindingsPtr := {
+        Stdn assert: elementIndex < description banks size.
+
+        let result := SoftShaderResourceBindings sharedNew.
+        result _
+            shaderSignature: self asSharedPointer;
+            bankIndex: elementIndex;
+            bankDescription: description banks[elementIndex] address;
+            createBindingTable;
+            yourself.
+
+        result upCastFor: ShaderResourceBindings
+    }.
 }.
+
+compileTime constant SoftShaderSignaturePtr := SoftShaderSignature sharedPointer.
 
 }. ## End of namespace Core
 }. ## End of namespace Graphics

@@ -2,13 +2,19 @@ namespace Stdn definition: {
 namespace Graphics definition: {
 namespace Core definition: {
 
+useNamespace: Stdn Math Geometry.
+
 class SoftRenderPassExecutionContext definition: {
+    compileTime constant MaxColorAttachmentCount := 16.
+
     public field renderPass type: SoftRenderPass const pointer.
     public field framebuffer type: SoftFramebuffer const pointer.
     public field extent type: UInt32x2.
 
+    public field clippingBounds type: RectangleI32.
+
     public field colorAttachmentCount type: UInt32.
-    public field colorAttachmentBlitters type: (Blitter array: 16).
+    public field colorAttachmentBlitters type: (Blitter array: MaxColorAttachmentCount).
 
     public field hasDepthStencilAttachment type: Boolean8.
     public field depthAttachmentBlitter type: Blitter.
@@ -16,7 +22,7 @@ class SoftRenderPassExecutionContext definition: {
     method startExecution => Void := {
         extent := framebuffer _ extent.
 
-        colorAttachmentCount := (renderPass _ colorAttachments size min: 16) castTo: UInt32.
+        colorAttachmentCount := (renderPass _ colorAttachments size min: MaxColorAttachmentCount) castTo: UInt32.
         0 until: colorAttachmentCount do: {:i :: Void |
             let attachmentBlitter ref := colorAttachmentBlitters[i].
             let attachmentDescription ref := renderPass _ colorAttachments[i].
@@ -36,6 +42,8 @@ class SoftRenderPassExecutionContext definition: {
                 depthAttachmentBlitter setAllPixelsToColor: attachmentDescription clearValue depth.
             }.
         }.
+
+        clippingBounds := RectangleI32 min: Int32x2 zeros max: (extent castTo: Int32x2).
     }.
 
     method endExecution => Void := {

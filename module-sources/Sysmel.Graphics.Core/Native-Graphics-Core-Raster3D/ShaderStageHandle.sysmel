@@ -1,0 +1,15 @@
+namespace Stdn definition: {
+namespace Graphics definition: {
+namespace Core definition: {
+
+#**
+ * I am a handle for a compiled shader stage.
+ *#
+class ShaderStageHandle superclass: RenderingDriverObjectHandle; definition: {
+}.
+
+compileTime constant ShaderStageHandlePtr := ShaderStageHandle sharedPointer.
+
+}. ## End of namespace Core
+}. ## End of namespace Graphics
+}. ## End of namespace Stdn

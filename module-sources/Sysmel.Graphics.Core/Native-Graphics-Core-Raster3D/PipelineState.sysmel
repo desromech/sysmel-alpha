@@ -6,6 +6,10 @@ namespace Core definition: {
  * I am a handle for a pipeline state.
  *#
 class PipelineState superclass: RenderingDriverObjectHandle; definition: {
+    virtual method isGraphicsPipelineState => Boolean8
+        := false.
+    virtual method isComputePipelineState => Boolean8
+        := false.
 
 }.
 

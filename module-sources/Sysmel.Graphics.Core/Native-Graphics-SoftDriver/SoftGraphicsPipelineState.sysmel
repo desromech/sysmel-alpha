@@ -3,7 +3,151 @@ namespace Graphics definition: {
 namespace Core definition: {
 
 class SoftGraphicsPipeline superclass: GraphicsPipelineState; definition: {
+	compileTime constant MaxColorAttachmentCount := SoftRenderPassExecutionContext MaxColorAttachmentCount.
+
 	public field description type: GraphicsPipelineStateDescription.
+
+	public field vertexShader type: GPU NativeVertexShaderEntryPointType pointer.
+	public field fragmentShader type: GPU NativeFragmentShaderEntryPointType pointer.
+
+	method fetchCachedPipelineState => Void := {
+		(description vertexShader getPointer castTo: SoftShaderStageHandle pointer) ifNotNil: {:shaderStage :: Void |
+			vertexShader := shaderStage _ entryPointInfo nativeShaderEntryPoint reinterpretCastTo: GPU NativeVertexShaderEntryPointType pointer
+		}.
+
+		(description fragmentShader getPointer castTo: SoftShaderStageHandle pointer) ifNotNil: {:shaderStage :: Void |
+			fragmentShader := shaderStage _ entryPointInfo nativeShaderEntryPoint reinterpretCastTo: GPU NativeFragmentShaderEntryPointType pointer
+		}.
+
+	}.
+
+	const method fillTriangleV1: (v1: GPU NativeVertexShaderIOInterface Outputs ref)
+		v2: (v2: GPU NativeVertexShaderIOInterface Outputs ref)
+		v3: (v3: GPU NativeVertexShaderIOInterface Outputs ref)
+		graphicsRootDescriptorTable: (graphicsRootDescriptorTable: Void const pointer)
+		renderPassExecutionContext: (renderPassExecutionContext: SoftRenderPassExecutionContext const ref) ::=> Void := {
+
+		let colorAttachmentCount := (description colorAttachments size min: MaxColorAttachmentCount) min: renderPassExecutionContext colorAttachmentCount.
+		let colorAttachmentDescriptions := description colorAttachments asArraySlice elements.
+
+		let hasDepthTesting := description depthTestingEnabled.
+		let depthWriteMask := description depthWriteMask.
+
+		let colorRows mutable type: (UnsafePixelIterator array: MaxColorAttachmentCount).
+		let colorPixels mutable type: (UnsafePixelIterator array: MaxColorAttachmentCount).
+		let depthRow mutable type: UnsafePixelIterator.
+		let depthPixel mutable type: UnsafePixelIterator.
+
+		TriangleRasterizer()
+			clippingBounds: renderPassExecutionContext clippingBounds;
+			viewportExtent: (renderPassExecutionContext extent castTo: Float32x2);
+			loopSetupFunction: {:(Int32x2)startPosition :: Void |
+				0 until: colorAttachmentCount do: {:i :: Void |
+					colorRows[i] := renderPassExecutionContext colorAttachmentBlitters[i] makeUnsafePixelIteratorAt: startPosition
+				}.
+
+				hasDepthTesting ifTrue: {
+					depthRow := renderPassExecutionContext depthAttachmentBlitter makeUnsafePixelIteratorAt: startPosition.
+				}.
+			};
+			rowSetupFunction: { :: Void |
+				0 until: colorAttachmentCount do: {:i :: Void |
+					colorPixels[i] := colorRows[i]
+				}.
+
+				hasDepthTesting ifTrue: {
+					depthPixel := depthRow
+				}.
+			};
+			rowAdvanceFunction: {:(Int32)delta :: Void |
+				0 until: colorAttachmentCount do: {:i :: Void |
+					colorRows[i] advanceRows: delta
+				}.
+
+				hasDepthTesting ifTrue: {
+					depthRow advanceRows: delta
+				}.
+			};
+			columnAdvanceFunction: {:(Int32)delta :: Void |
+				0 until: colorAttachmentCount do: {:i :: Void |
+					colorPixels[i] advanceColumns: delta
+				}.
+
+				hasDepthTesting ifTrue: {
+					depthPixel advanceColumns: delta
+				}.
+			};
+			pixelRenderFunction: (function (fragCoord: Float32x4, isFrontFacing: Boolean8, flatBarycentric: Float32x3, perspectiveBarycentric: Float32x3) => Void := {
+				## Depth testing.
+				hasDepthTesting ifTrue: {
+					let depth ref := (depthPixel pixels reinterpretCastTo: Float32 pointer) _.
+					(description depthFunction compare: fragCoord z with: depth) ifFalse: {
+						return: void
+					}.
+				}.
+
+				## TODO: Stencil testing.
+
+				fragmentShader ifNotNil: {
+					let fragment mutable type: GPU NativeFragmentShaderIOInterface.
+
+					## Invoke the fragment shader.
+					{
+						fragment inputs
+							fragCoord: fragCoord;
+							isFrontFacing: isFrontFacing.
+						0 until: 16 do: {:i :: Void |
+							fragment inputs locations[i] := perspectiveBarycentric * (Float32x3x4 rows: (v1 locations[i], v2 locations[i], v3 locations[i])).
+						}.
+
+						fragmentShader(graphicsRootDescriptorTable reinterpretCastTo: Void pointer, fragment)
+					}.
+
+					## Write the outputs.
+					0 until: colorAttachmentCount do: {:i :: Void |
+						let attachmentDescription ref := colorAttachmentDescriptions[i].
+						let colorMask := attachmentDescription colorMask.
+						colorMask isAnySet ifTrue: {
+							let fragmentColor := fragment outputs locations[i].
+							colorMask isAllSet && attachmentDescription blendingEnabled not ifTrue: {
+								colorPixels[i] storePixelFloat32x4: fragmentColor.
+							} ifFalse: {
+								let destinationColor := colorPixels[i] loadPixelFloat32x4.
+								let blendedColor := attachmentDescription blendingEnabled ifTrue: {
+									let alternateSource := fragment outputs locations[(i + 1) & 15].
+									attachmentDescription blendingEquation evaluateWithSource: fragmentColor destination: destinationColor
+										constantFactor: attachmentDescription blendingConstant alternateSource: alternateSource
+								} ifFalse: {
+									fragmentColor
+								}.
+
+								## Apply the color mask.
+								let floatMask := colorMask castTo: Float32x4.
+								let inverseFloatMask := Float32x4 ones - floatMask.
+								let maskedColor := fragmentColor*floatMask + destinationColor*inverseFloatMask.
+
+								## Write the masked color.
+								colorPixels[i] storePixelFloat32x4: maskedColor.
+							}.
+						}.
+					}.
+
+					#*let fragmentColor := fragment outputs locations[0].
+					let alternateSource := fragmentColor.
+					let destinationColor := colorPixel loadPixelFloat32x4.
+
+					let blendedColor := blendingEquation evaluateWithSource: fragmentColor destination: destinationColor
+						constantFactor: blendingConstant alternateSource: alternateSource.
+
+					colorPixel storePixelFloat32x4: blendedColor.*#
+				}.
+
+				hasDepthTesting && depthWriteMask ifTrue: {
+					(depthPixel pixels reinterpretCastTo: Float32 pointer) _ := fragCoord z.
+				}.
+			});
+			rasterizeTriangleNDC: v1 screenPosition p2: v2 screenPosition p3: v3 screenPosition.
+	}.
 
 #*	const method drawTriangle: (v1: GPU NativeVertexShaderIOInterface Outputs ref)
 		v2: (v2: GPU NativeVertexShaderIOInterface Outputs ref)

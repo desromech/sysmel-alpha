@@ -7,7 +7,7 @@ useNamespace: Stdn Math Geometry.
 #**
  * A triangle rasterizer. A tool to simplify writing rasterization loops.
  *#
-class TringleRasterizer definition: {
+class TriangleRasterizer definition: {
     compileTime constant LoopSetupFunction := (Int32x2 => Void) nativeBlockClosure.
     compileTime constant RowSetupFunction := (Void => Void) nativeBlockClosure.
     compileTime constant AdvanceFunction := (Int32 => Void) nativeBlockClosure.

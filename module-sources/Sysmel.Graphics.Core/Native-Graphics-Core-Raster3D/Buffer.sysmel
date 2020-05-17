@@ -8,6 +8,19 @@ namespace Core definition: {
 class Buffer superclass: RenderingDriverObjectHandle; definition: {
 
     const abstract method description => BufferDescription.
+
+    const virtual method stride => UIntPointer
+        := self description stride.
+
+    const virtual method size => UIntPointer
+        := self description size.
+
+    abstract method map: (access: MappingAccessMask) ::=> Void pointer.
+    abstract method unmap ::=> Void.
+
+    abstract method uploadAt: (offset: UIntPointer) size: (size: UIntPointer) data: (data: Void const pointer) ::=> Void.
+    abstract method readAt: (offset: UIntPointer) size: (size: UIntPointer) into: (buffer: Void pointer) ::=> Void.
+
 }.
 
 compileTime constant BufferPtr := Buffer sharedPointer.

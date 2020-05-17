@@ -374,7 +374,7 @@ class Blitter definition: {
         let destRow mutable type: UnsafePixelIterator.
         let destPixel mutable type: UnsafePixelIterator.
 
-        TringleRasterizer()
+        TriangleRasterizer()
             clippingBounds: self clippedBounds;
             loopSetupFunction: {:(Int32x2)startPosition :: Void |
                 destRow := self makeUnsafePixelIteratorAt: startPosition.

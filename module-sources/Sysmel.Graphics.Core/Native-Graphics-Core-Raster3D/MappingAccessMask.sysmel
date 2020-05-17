@@ -1,0 +1,17 @@
+namespace Stdn definition: {
+namespace Graphics definition: {
+namespace Core definition: {
+
+#**
+ * Mapping access mask
+ * The values of these constants are the same as the ones that exposed in agpu.
+ *#
+enum MappingAccessMask bitMask valueType: UInt32; values: #{
+    ReadOnly: 1.
+    WriteOnly: 2.
+    ReadWrite: 3.
+}.
+
+}. ## End of namespace Core
+}. ## End of namespace Graphics
+}. ## End of namespace Stdn

@@ -6,6 +6,42 @@ namespace Core definition: {
  * I am a CPU only implementation for a shader resource binding.
  *#
 class SoftShaderResourceBindings superclass: ShaderResourceBindings; definition: {
+    public field shaderSignature type: SoftShaderSignaturePtr.
+    public field bankIndex type: UIntPointer.
+    public field bankDescription type: ShaderSignatureBankDescription pointer.
+
+    public field bindingTable type: Stdn Collections Vector(Void pointer).
+    public field bindingHandleTable type: Stdn Collections Vector(RenderingDriverObjectHandle sharedPointer).
+
+    method createBindingTable => Void := {
+        let bindingTableSize := bankDescription _ elements size.
+        bindingTable resizeTo: bindingTableSize.
+        bindingHandleTable resizeTo: bindingTableSize.
+    }.
+
+    const inline method isValidLocation: (location: IntPointer) ::=> Boolean8 :={
+        (location castTo: UIntPointer) < bindingTable size.
+    }.
+
+    override method bindOn: (location: IntPointer) uniformBuffer: (buffer: BufferPtr const ref) ::=> Void := {
+        let size := buffer ifNil: {0} ifNotNil: {buffer _ size}.
+        self bindOn: location uniformBuffer: buffer offset: 0 size: size.
+    }.
+
+    override method bindOn: (location: IntPointer) uniformBuffer: (buffer: BufferPtr const ref) offset: (offset: UIntPointer) size: (size: UIntPointer) ::=> Void := {
+        (self isValidLocation: location) ifFalse: {return: void}.
+
+        let ulocation := location castTo: UIntPointer.
+
+        let softBuffer := buffer downCastFor: SoftBuffer.
+        softBuffer ifNil: {
+            bindingTable[ulocation] := nil.
+            bindingHandleTable[ulocation] reset.
+        } ifNotNil: {
+            bindingTable[ulocation] := softBuffer _ memoryStartPointer + offset.
+            bindingHandleTable[ulocation] := softBuffer upCastFor: RenderingDriverObjectHandle.
+        }
+    }.
 }.
 
 }. ## End of namespace Core

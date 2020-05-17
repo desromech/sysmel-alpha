@@ -6,7 +6,8 @@ namespace Core definition: {
  * I am a handle for a graphics pipeline state.
  *#
 class GraphicsPipelineState superclass: PipelineState; definition: {
-
+    override method isGraphicsPipelineState => Boolean8
+        := true.
 }.
 
 compileTime constant GraphicsPipelineStatePtr := GraphicsPipelineState sharedPointer.

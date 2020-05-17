@@ -8,6 +8,7 @@ loadFileOnce: "SoftGraphicsPipelineState.sysmel".
 loadFileOnce: "SoftRenderPass.sysmel".
 loadFileOnce: "SoftShaderSignature.sysmel".
 loadFileOnce: "SoftShaderSignatureBuilder.sysmel".
+loadFileOnce: "SoftShaderStageHandle.sysmel".
 loadFileOnce: "SoftShaderResourceBindings.sysmel".
 loadFileOnce: "SoftVertexLayout.sysmel".
 loadFileOnce: "SoftVertexBinding.sysmel".

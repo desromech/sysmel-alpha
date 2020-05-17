@@ -20,6 +20,7 @@ struct GraphicsPipelineStateColorAttachmentDescription definition: {
 
     public field blendingEnabled type: Boolean8.
     public field blendingEquation type: BlendingEquation.
+    public field blendingConstant type: Float32x4.
 }.
 
 struct StencilFaceState definition: {
@@ -42,6 +43,13 @@ struct GraphicsPipelineStateDescription definition: {
     }.
 
     public field shaderSignature type: ShaderSignaturePtr.
+
+    ## Shader stages.
+    public field vertexShader type: ShaderStageHandlePtr.
+    public field fragmentShader type: ShaderStageHandlePtr.
+    public field geometryShader type: ShaderStageHandlePtr.
+    public field tessellationControl type: ShaderStageHandlePtr.
+    public field tessellationEvaluation type: ShaderStageHandlePtr.
 
     ## Rasterization state.
     public field frontFaceOrientation type: FrontFaceOrientation.
@@ -78,6 +86,7 @@ struct GraphicsPipelineStateDescription definition: {
     method addColorAttachmentWithFormat: (format: PixelFormat) ::=> Void := {
         colorAttachments add: (GraphicsPipelineStateColorAttachmentDescription()
             format: format;
+            colorMask: Boolean8x4(true, true, true, true);
             yourself)
     }.
 

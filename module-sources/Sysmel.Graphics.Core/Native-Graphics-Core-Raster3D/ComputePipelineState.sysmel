@@ -6,6 +6,8 @@ namespace Core definition: {
  * I am a handle for a compute pipeline state.
  *#
 class ComputePipelineState superclass: PipelineState; definition: {
+    override method isComputePipelineState => Boolean8
+        := true.
 
 }.
 

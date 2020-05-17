@@ -6,6 +6,8 @@ namespace Core definition: {
  * Compute pipeline state description.
  *#
 struct ComputePipelineStateDescription definition: {
+    public field shaderSignature type: ShaderSignaturePtr.
+    public field computeShader type: ShaderStageHandlePtr.
 }.
 
 }. ## End of namespace Core

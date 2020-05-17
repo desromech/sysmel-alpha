@@ -31,6 +31,15 @@ class SoftRenderingDevice superclass: RenderingDevice; definition: {
     override method createShaderSignatureBuilder ::=> ShaderSignatureBuilderPtr
         := SoftShaderSignatureBuilder sharedNew upCastFor: ShaderSignatureBuilder.
 
+    override method createShaderLibraryFromModule: (shaderModule: GPU ShaderModuleInfo const ref) ::=> ShaderLibraryHandlePtr
+        := ShaderLibraryHandlePtr nil.
+
+    override method createShaderStageFromEntryPoint: (entryPointInfo: GPU ShaderEntryPointInfo const ref) ::=> ShaderStageHandlePtr := {
+        let result := SoftShaderStageHandle sharedNew.
+        result _ entryPointInfo: entryPointInfo.
+        result upCastFor: ShaderStageHandle
+    }.
+
     override method createTexture: (description: TextureDescription const ref) ::=> TexturePtr := {
         TexturePtr nil
     }.
@@ -46,8 +55,8 @@ class SoftRenderingDevice superclass: RenderingDevice; definition: {
     override method createGraphicsPipelineState: (description: GraphicsPipelineStateDescription const ref) ::=> PipelineStatePtr := {
         let result := SoftGraphicsPipeline sharedNew.
         result _ description := description.
+        result _ fetchCachedPipelineState.
         result upCastFor: PipelineState.
-        ##PipelineStatePtr nil
     }.
 
     override method createVertexLayout => VertexLayout sharedPointer := {

@@ -1,0 +1,15 @@
+namespace Stdn definition: {
+namespace Graphics definition: {
+namespace Core definition: {
+
+#**
+ * I am a handle for a compiled shader library. I could also be a container for differnet shader stages.
+ *#
+class ShaderLibraryHandle superclass: RenderingDriverObjectHandle; definition: {
+}.
+
+compileTime constant ShaderLibraryHandlePtr := ShaderLibraryHandle sharedPointer.
+
+}. ## End of namespace Core
+}. ## End of namespace Graphics
+}. ## End of namespace Stdn

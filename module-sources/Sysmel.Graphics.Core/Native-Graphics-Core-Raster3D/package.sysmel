@@ -8,6 +8,7 @@ loadFileOnce: "CompareFunction.sysmel".
 loadFileOnce: "ComputePipelineStateDescription.sysmel".
 loadFileOnce: "DepthStencilValue.sysmel".
 loadFileOnce: "GraphicsPipelineStateDescription.sysmel".
+loadFileOnce: "MappingAccessMask.sysmel".
 loadFileOnce: "MemoryHeapType.sysmel".
 loadFileOnce: "PipelineStageMask.sysmel".
 loadFileOnce: "PrimitiveTopology.sysmel".
@@ -15,6 +16,7 @@ loadFileOnce: "RenderPassAttachmentAction.sysmel".
 loadFileOnce: "RenderPassColorAttachmentDescription.sysmel".
 loadFileOnce: "RenderPassDepthStencilAttachmentDescription.sysmel".
 loadFileOnce: "SamplerDescription.sysmel".
+loadFileOnce: "ShaderSignatureBankDescription.sysmel".
 loadFileOnce: "ShaderSignatureDescription.sysmel".
 loadFileOnce: "StencilOperation.sysmel".
 loadFileOnce: "TextureAddressMode.sysmel".
@@ -35,9 +37,11 @@ loadFileOnce: "Framebuffer.sysmel".
 loadFileOnce: "RenderPass.sysmel".
 loadFileOnce: "Sampler.sysmel".
 loadFileOnce: "ShaderBindingType.sysmel".
+loadFileOnce: "ShaderLibraryHandle.sysmel".
 loadFileOnce: "ShaderResourceBindings.sysmel".
 loadFileOnce: "ShaderSignature.sysmel".
 loadFileOnce: "ShaderSignatureBuilder.sysmel".
+loadFileOnce: "ShaderStageHandle.sysmel".
 loadFileOnce: "PipelineState.sysmel".
 loadFileOnce: "ComputePipelineState.sysmel".
 loadFileOnce: "GraphicsPipelineState.sysmel".

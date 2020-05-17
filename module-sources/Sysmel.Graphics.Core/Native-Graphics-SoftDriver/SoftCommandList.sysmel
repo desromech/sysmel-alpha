@@ -5,7 +5,111 @@ namespace Core definition: {
 useNamespace: Stdn Math Geometry.
 
 struct SoftCommandListExecutionState definition: {
+
     public field renderPassExecutionContext type: SoftRenderPassExecutionContext.
+
+    public field graphicsRootDescriptorTable type: (Void pointer array: 16).
+    public field computeRootDescriptorTable type: (Void pointer array: 16).
+
+    public field graphicsPipelineState type: SoftGraphicsPipeline pointer.
+    public field vertexBinding type: SoftVertexBinding pointer.
+
+    public field indexBuffer type: Void pointer.
+    public field indexBufferStride type: UIntPointer.
+
+    const method drawTriangleV1: (v1: GPU NativeVertexShaderIOInterface Outputs ref)
+		v2: (v2: GPU NativeVertexShaderIOInterface Outputs ref)
+		v3: (v3: GPU NativeVertexShaderIOInterface Outputs ref) ::=> Void := {
+
+        graphicsPipelineState _ fragmentShader ifNil: {return: void}.
+
+        graphicsPipelineState _ fillTriangleV1: v1 v2: v2 v3: v3
+            graphicsRootDescriptorTable: graphicsRootDescriptorTable address
+            renderPassExecutionContext: renderPassExecutionContext.
+	}.
+
+    method drawTriangleI1: (i1: UInt32) i2: (i2: UInt32) i3: (i3: UInt32) instanceID: (instanceID: UInt32) ::=> Void := {
+        let v1 mutable type: GPU NativeVertexShaderIOInterface.
+        let v2 mutable type: GPU NativeVertexShaderIOInterface.
+        let v3 mutable type: GPU NativeVertexShaderIOInterface.
+
+        v1 inputs
+            vertexID: (i1 castTo: Int32);
+            instanceID: (instanceID castTo: Int32).
+        v2 inputs
+            vertexID: (i2 castTo: Int32);
+            instanceID: (instanceID castTo: Int32).
+        v3 inputs
+            vertexID: (i3 castTo: Int32);
+            instanceID: (instanceID castTo: Int32).
+        vertexBinding ifNotNil: {
+            vertexBinding _
+                fetchVertex: i1 instanceID: instanceID into: v1 inputs;
+                fetchVertex: i2 instanceID: instanceID into: v2 inputs;
+                fetchVertex: i3 instanceID: instanceID into: v3 inputs.
+        }.
+
+        self
+            invokeVertexShaderOn: v1;
+            invokeVertexShaderOn: v2;
+            invokeVertexShaderOn: v3;
+            drawTriangleV1: v1 outputs v2: v2 outputs v3: v3 outputs.
+    }.
+
+    method drawArrays: (vertexCount: UInt32) instanceCount: (instanceCount: UInt32) firstVertex: (firstVertex: UInt32) baseInstance: (baseInstance: UInt32) ::=> Void := {
+        graphicsPipelineState ifNil: {return: void}.
+        graphicsPipelineState _ vertexShader ifNil: {return: void}.
+
+        Stdn stdout << "TODO: drawArrays"; nl.
+    }.
+
+    const inline method invokeVertexShaderOn: (vertex: GPU NativeVertexShaderIOInterface ref) ::=> Void := {
+		graphicsPipelineState _ vertexShader(graphicsRootDescriptorTable address, vertex)
+	}.
+
+    method drawElements: (indexCount: UInt32) instanceCount: (instanceCount: UInt32) firstIndex: (firstIndex: UInt32) baseVertex: (baseVertex: UInt32) baseInstance: (baseInstance: UInt32) ::=> Void := {
+        ## Stdn stdout << "drawElements: " << graphicsPipelineState << " " << vertexBinding << " " << indexCount << " " << instanceCount; nl.
+        graphicsPipelineState ifNil: {return: void}.
+        graphicsPipelineState _ vertexShader ifNil: {return: void}.
+        vertexBinding ifNil: {return: void}.
+
+        0 until: instanceCount do: {:instanceIndex :: Void |
+            let instanceID := instanceIndex + baseInstance.
+
+            indexBufferStride selectCase: #{
+            1 : {
+                let sourceIndices := indexBuffer reinterpretCastTo: UInt8 const pointer.
+                self expandSourceIndicesPrimitives.
+            }.
+            2 : {
+                let sourceIndices := indexBuffer reinterpretCastTo: UInt16 const pointer.
+                self expandSourceIndicesPrimitives.
+            }.
+            4 : {
+                let sourceIndices := indexBuffer reinterpretCastTo: UInt32 const pointer.
+                self expandSourceIndicesPrimitives.
+            }.
+            _ : {}
+            }
+        }.
+    }.
+
+    macro method expandSourceIndicesPrimitives := `'{
+        graphicsPipelineState _ description primitiveTopology selectCase: #{
+        PrimitiveTopology Triangles : {
+            let triangleCount := indexCount / 3.
+            let sourceIndex mutable := firstIndex.
+            0 until: triangleCount do: {:i :: Void |
+                let i1 := sourceIndices[sourceIndex] + baseVertex castTo: UInt32.
+                let i2 := sourceIndices[sourceIndex + 1] + baseVertex castTo: UInt32.
+                let i3 := sourceIndices[sourceIndex + 2] + baseVertex castTo: UInt32.
+                self drawTriangleI1: i1 i2: i2 i3: i3 instanceID: instanceID.
+                sourceIndex := sourceIndex + 3
+            }.
+        }.
+        _ : {}
+        }.
+    }.
 }.
 
 #**
@@ -31,7 +135,6 @@ class SoftCommandList superclass: CommandList; definition: {
     }.
 
     override method useShaderSignature: (shaderSignature: ShaderSignaturePtr const ref) ::=> Void := {
-
     }.
 
     override method setViewport: (rectangle: RectangleI32) ::=> Void := {
@@ -43,19 +146,46 @@ class SoftCommandList superclass: CommandList; definition: {
     }.
 
     override method usePipelineState: (pipelineState: PipelineStatePtr const ref) ::=> Void := {
+        pipelineState ifNil: {return: void}.
+
+        pipelineState _ isGraphicsPipelineState ifTrue: {
+            let softGraphicsPipeline := pipelineState getPointer castTo: SoftGraphicsPipeline pointer.
+            self addCommand: (function (state: SoftCommandListExecutionState ref) => Void := {
+                state
+                    graphicsPipelineState: softGraphicsPipeline.
+            }).
+        }.
+
+        pipelineState _ isComputePipelineState ifTrue: {
+
+        }.
 
     }.
 
     override method useVertexBinding: (vertexBinding: VertexBindingPtr const ref) ::=> Void := {
+        let softVertexBinding := vertexBinding getPointer castTo: SoftVertexBinding pointer.
+        softVertexBinding ifNil: {return: void}.
 
+        self addCommand: (function (state: SoftCommandListExecutionState ref) => Void := {
+            state vertexBinding: softVertexBinding.
+        }).
     }.
 
     override method useIndexBuffer: (buffer: BufferPtr const ref) ::=> Void := {
-
+        buffer ifNil: { return: void }.
+        self useIndexBuffer: buffer at: 0 stride: buffer _ stride
     }.
 
     override method useIndexBuffer: (buffer: BufferPtr const ref) at: (offset: UIntPointer) stride: (stride: UIntPointer) ::=> Void := {
+        let indexBuffer := buffer getPointer castTo: SoftBuffer pointer.
+        indexBuffer ifNil: {return: void}.
 
+        let indexBufferContent := indexBuffer _ memoryStartPointer + offset.
+        self addCommand: (function (state: SoftCommandListExecutionState ref) => Void := {
+            state
+                indexBuffer: indexBufferContent;
+                indexBufferStride: stride.
+        }).
     }.
 
     override method useDrawIndirectBuffer: (buffer: BufferPtr const ref) ::=> Void := {
@@ -67,23 +197,37 @@ class SoftCommandList superclass: CommandList; definition: {
     }.
 
     override method useGraphicShaderBindings: (resourcesBinding: ShaderResourceBindingsPtr const ref) ::=> Void := {
+        let softBindings := resourcesBinding getPointer castTo: SoftShaderResourceBindings pointer.
+        softBindings ifNil: {return: void}.
 
+        self addCommand: (function (state: SoftCommandListExecutionState ref) => Void := {
+            state graphicsRootDescriptorTable[softBindings _ bankIndex] := softBindings _ bindingTable[0] address.
+        }).
     }.
 
     override method useComputeShaderBindings: (resourcesBinding: ShaderResourceBindingsPtr const ref) ::=> Void := {
+        let softBindings := resourcesBinding getPointer castTo: SoftShaderResourceBindings pointer.
+        softBindings ifNil: {return: void}.
 
+        self addCommand: (function (state: SoftCommandListExecutionState ref) => Void := {
+            state computeRootDescriptorTable[softBindings _ bankIndex] := softBindings _ bindingTable[0] address.
+        }).
     }.
 
     override method drawArrays: (vertexCount: UInt32) instanceCount: (instanceCount: UInt32) firstVertex: (firstVertex: UInt32) baseInstance: (baseInstance: UInt32) ::=> Void := {
-
+        self addCommand: (function (state: SoftCommandListExecutionState ref) => Void := {
+            state drawArrays: vertexCount instanceCount: instanceCount firstVertex: firstVertex baseInstance: baseInstance
+        }).
     }.
 
     override method drawArraysIndirect: (offset: UIntPointer) drawCount: (drawCount: UIntPointer) ::=> Void := {
 
     }.
 
-    override method drawElements: (indexCount: UInt32) instanceCount: (instanceCount: UInt32) firstIndex: (firstVertex: UInt32) baseVertex: (baseVertex: UInt32) baseInstance: (baseInstance: UInt32) ::=> Void := {
-
+    override method drawElements: (indexCount: UInt32) instanceCount: (instanceCount: UInt32) firstIndex: (firstIndex: UInt32) baseVertex: (baseVertex: UInt32) baseInstance: (baseInstance: UInt32) ::=> Void := {
+        self addCommand: (function (state: SoftCommandListExecutionState ref) => Void := {
+            state drawElements: indexCount instanceCount: instanceCount firstIndex: firstIndex baseVertex: baseVertex baseInstance: baseInstance
+        }).
     }.
 
     override method drawElementsIndirect: (offset: UIntPointer) drawCount: (drawCount: UIntPointer) ::=> Void := {
@@ -178,7 +322,6 @@ class SoftCommandList superclass: CommandList; definition: {
     override method copyFromTexture: (sourceTexture: TexturePtr const ref) intoBuffer: (destBuffer: BufferPtr const ref) region: (copyRegion: BufferImageCopyRegion) ::=> Void := {
 
     }.
-
 
     method executeAllCommands => Void := {
         let executionState mutable type: SoftCommandListExecutionState.

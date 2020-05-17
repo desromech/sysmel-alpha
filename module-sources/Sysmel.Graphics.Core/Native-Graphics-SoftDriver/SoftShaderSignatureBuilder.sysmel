@@ -6,17 +6,26 @@ namespace Core definition: {
  * I am a CPU only implementation for a shader signature.
  *#
 class SoftShaderSignatureBuilder superclass: ShaderSignatureBuilder; definition: {
+    public field description type: ShaderSignatureDescription.
 
     override method beginBindingBank: (maxBindingsHint: UIntPointer) ::=> Void := {
-
+        description banks add: ShaderSignatureBankDescription().
     }.
 
     override method addBankElementWithType: (bindingType: ShaderBindingType) bindingPointCount: (bindingPointCount: UIntPointer) ::=> Void := {
+        description banks ifEmpty: { return: void }.
 
+        let bank ref := description banks last.
+        bank elements reserve: bindingPointCount.
+        0 until: bindingPointCount do: {:i :: Void |
+            bank elements add: bindingType
+        }
     }.
 
     override method build => ShaderSignaturePtr := {
-        SoftShaderSignature sharedNew upCastFor: ShaderSignature
+        let result := SoftShaderSignature sharedNew.
+        result _ description: description.
+        result upCastFor: ShaderSignature
     }.
 
 }.

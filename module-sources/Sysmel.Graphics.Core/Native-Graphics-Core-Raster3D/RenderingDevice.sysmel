@@ -21,6 +21,9 @@ RenderingDevice extend: {
     abstract method createCommandListOfType: (type: CommandListType) for: (allocator: CommandListAllocatorPtr const ref) initialPipelineState: (initialPipeline: PipelineStatePtr const ref) ::=> CommandListPtr.
     abstract method getDefaultCommandQueue => CommandQueuePtr.
 
+    abstract method createShaderLibraryFromModule: (shaderModule: GPU ShaderModuleInfo const ref) ::=> ShaderLibraryHandlePtr.
+    abstract method createShaderStageFromEntryPoint: (entryPointInfo: GPU ShaderEntryPointInfo const ref) ::=> ShaderStageHandlePtr.
+
     abstract method createFramebuffer: (extent: UInt32x2) colorViews: (colorViews: TextureViewPtr const arraySlice) depthStencilView: (depthStencilView: TextureViewPtr const ref) ::=> FramebufferPtr.
     abstract method createRenderPass: (colorAttachment: RenderPassColorAttachmentDescription const arraySlice) depthStencilAttachment: (depthAttachment: RenderPassDepthStencilAttachmentDescription const pointer) ::=> RenderPassPtr.
 

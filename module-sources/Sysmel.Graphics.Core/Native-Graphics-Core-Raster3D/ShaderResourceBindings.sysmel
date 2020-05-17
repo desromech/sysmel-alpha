@@ -6,6 +6,8 @@ namespace Core definition: {
  * I am a handle for a shader resource binding.
  *#
 class ShaderResourceBindings superclass: RenderingDriverObjectHandle; definition: {
+    abstract method bindOn: (location: IntPointer) uniformBuffer: (buffer: BufferPtr const ref) ::=> Void.
+    abstract method bindOn: (location: IntPointer) uniformBuffer: (buffer: BufferPtr const ref) offset: (offset: UIntPointer) size: (size: UIntPointer) ::=> Void.
 
 }.
 

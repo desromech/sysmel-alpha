@@ -1,0 +1,16 @@
+namespace Stdn definition: {
+namespace Graphics definition: {
+namespace Core definition: {
+
+#**
+ * I am a CPU only implementation for a shader signature.
+ *#
+class SoftShaderStageHandle superclass: ShaderStageHandle; definition: {
+    public field entryPointInfo type: GPU ShaderEntryPointInfo.
+}.
+
+compileTime constant SoftShaderStageHandlePtr := SoftShaderStageHandle sharedPointer.
+
+}. ## End of namespace Core
+}. ## End of namespace Graphics
+}. ## End of namespace Stdn

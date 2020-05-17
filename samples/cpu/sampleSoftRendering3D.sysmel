@@ -123,9 +123,6 @@ let cubeObjectStateBinding mutable type: ShaderResourceBindingsPtr.
 let planeObjectStateBuffer mutable type: BufferPtr.
 let planeObjectStateBinding mutable type: ShaderResourceBindingsPtr.
 
-##let currentTransformationState mutable type: TransformationState.
-##let currentObjectState mutable type: ObjectState.
-
 class Mesh definition: {
 	public field vertexBinding type: VertexBindingPtr.
 	public field indexBuffer type: BufferPtr.
@@ -210,40 +207,20 @@ Mesh definition: {
 		commandList
 			useVertexBinding: vertexBinding;
 			useIndexBuffer: indexBuffer;
-			drawElements: indexCount instanceCount: 0 firstIndex: 0 baseVertex: 0 baseInstance: 0.
+			drawElements: indexCount instanceCount: 1 firstIndex: 0 baseVertex: 0 baseInstance: 0.
 	}.
 }.
-
-#*
-Mesh definition: {
-	method drawOn: (pipeline: SoftGraphicsPipeline ref) ::=> Void := {
-		pipeline vertexShader ifNil: {
-			return: void
-		}.
-
-		let nextSourceIndex mutable := 0.
-		currentTransformationState
-			modelMatrix: modelMatrix;
-			viewMatrix: viewMatrix;
-			projectionMatrix: projectionMatrix.
-		currentObjectState transformationState := currentTransformationState address reinterpretCastTo: TransformationState uniformBufferPointer.
-		pipeline descriptorSetTable[0] := currentObjectState address.
-		pipeline
-			vertexLayout: simpleVertexLayout;
-			vertexBinding: vertexBinding.
-
-		0 until: indices size / 3 do: {:triangleIndex :: Void |
-			let i1 := indices[nextSourceIndex].
-			let i2 := indices[nextSourceIndex + 1].
-			let i3 := indices[nextSourceIndex + 2].
-			pipeline drawTriangleIndices: i1 i2: i2 i3: i3 instanceID: 0.
-			nextSourceIndex := nextSourceIndex + 3
-		}.
-	}.
-}.
-*#
 
 function doRender3D => Void := {
+	{
+		let cameraTransformationState mutable := CameraTransformationState()
+			viewMatrix: viewMatrix;
+			projectionMatrix: projectionMatrix;
+			yourself.
+
+		cameraStateBuffer _ uploadAt: 0 size: CameraTransformationState instanceSize data: cameraTransformationState address.
+	}.
+
 	commandListAllocator _ resetAllocator.
 	commandList _
 		resetFor: commandListAllocator;
@@ -266,25 +243,6 @@ function doRender3D => Void := {
 	renderingCommandQueue _
 		submitCommandList: commandList;
 		waitForIdle.
-
-	#**
-	let pipeline mutable type: SoftGraphicsPipeline.
-	pipeline
-		colorBufferBlitter: colorBuffer _ makeBlitter;
-		depthStencilBufferBlitter: depthBuffer _ makeBlitter;
-		depthFunction: CompareFunction GreaterOrEqual;
-		blendingEquation: BlendingMode CompositeAlphaOver asBlendingEquation;
-
-
-	pipeline colorBufferBlitter setAllPixelsToColor: UInt8x4(64, 64 , 64, 64). ##Float32x4 zeros.
-	pipeline depthStencilBufferBlitter setAllPixelsToColor: UInt8x4 zeros.
-
-	modelMatrix := Float32x4x4 identity.
-	planeMesh _ drawOn: pipeline.
-
-	modelMatrix := Float32x4x4 translation: Float32x3(0, 1, 0).
-	cubeMesh _ drawOn: pipeline.
-	*#
 }.
 
 function doRenderOn(canvas: Canvas ref) => Void := {
@@ -403,7 +361,6 @@ function main externC (argc: Int32, argv: UInt8 const pointer pointer) => Int32 
 	}.
 
 	## Set the projection and model view matrix.
-	## projectionMatrix := Float32x4x4 reversePerspectiveFovY: 60.0f aspect: 640.0f / 480.0f near: 0.1f far: 100.0f invertedY: false.
 	projectionMatrix := Float32x4x4 reversePerspectiveFovY: 60.0f aspect: 640.0f / 480.0f near: 0.1f far: 100.0f invertedY: renderingDevice _ shouldInvertProjectionY.
 
     ## Use the default font face.
@@ -443,7 +400,7 @@ function main externC (argc: Int32, argv: UInt8 const pointer pointer) => Int32 
 				yourself
 		).
 
-		let strides mutable := UInt32 array(VertexAttributeDescription instanceSize).
+		let strides mutable := UInt32 array(SimpleVertex instanceSize).
 
 		simpleVertexLayout := renderingDevice _ createVertexLayout.
 		simpleVertexLayout _ addVertexBuffers: strides withAttributes: attributes.
@@ -454,15 +411,20 @@ function main externC (argc: Int32, argv: UInt8 const pointer pointer) => Int32 
 		renderingPipelineState := renderingDevice _ createGraphicsPipelineState: (GraphicsPipelineStateDescription()
 			shaderSignature: shaderSignature;
 
-			##vertexShader: CheckboardShader vertex shaderEntryPointInfo address;
-			##fragmentShader: CheckboardShader fragment shaderEntryPointInfo address.
+			vertexShader: (renderingDevice _ createShaderStageFromEntryPoint: CheckboardShader vertex shaderEntryPointInfo);
+			fragmentShader: (renderingDevice _ createShaderStageFromEntryPoint: CheckboardShader fragment shaderEntryPointInfo);
 
 			vertexLayout: simpleVertexLayout;
+			primitiveTopology: PrimitiveTopology Triangles;
 
 			addColorAttachmentWithFormat: PixelFormat B8G8R8A8_UNormSRGB;
 			setAllBlendingEquationsTo: BlendingMode CompositeAlphaOver asBlendingEquation;
 
 			depthStencilFormat: PixelFormat D32_Float;
+			depthTestingEnabled: true;
+			depthWriteMask: true;
+			depthFunction: CompareFunction GreaterOrEqual;
+
 			yourself)
 	}.
 
@@ -477,9 +439,15 @@ function main externC (argc: Int32, argv: UInt8 const pointer pointer) => Int32 
 
 	## Create the camera state buffer and binding
 	{
-	#*let cameraStateBuffer type: BufferPtr.
-	let cameraStateBinding type: ShaderResourceBindingPtr.*#
-
+		cameraStateBuffer := renderingDevice _ createBuffer: (BufferDescription()
+			size: (CameraTransformationState instanceSize alignedTo: 256);
+			heapType: MemoryHeapType HostToDevice;
+			usageMode: BufferUsageMode Uniform;
+			mainUsageMode: BufferUsageMode Uniform;
+			mappingFlags: BufferMappingFlags DynamicStorage;
+			yourself) initialData: nil.
+		cameraStateBinding := shaderSignature _ createShaderResourceBinding: 0.
+		cameraStateBinding _ bindOn: 0 uniformBuffer: cameraStateBuffer.
 	}.
 
 	## Build the plane
@@ -496,14 +464,20 @@ function main externC (argc: Int32, argv: UInt8 const pointer pointer) => Int32 
 			addTriangle: 0 i2: 3 i3: 4;
 			addTriangle: 0 i2: 1 i3: 3;
 
-			finish
+			finish.
 
-		#*
-		let cubeObjectStateBuffer type: BufferPtr.
-		let cubeObjectStateBinding type: ShaderResourceBindingPtr.
+		let planeTransformationState mutable := ObjectTransformationState()
+			modelMatrix: Float32x4x4 identity;
+			yourself.
 
-		let meshObjectStateBinding type: BufferPtr.
-		let meshObjectStateBinding type: ShaderResourceBindingPtr.*#
+		planeObjectStateBuffer := renderingDevice _ createBuffer: (BufferDescription()
+			size: (ObjectTransformationState instanceSize alignedTo: 256);
+			heapType: MemoryHeapType HostToDevice;
+			usageMode: BufferUsageMode Uniform;
+			mainUsageMode: BufferUsageMode Uniform;
+			yourself) initialData: planeTransformationState address.
+		planeObjectStateBinding := shaderSignature _ createShaderResourceBinding: 1.
+		planeObjectStateBinding _ bindOn: 0 uniformBuffer: planeObjectStateBuffer.
 	}.
 
 	## Build the cube
@@ -566,7 +540,20 @@ function main externC (argc: Int32, argv: UInt8 const pointer pointer) => Int32 
 			addTriangle: 0 i2: 1 i3: 2;
 	        addTriangle: 2 i2: 3 i3: 0;
 
-			finish
+			finish.
+
+			let cubeTransformationState mutable := ObjectTransformationState()
+				modelMatrix: (Float32x4x4 translation: Float32x3(0, 1, 0));
+				yourself.
+
+			cubeObjectStateBuffer := renderingDevice _ createBuffer: (BufferDescription()
+				size: (ObjectTransformationState instanceSize alignedTo: 256);
+				heapType: MemoryHeapType HostToDevice;
+				usageMode: BufferUsageMode Uniform;
+				mainUsageMode: BufferUsageMode Uniform;
+				yourself) initialData: cubeTransformationState address.
+			cubeObjectStateBinding := shaderSignature _ createShaderResourceBinding: 1.
+			cubeObjectStateBinding _ bindOn: 0 uniformBuffer: cubeObjectStateBuffer.
 	}.
 
     ## Create the event handler.

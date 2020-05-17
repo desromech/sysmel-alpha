@@ -12,8 +12,9 @@ class SoftVertexBinding superclass: VertexBinding; definition: {
     public field offsets type: Stdn Collections Vector(UIntPointer).
     public field bufferStartPointers type: Stdn Collections Vector(UInt8 const pointer).
 
-    method initializeWithLayout: (vertexLayout: SoftVertexLayout sharedPointer const ref) ::=> Void := {
-        let bufferCount := vertexLayout _ strides size.
+    method initializeWithLayout: (theLayout: SoftVertexLayout sharedPointer const ref) ::=> Void := {
+        layout := theLayout.
+        let bufferCount := layout _ strides size.
         buffers resizeTo: bufferCount.
         offsets resizeTo: bufferCount.
         bufferStartPointers resizeTo: bufferCount.
@@ -60,6 +61,7 @@ class SoftVertexBinding superclass: VertexBinding; definition: {
                 ifFalse: {instanceID / attribute divisor}.
             let attributeStride := strides[attribute bufferIndex].
             let bufferPointer := bufferStartPointers[attribute bufferIndex].
+
             bufferPointer ifNotNil: {
                 let vertexPointer := bufferPointer + (attributeStride*vertexIndex + attribute offset).
                 attribute location < 16 ifTrue: {
