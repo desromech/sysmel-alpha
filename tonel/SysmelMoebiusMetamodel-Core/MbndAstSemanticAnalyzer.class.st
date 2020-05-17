@@ -2655,7 +2655,7 @@ MbndAstSemanticAnalyzer >> visitSetFieldValueNode: node [
 	
 	"This is an special case where actually have to invoke an assign value operator, so replace myself with an unexpanded message send into assignValue:"
 	valueType := result field valueType.
-	((result newValue type isTemporaryReferenceType and: [ valueType hasTrivialMoveAssignment not]) or: [ valueType hasTrivialAssignment not ]) ifTrue: [
+	((result newValue type isTemporaryReferenceType and: [ valueType hasTrivialMoveAssignment not]) or: [ valueType hasTrivialCopyAssignment not ]) ifTrue: [
 		^ self visitNode: ((self astBuilder unexpandedSend: ((self astBuilder literalSymbol: #assignValue:) position: node position)
 			to: (MbndAstGetFieldReferenceNode new
 				position: node position;

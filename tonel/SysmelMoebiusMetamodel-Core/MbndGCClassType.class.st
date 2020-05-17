@@ -76,6 +76,11 @@ MbndGCClassType >> array [
 	^ self gcclassVariableDataArray
 ]
 
+{ #category : #converting }
+MbndGCClassType >> asAssignmentResultType [
+	^ self
+]
+
 { #category : #'as yet unclassified' }
 MbndGCClassType >> asCVariadicTypeRequiredAt: position [
 	^ self
@@ -201,12 +206,12 @@ MbndGCClassType >> hasDynamicMessageLookup [
 ]
 
 { #category : #testing }
-MbndGCClassType >> hasTrivialAssignment [
+MbndGCClassType >> hasTrivialBasicInitialization [
 	^ true
 ]
 
 { #category : #testing }
-MbndGCClassType >> hasTrivialBasicInitialization [
+MbndGCClassType >> hasTrivialCopyAssignment [
 	^ true
 ]
 

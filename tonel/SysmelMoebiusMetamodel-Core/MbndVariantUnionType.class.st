@@ -152,6 +152,12 @@ MbndVariantUnionType >> hasTrivialInstanceBasicInitialization [
 ]
 
 { #category : #testing }
+MbndVariantUnionType >> hasTrivialInstanceCopyAssignment [
+	components ifNil: [ ^ super hasTrivialInstanceCopyAssignment ].
+	^ components allSatisfy: [:each | each hasTrivialInstanceCopyAssignment ]
+]
+
+{ #category : #testing }
 MbndVariantUnionType >> hasTrivialInstanceFinalization [
 	components ifNil: [ ^ super hasTrivialInstanceFinalization ].
 	^ components allSatisfy: [:each | each hasTrivialInstanceFinalization ]
@@ -173,6 +179,12 @@ MbndVariantUnionType >> hasTrivialInstanceInitializationCopyingFrom [
 MbndVariantUnionType >> hasTrivialInstanceInitializationMovingFrom [
 	components ifNil: [ ^ super hasTrivialInstanceInitializationMovingFrom ].
 	^ components allSatisfy: [:each | each hasTrivialInstanceInitializationMovingFrom ]
+]
+
+{ #category : #testing }
+MbndVariantUnionType >> hasTrivialInstanceMoveAssignment [
+	components ifNil: [ ^ super hasTrivialInstanceMoveAssignment ].
+	^ components allSatisfy: [:each | each hasTrivialInstanceMoveAssignment ]
 ]
 
 { #category : #accessing }

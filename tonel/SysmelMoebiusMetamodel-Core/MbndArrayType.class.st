@@ -145,6 +145,12 @@ MbndArrayType >> hasTrivialInstanceBasicInitialization [
 ]
 
 { #category : #testing }
+MbndArrayType >> hasTrivialInstanceCopyAssignment [
+	elementType ifNil: [ ^ super hasTrivialInstanceCopyAssignment ].
+	^ elementType hasTrivialInstanceCopyAssignment
+]
+
+{ #category : #testing }
 MbndArrayType >> hasTrivialInstanceFinalization [
 	elementType ifNil: [ ^ super hasTrivialInstanceFinalization ].
 	^ elementType hasTrivialFinalization
@@ -166,6 +172,12 @@ MbndArrayType >> hasTrivialInstanceInitializationCopyingFrom [
 MbndArrayType >> hasTrivialInstanceInitializationMovingFrom [
 	elementType ifNil: [ ^ super hasTrivialInstanceInitializationMovingFrom ].
 	^ elementType hasTrivialInitializationMovingFrom
+]
+
+{ #category : #testing }
+MbndArrayType >> hasTrivialInstanceMoveAssignment [
+	elementType ifNil: [ ^ super hasTrivialInstanceMoveAssignment ].
+	^ elementType hasTrivialInstanceMoveAssignment
 ]
 
 { #category : #sizes }

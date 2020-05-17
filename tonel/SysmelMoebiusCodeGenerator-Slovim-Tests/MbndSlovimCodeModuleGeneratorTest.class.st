@@ -8,6 +8,205 @@ Class {
 }
 
 { #category : #tests }
+MbndSlovimCodeModuleGeneratorTest >> testAggregateAssignmentCopy [
+	| function indirectClass |
+	self
+		evaluateSysmelSource: '
+class NonTrivialCopyable definition: { 
+	(method := (other: SelfType const ref)) ::=> SelfType const ref.
+}.
+
+class SimpleSuper definition: {
+	field plain type: Float64.
+}.
+
+class IndirectNonTrivialCopyable superclass: SimpleSuper; definition: {
+	field a type: NonTrivialCopyable.
+	field b type: Int32.
+}.
+';
+		generateSSAModule.
+
+	indirectClass := (self evaluateSysmelSource: 'IndirectNonTrivialCopyable') unwrapMbndValue.
+	self deny: indirectClass hasTrivialCopyAssignment.
+	self assert: indirectClass hasTrivialMoveAssignment.
+
+	function := ssaModule globalNamed: #'_ZN10TestModule26IndirectNonTrivialCopyable13.assignValue.ERNS0_ERKNS0_E'.
+	self assert: function asFullSExpressionForTesting equals: #(
+function '_ZN10TestModule26IndirectNonTrivialCopyable13.assignValue.ERNS0_ERKNS0_E' cdecl (pointer (struct 'class.TestModule::IndirectNonTrivialCopyable') generic)
+	arguments (
+		(nil (pointer (struct 'class.TestModule::IndirectNonTrivialCopyable') generic) ())
+		(nil (pointer (struct 'class.TestModule::IndirectNonTrivialCopyable') generic) ())
+	)
+	literals (
+	)
+	blocks (
+		(()
+			(nil jump void () () (block 2 body))
+		)
+		(()
+			(nil bitcast (pointer (struct 'class.TestModule::SimpleSuper') generic) () ((local 1 nil)))
+			(nil bitcast (pointer (struct 'class.TestModule::SimpleSuper') generic) () ((local 0 nil)))
+			(nil load (struct 'class.TestModule::SimpleSuper') () ((local 3 nil)))
+			(nil store void () ((local 5 nil) (local 4 nil)))
+			(nil getElementPointer (pointer (struct 'class.TestModule::NonTrivialCopyable') generic) () ((local 0 nil) (const i32 0) (const i32 1)))
+			(nil getElementPointer (pointer (struct 'class.TestModule::NonTrivialCopyable') generic) () ((local 1 nil) (const i32 0) (const i32 1)))
+			(nil call (pointer (struct 'class.TestModule::NonTrivialCopyable') generic) () ((global 1 '_ZN10TestModule18NonTrivialCopyable13.assignValue.ERNS0_ERKNS0_E') (local 7 nil) (local 8 nil)))
+			(nil getElementPointer (pointer i32 generic) () ((local 0 nil) (const i32 0) (const i32 2)))
+			(nil getElementPointer (pointer i32 generic) () ((local 1 nil) (const i32 0) (const i32 2)))
+			(nil load i32 () ((local 11 nil)))
+			(nil store void () ((local 12 nil) (local 10 nil)))
+			(nil return void () ((local 0 nil)))
+		)
+	)
+
+	).
+]
+
+{ #category : #tests }
+MbndSlovimCodeModuleGeneratorTest >> testAggregateAssignmentCopyAndMove [
+	| function indirectClass |
+	self
+		evaluateSysmelSource: '
+class NonTrivialCopyableAndMoveable definition: { 
+	(method := (other: SelfType const ref)) ::=> SelfType const ref.
+	(method := (other: SelfType tempRef)) ::=> SelfType const ref.
+}.
+
+class SimpleSuper definition: {
+	field plain type: Float64.
+}.
+
+class IndirectNonTrivialCopyableAndMoveable superclass: SimpleSuper; definition: {
+	field a type: NonTrivialCopyableAndMoveable.
+	field b type: Int32.
+}.
+';
+		generateSSAModule.
+
+	indirectClass := (self evaluateSysmelSource: 'IndirectNonTrivialCopyableAndMoveable') unwrapMbndValue.
+	self deny: indirectClass hasTrivialCopyAssignment.
+	self deny: indirectClass hasTrivialMoveAssignment.
+
+	function := ssaModule globalNamed: #'_ZN10TestModule37IndirectNonTrivialCopyableAndMoveable13.assignValue.ERNS0_ERKNS0_E'.
+	self assert: function asFullSExpressionForTesting equals: #(
+function '_ZN10TestModule37IndirectNonTrivialCopyableAndMoveable13.assignValue.ERNS0_ERKNS0_E' cdecl (pointer (struct 'class.TestModule::IndirectNonTrivialCopyableAndMoveable') generic)
+	arguments (
+		(nil (pointer (struct 'class.TestModule::IndirectNonTrivialCopyableAndMoveable') generic) ())
+		(nil (pointer (struct 'class.TestModule::IndirectNonTrivialCopyableAndMoveable') generic) ())
+	)
+	literals (
+	)
+	blocks (
+		(()
+			(nil jump void () () (block 2 body))
+		)
+		(()
+			(nil bitcast (pointer (struct 'class.TestModule::SimpleSuper') generic) () ((local 1 nil)))
+			(nil bitcast (pointer (struct 'class.TestModule::SimpleSuper') generic) () ((local 0 nil)))
+			(nil load (struct 'class.TestModule::SimpleSuper') () ((local 3 nil)))
+			(nil store void () ((local 5 nil) (local 4 nil)))
+			(nil getElementPointer (pointer (struct 'class.TestModule::NonTrivialCopyableAndMoveable') generic) () ((local 0 nil) (const i32 0) (const i32 1)))
+			(nil getElementPointer (pointer (struct 'class.TestModule::NonTrivialCopyableAndMoveable') generic) () ((local 1 nil) (const i32 0) (const i32 1)))
+			(nil call (pointer (struct 'class.TestModule::NonTrivialCopyableAndMoveable') generic) () ((global 1 '_ZN10TestModule29NonTrivialCopyableAndMoveable13.assignValue.ERNS0_ERKNS0_E') (local 7 nil) (local 8 nil)))
+			(nil getElementPointer (pointer i32 generic) () ((local 0 nil) (const i32 0) (const i32 2)))
+			(nil getElementPointer (pointer i32 generic) () ((local 1 nil) (const i32 0) (const i32 2)))
+			(nil load i32 () ((local 11 nil)))
+			(nil store void () ((local 12 nil) (local 10 nil)))
+			(nil return void () ((local 0 nil)))
+		)
+	)
+
+	).
+	
+	function := ssaModule globalNamed: #'_ZN10TestModule37IndirectNonTrivialCopyableAndMoveable13.assignValue.ERNS0_EONS0_E'.
+	self assert: function asFullSExpressionForTesting equals: #(
+function '_ZN10TestModule37IndirectNonTrivialCopyableAndMoveable13.assignValue.ERNS0_EONS0_E' cdecl (pointer (struct 'class.TestModule::IndirectNonTrivialCopyableAndMoveable') generic)
+	arguments (
+		(nil (pointer (struct 'class.TestModule::IndirectNonTrivialCopyableAndMoveable') generic) ())
+		(nil (pointer (struct 'class.TestModule::IndirectNonTrivialCopyableAndMoveable') generic) ())
+	)
+	literals (
+	)
+	blocks (
+		(()
+			(nil jump void () () (block 2 body))
+		)
+		(()
+			(nil bitcast (pointer (struct 'class.TestModule::SimpleSuper') generic) () ((local 1 nil)))
+			(nil bitcast (pointer (struct 'class.TestModule::SimpleSuper') generic) () ((local 0 nil)))
+			(nil load (struct 'class.TestModule::SimpleSuper') () ((local 3 nil)))
+			(nil store void () ((local 5 nil) (local 4 nil)))
+			(nil getElementPointer (pointer (struct 'class.TestModule::NonTrivialCopyableAndMoveable') generic) () ((local 0 nil) (const i32 0) (const i32 1)))
+			(nil getElementPointer (pointer (struct 'class.TestModule::NonTrivialCopyableAndMoveable') generic) () ((local 1 nil) (const i32 0) (const i32 1)))
+			(nil call (pointer (struct 'class.TestModule::NonTrivialCopyableAndMoveable') generic) () ((global 2 '_ZN10TestModule29NonTrivialCopyableAndMoveable13.assignValue.ERNS0_EONS0_E') (local 7 nil) (local 8 nil)))
+			(nil getElementPointer (pointer i32 generic) () ((local 0 nil) (const i32 0) (const i32 2)))
+			(nil getElementPointer (pointer i32 generic) () ((local 1 nil) (const i32 0) (const i32 2)))
+			(nil load i32 () ((local 11 nil)))
+			(nil store void () ((local 12 nil) (local 10 nil)))
+			(nil return void () ((local 0 nil)))
+		)
+	)
+	).
+]
+
+{ #category : #tests }
+MbndSlovimCodeModuleGeneratorTest >> testAggregateAssignmentMove [
+	| function indirectClass |
+	self
+		evaluateSysmelSource: '
+class NonTrivialMoveable definition: { 
+	(method := (other: SelfType tempRef)) ::=> SelfType const ref.
+}.
+
+class SimpleSuper definition: {
+	field plain type: Float64.
+}.
+
+class IndirectNonTrivialMoveable superclass: SimpleSuper; definition: {
+	field a type: NonTrivialMoveable.
+	field b type: Int32.
+}.
+';
+		generateSSAModule.
+
+	indirectClass := (self evaluateSysmelSource: 'IndirectNonTrivialMoveable') unwrapMbndValue.
+	self assert: indirectClass hasTrivialCopyAssignment.
+	self deny: indirectClass hasTrivialMoveAssignment.
+
+	function := ssaModule globalNamed: #'_ZN10TestModule26IndirectNonTrivialMoveable13.assignValue.ERNS0_EONS0_E'.
+	self assert: function asFullSExpressionForTesting equals: #(
+function '_ZN10TestModule26IndirectNonTrivialMoveable13.assignValue.ERNS0_EONS0_E' cdecl (pointer (struct 'class.TestModule::IndirectNonTrivialMoveable') generic)
+	arguments (
+		(nil (pointer (struct 'class.TestModule::IndirectNonTrivialMoveable') generic) ())
+		(nil (pointer (struct 'class.TestModule::IndirectNonTrivialMoveable') generic) ())
+	)
+	literals (
+	)
+	blocks (
+		(()
+			(nil jump void () () (block 2 body))
+		)
+		(()
+			(nil bitcast (pointer (struct 'class.TestModule::SimpleSuper') generic) () ((local 1 nil)))
+			(nil bitcast (pointer (struct 'class.TestModule::SimpleSuper') generic) () ((local 0 nil)))
+			(nil load (struct 'class.TestModule::SimpleSuper') () ((local 3 nil)))
+			(nil store void () ((local 5 nil) (local 4 nil)))
+			(nil getElementPointer (pointer (struct 'class.TestModule::NonTrivialMoveable') generic) () ((local 0 nil) (const i32 0) (const i32 1)))
+			(nil getElementPointer (pointer (struct 'class.TestModule::NonTrivialMoveable') generic) () ((local 1 nil) (const i32 0) (const i32 1)))
+			(nil call (pointer (struct 'class.TestModule::NonTrivialMoveable') generic) () ((global 1 '_ZN10TestModule18NonTrivialMoveable13.assignValue.ERNS0_EONS0_E') (local 7 nil) (local 8 nil)))
+			(nil getElementPointer (pointer i32 generic) () ((local 0 nil) (const i32 0) (const i32 2)))
+			(nil getElementPointer (pointer i32 generic) () ((local 1 nil) (const i32 0) (const i32 2)))
+			(nil load i32 () ((local 11 nil)))
+			(nil store void () ((local 12 nil) (local 10 nil)))
+			(nil return void () ((local 0 nil)))
+		)
+	)
+
+	).
+]
+
+{ #category : #tests }
 MbndSlovimCodeModuleGeneratorTest >> testAggregateCustomConstructor [
 	| function |
 	self
@@ -990,12 +1189,15 @@ function f cdecl (struct 'special.Int32 arraySlice')
 		(()
 			(nil getElementPointer (pointer i32 generic) () ((local 0 array) (const i32 0) (const i64 0)))
 			(nil getElementPointer (pointer i32 generic) () ((local 2 nil) (const i64 0)))
-			(nil sub i64 () ((const i64 32) (const i64 0)))
+			(nil bitcast u64 () ((const i64 32)))
+			(nil bitcast u64 () ((const i64 0)))
+			(nil sub u64 () ((local 4 nil) (local 5 nil)))
 			(nil insertValue (struct 'special.Int32 arraySlice') () ((undef (struct 'special.Int32 arraySlice')) (local 3 nil)) (0))
-			(nil insertValue (struct 'special.Int32 arraySlice') () ((local 5 nil) (local 4 nil)) (1))
-			(nil return void () ((local 6 nil)))
+			(nil insertValue (struct 'special.Int32 arraySlice') () ((local 7 nil) (local 6 nil)) (1))
+			(nil return void () ((local 8 nil)))
 		)
 	)
+
 	)
 ]
 
@@ -1023,10 +1225,12 @@ function f cdecl (struct 'special.Int32 arraySlice')
 		(()
 			(nil getElementPointer (pointer i32 generic) () ((local 0 array) (const i32 0) (const i64 0)))
 			(nil getElementPointer (pointer i32 generic) () ((local 2 nil) (const i64 0)))
-			(nil sub i64 () ((const i64 10) (const i64 0)))
+			(nil bitcast u64 () ((const i64 10)))
+			(nil bitcast u64 () ((const i64 0)))
+			(nil sub u64 () ((local 4 nil) (local 5 nil)))
 			(nil insertValue (struct 'special.Int32 arraySlice') () ((undef (struct 'special.Int32 arraySlice')) (local 3 nil)) (0))
-			(nil insertValue (struct 'special.Int32 arraySlice') () ((local 5 nil) (local 4 nil)) (1))
-			(nil return void () ((local 6 nil)))
+			(nil insertValue (struct 'special.Int32 arraySlice') () ((local 7 nil) (local 6 nil)) (1))
+			(nil return void () ((local 8 nil)))
 		)
 	)
 
@@ -1057,10 +1261,12 @@ function f cdecl (struct 'special.Int32 arraySlice')
 		(()
 			(nil getElementPointer (pointer i32 generic) () ((local 0 array) (const i32 0) (const i64 0)))
 			(nil getElementPointer (pointer i32 generic) () ((local 2 nil) (const i64 5)))
-			(nil sub i64 () ((const i64 10) (const i64 5)))
+			(nil bitcast u64 () ((const i64 10)))
+			(nil bitcast u64 () ((const i64 5)))
+			(nil sub u64 () ((local 4 nil) (local 5 nil)))
 			(nil insertValue (struct 'special.Int32 arraySlice') () ((undef (struct 'special.Int32 arraySlice')) (local 3 nil)) (0))
-			(nil insertValue (struct 'special.Int32 arraySlice') () ((local 5 nil) (local 4 nil)) (1))
-			(nil return void () ((local 6 nil)))
+			(nil insertValue (struct 'special.Int32 arraySlice') () ((local 7 nil) (local 6 nil)) (1))
+			(nil return void () ((local 8 nil)))
 		)
 	)
 
@@ -1091,12 +1297,15 @@ function f cdecl (struct 'special.Int32 arraySlice')
 		(()
 			(nil getElementPointer (pointer i32 generic) () ((local 0 array) (const i32 0) (const i64 0)))
 			(nil getElementPointer (pointer i32 generic) () ((local 2 nil) (const i64 0)))
-			(nil sub i64 () ((const i64 10) (const i64 0)))
+			(nil bitcast u64 () ((const i64 10)))
+			(nil bitcast u64 () ((const i64 0)))
+			(nil sub u64 () ((local 4 nil) (local 5 nil)))
 			(nil insertValue (struct 'special.Int32 arraySlice') () ((undef (struct 'special.Int32 arraySlice')) (local 3 nil)) (0))
-			(nil insertValue (struct 'special.Int32 arraySlice') () ((local 5 nil) (local 4 nil)) (1))
-			(nil return void () ((local 6 nil)))
+			(nil insertValue (struct 'special.Int32 arraySlice') () ((local 7 nil) (local 6 nil)) (1))
+			(nil return void () ((local 8 nil)))
 		)
 	)
+
 	)
 ]
 
@@ -1126,10 +1335,12 @@ function f cdecl (struct 'special.Int32 arraySlice')
 			(nil sub i64 () ((const i64 5) (const i64 1)))
 			(nil sub i64 () ((const i64 10) (const i64 1)))
 			(nil getElementPointer (pointer i32 generic) () ((local 2 nil) (local 3 nil)))
-			(nil sub i64 () ((local 4 nil) (local 3 nil)))
+			(nil bitcast u64 () ((local 4 nil)))
+			(nil bitcast u64 () ((local 3 nil)))
+			(nil sub u64 () ((local 6 nil) (local 7 nil)))
 			(nil insertValue (struct 'special.Int32 arraySlice') () ((undef (struct 'special.Int32 arraySlice')) (local 5 nil)) (0))
-			(nil insertValue (struct 'special.Int32 arraySlice') () ((local 7 nil) (local 6 nil)) (1))
-			(nil return void () ((local 8 nil)))
+			(nil insertValue (struct 'special.Int32 arraySlice') () ((local 9 nil) (local 8 nil)) (1))
+			(nil return void () ((local 10 nil)))
 		)
 	)
 
@@ -1160,17 +1371,18 @@ function f cdecl (struct 'special.Int32 const arraySlice')
 		(()
 			(nil getElementPointer (pointer i32 generic) () ((local 0 array) (const i32 0) (const i64 0)))
 			(nil getElementPointer (pointer i32 generic) () ((local 2 nil) (const i64 0)))
-			(nil sub i64 () ((const i64 32) (const i64 0)))
+			(nil bitcast u64 () ((const i64 32)))
+			(nil bitcast u64 () ((const i64 0)))
+			(nil sub u64 () ((local 4 nil) (local 5 nil)))
 			(nil insertValue (struct 'special.Int32 arraySlice') () ((undef (struct 'special.Int32 arraySlice')) (local 3 nil)) (0))
-			(nil insertValue (struct 'special.Int32 arraySlice') () ((local 5 nil) (local 4 nil)) (1))
-			(nil extractValue (pointer i32 generic) () ((local 6 nil)) (0))
-			(nil insertValue (struct 'special.Int32 const arraySlice') () ((undef (struct 'special.Int32 const arraySlice')) (local 7 nil)) (0))
-			(nil extractValue u64 () ((local 6 nil)) (1))
-			(nil insertValue (struct 'special.Int32 const arraySlice') () ((local 8 nil) (local 9 nil)) (1))
-			(nil return void () ((local 10 nil)))
+			(nil insertValue (struct 'special.Int32 arraySlice') () ((local 7 nil) (local 6 nil)) (1))
+			(nil extractValue (pointer i32 generic) () ((local 8 nil)) (0))
+			(nil insertValue (struct 'special.Int32 const arraySlice') () ((undef (struct 'special.Int32 const arraySlice')) (local 9 nil)) (0))
+			(nil extractValue u64 () ((local 8 nil)) (1))
+			(nil insertValue (struct 'special.Int32 const arraySlice') () ((local 10 nil) (local 11 nil)) (1))
+			(nil return void () ((local 12 nil)))
 		)
 	)
-
 	)
 ]
 
@@ -2575,10 +2787,12 @@ function f cdecl (struct 'special.Int32 const arraySlice')
 		)
 		(()
 			(nil getElementPointer (pointer i32 generic) () ((local 0 array) (const i64 0)))
-			(nil sub i64 () ((const i64 10) (const i64 0)))
+			(nil bitcast u64 () ((const i64 10)))
+			(nil bitcast u64 () ((const i64 0)))
+			(nil sub u64 () ((local 3 nil) (local 4 nil)))
 			(nil insertValue (struct 'special.Int32 const arraySlice') () ((undef (struct 'special.Int32 const arraySlice')) (local 2 nil)) (0))
-			(nil insertValue (struct 'special.Int32 const arraySlice') () ((local 4 nil) (local 3 nil)) (1))
-			(nil return void () ((local 5 nil)))
+			(nil insertValue (struct 'special.Int32 const arraySlice') () ((local 6 nil) (local 5 nil)) (1))
+			(nil return void () ((local 7 nil)))
 		)
 	)
 
@@ -9184,13 +9398,14 @@ function f cdecl (struct 'special.Int32 arraySlice')
 		)
 		(()
 			(nil getElementPointer (pointer i32 generic) () ((local 0 array) (const i64 0)))
-			(nil sub i64 () ((const i64 10) (const i64 0)))
+			(nil bitcast u64 () ((const i64 10)))
+			(nil bitcast u64 () ((const i64 0)))
+			(nil sub u64 () ((local 3 nil) (local 4 nil)))
 			(nil insertValue (struct 'special.Int32 arraySlice') () ((undef (struct 'special.Int32 arraySlice')) (local 2 nil)) (0))
-			(nil insertValue (struct 'special.Int32 arraySlice') () ((local 4 nil) (local 3 nil)) (1))
-			(nil return void () ((local 5 nil)))
+			(nil insertValue (struct 'special.Int32 arraySlice') () ((local 6 nil) (local 5 nil)) (1))
+			(nil return void () ((local 7 nil)))
 		)
 	)
-
 	)
 ]
 
@@ -9217,10 +9432,12 @@ function f cdecl (struct 'special.Int32 arraySlice')
 		)
 		(()
 			(nil getElementPointer (pointer i32 generic) () ((local 0 array) (const i64 5)))
-			(nil sub i64 () ((const i64 10) (const i64 5)))
+			(nil bitcast u64 () ((const i64 10)))
+			(nil bitcast u64 () ((const i64 5)))
+			(nil sub u64 () ((local 3 nil) (local 4 nil)))
 			(nil insertValue (struct 'special.Int32 arraySlice') () ((undef (struct 'special.Int32 arraySlice')) (local 2 nil)) (0))
-			(nil insertValue (struct 'special.Int32 arraySlice') () ((local 4 nil) (local 3 nil)) (1))
-			(nil return void () ((local 5 nil)))
+			(nil insertValue (struct 'special.Int32 arraySlice') () ((local 6 nil) (local 5 nil)) (1))
+			(nil return void () ((local 7 nil)))
 		)
 	)
 
@@ -9250,13 +9467,14 @@ function f cdecl (struct 'special.Int32 arraySlice')
 		)
 		(()
 			(nil getElementPointer (pointer i32 generic) () ((local 0 array) (const i64 0)))
-			(nil sub i64 () ((const i64 10) (const i64 0)))
+			(nil bitcast u64 () ((const i64 10)))
+			(nil bitcast u64 () ((const i64 0)))
+			(nil sub u64 () ((local 3 nil) (local 4 nil)))
 			(nil insertValue (struct 'special.Int32 arraySlice') () ((undef (struct 'special.Int32 arraySlice')) (local 2 nil)) (0))
-			(nil insertValue (struct 'special.Int32 arraySlice') () ((local 4 nil) (local 3 nil)) (1))
-			(nil return void () ((local 5 nil)))
+			(nil insertValue (struct 'special.Int32 arraySlice') () ((local 6 nil) (local 5 nil)) (1))
+			(nil return void () ((local 7 nil)))
 		)
 	)
-
 	)
 ]
 
@@ -9285,10 +9503,12 @@ function f cdecl (struct 'special.Int32 arraySlice')
 			(nil sub i64 () ((const i64 5) (const i64 1)))
 			(nil sub i64 () ((const i64 10) (const i64 1)))
 			(nil getElementPointer (pointer i32 generic) () ((local 0 array) (local 2 nil)))
-			(nil sub i64 () ((local 3 nil) (local 2 nil)))
+			(nil bitcast u64 () ((local 3 nil)))
+			(nil bitcast u64 () ((local 2 nil)))
+			(nil sub u64 () ((local 5 nil) (local 6 nil)))
 			(nil insertValue (struct 'special.Int32 arraySlice') () ((undef (struct 'special.Int32 arraySlice')) (local 4 nil)) (0))
-			(nil insertValue (struct 'special.Int32 arraySlice') () ((local 6 nil) (local 5 nil)) (1))
-			(nil return void () ((local 7 nil)))
+			(nil insertValue (struct 'special.Int32 arraySlice') () ((local 8 nil) (local 7 nil)) (1))
+			(nil return void () ((local 9 nil)))
 		)
 	)
 
@@ -9320,16 +9540,19 @@ function f cdecl (struct 'special.Int32 const arraySlice')
 			(nil sub i64 () ((const i64 5) (const i64 1)))
 			(nil sub i64 () ((const i64 10) (const i64 1)))
 			(nil getElementPointer (pointer i32 generic) () ((local 0 array) (local 2 nil)))
-			(nil sub i64 () ((local 3 nil) (local 2 nil)))
+			(nil bitcast u64 () ((local 3 nil)))
+			(nil bitcast u64 () ((local 2 nil)))
+			(nil sub u64 () ((local 5 nil) (local 6 nil)))
 			(nil insertValue (struct 'special.Int32 arraySlice') () ((undef (struct 'special.Int32 arraySlice')) (local 4 nil)) (0))
-			(nil insertValue (struct 'special.Int32 arraySlice') () ((local 6 nil) (local 5 nil)) (1))
-			(nil extractValue (pointer i32 generic) () ((local 7 nil)) (0))
-			(nil insertValue (struct 'special.Int32 const arraySlice') () ((undef (struct 'special.Int32 const arraySlice')) (local 8 nil)) (0))
-			(nil extractValue u64 () ((local 7 nil)) (1))
-			(nil insertValue (struct 'special.Int32 const arraySlice') () ((local 9 nil) (local 10 nil)) (1))
-			(nil return void () ((local 11 nil)))
+			(nil insertValue (struct 'special.Int32 arraySlice') () ((local 8 nil) (local 7 nil)) (1))
+			(nil extractValue (pointer i32 generic) () ((local 9 nil)) (0))
+			(nil insertValue (struct 'special.Int32 const arraySlice') () ((undef (struct 'special.Int32 const arraySlice')) (local 10 nil)) (0))
+			(nil extractValue u64 () ((local 9 nil)) (1))
+			(nil insertValue (struct 'special.Int32 const arraySlice') () ((local 11 nil) (local 12 nil)) (1))
+			(nil return void () ((local 13 nil)))
 		)
 	)
+
 	)
 ]
 

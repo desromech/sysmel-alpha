@@ -1808,6 +1808,19 @@ MbndSlovimCodeModuleGenerator >> visitAggregateBasicInitializeMethod: generatedM
 ]
 
 { #category : #visiting }
+MbndSlovimCodeModuleGenerator >> visitAggregateCopyAssignmentMethod: generatedMethod [
+	^ self translateCompilerGeneratedMethod: generatedMethod with: [ :ssaFunction :builder :functionCodeGenerator |
+		functionCodeGenerator generateAutomaticCopyAssignmentCode.
+		ssaFunction returnType isVoidType ifTrue: [ 
+			builder returnVoid.
+		] ifFalse: [ 
+			builder return: ssaFunction arguments first.
+		]
+	]
+
+]
+
+{ #category : #visiting }
 MbndSlovimCodeModuleGenerator >> visitAggregateFinalizeMethod: generatedMethod [
 	^ self translateCompilerGeneratedMethod: generatedMethod with: [ :ssaFunction :builder :functionCodeGenerator |
 		functionCodeGenerator generateAutomaticFinalizationCode.
@@ -1856,6 +1869,19 @@ MbndSlovimCodeModuleGenerator >> visitAggregateInitializeMovingFromMethod: gener
 			builder return: ssaFunction arguments first.
 		]
 
+	]
+
+]
+
+{ #category : #visiting }
+MbndSlovimCodeModuleGenerator >> visitAggregateMoveAssignmentMethod: generatedMethod [
+	^ self translateCompilerGeneratedMethod: generatedMethod with: [ :ssaFunction :builder :functionCodeGenerator |
+		functionCodeGenerator generateAutomaticMoveAssignmentCode.
+		ssaFunction returnType isVoidType ifTrue: [ 
+			builder returnVoid.
+		] ifFalse: [ 
+			builder return: ssaFunction arguments first.
+		]
 	]
 
 ]

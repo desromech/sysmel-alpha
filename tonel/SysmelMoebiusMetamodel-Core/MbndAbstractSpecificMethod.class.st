@@ -196,6 +196,11 @@ MbndAbstractSpecificMethod >> ensureLookupSelectorIsRegisteredIn: programEntity 
 ]
 
 { #category : #'as yet unclassified' }
+MbndAbstractSpecificMethod >> findOverloadWithExactArgumentTypes: exactTypes [
+	^ boundType argumentTypes = exactTypes ifTrue: [ self ] ifFalse: [ nil ]
+]
+
+{ #category : #'as yet unclassified' }
 MbndAbstractSpecificMethod >> getNonLocalResultVariable [
 	^ nonLocalResultVariable ifNil: [
 		self returnType isVoidType ifTrue: [ ^ nil ].

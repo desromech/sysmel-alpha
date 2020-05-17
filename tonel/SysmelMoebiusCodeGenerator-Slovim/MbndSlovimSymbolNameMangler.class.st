@@ -472,6 +472,11 @@ MbndSlovimSymbolNameMangler >> visitAggregateBasicInitializeMethod: method [
 ]
 
 { #category : #visiting }
+MbndSlovimSymbolNameMangler >> visitAggregateCopyAssignmentMethod: method [
+	^ self visitGenericFunction: method
+]
+
+{ #category : #visiting }
 MbndSlovimSymbolNameMangler >> visitAggregateFinalizeMethod: method [
 	^ self visitGenericFunction: method
 ]
@@ -488,6 +493,11 @@ MbndSlovimSymbolNameMangler >> visitAggregateInitializeMethod: method [
 
 { #category : #visiting }
 MbndSlovimSymbolNameMangler >> visitAggregateInitializeMovingFromMethod: method [
+	^ self visitGenericFunction: method
+]
+
+{ #category : #visiting }
+MbndSlovimSymbolNameMangler >> visitAggregateMoveAssignmentMethod: method [
 	^ self visitGenericFunction: method
 ]
 

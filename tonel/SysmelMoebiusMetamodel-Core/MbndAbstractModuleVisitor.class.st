@@ -12,6 +12,11 @@ MbndAbstractModuleVisitor >> visitAggregateBasicInitializeMethod: method [
 ]
 
 { #category : #visiting }
+MbndAbstractModuleVisitor >> visitAggregateCopyAssignmentMethod: method [
+	self subclassResponsibility
+]
+
+{ #category : #visiting }
 MbndAbstractModuleVisitor >> visitAggregateFinalizeMethod: method [
 	self subclassResponsibility
 ]
@@ -28,6 +33,11 @@ MbndAbstractModuleVisitor >> visitAggregateInitializeMethod: method [
 
 { #category : #visiting }
 MbndAbstractModuleVisitor >> visitAggregateInitializeMovingFromMethod: method [
+	self subclassResponsibility
+]
+
+{ #category : #visiting }
+MbndAbstractModuleVisitor >> visitAggregateMoveAssignmentMethod: method [
 	self subclassResponsibility
 ]
 

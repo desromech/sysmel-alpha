@@ -7,6 +7,7 @@ Trait {
 		'extraMetaBuilderFactories'
 	],
 	#traits : 'TMbndProgramEntity',
+	#classTraits : 'TMbndProgramEntity classTrait',
 	#category : #'SysmelMoebiusMetamodel-Core-Type'
 }
 
@@ -316,6 +317,11 @@ TMbndAbstractType >> arraySlice [
 ]
 
 { #category : #converting }
+TMbndAbstractType >> asAssignmentResultType [
+	^ self const ref
+]
+
+{ #category : #converting }
 TMbndAbstractType >> asCVariadicType [
 	^ self asCVariadicTypeRequiredAt: MbndSourcePosition new
 ]
@@ -529,6 +535,11 @@ TMbndAbstractType >> constructorGroup [
 	^ nil
 ]
 
+{ #category : #accessing }
+TMbndAbstractType >> copyAssignmentMethod [
+	^ nil
+]
+
 { #category : #'meta builder factories' }
 TMbndAbstractType >> createExtraMetaBuilderFactories [
 	^ Dictionary newFromPairs: self getExtraMetaBuilderFactoryList
@@ -734,13 +745,13 @@ TMbndAbstractType >> hasPointerRankImplicitlyConvertibleTo: targetPointerRank [
 ]
 
 { #category : #testing }
-TMbndAbstractType >> hasTrivialAssignment [
-	^ self isPOD
+TMbndAbstractType >> hasTrivialBasicInitialization [
+	^ self hasTrivialInstanceBasicInitialization
 ]
 
 { #category : #testing }
-TMbndAbstractType >> hasTrivialBasicInitialization [
-	^ self hasTrivialInstanceBasicInitialization
+TMbndAbstractType >> hasTrivialCopyAssignment [
+	^ self hasTrivialInstanceCopyAssignment
 ]
 
 { #category : #testing }
@@ -769,6 +780,11 @@ TMbndAbstractType >> hasTrivialInstanceBasicInitialization [
 ]
 
 { #category : #testing }
+TMbndAbstractType >> hasTrivialInstanceCopyAssignment [
+	^ true
+]
+
+{ #category : #testing }
 TMbndAbstractType >> hasTrivialInstanceFinalization [
 	^ true
 ]
@@ -789,8 +805,13 @@ TMbndAbstractType >> hasTrivialInstanceInitializationMovingFrom [
 ]
 
 { #category : #testing }
+TMbndAbstractType >> hasTrivialInstanceMoveAssignment [
+	^ true
+]
+
+{ #category : #testing }
 TMbndAbstractType >> hasTrivialMoveAssignment [
-	^ self isPOD
+	^ self hasTrivialInstanceMoveAssignment
 ]
 
 { #category : #adding }
@@ -1460,6 +1481,11 @@ TMbndAbstractType >> mbndLiteralTypeWithTarget: compilationTarget [
 TMbndAbstractType >> meta [
 	<compileTime>
 	^ self type
+]
+
+{ #category : #accessing }
+TMbndAbstractType >> moveAssignmentMethod [
+	^ nil
 ]
 
 { #category : #converting }

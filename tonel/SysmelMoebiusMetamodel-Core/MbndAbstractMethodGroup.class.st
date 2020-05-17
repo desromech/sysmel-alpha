@@ -62,6 +62,14 @@ MbndAbstractMethodGroup >> findMatchingPrototypeNode: functionPrototype withRece
 ]
 
 { #category : #'as yet unclassified' }
+MbndAbstractMethodGroup >> findOverloadWithExactArgumentTypes: exactTypes [
+	overloadedEntities do: [ :each |
+		each boundType argumentTypes = exactTypes ifTrue: [ ^ each ]
+	].
+	^ nil
+]
+
+{ #category : #'as yet unclassified' }
 MbndAbstractMethodGroup >> findSingleOverloadedEntityMatchingArguments: arguments withReceiverType: receiverType with: analyzer at: node [
 	| bestMatchingCost bestMatchingCandidates entityCost |
 	bestMatchingCost := Float infinity.

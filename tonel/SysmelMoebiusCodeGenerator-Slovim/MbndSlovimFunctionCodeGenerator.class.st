@@ -515,6 +515,26 @@ MbndSlovimFunctionCodeGenerator >> generateArray: aggregatePointer with: otherAg
 ]
 
 { #category : #'automatic constructors' }
+MbndSlovimFunctionCodeGenerator >> generateAutomaticCopyAssignmentCode [
+	| receiver other |
+	receiver := ssaFunction arguments first.
+	other := ssaFunction arguments second.
+
+	concreteMethod parent supertype ifNotNil: [ :supertype |
+		supertype isTrait ifFalse: [ 
+			self generateInstanceCopyFrom: (slvmBuilder bitCast: other target: (self translateType: supertype ref))
+				into: (slvmBuilder bitCast: receiver target: (self translateType: supertype ref))
+				valueType: supertype.
+		]
+	].
+
+	self generateAggregate: receiver with: other type: concreteMethod parent
+		fieldIteration: [ :receiverFieldPointer :otherFieldPointer :fieldValueType |
+			self generateCopyFrom: otherFieldPointer into: receiverFieldPointer valueType: fieldValueType
+	].
+]
+
+{ #category : #'automatic constructors' }
 MbndSlovimFunctionCodeGenerator >> generateAutomaticEpilogueCode [
 	concreteMethod ifNil: [ ^ self ].
 	(concreteMethod isMessageMethod and: [ concreteMethod name = #finalize and: [concreteMethod hasExplicitSuperSend not ]]) ifTrue: [
@@ -674,6 +694,26 @@ MbndSlovimFunctionCodeGenerator >> generateAutomaticInitializationMovingFromCode
 			self generateVariable: receiverFieldPointer withValueType: fieldValueType initializationWithValue: otherFieldPointer initialValueKind: #move
 		].
 
+	].
+]
+
+{ #category : #'automatic constructors' }
+MbndSlovimFunctionCodeGenerator >> generateAutomaticMoveAssignmentCode [
+	| receiver other |
+	receiver := ssaFunction arguments first.
+	other := ssaFunction arguments second.
+
+	concreteMethod parent supertype ifNotNil: [ :supertype |
+		supertype isTrait ifFalse: [ 
+			self generateInstanceMoveFrom: (slvmBuilder bitCast: other target: (self translateType: supertype ref))
+				into: (slvmBuilder bitCast: receiver target: (self translateType: supertype ref))
+				valueType: supertype.
+		]
+	].
+
+	self generateAggregate: receiver with: other type: concreteMethod parent
+		fieldIteration: [ :receiverFieldPointer :otherFieldPointer :fieldValueType |
+			self generateMoveFrom: otherFieldPointer into: receiverFieldPointer valueType: fieldValueType
 	].
 ]
 
@@ -1070,6 +1110,15 @@ MbndSlovimFunctionCodeGenerator >> generateCleanUpActionActivatedHereForNode: no
 	cleanUpActionState addFinalizationActionBlock: aBlock.
 ]
 
+{ #category : #'automatic constructors' }
+MbndSlovimFunctionCodeGenerator >> generateCopyFrom: sourcePointer into: targetPointer valueType: valueType [
+	valueType hasTrivialCopyAssignment ifTrue: [ 
+		^ self generateTrivialCopyFrom: sourcePointer into: targetPointer valueType: valueType
+	].
+
+	^ self generateNonTrivialCopyFrom: sourcePointer into: targetPointer superSend: false valueType: valueType
+]
+
 { #category : #'as yet unclassified' }
 MbndSlovimFunctionCodeGenerator >> generateElementWiseThreeWayComparisonOf: rawLeftOperand with: rawRightOperand resultType: resultType [
 	| leftOperand rightOperand operandType elementType rawOperandType |
@@ -1277,6 +1326,24 @@ MbndSlovimFunctionCodeGenerator >> generateIndex: index sizeBoundsCheck: sizeVal
 
 ]
 
+{ #category : #'automatic constructors' }
+MbndSlovimFunctionCodeGenerator >> generateInstanceCopyFrom: sourcePointer into: targetPointer valueType: valueType [
+	valueType hasTrivialInstanceCopyAssignment ifTrue: [ 
+		^ self generateTrivialCopyFrom: sourcePointer into: targetPointer valueType: valueType
+	].
+
+	^ self generateNonTrivialCopyFrom: sourcePointer into: targetPointer superSend: true valueType: valueType
+]
+
+{ #category : #'automatic constructors' }
+MbndSlovimFunctionCodeGenerator >> generateInstanceMoveFrom: sourcePointer into: targetPointer valueType: valueType [
+	valueType hasTrivialInstanceMoveAssignment ifTrue: [ 
+		^ self generateInstanceCopyFrom: sourcePointer into: targetPointer valueType: valueType
+	].
+
+	^ self generateNonTrivialMoveFrom: sourcePointer into: targetPointer superSend: true valueType: valueType
+]
+
 { #category : #visiting }
 MbndSlovimFunctionCodeGenerator >> generateLocalVariable: localVariable definitionAt: position withInitialValue: initialValueBlock initialValueKind: initialValueKind [
 	^ self generateLocalVariable: localVariable storageCreationNode: nil definitionAt: position withInitialValue: initialValueBlock initialValueKind: initialValueKind
@@ -1360,6 +1427,39 @@ MbndSlovimFunctionCodeGenerator >> generateMethodBodyForIntrinsic: intrinsicName
 		slvmBuilder return: result
 	].
 	^ true
+]
+
+{ #category : #'automatic constructors' }
+MbndSlovimFunctionCodeGenerator >> generateMoveFrom: sourcePointer into: targetPointer valueType: valueType [
+	valueType hasTrivialMoveAssignment ifTrue: [ 
+		^ self generateCopyFrom: sourcePointer into: targetPointer valueType: valueType
+	].
+
+	^ self generateNonTrivialMoveFrom: sourcePointer into: targetPointer superSend: false valueType: valueType
+]
+
+{ #category : #'automatic constructors' }
+MbndSlovimFunctionCodeGenerator >> generateNonTrivialCopyFrom: sourcePointer into: targetPointer superSend: isSuperSend valueType: valueType [
+	| copyAssignmentMethod |
+	copyAssignmentMethod := valueType copyAssignmentMethod.
+	self generateCallWithReceiver: (slvmBuilder bitCast: targetPointer target: (self translateType: copyAssignmentMethod receiverType))
+			receiverType: copyAssignmentMethod receiverType
+			selector: #assignValue: arguments: {
+				(slvmBuilder bitCast: sourcePointer target: (self translateType: copyAssignmentMethod boundType argumentTypes first))
+			} isSuperSend: true declaredMethod: copyAssignmentMethod
+		expectedResultType: copyAssignmentMethod returnType
+]
+
+{ #category : #'automatic constructors' }
+MbndSlovimFunctionCodeGenerator >> generateNonTrivialMoveFrom: sourcePointer into: targetPointer superSend: isSuperSend valueType: valueType [
+	| moveAssignmentMethod |
+	moveAssignmentMethod := valueType moveAssignmentMethod.
+	self generateCallWithReceiver: (slvmBuilder bitCast: targetPointer target: (self translateType: moveAssignmentMethod receiverType))
+			receiverType: moveAssignmentMethod receiverType
+			selector: #assignValue: arguments: {
+				(slvmBuilder bitCast: sourcePointer target: (self translateType: moveAssignmentMethod boundType argumentTypes first))
+			} isSuperSend: true declaredMethod: moveAssignmentMethod
+		expectedResultType: moveAssignmentMethod returnType
 ]
 
 { #category : #'as yet unclassified' }

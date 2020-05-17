@@ -104,6 +104,11 @@ MbndAggregateSlotLayout >> hasTrivialBasicInitialization [
 ]
 
 { #category : #accessing }
+MbndAggregateSlotLayout >> hasTrivialCopyAssignment [
+	^ self checkForTypeTriviality: #hasTrivialCopyAssignment
+]
+
+{ #category : #accessing }
 MbndAggregateSlotLayout >> hasTrivialFinalization [
 	^ self checkForTypeTriviality: #hasTrivialFinalization
 ]
@@ -121,6 +126,11 @@ MbndAggregateSlotLayout >> hasTrivialInitializationCopyingFrom [
 { #category : #accessing }
 MbndAggregateSlotLayout >> hasTrivialInitializationMovingFrom [
 	^ self checkForTypeTriviality: #hasTrivialInitializationMovingFrom
+]
+
+{ #category : #accessing }
+MbndAggregateSlotLayout >> hasTrivialMoveAssignment [
+	^ self checkForTypeTriviality: #hasTrivialMoveAssignment
 ]
 
 { #category : #accessing }

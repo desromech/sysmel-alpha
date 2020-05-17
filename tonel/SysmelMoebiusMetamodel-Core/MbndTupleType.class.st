@@ -151,6 +151,12 @@ MbndTupleType >> hasTrivialInstanceBasicInitialization [
 ]
 
 { #category : #testing }
+MbndTupleType >> hasTrivialInstanceCopyAssignment [
+	elements ifNil: [ ^ super hasTrivialInstanceCopyAssignment ].
+	^ elements allSatisfy: [:each | each hasTrivialInstanceCopyAssignment ]
+]
+
+{ #category : #testing }
 MbndTupleType >> hasTrivialInstanceFinalization [
 	elements ifNil: [ ^ super hasTrivialInstanceFinalization ].
 	^ elements allSatisfy: [:each | each hasTrivialFinalization ]
@@ -172,6 +178,12 @@ MbndTupleType >> hasTrivialInstanceInitializationCopyingFrom [
 MbndTupleType >> hasTrivialInstanceInitializationMovingFrom [
 	elements ifNil: [ ^ super hasTrivialInstanceInitializationMovingFrom ].
 	^ elements allSatisfy: [:each | each hasTrivialInitializationMovingFrom ]
+]
+
+{ #category : #testing }
+MbndTupleType >> hasTrivialInstanceMoveAssignment [
+	elements ifNil: [ ^ super hasTrivialInstanceMoveAssignment ].
+	^ elements allSatisfy: [:each | each hasTrivialInstanceMoveAssignment ]
 ]
 
 { #category : #sizes }

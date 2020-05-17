@@ -7,7 +7,9 @@ Class {
 		'hasTrivialInstanceInitialization',
 		'hasTrivialInstanceFinalization',
 		'hasTrivialInstanceInitializationFromCopy',
-		'hasTrivialInstanceInitializationMovingFrom'
+		'hasTrivialInstanceInitializationMovingFrom',
+		'hasTrivialInstanceCopyAssignment',
+		'hasTrivialInstanceMoveAssignment'
 	],
 	#category : #'SysmelMoebiusMetamodel-Core-Type'
 }
@@ -124,6 +126,8 @@ MbndAggregateTypeWithFields >> ensureGeneratedMethodsExist [
 	self hasTrivialInstanceInitializationCopyingFrom ifFalse: [ self initializeCopyingFromMethod ].
 	self hasTrivialInstanceInitializationMovingFrom ifFalse: [ self initializeMovingFromMethod ].
 	self hasTrivialInstanceFinalization ifFalse: [ self finalizeMethod ].
+	self hasTrivialCopyAssignment ifFalse: [ self copyAssignmentMethod ].
+	self hasTrivialMoveAssignment ifFalse: [ self moveAssignmentMethod ].
 
 ]
 
@@ -207,11 +211,31 @@ MbndAggregateTypeWithFields >> hasNonCompilerGeneratedMethod: selector [
 ]
 
 { #category : #testing }
+MbndAggregateTypeWithFields >> hasNonCompilerGeneratedMethod: selector withArgumentTypes: argumentTypes [
+	| method |
+	method := self overloadedMethodDict at: selector ifAbsent: [ ^ false ].
+	method := method findOverloadWithExactArgumentTypes: argumentTypes.
+	^ method isNotNil and: [ method isCompilerGeneratedMethod not ]
+]
+
+{ #category : #testing }
 MbndAggregateTypeWithFields >> hasTrivialInstanceBasicInitialization [
 	self isTrait ifTrue: [ ^ super hasTrivialInstanceBasicInitialization ].
 	self isDefined ifFalse: [ ^ true ].
 	
 	^ self slotLayout hasTrivialBasicInitialization
+]
+
+{ #category : #testing }
+MbndAggregateTypeWithFields >> hasTrivialInstanceCopyAssignment [
+	self isTrait ifTrue: [ ^ super hasTrivialInstanceCopyAssignment ].
+	self isDefined ifFalse: [ ^ true ].
+	
+	^ hasTrivialInstanceCopyAssignment ifNil: [
+		hasTrivialInstanceCopyAssignment := self supertype hasTrivialInstanceCopyAssignment
+		and: [self slotLayout hasTrivialCopyAssignment
+		and: [ (self hasNonCompilerGeneratedMethod: #assignValue: withArgumentTypes: {self asCopyConstructorParameter}) not ] ]
+	]
 ]
 
 { #category : #testing }
@@ -259,6 +283,18 @@ MbndAggregateTypeWithFields >> hasTrivialInstanceInitializationMovingFrom [
 		hasTrivialInstanceInitializationMovingFrom := self supertype hasTrivialInstanceInitializationMovingFrom
 		and: [self slotLayout hasTrivialInitializationMovingFrom
 		and: [ (self hasNonCompilerGeneratedMethod: #initializeMovingFrom:) not ] ]
+	]
+]
+
+{ #category : #testing }
+MbndAggregateTypeWithFields >> hasTrivialInstanceMoveAssignment [
+	self isTrait ifTrue: [ ^ super hasTrivialInstanceMoveAssignment ].
+	self isDefined ifFalse: [ ^ true ].
+	
+	^ hasTrivialInstanceMoveAssignment ifNil: [
+		hasTrivialInstanceMoveAssignment := self supertype hasTrivialInstanceMoveAssignment
+		and: [self slotLayout hasTrivialMoveAssignment
+		and: [ (self hasNonCompilerGeneratedMethod: #assignValue: withArgumentTypes: {self tempRef}) not ] ]
 	]
 ]
 

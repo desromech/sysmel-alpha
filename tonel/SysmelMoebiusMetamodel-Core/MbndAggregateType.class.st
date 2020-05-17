@@ -6,7 +6,9 @@ Class {
 		'initializeMethod',
 		'finalizeMethod',
 		'initializeFromCopyMethod',
-		'initializeMovingFromMethod'
+		'initializeMovingFromMethod',
+		'copyAssignmentMethod',
+		'moveAssignmentMethod'
 	],
 	#category : #'SysmelMoebiusMetamodel-Core-Type'
 }
@@ -44,6 +46,15 @@ MbndAggregateType >> basicInitializeMethod [
 { #category : #testing }
 MbndAggregateType >> canHaveDynamicMethodWrapper [
 	^ self isGarbageCollectedType
+]
+
+{ #category : #'initialize-destroy' }
+MbndAggregateType >> copyAssignmentMethod [
+	(self areSyntheticMethodsInternal and: [ self hasTrivialInstanceCopyAssignment ]) ifTrue: [
+		^ super copyAssignmentMethod
+	].
+
+	^ copyAssignmentMethod ifNil: [ copyAssignmentMethod := self getOrCreateOptionallyGeneratedMethod: #assignValue: ofKind: MbndAggregateCopyAssignmentMethod argumentTypes: {self asCopyConstructorParameter} returnType: self asAssignmentResultType ]
 ]
 
 { #category : #'initialize-destroy' }
@@ -91,8 +102,9 @@ MbndAggregateType >> getFieldOffset: fieldName [
 MbndAggregateType >> getOrCreateOptionallyGeneratedMethod: selector ofKind: generatedMethodClass argumentTypes: argumentTypes returnType: returnType [
 	| method parentVersion asReceiverType |
 	self overloadedMethodDict at: selector ifPresent: [ :existent |
-		self flag: 'TODO: Check the existent method argument types.'.
-		^ existent
+		(existent findOverloadWithExactArgumentTypes: argumentTypes) ifNotNil: [ :matchingOverload |
+			^ matchingOverload
+		].
 	].
 
 	asReceiverType := self asReceiverType.
@@ -159,6 +171,15 @@ MbndAggregateType >> materializeWithGraphDecoder: graphDecoder withLazyFields: e
 	finalizeMethod := encodedFields at: #finalizeMethod.
 	initializeFromCopyMethod := encodedFields at: #initializeFromCopyMethod.
 	initializeMovingFromMethod := encodedFields at: #initializeMovingFromMethod.
+]
+
+{ #category : #'initialize-destroy' }
+MbndAggregateType >> moveAssignmentMethod [
+	(self areSyntheticMethodsInternal and: [ self hasTrivialInstanceCopyAssignment ]) ifTrue: [
+		^ super moveAssignmentMethod
+	].
+
+	^ moveAssignmentMethod ifNil: [ moveAssignmentMethod := self getOrCreateOptionallyGeneratedMethod: #assignValue: ofKind: MbndAggregateMoveAssignmentMethod argumentTypes: {self tempRef} returnType: self asAssignmentResultType ]
 ]
 
 { #category : #'as yet unclassified' }

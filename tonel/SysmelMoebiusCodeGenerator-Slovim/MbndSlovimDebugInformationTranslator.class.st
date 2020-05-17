@@ -190,6 +190,11 @@ MbndSlovimDebugInformationTranslator >> visitAggregateBasicInitializeMethod: met
 ]
 
 { #category : #visiting }
+MbndSlovimDebugInformationTranslator >> visitAggregateCopyAssignmentMethod: method [
+	^ self visitConcreteMessageMethod: method
+]
+
+{ #category : #visiting }
 MbndSlovimDebugInformationTranslator >> visitAggregateFinalizeMethod: method [
 	^ self visitConcreteMessageMethod: method
 ]
@@ -206,6 +211,11 @@ MbndSlovimDebugInformationTranslator >> visitAggregateInitializeMethod: method [
 
 { #category : #visiting }
 MbndSlovimDebugInformationTranslator >> visitAggregateInitializeMovingFromMethod: method [
+	^ self visitConcreteMessageMethod: method
+]
+
+{ #category : #visiting }
+MbndSlovimDebugInformationTranslator >> visitAggregateMoveAssignmentMethod: method [
 	^ self visitConcreteMessageMethod: method
 ]
 
