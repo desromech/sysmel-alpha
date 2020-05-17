@@ -1,0 +1,26 @@
+namespace Stdn definition: {
+namespace Graphics definition: {
+namespace Core definition: {
+
+#**
+ * Texture description.
+ *#
+struct SwapChainCreationInfo definition: {
+    public field display type: Void pointer.
+    public field window type: Void pointer.
+    public field windowSystemName type: Stdn String.
+    public field surface type: Void pointer.
+    public field colorBufferFormat type: PixelFormat.
+    public field depthStencilFormat type: PixelFormat.
+    public field extent type: UInt32x2.
+    public field bufferCount type: UIntPointer.
+    public field sampleCount type: UInt32.
+    public field sampleQuality type: UInt32.
+    public field flags type: SwapChainFlags.
+    public field position type: Int32x2.
+    public field oldSwapChain type: SwapChainPtr.
+}.
+
+}. ## End of namespace Core
+}. ## End of namespace Graphics
+}. ## End of namespace Stdn

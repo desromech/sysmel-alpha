@@ -9,6 +9,12 @@ class ShaderResourceBindings superclass: RenderingDriverObjectHandle; definition
     abstract method bindOn: (location: IntPointer) uniformBuffer: (buffer: BufferPtr const ref) ::=> Void.
     abstract method bindOn: (location: IntPointer) uniformBuffer: (buffer: BufferPtr const ref) offset: (offset: UIntPointer) size: (size: UIntPointer) ::=> Void.
 
+    abstract method bindOn: (location: IntPointer) storageBuffer: (buffer: BufferPtr const ref) ::=> Void.
+    abstract method bindOn: (location: IntPointer) storageBuffer: (buffer: BufferPtr const ref) offset: (offset: UIntPointer) size: (size: UIntPointer) ::=> Void.
+
+    abstract method bindOn: (location: IntPointer) sampledTextureView: (textureView: TextureViewPtr const ref) ::=> Void.
+    abstract method bindOn: (location: IntPointer) storageImageView: (textureView: TextureViewPtr const ref) ::=> Void.
+    abstract method bindOn: (location: IntPointer) sampler: (sampelr: SamplerPtr const ref) ::=> Void.
 }.
 
 compileTime constant ShaderResourceBindingsPtr := ShaderResourceBindings sharedPointer.

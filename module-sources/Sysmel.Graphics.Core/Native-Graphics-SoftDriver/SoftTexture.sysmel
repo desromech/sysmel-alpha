@@ -1,0 +1,108 @@
+namespace Stdn definition: {
+namespace Graphics definition: {
+namespace Core definition: {
+
+useNamespace: Stdn Math Geometry.
+
+#**
+ * I am a handle for a texture.
+ *#
+class SoftTexture superclass: Texture; definition: {
+    protected field description type: TextureDescription.
+    protected field fullTextureView type: TextureViewPtr.
+
+    virtual method initializeWithDescription: (theDescription: TextureDescription const ref) ::=> Boolean8 := {
+        description := theDescription.
+        true
+    }.
+
+    abstract method linearMemoryLockLevel: (level: UIntPointer) layer: (layer: UIntPointer) ::=> Void pointer.
+    abstract method linearMemoryUnlock => Void.
+
+    override method mapLevel: (level: UIntPointer) layer: (layer: UIntPointer) accessMask: (access: MappingAccessMask) region: (region: RectangleI32 const pointer) ::=> Void pointer
+        := self linearMemoryLockLevel: level layer: layer.
+
+    override method unmapLevel => Void
+        := self linearMemoryUnlock.
+
+    const inline method computeLevelExtent: (level: UIntPointer) ::=> UInt32x3 := {
+        UInt32x3 (description width >> level castTo: UInt32, description height >> level castTo: UInt32, description depth >> level castTo: UInt32) max: UInt32x3 ones
+    }.
+
+    const inline method computePitchesForLevel: (level: UIntPointer) ::=> Int32x3 := {
+        let levelExtent := self computeLevelExtent: level.
+        let pitch := levelExtent x * description format bytesPerPixel alignedTo: 4.
+        let slicePitch := pitch * levelExtent y.
+        let layerPitch := slicePitch * levelExtent z.
+        UInt32x3(pitch, slicePitch, layerPitch) castTo: Int32x3
+    }.
+
+    override method readTextureLevel: (level: UIntPointer) layer: (layer: UIntPointer) pitch: (pitch: IntPointer) slicePitch: (slicePitch: IntPointer)
+        sourceRegion: (sourceRegion: RectangleI32 const pointer) destExtent: (destExtent: UInt32x3 pointer) buffer: (buffer: Void pointer) ::=> Void := {
+        Stdn stdout << "TODO: readTextureLevel:"; nl.
+    }.
+
+    override method uploadTextureLevel: (level: UIntPointer) layer: (layer: UIntPointer) pitch: (pitch: IntPointer) slicePitch: (slicePitch: IntPointer)
+        sourceRegion: (sourceRegion: RectangleI32 const pointer) destExtent: (destExtent: UInt32x3 pointer) data: (data: Void const pointer) ::=> Void := {
+        Stdn stdout << "TODO: uploadTextureLevel:"; nl.
+    }.
+
+    override method getFullViewDescription => TextureViewDescription := {
+        TextureViewDescription()
+            type: description type;
+            format: description format;
+            sampleCount: description sampleCount;
+            subresourceRange: (TextureSubResourceRange()
+                usageMode: description mainUsageMode;
+                levelCount: description miplevels;
+                layerCount: description layers;
+                yourself);
+            yourself
+    }.
+
+    override method createView: (viewDescription: TextureViewDescription const ref) ::=> TextureViewPtr := {
+        viewDescription subresourceRange baseMipLevel >= description miplevels ||
+        viewDescription subresourceRange baseArrayLayer >= description layers ifTrue: {
+            return: TextureViewPtr nil
+        }.
+
+        let memoryPointer := self linearMemoryLockLevel: viewDescription subresourceRange baseMipLevel layer: viewDescription subresourceRange baseArrayLayer.
+        memoryPointer ifNil: {
+            return: TextureViewPtr nil
+        }.
+
+        self linearMemoryUnlock.
+
+        ## Compute the level extent, pitch and slice pitch.
+        let levelExtent := self computeLevelExtent: viewDescription subresourceRange baseMipLevel.
+        let pitches := self computePitchesForLevel: viewDescription subresourceRange baseMipLevel.
+
+        ## Create the view.
+        let view := SoftTextureView sharedNew.
+        view _ pixelsBlitter: (Blitter()
+            extent: levelExtent xy;
+            pixelFormat: viewDescription format;
+            pitch: pitches x;
+            pixels: (memoryPointer reinterpretCastTo: UInt8 pointer);
+            applyFullClippingBounds;
+            initializeCachedState;
+            yourself
+        ).
+
+        view upCastFor: TextureView
+    }.
+
+    override method getOrCreateFullView => TextureViewPtr := {
+        fullTextureView ifNil: {
+            fullTextureView := self createView: self getFullViewDescription
+        }.
+
+        fullTextureView
+    }.
+}.
+
+compileTime constant SoftTexturePtr := SoftTexture sharedPointer.
+
+}. ## End of namespace Core
+}. ## End of namespace Graphics
+}. ## End of namespace Stdn

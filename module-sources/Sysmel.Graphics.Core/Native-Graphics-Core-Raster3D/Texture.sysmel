@@ -2,13 +2,36 @@ namespace Stdn definition: {
 namespace Graphics definition: {
 namespace Core definition: {
 
+useNamespace: Stdn Math Geometry.
+
 #**
  * I am a handle for a texture.
  *#
 class Texture superclass: RenderingDriverObjectHandle; definition: {
     abstract method description => TextureDescription.
 
+    abstract method mapLevel: (level: UIntPointer) layer: (layer: UIntPointer) accessMask: (access: MappingAccessMask) region: (region: RectangleI32 const pointer) ::=> Void pointer.
+    abstract method unmapLevel => Void.
+
+    virtual method readTextureLevel: (level: UIntPointer) layer: (layer: UIntPointer) pitch: (pitch: IntPointer) slicePitch: (slicePitch: IntPointer) buffer: (buffer: Void pointer) ::=> Void := {
+        self readTextureLevel: level layer: layer pitch: pitch slicePitch: slicePitch sourceRegion: nil destExtent: nil buffer: buffer
+    }.
+
+    abstract method readTextureLevel: (level: UIntPointer) layer: (layer: UIntPointer) pitch: (pitch: IntPointer) slicePitch: (slicePitch: IntPointer)
+        sourceRegion: (sourceRegion: RectangleI32 const pointer) destExtent: (destExtent: UInt32x3 pointer) buffer: (buffer: Void pointer) ::=> Void.
+
+    virtual method uploadTextureLevel: (level: UIntPointer) layer: (layer: UIntPointer) pitch: (pitch: IntPointer) slicePitch: (slicePitch: IntPointer) data: (data: Void const pointer) ::=> Void := {
+        self uploadTextureLevel: level layer: layer pitch: pitch slicePitch: slicePitch sourceRegion: nil destExtent: nil data: data
+    }.
+
+    abstract method uploadTextureLevel: (level: UIntPointer) layer: (layer: UIntPointer) pitch: (pitch: IntPointer) slicePitch: (slicePitch: IntPointer)
+        sourceRegion: (sourceRegion: RectangleI32 const pointer) destExtent: (destExtent: UInt32x3 pointer) data: (data: Void const pointer) ::=> Void.
+
+    abstract method getFullViewDescription => TextureViewDescription.
+    abstract method createView: (viewDescription: TextureViewDescription const ref) ::=> TextureViewPtr.
+    abstract method getOrCreateFullView => TextureViewPtr.
 }.
+
 compileTime constant TexturePtr := Texture sharedPointer.
 
 }. ## End of namespace Core

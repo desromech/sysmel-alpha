@@ -98,9 +98,7 @@ let renderingCommandQueue mutable type: CommandQueuePtr.
 let commandListAllocator mutable type: CommandListAllocatorPtr.
 let commandList mutable type: CommandListPtr.
 
-let colorBuffer mutable type: Form sharedPointer.
 let colorBufferTextureView mutable type: TextureView sharedPointer.
-let depthBuffer mutable type: Form sharedPointer.
 let mainFrameBuffer mutable type: FramebufferPtr.
 let mainRenderPass mutable type: RenderPassPtr.
 
@@ -331,11 +329,35 @@ function main externC (argc: Int32, argv: UInt8 const pointer pointer) => Int32 
 
 	## Create the main framebuffer.
 	{
-		colorBuffer := Form extent: UInt32x2(640, 480) pixelFormat: PixelFormat B8G8R8A8_UNormSRGB.
-		colorBufferTextureView := FormTextureView for: colorBuffer.
+		let colorBuffer := renderingDevice _ createTexture: (TextureDescription()
+			type: TextureType Texture2D;
+			width: 640;
+			height: 480;
+			depth: 1;
+			layers: 1;
+			miplevels: 1;
+			format: PixelFormat B8G8R8A8_UNormSRGB;
+			usageModes: TextureUsageMode Sampled | TextureUsageMode ColorAttachment;
+			mainUsageMode: TextureUsageMode Sampled;
+			heapType: MemoryHeapType DeviceLocal;
+			sampleCount: 1;
+			yourself).
+		colorBufferTextureView := colorBuffer _ getOrCreateFullView.
 
-		depthBuffer := Form extent: UInt32x2(640, 480) pixelFormat: PixelFormat D32_Float.
-		let depthBufferTextureView := FormTextureView for: depthBuffer.
+		let depthBuffer := renderingDevice _ createTexture: (TextureDescription()
+			type: TextureType Texture2D;
+			width: 640;
+			height: 480;
+			depth: 1;
+			layers: 1;
+			miplevels: 1;
+			format: PixelFormat D32_Float;
+			usageModes: TextureUsageMode DepthAttachment;
+			mainUsageMode: TextureUsageMode DepthAttachment;
+			heapType: MemoryHeapType DeviceLocal;
+			sampleCount: 1;
+			yourself).
+		let depthBufferTextureView := depthBuffer _ getOrCreateFullView.
 
 		let colorAttachments mutable := TextureViewPtr array(colorBufferTextureView).
 		mainFrameBuffer := renderingDevice _ createFramebuffer: UInt32x2(640, 480) colorViews: colorAttachments depthStencilView: depthBufferTextureView.

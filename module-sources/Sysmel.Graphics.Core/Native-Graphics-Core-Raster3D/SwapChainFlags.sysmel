@@ -1,0 +1,16 @@
+namespace Stdn definition: {
+namespace Graphics definition: {
+namespace Core definition: {
+
+#**
+ * Swap chain flags
+ * The values of these constants are the same as the ones that exposed in agpu.
+ *#
+enum SwapChainFlags bitMask valueType: UInt32; values: #{
+    None: 0.
+    OverlayWindow: 1.
+}.
+
+}. ## End of namespace Core
+}. ## End of namespace Graphics
+}. ## End of namespace Stdn

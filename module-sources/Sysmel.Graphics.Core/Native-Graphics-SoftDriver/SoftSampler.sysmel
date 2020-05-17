@@ -1,0 +1,21 @@
+namespace Stdn definition: {
+namespace Graphics definition: {
+namespace Core definition: {
+
+#**
+ * I am a handle for a sampler.
+ *#
+class SoftSampler superclass: Sampler; definition: {
+    protected field description type: SamplerDescription.
+
+    method initializeWithDescription: (theDescription: SamplerDescription const ref) ::=> Boolean8 := {
+        description := theDescription.
+        true
+    }.
+}.
+
+compileTime constant SoftSamplerPtr := SoftSampler sharedPointer.
+
+}. ## End of namespace Core
+}. ## End of namespace Graphics
+}. ## End of namespace Stdn

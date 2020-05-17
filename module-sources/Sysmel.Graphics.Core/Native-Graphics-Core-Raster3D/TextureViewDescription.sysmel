@@ -1,0 +1,18 @@
+namespace Stdn definition: {
+namespace Graphics definition: {
+namespace Core definition: {
+
+#**
+ * Texture view description.
+ *#
+struct TextureViewDescription definition: {
+    public field type type: TextureType.
+    public field format type: PixelFormat.
+    public field sampleCount type: UInt32.
+    public field components type: ComponentsSwizzle.
+    public field subresourceRange type: TextureSubResourceRange.
+}.
+
+}. ## End of namespace Core
+}. ## End of namespace Graphics
+}. ## End of namespace Stdn

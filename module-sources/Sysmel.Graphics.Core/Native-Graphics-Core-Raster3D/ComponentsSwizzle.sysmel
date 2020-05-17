@@ -1,0 +1,27 @@
+namespace Stdn definition: {
+namespace Graphics definition: {
+namespace Core definition: {
+
+enum ComponentSwizzle valueType: UInt8; values: #{
+    Identity: 0.
+    One: 1.
+    Zero: 2.
+    R: 3.
+    G: 4.
+    B: 5.
+    A: 6.
+}.
+
+#**
+ * Texture fetch components swizzle.
+ *#
+struct ComponentsSwizzle definition: {
+    public field r type: ComponentSwizzle.
+    public field g type: ComponentSwizzle.
+    public field b type: ComponentSwizzle.
+    public field a type: ComponentSwizzle.
+}.
+
+}. ## End of namespace Core
+}. ## End of namespace Graphics
+}. ## End of namespace Stdn

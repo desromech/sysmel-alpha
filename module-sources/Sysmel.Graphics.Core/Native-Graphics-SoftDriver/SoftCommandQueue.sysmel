@@ -27,6 +27,14 @@ class SoftCommandQueue superclass: CommandQueue; definition: {
 
     override method waitForIdle ::=> Void := {
     }.
+
+    override method signalFence: (fence: FencePtr const ref) ::=> Void := {
+
+    }.
+
+    override method waitFence: (fence: FencePtr const ref) ::=> Void := {
+
+    }.
 }.
 
 }. ## End of namespace Core

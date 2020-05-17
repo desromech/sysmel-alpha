@@ -41,11 +41,21 @@ class SoftRenderingDevice superclass: RenderingDevice; definition: {
     }.
 
     override method createTexture: (description: TextureDescription const ref) ::=> TexturePtr := {
-        TexturePtr nil
+        let result := SoftLinearTexture sharedNew.
+        (result _ initializeWithDescription: description) ifFalse: {
+            return: TexturePtr nil
+        }.
+
+        result upCastFor: Texture
     }.
 
     override method createSampler: (description: SamplerDescription const ref) ::=> SamplerPtr := {
-        SamplerPtr nil
+        let result := SoftSampler sharedNew.
+        (result _ initializeWithDescription: description) ifFalse: {
+            return: SamplerPtr nil
+        }.
+
+        result upCastFor: Sampler
     }.
 
     override method createComputePipelineState: (description: ComputePipelineStateDescription const ref) ::=> PipelineStatePtr := {
@@ -55,7 +65,10 @@ class SoftRenderingDevice superclass: RenderingDevice; definition: {
     override method createGraphicsPipelineState: (description: GraphicsPipelineStateDescription const ref) ::=> PipelineStatePtr := {
         let result := SoftGraphicsPipeline sharedNew.
         result _ description := description.
-        result _ fetchCachedPipelineState.
+        (result _ fetchCachedPipelineState) ifFalse: {
+            return: PipelineStatePtr nil.
+        }.
+
         result upCastFor: PipelineState.
     }.
 
@@ -128,6 +141,19 @@ class SoftRenderingDevice superclass: RenderingDevice; definition: {
 
     override method getDefaultCommandQueue => CommandQueuePtr := {
         defaultCommandQueue
+    }.
+
+
+    override method createFence => FencePtr := {
+        SoftFence sharedNew upCastFor: Fence
+    }.
+
+    override method createSwapChain: (swapChainCreationInfo: SwapChainCreationInfo const ref) for: (renderingQueue: CommandQueuePtr const ref) ::=> SwapChainPtr := {
+        SwapChainPtr nil.
+    }.
+
+    override method waitForIdle => Void := {
+        defaultCommandQueue _ waitForIdle
     }.
 
     override method hasTopLeftNdcOrigin => Boolean8

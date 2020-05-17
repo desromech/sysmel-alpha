@@ -1,0 +1,35 @@
+namespace Stdn definition: {
+namespace Graphics definition: {
+namespace Core definition: {
+
+#**
+ * I am a CPU software based rendering swap chain.
+ *#
+class SoftSwapChain superclass: SwapChain; definition: {
+
+    override method swapBuffers => Void := {
+
+    }.
+
+    override method getCurrentBackBuffer => FramebufferPtr := {
+        FramebufferPtr nil
+    }.
+
+    override method getCurrentBackBufferIndex => UIntPointer := {
+        0
+    }.
+
+    override method getFramebufferCount => UIntPointer := {
+        0
+    }.
+
+    override method setOverlayPosition: (position: Int32x2) ::=> Void := {
+
+    }
+}.
+
+compileTime constant SoftSwapChainPtr := SoftSwapChain sharedPointer.
+
+}. ## End of namespace Core
+}. ## End of namespace Graphics
+}. ## End of namespace Stdn

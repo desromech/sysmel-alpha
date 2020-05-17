@@ -10,7 +10,7 @@ class SoftGraphicsPipeline superclass: GraphicsPipelineState; definition: {
 	public field vertexShader type: GPU NativeVertexShaderEntryPointType pointer.
 	public field fragmentShader type: GPU NativeFragmentShaderEntryPointType pointer.
 
-	method fetchCachedPipelineState => Void := {
+	method fetchCachedPipelineState => Boolean8 := {
 		(description vertexShader getPointer castTo: SoftShaderStageHandle pointer) ifNotNil: {:shaderStage :: Void |
 			vertexShader := shaderStage _ entryPointInfo nativeShaderEntryPoint reinterpretCastTo: GPU NativeVertexShaderEntryPointType pointer
 		}.
@@ -19,6 +19,7 @@ class SoftGraphicsPipeline superclass: GraphicsPipelineState; definition: {
 			fragmentShader := shaderStage _ entryPointInfo nativeShaderEntryPoint reinterpretCastTo: GPU NativeFragmentShaderEntryPointType pointer
 		}.
 
+		true
 	}.
 
 	const method fillTriangleV1: (v1: GPU NativeVertexShaderIOInterface Outputs ref)

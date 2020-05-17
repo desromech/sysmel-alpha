@@ -3,13 +3,18 @@ loadFileOnce: "SoftBuffer.sysmel".
 loadFileOnce: "SoftCommandListAllocator.sysmel".
 loadFileOnce: "SoftCommandList.sysmel".
 loadFileOnce: "SoftCommandQueue.sysmel".
+loadFileOnce: "SoftFence.sysmel".
 loadFileOnce: "SoftFramebuffer.sysmel".
 loadFileOnce: "SoftGraphicsPipelineState.sysmel".
 loadFileOnce: "SoftRenderPass.sysmel".
+loadFileOnce: "SoftSampler.sysmel".
 loadFileOnce: "SoftShaderSignature.sysmel".
 loadFileOnce: "SoftShaderSignatureBuilder.sysmel".
 loadFileOnce: "SoftShaderStageHandle.sysmel".
 loadFileOnce: "SoftShaderResourceBindings.sysmel".
+loadFileOnce: "SoftSwapChain.sysmel".
+loadFileOnce: "SoftTexture.sysmel".
+loadFileOnce: "SoftLinearTexture.sysmel".
 loadFileOnce: "SoftVertexLayout.sysmel".
 loadFileOnce: "SoftVertexBinding.sysmel".
 

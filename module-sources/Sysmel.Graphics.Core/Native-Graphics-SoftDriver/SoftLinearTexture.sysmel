@@ -1,0 +1,39 @@
+namespace Stdn definition: {
+namespace Graphics definition: {
+namespace Core definition: {
+
+#**
+ * I am a handle for a texture.
+ *#
+class SoftLinearTexture superclass: SoftTexture; definition: {
+
+    protected field layerMemorySize type: UIntPointer.
+    public field linearMemory type: UInt8 pointer.
+
+    override method initializeWithDescription: (theDescription: TextureDescription const ref) ::=> Boolean8 := {
+        (super initializeWithDescription: theDescription) ifFalse: {return: false}.
+
+        layerMemorySize := 0.
+        0 until: theDescription miplevels do: {:i :: Void |
+            layerMemorySize := layerMemorySize + ((self computePitchesForLevel: i) z castTo: UIntPointer)
+        }.
+
+        linearMemory := Stdn zmalloc(layerMemorySize*description layers) reinterpretCastTo: UInt8 pointer.
+        true
+    }.
+
+    override method finalize => Void := {
+        Stdn free(linearMemory)
+    }.
+
+    override method linearMemoryLockLevel: (level: UIntPointer) layer: (layer: UIntPointer) ::=> Void pointer := {
+        linearMemory
+    }.
+
+    override method linearMemoryUnlock => Void
+        := void.
+}.
+
+}. ## End of namespace Core
+}. ## End of namespace Graphics
+}. ## End of namespace Stdn

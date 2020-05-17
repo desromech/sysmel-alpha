@@ -1,0 +1,19 @@
+namespace Stdn definition: {
+namespace Graphics definition: {
+namespace Core definition: {
+
+#**
+ * I am a CPU software based rendering fence.
+ *#
+class SoftFence superclass: Fence; definition: {
+    override method waitOnClient => Void := {
+
+    }.
+
+}.
+
+compileTime constant SoftFencePtr := SoftFence sharedPointer.
+
+}. ## End of namespace Core
+}. ## End of namespace Graphics
+}. ## End of namespace Stdn

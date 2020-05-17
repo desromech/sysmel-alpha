@@ -5,6 +5,7 @@ loadFileOnce: "BufferImageCopyRegion.sysmel".
 loadFileOnce: "BufferMappingFlags.sysmel".
 loadFileOnce: "BufferUsageMode.sysmel".
 loadFileOnce: "CompareFunction.sysmel".
+loadFileOnce: "ComponentsSwizzle.sysmel".
 loadFileOnce: "ComputePipelineStateDescription.sysmel".
 loadFileOnce: "DepthStencilValue.sysmel".
 loadFileOnce: "GraphicsPipelineStateDescription.sysmel".
@@ -19,6 +20,8 @@ loadFileOnce: "SamplerDescription.sysmel".
 loadFileOnce: "ShaderSignatureBankDescription.sysmel".
 loadFileOnce: "ShaderSignatureDescription.sysmel".
 loadFileOnce: "StencilOperation.sysmel".
+loadFileOnce: "SwapChainFlags.sysmel".
+loadFileOnce: "SwapChainCreationInfo.sysmel".
 loadFileOnce: "TextureAddressMode.sysmel".
 loadFileOnce: "TextureAspect.sysmel".
 loadFileOnce: "TextureDescription.sysmel".
@@ -26,9 +29,11 @@ loadFileOnce: "TextureFilter.sysmel".
 loadFileOnce: "TextureSubResourceRange.sysmel".
 loadFileOnce: "TextureType.sysmel".
 loadFileOnce: "TextureUsageMode.sysmel".
+loadFileOnce: "TextureViewDescription.sysmel".
 loadFileOnce: "VertexAttributeDescription.sysmel".
 
 ## 3D rendering handles
+loadFileOnce: "Fence.sysmel".
 loadFileOnce: "VertexLayout.sysmel".
 loadFileOnce: "VertexBinding.sysmel".
 loadFileOnce: "Buffer.sysmel".
@@ -42,6 +47,7 @@ loadFileOnce: "ShaderResourceBindings.sysmel".
 loadFileOnce: "ShaderSignature.sysmel".
 loadFileOnce: "ShaderSignatureBuilder.sysmel".
 loadFileOnce: "ShaderStageHandle.sysmel".
+loadFileOnce: "SwapChain.sysmel".
 loadFileOnce: "PipelineState.sysmel".
 loadFileOnce: "ComputePipelineState.sysmel".
 loadFileOnce: "GraphicsPipelineState.sysmel".

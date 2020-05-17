@@ -8,6 +8,9 @@ namespace Core definition: {
 class CommandQueue superclass: RenderingDriverObjectHandle; definition: {
     abstract method submitCommandList: (commandList: CommandListPtr const ref) ::=> Void.
     abstract method waitForIdle ::=> Void.
+
+    abstract method signalFence: (fence: FencePtr const ref) ::=> Void.
+    abstract method waitFence: (fence: FencePtr const ref) ::=> Void.
 }.
 
 compileTime constant CommandQueuePtr := CommandQueue sharedPointer.

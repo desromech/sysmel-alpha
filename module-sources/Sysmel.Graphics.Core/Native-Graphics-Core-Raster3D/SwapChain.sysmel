@@ -1,0 +1,21 @@
+namespace Stdn definition: {
+namespace Graphics definition: {
+namespace Core definition: {
+
+#**
+ * I am a handle for a swap chain.
+ *#
+class SwapChain superclass: RenderingDriverObjectHandle; definition: {
+
+    abstract method swapBuffers => Void.
+    abstract method getCurrentBackBuffer => FramebufferPtr.
+    abstract method getCurrentBackBufferIndex => UIntPointer.
+    abstract method getFramebufferCount => UIntPointer.
+    abstract method setOverlayPosition: (position: Int32x2) ::=> Void.
+}.
+
+compileTime constant SwapChainPtr := SwapChain sharedPointer.
+
+}. ## End of namespace Core
+}. ## End of namespace Graphics
+}. ## End of namespace Stdn

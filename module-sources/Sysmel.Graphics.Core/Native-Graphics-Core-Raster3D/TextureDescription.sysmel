@@ -6,7 +6,7 @@ namespace Core definition: {
  * Texture description.
  *#
 struct TextureDescription definition: {
-    public field type: TextureType.
+    public field type type: TextureType.
     public field width type: UInt32.
     public field height type: UInt32.
     public field depth type: UInt32.
