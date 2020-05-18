@@ -8,7 +8,7 @@ namespace Core definition: {
 class SoftShaderSignature superclass: ShaderSignature; definition: {
     public field description type: ShaderSignatureDescription.
 
-    override method createShaderResourceBinding: (elementIndex: UIntPointer) ::=> ShaderResourceBindingsPtr := {
+    override method createShaderResourceBindings: (elementIndex: UIntPointer) ::=> ShaderResourceBindingsPtr := {
         Stdn assert: elementIndex < description banks size.
 
         let result := SoftShaderResourceBindings sharedNew.

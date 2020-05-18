@@ -1,0 +1,26 @@
+namespace Stdn definition: {
+namespace Graphics definition: {
+namespace DriverAGPU definition: {
+
+useNamespace: Stdn Graphics Core.
+
+#**
+ * I am a agpu based device.
+ *#
+class AgpuVertexBinding superclass: VertexBinding; definition: {
+    public field handle type: AGPU VertexBindingRef.
+
+    override method bindVertexBuffers: (theVertexBuffers: VertexBuffers) ::=> Void := {
+
+    }.
+
+    override method bindVertexBuffers: (theVertexBuffers: VertexBuffers) offset: (offsets: Offsets) ::=> Void := {
+
+    }.
+}.
+
+compileTime constant AgpuVertexBindingPtr := AgpuVertexBinding sharedPointer.
+
+}. ## End of namespace Core
+}. ## End of namespace Graphics
+}. ## End of namespace Stdn

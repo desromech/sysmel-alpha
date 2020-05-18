@@ -8,7 +8,7 @@ namespace Core definition: {
 struct BufferDescription definition: {
     public field size type: UIntPointer.
     public field heapType type: MemoryHeapType.
-    public field usageMode type: BufferUsageMode.
+    public field usageModes type: BufferUsageMode.
     public field mainUsageMode type: BufferUsageMode.
     public field mappingFlags type: BufferMappingFlags.
     public field stride type: UIntPointer.

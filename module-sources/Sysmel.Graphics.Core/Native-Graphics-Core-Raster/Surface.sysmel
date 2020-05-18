@@ -20,9 +20,9 @@ class Surface superclass: Object; definition: {
     virtual method beginDrawingWithCanvas => Canvas uniquePointer := Canvas uniquePointer nil.
 
     #**
-     * This method returns a pointer to the underlying rendering driver that I belong to.
+     * This method returns a pointer to the underlying rendering device that I belong to.
      *#
-    virtual method renderingDriver => RenderingDriver pointer := nil.
+    virtual method renderingDevice => RenderingDevice sharedPointer := RenderingDevice sharedPointer nil.
 
 }.
 

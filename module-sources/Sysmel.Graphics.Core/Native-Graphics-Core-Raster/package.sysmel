@@ -18,6 +18,7 @@ loadFileOnce: "SystemCursor.sysmel".
 ## 2D rendering objects.
 loadFileOnce: "RenderingDriver.sysmel".
 loadFileOnce: "RenderingDriverObjectHandle.sysmel".
+loadFileOnce: "RenderingDriverRegistry.sysmel".
 loadFileOnce: "RenderingDevice.sysmel".
 loadFileOnce: "TextureView.sysmel".
 loadFileOnce: "Surface.sysmel".

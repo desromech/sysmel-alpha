@@ -1,0 +1,44 @@
+namespace Stdn definition: {
+namespace Graphics definition: {
+namespace DriverAGPU definition: {
+
+useNamespace: Stdn Graphics Core.
+
+#**
+ * I am a agpu based device.
+ *#
+class AgpuBuffer superclass: Buffer; definition: {
+    public field handle type: AGPU BufferRef.
+    public field creationDescription type: BufferDescription.
+
+    const override method description => BufferDescription
+        := creationDescription.
+
+    const override method stride => UIntPointer
+        := creationDescription stride.
+
+    const override method size => UIntPointer
+        := creationDescription size.
+
+    override method map: (access: MappingAccessMask) ::=> Void pointer := {
+        nil.
+    }.
+
+    override method unmap ::=> Void := {
+
+    }.
+
+    override method uploadAt: (offset: UIntPointer) size: (size: UIntPointer) data: (data: Void const pointer) ::=> Void := {
+
+    }.
+
+    override method readAt: (offset: UIntPointer) size: (size: UIntPointer) into: (buffer: Void pointer) ::=> Void := {
+
+    }
+}.
+
+compileTime constant AgpuBufferPtr := AgpuBuffer sharedPointer.
+
+}. ## End of namespace Core
+}. ## End of namespace Graphics
+}. ## End of namespace Stdn

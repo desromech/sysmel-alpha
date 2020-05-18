@@ -7,7 +7,7 @@ useNamespace: Stdn Graphics Core.
 #**
  * I represent an interface into a window system window.
  *#
-class Window superclass: Object; definition: {
+class Window superclass: SharedObject; definition: {
     public field eventHandler type: EventHandler sharedPointer.
 
     #**
@@ -25,13 +25,31 @@ class Window superclass: Object; definition: {
         }
     }.
 
+    abstract method extent => UInt32x2.
+    
     #**
      * This method creates gets or creates a default rendering device.
      *#
     abstract method renderingDevice => RenderingDevice sharedPointer.
 
     #**
-     * This method creates a default drawing surface whose rendering method is chosen by the backend.
+     * This method sets a particular rendering device that should be used with this window.
+     * This rendering device is used for creating a swap chain suitable for this window.
+     *#
+    abstract method renderingDevice: (theRenderingDevice: RenderingDevice sharedPointer) ::=> Void.
+
+    #**
+     * This method creates a swap chain with the specified properties for the
+     * rendering framebuffer. This method is free to actually resize the swap chain
+     * into the actual size of the window.
+     * The client is responsible on creating a new swap chain if the swap chain becomes out of date.
+     *#
+    abstract method createSwapChain: (swapChainCreationInfo: SwapChainCreationInfo const ref) for: (renderingQueue: CommandQueuePtr const ref) ::=> SwapChainPtr.
+
+    #**
+     * This method creates a default drawing surface whose rendering method is
+     * chosen by the backend. This drawing surface is optimized for 2D rendering
+     * so its internal implementation may not depend on an actual 3D rendering API.
      *#
     abstract method createDefaultDrawingSurface => Surface sharedPointer.
 

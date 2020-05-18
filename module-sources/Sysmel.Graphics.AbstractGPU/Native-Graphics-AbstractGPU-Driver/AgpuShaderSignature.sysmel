@@ -1,0 +1,29 @@
+namespace Stdn definition: {
+namespace Graphics definition: {
+namespace DriverAGPU definition: {
+
+useNamespace: Stdn Graphics Core.
+
+#**
+ * I am a agpu based shader signature builder.
+ *#
+class AgpuShaderSignature superclass: ShaderSignature; definition: {
+    public field handle type: AGPU ShaderSignatureRef.
+
+    override method createShaderResourceBindings: (elementIndex: UIntPointer) ::=> ShaderResourceBindingsPtr := {
+        let bindingsHandle := handle _ createShaderResourceBinding: (elementIndex castTo: UInt32).
+        bindingsHandle ifNil: {
+            return: ShaderResourceBindingsPtr nil.
+        }.
+
+        let result := AgpuShaderResourceBindings sharedNew.
+        result _ handle: bindingsHandle.
+        result upCastFor: ShaderResourceBindings
+    }.
+}.
+
+compileTime constant AgpuShaderSignaturePtr := AgpuShaderSignature sharedPointer.
+
+}. ## End of namespace Core
+}. ## End of namespace Graphics
+}. ## End of namespace Stdn

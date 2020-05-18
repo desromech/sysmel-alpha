@@ -617,7 +617,7 @@ method createWallMin: (min: Float32x2) max: (max: Float32x2) color: (color: Floa
 
 function main externC (argc: Int32, argv: Char8 const pointer pointer) => Int32 := {
 	## Create the window system.
-	let windowSystem := createWindowSystem().
+	let windowSystem := createDefaultWindowSystem().
 	windowSystem ifNil: {
 		return: 0.
 	}.

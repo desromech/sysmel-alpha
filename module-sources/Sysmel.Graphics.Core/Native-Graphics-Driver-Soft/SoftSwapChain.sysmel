@@ -7,6 +7,11 @@ namespace Core definition: {
  *#
 class SoftSwapChain superclass: SwapChain; definition: {
 
+    method initializeWith: (swapChainCreationInfo: SwapChainCreationInfo const ref) for: (renderingQueue: CommandQueuePtr const ref) ::=> Boolean8 := {
+
+        true
+    }.
+
     override method swapBuffers => Void := {
 
     }.

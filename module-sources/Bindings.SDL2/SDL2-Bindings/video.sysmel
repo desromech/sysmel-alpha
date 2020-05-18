@@ -32,5 +32,6 @@ function SDL_DestroyWindow externC dllimport (window: SDL_Window pointer) => Voi
 function SDL_GetWindowID externC dllimport (window: SDL_Window pointer) => UInt32.
 
 function SDL_CaptureMouse externC dllimport (enabled: Boolean8) => Int32.
+function SDL_GetWindowSize externC dllimport(window: SDL_Window pointer, w: Int32 pointer, h: Int32 pointer) => Void.
 
 }. ## End of namespace SDL2.

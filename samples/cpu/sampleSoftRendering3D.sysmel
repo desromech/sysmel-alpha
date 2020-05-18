@@ -1,5 +1,6 @@
-Compiler
-	importModuleNamed: #"Sysmel.Graphics.Headfull".
+Compiler importModuleNamed: #"Sysmel.Graphics.Headfull".
+
+## Compiler importModuleNamed: #"Sysmel.Graphics.AbstractGPU".
 
 useNamespace: Stdn Graphics Core.
 useNamespace: Stdn Graphics GUI.
@@ -84,10 +85,10 @@ class CheckboardShader definition: {
     }.
 }.
 
+let renderingDevice mutable type: RenderingDevicePtr.
 let mainWindow mutable type: Window sharedPointer.
 let mainDrawingSurface mutable type: Surface sharedPointer.
 let fontFaceWithSize mutable type: FontFaceWithSize sharedPointer.
-let renderingDevice mutable type: RenderingDevicePtr.
 
 let shaderSignature mutable type: ShaderSignaturePtr.
 
@@ -167,7 +168,7 @@ class MeshBuilder definition: {
 			renderingDevice _ createBuffer: (BufferDescription()
 				size: vertices size * SimpleVertex instanceSize;
 				heapType: MemoryHeapType DeviceLocal;
-				usageMode: BufferUsageMode Array;
+				usageModes: BufferUsageMode Array;
 				mainUsageMode: BufferUsageMode Array;
 				stride: SimpleVertex instanceSize;
 				yourself) initialData: vertices asArraySlice elements
@@ -176,7 +177,7 @@ class MeshBuilder definition: {
 		let indexBuffer := renderingDevice _ createBuffer: (BufferDescription()
 			size: indices size * 4;
 			heapType: MemoryHeapType DeviceLocal;
-			usageMode: BufferUsageMode ElementArray;
+			usageModes: BufferUsageMode ElementArray;
 			mainUsageMode: BufferUsageMode ElementArray;
 			stride: 4;
 			yourself) initialData: indices asArraySlice elements.
@@ -307,7 +308,7 @@ class MainWindowEventHandler superclass: EventHandler; definition: {
 }.
 
 function main externC (argc: Int32, argv: UInt8 const pointer pointer) => Int32 := {
-    let windowSystem mutable := createWindowSystem().
+    let windowSystem mutable := createDefaultWindowSystem().
     windowSystem ifNil: {
         return: 0
     }.
@@ -464,11 +465,11 @@ function main externC (argc: Int32, argv: UInt8 const pointer pointer) => Int32 
 		cameraStateBuffer := renderingDevice _ createBuffer: (BufferDescription()
 			size: (CameraTransformationState instanceSize alignedTo: 256);
 			heapType: MemoryHeapType HostToDevice;
-			usageMode: BufferUsageMode Uniform;
+			usageModes: BufferUsageMode Uniform;
 			mainUsageMode: BufferUsageMode Uniform;
 			mappingFlags: BufferMappingFlags DynamicStorage;
 			yourself) initialData: nil.
-		cameraStateBinding := shaderSignature _ createShaderResourceBinding: 0.
+		cameraStateBinding := shaderSignature _ createShaderResourceBindings: 0.
 		cameraStateBinding _ bindOn: 0 uniformBuffer: cameraStateBuffer.
 	}.
 
@@ -495,10 +496,10 @@ function main externC (argc: Int32, argv: UInt8 const pointer pointer) => Int32 
 		planeObjectStateBuffer := renderingDevice _ createBuffer: (BufferDescription()
 			size: (ObjectTransformationState instanceSize alignedTo: 256);
 			heapType: MemoryHeapType HostToDevice;
-			usageMode: BufferUsageMode Uniform;
+			usageModes: BufferUsageMode Uniform;
 			mainUsageMode: BufferUsageMode Uniform;
 			yourself) initialData: planeTransformationState address.
-		planeObjectStateBinding := shaderSignature _ createShaderResourceBinding: 1.
+		planeObjectStateBinding := shaderSignature _ createShaderResourceBindings: 1.
 		planeObjectStateBinding _ bindOn: 0 uniformBuffer: planeObjectStateBuffer.
 	}.
 
@@ -571,10 +572,10 @@ function main externC (argc: Int32, argv: UInt8 const pointer pointer) => Int32 
 			cubeObjectStateBuffer := renderingDevice _ createBuffer: (BufferDescription()
 				size: (ObjectTransformationState instanceSize alignedTo: 256);
 				heapType: MemoryHeapType HostToDevice;
-				usageMode: BufferUsageMode Uniform;
+				usageModes: BufferUsageMode Uniform;
 				mainUsageMode: BufferUsageMode Uniform;
 				yourself) initialData: cubeTransformationState address.
-			cubeObjectStateBinding := shaderSignature _ createShaderResourceBinding: 1.
+			cubeObjectStateBinding := shaderSignature _ createShaderResourceBindings: 1.
 			cubeObjectStateBinding _ bindOn: 0 uniformBuffer: cubeObjectStateBuffer.
 	}.
 

@@ -7,24 +7,22 @@ namespace Core definition: {
  * I am a CPU based rendering driver. Since I do not require special graphical support, I am constructed as a singleton.
  *#
 class SoftRenderingDriver superclass: RenderingDriver; definition: {
+    override method initialize => Void := {
+        RenderingDriverRegistry default registerDriver: self address
+    }.
+
+    override method finalize => Void := {
+        RenderingDriverRegistry default unregisterDriver: self address
+    }.
+
     field mainDevice type: SoftRenderingDevice sharedPointer.
 
     meta definition: {
-        let uniqueInstance mutable type: RenderingDriver sharedPointer.
-        let uniqueInstanceOnceCreation mutable type: Stdn OnceFlag.
-
-        override method isSoftRenderingDriver => Boolean8
-            := true.
-
-
-        method uniqueInstance => RenderingDriver sharedPointer := {
-            uniqueInstanceOnceCreation do: {
-                uniqueInstance := RenderingDriver sharedPointer for: SoftRenderingDriver nativeNew.
-            }.
-
-            uniqueInstance
-        }.
+        global Singleton mutable type: SoftRenderingDriver.
     }.
+
+    override const method isSoftRenderingDriver => Boolean8
+        := true.
 
     override method getMainDevice => RenderingDevice sharedPointer := {
         mainDevice ifNil: {

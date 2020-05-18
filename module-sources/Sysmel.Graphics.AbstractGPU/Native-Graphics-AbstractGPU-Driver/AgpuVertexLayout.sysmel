@@ -1,0 +1,22 @@
+namespace Stdn definition: {
+namespace Graphics definition: {
+namespace DriverAGPU definition: {
+
+useNamespace: Stdn Graphics Core.
+
+#**
+ * I am a agpu based device.
+ *#
+class AgpuVertexLayout superclass: VertexLayout; definition: {
+    public field handle type: AGPU VertexLayoutRef.
+
+    override method addVertexBuffers: (strides: UInt32 const arraySlice) withAttributes: (attributes: VertexAttributeDescription const arraySlice) ::=> Void := {
+
+    }.
+}.
+
+compileTime constant AgpuVertexLayoutPtr := AgpuVertexLayout sharedPointer.
+
+}. ## End of namespace Core
+}. ## End of namespace Graphics
+}. ## End of namespace Stdn

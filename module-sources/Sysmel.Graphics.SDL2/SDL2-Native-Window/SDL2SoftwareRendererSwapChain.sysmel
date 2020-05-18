@@ -1,0 +1,53 @@
+namespace Stdn definition: {
+namespace Graphics definition: {
+namespace GUI definition: {
+
+useNamespace: Stdn Graphics Core.
+useNamespace: SDL2.
+
+class SDL2SoftwareRendererSwapChain superclass: SoftSwapChain; definition: {
+    protected field window type: SDL2Window pointer.
+    protected field rendererHandle type: SDL_Renderer pointer.
+    protected field textureHandle type: SDL_Texture pointer.
+    protected field textureExtent type: UInt32x2.
+
+    meta method for: (window: SDL2Window ref) ::=> SDL2SoftwareRendererSwapChain sharedPointer := {
+        let renderer := SDL_CreateRenderer(window handle, -1, SDL_RENDERER_PRESENTVSYNC).
+        renderer ifNil: {
+            return: SDL2SoftwareRendererSwapChain sharedPointer nil
+        }.
+
+        let result := SDL2SoftwareRendererSwapChain sharedNew.
+        result _ initializeWithWindow: window address handle: renderer.
+        result.
+    }.
+
+    method initializeWithWindow: (theWindow: SDL2Window pointer) handle: (theRenderer: SDL_Renderer pointer) ::=> Void := {
+        window := theWindow.
+        rendererHandle := theRenderer.
+    }.
+
+    override method finalize => Void := {
+        self destroy.
+    }.
+
+    method destroy => Void := {
+        textureHandle ifNotNil: {
+            SDL_DestroyTexture(textureHandle).
+            rendererHandle := nil.
+        }.
+
+        rendererHandle ifNotNil: {
+            SDL_DestroyRenderer(rendererHandle).
+            rendererHandle := nil.
+        }.
+
+        window := nil.
+    }.
+
+
+}.
+
+}. ## End of namespace GUI
+}. ## End of namespace Graphics
+}. ## End of namespace Stdn

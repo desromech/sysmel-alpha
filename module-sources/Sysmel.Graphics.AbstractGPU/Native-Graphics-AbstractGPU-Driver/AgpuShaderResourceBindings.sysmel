@@ -1,0 +1,46 @@
+namespace Stdn definition: {
+namespace Graphics definition: {
+namespace DriverAGPU definition: {
+
+useNamespace: Stdn Graphics Core.
+
+#**
+ * I am a agpu based shader signature builder.
+ *#
+class AgpuShaderResourceBindings superclass: ShaderResourceBindings; definition: {
+    public field handle type: AGPU ShaderResourceBindingRef.
+
+    override method bindOn: (location: IntPointer) uniformBuffer: (buffer: BufferPtr const ref) ::=> Void := {
+
+    }.
+
+    override method bindOn: (location: IntPointer) uniformBuffer: (buffer: BufferPtr const ref) offset: (offset: UIntPointer) size: (size: UIntPointer) ::=> Void := {
+
+    }.
+
+    override method bindOn: (location: IntPointer) storageBuffer: (buffer: BufferPtr const ref) ::=> Void := {
+
+    }.
+
+    override method bindOn: (location: IntPointer) storageBuffer: (buffer: BufferPtr const ref) offset: (offset: UIntPointer) size: (size: UIntPointer) ::=> Void := {
+
+    }.
+
+    override method bindOn: (location: IntPointer) sampledTextureView: (textureView: TextureViewPtr const ref) ::=> Void := {
+
+    }.
+
+    override method bindOn: (location: IntPointer) storageImageView: (textureView: TextureViewPtr const ref) ::=> Void := {
+
+    }.
+
+    override method bindOn: (location: IntPointer) sampler: (sampelr: SamplerPtr const ref) ::=> Void := {
+
+    }.
+}.
+
+compileTime constant AgpuShaderResourceBindingsPtr := AgpuShaderResourceBindings sharedPointer.
+
+}. ## End of namespace Core
+}. ## End of namespace Graphics
+}. ## End of namespace Stdn

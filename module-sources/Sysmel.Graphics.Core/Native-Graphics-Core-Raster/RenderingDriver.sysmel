@@ -9,14 +9,19 @@ class Surface.
 #**
  * I am an abstract rendering driver. I am typically a factory for creating device instances.
  *#
-class RenderingDriver definition: {
-    virtual method isSoftRenderingDriver => Boolean8
+class RenderingDriver superclass: Stdn Object; definition: {
+    const virtual method isOptimizedHardwareRenderingDriver => Boolean8
+        := false.
+
+    const virtual method isHardwareRenderingDriver => Boolean8
+        := false.
+
+    const virtual method isSoftRenderingDriver => Boolean8
         := false.
 
     abstract method getMainDevice => RenderingDevice sharedPointer.
 }.
 
-compileTime constant RenderingDriverPtr := RenderingDriver sharedPointer.
 
 }. ## End of namespace Core
 }. ## End of namespace Graphics

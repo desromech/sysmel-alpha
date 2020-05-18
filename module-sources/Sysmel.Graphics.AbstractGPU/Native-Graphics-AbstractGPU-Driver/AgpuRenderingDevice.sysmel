@@ -1,0 +1,163 @@
+namespace Stdn definition: {
+namespace Graphics definition: {
+namespace DriverAGPU definition: {
+
+useNamespace: Stdn Graphics Core.
+
+#**
+ * I am a agpu based device.
+ *#
+class AgpuRenderingDevice superclass: RenderingDevice; definition: {
+    public field handle type: AGPU DeviceRef.
+
+    override method createShaderSignatureBuilder ::=> ShaderSignatureBuilderPtr := {
+        let builderHandle := handle _ createShaderSignatureBuilder.
+        builderHandle ifNil: {
+            return: ShaderSignatureBuilderPtr nil.
+        }.
+
+        let result := AgpuShaderSignatureBuilder sharedNew.
+        result _ handle := builderHandle.
+        result upCastFor: ShaderSignatureBuilder
+    }.
+
+    override method createBuffer: (description: BufferDescription const ref) initialData: (initialData: Void const pointer) ::=> BufferPtr := {
+        let convertedDescription mutable := AGPU BufferDescription()
+            size: (description size castTo: UInt32);
+            heap_type: (description heapType castTo: AGPU MemoryHeapType);
+            usage_modes: (description usageModes castTo: AGPU BufferUsageMask);
+            main_usage_mode: (description mainUsageMode castTo: AGPU BufferUsageMask);
+            mapping_flags: (description mappingFlags castTo: UInt32);
+            stride: (description stride castTo: UInt32);
+            yourself.
+        let bufferHandle := handle _ createBuffer: convertedDescription address initialData: (initialData reinterpretCastTo: Void pointer).
+        bufferHandle ifNil: {
+            return: BufferPtr nil.
+        }.
+
+        let result := AgpuBuffer sharedNew.
+        result _
+            handle: bufferHandle;
+            creationDescription: description.
+        result upCastFor: Buffer
+    }.
+
+    override method createTexture: (description: TextureDescription const ref) ::=> TexturePtr := {
+        let convertedDescription mutable := AGPU TextureDescription()
+            type: (description type castTo: AGPU TextureType);
+            width: (description width castTo: UInt32);
+            height: (description height castTo: UInt32);
+            depth: (description depth castTo: UInt32);
+            layers: (description layers castTo: UInt32);
+            miplevels: (description miplevels castTo: UInt16);
+            format: (description format castTo: AGPU TextureFormat);
+            heap_type: (description heapType castTo: AGPU MemoryHeapType);
+            usage_modes: (description usageModes castTo: AGPU TextureUsageModeMask);
+            main_usage_mode: (description mainUsageMode castTo: AGPU TextureUsageModeMask);
+            sample_count: (description sampleCount castTo: UInt32);
+            sample_quality: (description sampleQuality castTo: UInt32);
+            yourself.
+
+        let textureHandle := handle _ createTexture: convertedDescription address.
+        textureHandle ifNil: {
+            return: TexturePtr nil.
+        }.
+
+        let result := AgpuTexture sharedNew.
+        result _
+            handle: textureHandle;
+            creationDescription: description.
+        result upCastFor: Texture
+    }.
+
+    override method createSampler: (description: SamplerDescription const ref) ::=> SamplerPtr := {
+        SamplerPtr nil.
+    }.
+
+    override method createComputePipelineState: (description: ComputePipelineStateDescription const ref) ::=> PipelineStatePtr := {
+        PipelineStatePtr nil.
+    }.
+    override method createGraphicsPipelineState: (description: GraphicsPipelineStateDescription const ref) ::=> PipelineStatePtr := {
+        PipelineStatePtr nil.
+    }.
+
+    override method createVertexLayout => VertexLayoutPtr := {
+        let vertexLayoutHandle := handle _ createVertexLayout.
+        vertexLayoutHandle ifNil: {
+            return: VertexLayoutPtr nil.
+        }.
+
+        let result := AgpuVertexLayout sharedNew.
+        result _
+            handle: vertexLayoutHandle.
+        result upCastFor: VertexLayout
+    }.
+
+    override method createVertexBindingFor: (layout: VertexLayout sharedPointer const ref) ::=> VertexBindingPtr := {
+        let agpuVertexLayout := layout getPointer castTo: AgpuVertexLayout pointer.
+        agpuVertexLayout ifNil: {
+            return: VertexBindingPtr nil.
+        }.
+
+        let bindingHandle := handle _ createVertexBinding: agpuVertexLayout _ handle.
+        bindingHandle ifNil: {
+            return: VertexBindingPtr nil.
+        }.
+
+        let result := AgpuVertexBinding sharedNew.
+        result _ handle: bindingHandle.
+        result upCastFor: VertexBinding
+    }.
+
+    override method createCommandAllocatorOfType: (type: CommandListType) for: (queue: CommandQueuePtr const ref) ::=> CommandListAllocatorPtr := {
+        CommandListAllocatorPtr nil.
+    }.
+
+    override method createCommandListOfType: (type: CommandListType) for: (allocator: CommandListAllocatorPtr const ref) initialPipelineState: (initialPipeline: PipelineStatePtr const ref) ::=> CommandListPtr := {
+        CommandListPtr nil.
+    }.
+
+    override method getDefaultCommandQueue => CommandQueuePtr := {
+        CommandQueuePtr nil
+    }.
+
+    override method createShaderLibraryFromModule: (shaderModule: GPU ShaderModuleInfo const ref) ::=> ShaderLibraryHandlePtr := {
+        ShaderLibraryHandlePtr nil.
+    }.
+
+    override method createShaderStageFromEntryPoint: (entryPointInfo: GPU ShaderEntryPointInfo const ref) ::=> ShaderStageHandlePtr := {
+        ShaderStageHandlePtr nil
+    }.
+
+    override method createFramebuffer: (extent: UInt32x2) colorViews: (colorViews: TextureViewPtr const arraySlice) depthStencilView: (depthStencilView: TextureViewPtr const ref) ::=> FramebufferPtr := {
+        FramebufferPtr nil
+    }.
+
+    override method createRenderPass: (colorAttachment: RenderPassColorAttachmentDescription const arraySlice) depthStencilAttachment: (depthAttachment: RenderPassDepthStencilAttachmentDescription const pointer) ::=> RenderPassPtr := {
+        RenderPassPtr nil
+    }.
+
+    override method createFence => FencePtr := {
+        FencePtr nil
+    }.
+
+    override method createSwapChain: (swapChainCreationInfo: SwapChainCreationInfo const ref) for: (renderingQueue: CommandQueuePtr const ref) ::=> SwapChainPtr := {
+        SwapChainPtr nil
+    }.
+
+    override method waitForIdle => Void := {
+        handle _ finishExecution
+    }.
+
+    override method hasTopLeftNdcOrigin => Boolean8
+        := handle _ hasTopLeftNdcOrigin ~= 0.
+
+    override method hasBottomLeftTextureCoordinates => Boolean8
+        := handle _ hasBottomLeftTextureCoordinates ~= 0.
+}.
+
+compileTime constant AgpuRenderingDevicePtr := AgpuRenderingDevice sharedPointer.
+
+}. ## End of namespace Core
+}. ## End of namespace Graphics
+}. ## End of namespace Stdn

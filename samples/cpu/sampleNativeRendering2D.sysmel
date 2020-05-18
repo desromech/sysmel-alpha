@@ -94,7 +94,7 @@ class MainWindowEventHandler superclass: EventHandler; definition: {
 }.
 
 function main externC (argc: Int32, argv: UInt8 const pointer pointer) => Int32 := {
-    let windowSystem mutable := createWindowSystem().
+    let windowSystem mutable := createDefaultWindowSystem().
     windowSystem ifNil: {
         return: 0
     }.

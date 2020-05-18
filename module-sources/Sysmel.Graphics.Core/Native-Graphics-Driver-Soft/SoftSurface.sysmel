@@ -21,9 +21,6 @@ class SoftSurface superclass: Surface; definition: {
         Canvas uniquePointer for: result.
     }.
 
-    override method renderingDriver => RenderingDriver pointer
-        := SoftRenderingDriver uniqueInstance getPointer.
-
     virtual method beginDrawing => Boolean8
         := false.
 

@@ -1,0 +1,51 @@
+namespace Stdn definition: {
+namespace Graphics definition: {
+namespace GUI definition: {
+
+useNamespace: Stdn Graphics Core.
+
+#**
+ * I am a 2D rendering that takes care automatically of handling the underlying swap chain in a window.
+ * I work by delegating my job into an actual SwapChainSurface
+ *#
+class WindowSwapChainSurface superclass: Surface; definition: {
+    protected field window type: WindowRef.
+
+    meta definition: {
+        method for: (window: WindowRef const ref) ::=> WindowSwapChainSurface sharedPointer := {
+            let result := WindowSwapChainSurface sharedNew.
+            result _ initializeWithWindow: window.
+            result
+        }.
+    }.
+
+    method initializeWithWindow: (theWindow: WindowRef const ref) ::=> Void := {
+        window := theWindow
+    }.
+
+    override method beginDrawingWithCanvas => Canvas uniquePointer := {
+        #*self beginDrawing ifFalse: {
+            return: Canvas uniquePointer nil.
+        }.
+
+        let result := SoftCanvas nativeNew _
+            initializeWithSurface: self address;
+            address.
+
+        Canvas uniquePointer for: result.*#
+
+        Stdn stdout << "WindowSwapChainSurface beginDrawingWithCanvas"; nl.
+        Canvas uniquePointer nil
+    }.
+
+    virtual method beginDrawing => Boolean8
+        := false.
+
+    virtual method endDrawing => Void := {
+
+    }.
+}.
+
+}. ## End of namespace Core
+}. ## End of namespace Graphics
+}. ## End of namespace Stdn

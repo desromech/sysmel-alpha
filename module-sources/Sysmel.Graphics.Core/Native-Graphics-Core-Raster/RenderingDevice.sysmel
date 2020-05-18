@@ -11,7 +11,7 @@ class Surface.
  * device dependant objects such textures and drawing surfaces.
  *#
 class RenderingDevice superclass: RenderingDriverObjectHandle; definition: {
-    virtual method isCPURenderingDevice => Boolean8
+    virtual method isSoftRenderingDevice => Boolean8
         := false.
 }.
 

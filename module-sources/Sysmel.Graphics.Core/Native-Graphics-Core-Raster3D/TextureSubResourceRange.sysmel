@@ -6,7 +6,7 @@ namespace Core definition: {
  * Texture description.
  *#
 struct TextureSubResourceRange definition: {
-    public field usageMode type: TextureUsageMode.
+    public field usageModes type: TextureUsageMode.
     public field baseMipLevel type: UInt32.
     public field levelCount type: UInt32.
     public field baseArrayLayer type: UInt32.

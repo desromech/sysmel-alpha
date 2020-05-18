@@ -1,0 +1,97 @@
+namespace Stdn definition: {
+namespace Graphics definition: {
+namespace GUI definition: {
+
+class WindowsSystemFactory superclass: Stdn Object; definition: {
+    const virtual method isHeadless => Boolean8 := false.
+    const virtual method isHeadfull => Boolean8 := false.
+    const virtual method isNativeSystem => Boolean8 := false.
+
+    override method initialize => Void := {
+        WindowSystemFactoryRegistry default registerFactory: self address
+    }.
+
+    override method finalize => Void := {
+        WindowSystemFactoryRegistry default unregisterFactory: self address
+    }.
+
+    virtual method createWindowSystem => WindowSystem sharedPointer
+        := WindowSystem sharedPointer nil.
+}.
+
+#**
+ * I am a registry for window system factories.
+ *#
+class WindowSystemFactoryRegistry definition: {
+    protected field registeredFactories type: Stdn Collections Vector(WindowsSystemFactory pointer).
+
+    meta definition: {
+        let defaultInstance mutable type: WindowSystemFactoryRegistry uniquePointer.
+        let defaultInstanceOnceCreation mutable type: Stdn OnceFlag.
+
+        method default => WindowSystemFactoryRegistry ref := {
+            defaultInstanceOnceCreation do: {
+                defaultInstance reset: WindowSystemFactoryRegistry nativeNew.
+            }.
+
+            defaultInstance _
+        }.
+    }.
+
+    method registerFactory: (factory: WindowsSystemFactory pointer) ::=> Void := {
+        registeredFactories add: factory
+    }.
+
+    method unregisterFactory: (factory: WindowsSystemFactory pointer) ::=> Void := {
+        registeredFactories remove: factory
+    }.
+
+    method createHeadlessWindowSystem => WindowSystem sharedPointer := {
+        registeredFactories do: {:each :: Void |
+            each _ isHeadless ifTrue: {
+                let result := each _ createWindowSystem.
+                result ifNotNil: {return: result}
+            }
+        }.
+
+        WindowSystem sharedPointer nil
+    }.
+
+    method createHeadfullWindowSystem => WindowSystem sharedPointer := {
+        registeredFactories do: {:each :: Void |
+            each _ isHeadfull && each _ isNativeSystem ifTrue: {
+                let result := each _ createWindowSystem.
+                result ifNotNil: {return: result}
+            }
+        }.
+
+        registeredFactories do: {:each :: Void |
+            each _ isHeadfull ifTrue: {
+                let result := each _ createWindowSystem.
+                result ifNotNil: {return: result}
+            }
+        }.
+
+        WindowSystem sharedPointer nil
+    }.
+
+    method createDefaultWindowSystem => WindowSystem sharedPointer := {
+        let result := self createHeadfullWindowSystem.
+        result ifNotNil: {return: result}.
+
+        self createHeadlessWindowSystem
+    }.
+}.
+
+function createDefaultWindowSystem() => WindowSystem sharedPointer
+    := WindowSystemFactoryRegistry default createDefaultWindowSystem.
+
+function createHeadlessWindowSystem() => WindowSystem sharedPointer
+    := WindowSystemFactoryRegistry default createHeadlessWindowSystem.
+
+function createHeadfullWindowSystem() => WindowSystem sharedPointer
+    := WindowSystemFactoryRegistry default createHeadfullWindowSystem.
+
+}. ## End of namespace Core
+}. ## End of namespace Graphics
+}. ## End of namespace Stdn

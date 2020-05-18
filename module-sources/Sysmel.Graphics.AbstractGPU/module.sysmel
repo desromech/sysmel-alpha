@@ -1,0 +1,6 @@
+Compiler
+    importModuleNamed: #"Sysmel.Graphics.Core";
+    importModuleNamed: #"Bindings.AbstractGPU";
+    loadPackages: #(
+        #"Native-Graphics-AbstractGPU-Driver"
+    ).

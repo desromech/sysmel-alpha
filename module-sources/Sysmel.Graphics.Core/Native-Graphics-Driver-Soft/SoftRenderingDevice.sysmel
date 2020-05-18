@@ -13,6 +13,9 @@ class SoftRenderingDevice superclass: RenderingDevice; definition: {
         defaultCommandQueue := SoftCommandQueue sharedNew upCastFor: CommandQueue.
     }.
 
+    override method isSoftRenderingDevice => Boolean8
+        := true.
+
     override method createBuffer: (description: BufferDescription const ref) initialData: (initialData: Void const pointer) ::=> BufferPtr := {
         let buffer := SoftBuffer sharedNew.
         let memory := Stdn zmalloc(description size).
@@ -149,7 +152,12 @@ class SoftRenderingDevice superclass: RenderingDevice; definition: {
     }.
 
     override method createSwapChain: (swapChainCreationInfo: SwapChainCreationInfo const ref) for: (renderingQueue: CommandQueuePtr const ref) ::=> SwapChainPtr := {
-        SwapChainPtr nil.
+        let result := SoftSwapChain sharedNew.
+        (result _ initializeWith: swapChainCreationInfo for: renderingQueue) ifFalse: {
+            return: SwapChainPtr nil
+        }.
+
+        result upCastFor: SwapChain.
     }.
 
     override method waitForIdle => Void := {

@@ -5,5 +5,7 @@ loadFileOnce: "MouseButton.sysmel".
 loadFileOnce: "Event.sysmel".
 loadFileOnce: "EventHandler.sysmel".
 loadFileOnce: "WindowSystem.sysmel".
+loadFileOnce: "WindowSystemFactoryRegistry.sysmel".
 loadFileOnce: "WindowCreationInfo.sysmel".
 loadFileOnce: "Window.sysmel".
+loadFileOnce: "WindowSwapChainSurface.sysmel".

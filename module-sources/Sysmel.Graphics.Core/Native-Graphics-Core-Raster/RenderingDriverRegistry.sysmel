@@ -1,0 +1,61 @@
+namespace Stdn definition: {
+namespace Graphics definition: {
+namespace Core definition: {
+
+
+#**
+ * I am a registry for rendering drivers.
+ *#
+class RenderingDriverRegistry definition: {
+    protected field registeredDrivers type: Stdn Collections Vector(RenderingDriver pointer).
+
+    meta definition: {
+        let defaultInstance mutable type: RenderingDriverRegistry uniquePointer.
+        let defaultInstanceOnceCreation mutable type: Stdn OnceFlag.
+
+        method default => RenderingDriverRegistry ref := {
+            defaultInstanceOnceCreation do: {
+                defaultInstance reset: RenderingDriverRegistry nativeNew.
+            }.
+
+            defaultInstance _
+        }.
+
+        method defaultDriver => RenderingDriver pointer
+            := self default defaultDriver.
+    }.
+
+    method registerDriver: (driver: RenderingDriver pointer) ::=> Void := {
+        registeredDrivers add: driver
+    }.
+
+    method unregisterDriver: (driver: RenderingDriver pointer) ::=> Void := {
+        registeredDrivers remove: driver
+    }.
+
+    method defaultDriver => RenderingDriver pointer := {
+        registeredDrivers do: {:each :: Void |
+            each _ isOptimizedHardwareRenderingDriver ifTrue: {
+                return: each
+            }.
+        }.
+
+        registeredDrivers do: {:each :: Void |
+            each _ isHardwareRenderingDriver ifTrue: {
+                return: each
+            }.
+        }.
+
+        registeredDrivers do: {:each :: Void |
+            each _ isSoftRenderingDriver ifTrue: {
+                return: each
+            }.
+        }.
+
+        return: nil
+    }.
+}.
+
+}. ## End of namespace Core
+}. ## End of namespace Graphics
+}. ## End of namespace Stdn

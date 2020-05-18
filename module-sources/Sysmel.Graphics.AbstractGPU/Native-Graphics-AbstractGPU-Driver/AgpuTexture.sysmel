@@ -1,0 +1,68 @@
+namespace Stdn definition: {
+namespace Graphics definition: {
+namespace DriverAGPU definition: {
+
+useNamespace: Stdn Graphics Core.
+useNamespace: Stdn Math Geometry.
+
+#**
+ * I am a agpu based device.
+ *#
+class AgpuTexture superclass: Texture; definition: {
+    public field handle type: AGPU TextureRef.
+    public field creationDescription type: TextureDescription.
+
+    override method description => TextureDescription
+        := creationDescription.
+
+    override method mapLevel: (level: UIntPointer) layer: (layer: UIntPointer) accessMask: (access: MappingAccessMask) region: (region: RectangleI32 const pointer) ::=> Void pointer := {
+        nil
+    }.
+
+    override method unmapLevel => Void := {
+
+    }.
+
+    override method readTextureLevel: (level: UIntPointer) layer: (layer: UIntPointer) pitch: (pitch: IntPointer) slicePitch: (slicePitch: IntPointer) buffer: (buffer: Void pointer) ::=> Void := {
+    }.
+
+    override method readTextureLevel: (level: UIntPointer) layer: (layer: UIntPointer) pitch: (pitch: IntPointer) slicePitch: (slicePitch: IntPointer)
+        sourceRegion: (sourceRegion: RectangleI32 const pointer) destExtent: (destExtent: UInt32x3 pointer) buffer: (buffer: Void pointer) ::=> Void := {
+
+    }.
+
+    override method uploadTextureLevel: (level: UIntPointer) layer: (layer: UIntPointer) pitch: (pitch: IntPointer) slicePitch: (slicePitch: IntPointer) data: (data: Void const pointer) ::=> Void := {
+    }.
+
+    override method uploadTextureLevel: (level: UIntPointer) layer: (layer: UIntPointer) pitch: (pitch: IntPointer) slicePitch: (slicePitch: IntPointer)
+        sourceRegion: (sourceRegion: RectangleI32 const pointer) destExtent: (destExtent: UInt32x3 pointer) data: (data: Void const pointer) ::=> Void := {
+
+    }.
+
+    override method getFullViewDescription => TextureViewDescription := {
+        TextureViewDescription()
+            type: creationDescription type;
+            format: creationDescription format;
+            sampleCount: creationDescription sampleCount;
+            subresourceRange: (TextureSubResourceRange()
+                usageModes: creationDescription mainUsageMode;
+                levelCount: creationDescription miplevels;
+                layerCount: creationDescription layers;
+                yourself);
+            yourself
+    }.
+
+    override method createView: (viewDescription: TextureViewDescription const ref) ::=> TextureViewPtr := {
+        TextureViewPtr nil.
+    }.
+
+    override method getOrCreateFullView => TextureViewPtr := {
+        TextureViewPtr nil.
+    }.
+}.
+
+compileTime constant AgpuTexturePtr := AgpuTexture sharedPointer.
+
+}. ## End of namespace Core
+}. ## End of namespace Graphics
+}. ## End of namespace Stdn

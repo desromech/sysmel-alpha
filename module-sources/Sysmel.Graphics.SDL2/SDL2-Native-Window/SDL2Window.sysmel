@@ -11,6 +11,7 @@ class SDL2Window superclass: Window; definition: {
     public field handle type: SDL_Window pointer.
     public field windowSystem type: SDL2WindowSystem pointer.
     protected field currentCursor type: Cursor sharedPointer.
+    protected field renderingDevice type: RenderingDevicePtr.
 
     override method initialize => Void := {
         currentCursor := SystemCursor arrow upCastFor: Cursor.
@@ -20,6 +21,13 @@ class SDL2Window superclass: Window; definition: {
         handle ifNotNil: {
             self close.
         }.
+    }.
+
+    override method extent => UInt32x2 := {
+        let w mutable type: Int32.
+        let h mutable type: Int32.
+        SDL_GetWindowSize(handle, w address, h address).
+        Int32x2(w, h) castTo: UInt32x2
     }.
 
     override method close => Void := {
@@ -36,11 +44,68 @@ class SDL2Window superclass: Window; definition: {
         }.
     }.
 
-    override method renderingDevice => RenderingDevice sharedPointer
-        := SoftRenderingDriver uniqueInstance _ getMainDevice.
+    override method renderingDevice => RenderingDevice sharedPointer := {
+        renderingDevice ifNil: {
+            renderingDevice := RenderingDriverRegistry defaultDriver _ getMainDevice
+        }.
 
-    override method createDefaultDrawingSurface => Surface sharedPointer
-        := (SDL2SoftwareRendererSurface for: self) upCastFor: Surface.
+        renderingDevice
+    }.
+
+    override method renderingDevice: (theRenderingDevice: RenderingDevice sharedPointer) ::=> Void := {
+        renderingDevice := theRenderingDevice
+    }.
+
+    override method createSwapChain: (swapChainCreationInfo: SwapChainCreationInfo const ref) for: (renderingQueue: CommandQueuePtr const ref) ::=> SwapChainPtr := {
+        let adaptedCreationInfo mutable := swapChainCreationInfo.
+
+        adaptedCreationInfo extent = UInt32x2 zeros ifTrue: {
+            adaptedCreationInfo extent: self extent.
+        }.
+
+        ## Get the rendering device.
+        self renderingDevice _ isSoftRenderingDevice ifTrue: {
+            let result := SDL2SoftwareRendererSwapChain for: self.
+            (result _ initializeWith: adaptedCreationInfo for: renderingQueue) ifFalse: {
+                return: SwapChainPtr nil
+            }.
+
+            return: (result upCastFor: SwapChain).
+        }.
+
+        ## Get the native window handle.
+        let windowInfo mutable type: SDL_SysWMinfo.
+        windowInfo version setCurrent.
+        SDL_GetWindowWMInfo(handle, windowInfo address).
+
+        ## Setup the swap chain creation.
+        windowInfo subsystem selectCase: #{
+        SDL_SYSWM_WINDOWS : {
+            adaptedCreationInfo window: windowInfo info win window.
+        }.
+        SDL_SYSWM_X11 : {
+            adaptedCreationInfo display: windowInfo info x11 display.
+            adaptedCreationInfo window: windowInfo info x11 window.
+        }.
+        SDL_SYSWM_COCOA : {
+            adaptedCreationInfo window: windowInfo info cocoa window.
+        }.
+        _ : {
+            Stdn stderr << "Unsupported window system"; nl.
+            return: SwapChainPtr nil
+        }.
+        }.
+
+        renderingDevice _ createSwapChain: swapChainCreationInfo for: renderingQueue
+    }.
+
+    override method createDefaultDrawingSurface => Surface sharedPointer := {
+        self renderingDevice _ isSoftRenderingDevice ifTrue: {
+            return: ((SDL2SoftwareRendererSurface for: self) upCastFor: Surface).
+        }.
+
+        (WindowSwapChainSurface for: (self asSharedPointer upCastFor: Window)) upCastFor: Surface
+    }.
 
     override method grabMouseCapture => Void := {
         SDL_CaptureMouse(true)

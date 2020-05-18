@@ -4,7 +4,7 @@ Compiler
 	importModuleNamed: #"Sysmel.Graphics.Headfull".
 
 function main externC (argc: Int32, argv: UInt8 const pointer pointer) => Int32 := {
-    Stdn Graphics GUI WindowSystem activeWindowSystem: Stdn Graphics GUI createWindowSystem().
+    Stdn Graphics GUI WindowSystem activeWindowSystem: Stdn Graphics GUI createDefaultWindowSystem().
 
     let windowSystem := Stdn Graphics GUI WindowSystem validActiveWindowSystem.
     windowSystem ifNil: {

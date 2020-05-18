@@ -1,0 +1,37 @@
+namespace Stdn definition: {
+namespace Graphics definition: {
+namespace DriverAGPU definition: {
+
+useNamespace: Stdn Graphics Core.
+
+#**
+ * I am a agpu based shader signature builder.
+ *#
+class AgpuShaderSignatureBuilder superclass: ShaderSignatureBuilder; definition: {
+    public field handle type: AGPU ShaderSignatureBuilderRef.
+
+    override method beginBindingBank: (maxBindingsHint: UIntPointer) ::=> Void := {
+        handle _ beginBindingBank: (maxBindingsHint castTo: UInt32).
+    }.
+
+    override method addBankElementWithType: (bindingType: ShaderBindingType) bindingPointCount: (bindingPointCount: UIntPointer) ::=> Void := {
+        handle _ addBindingBankElement: (bindingType castTo: AGPU ShaderBindingType) bindingPointCount: (bindingPointCount castTo: UInt32)
+    }.
+
+    override method build => ShaderSignaturePtr := {
+        let signatureHandle := handle _ build.
+        signatureHandle ifNil: {
+            return: ShaderSignaturePtr nil.
+        }.
+
+        let result := AgpuShaderSignature sharedNew.
+        result _ handle: signatureHandle.
+        result upCastFor: ShaderSignature
+    }.
+}.
+
+compileTime constant AgpuShaderSignatureBuilderPtr := AgpuShaderSignatureBuilder sharedPointer.
+
+}. ## End of namespace Core
+}. ## End of namespace Graphics
+}. ## End of namespace Stdn
