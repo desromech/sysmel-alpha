@@ -1,0 +1,200 @@
+namespace Stdn definition: {
+namespace Graphics definition: {
+namespace DriverAGPU definition: {
+
+useNamespace: Stdn Graphics Core.
+useNamespace: Stdn Math Geometry.
+
+#**
+ * I am a agpu based shader signature builder.
+ *#
+class AgpuCommandList superclass: CommandList; definition: {
+    public field handle type: AGPU CommandListRef.
+
+    override method resetFor: (allocator: CommandListAllocatorPtr const ref) initialPipelineState: (initialPipeline: PipelineStatePtr const ref) ::=> Void := {
+        let agpuAllocator := allocator getPointer castTo: AgpuCommandListAllocator pointer.
+        agpuAllocator ifNil: {
+            return: void
+        }.
+
+        let agpuInitialPipeline mutable := AGPU PipelineStateRef().
+        initialPipeline ifNotNil: {
+            initialPipeline _ isGraphicsPipelineState ifTrue: {
+                agpuInitialPipeline := (initialPipeline getPointer castTo: AgpuGraphicsPipelineState pointer) _ handle
+            }.
+
+            initialPipeline _ isComputePipelineState ifTrue: {
+                agpuInitialPipeline := (initialPipeline getPointer castTo: AgpuGraphicsPipelineState pointer) _ handle
+            }.
+        }.
+
+        handle _ reset: agpuAllocator _ handle initialPipelineState: agpuInitialPipeline
+    }.
+
+    override method close => Void := {
+        handle _ close
+    }.
+
+    override method useShaderSignature: (shaderSignature: ShaderSignaturePtr const ref) ::=> Void := {
+
+    }.
+
+    override method setViewport: (rectangle: RectangleI32) ::=> Void := {
+
+    }.
+
+    override method setScissor: (rectangle: RectangleI32) ::=> Void := {
+
+    }.
+
+    override method usePipelineState: (pipelineState: PipelineStatePtr const ref) ::=> Void := {
+        pipelineState ifNil: {
+            return: void
+        }.
+
+        pipelineState _ isGraphicsPipelineState ifTrue: {
+            handle _ usePipelineState: (pipelineState getPointer castTo: AgpuGraphicsPipelineState pointer) _ handle.
+            return: void.
+        }.
+
+        pipelineState _ isComputePipelineState ifTrue: {
+            handle _ usePipelineState: (pipelineState getPointer castTo: AgpuComputePipelineState pointer) _ handle.
+            return: void.
+        }.
+    }.
+
+    override method useVertexBinding: (vertexBinding: VertexBindingPtr const ref) ::=> Void := {
+
+    }.
+
+    override method useIndexBuffer: (buffer: BufferPtr const ref) ::=> Void := {
+
+    }.
+
+    override method useIndexBuffer: (buffer: BufferPtr const ref) at: (offset: UIntPointer) stride: (stride: UIntPointer) ::=> Void := {
+
+    }.
+
+    override method useDrawIndirectBuffer: (buffer: BufferPtr const ref) ::=> Void := {
+
+    }.
+
+    override method useComputeDispatchIndirectBuffer: (buffer: BufferPtr const ref) ::=> Void := {
+
+    }.
+
+    override method useGraphicShaderBindings: (resourcesBinding: ShaderResourceBindingsPtr const ref) ::=> Void := {
+
+    }.
+
+    override method useComputeShaderBindings: (resourcesBinding: ShaderResourceBindingsPtr const ref) ::=> Void := {
+
+    }.
+
+    override method drawArrays: (vertexCount: UInt32) instanceCount: (instanceCount: UInt32) firstVertex: (firstVertex: UInt32) baseInstance: (baseInstance: UInt32) ::=> Void := {
+
+    }.
+
+    override method drawArraysIndirect: (offset: UIntPointer) drawCount: (drawCount: UIntPointer) ::=> Void := {
+
+    }.
+
+    override method drawElements: (indexCount: UInt32) instanceCount: (instanceCount: UInt32) firstIndex: (firstVertex: UInt32) baseVertex: (baseVertex: UInt32) baseInstance: (baseInstance: UInt32) ::=> Void := {
+
+    }.
+
+    override method drawElementsIndirect: (offset: UIntPointer) drawCount: (drawCount: UIntPointer) ::=> Void := {
+
+    }.
+
+    override method dispatchCompute: (groupCount: UInt32x3) ::=> Void := {
+
+    }.
+
+    override method dispatchComputeIndirect: (offset: UInt32x3) ::=> Void := {
+
+    }.
+
+    override method setStencilReference: (reference: UInt32) ::=> Void := {
+
+    }.
+
+    override method executeBundle: (bundle: CommandList sharedPointer const ref) ::=> Void := {
+
+    }.
+
+    override method beginRenderPass: (renderPass: RenderPassPtr const ref) on: (framebuffer: FramebufferPtr const ref) contentOnBundle: (contentOnBundle: Boolean8) ::=> Void := {
+        let agpuRenderPass := renderPass getPointer castTo: AgpuRenderPass pointer.
+        let agpuFramebuffer := framebuffer getPointer castTo: AgpuFramebuffer pointer.
+        agpuRenderPass isNil || agpuFramebuffer isNil ifTrue: {
+            return: void
+        }.
+
+        handle _ beginRenderPass: agpuRenderPass _ handle framebuffer: agpuFramebuffer _ handle bundleContent: (contentOnBundle castTo: Int32)
+    }.
+
+    override method endRenderPass ::=> Void := {
+        handle _ endRenderPass
+    }.
+
+    override method resolveFramebuffer: (source: FramebufferPtr const ref) into: (destination: FramebufferPtr const ref) ::=> Void := {
+
+    }.
+
+    override method resolveTexture: (source: TexturePtr const ref) level: (sourceLevel: UInt32) layer: (sourceLayer: UInt32)
+        into: (destination: TexturePtr const ref) level: (destinationLevel: UInt32) layer: (destinationLayer: UInt32)
+        aspect: (aspect: TextureAspect) ::=> Void := {
+
+    }.
+
+    override method pushConstants: (values: UInt8 const pointer) size: (size: UInt32) at: (offset: UInt32) ::=> Void := {
+
+    }.
+
+    override method memoryBarrierFrom: (sourceStage: PipelineStageMask) accesses: (sourceAccesses: AccessMask) to: (destStage: PipelineStageMask) accesses: (destAccesses: AccessMask) ::=> Void := {
+
+    }.
+
+    override method buffer: (buffer: BufferPtr const ref) offset: (offset: UIntPointer) size: (size: UIntPointer) memoryBarrierFrom: (sourceStage: PipelineStageMask) accesses: (sourceAccesses: AccessMask) to: (destStage: PipelineStageMask) accesses: (destAccesses: AccessMask) ::=> Void := {
+
+    }.
+
+    override method texture: (texture: TexturePtr const ref) subresourceRange: (subresourceRange: TextureSubResourceRange) memoryBarrierFrom: (sourceStage: PipelineStageMask) accesses: (sourceAccesses: AccessMask) to: (destStage: PipelineStageMask) accesses: (destAccesses: AccessMask) ::=> Void := {
+
+    }.
+
+    override method pushBuffer: (buffer: BufferPtr const ref) transitionBarrierInto: (newUsageMode: BufferUsageMode) ::=> Void := {
+
+    }.
+
+    override method texture: (texture: TexturePtr const ref) subresourceRange: (subresourceRange: TextureSubResourceRange) transitionBarrierInto: (newUsageMode: TextureUsageMode) ::=> Void := {
+
+    }.
+
+    override method popBufferTransitionBarrier ::=> Void := {
+
+    }.
+
+    override method popTextureTransitionBarrier ::=> Void := {
+
+    }.
+
+    override method copyFromBuffer: (sourceBuffer: BufferPtr const ref) offset: (sourceOffset: UIntPointer) into: (destBuffer: BufferPtr const ref) offset: (destOffset: UIntPointer) size: (copySize: UIntPointer) ::=> Void := {
+
+    }.
+
+    override method copyFromBuffer: (sourceBuffer: BufferPtr const ref) intoTexture: (destTexture: TexturePtr const ref) region: (copyRegion: BufferImageCopyRegion) ::=> Void := {
+
+    }.
+
+    override method copyFromTexture: (sourceTexture: TexturePtr const ref) intoBuffer: (destBuffer: BufferPtr const ref) region: (copyRegion: BufferImageCopyRegion) ::=> Void := {
+
+    }.
+
+}.
+
+compileTime constant AgpuCommandListPtr := AgpuCommandList sharedPointer.
+
+}. ## End of namespace Core
+}. ## End of namespace Graphics
+}. ## End of namespace Stdn

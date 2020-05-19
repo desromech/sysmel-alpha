@@ -10,6 +10,7 @@ useNamespace: Stdn Graphics Core.
  *#
 class WindowSwapChainSurface superclass: Surface; definition: {
     protected field window type: WindowRef.
+    protected field swapChainSurface type: SwapChainSurfaceRef.
 
     meta definition: {
         method for: (window: WindowRef const ref) ::=> WindowSwapChainSurface sharedPointer := {
@@ -24,26 +25,43 @@ class WindowSwapChainSurface superclass: Surface; definition: {
     }.
 
     override method beginDrawingWithCanvas => Canvas uniquePointer := {
-        #*self beginDrawing ifFalse: {
+        self beginDrawing ifFalse: {
             return: Canvas uniquePointer nil.
         }.
 
-        let result := SoftCanvas nativeNew _
-            initializeWithSurface: self address;
-            address.
-
-        Canvas uniquePointer for: result.*#
-
-        Stdn stdout << "WindowSwapChainSurface beginDrawingWithCanvas"; nl.
-        Canvas uniquePointer nil
+        return: swapChainSurface _ beginDrawingWithCanvas
     }.
 
-    virtual method beginDrawing => Boolean8
-        := false.
+    method beginDrawing => Boolean8 := {
+        window ifNil: {
+            return: false.
+        }.
 
-    virtual method endDrawing => Void := {
+        let currentExtent := window _ extent.
+        (swapChainSurface isNil || swapChainSurface _ extent ~= currentExtent) ifTrue: {
+            let swapChainCreationInfo mutable := SwapChainCreationInfo()
+                colorBufferFormat: PixelFormat B8G8R8A8_UNormSRGB;
+                extent: currentExtent;
+                bufferCount: 2;
+                yourself.
+            swapChainSurface ifNotNil: {
+                swapChainCreationInfo oldSwapChain: swapChainSurface _ swapChain
+            }.
 
+            let renderingDevice := window _ renderingDevice.
+            let defaultCommandQueue := renderingDevice _ getDefaultCommandQueue.
+
+            let newSwapChain := window _ createSwapChain: swapChainCreationInfo for: defaultCommandQueue.
+            newSwapChain ifNil: {
+                return: false.
+            }.
+
+            swapChainSurface := SwapChainSurface for: newSwapChain on: defaultCommandQueue on: renderingDevice withExtent: currentExtent.
+        }.
+
+        return: true.
     }.
+
 }.
 
 }. ## End of namespace Core

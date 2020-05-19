@@ -66,7 +66,7 @@ class SDL2Window superclass: Window; definition: {
         ## Get the rendering device.
         self renderingDevice _ isSoftRenderingDevice ifTrue: {
             let result := SDL2SoftwareRendererSwapChain for: self.
-            (result _ initializeWith: adaptedCreationInfo for: renderingQueue) ifFalse: {
+            (result _ initializeWith: adaptedCreationInfo for: renderingQueue on: (renderingDevice getPointer castTo: SoftRenderingDevice pointer) _) ifFalse: {
                 return: SwapChainPtr nil
             }.
 
@@ -81,14 +81,20 @@ class SDL2Window superclass: Window; definition: {
         ## Setup the swap chain creation.
         windowInfo subsystem selectCase: #{
         SDL_SYSWM_WINDOWS : {
-            adaptedCreationInfo window: windowInfo info win window.
+            adaptedCreationInfo
+                windowSystemName: "win32" asMutableString;
+                window: windowInfo info win window.
         }.
         SDL_SYSWM_X11 : {
-            adaptedCreationInfo display: windowInfo info x11 display.
-            adaptedCreationInfo window: windowInfo info x11 window.
+            adaptedCreationInfo
+                windowSystemName: "xlib" asMutableString;
+                display: windowInfo info x11 display;
+                window: windowInfo info x11 window.
         }.
         SDL_SYSWM_COCOA : {
-            adaptedCreationInfo window: windowInfo info cocoa window.
+            adaptedCreationInfo
+                windowSystemName: "cocoa" asMutableString;
+                window: windowInfo info cocoa window.
         }.
         _ : {
             Stdn stderr << "Unsupported window system"; nl.
@@ -96,13 +102,13 @@ class SDL2Window superclass: Window; definition: {
         }.
         }.
 
-        renderingDevice _ createSwapChain: swapChainCreationInfo for: renderingQueue
+        renderingDevice _ createSwapChain: adaptedCreationInfo for: renderingQueue
     }.
 
     override method createDefaultDrawingSurface => Surface sharedPointer := {
-        self renderingDevice _ isSoftRenderingDevice ifTrue: {
+        #*self renderingDevice _ isSoftRenderingDevice ifTrue: {
             return: ((SDL2SoftwareRendererSurface for: self) upCastFor: Surface).
-        }.
+        }.*#
 
         (WindowSwapChainSurface for: (self asSharedPointer upCastFor: Window)) upCastFor: Surface
     }.

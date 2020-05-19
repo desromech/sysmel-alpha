@@ -1,8 +1,20 @@
 loadFileOnce: "AgpuBuffer.sysmel".
-loadFileOnce: "AgpuTexture.sysmel".
-loadFileOnce: "AgpuShaderSignature.sysmel".
+loadFileOnce: "AgpuCommandList.sysmel".
+loadFileOnce: "AgpuCommandListAllocator.sysmel".
+loadFileOnce: "AgpuCommandQueue.sysmel".
+loadFileOnce: "AgpuComputePipelineState.sysmel".
+loadFileOnce: "AgpuFence.sysmel".
+loadFileOnce: "AgpuFramebuffer.sysmel".
+loadFileOnce: "AgpuGraphicsPipelineState.sysmel".
+loadFileOnce: "AgpuRenderPass.sysmel".
+loadFileOnce: "AgpuSampler.sysmel".
+loadFileOnce: "AgpuShaderLibrary.sysmel".
 loadFileOnce: "AgpuShaderResourceBindings.sysmel".
+loadFileOnce: "AgpuShaderSignature.sysmel".
 loadFileOnce: "AgpuShaderSignatureBuilder.sysmel".
+loadFileOnce: "AgpuShaderStageHandle.sysmel".
+loadFileOnce: "AgpuSwapChain.sysmel".
+loadFileOnce: "AgpuTexture.sysmel".
 loadFileOnce: "AgpuVertexBinding.sysmel".
 loadFileOnce: "AgpuVertexLayout.sysmel".
 

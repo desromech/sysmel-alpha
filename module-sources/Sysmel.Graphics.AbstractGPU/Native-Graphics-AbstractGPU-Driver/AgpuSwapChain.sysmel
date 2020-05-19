@@ -1,0 +1,50 @@
+namespace Stdn definition: {
+namespace Graphics definition: {
+namespace DriverAGPU definition: {
+
+useNamespace: Stdn Graphics Core.
+
+#**
+ * I am a agpu based shader signature builder.
+ *#
+class AgpuSwapChain superclass: SwapChain; definition: {
+    public field handle type: AGPU SwapChainRef.
+    public field creationInfo type: SwapChainCreationInfo.
+
+    override method colorBufferFormat => PixelFormat
+        := creationInfo colorBufferFormat.
+
+    override method depthStencilFormat => PixelFormat
+        := creationInfo depthStencilFormat.
+
+    override method swapBuffers => Void := {
+        handle _ swapBuffers
+    }.
+
+    override method getCurrentBackBuffer => FramebufferPtr := {
+        let backBufferHandle := handle _ getCurrentBackBuffer.
+        backBufferHandle ifNil: {
+            return: FramebufferPtr nil
+        }.
+
+        let result := AgpuFramebuffer sharedNew.
+        result _ handle: backBufferHandle.
+        result upCastFor: Framebuffer
+    }.
+
+    override method getCurrentBackBufferIndex => UIntPointer
+        := handle _ getCurrentBackBufferIndex.
+
+    override method getFramebufferCount => UIntPointer
+        := handle _ getFramebufferCount.
+
+    override method setOverlayPosition: (position: Int32x2) ::=> Void := {
+        handle _ setOverlayPosition: position x y: position y
+    }.
+}.
+
+compileTime constant AgpuSwapChainPtr := AgpuSwapChain sharedPointer.
+
+}. ## End of namespace Core
+}. ## End of namespace Graphics
+}. ## End of namespace Stdn

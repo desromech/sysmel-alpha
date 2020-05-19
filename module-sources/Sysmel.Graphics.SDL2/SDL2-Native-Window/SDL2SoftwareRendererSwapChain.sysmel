@@ -27,6 +27,38 @@ class SDL2SoftwareRendererSwapChain superclass: SoftSwapChain; definition: {
         rendererHandle := theRenderer.
     }.
 
+    override method presentColorbuffer: (colorBuffer: SoftTextureViewPtr const ref) ::=> Void := {
+        self validateTexture.
+
+        ## Copy the pixels.
+        {
+            let pixels mutable type: UInt8 pointer.
+            let pitch mutable type: Int32.
+
+            SDL_LockTexture(textureHandle, nil, pixels address reinterpretCastTo: Void pointer pointer, pitch address) = 0 ifFalse: {
+                return: false.
+            }.
+
+            let destBlitter := Blitter newValue
+                extent: textureExtent;
+                pitch: pitch;
+                pixelFormat: PixelFormat B8G8R8A8_UNormSRGB;
+                pixels: pixels;
+                applyFullClippingBounds;
+                initializeCachedState;
+                yourself.
+            let sourceBlitter ref := colorBuffer _ pixelsBlitter.
+            destBlitter copyPixelsFrom: sourceBlitter at: sourceBlitter clippedBounds into: Int32x2 zeros.
+            SDL_UnlockTexture(textureHandle).
+        }.
+
+        ## Copy the texture
+        SDL_RenderCopy(rendererHandle, textureHandle, nil, nil).
+
+        ## Present the rendering output.
+        SDL_RenderPresent(rendererHandle).
+    }.
+
     override method finalize => Void := {
         self destroy.
     }.
@@ -45,6 +77,14 @@ class SDL2SoftwareRendererSwapChain superclass: SoftSwapChain; definition: {
         window := nil.
     }.
 
+    method validateTexture => Void := {
+        textureHandle ifNotNil: {
+            return: void
+        }.
+
+        textureExtent := creationInfo extent.
+        textureHandle := SDL_CreateTexture(rendererHandle, SDL_PIXELFORMAT_BGRA32, SDL_TEXTUREACCESS_STREAMING, textureExtent x castTo: Int32, textureExtent y castTo: Int32).
+    }.
 
 }.
 

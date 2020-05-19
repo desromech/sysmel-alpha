@@ -1,0 +1,104 @@
+namespace Stdn definition: {
+namespace Graphics definition: {
+namespace GUI definition: {
+
+useNamespace: Stdn Graphics Core.
+
+#**
+ * I am a 2D rendering that takes care automatically of handling the underlying swap chain in a window.
+ * I work by delegating my job into an actual SwapChainSurface
+ *#
+class SwapChainSurface superclass: Surface; definition: {
+    protected field extent type: UInt32x2.
+    protected field renderingQueue type: CommandQueuePtr.
+    protected field swapChain type: SwapChainPtr.
+
+    protected field device type: RenderingDevicePtr.
+    protected field renderPasses type: Stdn Collections Vector(RenderPassPtr).
+    protected field commandListAllocators type: Stdn Collections Vector(CommandListAllocatorPtr).
+    protected field commandLists type: Stdn Collections Vector(CommandListPtr).
+
+    const method extent => UInt32x2
+        := extent.
+
+    const method swapChain => SwapChainPtr const ref
+        := swapChain.
+
+    meta definition: {
+        method for: (swapChain: SwapChainPtr const ref) on: (theRenderingQueue: CommandQueuePtr const ref) on: (theDevice: RenderingDevicePtr const ref) withExtent: (anExtent: UInt32x2) ::=> SwapChainSurface sharedPointer := {
+            let result := SwapChainSurface sharedNew.
+            result _ initializeWithSwapChain: swapChain on: theRenderingQueue on: theDevice extent: anExtent.
+            result
+        }.
+    }.
+
+    method initializeWithSwapChain: (theSwapChain: SwapChainPtr const ref) on: (theRenderingQueue: CommandQueuePtr const ref) on: (theDevice: RenderingDevicePtr const ref) extent: (theExtent: UInt32x2) ::=> Void := {
+        swapChain := theSwapChain.
+        renderingQueue := theRenderingQueue.
+        device := theDevice.
+        extent := theExtent.
+
+        let bufferCount := swapChain _ getFramebufferCount.
+        renderPasses reserve: bufferCount.
+        0 until: bufferCount do: {:i :: Void |
+
+            {
+                let commandListAllocator := device _ createCommandAllocatorOfType: CommandListType Direct for: renderingQueue.
+                let commandList := device _ createCommandListOfType: CommandListType Direct for: commandListAllocator.
+                commandList _ close.
+
+                commandListAllocators add: commandListAllocator.
+                commandLists add: commandList.
+            }.
+
+            let colorAttachments mutable := RenderPassColorAttachmentDescription array (
+                RenderPassColorAttachmentDescription()
+                    format: swapChain _ colorBufferFormat;
+                    beginAction: RenderPassAttachmentAction Clear;
+                    endAction: RenderPassAttachmentAction Keep;
+                    clearValue: Float32x4(0, 0, 1, 1);
+                    yourself
+            ).
+
+            let renderPass := device _ createRenderPass: colorAttachments depthStencilAttachment: nil.
+            renderPasses add: renderPass.
+        }.
+    }.
+
+    override method beginDrawingWithCanvas => Canvas uniquePointer := {
+
+        let backBuffer := swapChain _ getCurrentBackBuffer.
+        let backBufferIndex := swapChain _ getCurrentBackBufferIndex.
+
+        let allocator ref := commandListAllocators[backBufferIndex].
+        let commandList ref := commandLists[backBufferIndex].
+        let renderPass ref := renderPasses[backBufferIndex].
+
+        allocator _ resetAllocator.
+    	commandList _
+    		resetFor: allocator;
+    		beginRenderPass: renderPass on: backBuffer contentOnBundle: false;
+            endRenderPass;
+            close.
+
+        renderingQueue _
+    		submitCommandList: commandList;
+    		waitForIdle.
+
+        swapChain _ swapBuffers.
+        Canvas uniquePointer nil
+    }.
+
+    method beginDrawing => Boolean8
+        := false.
+
+    method endDrawing => Void := {
+        Stdn stdout << "SwapChainSurface endDrawing"; nl.
+    }.
+}.
+
+compileTime constant SwapChainSurfaceRef := SwapChainSurface sharedPointer.
+
+}. ## End of namespace Core
+}. ## End of namespace Graphics
+}. ## End of namespace Stdn

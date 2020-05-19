@@ -1,0 +1,19 @@
+namespace Stdn definition: {
+namespace Graphics definition: {
+namespace DriverAGPU definition: {
+
+useNamespace: Stdn Graphics Core.
+
+#**
+ * I am a agpu based shader signature builder.
+ *#
+class AgpuShaderStageHandle superclass: ShaderStageHandle; definition: {
+    public field libraryHandle type: AGPU ShaderRef.
+
+}.
+
+compileTime constant AgpuShaderStageHandlePtr := AgpuShaderStageHandle sharedPointer.
+
+}. ## End of namespace Core
+}. ## End of namespace Graphics
+}. ## End of namespace Stdn

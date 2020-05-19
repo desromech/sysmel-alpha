@@ -1,0 +1,44 @@
+namespace Stdn definition: {
+namespace Graphics definition: {
+namespace DriverAGPU definition: {
+
+useNamespace: Stdn Graphics Core.
+
+#**
+ * I am a agpu based shader signature builder.
+ *#
+class AgpuCommandQueue superclass: CommandQueue; definition: {
+    public field handle type: AGPU CommandQueueRef.
+
+    override method submitCommandList: (commandList: CommandListPtr const ref) ::=> Void := {
+        let agpuCommandList := commandList getPointer castTo: AgpuCommandList pointer.
+        agpuCommandList ifNotNil: {
+            handle _ addCommandList: agpuCommandList _ handle
+        }
+    }.
+
+    override method waitForIdle ::=> Void := {
+        handle _ finishExecution
+    }.
+
+    override method signalFence: (fence: FencePtr const ref) ::=> Void := {
+        let agpuFence := fence getPointer castTo: AgpuFence pointer.
+        agpuFence ifNotNil: {
+            handle _ signalFence: agpuFence _ handle
+        }
+    }.
+
+    override method waitFence: (fence: FencePtr const ref) ::=> Void := {
+        let agpuFence := fence getPointer castTo: AgpuFence pointer.
+        agpuFence ifNotNil: {
+            handle _ waitFence: agpuFence _ handle
+        }
+    }.
+
+}.
+
+compileTime constant AgpuCommandQueuePtr := AgpuCommandQueue sharedPointer.
+
+}. ## End of namespace Core
+}. ## End of namespace Graphics
+}. ## End of namespace Stdn

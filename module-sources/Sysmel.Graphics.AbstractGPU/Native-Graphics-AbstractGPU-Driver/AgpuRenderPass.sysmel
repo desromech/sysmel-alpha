@@ -1,0 +1,23 @@
+namespace Stdn definition: {
+namespace Graphics definition: {
+namespace DriverAGPU definition: {
+
+useNamespace: Stdn Graphics Core.
+
+#**
+ * I am a agpu based shader signature builder.
+ *#
+class AgpuRenderPass superclass: RenderPass; definition: {
+    public field handle type: AGPU RenderpassRef.
+
+    override method setColorAttachment: (attachmentIndex: UInt32) clearValue: (clearValue: Float32x4) ::=> Void := {
+
+    }.
+
+}.
+
+compileTime constant AgpuRenderPassPtr := AgpuRenderPass sharedPointer.
+
+}. ## End of namespace Core
+}. ## End of namespace Graphics
+}. ## End of namespace Stdn

@@ -6,7 +6,9 @@ namespace Core definition: {
  * I am a handle for a swap chain.
  *#
 class SwapChain superclass: RenderingDriverObjectHandle; definition: {
-
+    abstract method colorBufferFormat => PixelFormat.
+    abstract method depthStencilFormat => PixelFormat.
+    
     abstract method swapBuffers => Void.
     abstract method getCurrentBackBuffer => FramebufferPtr.
     abstract method getCurrentBackBufferIndex => UIntPointer.

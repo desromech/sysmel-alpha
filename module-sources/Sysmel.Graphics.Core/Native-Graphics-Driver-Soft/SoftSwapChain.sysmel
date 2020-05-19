@@ -6,30 +6,92 @@ namespace Core definition: {
  * I am a CPU software based rendering swap chain.
  *#
 class SoftSwapChain superclass: SwapChain; definition: {
+    protected field creationInfo type: SwapChainCreationInfo.
+    protected field colorBuffers type: Stdn Collections Vector(SoftTextureViewPtr).
+    protected field framebuffers type: Stdn Collections Vector(FramebufferPtr).
+    protected field currentBackBufferIndex type: UIntPointer.
 
-    method initializeWith: (swapChainCreationInfo: SwapChainCreationInfo const ref) for: (renderingQueue: CommandQueuePtr const ref) ::=> Boolean8 := {
+    method initializeWith: (swapChainCreationInfo: SwapChainCreationInfo const ref) for: (renderingQueue: CommandQueuePtr const ref) on: (device: SoftRenderingDevice ref) ::=> Boolean8 := {
+        creationInfo := swapChainCreationInfo.
+        creationInfo oldSwapChain reset.
+
+        creationInfo
+            extent: (creationInfo extent max: UInt32x2 ones);
+            bufferCount: (creationInfo bufferCount max: 1).
+
+        colorBuffers reserve: creationInfo bufferCount.
+        framebuffers reserve: creationInfo bufferCount.
+        0 until: creationInfo bufferCount do: {:i :: Void |
+            ## Create the color buffer.
+            let colorBuffer := device createTexture: (TextureDescription()
+    			type: TextureType Texture2D;
+    			width: creationInfo extent x;
+    			height: creationInfo extent y;
+    			depth: 1;
+    			layers: 1;
+    			miplevels: 1;
+    			format: creationInfo colorBufferFormat;
+    			usageModes: TextureUsageMode ColorAttachment;
+    			mainUsageMode: TextureUsageMode ColorAttachment;
+    			heapType: MemoryHeapType DeviceLocal;
+    			sampleCount: 1;
+    			yourself).
+            colorBuffer ifNil: {
+                return: false
+            }.
+
+    		let colorBufferTextureView := colorBuffer _ getOrCreateFullView.
+            colorBuffers add: (colorBufferTextureView downCastFor: SoftTextureView).
+
+            ## TODO: Create the depth buffer.
+            let depthStencilView mutable := TextureViewPtr nil.
+
+            ## Create the framebuffer
+            let colorAttachments mutable := TextureViewPtr array(colorBufferTextureView).
+            let framebuffer := device createFramebuffer: creationInfo extent colorViews: colorAttachments depthStencilView: depthStencilView.
+            framebuffer ifNil: {
+                return: false.
+            }.
+
+            framebuffers add: framebuffer
+        }.
 
         true
     }.
 
+    override method colorBufferFormat => PixelFormat := {
+        creationInfo colorBufferFormat
+    }.
+
+    override method depthStencilFormat => PixelFormat := {
+        creationInfo depthStencilFormat
+    }.
+
     override method swapBuffers => Void := {
+        let newFrontBuffer := currentBackBufferIndex.
+        currentBackBufferIndex := (currentBackBufferIndex + 1) % framebuffers size.
+
+        self presentColorbuffer: colorBuffers[newFrontBuffer].
+    }.
+
+    virtual method presentColorbuffer: (colorBuffer: SoftTextureViewPtr const ref) ::=> Void := {
 
     }.
 
     override method getCurrentBackBuffer => FramebufferPtr := {
-        FramebufferPtr nil
+        framebuffers[currentBackBufferIndex]
     }.
 
     override method getCurrentBackBufferIndex => UIntPointer := {
-        0
+        currentBackBufferIndex
     }.
 
     override method getFramebufferCount => UIntPointer := {
-        0
+        framebuffers size
     }.
 
     override method setOverlayPosition: (position: Int32x2) ::=> Void := {
-
+        ## Not implemented.
     }
 }.
 

@@ -1,0 +1,23 @@
+namespace Stdn definition: {
+namespace Graphics definition: {
+namespace DriverAGPU definition: {
+
+useNamespace: Stdn Graphics Core.
+
+#**
+ * I am a agpu based shader signature builder.
+ *#
+class AgpuFence superclass: Fence; definition: {
+    public field handle type: AGPU FenceRef.
+
+    override method waitOnClient => Void := {
+        handle _ waitOnClient
+    }.
+
+}.
+
+compileTime constant AgpuFencePtr := AgpuFence sharedPointer.
+
+}. ## End of namespace Core
+}. ## End of namespace Graphics
+}. ## End of namespace Stdn
