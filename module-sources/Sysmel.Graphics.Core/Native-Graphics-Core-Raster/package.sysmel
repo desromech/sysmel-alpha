@@ -24,3 +24,5 @@ loadFileOnce: "TextureView.sysmel".
 loadFileOnce: "Surface.sysmel".
 loadFileOnce: "TextDrawingState.sysmel".
 loadFileOnce: "Canvas.sysmel".
+loadFileOnce: "AbstractConcreteCanvas.sysmel".
+loadFileOnce: "DelegatingCanvas.sysmel".

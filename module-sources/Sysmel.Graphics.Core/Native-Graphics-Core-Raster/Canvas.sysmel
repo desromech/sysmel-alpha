@@ -12,8 +12,9 @@ class FontFaceWithSize.
  * CPU based software rendering, or I could be implemented through a hardware based accelerator.
  *#
 class Canvas superclass: Object; definition: {
-    public field transform type: AffinePostTransform2dF32.
-    protected field currentFontFaceWithSize type: FontFaceWithSize sharedPointer.
+
+    abstract method transform => AffinePostTransform2dF32.
+    abstract method transform: (aTransform: AffinePostTransform2dF32) ::=> Void.
 
     ## This method clears the whole surface with the active color.
     abstract method clear ::=> Void.
@@ -119,25 +120,7 @@ class Canvas superclass: Object; definition: {
         := void.
 
     ## Draws a character with the font face and size. This returns the position for drawing the next character.
-    virtual method drawCharacterWithState: (state: TextDrawingState) ::=> TextDrawingState := {
-        currentFontFaceWithSize ifNil: {
-            return: state.
-        }.
-
-        let newState mutable := currentFontFaceWithSize _ computeNewDrawingState: state.
-        newState isVisibleCharacter ifTrue: {
-            ## Get the glyph for the character
-            let glyph := currentFontFaceWithSize _ getOrCreateGlyphForCodePoint: newState character.
-            glyph ifNil: {
-                return: newState
-            }.
-
-            ## Convert the glyph into a form. We can always do this operation with fonts.
-            self drawGlyph: glyph _ at: newState previousPosition.
-        }.
-
-        return: newState.
-    }.
+    abstract method drawCharacterWithState: (state: TextDrawingState) ::=> TextDrawingState.
 
     ## Draw an UTF-8 encoded string. Allow overriding for optiomization reasons.
     virtual method drawUTF8String: (encodedString: Char8 const pointer) size: (encodedStringSize: UIntPointer) withState: (state: TextDrawingState) ::=> TextDrawingState := {
@@ -169,7 +152,7 @@ class Canvas superclass: Object; definition: {
         := void.
 
     virtual method applyLocalClipRectangle: (aRectangle: RectangleF32) ::=> Void
-        := self applyClipRectangle: (aRectangle transformedWith: transform).
+        := self applyClipRectangle: (aRectangle transformedWith: self transform).
 
     virtual method restoreClipRectangle: (aRectangle: RectangleF32) ::=> Void
         := void.

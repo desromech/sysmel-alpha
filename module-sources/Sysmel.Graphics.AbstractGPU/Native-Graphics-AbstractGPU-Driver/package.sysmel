@@ -15,6 +15,7 @@ loadFileOnce: "AgpuShaderSignatureBuilder.sysmel".
 loadFileOnce: "AgpuShaderStageHandle.sysmel".
 loadFileOnce: "AgpuSwapChain.sysmel".
 loadFileOnce: "AgpuTexture.sysmel".
+loadFileOnce: "AgpuTextureView.sysmel".
 loadFileOnce: "AgpuVertexBinding.sysmel".
 loadFileOnce: "AgpuVertexLayout.sysmel".
 

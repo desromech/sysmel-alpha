@@ -21,19 +21,19 @@ class AgpuBuffer superclass: Buffer; definition: {
         := creationDescription size.
 
     override method map: (access: MappingAccessMask) ::=> Void pointer := {
-        nil.
+        handle _ mapBuffer: (access castTo: AGPU MappingAccess)
     }.
 
     override method unmap ::=> Void := {
-
+        handle _ unmapBuffer
     }.
 
     override method uploadAt: (offset: UIntPointer) size: (size: UIntPointer) data: (data: Void const pointer) ::=> Void := {
-
+        handle _ uploadBufferData: (offset castTo: UInt32) size: (size castTo: UInt32) data: (data reinterpretCastTo: Void pointer)
     }.
 
     override method readAt: (offset: UIntPointer) size: (size: UIntPointer) into: (buffer: Void pointer) ::=> Void := {
-
+        handle _ readBufferData: (offset castTo: UInt32) size: (size castTo: UInt32) data: buffer
     }
 }.
 

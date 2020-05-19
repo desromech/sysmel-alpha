@@ -1,0 +1,24 @@
+namespace Stdn definition: {
+namespace Graphics definition: {
+namespace Core definition: {
+
+useNamespace: Stdn Math Geometry.
+
+#**
+ * I am a swap chain canvas. I work by delegating my job into another canvas.
+ *#
+class SwapChainSurfaceCanvas superclass: DelegatingCanvas; definition: {
+
+    public field ownerSurface type: SwapChainSurface pointer.
+    public field ownedCanvas type: Canvas uniquePointer.
+
+    override method finalize => Void := {
+        ownedCanvas reset.
+        ownerSurface _ endDrawing.
+    }.
+
+}.
+
+}. ## End of namespace Core
+}. ## End of namespace Graphics
+}. ## End of namespace Stdn

@@ -9,24 +9,12 @@ class SoftSurface.
 #**
  * I am a software based rendering CPU canvas that draws into SoftSurface.
  *#
-class SoftCanvas superclass: Canvas; definition: {
+class SoftCanvas superclass: AbstractConcreteCanvas; definition: {
     protected field targetSurface type: SoftSurface pointer.
-    protected field currentClipRectangle type: RectangleF32.
-
-    protected field currentStartPosition type: Float32x2.
-    protected field currentStartColor type: Float32x4.
-
-    protected field currentEndPosition type: Float32x2.
-    protected field currentEndColor type: Float32x4.
-    protected field currentGradientVector type: Float32x2.
-
-    protected field blendingMode type: BlendingMode.
 
     method initializeWithSurface: (theTargetSurface: SoftSurface pointer) ::=> Void := {
-        blendingMode := BlendingMode AlphaOver.
         targetSurface := theTargetSurface.
-        currentClipRectangle := RectangleF32 fullSpace.
-        transform setIdentity.
+        self resetCanvasState.
     }.
 
     override method finalize => Void := {
@@ -35,49 +23,8 @@ class SoftCanvas superclass: Canvas; definition: {
         }
     }.
 
-    override method blendingMode: (newMode: BlendingMode) ::=> Void := {
-        blendingMode := newMode
-    }.
-
     override method clear ::=> Void := {
         targetSurface _ pixelsBlitter setAllPixelsToColor: currentStartColor
-    }.
-
-    inline method isFullyTransparent => Boolean8
-        := currentStartColor a <= 0.0f && currentEndColor a <= 0.0f.
-
-    override method color: (srgbColor: UInt8x4) ::=> Void := {
-        self color: Stdn Math Color decodeSRGBUnorm8(srgbColor)
-    }.
-
-    override method color: (linearColor: Float32x4) ::=> Void := {
-        self linearGradientStart: linearColor position: Float32x2 zeros end: linearColor position: Float32x2 zeros.
-    }.
-
-    override method linearGradientStart: (startColor: UInt8x4) position: (startPosition: Float32x2) end: (endColor: UInt8x4) position: (endPosition: Float32x2) ::=> Void := {
-        self linearGradientStart: Stdn Math Color decodeSRGBUnorm8(startColor)
-            position: startPosition end: Stdn Math Color decodeSRGBUnorm8(endColor) position: endPosition
-    }.
-
-    ## This sets the current active color. The color is in the linear RGB space.
-    override method linearGradientStart: (startColor: Float32x4) position: (startPosition: Float32x2) end: (endColor: Float32x4) position: (endPosition: Float32x2) ::=> Void := {
-        currentStartColor := startColor.
-        currentEndColor := endColor.
-        currentStartPosition := transform transformPoint: startPosition.
-        currentEndPosition := transform transformPoint: endPosition.
-
-        let v := endPosition - startPosition.
-        let l2 := v length2.
-        (l2 closeTo: 0.0) ifTrue: {
-            currentGradientVector := 0.0f.
-        } ifFalse: {
-            currentGradientVector := v / l2.
-        }.
-    }.
-
-    const inline method evaluatePaintColorAt: (position: Float32x2) ::=> Float32x4 := {
-        let alpha := (position - currentStartPosition) dot: currentGradientVector.
-        currentStartColor interpolateTo: currentEndColor at: (alpha clampMin: 0.0f max: 1.0f)
     }.
 
     override method fillTriangle: (p1: Float32x2) color: (c1: Float32x4) tc: (tc1: Float32x2)
@@ -154,11 +101,6 @@ class SoftCanvas superclass: Canvas; definition: {
             compositeAlphaBlendPixelsFrom: sourceBlitter withColor: currentStartColor at: (targetPosition floor castTo: Int32x2)
     }.
 
-    ## Sets the current font face with size.
-    override method fontFaceWithSize: (font: FontFaceWithSize sharedPointer const ref) ::=> Void := {
-        currentFontFaceWithSize := font.
-    }.
-
     override method drawGlyph: (glyph: Glyph ref) at: (aPosition: Float32x2) ::=> Void := {
         let form := glyph asForm.
         form ifNotNil: {
@@ -170,24 +112,10 @@ class SoftCanvas superclass: Canvas; definition: {
         }.
     }.
 
-    inline method doSetClipRectangle: (aRectangle: RectangleF32) ::=> Void := {
+    override method doSetClipRectangle: (aRectangle: RectangleF32) ::=> Void := {
         let blitter ref := targetSurface _ pixelsBlitter.
         let convertedClipRectangle := (aRectangle intersectionWith: blitter bounds asRectangleF32) asRectangleI32.
         blitter applyClippingRectangle: convertedClipRectangle
-    }.
-
-    override method currentClipRectangle => RectangleF32 := {
-        currentClipRectangle
-    }.
-
-    override method applyClipRectangle: (aRectangle: RectangleF32) ::=> Void := {
-        currentClipRectangle := currentClipRectangle intersectionWith: aRectangle.
-        self doSetClipRectangle: currentClipRectangle.
-    }.
-
-    override method restoreClipRectangle: (aRectangle: RectangleF32) ::=> Void := {
-        currentClipRectangle := aRectangle.
-        self doSetClipRectangle: currentClipRectangle.
     }.
 }.
 

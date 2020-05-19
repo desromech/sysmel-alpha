@@ -1,0 +1,35 @@
+namespace Stdn definition: {
+namespace Graphics definition: {
+namespace Core definition: {
+
+#**
+ * I am a 2D rendering surface that records all of the canvas rendering command for a deferred construction of command list.
+ *#
+class CommandListBuilderSurface superclass: Surface; definition: {
+    public field extent type: UInt32x2.
+
+    override method beginDrawingWithCanvas => Canvas uniquePointer := {
+        self beginDrawing ifFalse: {
+            return: Canvas uniquePointer nil
+        }.
+
+        let result := CommandListBuilderCanvas nativeNew _
+            initializeWithSurface: self address;
+            address.
+
+        Canvas uniquePointer for: result.
+    }.
+
+    method beginDrawing => Boolean8
+        := true.
+
+    method endDrawing => Void := {
+        Stdn stdout << "CommandListBuilderSurface endDrawing"; nl.
+    }.
+}.
+
+compileTime constant CommandListBuilderSurfaceRef := CommandListBuilderSurface sharedPointer.
+
+}. ## End of namespace Core
+}. ## End of namespace Graphics
+}. ## End of namespace Stdn

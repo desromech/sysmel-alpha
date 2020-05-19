@@ -1,0 +1,92 @@
+namespace Stdn definition: {
+namespace Graphics definition: {
+namespace Core definition: {
+
+useNamespace: Stdn Math LinearAlgebra.
+useNamespace: Stdn Math Geometry.
+
+#**
+ * I am a canvas that delegates most of its job into another canvas
+ *#
+class DelegatingCanvas superclass: Canvas; definition: {
+    public field delegatedCanvas type: Canvas pointer.
+
+    override method clear ::=> Void
+        := delegatedCanvas _ clear.
+
+    override method white ::=> Void
+        := delegatedCanvas _ white.
+
+    override method black ::=> Void
+        := delegatedCanvas _ black.
+
+    override method transparent ::=> Void
+        := delegatedCanvas _ transparent.
+
+    override method blendingMode: (mode: BlendingMode) ::=> Void
+        := delegatedCanvas _ blendingMode: mode.
+
+    override method color: (srgbColor: UInt8x4) ::=> Void
+        := delegatedCanvas _ color: srgbColor.
+
+    override method color: (linearColor: Float32x4) ::=> Void
+        := delegatedCanvas _ color: linearColor.
+
+    override method linearGradientStart: (startColor: UInt8x4) position: (startPosition: Float32x2)
+        end: (endColor: UInt8x4) position: (endPosition: Float32x2) ::=> Void
+        := delegatedCanvas _ linearGradientStart: startColor position: startPosition end: endColor position: endPosition.
+
+    override method linearGradientStart: (startColor: Float32x4) position: (startPosition: Float32x2)
+        end: (endColor: Float32x4) position: (endPosition: Float32x2) ::=> Void
+        := delegatedCanvas _ linearGradientStart: startColor position: startPosition end: endColor position: endPosition.
+
+    override method fillTriangle: (p1: Float32x2) color: (c1: Float32x4) tc: (tc1: Float32x2)
+        p2: (p2: Float32x2) color: (c2: Float32x4) tc: (tc2: Float32x2)
+        p3: (p3: Float32x2) color: (c3: Float32x4) tc: (tc3: Float32x2) ::=> Void
+        := delegatedCanvas _ fillTriangle: p1 color: c1 tc: tc1
+            p2: p2 color: c2 tc: tc2
+            p3: p3 color: c3 tc: tc3.
+
+    override method drawSegmentStart: (startPoint: Float32x2) end: (endPoint: Float32x2) ::=> Void
+        := delegatedCanvas _ drawSegmentStart: startPoint end: endPoint.
+
+    override method fillRectangle: (rectangle: RectangleF32) ::=> Void
+        := delegatedCanvas _ fillRectangle: rectangle.
+
+    override method drawRectangle: (rectangle: RectangleF32) ::=> Void
+        := delegatedCanvas _ drawRectangle: rectangle.
+
+    override method copyTexture: (textureView: TextureView sharedPointer const ref) at: (targetPosition: Float32x2) ::=> Void
+        := delegatedCanvas _ copyTexture: textureView at: targetPosition.
+
+    override method blendTexture: (textureView: TextureView sharedPointer const ref) at: (targetPosition: Float32x2) ::=> Void
+        := delegatedCanvas _ blendTexture: textureView at: targetPosition.
+
+    override method fontFaceWithSize: (font: FontFaceWithSize sharedPointer const ref) ::=> Void
+        := delegatedCanvas _ fontFaceWithSize: font.
+
+    override method drawGlyph: (glyph: Glyph ref) at: (aPosition: Float32x2) ::=> Void
+        := delegatedCanvas _ drawGlyph: glyph at: aPosition.
+
+    override method drawCharacterWithState: (state: TextDrawingState) ::=> TextDrawingState
+        := delegatedCanvas _ drawCharacterWithState: state.
+
+    override method drawUTF8String: (encodedString: Char8 const pointer) size: (encodedStringSize: UIntPointer) withState: (state: TextDrawingState) ::=> TextDrawingState
+        := delegatedCanvas _ drawUTF8String: encodedString size: encodedStringSize withState: state.
+
+    override method currentClipRectangle => RectangleF32
+        := delegatedCanvas _ currentClipRectangle.
+
+    override method applyClipRectangle: (aRectangle: RectangleF32) ::=> Void
+        := delegatedCanvas _ applyClipRectangle: aRectangle.
+
+    override method applyLocalClipRectangle: (aRectangle: RectangleF32) ::=> Void
+        := delegatedCanvas _ applyLocalClipRectangle: aRectangle.
+
+    override method restoreClipRectangle: (aRectangle: RectangleF32) ::=> Void
+        := delegatedCanvas _ restoreClipRectangle: aRectangle.
+}.
+
+}. ## End of namespace Core
+}. ## End of namespace Graphics
+}. ## End of namespace Stdn

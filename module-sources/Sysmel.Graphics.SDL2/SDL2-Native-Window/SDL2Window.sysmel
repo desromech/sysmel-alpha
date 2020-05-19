@@ -106,9 +106,9 @@ class SDL2Window superclass: Window; definition: {
     }.
 
     override method createDefaultDrawingSurface => Surface sharedPointer := {
-        #*self renderingDevice _ isSoftRenderingDevice ifTrue: {
+        self renderingDevice _ isSoftRenderingDevice ifTrue: {
             return: ((SDL2SoftwareRendererSurface for: self) upCastFor: Surface).
-        }.*#
+        }.
 
         (WindowSwapChainSurface for: (self asSharedPointer upCastFor: Window)) upCastFor: Surface
     }.

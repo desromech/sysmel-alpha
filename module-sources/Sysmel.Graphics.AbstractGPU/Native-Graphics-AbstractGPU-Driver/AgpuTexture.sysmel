@@ -12,6 +12,10 @@ class AgpuTexture superclass: Texture; definition: {
     public field handle type: AGPU TextureRef.
     public field creationDescription type: TextureDescription.
 
+    protected field fullTextureView type: TextureViewPtr.
+    protected field fullTextureViewOnceFlag type: Stdn OnceFlag.
+
+
     override method description => TextureDescription
         := creationDescription.
 
@@ -53,11 +57,42 @@ class AgpuTexture superclass: Texture; definition: {
     }.
 
     override method createView: (viewDescription: TextureViewDescription const ref) ::=> TextureViewPtr := {
-        TextureViewPtr nil.
+        let convertedViewDescription mutable := AGPU TextureViewDescription()
+            type: (viewDescription type castTo: AGPU TextureType);
+            format: (viewDescription format castTo: AGPU TextureFormat);
+            sample_count: viewDescription sampleCount;
+            components: (AGPU ComponentsSwizzle()
+                r: (viewDescription components r castTo: AGPU ComponentSwizzle);
+                g: (viewDescription components g castTo: AGPU ComponentSwizzle);
+                b: (viewDescription components b castTo: AGPU ComponentSwizzle);
+                a: (viewDescription components a castTo: AGPU ComponentSwizzle);
+                yourself);
+            subresource_range: (AGPU SubresourceRange()
+                usage_mode: (viewDescription subresourceRange usageModes castTo: AGPU TextureUsageModeMask);
+                base_miplevel: viewDescription subresourceRange baseMipLevel;
+                level_count: viewDescription subresourceRange levelCount;
+                base_arraylayer: viewDescription subresourceRange baseArrayLayer;
+                layer_count: viewDescription subresourceRange layerCount;
+                yourself
+            );
+            yourself.
+
+        let viewHandle := handle _ createView: convertedViewDescription address.
+        viewHandle ifNil: {
+            return: TextureViewPtr nil
+        }.
+
+        let result := AgpuTextureView sharedNew.
+        result _ handle: viewHandle.
+        result upCastFor: TextureView
     }.
 
     override method getOrCreateFullView => TextureViewPtr := {
-        TextureViewPtr nil.
+        fullTextureViewOnceFlag do: {
+            fullTextureView := self createView: self getFullViewDescription
+        }.
+
+        fullTextureView
     }.
 }.
 

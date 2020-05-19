@@ -5,6 +5,7 @@ Trait {
 		'methodDict'
 	],
 	#traits : 'TMbndAbstractMethodContainer',
+	#classTraits : 'TMbndAbstractMethodContainer classTrait',
 	#category : #'SysmelMoebiusMetamodel-Core-ProgramEntity'
 }
 
@@ -87,8 +88,7 @@ TMbndMethodContainer >> lookupOverloadedSelector: selector withBoundType: expect
 	methods := methodOrMethodGroup isMethodGroup
 		ifTrue: [ methodOrMethodGroup overloadedEntities ]
 		ifFalse: [{ methodOrMethodGroup }].
-		
-	((self asString includesSubstring: #Canvas) and: [selector = #finalize]) ifTrue: [ self halt ].
+
 	methods do: [ :method |
 		method boundType = expectedBoundType ifTrue: [ ^ method ] 
 	].

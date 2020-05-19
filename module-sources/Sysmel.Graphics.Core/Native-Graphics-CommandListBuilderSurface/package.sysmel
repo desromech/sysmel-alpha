@@ -1,3 +1,4 @@
 loadFileOnce: "CommandListBuilderSurface.sysmel".
 loadFileOnce: "CommandListBuilderCanvas.sysmel".
 loadFileOnce: "SwapChainSurface.sysmel".
+loadFileOnce: "SwapChainSurfaceCanvas.sysmel".

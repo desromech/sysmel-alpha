@@ -174,7 +174,35 @@ class AgpuRenderingDevice superclass: RenderingDevice; definition: {
     }.
 
     override method createFramebuffer: (extent: UInt32x2) colorViews: (colorViews: TextureViewPtr const arraySlice) depthStencilView: (depthStencilView: TextureViewPtr const ref) ::=> FramebufferPtr := {
-        FramebufferPtr nil
+        let convertedColorViews mutable type: Stdn Collections Vector(AGPU TextureViewRef).
+        convertedColorViews reserve: colorViews size.
+        colorViews do: {:each :: Void |
+            let agpuView := each getPointer castTo: AgpuTextureView const pointer.
+            agpuView ifNil: {
+                convertedColorViews add: AGPU TextureViewRef()
+            } ifNotNil: {
+                convertedColorViews add: agpuView _ handle
+            }
+        }.
+
+        let convertedDepthStencilView mutable type: AGPU TextureViewRef.
+        depthStencilView ifNotNil: {
+            let agpuView := depthStencilView getPointer castTo: AgpuTextureView const pointer.
+            agpuView ifNotNil: {
+                convertedDepthStencilView := agpuView _ handle
+            }
+        }.
+
+        let framebufferHandle := handle _ createFrameBuffer: extent x height: extent y
+            colorCount: (convertedColorViews size castTo: UInt32) colorViews: convertedColorViews data
+            depthStencilView: convertedDepthStencilView.
+        framebufferHandle ifNil: {
+            return: FramebufferPtr nil
+        }.
+
+        let result := AgpuFramebuffer sharedNew.
+        result _ handle: framebufferHandle.
+        result upCastFor: Framebuffer
     }.
 
     override method createRenderPass: (colorAttachment: RenderPassColorAttachmentDescription const arraySlice) depthStencilAttachment: (depthAttachment: RenderPassDepthStencilAttachmentDescription const pointer) ::=> RenderPassPtr := {

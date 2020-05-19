@@ -1,8 +1,6 @@
 namespace Stdn definition: {
 namespace Graphics definition: {
-namespace GUI definition: {
-
-useNamespace: Stdn Graphics Core.
+namespace Core definition: {
 
 #**
  * I am a 2D rendering that takes care automatically of handling the underlying swap chain in a window.
@@ -17,6 +15,8 @@ class SwapChainSurface superclass: Surface; definition: {
     protected field renderPasses type: Stdn Collections Vector(RenderPassPtr).
     protected field commandListAllocators type: Stdn Collections Vector(CommandListAllocatorPtr).
     protected field commandLists type: Stdn Collections Vector(CommandListPtr).
+
+    protected field surfaces type: Stdn Collections Vector(CommandListBuilderSurface sharedPointer).
 
     const method extent => UInt32x2
         := extent.
@@ -39,7 +39,10 @@ class SwapChainSurface superclass: Surface; definition: {
         extent := theExtent.
 
         let bufferCount := swapChain _ getFramebufferCount.
+        commandListAllocators reserve: bufferCount.
+        commandLists reserve: bufferCount.
         renderPasses reserve: bufferCount.
+        surfaces reserve: bufferCount.
         0 until: bufferCount do: {:i :: Void |
 
             {
@@ -62,11 +65,26 @@ class SwapChainSurface superclass: Surface; definition: {
 
             let renderPass := device _ createRenderPass: colorAttachments depthStencilAttachment: nil.
             renderPasses add: renderPass.
+
+            let surface := CommandListBuilderSurface sharedNew.
+            surface _ extent: extent.
+            surfaces add: surface.
         }.
     }.
 
     override method beginDrawingWithCanvas => Canvas uniquePointer := {
+        let surface ref := surfaces[swapChain _ getCurrentBackBufferIndex].
+        let result := SwapChainSurfaceCanvas nativeNew _
+            ownerSurface: self address;
+            ownedCanvas: surface _ beginDrawingWithCanvas;
+            address.
+        result _ delegatedCanvas: result _ ownedCanvas getPointer. 
 
+        Canvas uniquePointer for: result.
+    }.
+
+    method endDrawing => Void := {
+        Stdn stdout << "SwapChainSurface endDrawing"; nl.
         let backBuffer := swapChain _ getCurrentBackBuffer.
         let backBufferIndex := swapChain _ getCurrentBackBufferIndex.
 
@@ -86,14 +104,6 @@ class SwapChainSurface superclass: Surface; definition: {
     		waitForIdle.
 
         swapChain _ swapBuffers.
-        Canvas uniquePointer nil
-    }.
-
-    method beginDrawing => Boolean8
-        := false.
-
-    method endDrawing => Void := {
-        Stdn stdout << "SwapChainSurface endDrawing"; nl.
     }.
 }.
 
