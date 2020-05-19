@@ -36,15 +36,20 @@ class AgpuCommandList superclass: CommandList; definition: {
     }.
 
     override method useShaderSignature: (shaderSignature: ShaderSignaturePtr const ref) ::=> Void := {
-
+         let agpuShaderSignature := shaderSignature getPointer castTo: AgpuShaderSignature pointer.
+         agpuShaderSignature ifNotNil: {
+            handle _ setShaderSignature: agpuShaderSignature _ handle.
+         }
     }.
 
     override method setViewport: (rectangle: RectangleI32) ::=> Void := {
-
+        let extent := rectangle extent.
+        handle _ setViewport: rectangle min x y: rectangle min y w: extent x h: extent y
     }.
 
     override method setScissor: (rectangle: RectangleI32) ::=> Void := {
-
+        let extent := rectangle extent.
+        handle _ setScissor: rectangle min x y: rectangle min y w: extent x h: extent y
     }.
 
     override method usePipelineState: (pipelineState: PipelineStatePtr const ref) ::=> Void := {
@@ -64,15 +69,25 @@ class AgpuCommandList superclass: CommandList; definition: {
     }.
 
     override method useVertexBinding: (vertexBinding: VertexBindingPtr const ref) ::=> Void := {
-
+        let agpuVertexBinding := vertexBinding getPointer castTo: AgpuVertexBinding pointer.
+        agpuVertexBinding ifNotNil: {
+            handle _ useVertexBinding: agpuVertexBinding _ handle
+        }.
     }.
 
     override method useIndexBuffer: (buffer: BufferPtr const ref) ::=> Void := {
+        let agpuIndexBuffer := buffer getPointer castTo: AgpuBuffer pointer.
+        agpuIndexBuffer ifNotNil: {
+            handle _ useIndexBuffer: agpuIndexBuffer _ handle
+        }.
 
     }.
 
     override method useIndexBuffer: (buffer: BufferPtr const ref) at: (offset: UIntPointer) stride: (stride: UIntPointer) ::=> Void := {
-
+        let agpuIndexBuffer := buffer getPointer castTo: AgpuBuffer pointer.
+        agpuIndexBuffer ifNotNil: {
+            handle _ useIndexBufferAt: agpuIndexBuffer _ handle offset: (offset castTo: UInt32) indexSize: (stride castTo: UInt32)
+        }.
     }.
 
     override method useDrawIndirectBuffer: (buffer: BufferPtr const ref) ::=> Void := {
@@ -84,15 +99,21 @@ class AgpuCommandList superclass: CommandList; definition: {
     }.
 
     override method useGraphicShaderBindings: (resourcesBinding: ShaderResourceBindingsPtr const ref) ::=> Void := {
-
+        let agpuShaderResourceBindings := resourcesBinding getPointer castTo: AgpuShaderResourceBindings pointer.
+        agpuShaderResourceBindings ifNotNil: {
+            handle _ useShaderResources: agpuShaderResourceBindings _ handle.
+        }.
     }.
 
     override method useComputeShaderBindings: (resourcesBinding: ShaderResourceBindingsPtr const ref) ::=> Void := {
-
+        let agpuShaderResourceBindings := resourcesBinding getPointer castTo: AgpuShaderResourceBindings pointer.
+        agpuShaderResourceBindings ifNotNil: {
+            handle _ useComputeShaderResources: agpuShaderResourceBindings _ handle.
+        }.
     }.
 
     override method drawArrays: (vertexCount: UInt32) instanceCount: (instanceCount: UInt32) firstVertex: (firstVertex: UInt32) baseInstance: (baseInstance: UInt32) ::=> Void := {
-
+        handle _ drawArrays: vertexCount instanceCount: instanceCount firstVertex: firstVertex baseInstance: baseInstance
     }.
 
     override method drawArraysIndirect: (offset: UIntPointer) drawCount: (drawCount: UIntPointer) ::=> Void := {
@@ -100,7 +121,7 @@ class AgpuCommandList superclass: CommandList; definition: {
     }.
 
     override method drawElements: (indexCount: UInt32) instanceCount: (instanceCount: UInt32) firstIndex: (firstVertex: UInt32) baseVertex: (baseVertex: UInt32) baseInstance: (baseInstance: UInt32) ::=> Void := {
-
+        handle _ drawElements: indexCount instanceCount: instanceCount firstIndex: firstVertex baseVertex: (baseVertex castTo: Int32) baseInstance: baseInstance
     }.
 
     override method drawElementsIndirect: (offset: UIntPointer) drawCount: (drawCount: UIntPointer) ::=> Void := {

@@ -11,7 +11,20 @@ class AgpuVertexLayout superclass: VertexLayout; definition: {
     public field handle type: AGPU VertexLayoutRef.
 
     override method addVertexBuffers: (strides: UInt32 const arraySlice) withAttributes: (attributes: VertexAttributeDescription const arraySlice) ::=> Void := {
+        let convertedAttributes mutable type: Stdn Collections Vector(AGPU VertexAttribDescription).
+        convertedAttributes reserve: attributes size.
+        attributes do: {:each :: Void |
+            convertedAttributes add: (AGPU VertexAttribDescription()
+            	buffer: each bufferIndex;
+            	binding: each location;
+            	format: (each format castTo: AGPU TextureFormat);
+            	offset: each offset;
+            	divisor: each divisor;
+                yourself)
+        }.
 
+        handle _ addVertexAttributeBindings: (strides size castTo: UInt32) vertexStrides: (strides elements reinterpretCastTo: UInt32 pointer)
+            attributeCount: (convertedAttributes size castTo: UInt32) attributes: convertedAttributes data.
     }.
 }.
 

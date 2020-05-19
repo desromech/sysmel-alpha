@@ -80,8 +80,56 @@ class AgpuRenderingDevice superclass: RenderingDevice; definition: {
     override method createComputePipelineState: (description: ComputePipelineStateDescription const ref) ::=> PipelineStatePtr := {
         PipelineStatePtr nil.
     }.
+
     override method createGraphicsPipelineState: (description: GraphicsPipelineStateDescription const ref) ::=> PipelineStatePtr := {
-        PipelineStatePtr nil.
+        let builder := handle _ createPipelineBuilder.
+        builder ifNil: {
+            return: PipelineStatePtr nil.
+        }.
+
+        (description shaderSignature getPointer castTo: AgpuShaderSignature pointer) ifNotNil: {:shaderSignature :: Void |
+            builder _ setShaderSignature: shaderSignature _ handle
+        }.
+
+        (description vertexLayout getPointer castTo: AgpuVertexLayout pointer) ifNotNil: {:vertexLayout :: Void |
+            builder _ setVertexLayout: vertexLayout _ handle
+        }.
+
+        (description vertexShader getPointer castTo: AgpuShaderStageHandle pointer) ifNotNil: {:shader :: Void |
+            shader _ attachTo: builder
+        }.
+        (description fragmentShader getPointer castTo: AgpuShaderStageHandle pointer) ifNotNil: {:shader :: Void |
+            shader _ attachTo: builder
+        }.
+        (description geometryShader getPointer castTo: AgpuShaderStageHandle pointer) ifNotNil: {:shader :: Void |
+            shader _ attachTo: builder
+        }.
+        (description tessellationControlShader getPointer castTo: AgpuShaderStageHandle pointer) ifNotNil: {:shader :: Void |
+            shader _ attachTo: builder
+        }.
+        (description tessellationEvaluationShader getPointer castTo: AgpuShaderStageHandle pointer) ifNotNil: {:shader :: Void |
+            shader _ attachTo: builder
+        }.
+
+        builder _ setRenderTargetCount: (description colorAttachments size castTo: Int32).
+        description colorAttachments doWithIndex: {:attachment :index :: Void |
+            let attachmentMask := (1<<index) castTo: UInt32.
+            builder _
+                setRenderTargetFormat: (index castTo: UInt32) format: (attachment format castTo: AGPU TextureFormat)
+        }.
+
+        builder _
+            setDepthStencilFormat: (description depthStencilFormat castTo: AGPU TextureFormat);
+            setPrimitiveType: (description primitiveTopology castTo: AGPU PrimitiveTopology).
+
+        let pso := builder _ build.
+        pso ifNil: {
+            return: PipelineStatePtr nil.
+        }.
+
+        let result := AgpuGraphicsPipelineState sharedNew.
+        result _ handle: pso.
+        result upCastFor: PipelineState
     }.
 
     override method createVertexLayout => VertexLayoutPtr := {
@@ -166,11 +214,38 @@ class AgpuRenderingDevice superclass: RenderingDevice; definition: {
     }.
 
     override method createShaderLibraryFromModule: (shaderModule: GPU ShaderModuleInfo const ref) ::=> ShaderLibraryHandlePtr := {
-        ShaderLibraryHandlePtr nil.
+        let shaderHandle := handle _ createShader: AGPU ShaderType Library.
+        shaderHandle ifNil: {
+            return: ShaderLibraryHandlePtr nil
+        }.
+
+        shaderHandle _
+            setShaderSource: AGPU ShaderLanguage SpirV sourceText: (shaderModule blobStartPointer reinterpretCastTo: Char8 const pointer)
+                sourceTextLength: shaderModule blobSize;
+                compileShader: "".
+
+        let result := AgpuShaderLibraryHandle sharedNew.
+        result _ handle: shaderHandle.
+        result upCastFor: ShaderLibraryHandle
     }.
 
     override method createShaderStageFromEntryPoint: (entryPointInfo: GPU ShaderEntryPointInfo const ref) ::=> ShaderStageHandlePtr := {
-        ShaderStageHandlePtr nil
+        entryPointInfo moduleInfo ifNil: {
+            return: ShaderStageHandlePtr nil
+        }.
+
+        let shaderLibrary := self createShaderLibraryFromModule: entryPointInfo moduleInfo _.
+        shaderLibrary ifNil: {
+            return: ShaderStageHandlePtr nil
+        }.
+
+        let result := AgpuShaderStageHandle sharedNew.
+        result _
+            libraryHandle: (shaderLibrary getPointer castTo: AgpuShaderLibraryHandle pointer) _ handle;
+            entryPointName: entryPointInfo entryPointSymbol;
+            stageType: (entryPointInfo stageType castTo: AGPU ShaderType).
+
+        result upCastFor: ShaderStageHandle
     }.
 
     override method createFramebuffer: (extent: UInt32x2) colorViews: (colorViews: TextureViewPtr const arraySlice) depthStencilView: (depthStencilView: TextureViewPtr const ref) ::=> FramebufferPtr := {

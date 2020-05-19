@@ -11,19 +11,31 @@ class AgpuShaderResourceBindings superclass: ShaderResourceBindings; definition:
     public field handle type: AGPU ShaderResourceBindingRef.
 
     override method bindOn: (location: IntPointer) uniformBuffer: (buffer: BufferPtr const ref) ::=> Void := {
-
+        let agpuBuffer := buffer getPointer castTo: AgpuBuffer pointer.
+        agpuBuffer ifNotNil: {
+            handle _ bindUniformBuffer: (location castTo: Int32) uniformBuffer: agpuBuffer _ handle.
+        }.
     }.
 
     override method bindOn: (location: IntPointer) uniformBuffer: (buffer: BufferPtr const ref) offset: (offset: UIntPointer) size: (size: UIntPointer) ::=> Void := {
-
+        let agpuBuffer := buffer getPointer castTo: AgpuBuffer pointer.
+        agpuBuffer ifNotNil: {
+            handle _ bindUniformBufferRange: (location castTo: Int32) uniformBuffer: agpuBuffer _ handle offset: (offset castTo: UInt32) size: (size castTo: UInt32).
+        }.
     }.
 
     override method bindOn: (location: IntPointer) storageBuffer: (buffer: BufferPtr const ref) ::=> Void := {
-
+        let agpuBuffer := buffer getPointer castTo: AgpuBuffer pointer.
+        agpuBuffer ifNotNil: {
+            handle _ bindStorageBuffer: (location castTo: Int32) storageBuffer: agpuBuffer _ handle.
+        }.
     }.
 
     override method bindOn: (location: IntPointer) storageBuffer: (buffer: BufferPtr const ref) offset: (offset: UIntPointer) size: (size: UIntPointer) ::=> Void := {
-
+        let agpuBuffer := buffer getPointer castTo: AgpuBuffer pointer.
+        agpuBuffer ifNotNil: {
+            handle _ bindStorageBufferRange: (location castTo: Int32) storageBuffer: agpuBuffer _ handle offset: (offset castTo: UInt32) size: (size castTo: UInt32).
+        }.
     }.
 
     override method bindOn: (location: IntPointer) sampledTextureView: (textureView: TextureViewPtr const ref) ::=> Void := {

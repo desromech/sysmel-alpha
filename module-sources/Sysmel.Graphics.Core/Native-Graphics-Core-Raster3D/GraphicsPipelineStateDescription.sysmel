@@ -48,8 +48,8 @@ struct GraphicsPipelineStateDescription definition: {
     public field vertexShader type: ShaderStageHandlePtr.
     public field fragmentShader type: ShaderStageHandlePtr.
     public field geometryShader type: ShaderStageHandlePtr.
-    public field tessellationControl type: ShaderStageHandlePtr.
-    public field tessellationEvaluation type: ShaderStageHandlePtr.
+    public field tessellationControlShader type: ShaderStageHandlePtr.
+    public field tessellationEvaluationShader type: ShaderStageHandlePtr.
 
     ## Rasterization state.
     public field frontFaceOrientation type: FrontFaceOrientation.

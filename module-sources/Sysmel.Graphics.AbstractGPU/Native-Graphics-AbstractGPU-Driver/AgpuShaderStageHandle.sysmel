@@ -9,7 +9,12 @@ useNamespace: Stdn Graphics Core.
  *#
 class AgpuShaderStageHandle superclass: ShaderStageHandle; definition: {
     public field libraryHandle type: AGPU ShaderRef.
+    public field entryPointName type: Stdn String.
+    public field stageType type: AGPU ShaderType.
 
+    method attachTo: (builder: AGPU PipelineBuilderRef const ref) ::=> Void := {
+        builder _ attachShaderWithEntryPoint: libraryHandle type: stageType entryPoint: entryPointName asCString
+    }.
 }.
 
 compileTime constant AgpuShaderStageHandlePtr := AgpuShaderStageHandle sharedPointer.

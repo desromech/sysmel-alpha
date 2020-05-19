@@ -70,7 +70,8 @@ class CheckboardShader definition: {
 		let L := Float32x3(1, 1, 1) normalized.
 
 		let x := P.
-		let edge := 0.48f smoothStepTo: 0.52f value: 2*(x - (x + 0.5f) floor) abs. ##((x - x floor)*2 - 1) abs.
+		## FIXME: This does not pass the validation without the Float32x3.
+		let edge := 0.48f *Float32x3 ones smoothStepTo: 0.52f*Float32x3 ones value: 2*(x - (x + 0.5f) floor) abs. ##((x - x floor)*2 - 1) abs.
 		let aliasFactor := 10.0f smoothStepTo: 30.0f value: P length.
 
 		let stipple := fuzzyXor(fuzzyXor(edge x, edge y), edge z) interpolateTo: 0.5f at: aliasFactor.
@@ -227,7 +228,9 @@ function doRender3D => Void := {
 		usePipelineState: renderingPipelineState;
 		useGraphicShaderBindings: cameraStateBinding;
 
-		beginRenderPass: mainRenderPass on: mainFrameBuffer contentOnBundle: false.
+		beginRenderPass: mainRenderPass on: mainFrameBuffer contentOnBundle: false;
+		setViewport: (RectangleI32 min: Int32x2 zeros max: Int32x2(640, 480));
+		setScissor: (RectangleI32 min: Int32x2 zeros max: Int32x2(640, 480)).
 
 	commandList _ useGraphicShaderBindings: planeObjectStateBinding.
 	planeMesh _ drawWith: commandList _.

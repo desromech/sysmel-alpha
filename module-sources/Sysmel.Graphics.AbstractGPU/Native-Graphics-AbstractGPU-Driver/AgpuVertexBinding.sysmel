@@ -11,10 +11,33 @@ class AgpuVertexBinding superclass: VertexBinding; definition: {
     public field handle type: AGPU VertexBindingRef.
 
     override method bindVertexBuffers: (theVertexBuffers: VertexBuffers) ::=> Void := {
+        let convertedBuffers mutable type: Stdn Collections Vector(AGPU BufferRef).
+        convertedBuffers reserve: theVertexBuffers size.
+        theVertexBuffers do: {:each :: Void |
+            (each getPointer castTo: AgpuBuffer pointer) ifNil: {
+                convertedBuffers add: AGPU BufferRef()
+            } ifNotNil: {:bufferPointer :: Void |
+                convertedBuffers add: bufferPointer _ handle
+            }
+        }.
 
+        handle _ bindVertexBuffers: (convertedBuffers size castTo: UInt32) vertexBuffers: convertedBuffers data
     }.
 
     override method bindVertexBuffers: (theVertexBuffers: VertexBuffers) offset: (offsets: Offsets) ::=> Void := {
+        Stdn assert: theVertexBuffers size = offsets size.
+
+        let convertedBuffers mutable type: Stdn Collections Vector(AGPU BufferRef).
+        convertedBuffers reserve: theVertexBuffers size.
+        theVertexBuffers do: {:each :: Void |
+            (each getPointer castTo: AgpuBuffer pointer) ifNil: {
+                convertedBuffers add: AGPU BufferRef()
+            } ifNotNil: {:bufferPointer :: Void |
+                convertedBuffers add: bufferPointer _ handle
+            }
+        }.
+
+        handle _ bindVertexBuffersWithOffsets: (convertedBuffers size castTo: UInt32) vertexBuffers: convertedBuffers data offsets: (offsets elements reinterpretCastTo: UInt32 pointer)
 
     }.
 }.
