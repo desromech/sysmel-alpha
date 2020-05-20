@@ -24,14 +24,14 @@ class SoftCanvas superclass: AbstractConcreteCanvas; definition: {
     }.
 
     override method clear ::=> Void := {
-        targetSurface _ pixelsBlitter setAllPixelsToColor: currentStartColor
+        targetSurface _ pixelsBlitter setAllPixelsToColor: paintState simplePaint startColor
     }.
 
     override method fillTriangle: (p1: Float32x2) color: (c1: Float32x4) tc: (tc1: Float32x2)
         p2: (p2: Float32x2) color: (c2: Float32x4) tc: (tc2: Float32x2)
         p3: (p3: Float32x2) color: (c3: Float32x4) tc: (tc3: Float32x2) ::=> Void := {
 
-        self isFullyTransparent ifTrue: {
+        paintState simplePaint isFullyTransparent ifTrue: {
             return: void.
         }.
 
@@ -39,9 +39,9 @@ class SoftCanvas superclass: AbstractConcreteCanvas; definition: {
         let tp2 := transform transformPoint: p2.
         let tp3 := transform transformPoint: p3.
 
-        let mc1 := c1 * (self evaluatePaintColorAt: p1).
-        let mc2 := c2 * (self evaluatePaintColorAt: p2).
-        let mc3 := c3 * (self evaluatePaintColorAt: p3).
+        let mc1 := c1 * (paintState simplePaint evaluateAtPoint: p1).
+        let mc2 := c2 * (paintState simplePaint evaluateAtPoint: p2).
+        let mc3 := c3 * (paintState simplePaint evaluateAtPoint: p3).
 
         targetSurface _ pixelsBlitter
             blendTriangle: tp1 p2: tp2 p3: tp3 pixelsWith: {:(Float32x2)p :(Float32x3)barycentricCoordinates :(Float32x4)originalDestPixelValue :: Float32x4 |
@@ -50,42 +50,7 @@ class SoftCanvas superclass: AbstractConcreteCanvas; definition: {
         }
     }.
 
-    override method fillRectangle: (rectangle: RectangleF32) ::=> Void := {
-        self isFullyTransparent ifTrue: {
-            return: void.
-        }.
-
-        transform isTranslationOnly ifTrue: {
-            let transformedRectangle := rectangle translatedBy: transform translation.
-            let convertedRectangle := RectangleI32 min: (transformedRectangle min floor castTo: Int32x2) max: (transformedRectangle max floor castTo: Int32x2).
-
-            targetSurface _ pixelsBlitter
-                blendRectangle: convertedRectangle pixelsWith: {:(UInt32x2)destPixelCoordinate :(Float32x4)originalDestPixelValue :: Float32x4 |
-                self evaluatePaintColorAt: (destPixelCoordinate castTo: Float32x2)
-            }
-
-        } ifFalse: {
-            self
-                fillTriangle: rectangle bottomLeft p2: rectangle bottomRight p3: rectangle topRight;
-                fillTriangle: rectangle topRight p2: rectangle topLeft p3: rectangle bottomLeft
-        }.
-    }.
-
-    ## Draw the rectangle lines.
-    override method drawSegmentStart: (startPoint: Float32x2) end: (endPoint: Float32x2) ::=> Void := {
-        self isFullyTransparent ifTrue: {
-            return: void.
-        }.
-
-        let transformedStartPoint := transform transformPoint: startPoint.
-        let transformedEndPoint := transform transformPoint: endPoint.
-        targetSurface _ pixelsBlitter
-            blendSegmentStart: (transformedStartPoint floor castTo: Int32x2) end: (transformedEndPoint floor castTo: Int32x2) pixelsWith: {:(UInt32x2)destPixelCoordinate :(Float32x4)originalDestPixelValue :: Float32x4 |
-            self evaluatePaintColorAt: (destPixelCoordinate castTo: Float32x2)
-        }
-    }.
-
-    override method copyTexture: (textureView: TextureView sharedPointer const ref) at: (targetPosition: Float32x2) ::=> Void := {
+    inline method copyTexture: (textureView: TextureView sharedPointer const ref) at: (targetPosition: Float32x2) ::=> Void := {
         let cpuTextureView := textureView getPointer castTo: SoftTextureView pointer.
 
         let sourceBlitter := cpuTextureView _ pixelsBlitter.
@@ -93,12 +58,67 @@ class SoftCanvas superclass: AbstractConcreteCanvas; definition: {
             copyPixelsFrom: sourceBlitter into: (targetPosition floor castTo: Int32x2)
     }.
 
-    override method blendTexture: (textureView: TextureView sharedPointer const ref) at: (targetPosition: Float32x2) ::=> Void := {
+    inline method blendTexture: (textureView: TextureView sharedPointer const ref) at: (targetPosition: Float32x2) ::=> Void := {
         let cpuTextureView := textureView getPointer castTo: SoftTextureView pointer.
 
         let sourceBlitter := cpuTextureView _ pixelsBlitter.
         targetSurface _ pixelsBlitter
-            compositeAlphaBlendPixelsFrom: sourceBlitter withColor: currentStartColor at: (targetPosition floor castTo: Int32x2)
+            compositeAlphaBlendPixelsFrom: sourceBlitter withColor: paintState simplePaint startColor at: (targetPosition floor castTo: Int32x2)
+    }.
+
+    override method fillRectangle: (rectangle: RectangleF32) ::=> Void := {
+        paintState simplePaint isFullyTransparent ifTrue: {
+            return: void.
+        }.
+
+        transform isTranslationOnly ifTrue: {
+            let transformedRectangle := rectangle translatedBy: transform translation.
+            let convertedRectangle := RectangleI32 min: (transformedRectangle min floor castTo: Int32x2) max: (transformedRectangle max floor castTo: Int32x2).
+
+            paintState textureView ifNil: {
+                targetSurface _ pixelsBlitter
+                    blendRectangle: convertedRectangle pixelsWith: {:(UInt32x2)destPixelCoordinate :(Float32x4)originalDestPixelValue :: Float32x4 |
+                    paintState simplePaint evaluateAtPoint: (destPixelCoordinate castTo: Float32x2)
+                }.
+
+                return: void
+            }.
+
+            let softTextureView := paintState textureView getPointer castTo: SoftTextureView pointer.
+            softTextureView _ pixelsBlitter extent = (convertedRectangle extent castTo: UInt32x2) ifTrue: {
+                drawingState blendingMode selectCase: #{
+                BlendingMode Copy : {
+                    self copyTexture: paintState textureView at: transformedRectangle min.
+                    return: void
+                }.
+                BlendingMode CompositeAlphaOver : {
+                    self blendTexture: paintState textureView at: transformedRectangle min.
+                    return: void
+                }.
+                _ : {}
+                }.
+
+                return: void
+            }.
+        }.
+
+        self
+            fillTriangle: rectangle bottomLeft tc: Float32x2(0, 1) p2: rectangle bottomRight tc: Float32x2(1, 1) p3: rectangle topRight tc: Float32x2(1, 0);
+            fillTriangle: rectangle topRight tc: Float32x2(1, 0) p2: rectangle topLeft tc: Float32x2(0, 0) p3: rectangle bottomLeft tc: Float32x2(0, 1)
+    }.
+
+    ## Draw the rectangle lines.
+    override method drawSegmentStart: (startPoint: Float32x2) end: (endPoint: Float32x2) ::=> Void := {
+        paintState simplePaint isFullyTransparent ifTrue: {
+            return: void.
+        }.
+
+        let transformedStartPoint := transform transformPoint: startPoint.
+        let transformedEndPoint := transform transformPoint: endPoint.
+        targetSurface _ pixelsBlitter
+            blendSegmentStart: (transformedStartPoint floor castTo: Int32x2) end: (transformedEndPoint floor castTo: Int32x2) pixelsWith: {:(UInt32x2)destPixelCoordinate :(Float32x4)originalDestPixelValue :: Float32x4 |
+            paintState simplePaint evaluateAtPoint: (destPixelCoordinate castTo: Float32x2)
+        }
     }.
 
     override method drawGlyph: (glyph: Glyph ref) at: (aPosition: Float32x2) ::=> Void := {
@@ -107,7 +127,7 @@ class SoftCanvas superclass: AbstractConcreteCanvas; definition: {
             let sourceBlitter := form _ makeBlitter.
             let drawPosition := transform transformPoint: aPosition + glyph drawOrigin.
             targetSurface _ pixelsBlitter
-                compositeAlphaBlendPixelsFrom: sourceBlitter withColor: currentStartColor
+                compositeAlphaBlendPixelsFrom: sourceBlitter withColor: paintState simplePaint startColor
                 at: (drawPosition floor castTo: Int32x2).
         }.
     }.

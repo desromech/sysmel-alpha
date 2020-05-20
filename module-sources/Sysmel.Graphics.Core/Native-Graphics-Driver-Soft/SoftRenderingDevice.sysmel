@@ -117,13 +117,24 @@ class SoftRenderingDevice superclass: RenderingDevice; definition: {
         let result := SoftFramebuffer sharedNew.
 
         result _ colorAttachments reserve: colorViews size.
+        result _ attachmentTextures reserve: colorViews size + (depthStencilView ifNil: 0u ifNotNil: 1u).
         colorViews do: {:each :: Void |
-            result _ colorAttachments add: (each downCastFor: SoftTextureView)
+            let colorView := each downCastFor: SoftTextureView.
+            colorView ifNil: {
+                return: FramebufferPtr nil
+            }.
+
+            result _ colorAttachments add: colorView.
+            result _ attachmentTextures add: colorView _ texture lock.
         }.
 
         result _
-            extent: extent;
-            depthStencilAttachment: (depthStencilView downCastFor: SoftTextureView).
+            extent: extent.
+        let softDepthStencilView := depthStencilView downCastFor: SoftTextureView.
+        softDepthStencilView ifNotNil: {
+            result _ depthStencilAttachment: softDepthStencilView.
+            result _ attachmentTextures add: softDepthStencilView _ texture lock.
+        }.
 
         result upCastFor: Framebuffer
     }.

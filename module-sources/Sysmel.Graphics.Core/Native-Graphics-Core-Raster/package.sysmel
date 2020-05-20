@@ -23,6 +23,9 @@ loadFileOnce: "RenderingDevice.sysmel".
 loadFileOnce: "TextureView.sysmel".
 loadFileOnce: "Surface.sysmel".
 loadFileOnce: "TextDrawingState.sysmel".
+loadFileOnce: "SimpleLinearGradientPaint.sysmel".
 loadFileOnce: "Canvas.sysmel".
+loadFileOnce: "CanvasDrawingState.sysmel".
+loadFileOnce: "CanvasPaintState.sysmel".
 loadFileOnce: "AbstractConcreteCanvas.sysmel".
 loadFileOnce: "DelegatingCanvas.sysmel".

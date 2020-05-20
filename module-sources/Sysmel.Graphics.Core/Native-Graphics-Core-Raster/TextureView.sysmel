@@ -7,11 +7,6 @@ namespace Core definition: {
  * I am designed to be abstract in order to support GPU based accelerated implementations.
  *#
 class TextureView definition: {
-    #**
-     * This method returns the my extent.
-     *#
-    abstract method extent => UInt32x2.
-
 }.
 
 compileTime constant TextureViewPtr := TextureView sharedPointer.

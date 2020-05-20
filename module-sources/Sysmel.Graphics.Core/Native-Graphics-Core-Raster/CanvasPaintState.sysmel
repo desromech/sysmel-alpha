@@ -1,0 +1,65 @@
+namespace Stdn definition: {
+namespace Graphics definition: {
+namespace Core definition: {
+
+struct CanvasPaintState definition: {
+    public field simplePaint type: SimpleLinearGradientPaint.
+    public field texture type: TexturePtr.
+    public field textureView type: TextureViewPtr.
+
+    method reset => Void := {
+        self := SelfType()
+    }.
+
+    inline method white => Void := {
+        self color: Float32x4 ones.
+    }.
+
+    inline method black => Void := {
+        self color: Float32x4(0, 0, 0, 1).
+    }.
+
+    inline method transparent => Void := {
+        self color: Float32x4 zeros.
+    }.
+
+    inline method color: (srgbColor: UInt8x4) ::=> Void := {
+        simplePaint color: srgbColor
+    }.
+
+    inline method color: (linearColor: Float32x4) ::=> Void := {
+        simplePaint color: linearColor
+    }.
+
+    inline method gradientStart: (theStartColor: UInt8x4) position: (theStartPosition: Float32x2) end: (theEndColor: UInt8x4) position: (theEndPosition: Float32x2) ::=> Void := {
+        simplePaint gradientStart: theStartColor position: theStartPosition end: theEndColor position: theEndPosition
+    }.
+
+    inline method gradientStart: (theStartColor: Float32x4) position: (theStartPosition: Float32x2) end: (theEndColor: Float32x4) position: (theEndPosition: Float32x2) ::=> Void := {
+        simplePaint gradientStart: theStartColor position: theStartPosition end: theEndColor position: theEndPosition
+    }.
+
+    ## This method clear the current texture.
+    inline method noTexture => Void := {
+        texture := TexturePtr nil.
+        textureView := TextureViewPtr nil
+    }.
+
+    const inline method evaluateVertexColorAtPoint: (position: Float32x2) ::=> Float32x4
+        := simplePaint evaluateAtPoint: position.
+
+    macro method restoreAfter: aBlock := {
+        let oldState := __astBuilder gensym: #oldState.
+        ``{
+            let `,oldState := `,self.
+            try: `,aBlock finally: {
+                `,self := `,oldState
+            }.
+        } asSequenceWithoutLexicalScope
+    }.
+}.
+
+
+}. ## End of namespace Core
+}. ## End of namespace Graphics
+}. ## End of namespace Stdn

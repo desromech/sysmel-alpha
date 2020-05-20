@@ -79,15 +79,17 @@ class SoftTexture superclass: Texture; definition: {
 
         ## Create the view.
         let view := SoftTextureView sharedNew.
-        view _ pixelsBlitter: (Blitter()
-            extent: levelExtent xy;
-            pixelFormat: viewDescription format;
-            pitch: pitches x;
-            pixels: (memoryPointer reinterpretCastTo: UInt8 pointer);
-            applyFullClippingBounds;
-            initializeCachedState;
-            yourself
-        ).
+        view _
+            texture: self asWeakPointer;
+            pixelsBlitter: (Blitter()
+                extent: levelExtent xy;
+                pixelFormat: viewDescription format;
+                pitch: pitches x;
+                pixels: (memoryPointer reinterpretCastTo: UInt8 pointer);
+                applyFullClippingBounds;
+                initializeCachedState;
+                yourself
+            ).
 
         view upCastFor: TextureView
     }.

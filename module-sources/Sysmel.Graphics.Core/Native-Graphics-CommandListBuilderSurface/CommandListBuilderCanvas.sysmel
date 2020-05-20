@@ -13,10 +13,8 @@ class CommandListBuilderCanvas superclass: AbstractConcreteCanvas; definition: {
     protected field targetSurface type: CommandListBuilderSurface pointer.
 
     method initializeWithSurface: (theTargetSurface: CommandListBuilderSurface pointer) ::=> Void := {
-        blendingMode := BlendingMode AlphaOver.
         targetSurface := theTargetSurface.
-        currentClipRectangle := RectangleF32 fullSpace.
-        transform setIdentity.
+        self resetCanvasState.
     }.
 
     override method finalize => Void := {
@@ -29,37 +27,45 @@ class CommandListBuilderCanvas superclass: AbstractConcreteCanvas; definition: {
         Stdn stdout << "TODO: clear"; nl
     }.
 
-
     override method fillTriangle: (p1: Float32x2) color: (c1: Float32x4) tc: (tc1: Float32x2)
         p2: (p2: Float32x2) color: (c2: Float32x4) tc: (tc2: Float32x2)
         p3: (p3: Float32x2) color: (c3: Float32x4) tc: (tc3: Float32x2) ::=> Void := {
-        Stdn stdout << "TODO: fillTriangle"; nl.
+
+
+        ## TODO: Validate drawing and paint state.
+        let builder ref := targetSurface _ meshBuilder.
+
+        builder
+            beginTriangles;
+            addVertex: (Mesh2DVertex()
+                position: p1;
+                color: c1;
+                texcoord: tc1;
+                yourself);
+            addVertex: (Mesh2DVertex()
+                position: p2;
+                color: c2;
+                texcoord: tc2;
+                yourself);
+            addVertex: (Mesh2DVertex()
+                position: p3;
+                color: c3;
+                texcoord: tc3;
+                yourself);
+            addTriangle: UInt32x3(0, 1, 2).
     }.
 
-    override method fillRectangle: (rectangle: RectangleF32) ::=> Void := {
-        Stdn stdout << "TODO: fillRectangle"; nl.
-    }.
-
-    ## Draw the rectangle lines.
     override method drawSegmentStart: (startPoint: Float32x2) end: (endPoint: Float32x2) ::=> Void := {
         Stdn stdout << "TODO: drawSegment"; nl.
     }.
 
-    override method copyTexture: (textureView: TextureView sharedPointer const ref) at: (targetPosition: Float32x2) ::=> Void := {
-        Stdn stdout << "TODO: copyTexture"; nl.
-    }.
-
-    override method blendTexture: (textureView: TextureView sharedPointer const ref) at: (targetPosition: Float32x2) ::=> Void := {
-        Stdn stdout << "TODO: blendTexture"; nl.
+    override method doSetClipRectangle: (aRectangle: RectangleF32) ::=> Void := {
+        ## Stdn stdout << "TODO: doSetClipRectangle"; nl.
     }.
 
     override method drawGlyph: (glyph: Glyph ref) at: (aPosition: Float32x2) ::=> Void := {
-        Stdn stdout << "TODO: drawGlyph"; nl.
     }.
 
-    inline method doSetClipRectangle: (aRectangle: RectangleF32) ::=> Void := {
-        Stdn stdout << "TODO: doSetClipRectangle"; nl.
-    }.
 }.
 
 }. ## End of namespace Core

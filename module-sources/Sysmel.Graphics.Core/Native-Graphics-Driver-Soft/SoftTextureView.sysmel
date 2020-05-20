@@ -6,6 +6,7 @@ namespace Core definition: {
  * I am a CPU software based rasterization texture view. I am used blitting pixels into other canvases.
  *#
 class SoftTextureView superclass: TextureView; definition: {
+    public field texture type: SoftTexture weakPointer.
     public field pixelsBlitter type: Blitter.
 
 }.

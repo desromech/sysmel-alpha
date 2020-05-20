@@ -1,0 +1,23 @@
+namespace Stdn definition: {
+namespace Graphics definition: {
+namespace Core definition: {
+
+
+struct CanvasDrawingState definition: {
+    public field blendingMode type: BlendingMode.
+
+    macro method restoreAfter: aBlock := {
+        let oldState := __astBuilder gensym: #oldState.
+        ``{
+            let `,oldState := `,self.
+            try: `,aBlock finally: {
+                `,self := `,oldState
+            }.
+        } asSequenceWithoutLexicalScope
+    }.
+}.
+
+
+}. ## End of namespace Core
+}. ## End of namespace Graphics
+}. ## End of namespace Stdn

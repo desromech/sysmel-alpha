@@ -250,8 +250,17 @@ function doRender3D => Void := {
 function doRenderOn(canvas: Canvas ref) => Void := {
 	doRender3D().
 
-	canvas
-		copyTexture: colorBufferTextureView at: Float32x2 zeros.
+	canvas clear.
+	canvas drawingState restoreAfter: {
+		canvas drawingState blendingMode: BlendingMode Copy.
+
+		canvas paintState restoreAfter: {
+			canvas paintState
+				white;
+				textureView: colorBufferTextureView.
+			canvas fillRectangle: (RectangleF32 extent: Float32x2(640, 480)).
+		}.
+	}.
 
 	{
 		let frameTime := lastFrameRenderingTime * 1000.0f.
@@ -260,9 +269,9 @@ function doRenderOn(canvas: Canvas ref) => Void := {
 			out << "Rendering time " << frameTime << " ms"; nl.
 		}.
 
+		canvas paintState reset; color: Float32x4 green.
 		canvas
 			fontFaceWithSize: fontFaceWithSize;
-			color: Float32x4 green;
 			drawUTF8String: frameTimeString at: Float32x2(15.0f, 30.0f).
 	}.
 

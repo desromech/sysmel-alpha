@@ -7,6 +7,9 @@ namespace Core definition: {
  *#
 class CommandListBuilderSurface superclass: Surface; definition: {
     public field extent type: UInt32x2.
+    public field meshBuilder type: Mesh2DBuilder.
+    ## For converting the font
+    public field renderingDevice type: RenderingDevicePtr.
 
     override method beginDrawingWithCanvas => Canvas uniquePointer := {
         self beginDrawing ifFalse: {
@@ -20,11 +23,15 @@ class CommandListBuilderSurface superclass: Surface; definition: {
         Canvas uniquePointer for: result.
     }.
 
-    method beginDrawing => Boolean8
-        := true.
+    method beginDrawing => Boolean8 := {
+        meshBuilder clear.
+
+        true
+    }.
 
     method endDrawing => Void := {
         Stdn stdout << "CommandListBuilderSurface endDrawing"; nl.
+        Stdn stdout << "mesh " << meshBuilder vertices size << " " << meshBuilder indices size << " " << meshBuilder submeshes size; nl.
     }.
 }.
 

@@ -1,0 +1,59 @@
+namespace Stdn definition: {
+namespace Graphics definition: {
+namespace Core definition: {
+
+useNamespace: Stdn Math LinearAlgebra.
+useNamespace: Stdn Math Geometry.
+
+#**
+ * I am a paint that works by assigning between two interpolated colors to the vertices of a mesh.
+ *#
+struct SimpleLinearGradientPaint definition: {
+    public field startColor type: Float32x4.
+    public field endColor type: Float32x4.
+
+    public field startPosition type: Float32x2.
+    public field gradientVector type: Float32x2.
+
+    const inline method isSingleColor => Boolean8
+        := gradientVector = Float32x2 zeros.
+    const inline method isFullyTransparent => Boolean8
+        := startColor a = 0 && endColor a = 0.
+
+    inline method color: (srgbColor: UInt8x4) ::=> Void := {
+        self color: Stdn Math Color decodeSRGBUnorm8(srgbColor)
+    }.
+
+    inline method color: (linearColor: Float32x4) ::=> Void := {
+        startColor := endColor := linearColor.
+        startPosition := gradientVector := Float32x2 zeros.
+    }.
+
+    inline method gradientStart: (theStartColor: UInt8x4) position: (theStartPosition: Float32x2) end: (theEndColor: UInt8x4) position: (theEndPosition: Float32x2) ::=> Void := {
+        self gradientStart: Stdn Math Color decodeSRGBUnorm8(theStartColor) position: theStartPosition
+            end: Stdn Math Color decodeSRGBUnorm8(theEndColor) position: theEndPosition
+    }.
+
+    inline method gradientStart: (theStartColor: Float32x4) position: (theStartPosition: Float32x2) end: (theEndColor: Float32x4) position: (theEndPosition: Float32x2) ::=> Void := {
+        startColor := theStartColor.
+        endColor := theEndColor.
+        startPosition := theStartPosition.
+
+        let v := theEndPosition - theStartPosition.
+        let l2 := v length2.
+        (l2 closeTo: 0.0) ifTrue: {
+            gradientVector := 0.0f.
+        } ifFalse: {
+            gradientVector := v / l2.
+        }.
+    }.
+
+    const inline method evaluateAtPoint: (position: Float32x2) ::=> Float32x4 := {
+        let alpha := (position - startPosition) dot: gradientVector.
+        startColor interpolateTo: endColor at: (alpha clampMin: 0.0f max: 1.0f)
+    }
+}.
+
+}. ## End of namespace Core
+}. ## End of namespace Graphics
+}. ## End of namespace Stdn
