@@ -7,8 +7,19 @@ useNamespace: Stdn Graphics Core.
 #**
  * I am a agpu based shader signature builder.
  *#
-class AgpuShaderLibraryHandle superclass: ShaderLibraryHandle; definition: {
+sealed class AgpuShaderLibraryHandle superclass: ShaderLibraryHandle; definition: {
     public field handle type: AGPU ShaderRef.
+
+    override method createHandleForEntryPoint: (entryPointInfo: GPU ShaderEntryPointInfo const ref) ::=> ShaderStageHandlePtr := {
+
+        let result := AgpuShaderStageHandle sharedNew.
+        result _
+            libraryHandle: handle;
+            entryPointName: entryPointInfo entryPointSymbol;
+            stageType: (entryPointInfo stageType castTo: AGPU ShaderType).
+
+        result upCastFor: ShaderStageHandle
+    }.
 
 }.
 

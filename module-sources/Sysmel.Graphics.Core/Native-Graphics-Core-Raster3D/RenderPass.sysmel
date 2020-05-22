@@ -7,6 +7,9 @@ namespace Core definition: {
  *#
 class RenderPass superclass: RenderingDriverObjectHandle; definition: {
     abstract method setColorAttachment: (attachmentIndex: UInt32) clearValue: (clearValue: Float32x4) ::=> Void.
+
+    const abstract method colorAttachmentFormats => PixelFormat const arraySlice.
+    const abstract method depthStencilFormat => PixelFormat.
 }.
 
 compileTime constant RenderPassPtr := RenderPass sharedPointer.

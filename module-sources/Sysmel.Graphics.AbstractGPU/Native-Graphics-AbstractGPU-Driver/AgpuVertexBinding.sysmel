@@ -7,8 +7,12 @@ useNamespace: Stdn Graphics Core.
 #**
  * I am a agpu based device.
  *#
-class AgpuVertexBinding superclass: VertexBinding; definition: {
+sealed class AgpuVertexBinding superclass: VertexBinding; definition: {
+    public field vertexLayout type: VertexLayoutPtr.
     public field handle type: AGPU VertexBindingRef.
+
+    override method getVertexLayout => VertexLayoutPtr
+        := vertexLayout.
 
     override method bindVertexBuffers: (theVertexBuffers: VertexBuffers) ::=> Void := {
         let convertedBuffers mutable type: Stdn Collections Vector(AGPU BufferRef).

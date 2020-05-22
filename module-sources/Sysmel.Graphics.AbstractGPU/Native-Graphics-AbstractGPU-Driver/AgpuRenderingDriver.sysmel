@@ -7,7 +7,7 @@ useNamespace: Stdn Graphics Core.
 #**
  * I am a agpu based driver.
  *#
-class AgpuRenderingDriver superclass: RenderingDriver; definition: {
+sealed class AgpuRenderingDriver superclass: RenderingDriver; definition: {
     override method initialize => Void := {
         RenderingDriverRegistry default registerDriver: self address
     }.
@@ -24,7 +24,6 @@ class AgpuRenderingDriver superclass: RenderingDriver; definition: {
 
     method createDefaultDevice => AgpuRenderingDevicePtr := {
         ## Find the platform.
-        Stdn stdout << "Create default agpu device"; nl.
         let agpuPlatform mutable type: AGPU Platform pointer.
         AGPU agpuGetPlatforms(1, agpuPlatform address, nil).
         agpuPlatform ifNil: {
@@ -43,7 +42,7 @@ class AgpuRenderingDriver superclass: RenderingDriver; definition: {
         }.
 
         let result := AgpuRenderingDevice sharedNew.
-        result _ handle: deviceHandle.
+        result _ initializeWithHandle: deviceHandle.
         result
     }.
 

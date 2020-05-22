@@ -7,11 +7,39 @@ useNamespace: Stdn Graphics Core.
 #**
  * I am a agpu based device.
  *#
-class AgpuRenderingDevice superclass: RenderingDevice; definition: {
+sealed class AgpuRenderingDevice superclass: RenderingDevice; definition: {
     public field handle type: AGPU DeviceRef.
 
-    protected field defaultCommandQueue type: AgpuCommandQueuePtr.
-    protected field defaultCommandQueueFetchedFlag type: Stdn OnceFlag.
+    protected field defaultCommandQueue type: CommandQueuePtr.
+    protected field defaultShaderCache type: ShaderCachePtr.
+    protected field defaultPipelineStateCache type: PipelineStateCachePtr.
+
+    protected field nonCoherentAtomSize type: UIntPointer.
+    protected field minMemoryMapAlignment type: UIntPointer.
+    protected field minTexelBufferOffsetAlignment type: UIntPointer.
+    protected field minUniformBufferOffsetAlignment type: UIntPointer.
+    protected field minStorageBufferOffsetAlignment type: UIntPointer.
+
+    method initializeWithHandle: (theHandle: AGPU DeviceRef const ref) ::=> Void := {
+        handle := theHandle.
+
+        nonCoherentAtomSize := (handle _ getLimitValue: AGPU Limit NonCoherentAtomSize) castTo: UIntPointer.
+        minMemoryMapAlignment := (handle _ getLimitValue: AGPU Limit MinMemoryMapAlignment) castTo: UIntPointer.
+        minTexelBufferOffsetAlignment := (handle _ getLimitValue: AGPU Limit MinTexelBufferOffsetAlignment) castTo: UIntPointer.
+        minUniformBufferOffsetAlignment := (handle _ getLimitValue: AGPU Limit MinUniformBufferOffsetAlignment) castTo: UIntPointer.
+        minStorageBufferOffsetAlignment := (handle _ getLimitValue: AGPU Limit MinStorageBufferOffsetAlignment) castTo: UIntPointer.
+
+
+        {
+            let defaultCommandQueueHandle := handle _ getDefaultCommandQueue.
+            let wrapper := AgpuCommandQueue sharedNew.
+            wrapper _ handle: defaultCommandQueueHandle.
+            defaultCommandQueue := wrapper upCastFor: CommandQueue.
+        }.
+
+        defaultShaderCache := self createShaderCache.
+        defaultPipelineStateCache := self createPipelineStateCache.
+    }.
 
     override method createShaderSignatureBuilder ::=> ShaderSignatureBuilderPtr := {
         let builderHandle := handle _ createShaderSignatureBuilder.
@@ -156,7 +184,9 @@ class AgpuRenderingDevice superclass: RenderingDevice; definition: {
         }.
 
         let result := AgpuVertexBinding sharedNew.
-        result _ handle: bindingHandle.
+        result _
+            handle: bindingHandle;
+            vertexLayout: layout.
         result upCastFor: VertexBinding
     }.
 
@@ -203,15 +233,8 @@ class AgpuRenderingDevice superclass: RenderingDevice; definition: {
         result upCastFor: CommandList
     }.
 
-    override method getDefaultCommandQueue => CommandQueuePtr := {
-        defaultCommandQueueFetchedFlag do: {
-            let defaultCommandQueueHandle := handle _ getDefaultCommandQueue.
-            defaultCommandQueue := AgpuCommandQueue sharedNew.
-            defaultCommandQueue _ handle: defaultCommandQueueHandle
-        }.
-
-        defaultCommandQueue upCastFor: CommandQueue
-    }.
+    override method getDefaultCommandQueue => CommandQueuePtr const ref
+        := defaultCommandQueue.
 
     override method createShaderLibraryFromModule: (shaderModule: GPU ShaderModuleInfo const ref) ::=> ShaderLibraryHandlePtr := {
         let shaderHandle := handle _ createShader: AGPU ShaderType Library.
@@ -239,13 +262,7 @@ class AgpuRenderingDevice superclass: RenderingDevice; definition: {
             return: ShaderStageHandlePtr nil
         }.
 
-        let result := AgpuShaderStageHandle sharedNew.
-        result _
-            libraryHandle: (shaderLibrary getPointer castTo: AgpuShaderLibraryHandle pointer) _ handle;
-            entryPointName: entryPointInfo entryPointSymbol;
-            stageType: (entryPointInfo stageType castTo: AGPU ShaderType).
-
-        result upCastFor: ShaderStageHandle
+        shaderLibrary _ createHandleForEntryPoint: entryPointInfo.
     }.
 
     override method createFramebuffer: (extent: UInt32x2) colorViews: (colorViews: TextureViewPtr const arraySlice) depthStencilView: (depthStencilView: TextureViewPtr const ref) ::=> FramebufferPtr := {
@@ -280,10 +297,10 @@ class AgpuRenderingDevice superclass: RenderingDevice; definition: {
         result upCastFor: Framebuffer
     }.
 
-    override method createRenderPass: (colorAttachment: RenderPassColorAttachmentDescription const arraySlice) depthStencilAttachment: (depthAttachment: RenderPassDepthStencilAttachmentDescription const pointer) ::=> RenderPassPtr := {
+    override method createRenderPass: (colorAttachments: RenderPassColorAttachmentDescription const arraySlice) depthStencilAttachment: (depthAttachment: RenderPassDepthStencilAttachmentDescription const pointer) ::=> RenderPassPtr := {
         let convertedColorAttachments mutable type: Stdn Collections Vector(AGPU RenderpassColorAttachmentDescription).
-        convertedColorAttachments reserve: colorAttachment size.
-        colorAttachment do: {:each :: Void |
+        convertedColorAttachments reserve: colorAttachments size.
+        colorAttachments do: {:each :: Void |
             convertedColorAttachments add: (AGPU RenderpassColorAttachmentDescription()
                 format: (each format castTo: AGPU TextureFormat);
                 sample_count: each sampleCount;
@@ -323,7 +340,14 @@ class AgpuRenderingDevice superclass: RenderingDevice; definition: {
         }.
 
         let result := AgpuRenderPass sharedNew.
-        result _ handle: renderPassHandle.
+        result _
+            handle: renderPassHandle;
+            theDepthStencilFormat: (depthAttachment ifNil: {PixelFormat Unknown} ifNotNil: {depthAttachment _ format}).
+        result _ colorAttachmentFormats reserve: colorAttachments size.
+        colorAttachments do: {:each :: Void |
+            result _ colorAttachmentFormats add: each format
+        }.
+
         result upCastFor: RenderPass
     }.
 
@@ -386,6 +410,23 @@ class AgpuRenderingDevice superclass: RenderingDevice; definition: {
 
     override method hasBottomLeftTextureCoordinates => Boolean8
         := handle _ hasBottomLeftTextureCoordinates ~= 0.
+
+    override method nonCoherentAtomSize => UIntPointer
+        := nonCoherentAtomSize.
+    override method minMemoryMapAlignment => UIntPointer
+        := minMemoryMapAlignment.
+    override method minTexelBufferOffsetAlignment => UIntPointer
+        := minTexelBufferOffsetAlignment.
+    override method minUniformBufferOffsetAlignment => UIntPointer
+        := minUniformBufferOffsetAlignment.
+    override method minStorageBufferOffsetAlignment => UIntPointer
+        := minStorageBufferOffsetAlignment.
+
+    override method getDefaultPipelineStateCache => PipelineStateCachePtr const ref
+        := defaultPipelineStateCache.
+
+    override method getDefaultShaderCache => ShaderCachePtr const ref
+        := defaultShaderCache.
 }.
 
 compileTime constant AgpuRenderingDevicePtr := AgpuRenderingDevice sharedPointer.

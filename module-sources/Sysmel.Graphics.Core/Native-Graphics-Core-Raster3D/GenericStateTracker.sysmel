@@ -1,0 +1,426 @@
+namespace Stdn definition: {
+namespace Graphics definition: {
+namespace Core definition: {
+
+useNamespace: Stdn Math Geometry.
+
+#**
+ * I am a state tracker that works by delegating its work into a command list,
+ * and by constructing pipeline states on the fly through a pipeline state cache.
+ *#
+class GenericStateTracker superclass: StateTracker; definition: {
+    public field commandList type: CommandListPtr.
+    public field shaderCache type: ShaderCachePtr.
+    public field pipelineStateCache type: PipelineStateCachePtr.
+
+    protected field graphicsPipelineStateDescription type: GraphicsPipelineStateDescription.
+    protected field graphicsPipelineState type: PipelineStatePtr.
+    protected field hasExplicitGraphicsPipelineState type: Boolean8.
+
+    protected field computePipelineStateDescription type: ComputePipelineStateDescription.
+    protected field computePipelineState type: PipelineStatePtr.
+    protected field hasExplicitComputePipelineState type: Boolean8.
+
+    override method asRenderingDeviceCommandList => CommandList pointer
+        := commandList _ asRenderingDeviceCommandList.
+
+    override method resetState => Void := {
+        graphicsPipelineStateDescription := GraphicsPipelineStateDescription().
+        graphicsPipelineState reset.
+
+        computePipelineStateDescription := ComputePipelineStateDescription().
+        computePipelineState reset.
+    }.
+
+    override method resetFor: (allocator: CommandListAllocatorPtr const ref) initialPipelineState: (initialPipeline: PipelineStatePtr const ref) ::=> Void := {
+        commandList _ resetFor: allocator initialPipelineState: initialPipeline.
+        self resetState.
+    }.
+
+    override method close => Void := {
+        commandList _ close.
+    }.
+
+    method validateGraphicsPipelineState => Boolean8 := {
+        hasExplicitGraphicsPipelineState ifTrue: {return: true}.
+
+        graphicsPipelineState := pipelineStateCache _ getOrCreateGraphicsPipeline: graphicsPipelineStateDescription.
+        graphicsPipelineState ifNotNil: {
+            commandList _ usePipelineState: graphicsPipelineState
+        }.
+
+        graphicsPipelineState isNotNil.
+    }.
+
+    method invalidateGraphicsPipelineState => Void := {
+        graphicsPipelineState reset.
+        hasExplicitGraphicsPipelineState := false.
+    }.
+
+    method validateComputePipelineState => Boolean8 := {
+        hasExplicitComputePipelineState ifTrue: {return: true}.
+
+        computePipelineState := pipelineStateCache _ getOrCreateComputePipeline: computePipelineStateDescription.
+        computePipelineState ifNotNil: {
+            commandList _ usePipelineState: computePipelineState
+        }.
+
+        computePipelineState isNotNil.
+    }.
+
+    method invalidateComputePipelineState => Void := {
+        computePipelineState reset.
+        hasExplicitComputePipelineState := false.
+    }.
+
+    override method vertexShader: (shaderStage: ShaderStageHandlePtr const ref) ::=> Void := {
+        hasExplicitGraphicsPipelineState || graphicsPipelineState isNil || graphicsPipelineStateDescription vertexShader ~= shaderStage ifTrue: {
+            graphicsPipelineStateDescription vertexShader: shaderStage.
+            self invalidateGraphicsPipelineState
+        }.
+    }.
+
+    override method fragmentShader: (shaderStage: ShaderStageHandlePtr const ref) ::=> Void := {
+        hasExplicitGraphicsPipelineState || graphicsPipelineState isNil || graphicsPipelineStateDescription fragmentShader ~= shaderStage ifTrue: {
+            graphicsPipelineStateDescription fragmentShader: shaderStage.
+            self invalidateGraphicsPipelineState
+        }.
+    }.
+
+    override method geometryShader: (shaderStage: ShaderStageHandlePtr const ref) ::=> Void := {
+        hasExplicitGraphicsPipelineState || graphicsPipelineState isNil || graphicsPipelineStateDescription geometryShader ~= shaderStage ifTrue: {
+            graphicsPipelineStateDescription geometryShader: shaderStage.
+            self invalidateGraphicsPipelineState
+        }.
+    }.
+
+    override method tessellationControlShader: (shaderStage: ShaderStageHandlePtr const ref) ::=> Void := {
+        hasExplicitGraphicsPipelineState || graphicsPipelineState isNil || graphicsPipelineStateDescription tessellationControlShader ~= shaderStage ifTrue: {
+            graphicsPipelineStateDescription tessellationControlShader: shaderStage.
+            self invalidateGraphicsPipelineState
+        }.
+
+    }.
+
+    override method tessellationEvaluationShader: (shaderStage: ShaderStageHandlePtr const ref) ::=> Void := {
+        hasExplicitGraphicsPipelineState || graphicsPipelineState isNil || graphicsPipelineStateDescription tessellationEvaluationShader ~= shaderStage ifTrue: {
+            graphicsPipelineStateDescription tessellationEvaluationShader: shaderStage.
+            self invalidateGraphicsPipelineState
+        }.
+    }.
+
+    override method computeShader: (shaderStage: ShaderStageHandlePtr const ref) ::=> Void := {
+        hasExplicitComputePipelineState || computePipelineState isNil || computePipelineStateDescription computeShader ~= shaderStage ifTrue: {
+            computePipelineStateDescription computeShader: shaderStage.
+            self invalidateComputePipelineState
+        }.
+    }.
+
+    override method vertexShader: (entryPointInfo: GPU ShaderEntryPointInfo const pointer) ::=> Void := {
+        entryPointInfo ifNil: {
+            self vertexShader: ShaderStageHandlePtr nil
+        } ifNotNil: {
+            let shaderStage := shaderCache _ getOrCreateShaderStageFromEntryPoint: entryPointInfo _.
+            self vertexShader: shaderStage
+        }
+    }.
+
+    override method fragmentShader: (entryPointInfo: GPU ShaderEntryPointInfo const pointer) ::=> Void := {
+        entryPointInfo ifNil: {
+            self fragmentShader: ShaderStageHandlePtr nil
+        } ifNotNil: {
+            let shaderStage := shaderCache _ getOrCreateShaderStageFromEntryPoint: entryPointInfo _.
+            self fragmentShader: shaderStage
+        }
+    }.
+
+    override method geometryShader: (entryPointInfo: GPU ShaderEntryPointInfo const pointer) ::=> Void := {
+        entryPointInfo ifNil: {
+            self geometryShader: ShaderStageHandlePtr nil
+        } ifNotNil: {
+            let shaderStage := shaderCache _ getOrCreateShaderStageFromEntryPoint: entryPointInfo _.
+            self geometryShader: shaderStage
+        }
+    }.
+
+    override method tessellationControlShader: (entryPointInfo: GPU ShaderEntryPointInfo const pointer) ::=> Void := {
+        entryPointInfo ifNil: {
+            self tessellationControlShader: ShaderStageHandlePtr nil
+        } ifNotNil: {
+            let shaderStage := shaderCache _ getOrCreateShaderStageFromEntryPoint: entryPointInfo _.
+            self tessellationControlShader: shaderStage
+        }
+    }.
+
+    override method tessellationEvaluationShader: (entryPointInfo: GPU ShaderEntryPointInfo const pointer) ::=> Void := {
+        entryPointInfo ifNil: {
+            self tessellationEvaluationShader: ShaderStageHandlePtr nil
+        } ifNotNil: {
+            let shaderStage := shaderCache _ getOrCreateShaderStageFromEntryPoint: entryPointInfo _.
+            self tessellationEvaluationShader: shaderStage
+        }
+    }.
+
+    override method computeShader: (entryPointInfo: GPU ShaderEntryPointInfo const pointer) ::=> Void := {
+        entryPointInfo ifNil: {
+            self computeShader: ShaderStageHandlePtr nil
+        } ifNotNil: {
+            let shaderStage := shaderCache _ getOrCreateShaderStageFromEntryPoint: entryPointInfo _.
+            self computeShader: shaderStage
+        }
+    }.
+
+    override method frontFaceOrientation: (frontFaceOrientation: FrontFaceOrientation) ::=> Void := {
+        hasExplicitGraphicsPipelineState || graphicsPipelineState isNil || graphicsPipelineStateDescription frontFaceOrientation ~= frontFaceOrientation ifTrue: {
+            graphicsPipelineStateDescription frontFaceOrientation: frontFaceOrientation.
+            self invalidateGraphicsPipelineState
+        }.
+
+    }.
+
+    override method faceCullingMode: (faceCullingMode: FaceCullingMode) ::=> Void := {
+        hasExplicitGraphicsPipelineState || graphicsPipelineState isNil || graphicsPipelineStateDescription faceCullingMode ~= faceCullingMode ifTrue: {
+            graphicsPipelineStateDescription faceCullingMode: faceCullingMode.
+            self invalidateGraphicsPipelineState
+        }.
+    }.
+
+    override method polygonMode: (polygonMode: PolygonMode) ::=> Void := {
+        hasExplicitGraphicsPipelineState || graphicsPipelineState isNil || graphicsPipelineStateDescription polygonMode ~= polygonMode ifTrue: {
+            graphicsPipelineStateDescription polygonMode: polygonMode.
+            self invalidateGraphicsPipelineState
+        }.
+    }.
+
+    override method primitiveTopology: (primitiveTopology: PrimitiveTopology) ::=> Void := {
+        hasExplicitGraphicsPipelineState || graphicsPipelineState isNil || graphicsPipelineStateDescription primitiveTopology ~= primitiveTopology ifTrue: {
+            graphicsPipelineStateDescription primitiveTopology: primitiveTopology.
+            self invalidateGraphicsPipelineState
+        }.
+    }.
+
+    override method blendingEquation: (blendingEquation: BlendingEquation const ref) ::=> Void := {
+
+    }.
+
+    method setVertexLayout: (vertexLayout: VertexLayoutPtr) ::=> Void := {
+        hasExplicitGraphicsPipelineState || graphicsPipelineState isNil || graphicsPipelineStateDescription vertexLayout ~= vertexLayout ifTrue: {
+            graphicsPipelineStateDescription vertexLayout: vertexLayout.
+            self invalidateGraphicsPipelineState
+        }.
+    }.
+
+    override method useShaderSignature: (shaderSignature: ShaderSignaturePtr const ref) ::=> Void := {
+        commandList _ useShaderSignature: shaderSignature.
+
+        graphicsPipelineStateDescription shaderSignature: shaderSignature.
+        self invalidateGraphicsPipelineState.
+
+        computePipelineStateDescription shaderSignature: shaderSignature.
+        self invalidateGraphicsPipelineState.
+    }.
+
+    override method setViewport: (rectangle: RectangleI32) ::=> Void := {
+        commandList _ setViewport: rectangle
+    }.
+
+    override method setScissor: (rectangle: RectangleI32) ::=> Void := {
+        commandList _ setScissor: rectangle
+    }.
+
+    override method usePipelineState: (pipelineState: PipelineStatePtr const ref) ::=> Void := {
+        commandList _ usePipelineState: pipelineState.
+        pipelineState ifNil: {return: void}.
+
+        pipelineState _ isGraphicsPipelineState ifTrue: {
+            graphicsPipelineState := pipelineState.
+            hasExplicitGraphicsPipelineState := true.
+            return: void.
+        }.
+
+        pipelineState _ isComputePipelineState ifTrue: {
+            computePipelineState := computePipelineState.
+            hasExplicitComputePipelineState := true.
+            return: void.
+        }.
+    }.
+
+    override method useVertexBinding: (vertexBinding: VertexBindingPtr const ref) ::=> Void := {
+        commandList _ useVertexBinding: vertexBinding.
+
+        vertexBinding ifNil: {
+            self setVertexLayout: VertexLayoutPtr nil
+        } ifNotNil: {
+            self setVertexLayout: vertexBinding _ getVertexLayout
+        }.
+    }.
+
+    override method useIndexBuffer: (buffer: BufferPtr const ref) ::=> Void := {
+        commandList _ useIndexBuffer: buffer
+    }.
+
+    override method useIndexBuffer: (buffer: BufferPtr const ref) at: (offset: UIntPointer) stride: (stride: UIntPointer) ::=> Void := {
+        commandList _ useIndexBuffer: buffer at: offset stride: stride
+    }.
+
+    override method useDrawIndirectBuffer: (buffer: BufferPtr const ref) ::=> Void := {
+        commandList _ useDrawIndirectBuffer: buffer
+    }.
+
+    override method useComputeDispatchIndirectBuffer: (buffer: BufferPtr const ref) ::=> Void := {
+        commandList _ useComputeDispatchIndirectBuffer: buffer
+    }.
+
+    override method useGraphicShaderBindings: (resourcesBinding: ShaderResourceBindingsPtr const ref) ::=> Void := {
+        commandList _ useGraphicShaderBindings: resourcesBinding
+    }.
+
+    override method useComputeShaderBindings: (resourcesBinding: ShaderResourceBindingsPtr const ref) ::=> Void := {
+        commandList _ useComputeShaderBindings: resourcesBinding
+    }.
+
+    override method drawArrays: (vertexCount: UInt32) instanceCount: (instanceCount: UInt32) firstVertex: (firstVertex: UInt32) baseInstance: (baseInstance: UInt32) ::=> Void := {
+        self validateGraphicsPipelineState ifFalse: {
+            return: void
+        }.
+
+        commandList _ drawArrays: vertexCount instanceCount: instanceCount firstVertex: firstVertex baseInstance: baseInstance
+    }.
+
+    override method drawArraysIndirect: (offset: UIntPointer) drawCount: (drawCount: UIntPointer) ::=> Void := {
+        self validateGraphicsPipelineState ifFalse: {
+            return: void
+        }.
+
+        commandList _ drawArraysIndirect: offset drawCount: drawCount
+    }.
+
+    override method drawElements: (indexCount: UInt32) instanceCount: (instanceCount: UInt32) firstIndex: (firstVertex: UInt32) baseVertex: (baseVertex: UInt32) baseInstance: (baseInstance: UInt32) ::=> Void := {
+        self validateGraphicsPipelineState ifFalse: {
+            return: void
+        }.
+
+        commandList _ drawElements: indexCount instanceCount: instanceCount firstIndex: firstVertex baseVertex: baseVertex baseInstance: baseInstance
+    }.
+
+    override method drawElementsIndirect: (offset: UIntPointer) drawCount: (drawCount: UIntPointer) ::=> Void := {
+        self validateGraphicsPipelineState ifFalse: {
+            return: void
+        }.
+
+        commandList _ drawElementsIndirect: offset drawCount: drawCount
+    }.
+
+    override method dispatchCompute: (groupCount: UInt32x3) ::=> Void := {
+        self validateComputePipelineState ifFalse: {
+            return: void
+        }.
+
+        commandList _ dispatchCompute: groupCount
+    }.
+
+    override method dispatchComputeIndirect: (offset: UInt32x3) ::=> Void := {
+        self validateComputePipelineState ifFalse: {
+            return: void
+        }.
+
+        commandList _ dispatchComputeIndirect: offset
+    }.
+
+    override method setStencilReference: (reference: UInt32) ::=> Void := {
+        commandList _ setStencilReference: reference
+    }.
+
+    override method executeBundle: (bundle: CommandList sharedPointer const ref) ::=> Void := {
+        commandList _ executeBundle: bundle.
+    }.
+
+    override method beginRenderPass: (renderPass: RenderPassPtr const ref) on: (framebuffer: FramebufferPtr const ref) contentOnBundle: (contentOnBundle: Boolean8) ::=> Void := {
+        commandList _ beginRenderPass: renderPass on: framebuffer contentOnBundle: contentOnBundle.
+
+        ## Set the color attachment formats.
+        {
+            let colorAttachmentFormats := renderPass _ colorAttachmentFormats.
+            graphicsPipelineStateDescription colorAttachments
+                removeAll;
+                reserve: colorAttachmentFormats size.
+            colorAttachmentFormats do: {:format :: Void |
+                graphicsPipelineStateDescription colorAttachments add: (GraphicsPipelineStateColorAttachmentDescription()
+                    format: format;
+                    colorMask: Boolean8x4(true, true, true, true);
+                    yourself)
+            }.
+        }.
+
+        ## Set the depth stencil attachment format.
+        graphicsPipelineStateDescription depthStencilFormat: renderPass _ depthStencilFormat.
+
+        self invalidateGraphicsPipelineState.
+    }.
+
+    override method endRenderPass ::=> Void := {
+        commandList _ endRenderPass
+    }.
+
+    override method resolveFramebuffer: (source: FramebufferPtr const ref) into: (destination: FramebufferPtr const ref) ::=> Void := {
+        commandList _ resolveFramebuffer: source into: destination
+    }.
+
+    override method resolveTexture: (source: TexturePtr const ref) level: (sourceLevel: UInt32) layer: (sourceLayer: UInt32)
+        into: (destination: TexturePtr const ref) level: (destinationLevel: UInt32) layer: (destinationLayer: UInt32)
+        aspect: (aspect: TextureAspect) ::=> Void := {
+        commandList _ resolveTexture: source level: sourceLevel layer: sourceLayer
+            into: destination level: destinationLevel layer: destinationLayer
+            aspect: aspect
+    }.
+
+    override method pushConstants: (values: UInt8 const pointer) size: (size: UInt32) at: (offset: UInt32) ::=> Void := {
+        commandList _ pushConstants: values size: size at: offset
+    }.
+
+    override method memoryBarrierFrom: (sourceStage: PipelineStageMask) accesses: (sourceAccesses: AccessMask) to: (destStage: PipelineStageMask) accesses: (destAccesses: AccessMask) ::=> Void := {
+        commandList _ memoryBarrierFrom: sourceStage accesses: sourceAccesses to: destStage accesses: destAccesses
+    }.
+
+    override method buffer: (buffer: BufferPtr const ref) offset: (offset: UIntPointer) size: (size: UIntPointer) memoryBarrierFrom: (sourceStage: PipelineStageMask) accesses: (sourceAccesses: AccessMask) to: (destStage: PipelineStageMask) accesses: (destAccesses: AccessMask) ::=> Void := {
+        commandList _ buffer: buffer offset: offset size: size memoryBarrierFrom: sourceStage accesses: sourceAccesses to: destStage accesses: destAccesses
+    }.
+
+    override method texture: (texture: TexturePtr const ref) subresourceRange: (subresourceRange: TextureSubResourceRange) memoryBarrierFrom: (sourceStage: PipelineStageMask) accesses: (sourceAccesses: AccessMask) to: (destStage: PipelineStageMask) accesses: (destAccesses: AccessMask) ::=> Void := {
+        commandList _ texture: texture subresourceRange: subresourceRange memoryBarrierFrom: sourceStage accesses: sourceAccesses to: destStage accesses: destAccesses
+    }.
+
+    override method pushBuffer: (buffer: BufferPtr const ref) transitionBarrierInto: (newUsageMode: BufferUsageMode) ::=> Void := {
+        commandList _ pushBuffer: buffer transitionBarrierInto: newUsageMode
+    }.
+
+    override method pushTexture: (texture: TexturePtr const ref) subresourceRange: (subresourceRange: TextureSubResourceRange) transitionBarrierInto: (newUsageMode: TextureUsageMode) ::=> Void := {
+        commandList _ pushTexture: texture subresourceRange: subresourceRange transitionBarrierInto: newUsageMode
+    }.
+
+    override method popBufferTransitionBarrier ::=> Void := {
+        commandList _ popBufferTransitionBarrier
+    }.
+
+    override method popTextureTransitionBarrier ::=> Void := {
+        commandList _ popTextureTransitionBarrier
+    }.
+
+    override method copyFromBuffer: (sourceBuffer: BufferPtr const ref) offset: (sourceOffset: UIntPointer) into: (destBuffer: BufferPtr const ref) offset: (destOffset: UIntPointer) size: (copySize: UIntPointer) ::=> Void := {
+        commandList _ copyFromBuffer: sourceBuffer offset: sourceOffset into: destBuffer offset: destOffset size: copySize
+    }.
+
+    override method copyFromBuffer: (sourceBuffer: BufferPtr const ref) intoTexture: (destTexture: TexturePtr const ref) region: (copyRegion: BufferImageCopyRegion) ::=> Void := {
+        commandList _ copyFromBuffer: sourceBuffer intoTexture: destTexture region: copyRegion
+    }.
+
+    override method copyFromTexture: (sourceTexture: TexturePtr const ref) intoBuffer: (destBuffer: BufferPtr const ref) region: (copyRegion: BufferImageCopyRegion) ::=> Void := {
+        commandList _ copyFromTexture: sourceTexture intoBuffer: destBuffer region: copyRegion
+    }.
+}.
+
+compileTime constant GenericStateTrackerPtr := GenericStateTracker sharedPointer.
+
+}. ## End of namespace Core
+}. ## End of namespace Graphics
+}. ## End of namespace Stdn

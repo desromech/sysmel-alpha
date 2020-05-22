@@ -8,6 +8,8 @@ useNamespace: Stdn Math Geometry.
  * I am a handle for a command list.
  *#
 class CommandList superclass: RenderingDriverObjectHandle; definition: {
+    virtual method asRenderingDeviceCommandList => CommandList pointer := nil.
+
     abstract method resetFor: (allocator: CommandListAllocatorPtr const ref) initialPipelineState: (initialPipeline: PipelineStatePtr const ref) ::=> Void.
     abstract method close => Void.
 
@@ -43,7 +45,7 @@ class CommandList superclass: RenderingDriverObjectHandle; definition: {
     abstract method buffer: (buffer: BufferPtr const ref) offset: (offset: UIntPointer) size: (size: UIntPointer) memoryBarrierFrom: (sourceStage: PipelineStageMask) accesses: (sourceAccesses: AccessMask) to: (destStage: PipelineStageMask) accesses: (destAccesses: AccessMask) ::=> Void.
     abstract method texture: (texture: TexturePtr const ref) subresourceRange: (subresourceRange: TextureSubResourceRange) memoryBarrierFrom: (sourceStage: PipelineStageMask) accesses: (sourceAccesses: AccessMask) to: (destStage: PipelineStageMask) accesses: (destAccesses: AccessMask) ::=> Void.
     abstract method pushBuffer: (buffer: BufferPtr const ref) transitionBarrierInto: (newUsageMode: BufferUsageMode) ::=> Void.
-    abstract method texture: (texture: TexturePtr const ref) subresourceRange: (subresourceRange: TextureSubResourceRange) transitionBarrierInto: (newUsageMode: TextureUsageMode) ::=> Void.
+    abstract method pushTexture: (texture: TexturePtr const ref) subresourceRange: (subresourceRange: TextureSubResourceRange) transitionBarrierInto: (newUsageMode: TextureUsageMode) ::=> Void.
     abstract method popBufferTransitionBarrier ::=> Void.
     abstract method popTextureTransitionBarrier ::=> Void.
     abstract method copyFromBuffer: (sourceBuffer: BufferPtr const ref) offset: (sourceOffset: UIntPointer) into: (destBuffer: BufferPtr const ref) offset: (destOffset: UIntPointer) size: (copySize: UIntPointer) ::=> Void.

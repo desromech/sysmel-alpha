@@ -7,7 +7,7 @@ useNamespace: Stdn Graphics Core.
 #**
  * I am a agpu based shader signature builder.
  *#
-class AgpuShaderResourceBindings superclass: ShaderResourceBindings; definition: {
+sealed class AgpuShaderResourceBindings superclass: ShaderResourceBindings; definition: {
     public field handle type: AGPU ShaderResourceBindingRef.
 
     override method bindOn: (location: IntPointer) uniformBuffer: (buffer: BufferPtr const ref) ::=> Void := {

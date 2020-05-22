@@ -23,7 +23,6 @@ Trait {
 		'inputChannelTypes',
 		'inputChannelImplementationType',
 		'outputChannelImplementationType',
-		'samplerImplementationType',
 		'systemProvidedTypeTemplates',
 		'defaultGCClassSuperClass',
 		'temporaryReferenceTypes',
@@ -60,7 +59,10 @@ Trait {
 		'nativeTessellationControlShaderIOInterface',
 		'nativeTessellationEvaluationShaderIOInterface',
 		'arraySlicesTypes',
-		'indexOutOfBoundsRaiseFunction'
+		'indexOutOfBoundsRaiseFunction',
+		'sampleTextureImplicitLodFunction',
+		'sampleTextureExplicitLodFunction',
+		'sampleTextureExplicitDerivativesFunction'
 	],
 	#traits : 'TMbndAbstractCompilationTarget',
 	#classTraits : 'TMbndAbstractCompilationTarget classTrait',
@@ -390,8 +392,11 @@ TMbndCoreCompilationTarget >> encodeBootstrapDefinedObjectsForMessagePackWith: g
 		#(
 			"Embedded shaders"
 			shaderEntryPointInfo shaderModuleInfo
+			
+			"Shader CPU simulation"
 			nativeComputeShaderIOInterface nativeVertexShaderIOInterface nativeFragmentShaderIOInterface 			nativeGeometryShaderIOInterface nativeTessellationControlShaderIOInterface
 			nativeTessellationEvaluationShaderIOInterface
+			sampleTextureImplicitLodFunction sampleTextureExplicitLodFunction sampleTextureExplicitDerivativesFunction
 			
 			"RTTI"
 			typeInformationNativeClass typeInformationGCClass 
@@ -1502,13 +1507,33 @@ TMbndCoreCompilationTarget >> referenceFor: addressSpace to: baseType [
 ]
 
 { #category : #accessing }
-TMbndCoreCompilationTarget >> samplerImplementationType [
-	^ samplerImplementationType
+TMbndCoreCompilationTarget >> sampleTextureExplicitDerivativesFunction [
+	^ sampleTextureExplicitDerivativesFunction
 ]
 
 { #category : #accessing }
-TMbndCoreCompilationTarget >> samplerImplementationType: aType [
-	samplerImplementationType := aType
+TMbndCoreCompilationTarget >> sampleTextureExplicitDerivativesFunction: anObject [
+	sampleTextureExplicitDerivativesFunction := anObject
+]
+
+{ #category : #accessing }
+TMbndCoreCompilationTarget >> sampleTextureExplicitLodFunction [
+	^ sampleTextureExplicitLodFunction
+]
+
+{ #category : #accessing }
+TMbndCoreCompilationTarget >> sampleTextureExplicitLodFunction: anObject [
+	sampleTextureExplicitLodFunction := anObject
+]
+
+{ #category : #accessing }
+TMbndCoreCompilationTarget >> sampleTextureImplicitLodFunction [
+	^ sampleTextureImplicitLodFunction
+]
+
+{ #category : #accessing }
+TMbndCoreCompilationTarget >> sampleTextureImplicitLodFunction: anObject [
+	sampleTextureImplicitLodFunction := anObject
 ]
 
 { #category : #accessing }

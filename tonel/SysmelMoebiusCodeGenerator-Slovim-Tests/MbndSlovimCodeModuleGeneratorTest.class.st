@@ -5761,6 +5761,226 @@ MbndSlovimCodeModuleGeneratorTest >> testFloatingPointCast [
 ]
 
 { #category : #tests }
+MbndSlovimCodeModuleGeneratorTest >> testFragmentShaderSampleTextureColor [
+	| shaderImplementation |
+	self evaluateSysmelSource: '
+struct Input definition: {
+	public field texcoord type: Float32x2; location: 0.
+}.
+
+struct Output definition: {
+	public field color type: Float32x4; location: 0.
+}.
+
+class Samplers definition: {
+    public field sampler type: GPUSampler.
+}.
+
+class TexturingState definition: {
+    public field texture type: GPUTexture2D.
+}.
+
+class ShaderInterface definition: {
+	field samplerState type: Samplers bindingSetPointer.
+	field texturingState type: TexturingState bindingSetPointer.
+
+	function shader fragmentShader(stageIn: Input inputChannel, stageOut: Output outputChannel) => Void := { 
+		let color := samplerState _ sampler
+							sample: texturingState _ texture at: stageIn receive texcoord.
+		stageOut send: (Output newValue color: color)
+	}
+}.
+
+';
+	generateSSAModule.
+	
+	shaderImplementation := ssaModule globalNamed: #'_ZN10TestModule15ShaderInterface6shaderERNS0_E12inputChannelINS_5InputEE13outputChannelINS_6OutputEE'.
+	self assert: shaderImplementation asFullSExpressionForTesting equals: #(
+function _ZN10TestModule15ShaderInterface6shaderERNS0_E12inputChannelINS_5InputEE13outputChannelINS_6OutputEE cdecl void
+	arguments (
+		(self (pointer (struct 'class.TestModule::ShaderInterface') generic) ())
+		(stageIn (pointer (struct 'struct.TestModule::Input') function) ())
+		(stageOut (pointer (struct 'struct.TestModule::Output') function) ())
+	)
+	literals (
+	)
+	blocks (
+		(()
+			(nil jump void () () (block 2 body))
+		)
+		(()
+			(nil jump void () () (block 3 tryScope))
+		)
+		(()
+			(nil getElementPointer (pointer (pointer (struct 'class.TestModule::Samplers') bindingSet) generic) () ((local 0 self) (const i32 0) (const i32 0)))
+			(nil load (pointer (struct 'class.TestModule::Samplers') bindingSet) () ((local 5 nil)))
+			(nil getElementPointer (pointer (pointer void generic) bindingSet) () ((local 6 nil) (const i32 0) (const i32 0)))
+			(nil load (pointer void generic) () ((local 7 nil)))
+			(nil getElementPointer (pointer (pointer (struct 'class.TestModule::TexturingState') bindingSet) generic) () ((local 0 self) (const i32 0) (const i32 1)))
+			(nil load (pointer (struct 'class.TestModule::TexturingState') bindingSet) () ((local 9 nil)))
+			(nil getElementPointer (pointer (pointer void generic) bindingSet) () ((local 10 nil) (const i32 0) (const i32 0)))
+			(nil load (pointer void generic) () ((local 11 nil)))
+			(nil load (struct 'struct.TestModule::Input') () ((local 1 stageIn)))
+			(nil extractValue (vector f32 2) () ((local 13 nil)) (0))
+			(nil shuffleVectors (vector f32 4) () ((local 14 nil) (zeroInitialized (vector f32 2))))
+			(nil call (vector f32 4) () ((global 6 __sysmel_sampleTextureImplicitLod) (local 8 nil) (local 12 nil) (local 15 nil)))
+			(nil insertValue (struct 'struct.TestModule::Output') () ((constStruct (struct 'struct.TestModule::Output') ((constVector (vector f32 4) ((const f32 0.0) (const f32 0.0) (const f32 0.0) (const f32 0.0))))) (local 16 nil)) (0))
+			(nil store void () ((local 17 nil) (local 2 stageOut)))
+			(nil returnVoid void () ())
+		)
+	)
+	)
+]
+
+{ #category : #tests }
+MbndSlovimCodeModuleGeneratorTest >> testFragmentShaderSampleTextureColorWithDerivatives [
+	| shaderImplementation |
+	self evaluateSysmelSource: '
+struct Input definition: {
+	public field texcoord type: Float32x2; location: 0.
+}.
+
+struct Output definition: {
+	public field color type: Float32x4; location: 0.
+}.
+
+class Samplers definition: {
+    public field sampler type: GPUSampler.
+}.
+
+class TexturingState definition: {
+    public field texture type: GPUTexture2D.
+}.
+
+class ShaderInterface definition: {
+	field samplerState type: Samplers bindingSetPointer.
+	field texturingState type: TexturingState bindingSetPointer.
+
+	function shader fragmentShader(stageIn: Input inputChannel, stageOut: Output outputChannel) => Void := { 
+		let color := samplerState _ sampler
+							sample: texturingState _ texture at: stageIn receive texcoord dtdx: Float32x2(0.0, 0.0) dtdy: Float32x2(0.0, 0.0).
+		stageOut send: (Output newValue color: color)
+	}
+}.
+
+';
+	generateSSAModule.
+	
+	shaderImplementation := ssaModule globalNamed: #'_ZN10TestModule15ShaderInterface6shaderERNS0_E12inputChannelINS_5InputEE13outputChannelINS_6OutputEE'.
+	self assert: shaderImplementation asFullSExpressionForTesting equals: #(
+function _ZN10TestModule15ShaderInterface6shaderERNS0_E12inputChannelINS_5InputEE13outputChannelINS_6OutputEE cdecl void
+	arguments (
+		(self (pointer (struct 'class.TestModule::ShaderInterface') generic) ())
+		(stageIn (pointer (struct 'struct.TestModule::Input') function) ())
+		(stageOut (pointer (struct 'struct.TestModule::Output') function) ())
+	)
+	literals (
+	)
+	blocks (
+		(()
+			(nil jump void () () (block 2 body))
+		)
+		(()
+			(nil jump void () () (block 3 tryScope))
+		)
+		(()
+			(nil getElementPointer (pointer (pointer (struct 'class.TestModule::Samplers') bindingSet) generic) () ((local 0 self) (const i32 0) (const i32 0)))
+			(nil load (pointer (struct 'class.TestModule::Samplers') bindingSet) () ((local 5 nil)))
+			(nil getElementPointer (pointer (pointer void generic) bindingSet) () ((local 6 nil) (const i32 0) (const i32 0)))
+			(nil load (pointer void generic) () ((local 7 nil)))
+			(nil getElementPointer (pointer (pointer (struct 'class.TestModule::TexturingState') bindingSet) generic) () ((local 0 self) (const i32 0) (const i32 1)))
+			(nil load (pointer (struct 'class.TestModule::TexturingState') bindingSet) () ((local 9 nil)))
+			(nil getElementPointer (pointer (pointer void generic) bindingSet) () ((local 10 nil) (const i32 0) (const i32 0)))
+			(nil load (pointer void generic) () ((local 11 nil)))
+			(nil load (struct 'struct.TestModule::Input') () ((local 1 stageIn)))
+			(nil extractValue (vector f32 2) () ((local 13 nil)) (0))
+			(nil shuffleVectors (vector f32 4) () ((local 14 nil) (zeroInitialized (vector f32 2))))
+			(nil shuffleVectors (vector f32 4) () ((constVector (vector f32 2) ((const f32 0.0) (const f32 0.0))) (zeroInitialized (vector f32 2))))
+			(nil shuffleVectors (vector f32 4) () ((constVector (vector f32 2) ((const f32 0.0) (const f32 0.0))) (zeroInitialized (vector f32 2))))
+			(nil call (vector f32 4) () ((global 6 __sysmel_sampleTextureExplicitDerivatives) (local 8 nil) (local 12 nil) (local 15 nil) (local 16 nil) (local 17 nil)))
+			(nil insertValue (struct 'struct.TestModule::Output') () ((constStruct (struct 'struct.TestModule::Output') ((constVector (vector f32 4) ((const f32 0.0) (const f32 0.0) (const f32 0.0) (const f32 0.0))))) (local 18 nil)) (0))
+			(nil store void () ((local 19 nil) (local 2 stageOut)))
+			(nil returnVoid void () ())
+		)
+	)
+
+	)
+]
+
+{ #category : #tests }
+MbndSlovimCodeModuleGeneratorTest >> testFragmentShaderSampleTextureColorWithLod [
+	| shaderImplementation |
+	self evaluateSysmelSource: '
+struct Input definition: {
+	public field texcoord type: Float32x2; location: 0.
+}.
+
+struct Output definition: {
+	public field color type: Float32x4; location: 0.
+}.
+
+class Samplers definition: {
+    public field sampler type: GPUSampler.
+}.
+
+class TexturingState definition: {
+    public field texture type: GPUTexture2D.
+}.
+
+class ShaderInterface definition: {
+	field samplerState type: Samplers bindingSetPointer.
+	field texturingState type: TexturingState bindingSetPointer.
+
+	function shader fragmentShader(stageIn: Input inputChannel, stageOut: Output outputChannel) => Void := { 
+		let color := samplerState _ sampler
+							sample: texturingState _ texture at: stageIn receive texcoord lod: 0.0.
+		stageOut send: (Output newValue color: color)
+	}
+}.
+
+';
+	generateSSAModule.
+	
+	shaderImplementation := ssaModule globalNamed: #'_ZN10TestModule15ShaderInterface6shaderERNS0_E12inputChannelINS_5InputEE13outputChannelINS_6OutputEE'.
+	self assert: shaderImplementation asFullSExpressionForTesting equals: #(
+function _ZN10TestModule15ShaderInterface6shaderERNS0_E12inputChannelINS_5InputEE13outputChannelINS_6OutputEE cdecl void
+	arguments (
+		(self (pointer (struct 'class.TestModule::ShaderInterface') generic) ())
+		(stageIn (pointer (struct 'struct.TestModule::Input') function) ())
+		(stageOut (pointer (struct 'struct.TestModule::Output') function) ())
+	)
+	literals (
+	)
+	blocks (
+		(()
+			(nil jump void () () (block 2 body))
+		)
+		(()
+			(nil jump void () () (block 3 tryScope))
+		)
+		(()
+			(nil getElementPointer (pointer (pointer (struct 'class.TestModule::Samplers') bindingSet) generic) () ((local 0 self) (const i32 0) (const i32 0)))
+			(nil load (pointer (struct 'class.TestModule::Samplers') bindingSet) () ((local 5 nil)))
+			(nil getElementPointer (pointer (pointer void generic) bindingSet) () ((local 6 nil) (const i32 0) (const i32 0)))
+			(nil load (pointer void generic) () ((local 7 nil)))
+			(nil getElementPointer (pointer (pointer (struct 'class.TestModule::TexturingState') bindingSet) generic) () ((local 0 self) (const i32 0) (const i32 1)))
+			(nil load (pointer (struct 'class.TestModule::TexturingState') bindingSet) () ((local 9 nil)))
+			(nil getElementPointer (pointer (pointer void generic) bindingSet) () ((local 10 nil) (const i32 0) (const i32 0)))
+			(nil load (pointer void generic) () ((local 11 nil)))
+			(nil load (struct 'struct.TestModule::Input') () ((local 1 stageIn)))
+			(nil extractValue (vector f32 2) () ((local 13 nil)) (0))
+			(nil shuffleVectors (vector f32 4) () ((local 14 nil) (zeroInitialized (vector f32 2))))
+			(nil call (vector f32 4) () ((global 6 __sysmel_sampleTextureExplicitLod) (local 8 nil) (local 12 nil) (local 15 nil) (const f32 0.0)))
+			(nil insertValue (struct 'struct.TestModule::Output') () ((constStruct (struct 'struct.TestModule::Output') ((constVector (vector f32 4) ((const f32 0.0) (const f32 0.0) (const f32 0.0) (const f32 0.0))))) (local 16 nil)) (0))
+			(nil store void () ((local 17 nil) (local 2 stageOut)))
+			(nil returnVoid void () ())
+		)
+	)
+
+	)
+]
+
+{ #category : #tests }
 MbndSlovimCodeModuleGeneratorTest >> testFragmentShaderSolidColorIO [
 	| shaderController |
 	self 

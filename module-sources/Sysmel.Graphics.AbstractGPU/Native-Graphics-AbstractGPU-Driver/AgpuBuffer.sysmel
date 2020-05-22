@@ -7,7 +7,7 @@ useNamespace: Stdn Graphics Core.
 #**
  * I am a agpu based device.
  *#
-class AgpuBuffer superclass: Buffer; definition: {
+sealed class AgpuBuffer superclass: Buffer; definition: {
     public field handle type: AGPU BufferRef.
     public field creationDescription type: BufferDescription.
 

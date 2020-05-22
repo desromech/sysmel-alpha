@@ -1,13 +1,15 @@
 namespace Stdn definition: {
 namespace Graphics definition: {
-namespace Core definition: {
+namespace CanvasMesh2D definition: {
 
-struct Mesh2DVertex definition: {
+useNamespace: Stdn Graphics Core.
+
+struct MeshVertex definition: {
     public field position type: Float32x2; location: 0.
     public field texcoord type: Float32x2; location: 2.
     public field color type: Float32x4; location: 1.
 }.
 
-}. ## End of namespace Core
+}. ## End of namespace CanvasMesh2D
 }. ## End of namespace Graphics
 }. ## End of namespace Stdn

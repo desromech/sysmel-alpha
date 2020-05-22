@@ -16,6 +16,7 @@ class RenderingDevice superclass: RenderingDriverObjectHandle; definition: {
 }.
 
 compileTime constant RenderingDevicePtr := RenderingDevice sharedPointer.
+compileTime constant RenderingDeviceWeakPtr := RenderingDevice weakPointer.
 
 }. ## End of namespace Core
 }. ## End of namespace Graphics

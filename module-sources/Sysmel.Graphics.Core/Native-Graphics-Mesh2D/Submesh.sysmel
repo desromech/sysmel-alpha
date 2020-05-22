@@ -1,8 +1,10 @@
 namespace Stdn definition: {
 namespace Graphics definition: {
-namespace Core definition: {
+namespace CanvasMesh2D definition: {
 
-struct Submesh2D definition: {
+useNamespace: Stdn Graphics Core.
+
+struct Submesh definition: {
     public field primitiveTopology type: PrimitiveTopology.
     public field firstIndex type: UInt32.
     public field indexCount type: UInt32.
@@ -12,6 +14,6 @@ struct Submesh2D definition: {
     public field textureView type: TextureViewPtr.
 }.
 
-}. ## End of namespace Core
+}. ## End of namespace CanvasMesh2D
 }. ## End of namespace Graphics
 }. ## End of namespace Stdn

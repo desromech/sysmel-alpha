@@ -120,6 +120,9 @@ class SoftCommandList superclass: CommandList; definition: {
     public field commandListType type: CommandListType.
     protected field commands type: Stdn Collections Vector(QueuedCommandFunction).
 
+    override method asRenderingDeviceCommandList => CommandList pointer
+        := self address.
+
     override method resetFor: (allocator: CommandListAllocatorPtr const ref) initialPipelineState: (initialPipeline: PipelineStatePtr const ref) ::=> Void := {
         commands removeAll
     }.
@@ -299,7 +302,7 @@ class SoftCommandList superclass: CommandList; definition: {
 
     }.
 
-    override method texture: (texture: TexturePtr const ref) subresourceRange: (subresourceRange: TextureSubResourceRange) transitionBarrierInto: (newUsageMode: TextureUsageMode) ::=> Void := {
+    override method pushTexture: (texture: TexturePtr const ref) subresourceRange: (subresourceRange: TextureSubResourceRange) transitionBarrierInto: (newUsageMode: TextureUsageMode) ::=> Void := {
 
     }.
 

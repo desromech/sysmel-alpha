@@ -1,0 +1,42 @@
+namespace Stdn definition: {
+namespace Graphics definition: {
+namespace Core definition: {
+
+useNamespace: Stdn Math Geometry.
+
+#**
+ * I am a handle for a state tracker. A state tracker is a convenience way for
+ * constructing a command list and pipeline state objects by emulating
+ * OpenGL 2x and Direct3D 11 API style. In some old backends this may in fact
+ * be the only supported backend.
+ *#
+class StateTracker superclass: CommandList; definition: {
+    abstract method resetState => Void.
+
+    abstract method vertexShader: (shaderStage: ShaderStageHandlePtr const ref) ::=> Void.
+    abstract method fragmentShader: (shaderStage: ShaderStageHandlePtr const ref) ::=> Void.
+    abstract method geometryShader: (shaderStage: ShaderStageHandlePtr const ref) ::=> Void.
+    abstract method tessellationControlShader: (shaderStage: ShaderStageHandlePtr const ref) ::=> Void.
+    abstract method tessellationEvaluationShader: (shaderStage: ShaderStageHandlePtr const ref) ::=> Void.
+    abstract method computeShader: (shaderStage: ShaderStageHandlePtr const ref) ::=> Void.
+
+    abstract method vertexShader: (entryPointInfo: GPU ShaderEntryPointInfo const pointer) ::=> Void.
+    abstract method fragmentShader: (entryPointInfo: GPU ShaderEntryPointInfo const pointer) ::=> Void.
+    abstract method geometryShader: (entryPointInfo: GPU ShaderEntryPointInfo const pointer) ::=> Void.
+    abstract method tessellationControlShader: (entryPointInfo: GPU ShaderEntryPointInfo const pointer) ::=> Void.
+    abstract method tessellationEvaluationShader: (entryPointInfo: GPU ShaderEntryPointInfo const pointer) ::=> Void.
+    abstract method computeShader: (entryPointInfo: GPU ShaderEntryPointInfo const pointer) ::=> Void.
+
+    abstract method frontFaceOrientation: (frontFaceOrientation: FrontFaceOrientation) ::=> Void.
+    abstract method faceCullingMode: (faceCullingMode: FaceCullingMode) ::=> Void.
+    abstract method polygonMode: (polygonMode: PolygonMode) ::=> Void.
+    abstract method primitiveTopology: (primitiveTopology: PrimitiveTopology) ::=> Void.
+
+    abstract method blendingEquation: (blendingEquation: BlendingEquation const ref) ::=> Void.
+}.
+
+compileTime constant StateTrackerPtr := StateTracker sharedPointer.
+
+}. ## End of namespace Core
+}. ## End of namespace Graphics
+}. ## End of namespace Stdn

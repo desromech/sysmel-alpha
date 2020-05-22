@@ -8,6 +8,14 @@ namespace Core definition: {
 struct ComputePipelineStateDescription definition: {
     public field shaderSignature type: ShaderSignaturePtr.
     public field computeShader type: ShaderStageHandlePtr.
+
+    const method = (other: SelfType const ref) ::=> Boolean8
+        := shaderSignature = other shaderSignature && computeShader = other computeShader.
+    Stdn Utility NotEqualsMethodMixin.
+
+    const method hash => Stdn Hash
+        := shaderSignature hash ^ computeShader hash.
+
 }.
 
 }. ## End of namespace Core

@@ -7,7 +7,7 @@ useNamespace: Stdn Graphics Core.
 #**
  * I am a agpu based shader signature builder.
  *#
-class AgpuShaderStageHandle superclass: ShaderStageHandle; definition: {
+sealed class AgpuShaderStageHandle superclass: ShaderStageHandle; definition: {
     public field libraryHandle type: AGPU ShaderRef.
     public field entryPointName type: Stdn String.
     public field stageType type: AGPU ShaderType.

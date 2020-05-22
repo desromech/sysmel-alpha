@@ -47,6 +47,7 @@ loadFileOnce: "ShaderResourceBindings.sysmel".
 loadFileOnce: "ShaderSignature.sysmel".
 loadFileOnce: "ShaderSignatureBuilder.sysmel".
 loadFileOnce: "ShaderStageHandle.sysmel".
+loadFileOnce: "ShaderCache.sysmel".
 loadFileOnce: "SwapChain.sysmel".
 loadFileOnce: "PipelineState.sysmel".
 loadFileOnce: "ComputePipelineState.sysmel".
@@ -55,4 +56,11 @@ loadFileOnce: "CommandListAllocator.sysmel".
 loadFileOnce: "CommandList.sysmel".
 loadFileOnce: "CommandListType.sysmel".
 loadFileOnce: "CommandQueue.sysmel".
+loadFileOnce: "PipelineStateCache.sysmel".
+loadFileOnce: "StateTracker.sysmel".
 loadFileOnce: "RenderingDevice.sysmel".
+
+## Generic state tracker implementations.
+loadFileOnce: "GenericShaderCache.sysmel".
+loadFileOnce: "GenericPipelineStateCache.sysmel".
+loadFileOnce: "GenericStateTracker.sysmel".

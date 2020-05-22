@@ -158,8 +158,8 @@ GenericLinearAlgebra extend: {
                     let yAxisFactor := invertedY ifTrue: Vector4 ones negated ifFalse: Vector4 ones.
 
                     Matrix4x4 rows: (
-                        Vector4(2*near /(right - left), 0, 0, ((right + left) / (right - left)) negated),
-                        Vector4(0, 2*near /(top - bottom), 0, ((top + bottom) / (top - bottom)) negated) * yAxisFactor,
+                        Vector4(2 /(right - left), 0, 0, ((right + left) / (right - left)) negated),
+                        Vector4(0, 2 /(top - bottom), 0, ((top + bottom) / (top - bottom)) negated) * yAxisFactor,
                         Vector4(0, 0, -1 / (far - near), near / (far - near)),
                         Vector4(0, 0, 0, 1)
                     )
@@ -197,8 +197,8 @@ GenericLinearAlgebra extend: {
                     let yAxisFactor := invertedY ifTrue: Vector4 ones negated ifFalse: Vector4 ones.
 
                     Matrix4x4 rows: (
-                        Vector4(2*near /(right - left), 0, 0, ((right + left) / (right - left)) negated),
-                        Vector4(0, 2*near /(top - bottom), 0, ((top + bottom) / (top - bottom)) negated) * yAxisFactor,
+                        Vector4(2 /(right - left), 0, 0, ((right + left) / (right - left)) negated),
+                        Vector4(0, 2 /(top - bottom), 0, ((top + bottom) / (top - bottom)) negated) * yAxisFactor,
                         Vector4(0, 0, 1 / (far - near), far / (far - near)),
                         Vector4(0, 0, 0, 1)
                     )

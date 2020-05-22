@@ -7,7 +7,7 @@ useNamespace: Stdn Graphics Core.
 #**
  * I am a agpu based shader signature builder.
  *#
-class AgpuCommandListAllocator superclass: CommandListAllocator; definition: {
+sealed class AgpuCommandListAllocator superclass: CommandListAllocator; definition: {
     public field handle type: AGPU CommandAllocatorRef.
 
     override method resetAllocator => Void := {

@@ -8,9 +8,13 @@ namespace Core definition: {
  *#
 class SoftRenderingDevice superclass: RenderingDevice; definition: {
     field defaultCommandQueue type: CommandQueuePtr.
+    field defaultShaderCache type: ShaderCachePtr.
+    field defaultPipelineStateCache type: PipelineStateCachePtr.
 
     override method initialize => Void := {
         defaultCommandQueue := SoftCommandQueue sharedNew upCastFor: CommandQueue.
+        defaultShaderCache := self createShaderCache.
+        defaultPipelineStateCache := self createPipelineStateCache.
     }.
 
     override method isSoftRenderingDevice => Boolean8
@@ -149,14 +153,13 @@ class SoftRenderingDevice superclass: RenderingDevice; definition: {
                 hasDepthStencilAttachment: true;
                 depthStencilAttachment: depthStencilAttachment _.
         }.
+        result _ extractColorAttachmentFormats.
 
         result upCastFor: RenderPass
     }.
 
-    override method getDefaultCommandQueue => CommandQueuePtr := {
-        defaultCommandQueue
-    }.
-
+    override method getDefaultCommandQueue => CommandQueuePtr const ref
+        := defaultCommandQueue.
 
     override method createFence => FencePtr := {
         SoftFence sharedNew upCastFor: Fence
@@ -180,6 +183,12 @@ class SoftRenderingDevice superclass: RenderingDevice; definition: {
 
     override method hasBottomLeftTextureCoordinates => Boolean8
         := false.
+
+    override method getDefaultPipelineStateCache => PipelineStateCachePtr const ref
+        := defaultPipelineStateCache.
+
+    override method getDefaultShaderCache => ShaderCachePtr const ref
+        := defaultShaderCache.
 }.
 
 }. ## End of namespace Core

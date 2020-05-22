@@ -1,0 +1,48 @@
+namespace Stdn definition: {
+namespace Graphics definition: {
+namespace CanvasMesh2D definition: {
+
+useNamespace: Stdn Graphics Core.
+
+class SimpleShader superclass: CanvasMesh2DShaderSignature; definition: {
+    class FragmentOutput definition: {
+        public field color0 type: Float32x4; location: 0.
+    }.
+
+    function vertex vertexShader(in: MeshVertex inputChannel, out: MeshVertex outputChannel, stageOut: GPU VertexStageOutput outputChannel) => Void := {
+        let input := in receive.
+
+        let worldPosition := self drawingState modelMatrix * Float32x4(input position, 0.0f, 1.0f).
+        let viewPosition := self cameraState viewMatrix * worldPosition.
+        let screenPosition := self cameraState projectionMatrix * viewPosition.
+
+        let output mutable := input.
+        output position: worldPosition xy.
+        out send: output.
+
+        stageOut send: (GPU VertexStageOutput()
+            screenPosition: screenPosition;
+            yourself
+        ).
+    }.
+
+    function coloredFragment fragmentShader(stageIn: MeshVertex inputChannel, out: FragmentOutput outputChannel) => Void := {
+        out send: (FragmentOutput()
+            color0: stageIn receive color;
+            yourself)
+    }.
+
+    function texturedFragment fragmentShader(stageIn: MeshVertex inputChannel, out: FragmentOutput outputChannel) => Void := {
+        let input := stageIn receive.
+
+        let textureColor := samplingState _ sampler sample: drawingStateBinding _ texture at: input texcoord.
+
+        out send: (FragmentOutput()
+            color0: input color*textureColor;
+            yourself)
+    }.
+}.
+
+}. ## End of namespace CanvasMesh2D
+}. ## End of namespace Graphics
+}. ## End of namespace Stdn

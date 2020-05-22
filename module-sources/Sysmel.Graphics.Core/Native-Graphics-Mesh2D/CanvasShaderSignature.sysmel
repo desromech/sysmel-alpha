@@ -1,0 +1,41 @@
+namespace Stdn definition: {
+namespace Graphics definition: {
+namespace CanvasMesh2D definition: {
+
+useNamespace: Stdn Graphics Core.
+
+struct SamplingState definition: {
+    public field sampler type: GPU Sampler.
+}.
+
+struct CameraState definition: {
+    public field projectionMatrix type: Float32x4x4.
+    public field viewMatrix type: Float32x4x4.
+}.
+
+struct DrawingState definition: {
+    public field modelMatrix type: Float32x4x4.
+}.
+
+struct CameraStateBinding definition: {
+    public field state type: CameraState uniformBufferPointer.
+}.
+
+struct DrawingStateBinding definition: {
+    public field drawingState type: DrawingState uniformBufferPointer.
+    public field texture type: GPU Texture2D.
+}.
+
+class CanvasMesh2DShaderSignature definition: {
+    public field samplingState type: SamplingState bindingSetPointer.
+    public field cameraStateBinding type: CameraStateBinding bindingSetPointer.
+    public field drawingStateBinding type: DrawingStateBinding bindingSetPointer.
+
+    macro method cameraState := ``(`,self cameraStateBinding _ state _).
+    macro method drawingState := ``(`,self drawingStateBinding _ drawingState _).
+}.
+
+
+}. ## End of namespace CanvasMesh2D
+}. ## End of namespace Graphics
+}. ## End of namespace Stdn

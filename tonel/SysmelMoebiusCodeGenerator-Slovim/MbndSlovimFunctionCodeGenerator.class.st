@@ -383,6 +383,21 @@ MbndSlovimFunctionCodeGenerator >> executeScopeCleanUpActions: cleanUpScope exce
 ]
 
 { #category : #visiting }
+MbndSlovimFunctionCodeGenerator >> expandTexcoord: texcoord toCanonicalCPUTexcoordFor: textureType [
+	| texcoordSize zeroVector dimensionMask arrayMask zeroMask |
+	texcoordSize := texcoord type elements.
+	texcoordSize = 4 ifTrue: [ ^ texcoord ].
+	zeroVector := SLVMConstant zeroInitializer: texcoord type.
+	
+	dimensionMask := (0 to: textureType dimensions - 1) asArray.
+	arrayMask := textureType layered
+		ifTrue: [ { texcoord elements - 1 } ]
+		ifFalse: [ #() ].
+	zeroMask := (0 to: 4 - (dimensionMask size + arrayMask size) - 1) collect: [ :i | texcoordSize ].
+	^ slvmBuilder shuffleVector: texcoord with: zeroVector components: dimensionMask , zeroMask , arrayMask
+]
+
+{ #category : #visiting }
 MbndSlovimFunctionCodeGenerator >> extractColumns: columns elementAsVector: element [
 	| halfSize leftHalf rightHalf leftHalfType rightHalfType returnType |
 	columns size = 1 ifTrue: [
@@ -3442,7 +3457,16 @@ MbndSlovimFunctionCodeGenerator >> visitSampleTextureWithExplicitDerivativesNode
 		^ slvmBuilder sample: combinedSampler atCoord: texcoord dtdx: dtdx dtdy: dtdy
 	].
 
-	self halt
+	texcoord := self expandTexcoord: texcoord toCanonicalCPUTexcoordFor: node texture type.
+	self assert: texcoord type elements = 4.
+
+	dtdx := self expandTexcoord: dtdx toCanonicalCPUTexcoordFor: node texture type.
+	self assert: dtdx type elements = 4.
+
+	dtdy := self expandTexcoord: dtdy toCanonicalCPUTexcoordFor: node texture type.
+	self assert: dtdy type elements = 4.
+	
+	^ slvmBuilder call: codeModuleGenerator sampleTextureExplicitDerivativesFunction arguments: { sampler . texture . texcoord . dtdx . dtdy}
 ]
 
 { #category : #visiting }
@@ -3457,7 +3481,10 @@ MbndSlovimFunctionCodeGenerator >> visitSampleTextureWithExplicitLodNode: node [
 		^ slvmBuilder sample: combinedSampler explicitLod: lod atCoord: texcoord
 	].
 
-	self halt
+
+	texcoord := self expandTexcoord: texcoord toCanonicalCPUTexcoordFor: node texture type.
+	self assert: texcoord type elements = 4.
+	^ slvmBuilder call: codeModuleGenerator sampleTextureExplicitLodFunction arguments: { sampler . texture . texcoord . lod}
 ]
 
 { #category : #visiting }
@@ -3471,7 +3498,9 @@ MbndSlovimFunctionCodeGenerator >> visitSampleTextureWithImplicitLodNode: node [
 		^ slvmBuilder sample: combinedSampler implicitLodAtCoord: texcoord
 	].
 
-	self halt
+	texcoord := self expandTexcoord: texcoord toCanonicalCPUTexcoordFor: node texture type.
+	self assert: texcoord type elements = 4.
+	^ slvmBuilder call: codeModuleGenerator sampleTextureImplicitLodFunction arguments: { sampler . texture . texcoord }
 ]
 
 { #category : #visiting }

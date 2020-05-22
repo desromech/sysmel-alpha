@@ -321,9 +321,7 @@ MbndSlovimTypeTranslator >> visitReferenceType: referenceType [
 
 { #category : #visiting }
 MbndSlovimTypeTranslator >> visitSamplerType: type [
-	codeModuleGenerator compilationTarget samplerImplementationType ifNotNil: [ :targetType | ^ self translateType: type ].
-	codeModuleGenerator compilationTarget dynamicObjectType ifNotNil: [ :targetType | ^ self translateType: type ].
-	^ self slvmCompilationTarget dynamicObjectType
+	^ self slvmCompilationTarget voidPointerType
 ]
 
 { #category : #visiting }
@@ -373,8 +371,7 @@ MbndSlovimTypeTranslator >> visitTemporaryReferenceType: referenceType [
 
 { #category : #visiting }
 MbndSlovimTypeTranslator >> visitTextureType: type [
-	codeModuleGenerator compilationTarget dynamicObjectType ifNotNil: [ :targetType | ^ self translateType: type ].
-	^ self slvmCompilationTarget dynamicObjectType
+	^ self slvmCompilationTarget voidPointerType
 ]
 
 { #category : #visiting }

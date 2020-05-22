@@ -7,7 +7,7 @@ useNamespace: Stdn Graphics Core.
 #**
  * I am a agpu based shader signature builder.
  *#
-class AgpuGraphicsPipelineState superclass: GraphicsPipelineState; definition: {
+sealed class AgpuGraphicsPipelineState superclass: GraphicsPipelineState; definition: {
     public field handle type: AGPU PipelineStateRef.
 
 }.

@@ -1,0 +1,61 @@
+namespace Stdn definition: {
+namespace Graphics definition: {
+namespace Core definition: {
+
+#**
+ * I am a handle for a shader cache.
+ *#
+class GenericShaderCache superclass: ShaderCache; definition: {
+    public field device type: RenderingDeviceWeakPtr.
+    protected field mutex type: Stdn Mutex.
+    protected field shaderModuleCache type: Stdn Collections Dictionary(GPU ShaderModuleInfo const pointer, ShaderLibraryHandlePtr).
+    protected field shaderStageCache type: Stdn Collections Dictionary(GPU ShaderEntryPointInfo const pointer, ShaderStageHandlePtr).
+
+    override method getOrCreateShaderLibraryFromModule: (shaderModule: GPU ShaderModuleInfo const ref) ::=> ShaderLibraryHandlePtr := {
+        ## Find the stage in the cache.
+        mutex withLock: {
+            shaderModuleCache at: shaderModule address ifPresent: {:(ShaderLibraryHandlePtr ref)cached :: Void |
+                return: cached
+            }.
+        }.
+
+        let strongDevice := device lock.
+        strongDevice ifNil: {
+            return: ShaderLibraryHandlePtr nil
+        }.
+
+        let libraryHandle := strongDevice _ createShaderLibraryFromModule: shaderModule.
+        mutex withLock: {
+            shaderModuleCache at: shaderModule address put: libraryHandle
+        }.
+
+        return: libraryHandle
+    }.
+
+    override method getOrCreateShaderStageFromEntryPoint: (entryPointInfo: GPU ShaderEntryPointInfo const ref) ::=> ShaderStageHandlePtr := {
+        ## Find the stage in the cache.
+        mutex withLock: {
+            shaderStageCache at: entryPointInfo address ifPresent: {:(ShaderStageHandlePtr ref)cached :: Void |
+                return: cached
+            }.
+        }.
+
+        let shaderLibrary := self getOrCreateShaderLibraryFromModule: entryPointInfo moduleInfo _.
+        shaderLibrary ifNil: {
+            return: ShaderStageHandlePtr nil
+        }.
+
+        let shaderStageHandle := shaderLibrary _ createHandleForEntryPoint: entryPointInfo.
+        mutex withLock: {
+            shaderStageCache at: entryPointInfo address put: shaderStageHandle
+        }.
+
+        shaderStageHandle.
+    }
+}.
+
+compileTime constant GenericShaderCachePtr := GenericShaderCache sharedPointer.
+
+}. ## End of namespace Core
+}. ## End of namespace Graphics
+}. ## End of namespace Stdn

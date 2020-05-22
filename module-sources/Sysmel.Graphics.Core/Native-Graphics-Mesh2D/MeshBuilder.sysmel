@@ -1,0 +1,69 @@
+namespace Stdn definition: {
+namespace Graphics definition: {
+namespace CanvasMesh2D definition: {
+
+useNamespace: Stdn Graphics Core.
+
+struct MeshBuilder definition: {
+    public field vertices type: Stdn Collections Vector(MeshVertex).
+    public field indices type: Stdn Collections Vector(UInt16).
+    public field submeshes type: Stdn Collections Vector(Submesh).
+
+    protected field logicalBaseVertex type: UInt32.
+
+    method clear => Void := {
+        vertices removeAll.
+        indices removeAll.
+        submeshes removeAll.
+        logicalBaseVertex := 0.
+    }.
+
+    inline method finishLastSubmesh => Void := {
+        submeshes ifEmpty: {return: void}.
+
+        let lastSubmesh ref := submeshes last.
+        lastSubmesh indexCount: (indices size - lastSubmesh firstIndex castTo: UInt32).
+    }.
+
+    inline method beginSubmesh: (primitiveTopology: PrimitiveTopology) drawingState: (drawingState: CanvasDrawingState const ref)
+        texture: (texture: TexturePtr const ref) textureView: (textureView: TextureViewPtr const ref) ::=> Void := {
+
+        submeshes isEmpty || {
+            let lastSubmesh ref := submeshes last.
+            lastSubmesh primitiveTopology ~= primitiveTopology ||
+            lastSubmesh drawingState ~= drawingState ||
+            lastSubmesh texture ~= texture ||
+            lastSubmesh textureView ~= textureView
+        } ifTrue: {
+            self finishLastSubmesh.
+            submeshes add: (Submesh()
+                primitiveTopology: primitiveTopology;
+                drawingState: drawingState;
+                texture: texture;
+                textureView: textureView;
+                yourself)
+        }.
+
+        logicalBaseVertex := vertices size castTo: UInt32.
+    }.
+
+
+    inline method addVertex: (vertex: MeshVertex const ref) ::=> Void := {
+        vertices add: vertex
+    }.
+
+    inline method addTriangle: (triangle: UInt32x3) ::=> Void := {
+        self
+            addIndex: triangle x;
+            addIndex: triangle y;
+            addIndex: triangle z
+    }.
+
+    inline method addIndex: (index: UInt32) ::=> Void := {
+        indices add: (index + logicalBaseVertex castTo: UInt16)
+    }.
+}.
+
+}. ## End of namespace CanvasMesh2D
+}. ## End of namespace Graphics
+}. ## End of namespace Stdn

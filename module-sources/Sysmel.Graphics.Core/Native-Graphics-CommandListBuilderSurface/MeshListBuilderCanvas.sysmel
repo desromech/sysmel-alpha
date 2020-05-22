@@ -3,19 +3,32 @@ namespace Graphics definition: {
 namespace Core definition: {
 
 useNamespace: Stdn Math Geometry.
+useNamespace: Stdn Graphics CanvasMesh2D.
 
-class CommandListBuilderSurface.
+class MeshListBuilderSurface.
 
 #**
  * I am a canvas that works by recording different commands.
  *#
-class CommandListBuilderCanvas superclass: AbstractConcreteCanvas; definition: {
-    protected field targetSurface type: CommandListBuilderSurface pointer.
+class MeshListBuilderCanvas superclass: AbstractConcreteCanvas; definition: {
+    protected field targetSurface type: MeshListBuilderSurface pointer.
 
-    method initializeWithSurface: (theTargetSurface: CommandListBuilderSurface pointer) ::=> Void := {
+    method initializeWithSurface: (theTargetSurface: MeshListBuilderSurface pointer) ::=> Void := {
         targetSurface := theTargetSurface.
         self resetCanvasState.
     }.
+
+    method beginSubmesh: (primitiveTopology: PrimitiveTopology) ::=> MeshBuilder ref := {
+        let builder ref := targetSurface _ meshBuilder.
+        builder beginSubmesh: primitiveTopology drawingState: drawingState
+            texture: paintState texture textureView: paintState textureView.
+        builder
+    }.
+
+    method beginTriangles => MeshBuilder ref
+        := self beginSubmesh: PrimitiveTopology Triangles.
+    method beginLines => MeshBuilder ref
+        := self beginSubmesh: PrimitiveTopology Lines.
 
     override method finalize => Void := {
         targetSurface ifNotNil: {
@@ -31,23 +44,18 @@ class CommandListBuilderCanvas superclass: AbstractConcreteCanvas; definition: {
         p2: (p2: Float32x2) color: (c2: Float32x4) tc: (tc2: Float32x2)
         p3: (p3: Float32x2) color: (c3: Float32x4) tc: (tc3: Float32x2) ::=> Void := {
 
-
-        ## TODO: Validate drawing and paint state.
-        let builder ref := targetSurface _ meshBuilder.
-
-        builder
-            beginTriangles;
-            addVertex: (Mesh2DVertex()
+        self beginTriangles
+            addVertex: (MeshVertex()
                 position: p1;
                 color: c1;
                 texcoord: tc1;
                 yourself);
-            addVertex: (Mesh2DVertex()
+            addVertex: (MeshVertex()
                 position: p2;
                 color: c2;
                 texcoord: tc2;
                 yourself);
-            addVertex: (Mesh2DVertex()
+            addVertex: (MeshVertex()
                 position: p3;
                 color: c3;
                 texcoord: tc3;

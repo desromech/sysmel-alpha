@@ -19,7 +19,7 @@ class SoftCommandQueue superclass: CommandQueue; definition: {
     override method submitCommandList: (commandList: CommandListPtr const ref) ::=> Void := {
         commandList ifNil: {return: void}.
 
-        let softCommandList := commandList downCastFor: SoftCommandList.
+        let softCommandList := commandList _ asRenderingDeviceCommandList castTo: SoftCommandList pointer.
         queueMutex withLock: {
             softCommandList _ executeAllCommands
         }.

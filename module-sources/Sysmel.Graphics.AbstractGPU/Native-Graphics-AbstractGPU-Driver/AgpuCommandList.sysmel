@@ -11,6 +11,9 @@ useNamespace: Stdn Math Geometry.
 class AgpuCommandList superclass: CommandList; definition: {
     public field handle type: AGPU CommandListRef.
 
+    override method asRenderingDeviceCommandList => CommandList pointer
+        := self address.
+
     override method resetFor: (allocator: CommandListAllocatorPtr const ref) initialPipelineState: (initialPipeline: PipelineStatePtr const ref) ::=> Void := {
         let agpuAllocator := allocator getPointer castTo: AgpuCommandListAllocator pointer.
         agpuAllocator ifNil: {
@@ -188,7 +191,7 @@ class AgpuCommandList superclass: CommandList; definition: {
 
     }.
 
-    override method texture: (texture: TexturePtr const ref) subresourceRange: (subresourceRange: TextureSubResourceRange) transitionBarrierInto: (newUsageMode: TextureUsageMode) ::=> Void := {
+    override method pushTexture: (texture: TexturePtr const ref) subresourceRange: (subresourceRange: TextureSubResourceRange) transitionBarrierInto: (newUsageMode: TextureUsageMode) ::=> Void := {
 
     }.
 

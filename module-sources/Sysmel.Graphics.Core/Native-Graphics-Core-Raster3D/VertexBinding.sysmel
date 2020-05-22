@@ -9,6 +9,8 @@ class VertexBinding superclass: RenderingDriverObjectHandle; definition: {
     compileTime constant VertexBuffers := BufferPtr const arraySlice.
     compileTime constant Offsets := UInt32 const arraySlice.
 
+    abstract method getVertexLayout => VertexLayoutPtr.
+    
     abstract method bindVertexBuffers: (theVertexBuffers: VertexBuffers) ::=> Void.
     abstract method bindVertexBuffers: (theVertexBuffers: VertexBuffers) offset: (offsets: Offsets) ::=> Void.
 }.

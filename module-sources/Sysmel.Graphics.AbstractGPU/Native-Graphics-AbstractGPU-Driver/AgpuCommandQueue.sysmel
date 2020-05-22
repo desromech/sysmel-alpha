@@ -7,11 +7,13 @@ useNamespace: Stdn Graphics Core.
 #**
  * I am a agpu based shader signature builder.
  *#
-class AgpuCommandQueue superclass: CommandQueue; definition: {
+sealed class AgpuCommandQueue superclass: CommandQueue; definition: {
     public field handle type: AGPU CommandQueueRef.
 
     override method submitCommandList: (commandList: CommandListPtr const ref) ::=> Void := {
-        let agpuCommandList := commandList getPointer castTo: AgpuCommandList pointer.
+        commandList ifNil: {return: void}.
+        let agpuCommandList := commandList _ asRenderingDeviceCommandList castTo: AgpuCommandList pointer.
+
         agpuCommandList ifNotNil: {
             handle _ addCommandList: agpuCommandList _ handle
         }

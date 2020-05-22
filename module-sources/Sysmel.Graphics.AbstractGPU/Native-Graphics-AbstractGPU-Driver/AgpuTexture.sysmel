@@ -8,7 +8,7 @@ useNamespace: Stdn Math Geometry.
 #**
  * I am a agpu based device.
  *#
-class AgpuTexture superclass: Texture; definition: {
+sealed class AgpuTexture superclass: Texture; definition: {
     public field handle type: AGPU TextureRef.
     public field creationDescription type: TextureDescription.
 

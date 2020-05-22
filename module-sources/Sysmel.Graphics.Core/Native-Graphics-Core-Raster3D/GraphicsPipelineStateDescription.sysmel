@@ -8,6 +8,7 @@ struct GraphicsPipelineStateColorAttachmentDescription definition: {
             colorMask = other colorMask &&
             blendingEnabled = other blendingEnabled &&
             blendingEquation = other blendingEquation.
+    Stdn Utility NotEqualsMethodMixin.
 
     const inline method hash ::=> Stdn Hash
         := format hash ^
@@ -24,6 +25,19 @@ struct GraphicsPipelineStateColorAttachmentDescription definition: {
 }.
 
 struct StencilFaceState definition: {
+    const inline method = (other: SelfType const ref) ::=> Boolean8
+        := stencilFailOperation = other stencilFailOperation &&
+            depthFailOperation = other depthFailOperation &&
+            depthPassOperation = other depthPassOperation &&
+            compareFunction = other compareFunction.
+    Stdn Utility NotEqualsMethodMixin.
+
+    const inline method hash ::=> Stdn Hash
+        := stencilFailOperation hash ^
+            depthFailOperation hash ^
+            depthPassOperation hash ^
+            compareFunction hash.
+
     public field stencilFailOperation type: StencilOperation.
     public field depthFailOperation type: StencilOperation.
     public field depthPassOperation type: StencilOperation.
@@ -82,6 +96,94 @@ struct GraphicsPipelineStateDescription definition: {
 
     public field stencilFrontFaceState type: StencilFaceState.
     public field stencilBackFaceState type: StencilFaceState.
+
+    const inline method = (other: SelfType const ref) ::=> Boolean8 := {
+        shaderSignature = other shaderSignature &&
+
+        ## Shader stages.
+        vertexShader = other vertexShader &&
+        fragmentShader = other fragmentShader &&
+        geometryShader = other geometryShader &&
+        tessellationControlShader = other tessellationControlShader &&
+        tessellationEvaluationShader = other tessellationEvaluationShader &&
+
+        ## Rasterization state.
+        frontFaceOrientation = other frontFaceOrientation &&
+        faceCullingMode = other faceCullingMode &&
+        polygonMode = other polygonMode &&
+        primitiveTopology = other primitiveTopology &&
+        vertexLayout = other vertexLayout &&
+
+        ## Color attachments
+        colorAttachments = other colorAttachments &&
+
+        ## Depth buffer.
+        depthTestingEnabled = other depthTestingEnabled &&
+        depthWriteMask = other depthWriteMask &&
+        depthStencilFormat = other depthStencilFormat &&
+        depthFunction = other depthFunction &&
+
+        depthBiasConstantFactor = other depthBiasConstantFactor &&
+        depthBiasSlopeFactor = other depthBiasSlopeFactor &&
+        depthBiasClamp = other depthBiasClamp &&
+
+        ## Multi sampling
+        sampleCount = other sampleCount &&
+        sampleQuality = other sampleQuality &&
+
+        ## Stencil buffer.
+        stencilTestingEnabled = other stencilTestingEnabled &&
+        stencilReadMask = other stencilReadMask &&
+        stencilWriteMask = other stencilWriteMask &&
+
+        stencilFrontFaceState = other stencilFrontFaceState &&
+        stencilBackFaceState = other stencilBackFaceState
+    }.
+
+    Stdn Utility NotEqualsMethodMixin.
+
+    const inline method hash ::=> Stdn Hash := {
+        shaderSignature hash ^
+
+        ## Shader stages.
+        vertexShader hash ^
+        fragmentShader hash ^
+        geometryShader hash ^
+        tessellationControlShader hash ^
+        tessellationEvaluationShader hash ^
+
+        ## Rasterization state.
+        frontFaceOrientation hash ^
+        faceCullingMode hash ^
+        polygonMode hash ^
+        primitiveTopology hash ^
+        vertexLayout hash ^
+
+        ## Color attachments
+        colorAttachments hash ^
+
+        ## Depth buffer.
+        depthTestingEnabled hash ^
+        depthWriteMask hash ^
+        depthStencilFormat hash ^
+        depthFunction hash ^
+
+        depthBiasConstantFactor hash ^
+        depthBiasSlopeFactor hash ^
+        depthBiasClamp hash ^
+
+        ## Multi sampling
+        sampleCount hash ^
+        sampleQuality hash ^
+
+        ## Stencil buffer.
+        stencilTestingEnabled hash ^
+        stencilReadMask hash ^
+        stencilWriteMask hash ^
+
+        stencilFrontFaceState hash ^
+        stencilBackFaceState hash
+    }.
 
     method addColorAttachmentWithFormat: (format: PixelFormat) ::=> Void := {
         colorAttachments add: (GraphicsPipelineStateColorAttachmentDescription()

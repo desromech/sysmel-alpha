@@ -1,5 +1,9 @@
 loadFileOnce: "types.sysmel".
-loadFileOnce: "metadata.sysmel".
 loadFileOnce: "rendering.sysmel".
 loadFileOnce: "compute.sysmel".
 loadFileOnce: "barriers.sysmel".
+
+if: Compiler compilationTarget isGPU not then: {
+    loadFileOnce: "metadata.sysmel".
+    loadFileOnce: "cpu-shaders.sysmel".
+}.

@@ -532,6 +532,29 @@ MbndSlovimDebugInformationTranslator >> visitNativeBlockClosureType: blockClosur
 ]
 
 { #category : #visiting }
+MbndSlovimDebugInformationTranslator >> visitOpaqueHandlerType: opaqueHandlerType [
+	| debugType opaqueHandlerPointerType |
+	opaqueHandlerType isTrait ifTrue: [ ^ self visitTraitType: opaqueHandlerType ].
+	
+	debugType := SLVMDebugCompositeType new makeStructure.
+	opaqueHandlerPointerType := SLVMDebugDerivedType new makePointer
+		baseType: debugType;
+		byteSize: self compilationTarget pointerSize;
+		byteAlignment: self compilationTarget pointerAlignment.
+
+	translatedEntities at: opaqueHandlerType put: opaqueHandlerPointerType.
+	self setCommonDebugType: debugType informationFrom: opaqueHandlerType.
+	
+	debugType
+		byteSize: "vtable + function pointer" self compilationTarget pointerSize * 2;
+		byteAlignment: self compilationTarget pointerAlignment.
+
+	"self addAggregateDebugType: debugType membersFrom: opaqueHandlerType."
+	
+	^ opaqueHandlerPointerType
+]
+
+{ #category : #visiting }
 MbndSlovimDebugInformationTranslator >> visitOutputChannelType: type [
 	type specialSemantics ifNotNil: [
 		^ self translateDebugType: type messageType pointer
@@ -670,6 +693,11 @@ MbndSlovimDebugInformationTranslator >> visitReferenceType: referenceType [
 ]
 
 { #category : #visiting }
+MbndSlovimDebugInformationTranslator >> visitSamplerType: samplerType [
+	^ self visitOpaqueHandlerType: samplerType
+]
+
+{ #category : #visiting }
 MbndSlovimDebugInformationTranslator >> visitSimpleMetaType: simpleMetaType [
 	| debugStructureType debugType |
 	simpleMetaType isTrait ifTrue: [ ^ self visitTraitType: simpleMetaType ].
@@ -727,6 +755,11 @@ MbndSlovimDebugInformationTranslator >> visitTemporaryReferenceType: referenceTy
 		byteSize: referenceType instanceSize;
 		byteAlignment: referenceType instanceAlignment.
 	^ derivedType
+]
+
+{ #category : #visiting }
+MbndSlovimDebugInformationTranslator >> visitTextureType: textureType [
+	^ self visitOpaqueHandlerType: textureType
 ]
 
 { #category : #visiting }

@@ -1,0 +1,17 @@
+namespace Stdn definition: {
+namespace Graphics definition: {
+namespace Core definition: {
+
+#**
+ * I am a handle for a shader cache.
+ *#
+class ShaderCache superclass: RenderingDriverObjectHandle; definition: {
+    abstract method getOrCreateShaderLibraryFromModule: (shaderModule: GPU ShaderModuleInfo const ref) ::=> ShaderLibraryHandlePtr.
+    abstract method getOrCreateShaderStageFromEntryPoint: (entryPointInfo: GPU ShaderEntryPointInfo const ref) ::=> ShaderStageHandlePtr.
+}.
+
+compileTime constant ShaderCachePtr := ShaderCache sharedPointer.
+
+}. ## End of namespace Core
+}. ## End of namespace Graphics
+}. ## End of namespace Stdn

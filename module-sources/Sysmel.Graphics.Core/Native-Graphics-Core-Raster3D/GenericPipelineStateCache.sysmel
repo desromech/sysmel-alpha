@@ -1,0 +1,59 @@
+namespace Stdn definition: {
+namespace Graphics definition: {
+namespace Core definition: {
+
+#**
+ * I am a generic implementation for a pipeline state cache
+ *#
+class GenericPipelineStateCache superclass: PipelineStateCache; definition: {
+    public field device type: RenderingDeviceWeakPtr.
+    protected field mutex type: Stdn Mutex.
+    protected field graphicsPipelineStates type: Stdn Collections Dictionary(GraphicsPipelineStateDescription, PipelineStatePtr).
+    protected field computePipelineStates type: Stdn Collections Dictionary(ComputePipelineStateDescription, PipelineStatePtr).
+
+    override method getOrCreateGraphicsPipeline: (description: GraphicsPipelineStateDescription const ref) ::=> PipelineStatePtr := {
+        mutex withLock: {
+            graphicsPipelineStates at: description ifPresent: {:(PipelineStatePtr ref)existent :: Void |
+                return: existent
+            }
+        }.
+
+        let strongDevice := device lock.
+        strongDevice ifNil: {
+            return: PipelineStatePtr nil.
+        }.
+
+        let result mutable := strongDevice _ createGraphicsPipelineState: description.
+        mutex withLock: {
+            graphicsPipelineStates at: description put: result
+        }.
+
+        result
+    }.
+
+    override method getOrCreateComputePipeline: (description: ComputePipelineStateDescription const ref) ::=> PipelineStatePtr := {
+        mutex withLock: {
+            computePipelineStates at: description ifPresent: {:(PipelineStatePtr ref)existent :: Void |
+                return: existent
+            }
+        }.
+
+        let strongDevice := device lock.
+        strongDevice ifNil: {
+            return: PipelineStatePtr nil.
+        }.
+
+        let result := strongDevice _ createComputePipelineState: description.
+        mutex withLock: {
+            computePipelineStates at: description put: result
+        }.
+
+        result
+    }.
+}.
+
+compileTime constant GenericPipelineStateCachePtr := GenericPipelineStateCache sharedPointer.
+
+}. ## End of namespace Core
+}. ## End of namespace Graphics
+}. ## End of namespace Stdn

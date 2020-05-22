@@ -132,7 +132,7 @@ template Dictionary(KT: Stdn Concepts HashKey, VT: Stdn Concepts Copyable)
         return: storage_[slotIndex] _ value
     }.
 
-    const inline method at: (key: KeyType const ref)
+    inline method at: (key: KeyType const ref)
         ifPresent: (presentBlock: ((ValueType ref) => Void) nativeBlockClosure)
         ifAbsent: (absentBlock: (Void => Void) nativeBlockClosure) ::=> Void := {
 
@@ -142,6 +142,30 @@ template Dictionary(KT: Stdn Concepts HashKey, VT: Stdn Concepts Copyable)
         } ifFalse: {
             absentBlock()
         }
+    }.
+
+    inline method at: (key: KeyType const ref)
+        ifPresent: (presentBlock: ((ValueType ref) => Void) nativeBlockClosure) ::=> Void := {
+
+        self at: key ifPresent: presentBlock ifAbsent: {:: Void | }
+    }.
+
+    const inline method at: (key: KeyType const ref)
+        ifPresent: (presentBlock: ((ValueType const ref) => Void) nativeBlockClosure)
+        ifAbsent: (absentBlock: (Void => Void) nativeBlockClosure) ::=> Void := {
+
+        let slotIndex mutable := self scanFor: key.
+        (self isValidIndex: slotIndex) && (storage_[slotIndex] isPresent) ifTrue: {
+            presentBlock(storage_[slotIndex] _ value)
+        } ifFalse: {
+            absentBlock()
+        }
+    }.
+
+    const inline method at: (key: KeyType const ref)
+        ifPresent: (presentBlock: ((ValueType const ref) => Void) nativeBlockClosure) ::=> Void := {
+
+        self at: key ifPresent: presentBlock ifAbsent: {:: Void | }
     }.
 
     inline method at: (key: KeyType const ref)

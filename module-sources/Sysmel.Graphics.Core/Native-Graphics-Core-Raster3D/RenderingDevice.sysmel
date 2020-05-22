@@ -19,7 +19,7 @@ RenderingDevice extend: {
 
     abstract method createCommandAllocatorOfType: (type: CommandListType) for: (queue: CommandQueuePtr const ref) ::=> CommandListAllocatorPtr.
     abstract method createCommandListOfType: (type: CommandListType) for: (allocator: CommandListAllocatorPtr const ref) initialPipelineState: (initialPipeline: PipelineStatePtr const ref) ::=> CommandListPtr.
-    abstract method getDefaultCommandQueue => CommandQueuePtr.
+    abstract method getDefaultCommandQueue => CommandQueuePtr const ref.
 
     abstract method createShaderLibraryFromModule: (shaderModule: GPU ShaderModuleInfo const ref) ::=> ShaderLibraryHandlePtr.
     abstract method createShaderStageFromEntryPoint: (entryPointInfo: GPU ShaderEntryPointInfo const ref) ::=> ShaderStageHandlePtr.
@@ -39,6 +39,32 @@ RenderingDevice extend: {
 
     virtual method shouldInvertProjectionY => Boolean8
         := self hasTopLeftNdcOrigin ~= self hasBottomLeftTextureCoordinates.
+
+    virtual method nonCoherentAtomSize => UIntPointer
+        := 256.
+    virtual method minMemoryMapAlignment => UIntPointer
+        := 256.
+    virtual method minTexelBufferOffsetAlignment => UIntPointer
+        := 256.
+    virtual method minUniformBufferOffsetAlignment => UIntPointer
+        := 256.
+    virtual method minStorageBufferOffsetAlignment => UIntPointer
+        := 256.
+
+    virtual method createPipelineStateCache => PipelineStateCachePtr := {
+        let result := GenericPipelineStateCache sharedNew.
+        result _ device: self asWeakPointer.
+        result upCastFor: PipelineStateCache
+    }.
+
+    virtual method createShaderCache => ShaderCachePtr := {
+        let result := GenericShaderCache sharedNew.
+        result _ device: self asWeakPointer.
+        result upCastFor: ShaderCache
+    }.
+
+    abstract method getDefaultPipelineStateCache => PipelineStateCachePtr const ref.
+    abstract method getDefaultShaderCache => ShaderCachePtr const ref.
 }.
 
 }. ## End of namespace Core

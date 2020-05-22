@@ -115,6 +115,13 @@ template SharedPointer(PT: Type)
     const inline method ~~ (other: SelfType const ref) ::=> Boolean8
         := pointer_ ~~ other getPointer.
 
+    const inline method = (other: SelfType const ref) ::=> Boolean8
+        := counter_ = other __private counter_ .
+    const inline method ~= (other: SelfType const ref) ::=> Boolean8
+        := counter_ ~= other __private counter_ .
+    const inline method hash ::=> Hash
+        := counter_ hash.
+
     inline method finalize => Void := {
         let c := counter_.
         pointer_ := nil.
@@ -143,12 +150,6 @@ template SharedPointer(PT: Type)
 		o __private counter_ := nil.
         o __private pointer_ := nil.
 	}.
-
-    const inline method = (other: SelfType const ref) ::=> Boolean8
-        := counter_ = other __private counter_ .
-
-    const inline method hash ::=> Hash
-        := counter_ hash.
 
     inline const method _ => PointedType ref
         := pointer_ _.

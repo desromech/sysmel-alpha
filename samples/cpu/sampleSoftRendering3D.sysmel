@@ -443,11 +443,12 @@ function main externC (argc: Int32, argv: UInt8 const pointer pointer) => Int32 
 
 	## Build the graphics pipeline state.
 	{
-		renderingPipelineState := renderingDevice _ createGraphicsPipelineState: (GraphicsPipelineStateDescription()
+		let shaderCache ref := renderingDevice _ getDefaultShaderCache.
+		renderingPipelineState := renderingDevice _ getDefaultPipelineStateCache _ getOrCreateGraphicsPipeline: (GraphicsPipelineStateDescription()
 			shaderSignature: shaderSignature;
 
-			vertexShader: (renderingDevice _ createShaderStageFromEntryPoint: CheckboardShader vertex shaderEntryPointInfo);
-			fragmentShader: (renderingDevice _ createShaderStageFromEntryPoint: CheckboardShader fragment shaderEntryPointInfo);
+			vertexShader: (shaderCache _ getOrCreateShaderStageFromEntryPoint: CheckboardShader vertex shaderEntryPointInfo);
+			fragmentShader: (shaderCache _ getOrCreateShaderStageFromEntryPoint: CheckboardShader fragment shaderEntryPointInfo);
 
 			vertexLayout: simpleVertexLayout;
 			primitiveTopology: PrimitiveTopology Triangles;

@@ -255,21 +255,32 @@ class ShaderInterface definition: {
 	validateSpirV.
 	
 	shaderImplementation := ssaModule globalNamed: #'_ZN10TestModule15ShaderInterface6shader6__implERNS0_E12inputChannelINS_5InputEE13outputChannelINS_6OutputEE'.
-	self assert: shaderImplementation allInstructionsMnemonics equals: #(
-		(entry (
-			jump
-		))
-		(body (
-			load
-			load
-			load
-			extractValue
-			combineSamplerWithTexture
-			sampleImplicitLOD
-			insertValue
-			store
-			returnVoid
-		))
+	self assert: shaderImplementation asFullSExpressionForTesting equals: #(
+function _ZN10TestModule15ShaderInterface6shader6__implERNS0_E12inputChannelINS_5InputEE13outputChannelINS_6OutputEE cdecl void
+	arguments (
+		(self (pointer (struct 'class.TestModule::ShaderInterface') function) ())
+		(stageIn (pointer (struct 'struct.TestModule::Input') function) ())
+		(stageOut (pointer (struct 'struct.TestModule::Output') function) ())
+	)
+	literals (
+	)
+	blocks (
+		(()
+			(nil jump void () () (block 2 body))
+		)
+		(()
+			(nil load sampler () ((global 1 _ZN10TestModule8Samplers7sampler13set0_binding0E)))
+			(nil load texture2D () ((global 2 _ZN10TestModule14TexturingState7texture13set1_binding0E)))
+			(nil load (struct 'struct.TestModule::Input') () ((local 1 stageIn)))
+			(nil extractValue (vector f32 2) () ((local 6 nil)) (0))
+			(nil combineSamplerWithTexture (sampledTexture texture2D) () ((local 4 nil) (local 5 nil)))
+			(nil sampleImplicitLOD (vector f32 4) () ((local 8 nil) (local 7 nil)))
+			(nil insertValue (struct 'struct.TestModule::Output') () ((constStruct (struct 'struct.TestModule::Output') ((constVector (vector f32 4) ((const f32 0.0) (const f32 0.0) (const f32 0.0) (const f32 0.0))))) (local 9 nil)) (0))
+			(nil store void () ((local 10 nil) (local 2 stageOut)))
+			(nil returnVoid void () ())
+		)
+	)
+
 	)
 ]
 
@@ -309,21 +320,32 @@ class ShaderInterface definition: {
 	validateSpirV.
 	
 	shaderImplementation := ssaModule globalNamed: #'_ZN10TestModule15ShaderInterface6shader6__implERNS0_E12inputChannelINS_5InputEE13outputChannelINS_6OutputEE'.
-	self assert: shaderImplementation allInstructionsMnemonics equals: #(
-		(entry (
-			jump
-		))
-		(body (
-			load
-			load
-			load
-			extractValue
-			combineSamplerWithTexture
-			sampleExplicitGradient
-			insertValue
-			store
-			returnVoid
-		))
+	self assert: shaderImplementation asFullSExpressionForTesting equals: #(
+function _ZN10TestModule15ShaderInterface6shader6__implERNS0_E12inputChannelINS_5InputEE13outputChannelINS_6OutputEE cdecl void
+	arguments (
+		(self (pointer (struct 'class.TestModule::ShaderInterface') function) ())
+		(stageIn (pointer (struct 'struct.TestModule::Input') function) ())
+		(stageOut (pointer (struct 'struct.TestModule::Output') function) ())
+	)
+	literals (
+	)
+	blocks (
+		(()
+			(nil jump void () () (block 2 body))
+		)
+		(()
+			(nil load sampler () ((global 1 _ZN10TestModule8Samplers7sampler13set0_binding0E)))
+			(nil load texture2D () ((global 2 _ZN10TestModule14TexturingState7texture13set1_binding0E)))
+			(nil load (struct 'struct.TestModule::Input') () ((local 1 stageIn)))
+			(nil extractValue (vector f32 2) () ((local 6 nil)) (0))
+			(nil combineSamplerWithTexture (sampledTexture texture2D) () ((local 4 nil) (local 5 nil)))
+			(nil sampleExplicitGradient (vector f32 4) () ((local 8 nil) (local 7 nil) (constVector (vector f32 2) ((const f32 0.0) (const f32 0.0))) (constVector (vector f32 2) ((const f32 0.0) (const f32 0.0)))))
+			(nil insertValue (struct 'struct.TestModule::Output') () ((constStruct (struct 'struct.TestModule::Output') ((constVector (vector f32 4) ((const f32 0.0) (const f32 0.0) (const f32 0.0) (const f32 0.0))))) (local 9 nil)) (0))
+			(nil store void () ((local 10 nil) (local 2 stageOut)))
+			(nil returnVoid void () ())
+		)
+	)
+
 	)
 ]
 
@@ -363,21 +385,31 @@ class ShaderInterface definition: {
 	validateSpirV.
 	
 	shaderImplementation := ssaModule globalNamed: #'_ZN10TestModule15ShaderInterface6shader6__implERNS0_E12inputChannelINS_5InputEE13outputChannelINS_6OutputEE'.
-	self assert: shaderImplementation allInstructionsMnemonics equals: #(
-		(entry (
-			jump
-		))
-		(body (
-			load
-			load
-			load
-			extractValue
-			combineSamplerWithTexture
-			sampleExplicitLOD
-			insertValue
-			store
-			returnVoid
-		))
+	self assert: shaderImplementation asFullSExpressionForTesting equals: #(
+function _ZN10TestModule15ShaderInterface6shader6__implERNS0_E12inputChannelINS_5InputEE13outputChannelINS_6OutputEE cdecl void
+	arguments (
+		(self (pointer (struct 'class.TestModule::ShaderInterface') function) ())
+		(stageIn (pointer (struct 'struct.TestModule::Input') function) ())
+		(stageOut (pointer (struct 'struct.TestModule::Output') function) ())
+	)
+	literals (
+	)
+	blocks (
+		(()
+			(nil jump void () () (block 2 body))
+		)
+		(()
+			(nil load sampler () ((global 1 _ZN10TestModule8Samplers7sampler13set0_binding0E)))
+			(nil load texture2D () ((global 2 _ZN10TestModule14TexturingState7texture13set1_binding0E)))
+			(nil load (struct 'struct.TestModule::Input') () ((local 1 stageIn)))
+			(nil extractValue (vector f32 2) () ((local 6 nil)) (0))
+			(nil combineSamplerWithTexture (sampledTexture texture2D) () ((local 4 nil) (local 5 nil)))
+			(nil sampleExplicitLOD (vector f32 4) () ((local 8 nil) (local 7 nil) (const f32 0.0)))
+			(nil insertValue (struct 'struct.TestModule::Output') () ((constStruct (struct 'struct.TestModule::Output') ((constVector (vector f32 4) ((const f32 0.0) (const f32 0.0) (const f32 0.0) (const f32 0.0))))) (local 9 nil)) (0))
+			(nil store void () ((local 10 nil) (local 2 stageOut)))
+			(nil returnVoid void () ())
+		)
+	)
 	)
 ]
 

@@ -1,0 +1,17 @@
+namespace Stdn definition: {
+namespace Graphics definition: {
+namespace Core definition: {
+
+#**
+ * I am a handle for a pipeline state cache.
+ *#
+class PipelineStateCache superclass: RenderingDriverObjectHandle; definition: {
+    abstract method getOrCreateGraphicsPipeline: (description: GraphicsPipelineStateDescription const ref) ::=> PipelineStatePtr.
+    abstract method getOrCreateComputePipeline: (description: ComputePipelineStateDescription const ref) ::=> PipelineStatePtr.
+}.
+
+compileTime constant PipelineStateCachePtr := PipelineStateCache sharedPointer.
+
+}. ## End of namespace Core
+}. ## End of namespace Graphics
+}. ## End of namespace Stdn

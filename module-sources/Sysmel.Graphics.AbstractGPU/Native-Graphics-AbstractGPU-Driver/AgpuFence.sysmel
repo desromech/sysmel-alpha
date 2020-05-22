@@ -7,7 +7,7 @@ useNamespace: Stdn Graphics Core.
 #**
  * I am a agpu based shader signature builder.
  *#
-class AgpuFence superclass: Fence; definition: {
+sealed class AgpuFence superclass: Fence; definition: {
     public field handle type: AGPU FenceRef.
 
     override method waitOnClient => Void := {

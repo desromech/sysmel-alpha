@@ -7,13 +7,20 @@ useNamespace: Stdn Graphics Core.
 #**
  * I am a agpu based shader signature builder.
  *#
-class AgpuRenderPass superclass: RenderPass; definition: {
+sealed class AgpuRenderPass superclass: RenderPass; definition: {
     public field handle type: AGPU RenderpassRef.
+    public field colorAttachmentFormats type: Stdn Collections Vector(PixelFormat).
+    public field theDepthStencilFormat type: PixelFormat.
 
     override method setColorAttachment: (attachmentIndex: UInt32) clearValue: (clearValue: Float32x4) ::=> Void := {
 
     }.
 
+    const override method colorAttachmentFormats => PixelFormat const arraySlice
+        := colorAttachmentFormats asArraySlice.
+
+    const override method depthStencilFormat => PixelFormat
+        := theDepthStencilFormat.
 }.
 
 compileTime constant AgpuRenderPassPtr := AgpuRenderPass sharedPointer.

@@ -7,7 +7,7 @@ useNamespace: Stdn Graphics Core.
 #**
  * I am a agpu based device.
  *#
-class AgpuVertexLayout superclass: VertexLayout; definition: {
+sealed class AgpuVertexLayout superclass: VertexLayout; definition: {
     public field handle type: AGPU VertexLayoutRef.
 
     override method addVertexBuffers: (strides: UInt32 const arraySlice) withAttributes: (attributes: VertexAttributeDescription const arraySlice) ::=> Void := {

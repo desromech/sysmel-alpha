@@ -34,7 +34,10 @@ Class {
 		'patternMatchingFailureRaiseFunction',
 		'variantUnexpectedComponentRaiseFunction',
 		'nativeShaderEntryPoints',
-		'indexOutOfBoundsRaiseFunction'
+		'indexOutOfBoundsRaiseFunction',
+		'sampleTextureImplicitLodFunction',
+		'sampleTextureExplicitLodFunction',
+		'sampleTextureExplicitDerivativesFunction'
 	],
 	#classVars : [
 		'ShaderBuiltInLocationMap',
@@ -432,7 +435,7 @@ MbndSlovimCodeModuleGenerator >> ensureRequiredStructuresAreDefined [
 	].
 ]
 
-{ #category : #accessing }
+{ #category : #'runtime functions' }
 MbndSlovimCodeModuleGenerator >> exceptionCatchBeginFunction [
 	^ exceptionCatchBeginFunction ifNil: [
 		self compilationTarget exceptionCatchBeginFunction ifNotNil: [ :function |
@@ -447,7 +450,7 @@ MbndSlovimCodeModuleGenerator >> exceptionCatchBeginFunction [
 	]
 ]
 
-{ #category : #accessing }
+{ #category : #'runtime functions' }
 MbndSlovimCodeModuleGenerator >> exceptionCatchEndFunction [
 	^ exceptionCatchEndFunction ifNil: [
 		self compilationTarget exceptionCatchEndFunction ifNotNil: [ :function |
@@ -565,7 +568,7 @@ MbndSlovimCodeModuleGenerator >> fillModuleInfoInstance: moduleInfoInstance [
 
 ]
 
-{ #category : #accessing }
+{ #category : #'runtime functions' }
 MbndSlovimCodeModuleGenerator >> forbiddenExceptionHandlingFunction [
 	^ forbiddenExceptionHandlingFunction ifNil: [
 		self compilationTarget forbiddenExceptionHandlingFunction ifNotNil: [ 
@@ -1203,7 +1206,7 @@ MbndSlovimCodeModuleGenerator >> importTranslatedProgramEntity: externalProgramE
 	^ ssaModule importGlobalValue: externalProgramEntityValue fromModule: ssaModule
 ]
 
-{ #category : #accessing }
+{ #category : #'runtime functions' }
 MbndSlovimCodeModuleGenerator >> indexOutOfBoundsRaiseFunction [
 	^ indexOutOfBoundsRaiseFunction ifNil: [
 		self compilationTarget indexOutOfBoundsRaiseFunction ifNotNil: [ :function |
@@ -1284,7 +1287,7 @@ MbndSlovimCodeModuleGenerator >> newSymbolNameMangler [
 	^ self symbolNameManglerPrototype copy
 ]
 
-{ #category : #accessing }
+{ #category : #'runtime functions' }
 MbndSlovimCodeModuleGenerator >> nonLocalReturnCatchFunction [
 	^ nonLocalReturnCatchFunction ifNil: [
 		self compilationTarget nonLocalReturnCatchFunction ifNotNil: [ :function |
@@ -1299,7 +1302,7 @@ MbndSlovimCodeModuleGenerator >> nonLocalReturnCatchFunction [
 	]
 ]
 
-{ #category : #accessing }
+{ #category : #'runtime functions' }
 MbndSlovimCodeModuleGenerator >> nonLocalReturnRaiseFunction [
 	^ nonLocalReturnRaiseFunction ifNil: [
 		self compilationTarget nonLocalReturnRaiseFunction ifNotNil: [ :function |
@@ -1314,7 +1317,7 @@ MbndSlovimCodeModuleGenerator >> nonLocalReturnRaiseFunction [
 	]
 ]
 
-{ #category : #accessing }
+{ #category : #'runtime functions' }
 MbndSlovimCodeModuleGenerator >> patternMatchingFailureRaiseFunction [
 	^ patternMatchingFailureRaiseFunction ifNil: [
 		self compilationTarget patternMatchingFailureRaiseFunction ifNotNil: [ :function |
@@ -1328,7 +1331,7 @@ MbndSlovimCodeModuleGenerator >> patternMatchingFailureRaiseFunction [
 	]
 ]
 
-{ #category : #accessing }
+{ #category : #'runtime functions' }
 MbndSlovimCodeModuleGenerator >> personalityFunction [
 	^ personalityFunction ifNil: [
 		self compilationTarget personalityFunction ifNotNil: [ 
@@ -1346,6 +1349,63 @@ MbndSlovimCodeModuleGenerator >> personalityFunction [
 { #category : #visiting }
 MbndSlovimCodeModuleGenerator >> pureVirtualFunctionConstantWithType: ssaFunctionType [
 	^ ssaFunctionType defaultConstant
+]
+
+{ #category : #'runtime functions' }
+MbndSlovimCodeModuleGenerator >> sampleTextureExplicitDerivativesFunction [
+	^ sampleTextureExplicitDerivativesFunction ifNil: [
+		self compilationTarget personalityFunction ifNotNil: [ 
+			sampleTextureExplicitDerivativesFunction := (self translateProgramEntity: self compilationTarget sampleTextureExplicitLodFunction) ssaValue
+		] ifNil: [
+			sampleTextureExplicitDerivativesFunction := SLVMFunction module: ssaModule
+				name: #__sysmel_sampleTextureExplicitDerivatives
+				functionType: ((SLVMFunctionType arguments: {
+					"Sampler" self slvmCompilationTarget voidPointerType .
+					"Texture" self slvmCompilationTarget voidPointerType .
+					"Texcoord" SLVMType float4Type .
+					"dtdx" SLVMType float4Type .
+					"dtdy" SLVMType float4Type} returnType: SLVMType float4Type)
+					variadic: true
+				)
+		]
+	]
+]
+
+{ #category : #'runtime functions' }
+MbndSlovimCodeModuleGenerator >> sampleTextureExplicitLodFunction [
+	^ sampleTextureExplicitLodFunction ifNil: [
+		self compilationTarget personalityFunction ifNotNil: [ 
+			sampleTextureExplicitLodFunction := (self translateProgramEntity: self compilationTarget sampleTextureExplicitLodFunction) ssaValue
+		] ifNil: [
+			sampleTextureExplicitLodFunction := SLVMFunction module: ssaModule
+				name: #__sysmel_sampleTextureExplicitLod
+				functionType: ((SLVMFunctionType arguments: {
+					"Sampler" self slvmCompilationTarget voidPointerType .
+					"Texture" self slvmCompilationTarget voidPointerType .
+					"Texcoord" SLVMType float4Type .
+					"Lod" SLVMType floatType} returnType: SLVMType float4Type)
+					variadic: true
+				)
+		]
+	]
+]
+
+{ #category : #'runtime functions' }
+MbndSlovimCodeModuleGenerator >> sampleTextureImplicitLodFunction [
+	^ sampleTextureImplicitLodFunction ifNil: [
+		self compilationTarget personalityFunction ifNotNil: [ 
+			sampleTextureImplicitLodFunction := (self translateProgramEntity: self compilationTarget sampleTextureImplicitLodFunction) ssaValue
+		] ifNil: [
+			sampleTextureImplicitLodFunction := SLVMFunction module: ssaModule
+				name: #__sysmel_sampleTextureImplicitLod
+				functionType: ((SLVMFunctionType arguments: {
+					"Sampler" self slvmCompilationTarget voidPointerType .
+					"Texture" self slvmCompilationTarget voidPointerType .
+					"Texcoord" SLVMType float4Type } returnType: SLVMType float4Type)
+					variadic: true
+				)
+		]
+	]
 ]
 
 { #category : #'as yet unclassified' }
@@ -1768,7 +1828,7 @@ MbndSlovimCodeModuleGenerator >> unmangledNameForProgramEntity: programEntity in
 	self addUnmangledProgramEntity: programEntity suffixInto: out
 ]
 
-{ #category : #accessing }
+{ #category : #'typeinfo translation' }
 MbndSlovimCodeModuleGenerator >> variantUnexpectedComponentRaiseFunction [
 	^ variantUnexpectedComponentRaiseFunction ifNil: [
 		self compilationTarget variantUnexpectedComponentRaiseFunction ifNotNil: [ :function |

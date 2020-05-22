@@ -2,6 +2,8 @@ namespace Stdn definition: {
 namespace Graphics definition: {
 namespace Core definition: {
 
+useNamespace: Stdn Math Geometry.
+
 #**
  * I am a 2D rendering that takes care automatically of handling the underlying swap chain in a window.
  * I work by delegating my job into an actual SwapChainSurface
@@ -14,9 +16,9 @@ class SwapChainSurface superclass: Surface; definition: {
     protected field device type: RenderingDevicePtr.
     protected field renderPasses type: Stdn Collections Vector(RenderPassPtr).
     protected field commandListAllocators type: Stdn Collections Vector(CommandListAllocatorPtr).
-    protected field commandLists type: Stdn Collections Vector(CommandListPtr).
+    protected field stateTrackers type: Stdn Collections Vector(StateTrackerPtr).
 
-    protected field surfaces type: Stdn Collections Vector(CommandListBuilderSurface sharedPointer).
+    protected field surfaces type: Stdn Collections Vector(StateTracker2DSurface sharedPointer).
 
     const method extent => UInt32x2
         := extent.
@@ -40,7 +42,7 @@ class SwapChainSurface superclass: Surface; definition: {
 
         let bufferCount := swapChain _ getFramebufferCount.
         commandListAllocators reserve: bufferCount.
-        commandLists reserve: bufferCount.
+        stateTrackers reserve: bufferCount.
         renderPasses reserve: bufferCount.
         surfaces reserve: bufferCount.
         0 until: bufferCount do: {:i :: Void |
@@ -51,7 +53,13 @@ class SwapChainSurface superclass: Surface; definition: {
                 commandList _ close.
 
                 commandListAllocators add: commandListAllocator.
-                commandLists add: commandList.
+
+                let stateTracker := GenericStateTracker sharedNew.
+                stateTracker _
+                    commandList: commandList;
+                    shaderCache: device _ getDefaultShaderCache;
+                    pipelineStateCache: device _ getDefaultPipelineStateCache.
+                stateTrackers add: (stateTracker upCastFor: StateTracker)
             }.
 
             let colorAttachments mutable := RenderPassColorAttachmentDescription array (
@@ -66,21 +74,27 @@ class SwapChainSurface superclass: Surface; definition: {
             let renderPass := device _ createRenderPass: colorAttachments depthStencilAttachment: nil.
             renderPasses add: renderPass.
 
-            let surface := CommandListBuilderSurface sharedNew.
-            surface _ extent: extent.
+            let surface := StateTracker2DSurface sharedNew.
+            surface _
+                extent: extent;
+                renderingDevice: device.
             surfaces add: surface.
         }.
     }.
 
     override method beginDrawingWithCanvas => Canvas uniquePointer := {
         let surface ref := surfaces[swapChain _ getCurrentBackBufferIndex].
-        let result := SwapChainSurfaceCanvas nativeNew _
-            ownerSurface: self address;
-            ownedCanvas: surface _ beginDrawingWithCanvas;
-            address.
-        result _ delegatedCanvas: result _ ownedCanvas getPointer. 
+        let result mutable := SwapChainSurfaceCanvas uniqueNew.
+        result _ ownedCanvas: surface _ beginDrawingWithCanvas.
+        result _ ownedCanvas ifNil: {
+            return: Canvas uniquePointer nil
+        }.
 
-        Canvas uniquePointer for: result.
+        result _
+            ownerSurface: self address;
+            delegatedCanvas: result _ ownedCanvas getPointer.
+
+        Canvas uniquePointer for: result release
     }.
 
     method endDrawing => Void := {
@@ -89,18 +103,25 @@ class SwapChainSurface superclass: Surface; definition: {
         let backBufferIndex := swapChain _ getCurrentBackBufferIndex.
 
         let allocator ref := commandListAllocators[backBufferIndex].
-        let commandList ref := commandLists[backBufferIndex].
         let renderPass ref := renderPasses[backBufferIndex].
+        let stateTracker ref := stateTrackers[backBufferIndex].
+        let surface ref := surfaces[backBufferIndex].
 
         allocator _ resetAllocator.
-    	commandList _
-    		resetFor: allocator;
-    		beginRenderPass: renderPass on: backBuffer contentOnBundle: false;
+    	stateTracker _
+            resetFor: allocator;
+            beginRenderPass: renderPass on: backBuffer contentOnBundle: false;
+    		setViewport: (RectangleI32 min: Int32x2 zeros max: (extent castTo: Int32x2));
+    		setScissor: (RectangleI32 min: Int32x2 zeros max: (extent castTo: Int32x2)).
+
+        surface _ emitDrawingCommandsOnto: stateTracker.
+
+        stateTracker _
             endRenderPass;
             close.
 
         renderingQueue _
-    		submitCommandList: commandList;
+    		submitCommandList: (stateTracker upCastFor: CommandList);
     		waitForIdle.
 
         swapChain _ swapBuffers.

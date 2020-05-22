@@ -20,6 +20,9 @@ class SoftVertexBinding superclass: VertexBinding; definition: {
         bufferStartPointers resizeTo: bufferCount.
     }.
 
+    override method getVertexLayout => VertexLayoutPtr
+        := layout upCastFor: VertexLayout.
+
     override method bindVertexBuffers: (theVertexBuffers: VertexBuffers) ::=> Void := {
         Stdn assert: theVertexBuffers size = buffers size.
         0 until: buffers size do: {:i :: Void |
