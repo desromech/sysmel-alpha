@@ -37,10 +37,45 @@ class MeshListBuilderCanvas superclass: AbstractConcreteCanvas; definition: {
     }.
 
     override method clear ::=> Void := {
-        Stdn stdout << "TODO: clear"; nl
+        let extent := targetSurface _ extent castTo: Float32x2.
+        self
+            fillTransformedQuad: Float32x2(0, 0) color: Float32x4 ones tc: Float32x2(0, 0)
+                p2: Float32x2(extent x, 0) color: Float32x4 ones tc: Float32x2(1, 0)
+                p3: Float32x2(extent x, extent y) color: Float32x4 ones tc: Float32x2(1, 1)
+                p4: Float32x2(0, extent y) color: Float32x4 ones tc: Float32x2(0, 1).
     }.
 
-    override method fillTriangle: (p1: Float32x2) color: (c1: Float32x4) tc: (tc1: Float32x2)
+    inline method fillTransformedQuad: (p1: Float32x2) color: (c1: Float32x4) tc: (tc1: Float32x2)
+        p2: (p2: Float32x2) color: (c2: Float32x4) tc: (tc2: Float32x2)
+        p3: (p3: Float32x2) color: (c3: Float32x4) tc: (tc3: Float32x2)
+        p4: (p4: Float32x2) color: (c4: Float32x4) tc: (tc4: Float32x2) ::=> Void := {
+
+        self beginTriangles
+            addVertex: (MeshVertex()
+                position: p1;
+                color: c1;
+                texcoord: tc1;
+                yourself);
+            addVertex: (MeshVertex()
+                position: p2;
+                color: c2;
+                texcoord: tc2;
+                yourself);
+            addVertex: (MeshVertex()
+                position: p3;
+                color: c3;
+                texcoord: tc3;
+                yourself);
+            addVertex: (MeshVertex()
+                position: p4;
+                color: c4;
+                texcoord: tc4;
+                yourself);
+            addTriangle: UInt32x3(0, 1, 2);
+            addTriangle: UInt32x3(2, 3, 0).
+    }.
+
+    inline method fillTransformedTriangle: (p1: Float32x2) color: (c1: Float32x4) tc: (tc1: Float32x2)
         p2: (p2: Float32x2) color: (c2: Float32x4) tc: (tc2: Float32x2)
         p3: (p3: Float32x2) color: (c3: Float32x4) tc: (tc3: Float32x2) ::=> Void := {
 
@@ -61,6 +96,27 @@ class MeshListBuilderCanvas superclass: AbstractConcreteCanvas; definition: {
                 texcoord: tc3;
                 yourself);
             addTriangle: UInt32x3(0, 1, 2).
+    }.
+
+    override method fillTriangle: (p1: Float32x2) color: (c1: Float32x4) tc: (tc1: Float32x2)
+        p2: (p2: Float32x2) color: (c2: Float32x4) tc: (tc2: Float32x2)
+        p3: (p3: Float32x2) color: (c3: Float32x4) tc: (tc3: Float32x2) ::=> Void := {
+
+        let tp1 := transform transformPoint: p1.
+        let tp2 := transform transformPoint: p2.
+        let tp3 := transform transformPoint: p3.
+
+        self fillTransformedTriangle: tp1 color: c1 tc: tc2
+            p2: tp2 color: c2 tc: tc2
+            p3: tp3 color: c3 tc: tc3
+    }.
+
+    override method fillRectangle: (rectangle: RectangleF32) ::=> Void := {
+        self
+            fillTransformedQuad: (transform transformPoint: rectangle bottomLeft) color: Float32x4 ones tc: Float32x2(0, 0)
+                p2: (transform transformPoint: rectangle bottomRight) color: Float32x4 ones tc: Float32x2(1, 0)
+                p3: (transform transformPoint: rectangle topRight) color: Float32x4 ones tc: Float32x2(1, 1)
+                p4: (transform transformPoint: rectangle topLeft) color: Float32x4 ones tc: Float32x2(0, 1).
     }.
 
     override method drawSegmentStart: (startPoint: Float32x2) end: (endPoint: Float32x2) ::=> Void := {

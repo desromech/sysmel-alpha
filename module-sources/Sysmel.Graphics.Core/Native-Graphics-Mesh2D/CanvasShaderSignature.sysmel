@@ -8,31 +8,24 @@ struct SamplingState definition: {
     public field sampler type: GPU Sampler.
 }.
 
-struct CameraState definition: {
+struct TransformationState definition: {
     public field projectionMatrix type: Float32x4x4.
-    public field viewMatrix type: Float32x4x4.
 }.
 
-struct DrawingState definition: {
-    public field modelMatrix type: Float32x4x4.
+struct TransformationStateBinding definition: {
+    public field state type: TransformationState uniformBufferPointer.
 }.
 
-struct CameraStateBinding definition: {
-    public field state type: CameraState uniformBufferPointer.
-}.
-
-struct DrawingStateBinding definition: {
-    public field drawingState type: DrawingState uniformBufferPointer.
+struct TexturingStateBinding definition: {
     public field texture type: GPU Texture2D.
 }.
 
 class CanvasMesh2DShaderSignature definition: {
     public field samplingState type: SamplingState bindingSetPointer.
-    public field cameraStateBinding type: CameraStateBinding bindingSetPointer.
-    public field drawingStateBinding type: DrawingStateBinding bindingSetPointer.
+    public field transformationStateBinding type: TransformationStateBinding bindingSetPointer.
+    public field texturingState type: TexturingStateBinding bindingSetPointer.
 
-    macro method cameraState := ``(`,self cameraStateBinding _ state _).
-    macro method drawingState := ``(`,self drawingStateBinding _ drawingState _).
+    macro method transformationState := ``(`,self transformationStateBinding _ state _).
 }.
 
 

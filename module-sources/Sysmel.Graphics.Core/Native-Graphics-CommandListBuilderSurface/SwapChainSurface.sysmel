@@ -98,7 +98,6 @@ class SwapChainSurface superclass: Surface; definition: {
     }.
 
     method endDrawing => Void := {
-        Stdn stdout << "SwapChainSurface endDrawing"; nl.
         let backBuffer := swapChain _ getCurrentBackBuffer.
         let backBufferIndex := swapChain _ getCurrentBackBufferIndex.
 

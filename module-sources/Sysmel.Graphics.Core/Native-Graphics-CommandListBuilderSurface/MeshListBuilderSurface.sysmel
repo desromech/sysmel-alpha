@@ -33,10 +33,6 @@ class MeshListBuilderSurface superclass: Surface; definition: {
 
     virtual method endDrawing => Void := {
         meshBuilder finishLastSubmesh.
-
-        Stdn stdout << self address << " MeshListBuilderSurface endDrawing"; nl.
-        Stdn stdout << "mesh " << meshBuilder vertices size << " " << meshBuilder indices size << " " << meshBuilder submeshes size; nl.
-
     }.
 }.
 

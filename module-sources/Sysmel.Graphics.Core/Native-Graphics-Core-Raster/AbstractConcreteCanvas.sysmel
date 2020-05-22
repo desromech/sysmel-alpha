@@ -35,8 +35,8 @@ class AbstractConcreteCanvas superclass: Canvas; definition: {
 
     override method fillRectangle: (rectangle: RectangleF32) ::=> Void := {
         self
-            fillTriangle: rectangle bottomLeft tc: Float32x2(0, 1) p2: rectangle bottomRight tc: Float32x2(1, 1) p3: rectangle topRight tc: Float32x2(1, 0);
-            fillTriangle: rectangle topRight tc: Float32x2(1, 0) p2: rectangle topLeft tc: Float32x2(0, 0) p3: rectangle bottomLeft tc: Float32x2(0, 1)
+            fillTriangle: rectangle bottomLeft tc: Float32x2(0, 0) p2: rectangle bottomRight tc: Float32x2(1, 0) p3: rectangle topRight tc: Float32x2(1, 1);
+            fillTriangle: rectangle topRight tc: Float32x2(1, 1) p2: rectangle topLeft tc: Float32x2(0, 1) p3: rectangle bottomLeft tc: Float32x2(0, 0)
     }.
 
     override method fontFaceWithSize => FontFaceWithSize sharedPointer const ref

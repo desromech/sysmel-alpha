@@ -51,6 +51,17 @@ MbndSlovimLiteralValueGenerator >> sanitizeAggregateConstantMember: constantMemb
 			]
 		].
 	].
+
+	(constantMember type isVectorType and: [ constantMember type baseType isBooleanType ]) ifTrue: [
+		self slvmCompilationTarget isLLVMCompilationTarget ifTrue: [ 
+			| expectedValueType |
+			expectedValueType := self sanitizeValueTypeForMemory: constantMember type.
+			constantMember isConstantVectorValue ifTrue: [ 
+				^ SLVMConstant vector: expectedValueType elements: (constantMember slots collect: [:each | self sanitizeAggregateConstantMember: each])
+			]
+		].
+	].
+
 	^ constantMember
 ]
 

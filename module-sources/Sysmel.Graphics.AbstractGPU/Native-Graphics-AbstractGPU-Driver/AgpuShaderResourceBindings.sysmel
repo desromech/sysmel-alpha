@@ -39,15 +39,24 @@ sealed class AgpuShaderResourceBindings superclass: ShaderResourceBindings; defi
     }.
 
     override method bindOn: (location: IntPointer) sampledTextureView: (textureView: TextureViewPtr const ref) ::=> Void := {
-
+        let agpuTextureView := textureView getPointer castTo: AgpuTextureView pointer.
+        agpuTextureView ifNotNil: {
+            handle _ bindSampledTextureView: (location castTo: Int32) view: agpuTextureView _ handle
+        }.
     }.
 
     override method bindOn: (location: IntPointer) storageImageView: (textureView: TextureViewPtr const ref) ::=> Void := {
-
+        let agpuTextureView := textureView getPointer castTo: AgpuTextureView pointer.
+        agpuTextureView ifNotNil: {
+            handle _ bindStorageImageView: (location castTo: Int32) view: agpuTextureView _ handle
+        }.
     }.
 
-    override method bindOn: (location: IntPointer) sampler: (sampelr: SamplerPtr const ref) ::=> Void := {
-
+    override method bindOn: (location: IntPointer) sampler: (sampler: SamplerPtr const ref) ::=> Void := {
+        let agpuSampler := sampler getPointer castTo: AgpuSampler pointer.
+        agpuSampler ifNotNil: {
+            handle _ bindSampler: (location castTo: Int32) sampler: agpuSampler _ handle
+        }.
     }.
 }.
 

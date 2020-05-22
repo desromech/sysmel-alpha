@@ -12,13 +12,8 @@ class SimpleShader superclass: CanvasMesh2DShaderSignature; definition: {
     function vertex vertexShader(in: MeshVertex inputChannel, out: MeshVertex outputChannel, stageOut: GPU VertexStageOutput outputChannel) => Void := {
         let input := in receive.
 
-        let worldPosition := self drawingState modelMatrix * Float32x4(input position, 0.0f, 1.0f).
-        let viewPosition := self cameraState viewMatrix * worldPosition.
-        let screenPosition := self cameraState projectionMatrix * viewPosition.
-
-        let output mutable := input.
-        output position: worldPosition xy.
-        out send: output.
+        let screenPosition := self transformationState projectionMatrix * Float32x4(input position, 0, 1).
+        out send: input.
 
         stageOut send: (GPU VertexStageOutput()
             screenPosition: screenPosition;
@@ -35,7 +30,7 @@ class SimpleShader superclass: CanvasMesh2DShaderSignature; definition: {
     function texturedFragment fragmentShader(stageIn: MeshVertex inputChannel, out: FragmentOutput outputChannel) => Void := {
         let input := stageIn receive.
 
-        let textureColor := samplingState _ sampler sample: drawingStateBinding _ texture at: input texcoord.
+        let textureColor := samplingState _ sampler sample: texturingState _ texture at: input texcoord.
 
         out send: (FragmentOutput()
             color0: input color*textureColor;

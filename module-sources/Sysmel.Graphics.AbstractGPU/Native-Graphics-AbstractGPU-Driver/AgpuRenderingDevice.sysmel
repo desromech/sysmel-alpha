@@ -29,7 +29,6 @@ sealed class AgpuRenderingDevice superclass: RenderingDevice; definition: {
         minUniformBufferOffsetAlignment := (handle _ getLimitValue: AGPU Limit MinUniformBufferOffsetAlignment) castTo: UIntPointer.
         minStorageBufferOffsetAlignment := (handle _ getLimitValue: AGPU Limit MinStorageBufferOffsetAlignment) castTo: UIntPointer.
 
-
         {
             let defaultCommandQueueHandle := handle _ getDefaultCommandQueue.
             let wrapper := AgpuCommandQueue sharedNew.
@@ -102,7 +101,34 @@ sealed class AgpuRenderingDevice superclass: RenderingDevice; definition: {
     }.
 
     override method createSampler: (description: SamplerDescription const ref) ::=> SamplerPtr := {
-        SamplerPtr nil.
+        let convertedDescription mutable := AGPU SamplerDescription()
+            filter: (description filter castTo: AGPU Filter);
+            address_u: (description addressU castTo: AGPU TextureAddressMode);
+            address_v: (description addressV castTo: AGPU TextureAddressMode);
+            address_w: (description addressW castTo: AGPU TextureAddressMode);
+            mip_lod_bias: description mipLodBias;
+            maxanisotropy: description maxAnisotropy;
+            comparison_enabled: (description comparisonEnabled asBit);
+            comparison_function: (description comparisonFunction castTo: AGPU CompareFunction);
+            border_color: (AGPU Color4f()
+                r: description borderColor r;
+                g: description borderColor g;
+                b: description borderColor b;
+                a: description borderColor a;
+                yourself);
+            min_lod: description minLod;
+            max_lod: description maxLod;
+            yourself.
+
+        let samplerHandle := handle _ createSampler: convertedDescription address.
+        samplerHandle ifNil: {
+            return: SamplerPtr nil.
+        }.
+
+        let result := AgpuSampler sharedNew.
+        result _
+            handle: samplerHandle.
+        result upCastFor: Sampler
     }.
 
     override method createComputePipelineState: (description: ComputePipelineStateDescription const ref) ::=> PipelineStatePtr := {
@@ -141,13 +167,31 @@ sealed class AgpuRenderingDevice superclass: RenderingDevice; definition: {
 
         builder _ setRenderTargetCount: (description colorAttachments size castTo: Int32).
         description colorAttachments doWithIndex: {:attachment :index :: Void |
-            let attachmentMask := (1<<index) castTo: UInt32.
+            let attachmentMask := (1<<index) castTo: Int32.
+            let blendingEquation ref := attachment blendingEquation.
             builder _
-                setRenderTargetFormat: (index castTo: UInt32) format: (attachment format castTo: AGPU TextureFormat)
+                setRenderTargetFormat: (index castTo: UInt32) format: (attachment format castTo: AGPU TextureFormat);
+                setBlendState: attachmentMask enabled: attachment blendingEnabled asBit;
+                setBlendFunction: attachmentMask
+                    sourceFactor: (blendingEquation sourceColorFactor castTo: AGPU BlendingFactor) destFactor: (blendingEquation destColorFactor castTo: AGPU BlendingFactor) colorOperation: (blendingEquation colorOperation castTo: AGPU BlendingOperation)
+                    sourceAlphaFactor: (blendingEquation sourceAlphaFactor castTo: AGPU BlendingFactor) destAlphaFactor: (blendingEquation destAlphaFactor castTo: AGPU BlendingFactor) alphaOperation: (blendingEquation alphaOperation castTo: AGPU BlendingOperation);
+                setColorMask: attachmentMask redEnabled: attachment colorMask r asBit greenEnabled: attachment colorMask g asBit blueEnabled: attachment colorMask b asBit alphaEnabled: attachment colorMask a asBit.
         }.
 
         builder _
             setDepthStencilFormat: (description depthStencilFormat castTo: AGPU TextureFormat);
+            setDepthState: description depthTestingEnabled asBit writeMask: description depthWriteMask asBit function: (description depthFunction castTo: AGPU CompareFunction);
+            setDepthBias: description depthBiasConstantFactor clamp: description depthBiasClamp slopeFactor: description depthBiasSlopeFactor;
+
+            setStencilState: (description stencilTestingEnabled asBit) writeMask: (description stencilWriteMask) readMask: (description stencilReadMask);
+            setStencilFrontFace: (description stencilFrontFaceState stencilFailOperation castTo: AGPU StencilOperation) depthFailOperation: (description stencilFrontFaceState depthFailOperation castTo: AGPU StencilOperation) stencilDepthPassOperation: (description stencilFrontFaceState depthPassOperation castTo: AGPU StencilOperation) stencilFunction: (description stencilFrontFaceState compareFunction castTo: AGPU CompareFunction);
+            setStencilBackFace: (description stencilBackFaceState stencilFailOperation castTo: AGPU StencilOperation) depthFailOperation: (description stencilBackFaceState depthFailOperation castTo: AGPU StencilOperation) stencilDepthPassOperation: (description stencilBackFaceState depthPassOperation castTo: AGPU StencilOperation) stencilFunction: (description stencilBackFaceState compareFunction castTo: AGPU CompareFunction);
+
+            setSampleDescription: description sampleCount sampleQuality: description sampleQuality;
+
+            setFrontFace: (description frontFaceOrientation castTo: AGPU FaceWinding);
+            setCullMode: (description faceCullingMode castTo: AGPU CullMode);
+            setPolygonMode: (description polygonMode castTo: AGPU PolygonMode);
             setPrimitiveType: (description primitiveTopology castTo: AGPU PrimitiveTopology).
 
         let pso := builder _ build.

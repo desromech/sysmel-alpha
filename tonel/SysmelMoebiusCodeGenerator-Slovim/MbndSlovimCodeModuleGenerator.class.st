@@ -1424,6 +1424,16 @@ MbndSlovimCodeModuleGenerator >> sanitizeStructureFieldType: fieldType [
 { #category : #visiting }
 MbndSlovimCodeModuleGenerator >> sanitizeValue: value withExpectedType: expectedType [
 	self slvmCompilationTarget isLLVMCompilationTarget ifTrue: [ 
+		(value type isVectorType and: [expectedType isVectorType]) ifTrue: [ 
+			(expectedType baseType isBooleanType and: [ value type baseType isIntegerType ]) ifTrue: [ 
+				self halt.
+			].
+	
+			(expectedType baseType isIntegerType and: [ value type baseType isBooleanType ]) ifTrue: [ 
+				self halt.
+			].
+		].
+	
 		(expectedType isBooleanType and: [ value type isIntegerType ]) ifTrue: [
 			self assert: value isConstantValue.
 			^ SLVMConstant type: expectedType value: value value asInteger ~= 0
@@ -1440,9 +1450,13 @@ MbndSlovimCodeModuleGenerator >> sanitizeValue: value withExpectedType: expected
 
 { #category : #'as yet unclassified' }
 MbndSlovimCodeModuleGenerator >> sanitizeValueTypeForMemory: valueType [
-	self slvmCompilationTarget isLLVMCompilationTarget ifTrue: [ 
+	self slvmCompilationTarget isLLVMCompilationTarget ifTrue: [
 		valueType isBooleanType ifTrue: [ 
 			^ self slvmCompilationTarget uint8
+		].
+
+		(valueType isVectorType and: [ valueType baseType isBooleanType ]) ifTrue: [ 
+			^ SLVMVectorType baseType: self slvmCompilationTarget uint8 elements: valueType elements
 		].
 	].
 

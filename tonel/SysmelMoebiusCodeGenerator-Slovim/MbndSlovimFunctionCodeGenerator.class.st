@@ -1815,7 +1815,12 @@ MbndSlovimFunctionCodeGenerator >> generateUnwindingNonLocalReturnCatch [
 		slvmBuilder returnVoid
 	] ifNotNil: [
 		self assert: concreteMethod returnType isVoidType not.
-		slvmBuilder return: (slvmBuilder load: nonLocalReturnResultVariable)
+		concreteMethod returnType isMemoryReturnedType ifTrue: [ 
+			self assert: (nonLocalReturnResultVariable isFunctionArgument or: [nonLocalReturnResultVariable isClosureCapture]).
+			slvmBuilder returnVoid
+		] ifFalse: [ 
+			slvmBuilder return: (slvmBuilder load: nonLocalReturnResultVariable)
+		]
 	].
 
 	slvmBuilder currentBlock: unwindResumeBlock
@@ -2198,9 +2203,19 @@ MbndSlovimFunctionCodeGenerator >> sanitizeStoreValue: value inPointer: fieldPoi
 
 { #category : #visiting }
 MbndSlovimFunctionCodeGenerator >> sanitizeValue: value withExpectedType: expectedType [
-	self slvmCompilationTarget isLLVMCompilationTarget ifTrue: [ 
+	self slvmCompilationTarget isLLVMCompilationTarget ifTrue: [
+		(value type isVectorType and: [expectedType isVectorType]) ifTrue: [ 
+			(expectedType baseType isBooleanType and: [ value type baseType isIntegerType ]) ifTrue: [ 
+				^ slvmBuilder truncate: value target: expectedType
+			].
+	
+			(expectedType baseType isIntegerType and: [ value type baseType isBooleanType ]) ifTrue: [ 
+				^ slvmBuilder zeroExtend: value target: expectedType
+			].
+		].
+	
 		(expectedType isBooleanType and: [ value type isIntegerType ]) ifTrue: [ 
-			^ slvmBuilder truncate: value target: self slvmCompilationTarget bool
+			^ slvmBuilder truncate: value target: expectedType
 		].
 	
 		(expectedType isIntegerType and: [ value type isBooleanType ]) ifTrue: [ 

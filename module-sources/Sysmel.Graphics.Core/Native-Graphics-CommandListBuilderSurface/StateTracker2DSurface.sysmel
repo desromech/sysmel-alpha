@@ -12,16 +12,19 @@ class StateTracker2DSurface superclass: MeshListBuilderSurface; definition: {
 
     protected field shaderSignature type: ShaderSignaturePtr.
 
-    protected field cameraStateBuffer type: BufferPtr.
-    protected field cameraStateBinding type: ShaderResourceBindingsPtr.
+    protected field sampler type: SamplerPtr.
+    protected field samplingStateBinding type: ShaderResourceBindingsPtr.
 
-    protected field drawingStateBuffer type: BufferPtr.
-    protected field drawingStateBinding type: ShaderResourceBindingsPtr.
+    protected field transformationStateBuffer type: BufferPtr.
+    protected field transformationStateBinding type: ShaderResourceBindingsPtr.
 
     protected field vertexBuffer type: BufferPtr.
     protected field vertexLayout type: VertexLayoutPtr.
     protected field vertexBinding type: VertexBindingPtr.
     protected field indexBuffer type: BufferPtr.
+
+    protected field texturingBindings type: Stdn Collections Vector(ShaderResourceBindingsPtr).
+    protected field nextAvailableTexturingBindings type: UIntPointer.
 
     method submitVertices => Boolean8 := {
         let requiredCapacity := meshBuilder vertices size * MeshVertex instanceSize.
@@ -112,23 +115,33 @@ class StateTracker2DSurface superclass: MeshListBuilderSurface; definition: {
     }.
 
     method submitMatrices => Boolean8 := {
-        cameraStateBuffer ifNil: {
+        transformationStateBuffer ifNil: {
             shaderSignature := renderingDevice _ createShaderSignatureBuilder _
                 ## Sampling state
                 beginBindingBank;
                 addBankElementWithType: ShaderBindingType Sampler;
 
-    			## Camera state
+    			## Transformation state
     			beginBindingBank;
     			addBankElementWithType: ShaderBindingType UniformBuffer;
 
-    			## Drawing state
+    			## Texturing state
     			beginBindingBank;
-    			addBankElementWithType: ShaderBindingType UniformBuffer;
                 addBankElementWithType: ShaderBindingType SampledImage;
     			build.
 
-            cameraStateBuffer := renderingDevice _ createBuffer: (BufferDescription()
+            sampler := renderingDevice _ createSampler: (SamplerDescription()
+                filter: TextureFilter MinLinear | TextureFilter MagLinear | TextureFilter MipmapLinear;
+                addressU: TextureAddressMode Wrap;
+                addressV: TextureAddressMode Wrap;
+                addressW: TextureAddressMode Wrap;
+                maxLod: 10000.0f;
+                yourself).
+
+            samplingStateBinding := shaderSignature _ createShaderResourceBindings: 0.
+            samplingStateBinding _ bindOn: 0 sampler: sampler.
+
+            transformationStateBuffer := renderingDevice _ createBuffer: (BufferDescription()
                 size: 256;
                 heapType: MemoryHeapType DeviceLocal;
                 usageModes: BufferUsageMode Uniform | BufferUsageMode CopyDestinationBuffer;
@@ -138,39 +151,18 @@ class StateTracker2DSurface superclass: MeshListBuilderSurface; definition: {
                 yourself
             ) initialData: nil.
 
-            cameraStateBinding := shaderSignature _ createShaderResourceBindings: 1.
-            cameraStateBinding _ bindOn: 0 uniformBuffer: cameraStateBuffer.
-
-            drawingStateBuffer := renderingDevice _ createBuffer: (BufferDescription()
-                size: 256;
-                heapType: MemoryHeapType DeviceLocal;
-                usageModes: BufferUsageMode Uniform | BufferUsageMode CopyDestinationBuffer;
-                mainUsageMode: BufferUsageMode Uniform;
-                mappingFlags: BufferMappingFlags DynamicStorage;
-                stride: 0;
-                yourself
-            ) initialData: nil.
-
-            drawingStateBinding := shaderSignature _ createShaderResourceBindings: 2.
-            drawingStateBinding _ bindOn: 0 uniformBuffer: drawingStateBuffer.
+            transformationStateBinding := shaderSignature _ createShaderResourceBindings: 1.
+            transformationStateBinding _ bindOn: 0 uniformBuffer: transformationStateBuffer.
         }.
 
         {
-            let cameraState mutable := CameraState()
+            let transformationState mutable := TransformationState()
                 projectionMatrix: (Float32x4x4 reverseDepthOrthoLeft: 0 right: extent x
                     bottom: extent y top: 0
                     near: -100.0f far: 100.0f
                     invertedY: renderingDevice _ shouldInvertProjectionY);
-                viewMatrix: Float32x4x4 identity;
                 yourself.
-            cameraStateBuffer _ uploadAt: 0 size: CameraState instanceSize data: cameraState address
-        }.
-
-        {
-            let drawingState mutable := DrawingState()
-                modelMatrix: Float32x4x4 identity;
-                yourself.
-            drawingStateBuffer _ uploadAt: 0 size: DrawingState instanceSize data: drawingState address
+            transformationStateBuffer _ uploadAt: 0 size: TransformationState instanceSize data: transformationState address
         }.
 
         true.
@@ -196,28 +188,52 @@ class StateTracker2DSurface superclass: MeshListBuilderSurface; definition: {
         self emitDrawingCommandsOnto: onwedStateTracker.
     }.
 
+    method getOrCreateTextureBindingFor: (textureView: TextureViewPtr) ::=> ShaderResourceBindingsPtr := {
+        nextAvailableTexturingBindings >= texturingBindings size ifTrue: {
+            texturingBindings add: (shaderSignature _ createShaderResourceBindings: 2)
+        }.
+
+        let result := texturingBindings[nextAvailableTexturingBindings].
+        result _ bindOn: 0 sampledTextureView: textureView.
+        nextAvailableTexturingBindings := nextAvailableTexturingBindings + 1.
+        result
+    }.
+
     method emitDrawingCommandsOnto: (stateTracker: StateTrackerPtr const ref) ::=> Void := {
         stateTracker ifNil: { return: void }.
-
-        Stdn stdout << self address << " StateTracker2DRenderingSurface endDrawing"; nl.
-        Stdn stdout << "mesh " << meshBuilder vertices size << " " << meshBuilder indices size << " " << meshBuilder submeshes size; nl.
 
         self submitVertices && self submitIndices && self submitMatrices ifFalse: {
             return: void
         }.
 
-        Stdn stdout << "surface buffers submitted"; nl.
-
         stateTracker _
             useShaderSignature: shaderSignature;
-            useGraphicShaderBindings: cameraStateBinding;
-            useGraphicShaderBindings: drawingStateBinding;
+            useGraphicShaderBindings: samplingStateBinding;
+            useGraphicShaderBindings: transformationStateBinding;
             vertexShader: SimpleShader vertex shaderEntryPointInfo address;
             fragmentShader: SimpleShader coloredFragment shaderEntryPointInfo address;
             useVertexBinding: vertexBinding;
             useIndexBuffer: indexBuffer.
 
+        nextAvailableTexturingBindings := 0.
+        let lastTextureView mutable := TextureViewPtr nil.
         meshBuilder submeshes do: {:each :: Void |
+            each textureView ~= lastTextureView ifTrue: {
+                each textureView ifNil: {
+                    stateTracker _ fragmentShader: SimpleShader coloredFragment shaderEntryPointInfo address.
+                } ifNotNil: {
+                    let binding := self getOrCreateTextureBindingFor: each textureView.
+                    binding ifNil: {
+                        stateTracker _ fragmentShader: SimpleShader coloredFragment shaderEntryPointInfo address.
+                    } ifNotNil: {
+                        stateTracker _ fragmentShader: SimpleShader texturedFragment shaderEntryPointInfo address.
+                        stateTracker _ useGraphicShaderBindings: binding
+                    }
+                }.
+
+                lastTextureView := each textureView
+            }.
+
             stateTracker _
                 primitiveTopology: each primitiveTopology;
                 drawElements: each indexCount instanceCount: 1 firstIndex: each firstIndex baseVertex: 0baseInstance: 0.
