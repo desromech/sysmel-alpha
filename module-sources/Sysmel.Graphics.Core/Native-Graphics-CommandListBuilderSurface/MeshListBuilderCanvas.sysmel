@@ -38,11 +38,12 @@ class MeshListBuilderCanvas superclass: AbstractConcreteCanvas; definition: {
 
     override method clear ::=> Void := {
         let extent := targetSurface _ extent castTo: Float32x2.
+        let clearColor := paintState simplePaint startColor.
         self
-            fillTransformedQuad: Float32x2(0, 0) color: Float32x4 ones tc: Float32x2(0, 0)
-                p2: Float32x2(extent x, 0) color: Float32x4 ones tc: Float32x2(1, 0)
-                p3: Float32x2(extent x, extent y) color: Float32x4 ones tc: Float32x2(1, 1)
-                p4: Float32x2(0, extent y) color: Float32x4 ones tc: Float32x2(0, 1).
+            fillTransformedQuad: Float32x2(0, 0) color: clearColor tc: Float32x2(0, 0)
+                p2: Float32x2(extent x, 0) color: clearColor tc: Float32x2(1, 0)
+                p3: Float32x2(extent x, extent y) color: clearColor tc: Float32x2(1, 1)
+                p4: Float32x2(0, extent y) color: clearColor tc: Float32x2(0, 1).
     }.
 
     inline method fillTransformedQuad: (p1: Float32x2) color: (c1: Float32x4) tc: (tc1: Float32x2)
@@ -106,21 +107,50 @@ class MeshListBuilderCanvas superclass: AbstractConcreteCanvas; definition: {
         let tp2 := transform transformPoint: p2.
         let tp3 := transform transformPoint: p3.
 
-        self fillTransformedTriangle: tp1 color: c1 tc: tc2
-            p2: tp2 color: c2 tc: tc2
-            p3: tp3 color: c3 tc: tc3
+        let mc1 := c1 * (paintState simplePaint evaluateAtPoint: tp1).
+        let mc2 := c2 * (paintState simplePaint evaluateAtPoint: tp2).
+        let mc3 := c3 * (paintState simplePaint evaluateAtPoint: tp3).
+
+        self fillTransformedTriangle: tp1 color: mc1 tc: tc2
+            p2: tp2 color: mc2 tc: tc2
+            p3: tp3 color: mc3 tc: tc3
     }.
 
     override method fillRectangle: (rectangle: RectangleF32) ::=> Void := {
+        let tp1 := transform transformPoint: rectangle bottomLeft.
+        let tp2 := transform transformPoint: rectangle bottomRight.
+        let tp3 := transform transformPoint: rectangle topRight.
+        let tp4 := transform transformPoint: rectangle topLeft.
+
+        let mc1 := paintState simplePaint evaluateAtPoint: tp1.
+        let mc2 := paintState simplePaint evaluateAtPoint: tp2.
+        let mc3 := paintState simplePaint evaluateAtPoint: tp3.
+        let mc4 := paintState simplePaint evaluateAtPoint: tp4.
+
         self
-            fillTransformedQuad: (transform transformPoint: rectangle bottomLeft) color: Float32x4 ones tc: Float32x2(0, 0)
-                p2: (transform transformPoint: rectangle bottomRight) color: Float32x4 ones tc: Float32x2(1, 0)
-                p3: (transform transformPoint: rectangle topRight) color: Float32x4 ones tc: Float32x2(1, 1)
-                p4: (transform transformPoint: rectangle topLeft) color: Float32x4 ones tc: Float32x2(0, 1).
+            fillTransformedQuad: tp1 color: mc1 tc: Float32x2(0, 0)
+                p2: tp2 color: mc2 tc: Float32x2(1, 0)
+                p3: tp3 color: mc3 tc: Float32x2(1, 1)
+                p4: tp4 color: mc4 tc: Float32x2(0, 1).
     }.
 
     override method drawSegmentStart: (startPoint: Float32x2) end: (endPoint: Float32x2) ::=> Void := {
-        Stdn stdout << "TODO: drawSegment"; nl.
+        let tp1 := transform transformPoint: startPoint.
+        let tp2 := transform transformPoint: endPoint.
+
+        let mc1 := paintState simplePaint evaluateAtPoint: tp1.
+        let mc2 := paintState simplePaint evaluateAtPoint: tp2.
+
+        self beginLines
+            addVertex: (MeshVertex()
+                position: tp1;
+                color: mc1;
+                yourself);
+            addVertex: (MeshVertex()
+                position: tp2;
+                color: mc2;
+                yourself);
+            addThinSegment: UInt32x2(0, 1).
     }.
 
     override method doSetClipRectangle: (aRectangle: RectangleF32) ::=> Void := {

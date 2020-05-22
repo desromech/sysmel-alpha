@@ -168,7 +168,6 @@ class StateTracker2DSurface superclass: MeshListBuilderSurface; definition: {
         true.
     }.
 
-
     override method beginDrawingWithCanvas => Canvas uniquePointer := {
         self beginDrawing ifFalse: {
             return: Canvas uniquePointer nil
@@ -180,7 +179,6 @@ class StateTracker2DSurface superclass: MeshListBuilderSurface; definition: {
 
         Canvas uniquePointer for: result.
     }.
-
 
     override method endDrawing => Void := {
         super endDrawing.
@@ -235,6 +233,7 @@ class StateTracker2DSurface superclass: MeshListBuilderSurface; definition: {
             }.
 
             stateTracker _
+                blendingEquation: each drawingState blendingMode asBlendingEquation;
                 primitiveTopology: each primitiveTopology;
                 drawElements: each indexCount instanceCount: 1 firstIndex: each firstIndex baseVertex: 0baseInstance: 0.
         }.

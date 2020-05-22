@@ -39,9 +39,9 @@ class SoftCanvas superclass: AbstractConcreteCanvas; definition: {
         let tp2 := transform transformPoint: p2.
         let tp3 := transform transformPoint: p3.
 
-        let mc1 := c1 * (paintState simplePaint evaluateAtPoint: p1).
-        let mc2 := c2 * (paintState simplePaint evaluateAtPoint: p2).
-        let mc3 := c3 * (paintState simplePaint evaluateAtPoint: p3).
+        let mc1 := c1 * (paintState simplePaint evaluateAtPoint: tp1).
+        let mc2 := c2 * (paintState simplePaint evaluateAtPoint: tp2).
+        let mc3 := c3 * (paintState simplePaint evaluateAtPoint: tp3).
 
         targetSurface _ pixelsBlitter
             blendTriangle: tp1 p2: tp2 p3: tp3 pixelsWith: {:(Float32x2)p :(Float32x3)barycentricCoordinates :(Float32x4)originalDestPixelValue :: Float32x4 |

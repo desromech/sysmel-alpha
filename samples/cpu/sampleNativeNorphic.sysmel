@@ -2,6 +2,8 @@ Compiler
     importModuleNamed: #"Norphic.Core";
 	importModuleNamed: #"Sysmel.Graphics.Headfull".
 
+Compiler importModuleNamed: #"Sysmel.Graphics.AbstractGPU".
+
 useNamespace: Stdn Graphics Core.
 useNamespace: Stdn Graphics GUI.
 useNamespace: Stdn Math Geometry.

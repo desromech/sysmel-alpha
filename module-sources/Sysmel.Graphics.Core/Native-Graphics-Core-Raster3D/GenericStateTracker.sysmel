@@ -200,7 +200,15 @@ class GenericStateTracker superclass: StateTracker; definition: {
     }.
 
     override method blendingEquation: (blendingEquation: BlendingEquation const ref) ::=> Void := {
-
+        hasExplicitGraphicsPipelineState ifTrue: {self invalidateGraphicsPipelineState}.
+        graphicsPipelineStateDescription colorAttachments do: {:each :: Void |
+            each blendingEnabled not || each blendingEquation ~= blendingEquation ifTrue: {
+                each
+                    blendingEnabled: true;
+                    blendingEquation: blendingEquation.
+                self invalidateGraphicsPipelineState
+            }
+        }.
     }.
 
     method setVertexLayout: (vertexLayout: VertexLayoutPtr) ::=> Void := {

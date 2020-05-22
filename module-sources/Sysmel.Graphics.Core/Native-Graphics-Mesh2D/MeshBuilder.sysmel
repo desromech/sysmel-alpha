@@ -38,6 +38,7 @@ struct MeshBuilder definition: {
             self finishLastSubmesh.
             submeshes add: (Submesh()
                 primitiveTopology: primitiveTopology;
+                firstIndex: (indices size castTo: UInt32);
                 drawingState: drawingState;
                 texture: texture;
                 textureView: textureView;
@@ -57,6 +58,12 @@ struct MeshBuilder definition: {
             addIndex: triangle x;
             addIndex: triangle y;
             addIndex: triangle z
+    }.
+
+    inline method addThinSegment: (segment: UInt32x2) ::=> Void := {
+        self
+            addIndex: segment x;
+            addIndex: segment y
     }.
 
     inline method addIndex: (index: UInt32) ::=> Void := {

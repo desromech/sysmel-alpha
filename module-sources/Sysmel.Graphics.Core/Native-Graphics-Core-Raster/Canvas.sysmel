@@ -117,7 +117,7 @@ class Canvas superclass: Object; definition: {
             return: void.
         }.
 
-        let inclusiveRectangle := RectangleF32 min: rectangle min max: ((rectangle max - 1) max: rectangle min).
+        let inclusiveRectangle := RectangleF32 min: rectangle min + 0.5f max: (rectangle max - 0.5f max: rectangle min + 0.5f).
 
         self
             drawSegmentStart: inclusiveRectangle bottomLeft end: inclusiveRectangle bottomRight;
