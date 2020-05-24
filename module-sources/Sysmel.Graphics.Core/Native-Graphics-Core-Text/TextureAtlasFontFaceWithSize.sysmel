@@ -31,7 +31,7 @@ class TextureAtlasFontFaceWithSize superclass: FontFaceWithSize; definition: {
     }.
 
     method increaseHeighTo: (newHeight: UInt32) ::=> Void := {
-        let newFontFaceForm := Form extent: UInt32x2(FontTextureWidth, newHeight) pixelFormat: PixelFormat A8_UNorm.
+        let newFontFaceForm := Form extent: UInt32x2(FontTextureWidth, newHeight) pixelFormat: PixelFormat R8_UNorm.
         fontFaceForm ifNotNil: {
             let sourceBlitter := fontFaceForm _ makeBlitter.
             newFontFaceForm _ makeBlitter copyPixelsFrom: sourceBlitter at: sourceBlitter clippedBounds into: 0
@@ -66,7 +66,8 @@ class TextureAtlasFontFaceWithSize superclass: FontFaceWithSize; definition: {
 
         ## Copy the glyph.
         {
-            let sourceBlitter := originalGlyphForm _ makeBlitter.
+            let sourceBlitter mutable := originalGlyphForm _ makeBlitter.
+            sourceBlitter pixelFormat: PixelFormat R8_UNorm.
             fontFaceForm _ makeBlitter copyPixelsFrom: sourceBlitter at: sourceBlitter clippedBounds into: (destinationPosition castTo: Int32x2)
         }.
 
@@ -151,7 +152,7 @@ class TextureAtlasFontFaceWithSize superclass: FontFaceWithSize; definition: {
                     depth: 1;
                     layers: 1;
                     miplevels: 1;
-                    format: PixelFormat A8_UNorm;
+                    format: PixelFormat R8_UNorm;
                     usageModes: TextureUsageMode CopyDestination | TextureUsageMode Sampled;
                     mainUsageMode: TextureUsageMode Sampled;
                     heapType: MemoryHeapType DeviceLocal;

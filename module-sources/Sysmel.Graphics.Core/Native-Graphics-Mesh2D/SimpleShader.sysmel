@@ -43,7 +43,7 @@ class SimpleShader superclass: CanvasMesh2DShaderSignature; definition: {
         let textureColor := samplingState _ sampler sample: texturingState _ texture at: input texcoord / ((texturingState _ texture extentOfLod: 0) castTo: Float32x2).
 
         out send: (FragmentOutput()
-            color0: input color*textureColor r;
+            color0: input color * Float32x4(1, 1, 1, textureColor r);
             yourself)
     }.
 }.

@@ -40,8 +40,11 @@ class SoftRenderingDevice superclass: RenderingDevice; definition: {
     override method createShaderSignatureBuilder ::=> ShaderSignatureBuilderPtr
         := SoftShaderSignatureBuilder sharedNew upCastFor: ShaderSignatureBuilder.
 
-    override method createShaderLibraryFromModule: (shaderModule: GPU ShaderModuleInfo const ref) ::=> ShaderLibraryHandlePtr
-        := ShaderLibraryHandlePtr nil.
+    override method createShaderLibraryFromModule: (shaderModule: GPU ShaderModuleInfo const ref) ::=> ShaderLibraryHandlePtr := {
+        let result := SoftShaderLibraryHandle sharedNew.
+        result _ moduleInfo: shaderModule address.
+        result upCastFor: ShaderLibraryHandle
+    }.
 
     override method createShaderStageFromEntryPoint: (entryPointInfo: GPU ShaderEntryPointInfo const ref) ::=> ShaderStageHandlePtr := {
         let result := SoftShaderStageHandle sharedNew.

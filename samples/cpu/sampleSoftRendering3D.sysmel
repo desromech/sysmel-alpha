@@ -243,12 +243,13 @@ function doRender3D => Void := {
 		close.
 
 	renderingCommandQueue _
-		submitCommandList: commandList;
-		waitForIdle.
+		submitCommandList: commandList.
 }.
 
 function doRenderOn(canvas: Canvas ref) => Void := {
-	doRender3D().
+	let rendering3DTime := (Stdn Chrono profileTimeToRun: {
+		doRender3D().
+	}) castTo: Float32.
 
 	canvas clear.
 	canvas drawingState restoreAfter: {
@@ -266,6 +267,7 @@ function doRenderOn(canvas: Canvas ref) => Void := {
 		let frameTime := lastFrameRenderingTime * 1000.0f.
 		let frameTimeString := Stdn String textStreamContents: {:out :: Void |
 			out << "Current time " << currentTime; nl.
+			out << "Rendering 3D time " << (rendering3DTime * 1000.0f) << " ms"; nl.
 			out << "Rendering time " << frameTime << " ms"; nl.
 		}.
 

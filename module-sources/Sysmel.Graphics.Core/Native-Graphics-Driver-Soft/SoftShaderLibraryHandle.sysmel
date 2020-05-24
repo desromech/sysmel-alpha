@@ -1,0 +1,26 @@
+namespace Stdn definition: {
+namespace Graphics definition: {
+namespace Core definition: {
+
+#**
+ * I am a CPU only implementation for a shader library handle.
+ *#
+class SoftShaderLibraryHandle superclass: ShaderLibraryHandle; definition: {
+    public field moduleInfo type: GPU ShaderModuleInfo const pointer.
+
+    override method createHandleForEntryPoint: (entryPointInfo: GPU ShaderEntryPointInfo const ref) ::=> ShaderStageHandlePtr := {
+        entryPointInfo moduleInfo ~~ moduleInfo ifTrue: {
+            return: ShaderStageHandlePtr nil
+        }.
+
+        let result := SoftShaderStageHandle sharedNew.
+        result _ entryPointInfo: entryPointInfo.
+        result upCastFor: ShaderStageHandle
+    }.
+}.
+
+compileTime constant SoftShaderLibraryHandlePtr := SoftShaderLibraryHandle sharedPointer.
+
+}. ## End of namespace Core
+}. ## End of namespace Graphics
+}. ## End of namespace Stdn
