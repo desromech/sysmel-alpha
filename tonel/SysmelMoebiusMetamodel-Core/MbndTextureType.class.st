@@ -21,6 +21,33 @@ MbndTextureType >> accept: visitor [
 	^ visitor visitTextureType: self
 ]
 
+{ #category : #initialization }
+MbndTextureType >> addTextureIntrinsics [
+	self class == MbndTextureType ifFalse: [ ^ self ].
+	self isTraitType ifTrue: [ ^ self ].
+	self
+		addBuiltIn: #extent intrinsicNamed: 'texture.query.size' argumentTypes: #() returnType: self extentType evaluatedWith: [:receiver :arguments :evaluator :node |
+				self halt.
+		];
+		addBuiltIn: #extentOfLod: intrinsicNamed: 'texture.query.lod.size' argumentTypes: { self compilationTarget int32Type } returnType: self extentType evaluatedWith: [:receiver :arguments :evaluator :node |
+				self halt.
+		];
+		addBuiltIn: #lodCount intrinsicNamed: 'texture.query.lod.count' argumentTypes: #() returnType: self compilationTarget int32Type evaluatedWith: [:receiver :arguments :evaluator :node |
+				self halt.
+		].
+	
+	sampled ifFalse: [ 
+		
+		self
+			addBuiltIn: #loadAt: intrinsicNamed: 'texture.image.read' argumentTypes: {self imageCoordinateType}returnType: self compilationTarget voidType evaluatedWith: [:receiver :arguments :evaluator :node |
+				self halt.
+			];
+			addBuiltIn: #at:store: intrinsicNamed: 'texture.image.read' argumentTypes: {self imageCoordinateType . self texelType } returnType: self compilationTarget voidType evaluatedWith: [:receiver :arguments :evaluator :node |
+				self halt.
+			]
+	].
+]
+
 { #category : #accessing }
 MbndTextureType >> depth [
 	^ depth
@@ -36,6 +63,12 @@ MbndTextureType >> derivativeType [
 	^ self compilationTarget float32Type primitiveVectorWithElements: dimensions
 ]
 
+{ #category : #'as yet unclassified' }
+MbndTextureType >> dimensionCount [
+	dimensions = #cube ifTrue: [ ^ 3 ].
+	^ dimensions
+]
+
 { #category : #accessing }
 MbndTextureType >> dimensions [
 	^ dimensions
@@ -44,6 +77,23 @@ MbndTextureType >> dimensions [
 { #category : #accessing }
 MbndTextureType >> dimensions: anObject [
 	dimensions := anObject
+]
+
+{ #category : #'as yet unclassified' }
+MbndTextureType >> extentType [
+	^ self compilationTarget int32Type primitiveVectorWithElements: self dimensionCount + layered asBit
+]
+
+{ #category : #'as yet unclassified' }
+MbndTextureType >> imageCoordinateType [
+	^ self compilationTarget int32Type primitiveVectorWithElements: self dimensionCount + layered asBit
+]
+
+{ #category : #initialization }
+MbndTextureType >> initialize [
+	super initialize.
+	self
+		addTextureIntrinsics
 ]
 
 { #category : #'testing methods' }
@@ -83,5 +133,10 @@ MbndTextureType >> sampled: anObject [
 
 { #category : #'as yet unclassified' }
 MbndTextureType >> samplingCoordinateType [
-	^ self compilationTarget float32Type primitiveVectorWithElements: dimensions + layered asBit
+	^ self compilationTarget float32Type primitiveVectorWithElements: self dimensionCount + layered asBit
+]
+
+{ #category : #'as yet unclassified' }
+MbndTextureType >> texelType [
+	^ self compilationTarget float32Type primitiveVectorWithElements: 4
 ]

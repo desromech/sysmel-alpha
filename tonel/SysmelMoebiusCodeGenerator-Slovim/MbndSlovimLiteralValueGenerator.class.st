@@ -332,6 +332,31 @@ MbndSlovimLiteralValueGenerator >> visitTemporaryReferenceType: referenceType [
 	^ self visitReferenceType: referenceType
 ]
 
+{ #category : #visiting }
+MbndSlovimLiteralValueGenerator >> visitTupleType: type [
+	| slots convertedSlots slvmType |
+	slots := literalValue slots.
+	convertedSlots := type elements collectWithIndex: [ :slotType :index |
+		self sanitizeAggregateConstantMember:
+		(self ensureValidSSALiteralValue: (codeModuleGenerator translateLiteralValue: (slots at: index) ofType: slotType)
+			ofType: slotType)
+	].
+
+	slvmType := codeModuleGenerator translateType: type.
+	type isGarbageCollectedType ifTrue: [ slvmType := slvmType baseType ].
+	
+	convertedSlots doWithIndex: [ :convertedSlot :index |
+		|slotType expectedType|
+		slotType := convertedSlot type.
+		expectedType := slvmType types at: index.
+		slotType ~= expectedType ifTrue: [
+			self error: 'Invalid tuple literal value with mismatching slot types.'
+		].
+	].
+
+	^ SLVMConstant structure: slvmType slots: convertedSlots
+]
+
 { #category : #'code generation' }
 MbndSlovimLiteralValueGenerator >> visitUndefinedType: undefinedType [
 	^ SLVMConstant type: (self translateType: undefinedType) value: literalValue

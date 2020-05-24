@@ -389,7 +389,7 @@ MbndSlovimFunctionCodeGenerator >> expandTexcoord: texcoord toCanonicalCPUTexcoo
 	texcoordSize = 4 ifTrue: [ ^ texcoord ].
 	zeroVector := SLVMConstant zeroInitializer: texcoord type.
 	
-	dimensionMask := (0 to: textureType dimensions - 1) asArray.
+	dimensionMask := (0 to: textureType dimensionCount - 1) asArray.
 	arrayMask := textureType layered
 		ifTrue: [ { texcoord elements - 1 } ]
 		ifFalse: [ #() ].
