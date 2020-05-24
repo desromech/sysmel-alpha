@@ -20,6 +20,9 @@ class FontFaceWithSize superclass: Object; definition: {
     virtual method getOrCreateGlyphForCodePoint: (codePoint: Char32) ::=> Glyph sharedPointer
         := Glyph sharedPointer nil.
 
+    virtual method validRenderingTextureAndView => (TexturePtr -- TextureViewPtr)
+        := (TexturePtr nil, TextureViewPtr nil).
+
     virtual method getKerningForCharacter: (leftCharacter: Char32) with: (rightCharacter: Char32) ::=> Float32x2
         := Float32x2 zeros.
 

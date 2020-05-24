@@ -21,7 +21,14 @@ class MeshListBuilderCanvas superclass: AbstractConcreteCanvas; definition: {
     method beginSubmesh: (primitiveTopology: PrimitiveTopology) ::=> MeshBuilder ref := {
         let builder ref := targetSurface _ meshBuilder.
         builder beginSubmesh: primitiveTopology drawingState: drawingState
-            texture: paintState texture textureView: paintState textureView.
+            texture: paintState texture textureView: paintState textureView fontFaceWithSize: FontFaceWithSizePtr nil.
+        builder
+    }.
+
+    method beginFontTexturedTriangles ::=> MeshBuilder ref := {
+        let builder ref := targetSurface _ meshBuilder.
+        builder beginSubmesh: PrimitiveTopology Triangles drawingState: drawingState
+            texture: TexturePtr nil textureView: TextureViewPtr nil fontFaceWithSize: currentFontFaceWithSize.
         builder
     }.
 
@@ -157,7 +164,52 @@ class MeshListBuilderCanvas superclass: AbstractConcreteCanvas; definition: {
         ## Stdn stdout << "TODO: doSetClipRectangle"; nl.
     }.
 
+    override method fontFaceWithSize: (font: FontFaceWithSize sharedPointer const ref) ::=> Void := {
+        super fontFaceWithSize: (targetSurface _ renderingDevice _ getDefaultFontCache _ getOrCreateAdaptedFontFaceWithSize: font).
+    }.
+
     override method drawGlyph: (glyph: Glyph ref) at: (aPosition: Float32x2) ::=> Void := {
+        let atlasRectangle := glyph textureAtlasBounds.
+        let drawRectangle := RectangleF32 min: aPosition + glyph drawOrigin extent: atlasRectangle extent.
+
+        let p1 := transform transformPoint: drawRectangle bottomLeft.
+        let p2 := transform transformPoint: drawRectangle bottomRight.
+        let p3 := transform transformPoint: drawRectangle topRight.
+        let p4 := transform transformPoint: drawRectangle topLeft.
+
+        let c1 := paintState simplePaint evaluateAtPoint: p1.
+        let c2 := paintState simplePaint evaluateAtPoint: p2.
+        let c3 := paintState simplePaint evaluateAtPoint: p3.
+        let c4 := paintState simplePaint evaluateAtPoint: p4.
+
+        let tc1 := atlasRectangle bottomLeft.
+        let tc2 := atlasRectangle bottomRight.
+        let tc3 := atlasRectangle topRight.
+        let tc4 := atlasRectangle topLeft.
+
+        self beginFontTexturedTriangles
+            addVertex: (MeshVertex()
+                position: p1;
+                color: c1;
+                texcoord: tc1;
+                yourself);
+            addVertex: (MeshVertex()
+                position: p2;
+                color: c2;
+                texcoord: tc2;
+                yourself);
+            addVertex: (MeshVertex()
+                position: p3;
+                color: c3;
+                texcoord: tc3;
+                yourself);
+            addVertex: (MeshVertex()
+                position: p4;
+                color: c4;
+                texcoord: tc4;
+                yourself);
+            addTriangle: UInt32x3(0, 1, 2);
+            addTriangle: UInt32x3(2, 3, 0).
     }.
 
 }.

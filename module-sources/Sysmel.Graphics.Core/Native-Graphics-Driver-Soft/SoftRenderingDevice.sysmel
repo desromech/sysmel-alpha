@@ -7,14 +7,16 @@ namespace Core definition: {
  * I am a CPU based rendering driver. Since I do not require special graphical support, I am constructed as a singleton.
  *#
 class SoftRenderingDevice superclass: RenderingDevice; definition: {
-    field defaultCommandQueue type: CommandQueuePtr.
-    field defaultShaderCache type: ShaderCachePtr.
-    field defaultPipelineStateCache type: PipelineStateCachePtr.
+    private field defaultCommandQueue type: CommandQueuePtr.
+    private field defaultShaderCache type: ShaderCachePtr.
+    private field defaultPipelineStateCache type: PipelineStateCachePtr.
+    private field defaultFontCache type: RenderingDeviceFontCachePtr.
 
     override method initialize => Void := {
         defaultCommandQueue := SoftCommandQueue sharedNew upCastFor: CommandQueue.
         defaultShaderCache := self createShaderCache.
         defaultPipelineStateCache := self createPipelineStateCache.
+        defaultFontCache := self createFontCache.
     }.
 
     override method isSoftRenderingDevice => Boolean8
@@ -184,11 +186,17 @@ class SoftRenderingDevice superclass: RenderingDevice; definition: {
     override method hasBottomLeftTextureCoordinates => Boolean8
         := false.
 
+    override method createFontCache => RenderingDeviceFontCachePtr
+        := NullRenderingDeviceFontCache sharedNew upCastFor: RenderingDeviceFontCache.
+
     override method getDefaultPipelineStateCache => PipelineStateCachePtr const ref
         := defaultPipelineStateCache.
 
     override method getDefaultShaderCache => ShaderCachePtr const ref
         := defaultShaderCache.
+
+    override method getDefaultFontCache => RenderingDeviceFontCachePtr const ref
+        := defaultFontCache.
 }.
 
 }. ## End of namespace Core

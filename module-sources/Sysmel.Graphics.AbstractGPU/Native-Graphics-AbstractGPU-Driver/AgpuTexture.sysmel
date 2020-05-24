@@ -28,6 +28,7 @@ sealed class AgpuTexture superclass: Texture; definition: {
     }.
 
     override method readTextureLevel: (level: UIntPointer) layer: (layer: UIntPointer) pitch: (pitch: IntPointer) slicePitch: (slicePitch: IntPointer) buffer: (buffer: Void pointer) ::=> Void := {
+        handle _ readTextureData: (level castTo: Int32) arrayIndex: (layer castTo: Int32) pitch: (pitch castTo: Int32) slicePitch: (slicePitch castTo: Int32) buffer: (buffer reinterpretCastTo: Void pointer)
     }.
 
     override method readTextureLevel: (level: UIntPointer) layer: (layer: UIntPointer) pitch: (pitch: IntPointer) slicePitch: (slicePitch: IntPointer)
@@ -36,11 +37,11 @@ sealed class AgpuTexture superclass: Texture; definition: {
     }.
 
     override method uploadTextureLevel: (level: UIntPointer) layer: (layer: UIntPointer) pitch: (pitch: IntPointer) slicePitch: (slicePitch: IntPointer) data: (data: Void const pointer) ::=> Void := {
+        handle _ uploadTextureData: (level castTo: Int32) arrayIndex: (layer castTo: Int32) pitch: (pitch castTo: Int32) slicePitch: (slicePitch castTo: Int32) data: (data reinterpretCastTo: Void pointer)
     }.
 
     override method uploadTextureLevel: (level: UIntPointer) layer: (layer: UIntPointer) pitch: (pitch: IntPointer) slicePitch: (slicePitch: IntPointer)
         sourceRegion: (sourceRegion: RectangleI32 const pointer) destExtent: (destExtent: UInt32x3 pointer) data: (data: Void const pointer) ::=> Void := {
-
     }.
 
     override method getFullViewDescription => TextureViewDescription := {

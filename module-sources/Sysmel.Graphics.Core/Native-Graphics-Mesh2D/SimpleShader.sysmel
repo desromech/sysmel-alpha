@@ -36,6 +36,16 @@ class SimpleShader superclass: CanvasMesh2DShaderSignature; definition: {
             color0: input color*textureColor;
             yourself)
     }.
+
+    function textFragment fragmentShader(stageIn: MeshVertex inputChannel, out: FragmentOutput outputChannel) => Void := {
+        let input := stageIn receive.
+
+        let textureColor := samplingState _ sampler sample: texturingState _ texture at: input texcoord / ((texturingState _ texture extentOfLod: 0) castTo: Float32x2).
+
+        out send: (FragmentOutput()
+            color0: input color*textureColor r;
+            yourself)
+    }.
 }.
 
 }. ## End of namespace CanvasMesh2D

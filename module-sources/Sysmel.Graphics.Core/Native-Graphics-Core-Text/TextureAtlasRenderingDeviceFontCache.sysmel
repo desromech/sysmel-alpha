@@ -1,0 +1,36 @@
+namespace Stdn definition: {
+namespace Graphics definition: {
+namespace Core definition: {
+
+#**
+ * I am a rendering device specific font cache that merges glyphs into texture atlasses.
+ * I am intended to be used with GPU accelerated rendering devices.
+ *#
+class TextureAtlasRenderingDeviceFontCache superclass: RenderingDeviceFontCache; definition: {
+    private field device type: RenderingDeviceWeakPtr.
+
+    private field cacheDictionary type: Stdn Collections Dictionary(FontFaceWithSizePtr, FontFaceWithSizePtr).
+    private field cacheDictionaryMutex type: Stdn Mutex.
+
+    method initializeWithDevice: (theDevice: RenderingDeviceWeakPtr const ref) ::=> Void := {
+        device := theDevice.
+    }.
+
+    override method getOrCreateAdaptedFontFaceWithSize: (fontFaceWithSize: FontFaceWithSizePtr const ref) ::=> FontFaceWithSizePtr := {
+        fontFaceWithSize ifNil: {
+            return: FontFaceWithSizePtr nil
+        }.
+
+        cacheDictionaryMutex withLock: {
+            cacheDictionary at: fontFaceWithSize ifAbsentPut: {:: FontFaceWithSizePtr |
+                let result := TextureAtlasFontFaceWithSize sharedNew.
+                result _ initializeWith: fontFaceWithSize for: device.
+                result upCastFor: FontFaceWithSize
+            }
+        }
+    }.
+}.
+
+}. ## End of namespace Core
+}. ## End of namespace Graphics
+}. ## End of namespace Stdn

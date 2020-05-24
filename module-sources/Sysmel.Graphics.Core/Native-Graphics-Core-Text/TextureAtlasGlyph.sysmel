@@ -1,0 +1,38 @@
+namespace Stdn definition: {
+namespace Graphics definition: {
+namespace Core definition: {
+
+useNamespace: Stdn Math Geometry.
+
+#**
+ * I am a texture atlas glyph.
+ *#
+class TextureAtlasGlyph superclass: Glyph; definition: {
+    private field textureAtlasBounds type: RectangleF32.
+
+    method initializeAdaptingFrom: (other: Glyph ref) inAtlasLocation: (atlasLocation: RectangleF32) ::=> Void := {
+        drawOrigin := other drawOrigin.
+
+        extent := other extent.
+
+        horizontalBearing := other horizontalBearing.
+        horizontalAdvance := other horizontalAdvance.
+
+        verticalBearing := other verticalBearing.
+        verticalAdvance := other verticalAdvance.
+
+        textureAtlasBounds := atlasLocation.
+    }.
+
+    override method isRenderingDeviceSpecificGlyph => Boolean8
+        := true.
+
+    override method textureAtlasBounds => RectangleF32
+        := textureAtlasBounds.
+}.
+
+compileTime constant TextureAtlasGlyphPtr := TextureAtlasGlyph sharedPointer.
+
+}. ## End of namespace Core
+}. ## End of namespace Graphics
+}. ## End of namespace Stdn

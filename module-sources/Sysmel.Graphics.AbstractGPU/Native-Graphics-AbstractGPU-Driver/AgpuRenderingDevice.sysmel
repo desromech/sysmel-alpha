@@ -13,6 +13,7 @@ sealed class AgpuRenderingDevice superclass: RenderingDevice; definition: {
     protected field defaultCommandQueue type: CommandQueuePtr.
     protected field defaultShaderCache type: ShaderCachePtr.
     protected field defaultPipelineStateCache type: PipelineStateCachePtr.
+    private field defaultFontCache type: RenderingDeviceFontCachePtr.
 
     protected field nonCoherentAtomSize type: UIntPointer.
     protected field minMemoryMapAlignment type: UIntPointer.
@@ -38,6 +39,7 @@ sealed class AgpuRenderingDevice superclass: RenderingDevice; definition: {
 
         defaultShaderCache := self createShaderCache.
         defaultPipelineStateCache := self createPipelineStateCache.
+        defaultFontCache := self createFontCache.
     }.
 
     override method createShaderSignatureBuilder ::=> ShaderSignatureBuilderPtr := {
@@ -471,6 +473,9 @@ sealed class AgpuRenderingDevice superclass: RenderingDevice; definition: {
 
     override method getDefaultShaderCache => ShaderCachePtr const ref
         := defaultShaderCache.
+
+    override method getDefaultFontCache => RenderingDeviceFontCachePtr const ref
+        := defaultFontCache.
 }.
 
 compileTime constant AgpuRenderingDevicePtr := AgpuRenderingDevice sharedPointer.

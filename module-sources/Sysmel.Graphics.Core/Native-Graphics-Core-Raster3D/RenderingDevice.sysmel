@@ -63,8 +63,15 @@ RenderingDevice extend: {
         result upCastFor: ShaderCache
     }.
 
+    virtual method createFontCache => RenderingDeviceFontCachePtr := {
+        let result := TextureAtlasRenderingDeviceFontCache sharedNew.
+        result _ initializeWithDevice: self asWeakPointer.
+        result upCastFor: RenderingDeviceFontCache
+    }.
+
     abstract method getDefaultPipelineStateCache => PipelineStateCachePtr const ref.
     abstract method getDefaultShaderCache => ShaderCachePtr const ref.
+    abstract method getDefaultFontCache => RenderingDeviceFontCachePtr const ref.
 }.
 
 }. ## End of namespace Core

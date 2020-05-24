@@ -48,6 +48,8 @@ class Form definition: {
             yourself.
 }.
 
+compileTime constant FormPtr := Form sharedPointer.
+
 }. ## End of namespace Core
 }. ## End of namespace Graphics
 }. ## End of namespace Stdn

@@ -216,6 +216,13 @@ class StateTracker2DSurface superclass: MeshListBuilderSurface; definition: {
         nextAvailableTexturingBindings := 0.
         let lastTextureView mutable := TextureViewPtr nil.
         meshBuilder submeshes do: {:each :: Void |
+            each fontFaceWithSize isNotNil && each textureView isNil ifTrue: {
+                let (let texture, let textureView) := each fontFaceWithSize _ validRenderingTextureAndView.
+                each
+                    texture: texture;
+                    textureView: textureView.
+            }.
+
             each textureView ~= lastTextureView ifTrue: {
                 each textureView ifNil: {
                     stateTracker _ fragmentShader: SimpleShader coloredFragment shaderEntryPointInfo address.
@@ -224,7 +231,11 @@ class StateTracker2DSurface superclass: MeshListBuilderSurface; definition: {
                     binding ifNil: {
                         stateTracker _ fragmentShader: SimpleShader coloredFragment shaderEntryPointInfo address.
                     } ifNotNil: {
-                        stateTracker _ fragmentShader: SimpleShader texturedFragment shaderEntryPointInfo address.
+                        each fontFaceWithSize ifNil: {
+                            stateTracker _ fragmentShader: SimpleShader texturedFragment shaderEntryPointInfo address.
+                        } ifNotNil: {
+                            stateTracker _ fragmentShader: SimpleShader textFragment shaderEntryPointInfo address.
+                        }.
                         stateTracker _ useGraphicShaderBindings: binding
                     }
                 }.

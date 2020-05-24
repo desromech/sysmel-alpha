@@ -1,0 +1,18 @@
+namespace Stdn definition: {
+namespace Graphics definition: {
+namespace Core definition: {
+
+#**
+ * I am a cache for rendering device specific fonts. I create adapters of font
+ * face with size that convert glyphs into a more suitable form for rendering with
+ * either a GPU accelerated rendering device, or a bit-blit based soft rendering device.
+ *#
+class RenderingDeviceFontCache superclass: RenderingDriverObjectHandle; definition: {
+    abstract method getOrCreateAdaptedFontFaceWithSize: (fontFaceWithSize: FontFaceWithSizePtr const ref) ::=> FontFaceWithSizePtr.
+}.
+
+compileTime constant RenderingDeviceFontCachePtr := RenderingDeviceFontCache sharedPointer.
+
+}. ## End of namespace Core
+}. ## End of namespace Graphics
+}. ## End of namespace Stdn

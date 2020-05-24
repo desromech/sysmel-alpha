@@ -22,9 +22,18 @@ class Glyph superclass: Object; definition: {
     virtual method asForm => Form sharedPointer
         := Form sharedPointer nil.
 
+    virtual method isRenderingDeviceSpecificGlyph => Boolean8
+        := false.
+
     inline method bounds => RectangleF32
         := RectangleF32 min: drawOrigin extent: extent.
+
+    virtual method textureAtlasBounds => RectangleF32
+        := RectangleF32 min: 0 extent: extent.
+
 }.
+
+compileTime constant GlyphPtr := Glyph sharedPointer.
 
 }. ## End of namespace Core
 }. ## End of namespace Graphics

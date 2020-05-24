@@ -73,6 +73,8 @@ class FontFaceLoaderRegistry definition: {
     }.
 }.
 
+compileTime constant FontFaceWithSizePtr := FontFaceWithSize sharedPointer.
+
 }. ## End of namespace Core
 }. ## End of namespace Graphics
 }. ## End of namespace Stdn

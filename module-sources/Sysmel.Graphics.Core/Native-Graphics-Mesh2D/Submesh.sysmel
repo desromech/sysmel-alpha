@@ -12,6 +12,7 @@ struct Submesh definition: {
     public field drawingState type: CanvasDrawingState.
     public field texture type: TexturePtr.
     public field textureView type: TextureViewPtr.
+    public field fontFaceWithSize type: FontFaceWithSizePtr.
 }.
 
 }. ## End of namespace CanvasMesh2D

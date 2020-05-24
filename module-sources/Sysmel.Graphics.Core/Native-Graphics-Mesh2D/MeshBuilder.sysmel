@@ -26,14 +26,16 @@ struct MeshBuilder definition: {
     }.
 
     inline method beginSubmesh: (primitiveTopology: PrimitiveTopology) drawingState: (drawingState: CanvasDrawingState const ref)
-        texture: (texture: TexturePtr const ref) textureView: (textureView: TextureViewPtr const ref) ::=> Void := {
+        texture: (texture: TexturePtr const ref) textureView: (textureView: TextureViewPtr const ref)
+        fontFaceWithSize: (fontFaceWithSize: FontFaceWithSizePtr const ref) ::=> Void := {
 
         submeshes isEmpty || {
             let lastSubmesh ref := submeshes last.
             lastSubmesh primitiveTopology ~= primitiveTopology ||
             lastSubmesh drawingState ~= drawingState ||
             lastSubmesh texture ~= texture ||
-            lastSubmesh textureView ~= textureView
+            lastSubmesh textureView ~= textureView ||
+            lastSubmesh fontFaceWithSize ~= fontFaceWithSize
         } ifTrue: {
             self finishLastSubmesh.
             submeshes add: (Submesh()
@@ -42,6 +44,7 @@ struct MeshBuilder definition: {
                 drawingState: drawingState;
                 texture: texture;
                 textureView: textureView;
+                fontFaceWithSize: fontFaceWithSize;
                 yourself)
         }.
 
