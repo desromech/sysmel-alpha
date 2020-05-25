@@ -6,7 +6,7 @@ namespace Core definition: {
  * I am a handle for a fence.
  *#
 class Fence superclass: RenderingDriverObjectHandle; definition: {
-    abstract method waitOnClient => Void.
+    abstract method wait => Void.
 }.
 
 compileTime constant FencePtr := Fence sharedPointer.

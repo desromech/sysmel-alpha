@@ -8,6 +8,8 @@ namespace Core definition: {
 class SwapChain superclass: RenderingDriverObjectHandle; definition: {
     abstract method colorBufferFormat => PixelFormat.
     abstract method depthStencilFormat => PixelFormat.
+
+    abstract method destroy => Void.
     
     abstract method swapBuffers => Void.
     abstract method getCurrentBackBuffer => FramebufferPtr.

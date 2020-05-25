@@ -21,6 +21,7 @@ class StateTracker2DSurface superclass: MeshListBuilderSurface; definition: {
     protected field vertexBuffer type: BufferPtr.
     protected field vertexLayout type: VertexLayoutPtr.
     protected field vertexBinding type: VertexBindingPtr.
+
     protected field indexBuffer type: BufferPtr.
 
     protected field texturingBindings type: Stdn Collections Vector(ShaderResourceBindingsPtr).
@@ -46,8 +47,8 @@ class StateTracker2DSurface superclass: MeshListBuilderSurface; definition: {
         let newCapacity := (requiredCapacity asLargerPowerOfTwo max: 16) * MeshVertex instanceSize.
         vertexBuffer := renderingDevice _ createBuffer: (BufferDescription()
             size: newCapacity;
-            heapType: MemoryHeapType DeviceLocal;
-            usageModes: BufferUsageMode Array | BufferUsageMode CopyDestinationBuffer;
+            heapType: MemoryHeapType HostToDevice;
+            usageModes: BufferUsageMode Array;
             mainUsageMode: BufferUsageMode Array;
             mappingFlags: BufferMappingFlags DynamicStorage;
             stride: MeshVertex instanceSize;
@@ -105,8 +106,8 @@ class StateTracker2DSurface superclass: MeshListBuilderSurface; definition: {
         let newCapacity := (requiredCapacity asLargerPowerOfTwo max: 16) * 2.
         indexBuffer := renderingDevice _ createBuffer: (BufferDescription()
             size: newCapacity;
-            heapType: MemoryHeapType DeviceLocal;
-            usageModes: BufferUsageMode ElementArray | BufferUsageMode CopyDestinationBuffer;
+            heapType: MemoryHeapType HostToDevice;
+            usageModes: BufferUsageMode ElementArray;
             mainUsageMode: BufferUsageMode ElementArray;
             mappingFlags: BufferMappingFlags DynamicStorage;
             stride: MeshVertex instanceSize;
@@ -143,8 +144,8 @@ class StateTracker2DSurface superclass: MeshListBuilderSurface; definition: {
 
             transformationStateBuffer := renderingDevice _ createBuffer: (BufferDescription()
                 size: 256;
-                heapType: MemoryHeapType DeviceLocal;
-                usageModes: BufferUsageMode Uniform | BufferUsageMode CopyDestinationBuffer;
+                heapType: MemoryHeapType HostToDevice;
+                usageModes: BufferUsageMode Uniform;
                 mainUsageMode: BufferUsageMode Uniform;
                 mappingFlags: BufferMappingFlags DynamicStorage;
                 stride: 0;

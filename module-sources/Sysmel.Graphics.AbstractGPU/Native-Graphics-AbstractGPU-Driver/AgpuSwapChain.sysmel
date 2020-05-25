@@ -17,6 +17,10 @@ sealed class AgpuSwapChain superclass: SwapChain; definition: {
     override method depthStencilFormat => PixelFormat
         := creationInfo depthStencilFormat.
 
+    override method destroy => Void := {
+        handle reset
+    }.
+
     override method swapBuffers => Void := {
         handle _ swapBuffers
     }.

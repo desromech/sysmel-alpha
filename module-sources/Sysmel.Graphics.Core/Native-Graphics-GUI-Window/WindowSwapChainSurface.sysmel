@@ -39,20 +39,22 @@ class WindowSwapChainSurface superclass: Surface; definition: {
 
         let currentExtent := window _ extent.
         (swapChainSurface isNil || swapChainSurface _ extent ~= currentExtent) ifTrue: {
+            let renderingDevice := window _ renderingDevice.
             let swapChainCreationInfo mutable := SwapChainCreationInfo()
                 colorBufferFormat: PixelFormat B8G8R8A8_UNormSRGB;
                 extent: currentExtent;
-                bufferCount: 2;
+                bufferCount: 2; ## Use at least double buffering.
                 yourself.
             swapChainSurface ifNotNil: {
-                swapChainCreationInfo oldSwapChain: swapChainSurface _ swapChain
+                swapChainCreationInfo oldSwapChain: swapChainSurface _ swapChain.
+                renderingDevice _ waitForIdle.
             }.
 
-            let renderingDevice := window _ renderingDevice.
             let defaultCommandQueue := renderingDevice _ getDefaultCommandQueue.
 
             let newSwapChain := window _ createSwapChain: swapChainCreationInfo for: defaultCommandQueue.
             newSwapChain ifNil: {
+                swapChainSurface reset.
                 return: false.
             }.
 

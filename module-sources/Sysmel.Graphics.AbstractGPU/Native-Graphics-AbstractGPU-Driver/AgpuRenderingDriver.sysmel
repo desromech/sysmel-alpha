@@ -16,7 +16,8 @@ sealed class AgpuRenderingDriver superclass: RenderingDriver; definition: {
         RenderingDriverRegistry default unregisterDriver: self address
     }.
 
-    field mainDevice type: AgpuRenderingDevice sharedPointer.
+    field mutex type: Stdn Mutex.
+    field mainDevice type: AgpuRenderingDevice weakPointer.
 
     meta definition: {
         global Singleton mutable type: AgpuRenderingDriver.
@@ -50,11 +51,17 @@ sealed class AgpuRenderingDriver superclass: RenderingDriver; definition: {
         := true.
 
     override method getMainDevice => RenderingDevice sharedPointer := {
-        mainDevice ifNil: {
-            mainDevice := self createDefaultDevice.
+        let strongMainDevice mutable := mainDevice lock.
+        strongMainDevice ifNil: {
+            strongMainDevice := mainDevice lock.
+            mutex withLock: {
+                strongMainDevice ifNil: {
+                    strongMainDevice := self createDefaultDevice.
+                }.
+            }.
         }.
 
-        mainDevice upCastFor: RenderingDevice
+        strongMainDevice upCastFor: RenderingDevice
     }.
 }.
 

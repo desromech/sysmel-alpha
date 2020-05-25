@@ -17,6 +17,7 @@ class SwapChainSurface superclass: Surface; definition: {
     protected field renderPasses type: Stdn Collections Vector(RenderPassPtr).
     protected field commandListAllocators type: Stdn Collections Vector(CommandListAllocatorPtr).
     protected field stateTrackers type: Stdn Collections Vector(StateTrackerPtr).
+    protected field fences type: Stdn Collections Vector(FencePtr).
 
     protected field surfaces type: Stdn Collections Vector(StateTracker2DSurface sharedPointer).
 
@@ -45,6 +46,7 @@ class SwapChainSurface superclass: Surface; definition: {
         stateTrackers reserve: bufferCount.
         renderPasses reserve: bufferCount.
         surfaces reserve: bufferCount.
+        fences resizeTo: bufferCount.
         0 until: bufferCount do: {:i :: Void |
 
             {
@@ -105,6 +107,13 @@ class SwapChainSurface superclass: Surface; definition: {
         let renderPass ref := renderPasses[backBufferIndex].
         let stateTracker ref := stateTrackers[backBufferIndex].
         let surface ref := surfaces[backBufferIndex].
+        let fence ref := fences[backBufferIndex].
+        fence ifNotNil: {
+            fence _ wait
+        } ifNil: {
+            fence := device _ createFence.
+            fence ifNil: {return: void}.
+        }.
 
         allocator _ resetAllocator.
     	stateTracker _
@@ -121,7 +130,7 @@ class SwapChainSurface superclass: Surface; definition: {
 
         renderingQueue _
     		submitCommandList: (stateTracker upCastFor: CommandList);
-    		waitForIdle.
+    		signalFence: fence.
 
         swapChain _ swapBuffers.
     }.

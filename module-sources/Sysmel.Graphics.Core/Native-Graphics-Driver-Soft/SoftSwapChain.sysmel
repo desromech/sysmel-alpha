@@ -59,6 +59,10 @@ class SoftSwapChain superclass: SwapChain; definition: {
         true
     }.
 
+    override method destroy => Void := {
+        ## By default do nothing here.
+    }.
+
     override method colorBufferFormat => PixelFormat := {
         creationInfo colorBufferFormat
     }.

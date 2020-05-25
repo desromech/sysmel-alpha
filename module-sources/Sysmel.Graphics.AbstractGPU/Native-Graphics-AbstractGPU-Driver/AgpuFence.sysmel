@@ -10,7 +10,7 @@ useNamespace: Stdn Graphics Core.
 sealed class AgpuFence superclass: Fence; definition: {
     public field handle type: AGPU FenceRef.
 
-    override method waitOnClient => Void := {
+    override method wait => Void := {
         handle _ waitOnClient
     }.
 

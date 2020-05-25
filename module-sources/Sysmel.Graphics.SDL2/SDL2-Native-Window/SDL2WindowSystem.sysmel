@@ -354,7 +354,7 @@ class SDL2WindowSystemFactory superclass: WindowsSystemFactory; definition: {
 
     override method createWindowSystem => WindowSystem sharedPointer := {
         SDL_SetHint("SDL_NO_SIGNAL_HANDLERS", "1").
-        SDL_Init(SDL_INIT_VIDEO | SDL_INIT_JOYSTICK | SDL_INIT_GAMECONTROLLER | SDL_INIT_AUDIO) ~= 0 ifTrue: {
+        SDL_Init(SDL_INIT_VIDEO | SDL_INIT_JOYSTICK | SDL_INIT_GAMECONTROLLER) ~= 0 ifTrue: {
             Stdn stdout << "Failed to initialize SDL2"; nl.
             return: WindowSystem sharedPointer nil
         }.

@@ -12,6 +12,7 @@ class SDL2Window superclass: Window; definition: {
     public field windowSystem type: SDL2WindowSystem pointer.
     protected field currentCursor type: Cursor sharedPointer.
     protected field renderingDevice type: RenderingDevicePtr.
+    protected field activeSwapChain type: SwapChainPtr.
 
     override method initialize => Void := {
         currentCursor := SystemCursor arrow upCastFor: Cursor.
@@ -31,6 +32,15 @@ class SDL2Window superclass: Window; definition: {
     }.
 
     override method close => Void := {
+        renderingDevice ifNotNil: {
+            renderingDevice _ waitForIdle
+        }.
+
+        ## Destroy the active swap chain.
+        activeSwapChain ifNotNil: {
+            activeSwapChain _ destroy.
+        }.
+
         handle ifNotNil: {
             ## Remove myself from the window dictionary before actually destroying the window.
             windowSystem ifNotNil: {
@@ -102,7 +112,7 @@ class SDL2Window superclass: Window; definition: {
         }.
         }.
 
-        renderingDevice _ createSwapChain: adaptedCreationInfo for: renderingQueue
+        activeSwapChain := renderingDevice _ createSwapChain: adaptedCreationInfo for: renderingQueue.
     }.
 
     override method createDefaultDrawingSurface => Surface sharedPointer := {

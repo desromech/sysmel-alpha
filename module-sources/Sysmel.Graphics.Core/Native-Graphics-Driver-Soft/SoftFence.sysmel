@@ -6,7 +6,7 @@ namespace Core definition: {
  * I am a CPU software based rendering fence.
  *#
 class SoftFence superclass: Fence; definition: {
-    override method waitOnClient => Void := {
+    override method wait => Void := {
 
     }.
 
