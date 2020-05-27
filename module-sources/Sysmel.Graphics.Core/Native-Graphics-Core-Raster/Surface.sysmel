@@ -24,7 +24,11 @@ class Surface superclass: Object; definition: {
      *#
     virtual method renderingDevice => RenderingDevice sharedPointer := RenderingDevice sharedPointer nil.
 
+    virtual method destroy => Void
+        := {}.
 }.
+
+compileTime constant SurfacePtr := Surface sharedPointer.
 
 }. ## End of namespace Core
 }. ## End of namespace Graphics

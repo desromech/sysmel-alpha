@@ -6,7 +6,7 @@ namespace Core definition: {
  * I am an abstract texture view that can be used for drawing patterns into a surface canvas.
  * I am designed to be abstract in order to support GPU based accelerated implementations.
  *#
-class TextureView definition: {
+class TextureView superclass: RenderingDriverObjectHandle; definition: {
 }.
 
 compileTime constant TextureViewPtr := TextureView sharedPointer.

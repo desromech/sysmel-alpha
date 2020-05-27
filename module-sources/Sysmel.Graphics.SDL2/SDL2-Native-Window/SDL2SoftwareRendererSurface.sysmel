@@ -31,10 +31,10 @@ class SDL2SoftwareRendererSurface superclass: SoftSurface; definition: {
         self destroy.
     }.
 
-    method destroy => Void := {
+    override method destroy => Void := {
         textureHandle ifNotNil: {
             SDL_DestroyTexture(textureHandle).
-            rendererHandle := nil.
+            textureHandle := nil.
         }.
 
         rendererHandle ifNotNil: {

@@ -13,6 +13,7 @@ class SDL2Window superclass: Window; definition: {
     protected field currentCursor type: Cursor sharedPointer.
     protected field renderingDevice type: RenderingDevicePtr.
     protected field activeSwapChain type: SwapChainPtr.
+    protected field softRenderingSurface type: SurfacePtr.
 
     override method initialize => Void := {
         currentCursor := SystemCursor arrow upCastFor: Cursor.
@@ -39,6 +40,12 @@ class SDL2Window superclass: Window; definition: {
         ## Destroy the active swap chain.
         activeSwapChain ifNotNil: {
             activeSwapChain _ destroy.
+        }.
+
+        ## Destroy the active surface.
+        softRenderingSurface ifNotNil: {
+            softRenderingSurface _ destroy.
+            softRenderingSurface reset.
         }.
 
         handle ifNotNil: {
@@ -117,7 +124,13 @@ class SDL2Window superclass: Window; definition: {
 
     override method createDefaultDrawingSurface => Surface sharedPointer := {
         self renderingDevice _ isSoftRenderingDevice ifTrue: {
-            return: ((SDL2SoftwareRendererSurface for: self) upCastFor: Surface).
+            softRenderingSurface ifNotNil: {
+                softRenderingSurface _ destroy.
+                softRenderingSurface reset
+            }.
+
+            softRenderingSurface := (SDL2SoftwareRendererSurface for: self) upCastFor: Surface.
+            return: softRenderingSurface.
         }.
 
         (WindowSwapChainSurface for: (self asSharedPointer upCastFor: Window)) upCastFor: Surface

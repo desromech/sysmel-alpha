@@ -110,6 +110,8 @@ template Function(FT: Type)
     }.
 
     (method := (functionPointer: FunctionType pointer)) ::=> SelfType ref := {
+        self finalize.
+
         type := WrapperType FunctionPointer.
         inlineStorage[0] := functionPointer.
         self
