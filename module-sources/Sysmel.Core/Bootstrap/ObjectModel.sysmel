@@ -2,7 +2,7 @@ namespace Stdn definition: {
 namespace Reflection definition: {
 
 compileTime constant BasicInitializeFunctionPointerType := ((Void pointer) => Void) pointer.
-compileTime constant CopyConstructorFunctionPointerType := ((Void pointer -- Void pointer) => Void) pointer.
+compileTime constant CopyConstructorFunctionPointerType := ((Void pointer -- Void const pointer) => Void) pointer.
 compileTime constant MoveConstructorFunctionPointerType := ((Void pointer -- Void pointer) => Void) pointer.
 compileTime constant FinalizeFunctionPointerType := ((Void pointer) => Void) pointer.
 

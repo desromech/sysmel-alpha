@@ -67,6 +67,23 @@ class TestAsserter superclass: Object; definition: {
         })
     }.
 
+    macro method should: expression raise: exceptionClass := {
+        let position := expression asSourcePositionString.
+        let errorMessage := position -- ": Expression (" -- expression originalSourceCode -- ") did not raise expected exception of class (" -- exceptionClass originalSourceCode -- ").".
+        let messageNode := __astBuilder literalString: errorMessage position: expression position.
+        let exceptionRaised := __astBuilder gensym: #exceptionRaised.
+
+        ``{
+            let `,exceptionRaised mutable := false.
+            try: `,expression catch: `,exceptionClass doing: {:e :: Void |
+                `,exceptionRaised := true
+            }.
+            `,exceptionRaised ifFalse: {
+                Stdn raiseAssertionFailure(`,messageNode)
+            }.
+        }
+    }.
+
 }.
 
 } ## End of namespace Testing

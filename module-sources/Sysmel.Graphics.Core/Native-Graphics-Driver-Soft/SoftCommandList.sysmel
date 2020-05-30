@@ -132,9 +132,7 @@ class SoftCommandList superclass: CommandList; definition: {
     }.
 
     method addCommand: (commandFunction: (SoftCommandListExecutionState ref => Void) nativeBlockClosure) ::=> Void := {
-        let functionObject mutable type: QueuedCommandFunction.
-        functionObject := commandFunction.
-        commands add: functionObject
+        commands add: QueuedCommandFunction(commandFunction)
     }.
 
     override method useShaderSignature: (shaderSignature: ShaderSignaturePtr const ref) ::=> Void := {

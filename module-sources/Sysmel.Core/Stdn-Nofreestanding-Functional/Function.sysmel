@@ -18,6 +18,10 @@ template Function(FT: Type)
     compileTime constant NativeStackBlockClosureType := FT nativeStackBlockClosure.
     compileTime constant InlineStorageType := Void pointer array: 4.
 
+    compileTime if: Compiler hasRuntimeTypeInformation && Compiler hasGarbageCollectionSupport then: {
+        compileTime constant GCBlockClosureType := FT gcBlockClosure.
+    }.
+
     enum WrapperType valueType: UInt8; values: #{
         Invalid: 0.
         FunctionPointer: 1.
@@ -30,6 +34,37 @@ template Function(FT: Type)
     field type type: WrapperType.
     field inlineStorage type: InlineStorageType.
 
+    meta definition: {
+        static inline method for: (blockClosure: NativeStackBlockClosureType) ::=> InstanceType := {
+            <constructor>
+            InstanceType()
+                setNativeBlockClosure: blockClosure;
+                yourself
+        }.
+
+        static inline method for: (functionPointer: FunctionType pointer) ::=> InstanceType := {
+            <constructor>
+            InstanceType()
+                setFunctionPointer: functionPointer;
+                yourself
+        }.
+
+        compileTime if: Compiler hasRuntimeTypeInformation && Compiler hasGarbageCollectionSupport then: {
+            static inline method for: (blockClosure: GCBlockClosureType) ::=> InstanceType := {
+                <constructor>
+                InstanceType()
+                    setGCBlockClosure: blockClosure;
+                    yourself
+            }.
+        }.
+    }.
+
+    const inline method isValid => Boolean8
+        := type ~= WrapperType Invalid.
+
+    const inline method isInvalid => Boolean8
+        := type = WrapperType Invalid.
+
     method initializeCopyingFrom: (other: SelfType const ref) ::=> Void := {
         self := other.
     }.
@@ -38,8 +73,8 @@ template Function(FT: Type)
         self := other.
     }.
 
-    (method := (blockClosure: NativeStackBlockClosureType)) => SelfType ref := {
-        self finalize.
+    inline method setNativeBlockClosure: (blockClosure: NativeStackBlockClosureType) ::=> Void := {
+        self reset.
 
         let blockClosureHeader := blockClosure reinterpretCastTo: _NativeStackBlockClosureHeader pointer.
         let typeInfo := blockClosureHeader _ typeInfo.
@@ -55,23 +90,32 @@ template Function(FT: Type)
             inlineStorage[0] := storagePointer.
         }.
 
-        typeInfo _ copyConstructorFunctionPointer ifNil: {
-            Stdn memcpy(storagePointer, blockClosureHeader, instanceSize)
-        } ifNotNil: {
-            typeInfo _ copyConstructorFunctionPointer(storagePointer, blockClosureHeader)
-        }.
+        Stdn memset(storagePointer, 0, instanceSize).
+        typeInfo _ copyValue: blockClosureHeader intoRecentlyAllocatedStorage: storagePointer.
+    }.
 
+    inline method setFunctionPointer: (functionPointer: FunctionType pointer) ::=> Void := {
+        self reset.
+
+        type := WrapperType FunctionPointer.
+        inlineStorage[0] := functionPointer.
+    }.
+
+    (method := (blockClosure: NativeStackBlockClosureType)) => SelfType ref := {
+        self setNativeBlockClosure: blockClosure.
         self
     }.
 
     compileTime if: Compiler hasRuntimeTypeInformation && Compiler hasGarbageCollectionSupport then: {
-        compileTime constant GCBlockClosureType := FT gcBlockClosure.
-
-        (method := (blockClosure: GCBlockClosureType)) => SelfType ref := {
-            self finalize.
+        method setGCBlockClosure: (blockClosure: GCBlockClosureType) ::=> Void := {
+            self reset.
 
             type := WrapperType GCClosure.
             (inlineStorage [0] address reinterpretCastTo: GCBlockClosureType pointer) _ := blockClosure.
+        }.
+
+        (method := (blockClosure: GCBlockClosureType)) => SelfType const ref := {
+            self setGCBlockClosure: blockClosure.
 
             self
         }.
@@ -79,6 +123,10 @@ template Function(FT: Type)
     }.
 
     method finalize => Void := {
+        self reset.
+    }.
+
+    method reset => Void := {
         type selectCase: #{
         WrapperType InlineNativeClosure : {
             let closure := inlineStorage[0] address reinterpretCastTo: _NativeStackBlockClosureHeader pointer.
@@ -109,28 +157,42 @@ template Function(FT: Type)
         type := WrapperType Invalid.
     }.
 
-    (method := (functionPointer: FunctionType pointer)) ::=> SelfType ref := {
-        self finalize.
-
-        type := WrapperType FunctionPointer.
-        inlineStorage[0] := functionPointer.
+    (method := (functionPointer: FunctionType pointer)) ::=> SelfType const ref := {
+        self setFunctionPointer: functionPointer.
         self
     }.
 
-    (method := (other: SelfType const ref)) ::=> SelfType ref := {
+    (method := (other: SelfType const ref)) ::=> SelfType const ref := {
         self address ~~ other address ifTrue: {
             other __private type selectCase: #{
+            WrapperType Invalid : {
+                self reset.
+            }.
+
+            WrapperType FunctionPointer : {
+                let functionPointer := other __private inlineStorage[0] reinterpretCastTo: FunctionType pointer.
+                self setFunctionPointer: functionPointer.
+            }.
+
             WrapperType InlineNativeClosure : {
                 let closure := other __private inlineStorage[0] address reinterpretCastTo: NativeStackBlockClosureType.
-                self := closure.
-                void.
+                self setNativeBlockClosure: closure.
             }.
 
             WrapperType HeapNativeClosure : {
                 let closure := other __private inlineStorage[0] reinterpretCastTo: NativeStackBlockClosureType.
-                self := closure.
-                void.
+                self setNativeBlockClosure: closure.
             }.
+
+            WrapperType GCClosure : {
+                compileTime if: Compiler hasRuntimeTypeInformation && Compiler hasGarbageCollectionSupport then: {
+                    let closure := other __private inlineStorage[0] reinterpretCastTo: GCBlockClosureType.
+                    self setGCBlockClosure: closure.
+                } else: {
+                    error: "Unsupported function wrapper type for copy assignment."
+                }.
+            }.
+
             _ : {
                 error: "Unsupported function wrapper type for copy assignment."
             }
@@ -140,7 +202,58 @@ template Function(FT: Type)
         self
     }.
 
-    inline method applyWithArguments: (arguments: ArgumentTypesTuple) ::=> ReturnType := {
+    (method := (other: SelfType tempRef)) ::=> SelfType const ref := {
+        self address ~~ other address ifTrue: {
+            self reset.
+            other __private type selectCase: #{
+            WrapperType Invalid : {
+            }.
+
+            WrapperType FunctionPointer : {
+                inlineStorage[0] := other __private inlineStorage[0] reinterpretCastTo: FunctionType pointer.
+                other __private type := WrapperType Invalid.
+                type := WrapperType FunctionPointer.
+            }.
+
+            WrapperType InlineNativeClosure : {
+                let blockClosureHeader := other __private inlineStorage[0] address reinterpretCastTo: _NativeStackBlockClosureHeader pointer.
+
+                let typeInfo := blockClosureHeader _ typeInfo.
+                let instanceSize := typeInfo _ instanceDataSize.
+                let storagePointer mutable type: Void pointer := inlineStorage [0] address.
+                Stdn memset(storagePointer, 0, instanceSize).
+                typeInfo _ moveValue: blockClosureHeader intoRecentlyAllocatedStorage: storagePointer.
+                type := WrapperType InlineNativeClosure.
+                other reset
+            }.
+
+            WrapperType HeapNativeClosure : {
+                inlineStorage[0] := other __private inlineStorage[0].
+                other __private type := WrapperType Invalid.
+                type := WrapperType HeapNativeClosure.
+            }.
+
+            WrapperType GCClosure : {
+                compileTime if: Compiler hasRuntimeTypeInformation && Compiler hasGarbageCollectionSupport then: {
+                    inlineStorage[0] := other __private inlineStorage[0].
+                    type := WrapperType GCClosure.
+                    other __private type := WrapperType Invalid.
+                    other __private inlineStorage[0] := nil.
+                } else: {
+                    error: "Unsupported function wrapper type for copy assignment."
+                }.
+            }.
+
+            _ : {
+                error: "Unsupported function wrapper type for copy assignment."
+            }
+            }.
+        }.
+
+        self
+    }.
+
+    const inline method applyWithArguments: (arguments: ArgumentTypesTuple) ::=> ReturnType := {
         type selectCase: #{
         WrapperType FunctionPointer : {
             let fp := inlineStorage[0] reinterpretCastTo: FunctionType pointer.

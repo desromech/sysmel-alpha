@@ -15,7 +15,7 @@ namespace Collections definition: {
     private field data_ mutable type: ValueType pointer.
 
     meta definition: {
-        method computeCStringLength: (cstring: ValueType const pointer) ::=> UIntPointer := {
+        static method computeCStringLength: (cstring: ValueType const pointer) ::=> UIntPointer := {
             cstring ifNil: { return: 0 }.
 
             let result mutable type: UIntPointer.
@@ -26,47 +26,47 @@ namespace Collections definition: {
             return: result.
         }.
 
-        inline method fromCString: (cstring: ValueType const pointer) ::=> InstanceType := {
+        static inline method fromCString: (cstring: ValueType const pointer) ::=> InstanceType := {
             <constructor>
             InstanceType()
                 initializeFromCString: cstring;
                 yourself
         }.
 
-        inline method fromLiteral: (literalString: LiteralType) ::=> InstanceType := {
+        static inline method fromLiteral: (literalString: LiteralType) ::=> InstanceType := {
             <constructor>
             InstanceType()
                 initializeFromLiteral: literalString;
                 yourself
         }.
 
-        inline method fromUTF8: (data: Char8 const arraySlice) ::=> InstanceType := {
+        static inline method fromUTF8: (data: Char8 const arraySlice) ::=> InstanceType := {
             InstanceType()
                 setUTF8: data;
                 yourself
         }.
 
-        inline method fromUTF8: (data: Char8 const pointer) size: (dataSize: UIntPointer) ::=> InstanceType := {
+        static inline method fromUTF8: (data: Char8 const pointer) size: (dataSize: UIntPointer) ::=> InstanceType := {
             self fromUTF8: (data until: dataSize)
         }.
 
-        inline method fromUTF16: (data: Char16 const arraySlice) ::=> InstanceType := {
+        static inline method fromUTF16: (data: Char16 const arraySlice) ::=> InstanceType := {
             InstanceType()
                 setUTF16: data;
                 yourself
         }.
 
-        inline method fromUTF16: (data: Char16 const pointer) size: (dataSize: UIntPointer) ::=> InstanceType := {
+        static inline method fromUTF16: (data: Char16 const pointer) size: (dataSize: UIntPointer) ::=> InstanceType := {
             self fromUTF16: (data until: dataSize)
         }.
 
-        inline method fromUTF32: (data: Char32 const arraySlice) ::=> InstanceType := {
+        static inline method fromUTF32: (data: Char32 const arraySlice) ::=> InstanceType := {
             InstanceType()
                 setUTF32: data;
                 yourself
         }.
 
-        inline method fromUTF32: (data: Char32 const pointer) size: (dataSize: UIntPointer) ::=> InstanceType := {
+        static inline method fromUTF32: (data: Char32 const pointer) size: (dataSize: UIntPointer) ::=> InstanceType := {
             self fromUTF32: (data until: dataSize)
         }.
 

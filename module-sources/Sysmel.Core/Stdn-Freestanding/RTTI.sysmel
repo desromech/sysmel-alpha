@@ -1,0 +1,56 @@
+namespace Stdn definition: {
+namespace Reflection definition: {
+
+TypeInformation definition: {
+
+    const method copyValueIntoNativeHeap: (value: Void const pointer) ::=> Void pointer := {
+        let result := zmalloc(instanceDataSize).
+        result ifNil: {
+            return: nil
+        }.
+
+        self copyValue: value intoRecentlyAllocatedStorage: result.
+        result
+    }.
+
+    const method moveValueIntoNativeHeap: (value: Void pointer) ::=> Void pointer := {
+        let result := zmalloc(instanceDataSize).
+        result ifNil: {
+            return: nil
+        }.
+
+        self moveValue: value intoRecentlyAllocatedStorage: result.
+        result
+    }.
+
+    const method copyValue: (value: Void const pointer) intoRecentlyAllocatedStorage: (storage: Void pointer) ::=> Void := {
+        basicInitializationFunctionPointer ifNotNil: {
+            basicInitializationFunctionPointer(storage)
+        }.
+
+        copyConstructorFunctionPointer ifNil: {
+            memcpy(storage, value, instanceDataSize)
+        } ifNotNil: {
+            copyConstructorFunctionPointer(storage, value)
+        }
+    }.
+
+    const method moveValue: (value: Void pointer) intoRecentlyAllocatedStorage: (storage: Void pointer) ::=> Void := {
+        basicInitializationFunctionPointer ifNotNil: {
+            basicInitializationFunctionPointer(storage)
+        }.
+
+        moveConstructorFunctionPointer ifNil: {
+            copyConstructorFunctionPointer ifNil: {
+                memcpy(storage, value, instanceDataSize)
+            } ifNotNil: {
+                copyConstructorFunctionPointer(storage, value)
+            }
+        } ifNotNil: {
+            moveConstructorFunctionPointer(storage, value)
+        }
+    }.
+}.
+
+}. ## End of namespace Reflection
+}. ## End of namespace Stdn

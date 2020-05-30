@@ -159,7 +159,7 @@ template Vector(ET: Stdn Concepts Copyable)
 			assert: newSize < size_.
 
 			## Invoke the finalizer of the removed elements.
-			size_ until: newSize do: {:(UIntPointer)i :: Void |
+			newSize until: size_ do: {:(UIntPointer)i :: Void |
 				storage_[i] finalize
 			}.
 

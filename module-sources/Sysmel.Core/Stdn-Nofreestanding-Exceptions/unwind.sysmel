@@ -616,14 +616,7 @@ function nativeExceptionCleanUpFunction(reasonCode: _Unwind_Reason_Code, unwindE
 }.
 
 function allocateNativeExceptionDataFor(object: Void pointer, typeInfo: Stdn Reflection TypeInformation const pointer) => SysmelUnwindExceptionData pointer := {
-    let heapExceptionObject := zmalloc(typeInfo _ instanceSize).
-    typeInfo _ basicInitializationFunctionPointer(heapExceptionObject).
-    typeInfo _ copyConstructorFunctionPointer ifNil: {
-        memcpy(heapExceptionObject, object, typeInfo _ instanceSize).
-    } ifNotNil: {
-        typeInfo _ copyConstructorFunctionPointer(heapExceptionObject, object).
-    }.
-
+    let heapExceptionObject := typeInfo _ copyValueIntoNativeHeap: object.
     let exceptionData := SysmelUnwindExceptionData basicNativeNew.
 
     exceptionData _

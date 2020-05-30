@@ -4,6 +4,7 @@ Compiler
         #"Stdn-Collections-Tests"
         #"Stdn-IO-Tests"
         #"Stdn-Memory-Tests"
+        #"Stdn-Functional-Tests"
     ).
 
 if: Compiler hasRuntimeTypeInformation && Compiler hasGarbageCollectionSupport then: {
