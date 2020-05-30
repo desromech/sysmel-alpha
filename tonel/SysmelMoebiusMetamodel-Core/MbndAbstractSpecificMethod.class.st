@@ -123,7 +123,7 @@ MbndAbstractSpecificMethod >> boundType: anObject [
 { #category : #testing }
 MbndAbstractSpecificMethod >> computeMatchingCostWithArguments: callArguments receiverType: callReceiverType analyzer: analyzer at: node [
 	| coercionCost receiverConversionCost |
-	receiverType isVoidType = callReceiverType isVoidType ifFalse: [ ^ nil ].
+	(callReceiverType isVoidType and: [ receiverType isVoidType not ]) ifTrue: [ ^ nil ].
 	self boundType isCVariadic ifTrue: [
 		callArguments size >= self boundType argumentTypes size ifFalse: [ ^ nil ].
 	] ifFalse: [
