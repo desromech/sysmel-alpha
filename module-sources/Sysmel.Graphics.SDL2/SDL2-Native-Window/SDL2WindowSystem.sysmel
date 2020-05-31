@@ -33,6 +33,10 @@ class SDL2WindowSystem superclass: WindowSystem; definition: {
     private field lastKeyModifiers type: KeyModifiers.
     private field allocatedSystemCursors type: (SDL_Cursor pointer array: SystemCursorName Count value).
 
+    override method initialize => Void := {
+        SDL2InitState uniqueInstance increaseVideoUserCount.
+    }.
+
     override method finalize => Void := {
         0 until: SystemCursorName Count value do: {:i :: Void |
             let cursor := allocatedSystemCursors[i].
@@ -41,7 +45,7 @@ class SDL2WindowSystem superclass: WindowSystem; definition: {
             }
         }.
 
-        SDL_Quit().
+        SDL2InitState uniqueInstance decreaseVideoUserCount.
     }.
 
     override method isQuitting => Boolean8
@@ -345,46 +349,47 @@ class SDL2WindowSystem superclass: WindowSystem; definition: {
     }.
 }.
 
+class SDL2InitState definition: {
+
+    meta definition: {
+        global Singleton mutable type: SDL2InitState.
+        method uniqueInstance => SDL2InitState ref
+            := Singleton.
+    }.
+
+    method increaseInitCount => Void := {
+        SDL_SetHint("SDL_NO_SIGNAL_HANDLERS", "1").
+        SDL_Init(0).
+    }.
+
+    method decreaseInitCount => Void := {
+        SDL_Quit().
+    }.
+
+    method increaseVideoUserCount => Void := {
+        self increaseInitCount.
+
+        SDL_InitSubSystem(SDL_INIT_VIDEO | SDL_INIT_JOYSTICK | SDL_INIT_GAMECONTROLLER) ~= 0 ifTrue: {
+            Stdn raiseError("Failed to initialize SDL2 video.").
+        }.
+    }.
+
+    method decreaseVideoUserCount => Void := {
+        SDL_QuitSubSystem(SDL_INIT_VIDEO | SDL_INIT_JOYSTICK | SDL_INIT_GAMECONTROLLER).
+
+        self decreaseInitCount.
+    }.
+
+}.
+
 class SDL2WindowSystemFactory superclass: WindowsSystemFactory; definition: {
     const override method isHeadfull => Boolean8 := true.
-
-    private field videoInitialized type: Boolean8.
-    private field initializationMutex type: Stdn Mutex.
 
     meta definition: {
         global Singleton mutable type: SDL2WindowSystemFactory.
     }.
 
-    override method finalize => Void := {
-        initializationMutex withLock: {
-            videoInitialized ifTrue: {
-                SDL_Quit().
-                videoInitialized := false.
-            }
-        }.
-    }.
-
-    method ensureVideoInitialized => Boolean8 := {
-        initializationMutex withLock: {
-            videoInitialized ifFalse: {
-                SDL_SetHint("SDL_NO_SIGNAL_HANDLERS", "1").
-                SDL_Init(SDL_INIT_VIDEO | SDL_INIT_JOYSTICK | SDL_INIT_GAMECONTROLLER) ~= 0 ifTrue: {
-                    Stdn stdout << "Failed to initialize SDL2"; nl.
-                    return: false.
-                }.
-
-                videoInitialized := true.
-            }
-        }.
-
-        true
-    }.
-
     override method createWindowSystem => WindowSystem sharedPointer := {
-        self ensureVideoInitialized ifFalse: {
-            return: WindowSystem sharedPointer nil
-        }.
-
         SDL2WindowSystem sharedNew upCastFor: WindowSystem.
     }.
 }.

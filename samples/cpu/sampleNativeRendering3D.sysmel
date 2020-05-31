@@ -1,6 +1,6 @@
 Compiler importModuleNamed: #"Sysmel.Graphics.Headfull".
 
-##Compiler importModuleNamed: #"Sysmel.Graphics.AbstractGPU".
+Compiler importModuleNamed: #"Sysmel.Graphics.AbstractGPU".
 
 useNamespace: Stdn Graphics Core.
 useNamespace: Stdn Graphics GUI.
@@ -11,8 +11,6 @@ struct SimpleVertex definition: {
 	public field color type: Float32x4.
 	public field normal type: Float32x3.
 }.
-
-let simpleVertexLayout mutable type: VertexLayoutPtr.
 
 class CameraTransformationState definition: {
 	public field viewMatrix type: Float32x4x4.
@@ -110,6 +108,7 @@ class MeshBuilder definition: {
 	public field baseVertex type: UInt32.
 	public field vertices type: Stdn Collections Vector(SimpleVertex).
 	public field indices type: Stdn Collections Vector(UInt32).
+	public field vertexLayout type: VertexLayoutPtr.
 
 	method beginSubmesh => Void := {
 		baseVertex := vertices size castTo: UInt32.
@@ -159,7 +158,7 @@ class MeshBuilder definition: {
 			stride: 4;
 			yourself) initialData: indices asArraySlice elements.
 
-		let vertexBinding := renderingDevice _ createVertexBindingFor: simpleVertexLayout.
+		let vertexBinding := renderingDevice _ createVertexBindingFor: vertexLayout.
 		vertexBinding _ bindVertexBuffers: vertexBuffers.
 
 		let result := Mesh sharedNew.
@@ -211,6 +210,8 @@ class Sample definition: {
 
 	field planeMesh type: MeshPtr.
 	field cubeMesh type: MeshPtr.
+
+	field simpleVertexLayout mutable type: VertexLayoutPtr.
 
 	method initialize => Void := {
 		cameraOrientation := Float32x3x3 identity.
@@ -494,6 +495,7 @@ class Sample definition: {
 		## Build the plane
 		{
 			planeMesh := MeshBuilder()
+				vertexLayout: simpleVertexLayout;
 				renderingDevice: renderingDevice;
 				addVertex: Float32x3(0, 0, 0) normal: Float32x3(0, 1, 0);
 				addVertex: Float32x4(-1, 0, -1, 0) normal: Float32x3(0, 1, 0);
@@ -528,6 +530,7 @@ class Sample definition: {
 			let min := max negated.
 
 			cubeMesh := MeshBuilder()
+				vertexLayout: simpleVertexLayout;
 				renderingDevice: renderingDevice;
 				## Left
 		        beginSubmesh;
