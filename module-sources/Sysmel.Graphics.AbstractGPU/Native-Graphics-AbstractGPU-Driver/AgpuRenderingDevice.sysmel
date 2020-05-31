@@ -444,6 +444,8 @@ sealed class AgpuRenderingDevice superclass: RenderingDevice; definition: {
         result _
             handle: swapChainHandle;
             creationInfo: swapChainCreationInfo.
+        result _ creationInfo oldSwapChain reset.
+
         result upCastFor: SwapChain
     }.
 

@@ -332,7 +332,11 @@ class Sample definition: {
 	    windowSystem _ targetFrameRate: 60.
 
 	    ## Create the main window.
-	    mainWindow := windowSystem _ createWindowWithTitle: "Test Window" asMutableString extent: Int32x2(640, 480).
+	    mainWindow := windowSystem _ createWindow: (WindowCreationInfo()
+			resizable: true;
+			extent: Int32x2(640, 480);
+			title: "Test Window" asMutableString;
+			yourself).
 	    mainWindow ifNil: {
 	        return: 0.
 	    }.

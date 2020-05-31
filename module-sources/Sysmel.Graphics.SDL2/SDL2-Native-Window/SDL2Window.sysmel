@@ -119,7 +119,17 @@ class SDL2Window superclass: Window; definition: {
         }.
         }.
 
-        activeSwapChain := renderingDevice _ createSwapChain: adaptedCreationInfo for: renderingQueue.
+        ## Supply the old swap chain, and make sure it is not on active use anymore.
+        activeSwapChain ifNotNil: {
+            adaptedCreationInfo oldSwapChain: activeSwapChain.
+            renderingDevice _ waitForIdle.
+        }.
+
+        let newActiveSwapChain := renderingDevice _ createSwapChain: adaptedCreationInfo for: renderingQueue.
+        activeSwapChain ifNotNil: {
+            activeSwapChain _ destroy
+        }.
+        activeSwapChain := newActiveSwapChain
     }.
 
     override method createDefaultDrawingSurface => Surface sharedPointer := {
