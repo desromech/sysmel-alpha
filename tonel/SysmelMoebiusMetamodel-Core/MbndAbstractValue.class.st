@@ -119,14 +119,14 @@ MbndAbstractValue >> valueWithArguments: arguments [
 	| convertedArguments builder expression |
 	convertedArguments := arguments collect: [ :each | each asMoebiusValueWithTarget: self compilationTarget ].
 	self type withoutReferences isFunctionType ifTrue: [
-		^ self unwrapMbndValue evaluateApplicationWithArguments: convertedArguments withEvaluator: self createEvaluator at: MbndSourcePosition empty
+		^ (self unwrapMbndValue evaluateApplicationWithArguments: convertedArguments withEvaluator: self createEvaluator at: MbndSourcePosition empty) unwrapMbndValue
 	].
 
 	builder := MbndAstBuilder forModule: self compilationEnvironment currentModule.
 	expression := builder unexpandedSend: (builder literalSymbol: #applyWithArguments:)
 		to: self asLiteralValueNode
 		withArguments: {builder tuple: (convertedArguments collect: [:each | each asLiteralValueNode ])}.
-	^ self createAnalyzerAndEvaluator analyzeAndEvaluateFunctionContent: expression.
+	^ (self createAnalyzerAndEvaluator analyzeAndEvaluateFunctionContent: expression) unwrapMbndValue
 ]
 
 { #category : #evaluation }

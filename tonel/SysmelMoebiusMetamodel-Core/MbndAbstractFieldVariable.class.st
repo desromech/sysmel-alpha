@@ -133,6 +133,16 @@ MbndAbstractFieldVariable >> isAlwaysExported [
 	^ true
 ]
 
+{ #category : #testing }
+MbndAbstractFieldVariable >> isDescriptorSetBinding [
+	^ self valueType isPointerLikeValueType and: [ self valueType addressSpace = #bindingSet ]
+]
+
+{ #category : #testing }
+MbndAbstractFieldVariable >> isPushConstantBinding [
+	^ self valueType isPointerLikeValueType and: [ self valueType addressSpace = #pushConstant ]
+]
+
 { #category : #accessing }
 MbndAbstractFieldVariable >> location [
 	^ location

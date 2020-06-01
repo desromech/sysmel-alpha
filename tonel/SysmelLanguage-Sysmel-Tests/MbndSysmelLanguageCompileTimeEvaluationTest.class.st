@@ -318,6 +318,60 @@ MbndSysmelLanguageCompileTimeEvaluationTest >> testSequence [
 ]
 
 { #category : #tests }
+MbndSysmelLanguageCompileTimeEvaluationTest >> testShaderSignatureMetadataExtraction [
+	| descriptorSets pushConstants pushConstantsSize |
+	self evaluateSource: '
+struct SamplingState definition: {
+    public field sampler type: GPUSampler.
+}.
+
+struct TransformationState definition: {
+    public field projectionMatrix type: Float32x4x4.
+}.
+
+struct TransformationStateBinding definition: {
+    public field state type: TransformationState uniformBufferPointer.
+}.
+
+struct TexturingStateBinding definition: {
+    public field texture type: GPUTexture2D.
+}.
+
+struct PushConstants definition: {
+    public field activeMatrix type: UInt32.
+}.
+
+class CanvasMesh2DShaderSignature definition: {
+    public field texturingState type: TexturingStateBinding bindingSetPointer; location: 2.
+    public field samplingState type: SamplingState bindingSetPointer; location: 0.
+    public field transformationStateBinding type: TransformationStateBinding bindingSetPointer; location: 1.
+    public field pushConstants type: TexturingStateBinding pushConstantPointer.
+
+    macro method transformationState := ``(`,self transformationStateBinding _ state _).
+}.
+'.
+
+	descriptorSets := (self evaluateSource: '(CanvasMesh2DShaderSignature allFields select: {:each | each isDescriptorSetBinding}) sorted: {:a :b | a asDescriptorSetIndex < b asDescriptorSetIndex}') unwrapMbndValue.
+	pushConstants := (self evaluateSource: 'CanvasMesh2DShaderSignature allFields select: {:each | each isPushConstantBinding}') unwrapMbndValue.
+	pushConstantsSize := (self evaluateSource: '(CanvasMesh2DShaderSignature allFields select: {:each | each isPushConstantBinding} thenCollect: {:each | each valueType instanceSize}) sum') unwrapMbndValue.
+
+	self assert: descriptorSets size equals: 3.
+	self assert: descriptorSets first isFieldVariable.
+	self assert: descriptorSets first name equals: #samplingState.
+
+	self assert: descriptorSets second isFieldVariable.
+	self assert: descriptorSets second name equals: #transformationStateBinding.
+
+	self assert: descriptorSets third isFieldVariable.
+	self assert: descriptorSets third name equals: #texturingState.
+
+	self assert: pushConstants size equals: 1.
+	self assert: pushConstants first name equals: #pushConstants.
+	self assert: pushConstantsSize equals: 4.
+
+]
+
+{ #category : #tests }
 MbndSysmelLanguageCompileTimeEvaluationTest >> testSignExtension [
 	self evaluateSource: '
 function f(v: Int8) => Int64

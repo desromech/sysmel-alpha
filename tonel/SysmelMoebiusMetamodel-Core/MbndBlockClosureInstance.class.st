@@ -88,5 +88,5 @@ MbndBlockClosureInstance >> value: firstArg value: secondArg value: thirdArg val
 MbndBlockClosureInstance >> valueWithArguments: arguments [
 	| convertedArguments |
 	convertedArguments := arguments collect: [ :each | each asMoebiusValueWithTarget: self compilationTarget ].
-	^ self evaluateApplicationWithArguments: convertedArguments withEvaluator: self createEvaluator at: MbndSourcePosition empty
+	^ (self evaluateApplicationWithArguments: convertedArguments withEvaluator: self createEvaluator at: MbndSourcePosition empty) unwrapMbndValue
 ]

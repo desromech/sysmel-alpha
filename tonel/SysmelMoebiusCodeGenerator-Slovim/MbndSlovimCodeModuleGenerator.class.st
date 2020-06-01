@@ -521,7 +521,7 @@ MbndSlovimCodeModuleGenerator >> fetchNativeShader: functionMethod rootDescripto
 			| field valueType |
 			field := eachSlot fields first.
 			valueType := field valueType.
-			(valueType isPointerLikeValueType and: [ valueType addressSpace = #bindingSet ]) ifTrue: [
+			field isDescriptorSetBinding ifTrue: [
 				| setIndex setPointer |
 				setIndex := field asDescriptorSetIndex.
 				setPointer := builder load: (builder getPointer: rootDescriptorTablePointer element: {builder constInt: setIndex}).

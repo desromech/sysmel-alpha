@@ -66,7 +66,7 @@ MbndSlovimFunctionCodeGenerator >> aggregate: aggregateNode value: aggregateValu
 	
 	valueType := field valueType.
 	referenceType := field type.
-	(valueType isPointerLikeValueType and: [ valueType addressSpace = #bindingSet ]) ifTrue: [
+	field isDescriptorSetBinding ifTrue: [
 		self assert: aggregateValue isFunctionArgument.
 		^ MbndSlovimDescriptorSetReference new
 			setIndex: field asDescriptorSetIndex;
@@ -74,7 +74,7 @@ MbndSlovimFunctionCodeGenerator >> aggregate: aggregateNode value: aggregateValu
 			yourself
 	].
 
-	(valueType isPointerLikeValueType and: [ valueType addressSpace = #pushConstant ]) ifTrue: [
+	field isPushConstantBinding ifTrue: [
 		self assert: aggregateValue isFunctionArgument.
 		^ MbndSlovimLoadedReferenceValue new
 			value: (codeModuleGenerator getFieldAsPushConstantReference: field)
