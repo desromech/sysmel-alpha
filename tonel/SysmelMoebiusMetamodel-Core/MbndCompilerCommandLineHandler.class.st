@@ -19,11 +19,13 @@ MbndCompilerCommandLineHandler class >> commandName [
 
 { #category : #activation }
 MbndCompilerCommandLineHandler >> activate [
-	| architecture outputDirectory withDebugInformation arguments argumentIndex compilationCommands arg skipCount target compiler emitLLVM writeMode gpu compilationOptions targetVendor targetOS targetAttributes linkerArguments useLLVM |
+	| architecture outputDirectory withDebugInformation arguments argumentIndex compilationCommands arg skipCount target compiler emitLLVM writeMode gpu compilationOptions targetVendor targetOS targetAttributes linkerArguments useLLVM targetCPU targetFPU |
 	self activateHelp
 		ifTrue: [  ^ self ].
 		
 	architecture := Smalltalk wordSize = 4 ifTrue: [#x86] ifFalse: [#x86_64].
+	targetCPU := nil.
+	targetFPU := nil.
 	targetVendor := nil.
 	targetOS := nil.
 	targetAttributes := nil.
@@ -48,8 +50,20 @@ MbndCompilerCommandLineHandler >> activate [
 		(arg = '-m32' or: [arg = '-mx86']) ifTrue: [ 
 			architecture := #x86.
 		].
-		(arg = '-m32' or: [arg = '-mx86_64']) ifTrue: [  
-			architecture := #x86.
+		(arg = '-m64' or: [arg = '-mx86_64']) ifTrue: [  
+			architecture := #x86_64.
+		].
+		arg = '-mwasm' ifTrue: [  
+			architecture := #webAssembly.
+		].
+		arg = '-mwasm32' ifTrue: [  
+			architecture := #webAssembly32.
+		].
+		arg = '-mwasm64' ifTrue: [  
+			architecture := #webAssembly64.
+		].
+		(#('-marm' '-marmv5' '-marmv6' '-marmv6m' '-marmv7' '-marmv7a' '-marmv7m') includes: arg) ifTrue: [  
+			architecture := (arg allButFirst: 2) asSymbol.
 		].
 		arg = '-mvulkan' ifTrue: [  
 			architecture := #spirv_vulkan.
@@ -66,6 +80,17 @@ MbndCompilerCommandLineHandler >> activate [
 			targetOS := arguments at: argumentIndex + 1.
 			skipCount := 2
 		].
+		arg = '-mcpu' ifTrue: [
+			argumentIndex + 1 > arguments size ifTrue: [ self error: 'Expected an argument after -mcpu' ].
+			targetCPU := arguments at: argumentIndex + 1.
+			skipCount := 2
+		].
+		arg = '-mfpu' ifTrue: [
+			argumentIndex + 1 > arguments size ifTrue: [ self error: 'Expected an argument after -mfpu' ].
+			targetFPU := arguments at: argumentIndex + 1.
+			skipCount := 2
+		].
+
 		arg = '-mattr' ifTrue: [
 			argumentIndex + 1 > arguments size ifTrue: [ self error: 'Expected an argument after -mattr' ].
 			targetAttributes := arguments at: argumentIndex + 1.

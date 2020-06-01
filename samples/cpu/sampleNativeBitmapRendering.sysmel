@@ -1,6 +1,5 @@
 Compiler
-	importModuleNamed: #"Sysmel.Graphics.Core";
-	importModuleNamed: #"Sysmel.Graphics.FreeType2".
+	importModuleNamed: #"Sysmel.Graphics.Headfull".
 
 useNamespace: Stdn Graphics Core.
 

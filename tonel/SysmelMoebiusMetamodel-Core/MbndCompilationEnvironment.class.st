@@ -44,6 +44,51 @@ MbndCompilationEnvironment class >> coreModuleName [
 ]
 
 { #category : #'as yet unclassified' }
+MbndCompilationEnvironment class >> llvm_arm [
+	^ self compilationTarget: MbndSlovimCompilationTarget llvm_arm
+]
+
+{ #category : #'as yet unclassified' }
+MbndCompilationEnvironment class >> llvm_arm64 [
+	^ self compilationTarget: MbndSlovimCompilationTarget llvm_arm64
+]
+
+{ #category : #'as yet unclassified' }
+MbndCompilationEnvironment class >> llvm_armv5 [
+	^ self compilationTarget: MbndSlovimCompilationTarget llvm_armv5
+]
+
+{ #category : #'as yet unclassified' }
+MbndCompilationEnvironment class >> llvm_armv6 [
+	^ self compilationTarget: MbndSlovimCompilationTarget llvm_armv6
+]
+
+{ #category : #'as yet unclassified' }
+MbndCompilationEnvironment class >> llvm_armv6m [
+	^ self compilationTarget: MbndSlovimCompilationTarget llvm_armv6m
+]
+
+{ #category : #'as yet unclassified' }
+MbndCompilationEnvironment class >> llvm_armv7 [
+	^ self compilationTarget: MbndSlovimCompilationTarget llvm_armv7
+]
+
+{ #category : #'as yet unclassified' }
+MbndCompilationEnvironment class >> llvm_armv7a [
+	^ self compilationTarget: MbndSlovimCompilationTarget llvm_armv7a
+]
+
+{ #category : #'as yet unclassified' }
+MbndCompilationEnvironment class >> llvm_armv7m [
+	^ self compilationTarget: MbndSlovimCompilationTarget llvm_armv7m
+]
+
+{ #category : #'as yet unclassified' }
+MbndCompilationEnvironment class >> llvm_mipsel [
+	^ self compilationTarget: MbndSlovimCompilationTarget llvm_mipsel
+]
+
+{ #category : #'as yet unclassified' }
 MbndCompilationEnvironment class >> llvm_webAssembly [
 	^ self compilationTarget: MbndSlovimCompilationTarget llvm_webAssembly
 ]
@@ -92,6 +137,11 @@ MbndCompilationEnvironment >> addLoadedModule: module [
 	self assert: module isNotNil.
 	self loadedModules add: module.
 	module name ifNotNil: [ :name | self loadedModuleDictionary at: name put: module ].
+]
+
+{ #category : #initialization }
+MbndCompilationEnvironment >> addModuleSourceLocation: location [
+	moduleSourceLocations add: location asFileReference
 ]
 
 { #category : #'semantic analysis' }
@@ -359,7 +409,7 @@ MbndCompilationEnvironment >> hasMonolithicTranslationMode [
 { #category : #testing }
 MbndCompilationEnvironment >> hasNullGarbageCollector [
 	<compileTime>
-	^ self compilationTarget isWebAssembly
+	^ self compilationTarget isWebAssembly or: [ self compilationTarget isX86 not ]
 ]
 
 { #category : #testing }
@@ -400,6 +450,11 @@ MbndCompilationEnvironment >> hasStandardLibrary [
 MbndCompilationEnvironment >> hasStandardLibrary: aBoolean [
 	<compileTime>
 	hasStandardLibrary := aBoolean
+]
+
+{ #category : #'module import' }
+MbndCompilationEnvironment >> importIndirectModuleNamed: moduleName [
+	^ self importModuleNamed: moduleName
 ]
 
 { #category : #'module import' }
@@ -577,6 +632,11 @@ MbndCompilationEnvironment >> noRTTI [
 MbndCompilationEnvironment >> noStandardLibrary [
 	<compileTime>
 	self hasStandardLibrary: false
+]
+
+{ #category : #initialization }
+MbndCompilationEnvironment >> noStandardModuleSourceLocations [
+	moduleSourceLocations removeAll
 ]
 
 { #category : #'module output format' }

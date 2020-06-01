@@ -280,6 +280,11 @@ TMbndAbstractCompilationTarget >> gpuTextureCubeType [
 	^ self getBasicTypeNamed: #GPUTextureCube
 ]
 
+{ #category : #testing }
+TMbndAbstractCompilationTarget >> hasArmEhAbi [
+	^ false
+]
+
 { #category : #initialization }
 TMbndAbstractCompilationTarget >> hasBoundsChecks [
 	^ self isGPU not
@@ -346,6 +351,26 @@ TMbndAbstractCompilationTarget >> intPointerType [
 ]
 
 { #category : #'platform testing' }
+TMbndAbstractCompilationTarget >> isARM [
+	^ self isARM32 or: [ self isARM64 ]
+]
+
+{ #category : #'platform testing' }
+TMbndAbstractCompilationTarget >> isARM32 [
+	^ false
+]
+
+{ #category : #'platform testing' }
+TMbndAbstractCompilationTarget >> isARM64 [
+	^ false
+]
+
+{ #category : #'platform testing' }
+TMbndAbstractCompilationTarget >> isDesktopPC [
+	^ self isWin32 or: [ self isUnix ]
+]
+
+{ #category : #'platform testing' }
 TMbndAbstractCompilationTarget >> isFreeBSD [
 	^ false
 ]
@@ -377,6 +402,21 @@ TMbndAbstractCompilationTarget >> isWebAssembly [
 
 { #category : #'platform testing' }
 TMbndAbstractCompilationTarget >> isWin32 [
+	^ false
+]
+
+{ #category : #'platform testing' }
+TMbndAbstractCompilationTarget >> isX86 [
+	^ self isX86_32 | self isX86_64
+]
+
+{ #category : #'platform testing' }
+TMbndAbstractCompilationTarget >> isX86_32 [
+	^ false
+]
+
+{ #category : #'platform testing' }
+TMbndAbstractCompilationTarget >> isX86_64 [
 	^ false
 ]
 

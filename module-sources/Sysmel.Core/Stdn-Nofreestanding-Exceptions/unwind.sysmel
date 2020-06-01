@@ -11,36 +11,149 @@ namespace Unwind definition: {
 ## https://itanium-cxx-abi.github.io/cxx-abi/abi-eh.html
 enum _Unwind_Reason_Code valueType: Int32; values: #{
     NoReason: 0.
-	ForeignExceptionCaught: 1.
-	FatalPhase2Error: 2.
-	FatalPhase1Error: 3.
-	NormalStop: 4.
-	EndOfStack: 5.
-	HandlerFound: 6.
-	InstallContext: 7.
-	ContinueUnwind: 8.
-}.
-
-struct _Unwind_Exception.
-compileTime constant _Unwind_Exception_Cleanup_Fn := ((_Unwind_Reason_Code -- _Unwind_Exception pointer) => Void) pointer.
-
-_Unwind_Exception definition: {
-    public field exceptionClass type: UInt64.
-    public field exceptionCleanup type: _Unwind_Exception_Cleanup_Fn.
-    public field private1 type: UInt64.
-    public field private2 type: UInt64.
+    ForeignExceptionCaught: 1.
+    FatalPhase2Error: 2.
+    FatalPhase1Error: 3.
+    NormalStop: 4.
+    EndOfStack: 5.
+    HandlerFound: 6.
+    InstallContext: 7.
+    ContinueUnwind: 8.
+    Failure: 9.
 }.
 
 struct _Unwind_Context.
 
+compileTime if: Compiler compilationTarget hasArmEhAbi then: {
+    compileTime constant _Unwind_State := UInt32.
+
+    compileTime constant _US_VIRTUAL_UNWIND_FRAME := 0.
+    compileTime constant _US_UNWIND_FRAME_STARTING := 1.
+    compileTime constant _US_UNWIND_FRAME_RESUME   := 2.
+
+    struct _Unwind_Context.
+    struct _Unwind_Control_Block.
+    compileTime constant _Unwind_EHT_Header := UInt32.
+    compileTime constant _Unwind_Exception := _Unwind_Control_Block.
+    compileTime constant _Unwind_Exception_Cleanup_Fn := ((_Unwind_Reason_Code -- _Unwind_Exception pointer) => Void) pointer.
+
+    _Unwind_Control_Block definition: {
+        public field exceptionClass type: UInt64.
+        public field exceptionCleanup type: _Unwind_Exception_Cleanup_Fn.
+
+        ## Unwinder cache, private fields for the unwinder.
+        struct UnwinderCache definition: {
+            public field reserved1 type: UInt32.
+            public field reserved2 type: UInt32.
+            public field reserved3 type: UInt32.
+            public field reserved4 type: UInt32.
+            public field reserved5 type: UInt32.
+        }.
+
+        public field unwinderCache type: UnwinderCache.
+
+        ## Propagation barrier cache (valid after phase 1).
+        struct PropagationBarrier definition: {
+            public field sp type: UInt32.
+            public field bitpattern type: (UInt32 array: 5).
+        }.
+
+        public field propagationBarrier type: PropagationBarrier.
+
+        ## Cleanup cache (preserved over cleanup).
+        struct CleanupCache definition: {
+            public field bitpattern type: (UInt32 array: 4).
+        }.
+
+        public field cleanupCache type: CleanupCache.
+
+        struct PrCache definition: {
+            public field fnstart type: UInt32.
+            public field ehtp type: _Unwind_EHT_Header pointer.
+            public field additional type: UInt32.
+            public field reserved1 type: UInt32.
+        }.
+
+        public field prCache type: PrCache.
+
+        ## Force the alignment of the next item.
+        field _ type: UInt64.
+    }.
+
+    enum _Unwind_VRS_RegClass valueType: UInt32; values: #{
+        Core: 0.
+        VFP: 1.
+        WMMXD: 3.
+        WMMXC: 4.
+    }.
+
+    enum _Unwind_VRS_DataRepresentation valueType: UInt32; values: #{
+        DataUInt32: 0.
+        DataVFPX: 1.
+        DataUInt64: 3.
+        DataFloat: 4.
+        DataDouble: 5.
+    }.
+
+    enum _Unwind_VRS_Result valueType: UInt32; values: #{
+        Ok: 0.
+        NotImplemented: 1.
+        Failed: 2.
+    }.
+
+    function _Unwind_VRS_Set externC(context: _Unwind_Context pointer, regclass: _Unwind_VRS_RegClass, regno: UInt32, representation: _Unwind_VRS_DataRepresentation, value: Void pointer) => _Unwind_VRS_Result.
+    function _Unwind_VRS_Get externC(context: _Unwind_Context pointer, regclass: _Unwind_VRS_RegClass, regno: UInt32, representation: _Unwind_VRS_DataRepresentation, valuep: Void pointer) => _Unwind_VRS_Result.
+
+    inline function _Unwind_GetGR(context: _Unwind_Context pointer, index: Int32) => UIntPointer := {
+        ## From: llvm libcxxabi/libunwind.
+        let value mutable type: UIntPointer.
+        _Unwind_VRS_Get(context, _Unwind_VRS_RegClass Core, index castTo: UInt32, _Unwind_VRS_DataRepresentation DataUInt32, value address).
+        value
+    }.
+
+    inline function _Unwind_SetGR(context: _Unwind_Context pointer, index: Int32, newValue: UIntPointer) => Void := {
+        ## From: llvm libcxxabi/libunwind.
+        let value mutable := newValue.
+        _Unwind_VRS_Set(context, _Unwind_VRS_RegClass Core, index castTo: UInt32, _Unwind_VRS_DataRepresentation DataUInt32, value address).
+        value
+    }.
+
+    inline function _Unwind_GetIP(context: _Unwind_Context pointer) => UIntPointer := {
+        ## From: llvm libcxxabi/libunwind: remove the thumb-bit before returning.
+        _Unwind_GetGR(context, 15) & (16r1 castTo: UIntPointer) bitInvert.
+    }.
+
+    inline function _Unwind_SetIP(context: _Unwind_Context pointer, newValue: UIntPointer) => Void := {
+        let thumbBit := _Unwind_GetGR(context, 15) & 16r1.
+        _Unwind_SetGR(context, 15, newValue | thumbBit)
+    }.
+
+} else: {
+    struct _Unwind_Exception.
+    compileTime constant _Unwind_Exception_Cleanup_Fn := ((_Unwind_Reason_Code -- _Unwind_Exception pointer) => Void) pointer.
+
+    _Unwind_Exception definition: {
+        public field exceptionClass type: UInt64.
+        public field exceptionCleanup type: _Unwind_Exception_Cleanup_Fn.
+        public field private1 type: UIntPointer.
+        public field private2 type: UIntPointer.
+
+        compileTime if: Void pointer instanceSize = 4 then: {
+            public field reserved type: (UInt32 array: 3).
+        }.
+    }.
+
+    function _Unwind_GetGR externC(context: _Unwind_Context pointer, index: Int32) => UIntPointer.
+    function _Unwind_SetGR externC(context: _Unwind_Context pointer, index: Int32, newValue: UIntPointer) => Void.
+    function _Unwind_GetIP externC(context: _Unwind_Context pointer) => UIntPointer.
+    function _Unwind_SetIP externC(context: _Unwind_Context pointer, newValue: UIntPointer) => Void.
+}.
+
 function _Unwind_RaiseException externC(exception_object: _Unwind_Exception pointer) => _Unwind_Reason_Code.
 function _Unwind_Resume externC(exception_object: _Unwind_Exception pointer) => Void.
+function _Unwind_Complete externC(exception_object: _Unwind_Exception pointer) => Void.
 function _Unwind_DeleteException externC(exception_object: _Unwind_Exception pointer) => Void.
 
-function _Unwind_GetGR externC(context: _Unwind_Context pointer, index: Int32) => UIntPointer.
-function _Unwind_SetGR externC(context: _Unwind_Context pointer, index: Int32, newValue: UIntPointer) => UIntPointer.
-function _Unwind_GetIP externC(context: _Unwind_Context pointer) => UIntPointer.
-function _Unwind_SetIP externC(context: _Unwind_Context pointer, newValue: UIntPointer) => UIntPointer.
 function _Unwind_GetLanguageSpecificData externC(context: _Unwind_Context pointer) => Void pointer.
 function _Unwind_GetRegionStart externC(context: _Unwind_Context pointer) => UIntPointer.
 
@@ -496,64 +609,80 @@ function setLandingPathRegisters(unwindException: _Unwind_Exception pointer, con
     _Unwind_SetIP(context, scanResult landingPad reinterpretCastTo: UIntPointer).
 }.
 
-## Sysmel personality function.
-## The implementation of this function is strongly based in the implementation from LLVM libc++
-## available at the following file: https://github.com/llvm/llvm-project/blob/master/libcxxabi/src/cxa_personality.cpp
-function __sysmel_eh_personality externC(
-    version: Int32, actions: _Unwind_Action,
-    exceptionClass: UInt64,
-    unwindException: _Unwind_Exception pointer, context: _Unwind_Context pointer) => _Unwind_Reason_Code := {
+compileTime if: Compiler compilationTarget hasArmEhAbi then: {
+    ## Sysmel personality function.
+    ## The implementation of this function is strongly based in the implementation from LLVM libc++
+    ## available at the following file: https://github.com/llvm/llvm-project/blob/master/libcxxabi/src/cxa_personality.cpp
+    function __sysmel_eh_personality externC (state: _Unwind_State,
+        unwindException: _Unwind_Exception pointer,
+        context: _Unwind_Context pointer) => _Unwind_Reason_Code := {
 
-    version ~= 1 || unwindException isNil || context isNil ifTrue: {
-        return: _Unwind_Reason_Code FatalPhase1Error
+        LibC abort().
+        Stdn stderr << "TODO: __sysmel_eh_personality"; nl.
+        LibC abort().
+
+        _Unwind_Reason_Code Failure
     }.
+} else: {
+    ## Sysmel personality function.
+    ## The implementation of this function is strongly based in the implementation from LLVM libc++
+    ## available at the following file: https://github.com/llvm/llvm-project/blob/master/libcxxabi/src/cxa_personality.cpp
+    function __sysmel_eh_personality externC(
+        version: Int32, actions: _Unwind_Action,
+        exceptionClass: UInt64,
+        unwindException: _Unwind_Exception pointer, context: _Unwind_Context pointer) => _Unwind_Reason_Code := {
 
-    let isOurExceptionClass := (exceptionClass & ExceptionClassVendorAndLanguageMask) == OurExceptionClass.
-
-    let scanResult mutable type: SysmelUnwindScanResult.
-    (actions anyMask: _UA_SEARCH_PHASE) ifTrue: {
-        scanResult scanFrameForActions: actions isOurExceptionClass: isOurExceptionClass exceptionObject: unwindException context: context.
-
-		scanResult reasonCode == _Unwind_Reason_Code HandlerFound ifTrue: {
-            isOurExceptionClass ifTrue: {
-                (SysmelUnwindExceptionData fromUnwindException: unwindException) _
-                    scanResultCache: scanResult cacheableResult.
-            }.
+        version ~= 1 || unwindException isNil || context isNil ifTrue: {
+            return: _Unwind_Reason_Code FatalPhase1Error
         }.
 
-        return: scanResult reasonCode
-    }.
+        let isOurExceptionClass := (exceptionClass & ExceptionClassVendorAndLanguageMask) == OurExceptionClass.
 
-    (actions anyMask: _UA_CLEANUP_PHASE) ifTrue: {
-        ## Did we find the handler?
-        (actions anyMask: _UA_HANDLER_FRAME) ifTrue: {
-            isOurExceptionClass ifTrue: {
-                scanResult cacheableResult: ((SysmelUnwindExceptionData fromUnwindException: unwindException) _
-                    scanResultCache)
-            } ifFalse: {
-                scanResult scanFrameForActions: actions isOurExceptionClass: isOurExceptionClass exceptionObject: unwindException context: context.
-                ## Handler found in Phase 1 is not found anymore.
-                scanResult reasonCode == _Unwind_Reason_Code HandlerFound ifFalse: {
-                    unwindingFatalError(isOurExceptionClass, unwindException).
+        let scanResult mutable type: SysmelUnwindScanResult.
+        (actions anyMask: _UA_SEARCH_PHASE) ifTrue: {
+            scanResult scanFrameForActions: actions isOurExceptionClass: isOurExceptionClass exceptionObject: unwindException context: context.
+
+    		scanResult reasonCode == _Unwind_Reason_Code HandlerFound ifTrue: {
+                isOurExceptionClass ifTrue: {
+                    (SysmelUnwindExceptionData fromUnwindException: unwindException) _
+                        scanResultCache: scanResult cacheableResult.
                 }.
             }.
 
-            setLandingPathRegisters(unwindException, context, scanResult cacheableResult).
-            return: _Unwind_Reason_Code InstallContext
+            return: scanResult reasonCode
         }.
 
-        ## Search for cleanup handler.
-        scanResult scanFrameForActions: actions isOurExceptionClass: isOurExceptionClass exceptionObject: unwindException context: context.
-        scanResult reasonCode == _Unwind_Reason_Code HandlerFound ifTrue: {
-            setLandingPathRegisters(unwindException, context, scanResult cacheableResult).
-            return: _Unwind_Reason_Code InstallContext
+        (actions anyMask: _UA_CLEANUP_PHASE) ifTrue: {
+            ## Did we find the handler?
+            (actions anyMask: _UA_HANDLER_FRAME) ifTrue: {
+                isOurExceptionClass ifTrue: {
+                    scanResult cacheableResult: ((SysmelUnwindExceptionData fromUnwindException: unwindException) _
+                        scanResultCache)
+                } ifFalse: {
+                    scanResult scanFrameForActions: actions isOurExceptionClass: isOurExceptionClass exceptionObject: unwindException context: context.
+                    ## Handler found in Phase 1 is not found anymore.
+                    scanResult reasonCode == _Unwind_Reason_Code HandlerFound ifFalse: {
+                        unwindingFatalError(isOurExceptionClass, unwindException).
+                    }.
+                }.
+
+                setLandingPathRegisters(unwindException, context, scanResult cacheableResult).
+                return: _Unwind_Reason_Code InstallContext
+            }.
+
+            ## Search for cleanup handler.
+            scanResult scanFrameForActions: actions isOurExceptionClass: isOurExceptionClass exceptionObject: unwindException context: context.
+            scanResult reasonCode == _Unwind_Reason_Code HandlerFound ifTrue: {
+                setLandingPathRegisters(unwindException, context, scanResult cacheableResult).
+                return: _Unwind_Reason_Code InstallContext
+            }.
+
+            return: scanResult reasonCode
         }.
 
-        return: scanResult reasonCode
+        ## Not handled action, this must be a fatal error
+        return: _Unwind_Reason_Code FatalPhase1Error
     }.
-
-    ## Not handled action, this must be a fatal error
-    return: _Unwind_Reason_Code FatalPhase1Error
 }.
 
 function __sysmel_eh_handleForbiddenException externC(exceptionData: Void pointer) => Void := {
@@ -636,6 +765,7 @@ if: Compiler hasExceptions then: {
             let exceptionData := allocateNativeExceptionDataFor(self address, self __typeInformation).
 
             ## Raise the actual exception.
+            ## stderr << "Raise new exception: " << SysmelUnwindExceptionData instanceSize << " " << exceptionData; nl.
 			let reasonCode := _Unwind_RaiseException(exceptionData _ unwindException address).
 
             stderr << "Unhandled native exception:"; nl.

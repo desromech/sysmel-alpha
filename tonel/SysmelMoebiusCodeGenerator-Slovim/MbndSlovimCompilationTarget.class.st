@@ -9,6 +9,51 @@ Class {
 }
 
 { #category : #'as yet unclassified' }
+MbndSlovimCompilationTarget class >> llvm_arm [
+	^ self slvmCompilationTargetNamed: #llvm_arm
+]
+
+{ #category : #'as yet unclassified' }
+MbndSlovimCompilationTarget class >> llvm_arm64 [
+	^ self slvmCompilationTargetNamed: #llvm_arm64
+]
+
+{ #category : #'as yet unclassified' }
+MbndSlovimCompilationTarget class >> llvm_armv5 [
+	^ self slvmCompilationTargetNamed: #llvm_armv5
+]
+
+{ #category : #'as yet unclassified' }
+MbndSlovimCompilationTarget class >> llvm_armv6 [
+	^ self slvmCompilationTargetNamed: #llvm_armv6
+]
+
+{ #category : #'as yet unclassified' }
+MbndSlovimCompilationTarget class >> llvm_armv6m [
+	^ self slvmCompilationTargetNamed: #llvm_armv6m
+]
+
+{ #category : #'as yet unclassified' }
+MbndSlovimCompilationTarget class >> llvm_armv7 [
+	^ self slvmCompilationTargetNamed: #llvm_armv7
+]
+
+{ #category : #'as yet unclassified' }
+MbndSlovimCompilationTarget class >> llvm_armv7a [
+	^ self slvmCompilationTargetNamed: #llvm_armv7a
+]
+
+{ #category : #'as yet unclassified' }
+MbndSlovimCompilationTarget class >> llvm_armv7m [
+	^ self slvmCompilationTargetNamed: #llvm_armv7m
+]
+
+{ #category : #'as yet unclassified' }
+MbndSlovimCompilationTarget class >> llvm_mipsel [
+	^ self slvmCompilationTargetNamed: #llvm_mipsel
+]
+
+{ #category : #'as yet unclassified' }
 MbndSlovimCompilationTarget class >> llvm_webAssembly [
 	^ self slvmCompilationTargetNamed: #llvm_webAssembly
 ]
@@ -101,6 +146,11 @@ MbndSlovimCompilationTarget >> float64Alignment [
 	^ slvmCompilationTarget float64 alignment
 ]
 
+{ #category : #testing }
+MbndSlovimCompilationTarget >> hasArmEhAbi [
+	^ slvmCompilationTarget architecture beginsWith: #arm
+]
+
 { #category : #'platform testing' }
 MbndSlovimCompilationTarget >> hasNoOperatingSystem [
 	^ slvmCompilationTarget isNoOperatingSystem
@@ -115,6 +165,16 @@ MbndSlovimCompilationTarget >> initialize [
 { #category : #accessing }
 MbndSlovimCompilationTarget >> int64Alignment [
 	^ slvmCompilationTarget int64 alignment
+]
+
+{ #category : #'platform testing' }
+MbndSlovimCompilationTarget >> isARM32 [
+	^ slvmCompilationTarget isARM32
+]
+
+{ #category : #'platform testing' }
+MbndSlovimCompilationTarget >> isARM64 [
+	^ slvmCompilationTarget isARM64
 ]
 
 { #category : #testing }
@@ -143,6 +203,11 @@ MbndSlovimCompilationTarget >> isLittleEndian [
 ]
 
 { #category : #'platform testing' }
+MbndSlovimCompilationTarget >> isMIPS [
+	^ slvmCompilationTarget isMIPS
+]
+
+{ #category : #'platform testing' }
 MbndSlovimCompilationTarget >> isOSX [
 	^ slvmCompilationTarget isOSX
 ]
@@ -155,6 +220,16 @@ MbndSlovimCompilationTarget >> isWebAssembly [
 { #category : #'platform testing' }
 MbndSlovimCompilationTarget >> isWin32 [
 	^ slvmCompilationTarget isWin32
+]
+
+{ #category : #'platform testing' }
+MbndSlovimCompilationTarget >> isX86_32 [
+	^ slvmCompilationTarget isX86_32
+]
+
+{ #category : #'platform testing' }
+MbndSlovimCompilationTarget >> isX86_64 [
+	^ slvmCompilationTarget isX86_64
 ]
 
 { #category : #'as yet unclassified' }
