@@ -12,7 +12,8 @@ Class {
 		'identityHashField',
 		'variableDataSizeField',
 		'hasTrivialBasicInitialization',
-		'allNamedFields'
+		'allNamedFields',
+		'allFields'
 	],
 	#category : #'SysmelMoebiusMetamodel-Core-Type'
 }
@@ -20,6 +21,18 @@ Class {
 { #category : #serialization }
 MbndAggregateSlotLayout class >> messagePackTypeName [
 	^ #AggregateSlotLayout
+]
+
+{ #category : #accessing }
+MbndAggregateSlotLayout >> allFields [
+	allFields ifNil: [
+		allFields := Array streamContents: [ :out |
+			slots do: [ :each |
+				out nextPutAll: each fields.
+			]
+		]
+	].
+	^ allFields
 ]
 
 { #category : #accessing }

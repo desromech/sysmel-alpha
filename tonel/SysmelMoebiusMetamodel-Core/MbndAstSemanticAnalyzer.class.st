@@ -12,10 +12,11 @@ Class {
 
 { #category : #'implicit casting' }
 MbndAstSemanticAnalyzer >> addImplicitCVariadicCastFor: nodeRequiringCasting [
-	| sourceType cvariadicType |
-	sourceType := nodeRequiringCasting type.
+	| sourceType cvariadicType analyzedNodeRequiringCasting |
+	analyzedNodeRequiringCasting := self analyzeNodeIfNeeded: nodeRequiringCasting.
+	sourceType := analyzedNodeRequiringCasting type.
 	cvariadicType := sourceType asCVariadicTypeRequiredAt: nodeRequiringCasting.
-	^ self addImplicitCastFor: nodeRequiringCasting to: cvariadicType
+	^ self addImplicitCastFor: analyzedNodeRequiringCasting to: cvariadicType
 ]
 
 { #category : #'implicit casting' }
@@ -26,6 +27,10 @@ MbndAstSemanticAnalyzer >> addImplicitCastFor: nodeRequiringCasting to: expected
 		(expectedTargetType canValueBeCreatedForNode: nodeRequiringCasting) ifTrue: [ 
 			^ self analyzeNodeIfNeeded: (expectedTargetType createValueForNode: nodeRequiringCasting withAnalyzer: self)
 		].
+		nodeRequiringCasting isBlockClosureNode ifTrue: [ 
+			^ self addImplicitCastFor: (self analyzeNodeIfNeeded: (nodeRequiringCasting assistTypeInferenceWithExpectedType: expectedTargetType with: self)) to: expectedTargetType
+		].
+	
 		^ self addImplicitCastFor: (self analyzeNodeIfNeeded: nodeRequiringCasting) to: expectedTargetType
 	].
 
@@ -188,6 +193,38 @@ MbndAstSemanticAnalyzer >> analyzeEnumDefinition: enumDefinition values: values 
 	].
 
 	enumType values: convertedDictionary
+]
+
+{ #category : #visiting }
+MbndAstSemanticAnalyzer >> analyzeExpandedMessageSend: messageSendNode arguments: argumentNodes [
+	| methodOrMethodGroupLooked methodOrMethodGroup receiverType |
+	(messageSendNode receiver isNil or: [messageSendNode selector isLiteralSymbolValueNode not]) ifTrue: [ ^ self analyzeNodesIfNeeded: argumentNodes ].
+	
+	methodOrMethodGroupLooked := false.
+	methodOrMethodGroup := nil.
+	receiverType := messageSendNode receiver type.
+	^ argumentNodes collectWithIndex: [ :each :index |
+		each type ifNil: [
+			each isBlockClosureNode ifTrue: [
+				| withAssistedTypeInference |
+				methodOrMethodGroupLooked ifFalse: [
+					methodOrMethodGroup := receiverType lookupOverloadedSelector: messageSendNode selector value.
+					methodOrMethodGroupLooked := true.
+				].
+			
+				withAssistedTypeInference := methodOrMethodGroup ifNil: [
+					receiverType assistBlockClosureNodeTypeInference: each asArgument: index with: self
+				] ifNotNil: [ 
+					methodOrMethodGroup assistBlockClosureNodeTypeInference: each asArgument: index with: self
+				].
+				self visitNode: withAssistedTypeInference
+			] ifFalse: [ 
+				self visitNode: each
+			]
+		] ifNotNil: [
+			each
+		]
+	]
 ]
 
 { #category : #'as yet unclassified' }
@@ -835,6 +872,7 @@ MbndAstSemanticAnalyzer >> visitBlockClosureNode: node [
 		definitionScope: scope;
 		analyzedNode: result;
 		setNonLocalReturnTarget: node isBlockWithNonLocalReturn not;
+		closureKind: node closureKind;
 		defineArguments.
 	result blockClosureProgramEntity: blockClosureEntity.
 	
@@ -855,11 +893,20 @@ MbndAstSemanticAnalyzer >> visitBlockClosureNode: node [
 		result body: (self visitNode: preprocessedBody).
 	].
 
+	blockClosureEntity returnType ifNil: [ 
+		self error: 'Block closure requires an explicit return type because it was not possible to infer it.' at: node
+	].
+
 	functionType := blockClosureEntity boundType.
-	needsGC := blockClosureEntity needsGarbageCollection.
-	
-	blockClosureEntity type: (needsGC ifTrue: [ functionType asGCBlockClosureType ] ifFalse: [
-		functionType asNativeBlockClosureType]).
+	blockClosureEntity closureKind ifNil: [
+		blockClosureEntity closureKind: (blockClosureEntity needsGarbageCollection
+			ifTrue: [ #gc ]
+			ifFalse: [ #native ])
+	].
+
+	blockClosureEntity type: (blockClosureEntity closureKind = #gc
+		ifTrue: [ functionType asGCBlockClosureType ]
+		ifFalse: [ functionType asNativeBlockClosureType]).
 	result type: blockClosureEntity type.
 
 	owner addLambdaChild: blockClosureEntity.
@@ -1216,11 +1263,13 @@ MbndAstSemanticAnalyzer >> visitExpandedMessageSendNode: node [
 	| result receiverType method |
 	result := node copy
 		receiver: (node receiver ifNotNil: [:receiver | self analyzeNodeIfNeeded: node receiver]);
-		selector: (self analyzeNodeIfNeeded: node selector);
-		arguments: (self analyzeNodesIfNeeded: node arguments).
+		selector: (self analyzeNodeIfNeeded: node selector).
+		
+	result
+		arguments: (self analyzeExpandedMessageSend: result arguments: node arguments).
 		
 	"Find the method in order to perform a typed message send."
-	result receiver ifNil: [ 
+	result receiver ifNil: [
 		result selector isLiteralSymbolValueNode ifFalse: [ 
 			self error: 'Message send without a receiver cannot have non-constant selector.' at: result
 		].
@@ -2546,6 +2595,10 @@ MbndAstSemanticAnalyzer >> visitReturnStatementNode: node [
 	] ifFalse: [
 		expectedReturnType := scope nonLocalReturnType.
 		returnTypeProgramEntity := scope nonLocalReturnTypeProgramEntity.
+	].
+
+	(expectedReturnType isNil and: [returnTypeProgramEntity isNotNil]) ifTrue: [
+		expectedReturnType := returnTypeProgramEntity inferReturnTypeFromAnalyzedResultExpression: result expression with: self
 	].
 	result expectedReturnType: expectedReturnType.
 	expectedReturnType ifNotNil: [

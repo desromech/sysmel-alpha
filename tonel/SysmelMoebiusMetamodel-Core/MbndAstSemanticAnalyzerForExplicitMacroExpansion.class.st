@@ -118,15 +118,15 @@ MbndAstSemanticAnalyzerForExplicitMacroExpansion >> visitFunctionCallNode: node 
 	result arguments isMbndAstNode ifTrue: [
 		"Rewrite the node by removing the tuple object."
 		result arguments isTupleNode ifTrue: [
-			^ self visitNode: (result arguments: result arguments elements)
+			^ self visitNode: (result arguments: result arguments elements; yourself)
 		] ifFalse: [
 			^ self visitNode: (result arguments: (self visitSplicingTupleNode: result arguments))
 		]
 	].
 
-	result
-		function: (self analyzeNodeIfNeeded: node function);
-		arguments: (self analyzeNodesIfNeeded: result arguments).
+	result function: (self analyzeNodeIfNeeded: node function).
+	"result
+		arguments: (self analyzeCalledFunction: arguments: result arguments)."
 		
 	functionalType := result function type withoutReferences withoutTopDecorations.
 	self assert: functionalType isFunctionalType.

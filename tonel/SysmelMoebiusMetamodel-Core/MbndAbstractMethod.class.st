@@ -29,6 +29,11 @@ MbndAbstractMethod >> analyzeReferenceNode: referenceNode with: analyzer [
 		yourself
 ]
 
+{ #category : #'as yet unclassified' }
+MbndAbstractMethod >> assistBlockClosureNodeTypeInference: each asArgument: argumentIndex with: analyzer [
+	^ each
+]
+
 { #category : #evaluation }
 MbndAbstractMethod >> canBeEvaluatedInCompileTime [
 	(self hasPragmaNamed: #notInCompileTime) ifTrue: [ ^ false ].

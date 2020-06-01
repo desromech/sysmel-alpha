@@ -23,6 +23,11 @@ MbndNativeBlockClosureType >> canHaveDynamicMethodWrapper [
 ]
 
 { #category : #accessing }
+MbndNativeBlockClosureType >> closureKind [
+	^ #native
+]
+
+{ #category : #accessing }
 MbndNativeBlockClosureType >> functionTypeWithGenericClosurePointer [
 	^ functionTypeWithGenericClosurePointer ifNil: [
 		functionTypeWithGenericClosurePointer := functionType prependArguments: {self compilationTarget voidType pointer}

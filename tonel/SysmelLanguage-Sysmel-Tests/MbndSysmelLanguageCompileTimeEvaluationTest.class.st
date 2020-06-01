@@ -43,6 +43,34 @@ MbndSysmelLanguageCompileTimeEvaluationTest >> testBooleanLiterals [
 ]
 
 { #category : #tests }
+MbndSysmelLanguageCompileTimeEvaluationTest >> testFieldCompileTimeReflection [
+	self evaluateSource: '
+struct TestStruct definition: { 
+	field a type: Int32.
+	field b type: Int32.
+}.
+'.
+
+	self assert: (self evaluateSource: 'TestStruct allFields size') unwrapMbndValue equals: 2.
+	self assert: ((self evaluateSource: 'TestStruct allFields collect: {:(_CompilerObjectType)each :: _CompilerObjectType | each name}')
+		unwrapMbndValue collect: #unwrapMbndValue) equals: #(a b).
+]
+
+{ #category : #tests }
+MbndSysmelLanguageCompileTimeEvaluationTest >> testFieldCompileTimeReflection2 [
+	self evaluateSource: '
+struct TestStruct definition: { 
+	field a type: Int32.
+	field b type: Int32.
+}.
+'.
+
+	self assert: (self evaluateSource: 'TestStruct allFields size') unwrapMbndValue equals: 2.
+	self assert: ((self evaluateSource: 'TestStruct allFields collect: {:each | each name}')
+		unwrapMbndValue collect: #unwrapMbndValue) equals: #(a b).
+]
+
+{ #category : #tests }
 MbndSysmelLanguageCompileTimeEvaluationTest >> testFunctionNotInCompileTime [
 	self should: [ self evaluateSource: '
 		function notInCompileTime() => Void := { 

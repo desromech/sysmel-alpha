@@ -26,6 +26,12 @@ MbndAbstractMethodGroup >> analyzeExpandedMessageSendNode: node with: analyzer [
 { #category : #'as yet unclassified' }
 MbndAbstractMethodGroup >> analyzeFunctionCallNode: node with: analyzer [
 	| receiverType matchingEntity newBinding newCallNode |
+	(node arguments allSatisfy: [ :each | each type isNotNil ]) ifFalse: [
+		^ self analyzeFunctionCallNode: (node copy
+			arguments: (analyzer analyzeNodesIfNeeded: node arguments);
+			yourself) with: analyzer
+	].
+
 	self flag: 'TODO: Support a receiver type in this location.'.
 	receiverType := analyzer compilationTarget voidType.
 	matchingEntity := self findSingleOverloadedEntityMatchingArguments: node arguments withReceiverType: receiverType with: analyzer at: node.

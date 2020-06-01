@@ -2322,6 +2322,45 @@ function callWithNativeBlockClosure externC(v: Int32) => Int32
 ]
 
 { #category : #tests }
+MbndSlovimCodeModuleGeneratorTest >> testCallWithNativeBlockClosure3 [
+	| function |
+	self
+		evaluateSysmelSource: '
+function calledWithNativeBlockClosure externC(f: (Void => Int32) nativeStackBlockClosure) => Int32
+	:= f().
+
+function callWithNativeBlockClosure externC(v: Int32) => Int32
+	:= calledWithNativeBlockClosure({ | v }).
+';
+		generateSSAModule.
+
+	function := ssaModule globalNamed: #calledWithNativeBlockClosure.
+	self assert: function allInstructionsMnemonics equals: #(
+		(entry (jump))
+		(body (
+			getElementPointer
+			load
+			bitcast
+			call
+			return
+		))
+
+	).
+	
+	function := ssaModule globalNamed: #callWithNativeBlockClosure.
+	self assert: function allInstructionsMnemonics equals: #(
+		(entry (jump))
+		(body (
+			instantiateClosure
+			bitcast 
+			call
+			return
+		))
+	).
+
+]
+
+{ #category : #tests }
 MbndSlovimCodeModuleGeneratorTest >> testCallWithNativeBlockClosureWithNonLocalReturn [
 	| function closure |
 	self

@@ -265,6 +265,11 @@ MbndFunctionType >> withExplicitReceiverType: receiverType [
 ]
 
 { #category : #'as yet unclassified' }
+MbndFunctionType >> withNewReturnType: newReturnType [
+	^ self compilationTarget functionTypeWithArguments: argumentTypes returnType: newReturnType callingConvention: callingConvention cvariadic: cvariadic
+]
+
+{ #category : #'as yet unclassified' }
 MbndFunctionType >> withReturnType: newReturnType [
 	^ self compilationTarget functionTypeWithArguments: argumentTypes returnType: newReturnType callingConvention: callingConvention cvariadic: cvariadic
 ]

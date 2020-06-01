@@ -40,6 +40,11 @@ MbndAbstractBlockClosureType >> argumentTypes [
 	^ functionType argumentTypes
 ]
 
+{ #category : #accessing }
+MbndAbstractBlockClosureType >> closureKind [
+	self subclassResponsibility
+]
+
 { #category : #'as yet unclassified' }
 MbndAbstractBlockClosureType >> defaultValueAt: aPosition [
 	^ MbndValue value: nil type: self

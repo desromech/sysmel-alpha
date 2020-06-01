@@ -128,6 +128,13 @@ MbndGCClassType >> asReceiverType [
 ]
 
 { #category : #'as yet unclassified' }
+MbndGCClassType >> assistBlockClosureNodeTypeInference: each asArgument: argumentIndex with: analyzer [
+	self compilationTarget dynamicObjectType ifNil: [ ^ each ].
+	^ each assistTypeInferenceWithDefaultArgumentType: self compilationTarget dynamicObjectType
+		returnType: self compilationTarget dynamicObjectType with: analyzer
+]
+
+{ #category : #'as yet unclassified' }
 MbndGCClassType >> createMetaTypeBasicInstance [
 	^ MbndGCClassMetaType basicNew markAsDefined
 ]

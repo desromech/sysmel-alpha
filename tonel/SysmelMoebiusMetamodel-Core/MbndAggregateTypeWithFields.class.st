@@ -50,7 +50,14 @@ MbndAggregateTypeWithFields >> addInstanceMacros [
 ]
 
 { #category : #accessing }
+MbndAggregateTypeWithFields >> allFields [
+	<compileTime>
+	^ self slotLayout allFields
+]
+
+{ #category : #accessing }
 MbndAggregateTypeWithFields >> allNamedFields [
+	<compileTime>
 	^ self slotLayout allNamedFields
 ]
 

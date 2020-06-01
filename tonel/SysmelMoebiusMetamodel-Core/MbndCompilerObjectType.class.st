@@ -51,6 +51,12 @@ MbndCompilerObjectType >> analyzeUnboundExpandedMessageSendNode: node with: anal
 	^ analyzer visitNode: (result asMoebiusLiteralValueNodeWithTarget: self compilationTarget)
 ]
 
+{ #category : #'as yet unclassified' }
+MbndCompilerObjectType >> assistBlockClosureNodeTypeInference: each asArgument: argumentIndex with: analyzer [
+	^ each assistTypeInferenceWithDefaultArgumentType: self compilationTarget compilerObjectType
+		returnType: self compilationTarget compilerObjectType with: analyzer
+]
+
 { #category : #'default values' }
 MbndCompilerObjectType >> defaultValueAt: aPosition [
 	^ MbndValue value: nil type: self

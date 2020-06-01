@@ -449,6 +449,11 @@ TMbndAbstractType >> asUndecoratedClassType [
 	^ self withoutTopDecorations
 ]
 
+{ #category : #'as yet unclassified' }
+TMbndAbstractType >> assistBlockClosureNodeTypeInference: each asArgument: index with: analyzer [
+	^ each
+]
+
 { #category : #accessing }
 TMbndAbstractType >> basicInitializeMethod [
 	^ nil

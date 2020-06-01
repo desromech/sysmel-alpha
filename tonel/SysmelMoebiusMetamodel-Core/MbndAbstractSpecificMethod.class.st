@@ -109,6 +109,14 @@ MbndAbstractSpecificMethod >> arguments [
 	^ #()
 ]
 
+{ #category : #'as yet unclassified' }
+MbndAbstractSpecificMethod >> assistBlockClosureNodeTypeInference: each asArgument: argumentIndex with: analyzer [
+	argumentIndex <= self boundType argumentTypes size ifTrue: [
+		^ each assistTypeInferenceWithExpectedType: (boundType argumentTypes at: argumentIndex) with: analyzer].
+
+	^ each
+]
+
 { #category : #accessing }
 MbndAbstractSpecificMethod >> boundType [
 	boundType isClosure ifTrue: [ boundType := boundType value ].
@@ -232,6 +240,19 @@ MbndAbstractSpecificMethod >> hasPendingAnalysis [
 { #category : #testing }
 MbndAbstractSpecificMethod >> hasVirtualTableEntry [
 	^ self isNewVirtualTableEntry or: [ self isVirtualTableOverride ]
+]
+
+{ #category : #'as yet unclassified' }
+MbndAbstractSpecificMethod >> inferReturnTypeFromAnalyzedResultExpression: resultExpression with: analyzer [
+	| newReturnType |
+	self assert: self boundType returnType isNil.
+	newReturnType := resultExpression type inferValueTypeForNode: resultExpression inScope: analyzer scope.
+
+	boundType := boundType withNewReturnType: newReturnType.
+	type ifNotNil: [
+		type := type withNewReturnType: newReturnType.
+	].	
+	^ newReturnType
 ]
 
 { #category : #initialization }

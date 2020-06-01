@@ -23,6 +23,11 @@ MbndGCBlockClosureType >> analyzeUnhandledUnboundExpandedMessageSendNode: node w
 ]
 
 { #category : #accessing }
+MbndGCBlockClosureType >> closureKind [
+	^ #gc
+]
+
+{ #category : #accessing }
 MbndGCBlockClosureType >> functionTypeWithGenericClosurePointer [
 	^ functionTypeWithGenericClosurePointer ifNil: [
 		functionTypeWithGenericClosurePointer := functionType prependArguments: {self compilationTarget dynamicObjectType}

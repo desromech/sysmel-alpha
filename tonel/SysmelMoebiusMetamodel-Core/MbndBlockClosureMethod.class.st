@@ -10,7 +10,8 @@ Class {
 		'needsGarbageCollection',
 		'capturedVariables',
 		'capturedVariableMap',
-		'lambdaIndex'
+		'lambdaIndex',
+		'closureKind'
 	],
 	#category : #'SysmelMoebiusMetamodel-Core-Method'
 }
@@ -64,6 +65,16 @@ MbndBlockClosureMethod >> arguments [
 { #category : #accessing }
 MbndBlockClosureMethod >> capturedVariables [
 	^ capturedVariables
+]
+
+{ #category : #accessing }
+MbndBlockClosureMethod >> closureKind [
+	^ closureKind
+]
+
+{ #category : #accessing }
+MbndBlockClosureMethod >> closureKind: anObject [
+	closureKind := anObject
 ]
 
 { #category : #'as yet unclassified' }
@@ -180,6 +191,7 @@ MbndBlockClosureMethod >> encodeFieldsForMessagePackWith: graphEncoder [
 		#arguments . arguments encodeGraphForMessagePackWith: graphEncoder.
 		#definitionScope . definitionScope encodeGraphForMessagePackWith: graphEncoder.
 		#analyzedNode . analyzedNode encodeGraphForMessagePackWith: graphEncoder.
+		#closureKind . closureKind encodeGraphForMessagePackWith: graphEncoder.
 		#children . children encodeGraphForMessagePackWith: graphEncoder.
 	}
 ]
@@ -293,6 +305,7 @@ MbndBlockClosureMethod >> materializeWithGraphDecoder: graphDecoder withFields: 
 
 	definitionScope := encodedFields at: #definitionScope ifAbsent: [nil].
 	analyzedNode := encodedFields at: #analyzedNode ifAbsent: [nil].
+	closureKind := encodedFields at: #closureKind ifAbsent: [nil].
 
 	definitionPosition := graphDecoder moduleLocation.
 	children := encodedFields at: #children ifAbsent: [nil].

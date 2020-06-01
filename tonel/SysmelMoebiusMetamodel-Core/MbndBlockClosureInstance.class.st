@@ -60,6 +60,31 @@ MbndBlockClosureInstance >> type [
 ]
 
 { #category : #accessing }
+MbndBlockClosureInstance >> value [
+	^ self valueWithArguments: #()
+]
+
+{ #category : #accessing }
+MbndBlockClosureInstance >> value: firstArg [
+	^ self valueWithArguments: { firstArg }
+]
+
+{ #category : #accessing }
+MbndBlockClosureInstance >> value: firstArg value: secondArg [
+	^ self valueWithArguments: { firstArg . secondArg}
+]
+
+{ #category : #accessing }
+MbndBlockClosureInstance >> value: firstArg value: secondArg value: thirdArg [
+	^ self valueWithArguments: { firstArg . secondArg . thirdArg}
+]
+
+{ #category : #accessing }
+MbndBlockClosureInstance >> value: firstArg value: secondArg value: thirdArg value: fourthArg [
+	^ self valueWithArguments: { firstArg . secondArg . thirdArg . fourthArg}
+]
+
+{ #category : #accessing }
 MbndBlockClosureInstance >> valueWithArguments: arguments [
 	| convertedArguments |
 	convertedArguments := arguments collect: [ :each | each asMoebiusValueWithTarget: self compilationTarget ].
