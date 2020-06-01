@@ -11,6 +11,18 @@ struct VertexAttributeDescription definition: {
     public field format type: PixelFormat.
     public field offset type: UInt32.
     public field divisor type: UInt32.
+
+    const inline method = (other: SelfType const ref) ::=> Boolean8
+        := bufferIndex = other bufferIndex &&
+            location = other location &&
+            format = other format &&
+            offset = other offset &&
+            divisor = other divisor.
+
+    Stdn Utility NotEqualsMethodMixin.
+
+    const inline method hash ::=> Stdn Hash
+        := bufferIndex hash ^ location hash ^ format hash ^ offset hash ^ divisor hash.
 }.
 
 }. ## End of namespace Core

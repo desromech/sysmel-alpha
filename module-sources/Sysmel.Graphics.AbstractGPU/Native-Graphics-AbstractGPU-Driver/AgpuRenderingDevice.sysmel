@@ -10,16 +10,18 @@ useNamespace: Stdn Graphics Core.
 sealed class AgpuRenderingDevice superclass: RenderingDevice; definition: {
     public field handle type: AGPU DeviceRef.
 
-    protected field defaultCommandQueue type: CommandQueuePtr.
-    protected field defaultShaderCache type: ShaderCachePtr.
-    protected field defaultPipelineStateCache type: PipelineStateCachePtr.
+    private field defaultCommandQueue type: CommandQueuePtr.
+    private field defaultShaderSignatureCache type: ShaderSignatureCachePtr.
+    private field defaultVertexLayoutCache type: VertexLayoutCachePtr.
+    private field defaultShaderCache type: ShaderCachePtr.
+    private field defaultPipelineStateCache type: PipelineStateCachePtr.
     private field defaultFontCache type: RenderingDeviceFontCachePtr.
 
-    protected field nonCoherentAtomSize type: UIntPointer.
-    protected field minMemoryMapAlignment type: UIntPointer.
-    protected field minTexelBufferOffsetAlignment type: UIntPointer.
-    protected field minUniformBufferOffsetAlignment type: UIntPointer.
-    protected field minStorageBufferOffsetAlignment type: UIntPointer.
+    private field nonCoherentAtomSize type: UIntPointer.
+    private field minMemoryMapAlignment type: UIntPointer.
+    private field minTexelBufferOffsetAlignment type: UIntPointer.
+    private field minUniformBufferOffsetAlignment type: UIntPointer.
+    private field minStorageBufferOffsetAlignment type: UIntPointer.
 
     method initializeWithHandle: (theHandle: AGPU DeviceRef const ref) ::=> Void := {
         handle := theHandle.
@@ -37,6 +39,8 @@ sealed class AgpuRenderingDevice superclass: RenderingDevice; definition: {
             defaultCommandQueue := wrapper upCastFor: CommandQueue.
         }.
 
+        defaultShaderSignatureCache := self createShaderSignatureCache.
+        defaultVertexLayoutCache := self createVertexLayoutCache.
         defaultShaderCache := self createShaderCache.
         defaultPipelineStateCache := self createPipelineStateCache.
         defaultFontCache := self createFontCache.
@@ -469,6 +473,12 @@ sealed class AgpuRenderingDevice superclass: RenderingDevice; definition: {
         := minUniformBufferOffsetAlignment.
     override method minStorageBufferOffsetAlignment => UIntPointer
         := minStorageBufferOffsetAlignment.
+
+    override method getDefaultShaderSignatureCache => ShaderSignatureCachePtr const ref
+        := defaultShaderSignatureCache.
+
+    override method getDefaultVertexLayoutCache => VertexLayoutCachePtr const ref
+        := defaultVertexLayoutCache.
 
     override method getDefaultPipelineStateCache => PipelineStateCachePtr const ref
         := defaultPipelineStateCache.

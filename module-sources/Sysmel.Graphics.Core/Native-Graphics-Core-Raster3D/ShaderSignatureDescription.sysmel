@@ -9,6 +9,30 @@ struct ShaderSignatureDescription definition: {
     public field banks type: Stdn Collections Vector(ShaderSignatureBankDescription).
     public field pushConstantsSize type: UIntPointer.
 
+    const inline method = (other: SelfType const ref) ::=> Boolean8
+        := banks = other banks && pushConstantsSize = other pushConstantsSize.
+
+    Stdn Utility NotEqualsMethodMixin.
+
+    const inline method hash ::=> Stdn Hash
+        := banks hash ^ pushConstantsSize hash.
+
+    const method applyToBuilder: (builder: ShaderSignatureBuilder ref) ::=> Void := {
+        banks do: {:each :: Void |
+            each applyToBuilder: builder
+        }.
+
+        pushConstantsSize > 0 ifTrue: {
+            builder addPushConstantsWithSize: pushConstantsSize
+        }
+    }.
+
+    method addBank: (bank: ShaderSignatureBankDescription const ref) ::=> Void := {
+        banks add: bank.
+        banks last maxBindingPointCountHint = 0 ifTrue: {
+            banks last maxBindingPointCountHint: 1024
+        }
+    }.
 }.
 
 }. ## End of namespace Core

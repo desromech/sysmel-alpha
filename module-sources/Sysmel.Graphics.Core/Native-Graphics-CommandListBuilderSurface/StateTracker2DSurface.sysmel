@@ -56,29 +56,26 @@ class StateTracker2DSurface superclass: MeshListBuilderSurface; definition: {
         ) initialData: nil.
 
         vertexLayout ifNil: {
-            let attributes mutable := VertexAttributeDescription array (
-                VertexAttributeDescription()
+            let layoutDescription := VertexLayoutDescription()
+                addAttribute: (VertexAttributeDescription()
                     location: 0;
                     format: PixelFormat R32G32_Float;
                     offset: 0;
-                    yourself,
-                VertexAttributeDescription()
+                    yourself);
+                addAttribute: (VertexAttributeDescription()
                     location: 2;
                     format: PixelFormat R32G32_Float;
                     offset: 8;
-                    yourself,
-                VertexAttributeDescription()
+                    yourself);
+                addAttribute: (VertexAttributeDescription()
                     location: 1;
                     format: PixelFormat R32G32B32A32_Float;
                     offset: 16;
-                    yourself
-            ).
+                    yourself);
+                addBufferWithStride: MeshVertex instanceSize;
+                yourself.
 
-            let strides mutable := UInt32 array(MeshVertex instanceSize).
-
-            vertexLayout := renderingDevice _ createVertexLayout.
-            vertexLayout _ addVertexBuffers: strides withAttributes: attributes.
-
+            vertexLayout := renderingDevice _ getDefaultVertexLayoutCache _ getOrCreateWithDescription: layoutDescription.
             vertexBinding := renderingDevice _ createVertexBindingFor: vertexLayout.
         }.
 
@@ -117,7 +114,28 @@ class StateTracker2DSurface superclass: MeshListBuilderSurface; definition: {
 
     method submitMatrices => Boolean8 := {
         transformationStateBuffer ifNil: {
-            shaderSignature := renderingDevice _ createShaderSignatureBuilder _
+            let shaderSignatureDescription := ShaderSignatureDescription()
+                ## Sampling state.
+                addBank: (ShaderSignatureBankDescription()
+                    addElementWithType: ShaderBindingType Sampler;
+                    yourself
+                );
+
+                ## Transformation state.
+                addBank: (ShaderSignatureBankDescription()
+                    addElementWithType: ShaderBindingType UniformBuffer;
+                    yourself
+                );
+
+                ## Texturing state.
+                addBank: (ShaderSignatureBankDescription()
+                    addElementWithType: ShaderBindingType SampledImage;
+                    yourself
+                );
+                yourself.
+            shaderSignature := renderingDevice _ getDefaultShaderSignatureCache _ getOrCreateWithDescription: shaderSignatureDescription.
+
+            #*shaderSignature := renderingDevice _ createShaderSignatureBuilder _
                 ## Sampling state
                 beginBindingBank;
                 addBankElementWithType: ShaderBindingType Sampler;
@@ -129,7 +147,7 @@ class StateTracker2DSurface superclass: MeshListBuilderSurface; definition: {
     			## Texturing state
     			beginBindingBank;
                 addBankElementWithType: ShaderBindingType SampledImage;
-    			build.
+    			build.*#
 
             sampler := renderingDevice _ createSampler: (SamplerDescription()
                 filter: TextureFilter MinLinear | TextureFilter MagLinear | TextureFilter MipmapLinear;

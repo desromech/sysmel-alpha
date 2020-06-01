@@ -1,0 +1,16 @@
+namespace Stdn definition: {
+namespace Graphics definition: {
+namespace Core definition: {
+
+#**
+ * I am a handle for a shader signatures cache.
+ *#
+class ShaderSignatureCache superclass: RenderingDriverObjectHandle; definition: {
+    abstract method getOrCreateWithDescription: (description: ShaderSignatureDescription const ref) ::=> ShaderSignaturePtr.
+}.
+
+compileTime constant ShaderSignatureCachePtr := ShaderSignatureCache sharedPointer.
+
+}. ## End of namespace Core
+}. ## End of namespace Graphics
+}. ## End of namespace Stdn

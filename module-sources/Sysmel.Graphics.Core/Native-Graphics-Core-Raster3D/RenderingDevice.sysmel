@@ -8,6 +8,12 @@ namespace Core definition: {
 RenderingDevice extend: {
     abstract method createShaderSignatureBuilder ::=> ShaderSignatureBuilderPtr.
 
+    virtual method createShaderSignatureWithDescription: (description: ShaderSignatureDescription const ref) ::=> ShaderSignaturePtr := {
+        let builder := self createShaderSignatureBuilder.
+        description applyToBuilder: builder _.
+        builder _ build
+    }.
+
     abstract method createBuffer: (description: BufferDescription const ref) initialData: (initialData: Void const pointer) ::=> BufferPtr.
     abstract method createTexture: (description: TextureDescription const ref) ::=> TexturePtr.
     abstract method createSampler: (description: SamplerDescription const ref) ::=> SamplerPtr.
@@ -15,6 +21,13 @@ RenderingDevice extend: {
     abstract method createGraphicsPipelineState: (description: GraphicsPipelineStateDescription const ref) ::=> PipelineStatePtr.
 
     abstract method createVertexLayout => VertexLayoutPtr.
+
+    virtual method createVertexLayoutWithDescription: (description: VertexLayoutDescription const ref) ::=> VertexLayoutPtr := {
+        let layout := self createVertexLayout.
+        description applyToLayout: layout _.
+        layout
+    }.
+
     abstract method createVertexBindingFor: (layout: VertexLayout sharedPointer const ref) ::=> VertexBindingPtr.
 
     abstract method createCommandAllocatorOfType: (type: CommandListType) for: (queue: CommandQueuePtr const ref) ::=> CommandListAllocatorPtr.
@@ -51,6 +64,18 @@ RenderingDevice extend: {
     virtual method minStorageBufferOffsetAlignment => UIntPointer
         := 256.
 
+    virtual method createShaderSignatureCache => ShaderSignatureCachePtr := {
+        let result := GenericShaderSignatureCache sharedNew.
+        result _ device: self asWeakPointer.
+        result upCastFor: ShaderSignatureCache
+    }.
+
+    virtual method createVertexLayoutCache => VertexLayoutCachePtr := {
+        let result := GenericVertexLayoutCache sharedNew.
+        result _ device: self asWeakPointer.
+        result upCastFor: VertexLayoutCache
+    }.
+
     virtual method createPipelineStateCache => PipelineStateCachePtr := {
         let result := GenericPipelineStateCache sharedNew.
         result _ device: self asWeakPointer.
@@ -69,6 +94,8 @@ RenderingDevice extend: {
         result upCastFor: RenderingDeviceFontCache
     }.
 
+    abstract method getDefaultShaderSignatureCache => ShaderSignatureCachePtr const ref.
+    abstract method getDefaultVertexLayoutCache => VertexLayoutCachePtr const ref.
     abstract method getDefaultPipelineStateCache => PipelineStateCachePtr const ref.
     abstract method getDefaultShaderCache => ShaderCachePtr const ref.
     abstract method getDefaultFontCache => RenderingDeviceFontCachePtr const ref.

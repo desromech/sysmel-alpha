@@ -18,6 +18,12 @@ sealed class AgpuShaderSignatureBuilder superclass: ShaderSignatureBuilder; defi
         handle _ addBindingBankElement: (bindingType castTo: AGPU ShaderBindingType) bindingPointCount: (bindingPointCount castTo: UInt32)
     }.
 
+    override method addPushConstantsWithSize: (size: UIntPointer) ::=> Void := {
+        0 until: size / 4  do: {:i :: Void |
+            handle _ addBindingConstant
+        }
+    }.
+
     override method build => ShaderSignaturePtr := {
         let signatureHandle := handle _ build.
         signatureHandle ifNil: {

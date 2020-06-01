@@ -3,6 +3,7 @@ Compiler
     loadPackages: #(
         #"Native-Graphics-Core-Raster"
         #"Native-Graphics-Core-Raster3D"
+        #"Native-Graphics-Core-Macros"
         #"Native-Graphics-Mesh2D"
         #"Native-Graphics-CommandListBuilderSurface"
         #"Native-Graphics-Driver-Soft"

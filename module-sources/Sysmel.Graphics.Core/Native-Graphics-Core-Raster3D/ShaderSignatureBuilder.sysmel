@@ -8,6 +8,7 @@ namespace Core definition: {
 class ShaderSignatureBuilder superclass: RenderingDriverObjectHandle; definition: {
     abstract method beginBindingBank: (maxBindingsHint: UIntPointer) ::=> Void.
     abstract method addBankElementWithType: (bindingType: ShaderBindingType) bindingPointCount: (bindingPointCount: UIntPointer) ::=> Void.
+    abstract method addPushConstantsWithSize: (size: UIntPointer) ::=> Void.
     abstract method build => ShaderSignaturePtr.
 
     virtual method beginBindingBank => Void

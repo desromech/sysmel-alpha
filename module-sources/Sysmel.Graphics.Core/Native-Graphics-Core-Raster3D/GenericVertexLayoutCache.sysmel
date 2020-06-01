@@ -1,0 +1,38 @@
+namespace Stdn definition: {
+namespace Graphics definition: {
+namespace Core definition: {
+
+#**
+ * I am a generic implementation for a vertex layout cache
+ *#
+class GenericVertexLayoutCache superclass: VertexLayoutCache; definition: {
+    public field device type: RenderingDeviceWeakPtr.
+    protected field mutex type: Stdn Mutex.
+    protected field vertexLayouts type: Stdn Collections Dictionary(VertexLayoutDescription, VertexLayoutPtr).
+
+    override method getOrCreateWithDescription: (description: VertexLayoutDescription const ref) ::=> VertexLayoutPtr := {
+        mutex withLock: {
+            vertexLayouts at: description ifPresent: {:(VertexLayoutPtr ref)existent :: Void |
+                return: existent
+            }
+        }.
+
+        let strongDevice := device lock.
+        strongDevice ifNil: {
+            return: VertexLayoutPtr nil.
+        }.
+
+        let result mutable := strongDevice _ createVertexLayoutWithDescription: description.
+        mutex withLock: {
+            vertexLayouts at: description put: result
+        }.
+
+        result
+    }.
+}.
+
+compileTime constant GenericVertexLayoutCachePtr := GenericVertexLayoutCache sharedPointer.
+
+}. ## End of namespace Core
+}. ## End of namespace Graphics
+}. ## End of namespace Stdn

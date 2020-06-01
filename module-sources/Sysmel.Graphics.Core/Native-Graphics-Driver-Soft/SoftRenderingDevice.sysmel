@@ -8,12 +8,16 @@ namespace Core definition: {
  *#
 class SoftRenderingDevice superclass: RenderingDevice; definition: {
     private field defaultCommandQueue type: CommandQueuePtr.
+    private field defaultShaderSignatureCache type: ShaderSignatureCachePtr.
+    private field defaultVertexLayoutCache type: VertexLayoutCachePtr.
     private field defaultShaderCache type: ShaderCachePtr.
     private field defaultPipelineStateCache type: PipelineStateCachePtr.
     private field defaultFontCache type: RenderingDeviceFontCachePtr.
 
     override method initialize => Void := {
         defaultCommandQueue := SoftCommandQueue sharedNew upCastFor: CommandQueue.
+        defaultShaderSignatureCache := self createShaderSignatureCache.
+        defaultVertexLayoutCache := self createVertexLayoutCache.
         defaultShaderCache := self createShaderCache.
         defaultPipelineStateCache := self createPipelineStateCache.
         defaultFontCache := self createFontCache.
@@ -191,6 +195,12 @@ class SoftRenderingDevice superclass: RenderingDevice; definition: {
 
     override method createFontCache => RenderingDeviceFontCachePtr
         := NullRenderingDeviceFontCache sharedNew upCastFor: RenderingDeviceFontCache.
+
+    override method getDefaultShaderSignatureCache => ShaderSignatureCachePtr const ref
+        := defaultShaderSignatureCache.
+
+    override method getDefaultVertexLayoutCache => VertexLayoutCachePtr const ref
+        := defaultVertexLayoutCache.
 
     override method getDefaultPipelineStateCache => PipelineStateCachePtr const ref
         := defaultPipelineStateCache.
