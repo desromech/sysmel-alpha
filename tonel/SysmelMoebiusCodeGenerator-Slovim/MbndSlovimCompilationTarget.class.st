@@ -127,6 +127,11 @@ MbndSlovimCompilationTarget >> asSpirVCompilationTarget [
 		ifFalse: [#spirv_logical64])
 ]
 
+{ #category : #accessing }
+MbndSlovimCompilationTarget >> cpu: targetCPU [
+	slvmCompilationTarget cpu: targetCPU
+]
+
 { #category : #'as yet unclassified' }
 MbndSlovimCompilationTarget >> extensionForModuleOutputMode: mode [
 	slvmCompilationTarget isSpirV ifTrue: [
@@ -144,6 +149,16 @@ MbndSlovimCompilationTarget >> extensionForModuleOutputMode: mode [
 { #category : #accessing }
 MbndSlovimCompilationTarget >> float64Alignment [
 	^ slvmCompilationTarget float64 alignment
+]
+
+{ #category : #accessing }
+MbndSlovimCompilationTarget >> floatAbiName: targetFloatAbiName [
+	slvmCompilationTarget floatAbiName: targetFloatAbiName
+]
+
+{ #category : #accessing }
+MbndSlovimCompilationTarget >> fpu: targetFPU [
+	slvmCompilationTarget fpu: targetFPU
 ]
 
 { #category : #testing }

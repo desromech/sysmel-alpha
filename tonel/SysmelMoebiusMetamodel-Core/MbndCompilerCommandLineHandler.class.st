@@ -19,13 +19,14 @@ MbndCompilerCommandLineHandler class >> commandName [
 
 { #category : #activation }
 MbndCompilerCommandLineHandler >> activate [
-	| architecture outputDirectory withDebugInformation arguments argumentIndex compilationCommands arg skipCount target compiler emitLLVM writeMode gpu compilationOptions targetVendor targetOS targetAttributes linkerArguments useLLVM targetCPU targetFPU |
+	| architecture outputDirectory withDebugInformation arguments argumentIndex compilationCommands arg skipCount target compiler emitLLVM writeMode gpu compilationOptions targetVendor targetOS targetAttributes linkerArguments useLLVM targetCPU targetFPU targetFloatAbiName |
 	self activateHelp
 		ifTrue: [  ^ self ].
 		
 	architecture := Smalltalk wordSize = 4 ifTrue: [#x86] ifFalse: [#x86_64].
 	targetCPU := nil.
 	targetFPU := nil.
+	targetFloatAbiName := nil.
 	targetVendor := nil.
 	targetOS := nil.
 	targetAttributes := nil.
@@ -88,6 +89,11 @@ MbndCompilerCommandLineHandler >> activate [
 		arg = '-mfpu' ifTrue: [
 			argumentIndex + 1 > arguments size ifTrue: [ self error: 'Expected an argument after -mfpu' ].
 			targetFPU := arguments at: argumentIndex + 1.
+			skipCount := 2
+		].
+		arg = '-mfloat-abi' ifTrue: [
+			argumentIndex + 1 > arguments size ifTrue: [ self error: 'Expected an argument after -mfloat-abi' ].
+			targetFloatAbiName := arguments at: argumentIndex + 1.
 			skipCount := 2
 		].
 
@@ -228,6 +234,9 @@ MbndCompilerCommandLineHandler >> activate [
 	targetOS ifNotNil: [ target operatingSystemName: targetOS asSymbol ].
 	targetVendor ifNotNil: [ target systemVendor: targetVendor asSymbol].
 	targetAttributes ifNotNil: [ target machineAttributes: targetAttributes ].
+	targetCPU ifNotNil: [ target cpu: targetCPU ].
+	targetFPU ifNotNil: [ target fpu: targetFPU ].
+	targetFloatAbiName ifNotNil: [ target floatAbiName: targetFloatAbiName ].
 	
 	withDebugInformation ifTrue: [
 		target withDebugInformation
