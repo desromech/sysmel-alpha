@@ -171,6 +171,14 @@ MbndCompilerCommandLineHandler >> activate [
 			skipCount := 2
 		].
 
+		arg = '-module-sources' ifTrue: [
+			| moduleSourceDirectory |
+			argumentIndex + 1 > arguments size ifTrue: [ self error: 'Expected an argument after -module-name' ].
+			moduleSourceDirectory := (arguments at: argumentIndex + 1) asSymbol.
+			compilationOptions add: [ :c | c addModuleSourceLocation: moduleSourceDirectory ].
+			skipCount := 2
+		].
+	
 		arg = '-module-name' ifTrue: [
 			| moduleName |
 			argumentIndex + 1 > arguments size ifTrue: [ self error: 'Expected an argument after -module-name' ].
