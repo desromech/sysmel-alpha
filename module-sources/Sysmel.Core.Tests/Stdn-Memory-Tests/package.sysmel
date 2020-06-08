@@ -1,2 +1,4 @@
+loadFileOnce: "FixedSizeBuddyBlockAllocator.sysmel".
+loadFileOnce: "NativeMemoryHeap.sysmel".
 loadFileOnce: "UniquePointer.sysmel".
 loadFileOnce: "SharedPointer.sysmel".
