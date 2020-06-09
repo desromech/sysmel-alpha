@@ -1025,6 +1025,10 @@ MbndSlovimCodeModuleGenerator >> getOrCreateNativeMethodDispatchTrampolineWithTy
 		].
 	
 		result := builder call: calledFunction arguments: nativeArguments.
+		trampolineFunctionType returnType isMemoryReturnedType ifTrue: [ 
+			result setSRetPresence
+		].
+	
 		result type isVoidType ifTrue: [
 			builder returnVoid
 		] ifFalse: [

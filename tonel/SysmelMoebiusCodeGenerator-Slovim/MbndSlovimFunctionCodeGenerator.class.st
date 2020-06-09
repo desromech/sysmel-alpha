@@ -749,6 +749,7 @@ MbndSlovimFunctionCodeGenerator >> generateCall: calledFunction arguments: argum
 	allArguments := Array streamContents: [:out |
 		expectedResultType isMemoryReturnedType ifTrue: [ 
 			memoryReturnTemporary := self allocateTemporaryStorageFor: expectedResultSSAType withStorageCreationNode: storageCreationNode.
+			self assert: memoryReturnTemporary isNotNil.
 			out nextPut: memoryReturnTemporary
 		].
 	
@@ -762,6 +763,7 @@ MbndSlovimFunctionCodeGenerator >> generateCall: calledFunction arguments: argum
 	].
 
 	result := slvmBuilder call: calledFunction arguments: allArguments.
+	expectedResultType isMemoryReturnedType ifTrue: [ result setSRetPresence ].
 	(calledFunction isFunction and: [ calledFunction isNoReturn ]) ifTrue: [
 		slvmBuilder unreachable.
 		^ result
@@ -835,6 +837,7 @@ isSuperSend: isSuperSend declaredMethod: declaredMethod expectedResultType: expe
 	allArguments := Array streamContents: [ :out |
 		expectedResultType isMemoryReturnedType ifTrue: [
 			memoryReturnTemporary := self allocateTemporaryStorageFor: expectedResultSSAType withStorageCreationNode: storageCreationNode.
+			self assert: memoryReturnTemporary isNotNil.
 			actualReturnType := SLVMType voidType.
 			out nextPut: memoryReturnTemporary
 		].
@@ -881,6 +884,7 @@ isSuperSend: isSuperSend declaredMethod: declaredMethod expectedResultType: expe
 		].
 	] ifFalse: [
 		result := slvmBuilder call: calledMethodSSAFunction arguments: allArguments.
+		expectedResultType isMemoryReturnedType ifTrue: [ result setSRetPresence ].
 	].
 
 	isSuperSend ifTrue: [
