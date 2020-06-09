@@ -163,7 +163,7 @@ MbndSlovimCompilationTarget >> fpu: targetFPU [
 
 { #category : #testing }
 MbndSlovimCompilationTarget >> hasArmEhAbi [
-	^ slvmCompilationTarget architecture beginsWith: #arm
+	^ slvmCompilationTarget hasArmEhAbi
 ]
 
 { #category : #'platform testing' }
