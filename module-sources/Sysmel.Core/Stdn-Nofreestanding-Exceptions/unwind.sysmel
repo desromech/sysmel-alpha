@@ -11,6 +11,7 @@ namespace Unwind definition: {
 ## https://itanium-cxx-abi.github.io/cxx-abi/abi-eh.html
 enum _Unwind_Reason_Code valueType: Int32; values: #{
     NoReason: 0.
+    Ok: 0.
     ForeignExceptionCaught: 1.
     FatalPhase2Error: 2.
     FatalPhase1Error: 3.
@@ -29,7 +30,9 @@ compileTime if: Compiler compilationTarget hasArmEhAbi then: {
 
     compileTime constant _US_VIRTUAL_UNWIND_FRAME := 0.
     compileTime constant _US_UNWIND_FRAME_STARTING := 1.
-    compileTime constant _US_UNWIND_FRAME_RESUME   := 2.
+    compileTime constant _US_UNWIND_FRAME_RESUME := 2.
+    ## Undocumented flag for force unwinding. This one is present in the llvm libcxxabi sources.
+    compileTime constant _US_FORCE_UNWIND := 8.
 
     struct _Unwind_Context.
     struct _Unwind_Control_Block.
@@ -293,7 +296,6 @@ Stdn Reflection TypeInformation extend: {
 
 struct SysmelUnwindScanCacheableResult definition: {
 	public field lsda type: UInt8 pointer.
-	public field lsdaSize type: UIntPointer.
     public field landingPad type: UInt8 pointer.
     public field actionRecord type: UInt8 pointer.
     public field typeInfoTableIndex type: IntPointer.
@@ -322,6 +324,33 @@ function getThrownObjectPointer(exceptionObject: _Unwind_Exception pointer) ::=>
 
     adjustedPointer
 }.
+
+compileTime if: Compiler compilationTarget hasArmEhAbi then: {
+function readTarget2ValueAt(pointer: Void const pointer) => Void const pointer := {
+    let offset := (pointer reinterpretCastTo: UIntPointer const pointer) _ .
+    offset = 0 ifTrue: {return: nil}.
+
+    compileTime if: Compiler compilationTarget hasNoOperatingSystem then: {
+        (pointer reinterpretCastTo: UIntPointer) + offset reinterpretCastTo: Void const pointer
+    } else: {
+        ((pointer reinterpretCastTo: UIntPointer) + offset reinterpretCastTo: Void const pointer pointer) _
+    }.
+}.
+
+function getCatchExceptionInfo(typeInfoTableIndex: UIntPointer, typeInfoTable: UInt8 pointer,
+    typeInfoTableEncoding: DW_EH_PE, isOurExceptionClass: Boolean8,
+    unwindException: _Unwind_Exception pointer) => Stdn Reflection TypeInformation const pointer := {
+
+    typeInfoTable ifNil: {
+        ## This should never happen.
+        native_abort()
+    }.
+
+    let typePointer := typeInfoTable[(typeInfoTableIndex * UIntPointer instanceSize) negated] address.
+    readTarget2ValueAt(typePointer) reinterpretCastTo: Stdn Reflection TypeInformation const pointer
+}.
+
+} else: {
 
 function getCatchExceptionInfo(typeInfoTableIndex: UIntPointer, typeInfoTable: UInt8 pointer,
     typeInfoTableEncoding: DW_EH_PE, isOurExceptionClass: Boolean8,
@@ -366,6 +395,8 @@ function getCatchExceptionInfo(typeInfoTableIndex: UIntPointer, typeInfoTable: U
 	let typeInfoTableReader mutable := Stdn IO BinaryDataStreamReader for: typeInfoTableStream address.
 
     fetchPointerWithEncoding(typeInfoTableStream, typeInfoTableReader, typeInfoTableEncoding, nil) reinterpretCastTo: Stdn Reflection TypeInformation const pointer
+}.
+
 }.
 
 function unwindingFatalError(isOurExceptionClass: Boolean8, unwindException: _Unwind_Exception pointer) ::=> Void := {
@@ -414,8 +445,7 @@ struct SysmelUnwindScanResult definition: {
 
 		let lsdaSize := -1 castTo: UIntPointer. ## Unbounded size.
 		cacheableResult
-			lsda: lsda;
-			lsdaSize: lsdaSize.
+			lsda: lsda.
 		let lsdaStream mutable := Stdn IO FixedMemoryStream for: lsda withSize: lsdaSize.
 		let lsdaReader mutable := Stdn IO BinaryDataStreamReader for: lsdaStream address.
 
@@ -610,6 +640,38 @@ function setLandingPathRegisters(unwindException: _Unwind_Exception pointer, con
 }.
 
 compileTime if: Compiler compilationTarget hasArmEhAbi then: {
+
+    _Unwind_Control_Block PropagationBarrier definition: {
+        method storeCacheableResult: (cacheableResult: SysmelUnwindScanCacheableResult const ref) ::=> Void := {
+            bitpattern[0] := cacheableResult lsda reinterpretCastTo: UIntPointer.
+            bitpattern[1] := cacheableResult landingPad reinterpretCastTo: UIntPointer.
+            bitpattern[2] := cacheableResult actionRecord reinterpretCastTo: UIntPointer.
+            bitpattern[3] := cacheableResult typeInfoTableIndex reinterpretCastTo: UIntPointer.
+            bitpattern[4] := cacheableResult exceptionObjectPointer reinterpretCastTo: UIntPointer.
+        }.
+
+        method loadCacheableResult ::=> SysmelUnwindScanCacheableResult
+            := SysmelUnwindScanCacheableResult()
+                lsda: (bitpattern[0] reinterpretCastTo: UInt8 pointer);
+                landingPad: (bitpattern[1] reinterpretCastTo: UInt8 pointer);
+                actionRecord: (bitpattern[2] reinterpretCastTo: UInt8 pointer);
+                typeInfoTableIndex: (bitpattern[3] reinterpretCastTo: IntPointer);
+                exceptionObjectPointer: (bitpattern[4] reinterpretCastTo: Void pointer);
+                yourself.
+    }.
+
+    ## Helper functions for unwinding one frame.
+    function __gnu_unwind_frame externC(unwindException: _Unwind_Exception pointer, context: _Unwind_Context pointer) => _Unwind_Reason_Code.
+
+    function doContinueUnwind(unwindException: _Unwind_Exception pointer, context: _Unwind_Context pointer) => _Unwind_Reason_Code := {
+        __gnu_unwind_frame(unwindException, context) ~= _Unwind_Reason_Code Ok
+            ifTrue: _Unwind_Reason_Code Failure
+            ifFalse: _Unwind_Reason_Code ContinueUnwind
+    }.
+
+    compileTime constant Register_UCB := 12.
+    compileTime constant Register_SP := 13.
+
     ## Sysmel personality function.
     ## The implementation of this function is strongly based in the implementation from LLVM libc++
     ## available at the following file: https://github.com/llvm/llvm-project/blob/master/libcxxabi/src/cxa_personality.cpp
@@ -617,10 +679,82 @@ compileTime if: Compiler compilationTarget hasArmEhAbi then: {
         unwindException: _Unwind_Exception pointer,
         context: _Unwind_Context pointer) => _Unwind_Reason_Code := {
 
-        LibC abort().
-        Stdn stderr << "TODO: __sysmel_eh_personality"; nl.
-        LibC abort().
+        unwindException isNil || context isNil ifTrue: {
+            return: _Unwind_Reason_Code FatalPhase1Error
+        }.
 
+        let isOurExceptionClass := (unwindException _ exceptionClass & ExceptionClassVendorAndLanguageMask) == OurExceptionClass.
+
+        ## Copy the context to R12 so that _Unwind_GetLanguageSpecificData() and _Unwind_GetRegionStart can work.
+        _Unwind_SetGR(context, Register_UCB, unwindException reinterpretCastTo: UIntPointer).
+
+        ## Undocumented flag mentioned in the llvm sources.
+        let isForceUnwinding := state anyMask: _US_FORCE_UNWIND.
+        let cleanState := state & (~_US_FORCE_UNWIND).
+
+        let scanResult mutable type: SysmelUnwindScanResult.
+        cleanState selectCase: #{
+        _US_VIRTUAL_UNWIND_FRAME : {
+            isForceUnwinding ifTrue: {
+                return: doContinueUnwind(unwindException, context)
+            }.
+
+            scanResult scanFrameForActions: _UA_SEARCH_PHASE isOurExceptionClass: isOurExceptionClass exceptionObject: unwindException context: context.
+
+            scanResult reasonCode == _Unwind_Reason_Code HandlerFound ifTrue: {
+                unwindException _ propagationBarrier sp := _Unwind_GetGR(context, Register_SP).
+                isOurExceptionClass ifTrue: {
+                    unwindException _ propagationBarrier storeCacheableResult: scanResult cacheableResult.
+                }.
+                return: _Unwind_Reason_Code HandlerFound.
+            }.
+
+            scanResult reasonCode = _Unwind_Reason_Code ContinueUnwind ifTrue: {
+                return: doContinueUnwind(unwindException, context)
+            }.
+
+            return: scanResult reasonCode
+        }.
+
+        _US_UNWIND_FRAME_STARTING : {
+            unwindException _ propagationBarrier sp = _Unwind_GetGR(context, Register_SP) ifTrue: {
+                isOurExceptionClass ifTrue: {
+                    scanResult cacheableResult: unwindException _ propagationBarrier loadCacheableResult
+                } ifFalse: {
+                    scanResult scanFrameForActions: _UA_CLEANUP_PHASE | _UA_HANDLER_FRAME isOurExceptionClass: isOurExceptionClass exceptionObject: unwindException context: context.
+                    ## Handler found in Phase 1 is not found anymore.
+                    scanResult reasonCode == _Unwind_Reason_Code HandlerFound ifFalse: {
+                        unwindingFatalError(isOurExceptionClass, unwindException).
+                    }.
+                }.
+
+                setLandingPathRegisters(unwindException, context, scanResult cacheableResult).
+                return: _Unwind_Reason_Code InstallContext
+            }.
+
+            ## Search for a non catching cleanup.
+            scanResult scanFrameForActions: _UA_CLEANUP_PHASE isOurExceptionClass: isOurExceptionClass exceptionObject: unwindException context: context.
+            scanResult reasonCode == _Unwind_Reason_Code HandlerFound ifTrue: {
+                ## Install the cleanup context.
+                setLandingPathRegisters(unwindException, context, scanResult cacheableResult).
+                return: _Unwind_Reason_Code InstallContext
+            }.
+
+            scanResult reasonCode = _Unwind_Reason_Code ContinueUnwind ifTrue: {
+                return: doContinueUnwind(unwindException, context)
+            }.
+
+            return: scanResult reasonCode
+        }.
+
+        _US_UNWIND_FRAME_RESUME : {
+            return: doContinueUnwind(unwindException, context)
+        }.
+        _ : {
+        }
+        }.
+
+        ## Unsupported case
         _Unwind_Reason_Code Failure
     }.
 } else: {
