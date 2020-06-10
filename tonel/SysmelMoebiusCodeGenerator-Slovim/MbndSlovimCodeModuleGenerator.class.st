@@ -1640,7 +1640,11 @@ MbndSlovimCodeModuleGenerator >> translateCompilerGeneratedMethod: generatedMeth
 
 	self flag: 'TODO: Support the correct linkage/visibility.'.
 	ssaFunction makePublic.
-	generatedMethod isFunclet ifTrue: [ ssaFunction makePrivate ].
+	generatedMethod isFunclet ifTrue: [
+		ssaFunction makePrivate
+	] ifFalse: [
+		generatedMethod parent areSyntheticMethodsInternal ifTrue: [ ssaFunction makeLinkOnceODR ]
+	].
 	self setupGCStrategyFor: ssaFunction generatedFrom: generatedMethod.
 	
 	self createFunctionCodeGenerator
