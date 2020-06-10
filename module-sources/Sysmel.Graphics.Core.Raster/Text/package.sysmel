@@ -1,0 +1,16 @@
+Compiler loadPackages: #(
+    #"Raster"
+).
+
+## Abstract font interface.
+loadFileOnce: "Glyph.sysmel".
+loadFileOnce: "FontFaceWithSize.sysmel".
+loadFileOnce: "FontFace.sysmel".
+loadFileOnce: "Font.sysmel".
+
+loadFileOnce: "TextDrawingState.sysmel".
+loadFileOnce: "FontFaceLoader.sysmel".
+loadFileOnce: "FontRegistry.sysmel".
+
+## Bitmap font.
+loadFileOnce: "BitmapGlyph.sysmel".

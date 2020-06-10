@@ -1,4 +1,4 @@
 Compiler
-    importModuleNamed: #"Sysmel.Graphics.Core";
     importModuleNamed: #"Bindings.FreeType2";
+    importModuleNamed: #"Sysmel.Graphics.Core.Raster";
     loadPackage: #"Native-Graphics-FreeType2".

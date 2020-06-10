@@ -1,7 +1,0 @@
-Compiler loadPackages: #(
-    #"Native-Graphics-Core-Raster"
-).
-
-loadFileOnce: "ImageReadWriter.sysmel".
-loadFileOnce: "BMPImageFormat.sysmel".
-loadFileOnce: "TGAImageFormat.sysmel".

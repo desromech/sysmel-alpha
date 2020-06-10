@@ -1,0 +1,7 @@
+Compiler loadPackages: #(
+    #"Raster"
+).
+
+loadFileOnce: "ImageReadWriter.sysmel".
+loadFileOnce: "BMPImageFormat.sysmel".
+loadFileOnce: "TGAImageFormat.sysmel".

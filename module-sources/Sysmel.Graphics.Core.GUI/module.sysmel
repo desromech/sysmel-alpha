@@ -1,0 +1,9 @@
+Compiler
+    importModulesNamed: #(
+        #"Sysmel.Math.Core"
+        #"Sysmel.Graphics.Core.DriverInterface"
+        #"Sysmel.Graphics.Driver.Common" ## For Swap chain surface
+    );
+    loadPackages: #(
+        #"WindowSystem"
+    ).

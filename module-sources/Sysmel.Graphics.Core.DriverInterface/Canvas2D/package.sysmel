@@ -1,0 +1,8 @@
+## 2D rendering objects.
+loadFileOnce: "Surface.sysmel".
+loadFileOnce: "SimpleLinearGradientPaint.sysmel".
+loadFileOnce: "Canvas.sysmel".
+loadFileOnce: "CanvasDrawingState.sysmel".
+loadFileOnce: "CanvasPaintState.sysmel".
+loadFileOnce: "AbstractConcreteCanvas.sysmel".
+loadFileOnce: "DelegatingCanvas.sysmel".

@@ -1,0 +1,93 @@
+namespace Stdn definition: {
+namespace Graphics definition: {
+namespace Core definition: {
+
+class AbstractSurface.
+class TextureView.
+class Surface.
+
+#**
+ * I am an abstract rendering device. I am typically used as a factory for generating
+ * device dependant objects such textures and drawing surfaces.
+ *#
+class RenderingDevice superclass: RenderingDriverObjectHandle; definition: {
+    virtual method isSoftRenderingDevice => Boolean8
+        := false.
+
+    abstract method createShaderSignatureBuilder ::=> ShaderSignatureBuilderPtr.
+
+    virtual method createShaderSignatureWithDescription: (description: ShaderSignatureDescription const ref) ::=> ShaderSignaturePtr := {
+        let builder := self createShaderSignatureBuilder.
+        description applyToBuilder: builder _.
+        builder _ build
+    }.
+
+    abstract method createBuffer: (description: BufferDescription const ref) initialData: (initialData: Void const pointer) ::=> BufferPtr.
+    abstract method createTexture: (description: TextureDescription const ref) ::=> TexturePtr.
+    abstract method createSampler: (description: SamplerDescription const ref) ::=> SamplerPtr.
+    abstract method createComputePipelineState: (description: ComputePipelineStateDescription const ref) ::=> PipelineStatePtr.
+    abstract method createGraphicsPipelineState: (description: GraphicsPipelineStateDescription const ref) ::=> PipelineStatePtr.
+
+    abstract method createVertexLayout => VertexLayoutPtr.
+
+    virtual method createVertexLayoutWithDescription: (description: VertexLayoutDescription const ref) ::=> VertexLayoutPtr := {
+        let layout := self createVertexLayout.
+        description applyToLayout: layout _.
+        layout
+    }.
+
+    abstract method createVertexBindingFor: (layout: VertexLayout sharedPointer const ref) ::=> VertexBindingPtr.
+
+    abstract method createCommandAllocatorOfType: (type: CommandListType) for: (queue: CommandQueuePtr const ref) ::=> CommandListAllocatorPtr.
+    abstract method createCommandListOfType: (type: CommandListType) for: (allocator: CommandListAllocatorPtr const ref) initialPipelineState: (initialPipeline: PipelineStatePtr const ref) ::=> CommandListPtr.
+    abstract method getDefaultCommandQueue => CommandQueuePtr const ref.
+
+    abstract method createShaderLibraryFromModule: (shaderModule: GPU ShaderModuleInfo const ref) ::=> ShaderLibraryHandlePtr.
+    abstract method createShaderStageFromEntryPoint: (entryPointInfo: GPU ShaderEntryPointInfo const ref) ::=> ShaderStageHandlePtr.
+
+    abstract method createFramebuffer: (extent: UInt32x2) colorViews: (colorViews: TextureViewPtr const arraySlice) depthStencilView: (depthStencilView: TextureViewPtr const ref) ::=> FramebufferPtr.
+    abstract method createRenderPass: (colorAttachment: RenderPassColorAttachmentDescription const arraySlice) depthStencilAttachment: (depthAttachment: RenderPassDepthStencilAttachmentDescription const pointer) ::=> RenderPassPtr.
+
+    abstract method createFence => FencePtr.
+    abstract method createSwapChain: (swapChainCreationInfo: SwapChainCreationInfo const ref) for: (renderingQueue: CommandQueuePtr const ref) ::=> SwapChainPtr.
+    abstract method waitForIdle => Void.
+
+    virtual method createCommandListOfType: (type: CommandListType) for: (allocator: CommandListAllocatorPtr const ref) ::=> CommandListPtr
+        := self createCommandListOfType: type for: allocator initialPipelineState: PipelineStatePtr nil.
+
+    abstract method hasTopLeftNdcOrigin => Boolean8.
+    abstract method hasBottomLeftTextureCoordinates => Boolean8.
+
+    virtual method shouldInvertProjectionY => Boolean8
+        := self hasTopLeftNdcOrigin ~= self hasBottomLeftTextureCoordinates.
+
+    virtual method nonCoherentAtomSize => UIntPointer
+        := 256.
+    virtual method minMemoryMapAlignment => UIntPointer
+        := 256.
+    virtual method minTexelBufferOffsetAlignment => UIntPointer
+        := 256.
+    virtual method minUniformBufferOffsetAlignment => UIntPointer
+        := 256.
+    virtual method minStorageBufferOffsetAlignment => UIntPointer
+        := 256.
+
+    abstract method createShaderSignatureCache => ShaderSignatureCachePtr.
+    abstract method createVertexLayoutCache => VertexLayoutCachePtr.
+    abstract method createPipelineStateCache => PipelineStateCachePtr.
+    abstract method createShaderCache => ShaderCachePtr.
+    abstract method createFontCache => RenderingDeviceFontCachePtr.
+
+    abstract method getDefaultShaderSignatureCache => ShaderSignatureCachePtr const ref.
+    abstract method getDefaultVertexLayoutCache => VertexLayoutCachePtr const ref.
+    abstract method getDefaultPipelineStateCache => PipelineStateCachePtr const ref.
+    abstract method getDefaultShaderCache => ShaderCachePtr const ref.
+    abstract method getDefaultFontCache => RenderingDeviceFontCachePtr const ref.
+}.
+
+compileTime constant RenderingDevicePtr := RenderingDevice sharedPointer.
+compileTime constant RenderingDeviceWeakPtr := RenderingDevice weakPointer.
+
+}. ## End of namespace Core
+}. ## End of namespace Graphics
+}. ## End of namespace Stdn

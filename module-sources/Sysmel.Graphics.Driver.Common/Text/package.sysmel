@@ -1,0 +1,4 @@
+loadFileOnce: "NullRenderingDeviceFontCache.sysmel".
+loadFileOnce: "TextureAtlasRenderingDeviceFontCache.sysmel".
+loadFileOnce: "TextureAtlasGlyph.sysmel".
+loadFileOnce: "TextureAtlasFontFaceWithSize.sysmel".

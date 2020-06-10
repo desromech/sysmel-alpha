@@ -1,0 +1,191 @@
+namespace Stdn definition: {
+namespace Graphics definition: {
+namespace Core definition: {
+
+useNamespace: Stdn Math Geometry.
+
+#**
+ * I am a texture atlas font face size. I put a bunch font
+ *#
+class TextureAtlasFontFaceWithSize superclass: RenderingDeviceFontFaceWithSize; definition: {
+    compileTime constant FontTextureWidth := 2048.
+
+    private field originalFontFace type: FontFaceWithSizePtr.
+    private field device type: RenderingDeviceWeakPtr.
+
+    private field hasConvertedLatin1Set type: Boolean8.
+    private field mutex type: Stdn Mutex.
+    private field codePointDictionary type: Stdn Collections Dictionary(Char32, GlyphPtr).
+    private field adaptedGlyphs type: Stdn Collections Dictionary(GlyphPtr, GlyphPtr).
+
+    private field fontFaceForm type: FormPtr.
+    private field hasValidTexture type: Boolean8.
+    private field texture type: TexturePtr.
+    private field textureView type: TextureViewPtr.
+
+    private field destinationPosition type: UInt32x2.
+	private field currentRowMaxHeight type: UInt32.
+
+    override method initialize => Void := {
+        destinationPosition := 1.
+    }.
+
+    method increaseHeighTo: (newHeight: UInt32) ::=> Void := {
+        let newFontFaceForm := Form extent: UInt32x2(FontTextureWidth, newHeight) pixelFormat: PixelFormat R8_UNorm.
+        fontFaceForm ifNotNil: {
+            let sourceBlitter := fontFaceForm _ makeBlitter.
+            newFontFaceForm _ makeBlitter copyPixelsFrom: sourceBlitter at: sourceBlitter clippedBounds into: 0
+        }.
+
+        fontFaceForm := newFontFaceForm.
+        texture reset.
+        textureView reset.
+    }.
+
+    method ensureSpaceFor: (glyphExtent: UInt32x2) ::=> Void := {
+    	destinationPosition x + glyphExtent x + 1 > FontTextureWidth ifTrue: {
+            destinationPosition := UInt32x2(1, destinationPosition y + currentRowMaxHeight + 1).
+    		currentRowMaxHeight := 0.
+    	}.
+
+        currentRowMaxHeight := currentRowMaxHeight max: glyphExtent y.
+        fontFaceForm isNil || fontFaceForm _ extent y < currentRowMaxHeight ifTrue: {
+            self increaseHeighTo: (destinationPosition y + currentRowMaxHeight + 1) asLargerPowerOfTwo
+        }.
+
+    }.
+
+    method createAdaptedGlyph: (originalGlyph: GlyphPtr const ref) ::=> GlyphPtr := {
+        let originalGlyphForm := originalGlyph _ asForm.
+        originalGlyphForm ifNil: {
+            return: GlyphPtr nil
+        }.
+
+        ## Make the space for the next glyph.
+        self ensureSpaceFor: originalGlyphForm _ extent.
+
+        ## Copy the glyph.
+        {
+            let sourceBlitter mutable := originalGlyphForm _ makeBlitter.
+            sourceBlitter pixelFormat: PixelFormat R8_UNorm.
+            fontFaceForm _ makeBlitter copyPixelsFrom: sourceBlitter at: sourceBlitter clippedBounds into: (destinationPosition castTo: Int32x2)
+        }.
+
+        let atlasRectangle := RectangleF32 min: (destinationPosition castTo: Float32x2) extent: (originalGlyphForm _ extent castTo: Float32x2).
+
+        ## Advance the position.
+        destinationPosition := destinationPosition + UInt32x2(originalGlyphForm _ extent x + 1, 0).
+
+        ## Invalidate the texture.
+        hasValidTexture := false.
+        let result := TextureAtlasGlyph sharedNew.
+        result _ initializeAdaptingFrom: originalGlyph _ inAtlasLocation: atlasRectangle.
+        result upCastFor: Glyph
+    }.
+
+    method getOrCreateAdaptedGlyph: (originalGlyph: GlyphPtr const ref) ::=> GlyphPtr := {
+        originalGlyph ifNil: {
+            return: originalGlyph
+        }.
+
+        adaptedGlyphs at: originalGlyph ifPresent: {:(GlyphPtr ref)existent :: Void |
+            return: existent
+        }.
+
+        let adapted := self createAdaptedGlyph: originalGlyph.
+        adaptedGlyphs at: originalGlyph put: adapted.
+        adapted
+    }.
+
+    override method getOrCreateGlyphForCodePoint: (codePoint: Char32) ::=> GlyphPtr := {
+        mutex withLock: {
+            hasConvertedLatin1Set ifFalse: {
+                0 until: 255 do: {:(Char32)i :: Void |
+                    self convertNewGlyphForCodePoint: i.
+                }.
+                hasConvertedLatin1Set := true.
+            }.
+
+            codePointDictionary at: codePoint ifPresent: {:(GlyphPtr ref)existent :: Void |
+                return: existent
+            }.
+
+            self convertNewGlyphForCodePoint: codePoint
+        }.
+    }.
+
+    method convertNewGlyphForCodePoint: (codePoint: Char32) ::=> GlyphPtr := {
+        let originalGlyph := originalFontFace _ getOrCreateGlyphForCodePoint: codePoint.
+        originalGlyph ifNil: {
+            codePointDictionary at: codePoint put: GlyphPtr nil.
+            return: GlyphPtr nil
+        }.
+
+        let adaptedGlyph := self getOrCreateAdaptedGlyph: originalGlyph.
+        codePointDictionary at: codePoint put: adaptedGlyph.
+
+        adaptedGlyph
+    }.
+
+    method initializeWith: (theOriginalFontFace: FontFaceWithSizePtr) for: (theDevice: RenderingDeviceWeakPtr const ref) ::=> Void := {
+        originalFontFace := theOriginalFontFace.
+        device := theDevice.
+
+        maxAdvance := originalFontFace _ maxAdvance.
+        ascender := originalFontFace _ ascender.
+        descender := originalFontFace _ descender.
+        height := originalFontFace _ height.
+        underlinePosition := originalFontFace _ underlinePosition.
+        underlineThickness := originalFontFace _ underlineThickness.
+    }.
+
+    method validateTextureAndView => Void := {
+        fontFaceForm ifNil: {return: void}.
+
+        texture ifNil: {
+            let strongDevice := device lock.
+            strongDevice ifNotNil: {
+                texture := strongDevice _ createTexture: (TextureDescription()
+                    type: TextureType Texture2D;
+                    width: fontFaceForm _ extent x;
+                    height: fontFaceForm _ extent y;
+                    depth: 1;
+                    layers: 1;
+                    miplevels: 1;
+                    format: PixelFormat R8_UNorm;
+                    usageModes: TextureUsageMode CopyDestination | TextureUsageMode Sampled;
+                    mainUsageMode: TextureUsageMode Sampled;
+                    heapType: MemoryHeapType DeviceLocal;
+                    sampleCount: 1;
+                    sampleQuality: 0;
+                    yourself).
+                texture ifNotNil: {
+                    textureView := texture _ getOrCreateFullView
+                }.
+            }.
+        }.
+
+        texture ifNotNil: {
+            texture _ uploadTextureLevel: 0 layer: 0
+                pitch: fontFaceForm _ pitch slicePitch: fontFaceForm _ pitch * fontFaceForm _ extent y
+                data: fontFaceForm _ pixels getPointer
+        }.
+
+        hasValidTexture := true.
+    }.
+
+    override method validRenderingTextureAndView => (TexturePtr -- TextureViewPtr) := {
+
+        mutex withLock: {
+            hasValidTexture ifFalse: {
+                self validateTextureAndView.
+            }.
+
+            return: (texture, textureView)
+        }
+    }.
+}.
+
+}. ## End of namespace Core
+}. ## End of namespace Graphics
+}. ## End of namespace Stdn

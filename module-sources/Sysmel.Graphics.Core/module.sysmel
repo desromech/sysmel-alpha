@@ -1,13 +1,7 @@
 Compiler
-    importModuleNamed: #"Sysmel.Math.Core";
-    loadPackages: #(
-        #"Native-Graphics-Core-Raster"
-        #"Native-Graphics-Core-Raster3D"
-        #"Native-Graphics-Core-Macros"
-        #"Native-Graphics-Mesh2D"
-        #"Native-Graphics-CommandListBuilderSurface"
-        #"Native-Graphics-Driver-Soft"
-        #"Native-Graphics-Core-ImageFormats"
-        #"Native-Graphics-Core-Text"
-        #"Native-Graphics-GUI-Window"
-    ).
+    importModulesNamed: #(
+        #"Sysmel.Graphics.Core.Raster"
+        #"Sysmel.Graphics.Core.3D"
+        #"Sysmel.Graphics.Core.DriverInterface"
+        #"Sysmel.Graphics.Core.GUI"
+    )

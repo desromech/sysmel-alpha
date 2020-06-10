@@ -1,0 +1,9 @@
+Compiler
+    importModulesNamed: #(
+        #"Sysmel.Math.Core"
+        #"Sysmel.Graphics.Core.Raster"
+    );
+    loadPackages: #(
+        #"DriverInterface"
+        #"Canvas2D"
+    ).
