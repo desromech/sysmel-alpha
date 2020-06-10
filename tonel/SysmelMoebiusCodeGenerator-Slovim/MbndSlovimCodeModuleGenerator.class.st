@@ -1750,6 +1750,10 @@ MbndSlovimCodeModuleGenerator >> translateProgramEntityInformationData: programE
 	self setProgramEntity: programEntity ssaValue: ssaProgramEntityInfo.
 	ssaModule addHighLevelEntity: programEntity mapToGlobalValue: ssaProgramEntityInfo.
 	
+	(programEntity isMbndType and: [ programEntity isSpecialStructureType ]) ifTrue: [
+		ssaProgramEntityInfo makeLinkOnceODR
+	].
+	
 	ssaProgramEntityInfo initialValue: (self literalValueGenerator translateObject: programEntityType content: programEntity programEntityInformationData).
 
 	^ ssaProgramEntityInfo
