@@ -1,0 +1,19 @@
+namespace Stdn definition: {
+namespace Graphics definition: {
+namespace Core definition: {
+
+#**
+ * I am a container for texture pixel dta.
+ *#
+class TextureData definition: {
+    public field format type: PixelFormat.
+    public field extent type: UInt32x3.
+    public field miplevel type: UInt32.
+    public field layers type: Stdn Collections Vector(TextureLevelDataPtr).
+}.
+
+compileTime constant TextureDataPtr := TextureData sharedPointer.
+
+}. ## End of namespace Core
+}. ## End of namespace Graphics
+}. ## End of namespace Stdn

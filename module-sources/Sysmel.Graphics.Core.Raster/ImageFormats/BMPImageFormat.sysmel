@@ -2,6 +2,23 @@ namespace Stdn definition: {
 namespace Graphics definition: {
 namespace ImageFormats definition: {
 
+useNamespace: Stdn Graphics Core.
+
+class BMPImageReadWriter superclass: ImageReadWriter; definition: {
+    override const method supportsExtension: (extension: Stdn String const ref) ::=> Boolean8
+        := extension = "bmp" asMutableString.
+
+    override const method putForm: (form: Form ref) onStream: (outputStream: Stdn IO Stream ref) ::=> Void := {
+        Stdn stdout << "Todo: implemente this part"; nl
+    }.
+}.
+
+Form extend: {
+    method writeBMPfileNamed: (fileName: Stdn String const ref) ::=> Boolean8 := {
+        let readWriter := BMPImageReadWriter().
+        readWriter putForm: self onFileNamed: fileName.
+    }.
+}.
 
 } ## End of namespace ImageFormats
 } ## End of namespace Graphics

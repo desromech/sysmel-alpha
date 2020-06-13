@@ -1,0 +1,61 @@
+namespace Stdn definition: {
+namespace Graphics definition: {
+namespace ImageFormats definition: {
+
+useNamespace: Stdn Graphics Core.
+
+class ImageReadWriterRegistry definition: {
+    meta definition: {
+        let singleton mutable type: ImageReadWriterRegistry uniquePointer.
+        let singletonOnceCreation mutable type: Stdn OnceFlag.
+
+        method uniqueInstance => ImageReadWriterRegistry ref := {
+            singletonOnceCreation do: {
+                singleton reset: ImageReadWriterRegistry nativeNew.
+            }.
+
+            singleton _
+        }.
+    }.
+
+    private field mutex type: Stdn Mutex.
+    private field registeredImageReadWriters type: Stdn Collections Vector(ImageReadWriter sharedPointer).
+
+    method addImageReadWriter: (imageReadWriter: ImageReadWriter sharedPointer) ::=> Void := {
+        mutex withLock: {
+            registeredImageReadWriters add: imageReadWriter
+        }
+    }.
+
+    method findWithExtension: (extension: Stdn String const ref) ::=> ImageReadWriter pointer ::=> Void := {
+        mutex withLock: {
+            registeredImageReadWriters do: {:each :: Void |
+                (each _ supportsExtension: extension) ifTrue: {
+                    return: each getPointer
+                }
+            }
+        }.
+
+        nil
+    }.
+}.
+
+template ImageReadWriterRegisterer(T: Type)
+    := class definition: {
+
+    method initialize => Void := {
+        ImageReadWriterRegistry uniqueInstance addImageReadWriter: (T sharedNew upCastFor: ImageReadWriter)
+    }.
+}.
+
+
+Form extend: {
+    method writeToFileNamed: (fileName: Stdn String const ref) ::=> Boolean8 := {
+        ##let readWriter := ImageReadWriterRegistry uniqueInstance findWithExtension: fileName.
+        ##readWriter _ putForm: self onFileNamed: fileName.
+        false
+    }.
+}.
+} ## End of namespace ImageFormats
+} ## End of namespace Graphics
+} ## End of namespace Stdn

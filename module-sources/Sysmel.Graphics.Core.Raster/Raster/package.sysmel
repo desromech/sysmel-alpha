@@ -11,6 +11,10 @@ loadFileOnce: "FaceCullingMode.sysmel".
 
 loadFileOnce: "Rasterizer.sysmel".
 loadFileOnce: "Blitter.sysmel".
-loadFileOnce: "Form.sysmel".
 loadFileOnce: "Cursor.sysmel".
 loadFileOnce: "SystemCursor.sysmel".
+
+loadFileOnce: "Form.sysmel".
+loadFileOnce: "TextureLayerData.sysmel".
+loadFileOnce: "TextureLevelData.sysmel".
+loadFileOnce: "TextureData.sysmel".

@@ -4,8 +4,11 @@ namespace ImageFormats definition: {
 
 useNamespace: Stdn Graphics Core.
 
-class ImageReadWriter definition: {
-    method putForm: (form: Form ref) onFileNamed: (fileName: CTypes ConstString) ::=> Boolean8 := {
+class ImageReadWriter superclass: Object; definition: {
+    virtual const method supportsExtension: (extension: Stdn String const ref) ::=> Boolean8
+        := false.
+
+    virtual const method putForm: (form: Form ref) onFileNamed: (fileName: Stdn String const ref) ::=> Boolean8 := {
         let outFile mutable type: Stdn IO UnbufferedFileStream.
         (outFile open: fileName mode: Stdn IO FileOpenMode CreateNew) ifTrue: {
             self putForm: form onStream: outFile.
@@ -14,7 +17,7 @@ class ImageReadWriter definition: {
         return: false
     }.
 
-    virtual method putForm: (form: Form ref) onStream: (outputStream: Stdn IO Stream ref) ::=> Void := {
+    virtual const method putForm: (form: Form ref) onStream: (outputStream: Stdn IO Stream ref) ::=> Void := {
         ## TODO: implement this.
     }.
 }.
