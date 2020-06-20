@@ -1,0 +1,34 @@
+namespace Stdn definition: {
+namespace Graphics definition: {
+namespace Scene2D definition: {
+
+class BorderRectangleNode superclass: RectangularShapeNode; definition: {
+    public field bottomLeftColor type: Float32x4.
+    public field bottomRightColor type: Float32x4.
+    public field topLeftColor type: Float32x4.
+    public field topRightColor type: Float32x4.
+
+    public field leftBorderSize type: Float32.
+    public field rightBorderSize type: Float32.
+    public field bottomBorderSize type: Float32.
+    public field topBorderSize type: Float32.
+
+    method color: (color: Float32x4) ::=> Void := {
+        bottomLeftColor := bottomRightColor := color.
+        topLeftColor := topRightColor := color.
+    }.
+
+    method borderSize: (borderSize: Float32) ::=> Void := {
+        leftBorderSize := rightBorderSize := borderSize.
+        bottomBorderSize := topBorderSize := borderSize.
+    }.
+
+    override method accept: (visitor: Visitor ref) ::=> Void
+        := visitor visitBorderRectangleNode: self
+}.
+
+compileTime constant BorderRectangleNodePtr := BorderRectangleNode sharedPointer.
+
+} ## End of namespace Scene2D
+} ## End of namespace Graphics
+} ## End of namespace Stdn

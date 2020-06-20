@@ -1,0 +1,6 @@
+Compiler
+    importModuleNamed: #"Sysmel.Graphics.Core.DriverInterface";
+    loadPackages: #(
+        #"Scene2D"
+        #"Scene2D-CanvasRenderer"
+    ).

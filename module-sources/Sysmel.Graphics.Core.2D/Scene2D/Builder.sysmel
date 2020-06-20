@@ -1,0 +1,60 @@
+namespace Stdn definition: {
+namespace Graphics definition: {
+namespace Scene2D definition: {
+
+useNamespace: Stdn Math LinearAlgebra.
+useNamespace: Stdn Math Geometry.
+
+#**
+ * I am an scene graph builder that allows keeping track of a clipping rectangle
+ * in order to allow a front-end to reduce the number of required nodes that it actually needs.
+ *#
+class Builder definition: {
+    method container => ContainerNodePtr
+        := ContainerNode sharedNew.
+
+    method fillRectangle: (rectangle: RectangleF32) color: (color: Float32x4) ::=> FilledRectangleNodePtr := {
+        let result := FilledRectangleNode sharedNew.
+        result _ rectangle: rectangle; color: color.
+        result
+    }.
+
+    method borderRectangle: (rectangle: RectangleF32) color: (color: Float32x4) width: (borderWidth: Float32) ::=> BorderRectangleNodePtr := {
+        let result := BorderRectangleNode sharedNew.
+        result _
+            rectangle: rectangle;
+            color: color;
+            borderSize: borderWidth.
+        result
+    }.
+
+    method borderRectangle: (rectangle: RectangleF32) color: (color: Float32x4) ::=> BorderRectangleNodePtr
+        := self borderRectangle: rectangle color: color width: 1.
+
+    method clipRectangle: (rectangle: RectangleF32) node: (node: NodePtr const ref) ::=> ClippedRectangleNodePtr := {
+        let result := ClippedRectangleNode sharedNew.
+        result _
+            rectangle: rectangle;
+            child: node.
+        result
+    }.
+
+    method transform: (transform: AffinePostTransform2dF32) node: (node: NodePtr const ref) ::=> TransformNodePtr := {
+        let result := TransformNode sharedNew.
+        result _
+            transform: transform;
+            child: node.
+        result
+    }.
+
+    method translate: (translation: Float32x2) node: (node: NodePtr const ref) ::=> TransformNodePtr
+        := self transform: (AffinePostTransform2dF32()
+            setIdentity;
+            translation: translation;
+            yourself) node: node.
+
+}.
+
+} ## End of namespace Scene2D
+} ## End of namespace Graphics
+} ## End of namespace Stdn

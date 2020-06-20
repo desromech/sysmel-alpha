@@ -7,6 +7,9 @@ class Sizer.
 class SizerElement.
 
 compileTime constant EventHandlerFunctionType := (NorphEvent ref) => Void.
+compileTime constant NorphSceneNode := Stdn Graphics Scene2D Node.
+compileTime constant NorphSceneNodePtr := Stdn Graphics Scene2D NodePtr.
+compileTime constant NorphSceneBuilder := Stdn Graphics Scene2D Builder.
 
 #**
  * I am a norph, my name comes from Native (M)orph in honor to the old
@@ -117,36 +120,39 @@ class Norph superclass: NorphEventHandler; definition: {
         self changed.
     }.
 
+    virtual method buildFullSceneGraphWith: (builder: NorphSceneBuilder) ::=> NorphSceneNodePtr := {
+        let content := self buildContentSceneGraphWith: builder.
+        let clippedContent mutable := content.
+        self isClipped ifTrue: {
+            clippedContent := (builder clipRectangle: self localBounds node: content) upCastFor: NorphSceneNode
+        }.
+
+        (builder translate: bounds min node: clippedContent) upCastFor: NorphSceneNode
+    }.
+
+    virtual method buildContentSceneGraphWith: (builder: NorphSceneBuilder) ::=> NorphSceneNodePtr := {
+        let myNode := self buildSceneGraphWith: builder.
+        self validSubnorphs ifEmpty: {
+            return: myNode
+        }.
+
+        let result := builder container.
+        result _ add: myNode.
+
+        self validSubnorphs do: {:child :: Void |
+            result _ add: (child _ buildFullSceneGraphWith: builder)
+        }.
+
+        result upCastFor: NorphSceneNode
+    }.
+
+    virtual method buildSceneGraphWith: (builder: NorphSceneBuilder) ::=> NorphSceneNodePtr
+        := (builder fillRectangle: self localBounds color: self color) upCastFor: NorphSceneNode.
+
     virtual method renderOn: (canvas: Canvas ref) ::=> Void := {
         canvas
             color: self color;
             fillRectangle: self localBounds
-    }.
-
-    virtual method renderSubnorphsOn: (canvas: Canvas ref) ::=> Void := {
-        self validSubnorphs do: {:(Norph sharedPointer const ref)child :: Void |
-            child _ fullRenderOn: canvas
-        }
-    }.
-
-    virtual method fullRenderOn: (canvas: Canvas ref) ::=> Void := {
-        canvas transform restoreAfter: {
-            canvas transform translateBy: bounds min.
-
-            self isClipped ifTrue: {
-                canvas withLocalClipRectangle: self localBounds do: {
-                    self
-                        renderOn: canvas;
-                        renderSubnorphsOn: canvas.
-                }.
-            } ifFalse: {
-                self
-                    renderOn: canvas;
-                    renderSubnorphsOn: canvas.
-            }
-        }.
-
-        isDirtyInThisFrame := false.
     }.
 
     virtual method childChanged ::=> Void := {

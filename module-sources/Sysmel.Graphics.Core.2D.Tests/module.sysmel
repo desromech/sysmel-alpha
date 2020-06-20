@@ -1,0 +1,8 @@
+Compiler
+    importModulesNamed: #(
+        #"Sysmel.Testing"
+        #"Sysmel.Graphics.Core.2D"
+    );
+    loadPackages: #(
+        #"Scene2D"
+    ).

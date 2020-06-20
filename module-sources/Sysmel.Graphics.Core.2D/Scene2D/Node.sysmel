@@ -1,0 +1,25 @@
+namespace Stdn definition: {
+namespace Graphics definition: {
+namespace Scene2D definition: {
+
+class Node superclass: SharedObject; definition: {
+    abstract method accept: (visitor: Visitor ref) ::=> Void.
+
+    virtual method -- (other: NodePtr const ref) ::=> NodePtr := {
+        other ifNil: {
+            return: self asSharedPointer
+        }.
+
+        let result := ContainerNode sharedNew.
+        result _
+            add: self asSharedPointer;
+            add: other.
+        result upCastFor: Node
+    }.
+}.
+
+compileTime constant NodePtr := Node sharedPointer.
+
+} ## End of namespace Scene2D
+} ## End of namespace Graphics
+} ## End of namespace Stdn

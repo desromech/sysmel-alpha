@@ -1,5 +1,8 @@
 Compiler
-	importModuleNamed: #"Sysmel.Graphics.Core";
+    importModulesNamed: #(
+        #"Sysmel.Graphics.Core.2D"
+        #"Sysmel.Graphics.Core.GUI"
+    );
     loadPackages: #(
         #"Norphic-Core"
 		#"Norphic-Layout"

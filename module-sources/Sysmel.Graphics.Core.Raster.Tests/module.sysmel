@@ -1,0 +1,3 @@
+Compiler
+    importModuleNamed: #"Sysmel.Testing";
+    importModuleNamed: #"Sysmel.Graphics.Core.Raster"

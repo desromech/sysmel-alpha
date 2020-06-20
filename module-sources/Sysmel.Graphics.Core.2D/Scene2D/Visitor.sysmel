@@ -1,0 +1,15 @@
+namespace Stdn definition: {
+namespace Graphics definition: {
+namespace Scene2D definition: {
+
+class Visitor definition: {
+    virtual method visitBorderRectangleNode: (node: BorderRectangleNode const ref) ::=> Void := {}.
+    virtual method visitClippedRectangleNode: (node: ClippedRectangleNode const ref) ::=> Void := {}.
+    virtual method visitContainerNode: (node: ContainerNode const ref) ::=> Void := {}.
+    virtual method visitFilledRectangleNode: (node: FilledRectangleNode const ref) ::=> Void := {}.
+    virtual method visitTransformNode: (node: TransformNode const ref) ::=> Void := {}.
+}.
+
+} ## End of namespace Scene2D
+} ## End of namespace Graphics
+} ## End of namespace Stdn

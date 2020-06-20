@@ -23,11 +23,9 @@ class BorderedNorph superclass: Norph; definition: {
         borderColor := self theme _ defaultBorderColor.
     }.
 
-    override method renderOn: (canvas: Canvas ref) ::=> Void := {
-        super renderOn: canvas.
-        canvas
-            color: self currentBorderColor;
-            drawRectangle: self localBounds
+    override method buildSceneGraphWith: (builder: NorphSceneBuilder) ::=> NorphSceneNodePtr := {
+        (super buildSceneGraphWith: builder) _ --
+        ((builder borderRectangle: self localBounds color: self currentBorderColor) upCastFor: NorphSceneNode).
     }.
 
     virtual method currentBorderColor => Float32x4 := {

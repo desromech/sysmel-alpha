@@ -1,0 +1,53 @@
+namespace Stdn definition: {
+namespace Graphics definition: {
+namespace Scene2D definition: {
+
+useNamespace: Stdn Graphics Core.
+
+class CanvasRenderer superclass: Visitor; definition: {
+    public field canvas type: Canvas pointer.
+
+    method render: (node: NodePtr const ref) ::=> Void := {
+        node ifNotNil: {
+            node _ accept: self
+        }.
+    }.
+
+    override method visitBorderRectangleNode: (node: BorderRectangleNode const ref) ::=> Void := {
+        ## TODO: Fix this to use the actual required colors.
+        canvas _
+            color: node bottomLeftColor;
+            drawRectangle: node rectangle
+
+    }.
+
+    override method visitClippedRectangleNode: (node: ClippedRectangleNode const ref) ::=> Void := {
+        canvas _ withLocalClipRectangle: node rectangle do: {
+            self render: node child
+        }.
+    }.
+
+    override method visitContainerNode: (node: ContainerNode const ref) ::=> Void := {
+        node children do: {:each :: Void |
+            self render: each
+        }
+    }.
+
+    override method visitFilledRectangleNode: (node: FilledRectangleNode const ref) ::=> Void := {
+        ## TODO: Fix this to use the actual required colors.
+        canvas _
+            color: node bottomLeftColor;
+            fillRectangle: node rectangle
+    }.
+
+    override method visitTransformNode: (node: TransformNode const ref) ::=> Void := {
+        canvas _ transform restoreAfter: {
+            canvas _ transform translateBy: node transform translation.
+            self render: node child
+        }.
+    }.
+}.
+
+} ## End of namespace Scene2D
+} ## End of namespace Graphics
+} ## End of namespace Stdn

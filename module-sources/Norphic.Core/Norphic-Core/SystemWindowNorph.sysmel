@@ -71,7 +71,12 @@ class SystemWindowNorph superclass: RootNorph; definition: {
         canvas ifNil: {return: void}.
 
         canvas _ color: self color; clear.
-        self renderSubnorphsOn: canvas _
+
+        let sceneGraph := self buildContentSceneGraphWith: NorphSceneBuilder().
+        let renderer mutable := Stdn Graphics Scene2D CanvasRenderer()
+            canvas: canvas getPointer;
+            yourself.
+        renderer render: sceneGraph
     }.
 
     override method setMouseCaptureNorph: (norph: Norph pointer) ::=> Void := {

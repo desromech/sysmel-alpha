@@ -1,0 +1,13 @@
+namespace Stdn definition: {
+namespace Graphics definition: {
+namespace Scene2D definition: {
+
+useNamespace: Stdn Math Geometry.
+
+class RectangularShapeNode superclass: Node; definition: {
+    public field rectangle type: RectangleF32.
+}.
+
+} ## End of namespace Scene2D
+} ## End of namespace Graphics
+} ## End of namespace Stdn

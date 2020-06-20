@@ -1,0 +1,10 @@
+loadFileOnce: "Node.sysmel".
+loadFileOnce: "Builder.sysmel".
+loadFileOnce: "Visitor.sysmel".
+
+loadFileOnce: "RectangularShapeNode.sysmel".
+loadFileOnce: "BorderRectangleNode.sysmel".
+loadFileOnce: "ClippedRectangleNode.sysmel".
+loadFileOnce: "ContainerNode.sysmel".
+loadFileOnce: "FilledRectangleNode.sysmel".
+loadFileOnce: "TransformNode.sysmel".
