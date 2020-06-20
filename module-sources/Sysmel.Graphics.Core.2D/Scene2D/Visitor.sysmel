@@ -7,6 +7,7 @@ class Visitor definition: {
     virtual method visitClippedRectangleNode: (node: ClippedRectangleNode const ref) ::=> Void := {}.
     virtual method visitContainerNode: (node: ContainerNode const ref) ::=> Void := {}.
     virtual method visitFilledRectangleNode: (node: FilledRectangleNode const ref) ::=> Void := {}.
+    virtual method visitTextNode: (node: TextNode const ref) ::=> Void := {}.
     virtual method visitTransformNode: (node: TransformNode const ref) ::=> Void := {}.
 }.
 

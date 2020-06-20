@@ -9,6 +9,7 @@ Compiler
 		#"Sysmel.Math.Core.Tests"
 		#"Sysmel.Graphics.Core.Tests"
 		#"Norphic.Core.Tests" *#
+		#"Sysmel.Graphics.Core.2D.Tests"
 	).
 
 Stdn Testing generateTestSuiteProgramMain: "RuntimeLibrariesTests".

@@ -11,9 +11,12 @@ class TextModelCursor.
 struct TextModelSpan definition: {
     public field fontFaceWithSize type: FontFaceWithSize sharedPointer.
     public field color type: Float32x4.
-    public field utf8StringPointer type: Char8 const pointer.
-    public field utf8StringSize type: UIntPointer.
+    public field utf8String type: Char8 const arraySlice.
     public field textDrawingState type: TextDrawingState.
+
+    ## TODO: Compute this properly
+    method rectangle => RectangleF32
+        := RectangleF32().
 }.
 
 compileTime constant TextModelSpanIterationBlock := ((TextModelSpan ref) => Void) nativeBlockClosure.

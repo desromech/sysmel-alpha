@@ -38,8 +38,7 @@ class SimpleTextModel superclass: TextModel; definition: {
         span
             color: color;
             fontFaceWithSize: fontFaceWithSize;
-            utf8StringPointer: textBuffer data;
-            utf8StringSize: textBuffer size;
+            utf8String: textBuffer asArraySlice;
             textDrawingState: (TextDrawingState position: Float32x2(0, fontFaceWithSize _ ascender)).
 
         iterationBlock(span).

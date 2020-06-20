@@ -96,7 +96,7 @@ class AbstractButtonNorph superclass: BorderedNorph; definition: {
         }
     }.
 
-    override method renderOn: (canvas: Canvas ref) ::=> Void := {
+    override method buildSceneGraphWith: (builder: NorphSceneBuilder) ::=> NorphSceneNodePtr := {
         let baseColor := self currentColor.
         let topColor mutable := baseColor.
         let bottomColor mutable := baseColor muchDarker.
@@ -105,11 +105,10 @@ class AbstractButtonNorph superclass: BorderedNorph; definition: {
         }.
 
         let localBounds := self localBounds.
-        canvas
-            fillRectangle: self localBounds verticalGradientStart: topColor end: bottomColor;
 
-            color: self currentBorderColor;
-            drawRectangle: self localBounds
+        let filling := builder fillRectangle: localBounds verticalGradientStart: topColor end: bottomColor.
+        let border := builder borderRectangle: localBounds color: self currentBorderColor.
+        filling _ -- (border upCastFor: NorphSceneNode)
     }.
 }.
 

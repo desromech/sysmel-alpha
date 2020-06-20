@@ -13,6 +13,25 @@ class FilledRectangleNode superclass: RectangularShapeNode; definition: {
         topLeftColor := topRightColor := color.
     }.
 
+    method verticalGradientStart: (startColor: Float32x4) end: (endColor: Float32x4) ::=> Void := {
+        bottomLeftColor := bottomRightColor := startColor.
+        topLeftColor := topRightColor := endColor.
+    }.
+
+    method horizontalGradientStart: (startColor: Float32x4) end: (endColor: Float32x4) ::=> Void := {
+        bottomLeftColor := topLeftColor := startColor.
+        bottomRightColor := topRightColor := endColor.
+    }.
+
+    const method hasVerticalGradient => Boolean8
+        := bottomLeftColor = bottomRightColor && topLeftColor = topRightColor.
+
+    const method hasHorizontalGradient => Boolean8
+        := bottomLeftColor = topLeftColor && bottomRightColor = topRightColor.
+
+    const method hasSingleColor => Boolean8
+        := bottomLeftColor = bottomRightColor && bottomRightColor = topLeftColor && topLeftColor = topRightColor.
+
     override method accept: (visitor: Visitor ref) ::=> Void
         := visitor visitFilledRectangleNode: self
 

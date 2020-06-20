@@ -4,6 +4,7 @@ namespace Scene2D definition: {
 
 useNamespace: Stdn Math LinearAlgebra.
 useNamespace: Stdn Math Geometry.
+useNamespace: Stdn Graphics Core.
 
 #**
  * I am an scene graph builder that allows keeping track of a clipping rectangle
@@ -16,6 +17,22 @@ class Builder definition: {
     method fillRectangle: (rectangle: RectangleF32) color: (color: Float32x4) ::=> FilledRectangleNodePtr := {
         let result := FilledRectangleNode sharedNew.
         result _ rectangle: rectangle; color: color.
+        result
+    }.
+
+    method fillRectangle: (rectangle: RectangleF32) verticalGradientStart: (startColor: Float32x4) end: (endColor: Float32x4) ::=> FilledRectangleNodePtr := {
+        let result := FilledRectangleNode sharedNew.
+        result _
+            rectangle: rectangle;
+            verticalGradientStart: startColor end: endColor.
+        result
+    }.
+
+    method fillRectangle: (rectangle: RectangleF32) horizontalGradientStart: (startColor: Float32x4) end: (endColor: Float32x4) ::=> FilledRectangleNodePtr := {
+        let result := FilledRectangleNode sharedNew.
+        result _
+            rectangle: rectangle;
+            horizontalGradientStart: startColor end: endColor.
         result
     }.
 
@@ -52,6 +69,23 @@ class Builder definition: {
             setIdentity;
             translation: translation;
             yourself) node: node.
+
+    method text: (encodedString: Char8 const arraySlice) in: (rectangle: RectangleF32) font: (font: FontFaceWithSizePtr const ref) color: (color: Float32x4) ::=> TextNodePtr := {
+        let baseline := Float32x2(0.0f, font _ ascender).
+        self text: encodedString in: rectangle font: font color: color drawingState: (TextDrawingState position: rectangle min + baseline)
+    }.
+
+    method text: (encodedString: Char8 const arraySlice) in: (rectangle: RectangleF32)
+        font: (font: FontFaceWithSizePtr const ref) color: (color: Float32x4) drawingState: (drawingState: TextDrawingState) ::=> TextNodePtr := {
+        let result := TextNode sharedNew.
+        result _
+            rectangle: rectangle;
+            encodedString: encodedString;
+            fontFaceWithSize: font;
+            color: color;
+            drawingState: drawingState.
+        result
+    }.
 
 }.
 

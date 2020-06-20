@@ -1,0 +1,22 @@
+namespace Stdn definition: {
+namespace Graphics definition: {
+namespace Scene2D definition: {
+
+useNamespace: Stdn Math LinearAlgebra.
+useNamespace: Stdn Graphics Core.
+
+class TextNode superclass: RectangularShapeNode; definition: {
+    public field encodedString type: Char8 const arraySlice.
+    public field fontFaceWithSize type: FontFaceWithSizePtr.
+    public field color type: Float32x4.
+    public field drawingState type: TextDrawingState.
+
+    override method accept: (visitor: Visitor ref) ::=> Void
+        := visitor visitTextNode: self
+}.
+
+compileTime constant TextNodePtr := TextNode sharedPointer.
+
+} ## End of namespace Scene2D
+} ## End of namespace Graphics
+} ## End of namespace Stdn

@@ -17,15 +17,9 @@ class StringNorph superclass: Norph; definition: {
         self extent: self minimalExtent.
     }.
 
-    override method renderOn: (canvas: Canvas ref) ::=> Void := {
+    override method buildSceneGraphWith: (builder: NorphSceneBuilder) ::=> NorphSceneNodePtr := {
         let fontFaceWithSize ref := self theme _ normalFontFaceWithSize.
-        canvas
-            ##color: Float32x4(1, 0, 0, 1);
-            ##fillRectangle: self localBounds;
-
-            fontFaceWithSize: fontFaceWithSize;
-            color: self stringColor;
-            drawUTF8String: text at: Float32x2 (0.0f, fontFaceWithSize _ ascender).
+        (builder text: text asArraySlice in: self localBounds font: fontFaceWithSize color: self stringColor) upCastFor: NorphSceneNode
     }.
 
     override method defaultColor => Float32x4

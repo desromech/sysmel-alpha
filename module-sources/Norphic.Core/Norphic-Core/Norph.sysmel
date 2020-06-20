@@ -149,12 +149,6 @@ class Norph superclass: NorphEventHandler; definition: {
     virtual method buildSceneGraphWith: (builder: NorphSceneBuilder) ::=> NorphSceneNodePtr
         := (builder fillRectangle: self localBounds color: self color) upCastFor: NorphSceneNode.
 
-    virtual method renderOn: (canvas: Canvas ref) ::=> Void := {
-        canvas
-            color: self color;
-            fillRectangle: self localBounds
-    }.
-
     virtual method childChanged ::=> Void := {
         self changed
     }.

@@ -34,10 +34,34 @@ class CanvasRenderer superclass: Visitor; definition: {
     }.
 
     override method visitFilledRectangleNode: (node: FilledRectangleNode const ref) ::=> Void := {
-        ## TODO: Fix this to use the actual required colors.
+        let rectangle := node rectangle.
+        node hasSingleColor ifTrue: {
+            canvas _
+                color: node bottomLeftColor;
+                fillRectangle: rectangle.
+            return: void
+        }.
+
+        node hasVerticalGradient ifTrue: {
+            canvas _
+                fillRectangle: rectangle verticalGradientStart: node bottomLeftColor end: node topLeftColor.
+            return: void
+        }.
+
+        node hasHorizontalGradient ifTrue: {
+            canvas _
+                fillRectangle: rectangle horizontalGradientStart: node bottomLeftColor end: node bottomRightColor.
+            return: void
+        }.
+
+        let bottomLeftPosition := rectangle bottomLeft.
+        let bottomRightPosition := rectangle bottomRight.
+        let topLeftPosition := rectangle topLeft.
+        let topRightPosition := rectangle topRight.
         canvas _
-            color: node bottomLeftColor;
-            fillRectangle: node rectangle
+            color: Float32x4 ones;
+            fillTriangle: bottomLeftPosition color: node bottomLeftColor p2: bottomRightPosition color: node bottomRightColor p3: topLeftPosition color: node topLeftColor;
+            fillTriangle: bottomRightPosition color: node bottomRightColor p2: topRightPosition color: node topRightColor p3: topLeftPosition color: node topLeftColor.
     }.
 
     override method visitTransformNode: (node: TransformNode const ref) ::=> Void := {
@@ -45,6 +69,14 @@ class CanvasRenderer superclass: Visitor; definition: {
             canvas _ transform translateBy: node transform translation.
             self render: node child
         }.
+    }.
+
+    override method visitTextNode: (node: TextNode const ref) ::=> Void := {
+
+        canvas _
+            fontFaceWithSize: node fontFaceWithSize;
+            color: node  color;
+            drawUTF8String: node encodedString elements size: node encodedString size withState: node drawingState.
     }.
 }.
 

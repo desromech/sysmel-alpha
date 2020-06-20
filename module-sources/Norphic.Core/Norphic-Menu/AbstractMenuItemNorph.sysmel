@@ -39,10 +39,12 @@ class AbstractMenuItemNorph superclass: Norph; definition: {
         self fit.
     }.
 
-    override method renderOn: (canvas: Canvas ref) ::=> Void := {
-        self isHighlighted ifTrue: {
-            super renderOn: canvas.
+    override method buildSceneGraphWith: (builder: NorphSceneBuilder) ::=> NorphSceneNodePtr := {
+        self isHighlighted ifFalse: {
+            return: NorphSceneNodePtr nil.
         }.
+
+        super buildSceneGraphWith: builder
     }.
 }.
 
