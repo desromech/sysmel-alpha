@@ -6,40 +6,25 @@ useNamespace: Stdn Math Geometry.
  * I am a norph sizer element. I am a wrapper around a another norph.
  *#
 class SizerNorphElement superclass: SizerElement; definition: {
-    public field norph type: Norph weakPointer.
+    public field norph type: Norph sharedPointer.
 
     meta definition: {
         inline method for: (norph: Norph ref) ::=> InstanceType sharedPointer := {
             let result := InstanceType sharedNew.
-            result _ norph := norph asWeakPointer.
+            result _ norph: norph asSharedPointer.
             result
         }
     }.
 
-    const override method minimalContentExtent => Float32x2 := {
-        let strongNorph := norph lock.
-        strongNorph ifNotNil: {
-            return: strongNorph _ minimalExtent
-        }.
+    const override method minimalContentExtent => Float32x2
+        := norph _ minimalExtent.
 
-        Float32x2 zeros
-    }.
-
-    const override method contentExtent => Float32x2 := {
-        let strongNorph := norph lock.
-        strongNorph ifNotNil: {
-            return: strongNorph _ extent
-        }.
-
-        Float32x2 zeros
-    }.
+    const override method contentExtent => Float32x2
+        := norph _ extent.
 
     override method applyIntoBounds: (newBounds: RectangleF32) ::=> Void := {
         let adjustedBounds := self applyBorderAndAlignmentToBounds: newBounds.
-        let strongNorph := norph lock.
-        strongNorph ifNotNil: {
-            strongNorph _ bounds: adjustedBounds
-        }.
+        norph _ bounds: adjustedBounds.
     }.
 }.
 

@@ -1,5 +1,6 @@
 loadFileOnce: "MeshVertex.sysmel".
 loadFileOnce: "MeshBuilder.sysmel".
+loadFileOnce: "ClipSubmeshType.sysmel".
 loadFileOnce: "Submesh.sysmel".
 loadFileOnce: "Mesh.sysmel".
 

@@ -108,6 +108,9 @@ class SwapChain2DSceneRenderer superclass: Scene2D Scene2DRenderer; definition: 
             fence ifNil: {return: void}.
         }.
 
+        ## Set the actual clear color in the render pass.
+        renderPass _ setColorAttachment: 0 clearValue: currentClearColor.
+
         allocator _ resetAllocator.
     	stateTracker _
             resetFor: allocator;

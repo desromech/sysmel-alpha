@@ -62,50 +62,114 @@ class MeshListBuilder2DSceneRendererNodeVisitor superclass: Scene2D Visitor; def
     }.
 
     override method visitBorderRectangleNode: (node: Scene2D BorderRectangleNode const ref) ::=> Void := {
-        ## TODO: Fix this to use border sizes, and actual filledRectangles here.
+        let rectangle := node rectangle.
+        rectangle isEmpty ifTrue: {return: void}.
 
+        let innerRectangle := RectangleF32 min: rectangle min + Float32x2(node leftBorderSize, node bottomBorderSize)
+            max: rectangle max - Float32x2(node rightBorderSize, node topBorderSize).
+
+        let obl := currentTransform transformPoint: rectangle bottomLeft.
+        let obr := currentTransform transformPoint: rectangle bottomRight.
+        let otr := currentTransform transformPoint: rectangle topRight.
+        let otl := currentTransform transformPoint: rectangle topLeft.
+
+        let ibl := currentTransform transformPoint: innerRectangle bottomLeft.
+        let ibr := currentTransform transformPoint: innerRectangle bottomRight.
+        let itr := currentTransform transformPoint: innerRectangle topRight.
+        let itl := currentTransform transformPoint: innerRectangle topLeft.
+
+        let cbl := node bottomLeftColor.
+        let cbr := node bottomRightColor.
+        let ctr := node topRightColor.
+        let ctl := node topLeftColor.
+
+        renderer _ meshBuilder
+            beginSubmesh: PrimitiveTopology Triangles blendingMode: currentBlendingMode
+                texture: TexturePtr nil textureView: TextureViewPtr nil fontFaceWithSize: FontFaceWithSizePtr nil;
+
+            addVertex: (MeshVertex()
+                position: obl;
+                color: cbl;
+                yourself);
+            addVertex: (MeshVertex()
+                position: obr;
+                color: cbr;
+                yourself);
+            addVertex: (MeshVertex()
+                position: otr;
+                color: ctr;
+                yourself);
+            addVertex: (MeshVertex()
+                position: otl;
+                color: ctl;
+                yourself);
+
+            addVertex: (MeshVertex()
+                position: ibl;
+                color: cbl;
+                yourself);
+            addVertex: (MeshVertex()
+                position: ibr;
+                color: cbr;
+                yourself);
+            addVertex: (MeshVertex()
+                position: itr;
+                color: ctr;
+                yourself);
+            addVertex: (MeshVertex()
+                position: itl;
+                color: ctl;
+                yourself);
+
+            ## Bottom 0 1 5 4
+            addTriangle: UInt32x3(0, 1, 5);
+            addTriangle: UInt32x3(5, 4, 0);
+
+            ## Right 1 2 6 5
+            addTriangle: UInt32x3(1, 2, 6);
+            addTriangle: UInt32x3(6, 5, 1);
+
+            ## Top 2 3 7 6
+            addTriangle: UInt32x3(2, 3, 7);
+            addTriangle: UInt32x3(7, 6, 2);
+
+            ## Left 3 0 4 7
+            addTriangle: UInt32x3(3, 0, 4);
+            addTriangle: UInt32x3(4, 7, 3);
+
+            yourself
+    }.
+
+    override method visitClippedRectangleNode: (node: Scene2D ClippedRectangleNode const ref) ::=> Void := {
         let rectangle := node rectangle.
         let p1 := currentTransform transformPoint: rectangle bottomLeft.
         let p2 := currentTransform transformPoint: rectangle bottomRight.
         let p3 := currentTransform transformPoint: rectangle topRight.
         let p4 := currentTransform transformPoint: rectangle topLeft.
 
-        let c1 := node bottomLeftColor.
-        let c2 := node bottomRightColor.
-        let c3 := node topLeftColor.
-        let c4 := node topRightColor.
+        let bbox := (((RectangleF32 point: p1) unionWith: p2) unionWith: p3) unionWith: p4.
 
         renderer _ meshBuilder
-            beginSubmesh: PrimitiveTopology Lines blendingMode: currentBlendingMode
-                texture: TexturePtr nil textureView: TextureViewPtr nil fontFaceWithSize: FontFaceWithSizePtr nil;
+            beginClippingSubmesh: PrimitiveTopology Triangles
+                type: (currentTransform isTranslationOnly ifTrue: ClipSubmeshType Rectangle ifFalse: ClipSubmeshType ConvexPolygon);
             addVertex: (MeshVertex()
                 position: p1;
-                color: c1;
                 yourself);
             addVertex: (MeshVertex()
                 position: p2;
-                color: c2;
                 yourself);
             addVertex: (MeshVertex()
                 position: p3;
-                color: c3;
                 yourself);
             addVertex: (MeshVertex()
                 position: p4;
-                color: c4;
                 yourself);
-            addThinSegment: UInt32x2(0, 1);
-            addThinSegment: UInt32x2(1, 2);
-            addThinSegment: UInt32x2(2, 3);
-            addThinSegment: UInt32x2(3, 0)
-    }.
+            addTriangle: UInt32x3(0, 1, 2);
+            addTriangle: UInt32x3(2, 3, 0);
+            boundingBox: bbox.
 
-    override method visitClippedRectangleNode: (node: Scene2D ClippedRectangleNode const ref) ::=> Void := {
-        #*canvas _ withLocalClipRectangle: node rectangle do: {
-            self render: node child
-        }.*#
-
-        self render: node child
+        self render: node child.
+        renderer _ meshBuilder popClippingSubmesh
     }.
 
     override method visitContainerNode: (node: Scene2D ContainerNode const ref) ::=> Void := {
@@ -151,7 +215,7 @@ class MeshListBuilder2DSceneRendererNodeVisitor superclass: Scene2D Visitor; def
 
     override method visitTransformNode: (node: Scene2D TransformNode const ref) ::=> Void := {
         currentTransform restoreAfter: {
-            currentTransform translateBy: node transform translation.
+            currentTransform transformWith: node transform.
             self render: node child
         }.
     }.

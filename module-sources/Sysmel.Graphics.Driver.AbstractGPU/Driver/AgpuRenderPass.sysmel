@@ -13,7 +13,12 @@ sealed class AgpuRenderPass superclass: RenderPass; definition: {
     public field theDepthStencilFormat type: PixelFormat.
 
     override method setColorAttachment: (attachmentIndex: UInt32) clearValue: (clearValue: Float32x4) ::=> Void := {
-
+        handle _ setColorClearValue: attachmentIndex value: (AGPU Color4f()
+            r: clearValue r;
+            g: clearValue g;
+            b: clearValue b;
+            a: clearValue a;
+            yourself)
     }.
 
     const override method colorAttachmentFormats => PixelFormat const arraySlice

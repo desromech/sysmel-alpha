@@ -1,0 +1,15 @@
+namespace Stdn definition: {
+namespace Graphics definition: {
+namespace Scene2DMesh definition: {
+
+useNamespace: Stdn Graphics Core.
+
+enum ClipSubmeshType valueType: UInt8; values: #{
+    None: 0.
+    Rectangle: 1.
+    ConvexPolygon: 2.
+}.
+
+}. ## End of namespace Scene2DMesh
+}. ## End of namespace Graphics
+}. ## End of namespace Stdn

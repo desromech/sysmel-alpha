@@ -13,6 +13,10 @@ class Sizer superclass: Stdn SharedObject; definition: {
     abstract method minimalExtent => Float32x2.
     abstract method applyIntoBounds: (newBounds: RectangleF32) ::=> Void.
 
+    virtual method extent => Float32x2 := {
+        self minimalExtent
+    }.
+
     inline method asSizerElement => SizerElement sharedPointer
         := (SizerSubSizerElement for: self) upCastFor: SizerElement.
 

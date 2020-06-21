@@ -30,6 +30,14 @@ sealed template GenericAffineTransform2d(ST: Type)
         translation := newMatrix * translation.
     }.
 
+    inline method transformWith: (other: SelfType const ref) ::=> Void := {
+        let newMatrix := other matrix * matrix.
+        let newTranslation := translation + (other matrix * other translation).
+
+        matrix := newMatrix.
+        translation := newTranslation.
+    }.
+
     inline method scaleBy: (scale: Vector2) ::=> Void := {
         self applyMatrix: (Matrix2x2 scale: scale)
     }.

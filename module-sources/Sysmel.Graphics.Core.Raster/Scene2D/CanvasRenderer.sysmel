@@ -73,7 +73,7 @@ class CanvasRenderer superclass: Visitor; definition: {
 
     override method visitTransformNode: (node: TransformNode const ref) ::=> Void := {
         canvas _ transform restoreAfter: {
-            canvas _ transform translateBy: node transform translation.
+            canvas _ transform transformWith: node transform.
             self render: node child
         }.
     }.

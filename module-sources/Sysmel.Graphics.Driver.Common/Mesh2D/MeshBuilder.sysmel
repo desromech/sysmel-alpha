@@ -2,6 +2,7 @@ namespace Stdn definition: {
 namespace Graphics definition: {
 namespace Scene2DMesh definition: {
 
+useNamespace: Stdn Math Geometry.
 useNamespace: Stdn Graphics Core.
 
 struct MeshBuilder definition: {
@@ -9,6 +10,7 @@ struct MeshBuilder definition: {
     public field indices type: Stdn Collections Vector(UInt16).
     public field submeshes type: Stdn Collections Vector(Submesh).
 
+    protected field currentClipSubmesh type: Int32.
     protected field logicalBaseVertex type: UInt32.
 
     method clear => Void := {
@@ -16,6 +18,7 @@ struct MeshBuilder definition: {
         indices removeAll.
         submeshes removeAll.
         logicalBaseVertex := 0.
+        currentClipSubmesh := -1.
     }.
 
     inline method finishLastSubmesh => Void := {
@@ -25,9 +28,30 @@ struct MeshBuilder definition: {
         lastSubmesh indexCount: (indices size - lastSubmesh firstIndex castTo: UInt32).
     }.
 
+    inline method beginClippingSubmesh: (primitiveTopology: PrimitiveTopology) type: (clipSubmeshType: ClipSubmeshType) ::=> Void := {
+        self beginSubmesh: primitiveTopology blendingMode: BlendingMode Discard
+            texture: TexturePtr nil textureView: TextureViewPtr nil
+            fontFaceWithSize: FontFaceWithSizePtr nil clipSubmeshType: clipSubmeshType.
+        currentClipSubmesh := submeshes size - 1 castTo: Int32.
+    }.
+
+    inline method popClippingSubmesh => Void := {
+        currentClipSubmesh >= 0 ifTrue: {
+            currentClipSubmesh := submeshes[currentClipSubmesh] clipSubmesh
+        }
+    }.
+
     inline method beginSubmesh: (primitiveTopology: PrimitiveTopology) blendingMode: (blendingMode: BlendingMode)
         texture: (texture: TexturePtr const ref) textureView: (textureView: TextureViewPtr const ref)
-        fontFaceWithSize: (fontFaceWithSize: FontFaceWithSizePtr const ref) ::=> Void := {
+        fontFaceWithSize: (fontFaceWithSize: FontFaceWithSizePtr const ref) ::=> Void
+        := self beginSubmesh: primitiveTopology blendingMode: blendingMode
+            texture: texture textureView: textureView fontFaceWithSize: fontFaceWithSize
+            clipSubmeshType: ClipSubmeshType None.
+
+    inline method beginSubmesh: (primitiveTopology: PrimitiveTopology) blendingMode: (blendingMode: BlendingMode)
+        texture: (texture: TexturePtr const ref) textureView: (textureView: TextureViewPtr const ref)
+        fontFaceWithSize: (fontFaceWithSize: FontFaceWithSizePtr const ref)
+        clipSubmeshType: (clipSubmeshType: ClipSubmeshType) ::=> Void := {
 
         submeshes isEmpty || {
             let lastSubmesh ref := submeshes last.
@@ -35,12 +59,17 @@ struct MeshBuilder definition: {
             lastSubmesh blendingMode ~= blendingMode ||
             lastSubmesh texture ~= texture ||
             lastSubmesh textureView ~= textureView ||
-            lastSubmesh fontFaceWithSize ~= fontFaceWithSize
+            lastSubmesh fontFaceWithSize ~= fontFaceWithSize ||
+            lastSubmesh clipSubmesh ~= currentClipSubmesh ||
+            lastSubmesh clipSubmeshType ~= clipSubmeshType
         } ifTrue: {
             self finishLastSubmesh.
             submeshes add: (Submesh()
                 primitiveTopology: primitiveTopology;
                 firstIndex: (indices size castTo: UInt32);
+                clipSubmesh: currentClipSubmesh;
+                clipSubmeshType: clipSubmeshType;
+                boundingBox: RectangleF32 empty;
                 blendingMode: blendingMode;
                 texture: texture;
                 textureView: textureView;
@@ -55,9 +84,12 @@ struct MeshBuilder definition: {
         logicalBaseVertex := vertices size castTo: UInt32.
     }.
 
+    inline method boundingBox: (bbox: RectangleF32) ::=> Void := {
+        submeshes last boundingBox: bbox
+    }.
 
     inline method addVertex: (vertex: MeshVertex const ref) ::=> Void := {
-        vertices add: vertex
+        vertices add: vertex.
     }.
 
     inline method addTriangle: (triangle: UInt32x3) ::=> Void := {

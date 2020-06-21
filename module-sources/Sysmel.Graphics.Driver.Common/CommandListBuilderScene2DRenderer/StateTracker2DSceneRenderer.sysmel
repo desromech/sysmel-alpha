@@ -2,6 +2,7 @@ namespace Stdn definition: {
 namespace Graphics definition: {
 namespace Core definition: {
 
+useNamespace: Stdn Math Geometry.
 useNamespace: Stdn Graphics Scene2DMesh.
 
 #**
@@ -24,8 +25,12 @@ class StateTracker2DSceneRenderer superclass: MeshListBuilder2DSceneRenderer; de
 
     protected field indexBuffer type: BufferPtr.
 
+    protected field texturingBindingDictionary type: Stdn Collections Dictionary(TextureViewPtr, ShaderResourceBindingsPtr).
     protected field texturingBindings type: Stdn Collections Vector(ShaderResourceBindingsPtr).
     protected field nextAvailableTexturingBindings type: UIntPointer.
+
+    private field currentActiveClipSubmesh type: Int32.
+    private field lastActiveTextureView type: TextureViewPtr.
 
     override method renderScene: (rootNode: Scene2D NodePtr const ref) ::=> Void := {
         rootNode ifNil: { return: void }.
@@ -48,41 +53,74 @@ class StateTracker2DSceneRenderer superclass: MeshListBuilder2DSceneRenderer; de
             useIndexBuffer: indexBuffer.
 
         nextAvailableTexturingBindings := 0.
-        let lastTextureView mutable := TextureViewPtr nil.
+        lastActiveTextureView := TextureViewPtr nil.
+        currentActiveClipSubmesh := -1.
+        texturingBindingDictionary removeAll.
         meshBuilder submeshes do: {:each :: Void |
-            each fontFaceWithSize isNotNil && each textureView isNil ifTrue: {
-                let (let texture, let textureView) := (each fontFaceWithSize getPointer castTo: RenderingDeviceFontFaceWithSize pointer) _
-                    validRenderingTextureAndView.
-                each
-                    texture: texture;
-                    textureView: textureView.
-            }.
+            self renderSubmesh: each.
+        }.
+    }.
 
-            each textureView ~= lastTextureView ifTrue: {
-                each textureView ifNil: {
+    method activateClipSubmesh: (clipSubmeshIndex: Int32) ::=> Void := {
+        ## TODO: Implement support for polygon based clipping by using the stencil buffer.
+
+        let newClippingBounds mutable := RectangleF32 extent: (extent castTo: Float32x2).
+        let currentClipSubmesh mutable := clipSubmeshIndex.
+
+        ## TODO: Avoid this loop by keeping a stack of active clipping bounds.
+        while: currentClipSubmesh >= 0 do: {
+            let submesh ref := meshBuilder submeshes[currentClipSubmesh].
+            newClippingBounds := newClippingBounds intersectionWith: submesh boundingBox.
+            currentClipSubmesh := submesh clipSubmesh
+        }.
+
+        newClippingBounds isEmpty ifTrue: {
+            stateTracker _ setScissor: RectangleI32().
+        } ifFalse: {
+            stateTracker _ setScissor: newClippingBounds asRectangleI32
+        }.
+
+        currentActiveClipSubmesh := clipSubmeshIndex.
+    }.
+
+    method renderSubmesh: (submesh: Submesh ref) ::=> Void := {
+        submesh clipSubmeshType = ClipSubmeshType None ifFalse: {return: void}.
+        submesh clipSubmesh = currentActiveClipSubmesh ifFalse: {
+            self activateClipSubmesh: submesh clipSubmesh
+        }.
+
+        submesh fontFaceWithSize isNotNil && submesh textureView isNil ifTrue: {
+            let (let texture, let textureView) := (submesh fontFaceWithSize getPointer castTo: RenderingDeviceFontFaceWithSize pointer) _
+                validRenderingTextureAndView.
+            submesh
+                texture: texture;
+                textureView: textureView.
+        }.
+
+        submesh textureView ~= lastActiveTextureView ifTrue: {
+            submesh textureView ifNil: {
+                stateTracker _ fragmentShader: SimpleShader coloredFragment shaderEntryPointInfo address.
+            } ifNotNil: {
+                let binding := self getOrCreateTextureBindingFor: submesh textureView.
+                binding ifNil: {
                     stateTracker _ fragmentShader: SimpleShader coloredFragment shaderEntryPointInfo address.
                 } ifNotNil: {
-                    let binding := self getOrCreateTextureBindingFor: each textureView.
-                    binding ifNil: {
-                        stateTracker _ fragmentShader: SimpleShader coloredFragment shaderEntryPointInfo address.
+                    submesh fontFaceWithSize ifNil: {
+                        stateTracker _ fragmentShader: SimpleShader texturedFragment shaderEntryPointInfo address.
                     } ifNotNil: {
-                        each fontFaceWithSize ifNil: {
-                            stateTracker _ fragmentShader: SimpleShader texturedFragment shaderEntryPointInfo address.
-                        } ifNotNil: {
-                            stateTracker _ fragmentShader: SimpleShader textFragment shaderEntryPointInfo address.
-                        }.
-                        stateTracker _ useGraphicShaderBindings: binding
-                    }
-                }.
-
-                lastTextureView := each textureView
+                        stateTracker _ fragmentShader: SimpleShader textFragment shaderEntryPointInfo address.
+                    }.
+                    stateTracker _ useGraphicShaderBindings: binding
+                }
             }.
 
-            stateTracker _
-                blendingEquation: each blendingMode asBlendingEquation;
-                primitiveTopology: each primitiveTopology;
-                drawElements: each indexCount instanceCount: 1 firstIndex: each firstIndex baseVertex: 0baseInstance: 0.
+            lastActiveTextureView := submesh textureView
         }.
+
+        stateTracker _
+            blendingEquation: submesh blendingMode asBlendingEquation;
+            primitiveTopology: submesh primitiveTopology;
+            drawElements: submesh indexCount instanceCount: 1 firstIndex: submesh firstIndex baseVertex: 0baseInstance: 0.
     }.
 
     method submitVertices => Boolean8 := {
@@ -231,15 +269,17 @@ class StateTracker2DSceneRenderer superclass: MeshListBuilder2DSceneRenderer; de
         true.
     }.
 
-    method getOrCreateTextureBindingFor: (textureView: TextureViewPtr) ::=> ShaderResourceBindingsPtr := {
-        nextAvailableTexturingBindings >= texturingBindings size ifTrue: {
-            texturingBindings add: (shaderSignature _ createShaderResourceBindings: 2)
-        }.
+    method getOrCreateTextureBindingFor: (textureView: TextureViewPtr const ref) ::=> ShaderResourceBindingsPtr := {
+        texturingBindingDictionary at: textureView ifAbsentPut: { :: ShaderResourceBindingsPtr |
+            nextAvailableTexturingBindings >= texturingBindings size ifTrue: {
+                texturingBindings add: (shaderSignature _ createShaderResourceBindings: 2)
+            }.
 
-        let result := texturingBindings[nextAvailableTexturingBindings].
-        result _ bindOn: 0 sampledTextureView: textureView.
-        nextAvailableTexturingBindings := nextAvailableTexturingBindings + 1.
-        result
+            let result := texturingBindings[nextAvailableTexturingBindings].
+            result _ bindOn: 0 sampledTextureView: textureView.
+            nextAvailableTexturingBindings := nextAvailableTexturingBindings + 1.
+            result
+        }
     }.
 
 }.

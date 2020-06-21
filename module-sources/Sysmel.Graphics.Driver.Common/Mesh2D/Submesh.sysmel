@@ -3,11 +3,16 @@ namespace Graphics definition: {
 namespace Scene2DMesh definition: {
 
 useNamespace: Stdn Graphics Core.
+useNamespace: Stdn Math Geometry.
 
 struct Submesh definition: {
     public field primitiveTopology type: PrimitiveTopology.
     public field firstIndex type: UInt32.
     public field indexCount type: UInt32.
+
+    public field clipSubmesh type: Int32.
+    public field clipSubmeshType type: ClipSubmeshType.
+    public field boundingBox type: RectangleF32.
 
     public field blendingMode type: BlendingMode.
     public field texture type: TexturePtr.
