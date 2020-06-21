@@ -13,6 +13,13 @@ class CanvasRenderer superclass: Visitor; definition: {
         }.
     }.
 
+    override method visitBlendingModeNode: (node: BlendingModeNode const ref) ::=> Void := {
+        canvas _ drawingState restoreAfter: {
+            canvas _ drawingState blendingMode: node blendingMode.
+            self render: node child
+        }.
+    }.
+
     override method visitBorderRectangleNode: (node: BorderRectangleNode const ref) ::=> Void := {
         ## TODO: Fix this to use the actual required colors.
         canvas _
@@ -72,11 +79,24 @@ class CanvasRenderer superclass: Visitor; definition: {
     }.
 
     override method visitTextNode: (node: TextNode const ref) ::=> Void := {
+        node string ifEmpty: {return: void}.
 
         canvas _
             fontFaceWithSize: node fontFaceWithSize;
             color: node  color;
-            drawUTF8String: node encodedString elements size: node encodedString size withState: node drawingState.
+            drawUTF8String: node string data size: node string size withState: node drawingState.
+    }.
+
+    override method visitTextureNode: (node: TextureNode const ref) ::=> Void := {
+        node textureHandle isNil || node textureHandle _ isScene2DDeviceTextureHandle not ifTrue: {return: void}.
+
+        let deviceHandle := node textureHandle downCastFor: Scene2DDeviceTextureHandle.
+        canvas _ paintState restoreAfter: {
+			canvas _ paintState
+				white;
+				textureView: deviceHandle _ textureView.
+			canvas _ fillRectangle: node rectangle.
+		}.
     }.
 }.
 

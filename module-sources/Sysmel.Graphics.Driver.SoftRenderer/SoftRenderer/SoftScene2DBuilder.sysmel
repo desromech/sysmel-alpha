@@ -1,0 +1,31 @@
+namespace Stdn definition: {
+namespace Graphics definition: {
+namespace Core definition: {
+
+#**
+ * I am a handle for a sampler.
+ *#
+class SoftScene2DBuilder superclass: Scene2D Builder; definition: {
+    override method createTextureHandleFor: (texture: SharedObjectPtr const ref) view: (textureView: SharedObjectPtr const ref) ::=> Scene2D StrongTextureHandlePtr := {
+        let result := Scene2DDeviceTextureHandle sharedNew.
+        result _
+            texture: (texture downCastFor: Texture);
+            textureView: (textureView downCastFor: TextureView).
+
+        result upCastFor: Scene2D StrongTextureHandle
+    }.
+
+    override method createTextureFromForm: (form: FormPtr const ref) ::=> Scene2D StrongTextureHandlePtr := {
+        let result := Scene2DDeviceTextureHandle sharedNew.
+        result _
+            textureView: ((FormTextureView for: form) downCastFor: TextureView).
+
+        result upCastFor: Scene2D StrongTextureHandle
+    }.
+}.
+
+compileTime constant SoftScene2DBuilderPtr := SoftScene2DBuilder sharedPointer.
+
+}. ## End of namespace Core
+}. ## End of namespace Graphics
+}. ## End of namespace Stdn

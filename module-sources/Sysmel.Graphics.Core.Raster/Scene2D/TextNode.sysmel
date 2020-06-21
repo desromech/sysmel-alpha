@@ -6,7 +6,7 @@ useNamespace: Stdn Math LinearAlgebra.
 useNamespace: Stdn Graphics Core.
 
 class TextNode superclass: RectangularShapeNode; definition: {
-    public field encodedString type: Char8 const arraySlice.
+    public field string type: Stdn String.
     public field fontFaceWithSize type: FontFaceWithSizePtr.
     public field color type: Float32x4.
     public field drawingState type: TextDrawingState.

@@ -1,0 +1,19 @@
+namespace Stdn definition: {
+namespace Graphics definition: {
+namespace Scene2D definition: {
+
+useNamespace: Stdn Math LinearAlgebra.
+useNamespace: Stdn Graphics Core.
+
+class TextureNode superclass: RectangularShapeNode; definition: {
+    public field textureHandle type: StrongTextureHandlePtr.
+    
+    override method accept: (visitor: Visitor ref) ::=> Void
+        := visitor visitTextureNode: self
+}.
+
+compileTime constant TextureNodePtr := TextureNode sharedPointer.
+
+} ## End of namespace Scene2D
+} ## End of namespace Graphics
+} ## End of namespace Stdn

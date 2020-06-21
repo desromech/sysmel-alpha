@@ -22,7 +22,7 @@ class TextModelNorph superclass: Norph; definition: {
         self changed.
     }.
 
-    override method buildSceneGraphWith: (builder: NorphSceneBuilder) ::=> NorphSceneNodePtr := {
+    override method buildSceneGraphWith: (builder: NorphSceneBuilder ref) ::=> NorphSceneNodePtr := {
         textModel ifNil: { return: NorphSceneNodePtr nil }.
 
         let container := builder container.

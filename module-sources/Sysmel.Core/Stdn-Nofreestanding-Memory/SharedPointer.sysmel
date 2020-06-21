@@ -386,4 +386,7 @@ _NativeType meta macro method weakPointer := ``(Stdn WeakPointer(`,self)).
 
 _NativeType meta macro method sharedNew := ``(`,self sharedPointer forNewInstance).
 
+compileTime constant SharedObjectPtr := SharedObject sharedPointer.
+compileTime constant SharedObjectWeakPtr := SharedObject weakPointer.
+
 }. ## End of namespace Stdn

@@ -220,6 +220,9 @@ class SoftRenderingDevice superclass: RenderingDevice; definition: {
         result upCastFor: ShaderCache
     }.
 
+    override method createScene2DBuilder => Scene2D BuilderPtr
+        := SoftScene2DBuilder sharedNew upCastFor: Scene2D Builder.
+
     override method getDefaultShaderSignatureCache => ShaderSignatureCachePtr const ref
         := defaultShaderSignatureCache.
 

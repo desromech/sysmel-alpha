@@ -1,0 +1,21 @@
+namespace Stdn definition: {
+namespace Graphics definition: {
+namespace Scene2D definition: {
+
+useNamespace: Stdn Math Geometry.
+
+#**
+ * I contain a driver specific strong texture handle. I am defined here with
+ * double purposes: decoupling this module from the actual 3D driver
+ * rendering interface, ensure lifetime guarantees on the underlying texture handles.
+ *#
+class StrongTextureHandle superclass: SharedObject; definition: {
+    virtual method isScene2DDeviceTextureHandle => Boolean8
+        := false.
+}.
+
+compileTime constant StrongTextureHandlePtr := StrongTextureHandle sharedPointer.
+
+} ## End of namespace Scene2D
+} ## End of namespace Graphics
+} ## End of namespace Stdn

@@ -1,0 +1,20 @@
+namespace Stdn definition: {
+namespace Graphics definition: {
+namespace GUI definition: {
+
+useNamespace: Stdn Graphics Core.
+useNamespace: Stdn Graphics Scene2D.
+
+#**
+ * I represent an interface into a window system window.
+ *#
+class WindowScene2DRenderer superclass: Scene2DRenderer; definition: {
+    abstract method present => Void.
+}.
+
+compileTime constant WindowScene2DRendererPtr := WindowScene2DRenderer sharedPointer.
+compileTime constant WindowScene2DRendererWeakPtr := WindowScene2DRenderer weakPointer.
+
+}. ## End of namespace GUI
+}. ## End of namespace Graphics
+}. ## End of namespace Stdn

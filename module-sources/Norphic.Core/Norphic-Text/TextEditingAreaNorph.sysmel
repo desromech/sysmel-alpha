@@ -108,7 +108,7 @@ class TextEditingAreaNorph superclass: TextModelNorph; definition: {
         }
     }.
 
-    override method buildSceneGraphWith: (builder: NorphSceneBuilder) ::=> NorphSceneNodePtr := {
+    override method buildSceneGraphWith: (builder: NorphSceneBuilder ref) ::=> NorphSceneNodePtr := {
         let textNode := super buildSceneGraphWith: builder.
         let result mutable := textNode.
         self canReceiveKeyboardEvents && textCursor isNotNil && textModel isNotNil ifTrue: {

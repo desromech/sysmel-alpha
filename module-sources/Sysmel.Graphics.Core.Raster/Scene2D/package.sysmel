@@ -1,11 +1,17 @@
 loadFileOnce: "Node.sysmel".
 loadFileOnce: "Builder.sysmel".
 loadFileOnce: "Visitor.sysmel".
+loadFileOnce: "Scene2DRenderer.sysmel".
 
+loadFileOnce: "ParameterChangeNode.sysmel".
+loadFileOnce: "BlendingModeNode.sysmel".
 loadFileOnce: "RectangularShapeNode.sysmel".
 loadFileOnce: "BorderRectangleNode.sysmel".
 loadFileOnce: "ClippedRectangleNode.sysmel".
 loadFileOnce: "ContainerNode.sysmel".
 loadFileOnce: "FilledRectangleNode.sysmel".
+loadFileOnce: "StrongTextureHandle.sysmel".
+loadFileOnce: "ParameterChangeNode.sysmel".
 loadFileOnce: "TextNode.sysmel".
+loadFileOnce: "TextureNode.sysmel".
 loadFileOnce: "TransformNode.sysmel".

@@ -1,5 +1,6 @@
 Compiler
     importModulesNamed: #(
+        #"Sysmel.Graphics.Core.Raster"
         #"Sysmel.Graphics.Core.2D"
         #"Sysmel.Graphics.Core.GUI"
     );

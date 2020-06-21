@@ -1,6 +1,4 @@
 Compiler
-    importModuleNamed: #"Sysmel.Graphics.Core.DriverInterface";
+    importModuleNamed: #"Sysmel.Graphics.Core.Raster";
     loadPackages: #(
-        #"Scene2D"
-        #"Scene2D-CanvasRenderer"
     ).

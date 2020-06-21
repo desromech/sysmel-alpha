@@ -23,7 +23,7 @@ class BorderedNorph superclass: Norph; definition: {
         borderColor := self theme _ defaultBorderColor.
     }.
 
-    override method buildSceneGraphWith: (builder: NorphSceneBuilder) ::=> NorphSceneNodePtr := {
+    override method buildSceneGraphWith: (builder: NorphSceneBuilder ref) ::=> NorphSceneNodePtr := {
         (super buildSceneGraphWith: builder) _ --
         ((builder borderRectangle: self localBounds color: self currentBorderColor) upCastFor: NorphSceneNode).
     }.

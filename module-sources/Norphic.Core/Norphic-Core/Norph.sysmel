@@ -120,7 +120,7 @@ class Norph superclass: NorphEventHandler; definition: {
         self changed.
     }.
 
-    virtual method buildFullSceneGraphWith: (builder: NorphSceneBuilder) ::=> NorphSceneNodePtr := {
+    virtual method buildFullSceneGraphWith: (builder: NorphSceneBuilder ref) ::=> NorphSceneNodePtr := {
         let content := self buildContentSceneGraphWith: builder.
         let clippedContent mutable := content.
         self isClipped ifTrue: {
@@ -130,7 +130,7 @@ class Norph superclass: NorphEventHandler; definition: {
         (builder translate: bounds min node: clippedContent) upCastFor: NorphSceneNode
     }.
 
-    virtual method buildContentSceneGraphWith: (builder: NorphSceneBuilder) ::=> NorphSceneNodePtr := {
+    virtual method buildContentSceneGraphWith: (builder: NorphSceneBuilder ref) ::=> NorphSceneNodePtr := {
         let myNode := self buildSceneGraphWith: builder.
         self validSubnorphs ifEmpty: {
             return: myNode
@@ -146,7 +146,7 @@ class Norph superclass: NorphEventHandler; definition: {
         result upCastFor: NorphSceneNode
     }.
 
-    virtual method buildSceneGraphWith: (builder: NorphSceneBuilder) ::=> NorphSceneNodePtr
+    virtual method buildSceneGraphWith: (builder: NorphSceneBuilder ref) ::=> NorphSceneNodePtr
         := (builder fillRectangle: self localBounds color: self color) upCastFor: NorphSceneNode.
 
     virtual method childChanged ::=> Void := {

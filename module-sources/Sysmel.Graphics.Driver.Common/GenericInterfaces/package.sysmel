@@ -3,3 +3,4 @@ loadFileOnce: "GenericShaderCache.sysmel".
 loadFileOnce: "GenericVertexLayoutCache.sysmel".
 loadFileOnce: "GenericPipelineStateCache.sysmel".
 loadFileOnce: "GenericStateTracker.sysmel".
+loadFileOnce: "Scene2DDeviceTextureHandle.sysmel".

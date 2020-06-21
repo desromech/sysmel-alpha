@@ -26,7 +26,7 @@ class Window superclass: SharedObject; definition: {
     }.
 
     abstract method extent => UInt32x2.
-    
+
     #**
      * This method creates gets or creates a default rendering device.
      *#
@@ -47,12 +47,10 @@ class Window superclass: SharedObject; definition: {
     abstract method createSwapChain: (swapChainCreationInfo: SwapChainCreationInfo const ref) for: (renderingQueue: CommandQueuePtr const ref) ::=> SwapChainPtr.
 
     #**
-     * This method creates a default drawing surface whose rendering method is
-     * chosen by the backend. This drawing surface is optimized for 2D rendering
-     * so its internal implementation may not depend on an actual 3D rendering API.
+     * This method creates a scene 2D graph renderer specific for this window.
+     * The windowing backend will choose a backend that is compatible with the current window rendering device.
      *#
-    abstract method createDefaultDrawingSurface => Surface sharedPointer.
-
+    abstract method createScene2DRenderer => WindowScene2DRendererPtr.
 
     #**
      * This method takes capture of grabbing a mouse capture.

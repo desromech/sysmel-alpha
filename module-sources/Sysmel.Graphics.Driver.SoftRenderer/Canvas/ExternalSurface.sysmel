@@ -8,6 +8,8 @@ namespace Core definition: {
  * operating system window surface.
  *#
 class ExternalSurface superclass: SoftSurface; definition: {
+    override method beginDrawing => Boolean8
+        := true.
 }.
 
 }. ## End of namespace Core

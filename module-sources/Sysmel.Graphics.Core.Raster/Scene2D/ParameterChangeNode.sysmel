@@ -1,0 +1,15 @@
+namespace Stdn definition: {
+namespace Graphics definition: {
+namespace Scene2D definition: {
+
+useNamespace: Stdn Math Geometry.
+
+class ParameterChangeNode superclass: Node; definition: {
+    public field child type: NodePtr.
+}.
+
+compileTime constant ParameterChangeNodePtr := ParameterChangeNode sharedPointer.
+
+} ## End of namespace Scene2D
+} ## End of namespace Graphics
+} ## End of namespace Stdn

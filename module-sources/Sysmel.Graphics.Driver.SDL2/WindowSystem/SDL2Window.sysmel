@@ -13,7 +13,7 @@ class SDL2Window superclass: Window; definition: {
     protected field currentCursor type: Cursor sharedPointer.
     protected field renderingDevice type: RenderingDevicePtr.
     protected field activeSwapChain type: SwapChainPtr.
-    protected field softRenderingSurface type: SurfacePtr.
+    protected field softSceneRenderer type: WindowScene2DRendererPtr.
 
     override method initialize => Void := {
         currentCursor := SystemCursor arrow upCastFor: Cursor.
@@ -42,10 +42,10 @@ class SDL2Window superclass: Window; definition: {
             activeSwapChain _ destroy.
         }.
 
-        ## Destroy the active surface.
-        softRenderingSurface ifNotNil: {
-            softRenderingSurface _ destroy.
-            softRenderingSurface reset.
+        ## Destroy the active soft scene renderer.
+        softSceneRenderer ifNotNil: {
+            softSceneRenderer _ destroy.
+            softSceneRenderer reset.
         }.
 
         handle ifNotNil: {
@@ -132,7 +132,21 @@ class SDL2Window superclass: Window; definition: {
         activeSwapChain := newActiveSwapChain
     }.
 
-    override method createDefaultDrawingSurface => Surface sharedPointer := {
+    override method createScene2DRenderer => WindowScene2DRendererPtr := {
+        self renderingDevice _ isSoftRenderingDevice ifTrue: {
+            softSceneRenderer ifNotNil: {
+                softSceneRenderer _ destroy.
+                softSceneRenderer reset
+            }.
+
+            softSceneRenderer := (SDL2Software2DSceneRenderer for: self) upCastFor: WindowScene2DRenderer.
+            return: softSceneRenderer.
+        }.
+
+        WindowScene2DRendererPtr nil
+    }.
+
+    #**override method createDefaultDrawingSurface => Surface sharedPointer := {
         self renderingDevice _ isSoftRenderingDevice ifTrue: {
             softRenderingSurface ifNotNil: {
                 softRenderingSurface _ destroy.
@@ -144,7 +158,7 @@ class SDL2Window superclass: Window; definition: {
         }.
 
         (WindowSwapChainSurface for: (self asSharedPointer upCastFor: Window)) upCastFor: Surface
-    }.
+    }. *#
 
     override method grabMouseCapture => Void := {
         SDL_CaptureMouse(true)

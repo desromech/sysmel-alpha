@@ -14,6 +14,20 @@ class Builder definition: {
     method container => ContainerNodePtr
         := ContainerNode sharedNew.
 
+    virtual method createTextureHandleFor: (texture: SharedObjectPtr const ref) view: (view: SharedObjectPtr const ref) ::=> StrongTextureHandlePtr
+        := StrongTextureHandlePtr nil.
+
+    virtual method createTextureFromForm: (form: FormPtr const ref) ::=> StrongTextureHandlePtr
+        := StrongTextureHandlePtr nil.
+
+    method texture: (textureHandle: StrongTextureHandlePtr const ref) rectangle: (rectangle: RectangleF32) ::=> TextureNodePtr := {
+        let result := TextureNode sharedNew.
+        result _
+            rectangle: rectangle;
+            textureHandle: textureHandle.
+        result
+    }.
+
     method fillRectangle: (rectangle: RectangleF32) color: (color: Float32x4) ::=> FilledRectangleNodePtr := {
         let result := FilledRectangleNode sharedNew.
         result _ rectangle: rectangle; color: color.
@@ -56,6 +70,14 @@ class Builder definition: {
         result
     }.
 
+    method blendingMode: (blendingMode: BlendingMode) node: (node: NodePtr const ref) ::=> BlendingModeNodePtr := {
+        let result := BlendingModeNode sharedNew.
+        result _
+            blendingMode: blendingMode;
+            child: node.
+        result
+    }.
+
     method transform: (transform: AffinePostTransform2dF32) node: (node: NodePtr const ref) ::=> TransformNodePtr := {
         let result := TransformNode sharedNew.
         result _
@@ -75,19 +97,28 @@ class Builder definition: {
         self text: encodedString in: rectangle font: font color: color drawingState: (TextDrawingState position: rectangle min + baseline)
     }.
 
+    method text: (encodedString: Char8 const arraySlice) at: (position: Float32x2) font: (font: FontFaceWithSizePtr const ref) color: (color: Float32x4) ::=> TextNodePtr
+        := self text: encodedString in: (RectangleF32 point: position) font: font color: color.
+
     method text: (encodedString: Char8 const arraySlice) in: (rectangle: RectangleF32)
         font: (font: FontFaceWithSizePtr const ref) color: (color: Float32x4) drawingState: (drawingState: TextDrawingState) ::=> TextNodePtr := {
         let result := TextNode sharedNew.
         result _
             rectangle: rectangle;
-            encodedString: encodedString;
+            string: encodedString;
             fontFaceWithSize: font;
             color: color;
             drawingState: drawingState.
         result
     }.
 
+    method text: (encodedString: Char8 const arraySlice) at: (position: Float32x2)
+        font: (font: FontFaceWithSizePtr const ref) color: (color: Float32x4) drawingState: (drawingState: TextDrawingState) ::=> TextNodePtr
+        := self text: encodedString in: (RectangleF32 point: position) font: font color: color drawingState: drawingState.
+
 }.
+
+compileTime constant BuilderPtr := Builder sharedPointer.
 
 } ## End of namespace Scene2D
 } ## End of namespace Graphics

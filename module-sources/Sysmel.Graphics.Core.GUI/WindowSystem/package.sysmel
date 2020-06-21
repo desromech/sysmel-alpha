@@ -8,4 +8,4 @@ loadFileOnce: "WindowSystem.sysmel".
 loadFileOnce: "WindowSystemFactoryRegistry.sysmel".
 loadFileOnce: "WindowCreationInfo.sysmel".
 loadFileOnce: "Window.sysmel".
-loadFileOnce: "WindowSwapChainSurface.sysmel".
+loadFileOnce: "WindowScene2DRenderer.sysmel".

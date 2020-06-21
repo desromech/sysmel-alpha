@@ -3,11 +3,13 @@ namespace Graphics definition: {
 namespace Scene2D definition: {
 
 class Visitor definition: {
+    virtual method visitBlendingModeNode: (node: BlendingModeNode const ref) ::=> Void := {}.
     virtual method visitBorderRectangleNode: (node: BorderRectangleNode const ref) ::=> Void := {}.
     virtual method visitClippedRectangleNode: (node: ClippedRectangleNode const ref) ::=> Void := {}.
     virtual method visitContainerNode: (node: ContainerNode const ref) ::=> Void := {}.
     virtual method visitFilledRectangleNode: (node: FilledRectangleNode const ref) ::=> Void := {}.
     virtual method visitTextNode: (node: TextNode const ref) ::=> Void := {}.
+    virtual method visitTextureNode: (node: TextureNode const ref) ::=> Void := {}.
     virtual method visitTransformNode: (node: TransformNode const ref) ::=> Void := {}.
 }.
 

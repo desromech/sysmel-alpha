@@ -4,6 +4,10 @@ useNamespace: Stdn Graphics Core.
 useNamespace: Stdn Graphics GUI.
 useNamespace: Stdn Math Geometry.
 
+compileTime constant Texture2DPtr := Stdn Graphics Scene2D StrongTextureHandlePtr.
+compileTime constant Node2D := Stdn Graphics Scene2D Node.
+compileTime constant Node2DPtr := Stdn Graphics Scene2D NodePtr.
+
 struct SimpleVertex definition: {
 	public field position type: Float32x4.
 	public field color type: Float32x4.
@@ -171,7 +175,7 @@ class MeshBuilder definition: {
 class Sample definition: {
 	field renderingDevice type: RenderingDevicePtr.
 	field mainWindow type: Window sharedPointer.
-	field mainDrawingSurface type: Surface sharedPointer.
+	field mainWindowRenderer type: WindowScene2DRendererPtr.
 	field fontFaceWithSize type: FontFaceWithSize sharedPointer.
 
 	field shaderSignature type: ShaderSignaturePtr.
@@ -183,7 +187,7 @@ class Sample definition: {
 	field commandListAllocator type: CommandListAllocatorPtr.
 	field commandList type: CommandListPtr.
 
-	field colorBufferTextureView type: TextureView sharedPointer.
+	field colorBufferTextureHandle type: Texture2DPtr.
 	field mainFrameBuffer type: FramebufferPtr.
 	field mainRenderPass type: RenderPassPtr.
 
@@ -253,22 +257,17 @@ class Sample definition: {
 			waitForIdle.
 	}.
 
-	method doRenderOn: (canvas: Canvas ref) ::=> Void := {
+	method buildRenderScene2D: (builder: Stdn Graphics Scene2D Builder ref) ::=> Node2DPtr := {
 		let rendering3DTime := (Stdn Chrono profileTimeToRun: {
 			self doRender3D.
 		}) castTo: Float32.
 
-		canvas clear.
-		canvas drawingState restoreAfter: {
-			canvas drawingState blendingMode: BlendingMode Copy.
+		let scene3DResult :=
+			builder blendingMode: BlendingMode Copy node: ((
+				builder texture: colorBufferTextureHandle rectangle: (RectangleF32 extent: Float32x2(640, 480))
+			) upCastFor: Node2D).
 
-			canvas paintState restoreAfter: {
-				canvas paintState
-					white;
-					textureView: colorBufferTextureView.
-				canvas fillRectangle: (RectangleF32 extent: Float32x2(640, 480)).
-			}.
-		}.
+		let scene2D mutable := scene3DResult upCastFor: Node2D.
 
 		{
 			let frameTime := lastFrameRenderingTime * 1000.0f.
@@ -278,20 +277,19 @@ class Sample definition: {
 				out << "Rendering time " << frameTime << " ms"; nl.
 			}.
 
-			canvas paintState reset; color: Float32x4 green.
-			canvas
-				fontFaceWithSize: fontFaceWithSize;
-				drawUTF8String: frameTimeString at: Float32x2(15.0f, 30.0f).
+			let frameTimeNode := (builder text: frameTimeString asArraySlice at: Float32x2(15.0f, 30.0f) font: fontFaceWithSize color: Float32x4 green) upCastFor: Node2D.
+			scene2D := scene2D _ -- frameTimeNode
 		}.
 
+		scene2D
 	}.
 
 	method render ::=> Void := {
-		let canvas := mainDrawingSurface _ beginDrawingWithCanvas.
-		canvas ifNil: {return: void}.
-
 		lastFrameRenderingTime := (Stdn Chrono profileTimeToRun: {
-			self doRenderOn: canvas _.
+			mainWindowRenderer _
+				clearColor: Float32x4 zeros;
+				renderScene: (self buildRenderScene2D: mainWindowRenderer _ newSceneBuilder _);
+				present
 		}) castTo: Float32.
     }.
 
@@ -341,9 +339,9 @@ class Sample definition: {
 
 		renderingDevice := mainWindow _ renderingDevice.
 
-	    ## Create the main window drawing surface.
-	    mainDrawingSurface := mainWindow _ createDefaultDrawingSurface.
-	    mainDrawingSurface ifNil: {
+	    ## Create the main window scene 2D renderer.
+	    mainWindowRenderer := mainWindow _ createScene2DRenderer.
+	    mainWindowRenderer ifNil: {
 	        return: 0.
 	    }.
 
@@ -362,7 +360,10 @@ class Sample definition: {
 				heapType: MemoryHeapType DeviceLocal;
 				sampleCount: 1;
 				yourself).
-			colorBufferTextureView := colorBuffer _ getOrCreateFullView.
+			let colorBufferTextureView := colorBuffer _ getOrCreateFullView.
+
+			colorBufferTextureHandle := mainWindowRenderer _ newSceneBuilder _
+				createTextureHandleFor: (colorBuffer upCastFor: Stdn SharedObject) view: (colorBufferTextureView upCastFor: Stdn SharedObject).
 
 			let depthBuffer := renderingDevice _ createTexture: (TextureDescription()
 				type: TextureType Texture2D;

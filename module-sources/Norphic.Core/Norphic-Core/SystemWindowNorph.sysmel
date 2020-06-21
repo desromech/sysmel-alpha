@@ -10,7 +10,7 @@ useNamespace: Stdn Math Geometry.
 class SystemWindowNorph superclass: RootNorph; definition: {
     protected field windowSystem type: WindowSystem sharedPointer.
     protected field window type: Window sharedPointer.
-    protected field drawingSurface type: Surface sharedPointer.
+    protected field sceneRenderer type: WindowScene2DRenderer sharedPointer.
     protected field hasChanged type: Boolean8.
 
     override method defaultColor => Float32x4
@@ -36,9 +36,8 @@ class SystemWindowNorph superclass: RootNorph; definition: {
             }.
 
             ## Create the drawing surface.
-            let surface := window _ createDefaultDrawingSurface.
-            surface ifNil: {
-                window _ close.
+            let renderer := window _ createScene2DRenderer.
+            renderer ifNil: {
                 return: InstanceType sharedPointer nil
             }.
 
@@ -46,7 +45,7 @@ class SystemWindowNorph superclass: RootNorph; definition: {
             let result := SystemWindowNorph sharedNew.
             result _
                 bounds: (RectangleF32 min: Float32x2 zeros extent: (creationInfo extent castTo: Float32x2));
-                initializeWithWindowSystem: windowSystem window: window drawingSurface: surface.
+                initializeWithWindowSystem: windowSystem window: window renderer: renderer.
 
             ## Create the event handler
             let eventHandler := SystemWindowNorphEventHandler sharedNew.
@@ -59,24 +58,18 @@ class SystemWindowNorph superclass: RootNorph; definition: {
 
     inline method initializeWithWindowSystem: (theWindowSystem: WindowSystem sharedPointer const ref)
         window: (theWindow: Window sharedPointer const ref)
-        drawingSurface: (theDrawingSurface: Surface sharedPointer const ref) ::=> Void := {
+        renderer: (theRenderer: WindowScene2DRenderer sharedPointer const ref) ::=> Void := {
 
         windowSystem := theWindowSystem.
         window := theWindow.
-        drawingSurface := theDrawingSurface.
+        sceneRenderer := theRenderer.
     }.
 
     method render => Void := {
-        let canvas := drawingSurface _ beginDrawingWithCanvas.
-        canvas ifNil: {return: void}.
-
-        canvas _ color: self color; clear.
-
-        let sceneGraph := self buildContentSceneGraphWith: NorphSceneBuilder().
-        let renderer mutable := Stdn Graphics Scene2D CanvasRenderer()
-            canvas: canvas getPointer;
-            yourself.
-        renderer render: sceneGraph
+        sceneRenderer _
+            clearColor: self color;
+            renderScene: (self buildContentSceneGraphWith: sceneRenderer _ newSceneBuilder _);
+            present
     }.
 
     override method setMouseCaptureNorph: (norph: Norph pointer) ::=> Void := {

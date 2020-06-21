@@ -39,7 +39,7 @@ class AbstractMenuItemNorph superclass: Norph; definition: {
         self fit.
     }.
 
-    override method buildSceneGraphWith: (builder: NorphSceneBuilder) ::=> NorphSceneNodePtr := {
+    override method buildSceneGraphWith: (builder: NorphSceneBuilder ref) ::=> NorphSceneNodePtr := {
         self isHighlighted ifFalse: {
             return: NorphSceneNodePtr nil.
         }.
