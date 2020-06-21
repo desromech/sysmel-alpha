@@ -1,6 +1,6 @@
 namespace Stdn definition: {
 namespace Graphics definition: {
-namespace CanvasMesh2D definition: {
+namespace Scene2DMesh definition: {
 
 useNamespace: Stdn Graphics Core.
 
@@ -20,7 +20,7 @@ struct TexturingStateBinding definition: {
     public field texture type: GPU Texture2D.
 }.
 
-class CanvasMesh2DShaderSignature definition: {
+class Scene2DShaderSignature definition: {
     public field samplingState type: SamplingState bindingSetPointer.
     public field transformationStateBinding type: TransformationStateBinding bindingSetPointer.
     public field texturingState type: TexturingStateBinding bindingSetPointer.
@@ -29,6 +29,6 @@ class CanvasMesh2DShaderSignature definition: {
 }.
 
 
-}. ## End of namespace CanvasMesh2D
+}. ## End of namespace Scene2DMesh
 }. ## End of namespace Graphics
 }. ## End of namespace Stdn

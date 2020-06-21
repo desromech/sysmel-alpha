@@ -1,0 +1,29 @@
+namespace Stdn definition: {
+namespace Graphics definition: {
+namespace Core definition: {
+
+#**
+ * I am a generic implementation for a scene 2D builder
+ *#
+class GenericScene2DBuilder superclass: Scene2D Builder; definition: {
+    public field device type: RenderingDeviceWeakPtr.
+
+    override method createTextureHandleFor: (texture: SharedObjectPtr const ref) view: (textureView: SharedObjectPtr const ref) ::=> Scene2D StrongTextureHandlePtr := {
+        let result := Scene2DDeviceTextureHandle sharedNew.
+        result _
+            texture: (texture downCastFor: Texture);
+            textureView: (textureView downCastFor: TextureView).
+
+        result upCastFor: Scene2D StrongTextureHandle
+    }.
+
+    override method createTextureFromForm: (form: FormPtr const ref) ::=> Scene2D StrongTextureHandlePtr := {
+        Scene2D StrongTextureHandlePtr nil
+    }.
+}.
+
+compileTime constant GenericScene2DBuilderPtr := GenericScene2DBuilder sharedPointer.
+
+}. ## End of namespace Core
+}. ## End of namespace Graphics
+}. ## End of namespace Stdn

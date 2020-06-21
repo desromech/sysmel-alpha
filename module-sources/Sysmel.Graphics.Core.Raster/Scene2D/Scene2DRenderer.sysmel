@@ -6,8 +6,10 @@ class Scene2DRenderer superclass: SharedObject; definition: {
     virtual method destroy => Void := {}.
     abstract method newSceneBuilder => BuilderPtr.
 
-    abstract method clearColor: (color: Float32x4)::=> Void.
+    abstract method clearColor: (color: Float32x4) ::=> Void.
     abstract method renderScene: (rootNode: NodePtr const ref) ::=> Void.
+    virtual method present => Void := {}.
+
 }.
 
 compileTime constant Scene2DRendererPtr := Scene2DRenderer sharedPointer.

@@ -1,5 +1,0 @@
-loadFileOnce: "MeshListBuilderSurface.sysmel".
-loadFileOnce: "MeshListBuilderCanvas.sysmel".
-loadFileOnce: "StateTracker2DSurface.sysmel".
-loadFileOnce: "SwapChainSurface.sysmel".
-loadFileOnce: "SwapChainSurfaceCanvas.sysmel".

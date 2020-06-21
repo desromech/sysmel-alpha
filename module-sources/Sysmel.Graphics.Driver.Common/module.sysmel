@@ -1,9 +1,13 @@
 Compiler
-    importModuleNamed: #"Sysmel.Graphics.Core.DriverInterface";
+    importModulesNamed: #(
+        #"Sysmel.Graphics.Core.DriverInterface"
+        #"Sysmel.Graphics.Core.GUI"
+    );
     loadPackages: #(
         #"GenericInterfaces"
         #"Text"
 
         #"Mesh2D"
-        #"CommandListBuilderSurface"
+        #"CommandListBuilderScene2DRenderer"
+        #"Window"
     ).

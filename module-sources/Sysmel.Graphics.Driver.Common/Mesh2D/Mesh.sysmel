@@ -1,6 +1,6 @@
 namespace Stdn definition: {
 namespace Graphics definition: {
-namespace CanvasMesh2D definition: {
+namespace Scene2DMesh definition: {
 
 useNamespace: Stdn Graphics Core.
 
@@ -10,6 +10,6 @@ struct Mesh definition: {
     public field submeshes type: Stdn Collections Vector(Submesh).
 }.
 
-}. ## End of namespace CanvasMesh2D
+}. ## End of namespace Scene2DMesh
 }. ## End of namespace Graphics
 }. ## End of namespace Stdn

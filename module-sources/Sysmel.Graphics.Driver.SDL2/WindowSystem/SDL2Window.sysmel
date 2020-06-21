@@ -143,22 +143,8 @@ class SDL2Window superclass: Window; definition: {
             return: softSceneRenderer.
         }.
 
-        WindowScene2DRendererPtr nil
+        (WindowSwapChain2DSceneRenderer for: (self asSharedPointer upCastFor: Window)) upCastFor: WindowScene2DRenderer
     }.
-
-    #**override method createDefaultDrawingSurface => Surface sharedPointer := {
-        self renderingDevice _ isSoftRenderingDevice ifTrue: {
-            softRenderingSurface ifNotNil: {
-                softRenderingSurface _ destroy.
-                softRenderingSurface reset
-            }.
-
-            softRenderingSurface := (SDL2SoftwareRendererSurface for: self) upCastFor: Surface.
-            return: softRenderingSurface.
-        }.
-
-        (WindowSwapChainSurface for: (self asSharedPointer upCastFor: Window)) upCastFor: Surface
-    }. *#
 
     override method grabMouseCapture => Void := {
         SDL_CaptureMouse(true)

@@ -3,5 +3,5 @@ loadFileOnce: "MeshBuilder.sysmel".
 loadFileOnce: "Submesh.sysmel".
 loadFileOnce: "Mesh.sysmel".
 
-loadFileOnce: "CanvasShaderSignature.sysmel".
+loadFileOnce: "Scene2DShaderSignature.sysmel".
 loadFileOnce: "SimpleShader.sysmel".

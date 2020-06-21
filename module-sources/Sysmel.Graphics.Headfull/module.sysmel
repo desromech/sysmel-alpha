@@ -2,6 +2,6 @@ compileTime if: Compiler compilationTarget isDesktopPC then: {
 
 Compiler
     importIndirectModuleNamed: #"Sysmel.Graphics.FreeType2";
-    ##importIndirectModuleNamed: #"Sysmel.Graphics.Driver.AbstractGPU";
+    importIndirectModuleNamed: #"Sysmel.Graphics.Driver.AbstractGPU";
     importIndirectModuleNamed: #"Sysmel.Graphics.Driver.SDL2".
 }.

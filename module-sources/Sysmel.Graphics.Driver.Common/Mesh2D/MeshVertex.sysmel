@@ -1,6 +1,6 @@
 namespace Stdn definition: {
 namespace Graphics definition: {
-namespace CanvasMesh2D definition: {
+namespace Scene2DMesh definition: {
 
 useNamespace: Stdn Graphics Core.
 
@@ -10,6 +10,6 @@ struct MeshVertex definition: {
     public field color type: Float32x4; location: 1.
 }.
 
-}. ## End of namespace CanvasMesh2D
+}. ## End of namespace Scene2DMesh
 }. ## End of namespace Graphics
 }. ## End of namespace Stdn

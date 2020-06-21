@@ -2,6 +2,7 @@ Compiler
     importModulesNamed: #(
         #"Bindings.SDL2"
         #"Sysmel.Graphics.Core.GUI"
+        #"Sysmel.Graphics.Driver.Common"
         #"Sysmel.Graphics.Driver.SoftRenderer"
     );
     loadPackages: #(

@@ -1,6 +1,6 @@
 namespace Stdn definition: {
 namespace Graphics definition: {
-namespace CanvasMesh2D definition: {
+namespace Scene2DMesh definition: {
 
 useNamespace: Stdn Graphics Core.
 
@@ -25,14 +25,14 @@ struct MeshBuilder definition: {
         lastSubmesh indexCount: (indices size - lastSubmesh firstIndex castTo: UInt32).
     }.
 
-    inline method beginSubmesh: (primitiveTopology: PrimitiveTopology) drawingState: (drawingState: CanvasDrawingState const ref)
+    inline method beginSubmesh: (primitiveTopology: PrimitiveTopology) blendingMode: (blendingMode: BlendingMode)
         texture: (texture: TexturePtr const ref) textureView: (textureView: TextureViewPtr const ref)
         fontFaceWithSize: (fontFaceWithSize: FontFaceWithSizePtr const ref) ::=> Void := {
 
         submeshes isEmpty || {
             let lastSubmesh ref := submeshes last.
             lastSubmesh primitiveTopology ~= primitiveTopology ||
-            lastSubmesh drawingState ~= drawingState ||
+            lastSubmesh blendingMode ~= blendingMode ||
             lastSubmesh texture ~= texture ||
             lastSubmesh textureView ~= textureView ||
             lastSubmesh fontFaceWithSize ~= fontFaceWithSize
@@ -41,13 +41,17 @@ struct MeshBuilder definition: {
             submeshes add: (Submesh()
                 primitiveTopology: primitiveTopology;
                 firstIndex: (indices size castTo: UInt32);
-                drawingState: drawingState;
+                blendingMode: blendingMode;
                 texture: texture;
                 textureView: textureView;
                 fontFaceWithSize: fontFaceWithSize;
                 yourself)
         }.
 
+        self newLogicalBaseVertex.
+    }.
+
+    inline method newLogicalBaseVertex => Void := {
         logicalBaseVertex := vertices size castTo: UInt32.
     }.
 
@@ -74,6 +78,6 @@ struct MeshBuilder definition: {
     }.
 }.
 
-}. ## End of namespace CanvasMesh2D
+}. ## End of namespace Scene2DMesh
 }. ## End of namespace Graphics
 }. ## End of namespace Stdn

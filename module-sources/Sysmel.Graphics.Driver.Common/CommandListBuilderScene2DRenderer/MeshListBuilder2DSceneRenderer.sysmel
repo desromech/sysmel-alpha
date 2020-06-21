@@ -1,0 +1,287 @@
+namespace Stdn definition: {
+namespace Graphics definition: {
+namespace Core definition: {
+
+useNamespace: Stdn Math Geometry.
+useNamespace: Stdn Math LinearAlgebra.
+useNamespace: Stdn Graphics Scene2DMesh.
+
+#**
+ * I am a 2D scene renderer that constructs a mesh list.
+ *#
+class MeshListBuilder2DSceneRenderer superclass: Scene2D Scene2DRenderer; definition: {
+    public field extent type: UInt32x2.
+    public field meshBuilder type: MeshBuilder.
+    public field device type: RenderingDevicePtr.
+
+    override method newSceneBuilder => Scene2D BuilderPtr := {
+        device _ createScene2DBuilder
+    }.
+
+    override method clearColor: (color: Float32x4) ::=> Void := {
+        ## The clear color is ignored here.
+    }.
+
+    override method renderScene: (rootNode: Scene2D NodePtr const ref) ::=> Void := {
+        meshBuilder clear.
+
+        rootNode ifNotNil: {
+            let visitor mutable := MeshListBuilder2DSceneRendererNodeVisitor()
+                renderer: self address;
+                yourself.
+
+            visitor currentBlendingMode: BlendingMode CompositeAlphaOver.
+            visitor currentTransform setIdentity.
+
+            visitor render: rootNode.
+        }.
+
+        meshBuilder finishLastSubmesh.
+    }.
+
+}.
+
+compileTime constant MeshListBuilder2DSceneRendererPtr := MeshListBuilder2DSceneRenderer sharedPointer.
+
+class MeshListBuilder2DSceneRendererNodeVisitor superclass: Scene2D Visitor; definition: {
+    public field renderer type: MeshListBuilder2DSceneRenderer pointer.
+    public field currentBlendingMode type: BlendingMode.
+    public field currentTransform type: AffinePostTransform2dF32.
+
+    method render: (node: Scene2D NodePtr const ref) ::=> Void := {
+        node ifNotNil: {
+            node _ accept: self
+        }.
+    }.
+
+    override method visitBlendingModeNode: (node: Scene2D BlendingModeNode const ref) ::=> Void := {
+        let oldBlendingMode := currentBlendingMode.
+        currentBlendingMode := node blendingMode.
+        self render: node child.
+        currentBlendingMode := oldBlendingMode.
+    }.
+
+    override method visitBorderRectangleNode: (node: Scene2D BorderRectangleNode const ref) ::=> Void := {
+        ## TODO: Fix this to use border sizes, and actual filledRectangles here.
+
+        let rectangle := node rectangle.
+        let p1 := currentTransform transformPoint: rectangle bottomLeft.
+        let p2 := currentTransform transformPoint: rectangle bottomRight.
+        let p3 := currentTransform transformPoint: rectangle topRight.
+        let p4 := currentTransform transformPoint: rectangle topLeft.
+
+        let c1 := node bottomLeftColor.
+        let c2 := node bottomRightColor.
+        let c3 := node topLeftColor.
+        let c4 := node topRightColor.
+
+        renderer _ meshBuilder
+            beginSubmesh: PrimitiveTopology Lines blendingMode: currentBlendingMode
+                texture: TexturePtr nil textureView: TextureViewPtr nil fontFaceWithSize: FontFaceWithSizePtr nil;
+            addVertex: (MeshVertex()
+                position: p1;
+                color: c1;
+                yourself);
+            addVertex: (MeshVertex()
+                position: p2;
+                color: c2;
+                yourself);
+            addVertex: (MeshVertex()
+                position: p3;
+                color: c3;
+                yourself);
+            addVertex: (MeshVertex()
+                position: p4;
+                color: c4;
+                yourself);
+            addThinSegment: UInt32x2(0, 1);
+            addThinSegment: UInt32x2(1, 2);
+            addThinSegment: UInt32x2(2, 3);
+            addThinSegment: UInt32x2(3, 0)
+    }.
+
+    override method visitClippedRectangleNode: (node: Scene2D ClippedRectangleNode const ref) ::=> Void := {
+        #*canvas _ withLocalClipRectangle: node rectangle do: {
+            self render: node child
+        }.*#
+
+        self render: node child
+    }.
+
+    override method visitContainerNode: (node: Scene2D ContainerNode const ref) ::=> Void := {
+        node children do: {:each :: Void |
+            self render: each
+        }
+    }.
+
+    override method visitFilledRectangleNode: (node: Scene2D FilledRectangleNode const ref) ::=> Void := {
+        let rectangle := node rectangle.
+        let p1 := currentTransform transformPoint: rectangle bottomLeft.
+        let p2 := currentTransform transformPoint: rectangle bottomRight.
+        let p3 := currentTransform transformPoint: rectangle topRight.
+        let p4 := currentTransform transformPoint: rectangle topLeft.
+
+        let c1 := node bottomLeftColor.
+        let c2 := node bottomRightColor.
+        let c3 := node topLeftColor.
+        let c4 := node topRightColor.
+
+        renderer _ meshBuilder
+            beginSubmesh: PrimitiveTopology Triangles blendingMode: currentBlendingMode
+                texture: TexturePtr nil textureView: TextureViewPtr nil fontFaceWithSize: FontFaceWithSizePtr nil;
+            addVertex: (MeshVertex()
+                position: p1;
+                color: c1;
+                yourself);
+            addVertex: (MeshVertex()
+                position: p2;
+                color: c2;
+                yourself);
+            addVertex: (MeshVertex()
+                position: p3;
+                color: c3;
+                yourself);
+            addVertex: (MeshVertex()
+                position: p4;
+                color: c4;
+                yourself);
+            addTriangle: UInt32x3(0, 1, 2);
+            addTriangle: UInt32x3(2, 3, 0).
+    }.
+
+    override method visitTransformNode: (node: Scene2D TransformNode const ref) ::=> Void := {
+        currentTransform restoreAfter: {
+            currentTransform translateBy: node transform translation.
+            self render: node child
+        }.
+    }.
+
+    override method visitTextureNode: (node: Scene2D TextureNode const ref) ::=> Void := {
+        node textureHandle isNil || node textureHandle _ isScene2DDeviceTextureHandle not ifTrue: {return: void}.
+
+        let deviceHandle := node textureHandle downCastFor: Scene2DDeviceTextureHandle.
+        let rectangle := node rectangle.
+        let p1 := currentTransform transformPoint: rectangle bottomLeft.
+        let p2 := currentTransform transformPoint: rectangle bottomRight.
+        let p3 := currentTransform transformPoint: rectangle topRight.
+        let p4 := currentTransform transformPoint: rectangle topLeft.
+
+        let tc1 := Float32x2(0, 0).
+        let tc2 := Float32x2(1, 0).
+        let tc3 := Float32x2(1, 1).
+        let tc4 := Float32x2(0, 1).
+
+        let color := Float32x4 ones.
+
+        renderer _ meshBuilder
+            beginSubmesh: PrimitiveTopology Triangles blendingMode: currentBlendingMode
+                texture: deviceHandle _ texture textureView: deviceHandle _ textureView fontFaceWithSize: FontFaceWithSizePtr nil;
+            addVertex: (MeshVertex()
+                position: p1;
+                color: color;
+                texcoord: tc1;
+                yourself);
+            addVertex: (MeshVertex()
+                position: p2;
+                color: color;
+                texcoord: tc2;
+                yourself);
+            addVertex: (MeshVertex()
+                position: p3;
+                color: color;
+                texcoord: tc3;
+                yourself);
+            addVertex: (MeshVertex()
+                position: p4;
+                color: color;
+                texcoord: tc4;
+                yourself);
+            addTriangle: UInt32x3(0, 1, 2);
+            addTriangle: UInt32x3(2, 3, 0).
+    }.
+
+    override method visitTextNode: (node: Scene2D TextNode const ref) ::=> Void := {
+        node string ifEmpty: {return: void}.
+
+        let fontFaceWithSize := renderer _ device _ getDefaultFontCache _ getOrCreateAdaptedFontFaceWithSize: node fontFaceWithSize.
+        fontFaceWithSize ifNil: {return: void}.
+
+        renderer _ meshBuilder
+            beginSubmesh: PrimitiveTopology Triangles blendingMode: currentBlendingMode
+                texture: TexturePtr nil textureView: TextureViewPtr nil fontFaceWithSize: fontFaceWithSize.
+
+        let currentState mutable := node drawingState.
+
+        ## TODO: Properly decode the utf8 encoded string by using a stream and an iterator.
+        node string do: {:c :: Void |
+            currentState character: c.
+            currentState := self drawCharacterWithState: currentState font: fontFaceWithSize color: node color.
+        }.
+    }.
+
+    inline method drawCharacterWithState: (state: TextDrawingState) font: (fontFaceWithSize: FontFaceWithSizePtr const ref) color: (color: Float32x4) ::=> TextDrawingState := {
+        fontFaceWithSize ifNil: {
+            return: state.
+        }.
+
+        let newState mutable := fontFaceWithSize _ computeNewDrawingState: state.
+        newState isVisibleCharacter ifTrue: {
+            ## Get the glyph for the character
+            let glyph := fontFaceWithSize _ getOrCreateGlyphForCodePoint: newState character.
+            glyph ifNil: {
+                return: newState
+            }.
+
+            ## Convert the glyph into a form. We can always do this operation with fonts.
+            self drawGlyph: glyph _ color: color at: newState previousPosition.
+        }.
+
+        return: newState.
+    }.
+
+    inline method drawGlyph: (glyph: Glyph ref) color: (color: Float32x4) at: (aPosition: Float32x2) ::=> Void := {
+        let atlasRectangle := glyph textureAtlasBounds.
+        let drawRectangle := RectangleF32 min: aPosition + glyph drawOrigin extent: atlasRectangle extent.
+
+        let p1 := currentTransform transformPoint: drawRectangle bottomLeft.
+        let p2 := currentTransform transformPoint: drawRectangle bottomRight.
+        let p3 := currentTransform transformPoint: drawRectangle topRight.
+        let p4 := currentTransform transformPoint: drawRectangle topLeft.
+
+        let tc1 := atlasRectangle bottomLeft.
+        let tc2 := atlasRectangle bottomRight.
+        let tc3 := atlasRectangle topRight.
+        let tc4 := atlasRectangle topLeft.
+
+        renderer _ meshBuilder
+            newLogicalBaseVertex;
+            addVertex: (MeshVertex()
+                position: p1;
+                color: color;
+                texcoord: tc1;
+                yourself);
+            addVertex: (MeshVertex()
+                position: p2;
+                color: color;
+                texcoord: tc2;
+                yourself);
+            addVertex: (MeshVertex()
+                position: p3;
+                color: color;
+                texcoord: tc3;
+                yourself);
+            addVertex: (MeshVertex()
+                position: p4;
+                color: color;
+                texcoord: tc4;
+                yourself);
+            addTriangle: UInt32x3(0, 1, 2);
+            addTriangle: UInt32x3(2, 3, 0).
+    }.
+
+
+}.
+
+}. ## End of namespace Core
+}. ## End of namespace Graphics
+}. ## End of namespace Stdn

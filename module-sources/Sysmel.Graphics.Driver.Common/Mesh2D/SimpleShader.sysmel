@@ -1,10 +1,10 @@
 namespace Stdn definition: {
 namespace Graphics definition: {
-namespace CanvasMesh2D definition: {
+namespace Scene2DMesh definition: {
 
 useNamespace: Stdn Graphics Core.
 
-class SimpleShader superclass: CanvasMesh2DShaderSignature; definition: {
+class SimpleShader superclass: Scene2DShaderSignature; definition: {
     class FragmentOutput definition: {
         public field color0 type: Float32x4; location: 0.
     }.
@@ -48,6 +48,6 @@ class SimpleShader superclass: CanvasMesh2DShaderSignature; definition: {
     }.
 }.
 
-}. ## End of namespace CanvasMesh2D
+}. ## End of namespace Scene2DMesh
 }. ## End of namespace Graphics
 }. ## End of namespace Stdn

@@ -5,10 +5,9 @@ namespace Core definition: {
 useNamespace: Stdn Math Geometry.
 
 #**
- * I am a 2D rendering that takes care automatically of handling the underlying swap chain in a window.
- * I work by delegating my job into an actual SwapChainSurface
+ * I am a 2D scene renderer that draws onto a specific swap chain.
  *#
-class SwapChainSurface superclass: Surface; definition: {
+class SwapChain2DSceneRenderer superclass: Scene2D Scene2DRenderer; definition: {
     protected field extent type: UInt32x2.
     protected field renderingQueue type: CommandQueuePtr.
     protected field swapChain type: SwapChainPtr.
@@ -19,17 +18,13 @@ class SwapChainSurface superclass: Surface; definition: {
     protected field stateTrackers type: Stdn Collections Vector(StateTrackerPtr).
     protected field fences type: Stdn Collections Vector(FencePtr).
 
-    protected field surfaces type: Stdn Collections Vector(StateTracker2DSurface sharedPointer).
+    protected field perFrameSceneRenderers type: Stdn Collections Vector(StateTracker2DSceneRendererPtr).
 
-    const method extent => UInt32x2
-        := extent.
-
-    const method swapChain => SwapChainPtr const ref
-        := swapChain.
+    protected field currentClearColor type: Float32x4.
 
     meta definition: {
-        method for: (swapChain: SwapChainPtr const ref) on: (theRenderingQueue: CommandQueuePtr const ref) on: (theDevice: RenderingDevicePtr const ref) withExtent: (anExtent: UInt32x2) ::=> SwapChainSurface sharedPointer := {
-            let result := SwapChainSurface sharedNew.
+        method for: (swapChain: SwapChainPtr const ref) on: (theRenderingQueue: CommandQueuePtr const ref) on: (theDevice: RenderingDevicePtr const ref) withExtent: (anExtent: UInt32x2) ::=> SwapChain2DSceneRenderer sharedPointer := {
+            let result := SwapChain2DSceneRenderer sharedNew.
             result _ initializeWithSwapChain: swapChain on: theRenderingQueue on: theDevice extent: anExtent.
             result
         }.
@@ -45,7 +40,7 @@ class SwapChainSurface superclass: Surface; definition: {
         commandListAllocators reserve: bufferCount.
         stateTrackers reserve: bufferCount.
         renderPasses reserve: bufferCount.
-        surfaces reserve: bufferCount.
+        perFrameSceneRenderers reserve: bufferCount.
         fences resizeTo: bufferCount.
         0 until: bufferCount do: {:i :: Void |
 
@@ -76,37 +71,35 @@ class SwapChainSurface superclass: Surface; definition: {
             let renderPass := device _ createRenderPass: colorAttachments depthStencilAttachment: nil.
             renderPasses add: renderPass.
 
-            let surface := StateTracker2DSurface sharedNew.
-            surface _
+            let sceneRenderer := StateTracker2DSceneRenderer sharedNew.
+            sceneRenderer _
                 extent: extent;
-                renderingDevice: device.
-            surfaces add: surface.
+                device: device.
+            perFrameSceneRenderers add: sceneRenderer.
         }.
     }.
 
-    override method beginDrawingWithCanvas => Canvas uniquePointer := {
-        let surface ref := surfaces[swapChain _ getCurrentBackBufferIndex].
-        let result mutable := SwapChainSurfaceCanvas uniqueNew.
-        result _ ownedCanvas: surface _ beginDrawingWithCanvas.
-        result _ ownedCanvas ifNil: {
-            return: Canvas uniquePointer nil
-        }.
+    const method extent => UInt32x2
+        := extent.
 
-        result _
-            ownerSurface: self address;
-            delegatedCanvas: result _ ownedCanvas getPointer.
+    const method swapChain => SwapChainPtr const ref
+        := swapChain.
 
-        Canvas uniquePointer for: result release
+    override method newSceneBuilder => Scene2D BuilderPtr
+        := device _ createScene2DBuilder.
+
+    override method clearColor: (color: Float32x4) ::=> Void := {
+        currentClearColor := color.
     }.
 
-    method endDrawing => Void := {
+    override method renderScene: (rootNode: Scene2D NodePtr const ref) ::=> Void := {
         let backBuffer := swapChain _ getCurrentBackBuffer.
         let backBufferIndex := swapChain _ getCurrentBackBufferIndex.
 
         let allocator ref := commandListAllocators[backBufferIndex].
         let renderPass ref := renderPasses[backBufferIndex].
         let stateTracker ref := stateTrackers[backBufferIndex].
-        let surface ref := surfaces[backBufferIndex].
+        let perFrameSceneRenderer ref := perFrameSceneRenderers[backBufferIndex].
         let fence ref := fences[backBufferIndex].
         fence ifNotNil: {
             fence _ wait
@@ -122,21 +115,27 @@ class SwapChainSurface superclass: Surface; definition: {
     		setViewport: (RectangleI32 min: Int32x2 zeros max: (extent castTo: Int32x2));
     		setScissor: (RectangleI32 min: Int32x2 zeros max: (extent castTo: Int32x2)).
 
-        surface _ emitDrawingCommandsOnto: stateTracker.
+        rootNode ifNotNil: {
+            perFrameSceneRenderer _
+                stateTracker: stateTracker;
+                renderScene: rootNode
+        }.
 
         stateTracker _
             endRenderPass;
             close.
 
         renderingQueue _
-    		submitCommandList: (stateTracker upCastFor: CommandList);
-    		signalFence: fence.
+            submitCommandList: (stateTracker upCastFor: CommandList);
+            signalFence: fence.
+    }.
 
-        swapChain _ swapBuffers.
+    override method present => Void := {
+        swapChain _ swapBuffers
     }.
 }.
 
-compileTime constant SwapChainSurfaceRef := SwapChainSurface sharedPointer.
+compileTime constant SwapChain2DSceneRendererPtr := SwapChain2DSceneRenderer sharedPointer.
 
 }. ## End of namespace Core
 }. ## End of namespace Graphics

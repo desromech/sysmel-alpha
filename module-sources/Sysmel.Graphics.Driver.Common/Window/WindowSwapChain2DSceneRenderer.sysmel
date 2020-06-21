@@ -1,0 +1,85 @@
+namespace Stdn definition: {
+namespace Graphics definition: {
+namespace GUI definition: {
+
+useNamespace: Stdn Graphics Core.
+
+#**
+ * I am a 2D rendering that takes care automatically of handling the underlying swap chain in a window.
+ * I work by delegating my job into an actual SwapChainSurface
+ *#
+class WindowSwapChain2DSceneRenderer superclass: Scene2D Scene2DRenderer; definition: {
+    protected field window type: WindowRef.
+    protected field swapChain2DSceneRenderer type: SwapChain2DSceneRendererPtr.
+    protected field currentClearColor type: Float32x4.
+
+    meta definition: {
+        method for: (window: WindowRef const ref) ::=> WindowSwapChain2DSceneRenderer sharedPointer := {
+            let result := WindowSwapChain2DSceneRenderer sharedNew.
+            result _ initializeWithWindow: window.
+            result
+        }.
+    }.
+
+    method initializeWithWindow: (theWindow: WindowRef const ref) ::=> Void := {
+        window := theWindow.
+    }.
+
+    override method clearColor: (color: Float32x4) ::=> Void := {
+        currentClearColor := color.
+        swapChain2DSceneRenderer ifNotNil: {
+            swapChain2DSceneRenderer _ clearColor: currentClearColor
+        }
+    }.
+
+    override method newSceneBuilder => Scene2D BuilderPtr
+        := window _ renderingDevice _ createScene2DBuilder.
+
+    override method renderScene: (rootNode: Scene2D NodePtr const ref) ::=> Void := {
+        self validateSwapChain ifFalse: {
+            return: void
+        }.
+
+        swapChain2DSceneRenderer _ renderScene: rootNode
+    }.
+
+    override method present => Void := {
+        swapChain2DSceneRenderer ifNil: { return: void }.
+
+        swapChain2DSceneRenderer _ present
+    }.
+
+    method validateSwapChain => Boolean8 := {
+        window ifNil: {
+            return: false.
+        }.
+
+        let currentExtent := window _ extent.
+        (swapChain2DSceneRenderer isNil || swapChain2DSceneRenderer _ extent ~= currentExtent) ifTrue: {
+
+            let renderingDevice := window _ renderingDevice.
+            let swapChainCreationInfo mutable := SwapChainCreationInfo()
+                colorBufferFormat: PixelFormat B8G8R8A8_UNormSRGB;
+                extent: currentExtent;
+                bufferCount: 2; ## Use at least double buffering.
+                yourself.
+
+            let defaultCommandQueue := renderingDevice _ getDefaultCommandQueue.
+
+            let newSwapChain := window _ createSwapChain: swapChainCreationInfo for: defaultCommandQueue.
+            newSwapChain ifNil: {
+                swapChain2DSceneRenderer reset.
+                return: false.
+            }.
+
+            swapChain2DSceneRenderer := SwapChain2DSceneRenderer for: newSwapChain on: defaultCommandQueue on: renderingDevice withExtent: currentExtent.
+            swapChain2DSceneRenderer _ clearColor: currentClearColor.
+        }.
+
+        return: true.
+    }.
+}.
+
+}. ## End of namespace Core
+}. ## End of namespace Graphics
+}. ## End of namespace Stdn
