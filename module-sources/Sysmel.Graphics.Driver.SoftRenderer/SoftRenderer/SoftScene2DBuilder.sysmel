@@ -1,6 +1,9 @@
 namespace Stdn definition: {
 namespace Graphics definition: {
-namespace Core definition: {
+namespace Driver definition: {
+namespace SoftRenderer definition: {
+
+useNamespace: Stdn Graphics Core.
 
 #**
  * I am a handle for a sampler.
@@ -26,6 +29,7 @@ class SoftScene2DBuilder superclass: Scene2D Builder; definition: {
 
 compileTime constant SoftScene2DBuilderPtr := SoftScene2DBuilder sharedPointer.
 
-}. ## End of namespace Core
+}. ## End of namespace SoftRenderer
+}. ## End of namespace Driver
 }. ## End of namespace Graphics
 }. ## End of namespace Stdn

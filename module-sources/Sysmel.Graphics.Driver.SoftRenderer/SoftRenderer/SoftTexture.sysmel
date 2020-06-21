@@ -1,7 +1,9 @@
 namespace Stdn definition: {
 namespace Graphics definition: {
-namespace Core definition: {
+namespace Driver definition: {
+namespace SoftRenderer definition: {
 
+useNamespace: Stdn Graphics Core.
 useNamespace: Stdn Math Geometry.
 
 #**
@@ -105,6 +107,7 @@ class SoftTexture superclass: Texture; definition: {
 
 compileTime constant SoftTexturePtr := SoftTexture sharedPointer.
 
-}. ## End of namespace Core
+}. ## End of namespace SoftRenderer
+}. ## End of namespace Driver
 }. ## End of namespace Graphics
 }. ## End of namespace Stdn

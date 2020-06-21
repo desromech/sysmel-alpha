@@ -1,6 +1,9 @@
 namespace Stdn definition: {
 namespace Graphics definition: {
-namespace Core definition: {
+namespace Driver definition: {
+namespace SoftRenderer definition: {
+
+useNamespace: Stdn Graphics Core.
 
 #**
  * I am a CPU only implementation for a shader library handle.
@@ -21,6 +24,7 @@ class SoftShaderLibraryHandle superclass: ShaderLibraryHandle; definition: {
 
 compileTime constant SoftShaderLibraryHandlePtr := SoftShaderLibraryHandle sharedPointer.
 
-}. ## End of namespace Core
+}. ## End of namespace SoftRenderer
+}. ## End of namespace Driver
 }. ## End of namespace Graphics
 }. ## End of namespace Stdn

@@ -1,6 +1,9 @@
 namespace Stdn definition: {
 namespace Graphics definition: {
-namespace Core definition: {
+namespace Driver definition: {
+namespace SoftRenderer definition: {
+
+useNamespace: Stdn Graphics Core.
 
 #**
  * I am an specification for a vertex attribute.
@@ -75,6 +78,7 @@ class SoftVertexBinding superclass: VertexBinding; definition: {
     }.
 }.
 
-}. ## End of namespace Core
+}. ## End of namespace SoftRenderer
+}. ## End of namespace Driver
 }. ## End of namespace Graphics
 }. ## End of namespace Stdn

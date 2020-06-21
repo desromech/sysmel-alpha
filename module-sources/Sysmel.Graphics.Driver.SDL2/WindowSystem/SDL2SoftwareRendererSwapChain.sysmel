@@ -4,6 +4,7 @@ namespace GUI definition: {
 
 useNamespace: Stdn Graphics Core.
 useNamespace: SDL2.
+useNamespace: Stdn Graphics Driver SoftRenderer.
 
 class SDL2SoftwareRendererSwapChain superclass: SoftSwapChain; definition: {
     protected field window type: SDL2Window pointer.

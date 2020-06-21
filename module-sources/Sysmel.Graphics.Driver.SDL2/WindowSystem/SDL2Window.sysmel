@@ -3,6 +3,7 @@ namespace Graphics definition: {
 namespace GUI definition: {
 
 useNamespace: Stdn Graphics Core.
+useNamespace: Stdn Graphics Driver SoftRenderer.
 useNamespace: SDL2.
 
 class SDL2WindowSystem.

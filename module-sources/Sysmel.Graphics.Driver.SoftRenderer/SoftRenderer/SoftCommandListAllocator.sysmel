@@ -1,6 +1,9 @@
 namespace Stdn definition: {
 namespace Graphics definition: {
-namespace Core definition: {
+namespace Driver definition: {
+namespace SoftRenderer definition: {
+
+useNamespace: Stdn Graphics Core.
 
 #**
  * I am a CPU only implementation for a graphics command list allocator.
@@ -13,6 +16,7 @@ class SoftCommandListAllocator superclass: CommandListAllocator; definition: {
     }.
 }.
 
-}. ## End of namespace Core
+}. ## End of namespace SoftRenderer
+}. ## End of namespace Driver
 }. ## End of namespace Graphics
 }. ## End of namespace Stdn

@@ -1,6 +1,9 @@
 namespace Stdn definition: {
 namespace Graphics definition: {
-namespace Core definition: {
+namespace Driver definition: {
+namespace SoftRenderer definition: {
+
+useNamespace: Stdn Graphics Core.
 
 #**
  * I am a handle for a sampler.
@@ -8,13 +11,14 @@ namespace Core definition: {
 class SoftScene2DDeviceTextureHandle superclass: Scene2DDeviceTextureHandle; definition: {
     override method softPixelsBlitter => Blitter := {
         textureView ifNil: {return: Blitter()}.
-        
+
         (textureView getPointer castTo: SoftTextureView pointer) _ pixelsBlitter
     }
 }.
 
 compileTime constant SoftScene2DDeviceTextureHandlePtr := SoftScene2DDeviceTextureHandle sharedPointer.
 
-}. ## End of namespace Core
+}. ## End of namespace SoftRenderer
+}. ## End of namespace Driver
 }. ## End of namespace Graphics
 }. ## End of namespace Stdn
