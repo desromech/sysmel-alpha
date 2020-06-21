@@ -10,17 +10,25 @@ useNamespace: Stdn Math Geometry.
  * CPU based software rendering, or I could be implemented through a hardware based accelerator.
  *#
 class Canvas superclass: Object; definition: {
+    public field transform type: AffinePostTransform2dF32.
+    public field drawingState type: CanvasDrawingState.
+    public field paintState type: CanvasPaintState.
+    public field fontFaceWithSize type: FontFaceWithSizePtr.
+
+    protected field currentClipRectangle type: RectangleF32.
+
+    method resetCanvasState => Void := {
+        drawingState := CanvasDrawingState()
+            blendingMode: BlendingMode CompositeAlphaOver;
+            yourself.
+        currentClipRectangle := RectangleF32 fullSpace.
+        transform setIdentity.
+        fontFaceWithSize reset.
+        self doSetClipRectangle: currentClipRectangle.
+    }.
+
     ## This method clears the whole surface with the active color.
     abstract method clear ::=> Void.
-
-    ## This gives access to the current transform
-    abstract method transform => AffinePostTransform2dF32 ref.
-
-    ## This gives access to the current drawing state.
-    abstract method drawingState => CanvasDrawingState ref.
-
-    ## This gives access to the current paint state.
-    abstract method paintState => CanvasPaintState ref.
 
     ## Fill a triangle.
     abstract method fillTriangle: (p1: Float32x2) color: (c1: Float32x4) tc: (tc1: Float32x2)
@@ -42,14 +50,6 @@ class Canvas superclass: Object; definition: {
     ## Draw a character glyph in a particular position.
     abstract method drawGlyph: (glyph: Glyph ref) at: (aPosition: Float32x2) ::=> Void.
 
-    ## Retrieve the current clipping rectangle
-    abstract method currentClipRectangle => RectangleF32.
-
-    ## Apply a new clip rectangle.
-    abstract method applyClipRectangle: (aRectangle: RectangleF32) ::=> Void.
-
-    ## Restore a clipping rectangle.
-    abstract method restoreClipRectangle: (aRectangle: RectangleF32) ::=> Void.
 
     ## This method sets a white color.
     inline method white ::=> Void := {
@@ -126,7 +126,6 @@ class Canvas superclass: Object; definition: {
 
     ## Draws a character with the font face and size. This returns the position for drawing the next character.
     inline method drawCharacterWithState: (state: TextDrawingState) ::=> TextDrawingState := {
-        let fontFaceWithSize ref := self fontFaceWithSize.
         fontFaceWithSize ifNil: {
             return: state.
         }.
@@ -147,27 +146,44 @@ class Canvas superclass: Object; definition: {
     }.
 
     ## Draw an UTF-8 encoded string. Allow overriding for optiomization reasons.
-    inline method drawUTF8String: (encodedString: Char8 const pointer) size: (encodedStringSize: UIntPointer) withState: (state: TextDrawingState) ::=> TextDrawingState := {
+    inline method drawUTF8String: (encodedString: Char8 const arraySlice) withState: (state: TextDrawingState) ::=> TextDrawingState := {
         let currentState mutable := state.
 
         ## TODO: Properly decode the utf8 encoded string by using a stream and an iterator.
-        0 until: encodedStringSize do: {:(UIntPointer)i :: Void |
-            currentState character: encodedString[i].
+        encodedString do: {:codePoint :: Void |
+            currentState character: codePoint.
             currentState := self drawCharacterWithState: currentState.
         }.
 
         currentState
     }.
 
-    inline method drawUTF8String: (encodedString: Char8 const pointer) size: (encodedStringSize: UIntPointer) at: (position: Float32x2) ::=> TextDrawingState
-        := self drawUTF8String: encodedString size: encodedStringSize
-            withState: (TextDrawingState position: position).
+    inline method drawUTF8String: (encodedString: Char8 const arraySlice) at: (position: Float32x2) ::=> TextDrawingState
+        := self drawUTF8String: encodedString withState: (TextDrawingState position: position).
 
     inline method drawUTF8String: (string: Stdn String const ref) at: (position: Float32x2) ::=> TextDrawingState
-        := self drawUTF8String: string data size: string size at: position.
+        := self drawUTF8String: string asArraySlice at: position.
+
+    inline method drawUTF8String: (string: Stdn String const ref) withState: (state: TextDrawingState) ::=> TextDrawingState
+        := self drawUTF8String: string asArraySlice withState: state.
 
     inline method drawUTF8String: (encodedString: Char8 const pointer) at: (position: Float32x2) ::=> TextDrawingState
-        := self drawUTF8String: encodedString size: Stdn cstrlen(encodedString) at: position.
+        := self drawUTF8String: (encodedString until: Stdn cstrlen(encodedString)) at: position.
+
+    abstract method doSetClipRectangle: (aRectangle: RectangleF32) ::=> Void.
+
+    inline method currentClipRectangle => RectangleF32
+        := currentClipRectangle.
+
+    inline method applyClipRectangle: (aRectangle: RectangleF32) ::=> Void := {
+        currentClipRectangle := currentClipRectangle intersectionWith: aRectangle.
+        self doSetClipRectangle: currentClipRectangle.
+    }.
+
+    inline method restoreClipRectangle: (aRectangle: RectangleF32) ::=> Void := {
+        currentClipRectangle := aRectangle.
+        self doSetClipRectangle: currentClipRectangle.
+    }.
 
     inline method applyLocalClipRectangle: (aRectangle: RectangleF32) ::=> Void
         := self applyClipRectangle: (aRectangle transformedWith: self transform).

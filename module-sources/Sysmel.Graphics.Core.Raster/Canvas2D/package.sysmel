@@ -4,8 +4,6 @@ loadFileOnce: "SimpleLinearGradientPaint.sysmel".
 loadFileOnce: "Canvas.sysmel".
 loadFileOnce: "CanvasDrawingState.sysmel".
 loadFileOnce: "CanvasPaintState.sysmel".
-loadFileOnce: "AbstractConcreteCanvas.sysmel".
-loadFileOnce: "DelegatingCanvas.sysmel".
 loadFileOnce: "StrongTextureHandle.sysmel".
 
 ## 2D software rendering objects.

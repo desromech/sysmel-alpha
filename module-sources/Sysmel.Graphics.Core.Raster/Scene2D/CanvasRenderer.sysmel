@@ -84,7 +84,7 @@ class CanvasRenderer superclass: Visitor; definition: {
         canvas _
             fontFaceWithSize: node fontFaceWithSize;
             color: node  color;
-            drawUTF8String: node string data size: node string size withState: node drawingState.
+            drawUTF8String: node string withState: node drawingState.
     }.
 
     override method visitTextureNode: (node: TextureNode const ref) ::=> Void := {

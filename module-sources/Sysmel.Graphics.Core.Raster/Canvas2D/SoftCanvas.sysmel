@@ -9,7 +9,7 @@ class SoftSurface.
 #**
  * I am a software based rendering CPU canvas that draws into SoftSurface.
  *#
-class SoftCanvas superclass: AbstractConcreteCanvas; definition: {
+class SoftCanvas superclass: Canvas; definition: {
     protected field targetSurface type: SoftSurface pointer.
 
     method initializeWithSurface: (theTargetSurface: SoftSurface pointer) ::=> Void := {
