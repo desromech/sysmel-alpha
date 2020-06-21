@@ -5,5 +5,4 @@ Compiler
     );
     loadPackages: #(
         #"DriverInterface"
-        #"Canvas2D"
     ).

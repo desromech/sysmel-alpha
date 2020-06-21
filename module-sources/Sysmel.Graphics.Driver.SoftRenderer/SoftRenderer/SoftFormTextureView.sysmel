@@ -5,12 +5,12 @@ namespace Core definition: {
 #**
  * I am a form based texture view.
  *#
-class FormTextureView superclass: SoftTextureView; definition: {
+class SoftFormTextureView superclass: SoftTextureView; definition: {
     public field form type: Form sharedPointer.
 
     meta definition: {
         method for: (form: Form sharedPointer const ref) ::=> TextureView sharedPointer
-        := TextureView sharedPointer for: (FormTextureView nativeNew _
+        := TextureView sharedPointer for: (SoftFormTextureView nativeNew _
             form: form;
             pixelsBlitter: form _ makeBlitter;
             address).

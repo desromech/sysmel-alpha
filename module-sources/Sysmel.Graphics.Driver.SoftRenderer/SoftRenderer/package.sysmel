@@ -9,6 +9,7 @@ loadFileOnce: "SoftGraphicsPipelineState.sysmel".
 loadFileOnce: "SoftRenderPass.sysmel".
 loadFileOnce: "SoftSampler.sysmel".
 loadFileOnce: "SoftScene2DBuilder.sysmel".
+loadFileOnce: "SoftScene2DDeviceTextureHandle.sysmel".
 loadFileOnce: "SoftShaderLibraryHandle.sysmel".
 loadFileOnce: "SoftShaderSignature.sysmel".
 loadFileOnce: "SoftShaderSignatureBuilder.sysmel".
@@ -17,6 +18,7 @@ loadFileOnce: "SoftShaderResourceBindings.sysmel".
 loadFileOnce: "SoftSwapChain.sysmel".
 loadFileOnce: "SoftTexture.sysmel".
 loadFileOnce: "SoftTextureView.sysmel".
+loadFileOnce: "SoftFormTextureView.sysmel".
 loadFileOnce: "SoftLinearTexture.sysmel".
 loadFileOnce: "SoftVertexLayout.sysmel".
 loadFileOnce: "SoftVertexBinding.sysmel".

@@ -5,6 +5,4 @@ Compiler
     );
     loadPackages: #(
         #"SoftRenderer"
-        #"Canvas"
-        #"Scene2D-CanvasRenderer"
     ).

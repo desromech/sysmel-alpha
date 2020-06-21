@@ -4,7 +4,7 @@ useNamespace: Stdn Graphics Core.
 useNamespace: Stdn Graphics GUI.
 useNamespace: Stdn Math Geometry.
 
-compileTime constant Texture2DPtr := Stdn Graphics Scene2D StrongTextureHandlePtr.
+compileTime constant Texture2DPtr := StrongTextureHandlePtr.
 compileTime constant Node2D := Stdn Graphics Scene2D Node.
 compileTime constant Node2DPtr := Stdn Graphics Scene2D NodePtr.
 

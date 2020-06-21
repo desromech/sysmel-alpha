@@ -90,11 +90,10 @@ class CanvasRenderer superclass: Visitor; definition: {
     override method visitTextureNode: (node: TextureNode const ref) ::=> Void := {
         node textureHandle isNil || node textureHandle _ isScene2DDeviceTextureHandle not ifTrue: {return: void}.
 
-        let deviceHandle := node textureHandle downCastFor: Scene2DDeviceTextureHandle.
         canvas _ paintState restoreAfter: {
 			canvas _ paintState
 				white;
-				textureView: deviceHandle _ textureView.
+				texture: node textureHandle.
 			canvas _ fillRectangle: node rectangle.
 		}.
     }.

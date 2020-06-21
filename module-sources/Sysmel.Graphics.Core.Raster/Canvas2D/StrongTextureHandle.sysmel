@@ -1,6 +1,6 @@
 namespace Stdn definition: {
 namespace Graphics definition: {
-namespace Scene2D definition: {
+namespace Core definition: {
 
 useNamespace: Stdn Math Geometry.
 
@@ -12,6 +12,11 @@ useNamespace: Stdn Math Geometry.
 class StrongTextureHandle superclass: SharedObject; definition: {
     virtual method isScene2DDeviceTextureHandle => Boolean8
         := false.
+
+    ## This method is used by soft rendering based canvases for performing blitting/texture mapping
+    ## through software rendering.
+    virtual method softPixelsBlitter => Blitter
+        := Blitter().
 }.
 
 compileTime constant StrongTextureHandlePtr := StrongTextureHandle sharedPointer.

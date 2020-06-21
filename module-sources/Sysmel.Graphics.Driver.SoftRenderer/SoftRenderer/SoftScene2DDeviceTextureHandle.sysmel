@@ -1,0 +1,20 @@
+namespace Stdn definition: {
+namespace Graphics definition: {
+namespace Core definition: {
+
+#**
+ * I am a handle for a sampler.
+ *#
+class SoftScene2DDeviceTextureHandle superclass: Scene2DDeviceTextureHandle; definition: {
+    override method softPixelsBlitter => Blitter := {
+        textureView ifNil: {return: Blitter()}.
+        
+        (textureView getPointer castTo: SoftTextureView pointer) _ pixelsBlitter
+    }
+}.
+
+compileTime constant SoftScene2DDeviceTextureHandlePtr := SoftScene2DDeviceTextureHandle sharedPointer.
+
+}. ## End of namespace Core
+}. ## End of namespace Graphics
+}. ## End of namespace Stdn

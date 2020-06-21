@@ -6,3 +6,10 @@ loadFileOnce: "CanvasDrawingState.sysmel".
 loadFileOnce: "CanvasPaintState.sysmel".
 loadFileOnce: "AbstractConcreteCanvas.sysmel".
 loadFileOnce: "DelegatingCanvas.sysmel".
+loadFileOnce: "StrongTextureHandle.sysmel".
+
+## 2D software rendering objects.
+loadFileOnce: "SoftCanvas.sysmel".
+loadFileOnce: "SoftSurface.sysmel".
+loadFileOnce: "FormSurface.sysmel".
+loadFileOnce: "ExternalSurface.sysmel".

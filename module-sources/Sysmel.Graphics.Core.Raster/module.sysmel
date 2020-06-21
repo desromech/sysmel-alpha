@@ -3,6 +3,7 @@ Compiler
     loadPackages: #(
         #"Raster"
         #"Text"
+        #"Canvas2D"
         #"Scene2D"
         #"ImageFormats"
     ).
