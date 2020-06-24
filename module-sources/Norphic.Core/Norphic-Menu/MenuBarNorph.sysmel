@@ -6,6 +6,7 @@ namespace Norphic definition: {
 class MenuBarNorph superclass: Norph; definition: {
     protected field items type: Stdn Collections Vector(MenuBarItemNorph sharedPointer).
     protected field activeItem type: MenuBarItemNorph pointer.
+    protected field changingActiveItem type: Boolean8.
 
     override method defaultColor => Float32x4
         := self theme _ menuBarBackground.
@@ -14,6 +15,12 @@ class MenuBarNorph superclass: Norph; definition: {
         self
             sizer: (HorizontalBoxSizer sharedNew upCastFor: Sizer);
             autolayout: true
+    }.
+
+    override method ownedPopupKilled: (popup: PopupNorph sharedPointer const ref) ::=> Void := {
+        changingActiveItem ifFalse: {
+            self itemClicked: nil
+        }
     }.
 
     method addMenu: (label: Stdn String const ref) ::=> MenuNorph sharedPointer := {
@@ -37,27 +44,37 @@ class MenuBarNorph superclass: Norph; definition: {
         := activeItem.
 
     method itemClicked: (item: MenuBarItemNorph pointer) ::=> Void := {
-        let newActiveItem := activeItem == item ifTrue: nil ifFalse: item.
+        changingActiveItem ifTrue: {return: void }.
+        changingActiveItem := true.
 
-        let oldActiveItem := activeItem.
-        activeItem := newActiveItem.
+        try: {
+            let newActiveItem := activeItem == item ifTrue: nil ifFalse: item.
 
-        oldActiveItem ifNotNil: {
-            oldActiveItem _ deactivated.
-        }.
-        activeItem ifNotNil: {
-            activeItem _ activated.
+            let oldActiveItem := activeItem.
+            activeItem := newActiveItem.
+
+            oldActiveItem ifNotNil: {
+                oldActiveItem _ deactivated.
+            }.
+            activeItem ifNotNil: {
+                activeItem _ activated.
+            }.
+
+        } finally: {
+            changingActiveItem := false.
         }.
     }.
 
     method itemMouseEnter: (item: MenuBarItemNorph pointer) ::=> Void := {
         activeItem isNotNil && item ~~ activeItem ifTrue: {
-            self itemClicked: item
+            self itemClicked: item.
         }
     }.
 
     macro method addMenu: menuName with: aBlock :=
         ``(`,aBlock __macroInlineBlock: (`,self addMenu: `,menuName) _).
 }.
+
+compileTime constant MenuBarNorphPtr := MenuBarNorph sharedPointer.
 
 }. ## End of namespace Norphic

@@ -1,0 +1,61 @@
+namespace Norphic definition: {
+
+
+#**
+ * I am a popup norph.
+ *#
+class PopupNorph superclass: BorderedNorph; definition: {
+    protected field currentParent type: NorphPtr.
+
+    const override method isPopupNorph => Boolean8
+        := true.
+
+    method parentPopup => PopupNorph sharedPointer := {
+        currentParent isNotNil && currentParent _ isPopupNorph ifTrue: {
+            return: (currentParent downCastFor: PopupNorph)
+        }.
+
+        PopupNorphPtr nil
+    }.
+
+    method popupAt: (position: Float32x2) withParent: (parent: NorphPtr const ref) on: (rootNorph: RootNorph pointer) ::=> Void := {
+        rootNorph ifNil: {return: void}.
+
+        rootNorph _ activatePopup: self asSharedPointer at: position withParent: parent.
+    }.
+
+    method popupAt: (position: Float32x2) on: (rootNorph: RootNorph pointer) ::=> Void
+        := self popupAt: position withParent: NorphPtr nil on: nil.
+
+    method activatedWithParent: (newParent: NorphPtr const ref) ::=> Void := {
+        currentParent := newParent.
+
+        currentParent ifNotNil: {
+            currentParent _ ownedPopupCreated: self asSharedPointer.
+        }.
+
+        self onPopupStarted
+    }.
+
+    method killed => Void := {
+        currentParent ifNotNil: {
+            currentParent _ ownedPopupKilled: self asSharedPointer.
+        }.
+
+        currentParent reset.
+        self onPopupKilled.
+    }.
+
+    virtual method onPopupStarted => Void := {
+
+    }.
+
+    virtual method onPopupKilled => Void := {
+
+    }.
+
+}.
+
+compileTime constant PopupNorphPtr := PopupNorph sharedPointer.
+
+ }. ## End of namespace Norphic

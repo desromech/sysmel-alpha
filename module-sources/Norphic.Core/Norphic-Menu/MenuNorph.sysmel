@@ -3,7 +3,118 @@ namespace Norphic definition: {
 #**
  * I am a menu popup norph.
  *#
-class MenuNorph superclass: Norph; definition: {
+class MenuNorph superclass: PopupNorph; definition: {
+    protected field items type: Stdn Collections Vector(MenuItemNorph sharedPointer).
+    protected field activeItem type: MenuItemNorph pointer.
+    protected field changingActiveItem type: Boolean8.
+
+    override method defaultColor => Float32x4
+        := self theme _ menuBackground.
+
+    override method initialize => Void := {
+        self
+            sizer: (VerticalBoxSizer sharedNew upCastFor: Sizer);
+            autolayout: true
+    }.
+
+    method activeItem => MenuItemNorph pointer
+        := activeItem.
+
+    override method ownedPopupKilled: (popup: PopupNorph sharedPointer const ref) ::=> Void := {
+        changingActiveItem ifFalse: {
+            self itemActivate: nil
+        }
+    }.
+
+    method addMenu: (label: Stdn String const ref) ::=> MenuNorph sharedPointer := {
+        let menuItem := self addItem: label.
+
+        ## Create the menu itself.
+        let menu := MenuNorph sharedNew.
+        menuItem _ menu: menu.
+        menu
+    }.
+
+    method addItem: (label: Stdn String const ref) ::=> MenuItemNorphPtr := {
+        ## Create the menu item
+        let menuItem := MenuItemNorph sharedNew.
+        menuItem _ label: label.
+        self addSubnorph: (menuItem upCastFor: Norph).
+        items add: menuItem.
+
+        self sizer _
+            element: menuItem do: {:constraints :: Void |
+                constraints expanded
+            }.
+
+        self fit.
+        menuItem
+    }.
+
+    method addSeparator => Void := {
+        let separator := MenuItemSeparatorNorph sharedNew.
+        self addSubnorph: (separator upCastFor: Norph).
+
+        self sizer _
+            element: separator do: {:constraints :: Void |
+                constraints expanded
+            }.
+
+        self fit.
+    }.
+
+    method itemClicked: (item: MenuItemNorph pointer) ::=> Void := {
+        item _ menu ifNil: {
+            self rootNorph ifNotNil: {:r :: Void |
+                r _ killAllPopups.
+            }.
+            item _ raiseActivatedEvent.
+        } ifNotNil: {
+            item _ activated
+        }
+    }.
+
+    override method onPopupStarted => Void := {
+        self itemActivate: nil
+    }.
+
+    override method onPopupKilled => Void := {
+        self itemActivate: nil
+    }.
+
+    method itemActivate: (newActiveItem: MenuItemNorph pointer) ::=> Void := {
+        changingActiveItem ifTrue: { return: void }.
+        changingActiveItem := true.
+
+        try: {
+            let oldActiveItem := activeItem.
+            activeItem := newActiveItem.
+
+            oldActiveItem ifNotNil: {
+                oldActiveItem _ deactivated.
+            }.
+
+            activeItem ifNotNil: {
+                activeItem _ activated.
+            }.
+        } finally: {
+            changingActiveItem := false.
+        }
+    }.
+
+    method itemMouseEnter: (item: MenuItemNorph pointer) ::=> Void := {
+        item ~~ activeItem ifTrue: {
+            self itemActivate: item.
+        }
+    }.
+
+    macro method addItem: menuName doing: aBlock :=
+        ``((`,self addItem: `,menuName) _ when: Norphic NorphActivatedEvent do: `,aBlock).
+
+    macro method addMenu: menuName with: aBlock :=
+        ``(`,aBlock __macroInlineBlock: (`,self addMenu: `,menuName) _).
 }.
+
+compileTime constant MenuNorphPtr := MenuNorph sharedPointer.
 
 }. ## End of namespace Norphic

@@ -7,8 +7,9 @@ loadFileOnce: "ThemeRegistry.sysmel".
 
 loadFileOnce: "Norph.sysmel".
 loadFileOnce: "RootNorph.sysmel".
-loadFileOnce: "SystemWindowNorph.sysmel".
 loadFileOnce: "BorderedNorph.sysmel".
+loadFileOnce: "PopupNorph.sysmel".
+loadFileOnce: "SystemWindowNorph.sysmel".
 
 loadFileOnce: "Sizer.sysmel".
 loadFileOnce: "SizerElement.sysmel".

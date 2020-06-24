@@ -10,6 +10,7 @@ class RootNorph superclass: Norph; definition: {
     protected field mouseFocusNorph type: Norph sharedPointer.
     protected field mouseCaptureNorph type: Norph sharedPointer.
     protected field keyboardFocusNorph type: Norph sharedPointer.
+    protected field activePopupLeaf type: PopupNorph sharedPointer.
 
     const override method mouseFocusNorph => Norph pointer
         := mouseFocusNorph getPointer.
@@ -23,12 +24,60 @@ class RootNorph superclass: Norph; definition: {
     const override method rootNorph => RootNorph pointer
         := self address reinterpretCastTo: SelfType pointer.
 
+    const override method rootLocalPosition => Float32x2
+        := Float32x2 zeros.
+
     override method initialize => Void := {
 
     }.
 
     override method finalize => Void := {
 
+    }.
+
+    method killAllPopups ::=> Void := {
+        let chainStart := activePopupLeaf.
+        self killPopupChain: chainStart.
+    }.
+
+    method killPopupChain: (popup: PopupNorphPtr const ref) ::=> Void := {
+        popup ifNil: {return: void}.
+
+        let parent := popup _ parentPopup.
+        self killPopup: popup.
+        self killPopupChain: parent
+    }.
+
+    method killPopup: (thePopup: PopupNorphPtr const ref) ::=> Void := {
+        ## Make a copy in case thePopup points to activePopupLeaf.
+        let popup := thePopup.
+
+        popup _ owner ifNil: {
+            return: void
+        } ifNotNil: {:o :: Void |
+            activePopupLeaf = popup ifTrue: {
+                activePopupLeaf := popup _ parentPopup
+            }.
+
+            o _ removeSubnorph: (popup upCastFor: Norph).
+            popup _ killed.
+        }.
+    }.
+
+    method activatePopup: (popup: PopupNorphPtr const ref) at: (popupPosition: Float32x2) withParent: (newParent: NorphPtr const ref) ::=> Void := {
+        popup _ owner ifNotNil: {
+            self killPopup: popup
+        }.
+
+        activePopupLeaf isNotNil && activePopupLeaf ~= popup ifTrue: {
+            self killPopup: activePopupLeaf
+        }.
+
+        activePopupLeaf := popup.
+        self addSubnorph: (popup upCastFor: Norph).
+        popup _
+            position: popupPosition;
+            activatedWithParent: newParent
     }.
 
     virtual method setMouseCaptureNorph: (norph: Norph pointer) ::=> Void := {
@@ -132,5 +181,7 @@ class RootNorph superclass: Norph; definition: {
         ## Do nothing
     }.
 }.
+
+compileTime constant RootNorphPtr := RootNorph sharedPointer.
 
 }. ## End of namespace Norphic

@@ -13,24 +13,93 @@ class NorphEvent superclass: Stdn Object; definition: {
 
     virtual method acceptEventHandler: (eventHandler: NorphEventHandler ref) ::=> Void := {
     }.
+
+    const virtual method isKeyboardEvent => Boolean8
+        := false.
+
+    const virtual method isKeyPressedEvent => Boolean8
+        := false.
+
+    const virtual method isKeyReleasedEvent => Boolean8
+        := false.
+
+    const virtual method isTextInputEvent => Boolean8
+        := false.
+
+    const virtual method isKeyboardFocusEvent => Boolean8
+        := false.
+
+    const virtual method isGotFocusEvent => Boolean8
+        := false.
+
+    const virtual method isLostFocusEvent => Boolean8
+        := false.
+
+    const virtual method isMouseEvent => Boolean8
+        := false.
+
+    const virtual method isMouseButtonEvent => Boolean8
+        := false.
+
+    const virtual method isMouseButtonPressedEvent => Boolean8
+        := false.
+
+    const virtual method isMouseButtonReleasedEvent => Boolean8
+        := false.
+
+    const virtual method isMouseMoveEvent => Boolean8
+        := false.
+
+    const virtual method isMouseWheelEvent => Boolean8
+        := false.
+
+    const virtual method isMouseFocusEvent => Boolean8
+        := false.
+
+    const virtual method isMouseEnterEvent => Boolean8
+        := false.
+
+    const virtual method isMouseLeaveEvent => Boolean8
+        := false.
+
+    const virtual method isWidgetEvent => Boolean8
+        := false.
+
+    const virtual method isActivatedEvent => Boolean8
+        := false.
+
+    const virtual method isSelectionChangedEvent => Boolean8
+        := false.
+
+    const virtual method isContentChangedEvent => Boolean8
+        := false.
 }.
 
 class NorphKeyboardEvent superclass: NorphEvent; definition: {
     public field symbol type: KeySymbol.
     public field modifiers type: KeyModifiers.
     public field isRepeat type: Boolean8.
+
+    const override method isKeyboardEvent => Boolean8
+        := true.
 }.
 
 class NorphKeyPressedEvent superclass: NorphKeyboardEvent; definition: {
     override method acceptEventHandler: (eventHandler: NorphEventHandler ref) ::=> Void := {
         eventHandler onKeyPressedEvent: self
     }.
+
+    const override method isKeyPressedEvent => Boolean8
+        := true.
 }.
 
 class NorphKeyReleasedEvent superclass: NorphKeyboardEvent; definition: {
     override method acceptEventHandler: (eventHandler: NorphEventHandler ref) ::=> Void := {
         eventHandler onKeyReleasedEvent: self
     }.
+
+    const override method isKeyReleasedEvent => Boolean8
+        := true.
 }.
 
 class NorphTextInputEvent superclass: NorphEvent; definition: {
@@ -39,6 +108,9 @@ class NorphTextInputEvent superclass: NorphEvent; definition: {
     override method acceptEventHandler: (eventHandler: NorphEventHandler ref) ::=> Void := {
         eventHandler onTextInputEvent: self
     }.
+
+    const override method isTextInputEvent => Boolean8
+        := true.
 }.
 
 class NorphMouseEvent superclass: NorphEvent; definition: {
@@ -53,11 +125,17 @@ class NorphMouseEvent superclass: NorphEvent; definition: {
         position := other position.
         modifiers := other modifiers.
     }.
+
+    const override method isMouseEvent => Boolean8
+        := true.
 }.
 
 class NorphMouseButtonEvent superclass: NorphMouseEvent; definition: {
     public field button type: MouseButton.
     public field clickCount type: UInt8.
+
+    const override method isMouseButtonEvent => Boolean8
+        := true.
 
     const inline method isLeftButton => Boolean8
         := button == MouseButton Left.
@@ -73,12 +151,18 @@ class NorphMouseButtonPressedEvent superclass: NorphMouseButtonEvent; definition
     override method acceptEventHandler: (eventHandler: NorphEventHandler ref) ::=> Void := {
         eventHandler onMouseButtonPressedEvent: self
     }.
+
+    const override method isMouseButtonPressedEvent => Boolean8
+        := true.
 }.
 
 class NorphMouseButtonReleasedEvent superclass: NorphMouseButtonEvent; definition: {
     override method acceptEventHandler: (eventHandler: NorphEventHandler ref) ::=> Void := {
         eventHandler onMouseButtonReleasedEvent: self
     }.
+
+    const override method isMouseButtonReleasedEvent => Boolean8
+        := true.
 }.
 
 class NorphMouseMoveEvent superclass: NorphMouseEvent; definition: {
@@ -88,6 +172,9 @@ class NorphMouseMoveEvent superclass: NorphMouseEvent; definition: {
     override method acceptEventHandler: (eventHandler: NorphEventHandler ref) ::=> Void := {
         eventHandler onMouseMoveEvent: self
     }.
+
+    const override method isMouseMoveEvent => Boolean8
+        := true.
 }.
 
 class NorphMouseWheelEvent superclass: NorphMouseEvent; definition: {
@@ -97,24 +184,38 @@ class NorphMouseWheelEvent superclass: NorphMouseEvent; definition: {
     override method acceptEventHandler: (eventHandler: NorphEventHandler ref) ::=> Void := {
         eventHandler onMouseWheelEvent: self
     }.
+
+    const override method isMouseWheelEvent => Boolean8
+        := true.
 }.
 
 class NorphMouseFocusEvent superclass: NorphMouseEvent; definition: {
+    const override method isMouseFocusEvent => Boolean8
+        := true.
 }.
 
 class NorphMouseEnterEvent superclass: NorphMouseFocusEvent; definition: {
     override method acceptEventHandler: (eventHandler: NorphEventHandler ref) ::=> Void := {
         eventHandler onMouseEnterEvent: self
     }.
+
+    const override method isMouseEnterEvent => Boolean8
+        := true.
 }.
 
 class NorphMouseLeaveEvent superclass: NorphMouseFocusEvent; definition: {
     override method acceptEventHandler: (eventHandler: NorphEventHandler ref) ::=> Void := {
         eventHandler onMouseLeaveEvent: self
     }.
+
+
+    const override method isMouseLeaveEvent => Boolean8
+        := true.
 }.
 
 class NorphKeyboardFocusEvent superclass: NorphEvent; definition: {
+    const override method isKeyboardFocusEvent => Boolean8
+        := true.
 }.
 
 
@@ -122,33 +223,50 @@ class NorphGotFocusEvent superclass: NorphKeyboardFocusEvent; definition: {
     override method acceptEventHandler: (eventHandler: NorphEventHandler ref) ::=> Void := {
         eventHandler onGotFocusEvent: self
     }.
+
+    const override method isGotFocusEvent => Boolean8
+        := true.
 }.
 
 class NorphLostFocusEvent superclass: NorphKeyboardFocusEvent; definition: {
     override method acceptEventHandler: (eventHandler: NorphEventHandler ref) ::=> Void := {
         eventHandler onLostFocusEvent: self
     }.
+
+    const override method isLostFocusEvent => Boolean8
+        := true.
 }.
 
 class NorphWidgetEvent superclass: NorphEvent; definition: {
+    const override method isWidgetEvent => Boolean8
+        := true.
 }.
 
 class NorphActivatedEvent superclass: NorphWidgetEvent; definition: {
     override method acceptEventHandler: (eventHandler: NorphEventHandler ref) ::=> Void := {
         eventHandler onActivatedEvent: self
     }.
+
+    const override method isActivatedEvent => Boolean8
+        := true.
 }.
 
 class NorphSelectionChangedEvent superclass: NorphWidgetEvent; definition: {
     override method acceptEventHandler: (eventHandler: NorphEventHandler ref) ::=> Void := {
         eventHandler onSelectionChangedEvent: self
     }.
+
+    const override method isSelectionChangedEvent => Boolean8
+        := true.
 }.
 
 class NorphContentChangedEvent superclass: NorphWidgetEvent; definition: {
     override method acceptEventHandler: (eventHandler: NorphEventHandler ref) ::=> Void := {
         eventHandler onContentChangedEvent: self
     }.
+
+    const override method isContentChangedEvent => Boolean8
+        := true.
 }.
 
 }.

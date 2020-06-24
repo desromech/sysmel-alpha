@@ -12,6 +12,19 @@ macro method ArrayedCollectionMacrosMixin := ``{
             }
         }
     }.
+
+    macro method reverseDo: aBlock := {
+        let collection := __astBuilder gensym: #collection.
+        let index := __astBuilder gensym: #index.
+        let size := __astBuilder gensym: #size.
+        ``{
+            let `,collection ref := `,self.
+            let `,size := `,collection size.
+            0 until: `,size do: {:(UIntPointer)`,index :: Void |
+                `,aBlock __macroInlineBlock: `,collection[`,size - `,index - 1]
+            }
+        }
+    }.
 }.
 
 }. ## End of namespace Collections

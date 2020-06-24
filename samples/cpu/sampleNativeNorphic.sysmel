@@ -32,10 +32,23 @@ function main externC (argc: Int32, argv: UInt8 const pointer pointer) => Int32 
 
         menuBar _
             addMenu: "File" asMutableString with: {:menu :: Void |
+                menu
+                    addItem: "New" asMutableString doing: { :(NorphEvent ref) event :: Void |
+                        Stdn stdout << "TODO: File new"; nl.
+                    };
+                    addItem: "Open" asMutableString doing: { :(NorphEvent ref) event :: Void |
+                        Stdn stdout << "TODO: File open"; nl.
+                    };
+                    addSeparator;
+                    addItem: "Exit" asMutableString doing: { :(NorphEvent ref) event :: Void |
+                        Stdn stdout << "TODO: File exit"; nl.
+                    }
 
             };
-            addMenu: "About" asMutableString with: {:menu :: Void |
-
+            addMenu: "Help" asMutableString with: {:menu :: Void |
+                menu addItem: "About" asMutableString doing: { :(NorphEvent ref) event :: Void |
+                    Stdn stdout << "TODO: Help about"; nl.
+                }
             }
     }.
 

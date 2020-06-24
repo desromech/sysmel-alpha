@@ -40,8 +40,16 @@ class Norph superclass: NorphEventHandler; definition: {
     virtual method isClipped => Boolean8
         := false.
 
-    inline method position => Float32x2
+    const inline method position => Float32x2
         := bounds min.
+
+    const virtual method rootLocalPosition => Float32x2 := {
+        let result mutable := self position.
+        self owner ifNotNil: {:o :: Void |
+            result := result + o _ rootLocalPosition
+        }.
+        result
+    }.
 
     virtual method position: (newPosition: Float32x2) ::=> Void := {
         self bounds: (RectangleF32 min: newPosition extent: self extent)
@@ -238,14 +246,16 @@ class Norph superclass: NorphEventHandler; definition: {
         childSubnorph ifNil: { return: void }.
 
         subnorphs remove: childSubnorph.
-        childSubnorph _ removedFromOwner: self
+        childSubnorph _ removedFromOwner: self.
+        self changed.
     }.
 
     virtual method addSubnorph: (newSubnorph: Norph sharedPointer const ref) ::=> Void := {
         newSubnorph ifNil: { return: void }.
 
         subnorphs add: newSubnorph.
-        newSubnorph _ addedToOwner: self
+        newSubnorph _ addedToOwner: self.
+        self changed.
     }.
 
     const virtual method globalPosition => Float32x2 := {
@@ -371,7 +381,7 @@ class Norph superclass: NorphEventHandler; definition: {
 
     virtual method dispatchMouseEventToChildren: (event: NorphMouseEvent ref) ::=> Void := {
         let mousePosition := event position.
-        self validSubnorphs do: {:child :: Void |
+        self validSubnorphs reverseDo: {:child :: Void |
             let childBounds := child _ bounds.
             child _ handlesMouseEvents && (childBounds includesPoint: event position) ifTrue: {
                 event position: mousePosition - childBounds min.
@@ -529,6 +539,18 @@ class Norph superclass: NorphEventHandler; definition: {
         self raiseEvent: (NorphActivatedEvent sharedNew upCastFor: NorphEvent).
     }.
 
+    virtual method ownedPopupCreated: (popup: PopupNorph sharedPointer const ref) ::=> Void := {
+
+    }.
+
+    virtual method ownedPopupKilled: (popup: PopupNorph sharedPointer const ref) ::=> Void := {
+
+    }.
+
+    const virtual method isPopupNorph => Boolean8
+        := false.
 }.
+
+compileTime constant NorphPtr := Norph sharedPointer.
 
 }. ## End of namespace Norphic

@@ -28,7 +28,13 @@ class MenuBarItemNorph superclass: AbstractMenuItemNorph; definition: {
 
     method activated => Void := {
         self changed.
+
+        menu ifNotNil: {
+            menu _ popupAt: self rootLocalPosition + self localBounds topLeft withParent: (self menuBar upCastFor: Norph) on: self rootNorph.
+        }.
     }.
 }.
+
+compileTime constant MenuBarItemNorphPtr := MenuBarItemNorph sharedPointer.
 
 }. ## End of namespace Norphic
