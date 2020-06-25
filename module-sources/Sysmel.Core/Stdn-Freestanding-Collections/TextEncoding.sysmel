@@ -1,0 +1,136 @@
+namespace Stdn definition: {
+namespace Collections definition: {
+
+Char8 definition: {
+    const inline method isASCIICode => Boolean8
+        := self <= 16r7f.
+
+    const inline method isUTF8MultiStart => Boolean8
+        := self isASCIICode not && self isUTF8MiddleCode not.
+
+    const inline method isUTF8MiddleCode => Boolean8
+        := ((self & 2r11000000u) = 16r80u).
+}.
+
+struct UTF8CodePointsIterator definition: {
+    public field encodedString type: Char8 const arraySlice.
+    public field invalidCharacter type: Char32.
+
+    meta definition: {
+        method for: (string: Char8 const arraySlice) ::=> UTF8CodePointsIterator
+            := UTF8CodePointsIterator()
+                encodedString: string;
+                invalidCharacter: '?';
+                yourself
+    }.
+
+    const method atEnd => Boolean8
+        := encodedString isEmpty.
+
+    const method isMiddleCode => Boolean8
+        := encodedString isNotEmpty && encodedString first isUTF8MiddleCode.
+
+    method advance: (count: UIntPointer) ::=> Void := {
+        let advanceCount := encodedString size min: count.
+        encodedString := encodedString elements[advanceCount] address until: encodedString size - advanceCount
+    }.
+
+    method next => Char32 := {
+        self atEnd ifTrue: {return: invalidCharacter}.
+
+        ## If we start with a middle code, then we have an invalid character.
+        self isMiddleCode ifTrue: {
+            while: self isMiddleCode do: {
+                self advance: 1
+            }.
+
+            return: invalidCharacter
+        }.
+
+        ## Get the first character.
+        let b := encodedString[0].
+
+        ## Is this an ASCII character?
+        b <= 16r7F ifTrue: {
+            self advance: 1.
+            return: b
+        }.
+
+        ## How many bytes does it have?
+        let zeroBitIndex := (b | 16rFFFFFF00 castTo: UInt32) bitInvert highBit.
+
+        ## Support up to 6 bytes. It is only required to support up to 4.
+        let leadingOnes := 8 - zeroBitIndex castTo: UIntPointer.
+        encodedString size < leadingOnes ifTrue: {
+            encodedString := Char8 const arraySlice().
+            return: invalidCharacter
+        }.
+
+        leadingOnes > 6 ifTrue: {
+            self advance: 1.
+            while: self isMiddleCode do: {
+                self advance: 1
+            }.
+
+            return: invalidCharacter
+        }.
+
+        let result mutable := b & (1 << (zeroBitIndex - 1)) - 1 castTo: UInt32.
+        1 until: leadingOnes do: {:i :: Void |
+            ## This must be a middle code.
+            let middleCode := encodedString[i].
+            middleCode isUTF8MiddleCode ifFalse: {
+                self advance: i.
+                return: invalidCharacter
+            }.
+
+            result := (result << 6) | (middleCode & 16r3f castTo: UInt32)
+        }.
+
+        self advance: leadingOnes.
+        result castTo: Char32
+    }.
+
+    macro method do: aBlock := {
+        let iterator := __astBuilder gensym: #iterator.
+        ``{
+            let `,iterator mutable := `,self.
+            until: `,iterator atEnd do: {
+                `,aBlock __macroInlineBlock: `,iterator next
+            }
+        }
+    }.
+}.
+
+struct UTF16CodePointsIterator definition: {
+    meta definition: {
+        method for: (string: Char16 const arraySlice) ::=> UTF16CodePointsIterator
+            := UTF16CodePointsIterator()
+                encodedString: string;
+                invalidCharacter: '?';
+                yourself
+    }.
+
+    public field encodedString type: Char16 const arraySlice.
+    public field invalidCharacter type: Char32.
+
+    method atEnd => Boolean8
+        := encodedString isEmpty.
+
+    method next => Char32 := {
+        0
+    }.
+
+    macro method do: aBlock := {
+        let iterator := __astBuilder gensym: #iterator.
+        ``{
+            let `,iterator mutable := `,self.
+            until: `,iterator atEnd do: {
+                `,aBlock __macroInlineBlock: `,iterator next
+            }
+        }
+    }.
+}.
+
+}. ## End of namespace Collections
+}. ## End of namespace Stdn

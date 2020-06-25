@@ -41,9 +41,8 @@ function main externC (argc: Int32, argv: UInt8 const pointer pointer) => Int32 
                     };
                     addSeparator;
                     addItem: "Exit" asMutableString doing: { :(NorphEvent ref) event :: Void |
-                        Stdn stdout << "TODO: File exit"; nl.
+                        mainWindow _ destroy
                     }
-
             };
             addMenu: "Help" asMutableString with: {:menu :: Void |
                 menu addItem: "About" asMutableString doing: { :(NorphEvent ref) event :: Void |

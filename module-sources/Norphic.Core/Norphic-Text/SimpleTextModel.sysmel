@@ -169,26 +169,9 @@ class SimpleTextModelCursor superclass: TextModelCursor; definition: {
 
     override method insertString: (text: Stdn String const ref) ::=> Void := {
         let textBuffer ref := model _ textBuffer.
-        let oldSize := textBuffer size.
 
-        ## FIXME: Implement resize.
-        ##textBuffer resize: textBuffer size + text size.
-        0 until: text size do: {:i :: Void |
-            textBuffer add: 0
-        }.
-
-        ## Move forward.
         bufferPosition := bufferPosition min: textBuffer size.
-        let tailSize := oldSize - bufferPosition.
-        0 until: tailSize do: {:i :: Void |
-            textBuffer[textBuffer size - i - 1] := textBuffer[bufferPosition + tailSize - i - 1].
-        }.
-
-        ## Copy.
-        0 until: text size do: {:i :: Void |
-            textBuffer[bufferPosition + i] := text[i].
-        }.
-
+        textBuffer addAll: text asArraySlice beforeIndex: bufferPosition.
         bufferPosition := bufferPosition + text size min: textBuffer size.
     }.
 

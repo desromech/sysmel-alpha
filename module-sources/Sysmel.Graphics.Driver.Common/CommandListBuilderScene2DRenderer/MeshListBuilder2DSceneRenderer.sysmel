@@ -276,8 +276,7 @@ class MeshListBuilder2DSceneRendererNodeVisitor superclass: Scene2D Visitor; def
 
         let currentState mutable := node drawingState.
 
-        ## TODO: Properly decode the utf8 encoded string by using a stream and an iterator.
-        node string do: {:c :: Void |
+        (Stdn Collections UTF8CodePointsIterator for: node string asArraySlice) do: {:c :: Void |
             currentState character: c.
             currentState := self drawCharacterWithState: currentState font: fontFaceWithSize color: node color.
         }.

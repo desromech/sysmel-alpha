@@ -140,8 +140,9 @@ class Norph superclass: NorphEventHandler; definition: {
 
     virtual method buildContentSceneGraphWith: (builder: NorphSceneBuilder ref) ::=> NorphSceneNodePtr := {
         let myNode := self buildSceneGraphWith: builder.
+        let myPostChildrenNode := self buildPostChildrenSceneGraphWith: builder.
         self validSubnorphs ifEmpty: {
-            return: myNode
+            return: myNode _ -- myPostChildrenNode
         }.
 
         let result := builder container.
@@ -151,11 +152,16 @@ class Norph superclass: NorphEventHandler; definition: {
             result _ add: (child _ buildFullSceneGraphWith: builder)
         }.
 
+        result _ add: myPostChildrenNode.
+
         result upCastFor: NorphSceneNode
     }.
 
     virtual method buildSceneGraphWith: (builder: NorphSceneBuilder ref) ::=> NorphSceneNodePtr
         := (builder fillRectangle: self localBounds color: self color) upCastFor: NorphSceneNode.
+
+    virtual method buildPostChildrenSceneGraphWith: (builder: NorphSceneBuilder ref) ::=> NorphSceneNodePtr
+        := NorphSceneNodePtr nil.
 
     virtual method childChanged ::=> Void := {
         self changed

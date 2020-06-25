@@ -126,6 +126,42 @@ template Vector(ET: Stdn Concepts Copyable)
         size_ := size_ + 1.
     }.
 
+	inline method addAll: (newElements: ValueType const arraySlice) beforeIndex: (firstElementIndex: UIntPointer) ::=> Void := {
+		newElements ifEmpty: {
+			return: void
+		}.
+
+		let requiredSize := (size_ max: firstElementIndex) + newElements size.
+        requiredSize >= capacity_ ifTrue: {
+            self increaseCapacityToAtLeast: requiredSize.
+        }.
+
+		## Make the gap by moving the elements.
+		let gapSize := newElements size.
+		let movedElementCount := firstElementIndex < size_
+			ifTrue: {size_ - firstElementIndex }
+			ifFalse: { 0 }.
+		0 until: movedElementCount do: {:i :: Void |
+			## Move from the end.
+			let oldIndex := firstElementIndex + movedElementCount - i - 1.
+			let newIndex := oldIndex + gapSize.
+
+			storage_[newIndex]
+				basicInitialize;
+				initializeMovingFrom: (storage_[oldIndex] asMoveReference).
+			storage_[oldIndex] finalize.
+		}.
+
+		## Copy the elements.
+		newElements doWithIndex: {:element :index :: Void |
+			storage_[firstElementIndex + index]
+	            basicInitialize;
+	            initializeCopyingFrom: element.
+		}.
+
+        size_ := size_ + newElements size.
+    }.
+
     inline method removeLast => Void := {
         assert: self isNotEmpty.
         size_ := size_ - 1.

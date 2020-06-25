@@ -149,8 +149,7 @@ class Canvas superclass: Object; definition: {
     inline method drawUTF8String: (encodedString: Char8 const arraySlice) withState: (state: TextDrawingState) ::=> TextDrawingState := {
         let currentState mutable := state.
 
-        ## TODO: Properly decode the utf8 encoded string by using a stream and an iterator.
-        encodedString do: {:codePoint :: Void |
+        (Stdn Collections UTF8CodePointsIterator for: encodedString) do: {:codePoint :: Void |
             currentState character: codePoint.
             currentState := self drawCharacterWithState: currentState.
         }.
