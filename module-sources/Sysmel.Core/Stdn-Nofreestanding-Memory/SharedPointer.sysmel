@@ -202,7 +202,7 @@ template SharedPointer(PT: Type)
         Stdn swapValue: pointer_ with: o __private pointer_.
     }.
 
-    inline method asWeakPointer => WeakPointerType
+    const inline method asWeakPointer => WeakPointerType
         := WeakPointerType for: self.
 
     macro method upCastFor: targetType := {
