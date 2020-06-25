@@ -567,6 +567,11 @@ MbndCompilationEnvironment >> loadedModules [
 	^ loadedModules ifNil: [ loadedModules := OrderedCollection new ]
 ]
 
+{ #category : #adding }
+MbndCompilationEnvironment >> moduleSourceLocations: theSourceLocations [
+	moduleSourceLocations := theSourceLocations.
+]
+
 { #category : #accessing }
 MbndCompilationEnvironment >> moduleTranslationMode [
 	^ moduleTranslationMode
@@ -597,7 +602,8 @@ MbndCompilationEnvironment >> newCompilationEnvironmentForCleanModuleBuilding [
 		optimizationLevel: self optimizationLevel;
 		moduleTranslationMode: moduleTranslationMode;
 		outputMode: self outputModeForDependencies;
-		outputDirectory: outputDirectory.
+		outputDirectory: outputDirectory;
+		moduleSourceLocations: moduleSourceLocations copy.
 
 	^ result.
 ]
