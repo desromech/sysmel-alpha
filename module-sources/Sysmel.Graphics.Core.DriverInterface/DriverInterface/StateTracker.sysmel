@@ -33,6 +33,14 @@ class StateTracker superclass: CommandList; definition: {
     abstract method primitiveTopology: (primitiveTopology: PrimitiveTopology) ::=> Void.
 
     abstract method blendingEquation: (blendingEquation: BlendingEquation const ref) ::=> Void.
+
+    abstract method depthTestingEnabled: (enabled: Boolean8) ::=> Void.
+    abstract method depthWriteMask: (enabled: Boolean8) ::=> Void.
+    abstract method depthFunction: (depthFunction: CompareFunction) ::=> Void.
+
+    abstract method depthBiasConstantFactor: (factor: Float32) ::=> Void.
+    abstract method depthBiasSlopeFactor: (factor: Float32) ::=> Void.
+    abstract method depthBiasClamp: (factor: Float32) ::=> Void.
 }.
 
 compileTime constant StateTrackerPtr := StateTracker sharedPointer.

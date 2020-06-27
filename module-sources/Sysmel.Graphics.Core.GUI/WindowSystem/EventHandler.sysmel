@@ -5,7 +5,7 @@ namespace GUI definition: {
 #**
  * I am a window event handler. I implement a visitor pattern on the events.
  *#
-class EventHandler superclass: Object; definition: {
+class EventHandler superclass: SharedObject; definition: {
     virtual method processEvent: (event: Event ref) ::=> Void := {
         event acceptEventHandler: self
     }.

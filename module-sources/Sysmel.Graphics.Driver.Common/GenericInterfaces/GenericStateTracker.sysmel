@@ -211,6 +211,48 @@ class GenericStateTracker superclass: StateTracker; definition: {
         }.
     }.
 
+    override method depthTestingEnabled: (enabled: Boolean8) ::=> Void := {
+        hasExplicitGraphicsPipelineState || graphicsPipelineState isNil || graphicsPipelineStateDescription depthTestingEnabled ~= enabled ifTrue: {
+            graphicsPipelineStateDescription depthTestingEnabled: enabled.
+            self invalidateGraphicsPipelineState
+        }.
+    }.
+
+    override method depthWriteMask: (enabled: Boolean8) ::=> Void := {
+        hasExplicitGraphicsPipelineState || graphicsPipelineState isNil || graphicsPipelineStateDescription depthWriteMask ~= enabled ifTrue: {
+            graphicsPipelineStateDescription depthWriteMask: enabled.
+            self invalidateGraphicsPipelineState
+        }.
+    }.
+
+    override method depthFunction: (depthFunction: CompareFunction) ::=> Void := {
+        hasExplicitGraphicsPipelineState || graphicsPipelineState isNil || graphicsPipelineStateDescription depthFunction ~= depthFunction ifTrue: {
+            graphicsPipelineStateDescription depthFunction: depthFunction.
+            self invalidateGraphicsPipelineState
+        }.
+    }.
+
+    override method depthBiasConstantFactor: (factor: Float32) ::=> Void := {
+        hasExplicitGraphicsPipelineState || graphicsPipelineState isNil || graphicsPipelineStateDescription depthBiasConstantFactor ~= factor ifTrue: {
+            graphicsPipelineStateDescription depthBiasConstantFactor: factor.
+            self invalidateGraphicsPipelineState
+        }.
+    }.
+
+    override method depthBiasSlopeFactor: (factor: Float32) ::=> Void := {
+        hasExplicitGraphicsPipelineState || graphicsPipelineState isNil || graphicsPipelineStateDescription depthBiasSlopeFactor ~= factor ifTrue: {
+            graphicsPipelineStateDescription depthBiasSlopeFactor: factor.
+            self invalidateGraphicsPipelineState
+        }.
+    }.
+
+    override method depthBiasClamp: (factor: Float32) ::=> Void := {
+        hasExplicitGraphicsPipelineState || graphicsPipelineState isNil || graphicsPipelineStateDescription depthBiasClamp ~= factor ifTrue: {
+            graphicsPipelineStateDescription depthBiasClamp: factor.
+            self invalidateGraphicsPipelineState
+        }.
+    }.
+
     method setVertexLayout: (vertexLayout: VertexLayoutPtr) ::=> Void := {
         hasExplicitGraphicsPipelineState || graphicsPipelineState isNil || graphicsPipelineStateDescription vertexLayout ~= vertexLayout ifTrue: {
             graphicsPipelineStateDescription vertexLayout: vertexLayout.
