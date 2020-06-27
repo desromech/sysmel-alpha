@@ -17,7 +17,9 @@ Class {
 
 { #category : #'semantic analysis' }
 MbndAbstractFieldVariable >> analyzeReferenceNode: referenceNode with: analyzer [
-	self error: 'Field description introspection is not yet implemented.' at: referenceNode
+	^ (self asMoebiusLiteralValueNodeWithTarget: self compilationTarget)
+		position: referenceNode;
+		yourself
 ]
 
 { #category : #converting }

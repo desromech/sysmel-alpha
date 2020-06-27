@@ -326,6 +326,7 @@ MbndSlovimTypeTranslator >> visitSamplerType: type [
 
 { #category : #visiting }
 MbndSlovimTypeTranslator >> visitSimpleMetaType: metaType [
+	self compilationTarget isGPU ifTrue: [ ^ self slvmCompilationTarget voidPointerPointerType ].
 	metaType instanceType ifNotNil: [ :it |
 		it programEntityInformationDataClass ifNotNil: [ :typeInfoClass |
 			^ self translateType: (typeInfoClass isGarbageCollectedType
