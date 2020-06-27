@@ -319,6 +319,9 @@ GenericLinearAlgebra extend: {
                 self scale: Vector4(scaleX, scaleY, scaleZ, scaleW).
             }.
         }.
+
+        const inline method topLeft3x3 => Matrix3x3
+            := Matrix3x3(self firstColumn xyz, self secondColumn xyz, self thirdColumn xyz).
     }.
 }.
 

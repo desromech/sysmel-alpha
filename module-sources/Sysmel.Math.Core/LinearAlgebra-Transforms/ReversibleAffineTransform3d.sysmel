@@ -1,0 +1,233 @@
+namespace Stdn definition: {
+namespace Math definition: {
+namespace LinearAlgebra definition: {
+
+sealed template GenericReversibleAffineTransform3d(ST: Type)
+    := class superclass: GenericLinearAlgebra(ST); definition: {
+    compileTime constant Box := Stdn Math Geometry GenericBox(Scalar).
+
+    protected field matrix type: Matrix3x3.
+    protected field translation4 type: Vector4.
+
+    protected field inverseMatrix type: Matrix3x3.
+    protected field inverseTranslation4 type: Vector4.
+
+    meta definition: {
+        const inline method identity => InstanceType
+            := InstanceType() setIdentity; yourself.
+
+        const inline method fromInvertibleMatrix4: (matrix4: Matrix4x4) ::=> InstanceType
+            := InstanceType() setInvertibleMatrix4: matrix4; yourself.
+
+        const inline method from: (eye: Vector3) lookAt: (reference: Vector3) up: (upVector: Vector3) ::=> InstanceType
+            := self from: eye lookAtDirection: reference - eye up: upVector.
+
+        const inline method from: (eye: Vector3) lookAtDirection: (direction: Vector3) up: (upVector: Vector3) ::=> InstanceType
+            := InstanceType()
+                orthonormal: (Matrix3x3 lookAtDirection: direction normalized up: upVector) translation: eye;
+                yourself.
+    }.
+
+    method initialize => Void := {
+        translation4 := inverseTranslation4 := Vector4(0, 0, 0, 1).
+    }.
+
+    const inline method matrix => Matrix3x3
+        := matrix.
+
+    const inline method matrix4 => Matrix4x4
+        := Matrix4x4 mat3: matrix translation4: translation4.
+
+    const inline method translation => Vector3
+        := translation4 xyz.
+
+    const inline method translation4 => Vector4
+        := translation4.
+
+    const inline method inverseMatrix => Matrix3x3
+        := inverseMatrix.
+
+    const inline method inverseMatrix4 => Matrix4x4
+        := Matrix4x4 mat3: inverseMatrix translation4: inverseTranslation4.
+
+    const inline method inverseTranslation => Vector3
+        := inverseTranslation4 xyz.
+
+    const inline method inverseTranslation4 => Vector4
+        := inverseTranslation4.
+
+    const inline method isIdentity => Boolean8
+        := matrix = Matrix3x3 identity && translation4 = Vector4(0, 0, 0, 1).
+
+    inline method setIdentity => Void := {
+        matrix := inverseMatrix := Matrix3x3 identity.
+        translation4 := inverseTranslation4 := Vector4(0, 0, 0, 1).
+    }.
+
+    inline method orthonormal: (newMatrix: Matrix3x3) ::=> Void := {
+        matrix := newMatrix.
+    	inverseMatrix := newMatrix transpose.
+
+    	## Recompute the inverse translation
+    	inverseTranslation4 := Vector4(inverseMatrix * translation4 xyz negated, 1).
+    }.
+
+    inline method matrix: (newMatrix: Matrix3x3) inverseMatrix: (newInverseMatrix: Matrix3x3) translation: (newTranslation: Vector3) ::=> Void := {
+        matrix := newMatrix.
+    	inverseMatrix := newInverseMatrix.
+
+        translation4 := Vector4(newTranslation, 1).
+    	inverseTranslation4 := Vector4(inverseMatrix * newTranslation negated, 1).
+    }.
+
+    inline method orthonormal: (newMatrix: Matrix3x3) translation: (newTranslation: Vector3) ::=> Void := {
+        self matrix: newMatrix inverseMatrix: newMatrix transpose translation: newTranslation
+    }.
+
+    inline method translation: (newTranslation: Vector3) ::=> Void := {
+    	translation4 := Vector4(newTranslation, 1).
+    	inverseTranslation4 := Vector4(inverseMatrix * newTranslation negated, 1).
+    }.
+
+    inline method matrix4: (matrix4: Matrix4x4) inverseMatrix4: (inverseMatrix4: Matrix4x4) ::=> Void := {
+        matrix := matrix4 topLeft3x3.
+        translation4 := matrix4 fourthColumn.
+
+        inverseMatrix := inverseMatrix4 topLeft3x3.
+        inverseTranslation4 := inverseMatrix4 fourthColumn.
+    }.
+
+    inline method setInvertibleMatrix4: (matrix4: Matrix4x4) ::=> Void := {
+        self matrix4: matrix4 inverseMatrix4: matrix4 inverse
+    }.
+
+    inline method lookAtBack => Void
+        := self orthonormal: Matrix3x3 lookAtBack.
+
+    inline method lookAtBottom => Void
+        := self orthonormal: Matrix3x3 lookAtBottom.
+
+    inline method lookAtFront => Void
+        := self orthonormal: Matrix3x3 lookAtFront.
+
+    inline method lookAtLeft => Void
+        := self orthonormal: Matrix3x3 lookAtLeft.
+
+    inline method lookAtRight => Void
+        := self orthonormal: Matrix3x3 lookAtRight.
+
+    inline method lookAtTop => Void
+        := self orthonormal: Matrix3x3 lookAtTop.
+
+
+    inline method applyMatrix: (extraMatrix: Matrix3x3) inverseMatrix: (extraMatrixInverse: Matrix3x3) ::=> Void := {
+        matrix := extraMatrix * matrix.
+        inverseMatrix := inverseMatrix * extraMatrixInverse.
+        translation4 := Vector4(extraMatrix * translation4 xyz, 1).
+        inverseTranslation4 := Vector4(extraMatrixInverse * inverseTranslation4 xyz, 1)
+    }.
+
+    inline method applyOrthonormalMatrix: (orthonormal: Matrix3x3) ::=> Void := {
+        self applyMatrix: orthonormal inverseMatrix: orthonormal transpose
+    }.
+
+    inline method rotateDegreesOnX: (x: Scalar) ::=> Void
+        := self rotateRadiansOnX: x degreesToRadians.
+
+    inline method rotateDegreesOnY: (y: Scalar) ::=> Void
+        := self rotateRadiansOnY: y degreesToRadians.
+
+    inline method rotateDegreesOnZ: (z: Scalar) ::=> Void
+        := self rotateRadiansOnZ: z degreesToRadians.
+
+    inline method rotateDegreesOnZ: (z: Scalar) y: (y: Scalar) x: (x: Scalar) ::=> Void
+        := self rotateRadiansOnZ: z degreesToRadians y: y degreesToRadians x: x degreesToRadians.
+
+    inline method rotateRadiansOnX: (x: Scalar) ::=> Void
+        := self applyOrthonormalMatrix: (Matrix3x3 xRotation: x).
+
+    inline method rotateRadiansOnY: (y: Scalar) ::=> Void
+        := self applyOrthonormalMatrix: (Matrix3x3 yRotation: y).
+
+    inline method rotateRadiansOnZ: (z: Scalar) ::=> Void
+        := self applyOrthonormalMatrix: (Matrix3x3 zRotation: z).
+
+    inline method rotateRadiansOnZ: (z: Scalar) y: (y: Scalar) x: (x: Scalar) ::=> Void
+        := self applyOrthonormalMatrix: (Matrix3x3 zyxRotation: Vector3(z, x, y)).
+
+    inline method scaleBy: (scale: Vector3) ::=> Void := {
+        self applyMatrix: (Matrix3x3 scale: scale) inverseMatrix: (Matrix3x3 scale: 1 / scale).
+    }.
+
+    inline method scaleByX: (x: Scalar) y: (y: Scalar) z: (z: Scalar) ::=> Void := {
+        self scaleBy: Vector3(x, y, z)
+    }.
+
+    inline method setForBox: (aBox: Box) ::=> Void := {
+        self setIdentity;
+    		scaleBy: aBox extent;
+    		translateTo: aBox center
+    }.
+
+    inline method translateBy: (vector3: Vector3) ::=> Void := {
+        self translation: (vector3 + translation4 xyz)
+    }.
+
+    inline method translateByX: (x: Scalar) ::=> Void := {
+        self translateBy: Vector3(x, 0, 0)
+    }.
+
+    inline method translateByY: (y: Scalar) ::=> Void := {
+        self translateBy: Vector3(0, y, 0)
+    }.
+
+    inline method translateByZ: (z: Scalar) ::=> Void := {
+        self translateBy: Vector3(0, 0, z)
+    }.
+
+    inline method translateByX: (x: Scalar) y: (y: Scalar) z: (z: Scalar)::=> Void := {
+        self translateBy: Vector3(x, y, z)
+    }.
+
+    inline method translateTo: (vector3: Vector3) ::=> Void := {
+        self translation: vector3
+    }.
+
+    inline method translateToX: (x: Scalar) y: (y: Scalar) z: (z: Scalar) ::=> Void := {
+        self translation: Vector3(x, y, z)
+    }.
+
+    inline method inverseTransformPosition3: (aVector3: Vector3) ::=> Vector3
+        := (inverseMatrix * aVector3) + inverseTranslation4 xyz.
+
+    inline method inverseTransformVector3: (aVector3: Vector3) ::=> Vector3
+        := (inverseMatrix * aVector3).
+
+    inline method inverseTransformTransform: (transform: SelfType) ::=> SelfType
+        := SelfType()
+            matrix: inverseMatrix * transform matrix inverseMatrix: transform inverseMatrix * matrix
+                translation: self inverseTranslation + inverseMatrix * transform translation;
+            yourself.
+
+    inline method transformNormal: (aVector3: Vector3) ::=> Vector3
+        := inverseMatrix transpose * aVector3.
+
+    inline method transformPosition3: (aVector3: Vector3) ::=> Vector3
+        := (matrix * aVector3) + translation4 xyz.
+
+    inline method transformVector3: (aVector3: Vector3) ::=> Vector3
+        := (matrix * aVector3).
+
+    inline method transformTransform: (transform: SelfType) ::=> SelfType
+        := SelfType()
+            matrix: matrix * transform matrix inverseMatrix: transform inverseMatrix * inverseMatrix
+                translation: self translation + matrix * transform translation;
+            yourself.
+}.
+
+compileTime constant ReversibleAffineTransform3dF32 := GenericReversibleAffineTransform3d(Float32).
+compileTime constant ReversibleAffineTransform3dF64 := GenericReversibleAffineTransform3d(Float64).
+
+} ## End of namespace LinearAlgebra
+} ## End of namespace Math
+} ## End of namespace Stdn

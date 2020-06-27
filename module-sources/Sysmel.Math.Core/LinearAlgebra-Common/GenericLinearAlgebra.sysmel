@@ -17,6 +17,10 @@ sealed template GenericLinearAlgebra(ST: Type)
 
     compileTime constant AffineTransform2d := GenericAffineTransform2d(Scalar).
     compileTime constant AffinePostTransform2d := GenericAffinePostTransform2d(Scalar).
+
+    compileTime if: Scalar isPrimitiveFloatType then: {
+        compileTime constant ReversibleAffineTransform3d := GenericReversibleAffineTransform3d(Scalar).
+    }.
 }.
 
 

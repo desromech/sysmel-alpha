@@ -7,4 +7,5 @@ Compiler
         #"Geometry2D-Shapes-Tests"
         #"Geometry3D-Shapes-Tests"
         #"LinearAlgebra-Common-Tests"
+        #"LinearAlgebra-Transforms-Tests"
     ).

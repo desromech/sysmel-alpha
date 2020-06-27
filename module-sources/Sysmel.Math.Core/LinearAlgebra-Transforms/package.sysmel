@@ -1,2 +1,3 @@
 loadFileOnce: "AffineTransform2d.sysmel".
 loadFileOnce: "AffinePostTransform2d.sysmel".
+loadFileOnce: "ReversibleAffineTransform3d.sysmel".

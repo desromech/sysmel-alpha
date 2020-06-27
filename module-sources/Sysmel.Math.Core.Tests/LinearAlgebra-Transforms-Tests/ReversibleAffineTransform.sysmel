@@ -1,0 +1,48 @@
+namespace Stdn definition: {
+namespace Math definition: {
+namespace LinearAlgebra definition: {
+namespace Tests definition: {
+
+sealed template GenericReversibleAffineTransform3dTest(ST: Type)
+    := class superclass: Stdn Testing TestCase; definition: {
+    compileTime constant GLA := GenericLinearAlgebra(ST).
+
+    compileTime constant Scalar := GLA Scalar.
+    compileTime constant Vector3 := GLA Vector3.
+    compileTime constant Matrix4x4 := GLA Matrix4x4.
+    compileTime constant Matrix3x3 := GLA Matrix3x3.
+    compileTime constant ReversibleAffineTransform3d := GLA ReversibleAffineTransform3d.
+
+    test: testIdentity with: {
+        let transform := ReversibleAffineTransform3d identity.
+    	self assert: transform matrix4 equals: Matrix4x4 identity.
+    	self assert: transform matrix equals: Matrix3x3 identity.
+    	self assert: transform translation equals: Vector3 zeros.
+
+    	self assert: transform inverseMatrix4 equals: Matrix4x4 identity.
+    	self assert: transform inverseMatrix equals: Matrix3x3 identity.
+    	self assert: transform inverseTranslation equals: Vector3 zeros.
+
+        self assert: transform isIdentity.
+    }.
+
+    test: testSetIdentity with: {
+        let transform := ReversibleAffineTransform3d() setIdentity; yourself.
+        self assert: transform matrix4 equals: Matrix4x4 identity.
+        self assert: transform translation equals: Vector3 zeros.
+
+    	self assert: transform inverseMatrix4 equals: Matrix4x4 identity.
+    	self assert: transform inverseTranslation equals: Vector3 zeros.
+
+        self assert: transform isIdentity.
+
+    }.
+}.
+
+compileTime constant ReversibleAffineTransform3dF32Test := GenericReversibleAffineTransform3dTest(Float32).
+compileTime constant ReversibleAffineTransform3dF64Test := GenericReversibleAffineTransform3dTest(Float64).
+
+} ## End of namespace Tests
+} ## End of namespace LinearAlgebra
+} ## End of namespace Math
+} ## End of namespace Stdn
