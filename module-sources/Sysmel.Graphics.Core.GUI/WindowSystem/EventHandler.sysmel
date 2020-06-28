@@ -77,6 +77,8 @@ class EventHandler superclass: SharedObject; definition: {
         := void.
 }.
 
+compileTime constant EventHandlerPtr := EventHandler sharedPointer.
+
 }. ## End of namespace GUI
 }. ## End of namespace Graphics
 }. ## End of namespace Stdn

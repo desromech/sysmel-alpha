@@ -260,6 +260,18 @@ template WeakPointer(PT: Type)
         self reset.
     }.
 
+    const inline method == (other: SelfType const ref) ::=> Boolean8
+        := counter_ == other __private counter_.
+    const inline method ~~ (other: SelfType const ref) ::=> Boolean8
+        := counter_ ~~ other __private counter_.
+
+    const inline method = (other: SelfType const ref) ::=> Boolean8
+        := counter_ = other __private counter_ .
+    const inline method ~= (other: SelfType const ref) ::=> Boolean8
+        := counter_ ~= other __private counter_ .
+    const inline method hash ::=> Hash
+        := counter_ hash.
+        
     inline method reset => Void := {
         let c := counter_.
         counter_ := nil.

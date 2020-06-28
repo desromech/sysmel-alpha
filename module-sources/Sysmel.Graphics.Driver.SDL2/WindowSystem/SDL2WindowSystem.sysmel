@@ -325,6 +325,7 @@ class SDL2WindowSystem superclass: WindowSystem; definition: {
     }.
 
     override method broadcastEvent: (event: Event ref) ::=> Void := {
+        super broadcastEvent: event.
         windowIDDictionary valuesDo: {:(SDL2Window sharedPointer ref) window :: Void |
             window _ deliverEvent: event
         }

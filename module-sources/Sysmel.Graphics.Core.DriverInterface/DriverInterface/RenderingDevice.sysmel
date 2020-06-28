@@ -55,6 +55,8 @@ class RenderingDevice superclass: RenderingDriverObjectHandle; definition: {
     virtual method createCommandListOfType: (type: CommandListType) for: (allocator: CommandListAllocatorPtr const ref) ::=> CommandListPtr
         := self createCommandListOfType: type for: allocator initialPipelineState: PipelineStatePtr nil.
 
+    abstract method createDeferredStateTrackerOfType: (type: CommandListType) for: (allocator: CommandListAllocatorPtr const ref) ::=> StateTrackerPtr.
+
     abstract method hasTopLeftNdcOrigin => Boolean8.
     abstract method hasBottomLeftTextureCoordinates => Boolean8.
 

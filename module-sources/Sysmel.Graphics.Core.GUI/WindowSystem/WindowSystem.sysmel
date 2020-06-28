@@ -11,6 +11,8 @@ class WindowCreationInfo.
 class WindowSystem superclass: Object; definition: {
     public field targetFrameRate type: Stdn Chrono Time.
 
+    protected field globalEventHandlers type: Stdn Collections Vector(EventHandlerPtr).
+
     meta definition: {
         global MainWindowSystem mutable type: WindowSystemRef.
 
@@ -19,6 +21,14 @@ class WindowSystem superclass: Object; definition: {
 
         method validActiveWindowSystem => WindowSystemRef
             := MainWindowSystem.
+    }.
+
+    method registerGlobalEventHandler: (globalHandler: EventHandlerPtr const ref) ::=> Void := {
+        globalEventHandlers add: globalHandler
+    }.
+
+    method unregisterGlobalEventHandler: (globalHandler: EventHandlerPtr const ref) ::=> Void := {
+        globalEventHandlers remove: globalHandler
     }.
 
     virtual method createWindow: (description: WindowCreationInfo const ref) ::=> Window sharedPointer
@@ -47,47 +57,32 @@ class WindowSystem superclass: Object; definition: {
     virtual method isQuitting => Boolean8
         := false.
 
+    protected field mainLoopOldTicks type: Stdn Chrono Time.
+    protected field mainLoopAccumulatedTicks type: Stdn Chrono Time.
+    protected field mainLoopFrameStartTicks type: Stdn Chrono Time.
+    protected field mainLoopStartTicks type: Stdn Chrono Time.
+    protected field mainLoopFrameCount type: UInt32.
+
     ## Run the default main loop.
     virtual method runMainLoop => Int32 := {
+        mainLoopOldTicks := Stdn Chrono now().
+        mainLoopAccumulatedTicks := 0.
+        mainLoopStartTicks := Stdn Chrono now().
+
         compileTime if: Compiler compilationTarget isWebAssembly then: {
             Emscripten emscripten_set_main_loop_arg(windowSystemMainLoopCallback address, self address, targetFrameRate castTo: Int32, 1).
         } else: {
-            let oldTicks mutable := Stdn Chrono now().
-            let accumulatedTicks mutable type: Stdn Chrono Time.
-            let mainLoopStartTicks := Stdn Chrono now().
 
             until: self isQuitting do: {
-                let frameStartTicks := Stdn Chrono now().
-                self pollAndPumpEvents.
-
-                let ticksPerFrame := Stdn Chrono TicksPerSecond / targetFrameRate.
-
-                let deltaTicks := frameStartTicks - oldTicks.
-                accumulatedTicks := accumulatedTicks + deltaTicks.
-
-                let deterministicFrameCount := accumulatedTicks / ticksPerFrame max: 0.
-                accumulatedTicks := accumulatedTicks - deterministicFrameCount*ticksPerFrame.
-
-                ## Send the tick events
-                {
-                    let event mutable type: TickEvent.
-                    event
-                        ticks: frameStartTicks - mainLoopStartTicks;
-                        deterministicDelta: ticksPerFrame;
-                        deterministicRemainingDelta: accumulatedTicks;
-                        deterministicFrameCount: (deterministicFrameCount castTo: UInt32);
-                        delta: deltaTicks.
-                    self broadcastEvent: event.
-                }.
+                self mainLoopIteration.
 
                 targetFrameRate > 0 ifTrue: {
-                    let targetNextFrameTime := frameStartTicks + ticksPerFrame.
+                    let ticksPerFrame := Stdn Chrono TicksPerSecond / targetFrameRate.
+                    let targetNextFrameTime := mainLoopFrameStartTicks + ticksPerFrame.
                     Stdn Chrono sleepUntil(targetNextFrameTime)
                 } ifFalse: {
                     self waitForNextEventOrTimeout.
                 }.
-
-                oldTicks := frameStartTicks.
             }.
         }.
 
@@ -98,11 +93,32 @@ class WindowSystem superclass: Object; definition: {
      * A single iteration of the main loop.
      *#
     virtual method mainLoopIteration => Void := {
+        let ticksPerFrame := Stdn Chrono TicksPerSecond / targetFrameRate.
+
+        mainLoopFrameStartTicks := Stdn Chrono now().
+        self pollAndPumpEvents.
+
+        let deltaTicks := mainLoopFrameStartTicks - mainLoopOldTicks.
+        mainLoopAccumulatedTicks := mainLoopAccumulatedTicks + deltaTicks.
+
+        let deterministicFrameCount := mainLoopAccumulatedTicks / ticksPerFrame max: 0.
+        mainLoopAccumulatedTicks := mainLoopAccumulatedTicks - deterministicFrameCount*ticksPerFrame.
+
+        ## Send the tick events
         {
             let event mutable type: TickEvent.
+            event
+                ticks: mainLoopFrameStartTicks - mainLoopStartTicks;
+                deterministicDelta: ticksPerFrame;
+                deterministicRemainingDelta: mainLoopAccumulatedTicks;
+                deterministicFrameCount: (deterministicFrameCount castTo: UInt32);
+                mainLoopFrameCount: mainLoopFrameCount;
+                delta: deltaTicks.
             self broadcastEvent: event.
         }.
-        self pollAndPumpEvents.
+
+        mainLoopFrameCount := mainLoopFrameCount + 1.
+        mainLoopOldTicks := mainLoopFrameStartTicks.
     }.
 
     #**
@@ -123,7 +139,9 @@ class WindowSystem superclass: Object; definition: {
      * Broadcast and event into all of the windows.
      *#
     virtual method broadcastEvent: (event: Event ref) ::=> Void := {
-
+        globalEventHandlers do: {:each :: Void |
+            each _ processEvent: event.
+        }
     }.
 }.
 

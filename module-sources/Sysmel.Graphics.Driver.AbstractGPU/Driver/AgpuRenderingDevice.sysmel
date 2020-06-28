@@ -283,6 +283,21 @@ sealed class AgpuRenderingDevice superclass: RenderingDevice; definition: {
         result upCastFor: CommandList
     }.
 
+    override method createDeferredStateTrackerOfType: (type: CommandListType) for: (allocator: CommandListAllocatorPtr const ref) ::=> StateTrackerPtr := {
+        let commandList := self createCommandListOfType: type for: allocator.
+        commandList ifNil: {
+            return: StateTrackerPtr nil.
+        }.
+
+        let result := GenericStateTracker sharedNew.
+        result _
+            commandList: commandList;
+            shaderCache: self getDefaultShaderCache;
+            pipelineStateCache: self getDefaultPipelineStateCache.
+
+        result upCastFor: StateTracker
+    }.
+    
     override method getDefaultCommandQueue => CommandQueuePtr const ref
         := defaultCommandQueue.
 

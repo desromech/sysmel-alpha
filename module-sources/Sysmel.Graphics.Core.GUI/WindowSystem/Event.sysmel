@@ -23,6 +23,7 @@ class TickEvent superclass: Event; definition: {
     public field deterministicDelta type: Stdn Chrono Time.
     public field deterministicRemainingDelta type: Stdn Chrono Time.
     public field deterministicFrameCount type: UInt32.
+    public field mainLoopFrameCount type: UInt32.
 
     inline method seconds => Float64
         := Stdn Chrono ticksToFloatSeconds(ticks).
