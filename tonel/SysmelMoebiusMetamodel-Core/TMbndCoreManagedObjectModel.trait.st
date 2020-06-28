@@ -54,7 +54,6 @@ Trait {
 		'identityHashFieldBitMask'
 	],
 	#traits : 'TMbndAbstractManagedObjectModel',
-	#classTraits : 'TMbndAbstractManagedObjectModel classTrait',
 	#category : #'SysmelMoebiusMetamodel-Core-CompilationTarget'
 }
 

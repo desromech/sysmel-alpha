@@ -1487,6 +1487,66 @@ function f cdecl i32
 ]
 
 { #category : #tests }
+MbndSlovimCodeModuleGeneratorTest >> testArraySize [
+	| function |
+	self
+		evaluateSysmelSource: '
+function f externC(array: (Int32 array: 5) ref, x: Int32) => Int32
+	:= array size.';
+		generateSSAModule.
+
+	function := ssaModule globalNamed: #f.
+	self assert: function asFullSExpressionForTesting equals: #(
+function f cdecl i32
+	arguments (
+		(array (pointer (array i32 5) generic) ())
+		(x i32 ())
+	)
+	literals (
+	)
+	blocks (
+		(()
+			(nil jump void () () (block 2 body))
+		)
+		(()
+			(nil return void () ((const i32 5)))
+		)
+	)
+
+	)
+]
+
+{ #category : #tests }
+MbndSlovimCodeModuleGeneratorTest >> testArraySize2 [
+	| function |
+	self
+		evaluateSysmelSource: '
+function f externC(array: Int32 array ref, x: Int32) => Int32
+	:= array size.';
+		generateSSAModule.
+
+	function := ssaModule globalNamed: #f.
+	self assert: function asFullSExpressionForTesting equals: #(
+function f cdecl i32
+	arguments (
+		(array (pointer (array i32 nil) generic) ())
+		(x i32 ())
+	)
+	literals (
+	)
+	blocks (
+		(()
+			(nil jump void () () (block 2 body))
+		)
+		(()
+			(nil return void () ((const i32 0)))
+		)
+	)
+
+	)
+]
+
+{ #category : #tests }
 MbndSlovimCodeModuleGeneratorTest >> testArraySliceElementsSubscriptAt [
 	| function |
 	self

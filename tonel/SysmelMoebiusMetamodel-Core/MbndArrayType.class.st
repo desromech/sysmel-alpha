@@ -24,6 +24,14 @@ MbndArrayType >> addInstanceMacros [
 	self class == MbndArrayType ifFalse: [ ^ self ].
 	self isTrait ifFalse: [ ^ self ].
 	self
+		onMacroSelector: #size do: [ :node :builder |
+			| arrayType |
+			arrayType := node receiver type withoutReferences withoutTopDecorations.
+			self assert: arrayType isArrayType.
+			(builder literalInteger: arrayType elements)
+				position: node;
+				yourself.
+		];
 		onMacroSelector: #subscriptAt: do: [ :node :builder |
 			(builder array: node receiver elementReferenceAt: node arguments first)
 				position: node;

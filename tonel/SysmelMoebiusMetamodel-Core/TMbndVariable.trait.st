@@ -1,7 +1,6 @@
 Trait {
 	#name : #TMbndVariable,
 	#traits : 'TMbndAbstractProgramEntity + TMbndFlagContainer',
-	#classTraits : 'TMbndAbstractProgramEntity classTrait + TMbndFlagContainer classTrait',
 	#category : #'SysmelMoebiusMetamodel-Core-Variables'
 }
 
