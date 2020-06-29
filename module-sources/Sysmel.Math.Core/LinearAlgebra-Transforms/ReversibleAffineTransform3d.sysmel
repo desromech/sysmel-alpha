@@ -197,28 +197,28 @@ sealed template GenericReversibleAffineTransform3d(ST: Type)
         self translation: Vector3(x, y, z)
     }.
 
-    inline method inverseTransformPosition: (aVector3: Vector3) ::=> Vector3
+    const inline method inverseTransformPosition: (aVector3: Vector3) ::=> Vector3
         := (inverseMatrix * aVector3) + inverseTranslation4 xyz.
 
-    inline method inverseTransformVector: (aVector3: Vector3) ::=> Vector3
+    const inline method inverseTransformVector: (aVector3: Vector3) ::=> Vector3
         := (inverseMatrix * aVector3).
 
-    inline method inverseTransformTransform: (transform: SelfType) ::=> SelfType
+    const inline method inverseTransformTransform: (transform: SelfType) ::=> SelfType
         := SelfType()
             matrix: inverseMatrix * transform matrix inverseMatrix: transform inverseMatrix * matrix
                 translation: self inverseTranslation + inverseMatrix * transform translation;
             yourself.
 
-    inline method transformNormal: (aVector3: Vector3) ::=> Vector3
+    const inline method transformNormal: (aVector3: Vector3) ::=> Vector3
         := inverseMatrix transpose * aVector3.
 
-    inline method transformPosition: (aVector3: Vector3) ::=> Vector3
+    const inline method transformPosition: (aVector3: Vector3) ::=> Vector3
         := (matrix * aVector3) + translation4 xyz.
 
-    inline method transformVector: (aVector3: Vector3) ::=> Vector3
+    const inline method transformVector: (aVector3: Vector3) ::=> Vector3
         := (matrix * aVector3).
 
-    inline method transformTransform: (transform: SelfType) ::=> SelfType
+    const inline method transformTransform: (transform: SelfType) ::=> SelfType
         := SelfType()
             matrix: matrix * transform matrix inverseMatrix: transform inverseMatrix * inverseMatrix
                 translation: self translation + matrix * transform translation;
