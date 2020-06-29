@@ -1,0 +1,249 @@
+namespace Stdn definition: {
+namespace Graphics definition: {
+namespace ImageFormats definition: {
+
+useNamespace: Stdn Graphics Core.
+
+## FIXME: Use the correct endianness.
+function DDS_FourCC(A: Char8, B: Char8, C: Char8, D: Char8) => UInt32
+    := A | (B << 8) | (C << 16) | (D << 24) castTo: UInt32.
+
+compileTime constant DDS_HeaderMagic := DDS_FourCC('D', 'D', 'S', ' ').
+
+compileTime constant DDS_PixelFormat_DXT1 := DDS_FourCC('D', 'X', 'T', '1').
+compileTime constant DDS_PixelFormat_DXT2 := DDS_FourCC('D', 'X', 'T', '2').
+compileTime constant DDS_PixelFormat_DXT3 := DDS_FourCC('D', 'X', 'T', '3').
+compileTime constant DDS_PixelFormat_DXT4 := DDS_FourCC('D', 'X', 'T', '4').
+compileTime constant DDS_PixelFormat_DXT5 := DDS_FourCC('D', 'X', 'T', '5').
+compileTime constant DDS_PixelFormat_RXGB := DDS_FourCC('R', 'X', 'G', 'B').
+compileTime constant DDS_PixelFormat_DX10 := DDS_FourCC('D', 'X', '1', '0').
+
+enum DDS_HeaderFlags bitMask valueType: UInt32; values: #{
+    ## Required
+    Caps: 16r1.
+    ## Required
+    Height: 16r2.
+    ## Required
+    Width: 16r4.
+    ## Required when pitch is provided for an uncompressed texture.
+    Pitch: 16r8.
+    ## Required when pitch is provided for an uncompressed texture.
+    PixelFormat: 16r1000.
+    ## Required if mipmapped.
+    MipMapCount: 16r20000.
+    ## Required when pitch is provided for a compressed texture.
+    LinearSize: 16r80000.
+    ## Required in depth texture.
+    Depth: 16r800000.
+    AlwaysRequiresFlags: (Caps | Width | Height | PixelFormat castTo: UInt32)
+}.
+
+enum DDS_Caps bitMask valueType: UInt32; values: #{
+    ## Required when the file contains more than one surface.
+    Complex: 16r8.
+    ## Required
+    MipMap: 16r400000.
+    ## Required
+    Texture: 16r1000.
+}.
+
+enum DDS_Caps2 bitMask valueType: UInt32; values: #{
+    Cubemap: 16r200.
+    CubemapPositiveX: 16r400.
+    CubemapNegativeX: 16r800.
+    CubemapPositiveY: 16r1000.
+    CubemapNegativeY: 16r2000.
+    CubemapPositiveZ: 16r4000.
+    CubemapNegativeZ: 16r8000.
+    Volume: 16r200000.
+}.
+
+enum DDS_PixelFormatFlags bitMask valueType: UInt32; values: #{
+    AlphaPixels: 16r1.
+    Alpha: 16r2.
+    FourCC: 16r4.
+    RGB: 16r40.
+    YUV: 16r200.
+    Luminance: 16r20000.
+}.
+
+struct DDS_PixelFormat definition: {
+    public field structureSize type: UInt32.
+    public field flags type: DDS_PixelFormatFlags.
+    public field fourCC type: UInt32.
+    public field rgbBitCount type: UInt32.
+    public field rBitMask type: UInt32.
+    public field gBitMask type: UInt32.
+    public field bBitMask type: UInt32.
+    public field aBitMask type: UInt32.
+}.
+
+struct DDS_Header definition: {
+    public field structureSize type: UInt32.
+    public field flags type: DDS_HeaderFlags.
+    public field height type: UInt32.
+    public field width type: UInt32.
+    public field pitchOrLinearSize type: UInt32.
+    public field depth type: UInt32.
+    public field mipMapCount type: UInt32.
+    public field reserved type: (UInt32 array: 11).
+    public field pixelFormat type: DDS_PixelFormat.
+    public field caps type: DDS_Caps.
+    public field caps2 type: DDS_Caps2.
+    public field caps3 type: UInt32.
+    public field caps4 type: UInt32.
+    public field reserved2 type: UInt32.
+}.
+
+enum DDS_D3D10ResourceDimension valueType: UInt32; values: #{
+    Unknown: 0.
+    Buffer: 1.
+    Texture1D: 2.
+    Texture2D: 3.
+    Texture3D: 4.
+}.
+
+struct DDS_HeaderDXT10 definition: {
+    public field dxgiFormat type: PixelFormat.
+    public field resourceDimension type: DDS_D3D10ResourceDimension.
+    public field miscFlags type: UInt32.
+    public field arraySize type: UInt32.
+    public field miscFlags2 type: UInt32.
+}.
+
+class DDSTextureFormat superclass: ImageReadWriter; definition: {
+    override const method supportsExtension: (extension: Stdn String const ref) ::=> Boolean8
+        := extension = "dds" asMutableString.
+
+    override const method putTextureData: (textureData: TextureData ref) onStream: (outputStream: Stdn IO Stream ref) ::=> Void := {
+        Stdn stdout << "Todo: implemente this part"; nl
+    }.
+
+    override const method readTextureDataFromStream: (inputStream: Stdn IO Stream ref) ::=> TextureDataPtr := {
+
+        ## Check the magic header.
+        {
+            let magic mutable type: UInt32.
+            (inputStream read: magic address size: 4) = 4 && magic = DDS_HeaderMagic ifFalse: {
+                return: TextureDataPtr nil
+            }
+        }.
+
+        let header mutable type: DDS_Header.
+        {
+            (inputStream read: header address size: DDS_Header instanceSize) = DDS_Header instanceSize &&
+            header structureSize = DDS_Header instanceSize &&
+            (header flags allMask: DDS_HeaderFlags AlwaysRequiresFlags) &&
+            ((header flags anyMask: DDS_HeaderFlags Pitch) || (header flags anyMask: DDS_HeaderFlags LinearSize)) &&
+            header pixelFormat structureSize = DDS_PixelFormat instanceSize ifFalse: {
+                return: TextureDataPtr nil
+            }
+        }.
+
+        let result mutable := TextureData sharedNew.
+        result _
+            type: TextureType Texture2D;
+            width: (header width max: 1u);
+            height: (header height max: 1u);
+            depth: 1;
+            miplevels: 1;
+            layers: 1.
+
+        (header flags anyMask: DDS_HeaderFlags MipMapCount) ifTrue: {
+            result _ miplevels: header mipMapCount
+        }.
+
+        (header caps2 anyMask: DDS_Caps2 Cubemap) ifTrue: {
+            result _
+                type: TextureType TextureCube;
+                layers: 6
+        }.
+
+        (header caps2 anyMask: DDS_Caps2 Volume) ifTrue: {
+            result _
+                type: TextureType Texture3D;
+                depth: (header depth max: 1u)
+        }.
+
+        (header pixelFormat flags anyMask: DDS_PixelFormatFlags FourCC) ifTrue: {
+            header pixelFormat fourCC selectCase: #{
+            DDS_PixelFormat_DXT1 : {
+                result _
+                    format: PixelFormat BC1_UNorm;
+                    srgbFormat: PixelFormat BC1_UNormSRGB.
+            }.
+            DDS_PixelFormat_DXT2 : {
+                result _
+                    format: PixelFormat BC2_UNorm;
+                    srgbFormat: PixelFormat BC2_UNormSRGB.
+            }.
+            DDS_PixelFormat_DXT3 : {
+                result _
+                    format: PixelFormat BC2_UNorm;
+                    srgbFormat: PixelFormat BC2_UNormSRGB.
+            }.
+            DDS_PixelFormat_DXT4 : {
+                result _
+                    format: PixelFormat BC3_UNorm;
+                    srgbFormat: PixelFormat BC3_UNormSRGB.
+            }.
+            DDS_PixelFormat_DXT5 : {
+                result _
+                    format: PixelFormat BC3_UNorm;
+                    srgbFormat: PixelFormat BC3_UNormSRGB.
+            }.
+            DDS_PixelFormat_RXGB : {
+                result _
+                    format: PixelFormat BC3_UNorm;
+                    srgbFormat: PixelFormat BC3_UNormSRGB.
+            }.
+
+            DDS_PixelFormat_DX10 : {
+                let headerDXT10 mutable type: DDS_HeaderDXT10.
+                (inputStream read: header address size: DDS_HeaderDXT10 instanceSize) = DDS_HeaderDXT10 instanceSize ifFalse: {
+                    return: TextureDataPtr nil
+                }.
+
+                result _
+                    format: headerDXT10 dxgiFormat;
+                    srgbFormat: headerDXT10 dxgiFormat.
+            }.
+            _ : {
+                return: TextureDataPtr nil
+            }.
+            }.
+
+            void
+        } ifFalse: {
+            Stdn stdout << "TODO: deduct pixel format from masks"; nl.
+            return: TextureDataPtr nil.
+        }.
+
+        ## Compute the levels metadata.
+        result _ computeLinearPackedTextureLevelMetadata.
+        result _ linearDataSize = 0 ifTrue: {return: TextureDataPtr nil}.
+
+        ## Allocate the pixels memory data.
+        result _ pixels reset: (Stdn malloc(result _ linearDataSize) reinterpretCastTo: UInt8 pointer).
+
+        ## Read the actual pixel data.
+        (inputStream read: result _ pixels getPointer size: result _ linearDataSize) = result _ linearDataSize ifFalse: {
+            return: TextureDataPtr nil
+        }.
+
+        result
+    }.
+}.
+
+global DDSTextureFormatRegistration mutable type: ImageReadWriterRegisterer(DDSTextureFormat).
+
+Form extend: {
+    method writeDDSfileNamed: (fileName: Stdn String const ref) ::=> Boolean8 := {
+        let readWriter := DDSTextureFormat().
+        readWriter putForm: self onFileNamed: fileName.
+    }.
+}.
+
+} ## End of namespace ImageFormats
+} ## End of namespace Graphics
+} ## End of namespace Stdn

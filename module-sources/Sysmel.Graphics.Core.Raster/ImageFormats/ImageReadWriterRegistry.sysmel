@@ -27,7 +27,15 @@ class ImageReadWriterRegistry definition: {
         }
     }.
 
-    method findWithExtension: (extension: Stdn String const ref) ::=> ImageReadWriter pointer ::=> Void := {
+    method findForFileName: (fileName: Stdn String const ref) ::=> ImageReadWriter pointer := {
+        ## FIXME: Move this computation into a library function.
+        let extensionIndex := fileName lastIndexOf: '.'.
+
+        let extension := fileName allButFirst: extensionIndex + 1.
+        self findWithExtension: extension
+    }.
+
+    method findWithExtension: (extension: Stdn String const ref) ::=> ImageReadWriter pointer := {
         mutex withLock: {
             registeredImageReadWriters do: {:each :: Void |
                 (each _ supportsExtension: extension) ifTrue: {
@@ -50,12 +58,37 @@ template ImageReadWriterRegisterer(T: Type)
 
 
 Form extend: {
+    meta method readFromFileNamed: (fileName: Stdn String const ref) ::=> FormPtr := {
+        let readWriter := ImageReadWriterRegistry uniqueInstance findForFileName: fileName.
+        readWriter ifNil: {return: FormPtr nil}.
+
+        readWriter _ readFormFromFileNamed: fileName.
+    }.
+
     method writeToFileNamed: (fileName: Stdn String const ref) ::=> Boolean8 := {
-        ##let readWriter := ImageReadWriterRegistry uniqueInstance findWithExtension: fileName.
-        ##readWriter _ putForm: self onFileNamed: fileName.
-        false
+        let readWriter := ImageReadWriterRegistry uniqueInstance findForFileName: fileName.
+        readWriter ifNil: {return: false}.
+
+        readWriter _ putForm: self onFileNamed: fileName.
     }.
 }.
+
+TextureData extend: {
+    meta method readFromFileNamed: (fileName: Stdn String const ref) ::=> TextureDataPtr := {
+        let readWriter := ImageReadWriterRegistry uniqueInstance findForFileName: fileName.
+        readWriter ifNil: {return: TextureDataPtr nil}.
+
+        readWriter _ readTextureDataFromFileNamed: fileName.
+    }.
+
+    method writeToFileNamed: (fileName: Stdn String const ref) ::=> Boolean8 := {
+        let readWriter := ImageReadWriterRegistry uniqueInstance findForFileName: fileName.
+        readWriter ifNil: {return: false}.
+
+        readWriter _ putTextureData: self onFileNamed: fileName.
+    }.
+}.
+
 } ## End of namespace ImageFormats
 } ## End of namespace Graphics
 } ## End of namespace Stdn

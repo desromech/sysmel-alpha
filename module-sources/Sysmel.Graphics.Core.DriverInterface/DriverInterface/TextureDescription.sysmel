@@ -20,6 +20,38 @@ struct TextureDescription definition: {
     public field sampleQuality type: UInt32.
 }.
 
+TextureData extend: {
+    const method colorTextureDescription => TextureDescription
+        := TextureDescription()
+            type: type;
+            width: width;
+            height: height;
+            depth: depth;
+            layers: layers;
+            miplevels: miplevels;
+            format: srgbFormat;
+            usageModes: TextureUsageMode Uploaded | TextureUsageMode Sampled;
+            mainUsageMode: TextureUsageMode Sampled;
+            heapType: MemoryHeapType DeviceLocal;
+            sampleCount: 1;
+            yourself.
+
+    const method textureDescription => TextureDescription
+        := TextureDescription()
+            type: type;
+            width: width;
+            height: height;
+            depth: depth;
+            layers: layers;
+            miplevels: miplevels;
+            format: format;
+            usageModes: TextureUsageMode Uploaded | TextureUsageMode Sampled;
+            mainUsageMode: TextureUsageMode Sampled;
+            heapType: MemoryHeapType DeviceLocal;
+            sampleCount: 1;
+            yourself.
+}.
+
 }. ## End of namespace Core
 }. ## End of namespace Graphics
 }. ## End of namespace Stdn

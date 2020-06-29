@@ -90,6 +90,11 @@ TMbndAbstractCompilationTarget >> dynamicObjectType [
 ]
 
 { #category : #'as yet unclassified' }
+TMbndAbstractCompilationTarget >> extensionForEmbeddedShaderCopy [
+	^ '.spv'
+]
+
+{ #category : #'as yet unclassified' }
 TMbndAbstractCompilationTarget >> extensionForModuleOutputMode: outputMode [
 	outputMode = #llvm_assembly ifTrue: [ ^ '.ll' ].
 	outputMode = #assembly ifTrue: [ ^ '.s' ].

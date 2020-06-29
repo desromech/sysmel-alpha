@@ -5,10 +5,10 @@ namespace ImageFormats definition: {
 useNamespace: Stdn Graphics Core.
 
 class ImageReadWriter superclass: Object; definition: {
-    virtual const method supportsExtension: (extension: Stdn String const ref) ::=> Boolean8
+    const virtual method supportsExtension: (extension: Stdn String const ref) ::=> Boolean8
         := false.
 
-    virtual const method putForm: (form: Form ref) onFileNamed: (fileName: Stdn String const ref) ::=> Boolean8 := {
+    const virtual method putForm: (form: Form ref) onFileNamed: (fileName: Stdn String const ref) ::=> Boolean8 := {
         let outFile mutable type: Stdn IO UnbufferedFileStream.
         (outFile open: fileName mode: Stdn IO FileOpenMode CreateNew) ifTrue: {
             self putForm: form onStream: outFile.
@@ -17,9 +17,47 @@ class ImageReadWriter superclass: Object; definition: {
         return: false
     }.
 
-    virtual const method putForm: (form: Form ref) onStream: (outputStream: Stdn IO Stream ref) ::=> Void := {
+    const virtual method putTextureData: (textureData: TextureData ref) onFileNamed: (fileName: Stdn String const ref) ::=> Boolean8 := {
+        let outFile mutable type: Stdn IO UnbufferedFileStream.
+        (outFile open: fileName mode: Stdn IO FileOpenMode CreateNew) ifTrue: {
+            self putTextureData: textureData onStream: outFile.
+            return: true
+        }.
+        return: false
+    }.
+
+    const virtual method putForm: (form: Form ref) onStream: (outputStream: Stdn IO Stream ref) ::=> Void := {
         ## TODO: implement this.
     }.
+
+    const virtual method putTextureData: (textureData: TextureData ref) onStream: (outputStream: Stdn IO Stream ref) ::=> Void := {
+        ## TODO: implement this.
+    }.
+
+    const virtual method readFormFromFileNamed: (fileName: Stdn String const ref) ::=> FormPtr := {
+        let inFile mutable type: Stdn IO UnbufferedFileStream.
+        (inFile open: fileName mode: Stdn IO FileOpenMode Read | Stdn IO FileOpenMode Existent) ifFalse: {
+            return: FormPtr nil
+        }.
+
+        self readFormFromStream: inFile
+    }.
+
+    const virtual method readTextureDataFromFileNamed: (fileName: Stdn String const ref) ::=> TextureDataPtr := {
+        let inFile mutable type: Stdn IO UnbufferedFileStream.
+        (inFile open: fileName mode: Stdn IO FileOpenMode Read | Stdn IO FileOpenMode Existent) ifFalse: {
+            return: TextureDataPtr nil
+        }.
+
+        self readTextureDataFromStream: inFile
+    }.
+
+    const virtual method readFormFromStream: (inputStream: Stdn IO Stream ref) ::=> FormPtr
+        := FormPtr nil.
+
+    const virtual method readTextureDataFromStream: (inputStream: Stdn IO Stream ref) ::=> TextureDataPtr
+        := TextureDataPtr nil.
+
 }.
 
 } ## End of namespace ImageFormats

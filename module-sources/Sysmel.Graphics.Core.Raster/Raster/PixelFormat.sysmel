@@ -411,6 +411,30 @@ enum PixelFormat valueType: UInt32; values: #{
             destination _ := self fetchFromMemory: memory
         }
     }.
+
+    inline method compressedBlockSize => UInt32 := {
+        self selectCase: #{
+        (BC1_Typeless, BC1_UNorm, BC1_UNormSRGB,
+         BC4_Typeless, BC4_UNorm, BC4_SNorm,
+         BC5_Typeless, BC5_UNorm, BC5_SNorm) asValueInSetPattern : 8u.
+
+        (BC2_Typeless, BC2_UNorm, BC2_UNormSRGB,
+        BC3_Typeless, BC3_UNorm, BC3_UNormSRGB) asValueInSetPattern : 16u.
+        _ : 0u.
+        }
+    }.
+
+    inline method compressedBlockExtent => UInt32x2 := {
+        self selectCase: #{
+        (BC1_Typeless, BC1_UNorm, BC1_UNormSRGB,
+        BC2_Typeless, BC2_UNorm, BC2_UNormSRGB,
+        BC3_Typeless, BC3_UNorm, BC3_UNormSRGB,
+        BC4_Typeless, BC4_UNorm, BC4_SNorm,
+        BC5_Typeless, BC5_UNorm, BC5_SNorm) asValueInSetPattern : UInt32x2(4, 4).
+
+        _ : UInt32x2 zeros.
+        }.
+    }.
 }.
 
 }. ## End of namespace Core

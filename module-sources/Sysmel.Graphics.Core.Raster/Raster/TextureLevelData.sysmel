@@ -5,15 +5,14 @@ namespace Core definition: {
 #**
  * I am a container for texture pixel dta.
  *#
-class TextureLevelData definition: {
-    public field format type: PixelFormat.
+struct TextureLevelData definition: {
     public field extent type: UInt32x3.
-    public field miplevel type: UInt32.
-    public field pixels type: UInt8 uniquePointer.
-    
+    public field compressedExtent type: UInt32x3.
+    public field pitch type: UInt32.
+    public field slicePitch type: UInt32.
+    public field dataOffset type: UInt32.
+    public field dataSize type: UInt32.
 }.
-
-compileTime constant TextureLevelDataPtr := TextureLevelData sharedPointer.
 
 }. ## End of namespace Core
 }. ## End of namespace Graphics

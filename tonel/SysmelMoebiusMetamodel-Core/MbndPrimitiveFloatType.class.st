@@ -141,6 +141,11 @@ MbndPrimitiveFloatType >> addInstanceMacros [
 				position: node) to: node receiver)
 				position: node
 		];
+		onMacroSelector: #piReciprocal do: [ :node :builder |
+			(builder explicitCast: ((builder literalFloat: 0.3183098861837907)
+				position: node) to: node receiver)
+				position: node
+		];
 		onMacroSelector: #pi do: [ :node :builder |
 			(builder explicitCast: ((builder literalFloat: 3.141592653589793)
 				position: node) to: node receiver)
@@ -151,13 +156,28 @@ MbndPrimitiveFloatType >> addInstanceMacros [
 				position: node) to: node receiver)
 				position: node
 		];
+		onMacroSelector: #twoPiReciprocal do: [ :node :builder |
+			(builder explicitCast: ((builder literalFloat: 0.15915494309189535 )
+				position: node) to: node receiver)
+				position: node
+		];
 		onMacroSelector: #threePi do: [ :node :builder |
 			(builder explicitCast: ((builder literalFloat: 9.42477796076938 )
 				position: node) to: node receiver)
 				position: node
 		];
+		onMacroSelector: #threePiReciprocal do: [ :node :builder |
+			(builder explicitCast: ((builder literalFloat: 0.1061032953945969 )
+				position: node) to: node receiver)
+				position: node
+		];
 		onMacroSelector: #halfPi do: [ :node :builder |
 			(builder explicitCast: ((builder literalFloat: 1.5707963267948966 )
+				position: node) to: node receiver)
+				position: node
+		];
+		onMacroSelector: #halfPiReciprocal do: [ :node :builder |
+			(builder explicitCast: ((builder literalFloat: 0.6366197723675814 )
 				position: node) to: node receiver)
 				position: node
 		]

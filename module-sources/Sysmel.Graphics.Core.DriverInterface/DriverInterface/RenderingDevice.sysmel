@@ -30,6 +30,24 @@ class RenderingDevice superclass: RenderingDriverObjectHandle; definition: {
 
     abstract method createVertexLayout => VertexLayoutPtr.
 
+    virtual method createColorTextureWithData: (textureData: TextureData const ref) ::=> TexturePtr := {
+        let texture := self createTexture: textureData colorTextureDescription.
+        texture ifNotNil: {
+            texture _ uploadTextureData: textureData
+        }.
+
+        texture
+    }.
+
+    virtual method createTextureWithData: (textureData: TextureData const ref) ::=> TexturePtr := {
+        let texture := self createTexture: textureData textureDescription.
+        texture ifNotNil: {
+            texture _ uploadTextureData: textureData
+        }.
+
+        texture
+    }.
+
     virtual method createVertexLayoutWithDescription: (description: VertexLayoutDescription const ref) ::=> VertexLayoutPtr := {
         let layout := self createVertexLayout.
         description applyToLayout: layout _.

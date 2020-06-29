@@ -21,10 +21,10 @@ struct TGAHeader packed definition: {
 
 
 class TGAImageReadWriter superclass: ImageReadWriter; definition: {
-    override const method supportsExtension: (extension: Stdn String const ref) ::=> Boolean8
+    const override method supportsExtension: (extension: Stdn String const ref) ::=> Boolean8
         := extension = "tga" asMutableString.
 
-    override const method putForm: (form: Form ref) onStream: (outputStream: Stdn IO Stream ref) ::=> Void := {
+    const override method putForm: (form: Form ref) onStream: (outputStream: Stdn IO Stream ref) ::=> Void := {
         let header mutable type: TGAHeader.
         header
             imageType: 2; ## True color image.
@@ -39,6 +39,8 @@ class TGAImageReadWriter superclass: ImageReadWriter; definition: {
             write: form pixels getPointer size: form height * form pitch.
     }.
 }.
+
+global TGAImageReadWriterRegistration mutable type: ImageReadWriterRegisterer(TGAImageReadWriter).
 
 Form extend: {
     method writeTGAfileNamed: (fileName: Stdn String const ref) ::=> Boolean8 := {

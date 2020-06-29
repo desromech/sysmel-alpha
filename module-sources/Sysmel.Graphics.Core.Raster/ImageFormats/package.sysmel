@@ -6,3 +6,4 @@ loadFileOnce: "ImageReadWriter.sysmel".
 loadFileOnce: "ImageReadWriterRegistry.sysmel".
 loadFileOnce: "BMPImageFormat.sysmel".
 loadFileOnce: "TGAImageFormat.sysmel".
+loadFileOnce: "DDSTextureFormat.sysmel".

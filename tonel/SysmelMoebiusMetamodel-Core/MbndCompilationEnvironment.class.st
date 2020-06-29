@@ -283,13 +283,17 @@ MbndCompilationEnvironment >> findImportModuleFileReferenceFor: moduleName [
 
 { #category : #'as yet unclassified' }
 MbndCompilationEnvironment >> finishAndEmitModule [
-	| outputFileName outputFileReference result |
+	| outputFileName outputFileReference result outputShaderFileName |
 	currentModule ifNil: [ ^ self ].
 	self finishSemanticAnalysis.
 	
 	outputFileName := self validCurrentModule name , (compilationTarget extensionForModuleOutputMode: outputMode).
+	outputShaderFileName := self validCurrentModule name , (compilationTarget extensionForEmbeddedShaderCopy).
+
 	outputFileReference := self validOutputDirectory / outputFileName.
-	result := self validCurrentModule writeMode: outputMode toFileNamed:  outputFileReference.
+	result := self validCurrentModule
+		embeddedShaderCopyOutputFile: self validOutputDirectory / outputShaderFileName;
+		writeMode: outputMode toFileNamed:  outputFileReference.
 	self writeExportModuleFor: outputFileReference.
 	^ result
 ]

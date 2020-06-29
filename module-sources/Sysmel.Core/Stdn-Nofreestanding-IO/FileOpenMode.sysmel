@@ -5,7 +5,7 @@ namespace IO definition: {
  * FileOpenMode flags.
  * Flags for opening a fiel
  *#
-enum FileOpenMode valueType: Int32; bitMask; values: #{
+enum FileOpenMode bitMask valueType: Int32; values: #{
     ## The file is opened with read permissions.
     Read: 1.
 

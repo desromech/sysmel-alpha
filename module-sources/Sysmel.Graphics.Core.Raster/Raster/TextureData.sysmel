@@ -2,14 +2,68 @@ namespace Stdn definition: {
 namespace Graphics definition: {
 namespace Core definition: {
 
+class TextureDataHeader definition: {
+    public field type type: TextureType.
+    public field format type: PixelFormat.
+    public field srgbFormat type: PixelFormat.
+
+    public field width type: UInt32.
+    public field height type: UInt32.
+    public field depth type: UInt32.
+    public field miplevels type: UInt32.
+    public field layers type: UInt32.
+    public field linearDataSize type: UInt32.
+}.
+
 #**
  * I am a container for texture pixel dta.
  *#
-class TextureData definition: {
-    public field format type: PixelFormat.
-    public field extent type: UInt32x3.
-    public field miplevel type: UInt32.
-    public field layers type: Stdn Collections Vector(TextureLevelDataPtr).
+class TextureData superclass: TextureDataHeader; definition: {
+    public field pixels type: UInt8 uniquePointer.
+    public field levelsData type: Stdn Collections Vector(TextureLevelData).
+
+    method computeLinearPackedTextureLevelMetadata => Void := {
+        levelsData
+            removeAll;
+            reserve: layers * miplevels.
+
+        let currentDataOffset mutable := 0u.
+        let extent := UInt32x3(width, height, depth).
+
+        let compressedBlockSize := format compressedBlockSize.
+        let compressedBlockExtent := format compressedBlockExtent.
+        let uncompressedPixelSize := format bytesPerPixel.
+
+        0 until: layers do: {:i :: Void |
+            let currentExtent mutable := extent.
+            0 until: miplevels do: {:j :: Void |
+                let levelData mutable := TextureLevelData().
+                 levelData extent: currentExtent.
+
+                compressedBlockSize = 0 ifTrue: {
+                    levelData
+                        compressedExtent: currentExtent;
+                        pitch: (extent x * uncompressedPixelSize alignedTo: 4);
+                        slicePitch: levelData pitch * extent y.
+                } ifFalse: {
+                    levelData
+                        compressedExtent: UInt32x3((currentExtent xy + compressedBlockExtent - 1) / compressedBlockExtent max: UInt32x2(1, 1), currentExtent z);
+                        pitch: levelData compressedExtent x * compressedBlockSize;
+                        slicePitch: levelData pitch * levelData compressedExtent y.
+                }.
+
+                levelData
+                    dataOffset: currentDataOffset;
+                    dataSize: levelData slicePitch * levelData compressedExtent z.
+                levelsData add: levelData.
+
+                currentExtent := currentExtent / 2u max: UInt32x3 ones.
+                currentDataOffset := currentDataOffset + levelData dataSize.
+            }
+        }.
+
+        linearDataSize := currentDataOffset
+    }.
 }.
 
 compileTime constant TextureDataPtr := TextureData sharedPointer.

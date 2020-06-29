@@ -28,7 +28,6 @@ loadFileOnce: "TextureAspect.sysmel".
 loadFileOnce: "TextureDescription.sysmel".
 loadFileOnce: "TextureFilter.sysmel".
 loadFileOnce: "TextureSubResourceRange.sysmel".
-loadFileOnce: "TextureType.sysmel".
 loadFileOnce: "TextureUsageMode.sysmel".
 loadFileOnce: "TextureViewDescription.sysmel".
 loadFileOnce: "VertexAttributeDescription.sysmel".

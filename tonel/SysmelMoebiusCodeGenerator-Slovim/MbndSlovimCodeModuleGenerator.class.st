@@ -652,6 +652,7 @@ MbndSlovimCodeModuleGenerator >> generateEmbeddedShaderModule [
 
 	shaderEntryPoints ifEmpty: [^ nil].
 	
+	shaderSSAModule disableSLVMOptimizations: MbndStandaloneModule disableSLVMOptimizations.
 	spirVModule := shaderSSAModule asLowLevelModuleWithOptimizationLevel: sourceModule optimizationLevel.
 	spirVModuleBlobData := spirVModule bytes.
 	sourceModule embeddedShaderCopyOutputFile ifNotNil: [ :filename |
