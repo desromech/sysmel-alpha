@@ -132,7 +132,7 @@ function shader computeShader externC() => Void := {
 
 { #category : #tests }
 MbndSlovimSpirVCodeModuleGeneratorTest >> testComputeShaderSharedStorage [
-	| shaderController shaderImplementation callWithLocalSize |
+	| shaderController shaderImplementation |
 	self evaluateSysmelSource: '
 class Shader definition:
 { 
@@ -148,7 +148,7 @@ class Shader definition:
 	generateSSAModule;
 	validateSpirV.
 	
-	shaderController := ssaModule globalNamed: #_ZN10TestModule6Shader4mainERNS0_E.
+	shaderController := ssaModule globalNamed: #'Shader::main'.
 	self assert: shaderController allInstructionsMnemonics equals: #(
 		(entry (
 			alloca

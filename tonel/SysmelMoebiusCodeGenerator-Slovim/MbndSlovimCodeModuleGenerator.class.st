@@ -338,7 +338,7 @@ MbndSlovimCodeModuleGenerator >> createModuleInfoStartupConstructors: moduleInfo
 { #category : #visiting }
 MbndSlovimCodeModuleGenerator >> createSpirVShaderControllerFor: functionMethod generatedAs: generatedSSAFunction [
 	| csymbol shaderFunction builder argumentTypes receiverType receiver invocationArguments inputChannels outputChannels boundArguments fetchedInputs computedOutputs |
-	csymbol := self csymbolForProgramEntity: functionMethod.
+	csymbol := self unmangledNameForShaderEntryPoint: functionMethod.
 	(functionMethod hasFlag: #externC) ifTrue: [
 		csymbol := functionMethod name.
 	].
@@ -1854,6 +1854,58 @@ MbndSlovimCodeModuleGenerator >> unmangledNameForProgramEntity: programEntity in
 	self addUnmangledProgramEntity: programEntity suffixInto: out
 ]
 
+{ #category : #visiting }
+MbndSlovimCodeModuleGenerator >> unmangledNameForShaderEntryPoint: programEntity [
+	^ ByteString streamContents: [ :out |
+		self unmangledNameForShaderEntryPoint: programEntity into: out
+	]
+]
+
+{ #category : #visiting }
+MbndSlovimCodeModuleGenerator >> unmangledNameForShaderEntryPoint: programEntity into: out [
+	programEntity isMbndType ifTrue: [ 
+		(programEntity isCoreBasicType or: [programEntity isSystemProvidedTypeTemplateInstanceMainChild]) ifTrue: [
+			^ out nextPutAll: programEntity asString
+		] 
+	].
+
+	programEntity parent ifNil: [
+		programEntity isNamespace ifTrue: [ ^ self ].
+	] ifNotNil: [
+		self unmangledNameForShaderEntryPoint: programEntity parent into: out.
+		(programEntity name isMbndAnonymousSymbol and: [ programEntity parent isTemplateInstance ]) ifTrue: [  ^ self ].
+			
+		programEntity parent parent ifNotNil: [ 
+			programEntity isTemplateInstance ifFalse: [ 
+				out nextPutAll: '::'
+			].
+		].
+	].
+
+	programEntity isTemplateInstance ifTrue: [ 
+		programEntity module == programEntity parent module ifFalse: [ 
+			out nextPut: $[.
+			out nextPutAll: programEntity module name.
+			out nextPut: $].
+		].
+		out nextPut: $(.
+		programEntity instanceArguments doWithIndex: [ :arg :index |
+			index > 1 ifTrue: [ out nextPut: $, ].
+			out print: arg evaluatedValue unwrapMbndValue
+		].
+		out nextPut: $).
+		^ self
+	].
+
+	programEntity isMessageMethod ifTrue: [ out nextPut: $[ ].
+	out nextPutAll: (programEntity name isMbndAnonymousSymbol
+		ifTrue: [ self generatedNameForAnynomousEntity: programEntity ]
+		ifFalse: [ programEntity name ]).
+	programEntity isMessageMethod ifTrue: [ out nextPut: $] ].
+		
+	self addUnmangledProgramEntity: programEntity suffixInto: out
+]
+
 { #category : #'typeinfo translation' }
 MbndSlovimCodeModuleGenerator >> variantUnexpectedComponentRaiseFunction [
 	^ variantUnexpectedComponentRaiseFunction ifNil: [
@@ -2128,7 +2180,7 @@ MbndSlovimCodeModuleGenerator >> visitConcreteFunctionMethod: functionMethod [
 
 	addHighLevelMap := true.
 	functionMethod mustBeAvailableInTheGPU ifTrue: [ gpuUsableProgramEntitites add: functionMethod ].
-	(self slvmCompilationTarget isGPU and: [functionMethod specialSemantics isNotNil ]) ifTrue: [ 
+	(self slvmCompilationTarget isGPU and: [functionMethod specialSemantics isNotNil ]) ifTrue: [
 		csymbol := self newSymbolNameMangler mangleProgramEntityName: functionMethod suffixes: {#__impl}.
 		addHighLevelMap := false.
 	].
