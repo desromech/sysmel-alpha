@@ -95,7 +95,7 @@ template Vector(ET: Stdn Concepts Copyable)
 	method increaseCapacityTo: (newCapacity: UIntPointer) ::=> Void := {
 		newCapacity <= capacity_ ifTrue: {return: nil}.
 
-		let newStorageSize := newCapacity * ValueType instanceSize.
+		let newStorageSize := newCapacity * ValueType alignedInstanceSize.
 		let newStorage := Stdn zmalloc(newStorageSize) reinterpretCastTo: ValueType pointer.
 
         0 until: size_ do: {:(UIntPointer)i :: Void |.
@@ -200,7 +200,7 @@ template Vector(ET: Stdn Concepts Copyable)
 			}.
 
 			let destroyedCount := size_ - newSize.
-			memset(storage_[newSize] address, 0, destroyedCount * ValueType instanceSize).
+			memset(storage_[newSize] address, 0, destroyedCount * ValueType alignedInstanceSize).
 		}.
 
 		size_ := newSize
@@ -223,7 +223,7 @@ template Vector(ET: Stdn Concepts Copyable)
 
 		size_ := size_ - 1.
 		storage_[size_] finalize.
-		memset(storage_[size_] address, 0, ValueType instanceSize).
+		memset(storage_[size_] address, 0, ValueType alignedInstanceSize).
 	}.
 
 	inline method removeAllSuchThat: (predicate: PredicateType) ::=> Void := {
@@ -240,7 +240,7 @@ template Vector(ET: Stdn Concepts Copyable)
 		destIndex until: size_ do: {:(UIntPointer)i :: Void |
 			storage_[i] finalize.
 		}.
-		memset(storage_[destIndex] address, 0, (destIndex - size_)*ValueType instanceSize).
+		memset(storage_[destIndex] address, 0, (destIndex - size_)*ValueType alignedInstanceSize).
 
 		size_ := destIndex.
 	}.

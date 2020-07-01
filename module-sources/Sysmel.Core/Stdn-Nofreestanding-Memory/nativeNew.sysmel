@@ -2,7 +2,7 @@ namespace Stdn definition: {
 
 ## basicNativeNew macro
 _NativeType meta macro method basicNativeNew := ``(
-    (Stdn zmalloc(`,self instanceSize) reinterpretCastTo: `,self pointer) _
+    (Stdn zmalloc(`,self alignedInstanceSize) reinterpretCastTo: `,self pointer) _
         basicInitialize;
         address
 ).

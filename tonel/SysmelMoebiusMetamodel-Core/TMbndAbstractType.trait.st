@@ -109,8 +109,8 @@ TMbndAbstractType >> addImplicitConversionToAll: targetTypes rule: conversionRul
 
 { #category : #sizes }
 TMbndAbstractType >> alignedInstanceSize [
-	"By default, most of the type sizes are aligned. One notable exception is primitive vector3.".
-	^ self instanceSize
+	<compileTime>
+	^ self instanceSize alignedTo: self instanceAlignment
 ]
 
 { #category : #'type hierarchy' }
