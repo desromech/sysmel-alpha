@@ -193,6 +193,18 @@ sealed template GenericReversibleAffineTransform3d(ST: Type)
         self translation: vector3
     }.
 
+    inline method translateToX: (x: Scalar) ::=> Void := {
+        self translateTo: Vector3(x, 0, 0)
+    }.
+
+    inline method translateToY: (y: Scalar) ::=> Void := {
+        self translateTo: Vector3(0, y, 0)
+    }.
+
+    inline method translateToZ: (z: Scalar) ::=> Void := {
+        self translateTo: Vector3(0, 0, z)
+    }.
+
     inline method translateToX: (x: Scalar) y: (y: Scalar) z: (z: Scalar) ::=> Void := {
         self translation: Vector3(x, y, z)
     }.
