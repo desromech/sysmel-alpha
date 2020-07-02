@@ -276,6 +276,18 @@ template Vector(ET: Stdn Concepts Copyable)
 			self remove: value ifAbsent: {:: Void | }
 		}.
 
+		inline method removeAll: (values: ValueType const arraySlice) ::=> Void := {
+			values do: {:each :: Void |
+				self remove: each
+			}
+		}.
+
+		inline method removeAllFoundIn: (values: ValueType const arraySlice) ::=> Void := {
+			values do: {:each :: Void |
+				self removeIfPresent: each
+			}
+		}.
+
 	}.
 
 	Stdn Concepts HashKey ifType: ValueType complies: {
