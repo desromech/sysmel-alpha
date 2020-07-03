@@ -21,13 +21,20 @@ struct TextureDescription definition: {
 }.
 
 TextureData extend: {
+    const method textureCreationLayerCount => UInt32 := {
+        type = TextureType TextureCube ifTrue: {
+            return: layers / 6
+        }.
+        layers
+    }.
+
     const method colorTextureDescription => TextureDescription
         := TextureDescription()
             type: type;
             width: width;
             height: height;
             depth: depth;
-            layers: layers;
+            layers: self textureCreationLayerCount;
             miplevels: miplevels;
             format: srgbFormat;
             usageModes: TextureUsageMode Uploaded | TextureUsageMode Sampled;
@@ -42,7 +49,7 @@ TextureData extend: {
             width: width;
             height: height;
             depth: depth;
-            layers: layers;
+            layers: self textureCreationLayerCount;
             miplevels: miplevels;
             format: format;
             usageModes: TextureUsageMode Uploaded | TextureUsageMode Sampled;
