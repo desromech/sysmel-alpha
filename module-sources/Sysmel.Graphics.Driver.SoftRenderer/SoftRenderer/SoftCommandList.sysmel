@@ -241,7 +241,7 @@ class SoftCommandList superclass: CommandList; definition: {
 
     }.
 
-    override method dispatchComputeIndirect: (offset: UInt32x3) ::=> Void := {
+    override method dispatchComputeIndirect: (offset: UInt32) ::=> Void := {
 
     }.
 

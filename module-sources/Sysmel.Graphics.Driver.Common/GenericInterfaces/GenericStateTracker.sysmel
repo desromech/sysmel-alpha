@@ -46,7 +46,8 @@ class GenericStateTracker superclass: StateTracker; definition: {
 
         graphicsPipelineState := pipelineStateCache _ getOrCreateGraphicsPipeline: graphicsPipelineStateDescription.
         graphicsPipelineState ifNotNil: {
-            commandList _ usePipelineState: graphicsPipelineState
+            commandList _ usePipelineState: graphicsPipelineState.
+            self invalidateComputePipelineState.
         }.
 
         graphicsPipelineState isNotNil.
@@ -62,7 +63,8 @@ class GenericStateTracker superclass: StateTracker; definition: {
 
         computePipelineState := pipelineStateCache _ getOrCreateComputePipeline: computePipelineStateDescription.
         computePipelineState ifNotNil: {
-            commandList _ usePipelineState: computePipelineState
+            commandList _ usePipelineState: computePipelineState.
+            self invalidateGraphicsPipelineState.
         }.
 
         computePipelineState isNotNil.
@@ -369,7 +371,7 @@ class GenericStateTracker superclass: StateTracker; definition: {
         commandList _ dispatchCompute: groupCount
     }.
 
-    override method dispatchComputeIndirect: (offset: UInt32x3) ::=> Void := {
+    override method dispatchComputeIndirect: (offset: UInt32) ::=> Void := {
         self validateComputePipelineState ifFalse: {
             return: void
         }.

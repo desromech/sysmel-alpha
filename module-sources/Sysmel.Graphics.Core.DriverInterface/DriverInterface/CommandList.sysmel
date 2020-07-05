@@ -29,7 +29,7 @@ class CommandList superclass: RenderingDriverObjectHandle; definition: {
     abstract method drawElements: (indexCount: UInt32) instanceCount: (instanceCount: UInt32) firstIndex: (firstVertex: UInt32) baseVertex: (baseVertex: UInt32) baseInstance: (baseInstance: UInt32) ::=> Void.
     abstract method drawElementsIndirect: (offset: UIntPointer) drawCount: (drawCount: UIntPointer) ::=> Void.
     abstract method dispatchCompute: (groupCount: UInt32x3) ::=> Void.
-    abstract method dispatchComputeIndirect: (offset: UInt32x3) ::=> Void.
+    abstract method dispatchComputeIndirect: (offset: UInt32) ::=> Void.
     abstract method setStencilReference: (reference: UInt32) ::=> Void.
     abstract method executeBundle: (bundle: CommandList sharedPointer const ref) ::=> Void.
 

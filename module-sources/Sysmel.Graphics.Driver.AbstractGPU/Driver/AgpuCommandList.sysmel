@@ -120,7 +120,7 @@ class AgpuCommandList superclass: CommandList; definition: {
     }.
 
     override method drawArraysIndirect: (offset: UIntPointer) drawCount: (drawCount: UIntPointer) ::=> Void := {
-
+        handle _ drawArraysIndirect: (offset castTo: UInt32) drawcount: (drawCount castTo: UInt32)
     }.
 
     override method drawElements: (indexCount: UInt32) instanceCount: (instanceCount: UInt32) firstIndex: (firstVertex: UInt32) baseVertex: (baseVertex: UInt32) baseInstance: (baseInstance: UInt32) ::=> Void := {
@@ -128,19 +128,19 @@ class AgpuCommandList superclass: CommandList; definition: {
     }.
 
     override method drawElementsIndirect: (offset: UIntPointer) drawCount: (drawCount: UIntPointer) ::=> Void := {
-
+        handle _ drawElementsIndirect: (offset castTo: UInt32) drawcount: (drawCount castTo: UInt32)
     }.
 
     override method dispatchCompute: (groupCount: UInt32x3) ::=> Void := {
-
+        handle _ dispatchCompute: groupCount x groupCountY: groupCount y groupCountZ: groupCount z
     }.
 
-    override method dispatchComputeIndirect: (offset: UInt32x3) ::=> Void := {
-
+    override method dispatchComputeIndirect: (offset: UInt32) ::=> Void := {
+        handle _ dispatchComputeIndirect: offset
     }.
 
     override method setStencilReference: (reference: UInt32) ::=> Void := {
-
+        handle _ setStencilReference: reference
     }.
 
     override method executeBundle: (bundle: CommandList sharedPointer const ref) ::=> Void := {
@@ -172,15 +172,18 @@ class AgpuCommandList superclass: CommandList; definition: {
     }.
 
     override method pushConstants: (values: UInt8 const pointer) size: (size: UInt32) at: (offset: UInt32) ::=> Void := {
-
+        handle _ pushConstants: offset size: size values: (values reinterpretCastTo: Void pointer)
     }.
 
     override method memoryBarrierFrom: (sourceStage: PipelineStageMask) accesses: (sourceAccesses: AccessMask) to: (destStage: PipelineStageMask) accesses: (destAccesses: AccessMask) ::=> Void := {
-
+        handle _ memoryBarrier: (sourceStage castTo: AGPU PipelineStageFlags) destStage: (destStage castTo: AGPU PipelineStageFlags) sourceAccesses: (sourceAccesses castTo: AGPU AccessFlags) destAccesses: (destAccesses castTo: AGPU AccessFlags)
     }.
 
     override method buffer: (buffer: BufferPtr const ref) offset: (offset: UIntPointer) size: (size: UIntPointer) memoryBarrierFrom: (sourceStage: PipelineStageMask) accesses: (sourceAccesses: AccessMask) to: (destStage: PipelineStageMask) accesses: (destAccesses: AccessMask) ::=> Void := {
-
+        let agpuBuffer := buffer getPointer castTo: AgpuBuffer pointer.
+        agpuBuffer ifNotNil: {
+            handle _ bufferMemoryBarrier: (agpuBuffer _ handle) sourceStage: (sourceStage castTo: AGPU PipelineStageFlags) destStage: (destStage castTo: AGPU PipelineStageFlags) sourceAccesses: (sourceAccesses castTo: AGPU AccessFlags) destAccesses: (destAccesses castTo: AGPU AccessFlags) offset: (offset castTo: UInt32) size: (size castTo: UInt32)
+        }.
     }.
 
     override method texture: (texture: TexturePtr const ref) subresourceRange: (subresourceRange: TextureSubResourceRange) memoryBarrierFrom: (sourceStage: PipelineStageMask) accesses: (sourceAccesses: AccessMask) to: (destStage: PipelineStageMask) accesses: (destAccesses: AccessMask) ::=> Void := {
@@ -188,7 +191,10 @@ class AgpuCommandList superclass: CommandList; definition: {
     }.
 
     override method pushBuffer: (buffer: BufferPtr const ref) transitionBarrierInto: (newUsageMode: BufferUsageMode) ::=> Void := {
-
+        let agpuBuffer := buffer getPointer castTo: AgpuBuffer pointer.
+        agpuBuffer ifNotNil: {
+            handle _ pushBufferTransitionBarrier: agpuBuffer _ handle newUsage: (newUsageMode castTo: AGPU BufferUsageMask)
+        }.
     }.
 
     override method pushTexture: (texture: TexturePtr const ref) subresourceRange: (subresourceRange: TextureSubResourceRange) transitionBarrierInto: (newUsageMode: TextureUsageMode) ::=> Void := {
@@ -196,11 +202,11 @@ class AgpuCommandList superclass: CommandList; definition: {
     }.
 
     override method popBufferTransitionBarrier ::=> Void := {
-
+        handle _ popBufferTransitionBarrier
     }.
 
     override method popTextureTransitionBarrier ::=> Void := {
-
+        handle _ popTextureTransitionBarrier
     }.
 
     override method copyFromBuffer: (sourceBuffer: BufferPtr const ref) offset: (sourceOffset: UIntPointer) into: (destBuffer: BufferPtr const ref) offset: (destOffset: UIntPointer) size: (copySize: UIntPointer) ::=> Void := {

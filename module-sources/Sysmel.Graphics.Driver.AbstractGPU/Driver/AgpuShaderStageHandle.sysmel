@@ -15,6 +15,10 @@ sealed class AgpuShaderStageHandle superclass: ShaderStageHandle; definition: {
     method attachTo: (builder: AGPU PipelineBuilderRef const ref) ::=> Void := {
         builder _ attachShaderWithEntryPoint: libraryHandle type: stageType entryPoint: entryPointName asCString
     }.
+
+    method attachTo: (builder: AGPU ComputePipelineBuilderRef const ref) ::=> Void := {
+        builder _ attachShaderWithEntryPoint: libraryHandle type: stageType entryPoint: entryPointName asCString
+    }.
 }.
 
 compileTime constant AgpuShaderStageHandlePtr := AgpuShaderStageHandle sharedPointer.
