@@ -1,0 +1,135 @@
+namespace Stdn definition: {
+namespace Math definition: {
+namespace Geometry definition: {
+
+sealed template GenericFrustum(ST: Type)
+    := class superclass: GenericGeometricShape(ST); definition: {
+    public field leftBottomNear type: Vector3.
+    public field rightBottomNear type: Vector3.
+    public field leftTopNear type: Vector3.
+    public field rightTopNear type: Vector3.
+
+    public field leftBottomFar type: Vector3.
+    public field rightBottomFar type: Vector3.
+    public field leftTopFar type: Vector3.
+    public field rightTopFar type: Vector3.
+
+    const inline method hash => Stdn Hash
+        := leftBottomNear hash ^ rightBottomNear hash ^ leftTopNear hash ^ rightTopNear hash ^
+          leftBottomFar hash ^ rightBottomFar hash ^ leftTopFar hash ^ rightTopFar hash.
+
+    const inline method = (other: SelfType const ref) ::=> Boolean8
+        := leftBottomNear = other leftBottomNear &&
+        rightBottomNear = other rightBottomNear &&
+        leftTopNear = other leftTopNear &&
+        rightTopNear = other rightTopNear &&
+
+        leftBottomFar = other leftBottomFar &&
+        rightBottomFar = other rightBottomFar &&
+        leftTopFar = other leftTopFar &&
+        rightTopFar = other rightTopFar.
+
+    Stdn Utility NotEqualsMethodMixin.
+
+    inline method makeFrustumLeft: (left: Scalar) right: (right: Scalar) bottom: (bottom: Scalar) top: (top: Scalar) near: (near: Scalar) far: (far: Scalar) ::=> Void := {
+        leftBottomNear := Vector3 x: left y: bottom z: near negated.
+        rightBottomNear := Vector3 x: right y: bottom z: near negated.
+        leftTopNear := Vector3 x: left y: top z: near negated.
+        rightTopNear := Vector3 x: right y: top z: near negated.
+
+        let factor := far / near.
+        leftBottomFar := leftBottomNear * factor.
+        rightBottomFar := rightBottomNear * factor.
+        leftTopFar := leftTopNear * factor.
+        rightTopFar := rightTopNear * factor.
+    }.
+
+    inline method makeOrthoLeft: (left: Scalar) right: (right: Scalar) bottom: (bottom: Scalar) top: (top: Scalar) near: (near: Scalar) far: (far: Scalar) ::=> Void := {
+        leftBottomNear := Vector3 x: left y: bottom z: near negated.
+        rightBottomNear := Vector3 x: right y: bottom z: near negated.
+        leftTopNear := Vector3 x: left y: top z: near negated.
+        rightTopNear := Vector3 x: right y: top z: near negated.
+
+        leftBottomFar := Vector3 x: left y: bottom z: far negated.
+        rightBottomFar := Vector3 x: right y: bottom z: far negated.
+        leftTopFar := Vector3 x: left y: top z: far negated.
+        rightTopFar := Vector3 x: right y: top z: far negated.
+    }.
+
+    inline method makePerspectiveFovY: (fovy: Scalar) aspect: (aspect: Scalar) near: (near: Scalar) far: (far: Scalar) ::=> Void := {
+        let fovyRad := fovy degreesToRadians * 0.5f.
+        let top := near * fovyRad tan.
+        let right := top * aspect.
+        self makeFrustumLeft: right negated right: right bottom: top negated top: top near: near far: far
+    }.
+
+    const inline method ndcPointInFarPlane: (normalizedPoint: Vector2) ::=> Vector3
+        := (leftBottomFar interpolateTo: rightBottomFar at: normalizedPoint x) interpolateTo:
+            (leftTopFar interpolateTo: rightTopFar at: normalizedPoint x) at: normalizedPoint y.
+
+    const inline method ndcPointInNearPlane: (normalizedPoint: Vector2) ::=> Vector3
+        := (leftBottomNear interpolateTo: rightBottomNear at: normalizedPoint x) interpolateTo:
+            (leftTopNear interpolateTo: rightTopNear at: normalizedPoint x) at: normalizedPoint y.
+
+    const inline method rayForNDCPoint: (normalizedPoint: Vector2) ::=> Ray3d := {
+        let nearPoint := self ndcPointInNearPlane: normalizedPoint.
+        let farPoint := self ndcPointInFarPlane: normalizedPoint.
+
+        Ray3d from: nearPoint to: farPoint
+    }.
+
+    const inline method transformedWith: (transform: ReversibleAffineTransform3d const ref) ::=> SelfType := {
+        SelfType()
+            leftBottomNear: (transform transformPosition: leftBottomNear);
+            rightBottomNear: (transform transformPosition: rightBottomNear);
+            leftTopNear: (transform transformPosition: leftTopNear);
+            rightTopNear: (transform transformPosition: rightTopNear);
+            leftBottomFar: (transform transformPosition: leftBottomFar);
+            rightBottomFar: (transform transformPosition: rightBottomFar);
+            leftTopFar: (transform transformPosition: leftTopFar);
+            rightTopFar: (transform transformPosition: rightTopFar);
+            yourself
+    }.
+
+    const inline method corners => (Vector3 array: 8)
+        := Vector3 array(leftBottomNear, rightBottomNear, leftTopNear, rightTopNear,
+        leftBottomFar, rightBottomFar, leftTopFar, rightTopFar).
+
+    const inline method boundingBox => Box := {
+        let result mutable := Box point: leftBottomNear.
+        result := result unionWith: rightBottomNear.
+        result := result unionWith: leftTopNear.
+        result := result unionWith: rightTopNear.
+
+        result := result unionWith: leftBottomFar.
+        result := result unionWith: rightBottomFar.
+        result := result unionWith: leftTopFar.
+        result unionWith: rightTopFar.
+    }.
+
+    const inline method planes => (Plane array: 6)
+        := Plane array(
+            ## Near plane
+    		(Plane point: leftBottomNear point: rightBottomNear point: leftTopNear),
+    		## Far plane
+    		(Plane point: rightBottomFar point: leftBottomFar point: leftTopFar),
+
+    		## Left
+    		(Plane point: leftBottomNear point: leftTopNear point: leftTopFar),
+    		## Right
+    		(Plane point: rightTopNear point: rightBottomNear point: rightTopFar),
+
+    		## Bottom
+    		(Plane point: rightBottomNear point: leftBottomNear point: leftBottomFar),
+    		## Top
+    		(Plane point: leftTopNear point: rightTopNear point: leftTopFar)
+        ).
+
+}.
+
+compileTime constant FrustumF32 := GenericFrustum(Float32).
+compileTime constant FrustumF64 := GenericFrustum(Float64).
+
+} ## End of namespace Geometry
+} ## End of namespace Math
+} ## End of namespace Stdn

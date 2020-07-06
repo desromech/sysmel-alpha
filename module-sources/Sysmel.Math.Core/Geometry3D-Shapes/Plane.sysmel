@@ -12,6 +12,20 @@ sealed template GenericPlane(ST: Type)
     public field normal type: Vector3.
     public field distance type: Scalar.
 
+    meta definition: {
+        static inline method normal: (theNormal: Vector3) distance: (theDistance: Scalar) ::=> InstanceType
+            := InstanceType() normal: theNormal; distance: theDistance; yourself.
+
+        static inline method point: (firstPoint: Vector3) point: (secondPoint: Vector3) point: (thirdPoint: Vector3) ::=> InstanceType := {
+            let u := secondPoint - firstPoint.
+            let v := thirdPoint - firstPoint.
+            let n := (u cross: v) normalized.
+            let d := n dot: firstPoint.
+            InstanceType normal: n distance: d
+        }.
+    }.
+
+    
 }.
 
 compileTime constant PlaneF32 := GenericPlane(Float32).

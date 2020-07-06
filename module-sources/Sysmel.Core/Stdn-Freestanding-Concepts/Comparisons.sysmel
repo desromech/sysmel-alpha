@@ -12,6 +12,11 @@ concept Equalable := {:type | type canUnderstand: #= }.
 concept HashKey := {:type | type canUnderstandAll: #(hash =) }.
 
 #**
+ * I represent types that can be compared by less than and by = equality.
+ *#
+concept LessThanComparable := {:type | type canUnderstandAll: #(= <) }.
+
+#**
  * I represent types that can be compared.
  *#
 concept Comparable := {:type | type canUnderstandAll: #(= ~= < <= > >= <=>) }.

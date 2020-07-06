@@ -1,0 +1,20 @@
+namespace Stdn definition: {
+namespace Math definition: {
+namespace Geometry definition: {
+
+enum IntersectionTestResult valueType: UInt8; values: #{
+    NoIntersection: 0.
+    Inside: 1.
+    Intersection: 2.
+}; definition: {
+    inline method isNoIntersection => Boolean8
+        := self = NoIntersection.
+    inline method isIntersectionOrInside => Boolean8
+        := self ~= NoIntersection.
+    inline method isInside => Boolean8
+        := self = Inside.
+}.
+
+} ## End of namespace Geometry
+} ## End of namespace Math
+} ## End of namespace Stdn

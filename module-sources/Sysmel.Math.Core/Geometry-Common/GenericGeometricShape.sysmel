@@ -24,6 +24,7 @@ sealed template GenericGeometricShape(ST: Type)
 
         compileTime constant Sphere := GenericSphere(Scalar).
         compileTime constant Plane := GenericPlane(Scalar).
+        compileTime constant Frustum := GenericFrustum(Scalar).
         compileTime constant Ray3d := GenericRay3d(Scalar).
     }.
 }.

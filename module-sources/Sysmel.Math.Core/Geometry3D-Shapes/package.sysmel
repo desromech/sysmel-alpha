@@ -2,3 +2,4 @@ loadFileOnce: "Sphere.sysmel".
 loadFileOnce: "Plane.sysmel".
 loadFileOnce: "Box.sysmel".
 loadFileOnce: "Ray.sysmel".
+loadFileOnce: "Frustum.sysmel".
