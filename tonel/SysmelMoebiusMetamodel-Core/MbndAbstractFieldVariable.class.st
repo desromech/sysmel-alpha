@@ -24,7 +24,7 @@ MbndAbstractFieldVariable >> analyzeReferenceNode: referenceNode with: analyzer 
 
 { #category : #converting }
 MbndAbstractFieldVariable >> asDescriptorSetBinding [
-	^ slotIndex
+	^ location isInteger ifTrue: [ location ] ifFalse: [ slotIndex ]
 ]
 
 { #category : #converting }
