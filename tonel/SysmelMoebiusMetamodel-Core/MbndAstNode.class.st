@@ -64,6 +64,14 @@ MbndAstNode >> concretizeNodeWithAnalyzer: analyzer [
 	^ self
 ]
 
+{ #category : #copying }
+MbndAstNode >> copyWithConcreteSourcePosition: aPosition [
+	aPosition isEmptySourcePosition ifTrue: [ ^ self ].
+	^ self copy
+		position: aPosition;
+		yourself
+]
+
 { #category : #serialization }
 MbndAstNode >> encodeFieldsForMessagePackWith: graphEncoder [
 	^ {
@@ -74,6 +82,11 @@ MbndAstNode >> encodeFieldsForMessagePackWith: graphEncoder [
 { #category : #serialization }
 MbndAstNode >> encodeGraphForMessagePackWith: graphEncoder [
 	^ graphEncoder encodeObject: self type: self messagePackTypeName fields: [self encodeFieldsForMessagePackWith: graphEncoder]
+]
+
+{ #category : #testing }
+MbndAstNode >> hasEmptySourcePosition [
+	^ position isEmptySourcePosition
 ]
 
 { #category : #composition }
@@ -284,6 +297,11 @@ MbndAstNode >> isDynamicObjectToFloatCastNode [
 
 { #category : #testing }
 MbndAstNode >> isDynamicObjectToIntegerCastNode [
+	^ false
+]
+
+{ #category : #testing }
+MbndAstNode >> isEmptySourcePosition [
 	^ false
 ]
 

@@ -430,6 +430,11 @@ MbndAbstractSpecificMethod >> typedSelector [
 	^ typedSelector
 ]
 
+{ #category : #accessing }
+MbndAbstractSpecificMethod >> validSourcePosition [
+	^ self definitionPosition ifNil: [ MbndSourcePosition empty ]
+]
+
 { #category : #'as yet unclassified' }
 MbndAbstractSpecificMethod >> virtualTableSelector [
 	^ {name . self vtableEntryKind . self boundType }

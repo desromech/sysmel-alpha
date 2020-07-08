@@ -2,7 +2,8 @@ Class {
 	#name : #MbndAstQuasiQuoteEvaluator,
 	#superclass : #MbndAstTransformVisitor,
 	#instVars : [
-		'unquoteEvaluator'
+		'unquoteEvaluator',
+		'validSourcePosition'
 	],
 	#category : #'SysmelMoebiusMetamodel-Core-Evaluation'
 }
@@ -15,6 +16,11 @@ MbndAstQuasiQuoteEvaluator >> unquoteEvaluator [
 { #category : #accessing }
 MbndAstQuasiQuoteEvaluator >> unquoteEvaluator: anObject [
 	unquoteEvaluator := anObject
+]
+
+{ #category : #accessing }
+MbndAstQuasiQuoteEvaluator >> validSourcePosition [
+	^ validSourcePosition ifNil: [validSourcePosition := unquoteEvaluator scope validSourcePosition]
 ]
 
 { #category : #visiting }
@@ -83,6 +89,17 @@ MbndAstQuasiQuoteEvaluator >> visitMacroSendMessageWithArgumentsNode: node [
 		selector: basicExpansion selector;
 		arguments: basicExpansion arguments;
 		yourself
+]
+
+{ #category : #visiting }
+MbndAstQuasiQuoteEvaluator >> visitNode: node [
+	| result |
+	result := super visitNode: node.
+	result hasEmptySourcePosition ifTrue: [
+		result := result copyWithConcreteSourcePosition: self validSourcePosition
+	].
+
+	^ result
 ]
 
 { #category : #visiting }

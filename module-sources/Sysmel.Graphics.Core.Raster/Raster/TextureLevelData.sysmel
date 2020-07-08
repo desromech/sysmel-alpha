@@ -7,8 +7,9 @@ namespace Core definition: {
  *#
 struct TextureLevelData definition: {
     public field extent type: UInt32x3.
-    public field compressedExtent type: UInt32x3.
     public field pitch type: UInt32.
+
+    public field compressedExtent type: UInt32x3.
     public field slicePitch type: UInt32.
     public field dataOffset type: UInt32.
     public field dataSize type: UInt32.

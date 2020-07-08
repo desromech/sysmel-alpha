@@ -64,9 +64,10 @@ MbndAbstractConcreteMethod >> computeShaderLocalSize: anObject [
 ]
 
 { #category : #evaluation }
-MbndAbstractConcreteMethod >> constructEvaluationScopeWithReceiver: receiverValue arguments: argumentValues [
+MbndAbstractConcreteMethod >> constructEvaluationScopeWithReceiver: receiverValue arguments: argumentValues at: evaluationPosition [
 	| evaluationScope argumentDefinition receiverDefinition |
 	evaluationScope := MbndFunctionEvaluationScope parent: definitionScope.
+	evaluationScope evaluationSourcePosition: evaluationPosition.
 	evaluationScope := evaluationScope newReturnContextScope newLexicalScope.
 	
 	receiverType isVoidType ifFalse: [ 
@@ -306,7 +307,8 @@ MbndAbstractConcreteMethod >> evaluateWithReceiver: receiverValue arguments: arg
 		self errorNotInCompileTime: 'Cannot evaluate method {1} in compile time.' format: { name asPrettySymbolName } at: position.
 	].
 
-	evaluationScope := self constructEvaluationScopeWithReceiver: receiverValue arguments: argumentValues.
+	evaluationScope := self constructEvaluationScopeWithReceiver: receiverValue arguments: argumentValues at: position.
+
 	callEvaluator := MbndAstEvaluator new
 		module: evaluator module;
 		scope: evaluationScope.

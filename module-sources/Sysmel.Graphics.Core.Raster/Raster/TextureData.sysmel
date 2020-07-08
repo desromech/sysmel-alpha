@@ -37,19 +37,24 @@ class TextureData superclass: TextureDataHeader; definition: {
         0 until: layers do: {:i :: Void |
             let currentExtent mutable := extent.
             0 until: miplevels do: {:j :: Void |
-                let levelData mutable := TextureLevelData().
-                 levelData extent: currentExtent.
+                let levelData mutable := TextureLevelData()
+                    extent: currentExtent;
+                    yourself.
 
                 compressedBlockSize = 0 ifTrue: {
                     levelData
                         compressedExtent: currentExtent;
-                        pitch: (extent x * uncompressedPixelSize alignedTo: 4);
-                        slicePitch: levelData pitch * extent y.
+                        pitch: (currentExtent x * uncompressedPixelSize alignedTo: 4);
+                        slicePitch: levelData pitch * currentExtent y.
                 } ifFalse: {
+                    ## Compute the width and height by separate to keep valgrind happy.
+                    let compressedWidth := (currentExtent x + compressedBlockExtent x - 1) / compressedBlockExtent x max: 1u.
+                    let compressedHeight := (currentExtent y + compressedBlockExtent y - 1) / compressedBlockExtent y max: 1u.
+                    let compressedExtent := UInt32x3(compressedWidth, compressedHeight, currentExtent z).
                     levelData
-                        compressedExtent: UInt32x3((currentExtent xy + compressedBlockExtent - 1) / compressedBlockExtent max: UInt32x2(1, 1), currentExtent z);
-                        pitch: levelData compressedExtent x * compressedBlockSize;
-                        slicePitch: levelData pitch * levelData compressedExtent y.
+                        compressedExtent: compressedExtent;
+                        pitch: compressedExtent x * compressedBlockSize;
+                        slicePitch: levelData pitch * compressedExtent y.
                 }.
 
                 levelData

@@ -23,3 +23,8 @@ MbndAbstractSourcePosition >> asSourcePositionString [
 MbndAbstractSourcePosition >> asSysmelSourcePosition [
 	^ self
 ]
+
+{ #category : #testing }
+MbndAbstractSourcePosition >> isEmptySourcePosition [
+	^ false
+]

@@ -7,6 +7,8 @@ sealed template GenericSphere(ST: Type)
     public field center type: Vector3.
     public field radius type: Scalar.
 
+    const inline method includesPoint: (point: Vector3) ::=> Boolean8
+        := (point - center) length2 <= radius*radius.
 }.
 
 compileTime constant SphereF32 := GenericSphere(Float32).

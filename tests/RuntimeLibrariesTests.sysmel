@@ -1,14 +1,14 @@
 Compiler
 	importModulesNamed: #(
-		#*#"Sysmel.Core.Tests"
+		#"Sysmel.Core.Tests"
 
 		#"Sysmel.Serialization.Core.Tests"
 		#"Sysmel.Serialization.JSON.Tests"
-		#"Sysmel.Serialization.MessagePack.Tests" *#
+		#"Sysmel.Serialization.MessagePack.Tests"
 
 		#"Sysmel.Math.Core.Tests"
-		#* #"Norphic.Core.Tests"
-		#"Sysmel.Graphics.Core.2D.Tests" *#
+		#"Norphic.Core.Tests"
+		#"Sysmel.Graphics.Core.2D.Tests"
 	).
 
 Stdn Testing generateTestSuiteProgramMain: "RuntimeLibrariesTests".

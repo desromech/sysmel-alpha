@@ -67,7 +67,7 @@ MbndSourcePosition >> endLine [
 { #category : #accessing }
 MbndSourcePosition >> fetchEndLineAndColumn [
 	| lineColumn |
-	collection ifNil: [
+	(collection isNil or: [ collection isString ]) ifTrue: [
 		endLine := 0.
 		endColumn := 0.
 		^ self
@@ -118,6 +118,11 @@ MbndSourcePosition >> initialize [
 	endColumn := 0.
 ]
 
+{ #category : #testing }
+MbndSourcePosition >> isEmptySourcePosition [
+	^ self = EmptySourcePosition
+]
+
 { #category : #accessing }
 MbndSourcePosition >> line [
 	line ifNil: [ self fetchLineAndColumn ].
@@ -141,7 +146,7 @@ MbndSourcePosition >> printOn: aStream [
 
 { #category : #accessing }
 MbndSourcePosition >> sourceCode [
-	collection ifNil: [ ^ '' ].
+	(collection isNil or: [collection isString]) ifTrue: [ ^ '' ].
 	^ collection copyFrom: start to: stop
 ]
 

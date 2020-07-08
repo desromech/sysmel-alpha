@@ -202,6 +202,11 @@ MbndAbstractScope >> returnTypeProgramEntity [
 	^ parent ifNotNil: #returnTypeProgramEntity
 ]
 
+{ #category : #accessing }
+MbndAbstractScope >> validSourcePosition [
+	^ MbndSourcePosition empty
+]
+
 { #category : #'as yet unclassified' }
 MbndAbstractScope >> workingDirectory [
 	^ parent

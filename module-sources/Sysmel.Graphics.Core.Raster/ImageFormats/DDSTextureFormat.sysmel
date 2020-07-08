@@ -200,7 +200,7 @@ class DDSTextureFormat superclass: ImageReadWriter; definition: {
 
             DDS_PixelFormat_DX10 : {
                 let headerDXT10 mutable type: DDS_HeaderDXT10.
-                (inputStream read: header address size: DDS_HeaderDXT10 instanceSize) = DDS_HeaderDXT10 instanceSize ifFalse: {
+                (inputStream read: headerDXT10 address size: DDS_HeaderDXT10 instanceSize) = DDS_HeaderDXT10 instanceSize ifFalse: {
                     return: TextureDataPtr nil
                 }.
 
