@@ -468,6 +468,12 @@ MbndSlovimCodeModuleGenerator >> exceptionCatchEndFunction [
 	]
 ]
 
+{ #category : #'as yet unclassified' }
+MbndSlovimCodeModuleGenerator >> exceptionHandlingCodeGeneratorClass [
+	self hasExceptions ifFalse: [ ^ MbndSlovimFunctionNullExceptionHandlingCodeGenerator ].
+	^ MbndSlovimFunctionLandingPadExceptionHandlingCodeGenerator
+]
+
 { #category : #visiting }
 MbndSlovimCodeModuleGenerator >> fetchNativeShader: functionMethod inputsOfType: inputMessageType
 into: inputStorage from: ioInterface
