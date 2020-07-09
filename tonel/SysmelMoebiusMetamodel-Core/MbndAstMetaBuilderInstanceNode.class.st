@@ -14,7 +14,7 @@ MbndAstMetaBuilderInstanceNode >> accept: aVisitor [
 
 { #category : #'as yet unclassified' }
 MbndAstMetaBuilderInstanceNode >> concretizeNodeWithAnalyzer: analyzer [
-	^ instance concretizeGenericNode: self withAnalyzer: analyzer
+	^ instance concretizeGenericNodeAt: self withAnalyzer: analyzer
 ]
 
 { #category : #serialization }

@@ -12,6 +12,12 @@ MbndArraySliceType class >> typeName [
 	^ #_ArraySliceType
 ]
 
+{ #category : #initialization }
+MbndArraySliceType >> aArraySliceType [
+	<compileTime>
+	^ self
+]
+
 { #category : #visiting }
 MbndArraySliceType >> accept: aVisitor [
 	^ aVisitor visitArraySliceType: self
@@ -51,6 +57,9 @@ MbndArraySliceType >> addInstanceMacros [
 	self class == MbndArraySliceType ifFalse: [ ^ self ].
 	self isTrait ifFalse: [ ^ self ].
 	self
+		onMacroSelector: #asArraySlice do: [ :node :builder |
+			node receiver
+		];
 		onMacroSelector: #subscriptAt: do: [ :node :builder |
 			(builder arraySlice: node receiver elementReferenceAt: node arguments first)
 				position: node;
@@ -72,11 +81,13 @@ MbndArraySliceType >> asImmutableValueType [
 
 { #category : #initialization }
 MbndArraySliceType >> elementPointerType [
+	<compileTime>
 	^ elementType pointer
 ]
 
 { #category : #accessing }
 MbndArraySliceType >> elementType [
+	<compileTime>
 	^ elementType
 ]
 

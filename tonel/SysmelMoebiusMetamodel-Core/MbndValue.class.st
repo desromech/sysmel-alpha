@@ -32,6 +32,8 @@ MbndValue >> analyzeReferenceNode: referenceNode with: analyzer [
 
 { #category : #converting }
 MbndValue >> asLiteralValueNode [
+	<compileTime>
+	<returnType: #_ASTNodeType>
 	^ MbndAstLiteralValueNode new
 		value: value;
 		type: type;

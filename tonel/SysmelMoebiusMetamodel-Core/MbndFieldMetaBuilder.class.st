@@ -17,7 +17,7 @@ MbndFieldMetaBuilder >> bits: bitCount [
 ]
 
 { #category : #'semantic analysis' }
-MbndFieldMetaBuilder >> concretizeNode: node withAnalyzer: analyzer [
+MbndFieldMetaBuilder >> concretizeNodeAt: node withAnalyzer: analyzer [
 	| result |
 	result := (analyzer astBuilder
 		defineField: name withValueType: valueType withInitialValue: initialValueNode)

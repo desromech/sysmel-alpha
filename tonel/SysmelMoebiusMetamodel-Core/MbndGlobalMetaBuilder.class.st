@@ -15,7 +15,7 @@ MbndGlobalMetaBuilder class >> globalBindingName [
 ]
 
 { #category : #'semantic analysis' }
-MbndGlobalMetaBuilder >> concretizeNode: node withAnalyzer: analyzer [
+MbndGlobalMetaBuilder >> concretizeNodeAt: node withAnalyzer: analyzer [
 	| result |
 	result := (analyzer astBuilder
 		defineGlobalVariable: name withValueType: valueType withInitialValue: initialValueNode)

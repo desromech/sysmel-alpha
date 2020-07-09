@@ -17,7 +17,7 @@ MbndDestructuringAssignmentMetaBuilder >> assignValue: value [
 ]
 
 { #category : #'semantic analysis' }
-MbndDestructuringAssignmentMetaBuilder >> concretizeNode: node withAnalyzer: analyzer [
+MbndDestructuringAssignmentMetaBuilder >> concretizeNodeAt: node withAnalyzer: analyzer [
 	self error: 'Destructuring assignment requires an inital value.' at: node
 ]
 

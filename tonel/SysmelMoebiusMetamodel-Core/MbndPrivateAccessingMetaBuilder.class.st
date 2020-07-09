@@ -82,6 +82,6 @@ MbndPrivateAccessingMetaBuilder >> analyzeUnexpandedMessageSendNode: node with: 
 ]
 
 { #category : #'semantic analysis' }
-MbndPrivateAccessingMetaBuilder >> concretizeNode: node withAnalyzer: analyzer [
+MbndPrivateAccessingMetaBuilder >> concretizeNodeAt: node withAnalyzer: analyzer [
 	^ aggregateNode
 ]

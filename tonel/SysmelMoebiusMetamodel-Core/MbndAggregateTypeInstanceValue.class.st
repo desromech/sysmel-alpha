@@ -44,6 +44,8 @@ MbndAggregateTypeInstanceValue >> analyzeReferenceNode: referenceNode with: anal
 
 { #category : #converting }
 MbndAggregateTypeInstanceValue >> asLiteralValueNode [
+	<compileTime>
+	<returnType: #_ASTNodeType>
 	^ MbndAstLiteralValueNode new
 		value: self;
 		type: type;

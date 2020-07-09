@@ -13,7 +13,7 @@ MbndCompileTimeConstantMetaBuilder >> assignValue: newValueNode [
 ]
 
 { #category : #'semantic analysis' }
-MbndCompileTimeConstantMetaBuilder >> concretizeNode: node withAnalyzer: analyzer [
+MbndCompileTimeConstantMetaBuilder >> concretizeNodeAt: node withAnalyzer: analyzer [
 	name ifNil: [
 		analyzer error: 'Alias definition without a name.' at: node
 	].

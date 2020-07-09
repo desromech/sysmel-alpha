@@ -18,7 +18,7 @@ MbndNamespaceMetaBuilder >> assignValue: newBodyNode [
 ]
 
 { #category : #'semantic analysis' }
-MbndNamespaceMetaBuilder >> concretizeNode: node withAnalyzer: analyzer [
+MbndNamespaceMetaBuilder >> concretizeNodeAt: node withAnalyzer: analyzer [
 	name ifNil: [
 		analyzer error: 'Namespace definition without a name.' at: node
 	].

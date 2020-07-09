@@ -24,6 +24,8 @@ MbndUnionTypeInstanceValue >> analyzeReferenceNode: referenceNode with: analyzer
 
 { #category : #converting }
 MbndUnionTypeInstanceValue >> asLiteralValueNode [
+	<compileTime>
+	<returnType: #_ASTNodeType>
 	^ MbndAstLiteralValueNode new
 		value: self;
 		type: type;

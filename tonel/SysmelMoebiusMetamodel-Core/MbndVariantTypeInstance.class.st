@@ -18,6 +18,8 @@ MbndVariantTypeInstance class >> messagePackTypeName [
 
 { #category : #converting }
 MbndVariantTypeInstance >> asLiteralValueNode [
+	<compileTime>
+	<returnType: #_ASTNodeType>
 	^ MbndAstLiteralValueNode new
 		value: self;
 		type: (type isPOD ifTrue: [ type ] ifFalse: [ type const ref]);

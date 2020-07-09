@@ -38,7 +38,7 @@ MbndTemplateMetaBuilder >> checkTemplateArguments [
 ]
 
 { #category : #'semantic analysis' }
-MbndTemplateMetaBuilder >> concretizeNode: node withAnalyzer: analyzer [
+MbndTemplateMetaBuilder >> concretizeNodeAt: node withAnalyzer: analyzer [
 	self error: 'Incomplete template definition.' at: node
 ]
 

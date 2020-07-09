@@ -22,6 +22,10 @@ MbndTypeConcept >> addInstanceMacros [
 	self class == MbndTypeConcept ifFalse: [ ^ self ].
 	self isTrait ifFalse: [ ^ self ].
 	
+	self
+		onMacroSelector: #asLiteralValueNode do: [ :node :builder |
+			builder explicitCast: node receiver to: builder compilationTarget astNodeType
+		]. 
 	self type
 		onMacroSelector: #ifType:complies:else: do: [ :node :builder :analyzer |
 			| concept testedType |

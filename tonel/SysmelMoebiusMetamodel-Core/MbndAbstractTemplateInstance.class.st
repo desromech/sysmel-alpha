@@ -30,6 +30,8 @@ MbndAbstractTemplateInstance >> addChild: aChild [
 
 { #category : #converting }
 MbndAbstractTemplateInstance >> asLiteralValueNode [
+	<compileTime>
+	<returnType: #_ASTNodeType>
 	^ mainChild asLiteralValueNode
 ]
 

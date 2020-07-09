@@ -77,6 +77,8 @@ MbndAbstractTemplate >> argumentTupleType [
 
 { #category : #'semantic analysis' }
 MbndAbstractTemplate >> asLiteralValueNode [
+	<compileTime>
+	<returnType: #_ASTNodeType>
 	^ MbndAstLiteralValueNode new
 		value: self;
 		type: self type;

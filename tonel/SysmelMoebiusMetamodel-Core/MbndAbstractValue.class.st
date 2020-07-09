@@ -14,6 +14,8 @@ MbndAbstractValue class >> messagePackTypeName [
 
 { #category : #converting }
 MbndAbstractValue >> asLiteralValueNode [
+	<compileTime>
+	<returnType: #_ASTNodeType>
 	^ MbndAstLiteralValueNode new
 		value: self;
 		type: self type;

@@ -14,6 +14,12 @@ MbndArrayType class >> typeName [
 	^ #_ArrayType
 ]
 
+{ #category : #initialization }
+MbndArrayType >> aArraySliceType [
+	<compileTime>
+	^ elementType arraySlice
+]
+
 { #category : #visiting }
 MbndArrayType >> accept: aVisitor [
 	^ aVisitor visitArrayType: self
@@ -43,6 +49,14 @@ MbndArrayType >> addInstanceMacros [
 				position: node;
 				isOneBasedIndex: true;
 				yourself.
+		];
+		onMacroSelector: #asArraySlice do: [ :node :builder |
+			| arrayType |
+			arrayType := node receiver type withoutReferences withoutTopDecorations.
+			self assert: arrayType isArrayType.
+			(builder unexpandedSend: (builder literalSymbol: #until:) to: node receiver withArguments: {
+				builder literalInteger: arrayType elements
+			}) position: node position
 		];
 		onMacroSelectors: #(until: to: from:until: from:to:) do: [ :node :builder |
 			| arrayFirstElementPointer |
@@ -122,6 +136,7 @@ MbndArrayType >> defaultValueAt: aPosition [
 
 { #category : #accessing }
 MbndArrayType >> elementType [
+	<compileTime>
 	^ elementType
 ]
 

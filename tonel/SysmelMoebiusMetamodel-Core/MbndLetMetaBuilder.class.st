@@ -15,7 +15,7 @@ MbndLetMetaBuilder >> applyWithArguments: tuple [
 ]
 
 { #category : #'semantic analysis' }
-MbndLetMetaBuilder >> concretizeNode: node withAnalyzer: analyzer [
+MbndLetMetaBuilder >> concretizeNodeAt: node withAnalyzer: analyzer [
 	| result |
 	result := (analyzer astBuilder
 		defineLocalVariable: name withValueType: valueType withInitialValue: initialValueNode)

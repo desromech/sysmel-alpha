@@ -388,6 +388,8 @@ TMbndAbstractType >> asImmutableValueType [
 
 { #category : #'semantic analysis' }
 TMbndAbstractType >> asLiteralValueNode [
+	<compileTime>
+	<returnType: #_ASTNodeType>
 	^ MbndAstLiteralValueNode new
 		value: self;
 		type: self type;

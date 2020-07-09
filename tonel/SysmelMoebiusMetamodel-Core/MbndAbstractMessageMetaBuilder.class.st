@@ -39,7 +39,7 @@ MbndAbstractMessageMetaBuilder >> assignValue: aNode [
 ]
 
 { #category : #'semantic analysis' }
-MbndAbstractMessageMetaBuilder >> concretizeNode: node withAnalyzer: analyzer [
+MbndAbstractMessageMetaBuilder >> concretizeNodeAt: node withAnalyzer: analyzer [
 	self ensureMessagePrototype.
 	
 	^ analyzer visitNode: (messageDefinition

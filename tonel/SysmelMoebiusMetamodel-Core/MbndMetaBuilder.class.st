@@ -54,14 +54,14 @@ MbndMetaBuilder >> analyzeUnexpandedMessageSendNode: node with: analyzer [
 ]
 
 { #category : #'semantic analysis' }
-MbndMetaBuilder >> concretizeGenericNode: node withAnalyzer: analyzer [
+MbndMetaBuilder >> concretizeGenericNodeAt: node withAnalyzer: analyzer [
 	| specificExpansions |
 	ownerProgramEntity ifNotNil: [ 
 		(ownerProgramEntity isMbndType and: [ ownerProgramEntity isVariantUnionType ]) ifTrue: [
 			specificExpansions := (ownerProgramEntity components asArray collect: [ :comp |
 				self copy
 					ownerProgramEntity: comp;
-					concretizeNode: node withAnalyzer: analyzer
+					concretizeNodeAt: node withAnalyzer: analyzer
 			]).
 			^ MbndAstSequenceNode new
 				position: node;
@@ -71,11 +71,11 @@ MbndMetaBuilder >> concretizeGenericNode: node withAnalyzer: analyzer [
 		].
 	].
 
-	^ self concretizeNode: node withAnalyzer: analyzer
+	^ self concretizeNodeAt: node withAnalyzer: analyzer
 ]
 
 { #category : #'semantic analysis' }
-MbndMetaBuilder >> concretizeNode: node withAnalyzer: analyzer [
+MbndMetaBuilder >> concretizeNodeAt: node withAnalyzer: analyzer [
 	"By default, in the end replace myself with void."
 	^ analyzer astBuilder literalVoid
 ]
@@ -83,7 +83,7 @@ MbndMetaBuilder >> concretizeNode: node withAnalyzer: analyzer [
 { #category : #'semantic analysis' }
 MbndMetaBuilder >> concretizeUnexpandedMessageSendNode: node thenAnalyzerWith: analyzer [
 	^ analyzer visitNode: (node copy
-		receiver: (self concretizeGenericNode: node receiver withAnalyzer: analyzer);
+		receiver: (self concretizeGenericNodeAt: node receiver withAnalyzer: analyzer);
 		yourself)
 ]
 
@@ -117,7 +117,7 @@ MbndMetaBuilder >> error: anErrorString at: aSourcePosition [
 
 { #category : #'meta builder finalization' }
 MbndMetaBuilder >> finishMetaBuilding [
-	^ MbndMetaBuilderAbortException new signal
+	^ self concretizeGenericNodeAt: position withAnalyzer: currentAnalyzer
 ]
 
 { #category : #initialization }

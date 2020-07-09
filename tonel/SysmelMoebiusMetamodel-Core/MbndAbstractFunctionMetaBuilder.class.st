@@ -65,7 +65,7 @@ MbndAbstractFunctionMetaBuilder >> computeShader [
 ]
 
 { #category : #'semantic analysis' }
-MbndAbstractFunctionMetaBuilder >> concretizeNode: node withAnalyzer: analyzer [
+MbndAbstractFunctionMetaBuilder >> concretizeNodeAt: node withAnalyzer: analyzer [
 	self ensureFunctionPrototype.
 	
 	^ analyzer visitNode: (functionDefinition

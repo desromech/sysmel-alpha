@@ -51,6 +51,8 @@ MbndNamespace >> analyzeReferenceNode: referenceNode with: analyzer [
 
 { #category : #'semantic analysis' }
 MbndNamespace >> asLiteralValueNode [
+	<compileTime>
+	<returnType: #_ASTNodeType>
 	^ MbndAstLiteralValueNode new
 		value: self;
 		type: self type;

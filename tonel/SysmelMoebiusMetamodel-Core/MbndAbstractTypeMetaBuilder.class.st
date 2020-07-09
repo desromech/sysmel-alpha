@@ -10,7 +10,7 @@ Class {
 }
 
 { #category : #'semantic analysis' }
-MbndAbstractTypeMetaBuilder >> concretizeNode: node withAnalyzer: analyzer [
+MbndAbstractTypeMetaBuilder >> concretizeNodeAt: node withAnalyzer: analyzer [
 	self ensureTypeDeclarationNode.
 	self assert: typeDeclarationNode isNotNil.
 	

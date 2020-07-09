@@ -22,7 +22,8 @@ MbndAbstractVariableMetaBuilder >> alignment: anObject [
 { #category : #definition }
 MbndAbstractVariableMetaBuilder >> assignValue: newInitialValueNode [
 	initialValueNode ifNotNil: [ self abortMetaBuilding ].
-	initialValueNode := newInitialValueNode
+	initialValueNode := newInitialValueNode.
+	^ self finishMetaBuilding
 ]
 
 { #category : #'as yet unclassified' }
