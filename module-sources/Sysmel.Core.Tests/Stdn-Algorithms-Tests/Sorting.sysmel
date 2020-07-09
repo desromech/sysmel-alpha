@@ -1,0 +1,104 @@
+namespace Stdn definition: {
+namespace Algorithms definition: {
+namespace Tests definition: {
+
+template SortAlgorithmTestCase(SA: Type)
+:= class superclass: Stdn Testing TestCase; definition: {
+    compileTime constant IntegerSorter := SA.
+
+    macro method sort: array := ``{
+        let sortedArray mutable := `,array.
+        IntegerSorter sort: sortedArray asArraySlice with: {:a :b :: Boolean8 | a < b}.
+        sortedArray
+    }.
+
+    test: testEmptyArray with: {
+        self assert: (self sort: Int32 array()) equals: Int32 array().
+    }.
+
+    test: testSingleElementArray with: {
+        self assert: (self sort: Int32 array(1)) equals: Int32 array(1).
+    }.
+
+    test: testTwoElementArray with: {
+        self assert: (self sort: Int32 array(2, 1)) equals: Int32 array(1, 2).
+    }.
+
+    test: testThreeElementArray with: {
+        self assert: (self sort: Int32 array(2, 1, -1)) equals: Int32 array(-1, 1, 2).
+    }.
+
+    test: testTenElementArray with: {
+        self assert: (self sort: Int32 array(10, 2, 3, 5, 1, 7, 0, 4, 9, 8, 6)) equals: Int32 array(0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10).
+    }.
+
+    test: testSortedElementArray with: {
+        let sorted mutable type: (Int32 array: 1024).
+        0 until: 1024 do: {:(Int32)i :: Void |
+            sorted[i] := i.
+        }.
+
+        self assert: (self sort: sorted) equals: sorted.
+    }.
+    test: testReverseSortedElementArray with: {
+        let sorted mutable type: (Int32 array: 1024).
+        let reverseSorted mutable type: (Int32 array: 1024).
+        0 until: 1024 do: {:(Int32)i :: Void |
+            sorted[i] := i.
+            reverseSorted[i] := 1024 - i - 1.
+        }.
+
+        self assert: (self sort: reverseSorted) equals: sorted.
+    }.
+
+}.
+
+compileTime constant InsertionSortTestCase := SortAlgorithmTestCase(InsertionSort(Int32)).
+compileTime constant HeapSortTestCase := SortAlgorithmTestCase(HeapSort(Int32)).
+compileTime constant QuickSortTestCase := SortAlgorithmTestCase(QuickSort(Int32)).
+compileTime constant IntroSortTestCase := SortAlgorithmTestCase(IntroSort(Int32)).
+
+class DefaultSortingTestCase superclass: Stdn Testing TestCase; definition: {
+    test: testEmptyArray with: {
+        self assert: Int32 array() sorted equals: Int32 array().
+    }.
+
+    test: testSingleElementArray with: {
+        self assert: Int32 array(1) sorted equals: Int32 array(1).
+    }.
+
+    test: testTwoElementArray with: {
+        self assert: Int32 array(2, 1) sorted equals: Int32 array(1, 2).
+    }.
+
+    test: testThreeElementArray with: {
+        self assert: Int32 array(2, 1, -1) sorted equals: Int32 array(-1, 1, 2).
+    }.
+
+    test: testTenElementArray with: {
+        self assert: Int32 array(10, 2, 3, 5, 1, 7, 0, 4, 9, 8, 6) sorted equals: Int32 array(0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10).
+    }.
+
+    test: testSortedElementArray with: {
+        let sorted mutable type: (Int32 array: 1024).
+        0 until: 1024 do: {:(Int32)i :: Void |
+            sorted[i] := i.
+        }.
+
+        self assert: sorted sorted equals: sorted.
+    }.
+    test: testReverseSortedElementArray with: {
+        let sorted mutable type: (Int32 array: 1024).
+        let reverseSorted mutable type: (Int32 array: 1024).
+        0 until: 1024 do: {:(Int32)i :: Void |
+            sorted[i] := i.
+            reverseSorted[i] := 1024 - i - 1.
+        }.
+
+        self assert: reverseSorted sorted equals: sorted.
+    }.
+}.
+
+}. ## namespace Tests
+}. ## namespace Algorithms
+}. ## namespace Stdn

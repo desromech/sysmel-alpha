@@ -26,6 +26,7 @@ if: Compiler compilationTarget isGPU not then: {
 	Compiler loadPackages: #(
 		#"Stdn-Freestanding-ExplicitMemoryCollections"
 		#"Stdn-Freestanding-Collections"
+		#"Stdn-Freestanding-Algorithms"
 	).
 	loadFileOnce: "RTTI.sysmel".
 	loadFileOnce: "Object.sysmel".

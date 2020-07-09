@@ -2,6 +2,7 @@ Compiler
     importModuleNamed: #"Sysmel.Testing";
     loadPackages: #(
         #"Stdn-Collections-Tests"
+        #"Stdn-Algorithms-Tests"
         #"Stdn-IO-Tests"
         #"Stdn-Memory-Tests"
         #"Stdn-Functional-Tests"

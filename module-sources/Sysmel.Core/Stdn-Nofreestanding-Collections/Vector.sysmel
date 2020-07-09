@@ -302,6 +302,20 @@ template Vector(ET: Stdn Concepts Copyable)
 	}.
 
 	Stdn Collections ArrayedCollectionMixin.
+
+	macro method sortWith: aBlock := ``(`, self asArraySlice sortWith: `,aBlock).
+	macro method sort := ``(`, self asArraySlice sort).
+
+	macro method sortedWith: aBlock := ``(
+        ((let _ mutable := `,self)
+            sortWith: `,aBlock;
+            yourself) asMoveReference
+    ).
+    macro method sorted := ``(
+        ((let _ mutable := `,self)
+            sort;
+            yourself) asMoveReference
+    ).
 }.
 
 }. ## End of namespace Collections

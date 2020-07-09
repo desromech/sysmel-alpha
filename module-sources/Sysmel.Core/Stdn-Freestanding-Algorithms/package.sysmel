@@ -1,0 +1,5 @@
+loadFileOnce: "InsertionSort.sysmel".
+loadFileOnce: "HeapSort.sysmel".
+loadFileOnce: "QuickSort.sysmel".
+loadFileOnce: "IntroSort.sysmel".
+loadFileOnce: "EquivalentElementTest.sysmel".

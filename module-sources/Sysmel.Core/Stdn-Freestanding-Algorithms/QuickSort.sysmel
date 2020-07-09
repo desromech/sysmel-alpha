@@ -1,0 +1,73 @@
+namespace Stdn definition: {
+namespace Algorithms definition: {
+
+template Partition(VT: Type)
+:= struct definition: {
+    compileTime constant ValueType := VT.
+    compileTime constant LessThanBlockType := ((ValueType const ref -- ValueType const ref) => Boolean8) nativeBlockClosure.
+
+    meta definition: {
+
+        static method partition: (data: ValueType arraySlice) with: (lessThan: LessThanBlockType) ::=> UIntPointer := {
+            ## https://en.wikipedia.org/wiki/Quicksort [July, 2020]
+            ## Median of three.
+            let firstIndex := 0.
+            let middleIndex := data size / 2 .
+            let lastIndex := data size - 1.
+            let elements := data elements.
+
+
+            {
+                lessThan(elements[middleIndex], elements[firstIndex]) ifTrue: {
+                    Stdn swapValue: elements[middleIndex] with: elements[firstIndex]
+                }.
+
+                lessThan(elements[lastIndex], elements[firstIndex]) ifTrue: {
+                    Stdn swapValue: elements[lastIndex] with: elements[firstIndex]
+                }.
+
+                lessThan(elements[middleIndex], elements[lastIndex]) ifTrue: {
+                    Stdn swapValue: elements[middleIndex] with: elements[lastIndex]
+                }.
+            }.
+
+            let pivot ref := elements[lastIndex].
+            let i mutable type: IntPointer := -1.
+
+            0 until: lastIndex do: {:j :: Void |
+                lessThan(elements[j], pivot) ifTrue: {
+                    i := i + 1.
+                    Stdn swapValue: elements[i] with: elements[j].
+                }.
+            }.
+
+            let pivotIndex := i + 1 castTo: UIntPointer.
+            Stdn swapValue: elements[pivotIndex] with: elements[lastIndex].
+            pivotIndex
+        }.
+    }.
+}.
+
+template QuickSort(VT: Type)
+:= struct definition: {
+    compileTime constant ValueType := VT.
+    compileTime constant Partition := Stdn Algorithms Partition(ValueType).
+    compileTime constant LessThanBlockType := ((ValueType const ref -- ValueType const ref) => Boolean8) nativeBlockClosure.
+
+    meta definition: {
+        static method sort: (data: ValueType arraySlice) with: (lessThan: LessThanBlockType) ::=> Void := {
+            data size <= 1 ifTrue: {return: void}.
+
+            let pivotLocation := Partition partition: data with: lessThan.
+            pivotLocation > 0 ifTrue: {
+                self sort: (data elements until: pivotLocation) with: lessThan.
+            }.
+            pivotLocation < data size - 1 ifTrue: {
+                self sort: (data elements from: pivotLocation + 1 until: data size) with: lessThan.
+            }.
+        }.
+    }.
+}.
+
+}. ## End of namespace namespace Algorithms
+}. ## End of namespace namespace Stdn

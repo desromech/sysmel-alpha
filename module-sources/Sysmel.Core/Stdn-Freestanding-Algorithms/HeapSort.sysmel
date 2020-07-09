@@ -1,0 +1,73 @@
+namespace Stdn definition: {
+namespace Algorithms definition: {
+
+template HeapSort(VT: Type)
+:= struct definition: {
+    compileTime constant ValueType := VT.
+    compileTime constant LessThanBlockType := ((ValueType const ref -- ValueType const ref) => Boolean8) nativeBlockClosure.
+
+    meta definition: {
+        ## Heap sort algorithm ported from: https://en.wikipedia.org/wiki/Heapsort [July, 2020]
+        static inline method parentIndex: (index: UIntPointer) ::=> UIntPointer
+            := (index - 1) / 2.
+        static inline method leftChildIndex: (index: UIntPointer) ::=> UIntPointer
+            := index*2 + 1.
+        static inline method rightChildIndex: (index: UIntPointer) ::=> UIntPointer
+            := index*2 + 2.
+
+        static method siftDownOn: (elements: ValueType pointer) from: (start: UIntPointer) to: (end: UIntPointer) with: (lessThan: LessThanBlockType) ::=> Void := {
+            let rootIndex mutable := start.
+            while: (self leftChildIndex: rootIndex) <= end do: {
+                let firstChildIndex := (self leftChildIndex: rootIndex).
+                let targetNodeIndex mutable := rootIndex.
+
+                lessThan(elements[targetNodeIndex], elements[firstChildIndex]) ifTrue: {
+                    targetNodeIndex := firstChildIndex.
+                }.
+
+                let secondChildIndex := firstChildIndex + 1.
+                secondChildIndex <= end && lessThan(elements[targetNodeIndex], elements[secondChildIndex]) ifTrue: {
+                    targetNodeIndex := secondChildIndex.
+                }.
+
+                ## If there is no child to swap, finish.
+                rootIndex = targetNodeIndex ifTrue: {
+                    return: void.
+                }.
+
+                ## Swap with the greatest child, and continue.
+                Stdn swapValue: elements[targetNodeIndex] with: elements[rootIndex].
+                rootIndex := targetNodeIndex
+            }.
+        }.
+
+        static method heapify: (data: ValueType arraySlice) with: (lessThan: LessThanBlockType) ::=> Void := {
+            let end := data size - 1.
+            let rootIndex mutable := (self parentIndex: end) castTo: IntPointer.
+            while: rootIndex >= 0 do: {
+                self siftDownOn: data elements from: (rootIndex castTo: UIntPointer) to: end with: lessThan.
+                rootIndex := rootIndex - 1
+            }.
+        }.
+
+        static method sort: (data: ValueType arraySlice) with: (lessThan: LessThanBlockType) ::=> Void := {
+            data size <= 1 ifTrue: {return: void}.
+
+            ## First pass: build the heap.
+            self heapify: data with: lessThan.
+            let endIndex mutable := data size - 1.
+            let elements := data elements.
+
+            ## Swap the maximum with the end until finishing.
+            while: endIndex > 0 do: {
+                Stdn swapValue: elements[0] with: elements[endIndex].
+                endIndex := endIndex - 1.
+
+                self siftDownOn: elements from: 0 to: endIndex with: lessThan.
+            }.
+        }.
+    }.
+}.
+
+}. ## End of namespace namespace Algorithms
+}. ## End of namespace namespace Stdn
