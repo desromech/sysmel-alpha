@@ -10,7 +10,7 @@ useNamespace: Stdn Math Geometry.
  * rendering interface, ensure lifetime guarantees on the underlying texture handles.
  *#
 class StrongTextureHandle superclass: SharedObject; definition: {
-    virtual method isScene2DDeviceTextureHandle => Boolean8
+    virtual method isTextureWithView => Boolean8
         := false.
 
     ## This method is used by soft rendering based canvases for performing blitting/texture mapping

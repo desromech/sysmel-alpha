@@ -3,6 +3,7 @@ loadFileOnce: "BlendingEquation.sysmel".
 loadFileOnce: "BlendingFactor.sysmel".
 loadFileOnce: "BlendingMode.sysmel".
 loadFileOnce: "BlendingOperation.sysmel".
+loadFileOnce: "ComponentsSwizzle.sysmel".
 
 loadFileOnce: "PixelFormat.sysmel".
 

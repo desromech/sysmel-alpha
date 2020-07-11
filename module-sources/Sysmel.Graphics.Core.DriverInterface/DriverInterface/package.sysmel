@@ -5,7 +5,6 @@ loadFileOnce: "BufferImageCopyRegion.sysmel".
 loadFileOnce: "BufferMappingFlags.sysmel".
 loadFileOnce: "BufferUsageMode.sysmel".
 loadFileOnce: "CompareFunction.sysmel".
-loadFileOnce: "ComponentsSwizzle.sysmel".
 loadFileOnce: "ComputePipelineStateDescription.sysmel".
 loadFileOnce: "DepthStencilValue.sysmel".
 loadFileOnce: "GraphicsPipelineStateDescription.sysmel".
@@ -71,3 +70,4 @@ loadFileOnce: "RenderingDriverRegistry.sysmel".
 
 ## Additional adapted handles.
 loadFileOnce: "RenderingDeviceFontFaceWithSize.sysmel".
+loadFileOnce: "TextureWithView.sysmel".

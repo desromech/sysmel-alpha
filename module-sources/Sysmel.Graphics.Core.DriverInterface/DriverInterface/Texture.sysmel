@@ -41,6 +41,17 @@ class Texture superclass: RenderingDriverObjectHandle; definition: {
             }
         }.
     }.
+
+    virtual method asTextureWithView => TextureWithView sharedPointer := {
+        let mainView := self getOrCreateFullView.
+        mainView ifNil: {return: TextureWithViewPtr nil}.
+
+        let result := TextureWithView sharedNew.
+        result _
+            texture: self asSharedPointer;
+            textureView: mainView.
+        result
+    }.
 }.
 
 compileTime constant TexturePtr := Texture sharedPointer.

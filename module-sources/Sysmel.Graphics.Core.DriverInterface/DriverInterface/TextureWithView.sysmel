@@ -5,15 +5,15 @@ namespace Core definition: {
 #**
  * I am a handle for a sampler.
  *#
-class Scene2DDeviceTextureHandle superclass: Stdn Graphics Core StrongTextureHandle; definition: {
+class TextureWithView superclass: Stdn Graphics Core StrongTextureHandle; definition: {
     public field texture type: TexturePtr.
     public field textureView type: TextureViewPtr.
 
-    override method isScene2DDeviceTextureHandle => Boolean8
+    override method isTextureWithView => Boolean8
         := true.
 }.
 
-compileTime constant Scene2DDeviceTextureHandlePtr := Scene2DDeviceTextureHandle sharedPointer.
+compileTime constant TextureWithViewPtr := TextureWithView sharedPointer.
 
 }. ## End of namespace Core
 }. ## End of namespace Graphics

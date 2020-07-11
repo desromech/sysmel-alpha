@@ -59,6 +59,7 @@ class SoftTexture superclass: Texture; definition: {
                 levelCount: description miplevels;
                 layerCount: description layers;
                 yourself);
+            components: description mainViewComponents;
             yourself
     }.
 

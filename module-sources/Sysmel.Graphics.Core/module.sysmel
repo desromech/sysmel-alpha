@@ -2,7 +2,5 @@ Compiler
     importModulesNamed: #(
         #"Sysmel.Graphics.Core.Raster"
         #"Sysmel.Graphics.Core.DriverInterface"
-        #"Sysmel.Graphics.Core.2D"
-        #"Sysmel.Graphics.Core.3D"
         #"Sysmel.Graphics.Core.GUI"
     )

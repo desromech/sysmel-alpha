@@ -54,6 +54,7 @@ sealed class AgpuTexture superclass: Texture; definition: {
                 levelCount: creationDescription miplevels;
                 layerCount: (creationDescription layers > 1 ifTrue: creationDescription layers ifFalse: 0u);
                 yourself);
+            components: creationDescription mainViewComponents;
             yourself
     }.
 

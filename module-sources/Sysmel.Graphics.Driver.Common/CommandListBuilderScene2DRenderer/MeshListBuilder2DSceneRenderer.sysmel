@@ -221,9 +221,9 @@ class MeshListBuilder2DSceneRendererNodeVisitor superclass: Scene2D Visitor; def
     }.
 
     override method visitTextureNode: (node: Scene2D TextureNode const ref) ::=> Void := {
-        node textureHandle isNil || node textureHandle _ isScene2DDeviceTextureHandle not ifTrue: {return: void}.
+        node textureHandle isNil || node textureHandle _ isTextureWithView not ifTrue: {return: void}.
 
-        let deviceHandle := node textureHandle downCastFor: Scene2DDeviceTextureHandle.
+        let deviceHandle := node textureHandle downCastFor: TextureWithView.
         let rectangle := node rectangle.
         let p1 := currentTransform transformPoint: rectangle bottomLeft.
         let p2 := currentTransform transformPoint: rectangle bottomRight.

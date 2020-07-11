@@ -5,4 +5,3 @@ loadFileOnce: "GenericPipelineStateCache.sysmel".
 loadFileOnce: "GenericStateTracker.sysmel".
 
 loadFileOnce: "GenericScene2DBuilder.sysmel".
-loadFileOnce: "Scene2DDeviceTextureHandle.sysmel".

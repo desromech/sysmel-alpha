@@ -13,6 +13,7 @@ class TextureDataHeader definition: {
     public field miplevels type: UInt32.
     public field layers type: UInt32.
     public field linearDataSize type: UInt32.
+    public field mainViewComponents type: ComponentsSwizzle.
 }.
 
 #**

@@ -88,7 +88,7 @@ class CanvasRenderer superclass: Visitor; definition: {
     }.
 
     override method visitTextureNode: (node: TextureNode const ref) ::=> Void := {
-        node textureHandle isNil || node textureHandle _ isScene2DDeviceTextureHandle not ifTrue: {return: void}.
+        node textureHandle isNil || node textureHandle _ isTextureWithView not ifTrue: {return: void}.
 
         canvas _ paintState restoreAfter: {
 			canvas _ paintState

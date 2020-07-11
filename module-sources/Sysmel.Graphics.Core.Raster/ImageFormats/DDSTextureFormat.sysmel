@@ -195,7 +195,13 @@ class DDSTextureFormat superclass: ImageReadWriter; definition: {
             DDS_PixelFormat_RXGB : {
                 result _
                     format: PixelFormat BC3_UNorm;
-                    srgbFormat: PixelFormat BC3_UNormSRGB.
+                    srgbFormat: PixelFormat BC3_UNormSRGB;
+                    mainViewComponents: (ComponentsSwizzle()
+                        r: ComponentSwizzle A;
+                        g: ComponentSwizzle G;
+                        b: ComponentSwizzle B;
+                        a: ComponentSwizzle Zero;
+                        yourself)
             }.
 
             DDS_PixelFormat_DX10 : {

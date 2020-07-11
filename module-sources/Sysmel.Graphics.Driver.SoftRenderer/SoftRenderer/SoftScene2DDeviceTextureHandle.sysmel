@@ -8,7 +8,7 @@ useNamespace: Stdn Graphics Core.
 #**
  * I am a handle for a sampler.
  *#
-class SoftScene2DDeviceTextureHandle superclass: Scene2DDeviceTextureHandle; definition: {
+class SoftScene2DDeviceTextureHandle superclass: TextureWithView; definition: {
     override method softPixelsBlitter => Blitter := {
         textureView ifNil: {return: Blitter()}.
 

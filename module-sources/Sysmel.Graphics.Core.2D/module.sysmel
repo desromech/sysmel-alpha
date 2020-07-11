@@ -1,4 +1,0 @@
-Compiler
-    importModuleNamed: #"Sysmel.Graphics.Core.Raster";
-    loadPackages: #(
-    ).

@@ -15,6 +15,22 @@ class ShaderResourceBindings superclass: RenderingDriverObjectHandle; definition
     abstract method bindOn: (location: IntPointer) sampledTextureView: (textureView: TextureViewPtr const ref) ::=> Void.
     abstract method bindOn: (location: IntPointer) storageImageView: (textureView: TextureViewPtr const ref) ::=> Void.
     abstract method bindOn: (location: IntPointer) sampler: (sampelr: SamplerPtr const ref) ::=> Void.
+
+    inline method bindOn: (location: IntPointer) sampledTextureWithView: (textureWithView: TextureWithViewPtr const ref) ::=> Void := {
+        textureWithView ifNil: {
+            self bindOn: location sampledTextureView: TextureViewPtr nil
+        } ifNotNil: {
+            self bindOn: location sampledTextureView: textureWithView _ textureView
+        }.
+    }.
+
+    inline method bindOn: (location: IntPointer) storageImageWithView: (textureWithView: TextureWithViewPtr const ref) ::=> Void := {
+        textureWithView ifNil: {
+            self bindOn: location storageImageView: TextureViewPtr nil
+        } ifNotNil: {
+            self bindOn: location storageImageView: textureWithView _ textureView
+        }.
+    }.
 }.
 
 compileTime constant ShaderResourceBindingsPtr := ShaderResourceBindings sharedPointer.

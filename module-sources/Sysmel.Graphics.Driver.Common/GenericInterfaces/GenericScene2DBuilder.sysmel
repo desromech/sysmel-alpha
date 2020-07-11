@@ -9,7 +9,7 @@ class GenericScene2DBuilder superclass: Scene2D Builder; definition: {
     public field device type: RenderingDeviceWeakPtr.
 
     override method createTextureHandleFor: (texture: SharedObjectPtr const ref) view: (textureView: SharedObjectPtr const ref) ::=> StrongTextureHandlePtr := {
-        let result := Scene2DDeviceTextureHandle sharedNew.
+        let result := TextureWithView sharedNew.
         result _
             texture: (texture downCastFor: Texture);
             textureView: (textureView downCastFor: TextureView).
