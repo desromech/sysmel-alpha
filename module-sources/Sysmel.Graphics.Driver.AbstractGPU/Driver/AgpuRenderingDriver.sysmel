@@ -57,6 +57,7 @@ sealed class AgpuRenderingDriver superclass: RenderingDriver; definition: {
             mutex withLock: {
                 strongMainDevice ifNil: {
                     strongMainDevice := self createDefaultDevice.
+                    mainDevice := strongMainDevice.
                 }.
             }.
         }.
