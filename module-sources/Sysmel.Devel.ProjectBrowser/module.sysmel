@@ -1,0 +1,7 @@
+Compiler
+    importModulesNamed: #(
+        #"Norphic.Core"
+    );
+    loadPackages: #(
+        #"ProjectBrowser-Core"
+    ).

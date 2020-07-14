@@ -25,7 +25,8 @@ Class {
 		'outputDirectory',
 		'outputMode',
 		'hasBeginModule',
-		'importedModuleModificationTimeCache'
+		'importedModuleModificationTimeCache',
+		'validatedDependencyModules'
 	],
 	#category : #'SysmelMoebiusMetamodel-Core-Module'
 }
@@ -276,9 +277,43 @@ MbndCompilationEnvironment >> executable [
 	self outputMode: #executable
 ]
 
+{ #category : #'as yet unclassified' }
+MbndCompilationEnvironment >> fetchIndirectModuleLinkerFlags: indirectModule removeDuplicatesWith: importedObjectFiles into: out [
+	| lflagsFileReference indirectModuleOutput objectFileName |
+
+	indirectModuleOutput := self findModuleObjectFileReferenceFor: indirectModule.
+	indirectModuleOutput exists ifTrue: [
+		objectFileName := indirectModuleOutput asFileReference fullName.
+		(importedObjectFiles includes: objectFileName) ifFalse: [ 
+			out nextPut: objectFileName.
+			importedObjectFiles add: objectFileName
+		].
+	].
+
+	lflagsFileReference := self findImportModuleLFlagsFileReferenceFor: indirectModule.
+	lflagsFileReference exists ifTrue: [
+		lflagsFileReference contents linesDo: [ :each |
+			(importedObjectFiles includes: each) ifFalse: [ 
+				out nextPut: each.
+				importedObjectFiles add: each
+			]
+		]
+	].
+]
+
 { #category : #'module import' }
 MbndCompilationEnvironment >> findImportModuleFileReferenceFor: moduleName [
 	^ self validOutputDirectory / (moduleName , '.smpmodule')
+]
+
+{ #category : #'module import' }
+MbndCompilationEnvironment >> findImportModuleLFlagsFileReferenceFor: moduleName [
+	^ self validOutputDirectory / (moduleName , '.smpmodule.lflags')
+]
+
+{ #category : #'module import' }
+MbndCompilationEnvironment >> findModuleObjectFileReferenceFor: moduleName [
+	^ self validOutputDirectory / (moduleName , '.o')
 ]
 
 { #category : #'as yet unclassified' }
@@ -457,8 +492,23 @@ MbndCompilationEnvironment >> hasStandardLibrary: aBoolean [
 ]
 
 { #category : #'module import' }
+MbndCompilationEnvironment >> importIndirectModuleFrom: moduleExportFileName [
+	(self hasMonolithicTranslationMode or: [currentModule == coreModule])
+		ifTrue: [ ^ self importModuleFrom: moduleExportFileName ].
+	^ self validCurrentModule
+		importIndirectModuleFrom: moduleExportFileName.
+]
+
+{ #category : #'module import' }
 MbndCompilationEnvironment >> importIndirectModuleNamed: moduleName [
-	^ self importModuleNamed: moduleName
+	^ self loadedModuleDictionary at: moduleName ifAbsent: [
+		self importOrCompileModuleNamed: moduleName indirectDependency: true
+	]
+]
+
+{ #category : #'module import' }
+MbndCompilationEnvironment >> importIndirectModulesNamed: moduleNames [
+	moduleNames do: [ :each | self importIndirectModuleNamed: each ]
 ]
 
 { #category : #'module import' }
@@ -498,24 +548,18 @@ MbndCompilationEnvironment >> importModulesNamed: moduleNames [
 
 { #category : #'module import' }
 MbndCompilationEnvironment >> importOrCompileModuleNamed: moduleName [
+	^ self importOrCompileModuleNamed: moduleName indirectDependency: false
+]
+
+{ #category : #'module import' }
+MbndCompilationEnvironment >> importOrCompileModuleNamed: moduleName indirectDependency: isIndirectDependency [
 	| importModuleFileReference |
 	self hasMonolithicTranslationMode ifTrue: [ ^ self compileModuleNamed: moduleName ].
 
-	importModuleFileReference := self findImportModuleFileReferenceFor: moduleName.
-	(self shouldCompileModule: moduleName withFileReference: importModuleFileReference) ifTrue: [
-		| moduleCompilationEnvironment |
-		moduleCompilationEnvironment := self newCompilationEnvironmentForCleanModuleBuilding.
-		moduleName ~= self coreModuleName ifTrue: [ 
-			moduleCompilationEnvironment loadRuntimeCoreLibrary
-		].
-			
-		moduleCompilationEnvironment
-			compileModuleNamed: moduleName;
-			finishAndEmitModule.
-		importedModuleModificationTimeCache at: moduleName put: importModuleFileReference modificationTime.
-	].
-	
-	^ self importModuleFrom: importModuleFileReference
+	importModuleFileReference := self validateDependencyModuleIsUpdated: moduleName.	
+	^ isIndirectDependency
+		ifTrue: [self importIndirectModuleFrom: importModuleFileReference]
+		ifFalse: [self importModuleFrom: importModuleFileReference]
 ]
 
 { #category : #initialization }
@@ -596,6 +640,7 @@ MbndCompilationEnvironment >> newCompilationEnvironmentForCleanModuleBuilding [
 	| result |
 	result := self class compilationTarget: compilationTarget asCleanCompilationTarget.
 	result
+		validatedDependencyModules: self validatedDependencyModules;
 		hasRuntimeTypeInformation: self hasRuntimeTypeInformation;
 		hasExceptions: self hasExceptions;
 		hasStandardLibrary: self hasStandardLibrary;
@@ -708,7 +753,10 @@ MbndCompilationEnvironment >> parseModificationTimeOfDependency: each [
 	dependencyType = 'module' ifTrue: [ 
 		^ self getLastModificationTimeOfModule: dependencyName
 	].
-
+	dependencyType = 'imodule' ifTrue: [ 
+		self validateIndirectModuleIsUpdated: dependencyName.
+		^ nil
+	].
 	(dependencyFileRef isNil or: [dependencyFileRef exists not]) ifTrue: [ 
 		^ DateAndTime now
 	].
@@ -719,6 +767,7 @@ MbndCompilationEnvironment >> parseModificationTimeOfDependency: each [
 { #category : #'module import' }
 MbndCompilationEnvironment >> parseModificationTimesOfDependencies: dependencies [
 	^ dependencies lines collect: [ :each | self parseModificationTimeOfDependency: each ]
+		thenSelect: [ :each | each isNotNil ]
 ]
 
 { #category : #private }
@@ -794,6 +843,49 @@ MbndCompilationEnvironment >> validOutputDirectory [
 	^ outputDirectory
 ]
 
+{ #category : #'module import' }
+MbndCompilationEnvironment >> validateDependencyModuleIsUpdated: moduleName [
+	| importModuleFileReference result |
+	result := self validatedDependencyModules at: moduleName ifAbsent: [nil].
+	result == #pending ifTrue: [ self error: 'Cylic dependencies for module ' , moduleName ].
+	result ifNotNil: [ ^ result ].
+
+	self validatedDependencyModules at: moduleName put: nil.
+	
+	importModuleFileReference := self findImportModuleFileReferenceFor: moduleName.
+	(self shouldCompileModule: moduleName withFileReference: importModuleFileReference) ifTrue: [
+		| moduleCompilationEnvironment |
+		moduleCompilationEnvironment := self newCompilationEnvironmentForCleanModuleBuilding.
+		moduleName ~= self coreModuleName ifTrue: [ 
+			moduleCompilationEnvironment loadRuntimeCoreLibrary
+		].
+			
+		moduleCompilationEnvironment
+			compileModuleNamed: moduleName;
+			finishAndEmitModule.
+		importedModuleModificationTimeCache at: moduleName put: importModuleFileReference modificationTime.
+	].
+
+	result := importModuleFileReference.
+	self validatedDependencyModules at: moduleName put: result.
+	^ result
+]
+
+{ #category : #'module import' }
+MbndCompilationEnvironment >> validateIndirectModuleIsUpdated: moduleName [
+	^ self validateDependencyModuleIsUpdated: moduleName
+]
+
+{ #category : #'module import' }
+MbndCompilationEnvironment >> validatedDependencyModules [
+	^ validatedDependencyModules ifNil: [ validatedDependencyModules := Dictionary new ]
+]
+
+{ #category : #'module import' }
+MbndCompilationEnvironment >> validatedDependencyModules: sharedDependencies [
+	^ validatedDependencyModules := sharedDependencies
+]
+
 { #category : #initialization }
 MbndCompilationEnvironment >> withDebugInformation [
 	compilationTarget withDebugInformation
@@ -816,14 +908,15 @@ MbndCompilationEnvironment >> writeExecutableToFileNamed: outputFileName [
 
 { #category : #writing }
 MbndCompilationEnvironment >> writeExportModuleFor: outputFileName [
-	| outputFileReference outputExportModuleFileReference outputExportDepsFileReference |
+	| outputFileReference outputExportModuleFileReference outputExportDepsFileReference outputExportLinkerFlags |
 	outputFileReference := outputFileName asFileReference.
 	outputExportModuleFileReference := outputFileReference withExtension: 'smpmodule'.
 	outputExportDepsFileReference := outputExportModuleFileReference withExtension: 'smpmodule.deps'.
+	outputExportLinkerFlags := outputExportModuleFileReference withExtension: 'smpmodule.lflags'.
 	self validCurrentModule
 		exportModulePublicInterfaceTo: outputExportModuleFileReference;
-		exportModuleDependenciesTo: outputExportDepsFileReference
-
+		exportModuleDependenciesTo: outputExportDepsFileReference;
+		exportExportLinkerFlagsTo: outputExportLinkerFlags
 
 ]
 

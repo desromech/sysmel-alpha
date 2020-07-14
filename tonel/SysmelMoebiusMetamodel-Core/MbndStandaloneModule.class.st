@@ -8,7 +8,8 @@ Class {
 		'loadedPackageStates',
 		'linkerArguments',
 		'linkerImportModule',
-		'modificationTime'
+		'modificationTime',
+		'importedIndirectModules'
 	],
 	#classVars : [
 		'MessagePackTypeMapTable'
@@ -89,6 +90,11 @@ MbndStandaloneModule class >> messagePackTypeName [
 ]
 
 { #category : #adding }
+MbndStandaloneModule >> addImportedIndirectModule: extraModules [
+	importedIndirectModules := self importedIndirectModules , (extraModules asArray collect: [:each | each asFileReference basenameWithoutExtension ])
+]
+
+{ #category : #adding }
 MbndStandaloneModule >> addImportedModules: extraModules [
 	importedModules := self importedModules , extraModules asArray
 ]
@@ -102,11 +108,11 @@ MbndStandaloneModule >> addLinkerArguments: arguments [
 MbndStandaloneModule >> allImportedModules [
 	"This performs a topological sort of all of the imported modules."
 	| result visited |
-	result := OrderedCollection new.
+	result := SLVMOrderedInsertionSet new.
 	visited := IdentitySet new.
 	visited add: self. "Do not add me to the result."
 	self importedModules do: [ :each | each allImportedModulesInto: result visited: visited ].
-	^ result
+	^ result asArray
 ]
 
 { #category : #'as yet unclassified' }
@@ -124,11 +130,24 @@ MbndStandaloneModule >> allImportedModulesInto: result visited: visited [
 
 { #category : #accessing }
 MbndStandaloneModule >> allLinkerArguments [
+	| importedObjectFiles |
+	importedObjectFiles := Set new.
 	^ Array streamContents: [ :out |
 		self allImportedModules do: [:each |
 			each linkerImportModule ifNotNil: [ :importModule |
-				out nextPut: (self compilationEnvironment concretizeModuleImportObjectFileName: importModule)
+				| objectFile |
+				objectFile := self compilationEnvironment concretizeModuleImportObjectFileName: importModule.
+				(importedObjectFiles includes: objectFile) ifFalse: [ 
+					out nextPut: objectFile.
+					importedObjectFiles add: objectFile
+				].
 			].
+			each importedIndirectModules do: [ :eachImportedModule |
+				self compilationEnvironment fetchIndirectModuleLinkerFlags: eachImportedModule
+					removeDuplicatesWith: importedObjectFiles
+					into: out
+			].
+		
 			out nextPutAll: each linkerArguments
 		].
 
@@ -217,6 +236,7 @@ MbndStandaloneModule >> encodeFieldsForMessagePackWith: graphEncoder [
 	resultTail := 
 	{
 		#importedModules . self importedModules encodeGraphForMessagePackWith: graphEncoder.
+		#importedIndirectModules . self importedIndirectModules encodeGraphForMessagePackWith: graphEncoder.
 		#globalNamespace . self globalNamespace encodeGraphForMessagePackWith: graphEncoder.
 		#extensionMacros . self extensionMacros encodeGraphForMessagePackWith: graphEncoder.
 		#extensionOverloadedMethods . self extensionOverloadedMethods encodeGraphForMessagePackWith: graphEncoder.
@@ -287,12 +307,25 @@ MbndStandaloneModule >> evaluateModuleLevelFilesIfExists: fileName [
 ]
 
 { #category : #'as yet unclassified' }
+MbndStandaloneModule >> exportExportLinkerFlagsTo: outputFileName [
+	outputFileName asFileReference writeStreamDo: [ :out |
+		out truncate.
+		self allLinkerArguments do: [ :each |
+			out nextPutAll: each; lf
+		].
+	]
+]
+
+{ #category : #'as yet unclassified' }
 MbndStandaloneModule >> exportModuleDependenciesTo: outputFileName [
 	outputFileName asFileReference writeStreamDo: [ :out |
 		out truncate.
 		self allImportedModules asArray do: [ :each |
 			self assert: each ~~ self.
 			out nextPutAll: 'module:'; nextPutAll: each name; lf
+		].
+		self importedIndirectModules asArray do: [ :each |
+			out nextPutAll: 'imodule:'; nextPutAll: each; lf
 		].
 		self evaluatedFileSet asArray sorted do: [ :each |
 			out nextPutAll: 'file:'; nextPutAll: each asFileReference asAbsolute canonicalize fullName; lf
@@ -361,6 +394,11 @@ MbndStandaloneModule >> hasStandardLibrary [
 ]
 
 { #category : #serialization }
+MbndStandaloneModule >> importIndirectModuleFrom: aModuleExportFileDefinition [
+	self addImportedIndirectModule: aModuleExportFileDefinition
+]
+
+{ #category : #serialization }
 MbndStandaloneModule >> importModuleFrom: aModuleExportFileDefinition [
 	| moduleExportFileReference moduleExportFileContents decodedExportedModuleAttributes |
 	importedModules := #().
@@ -402,6 +440,16 @@ MbndStandaloneModule >> importModuleFrom: aModuleExportFileDefinition [
 			self decodeImportedSSAModules: (Dictionary newFromPairs: exportedSSAModules) 
 		]
 	]
+]
+
+{ #category : #accessing }
+MbndStandaloneModule >> importedIndirectModules [
+	^ importedIndirectModules ifNil: [ #() ]
+]
+
+{ #category : #accessing }
+MbndStandaloneModule >> importedIndirectModules: anObject [
+	importedIndirectModules := anObject
 ]
 
 { #category : #accessing }
@@ -477,6 +525,7 @@ MbndStandaloneModule >> materializeWithGraphDecoder: graphDecoder withFields: en
 	].
 
 	importedModules := encodedFields at: #importedModules.
+	importedIndirectModules := encodedFields at: #importedIndirectModules.
 	globalNamespace := encodedFields at: #globalNamespace.
 	extensionMacros := encodedFields at: #extensionMacros.
 	extensionOverloadedMethods := encodedFields at: #extensionOverloadedMethods.

@@ -15,6 +15,7 @@ function main externC (argc: Int32, argv: UInt8 const pointer pointer) => Int32 
     let object type: Smalltalk Object := #(1 hello "Hello World" 4.5 5).
     Smalltalk Object browse.
     object inspect.
+    Smalltalk ProjectBrowser new open.
 
     ## Run the actual main loop.
     return: windowSystem _ runMainLoop.
