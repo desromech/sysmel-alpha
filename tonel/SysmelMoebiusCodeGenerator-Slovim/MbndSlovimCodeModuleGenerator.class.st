@@ -223,7 +223,8 @@ MbndSlovimCodeModuleGenerator >> createCPUShaderControllerFor: functionMethod ge
 	nativeShaderEntryPoints at: functionMethod put: controllerSSAFunction.
 	self isEmittingDebugInformation ifTrue: [
 		controllerSSAFunction
-			debugInformation: (self debugInformationTranslator createForShader: functionMethod controllerWithFunctionType: controllerFunctionType)
+			debugInformation: (self debugInformationTranslator createForShader: functionMethod controllerWithFunctionType: controllerFunctionType);
+			debugSourceLocation: (self convertDebugPosition: functionMethod validSourcePosition)
 	].
 
 	builder := SLVMBuilder on: controllerSSAFunction.
@@ -606,7 +607,8 @@ MbndSlovimCodeModuleGenerator >> generateAnonCompilerGeneratedMethodWithType: fu
 
 	self isEmittingDebugInformation ifTrue: [
 		ssaFunction
-			debugInformation: debugInformationBlock value
+			debugInformation: debugInformationBlock value;
+			debugSourceLocation: (self convertDebugPosition: self validSourcePosition)
 	].
 
 	ssaFunction makePrivate.
@@ -1645,7 +1647,8 @@ MbndSlovimCodeModuleGenerator >> translateCompilerGeneratedMethod: generatedMeth
 
 	self isEmittingDebugInformation ifTrue: [
 		ssaFunction
-			debugInformation: (self translateProgramEntityDebugInformation: generatedMethod)
+			debugInformation: (self translateProgramEntityDebugInformation: generatedMethod);
+			debugSourceLocation: (self convertDebugPosition: generatedMethod validSourcePosition asActualSourcePosition)
 	].
 
 	self flag: 'TODO: Support the correct linkage/visibility.'.
@@ -1674,7 +1677,8 @@ MbndSlovimCodeModuleGenerator >> translateCompilerGeneratedMethodNamed: name fun
 	
 	self isEmittingDebugInformation ifTrue: [
 		ssaFunction
-			debugType: (self translateDebugType: functionType)
+			debugType: (self translateDebugType: functionType);
+			debugSourceLocation: (self convertDebugPosition: sourcePosition asActualSourcePosition)
 	].
 
 	name ifNil: [ ssaFunction makePrivate ]
@@ -1916,6 +1920,11 @@ MbndSlovimCodeModuleGenerator >> unmangledNameForShaderEntryPoint: programEntity
 	programEntity isMessageMethod ifTrue: [ out nextPut: $] ].
 		
 	self addUnmangledProgramEntity: programEntity suffixInto: out
+]
+
+{ #category : #accessing }
+MbndSlovimCodeModuleGenerator >> validSourcePosition [
+	^ MbndSourcePosition empty
 ]
 
 { #category : #'typeinfo translation' }

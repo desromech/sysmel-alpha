@@ -313,7 +313,7 @@ MbndCompilationEnvironment >> findImportModuleLFlagsFileReferenceFor: moduleName
 
 { #category : #'module import' }
 MbndCompilationEnvironment >> findModuleObjectFileReferenceFor: moduleName [
-	^ self validOutputDirectory / (moduleName , '.o')
+	^ self validOutputDirectory / (moduleName , self importedModuleExtension)
 ]
 
 { #category : #'as yet unclassified' }
@@ -560,6 +560,11 @@ MbndCompilationEnvironment >> importOrCompileModuleNamed: moduleName indirectDep
 	^ isIndirectDependency
 		ifTrue: [self importIndirectModuleFrom: importModuleFileReference]
 		ifFalse: [self importModuleFrom: importModuleFileReference]
+]
+
+{ #category : #'module import' }
+MbndCompilationEnvironment >> importedModuleExtension [
+	^ self extensionForModuleOutputMode: #object
 ]
 
 { #category : #initialization }
