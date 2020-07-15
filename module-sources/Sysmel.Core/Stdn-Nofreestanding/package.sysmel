@@ -8,4 +8,5 @@ Compiler loadPackages: #(
     #"Stdn-Nofreestanding-Threading"
     #"Stdn-Nofreestanding-Exceptions"
     #"Stdn-Nofreestanding-FileSystem"
+    #"Stdn-Nofreestanding-Time"
 ).

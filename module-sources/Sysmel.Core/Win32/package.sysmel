@@ -1,0 +1,4 @@
+Compiler loadPackage: #"NullOS".
+Compiler
+    loadPackage: #"Win32-Bindings";
+    loadPackage: #"Win32-Stdn".
