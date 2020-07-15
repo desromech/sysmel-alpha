@@ -204,13 +204,17 @@ MbndSlovimSymbolNameMangler >> escapeCharacterForMangling: c into: out [
 
 { #category : #visiting }
 MbndSlovimSymbolNameMangler >> escapeNameForMangling: name [
+	| result |
 	(name beginsWith: '..') ifTrue: [ ^ name ].
 	name ifNil: [ ^ '_anon' ].
-	^ ByteString streamContents: [ :out |
+	result := ByteString streamContents: [ :out |
 		name do: [ :c |
 			self escapeCharacterForMangling: c into: out
 		]
-	]
+	].
+
+	result replaceAll: $$ with: $?.
+	^ result
 ]
 
 { #category : #visiting }

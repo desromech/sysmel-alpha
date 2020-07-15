@@ -6,6 +6,8 @@ out
 *.zip
 *.version
 *.log
+.vs
+out-*
 pharo-local
 pharo-vm
 pharo

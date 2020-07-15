@@ -88,6 +88,11 @@ MbndSlovimDebugInformationTranslator >> initialize [
 ]
 
 { #category : #visiting }
+MbndSlovimDebugInformationTranslator >> mangleProgramEntityName: programEntitity [
+	^ codeModuleGenerator mangleProgramEntityName: programEntitity
+]
+
+{ #category : #visiting }
 MbndSlovimDebugInformationTranslator >> setCommonDebugSubprogram: debugSubprogram informationFrom: method [
 	method parent ifNotNil: [ 
 		debugSubprogram parentScope: (self translateParentScope: method parent)
@@ -272,6 +277,7 @@ MbndSlovimDebugInformationTranslator >> visitBlockClosureType: blockClosureType 
 	blockClosureType isTrait ifTrue: [ ^ self visitTraitType: blockClosureType ].
 	
 	debugType := SLVMDebugCompositeType new makeStructure.
+	debugType identifier: (self mangleProgramEntityName: blockClosureType).
 	blockClosurePointerType := SLVMDebugDerivedType new makePointer
 		baseType: debugType;
 		byteSize: self compilationTarget pointerSize;
@@ -299,7 +305,8 @@ MbndSlovimDebugInformationTranslator >> visitClassType: classType [
 	self setCommonDebugType: debugType informationFrom: classType.
 	debugType
 		byteSize: classType instanceSize;
-		byteAlignment: classType instanceAlignment.
+		byteAlignment: classType instanceAlignment;
+		identifier: (self mangleProgramEntityName: classType).
 
 	self addAggregateDebugType: debugType membersFrom: classType.
 	
@@ -402,7 +409,8 @@ MbndSlovimDebugInformationTranslator >> visitEnumType: enumType [
 	debugType
 		baseType: (self translateDebugType: enumType valueType);
 		byteSize: enumType instanceSize;
-		byteAlignment: enumType instanceAlignment.
+		byteAlignment: enumType instanceAlignment;
+		identifier: (self mangleProgramEntityName: enumType).
 
 	self flag: 'TODO: Add the numeration members.'.
 	
@@ -469,7 +477,8 @@ MbndSlovimDebugInformationTranslator >> visitGCClassType: classType [
 	self setCommonDebugType: debugType informationFrom: classType.
 	debugType
 		byteSize: classType instanceDataSize;
-		byteAlignment: classType instanceDataAlignment.
+		byteAlignment: classType instanceDataAlignment;
+		identifier: (self mangleProgramEntityName: classType).
 
 	self addAggregateDebugType: debugType membersFrom: classType.
 	
@@ -540,7 +549,8 @@ MbndSlovimDebugInformationTranslator >> visitOpaqueHandlerType: opaqueHandlerTyp
 	opaqueHandlerPointerType := SLVMDebugDerivedType new makePointer
 		baseType: debugType;
 		byteSize: self compilationTarget pointerSize;
-		byteAlignment: self compilationTarget pointerAlignment.
+		byteAlignment: self compilationTarget pointerAlignment;
+		identifier: (self mangleProgramEntityName: opaqueHandlerType).
 
 	translatedEntities at: opaqueHandlerType put: opaqueHandlerPointerType.
 	self setCommonDebugType: debugType informationFrom: opaqueHandlerType.
@@ -648,7 +658,8 @@ MbndSlovimDebugInformationTranslator >> visitPrimitiveMatrixType: matrixType [
 		byteSize: matrixType instanceSize;
 		byteAlignment: matrixType instanceAlignment;
 		arrayRange: matrixType columns;
-		baseType: (self translateDebugType: matrixType columnType).
+		baseType: (self translateDebugType: matrixType columnType);
+		identifier: (self mangleProgramEntityName: matrixType).
 	
 	^ debugType
 ]
@@ -667,6 +678,7 @@ MbndSlovimDebugInformationTranslator >> visitPrimitiveVectorType: vectorType [
 	debugType
 		byteSize: vectorType instanceSize;
 		byteAlignment: vectorType instanceAlignment;
+		identifier: (self mangleProgramEntityName: vectorType);
 		members: ((1 to: (vectorType elements min: 4)) collect: [ :i |
 			(SLVMDebugDerivedType new makeMember;
 					name: ('xyzw' at: i) asString;
@@ -703,6 +715,7 @@ MbndSlovimDebugInformationTranslator >> visitSimpleMetaType: simpleMetaType [
 	simpleMetaType isTrait ifTrue: [ ^ self visitTraitType: simpleMetaType ].
 	
 	debugStructureType := SLVMDebugCompositeType new makeStructure.
+	debugStructureType identifier: (self mangleProgramEntityName: simpleMetaType).
 	debugType := SLVMDebugDerivedType new
 		makePointer;
 		baseType: debugStructureType;
@@ -774,6 +787,7 @@ MbndSlovimDebugInformationTranslator >> visitTupleType: tupleType [
 	debugType
 		byteSize: tupleType instanceSize;
 		byteAlignment: tupleType instanceAlignment;
+		identifier: (self mangleProgramEntityName: tupleType);
 		members: (tupleType elements collectWithIndex: [ :fieldType :index |
 			SLVMDebugDerivedType new
 				makeMember;
@@ -817,6 +831,7 @@ MbndSlovimDebugInformationTranslator >> visitVariantUnionType: variantType [
 	debugType
 		byteSize: variantType instanceSize;
 		byteAlignment: variantType instanceAlignment;
+		identifier: (self mangleProgramEntityName: variantType);
 		members: {
 			SLVMDebugDerivedType new
 				makeMember;

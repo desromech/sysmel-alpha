@@ -1,0 +1,36 @@
+namespace Stdn definition: {
+namespace Chrono definition: {
+    compileTime constant Time := Int64.
+    compileTime constant TicksPerMicrosecond := 1.
+    compileTime constant TicksPerMillisecond := TicksPerMicrosecond*1000.
+    compileTime constant TicksPerSecond := TicksPerMillisecond*1000.
+
+    inline function now() => Time
+        := monotonicClockValue().
+
+    inline function microseconds(time: Time) => Time
+        := time * TicksPerMicrosecond.
+
+    inline function milliseconds(time: Time) => Time
+        := time * TicksPerMillisecond.
+
+    inline function seconds(time: Time) => Time
+        := time * TicksPerSecond.
+
+    inline function ticksToFloatSeconds(ticks: Time) => Float64
+        := (ticks castTo: Float64) / TicksPerSecond.
+
+    macro method profileTicksToRun: aBlock := {
+        let startTicks := __astBuilder gensym: #startTicks.
+        let endTicks := __astBuilder gensym: #endTicks.
+        ``{
+            let `,startTicks := Stdn Chrono processClockValue().
+            `,aBlock __macroInlineBlock.
+            let `,endTicks := Stdn Chrono processClockValue().
+            `,endTicks - `,startTicks
+        }
+    }.
+
+    macro method profileTimeToRun: aBlock := ``(Stdn Chrono ticksToFloatSeconds(Stdn Chrono profileTicksToRun: `,aBlock)).
+}.
+}.

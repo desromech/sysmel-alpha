@@ -1,3 +1,10 @@
+class MyClass definition: {
+    public field testField type: Int32.
+
+    virtual method testMethod => Void := {
+        LibC printf("testMethod\n").
+    }.
+}.
 
 function main externC (argc: Int32, argv: UInt8 const pointer pointer) => Int32 := {
     LibC printf("Hello World: %d\n", 42).
@@ -6,6 +13,11 @@ function main externC (argc: Int32, argv: UInt8 const pointer pointer) => Int32 
 	1 until: argc do: {:(Int32)i :: Void |
 		LibC printf("Argv[%d] := %s\n", i, argv[i]).
 	}.
+
+    {
+        let myObject mutable type: MyClass.
+        myObject testMethod.
+    }.
 
     return: 0.
 }.

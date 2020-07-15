@@ -8,7 +8,14 @@ namespace LibC definition: {
     function printf externC dllimport  CVariadic (format: Char8 const pointer) => Int32.
     function perror externC dllimport (s: Char8 const pointer) => Int32.
 
-    function snprintf externC dllimport  CVariadic(buffer: Char8 pointer, size: SizeT, format: Char8 const pointer) => Int32.
+    compileTime if: Compiler compilationTarget isWin32 then: {
+        ## function _snprintf externC dllimport CVariadic(buffer: Char8 pointer, size: SizeT, format: Char8 const pointer) => Int32.
+        ## compileTime constant snprintf := _snprintf.
+        function snprintf CVariadic(buffer: Char8 pointer, size: SizeT, format: Char8 const pointer) => Int32
+            := 0.
+    } else: {
+        function snprintf externC dllimport CVariadic(buffer: Char8 pointer, size: SizeT, format: Char8 const pointer) => Int32.
+    }.
 
     function fopen externC dllimport (path: ConstString, mode: ConstString) => FILE pointer.
     function fclose externC dllimport (stream: FILE pointer) => Int32.

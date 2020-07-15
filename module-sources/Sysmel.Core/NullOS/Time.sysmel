@@ -1,0 +1,22 @@
+namespace Stdn definition: {
+namespace Chrono definition: {
+    function microsecondClockValue() => Time
+        := 0.
+
+    function monotonicClockValue() => Time
+        := 0.
+
+    function processClockValue() => Time
+        := 0.
+
+    function threadClockValue() => Time
+        := 0.
+
+    inline function sleepFor(time: Time) => Void
+        := {}.
+
+    inline function sleepUntil(time: Time) => Void
+        := {}.
+
+}.
+}.
