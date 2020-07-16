@@ -1,0 +1,112 @@
+namespace Stdn definition: {
+useNamespace: Win32.
+
+namespace IO definition: {
+
+#**
+ * File stream class.
+ *#
+class UnbufferedFileStream superclass: Stream;
+definition: {
+    public field handle type: HANDLE.
+    public field isConsole type: Boolean8.
+    public field isOwner type: Boolean8.
+    private field eofDetected_ private type: Boolean8.
+
+    meta method fromHandle: (handle: HANDLE) isConsole: (isConsole: Boolean8) isOwner: (isOwner: Boolean8) ::=> SelfType
+        := SelfType basicNewValue
+            handle: handle;
+            isConsole: GetFileType(handle) = FILE_TYPE_CHAR;
+            isOwner: isOwner;
+            yourself.
+
+    override method finalize => Void
+        := self close.
+
+    method close => Void := {
+        isOwner && handle isNotNil ifTrue: {
+            CloseHandle(handle).
+            handle := nil.
+        }.
+    }.
+
+    method open: (path: CTypes ConstString) mode: (mode: FileOpenMode) permissions: (permissions: FilePermissions) ::=> Boolean8
+        := false.
+
+    method open: (path: String const ref) mode: (mode: FileOpenMode) permissions: (permissions: FilePermissions) ::=> Boolean8
+        := self open: path asCString mode: mode permissions: permissions.
+
+    method open: (path: CTypes ConstString) mode: (mode: FileOpenMode) ::=> Boolean8
+        := self open: path mode: mode permissions: FilePermissions DefaultFilePermissions.
+
+    method open: (path: String const ref) mode: (mode: FileOpenMode) ::=> Boolean8
+        := self open: path asCString mode: mode permissions: FilePermissions DefaultFilePermissions.
+
+    method isValid => Boolean8
+        := false.
+
+    override method atEnd => Boolean8
+        := true.
+
+    override method position => Int64
+        := 0.
+
+    override method seek: (offset: Int64) mode: (mode: SeekMode) ::=> Boolean8
+        := false.
+
+    override method write: (buffer: Void const pointer) size: (size: UIntPointer) ::=> IntPointer := {
+        let writtenBytes mutable type: DWORD.
+        let bytesToWrite := size castTo: DWORD.
+        isConsole ifTrue: {
+            WriteConsoleA(handle, buffer, bytesToWrite, writtenBytes address, nil) = 0 ifTrue: {
+                return: -1
+            }.
+        } ifFalse: {
+            WriteFile(handle, buffer, bytesToWrite, writtenBytes address, nil) = 0 ifTrue: {
+                return: -1
+            }.
+        }.
+
+        writtenBytes castTo: IntPointer.
+    }.
+
+    override method read: (buffer: Void pointer) size: (size: UIntPointer) ::=> IntPointer
+        := size castTo: IntPointer.
+}.
+
+class FileStream definition: {
+    meta method fromHandle: (handle: HANDLE) isOwner: (isOwner: Boolean8) bufferingMode: (mode: StreamBufferingMode) ::=> SelfType := {
+        <notInCompileTime>
+        SelfType basicNewValue
+            handle: handle;
+            isConsole: GetFileType(handle) = FILE_TYPE_CHAR;
+            isOwner: isOwner;
+            initialize;
+            bufferingMode: mode;
+            yourself.
+    }
+}.
+
+class AtomicFileStream definition: {
+    meta method fromHandle: (handle: HANDLE) isOwner: (isOwner: Boolean8) bufferingMode: (mode: StreamBufferingMode) ::=> SelfType := {
+        <notInCompileTime>
+        SelfType basicNewValue
+            handle: handle;
+            isConsole: GetFileType(handle) = FILE_TYPE_CHAR;
+            isOwner: isOwner;
+            initialize;
+            bufferingMode: mode;
+            yourself.
+    }
+}.
+
+global stdinFile mutable := AtomicFileStream fromHandle: GetStdHandle(STD_INPUT_HANDLE) isOwner: false bufferingMode: StreamBufferingMode Block.
+global stdoutFile mutable := AtomicFileStream fromHandle: GetStdHandle(STD_OUTPUT_HANDLE) isOwner: false
+    bufferingMode: (GetConsoleCP() ~= 0 ifTrue: StreamBufferingMode Line ifFalse: StreamBufferingMode Block).
+global stderrFile mutable := AtomicFileStream fromHandle: GetStdHandle(STD_ERROR_HANDLE) isOwner: false bufferingMode: StreamBufferingMode None.
+
+}. ## End of namespace IO
+
+global stdout mutable := IO TextStreamWriter for: IO stdoutFile address.
+global stderr mutable := IO TextStreamWriter for: IO stderrFile address.
+}. ## End of namespace Stdn

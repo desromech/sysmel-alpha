@@ -1,0 +1,39 @@
+namespace Win32 definition: {
+
+struct OVERLAPPED definition: {
+
+}.
+
+compileTime constant FILE_TYPE_CHAR := 16r0002.
+compileTime constant FILE_TYPE_DISK := 16r0001.
+compileTime constant FILE_TYPE_PIPE := 16r0003.
+compileTime constant FILE_TYPE_REMOTE := 16r8000.
+compileTime constant FILE_TYPE_UNKNOWN := 16r0000.
+
+function GetFileType apicall externC(hFile: HANDLE) => DWORD.
+
+function GetConsoleCP apicall externC() => UINT.
+function SetConsoleCP apicall externC(wCodePageID: UINT) => BOOL.
+
+compileTime constant STD_INPUT_HANDLE := -10 castTo: DWORD.
+compileTime constant STD_OUTPUT_HANDLE := -11 castTo: DWORD.
+compileTime constant STD_ERROR_HANDLE := -12 castTo: DWORD.
+
+function GetStdHandle apicall externC(nStdHandle: DWORD) => HANDLE.
+function SetStdHandle apicall externC(nStdHandle: DWORD, hHandle: HANDLE) => BOOL.
+
+function GetLastError apicall externC() => DWORD.
+function FlushFileBuffers apicall externC(hFile: HANDLE) => BOOL.
+
+function WriteConsoleA apicall externC(hConsoleOutput: HANDLE, lpBuffer: Void const pointer,
+    nNumberOfCharsToWrite: DWORD, lpNumberOfCharsWritten: DWORD pointer,
+    lpReserved: OVERLAPPED pointer) => BOOL.
+function WriteConsoleW apicall externC(hConsoleOutput: HANDLE, lpBuffer: Void const pointer,
+    nNumberOfCharsToWrite: DWORD, lpNumberOfCharsWritten: DWORD pointer,
+    lpReserved: OVERLAPPED pointer) => BOOL.
+function WriteFile apicall externC(hFile: HANDLE, lpBuffer: Void const pointer,
+    nNumberOfBytesToWrite: DWORD, lpNumberOfBytesWritten: DWORD pointer,
+    lpOverlapped: OVERLAPPED pointer) => BOOL.
+function CloseHandle apicall externC(hObject: HANDLE) => DWORD.
+
+}. ## End of namespace Win32

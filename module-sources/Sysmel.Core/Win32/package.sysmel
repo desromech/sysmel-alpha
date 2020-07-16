@@ -1,4 +1,7 @@
-Compiler loadPackage: #"NullOS".
+##Compiler loadPackage: #"NullOS".
+loadFileOnce: "../NullOS/Threads.sysmel".
+loadFileOnce: "../NullOS/Time.sysmel".
+loadFileOnce: "../NullOS/NativeVirtualMemoryInterface.sysmel".
 Compiler
     loadPackage: #"Win32-Bindings";
     loadPackage: #"Win32-Stdn".

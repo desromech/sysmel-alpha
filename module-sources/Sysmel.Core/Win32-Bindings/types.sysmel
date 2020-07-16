@@ -1,0 +1,32 @@
+namespace Win32 definition: {
+
+compileTime constant PVOID := Void pointer.
+compileTime constant BOOL := Int32.
+
+compileTime constant VOID := void.
+compileTime constant CHAR := Char8.
+compileTime constant SHORT := Int16.
+compileTime constant INT := Int32.
+compileTime constant LONG := Int64.
+
+compileTime constant BYTE := UInt8.
+compileTime constant WORD := UInt16.
+compileTime constant DWORD := UInt32.
+compileTime constant UINT := UInt32.
+
+compileTime constant WCHAR := Char16.
+
+compileTime constant UINT_PTR := UIntPointer.
+compileTime constant INT_PTR := IntPointer.
+
+compileTime constant ULONG_PTR := UIntPointer.
+compileTime constant LONG_PTR := IntPointer.
+
+compileTime constant WPARAM := UINT_PTR.
+compileTime constant LPARAM := LONG_PTR.
+compileTime constant LRESULT := LONG_PTR.
+
+compileTime constant HANDLE := Void pointer.
+
+
+}. ## End of namespace Win32
