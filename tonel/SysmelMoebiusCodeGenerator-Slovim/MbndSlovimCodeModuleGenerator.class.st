@@ -37,7 +37,10 @@ Class {
 		'indexOutOfBoundsRaiseFunction',
 		'sampleTextureImplicitLodFunction',
 		'sampleTextureExplicitLodFunction',
-		'sampleTextureExplicitDerivativesFunction'
+		'sampleTextureExplicitDerivativesFunction',
+		'constructionRecordDictionary',
+		'constructionRecords',
+		'sysmelAtExitFunction'
 	],
 	#classVars : [
 		'ShaderBuiltInLocationMap',
@@ -224,7 +227,7 @@ MbndSlovimCodeModuleGenerator >> createCPUShaderControllerFor: functionMethod ge
 	self isEmittingDebugInformation ifTrue: [
 		controllerSSAFunction
 			debugInformation: (self debugInformationTranslator createForShader: functionMethod controllerWithFunctionType: controllerFunctionType);
-			debugSourceLocation: (self convertDebugPosition: functionMethod validSourcePosition)
+			debugSourceLocation: (self convertDebugPosition: functionMethod validSourcePosition asActualSourcePosition)
 	].
 
 	builder := SLVMBuilder on: controllerSSAFunction.
@@ -333,9 +336,10 @@ MbndSlovimCodeModuleGenerator >> createModuleInfoStartupConstructors: moduleInfo
 			returnVoid
 	].
 	
-	ssaModule
-		addGlobal: moduleInfoGlobal constructor: ctor priority: self compilationTarget gcModuleStartUpPriority;
-		addGlobal: moduleInfoGlobal destructor: dtor priority: self compilationTarget gcModuleStartUpPriority.
+	constructionRecords add: (MbndSlovimConstructionRecord new
+		constructor: ctor;
+		destructor: dtor;
+		priority: self compilationTarget gcModuleStartUpPriority).
 
 ]
 
@@ -712,7 +716,48 @@ MbndSlovimCodeModuleGenerator >> generateFinalizationOfGlobalVariable: globalVar
 			returnVoid
 	].
 
-	ssaModule addGlobal: ssaGlobalVariable destructor: dtor priority: (globalVariable constructionPriority ifNil: [self compilationTarget normalConstructorPriority])
+	(self validConstructionRecordFor: ssaGlobalVariable priority: (globalVariable constructionPriority ifNil: [self compilationTarget normalConstructorPriority]))
+		destructor: dtor
+]
+
+{ #category : #visiting }
+MbndSlovimCodeModuleGenerator >> generateGlobalConstructionSetupMethods [
+	| sortedConstructionRecords |
+	constructionRecords ifEmpty: [ ^ self ].
+	sortedConstructionRecords := constructionRecords sorted: [ :a :b | a priority < b priority ].
+	self generateGlobalConstructionSetupMethods: sortedConstructionRecords
+]
+
+{ #category : #visiting }
+MbndSlovimCodeModuleGenerator >> generateGlobalConstructionSetupMethods: records [
+	| globalCtor builder atExit atExitArgumentType |
+	records ifEmpty: [ ^ self ].
+	globalCtor := SLVMFunction module: ssaModule name: nil functionType: (SLVMFunctionType arguments: #() returnType: SLVMType voidType).
+	
+	builder := SLVMBuilder on: globalCtor.
+	builder newBasicBlockHere: #entry.
+	self isEmittingDebugInformation ifTrue: [
+		globalCtor
+			debugInformation: (self debugInformationTranslator createForModuleStaticConstructorSetup: self compilationTarget voidType => self compilationTarget voidType);
+			debugSourceLocation: (self convertDebugPosition: self validSourcePosition).
+			
+		builder pushDebugSourcePosition: (self convertDebugPosition: self validSourcePosition scope: nil)
+	].
+
+	atExit := self sysmelAtExitFunction.
+	atExitArgumentType := atExit type baseType arguments first.
+	
+	records do: [ :each |
+		each constructor ifNotNil: [ :ctor |
+			builder call: ctor arguments: #()
+		].
+		each destructor ifNotNil: [ :dtor |
+			builder call: atExit arguments: { SLVMConstant pointer: dtor castTo: atExitArgumentType }
+		].
+	].
+	
+	builder returnVoid.
+	ssaModule addGlobal: nil constructor: globalCtor priority: records first priority
 ]
 
 { #category : #'as yet unclassified' }
@@ -843,7 +888,8 @@ MbndSlovimCodeModuleGenerator >> generateInitializationOfGlobalVariable: globalV
 		self error: 'Unsupported global initialization kind'	
 	].
 
-	ssaModule addGlobal: ssaGlobalVariable constructor: ctor priority: (globalVariable constructionPriority ifNil: [self compilationTarget normalConstructorPriority])
+	(self validConstructionRecordFor: ssaGlobalVariable priority: (globalVariable constructionPriority ifNil: [self compilationTarget normalConstructorPriority]))
+		constructor: ctor
 ]
 
 { #category : #'as yet unclassified' }
@@ -1255,6 +1301,9 @@ MbndSlovimCodeModuleGenerator >> initialize [
 	gpuUsableProgramEntitites := OrderedCollection new.
 	nativeClosureTypeInfos := Dictionary new.
 	nativeShaderEntryPoints := Dictionary new.
+	
+	constructionRecordDictionary := Dictionary new.
+	constructionRecords := OrderedCollection new.
 ]
 
 { #category : #'as yet unclassified' }
@@ -1625,6 +1674,21 @@ MbndSlovimCodeModuleGenerator >> symbolNameManglerPrototype [
 	]
 ]
 
+{ #category : #'runtime functions' }
+MbndSlovimCodeModuleGenerator >> sysmelAtExitFunction [
+	^ sysmelAtExitFunction ifNil: [
+		self compilationTarget sysmelAtExitFunction ifNotNil: [ :function |
+			sysmelAtExitFunction := (self translateProgramEntity: function) ssaValue
+		] ifNil: [
+			sysmelAtExitFunction := SLVMFunction module: ssaModule
+				name: #__sysmel_atexit
+				functionType: ((SLVMFunctionType arguments: {self slvmCompilationTarget voidPointerType} returnType: SLVMType voidType)
+					variadic: true
+				)
+		]
+	]
+]
+
 { #category : #accessing }
 MbndSlovimCodeModuleGenerator >> targetCodeModuleName [
 	^ targetCodeModuleName
@@ -1920,6 +1984,18 @@ MbndSlovimCodeModuleGenerator >> unmangledNameForShaderEntryPoint: programEntity
 	programEntity isMessageMethod ifTrue: [ out nextPut: $] ].
 		
 	self addUnmangledProgramEntity: programEntity suffixInto: out
+]
+
+{ #category : #'as yet unclassified' }
+MbndSlovimCodeModuleGenerator >> validConstructionRecordFor: value priority: priority [
+	^ constructionRecordDictionary at: value ifAbsentPut: [
+		| record |
+		record := MbndSlovimConstructionRecord new
+			priority: priority;
+			yourself.
+		constructionRecords add: record.
+		record
+	]
 ]
 
 { #category : #accessing }
@@ -2560,6 +2636,7 @@ MbndSlovimCodeModuleGenerator >> visitModule: module [
 		self createModuleInfoStartupConstructors: moduleInfoSSAValue
 	].
 
+	self generateGlobalConstructionSetupMethods.
 	^ moduleInfoSSAValue
 ]
 

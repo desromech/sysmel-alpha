@@ -564,7 +564,7 @@ MbndCompilationEnvironment >> importOrCompileModuleNamed: moduleName indirectDep
 
 { #category : #'module import' }
 MbndCompilationEnvironment >> importedModuleExtension [
-	^ self extensionForModuleOutputMode: #object
+	^ self compilationTarget extensionForModuleOutputMode: #object
 ]
 
 { #category : #initialization }

@@ -6812,7 +6812,7 @@ global testGlobal externC mutable type: PackedStructure';
 
 { #category : #tests }
 MbndSlovimCodeModuleGeneratorTest >> testGlobalVariableWithConstructor [
-	| global ctor globalCtor callInstruction |
+	| global ctor globalCtor |
 	self
 		evaluateSysmelSource: '
 function makeHandle externC() => Int32.
@@ -6825,28 +6825,41 @@ struct Resource definition: {
 	}.
 }.
 
-global globalHandle externC mutable type: Resource';
+global globalHandle externC mutable type: Resource.
+global globalHandle2 externC mutable type: Resource.
+';
 		generateSSAModule.
 
 	global := ssaModule globalNamed: #globalHandle.
 	self assert: global isGlobalVariable.
 	self assert: global valueType isStructureType.
 	self assert: global initialValue isNotNil.
+
+	global := ssaModule globalNamed: #globalHandle2.
+	self assert: global isGlobalVariable.
+	self assert: global valueType isStructureType.
+	self assert: global initialValue isNotNil.
 	
-	self assert: ssaModule globalConstructors isNotEmpty.
+	self assert: ssaModule globalConstructors size equals: 1.
 	ctor := ssaModule globalConstructors first.
-	self assert: ctor global equals: global.
 	self assert: ctor priority equals: semanticModule compilationTarget normalConstructorPriority.
 
 	globalCtor := ctor function.
-	self assert: globalCtor allInstructionsMnemonics equals: #(
-		(entry (jump))
-		(body (call returnVoid))
+	self assert: globalCtor asFullSExpressionForTesting equals: #(
+function nil cdecl void
+	arguments (
+	)
+	literals (
+	)
+	blocks (
+		(()
+			(nil call void () ((global 6 nil)))
+			(nil call void () ((global 4 nil)))
+			(nil returnVoid void () ())
+		)
+	)
 	).
-	
-	callInstruction := globalCtor basicBlocks second firstInstruction.
-	self assert: callInstruction isCall.
-	self assert: callInstruction functionValue name equals: #'_ZN10TestModule8Resource11.initializeERNS0_E'. 
+
 ]
 
 { #category : #tests }
@@ -6864,33 +6877,45 @@ struct Resource definition: {
 	}.
 }.
 
-global globalHandle externC mutable type: Resource; constructionPriority: -100';
+global globalHandle externC mutable type: Resource.
+global globalHandle2 externC mutable type: Resource; constructionPriority: 0.
+';
 		generateSSAModule.
 
 	global := ssaModule globalNamed: #globalHandle.
 	self assert: global isGlobalVariable.
 	self assert: global valueType isStructureType.
 	self assert: global initialValue isNotNil.
-	
-	self assert: ssaModule globalConstructors isNotEmpty.
-	ctor := ssaModule globalConstructors first.
-	self assert: ctor global equals: global.
-	self assert: ctor priority equals: -100.
 
-	globalCtor := ctor function.
-	self assert: globalCtor allInstructionsMnemonics equals: #(
-		(entry (jump))
-		(body (call returnVoid))
-	).
+	global := ssaModule globalNamed: #globalHandle2.
+	self assert: global isGlobalVariable.
+	self assert: global valueType isStructureType.
+	self assert: global initialValue isNotNil.
 	
-	callInstruction := globalCtor basicBlocks second firstInstruction.
-	self assert: callInstruction isCall.
-	self assert: callInstruction functionValue name equals: #'_ZN10TestModule8Resource11.initializeERNS0_E'.
+	self assert: ssaModule globalConstructors size equals: 1.
+	ctor := ssaModule globalConstructors first.
+	globalCtor := ctor function.
+	self assert: globalCtor asFullSExpressionForTesting equals: #(
+function nil cdecl void
+	arguments (
+	)
+	literals (
+	)
+	blocks (
+		(()
+			(nil call void () ((global 6 nil)))
+			(nil call void () ((global 4 nil)))
+			(nil returnVoid void () ())
+		)
+	)
+
+	).
+
 ]
 
 { #category : #tests }
 MbndSlovimCodeModuleGeneratorTest >> testGlobalVariableWithDestructor [
-	| global dtor globalDtor callInstruction |
+	| global ctor globalCtor |
 	self
 		evaluateSysmelSource: '
 function destroyHandle externC(handle: Int32) => Void.
@@ -6911,25 +6936,30 @@ global globalHandle externC mutable type: Resource';
 	self assert: global valueType isStructureType.
 	self assert: global initialValue isNotNil.
 	
-	self assert: ssaModule globalDestructors isNotEmpty.
-	dtor := ssaModule globalDestructors first.
-	self assert: dtor global equals: global.
-	self assert: dtor priority equals: semanticModule compilationTarget normalConstructorPriority.
+	self assert: ssaModule globalConstructors size equals: 1.
+	ctor := ssaModule globalConstructors first.
+	self assert: ctor priority equals: semanticModule compilationTarget normalConstructorPriority.
 
-	globalDtor := dtor function.
-	self assert: globalDtor allInstructionsMnemonics equals: #(
-		(entry (jump))
-		(body (call returnVoid))
+	globalCtor := ctor function.
+	self assert: globalCtor asFullSExpressionForTesting equals: #(
+function nil cdecl void
+	arguments (
+	)
+	literals (
+	)
+	blocks (
+		(()
+			(nil call void () ((global 6 __sysmel_atexit) (constExprBitcast (pointer void generic) ((global 4 nil)))))
+			(nil returnVoid void () ())
+		)
+	)
 	).
-	
-	callInstruction := globalDtor basicBlocks second firstInstruction.
-	self assert: callInstruction isCall.
-	self assert: callInstruction functionValue name equals: #'_ZN10TestModule8Resource9.finalizeERNS0_E'.
+
 ]
 
 { #category : #tests }
 MbndSlovimCodeModuleGeneratorTest >> testGlobalVariableWithDestructorAndInitialization [
-	| global dtor globalDtor callInstruction |
+	| global ctor globalCtor |
 	self
 		evaluateSysmelSource: '
 function destroyHandle externC(handle: Int32) => Void.
@@ -6949,26 +6979,32 @@ global globalHandle externC mutable := Resource basicNewValue handle: 42';
 	self assert: global isGlobalVariable.
 	self assert: global valueType isStructureType.
 	self assert: global initialValue isNotNil.
+	self assert: global initialValue slots first value equals: 42.
 	
-	self assert: ssaModule globalDestructors isNotEmpty.
-	dtor := ssaModule globalDestructors first.
-	self assert: dtor global equals: global.
-	self assert: dtor priority equals: semanticModule compilationTarget normalConstructorPriority.
+	self assert: ssaModule globalConstructors size equals: 1.
+	ctor := ssaModule globalConstructors first.
+	self assert: ctor priority equals: semanticModule compilationTarget normalConstructorPriority.
 
-	globalDtor := dtor function.
-	self assert: globalDtor allInstructionsMnemonics equals: #(
-		(entry (jump))
-		(body (call returnVoid))
+	globalCtor := ctor function.
+	self assert: globalCtor asFullSExpressionForTesting equals: #(
+function nil cdecl void
+	arguments (
+	)
+	literals (
+	)
+	blocks (
+		(()
+			(nil call void () ((global 6 __sysmel_atexit) (constExprBitcast (pointer void generic) ((global 4 nil)))))
+			(nil returnVoid void () ())
+		)
+	)
 	).
-	
-	callInstruction := globalDtor basicBlocks second firstInstruction.
-	self assert: callInstruction isCall.
-	self assert: callInstruction functionValue name equals: #'_ZN10TestModule8Resource9.finalizeERNS0_E'.
+
 ]
 
 { #category : #tests }
 MbndSlovimCodeModuleGeneratorTest >> testGlobalVariableWithDestructorAndInitialization2 [
-	| global dtor globalDtor callInstruction |
+	| global ctor globalCtor |
 	self
 		evaluateSysmelSource: '
 function destroyHandle externC(handle: Int32) => Void.
@@ -6988,26 +7024,32 @@ global globalHandle externC mutable type: Resource := Resource basicNewValue han
 	self assert: global isGlobalVariable.
 	self assert: global valueType isStructureType.
 	self assert: global initialValue isNotNil.
+	self assert: global initialValue slots first value equals: 42.
 	
-	self assert: ssaModule globalDestructors isNotEmpty.
-	dtor := ssaModule globalDestructors first.
-	self assert: dtor global equals: global.
-	self assert: dtor priority equals: semanticModule compilationTarget normalConstructorPriority.
+	self assert: ssaModule globalConstructors size equals: 1.
+	ctor := ssaModule globalConstructors first.
+	self assert: ctor priority equals: semanticModule compilationTarget normalConstructorPriority.
 
-	globalDtor := dtor function.
-	self assert: globalDtor allInstructionsMnemonics equals: #(
-		(entry (jump))
-		(body (call returnVoid))
+	globalCtor := ctor function.
+	self assert: globalCtor asFullSExpressionForTesting equals: #(
+function nil cdecl void
+	arguments (
+	)
+	literals (
+	)
+	blocks (
+		(()
+			(nil call void () ((global 6 __sysmel_atexit) (constExprBitcast (pointer void generic) ((global 4 nil)))))
+			(nil returnVoid void () ())
+		)
+	)
 	).
-	
-	callInstruction := globalDtor basicBlocks second firstInstruction.
-	self assert: callInstruction isCall.
-	self assert: callInstruction functionValue name equals: #'_ZN10TestModule8Resource9.finalizeERNS0_E'.
+
 ]
 
 { #category : #tests }
 MbndSlovimCodeModuleGeneratorTest >> testGlobalVariableWithDestructorAndInitialization3 [
-	| global dtor globalDtor callInstruction |
+	| global ctor globalCtor |
 	self
 		evaluateSysmelSource: '
 function destroyHandle externC(handle: Int32) => Void.
@@ -7030,26 +7072,32 @@ global globalHandle externC mutable := Resource for: 42';
 	self assert: global isGlobalVariable.
 	self assert: global valueType isStructureType.
 	self assert: global initialValue isNotNil.
+	self assert: global initialValue slots first value equals: 42.
 	
-	self assert: ssaModule globalDestructors isNotEmpty.
-	dtor := ssaModule globalDestructors first.
-	self assert: dtor global equals: global.
-	self assert: dtor priority equals: semanticModule compilationTarget normalConstructorPriority.
+	self assert: ssaModule globalConstructors size equals: 1.
+	ctor := ssaModule globalConstructors first.
+	self assert: ctor priority equals: semanticModule compilationTarget normalConstructorPriority.
 
-	globalDtor := dtor function.
-	self assert: globalDtor allInstructionsMnemonics equals: #(
-		(entry (jump))
-		(body (call returnVoid))
+	globalCtor := ctor function.
+	self assert: globalCtor asFullSExpressionForTesting equals: #(
+function nil cdecl void
+	arguments (
+	)
+	literals (
+	)
+	blocks (
+		(()
+			(nil call void () ((global 7 __sysmel_atexit) (constExprBitcast (pointer void generic) ((global 5 nil)))))
+			(nil returnVoid void () ())
+		)
+	)
 	).
-	
-	callInstruction := globalDtor basicBlocks second firstInstruction.
-	self assert: callInstruction isCall.
-	self assert: callInstruction functionValue name equals: #'_ZN10TestModule8Resource9.finalizeERNS0_E'.
+
 ]
 
 { #category : #tests }
 MbndSlovimCodeModuleGeneratorTest >> testGlobalVariableWithDestructorAndInitialization4 [
-	| global dtor globalDtor callInstruction |
+	| global dtor globalDtor callInstruction ctor globalCtor |
 	self
 		evaluateSysmelSource: '
 function destroyHandle externC(handle: Int32) => Void.
@@ -7072,26 +7120,32 @@ global globalHandle externC mutable type: Resource := Resource for: 42';
 	self assert: global isGlobalVariable.
 	self assert: global valueType isStructureType.
 	self assert: global initialValue isNotNil.
+	self assert: global initialValue slots first value equals: 42.
 	
-	self assert: ssaModule globalDestructors isNotEmpty.
-	dtor := ssaModule globalDestructors first.
-	self assert: dtor global equals: global.
-	self assert: dtor priority equals: semanticModule compilationTarget normalConstructorPriority.
+	self assert: ssaModule globalConstructors size equals: 1.
+	ctor := ssaModule globalConstructors first.
+	self assert: ctor priority equals: semanticModule compilationTarget normalConstructorPriority.
 
-	globalDtor := dtor function.
-	self assert: globalDtor allInstructionsMnemonics equals: #(
-		(entry (jump))
-		(body (call returnVoid))
+	globalCtor := ctor function.
+	self assert: globalCtor asFullSExpressionForTesting equals: #(
+function nil cdecl void
+	arguments (
+	)
+	literals (
+	)
+	blocks (
+		(()
+			(nil call void () ((global 7 __sysmel_atexit) (constExprBitcast (pointer void generic) ((global 5 nil)))))
+			(nil returnVoid void () ())
+		)
+	)
 	).
-	
-	callInstruction := globalDtor basicBlocks second firstInstruction.
-	self assert: callInstruction isCall.
-	self assert: callInstruction functionValue name equals: #'_ZN10TestModule8Resource9.finalizeERNS0_E'.
+
 ]
 
 { #category : #tests }
 MbndSlovimCodeModuleGeneratorTest >> testGlobalVariableWithDestructorPriority [
-	| global dtor globalDtor callInstruction |
+	| global dtor globalDtor callInstruction ctor globalCtor |
 	self
 		evaluateSysmelSource: '
 function destroyHandle externC(handle: Int32) => Void.
@@ -7112,20 +7166,25 @@ global globalHandle externC mutable type: Resource; constructionPriority: -100';
 	self assert: global valueType isStructureType.
 	self assert: global initialValue isNotNil.
 	
-	self assert: ssaModule globalDestructors isNotEmpty.
-	dtor := ssaModule globalDestructors first.
-	self assert: dtor global equals: global.
-	self assert: dtor priority equals: -100.
+	self assert: ssaModule globalConstructors size equals: 1.
+	ctor := ssaModule globalConstructors first.
+	self assert: ctor priority equals: -100.
 
-	globalDtor := dtor function.
-	self assert: globalDtor allInstructionsMnemonics equals: #(
-		(entry (jump))
-		(body (call returnVoid))
+	globalCtor := ctor function.
+	self assert: globalCtor asFullSExpressionForTesting equals: #(
+function nil cdecl void
+	arguments (
+	)
+	literals (
+	)
+	blocks (
+		(()
+			(nil call void () ((global 6 __sysmel_atexit) (constExprBitcast (pointer void generic) ((global 4 nil)))))
+			(nil returnVoid void () ())
+		)
+	)
 	).
-	
-	callInstruction := globalDtor basicBlocks second firstInstruction.
-	self assert: callInstruction isCall.
-	self assert: callInstruction functionValue name equals: #'_ZN10TestModule8Resource9.finalizeERNS0_E'.
+
 ]
 
 { #category : #tests }
@@ -7161,15 +7220,23 @@ global globalHandle externC mutable type: Resource := (Resource newValue handle:
 	self assert: global valueType isStructureType.
 	self assert: global initialValue isNotNil.
 	
-	self assert: ssaModule globalConstructors isNotEmpty.
+	self assert: ssaModule globalConstructors size equals: 1.
 	ctor := ssaModule globalConstructors first.
-	self assert: ctor global equals: global.
 	self assert: ctor priority equals: semanticModule compilationTarget normalConstructorPriority.
 
 	globalCtor := ctor function.
-	self assert: globalCtor allInstructionsMnemonics equals: #(
-		(entry (alloca jump))
-		(body (store call getElementPointer store load store returnVoid))
+	self assert: globalCtor asFullSExpressionForTesting equals: #(
+function nil cdecl void
+	arguments (
+	)
+	literals (
+	)
+	blocks (
+		(()
+			(nil call void () ((global 3 nil)))
+			(nil returnVoid void () ())
+		)
+	)
 	).
 
 ]

@@ -62,9 +62,11 @@ Trait {
 		'indexOutOfBoundsRaiseFunction',
 		'sampleTextureImplicitLodFunction',
 		'sampleTextureExplicitLodFunction',
-		'sampleTextureExplicitDerivativesFunction'
+		'sampleTextureExplicitDerivativesFunction',
+		'sysmelAtExitFunction'
 	],
 	#traits : 'TMbndAbstractCompilationTarget',
+	#classTraits : 'TMbndAbstractCompilationTarget classTrait',
 	#category : #'SysmelMoebiusMetamodel-Core-CompilationTarget'
 }
 
@@ -406,6 +408,9 @@ TMbndCoreCompilationTarget >> encodeBootstrapDefinedObjectsForMessagePackWith: g
 			extensionOverloadedMethodGCClass extensionOverloadedMethodNativeClass
 			extensionMethodGCClass extensionMethodNativeClass
 			
+			"Static constructors/destructors"
+			sysmelAtExitFunction
+			
 			"EH"
 			exceptionCatchBeginFunction
 			exceptionCatchEndFunction
@@ -582,17 +587,17 @@ TMbndCoreCompilationTarget >> gcClassVariableDataArrayOf: elementType [
 	^ gcClassVariableDataArrayTypes getOrCreateInstanceWithArguments: { elementType }
 ]
 
-{ #category : #'as yet unclassified' }
+{ #category : #'constructor priorities' }
 TMbndCoreCompilationTarget >> gcInitializationPriority [
-	^ 50
+	^ self normalConstructorPriority - 100
 ]
 
-{ #category : #'as yet unclassified' }
+{ #category : #'constructor priorities' }
 TMbndCoreCompilationTarget >> gcModuleRootRegistrationPriority [
 	^ self gcInitializationPriority + 1
 ]
 
-{ #category : #'as yet unclassified' }
+{ #category : #'constructor priorities' }
 TMbndCoreCompilationTarget >> gcModuleStartUpPriority [
 	^ self gcModuleRootRegistrationPriority + 1
 ]
@@ -1440,9 +1445,9 @@ TMbndCoreCompilationTarget >> nonLocalReturnRaiseFunction: anObject [
 	nonLocalReturnRaiseFunction := anObject
 ]
 
-{ #category : #'as yet unclassified' }
+{ #category : #'constructor priorities' }
 TMbndCoreCompilationTarget >> normalConstructorPriority [
-	^ 100
+	^ 16rffff
 ]
 
 { #category : #'as yet unclassified' }
@@ -1582,6 +1587,16 @@ TMbndCoreCompilationTarget >> standardConcreteTypeForSymbolInScope: aScope [
 	aScope isCompilationEvaluationScope ifTrue: [ ^ self compilerObjectType ].
 	self managedObjectModel symbolClass ifNotNil: [ ^ self managedObjectModel symbolClass ].
 	self error: 'Unsupported symbols at this context.'
+]
+
+{ #category : #accessing }
+TMbndCoreCompilationTarget >> sysmelAtExitFunction [
+	^ sysmelAtExitFunction
+]
+
+{ #category : #accessing }
+TMbndCoreCompilationTarget >> sysmelAtExitFunction: aFunction [
+	sysmelAtExitFunction := aFunction
 ]
 
 { #category : #accessing }

@@ -62,6 +62,16 @@ MbndSlovimDebugInformationTranslator >> addAggregateDebugType: debugType members
 ]
 
 { #category : #visiting }
+MbndSlovimDebugInformationTranslator >> createForModuleStaticConstructorSetup: controllerFunctionType [
+	^ SLVMDebugSubprogram new
+		name: '[ModuleConstructorSetup]';
+		isLocal: true;
+		isDefinition: true;
+		type: (self translateDebugType: controllerFunctionType);
+		yourself
+]
+
+{ #category : #visiting }
 MbndSlovimDebugInformationTranslator >> createForShader: functionMethod controllerWithFunctionType: controllerFunctionType [
 	^ SLVMDebugSubprogram new
 		name:  functionMethod qualifiedName  , '[ShaderController]';
@@ -546,11 +556,11 @@ MbndSlovimDebugInformationTranslator >> visitOpaqueHandlerType: opaqueHandlerTyp
 	opaqueHandlerType isTrait ifTrue: [ ^ self visitTraitType: opaqueHandlerType ].
 	
 	debugType := SLVMDebugCompositeType new makeStructure.
+	debugType identifier: (self mangleProgramEntityName: opaqueHandlerType).
 	opaqueHandlerPointerType := SLVMDebugDerivedType new makePointer
 		baseType: debugType;
 		byteSize: self compilationTarget pointerSize;
-		byteAlignment: self compilationTarget pointerAlignment;
-		identifier: (self mangleProgramEntityName: opaqueHandlerType).
+		byteAlignment: self compilationTarget pointerAlignment.
 
 	translatedEntities at: opaqueHandlerType put: opaqueHandlerPointerType.
 	self setCommonDebugType: debugType informationFrom: opaqueHandlerType.
