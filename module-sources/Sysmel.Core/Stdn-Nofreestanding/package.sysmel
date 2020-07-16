@@ -2,6 +2,7 @@ loadFileOnce: "declarations.sysmel".
 
 Compiler loadPackages: #(
     #"Stdn-Nofreestanding-Collections"
+    #"Stdn-Nofreestanding-Runtime"
     #"Stdn-Nofreestanding-IO"
     #"Stdn-Nofreestanding-Memory"
     #"Stdn-Nofreestanding-Functional"

@@ -3,6 +3,7 @@ namespace LibC definition: {
     ## Exit points
     function abort externC dllimport () => Void.
     function exit externC dllimport (exitCode: Int) => Void.
+    function atexit externC dllimport (function: (Void => Void) pointer) => Int.
 
     ## String conversions
     function atol externC dllimport (string: ConstString) => Long.

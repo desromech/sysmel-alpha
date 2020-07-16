@@ -18,7 +18,7 @@ struct AtomicFlag definition: {
         flag
     }.
 
-    method load ::=> Boolean8
+    inline method load ::=> Boolean8
         := self loadWith: MemoryOrder SequentiallyConsistent.
 
     method store: (newValue: Boolean8) with: (ordering: MemoryOrder) ::=> Void := {
@@ -27,7 +27,7 @@ struct AtomicFlag definition: {
         flag := newValue.
     }.
 
-    method store: (value: Boolean8) ::=> Void
+    inline method store: (value: Boolean8) ::=> Void
         := self store: value with: MemoryOrder SequentiallyConsistent.
 
     method testAndSet: (value: Boolean8) with: (ordering: MemoryOrder) ::=> Boolean8 := {
@@ -37,8 +37,26 @@ struct AtomicFlag definition: {
         value
     }.
 
-    method testAndSet: (value: Boolean8) ::=> Boolean8
-        := self testAndSet: value with: MemoryOrder SequentiallyConsistent
+    inline method testAndSet: (value: Boolean8) ::=> Boolean8
+        := self testAndSet: value with: MemoryOrder SequentiallyConsistent.
+
+    inline method testAndSetWith: (ordering: MemoryOrder) ::=> Boolean8
+        := self testAndSet: true with: ordering.
+
+    inline method testAndSet ::=> Boolean8
+        := self testAndSet: true.
+
+    inline method clear ::=> Void
+        := self store: false.
+
+    inline method clearWith: (ordering: MemoryOrder) ::=> Void
+        := self store: false with: ordering.
+
+    inline method set ::=> Void
+        := self store: false.
+
+    inline method setWith: (ordering: MemoryOrder) ::=> Void
+        := self store: true with: ordering.
 }.
 
 template Atomic(BaseType: Type)
