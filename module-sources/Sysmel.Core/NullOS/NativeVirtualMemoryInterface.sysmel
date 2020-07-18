@@ -1,14 +1,11 @@
 namespace Stdn definition: {
 
 #**
- * Unix virtual memory interface.
+ * Null virtual memory interface.
  *#
 namespace NativeVirtualMemoryInterface definition: {
 
     method reserveAndCommitAddressSpace: (size: UIntPointer) alignment: (alignment: UIntPointer) ::=> Void pointer
-        := nil.
-
-    method slowReserveAndCommitAddressSpace: (size: UIntPointer) alignment: (alignment: UIntPointer) ::=> Void pointer
         := nil.
 
     method reserveAndCommitAddressSpace: (size: UIntPointer) ::=> Void pointer

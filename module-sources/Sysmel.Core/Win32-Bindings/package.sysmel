@@ -1,2 +1,3 @@
 loadFileOnce: "types.sysmel".
 loadFileOnce: "IO.sysmel".
+loadFileOnce: "Memory.sysmel".

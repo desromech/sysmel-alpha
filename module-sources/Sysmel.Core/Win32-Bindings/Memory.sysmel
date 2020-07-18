@@ -1,0 +1,41 @@
+namespace Win32 definition: {
+
+compileTime constant MEM_COMMIT := 16r00001000.
+compileTime constant MEM_RESERVE := 16r00002000.
+compileTime constant MEM_RESET := 16r00080000.
+compileTime constant MEM_RESET_UNDO := 16r1000000.
+
+compileTime constant MEM_LARGE_PAGES := 16r20000000.
+compileTime constant MEM_PHYSICAL := 16r00400000.
+compileTime constant MEM_TOP_DOWN := 16r00100000.
+compileTime constant MEM_WRITE_WATCH := 16r00200000.
+
+compileTime constant MEM_DECOMMIT := 16r00004000.
+compileTime constant MEM_RELEASE := 16r00008000.
+
+compileTime constant PAGE_EXECUTE := 16r10.
+compileTime constant PAGE_EXECUTE_READ := 16r20.
+compileTime constant PAGE_EXECUTE_READWRITE := 16r40.
+compileTime constant PAGE_EXECUTE_WRITECOPY := 16r40.
+
+compileTime constant PAGE_NOACCESS := 16r01.
+compileTime constant PAGE_READONLY := 16r02.
+compileTime constant PAGE_READWRITE := 16r04.
+compileTime constant PAGE_WRITECOPY := 16r08.
+compileTime constant PAGE_TARGETS_INVALID := 16r40000000.
+compileTime constant PAGE_TARGETS_NO_UPDATE := 16r40000000.
+
+compileTime constant PAGE_GUARD := 16r100.
+compileTime constant PAGE_NOCACHE := 16r200.
+compileTime constant PAGE_WRITECOMBINE := 16r400.
+
+compileTime if: Compiler compilationTarget isWindowsStore then: {
+    function VirtualAllocFromApp apicall externC(BaseAddress: VOID pointer, Size: SIZE_T, AllocationType: ULONG, Protection: ULONG) => VOID pointer.
+    function VirtualProtectFromApp apicall externC(Address: VOID pointer, Size: SIZE_T, NewProtection: ULONG, OldProtection: ULONG pointer) => VOID pointer.
+}.
+
+function VirtualAlloc apicall externC(lpAddress: VOID pointer, dwSize: SIZE_T, flAllocationType: DWORD, flProtect: DWORD) => VOID pointer.
+function VirtualProtect apicall externC(lpAddress: VOID pointer, dwSize: SIZE_T, flNewProtect: DWORD, lpflOldProtect: DWORD pointer) => VOID pointer.
+function VirtualFree apicall externC(lpAddress: VOID pointer, dwSize: SIZE_T, dwFreeType: DWORD) => BOOL.
+
+}. ## End of namespace Win32

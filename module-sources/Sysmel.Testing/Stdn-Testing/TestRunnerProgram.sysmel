@@ -3,8 +3,8 @@ namespace Testing definition: {
 
 macro method generateTestSuiteProgramMain: testSuiteProgramName := ``(
 Stdn MainEntryPoint: {:args :: Int32 |
-let succeded mutable := Stdn Testing TestRunner defaultInstance runAllTests.
-return: (succeded ifTrue: 0 ifFalse: 0)
+    let succeded mutable := Stdn Testing TestRunner defaultInstance runAllTests.
+    return: (succeded ifTrue: 0 ifFalse: 0)
 }
 )
 
