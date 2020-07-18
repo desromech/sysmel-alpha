@@ -282,6 +282,11 @@ MbndSlovimCompilationTarget >> isWindows [
 ]
 
 { #category : #'platform testing' }
+MbndSlovimCompilationTarget >> isWindowsStore [
+	^ slvmCompilationTarget isWindowsStore
+]
+
+{ #category : #'platform testing' }
 MbndSlovimCompilationTarget >> isX86_32 [
 	^ slvmCompilationTarget isX86_32
 ]
