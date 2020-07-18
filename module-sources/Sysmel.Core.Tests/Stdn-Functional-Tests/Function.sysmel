@@ -27,13 +27,15 @@ class FunctionCase superclass: Stdn Testing TestCase; definition: {
         self deny: f isValid.
     }.
 
-    test: testInvalidCallError with: {
-        let f mutable type: UnaryInt32Function.
-        self should: f(42) raise: Stdn Error.
-    }.
+    compileTime if: Compiler hasExceptions then: {
+        test: testInvalidCallError with: {
+            let f mutable type: UnaryInt32Function.
+            self should: f(42) raise: Stdn Error.
+        }.
 
-    test: testInvalidCallError2 with: {
-        self should: UnaryInt32Function()(42) raise: Stdn Error.
+        test: testInvalidCallError2 with: {
+            self should: UnaryInt32Function()(42) raise: Stdn Error.
+        }.
     }.
 
     test: testIdentityFunctionPointer with: {
