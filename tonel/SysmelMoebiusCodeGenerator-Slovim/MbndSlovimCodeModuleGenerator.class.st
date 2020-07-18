@@ -114,6 +114,7 @@ MbndSlovimCodeModuleGenerator >> addPrimitiveTypeTranslations [
 
 		(booleanType bool)
 		(undefinedType voidPointerType)
+		(valistType valist)
 	) , self gpuTypeMapping)
 	 do: [ :pair |
 		sourceType := sourceTarget perform: pair first.

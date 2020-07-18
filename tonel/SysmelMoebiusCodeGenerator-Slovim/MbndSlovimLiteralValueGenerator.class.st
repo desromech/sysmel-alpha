@@ -371,6 +371,13 @@ MbndSlovimLiteralValueGenerator >> visitUnionType: type [
 ]
 
 { #category : #visiting }
+MbndSlovimLiteralValueGenerator >> visitVAListType: type [
+	| slvmType |
+	slvmType := self translateType: type.
+	^ SLVMConstant zeroInitializer: slvmType
+]
+
+{ #category : #visiting }
 MbndSlovimLiteralValueGenerator >> visitVariantUnionType: type [
 	| slvmType |
 	slvmType := self translateType: type.

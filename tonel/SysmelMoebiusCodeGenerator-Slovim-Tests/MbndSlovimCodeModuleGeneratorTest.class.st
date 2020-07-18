@@ -11622,6 +11622,54 @@ function equals cdecl b8
 ]
 
 { #category : #tests }
+MbndSlovimCodeModuleGeneratorTest >> testVAListPass [
+	| function |
+	self
+		evaluateSysmelSource: '
+function vprintf externC (format: Char8 const pointer, arglist: VAList) => Void.
+
+function printf externC CVariadic(format: Char8 const pointer) => Void := {
+	let arglist mutable := VAList() start; yourself.
+	vprintf(format, arglist).
+	arglist end
+}.
+
+';
+		generateSSAModule.
+
+	function := ssaModule globalNamed: #printf.
+	self assert: function asFullSExpressionForTesting equals: #(
+function printf cdecl void
+	arguments (
+		(format (pointer u8 generic) ())
+	)
+	variadic true
+	literals (
+	)
+	blocks (
+		(()
+			(nil alloca (pointer (pointer void generic) function) () ())
+			(nil alloca (pointer (pointer void generic) function) () ())
+			(nil jump void () () (block 2 body))
+		)
+		(()
+			(nil jump void () () (block 3 tryScope))
+		)
+		(()
+			(nil store void () ((zeroInitialized (pointer void generic)) (local 2 nil)))
+			(nil call void () ((builtInFunction (pointer (function cdecl ((pointer (pointer void generic) function)) false void) generic) 'valist.start') (local 2 nil)))
+			(nil load (pointer void generic) () ((local 2 nil)))
+			(nil store void () ((local 7 nil) (local 1 nil)))
+			(nil load (pointer void generic) () ((local 1 nil)))
+			(nil call void () ((global 0 vprintf) (local 0 format) (local 9 nil)))
+			(nil call void () ((builtInFunction (pointer (function cdecl ((pointer (pointer void generic) function)) false void) generic) 'valist.end') (local 1 nil)))
+			(nil returnVoid void () ())
+		)
+	)
+	)
+]
+
+{ #category : #tests }
 MbndSlovimCodeModuleGeneratorTest >> testVariantDefinitionFragment [
 	self
 		evaluateSysmelSource: '

@@ -187,6 +187,9 @@ MbndAstNodeTest >> testTestingMethods [
 	self deny: node isUnwrapEnumValueNode.
 	self deny: node isWhileLoopNode.
 	self deny: node isWrapEnumValueNode.
+	self deny: node isVAListExpressionNode.
+	self deny: node isVAListStartExpressionNode.
+	self deny: node isVAListEndExpressionNode.
 	self deny: node isVariableReferenceNode.
 	self deny: node isVectorConstructionNode.
 	self deny: node isVectorGetElementsNode.

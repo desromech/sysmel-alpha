@@ -761,3 +761,13 @@ MbndAstDelegationVisitor >> visitWrapEnumValueCastNode: node [
 MbndAstDelegationVisitor >> visitZeroExtensionCastNode: node [
 	^ self delegateNodeVisit: node
 ]
+
+{ #category : #visiting }
+MbndAstDelegationVisitor >> vistVAListEndExpressionNode: node [
+	^ self delegateNodeVisit: node
+]
+
+{ #category : #visiting }
+MbndAstDelegationVisitor >> vistVAListStartExpressionNode: node [
+	^ self delegateNodeVisit: node
+]

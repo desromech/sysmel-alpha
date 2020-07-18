@@ -352,6 +352,11 @@ MbndAbstractModuleVisitor >> visitUnionType: type [
 ]
 
 { #category : #visiting }
+MbndAbstractModuleVisitor >> visitVAListType: type [
+	self subclassResponsibility
+]
+
+{ #category : #visiting }
 MbndAbstractModuleVisitor >> visitVTablePointerFieldVariable: vtableFieldVariable [
 	self subclassResponsibility
 ]

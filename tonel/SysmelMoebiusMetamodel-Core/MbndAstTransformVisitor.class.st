@@ -1103,3 +1103,17 @@ MbndAstTransformVisitor >> visitWrapEnumValueCastNode: node [
 MbndAstTransformVisitor >> visitZeroExtensionCastNode: node [
 	^ self visitSpecificCastNode: node
 ]
+
+{ #category : #visiting }
+MbndAstTransformVisitor >> vistVAListEndExpressionNode: node [
+	^ node copy
+		valist: (self visitNode: node valist);
+		yourself
+]
+
+{ #category : #visiting }
+MbndAstTransformVisitor >> vistVAListStartExpressionNode: node [
+	^ node copy
+		valist: (self visitNode: node valist);
+		yourself
+]

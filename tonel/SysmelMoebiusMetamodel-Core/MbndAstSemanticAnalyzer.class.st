@@ -3248,6 +3248,22 @@ MbndAstSemanticAnalyzer >> visitZeroExtensionCastNode: node [
 ]
 
 { #category : #visiting }
+MbndAstSemanticAnalyzer >> vistVAListEndExpressionNode: node [
+	^ node copy
+		valist: (self analyzeNodeIfNeeded: node valist);
+		type: self compilationTarget voidType;
+		yourself
+]
+
+{ #category : #visiting }
+MbndAstSemanticAnalyzer >> vistVAListStartExpressionNode: node [
+	^ node copy
+		valist: (self analyzeNodeIfNeeded: node valist);
+		type: self compilationTarget voidType;
+		yourself
+]
+
+{ #category : #visiting }
 MbndAstSemanticAnalyzer >> withContinueAndBreakOwnerNode: continueAndBreakOwner do: aBlock [
 	| oldContinueOwner oldBreakOwner |
 	oldContinueOwner := continueOwner.

@@ -1439,6 +1439,26 @@ MbndAstBuilder >> unwrapEnumValue: node [
 ]
 
 { #category : #'builder methods' }
+MbndAstBuilder >> valistEnd: valist [
+	<compileTime>
+	<returnType: #_ASTNodeType>
+	^ MbndAstVAListEndExpressionNode new
+		position: defaultPosition;
+		valist: valist;
+		yourself
+]
+
+{ #category : #'builder methods' }
+MbndAstBuilder >> valistStart: valist [
+	<compileTime>
+	<returnType: #_ASTNodeType>
+	^ MbndAstVAListStartExpressionNode new
+		position: defaultPosition;
+		valist: valist;
+		yourself
+]
+
+{ #category : #'builder methods' }
 MbndAstBuilder >> variableReference: binding [
 	<compileTime>
 	<returnType: #_ASTNodeType>

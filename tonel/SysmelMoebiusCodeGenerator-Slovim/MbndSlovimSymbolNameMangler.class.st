@@ -784,6 +784,12 @@ MbndSlovimSymbolNameMangler >> visitUnionType: type [
 ]
 
 { #category : #visiting }
+MbndSlovimSymbolNameMangler >> visitVAListType: type [
+	output nextPut: $u.
+	self emitSubstitutionElement: type name
+]
+
+{ #category : #visiting }
 MbndSlovimSymbolNameMangler >> visitVTablePointerFieldVariable: fieldVariable [
 	output nextPutAll: 'TV'.
 	self mangleProgramEntityContentName: fieldVariable parent.

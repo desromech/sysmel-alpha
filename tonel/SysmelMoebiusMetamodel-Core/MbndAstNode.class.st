@@ -898,6 +898,21 @@ MbndAstNode >> isUnwrapEnumValueNode [
 ]
 
 { #category : #testing }
+MbndAstNode >> isVAListEndExpressionNode [
+	^ false
+]
+
+{ #category : #testing }
+MbndAstNode >> isVAListExpressionNode [
+	^ false
+]
+
+{ #category : #testing }
+MbndAstNode >> isVAListStartExpressionNode [
+	^ false
+]
+
+{ #category : #testing }
 MbndAstNode >> isVariableReferenceNode [
 	^ false
 

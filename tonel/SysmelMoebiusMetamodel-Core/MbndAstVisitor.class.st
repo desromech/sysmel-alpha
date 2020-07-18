@@ -793,3 +793,13 @@ MbndAstVisitor >> visitWrapEnumValueCastNode: node [
 MbndAstVisitor >> visitZeroExtensionCastNode: node [
 	self subclassResponsibility
 ]
+
+{ #category : #visiting }
+MbndAstVisitor >> vistVAListEndExpressionNode: node [
+	self subclassResponsibility
+]
+
+{ #category : #visiting }
+MbndAstVisitor >> vistVAListStartExpressionNode: node [
+	self subclassResponsibility
+]

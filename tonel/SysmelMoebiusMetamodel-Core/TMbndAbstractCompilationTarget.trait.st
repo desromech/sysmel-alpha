@@ -707,6 +707,11 @@ TMbndAbstractCompilationTarget >> usesExceptionsForNonLocalReturns [
 	^ self isGPU not
 ]
 
+{ #category : #'as yet unclassified' }
+TMbndAbstractCompilationTarget >> valistType [
+	^ self getBasicTypeNamed: MbndVAListType typeName
+]
+
 { #category : #'derived types' }
 TMbndAbstractCompilationTarget >> variantUnionTypeWithComponents: components [
 	self explicitRequirement

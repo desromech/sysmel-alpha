@@ -3551,6 +3551,20 @@ MbndSlovimFunctionCodeGenerator >> visitZeroExtensionCastNode: node [
 ]
 
 { #category : #visiting }
+MbndSlovimFunctionCodeGenerator >> vistVAListEndExpressionNode: node [
+	| valist |
+	valist := self visitNode: node valist.
+	^ slvmBuilder valistEnd: valist
+]
+
+{ #category : #visiting }
+MbndSlovimFunctionCodeGenerator >> vistVAListStartExpressionNode: node [
+	| valist |
+	valist := self visitNode: node valist.
+	^ slvmBuilder valistStart: valist
+]
+
+{ #category : #visiting }
 MbndSlovimFunctionCodeGenerator >> withBreakBlock: newBreakBlock continueBlock: newContinueBlock do: aBlock [
 	| oldBreakBlock oldContinueBlock |
 	oldBreakBlock := currentBreakBlock.

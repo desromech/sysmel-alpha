@@ -830,6 +830,11 @@ MbndSlovimDebugInformationTranslator >> visitUnionType: unionType [
 ]
 
 { #category : #visiting }
+MbndSlovimDebugInformationTranslator >> visitVAListType: type [
+	^ self visitOpaqueHandlerType: type
+]
+
+{ #category : #visiting }
 MbndSlovimDebugInformationTranslator >> visitVariantUnionType: variantType [
 	| debugType |
 	variantType isTrait ifTrue: [ ^ self visitTraitType: variantType ].
