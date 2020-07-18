@@ -9,10 +9,21 @@ namespace LibC definition: {
     function perror externC dllimport (s: Char8 const pointer) => Int32.
 
     compileTime if: Compiler compilationTarget isWindows then: {
-        ## function _snprintf externC dllimport CVariadic(buffer: Char8 pointer, size: SizeT, format: Char8 const pointer) => Int32.
-        ## compileTime constant snprintf := _snprintf.
-        function snprintf CVariadic(buffer: Char8 pointer, size: SizeT, format: Char8 const pointer) => Int32
-            := 0.
+        compileTime constant _CRT_INTERNAL_PRINTF_STANDARD_SNPRINTF_BEHAVIOR := (1 << 1).
+        function __stdio_common_vsprintf externC(options: UInt64, buffer: Char8 pointer, size: SizeT, format: Char8 const pointer, locale: Void pointer, arglist: VAList) => Int32.
+
+        function vsnprintf(buffer: Char8 pointer, size: SizeT, format: Char8 const pointer, arglist: VAList) => Int32 := {
+            let result := __stdio_common_vsprintf( _CRT_INTERNAL_PRINTF_STANDARD_SNPRINTF_BEHAVIOR,
+                buffer, size, format, nil, arglist).
+            result < 0 ifTrue: {-1} ifFalse: {result}
+        }.
+
+        function snprintf CVariadic(buffer: Char8 pointer, size: SizeT, format: Char8 const pointer) => Int32 := {
+            let arglist mutable := VAList() start; yourself.
+            let result := vsnprintf(buffer, size, format, arglist).
+            arglist end.
+            result
+        }.
     } else: {
         function snprintf externC dllimport CVariadic(buffer: Char8 pointer, size: SizeT, format: Char8 const pointer) => Int32.
     }.
