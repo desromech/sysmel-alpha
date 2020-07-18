@@ -1,5 +1,6 @@
 loadFileOnce: "FileStream.sysmel".
 loadFileOnce: "Time.sysmel".
+loadFileOnce: "Main.sysmel".
 
 if: Compiler compilationTarget isWebAssembly not then: {
     loadFileOnce: "Threads.sysmel".

@@ -1,0 +1,7 @@
+namespace Stdn definition: {
+    macro method GenerateMainEntryPointInvokationSupportCode := `'(
+        function main externC(argc: Int32, argv: Char8 const pointer pointer) ::=> Int32 := {
+            sysmel_main(argv until: argc)
+        }
+    ).
+}.

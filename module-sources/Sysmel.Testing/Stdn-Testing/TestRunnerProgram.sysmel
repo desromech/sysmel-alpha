@@ -2,11 +2,11 @@ namespace Stdn definition: {
 namespace Testing definition: {
 
 macro method generateTestSuiteProgramMain: testSuiteProgramName := ``(
-function main externC(argc: Int32, argv: Char8 const pointer) => Int32 := {
-    let succeded mutable := Stdn Testing TestRunner defaultInstance runAllTests.
-    return: (succeded ifTrue: 0 ifFalse: 0)
+Stdn MainEntryPoint: {:args :: Int32 |
+let succeded mutable := Stdn Testing TestRunner defaultInstance runAllTests.
+return: (succeded ifTrue: 0 ifFalse: 0)
 }
-).
+)
 
 } ## End of namespace Testing
 } ## End of namespace Stdn

@@ -10,4 +10,5 @@ Compiler loadPackages: #(
     #"Stdn-Nofreestanding-Exceptions"
     #"Stdn-Nofreestanding-FileSystem"
     #"Stdn-Nofreestanding-Time"
+    #"Stdn-Nofreestanding-Main"
 ).

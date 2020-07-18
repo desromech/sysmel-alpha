@@ -1,10 +1,10 @@
-function main externC (argc: Int32, argv: Char8 const pointer pointer) => Int32 := {
+Stdn MainEntryPoint: {:args :: Int32 |
     Stdn stdout << "Hello World " << 42; nl.
 
-    Stdn stdout << "Argc " << argc; nl.
-	1 until: argc do: {:(Int32)i :: Void |
-        Stdn stdout << "Argv[" << i << "] := " << argv[i]; nl.
-	}.
+    Stdn stdout << "Argument count " << args size; nl.
+    args doWithIndex: {:arg :i :: Void |
+        Stdn stdout << "args[" << i << "] := " << arg; nl.
+    }.
 
-    return: 0.
+    0
 }.

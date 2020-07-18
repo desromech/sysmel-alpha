@@ -12,8 +12,16 @@ if: Compiler hasLibC then: {
         Compiler loadPackage: #Unix.
     }.
 
-    if: Compiler compilationTarget isWin32 then: {
+    if: Compiler compilationTarget isWindows then: {
         Compiler loadPackage: #Win32.
+    }.
+
+    if: Compiler compilationTarget isNullOS then: {
+        Compiler loadPackage: #NullOS.
+    }.
+
+    if: Compiler compilationTarget isEmbeddedPAL then: {
+        Compiler loadPackage: #EmbeddedPAL.
     }.
 
     if: Compiler compilationTarget isWebAssembly then: {

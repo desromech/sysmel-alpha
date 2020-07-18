@@ -1,0 +1,13 @@
+namespace EmbeddedPAL definition: {
+
+compileTime constant STDIN_FILENO := 0.
+compileTime constant STDOUT_FILENO := 1.
+compileTime constant STDERR_FILENO := 2.
+
+function sysmel_epal_write externC(fd: Int32, buffer: Void const pointer, count: UIntPointer) => IntPointer.
+function sysmel_epal_isatty externC(fd: Int32) => Int32.
+
+compileTime constant write := sysmel_epal_write.
+compileTime constant isatty := sysmel_epal_isatty.
+
+}. ## End of namespace EmbeddedPAL

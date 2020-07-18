@@ -139,6 +139,9 @@ class TextStreamWriter definition: {
     method << (character: Char32) => SelfType ref
         := self nextPut: character; yourself.
 
+    method << (string: Char8 const pointer) => SelfType ref
+        := self nextPutCString: string; yourself.
+
     method << (string: Stdn ImmutableString) => SelfType ref
         := self nextPutAll: string; yourself.
 
