@@ -99,16 +99,16 @@ TMbndAbstractCompilationTarget >> extensionForModuleOutputMode: outputMode [
 	outputMode = #llvm_assembly ifTrue: [ ^ '.ll' ].
 	outputMode = #assembly ifTrue: [ ^ '.s' ].
 	outputMode = #executable ifTrue: [
-		self isWin32 ifTrue: [ ^ '.exe' ].
+		self isWindows ifTrue: [ ^ '.exe' ].
 		^ ''
 	].
 	outputMode = #shared ifTrue: [ 
-		self isWin32 ifTrue: [ ^ '.dll' ].
+		self isWindows ifTrue: [ ^ '.dll' ].
 		self isOSX ifTrue: [ ^ '.dylib' ].
 		^ '.so'
 	].
 	outputMode = #object ifTrue: [ 
-		self isWin32 ifTrue: [ ^ '.obj' ].
+		self isWindows ifTrue: [ ^ '.obj' ].
 		^ '.o'
 	].
 
@@ -372,7 +372,7 @@ TMbndAbstractCompilationTarget >> isARM64 [
 
 { #category : #'platform testing' }
 TMbndAbstractCompilationTarget >> isDesktopPC [
-	^ self isWin32 or: [ self isUnix ]
+	^ self isWindows or: [ self isUnix ]
 ]
 
 { #category : #'platform testing' }
@@ -406,7 +406,7 @@ TMbndAbstractCompilationTarget >> isWebAssembly [
 ]
 
 { #category : #'platform testing' }
-TMbndAbstractCompilationTarget >> isWin32 [
+TMbndAbstractCompilationTarget >> isWindows [
 	^ false
 ]
 

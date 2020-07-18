@@ -638,6 +638,10 @@ MbndStandaloneModule >> writeMode: writeMode toFileNamed: outputFileName [
 		^ lowLevelModule writeObjectToFileNamed: outputFileName
 	].
 
+	writeMode == #objectLib ifTrue: [
+		^ lowLevelModule writeObjectLibToFileNamed: outputFileName
+	].
+
 	writeMode == #executable ifTrue: [
 		^ lowLevelModule writeExecutableToFileNamed: outputFileName
 	].
@@ -652,6 +656,11 @@ MbndStandaloneModule >> writeMode: writeMode toFileNamed: outputFileName [
 
 	self error: 'Writing mode ' , writeMode printString , ' not yet implemented'
 
+]
+
+{ #category : #writing }
+MbndStandaloneModule >> writeObjectLibToFileNamed: outputFileName [
+	^ self writeMode: #objectLib toFileNamed: outputFileName
 ]
 
 { #category : #writing }

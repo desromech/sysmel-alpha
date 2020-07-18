@@ -29,6 +29,11 @@ MbndSlovimCompilationTarget class >> llvm_armv6 [
 ]
 
 { #category : #'as yet unclassified' }
+MbndSlovimCompilationTarget class >> llvm_armv6k [
+	^ self slvmCompilationTargetNamed: #llvm_armv6k
+]
+
+{ #category : #'as yet unclassified' }
 MbndSlovimCompilationTarget class >> llvm_armv6m [
 	^ self slvmCompilationTargetNamed: #llvm_armv6m
 ]
@@ -113,7 +118,11 @@ MbndSlovimCompilationTarget >> asCleanCompilationTarget [
 	cleanTarget
 		machineAttributes: self machineAttributes;
 		operatingSystemName: self operatingSystemName;
-		systemVendor: self systemVendor.
+		canonicalOperatingSystemName: self canonicalOperatingSystemName;
+		systemVendor: self systemVendor;
+		cpu: self cpu;
+		fpu: self fpu;
+		floatAbiName: self floatAbiName.
 	cleanTarget slvmCompilationTarget
 		emittingDebugInformation: slvmCompilationTarget emittingDebugInformation.
 		
@@ -125,6 +134,21 @@ MbndSlovimCompilationTarget >> asSpirVCompilationTarget [
 	^ self copy slvmCompilationTargetNamed: (self pointerSize = 4
 		ifTrue: [#spirv_logical32]
 		ifFalse: [#spirv_logical64])
+]
+
+{ #category : #accessing }
+MbndSlovimCompilationTarget >> canonicalOperatingSystemName [
+	^ slvmCompilationTarget canonicalOperatingSystemName
+]
+
+{ #category : #accessing }
+MbndSlovimCompilationTarget >> canonicalOperatingSystemName: osName [
+	slvmCompilationTarget canonicalOperatingSystemName: osName
+]
+
+{ #category : #accessing }
+MbndSlovimCompilationTarget >> cpu [
+	^ slvmCompilationTarget cpu
 ]
 
 { #category : #accessing }
@@ -152,8 +176,18 @@ MbndSlovimCompilationTarget >> float64Alignment [
 ]
 
 { #category : #accessing }
+MbndSlovimCompilationTarget >> floatAbiName [
+	^ slvmCompilationTarget floatAbiName
+]
+
+{ #category : #accessing }
 MbndSlovimCompilationTarget >> floatAbiName: targetFloatAbiName [
 	slvmCompilationTarget floatAbiName: targetFloatAbiName
+]
+
+{ #category : #accessing }
+MbndSlovimCompilationTarget >> fpu [
+	^ slvmCompilationTarget fpu
 ]
 
 { #category : #accessing }
@@ -198,6 +232,11 @@ MbndSlovimCompilationTarget >> isBigEndian [
 ]
 
 { #category : #'platform testing' }
+MbndSlovimCompilationTarget >> isEmbeddedPAL [
+	^ slvmCompilationTarget isEmbeddedPAL
+]
+
+{ #category : #'platform testing' }
 MbndSlovimCompilationTarget >> isFreeBSD [
 	^ slvmCompilationTarget isFreeBSD
 ]
@@ -223,6 +262,11 @@ MbndSlovimCompilationTarget >> isMIPS [
 ]
 
 { #category : #'platform testing' }
+MbndSlovimCompilationTarget >> isNullOS [
+	^ slvmCompilationTarget isNullOS
+]
+
+{ #category : #'platform testing' }
 MbndSlovimCompilationTarget >> isOSX [
 	^ slvmCompilationTarget isOSX
 ]
@@ -233,8 +277,8 @@ MbndSlovimCompilationTarget >> isWebAssembly [
 ]
 
 { #category : #'platform testing' }
-MbndSlovimCompilationTarget >> isWin32 [
-	^ slvmCompilationTarget isWin32
+MbndSlovimCompilationTarget >> isWindows [
+	^ slvmCompilationTarget isWindows
 ]
 
 { #category : #'platform testing' }
@@ -290,6 +334,16 @@ MbndSlovimCompilationTarget >> pointerAlignment [
 { #category : #accessing }
 MbndSlovimCompilationTarget >> pointerSize [
 	^ slvmCompilationTarget pointerSize
+]
+
+{ #category : #accessing }
+MbndSlovimCompilationTarget >> setForEmbeddedPAL [
+	^ slvmCompilationTarget setForEmbeddedPAL
+]
+
+{ #category : #accessing }
+MbndSlovimCompilationTarget >> setForNullOS [
+	^ slvmCompilationTarget setForNullOS
 ]
 
 { #category : #accessing }

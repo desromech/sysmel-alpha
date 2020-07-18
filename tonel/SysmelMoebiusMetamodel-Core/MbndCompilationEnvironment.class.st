@@ -65,6 +65,11 @@ MbndCompilationEnvironment class >> llvm_armv6 [
 ]
 
 { #category : #'as yet unclassified' }
+MbndCompilationEnvironment class >> llvm_armv6k [
+	^ self compilationTarget: MbndSlovimCompilationTarget llvm_armv6k
+]
+
+{ #category : #'as yet unclassified' }
 MbndCompilationEnvironment class >> llvm_armv6m [
 	^ self compilationTarget: MbndSlovimCompilationTarget llvm_armv6m
 ]
@@ -224,6 +229,11 @@ MbndCompilationEnvironment >> coreModuleName [
 ]
 
 { #category : #accessing }
+MbndCompilationEnvironment >> cpu: cpu [
+	compilationTarget cpu: cpu.
+]
+
+{ #category : #accessing }
 MbndCompilationEnvironment >> currentModule [
 	^ currentModule
 ]
@@ -336,6 +346,16 @@ MbndCompilationEnvironment >> finishAndEmitModule [
 { #category : #'module import' }
 MbndCompilationEnvironment >> finishSemanticAnalysis [
 	self validCurrentModule finishSemanticAnalysis
+]
+
+{ #category : #accessing }
+MbndCompilationEnvironment >> floatAbiName: fpu [
+	compilationTarget floatAbiName: fpu.
+]
+
+{ #category : #accessing }
+MbndCompilationEnvironment >> fpu: fpu [
+	compilationTarget fpu: fpu.
 ]
 
 { #category : #parameters }
@@ -704,6 +724,11 @@ MbndCompilationEnvironment >> object [
 	self outputMode: #object.
 ]
 
+{ #category : #'module import' }
+MbndCompilationEnvironment >> objectLib [
+	self outputMode: #objectLib
+]
+
 { #category : #'module translation mode' }
 MbndCompilationEnvironment >> objectPerModule [
 	moduleTranslationMode := #object.
@@ -798,6 +823,11 @@ MbndCompilationEnvironment >> pushCurrentModule [
 
 	currentModuleStack add: currentModule.
 	currentModule := nil.
+]
+
+{ #category : #accessing }
+MbndCompilationEnvironment >> setForEmbeddedPAL [
+	compilationTarget setForEmbeddedPAL
 ]
 
 { #category : #'module output format' }
@@ -934,6 +964,11 @@ MbndCompilationEnvironment >> writeLLVMAssemblyToFileNamed: outputFileName [
 { #category : #writing }
 MbndCompilationEnvironment >> writeMode: writeMode toFileNamed: outputFileName [
 	^ self validCurrentModule writeMode: writeMode toFileNamed: outputFileName
+]
+
+{ #category : #writing }
+MbndCompilationEnvironment >> writeObjectLibToFileNamed: outputFileName [
+	^ self validCurrentModule writeObjectLibToFileNamed: outputFileName
 ]
 
 { #category : #writing }
