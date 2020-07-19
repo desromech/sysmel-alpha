@@ -9,9 +9,159 @@ Class {
 	#category : #'SysmelMoebiusCodeGenerator-Slovim-Module'
 }
 
+{ #category : #'cleanup scopes' }
+MbndSlovimFunctionLandingPadExceptionHandlingCodeGenerator >> executeScopeCleanUpActions: cleanUpScope exceptForTokens: suppressedCleanUpTokens [
+	self inCleanUpContextDo: [ 
+		cleanUpScope implicitFinalizationStateDictionary valuesDo: [ :action |
+			(suppressedCleanUpTokens includes: action token) ifFalse: [ 
+				self executeImplicitFinalizationAction: action
+			].
+		].
+		cleanUpScope explicitFinalizationAction ifNotNil: [ :ac |
+			ac value
+		].
+
+		self slvmBuilder currentUnwindBlock == self forbiddenExceptionDuringCleanupTarget ifFalse: [
+			cleanUpScope parentCatchAction ifNotNil: [ :catchAction |
+				self generateExceptionCatchEndFor: catchAction
+			].
+		].
+	].
+
+]
+
 { #category : #accessing }
 MbndSlovimFunctionLandingPadExceptionHandlingCodeGenerator >> forbiddenExceptionDuringCleanupTarget [
 	^ forbiddenExceptionDuringCleanupTarget
+]
+
+{ #category : #'as yet unclassified' }
+MbndSlovimFunctionLandingPadExceptionHandlingCodeGenerator >> generateCatchedExceptionAction: scopeCatchedExceptionAction [
+	| catchExceptionScope |
+	"We need a special scope for connecting with the finally action."
+	catchExceptionScope := MbndSlovimExceptionScope new
+		parent: currentCleanUpScope;
+		parentCatchAction: scopeCatchedExceptionAction;
+		compilationTarget: self compilationTarget;
+		scopeEntryBlock: scopeCatchedExceptionAction catchActionBlock;
+		normalCleanUpBlock: (self slvmBuilder newBasicBlock: #catchNormalCleanUp);
+		unwindBlock: (self slvmBuilder newBasicBlock: #catchUnwind);
+		isInCleanUpAction: false;
+		yourself.
+	catchExceptionScope unwindBlock unwindBlock: nil.
+	catchExceptionScope normalCleanUpBlock unwindBlock: currentCleanUpScope parent unwindBlock.
+	allCleanUpScopes add: catchExceptionScope.
+
+	self slvmBuilder withBasicBlock: scopeCatchedExceptionAction catchActionBlock do: [
+		| caughtExceptionReference |
+		caughtExceptionReference := self generateExceptionCatchBeginFor: scopeCatchedExceptionAction.
+		scopeCatchedExceptionAction node caughtExceptionReferenceNode ifNotNil: [ :refNode |
+			functionCodeGenerator setVariable: caughtExceptionReference forNode: refNode.
+		].
+	
+		self withExceptionScope: catchExceptionScope do: [ 
+			self visitNode: scopeCatchedExceptionAction node catchAction.
+		].
+		self generateCleanUpAtScopeEnd: catchExceptionScope.
+	
+		self slvmBuilder isLastTerminator ifFalse: [ 
+			self slvmBuilder jump: catchExceptionScope parent normalCleanUpBlock.
+		].
+	].
+
+]
+
+{ #category : #'code generation' }
+MbndSlovimFunctionLandingPadExceptionHandlingCodeGenerator >> generateCleanUpAtScopeEnd: cleanUpScope [
+	| normalCleanUpBlock |
+	normalCleanUpBlock := cleanUpScope normalCleanUpBlock.
+	(normalCleanUpBlock predecessors isNotEmpty or:
+	[ normalCleanUpBlock unwindBlock ~~ self slvmBuilder currentBlock unwindBlock and:
+	[ self slvmBuilder isLastTerminator not and: 
+	[ cleanUpScope mustBeNopExceptionScope not ]]]) ifTrue: [
+		self slvmBuilder isLastTerminator ifFalse: [ 
+			self slvmBuilder jump: normalCleanUpBlock.
+		].
+		self slvmBuilder currentBlock: normalCleanUpBlock.			
+	] ifFalse: [ 
+		normalCleanUpBlock removeFromFunction.
+		cleanUpScope normalCleanUpBlock: nil.
+	].
+
+	self slvmBuilder isLastTerminator ifFalse: [ 
+		self executeScopeCleanUpActions: cleanUpScope
+	].
+
+
+]
+
+{ #category : #'as yet unclassified' }
+MbndSlovimFunctionLandingPadExceptionHandlingCodeGenerator >> generateExceptionCatchBeginFor: exceptionCatchAction [
+	| exceptionPointer |
+	exceptionPointer := self slvmBuilder load: self unwindExceptionPointerVariable.
+	^ self slvmBuilder call: codeModuleGenerator exceptionCatchBeginFunction arguments: {exceptionPointer}
+]
+
+{ #category : #'as yet unclassified' }
+MbndSlovimFunctionLandingPadExceptionHandlingCodeGenerator >> generateExceptionCatchEndFor: exceptionCatchAction [
+	self slvmBuilder call: codeModuleGenerator exceptionCatchEndFunction arguments: #().
+]
+
+{ #category : #'code generation' }
+MbndSlovimFunctionLandingPadExceptionHandlingCodeGenerator >> generateExceptionScopeNode: node [
+	| cleanUpScope result |
+	cleanUpScope := MbndSlovimExceptionScope new
+		parent: currentCleanUpScope;
+		compilationTarget: self compilationTarget.
+	(currentCleanUpScope isNil and: self nonLocalReturnContext isNotNil) ifTrue: [ 
+		cleanUpScope nonLocalReturnContext: self nonLocalReturnContext
+	].
+
+	allCleanUpScopes add: cleanUpScope.
+	cleanUpScope allowedNodesWithImplicitFinalization: node nodesWithImplicitFinalization.
+	cleanUpScope catchedExceptions: (node catchExpressions collect: [:catchNode |
+		MbndSlovimExceptionScopeCatchAction new
+			scope: cleanUpScope;
+			catchActionBlock: (self slvmBuilder newBasicBlock: #catchAction);
+			node: catchNode;
+			yourself
+		]).
+	
+	(self slvmBuilder currentBlock isEmpty and: [ self slvmBuilder currentBlock unwindBlock isNil ]) ifTrue: [ 
+		cleanUpScope scopeEntryBlock: self slvmBuilder currentBlock.
+	] ifFalse: [
+		cleanUpScope scopeEntryBlock: (self slvmBuilder newBasicBlock: #tryScope).
+		self slvmBuilder jump: cleanUpScope scopeEntryBlock.
+		self slvmBuilder currentBlock: cleanUpScope scopeEntryBlock.
+	].
+
+	cleanUpScope isInCleanUpAction: inCleanUpContextCount > 0.
+	cleanUpScope normalCleanUpBlock: (self slvmBuilder newBasicBlock: #normalCleanUpBlock).
+	cleanUpScope isInCleanUpAction ifTrue: [ 
+		cleanUpScope unwindBlock: self validForbiddenExceptionDuringCleanupTarget
+	] ifFalse: [ 
+		cleanUpScope unwindBlock: (self slvmBuilder newBasicBlock: #tryUnwind).
+		cleanUpScope scopeEntryBlock unwindBlock: cleanUpScope unwindBlock.
+		cleanUpScope unwindBlock unwindBlock: nil.
+	].
+
+	node explicitCleanUpActions ifNotEmpty: [ 
+		cleanUpScope explicitFinalizationAction: [
+			node explicitCleanUpActions do: [ :cleanUpAction | self visitNode: cleanUpAction ]
+		].
+	].
+	
+	result := self generateExceptionScopeNodeContent: node onCleanUpScope: cleanUpScope.
+
+	self withExceptionScope: cleanUpScope do: [
+		cleanUpScope catchedExceptions do: [ :each |
+			self generateCatchedExceptionAction: each
+		].
+	].
+
+	self generateCleanUpAtScopeEnd: cleanUpScope.	
+	^ result
+
 ]
 
 { #category : #visiting }
@@ -251,4 +401,26 @@ MbndSlovimFunctionLandingPadExceptionHandlingCodeGenerator >> unwindExceptionSel
 { #category : #visiting }
 MbndSlovimFunctionLandingPadExceptionHandlingCodeGenerator >> validForbiddenExceptionDuringCleanupTarget [
 	^ forbiddenExceptionDuringCleanupTarget ifNil: [ forbiddenExceptionDuringCleanupTarget := self slvmBuilder newBasicBlock: #forbiddenExceptionTarget ]
+]
+
+{ #category : #visiting }
+MbndSlovimFunctionLandingPadExceptionHandlingCodeGenerator >> withExceptionScope: newCleanUpScope do: aBlock [
+	| oldCleanUpScope oldUnwindBlock newUnwindBlock |
+	oldCleanUpScope := currentCleanUpScope.
+	oldUnwindBlock := self slvmBuilder currentUnwindBlock.
+	newUnwindBlock := newCleanUpScope unwindBlock.
+	
+	currentCleanUpScope := newCleanUpScope.
+	^ [
+		newUnwindBlock ifNotNil: [
+			self slvmBuilder currentUnwindBlock: currentCleanUpScope unwindBlock
+		].
+	
+		aBlock value.
+	] ensure: [
+		currentCleanUpScope := oldCleanUpScope.
+		newUnwindBlock ifNotNil: [
+			self slvmBuilder currentUnwindBlock: oldUnwindBlock.
+		].
+	]
 ]

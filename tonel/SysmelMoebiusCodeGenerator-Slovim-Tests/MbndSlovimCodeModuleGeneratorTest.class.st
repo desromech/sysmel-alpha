@@ -1113,12 +1113,26 @@ function useMutex externC() => Int32 := {
 	function := ssaModule globalNamed: #useMutex.
 	self assert: function isFunction.
 	
-	self assert: function allInstructionsMnemonics equals: #(
-		(entry (alloca jump))
-		(body (store jump))
-		(tryScope (call jump))
-		(tryScope (call jump))
-		(tryScope (call return))
+	self assert: function asFullSExpressionForTesting equals: #(
+function useMutex cdecl i32
+	arguments (
+	)
+	literals (
+	)
+	blocks (
+		(()
+			(nil alloca (pointer (struct 'class.TestModule::Mutex') function) () ())
+			(nil jump void () () (block 2 body))
+		)
+		(()
+			(nil store void () ((constStruct (struct 'class.TestModule::Mutex') ()) (local 0 nil)))
+			(nil call void () ((global 1 '_ZN10TestModule5Mutex5.lockERNS0_E') (local 0 nil)))
+			(nil call void () ((global 5 sideEffect)))
+			(nil call void () ((global 3 '_ZN10TestModule5Mutex7.unlockERNS0_E') (local 0 nil)))
+			(nil return void () ((const i32 42)))
+		)
+	)
+
 	).
 ]
 
@@ -1156,12 +1170,25 @@ function useMutex externC() => Void := {
 	function := ssaModule globalNamed: #useMutex.
 	self assert: function isFunction.
 	
-	self assert: function allInstructionsMnemonics equals: #(
-		(entry (alloca jump))
-		(body (store jump))
-		(tryScope (call jump))
-		(tryScope (call jump))
-		(tryScope (call returnVoid))
+	self assert: function asFullSExpressionForTesting equals: #(
+function useMutex cdecl void
+	arguments (
+	)
+	literals (
+	)
+	blocks (
+		(()
+			(nil alloca (pointer (struct 'class.TestModule::Mutex') function) () ())
+			(nil jump void () () (block 2 body))
+		)
+		(()
+			(nil store void () ((constStruct (struct 'class.TestModule::Mutex') ()) (local 0 nil)))
+			(nil call void () ((global 1 '_ZN10TestModule5Mutex5.lockERNS0_E') (local 0 nil)))
+			(nil call void () ((global 5 sideEffect)))
+			(nil call void () ((global 3 '_ZN10TestModule5Mutex7.unlockERNS0_E') (local 0 nil)))
+			(nil returnVoid void () ())
+		)
+	)
 	).
 ]
 
@@ -11657,12 +11684,14 @@ function printf cdecl void
 		)
 		(()
 			(nil store void () ((zeroInitialized (pointer void generic)) (local 2 nil)))
-			(nil call void () ((builtInFunction (pointer (function cdecl ((pointer (pointer void generic) function)) false void) generic) 'valist.start') (local 2 nil)))
+			(nil bitcast (pointer void generic) () ((local 2 nil)))
+			(nil call void () ((builtInFunction (pointer (function cdecl ((pointer void generic)) false void) generic) 'valist.start') (local 6 nil)))
 			(nil load (pointer void generic) () ((local 2 nil)))
-			(nil store void () ((local 7 nil) (local 1 nil)))
+			(nil store void () ((local 8 nil) (local 1 nil)))
 			(nil load (pointer void generic) () ((local 1 nil)))
-			(nil call void () ((global 0 vprintf) (local 0 format) (local 9 nil)))
-			(nil call void () ((builtInFunction (pointer (function cdecl ((pointer (pointer void generic) function)) false void) generic) 'valist.end') (local 1 nil)))
+			(nil call void () ((global 0 vprintf) (local 0 format) (local 10 nil)))
+			(nil bitcast (pointer void generic) () ((local 1 nil)))
+			(nil call void () ((builtInFunction (pointer (function cdecl ((pointer void generic)) false void) generic) 'valist.end') (local 12 nil)))
 			(nil returnVoid void () ())
 		)
 	)
