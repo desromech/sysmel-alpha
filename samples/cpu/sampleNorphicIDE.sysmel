@@ -3,7 +3,7 @@ Compiler
     importModuleNamed: #"Sysmel.Devel.IDE";
 	importModuleNamed: #"Sysmel.Graphics.Headfull".
 
-function main externC (argc: Int32, argv: UInt8 const pointer pointer) => Int32 := {
+Stdn MainEntryPoint: {:args :: Int32 |
     Stdn Graphics GUI WindowSystem activeWindowSystem: Stdn Graphics GUI createDefaultWindowSystem().
 
     let windowSystem := Stdn Graphics GUI WindowSystem validActiveWindowSystem.

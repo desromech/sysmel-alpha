@@ -145,6 +145,9 @@ ProtoObject definition: {
 	method initialize
 		:= self. ## By default do nothing.
 
+	method finalize
+		:= self. ## By default do nothing.
+
 	method basicSize => UIntPointer
 	 	:= __variableDataSize.
 

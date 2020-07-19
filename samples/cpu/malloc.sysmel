@@ -18,7 +18,7 @@ function freeAll() => Void := {
 #**
  * malloc benchmarking and testing.
  *#
-function main externC (argc: Int32, argv: Char const pointer pointer) => Int32 := {
+Stdn MainEntryPoint: {:args :: Int32 |
     ## First zmalloc - with some fixed size
     for: (let i mutable := 0) while: (i < AllocationCount) do: {
         allocationResults[i] := Stdn zmalloc(16)

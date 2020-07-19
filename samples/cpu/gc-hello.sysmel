@@ -64,7 +64,7 @@ function testMessageNotUnderstood() => Void := {
     }.
 }.
 
-function main externC (argc: Int32, argv: Char8 const pointer pointer) => Int32 := {
+Stdn MainEntryPoint: {:args :: Int32 |
     Stdn stdout << "testGlobal " << testGlobal; nl.
 	Stdn stdout << "TestChar " << 'c'; nl.
 
@@ -108,7 +108,7 @@ function main externC (argc: Int32, argv: Char8 const pointer pointer) => Int32 
     printValue(1).
     printValue(1.0).
 
-    1 until: argc do: {:i :: Void |
+    1 until: args size do: {:i :: Void |
         i = 1 ifTrue: {
             Stdn stdout << "First "
         } ifFalse: {
@@ -116,10 +116,10 @@ function main externC (argc: Int32, argv: Char8 const pointer pointer) => Int32 
 
         }.
 
-        Stdn stdout << "argv " << i << " " << (argv[i] address) << " " << (argv + i) << " "; nextPutCString: argv[i]; nl
+        Stdn stdout << "args[" << i << "] " << (args[i] reinterpretCastTo: Void pointer) << ": " << args[i]; nl
     }.
 
-    Stdn stdout << "Hello World: "; nextPutCString: argv value; nl.
+    Stdn stdout << "Hello World: " << args first; nl.
 
     Stdn stdout << "Object: " << (Smalltalk Object reinterpretCastTo: Void pointer); nl.
     Stdn stdout << "Object class: " << (Smalltalk Object class reinterpretCastTo: Void pointer); nl.
@@ -164,6 +164,13 @@ function main externC (argc: Int32, argv: Char8 const pointer pointer) => Int32 
 
     Stdn stdout << (Smalltalk Object name -- " with concat"); nl.
     Stdn stdout << (Smalltalk Object name -- " with concat") asStdnMutableString; nl.
+
+    Stdn stdout << "Printing Smalltalk global values"; nl.
+    let nspace := (Smalltalk castTo: ProtoObject) sharedNamespace.
+    nspace associations do: {:each :: Void |
+        Stdn stdout << each; nl.
+    }.
+
 
     return: 0.
 }.

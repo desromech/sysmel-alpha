@@ -3,7 +3,7 @@ Compiler
 
 useNamespace: Stdn Graphics Core.
 
-function main externC (argc: Int32, argv: UInt8 const pointer pointer) => Int32 := {
+Stdn MainEntryPoint: {:args :: Int32 |
     ## Palette tga
     {
         let form := Form extent: UInt32x2(4, 4) pixelFormat: PixelFormat B8G8R8A8_UNorm.

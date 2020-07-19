@@ -38,8 +38,7 @@ function unregisterModuleRoots(rootPointerDescriptors: ModuleGCRootPointerDescri
 }.
 
 Compiler compilationTarget managedObjectModel
-    moduleRootRegistrationFunction: registerModuleRoots;
-    moduleRootUnregistrationFunction: unregisterModuleRoots.
+    moduleRootRegistrationFunction: registerModuleRoots.
 
 
 }. ## End of namespace Runtime

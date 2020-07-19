@@ -7,7 +7,7 @@ useNamespace: Stdn Graphics GUI.
 useNamespace: Stdn Math Geometry.
 useNamespace: Norphic.
 
-function main externC (argc: Int32, argv: UInt8 const pointer pointer) => Int32 := {
+Stdn MainEntryPoint: {:args :: Int32 |
     let windowSystem mutable := createDefaultWindowSystem().
     windowSystem ifNil: {
         return: 0

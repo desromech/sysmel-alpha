@@ -11,7 +11,7 @@ struct TestStruct definition: {
     }.
 }.
 
-function main externC (argc: Int32, argv: UInt8 const pointer pointer) => Int32 := {
+Stdn MainEntryPoint: {:args :: Int32 |
     {
         let uniqueInt64Pointer mutable := Int64 uniqueNew.
         Stdn stdout << "uniqueInt64Pointer " << uniqueInt64Pointer getPointer << " : " << uniqueInt64Pointer _; nl.

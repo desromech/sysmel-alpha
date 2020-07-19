@@ -29,7 +29,7 @@ class ClientProcessor definition: {
     }.
 }.
 
-function main externC (argc: Int32, argv: Char8 const pointer pointer) => Int32 := {
+Stdn MainEntryPoint: {:args :: Int32 |
     let port mutable type: UInt16 := 1234.
     argc > 1 ifTrue: {
         port := LibC atoi(argv[1]) castTo: UInt16

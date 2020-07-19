@@ -3,8 +3,19 @@ namespace SysmelKernel definition: {
 Compiler addLinkerArguments: #("-lgc").
 
 namespace BoehmGC definition: {
+    compileTime constant GC_finalization_proc := ((Void pointer -- Void pointer) => Void) pointer.
+
+    function GC_init externC() => Void.
+
     function GC_init externC() => Void.
     function GC_malloc externC(size: UIntPointer) => Void pointer.
+    function GC_register_finalizer_no_order externC(object: Void pointer,
+    finalizer: GC_finalization_proc, clientData: Void pointer,
+    oldFinalizer: GC_finalization_proc pointer, oldClientData: Void pointer pointer) => Void pointer.
+}.
+
+function sysmel_boehm_finalizer(object: Void pointer, clientData: Void pointer) ::=> Void := {
+    (object reinterpretCastTo: Smalltalk ProtoObject) finalize.
 }.
 
 class SysmelGC definition: {
@@ -34,6 +45,9 @@ class SysmelGC definition: {
         ## Perform the basic initialization. This sets the vtable pointers.
         basicInitializer _ (allocatedObject).
 
+        ## Set the finalizer.
+        BoehmGC GC_register_finalizer_no_order(allocatedObject, sysmel_boehm_finalizer address, nil, nil, nil).
+
         return: allocatedObject
     }.
 
@@ -47,6 +61,9 @@ class SysmelGC definition: {
 
 		## Copy the data from the prototype
         Stdn memcpy(allocatedObject, prototype, instanceSize).
+
+        ## Set the finalizer.
+        BoehmGC GC_register_finalizer_no_order(allocatedObject, sysmel_boehm_finalizer address, nil, nil, nil).
 
         return: allocatedObject
 	}.

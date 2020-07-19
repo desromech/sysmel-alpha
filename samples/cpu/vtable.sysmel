@@ -59,7 +59,7 @@ Expression pointer extend: {
     macro method + other := ``(Addition left: `,self right: `,other asExpression).
 }.
 
-function main externC (argc: Int32, argv: Char const pointer pointer) => Int32 := {
+Stdn MainEntryPoint: {:args :: Int32 |
     let expression := 5 asExpression * 2 + 4.
 
     Stdn stdout << "Expression value " << expression _ evaluate; nl.
