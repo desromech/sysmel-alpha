@@ -213,7 +213,9 @@ MbndSlovimSymbolNameMangler >> escapeNameForMangling: name [
 		]
 	].
 
-	result replaceAll: $$ with: $?.
+	self compilationTarget isWindows ifTrue: [ 
+		result replaceAll: $$ with: $?.
+	].
 	^ result
 ]
 

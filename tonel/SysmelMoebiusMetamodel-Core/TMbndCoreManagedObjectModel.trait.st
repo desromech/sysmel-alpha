@@ -44,7 +44,6 @@ Trait {
 		'objectToBoolean8Function',
 		'messageClass',
 		'moduleRootRegistrationFunction',
-		'moduleRootUnregistrationFunction',
 		'moduleStartUpFunction',
 		'moduleShutDownFunction',
 		'gcLayoutClass',
@@ -54,6 +53,7 @@ Trait {
 		'identityHashFieldBitMask'
 	],
 	#traits : 'TMbndAbstractManagedObjectModel',
+	#classTraits : 'TMbndAbstractManagedObjectModel classTrait',
 	#category : #'SysmelMoebiusMetamodel-Core-CompilationTarget'
 }
 
@@ -233,7 +233,6 @@ TMbndCoreManagedObjectModel >> encodeBootstrapDefinedObjectsForMessagePackWith: 
 			gcBlockClosureAllocationFunction objectToUInt32Function objectToInt32Function objectToUInt64Function
 			objectToInt64Function objectToChar32Function objectToFloat64Function
 			objectToBoolean8Function messageClass moduleRootRegistrationFunction
-			moduleRootUnregistrationFunction
 			moduleStartUpFunction moduleShutDownFunction
 			gcLayoutClass receiverClassGetter methodSuperClassGetter
 			inlineCacheStructure) do: [ :selector |
@@ -440,16 +439,6 @@ TMbndCoreManagedObjectModel >> moduleRootRegistrationFunction: anObject [
 ]
 
 { #category : #accessing }
-TMbndCoreManagedObjectModel >> moduleRootUnregistrationFunction [
-	^ moduleRootUnregistrationFunction
-]
-
-{ #category : #accessing }
-TMbndCoreManagedObjectModel >> moduleRootUnregistrationFunction: anObject [
-	moduleRootUnregistrationFunction := anObject
-]
-
-{ #category : #accessing }
 TMbndCoreManagedObjectModel >> moduleShutDownFunction [
 	^ moduleShutDownFunction
 ]
@@ -575,8 +564,7 @@ TMbndCoreManagedObjectModel >> runtimeImportantFunctions [
 		gcBlockClosureAllocationFunction.
 		messageLookupFunction.
 		methodSuperClassGetter.
-		moduleRootRegistrationFunction.
-		moduleRootUnregistrationFunction.
+		moduleRootRegistrationFunction
 	} select: [ :each | each isNotNil ]
 ]
 

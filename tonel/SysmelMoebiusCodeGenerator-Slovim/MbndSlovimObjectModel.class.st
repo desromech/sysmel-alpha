@@ -32,7 +32,6 @@ Class {
 		'objectToFloat64Function',
 		'objectToBoolean8Function',
 		'moduleRootRegistrationFunction',
-		'moduleRootUnregistrationFunction',
 		'receiverClassGetter',
 		'methodSuperClassGetter',
 		'inlineCacheStructure'
@@ -437,12 +436,6 @@ MbndSlovimObjectModel >> moduleCodeGenerator: anObject [
 MbndSlovimObjectModel >> moduleRootRegistrationFunction [
 	<compileTime>
 	^ moduleRootRegistrationFunction ifNil: [moduleRootRegistrationFunction := (moduleCodeGenerator translateProgramEntity: managedObjectModel moduleRootRegistrationFunction) ssaValue ]
-]
-
-{ #category : #accessing }
-MbndSlovimObjectModel >> moduleRootUnregistrationFunction [
-	<compileTime>
-	^ moduleRootUnregistrationFunction ifNil: [moduleRootUnregistrationFunction := (moduleCodeGenerator translateProgramEntity: managedObjectModel moduleRootUnregistrationFunction) ssaValue ]
 ]
 
 { #category : #'as yet unclassified' }

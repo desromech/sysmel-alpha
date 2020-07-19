@@ -726,7 +726,9 @@ MbndSlovimCodeModuleGenerator >> generateGlobalConstructionSetupMethods [
 	| sortedConstructionRecords |
 	constructionRecords ifEmpty: [ ^ self ].
 	sortedConstructionRecords := constructionRecords sorted: [ :a :b | a priority < b priority ].
-	self generateGlobalConstructionSetupMethods: sortedConstructionRecords
+	(self groupConstructionRecordsByPriority: sortedConstructionRecords) do: [ :eachGroup |
+		self generateGlobalConstructionSetupMethods: eachGroup
+	]
 ]
 
 { #category : #visiting }
@@ -1229,6 +1231,28 @@ MbndSlovimCodeModuleGenerator >> gpuTypeMapping [
 		(gpuDepthTextureCubeType depthTextureCube)
 		(gpuDepthTextureCubeArrayType depthTextureCubeArray)
 	)
+]
+
+{ #category : #visiting }
+MbndSlovimCodeModuleGenerator >> groupConstructionRecordsByPriority: groups [
+	| result currentPriority currentGroup |
+	result := OrderedCollection new.
+	currentPriority := nil.
+	currentGroup := nil.
+	groups do: [ :each |
+		each priority ~= currentPriority ifTrue: [ 
+			currentGroup ifNotNil: [
+				result add: currentGroup.
+			].
+			currentGroup := OrderedCollection new
+		].
+		currentGroup add: each.
+	].
+
+	currentGroup ifNotNil: [
+		result add: currentGroup.
+	].
+	^ result
 ]
 
 { #category : #testing }
