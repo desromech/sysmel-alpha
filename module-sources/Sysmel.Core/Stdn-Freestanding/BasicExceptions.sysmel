@@ -6,16 +6,10 @@ class Exception superclass: Object; definition: {
 
     public field messageText type: ImmutableString.
 
-    compileTime if: Compiler compilationTarget hasNoOperatingSystem then: {
+    compileTime if: Compiler hasExceptions not then: {
         method signal => Void := {
-            ## TODO: Use a trap instruction here.
-        }.
-    } else: {
-        compileTime if: Compiler hasExceptions not then: {
-            method signal => Void := {
-                stderr << "Fatal error: " << self; nl.
-                native_abort().
-            }.
+            stderr << "Fatal error: " << self; nl.
+            native_abort().
         }.
     }.
 }.

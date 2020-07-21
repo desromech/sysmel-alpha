@@ -892,22 +892,22 @@ function allocateNativeExceptionDataFor(object: Void pointer, typeInfo: Stdn Ref
 	exceptionData
 }.
 
-if: Compiler hasExceptions then: {
-    Exception extend: {
-        method signal ::=> Void := {
-            ## Use the RTTI type information for cloning the exception object into the heap.
-            let exceptionData := allocateNativeExceptionDataFor(self address, self __typeInformation).
 
-            ## Raise the actual exception.
-            ## stderr << "Raise new exception: " << SysmelUnwindExceptionData instanceSize << " " << exceptionData; nl.
-			let reasonCode := _Unwind_RaiseException(exceptionData _ unwindException address).
+Exception extend: {
+    method signal ::=> Void := {
+        ## Use the RTTI type information for cloning the exception object into the heap.
+        let exceptionData := allocateNativeExceptionDataFor(self address, self __typeInformation).
 
-            stderr << "Unhandled native exception:"; nl.
-            self printOnNativeTextStreamWriter: stderr. stderr nl.
-            stderr << "Aborting the program execution."; nl.
-            native_abort().
-        }.
-    }
+        ## Raise the actual exception.
+        ## stderr << "Raise new exception: " << SysmelUnwindExceptionData instanceSize << " " << exceptionData; nl.
+		let reasonCode := _Unwind_RaiseException(exceptionData _ unwindException address).
+
+        stderr nl.
+        stderr << "Unhandled native exception:"; nl.
+        self printOnNativeTextStreamWriter: stderr. stderr nl.
+        stderr << "Aborting the program execution."; nl.
+        native_abort().
+    }.
 }.
 
 Compiler compilationTarget

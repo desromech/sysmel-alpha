@@ -1,0 +1,167 @@
+namespace Stdn definition: {
+
+namespace Unwind definition: {
+
+compileTime if: Compiler hasLibC then: {
+    loadFileOnce: "../Stdn-LibC/setjmp.sysmel".
+    compileTime constant setjmp := LibC _setjmp.
+    compileTime constant longjmp := LibC _longjmp.
+    compileTime constant JmpBuffer := LibC JmpBuffer.
+} else: {
+    struct JmpBuffer definition: {
+        ## FIXME: Use the correct size here.
+        public field state type: (UIntPointer array: 16).
+    }.
+}.
+
+struct ExceptionContext definition: {
+    compileTime constant TypeCountMask := 16rFFFF.
+    compileTime constant CleanUpFlag := 1<<16.
+    compileTime constant NonLocalReturnFlag := 1<<17.
+
+    public field previousContext type: ExceptionContext pointer.
+    public field unwindPayload type: Void pointer.
+    public field unwindPayloadActionIndex type: Int32.
+
+    public field catchedExceptionDescriptor type: UIntPointer.
+    public field catchedExceptionTypes type: Void pointer pointer.
+
+    public field landingPadContext type: JmpBuffer.
+
+    const inline method catchedExceptionTypeCount => UIntPointer
+        := catchedExceptionDescriptor & TypeCountMask.
+
+    const inline method hasCleanUp => Boolean8
+        := catchedExceptionDescriptor anyMask: CleanUpFlag.
+
+    const inline method hasNonLocalReturn => Boolean8
+        := catchedExceptionDescriptor anyMask: NonLocalReturnFlag.
+
+    const inline method cleanUpActionIndex => Int32
+        := 1 + self hasNonLocalReturn asBit.
+
+    const inline method catchActionBaseOffset => UIntPointer
+        := 1 + self hasCleanUp asBit + self hasNonLocalReturn asBit.
+}.
+
+global lastExceptionContext mutable threadLocal type: ExceptionContext pointer.
+
+function findContextCatchingTypeInfo(typeInfo: Reflection TypeInformation pointer) => (ExceptionContext pointer -- UIntPointer) := {
+    let position mutable := lastExceptionContext.
+    while: position isNotNil do: {
+        0 until: position _ catchedExceptionTypeCount do: {:i :: Void |
+            let catchedTypeInfo := position _ catchedExceptionTypes[i] reinterpretCastTo: Reflection TypeInformation pointer.
+            catchedTypeInfo isNotNil && (typeInfo _ isPointerReinterpretableTo: catchedTypeInfo) ifTrue: {
+                return: (position, position _ catchActionBaseOffset + i)
+            }
+        }.
+
+        position := position _ previousContext
+    }.
+
+    (nil, 0)
+}.
+
+function doUnwindUntilContext noReturn(targetContext: ExceptionContext pointer) => Void := {
+    ## Invoke all of the clean ups on the way.
+    while: lastExceptionContext ~~ nil && lastExceptionContext ~~ targetContext do: {
+        let position := lastExceptionContext.
+        lastExceptionContext := position _ previousContext.
+        position _ hasCleanUp ifTrue: {
+            position _ unwindPayload: targetContext.
+            longjmp(position _ landingPadContext, position _ cleanUpActionIndex)
+        }.
+    }.
+
+    ## No remaining clean ups. Time to activate it.
+    lastExceptionContext == targetContext ifTrue: {
+        lastExceptionContext := lastExceptionContext _ previousContext.
+        longjmp(targetContext _ landingPadContext, targetContext _ unwindPayloadActionIndex)
+    }.
+
+    stderr << "Failed to unwind until a target context. Some corruption has happened."; nl.
+    native_abort().
+}.
+
+function unwindUntilContext noReturn(targetContext: ExceptionContext pointer, targetPayload: Void pointer, targetPayloadAction: Int32) => Void := {
+    targetContext _
+        unwindPayload: targetPayload;
+        unwindPayloadActionIndex: targetPayloadAction.
+    doUnwindUntilContext(targetContext).
+}.
+
+Exception extend: {
+    method signal ::=> Void := {
+        let typeInfo := self __typeInformation.
+
+        ## Find the target catching context.
+        let (let matchingContext, let catchActionIndex) := findContextCatchingTypeInfo(typeInfo).
+        matchingContext ifNotNil: {
+            ## Create a copy of myself onto the heap.
+            let heapExceptionObject := typeInfo _ copyValueIntoNativeHeap: self address.
+            unwindUntilContext(matchingContext, heapExceptionObject, catchActionIndex castTo: Int32).
+        }.
+
+        stderr nl.
+        stderr << "Unhandled native exception:"; nl.
+        self printOnNativeTextStreamWriter: stderr. stderr nl.
+        stderr << "Aborting the program execution."; nl.
+        native_abort().
+    }.
+}.
+
+function __sysmel_eh_contextBegin externC(targetContext: Void pointer) => Void := {
+    let newContext := targetContext reinterpretCastTo: ExceptionContext pointer.
+    newContext _ previousContext: lastExceptionContext.
+    lastExceptionContext := newContext
+}.
+
+function __sysmel_eh_contextEnd externC(targetContext: Void pointer) => Void := {
+    let endingContext := targetContext reinterpretCastTo: ExceptionContext pointer.
+    lastExceptionContext := endingContext _ previousContext.
+}.
+
+function __sysmel_eh_catchBegin externC(exceptionContext: Void pointer) => Void pointer := {
+    let catchedContext := exceptionContext reinterpretCastTo: ExceptionContext pointer.
+    catchedContext _ unwindPayload
+}.
+
+function __sysmel_eh_catchEnd externC(exceptionContext: Void pointer) => Void := {
+    let catchedContext := exceptionContext reinterpretCastTo: ExceptionContext pointer.
+    catchedContext _ unwindPayload ifNil: {
+        stderr << "Corruption during exception catching."; nl.
+        native_abort()
+    }.
+
+    let nativeException := (catchedContext _ unwindPayload reinterpretCastTo: Exception pointer).
+    let typeInfo := nativeException _ __typeInformation.
+    typeInfo _ isGarbageCollectedType ifFalse: {
+        nativeException nativeDelete.
+    }.
+}.
+
+function __sysmel_eh_cleanUpEnd externC(cleanUpContext: Void pointer) => Void := {
+    let exitingContext := cleanUpContext reinterpretCastTo: ExceptionContext pointer.
+    stderr << "TODO: __sysmel_eh_cleanUpEnd " << exitingContext << " " << exitingContext _ unwindPayload; nl.
+    native_abort().
+}.
+
+function __sysmel_eh_nonLocalReturnRaise externC(targetContext: Void pointer) => Void := {
+    stderr << "TODO: __sysmel_eh_nonLocalReturnRaise"; nl.
+    native_abort().
+}.
+
+Compiler compilationTarget
+    exceptionContextType: ExceptionContext;
+    exceptionContextBeginFunction: __sysmel_eh_contextBegin;
+    exceptionContextEndFunction: __sysmel_eh_contextEnd;
+    exceptionCatchBeginFunction: __sysmel_eh_catchBegin;
+    exceptionCatchEndFunction: __sysmel_eh_catchEnd;
+    exceptionCleanUpEndFunction: __sysmel_eh_cleanUpEnd;
+    exceptionSetjmpFunction: setjmp;
+    exceptionLongjmpFunction: longjmp;
+    nonLocalReturnRaiseFunction: __sysmel_eh_nonLocalReturnRaise;
+    yourself.
+}.
+
+}.

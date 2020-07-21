@@ -1,0 +1,9 @@
+namespace LibC definition: {
+    struct JmpBuffer definition: {
+        ## FIXME: Use the correct size here.
+        public field state type: (UIntPointer array: 16).
+    }.
+
+    function _setjmp externC returnsTwice(jmpBuffer: JmpBuffer ref) => Int32.
+    function _longjmp externC noReturn(jmpBuffer: JmpBuffer ref, value: Int32) => Void.
+}.

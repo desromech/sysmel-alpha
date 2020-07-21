@@ -50,6 +50,9 @@ TypeInformation definition: {
 
         false
     }.
+
+    const inline method isGarbageCollectedType => Boolean8
+        := false.
 }.
 
 NamespaceInformation definition: {

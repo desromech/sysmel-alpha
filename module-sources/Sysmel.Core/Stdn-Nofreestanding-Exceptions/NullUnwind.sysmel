@@ -3,14 +3,14 @@ namespace Stdn definition: {
 namespace Unwind definition: {
 
 function __sysmel_eh_nonLocalReturnRaise externC(targetContext: Void pointer) => Void := {
-    stderr << "Cannot perform non-local return whithout having support for exception handling"; nl.
+    stderr << "Cannot perform non-local return without having support for exception handling"; nl.
     stderr << "Aborting the program execution."; nl.
     native_abort().
 }.
 
 function __sysmel_eh_nonLocalReturnCatch externC(exceptionObject: Void pointer) => Void := {
-    ## stderr << "Non local return catch"; nl.
-    ## Since we are using TLS, nothing is required here.
+    ## This should never be called.
+    native_abort().
 }.
 
 Compiler compilationTarget

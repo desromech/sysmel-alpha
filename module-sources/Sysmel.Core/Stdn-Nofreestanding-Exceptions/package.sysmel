@@ -1,6 +1,10 @@
 loadFileOnce: "Printing.sysmel".
-if: Compiler hasExceptions then: {
-    loadFileOnce: "unwind.sysmel".
+compileTime if: Compiler hasExceptions then: {
+    compileTime if: Compiler compilationTarget hasNoExceptionModel then: {
+        loadFileOnce: "ExplicitSJLJUnwind.sysmel".
+    } else: {
+        loadFileOnce: "AbiUnwind.sysmel".
+    }.
 } else: {
-    loadFileOnce: "dummyUnwind.sysmel"
+    loadFileOnce: "NullUnwind.sysmel"
 }.
