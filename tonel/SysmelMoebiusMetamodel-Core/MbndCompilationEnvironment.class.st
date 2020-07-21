@@ -175,11 +175,6 @@ MbndCompilationEnvironment >> compilationTarget [
 	^ compilationTarget
 ]
 
-{ #category : #accessing }
-MbndCompilationEnvironment >> compilationTarget: anObject [
-	compilationTarget := anObject
-]
-
 { #category : #'module import' }
 MbndCompilationEnvironment >> compileModuleNamed: moduleName [
 	| importedModuleSourceLocations location resultModule isCoreModule |
@@ -608,6 +603,27 @@ MbndCompilationEnvironment >> initializeWithCompilationTarget: aCompilationTarge
 	self defaultModuleTranslationMode.
 ]
 
+{ #category : #initialization }
+MbndCompilationEnvironment >> initializeWithSanitizedCompilationTarget: aCompilationTarget [
+	compilationTarget := aCompilationTarget.
+	moduleSourceLocations := OrderedCollection new.
+	moduleSourceLocations add: MbndCoreAssets location / 'module-sources'.
+	importedModuleModificationTimeCache := Dictionary new.
+	outputMode := #executable.
+	hasBeginModule := false.
+
+	"Optional dependency."
+	[
+		moduleSourceLocations add: MbndAbstractGPUAssets location / 'bindings' / 'sysmel'
+	]on: Error do: [:e |
+	].
+	
+	coreModule := MbndStandaloneModule for: self.
+	currentModuleStack := OrderedCollection new.
+	currentModule := coreModule.
+	self defaultModuleTranslationMode.
+]
+
 { #category : #'module output format' }
 MbndCompilationEnvironment >> llvmAssembly [
 	self outputMode: #llvm_assembly
@@ -827,7 +843,22 @@ MbndCompilationEnvironment >> pushCurrentModule [
 
 { #category : #accessing }
 MbndCompilationEnvironment >> setForEmbeddedPAL [
-	compilationTarget setForEmbeddedPAL
+	compilationTarget setForEmbeddedPAL.
+]
+
+{ #category : #accessing }
+MbndCompilationEnvironment >> setForLinux [
+	compilationTarget setForLinux.
+]
+
+{ #category : #accessing }
+MbndCompilationEnvironment >> setForOSX [
+	compilationTarget setForOSX.
+]
+
+{ #category : #accessing }
+MbndCompilationEnvironment >> setForWindows [
+	compilationTarget setForWindows.
 ]
 
 { #category : #'module output format' }
@@ -841,6 +872,11 @@ MbndCompilationEnvironment >> shouldCompileModule: moduleName withFileReference:
 	
 	^ (self getLastModificationTimeOfModule: moduleName) > importModuleFileReference modificationTime.
 
+]
+
+{ #category : #'as yet unclassified' }
+MbndCompilationEnvironment >> useExplicitSJLJ [
+	compilationTarget setNoExceptionModel
 ]
 
 { #category : #parameters }

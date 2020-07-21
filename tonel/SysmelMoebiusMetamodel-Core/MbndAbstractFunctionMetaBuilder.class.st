@@ -163,6 +163,12 @@ MbndAbstractFunctionMetaBuilder >> postCopy [
 
 ]
 
+{ #category : #flags }
+MbndAbstractFunctionMetaBuilder >> returnsTwice [
+	<compileTime>
+	self addFlag: #returnsTwice
+]
+
 { #category : #accessing }
 MbndAbstractFunctionMetaBuilder >> specialSemantics [
 	^ specialSemantics

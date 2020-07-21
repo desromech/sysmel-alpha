@@ -103,11 +103,6 @@ MbndSlovimFunctionLandingPadExceptionHandlingCodeGenerator >> generateExceptionC
 ]
 
 { #category : #'as yet unclassified' }
-MbndSlovimFunctionLandingPadExceptionHandlingCodeGenerator >> generateExceptionCatchEndFor: exceptionCatchAction [
-	self slvmBuilder call: codeModuleGenerator exceptionCatchEndFunction arguments: #().
-]
-
-{ #category : #'code generation' }
 MbndSlovimFunctionLandingPadExceptionHandlingCodeGenerator >> generateExceptionScopeNode: node [
 	| cleanUpScope result |
 	cleanUpScope := MbndSlovimExceptionScope new
@@ -145,7 +140,8 @@ MbndSlovimFunctionLandingPadExceptionHandlingCodeGenerator >> generateExceptionS
 		cleanUpScope unwindBlock unwindBlock: nil.
 	].
 
-	node explicitCleanUpActions ifNotEmpty: [ 
+	"Store a block for generating the explicit finalization actions that corresponds to this clean up scope."
+	node explicitCleanUpActions ifNotEmpty: [
 		cleanUpScope explicitFinalizationAction: [
 			node explicitCleanUpActions do: [ :cleanUpAction | self visitNode: cleanUpAction ]
 		].
@@ -372,19 +368,7 @@ MbndSlovimFunctionLandingPadExceptionHandlingCodeGenerator >> generateUnwindingN
 	
 	self slvmBuilder currentBlock: nonLocalReturnBlock.
 	self slvmBuilder call: codeModuleGenerator nonLocalReturnCatchFunction arguments: { self slvmBuilder load: self unwindExceptionPointerVariable }.
-	self nonLocalReturnResultVariable ifNil: [
-		self assert: self concreteMethod returnType isVoidType.
-		self slvmBuilder returnVoid
-	] ifNotNil: [
-		self assert: self concreteMethod returnType isVoidType not.
-		self concreteMethod returnType isMemoryReturnedType ifTrue: [ 
-			self assert: (self nonLocalReturnResultVariable isFunctionArgument or: [self nonLocalReturnResultVariable isClosureCapture]).
-			self slvmBuilder returnVoid
-		] ifFalse: [ 
-			self slvmBuilder return: (self slvmBuilder load: self nonLocalReturnResultVariable)
-		]
-	].
-
+	self generateReturnFromNonLocalReturnHandler.
 	self slvmBuilder currentBlock: unwindResumeBlock
 ]
 

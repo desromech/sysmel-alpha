@@ -120,6 +120,7 @@ MbndSlovimCompilationTarget >> asCleanCompilationTarget [
 		operatingSystemName: self operatingSystemName;
 		canonicalOperatingSystemName: self canonicalOperatingSystemName;
 		systemVendor: self systemVendor;
+		exceptionModel: self exceptionModel;
 		cpu: self cpu;
 		fpu: self fpu;
 		floatAbiName: self floatAbiName.
@@ -154,6 +155,16 @@ MbndSlovimCompilationTarget >> cpu [
 { #category : #accessing }
 MbndSlovimCompilationTarget >> cpu: targetCPU [
 	slvmCompilationTarget cpu: targetCPU
+]
+
+{ #category : #testing }
+MbndSlovimCompilationTarget >> exceptionModel [
+	^ slvmCompilationTarget exceptionModel
+]
+
+{ #category : #testing }
+MbndSlovimCompilationTarget >> exceptionModel: anExceptionModelName [
+	slvmCompilationTarget exceptionModel: anExceptionModelName
 ]
 
 { #category : #'as yet unclassified' }
@@ -200,9 +211,34 @@ MbndSlovimCompilationTarget >> hasArmEhAbi [
 	^ slvmCompilationTarget hasArmEhAbi
 ]
 
+{ #category : #testing }
+MbndSlovimCompilationTarget >> hasDwarfExceptions [
+	^ slvmCompilationTarget hasDwarfExceptions
+]
+
+{ #category : #testing }
+MbndSlovimCompilationTarget >> hasNoExceptionModel [
+	^ slvmCompilationTarget hasNoExceptionModel
+]
+
 { #category : #'platform testing' }
 MbndSlovimCompilationTarget >> hasNoOperatingSystem [
 	^ slvmCompilationTarget isNoOperatingSystem
+]
+
+{ #category : #testing }
+MbndSlovimCompilationTarget >> hasSEHExceptions [
+	^ slvmCompilationTarget hasSEHExceptions
+]
+
+{ #category : #testing }
+MbndSlovimCompilationTarget >> hasWebAssemblyExceptions [
+	^ slvmCompilationTarget hasWebAssemblyExceptions
+]
+
+{ #category : #testing }
+MbndSlovimCompilationTarget >> hasWindowsExceptions [
+	^ slvmCompilationTarget hasWindowsExceptions
 ]
 
 { #category : #initialization }
@@ -342,13 +378,39 @@ MbndSlovimCompilationTarget >> pointerSize [
 ]
 
 { #category : #accessing }
+MbndSlovimCompilationTarget >> selectDefaultExceptionModel [
+	(self isLinux or: [ self isOSX ]) ifTrue: [ ^ self ].
+	self setNoExceptionModel
+]
+
+{ #category : #accessing }
 MbndSlovimCompilationTarget >> setForEmbeddedPAL [
 	^ slvmCompilationTarget setForEmbeddedPAL
 ]
 
 { #category : #accessing }
+MbndSlovimCompilationTarget >> setForLinux [
+	^ slvmCompilationTarget setForLinux
+]
+
+{ #category : #accessing }
 MbndSlovimCompilationTarget >> setForNullOS [
 	^ slvmCompilationTarget setForNullOS
+]
+
+{ #category : #accessing }
+MbndSlovimCompilationTarget >> setForOSX [
+	^ slvmCompilationTarget setForOSX
+]
+
+{ #category : #accessing }
+MbndSlovimCompilationTarget >> setForWindows [
+	^ slvmCompilationTarget setForWindows
+]
+
+{ #category : #initialization }
+MbndSlovimCompilationTarget >> setNoExceptionModel [
+	slvmCompilationTarget setNoExceptionModel
 ]
 
 { #category : #accessing }
@@ -363,7 +425,8 @@ MbndSlovimCompilationTarget >> slvmCompilationTarget: anObject [
 		managedObjectModel: self managedObjectModel;
 		target: slvmCompilationTarget;
 		yourself).
-	self addSysmelLLVMGCPlugin
+	self addSysmelLLVMGCPlugin.
+	self selectDefaultExceptionModel
 ]
 
 { #category : #accessing }

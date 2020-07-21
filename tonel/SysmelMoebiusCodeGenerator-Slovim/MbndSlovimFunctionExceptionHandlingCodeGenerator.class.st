@@ -18,6 +18,14 @@ MbndSlovimFunctionExceptionHandlingCodeGenerator >> concreteMethod [
 	^ functionCodeGenerator concreteMethod
 ]
 
+{ #category : #'as yet unclassified' }
+MbndSlovimFunctionExceptionHandlingCodeGenerator >> emitCleansUpBySupressing: suppresedCleanUpTokens forReturningWith: aBlock [
+	^ self withUnwindBlock: nil do: [
+		self executeAllScopeCleanUpExceptForTokens: suppresedCleanUpTokens.
+		aBlock value
+	]
+]
+
 { #category : #'cleanup scopes' }
 MbndSlovimFunctionExceptionHandlingCodeGenerator >> executeAllScopeCleanUpExceptForTokens: suppressedCleanUpTokens [
 	| position |
@@ -91,6 +99,11 @@ MbndSlovimFunctionExceptionHandlingCodeGenerator >> generateCleanUpActionActivat
 	cleanUpActionState addFinalizationActionBlock: aBlock.
 ]
 
+{ #category : #'as yet unclassified' }
+MbndSlovimFunctionExceptionHandlingCodeGenerator >> generateExceptionCatchEndFor: exceptionCatchAction [
+	self slvmBuilder call: codeModuleGenerator exceptionCatchEndFunction arguments: #().
+]
+
 { #category : #'code generation' }
 MbndSlovimFunctionExceptionHandlingCodeGenerator >> generateExceptionScopeNode: node [
 	self subclassResponsibility
@@ -135,6 +148,27 @@ MbndSlovimFunctionExceptionHandlingCodeGenerator >> generateExceptionScopeNodeCo
 	"Set the initialized flags to false at the beginning of the clean-up scope."
 	self initializeImplicitCleanUpFlagsInScope: cleanUpScope.
 	^ resultValue
+]
+
+{ #category : #'as yet unclassified' }
+MbndSlovimFunctionExceptionHandlingCodeGenerator >> generateNonLocalReturnContext [
+	^ self slvmBuilder getThisContext type: (self translateType: self concreteMethod getNonLocalReturnTarget type).
+]
+
+{ #category : #'exception handling' }
+MbndSlovimFunctionExceptionHandlingCodeGenerator >> generateReturnFromNonLocalReturnHandler [
+	self nonLocalReturnResultVariable ifNil: [
+		self assert: self concreteMethod returnType isVoidType.
+		self slvmBuilder returnVoid
+	] ifNotNil: [
+		self assert: self concreteMethod returnType isVoidType not.
+		self concreteMethod returnType isMemoryReturnedType ifTrue: [ 
+			self assert: (self nonLocalReturnResultVariable isFunctionArgument or: [self nonLocalReturnResultVariable isClosureCapture]).
+			self slvmBuilder returnVoid
+		] ifFalse: [ 
+			self slvmBuilder return: (self slvmBuilder load: self nonLocalReturnResultVariable)
+		]
+	].
 ]
 
 { #category : #'code generation' }

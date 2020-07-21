@@ -25,6 +25,12 @@ MbndSlovimCodeModuleGeneratorCommonTest >> generateSSAModule [
 
 { #category : #running }
 MbndSlovimCodeModuleGeneratorCommonTest >> setUp [
-	semanticModule := MbndCompilationEnvironment llvm_x86_64 coreModule.
+	semanticModule := MbndCompilationEnvironment llvm_x86_64 setForLinux; coreModule.
 	semanticModule name: #TestModule.
+]
+
+{ #category : #'as yet unclassified' }
+MbndSlovimCodeModuleGeneratorCommonTest >> useExplicitSJLJ [
+	semanticModule compilationTarget setNoExceptionModel.
+	self evaluateMiniExceptionRuntime.
 ]

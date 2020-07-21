@@ -851,6 +851,42 @@ function useGuard externC() => Void := {
 ]
 
 { #category : #tests }
+MbndSlovimCodeModuleGeneratorTest >> testAggregateLocalInitializeFinalizeSJLJExceptions [
+	| function |
+	self
+		useExplicitSJLJ;
+		evaluateSysmelSource: '
+class Guard definition: { 
+	method initialize => Void
+		:= grabLock().
+	method finalize => Void
+		:= releaseLock().
+
+}.
+
+function grabLock externC() => Void.
+function sideEffect externC() => Void.
+function releaseLock externC() => Void.
+
+function useGuard externC() => Void := {
+	let _ mutable type: Guard.
+	sideEffect().
+}.
+';
+		generateSSAModule.
+
+	function := ssaModule globalNamed: #useGuard.
+	self assert: function isFunction.
+	
+	self assert: function allInstructionsMnemonics equals: #(
+		(entry (alloca alloca jump))
+		(body (store store call store call load branch))
+		(implicitCleanUpAction (call jump))
+		(implicitCleanUpMerge (returnVoid))
+	).
+]
+
+{ #category : #tests }
 MbndSlovimCodeModuleGeneratorTest >> testAggregateLocalInitializeFinalizeWithExplicitReturn [
 	| function |
 	self
@@ -896,6 +932,42 @@ MbndSlovimCodeModuleGeneratorTest >> testAggregateLocalInitializeFinalizeWithExp
 	| function |
 	self
 		disableExceptions;
+		evaluateSysmelSource: '
+class Guard definition: { 
+	method initialize => Void
+		:= grabLock().
+	method finalize => Void
+		:= releaseLock().
+}.
+
+function grabLock externC() => Void.
+function sideEffect externC() => Void.
+function releaseLock externC() => Void.
+
+function useGuard externC() => Int32 := {
+	let _ mutable type: Guard.
+	sideEffect().
+	return: 42
+}.
+';
+		generateSSAModule.
+
+	function := ssaModule globalNamed: #useGuard.
+	self assert: function isFunction.
+	
+	self assert: function allInstructionsMnemonics equals: #(
+		(entry (alloca alloca jump))
+		(body (store store call store call load branch))
+		(implicitCleanUpAction (call jump))
+		(implicitCleanUpMerge (return))
+	).
+]
+
+{ #category : #tests }
+MbndSlovimCodeModuleGeneratorTest >> testAggregateLocalInitializeFinalizeWithExplicitReturnSJLJException [
+	| function |
+	self
+		useExplicitSJLJ;
 		evaluateSysmelSource: '
 class Guard definition: { 
 	method initialize => Void
@@ -1137,10 +1209,126 @@ function useMutex cdecl i32
 ]
 
 { #category : #tests }
+MbndSlovimCodeModuleGeneratorTest >> testAggregateWithLockExplicitReturnSJLJExceptions [
+	| function |
+	self
+		useExplicitSJLJ;
+		evaluateSysmelSource: '
+class Mutex definition: { 
+	method lock => Void
+		:= grabLock().
+	method unlock => Void
+		:= releaseLock().
+
+    macro method withLock: aBlock := ``{
+		`,self lock.
+        `,aBlock __macroInlineBlockEnsure: `,self unlock.
+    }.
+}.
+
+function grabLock externC() => Void.
+function sideEffect externC() => Void.
+function releaseLock externC() => Void.
+
+function useMutex externC() => Int32 := {
+	let mutex mutable type: Mutex.
+	mutex withLock: { 
+		sideEffect().
+		return: 42
+	}.
+	
+	return: 0
+}.
+';
+		generateSSAModule.
+
+	function := ssaModule globalNamed: #useMutex.
+	self assert: function isFunction.
+	
+	self assert: function asFullSExpressionForTesting equals: #(
+function useMutex cdecl i32
+	arguments (
+	)
+	literals (
+	)
+	blocks (
+		(()
+			(nil alloca (pointer (struct 'class.TestModule::Mutex') function) () ())
+			(nil jump void () () (block 2 body))
+		)
+		(()
+			(nil store void () ((constStruct (struct 'class.TestModule::Mutex') ()) (local 0 nil)))
+			(nil call void () ((global 1 '_ZN10TestModule5Mutex5.lockERNS0_E') (local 0 nil)))
+			(nil call void () ((global 5 sideEffect)))
+			(nil call void () ((global 3 '_ZN10TestModule5Mutex7.unlockERNS0_E') (local 0 nil)))
+			(nil return void () ((const i32 42)))
+		)
+	)
+
+	).
+]
+
+{ #category : #tests }
 MbndSlovimCodeModuleGeneratorTest >> testAggregateWithLockNoExceptions [
 	| function |
 	self
 		disableExceptions;
+		evaluateSysmelSource: '
+class Mutex definition: { 
+	method lock => Void
+		:= grabLock().
+	method unlock => Void
+		:= releaseLock().
+
+    macro method withLock: aBlock := ``{
+		`,self lock.
+        `,aBlock __macroInlineBlockEnsure: `,self unlock.
+    }.
+}.
+
+function grabLock externC() => Void.
+function sideEffect externC() => Void.
+function releaseLock externC() => Void.
+
+function useMutex externC() => Void := {
+	let mutex mutable type: Mutex.
+	mutex withLock: { 
+		sideEffect().
+	}
+}.
+';
+		generateSSAModule.
+
+	function := ssaModule globalNamed: #useMutex.
+	self assert: function isFunction.
+	
+	self assert: function asFullSExpressionForTesting equals: #(
+function useMutex cdecl void
+	arguments (
+	)
+	literals (
+	)
+	blocks (
+		(()
+			(nil alloca (pointer (struct 'class.TestModule::Mutex') function) () ())
+			(nil jump void () () (block 2 body))
+		)
+		(()
+			(nil store void () ((constStruct (struct 'class.TestModule::Mutex') ()) (local 0 nil)))
+			(nil call void () ((global 1 '_ZN10TestModule5Mutex5.lockERNS0_E') (local 0 nil)))
+			(nil call void () ((global 5 sideEffect)))
+			(nil call void () ((global 3 '_ZN10TestModule5Mutex7.unlockERNS0_E') (local 0 nil)))
+			(nil returnVoid void () ())
+		)
+	)
+	).
+]
+
+{ #category : #tests }
+MbndSlovimCodeModuleGeneratorTest >> testAggregateWithLockSJLJExceptions [
+	| function |
+	self
+		useExplicitSJLJ;
 		evaluateSysmelSource: '
 class Mutex definition: { 
 	method lock => Void
@@ -2490,11 +2678,97 @@ function callWithNativeBlockClosure externC(v: Int32) => Int32
 ]
 
 { #category : #tests }
+MbndSlovimCodeModuleGeneratorTest >> testCallWithNativeBlockClosureWithNonLocalReturnSJLJ [
+	| function closure |
+	self
+		evaluateMiniRTTI;
+		useExplicitSJLJ;
+		evaluateSysmelSource: '
+function calledWithNativeBlockClosure externC(f: (Void => Int32) nativeStackBlockClosure) => Int32
+	:= f() * 10.
+
+function callWithNativeBlockClosure externC(v: Int32) => Int32
+	:= calledWithNativeBlockClosure({ :: Int32 | return: 42 }).
+';
+		generateSSAModule.
+
+	function := ssaModule globalNamed: #calledWithNativeBlockClosure.
+	self assert: function allInstructionsMnemonics equals: #(
+		(entry (jump))
+		(body (jump))
+		(tryBody (getElementPointer load bitcast call mul return
+		))
+
+	).
+	
+	function := ssaModule globalNamed: #callWithNativeBlockClosure.
+	self assert: function allInstructionsMnemonics equals: #(
+		#(#entry #(#alloca #alloca #alloca #jump))
+		#(#body #(#getThisContext #jump))
+		#(#tryScope #(#instantiateClosure #bitcast #call #return))
+		#(#tryUnwind #(#landingpath #extractValue #store #extractValue #store #jump))
+		#(#unwindCleanUp #(#load #getExceptionSelectorFromTypeInfo #ieq #branch))
+		#(#nonLocalReturn #(#load #call #load #return))
+		#(#unwindResume #(#load #insertValue #load #insertValue #resumeException))
+	).
+
+	closure := function basicBlocks third firstInstruction definition.
+	self assert: closure allInstructionsMnemonics equals: #(
+		#(#entry #(#jump))
+		#(#body #(#store #call unreachable))
+	).
+
+]
+
+{ #category : #tests }
 MbndSlovimCodeModuleGeneratorTest >> testCatchNativeExceptionIgnore [
 	| function |
 	self
 		evaluateMiniRTTI;
 		evaluateMiniExceptionRuntime;
+		evaluateSysmelSource: '
+
+function mayThrow externC() => Void.
+function catchSideEffect externC() => Void.
+
+function withCatch externC() => Void := { 
+	try: { 
+		mayThrow()
+	} catch: Error doing: { 
+		catchSideEffect()
+	}
+}
+';
+		generateSSAModule.
+
+	function := ssaModule globalNamed: #withCatch.
+	self assert: function isFunction.
+	self assert: function allInstructionsMnemonics equals: #(
+		(entry #(#alloca #alloca #jump))
+		(body #(#jump))
+		(tryScope #(#jump))
+		(catchAction #(#load #call #jump))
+		(tryScope #(#jump))
+		(normalCleanUpBlock #(#returnVoid))
+		(tryUnwind #(#landingpath #extractValue #store #extractValue #store #jump))
+		(tryScope #(#call #jump))
+		(catchNormalCleanUp #(#call #jump))
+		(catchUnwind #(#landingpath #extractValue #store #extractValue #store #jump))
+		(tryScope #(#call #jump))
+		(unwindCleanUp #(#load #insertValue #load #insertValue #resumeException))
+		(forbiddenExceptionTarget #(#landingpath #extractValue #call #unreachable))
+		(unwindCatchSelection #(#load #getExceptionSelectorFromTypeInfo #ieq #branch))
+		(unwindCleanUp #(#jump))
+		(catchSelectContinue #(#jump))
+	).
+]
+
+{ #category : #tests }
+MbndSlovimCodeModuleGeneratorTest >> testCatchNativeExceptionIgnoreSJLJ [
+	| function |
+	self
+		evaluateMiniRTTI;
+		useExplicitSJLJ;
 		evaluateSysmelSource: '
 
 function mayThrow externC() => Void.
@@ -2540,6 +2814,69 @@ MbndSlovimCodeModuleGeneratorTest >> testCatchNativeNestedException [
 	self
 		evaluateMiniRTTI;
 		evaluateMiniExceptionRuntime;
+		evaluateSysmelSource: '
+function mayThrow externC() => Void.
+function mayThrow2 externC() => Void.
+function catchSideEffect externC() => Void.
+
+function withCatch externC() => Void := { 
+	try: { 
+		try: { 
+			mayThrow()
+		} catch: AssertionFailure doing: { 
+			catchSideEffect()
+		}.
+		mayThrow2()
+	} catch: Error doing: { 
+		catchSideEffect()
+	}
+}
+';
+		generateSSAModule.
+
+	function := ssaModule globalNamed: #withCatch.
+	self assert: function isFunction.
+	self flag: 'TODO: Double check that this generated code is correct.'.
+	self assert: function allInstructionsMnemonics equals: #(
+		#(#entry #(#alloca #alloca #jump))
+		#(#body #(#jump))
+		#(#tryScope #(#jump))
+		#(#catchAction #(#load #call #jump))
+		#(#tryScope #(#jump))
+		#(#normalCleanUpBlock #(#returnVoid))
+		#(#tryUnwind #(#landingpath #extractValue #store #extractValue #store #jump))
+		#(#tryScope #(#jump))
+		#(#catchAction #(#load #call #jump))
+		#(#tryScope #(#jump))
+		#(#normalCleanUpBlock #(#call #jump))
+		#(#tryUnwind #(#landingpath #extractValue #store #extractValue #store #jump))
+		#(#tryScope #(#call #jump))
+		#(#catchNormalCleanUp #(#call #jump))
+		#(#catchUnwind #(#landingpath #extractValue #store #extractValue #store #jump))
+		#(#tryScope #(#call #jump))
+		#(#catchNormalCleanUp #(#call #jump))
+		#(#catchUnwind #(#landingpath #extractValue #store #extractValue #store #jump))
+		#(#tryScope #(#call #jump))
+		#(#unwindCleanUp #(#load #insertValue #load #insertValue #resumeException))
+		#(#forbiddenExceptionTarget #(#landingpath #extractValue #call #unreachable))
+		#(#unwindCatchSelection #(#load #getExceptionSelectorFromTypeInfo #ieq #branch))
+		#(#unwindCleanUp #(#jump))
+		#(#unwindCatchSelection #(#load #getExceptionSelectorFromTypeInfo #ieq #branch))
+		#(#unwindCleanUp #(#jump))
+		#(#unwindCleanUp #(#jump))
+		#(#catchSelectContinue #(#jump))
+		#(#catchSelectContinue #(#jump))
+	).
+]
+
+{ #category : #tests }
+MbndSlovimCodeModuleGeneratorTest >> testCatchNativeNestedExceptionSJLJ [
+	| function |
+	
+"Try inside of try gets merged."
+	self
+		evaluateMiniRTTI;
+		useExplicitSJLJ;
 		evaluateSysmelSource: '
 function mayThrow externC() => Void.
 function mayThrow2 externC() => Void.
@@ -6891,7 +7228,7 @@ function nil cdecl void
 
 { #category : #tests }
 MbndSlovimCodeModuleGeneratorTest >> testGlobalVariableWithConstructorPriority [
-	| global ctor globalCtor callInstruction |
+	| global ctor globalCtor |
 	self
 		evaluateSysmelSource: '
 function makeHandle externC() => Int32.
@@ -6919,7 +7256,7 @@ global globalHandle2 externC mutable type: Resource; constructionPriority: 0.
 	self assert: global valueType isStructureType.
 	self assert: global initialValue isNotNil.
 	
-	self assert: ssaModule globalConstructors size equals: 1.
+	self assert: ssaModule globalConstructors size equals: 2.
 	ctor := ssaModule globalConstructors first.
 	globalCtor := ctor function.
 	self assert: globalCtor asFullSExpressionForTesting equals: #(
@@ -6931,11 +7268,25 @@ function nil cdecl void
 	blocks (
 		(()
 			(nil call void () ((global 6 nil)))
+			(nil returnVoid void () ())
+		)
+	)
+	).
+
+	ctor := ssaModule globalConstructors second.
+	globalCtor := ctor function.
+	self assert: globalCtor asFullSExpressionForTesting equals: #(
+function nil cdecl void
+	arguments (
+	)
+	literals (
+	)
+	blocks (
+		(()
 			(nil call void () ((global 4 nil)))
 			(nil returnVoid void () ())
 		)
 	)
-
 	).
 
 ]
@@ -8896,6 +9247,42 @@ function callWithAggregate externC() => Void
 ]
 
 { #category : #tests }
+MbndSlovimCodeModuleGeneratorTest >> testNonPODAggregatePassingSJLJExceptions [
+	| function |
+	self
+		useExplicitSJLJ;
+		evaluateSysmelSource: '
+class Aggregate definition: {
+	method initialize => Void.
+	method finalize => Void.
+}.
+
+function calledWithAggregate externC(arg: Aggregate) => Void := {}.
+function callWithAggregate externC() => Void
+	:= calledWithAggregate(Aggregate newValue).
+';
+		generateSSAModule.
+
+	function := ssaModule globalNamed: #callWithAggregate.
+	self assert: function isFunction.
+	
+	self assert: function allInstructionsMnemonics equals: #(
+		#(#entry #(#alloca #alloca #jump))
+		#(#body #(#store #store #call #store #call #load #branch))
+		#(#implicitCleanUpAction #(#call #jump))
+		#(#implicitCleanUpMerge #(#returnVoid))
+	).
+	
+	function := ssaModule globalNamed: #calledWithAggregate.
+	self assert: function isFunction.
+	
+	self assert: function allInstructionsMnemonics equals: #(
+		(entry (jump))
+		(body (returnVoid))
+	).
+]
+
+{ #category : #tests }
 MbndSlovimCodeModuleGeneratorTest >> testNonPODAggregateReturn [
 	| function |
 	self
@@ -9019,6 +9406,44 @@ function caller externC() => Void
 ]
 
 { #category : #tests }
+MbndSlovimCodeModuleGeneratorTest >> testNonPODAggregateReturn2SJLJExceptions [
+	| function |
+	self
+		useExplicitSJLJ;
+		evaluateSysmelSource: '
+class Aggregate definition: { 
+	method initialize => Void.
+	method finalize => Void.
+}.
+
+function makeAggregate externC() => Aggregate := {
+	return: Aggregate newValue.
+}.
+
+function caller externC() => Void
+	:= makeAggregate().
+';
+		generateSSAModule.
+
+	function := ssaModule globalNamed: #makeAggregate.
+	self assert: function isFunction.
+	self assert: function arguments first isStructReturnPointer.
+	self assert: function allInstructionsMnemonics equals: #(
+		(entry (jump))
+		(body (store call returnVoid))
+	).
+	
+	function := ssaModule globalNamed: #caller.
+	self assert: function isFunction.
+	self assert: function allInstructionsMnemonics equals: #(
+		(entry (alloca alloca jump))
+		(body (store call store load branch))
+		(implicitCleanUpAction (call jump))
+		(implicitCleanUpMerge (returnVoid))
+	).
+]
+
+{ #category : #tests }
 MbndSlovimCodeModuleGeneratorTest >> testNonPODAggregateReturn3 [
 	| function |
 	self
@@ -9065,6 +9490,44 @@ MbndSlovimCodeModuleGeneratorTest >> testNonPODAggregateReturn3NoExceptions [
 	| function |
 	self
 		disableExceptions;
+		evaluateSysmelSource: '
+class Aggregate definition: { 
+	method initialize => Void.
+	method finalize => Void.
+	
+	meta method make => SelfType
+		:= SelfType newValue.
+}.
+
+function caller externC() => Void
+	:= Aggregate make.
+'
+;
+		generateSSAModule.
+
+	function := ssaModule globalNamed: #'_ZN10TestModule9Aggregate8..meta..5.makeENS1_E'.
+	self assert: function isFunction.
+	self assert: function arguments first isStructReturnPointer.
+	self assert: function allInstructionsMnemonics equals: #(
+		(entry (jump))
+		(body (store call returnVoid))
+	).
+	
+	function := ssaModule globalNamed: #caller.
+	self assert: function isFunction.
+	self assert: function allInstructionsMnemonics equals: #(
+		(entry (alloca alloca jump))
+		(body (store call store load branch))
+		(implicitCleanUpAction (call jump))
+		(implicitCleanUpMerge (returnVoid))
+	).
+]
+
+{ #category : #tests }
+MbndSlovimCodeModuleGeneratorTest >> testNonPODAggregateReturn3SJLJExceptions [
+	| function |
+	self
+		useExplicitSJLJ;
 		evaluateSysmelSource: '
 class Aggregate definition: { 
 	method initialize => Void.
@@ -9183,6 +9646,46 @@ function caller externC() => Void
 ]
 
 { #category : #tests }
+MbndSlovimCodeModuleGeneratorTest >> testNonPODAggregateReturn4SJLJExceptions [
+	| function |
+	self
+		useExplicitSJLJ;
+		evaluateSysmelSource: '
+class Aggregate definition: {
+	method initialize => Void.
+	method finalize => Void.
+	
+	method setFlag => Void.
+	
+	meta method make => SelfType
+		:= SelfType newValue setFlag; yourself.
+}.
+
+function caller externC() => Void
+	:= Aggregate make.
+'
+;
+		generateSSAModule.
+
+	function := ssaModule globalNamed: #'_ZN10TestModule9Aggregate8..meta..5.makeENS1_E'.
+	self assert: function isFunction.
+	self assert: function arguments first isStructReturnPointer.
+	self assert: function allInstructionsMnemonics equals: #(
+		(entry (jump))
+		(body (store call call returnVoid))
+	).
+	
+	function := ssaModule globalNamed: #caller.
+	self assert: function isFunction.
+	self assert: function allInstructionsMnemonics equals: #(
+		(entry (alloca alloca jump))
+		(body (store call store load branch))
+		(implicitCleanUpAction (call jump))
+		(implicitCleanUpMerge (returnVoid))
+	).
+]
+
+{ #category : #tests }
 MbndSlovimCodeModuleGeneratorTest >> testNonPODAggregateReturn5 [
 	| function |
 	self
@@ -9222,6 +9725,42 @@ MbndSlovimCodeModuleGeneratorTest >> testNonPODAggregateReturn5NoExceptions [
 	| function |
 	self
 		disableExceptions;
+		evaluateSysmelSource: '
+class Aggregate definition: { 
+	method initialize => Void.
+	method finalize => Void.
+	
+	meta method make => SelfType
+		:= SelfType newValue.
+}.
+
+function caller externC() => Aggregate
+	:= Aggregate make.
+'
+;
+		generateSSAModule.
+
+	function := ssaModule globalNamed: #'_ZN10TestModule9Aggregate8..meta..5.makeENS1_E'.
+	self assert: function isFunction.
+	self assert: function arguments first isStructReturnPointer.
+	self assert: function allInstructionsMnemonics equals: #(
+		(entry (jump))
+		(body (store call returnVoid))
+	).
+	
+	function := ssaModule globalNamed: #caller.
+	self assert: function isFunction.
+	self assert: function allInstructionsMnemonics equals: #(
+		(entry (jump))
+		(body (call returnVoid))
+	).
+]
+
+{ #category : #tests }
+MbndSlovimCodeModuleGeneratorTest >> testNonPODAggregateReturn5SJLJExceptions [
+	| function |
+	self
+		useExplicitSJLJ;
 		evaluateSysmelSource: '
 class Aggregate definition: { 
 	method initialize => Void.
@@ -9294,6 +9833,44 @@ MbndSlovimCodeModuleGeneratorTest >> testNonPODAggregateReturnNoExceptions [
 	| function |
 	self
 		disableExceptions;
+		evaluateSysmelSource: '
+class Aggregate definition: {
+	method initialize => Void.
+	method finalize => Void.
+}.
+
+function makeAggregate externC() => Aggregate
+	:= Aggregate newValue.
+
+function caller externC() => Void
+	:= makeAggregate().
+'
+;
+		generateSSAModule.
+
+	function := ssaModule globalNamed: #makeAggregate.
+	self assert: function isFunction.
+	self assert: function arguments first isStructReturnPointer.
+	self assert: function allInstructionsMnemonics equals: #(
+		(entry (jump))
+		(body (store call returnVoid))
+	).
+	
+	function := ssaModule globalNamed: #caller.
+	self assert: function isFunction.
+	self assert: function allInstructionsMnemonics equals: #(
+		(entry (alloca alloca jump))
+		(body (store call store load branch))
+		(implicitCleanUpAction (call jump))
+		(implicitCleanUpMerge (returnVoid))
+	).
+]
+
+{ #category : #tests }
+MbndSlovimCodeModuleGeneratorTest >> testNonPODAggregateReturnSJLJExceptions [
+	| function |
+	self
+		useExplicitSJLJ;
 		evaluateSysmelSource: '
 class Aggregate definition: {
 	method initialize => Void.
@@ -9523,6 +10100,84 @@ function selectNonPod cdecl void
 ]
 
 { #category : #tests }
+MbndSlovimCodeModuleGeneratorTest >> testNonPODIfSelectSJLJExceptions [
+	| function |
+	self
+		useExplicitSJLJ;
+		evaluateSysmelSource: '
+class Aggregate definition: {
+	method initialize => Void.
+	method finalize => Void.
+	method initializeCopyingFrom: (other: SelfType const ref) ::=> Void.
+	method initializeMovingFrom: (other: SelfType tempRef) ::=> Void.
+}.
+
+function selectNonPod externC(condition: Boolean8, a: Aggregate) => Void
+	:= if: condition then: a else: Aggregate newValue.
+'
+;
+		generateSSAModule.
+
+	function := ssaModule globalNamed: #selectNonPod.
+	self assert: function asFullSExpressionForTesting equals: #(
+function selectNonPod cdecl void
+	arguments (
+		(condition b8 ())
+		(a (pointer (struct 'class.TestModule::Aggregate') generic) ())
+	)
+	literals (
+	)
+	blocks (
+		(()
+			(nil alloca (pointer (struct 'class.TestModule::Aggregate') function) () ())
+			(nil alloca (pointer (struct 'class.TestModule::Aggregate') function) () ())
+			(nil alloca (pointer b8 function) () ())
+			(nil alloca (pointer b8 function) () ())
+			(nil jump void () () (block 2 body))
+		)
+		((merge (block 5 ifMerge))
+			(nil store void () ((const b8 false) (local 4 nil)))
+			(nil store void () ((const b8 false) (local 5 nil)))
+			(nil branch void () ((local 0 condition)) ((block 3 ifThen) (block 4 ifElse)))
+		)
+		(()
+			(nil store void () ((constStruct (struct 'class.TestModule::Aggregate') ()) (local 2 nil)))
+			(nil call void () ((global 3 '_ZN10TestModule9Aggregate23.initializeCopyingFrom.ERNS0_ERKNS0_E') (local 2 nil) (local 1 a)))
+			(nil jump void () () (block 5 ifMerge))
+		)
+		(()
+			(nil store void () ((constStruct (struct 'class.TestModule::Aggregate') ()) (local 3 nil)))
+			(nil call void () ((global 1 '_ZN10TestModule9Aggregate11.initializeERNS0_E') (local 3 nil)))
+			(nil store void () ((const b8 true) (local 4 nil)))
+			(nil store void () ((constStruct (struct 'class.TestModule::Aggregate') ()) (local 2 nil)))
+			(nil call void () ((global 4 '_ZN10TestModule9Aggregate22.initializeMovingFrom.ERNS0_EONS0_E') (local 2 nil) (local 3 nil)))
+			(nil jump void () () (block 5 ifMerge))
+		)
+		((merge (block 7 implicitCleanUpMerge))
+			(nil store void () ((const b8 true) (local 5 nil)))
+			(nil load b8 () ((local 4 nil)))
+			(nil branch void () ((local 20 nil)) ((block 6 implicitCleanUpAction) (block 7 implicitCleanUpMerge)))
+		)
+		(()
+			(nil call void () ((global 2 '_ZN10TestModule9Aggregate9.finalizeERNS0_E') (local 3 nil)))
+			(nil jump void () () (block 7 implicitCleanUpMerge))
+		)
+		((merge (block 9 implicitCleanUpMerge))
+			(nil load b8 () ((local 5 nil)))
+			(nil branch void () ((local 24 nil)) ((block 8 implicitCleanUpAction) (block 9 implicitCleanUpMerge)))
+		)
+		(()
+			(nil call void () ((global 2 '_ZN10TestModule9Aggregate9.finalizeERNS0_E') (local 2 nil)))
+			(nil jump void () () (block 9 implicitCleanUpMerge))
+		)
+		(()
+			(nil returnVoid void () ())
+		)
+	)
+	)
+]
+
+{ #category : #tests }
 MbndSlovimCodeModuleGeneratorTest >> testNonPODSelectCaseSelect [
 	| function |
 	self
@@ -9653,6 +10308,95 @@ MbndSlovimCodeModuleGeneratorTest >> testNonPODSelectCaseSelectNoExceptions [
 	| function |
 	self
 		disableExceptions;
+		evaluateSysmelSource: '
+class Aggregate definition: {
+	method initialize => Void.
+	method finalize => Void.
+	method initializeCopyingFrom: (other: SelfType const ref) ::=> Void.
+	method initializeMovingFrom: (other: SelfType tempRef) ::=> Void.
+}.
+
+function selectNonPod externC(selectIndex: Int32, a: Aggregate, b: Aggregate) => Void
+	:= selectIndex selectCase: #{
+	0: a.
+	1: b.
+	_ : Aggregate newValue
+	}.
+'
+;
+		generateSSAModule.
+
+	function := ssaModule globalNamed: #selectNonPod.
+	self assert: function asFullSExpressionForTesting equals: #(
+function selectNonPod cdecl void
+	arguments (
+		(selectIndex i32 ())
+		(a (pointer (struct 'class.TestModule::Aggregate') generic) ())
+		(b (pointer (struct 'class.TestModule::Aggregate') generic) ())
+	)
+	literals (
+	)
+	blocks (
+		(()
+			(nil alloca (pointer (struct 'class.TestModule::Aggregate') function) () ())
+			(nil alloca (pointer (struct 'class.TestModule::Aggregate') function) () ())
+			(nil alloca (pointer b8 function) () ())
+			(nil alloca (pointer b8 function) () ())
+			(nil jump void () () (block 2 body))
+		)
+		((merge (block 6 casesOfMerge))
+			(nil store void () ((const b8 false) (local 5 nil)))
+			(nil store void () ((const b8 false) (local 6 nil)))
+			(nil switch void () ((local 0 selectIndex) (const i32 0) (const i32 1)) (((block 3 casesOfCase) (block 4 casesOfCase)) (block 5 casesOfDefault)))
+		)
+		(()
+			(nil store void () ((constStruct (struct 'class.TestModule::Aggregate') ()) (local 3 nil)))
+			(nil call void () ((global 3 '_ZN10TestModule9Aggregate23.initializeCopyingFrom.ERNS0_ERKNS0_E') (local 3 nil) (local 1 a)))
+			(nil jump void () () (block 6 casesOfMerge))
+		)
+		(()
+			(nil store void () ((constStruct (struct 'class.TestModule::Aggregate') ()) (local 3 nil)))
+			(nil call void () ((global 3 '_ZN10TestModule9Aggregate23.initializeCopyingFrom.ERNS0_ERKNS0_E') (local 3 nil) (local 2 b)))
+			(nil jump void () () (block 6 casesOfMerge))
+		)
+		(()
+			(nil store void () ((constStruct (struct 'class.TestModule::Aggregate') ()) (local 4 nil)))
+			(nil call void () ((global 1 '_ZN10TestModule9Aggregate11.initializeERNS0_E') (local 4 nil)))
+			(nil store void () ((const b8 true) (local 5 nil)))
+			(nil store void () ((constStruct (struct 'class.TestModule::Aggregate') ()) (local 3 nil)))
+			(nil call void () ((global 4 '_ZN10TestModule9Aggregate22.initializeMovingFrom.ERNS0_EONS0_E') (local 3 nil) (local 4 nil)))
+			(nil jump void () () (block 6 casesOfMerge))
+		)
+		((merge (block 8 implicitCleanUpMerge))
+			(nil store void () ((const b8 true) (local 6 nil)))
+			(nil load b8 () ((local 5 nil)))
+			(nil branch void () ((local 24 nil)) ((block 7 implicitCleanUpAction) (block 8 implicitCleanUpMerge)))
+		)
+		(()
+			(nil call void () ((global 2 '_ZN10TestModule9Aggregate9.finalizeERNS0_E') (local 4 nil)))
+			(nil jump void () () (block 8 implicitCleanUpMerge))
+		)
+		((merge (block 10 implicitCleanUpMerge))
+			(nil load b8 () ((local 6 nil)))
+			(nil branch void () ((local 28 nil)) ((block 9 implicitCleanUpAction) (block 10 implicitCleanUpMerge)))
+		)
+		(()
+			(nil call void () ((global 2 '_ZN10TestModule9Aggregate9.finalizeERNS0_E') (local 3 nil)))
+			(nil jump void () () (block 10 implicitCleanUpMerge))
+		)
+		(()
+			(nil returnVoid void () ())
+		)
+	)
+
+	)
+]
+
+{ #category : #tests }
+MbndSlovimCodeModuleGeneratorTest >> testNonPODSelectCaseSelectSJLJExceptions [
+	| function |
+	self
+		useExplicitSJLJ;
 		evaluateSysmelSource: '
 class Aggregate definition: {
 	method initialize => Void.
@@ -10616,6 +11360,74 @@ MbndSlovimCodeModuleGeneratorTest >> testRefCountedMethodsNoExceptions [
 ]
 
 { #category : #tests }
+MbndSlovimCodeModuleGeneratorTest >> testRefCountedMethodsSJLJExceptions [
+	| function |
+	self
+		useExplicitSJLJ;
+		evaluateIntrusivePointerClass;
+		evaluateSysmelSource: 'RefCountedPtr';
+		generateSSAModule.
+
+	function := ssaModule globalNamed: #'_ZN10TestModule16IntrusivePointerINS_10RefCountedEE9.finalizeERNS1_E'.
+	self assert: function isFunction.
+	self deny: function isEmpty.
+	self assert: function allInstructionsMnemonics equals: #(
+		(entry (jump))
+		(body (getElementPointer load ine branch))
+		(ifThen (getElementPointer load call jump))
+		(ifMerge (returnVoid))
+	).
+
+	function := ssaModule globalNamed: #'_ZN10TestModule16IntrusivePointerINS_10RefCountedEE16.initializeWith.ERNS1_EPNS2_E'.
+	self assert: function isFunction.
+	self deny: function isEmpty.
+	self assert: function allInstructionsMnemonics equals: #(
+		(entry (jump))
+		(body (getElementPointer store returnVoid))
+	).
+
+	function := ssaModule globalNamed: #'_ZN10TestModule16IntrusivePointerINS_10RefCountedEE23.initializeCopyingFrom.ERNS1_ERKNS1_E'.
+	self assert: function isFunction.
+	self deny: function isEmpty.
+	self assert: function allInstructionsMnemonics equals: #(
+		(entry (jump))
+		(body (getElementPointer load getElementPointer store getElementPointer load ine branch))
+		(ifThen (getElementPointer load call jump))
+		(ifMerge (returnVoid))
+	).
+	
+	function := ssaModule globalNamed: #'_ZN10TestModule16IntrusivePointerINS_10RefCountedEE22.initializeMovingFrom.ERNS1_EONS1_E'.
+	self assert: function isFunction.
+	self deny: function isEmpty.
+	self assert: function allInstructionsMnemonics equals: #(
+		(entry (jump))
+		(body (getElementPointer load getElementPointer store getElementPointer store returnVoid))
+	).
+	
+	function := ssaModule globalNamed: #'_ZN10TestModule16IntrusivePointerINS_10RefCountedEE13.assignValue.ERNS1_ERKNS1_E'.
+	self assert: function isFunction.
+	self deny: function isEmpty.
+	self assert: function allInstructionsMnemonics equals: #(
+		(entry (jump))
+		(body (getElementPointer load ine branch))
+		(ifThen (call jump))
+		(ifMerge (getElementPointer load ine branch))
+		(ifThen (getElementPointer load call jump))
+		(ifMerge (getElementPointer store return))
+	).
+	
+	function := ssaModule globalNamed: #'_ZN10TestModule16IntrusivePointerINS_10RefCountedEE13.assignValue.ERNS1_EONS1_E'.
+	self assert: function isFunction.
+	self deny: function isEmpty.
+	self assert: function allInstructionsMnemonics equals: #(
+		(entry (jump))
+		(body (getElementPointer load getElementPointer store getElementPointer load ine branch))
+		(ifThen (getElementPointer load call jump))
+		(ifMerge (getElementPointer store return))
+	).
+]
+
+{ #category : #tests }
 MbndSlovimCodeModuleGeneratorTest >> testRefCountedPointerAssign [
 	| function |
 	self
@@ -10713,6 +11525,28 @@ function makeRefCountedPtr externC(p: RefCounted pointer) => Void
 ]
 
 { #category : #tests }
+MbndSlovimCodeModuleGeneratorTest >> testRefCountedPointerCreate2SJLJExceptions [
+	| function |
+	self
+		useExplicitSJLJ;
+		evaluateIntrusivePointerClass;
+		evaluateSysmelSource: '
+function makeRefCountedPtr externC(p: RefCounted pointer) => Void
+	:= RefCountedPtr for: p.
+';
+		generateSSAModule.
+
+	function := ssaModule globalNamed: #makeRefCountedPtr.
+	self assert: function isFunction.
+	self assert: function allInstructionsMnemonics equals: #(
+		(entry (alloca alloca jump))
+		(body (store call store load branch))
+		(implicitCleanUpAction (call jump))
+		(implicitCleanUpMerge (returnVoid))
+	).
+]
+
+{ #category : #tests }
 MbndSlovimCodeModuleGeneratorTest >> testRefCountedPointerCreate3 [
 	| function |
 	self
@@ -10770,6 +11604,31 @@ function makeRefCountedPtr externC(p: RefCounted pointer) => RefCountedPtr := {
 ]
 
 { #category : #tests }
+MbndSlovimCodeModuleGeneratorTest >> testRefCountedPointerCreate3SJLJExceptions [
+	| function |
+	self
+		useExplicitSJLJ;
+		evaluateIntrusivePointerClass;
+		evaluateSysmelSource: '
+function makeRefCountedPtr externC(p: RefCounted pointer) => RefCountedPtr := {
+	let temp := RefCountedPtr for: p.
+	temp
+}.
+';
+		generateSSAModule.
+
+	function := ssaModule globalNamed: #makeRefCountedPtr.
+	self assert: function isFunction.
+	self deny: function isEmpty.
+	self assert: function allInstructionsMnemonics equals: #(
+		(entry (alloca alloca jump))
+		(body (store call store store call load branch))
+		(implicitCleanUpAction (call jump))
+		(implicitCleanUpMerge (returnVoid))
+	).
+]
+
+{ #category : #tests }
 MbndSlovimCodeModuleGeneratorTest >> testRefCountedPointerCreate4 [
 	| function |
 	self
@@ -10804,6 +11663,31 @@ MbndSlovimCodeModuleGeneratorTest >> testRefCountedPointerCreate4NoExceptions [
 	| function |
 	self
 		disableExceptions;
+		evaluateIntrusivePointerClass;
+		evaluateSysmelSource: '
+function makeRefCountedPtr externC(p: RefCounted pointer) => Void := {
+	let temp := RefCountedPtr for: p.
+	temp
+}.
+';
+		generateSSAModule.
+
+	function := ssaModule globalNamed: #makeRefCountedPtr.
+	self assert: function isFunction.
+	self deny: function isEmpty.
+	self assert: function allInstructionsMnemonics equals: #(
+		(entry (alloca alloca jump))
+		(body (store call store load branch))
+		(implicitCleanUpAction (call jump))
+		(implicitCleanUpMerge (returnVoid))
+	).
+]
+
+{ #category : #tests }
+MbndSlovimCodeModuleGeneratorTest >> testRefCountedPointerCreate4SJLJExceptions [
+	| function |
+	self
+		useExplicitSJLJ;
 		evaluateIntrusivePointerClass;
 		evaluateSysmelSource: '
 function makeRefCountedPtr externC(p: RefCounted pointer) => Void := {

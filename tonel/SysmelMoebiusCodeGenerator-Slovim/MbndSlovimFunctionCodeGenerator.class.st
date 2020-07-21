@@ -1740,7 +1740,7 @@ MbndSlovimFunctionCodeGenerator >> initializeNonLocalReturnContext [
 		^ self
 	].
 
-	nonLocalReturnContext := slvmBuilder getThisContext type: (self translateType: concreteMethod getNonLocalReturnTarget type).
+	nonLocalReturnContext := exceptionHandlingCodeGenerator generateNonLocalReturnContext.
 	nonLocalReturnResultVariable := nil.
 	functionVariables at: nonLocalReturnTargetVar put: nonLocalReturnContext.
 	
@@ -2962,8 +2962,7 @@ MbndSlovimFunctionCodeGenerator >> visitReturnStatementNode: node [
 		suppresedCleanUpTokens := { memoryReturnedValueTarget }
 	].
 
-	exceptionHandlingCodeGenerator withUnwindBlock: nil do: [ 
-		exceptionHandlingCodeGenerator executeAllScopeCleanUpExceptForTokens: suppresedCleanUpTokens.
+	exceptionHandlingCodeGenerator emitCleansUpBySupressing: suppresedCleanUpTokens forReturningWith: [ 
 		slvmBuilder isLastTerminator ifTrue: [ ^ nil ].
 		self generateAutomaticEpilogueCode.
 		nonLocalReturnTargetRef ifNotNil: [ :targetContext |
@@ -2977,6 +2976,11 @@ MbndSlovimFunctionCodeGenerator >> visitReturnStatementNode: node [
 					].
 				].
 			].
+		
+			self compilationEnvironment hasExceptions ifFalse: [
+				self error: 'Cannot generate non-local return when exceptions are disabled' at: node.
+			].
+		
 			slvmBuilder call: codeModuleGenerator nonLocalReturnRaiseFunction arguments: { nonLocalReturnTargetRef }.
 			^ slvmBuilder unreachable
 		].

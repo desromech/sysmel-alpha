@@ -167,6 +167,11 @@ MbndAbstractSpecificMethod >> createDynamicMethodWrapper [
 	^ nil
 ]
 
+{ #category : #testing }
+MbndAbstractSpecificMethod >> doesHaveMultipleReturns [
+	^ self hasFlag: #returnsTwice
+]
+
 { #category : #serialization }
 MbndAbstractSpecificMethod >> encodeFieldsForMessagePackWith: graphEncoder [
 	^ {

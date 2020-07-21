@@ -16,7 +16,9 @@ Class {
 		'catchedExceptions',
 		'flattenedCatchedExceptions',
 		'nonLocalReturnContext',
-		'compilationTarget'
+		'compilationTarget',
+		'exceptionContext',
+		'unwindNonLocalReturnBlock'
 	],
 	#category : #'SysmelMoebiusCodeGenerator-Slovim-Module'
 }
@@ -59,6 +61,16 @@ MbndSlovimExceptionScope >> compilationTarget [
 { #category : #accessing }
 MbndSlovimExceptionScope >> compilationTarget: anObject [
 	compilationTarget := anObject
+]
+
+{ #category : #accessing }
+MbndSlovimExceptionScope >> exceptionContext [
+	^ exceptionContext
+]
+
+{ #category : #accessing }
+MbndSlovimExceptionScope >> exceptionContext: anObject [
+	exceptionContext := anObject
 ]
 
 { #category : #accessing }
@@ -216,4 +228,14 @@ MbndSlovimExceptionScope >> unwindCleanUpBlock [
 { #category : #accessing }
 MbndSlovimExceptionScope >> unwindCleanUpBlock: anObject [
 	unwindCleanUpBlock := anObject
+]
+
+{ #category : #accessing }
+MbndSlovimExceptionScope >> unwindNonLocalReturnBlock [
+	^ unwindNonLocalReturnBlock
+]
+
+{ #category : #accessing }
+MbndSlovimExceptionScope >> unwindNonLocalReturnBlock: anObject [
+	unwindNonLocalReturnBlock := anObject
 ]

@@ -40,7 +40,12 @@ Class {
 		'sampleTextureExplicitDerivativesFunction',
 		'constructionRecordDictionary',
 		'constructionRecords',
-		'sysmelAtExitFunction'
+		'sysmelAtExitFunction',
+		'exceptionSetjmpFunction',
+		'exceptionLongjmpFunction',
+		'exceptionContextBeginFunction',
+		'exceptionCleanUpEndFunction',
+		'exceptionContextEndFunction'
 	],
 	#classVars : [
 		'ShaderBuiltInLocationMap',
@@ -452,9 +457,7 @@ MbndSlovimCodeModuleGenerator >> exceptionCatchBeginFunction [
 		] ifNil: [
 			exceptionCatchBeginFunction := SLVMFunction module: ssaModule
 				name: #__sysmel_eh_catchBegin
-				functionType: ((SLVMFunctionType arguments: #() returnType: self slvmCompilationTarget voidPointerType)
-					variadic: true
-				)
+				functionType: (SLVMFunctionType arguments: {self slvmCompilationTarget voidPointerType} returnType: self slvmCompilationTarget voidPointerType)
 		]
 	]
 ]
@@ -467,8 +470,61 @@ MbndSlovimCodeModuleGenerator >> exceptionCatchEndFunction [
 		] ifNil: [
 			exceptionCatchEndFunction := SLVMFunction module: ssaModule
 				name: #__sysmel_eh_catchEnd
-				functionType: ((SLVMFunctionType arguments: #() returnType: SLVMType voidType)
-					variadic: true
+				functionType: (SLVMFunctionType arguments: #() returnType: SLVMType voidType)
+		]
+	]
+]
+
+{ #category : #'runtime functions' }
+MbndSlovimCodeModuleGenerator >> exceptionCatchEndFunctionWithContext [
+	^ exceptionCatchEndFunction ifNil: [
+		self compilationTarget exceptionCatchEndFunction ifNotNil: [ :function |
+			exceptionCatchEndFunction := (self translateProgramEntity: function) ssaValue
+		] ifNil: [
+			exceptionCatchEndFunction := SLVMFunction module: ssaModule
+				name: #__sysmel_eh_catchEnd
+				functionType: (SLVMFunctionType arguments: {self slvmCompilationTarget voidPointerType} returnType: SLVMType voidType)
+		]
+	]
+]
+
+{ #category : #'runtime functions' }
+MbndSlovimCodeModuleGenerator >> exceptionCleanUpEndFunction [
+	^ exceptionCleanUpEndFunction ifNil: [
+		self compilationTarget exceptionCleanUpEndFunction ifNotNil: [ :function |
+			exceptionCleanUpEndFunction := (self translateProgramEntity: function) ssaValue
+		] ifNil: [
+			exceptionCleanUpEndFunction := SLVMFunction module: ssaModule
+				name: #__sysmel_eh_cleanUpEnd
+				functionType: (SLVMFunctionType arguments: { self slvmCompilationTarget voidPointerType } returnType: SLVMType voidType
+				)
+		]
+	]
+]
+
+{ #category : #'runtime functions' }
+MbndSlovimCodeModuleGenerator >> exceptionContextBeginFunction [
+	^ exceptionContextBeginFunction ifNil: [
+		self compilationTarget exceptionContextBeginFunction ifNotNil: [ :function |
+			exceptionContextBeginFunction := (self translateProgramEntity: function) ssaValue
+		] ifNil: [
+			exceptionContextBeginFunction := SLVMFunction module: ssaModule
+				name: #__sysmel_eh_contextBegin
+				functionType: (SLVMFunctionType arguments: { self slvmCompilationTarget voidPointerType } returnType: SLVMType voidType
+				)
+		]
+	]
+]
+
+{ #category : #'runtime functions' }
+MbndSlovimCodeModuleGenerator >> exceptionContextEndFunction [
+	^ exceptionContextEndFunction ifNil: [
+		self compilationTarget exceptionContextEndFunction ifNotNil: [ :function |
+			exceptionContextEndFunction := (self translateProgramEntity: function) ssaValue
+		] ifNil: [
+			exceptionContextEndFunction := SLVMFunction module: ssaModule
+				name: #__sysmel_eh_contextEnd
+				functionType: (SLVMFunctionType arguments: { self slvmCompilationTarget voidPointerType } returnType: SLVMType voidType
 				)
 		]
 	]
@@ -477,7 +533,37 @@ MbndSlovimCodeModuleGenerator >> exceptionCatchEndFunction [
 { #category : #'as yet unclassified' }
 MbndSlovimCodeModuleGenerator >> exceptionHandlingCodeGeneratorClass [
 	self hasExceptions ifFalse: [ ^ MbndSlovimFunctionNullExceptionHandlingCodeGenerator ].
+	self compilationTarget hasNoExceptionModel ifTrue: [ ^ MbndSlovimFunctionExplicitSJLJExceptionHandlingCodeGenerator ].
 	^ MbndSlovimFunctionLandingPadExceptionHandlingCodeGenerator
+]
+
+{ #category : #'runtime functions' }
+MbndSlovimCodeModuleGenerator >> exceptionLongjmpFunction [
+	^ exceptionLongjmpFunction ifNil: [
+		self compilationTarget exceptionLongjmpFunction ifNotNil: [ :function |
+			exceptionLongjmpFunction := (self translateProgramEntity: function) ssaValue
+		] ifNil: [
+			exceptionLongjmpFunction := (SLVMFunction module: ssaModule
+				name: #_longjmp
+				functionType: (SLVMFunctionType arguments: { self slvmCompilationTarget voidPointerType . SLVMType intType } returnType: SLVMType voidType))
+					setNoReturn: true;
+					yourself
+		]
+	]
+]
+
+{ #category : #'runtime functions' }
+MbndSlovimCodeModuleGenerator >> exceptionSetjmpFunction [
+	^ exceptionSetjmpFunction ifNil: [
+		self compilationTarget exceptionSetjmpFunction ifNotNil: [ :function |
+			exceptionSetjmpFunction := (self translateProgramEntity: function) ssaValue
+		] ifNil: [
+			exceptionSetjmpFunction := (SLVMFunction module: ssaModule
+				name: #_setjmp
+				functionType: (SLVMFunctionType arguments: { self slvmCompilationTarget voidPointerType } returnType: SLVMType intType))
+					doesHaveMultipleReturns: true
+		]
+	]
 ]
 
 { #category : #visiting }
@@ -1244,6 +1330,7 @@ MbndSlovimCodeModuleGenerator >> groupConstructionRecordsByPriority: groups [
 			currentGroup ifNotNil: [
 				result add: currentGroup.
 			].
+			currentPriority := each priority.
 			currentGroup := OrderedCollection new
 		].
 		currentGroup add: each.
@@ -2313,7 +2400,8 @@ MbndSlovimCodeModuleGenerator >> visitConcreteFunctionMethod: functionMethod [
 	].
 
 	ssaFunction
-		setNoReturn: functionMethod isNoReturn.
+		setNoReturn: functionMethod isNoReturn;
+		doesHaveMultipleReturns: functionMethod doesHaveMultipleReturns.
 	
 	addHighLevelMap ifTrue: [ 
 		ssaModule addHighLevelEntity: functionMethod mapToGlobalValue: ssaFunction
@@ -2371,7 +2459,8 @@ MbndSlovimCodeModuleGenerator >> visitConcreteMessageMethod: functionMethod [
 
 	ssaFunction := SLVMFunction module: ssaModule name: csymbol functionType: ssaFunctionType.
 	ssaFunction
-		setNoReturn: functionMethod isNoReturn.
+		setNoReturn: functionMethod isNoReturn;
+		doesHaveMultipleReturns: functionMethod doesHaveMultipleReturns.
 	ssaFunction unmangledName: unmangledName.
 
 	self setProgramEntity: functionMethod ssaValue: ssaFunction.

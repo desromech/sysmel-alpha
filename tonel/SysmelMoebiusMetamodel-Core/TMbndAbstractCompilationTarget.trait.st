@@ -295,6 +295,16 @@ TMbndAbstractCompilationTarget >> hasBoundsChecks [
 	^ self isGPU not
 ]
 
+{ #category : #testing }
+TMbndAbstractCompilationTarget >> hasDwarfExceptions [
+	^ false
+]
+
+{ #category : #testing }
+TMbndAbstractCompilationTarget >> hasNoExceptionModel [
+	^ true
+]
+
 { #category : #'platform testing' }
 TMbndAbstractCompilationTarget >> hasNoOperatingSystem [
 	^ false
@@ -303,6 +313,21 @@ TMbndAbstractCompilationTarget >> hasNoOperatingSystem [
 { #category : #'platform testing' }
 TMbndAbstractCompilationTarget >> hasOperatingSystem [
 	^ self hasNoOperatingSystem not and: [ self isGPU not ]
+]
+
+{ #category : #testing }
+TMbndAbstractCompilationTarget >> hasSEHExceptions [
+	^ false
+]
+
+{ #category : #testing }
+TMbndAbstractCompilationTarget >> hasWebAssemblyExceptions [
+	^ false
+]
+
+{ #category : #testing }
+TMbndAbstractCompilationTarget >> hasWindowsExceptions [
+	^ false
 ]
 
 { #category : #'derived types' }

@@ -108,14 +108,29 @@ template IntrusivePointer(PT: Type)
 
 { #category : #tests }
 MbndSysmelLanguageTestCommon >> evaluateMiniExceptionRuntime [
-	^ self evaluateSource: '
+	self evaluateSource: '
 class Exception definition: {}.
 class Error superclass: Exception; definition: {}.
 class AssertionFailure superclass: Error; definition: {}.
 class InternalNonLocalReturn superclass: Exception; definition: {}.
 Compiler compilationTarget internalNonLocalReturnExceptionClass: InternalNonLocalReturn.
-'
-	
+'.
+	semanticModule compilationTarget hasNoExceptionModel ifTrue: [ 
+	self evaluateSource: '
+	struct JmpBuffer definition: {
+		public field state type: UIntPointer.
+	}.
+
+	struct ExceptionContext definition: {
+		public field landingPadContext type: JmpBuffer.
+		public field catchedExceptionDescriptor type: UIntPointer.
+		public field catchedExceptionTypes type: Void pointer pointer.
+	}.
+
+Compiler compilationTarget
+	exceptionContextType: ExceptionContext.
+' 
+]
 ]
 
 { #category : #tests }

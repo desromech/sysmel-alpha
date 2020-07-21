@@ -63,9 +63,16 @@ Trait {
 		'sampleTextureImplicitLodFunction',
 		'sampleTextureExplicitLodFunction',
 		'sampleTextureExplicitDerivativesFunction',
-		'sysmelAtExitFunction'
+		'sysmelAtExitFunction',
+		'exceptionContextType',
+		'exceptionSetjmpFunction',
+		'exceptionLongjmpFunction',
+		'exceptionContextBeginFunction',
+		'exceptionContextEndFunction',
+		'exceptionCleanUpEndFunction'
 	],
 	#traits : 'TMbndAbstractCompilationTarget',
+	#classTraits : 'TMbndAbstractCompilationTarget classTrait',
 	#category : #'SysmelMoebiusMetamodel-Core-CompilationTarget'
 }
 
@@ -411,6 +418,13 @@ TMbndCoreCompilationTarget >> encodeBootstrapDefinedObjectsForMessagePackWith: g
 			sysmelAtExitFunction
 			
 			"EH"
+			exceptionContextType
+			#exceptionCleanUpEndFunction
+			#exceptionContextBeginFunction
+			#exceptionContextEndFunction
+			exceptionSetjmpFunction
+			exceptionLongjmpFunction
+
 			exceptionCatchBeginFunction
 			exceptionCatchEndFunction
 			forbiddenExceptionHandlingFunction
@@ -489,6 +503,66 @@ TMbndCoreCompilationTarget >> exceptionCatchEndFunction [
 { #category : #accessing }
 TMbndCoreCompilationTarget >> exceptionCatchEndFunction: anObject [
 	exceptionCatchEndFunction := anObject
+]
+
+{ #category : #accessing }
+TMbndCoreCompilationTarget >> exceptionCleanUpEndFunction [
+	^ exceptionCleanUpEndFunction
+]
+
+{ #category : #accessing }
+TMbndCoreCompilationTarget >> exceptionCleanUpEndFunction: anObject [
+	exceptionCleanUpEndFunction := anObject
+]
+
+{ #category : #accessing }
+TMbndCoreCompilationTarget >> exceptionContextBeginFunction [
+	^ exceptionContextBeginFunction
+]
+
+{ #category : #accessing }
+TMbndCoreCompilationTarget >> exceptionContextBeginFunction: anObject [
+	exceptionContextBeginFunction := anObject
+]
+
+{ #category : #accessing }
+TMbndCoreCompilationTarget >> exceptionContextEndFunction [
+	^ exceptionContextEndFunction
+]
+
+{ #category : #accessing }
+TMbndCoreCompilationTarget >> exceptionContextEndFunction: anObject [
+	exceptionContextEndFunction := anObject
+]
+
+{ #category : #accessing }
+TMbndCoreCompilationTarget >> exceptionContextType [
+	^ exceptionContextType
+]
+
+{ #category : #accessing }
+TMbndCoreCompilationTarget >> exceptionContextType: anObject [
+	exceptionContextType := anObject
+]
+
+{ #category : #accessing }
+TMbndCoreCompilationTarget >> exceptionLongjmpFunction [
+	^ exceptionLongjmpFunction
+]
+
+{ #category : #accessing }
+TMbndCoreCompilationTarget >> exceptionLongjmpFunction: anObject [
+	exceptionLongjmpFunction := anObject
+]
+
+{ #category : #accessing }
+TMbndCoreCompilationTarget >> exceptionSetjmpFunction [
+	^ exceptionSetjmpFunction
+]
+
+{ #category : #accessing }
+TMbndCoreCompilationTarget >> exceptionSetjmpFunction: anObject [
+	exceptionSetjmpFunction := anObject
 ]
 
 { #category : #accessing }
