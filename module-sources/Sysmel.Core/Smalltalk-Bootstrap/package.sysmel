@@ -14,7 +14,11 @@ loadFileOnce: "Streams.sysmel".
 loadFileOnce: "Exceptions.sysmel".
 
 if: Compiler hasExceptions then: {
-    loadFileOnce: "ExceptionsUnwind.sysmel".
+    compileTime if: Compiler compilationTarget hasNoExceptionModel then: {
+        loadFileOnce: "ExceptionsExplicitSJLJUnwind.sysmel".
+    } else: {
+        loadFileOnce: "ExceptionsAbiUnwind.sysmel".
+    }.
 } else: {
     loadFileOnce: "ExceptionsDummyUnwind.sysmel".
 }.

@@ -204,6 +204,9 @@ TypeInformation definition: {
 
         return: (superclass lookupSelector: selector)
     }.
+
+	method isGarbageCollectedType => Boolean8
+		:= false.
 }.
 
 ModuleInformation definition: {
@@ -300,6 +303,9 @@ Behavior definition: {
 			yourself.
 		return: (receiver doesNotUnderstand: message)
 	}.
+
+	method isGarbageCollectedType => Boolean8
+		:= true.
 }.
 
 Class definition: {

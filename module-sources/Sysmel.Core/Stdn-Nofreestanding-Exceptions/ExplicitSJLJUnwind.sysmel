@@ -16,8 +16,8 @@ compileTime if: Compiler hasLibC then: {
 
 struct ExceptionContext definition: {
     compileTime constant TypeCountMask := 16rFFFF.
-    compileTime constant CleanUpFlag := 1<<16.
-    compileTime constant NonLocalReturnFlag := 1<<17.
+    compileTime constant NonLocalReturnFlag := 1<<16.
+    compileTime constant CleanUpFlag := 1<<17.
 
     public field previousContext type: ExceptionContext pointer.
     public field unwindPayload type: Void pointer.
@@ -60,6 +60,19 @@ function findContextCatchingTypeInfo(typeInfo: Reflection TypeInformation pointe
     }.
 
     (nil, 0)
+}.
+
+function isTargetContextAvailable(targetContext: ExceptionContext pointer) => Boolean8 := {
+    let position mutable := lastExceptionContext.
+    while: position isNotNil do: {
+        position == targetContext ifTrue: {
+            return: true
+        }.
+
+        position := position _ previousContext
+    }.
+
+    false
 }.
 
 function doUnwindUntilContext noReturn(targetContext: ExceptionContext pointer) => Void := {
@@ -142,13 +155,21 @@ function __sysmel_eh_catchEnd externC(exceptionContext: Void pointer) => Void :=
 
 function __sysmel_eh_cleanUpEnd externC(cleanUpContext: Void pointer) => Void := {
     let exitingContext := cleanUpContext reinterpretCastTo: ExceptionContext pointer.
-    stderr << "TODO: __sysmel_eh_cleanUpEnd " << exitingContext << " " << exitingContext _ unwindPayload; nl.
-    native_abort().
+    doUnwindUntilContext(exitingContext _ unwindPayload reinterpretCastTo: ExceptionContext pointer)
 }.
 
 function __sysmel_eh_nonLocalReturnRaise externC(targetContext: Void pointer) => Void := {
-    stderr << "TODO: __sysmel_eh_nonLocalReturnRaise"; nl.
-    native_abort().
+    let nonLocalCatchingContext := targetContext reinterpretCastTo: ExceptionContext pointer.
+
+    nonLocalCatchingContext isNotNil &&
+    nonLocalCatchingContext _ hasNonLocalReturn &&
+    isTargetContextAvailable(nonLocalCatchingContext) ifFalse: {
+        stderr << "Cannot perform non-local return"; nl.
+        stderr << "Aborting the program execution."; nl.
+        native_abort().
+    }.
+
+    unwindUntilContext(nonLocalCatchingContext, nil, 1).
 }.
 
 Compiler compilationTarget
