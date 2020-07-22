@@ -33,7 +33,7 @@ struct ExceptionContext definition: {
         := 1 + self hasNonLocalReturn asBit.
 
     const inline method catchActionBaseOffset => UIntPointer
-        := 1 + self hasCleanUp asBit + self hasNonLocalReturn asBit.
+        := 1 + self hasCleanUp asBit + self hasNonLocalReturn asBit castTo: UIntPointer.
 }.
 
 global lastExceptionContext mutable threadLocal type: ExceptionContext pointer.
@@ -51,7 +51,7 @@ function findContextCatchingTypeInfo(typeInfo: Reflection TypeInformation pointe
         position := position _ previousContext
     }.
 
-    (nil, 0)
+    (nil, 0u)
 }.
 
 function isTargetContextAvailable(targetContext: ExceptionContext pointer) => Boolean8 := {

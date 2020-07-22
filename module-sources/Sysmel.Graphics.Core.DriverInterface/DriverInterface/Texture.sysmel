@@ -36,7 +36,7 @@ class Texture superclass: RenderingDriverObjectHandle; definition: {
         0 until: textureData layers do: {:layerIndex :: Void |
             0 until: textureData miplevels do: {:levelIndex :: Void |
                 let levelData ref := textureData levelsData[dataLevelIndex].
-                self uploadTextureLevel: levelIndex layer: layerIndex pitch: levelData pitch slicePitch: levelData slicePitch data: textureData pixels getPointer + levelData dataOffset.
+                self uploadTextureLevel: levelIndex layer: layerIndex pitch: (levelData pitch castTo: IntPointer) slicePitch: (levelData slicePitch castTo: IntPointer) data: textureData pixels getPointer + levelData dataOffset.
                 dataLevelIndex := dataLevelIndex + 1.
             }
         }.
