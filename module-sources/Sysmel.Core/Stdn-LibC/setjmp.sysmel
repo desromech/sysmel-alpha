@@ -1,9 +1,52 @@
 namespace LibC definition: {
+
+compileTime if: Compiler compilationTarget isLinux then: {
+
+    ## TODO: Select this according to the actual platform type.
     struct JmpBuffer definition: {
-        ## FIXME: Use the correct size here.
         public field state type: (UIntPointer array: 16).
     }.
 
     function _setjmp externC returnsTwice(jmpBuffer: JmpBuffer ref) => Int32.
     function _longjmp externC noReturn(jmpBuffer: JmpBuffer ref, value: Int32) => Void.
+
+    Compiler compilationTarget
+        exceptionSetjmpFunction: _setjmp;
+        exceptionLongjmpFunction: _longjmp.
 }.
+
+compileTime if: Compiler compilationTarget isWindows then: {
+    compileTime if: Compiler compilationTarget isX86_32 then: {
+        struct JmpBuffer definition: {
+            public field state type: (UInt32 array: 16).
+        }.
+    }.
+
+    compileTime if: Compiler compilationTarget isX86_64 then: {
+        struct JmpBuffer definition: {
+            public field state type: (UInt32x4 array: 16).
+        }.
+    }.
+
+    compileTime if: Compiler compilationTarget isARM32 then: {
+        struct JmpBuffer definition: {
+            public field state type: (UInt32 array: 28).
+        }.
+    }.
+
+    compileTime if: Compiler compilationTarget isARM64 then: {
+        struct JmpBuffer definition: {
+            public field state type: (UInt64 array: 24).
+        }.
+    }.
+
+    function _setjmp externC returnsTwice(jmpBuffer: JmpBuffer ref) => Int32.
+    function longjmp externC noReturn(jmpBuffer: JmpBuffer ref, value: Int32) => Void.
+    compileTime constant _longjmp := longjmp.
+
+    Compiler compilationTarget
+        exceptionSetjmpFunction: _setjmp;
+        exceptionLongjmpFunction: _longjmp.
+}.
+
+}. ## End of namespace LibC
