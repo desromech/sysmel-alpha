@@ -385,27 +385,32 @@ MbndSlovimCompilationTarget >> selectDefaultExceptionModel [
 
 { #category : #accessing }
 MbndSlovimCompilationTarget >> setForEmbeddedPAL [
-	^ slvmCompilationTarget setForEmbeddedPAL
+	slvmCompilationTarget setForEmbeddedPAL.
+	self selectDefaultExceptionModel
 ]
 
 { #category : #accessing }
 MbndSlovimCompilationTarget >> setForLinux [
-	^ slvmCompilationTarget setForLinux
+	slvmCompilationTarget setForLinux.
+	self selectDefaultExceptionModel
 ]
 
 { #category : #accessing }
 MbndSlovimCompilationTarget >> setForNullOS [
-	^ slvmCompilationTarget setForNullOS
+	self slvmCompilationTarget setForNullOS.
+	self selectDefaultExceptionModel
 ]
 
 { #category : #accessing }
 MbndSlovimCompilationTarget >> setForOSX [
-	^ slvmCompilationTarget setForOSX
+	self slvmCompilationTarget setForOSX.
+	self selectDefaultExceptionModel
 ]
 
 { #category : #accessing }
 MbndSlovimCompilationTarget >> setForWindows [
-	^ slvmCompilationTarget setForWindows
+	self slvmCompilationTarget setForWindows.
+	self selectDefaultExceptionModel
 ]
 
 { #category : #initialization }
