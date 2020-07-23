@@ -1,0 +1,5 @@
+namespace Win32 definition: {
+
+function CloseHandle apicall externC(hObject: HANDLE) => DWORD.
+
+}. ## End of namespace Win32

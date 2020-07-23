@@ -1,3 +1,7 @@
 loadFileOnce: "types.sysmel".
+loadFileOnce: "Error.sysmel".
+loadFileOnce: "Handle.sysmel".
 loadFileOnce: "IO.sysmel".
 loadFileOnce: "Memory.sysmel".
+loadFileOnce: "ThreadAndProcess.sysmel".
+loadFileOnce: "Time.sysmel".

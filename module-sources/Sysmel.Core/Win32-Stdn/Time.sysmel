@@ -1,0 +1,36 @@
+namespace Stdn definition: {
+namespace Chrono definition: {
+    function microsecondClockValue() => Time := 0.
+
+    function monotonicClockValue() => Time := {
+        let unbiasedTime mutable type: Win32 ULONGLONG.
+        Win32 QueryUnbiasedInterruptTime(unbiasedTime address) = 0 ifTrue: {return: 0}.
+
+        ## One tick per 100 nanoseconds
+        unbiasedTime / 10 castTo: Time
+    }.
+
+    function processClockValue() => Time
+        := monotonicClockValue().
+
+    function threadClockValue() => Time
+        := monotonicClockValue().
+
+    inline function sleepFor(time: Time) => Void := {
+        time > 0 ifTrue: {
+            let millisecondCount := (time + TicksPerMillisecond/2) / TicksPerMillisecond.
+            millisecondCount > 0 ifTrue: {
+                Win32 Sleep(millisecondCount castTo: Win32 DWORD)
+            }
+        }
+    }.
+
+    inline function sleepUntil(time: Time) => Void := {
+        let now := monotonicClockValue().
+        now < time ifTrue: {
+            sleepFor(time - now)
+        }
+    }.
+
+}.
+}.

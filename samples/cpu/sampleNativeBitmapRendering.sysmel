@@ -1,5 +1,5 @@
 Compiler
-	importModuleNamed: #"Sysmel.Graphics.Headfull".
+	importModuleNamed: #"Sysmel.Graphics.Core.Raster".
 
 useNamespace: Stdn Graphics Core.
 
@@ -26,7 +26,7 @@ Stdn MainEntryPoint: {:args :: Int32 |
             color
         }.
 
-        form _ writeTGAfileNamed: "pixelUnormRenderPalette.tga".
+        form _ writeTGAfileNamed: "pixelUnormRenderPalette.tga" asMutableString.
     }.
 
     ## Palette tga
@@ -50,18 +50,18 @@ Stdn MainEntryPoint: {:args :: Int32 |
 
             color
         }.
-        form _ writeTGAfileNamed: "pixelFloatRenderPalette.tga".
+        form _ writeTGAfileNamed: "pixelFloatRenderPalette.tga" asMutableString.
     }.
 
     ## Sine waves
-    let sineWavesTexture :=
+    #* let sineWavesTexture :=
     {
         let sineWaves := Form extent: UInt32x2(64, 64) pixelFormat: PixelFormat B8G8R8A8_UNorm.
         sineWaves _ makeBlitter setPixelsWith: {:(Float32x2)pixelCoord :: Float32x4 |
             let p := (pixelCoord*2.0f - 1.0f) *20.0f.
             Float32x4(0.0f, 0.0f, 0.0f, 1.0f) interpolateTo: Float32x4 ones at: p length sin*0.5f + 0.5f.
         }.
-        sineWaves _ writeTGAfileNamed: "sineWaveRender.tga".
+        sineWaves _ writeTGAfileNamed: "sineWaveRender.tga" asMutableString.
 
         FormTextureView for: sineWaves
     }.
@@ -91,8 +91,8 @@ Stdn MainEntryPoint: {:args :: Int32 |
             void.
         }.
 
-        destForm _ writeTGAfileNamed: "blitCopyRender.tga".
-    }.
+        destForm _ writeTGAfileNamed: "blitCopyRender.tga" asMutableString.
+    }. *#
 
     return: 0.
 }.

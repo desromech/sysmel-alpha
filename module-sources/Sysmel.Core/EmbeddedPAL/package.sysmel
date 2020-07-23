@@ -1,6 +1,4 @@
 loadFileOnce: "../NullOS/Threads.sysmel".
-loadFileOnce: "../NullOS/Time.sysmel".
-loadFileOnce: "../NullOS/NativeVirtualMemoryInterface.sysmel".
 Compiler
     loadPackage: #"EmbeddedPAL-Bindings";
     loadPackage: #"EmbeddedPAL-Stdn".

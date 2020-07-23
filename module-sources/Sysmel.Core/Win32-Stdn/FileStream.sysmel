@@ -13,7 +13,7 @@ definition: {
     public field isOwner type: Boolean8.
     private field eofDetected_ private type: Boolean8.
 
-    meta method fromHandle: (handle: HANDLE) isConsole: (isConsole: Boolean8) isOwner: (isOwner: Boolean8) ::=> SelfType
+    meta method fromHandle: (handle: HANDLE) isOwner: (isOwner: Boolean8) ::=> SelfType
         := SelfType basicNewValue
             handle: handle;
             isConsole: GetFileType(handle) = FILE_TYPE_CHAR;
@@ -26,12 +26,61 @@ definition: {
     method close => Void := {
         isOwner && handle isNotNil ifTrue: {
             CloseHandle(handle).
-            handle := nil.
         }.
+        handle := nil.
     }.
 
-    method open: (path: CTypes ConstString) mode: (mode: FileOpenMode) permissions: (permissions: FilePermissions) ::=> Boolean8
-        := false.
+    method open: (path: CTypes ConstString) mode: (mode: FileOpenMode) permissions: (permissions: FilePermissions) ::=> Boolean8 := {
+        let desiredAccess mutable type: DWORD := 0.
+        let creationDisposition mutable type: DWORD := 0.
+        let flagsAndAttributes mutable type: DWORD := 0.
+
+        (mode anyMask: FileOpenMode Write) || (mode anyMask: FileOpenMode Append) ifTrue: {
+            (mode anyMask: FileOpenMode Existent) ifTrue: {
+                (mode anyMask: FileOpenMode Truncate) ifTrue: {
+                    creationDisposition := TRUNCATE_EXISTING
+                } ifFalse: {
+                    creationDisposition := OPEN_EXISTING
+                }.
+            } ifFalse: {
+                (mode anyMask: FileOpenMode Truncate) ifTrue: {
+                    creationDisposition := CREATE_ALWAYS
+                } ifFalse: {
+                    creationDisposition := CREATE_NEW
+                }.
+            }.
+
+            desiredAccess := GENERIC_WRITE.
+            (mode anyMask: FileOpenMode Read) ifTrue: {
+                desiredAccess := desiredAccess | GENERIC_READ
+            }.
+        } ifFalse: {
+            (mode anyMask: FileOpenMode Read) ifFalse: {
+                return: false.
+            }.
+
+            desiredAccess := GENERIC_READ.
+            creationDisposition := OPEN_EXISTING.
+        }.
+
+        flagsAndAttributes := FILE_ATTRIBUTE_NORMAL.
+        (permissions anyMask: FilePermissions OwnerWrite) ifFalse: {
+            flagsAndAttributes := FILE_ATTRIBUTE_READONLY
+        }.
+
+        handle := CreateFileA(path, desiredAccess, FILE_SHARE_DELETE | FILE_SHARE_READ | FILE_SHARE_WRITE, nil, creationDisposition, flagsAndAttributes, nil).
+        handle == nil ifTrue: {return: false}.
+
+        isConsole := GetFileType(handle) = FILE_TYPE_CHAR.
+        isOwner := true.
+
+        ## If we are appending, move the cursor until the end.
+        (mode anyMask: FileOpenMode Append) ifTrue: {
+            SetFilePointerEx(handle, LARGE_INTEGER(), nil, FILE_END)
+        }.
+
+        true
+    }.
 
     method open: (path: String const ref) mode: (mode: FileOpenMode) permissions: (permissions: FilePermissions) ::=> Boolean8
         := self open: path asCString mode: mode permissions: permissions.
@@ -43,16 +92,30 @@ definition: {
         := self open: path asCString mode: mode permissions: FilePermissions DefaultFilePermissions.
 
     method isValid => Boolean8
-        := false.
+        := handle ~= nil.
 
     override method atEnd => Boolean8
-        := true.
+        := eofDetected_.
 
-    override method position => Int64
-        := 0.
+    override method position => Int64 := {
+        let newFilePointer mutable type: LARGE_INTEGER.
+        SetFilePointerEx(handle, LARGE_INTEGER() QuadPart: 0; yourself, newFilePointer address, FILE_CURRENT) = 0 ifTrue: {
+            0
+        } ifFalse: {
+            newFilePointer QuadPart castTo: Int64
+        }
+    }.
 
-    override method seek: (offset: Int64) mode: (mode: SeekMode) ::=> Boolean8
-        := false.
+    override method seek: (offset: Int64) mode: (mode: SeekMode) ::=> Boolean8 := {
+        let mappedMode := mode selectCase: #{
+        SeekMode Set : FILE_BEGIN.
+        SeekMode Current : FILE_CURRENT.
+        SeekMode End : FILE_END.
+        _ : {return: false}.
+        }.
+
+        SetFilePointerEx(handle, LARGE_INTEGER() QuadPart: 0; yourself, nil, mappedMode castTo: DWORD) ~= 0
+    }.
 
     override method write: (buffer: Void const pointer) size: (size: UIntPointer) ::=> IntPointer := {
         let writtenBytes mutable type: DWORD.
@@ -70,8 +133,23 @@ definition: {
         writtenBytes castTo: IntPointer.
     }.
 
-    override method read: (buffer: Void pointer) size: (size: UIntPointer) ::=> IntPointer
-        := size castTo: IntPointer.
+    override method read: (buffer: Void pointer) size: (size: UIntPointer) ::=> IntPointer := {
+        let readBytes mutable type: DWORD.
+        let bytesToRead := size castTo: DWORD.
+
+        isConsole ifTrue: {
+            ReadConsoleA(handle, buffer, bytesToRead, readBytes address, nil) = 0 ifTrue: {
+                return: -1
+            }.
+        } ifFalse: {
+            ReadFile(handle, buffer, bytesToRead, readBytes address, nil) = 0 ifTrue: {
+                return: -1
+            }.
+        }.
+
+        eofDetected_ := readBytes = 0.
+        readBytes castTo: IntPointer.
+    }.
 }.
 
 class FileStream definition: {

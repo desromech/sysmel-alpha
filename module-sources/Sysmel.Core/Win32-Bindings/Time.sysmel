@@ -1,0 +1,9 @@
+namespace Win32 definition: {
+
+function QueryUnbiasedInterruptTime apicall externC(UnbiasedTime: ULONGLONG pointer) => BOOL.
+function QueryProcessCycleTime apicall externC(ProcessHandle: HANDLE, CycleTime: ULONG64 pointer) => BOOL.
+function QueryThreadCycleTime apicall externC(ThreadHandle: HANDLE, CycleTime: ULONG64 pointer) => BOOL.
+
+function Sleep apicall externC(dwMilliseconds: DWORD) => Void.
+
+}. ## End of namespace Win32

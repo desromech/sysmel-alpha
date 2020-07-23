@@ -1,0 +1,10 @@
+namespace EmbeddedPAL definition: {
+
+function sysmel_epal_microsecondClockValue externC() => Int64.
+function sysmel_epal_monotonicClockValue externC() => Int64.
+function sysmel_epal_processClockValue externC() => Int64.
+function sysmel_epal_threadClockValue externC() => Int64.
+function sysmel_epal_sleepFor externC(time: Int64) => Void.
+function sysmel_epal_sleepUntil externC(time: Int64) => Void.
+
+}. ## End of namespace EmbeddedPAL

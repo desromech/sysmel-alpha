@@ -1,8 +1,40 @@
 namespace Win32 definition: {
 
-struct OVERLAPPED definition: {
+compileTime constant CREATE_ALWAYS := 2.
+compileTime constant CREATE_NEW := 1.
+compileTime constant OPEN_ALWAYS := 4.
+compileTime constant OPEN_EXISTING := 3.
+compileTime constant TRUNCATE_EXISTING := 5.
 
-}.
+compileTime constant GENERIC_READ := 16r80000000.
+compileTime constant GENERIC_WRITE := 16r40000000.
+compileTime constant GENERIC_EXECUTE := 16r20000000.
+compileTime constant GENERIC_ALL := 16r10000000.
+
+compileTime constant FILE_ATTRIBUTE_ARCHIVE := 16r20.
+compileTime constant FILE_ATTRIBUTE_ENCRYPTED := 16r4000.
+compileTime constant FILE_ATTRIBUTE_HIDDEN := 16r2.
+compileTime constant FILE_ATTRIBUTE_NORMAL := 16r80.
+compileTime constant FILE_ATTRIBUTE_OFFLINE := 16r1000.
+compileTime constant FILE_ATTRIBUTE_READONLY := 16r1.
+compileTime constant FILE_ATTRIBUTE_SYSTEM := 16r4.
+compileTime constant FILE_ATTRIBUTE_TEMPORARY := 16r100.
+
+compileTime constant FILE_FLAG_BACKUP_SEMANTICS := 16r02000000.
+compileTime constant FILE_FLAG_DELETE_ON_CLOSE := 16r04000000.
+compileTime constant FILE_FLAG_NO_BUFFERING := 16r20000000.
+compileTime constant FILE_FLAG_OPEN_NO_RECALL := 16r00100000.
+compileTime constant FILE_FLAG_OPEN_REPARSE_POINT := 16r00200000.
+compileTime constant FILE_FLAG_OVERLAPPED := 16r40000000.
+compileTime constant FILE_FLAG_POSIX_SEMANTICS := 16r01000000.
+compileTime constant FILE_FLAG_RANDOM_ACCESS := 16r10000000.
+compileTime constant FILE_FLAG_SESSION_AWARE := 16r00800000.
+compileTime constant FILE_FLAG_SEQUENTIAL_SCAN := 16r08000000.
+compileTime constant FILE_FLAG_WRITE_THROUGH := 16r80000000.
+
+compileTime constant FILE_SHARE_DELETE := 4.
+compileTime constant FILE_SHARE_READ := 1.
+compileTime constant FILE_SHARE_WRITE := 2.
 
 compileTime constant FILE_TYPE_CHAR := 16r0002.
 compileTime constant FILE_TYPE_DISK := 16r0001.
@@ -10,30 +42,72 @@ compileTime constant FILE_TYPE_PIPE := 16r0003.
 compileTime constant FILE_TYPE_REMOTE := 16r8000.
 compileTime constant FILE_TYPE_UNKNOWN := 16r0000.
 
-function GetFileType apicall externC(hFile: HANDLE) => DWORD.
-
-function GetConsoleCP apicall externC() => UINT.
-function SetConsoleCP apicall externC(wCodePageID: UINT) => BOOL.
+compileTime constant FILE_BEGIN := 0.
+compileTime constant FILE_CURRENT := 1.
+compileTime constant FILE_END := 2.
 
 compileTime constant STD_INPUT_HANDLE := -10 castTo: DWORD.
 compileTime constant STD_OUTPUT_HANDLE := -11 castTo: DWORD.
 compileTime constant STD_ERROR_HANDLE := -12 castTo: DWORD.
 
-function GetStdHandle apicall externC(nStdHandle: DWORD) => HANDLE.
-function SetStdHandle apicall externC(nStdHandle: DWORD, hHandle: HANDLE) => BOOL.
+struct OVERLAPPED definition: {
 
-function GetLastError apicall externC() => DWORD.
+}.
+
+struct SECURITY_ATTRIBUTES definition: {
+    public field nLength type: DWORD.
+    public field lpSecurityDescriptor type: Void pointer.
+    public field bInheritHandle type: BOOL.
+}.
+
+function CreateFileA apicall externC(lpFileName: Char8 const pointer,
+    dwDesiredAccess: DWORD,
+    dwShareMode: DWORD,
+    lpSecurityAttributes: SECURITY_ATTRIBUTES pointer,
+    dwCreationDisposition: DWORD,
+    dwFlagsAndAttributes: DWORD,
+    hTemplateFile: HANDLE
+) => HANDLE.
+
+function CreateFileW apicall externC(lpFileName: Char16 const pointer,
+    dwDesiredAccess: DWORD,
+    dwShareMode: DWORD,
+    lpSecurityAttributes: SECURITY_ATTRIBUTES pointer,
+    dwCreationDisposition: DWORD,
+    dwFlagsAndAttributes: DWORD,
+    hTemplateFile: HANDLE
+) => HANDLE.
+
+function DeleteFileA apicall externC(lpFileName: Char8 const pointer) => BOOL.
+function DeleteFileW apicall externC(lpFileName: Char16 const pointer) => BOOL.
+
 function FlushFileBuffers apicall externC(hFile: HANDLE) => BOOL.
+function GetFileType apicall externC(hFile: HANDLE) => DWORD.
+function GetConsoleCP apicall externC() => UINT.
+function GetStdHandle apicall externC(nStdHandle: DWORD) => HANDLE.
+
+function ReadConsoleA apicall externC(hConsoleOutput: HANDLE, lpBuffer: Void const pointer,
+    nNumberOfCharsToRead: DWORD, lpNumberOfCharsRead: DWORD pointer,
+    pInputControl: Void pointer) => BOOL.
+function ReadConsoleW apicall externC(hConsoleOutput: HANDLE, lpBuffer: Void const pointer,
+    nNumberOfCharsToRead: DWORD, lpNumberOfCharsRead: DWORD pointer,
+    pInputControl: Void pointer) => BOOL.
+function ReadFile apicall externC(hFile: HANDLE, lpBuffer: Void const pointer,
+    nNumberOfBytesToRead: DWORD, lpNumberOfBytesRead: DWORD pointer,
+    lpOverlapped: OVERLAPPED pointer) => BOOL.
+
+function SetConsoleCP apicall externC(wCodePageID: UINT) => BOOL.
+function SetFilePointerEx apicall externC(hFile: HANDLE, liDistanceToMove: LARGE_INTEGER, lpNewFilePointer: LARGE_INTEGER pointer, dwMoveMethod: DWORD) => BOOL.
+function SetStdHandle apicall externC(nStdHandle: DWORD, hHandle: HANDLE) => BOOL.
 
 function WriteConsoleA apicall externC(hConsoleOutput: HANDLE, lpBuffer: Void const pointer,
     nNumberOfCharsToWrite: DWORD, lpNumberOfCharsWritten: DWORD pointer,
-    lpReserved: OVERLAPPED pointer) => BOOL.
+    lpReserved: Void pointer) => BOOL.
 function WriteConsoleW apicall externC(hConsoleOutput: HANDLE, lpBuffer: Void const pointer,
     nNumberOfCharsToWrite: DWORD, lpNumberOfCharsWritten: DWORD pointer,
-    lpReserved: OVERLAPPED pointer) => BOOL.
+    lpReserved: Void pointer) => BOOL.
 function WriteFile apicall externC(hFile: HANDLE, lpBuffer: Void const pointer,
     nNumberOfBytesToWrite: DWORD, lpNumberOfBytesWritten: DWORD pointer,
     lpOverlapped: OVERLAPPED pointer) => BOOL.
-function CloseHandle apicall externC(hObject: HANDLE) => DWORD.
 
 }. ## End of namespace Win32

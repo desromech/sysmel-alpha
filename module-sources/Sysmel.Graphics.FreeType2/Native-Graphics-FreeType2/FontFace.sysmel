@@ -50,7 +50,7 @@ class FT2FontFace superclass: FontFace; definition: {
             let result mutable := FT2FontFaceWithSize sharedPointer nil.
             convertError(error) ifFalse: {
                 FT_Activate_Size(sizeHandle).
-                FT_Set_Char_Size(handle, 0, faceSize*64, 72, 72).
+                FT_Set_Char_Size(handle, 0, faceSize*64 castTo: Int32, 72, 72).
 
                 let metrics ref := handle _ size _ metrics.
 

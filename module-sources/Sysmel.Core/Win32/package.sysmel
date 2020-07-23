@@ -1,5 +1,4 @@
 loadFileOnce: "../NullOS/Threads.sysmel".
-loadFileOnce: "../NullOS/Time.sysmel".
 Compiler
     loadPackage: #"Win32-Bindings";
     loadPackage: #"Win32-Stdn".

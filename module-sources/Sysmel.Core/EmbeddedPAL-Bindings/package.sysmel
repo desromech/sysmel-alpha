@@ -1,1 +1,3 @@
 loadFileOnce: "io.sysmel".
+loadFileOnce: "time.sysmel".
+loadFileOnce: "vmm.sysmel".

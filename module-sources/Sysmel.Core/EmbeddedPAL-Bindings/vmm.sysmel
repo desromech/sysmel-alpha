@@ -1,0 +1,10 @@
+namespace EmbeddedPAL definition: {
+
+function sysmel_epal_reserveAndCommitAddressSpaceWithAlignment externC(size: UIntPointer, alignment: UIntPointer) => Void pointer.
+function sysmel_epal_reserveAndCommitAddressSpace externC(size: UIntPointer) => Void pointer.
+function sysmel_epal_reserveAddressSpace externC(size: UIntPointer) => Void pointer.
+function sysmel_epal_commitAddressSpace externC(addressSpace: Void pointer, offset: UIntPointer, size: UIntPointer) => Boolean8.
+function sysmel_epal_releaseAddressSpace externC(addressSpace: Void pointer, offset: UIntPointer, size: UIntPointer) => Boolean8.
+function sysmel_epal_freeAddressSpace externC(addressSpace: Void pointer, size: UIntPointer) => Boolean8.
+
+}. ## End of namespace EmbeddedPAL

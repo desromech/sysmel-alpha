@@ -1,3 +1,4 @@
 loadFileOnce: "FileStream.sysmel".
 loadFileOnce: "NativeVirtualMemoryInterface.sysmel".
+loadFileOnce: "Time.sysmel".
 loadFileOnce: "Main.sysmel".

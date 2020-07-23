@@ -1,0 +1,5 @@
+namespace Win32 definition: {
+
+function GetLastError apicall externC() => DWORD.
+
+}. ## End of namespace Win32

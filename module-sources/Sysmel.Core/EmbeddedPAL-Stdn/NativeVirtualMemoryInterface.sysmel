@@ -1,0 +1,28 @@
+namespace Stdn definition: {
+
+#**
+ * Null virtual memory interface.
+ *#
+namespace NativeVirtualMemoryInterface definition: {
+
+    method reserveAndCommitAddressSpace: (size: UIntPointer) alignment: (alignment: UIntPointer) ::=> Void pointer
+        := EmbeddedPAL sysmel_epal_reserveAndCommitAddressSpaceWithAlignment(size, alignment).
+
+    method reserveAndCommitAddressSpace: (size: UIntPointer) ::=> Void pointer
+        := EmbeddedPAL sysmel_epal_reserveAndCommitAddressSpace(size).
+
+    method reserveAddressSpace: (size: UIntPointer) ::=> Void pointer
+        := EmbeddedPAL sysmel_epal_reserveAddressSpace(size).
+
+    method commitAddressSpace: (addressSpace: Void pointer) offset: (offset: UIntPointer) size: (size: UIntPointer) ::=> Boolean8
+        := EmbeddedPAL sysmel_epal_commitAddressSpace(addressSpace, offset, size).
+
+    method releaseAddressSpace: (addressSpace: Void pointer) offset: (offset: UIntPointer) size: (size: UIntPointer) ::=> Boolean8
+        := EmbeddedPAL sysmel_epal_releaseAddressSpace(addressSpace, offset, size).
+
+    method freeAddressSpace: (addressSpace: Void pointer) size: (size: UIntPointer) ::=> Boolean8
+        := EmbeddedPAL sysmel_epal_freeAddressSpace(addressSpace, size).
+
+}.
+
+}. ## End of namespace Stdn

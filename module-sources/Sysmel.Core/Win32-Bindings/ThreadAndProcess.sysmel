@@ -1,0 +1,6 @@
+namespace Win32 definition: {
+
+function GetCurrentThread apicall externC() => HANDLE.
+function GetCurrentProcess apicall externC() => HANDLE.
+
+}. ## End of namespace Win32

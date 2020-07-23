@@ -1,7 +1,7 @@
 namespace Stdn definition: {
 namespace IO definition: {
 
-enum FilePermissions valueType: UInt32; bitMask; values: #{
+enum FilePermissions bitMask valueType: UInt32; values: #{
     None: 0.
     OwnerRead: 8r400.
     OwnerWrite: 8r200.
