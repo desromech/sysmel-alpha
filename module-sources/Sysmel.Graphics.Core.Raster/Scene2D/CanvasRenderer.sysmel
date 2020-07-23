@@ -71,6 +71,12 @@ class CanvasRenderer superclass: Visitor; definition: {
             fillTriangle: bottomRightPosition color: node bottomRightColor p2: topRightPosition color: node topRightColor p3: topLeftPosition color: node topLeftColor.
     }.
 
+    override method visitFilledTriangleNode: (node: FilledTriangleNode const ref) ::=> Void := {
+        canvas _
+            color: Float32x4 ones;
+            fillTriangle: node p1 color: node c1 p2:node p2 color: node c2 p3: node p3 color: node c3.
+    }.
+
     override method visitTransformNode: (node: TransformNode const ref) ::=> Void := {
         canvas _ transform restoreAfter: {
             canvas _ transform transformWith: node transform.

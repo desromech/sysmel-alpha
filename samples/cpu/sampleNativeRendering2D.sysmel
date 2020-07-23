@@ -4,9 +4,13 @@ Compiler
 useNamespace: Stdn Graphics Core.
 useNamespace: Stdn Graphics GUI.
 useNamespace: Stdn Math Geometry.
+useNamespace: Stdn Math LinearAlgebra.
+
+compileTime constant Node2D := Stdn Graphics Scene2D Node.
+compileTime constant Node2DPtr := Stdn Graphics Scene2D NodePtr.
 
 let mainWindow mutable type: Window sharedPointer.
-let mainDrawingSurface mutable type: Surface sharedPointer.
+let mainWindowRenderer mutable type: WindowScene2DRendererPtr.
 let fontFaceWithSize mutable type: FontFaceWithSize sharedPointer.
 
 let mainRectangle mutable := RectangleF32 min: Float32x2(-25.0f, 5.0f) extent: Float32x2(200.0f, 100.0f).
@@ -16,35 +20,20 @@ let mainRectangleColor mutable := mainRectangleNormalColor.
 let currentTime mutable type: Float32.
 let lastFrameRenderingTime mutable type: Float32.
 
-function doRenderOn(canvas: Canvas ref) => Void := {
-	canvas
-		color: Float32x4(0.4f, 0.4f, 0.4f, 1.0f);
-		clear.
+let currentTransform mutable type: AffinePostTransform2dF32.
 
-	##return: void.
+function buildRenderScene2D(builder: Stdn Graphics Scene2D Builder ref) => Node2DPtr := {
+	let scene2D mutable :=
+		(builder fillRectangle: mainRectangle color: mainRectangleColor) _ --
+		((builder borderRectangle: mainRectangle color: Float32x4 black) upCastFor: Node2D).
+	scene2D := scene2D _ --
+		((builder fillTriangle: Float32x2(40.0f, 300.0f) color: Float32x4(1.0f, 0.0f, 0.0f, 1.0)
+			p2: Float32x2(440.0f, 300.0f) color: Float32x4(0.0f, 1.0f, 0.0f, 1.0)
+			p3: Float32x2(240.0f, 50.0f) color: Float32x4(0.0f, 0.0f, 1.0f, 1.0)) upCastFor: Node2D).
+	scene2D := scene2D _ --
+		((builder text: "Hello World" at: Float32x2(80.0f, 128.0f) font: fontFaceWithSize color: Float32x4(0.0f, (currentTime *5.0f) cos*0.5f + 0.5f, 1.0f, 1.0f)) upCastFor: Node2D).
 
-	canvas transform restoreAfter: {
-		canvas transform
-			setIdentity;
-			rotateByRadians: currentTime negated;
-			translateBy: Float32x2(currentTime cos *100.0f, currentTime sin *100.0f).
-
-			canvas
-				color: mainRectangleColor;
-				fillRectangle: mainRectangle;
-
-				black;
-				drawRectangle: mainRectangle;
-
-				white;
-				fillTriangle: Float32x2(40.0f, 300.0f) color: Float32x4(1.0f, 0.0f, 0.0f, 1.0)
-					p2: Float32x2(440.0f, 300.0f) color: Float32x4(0.0f, 1.0f, 0.0f, 1.0)
-					p3: Float32x2(240.0f, 50.0f) color: Float32x4(0.0f, 0.0f, 1.0f, 1.0);
-
-				fontFaceWithSize: fontFaceWithSize;
-				color: Float32x4(0.0f, (currentTime *5.0f) cos*0.5f + 0.5f, 1.0f, 1.0f);
-				drawUTF8String: "Hello World" at: Float32x2(80.0f, 128.0f).
-	}.
+	scene2D := (builder transform: currentTransform node: scene2D) upCastFor: Node2D.
 
 	{
 		let frameTime := lastFrameRenderingTime * 1000.0f.
@@ -53,26 +42,24 @@ function doRenderOn(canvas: Canvas ref) => Void := {
 			out << "Rendering time " << frameTime << " ms"
 		}.
 
-		canvas
-			fontFaceWithSize: fontFaceWithSize;
-			color: Float32x4 black;
-			drawUTF8String: frameTimeString at: Float32x2(15.0f, 30.0f).
+		let frameTimeNode := (builder text: frameTimeString asArraySlice at: Float32x2(15.0f, 30.0f) font: fontFaceWithSize color: Float32x4 green) upCastFor: Node2D.
+		scene2D := scene2D _ -- frameTimeNode
 	}.
-
+	scene2D
 }.
 
 class MainWindowEventHandler superclass: EventHandler; definition: {
     method render ::=> Void := {
-		let canvas := mainDrawingSurface _ beginDrawingWithCanvas.
-		canvas ifNil: {return: void}.
-
 		lastFrameRenderingTime := (Stdn Chrono profileTimeToRun: {
-			doRenderOn(canvas _).
+		mainWindowRenderer _
+			clearColor: Float32x4(0.4f, 0.4f, 0.4f, 1.0f);
+			renderScene: buildRenderScene2D(mainWindowRenderer _ newSceneBuilder _);
+			present
 		}) castTo: Float32.
     }.
 
     override method onMouseMoveEvent: (event: MouseMoveEvent ref) ::=> Void := {
-        (mainRectangle includesPoint: (event position castTo: Float32x2)) ifTrue: {
+        (mainRectangle includesPoint: (currentTransform inverseTransformPoint: (event position castTo: Float32x2))) ifTrue: {
             mainRectangleColor := mainRectangleHighlightColor.
         } ifFalse: {
             mainRectangleColor := mainRectangleNormalColor.
@@ -81,6 +68,11 @@ class MainWindowEventHandler superclass: EventHandler; definition: {
 
     override method onTickEvent: (event: TickEvent ref) ::=> Void := {
         currentTime := event seconds castTo: Float32.
+		currentTransform := AffinePostTransform2dF32()
+			setIdentity;
+			rotateByRadians: currentTime negated;
+			translateBy: Float32x2(currentTime cos *100.0f, currentTime sin *100.0f);
+			yourself.
         self render
     }.
 
@@ -106,11 +98,11 @@ Stdn MainEntryPoint: {:args :: Int32 |
         return: 0.
     }.
 
-    ## Create the main window drawing surface.
-    mainDrawingSurface := mainWindow _ createDefaultDrawingSurface.
-    mainDrawingSurface ifNil: {
-        return: 0.
-    }.
+    ## Create the main window renderer.
+	mainWindowRenderer := mainWindow _ createScene2DRenderer.
+	mainWindowRenderer ifNil: {
+		return: 0.
+	}.
 
     ## Use the default font face.
     let fontFace mutable := FontRegistry default defaultSans _ normalFace.

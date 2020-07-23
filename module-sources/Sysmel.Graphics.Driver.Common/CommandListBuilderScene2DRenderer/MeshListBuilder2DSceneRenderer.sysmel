@@ -178,6 +178,29 @@ class MeshListBuilder2DSceneRendererNodeVisitor superclass: Scene2D Visitor; def
         }
     }.
 
+    override method visitFilledTriangleNode: (node: Scene2D FilledTriangleNode const ref) ::=> Void := {
+        let p1 := currentTransform transformPoint: node p1.
+        let p2 := currentTransform transformPoint: node p2.
+        let p3 := currentTransform transformPoint: node p3.
+
+        renderer _ meshBuilder
+            beginSubmesh: PrimitiveTopology Triangles blendingMode: currentBlendingMode
+                texture: TexturePtr nil textureView: TextureViewPtr nil fontFaceWithSize: FontFaceWithSizePtr nil;
+            addVertex: (MeshVertex()
+                position: p1;
+                color: node c1;
+                yourself);
+            addVertex: (MeshVertex()
+                position: p2;
+                color: node c2;
+                yourself);
+            addVertex: (MeshVertex()
+                position: p3;
+                color: node c3;
+                yourself);
+            addTriangle: UInt32x3(0, 1, 2).
+    }.
+
     override method visitFilledRectangleNode: (node: Scene2D FilledRectangleNode const ref) ::=> Void := {
         let rectangle := node rectangle.
         let p1 := currentTransform transformPoint: rectangle bottomLeft.

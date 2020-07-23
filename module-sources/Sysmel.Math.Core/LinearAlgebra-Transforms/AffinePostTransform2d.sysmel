@@ -60,6 +60,14 @@ sealed template GenericAffinePostTransform2d(ST: Type)
     const inline method transformPoint: (point: Vector2) ::=> Vector2
         := matrix * point + translation.
 
+    compileTime if: Scalar isPrimitiveFloatType then: {
+        const inline method inverseTransformVector: (vector: Vector2) ::=> Vector2
+            := matrix inverse * vector.
+
+        const inline method inverseTransformPoint: (point: Vector2) ::=> Vector2
+            := matrix inverse * (point - translation).
+    }.
+
     macro method restoreAfter: aBlock := {
         let oldTransform := __astBuilder gensym: #oldTransform.
         ``{

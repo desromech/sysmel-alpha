@@ -10,6 +10,7 @@ loadFileOnce: "BorderRectangleNode.sysmel".
 loadFileOnce: "ClippedRectangleNode.sysmel".
 loadFileOnce: "ContainerNode.sysmel".
 loadFileOnce: "FilledRectangleNode.sysmel".
+loadFileOnce: "FilledTriangleNode.sysmel".
 loadFileOnce: "ParameterChangeNode.sysmel".
 loadFileOnce: "TextNode.sysmel".
 loadFileOnce: "TextureNode.sysmel".
