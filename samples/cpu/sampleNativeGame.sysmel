@@ -1,8 +1,10 @@
-Compiler importModuleNamed: #"Sysmel.Graphics.SDL2".
+Compiler importModuleNamed: #"Sysmel.Graphics.Headfull".
+Compiler importModuleNamed: #"Bindings.SDL2". ## For the sound.
 
 useNamespace: Stdn Graphics Core.
 useNamespace: Stdn Graphics GUI.
 useNamespace: Stdn Math Geometry.
+useNamespace: Stdn Math LinearAlgebra.
 
 useNamespace: SDL2.
 
@@ -10,8 +12,14 @@ class SoundChannelWithEnvelope.
 
 let Gravity := Float32x2(0.0, -9.8).
 
+compileTime constant Node2D := Stdn Graphics Scene2D Node.
+compileTime constant Node2DPtr := Stdn Graphics Scene2D NodePtr.
+
 global mainWindow mutable type: Window sharedPointer.
-global mainDrawingSurface mutable type: Surface sharedPointer.
+let mainWindowRenderer mutable type: WindowScene2DRendererPtr.
+let fontFaceWithSize mutable type: FontFaceWithSize sharedPointer.
+let lastFrameRenderingTime mutable type: Float32.
+let lastFrameUpdateTime mutable type: Float32.
 
 global audioMutex mutable type: Stdn Mutex.
 global audioDeviceID mutable type: SDL_AudioDeviceID.
@@ -52,10 +60,8 @@ class Entity definition: {
 		## By default do nothing when shot.
 	}.
 
-	virtual method renderOn: (canvas: Canvas ref) ::=> Void := {
-		canvas
-			color: self currentColor;
-			fillRectangle: self boundingBox.
+	virtual method buildSceneNodeWith: (builder: Stdn Graphics Scene2D Builder ref) ::=> Node2DPtr := {
+		(builder fillRectangle: self boundingBox color: self currentColor) upCastFor: Node2D
 	}.
 
 	virtual method update: (delta: Float32) ::=> Void := {
@@ -436,63 +442,82 @@ global player mutable type: Player pointer.
 global viewMatrix mutable type: Float32x2x3.
 
 class MainWindowEventHandler superclass: EventHandler; definition: {
-	method renderEntitiesOn: (canvas: Canvas ref) ::=> Void := {
-		## Compute the view transform
-		{
-			canvas transform
-				setIdentity;
+	method buildEntitiesScene2D: (builder: Stdn Graphics Scene2D Builder ref) ::=> Node2DPtr := {
+		let screenExtent := mainWindow _ extent castTo: Float32x2.
+		let viewTranform := AffinePostTransform2dF32()
+			setIdentity;
 
-				## Convert into NDC space.
-				scaleBy: Float32x2(320.0f, -240.0f);
-				translateBy: Float32x2(1.0f, -1.0f);
+			## Convert into NDC space.
+			scaleBy: screenExtent y * Float32x2(0.5f, -0.5f);
+			translateBy: Float32x2(1.0f, -1.0f);
 
-				## Scale the view.
-				scaleBy: 0.2f;
+			## Scale the view.
+			scaleBy: 0.2f;
 
-				## Set the camera position.
-				translateBy: player _ position negated + Float32x2(-2.0f, -2.0f).
+			## Set the camera position.
+			translateBy: player _ position negated + Float32x2(-2.0f, -2.0f);
+			yourself.
 
-		}.
-
-
+		let container := builder container.
 		## Draw the entities.
 		entities do: {:entity :: Void |
-			entity _ renderOn: canvas.
+			container _ add: (entity _ buildSceneNodeWith: builder).
 		}.
+
+		(builder transform: viewTranform node: (container upCastFor: Node2D)) upCastFor: Node2D
 	}.
 
-	method drawHealthOn: (canvas: Canvas ref) ::=> Void := {
+	method buildHealthIndicatorWith: (builder: Stdn Graphics Scene2D Builder ref) ::=> Node2DPtr := {
 		## Red border
 		let fullHealthRect := RectangleF32 min: Float32x2(20, 20) extent: Float32x2(250, 15).
 
 		let healthPercentage := player _ hitPoints / 100.0f clampMin: 0.0f max: 1.0.
 		let currentHealthRect := RectangleF32 min: fullHealthRect min extent: fullHealthRect extent * Float32x2(healthPercentage, 1.0f).
 
-		canvas
-			color: Float32x4(1.0f, 0.6f, 0.0f, 1.0f);
-			fillRectangle: fullHealthRect;
-
-			color: Float32x4(1.0f, 0.0f, 0.0f, 1.0f);
-			drawRectangle: currentHealthRect.
+		(builder fillRectangle: fullHealthRect color: Float32x4(1.0f, 0.6f, 0.0f, 1.0f)) _ --
+		((builder fillRectangle: currentHealthRect color: Float32x4(1.0f, 0.6f, 0.0f, 1.0f)) upCastFor: Node2D)
 	}.
 
-	method renderHUDOn: (canvas: Canvas ref) ::=> Void := {
-		canvas transform setIdentity.
+	method buildProfilingData: (builder: Stdn Graphics Scene2D Builder ref) ::=> Node2DPtr := {
+		let updateTime := lastFrameUpdateTime * 1000.0f.
+		let frameTime := lastFrameRenderingTime * 1000.0f.
+		let frameTimeString := Stdn String textStreamContents: {:out :: Void |
+			out << "Update time " << updateTime << "ms"; nl.
+			out << "Rendering time " << frameTime << " ms"
+		}.
 
-		self drawHealthOn: canvas
+		(builder text: frameTimeString asArraySlice at: Float32x2(15.0f, 30.0f) font: fontFaceWithSize color: Float32x4 green) upCastFor: Node2D.
+	}.
+
+	method buildHudScene2D: (builder: Stdn Graphics Scene2D Builder ref) ::=> Node2DPtr := {
+		let screenExtent := mainWindow _ extent castTo: Float32x2.
+		let windowScaleTransform := AffinePostTransform2dF32()
+			setIdentity;
+
+			## Convert into NDC space.
+			scaleBy: screenExtent y / 480.0f;
+			yourself.
+
+		let result := builder container.
+		result _
+			add: (self buildHealthIndicatorWith: builder);
+			add: (self buildProfilingData: builder).
+		(builder transform: windowScaleTransform node: (result upCastFor: Node2D)) upCastFor: Node2D
+	}.
+
+	method buildRenderScene2D: (builder: Stdn Graphics Scene2D Builder ref) ::=> Node2DPtr := {
+		let entities := self buildEntitiesScene2D: builder.
+		let hud := self buildHudScene2D: builder.
+		entities _ -- (hud upCastFor: Node2D)
 	}.
 
 	method render => Void := {
-		let canvas := mainDrawingSurface _ beginDrawingWithCanvas.
-		canvas ifNil: {return: void}.
-
-		canvas _
-			color: Float32x4(0.1f, 0.4f, 0.4f, 1.0f);
-			clear.
-
-		self
-			renderEntitiesOn: canvas _;
-			renderHUDOn: canvas _.
+		lastFrameRenderingTime := (Stdn Chrono profileTimeToRun: {
+		mainWindowRenderer _
+			clearColor: Float32x4(0.1f, 0.4f, 0.4f, 1.0f);
+			renderScene: (self buildRenderScene2D: mainWindowRenderer _ newSceneBuilder _);
+			present
+		}) castTo: Float32.
 	}.
 
 	override method onExposeEvent: (event: ExposeEvent ref) ::=> Void := {
@@ -500,10 +525,12 @@ class MainWindowEventHandler superclass: EventHandler; definition: {
 	}.
 
 	override method onTickEvent: (event: TickEvent ref) ::=> Void := {
-		let updateDelta := event deterministicDeltaSeconds castTo: Float32.
-		0 until: event deterministicFrameCount do: {
-			update(updateDelta).
-		}.
+		lastFrameUpdateTime := (Stdn Chrono profileTimeToRun: {
+			let updateDelta := event deterministicDeltaSeconds castTo: Float32.
+			0 until: event deterministicFrameCount do: {
+				update(updateDelta).
+			}.
+		}) castTo: Float32.
 
         self render
     }.
@@ -624,16 +651,24 @@ Stdn MainEntryPoint: {:args :: Int32 |
 	windowSystem _ targetFrameRate: 60.
 
 	## Create the main window.
-    mainWindow := windowSystem _ createWindowWithTitle: "Sample Native Game" asMutableString extent: Int32x2(640, 480).
+    mainWindow := windowSystem _ createWindow: (WindowCreationInfo()
+	 	title: "Sample Native Game" asMutableString;
+		extent: Int32x2(640, 480);
+		resizable: true;
+		yourself).
     mainWindow ifNil: {
         return: 0.
     }.
 
-    ## Create the main window drawing surface.
-    mainDrawingSurface := mainWindow _ createDefaultDrawingSurface.
-    mainDrawingSurface ifNil: {
-        return: 0.
-    }.
+	## Create the main window renderer.
+	mainWindowRenderer := mainWindow _ createScene2DRenderer.
+	mainWindowRenderer ifNil: {
+		return: 0.
+	}.
+
+	## Use the default font face.
+    let fontFace mutable := FontRegistry default defaultSans _ normalFace.
+    fontFaceWithSize := fontFace _ getOrCreateFaceWithSize: 12.
 
 	## Create the event handler.
     {
@@ -641,6 +676,7 @@ Stdn MainEntryPoint: {:args :: Int32 |
         mainWindow _ eventHandler: (eventHandler upCastFor: EventHandler)
     }.
 
+	SDL_InitSubSystem(SDL_INIT_AUDIO).
 	{
 		let desiredAudioSpec mutable := SDL_AudioSpec newValue
 			freq: 48000;
@@ -657,9 +693,9 @@ Stdn MainEntryPoint: {:args :: Int32 |
 
 	## Create the floor
 	{
-		createWallMin: Float32x2(-5.0f, -5.0f) max: Float32x2(20.0f, -4.0f) color: Float32x4(0.2f, 0.2f, 0.2f, 0.2f).
+		createWallMin: Float32x2(-5.0f, -5.0f) max: Float32x2(20.0f, -4.0f) color: Float32x4(0.2f, 0.2f, 0.2f, 1.0f).
 
-		createWallMin: Float32x2(3.0f, -1.0f) max: Float32x2(8.0f, 0.0f) color: Float32x4(0.2f, 0.2f, 0.2f, 0.2f).
+		createWallMin: Float32x2(3.0f, -1.0f) max: Float32x2(8.0f, 0.0f) color: Float32x4(0.2f, 0.2f, 0.2f, 1.0f).
 	}.
 
 	{

@@ -20,6 +20,7 @@ let mainRectangleColor mutable := mainRectangleNormalColor.
 let currentTime mutable type: Float32.
 let lastFrameRenderingTime mutable type: Float32.
 
+let windowScaleTransform mutable type: AffinePostTransform2dF32.
 let currentTransform mutable type: AffinePostTransform2dF32.
 
 function buildRenderScene2D(builder: Stdn Graphics Scene2D Builder ref) => Node2DPtr := {
@@ -45,7 +46,8 @@ function buildRenderScene2D(builder: Stdn Graphics Scene2D Builder ref) => Node2
 		let frameTimeNode := (builder text: frameTimeString asArraySlice at: Float32x2(15.0f, 30.0f) font: fontFaceWithSize color: Float32x4 green) upCastFor: Node2D.
 		scene2D := scene2D _ -- frameTimeNode
 	}.
-	scene2D
+
+	(builder transform: windowScaleTransform node: scene2D) upCastFor: Node2D.
 }.
 
 class MainWindowEventHandler superclass: EventHandler; definition: {
@@ -59,7 +61,8 @@ class MainWindowEventHandler superclass: EventHandler; definition: {
     }.
 
     override method onMouseMoveEvent: (event: MouseMoveEvent ref) ::=> Void := {
-        (mainRectangle includesPoint: (currentTransform inverseTransformPoint: (event position castTo: Float32x2))) ifTrue: {
+        (mainRectangle includesPoint: (currentTransform inverseTransformPoint:
+			(windowScaleTransform inverseTransformPoint: (event position castTo: Float32x2)))) ifTrue: {
             mainRectangleColor := mainRectangleHighlightColor.
         } ifFalse: {
             mainRectangleColor := mainRectangleNormalColor.
@@ -68,6 +71,11 @@ class MainWindowEventHandler superclass: EventHandler; definition: {
 
     override method onTickEvent: (event: TickEvent ref) ::=> Void := {
         currentTime := event seconds castTo: Float32.
+		let extent := mainWindow _ extent castTo: Float32x2.
+		windowScaleTransform := AffinePostTransform2dF32()
+			setIdentity;
+			scaleBy: extent y / 480.0f;
+			yourself.
 		currentTransform := AffinePostTransform2dF32()
 			setIdentity;
 			rotateByRadians: currentTime negated;
@@ -93,7 +101,11 @@ Stdn MainEntryPoint: {:args :: Int32 |
     windowSystem _ targetFrameRate: 60.
 
     ## Create the main window.
-    mainWindow := windowSystem _ createWindowWithTitle: "Test Window" asMutableString extent: Int32x2(640, 480).
+    mainWindow := windowSystem _ createWindow: (WindowCreationInfo()
+	 	title: "Sample Native Rendering 2D" asMutableString;
+		extent: Int32x2(640, 480);
+		resizable: true;
+		yourself).
     mainWindow ifNil: {
         return: 0.
     }.
