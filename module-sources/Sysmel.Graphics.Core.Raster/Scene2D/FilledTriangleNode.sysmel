@@ -1,0 +1,27 @@
+namespace Stdn definition: {
+namespace Graphics definition: {
+namespace Scene2D definition: {
+
+class FilledTriangleNode superclass: RectangularShapeNode; definition: {
+    public field p1 type: Float32x2.
+    public field p2 type: Float32x2.
+    public field p3 type: Float32x2.
+    public field c1 type: Float32x4.
+    public field c2 type: Float32x4.
+    public field c3 type: Float32x4.
+
+    method color: (color: Float32x4) ::=> Void := {
+        c1 := c2 := c3 := color.
+    }.
+
+    override method accept: (visitor: Visitor ref) ::=> Void
+        := visitor visitFilledTriangleNode: self
+
+}.
+
+compileTime constant FilledTriangleNodePtr := FilledTriangleNode sharedPointer.
+
+
+} ## End of namespace Scene2D
+} ## End of namespace Graphics
+} ## End of namespace Stdn
