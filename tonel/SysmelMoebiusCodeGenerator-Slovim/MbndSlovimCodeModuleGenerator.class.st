@@ -2614,7 +2614,9 @@ MbndSlovimCodeModuleGenerator >> visitGlobalVariable: globalVariable [
 	ssaGlobalVariable unmangledName: unmangledName.
 	ssaGlobalVariable minimalAlignment: globalVariable minimalAlignment.
 	globalVariable isThreadLocal ifTrue: [
-		ssaGlobalVariable withGeneralDynamicTLSModel
+		self compilationTarget supportsDirectThreadLocalStorage ifTrue: [
+			ssaGlobalVariable withGeneralDynamicTLSModel
+		].
 	].
 
 	self setProgramEntity: globalVariable ssaValue: ssaGlobalVariable.

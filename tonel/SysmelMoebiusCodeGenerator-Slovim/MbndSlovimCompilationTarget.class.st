@@ -440,6 +440,11 @@ MbndSlovimCompilationTarget >> slvmCompilationTargetNamed: theTargetName [
 	^ self slvmCompilationTarget: (SLVMCompilationTarget perform: targetName asSymbol)
 ]
 
+{ #category : #'as yet unclassified' }
+MbndSlovimCompilationTarget >> supportsDirectThreadLocalStorage [
+	^ #(linux windows osx) includes: self operatingSystemName
+]
+
 { #category : #testing }
 MbndSlovimCompilationTarget >> supportsLocalAddressForThisContext [
 	<compileTime>

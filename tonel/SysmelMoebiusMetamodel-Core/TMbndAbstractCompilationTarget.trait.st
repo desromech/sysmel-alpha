@@ -646,6 +646,11 @@ TMbndAbstractCompilationTarget >> standardMathLibraryLinkerArguments [
 	^ #()
 ]
 
+{ #category : #'as yet unclassified' }
+TMbndAbstractCompilationTarget >> supportsDirectThreadLocalStorage [
+	^ false
+]
+
 { #category : #testing }
 TMbndAbstractCompilationTarget >> supportsLocalAddressForThisContext [
 	<compileTime>
