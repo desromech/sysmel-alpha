@@ -1,0 +1,12 @@
+namespace Stdn definition: {
+namespace Sound definition: {
+
+#**
+ * I represent a specific sound device.
+ *#
+class PlaybackDevice superclass: SharedObject; definition: {
+
+}.
+
+} ## End of namespace Sound
+} ## End of namespace Stdn

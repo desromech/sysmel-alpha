@@ -1,0 +1,11 @@
+Compiler
+    importModulesNamed: #(
+        #"Sysmel.Sound.Core"
+    ).
+
+compileTime if: Compiler compilationTarget isDesktopPC then: {
+    Compiler
+        importIndirectModulesNamed: #(
+            #"Sysmel.Sound.Driver.SDL2"
+        )
+}.

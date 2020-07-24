@@ -1,4 +1,7 @@
-Compiler importModuleNamed: #"Sysmel.Graphics.Headfull".
+Compiler importModulesNamed: #(
+	#"Sysmel.Graphics.Headfull"
+	#"Sysmel.Sound.Headfull"
+).
 Compiler importModuleNamed: #"Bindings.SDL2". ## For the sound.
 
 useNamespace: Stdn Graphics Core.

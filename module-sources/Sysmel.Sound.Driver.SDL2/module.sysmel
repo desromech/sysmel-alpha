@@ -1,0 +1,7 @@
+Compiler
+    importModulesNamed: #(
+        #"Bindings.SDL2"
+    );
+    loadPackages: #(
+        #"SoundDriver"
+    ).

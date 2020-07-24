@@ -9,58 +9,106 @@ useNamespace: Stdn Math LinearAlgebra.
 compileTime constant Node2D := Stdn Graphics Scene2D Node.
 compileTime constant Node2DPtr := Stdn Graphics Scene2D NodePtr.
 
-let mainWindow mutable type: Window sharedPointer.
-let mainWindowRenderer mutable type: WindowScene2DRendererPtr.
-let fontFaceWithSize mutable type: FontFaceWithSize sharedPointer.
+class Sample definition: {
+	public field mainWindow type: Window sharedPointer.
+	public field mainWindowRenderer type: WindowScene2DRendererPtr.
+	public field fontFaceWithSize type: FontFaceWithSize sharedPointer.
 
-let mainRectangle mutable := RectangleF32 min: Float32x2(-25.0f, 5.0f) extent: Float32x2(200.0f, 100.0f).
-let mainRectangleNormalColor := Float32x4(0.8f, 0.2f, 0.2f, 1.0f).
-let mainRectangleHighlightColor := Float32x4(0.2f, 0.8f, 0.8f, 1.0f).
-let mainRectangleColor mutable := mainRectangleNormalColor.
-let currentTime mutable type: Float32.
-let lastFrameRenderingTime mutable type: Float32.
+	public field mainRectangle type: RectangleF32.
+	public field mainRectangleNormalColor type: Float32x4.
+	public field mainRectangleHighlightColor type: Float32x4.
+	public field mainRectangleColor type: Float32x4.
+	public field currentTime type: Float32.
+	public field lastFrameRenderingTime type: Float32.
 
-let windowScaleTransform mutable type: AffinePostTransform2dF32.
-let currentTransform mutable type: AffinePostTransform2dF32.
+	public field windowScaleTransform type: AffinePostTransform2dF32.
+	public field currentTransform type: AffinePostTransform2dF32.
 
-function buildRenderScene2D(builder: Stdn Graphics Scene2D Builder ref) => Node2DPtr := {
-	let scene2D mutable :=
-		(builder fillRectangle: mainRectangle color: mainRectangleColor) _ --
-		((builder borderRectangle: mainRectangle color: Float32x4 black) upCastFor: Node2D).
-	scene2D := scene2D _ --
-		((builder fillTriangle: Float32x2(40.0f, 300.0f) color: Float32x4(1.0f, 0.0f, 0.0f, 1.0)
-			p2: Float32x2(440.0f, 300.0f) color: Float32x4(0.0f, 1.0f, 0.0f, 1.0)
-			p3: Float32x2(240.0f, 50.0f) color: Float32x4(0.0f, 0.0f, 1.0f, 1.0)) upCastFor: Node2D).
-	scene2D := scene2D _ --
-		((builder text: "Hello World" at: Float32x2(80.0f, 128.0f) font: fontFaceWithSize color: Float32x4(0.0f, (currentTime *5.0f) cos*0.5f + 0.5f, 1.0f, 1.0f)) upCastFor: Node2D).
-
-	scene2D := (builder transform: currentTransform node: scene2D) upCastFor: Node2D.
-
-	{
-		let frameTime := lastFrameRenderingTime * 1000.0f.
-		let frameTimeString := Stdn String textStreamContents: {:out :: Void |
-			out << "Current time " << currentTime; nl.
-			out << "Rendering time " << frameTime << " ms"
-		}.
-
-		let frameTimeNode := (builder text: frameTimeString asArraySlice at: Float32x2(15.0f, 30.0f) font: fontFaceWithSize color: Float32x4 green) upCastFor: Node2D.
-		scene2D := scene2D _ -- frameTimeNode
+	method initialize => Void := {
+		mainRectangle := RectangleF32 min: Float32x2(-25.0f, 5.0f) extent: Float32x2(200.0f, 100.0f).
+		mainRectangleNormalColor := Float32x4(0.8f, 0.2f, 0.2f, 1.0f).
+		mainRectangleHighlightColor := Float32x4(0.2f, 0.8f, 0.8f, 1.0f).
+		mainRectangleColor := mainRectangleNormalColor.
 	}.
 
-	(builder transform: windowScaleTransform node: scene2D) upCastFor: Node2D.
-}.
+	method buildRenderScene2D: (builder: Stdn Graphics Scene2D Builder ref) ::=> Node2DPtr := {
+		let scene2D mutable :=
+			(builder fillRectangle: mainRectangle color: mainRectangleColor) _ --
+			((builder borderRectangle: mainRectangle color: Float32x4 black) upCastFor: Node2D).
+		scene2D := scene2D _ --
+			((builder fillTriangle: Float32x2(40.0f, 300.0f) color: Float32x4(1.0f, 0.0f, 0.0f, 1.0)
+				p2: Float32x2(440.0f, 300.0f) color: Float32x4(0.0f, 1.0f, 0.0f, 1.0)
+				p3: Float32x2(240.0f, 50.0f) color: Float32x4(0.0f, 0.0f, 1.0f, 1.0)) upCastFor: Node2D).
+		scene2D := scene2D _ --
+			((builder text: "Hello World" at: Float32x2(80.0f, 128.0f) font: fontFaceWithSize color: Float32x4(0.0f, (currentTime *5.0f) cos*0.5f + 0.5f, 1.0f, 1.0f)) upCastFor: Node2D).
 
-class MainWindowEventHandler superclass: EventHandler; definition: {
-    method render ::=> Void := {
+		scene2D := (builder transform: currentTransform node: scene2D) upCastFor: Node2D.
+
+		{
+			let frameTime := lastFrameRenderingTime * 1000.0f.
+			let frameTimeString := Stdn String textStreamContents: {:out :: Void |
+				out << "Current time " << currentTime; nl.
+				out << "Rendering time " << frameTime << " ms"
+			}.
+
+			let frameTimeNode := (builder text: frameTimeString asArraySlice at: Float32x2(15.0f, 30.0f) font: fontFaceWithSize color: Float32x4 green) upCastFor: Node2D.
+			scene2D := scene2D _ -- frameTimeNode
+		}.
+
+		(builder transform: windowScaleTransform node: scene2D) upCastFor: Node2D.
+	}.
+
+	method main => Int32 := {
+		let windowSystem mutable := createDefaultWindowSystem().
+	    windowSystem ifNil: {
+	        return: 0
+	    }.
+	    windowSystem _ targetFrameRate: 60.
+
+	    ## Create the main window.
+	    mainWindow := windowSystem _ createWindow: (WindowCreationInfo()
+		 	title: "Sample Native Rendering 2D" asMutableString;
+			extent: Int32x2(640, 480);
+			resizable: true;
+			yourself).
+	    mainWindow ifNil: {
+	        return: 0.
+	    }.
+
+	    ## Create the main window renderer.
+		mainWindowRenderer := mainWindow _ createScene2DRenderer.
+		mainWindowRenderer ifNil: {
+			return: 0.
+		}.
+
+	    ## Use the default font face.
+	    let fontFace mutable := FontRegistry default defaultSans _ normalFace.
+		fontFace ifNotNil: {
+			fontFaceWithSize := fontFace _ getOrCreateFaceWithSize: 24.
+		}.
+
+	    ## Create the event handler.
+	    {
+	        let eventHandler := MainWindowEventHandler sharedNew.
+			eventHandler _ sample: self address.
+	        mainWindow _ eventHandler: (eventHandler upCastFor: EventHandler)
+	    }.
+
+	    ## Run the actual main loop.
+	    return: windowSystem _ runMainLoop.
+
+	}.
+
+	method render ::=> Void := {
 		lastFrameRenderingTime := (Stdn Chrono profileTimeToRun: {
 		mainWindowRenderer _
 			clearColor: Float32x4(0.4f, 0.4f, 0.4f, 1.0f);
-			renderScene: buildRenderScene2D(mainWindowRenderer _ newSceneBuilder _);
+			renderScene: (self buildRenderScene2D: (mainWindowRenderer _ newSceneBuilder _));
 			present
 		}) castTo: Float32.
     }.
 
-    override method onMouseMoveEvent: (event: MouseMoveEvent ref) ::=> Void := {
+    method onMouseMoveEvent: (event: MouseMoveEvent ref) ::=> Void := {
         (mainRectangle includesPoint: (currentTransform inverseTransformPoint:
 			(windowScaleTransform inverseTransformPoint: (event position castTo: Float32x2)))) ifTrue: {
             mainRectangleColor := mainRectangleHighlightColor.
@@ -69,7 +117,7 @@ class MainWindowEventHandler superclass: EventHandler; definition: {
         }
     }.
 
-    override method onTickEvent: (event: TickEvent ref) ::=> Void := {
+    method onTickEvent: (event: TickEvent ref) ::=> Void := {
         currentTime := event seconds castTo: Float32.
 		let extent := mainWindow _ extent castTo: Float32x2.
 		windowScaleTransform := AffinePostTransform2dF32()
@@ -84,50 +132,36 @@ class MainWindowEventHandler superclass: EventHandler; definition: {
         self render
     }.
 
-    override method onExposeEvent: (event: ExposeEvent ref) ::=> Void := {
+    method onExposeEvent: (event: ExposeEvent ref) ::=> Void := {
         self render
     }.
 
-    override method onWindowCloseRequestEvent: (event: WindowCloseRequestEvent ref) ::=> Void := {
+    method onWindowCloseRequestEvent: (event: WindowCloseRequestEvent ref) ::=> Void := {
         mainWindow _ close
+    }.
+
+}.
+
+class MainWindowEventHandler superclass: EventHandler; definition: {
+	public field sample type: Sample pointer.
+
+    override method onMouseMoveEvent: (event: MouseMoveEvent ref) ::=> Void := {
+        sample _ onMouseMoveEvent: event
+    }.
+
+    override method onTickEvent: (event: TickEvent ref) ::=> Void := {
+		sample _ onTickEvent: event
+    }.
+
+    override method onExposeEvent: (event: ExposeEvent ref) ::=> Void := {
+		sample _ onExposeEvent: event
+    }.
+
+    override method onWindowCloseRequestEvent: (event: WindowCloseRequestEvent ref) ::=> Void := {
+		sample _ onWindowCloseRequestEvent: event
     }.
 }.
 
 Stdn MainEntryPoint: {:args :: Int32 |
-    let windowSystem mutable := createDefaultWindowSystem().
-    windowSystem ifNil: {
-        return: 0
-    }.
-    windowSystem _ targetFrameRate: 60.
-
-    ## Create the main window.
-    mainWindow := windowSystem _ createWindow: (WindowCreationInfo()
-	 	title: "Sample Native Rendering 2D" asMutableString;
-		extent: Int32x2(640, 480);
-		resizable: true;
-		yourself).
-    mainWindow ifNil: {
-        return: 0.
-    }.
-
-    ## Create the main window renderer.
-	mainWindowRenderer := mainWindow _ createScene2DRenderer.
-	mainWindowRenderer ifNil: {
-		return: 0.
-	}.
-
-    ## Use the default font face.
-    let fontFace mutable := FontRegistry default defaultSans _ normalFace.
-	fontFace ifNotNil: {
-		fontFaceWithSize := fontFace _ getOrCreateFaceWithSize: 24.
-	}.
-
-    ## Create the event handler.
-    {
-        let eventHandler := MainWindowEventHandler sharedNew.
-        mainWindow _ eventHandler: (eventHandler upCastFor: EventHandler)
-    }.
-
-    ## Run the actual main loop.
-    return: windowSystem _ runMainLoop.
+	Sample() main
 }.
