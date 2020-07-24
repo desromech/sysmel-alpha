@@ -37,7 +37,7 @@ struct MeshBuilder definition: {
 
     inline method popClippingSubmesh => Void := {
         currentClipSubmesh >= 0 ifTrue: {
-            currentClipSubmesh := submeshes[currentClipSubmesh] clipSubmesh
+            currentClipSubmesh := submeshes[currentClipSubmesh castTo: UIntPointer] clipSubmesh
         }
     }.
 

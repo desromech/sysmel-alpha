@@ -118,7 +118,9 @@ Stdn MainEntryPoint: {:args :: Int32 |
 
     ## Use the default font face.
     let fontFace mutable := FontRegistry default defaultSans _ normalFace.
-    fontFaceWithSize := fontFace _ getOrCreateFaceWithSize: 24.
+	fontFace ifNotNil: {
+		fontFaceWithSize := fontFace _ getOrCreateFaceWithSize: 24.
+	}.
 
     ## Create the event handler.
     {

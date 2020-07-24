@@ -1,0 +1,189 @@
+namespace Stdn definition: {
+namespace Math definition: {
+
+compileTime constant Epsilon := 1.0e-12.
+
+inline function floorMod(x: Float64, y: Float64) => Float64
+    := x - ((x/y) floor * x).
+
+inline function doCosineQuarterCycle(x: Float64) => Float64 := {
+    ## Taylor series expansion code from Pharo.
+    let i mutable type: Float64 := 1.0.
+    let x2 := x*x negated.
+    let delta mutable type: Float64 := 1.0.
+    let sum mutable type: Float64 := 1.0.
+    until: delta <= Epsilon do: {
+        delta := (delta*x2)/(i*(i + 1)).
+        i := i + 2.
+        sum := sum + delta.
+
+        delta := (delta*x2)/(i*(i + 1)).
+        i := i + 2.
+        sum := sum + delta.
+    }.
+
+    sum
+}.
+
+inline function cos externC(value: Float64) => Float64 := {
+    ## Taylor series expansion code from Pharo.
+    let x mutable := value.
+    x < 0 ifTrue: {x := x negated}.
+    x > Float64 twoPi ifTrue: {x := floorMod(x, Float64 twoPi)}.
+    ##x > Float64 pit ifTrue: {return: doCosineQuarterCycle(x)}.
+
+    doCosineQuarterCycle(x)
+}.
+
+inline function doSineQuarterCycle(x: Float64) => Float64 := {
+    let i mutable type: Float64 := 1.0.
+    let x2 := x*x negated.
+    let delta mutable type: Float64 := x.
+    let sum mutable type: Float64 := x.
+    until: delta <= Epsilon do: {
+        delta := (delta*x2)/(i*(i + 1)).
+        i := i + 2.
+        sum := sum + delta.
+
+        delta := (delta*x2)/(i*(i + 1)).
+        i := i + 2.
+        sum := sum + delta.
+    }.
+
+    sum
+}.
+
+inline function positiveSine(value: Float64) => Float64 := {
+    let x mutable := value.
+    x > Float64 twoPi ifTrue: {x := floorMod(x, Float64 twoPi)}.
+
+    doSineQuarterCycle(x)
+}.
+
+inline function sin externC(value: Float64) => Float64 := {
+    value < 0
+        ifTrue: { positiveSine(value negated) negated }
+        ifFalse: { positiveSine(value) }
+}.
+
+inline function tan externC(value: Float64) => Float64
+    := sin(value) / cos(value).
+
+inline function positiveAtan(value: Float64) => Float64 := {
+    ## Newton raphson based method ported from Pharo.
+    let theta mutable := (value * Float64 halfPi) / (value + 1).
+
+    let eps := Float64 halfPi * Epsilon.
+    let step mutable := theta.
+    while: step*step > eps do: {
+        let sinTheta := theta sin.
+        let cosTheta := theta cos.
+        step := sinTheta*cosTheta - value*cosTheta*cosTheta.
+        theta := theta - step
+    }.
+
+    theta
+}.
+
+inline function atan externC(value: Float64) => Float64 := {
+    value < 0
+        ifTrue: {positiveAtan(value negated) negated}
+        ifFalse: {positiveAtan(value)}
+}.
+
+inline function atan2 externC(y: Float64, x: Float64) => Float64 := {
+    let ysignBit := (y reinterpretCastTo: UInt64) >> 63.
+    let xsignBit := (x reinterpretCastTo: UInt64) >> 63.
+    ## Math function ported from
+    y = 0.0 ifTrue: {
+        xsignBit = 0 ifTrue: {0} ifFalse: {
+            ysignBit = 0
+                ifTrue: {Float64 pi}
+                ifFalse: {Float64 pi negated}
+        }
+    } ifFalse: {
+        x = 0.0 ifTrue: {
+            y > 0.0
+                ifTrue: {Float64 halfPi}
+                ifFalse: {Float64 halfPi negated}
+        } ifFalse: {
+            x > 0 ifTrue: {
+                atan(y/x)
+            } ifFalse: {
+                y > 0
+                    ifTrue: {atan(y/x) + Float64 pi}
+                    ifFalse:{atan(y/x) - Float64 pi}
+            }
+        }
+    }
+}.
+
+function raiseToIntegerPower(x: Float64, i: UInt32) => Float64 := {
+    i = 0 ifTrue: {return: 1}.
+    x = 1 ifTrue: {return: 1}.
+    x = 0 ifTrue: {return: 0}.
+
+    let result mutable := x.
+    let ci mutable := i.
+    while: ci > 0 && result ~= Float64 infinity do: {
+        (ci anyMask: 1) ifTrue: {
+            result := result * x.
+            ci := ci - 1
+        } ifFalse: {
+            result := result * result.
+            ci := ci >> 1
+        }.
+    }.
+
+    result
+}.
+
+function positiveExp(value: Float64) => Float64 := {
+    value >= 710 ifTrue: {return: Float64 infinity}.
+
+    ## Taylor series based implementation ported from Pharo.
+    let integerPart := value floor.
+    let fract := value - integerPart.
+    let base := raiseToIntegerPower(Float64 e, integerPart castTo: UInt32).
+    fract = 0 || base == Float64 infinity ifTrue: {return: base}.
+
+	let correction mutable := 1.0 + fract.
+	let delta mutable := fract * fract / 2.0.
+	let div mutable := 2.0.
+	while: delta > Epsilon do: {
+		correction := correction + delta.
+		div := div + 1.0.
+		delta := delta * fract / div
+    }.
+	correction := correction + delta.
+
+    base * correction
+}.
+
+inline function exp externC(value: Float64) => Float64 := {
+    value < 0 ifTrue: {return: positiveExp(value)}.
+    value = 0 ifTrue: {return: 1.0}.
+    positiveExp(value)
+}.
+
+inline function cosf externC(value: Float32) => Float32
+    := cos(value) castTo: Float32.
+
+inline function sinf externC(value: Float32) => Float32
+    := sin(value) castTo: Float32.
+
+inline function tanf externC(value: Float32) => Float32
+    := tan(value) castTo: Float32.
+
+inline function atanf externC(angle: Float32) => Float32
+    := atanf(angle) castTo: Float32.
+
+inline function atan2f externC(y: Float32, x: Float32) => Float32
+    := atan2(y, x) castTo: Float32.
+
+inline function expf externC(value: Float32) => Float32
+    := exp(value) castTo: Float32.
+
+
+}.
+}.

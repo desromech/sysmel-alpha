@@ -117,6 +117,7 @@ class Builder definition: {
             yourself) node: node.
 
     method text: (encodedString: Char8 const arraySlice) in: (rectangle: RectangleF32) font: (font: FontFaceWithSizePtr const ref) color: (color: Float32x4) ::=> TextNodePtr := {
+        font ifNil: {return: TextNodePtr nil}.
         let baseline := Float32x2(0.0f, font _ ascender).
         self text: encodedString in: rectangle font: font color: color drawingState: (TextDrawingState position: rectangle min + baseline)
     }.

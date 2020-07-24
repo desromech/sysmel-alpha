@@ -167,7 +167,7 @@ class TextureAtlasFontFaceWithSize superclass: RenderingDeviceFontFaceWithSize; 
 
         texture ifNotNil: {
             texture _ uploadTextureLevel: 0 layer: 0
-                pitch: fontFaceForm _ pitch slicePitch: fontFaceForm _ pitch * fontFaceForm _ extent y
+                pitch: (fontFaceForm _ pitch castTo: Int32) slicePitch: (fontFaceForm _ pitch * fontFaceForm _ extent y castTo: Int32)
                 data: fontFaceForm _ pixels getPointer
         }.
 
