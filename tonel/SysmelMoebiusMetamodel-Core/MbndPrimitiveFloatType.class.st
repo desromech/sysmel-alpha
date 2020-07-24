@@ -141,6 +141,11 @@ MbndPrimitiveFloatType >> addInstanceMacros [
 				position: node) to: node receiver)
 				position: node
 		];
+		onMacroSelector: #e do: [ :node :builder |
+			(builder explicitCast: ((builder literalFloat: 2.718281828459045)
+				position: node) to: node receiver)
+				position: node
+		];
 		onMacroSelector: #piReciprocal do: [ :node :builder |
 			(builder explicitCast: ((builder literalFloat: 0.3183098861837907)
 				position: node) to: node receiver)
