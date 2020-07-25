@@ -11,6 +11,7 @@ if: Compiler compilationTarget isGPU not then: {
 	loadFileOnce: "BasicValuePrinter.sysmel".
 	loadFileOnce: "StandaloneIntegerPrinter.sysmel".
 	loadFileOnce: "IntegerParser.sysmel".
+	loadFileOnce: "FloatMethods.sysmel".
 
 	## Our standalone float printer is not yet completely implemented, so for
 	## now just use the snprintf based implementation.

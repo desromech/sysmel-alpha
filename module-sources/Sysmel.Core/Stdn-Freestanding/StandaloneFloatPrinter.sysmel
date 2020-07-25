@@ -10,8 +10,7 @@ class BasicValueFloatPrinter superclass: BasicValueIntegerPrinter; definition: {
     }.
 
     method nextPutDouble: (double: Float64) ::=> Void := {
-        let doubleMemory mutable := double.
-        let ieee754Double := (doubleMemory address reinterpretCastTo: UInt64 pointer) value.
+        let ieee754Double := double reinterpretCastTo: UInt64.
 
         let negative := (ieee754Double >> 63) ~= 0.
         let exponent := (ieee754Double >> 52) & ((1<<11) - 1).

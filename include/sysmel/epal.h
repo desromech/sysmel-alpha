@@ -18,8 +18,28 @@ typedef struct SysmelArgList_s
 } SysmelArgList;
 
 /* Sysmel IO interface. */
-SYSMEL_EPAL_EXPORT intptr_t sysmel_epal_write(int fd, const void *buffer, size_t count);
+
+#define SYSMEL_EPAL_O_RDONLY 0x00000000
+#define SYSMEL_EPAL_O_WRONLY 0x00000001
+#define SYSMEL_EPAL_O_RDWR 0x00000002
+#define SYSMEL_EPAL_O_CREAT 0x00000040
+#define SYSMEL_EPAL_O_TRUNC 0x00000200
+#define SYSMEL_EPAL_O_APPEND 0x00000400
+
+#define SYSMEL_EPAL_SEEK_SET 0
+#define SYSMEL_EPAL_SEEK_CUR 1
+#define SYSMEL_EPAL_SEEK_END 2
+
+#define SYSMEL_EPAL_STDIN_FILENO 0
+#define SYSMEL_EPAL_STDOUT_FILENO 1
+#define SYSMEL_EPAL_STDERR_FILENO 2
+
+SYSMEL_EPAL_EXPORT int sysmel_epal_close(int fd);
+SYSMEL_EPAL_EXPORT int64_t sysmel_epal_lseek64(int fd, int64_t offset, int whence);
 SYSMEL_EPAL_EXPORT int sysmel_epal_isatty(int fd);
+SYSMEL_EPAL_EXPORT int sysmel_epal_open(const char *path, int flags, int creationPermissions);
+SYSMEL_EPAL_EXPORT intptr_t sysmel_epal_read(int fd, void *buffer, size_t count);
+SYSMEL_EPAL_EXPORT intptr_t sysmel_epal_write(int fd, const void *buffer, size_t count);
 
 /* Sysmel native virtual memory interface. */
 SYSMEL_EPAL_EXPORT void* sysmel_epal_reserveAndCommitAddressSpaceWithAlignment(size_t size, size_t alignment);

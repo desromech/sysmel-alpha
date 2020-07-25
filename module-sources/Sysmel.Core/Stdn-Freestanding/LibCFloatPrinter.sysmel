@@ -1,22 +1,8 @@
 namespace Stdn definition: {
 
 class BasicValueFloatPrinter superclass: BasicValueIntegerPrinter; definition: {
-    method nextPutDouble: (double: Float64) ::=> Void := {
-        double ~= double ifTrue: {
-            self nextPutAll: "nan".
-            return: void
-        }.
-        double == Float64 infinity ifTrue: {
-            self nextPutAll: "inf".
-            return: void
-        }.
-        double == Float64 negativeInfinity ifTrue: {
-            self nextPutAll: "-inf".
-            return: void
-        }.
 
-        bufferSize := LibC snprintf(buffer[0] address, bufferCapacity, "%g", double) castTo: UIntPointer.
-
+    method sanitizeResult => Void := {
         ## Make sure a point or an exponent is present in the output.
         0 until: bufferSize do: {:(UIntPointer)i :: Void |.
             let c := buffer[i].
@@ -28,8 +14,72 @@ class BasicValueFloatPrinter superclass: BasicValueIntegerPrinter; definition: {
         self nextPut: '.'; nextPut: '0'
     }.
 
+    method nextPutDouble: (double: Float64) ::=> Void := {
+        let negative := double hasNegativeSign.
+        let exponent := double exponent.
+        let rawMantissa := double mantissa.
+
+        exponent == 0 && rawMantissa == 0 ifTrue: {
+            negative ifTrue: {
+                self nextPutAll: "-0.0".
+            } ifFalse: {
+                self nextPutAll: "0.0".
+            }.
+
+            return: void
+        }.
+
+        exponent == 16r7FF ifTrue: {
+            rawMantissa == 0 ifTrue: {
+                negative ifTrue: {
+                    self nextPutAll: "-inf".
+                } ifFalse: {
+                    self nextPutAll: "inf".
+                }.
+
+            } ifFalse: {
+                self nextPutAll: "nan"
+            }.
+
+            return: void
+        }.
+
+        bufferSize := LibC snprintf(buffer[0] address, bufferCapacity, "%g", double) castTo: UIntPointer.
+        self sanitizeResult.
+    }.
+
     method nextPutSingleFloat: (float: Float32) ::=> Void := {
-        self nextPutDouble: float
+        let negative := float hasNegativeSign.
+        let exponent := float exponent.
+        let rawMantissa := float mantissa.
+
+        exponent == 0 && rawMantissa == 0 ifTrue: {
+            negative ifTrue: {
+                self nextPutAll: "-0.0".
+            } ifFalse: {
+                self nextPutAll: "0.0".
+            }.
+
+            return: void
+        }.
+
+        exponent == 16rFF ifTrue: {
+            rawMantissa == 0 ifTrue: {
+                negative ifTrue: {
+                    self nextPutAll: "-inf".
+                } ifFalse: {
+                    self nextPutAll: "inf".
+                }.
+
+            } ifFalse: {
+                self nextPutAll: "nan"
+            }.
+
+            return: void
+        }.
+
+        bufferSize := LibC snprintf(buffer[0] address, bufferCapacity, "%g", float) castTo: UIntPointer.
+        self sanitizeResult.
     }.
 }.
 

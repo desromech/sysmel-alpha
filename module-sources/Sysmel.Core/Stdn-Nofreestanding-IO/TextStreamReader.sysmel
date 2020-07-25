@@ -76,11 +76,19 @@ class TextStreamReader definition: {
         Stdn parseUInt64(tokenBuffer[0] address, tokenSize)
     }.
 
+    method nextFloat32 => Float32 := {
+        let tokenBuffer mutable type: (Char8 array: AtomicTokenBufferCapacity).
+        let tokenSize := self nextTokenInto: tokenBuffer[0] address maxCapacity: AtomicTokenBufferCapacity.
+
+         ## Parse the null terminator as part of the string, so that we can just use libc for this.
+        Stdn parseFloat32(tokenBuffer[0] address, tokenSize + 1)
+    }.
+
     method nextFloat64 => Float64 := {
         let tokenBuffer mutable type: (Char8 array: AtomicTokenBufferCapacity).
         let tokenSize := self nextTokenInto: tokenBuffer[0] address maxCapacity: AtomicTokenBufferCapacity.
 
-         ## Parse the null terminator as part of the string, so that we can just use libc for this. 
+         ## Parse the null terminator as part of the string, so that we can just use libc for this.
         Stdn parseFloat64(tokenBuffer[0] address, tokenSize + 1)
     }.
 

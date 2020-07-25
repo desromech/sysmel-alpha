@@ -1,0 +1,43 @@
+namespace Stdn definition: {
+
+Float32 extend: {
+    macro method asIEEE754Float
+        := ``(`,self reinterpretCastTo: UInt32).
+
+    macro method signBit := ``(`,self asIEEE754Float >> 31).
+    macro method exponent := ``((`,self asIEEE754Float >> 23) & 16rFF).
+    macro method mantissa := ``(`,self asIEEE754Float & ((1<<23) - 1)).
+
+    macro method isPositiveInfinity := ``(`,self = Float32 infinity).
+    macro method isNegativeInfinity := ``(`,self = Float32 negativeInfinity).
+
+    inline method isInfinity => Boolean8
+        := self exponent = 16rFF && self mantissa = 0.
+
+    inline method isNaN => Boolean8
+        := self exponent = 16rFF && self mantissa ~= 0.
+}.
+
+Float64 extend: {
+    macro method asIEEE754Double
+        := ``(`,self reinterpretCastTo: UInt64).
+
+    macro method signBit := ``(`,self asIEEE754Double >> 63).
+    macro method exponent := ``((`,self asIEEE754Double >> 52) & 16r7FF).
+    macro method mantissa := ``(`,self asIEEE754Double & ((1<<52) - 1)).
+
+    macro method isPositiveInfinity := ``(`,self = Float32 infinity).
+    macro method isNegativeInfinity := ``(`,self = Float32 negativeInfinity).
+
+    inline method isInfinity => Boolean8
+        := self exponent = 16r7FF && self mantissa = 0.
+
+    inline method isNaN => Boolean8
+        := self exponent = 16r7FF && self mantissa ~= 0.
+}.
+
+Float32 | Float64 extend: {
+    macro method hasNegativeSign := ``(`,self signBit ~= 0).
+}.
+
+}.

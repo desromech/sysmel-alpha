@@ -11,7 +11,27 @@ class TextStreamReaderTestCase superclass: Stdn Testing TestCase; definition: {
         self assert: "-0xab" asMutableString textStreamReader nextInt64 equals: 16rab negated.
     }.
 
-    test: testFloat with: {
+    test: testFloat32 with: {
+        self assert: "0" asMutableString textStreamReader nextFloat32 equals: 0.
+        self assert: "42" asMutableString textStreamReader nextFloat32 equals: 42.
+        self assert: "-42" asMutableString textStreamReader nextFloat32 equals: -42.
+        self assert: "0xab" asMutableString textStreamReader nextFloat32 equals: 16rab.
+        self assert: "-0xab" asMutableString textStreamReader nextFloat32 equals: 16rab negated.
+
+        self assert: "0.5" asMutableString textStreamReader nextFloat32 equals: 0.5.
+        self assert: "42.5" asMutableString textStreamReader nextFloat32 equals: 42.5.
+        self assert: "-4.5" asMutableString textStreamReader nextFloat32 equals: -4.5.
+
+        self assert: "inf" asMutableString textStreamReader nextFloat32 isPositiveInfinity.
+        self assert: "-inf" asMutableString textStreamReader nextFloat32 isNegativeInfinity.
+
+        ## In some embedded platforms, signaling nans are catastrophic.
+        compileTime if: Compiler compilationTarget isDesktopPC then: {
+            self assert: "nan" asMutableString textStreamReader nextFloat32 isNaN.
+        }.
+    }.
+
+    test: testFloat64 with: {
         self assert: "0" asMutableString textStreamReader nextFloat64 equals: 0.
         self assert: "42" asMutableString textStreamReader nextFloat64 equals: 42.
         self assert: "-42" asMutableString textStreamReader nextFloat64 equals: -42.
@@ -22,11 +42,10 @@ class TextStreamReaderTestCase superclass: Stdn Testing TestCase; definition: {
         self assert: "42.5" asMutableString textStreamReader nextFloat64 equals: 42.5.
         self assert: "-4.5" asMutableString textStreamReader nextFloat64 equals: -4.5.
 
-        self assert: "inf" asMutableString textStreamReader nextFloat64 equals: Float64 infinity.
-        self assert: "-inf" asMutableString textStreamReader nextFloat64 equals: Float64 negativeInfinity.
+        self assert: "inf" asMutableString textStreamReader nextFloat64 isPositiveInfinity.
+        self assert: "-inf" asMutableString textStreamReader nextFloat64 isNegativeInfinity.
 
-        let nanParseResult := "nan" asMutableString textStreamReader nextFloat64.
-        self assert: nanParseResult notEquals: nanParseResult.
+        self assert: "nan" asMutableString textStreamReader nextFloat64 isNaN.
     }.
 }.
 

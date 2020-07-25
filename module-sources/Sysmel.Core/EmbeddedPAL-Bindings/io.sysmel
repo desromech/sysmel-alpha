@@ -1,11 +1,28 @@
 namespace EmbeddedPAL definition: {
 
+## fcntl.h
+compileTime constant O_RDONLY := 16r00000000.
+compileTime constant O_WRONLY := 16r00000001.
+compileTime constant O_RDWR := 16r00000002.
+compileTime constant O_CREAT := 16r00000040.
+compileTime constant O_TRUNC := 16r00000200.
+compileTime constant O_APPEND := 16r00000400.
+
+## stdio.
+compileTime constant SEEK_SET := 0.
+compileTime constant SEEK_CUR := 1.
+compileTime constant SEEK_END := 2.
+
 compileTime constant STDIN_FILENO := 0.
 compileTime constant STDOUT_FILENO := 1.
 compileTime constant STDERR_FILENO := 2.
 
-function sysmel_epal_write externC(fd: Int32, buffer: Void const pointer, count: UIntPointer) => IntPointer.
+function sysmel_epal_close externC (fd: Int32) => Int32.
+function sysmel_epal_lseek64 externC(fd: Int32, offset: Int64, whence: Int32) => Int64.
 function sysmel_epal_isatty externC(fd: Int32) => Int32.
+function sysmel_epal_open externC(path: Char8 const pointer, flags: Int32, creationPermission: UInt32) => Int32.
+function sysmel_epal_read externC(fd: Int32, buffer: Void pointer, count: UIntPointer) => IntPointer.
+function sysmel_epal_write externC(fd: Int32, buffer: Void const pointer, count: UIntPointer) => IntPointer.
 
 compileTime constant write := sysmel_epal_write.
 compileTime constant isatty := sysmel_epal_isatty.
