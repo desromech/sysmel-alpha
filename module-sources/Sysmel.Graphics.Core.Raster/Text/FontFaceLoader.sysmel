@@ -33,6 +33,7 @@ template FontFaceLoaderFactory(FT: Type)
 class FontFaceLoaderRegistry definition: {
     private field loadersMutex type: Stdn Mutex.
     private field loaders type: Stdn Collections Vector(FontFaceLoader pointer).
+    public field fallbackFontFace type: FontFace sharedPointer.
 
     meta definition: {
         let uniqueInstance mutable type: FontFaceLoaderRegistry uniquePointer.
@@ -70,6 +71,21 @@ class FontFaceLoaderRegistry definition: {
         }.
 
         FontFace sharedPointer nil
+    }.
+
+    method loadRequiredFontFaceFromFileNamed: (faceFileName: Stdn String const ref) ::=> FontFace sharedPointer := {
+        let result := self loadFontFaceFromFileNamed: faceFileName.
+        result ifNotNil: {return: result}.
+
+        self validFallbackFontFace
+    }.
+
+    method validFallbackFontFace => FontFace sharedPointer := {
+        fallbackFontFace ifNil: {
+            fallbackFontFace := NullFontFace sharedNew upCastFor: FontFace.
+        }.
+
+        fallbackFontFace
     }.
 }.
 

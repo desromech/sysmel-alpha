@@ -3,10 +3,23 @@ namespace Math definition: {
 
 compileTime constant Epsilon := 1.0e-12.
 
-inline function floorMod(x: Float64, y: Float64) => Float64
-    := x - ((x/y) floor * x).
+inline function trunc externC(x: Float64) => Float64
+    := (x castTo: UInt64).
 
-inline function doCosineQuarterCycle(x: Float64) => Float64 := {
+inline function floor externC(x: Float64) => Float64 := {
+    let f := trunc(x).
+    f = x || x >= 0 ifTrue: x ifFalse: x - 1
+}.
+
+inline function ceil externC(x: Float64) => Float64 := {
+    let f := trunc(x).
+    f = x || x <= 0 ifTrue: x ifFalse: x + 1
+}.
+
+inline function fmod externC(x: Float64, y: Float64) => Float64
+    := x - (trunc(x/y) * y).
+
+inline function computeCosineQuarterCycle(x: Float64) => Float64 := {
     ## Taylor series expansion code from Pharo.
     let i mutable type: Float64 := 1.0.
     let x2 := x*x negated.
@@ -25,18 +38,26 @@ inline function doCosineQuarterCycle(x: Float64) => Float64 := {
     sum
 }.
 
-inline function cos externC(value: Float64) => Float64 := {
-    ## Taylor series expansion code from Pharo.
-    let x mutable := value.
-    x < 0 ifTrue: {x := x negated}.
-    x > Float64 twoPi ifTrue: {x := floorMod(x, Float64 twoPi)}.
-    ##x > Float64 pit ifTrue: {return: doCosineQuarterCycle(x)}.
-
-    doCosineQuarterCycle(x)
+inline function computeCosineHalfCycle(x: Float64) => Float64 := {
+    x > Float64 halfPi
+        ifTrue: {computeCosineQuarterCycle(Float64 pi - x) negated}
+        ifFalse: {computeCosineQuarterCycle(x)}
 }.
 
-inline function doSineQuarterCycle(x: Float64) => Float64 := {
-    let i mutable type: Float64 := 1.0.
+inline function positiveCos externC(value: Float64) => Float64 := {
+    let x mutable := value.
+    x < 0 ifTrue: {x := x negated}.
+    x >= Float64 twoPi ifTrue: {x := fmod(x, Float64 twoPi)}.
+    x > Float64 pi
+        ifTrue: {computeCosineHalfCycle(x - Float64 pi) negated}
+        ifFalse: {computeCosineHalfCycle(x)}.
+}.
+
+inline function cos externC(value: Float64) => Float64
+    := sin(value + Float64 halfPi).##positiveCos(value < 0 ifTrue: value negated ifFalse: value).
+
+inline function computeSineQuarterCycle(x: Float64) => Float64 := {
+    let i mutable type: Float64 := 2.0.
     let x2 := x*x negated.
     let delta mutable type: Float64 := x.
     let sum mutable type: Float64 := x.
@@ -53,11 +74,22 @@ inline function doSineQuarterCycle(x: Float64) => Float64 := {
     sum
 }.
 
+inline function computeSineHalfCycle(value: Float64) => Float64 := {
+    value > Float64 halfPi ifTrue: {
+        computeSineQuarterCycle(Float64 pi - value)
+    } ifFalse: {
+        computeSineQuarterCycle(value)
+    }
+}.
+
 inline function positiveSine(value: Float64) => Float64 := {
     let x mutable := value.
-    x > Float64 twoPi ifTrue: {x := floorMod(x, Float64 twoPi)}.
-
-    doSineQuarterCycle(x)
+    x >= Float64 twoPi ifTrue: {x := fmod(x, Float64 twoPi)}.
+    x > Float64 pi ifTrue: {
+        computeSineHalfCycle(x - Float64 pi) negated
+    } ifFalse: {
+        computeSineHalfCycle(x)
+    }.
 }.
 
 inline function sin externC(value: Float64) => Float64 := {
@@ -142,7 +174,7 @@ function positiveExp(value: Float64) => Float64 := {
     value >= 710 ifTrue: {return: Float64 infinity}.
 
     ## Taylor series based implementation ported from Pharo.
-    let integerPart := value floor.
+    let integerPart := trunc(value).
     let fract := value - integerPart.
     let base := raiseToIntegerPower(Float64 e, integerPart castTo: UInt32).
     fract = 0 || base == Float64 infinity ifTrue: {return: base}.

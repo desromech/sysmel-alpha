@@ -47,45 +47,62 @@ class FontRegistry definition: {
         }
     }.
 
+    method loadRequiredFontFace: (faceFileName: Stdn String const ref) ::=> FontFace sharedPointer := {
+        fontFaceDictionaryMutex withLock: {
+            fontFaceDictionary at: faceFileName ifAbsentPut: {:: (FontFace sharedPointer) |
+                FontFaceLoaderRegistry uniqueInstance loadRequiredFontFaceFromFileNamed: faceFileName
+            }
+        }
+    }.
+
+    method setDefaultSansFont: (font: Font sharedPointer const ref) ::=> Void
+        := defaultSans := font.
+
     method defaultSans => Font sharedPointer := {
         defaultSans ifNil: {
             defaultSans := self loadFontNamed: "DejaVuSans" asMutableString
                 with: {:(Font ref) font :: Void |
                 font
-                    normalFace: (self loadFontFace: "resources/fonts/dejavu/ttf/DejaVuSans.ttf" asMutableString);
-                    boldFace: (self loadFontFace: "resources/fonts/dejavu/ttf/DejaVuSans-Bold.ttf" asMutableString);
-                    italicFace: (self loadFontFace: "resources/fonts/dejavu/ttf/DejaVuSans-Oblique.ttf" asMutableString);
-                    italicBoldFace: (self loadFontFace: "resources/fonts/dejavu/ttf/DejaVuSans-BoldOblique.ttf" asMutableString).
+                    normalFace: (self loadRequiredFontFace: "resources/fonts/dejavu/ttf/DejaVuSans.ttf" asMutableString);
+                    boldFace: (self loadRequiredFontFace: "resources/fonts/dejavu/ttf/DejaVuSans-Bold.ttf" asMutableString);
+                    italicFace: (self loadRequiredFontFace: "resources/fonts/dejavu/ttf/DejaVuSans-Oblique.ttf" asMutableString);
+                    italicBoldFace: (self loadRequiredFontFace: "resources/fonts/dejavu/ttf/DejaVuSans-BoldOblique.ttf" asMutableString).
             }
         }.
 
         defaultSans.
     }.
 
+    method setDefaultSerifFont: (font: Font sharedPointer const ref) ::=> Void
+        := defaultSerif := font.
+
     method defaultSerif => Font sharedPointer := {
         defaultSerif ifNil: {
             defaultSerif := self loadFontNamed: "DejaVuSerif" asMutableString
                 with: {:(Font ref) font :: Void |
                 font
-                    normalFace: (self loadFontFace: "resources/fonts/dejavu/ttf/DejaVuSerif.ttf" asMutableString);
-                    boldFace: (self loadFontFace: "resources/fonts/dejavu/ttf/DejaVuSerif-Bold.ttf" asMutableString);
-                    italicFace: (self loadFontFace: "resources/fonts/dejavu/ttf/DejaVuSerif-Oblique.ttf" asMutableString);
-                    italicBoldFace: (self loadFontFace: "resources/fonts/dejavu/ttf/DejaVuSerif-BoldOblique.ttf" asMutableString).
+                    normalFace: (self loadRequiredFontFace: "resources/fonts/dejavu/ttf/DejaVuSerif.ttf" asMutableString);
+                    boldFace: (self loadRequiredFontFace: "resources/fonts/dejavu/ttf/DejaVuSerif-Bold.ttf" asMutableString);
+                    italicFace: (self loadRequiredFontFace: "resources/fonts/dejavu/ttf/DejaVuSerif-Oblique.ttf" asMutableString);
+                    italicBoldFace: (self loadRequiredFontFace: "resources/fonts/dejavu/ttf/DejaVuSerif-BoldOblique.ttf" asMutableString).
             }
         }.
 
         defaultSerif
     }.
 
+    method setDefaultMonospaced: (font: Font sharedPointer const ref) ::=> Void
+        := defaultMonospaced := font.
+
     method defaultMonospaced => Font sharedPointer := {
         defaultMonospaced ifNil: {
             defaultMonospaced := self loadFontNamed: "DejaVuMono" asMutableString
                 with: {:(Font ref) font :: Void |
                 font
-                    normalFace: (self loadFontFace: "resources/fonts/dejavu/ttf/DejaVuMono.ttf" asMutableString);
-                    boldFace: (self loadFontFace: "resources/fonts/dejavu/ttf/DejaVuMono-Bold.ttf" asMutableString);
-                    italicFace: (self loadFontFace: "resources/fonts/dejavu/ttf/DejaVuMono-Oblique.ttf" asMutableString);
-                    italicBoldFace: (self loadFontFace: "resources/fonts/dejavu/ttf/DejaVuMono-BoldOblique.ttf" asMutableString).
+                    normalFace: (self loadRequiredFontFace: "resources/fonts/dejavu/ttf/DejaVuMono.ttf" asMutableString);
+                    boldFace: (self loadRequiredFontFace: "resources/fonts/dejavu/ttf/DejaVuMono-Bold.ttf" asMutableString);
+                    italicFace: (self loadRequiredFontFace: "resources/fonts/dejavu/ttf/DejaVuMono-Oblique.ttf" asMutableString);
+                    italicBoldFace: (self loadRequiredFontFace: "resources/fonts/dejavu/ttf/DejaVuMono-BoldOblique.ttf" asMutableString).
             }
         }.
 

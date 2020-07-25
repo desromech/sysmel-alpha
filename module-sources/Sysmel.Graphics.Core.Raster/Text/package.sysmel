@@ -13,4 +13,5 @@ loadFileOnce: "FontFaceLoader.sysmel".
 loadFileOnce: "FontRegistry.sysmel".
 
 ## Bitmap font.
+loadFileOnce: "NullFontFace.sysmel".
 loadFileOnce: "BitmapGlyph.sysmel".

@@ -34,7 +34,7 @@ class Sample definition: {
 	method buildRenderScene2D: (builder: Stdn Graphics Scene2D Builder ref) ::=> Node2DPtr := {
 		let scene2D mutable :=
 			(builder fillRectangle: mainRectangle color: mainRectangleColor) _ --
-			((builder borderRectangle: mainRectangle color: Float32x4 black) upCastFor: Node2D).
+			((builder borderRectangle: mainRectangle color: Float32x4 black width: 4.0f) upCastFor: Node2D).
 		scene2D := scene2D _ --
 			((builder fillTriangle: Float32x2(40.0f, 300.0f) color: Float32x4(1.0f, 0.0f, 0.0f, 1.0)
 				p2: Float32x2(440.0f, 300.0f) color: Float32x4(0.0f, 1.0f, 0.0f, 1.0)

@@ -1,0 +1,21 @@
+namespace Stdn definition: {
+namespace Graphics definition: {
+namespace Core definition: {
+
+#**
+ * I am a null font face.
+ *#
+class NullFontFace superclass: FontFace; definition: {
+    protected field nullFaceWithSize type: FontFaceWithSize sharedPointer.
+
+    override method initialize => Void := {
+        nullFaceWithSize := FontFaceWithSize sharedNew.
+    }.
+
+    override method getOrCreateFaceWithSize: (faceSize: UInt32) ::=> FontFaceWithSize sharedPointer
+        := nullFaceWithSize.
+}.
+
+}. ## End of namespace Core
+}. ## End of namespace Graphics
+}. ## End of namespace Stdn
