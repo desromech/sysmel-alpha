@@ -137,7 +137,17 @@ MbndPrimitiveFloatType >> addInstanceMacros [
 				position: node
 		];
 		onMacroSelector: #nan do: [ :node :builder |
-			(builder explicitCast: ((builder literalFloat: Float nan)
+			(builder explicitCast: ((builder literalFloat: Float qNaN)
+				position: node) to: node receiver)
+				position: node
+		];
+		onMacroSelector: #qNaN do: [ :node :builder |
+			(builder explicitCast: ((builder literalFloat: Float qNaN)
+				position: node) to: node receiver)
+				position: node
+		];
+		onMacroSelector: #sNaN do: [ :node :builder |
+			(builder explicitCast: ((builder literalFloat: Float sNaN)
 				position: node) to: node receiver)
 				position: node
 		];
@@ -238,6 +248,8 @@ MbndPrimitiveFloatType >> isPrimitiveFloatType [
 { #category : #testing }
 MbndPrimitiveFloatType >> legalizeLiteralValue: literalValue [
 	literalValue isFloat ifFalse: [ ^ self legalizeLiteralValue: literalValue asFloat ].
+	literalValue isInfinite ifTrue: [ ^ literalValue ].
+	literalValue isNaN ifTrue: [ ^ literalValue ].
 	self instanceSize = 4 ifTrue: [ ^ (Float fromIEEE32Bit: literalValue asIEEE32BitWord) ].
 	^ literalValue
 ]
