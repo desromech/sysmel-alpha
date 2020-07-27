@@ -54,44 +54,21 @@ class FontFaceWithSize superclass: Object; definition: {
         newState previousCharacter ~= 0 ifTrue: {
             let kerningDelta := self getKerningForCharacter: newState previousCharacter with: character.
             ## Stdn stdout << "kerningDelta " << kerningDelta; nl.
-            newState currentPosition: newState currentPosition + kerningDelta.
+            newState advanceWith: kerningDelta.
         }.
         newState previousPosition: newState currentPosition.
 
         character selectCase: #{
         '\r' : {
-            newState
-                columnIndex: 0;
-                previousCharacter: character;
-                lineIndex: newState lineIndex + 1;
-                lineStartPosition: newState lineStartPosition + Float32x2(0.0f, self height);
-                currentPosition: newState lineStartPosition.
+            newState carriageReturn.
             return: newState.
         }.
         '\n' : {
-            newState previousCharacter = '\r' ifTrue: {
-                return: newState.
-            }.
-
-            newState
-                columnIndex: 0;
-                previousCharacter: character;
-                lineIndex: newState lineIndex + 1;
-                lineStartPosition: newState lineStartPosition + Float32x2(0.0f, self height);
-                currentPosition: newState lineStartPosition.
+            newState newlineWithAdvance: Float32x2(0.0f, self height).
             return: newState.
         }.
         '\t' : {
-            let tabSize := newState tabSize max: 1u.
-            let newColumnIndex := (newState columnIndex + tabSize) / tabSize * tabSize.
-            let paddingSpaces := newColumnIndex - newState columnIndex.
-            let spaceAdvance := self getAdvanceForCharacter: ' '.
-
-            newState
-                isVisibleCharacter: false;
-                previousCharacter: character;
-                currentPosition: newState currentPosition + spaceAdvance*paddingSpaces;
-                columnIndex: newColumnIndex.
+            newState tabWithSpaceAdvance: (self getAdvanceForCharacter: ' ').
             return: newState.
         }.
         _ : {}.
@@ -107,7 +84,7 @@ class FontFaceWithSize superclass: Object; definition: {
 
         newState
             isVisibleCharacter: true;
-            currentPosition: newState currentPosition + glyph _ horizontalAdvance.
+            advanceWith: glyph _ horizontalAdvance.
         return: newState.
     }.
 

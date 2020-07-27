@@ -2,6 +2,8 @@ namespace Stdn definition: {
 namespace Graphics definition: {
 namespace Core definition: {
 
+useNamespace: Stdn Math LinearAlgebra.
+
 struct TextDrawingState definition: {
     public field previousCharacter type: Char32.
     public field columnIndex type: UInt32.
@@ -21,6 +23,38 @@ struct TextDrawingState definition: {
             currentPosition: thePosition;
             tabSize: 4;
             yourself.
+
+    inline method carriageReturn => Void := {
+        columnIndex := 0.
+        previousCharacter := '\r'.
+        currentPosition := lineStartPosition.
+        isVisibleCharacter := false.
+    }.
+
+    inline method newlineWithAdvance: (lineAdvance: Float32x2) ::=> Void := {
+        columnIndex := 0.
+        previousCharacter := '\r'.
+        lineIndex := lineIndex + 1.
+        isVisibleCharacter := false.
+        currentPosition := lineStartPosition.
+        self advanceWith: lineAdvance.
+        lineStartPosition := currentPosition.
+    }.
+
+    inline method tabWithSpaceAdvance: (spaceDelta: Float32x2) ::=> Void := {
+        let validTabSize := tabSize max: 1u.
+        let newColumnIndex := (columnIndex + validTabSize) / validTabSize * validTabSize.
+        let paddingSpaces := newColumnIndex - columnIndex.
+
+        isVisibleCharacter := false.
+        previousCharacter := '\t'.
+        columnIndex := newColumnIndex.
+        self advanceWith: paddingSpaces*spaceDelta
+    }.
+
+    inline method advanceWith: (delta: Float32x2) ::=> Void := {
+        currentPosition := currentPosition + delta
+    }.
 }.
 
 }. ## End of namespace Core
