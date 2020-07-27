@@ -2,14 +2,11 @@ Compiler importModulesNamed: #(
 	#"Sysmel.Graphics.Headfull"
 	#"Sysmel.Sound.Headfull"
 ).
-Compiler importModuleNamed: #"Bindings.SDL2". ## For the sound.
 
 useNamespace: Stdn Graphics Core.
 useNamespace: Stdn Graphics GUI.
 useNamespace: Stdn Math Geometry.
 useNamespace: Stdn Math LinearAlgebra.
-
-useNamespace: SDL2.
 
 class SoundChannelWithEnvelope.
 
@@ -25,9 +22,11 @@ let lastFrameRenderingTime mutable type: Float32.
 let lastFrameUpdateTime mutable type: Float32.
 
 global audioMutex mutable type: Stdn Mutex.
+#*
 global audioDeviceID mutable type: SDL_AudioDeviceID.
 global audioDeviceSpec mutable type: SDL_AudioSpec.
 global audioTemporaryBuffer mutable type: Float32x2 pointer.
+*#
 
 global jumpSound mutable type: SoundChannelWithEnvelope pointer.
 global dashSound mutable type: SoundChannelWithEnvelope pointer.
@@ -565,6 +564,25 @@ class MainWindowEventHandler superclass: EventHandler; definition: {
 		_ : {}.
 		}
 	}.
+
+	override method onGameControllerButtonPressedEvent: (event: GameControllerButtonPressedEvent ref) ::=> Void := {
+		event button selectCase: #{
+		GameControllerButton DPadLeft : {player _ moveLeftInput: true}.
+		GameControllerButton DPadRight : {player _ moveRightInput: true}.
+		GameControllerButton ButtonLeft : {player _ shoot}.
+		GameControllerButton ButtonDown : {player _ jump}.
+		GameControllerButton RightShoulder : {player _ dash}.
+		_ : {}.
+		}.
+	}.
+
+	override method onGameControllerButtonReleasedEvent: (event: GameControllerButtonReleasedEvent ref) ::=> Void := {
+		event button selectCase: #{
+		GameControllerButton DPadLeft : {player _ moveLeftInput: false}.
+		GameControllerButton DPadRight : {player _ moveRightInput: false}.
+		_ : {}.
+		}.
+	}.
 }.
 
 function update(delta: Float32) => Void := {
@@ -586,6 +604,7 @@ function update(delta: Float32) => Void := {
 	entities resizeTo: destIndex.
 }.
 
+#*
 function mixAudioSamples(mixBuffer: Float32x2 pointer, sampleCount: UInt32) => Void := {
 	let samplePeriod := 1.0f / audioDeviceSpec freq.
 
@@ -634,6 +653,7 @@ function audioCallback(userdata: Void pointer, stream: UInt8 pointer, len: Int32
 		}.
 	}.
 }.
+*#
 
 method createWallMin: (min: Float32x2) max: (max: Float32x2) color: (color: Float32x4) ::=> Void := {
 	let wall mutable := Wall nativeNew.
@@ -679,6 +699,7 @@ Stdn MainEntryPoint: {:args :: Int32 |
         mainWindow _ eventHandler: (eventHandler upCastFor: EventHandler)
     }.
 
+	#*
 	SDL_InitSubSystem(SDL_INIT_AUDIO).
 	{
 		let desiredAudioSpec mutable := SDL_AudioSpec newValue
@@ -692,7 +713,7 @@ Stdn MainEntryPoint: {:args :: Int32 |
 		audioDeviceSpec format ~= AUDIO_F32 ifTrue: {
 			audioTemporaryBuffer := Stdn malloc(audioDeviceSpec samples * 8 castTo: UIntPointer) reinterpretCastTo: Float32x2 pointer.
 		}.
-	}.
+	}.*#
 
 	## Create the floor
 	{
@@ -772,22 +793,22 @@ Stdn MainEntryPoint: {:args :: Int32 |
 		soundChannels add: noiseChannel.
 	}.
 
+	#*
 	audioDeviceID ~= 0 ifTrue: {
 		SDL_PauseAudioDevice(audioDeviceID, 0).
 	}.
+	*#
 
 	## Enter into the main loop.
 	windowSystem _ runMainLoop.
 
-	audioDeviceID ~= 0 ifTrue: {
+	#*audioDeviceID ~= 0 ifTrue: {
 		SDL_CloseAudioDevice(audioDeviceID).
 		Stdn free(audioTemporaryBuffer).
-	}.
+	}.*#
 
 	entities do: #nativeDelete.
 	soundChannels do: #nativeDelete.
-
-	SDL_Quit().
 
     return: 0.
 }.

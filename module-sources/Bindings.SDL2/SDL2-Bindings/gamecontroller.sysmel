@@ -1,0 +1,7 @@
+namespace SDL2 definition: {
+struct SDL_GameController.
+
+function SDL_GameControllerOpen externC(joystickIndex: Int32) => SDL_GameController pointer.
+function SDL_GameControllerClose externC(handle: SDL_GameController pointer) => Void.
+
+}.

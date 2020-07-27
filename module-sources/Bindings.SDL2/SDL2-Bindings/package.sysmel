@@ -4,6 +4,7 @@ loadFileOnce: "audio.sysmel".
 loadFileOnce: "video.sysmel".
 loadFileOnce: "cursor.sysmel".
 loadFileOnce: "event.sysmel".
+loadFileOnce: "gamecontroller.sysmel".
 loadFileOnce: "timer.sysmel".
 loadFileOnce: "renderer.sysmel".
 loadFileOnce: "pixels.sysmel".

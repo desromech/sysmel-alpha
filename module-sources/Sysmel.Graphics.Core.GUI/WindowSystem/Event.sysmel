@@ -278,6 +278,81 @@ class WindowLostFocusEvent superclass: Event; definition: {
         := eventHandler onWindowLostFocusEvent: self.
 }.
 
+#**
+ * I am a game controller device event.
+ *#
+class GameControllerDeviceEvent superclass: Event; definition: {
+}.
+
+#**
+ * I am a game controller event.
+ *#
+class GameControllerEvent superclass: Event; definition: {
+    public field which type: Int32.
+}.
+
+#**
+ * I am a game controller device event.
+ *#
+class GameControllerDeviceAddedEvent superclass: GameControllerEvent; definition: {
+    override method acceptEventHandler: (eventHandler: EventHandler ref) ::=> Void
+        := eventHandler onGameControllerDeviceAddedEvent: self.
+}.
+
+#**
+ * I am a game controller device event.
+ *#
+class GameControllerDeviceRemovedEvent superclass: GameControllerEvent; definition: {
+    override method acceptEventHandler: (eventHandler: EventHandler ref) ::=> Void
+        := eventHandler onGameControllerDeviceRemovedEvent: self.
+}.
+
+#**
+ * I am a game controller device event.
+ *#
+class GameControllerDeviceRemappedEvent superclass: GameControllerEvent; definition: {
+    override method acceptEventHandler: (eventHandler: EventHandler ref) ::=> Void
+        := eventHandler onGameControllerDeviceRemappedEvent: self.
+}.
+
+#**
+ * I am a game controller axis event.
+ *#
+class GameControllerAxisMotionEvent superclass: GameControllerEvent; definition: {
+    public field axis type: GameControllerAxis.
+    public field value type: Int16.
+
+    override method acceptEventHandler: (eventHandler: EventHandler ref) ::=> Void
+        := eventHandler onGameControllerAxisMotionEvent: self.
+}.
+
+#**
+ * I am a game controller button event.
+ *#
+class GameControllerButtonEvent superclass: GameControllerEvent; definition: {
+    public field button type: GameControllerButton.
+}.
+
+#**
+ * I am a game controller button pressed event.
+ *#
+class GameControllerButtonPressedEvent superclass: GameControllerButtonEvent; definition: {
+    public field button type: GameControllerButton.
+
+    override method acceptEventHandler: (eventHandler: EventHandler ref) ::=> Void
+        := eventHandler onGameControllerButtonPressedEvent: self.
+}.
+
+#**
+ * I am a game controller button released event.
+ *#
+class GameControllerButtonReleasedEvent superclass: GameControllerButtonEvent; definition: {
+    public field button type: GameControllerButton.
+
+    override method acceptEventHandler: (eventHandler: EventHandler ref) ::=> Void
+        := eventHandler onGameControllerButtonReleasedEvent: self.
+}.
+
 }. ## End of namespace GUI
 }. ## End of namespace Graphics
 }. ## End of namespace Stdn

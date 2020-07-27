@@ -103,9 +103,10 @@ class Sample definition: {
 		lastFrameRenderingTime := (Stdn Chrono profileTimeToRun: {
 		mainWindowRenderer _
 			clearColor: Float32x4(0.4f, 0.4f, 0.4f, 1.0f);
-			renderScene: (self buildRenderScene2D: (mainWindowRenderer _ newSceneBuilder _));
-			present
+			renderScene: (self buildRenderScene2D: (mainWindowRenderer _ newSceneBuilder _))
 		}) castTo: Float32.
+
+		mainWindowRenderer _ present
     }.
 
     method onMouseMoveEvent: (event: MouseMoveEvent ref) ::=> Void := {

@@ -76,17 +76,21 @@ class WindowSystem superclass: Object; definition: {
             until: self isQuitting do: {
                 self mainLoopIteration.
 
-                targetFrameRate > 0 ifTrue: {
-                    let ticksPerFrame := Stdn Chrono TicksPerSecond / targetFrameRate.
-                    let targetNextFrameTime := mainLoopFrameStartTicks + ticksPerFrame.
-                    Stdn Chrono sleepUntil(targetNextFrameTime)
-                } ifFalse: {
-                    self waitForNextEventOrTimeout.
-                }.
+                self sleepUntilNextFrame.
             }.
         }.
 
         return: 0
+    }.
+
+    virtual method sleepUntilNextFrame => Void := {
+        targetFrameRate > 0 ifTrue: {
+            let ticksPerFrame := Stdn Chrono TicksPerSecond / targetFrameRate.
+            let targetNextFrameTime := mainLoopFrameStartTicks + ticksPerFrame.
+            Stdn Chrono sleepUntil(targetNextFrameTime)
+        } ifFalse: {
+            self waitForNextEventOrTimeout.
+        }.
     }.
 
     #**
@@ -98,7 +102,14 @@ class WindowSystem superclass: Object; definition: {
         mainLoopFrameStartTicks := Stdn Chrono now().
         self pollAndPumpEvents.
 
-        let deltaTicks := mainLoopFrameStartTicks - mainLoopOldTicks.
+        let deltaTicks mutable := mainLoopFrameStartTicks - mainLoopOldTicks.
+
+        ## In case the system goes to sleep, or we are really slow, only advance a single frame the simulation.
+        deltaTicks >= ticksPerFrame*10 ifTrue: {
+            deltaTicks := ticksPerFrame
+        }.
+
+        ## Accumulate the delta.
         mainLoopAccumulatedTicks := mainLoopAccumulatedTicks + deltaTicks.
 
         let deterministicFrameCount := mainLoopAccumulatedTicks / ticksPerFrame max: 0.

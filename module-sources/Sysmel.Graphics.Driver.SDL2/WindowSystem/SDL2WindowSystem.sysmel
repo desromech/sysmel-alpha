@@ -25,6 +25,7 @@ function convertSystemCursorName(name: SystemCursorName) => SDL_SystemCursor := 
 }.
 
 class SDL2WindowSystem superclass: WindowSystem; definition: {
+    compileTime constant MaxGameControllerCount := 8.
 
     private field aliveWindowCount type: UInt32.
     private field isQuitRequested type: Boolean8.
@@ -32,6 +33,7 @@ class SDL2WindowSystem superclass: WindowSystem; definition: {
     private field lastMousePosition type: Int32x2.
     private field lastKeyModifiers type: KeyModifiers.
     private field allocatedSystemCursors type: (SDL_Cursor pointer array: SystemCursorName Count value).
+    private field gameControllers type: (SDL_GameController pointer array: MaxGameControllerCount).
 
     override method initialize => Void := {
         SDL2InitState uniqueInstance increaseVideoUserCount.
@@ -138,6 +140,12 @@ class SDL2WindowSystem superclass: WindowSystem; definition: {
         SDL_EventType SDL_MOUSEBUTTONUP  : { self processMouseButtonUp: event button }.
         SDL_EventType SDL_MOUSEBUTTONDOWN  : { self processMouseButtonDown: event button }.
         SDL_EventType SDL_MOUSEWHEEL  : { self processMouseWheel: event wheel }.
+        SDL_EventType SDL_CONTROLLERDEVICEADDED   : { self processGameControllerDeviceAdded: event cdevice }.
+        SDL_EventType SDL_CONTROLLERDEVICEREMOVED   : { self processGameControllerDeviceRemoved: event cdevice }.
+        SDL_EventType SDL_CONTROLLERDEVICEREMAPPED   : { self processGameControllerDeviceRemapped: event cdevice }.
+        SDL_EventType SDL_CONTROLLERAXISMOTION   : { self processGameControllerAxisMotion: event caxis }.
+        SDL_EventType SDL_CONTROLLERBUTTONDOWN   : { self processGameControllerButtonDown: event cbutton }.
+        SDL_EventType SDL_CONTROLLERBUTTONUP  : { self processGameControllerButtonUp: event cbutton }.
         _ : {}
         }.
     }.
@@ -324,6 +332,71 @@ class SDL2WindowSystem superclass: WindowSystem; definition: {
         wrapper _ deliverEvent: convertedEvent.
     }.
 
+    method processGameControllerDeviceAdded: (event: SDL_ControllerDeviceEvent const ref) ::=> Void := {
+        event which < 0 || event which >= MaxGameControllerCount ifTrue: {return: void}.
+
+        gameControllers[event which] := SDL_GameControllerOpen(event which).
+
+        let convertedEvent mutable := GameControllerDeviceAddedEvent()
+            which: event which;
+            yourself.
+
+        self broadcastEvent: convertedEvent
+    }.
+
+    method processGameControllerDeviceRemoved: (event: SDL_ControllerDeviceEvent const ref) ::=> Void := {
+        event which < 0 || event which >= MaxGameControllerCount ifTrue: {return: void}.
+
+        gameControllers[event which] ifNotNil: {
+            SDL_GameControllerClose(gameControllers[event which]).
+            gameControllers[event which] := nil.
+        }.
+
+        let convertedEvent mutable := GameControllerDeviceRemovedEvent()
+            which: event which;
+            yourself.
+
+        self broadcastEvent: convertedEvent
+    }.
+
+    method processGameControllerDeviceRemapped: (event: SDL_ControllerDeviceEvent const ref) ::=> Void := {
+        event which < 0 || event which >= MaxGameControllerCount ifTrue: {return: void}.
+
+        let convertedEvent mutable := GameControllerDeviceRemappedEvent()
+            which: event which;
+            yourself.
+
+        self broadcastEvent: convertedEvent
+    }.
+
+    method processGameControllerAxisMotion: (event: SDL_ControllerAxisEvent const ref) ::=> Void := {
+        let convertedEvent mutable := GameControllerAxisMotionEvent()
+            which: event which;
+            axis: (event axis castTo: GameControllerAxis);
+            value: event value;
+            yourself.
+
+        self broadcastEvent: convertedEvent
+    }.
+
+    method processGameControllerButtonDown: (event: SDL_ControllerButtonEvent const ref) ::=> Void := {
+        let convertedEvent mutable := GameControllerButtonPressedEvent()
+            which: event which;
+            button: (event button castTo: GameControllerButton);
+            yourself.
+
+        self broadcastEvent: convertedEvent
+    }.
+
+    method processGameControllerButtonUp: (event: SDL_ControllerButtonEvent const ref) ::=> Void := {
+        let convertedEvent mutable := GameControllerButtonReleasedEvent()
+            which: event which;
+            button: (event button castTo: GameControllerButton);
+            yourself.
+
+        self broadcastEvent: convertedEvent
+    }.
+
     override method broadcastEvent: (event: Event ref) ::=> Void := {
         super broadcastEvent: event.
         windowIDDictionary valuesDo: {:(SDL2Window sharedPointer ref) window :: Void |
@@ -400,7 +473,7 @@ class SDL2InitState definition: {
         initMutex withLock: {
             videoInitCount := videoInitCount - 1.
             videoInitCount = 0 ifTrue: {
-                SDL_QuitSubSystem(SDL_INIT_VIDEO | SDL_INIT_JOYSTICK | SDL_INIT_GAMECONTROLLER).
+                SDL_QuitSubSystem(SDL_INIT_VIDEO | SDL_INIT_GAMECONTROLLER).
             }.
         }.
 

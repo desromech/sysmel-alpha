@@ -2,6 +2,8 @@
 loadFileOnce: "KeySymbol.sysmel".
 loadFileOnce: "KeyModifiers.sysmel".
 loadFileOnce: "MouseButton.sysmel".
+loadFileOnce: "GameControllerAxis.sysmel".
+loadFileOnce: "GameControllerButton.sysmel".
 loadFileOnce: "Event.sysmel".
 loadFileOnce: "EventHandler.sysmel".
 loadFileOnce: "WindowSystem.sysmel".

@@ -1,6 +1,6 @@
 loadFileOnce: "Buffer.sysmel".
 loadFileOnce: "Listener.sysmel".
 loadFileOnce: "Source.sysmel".
-loadFileOnce: "Device.sysmel".
+loadFileOnce: "PlaybackDevice.sysmel".
 loadFileOnce: "Driver.sysmel".
 loadFileOnce: "DriverRegistry.sysmel".

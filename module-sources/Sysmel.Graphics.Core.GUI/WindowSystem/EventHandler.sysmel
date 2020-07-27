@@ -75,6 +75,25 @@ class EventHandler superclass: SharedObject; definition: {
 
     virtual method onWindowLostFocusEvent: (event: WindowLostFocusEvent ref) ::=> Void
         := void.
+
+    virtual method onGameControllerDeviceAddedEvent: (event: GameControllerDeviceAddedEvent ref) ::=> Void
+        := void.
+
+    virtual method onGameControllerDeviceRemovedEvent: (event: GameControllerDeviceRemovedEvent ref) ::=> Void
+        := void.
+
+    virtual method onGameControllerDeviceRemappedEvent: (event: GameControllerDeviceRemappedEvent ref) ::=> Void
+        := void.
+
+    virtual method onGameControllerAxisMotionEvent: (event: GameControllerAxisMotionEvent ref) ::=> Void
+        := void.
+
+    virtual method onGameControllerButtonPressedEvent: (event: GameControllerButtonPressedEvent ref) ::=> Void
+        := void.
+
+    virtual method onGameControllerButtonReleasedEvent: (event: GameControllerButtonReleasedEvent ref) ::=> Void
+        := void.
+
 }.
 
 compileTime constant EventHandlerPtr := EventHandler sharedPointer.

@@ -1,0 +1,29 @@
+namespace Stdn definition: {
+namespace Graphics definition: {
+namespace GUI definition: {
+
+#**
+ * I represent a specific button in a game controller.
+ *#
+ enum GameControllerButton valueType: Int8; values: #{
+    Invalid: -1.
+    ButtonDown:.
+    ButtonRight:.
+    ButtonLeft:.
+    ButtonUp:.
+    Back:.
+    Guide:.
+    Start:.
+    LeftStick:.
+    RightStick:.
+    LeftShoulder:.
+    RightShoulder:.
+    DPadUp:.
+    DPadDown:.
+    DPadLeft:.
+    DPadRight:.
+}.
+
+}. ## End of namespace GUI
+}. ## End of namespace Graphics
+}. ## End of namespace Stdn

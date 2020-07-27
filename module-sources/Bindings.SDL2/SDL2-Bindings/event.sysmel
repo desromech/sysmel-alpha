@@ -83,110 +83,143 @@ compileTime constant SDL_WINDOWEVENT_TAKE_FOCUS := 15.
 compileTime constant SDL_WINDOWEVENT_HIT_TEST := 16.
 
 struct SDL_CommonEvent definition: {
-    field type public type: SDL_EventType.
-    field timestamp public type: UInt32.
+    public field type type: SDL_EventType.
+    public field timestamp type: UInt32.
 }.
 
 struct SDL_WindowEvent definition: {
-    field type public type: SDL_EventType.
-    field timestamp public type: UInt32.
-    field windowID public type: UInt32.
-    field event public type: UInt8.
-    field padding1 public type: UInt8.
-    field padding2 public type: UInt8.
-    field padding3 public type: UInt8.
-    field data1 public type: Int32.
-    field data2 public type: Int32.
+    public field type type: SDL_EventType.
+    public field timestamp type: UInt32.
+    public field windowID type: UInt32.
+    public field event type: UInt8.
+    public field padding1 type: UInt8.
+    public field padding2 type: UInt8.
+    public field padding3 type: UInt8.
+    public field data1 type: Int32.
+    public field data2 type: Int32.
 }.
 
 struct SDL_Keysym definition: {
-    field scancode public type: UInt32.
-    field sym public type: Keycode.
-    field mod public type: UInt16.
-    field unused public type: UInt32.
+    public field scancode type: UInt32.
+    public field sym type: Keycode.
+    public field mod type: UInt16.
+    public field unused type: UInt32.
 }.
 
 struct SDL_KeyboardEvent definition: {
-    field type public type: SDL_EventType.
-    field timestamp public type: UInt32.
-    field windowID public type: UInt32.
-    field state public type: UInt8.
-    field repeat public type: UInt8.
-    field padding2 public type: UInt8.
-    field padding3 public type: UInt8.
-    field keysym public type: SDL_Keysym.
+    public field type type: SDL_EventType.
+    public field timestamp type: UInt32.
+    public field windowID type: UInt32.
+    public field state type: UInt8.
+    public field repeat type: UInt8.
+    public field padding2 type: UInt8.
+    public field padding3 type: UInt8.
+    public field keysym type: SDL_Keysym.
 }.
 
 compileTime constant SDL_TEXTEDITINGEVENT_TEXT_SIZE := 32.
 
 struct SDL_TextEditingEvent definition: {
-    field type public type: SDL_EventType.
-    field timestamp public type: UInt32.
-    field windowID public type: UInt32.
-    field text public type: (Char8 array: SDL_TEXTEDITINGEVENT_TEXT_SIZE).
-    field start public type: Int32.
-    field length public type: Int32.
+    public field type type: SDL_EventType.
+    public field timestamp type: UInt32.
+    public field windowID type: UInt32.
+    public field text type: (Char8 array: SDL_TEXTEDITINGEVENT_TEXT_SIZE).
+    public field start type: Int32.
+    public field length type: Int32.
 }.
 
 compileTime constant SDL_TEXTINPUTEVENT_TEXT_SIZE := 32.
 
 struct SDL_TextInputEvent definition: {
-    field type public type: SDL_EventType.
-    field timestamp public type: UInt32.
-    field windowID public type: UInt32.
-    field text public type: (Char8 array: SDL_TEXTINPUTEVENT_TEXT_SIZE).
+    public field type type: SDL_EventType.
+    public field timestamp type: UInt32.
+    public field windowID type: UInt32.
+    public field text type: (Char8 array: SDL_TEXTINPUTEVENT_TEXT_SIZE).
 }.
 
 struct SDL_MouseMotionEvent definition: {
-    field type public type: SDL_EventType.
-    field timestamp public type: UInt32.
-    field windowID public type: UInt32.
-    field which public type: UInt32.
-    field state public type: UInt32.
-    field x public type: Int32.
-    field y public type: Int32.
-    field xrel public type: Int32.
-    field yrel public type: Int32.
+    public field type type: SDL_EventType.
+    public field timestamp type: UInt32.
+    public field windowID type: UInt32.
+    public field which type: UInt32.
+    public field state type: UInt32.
+    public field x type: Int32.
+    public field y type: Int32.
+    public field xrel type: Int32.
+    public field yrel type: Int32.
 }.
 
 struct SDL_MouseButtonEvent definition: {
-    field type public type: SDL_EventType.
-    field timestamp public type: UInt32.
-    field windowID public type: UInt32.
-    field which public type: UInt32.
-    field button public type: UInt8.
-    field state public type: UInt8.
-    field clicks public type: UInt8.
-    field padding1 public type: UInt8.
-    field x public type: Int32.
-    field y public type: Int32.
+    public field type type: SDL_EventType.
+    public field timestamp type: UInt32.
+    public field windowID type: UInt32.
+    public field which type: UInt32.
+    public field button type: UInt8.
+    public field state type: UInt8.
+    public field clicks type: UInt8.
+    public field padding1 type: UInt8.
+    public field x type: Int32.
+    public field y type: Int32.
 }.
 
 compileTime constant SDL_MOUSEWHEEL_NORMAL := 0.
 compileTime constant SDL_MOUSEWHEEL_FLIPPED := 1.
 
 struct SDL_MouseWheelEvent definition: {
-    field type public type: SDL_EventType.
-    field timestamp public type: UInt32.
-    field windowID public type: UInt32.
-    field which public type: UInt32.
-    field x public type: Int32.
-    field y public type: Int32.
-    field direction public type: UInt32.
+    public field type type: SDL_EventType.
+    public field timestamp type: UInt32.
+    public field windowID type: UInt32.
+    public field which type: UInt32.
+    public field x type: Int32.
+    public field y type: Int32.
+    public field direction type: UInt32.
+}.
+
+compileTime constant SDL_JoystickID := Int32.
+
+struct SDL_ControllerAxisEvent definition: {
+    public field type type: SDL_EventType.
+    public field timestamp type: UInt32.
+    public field which type: SDL_JoystickID.
+    public field axis type: UInt8.
+    public field padding1 type: UInt8.
+    public field padding2 type: UInt8.
+    public field padding3 type: UInt8.
+    public field value type: Int16.
+    public field padding4 type: UInt16.
+}.
+
+struct SDL_ControllerButtonEvent definition: {
+    public field type type: SDL_EventType.
+    public field timestamp type: UInt32.
+    public field which type: SDL_JoystickID.
+    public field button type: UInt8.
+    public field state type: UInt8.
+    public field padding1 type: UInt8.
+    public field padding2 type: UInt8.
+}.
+
+struct SDL_ControllerDeviceEvent definition: {
+    public field type type: SDL_EventType.
+    public field timestamp type: UInt32.
+    public field which type: SDL_JoystickID.
 }.
 
 union SDL_Event definition: {
-    field type public type: SDL_EventType.
-    field common public type: SDL_CommonEvent.
-    field window public type: SDL_WindowEvent.
-    field key public type: SDL_KeyboardEvent.
-    field edit public type: SDL_TextEditingEvent.
-    field text public type: SDL_TextInputEvent.
-    field motion public type: SDL_MouseMotionEvent.
-    field button public type: SDL_MouseButtonEvent.
-    field wheel public type: SDL_MouseWheelEvent.
+    public field type type: SDL_EventType.
+    public field common type: SDL_CommonEvent.
+    public field window type: SDL_WindowEvent.
+    public field key type: SDL_KeyboardEvent.
+    public field edit type: SDL_TextEditingEvent.
+    public field text type: SDL_TextInputEvent.
+    public field motion type: SDL_MouseMotionEvent.
+    public field button type: SDL_MouseButtonEvent.
+    public field wheel type: SDL_MouseWheelEvent.
+    public field caxis type: SDL_ControllerAxisEvent.
+    public field cbutton type: SDL_ControllerButtonEvent.
+    public field cdevice type: SDL_ControllerDeviceEvent.
 
-    field padding public type: (UInt8 array: 56).
+    public field padding type: (UInt8 array: 56).
 }.
 
 function SDL_PollEvent externC dllimport (event: SDL_Event pointer) => Boolean8.
@@ -195,15 +228,15 @@ function SDL_WaitEventTimeout externC dllimport (event: SDL_Event pointer, timeo
 
 ## Rect
 struct SDL_Point definition: {
-    field x public type: Int32.
-    field y public type: Int32
+    public field x type: Int32.
+    public field y type: Int32
 }.
 
 struct SDL_Rect definition: {
-    field x public type: Int32.
-    field y public type: Int32.
-    field w public type: Int32.
-    field h public type: Int32.
+    public field x type: Int32.
+    public field y type: Int32.
+    public field w type: Int32.
+    public field h type: Int32.
 }.
 
 compileTime constant SDL_QUERY := -1.

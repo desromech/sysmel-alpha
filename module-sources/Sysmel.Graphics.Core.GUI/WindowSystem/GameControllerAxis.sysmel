@@ -1,0 +1,20 @@
+namespace Stdn definition: {
+namespace Graphics definition: {
+namespace GUI definition: {
+
+#**
+ * I represent a specific axis in a game controller.
+ *#
+ enum GameControllerAxis valueType: Int8; values: #{
+     Invalid: -1.
+     LeftX: 0.
+     LeftY:.
+     RightX:.
+     RightY:.
+     TriggerLeft:.
+     TriggerRight:.
+ }.
+
+}. ## End of namespace GUI
+}. ## End of namespace Graphics
+}. ## End of namespace Stdn

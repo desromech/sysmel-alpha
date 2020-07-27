@@ -53,7 +53,7 @@ class TableViewNorph superclass: BorderedNorph; definition: {
         := columns.
 
     const method rowHeight => Float32
-        := minimalRowExtent y.
+        := minimalRowExtent y max: 1. ## To avoid a division by zero
 
     method dataSource: (newDataSource: DataSourcePtr const ref) ::=> Void := {
         dataSource := newDataSource.
