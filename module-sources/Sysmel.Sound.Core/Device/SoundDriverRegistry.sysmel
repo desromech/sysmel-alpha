@@ -1,0 +1,64 @@
+namespace Stdn definition: {
+namespace Sound definition: {
+
+#**
+ * I represent a particular sound driver.
+ *#
+class SoundDriverRegistry definition: {
+    protected field registeredDrivers type: Stdn Collections Vector(SoundDriver pointer).
+
+    meta definition: {
+        let defaultInstance mutable type: SoundDriverRegistry uniquePointer.
+        let defaultInstanceOnceCreation mutable type: Stdn OnceFlag.
+
+        method default => SoundDriverRegistry ref := {
+            defaultInstanceOnceCreation do: {
+                defaultInstance reset: SoundDriverRegistry nativeNew.
+            }.
+
+            defaultInstance _
+        }.
+
+        method defaultDriver => SoundDriver pointer
+            := self default defaultDriver.
+
+        method defaultPlaybackDevice => PlaybackDevicePtr
+            := self default defaultPlaybackDevice.
+
+        method validDefaultPlaybackDevice => PlaybackDevicePtr
+            := self default validDefaultPlaybackDevice.
+    }.
+
+    method registerDriver: (driver: SoundDriver pointer) ::=> Void := {
+        registeredDrivers add: driver
+    }.
+
+    method unregisterDriver: (driver: SoundDriver pointer) ::=> Void := {
+        registeredDrivers remove: driver
+    }.
+
+    method defaultDriver => SoundDriver pointer := {
+        registeredDrivers isNotEmpty ifTrue: {
+            return: registeredDrivers first
+        }.
+
+        return: nil
+    }.
+
+    method defaultPlaybackDevice => PlaybackDevicePtr := {
+        let soundDriver := self defaultDriver.
+        soundDriver ifNil: {return: PlaybackDevicePtr nil}.
+
+        soundDriver _ getOrCreateDefaultPlaybackDevice
+    }.
+
+    method validDefaultPlaybackDevice => PlaybackDevicePtr := {
+        let result := self defaultPlaybackDevice.
+        result ifNotNil: {return: result}.
+
+        (NullPlaybackDevice sharedNew) upCastFor: PlaybackDevice
+    }.
+}.
+
+} ## End of namespace Sound
+} ## End of namespace Stdn

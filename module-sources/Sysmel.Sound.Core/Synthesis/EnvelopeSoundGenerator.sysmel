@@ -1,0 +1,58 @@
+namespace Stdn definition: {
+namespace Sound definition: {
+
+class EnvelopeSoundGenerator superclass: SoundGenerator; definition: {
+    public field amplitude type: Float32.
+
+    public field attackTime type: Float32.
+    public field decayTime type: Float32.
+    public field sustainLevel type: Float32.
+    public field sustainTime type: Float32.
+    public field releaseTime type: Float32.
+
+    field currentSampleIndex type: UInt32.
+
+    override method resetState => Void := {
+        currentSampleIndex := 0.
+    }.
+
+    const inline method envelopeEndTime => Float32
+        := attackTime + decayTime + sustainTime + releaseTime.
+
+    inline method computeEnvelopeFactorAt: (time: Float32) ::=> Float32 := {
+        (attackTime > 0.0f) && (time < attackTime) ifTrue: {
+            return: time / attackTime
+        }.
+        (decayTime > 0.0f) && (time < attackTime + decayTime) ifTrue: {
+            return: (1.0 interpolateTo: sustainLevel at: time - attackTime / decayTime)
+        }.
+
+        (sustainTime > 0.0f) && (time < attackTime + decayTime + sustainTime) ifTrue: {
+            return: sustainLevel
+        }.
+
+        (releaseTime > 0.0f) && (time < attackTime + decayTime + sustainTime + releaseTime) ifTrue: {
+            return: (sustainLevel interpolateTo: 0.0 at: (time - (attackTime + decayTime + sustainTime)) / releaseTime)
+        }.
+
+        return: 0.0
+    }.
+
+    virtual method computeSampleAt: (time: Float32) ::=> Float32
+        := 0.0f.
+    
+    override method mixSamples: (sampleCount: UInt32) samplePeriod: (samplePeriod: Float32) ontoBuffer: (mixBuffer: Float32x2 pointer) ::=> Boolean8 := {
+        0 until: sampleCount do: {:i :: Void |
+            let absoluteSampleTime := (currentSampleIndex + i)*samplePeriod.
+            let envelopeFactor := self computeEnvelopeFactorAt: absoluteSampleTime.
+            let sample := (self computeSampleAt: absoluteSampleTime) * amplitude * envelopeFactor.
+            mixBuffer[i] := mixBuffer[i] + sample
+        }.
+
+        currentSampleIndex := currentSampleIndex + sampleCount.
+        currentSampleIndex*samplePeriod <= self envelopeEndTime
+    }.
+}.
+
+} ## End of namespace Sound
+} ## End of namespace Stdn

@@ -1,2 +1,5 @@
 Compiler addLinkerArguments: #("-lSDL2");
-    loadPackage: #"SDL2-Bindings".
+    loadPackages: #(
+        #"SDL2-Bindings"
+        #"InitDriver"
+    ).

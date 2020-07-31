@@ -5,10 +5,9 @@ Compiler importModulesNamed: #(
 
 useNamespace: Stdn Graphics Core.
 useNamespace: Stdn Graphics GUI.
+useNamespace: Stdn Sound.
 useNamespace: Stdn Math Geometry.
 useNamespace: Stdn Math LinearAlgebra.
-
-class SoundChannelWithEnvelope.
 
 let Gravity := Float32x2(0.0, -9.8).
 
@@ -21,16 +20,11 @@ let fontFaceWithSize mutable type: FontFaceWithSize sharedPointer.
 let lastFrameRenderingTime mutable type: Float32.
 let lastFrameUpdateTime mutable type: Float32.
 
-global audioMutex mutable type: Stdn Mutex.
-#*
-global audioDeviceID mutable type: SDL_AudioDeviceID.
-global audioDeviceSpec mutable type: SDL_AudioSpec.
-global audioTemporaryBuffer mutable type: Float32x2 pointer.
-*#
+global playbackDevice mutable type: Stdn Sound PlaybackDevicePtr.
 
-global jumpSound mutable type: SoundChannelWithEnvelope pointer.
-global dashSound mutable type: SoundChannelWithEnvelope pointer.
-global shootSound mutable type: SoundChannelWithEnvelope pointer.
+global jumpSound mutable type: SoundSourcePtr.
+global dashSound mutable type: SoundSourcePtr.
+global shootSound mutable type: SoundSourcePtr.
 
 class Entity definition: {
 	public field position type: Float32x2.
@@ -246,9 +240,7 @@ class Player superclass: Character; definition: {
 			remainingDashTime := 0.35f.
 			dashDirection := Float32x2(lookDirection x, 0.0f).
 			speed := 10.0f.
-			audioMutex withLock: {
-				dashSound _ reset
-			}.
+			dashSound _ play
 		}.
 	}.
 
@@ -278,16 +270,12 @@ class Player superclass: Character; definition: {
 		isOnFloor ifTrue: {
 			velocity y: 10.0.
 			remainingDashTime := 0.0f.
-			audioMutex withLock: {
-				jumpSound _ reset
-			}.
+			jumpSound _ play
 		}.
 	}.
 
 	method shoot => Void := {
-		audioMutex withLock: {
-			shootSound _ reset
-		}.
+		shootSound _ play.
 
 		let bullet mutable := Bullet nativeNew.
 		bullet _
@@ -319,126 +307,7 @@ class Player superclass: Character; definition: {
 	}.
 }.
 
-class SoundChannel definition: {
-	virtual method reset => Void := {
-		## By default do nothing
-	}.
-
-	virtual method mixSamples: (sampleCount: UInt32) samplePeriod: (samplePeriod: Float32) intoBuffer: (mixBuffer: Float32x2 pointer) ::=> Void := {
-		## By default do nothing.
-	}.
-}.
-
-class SoundChannelWithEnvelope; superclass: SoundChannel; definition: {
-	public field attackTime type: Float32.
-	public field decayTime type: Float32.
-	public field sustainLevel type: Float32.
-	public field sustainTime type: Float32.
-	public field releaseTime type: Float32.
-	public field paused type: Boolean8.
-
-	field currentSampleIndex type: UInt32.
-
-	override method reset => Void := {
-		currentSampleIndex := 0.
-		paused := false.
-	}.
-
-	method computeEnvelopeFactorAt: (time: Float32) ::=> Float32 := {
-		(attackTime > 0.0f) && (time < attackTime) ifTrue: {
-			return: time / attackTime
-		}.
-		(decayTime > 0.0f) && (time < attackTime + decayTime) ifTrue: {
-			return: (1.0 interpolateTo: sustainLevel at: time - attackTime / decayTime)
-		}.
-
-		(sustainTime > 0.0f) && (time < attackTime + decayTime + sustainTime) ifTrue: {
-			return: sustainLevel
-		}.
-
-		(releaseTime > 0.0f) && (time < attackTime + decayTime + sustainTime + releaseTime) ifTrue: {
-			return: (sustainLevel interpolateTo: 0.0 at: (time - (attackTime + decayTime + sustainTime)) / releaseTime)
-		}.
-
-		paused := true.
-		return: 0.0
-	}
-}.
-
-class NoiseChannel; superclass: SoundChannelWithEnvelope; definition: {
-	public field amplitude type: Float32.
-
-	field randomState type: UInt64.
-
-	method nextRandomSample => Float32 := {
-		randomState = 0 ifTrue: {randomState := 1}.
-
-		## Xor shift generator.
-		## https://en.wikipedia.org/wiki/Xorshift [January 3th, 2020]
-		let x mutable := randomState.
-		x := x ^ (x << 13).
-		x := x ^ (x >> 7).
-		x := x ^ (x << 17).
-		randomState := x.
-
-		let unormValue := (randomState castTo: Float64) / 18446744073709551615.0.
-		unormValue*2.0 - 1.0 castTo: Float32
-	}.
-
-	override method mixSamples: (sampleCount: UInt32) samplePeriod: (samplePeriod: Float32) intoBuffer: (mixBuffer: Float32x2 pointer) ::=> Void := {
-		paused ifTrue: {return: nil}.
-
-		## Mix the samples
-		0 until: sampleCount do: {:i :: Void |
-			let absoluteSampleTime := (currentSampleIndex + i)*samplePeriod.
-			let envelopeFactor := self computeEnvelopeFactorAt: absoluteSampleTime.
-			let sample := self nextRandomSample * amplitude * envelopeFactor.
-			mixBuffer[i] := mixBuffer[i] + sample
-		}.
-
-		currentSampleIndex := currentSampleIndex + sampleCount.
-	}.
-}.
-
-template ToneFunctionSoundChannel(toneFunction: _FunctionType ref)
-	:= class superclass: SoundChannelWithEnvelope; definition: {
-	public field amplitude type: Float32.
-	public field frequency type: Float32.
-	public field phase type: Float32.
-	public field extraParam type: Float32.
-
-	override method mixSamples: (sampleCount: UInt32) samplePeriod: (samplePeriod: Float32) intoBuffer: (mixBuffer: Float32x2 pointer) ::=> Void := {
-		paused ifTrue: {return: nil}.
-
-		## Mix the samples
-		0 until: sampleCount do: {:i :: Void |
-			let absoluteSampleTime := (currentSampleIndex + i)*samplePeriod.
-			let envelopeFactor := self computeEnvelopeFactorAt: absoluteSampleTime.
-			let sample := toneFunction(absoluteSampleTime * frequency + phase, extraParam) * amplitude * envelopeFactor.
-			mixBuffer[i] := mixBuffer[i] + sample
-		}.
-
-		currentSampleIndex := currentSampleIndex + sampleCount.
-	}.
-}.
-
-compileTime constant SineChannel := ToneFunctionSoundChannel(
-	function(x: Float32, _: Float32) => Float32
-		:= (x * Float32 twoPi) sin
-).
-
-compileTime constant PulseChannel := ToneFunctionSoundChannel(
-	function(x: Float32, pulseWidth: Float32) => Float32
-		:= (x fract stepValue: pulseWidth)*2.0f - 1.0f
-).
-
-compileTime constant SawChannel := ToneFunctionSoundChannel(
-	function(x: Float32, _: Float32) => Float32
-		:= x fract*2.0f - 1.0f
-).
-
 global entities mutable type: (Stdn Collections Vector(Entity pointer)).
-global soundChannels mutable type: (Stdn Collections Vector(SoundChannel pointer)).
 
 global player mutable type: Player pointer.
 global viewMatrix mutable type: Float32x2x3.
@@ -604,57 +473,6 @@ function update(delta: Float32) => Void := {
 	entities resizeTo: destIndex.
 }.
 
-#*
-function mixAudioSamples(mixBuffer: Float32x2 pointer, sampleCount: UInt32) => Void := {
-	let samplePeriod := 1.0f / audioDeviceSpec freq.
-
-	## Clear the mixing buffer.
-	Stdn memset(mixBuffer, 0, sampleCount * Float32x2 instanceSize).
-
-	audioMutex withLock: {
-		## Add each one of the sound channels into the mixing buffer.
-		soundChannels do: {:channel :: Void |
-			channel _ mixSamples: sampleCount samplePeriod: samplePeriod intoBuffer: mixBuffer
-		}.
-	}.
-}.
-
-function audioCallback(userdata: Void pointer, stream: UInt8 pointer, len: Int32) => Void := {
-	let channels := audioDeviceSpec channels.
-	let sampleByteSize := audioDeviceSpec sampleByteSize.
-	let sampleCount := len / (sampleByteSize * channels) castTo: UInt32.
-
-	audioDeviceSpec format = AUDIO_F32 ifTrue: {
-		mixAudioSamples(stream reinterpretCastTo: Float32x2 pointer, sampleCount).
-		return: nil
-	}.
-
-	mixAudioSamples(audioTemporaryBuffer, sampleCount).
-
-	audioDeviceSpec format selectCase: #{
-		AUDIO_S16 : {
-			let targetBuffer := stream reinterpretCastTo: Int16x2 pointer.
-			0 until: sampleCount do: {:i :: Void |
-				let sample := audioTemporaryBuffer[i].
-				let convertedSample := (sample clampMin: -1.0 max: 1.0)*32767.0 castTo: Int16x2.
-				targetBuffer[i] := convertedSample.
-			}.
-		}.
-		AUDIO_U16 : {
-			let targetBuffer := stream reinterpretCastTo: UInt16x2 pointer.
-			0 until: sampleCount do: {:i :: Void |
-				let sample := audioTemporaryBuffer[i].
-				let convertedSample := (sample*0.5 + 0.5 clampMin: 0.0 max: 1.0)*65535.0 castTo: UInt16x2.
-				targetBuffer[i] := convertedSample.
-			}.
-		}.
-		_ : {
-			Stdn memset(stream, 0, len castTo: UIntPointer).
-		}.
-	}.
-}.
-*#
-
 method createWallMin: (min: Float32x2) max: (max: Float32x2) color: (color: Float32x4) ::=> Void := {
 	let wall mutable := Wall nativeNew.
 	wall _
@@ -699,21 +517,7 @@ Stdn MainEntryPoint: {:args :: Int32 |
         mainWindow _ eventHandler: (eventHandler upCastFor: EventHandler)
     }.
 
-	#*
-	SDL_InitSubSystem(SDL_INIT_AUDIO).
-	{
-		let desiredAudioSpec mutable := SDL_AudioSpec newValue
-			freq: 48000;
-			format: AUDIO_S16;
-			channels: 2;
-			samples: 2048;
-			callback: audioCallback address;
-			yourself.
-		audioDeviceID := SDL_OpenAudioDevice(nil, 0, desiredAudioSpec address, audioDeviceSpec address, SDL_AUDIO_ALLOW_FREQUENCY_CHANGE | SDL_AUDIO_ALLOW_FORMAT_CHANGE | SDL_AUDIO_ALLOW_SAMPLES_CHANGE).
-		audioDeviceSpec format ~= AUDIO_F32 ifTrue: {
-			audioTemporaryBuffer := Stdn malloc(audioDeviceSpec samples * 8 castTo: UIntPointer) reinterpretCastTo: Float32x2 pointer.
-		}.
-	}.*#
+	playbackDevice := SoundDriverRegistry validDefaultPlaybackDevice.
 
 	## Create the floor
 	{
@@ -741,13 +545,11 @@ Stdn MainEntryPoint: {:args :: Int32 |
 
 	## Shoot sound.
 	{
-		let pulseChannel mutable := PulseChannel nativeNew.
+		let pulseChannel mutable := PulseToneGenerator sharedNew.
 		pulseChannel _
 			frequency: 150.0;
 			amplitude: 0.1;
-			extraParam: 0.15;
-
-			paused: true;
+			pulseWidth: 0.15;
 
 			attackTime: 0.025;
 			decayTime: 0.025;
@@ -755,60 +557,45 @@ Stdn MainEntryPoint: {:args :: Int32 |
 			sustainTime: 0.1;
 			releaseTime: 0.3.
 
-		shootSound := pulseChannel.
-		soundChannels add: pulseChannel.
+		shootSound := playbackDevice _ newSoundSourceForGenerator: (pulseChannel upCastFor: SoundGenerator)
 	}.
 
 	## Jump sound.
 	{
-		let noiseChannel mutable := NoiseChannel nativeNew.
+		let noiseChannel mutable := NoiseSoundGenerator sharedNew.
 		noiseChannel _
 			amplitude: 0.1;
-
-			paused: true;
 
 			attackTime: 0.015f;
 			decayTime: 0.015f;
 			sustainLevel: 0.2f;
 			sustainTime: 0.05f;
 			releaseTime: 0.1f.
-		jumpSound := noiseChannel.
-		soundChannels add: noiseChannel.
+		jumpSound := playbackDevice _ newSoundSourceForGenerator: (noiseChannel upCastFor: SoundGenerator)
 	}.
 
 	## Dash sound.
 	{
-		let noiseChannel mutable := NoiseChannel nativeNew.
+		let noiseChannel mutable := NoiseSoundGenerator sharedNew.
 		noiseChannel _
 			amplitude: 0.1;
-
-			paused: true;
 
 			attackTime: 0.025f;
 			decayTime: 0.02f;
 			sustainLevel: 0.2f;
 			sustainTime: 0.1f;
 			releaseTime: 0.2f.
-		dashSound := noiseChannel.
-		soundChannels add: noiseChannel.
+		dashSound := playbackDevice _ newSoundSourceForGenerator: (noiseChannel upCastFor: SoundGenerator)
 	}.
 
-	#*
-	audioDeviceID ~= 0 ifTrue: {
-		SDL_PauseAudioDevice(audioDeviceID, 0).
-	}.
-	*#
+	playbackDevice _ resume.
 
 	## Enter into the main loop.
 	windowSystem _ runMainLoop.
 
-	#*audioDeviceID ~= 0 ifTrue: {
-		SDL_CloseAudioDevice(audioDeviceID).
-		Stdn free(audioTemporaryBuffer).
-	}.*#
+	playbackDevice _ destroy.
 
 	entities do: #nativeDelete.
-	soundChannels do: #nativeDelete.
 
     return: 0.
 }.

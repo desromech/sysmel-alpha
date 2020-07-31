@@ -1,0 +1,70 @@
+namespace Stdn definition: {
+namespace Sound definition: {
+
+useNamespace: SDL2.
+
+#**
+ * I represent a particular sound driver.
+ *#
+class SDL2SoundDriver superclass: SoundDriver; definition: {
+    override method initialize => Void := {
+        SoundDriverRegistry default registerDriver: self address
+    }.
+
+    override method finalize => Void := {
+        SoundDriverRegistry default unregisterDriver: self address
+    }.
+
+    field mutex type: Stdn Mutex.
+    field mainDevice type: SDL2PlaybackDevice weakPointer.
+
+    meta definition: {
+        global Singleton mutable type: SDL2SoundDriver.
+    }.
+
+    method createDefaultPlaybackDevice => SDL2PlaybackDevicePtr := {
+        SDL2InitState uniqueInstance increaseAudioUserCount.
+
+        let result := SDL2PlaybackDevice sharedNew.
+
+        let audioDeviceSpec mutable := SDL_AudioSpec().
+        let desiredAudioSpec mutable := SDL_AudioSpec()
+            freq: 48000;
+            format: AUDIO_S16;
+            channels: 2;
+            samples: 2048;
+            callback: sdl2PlaybackDeviceAudioCallback address;
+            userdata: result getPointer;
+            yourself.
+        let audioDeviceID := SDL_OpenAudioDevice(nil, 0, desiredAudioSpec address, audioDeviceSpec address, SDL_AUDIO_ALLOW_FREQUENCY_CHANGE | SDL_AUDIO_ALLOW_FORMAT_CHANGE | SDL_AUDIO_ALLOW_SAMPLES_CHANGE).
+        audioDeviceID = 0 ifTrue: {
+            SDL2InitState uniqueInstance decreaseAudioUserCount.
+            return: SDL2PlaybackDevicePtr nil
+        }.
+
+        result _
+            initializeWithAudioDevice: audioDeviceID audioSpec: audioDeviceSpec.
+        result
+    }.
+
+    override method getOrCreateDefaultPlaybackDevice => PlaybackDevicePtr := {
+        let result mutable := mainDevice lock.
+        result ifNotNil: {return: (result upCastFor: PlaybackDevice)}.
+
+        mutex withLock: {
+            result := mainDevice lock.
+            result ifNotNil: {return: (result upCastFor: PlaybackDevice)}.
+
+            result := self createDefaultPlaybackDevice.
+            mainDevice := result.
+            return: (result upCastFor: PlaybackDevice)
+        }.
+
+        PlaybackDevicePtr nil.
+    }.
+}.
+
+compileTime constant SDL2SoundDriverPtr := SDL2SoundDriver sharedPointer.
+
+} ## End of namespace Sound
+} ## End of namespace Stdn

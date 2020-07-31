@@ -1,0 +1,24 @@
+namespace Stdn definition: {
+namespace Sound definition: {
+
+#**
+ * I represent a specific sound source. I obtain my data from a sound buffer,
+ * or from a sound generator.
+ *#
+class SoundSource superclass: SharedObject; definition: {
+    virtual method play => Void := {}.
+    virtual method pause => Void := {}.
+    virtual method resume => Void := {}.
+    virtual method stop => Void := {}.
+
+    virtual method soundBuffer: (theSoundBuffer: SoundBufferPtr const ref) ::=> Void := {}.
+    virtual method soundBuffer ::=> SoundBufferPtr := SoundBufferPtr nil.
+
+    virtual method soundGenerator: (theSoundGenerator: SoundGeneratorPtr const ref) ::=> Void := {}.
+    virtual method soundGenerator ::=> SoundGeneratorPtr := SoundGeneratorPtr nil.
+}.
+
+compileTime constant SoundSourcePtr := SoundSource sharedPointer.
+
+} ## End of namespace Sound
+} ## End of namespace Stdn

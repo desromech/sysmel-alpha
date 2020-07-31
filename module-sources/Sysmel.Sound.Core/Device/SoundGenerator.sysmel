@@ -1,0 +1,20 @@
+namespace Stdn definition: {
+namespace Sound definition: {
+
+#**
+ * I am a synthetic sound generator.
+ *#
+class SoundGenerator superclass: SharedObject; definition: {
+    virtual method resetState => Void := {
+
+    }.
+
+    virtual method mixSamples: (sampleCount: UInt32) samplePeriod: (samplePeriod: Float32) ontoBuffer: (mixBuffer: Float32x2 pointer) ::=> Boolean8 := {
+        false
+    }.
+}.
+
+compileTime constant SoundGeneratorPtr := SoundGenerator sharedPointer.
+
+} ## End of namespace Sound
+} ## End of namespace Stdn

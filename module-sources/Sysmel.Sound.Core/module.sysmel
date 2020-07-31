@@ -2,6 +2,7 @@ Compiler
     ##importModuleNamed: #"Sysmel.Math.Core";
     loadPackages: #(
         #"Device"
-        #"Synthesis"
         #"AudioFormats"
+        #"Synthesis"
+        #"NullDevice"
     ).

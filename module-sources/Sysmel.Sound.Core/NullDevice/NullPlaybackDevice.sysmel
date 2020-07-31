@@ -1,0 +1,13 @@
+namespace Stdn definition: {
+namespace Sound definition: {
+
+#**
+ * I am a null playback device.
+ *#
+class NullPlaybackDevice superclass: PlaybackDevice; definition: {
+}.
+
+compileTime constant NullPlaybackDevicePtr := NullPlaybackDevice sharedPointer.
+
+} ## End of namespace Sound
+} ## End of namespace Stdn

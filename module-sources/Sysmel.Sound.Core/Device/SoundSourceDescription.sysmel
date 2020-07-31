@@ -1,0 +1,12 @@
+namespace Stdn definition: {
+namespace Sound definition: {
+
+#**
+ * I provide a description for a sound source.
+ *#
+struct SoundSourceDescription definition: {
+    public field isGlobalSource type: Boolean8.
+}.
+
+} ## End of namespace Sound
+} ## End of namespace Stdn

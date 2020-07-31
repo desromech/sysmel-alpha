@@ -1,0 +1,88 @@
+namespace SDL2 definition: {
+
+class SDL2InitState definition: {
+
+    private field initMutex type: Stdn Mutex.
+    private field initCount type: UInt32.
+    private field videoInitCount type: UInt32.
+    private field audioInitCount type: UInt32.
+
+    meta definition: {
+        global Singleton mutable type: SDL2InitState.
+        method uniqueInstance => SDL2InitState ref
+            := Singleton.
+    }.
+
+    method increaseInitCount => Void := {
+        initMutex withLock: {
+            initCount = 0 ifTrue: {
+                SDL_SetHint("SDL_NO_SIGNAL_HANDLERS", "1").
+                SDL_Init(0).
+            }.
+
+            initCount := initCount + 1
+        }.
+    }.
+
+    method decreaseInitCount => Void := {
+        initMutex withLock: {
+            initCount := initCount - 1.
+            initCount = 0 ifTrue: {
+                SDL_Quit().
+            }.
+        }.
+    }.
+
+    method increaseVideoUserCount => Void := {
+        self increaseInitCount.
+
+        initMutex withLock: {
+            videoInitCount = 0 ifTrue: {
+                SDL_InitSubSystem(SDL_INIT_VIDEO | SDL_INIT_JOYSTICK | SDL_INIT_GAMECONTROLLER) ~= 0 ifTrue: {
+                    Stdn raiseError("Failed to initialize SDL2 video.").
+                }.
+            }.
+
+            videoInitCount := videoInitCount + 1
+        }.
+    }.
+
+    method decreaseVideoUserCount => Void := {
+        initMutex withLock: {
+            videoInitCount := videoInitCount - 1.
+            videoInitCount = 0 ifTrue: {
+                SDL_QuitSubSystem(SDL_INIT_VIDEO | SDL_INIT_GAMECONTROLLER).
+            }.
+        }.
+
+        self decreaseInitCount.
+    }.
+
+    method increaseAudioUserCount => Void := {
+        self increaseInitCount.
+
+        initMutex withLock: {
+            audioInitCount = 0 ifTrue: {
+                SDL_InitSubSystem(SDL_INIT_AUDIO) ~= 0 ifTrue: {
+                    Stdn raiseError("Failed to initialize SDL2 audio.").
+                }.
+            }.
+
+            audioInitCount := audioInitCount + 1
+        }.
+    }.
+
+    method decreaseAudioUserCount => Void := {
+        initMutex withLock: {
+            audioInitCount := videoInitCount - 1.
+            audioInitCount = 0 ifTrue: {
+                SDL_QuitSubSystem(SDL_INIT_AUDIO).
+            }.
+        }.
+
+        self decreaseInitCount.
+    }.
+
+}.
+
+}. ## End of namespace SDL2.

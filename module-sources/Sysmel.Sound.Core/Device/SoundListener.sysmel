@@ -4,9 +4,11 @@ namespace Sound definition: {
 #**
  * I represent a particular sound listener.
  *#
-class Listener superclass: SharedObject; definition: {
+class SoundListener superclass: SharedObject; definition: {
 
 }.
+
+compileTime constant SoundListenerPtr := SoundListener sharedPointer.
 
 } ## End of namespace Sound
 } ## End of namespace Stdn

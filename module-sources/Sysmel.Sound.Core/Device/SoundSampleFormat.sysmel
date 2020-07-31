@@ -1,0 +1,26 @@
+namespace Stdn definition: {
+namespace Sound definition: {
+
+#**
+ * I describe a sound sample format.
+ *#
+enum SoundSampleFormat valueType: UInt8; values: #{
+    U8Norm: 0.
+    S8Norm:.
+    U16Norm:.
+    S16Norm:.
+    F32:.
+}; definition: {
+    method bytesPerSample => UIntPointer := {
+        self selectCase: #{
+        U8Norm : 1.
+        S8Norm : 1.
+        U16Norm : 2.
+        S16Norm : 2.
+        F32 : 4.
+        }
+    }.
+}.
+
+} ## End of namespace Sound
+} ## End of namespace Stdn

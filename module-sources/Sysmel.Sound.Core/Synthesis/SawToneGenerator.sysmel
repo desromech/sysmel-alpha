@@ -1,0 +1,12 @@
+namespace Stdn definition: {
+namespace Sound definition: {
+
+class SawToneGenerator superclass: ToneGenerator; definition: {
+    override method computeSampleAt: (t: Float32) ::=> Float32 := {
+        let x := t*frequency + phase.
+        x fract*2.0f - 1.0f
+    }.
+}.
+
+} ## End of namespace Sound
+} ## End of namespace Stdn

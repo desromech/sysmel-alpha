@@ -1,0 +1,27 @@
+namespace Stdn definition: {
+namespace Sound definition: {
+
+class NoiseSoundGenerator superclass: EnvelopeSoundGenerator; definition: {
+    field randomState type: UInt64.
+
+    inline method nextRandomSample => Float32 := {
+        randomState = 0 ifTrue: {randomState := 1}.
+
+        ## Xor shift generator.
+        ## https://en.wikipedia.org/wiki/Xorshift [January 3th, 2020]
+        let x mutable := randomState.
+        x := x ^ (x << 13).
+        x := x ^ (x >> 7).
+        x := x ^ (x << 17).
+        randomState := x.
+
+        let unormValue := (randomState castTo: Float64) / 18446744073709551615.0.
+        unormValue*2.0 - 1.0 castTo: Float32
+    }.
+
+    override method computeSampleAt: (time: Float32) ::=> Float32
+        := self nextRandomSample.
+}.
+
+} ## End of namespace Sound
+} ## End of namespace Stdn

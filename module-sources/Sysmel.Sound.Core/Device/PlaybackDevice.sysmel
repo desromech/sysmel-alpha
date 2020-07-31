@@ -5,8 +5,26 @@ namespace Sound definition: {
  * I represent a specific sound device.
  *#
 class PlaybackDevice superclass: SharedObject; definition: {
+    virtual method destroy => Void := {}.
+
+    virtual method pause => Void := {}.
+    virtual method resume => Void := {}.
+
+    virtual method newSoundBuffer: (description: SoundBufferDescription const ref) ::=> SoundBufferPtr
+        := self newSoundBuffer: description initialData: nil.
+
+    virtual method newSoundBuffer: (description: SoundBufferDescription const ref) initialData: (initialData: Void const pointer) ::=> SoundBufferPtr
+        := SoundBufferPtr nil.
+
+    virtual method newSoundSource: (description: SoundSourceDescription const ref) ::=> SoundSourcePtr
+        := SoundSourcePtr nil.
+
+    virtual method newSoundSourceForGenerator: (generator: SoundGeneratorPtr const ref) ::=> SoundSourcePtr
+        := SoundSourcePtr nil.
 
 }.
+
+compileTime constant PlaybackDevicePtr := PlaybackDevice sharedPointer.
 
 } ## End of namespace Sound
 } ## End of namespace Stdn

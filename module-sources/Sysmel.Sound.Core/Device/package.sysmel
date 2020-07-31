@@ -1,6 +1,11 @@
-loadFileOnce: "Buffer.sysmel".
-loadFileOnce: "Listener.sysmel".
-loadFileOnce: "Source.sysmel".
+loadFileOnce: "SoundSampleFormat.sysmel".
+loadFileOnce: "SoundBufferDescription.sysmel".
+loadFileOnce: "SoundSourceDescription.sysmel".
+
+loadFileOnce: "SoundBuffer.sysmel".
+loadFileOnce: "SoundListener.sysmel".
+loadFileOnce: "SoundSource.sysmel".
+loadFileOnce: "SoundGenerator.sysmel".
 loadFileOnce: "PlaybackDevice.sysmel".
-loadFileOnce: "Driver.sysmel".
-loadFileOnce: "DriverRegistry.sysmel".
+loadFileOnce: "SoundDriver.sysmel".
+loadFileOnce: "SoundDriverRegistry.sysmel".

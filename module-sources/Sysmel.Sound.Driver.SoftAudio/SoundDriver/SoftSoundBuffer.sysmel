@@ -1,0 +1,27 @@
+namespace Stdn definition: {
+namespace Sound definition: {
+
+#**
+ * I am a software based sound buffer.
+ *#
+class SoftSoundBuffer superclass: SoundBuffer; definition: {
+    field description type: SoundBufferDescription.
+    field dataSize type: UIntPointer.
+    field data type: UInt8 uniquePointer.
+
+    method initializeWithDescription: (theDescription: SoundBufferDescription const ref) ::=> Void := {
+        description := theDescription.
+        dataSize := description bufferByteSize.
+        data reset: (Stdn zmalloc(dataSize) reinterpretCastTo: UInt8 pointer)
+    }.
+
+    override method upload: (newData: Void const pointer) size: (size: UIntPointer) offset: (offset: UIntPointer) ::=> Void := {
+        size + offset > dataSize ifTrue: {return: void}.
+        Stdn memcpy(data getPointer + offset, newData, size).
+    }.
+}.
+
+compileTime constant SoftSoundBufferPtr := SoftSoundBuffer sharedPointer.
+
+} ## End of namespace Sound
+} ## End of namespace Stdn

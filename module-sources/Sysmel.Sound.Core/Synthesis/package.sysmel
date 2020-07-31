@@ -1,0 +1,6 @@
+loadFileOnce: "EnvelopeSoundGenerator.sysmel".
+loadFileOnce: "NoiseSoundGenerator.sysmel".
+loadFileOnce: "ToneGenerator.sysmel".
+loadFileOnce: "PulseToneGenerator.sysmel".
+loadFileOnce: "SawToneGenerator.sysmel".
+loadFileOnce: "SineToneGenerator.sysmel".

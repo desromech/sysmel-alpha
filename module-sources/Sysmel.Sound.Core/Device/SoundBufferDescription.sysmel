@@ -1,0 +1,17 @@
+namespace Stdn definition: {
+namespace Sound definition: {
+
+#**
+ * I provide a description for a sound buffer.
+ *#
+struct SoundBufferDescription definition: {
+    public field format type: SoundSampleFormat.
+    public field channels type: UInt8.
+    public field sampleCount type: UInt32.
+
+    const method bufferByteSize => UIntPointer
+        := format bytesPerSample * channels * sampleCount.
+}.
+
+} ## End of namespace Sound
+} ## End of namespace Stdn

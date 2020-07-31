@@ -1,0 +1,91 @@
+namespace Stdn definition: {
+namespace Sound definition: {
+
+useNamespace: SDL2.
+
+#**
+ * I represent a particular sound driver.
+ *#
+class SDL2PlaybackDevice superclass: SoftPlaybackDevice; definition: {
+    field device type: SDL_AudioDeviceID.
+    field audioSpec type: SDL_AudioSpec.
+    field mixingBuffer type: Float32x2 uniquePointer.
+
+    override method finalize => Void := {
+        self destroy.
+    }.
+
+    method initializeWithAudioDevice: (theDevice: SDL_AudioDeviceID) audioSpec: (theAudioSpec: SDL_AudioSpec) ::=> Void := {
+        device := theDevice.
+        audioSpec := theAudioSpec.
+
+        audioSpec format ~= AUDIO_F32 ifTrue: {
+			mixingBuffer reset: (Stdn malloc(audioSpec samples * 8 castTo: UIntPointer) reinterpretCastTo: Float32x2 pointer).
+		}.
+    }.
+
+    override method destroy => Void := {
+        device = 0 ifTrue: {return: void}.
+
+        device := 0.
+        SDL_CloseAudioDevice(device).
+        SDL2InitState uniqueInstance decreaseAudioUserCount.
+    }.
+
+    override method pause => Void := {
+        device = 0 ifTrue: {return: void}.
+        SDL_PauseAudioDevice(device, 1).
+    }.
+
+    override method resume => Void := {
+        device = 0 ifTrue: {return: void}.
+        SDL_PauseAudioDevice(device, 0).
+    }.
+
+    method onAudioCallback: (stream: UInt8 pointer) len: (len: Int32) ::=> Void := {
+        let channels := audioSpec channels.
+        let sampleByteSize := audioSpec sampleByteSize.
+        let sampleCount := len / (sampleByteSize * channels) castTo: UInt32.
+
+        audioSpec format = AUDIO_F32 ifTrue: {
+            self mixAudioOnto: (stream reinterpretCastTo: Float32x2 pointer) samples: sampleCount sampleRate: audioSpec freq.
+            return: void
+        }.
+
+        let audioTemporaryBuffer := mixingBuffer getPointer.
+        self mixAudioOnto: audioTemporaryBuffer samples: sampleCount sampleRate: audioSpec freq.
+
+        audioSpec format selectCase: #{
+            AUDIO_S16 : {
+                let targetBuffer := stream reinterpretCastTo: Int16x2 pointer.
+                0 until: sampleCount do: {:i :: Void |
+                    let sample := audioTemporaryBuffer[i].
+                    let convertedSample := (sample clampMin: -1.0 max: 1.0)*32767.0 castTo: Int16x2.
+                    targetBuffer[i] := convertedSample.
+                }.
+            }.
+            AUDIO_U16 : {
+                let targetBuffer := stream reinterpretCastTo: UInt16x2 pointer.
+                0 until: sampleCount do: {:i :: Void |
+                    let sample := audioTemporaryBuffer[i].
+                    let convertedSample := (sample*0.5 + 0.5 clampMin: 0.0 max: 1.0)*65535.0 castTo: UInt16x2.
+                    targetBuffer[i] := convertedSample.
+                }.
+            }.
+            _ : {
+                Stdn memset(stream, 0, len castTo: UIntPointer).
+            }.
+        }.
+    }.
+
+}.
+
+function sdl2PlaybackDeviceAudioCallback(userdata: Void pointer, stream: UInt8 pointer, len: Int32) => Void := {
+    (userdata reinterpretCastTo: SDL2PlaybackDevice pointer) _
+        onAudioCallback: stream len: len
+}.
+
+compileTime constant SDL2PlaybackDevicePtr := SDL2PlaybackDevice sharedPointer.
+
+} ## End of namespace Sound
+} ## End of namespace Stdn

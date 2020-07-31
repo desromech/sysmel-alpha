@@ -1,0 +1,11 @@
+namespace Stdn definition: {
+namespace Sound definition: {
+
+class ToneGenerator superclass: EnvelopeSoundGenerator; definition: {
+    public field frequency type: Float32.
+    public field phase type: Float32.
+
+}.
+
+} ## End of namespace Sound
+} ## End of namespace Stdn

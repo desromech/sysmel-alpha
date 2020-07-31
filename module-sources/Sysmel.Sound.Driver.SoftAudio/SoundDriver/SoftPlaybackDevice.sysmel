@@ -1,0 +1,70 @@
+namespace Stdn definition: {
+namespace Sound definition: {
+
+#**
+ * I am a sound playback device that performs software based audio mixing.
+ *#
+class SoftPlaybackDevice superclass: PlaybackDevice; definition: {
+    field mixerMutex type: Stdn Mutex.
+    field activeSoundSources type: Stdn Collections Vector(SoftSoundSourcePtr).
+
+    override method destroy => Void := {
+        mixerMutex withLock: {
+            activeSoundSources removeAll.
+        }.
+    }.
+
+    method mixAudioOnto: (mixBuffer: Float32x2 pointer) samples: (sampleCount: UInt32) sampleRate: (sampleRate: Int32) ::=> Void := {
+    	let samplePeriod := 1.0f / sampleRate.
+
+    	## Clear the mixing buffer.
+    	Stdn memset(mixBuffer, 0, sampleCount * Float32x2 instanceSize).
+        let newActiveSoundSources mutable type: Stdn Collections Vector(SoftSoundSourcePtr).
+
+        mixerMutex withLock: {
+            newActiveSoundSources reserve: activeSoundSources size.
+            activeSoundSources do: {:each :: Void |
+                (each _ mixSamples: sampleCount samplePeriod: samplePeriod ontoBuffer: mixBuffer) ifTrue: {
+                    newActiveSoundSources add: each
+                }.
+            }.
+
+            newActiveSoundSources swapWith: activeSoundSources
+        }.
+    }.
+
+    method activateSoundSource: (soundSource: SoftSoundSourcePtr) ::=> Void := {
+        mixerMutex withLock: {
+            (activeSoundSources includes: soundSource) ifFalse: {
+                activeSoundSources add: soundSource
+            }
+        }.
+    }.
+
+    override method newSoundBuffer: (description: SoundBufferDescription const ref) initialData: (initialData: Void const pointer) ::=> SoundBufferPtr := {
+        let result := SoftSoundBuffer sharedNew.
+        result _ initializeWithDescription: description.
+        initialData ifNotNil: {
+            result _ upload: initialData size: description bufferByteSize offset: 0
+        }.
+
+        result upCastFor: SoundBuffer
+    }.
+
+    override method newSoundSource: (description: SoundSourceDescription const ref) ::=> SoundSourcePtr := {
+        let result := SoftSoundSource sharedNew.
+        result _ initializeWith: description playbackDevice: self asSharedPointer.
+        result upCastFor: SoundSource.
+    }.
+
+    override method newSoundSourceForGenerator: (generator: SoundGeneratorPtr const ref) ::=> SoundSourcePtr := {
+        let result := SoftSoundSource sharedNew.
+        result _ initializeWithGenerator: generator playbackDevice: self asSharedPointer.
+        result upCastFor: SoundSource
+    }.
+}.
+
+compileTime constant SoftPlaybackDevicePtr := SoftPlaybackDevice sharedPointer.
+
+} ## End of namespace Sound
+} ## End of namespace Stdn
