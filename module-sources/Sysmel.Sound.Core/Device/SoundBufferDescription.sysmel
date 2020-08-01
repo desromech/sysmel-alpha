@@ -8,6 +8,7 @@ struct SoundBufferDescription definition: {
     public field format type: SoundSampleFormat.
     public field channels type: UInt8.
     public field sampleCount type: UInt32.
+    public field sampleRate type: UInt32.
 
     const method bufferByteSize => UIntPointer
         := format bytesPerSample * channels * sampleCount.

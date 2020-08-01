@@ -8,23 +8,6 @@ Stdn MainEntryPoint: {:args :: Int32 |
         Stdn stdout << v2 sin; nl.
     }.
 
-    {
-        let v := 0.0.
-        Stdn stdout << v cos << " " << v sin; nl.
-        let v2 := Float64x2 zeros.
-        Stdn stdout << v2 cos; nl.
-        Stdn stdout << v2 sin; nl.
-        Stdn stdout << Float32x4(-0.5f, 0.5f, 1.5f, 2.5f) floor; nl.
-        Stdn stdout << Float32x4(-0.5f, 0.5f, 1.5f, 2.5f) ceil; nl.
-    }.
-
-    {
-        0 to: 100 do: {:i :: Void |
-            let x := i * Float64 twoPi / 100.
-            Stdn stdout << x << " " << x sin << " " << x cos; nl
-        }.
-    }.
-
     Stdn stdout << "Argument count " << args size; nl.
     args doWithIndex: {:arg :i :: Void |
         Stdn stdout << "args[" << i << "] := " << arg; nl.

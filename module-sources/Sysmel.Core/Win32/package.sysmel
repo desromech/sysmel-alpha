@@ -1,4 +1,3 @@
-loadFileOnce: "../NullOS/Threads.sysmel".
 Compiler
     loadPackage: #"Win32-Bindings";
     loadPackage: #"Win32-Stdn".

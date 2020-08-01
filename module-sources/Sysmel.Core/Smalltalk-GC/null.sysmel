@@ -2,7 +2,7 @@ namespace SysmelKernel definition: {
 
 class SysmelGC definition: {
     method allocate: (objectSize: UIntPointer)
-        variableDataSize: (variableDataSize: UInt32)
+        variableDataSize: (variableDataSize: UIntPointer)
         initializingWith: (basicInitializer: Stdn Reflection BasicInitializeFunctionPointerType)
           ::=> Stdn Reflection GCObjectHeader pointer := {
         <nogc>
@@ -13,7 +13,7 @@ class SysmelGC definition: {
 
         ## Set the allocated object class.
         allocatedObject value
-            __variableDataSize: variableDataSize.
+            __variableDataSize: (variableDataSize castTo: UInt32).
 
         ## Perform the basic initialization. This sets the vtable pointers.
         basicInitializer _ (allocatedObject).

@@ -282,7 +282,7 @@ Behavior definition: {
         ## Allocate the object memory.
         let allocatedObject := globalSysmelGC
             allocate: objectSize
-            variableDataSize: (if: variableInstanceElementSize > 0 then: initialSize else: 0)
+            variableDataSize: (variableInstanceElementSize > 0 ifTrue: initialSize ifFalse: 0u)
             initializingWith: basicInitializationFunctionPointer.
 
         ## Convert the allocated object.

@@ -49,6 +49,29 @@ SYSMEL_EPAL_EXPORT bool sysmel_epal_commitAddressSpace(void* addressSpace, size_
 SYSMEL_EPAL_EXPORT bool sysmel_epal_releaseAddressSpace(void* addressSpace, size_t offset, size_t size);
 SYSMEL_EPAL_EXPORT bool sysmel_epal_freeAddressSpace(void* addressSpace, size_t size);
 
+/* Threads */
+typedef uint32_t sysmel_epal_mutex_t[4];
+typedef uint32_t sysmel_epal_condition_t[4];
+typedef uint32_t sysmel_epal_thread_t[4];
+typedef intptr_t (*sysmel_epal_thread_entry_point_t) (void *arg);
+
+SYSMEL_EPAL_EXPORT void sysmel_epal_mutex_initialize(sysmel_epal_mutex_t *mutex);
+SYSMEL_EPAL_EXPORT void sysmel_epal_mutex_finalize(sysmel_epal_mutex_t *mutex);
+SYSMEL_EPAL_EXPORT void sysmel_epal_mutex_lock(sysmel_epal_mutex_t *mutex);
+SYSMEL_EPAL_EXPORT void sysmel_epal_mutex_unlock(sysmel_epal_mutex_t *mutex);
+
+SYSMEL_EPAL_EXPORT void sysmel_epal_condition_initialize(sysmel_epal_condition_t *condition);
+SYSMEL_EPAL_EXPORT void sysmel_epal_condition_finalize(sysmel_epal_condition_t *condition);
+SYSMEL_EPAL_EXPORT void sysmel_epal_condition_wait(sysmel_epal_condition_t *condition, sysmel_epal_mutex_t *mutex);
+SYSMEL_EPAL_EXPORT void sysmel_epal_condition_signalOne(sysmel_epal_condition_t *condition);
+SYSMEL_EPAL_EXPORT void sysmel_epal_condition_signalAll(sysmel_epal_condition_t *condition);
+
+SYSMEL_EPAL_EXPORT int sysmel_epal_thread_create(sysmel_epal_thread_t *thread, sysmel_epal_thread_entry_point_t entryPoint, void *argument);
+SYSMEL_EPAL_EXPORT int sysmel_epal_thread_join(sysmel_epal_thread_t *thread);
+SYSMEL_EPAL_EXPORT int sysmel_epal_thread_detach(sysmel_epal_thread_t *thread);
+
+SYSMEL_EPAL_EXPORT void** sysmel_epal_tls_lastExceptionContext();
+
 /* Sysmel time interface */
 typedef int64_t sysmel_epal_ticks_t;
 #define SYSMEL_TICKS_PER_MICROSECOND 1

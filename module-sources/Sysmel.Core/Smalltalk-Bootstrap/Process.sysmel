@@ -1,7 +1,7 @@
 namespace Smalltalk definition: {
 namespace __Internal definition: {
 
-function callProcessEntryPoint(processPointer: Void pointer) => Void := {
+function callProcessEntryPoint(processPointer: Void pointer) => IntPointer := {
     (processPointer reinterpretCastTo: Smalltalk Process)
         nativeThreadEntryPoint
 }.
@@ -31,8 +31,9 @@ Process definition: {
         self
     }.
 
-    virtual method nativeThreadEntryPoint => Void := {
-        threadResultValue := entryPointBlock value
+    virtual method nativeThreadEntryPoint => IntPointer := {
+        threadResultValue := entryPointBlock value.
+        0
     }.
 }.
 

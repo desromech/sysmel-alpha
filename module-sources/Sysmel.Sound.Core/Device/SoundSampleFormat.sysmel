@@ -13,11 +13,11 @@ enum SoundSampleFormat valueType: UInt8; values: #{
 }; definition: {
     method bytesPerSample => UIntPointer := {
         self selectCase: #{
-        U8Norm : 1.
-        S8Norm : 1.
-        U16Norm : 2.
-        S16Norm : 2.
-        F32 : 4.
+        U8Norm : 1u.
+        S8Norm : 1u.
+        U16Norm : 2u.
+        S16Norm : 2u.
+        F32 : 4u.
         }
     }.
 }.

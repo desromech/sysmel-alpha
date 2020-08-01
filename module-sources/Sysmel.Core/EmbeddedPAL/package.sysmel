@@ -1,4 +1,3 @@
-loadFileOnce: "../NullOS/Threads.sysmel".
 Compiler
     loadPackage: #"EmbeddedPAL-Bindings";
     loadPackage: #"EmbeddedPAL-Stdn".

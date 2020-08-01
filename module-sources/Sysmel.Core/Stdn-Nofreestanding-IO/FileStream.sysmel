@@ -226,6 +226,7 @@ class FileStream superclass: UnbufferedFileStream; definition: {
 
 class AtomicFileStream superclass: FileStream; definition: {
     private field mutex type: RecursiveMutex.
+   
 
     override method position => Int64
         := mutex withLock: {super position}.
@@ -245,8 +246,16 @@ class AtomicFileStream superclass: FileStream; definition: {
     override method flush => Void
         := mutex withLock: {super flush}.
 
-    override method close => Void
-        := mutex withLock: {super close}.
+    override method finalize => Void := {
+        ## We need to close here, before the mutex is destroyed.
+        self close.
+    }.
+
+    override method close => Void := {
+        self isValid ifFalse: {return: void}.
+
+        mutex withLock: {super close}.
+    }.
 }.
 
 }. ## End of namespace IO

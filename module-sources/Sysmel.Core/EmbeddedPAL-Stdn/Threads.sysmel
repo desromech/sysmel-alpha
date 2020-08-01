@@ -1,0 +1,103 @@
+namespace Stdn definition: {
+
+class AbstractMutex definition: {
+    public field handle type: EmbeddedPAL Mutex.
+
+    method initialize => Void := {
+        EmbeddedPAL sysmel_epal_mutex_initialize(handle address).
+    }.
+
+    method finalize => Void := {
+        EmbeddedPAL sysmel_epal_mutex_finalize(handle address).
+    }.
+
+    method lock => Void := {
+        EmbeddedPAL sysmel_epal_mutex_lock(handle address).
+    }.
+
+    method unlock => Void := {
+        EmbeddedPAL sysmel_epal_mutex_unlock(handle address).
+    }.
+
+    macro method withLock: aBlock := ``{
+        `,self lock.
+        `,aBlock __macroInlineBlockEnsure: `,self unlock.
+    } asSequenceWithoutLexicalScope.
+}.
+
+#**
+ * Mutex wrapper.
+ *#
+class Mutex superclass: AbstractMutex; definition: {}.
+class MemoryHeapMutex superclass: Mutex; definition: {}.
+class RecursiveMutex superclass: AbstractMutex; definition: {}.
+
+class ConditionVariable
+definition: {
+    public field handle type: EmbeddedPAL ConditionVariable.
+
+    method initialize => Void := {
+        EmbeddedPAL sysmel_epal_condition_initialize(handle address).
+    }.
+
+    method finalize => Void := {
+        EmbeddedPAL sysmel_epal_condition_finalize(handle address).
+    }.
+
+    method wait: (mutex: Mutex ref) ::=> Void := {
+        EmbeddedPAL sysmel_epal_condition_wait(handle address, mutex handle address).
+    }.
+
+    method notifyOne => Void := {
+        EmbeddedPAL sysmel_epal_condition_signalOne(handle address).
+    }.
+
+    method notifyAll => Void := {
+        EmbeddedPAL sysmel_epal_condition_signalAll(handle address).
+    }.
+}.
+
+#**
+ * Semaphore implementation.
+ *#
+class Semaphore
+definition: {
+    method initializeWithCount: (initialCount: UIntPointer) ::=> Void := {
+    }.
+
+    method lock => Void
+        := void.
+
+    method unlock => Void
+        := void.
+
+    method signal => Void
+        := void.
+
+    method wait => Void
+        := void.
+
+    method signal: (n: UIntPointer) ::=> Void
+        := void.
+
+    method wait: (n: UIntPointer) ::=> Void
+        := void.
+}.
+
+Thread extend: {
+    public field handle type: EmbeddedPAL Thread.
+
+    method start: (entryPoint: NativeEntryPointFunctionType pointer) with: (argument: Void pointer) ::=> Void := {
+        EmbeddedPAL sysmel_epal_thread_create(handle address, entryPoint reinterpretCastTo: EmbeddedPAL ThreadEntryPoint, argument).
+    }.
+
+    method detach => Void := {
+        EmbeddedPAL sysmel_epal_thread_detach(handle address).
+    }.
+
+    method join => Void := {
+        EmbeddedPAL sysmel_epal_thread_detach(handle address).
+    }.
+}.
+
+}. ## End of namespace Stdn

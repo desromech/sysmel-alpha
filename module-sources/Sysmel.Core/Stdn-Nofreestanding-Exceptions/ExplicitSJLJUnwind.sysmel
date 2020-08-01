@@ -36,10 +36,15 @@ struct ExceptionContext definition: {
         := 1 + self hasCleanUp asBit + self hasNonLocalReturn asBit castTo: UIntPointer.
 }.
 
-global lastExceptionContext mutable threadLocal type: ExceptionContext pointer.
+compileTime if: Compiler compilationTarget isEmbeddedPAL then: {
+    method lastExceptionContext => ExceptionContext pointer ref
+        := (EmbeddedPAL sysmel_epal_tls_lastExceptionContext() reinterpretCastTo: ExceptionContext pointer pointer) _.
+} else: {
+    global lastExceptionContext mutable threadLocal type: ExceptionContext pointer.
+}.
 
 function findContextCatchingTypeInfo(typeInfo: Reflection TypeInformation pointer) => (ExceptionContext pointer -- UIntPointer) := {
-    let position mutable := lastExceptionContext.
+    let position mutable := Stdn Unwind lastExceptionContext.
     while: position isNotNil do: {
         0 until: position _ catchedExceptionTypeCount do: {:i :: Void |
             let catchedTypeInfo := position _ catchedExceptionTypes[i] reinterpretCastTo: Reflection TypeInformation pointer.
@@ -55,7 +60,7 @@ function findContextCatchingTypeInfo(typeInfo: Reflection TypeInformation pointe
 }.
 
 function isTargetContextAvailable(targetContext: ExceptionContext pointer) => Boolean8 := {
-    let position mutable := lastExceptionContext.
+    let position mutable := Stdn Unwind lastExceptionContext.
     while: position isNotNil do: {
         position == targetContext ifTrue: {
             return: true
@@ -69,6 +74,7 @@ function isTargetContextAvailable(targetContext: ExceptionContext pointer) => Bo
 
 function doUnwindUntilContext noReturn(targetContext: ExceptionContext pointer) => Void := {
     ## Invoke all of the clean ups on the way.
+    let lastExceptionContext ref := Stdn Unwind lastExceptionContext.
     while: lastExceptionContext ~~ nil && lastExceptionContext ~~ targetContext do: {
         let position := lastExceptionContext.
         lastExceptionContext := position _ previousContext.
@@ -116,12 +122,15 @@ Exception extend: {
 }.
 
 function __sysmel_eh_contextBegin externC(targetContext: Void pointer) => Void := {
+    let lastExceptionContext ref := Stdn Unwind lastExceptionContext.
     let newContext := targetContext reinterpretCastTo: ExceptionContext pointer.
     newContext _ previousContext: lastExceptionContext.
     lastExceptionContext := newContext
 }.
 
 function __sysmel_eh_contextEnd externC(targetContext: Void pointer) => Void := {
+    let lastExceptionContext ref := Stdn Unwind lastExceptionContext.
+
     let endingContext := targetContext reinterpretCastTo: ExceptionContext pointer.
     lastExceptionContext := endingContext _ previousContext.
 }.

@@ -1,6 +1,111 @@
 namespace Win32 definition: {
 
+struct RTL_CRITICAL_SECTION definition: {
+    public field DebugInfo type: Void pointer.
+
+    public field LockCount type: LONG.
+    public field RecursionCount type: LONG.
+    public field OwningThread type: HANDLE.
+    public field LockSemaphore type: HANDLE.
+    public field SpinCount type: UInt64. ## Force packing to 8 byte
+}.
+
+struct RTL_CONDITION_VARIABLE definition: {
+    public field Ptr type: Void pointer.
+}.
+
+struct STARTUPINFOA definition: {
+    public field cb type: DWORD.
+    public field lpReserved type: Char8 pointer.
+    public field lpDesktop type: Char8 pointer.
+    public field lpTitle type: Char8 pointer.
+    public field dwX type: DWORD.
+    public field dwY type: DWORD.
+    public field dwXSize type: DWORD.
+    public field dwYSize type: DWORD.
+    public field dwXCountChars type: DWORD.
+    public field dwYCountChars type: DWORD.
+    public field dwFillAttribute type: DWORD.
+    public field dwFlags type: DWORD.
+    public field wShowWindow type: WORD.
+    public field cbReserved2 type: WORD.
+    public field lpReserved2 type: BYTE pointer.
+    public field hStdInput type: HANDLE.
+    public field hStdOutput type: HANDLE.
+    public field hStdError type: HANDLE.
+}.
+
+struct STARTUPINFOW definition: {
+    public field cb type: DWORD.
+    public field lpReserved type: Char16 pointer.
+    public field lpDesktop type: Char16 pointer.
+    public field lpTitle type: Char16 pointer.
+    public field dwX type: DWORD.
+    public field dwY type: DWORD.
+    public field dwXSize type: DWORD.
+    public field dwYSize type: DWORD.
+    public field dwXCountChars type: DWORD.
+    public field dwYCountChars type: DWORD.
+    public field dwFillAttribute type: DWORD.
+    public field dwFlags type: DWORD.
+    public field wShowWindow type: WORD.
+    public field cbReserved2 type: WORD.
+    public field lpReserved2 type: BYTE pointer.
+    public field hStdInput type: HANDLE.
+    public field hStdOutput type: HANDLE.
+    public field hStdError type: HANDLE.
+}.
+
+struct PROCESS_INFORMATION definition: {
+    public field hProcess type: HANDLE.
+    public field hThread type: HANDLE.
+    public field dwProcessId type: DWORD.
+    public field dwThreadId type: DWORD.
+}.
+
+compileTime constant CRITICAL_SECTION := RTL_CRITICAL_SECTION.
+compileTime constant CONDITION_VARIABLE := RTL_CONDITION_VARIABLE.
+
+function InitializeCriticalSection apicall externC(lpCriticalSection: CRITICAL_SECTION pointer) => Void.
+function DeleteCriticalSection apicall externC(lpCriticalSection: CRITICAL_SECTION pointer) => Void.
+function EnterCriticalSection apicall externC(lpCriticalSection: CRITICAL_SECTION pointer) => Void.
+function TryEnterCriticalSection apicall externC(lpCriticalSection: CRITICAL_SECTION pointer) => BOOL.
+function LeaveCriticalSection apicall externC(lpCriticalSection: CRITICAL_SECTION pointer) => Void.
+
+function InitializeConditionVariable apicall externC(ConditionVariable: CONDITION_VARIABLE pointer) => Void.
+function SleepConditionVariableCS apicall externC(ConditionVariable: CONDITION_VARIABLE pointer, CriticalSection: CRITICAL_SECTION pointer, dwMilliseconds: DWORD) => BOOL.
+function WakeConditionVariable apicall externC(ConditionVariable: CONDITION_VARIABLE pointer) => Void.
+function WakeAllConditionVariable apicall externC(ConditionVariable: CONDITION_VARIABLE pointer) => Void.
+
+compileTime constant LPTHREAD_START_ROUTINE := (Void pointer => DWORD) apicall pointer.
+compileTime constant CTHREAD_START_ROUTINE := (Void pointer => UInt32) pointer.
+
+function CreateProcessA apicall externC(lpApplicationName: Char8 const pointer,
+    lpCommandLine: Char8 pointer, lpProcessAttributes: SECURITY_ATTRIBUTES pointer,
+    lpThreadAttributes: SECURITY_ATTRIBUTES pointer, bInheritHandles: BOOL,
+    dwCreationFlags: DWORD, lpEnvironment: Void pointer, lpCurrentDirectory: Char8 const pointer,
+    lpStartupInfo: STARTUPINFOA pointer, lpProcessInformation: PROCESS_INFORMATION pointer) => BOOL.
+function CreateProcessW apicall externC(lpApplicationName: Char16 const pointer,
+    lpCommandLine: Char16 pointer, lpProcessAttributes: SECURITY_ATTRIBUTES pointer,
+    lpThreadAttributes: SECURITY_ATTRIBUTES pointer, bInheritHandles: BOOL,
+    dwCreationFlags: DWORD, lpEnvironment: Void pointer, lpCurrentDirectory: Char16 const pointer,
+    lpStartupInfo: STARTUPINFOW pointer, lpProcessInformation: PROCESS_INFORMATION pointer) => BOOL.
+function CreateThread apicall externC(lpThreadAttributes: SECURITY_ATTRIBUTES pointer,
+    dwStackSize: SIZE_T, lpStartAddress: LPTHREAD_START_ROUTINE,
+    lpParameter: Void pointer, dwCreationFlags: DWORD, lpThreadId: DWORD pointer) => HANDLE.
+
 function GetCurrentThread apicall externC() => HANDLE.
 function GetCurrentProcess apicall externC() => HANDLE.
+
+function WaitForMultipleObjects apicall externC(nCount: DWORD, lpHandles: HANDLE const pointer, bWaitAll: BOOL, dwMilliseconds: DWORD) => DWORD.
+function WaitForMultipleObjectsEx apicall externC(nCount: DWORD, lpHandles: HANDLE const pointer, bWaitAll: BOOL, dwMilliseconds: DWORD, bAlertable: BOOL) => DWORD.
+function WaitForSingleObject apicall externC(hHandle: HANDLE, dwMilliseconds: DWORD) => DWORD.
+function WaitForSingleObjectEx apicall externC(hHandle: HANDLE, dwMilliseconds: DWORD, bAlertable: BOOL) => DWORD.
+
+## LibC wrappers on create thread that support proper destructor invokations.
+function _beginthreadex cdecl externC(lpThreadAttributes: SECURITY_ATTRIBUTES pointer,
+    dwStackSize: SIZE_T, lpStartAddress: CTHREAD_START_ROUTINE,
+    lpParameter: Void pointer, dwCreationFlags: DWORD, lpThreadId: DWORD pointer) => HANDLE.
+function _endthreadex cdecl externC(retval: UInt32) => Void.
 
 }. ## End of namespace Win32
