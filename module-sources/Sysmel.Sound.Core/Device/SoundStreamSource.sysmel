@@ -1,0 +1,27 @@
+namespace Stdn definition: {
+namespace Sound definition: {
+
+#**
+ * I am a sound stream generator.
+ *#
+class SoundStreamSource superclass: SharedObject; definition: {
+    virtual method resetState => Void := {
+
+    }.
+
+    virtual method isMonophonic => Boolean8
+        := false.
+
+    virtual method atEnd => Boolean8
+        := false.
+
+    virtual method mixSamples: (sampleCount: UInt32) samplePeriod: (samplePeriod: Float32) ontoS16Buffer: (mixBuffer: Int16 pointer) pitch: (pitch: Float32) gain: (gain: Float32) ::=> Void := {}.
+    virtual method mixSamples: (sampleCount: UInt32) samplePeriod: (samplePeriod: Float32) ontoF32Buffer: (mixBuffer: Float32 pointer) pitch: (pitch: Float32) gain: (gain: Float32) ::=> Void := {}.
+    virtual method mixSamples: (sampleCount: UInt32) samplePeriod: (samplePeriod: Float32) ontoS16x2Buffer: (mixBuffer: Int16x2 pointer) pitch: (pitch: Float32x2) gain: (gain: Float32x2) ::=> Void := {}.
+    virtual method mixSamples: (sampleCount: UInt32) samplePeriod: (samplePeriod: Float32) ontoF32x2Buffer: (mixBuffer: Float32x2 pointer) pitch: (pitch: Float32x2) gain: (gain: Float32x2) ::=> Void := {}.
+}.
+
+compileTime constant SoundStreamSourcePtr := SoundStreamSource sharedPointer.
+
+} ## End of namespace Sound
+} ## End of namespace Stdn
