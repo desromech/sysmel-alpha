@@ -24,7 +24,7 @@ class SoftPlaybackDevice superclass: PlaybackDevice; definition: {
         mixerMutex withLock: {
             newActiveSoundSources reserve: activeSoundSources size.
             activeSoundSources do: {:each :: Void |
-                (each _ mixSamples: sampleCount samplePeriod: samplePeriod ontoBuffer: mixBuffer) ifTrue: {
+                (each _ mixSamples: sampleCount samplePeriod: samplePeriod ontoF32x2Buffer: mixBuffer) ifTrue: {
                     newActiveSoundSources add: each
                 }.
             }.
@@ -57,9 +57,9 @@ class SoftPlaybackDevice superclass: PlaybackDevice; definition: {
         result upCastFor: SoundSource.
     }.
 
-    override method newSoundSourceForGenerator: (generator: SoundGeneratorPtr const ref) ::=> SoundSourcePtr := {
+    override method newSoundSourceForStreamSource: (generator: SoundStreamSourcePtr const ref) ::=> SoundSourcePtr := {
         let result := SoftSoundSource sharedNew.
-        result _ initializeWithGenerator: generator playbackDevice: self asSharedPointer.
+        result _ initializeWithStreamSource: generator playbackDevice: self asSharedPointer.
         result upCastFor: SoundSource
     }.
 }.

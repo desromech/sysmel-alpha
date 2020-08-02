@@ -8,12 +8,12 @@ inline function trunc externC(x: Float64) => Float64
 
 inline function floor externC(x: Float64) => Float64 := {
     let f := trunc(x).
-    f = x || x >= 0 ifTrue: x ifFalse: x - 1
+    f = x || x >= 0 ifTrue: f ifFalse: f - 1
 }.
 
 inline function ceil externC(x: Float64) => Float64 := {
     let f := trunc(x).
-    f = x || x <= 0 ifTrue: x ifFalse: x + 1
+    f = x || x <= 0 ifTrue: f ifFalse: f + 1
 }.
 
 inline function fmod externC(x: Float64, y: Float64) => Float64
@@ -203,13 +203,13 @@ inline function truncf externC(x: Float32) => Float32
     := (x castTo: Int64).
 
 inline function floorf externC(x: Float32) => Float32 := {
-    let f := trunc(x).
-    f = x || x >= 0 ifTrue: x ifFalse: x - 1
+    let f := truncf(x).
+    f = x || x >= 0 ifTrue: f ifFalse: f - 1
 }.
 
 inline function ceilf externC(x: Float32) => Float32 := {
-    let f := trunc(x).
-    f = x || x <= 0 ifTrue: x ifFalse: x + 1
+    let f := truncf(x).
+    f = x || x <= 0 ifTrue: f ifFalse: f + 1
 }.
 
 inline function cosf externC(value: Float32) => Float32

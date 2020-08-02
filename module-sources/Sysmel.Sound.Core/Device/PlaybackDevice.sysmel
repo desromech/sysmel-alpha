@@ -19,9 +19,11 @@ class PlaybackDevice superclass: SharedObject; definition: {
     virtual method newSoundSource: (description: SoundSourceDescription const ref) ::=> SoundSourcePtr
         := SoundSourcePtr nil.
 
-    virtual method newSoundSourceForGenerator: (generator: SoundGeneratorPtr const ref) ::=> SoundSourcePtr
+    virtual method newSoundSourceForStreamSource: (streamSource: SoundStreamSourcePtr const ref) ::=> SoundSourcePtr
         := SoundSourcePtr nil.
 
+    virtual method newSoundSourceForStaticGenerator: (generator: SoundGeneratorPtr const ref) ::=> SoundSourcePtr
+        := self newSoundSourceForStreamSource: (generator upCastFor: SoundStreamSource).
 }.
 
 compileTime constant PlaybackDevicePtr := PlaybackDevice sharedPointer.

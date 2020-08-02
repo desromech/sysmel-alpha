@@ -6,7 +6,8 @@ namespace Sound definition: {
  *#
 class SoftSoundSource superclass: SoundSource; definition: {
     field description type: SoundSourceDescription.
-    field generator type: SoundGeneratorPtr.
+    field soundBuffer type: SoftSoundBufferPtr.
+    field streamSource type: SoundStreamSourcePtr.
     field playbackDevice type: SoftPlaybackDevicePtr.
     field isPlaying type: Boolean8.
     field playbackPosition type: UIntPointer.
@@ -16,17 +17,16 @@ class SoftSoundSource superclass: SoundSource; definition: {
         playbackDevice := theDevice.
     }.
 
-    method initializeWithGenerator: (theGenerator: SoundGeneratorPtr const ref) playbackDevice: (theDevice: SoftPlaybackDevicePtr const ref) ::=> Void := {
-        generator := theGenerator.
+    method initializeWithStreamSource: (theStreamSource: SoundStreamSourcePtr const ref) playbackDevice: (theDevice: SoftPlaybackDevicePtr const ref) ::=> Void := {
+        streamSource := theStreamSource.
         playbackDevice := theDevice.
     }.
 
     method resetPlaybackPosition => Void := {
         playbackPosition := 0.
-        generator ifNotNil: {
-            generator _ resetState.
+        streamSource ifNotNil: {
+            streamSource _ resetState.
         }.
-
     }.
 
     override method play => Void := {
@@ -48,15 +48,30 @@ class SoftSoundSource superclass: SoundSource; definition: {
         isPlaying := false.
     }.
 
-    method mixSamples: (sampleCount: UInt32) samplePeriod: (samplePeriod: Float32) ontoBuffer: (mixBuffer: Float32x2 pointer) ::=> Boolean8 := {
+    method mixSamples: (sampleCount: UInt32) samplePeriod: (samplePeriod: Float32) ontoF32x2Buffer: (mixBuffer: Float32x2 pointer) ::=> Boolean8 := {
         isPlaying ifFalse: {return: false}.
 
-        generator ifNil: {
+        streamSource ifNil: {
             true
         } ifNotNil: {
-            generator _ mixSamples: sampleCount samplePeriod: samplePeriod ontoBuffer: mixBuffer
+            streamSource _ mixSamples: sampleCount samplePeriod: samplePeriod ontoF32x2Buffer: mixBuffer pitch: 1 gain: 1.
+            streamSource _ atEnd not
         }.
     }.
+
+    override method soundBuffer: (theSoundBuffer: SoundBufferPtr const ref) ::=> Void := {
+        soundBuffer := theSoundBuffer downCastFor: SoftSoundBuffer
+    }.
+
+    override method soundBuffer ::=> SoundBufferPtr
+        := soundBuffer upCastFor: SoundBuffer.
+
+    override method soundStreamSource: (theSoundStreamSource: SoundStreamSourcePtr const ref) ::=> Void := {
+        streamSource := theSoundStreamSource
+    }.
+
+    override method soundStreamSource ::=> SoundStreamSourcePtr
+        := streamSource.
 }.
 
 compileTime constant SoftSoundSourcePtr := SoftSoundSource sharedPointer.

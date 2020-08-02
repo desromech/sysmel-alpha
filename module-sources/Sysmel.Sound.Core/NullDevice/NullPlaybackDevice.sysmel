@@ -14,7 +14,7 @@ class NullPlaybackDevice superclass: PlaybackDevice; definition: {
     override method newSoundSource: (description: SoundSourceDescription const ref) ::=> SoundSourcePtr
         := SoundSource sharedNew.
 
-    override method newSoundSourceForGenerator: (generator: SoundGeneratorPtr const ref) ::=> SoundSourcePtr
+    override method newSoundSourceForStreamSource: (streamSource: SoundStreamSourcePtr const ref) ::=> SoundSourcePtr
         := SoundSource sharedNew.
 }.
 

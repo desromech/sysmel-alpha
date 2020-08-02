@@ -19,7 +19,7 @@ class NoiseSoundGenerator superclass: EnvelopeSoundGenerator; definition: {
         unormValue*2.0 - 1.0 castTo: Float32
     }.
 
-    override method computeSampleAt: (time: Float32) ::=> Float32
+    override method computeRawSampleAt: (time: Float32) pitch: (pitch: Float32) ::=> Float32
         := self nextRandomSample.
 }.
 

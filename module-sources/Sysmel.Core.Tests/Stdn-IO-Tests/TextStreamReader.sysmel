@@ -25,10 +25,7 @@ class TextStreamReaderTestCase superclass: Stdn Testing TestCase; definition: {
         self assert: "inf" asMutableString textStreamReader nextFloat32 isPositiveInfinity.
         self assert: "-inf" asMutableString textStreamReader nextFloat32 isNegativeInfinity.
 
-        ## In some embedded platforms, signaling nans are catastrophic.
-        compileTime if: Compiler compilationTarget isDesktopPC then: {
-            self assert: "nan" asMutableString textStreamReader nextFloat32 isNaN.
-        }.
+        self assert: "nan" asMutableString textStreamReader nextFloat32 isNaN.
     }.
 
     test: testFloat64 with: {

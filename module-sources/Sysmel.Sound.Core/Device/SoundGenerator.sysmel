@@ -2,15 +2,69 @@ namespace Stdn definition: {
 namespace Sound definition: {
 
 #**
- * I am a synthetic sound generator.
+ * I am a sound stream generator.
  *#
-class SoundGenerator superclass: SharedObject; definition: {
-    virtual method resetState => Void := {
+class SoundGenerator superclass: SoundStreamSource; definition: {
+    field currentSampleIndex type: UInt32.
+    field currentTime type: Float32.
 
+    override method resetState => Void := {
+        currentSampleIndex := 0.
+        currentTime := 0.
     }.
 
-    virtual method mixSamples: (sampleCount: UInt32) samplePeriod: (samplePeriod: Float32) ontoBuffer: (mixBuffer: Float32x2 pointer) ::=> Boolean8 := {
-        false
+    virtual method computeSampleAt: (time: Float32) pitch: (pitch: Float32) ::=> Float32
+        := 0.0f.
+
+    virtual method computeStereoSampleAt: (time: Float32) pitch: (pitch: Float32x2) ::=> Float32x2
+        := self computeSampleAt: time pitch: (pitch x max: pitch y).
+
+    override method isMonophonic => Boolean8
+        := true.
+
+    override method mixSamples: (sampleCount: UInt32) samplePeriod: (samplePeriod: Float32) ontoS16Buffer: (mixBuffer: Int16 pointer) pitch: (pitch: Float32) gain: (gain: Float32) ::=> Void := {
+        0 until: sampleCount do: {:i :: Void |
+            let absoluteSampleTime := (currentSampleIndex + i)*samplePeriod.
+            let sample := (self computeSampleAt: absoluteSampleTime pitch: pitch) * gain * 16r8000 castTo: Int32.
+            mixBuffer[i] := (mixBuffer[i] + sample clampMin: Int16 minValue max: Int16 maxValue) castTo: Int16.
+        }.
+
+        currentSampleIndex := currentSampleIndex + sampleCount.
+        currentTime := currentSampleIndex*samplePeriod.
+    }.
+
+    override method mixSamples: (sampleCount: UInt32) samplePeriod: (samplePeriod: Float32) ontoF32Buffer: (mixBuffer: Float32 pointer) pitch: (pitch: Float32) gain: (gain: Float32) ::=> Void := {
+        0 until: sampleCount do: {:i :: Void |
+            let absoluteSampleTime := (currentSampleIndex + i)*samplePeriod.
+            let sample := (self computeSampleAt: absoluteSampleTime pitch: pitch) * gain.
+            mixBuffer[i] := mixBuffer[i] + sample
+        }.
+
+        currentSampleIndex := currentSampleIndex + sampleCount.
+        currentTime := currentSampleIndex*samplePeriod.
+    }.
+
+    override method mixSamples: (sampleCount: UInt32) samplePeriod: (samplePeriod: Float32) ontoS16x2Buffer: (mixBuffer: Int16x2 pointer) pitch: (pitch: Float32x2) gain: (gain: Float32x2) ::=> Void := {
+        0 until: sampleCount do: {:i :: Void |
+            let absoluteSampleTime := (currentSampleIndex + i)*samplePeriod.
+            let sample := (self computeStereoSampleAt: absoluteSampleTime pitch: pitch) * gain * 16r8000 castTo: Int32x2.
+            let sourceSample := mixBuffer[i] castTo: Int32x2.
+            mixBuffer[i] := (sourceSample + sample clampMin: Int16 minValue max: Int16 maxValue) castTo: Int16x2
+        }.
+
+        currentSampleIndex := currentSampleIndex + sampleCount.
+        currentTime := currentSampleIndex*samplePeriod.
+    }.
+
+    override method mixSamples: (sampleCount: UInt32) samplePeriod: (samplePeriod: Float32) ontoF32x2Buffer: (mixBuffer: Float32x2 pointer) pitch: (pitch: Float32x2) gain: (gain: Float32x2) ::=> Void := {
+        0 until: sampleCount do: {:i :: Void |
+            let absoluteSampleTime := (currentSampleIndex + i)*samplePeriod.
+            let sample := (self computeStereoSampleAt: absoluteSampleTime pitch: pitch) * gain.
+            mixBuffer[i] := mixBuffer[i] + sample
+        }.
+
+        currentSampleIndex := currentSampleIndex + sampleCount.
+        currentTime := currentSampleIndex*samplePeriod.
     }.
 }.
 

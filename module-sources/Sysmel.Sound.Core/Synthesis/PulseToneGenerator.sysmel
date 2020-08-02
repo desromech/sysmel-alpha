@@ -4,9 +4,9 @@ namespace Sound definition: {
 class PulseToneGenerator superclass: ToneGenerator; definition: {
     public field pulseWidth type: Float32.
 
-    override method computeSampleAt: (t: Float32) ::=> Float32 := {
-        let x := t*frequency + phase.
-        (x fract stepValue: pulseWidth)*2.0f - 1.0f.
+    override method computeRawSampleAt: (t: Float32) pitch: (pitch: Float32) ::=> Float32 := {
+        let x := t*frequency*pitch + phase.
+        (x fract stepValue: pulseWidth)*2.0f - 1.0f
     }.
 }.
 

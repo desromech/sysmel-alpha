@@ -5,6 +5,7 @@ loadFileOnce: "SoundSourceDescription.sysmel".
 loadFileOnce: "SoundBuffer.sysmel".
 loadFileOnce: "SoundListener.sysmel".
 loadFileOnce: "SoundSource.sysmel".
+loadFileOnce: "SoundStreamSource.sysmel".
 loadFileOnce: "SoundGenerator.sysmel".
 loadFileOnce: "PlaybackDevice.sysmel".
 loadFileOnce: "SoundDriver.sysmel".

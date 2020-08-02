@@ -14,8 +14,8 @@ class SoundSource superclass: SharedObject; definition: {
     virtual method soundBuffer: (theSoundBuffer: SoundBufferPtr const ref) ::=> Void := {}.
     virtual method soundBuffer ::=> SoundBufferPtr := SoundBufferPtr nil.
 
-    virtual method soundGenerator: (theSoundGenerator: SoundGeneratorPtr const ref) ::=> Void := {}.
-    virtual method soundGenerator ::=> SoundGeneratorPtr := SoundGeneratorPtr nil.
+    virtual method soundStreamSource: (theSoundStreamSource: SoundStreamSourcePtr const ref) ::=> Void := {}.
+    virtual method soundStreamSource ::=> SoundStreamSourcePtr := SoundStreamSourcePtr nil.
 }.
 
 compileTime constant SoundSourcePtr := SoundSource sharedPointer.

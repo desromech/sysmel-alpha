@@ -557,7 +557,7 @@ Stdn MainEntryPoint: {:args :: Int32 |
 			sustainTime: 0.1;
 			releaseTime: 0.3.
 
-		shootSound := playbackDevice _ newSoundSourceForGenerator: (pulseChannel upCastFor: SoundGenerator)
+		shootSound := playbackDevice _ newSoundSourceForStaticGenerator: (pulseChannel upCastFor: SoundGenerator)
 	}.
 
 	## Jump sound.
@@ -571,7 +571,7 @@ Stdn MainEntryPoint: {:args :: Int32 |
 			sustainLevel: 0.2f;
 			sustainTime: 0.05f;
 			releaseTime: 0.1f.
-		jumpSound := playbackDevice _ newSoundSourceForGenerator: (noiseChannel upCastFor: SoundGenerator)
+		jumpSound := playbackDevice _ newSoundSourceForStaticGenerator: (noiseChannel upCastFor: SoundGenerator)
 	}.
 
 	## Dash sound.
@@ -585,7 +585,7 @@ Stdn MainEntryPoint: {:args :: Int32 |
 			sustainLevel: 0.2f;
 			sustainTime: 0.1f;
 			releaseTime: 0.2f.
-		dashSound := playbackDevice _ newSoundSourceForGenerator: (noiseChannel upCastFor: SoundGenerator)
+		dashSound := playbackDevice _ newSoundSourceForStaticGenerator: (noiseChannel upCastFor: SoundGenerator)
 	}.
 
 	playbackDevice _ resume.
