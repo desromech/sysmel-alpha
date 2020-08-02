@@ -349,6 +349,11 @@ MbndCompilationEnvironment >> floatAbiName: fpu [
 ]
 
 { #category : #accessing }
+MbndCompilationEnvironment >> floatingPointModel: fpModel [
+	compilationTarget floatingPointModel: fpModel
+]
+
+{ #category : #accessing }
 MbndCompilationEnvironment >> fpu: fpu [
 	compilationTarget fpu: fpu.
 ]
@@ -463,7 +468,7 @@ MbndCompilationEnvironment >> hasMonolithicTranslationMode [
 { #category : #testing }
 MbndCompilationEnvironment >> hasNullGarbageCollector [
 	<compileTime>
-	^ self compilationTarget isWebAssembly or: [ self compilationTarget isX86 not ]
+	^ self compilationTarget isWebAssembly or: [ self compilationTarget isX86 not or: [self compilationTarget isLinux not]]
 ]
 
 { #category : #testing }

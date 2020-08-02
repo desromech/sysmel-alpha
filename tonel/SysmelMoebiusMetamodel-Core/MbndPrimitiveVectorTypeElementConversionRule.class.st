@@ -39,7 +39,7 @@ MbndPrimitiveVectorTypeElementConversionRule >> postProcessCastNode: node withAn
 			sourceElementType instanceSize = targetElementType instanceSize ifTrue: [
 				MbndAstBitCastNode
 			] ifFalse: [ 
-				sourceElementType instanceSize isSigned ifTrue: [
+				sourceElementType isSigned ifTrue: [
 					MbndAstSignExtensionCastNode 
 				] ifFalse:[
 					MbndAstZeroExtensionCastNode

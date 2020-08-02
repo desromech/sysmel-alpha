@@ -123,7 +123,8 @@ MbndSlovimCompilationTarget >> asCleanCompilationTarget [
 		exceptionModel: self exceptionModel;
 		cpu: self cpu;
 		fpu: self fpu;
-		floatAbiName: self floatAbiName.
+		floatAbiName: self floatAbiName;
+		floatingPointModel: self floatingPointModel.
 	cleanTarget slvmCompilationTarget
 		emittingDebugInformation: slvmCompilationTarget emittingDebugInformation.
 		
@@ -194,6 +195,16 @@ MbndSlovimCompilationTarget >> floatAbiName [
 { #category : #accessing }
 MbndSlovimCompilationTarget >> floatAbiName: targetFloatAbiName [
 	slvmCompilationTarget floatAbiName: targetFloatAbiName
+]
+
+{ #category : #accessing }
+MbndSlovimCompilationTarget >> floatingPointModel [
+	^ slvmCompilationTarget floatingPointModel
+]
+
+{ #category : #accessing }
+MbndSlovimCompilationTarget >> floatingPointModel: targetFloatAbiName [
+	slvmCompilationTarget floatingPointModel: targetFloatAbiName
 ]
 
 { #category : #accessing }

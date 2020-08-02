@@ -82,6 +82,12 @@ MbndFunctionType >> analyzeFunctionCallNode: node with: analyzer [
 	^ node
 ]
 
+{ #category : #'calling conventions' }
+MbndFunctionType >> apicall [
+	<compileTime>
+	^ self withNewCallingConvention: #apicall
+]
+
 { #category : #accessing }
 MbndFunctionType >> argumentTypes [
 	<compileTime>
@@ -143,6 +149,12 @@ MbndFunctionType >> canHaveDynamicMethodWrapper [
 	].
 	returnType canHaveDynamicMethodWrapper ifFalse: [ ^ false ].
 	^ true
+]
+
+{ #category : #'calling conventions' }
+MbndFunctionType >> cdecl [
+	<compileTime>
+	^ self withNewCallingConvention: #cdecl
 ]
 
 { #category : #accessing }
@@ -242,6 +254,12 @@ MbndFunctionType >> returnType: anObject [
 	returnType := anObject
 ]
 
+{ #category : #'calling conventions' }
+MbndFunctionType >> stdcall [
+	<compileTime>
+	^ self withNewCallingConvention: #stdcall
+]
+
 { #category : #testing }
 MbndFunctionType >> typedSelectorSpec [
 	^ ByteString streamContents: [ :out |
@@ -262,6 +280,11 @@ MbndFunctionType >> typedSelectorSpec [
 MbndFunctionType >> withExplicitReceiverType: receiverType [
 	^ self compilationTarget functionTypeWithArguments: {receiverType} , argumentTypes returnType: returnType callingConvention: callingConvention cvariadic: cvariadic
 
+]
+
+{ #category : #'as yet unclassified' }
+MbndFunctionType >> withNewCallingConvention: newCallingConvention [
+	^ self compilationTarget functionTypeWithArguments: argumentTypes returnType: returnType callingConvention: newCallingConvention cvariadic: cvariadic
 ]
 
 { #category : #'as yet unclassified' }
