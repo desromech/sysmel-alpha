@@ -1832,7 +1832,7 @@ MbndSlovimCodeModuleGenerator >> translateCompilerGeneratedMethod: generatedMeth
 	generatedMethod isFunclet ifTrue: [
 		ssaFunction makePrivate
 	] ifFalse: [
-		generatedMethod parent areSyntheticMethodsInternal ifTrue: [ ssaFunction makeLinkOnceODR ]
+		generatedMethod parent areSyntheticMethodsInternal ifTrue: [ ssaFunction makeWeakODR ]
 	].
 	self setupGCStrategyFor: ssaFunction generatedFrom: generatedMethod.
 	
@@ -1943,7 +1943,7 @@ MbndSlovimCodeModuleGenerator >> translateProgramEntityInformationData: programE
 	(programEntity isMbndType and: [
 		programEntity isSpecialStructureType or:
 		[ programEntity isSystemProvidedTypeTemplateInstanceMainChild ] ]) ifTrue: [
-		ssaProgramEntityInfo makeLinkOnceODR
+		ssaProgramEntityInfo makeWeakODR
 	].
 	
 	ssaProgramEntityInfo initialValue: (self literalValueGenerator translateObject: programEntityType content: programEntity programEntityInformationData).
