@@ -34,7 +34,18 @@ sealed class AgpuBuffer superclass: Buffer; definition: {
 
     override method readAt: (offset: UIntPointer) size: (size: UIntPointer) into: (buffer: Void pointer) ::=> Void := {
         handle _ readBufferData: (offset castTo: UInt32) size: (size castTo: UInt32) data: buffer
-    }
+    }.
+
+    override method flushAt: (offset: UIntPointer) size: (size: UIntPointer) ::=> Void := {
+        ## TODO: Add a smarter API than this.
+        handle _ flushWholeBuffer.
+    }.
+
+    override method invalidateAt: (offset: UIntPointer) size: (size: UIntPointer) ::=> Void := {
+        ## TODO: Add a smarter API than this.
+        handle _ invalidateWholeBuffer.
+    }.
+
 }.
 
 compileTime constant AgpuBufferPtr := AgpuBuffer sharedPointer.

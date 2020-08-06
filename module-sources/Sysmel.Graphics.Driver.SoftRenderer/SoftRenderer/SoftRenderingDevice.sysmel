@@ -47,11 +47,23 @@ class SoftRenderingDevice superclass: RenderingDevice; definition: {
     override method createShaderSignatureBuilder ::=> ShaderSignatureBuilderPtr
         := SoftShaderSignatureBuilder sharedNew upCastFor: ShaderSignatureBuilder.
 
+    override method createShaderLibraryFromSource: (shaderModuleSource: Char8 const arraySlice) shaderLanguage: (shaderLanguage: ShaderSourceLanguage) stageType: (stageType: ShaderStageType) ::=> ShaderLibraryHandlePtr
+        := ShaderLibraryHandlePtr nil.
+
+    override method createShaderLibraryFromBlob: (shaderModuleBlob: UInt8 const arraySlice) ::=> ShaderLibraryHandlePtr
+        := ShaderLibraryHandlePtr nil.
+
     override method createShaderLibraryFromModule: (shaderModule: GPU ShaderModuleInfo const ref) ::=> ShaderLibraryHandlePtr := {
         let result := SoftShaderLibraryHandle sharedNew.
         result _ moduleInfo: shaderModule address.
         result upCastFor: ShaderLibraryHandle
     }.
+
+    override method createShaderStageFromSource: (shaderStageSource: Char8 const arraySlice) shaderLanguage: (shaderLanguage: ShaderSourceLanguage) stageType: (stageType: ShaderStageType) ::=> ShaderStageHandlePtr
+        := ShaderStageHandlePtr nil.
+
+    override method createShaderStageFromBlob: (shaderStageBlob: UInt8 const arraySlice) stageType: (stageType: ShaderStageType) ::=> ShaderStageHandlePtr
+        := ShaderStageHandlePtr nil.
 
     override method createShaderStageFromEntryPoint: (entryPointInfo: GPU ShaderEntryPointInfo const ref) ::=> ShaderStageHandlePtr := {
         let result := SoftShaderStageHandle sharedNew.

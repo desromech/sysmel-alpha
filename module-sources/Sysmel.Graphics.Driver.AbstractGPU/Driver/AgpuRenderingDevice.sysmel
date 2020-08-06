@@ -321,21 +321,30 @@ sealed class AgpuRenderingDevice superclass: RenderingDevice; definition: {
     override method getDefaultCommandQueue => CommandQueuePtr const ref
         := defaultCommandQueue.
 
-    override method createShaderLibraryFromModule: (shaderModule: GPU ShaderModuleInfo const ref) ::=> ShaderLibraryHandlePtr := {
+    override method createShaderLibraryFromSource: (shaderModuleSource: Char8 const arraySlice) shaderLanguage: (shaderLanguage: ShaderSourceLanguage) stageType: (stageType: ShaderStageType) ::=> ShaderLibraryHandlePtr
+        := ShaderLibraryHandlePtr nil.
+
+    override method createShaderLibraryFromBlob: (shaderModuleBlob: UInt8 const arraySlice) ::=> ShaderLibraryHandlePtr := {
         let shaderHandle := handle _ createShader: AGPU ShaderType Library.
         shaderHandle ifNil: {
             return: ShaderLibraryHandlePtr nil
         }.
 
         shaderHandle _
-            setShaderSource: AGPU ShaderLanguage SpirV sourceText: (shaderModule blobStartPointer reinterpretCastTo: Char8 const pointer)
-                sourceTextLength: shaderModule blobSize;
+            setShaderSource: AGPU ShaderLanguage SpirV sourceText: (shaderModuleBlob elements reinterpretCastTo: Char8 const pointer)
+                sourceTextLength: (shaderModuleBlob size castTo: UInt32);
                 compileShader: "".
 
         let result := AgpuShaderLibraryHandle sharedNew.
         result _ handle: shaderHandle.
         result upCastFor: ShaderLibraryHandle
     }.
+
+    override method createShaderStageFromSource: (shaderStageSource: Char8 const arraySlice) shaderLanguage: (shaderLanguage: ShaderSourceLanguage) stageType: (stageType: ShaderStageType) ::=> ShaderStageHandlePtr
+        := ShaderStageHandlePtr nil. ## TODO: implement myself.
+
+    override method createShaderStageFromBlob: (shaderStageBlob: UInt8 const arraySlice) stageType: (stageType: ShaderStageType) ::=> ShaderStageHandlePtr
+        := ShaderStageHandlePtr nil. ## TODO: implement myself.
 
     override method createShaderStageFromEntryPoint: (entryPointInfo: GPU ShaderEntryPointInfo const ref) ::=> ShaderStageHandlePtr := {
         entryPointInfo moduleInfo ifNil: {

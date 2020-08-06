@@ -21,6 +21,8 @@ class Buffer superclass: RenderingDriverObjectHandle; definition: {
     abstract method uploadAt: (offset: UIntPointer) size: (size: UIntPointer) data: (data: Void const pointer) ::=> Void.
     abstract method readAt: (offset: UIntPointer) size: (size: UIntPointer) into: (buffer: Void pointer) ::=> Void.
 
+    virtual method flushAt: (offset: UIntPointer) size: (size: UIntPointer) ::=> Void := {}.
+    virtual method invalidateAt: (offset: UIntPointer) size: (size: UIntPointer) ::=> Void := {}.
 }.
 
 compileTime constant BufferPtr := Buffer sharedPointer.

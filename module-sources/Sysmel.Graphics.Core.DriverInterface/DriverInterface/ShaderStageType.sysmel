@@ -1,0 +1,20 @@
+namespace Stdn definition: {
+namespace Graphics definition: {
+namespace Core definition: {
+
+#**
+ * I represent a specific shader stage type.
+ *#
+enum ShaderStageType valueType: UInt32; values: #{
+    Vertex: 0.
+    Fragment: 1.
+    Geometry: 2.
+    Compute: 3.
+    TessellationControl: 4.
+    TessellationEvaluation: 5.
+    Library: 6.
+}.
+
+}. ## End of namespace Core
+}. ## End of namespace Graphics
+}. ## End of namespace Stdn

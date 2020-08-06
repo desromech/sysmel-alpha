@@ -2,6 +2,11 @@ namespace Stdn definition: {
 namespace Graphics definition: {
 namespace Core definition: {
 
+enum TextureDataFlags bitMask valueType: UInt32; values: #{
+    None: 0.
+    OptimalTargetSpecificTiling: 1. ## For some embedded devices where the tiling layout is well known.
+}.
+
 class TextureDataHeader definition: {
     public field type type: TextureType.
     public field format type: PixelFormat.
@@ -13,6 +18,7 @@ class TextureDataHeader definition: {
     public field miplevels type: UInt32.
     public field layers type: UInt32.
     public field linearDataSize type: UInt32.
+    public field flags type: TextureDataFlags.
     public field mainViewComponents type: ComponentsSwizzle.
 }.
 

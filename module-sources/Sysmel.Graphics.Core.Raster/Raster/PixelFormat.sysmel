@@ -136,7 +136,44 @@ enum PixelFormat valueType: UInt32; values: #{
     ASTC12X10_UNormSRGB: 255.
     ASTC12X12_UNorm: 256.
     ASTC12X12_UNormSRGB: 257.
+
+
+    ## The following values do not have a matching value in AGPU. There provided
+    ## for in memory image manipulation, and for some special targets.
+
+    ExtensionStart: 16rff000000.
+    R8G8B8_UNorm:.
+    R8G8B8_UNormSRGB:.
+    R8G8B8_SNorm:.
+    R8G8B8_SNormSRGB:.
+
+    B8G8R8_UNorm:.
+    B8G8R8_UNormSRGB:.
+    B4G4R4A4_UNorm:.
+    B4G4R4A4_UNormSRGB:.
+
+    ETC1_R8G8B8_UNorm:.
+    ETC1_R8G8B8_UNormSRGB:.
+    ETC1_R8G8B8A4_UNorm:.
+    ETC1_R8G8B8A4_UNormSRGB:.
+
+    R4_UNorm:.
+    A4_UNorm:.
+    R4G4_UNorm:.
+
+    ## R8G8 for tangent space normal mapping. Z is automatically generated.
+    HI8LO8_UNorm:.
+
 }; definition: {
+
+    method bitsPerPixel => UInt32 := {
+        self selectCase: #{
+        R1_UNorm : {return: 1}.
+        R4_UNorm : {return: 4}.
+        A4_UNorm : {return: 4}.
+        _ : {return: self bytesPerPixel*8}
+        }
+    }.
 
     method bytesPerPixel => UInt32 := {
         self selectCase: #{
@@ -144,6 +181,8 @@ enum PixelFormat valueType: UInt32; values: #{
         ## 1 Bytes types.
         (
             R8_Typeless, R8_UNorm, R8_UInt, R8_SNorm, R8_SInt, A8_UNorm,
+
+            R4G4_UNorm
         ) asValueInSetPattern : {
             return: 1
         }.
@@ -153,8 +192,22 @@ enum PixelFormat valueType: UInt32; values: #{
             R16_Typeless, R16_Float, D16_UNorm, R16_UNorm, R16_UInt, R16_SNorm, R16_SInt,
 
             R8G8_Typeless, R8G8_UNorm, R8G8_UInt, R8G8_SNorm, R8G8_SInt,
+
+            B5G6R5_UNorm, B5G5R5A1_UNorm, B4G4R4A4_UNorm, B4G4R4A4_UNormSRGB,
+
+            B4G4R4A4_UNorm, B4G4R4A4_UNormSRGB,
+
+            HI8LO8_UNorm,
         ) asValueInSetPattern : {
             return: 2
+        }.
+
+        ## 3 Bytes types.
+        (
+        R8G8B8_UNorm, R8G8B8_UNormSRGB, R8G8B8_SNorm, R8G8B8_SNormSRGB,
+        B8G8R8_UNorm, B8G8R8_UNormSRGB,
+        ) asValueInSetPattern : {
+            return: 3
         }.
 
         ## 4 Bytes types.
@@ -196,8 +249,6 @@ enum PixelFormat valueType: UInt32; values: #{
 
         _ : {return: 0}.
         }.
-
-        Stdn abort().
     }.
 
     inline method swizzleLoadedUnorm8x4: (value: UInt8x4) ::=> UInt8x4 := {
@@ -245,7 +296,10 @@ enum PixelFormat valueType: UInt32; values: #{
             ASTC5X4_UNormSRGB, ASTC5X5_UNormSRGB, ASTC6X5_UNormSRGB, ASTC6X6_UNormSRGB,
             ASTC8X5_UNormSRGB, ASTC8X6_UNormSRGB, ASTC8X8_UNormSRGB, ASTC10X5_UNormSRGB,
             ASTC10X6_UNormSRGB, ASTC10X8_UNormSRGB, ASTC10X10_UNormSRGB, ASTC12X10_UNormSRGB,
-            ASTC12X12_UNormSRGB
+            ASTC12X12_UNormSRGB,
+
+            R8G8B8_UNormSRGB, R8G8B8_SNormSRGB, B8G8R8_UNormSRGB, ETC1_R8G8B8_UNormSRGB,
+            B4G4R4A4_UNormSRGB
         ) asValueInSetPattern : {
             true
         }.

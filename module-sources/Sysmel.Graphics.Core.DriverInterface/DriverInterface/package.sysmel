@@ -17,8 +17,10 @@ loadFileOnce: "RenderPassAttachmentAction.sysmel".
 loadFileOnce: "RenderPassColorAttachmentDescription.sysmel".
 loadFileOnce: "RenderPassDepthStencilAttachmentDescription.sysmel".
 loadFileOnce: "SamplerDescription.sysmel".
+loadFileOnce: "ShaderSourceLanguage.sysmel".
 loadFileOnce: "ShaderSignatureBankDescription.sysmel".
 loadFileOnce: "ShaderSignatureDescription.sysmel".
+loadFileOnce: "ShaderStageType.sysmel".
 loadFileOnce: "StencilOperation.sysmel".
 loadFileOnce: "SwapChainFlags.sysmel".
 loadFileOnce: "SwapChainCreationInfo.sysmel".

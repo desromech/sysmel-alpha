@@ -60,7 +60,13 @@ class RenderingDevice superclass: RenderingDriverObjectHandle; definition: {
     abstract method createCommandListOfType: (type: CommandListType) for: (allocator: CommandListAllocatorPtr const ref) initialPipelineState: (initialPipeline: PipelineStatePtr const ref) ::=> CommandListPtr.
     abstract method getDefaultCommandQueue => CommandQueuePtr const ref.
 
-    abstract method createShaderLibraryFromModule: (shaderModule: GPU ShaderModuleInfo const ref) ::=> ShaderLibraryHandlePtr.
+    abstract method createShaderLibraryFromSource: (shaderModuleSource: Char8 const arraySlice) shaderLanguage: (shaderLanguage: ShaderSourceLanguage) stageType: (stageType: ShaderStageType) ::=> ShaderLibraryHandlePtr.
+    abstract method createShaderLibraryFromBlob: (shaderModuleBlob: UInt8 const arraySlice) ::=> ShaderLibraryHandlePtr.
+    virtual method createShaderLibraryFromModule: (shaderModule: GPU ShaderModuleInfo const ref) ::=> ShaderLibraryHandlePtr
+        := self createShaderLibraryFromBlob: (shaderModule blobStartPointer until: shaderModule blobSize).
+
+    abstract method createShaderStageFromSource: (shaderStageSource: Char8 const arraySlice) shaderLanguage: (shaderLanguage: ShaderSourceLanguage) stageType: (stageType: ShaderStageType) ::=> ShaderStageHandlePtr.
+    abstract method createShaderStageFromBlob: (shaderStageBlob: UInt8 const arraySlice) stageType: (stageType: ShaderStageType) ::=> ShaderStageHandlePtr.
     abstract method createShaderStageFromEntryPoint: (entryPointInfo: GPU ShaderEntryPointInfo const ref) ::=> ShaderStageHandlePtr.
 
     abstract method createFramebuffer: (extent: UInt32x2) colorViews: (colorViews: TextureViewPtr const arraySlice) depthStencilView: (depthStencilView: TextureViewPtr const ref) ::=> FramebufferPtr.

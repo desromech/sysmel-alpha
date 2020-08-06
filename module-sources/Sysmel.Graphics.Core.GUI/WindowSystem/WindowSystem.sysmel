@@ -61,6 +61,7 @@ class WindowSystem superclass: Object; definition: {
     protected field mainLoopAccumulatedTicks type: Stdn Chrono Time.
     protected field mainLoopFrameStartTicks type: Stdn Chrono Time.
     protected field mainLoopStartTicks type: Stdn Chrono Time.
+    protected field mainLoopDeterministicsTicks type: Stdn Chrono Time.
     protected field mainLoopFrameCount type: UInt32.
 
     ## Run the default main loop.
@@ -114,12 +115,14 @@ class WindowSystem superclass: Object; definition: {
 
         let deterministicFrameCount := mainLoopAccumulatedTicks / ticksPerFrame max: 0.
         mainLoopAccumulatedTicks := mainLoopAccumulatedTicks - deterministicFrameCount*ticksPerFrame.
+        mainLoopDeterministicsTicks := mainLoopDeterministicsTicks + deterministicFrameCount * ticksPerFrame.
 
         ## Send the tick events
         {
             let event mutable type: TickEvent.
             event
                 ticks: mainLoopFrameStartTicks - mainLoopStartTicks;
+                deterministicTicks: mainLoopDeterministicsTicks;
                 deterministicDelta: ticksPerFrame;
                 deterministicRemainingDelta: mainLoopAccumulatedTicks;
                 deterministicFrameCount: (deterministicFrameCount castTo: UInt32);
