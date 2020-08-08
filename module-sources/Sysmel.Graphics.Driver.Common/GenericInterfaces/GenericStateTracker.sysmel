@@ -469,6 +469,10 @@ class GenericStateTracker superclass: StateTracker; definition: {
     override method copyFromTexture: (sourceTexture: TexturePtr const ref) intoBuffer: (destBuffer: BufferPtr const ref) region: (copyRegion: BufferImageCopyRegion) ::=> Void := {
         commandList _ copyFromTexture: sourceTexture intoBuffer: destBuffer region: copyRegion
     }.
+
+    override method dumpToFileNamed: (fileName: Char8 const pointer) ::=> Void := {
+        commandList _ dumpToFileNamed: fileName
+    }.
 }.
 
 compileTime constant GenericStateTrackerPtr := GenericStateTracker sharedPointer.

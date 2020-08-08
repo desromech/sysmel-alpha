@@ -52,6 +52,8 @@ class CommandList superclass: RenderingDriverObjectHandle; definition: {
     abstract method copyFromBuffer: (sourceBuffer: BufferPtr const ref) intoTexture: (destTexture: TexturePtr const ref) region: (copyRegion: BufferImageCopyRegion) ::=> Void.
     abstract method copyFromTexture: (sourceTexture: TexturePtr const ref) intoBuffer: (destBuffer: BufferPtr const ref) region: (copyRegion: BufferImageCopyRegion) ::=> Void.
 
+    virtual method dumpToFileNamed: (fileName: Char8 const pointer) ::=> Void := {}.
+    
     virtual method resetFor: (allocator: CommandListAllocatorPtr const ref) ::=> Void
         := self resetFor: allocator initialPipelineState: PipelineStatePtr nil.
 }.

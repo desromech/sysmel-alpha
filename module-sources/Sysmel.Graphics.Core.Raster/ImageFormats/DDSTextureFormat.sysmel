@@ -221,8 +221,24 @@ class DDSTextureFormat superclass: ImageReadWriter; definition: {
 
             void
         } ifFalse: {
-            Stdn stdout << "TODO: deduct pixel format from masks"; nl.
-            return: TextureDataPtr nil.
+            header pixelFormat rgbBitCount = 32 ifTrue: {
+                header pixelFormat rBitMask = 16r000000ff && header pixelFormat gBitMask = 16r0000ff00 && header pixelFormat bBitMask = 16r00ff0000 && header pixelFormat aBitMask = 16rff000000 ifTrue: {
+                    result _
+                        format: PixelFormat R8G8B8A8_UNorm;
+                        srgbFormat: PixelFormat R8G8B8A8_UNormSRGB.
+                }.
+
+                header pixelFormat rBitMask = 16r00ff0000 && header pixelFormat gBitMask = 16r0000ff00 && header pixelFormat bBitMask = 16r000000ff && header pixelFormat aBitMask = 16rff000000 ifTrue: {
+                    result _
+                        format: PixelFormat B8G8R8A8_UNorm;
+                        srgbFormat: PixelFormat B8G8R8A8_UNormSRGB.
+                }.
+            }.
+
+            ## TODO: Support more formats.
+            result _ format = PixelFormat Unknown ifTrue: {
+                return: TextureDataPtr nil.
+            }.
         }.
 
         ## Compute the levels metadata.
