@@ -91,7 +91,15 @@ MbndSlovimLiteralValueGenerator >> translateObject: targetType content: content 
 { #category : #visiting }
 MbndSlovimLiteralValueGenerator >> visitAggregateType: type [
 	| slots convertedSlots slvmType hasBiggerArrayAtTheEnd |
+	literalValue isString ifTrue: [ 
+		self assert: type isArraySliceType.
+		literalValue := MbndAggregateTypeInstanceValue new
+			type: type;
+			slots: {literalValue . literalValue size};
+			yourself.
+	].
 	slots := literalValue slots.
+
 	convertedSlots := type slotLayout slots collectWithIndex: [ :slot :index |
 		self sanitizeAggregateConstantMember:
 		(self ensureValidSSALiteralValue: (codeModuleGenerator translateLiteralValue: (slots at: index) ofType: slot type)
