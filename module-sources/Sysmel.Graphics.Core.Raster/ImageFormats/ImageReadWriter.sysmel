@@ -5,22 +5,28 @@ namespace ImageFormats definition: {
 useNamespace: Stdn Graphics Core.
 
 class ImageReadWriter superclass: Object; definition: {
-    const virtual method supportsExtension: (extension: Stdn String const ref) ::=> Boolean8
+    const virtual method supportsExtension: (extension: Char8 const arraySlice) ::=> Boolean8
         := false.
 
-    const virtual method putForm: (form: Form ref) onFileNamed: (fileName: Stdn String const ref) ::=> Boolean8 := {
-        let outFile mutable type: Stdn IO UnbufferedFileStream.
-        (outFile open: fileName mode: Stdn IO FileOpenMode CreateNew) ifTrue: {
-            self putForm: form onStream: outFile.
+    const virtual method putForm: (form: Form ref) onFileNamed: (fileName: Stdn String const ref) ::=> Boolean8
+        := self putForm: form onFileReference: fileName asNativeFileReference.
+
+    const virtual method putForm: (form: Form ref) onFileReference: (fileReference: Stdn FileReference const ref) ::=> Boolean8 := {
+        let outFile := fileReference binaryUnbufferedWriteStream.
+        outFile ifNotNil: {
+            self putForm: form onStream: outFile _.
             return: true
         }.
         return: false
     }.
 
-    const virtual method putTextureData: (textureData: TextureData ref) onFileNamed: (fileName: Stdn String const ref) ::=> Boolean8 := {
-        let outFile mutable type: Stdn IO UnbufferedFileStream.
-        (outFile open: fileName mode: Stdn IO FileOpenMode CreateNew) ifTrue: {
-            self putTextureData: textureData onStream: outFile.
+    const virtual method putTextureData: (textureData: TextureData ref) onFileNamed: (fileName: Stdn String const ref) ::=> Boolean8
+        := self putTextureData: textureData onFileReference: fileName asNativeFileReference.
+
+    const virtual method putTextureData: (textureData: TextureData ref) onFileReference: (fileReference: Stdn FileReference const ref) ::=> Boolean8 := {
+        let outFile := fileReference binaryUnbufferedWriteStream.
+        outFile ifNotNil: {
+            self putTextureData: textureData onStream: outFile _.
             return: true
         }.
         return: false
@@ -34,22 +40,28 @@ class ImageReadWriter superclass: Object; definition: {
         ## TODO: implement this.
     }.
 
-    const virtual method readFormFromFileNamed: (fileName: Stdn String const ref) ::=> FormPtr := {
-        let inFile mutable type: Stdn IO UnbufferedFileStream.
-        (inFile open: fileName mode: Stdn IO FileOpenMode Read | Stdn IO FileOpenMode Existent) ifFalse: {
+    const virtual method readFormFromFileNamed: (fileName: Stdn String const ref) ::=> FormPtr
+        := self readFormFromFileReference: fileName asNativeFileReference.
+
+    const virtual method readFormFromFileReference: (fileReference: Stdn FileReference const ref) ::=> FormPtr := {
+        let inFile := fileReference binaryUnbufferedReadStream.
+        inFile ifNil: {
             return: FormPtr nil
         }.
 
-        self readFormFromStream: inFile
+        self readFormFromStream: inFile _
     }.
 
-    const virtual method readTextureDataFromFileNamed: (fileName: Stdn String const ref) ::=> TextureDataPtr := {
-        let inFile mutable type: Stdn IO UnbufferedFileStream.
-        (inFile open: fileName mode: Stdn IO FileOpenMode Read | Stdn IO FileOpenMode Existent) ifFalse: {
+    const virtual method readTextureDataFromFileNamed: (fileName: Stdn String const ref) ::=> TextureDataPtr
+        := self readTextureDataFromFileReference: fileName asNativeFileReference.
+
+    const virtual method readTextureDataFromFileReference: (fileReference: Stdn FileReference const ref) ::=> TextureDataPtr := {
+        let inFile := fileReference binaryUnbufferedReadStream.
+        inFile ifNil: {
             return: TextureDataPtr nil
         }.
 
-        self readTextureDataFromStream: inFile
+        self readTextureDataFromStream: inFile _
     }.
 
     const virtual method readFormFromStream: (inputStream: Stdn IO Stream ref) ::=> FormPtr

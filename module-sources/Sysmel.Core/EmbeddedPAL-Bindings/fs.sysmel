@@ -1,0 +1,9 @@
+namespace EmbeddedPAL definition: {
+
+function sysmel_epal_path_exists externC(path: Char8 const pointer) => Boolean8.
+function sysmel_epal_path_isFile externC(path: Char8 const pointer) => Boolean8.
+function sysmel_epal_path_isDirectory externC(path: Char8 const pointer) => Boolean8.
+function sysmel_epal_path_getWorkingDirectory externC() => Char8 const pointer.
+function sysmel_epal_path_getResourcesDirectory externC() => Char8 const pointer.
+
+}. ## End of namespace EmbeddedPAL

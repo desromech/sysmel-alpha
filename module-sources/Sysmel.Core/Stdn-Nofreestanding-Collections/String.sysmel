@@ -290,9 +290,9 @@ compileTime constant String := BasicString(Char8).
 compileTime constant WString := BasicString(Char16). ## Used in multiple Win32 APIs
 compileTime constant LString := BasicString(Char32). ## Provided for utf8.
 
-_LiteralString macro method asMutableString := ``(Stdn String fromLiteral: `,self).
-_LiteralString macro method asMutableWString := ``(Stdn WString fromLiteral: `,self).
-_LiteralString macro method asMutableLString := ``(Stdn LString fromLiteral: `,self).
+(_LiteralString | Char8 arraySlice | Char8 const arraySlice) macro method asMutableString := ``(Stdn String fromLiteral: `,self).
+(_LiteralString | Char16 arraySlice | Char16 const arraySlice) macro method asMutableWString := ``(Stdn WString fromLiteral: `,self).
+(_LiteralString | Char32 arraySlice | Char32 const arraySlice) macro method asMutableLString := ``(Stdn LString fromLiteral: `,self).
 
 Stdn IO TextStreamWriter extend: {
     method nextPutAll: (string: String const ref) ::=> Boolean8 := {

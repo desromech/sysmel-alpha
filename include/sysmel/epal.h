@@ -11,11 +11,11 @@
 #define SYSMEL_EPAL_EXPORT
 #endif
 
-typedef struct SysmelArgList_s
+typedef struct SysmelChar8ConstArraySlice_s
 {
     const char *elements;
     size_t size;
-} SysmelArgList;
+} SysmelChar8ConstArraySlice;
 
 /* Sysmel IO interface. */
 
@@ -48,6 +48,13 @@ SYSMEL_EPAL_EXPORT void* sysmel_epal_reserveAddressSpace(size_t size);
 SYSMEL_EPAL_EXPORT bool sysmel_epal_commitAddressSpace(void* addressSpace, size_t offset, size_t size);
 SYSMEL_EPAL_EXPORT bool sysmel_epal_releaseAddressSpace(void* addressSpace, size_t offset, size_t size);
 SYSMEL_EPAL_EXPORT bool sysmel_epal_freeAddressSpace(void* addressSpace, size_t size);
+
+/* Sysmel filesystem */
+SYSMEL_EPAL_EXPORT bool sysmel_epal_path_exists(const char *path);
+SYSMEL_EPAL_EXPORT bool sysmel_epal_path_isFile(const char *path);
+SYSMEL_EPAL_EXPORT bool sysmel_epal_path_isDirectory(const char *path);
+SYSMEL_EPAL_EXPORT const char * sysmel_epal_path_getWorkingDirectory();
+SYSMEL_EPAL_EXPORT const char * sysmel_epal_path_getResourcesDirectory();
 
 /* Threads */
 typedef uint32_t sysmel_epal_mutex_t[4];
@@ -86,6 +93,6 @@ SYSMEL_EPAL_EXPORT void sysmel_epal_sleepFor(sysmel_epal_ticks_t time);
 SYSMEL_EPAL_EXPORT void sysmel_epal_sleepUntil(sysmel_epal_ticks_t time);
 
 /* Sysmel main program entry point. */
-SYSMEL_EPAL_EXPORT int sysmel_main(SysmelArgList argList);
+SYSMEL_EPAL_EXPORT int sysmel_main(SysmelChar8ConstArraySlice argList);
 
 #endif /* SYSMEL_EPAL_H */

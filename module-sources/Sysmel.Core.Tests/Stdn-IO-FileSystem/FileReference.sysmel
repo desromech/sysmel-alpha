@@ -1,0 +1,36 @@
+namespace Stdn definition: {
+namespace Tests definition: {
+
+class FileReference superclass: Stdn Testing TestCase; definition: {
+    test: testPathPart with: {
+        let fileRef := "testFolder/test.txt" asNativeFileReference.
+        self assert: fileRef path equals: "testFolder/test.txt" asMutableString.
+        self assert: fileRef fullPath equals: "testFolder/test.txt" asMutableString.
+        self assert: fileRef fullName equals: "testFolder/test.txt".
+        self assert: fileRef fullNameWithoutExtension equals: "testFolder/test".
+        self assert: fileRef basename equals: "test.txt".
+        self assert: fileRef basenameWithoutExtension equals: "test".
+        self assert: fileRef extension equals: "txt".
+    }.
+
+    test: testDirectoryAdd with: {
+        let directory := "testFolder" asNativeFileReference.
+        let file := directory / "test.txt".
+        self assert: file fullName equals: "testFolder/test.txt".
+    }.
+
+    test: testDirectoryAdd2 with: {
+        let directory := "testFolder/" asNativeFileReference.
+        let file := directory / "test.txt".
+        self assert: file fullName equals: "testFolder/test.txt".
+    }.
+
+    test: testWithExtension with: {
+        self assert: ("testFolder/test" asNativeFileReference withExtension: "dds") fullName equals: "testFolder/test.dds".
+        self assert: ("testFolder/test.txt" asNativeFileReference withExtension: "dds") fullName equals: "testFolder/test.dds".
+    }.
+
+}.
+
+}. ## namespace Tests
+}. ## namespace Stdn

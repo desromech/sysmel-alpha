@@ -1,4 +1,5 @@
 loadFileOnce: "io.sysmel".
+loadFileOnce: "fs.sysmel".
 loadFileOnce: "time.sysmel".
 loadFileOnce: "vmm.sysmel".
 loadFileOnce: "thread.sysmel".

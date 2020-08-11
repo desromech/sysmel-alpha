@@ -1,0 +1,68 @@
+namespace Stdn definition: {
+
+sealed class DiskFileSystem superclass: FileSystem; definition: {
+    override method isDisk => Boolean8
+        := true.
+
+    override method binaryUnbufferedReadStreamOn: (path: Char8 const arraySlice) ::=> Stdn IO Stream uniquePointer := {
+        let fileStream mutable := Stdn IO UnbufferedFileStream uniqueNew.
+        (fileStream _ open: path mode: Stdn IO FileOpenMode Read | Stdn IO FileOpenMode Existent) ifFalse: {
+            return: Stdn IO Stream uniquePointer nil
+        }.
+
+        Stdn IO Stream uniquePointer for: fileStream release
+    }.
+
+    override method binaryReadStreamOn: (path: Char8 const arraySlice) ::=> Stdn IO Stream uniquePointer := {
+        let fileStream mutable := Stdn IO FileStream uniqueNew.
+        (fileStream _ open: path mode: Stdn IO FileOpenMode Read | Stdn IO FileOpenMode Existent) ifFalse: {
+            return: Stdn IO Stream uniquePointer nil
+        }.
+
+        Stdn IO Stream uniquePointer for: fileStream release
+    }.
+
+    override method binaryUnbufferedWriteStreamOn: (path: Char8 const arraySlice) ::=> Stdn IO Stream uniquePointer := {
+        let fileStream mutable := Stdn IO UnbufferedFileStream uniqueNew.
+        (fileStream _ open: path mode: Stdn IO FileOpenMode Write | Stdn IO FileOpenMode CreateNew) ifFalse: {
+            return: Stdn IO Stream uniquePointer nil
+        }.
+        Stdn IO Stream uniquePointer for: fileStream release
+    }.
+
+    override method binaryWriteStreamOn: (path: Char8 const arraySlice) ::=> Stdn IO Stream uniquePointer := {
+        let fileStream mutable := Stdn IO FileStream uniqueNew.
+        (fileStream _ open: path mode: Stdn IO FileOpenMode Write | Stdn IO FileOpenMode CreateNew) ifFalse: {
+            return: Stdn IO Stream uniquePointer nil
+        }.
+
+        Stdn IO Stream uniquePointer for: fileStream release
+    }.
+}.
+
+compileTime constant DiskFileSystemPtr := DiskFileSystem sharedPointer.
+
+FileSystem extend: {
+    meta definition: {
+        let diskFileSystem mutable type: DiskFileSystemPtr.
+        let diskFileSystemOnceCreation mutable type: Stdn OnceFlag.
+
+        method disk => DiskFileSystemPtr const ref := {
+            diskFileSystemOnceCreation do: {
+                diskFileSystem := DiskFileSystem sharedNew
+            }.
+            diskFileSystem
+        }.
+
+        method workingDirectory => FileReference
+            := self disk _ workingDirectory.
+
+        method resourcesDirectory => FileReference
+            := self disk _ resourcesDirectory.
+    }.
+}.
+
+Stdn String macro method asNativeFileReference := ``(Stdn FileSystem disk _ makeFileReferenceWithPath: `,self asArraySlice).
+(_LiteralString | Char8 const arraySlice | Char8 arraySlice) macro method asNativeFileReference := ``(Stdn FileSystem disk _ makeFileReferenceWithPath: `,self).
+
+} ## End of namespace Stdn

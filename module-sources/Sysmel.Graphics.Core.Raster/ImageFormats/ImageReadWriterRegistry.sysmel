@@ -27,15 +27,13 @@ class ImageReadWriterRegistry definition: {
         }
     }.
 
-    method findForFileName: (fileName: Stdn String const ref) ::=> ImageReadWriter pointer := {
-        ## FIXME: Move this computation into a library function.
-        let extensionIndex := fileName lastIndexOf: '.'.
+    method findForFileName: (fileName: Stdn String const ref) ::=> ImageReadWriter pointer
+        := self findForFileReference: fileName asNativeFileReference.
 
-        let extension := fileName allButFirst: extensionIndex + 1.
-        self findWithExtension: extension
-    }.
+    method findForFileReference: (fileReference: Stdn FileReference const ref) ::=> ImageReadWriter pointer
+        := self findWithExtension: fileReference extension.
 
-    method findWithExtension: (extension: Stdn String const ref) ::=> ImageReadWriter pointer := {
+    method findWithExtension: (extension: Char8 const arraySlice) ::=> ImageReadWriter pointer := {
         mutex withLock: {
             registeredImageReadWriters do: {:each :: Void |
                 (each _ supportsExtension: extension) ifTrue: {
@@ -74,18 +72,24 @@ Form extend: {
 }.
 
 TextureData extend: {
-    meta method readFromFileNamed: (fileName: Stdn String const ref) ::=> TextureDataPtr := {
-        let readWriter := ImageReadWriterRegistry uniqueInstance findForFileName: fileName.
+    meta method readFromFileNamed: (fileName: Stdn String const ref) ::=> TextureDataPtr
+        := self readFromFileReference: fileName asNativeFileReference.
+
+    meta method readFromFileReference: (fileReference: Stdn FileReference const ref) ::=> TextureDataPtr := {
+        let readWriter := ImageReadWriterRegistry uniqueInstance findForFileReference: fileReference.
         readWriter ifNil: {return: TextureDataPtr nil}.
 
-        readWriter _ readTextureDataFromFileNamed: fileName.
+        readWriter _ readTextureDataFromFileReference: fileReference.
     }.
 
-    method writeToFileNamed: (fileName: Stdn String const ref) ::=> Boolean8 := {
-        let readWriter := ImageReadWriterRegistry uniqueInstance findForFileName: fileName.
+    method writeToFileNamed: (fileName: Stdn String const ref) ::=> Boolean8
+        := self writeToFileReference: fileName asNativeFileReference.
+
+    method writeToFileReference: (fileReference: Stdn FileReference const ref) ::=> Boolean8 := {
+        let readWriter := ImageReadWriterRegistry uniqueInstance findForFileReference: fileReference.
         readWriter ifNil: {return: false}.
 
-        readWriter _ putTextureData: self onFileNamed: fileName.
+        readWriter _ putTextureData: self onFileReference: fileReference.
     }.
 }.
 

@@ -1,0 +1,18 @@
+namespace Stdn definition: {
+DiskFileSystem definition: {
+    override method isFile: (path: Char8 const arraySlice) ::=> Boolean8
+        := Win32 GetFileAttributesA(path asMutableString asCString) noMask: Win32 FILE_ATTRIBUTE_DIRECTORY.
+
+    override method isDirectory: (path: Char8 const arraySlice) ::=> Boolean8
+        := Win32 GetFileAttributesA(path asMutableString asCString) anyMask: Win32 FILE_ATTRIBUTE_DIRECTORY.
+
+    override method exists: (path: Char8 const arraySlice) ::=> Boolean8
+        := Win32 GetFileAttributesA(path asMutableString asCString) ~= Win32 INVALID_FILE_ATTRIBUTES.
+
+    method workingDirectory ::=> FileReference
+        := self makeFileReferenceWithPath: ".".
+
+    method resourcesDirectory ::=> FileReference
+        := self makeFileReferenceWithPath: "resources".
+}.
+}. ## End of namespace Stdn.

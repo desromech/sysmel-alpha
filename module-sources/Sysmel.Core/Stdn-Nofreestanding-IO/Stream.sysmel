@@ -4,9 +4,7 @@ namespace IO definition: {
 #**
  * This is a generic byte oriented stream.
  *#
-class Stream definition: {
-    virtual method finalize => Void := {}.
-
+class Stream superclass: Stdn Object; definition: {
     #**
      * Tells the current position of the stream in the file.
      * Negative for error or not supported.

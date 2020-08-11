@@ -3,6 +3,7 @@ Compiler
     loadPackages: #(
         #"Stdn-Collections-Tests"
         #"Stdn-Algorithms-Tests"
+        #"Stdn-IO-FileSystem"
         #"Stdn-IO-Tests"
         #"Stdn-Memory-Tests"
         #"Stdn-Functional-Tests"

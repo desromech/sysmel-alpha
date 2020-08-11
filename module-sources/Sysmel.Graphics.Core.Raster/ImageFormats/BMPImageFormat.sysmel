@@ -5,8 +5,8 @@ namespace ImageFormats definition: {
 useNamespace: Stdn Graphics Core.
 
 class BMPImageReadWriter superclass: ImageReadWriter; definition: {
-    const override method supportsExtension: (extension: Stdn String const ref) ::=> Boolean8
-        := extension = "bmp" asMutableString.
+    const override method supportsExtension: (extension: Char8 const arraySlice) ::=> Boolean8
+        := extension = "bmp".
 
     const override method putForm: (form: Form ref) onStream: (outputStream: Stdn IO Stream ref) ::=> Void := {
         Stdn stdout << "Todo: implemente this part"; nl
