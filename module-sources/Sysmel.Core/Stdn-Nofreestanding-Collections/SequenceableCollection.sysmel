@@ -52,13 +52,22 @@ macro method SequenceableCollectionMixin := ``{
     const method first: (extractedCount: UIntPointer) ::=> SelfType
         := self copyFrom: 0 until: extractedCount.
 
+    const inline method -- (other: ValueType const arraySlice) ::=> SelfType := {
+        let result mutable type: SelfType.
+        result
+            reserve: self size + other size;
+            addAll: self;
+            addAll: other.
+        result asMoveReference
+    }.
+
     const inline method -- (other: SelfType const ref) ::=> SelfType := {
         let result mutable type: SelfType.
         result
             reserve: self size + other size;
             addAll: self;
             addAll: other.
-        result
+        result asMoveReference
     }.
 
     inline method addAll: (other: SelfType const ref) ::=> Void := {

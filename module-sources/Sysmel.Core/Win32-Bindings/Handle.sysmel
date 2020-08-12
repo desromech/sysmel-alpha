@@ -1,5 +1,7 @@
 namespace Win32 definition: {
 
+compileTime constant INVALID_HANDLE_VALUE := -1 reinterpretCastTo: HANDLE.
+
 function CloseHandle apicall externC(hObject: HANDLE) => DWORD.
 
 }. ## End of namespace Win32

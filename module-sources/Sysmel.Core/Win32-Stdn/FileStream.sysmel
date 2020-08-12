@@ -69,7 +69,7 @@ definition: {
         }.
 
         handle := CreateFileA(path, desiredAccess, FILE_SHARE_DELETE | FILE_SHARE_READ | FILE_SHARE_WRITE, nil, creationDisposition, flagsAndAttributes, nil).
-        handle == nil ifTrue: {return: false}.
+        handle = Win32 INVALID_HANDLE_VALUE ifTrue: {return: false}.
 
         isConsole := GetFileType(handle) = FILE_TYPE_CHAR.
         isOwner := true.

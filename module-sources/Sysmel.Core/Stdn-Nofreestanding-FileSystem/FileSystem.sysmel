@@ -14,6 +14,8 @@ class FileSystem superclass: Stdn SharedObject; definition: {
     abstract method isFile: (path: Char8 const arraySlice) ::=> Boolean8.
     abstract method isDirectory: (path: Char8 const arraySlice) ::=> Boolean8.
 
+    abstract method directory: (path: Char8 const arraySlice) childrenDo: (iterationBlock: DirectoryIterationBlock) ::=> Void.
+
     abstract method binaryUnbufferedReadStreamOn: (path: Char8 const arraySlice) ::=> Stdn IO Stream uniquePointer.
     abstract method binaryReadStreamOn: (path: Char8 const arraySlice) ::=> Stdn IO Stream uniquePointer.
     abstract method binaryUnbufferedWriteStreamOn: (path: Char8 const arraySlice) ::=> Stdn IO Stream uniquePointer.

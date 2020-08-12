@@ -9,6 +9,9 @@ DiskFileSystem definition: {
     override method exists: (path: Char8 const arraySlice) ::=> Boolean8
         := EmbeddedPAL sysmel_epal_path_exists(path asMutableString asCString).
 
+    override method directory: (path: Char8 const arraySlice) childrenDo: (iterationBlock: DirectoryIterationBlock) ::=> Void := {
+    }.
+
     method workingDirectory ::=> FileReference := {
         let path := EmbeddedPAL sysmel_epal_path_getWorkingDirectory().
         self makeFileReferenceWithPath: (path until: Stdn cstrlen(path)).

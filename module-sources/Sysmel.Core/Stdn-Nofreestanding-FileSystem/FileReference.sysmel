@@ -1,6 +1,11 @@
 namespace Stdn definition: {
 
+compileTime constant DirectoryIterationBlock := ((FileReference const ref) => Void) nativeStackBlockClosure.
+
 sealed class FileReference definition: {
+    compileTime constant ChildrenType := Stdn Collections Vector(FileReference).
+    compileTime constant PathSeparator := '/'.
+
     field fileSystem type: FileSystemPtr.
     field path type: Stdn String.
 
@@ -77,7 +82,7 @@ sealed class FileReference definition: {
     const method / (extraPath: Char8 const arraySlice) ::=> SelfType := {
         let resultPath mutable := path.
         path isEmpty || (path last ~= '/' && path last ~= '\\') ifTrue: {
-            resultPath add: '/'
+            resultPath add: PathSeparator
         }.
         resultPath addAll: extraPath.
 
@@ -106,6 +111,18 @@ sealed class FileReference definition: {
 
     const method binaryWriteStream => Stdn IO Stream uniquePointer
         := fileSystem _ binaryWriteStreamOn: path asArraySlice.
+
+    const method childrenDo: (iterationBlock: DirectoryIterationBlock) ::=> Void
+        := fileSystem _ directory: path asArraySlice childrenDo: iterationBlock.
+
+    const method children => ChildrenType := {
+        let result mutable := ChildrenType().
+        self childrenDo: {:child :: Void |
+            result add: child
+        }.
+
+        result asMoveReference
+    }.
 }.
 
 } ## End of namespace Stdn
