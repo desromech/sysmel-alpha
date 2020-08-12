@@ -1,10 +1,49 @@
 namespace Unix definition: {
-    useNamespaceAndExportSymbols: CTypes.
 
-    compileTime constant UID_T := UInt32.
-    compileTime constant GID_T := UInt32.
-    compileTime constant PID_T := Int32.
-    compileTime constant OFF_T := IntPointer.
-    compileTime constant OFF64_T := Int64.
-    compileTime constant USeconds_T := UInt32.
+useNamespaceAndExportSymbols: CTypes.
+
+compileTime constant USeconds_T := UInt32.
+
+compileTime constant __DEV_T		:= UInt64.
+compileTime constant __UID_T		:= UInt32.
+compileTime constant __GID_T		:= UInt32.
+compileTime constant __INO_T		:= UIntPointer.
+compileTime constant __INO64_T		:= UInt64.
+compileTime constant __MODE_T		:= UInt32.
+compileTime constant __NLINK_T		:= UIntPointer.
+compileTime constant __FSWORD_T	:= IntPointer.
+compileTime constant __OFF_T		:= IntPointer.
+compileTime constant __OFF64_T		:= Int64.
+compileTime constant __PID_T		:= Int32.
+compileTime constant __RLIM_T		:= UIntPointer.
+compileTime constant __RLIM64_T		:= UInt64.
+compileTime constant __BLKCNT_T		:= IntPointer.
+compileTime constant __BLKCNT64_T	:= Int64.
+compileTime constant __FSBLKCNT_T	:= UIntPointer.
+compileTime constant __FSBLKCNT64_T	:= UInt64.
+compileTime constant __FSFILCNT_T	:= UIntPointer.
+compileTime constant __FSFILCNT64_T	:= UInt64.
+compileTime constant __ID_T		:= UInt32.
+compileTime constant __CLOCK_T		:= IntPointer.
+compileTime constant __TIME_T		:= IntPointer.
+compileTime constant __USECONDS_T	:= UInt32.
+compileTime constant __SUSECONDS_T	:= IntPointer.
+compileTime constant __DADDR_T		:= Int32.
+compileTime constant __KEY_T		:= Int32.
+compileTime constant __CLOCKID_T	:= Int32.
+compileTime constant __TIMER_T		:= Void pointer.
+compileTime constant __BLKSIZE_T	:= IntPointer.
+compileTime constant __SSIZE_T		:= IntPointer.
+compileTime constant __CPU_MASK 	:= UIntPointer.
+
+struct __FSID_T definition: {
+    public field __val type: (Int32 array: 2).
+}.
+
+compileTime constant UID_T := __UID_T.
+compileTime constant GID_T := __GID_T.
+compileTime constant PID_T := __PID_T.
+compileTime constant OFF_T := __OFF_T.
+compileTime constant OFF64_T := __OFF64_T.
+
 }.

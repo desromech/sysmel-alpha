@@ -1,8 +1,10 @@
 loadFileOnce: "types.sysmel".
 loadFileOnce: "constants.sysmel".
+loadFileOnce: "dirent.sysmel".
 loadFileOnce: "unistd.sysmel".
 loadFileOnce: "fcntl.sysmel".
 loadFileOnce: "time.sysmel".
+loadFileOnce: "stat.sysmel".
 
 if: Compiler compilationTarget isWebAssembly not then: {
     loadFileOnce: "pthreads.sysmel".

@@ -59,6 +59,12 @@ definition: {
     method open: (path: String const ref) mode: (mode: FileOpenMode) ::=> Boolean8
         := self open: path asCString mode: mode permissions: FilePermissions DefaultFilePermissions.
 
+    method open: (path: Char8 const arraySlice) mode: (mode: FileOpenMode) permissions: (permissions: FilePermissions) ::=> Boolean8
+        := self open: path asMutableString mode: mode permissions: permissions.
+
+    method open: (path: Char8 const arraySlice) mode: (mode: FileOpenMode) ::=> Boolean8
+        := self open: path asMutableString mode: mode permissions: FilePermissions DefaultFilePermissions.
+
     method close => Void := {
         self isValid ifTrue: {
             Unix close(fd).

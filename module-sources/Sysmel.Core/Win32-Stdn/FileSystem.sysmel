@@ -27,15 +27,18 @@ DiskFileSystem definition: {
         let findState mutable := Win32 WIN32_FIND_DATAA().
         let findHandle := Win32 FindFirstFileA(findPathPattern asCString, findState address).
         findHandle = Win32 INVALID_HANDLE_VALUE ifTrue: {return: void}.
-        do: {
-            let elementName := findState cFileName[0] address until: Stdn cstrlen(findState cFileName[0] address).
-            elementName = "." || elementName = ".." ifFalse: {
-                let elementFullPath := findPath -- elementName.
-                iterationBlock(self makeFileReferenceWithPath: elementFullPath asArraySlice)
-            }.
-        } until: (Win32 FindNextFileA(findHandle, findState address) = 0).
 
-        Win32 FindClose(findHandle)
+        try: {
+            do: {
+                let elementName := findState cFileName[0] address until: Stdn cstrlen(findState cFileName[0] address).
+                elementName = "." || elementName = ".." ifFalse: {
+                    let elementFullPath := findPath -- elementName.
+                    iterationBlock(self makeFileReferenceWithPath: elementFullPath asArraySlice)
+                }.
+            } until: (Win32 FindNextFileA(findHandle, findState address) = 0).        
+        } finally: {
+            Win32 FindClose(findHandle)
+        }.
     }.
 
     method workingDirectory ::=> FileReference

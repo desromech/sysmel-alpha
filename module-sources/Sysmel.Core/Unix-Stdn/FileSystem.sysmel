@@ -1,0 +1,52 @@
+namespace Stdn definition: {
+DiskFileSystem definition: {
+    override method isFile: (path: Char8 const arraySlice) ::=> Boolean8 := {
+        let statBuffer mutable type: Unix Stat.
+        Unix stat(path asMutableString asCString, statBuffer address) = 0
+            && statBuffer isReg
+    }.
+
+    override method isDirectory: (path: Char8 const arraySlice) ::=> Boolean8 := {
+        let statBuffer mutable type: Unix Stat.
+        Unix stat(path asMutableString asCString, statBuffer address) = 0
+            && statBuffer isDir
+    }.
+
+    override method exists: (path: Char8 const arraySlice) ::=> Boolean8 := {
+        let statBuffer mutable type: Unix Stat.
+        Unix stat(path asMutableString asCString, statBuffer address) = 0
+    }.
+
+    override method directory: (path: Char8 const arraySlice) childrenDo: (iterationBlock: DirectoryIterationBlock) ::=> Void := {
+        path ifEmpty: {return: void}.
+
+        let prefix mutable := path asMutableString.
+        prefix last = '/' ifFalse: {
+            prefix add: '/'
+        }.
+
+        let dir := Unix opendir(prefix asCString).
+        dir ifNil: {return: void}.
+
+        try: {
+            let dirent mutable type: Unix dirent64 pointer.
+            while: (dirent := Unix readdir64(dir)) isNotNil do: {
+                let entryName := dirent _ d_name[0] address until: Stdn cstrlen(dirent _ d_name[0] address).
+
+                entryName = "." || entryName = ".." ifFalse: {
+                    iterationBlock(self makeFileReferenceWithPath: (prefix -- entryName) asArraySlice)
+                }.
+            }.
+
+        } finally: {
+            Unix closedir(dir)
+        }.
+    }.
+
+    method workingDirectory ::=> FileReference
+        := self makeFileReferenceWithPath: ".".
+
+    method resourcesDirectory ::=> FileReference
+        := self makeFileReferenceWithPath: "resources".
+}.
+}. ## End of namespace Stdn.

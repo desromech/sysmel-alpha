@@ -1,0 +1,17 @@
+namespace Unix definition: {
+    struct DIR.
+
+    struct dirent64 definition: {
+        public field d_ino type: __INO64_T.
+        public field d_off type: __OFF64_T.
+        public field d_reclen type: UInt16.
+        public field d_type type: UInt8.
+        public field d_name type: (Char8 array: 256).
+    }.
+
+    function closedir externC(dir: DIR pointer) => DIR pointer.
+    function fdopendir externC(fd: Int32) => DIR pointer.
+    function opendir externC(name: Char8 const pointer) => DIR pointer.
+    function readdir64 externC(dir: DIR pointer) => dirent64 pointer.
+    function rewinddir externC(dir: DIR pointer) => Void.
+}.
