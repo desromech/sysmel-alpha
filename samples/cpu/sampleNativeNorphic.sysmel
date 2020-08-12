@@ -51,7 +51,7 @@ Stdn MainEntryPoint: {:args :: Int32 |
             }
     }.
 
-    let contentPanel := Norph sharedNew.
+    let contentPanel := HorizontalPanedNorph sharedNew.
     contentPanel _ color: Float32x4 zeros.
     mainWindow _ addSubnorph: (contentPanel upCastFor: Norph).
     mainSizer _ element: contentPanel do: {:constraints :: Void |
@@ -77,28 +77,25 @@ Stdn MainEntryPoint: {:args :: Int32 |
     {
         let borderedNorph := BorderedNorph sharedNew.
         borderedNorph _
-            bounds: (RectangleF32 min: Float32x2(50.0f, 50.0f) extent: Float32x2(50.0f, 50.0f));
             color: Float32x4(1.0f, 0.0f, 0.0f, 1.0f);
             borderColor: Float32x4(0.0f, 0.0f, 0.0f, 1.0f).
-        contentPanel _ addSubnorph: (borderedNorph upCastFor: Norph).
+        contentPanel _ addElement: (borderedNorph upCastFor: Norph).
     }.
 
     ## Sample label
     {
         let label := LabelNorph sharedNew.
         label _
-            bounds: (RectangleF32 min: Float32x2(150.0f, 50.0f) extent: Float32x2(100.0f, 100.0f));
             text: "Hello World" asMutableString.
-        contentPanel _ addSubnorph: (label upCastFor: Norph).
+        contentPanel _ addElement: (label upCastFor: Norph).
     }.
 
     ## Sample button
     {
         let button := SimpleButtonNorph sharedNew.
         button _
-            bounds: (RectangleF32 min: Float32x2(200.0f, 100.0f) extent: Float32x2(100.0f, 40.0f));
             text: "Button" asMutableString.
-        contentPanel _ addSubnorph: (button upCastFor: Norph).
+        contentPanel _ addElement: (button upCastFor: Norph).
 
         button _ when: NorphActivatedEvent do: { :(NorphEvent ref) event :: Void |
             list _ addItem: "Extra item" asMutableString.
@@ -108,27 +105,22 @@ Stdn MainEntryPoint: {:args :: Int32 |
     ## List view
     {
         list _
-            bounds: (RectangleF32 min: Float32x2(50.0f, 150.0f) extent: Float32x2(200.0f, 200.0f));
             addItem: "First" asMutableString;
             addItem: "Second" asMutableString;
             addItem: "Third" asMutableString.
-        contentPanel _ addSubnorph: (list upCastFor: Norph).
+        contentPanel _ addElement: (list upCastFor: Norph).
     }.
 
     ## Sample text input
     {
         let textInput := TextInputNorph sharedNew.
-        textInput _
-            bounds: (RectangleF32 min: Float32x2(400.0f, 50.0f) extent: Float32x2(200.0f, 40.0f)).
-        contentPanel _ addSubnorph: (textInput upCastFor: Norph).
+        contentPanel _ addElement: (textInput upCastFor: Norph).
     }.
 
     ## Sample text area
     {
         let textArea := TextAreaNorph sharedNew.
-        textArea _
-            bounds: (RectangleF32 min: Float32x2(400.0f, 150.0f) extent: Float32x2(200.0f, 200.0f)).
-        contentPanel _ addSubnorph: (textArea upCastFor: Norph).
+        contentPanel _ addElement: (textArea upCastFor: Norph).
     }.
 
     ## Run the actual main loop.

@@ -1,7 +1,6 @@
-
-loadFileOnce: "SplitPanedNorph.sysmel".
-loadFileOnce: "HorizontalSplitPanedNorph.sysmel".
-loadFileOnce: "VerticalSplitPanedNorph.sysmel".
+loadFileOnce: "PanedNorph.sysmel".
+loadFileOnce: "HorizontalPanedNorph.sysmel".
+loadFileOnce: "VerticalPanedNorph.sysmel".
 
 loadFileOnce: "PanelSplitterNorph.sysmel".
 loadFileOnce: "HorizontalPanelSplitterNorph.sysmel".

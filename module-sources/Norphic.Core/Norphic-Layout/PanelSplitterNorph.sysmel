@@ -1,0 +1,74 @@
+namespace Norphic definition: {
+
+useNamespace: Stdn Graphics Core.
+useNamespace: Stdn Graphics GUI.
+useNamespace: Stdn Math Geometry.
+
+class PanelSplitterNorph superclass: Norph; definition: {
+    public field splitterIndex type: UIntPointer.
+    field isDragging type: Boolean8.
+
+    override method minimalExtent => Float32x2
+        := 5.0f.
+
+    override method defaultColor => Float32x4
+        := Float32x4(0.3f, 0.3f, 0.3f, 1.0f).
+
+    override method onMouseEnterEvent: (event: NorphMouseEnterEvent ref) ::=> Void := {
+        super onMouseEnterEvent: event.
+        self changed.
+    }.
+
+    override method onMouseLeaveEvent: (event: NorphMouseLeaveEvent ref) ::=> Void := {
+        super onMouseLeaveEvent: event.
+        self changed.
+    }.
+
+    override method onMouseButtonPressedEvent: (event: NorphMouseButtonPressedEvent ref) ::=> Void := {
+        super onMouseButtonPressedEvent: event.
+
+        event isLeftButton ifFalse: {
+            return: void.
+        }.
+
+        isDragging := true.
+        self changed.
+        event wasHandled: true.
+        self grabMouseCapture.
+    }.
+
+    override method onMouseButtonReleasedEvent: (event: NorphMouseButtonReleasedEvent ref) ::=> Void := {
+        super onMouseButtonReleasedEvent: event.
+
+        event isLeftButton ifFalse: {
+            return: void.
+        }.
+
+        isDragging := false.
+        self changed.
+        event wasHandled: true.
+        self releaseMouseCapture.
+    }.
+
+    override method onMouseMoveEvent: (event: NorphMouseMoveEvent ref) ::=> Void := {
+        isDragging ifTrue: {
+            (self owner downCastFor: PanedNorph) _
+                onSplitter: splitterIndex dragDelta: event delta
+        }.
+    }.
+
+    virtual method currentColor => Float32x4 := {
+        self hasMouseFocus ifTrue: {
+            self color lighter lighter
+        } ifFalse: {
+            self color
+        }
+    }.
+
+    override method buildSceneGraphWith: (builder: NorphSceneBuilder ref) ::=> NorphSceneNodePtr
+        := (builder fillRectangle: self localBounds color: self currentColor) upCastFor: NorphSceneNode.
+}.
+
+compileTime constant PanelSplitterNorphPtr := PanelSplitterNorph sharedPointer.
+
+}. ## End of namespace Norphic

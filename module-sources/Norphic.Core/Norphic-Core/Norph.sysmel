@@ -183,12 +183,16 @@ class Norph superclass: NorphEventHandler; definition: {
         }.
     }.
 
-    virtual method extentChanged ::=> Void := {
-        self changed.
-
+    virtual method invalidateLayout => Void := {
+        ## TODO: Delay this layout revalidation.
         autolayout ifTrue: {
             self updateLayout.
         }.
+    }.
+
+    virtual method extentChanged ::=> Void := {
+        self changed.
+        self invalidateLayout.
 
         self owner ifNotNil: { :theOwner :: Void |
             theOwner _ childBoundsChanged.
@@ -219,13 +223,17 @@ class Norph superclass: NorphEventHandler; definition: {
             updateLayout
     }.
 
+    virtual method doUpdateLayout => Void := {
+        sizer ifNotNil: {
+            sizer _ applyIntoBounds: self localBounds
+        }
+    }.
+
     virtual method updateLayout => Void := {
         isUpdatingLayout ifTrue: { return: void }.
         isUpdatingLayout := true.
         try: {
-            sizer ifNotNil: {
-                sizer _ applyIntoBounds: self localBounds
-            }
+            self doUpdateLayout
         } finally: {
             isUpdatingLayout := false.
         }

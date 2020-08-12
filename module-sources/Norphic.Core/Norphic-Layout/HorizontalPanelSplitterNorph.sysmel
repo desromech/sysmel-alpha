@@ -1,0 +1,12 @@
+namespace Norphic definition: {
+
+useNamespace: Stdn Graphics Core.
+useNamespace: Stdn Graphics GUI.
+useNamespace: Stdn Math Geometry.
+
+class HorizontalPanelSplitterNorph superclass: PanelSplitterNorph; definition: {
+}.
+
+compileTime constant HorizontalPanelSplitterNorphPtr := HorizontalPanelSplitterNorph sharedPointer.
+
+}. ## End of namespace Norphic
