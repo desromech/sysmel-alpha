@@ -7,6 +7,7 @@ Trait {
 		'extraMetaBuilderFactories'
 	],
 	#traits : 'TMbndProgramEntity',
+	#classTraits : 'TMbndProgramEntity classTrait',
 	#category : #'SysmelMoebiusMetamodel-Core-Type'
 }
 
@@ -1426,6 +1427,11 @@ TMbndAbstractType >> legalizeLiteralValue: literalValue [
 { #category : #'as yet unclassified' }
 TMbndAbstractType >> lookupMacroSelector: aSelector [
 	^ self supertype ifNotNil: [ :st | st lookupMacroSelector: aSelector ]
+]
+
+{ #category : #'as yet unclassified' }
+TMbndAbstractType >> lookupOverloadedFinalSelector: selector [
+	^ self lookupOverloadedSelector: selector
 ]
 
 { #category : #methods }

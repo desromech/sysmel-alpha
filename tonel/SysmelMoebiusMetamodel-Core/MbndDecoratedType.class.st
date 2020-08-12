@@ -136,6 +136,14 @@ MbndDecoratedType >> isVolatileType [
 	^ decorations includes: #volatile
 ]
 
+{ #category : #'as yet unclassified' }
+MbndDecoratedType >> lookupOverloadedFinalSelector: selector [
+	baseType ifNil: [ ^ super lookupOverloadedFinalSelector: selector].
+	
+	(super lookupOverloadedFinalSelector: selector) ifNotNil: [ :found | ^ found ].
+	^ baseType lookupOverloadedFinalSelector: selector
+]
+
 { #category : #testing }
 MbndDecoratedType >> pointerRank [
 	^ baseType pointerRank

@@ -66,7 +66,7 @@ MbndGenericMacroLanguageTopLevelScope >> addControlFlowMacros [
 		];
 		onMacroSelector: #do:until: do: [ :node :builder |
 			(builder do: node arguments first
-				while: ((node unexpandedSend: #not to: node arguments second withArguments: #())
+				while: ((builder unexpandedSend: (builder literalSymbol: #not) to: node arguments second withArguments: #())
 					position: node arguments second))
 				position: node
 		];

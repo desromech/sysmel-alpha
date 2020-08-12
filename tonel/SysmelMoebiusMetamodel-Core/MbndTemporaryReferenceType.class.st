@@ -128,6 +128,14 @@ MbndTemporaryReferenceType >> isTemporaryReferenceType [
 	^ true
 ]
 
+{ #category : #'as yet unclassified' }
+MbndTemporaryReferenceType >> lookupOverloadedFinalSelector: selector [
+	baseType ifNil: [ ^ super lookupOverloadedFinalSelector: selector].
+	
+	(super lookupOverloadedFinalSelector: selector) ifNotNil: [ :found | ^ found ].
+	^ baseType lookupOverloadedFinalSelector: selector
+]
+
 { #category : #printing }
 MbndTemporaryReferenceType >> printOn: aStream [
 	name ifNotNil: [ ^ super printOn: aStream ].

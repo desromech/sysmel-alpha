@@ -208,7 +208,7 @@ MbndAstSemanticAnalyzer >> analyzeExpandedMessageSend: messageSendNode arguments
 			each isBlockClosureNode ifTrue: [
 				| withAssistedTypeInference |
 				methodOrMethodGroupLooked ifFalse: [
-					methodOrMethodGroup := receiverType lookupOverloadedSelector: messageSendNode selector value.
+					methodOrMethodGroup := receiverType lookupOverloadedFinalSelector: messageSendNode selector value.
 					methodOrMethodGroupLooked := true.
 				].
 			

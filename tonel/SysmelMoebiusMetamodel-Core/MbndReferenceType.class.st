@@ -160,6 +160,14 @@ MbndReferenceType >> isReferenceType [
 	^ true
 ]
 
+{ #category : #'as yet unclassified' }
+MbndReferenceType >> lookupOverloadedFinalSelector: selector [
+	baseType ifNil: [ ^ super lookupOverloadedFinalSelector: selector].
+	
+	(super lookupOverloadedFinalSelector: selector) ifNotNil: [ :found | ^ found ].
+	^ baseType lookupOverloadedFinalSelector: selector
+]
+
 { #category : #testing }
 MbndReferenceType >> pointerRank [
 	^ baseType pointerRank , { {#reference . addressSpace . baseType isConstantType} }
