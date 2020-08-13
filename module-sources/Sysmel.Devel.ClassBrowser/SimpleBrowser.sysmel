@@ -68,28 +68,18 @@ gcclass SimpleBrowser definition: {
     }.
 
     method buildLayout := {
-        let horizontalSizer := HorizontalBoxSizer sharedNew.
-        horizontalSizer _
-            element: classesListView do: {:constraints :: Void |
-                constraints expanded; allBorders; borderSize: 2; proportion: 1.0f.
-            };
-            element: methodsView do: {:constraints :: Void |
-                constraints expanded; allBorders; borderSize: 2; proportion: 1.0f.
-            }.
-        let sizer := VerticalBoxSizer sharedNew.
-        sizer _
-            element: horizontalSizer do: {:constraints :: Void |
-                constraints expanded; allBorders; borderSize: 2; proportion: 1.0f.
-            };
-            element: codeEditor do: {:constraints :: Void |
-                constraints expanded; allBorders; borderSize: 2; proportion: 1.0f.
-            }.
-
         norphicWindow _
-            addSubnorph: (classesListView upCastFor: Norph);
-            addSubnorph: (methodsView upCastFor: Norph);
-            addSubnorph: (codeEditor upCastFor: Norph);
-            sizer: (sizer upCastFor: Sizer);
+            buildLayoutWith: {:b :: Void |
+                b verticalPanedWith: {:b :: Void |
+                    b
+                        horizontalPanedWith: {:b :: Void |
+                            b
+                                element: classesListView;
+                                element: methodsView
+                        };
+                        element: codeEditor
+                }.
+            };
             autolayout: true;
             updateLayout.
         self

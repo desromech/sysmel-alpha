@@ -139,7 +139,8 @@ class PanedNorphLayoutBuilder superclass: NorphLayoutBuilder; definition: {
 
     override method ownerForSizer => NorphPtr := {
         let result := Norph sharedNew.
-        result _ color: Float32x4 transparent.
+        result _
+            color: Float32x4 transparent.
         result
     }.
 
@@ -168,6 +169,9 @@ class PanedNorphLayoutBuilder superclass: NorphLayoutBuilder; definition: {
     macro method element: anElement proportion: proportion := ``(`,self norphElement: (`,anElement upCastFor: Norphic Norph) proportion: `,proportion).
 
     override method addSubBuilderResult: (subBuilder: SizerLayoutBuilder ref) with: (constraintsBlock: LayoutConstraintsBlock) ::=> Void := {
+        subBuilder owner _
+            sizer: subBuilder sizer;
+            autolayout: true.
         self norphElement: subBuilder owner
     }.
 

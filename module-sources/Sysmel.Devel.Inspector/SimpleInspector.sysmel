@@ -51,24 +51,18 @@ gcclass SimpleInspector definition: {
     }.
 
     method buildLayout := {
-        let sizer := VerticalBoxSizer sharedNew.
-
-        sizer _
-            element: label do: {:constraints :: Void |
-                constraints allBorders; borderSize: 2.
-            };
-            element: listView do: {:constraints :: Void |
-                constraints expanded; allBorders; borderSize: 2; proportion: 1.0f.
-            };
-            element: evaluationEditor do: {:constraints :: Void |
-                constraints expanded; allBorders; borderSize: 2; proportion: 1.0f.
-            }.
-
         norphicWindow _
-            addSubnorph: (label upCastFor: Norph);
-            addSubnorph: (listView upCastFor: Norph);
-            addSubnorph: (evaluationEditor upCastFor: Norph);
-            sizer: (sizer upCastFor: Sizer);
+            buildLayoutWith: {:b :: Void |
+                b verticalPanedWith: {:b :: Void |
+                    b
+                        verticalBoxWith: {:b :: Void |
+                            b
+                                element: label with: {:c :: Void | c allBorders; borderSize: 2};
+                                element: listView with: {:c :: Void | c expanded; allBorders; borderSize: 2; proportion: 1.0f}
+                        };
+                        element: evaluationEditor
+                }.
+            };
             autolayout: true;
             updateLayout.
         self
