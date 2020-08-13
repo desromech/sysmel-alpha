@@ -1,0 +1,186 @@
+namespace Norphic definition: {
+
+useNamespace: Stdn Math Geometry.
+
+compileTime constant LayoutBuilderBlock := (LayoutBuilder ref => Void) nativeStackBlockClosure.
+compileTime constant SizerLayoutBuilderBlock := (SizerLayoutBuilder ref => Void) nativeStackBlockClosure.
+compileTime constant PanedLayoutBuilderBlock := (PanedNorphLayoutBuilder ref => Void) nativeStackBlockClosure.
+compileTime constant LayoutConstraintsBlock := (SizerElement ref => Void) nativeStackBlockClosure.
+
+class LayoutBuilder definition: {
+    public field owner type: NorphPtr.
+
+    virtual method ownerForSizer => NorphPtr
+        := owner.
+
+    method verticalBoxWith: (buildBlock: SizerLayoutBuilderBlock) constraints: (constraintsBlock: LayoutConstraintsBlock) ::=> Void := {
+        self addSubBuilderResult: (SizerLayoutBuilder()
+            owner: self ownerForSizer;
+            forVerticalBox;
+            buildWith: buildBlock;
+            yourself) with: constraintsBlock
+    }.
+
+    method verticalBoxWith: (buildBlock: SizerLayoutBuilderBlock) ::=> Void
+        := self verticalBoxWith: buildBlock constraints: nil.
+
+    method horizontalBoxWith: (buildBlock: SizerLayoutBuilderBlock) constraints: (constraintsBlock: LayoutConstraintsBlock) ::=> Void := {
+        self addSubBuilderResult: (SizerLayoutBuilder()
+            owner: self ownerForSizer;
+            forHorizontalBox;
+            buildWith: buildBlock;
+            yourself) with: constraintsBlock
+    }.
+
+    method horizontalBoxWith: (buildBlock: SizerLayoutBuilderBlock) ::=> Void
+        := self horizontalBoxWith: buildBlock constraints: nil.
+
+    method horizontalPanedWith: (buildBlock: PanedLayoutBuilderBlock) constraints: (constraintsBlock: LayoutConstraintsBlock) ::=> Void := {
+        let builder mutable := PanedNorphLayoutBuilder()
+            forHorizontalPaned;
+            buildWith: buildBlock;
+            yourself.
+        self addSubBuilderResult: builder with: constraintsBlock
+    }.
+
+    method horizontalPanedWith: (buildBlock: PanedLayoutBuilderBlock) ::=> Void
+        := self horizontalPanedWith: buildBlock constraints: nil.
+
+    method verticalPanedWith: (buildBlock: PanedLayoutBuilderBlock) constraints: (constraintsBlock: LayoutConstraintsBlock) ::=> Void := {
+        let builder mutable := PanedNorphLayoutBuilder()
+            forVerticalPaned;
+            buildWith: buildBlock;
+            yourself.
+        self addSubBuilderResult: builder with: constraintsBlock
+    }.
+
+    method verticalPanedWith: (buildBlock: PanedLayoutBuilderBlock) ::=> Void
+        := self verticalPanedWith: buildBlock constraints: nil.
+
+    abstract method addSubBuilderResult: (subBuilder: SizerLayoutBuilder ref) with: (constraintsBlock: LayoutConstraintsBlock) ::=> Void.
+    abstract method addSubBuilderResult: (subBuilder: NorphLayoutBuilder ref) with: (constraintsBlock: LayoutConstraintsBlock) ::=> Void.
+
+}.
+
+class SizerLayoutBuilder superclass: LayoutBuilder; definition: {
+    public field sizer type: SizerPtr.
+
+    method forVerticalBox => Void := {
+        sizer := VerticalBoxSizer sharedNew upCastFor: Sizer
+    }.
+
+    method forHorizontalBox => Void := {
+        sizer := HorizontalBoxSizer sharedNew upCastFor: Sizer
+    }.
+
+    method buildWith: (aBlock: SizerLayoutBuilderBlock) ::=> Void := {
+        aBlock(self)
+    }.
+
+    method norphElement: (norph: NorphPtr const ref) with: (constraintsBlock: LayoutConstraintsBlock) ::=> Void := {
+        sizer _ element: norph with: constraintsBlock.
+        owner _ addSubnorph: norph.
+    }.
+
+    macro method element: anElement with: constraintsBlock := ``(`,self norphElement: (`,anElement upCastFor: Norphic Norph) with: `,constraintsBlock).
+
+    override method addSubBuilderResult: (subBuilder: SizerLayoutBuilder ref) with: (constraintsBlock: LayoutConstraintsBlock) ::=> Void := {
+        constraintsBlock ifNil: {
+            sizer _ element: subBuilder sizer with: {:c :: Void | c expanded}.
+        } ifNotNil: {
+            sizer _ element: subBuilder sizer with: constraintsBlock.
+        }.
+    }.
+
+    override method addSubBuilderResult: (subBuilder: NorphLayoutBuilder ref) with: (constraintsBlock: LayoutConstraintsBlock) ::=> Void := {
+        constraintsBlock ifNil: {
+            sizer _ element: subBuilder owner with: {:c :: Void | c expanded}.
+        } ifNotNil: {
+            sizer _ element: subBuilder owner with: constraintsBlock.
+        }.
+        owner _ addSubnorph: subBuilder owner
+    }.
+}.
+
+class NorphLayoutBuilder superclass: LayoutBuilder; definition: {
+    method on: (anOwner: NorphPtr const ref) buildWith: (aBlock: LayoutBuilderBlock) ::=> Void := {
+        owner := anOwner.
+        aBlock(self)
+    }.
+
+    override method addSubBuilderResult: (subBuilder: SizerLayoutBuilder ref) with: (constraintsBlock: LayoutConstraintsBlock) ::=> Void := {
+        let fullSizer mutable := subBuilder sizer.
+        constraintsBlock ifNotNil: {
+            let ownerSizer := VerticalBoxSizer sharedNew.
+            ownerSizer _ element: fullSizer with: constraintsBlock.
+            fullSizer := ownerSizer upCastFor: Sizer
+        }.
+
+        owner _
+            sizer: fullSizer
+    }.
+
+    override method addSubBuilderResult: (subBuilder: NorphLayoutBuilder ref) with: (constraintsBlock: LayoutConstraintsBlock) ::=> Void := {
+        let fullSizer := VerticalBoxSizer sharedNew.
+        constraintsBlock ifNotNil: {
+            fullSizer _ element: subBuilder owner with: constraintsBlock.
+        } ifNil: {
+            fullSizer _ element: subBuilder owner with: {:c :: Void | c expanded}.
+        }.
+
+        owner _
+            sizer: (fullSizer upCastFor: Sizer);
+            addSubnorph: subBuilder owner.
+    }.
+}.
+
+class PanedNorphLayoutBuilder superclass: NorphLayoutBuilder; definition: {
+    field panedNorph type: PanedNorphPtr.
+
+    override method ownerForSizer => NorphPtr := {
+        let result := Norph sharedNew.
+        result _ color: Float32x4 transparent.
+        result
+    }.
+
+    method buildWith: (aBlock: PanedLayoutBuilderBlock) ::=> Void := {
+        aBlock(self)
+    }.
+
+    method forHorizontalPaned => Void := {
+        panedNorph := HorizontalPanedNorph sharedNew upCastFor: PanedNorph.
+        owner := panedNorph upCastFor: Norph.
+    }.
+
+    method forVerticalPaned => Void := {
+        panedNorph := VerticalPanedNorph sharedNew upCastFor: PanedNorph.
+        owner := panedNorph upCastFor: Norph.
+    }.
+
+    method norphElement: (norph: NorphPtr const ref) ::=> Void
+        := self norphElement: norph proportion: 1.
+
+    method norphElement: (norph: NorphPtr const ref) proportion: (proportion: Float32) ::=> Void := {
+        panedNorph _ addElement: norph proportion: proportion.
+    }.
+
+    macro method element: anElement := ``(`,self norphElement: (`,anElement upCastFor: Norphic Norph)).
+    macro method element: anElement proportion: proportion := ``(`,self norphElement: (`,anElement upCastFor: Norphic Norph) proportion: `,proportion).
+
+    override method addSubBuilderResult: (subBuilder: SizerLayoutBuilder ref) with: (constraintsBlock: LayoutConstraintsBlock) ::=> Void := {
+        self norphElement: subBuilder owner
+    }.
+
+    override method addSubBuilderResult: (subBuilder: NorphLayoutBuilder ref) with: (constraintsBlock: LayoutConstraintsBlock) ::=> Void := {
+        self norphElement: subBuilder owner
+    }.
+}.
+
+Norph extend: {
+    method buildLayoutWith: (aBlock: LayoutBuilderBlock) ::=> Void := {
+        NorphLayoutBuilder()
+            on: self asSharedPointer buildWith: aBlock
+    }.
+}.
+
+}. ## End of namespace Norphic

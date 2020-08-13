@@ -43,7 +43,7 @@ class MenuNorph superclass: PopupNorph; definition: {
         items add: menuItem.
 
         self sizer _
-            element: menuItem do: {:constraints :: Void |
+            element: menuItem with: {:constraints :: Void |
                 constraints expanded
             }.
 
@@ -56,7 +56,7 @@ class MenuNorph superclass: PopupNorph; definition: {
         self addSubnorph: (separator upCastFor: Norph).
 
         self sizer _
-            element: separator do: {:constraints :: Void |
+            element: separator with: {:constraints :: Void |
                 constraints expanded
             }.
 

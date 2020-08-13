@@ -28,7 +28,7 @@ class Sizer superclass: Stdn SharedObject; definition: {
         elements add: newElement
     }.
 
-    macro method element: aWidgetOrASizer do: aBlock :=  {
+    macro method element: aWidgetOrASizer with: aBlock :=  {
         let sizerElement := __astBuilder gensym: #sizerElement.
         (``{
             let `,sizerElement mutable := `,aWidgetOrASizer _ asSizerElement.
@@ -37,7 +37,7 @@ class Sizer superclass: Stdn SharedObject; definition: {
         }) asSequenceWithoutLexicalScope
     }.
 
-    macro method startElement: aWidgetOrASizer do: aBlock :=  {
+    macro method startElement: aWidgetOrASizer with: aBlock :=  {
         let sizerElement := __astBuilder gensym: #sizerElement.
         (``{
             let `,sizerElement mutable := `,aWidgetOrASizer _ asSizerElement.
@@ -46,5 +46,7 @@ class Sizer superclass: Stdn SharedObject; definition: {
         }) asSequenceWithoutLexicalScope
     }.
 }.
+
+compileTime constant SizerPtr := Sizer sharedPointer.
 
 }. ## End of namespace Norphic

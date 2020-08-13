@@ -116,4 +116,6 @@ class PanedNorph superclass: Norph; definition: {
     }.
 }.
 
+compileTime constant PanedNorphPtr := PanedNorph sharedPointer.
+
 }. ## End of namespace Norphic

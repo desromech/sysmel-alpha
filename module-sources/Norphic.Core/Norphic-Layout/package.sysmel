@@ -5,3 +5,5 @@ loadFileOnce: "VerticalPanedNorph.sysmel".
 loadFileOnce: "PanelSplitterNorph.sysmel".
 loadFileOnce: "HorizontalPanelSplitterNorph.sysmel".
 loadFileOnce: "VerticalPanelSplitterNorph.sysmel".
+
+loadFileOnce: "LayoutBuilder.sysmel".

@@ -31,7 +31,7 @@ class MenuBarNorph superclass: Norph; definition: {
         items add: menuItem.
 
         self sizer _
-            element: menuItem do: {:constraints :: Void |
+            element: menuItem with: {:constraints :: Void |
             }.
 
         ## Create the menu itself.

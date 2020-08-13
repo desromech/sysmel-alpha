@@ -12,4 +12,6 @@ class VerticalPanedNorph superclass: PanedNorph; definition: {
         := VerticalPanelSplitterNorph sharedNew upCastFor: PanelSplitterNorph.
 }.
 
+compileTime constant VerticalPanedNorphPtr := VerticalPanedNorph sharedPointer.
+
 }. ## End of namespace Norphic

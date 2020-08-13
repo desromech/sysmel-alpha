@@ -28,6 +28,9 @@ class Theme superclass: Stdn Object; definition: {
     public field tableRowHighlightColor type: Float32x4.
     public field tableRowSelectedColor type: Float32x4.
 
+    public field panelSplitterBackground type: Float32x4.
+    public field panelSplitterDirectionColor type: Float32x4.
+
     override method initialize => Void := {
         font := FontRegistry default defaultSans.
         fontPointSize := 14.
@@ -49,6 +52,10 @@ class Theme superclass: Stdn Object; definition: {
         listViewBackground := Float32x4 white.
         tableRowHighlightColor := Float32x4(0.9f, 0.9f, 0.9f, 1.0f).
         tableRowSelectedColor := Float32x4 cyan muchLighter.
+
+        panelSplitterBackground := Float32x4(0.7f, 0.7f, 0.7f, 1.0f).
+        panelSplitterDirectionColor := Float32x4(0.5f, 0.5f, 0.5f, 1.0f).
+
     }.
 
     field normalFontFaceWithSize type: FontFaceWithSize sharedPointer.

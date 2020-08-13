@@ -11,13 +11,13 @@ namespace SysmelKernel definition: {
         ``(if: `,self then: `,trueAction else: `,falseAction).
 
     ## isNil
-    _PointerType macro method isNil := ``(`,self == nil).
-    _PointerType macro method isNotNil := ``(`,self ~~ nil).
+    (_PointerType | _AbstractBlockClosureType) macro method isNil := ``(`,self == nil).
+    (_PointerType | _AbstractBlockClosureType) macro method isNotNil := ``(`,self ~~ nil).
 
     ## ifNil:ifNotNil
-    _PointerType macro method ifNil: nilAction :=
+    (_PointerType | _AbstractBlockClosureType) macro method ifNil: nilAction :=
         ``(if: `,self == nil then: `,nilAction).
-    _PointerType macro method ifNotNil: notNilAction := {
+    (_PointerType | _AbstractBlockClosureType) macro method ifNotNil: notNilAction := {
         let pointer := __astBuilder gensym: #pointer.
         ``{
             let `,pointer := `,self.
@@ -25,7 +25,7 @@ namespace SysmelKernel definition: {
         } asSequenceWithoutLexicalScope
     }.
 
-    _PointerType macro method ifNotNil: notNilAction ifNil: nilAction := {
+    (_PointerType | _AbstractBlockClosureType) macro method ifNotNil: notNilAction ifNil: nilAction := {
         let pointer := __astBuilder gensym: #pointer.
         ``{
             let `,pointer := `,self.
@@ -33,7 +33,7 @@ namespace SysmelKernel definition: {
         } asSequenceWithoutLexicalScope
     }.
 
-    _PointerType macro method ifNil: nilAction ifNotNil: notNilAction := {
+    (_PointerType | _AbstractBlockClosureType) macro method ifNil: nilAction ifNotNil: notNilAction := {
         let pointer := __astBuilder gensym: #pointer.
         ``{
             let `,pointer := `,self.

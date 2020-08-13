@@ -12,4 +12,6 @@ class HorizontalPanedNorph superclass: PanedNorph; definition: {
         := HorizontalPanelSplitterNorph sharedNew upCastFor: PanelSplitterNorph.
 }.
 
+compileTime constant HorizontalPanedNorphPtr := HorizontalPanedNorph sharedPointer.
+
 }. ## End of namespace Norphic

@@ -20,7 +20,7 @@ class TableViewNorph superclass: BorderedNorph; definition: {
 
         let sizer := VerticalBoxSizer sharedNew.
         sizer _
-            element: contentNorph do: {:constraints :: Void |
+            element: contentNorph with: {:constraints :: Void |
                 constraints expanded; allBorders; borderSize: 2; proportion: 1.0.
             }.
 
@@ -40,7 +40,7 @@ class TableViewNorph superclass: BorderedNorph; definition: {
         self addSubnorph: (contentNorph upCastFor: Norph).
 
         self sizer _
-            startElement: headerNorph do: {:constraints :: Void |
+            startElement: headerNorph with: {:constraints :: Void |
                 constraints expanded.
             }.
         self updateLayout.

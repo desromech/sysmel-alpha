@@ -20,16 +20,17 @@ Stdn MainEntryPoint: {:args :: Int32 |
         return: 0.
     }.
 
-    let mainSizer := VerticalBoxSizer sharedNew.
+    let menuBar := MenuBarNorph sharedNew.
+    let statusBar := StatusBarNorph sharedNew.
+    let rectangleWithBorder := BorderedNorph sharedNew.
+    let list := ListViewNorph sharedNew.
+    let label := LabelNorph sharedNew.
+    let button := SimpleButtonNorph sharedNew.
+    let textInput := TextInputNorph sharedNew.
+    let textArea := TextAreaNorph sharedNew.
 
     ## Menu bar
     {
-        let menuBar := MenuBarNorph sharedNew.
-        mainWindow _ addSubnorph: (menuBar upCastFor: Norph).
-        mainSizer _ element: menuBar do: {:constraints :: Void |
-            constraints expanded.
-        }.
-
         menuBar _
             addMenu: "File" asMutableString with: {:menu :: Void |
                 menu
@@ -51,51 +52,23 @@ Stdn MainEntryPoint: {:args :: Int32 |
             }
     }.
 
-    let contentPanel := HorizontalPanedNorph sharedNew.
-    contentPanel _ color: Float32x4 zeros.
-    mainWindow _ addSubnorph: (contentPanel upCastFor: Norph).
-    mainSizer _ element: contentPanel do: {:constraints :: Void |
-        constraints expanded; proportion: 1.0f.
-    }.
-
-    ## Status bar
-    {
-        let statusBar := StatusBarNorph sharedNew.
-        mainWindow _ addSubnorph: (statusBar upCastFor: Norph).
-        mainSizer _ element: statusBar do: {:constraints :: Void |
-            constraints expanded.
-        }.
-    }.
-
-    mainWindow _
-        sizer: (mainSizer upCastFor: Sizer);
-        autolayout: true;
-        updateLayout.
-
     ## Rectangle with border.
-    let list := ListViewNorph sharedNew.
     {
-        let borderedNorph := BorderedNorph sharedNew.
-        borderedNorph _
+        rectangleWithBorder _
             color: Float32x4(1.0f, 0.0f, 0.0f, 1.0f);
             borderColor: Float32x4(0.0f, 0.0f, 0.0f, 1.0f).
-        contentPanel _ addElement: (borderedNorph upCastFor: Norph).
     }.
 
     ## Sample label
     {
-        let label := LabelNorph sharedNew.
         label _
             text: "Hello World" asMutableString.
-        contentPanel _ addElement: (label upCastFor: Norph).
     }.
 
     ## Sample button
     {
-        let button := SimpleButtonNorph sharedNew.
         button _
             text: "Button" asMutableString.
-        contentPanel _ addElement: (button upCastFor: Norph).
 
         button _ when: NorphActivatedEvent do: { :(NorphEvent ref) event :: Void |
             list _ addItem: "Extra item" asMutableString.
@@ -108,20 +81,34 @@ Stdn MainEntryPoint: {:args :: Int32 |
             addItem: "First" asMutableString;
             addItem: "Second" asMutableString;
             addItem: "Third" asMutableString.
-        contentPanel _ addElement: (list upCastFor: Norph).
     }.
 
-    ## Sample text input
-    {
-        let textInput := TextInputNorph sharedNew.
-        contentPanel _ addElement: (textInput upCastFor: Norph).
-    }.
-
-    ## Sample text area
-    {
-        let textArea := TextAreaNorph sharedNew.
-        contentPanel _ addElement: (textArea upCastFor: Norph).
-    }.
+    ## Layout
+    mainWindow _
+        buildLayoutWith: {:b :: Void |
+            b verticalBoxWith: {:b :: Void |
+                b
+                    element: menuBar with: {:c :: Void | c expanded};
+                    horizontalPanedWith: {:b :: Void |
+                        b
+                            verticalPanedWith: {:b :: Void |
+                                b
+                                    element: rectangleWithBorder;
+                                    element: label;
+                                    element: button;
+                                    element: list
+                            };
+                            verticalPanedWith: {:b :: Void |
+                                b
+                                    element: textInput;
+                                    element: textArea
+                            }
+                    } constraints: {:c :: Void | c expanded; proportion: 1.0f};
+                    element: statusBar with: {:c :: Void | c expanded}
+            }.
+        };
+        autolayout: true;
+        updateLayout.
 
     ## Run the actual main loop.
     return: windowSystem _ runMainLoop.

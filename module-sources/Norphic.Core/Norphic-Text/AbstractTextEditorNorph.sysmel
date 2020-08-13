@@ -21,7 +21,7 @@ class AbstractTextEditorNorph superclass: BorderedNorph; definition: {
         self addSubnorph: (textEditingArea upCastFor: Norph).
 
         let sizer := HorizontalBoxSizer sharedNew.
-        sizer _ element: textEditingArea do: {:constraints :: Void |
+        sizer _ element: textEditingArea with: {:constraints :: Void |
             constraints expanded; centered; allBorders; proportion: 1.0; borderSize: 4.
         }.
 

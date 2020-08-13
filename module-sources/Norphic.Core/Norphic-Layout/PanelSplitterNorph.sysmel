@@ -12,7 +12,10 @@ class PanelSplitterNorph superclass: Norph; definition: {
         := 5.0f.
 
     override method defaultColor => Float32x4
-        := Float32x4(0.3f, 0.3f, 0.3f, 1.0f).
+        := self theme _ panelSplitterBackground.
+
+    method directionColor => Float32x4
+        := self theme _ panelSplitterDirectionColor.
 
     override method onMouseEnterEvent: (event: NorphMouseEnterEvent ref) ::=> Void := {
         super onMouseEnterEvent: event.
@@ -65,8 +68,12 @@ class PanelSplitterNorph superclass: Norph; definition: {
         }
     }.
 
-    override method buildSceneGraphWith: (builder: NorphSceneBuilder ref) ::=> NorphSceneNodePtr
-        := (builder fillRectangle: self localBounds color: self currentColor) upCastFor: NorphSceneNode.
+    override method buildSceneGraphWith: (builder: NorphSceneBuilder ref) ::=> NorphSceneNodePtr := {
+        let backgroundRect := self localBounds.
+        let directionLineRect := RectangleF32 min: backgroundRect min + 2.0 max: backgroundRect max - 2.0.
+        (builder fillRectangle: backgroundRect color: self currentColor) _
+        -- ((builder fillRectangle: directionLineRect color: self directionColor) upCastFor: NorphSceneNode).
+    }
 }.
 
 compileTime constant PanelSplitterNorphPtr := PanelSplitterNorph sharedPointer.
