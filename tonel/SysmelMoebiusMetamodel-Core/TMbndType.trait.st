@@ -98,6 +98,7 @@ TMbndType >> isTrait [
 TMbndType >> lookupFallbackMacroSelector: aSelector [
 	| result |
 	result := self lookupMacroSelector: aSelector.
+	result ifNil: [ ^ result ].
 	^ result isFallbackMacro ifTrue: [ result ] ifFalse: [ nil ]
 ]
 
