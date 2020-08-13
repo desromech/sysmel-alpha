@@ -135,82 +135,44 @@ class TextStreamWriter definition: {
     method nl => SelfType ref
         := self lf; yourself.
 
-    ## Convenience printing methods.
-    method << (character: Char32) => SelfType ref
-        := self nextPut: character; yourself.
+    macro method print: value := ``(`,value printOnNativeTextStreamWriter: `,self).
 
-    method << (string: Char8 const pointer) => SelfType ref
-        := self nextPutCString: string; yourself.
-
-    method << (string: Stdn ImmutableString) => SelfType ref
-        := self nextPutAll: string; yourself.
-
-    method << (bool: Boolean8) => SelfType ref
-        := self nextPutBoolean: bool; yourself.
-
-    method << (integer: Int8) => SelfType ref
-        := self nextPutInteger: integer; yourself.
-
-    method << (integer: Int16) => SelfType ref
-        := self nextPutInteger: integer; yourself.
-
-    method << (integer: Int32) => SelfType ref
-        := self nextPutInteger: integer; yourself.
-
-    method << (integer: Int64) => SelfType ref
-        := self nextPutInteger: integer; yourself.
-
-    method << (integer: UInt8) => SelfType ref
-        := self nextPutUnsignedInteger: integer; yourself.
-
-    method << (integer: UInt16) => SelfType ref
-        := self nextPutUnsignedInteger: integer; yourself.
-
-    method << (integer: UInt32) => SelfType ref
-        := self nextPutUnsignedInteger: integer; yourself.
-
-    method << (integer: UInt64) => SelfType ref
-        := self nextPutUnsignedInteger: integer; yourself.
-
-    method << (pointer: Void const pointer) => SelfType ref
-        := self nextPutHexPointer: pointer; yourself.
-
-    method << (float: Float32) => SelfType ref
-        := self nextPutSingleFloat: float; yourself.
-
-    method << (double: Float64) => SelfType ref
-        := self nextPutDouble: double; yourself.
-
-    method << (exception: Exception const ref) => SelfType ref := {
-        exception printOnNativeTextStreamWriter: self.
-        self
-    }.
+    macro method << value := ``(`,self print: `,value; yourself).
 }.
+
+AnyValue macro fallback method printOnNativeTextStreamWriter: out := ``(`,out nextPutAll: "a "; nextPutAll: `,SelfType qualifiedName).
+
+(Char8 | Char16 | Char32) macro method printOnNativeTextStreamWriter: out := ``(`,out nextPut: (`,self castTo: Char32)).
+
+(Char8 const arraySlice | Char8 arraySlice) macro method printOnNativeTextStreamWriter: out := ``(`,out nextPutAll: `,self).
+
+Boolean8 macro method printOnNativeTextStreamWriter: out := ``(`,out nextPutBoolean: `,self).
+
+_PointerType macro method printOnNativeTextStreamWriter: out := ``(`,out nextPutHexPointer: `,self).
+
+Char8 const pointer macro method printOnNativeTextStreamWriter: out := ``(`,out nextPutCString: `,self).
+
+(Int8 | Int16 | Int32 | Int64) macro method printOnNativeTextStreamWriter: out := ``(`,out nextPutInteger: `,self).
+(UInt8 | UInt16 | UInt32 | UInt64) macro method printOnNativeTextStreamWriter: out := ``(`,out nextPutUnsignedInteger: `,self).
+Float32 macro method printOnNativeTextStreamWriter: out := ``(`,out nextPutSingleFloat: `,self).
+Float64 macro method printOnNativeTextStreamWriter: out := ``(`,out nextPutDouble: `,self).
+
+_LiteralValueType macro method printOnNativeTextStreamWriter: out := ``(`,out print: `,self asConcreteValue).
 
 _PrimitiveVectorTypeTemplate extend: {
     let VectorType := SelfType.
     let VectorSize := SelfType elements.
 
-    TextStreamWriter extend: {
-        method nextPutVector: (vector: VectorType) ::=> Void := {
-            self << vector x.
-            compileTime if: VectorSize > 1 then: {
-                self nextPut: ' '.
-                self << vector y.
-                compileTime if: VectorSize > 2 then: {
-                    self nextPut: ' '.
-                    self << vector z.
-                    compileTime if: VectorSize > 3 then: {
-                        self nextPut: ' '.
-                        self << vector w.
-                    }
+    method printOnNativeTextStreamWriter: (out: TextStreamWriter ref) ::=> Void := {
+        out print: self x.
+        compileTime if: VectorSize > 1 then: {
+            out nextPut: ' '; print: self y.
+            compileTime if: VectorSize > 2 then: {
+                out nextPut: ' '; print: self z.
+                compileTime if: VectorSize > 3 then: {
+                    out nextPut: ' '; print: self w.
                 }
-            }.
-        }.
-
-        method << (vector: VectorType) => SelfType ref := {
-            self nextPutVector: vector.
-            self
+            }
         }.
     }.
 }.

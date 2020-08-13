@@ -12,7 +12,7 @@ union EndpointAddressIPv4 definition: {
     public field addr type: UInt32.
     public field bytes type: (UInt8 array: 4).
 
-    const method printOn: (writer: TextStreamWriter ref) ::=> Void := {
+    const method printOnNativeTextStreamWriter: (writer: TextStreamWriter ref) ::=> Void := {
         writer << bytes[0] << '.' << bytes[1] << '.' << bytes[2] << '.' << bytes[3]
     }.
 }.
@@ -21,7 +21,7 @@ union EndpointAddressIPv6 definition: {
     public field addr type: (UInt8 array: 16).
     public field shorts type: (UInt16 array: 8).
 
-    const method printOn: (writer: TextStreamWriter ref) ::=> Void := {
+    const method printOnNativeTextStreamWriter: (writer: TextStreamWriter ref) ::=> Void := {
     }
 }.
 
@@ -73,7 +73,7 @@ struct Endpoint definition: {
     const method isInvalid => Boolean8
         := type == EndpointType Invalid.
 
-    const method printOn: (writer: TextStreamWriter ref) ::=> Void := {
+    const method printOnNativeTextStreamWriter: (writer: TextStreamWriter ref) ::=> Void := {
         type selectCase: #{
         EndpointType IPv4 : {
             writer << addr ipv4 << ':' << networkToHostShort(port)
@@ -83,17 +83,6 @@ struct Endpoint definition: {
         }.
         }.
     }.
-}.
-
-TextStreamWriter extend: {
-    method << (endpointAddress: EndpointAddressIPv4 const ref) => SelfType ref
-        := {endpointAddress printOn: self. self}.
-
-    method << (endpointAddress: EndpointAddressIPv6 const ref) => SelfType ref
-        := {endpointAddress printOn: self. self}.
-
-    method << (endpoint: Endpoint const ref) => SelfType ref
-        := {endpoint printOn: self. self}.
 }.
 
 }. ## End of namespace IO

@@ -183,11 +183,4 @@ Character extend: {
     }.
 }.
 
-Stdn IO TextStreamWriter extend: {
-    method << (object: ProtoObject) => SelfType ref := {
-        object printOnNativeTextStreamWriter: self.
-        self
-    }
-}.
-
 }.

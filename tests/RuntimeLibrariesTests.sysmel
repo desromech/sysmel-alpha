@@ -11,4 +11,11 @@ Compiler
 		#"Sysmel.Graphics.Core.Raster.Tests"
 	).
 
+compileTime if: Compiler compilationTarget isDesktopPC then: {
+	Compiler
+		importModulesNamed: #(
+			#"Sysmel.Networking.Core.Tests"
+		).
+}.
+
 Stdn Testing generateTestSuiteProgramMain: "RuntimeLibrariesTests".
