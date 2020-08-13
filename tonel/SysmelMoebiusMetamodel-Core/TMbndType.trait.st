@@ -14,6 +14,7 @@ Trait {
 		'implicitConversionRules'
 	],
 	#traits : 'TMbndAbstractType + TMbndMacroMethodContainer',
+	#classTraits : 'TMbndAbstractType classTrait + TMbndMacroMethodContainer classTrait',
 	#category : #'SysmelMoebiusMetamodel-Core-Type'
 }
 
@@ -91,6 +92,13 @@ TMbndType >> isPODInstance [
 { #category : #testing }
 TMbndType >> isTrait [
 	^ self hasFlag: #trait
+]
+
+{ #category : #'as yet unclassified' }
+TMbndType >> lookupFallbackMacroSelector: aSelector [
+	| result |
+	result := self lookupMacroSelector: aSelector.
+	^ result isFallbackMacro ifTrue: [ result ] ifFalse: [ nil ]
 ]
 
 { #category : #'as yet unclassified' }

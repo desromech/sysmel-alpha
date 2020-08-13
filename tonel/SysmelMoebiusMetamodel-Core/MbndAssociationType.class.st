@@ -76,6 +76,7 @@ MbndAssociationType >> printOn: aStream [
 
 { #category : #printing }
 MbndAssociationType >> qualifiedName [
+	<compileTime>
 	^ self asString
 ]
 

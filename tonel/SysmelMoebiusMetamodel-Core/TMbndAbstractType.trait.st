@@ -7,6 +7,7 @@ Trait {
 		'extraMetaBuilderFactories'
 	],
 	#traits : 'TMbndProgramEntity',
+	#classTraits : 'TMbndProgramEntity classTrait',
 	#category : #'SysmelMoebiusMetamodel-Core-Type'
 }
 
@@ -137,6 +138,19 @@ TMbndAbstractType >> analyzeBasicInitializationNode: node with: analyzer [
 ]
 
 { #category : #'semantic analysis' }
+TMbndAbstractType >> analyzeExpandedFallbackMacroMessageSendNode: node with: analyzer [
+	node selector isLiteralSymbolValueNode ifTrue: [
+		| fallbackMacro |
+		fallbackMacro := node receiver type lookupFallbackMacroSelector: node selector value.
+		fallbackMacro ifNotNil: [
+			^ fallbackMacro expandMessageNode: node with: analyzer
+		]
+	].
+
+	^ self analyzeUnhandledUnboundExpandedMessageSendNode: node with: analyzer
+]
+
+{ #category : #'semantic analysis' }
 TMbndAbstractType >> analyzeExpandedMessageSendNode: node with: analyzer [
 	| method |
 	method := self lookupOverloadedSelector: node selector value.
@@ -227,7 +241,7 @@ TMbndAbstractType >> analyzeUnboundExpandedMessageSendNode: node with: analyzer 
 		^ st analyzeUnboundExpandedMessageSendNode: node with: analyzer
 	].
 
-	^ node receiver type analyzeUnhandledUnboundExpandedMessageSendNode: node with: analyzer
+	^ node receiver type analyzeExpandedFallbackMacroMessageSendNode: node with: analyzer
 ]
 
 { #category : #'semantic analysis' }
@@ -263,7 +277,7 @@ TMbndAbstractType >> analyzeUnexpandedMessageSendNode: node with: analyzer [
 	node selector isLiteralSymbolValueNode ifTrue: [
 		selector := node selector value.
 		macroMethod := self lookupMacroSelector: selector.
-		macroMethod ifNotNil: [
+		(macroMethod isNotNil and: [macroMethod isFallbackMacro not]) ifTrue: [
 			^ macroMethod expandMessageNode: node with: analyzer
 		].
 	

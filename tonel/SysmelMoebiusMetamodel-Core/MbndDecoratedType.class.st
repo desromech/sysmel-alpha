@@ -159,6 +159,15 @@ MbndDecoratedType >> printOn: aStream [
 
 ]
 
+{ #category : #printing }
+MbndDecoratedType >> qualifiedName [
+	<compileTime>
+	name ifNotNil: [ ^ super qualifiedName ].
+	^ ByteString streamContents: [ :out |
+		self printOn: out
+	]
+]
+
 { #category : #accessing }
 MbndDecoratedType >> slotLayout [
 	^ baseType slotLayout

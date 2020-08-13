@@ -10,7 +10,14 @@ MbndMacroMetaBuilder class >> globalBindingName [
 ]
 
 { #category : #'as yet unclassified' }
+MbndMacroMetaBuilder >> fallback [
+	self addFlag: #fallback
+]
+
+{ #category : #'as yet unclassified' }
 MbndMacroMetaBuilder >> method [
-	^ self delegateToMetaBuilder: MbndMacroMethodMetaBuilder new
+	^ self delegateToMetaBuilder: (MbndMacroMethodMetaBuilder new
+		flags: flags;
+		yourself) 
 
 ]

@@ -33,6 +33,11 @@ MbndConcreteMacroMessageMethod >> isConcreteMacroMessage [
 	^ true
 ]
 
+{ #category : #testing }
+MbndConcreteMacroMessageMethod >> isFallbackMacro [
+	^ self hasFlag: #fallback
+]
+
 { #category : #printing }
 MbndConcreteMacroMessageMethod >> qualifiedName [
 	<compileTime>

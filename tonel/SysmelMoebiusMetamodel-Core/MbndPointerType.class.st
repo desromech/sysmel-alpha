@@ -201,6 +201,13 @@ MbndPointerType >> printOn: aStream [
 	aStream nextPutAll: ' pointer'
 ]
 
+{ #category : #printing }
+MbndPointerType >> qualifiedName [
+	<compileTime>
+	name ifNotNil: [ ^ super qualifiedName ].
+	^ baseType qualifiedName , ' pointer'
+]
+
 { #category : #'type composition' }
 MbndPointerType >> withoutDecorations [
 	^ baseType withoutDecorations pointerFor: addressSpace

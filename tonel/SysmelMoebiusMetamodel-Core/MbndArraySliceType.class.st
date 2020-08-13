@@ -109,12 +109,13 @@ MbndArraySliceType >> isTrait [
 { #category : #'as yet unclassified' }
 MbndArraySliceType >> printOn: aStream [
 	name ifNotNil: [ ^ super printOn: aStream ].
-	elementType printOn: aStream.
+	aStream print: elementType.
 	aStream nextPutAll: ' arraySlice'.
-
 ]
 
 { #category : #printing }
 MbndArraySliceType >> qualifiedName [
+	<compileTime>
+	name ifNotNil: [ ^ name ].
 	^ self asString
 ]

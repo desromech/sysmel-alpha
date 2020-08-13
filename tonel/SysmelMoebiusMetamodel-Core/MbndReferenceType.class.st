@@ -181,6 +181,13 @@ MbndReferenceType >> printOn: aStream [
 	aStream nextPutAll: ' ref'
 ]
 
+{ #category : #printing }
+MbndReferenceType >> qualifiedName [
+	<compileTime>
+	name ifNotNil: [ ^ super qualifiedName ].
+	^ baseType qualifiedName , ' ref'
+]
+
 { #category : #'type composition' }
 MbndReferenceType >> refFor: anAddressSpace [
 	addressSpace == anAddressSpace ifTrue: [ ^ self ].

@@ -25,6 +25,16 @@ MbndLiteralValueType >> addConversionRulesToTargetType: targetType [
 
 ]
 
+{ #category : #initialization }
+MbndLiteralValueType >> addInstanceMacros [
+	self class == MbndLiteralValueType ifFalse: [ ^ self ].
+	self
+		onMacroSelector: #asConcreteValue do: [ :node :builder :analyzer |
+			analyzer ensureLiteralIsConcreted: node receiver
+		];
+		yourself
+]
+
 { #category : #adding }
 MbndLiteralValueType >> addLiteralHostDelegationMacroFor: selector to: hostSelector [
 	self macroMethodDict at: selector put: (MbndLiteralHostDelegation new

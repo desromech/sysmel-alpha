@@ -82,6 +82,11 @@ MbndMacroMessageMethod >> expandMessageNode: node with: analyzer [
 ]
 
 { #category : #testing }
+MbndMacroMessageMethod >> isFallbackMacro [
+	^ concreteMethod isFallbackMacro
+]
+
+{ #category : #testing }
 MbndMacroMessageMethod >> isMacroMessageMethod [
 	^ true
 ]

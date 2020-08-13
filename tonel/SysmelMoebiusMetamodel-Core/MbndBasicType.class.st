@@ -537,7 +537,7 @@ MbndBasicType >> programEntitionInformationData [
 
 { #category : #'as yet unclassified' }
 MbndBasicType >> recordMacroMethodAddition: method withSelector: selector [
-	self isCoreBasicType ifTrue: [ 
+	(self isCoreBasicType or: [self isSystemProvidedTypeTemplateInstanceMainChild]) ifTrue: [ 
 		self compilationTarget isTheTypeSystemInitialized ifTrue: [
 			^ method recordAsExtensionFor: self withSelector: selector
 		]

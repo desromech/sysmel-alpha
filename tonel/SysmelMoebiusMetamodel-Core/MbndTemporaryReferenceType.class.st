@@ -144,6 +144,13 @@ MbndTemporaryReferenceType >> printOn: aStream [
 	aStream nextPutAll: ' tempRef'
 ]
 
+{ #category : #printing }
+MbndTemporaryReferenceType >> qualifiedName [
+	<compileTime>
+	name ifNotNil: [ ^ super qualifiedName ].
+	^ baseType qualifiedName , ' tempRef'
+]
+
 { #category : #'type composition' }
 MbndTemporaryReferenceType >> ref [
 	^ baseType refFor: addressSpace
