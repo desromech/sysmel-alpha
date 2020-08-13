@@ -97,6 +97,7 @@ MbndSlovimObjectModel >> constructClosurePrototypeFor: closureDefinition [
 	].
 
 	closureDefinition kind = #gc ifTrue: [
+		self assert: mbndFunctionType canHaveDynamicMethodWrapper.
 		dynamicCallAdapter := moduleCodeGenerator getOrCreateDynamicFunctionCallAdapterFor: mbndFunctionType.
 		dynamicCallAdapterSlotIndex := self gcBlockClosureHeaderDynamicCallAdapterSlotIndex + 1.
 		numArgsSlotIndex := self gcBlockClosureHeaderNumArgsSlotIndex + 1.

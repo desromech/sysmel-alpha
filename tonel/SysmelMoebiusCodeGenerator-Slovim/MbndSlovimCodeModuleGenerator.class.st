@@ -2286,7 +2286,7 @@ MbndSlovimCodeModuleGenerator >> visitBlockClosureMethod: blockClosureMethod [
 	csymbol := self csymbolForProgramEntity: blockClosureMethod.
 	unmangledName := self unmangledNameForProgramEntity: blockClosureMethod.
 
-	kind := (blockClosureMethod needsGarbageCollection ifTrue: [ #gc ] ifFalse: [#nativeStack]).
+	kind := (blockClosureMethod closureKind = #gc ifTrue: [ #gc ] ifFalse: [#nativeStack]).
 	normalFunctionType := blockClosureMethod boundType prependArguments: {blockClosureMethod type}.
 
 	ssaClosureDefinition := SLVMClosureDefinition module: ssaModule functionType: ssaFunctionType.

@@ -1970,6 +1970,12 @@ MbndSlovimFunctionCodeGenerator >> unwrapDynamicObject: dynamicObjectValue withT
 		^ SLVMConstant nullPointer: (self translateType: targetType) 
 	].
 
+	targetType isNativeBlockClosureType ifTrue: [
+		self flag: 'TODO: Implement this case properly.'.
+		self halt.
+		^ SLVMConstant nullPointer: (self translateType: targetType) 
+	].
+
 	targetType isVoidType ifTrue: [ ^ nil ].
 
 	self error: 'TODO: Implement this case.'

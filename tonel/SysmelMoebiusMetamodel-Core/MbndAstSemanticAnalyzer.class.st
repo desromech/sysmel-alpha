@@ -932,7 +932,7 @@ MbndAstSemanticAnalyzer >> visitBlockClosureNode: node [
 			ifTrue: [ #gc ]
 			ifFalse: [ #native ])
 	].
-
+	result closureKind: blockClosureEntity closureKind.
 	blockClosureEntity type: (blockClosureEntity closureKind = #gc
 		ifTrue: [ functionType asGCBlockClosureType ]
 		ifFalse: [ functionType asNativeBlockClosureType]).
