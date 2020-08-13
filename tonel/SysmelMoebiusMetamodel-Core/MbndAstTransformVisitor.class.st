@@ -106,6 +106,14 @@ MbndAstTransformVisitor >> visitBitCastNode: node [
 ]
 
 { #category : #visiting }
+MbndAstTransformVisitor >> visitBlockClosureActivationAttemptNode: node [
+	^ node copy
+		blockNode: (self visitNode: node blockNode);
+		arguments: (self visitNodesAndCollect: node arguments);
+		yourself
+]
+
+{ #category : #visiting }
 MbndAstTransformVisitor >> visitBlockClosureNode: node [
 	^ node copy
 		arguments: (self visitNodesAndCollect: node arguments);

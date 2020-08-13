@@ -166,6 +166,11 @@ MbndAstNode >> isBitCastNode [
 ]
 
 { #category : #testing }
+MbndAstNode >> isBlockClosureActivationAttemptNode [
+	^ false
+]
+
+{ #category : #testing }
 MbndAstNode >> isBlockClosureNode [
 	^ false
 ]

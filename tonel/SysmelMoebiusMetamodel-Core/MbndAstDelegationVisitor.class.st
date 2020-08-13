@@ -63,6 +63,11 @@ MbndAstDelegationVisitor >> visitBitCastNode: node [
 ]
 
 { #category : #visiting }
+MbndAstDelegationVisitor >> visitBlockClosureActivationAttemptNode: node [
+	^ self delegateNodeVisit: node
+]
+
+{ #category : #visiting }
 MbndAstDelegationVisitor >> visitBlockClosureNode: node [
 	^ self delegateNodeVisit: node
 ]

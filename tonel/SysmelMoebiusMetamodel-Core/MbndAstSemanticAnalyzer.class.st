@@ -856,6 +856,35 @@ MbndAstSemanticAnalyzer >> visitAssociationNode: node [
 ]
 
 { #category : #visiting }
+MbndAstSemanticAnalyzer >> visitBlockClosureActivationAttemptNode: node [
+	| blockNode blockNodeType |
+	blockNode := node blockNode.
+	(blockNode isExceptionScopeNode or: [blockNode isSequenceNode]) ifTrue: [ ^ self analyzeNodeIfNeeded: blockNode ].
+
+	blockNode := self analyzeNodeIfNeeded: blockNode.
+	blockNodeType := blockNode type withoutReferences withoutTopDecorations.
+	blockNodeType isBlockClosureType ifTrue: [
+		blockNodeType argumentTypes size > node arguments size ifTrue: [
+			self error: 'Cannot activate block closure that requires {1} with the {2} arguments provided.'
+				format: {blockNodeType argumentTypes size asString . node arguments size asString}
+				at: node
+		].
+	
+		^ self visitNode: (
+		(self astBuilder
+			unexpandedSend: ((self astBuilder literalSymbol: #applyWithArguments:) position: node; yourself)
+			to: blockNode
+			withArguments: {(self astBuilder tuple: (node arguments first: blockNodeType argumentTypes size))
+				position: node;
+				yourself})
+					position: node
+		)
+	].
+	
+	^ blockNode
+]
+
+{ #category : #visiting }
 MbndAstSemanticAnalyzer >> visitBlockClosureNode: node [
 	| result bodyScope blockClosureEntity owner functionType needsGC preprocessedBody |
 	result := node copy.

@@ -8,6 +8,12 @@ Class {
 	#category : #'SysmelMoebiusMetamodel-Core-Evaluation'
 }
 
+{ #category : #visiting }
+MbndAstQuasiQuoteEvaluator >> emitBlockClosureNode: bodyNode activationWith: argumentNodes [
+	(bodyNode isExceptionScopeNode or: [ bodyNode isSequenceNode ]) ifTrue: [ ^ bodyNode ].
+	self halt
+]
+
 { #category : #accessing }
 MbndAstQuasiQuoteEvaluator >> unquoteEvaluator [
 	^ unquoteEvaluator
@@ -39,7 +45,7 @@ MbndAstQuasiQuoteEvaluator >> visitExpandedMessageSendNode: node [
 
 { #category : #visiting }
 MbndAstQuasiQuoteEvaluator >> visitMacroExpansionInlineBlockNode: node [
-	| basicExpansion blockNode bodyNode |
+	| basicExpansion blockNode bodyNode activationAttempt |
 	basicExpansion := super visitMacroExpansionInlineBlockNode: node.
 	blockNode := basicExpansion blockNode.
 	bodyNode := blockNode.
@@ -68,14 +74,19 @@ MbndAstQuasiQuoteEvaluator >> visitMacroExpansionInlineBlockNode: node [
 	].
 
 	"The node is not a block, ignore the arguments."	
+	activationAttempt := MbndAstBlockClosureActivationAttemptNode new
+		position: basicExpansion;
+		blockNode: bodyNode;
+		arguments: basicExpansion argumentNodes;
+		yourself.
 	basicExpansion ensureNode ifNotNil: [:ensureNode |
 		^ MbndAstExceptionScopeNode new 
 			position: node;
-			expression: bodyNode;
+			expression: activationAttempt;
 			explicitCleanUpActions: { ensureNode lexicallyScoped };
 			yourself
 	] ifNil: [
-		^ bodyNode
+		^ activationAttempt
 	]
 ]
 

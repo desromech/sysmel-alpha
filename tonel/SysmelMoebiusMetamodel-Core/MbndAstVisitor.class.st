@@ -60,6 +60,11 @@ MbndAstVisitor >> visitBitCastNode: node [
 ]
 
 { #category : #visiting }
+MbndAstVisitor >> visitBlockClosureActivationAttemptNode: node [
+	self subclassResponsibility
+]
+
+{ #category : #visiting }
 MbndAstVisitor >> visitBlockClosureNode: node [
 	self subclassResponsibility
 ]

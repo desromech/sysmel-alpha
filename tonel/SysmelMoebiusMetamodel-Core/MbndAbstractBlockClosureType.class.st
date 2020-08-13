@@ -13,6 +13,38 @@ MbndAbstractBlockClosureType class >> typeName [
 	^ #_AbstractBlockClosureType
 ]
 
+{ #category : #adding }
+MbndAbstractBlockClosureType >> addArithmeticOperationCoercionMacro: selector [
+	self macroMethodDict at: selector
+		ifPresent: [ self error: 'Duplicated macro selector.' ]
+		ifAbsentPut: (MbndPointerArithmeticOperationCoercionMacro new)
+]
+
+{ #category : #adding }
+MbndAbstractBlockClosureType >> addComparison: selector intrinsic: intrinsicName [
+	self
+		addArithmeticOperationCoercionMacro: selector;
+		addOverloadedMethod: (MbndIntrinsicPointerComparisonMethod new
+				name: selector;
+				intrinsicName: intrinsicName;
+				yourself)
+			receiverType: self argumentTypes: { self } returnType: self compilationTarget booleanType
+]
+
+{ #category : #adding }
+MbndAbstractBlockClosureType >> addComparisonIntrinsics [
+	self
+		addComparison: #= intrinsic: #eq;
+		addComparison: #== intrinsic: #eq;
+		addComparison: #~= intrinsic: #ne;
+		addComparison: #~~ intrinsic: #ne;
+		
+		addComparison: #< intrinsic: #lt;
+		addComparison: #<= intrinsic: #le;
+		addComparison: #> intrinsic: #gt;
+		addComparison: #>= intrinsic: #ge
+]
+
 { #category : #'as yet unclassified' }
 MbndAbstractBlockClosureType >> analyzeFunctionCallNode: node with: analyzer [
 	^ functionType analyzeFunctionCallNode: node with: analyzer
@@ -64,6 +96,12 @@ MbndAbstractBlockClosureType >> functionType: anObject [
 { #category : #accessing }
 MbndAbstractBlockClosureType >> functionTypeWithClosureParameter [
 	^ functionTypeWithClosureParameter ifNil: [ functionTypeWithClosureParameter := functionType prependArguments: { self } ]
+]
+
+{ #category : #initialization }
+MbndAbstractBlockClosureType >> initialize [
+	super initialize.
+	self addComparisonIntrinsics
 ]
 
 { #category : #sizes }
