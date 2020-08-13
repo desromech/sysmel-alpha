@@ -63,7 +63,7 @@ MbndCompilerCommandLineHandler >> activate [
 		arg = '-mwasm64' ifTrue: [  
 			architecture := #webAssembly64.
 		].
-		(#('-marm' '-marmv5' '-marmv6' '-marmv6m' '-marmv7' '-marmv7a' '-marmv7m') includes: arg) ifTrue: [  
+		(#('-marm' '-marmv5' '-marmv6' '-marmv6m' '-marmv6k' '-marmv7' '-marmv7a' '-marmv7m') includes: arg) ifTrue: [  
 			architecture := (arg allButFirst: 2) asSymbol.
 		].
 		arg = '-mvulkan' ifTrue: [  
@@ -71,6 +71,10 @@ MbndCompilerCommandLineHandler >> activate [
 			useLLVM := false.
 			gpu := true.
 		].
+		arg = '-fast-math' ifTrue: [  
+			compilationOptions add: [ :c | c floatingPointModel: #fast].
+		].
+
 		arg = '-mvendor' ifTrue: [
 			argumentIndex + 1 > arguments size ifTrue: [ self error: 'Expected an argument after -mvendor' ].
 			targetVendor := arguments at: argumentIndex + 1.
@@ -161,6 +165,14 @@ MbndCompilerCommandLineHandler >> activate [
 
 		arg = '-monolithic' ifTrue: [
 			compilationOptions add: [ :c | c monolithic ].
+		].
+
+		arg = '-dll' ifTrue: [
+			compilationOptions add: [ :c | c dllPerModule ].
+		].
+	
+		arg = '-object' ifTrue: [
+			compilationOptions add: [ :c | c objectPerModule ].
 		].
 
 		arg = '-freestanding' ifTrue: [
