@@ -18,7 +18,7 @@ template Function(FT: Type)
     compileTime constant NativeStackBlockClosureType := FT nativeStackBlockClosure.
     compileTime constant InlineStorageType := Void pointer array: 4.
 
-    compileTime if: Compiler hasRuntimeTypeInformation && Compiler hasGarbageCollectionSupport then: {
+    compileTime if: Compiler hasGarbageCollectedRuntime then: {
         compileTime constant GCBlockClosureType := FT gcBlockClosure.
     }.
 
@@ -49,7 +49,7 @@ template Function(FT: Type)
                 yourself
         }.
 
-        compileTime if: Compiler hasRuntimeTypeInformation && Compiler hasGarbageCollectionSupport then: {
+        compileTime if: Compiler hasGarbageCollectedRuntime then: {
             static inline method for: (blockClosure: GCBlockClosureType) ::=> InstanceType := {
                 <constructor>
                 InstanceType()
@@ -106,7 +106,7 @@ template Function(FT: Type)
         self
     }.
 
-    compileTime if: Compiler hasRuntimeTypeInformation && Compiler hasGarbageCollectionSupport then: {
+    compileTime if: Compiler hasGarbageCollectedRuntime then: {
         method setGCBlockClosure: (blockClosure: GCBlockClosureType) ::=> Void := {
             self reset.
 
@@ -147,7 +147,7 @@ template Function(FT: Type)
         }.
 
         WrapperType GCClosure : {
-            compileTime if: Compiler hasRuntimeTypeInformation && Compiler hasGarbageCollectionSupport then: {
+            compileTime if: Compiler hasGarbageCollectedRuntime then: {
                 inlineStorage [0] := nil.
             }.
         }.
@@ -185,7 +185,7 @@ template Function(FT: Type)
             }.
 
             WrapperType GCClosure : {
-                compileTime if: Compiler hasRuntimeTypeInformation && Compiler hasGarbageCollectionSupport then: {
+                compileTime if: Compiler hasGarbageCollectedRuntime then: {
                     let closure := other __private inlineStorage[0] reinterpretCastTo: GCBlockClosureType.
                     self setGCBlockClosure: closure.
                 } else: {
@@ -234,7 +234,7 @@ template Function(FT: Type)
             }.
 
             WrapperType GCClosure : {
-                compileTime if: Compiler hasRuntimeTypeInformation && Compiler hasGarbageCollectionSupport then: {
+                compileTime if: Compiler hasGarbageCollectedRuntime then: {
                     inlineStorage[0] := other __private inlineStorage[0].
                     type := WrapperType GCClosure.
                     other __private type := WrapperType Invalid.
@@ -273,7 +273,7 @@ template Function(FT: Type)
         }.
 
         WrapperType GCClosure : {
-            compileTime if: Compiler hasRuntimeTypeInformation && Compiler hasGarbageCollectionSupport then: {
+            compileTime if: Compiler hasGarbageCollectedRuntime then: {
                 let closure := inlineStorage[0] reinterpretCastTo: GCBlockClosureType.
                 return: (closure applyWithArguments: arguments).
             }

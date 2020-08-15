@@ -524,7 +524,7 @@ class Norph superclass: NorphEventHandler; definition: {
         self addEventSubscription: (subscription upCastFor: NorphEventSubscription)
     }.
 
-    compileTime if: Compiler hasRuntimeTypeInformation && Compiler hasGarbageCollectionSupport then: {
+    compileTime if: Compiler hasGarbageCollectedRuntime then: {
         method registerEventHandler: (eventHandler: EventHandlerFunctionType gcBlockClosure) forClassInfo: (eventClassInfo: Stdn Reflection TypeInformation const pointer) ::=> Void := {
             let subscription := NorphEventFunctionSubscription sharedNew.
             subscription _

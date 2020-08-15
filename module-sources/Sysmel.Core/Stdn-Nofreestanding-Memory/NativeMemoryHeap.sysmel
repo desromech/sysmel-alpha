@@ -26,6 +26,7 @@ class NativeMemoryHeap definition: {
     compileTime constant AllocationType_Huge := 2.
 
     compileTime constant QuantumSpacedCategories := 512 / 16.
+    compileTime constant SweepPredicateBlock := ((Void pointer) => Boolean8) nativeStackBlockClosure.
 
     #**
      * A common chunk header
@@ -113,6 +114,13 @@ class NativeMemoryHeap definition: {
             } continueWith: (i := i + 1).
 
             -1
+        }.
+
+        method isMarkedElement: (elementIndex: UIntPointer) ::=> Boolean8 := {
+            let wordIndex := elementIndex / WordBitCount.
+            let wordBitIndex := elementIndex % WordBitCount.
+            let bit := (1 castTo: UIntPointer) << wordBitIndex.
+            bitmap[wordIndex] anyMask: bit.
         }.
 
         method markElement: (elementIndex: UIntPointer) ::=> Void := {
@@ -235,7 +243,6 @@ class NativeMemoryHeap definition: {
             return: (self allocate: newSize)
         }.
 
-
         let size := self getAllocationSize: pointer.
         size >= newSize ifTrue: {
             pointer
@@ -301,6 +308,84 @@ class NativeMemoryHeap definition: {
             }
 
         }.
+    }.
+
+    method sweepAllocationsWhen: (sweepPredicateBlock: SweepPredicateBlock) ::=> Void := {
+        mutex withLock: {
+            self doSweepAllocationsWhen: sweepPredicateBlock
+        }.
+    }.
+
+    method doSweepAllocationsWhen: (sweepPredicateBlock: SweepPredicateBlock) ::=> Void := {
+        let currentChunk mutable := firstChunk.
+        while: currentChunk isNotNil do: {
+            let nextChunk := currentChunk _ nextChunk.
+            self doSweepAllocationsWhen: sweepPredicateBlock inChunk: currentChunk.
+            currentChunk := nextChunk.
+        }.
+    }.
+
+    method doSweepAllocationsWhen: (sweepPredicateBlock: SweepPredicateBlock) inChunk: (chunk: NormalChunkHeader pointer)::=> Void := {
+        let chunkAddress := chunk reinterpretCastTo: UIntPointer.
+        ##Stdn stdout << "Iterate chunk: " << chunk; nl.
+        chunk _ buddyMemoryAllocator allocatedBlocksDo: {:blockIndex :blockCount :isSlab |
+            blockIndex = 0 ifFalse: {
+                let blockAddress := chunkAddress + (blockIndex * MemoryChunkBlockSize castTo: UIntPointer).
+                ##Stdn stdout << (blockAddress reinterpretCastTo: Void pointer) << " " << blockIndex << " " << blockCount << chunk; nl.
+                isSlab ifTrue: {
+                    let slabHeader := blockAddress reinterpretCastTo: SlabHeader pointer.
+                    self doSweepAllocationsWhen: sweepPredicateBlock inChunk: chunk blockIndex: blockIndex inSlab: slabHeader
+                } ifFalse: {
+                    let allocation := blockAddress reinterpretCastTo: Void pointer.
+                    sweepPredicateBlock(allocation) ifTrue: {
+                        chunk _ buddyMemoryAllocator freeAtBlock: blockIndex
+                    }.
+                }.
+            }.
+        }.
+
+        chunk _ isCompletelyFree ifTrue: {
+            self removeChunk: chunk.
+            NativeVirtualMemoryInterface freeAddressSpace: chunk size: MemoryChunkSize.
+            ## stdout << "Free chunk " << normalChunkHeader; nl.
+        }.
+    }.
+
+    method doSweepAllocationsWhen: (sweepPredicateBlock: SweepPredicateBlock) inChunk: (chunk: NormalChunkHeader pointer) blockIndex: (blockIndex: UIntPointer) inSlab: (slab: SlabHeader pointer) ::=> Void := {
+        slab _ isCompletelyFree ifTrue: {return: void}.
+
+        let hasFreedElement mutable := false.
+        0 until: slab _ elementCount do: {:i :: Void |
+            (slab _ isMarkedElement: i) ifTrue: {
+                let elementAddress := (slab reinterpretCastTo: UInt8 pointer) + (SlabHeaderSize + slab _ elementSize*i).
+                ##Stdn stdout << "Slab " << i << " elementAddress " << elementAddress << " " << slab _ elementCount << " " << slab _ elementSize; nl.
+                sweepPredicateBlock(elementAddress) ifTrue: {
+                    ##Stdn stdout << "Free slab element " << i; nl.
+                    slab _ unmarkElement: i.
+                    hasFreedElement := true.
+                }.
+            }.
+        }.
+
+        hasFreedElement ifFalse: {return: void.}.
+
+        let categoryState ref := quantumSpacedCategoryStates[slab _ category].
+        let isActiveSlab := categoryState isActiveSlab: slab.
+
+        slab _ isCompletelyFree ifTrue: {
+            isActiveSlab ifTrue: {
+                categoryState deactivateSlab: slab.
+            }.
+            categoryState removeSlab: slab.
+            chunk _ buddyMemoryAllocator freeAtBlock: blockIndex
+        } ifFalse: {
+            ## Maybe we need to make sure this slab active
+            slab _ freeCount > 0 ifTrue: {
+                isActiveSlab ifFalse: {
+                    categoryState activateSlab: slab.
+                }.
+            }.
+        }
     }.
 
     method free: (pointer: Void pointer) ::=> Void := {

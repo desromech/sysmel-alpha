@@ -1,86 +1,171 @@
-namespace SysmelKernel definition: {
+namespace Stdn definition: {
+namespace GC definition: {
 
-struct GCFunctionStackMapEntry definition: {
-    field stackFrameSize public type: UInt32.
-    field _ public type: UInt32.
+useNamespace: Stdn Reflection.
 
-    field safePointCount public type: UInt32.
-    field rootCount public type: UInt32.
+class NativeCollector definition: {
+    field memoryHeap mutable type: Stdn Memory NativeMemoryHeap.
 
-    field compiledMethod public type: UIntPointer. ## Can be null
+    field collectorMutex type: Stdn Mutex.
+    field moduleRootPointers type: Stdn Collections Vector(ModuleGCRootPointerDescriptor).
+    field markingStack type: Stdn Collections Vector(GCObjectHeader pointer).
 
-    ## Safe points
-    method safePoints => UIntPointer pointer
-        := (self address [1]) address reinterpretCastTo: UIntPointer pointer.
+    field whiteColor type: UInt32.
+    field grayColor type: UInt32.
+    field blackColor type: UInt32.
 
-    ## The root count with extra padding, if needed.
-    if: UIntPointer instanceSize == 4 then: {
-        method paddedRootCount => UInt32
-            := rootCount.
-    } else: {
-        method paddedRootCount => UInt32
-            := (rootCount & 1) == 0
-                ifTrue: {rootCount}
-                ifFalse: {rootCount + 1}.
+    meta definition: {
+        global singleton mutable type: NativeCollector; constructionPriority: Compiler compilationTarget gcInitializationPriority.
+
+        inline method uniqueInstance => NativeCollector ref
+            := singleton.
     }.
 
-    ## Roots
-    method roots => Int32 pointer
-        := self safePoints[safePointCount] address reinterpretCastTo: Int32 pointer.
-
-    ## Next stack map entry address.
-    method next => GCFunctionStackMapEntry pointer
-        := self roots[self paddedRootCount] address reinterpretCastTo: GCFunctionStackMapEntry pointer.
-}.
-
-global __sysmel_gc_section_start external externC mutable type: GCFunctionStackMapEntry.
-global __sysmel_gc_section_end external externC mutable type: GCFunctionStackMapEntry.
-
-class SysmelGC definition: {
-    field memoryHeap mutable type: Stdn NativeMemoryHeap.
-    method printStackMap => Void := {
+    method initialize => Void := {
         <nogc>
-
-        let start := __sysmel_gc_section_start address.
-        let end := __sysmel_gc_section_end address.
-        Stdn stdout << "Stack map start " << start << " end " << end; nl.
-
-        for: (let position mutable := start) while: (position ~~ end) do: {
-            Stdn stdout << "position " << position << " roots " << position _ rootCount << " safePoints " << position _ safePointCount; nl.
-        } continueWith: (position := position _ next).
+        whiteColor := 0u.
+        grayColor := 1u.
+        blackColor := 2u.
     }.
 
     method allocate: (objectSize: UIntPointer)
-        variableDataSize: (variableDataSize: UInt32)
+        variableDataSize: (variableDataSize: UIntPointer)
         initializingWith: (basicInitializer: Stdn Reflection BasicInitializeFunctionPointerType)
           ::=> Stdn Reflection GCObjectHeader pointer := {
         <nogc>
 
-        ##self printStackMap.
-
+        self checkForCollectionNeeded.
         ## Allocate the object memory.
         let allocatedObject := (memoryHeap allocate: objectSize) reinterpretCastTo: Stdn Reflection GCObjectHeader pointer.
         LibC memset(allocatedObject, 0, objectSize).
 
         ## Set the allocated object class.
         allocatedObject value
-            __variableDataSize: variableDataSize.
+            __variableDataSize: (variableDataSize castTo: UInt32);
+            __gcColor: whiteColor.
 
         ## Perform the basic initialization. This sets the vtable pointers.
         basicInitializer _ (allocatedObject).
 
         return: allocatedObject
     }.
+
+    method allocate: (instanceSize: UIntPointer) instanceAlignment: (instanceAligment: UIntPointer)
+		copyingFromPrototype: (prototype: Void pointer)
+		  ::=> Stdn Reflection GCObjectHeader pointer := {
+		<nogc>
+
+        ## Allocate the object memory.
+        self checkForCollectionNeeded.
+        let allocatedObject := (memoryHeap allocate: instanceSize) reinterpretCastTo: Stdn Reflection GCObjectHeader pointer.
+
+		## Copy the data from the prototype
+        LibC memcpy(allocatedObject, prototype, instanceSize).
+        allocatedObject _ __gcColor: whiteColor.
+
+        return: allocatedObject
+	}.
+
+    method checkForCollectionNeeded => Void := {
+        <nogc>
+        self garbageCollect
+    }.
+
+    method swapColors => Void := {
+        <nogc>
+        Stdn swapValue: whiteColor with: blackColor.
+    }.
+
+    method garbageCollect => Void := {
+        <nogc>
+        collectorMutex withLock: {
+            ## Mark phase
+            self mark.
+
+            ## Sweep phase.
+            self sweep.
+
+            ## Swap the colors.
+            self swapColors.
+        }.
+    }.
+
+    method registerModuleRoots: (descriptors: ModuleGCRootPointerDescriptor const arraySlice) ::=> Void := {
+        <nogc>
+        collectorMutex withLock: {
+            moduleRootPointers addAll: descriptors
+        }.
+    }.
+
+    method mark => Void := {
+        <nogc>
+
+        Stdn assert: whiteColor ~= grayColor && grayColor ~= blackColor && blackColor ~= whiteColor.
+        self markRoots.
+        until: markingStack isEmpty do: {
+            let currentObject := markingStack last.
+            markingStack removeLast.
+            self expandMarkingFrom: currentObject
+        }.
+
+        markingStack removeAll.
+    }.
+
+    method expandMarkingFrom: (object: GCObjectHeader pointer) ::=> Void := {
+        <nogc>
+        Stdn assert: object _ __gcColor = grayColor.
+
+        let protoObject := object reinterpretCastTo: Smalltalk ProtoObject.
+        let behavior := protoObject class.
+        self enqueueNextObject: (behavior reinterpretCastTo: GCObjectHeader pointer).
+
+        behavior __manipulateInstance: protoObject gcSlotsWith: {:(Smalltalk ProtoObject pointer)slotPointer :: Void |
+            self enqueueNextObject: (slotPointer _ reinterpretCastTo: GCObjectHeader pointer)
+        }.
+
+        object _ __gcColor: blackColor
+    }.
+
+    method enqueueNextObject: (object: GCObjectHeader pointer) ::=> Void := {
+        <nogc>
+        object __isImmediateValue not && object _ __gcColor = whiteColor ifTrue: {
+            object _ __gcColor: grayColor.
+            markingStack add: object
+        }
+    }.
+
+    method markRoots => Void := {
+        <nogc>
+        self allRootsDo: {:root :: Void |
+            self enqueueNextObject: root _.
+        }.
+    }.
+
+    method sweep => Void := {
+        <nogc>
+        memoryHeap sweepAllocationsWhen: {:allocation :: Boolean8|
+            let object := allocation reinterpretCastTo: GCObjectHeader pointer.
+            let color := object _ __gcColor.
+            Stdn assert: color = whiteColor || color = blackColor.
+            #*color = whiteColor ifTrue: {
+                Stdn stdout << "sweep ["
+                    << ((allocation reinterpretCastTo: Smalltalk ProtoObject) class reinterpretCastTo: Void pointer)
+                    << "] " << allocation; nl.
+            }.*#
+
+            color = whiteColor
+        }
+    }.
+
+    method allRootsDo: (block: RootIterationBlock) ::=> Void := {
+        <nogc>
+        moduleRootPointers do: {:each :: Void |
+            each rootsDo: block
+        }.
+
+        self allStackRootsDo: block.
+    }.
 }.
 
-global globalSysmelGC mutable type: SysmelGC.
-
-}.
-
-#**
- * This is the entry point for a sysmel image.
- *#
-function __sylsif_entryPoint externC(sysmelImageMetadata: Void pointer, argc: Int32, argv: Char8 const pointer pointer) => Int32 := {
-    LibC printf("__sylsif_entryPoint executed. Image metadata: %p\n", sysmelImageMetadata).
-    return: 0.
-}.
+}. ## End of namespace GC
+}. ## End of namespace Stdn

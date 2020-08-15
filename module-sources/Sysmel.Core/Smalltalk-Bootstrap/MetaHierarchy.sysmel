@@ -280,7 +280,7 @@ Behavior definition: {
         let objectSize := instanceDataSize + initialSize*variableInstanceElementSize.
 
         ## Allocate the object memory.
-        let allocatedObject := globalSysmelGC
+        let allocatedObject := Stdn GC NativeCollector uniqueInstance
             allocate: objectSize
             variableDataSize: (variableInstanceElementSize > 0 ifTrue: initialSize ifFalse: 0u)
             initializingWith: basicInitializationFunctionPointer.
@@ -897,7 +897,7 @@ function methodSuperClassGetter(methodClass: TypeInformation) => TypeInformation
 
 function gcBlockClosureAllocator(instanceSize: UIntPointer, instanceAlignment: UIntPointer, prototype: Void pointer) => BlockClosure := {
 	<nogc>
-	let allocatedObject := globalSysmelGC
+	let allocatedObject := Stdn GC NativeCollector uniqueInstance
  		allocate: instanceSize instanceAlignment: 0
 		copyingFromPrototype: prototype.
 

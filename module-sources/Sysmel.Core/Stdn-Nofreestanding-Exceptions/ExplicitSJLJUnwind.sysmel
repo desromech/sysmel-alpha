@@ -37,13 +37,16 @@ struct ExceptionContext definition: {
 }.
 
 compileTime if: Compiler compilationTarget isEmbeddedPAL then: {
-    method lastExceptionContext => ExceptionContext pointer ref
-        := (EmbeddedPAL sysmel_epal_tls_lastExceptionContext() reinterpretCastTo: ExceptionContext pointer pointer) _.
+    method lastExceptionContext => ExceptionContext pointer ref := {
+        <nogc>
+        (EmbeddedPAL sysmel_epal_tls_lastExceptionContext() reinterpretCastTo: ExceptionContext pointer pointer) _.
+    }.
 } else: {
     global lastExceptionContext mutable threadLocal type: ExceptionContext pointer.
 }.
 
 function findContextCatchingTypeInfo(typeInfo: Reflection TypeInformation pointer) => (ExceptionContext pointer -- UIntPointer) := {
+    <nogc>
     let position mutable := Stdn Unwind lastExceptionContext.
     while: position isNotNil do: {
         0 until: position _ catchedExceptionTypeCount do: {:i :: Void |
@@ -60,6 +63,7 @@ function findContextCatchingTypeInfo(typeInfo: Reflection TypeInformation pointe
 }.
 
 function isTargetContextAvailable(targetContext: ExceptionContext pointer) => Boolean8 := {
+    <nogc>
     let position mutable := Stdn Unwind lastExceptionContext.
     while: position isNotNil do: {
         position == targetContext ifTrue: {
@@ -73,6 +77,7 @@ function isTargetContextAvailable(targetContext: ExceptionContext pointer) => Bo
 }.
 
 function doUnwindUntilContext noReturn(targetContext: ExceptionContext pointer) => Void := {
+    <nogc>
     ## Invoke all of the clean ups on the way.
     let lastExceptionContext ref := Stdn Unwind lastExceptionContext.
     while: lastExceptionContext ~~ nil && lastExceptionContext ~~ targetContext do: {
@@ -95,6 +100,7 @@ function doUnwindUntilContext noReturn(targetContext: ExceptionContext pointer) 
 }.
 
 function unwindUntilContext noReturn(targetContext: ExceptionContext pointer, targetPayload: Void pointer, targetPayloadAction: Int32) => Void := {
+    <nogc>
     targetContext _
         unwindPayload: targetPayload;
         unwindPayloadActionIndex: targetPayloadAction.
@@ -122,6 +128,7 @@ Exception extend: {
 }.
 
 function __sysmel_eh_contextBegin externC(targetContext: Void pointer) => Void := {
+    <nogc>
     let lastExceptionContext ref := Stdn Unwind lastExceptionContext.
     let newContext := targetContext reinterpretCastTo: ExceptionContext pointer.
     newContext _ previousContext: lastExceptionContext.
@@ -129,6 +136,7 @@ function __sysmel_eh_contextBegin externC(targetContext: Void pointer) => Void :
 }.
 
 function __sysmel_eh_contextEnd externC(targetContext: Void pointer) => Void := {
+    <nogc>
     let lastExceptionContext ref := Stdn Unwind lastExceptionContext.
 
     let endingContext := targetContext reinterpretCastTo: ExceptionContext pointer.
@@ -136,11 +144,13 @@ function __sysmel_eh_contextEnd externC(targetContext: Void pointer) => Void := 
 }.
 
 function __sysmel_eh_catchBegin externC(exceptionContext: Void pointer) => Void pointer := {
+    <nogc>
     let catchedContext := exceptionContext reinterpretCastTo: ExceptionContext pointer.
     catchedContext _ unwindPayload
 }.
 
 function __sysmel_eh_catchEnd externC(exceptionContext: Void pointer) => Void := {
+    <nogc>
     let catchedContext := exceptionContext reinterpretCastTo: ExceptionContext pointer.
     catchedContext _ unwindPayload ifNil: {
         stderr << "Corruption during exception catching."; nl.
@@ -155,11 +165,13 @@ function __sysmel_eh_catchEnd externC(exceptionContext: Void pointer) => Void :=
 }.
 
 function __sysmel_eh_cleanUpEnd externC(cleanUpContext: Void pointer) => Void := {
+    <nogc>
     let exitingContext := cleanUpContext reinterpretCastTo: ExceptionContext pointer.
     doUnwindUntilContext(exitingContext _ unwindPayload reinterpretCastTo: ExceptionContext pointer)
 }.
 
 function __sysmel_eh_nonLocalReturnRaise externC(targetContext: Void pointer) => Void := {
+    <nogc>
     let nonLocalCatchingContext := targetContext reinterpretCastTo: ExceptionContext pointer.
 
     nonLocalCatchingContext isNotNil &&

@@ -8,7 +8,7 @@ compileTime constant FinalizeFunctionPointerType := ((Void pointer) => Void) poi
 
 class GCObjectHeader definition: {
     ## If we do not use the garbage collector, save space by omitting these fields.
-    compileTime if: Compiler hasGarbageCollectionSupport then: {
+    compileTime if: Compiler hasGarbageCollectedRuntime then: {
         ## Pointer towards the main virtual table. Objects that implement interfaces
         ## can have additional vtables.
         (SelfType addMainVTableFieldNamed: #__vtable) public.
@@ -21,7 +21,8 @@ class GCObjectHeader definition: {
         ## 32 bits: gc color, isPinned, isImmutable.
         field _ public bits: 5; type: UInt32.
 
-        field __gcBits public type: UInt32; bits: 3.
+        field __gcColor public type: UInt32; bits: 2.
+        field __gcPendingFinalization public type: UInt32; bits: 1.
         field __isPinned public type: UInt32; bits: 1.
         field __isImmutable public type: UInt32; bits: 1.
         field __identityHash public type: UInt32; bits: 22.
@@ -29,6 +30,24 @@ class GCObjectHeader definition: {
         ## Variable data size
         field __variableDataSize public type: UInt32.
     }.
+}.
+
+compileTime if: Compiler hasGarbageCollectedRuntime then: {
+    compileTime if: UIntPointer instanceSize = 4 then: {
+        GCObjectHeader pointer method __isImmediateValue => Boolean8 := {
+            <notInCompileTime>
+            <staticBinding>
+            <nogc>
+            self == nil || (((self reinterpretCastTo: UIntPointer) & 3) ~= 0)
+        }.
+    } else: {
+        GCObjectHeader pointer method __isImmediateValue => Boolean8 := {
+            <notInCompileTime>
+            <staticBinding>
+            <nogc>
+            self == nil || (((self reinterpretCastTo: UIntPointer) & 7) ~= 0)
+        }.
+    }
 }.
 
 }. ## End of namespace Reflection

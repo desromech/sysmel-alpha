@@ -3,10 +3,8 @@ Compiler loadPackage: #Bootstrap.
 if: Compiler hasStandardLibrary then: {
     Compiler loadPackage: #Stdn.
 
-    if: Compiler hasRuntimeTypeInformation then: {
-		if: Compiler hasGarbageCollectionSupport then: {
-            Compiler loadPackage: #Smalltalk.
-		}
+    if: Compiler hasGarbageCollectedRuntime then: {
+        Compiler loadPackage: #Smalltalk.
     }.
 }.
 

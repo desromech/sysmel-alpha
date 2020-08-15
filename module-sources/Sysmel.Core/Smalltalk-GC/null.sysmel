@@ -1,6 +1,15 @@
-namespace SysmelKernel definition: {
+namespace Stdn definition: {
+namespace GC definition: {
 
-class SysmelGC definition: {
+class NativeCollector definition: {
+
+    meta definition: {
+        global singleton mutable type: NativeCollector; constructionPriority: Compiler compilationTarget gcInitializationPriority.
+
+        inline method uniqueInstance => NativeCollector ref
+            := singleton.
+    }.
+
     method allocate: (objectSize: UIntPointer)
         variableDataSize: (variableDataSize: UIntPointer)
         initializingWith: (basicInitializer: Stdn Reflection BasicInitializeFunctionPointerType)
@@ -36,14 +45,5 @@ class SysmelGC definition: {
 	}.
 }.
 
-global globalSysmelGC mutable type: SysmelGC.
-
-}.
-
-#**
- * This is the entry point for a sysmel image.
- *#
-function __sylsif_entryPoint externC(sysmelImageMetadata: Void pointer, argc: Int32, argv: Char8 const pointer pointer) => Int32 := {
-    LibC printf("__sylsif_entryPoint executed. Image metadata: %p\n", sysmelImageMetadata).
-    return: 0.
-}.
+}. ## End of namespace GC
+}. ## End of namespace Stdn

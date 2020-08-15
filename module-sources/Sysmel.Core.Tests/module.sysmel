@@ -9,7 +9,7 @@ Compiler
         #"Stdn-Functional-Tests"
     ).
 
-if: Compiler hasRuntimeTypeInformation && Compiler hasGarbageCollectionSupport then: {
+if: Compiler hasGarbageCollectedRuntime then: {
     Compiler loadPackages: #(
         #"Smalltalk-Core-Tests"
     ).

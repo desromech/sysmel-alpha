@@ -91,9 +91,9 @@ Stdn MainEntryPoint: {:args :: Int32 |
     let matrix := Float32x3x3 rowMajorIndices.
     ##let matrix mutable := Float32x3x3 identity + Float32x3x3 identity.
     Stdn stdout nextPutAll: "zm "; nl;
-	tab; nextPutVector: matrix firstRow; nl;
-	tab; nextPutVector: matrix secondRow; nl;
-	tab; nextPutVector: matrix thirdRow; nl.
+	tab; print: matrix firstRow; nl;
+	tab; print: matrix secondRow; nl;
+	tab; print: matrix thirdRow; nl.
 
     let mv3f := matrix * v3f.
     Stdn stdout << "mv3f " << mv3f; nl.

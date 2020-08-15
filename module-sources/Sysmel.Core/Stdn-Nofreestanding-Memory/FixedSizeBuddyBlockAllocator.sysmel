@@ -211,6 +211,24 @@ template FixedSizeBuddyBlockAllocator(MNOSB: _LiteralInteger)
         freeBlock
     }.
 
+    method allocatedBlocksDo: (iterationBlock: ((UIntPointer -- UIntPointer -- Boolean8) => Void) nativeStackBlockClosure ) ::=> Void := {
+        let currentBlockIndex mutable type: UIntPointer := 0.
+        while: currentBlockIndex < LeafLevelBlockCount do: {
+            let firstBlockIndex := leafBlocks_startRunIndex[currentBlockIndex].
+            firstBlockIndex == InvalidBlockIndex ifTrue: {
+                ## Not allocated.
+                currentBlockIndex := currentBlockIndex + 1
+            } ifFalse: {
+                assert: leafBlocks_allocatedLevel[firstBlockIndex] ~~ 16rff.
+                let allocatedLevel := leafBlocks_allocatedLevel[firstBlockIndex].
+                let isSlab := allocatedLevel anyMask: 16r80.
+                let allocatedBlockCount := self smallBlockCountPerLevel: (allocatedLevel & 16r7f castTo: UIntPointer).
+                currentBlockIndex := currentBlockIndex + allocatedBlockCount.
+                iterationBlock(firstBlockIndex, allocatedBlockCount, isSlab).
+            }
+        }.
+    }.
+
     method getAllocatedBlockCountAt: (blockIndex: UIntPointer) ::=> UIntPointer := {
         ## Get the index of the first leaf block corresponding to this leaf.
         let firstBlockIndex := leafBlocks_startRunIndex[blockIndex].
@@ -232,7 +250,7 @@ template FixedSizeBuddyBlockAllocator(MNOSB: _LiteralInteger)
         assert: allocatedLevel ~= 16rff.
 
         ## Check the slab flag.
-        (allocatedLevel & 16r80) ~~ 0 ifTrue: {
+        (allocatedLevel anyMask: 16r80) ifTrue: {
             firstBlockIndex
         } ifFalse: {
             InvalidBlockIndex

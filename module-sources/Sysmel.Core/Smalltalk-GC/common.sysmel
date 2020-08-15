@@ -1,8 +1,20 @@
-namespace SysmelKernel definition: {
+namespace Stdn definition: {
+namespace GC definition: {
 
-struct _GCRootPointerDescriptor definition: {
-    public field pointer type: Void pointer.
-    public field elementCount type: UIntPointer.
+useNamespace: Stdn Reflection.
+
+compileTime constant RootIterationBlock := ((GCObjectHeader pointer pointer) => Void) nativeStackBlockClosure.
+
+struct ModuleGCRootPointerDescriptor definition: {
+    public field pointer type: GCObjectHeader pointer pointer.
+    public field count type: UIntPointer.
+
+    const method rootsDo: (block: RootIterationBlock) ::=> Void := {
+        0 until: count do: {:i :: Void |
+            block(pointer[i] address)
+        }
+    }.
 }.
 
-}.
+}. ## End of namespace GC
+}. ## End of namespace Stdn

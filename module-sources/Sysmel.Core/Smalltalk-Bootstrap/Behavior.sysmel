@@ -34,6 +34,8 @@ Behavior definition: {
 	}.
 
 	method __manipulateInstance: instance gcSlotsWith: (manipulationBlock: ((ProtoObject pointer) => Void) nativeStackBlockClosure) ::=> Void := {
+		<staticBinding>
+		<nogc>
 		instance __isImmediateValue ifTrue: {return: nil}.
 
 		let fixedSlotCount := instanceDataSize / UIntPointer instanceSize.

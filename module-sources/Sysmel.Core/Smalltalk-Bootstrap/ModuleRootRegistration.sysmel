@@ -1,11 +1,11 @@
 namespace Smalltalk definition: {
 namespace Runtime definition: {
-struct ModuleGCRootPointerDescriptor definition: {
-    public field pointer type: ProtoObject pointer.
-    public field count type: UIntPointer.
-}.
+
+useNamespace: Stdn GC.
 
 function registerModuleRoots(rootPointerDescriptors: ModuleGCRootPointerDescriptor pointer, rootPointerDescriptorCount: UIntPointer) => Void := {
+    NativeCollector uniqueInstance registerModuleRoots: (rootPointerDescriptors until: rootPointerDescriptorCount).
+
     withReflectionLockedWrite: {
         ##Stdn stdout << "registerModuleRoots rootPointerDescriptors " << rootPointerDescriptors << " rootPointerDescriptorCount " << rootPointerDescriptorCount; nl.
 
@@ -15,7 +15,7 @@ function registerModuleRoots(rootPointerDescriptors: ModuleGCRootPointerDescript
             let rootDescriptor ref := rootPointerDescriptors[i].
             ##Stdn stdout << "descriptor count " << rootDescriptor count; nl.
             0 until: rootDescriptor count do: {:j :: Void |
-                let rootPointer ref := rootDescriptor pointer[j].
+                let rootPointer ref := (rootDescriptor pointer reinterpretCastTo: ProtoObject pointer) [j].
                 let rootPointerClass := rootPointer class.
                 rootPointerClass == Symbol ifTrue: {
                     rootPointer := Symbol internSymbolInstance: (rootPointer reinterpretCastTo: Symbol)

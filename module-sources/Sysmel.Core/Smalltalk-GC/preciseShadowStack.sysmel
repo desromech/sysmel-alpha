@@ -1,0 +1,86 @@
+namespace Stdn definition: {
+namespace GC definition: {
+
+struct ShadowStackRecord definition: {
+    public field rootCount type: UIntPointer.
+    public field roots type: Void pointer pointer.
+
+    public field previousRecord type: ShadowStackRecord pointer.
+
+    const method rootsDo: (block: RootIterationBlock) ::=> Void := {
+        <nogc>
+        let position mutable := self address.
+        while: position isNotNil do: {
+            0 until: position _ rootCount do: {:i :: Void |
+                block(position _ roots[i] address reinterpretCastTo: Stdn Reflection GCObjectHeader pointer pointer)
+            }.
+            position := position _ previousRecord
+        }.
+    }.
+}.
+
+class NativeCollector definition: {
+    field activeShadowStacks type: Stdn Collections Vector(ShadowStackRecord pointer).
+
+    method allStackRootsDo: (block: RootIterationBlock) ::=> Void := {
+        <nogc>
+        Stdn GC shadowStackLastRecord ifNotNil: {:record :: Void |
+            activeShadowStacks add: record
+        }.
+
+        activeShadowStacks do: {:each :: Void |
+            each _ rootsDo: block
+        }.
+
+        activeShadowStacks removeAll
+    }.
+}.
+
+compileTime if: Compiler compilationTarget isEmbeddedPAL then: {
+    method shadowStackLastRecord => ShadowStackRecord pointer ref := {
+        <nogc>
+        (EmbeddedPAL sysmel_epal_tls_shadowStackLastRecord() reinterpretCastTo: ShadowStackThreadRecord pointer) _.
+    }.
+} else: {
+    global shadowStackLastRecord mutable threadLocal type: ShadowStackRecord pointer.
+}.
+
+inline function __sysmel_gc_safePoint externC() ::=> Void := {
+    <nogc>
+    ##Stdn stdout << "__sysmel_gc_safePoint"; nl.
+}.
+
+inline function __sysmel_gc_shadowStackEnter externC(record: ShadowStackRecord pointer) ::=> Void := {
+    <nogc>
+    let shadowStackLastRecord ref := Stdn GC shadowStackLastRecord.
+
+    record _ previousRecord: shadowStackLastRecord.
+    shadowStackLastRecord := record.
+    ##__sysmel_gc_safePoint().
+}.
+
+inline function __sysmel_gc_shadowStackLeave externC(record: ShadowStackRecord pointer) ::=> Void := {
+    <nogc>
+    let shadowStackLastRecord ref := Stdn GC shadowStackLastRecord.
+    shadowStackLastRecord := record _ previousRecord.
+
+    ##__sysmel_gc_safePoint().
+}.
+
+inline function __sysmel_gc_shadowStackLandingPad externC(record: ShadowStackRecord pointer) ::=> Void := {
+    <nogc>
+    let shadowStackLastRecord ref := Stdn GC shadowStackLastRecord.
+    shadowStackLastRecord := record.
+
+    ##__sysmel_gc_safePoint().
+}.
+
+Compiler compilationTarget managedObjectModel
+    gcShadowStackRecordStructure: ShadowStackRecord;
+    gcShadowStackEnterFunction: __sysmel_gc_shadowStackEnter;
+    gcShadowStackLeaveFunction: __sysmel_gc_shadowStackLeave;
+    gcShadowStackLandingPadFunction: __sysmel_gc_shadowStackLandingPad;
+    gcSafePointFunction: __sysmel_gc_safePoint.
+
+}. ## End of namespace GC
+}. ## End of namespace Stdn

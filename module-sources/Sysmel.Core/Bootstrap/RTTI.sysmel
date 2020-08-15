@@ -52,7 +52,7 @@ TypeInformation definition: {
     }.
 
     const inline method isGarbageCollectedType => Boolean8 := {
-        compileTime if: Compiler hasRuntimeTypeInformation && Compiler hasGarbageCollectionSupport then: {
+        compileTime if: Compiler hasGarbageCollectedRuntime then: {
             (self address reinterpretCastTo: Smalltalk TypeInformation)
                 isGarbageCollectedType
         } else: {

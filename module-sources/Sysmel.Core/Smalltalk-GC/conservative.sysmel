@@ -1,4 +1,5 @@
-namespace SysmelKernel definition: {
+namespace Stdn definition: {
+namespace GC definition: {
 
 Compiler addLinkerArguments: #("-lgc").
 
@@ -18,7 +19,7 @@ function sysmel_boehm_finalizer(object: Void pointer, clientData: Void pointer) 
     (object reinterpretCastTo: Smalltalk ProtoObject) finalize.
 }.
 
-class SysmelGC definition: {
+class NativeCollector definition: {
     method initialize => Void := {
         <nogc>
         BoehmGC GC_init().
@@ -69,6 +70,5 @@ class SysmelGC definition: {
 	}.
 }.
 
-global globalSysmelGC mutable type: SysmelGC; constructionPriority: Compiler compilationTarget gcInitializationPriority.
-
-}.
+}. ## End of namespace GC
+}. ## End of namespace Stdn

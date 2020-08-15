@@ -1,0 +1,48 @@
+struct GCFunctionStackMapEntry definition: {
+    field stackFrameSize public type: UInt32.
+    field _ public type: UInt32.
+
+    field safePointCount public type: UInt32.
+    field rootCount public type: UInt32.
+
+    field compiledMethod public type: UIntPointer. ## Can be null
+
+    ## Safe points
+    method safePoints => UIntPointer pointer
+        := (self address [1]) address reinterpretCastTo: UIntPointer pointer.
+
+    ## The root count with extra padding, if needed.
+    if: UIntPointer instanceSize == 4 then: {
+        method paddedRootCount => UInt32
+            := rootCount.
+    } else: {
+        method paddedRootCount => UInt32
+            := (rootCount & 1) == 0
+                ifTrue: {rootCount}
+                ifFalse: {rootCount + 1}.
+    }.
+
+    ## Roots
+    method roots => Int32 pointer
+        := self safePoints[safePointCount] address reinterpretCastTo: Int32 pointer.
+
+    ## Next stack map entry address.
+    method next => GCFunctionStackMapEntry pointer
+        := self roots[self paddedRootCount] address reinterpretCastTo: GCFunctionStackMapEntry pointer.
+}.
+
+#*
+method printStackMap => Void := {
+    <nogc>
+
+    let start := __sysmel_gc_section_start address.
+    let end := __sysmel_gc_section_end address.
+    Stdn stdout << "Stack map start " << start << " end " << end; nl.
+
+    for: (let position mutable := start) while: (position ~~ end) do: {
+        Stdn stdout << "position " << position << " roots " << position _ rootCount << " safePoints " << position _ safePointCount; nl.
+    } continueWith: (position := position _ next).
+}.
+*#
+global __sysmel_gc_section_start external externC mutable type: GCFunctionStackMapEntry.
+global __sysmel_gc_section_end external externC mutable type: GCFunctionStackMapEntry.
