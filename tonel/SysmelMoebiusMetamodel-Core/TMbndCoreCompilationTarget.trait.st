@@ -359,10 +359,16 @@ TMbndCoreCompilationTarget >> createNamedType: name ofKind: typeKindClass [
 
 { #category : #'derived types' }
 TMbndCoreCompilationTarget >> createNamedType: name ofKind: typeKindClass inModule: definitionModule [
-	^ (self ensureBasicTypeIsLinkedToTheHierarchy: (typeKindClass basicNew
+	| result |
+	result := (self ensureBasicTypeIsLinkedToTheHierarchy: (typeKindClass basicNew
 		definitionModule: definitionModule))
 		name: name;
-		initializeNonTraitType.
+		initializeNonTraitType;
+		yourself.
+	definitionModule ifNotNil: [ 
+		definitionModule recordCreatedType: result
+	].
+	^ result
 ]
 
 { #category : #initialization }

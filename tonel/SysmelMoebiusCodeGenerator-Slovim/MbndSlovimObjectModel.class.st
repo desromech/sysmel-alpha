@@ -290,7 +290,7 @@ MbndSlovimObjectModel >> encodeInlineLiteral: literal [
 	literal == false ifTrue: [ ^ self falseLiteralValue ].
 	literal ifNil: [ ^ SLVMConstantValue type: target uintPointer value: 0 ].
 	literal isInteger ifTrue: [ ^ SLVMConstantValue type: target uintPointer value: (self encodeSmallInteger: literal)].
-	literal isCharacter ifTrue: [ ^ SLVMConstantValue type: target uintPointer value: (self encodeSmallInteger: literal)].
+	literal isCharacter ifTrue: [ ^ SLVMConstantValue type: target uintPointer value: (self encodeCharacter: literal)].
 	literal isFloat ifTrue: [ ^ SLVMConstantValue type: target uintPointer value: (self encodeSmallFloat: literal)].
 	self error: 'Should not reach here.'
 ]

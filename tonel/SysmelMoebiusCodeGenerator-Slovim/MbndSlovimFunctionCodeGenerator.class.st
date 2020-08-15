@@ -3644,36 +3644,37 @@ MbndSlovimFunctionCodeGenerator >> wrapValue: value withType: valueType intoDyna
 	self assert: dynamicObjectType isGarbageCollectedType.
 	
 	wrappedValue := nil.
+	self flag: 'FIXME: Use double dispatch here'.
 	valueType isGarbageCollectedType ifTrue: [ 
 		self flag: 'TODO: Perform a type check here.'.
 		wrappedValue := value.
 	].
 
-	valueType isVoidType ifTrue: [
+	(wrappedValue isNil and: [valueType isVoidType]) ifTrue: [
 		wrappedValue := slvmBuilder addDynamicLiteral: nil
 	].
 
-	valueType isPrimitiveBooleanType ifTrue: [ 
+	(wrappedValue isNil and: [valueType isPrimitiveBooleanType]) ifTrue: [ 
 		wrappedValue := slvmBuilder boolToDynamicObjectCast: value target: (self translateType: dynamicObjectType)
 	].
 
-	valueType isPrimitiveCharacterCodeType ifTrue: [ 
+	(wrappedValue isNil and: [valueType isPrimitiveCharacterCodeType]) ifTrue: [ 
 		wrappedValue := slvmBuilder charToDynamicObjectCast: value target: (self translateType: dynamicObjectType)
 	].
 
-	valueType isPrimitiveIntegerType ifTrue: [ 
+	(wrappedValue isNil and: [valueType isPrimitiveIntegerType]) ifTrue: [ 
 		wrappedValue := slvmBuilder intToDynamicObjectCast: value target: (self translateType: dynamicObjectType)
 	].
 
-	valueType isPrimitiveFloatType ifTrue: [ 
+	(wrappedValue isNil and: [valueType isPrimitiveFloatType]) ifTrue: [ 
 		wrappedValue := slvmBuilder floatToDynamicObjectCast: value target: (self translateType: dynamicObjectType)
 	].
 
-	valueType isPointerLikeType ifTrue: [
+	(wrappedValue isNil and: [valueType isPointerLikeType]) ifTrue: [
 		wrappedValue := slvmBuilder addDynamicLiteral: nil
 	].
 
-	valueType isMetaType ifTrue: [
+	(wrappedValue isNil and: [valueType isMetaType]) ifTrue: [
 		wrappedValue := value
 	].
 

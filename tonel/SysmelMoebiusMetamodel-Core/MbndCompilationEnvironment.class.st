@@ -485,7 +485,7 @@ MbndCompilationEnvironment >> hasObjectTranslationMode [
 
 { #category : #parameters }
 MbndCompilationEnvironment >> hasPreciseGarbageCollector [
-	^ true
+	^ self compilationTarget isLinux not
 ]
 
 { #category : #testing }

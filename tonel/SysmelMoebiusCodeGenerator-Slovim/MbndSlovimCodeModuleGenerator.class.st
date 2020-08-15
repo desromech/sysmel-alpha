@@ -650,8 +650,10 @@ MbndSlovimCodeModuleGenerator >> fetchShader: functionMethod inputsOfType: input
 MbndSlovimCodeModuleGenerator >> fillModuleInfoInstance: moduleInfoInstance [
 	moduleInfoInstance
 		setField: #name ifExistsWith: [ sourceModule name asSymbol ];
-		setField: #globalNamespace ifExistsWith: [ sourceModule globalNamespace ].
-			
+		setField: #globalNamespace ifExistsWith: [ sourceModule globalNamespace ];
+		setField: #addedGCClasses ifExistsWith: [ sourceModule addedGCClasses asArray ];
+		setField: #addedClasses ifExistsWith: [ sourceModule addedClasses asArray ].
+	
 	"self compilationTarget extensionMacroMessageClass ifNotNil: [
 		moduleInfoInstance
 			setField: #extensionMacros ifExistsWith: [ sourceModule extensionMacros collect: [ :each | self convertExtensionMacroInformation: each ] as: Array ]
@@ -1413,7 +1415,7 @@ MbndSlovimCodeModuleGenerator >> initialize [
 	gpuUsableProgramEntitites := OrderedCollection new.
 	nativeClosureTypeInfos := Dictionary new.
 	nativeShaderEntryPoints := Dictionary new.
-	
+
 	constructionRecordDictionary := Dictionary new.
 	constructionRecords := OrderedCollection new.
 ]
@@ -2489,7 +2491,7 @@ MbndSlovimCodeModuleGenerator >> visitConcreteMessageMethod: functionMethod [
 		self setupGCStrategyFor: ssaFunction generatedFrom: functionMethod.
 		
 		self createFunctionCodeGenerator
-			buildSSAFunction: ssaFunction definitionWithConcreteMethod: functionMethod
+			buildSSAFunction: ssaFunction definitionWithConcreteMethod: functionMethod.
 	].
 	
 	^ ssaFunction

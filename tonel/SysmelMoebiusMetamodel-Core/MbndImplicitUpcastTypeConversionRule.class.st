@@ -15,3 +15,8 @@ MbndImplicitUpcastTypeConversionRule >> canBeUsedToConvertNode: node from: sourc
 	(sourceType isAbstractClassType and: [ targetType isAbstractClassType ]) ifTrue: [ ^ false ].
 	^ true
 ]
+
+{ #category : #acccessing }
+MbndImplicitUpcastTypeConversionRule >> conversionCost [
+	^ 1
+]

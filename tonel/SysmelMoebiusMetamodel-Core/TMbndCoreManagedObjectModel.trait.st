@@ -161,7 +161,7 @@ TMbndCoreManagedObjectModel >> characterClass [
 { #category : #accessing }
 TMbndCoreManagedObjectModel >> characterClass: anObject [
 	characterClass := anObject.
-	compilationTarget literalCharacterType addConversionTo: characterClass rule: MbndLiteralValueTypeChangeConversionRule.
+	compilationTarget literalCharacterType addConversionTo: characterClass rule: MbndLiteralChacterToDynamicObjectTypeConversionRule.
 	compilationTarget primitiveCharacterCodeType addConversionTo: characterClass rule: MbndCharacterToDynamicObjectConversionRule.
 	compilationTarget dynamicObjectType addExplicitConversionRule: (MbndDynamicObjectToCharacterConversionRule when: [:sourceType :targetType |
 		targetType isPrimitiveCharacterCodeType

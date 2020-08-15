@@ -13,9 +13,12 @@ Trait {
 		'anonSymbolCount',
 		'extensionMethods',
 		'specialStructures',
-		'entitiesWithPendingDefinitionFragments'
+		'entitiesWithPendingDefinitionFragments',
+		'addedGCClasses',
+		'addedClasses'
 	],
 	#traits : 'TMbndProgramEntity',
+	#classTraits : 'TMbndProgramEntity classTrait',
 	#category : #'SysmelMoebiusMetamodel-Core-Module'
 }
 
@@ -27,6 +30,16 @@ TMbndModule >> accept: aVisitor [
 { #category : #adding }
 TMbndModule >> addModuleLevelInlineAssembly: node [
 	self moduleLevelInlineAssembly add: node
+]
+
+{ #category : #accessing }
+TMbndModule >> addedClasses [
+	^ addedClasses ifNil: [ addedClasses := OrderedCollection new ]
+]
+
+{ #category : #accessing }
+TMbndModule >> addedGCClasses [
+	^ addedGCClasses ifNil: [ addedGCClasses := OrderedCollection new ]
 ]
 
 { #category : #accessing }
@@ -402,6 +415,17 @@ TMbndModule >> pendingDelayedSemanticAnalysisSet [
 { #category : #scope }
 TMbndModule >> programEntityScopeClass [
 	^ MbndNamespaceScope 
+]
+
+{ #category : #'as yet unclassified' }
+TMbndModule >> recordCreatedType: type [
+	type isGCClassType ifTrue: [
+		self addedGCClasses add: type.
+	].
+
+	type isClassType ifTrue: [ 
+		self addedClasses add: type.
+	].
 ]
 
 { #category : #'semantic analysis' }
