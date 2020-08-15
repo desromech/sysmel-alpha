@@ -46,6 +46,9 @@ ProtoObject extend: {
 
     macro method && other := ``(`,self and: `,other).
     macro method || other := ``(`,self or: `,other).
+
+    macro method not := ``(`,self ifTrue: false ifFalse: true).
 }.
 
+AnyValue macro method asProtoObject := ``(`,self castTo: Smalltalk ProtoObject).
 }.

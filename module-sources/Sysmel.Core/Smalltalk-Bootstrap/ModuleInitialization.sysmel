@@ -49,7 +49,14 @@ ModuleInformation definition: {
             }.
 
             ## Apply all of the extensions.
-            self allExtensionsDo: {:each :: Void | each apply }
+            self allExtensionsDo: {:each :: Void | each apply }.
+
+            ## Ensure the GC subclasses are added into their superclasses.
+            addedGCClasses ifNotNil: {
+                addedGCClasses do: {:each :: Void |
+                    each ensureIsAddedToSuperClass.
+                }
+            }
         }.
     }.
 

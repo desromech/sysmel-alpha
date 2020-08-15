@@ -20,6 +20,13 @@ function sysmel_boehm_finalizer(object: Void pointer, clientData: Void pointer) 
 }.
 
 class NativeCollector definition: {
+    meta definition: {
+        global singleton mutable type: NativeCollector; constructionPriority: Compiler compilationTarget gcInitializationPriority.
+
+        inline method uniqueInstance => NativeCollector ref
+            := singleton.
+    }.
+
     method initialize => Void := {
         <nogc>
         BoehmGC GC_init().
@@ -68,6 +75,10 @@ class NativeCollector definition: {
 
         return: allocatedObject
 	}.
+
+    method registerModuleRoots: (descriptors: ModuleGCRootPointerDescriptor const arraySlice) ::=> Void := {
+        <nogc>
+    }.
 }.
 
 }. ## End of namespace GC

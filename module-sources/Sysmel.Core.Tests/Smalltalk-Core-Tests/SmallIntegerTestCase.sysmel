@@ -1,0 +1,10 @@
+namespace Smalltalk definition: {
+
+gcclass SmallIntegerTestCase superclass: TestCase; definition: {
+
+    method testAddition := {
+        self assert: 1 asProtoObject + 2 asProtoObject equals: 3.
+    }.
+}.
+
+}. ## namespace Smalltalk

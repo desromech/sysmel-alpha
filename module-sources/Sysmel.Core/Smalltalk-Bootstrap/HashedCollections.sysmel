@@ -120,6 +120,15 @@ Set definition: {
         return: 0
     }.
 
+    method do: aBlock := {
+        array do: {:each :: Void |
+            each ifNotNil: {
+                aBlock value: each
+            }
+        }.
+        nil
+    }.
+
     method like: key := {
         (array at: (self scanFor: key)) enclosedSetElement
     }.
@@ -312,6 +321,16 @@ MethodDictionary definition: {
         self keysAndValuesDo: {:key :value :: Void |
             aBlock value: (Association key: key value: value)
         }
+    }.
+
+    method keysDo: aBlock := {
+        0 until: array __private __data size do: {:i :: Void |
+            let key := array[i].
+            key ifNotNil: {
+                aBlock value: key
+            }
+        }.
+        nil
     }.
 
     method keysAndValuesDo: aBlock := {

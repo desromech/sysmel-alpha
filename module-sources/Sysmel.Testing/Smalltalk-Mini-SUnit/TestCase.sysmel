@@ -1,7 +1,8 @@
 namespace Smalltalk definition: {
 
 gcclass TestCase superclass: TestAsserter; definition: {
-
+    method setUp := self.
+    method tearDown := self.
 }.
 
 }. ## End of namespace Smalltalk

@@ -1,12 +1,16 @@
 namespace Smalltalk definition: {
 
 gcclass TestRunner definition: {
-    protected field runTestCount.
-    protected field passedTestCount.
-    protected field failureTestCount.
-    protected field errorTestCount.
+    public field errorTestCount type: UInt32.
+    public field failingTestCount type: UInt32.
+    public field passingTestCount type: UInt32.
+    public field skippedTestCount type: UInt32.
+    field isCurrentTestPassing type: Boolean8.
 
     meta extend: {
+        method runAllTests
+            := self new runAllTests.
+
         method runTestCases: aCollectionOfCases
             := self new runTestCases: aCollectionOfCases.
 
@@ -14,24 +18,148 @@ gcclass TestRunner definition: {
             := self new runTestCase: aCase.
     }.
 
-    method initialize := {
-        runTestCount := 0.
-        passedTestCount := 0.
-        failureTestCount := 0.
-        errorTestCount := 0.
+    method runAllTests
+        := self runTestCases: TestCase allSubclasses.
+
+    method printReport := {
+        Stdn stdout << "==============================================="; nl.
+        Stdn stdout << "GC test execution report:"; nl.
+        Stdn stdout << "==============================================="; nl.
+        Stdn stdout << "Running test count: " << self runningTestCount; nl.
+        self skippedTestCount > 0 ifTrue: {
+            Stdn stdout << "Skipped test count: " << self skippedTestCount; nl.
+        }.
+        self failingTestCount > 0 ifTrue: {
+            Stdn stdout << "Failing test count: " << self failingTestCount; nl.
+        }.
+        self errorTestCount > 0 ifTrue: {
+            Stdn stdout << "Error test count: " << self errorTestCount; nl.
+        }.
+        Stdn stdout << "Passing test count: " << self passingTestCount; nl.
         self
     }.
 
     method runTestCases: aCollectionOfCases := {
         aCollectionOfCases do: {:testCase :: Void |
             self runTestCase: testCase
-        }
+        }.
+
+        errorTestCount = 0 && failingTestCount = 0
     }.
 
     method runTestCase: aTestCase := {
-        Stdn stdout << "TODO: Run test case.".
+        let testSelectors := aTestCase allSelectors asArray
+            select: {:each | (each beginsWith: #test) && (each includes: ':') not }.
+        testSelectors ifEmpty: {:: Void |
+            return: self.
+        }.
+
+        Stdn stdout << "--- Running test case " << aTestCase ; nl.
+
+        testSelectors do: {:testSelector :: Void |
+            self runTestCase: aTestCase testWithSelector: testSelector
+        }.
+
         self
     }.
+
+    method runTestCase: aTestCase testWithSelector: testSelector := {
+        self catchExceptionsDuring: {:: Void |
+            Stdn stdout << aTestCase << " " << testSelector << "..."; flush.
+            let testInstance := aTestCase new setUp.
+            try: {
+                testInstance perform: testSelector
+            } finally: {
+                testInstance tearDown
+            }.
+
+            isCurrentTestPassing := true.
+
+            isCurrentTestPassing ifTrue: {
+                Stdn stdout << "Passing."; nl.
+            }.
+            self countPassingTest
+        }.
+        self
+    }.
+
+    method runningTestCount => UInt32
+        := errorTestCount + failingTestCount + passingTestCount.
+
+    method catchExceptionsDuring: aBlock := {
+        self catchNativeExceptionsDuring: {:: Void |
+            self catchSmalltalkExceptionsDuring: aBlock
+        }.
+        self
+    }.
+
+    method catchNativeExceptionsDuring: aBlock := {
+        try: {
+            try: {
+                try: {
+                    aBlock value
+                } catch: Stdn Testing TestSkipException doing: {:exception :: Void |
+                    self countSkippedTest.
+                    Stdn stdout << "Skipped."; nl.
+                }
+            } catch: Stdn AssertionFailure doing: {:exception :: Void |
+                self countFailingTest.
+                Stdn stdout << "Failure:"; nl.
+                Stdn stdout << exception; nl.
+            }
+        } catch: Stdn Error doing: {:exception :: Void |
+            self countErrorTest.
+            Stdn stdout << "Error:"; nl.
+            Stdn stdout << exception; nl.
+        }.
+
+        self
+    }.
+
+    method catchSmalltalkExceptionsDuring: aBlock := {
+        try: {
+            try: {
+                try: {
+                    aBlock value
+                } catch: TestSkipException doing: {:exception :: Void |
+                    self countSkippedTest.
+                    Stdn stdout << "Skipped."; nl.
+                }
+            } catch: AssertionFailure doing: {:exception :: Void |
+                self countFailingTest.
+                Stdn stdout << "Failure:"; nl.
+                Stdn stdout << exception; nl.
+            }
+        } catch: Error doing: {:exception :: Void |
+            self countErrorTest.
+            Stdn stdout << "Error:"; nl.
+            Stdn stdout << exception; nl.
+        }.
+
+        self
+    }.
+
+    method countPassingTest => Void := {
+        isCurrentTestPassing ifTrue: {
+            passingTestCount := passingTestCount + 1
+        }
+    }.
+
+    method countErrorTest => Void := {
+        errorTestCount := errorTestCount + 1.
+        isCurrentTestPassing  := false.
+    }.
+
+    method countFailingTest => Void := {
+        failingTestCount := failingTestCount + 1.
+        isCurrentTestPassing  := false.
+    }.
+
+    method countSkippedTest => Void := {
+        skippedTestCount := skippedTestCount + 1.
+        isCurrentTestPassing  := false.
+    }.
+
 
 }.
 

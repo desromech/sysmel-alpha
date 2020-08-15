@@ -7,11 +7,17 @@ Object extend: {
 		:= false.
 }.
 
+TypeInformation definition: {
+	method addSubclass: aSubclass := self.
+}.
+
 Behavior definition: {
 	method isBehavior
 		:= true.
 
 	method subclasses := #().
+
+	method ensureIsAddedToSuperClass := self.
 
 	method subclassesDo: aBlock
 		:= Smalltalk Runtime withReflectionLockedRead: {self subclasses do: aBlock}.
@@ -31,6 +37,42 @@ Behavior definition: {
 			aBlock value: self.
 			self allSubclassesDo: aBlock
 		}
+	}.
+
+	method allSubclasses := {
+		let result := OrderedCollection new.
+		Stdn stdout << self << " subclasses " << self subclasses; nl.
+		self allSubclassesDo: {:each :: Void |
+			result add: each
+		}.
+		result
+	}.
+
+	method withAllSubclasses := {
+		let result := OrderedCollection new.
+		self withAllSubclassesDo: {:each :: Void |
+			result add: each
+		}.
+		result
+	}.
+
+	method allSelectors := {
+		let result := Set new.
+		result addAll: self selectors.
+		superclass ifNotNil: {
+			result addAll: superclass allSelectors
+		}.
+		result
+	}.
+
+	method selectors := {
+		let result := OrderedCollection new.
+		methodDict keysDo: {:each :: Void |
+			(each includes: '|') ifFalse: {
+				result add: each
+			}
+		}.
+		result
 	}.
 
 	method __manipulateInstance: instance gcSlotsWith: (manipulationBlock: ((ProtoObject pointer) => Void) nativeStackBlockClosure) ::=> Void := {
@@ -59,6 +101,22 @@ Behavior definition: {
 }.
 
 Class definition: {
+	method ensureIsAddedToSuperClass := {
+		superclass ifNotNil: {
+			superclass addSubclass: self
+		}.
+
+		self
+	}.
+
+	method addSubclass: aSubclass ::=> Void := {
+		Smalltalk Runtime withReflectionLockedRead: {
+			(subclasses includes: aSubclass) ifFalse: {
+				subclasses := subclasses copyWith: aSubclass
+			}.
+		}.
+	}.
+
 	method isClass
 		:= true.
 
@@ -79,6 +137,15 @@ Metaclass definition: {
 	method isMetaclassOfClassOrNil := {
 		thisClass ifNil: { true }
 			ifNotNil: {thisClass == Class }
+	}.
+
+	method subclasses := {
+		let result := OrderedCollection new.
+		self subclassesDo: {:each :: Void |
+			result add: each
+		}.
+
+		result asArray
 	}.
 
 	method subclassesDo: aBlock := {

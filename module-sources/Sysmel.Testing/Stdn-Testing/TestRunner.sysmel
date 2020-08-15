@@ -104,18 +104,9 @@ class TestRunner superclass: Object; definition: {
         }
     }.
 
-    method runAllTests => Boolean8 := {
-        let casesToRun mutable type: Stdn Collections Vector(TestCaseFactory pointer).
-        testRunnerMutex withLock: {
-            casesToRun := testCaseFactories
-        }.
-
-        casesToRun do: {:testCase :: Void |
-            self runTestCase: testCase
-        }.
-
+    method printReport => Void := {
         Stdn stdout << "==============================================="; nl.
-        Stdn stdout << "Test execution report:"; nl.
+        Stdn stdout << "Native test execution report:"; nl.
         Stdn stdout << "==============================================="; nl.
         Stdn stdout << "Running test count: " << self runningTestCount; nl.
         self skippedTestCount > 0 ifTrue: {
@@ -128,6 +119,17 @@ class TestRunner superclass: Object; definition: {
             Stdn stdout << "Error test count: " << self errorTestCount; nl.
         }.
         Stdn stdout << "Passing test count: " << self passingTestCount; nl.
+    }.
+
+    method runAllTests => Boolean8 := {
+        let casesToRun mutable type: Stdn Collections Vector(TestCaseFactory pointer).
+        testRunnerMutex withLock: {
+            casesToRun := testCaseFactories
+        }.
+
+        casesToRun do: {:testCase :: Void |
+            self runTestCase: testCase
+        }.
 
         self failingTestCount == 0 && self errorTestCount == 0.
     }.

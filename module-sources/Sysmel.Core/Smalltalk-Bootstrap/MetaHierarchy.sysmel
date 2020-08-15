@@ -215,6 +215,8 @@ ModuleInformation definition: {
 	public field extensionMacros type: Array.
 	public field extensionOverloadedMethods type: Array.
 	public field extensionMethods type: Array.
+	public field addedClasses type: Array.
+	public field addedGCClasses type: Array.
 }.
 
 ModuleNamespaceInformation definition: {

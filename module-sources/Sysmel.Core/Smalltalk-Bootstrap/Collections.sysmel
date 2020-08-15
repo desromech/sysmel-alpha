@@ -74,6 +74,38 @@ Collection definition: {
 	method isEmptyOrNil
 		:= self size == 0.
 
+	method ifEmpty: aBlock := {
+		self isEmpty ifTrue: {
+			aBlock value
+		} ifFalse: {
+			self
+		}
+	}.
+
+	method ifNotEmpty: aBlock := {
+		self isEmpty ifTrue: {
+			self
+		} ifFalse: {
+			aBlock cull: self
+		}
+	}.
+
+	method ifEmpty: emptyBlock ifNotEmpty: notEmptyBlock := {
+		self isEmpty ifTrue: {
+			emptyBlock value
+		} ifFalse: {
+			notEmptyBlock cull: self
+		}
+	}.
+
+	method ifNotEmpty: notEmptyBlock ifEmpty: emptyBlock := {
+		self isEmpty ifTrue: {
+			emptyBlock value
+		} ifFalse: {
+			notEmptyBlock cull: self
+		}
+	}.
+
 	method addAll: otherCollection := {
 		otherCollection do: {:each :: Void |
 			self add: each
@@ -81,8 +113,39 @@ Collection definition: {
 		self
 	}.
 
-	method asArray
-		:= Array withAll: self.
+	method asArray := {
+		let result := Array new: self size.
+		let index mutable := 1.
+		self do: {:each :: Void |
+			result at: index put: each.
+			index := index + 1
+		}.
+		result
+	}.
+
+	method anySatify: aPredicate := {
+		self do: {:each :: Void |
+			(aPredicate value: each) ifTrue: {
+				return: true
+			}.
+		}.
+		false
+	}.
+
+	method allSatify: aPredicate := {
+		self do: {:each :: Void |
+			(aPredicate value: each) ifFalse: {
+				return: false
+			}.
+		}.
+		true
+	}.
+
+	method includes: anElement
+		:= self anySatify: {:each | each = anElement}.
+
+	method copyWithout: anElement
+		:= self reject: {:each | each = anElement}.
 }.
 
 UndefinedObject extend: {
@@ -114,6 +177,9 @@ SequenceableCollection definition: {
 			stream contents
 		}.
 	}.
+
+	method asArray
+		:= Array withAll: self.
 
 	method do: aBlock := {
 		1 to: self size do: {:i :: Void|
@@ -173,6 +239,16 @@ SequenceableCollection definition: {
 		1 to: copySize + 1 do: {:i :: Void |
 			result at: i put: (self at: i)
 		}.
+		result
+	}.
+
+	method copyWith: anElement := {
+		let size := self size.
+		let result := self species new: size + 1.
+		1 to: size do: {:i :: Void |
+			result at: i put: (self at: i)
+		}.
+		result at: size + 1 put: anElement.
 		result
 	}.
 
@@ -277,6 +353,7 @@ MethodDictionary definition: {
 
 Array definition: {
 	method isArray := true.
+	method asArray := self.
 }.
 
 }. ## End of namespace Smalltalk
