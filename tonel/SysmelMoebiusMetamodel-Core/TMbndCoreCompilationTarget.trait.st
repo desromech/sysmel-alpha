@@ -72,6 +72,7 @@ Trait {
 		'exceptionCleanUpEndFunction'
 	],
 	#traits : 'TMbndAbstractCompilationTarget',
+	#classTraits : 'TMbndAbstractCompilationTarget classTrait',
 	#category : #'SysmelMoebiusMetamodel-Core-CompilationTarget'
 }
 
@@ -344,6 +345,11 @@ TMbndCoreCompilationTarget >> coreDefinitionsModule [
 { #category : #accessing }
 TMbndCoreCompilationTarget >> coreDefinitionsModule: anObject [
 	coreDefinitionsModule := anObject
+]
+
+{ #category : #'constructor priorities' }
+TMbndCoreCompilationTarget >> coreRuntimeInitializationPriority [
+	^ self normalConstructorPriority - 200
 ]
 
 { #category : #'derived types' }

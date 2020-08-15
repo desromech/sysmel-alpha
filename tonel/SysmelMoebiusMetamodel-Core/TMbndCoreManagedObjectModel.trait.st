@@ -50,9 +50,15 @@ Trait {
 		'receiverClassGetter',
 		'methodSuperClassGetter',
 		'inlineCacheStructure',
-		'identityHashFieldBitMask'
+		'identityHashFieldBitMask',
+		'gcShadowStackRecordStructure',
+		'gcShadowStackEnterFunction',
+		'gcShadowStackLeaveFunction',
+		'gcShadowStackLandingPadFunction',
+		'gcSafePointFunction'
 	],
 	#traits : 'TMbndAbstractManagedObjectModel',
+	#classTraits : 'TMbndAbstractManagedObjectModel classTrait',
 	#category : #'SysmelMoebiusMetamodel-Core-CompilationTarget'
 }
 
@@ -234,7 +240,9 @@ TMbndCoreManagedObjectModel >> encodeBootstrapDefinedObjectsForMessagePackWith: 
 			objectToBoolean8Function messageClass moduleRootRegistrationFunction
 			moduleStartUpFunction moduleShutDownFunction
 			gcLayoutClass receiverClassGetter methodSuperClassGetter
-			inlineCacheStructure) do: [ :selector |
+			gcShadowStackRecordStructure gcShadowStackEnterFunction gcShadowStackLeaveFunction
+			gcShadowStackLandingPadFunction gcSafePointFunction inlineCacheStructure
+			) do: [ :selector |
 				| object|
 				object := self perform: selector.
 				object ifNotNil: [
@@ -299,6 +307,56 @@ TMbndCoreManagedObjectModel >> gcLayoutClass [
 { #category : #accessing }
 TMbndCoreManagedObjectModel >> gcLayoutClass: anObject [
 	gcLayoutClass := anObject
+]
+
+{ #category : #accessing }
+TMbndCoreManagedObjectModel >> gcSafePointFunction [
+	^ gcSafePointFunction
+]
+
+{ #category : #accessing }
+TMbndCoreManagedObjectModel >> gcSafePointFunction: anObject [
+	gcSafePointFunction := anObject
+]
+
+{ #category : #accessing }
+TMbndCoreManagedObjectModel >> gcShadowStackEnterFunction [
+	^ gcShadowStackEnterFunction
+]
+
+{ #category : #accessing }
+TMbndCoreManagedObjectModel >> gcShadowStackEnterFunction: anObject [
+	gcShadowStackEnterFunction := anObject
+]
+
+{ #category : #accessing }
+TMbndCoreManagedObjectModel >> gcShadowStackLandingPadFunction [
+	^ gcShadowStackLandingPadFunction
+]
+
+{ #category : #accessing }
+TMbndCoreManagedObjectModel >> gcShadowStackLandingPadFunction: anObject [
+	gcShadowStackLandingPadFunction := anObject
+]
+
+{ #category : #accessing }
+TMbndCoreManagedObjectModel >> gcShadowStackLeaveFunction [
+	^ gcShadowStackLeaveFunction
+]
+
+{ #category : #accessing }
+TMbndCoreManagedObjectModel >> gcShadowStackLeaveFunction: anObject [
+	gcShadowStackLeaveFunction := anObject
+]
+
+{ #category : #accessing }
+TMbndCoreManagedObjectModel >> gcShadowStackRecordStructure [
+	^ gcShadowStackRecordStructure
+]
+
+{ #category : #accessing }
+TMbndCoreManagedObjectModel >> gcShadowStackRecordStructure: anObject [
+	gcShadowStackRecordStructure := anObject
 ]
 
 { #category : #accessing }

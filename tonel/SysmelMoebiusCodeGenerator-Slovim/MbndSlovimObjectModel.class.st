@@ -34,7 +34,14 @@ Class {
 		'moduleRootRegistrationFunction',
 		'receiverClassGetter',
 		'methodSuperClassGetter',
-		'inlineCacheStructure'
+		'inlineCacheStructure',
+		'gcShadowStackEnterFunction',
+		'gcShadowStackLeaveFunction',
+		'gcShadowStackRecordStructure',
+		'gcShadowStackRootCountField',
+		'gcShadowStackRootsField',
+		'gcShadowStackLandingPadFunction',
+		'gcSafePointFunction'
 	],
 	#category : #'SysmelMoebiusCodeGenerator-Slovim-CompilationTarget'
 }
@@ -343,6 +350,48 @@ MbndSlovimObjectModel >> gcClosureHeaderType [
 { #category : #'as yet unclassified' }
 MbndSlovimObjectModel >> gcModuleRootRegistrationPriority [
 	^ managedObjectModel compilationTarget gcModuleRootRegistrationPriority
+]
+
+{ #category : #accessing }
+MbndSlovimObjectModel >> gcSafePointFunction [
+	<compileTime>
+	^ gcSafePointFunction ifNil: [gcSafePointFunction := (moduleCodeGenerator translateProgramEntity: managedObjectModel gcSafePointFunction) ssaValue ]
+]
+
+{ #category : #accessing }
+MbndSlovimObjectModel >> gcShadowStackEnterFunction [
+	<compileTime>
+	^ gcShadowStackEnterFunction ifNil: [gcShadowStackEnterFunction := (moduleCodeGenerator translateProgramEntity: managedObjectModel gcShadowStackEnterFunction) ssaValue ]
+]
+
+{ #category : #accessing }
+MbndSlovimObjectModel >> gcShadowStackLandingPadFunction [
+	<compileTime>
+	^ gcShadowStackLandingPadFunction ifNil: [gcShadowStackLandingPadFunction := (moduleCodeGenerator translateProgramEntity: managedObjectModel gcShadowStackLandingPadFunction) ssaValue ]
+]
+
+{ #category : #accessing }
+MbndSlovimObjectModel >> gcShadowStackLeaveFunction [
+	<compileTime>
+	^ gcShadowStackLeaveFunction ifNil: [gcShadowStackLeaveFunction := (moduleCodeGenerator translateProgramEntity: managedObjectModel gcShadowStackLeaveFunction) ssaValue ]
+]
+
+{ #category : #accessing }
+MbndSlovimObjectModel >> gcShadowStackRecordStructure [
+	<compileTime>
+	^ gcShadowStackRecordStructure ifNil: [gcShadowStackRecordStructure := moduleCodeGenerator translateType: managedObjectModel gcShadowStackRecordStructure ]
+]
+
+{ #category : #accessing }
+MbndSlovimObjectModel >> gcShadowStackRootCountField [
+	<compileTime>
+	^ gcShadowStackRootCountField ifNil: [gcShadowStackRootCountField := managedObjectModel gcShadowStackRecordStructure ifNotNil: [ :s | (s findFirstFieldNamed: #rootCount) slotIndex ] ]
+]
+
+{ #category : #accessing }
+MbndSlovimObjectModel >> gcShadowStackRootsField [
+	<compileTime>
+	^ gcShadowStackRootsField ifNil: [gcShadowStackRootsField := managedObjectModel gcShadowStackRecordStructure ifNotNil: [ :s | (s findFirstFieldNamed: #roots) slotIndex ] ]
 ]
 
 { #category : #accessing }

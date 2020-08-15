@@ -1,6 +1,7 @@
 Trait {
 	#name : #TMbndAbstractProgramEntity,
 	#traits : 'TMbndObject + TMbndSymbolBinding',
+	#classTraits : 'TMbndObject classTrait + TMbndSymbolBinding classTrait',
 	#category : #'SysmelMoebiusMetamodel-Core-ProgramEntity'
 }
 
@@ -240,6 +241,11 @@ TMbndAbstractProgramEntity >> isNamespace [
 
 { #category : #testing }
 TMbndAbstractProgramEntity >> isNeverExported [
+	^ false
+]
+
+{ #category : #testing }
+TMbndAbstractProgramEntity >> isNoGC [
 	^ false
 ]
 

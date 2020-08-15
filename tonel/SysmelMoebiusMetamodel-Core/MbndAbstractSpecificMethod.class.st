@@ -293,6 +293,11 @@ MbndAbstractSpecificMethod >> isNewVirtualTableEntry [
 ]
 
 { #category : #testing }
+MbndAbstractSpecificMethod >> isNoGC [
+	^ (self hasPragmaNamed: #nogc) or: [ parent isNotNil and: [ parent isNoGC ] ]
+]
+
+{ #category : #testing }
 MbndAbstractSpecificMethod >> isNoReturn [
 	^ self hasFlag: #noReturn
 ]

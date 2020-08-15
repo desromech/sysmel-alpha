@@ -425,6 +425,12 @@ MbndCompilationEnvironment >> hasGPUSupport [
 ]
 
 { #category : #parameters }
+MbndCompilationEnvironment >> hasGarbageCollectedRuntime [
+	<compileTime>
+	^ self hasRuntimeTypeInformation and: [self hasGarbageCollectionSupport]
+]
+
+{ #category : #parameters }
 MbndCompilationEnvironment >> hasGarbageCollectionStackMap [
 	<compileTime>
 	^ hasGarbageCollectionStackMap ifNil: [ hasGarbageCollectionStackMap := false ]
@@ -468,7 +474,8 @@ MbndCompilationEnvironment >> hasMonolithicTranslationMode [
 { #category : #testing }
 MbndCompilationEnvironment >> hasNullGarbageCollector [
 	<compileTime>
-	^ self compilationTarget isWebAssembly or: [ self compilationTarget isX86 not or: [self compilationTarget isLinux not]]
+	"^ self compilationTarget isWebAssembly or: [ self compilationTarget isX86 not or: [self compilationTarget isLinux not]]"
+	^ false
 ]
 
 { #category : #testing }
@@ -478,7 +485,7 @@ MbndCompilationEnvironment >> hasObjectTranslationMode [
 
 { #category : #parameters }
 MbndCompilationEnvironment >> hasPreciseGarbageCollector [
-	^ false
+	^ true
 ]
 
 { #category : #testing }

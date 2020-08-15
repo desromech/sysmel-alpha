@@ -1680,9 +1680,17 @@ MbndSlovimCodeModuleGenerator >> setProgramEntity: programEntity translation: tr
 
 { #category : #visiting }
 MbndSlovimCodeModuleGenerator >> setupGCStrategyFor: ssaFunction generatedFrom: functionMethod [
-	sourceModule hasGarbageCollectionStackMap ifFalse: [ ^ self ].
-	(functionMethod hasPragmaNamed: #nogc) ifTrue: [ ^ self ].
-	ssaFunction gcStrategy: #sysmel
+	self compilationEnvironment hasGarbageCollectedRuntime ifFalse: [ ^ self ].
+	functionMethod isNoGC ifTrue: [ ^ self ].
+	self compilationEnvironment hasPreciseGarbageCollector ifTrue: [
+		self compilationEnvironment hasGarbageCollectionStackMap ifTrue: [ 
+			ssaFunction gcStrategy: #sysmelPlugin
+		] ifFalse: [ 
+			ssaFunction gcStrategy: #sysmelShadowStack
+		].
+	].
+
+
 ]
 
 { #category : #visiting }
@@ -2297,6 +2305,7 @@ MbndSlovimCodeModuleGenerator >> visitBlockClosureMethod: blockClosureMethod [
 		propertyAt: #mbndFunctionType put: normalFunctionType;
 		propertyAt: #mbndProgramEntity put: blockClosureMethod.
 	self setProgramEntity: blockClosureMethod ssaValue: ssaClosureDefinition.
+	self setupGCStrategyFor: ssaClosureDefinition generatedFrom: blockClosureMethod.
 
 	self isEmittingDebugInformation ifTrue: [
 		| debugInfo |

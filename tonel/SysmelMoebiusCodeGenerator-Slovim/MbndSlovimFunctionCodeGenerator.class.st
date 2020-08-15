@@ -132,6 +132,7 @@ MbndSlovimFunctionCodeGenerator >> buildSSAClosure: ssaClosureDefinition definit
 	]."
 
 	self cleanUpStructuredControlFlow.
+	ssaFunction validate.
 ]
 
 { #category : #'as yet unclassified' }
@@ -153,6 +154,7 @@ MbndSlovimFunctionCodeGenerator >> buildSSAFunction: aSSAFunction at: sourcePosi
 	slvmBuilder allocaBuilder jump: ssaFunctionBodyBlock.
 	
 	self cleanUpStructuredControlFlow.
+	ssaFunction validate.
 ]
 
 { #category : #'as yet unclassified' }
@@ -183,6 +185,7 @@ MbndSlovimFunctionCodeGenerator >> buildSSAFunction: aSSAFunction definitionWith
 	].
 
 	self cleanUpStructuredControlFlow.
+	ssaFunction validate.
 ]
 
 { #category : #'as yet unclassified' }
@@ -208,7 +211,7 @@ MbndSlovimFunctionCodeGenerator >> buildSSAFunction: aSSAFunction definitionWith
 	slvmBuilder allocaBuilder jump: ssaFunctionBodyBlock.
 	
 	self cleanUpStructuredControlFlow.
-
+	ssaFunction validate.
 ]
 
 { #category : #'as yet unclassified' }
@@ -225,6 +228,7 @@ MbndSlovimFunctionCodeGenerator >> buildSSAFunction: aSSAFunction withCodeGenera
 	slvmBuilder allocaBuilder jump: ssaFunctionBodyBlock.
 	
 	self cleanUpStructuredControlFlow.
+	ssaFunction validate
 ]
 
 { #category : #'as yet unclassified' }
@@ -3105,8 +3109,17 @@ MbndSlovimFunctionCodeGenerator >> visitSetFieldValueNode: node [
 		field bits ifNil: [
 			slvmBuilder store: (self sanitizeStoreValue: newValue inPointer: fieldPointer)
 				in: fieldPointer
-		] ifNotNil: [ 
-			self halt
+		] ifNotNil: [
+			| originalValue newBitValue sanitizedValue valueType |
+			sanitizedValue := self sanitizeStoreValue: newValue inPointer: fieldPointer.
+			valueType := sanitizedValue type.
+			sanitizedValue := slvmBuilder shiftLeft: sanitizedValue with: (slvmBuilder const: field bitOffset type: valueType).
+			sanitizedValue := slvmBuilder bitAnd: sanitizedValue with: (slvmBuilder const: field bitMask type: valueType).
+
+			originalValue := slvmBuilder load: fieldPointer.
+			newBitValue := slvmBuilder bitAnd: originalValue with: (slvmBuilder const: field bitMask bitInvert type: valueType).
+			newBitValue := slvmBuilder bitOr: newBitValue with: sanitizedValue.
+			slvmBuilder store: newBitValue in: fieldPointer
 		].
 	
 		^ resultType isPointerType
