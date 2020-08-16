@@ -94,7 +94,7 @@ MbndPrimitiveFloatType >> addArithmeticIntrinsicsToVectorOrScalarType: vectorOrS
 		(log2 'math.log2')
 
 		(floor 'math.floor')
-		(ceil 'math.ceil')
+		(ceiling 'math.ceil')
 		(truncated 'math.trunc')
 		(rounded 'math.round')
 		(roundedEven 'math.roundEven')

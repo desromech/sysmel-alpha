@@ -26,6 +26,11 @@ Trait {
 		'workspaceVariableClass',
 		'associationValueOffset',
 		'characterClass',
+		'largePositiveIntegerClass',
+		'largeNegativeIntegerClass',
+		'boxedFloat64Class',
+		'fractionClass',
+		'scaledDecimalClass',
 		'int32ToIntegerFunction',
 		'uint32ToIntegerFunction',
 		'int64ToIntegerFunction',
@@ -144,6 +149,16 @@ TMbndCoreManagedObjectModel >> boolClass: aClass [
 ]
 
 { #category : #accessing }
+TMbndCoreManagedObjectModel >> boxedFloat64Class [
+	^ boxedFloat64Class
+]
+
+{ #category : #accessing }
+TMbndCoreManagedObjectModel >> boxedFloat64Class: anObject [
+	boxedFloat64Class := anObject
+]
+
+{ #category : #accessing }
 TMbndCoreManagedObjectModel >> byteArrayClass [
 	^ byteArrayClass
 ]
@@ -233,6 +248,7 @@ TMbndCoreManagedObjectModel >> encodeBootstrapDefinedObjectsForMessagePackWith: 
 			systemDictionaryClass methodDictionaryClass symbolClass stringClass integerClass floatClass
 			globalVariableClass messageLookupFunction trueClass falseClass boolClass
 			undeclaredVariableClass workspaceVariableClass characterClass
+			largePositiveIntegerClass largeNegativeIntegerClass boxedFloat64Class fractionClass scaledDecimalClass
 			int32ToIntegerFunction uint32ToIntegerFunction int64ToIntegerFunction uint64ToIntegerFunction
 			uint32ToCharacterFunction float64ToFloatFunction blockClosureHeaderClass blockClosureClass
 			gcBlockClosureAllocationFunction objectToUInt32Function objectToInt32Function objectToUInt64Function
@@ -287,6 +303,16 @@ TMbndCoreManagedObjectModel >> floatClass: anObject [
 	compilationTarget dynamicObjectType addExplicitConversionRule: (MbndDynamicObjectToFloatConversionRule when: [:sourceType :targetType |
 		targetType isPrimitiveFloatType
 	]).
+]
+
+{ #category : #accessing }
+TMbndCoreManagedObjectModel >> fractionClass [
+	^ fractionClass
+]
+
+{ #category : #accessing }
+TMbndCoreManagedObjectModel >> fractionClass: anObject [
+	fractionClass := anObject
 ]
 
 { #category : #accessing }
@@ -436,6 +462,26 @@ TMbndCoreManagedObjectModel >> integerClass: anObject [
 	compilationTarget dynamicObjectType addExplicitConversionRule: (MbndDynamicObjectToIntegerConversionRule when: [:sourceType :targetType |
 		targetType isPrimitiveIntegerType and: [ targetType isPrimitiveCharacterCodeType not ]
 	]).
+]
+
+{ #category : #accessing }
+TMbndCoreManagedObjectModel >> largeNegativeIntegerClass [
+	^ largeNegativeIntegerClass
+]
+
+{ #category : #accessing }
+TMbndCoreManagedObjectModel >> largeNegativeIntegerClass: anObject [
+	largeNegativeIntegerClass := anObject
+]
+
+{ #category : #accessing }
+TMbndCoreManagedObjectModel >> largePositiveIntegerClass [
+	^ largePositiveIntegerClass
+]
+
+{ #category : #accessing }
+TMbndCoreManagedObjectModel >> largePositiveIntegerClass: anObject [
+	largePositiveIntegerClass := anObject
 ]
 
 { #category : #serialization }
@@ -623,6 +669,16 @@ TMbndCoreManagedObjectModel >> runtimeImportantFunctions [
 		methodSuperClassGetter.
 		moduleRootRegistrationFunction
 	} select: [ :each | each isNotNil ]
+]
+
+{ #category : #accessing }
+TMbndCoreManagedObjectModel >> scaledDecimalClass [
+	^ scaledDecimalClass
+]
+
+{ #category : #accessing }
+TMbndCoreManagedObjectModel >> scaledDecimalClass: anObject [
+	scaledDecimalClass := anObject
 ]
 
 { #category : #accessing }

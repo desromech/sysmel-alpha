@@ -2,22 +2,21 @@ Compiler
 	importModulesNamed: #(
 		#"Sysmel.Core.Tests"
 
-#*		#"Sysmel.Serialization.Core.Tests"
+		#"Sysmel.Serialization.Core.Tests"
 		#"Sysmel.Serialization.JSON.Tests"
 		#"Sysmel.Serialization.MessagePack.Tests"
 
 		#"Sysmel.Math.Core.Tests"
 		#"Norphic.Core.Tests"
-		#"Sysmel.Graphics.Core.Raster.Tests" *#
+		#"Sysmel.Graphics.Core.Raster.Tests"
 	).
-#*
+
 compileTime if: Compiler compilationTarget isDesktopPC then: {
 	Compiler
 		importModulesNamed: #(
 			#"Sysmel.Networking.Core.Tests"
 		).
 }.
-*#
 
 compileTime if: Compiler hasGarbageCollectedRuntime then: {
     Compiler importModulesNamed: #(

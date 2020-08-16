@@ -180,6 +180,18 @@ MbndSlovimObjectModel >> createAssociation: association class: associationClass 
 	^ result
 ]
 
+{ #category : #converting }
+MbndSlovimObjectModel >> createBoxedFloatInstance: aFloat [
+	^ convertedLiteralContent at: aFloat ifAbsentPut: [
+		| data instance |
+		data := aFloat asFloat.
+		instance := managedObjectModel boxedFloat64Class makeInstance: 0 identityHash: data hash.
+		instance setField: #__float64Value value: data.
+		instance
+	]
+
+]
+
 { #category : #'code generation' }
 MbndSlovimObjectModel >> createDoesNotUnderstandTrampolineWithType: functionType [
 	| function builder boxedMessage result convertedResult |
