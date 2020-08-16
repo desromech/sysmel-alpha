@@ -1,0 +1,289 @@
+namespace Smalltalk definition: {
+
+SmallInteger extend: {
+	method asInt32 => Int32
+		:= self __decodeSmallInteger castTo: Int32.
+
+	method asUInt32 => UInt32
+		:= self __decodeSmallInteger castTo: UInt32.
+
+	method asInt64 => Int64
+		:= self __decodeSmallInteger castTo: Int64.
+
+	method asUInt64 => UInt64
+		:= self __decodeSmallInteger castTo: UInt64.
+
+	method asFloat64 => Float64
+		:= self __decodeSmallInteger castTo: Float64.
+
+	method asChar32 => Char32
+		:= self __decodeSmallInteger castTo: Char32.
+
+	method asCharacter
+		:= self __decodeSmallInteger castTo: Char32.
+
+	method asFloat
+		:= self __decodeSmallInteger castTo: Float64.
+
+	method negated
+		:= self __decodeSmallInteger negated.
+
+	method sqrt := {
+		let selfValue := self __decodeSmallInteger.
+		selfValue <= 0 ifTrue: {
+			selfValue < 0 ifTrue: {
+				return: (DomainError signal: "sqrt is undefined for negative numbers.")
+			} ifFalse: {
+				return: 0
+			}
+		}.
+
+		(selfValue castTo: Float64) sqrt floor castTo: IntPointer.
+	}.
+
+	method = aNumber := {
+		aNumber __isSmallInteger ifTrue: {
+			let a := self __decodeSmallInteger.
+			let b := aNumber __decodeSmallInteger.
+			return: a = b
+		}.
+
+		aNumber __isSmallOrBoxedFloat ifTrue: {
+			let a := self __decodeSmallInteger.
+			let b := aNumber __decodeSmallOrBoxedFloat.
+			return: a = b
+		}.
+
+        super = aNumber
+    }.
+
+	method ~= aNumber := {
+		aNumber __isSmallInteger ifTrue: {
+			let a := self __decodeSmallInteger.
+			let b := aNumber __decodeSmallInteger.
+			return: a ~= b
+		}.
+
+		aNumber __isSmallOrBoxedFloat ifTrue: {
+			let a := self __decodeSmallInteger.
+			let b := aNumber __decodeSmallOrBoxedFloat.
+			return: a ~= b
+		}.
+
+        super ~= aNumber
+    }.
+
+	method < aNumber := {
+		aNumber __isSmallInteger ifTrue: {
+			let a := self __decodeSmallInteger.
+			let b := aNumber __decodeSmallInteger.
+			return: a < b
+		}.
+
+		aNumber __isSmallOrBoxedFloat ifTrue: {
+			let a := self __decodeSmallInteger.
+			let b := aNumber __decodeSmallOrBoxedFloat.
+			return: a < b
+		}.
+
+        super < aNumber
+    }.
+
+	method <= aNumber := {
+		aNumber __isSmallInteger ifTrue: {
+			let a := self __decodeSmallInteger.
+			let b := aNumber __decodeSmallInteger.
+			return: a <= b
+		}.
+
+		aNumber __isSmallOrBoxedFloat ifTrue: {
+			let a := self __decodeSmallInteger.
+			let b := aNumber __decodeSmallOrBoxedFloat.
+			return: a <= b
+		}.
+
+        super <= aNumber
+    }.
+
+	method > aNumber := {
+		aNumber __isSmallInteger ifTrue: {
+			let a := self __decodeSmallInteger.
+			let b := aNumber __decodeSmallInteger.
+			return: a > b
+		}.
+
+		aNumber __isSmallOrBoxedFloat ifTrue: {
+			let a := self __decodeSmallInteger.
+			let b := aNumber __decodeSmallOrBoxedFloat.
+			return: a > b
+		}.
+
+        super > aNumber
+    }.
+
+	method >= aNumber := {
+		aNumber __isSmallInteger ifTrue: {
+			let a := self __decodeSmallInteger.
+			let b := aNumber __decodeSmallInteger.
+			return: a >= b
+		}.
+
+		aNumber __isSmallOrBoxedFloat ifTrue: {
+			let a := self __decodeSmallInteger.
+			let b := aNumber __decodeSmallOrBoxedFloat.
+			return: a >= b
+		}.
+
+        super >= aNumber
+    }.
+
+	method <=> aNumber := {
+		aNumber __isSmallInteger ifTrue: {
+			let a := self __decodeSmallInteger.
+			let b := aNumber __decodeSmallInteger.
+			return: a <=> b
+		}.
+
+		aNumber __isSmallOrBoxedFloat ifTrue: {
+			let a := self __decodeSmallInteger.
+			let b := aNumber __decodeSmallOrBoxedFloat.
+			return: a <=> b
+		}.
+
+		super <=> aNumber
+	}.
+
+    method + aNumber := {
+		aNumber __isSmallInteger ifTrue: {
+			let a := self __decodeSmallInteger.
+			let b := aNumber __decodeSmallInteger.
+			return: a + b
+		}.
+
+		aNumber __isCharacter ifTrue: {
+			let a := self __decodeSmallInteger.
+			let b := aNumber __decodeCharacter.
+			return: (a + b castTo: Char32)
+		}.
+
+		aNumber __isSmallOrBoxedFloat ifTrue: {
+			let a := self __decodeSmallInteger.
+			let b := aNumber __decodeSmallOrBoxedFloat.
+			return: a + b
+		}.
+
+        super + aNumber
+    }.
+
+    method - aNumber := {
+		aNumber __isSmallInteger ifTrue: {
+			let a := self __decodeSmallInteger.
+			let b := aNumber __decodeSmallInteger.
+			return: a - b
+		}.
+
+		aNumber __isCharacter ifTrue: {
+			let a := self __decodeSmallInteger.
+			let b := aNumber __decodeCharacter.
+			return: (a - b castTo: Char32)
+		}.
+
+		aNumber __isSmallOrBoxedFloat ifTrue: {
+			let a := self __decodeSmallInteger.
+			let b := aNumber __decodeSmallOrBoxedFloat.
+			return: a - b
+		}.
+
+        super - aNumber
+    }.
+
+	method * aNumber := {
+		aNumber __isSmallInteger ifTrue: {
+			let a := self __decodeSmallInteger.
+			let b := aNumber __decodeSmallInteger.
+			b == 0 || a <= (IntPointer maxValue / b) ifTrue: {
+				return: a * b
+			}.
+		}.
+
+		aNumber __isSmallOrBoxedFloat ifTrue: {
+			let a := self __decodeSmallInteger.
+			let b := aNumber __decodeSmallOrBoxedFloat.
+			return: a * b
+		}.
+
+		super * aNumber
+	}.
+
+	method / aNumber := {
+		aNumber __isSmallInteger ifTrue: {
+			let a := self __decodeSmallInteger.
+			let b := aNumber __decodeSmallInteger.
+			b = 0 ifTrue: {
+				(ZeroDivide dividend: aNumber) signal
+			}.
+
+			(a % b) = 0 ifTrue: {
+				return: a / b
+			} ifFalse: {
+				return: (Fraction numerator: a denominator: b)
+			}.
+		}.
+
+		aNumber __isSmallOrBoxedFloat ifTrue: {
+			let a := self __decodeSmallInteger.
+			let b := aNumber __decodeSmallOrBoxedFloat.
+			b = 0 ifTrue: {
+				(ZeroDivide dividend: aNumber) signal
+			}.
+
+			return: a / b
+		}.
+
+		super / aNumber
+	}.
+
+	method % aNumber := {
+		aNumber __isSmallInteger ifTrue: {
+			let a := self __decodeSmallInteger.
+			let b := aNumber __decodeSmallInteger.
+			b = 0 ifTrue: {
+				(ZeroDivide dividend: aNumber) signal
+			}.
+
+			return: a % b
+		}.
+
+		super % aNumber
+	}.
+
+	method \\ aNumber := {
+		aNumber __isSmallInteger ifTrue: {
+			let a := self __decodeSmallInteger.
+			let b := aNumber __decodeSmallInteger.
+			b = 0 ifTrue: {
+				(ZeroDivide dividend: aNumber) signal
+			}.
+
+			return: a \\ b
+		}.
+
+		super \\ aNumber
+	}.
+
+	method // aNumber := {
+		aNumber __isSmallInteger ifTrue: {
+			let a := self __decodeSmallInteger.
+			let b := aNumber __decodeSmallInteger.
+			b = 0 ifTrue: {
+				(ZeroDivide dividend: aNumber) signal
+			}.
+
+			return: a // b
+		}.
+
+		super // aNumber
+	}.
+}.
+
+}. ## End of namespace Smalltalk

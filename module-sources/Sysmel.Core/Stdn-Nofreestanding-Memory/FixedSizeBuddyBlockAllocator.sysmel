@@ -63,7 +63,7 @@ template FixedSizeBuddyBlockAllocator(MNOSB: _LiteralInteger)
     }.
 
     method findLevelForBlockCount: (blockCount: UIntPointer) ::=> UIntPointer
-        := LevelCount - blockCount log2Ceil - 1.
+        := LevelCount - blockCount log2Ceiling - 1.
 
     method allocateBlocks: (blockCount: UIntPointer) forSlab: (isForSlab: Boolean8) ::=> UIntPointer := {
         blockCount > freeLeafBlockCount ifTrue: {

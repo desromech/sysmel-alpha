@@ -1,0 +1,216 @@
+namespace Smalltalk definition: {
+
+BoxedFloat64 extend: {
+	method negated
+		:= __float64Value negated.
+
+	method sqrt := {
+		__float64Value < 0 ifTrue: {
+			return: (DomainError signal: "sqrt is undefined for negative numbers.")
+		}.
+
+		__float64Value sqrt.
+	}.
+
+	method abs
+		:= __float64Value abs.
+
+	method sign
+		:= __float64Value sign.
+
+	method floor
+		:= __float64Value floor.
+
+	method ceiling
+		:= __float64Value ceiling.
+
+	method truncated
+		:= __float64Value truncated.
+
+	method rounded
+		:= __float64Value rounded.
+
+	method fract
+		:= __float64Value fract.
+
+	method fractionPart
+		:= __float64Value fract.
+
+	method = aNumber := {
+		aNumber __isSmallInteger ifTrue: {
+			let a := __float64Value.
+			let b := aNumber __decodeSmallInteger.
+			return: a = b
+		}.
+
+		aNumber __isSmallOrBoxedFloat ifTrue: {
+			let a := __float64Value.
+			let b := aNumber __decodeSmallOrBoxedFloat.
+			return: a = b
+		}.
+
+		super = aNumber
+	}.
+
+	method ~= aNumber := {
+		aNumber __isSmallInteger ifTrue: {
+			let a := __float64Value.
+			let b := aNumber __decodeSmallInteger.
+			return: a ~= b
+		}.
+
+		aNumber __isSmallOrBoxedFloat ifTrue: {
+			let a := __float64Value.
+			let b := aNumber __decodeSmallOrBoxedFloat.
+			return: a ~= b
+		}.
+
+		super ~= aNumber
+	}.
+
+	method < aNumber := {
+		aNumber __isSmallInteger ifTrue: {
+			let a := __float64Value.
+			let b := aNumber __decodeSmallInteger.
+			return: a < b
+		}.
+
+		aNumber __isSmallOrBoxedFloat ifTrue: {
+			let a := __float64Value.
+			let b := aNumber __decodeSmallOrBoxedFloat.
+			return: a < b
+		}.
+
+		super < aNumber
+	}.
+
+	method <= aNumber := {
+		aNumber __isSmallInteger ifTrue: {
+			let a := __float64Value.
+			let b := aNumber __decodeSmallInteger.
+			return: a <= b
+		}.
+
+		aNumber __isSmallOrBoxedFloat ifTrue: {
+			let a := __float64Value.
+			let b := aNumber __decodeSmallOrBoxedFloat.
+			return: a <= b
+		}.
+
+		super <= aNumber
+	}.
+
+	method > aNumber := {
+		aNumber __isSmallInteger ifTrue: {
+			let a := __float64Value.
+			let b := aNumber __decodeSmallInteger.
+			return: a > b
+		}.
+
+		aNumber __isSmallOrBoxedFloat ifTrue: {
+			let a := __float64Value.
+			let b := aNumber __decodeSmallOrBoxedFloat.
+			return: a > b
+		}.
+
+		super > aNumber
+	}.
+
+	method >= aNumber := {
+		aNumber __isSmallInteger ifTrue: {
+			let a := __float64Value.
+			let b := aNumber __decodeSmallInteger.
+			return: a >= b
+		}.
+
+		aNumber __isSmallOrBoxedFloat ifTrue: {
+			let a := __float64Value.
+			let b := aNumber __decodeSmallOrBoxedFloat.
+			return: a >= b
+		}.
+
+		super >= aNumber
+	}.
+
+	method <=> aNumber := {
+		aNumber __isSmallInteger ifTrue: {
+			let a := __float64Value.
+			let b := aNumber __decodeSmallInteger.
+			return: a <=> b
+		}.
+
+		aNumber __isSmallOrBoxedFloat ifTrue: {
+			let a := __float64Value.
+			let b := aNumber __decodeSmallOrBoxedFloat.
+			return: a <=> b
+		}.
+
+		super <=> aNumber
+	}.
+
+	method + aNumber := {
+		aNumber __isSmallInteger ifTrue: {
+			let a := __float64Value.
+			let b := aNumber __decodeSmallInteger.
+			return: a + b
+		}.
+
+		aNumber __isSmallOrBoxedFloat ifTrue: {
+			let a := __float64Value.
+			let b := aNumber __decodeSmallOrBoxedFloat.
+			return: a + b
+		}.
+
+        super + aNumber
+    }.
+
+	method - aNumber := {
+		aNumber __isSmallInteger ifTrue: {
+			let a := __float64Value.
+			let b := aNumber __decodeSmallInteger.
+			return: a - b
+		}.
+
+		aNumber __isSmallOrBoxedFloat ifTrue: {
+			let a := __float64Value.
+			let b := aNumber __decodeSmallOrBoxedFloat.
+			return: a - b
+		}.
+
+        super - aNumber
+    }.
+
+	method * aNumber := {
+		aNumber __isSmallInteger ifTrue: {
+			let a := __float64Value.
+			let b := aNumber __decodeSmallInteger.
+			return: a * b
+		}.
+
+		aNumber __isSmallOrBoxedFloat ifTrue: {
+			let a := __float64Value.
+			let b := aNumber __decodeSmallOrBoxedFloat.
+			return: a * b
+		}.
+
+        super * aNumber
+    }.
+
+	method / aNumber := {
+		aNumber __isSmallInteger ifTrue: {
+			let a := __float64Value.
+			let b := aNumber __decodeSmallInteger.
+			return: a / b
+		}.
+
+		aNumber __isSmallOrBoxedFloat ifTrue: {
+			let a := __float64Value.
+			let b := aNumber __decodeSmallOrBoxedFloat.
+			return: a / b
+		}.
+
+        super / aNumber
+    }.
+}.
+
+}. ## End of namespace Smalltalk

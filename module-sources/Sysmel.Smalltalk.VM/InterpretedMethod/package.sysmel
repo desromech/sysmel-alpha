@@ -1,0 +1,2 @@
+loadFileOnce: "BytecodeInterpreter.sysmel".
+loadFileOnce: "InterpretedMethod.sysmel".

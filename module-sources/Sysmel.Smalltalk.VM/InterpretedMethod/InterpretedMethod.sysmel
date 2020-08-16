@@ -1,0 +1,32 @@
+namespace Smalltalk definition: {
+
+gcclass InterpretedMethod superclass: Object; definition: {
+    public field numTemps type: UInt32.
+    public field numArgs type: UInt32.
+
+    public field literals type: Array.
+    field bytecodes type: UInt8 array.
+
+    meta method literals: literals bytecodes: bytecodes
+        := (self new: bytecodes size)
+            literals: (literals castTo: Array);
+            setBytecodesFrom: (bytecodes castTo: ByteArray);
+            yourself.
+
+    method setBytecodesFrom: (newBytecodes: ByteArray) := {
+        Stdn memcpy(bytecodes[0] address, newBytecodes __private __data[0] address, bytecodes size).
+        self
+    }.
+
+    method run: aSelector with: arguments in: receiver := {
+        let interpreter mutable type: SmalltalkVM BytecodeInterpreter.
+        interpreter
+            arguments: (arguments castTo: Array);
+            numTemps: numTemps;
+            literals: literals;
+            bytecodes: bytecodes[0] address;
+            bytecodeCount: (bytecodes size castTo: UInt32).
+        interpreter run
+    }.
+}.
+}. ## End of namespace Smalltalk.

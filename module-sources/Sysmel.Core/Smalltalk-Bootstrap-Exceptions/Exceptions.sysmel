@@ -47,7 +47,14 @@ gcclass DomainError superclass: ArithmeticError; definition: {
 }.
 gcclass FloatingPointException superclass: ArithmeticError; definition: {}.
 gcclass NaNException superclass: ArithmeticError; definition: {}.
-gcclass ZeroDivide superclass: ArithmeticError; definition: {}.
+gcclass ZeroDivide superclass: ArithmeticError; definition: {
+	public field dividend.
+
+	meta definition: {
+		method dividend: theDividend
+			:= self new dividend: theDividend; yourself
+	}.
+}.
 
 gcclass AssertionFailure superclass: Error; definition: {}.
 gcclass CannotReturn superclass: Error; definition: {}.

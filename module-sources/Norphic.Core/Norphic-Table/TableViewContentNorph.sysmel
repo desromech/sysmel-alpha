@@ -38,7 +38,7 @@ class TableViewContentNorph superclass: Norph; definition: {
         let rowHeight := self rowHeight.
 
         let firstVisibleRow := ((visibleBounds min y / rowHeight) floor max: 0) castTo: UIntPointer.
-        let lastVisibleRow := ((visibleBounds max y / rowHeight) ceil max: 0) castTo: UIntPointer.
+        let lastVisibleRow := ((visibleBounds max y / rowHeight) ceiling max: 0) castTo: UIntPointer.
 
         (firstVisibleRow min: self dataSource _ numberOfElements, lastVisibleRow + 1 min: self dataSource _ numberOfElements)
     }.

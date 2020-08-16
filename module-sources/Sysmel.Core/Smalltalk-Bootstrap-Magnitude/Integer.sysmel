@@ -1,0 +1,19 @@
+namespace Smalltalk definition: {
+
+Integer extend: {
+    method isInteger := true.
+	method asInteger := self.
+
+	method floor := self.
+	method ceiling := self.
+	method truncated := self.
+	method rounded := self.
+	method fract := 0.
+	method fractionPart := 0.
+
+    method + aNumber := {
+        super + aNumber
+    }.
+}.
+
+}. ## End of namespace Smalltalk

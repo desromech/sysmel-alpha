@@ -1,0 +1,9 @@
+loadFileOnce: "Magnitude.sysmel".
+loadFileOnce: "Number.sysmel".
+loadFileOnce: "Integer.sysmel".
+loadFileOnce: "SmallInteger.sysmel".
+loadFileOnce: "Character.sysmel".
+loadFileOnce: "LargeInteger.sysmel".
+loadFileOnce: "Fraction.sysmel".
+loadFileOnce: "SmallFloat64.sysmel".
+loadFileOnce: "BoxedFloat64.sysmel".

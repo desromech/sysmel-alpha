@@ -1,0 +1,31 @@
+namespace Smalltalk definition: {
+
+Fraction extend: {
+	field numerator.
+	field denominator.
+
+    method isFraction := true.
+
+	meta definition: {
+		method numerator: newNumerator denominator: newDenominator
+			:= self new setNumerator: newNumerator denominator: newDenominator; yourself.
+	}.
+
+    method + aNumber := {
+        super + aNumber
+    }.
+
+	method setNumerator: newNumerator denominator: newDenominator := {
+		newDenominator = 0 ifTrue: {return: (ZeroDivide dividend: newNumerator) signal}.
+
+		numerator := newNumerator asInteger.
+		denominator := newDenominator asInteger abs.
+		newDenominator < 0 ifTrue: {
+			numerator := numerator negated
+		}.
+
+		self
+	}.
+}.
+
+}. ## End of namespace Smalltalk

@@ -1,32 +1,9 @@
-loadFileOnce: "MetaHierarchy.sysmel".
-loadFileOnce: "Macros.sysmel".
-loadFileOnce: "Boolean.sysmel".
-loadFileOnce: "Magnitude.sysmel".
-
-loadFileOnce: "Collections.sysmel".
-loadFileOnce: "OrderedCollection.sysmel".
-loadFileOnce: "AtomicCollections.sysmel".
-loadFileOnce: "String.sysmel".
-loadFileOnce: "HashedCollections.sysmel".
-loadFileOnce: "ReflectionLock.sysmel".
-loadFileOnce: "Behavior.sysmel".
-loadFileOnce: "Streams.sysmel".
-loadFileOnce: "Exceptions.sysmel".
-
-if: Compiler hasExceptions then: {
-    compileTime if: Compiler compilationTarget hasNoExceptionModel then: {
-        loadFileOnce: "ExceptionsExplicitSJLJUnwind.sysmel".
-    } else: {
-        loadFileOnce: "ExceptionsAbiUnwind.sysmel".
-    }.
-} else: {
-    loadFileOnce: "ExceptionsDummyUnwind.sysmel".
-}.
-
-loadFileOnce: "Printing.sysmel".
-loadFileOnce: "Symbol.sysmel".
-loadFileOnce: "Process.sysmel".
-loadFileOnce: "ModuleRootRegistration.sysmel".
-loadFileOnce: "ModuleInitialization.sysmel".
-loadFileOnce: "InterpretedMethod.sysmel".
-loadFileOnce: "Transcript.sysmel".
+Compiler loadPackages: #(
+    #"Smalltalk-Bootstrap-MetaHierarchy"
+    #"Smalltalk-Bootstrap-Magnitude"
+    #"Smalltalk-Bootstrap-Collections"
+    #"Smalltalk-Bootstrap-IO"
+    #"Smalltalk-Bootstrap-Exceptions"
+    #"Smalltalk-Bootstrap-Reflection"
+    #"Smalltalk-Bootstrap-Concurrency"
+).

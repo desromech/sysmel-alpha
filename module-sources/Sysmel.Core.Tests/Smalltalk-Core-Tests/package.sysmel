@@ -1,2 +1,2 @@
 loadFileOnce: "SmallIntegerTestCase.sysmel".
-loadFileOnce: "FloatTestCase.sysmel".
+loadFileOnce: "SmallFloatTestCase.sysmel".

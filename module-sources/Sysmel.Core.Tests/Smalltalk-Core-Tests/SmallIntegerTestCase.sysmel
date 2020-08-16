@@ -2,8 +2,112 @@ namespace Smalltalk definition: {
 
 gcclass SmallIntegerTestCase superclass: TestCase; definition: {
 
+    method testNegated := {
+        self assert: 0 asProtoObject negated equals: 0.
+        self assert: 1 asProtoObject negated equals: -1.
+        self assert: 2 asProtoObject negated equals: -2.
+        self assert: -1 asProtoObject negated equals: 1.
+        self assert: -2 asProtoObject negated equals: 2.
+    }.
+
+    method testAbsolute := {
+        self assert: -1 asProtoObject abs equals: 1.
+        self assert: -2 asProtoObject abs equals: 2.
+        self assert: 0 asProtoObject abs equals: 0.
+        self assert: 1 asProtoObject abs equals: 1.
+        self assert: 2 asProtoObject abs equals: 2.
+    }.
+
+    method testSign := {
+        self assert: -1 asProtoObject sign equals: -1.
+        self assert: -2 asProtoObject sign equals: -1.
+        self assert: 0 asProtoObject sign equals: 0.
+        self assert: 1 asProtoObject sign equals: 1.
+        self assert: 2 asProtoObject sign equals: 1.
+    }.
+
+    method testAsInteger := {
+        self assert: -1 asProtoObject isInteger.
+        self assert: -1 asProtoObject asInteger equals: -1.
+        self assert: -2 asProtoObject floor equals: -2.
+        self assert: -3 asProtoObject ceiling equals: -3.
+        self assert: -4 asProtoObject rounded equals: -4.
+        self assert: -5 asProtoObject truncated equals: -5.
+        self assert: 42 asProtoObject fract equals: 0.
+        self assert: 43 asProtoObject fractionPart equals: 0.
+    }.
+
     method testAddition := {
         self assert: 1 asProtoObject + 2 asProtoObject equals: 3.
+    }.
+
+    method testSubtraction := {
+        self assert: 1 asProtoObject - 2 asProtoObject equals: -1.
+    }.
+
+    method testMultiplication := {
+        self assert: 1 asProtoObject * 2 asProtoObject equals: 2.
+        self assert: 6 asProtoObject * 0 asProtoObject equals: 0.
+    }.
+
+    method testDivision := {
+        self assert: 6 asProtoObject / 2 asProtoObject equals: 3.
+        self assert: (1 asProtoObject / 2 asProtoObject) isFraction.
+    }.
+
+    method testIntegerDivision := {
+        self assert: 6 asProtoObject // 2 asProtoObject equals: 3.
+        self assert: 1 asProtoObject // 2 asProtoObject equals: 0.
+    }.
+
+    method testLessThan := {
+        self assert: 1 asProtoObject < 2 asProtoObject.
+        self deny: 1 asProtoObject < 1 asProtoObject.
+        self deny: 2 asProtoObject < 1 asProtoObject.
+    }.
+
+    method testLessOrEqual := {
+        self assert: 1 asProtoObject <= 2 asProtoObject.
+        self assert: 1 asProtoObject <= 1 asProtoObject.
+        self deny: 2 asProtoObject < 1 asProtoObject.
+    }.
+
+    method testEqual := {
+        self deny: 1 asProtoObject = 2 asProtoObject.
+        self assert: 1 asProtoObject = 1 asProtoObject.
+        self deny: 2 asProtoObject = 1 asProtoObject.
+    }.
+
+    method testThreeWayComparison := {
+        self assert: (1 asProtoObject <=> 2 asProtoObject) < 0.
+        self assert: (1 asProtoObject <=> 1 asProtoObject) equals: 0.
+        self assert: (2 asProtoObject <=> 1 asProtoObject) > 0.
+    }.
+
+    method testNotEqual := {
+        self assert: 1 asProtoObject ~= 2 asProtoObject.
+        self deny: 1 asProtoObject ~= 1 asProtoObject.
+        self assert: 2 asProtoObject ~= 1 asProtoObject.
+    }.
+
+    method testGreater := {
+        self deny: 1 asProtoObject > 2 asProtoObject.
+        self deny: 1 asProtoObject > 1 asProtoObject.
+        self assert: 2 asProtoObject > 1 asProtoObject.
+    }.
+
+    method testGreaterOrEqual := {
+        self deny: 1 asProtoObject >= 2 asProtoObject.
+        self assert: 1 asProtoObject >= 1 asProtoObject.
+        self assert: 2 asProtoObject >= 1 asProtoObject.
+    }.
+
+    method testSqrt := {
+        self assert: 0 asProtoObject sqrt equals: 0.
+        self assert: 1 asProtoObject sqrt equals: 1.
+        self assert: 4 asProtoObject sqrt equals: 2.
+        self assert: 9 asProtoObject sqrt equals: 3.
+        self assert: 2 asProtoObject sqrt equals: 1.
     }.
 }.
 

@@ -51,6 +51,7 @@ gcclass Object superclass: ProtoObject. Compiler compilationTarget defaultGCClas
                 gcclass BoxedFloat64 superclass: Float.
                 gcclass SmallFloat64 superclass: Float.
 			gcclass Fraction superclass: Number.
+				gcclass ScaledDecimal superclass: Fraction.
             gcclass Integer superclass: Number.
                 gcclass LargeInteger superclass: Integer.
                     gcclass LargeNegativeInteger superclass: LargeInteger.
@@ -100,7 +101,6 @@ gcclass BlockClosure superclass: BlockClosureHeaderClass.
 
 ## Methods
 gcclass CompiledMethod superclass: Object.
-gcclass InterpretedMethod superclass: Object.
 gcclass AdditionalMethodState superclass: Object.
 
 ## Message
@@ -475,11 +475,11 @@ ProtoObject definition: {
             self __immediateTypeTag = 2
         }.
 
-		method __decodeCharacter => UInt32 := {
+		method __decodeCharacter => Char32 := {
             <notInCompileTime>
             <staticBinding>
             <nogc>
-			(self reinterpretCastTo: UIntPointer) >> 3 castTo: UInt32
+			(self reinterpretCastTo: UIntPointer) >> 3 castTo: Char32
 		}.
 
         method __isSmallFloat => Boolean8 := {
@@ -488,7 +488,45 @@ ProtoObject definition: {
             <nogc>
             self __immediateTypeTag = 4
         }.
+
+		method __decodeSmallFloat => Float64 := {
+			<notInCompileTime>
+			<staticBinding>
+			<nogc>
+			let smallFloat := self reinterpretCastTo: UInt64.
+
+			## Shift out the tag
+			let bits mutable := smallFloat >> 3.
+
+			## Add back the exponent offset.
+			bits := bits + (896 << 53 castTo: UInt64).
+
+			## Rotate the sign back to its place.
+			## FIXME: Use a primitive instruction here.
+			bits := (bits >> 1) | ((bits & 1) << 63).
+
+			## Cast back to a float64.
+			bits reinterpretCastTo: Float64
+		}.
     }.
+
+	method __isSmallOrBoxedFloat => Boolean8 := {
+		<notInCompileTime>
+		<staticBinding>
+		<nogc>
+		self __isSmallFloat || self class == BoxedFloat64
+	}.
+
+	method __decodeSmallOrBoxedFloat => Float64 := {
+		<notInCompileTime>
+		<staticBinding>
+		<nogc>
+		self __isSmallFloat ifTrue: {
+			self __decodeSmallFloat
+		} ifFalse: {
+			(self reinterpretCastTo: BoxedFloat64) __float64Value
+		}
+	}.
 
     method class => Behavior := {
         <staticBinding>
@@ -927,7 +965,12 @@ Compiler compilationTarget managedObjectModel
     stringClass: String;
 	characterClass: Character;
 	integerClass: Integer;
+	largePositiveIntegerClass: LargePositiveInteger;
+	largeNegativeIntegerClass: LargeNegativeInteger;
 	floatClass: Float;
+	boxedFloat64Class: BoxedFloat64;
+	fractionClass: Fraction;
+	scaledDecimalClass: ScaledDecimal;
 	boolClass: Boolean;
 	trueClass: True;
 	falseClass: False;

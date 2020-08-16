@@ -1,0 +1,6 @@
+loadFileOnce: "Collections.sysmel".
+loadFileOnce: "OrderedCollection.sysmel".
+loadFileOnce: "AtomicCollections.sysmel".
+loadFileOnce: "String.sysmel".
+loadFileOnce: "HashedCollections.sysmel".
+loadFileOnce: "Symbol.sysmel".

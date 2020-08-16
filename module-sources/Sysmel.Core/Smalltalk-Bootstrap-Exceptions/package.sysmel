@@ -1,0 +1,11 @@
+loadFileOnce: "Exceptions.sysmel".
+
+if: Compiler hasExceptions then: {
+    compileTime if: Compiler compilationTarget hasNoExceptionModel then: {
+        loadFileOnce: "ExceptionsExplicitSJLJUnwind.sysmel".
+    } else: {
+        loadFileOnce: "ExceptionsAbiUnwind.sysmel".
+    }.
+} else: {
+    loadFileOnce: "ExceptionsDummyUnwind.sysmel".
+}.

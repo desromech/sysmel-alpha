@@ -53,6 +53,8 @@ compileTime if: UIntPointer instanceSize = 4 then: {
 	compileTime constant SmallIntegerMinValue := #*(1<<60) negated*# -1152921504606846976.
 	compileTime constant SmallIntegerMaxValue := #*(1<<60)-1*# 1152921504606846975.
 
+	compileTime constant SmallFloatExponentOffset := 896.
+
 	function encodeSmallInteger(v: IntPointer) => SmallInteger
 		:= (v << 3) | 1 reinterpretCastTo: SmallInteger.
 
@@ -66,9 +68,21 @@ compileTime if: UIntPointer instanceSize = 4 then: {
 		:= encodeSmallInteger(v).
 
 	function float64ToFloat(v: Float64) => Float := {
-		BoxedFloat64 basicNew
-			__float64Value: v;
-			yourself
+		let data := v reinterpretCastTo: UInt64.
+
+		## FIXME: use a rotate left here.
+		let bits mutable := (data << 1) | (data >> 63).
+		let subtractedExponent := SmallFloatExponentOffset << 53 castTo: UInt64.
+
+		## If this is a small float, then we should be able to perform this subtraction.
+		bits < subtractedExponent ifTrue: {
+			return: (BoxedFloat64 basicNew
+				__float64Value: v;
+				yourself)
+		}.
+
+		bits := bits - subtractedExponent.
+		((bits << 3) | 4) reinterpretCastTo: Float
 	}.
 }.
 
@@ -192,141 +206,4 @@ Magnitude extend: {
 		:= self > other ifTrue: self ifFalse: other.
 }.
 
-Number extend: {
-    method isNumber := true.
-
-    method + aNumber := {
-        Stdn fatalError: "Unimplemented Number >> #+".
-		self
-    }.
-}.
-
-Integer extend: {
-    method isInteger := true.
-
-    method + aNumber := {
-        super + aNumber
-    }.
-}.
-
-Fraction extend: {
-    method isFraction := true.
-
-    method + aNumber := {
-        super + aNumber
-    }.
-}.
-
-Character extend: {
-	method asInt32 => Int32
-		:= self __decodeCharacter castTo: Int32.
-
-	method asUInt32 => UInt32
-		:= self __decodeCharacter castTo: UInt32.
-
-	method asInt64 => Int64
-		:= self __decodeCharacter castTo: Int64.
-
-	method asUInt64 => UInt64
-		:= self __decodeCharacter castTo: UInt64.
-
-	method asFloat64 => Float64
-		:= self __decodeCharacter castTo: Float64.
-
-	method asChar32 => Char32
-		:= self __decodeCharacter castTo: Char32.
-}.
-
-SmallInteger extend: {
-	method asInt32 => Int32
-		:= self __decodeSmallInteger castTo: Int32.
-
-	method asUInt32 => UInt32
-		:= self __decodeSmallInteger castTo: UInt32.
-
-	method asInt64 => Int64
-		:= self __decodeSmallInteger castTo: Int64.
-
-	method asUInt64 => UInt64
-		:= self __decodeSmallInteger castTo: UInt64.
-
-	method asFloat64 => Float64
-		:= self __decodeSmallInteger castTo: Float64.
-
-	method asChar32 => Char32
-		:= self __decodeSmallInteger castTo: Char32.
-
-	method < aNumber := {
-		aNumber __isSmallInteger ifTrue: {
-			let a := self __decodeSmallInteger.
-			let b := aNumber __decodeSmallInteger.
-			return: a < b
-		}.
-
-		aNumber __isCharacter ifTrue: {
-			let a := self __decodeSmallInteger.
-			let b := aNumber __decodeCharacter.
-			return: a < b
-		}.
-
-        super < aNumber
-    }.
-
-	method > aNumber := {
-		aNumber __isSmallInteger ifTrue: {
-			let a := self __decodeSmallInteger.
-			let b := aNumber __decodeSmallInteger.
-			return: a > b
-		}.
-
-		aNumber __isCharacter ifTrue: {
-			let a := self __decodeSmallInteger.
-			let b := aNumber __decodeCharacter.
-			return: a > b
-		}.
-
-        super > aNumber
-    }.
-
-    method + aNumber := {
-		aNumber __isSmallInteger ifTrue: {
-			let a := self __decodeSmallInteger.
-			let b := aNumber __decodeSmallInteger.
-			return: a + b
-		}.
-
-		aNumber __isCharacter ifTrue: {
-			let a := self __decodeSmallInteger.
-			let b := aNumber __decodeCharacter.
-			return: (a + b castTo: Char32)
-		}.
-
-        super + aNumber
-    }.
-
-    method - aNumber := {
-		aNumber __isSmallInteger ifTrue: {
-			let a := self __decodeSmallInteger.
-			let b := aNumber __decodeSmallInteger.
-			return: a - b
-		}.
-
-		aNumber __isCharacter ifTrue: {
-			let a := self __decodeSmallInteger.
-			let b := aNumber __decodeCharacter.
-			return: (a - b castTo: Char32)
-		}.
-
-        super - aNumber
-    }.
-
-}.
-
-Float extend: {
-    method isFloat := true.
-
-    method + aNumber := {
-        super + aNumber
-    }.
-}.
 }. ## End of namespace Smalltalk

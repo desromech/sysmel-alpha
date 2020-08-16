@@ -68,14 +68,14 @@ namespace SysmelKernel definition: {
      * => ceil(log2(n + 1)) = floor(log2(n)) + 1
      * => ceil(log2(n)) = floor(log2(n - 1)) + 1
      *#
-    _PrimitiveIntegerType macro method log2Ceil :=
+    _PrimitiveIntegerType macro method log2Ceiling :=
         ``((`,self - 1) log2Floor + 1).
 
     _PrimitiveIntegerType macro method asSmallerPowerOfTwo :=
         ``(1 << `,self log2Floor).
 
     _PrimitiveIntegerType macro method asLargerPowerOfTwo :=
-        ``(1 << `,self log2Ceil).
+        ``(1 << `,self log2Ceiling).
 
     ## Bitwise manipulation.
     (_PrimitiveIntegerType | _EnumType) macro method bitClear: bits :=

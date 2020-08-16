@@ -1,0 +1,49 @@
+namespace Smalltalk definition: {
+
+Number extend: {
+    method isNumber := true.
+
+	method floor := self asFloat floor.
+	method ceiling := self asFloat ceiling.
+	method truncated := self asFloat truncated.
+	method rounded := self asFloat rounded.
+	method fract := self asFloat fract.
+	method fractionPart := self asFloat fractionPart.
+
+	method abs := {
+		self < 0
+			ifTrue: {self negated}
+			ifFalse: {self}
+	}.
+
+	method negative := self < 0.
+
+	method sign := {
+		self < 0 ifTrue: {return: -1}.
+		self > 0 ifTrue: {return: 1}.
+		return: 0
+	}.
+
+    method + aNumber
+        := self subclassResponsibility.
+
+    method - aNumber
+        := self subclassResponsibility.
+
+    method * aNumber
+        := self subclassResponsibility.
+
+    method / aNumber
+        := self subclassResponsibility.
+
+    method // aNumber
+        := (self / aNumber) floor.
+
+    method \\ aNumber
+        := self - ((self // aNumber) * aNumber).
+
+    method % aNumber
+        := self \\ aNumber.
+}.
+
+}. ## End of namespace Smalltalk

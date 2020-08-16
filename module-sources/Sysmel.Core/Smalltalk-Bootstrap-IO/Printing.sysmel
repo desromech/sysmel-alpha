@@ -136,6 +136,36 @@ SmallInteger extend: {
     }.
 }.
 
+BoxedFloat64 extend: {
+    method printOn: aStream := {
+        let floatPrinter mutable type: Stdn BasicValueFloatPrinter.
+        floatPrinter nextPutDouble: self __float64Value.
+        floatPrinter printOn: aStream.
+
+        self
+    }.
+
+    method printOnNativeTextStreamWriter: (writer: Stdn IO TextStreamWriter ref) := {
+        writer << self __float64Value.
+		self
+    }.
+}.
+
+SmallFloat64 extend: {
+    method printOn: aStream := {
+        let floatPrinter mutable type: Stdn BasicValueFloatPrinter.
+        floatPrinter nextPutDouble: self __decodeSmallFloat.
+        floatPrinter printOn: aStream.
+
+        self
+    }.
+
+    method printOnNativeTextStreamWriter: (writer: Stdn IO TextStreamWriter ref) := {
+        writer << self __decodeSmallFloat.
+		self
+    }.
+}.
+
 String extend: {
     method printOn: aStream
         := self storeOn: aStream.

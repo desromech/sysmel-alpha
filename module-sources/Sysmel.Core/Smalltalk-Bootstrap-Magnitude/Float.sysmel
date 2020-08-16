@@ -1,0 +1,7 @@
+namespace Smalltalk definition: {
+
+Float extend: {
+    method isFloat := true.
+}.
+
+}. ## End of namespace Smalltalk
