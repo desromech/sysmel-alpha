@@ -257,7 +257,8 @@ TMbndCoreManagedObjectModel >> encodeBootstrapDefinedObjectsForMessagePackWith: 
 			moduleStartUpFunction moduleShutDownFunction
 			gcLayoutClass receiverClassGetter methodSuperClassGetter
 			gcShadowStackRecordStructure gcShadowStackEnterFunction gcShadowStackLeaveFunction
-			gcShadowStackLandingPadFunction gcSafePointFunction inlineCacheStructure
+			gcShadowStackLandingPadFunction
+			gcSafePointFunction inlineCacheStructure
 			) do: [ :selector |
 				| object|
 				object := self perform: selector.

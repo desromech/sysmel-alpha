@@ -72,6 +72,7 @@ Trait {
 		'exceptionCleanUpEndFunction'
 	],
 	#traits : 'TMbndAbstractCompilationTarget',
+	#classTraits : 'TMbndAbstractCompilationTarget classTrait',
 	#category : #'SysmelMoebiusMetamodel-Core-CompilationTarget'
 }
 
@@ -1294,6 +1295,11 @@ TMbndCoreCompilationTarget >> isTheTypeSystemInitialized [
 { #category : #'as yet unclassified' }
 TMbndCoreCompilationTarget >> landingPadSelectorRegisterIndex [
 	^ 1
+]
+
+{ #category : #'as yet unclassified' }
+TMbndCoreCompilationTarget >> landingPadStackPointerRegisterIndex [
+	^ 0
 ]
 
 { #category : #'as yet unclassified' }

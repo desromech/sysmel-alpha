@@ -485,7 +485,7 @@ MbndCompilationEnvironment >> hasObjectTranslationMode [
 
 { #category : #parameters }
 MbndCompilationEnvironment >> hasPreciseGarbageCollector [
-	^ self compilationTarget isLinux not
+	^ "self compilationTarget isLinux not" true
 ]
 
 { #category : #testing }
@@ -871,6 +871,11 @@ MbndCompilationEnvironment >> setForOSX [
 { #category : #accessing }
 MbndCompilationEnvironment >> setForWindows [
 	compilationTarget setForWindows.
+]
+
+{ #category : #accessing }
+MbndCompilationEnvironment >> setNoExceptionModel [
+	compilationTarget setNoExceptionModel
 ]
 
 { #category : #'module output format' }

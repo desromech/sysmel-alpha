@@ -40,8 +40,8 @@ Class {
 		'gcShadowStackRecordStructure',
 		'gcShadowStackRootCountField',
 		'gcShadowStackRootsField',
-		'gcShadowStackLandingPadFunction',
-		'gcSafePointFunction'
+		'gcSafePointFunction',
+		'gcShadowStackLandingPadFunction'
 	],
 	#category : #'SysmelMoebiusCodeGenerator-Slovim-CompilationTarget'
 }

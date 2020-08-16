@@ -349,6 +349,11 @@ MbndSlovimCompilationTarget >> landingPadSelectorRegisterIndex [
 ]
 
 { #category : #'as yet unclassified' }
+MbndSlovimCompilationTarget >> landingPadStackPointerRegisterIndex [
+	^ slvmCompilationTarget landingPadStackPointerRegisterIndex
+]
+
+{ #category : #'as yet unclassified' }
 MbndSlovimCompilationTarget >> landingPadStructurePointerRegisterIndex [
 	^ slvmCompilationTarget landingPadStructurePointerRegisterIndex
 ]
