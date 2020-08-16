@@ -41,7 +41,6 @@ Behavior definition: {
 
 	method allSubclasses := {
 		let result := OrderedCollection new.
-		Stdn stdout << self << " subclasses " << self subclasses; nl.
 		self allSubclassesDo: {:each :: Void |
 			result add: each
 		}.

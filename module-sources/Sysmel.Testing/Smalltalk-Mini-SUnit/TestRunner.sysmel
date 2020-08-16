@@ -65,7 +65,7 @@ gcclass TestRunner definition: {
 
     method runTestCase: aTestCase testWithSelector: testSelector := {
         self catchExceptionsDuring: {:: Void |
-            Stdn stdout << aTestCase << " " << testSelector << "..."; flush.
+            Stdn stdout << testSelector << "..."; flush.
             let testInstance := aTestCase new setUp.
             try: {
                 testInstance perform: testSelector
