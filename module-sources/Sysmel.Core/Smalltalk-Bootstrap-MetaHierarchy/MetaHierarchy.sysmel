@@ -929,13 +929,17 @@ function genericMessageLookup(receiver: ProtoObject, selector: Object, typeInfo:
 	return: lookupResult
 }.
 
-function receiverClassGetter(receiver: ProtoObject) => TypeInformation
-	:= receiver class.
+inline function receiverClassGetter(receiver: ProtoObject) => TypeInformation := {
+	<nogc>
+	receiver class
+}.
 
-function methodSuperClassGetter(methodClass: TypeInformation) => TypeInformation
-	:= methodClass superclass.
+inline function methodSuperClassGetter(methodClass: TypeInformation) => TypeInformation := {
+	<nogc>
+	methodClass superclass
+}.
 
-function gcBlockClosureAllocator(instanceSize: UIntPointer, instanceAlignment: UIntPointer, prototype: Void pointer) => BlockClosure := {
+inline function gcBlockClosureAllocator(instanceSize: UIntPointer, instanceAlignment: UIntPointer, prototype: Void pointer) => BlockClosure := {
 	<nogc>
 	let allocatedObject := Stdn GC NativeCollector uniqueInstance
  		allocate: instanceSize instanceAlignment: 0

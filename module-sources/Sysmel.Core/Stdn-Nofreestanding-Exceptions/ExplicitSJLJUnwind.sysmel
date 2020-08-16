@@ -18,6 +18,9 @@ struct ExceptionContext definition: {
     public field catchedExceptionDescriptor type: UIntPointer.
     public field catchedExceptionTypes type: Void pointer pointer.
 
+    compileTime if: Compiler hasPreciseGarbageCollector && Compiler hasGarbageCollectedRuntime then: {
+        public field shadowStackContext type: Void pointer.
+    }.
     public field landingPadContext type: JmpBuffer.
 
     const inline method catchedExceptionTypeCount => UIntPointer
@@ -85,6 +88,9 @@ function doUnwindUntilContext noReturn(targetContext: ExceptionContext pointer) 
         lastExceptionContext := position _ previousContext.
         position _ hasCleanUp ifTrue: {
             position _ unwindPayload: targetContext.
+            compileTime if: Compiler hasPreciseGarbageCollector && Compiler hasGarbageCollectedRuntime then: {
+                Stdn GC restoreShadowStackContextMemento(position _ shadowStackContext)
+            }.
             longjmp(position _ landingPadContext, position _ cleanUpActionIndex)
         }.
     }.
@@ -92,6 +98,9 @@ function doUnwindUntilContext noReturn(targetContext: ExceptionContext pointer) 
     ## No remaining clean ups. Time to activate it.
     lastExceptionContext == targetContext ifTrue: {
         lastExceptionContext := lastExceptionContext _ previousContext.
+        compileTime if: Compiler hasPreciseGarbageCollector && Compiler hasGarbageCollectedRuntime then: {
+            Stdn GC restoreShadowStackContextMemento(targetContext _ shadowStackContext)
+        }.
         longjmp(targetContext _ landingPadContext, targetContext _ unwindPayloadActionIndex)
     }.
 
@@ -132,6 +141,10 @@ function __sysmel_eh_contextBegin externC(targetContext: Void pointer) => Void :
     let lastExceptionContext ref := Stdn Unwind lastExceptionContext.
     let newContext := targetContext reinterpretCastTo: ExceptionContext pointer.
     newContext _ previousContext: lastExceptionContext.
+    compileTime if: Compiler hasPreciseGarbageCollector && Compiler hasGarbageCollectedRuntime then: {
+        newContext _ shadowStackContext: Stdn GC getShadowStackContextMemento()
+    }.
+
     lastExceptionContext := newContext
 }.
 

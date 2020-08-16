@@ -634,6 +634,10 @@ struct SysmelUnwindScanResult definition: {
 function setLandingPathRegisters(unwindException: _Unwind_Exception pointer, context: _Unwind_Context pointer,
     scanResult: SysmelUnwindScanCacheableResult ref) => Void := {
 
+    compileTime if: Compiler hasPreciseGarbageCollector && Compiler hasGarbageCollectedRuntime then: {
+        Stdn GC shadowStackPrepareUnwindTo(getUnwindSP(context) reinterpretCastTo: Void pointer).
+    }.
+
     _Unwind_SetGR(context, LandingPadStructurePointerRegister, unwindException reinterpretCastTo: UIntPointer).
     _Unwind_SetGR(context, LandingPadSelectorRegister, scanResult typeInfoTableIndex castTo: UIntPointer).
     _Unwind_SetIP(context, scanResult landingPad reinterpretCastTo: UIntPointer).
@@ -671,6 +675,9 @@ compileTime if: Compiler compilationTarget hasArmEhAbi then: {
 
     compileTime constant Register_UCB := 12.
     compileTime constant Register_SP := 13.
+
+    function getUnwindSP(context: _Unwind_Context pointer) => UIntPointer
+        := _Unwind_GetCFA(context, Register_SP).
 
     ## Sysmel personality function.
     ## The implementation of this function is strongly based in the implementation from LLVM libc++
@@ -758,6 +765,10 @@ compileTime if: Compiler compilationTarget hasArmEhAbi then: {
         _Unwind_Reason_Code Failure
     }.
 } else: {
+    ## Unfortunately, the method for retrieving the stack pointer is crashing.
+    function getUnwindSP(context: _Unwind_Context pointer) => UIntPointer
+        := _Unwind_GetCFA(context).
+
     ## Sysmel personality function.
     ## The implementation of this function is strongly based in the implementation from LLVM libc++
     ## available at the following file: https://github.com/llvm/llvm-project/blob/master/libcxxabi/src/cxa_personality.cpp
