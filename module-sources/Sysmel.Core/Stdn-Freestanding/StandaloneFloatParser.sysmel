@@ -4,4 +4,16 @@ function parseFloat64(string: Char8 const pointer, stringSize: UIntPointer) => F
     0.0
 }.
 
+function parseFloat32(string: Char8 const pointer, stringSize: UIntPointer) => Float64 := {
+    0.0
+}.
+
+(Char8 arraySlice | Char8 const arraySlice) definition: {
+    const method parseFloat32 => Float32
+        := Stdn parseFloat32(self elements, self size).
+
+    const method parseFloat64 => Float64
+        := Stdn parseFloat64(self elements, self size).
+}.
+
 }. ## End of namespace Stdn

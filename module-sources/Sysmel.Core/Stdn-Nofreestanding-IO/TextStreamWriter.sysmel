@@ -21,7 +21,8 @@ class TextStreamWriter definition: {
 		:= self nextPut: (character castTo: Char32).
 
     method nextPutAll: (string: Stdn ImmutableString) ::=> Boolean8 := {
-        (stream _ write: string [0] address size: string size) == (string size castTo: IntPointer)
+        string ifEmpty: {return: true}.
+        (stream _ write: string elements size: string size) == (string size castTo: IntPointer)
     }.
 
     method write: (string: Void const pointer) size: (size: UIntPointer) ::=> Boolean8 := {

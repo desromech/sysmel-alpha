@@ -40,17 +40,36 @@ template MutableBasicStringTestCase(StringClass: Type)
     }.
 
     test: testCopyFromLast with: {
-        self assert: ((StringClass fromLiteral: "test.txt") copyFromLast: '.') equals: (StringClass fromLiteral: ".txt").
+        self assert: ((StringClass fromLiteral: "test.something.txt") copyFromLast: '.') equals: (StringClass fromLiteral: ".txt").
     }.
 
     test: testCopyAfterLast with: {
-        self assert: ((StringClass fromLiteral: "test.txt") copyAfterLast: '.') equals: (StringClass fromLiteral: "txt").
+        self assert: ((StringClass fromLiteral: "test.something.txt") copyAfterLast: '.') equals: (StringClass fromLiteral: "txt").
     }.
 
     test: testCopyUpToLast with: {
-        self assert: ((StringClass fromLiteral: "test.txt") copyUpToLast: '.') equals: (StringClass fromLiteral: "test").
+        self assert: ((StringClass fromLiteral: "test.something.txt") copyUpToLast: '.') equals: (StringClass fromLiteral: "test.something").
     }.
 
+    test: testCopyUpTo with: {
+        self assert: ((StringClass fromLiteral: "test.something.txt") copyUpTo: '.') equals: (StringClass fromLiteral: "test").
+    }.
+
+    test: testSplitOnDo with: {
+        let lastPartIndex mutable type: UIntPointer.
+
+        "hello: 42 thisWorld: is very :cool" asMutableString splitOn: ':' doWithIndex: {:part :partIndex :: Void |
+            partIndex selectCase: #{
+                0 : {self assert: part equals: "hello"}.
+                1 : {self assert: part equals: " 42 thisWorld"}.
+                2 : {self assert: part equals: " is very "}.
+                3 : {self assert: part equals: "cool"}.
+            }.
+            lastPartIndex := partIndex
+        }.
+
+        self assert: lastPartIndex equals: 3
+    }.
 }.
 
 compileTime constant MutableStringTestCase := MutableBasicStringTestCase(String).

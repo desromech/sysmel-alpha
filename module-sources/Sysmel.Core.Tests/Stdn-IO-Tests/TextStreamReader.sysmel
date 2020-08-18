@@ -44,6 +44,22 @@ class TextStreamReaderTestCase superclass: Stdn Testing TestCase; definition: {
 
         self assert: "nan" asMutableString textStreamReader nextFloat64 isNaN.
     }.
+
+    test: testNextToken with: {
+        self assert: "0 hello\nworld 42" asMutableString textStreamReader nextToken equals: "0" asMutableString.
+        self assert: ("0 hello\nworld 42" asMutableString textStreamReader nextToken; nextToken) equals: "hello" asMutableString.
+        self assert: ("0 hello\nworld 42" asMutableString textStreamReader nextToken; nextToken; nextToken) equals: "world" asMutableString.
+        self assert: ("0 hello\nworld 42" asMutableString textStreamReader nextToken; nextToken; nextToken; nextToken) equals: "42" asMutableString.
+    }.
+
+    test: testNextLine with: {
+        self assert: "0 hello\nworld 42" asMutableString textStreamReader nextLine equals: "0 hello" asMutableString.
+        self assert: ("0 hello\nworld 42" asMutableString textStreamReader nextLine; nextLine) equals: "world 42" asMutableString.
+        self assert: ("0 hello\nworld 42" asMutableString textStreamReader nextLine; nextLine; nextLine) equals: "" asMutableString.
+        self assert: ("0 hello\nworld 42" asMutableString textStreamReader nextLine; nextLine; peekChar8) < 0.
+        self assert: ("0 hello\nworld 42" asMutableString textStreamReader nextLine; nextLine; atEnd).
+        self assert: "0 hello\nworld 42" asMutableString textStreamReader lines size equals: 2.
+    }.
 }.
 
 }. ## namespace Tests

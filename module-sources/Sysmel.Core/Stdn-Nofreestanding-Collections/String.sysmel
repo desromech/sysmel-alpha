@@ -135,6 +135,12 @@ namespace Collections definition: {
 	inline method asArraySlice => ValueType arraySlice
         := data_ until: size_.
 
+    const inline method from: (startIndex: UIntPointer) until: (endIndex: UIntPointer) ::=> ValueType const arraySlice
+        := data_ from: (startIndex min: size_) until: (endIndex min: size_).
+
+    inline method from: (startIndex: UIntPointer) until: (endIndex: UIntPointer) ::=> ValueType arraySlice
+        := data_ from: (startIndex min: size_) until: (endIndex min: size_).
+
     const inline method size => UIntPointer
         := size_.
 

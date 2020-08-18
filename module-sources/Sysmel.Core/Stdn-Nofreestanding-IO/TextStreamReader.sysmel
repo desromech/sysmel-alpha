@@ -30,6 +30,9 @@ class TextStreamReader definition: {
         characterBuffer
     }.
 
+    method atEnd => Boolean8
+        := self peekChar8 < 0.
+
     method nextChar8 => Int32 := {
         let result := self peekChar8.
         characterBuffer := -1.
@@ -92,6 +95,55 @@ class TextStreamReader definition: {
         Stdn parseFloat64(tokenBuffer[0] address, tokenSize + 1)
     }.
 
+    method nextLine => Stdn String := {
+        let line mutable := Stdn String().
+        while: {
+            let nextChar := self peekChar8.
+            nextChar >= 0 && nextChar ~= '\n' && nextChar ~= '\r'
+        } do: {
+            line add: (self nextChar8 castTo: Char8)
+        }.
+
+        let newline mutable := self peekChar8.
+        newline = '\r' ifTrue: {
+            self nextChar8.
+            newline := self nextChar8
+        }.
+        newline = '\n' ifTrue: {
+            self nextChar8
+        }.
+
+        line
+    }.
+
+    method nextToken ::=> Stdn String := {
+        self skipWhite.
+        let result mutable := Stdn String().
+
+        while: {
+            let c := self peekChar8.
+            c >= 0 && (self isWhite: c) not
+        } do: {
+            result add: (self nextChar8 castTo: Char8)
+        }.
+
+        result
+    }.
+
+    method linesDo: (aBlock: (Stdn String const ref => Void) nativeStackBlockClosure) ::=> Void := {
+        until: self atEnd do: {
+            aBlock(self nextLine)
+        }
+    }.
+
+    method lines => Stdn Collections Vector(Stdn String) ::=> Void := {
+        let result mutable := Stdn Collections Vector(Stdn String)().
+        self linesDo: {:each :: Void |
+            result add: each
+        }.
+
+        result
+    }
 }.
 
 }. ## End of namespace IO

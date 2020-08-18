@@ -91,6 +91,27 @@ sealed class FileReference definition: {
             yourself
     }.
 
+    const method parent ::=> SelfType := {
+        let pathSize := path size.
+        let bestSeparator mutable := pathSize.
+        path doWithIndex: {:each :i :: Void |
+            i + 1 < pathSize && (each = '/' || each = '\\') ifTrue: {
+                bestSeparator := i.
+            }.
+        }.
+
+        bestSeparator = path size ifTrue: {
+            ## FIXME: Support absolutePath here.
+            return: (FileReference()
+                setFileSystem: fileSystem path: "..";
+                yourself)
+        }.
+
+        FileReference()
+           setFileSystem: fileSystem path: (path from: 0 until: bestSeparator);
+           yourself
+    }.
+
     const method exists => Boolean8
         := fileSystem _ exists: path asArraySlice.
 

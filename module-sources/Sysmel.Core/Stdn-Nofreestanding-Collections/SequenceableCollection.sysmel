@@ -121,6 +121,9 @@ macro method SequenceableCollectionMixin := ``{
         const method copyAfterLast: (value: ValueType const ref) ::=> SelfType
             := self copyAfter: (self lastIndexOf: value) until: self size.
 
+        const method copyUpTo: (value: ValueType const ref) ::=> SelfType
+            := self copyFrom: 0 until: (self indexOf: value).
+
         const method copyUpToLast: (value: ValueType const ref) ::=> SelfType
             := self copyFrom: 0 until: (self lastIndexOf: value).
     }.

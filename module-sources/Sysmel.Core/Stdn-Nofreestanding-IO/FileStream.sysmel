@@ -74,7 +74,7 @@ class FileStream superclass: UnbufferedFileStream; definition: {
         size <= availableReadData ifTrue: {
             memcpy(destination, readBuffer[readPosition_] address, size).
             readPosition_ := readPosition_ + size.
-            return: (availableReadData castTo: IntPointer)
+            return: (size castTo: IntPointer)
         }.
 
         ## Read the available data from the buffer.
@@ -97,6 +97,7 @@ class FileStream superclass: UnbufferedFileStream; definition: {
 
             let remainingReadedData := (filledAmount castTo: UIntPointer) min: remainingToRead.
             memcpy(destination, readBuffer[0] address, remainingReadedData).
+            readPosition_ := remainingReadedData.
             return: (availableReadData + remainingReadedData castTo: IntPointer).
         }.
 
@@ -226,7 +227,7 @@ class FileStream superclass: UnbufferedFileStream; definition: {
 
 class AtomicFileStream superclass: FileStream; definition: {
     private field mutex type: RecursiveMutex.
-   
+
 
     override method position => Int64
         := mutex withLock: {super position}.

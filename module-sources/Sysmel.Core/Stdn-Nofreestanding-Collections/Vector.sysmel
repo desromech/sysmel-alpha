@@ -42,6 +42,12 @@ template Vector(ET: Stdn Concepts Copyable)
 	inline method asArraySlice => ValueType arraySlice
         := storage_ until: size_.
 
+	const inline method from: (startIndex: UIntPointer) until: (endIndex: UIntPointer) ::=> ValueType const arraySlice
+        := storage_ from: (startIndex min: size_) until: (endIndex min: size_).
+
+    inline method from: (startIndex: UIntPointer) until: (endIndex: UIntPointer) ::=> ValueType arraySlice
+        := storage_ from: (startIndex min: size_) until: (endIndex min: size_).
+
 	inline method [index: UIntPointer] ::=> ValueType ref := {
 		assert: index < size_.
 		storage_[index].

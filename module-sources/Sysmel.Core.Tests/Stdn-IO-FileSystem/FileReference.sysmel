@@ -30,6 +30,11 @@ class FileReference superclass: Stdn Testing TestCase; definition: {
         self assert: ("testFolder/test.txt" asNativeFileReference withExtension: "dds") fullName equals: "testFolder/test.dds".
     }.
 
+    test: testParent with: {
+        self assert: "testFolder/test" asNativeFileReference parent fullName equals: "testFolder".
+        self assert: "testFolder/test.txt" asNativeFileReference parent fullName equals: "testFolder".
+        self assert: "testFolder/test/" asNativeFileReference parent fullName equals: "testFolder".
+    }.
 }.
 
 }. ## namespace Tests

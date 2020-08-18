@@ -212,6 +212,8 @@ enum PixelFormat valueType: UInt32; values: #{
 
         ## 4 Bytes types.
         (
+            R32_Typeless, R32_Float, R32_UInt, R32_SInt,
+
             D32_Float, R32_Float_S8X24_Typeless, X32_Typeless_G8X24_UInt, R10G10B10A2_Typeless,
             D24_UnormS8_UInt, R24_UnormX8_Typeless,
             R10G10B10A2_UNorm, R10G10B10A2_UInt, R11G11B10_Float,

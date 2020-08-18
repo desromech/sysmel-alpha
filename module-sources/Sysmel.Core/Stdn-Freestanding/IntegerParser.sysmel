@@ -112,4 +112,18 @@ function parseUInt64(string: Char8 const pointer, stringSize: UIntPointer) => UI
 }.
 
 
+(Char8 arraySlice | Char8 const arraySlice) definition: {
+    const method parseInt64 => Int64
+        := Stdn parseInt64(self elements, self size).
+
+    const method parseUInt64 => UInt64
+        := Stdn parseUInt64(self elements, self size).
+
+    const method parseInt32 => Int32
+        := self parseInt64 castTo: Int32.
+
+    const method parseUInt32 => UInt32
+        := self parseUInt64 castTo: UInt32.
+}.
+
 }. ## End of namespace Stdn
