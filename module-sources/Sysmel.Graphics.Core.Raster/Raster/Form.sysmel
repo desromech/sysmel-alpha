@@ -46,6 +46,41 @@ class Form definition: {
             applyFullClippingBounds;
             initializeCachedState;
             yourself.
+
+    method asTextureData => TextureDataPtr := {
+        let result := TextureData sharedNew.
+        result _
+            type: TextureType Texture2D;
+            format: pixelFormat asLinearFormat;
+            srgbFormat: pixelFormat asSRGBFormat;
+            width: extent x;
+            height: extent y;
+            depth: 1;
+            layers: 1;
+            miplevels: 1;
+            computeLinearPackedTextureLevelMetadata;
+            yourself.
+
+        result _ pixels reset: (Stdn zmalloc(result _ linearDataSize) reinterpretCastTo: UInt8 pointer).
+        let firstLevel ref := result _ levelsData first.
+        firstLevel pitch = pitch ifTrue: {
+            let levelDataSize := pitch * extent y.
+            Stdn assert: firstLevel dataSize >= levelDataSize.
+            Stdn memcpy(result _ pixels getPointer, pixels getPointer, levelDataSize)
+        } ifFalse: {
+            let sourceRow mutable := pixels getPointer.
+            let sourcePitch := pitch.
+            let destRow mutable := result _ pixels getPointer.
+            let destPitch := firstLevel pitch.
+            0 until: extent y do: {:y :: Void |
+                Stdn memcpy(destRow, sourceRow, destPitch).
+                sourceRow := sourceRow + sourcePitch.
+                destRow := destRow + destPitch.
+            }
+        }.
+
+        result
+    }.
 }.
 
 compileTime constant FormPtr := Form sharedPointer.

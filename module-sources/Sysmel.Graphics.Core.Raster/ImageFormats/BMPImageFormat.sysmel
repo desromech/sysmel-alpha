@@ -8,6 +8,9 @@ class BMPImageReadWriter superclass: ImageReadWriter; definition: {
     const override method supportsExtension: (extension: Char8 const arraySlice) ::=> Boolean8
         := extension = "bmp".
 
+    const override method supportsMimeType: (mimeType: Char8 const arraySlice) ::=> Boolean8
+        := mimeType = "image/bmp" || mimeType = "image/x-bmp".
+
     const override method putForm: (form: Form ref) onStream: (outputStream: Stdn IO Stream ref) ::=> Void := {
         Stdn stdout << "Todo: implemente this part"; nl
     }.

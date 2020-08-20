@@ -8,6 +8,9 @@ class ImageReadWriter superclass: Object; definition: {
     const virtual method supportsExtension: (extension: Char8 const arraySlice) ::=> Boolean8
         := false.
 
+    const virtual method supportsMimeType: (mimeType: Char8 const arraySlice) ::=> Boolean8
+        := false.
+
     const virtual method putForm: (form: Form ref) onFileNamed: (fileName: Stdn String const ref) ::=> Boolean8
         := self putForm: form onFileReference: fileName asNativeFileReference.
 
@@ -67,8 +70,12 @@ class ImageReadWriter superclass: Object; definition: {
     const virtual method readFormFromStream: (inputStream: Stdn IO Stream ref) ::=> FormPtr
         := FormPtr nil.
 
-    const virtual method readTextureDataFromStream: (inputStream: Stdn IO Stream ref) ::=> TextureDataPtr
-        := TextureDataPtr nil.
+    const virtual method readTextureDataFromStream: (inputStream: Stdn IO Stream ref) ::=> TextureDataPtr := {
+        let form := self readFormFromStream: inputStream.
+        form ifNil: {return: TextureDataPtr nil}.
+
+        form _ asTextureData
+    }
 
 }.
 

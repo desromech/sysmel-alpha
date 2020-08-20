@@ -115,6 +115,9 @@ class DDSTextureFormat superclass: ImageReadWriter; definition: {
     override const method supportsExtension: (extension: Char8 const arraySlice) ::=> Boolean8
         := extension = "dds".
 
+    const override method supportsMimeType: (mimeType: Char8 const arraySlice) ::=> Boolean8
+        := mimeType = "image/vnd-ms.dds".
+
     override const method putTextureData: (textureData: TextureData ref) onStream: (outputStream: Stdn IO Stream ref) ::=> Void := {
         Stdn stdout << "Todo: implemente this part"; nl
     }.

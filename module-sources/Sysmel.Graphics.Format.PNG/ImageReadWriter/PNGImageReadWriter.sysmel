@@ -1,0 +1,125 @@
+namespace Stdn definition: {
+namespace Graphics definition: {
+namespace ImageFormats definition: {
+
+useNamespace: Stdn Graphics Core.
+useNamespace: LibPNG.
+
+class PNGError superclass: Error; definition: {
+
+}.
+
+function pngReadErrorFunction(png: png_structp, message: png_const_charp) => Void := {
+    Stdn stderr << "PNG read error: " << message; nl.
+    let exception mutable := PNGError().
+    exception signal
+}.
+
+function pngReadWarningFunction(png: png_structp, message: png_const_charp) => Void := {
+    Stdn stderr << "PNG read warning: " << message; nl.
+}.
+
+function pngReadFunction(png: png_structp, buffer: png_bytep, size: UIntPointer) => Void := {
+    let stream := png_get_io_ptr(png) reinterpretCastTo: Stdn IO Stream pointer.
+    let readedCount := stream _ read: buffer size: size.
+    readedCount = (size castTo: IntPointer) ifFalse: {
+        pngReadErrorFunction(png, "End of data reached").
+    }.
+}.
+
+class PNGImageReadWriter superclass: ImageReadWriter; definition: {
+    const override method supportsExtension: (extension: Char8 const arraySlice) ::=> Boolean8
+        := extension = "png".
+
+    const override method supportsMimeType: (mimeType: Char8 const arraySlice) ::=> Boolean8
+        := mimeType = "image/png".
+
+    const override method readFormFromStream: (inputStream: Stdn IO Stream ref) ::=> FormPtr := {
+        let png mutable := png_create_read_struct(PNG_LIBPNG_VER_STRING, nil, pngReadErrorFunction address, pngReadWarningFunction address).
+        png ifNil: {return: FormPtr nil}.
+
+        let infoBeginPtr mutable := png_create_info_struct(png).
+        infoBeginPtr ifNil: {
+            png_destroy_read_struct(png address, nil, nil).
+            return: FormPtr nil
+        }.
+
+        let infoEndPtr mutable := png_create_info_struct(png).
+        infoBeginPtr ifNil: {
+            png_destroy_read_struct(png address, infoBeginPtr address, nil).
+            return: FormPtr nil
+        }.
+
+        let result mutable := FormPtr nil.
+        try: {
+            ## Set the read function.
+            png_set_read_fn(png, inputStream address, pngReadFunction address).
+
+            ## Read the png content.
+            png_read_png(png, infoBeginPtr, PNG_TRANSFORM_PACKING, nil).
+
+            ## Get metadata and the rows.
+            let pitch := png_get_rowbytes(png, infoBeginPtr).
+            let width := png_get_image_width(png, infoBeginPtr).
+            let height := png_get_image_height(png, infoBeginPtr).
+            let bitsPerChannel := png_get_bit_depth(png, infoBeginPtr).
+            let channelCount := png_get_channels(png, infoBeginPtr).
+            let bpp := bitsPerChannel * channelCount.
+            let colorType := png_get_color_type(png, infoBeginPtr).
+            let sourceRows := png_get_rows(png, infoBeginPtr).
+
+            let pixelFormat mutable := (bitsPerChannel selectCase: #{
+            8 : {
+                channelCount selectCase: #{
+                1 : PixelFormat R8_UNorm.
+                2 : PixelFormat R8G8_UNorm.
+                3 : PixelFormat R8G8B8_UNormSRGB.
+                4 : PixelFormat R8G8B8A8_UNormSRGB.
+                _ : PixelFormat Unknown
+                }.
+            }.
+            16 : {
+                channelCount selectCase: #{
+                1 : PixelFormat R16_UNorm.
+                2 : PixelFormat R16G16_UNorm.
+                4 : PixelFormat R16G16B16A16_UNorm.
+                _ : PixelFormat Unknown
+                }.
+            }.
+            }).
+
+            pixelFormat = PixelFormat Unknown ifTrue: {
+                return: FormPtr nil
+            }.
+
+            ## Create the form buffer.
+            let destPitch := pixelFormat bytesPerPixel * width alignedTo: 4.
+            result := Form sharedNew.
+            result _
+                extent: UInt32x2(width, height);
+                pixelFormat: pixelFormat;
+                pitch: destPitch.
+            let linearBufferSize := destPitch * height.
+            result _ pixels reset: (Stdn zmalloc(linearBufferSize) reinterpretCastTo: UInt8 pointer).
+            let destRow mutable := result _ pixels getPointer.
+            let rowCopySize := (destPitch castTo: UIntPointer) min: pitch.
+            0 until: height do: {:y :: Void |
+                Stdn memcpy(destRow, sourceRows[y], rowCopySize).
+                destRow := destRow + destPitch
+            }.
+
+        } catch: PNGError doing: {:e :: Void |
+            result reset
+        } finally: {
+            png_destroy_read_struct(png address, infoBeginPtr address, infoEndPtr address).
+        }.
+
+        result
+    }.
+}.
+
+global PNGImageReadWriterRegistration mutable type: ImageReadWriterRegisterer(PNGImageReadWriter).
+
+} ## End of namespace ImageFormats
+} ## End of namespace Graphics
+} ## End of namespace Stdn

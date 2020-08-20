@@ -1,0 +1,12 @@
+compileTime if: Compiler compilationTarget isLinux || Compiler compilationTarget isOSX then: {
+    Compiler addLinkerArguments: #("-ljpeg").
+}.
+
+Compiler
+    importModulesNamed: #(
+        #"Sysmel.Graphics.Core.Raster"
+    );
+    loadPackages: #(
+        #"Bindings"
+        #"ImageReadWriter"
+    ).

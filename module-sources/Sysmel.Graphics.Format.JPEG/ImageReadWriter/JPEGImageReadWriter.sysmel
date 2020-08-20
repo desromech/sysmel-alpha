@@ -1,0 +1,24 @@
+namespace Stdn definition: {
+namespace Graphics definition: {
+namespace ImageFormats definition: {
+
+useNamespace: Stdn Graphics Core.
+
+class JPEGImageReadWriter superclass: ImageReadWriter; definition: {
+    const override method supportsExtension: (extension: Char8 const arraySlice) ::=> Boolean8
+        := extension = "jpeg" || extension = "jpg".
+
+    const override method supportsMimeType: (mimeType: Char8 const arraySlice) ::=> Boolean8
+        := mimeType = "image/jpeg".
+
+    const override method readFormFromStream: (inputStream: Stdn IO Stream ref) ::=> FormPtr := {
+        Stdn stdout << "TODO: JPEGImageReadWriter >> readFormFromStream"; nl.
+        FormPtr nil
+    }.
+}.
+
+global JPEGImageReadWriterRegistration mutable type: ImageReadWriterRegisterer(JPEGImageReadWriter).
+
+} ## End of namespace ImageFormats
+} ## End of namespace Graphics
+} ## End of namespace Stdn

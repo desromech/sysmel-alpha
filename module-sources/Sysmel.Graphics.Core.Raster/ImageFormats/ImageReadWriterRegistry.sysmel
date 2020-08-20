@@ -44,6 +44,19 @@ class ImageReadWriterRegistry definition: {
 
         nil
     }.
+
+    method findWithMimeType: (mimeType: Char8 const arraySlice) ::=> ImageReadWriter pointer := {
+        mutex withLock: {
+            registeredImageReadWriters do: {:each :: Void |
+                (each _ supportsMimeType: mimeType) ifTrue: {
+                    return: each getPointer
+                }
+            }
+        }.
+
+        nil
+    }.
+
 }.
 
 template ImageReadWriterRegisterer(T: Type)
@@ -63,6 +76,20 @@ Form extend: {
         readWriter _ readFormFromFileNamed: fileName.
     }.
 
+    meta method readFromStream: (stream: Stdn IO Stream ref) withExtension: (extension: Char8 const arraySlice) ::=> FormPtr := {
+        let readWriter := ImageReadWriterRegistry uniqueInstance findWithExtension: extension.
+        readWriter ifNil: {return: FormPtr nil}.
+
+        readWriter _ readFormFromStream: stream.
+    }.
+
+    meta method readFromStream: (stream: Stdn IO Stream ref) withMimeType: (mimeType: Char8 const arraySlice) ::=> FormPtr := {
+        let readWriter := ImageReadWriterRegistry uniqueInstance findWithMimeType: mimeType.
+        readWriter ifNil: {return: FormPtr nil}.
+
+        readWriter _ readFormFromStream: stream.
+    }.
+
     method writeToFileNamed: (fileName: Stdn String const ref) ::=> Boolean8 := {
         let readWriter := ImageReadWriterRegistry uniqueInstance findForFileName: fileName.
         readWriter ifNil: {return: false}.
@@ -80,6 +107,20 @@ TextureData extend: {
         readWriter ifNil: {return: TextureDataPtr nil}.
 
         readWriter _ readTextureDataFromFileReference: fileReference.
+    }.
+
+    meta method readFromStream: (stream: Stdn IO Stream ref) withExtension: (extension: Char8 const arraySlice) ::=> TextureDataPtr := {
+        let readWriter := ImageReadWriterRegistry uniqueInstance findWithExtension: extension.
+        readWriter ifNil: {return: TextureDataPtr nil}.
+
+        readWriter _ readTextureDataFromStream: stream.
+    }.
+
+    meta method readFromStream: (stream: Stdn IO Stream ref) withMimeType: (mimeType: Char8 const arraySlice) ::=> TextureDataPtr := {
+        let readWriter := ImageReadWriterRegistry uniqueInstance findWithMimeType: mimeType.
+        readWriter ifNil: {return: TextureDataPtr nil}.
+
+        readWriter _ readTextureDataFromStream: stream.
     }.
 
     method writeToFileNamed: (fileName: Stdn String const ref) ::=> Boolean8
