@@ -68,15 +68,10 @@ template Dictionary(KT: Stdn Concepts HashKey, VT: Stdn Concepts Copyable)
         Stdn assert: (self isValidIndex: slotIndex).
         let isNewElement := storage_[slotIndex] isPresent not.
         isNewElement ifTrue: {
-            ## FIXME: Make this first version working.
-            #*storage_[slotIndex] := AssociationType newValue
+            storage_[slotIndex] := AssociationType newValue
                 key: key;
                 value: value;
-                yourself.*#
-            storage_[slotIndex] := AssociationType newValue.
-            storage_[slotIndex] _
-                key: key;
-                value: value.
+                yourself.
             size_ := size_ + 1.
             self checkFullCapacityCondition.
         } ifFalse: {
@@ -114,16 +109,10 @@ template Dictionary(KT: Stdn Concepts HashKey, VT: Stdn Concepts Copyable)
         Stdn assert: (self isValidIndex: slotIndex).
         let isNewElement := storage_[slotIndex] isPresent not.
         isNewElement ifTrue: {
-            ## FIXME: Make this first version working.
-            #*storage_[slotIndex] := AssociationType newValue
+            storage_[slotIndex] := AssociationType newValue
                 key: key;
                 value: absentBlock();
-                yourself.*#
-            storage_[slotIndex] := AssociationType newValue.
-            storage_[slotIndex] _
-                key: key;
-                value: absentBlock().
-
+                yourself.
             size_ := size_ + 1.
             self checkFullCapacityCondition.
             slotIndex := self scanFor: key. ## In case the capacity changes.
@@ -205,7 +194,7 @@ template Dictionary(KT: Stdn Concepts HashKey, VT: Stdn Concepts Copyable)
         }
     }.
 
-    method keysDo: (aBlock: ((KeyType const ref) => Void) nativeBlockClosure) ::=> Void := {
+    const method keysDo: (aBlock: ((KeyType const ref) => Void) nativeBlockClosure) ::=> Void := {
         storage_ do: {:(StorageElementType ref)each :: Void |
             each isPresent ifTrue: {
                 aBlock(each _ key)
@@ -217,6 +206,30 @@ template Dictionary(KT: Stdn Concepts HashKey, VT: Stdn Concepts Copyable)
         storage_ do: {:(StorageElementType ref)each :: Void |
             each isPresent ifTrue: {
                 aBlock(each _ value)
+            }
+        }
+    }.
+
+    const method valuesDo: (aBlock: ((ValueType const ref) => Void) nativeBlockClosure) ::=> Void := {
+        storage_ do: {:(StorageElementType ref)each :: Void |
+            each isPresent ifTrue: {
+                aBlock(each _ value)
+            }
+        }
+    }.
+
+    method keysAndValuesDo: (aBlock: ((KeyType const ref -- ValueType ref) => Void) nativeBlockClosure) ::=> Void := {
+        storage_ do: {:(StorageElementType ref)each :: Void |
+            each isPresent ifTrue: {
+                aBlock(each _ key, each _ value)
+            }
+        }
+    }.
+
+    const method keysAndValuesDo: (aBlock: ((KeyType const ref -- ValueType const ref) => Void) nativeBlockClosure) ::=> Void := {
+        storage_ do: {:(StorageElementType ref)each :: Void |
+            each isPresent ifTrue: {
+                aBlock(each _ key, each _ value)
             }
         }
     }.

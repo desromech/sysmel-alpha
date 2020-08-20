@@ -214,6 +214,13 @@ namespace Collections definition: {
         }.
     }.
 
+    inline method resizeTo: (newSize: UIntPointer) ::=> Void := {
+        capacity_ < newSize ifTrue: {
+            self setCapacityTo: newSize + 1.
+        }.
+        size_ := newSize
+    }.
+
     inline method increaseCapacity => Void := {
         let newCapacity := capacity_ * 2u max: 10u.
         self setCapacityTo: newCapacity.

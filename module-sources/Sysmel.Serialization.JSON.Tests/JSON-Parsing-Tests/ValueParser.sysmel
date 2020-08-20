@@ -8,10 +8,17 @@ class ValueParserTest superclass: Stdn Testing TestCase; definition: {
     test: testInteger with: {
         self assert: ((ValueParser parseString: "1" asMutableString) get: UInt64) equals: 1.
         self assert: ((ValueParser parseString: "-1" asMutableString) get: Int64) equals: -1.
+
+        self assert: JSON valueToIntPointer(ValueParser parseString: "1" asMutableString) equals: 1.
+        self assert: JSON valueToIntPointer(ValueParser parseString: "-1" asMutableString) equals: -1.
+        self assert: JSON valueToUIntPointer(ValueParser parseString: "1" asMutableString) equals: 1.
     }.
 
     test: testFloat with: {
         self assert: ((ValueParser parseString: "1.0" asMutableString) get: Float64) equals: 1.0f.
+
+        self assert: JSON valueToFloat64(ValueParser parseString: "1" asMutableString) equals: 1.0f.
+        self assert: JSON valueToFloat64(ValueParser parseString: "-1" asMutableString) equals: -1.0f.
     }.
 
     test: testString with: {
@@ -57,6 +64,19 @@ class ValueParserTest superclass: Stdn Testing TestCase; definition: {
         self assert: ((parsedObject _ elements at: "first" asMutableString) get: UInt64) equals: 1.
         self assert: ((parsedObject _ elements at: "second" asMutableString) get: Int64) equals: -2.
         self assert: ((parsedObject _ elements at: "third" asMutableString) get: Float64) equals: 2.5.
+    }.
+
+    test: testNestedObject with: {
+        let parsedObject := (ValueParser parseString: "{\"first\": 1, \"second\": {\"array\":[1, 2], \"childattr\": nil}}" asMutableString) get: ObjectPtr.
+        self assert: ((parsedObject _ elements at: "first" asMutableString) get: UInt64) equals: 1.
+
+        let nestedObject ref := (parsedObject _ elements at: "second" asMutableString) get: ObjectPtr.
+        (nestedObject _ elements at: "childattr" asMutableString) get: _UndefinedType.
+
+        let nestedArray ref := (nestedObject _ elements at: "array" asMutableString) get: ListPtr.
+        self assert: nestedArray _ elements size equals: 2.
+        self assert: (nestedArray _ elements first get: UInt64) equals: 1.
+        self assert: (nestedArray _ elements second get: UInt64) equals: 2.
     }.
 }.
 

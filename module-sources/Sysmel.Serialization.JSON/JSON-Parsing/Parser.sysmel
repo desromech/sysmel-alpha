@@ -14,7 +14,7 @@ template Parser(RT: Type)
         virtual method endArray: (theArray: ResultType ref) ::=> Void
             := void.
 
-        virtual method putValue: (theValue: ResultType) onArray: (theArray: ResultType ref) ::=> Void
+        virtual method putValue: (theValue: ResultType const ref) onArray: (theArray: ResultType ref) ::=> Void
             := void.
 
         virtual method beginObject ::=> ResultType
@@ -23,7 +23,7 @@ template Parser(RT: Type)
         virtual method endObject: (theObject: ResultType ref) ::=> Void
             := void.
 
-        virtual method putKey: (key: Stdn String const ref) value: (theValue: ResultType) onObject: (theObject: ResultType ref) ::=> Void
+        virtual method putKey: (key: Stdn String const ref) value: (theValue: ResultType const ref) onObject: (theObject: ResultType ref) ::=> Void
             := void.
 
         virtual method onInteger: (value: Int64) ::=> ResultType
@@ -79,7 +79,7 @@ template Parser(RT: Type)
 
         self advanceToken.
         callback _ endArray: array.
-        array.
+        array asMoveReference.
     }.
 
     method parseNextObjectElementOnto: (object: ResultType ref) ::=> Boolean8 := {
@@ -131,7 +131,7 @@ template Parser(RT: Type)
 
         self advanceToken.
         callback _ endObject: object.
-        object.
+        object asMoveReference.
     }.
 
     method nextToken => TokenType := {
@@ -173,11 +173,11 @@ template Parser(RT: Type)
         }.
 
         TokenType LeftBracket : {
-            self parseNextList.
+            return: self parseNextList.
         }.
 
         TokenType LeftCurlyBracket : {
-            self parseNextObject.
+            return: self parseNextObject.
         }.
 
         TokenType Identifier : {

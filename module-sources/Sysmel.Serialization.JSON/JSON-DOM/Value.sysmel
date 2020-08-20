@@ -10,12 +10,414 @@ compileTime constant ObjectPtr := Object sharedPointer.
 compileTime constant Value := _UndefinedType | Boolean8 | Int64 | UInt64 | Float64 | Stdn String | List sharedPointer | Object sharedPointer.
 Value.
 
+function valueToUIntPointer(value: Value const ref) ::=> UIntPointer := {
+    value selectCase: #{
+    (let x type: UInt64) : (x castTo: UIntPointer).
+    (let x type: Int64) : {
+        Stdn assert: x >= 0.
+        x castTo: UIntPointer
+    }.
+    }
+}.
+
+function valueToIntPointer(value: Value const ref) ::=> IntPointer := {
+    value selectCase: #{
+    (let x type: UInt64) : (x castTo: IntPointer).
+    (let x type: Int64) : (x castTo: IntPointer).
+    }
+}.
+
+function valueToUInt32(value: Value const ref) ::=> UInt32 := {
+    value selectCase: #{
+    (let x type: UInt64) : (x castTo: UInt32).
+    (let x type: Int64) : {
+        Stdn assert: x >= 0.
+        x castTo: UInt32
+    }.
+    }
+}.
+
+function valueToInt32(value: Value const ref) ::=> Int32 := {
+    value selectCase: #{
+    (let x type: UInt64) : (x castTo: Int32).
+    (let x type: Int64) : (x castTo: Int32).
+    }
+}.
+
+function valueToUInt64(value: Value const ref) ::=> UInt64 := {
+    value selectCase: #{
+    (let x type: UInt64) : (x castTo: UInt64).
+    (let x type: Int64) : {
+        Stdn assert: x >= 0.
+        x castTo: UInt64
+    }.
+    }
+}.
+
+function valueToInt64(value: Value const ref) ::=> Int64 := {
+    value selectCase: #{
+    (let x type: UInt64) : (x castTo: Int64).
+    (let x type: Int64) : x.
+    }
+}.
+
+function valueToFloat32(value: Value const ref) ::=> Float32 := {
+    value selectCase: #{
+    (let x type: UInt64) : (x castTo: Float32).
+    (let x type: Int64) : (x castTo: Float32).
+    (let x type: Float64) : (x castTo: Float32).
+    }
+}.
+
+function valueToFloat64(value: Value const ref) ::=> Float64 := {
+    value selectCase: #{
+    (let x type: UInt64) : (x castTo: Float64).
+    (let x type: Int64) : (x castTo: Float64).
+    (let x type: Float64) : x.
+    }
+}.
+
+function valueToFloat32x2(value: Value const ref) ::=> Float32x2 := {
+    let list ref := (value get: ListPtr) _.
+    Float32x2(
+        list getFloat32: 0,
+        list getFloat32: 1
+    )
+}.
+
+function valueToFloat32x2(value: Value const ref, defaultValue: Float32x2) ::=> Float32x2 := {
+    let list ref := (value get: ListPtr) _.
+    Float32x2(
+        list getFloat32: 0 default: defaultValue x,
+        list getFloat32: 1 default: defaultValue y
+    )
+}.
+
+function valueToFloat32x3(value: Value const ref) ::=> Float32x3 := {
+    let list ref := (value get: ListPtr) _.
+    Float32x3(
+        list getFloat32: 0,
+        list getFloat32: 1,
+        list getFloat32: 2
+    )
+}.
+
+function valueToFloat32x3(value: Value const ref, defaultValue: Float32x3) ::=> Float32x3 := {
+    let list ref := (value get: ListPtr) _.
+    Float32x3(
+        list getFloat32: 0 default: defaultValue x,
+        list getFloat32: 1 default: defaultValue y,
+        list getFloat32: 2 default: defaultValue z
+    )
+}.
+
+function valueToFloat32x4(value: Value const ref) ::=> Float32x4 := {
+    let list ref := (value get: ListPtr) _.
+    Float32x4(
+        list getFloat32: 0,
+        list getFloat32: 1,
+        list getFloat32: 2,
+        list getFloat32: 3
+    )
+}.
+
+function valueToFloat32x4(value: Value const ref, defaultValue: Float32x4) ::=> Float32x4 := {
+    let list ref := (value get: ListPtr) _.
+    Float32x4(
+        list getFloat32: 0 default: defaultValue x,
+        list getFloat32: 1 default: defaultValue y,
+        list getFloat32: 2 default: defaultValue z,
+        list getFloat32: 3 default: defaultValue w
+    )
+}.
+
+function valueToFloat32x4x4(value: Value const ref, defaultValue: Float32x4x4) ::=> Float32x4x4 := {
+    let list ref := (value get: ListPtr) _.
+    Float32x4x4(
+    Float32x4(
+        list getFloat32: 0 default: defaultValue firstColumn x,
+        list getFloat32: 1 default: defaultValue firstColumn y,
+        list getFloat32: 2 default: defaultValue firstColumn z,
+        list getFloat32: 3 default: defaultValue firstColumn w
+    ),
+    Float32x4(
+        list getFloat32: 4 default: defaultValue secondColumn x,
+        list getFloat32: 5 default: defaultValue secondColumn y,
+        list getFloat32: 6 default: defaultValue secondColumn z,
+        list getFloat32: 7 default: defaultValue secondColumn w
+    ),
+    Float32x4(
+        list getFloat32: 8 default: defaultValue thirdColumn x,
+        list getFloat32: 9 default: defaultValue thirdColumn y,
+        list getFloat32: 10 default: defaultValue thirdColumn z,
+        list getFloat32: 11 default: defaultValue thirdColumn w
+    ),
+    Float32x4(
+        list getFloat32: 12 default: defaultValue fourthColumn x,
+        list getFloat32: 13 default: defaultValue fourthColumn y,
+        list getFloat32: 14 default: defaultValue fourthColumn z,
+        list getFloat32: 15 default: defaultValue fourthColumn w
+    ))
+}.
+
 List definition: {
     public field elements type: Stdn Collections Vector(Value).
+
+    macro method size := ``(`,self elements size).
+    macro method [index] := ``(`,self elements[`,index]).
+
+    macro method do: aBlock := ``(`,self elements do: `,aBlock).
+    macro method doWithIndex: aBlock := ``(`,self elements doWithIndex: `,aBlock).
+
+    const method getUIntPointer: (index: UIntPointer) ::=> UIntPointer
+        := valueToUIntPointer(self[index]).
+
+    const method getUIntPointer: (index: UIntPointer) default: (defaultValue: UIntPointer) ::=> UIntPointer := {
+        index < self size ifTrue: {
+            return: valueToUIntPointer(self[index])
+        }.
+
+        defaultValue
+    }.
+
+    const method getIntPointer: (index: UIntPointer) ::=> IntPointer
+        := valueToIntPointer(self[index]).
+
+    const method getIntPointer: (index: UIntPointer) default: (defaultValue: IntPointer) ::=> IntPointer := {
+        index < self size ifTrue: {
+            return: valueToIntPointer(self[index])
+        }.
+
+        defaultValue
+    }.
+
+    const method getUInt32: (index: UIntPointer) ::=> UInt32
+        := valueToUInt32(self[index]).
+
+    const method getUInt32: (index: UIntPointer) default: (defaultValue: UInt32) ::=> UInt32 := {
+        index < self size ifTrue: {
+            return: valueToUInt32(self[index])
+        }.
+
+        defaultValue
+    }.
+
+    const method getInt32: (index: UIntPointer) ::=> Int32
+        := valueToInt32(self[index]).
+
+    const method getInt32: (index: UIntPointer) default: (defaultValue: Int32) ::=> Int32 := {
+        index < self size ifTrue: {
+            return: valueToInt32(self[index])
+        }.
+
+        defaultValue
+    }.
+
+    const method getUInt64: (index: UIntPointer) ::=> UInt64
+        := valueToUInt64(self[index]).
+
+    const method getUInt64: (index: UIntPointer) default: (defaultValue: UInt64) ::=> UInt64 := {
+        index < self size ifTrue: {
+            return: valueToUInt64(self[index])
+        }.
+
+        defaultValue
+    }.
+
+    const method getInt64: (index: UIntPointer) ::=> Int64
+        := valueToInt64(self[index]).
+
+    const method getInt64: (index: UIntPointer) default: (defaultValue: Int64) ::=> Int64 := {
+        index < self size ifTrue: {
+            return: valueToInt64(self[index])
+        }.
+
+        defaultValue
+    }.
+
+    const method getFloat32: (index: UIntPointer) ::=> Float32
+        := valueToFloat32(self[index]).
+
+    const method getFloat32: (index: UIntPointer) default: (defaultValue: Float32) ::=> Float32 := {
+        index < self size ifTrue: {
+            return: valueToFloat32(self[index]).
+        }.
+
+        defaultValue
+    }.
+
+    const method getFloat64: (index: UIntPointer) ::=> Float64
+        := valueToFloat64(self[index]).
+
+    const method getFloat64: (index: UIntPointer) default: (defaultValue: Float64) ::=> Float64 := {
+        index < self size ifTrue: {
+            return: valueToFloat64(self[index]).
+        }.
+
+        defaultValue
+    }.
 }.
 
 Object definition: {
     public field elements type: Stdn Collections Dictionary(Stdn String, Value).
+
+    macro method size := ``(`,self elements size).
+
+    macro method keysAndValuesDo: aBlock := ``(`,self elements keysAndValuesDo: `,aBlock).
+
+    macro method at: key := ``(`,self elements at: `,key).
+    macro method at: key ifPresent: presentBlock := ``(`,self elements at: `,key ifPresent: `,presentBlock).
+    macro method at: key ifPresent: presentBlock ifAbsent: absentBlock := ``(`,self elements at: `,key ifPresent: `,presentBlock ifAbsent: `,absentBlock).
+
+    const method getString: (key: Stdn String const ref) ::=> Stdn String
+        := (self at: key) get: Stdn String.
+
+    const method getString: (key: Stdn String const ref) default: (defaultValue: Stdn String const ref) ::=> Stdn String := {
+        self at: key ifPresent: {:(Value const ref)value :: Void |
+            return: (value get: Stdn String)
+        }.
+
+        defaultValue
+    }.
+
+    const method getList: (key: Stdn String const ref) ::=> ListPtr
+        := (self at: key) get: ListPtr.
+
+    const method getObject: (key: Stdn String const ref) ::=> ObjectPtr
+        := (self at: key) get: ObjectPtr.
+
+    const method getBoolean8: (key: Stdn String const ref) ::=> Boolean8
+        := (self at: key) get: Boolean8.
+
+    const method getBoolean8: (key: Stdn String const ref) default: (defaultValue: Boolean8) ::=> Boolean8 := {
+        self at: key ifPresent: {:(Value const ref)value :: Void |
+            return: (value get: Boolean8)
+        }.
+
+        defaultValue
+    }.
+
+    const method getUIntPointer: (key: Stdn String const ref) ::=> UIntPointer
+        := valueToUIntPointer(self at: key).
+
+    const method getUIntPointer: (key: Stdn String const ref) default: (defaultValue: UIntPointer) ::=> UIntPointer := {
+        self at: key ifPresent: {:(Value const ref)value :: Void |
+            return: valueToUIntPointer(value)
+        }.
+
+        defaultValue
+    }.
+
+    const method getIntPointer: (key: Stdn String const ref) ::=> IntPointer
+        := valueToIntPointer(self at: key).
+
+    const method getIntPointer: (key: Stdn String const ref) default: (defaultValue: IntPointer) ::=> IntPointer := {
+        self at: key ifPresent: {:(Value const ref)value :: Void |
+            return: valueToIntPointer(value)
+        }.
+
+        defaultValue
+    }.
+
+    const method getUInt32: (key: Stdn String const ref) ::=> UInt32
+        := valueToUInt32(self at: key).
+
+    const method getUInt32: (key: Stdn String const ref) default: (defaultValue: UInt32) ::=> UIntPointer := {
+        self at: key ifPresent: {:(Value const ref)value :: Void |
+            return: valueToUInt32(value)
+        }.
+
+        defaultValue
+    }.
+
+    const method getInt32: (key: Stdn String const ref) ::=> Int32
+        := valueToInt32(self at: key).
+
+    const method getInt32: (key: Stdn String const ref) default: (defaultValue: Int32) ::=> IntPointer := {
+        self at: key ifPresent: {:(Value const ref)value :: Void |
+            return: valueToInt32(value)
+        }.
+
+        defaultValue
+    }.
+
+    const method getUInt64: (key: Stdn String const ref) ::=> UInt64
+        := valueToUInt64(self at: key).
+
+    const method getUInt64: (key: Stdn String const ref) default: (defaultValue: UInt64) ::=> UIntPointer := {
+        self at: key ifPresent: {:(Value const ref)value :: Void |
+            return: valueToUInt64(value)
+        }.
+
+        defaultValue
+    }.
+
+    const method getInt64: (key: Stdn String const ref) ::=> Int64
+        := valueToInt64(self at: key).
+
+    const method getInt64: (key: Stdn String const ref) default: (defaultValue: Int64) ::=> IntPointer := {
+        self at: key ifPresent: {:(Value const ref)value :: Void |
+            return: valueToInt64(value)
+        }.
+
+        defaultValue
+    }.
+
+    const method getFloat32: (key: Stdn String const ref) ::=> Float32
+        := valueToFloat32(self at: key).
+
+    const method getFloat32: (key: Stdn String const ref) default: (defaultValue: Float32) ::=> Float32 := {
+        self at: key ifPresent: {:(Value const ref)value :: Void |
+            return: valueToFloat32(value)
+        }.
+
+        defaultValue
+    }.
+
+    const method getFloat32x2: (key: Stdn String const ref) ::=> Float32x2
+        := valueToFloat32x2(self at: key).
+
+    const method getFloat32x2: (key: Stdn String const ref) default: (defaultValue: Float32x2) ::=> Float32x2 := {
+        self at: key ifPresent: {:(Value const ref)value :: Void |
+            return: valueToFloat32x2(value)
+        }.
+
+        defaultValue
+    }.
+
+    const method getFloat32x3: (key: Stdn String const ref) ::=> Float32x3
+        := valueToFloat32x3(self at: key).
+
+    const method getFloat32x3: (key: Stdn String const ref) default: (defaultValue: Float32x3) ::=> Float32x3 := {
+        self at: key ifPresent: {:(Value const ref)value :: Void |
+            return: valueToFloat32x3(value)
+        }.
+
+        defaultValue
+    }.
+
+    const method getFloat32x4: (key: Stdn String const ref) ::=> Float32x4
+        := valueToFloat32x4(self at: key).
+
+    const method getFloat32x4: (key: Stdn String const ref) default: (defaultValue: Float32x4) ::=> Float32x4 := {
+        self at: key ifPresent: {:(Value const ref)value :: Void |
+            return: valueToFloat32x4(value)
+        }.
+
+        defaultValue
+    }.
+
+    const method getFloat64: (key: Stdn String const ref) ::=> Float64
+        := valueToFloat64(self at: key).
+
+    const method getFloat64: (key: Stdn String const ref) default: (defaultValue: Float64) ::=> Float64 := {
+        self at: key ifPresent: {:(Value const ref)value :: Void |
+            return: valueToFloat64(value)
+        }.
+
+        defaultValue
+    }.
+
 }.
 
 }. ## End of namespace JSON

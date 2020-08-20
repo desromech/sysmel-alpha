@@ -33,6 +33,18 @@ class BinaryDataStreamReaderWriterCommon definition: {
         true
     }.
 
+    method setForNativeEndiannes => Void := {
+        activeEndianness := BinaryDataStreamEndianness Native.
+    }.
+
+    method setForLittleEndian => Void := {
+        activeEndianness := BinaryDataStreamEndianness Little.
+    }.
+
+    method setForBigEndian => Void := {
+        activeEndianness := BinaryDataStreamEndianness Big.
+    }.
+
 }.
 
 }. ## End of namespace IO

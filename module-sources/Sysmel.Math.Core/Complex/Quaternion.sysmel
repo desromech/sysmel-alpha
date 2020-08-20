@@ -136,6 +136,16 @@ sealed template GenericQuaternion(ST: Type)
             InstanceType r: c i: 0 j: 0 k: s
         }.
 
+        static inline method xyzRotation: (angles: Vector3) ::=> InstanceType := {
+            <gpu>
+            (InstanceType xRotation: angles x) * (InstanceType yRotation: angles y) * (InstanceType zRotation: angles z)
+        }.
+
+        static inline method zyxRotation: (angles: Vector3) ::=> InstanceType := {
+            <gpu>
+            (InstanceType zRotation: angles z) * (InstanceType yRotation: angles y) * (InstanceType xRotation: angles x)
+        }.
+
         static inline method axis: (axis: Vector3) angle: (angle: Scalar) ::=> InstanceType := {
             <constructor>
             <gpu>
@@ -253,6 +263,40 @@ sealed template GenericQuaternion(ST: Type)
         xyzw length
     }.
 
+    const method asMatrix3x3 => Matrix3x3 := {
+        <gpu>
+        let r := self r.
+        let i := self i.
+        let j := self j.
+        let k := self k.
+        Matrix3x3 rows: (
+            Vector3(
+                1.0 - (2.0*j*j) - (2.0*k*k),
+                (2.0*i*j) - (2.0*k*r),
+                (2.0*i*k) + (2.0*j*r)
+            ),
+            Vector3(
+                (2.0*i*j) + (2.0*k*r),
+    		    1.0 - (2.0*i*i) - (2.0*k*k),
+    		    (2.0*j*k) - (2.0*i*r)
+            ),
+            Vector3(
+                (2.0*i*k) - (2.0*j*r),
+    		    (2.0*j*k) + (2.0*i*r),
+    		    1.0 - (2.0*i*i) - (2.0*j*j)
+            )
+        )
+    }.
+
+    const method asFloat32x3x3 => Float32x3x3 := {
+        <gpu>
+        self asMatrix3x3 castTo: Float32x3x3
+    }.
+
+    const method asFloat64x3x3 => Float64x3x3 := {
+        <gpu>
+        self asMatrix3x3 castTo: Float64x3x3
+    }.
 }.
 
 compileTime constant QuaternionF32 := GenericQuaternion(Float32).

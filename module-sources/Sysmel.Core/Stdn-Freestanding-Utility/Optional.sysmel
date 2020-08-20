@@ -34,6 +34,14 @@ template Optional(VT: Type)
         (valueStorage_[0] address reinterpretCastTo: ValueType pointer) _
     }.
 
+    inline method initializeCopyingFrom: (other: SelfType const ref) ::=> Void := {
+        self := other
+    }.
+
+    inline method initializeMovingFrom: (other: SelfType tempRef) ::=> Void := {
+        self := other
+    }.
+    
     inline method finalize => Void := {
         self reset
     }.

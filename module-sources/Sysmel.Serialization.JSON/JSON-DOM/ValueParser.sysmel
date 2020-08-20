@@ -12,7 +12,7 @@ class ValueParserCallback superclass: ValueParser Callback; definition: {
     override method endArray: (theArray: Value ref) ::=> Void
         := void.
 
-    override method putValue: (theValue: Value) onArray: (theArray: Value ref) ::=> Void
+    override method putValue: (theValue: Value const ref) onArray: (theArray: Value ref) ::=> Void
         := (theArray get: ListPtr) _ elements add: theValue.
 
     override method beginObject ::=> Value
@@ -21,7 +21,7 @@ class ValueParserCallback superclass: ValueParser Callback; definition: {
     override method endObject: (theObject: Value ref) ::=> Void
         := void.
 
-    override method putKey: (key: Stdn String const ref) value: (theValue: Value) onObject: (theObject: Value ref) ::=> Void
+    override method putKey: (key: Stdn String const ref) value: (theValue: Value const ref) onObject: (theObject: Value ref) ::=> Void
         := (theObject get: ObjectPtr) _ elements at: key put: theValue.
 
     override method onInteger: (value: Int64) ::=> Value
@@ -55,6 +55,14 @@ ValueParser definition: {
                 parseNextValue
         }.
 
+        method parseStream: (stream: Stdn IO Stream pointer) ::=> Value := {
+            let callback mutable type: ValueParserCallback.
+            let parser mutable type: ValueParser.
+            parser
+                callback: callback address;
+                beginReadingStream: stream;
+                parseNextValue
+        }.
     }.
 }.
 

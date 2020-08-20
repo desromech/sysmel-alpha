@@ -193,6 +193,19 @@ class BinaryDataStreamReader superclass: BinaryDataStreamReaderWriterCommon; def
         isGood := isGood && (self nextSLEB128Into: result).
         result
     }.
+
+    method nextUTF8StringOfSize: (stringSize: UIntPointer) ::=> Stdn String := {
+        isGood not || stringSize = 0 ifTrue: {return: Stdn String()}.
+
+        ## Create the string
+        let result mutable := Stdn String().
+        result resizeTo: stringSize.
+        let readedCount := stream _ read: result data size: stringSize.
+
+        isGood := readedCount >= 0.
+        result resizeTo: ((readedCount max: 0) castTo: UIntPointer).
+        result asMoveReference
+    }.
 }.
 
 }. ## End of namespace IO

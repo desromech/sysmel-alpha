@@ -7,7 +7,9 @@ sealed template GenericQuaternionTest(ST: Type)
 
     compileTime constant Quaternion := GenericQuaternion(ST).
     compileTime constant Scalar := Quaternion Scalar.
+    compileTime constant Vector3 := Quaternion Vector3.
     compileTime constant Vector4 := Quaternion Vector4.
+    compileTime constant Matrix3x3 := Quaternion Matrix3x3.
 
     test: testEquals with: {
         let a := Quaternion x: 1 y: 2 z: 4 w: 5.
@@ -121,6 +123,15 @@ sealed template GenericQuaternionTest(ST: Type)
 
     test: testAbsolute with: {
         self assert: Quaternion(2, 2, 2, 2) abs equals: 4.
+    }.
+
+    test: testAsMatrix with: {
+        self assert: Quaternion identity asMatrix3x3 closeTo: Matrix3x3 identity.
+        self assert: (Quaternion xRotation: 1) asMatrix3x3 closeTo: (Matrix3x3 xRotation: 1).
+        self assert: (Quaternion yRotation: 1) asMatrix3x3 closeTo: (Matrix3x3 yRotation: 1).
+        self assert: (Quaternion zRotation: 1) asMatrix3x3 closeTo: (Matrix3x3 zRotation: 1).
+        self assert: (Quaternion xyzRotation: Vector3(1, 2, 3)) asMatrix3x3 closeTo: (Matrix3x3 xyzRotation: Vector3(1, 2, 3)).
+        self assert: (Quaternion zyxRotation: Vector3(1, 2, 3)) asMatrix3x3 closeTo: (Matrix3x3 zyxRotation: Vector3(1, 2, 3)).
     }.
 }.
 
