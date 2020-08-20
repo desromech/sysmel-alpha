@@ -62,7 +62,21 @@ MbndAstPatternSemanticAnalyzer >> visitPatternMatchingBindingPatternNode: node [
 		result requiredType: patternValueType.		
 	] ifNotNil: [ :requiredTypeNode |
 		result requiredType: (semanticAnalyzer evaluateTypeExpression: requiredTypeNode).
-		result requiredType = patternValueType ifFalse: [ ^ node asNeverPatternNode ].
+		(result requiredType = patternValueType or: [ result requiredType = patternValueType withoutReferences withoutTopDecorations ]) ifFalse: [
+			patternValueType withoutReferences withoutTopDecorations isVariantUnionType ifTrue: [
+				| subPattern |
+				subPattern := result name isMbndAnonymousSymbol
+					ifTrue: [ result valuePattern ]
+					ifFalse: [ (result copy requiredType: nil; yourself)].
+				^ self visitNode: (MbndAstPatternMatchingVariantTypeSelectionPatternNode new
+					position: node;
+					expectedValueType: result requiredType;
+					valuePattern: subPattern;
+					yourself)
+			].
+		
+			^ node asNeverPatternNode
+		].
 	].
 
 	result valuePattern ifNotNil: [:pattern |
@@ -70,7 +84,9 @@ MbndAstPatternSemanticAnalyzer >> visitPatternMatchingBindingPatternNode: node [
 	].
  
 	result name ifNotNil: [
-		result binding: (semanticAnalyzer createLocalVariableNamed: node name withValueType: result requiredType type: patternValueType at: result).
+		result
+			initialValueKind: (patternValueType isTemporaryReferenceType ifTrue: [ #move ] ifFalse: [ #copy]);
+			binding: (semanticAnalyzer createLocalVariableNamed: node name withValueType: result requiredType type: patternValueType at: result).
 	].
 
 	result matchedType: patternValueType.
@@ -155,4 +171,38 @@ MbndAstPatternSemanticAnalyzer >> visitPatternMatchingTuplePatternNode: node [
 		matchedType: patternValueType;
 		expectedElements: expectedElementsPatterns;
 		yourself
+]
+
+{ #category : #visiting }
+MbndAstPatternSemanticAnalyzer >> visitPatternMatchingVariantTypeSelectionPatternNode: node [
+	| result bestVariantTypeSelector variantUnionType matchedElementReferenceType |
+	result := node copy.
+	self assert: result expectedValueType isNotNil.
+	variantUnionType := patternValueType withoutReferences withoutTopDecorations.
+	self assert: variantUnionType isVariantUnionType.
+	bestVariantTypeSelector := variantUnionType findBestSuitableValueTypeFor: result expectedValueType node: node.
+	bestVariantTypeSelector size > 1 ifTrue: [ 
+		self error: 'Variant pattern matches multiple types {1}.' format: { bestVariantTypeSelector asString } at: node.
+	].
+
+	result expectedValueType: bestVariantTypeSelector first.
+	result variantTypeSelector: (variantUnionType getTypeSelectorFor: result expectedValueType).
+	result variantTypeSelector ifNil: [
+		self error: 'Variant pattern with type {1} is never matches.' format: { result expectedValueType asString } at: node.
+	].
+
+	matchedElementReferenceType := result expectedValueType.
+	patternValueType withoutReferences isConstantType ifTrue: [ matchedElementReferenceType := matchedElementReferenceType const ].
+	patternValueType isReferenceType ifTrue: [
+		matchedElementReferenceType := matchedElementReferenceType refFor: patternValueType addressSpace
+	] ifFalse: [
+		matchedElementReferenceType := matchedElementReferenceType ref
+	].
+
+	result valuePattern ifNotNil: [:pattern |
+		result valuePattern: (semanticAnalyzer analyzePattern: pattern matchingWithValueOfType: matchedElementReferenceType)
+	].
+
+	result matchedType: patternValueType.
+	^ result
 ]

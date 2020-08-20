@@ -750,6 +750,14 @@ MbndAstTransformVisitor >> visitPatternMatchingTuplePatternNode: node [
 ]
 
 { #category : #visiting }
+MbndAstTransformVisitor >> visitPatternMatchingVariantTypeSelectionPatternNode: node [
+	^ node copy
+		valuePattern: (node valuePattern ifNotNil: [:n | self visitNode: n]);
+		expectedValueType: (node expectedValueType ifNotNil: [:n | n isMbndAstNode ifTrue: [self visitNode: n] ifFalse: [n]]);
+		yourself
+]
+
+{ #category : #visiting }
 MbndAstTransformVisitor >> visitPointerAsReferenceNode: node [
 	^ node copy
 		pointer: (self visitNode: node pointer);

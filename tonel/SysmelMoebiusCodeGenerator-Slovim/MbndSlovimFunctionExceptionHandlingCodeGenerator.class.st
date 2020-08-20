@@ -166,7 +166,9 @@ MbndSlovimFunctionExceptionHandlingCodeGenerator >> generateReturnFromNonLocalRe
 			self assert: (self nonLocalReturnResultVariable isFunctionArgument or: [self nonLocalReturnResultVariable isClosureCapture]).
 			self slvmBuilder returnVoid
 		] ifFalse: [ 
-			self slvmBuilder return: (self slvmBuilder load: self nonLocalReturnResultVariable)
+			self slvmBuilder return:
+				(functionCodeGenerator sanitizeValue: (self slvmBuilder load: self nonLocalReturnResultVariable) withExpectedType: self slvmBuilder function returnType)
+				
 		]
 	].
 ]

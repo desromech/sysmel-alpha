@@ -84,6 +84,18 @@ MbndAggregateType >> encodeLazyFieldsForMessagePackWith: graphEncoder [
 	}
 ]
 
+{ #category : #'semantic analysis' }
+MbndAggregateType >> ensureGeneratedMethodsExist [
+	self hasTrivialInstanceBasicInitialization ifFalse: [ self basicInitializeMethod ].
+	self hasTrivialInstanceInitialization ifFalse: [ self initializeMethod ].
+	self hasTrivialInstanceInitializationCopyingFrom ifFalse: [ self initializeCopyingFromMethod ].
+	self hasTrivialInstanceInitializationMovingFrom ifFalse: [ self initializeMovingFromMethod ].
+	self hasTrivialInstanceFinalization ifFalse: [ self finalizeMethod ].
+	self hasTrivialCopyAssignment ifFalse: [ self copyAssignmentMethod ].
+	self hasTrivialMoveAssignment ifFalse: [ self moveAssignmentMethod ].
+
+]
+
 { #category : #'initialize-destroy' }
 MbndAggregateType >> finalizeMethod [
 	(self areSyntheticMethodsInternal and: [ self hasTrivialInstanceFinalization ]) ifTrue: [

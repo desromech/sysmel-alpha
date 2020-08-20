@@ -37,6 +37,7 @@ MbndVariantUnionType >> addInstanceMacros [
 { #category : #'as yet unclassified' }
 MbndVariantUnionType >> analyzeReferenceAssignmentNode: node with: analyzer [
 	| cleanValueType bestSuitableValueTypes targetType typeSelector newReference newAssignment |
+
 	cleanValueType := node value type withoutReferences withoutTopDecorations.
 	cleanValueType isVariantUnionType ifTrue: [ ^ super analyzeReferenceAssignmentNode: node with: analyzer ].
 	
@@ -203,7 +204,7 @@ MbndVariantUnionType >> instanceSize [
 	<compileTime>
 	components ifNil: [ ^ super instanceSize ].
 	^ instanceSize ifNil: [
-		instanceSize := (1 alignedTo: self instanceAlignment) + (self maxComponentSize alignedTo: self instanceAlignment).
+		instanceSize := (1 alignedTo: self instanceAlignment) + self maxComponentSize alignedTo: self instanceAlignment.
 	]
 ]
 

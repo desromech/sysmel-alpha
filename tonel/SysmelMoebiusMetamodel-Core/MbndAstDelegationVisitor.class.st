@@ -523,6 +523,11 @@ MbndAstDelegationVisitor >> visitPatternMatchingTuplePatternNode: node [
 ]
 
 { #category : #visiting }
+MbndAstDelegationVisitor >> visitPatternMatchingVariantTypeSelectionPatternNode: node [
+	^ self delegateNodeVisit: node
+]
+
+{ #category : #visiting }
 MbndAstDelegationVisitor >> visitPointerAsReferenceNode: node [
 	^ self delegateNodeVisit: node
 ]

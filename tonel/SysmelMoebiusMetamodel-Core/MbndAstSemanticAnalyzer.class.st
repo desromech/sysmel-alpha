@@ -948,7 +948,7 @@ MbndAstSemanticAnalyzer >> visitCasesOfCaseNode: node [
 	| result matchingScope |
 	matchingScope := scope newLexicalScopeAt: node.
 
-	self withScope: matchingScope do: [ 
+	self withScope: matchingScope do: [
 		result := node copy
 			pattern: (self analyzePatternMatchingPatternNode: node pattern withValueOfType: node patternValueType);
 		yourself.
@@ -964,8 +964,15 @@ MbndAstSemanticAnalyzer >> visitCasesOfCaseNode: node [
 MbndAstSemanticAnalyzer >> visitCasesOfNode: node [
 	| result patternValueType resultType dummyNode defaultCaseIndex |
 	result := node copy
-		matchedExpression: (self ensureConcreteValue: (self analyzeNodeIfNeeded: node matchedExpression)).
-	patternValueType := result matchedExpression type.
+		matchedExpression: (self ensureLiteralIsConcreted: (self analyzeNodeIfNeeded: node matchedExpression)).
+	patternValueType := result matchedExpression type withoutReferences withoutTopDecorations.
+	(patternValueType isPrimitiveType or: [ patternValueType isEnumType and: [patternValueType valueType isPrimitiveType] ]) ifTrue: [ 
+		result matchedExpression: (self ensureReferencesAreEvaluated: result matchedExpression).
+		patternValueType := result matchedExpression type.
+	] ifFalse: [
+		patternValueType := result matchedExpression type.
+	].
+
 	result cases isMbndAstNode ifTrue: [ 
 		result cases: (self ensureDirectMacrosAreExpanded: result cases).
 
@@ -2368,6 +2375,11 @@ MbndAstSemanticAnalyzer >> visitPatternMatchingSetPatternNode: node [
 
 { #category : #visiting }
 MbndAstSemanticAnalyzer >> visitPatternMatchingTuplePatternNode: node [
+	^ self visitPatternMatchingPatternNode: node
+]
+
+{ #category : #visiting }
+MbndAstSemanticAnalyzer >> visitPatternMatchingVariantTypeSelectionPatternNode: node [
 	^ self visitPatternMatchingPatternNode: node
 ]
 

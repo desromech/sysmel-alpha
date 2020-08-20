@@ -910,12 +910,14 @@ MbndSlovimFunctionCodeGenerator >> generateCasesOfNode: node matchedValue: match
 { #category : #visiting }
 MbndSlovimFunctionCodeGenerator >> generateCasesOfNode: node matchedValue: matchedValue temporaryResult: temporaryResult caseStream: caseStream ifCascadeCase: case [
 	| isPatternMatched patternMatchedBlock nextPatternBlock mergeBlock patternMatchedResult patternMatchedResultBlock nextPatternResult nextPatternResultBlock phi |
-	isPatternMatched := self generatePattern: case pattern matchingWithValue: matchedValue.
+
 	patternMatchedBlock := slvmBuilder newBasicBlock: #patternMatched.
 	nextPatternBlock := slvmBuilder newBasicBlock: #nextPatternTesting.
 	mergeBlock := slvmBuilder newBasicBlock: #mergeBlock.
-
 	slvmBuilder currentBlock mergeBlock: mergeBlock.
+
+	isPatternMatched := self generatePattern: case pattern matchingWithValue: matchedValue nextPatternBlock: nextPatternBlock.
+
 	slvmBuilder branch: isPatternMatched ifTrue: patternMatchedBlock ifFalse: nextPatternBlock.
 	
 	slvmBuilder currentBlock: patternMatchedBlock.
@@ -1354,9 +1356,15 @@ MbndSlovimFunctionCodeGenerator >> generatePattern: pattern matchingBindingWithV
 
 { #category : #'as yet unclassified' }
 MbndSlovimFunctionCodeGenerator >> generatePattern: pattern matchingWithValue: matchedValue [
+	^ self generatePattern: pattern matchingWithValue: matchedValue nextPatternBlock: nil
+]
+
+{ #category : #'as yet unclassified' }
+MbndSlovimFunctionCodeGenerator >> generatePattern: pattern matchingWithValue: matchedValue nextPatternBlock: nextPatternBlock [
 	^ MbndSlovimFunctionPatternMatchingTestingCodeGenerator new
 		functionCodeGenerator: self;
 		matchedValue: matchedValue;
+		nextPatternBlock: nextPatternBlock;
 		visitNode: pattern
 ]
 
@@ -1601,7 +1609,7 @@ MbndSlovimFunctionCodeGenerator >> generateVariant: aggregatePointer type: aggre
 
 { #category : #'automatic constructors' }
 MbndSlovimFunctionCodeGenerator >> generateVariant: aggregatePointer with: otherAggregatePointer type: aggregateType fieldIteration: fieldActionBlock [
-	| interestingTypes interestingConstants interestingBlocks mergeBlock typeSelector typeSelectorPointer otherTypeSelectorPointer |
+	| interestingTypes interestingConstants interestingBlocks mergeBlock typeSelector typeSelectorPointer otherTypeSelectorPointer oldTypeSelector changedTypeSelector |
 	interestingTypes := OrderedCollection new.
 	interestingConstants := OrderedCollection new.
 	interestingBlocks := OrderedCollection new.
@@ -1615,9 +1623,32 @@ MbndSlovimFunctionCodeGenerator >> generateVariant: aggregatePointer with: other
 
 	typeSelectorPointer := slvmBuilder getReference: aggregatePointer element: (slvmBuilder constInt: 0).
 	otherTypeSelectorPointer := slvmBuilder getReference: otherAggregatePointer element: (slvmBuilder constInt: 0).
-	fieldActionBlock value: typeSelectorPointer value: otherTypeSelectorPointer value: self compilationTarget uint8Type.
 
 	typeSelector := slvmBuilder load: otherTypeSelectorPointer.
+	oldTypeSelector := slvmBuilder load: typeSelectorPointer.
+	changedTypeSelector := slvmBuilder ine: oldTypeSelector with: typeSelector.
+	"If we have a non-trivial finalization, then we have to finalize before."
+	aggregateType hasTrivialFinalization ifFalse: [
+		| oldTypeFinalizationBlock oldTypeFinalizationBlockMerge|
+		oldTypeFinalizationBlock := slvmBuilder newBasicBlock: #oldTypeFinalization.
+		oldTypeFinalizationBlockMerge := slvmBuilder newBasicBlock: #oldTypeFinalizationMerge.
+		slvmBuilder currentBlock mergeBlock: oldTypeFinalizationBlockMerge.
+		slvmBuilder branch: changedTypeSelector ifTrue: oldTypeFinalizationBlock ifFalse: oldTypeFinalizationBlockMerge.
+		slvmBuilder currentBlock: oldTypeFinalizationBlock.
+		
+		self generateAggregate: aggregatePointer type: aggregateType
+			fieldIteration: [ :fieldPointer :fieldReferenceType :fieldValueType |
+			self generateAutomaticFieldFinalization: fieldPointer type: fieldReferenceType valueType: fieldValueType
+		] when: [ :fieldType | fieldType hasTrivialFinalization not ].
+
+		slvmBuilder isLastTerminator ifFalse: [
+			slvmBuilder jump: oldTypeFinalizationBlockMerge
+		].
+		slvmBuilder currentBlock: oldTypeFinalizationBlockMerge.
+	].
+
+	fieldActionBlock value: typeSelectorPointer value: otherTypeSelectorPointer value: self compilationTarget uint8Type.
+
 	mergeBlock := slvmBuilder newBasicBlock: #mergeBlock.
 	slvmBuilder currentBlock mergeBlock: mergeBlock.
 	
@@ -1639,6 +1670,24 @@ MbndSlovimFunctionCodeGenerator >> generateVariant: aggregatePointer with: other
 			"Union field" slvmBuilder constInt: typeSelectorValue.
 		}.
 		
+		"If we are changing the variant value type, we may need to perform a basic initialization
+		 before an actual initialization."
+		variantValueType isPOD ifFalse: [
+			| newTypeBasicInitializationBlock newTypeBasicInitializationBlockMerge|
+			newTypeBasicInitializationBlock := slvmBuilder newBasicBlock: #newTypeBasicInitialization.
+			newTypeBasicInitializationBlockMerge := slvmBuilder newBasicBlock: #newTypeBasicInitializationMerge.
+			slvmBuilder currentBlock mergeBlock: newTypeBasicInitializationBlockMerge.
+			slvmBuilder branch: changedTypeSelector ifTrue: newTypeBasicInitializationBlock ifFalse: newTypeBasicInitializationBlockMerge.
+			slvmBuilder currentBlock: newTypeBasicInitializationBlock.
+
+			self generateVariable: fieldPointer basicInitializationWithValueType: variantValueType.
+			
+			slvmBuilder isLastTerminator ifFalse: [
+				slvmBuilder jump: newTypeBasicInitializationBlockMerge
+			].
+			slvmBuilder currentBlock: newTypeBasicInitializationBlockMerge.
+		].
+	
 		fieldActionBlock value: fieldPointer value: otherFieldPointer value: variantValueType.
 		
 		slvmBuilder isLastTerminator ifFalse: [
@@ -1754,7 +1803,7 @@ MbndSlovimFunctionCodeGenerator >> initializeNonLocalReturnContext [
 				nonLocalReturnResultVariable := ssaFunction arguments first.
 			].
 		] ifFalse: [ 
-			nonLocalReturnResultVariable := slvmBuilder allocaBuilder alloca: ssaFunction functionType returnType
+			nonLocalReturnResultVariable := slvmBuilder allocaBuilder alloca: (self sanitizeValueTypeForMemory: ssaFunction functionType returnType)
 		].
 	
 		functionVariables at: var put: nonLocalReturnResultVariable.
@@ -2980,7 +3029,7 @@ MbndSlovimFunctionCodeGenerator >> visitReturnStatementNode: node [
 				node expectedReturnType isMemoryReturnedType ifFalse: [
 					self compilationTarget usesExceptionsForNonLocalReturns ifTrue: [ 
 						self assert: nonLocalReturnResultRef isNotNil.
-						slvmBuilder store: result in: nonLocalReturnResultRef
+						slvmBuilder store: (self sanitizeStoreValue: result inPointer: nonLocalReturnResultRef) in: nonLocalReturnResultRef
 					] ifFalse: [
 						^ slvmBuilder return: result fromContext: nonLocalReturnTargetRef
 					].
@@ -3330,7 +3379,7 @@ MbndSlovimFunctionCodeGenerator >> visitVariantBoxCreateNode: node [
 	boxedValue := self visitNode: node boxedValue.
 	variantType := node variantType.
 	variantStorage := self allocateTemporaryStorageFor: (self translateType: node variantType) withStorageCreationNode: node storageCreationNode.
-	
+
 	"Set the type selector."
 	slvmBuilder store: (slvmBuilder constUChar: node typeSelector)
 		in: (slvmBuilder getReference: variantStorage element: (slvmBuilder constInt: 0)).
@@ -3377,7 +3426,7 @@ MbndSlovimFunctionCodeGenerator >> visitVariantUnboxingAssignmentReferenceNode: 
 
 	typeSelectorPointer := slvmBuilder getReference: variant element: (slvmBuilder constInt: 0).
 	elementType := variantType typeWithSelector: node typeSelector.
-	 
+
 	(elementType hasTrivialBasicInitialization and: [elementType hasTrivialInitialization and: [ variantType hasTrivialFinalization ]]) ifTrue: [ 
 		"Set the selector and return reference."
 		slvmBuilder store: (slvmBuilder constUChar: node typeSelector) in: variant.

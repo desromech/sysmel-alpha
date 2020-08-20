@@ -60,7 +60,7 @@ MbndAstPatternParsingAnalyzer >> visitIdentifierReferenceNode: node [
 MbndAstPatternParsingAnalyzer >> visitLocalVariableDefinitionNode: node [
 	| result |
 	
-	(node name isMbndAnonymousSymbol and: [ node initialValue isNil ]) ifTrue: [ 
+	(node name isMbndAnonymousSymbol and: [ node initialValue isNil and: [node valueType isNil]] ) ifTrue: [ 
 		^ MbndAstPatternMatchingAnyPatternNode new
 			position: node;
 			yourself

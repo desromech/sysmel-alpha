@@ -5,6 +5,7 @@ Trait {
 		'type'
 	],
 	#traits : 'TMbndType + TMbndMethodContainer + TMbndFlagContainer + TMbndSymbolContainer + TMbndEntityWithVisibility',
+	#classTraits : 'TMbndType classTrait + TMbndMethodContainer classTrait + TMbndFlagContainer classTrait + TMbndSymbolContainer classTrait + TMbndEntityWithVisibility classTrait',
 	#category : #'SysmelMoebiusMetamodel-Core-Type'
 }
 
@@ -33,6 +34,12 @@ TMbndBasicType >> ensureSyntheticMethodExists: aSelector [
 	aSelector = #initializeCopyingFrom: ifTrue: [^ self initializeCopyingFromMethod ].
 	aSelector = #initializeMovingFrom: ifTrue: [^ self initializeMovingFromMethod ].
 	aSelector = #finalize ifTrue: [^ self finalizeMethod ].
+	aSelector = #assignValue: ifTrue: [
+		self hasTrivialCopyAssignment ifFalse: [ self copyAssignmentMethod ].
+		self hasTrivialMoveAssignment ifFalse: [ self moveAssignmentMethod ].
+		^ self
+	].
+
 	^ nil
 ]
 
@@ -80,7 +87,7 @@ TMbndBasicType >> lookupOverloadedSelector: aSelector [
 	| method |
 	self evaluatePendingDefinitionFragmentsForOverloadedSelector: aSelector.
 	
-	(#(basicInitialize initialize initializeCopyingFrom: initializeMovingFrom: finalize) includes: aSelector) ifTrue: [
+	(#(basicInitialize initialize initializeCopyingFrom: initializeMovingFrom: finalize assignValue:) includes: aSelector) ifTrue: [
 		self ensureSyntheticMethodExists: aSelector
 	].
 	method := self overloadedMethodDict at: aSelector ifAbsent: [ nil ].

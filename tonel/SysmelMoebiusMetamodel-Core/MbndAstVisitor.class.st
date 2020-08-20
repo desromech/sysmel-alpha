@@ -545,6 +545,11 @@ MbndAstVisitor >> visitPatternMatchingTuplePatternNode: node [
 ]
 
 { #category : #visiting }
+MbndAstVisitor >> visitPatternMatchingVariantTypeSelectionPatternNode: node [
+	self subclassResponsibility
+]
+
+{ #category : #visiting }
 MbndAstVisitor >> visitPointerAsReferenceNode: node [
 	self subclassResponsibility
 ]

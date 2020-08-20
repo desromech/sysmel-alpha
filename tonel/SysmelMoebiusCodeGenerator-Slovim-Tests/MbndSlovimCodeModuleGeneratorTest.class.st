@@ -2882,6 +2882,204 @@ function callWithNativeBlockClosure externC(v: Int32) => Int32
 ]
 
 { #category : #tests }
+MbndSlovimCodeModuleGeneratorTest >> testCallWithNativeBlockClosureWithNonLocalReturnBoolean8 [
+	| function closure |
+	self
+		evaluateMiniRTTI;
+		evaluateMiniExceptionRuntime;
+		evaluateSysmelSource: '
+function calledWithNativeBlockClosure externC(f: (Void => Int32) nativeStackBlockClosure) => Boolean8
+	:= {f() . false}.
+
+function callWithNativeBlockClosure externC(v: Int32) => Boolean8
+	:= calledWithNativeBlockClosure({ :: Int32 | return: true }).
+';
+		generateSSAModule.
+
+	function := ssaModule globalNamed: #calledWithNativeBlockClosure.
+	self assert: function asFullSExpressionForTesting equals: #(
+function calledWithNativeBlockClosure cdecl b8
+	arguments (
+		(f (pointer (struct nil generic ((pointer (pointer void generic) generic) (pointer (function cdecl ((pointer void generic)) false i32) generic)) (vtable functionPointer) ()) generic) ())
+	)
+	literals (
+	)
+	blocks (
+		(()
+			(nil jump void () () (block 2 body))
+		)
+		(()
+			(nil jump void () () (block 3 tryScope))
+		)
+		(()
+			(nil getElementPointer (pointer (pointer (function cdecl ((pointer void generic)) false i32) generic) generic) () ((local 0 f) (const i32 0) (const i32 1)))
+			(nil load (pointer (function cdecl ((pointer void generic)) false i32) generic) () ((local 3 nil)))
+			(nil bitcast (pointer void generic) () ((local 0 f)))
+			(nil call i32 () ((local 4 nil) (local 5 nil)))
+			(nil return void () ((const b8 false)))
+		)
+	)
+	).
+	
+	function := ssaModule globalNamed: #callWithNativeBlockClosure.
+	self assert: function asFullSExpressionForTesting equals: #(
+function callWithNativeBlockClosure cdecl b8
+	arguments (
+		(v i32 ())
+	)
+	literals (
+	)
+	blocks (
+		(()
+			(nil alloca (pointer u8 function) () ())
+			(exceptionPointer alloca (pointer (pointer void generic) function) () ())
+			(exceptionSelector alloca (pointer i32 function) () ())
+			(nil jump void () () (block 2 body))
+		)
+		(()
+			(nil getThisContext (pointer void generic) () ())
+			(nil jump void () () (block 3 tryScope))
+		)
+		((unwind (block 4 tryUnwind))
+			(nil instantiateClosure (pointer (closure nativeStack (function cdecl () false i32) ((pointer void generic) (pointer u8 generic))) generic) () ((global nil _ZN10TestModule26callWithNativeBlockClosure9__lambda0E) (local 5 nil) (local 1 nil)))
+			(nil bitcast (pointer (struct nil generic ((pointer (pointer void generic) generic) (pointer (function cdecl ((pointer void generic)) false i32) generic)) (vtable functionPointer) ()) generic) () ((local 7 nil)))
+			(nil call b8 () ((global 5 calledWithNativeBlockClosure) (local 8 nil)))
+			(nil return void () ((local 9 nil)))
+		)
+		(()
+			(nil landingpath (struct nil generic ((pointer void generic) i32) (exception selector) ()) () ())
+			(nil extractValue (pointer void generic) () ((local 11 nil)) (0))
+			(nil store void () ((local 12 nil) (local 2 exceptionPointer)))
+			(nil extractValue i32 () ((local 11 nil)) (1))
+			(nil store void () ((local 14 nil) (local 3 exceptionSelector)))
+			(nil jump void () () (block 5 unwindCleanUp))
+		)
+		((merge (block 7 unwindResume))
+			(nil load i32 () ((local 3 exceptionSelector)))
+			(nil getExceptionSelectorFromTypeInfo i32 () ((global 4 _ZTIN10TestModule22InternalNonLocalReturnE)))
+			(nil ieq b8 () ((local 17 nil) (local 18 nil)))
+			(nil branch void () ((local 19 nil)) ((block 6 nonLocalReturn) (block 7 unwindResume)))
+		)
+		(()
+			(nil load (pointer void generic) () ((local 2 exceptionPointer)))
+			(nil call void () ((global 9 __sysmel_eh_nonLocalReturnCatch) (local 21 nil)))
+			(nil load u8 () ((local 1 nil)))
+			(nil truncate b8 () ((local 23 nil)))
+			(nil return void () ((local 24 nil)))
+		)
+		(()
+			(nil load (pointer void generic) () ((local 2 exceptionPointer)))
+			(nil insertValue (struct nil generic ((pointer void generic) i32) (exception selector) ()) () ((undef (struct nil generic ((pointer void generic) i32) (exception selector) ())) (local 26 nil)) (0))
+			(nil load i32 () ((local 3 exceptionSelector)))
+			(nil insertValue (struct nil generic ((pointer void generic) i32) (exception selector) ()) () ((local 27 nil) (local 28 nil)) (1))
+			(nil resumeException void () ((local 29 nil)))
+		)
+	)
+
+	).
+
+	closure := function basicBlocks third firstInstruction definition.
+	self assert: closure allInstructionsMnemonics equals: #(
+		#(#entry #(#jump))
+		#(#body #(#store #call unreachable))
+	).
+
+]
+
+{ #category : #tests }
+MbndSlovimCodeModuleGeneratorTest >> testCallWithNativeBlockClosureWithNonLocalReturnBoolean8SJLJ [
+	| function |
+	self
+		evaluateMiniRTTI;
+		useExplicitSJLJ;
+		evaluateSysmelSource: '
+function calledWithNativeBlockClosure externC(f: (Void => Int32) nativeStackBlockClosure) => Boolean8
+	:= {f() . false}.
+
+function callWithNativeBlockClosure externC(v: Int32) => Boolean8
+	:= calledWithNativeBlockClosure({ :: Int32 | return: true }).
+';
+		generateSSAModule.
+
+	function := ssaModule globalNamed: #calledWithNativeBlockClosure.
+	self assert: function asFullSExpressionForTesting equals: #(
+function calledWithNativeBlockClosure cdecl b8
+	arguments (
+		(f (pointer (struct nil generic ((pointer (pointer void generic) generic) (pointer (function cdecl ((pointer void generic)) false i32) generic)) (vtable functionPointer) ()) generic) ())
+	)
+	literals (
+	)
+	blocks (
+		(()
+			(nil jump void () () (block 2 body))
+		)
+		(()
+			(nil jump void () () (block 3 tryBody))
+		)
+		(()
+			(nil jump void () () (block 4 tryBody))
+		)
+		(()
+			(nil getElementPointer (pointer (pointer (function cdecl ((pointer void generic)) false i32) generic) generic) () ((local 0 f) (const i32 0) (const i32 1)))
+			(nil load (pointer (function cdecl ((pointer void generic)) false i32) generic) () ((local 4 nil)))
+			(nil bitcast (pointer void generic) () ((local 0 f)))
+			(nil call i32 () ((local 5 nil) (local 6 nil)))
+			(nil return void () ((const b8 false)))
+		)
+	)
+	).
+	
+	function := ssaModule globalNamed: #callWithNativeBlockClosure.
+	self assert: function asFullSExpressionForTesting equals: #(
+function callWithNativeBlockClosure cdecl b8
+	arguments (
+		(v i32 ())
+	)
+	literals (
+	)
+	blocks (
+		(()
+			(nil alloca (pointer (struct 'struct.TestModule::ExceptionContext') function) () ())
+			(nil alloca (pointer u8 function) () ())
+			(nil jump void () () (block 2 body))
+		)
+		(()
+			(nil bitcast (pointer void generic) () ((local 1 nil)))
+			(nil store void () ((zeroInitialized (struct 'struct.TestModule::ExceptionContext')) (local 1 nil)))
+			(nil getElementPointer (pointer u64 function) () ((local 1 nil) (const i32 0) (const i32 1)))
+			(nil store void () ((const u64 65536) (local 6 nil)))
+			(nil getElementPointer (pointer (pointer (pointer void generic) generic) function) () ((local 1 nil) (const i32 0) (const i32 2)))
+			(nil store void () ((const (pointer (pointer void generic) generic) 0) (local 8 nil)))
+			(nil getElementPointer (pointer (struct 'struct.TestModule::JmpBuffer') function) () ((local 1 nil) (const i32 0) (const i32 0)))
+			(nil bitcast (pointer void generic) () ((local 10 nil)))
+			(nil call i32 () ((global 11 _setjmp) (local 11 nil)))
+			(nil switch void () ((local 12 nil) (const i32 0) (const i32 1)) (((block 3 tryBody) (block 4 unwindNonLocalReturn)) (block 5 invalidCaughtException)))
+		)
+		(()
+			(nil bitcast (pointer void generic) () ((local 1 nil)))
+			(nil call void () ((global 12 __sysmel_eh_contextBegin) (local 14 nil)))
+			(nil instantiateClosure (pointer (closure nativeStack (function cdecl () false i32) ((pointer void generic) (pointer u8 generic))) generic) () ((global nil _ZN10TestModule26callWithNativeBlockClosure9__lambda0E) (local 4 nil) (local 2 nil)))
+			(nil bitcast (pointer (struct nil generic ((pointer (pointer void generic) generic) (pointer (function cdecl ((pointer void generic)) false i32) generic)) (vtable functionPointer) ()) generic) () ((local 16 nil)))
+			(nil call b8 () ((global 7 calledWithNativeBlockClosure) (local 17 nil)))
+			(nil bitcast (pointer void generic) () ((local 1 nil)))
+			(nil call void () ((global 8 __sysmel_eh_contextEnd) (local 19 nil)))
+			(nil return void () ((local 18 nil)))
+		)
+		(()
+			(nil load u8 () ((local 2 nil)))
+			(nil truncate b8 () ((local 22 nil)))
+			(nil return void () ((local 23 nil)))
+		)
+		(()
+			(nil unreachable void () ())
+		)
+	)
+	).
+
+
+]
+
+{ #category : #tests }
 MbndSlovimCodeModuleGeneratorTest >> testCallWithNativeBlockClosureWithNonLocalReturnSJLJ [
 	| function closure |
 	self
@@ -4115,6 +4313,57 @@ enum TestEnum values: #{
         (casesResult phi f32 () ((const f32 0.0) (const f32 1.0)) ((block 3 casesOfCase) (block 4 casesOfCase)))
         (nil return void () ((local 7 casesResult)))
     )
+	)
+	).
+]
+
+{ #category : #tests }
+MbndSlovimCodeModuleGeneratorTest >> testEnumSelectCase2 [
+	| function |
+	self
+		evaluateSysmelSource: '
+enum TestEnum values: #{
+	First: 1.
+	Second: 2.
+}.
+
+		function selectCaseTest externC(value: TestEnum const ref) => Float32
+			:= value selectCase: #{
+	TestEnum First : 0.0.
+	TestEnum Second : 1.0.
+}';
+		generateSSAModule.
+
+	function := ssaModule globalNamed: #selectCaseTest.
+	self assert: function asFullSExpressionForTesting equals: #(
+function selectCaseTest cdecl f32
+	arguments (
+		(value (pointer i32 generic) ())
+	)
+	literals (
+	)
+	blocks (
+		(()
+			(nil jump void () () (block 2 body))
+		)
+		((merge (block 6 casesOfMerge))
+			(nil load i32 () ((local 0 value)))
+			(nil switch void () ((local 2 nil) (const i32 1) (const i32 2)) (((block 3 casesOfCase) (block 4 casesOfCase)) (block 5 casesOfDefault)))
+		)
+		(()
+			(nil jump void () () (block 6 casesOfMerge))
+		)
+		(()
+			(nil jump void () () (block 6 casesOfMerge))
+		)
+		(()
+			(nil call void () ((global 2 __sysmel_patternMatchingFailureRaise)))
+			(nil unreachable void () ())
+		)
+		(()
+			(casesResult phi f32 () ((const f32 0.0) (const f32 1.0)) ((block 3 casesOfCase) (block 4 casesOfCase)))
+			(nil return void () ((local 8 casesResult)))
+		)
 	)
 	).
 ]
@@ -7368,6 +7617,21 @@ global theArray mutable externC type: (Int32 pointer array: 2) := (
 		ssaModule globalNamed: #firstPointed.
 		ssaModule globalNamed: #secondPointed.
 	}.
+]
+
+{ #category : #tests }
+MbndSlovimCodeModuleGeneratorTest >> testGlobalVariableBoolean8Definition [
+	| global |
+	self
+		evaluateSysmelSource: 'global testGlobal externC mutable := false';
+		generateSSAModule.
+
+	global := ssaModule globalNamed: #testGlobal.
+	self assert: global isGlobalVariable.
+	self deny: global readOnly.
+	self assert: global valueType isIntegerType.
+	self assert: global initialValue isConstantValue.
+	self assert: global initialValue value equals: 0.
 ]
 
 { #category : #tests }
@@ -14091,6 +14355,82 @@ blocks (
 ]
 
 { #category : #tests }
+MbndSlovimCodeModuleGeneratorTest >> testVariantNonPODAssignment [
+	| function |
+	self
+		evaluateSysmelSource: '
+class Aggregate definition: {
+	method initialize => Void.
+	method initializeCopyingFrom: (o: SelfType const ref) ::=> Void.
+	method initializeMovingFrom: (o: SelfType tempRef) ::=> Void.
+	method finalize => Void.
+
+	(method := (o: SelfType const ref)) ::=> SelfType const ref.
+	(method := (o: SelfType tempRef)) ::=> SelfType tempRef.
+}.
+
+
+compileTime constant Variant := _UndefinedType | Aggregate.
+function variantAssignValue externC(old: Variant ref, new: Variant const ref) => Void := { 
+	old := new
+}.
+
+function variantMoveValue externC(old: Variant ref, new: Variant tempRef) => Void := { 
+	old := new
+}.
+
+';
+		generateSSAModule.
+
+	function := ssaModule globalNamed: #variantAssignValue.
+	self assert: function asFullSExpressionForTesting equals: #(
+function variantAssignValue cdecl void
+	arguments (
+		(old (pointer (struct nil generic (u8 (union nil generic ((pointer void generic) (struct 'class.TestModule::Aggregate')) (component0 component1) ())) (typeSelector union) ()) generic) ())
+		(new (pointer (struct nil generic (u8 (union nil generic ((pointer void generic) (struct 'class.TestModule::Aggregate')) (component0 component1) ())) (typeSelector union) ()) generic) ())
+	)
+	literals (
+	)
+	blocks (
+		(()
+			(nil jump void () () (block 2 body))
+		)
+		(()
+			(nil jump void () () (block 3 tryScope))
+		)
+		(()
+			(nil call (pointer (struct nil generic (u8 (union nil generic ((pointer void generic) (struct 'class.TestModule::Aggregate')) (component0 component1) ())) (typeSelector union) ()) generic) () ((global 8 '_ZN7VariantIDnN10TestModule9AggregateEE13.assignValue.ERS_IDnNS2_EERKS_IDnNS2_EE') (local 0 old) (local 1 new)))
+			(nil returnVoid void () ())
+		)
+	)
+	).
+	
+
+	function := ssaModule globalNamed: #variantMoveValue.
+	self assert: function asFullSExpressionForTesting equals: #(
+function variantMoveValue cdecl void
+	arguments (
+		(old (pointer (struct nil generic (u8 (union nil generic ((pointer void generic) (struct 'class.TestModule::Aggregate')) (component0 component1) ())) (typeSelector union) ()) generic) ())
+		(new (pointer (struct nil generic (u8 (union nil generic ((pointer void generic) (struct 'class.TestModule::Aggregate')) (component0 component1) ())) (typeSelector union) ()) generic) ())
+	)
+	literals (
+	)
+	blocks (
+		(()
+			(nil jump void () () (block 2 body))
+		)
+		(()
+			(nil jump void () () (block 3 tryScope))
+		)
+		(()
+			(nil call (pointer (struct nil generic (u8 (union nil generic ((pointer void generic) (struct 'class.TestModule::Aggregate')) (component0 component1) ())) (typeSelector union) ()) generic) () ((global 10 '_ZN7VariantIDnN10TestModule9AggregateEE13.assignValue.ERS_IDnNS2_EEOS_IDnNS2_EE') (local 0 old) (local 1 new)))
+			(nil returnVoid void () ())
+		)
+	)
+	)
+]
+
+{ #category : #tests }
 MbndSlovimCodeModuleGeneratorTest >> testVariantNonPODExtractValue [
 	| function |
 	self
@@ -14388,6 +14728,151 @@ blocks (
         (nil returnVoid void () ())
     )
 )
+	)
+]
+
+{ #category : #tests }
+MbndSlovimCodeModuleGeneratorTest >> testVariantSelectCase [
+	| function |
+	self
+		evaluateSysmelSource: '
+function variantSelectType externC(param: (Int32 | Float32) const ref) => Int32 := {
+	param selectCase: #{
+	(let x type: Int32) : x.
+	(let _ type: Float32) : 42.
+	}.
+}.
+
+';
+		generateSSAModule.
+
+	function := ssaModule globalNamed: #variantSelectType.
+	self assert: function asFullSExpressionForTesting equals: #(
+function variantSelectType cdecl i32
+	arguments (
+		(param (pointer (struct nil generic (u8 (union nil generic (i32 f32) (component0 component1) ())) (typeSelector union) ()) generic) ())
+	)
+	literals (
+	)
+	blocks (
+		(()
+			(nil jump void () () (block 2 body))
+		)
+		(()
+			(nil jump void () () (block 3 tryScope))
+		)
+		((merge (block 6 mergeBlock))
+			(nil getElementPointer (pointer u8 generic) () ((local 0 param) (const i32 0) (const i32 0)))
+			(nil load u8 () ((local 3 nil)))
+			(nil ieq b8 () ((local 4 nil) (const u8 0)))
+			(nil branch void () ((local 5 nil)) ((block 7 matchedVariantType) (block 5 nextPatternTesting)))
+		)
+		(()
+			(nil load i32 () ((local 15 nil)))
+			(nil jump void () () (block 6 mergeBlock))
+		)
+		((merge (block 10 mergeBlock))
+			(nil getElementPointer (pointer u8 generic) () ((local 0 param) (const i32 0) (const i32 0)))
+			(nil load u8 () ((local 9 nil)))
+			(nil ieq b8 () ((local 10 nil) (const u8 1)))
+			(nil branch void () ((local 11 nil)) ((block 8 patternMatched) (block 9 nextPatternTesting)))
+		)
+		(()
+			(nil phi i32 () ((local 7 nil) (local 20 nil)) ((block 4 patternMatched) (block 10 mergeBlock)))
+			(nil return void () ((local 13 nil)))
+		)
+		(()
+			(nil getElementPointer (pointer i32 generic) () ((local 0 param) (const i32 0) (const i32 1) (const i32 0)))
+			(nil branch void () ((const b8 true)) ((block 4 patternMatched) (block 5 nextPatternTesting)))
+		)
+		(()
+			(nil jump void () () (block 10 mergeBlock))
+		)
+		(()
+			(nil call void () ((global 1 __sysmel_patternMatchingFailureRaise)))
+			(nil unreachable void () ())
+		)
+		(()
+			(nil phi i32 () ((const i32 42)) ((block 8 patternMatched)))
+			(nil jump void () () (block 6 mergeBlock))
+		)
+	)
+
+	)
+]
+
+{ #category : #tests }
+MbndSlovimCodeModuleGeneratorTest >> testVariantSelectCase2 [
+	| function |
+	self
+		evaluateSysmelSource: '
+function variantSelectType externC(param: (Int32 | Float32) const ref) => Int32 := {
+	param selectCase: #{
+	(let x type: Int32) : x.
+	(let x type: Float32) : (x castTo: Int32).
+	}.
+}.
+
+';
+		generateSSAModule.
+
+	function := ssaModule globalNamed: #variantSelectType.
+	self assert: function asFullSExpressionForTesting equals: #(
+function variantSelectType cdecl i32
+	arguments (
+		(param (pointer (struct nil generic (u8 (union nil generic (i32 f32) (component0 component1) ())) (typeSelector union) ()) generic) ())
+	)
+	literals (
+	)
+	blocks (
+		(()
+			(nil jump void () () (block 2 body))
+		)
+		(()
+			(nil jump void () () (block 3 tryScope))
+		)
+		((merge (block 6 mergeBlock))
+			(nil getElementPointer (pointer u8 generic) () ((local 0 param) (const i32 0) (const i32 0)))
+			(nil load u8 () ((local 3 nil)))
+			(nil ieq b8 () ((local 4 nil) (const u8 0)))
+			(nil branch void () ((local 5 nil)) ((block 7 matchedVariantType) (block 5 nextPatternTesting)))
+		)
+		(()
+			(nil load i32 () ((local 15 nil)))
+			(nil jump void () () (block 6 mergeBlock))
+		)
+		((merge (block 10 mergeBlock))
+			(nil getElementPointer (pointer u8 generic) () ((local 0 param) (const i32 0) (const i32 0)))
+			(nil load u8 () ((local 9 nil)))
+			(nil ieq b8 () ((local 10 nil) (const u8 1)))
+			(nil branch void () ((local 11 nil)) ((block 11 matchedVariantType) (block 9 nextPatternTesting)))
+		)
+		(()
+			(nil phi i32 () ((local 7 nil) (local 22 nil)) ((block 4 patternMatched) (block 10 mergeBlock)))
+			(nil return void () ((local 13 nil)))
+		)
+		(()
+			(nil getElementPointer (pointer i32 generic) () ((local 0 param) (const i32 0) (const i32 1) (const i32 0)))
+			(nil branch void () ((const b8 true)) ((block 4 patternMatched) (block 5 nextPatternTesting)))
+		)
+		(()
+			(nil load f32 () ((local 24 nil)))
+			(nil fp2int i32 () ((local 17 nil)))
+			(nil jump void () () (block 10 mergeBlock))
+		)
+		(()
+			(nil call void () ((global 1 __sysmel_patternMatchingFailureRaise)))
+			(nil unreachable void () ())
+		)
+		(()
+			(nil phi i32 () ((local 18 nil)) ((block 8 patternMatched)))
+			(nil jump void () () (block 6 mergeBlock))
+		)
+		(()
+			(nil getElementPointer (pointer f32 generic) () ((local 0 param) (const i32 0) (const i32 1) (const i32 1)))
+			(nil branch void () ((const b8 true)) ((block 8 patternMatched) (block 9 nextPatternTesting)))
+		)
+	)
 	)
 ]
 

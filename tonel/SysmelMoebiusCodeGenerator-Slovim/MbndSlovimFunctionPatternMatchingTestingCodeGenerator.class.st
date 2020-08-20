@@ -6,6 +6,7 @@ Class {
 	#instVars : [
 		'functionCodeGenerator',
 		'matchedValue',
+		'nextPatternBlock',
 		'lastResult'
 	],
 	#category : #'SysmelMoebiusCodeGenerator-Slovim-Module'
@@ -77,6 +78,16 @@ MbndSlovimFunctionPatternMatchingTestingCodeGenerator >> matchedValue: anObject 
 	matchedValue := anObject
 ]
 
+{ #category : #accessing }
+MbndSlovimFunctionPatternMatchingTestingCodeGenerator >> nextPatternBlock [
+	^ nextPatternBlock
+]
+
+{ #category : #accessing }
+MbndSlovimFunctionPatternMatchingTestingCodeGenerator >> nextPatternBlock: anObject [
+	nextPatternBlock := anObject
+]
+
 { #category : #visiting }
 MbndSlovimFunctionPatternMatchingTestingCodeGenerator >> visitPatternMatchingAnyPatternNode: node [
 	^ functionCodeGenerator slvmBuilder constBool: true
@@ -91,7 +102,14 @@ MbndSlovimFunctionPatternMatchingTestingCodeGenerator >> visitPatternMatchingBin
 		].
 		
 		node binding ifNotNil: [:binding |
-			functionCodeGenerator generateLocalVariable: node binding storageCreationNode: nil definitionAt: node withInitialValue: [matchedValue] initialValueKind: #copy
+			| bindingInitialValue |
+			bindingInitialValue := matchedValue.
+			(binding valueType isReferenceType or: [ binding valueType isTemporaryReferenceType ]) ifFalse: [ 
+				(node requiredType isMemoryReturnedType not and: [ bindingInitialValue type isPointerType ]) ifTrue: [
+					bindingInitialValue := functionCodeGenerator slvmBuilder load: bindingInitialValue
+				].
+			].
+			functionCodeGenerator generateLocalVariable: node binding storageCreationNode: nil definitionAt: node withInitialValue: [bindingInitialValue] initialValueKind: node initialValueKind
 		].
 	
 		^ functionCodeGenerator slvmBuilder constBool: true
@@ -134,4 +152,41 @@ MbndSlovimFunctionPatternMatchingTestingCodeGenerator >> visitPatternMatchingTup
 			]
 	].
 	^ lastResult
+]
+
+{ #category : #visiting }
+MbndSlovimFunctionPatternMatchingTestingCodeGenerator >> visitPatternMatchingVariantTypeSelectionPatternNode: node [
+	| builder typeSelectorValue expectedTypeSelector hasExpectedTypeSelector matchedTypeBlock variantPointer matchedTypePointer matchedTypeValuePatternResult  |
+	builder := functionCodeGenerator slvmBuilder.	
+	typeSelectorValue := matchedValue type isPointerType ifTrue: [
+		builder load: (builder getReference: matchedValue element: (builder constInt: 0) )
+	] ifFalse: [
+		self assert:  matchedValue type isStructureType.
+		builder extractValue: matchedValue indices: #(0)
+	].
+	expectedTypeSelector := SLVMConstant type: typeSelectorValue type value: node variantTypeSelector.
+	hasExpectedTypeSelector := builder ieq: typeSelectorValue with: expectedTypeSelector.
+	node valuePattern ifNil: [ ^ hasExpectedTypeSelector ].
+	
+	"Enter the if block."
+	matchedTypeBlock := builder newBasicBlock: #matchedVariantType.
+	self assert: nextPatternBlock isNotNil.
+
+	builder branch: hasExpectedTypeSelector ifTrue: matchedTypeBlock ifFalse: nextPatternBlock.
+	
+	builder currentBlock: matchedTypeBlock.
+	
+	"Extract the matched value."
+	variantPointer := matchedValue.
+	matchedValue type isPointerType ifFalse: [ 
+		variantPointer := builder allocaBuilder alloca: matchedValue type.
+		builder store: matchedValue in: variantPointer
+	].
+
+	matchedTypePointer := builder getPointer: variantPointer element: { builder constInt: 0 . builder constInt: 1. builder constInt: node variantTypeSelector }.
+	matchedTypeValuePatternResult := functionCodeGenerator generatePattern: node valuePattern matchingWithValue: matchedTypePointer.
+
+	self assert: builder isLastTerminator not.
+
+	^ matchedTypeValuePatternResult
 ]

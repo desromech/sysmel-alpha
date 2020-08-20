@@ -5,7 +5,8 @@ Class {
 		'name',
 		'valuePattern',
 		'requiredType',
-		'binding'
+		'binding',
+		'initialValueKind'
 	],
 	#category : #'SysmelMoebiusMetamodel-Core-AST'
 }
@@ -37,7 +38,18 @@ MbndAstPatternMatchingBindingPatternNode >> encodeFieldsForMessagePackWith: grap
 		#name . name encodeGraphForMessagePackWith: graphEncoder.
 		#valuePattern . valuePattern encodeGraphForMessagePackWith: graphEncoder.
 		#binding . binding encodeGraphForMessagePackWith: graphEncoder.
+		#initialValueKind . initialValueKind.
 	} , (super encodeFieldsForMessagePackWith: graphEncoder)
+]
+
+{ #category : #accessing }
+MbndAstPatternMatchingBindingPatternNode >> initialValueKind [
+	^ initialValueKind
+]
+
+{ #category : #accessing }
+MbndAstPatternMatchingBindingPatternNode >> initialValueKind: anObject [
+	initialValueKind := anObject
 ]
 
 { #category : #testing }
@@ -56,6 +68,7 @@ MbndAstPatternMatchingBindingPatternNode >> materializeWithGraphDecoder: graphDe
 	name := encodedFields at: #name.
 	valuePattern := encodedFields at: #valuePattern.
 	binding := encodedFields at: #binding.
+	initialValueKind := encodedFields at: #initialValueKind.
 ]
 
 { #category : #accessing }

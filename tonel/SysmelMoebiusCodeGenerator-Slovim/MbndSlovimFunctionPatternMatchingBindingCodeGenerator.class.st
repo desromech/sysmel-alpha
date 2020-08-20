@@ -42,3 +42,9 @@ MbndSlovimFunctionPatternMatchingBindingCodeGenerator >> visitPatternMatchingSet
 	"Nothing required here"
 	^ nil
 ]
+
+{ #category : #visiting }
+MbndSlovimFunctionPatternMatchingBindingCodeGenerator >> visitPatternMatchingVariantTypeSelectionPatternNode: node [
+	"Nothing required here"
+	^ nil
+]

@@ -9,6 +9,7 @@ MbndBoxValueInVariant >> canBeUsedToConvertNode: node from: sourceType into: tar
 	| targetVariantType |
 	targetVariantType := targetType withoutReferences withoutTopDecorations.
 	targetVariantType isVariantUnionType ifFalse: [ ^ false ].
+	sourceType isTrait ifTrue: [ ^ false ].
 	sourceType withoutReferences withoutTopDecorations isVariantUnionType ifTrue: [ ^ false ].
 	^ (targetVariantType findBestSuitableValueTypeFor: sourceType node: node) size = 1
 ]

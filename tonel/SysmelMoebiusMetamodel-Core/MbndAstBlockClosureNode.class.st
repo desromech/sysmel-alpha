@@ -63,6 +63,7 @@ MbndAstBlockClosureNode >> assistTypeInferenceWithExpectedType: expectedType wit
 	"We catch the compilation time error in a later stage."
 	| newArguments |
 	expectedType isBlockClosureType ifFalse: [ ^ self ].
+	expectedType argumentTypes size = arguments size ifFalse: [ ^ self ].
 	
 	newArguments := (arguments allSatisfy: [:each | each valueType isNotNil])
 		ifTrue: [arguments]

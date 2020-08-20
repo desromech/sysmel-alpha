@@ -76,7 +76,7 @@ MbndAstPatternMatchingPatternNode >> matchedValue: anObject [
 MbndAstPatternMatchingPatternNode >> materializeWithGraphDecoder: graphDecoder withFields: encodedFields [
 	super materializeWithGraphDecoder: graphDecoder withFields: encodedFields.
 	matchedType := encodedFields at: #matchedType.
-	matchedValue := matchedValue encodeGraphForMessagePackWith: #matchedType.
+	matchedValue := encodedFields at: #matchedValue.
 	testingExpression := encodedFields at: #testingExpression.
 ]
 
