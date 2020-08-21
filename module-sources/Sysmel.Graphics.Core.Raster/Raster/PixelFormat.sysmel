@@ -145,7 +145,6 @@ enum PixelFormat valueType: UInt32; values: #{
     R8G8B8_UNorm:.
     R8G8B8_UNormSRGB:.
     R8G8B8_SNorm:.
-    R8G8B8_SNormSRGB:.
 
     B8G8R8_UNorm:.
     B8G8R8_UNormSRGB:.
@@ -204,7 +203,7 @@ enum PixelFormat valueType: UInt32; values: #{
 
         ## 3 Bytes types.
         (
-        R8G8B8_UNorm, R8G8B8_UNormSRGB, R8G8B8_SNorm, R8G8B8_SNormSRGB,
+        R8G8B8_UNorm, R8G8B8_UNormSRGB, R8G8B8_SNorm,
         B8G8R8_UNorm, B8G8R8_UNormSRGB,
         ) asValueInSetPattern : {
             return: 3
@@ -300,7 +299,7 @@ enum PixelFormat valueType: UInt32; values: #{
             ASTC10X6_UNormSRGB, ASTC10X8_UNormSRGB, ASTC10X10_UNormSRGB, ASTC12X10_UNormSRGB,
             ASTC12X12_UNormSRGB,
 
-            R8G8B8_UNormSRGB, R8G8B8_SNormSRGB, B8G8R8_UNormSRGB, ETC1_R8G8B8_UNormSRGB,
+            R8G8B8_UNormSRGB, B8G8R8_UNormSRGB, ETC1_R8G8B8_UNormSRGB,
             B4G4R4A4_UNormSRGB
         ) asValueInSetPattern : {
             true
@@ -518,7 +517,6 @@ enum PixelFormat valueType: UInt32; values: #{
         ASTC12X10_UNormSRGB : ASTC12X10_UNorm.
         ASTC12X12_UNormSRGB : ASTC12X12_UNorm.
         R8G8B8_UNormSRGB : R8G8B8_UNorm.
-        R8G8B8_SNorm : R8G8B8_SNormSRGB.
         B8G8R8_UNormSRGB : B8G8R8_UNorm.
         B4G4R4A4_UNormSRGB : B4G4R4A4_UNorm.
         ETC1_R8G8B8_UNormSRGB : ETC1_R8G8B8_UNorm.
@@ -553,7 +551,6 @@ enum PixelFormat valueType: UInt32; values: #{
         ASTC12X10_UNorm : ASTC12X10_UNormSRGB.
         ASTC12X12_UNorm : ASTC12X12_UNormSRGB.
         R8G8B8_UNorm : R8G8B8_UNormSRGB.
-        R8G8B8_SNorm : R8G8B8_SNormSRGB.
         B8G8R8_UNorm : B8G8R8_UNormSRGB.
         B4G4R4A4_UNorm : B4G4R4A4_UNormSRGB.
         ETC1_R8G8B8_UNorm : ETC1_R8G8B8_UNormSRGB.

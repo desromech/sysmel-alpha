@@ -3,6 +3,92 @@ namespace Graphics definition: {
 namespace ImageFormats definition: {
 
 useNamespace: Stdn Graphics Core.
+useNamespace: LibJPEG.
+
+compileTime constant JPEGInputBufferSize := 4096.
+
+class JPEGError superclass: Error; definition: {
+
+}.
+
+function jpegErrorRaiseFunction(cinfo: j_common_ptr) => Void := {
+    cinfo _ err _ output_message(cinfo).
+
+    let exception mutable := JPEGError().
+    exception signal
+}.
+
+struct JPEGStreamSource definition: {
+    public field pub type: jpeg_source_mgr.
+    public field stream type: Stdn IO Stream pointer.
+    public field buffer type: UInt8 pointer.
+    public field startOfFile type: Boolean8.
+}.
+
+function jpegInitSource(cinfo: j_decompress_ptr) => Void := {
+    let source := cinfo _ src reinterpretCastTo: JPEGStreamSource pointer.
+    source _ startOfFile: true.
+}.
+
+function jpegFillInputBuffer(cinfo: j_decompress_ptr) => Int32 := {
+    let source := cinfo _ src reinterpretCastTo: JPEGStreamSource pointer.
+    let readedCount mutable := source _ stream _ read: source _ buffer size: JPEGInputBufferSize.
+    readedCount <= 0 ifTrue: {
+        source _ startOfFile ifTrue: {
+            Stdn stderr << "Empty jpeg file"; nl.
+            jpegErrorRaiseFunction(cinfo)
+        }.
+
+        ## Insert fake EOI.
+        source _ buffer[0] := 16rff.
+        source _ buffer[1] := JPEG_EOI.
+        readedCount := 2.
+    }.
+
+    source _ pub
+        next_input_byte: source _ buffer;
+        bytes_in_buffer: (readedCount castTo: UIntPointer).
+    source _ startOfFile: false.
+    1
+}.
+
+function jpegSkipInputData(cinfo: j_decompress_ptr, byteCount: CTypes Long) => Void := {
+    let source := cinfo _ src.
+    byteCount < 0 ifTrue: {return: void}.
+    Stdn stdout << "jpegSkipInputData  " << byteCount; nl.
+
+    let remainingByteCount mutable := byteCount castTo: UIntPointer.
+    while: remainingByteCount > source _ bytes_in_buffer do: {
+        remainingByteCount := remainingByteCount - source _ bytes_in_buffer.
+        source _ fill_input_buffer(cinfo).
+    }.
+
+    source _
+        next_input_byte: source _ next_input_byte + remainingByteCount;
+        bytes_in_buffer: source _ bytes_in_buffer - remainingByteCount
+}.
+
+function jpegTermSource(cinfo: j_decompress_ptr) => Void := {
+    ## Nothing is required here.
+}.
+
+function setJpegStreamSource(cinfo: j_decompress_ptr, stream: Stdn IO Stream pointer) => Void := {
+    let source := cinfo _ mem _ alloc_small(cinfo, JPOOL_PERMANENT, JPEGStreamSource instanceSize) reinterpretCastTo: JPEGStreamSource pointer.
+    source _
+        stream: stream;
+        buffer: (cinfo _ mem _ alloc_small(cinfo, JPOOL_PERMANENT, JPEGInputBufferSize) reinterpretCastTo: UInt8 pointer);
+        startOfFile: false.
+    source _ pub
+        init_source: jpegInitSource address;
+        fill_input_buffer: jpegFillInputBuffer address;
+        skip_input_data: jpegSkipInputData address;
+        resync_to_restart: jpeg_resync_to_restart address;
+        term_source: jpegTermSource address;
+        bytes_in_buffer: 0;
+        next_input_byte: nil.
+
+    cinfo _ src: source _ pub address.
+}.
 
 class JPEGImageReadWriter superclass: ImageReadWriter; definition: {
     const override method supportsExtension: (extension: Char8 const arraySlice) ::=> Boolean8
@@ -12,8 +98,61 @@ class JPEGImageReadWriter superclass: ImageReadWriter; definition: {
         := mimeType = "image/jpeg".
 
     const override method readFormFromStream: (inputStream: Stdn IO Stream ref) ::=> FormPtr := {
-        Stdn stdout << "TODO: JPEGImageReadWriter >> readFormFromStream"; nl.
-        FormPtr nil
+        let cinfo mutable := jpeg_decompress_struct().
+        let jerr mutable := jpeg_error_mgr().
+
+        cinfo err: jpeg_std_error(jerr address).
+        jerr error_exit: jpegErrorRaiseFunction address.
+
+        let result mutable := FormPtr nil.
+        try:
+        {
+            jpeg_create_decompress(cinfo address).
+
+            ## Create the source.
+            setJpegStreamSource(cinfo address, inputStream address).
+
+            ## Read the header.
+            jpeg_read_header(cinfo address, 1).
+
+            ## Read the width, height and compute the form pixel format.
+            let width := cinfo image_width castTo: UInt32.
+            let height := cinfo image_height castTo: UInt32.
+            let numComponents := cinfo num_components castTo: UInt32.
+            let pixelFormat := cinfo num_components selectCase: #{
+            1 : PixelFormat R8_UNorm.
+            3 : PixelFormat R8G8B8_UNormSRGB.
+            _ : (return: FormPtr nil)
+            }.
+
+            ## Start the decompression.
+            jpeg_start_decompress(cinfo address).
+
+            let destPitch := width * pixelFormat bytesPerPixel.
+
+            result := Form sharedNew.
+            result _
+                extent: UInt32x2(width, height);
+                pitch: destPitch;
+                pixelFormat: pixelFormat.
+            result _ pixels reset: (Stdn zmalloc(destPitch * height) reinterpretCastTo: UInt8 pointer).
+
+            let rowBuffer := cinfo mem _ alloc_sarray(cinfo address, JPOOL_PERMANENT, width * numComponents, 1).
+            let destRow mutable := result _ pixels getPointer.
+            0 until: height do: {:y :: Void |
+                jpeg_read_scanlines(cinfo address, rowBuffer, 1).
+                Stdn memcpy(destRow, rowBuffer[0], destPitch).
+                destRow := destRow + destPitch
+            }.
+
+            jpeg_finish_decompress(cinfo address).
+        } catch: JPEGError doing: {:e :: Void |
+            result reset
+        } finally: {
+            jpeg_destroy_decompress(cinfo address).
+        }.
+
+        result
     }.
 }.
 

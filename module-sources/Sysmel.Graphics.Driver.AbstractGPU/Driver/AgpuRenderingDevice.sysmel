@@ -106,6 +106,28 @@ sealed class AgpuRenderingDevice superclass: RenderingDevice; definition: {
         result upCastFor: Texture
     }.
 
+    override method createColorTextureWithData: (textureData: TextureData const ref) ::=> TexturePtr := {
+        let bytesPerPixel := textureData format bytesPerPixel.
+        bytesPerPixel = 3 || bytesPerPixel = 6 ifTrue: {
+            let expandedTexture := textureData asTextureDataWithExpandedUnalignedRGBFormats.
+            expandedTexture ifNil: {return: TexturePtr nil}.
+            return: (super createColorTextureWithData: expandedTexture _)
+        }.
+
+        super createColorTextureWithData: textureData
+    }.
+
+    override method createTextureWithData: (textureData: TextureData const ref) ::=> TexturePtr := {
+        let bytesPerPixel := textureData format bytesPerPixel.
+        bytesPerPixel = 3 || bytesPerPixel = 6 ifTrue: {
+            let expandedTexture := textureData asTextureDataWithExpandedUnalignedRGBFormats.
+            expandedTexture ifNil: {return: TexturePtr nil}.
+            return: (super createTextureWithData: expandedTexture _)
+        }.
+
+        super createTextureWithData: textureData
+    }.
+
     override method createSampler: (description: SamplerDescription const ref) ::=> SamplerPtr := {
         let convertedDescription mutable := AGPU SamplerDescription()
             filter: (description filter castTo: AGPU Filter);

@@ -1,0 +1,322 @@
+namespace LibJPEG definition: {
+
+compileTime constant JPEG_LIB_VERSION := 80.
+
+compileTime constant JDIMENSION := UInt32.
+
+enum J_COLOR_SPACE valueType: UInt32; values: #{
+    JCS_UNKNOWN: 0.
+    JCS_GRAYSCALE:.
+    JCS_RGB:.
+
+    JCS_YCbCr:.
+    JCS_CMYK:.
+    JCS_YCCK:.
+    JCS_EXT_RGB:.
+    JCS_EXT_RGBX:.
+    JCS_EXT_BGR:.
+    JCS_EXT_BGRX:.
+    JCS_EXT_XBGR:.
+    JCS_EXT_XRGB:.
+
+    JCS_EXT_RGBA:.
+    JCS_EXT_BGRA:.
+    JCS_EXT_ABGR:.
+    JCS_EXT_ARGB:.
+    JCS_RGB565:.
+}.
+
+enum J_DCT_METHOD valueType: UInt32; values: #{
+    JDCT_ISLOW: 0.
+    JDCT_IFAST:.
+    JDCT_FLOAT:.
+}.
+
+enum J_DITHER_MODE valueType: UInt32; values: #{
+    JDITHER_NONE: 0.
+    JDITHER_ORDERED:.
+    JDITHER_FS:.
+}.
+
+compileTime constant DCTSIZE := 8.
+compileTime constant DCTSIZE2 := 64.
+compileTime constant NUM_QUANT_TBLS := 4.
+compileTime constant NUM_HUFF_TBLS := 4.
+compileTime constant NUM_ARITH_TBLS := 16.
+compileTime constant MAX_COMPS_IN_SCAN := 4.
+compileTime constant MAX_SAMP_FACTOR := 4.
+
+compileTime constant JSAMPLE := UInt8.
+
+compileTime constant JSAMPROW := JSAMPLE pointer.
+compileTime constant JSAMPARRAY := JSAMPROW pointer.
+compileTime constant JSAMPIMAGE := JSAMPARRAY pointer.
+
+compileTime constant JCOEF := UInt16.
+compileTime constant JBLOCK := JCOEF array: DCTSIZE2.
+compileTime constant JBLOCKROW := JBLOCK pointer.
+compileTime constant JBLOCKARRAY := JBLOCKROW pointer.
+compileTime constant JBLOCKIMAGE := JBLOCKARRAY pointer.
+
+compileTime constant JCOEFPTR := JCOEF pointer.
+
+compileTime constant C_MAX_BLOCKS_IN_MCU := 10.
+compileTime constant D_MAX_BLOCKS_IN_MCU := 10.
+
+compileTime constant JPEG_RST0       := 16rD0.
+compileTime constant JPEG_EOI        := 16rD9.
+compileTime constant JPEG_APP0       := 16rE0.
+compileTime constant JPEG_COM        := 16rFE.
+
+struct JQUANT_TBL definition: {
+    public field quantval type: (UInt16 array: DCTSIZE2).
+    public field sent_table type: Int32.
+}.
+
+struct JHUFF_TBL definition: {
+    public field bits type: (UInt8 array: 17).
+
+    public field huffval type: (UInt8 array: 256).
+    public field sent_table type: Int32.
+}.
+
+class jpeg_common_fields definition: {
+    public field err type: jpeg_error_mgr pointer.
+    public field mem type: jpeg_memory_mgr pointer.
+    public field progress type: jpeg_progress_mgr pointer.
+    public field client_data type: Void pointer.
+    public field is_decompressor type: Int32.
+    public field global_state type: Int32.
+}.
+
+compileTime constant j_common_ptr := jpeg_common_fields pointer.
+compileTime constant j_compress_ptr := jpeg_compress_struct pointer.
+compileTime constant j_decompress_ptr := jpeg_decompress_struct pointer.
+
+struct jpeg_marker_struct.
+compileTime constant jpeg_saved_marker_ptr := jpeg_marker_struct pointer.
+
+struct jpeg_component_info definition: {
+
+}.
+
+struct jpeg_error_mgr definition: {
+    compileTime constant JMSG_STR_PARM_MAX := 80.
+
+    public field error_exit type: (j_common_ptr => Void) pointer.
+    public field emit_message type: ((j_common_ptr -- Int32) => Void) pointer.
+    public field output_message type: (j_common_ptr => Void) pointer.
+    public field format_message type: ((j_common_ptr -- Char8 pointer) => Void) pointer.
+    public field reset_error_mgr type: (j_common_ptr => Void) pointer.
+
+    public field msg_code type: Int32.
+    public field msg_parm type: (Char8 array: JMSG_STR_PARM_MAX).
+
+    public field trace_level type: Int32.
+    public field num_warnings type: CTypes Long.
+    public field jpeg_message_table type: Char8 const pointer const pointer.
+    public field last_jpeg_message type: Int32.
+    public field addon_message_table type: Char8 const pointer const pointer.
+    public field first_addon_message type: Int32.
+    public field last_addon_message type: Int32.
+}.
+
+compileTime constant JPOOL_PERMANENT := 0.
+compileTime constant JPOOL_IMAGE     := 1.
+compileTime constant JPOOL_NUMPOOLS  := 2.
+
+struct jpeg_memory_mgr definition: {
+    public field alloc_small type: ((j_common_ptr -- Int32 -- UIntPointer) => Void pointer) pointer.
+    public field alloc_large type: ((j_common_ptr -- Int32 -- UIntPointer) => Void pointer) pointer.
+
+    public field alloc_sarray type: ((j_common_ptr -- Int32 -- JDIMENSION -- JDIMENSION) => JSAMPARRAY) pointer.
+}.
+
+struct jpeg_progress_mgr definition: {
+
+}.
+
+struct jpeg_destination_mgr definition: {
+    public field next_output_byte type: UInt8 pointer.
+    public field free_in_buffer type: UIntPointer.
+
+    public field init_destination type: (j_compress_ptr => Void) pointer.
+    public field empty_output_buffer type: (j_compress_ptr => Int32) pointer.
+    public field term_destination type: (j_compress_ptr => Void) pointer.
+}.
+
+struct jpeg_source_mgr definition: {
+    public field next_input_byte type: UInt8 const pointer.
+    public field bytes_in_buffer type: UIntPointer.
+
+    public field init_source type: (j_decompress_ptr => Void) pointer.
+    public field fill_input_buffer type: (j_decompress_ptr => Int32) pointer.
+    public field skip_input_data type: ((j_decompress_ptr -- CTypes Long) => Void) pointer.
+    public field resync_to_restart type: ((j_decompress_ptr -- Int32) => Int32) pointer.
+    public field term_source type: ((j_decompress_ptr) => Void) pointer.
+}.
+
+class jpeg_compress_struct superclass: jpeg_common_fields; definition: {
+
+}.
+
+struct jpeg_decomp_master.
+struct jpeg_d_main_controller.
+struct jpeg_d_coef_controller.
+struct jpeg_d_post_controller.
+struct jpeg_input_controller.
+struct jpeg_marker_reader.
+struct jpeg_entropy_decoder.
+struct jpeg_inverse_dct.
+struct jpeg_upsampler.
+struct jpeg_color_deconverter.
+struct jpeg_color_quantizer.
+
+class jpeg_decompress_struct superclass: jpeg_common_fields; definition: {
+    public field src type: jpeg_source_mgr pointer.
+
+    public field image_width type: JDIMENSION.
+    public field image_height type: JDIMENSION.
+    public field num_components type: Int32.
+    public field jpeg_color_space type: J_COLOR_SPACE.
+
+    public field out_color_space type: J_COLOR_SPACE.
+    public field scale_num type: UInt32.
+    public field scale_denom type: UInt32.
+
+    public field output_gamma type: Float64.
+
+    public field buffered_image type: Int32.
+    public field raw_data_out type: Int32.
+
+    public field dct_method type: J_DCT_METHOD.
+    public field do_fancy_upsampling type: Int32.
+    public field do_block_smoothing type: Int32.
+
+    public field quantize_colors type: Int32.
+    public field dither_mode type: J_DITHER_MODE.
+    public field two_pass_quantize type: Int32.
+    public field desired_number_of_colors type: Int32.
+    public field enable_1pass_quant type: Int32.
+    public field enable_external_quant type: Int32.
+    public field enable_2pass_quant type: Int32.
+
+    public field output_width type: JDIMENSION.
+    public field output_height type: JDIMENSION.
+    public field out_color_components type: Int32.
+    public field output_components type: Int32.
+    public field rec_outbuf_height type: Int32.
+
+    public field actual_number_of_colors type: Int32.
+    public field colormap type: JSAMPARRAY.
+
+    public field output_scanline type: JDIMENSION.
+
+    public field input_scan_number type: Int32.
+    public field input_iMCU_row type: JDIMENSION.
+
+    public field output_scan_number type: Int32.
+    public field output_iMCU_row type: JDIMENSION.
+
+    public field coef_bits type: ((Int8 array: DCTSIZE2) pointer).
+
+    public field quant_tbl_ptrs type: (JQUANT_TBL pointer array: NUM_QUANT_TBLS).
+
+    public field dc_huff_tbl_ptrs type: (JHUFF_TBL pointer array: NUM_HUFF_TBLS).
+    public field ac_huff_tbl_ptrs type: (JHUFF_TBL pointer array: NUM_HUFF_TBLS).
+
+    public field data_precision type: Int32.
+
+    public field comp_info type: jpeg_component_info pointer.
+
+    public field is_baseline type: Int32.
+    public field progressive_mode type: Int32.
+    public field arith_code type: Int32.
+
+    public field arith_dc_L type: (UInt8 array: NUM_ARITH_TBLS).
+    public field arith_dc_U type: (UInt8 array: NUM_ARITH_TBLS).
+    public field arith_dc_K type: (UInt8 array: NUM_ARITH_TBLS).
+
+    public field restart_interval type: UInt32.
+
+    public field saw_JFIF_marker type: Int32.
+
+    public field JFIF_major_version type: UInt8.
+    public field JFIF_minor_version type: UInt8.
+    public field density_unit type: UInt8.
+    public field X_density type: UInt16.
+    public field Y_density type: UInt16.
+    public field saw_Adobe_marker type: Int32.
+    public field Adobe_transform type: UInt8.
+
+    public field CCIR601_sampling type: Int32.
+
+    public field marker_list type: jpeg_saved_marker_ptr.
+
+    public field max_h_samp_factor type: Int32.
+    public field max_v_samp_factor type: Int32.
+
+    public field min_DCT_h_scaled_size type: Int32.
+    public field min_DCT_v_scaled_size type: Int32.
+
+    public field total_iMCU_rows type: JDIMENSION.
+
+    public field sample_range_limit type: JSAMPLE pointer.
+
+    public field comps_in_scan type: Int32.
+    public field cur_comp_info type: (jpeg_component_info pointer array: MAX_COMPS_IN_SCAN).
+
+    public field MCUs_per_row type: JDIMENSION.
+    public field MCU_rows_in_scan type: JDIMENSION.
+
+    public field blocks_in_MCU type: Int32.
+    public field MCU_membership type: (Int32 array: D_MAX_BLOCKS_IN_MCU).
+
+    public field Ss type: Int32.
+    public field Se type: Int32.
+    public field Ah type: Int32.
+    public field Al type: Int32.
+
+    public field block_size type: Int32.
+    public field natural_order type: (Int32 const pointer).
+    public field lim_Se type: Int32.
+
+    public field unread_marker type: Int32.
+
+    public field master type: jpeg_decomp_master pointer.
+    public field main type: jpeg_d_main_controller pointer.
+    public field coef type: jpeg_d_coef_controller pointer.
+    public field post type: jpeg_d_post_controller pointer.
+    public field inputctl type: jpeg_input_controller pointer.
+    public field marker type: jpeg_marker_reader pointer.
+    public field entropy type: jpeg_entropy_decoder pointer.
+    public field idct type: jpeg_inverse_dct pointer.
+    public field upsample type: jpeg_upsampler pointer.
+    public field cconvert type: jpeg_color_deconverter pointer.
+    public field cquantize type: jpeg_color_quantizer pointer.
+}.
+
+function jpeg_std_error externC(err: jpeg_error_mgr pointer) => jpeg_error_mgr pointer.
+
+function jpeg_CreateCompress externC(cinfo: j_compress_ptr, version: Int32, structsize: UIntPointer) => Void.
+function jpeg_CreateDecompress externC(cinfo: j_decompress_ptr, version: Int32, structsize: UIntPointer) => Void.
+
+function jpeg_create_compress(cinfo: j_compress_ptr) => Void := {
+    jpeg_CreateCompress(cinfo, JPEG_LIB_VERSION, jpeg_compress_struct instanceSize).
+}.
+
+function jpeg_create_decompress(cinfo: j_decompress_ptr) => Void := {
+    jpeg_CreateDecompress(cinfo, JPEG_LIB_VERSION, jpeg_decompress_struct instanceSize).
+}.
+
+function jpeg_destroy_compress externC(cinfo: j_compress_ptr) => Void.
+function jpeg_destroy_decompress externC(cinfo: j_decompress_ptr) => Void.
+
+function jpeg_resync_to_restart externC(cinfo: j_decompress_ptr, desired: Int32) => Int32.
+function jpeg_read_header externC(cinfo: j_decompress_ptr, require_image: Int32) => Int32.
+
+function jpeg_start_decompress externC(cinfo: j_decompress_ptr) => Int32.
+function jpeg_read_scanlines externC(cinfo: j_decompress_ptr, scanlines: JSAMPARRAY, max_lines: JDIMENSION) => Int32.
+function jpeg_finish_decompress externC(cinfo: j_decompress_ptr) => Int32.
+
+}. ## End of namespace LibJPEG
