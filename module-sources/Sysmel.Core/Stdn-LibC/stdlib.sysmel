@@ -18,6 +18,9 @@ namespace LibC definition: {
     function strtoul externC dllimport (str: ConstString, endptr: Char8 pointer pointer) => ULong.
     function strtoull externC dllimport (str: ConstString, endptr: Char8 pointer pointer) => ULongLong.
 
+    ## Environment
+    function getenv externC dllimport (name: Char8 const pointer) => Char8 const pointer.
+
     ## Memory management
     function calloc externC dllimport (nitems: SizeT, size: SizeT) => Void pointer.
     function malloc externC dllimport (size: SizeT) => Void pointer.

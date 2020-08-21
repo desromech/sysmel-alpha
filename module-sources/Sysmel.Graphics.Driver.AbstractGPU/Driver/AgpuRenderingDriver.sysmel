@@ -32,8 +32,11 @@ sealed class AgpuRenderingDriver superclass: RenderingDriver; definition: {
             return: AgpuRenderingDevicePtr nil.
         }.
 
+        let debugLayerEnabledVariable := LibC getenv("AGPU_DEBUG").
+        let debugLayerEnabled := debugLayerEnabledVariable isNotNil && (debugLayerEnabledVariable[0] ~= 'n' && debugLayerEnabledVariable[0] ~= '0').
+
         let deviceOpenInfo mutable := AGPU DeviceOpenInfo()
-            debug_layer: 1;
+            debug_layer: debugLayerEnabled asBit;
             yourself.
 
         let deviceHandle := agpuPlatform _ openDevice: deviceOpenInfo address.
