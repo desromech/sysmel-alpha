@@ -276,6 +276,11 @@ MbndAstNode >> isDictionaryNode [
 ]
 
 { #category : #testing }
+MbndAstNode >> isDiscardFragmentStatementNode [
+	^ false
+]
+
+{ #category : #testing }
 MbndAstNode >> isDoWhileLoopNode [
 	^ false
 ]

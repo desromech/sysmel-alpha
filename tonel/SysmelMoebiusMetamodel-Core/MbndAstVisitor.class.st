@@ -160,6 +160,11 @@ MbndAstVisitor >> visitDictionaryNode: node [
 ]
 
 { #category : #visiting }
+MbndAstVisitor >> visitDiscardFragmentStatementNode: node [
+	self subclassResponsibility
+]
+
+{ #category : #visiting }
 MbndAstVisitor >> visitDoWhileLoopNode: node [
 	self subclassResponsibility
 ]

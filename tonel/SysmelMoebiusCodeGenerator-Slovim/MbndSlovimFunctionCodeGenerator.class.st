@@ -2272,6 +2272,12 @@ MbndSlovimFunctionCodeGenerator >> visitDestructuringAssignmentNode: node [
 ]
 
 { #category : #visiting }
+MbndSlovimFunctionCodeGenerator >> visitDiscardFragmentStatementNode: node [
+	slvmBuilder discardFragment.
+	^ nil
+]
+
+{ #category : #visiting }
 MbndSlovimFunctionCodeGenerator >> visitDoWhileLoopNode: node [
 	| loopHeader loopBody loopContinue loopMerge loopCondition |
 	loopHeader := slvmBuilder newBasicBlock: #doWhileHeader.

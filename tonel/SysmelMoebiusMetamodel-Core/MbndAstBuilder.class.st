@@ -529,6 +529,15 @@ MbndAstBuilder >> dictionary: aSequenceOfNodes [
 ]
 
 { #category : #'builder methods' }
+MbndAstBuilder >> discardFragment [
+	<compileTime>
+	<returnType: #_ASTNodeType>
+	^ MbndAstDiscardFragmentStatementNode new
+		position: defaultPosition;
+		yourself
+]
+
+{ #category : #'builder methods' }
 MbndAstBuilder >> do: action continueWith: continueAction while: condition [
 	<compileTime>
 	<returnType: #_ASTNodeType>

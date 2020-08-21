@@ -91,6 +91,7 @@ MbndAstNodeTest >> testTestingMethods [
 	self deny: node isConvertToASTNodeCastNode.
 	self deny: node isDynamicObjectCastNode.
 	self deny: node isDictionaryNode.
+	self deny: node isDiscardFragmentStatementNode.
 	self deny: node isDoWhileLoopNode.
 	self deny: node isEnumDeclarationNode.
 	self deny: node isEnumDefinitionNode.

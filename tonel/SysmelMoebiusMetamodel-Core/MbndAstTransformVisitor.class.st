@@ -228,6 +228,11 @@ MbndAstTransformVisitor >> visitDictionaryNode: node [
 ]
 
 { #category : #visiting }
+MbndAstTransformVisitor >> visitDiscardFragmentStatementNode: node [
+	^ node
+]
+
+{ #category : #visiting }
 MbndAstTransformVisitor >> visitDoWhileLoopNode: node [
 	^ node copy
 		condition: (self visitNode: node condition);

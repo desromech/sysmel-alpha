@@ -1114,6 +1114,13 @@ MbndAstSemanticAnalyzer >> visitDestructuringAssignmentNode: node [
 ]
 
 { #category : #visiting }
+MbndAstSemanticAnalyzer >> visitDiscardFragmentStatementNode: node [
+	^ node copy
+		type: self compilationTarget returnType;
+		yourself
+]
+
+{ #category : #visiting }
 MbndAstSemanticAnalyzer >> visitDoWhileLoopNode: node [
 	| result |
 	result := node copy.

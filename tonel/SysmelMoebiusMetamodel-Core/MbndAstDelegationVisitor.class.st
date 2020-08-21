@@ -163,6 +163,11 @@ MbndAstDelegationVisitor >> visitDictionaryNode: node [
 ]
 
 { #category : #visiting }
+MbndAstDelegationVisitor >> visitDiscardFragmentStatementNode: node [
+	^ self delegateNodeVisit: node
+]
+
+{ #category : #visiting }
 MbndAstDelegationVisitor >> visitDoWhileLoopNode: node [
 	^ self delegateNodeVisit: node
 ]
