@@ -18,4 +18,6 @@ class FragmentStageInput definition: {
 	public field isFrontFacing type: Boolean8; intrinsic: #frontFacing.
 }.
 
+macro method discardFragment := __astBuilder discardFragment.
+
 } ## End of namespace GPU
