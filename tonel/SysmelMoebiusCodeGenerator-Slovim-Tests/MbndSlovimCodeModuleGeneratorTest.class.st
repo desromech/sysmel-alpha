@@ -3903,6 +3903,41 @@ function tupleShuffle cdecl (struct nil generic (i32 i32) (element0 element1) ()
 ]
 
 { #category : #tests }
+MbndSlovimCodeModuleGeneratorTest >> testDestructuringAssignment10 [
+	| function |
+	self
+		evaluateSysmelSource: '
+function tupleFirst externC(tuple: (Int32 pointer -- Int32)) => Int32 pointer := {
+	let (let a, let _) := tuple.
+	a
+}';
+		generateSSAModule.
+
+	function := ssaModule globalNamed: #tupleFirst.
+	self assert: function asFullSExpressionForTesting equals: #(
+function tupleFirst cdecl (pointer i32 generic)
+	arguments (
+		(tuple (struct nil generic ((pointer i32 generic) i32) (element0 element1) ()) ())
+	)
+	literals (
+	)
+	blocks (
+		(()
+			(nil jump void () () (block 2 body))
+		)
+		(()
+			(nil jump void () () (block 3 tryScope))
+		)
+		(()
+			(nil extractValue (pointer i32 generic) () ((local 0 tuple)) (0))
+			(nil extractValue i32 () ((local 0 tuple)) (1))
+			(nil return void () ((local 3 nil)))
+		)
+	)
+	)
+]
+
+{ #category : #tests }
 MbndSlovimCodeModuleGeneratorTest >> testDestructuringAssignment2 [
 	| function |
 	self
@@ -4182,6 +4217,42 @@ function tupleFirst cdecl i32
             (nil return void () ((local 13 nil)))
         )
     )
+	)
+]
+
+{ #category : #tests }
+MbndSlovimCodeModuleGeneratorTest >> testDestructuringAssignment9 [
+	| function |
+	self
+		evaluateSysmelSource: '
+function tupleFirst externC(tuple: (Int32 pointer -- Int32) const ref) => Int32 pointer := {
+	let (let a, let _) := tuple.
+	a
+}';
+		generateSSAModule.
+
+	function := ssaModule globalNamed: #tupleFirst.
+	self assert: function asFullSExpressionForTesting equals: #(
+function tupleFirst cdecl (pointer i32 generic)
+	arguments (
+		(tuple (pointer (struct nil generic ((pointer i32 generic) i32) (element0 element1) ()) generic) ())
+	)
+	literals (
+	)
+	blocks (
+		(()
+			(nil jump void () () (block 2 body))
+		)
+		(()
+			(nil jump void () () (block 3 tryScope))
+		)
+		(()
+			(nil getElementPointer (pointer (pointer i32 generic) generic) () ((local 0 tuple) (const i32 0) (const i32 0)))
+			(nil getElementPointer (pointer i32 generic) () ((local 0 tuple) (const i32 0) (const i32 1)))
+			(nil load (pointer i32 generic) () ((local 3 nil)))
+			(nil return void () ((local 5 nil)))
+		)
+	)
 	)
 ]
 

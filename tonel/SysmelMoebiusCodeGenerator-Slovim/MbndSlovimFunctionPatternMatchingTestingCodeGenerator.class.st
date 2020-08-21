@@ -105,7 +105,7 @@ MbndSlovimFunctionPatternMatchingTestingCodeGenerator >> visitPatternMatchingBin
 			| bindingInitialValue |
 			bindingInitialValue := matchedValue.
 			(binding valueType isReferenceType or: [ binding valueType isTemporaryReferenceType ]) ifFalse: [ 
-				(node requiredType isMemoryReturnedType not and: [ bindingInitialValue type isPointerType ]) ifTrue: [
+				(node requiredType isMemoryReturnedType not and: [ bindingInitialValue type isPointerType and: [ matchedValue isExtractValue not ]]) ifTrue: [
 					bindingInitialValue := functionCodeGenerator slvmBuilder load: bindingInitialValue
 				].
 			].
