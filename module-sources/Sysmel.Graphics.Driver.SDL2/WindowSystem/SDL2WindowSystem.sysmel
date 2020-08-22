@@ -151,9 +151,7 @@ class SDL2WindowSystem superclass: WindowSystem; definition: {
     }.
 
     method findWrapperForWindowID: (id: UInt32) ::=> Window sharedPointer := {
-        let wrapper mutable := (windowIDDictionary at: id ifAbsent: { :: (SDL2Window sharedPointer) |
-            SDL2Window sharedPointer nil
-        }).
+        let wrapper mutable := windowIDDictionary at: id ifAbsent: SDL2Window sharedPointer nil.
 
         wrapper upCastFor: Window.
     }.

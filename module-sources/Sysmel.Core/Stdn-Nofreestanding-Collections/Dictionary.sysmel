@@ -90,13 +90,46 @@ template Dictionary(KT: Stdn Concepts HashKey, VT: Stdn Concepts Copyable)
         storage_[slotIndex] _ value
     }.
 
-    inline method at: (key: KeyType const ref) ifAbsent: (absentBlock: (Void => ValueType) nativeBlockClosure) ::=> ValueType := {
+    inline method valueAtOrNil: (key: KeyType const ref) ::=> ValueType pointer  := {
         let slotIndex mutable := self scanFor: key.
         (self isValidIndex: slotIndex) && storage_[slotIndex] isPresent ifTrue: {
-            return: storage_[slotIndex] _ value
+            storage_[slotIndex] _ value address
         } ifFalse: {
-            return: absentBlock()
-        }.
+            nil
+        }
+    }.
+
+    const inline method valueAtOrNil: (key: KeyType const ref) ::=> ValueType const pointer := {
+        let slotIndex mutable := self scanFor: key.
+        (self isValidIndex: slotIndex) && storage_[slotIndex] isPresent ifTrue: {
+            storage_[slotIndex] _ value address
+        } ifFalse: {
+            nil
+        }
+    }.
+
+    macro method at: key ifAbsent: absentBlock := {
+        let valuePointer := __astBuilder gensym: #valuePointer.
+        ``{
+            let `,valuePointer := `,self valueAtOrNil: `,key.
+            `,valuePointer == nil ifTrue: `,absentBlock ifFalse: `,valuePointer _
+        } asSequenceWithoutLexicalScope
+    }.
+
+    macro method at: key ifPresent: presentBlock ifAbsent: absentBlock := {
+        let valuePointer := __astBuilder gensym: #valuePointer.
+        ``{
+            let `,valuePointer := `,self valueAtOrNil: `,key.
+            `,valuePointer == nil ifTrue: `,absentBlock ifFalse: (`,presentBlock __macroInlineBlock: `,valuePointer _)
+        } asSequenceWithoutLexicalScope
+    }.
+
+    macro method at: key ifPresent: presentBlock := {
+        let valuePointer := __astBuilder gensym: #valuePointer.
+        ``{
+            let `,valuePointer := `,self valueAtOrNil: `,key.
+            `,valuePointer ~~ nil ifTrue: (`,presentBlock __macroInlineBlock: `,valuePointer _)
+        } asSequenceWithoutLexicalScope
     }.
 
     inline method at: (key: KeyType const ref) ifAbsentPut: (absentBlock: (Void => ValueType) nativeBlockClosure) ::=> ValueType ref := {
@@ -119,42 +152,6 @@ template Dictionary(KT: Stdn Concepts HashKey, VT: Stdn Concepts Copyable)
         }.
 
         return: storage_[slotIndex] _ value
-    }.
-
-    inline method at: (key: KeyType const ref)
-        ifPresent: (presentBlock: ((ValueType ref) => Void) nativeBlockClosure)
-        ifAbsent: (absentBlock: (Void => Void) nativeBlockClosure) ::=> Void := {
-
-        let slotIndex mutable := self scanFor: key.
-        (self isValidIndex: slotIndex) && (storage_[slotIndex] isPresent) ifTrue: {
-            presentBlock(storage_[slotIndex] _ value)
-        } ifFalse: {
-            absentBlock()
-        }
-    }.
-
-    inline method at: (key: KeyType const ref)
-        ifPresent: (presentBlock: ((ValueType ref) => Void) nativeBlockClosure) ::=> Void := {
-
-        self at: key ifPresent: presentBlock ifAbsent: {:: Void | }
-    }.
-
-    const inline method at: (key: KeyType const ref)
-        ifPresent: (presentBlock: ((ValueType const ref) => Void) nativeBlockClosure)
-        ifAbsent: (absentBlock: (Void => Void) nativeBlockClosure) ::=> Void := {
-
-        let slotIndex mutable := self scanFor: key.
-        (self isValidIndex: slotIndex) && (storage_[slotIndex] isPresent) ifTrue: {
-            presentBlock(storage_[slotIndex] _ value)
-        } ifFalse: {
-            absentBlock()
-        }
-    }.
-
-    const inline method at: (key: KeyType const ref)
-        ifPresent: (presentBlock: ((ValueType const ref) => Void) nativeBlockClosure) ::=> Void := {
-
-        self at: key ifPresent: presentBlock ifAbsent: {:: Void | }
     }.
 
     inline method at: (key: KeyType const ref)
