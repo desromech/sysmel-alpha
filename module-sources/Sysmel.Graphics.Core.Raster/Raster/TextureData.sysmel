@@ -77,7 +77,8 @@ class TextureData superclass: TextureDataHeader; definition: {
         linearDataSize := currentDataOffset
     }.
 
-    const method expand24To32BitsWithFormat: (newFormat: PixelFormat) srgbFormat: (newSRGBFormat: PixelFormat) ::=> TextureData sharedPointer := {
+    inline const method convertIntoPixelFormat: (newFormat: PixelFormat) srgbFormat: (newSRGBFormat: PixelFormat)
+        with: (pixelConversionBlock: ((UInt8 pointer -- UInt8 const pointer) => Void) nativeStackBlockClosure) ::=> TextureData sharedPointer := {
         let result := TextureData sharedNew.
         result _
             type: type;
@@ -93,6 +94,9 @@ class TextureData superclass: TextureDataHeader; definition: {
             mainViewComponents: mainViewComponents;
             computeLinearPackedTextureLevelMetadata.
         Stdn assert: levelsData size = result _ levelsData size.
+        let sourcePixelSize := format bytesPerPixel.
+        let destPixelSize := newFormat bytesPerPixel.
+
         result _ pixels reset: (Stdn zmalloc(result _ linearDataSize) reinterpretCastTo: UInt8 pointer).
 
         0 until: levelsData size do: {:i :: Void |
@@ -108,13 +112,10 @@ class TextureData superclass: TextureDataHeader; definition: {
                     let sourcePixels mutable := sourceRow.
                     let destPixels mutable := destRow.
                     0 until: sourceLevel extent x do: {:x :: Void |
-                        destPixels[0] := sourcePixels[0].
-                        destPixels[1] := sourcePixels[1].
-                        destPixels[2] := sourcePixels[2].
-                        destPixels[3] := 16rff.
+                        pixelConversionBlock(destPixels, sourcePixels).
 
-                        sourcePixels := sourcePixels + 3.
-                        destPixels := destPixels + 4.
+                        sourcePixels := sourcePixels + sourcePixelSize.
+                        destPixels := destPixels + destPixelSize.
                     }.
 
                     sourceRow := sourceRow + sourceLevel pitch.
@@ -126,6 +127,16 @@ class TextureData superclass: TextureDataHeader; definition: {
         }.
 
         result
+    }.
+
+    const method expand24To32BitsWithFormat: (newFormat: PixelFormat) srgbFormat: (newSRGBFormat: PixelFormat) ::=> TextureData sharedPointer := {
+        self convertIntoPixelFormat: newFormat srgbFormat: newSRGBFormat
+            with: { :(UInt8 pointer)destPixel :(UInt8 const pointer) sourcePixel :: Void |
+                destPixel[0] := sourcePixel[0].
+                destPixel[1] := sourcePixel[1].
+                destPixel[2] := sourcePixel[2].
+                destPixel[3] := 16rff.
+        }
     }.
 
     const method asTextureDataWithExpandedUnalignedRGBFormats => TextureData sharedPointer := {
@@ -140,6 +151,272 @@ class TextureData superclass: TextureDataHeader; definition: {
         _ : (TextureData sharedPointer nil)
         }
     }.
+
+    const method computeMiplevelsRequiredDownTo: (smallestLevelExtent: UInt32x3) ::=> UInt32 := {
+        let currentExtent mutable := UInt32x3(width, height, depth).
+        let count mutable := 1u.
+        while: (currentExtent > smallestLevelExtent) isAnySet do: {
+            currentExtent := currentExtent / 2u max: smallestLevelExtent.
+            count := count + 1
+        }.
+
+        count
+    }.
+
+    method generateMiplevelsDownTo: (smallestLevelExtent: UInt32x3)
+        withBoxFilter: (boxFilterBlock: ((UInt8 pointer -- UInt8 const pointer -- UInt8 const pointer -- UInt8 const pointer -- UInt8 const pointer) => Void) nativeStackBlockClosure)
+        ::=> TextureData sharedPointer := {
+        format compressedBlockSize = 0 ifFalse: {return: TextureDataPtr nil}.
+
+        let newLevelCount := self computeMiplevelsRequiredDownTo: smallestLevelExtent.
+        newLevelCount <= miplevels ifTrue: {return: TextureDataPtr nil}.
+
+        let result := TextureData sharedNew.
+        result _
+            type: type;
+            format: format;
+            srgbFormat: srgbFormat;
+
+            width: width;
+            height: height;
+            depth: depth;
+            miplevels: newLevelCount;
+            layers: layers;
+            flags: flags;
+            mainViewComponents: mainViewComponents;
+            computeLinearPackedTextureLevelMetadata.
+        let pixelSize := format bytesPerPixel.
+
+        result _ pixels reset: (Stdn zmalloc(result _ linearDataSize) reinterpretCastTo: UInt8 pointer).
+
+        let destLevelDataIndex mutable := 0u.
+        let sourceLevelDataIndex mutable := 0u.
+        0 until: layers do: {:layerIndex :: Void |
+
+            ## Copy the base level
+            {
+                let sourceBaseLevel ref := levelsData[sourceLevelDataIndex].
+                let destBaseLevel ref := levelsData[destLevelDataIndex].
+                Stdn assert: sourceBaseLevel dataSize = destBaseLevel dataSize.
+                Stdn memcpy(result _ pixels getPointer + destBaseLevel dataOffset, pixels getPointer + sourceBaseLevel dataOffset, sourceBaseLevel dataSize)
+            }.
+
+            0 until: newLevelCount - 1 do: {:levelIndex :: Void |
+                let sourceLevel ref := result _ levelsData[destLevelDataIndex + levelIndex].
+                let destLevel ref := result _ levelsData[destLevelDataIndex + levelIndex + 1u].
+
+                let sourceRowAdvance mutable := sourceLevel pitch*2.
+                let sourceTopRowDelta mutable := sourceLevel pitch.
+                let sourcePixelAdvance mutable := pixelSize*2.
+                let sourceColumnPixelDelta mutable := pixelSize.
+
+                destLevel extent y * 2 = sourceLevel extent y ifFalse: {
+                    sourceRowAdvance := sourceLevel pitch.
+                    sourceTopRowDelta := 0.
+                }.
+                destLevel extent x * 2 = sourceLevel extent x ifFalse: {
+                    sourcePixelAdvance := pixelSize.
+                    sourceColumnPixelDelta := 0.
+                }.
+
+                let sourceSlice mutable := result _ pixels getPointer + sourceLevel dataOffset.
+                let destSlice mutable := result _ pixels getPointer + destLevel dataOffset.
+                0 until: destLevel extent z do: {:z :: Void |
+                    let sourceTopRow mutable := sourceSlice.
+                    let sourceBottomRow mutable := sourceSlice + sourceTopRowDelta.
+
+                    let destRow mutable := destSlice.
+                    0 until: destLevel extent y do: {:y :: Void |
+                        let sourceTopPixels mutable := sourceTopRow.
+                        let sourceBottomPixels mutable := sourceBottomRow.
+                        let destPixels mutable := destRow.
+                        0 until: destLevel extent x do: {:x :: Void |
+                            let sourceTopLeft := sourceTopPixels.
+                            let sourceTopRight := sourceTopPixels + sourceColumnPixelDelta.
+                            let sourceBottomLeft := sourceBottomPixels.
+                            let sourceBottomRight := sourceBottomPixels + sourceColumnPixelDelta.
+
+                            boxFilterBlock(destPixels, sourceTopLeft, sourceTopRight, sourceBottomLeft, sourceBottomRight).
+
+                            sourceTopPixels := sourceTopPixels + sourcePixelAdvance.
+                            sourceBottomPixels := sourceBottomPixels + sourcePixelAdvance.
+                            destPixels := destPixels + pixelSize.
+                        }.
+
+                        sourceTopRow := sourceTopRow + sourceRowAdvance.
+                        sourceBottomRow := sourceBottomRow + sourceRowAdvance.
+                        destRow := destRow + destLevel pitch.
+                    }.
+                    sourceSlice := sourceSlice + sourceLevel slicePitch.
+                    destSlice := destSlice + destLevel slicePitch.
+                }.
+            }.
+
+            sourceLevelDataIndex := sourceLevelDataIndex + miplevels.
+            destLevelDataIndex := destLevelDataIndex + newLevelCount.
+        }.
+
+        result
+    }.
+
+    method generateMiplevels8x3DownTo: (smallestLevelExtent: UInt32x3) ::=> TextureData sharedPointer := {
+        self generateMiplevelsDownTo: smallestLevelExtent withBoxFilter: {:destPixels
+        :sourceTopLeftPixels :sourceTopRightPixels :sourceBottomLeftPixels :sourceBottomRightPixels :: Void |
+            let topLeft := (UInt8x3(sourceTopLeftPixels[0], sourceTopLeftPixels[1], sourceTopLeftPixels[2]) castTo: Float32x3).
+            let topRight := (UInt8x3(sourceTopRightPixels[0], sourceTopRightPixels[1], sourceTopRightPixels[2]) castTo: Float32x3).
+            let bottomLeft := (UInt8x3(sourceBottomLeftPixels[0], sourceBottomLeftPixels[1], sourceBottomLeftPixels[2]) castTo: Float32x3).
+            let bottomRight := (UInt8x3(sourceBottomRightPixels[0], sourceBottomRightPixels[1], sourceBottomRightPixels[2]) castTo: Float32x3).
+
+            let filtered := (((topLeft + topRight + bottomLeft + bottomRight)*0.25f + 0.5f) floor clampMin: 0.0f max: 255.0f) castTo: UInt8x3.
+            destPixels[0] := filtered x.
+            destPixels[1] := filtered y.
+            destPixels[2] := filtered z.
+        }
+    }.
+
+    method generateMiplevels8x4DownTo: (smallestLevelExtent: UInt32x3) ::=> TextureData sharedPointer := {
+        self generateMiplevelsDownTo: smallestLevelExtent withBoxFilter: {:destPixels
+        :sourceTopLeftPixels :sourceTopRightPixels :sourceBottomLeftPixels :sourceBottomRightPixels :: Void |
+            let topLeft := (sourceTopLeftPixels reinterpretCastTo: UInt8x4 const pointer) _ castTo: Float32x4.
+            let topRight := (sourceTopRightPixels reinterpretCastTo: UInt8x4 const pointer) _ castTo: Float32x4.
+            let bottomLeft := (sourceBottomLeftPixels reinterpretCastTo: UInt8x4 const pointer) _ castTo: Float32x4.
+            let bottomRight := (sourceBottomRightPixels reinterpretCastTo: UInt8x4 const pointer) _ castTo: Float32x4.
+
+            let filtered := (((topLeft + topRight + bottomLeft + bottomRight)*0.25f + 0.5f) floor clampMin: 0.0f max: 255.0f) castTo: UInt8x4.
+            (destPixels reinterpretCastTo: UInt8x4 pointer) _ := filtered
+        }
+    }.
+
+    method generateSRGBMiplevels8x3DownTo: (smallestLevelExtent: UInt32x3) ::=> TextureData sharedPointer := {
+        useNamespace: Stdn Math Color.
+        self generateMiplevelsDownTo: smallestLevelExtent withBoxFilter: {:destPixels
+        :sourceTopLeftPixels :sourceTopRightPixels :sourceBottomLeftPixels :sourceBottomRightPixels :: Void |
+            let topLeft := Float32x3(decodeSRGBChannelUnorm8(sourceTopLeftPixels[0]), decodeSRGBChannelUnorm8(sourceTopLeftPixels[1]), decodeSRGBChannelUnorm8(sourceTopLeftPixels[2])).
+            let topRight := Float32x3(decodeSRGBChannelUnorm8(sourceTopRightPixels[0]), decodeSRGBChannelUnorm8(sourceTopRightPixels[1]), decodeSRGBChannelUnorm8(sourceTopRightPixels[2])).
+            let bottomLeft := Float32x3(decodeSRGBChannelUnorm8(sourceBottomLeftPixels[0]), decodeSRGBChannelUnorm8(sourceBottomLeftPixels[1]), decodeSRGBChannelUnorm8(sourceBottomLeftPixels[2])).
+            let bottomRight := Float32x3(decodeSRGBChannelUnorm8(sourceBottomRightPixels[0]), decodeSRGBChannelUnorm8(sourceTopLeftPixels[1]), decodeSRGBChannelUnorm8(sourceBottomRightPixels[2])).
+
+            let filtered := (topLeft + topRight + bottomLeft + bottomRight)*0.25f clampMin: 0.0f max: 1.0f.
+
+            destPixels[0] := encodeSRGBChannelUnorm8(filtered x).
+            destPixels[1] := encodeSRGBChannelUnorm8(filtered y).
+            destPixels[2] := encodeSRGBChannelUnorm8(filtered z).
+        }
+    }.
+
+    method generateSRGBMiplevels8x4DownTo: (smallestLevelExtent: UInt32x3) ::=> TextureData sharedPointer := {
+        useNamespace: Stdn Math Color.
+        self generateMiplevelsDownTo: smallestLevelExtent withBoxFilter: {:destPixels
+        :sourceTopLeftPixels :sourceTopRightPixels :sourceBottomLeftPixels :sourceBottomRightPixels :: Void |
+            let topLeft := decodeSRGBUnorm8((sourceTopLeftPixels reinterpretCastTo: UInt8x4 const pointer) _).
+            let topRight := decodeSRGBUnorm8((sourceTopRightPixels reinterpretCastTo: UInt8x4 const pointer) _).
+            let bottomLeft := decodeSRGBUnorm8((sourceBottomLeftPixels reinterpretCastTo: UInt8x4 const pointer) _).
+            let bottomRight := decodeSRGBUnorm8((sourceBottomRightPixels reinterpretCastTo: UInt8x4 const pointer) _).
+
+            let filtered := (topLeft + topRight + bottomLeft + bottomRight)*0.25f clampMin: 0.0f max: 1.0f.
+            (destPixels reinterpretCastTo: UInt8x4 pointer) _ := encodeSRGBUnorm8(filtered)
+        }
+    }.
+
+    method generateNormalMiplevels8x3DownTo: (smallestLevelExtent: UInt32x3) ::=> TextureData sharedPointer := {
+        self generateMiplevelsDownTo: smallestLevelExtent withBoxFilter: {:destPixels
+        :sourceTopLeftPixels :sourceTopRightPixels :sourceBottomLeftPixels :sourceBottomRightPixels :: Void |
+            let topLeft := (UInt8x3(sourceTopLeftPixels[0], sourceTopLeftPixels[1], sourceTopLeftPixels[2]) castTo: Float32x3)/255.0f*2.0f - 1.0f.
+            let topRight := (UInt8x3(sourceTopRightPixels[0], sourceTopRightPixels[1], sourceTopRightPixels[2]) castTo: Float32x3)/255.0f*2.0f - 1.0f.
+            let bottomLeft := (UInt8x3(sourceBottomLeftPixels[0], sourceBottomLeftPixels[1], sourceBottomLeftPixels[2]) castTo: Float32x3)/255.0f*2.0f - 1.0f.
+            let bottomRight := (UInt8x3(sourceBottomRightPixels[0], sourceBottomRightPixels[1], sourceBottomRightPixels[2]) castTo: Float32x3)/255.0f*2.0f - 1.0f.
+
+            let normalized := (topLeft + topRight + bottomLeft + bottomRight) normalized.
+            let filtered := (((normalized*0.5f + 0.5f)*255.0f + 0.5f) floor clampMin: 0.0f max: 255.0f) castTo: UInt8x3.
+
+            destPixels[0] := filtered x.
+            destPixels[1] := filtered y.
+            destPixels[2] := filtered z.
+        }
+    }.
+
+    method generateNormalMiplevels8x4DownTo: (smallestLevelExtent: UInt32x3) ::=> TextureData sharedPointer := {
+        self generateMiplevelsDownTo: smallestLevelExtent withBoxFilter: {:destPixels
+        :sourceTopLeftPixels :sourceTopRightPixels :sourceBottomLeftPixels :sourceBottomRightPixels :: Void |
+            let topLeft := ((sourceTopLeftPixels reinterpretCastTo: UInt8x4 const pointer) _ castTo: Float32x4)/255.0f*2.0f - 1.0f.
+            let topRight := ((sourceTopRightPixels reinterpretCastTo: UInt8x4 const pointer) _ castTo: Float32x4)/255.0f*2.0f - 1.0f.
+            let bottomLeft := ((sourceBottomLeftPixels reinterpretCastTo: UInt8x4 const pointer) _ castTo: Float32x4)/255.0f*2.0f - 1.0f.
+            let bottomRight := ((sourceBottomRightPixels reinterpretCastTo: UInt8x4 const pointer) _ castTo: Float32x4)/255.0f*2.0f - 1.0f.
+
+            let sum := topLeft + topRight + bottomLeft + bottomRight.
+            let normalized := Float32x4(sum rgb normalized, sum a * 0.25f).
+            let filtered := (((normalized*0.5f + 0.5f)*255.0f + 0.5f) floor clampMin: 0.0f max: 255.0f) castTo: UInt8x4.
+            (destPixels reinterpretCastTo: UInt8x4 pointer) _ := filtered
+        }
+    }.
+
+    method generateMiplevelsDownTo: (smallestLevelExtent: UInt32x3) decodingFormat: (decodingFormat: PixelFormat)::=> TextureData sharedPointer := {
+        decodingFormat selectCase: #{
+            (
+                PixelFormat R8G8B8_UNorm, PixelFormat B8G8R8_UNorm
+            ) asValueInSetPattern : {
+                self generateMiplevels8x3DownTo: smallestLevelExtent
+            }.
+
+            (
+                PixelFormat R8G8B8_UNormSRGB, PixelFormat B8G8R8_UNormSRGB
+            ) asValueInSetPattern : {
+                self generateSRGBMiplevels8x3DownTo: smallestLevelExtent
+            }.
+
+            (
+                PixelFormat R8G8B8A8_UNorm, PixelFormat B8G8R8A8_UNorm,
+                PixelFormat B8G8R8X8_UNorm, PixelFormat B8G8R8A8_Typeless,
+                PixelFormat B8G8R8X8_Typeless
+            ) asValueInSetPattern : {
+                self generateMiplevels8x4DownTo: smallestLevelExtent
+            }.
+
+            (
+                PixelFormat R8G8B8A8_UNormSRGB, PixelFormat B8G8R8A8_UNormSRGB, PixelFormat B8G8R8X8_UNormSRGB
+            ) asValueInSetPattern : {
+                self generateSRGBMiplevels8x4DownTo: smallestLevelExtent
+            }.
+
+            _ : TextureData sharedPointer nil.
+        }.
+    }.
+
+    method generateMiplevelsDownTo: (smallestLevelExtent: UInt32x3) ::=> TextureData sharedPointer
+        := self generateMiplevelsDownTo: smallestLevelExtent decodingFormat: format.
+
+    method generateMiplevels => TextureData sharedPointer
+        := self generateMiplevelsDownTo: 1.
+
+    method generateColorMiplevelsDownTo: (smallestLevelExtent: UInt32x3) ::=> TextureData sharedPointer
+        := self generateMiplevelsDownTo: smallestLevelExtent decodingFormat: srgbFormat.
+
+    method generateColorMiplevels => TextureData sharedPointer
+        := self generateColorMiplevelsDownTo: 1.
+
+    method generateNormalMiplevelsDownTo: (smallestLevelExtent: UInt32x3) ::=> TextureData sharedPointer := {
+        format selectCase: #{
+            (
+                PixelFormat R8G8B8_UNorm, PixelFormat R8G8B8_UNormSRGB, PixelFormat B8G8R8_UNorm, PixelFormat B8G8R8_UNormSRGB
+            ) asValueInSetPattern : {
+                self generateNormalMiplevels8x3DownTo: smallestLevelExtent
+            }.
+
+            (
+                PixelFormat R8G8B8A8_UNorm, PixelFormat R8G8B8A8_UNormSRGB, PixelFormat B8G8R8A8_UNorm,
+                PixelFormat B8G8R8X8_UNorm, PixelFormat B8G8R8A8_Typeless, PixelFormat B8G8R8A8_UNormSRGB,
+                PixelFormat B8G8R8X8_Typeless, PixelFormat B8G8R8X8_UNormSRGB
+            ) asValueInSetPattern : {
+                self generateNormalMiplevels8x4DownTo: smallestLevelExtent
+            }.
+
+            _ : TextureData sharedPointer nil.
+        }.
+    }.
+
+    method generateNormalMiplevels => TextureData sharedPointer
+        := self generateNormalMiplevelsDownTo: 1.
+
 }.
 
 compileTime constant TextureDataPtr := TextureData sharedPointer.
