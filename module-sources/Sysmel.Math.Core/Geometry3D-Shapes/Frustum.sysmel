@@ -14,6 +14,8 @@ sealed template GenericFrustum(ST: Type)
     public field leftTopFar type: Vector3.
     public field rightTopFar type: Vector3.
 
+    public field planes type: (Plane array: 6).
+
     const inline method hash => Stdn Hash
         := leftBottomNear hash ^ rightBottomNear hash ^ leftTopNear hash ^ rightTopNear hash ^
           leftBottomFar hash ^ rightBottomFar hash ^ leftTopFar hash ^ rightTopFar hash.
@@ -42,6 +44,8 @@ sealed template GenericFrustum(ST: Type)
         rightBottomFar := rightBottomNear * factor.
         leftTopFar := leftTopNear * factor.
         rightTopFar := rightTopNear * factor.
+
+        self computePlanes.
     }.
 
     inline method makeOrthoLeft: (left: Scalar) right: (right: Scalar) bottom: (bottom: Scalar) top: (top: Scalar) near: (near: Scalar) far: (far: Scalar) ::=> Void := {
@@ -54,6 +58,8 @@ sealed template GenericFrustum(ST: Type)
         rightBottomFar := Vector3 x: right y: bottom z: far negated.
         leftTopFar := Vector3 x: left y: top z: far negated.
         rightTopFar := Vector3 x: right y: top z: far negated.
+
+        self computePlanes.
     }.
 
     inline method makePerspectiveFovY: (fovy: Scalar) aspect: (aspect: Scalar) near: (near: Scalar) far: (far: Scalar) ::=> Void := {
@@ -88,6 +94,7 @@ sealed template GenericFrustum(ST: Type)
             rightBottomFar: (transform transformPosition: rightBottomFar);
             leftTopFar: (transform transformPosition: leftTopFar);
             rightTopFar: (transform transformPosition: rightTopFar);
+            computePlanes;
             yourself
     }.
 
@@ -107,8 +114,8 @@ sealed template GenericFrustum(ST: Type)
         result unionWith: rightTopFar.
     }.
 
-    const inline method planes => (Plane array: 6)
-        := Plane array(
+    inline method computePlanes => Void := {
+        planes := Plane array(
             ## Near plane
     		(Plane point: leftBottomNear point: rightBottomNear point: leftTopNear),
     		## Far plane
@@ -124,7 +131,21 @@ sealed template GenericFrustum(ST: Type)
     		## Top
     		(Plane point: leftTopNear point: rightTopNear point: leftTopFar)
         ).
+    }.
 
+    const inline method isBoxOutside: (box: Box const ref) ::=> Boolean8 := {
+        ## This technique comes from this article: http://www.lighthouse3d.com/tutorials/view-frustum-culling/geometric-approach-testing-boxes-ii/
+        planes do: {:each :: Void |
+            (each isInFront: (box negativeVertex: each normal)) ifTrue: {
+                return: true
+            }
+        }.
+
+        false
+    }.
+
+    const inline method intersectsOrContainsBox: (box: Box const ref) ::=> Boolean8
+        := (self isBoxOutside: box) not.
 }.
 
 compileTime constant FrustumF32 := GenericFrustum(Float32).

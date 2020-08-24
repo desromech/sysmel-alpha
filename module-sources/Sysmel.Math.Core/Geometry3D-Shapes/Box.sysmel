@@ -95,6 +95,74 @@ sealed template GenericBox(ST: Type)
     const inline method asBoxF64 => BoxF64
         := BoxF64 min: (min castTo: Float64x3) max: (max castTo: Float64x3).
 
+
+    const inline method nearBottomLeft => Vector3
+        := min.
+
+    const inline method nearBottomRight => Vector3
+        := Vector3(max x, min y, min z).
+
+    const inline method nearTopLeft => Vector3
+        := Vector3(min x, max y, min z).
+
+    const inline method nearTopRight => Vector3
+        := Vector3(max x, max y, min z).
+
+    const inline method farBottomLeft => Vector3
+        := Vector3(min x, min y, max z).
+
+    const inline method farBottomRight => Vector3
+        := Vector3(max x, min y, max z).
+
+    const inline method farTopLeft => Vector3
+        := Vector3(min x, max y, max z).
+
+    const inline method farTopRight => Vector3
+        := max.
+
+    const inline method corners => (Vector3 array: 8) := {
+        Vector3 array(
+            self nearBottomLeft,
+            self nearBottomRight,
+            self nearTopLeft,
+            self nearTopRight,
+            self farBottomLeft,
+            self farBottomRight,
+            self farTopLeft,
+            self farTopRight
+        )
+    }.
+
+    const inline method negativeVertex: (direction: Vector3) ::=> Vector3 := {
+        let vertex mutable := max.
+        direction x >= 0.0 ifTrue: {vertex x: min x}.
+        direction y >= 0.0 ifTrue: {vertex y: min y}.
+        direction z >= 0.0 ifTrue: {vertex z: min z}.
+        vertex
+    }.
+
+    const inline method positiveVertex: (direction: Vector3) ::=> Vector3 := {
+        let vertex mutable := min.
+        direction x >= 0.0 ifTrue: {vertex x: max x}.
+        direction y >= 0.0 ifTrue: {vertex y: max y}.
+        direction z >= 0.0 ifTrue: {vertex z: max z}.
+        vertex
+    }.
+
+    const inline method support: (direction: Vector3) ::=> Vector3
+        := self positiveVertex: direction.
+
+    compileTime if: Scalar isPrimitiveFloatType then: {
+        const inline method transformedWith: (transform: ReversibleAffineTransform3d const ref) ::=> SelfType := {
+            let result mutable := SelfType empty.
+            let corners := self corners.
+            corners do: {:eachCorner :: Void |
+                result := result unionWith: (transform transformPosition: eachCorner)
+            }.
+
+            result
+        }.
+    }.
 }.
 
 compileTime constant BoxI32 := GenericBox(Int32).

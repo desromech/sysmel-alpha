@@ -69,14 +69,6 @@ function valueToFloat32(value: Value const ref) ::=> Float32 := {
     }
 }.
 
-function valueToFloat64(value: Value const ref) ::=> Float64 := {
-    value selectCase: #{
-    (let x type: UInt64) : (x castTo: Float64).
-    (let x type: Int64) : (x castTo: Float64).
-    (let x type: Float64) : x.
-    }
-}.
-
 function valueToFloat32x2(value: Value const ref) ::=> Float32x2 := {
     let list ref := (value get: ListPtr) _.
     Float32x2(
@@ -158,6 +150,68 @@ function valueToFloat32x4x4(value: Value const ref, defaultValue: Float32x4x4) :
         list getFloat32: 14 default: defaultValue fourthColumn z,
         list getFloat32: 15 default: defaultValue fourthColumn w
     ))
+}.
+
+function valueToFloat64(value: Value const ref) ::=> Float64 := {
+    value selectCase: #{
+    (let x type: UInt64) : (x castTo: Float64).
+    (let x type: Int64) : (x castTo: Float64).
+    (let x type: Float64) : x.
+    }
+}.
+
+function valueToFloat64x2(value: Value const ref) ::=> Float64x2 := {
+    let list ref := (value get: ListPtr) _.
+    Float64x2(
+        list getFloat64: 0,
+        list getFloat64: 1
+    )
+}.
+
+function valueToFloat64x2(value: Value const ref, defaultValue: Float64x2) ::=> Float64x2 := {
+    let list ref := (value get: ListPtr) _.
+    Float64x2(
+        list getFloat64: 0 default: defaultValue x,
+        list getFloat64: 1 default: defaultValue y
+    )
+}.
+
+function valueToFloat64x3(value: Value const ref) ::=> Float64x3 := {
+    let list ref := (value get: ListPtr) _.
+    Float64x3(
+        list getFloat64: 0,
+        list getFloat64: 1,
+        list getFloat64: 2
+    )
+}.
+
+function valueToFloat64x3(value: Value const ref, defaultValue: Float64x3) ::=> Float64x3 := {
+    let list ref := (value get: ListPtr) _.
+    Float64x3(
+        list getFloat64: 0 default: defaultValue x,
+        list getFloat64: 1 default: defaultValue y,
+        list getFloat64: 2 default: defaultValue z
+    )
+}.
+
+function valueToFloat64x4(value: Value const ref) ::=> Float64x4 := {
+    let list ref := (value get: ListPtr) _.
+    Float64x4(
+        list getFloat64: 0,
+        list getFloat64: 1,
+        list getFloat64: 2,
+        list getFloat64: 3
+    )
+}.
+
+function valueToFloat64x4(value: Value const ref, defaultValue: Float64x4) ::=> Float64x4 := {
+    let list ref := (value get: ListPtr) _.
+    Float64x4(
+        list getFloat64: 0 default: defaultValue x,
+        list getFloat64: 1 default: defaultValue y,
+        list getFloat64: 2 default: defaultValue z,
+        list getFloat64: 3 default: defaultValue w
+    )
 }.
 
 List definition: {
@@ -379,7 +433,7 @@ Object definition: {
 
     const method getFloat32x2: (key: Stdn String const ref) default: (defaultValue: Float32x2) ::=> Float32x2 := {
         self at: key ifPresent: {:(Value const ref)value :: Void |
-            return: valueToFloat32x2(value)
+            return: valueToFloat32x2(value, defaultValue)
         }.
 
         defaultValue
@@ -390,7 +444,7 @@ Object definition: {
 
     const method getFloat32x3: (key: Stdn String const ref) default: (defaultValue: Float32x3) ::=> Float32x3 := {
         self at: key ifPresent: {:(Value const ref)value :: Void |
-            return: valueToFloat32x3(value)
+            return: valueToFloat32x3(value, defaultValue)
         }.
 
         defaultValue
@@ -401,7 +455,7 @@ Object definition: {
 
     const method getFloat32x4: (key: Stdn String const ref) default: (defaultValue: Float32x4) ::=> Float32x4 := {
         self at: key ifPresent: {:(Value const ref)value :: Void |
-            return: valueToFloat32x4(value)
+            return: valueToFloat32x4(value, defaultValue)
         }.
 
         defaultValue
@@ -418,6 +472,38 @@ Object definition: {
         defaultValue
     }.
 
+    const method getFloat64x2: (key: Stdn String const ref) ::=> Float64x2
+        := valueToFloat64x2(self at: key).
+
+    const method getFloat64x2: (key: Stdn String const ref) default: (defaultValue: Float64x2) ::=> Float64x2 := {
+        self at: key ifPresent: {:(Value const ref)value :: Void |
+            return: valueToFloat64x2(value, defaultValue)
+        }.
+
+        defaultValue
+    }.
+
+    const method getFloat64x3: (key: Stdn String const ref) ::=> Float64x3
+        := valueToFloat64x3(self at: key).
+
+    const method getFloat64x3: (key: Stdn String const ref) default: (defaultValue: Float64x3) ::=> Float64x3 := {
+        self at: key ifPresent: {:(Value const ref)value :: Void |
+            return: valueToFloat64x3(value, defaultValue)
+        }.
+
+        defaultValue
+    }.
+
+    const method getFloat64x4: (key: Stdn String const ref) ::=> Float64x4
+        := valueToFloat64x4(self at: key).
+
+    const method getFloat64x4: (key: Stdn String const ref) default: (defaultValue: Float64x4) ::=> Float64x4 := {
+        self at: key ifPresent: {:(Value const ref)value :: Void |
+            return: valueToFloat64x4(value, defaultValue)
+        }.
+
+        defaultValue
+    }.
 }.
 
 }. ## End of namespace JSON

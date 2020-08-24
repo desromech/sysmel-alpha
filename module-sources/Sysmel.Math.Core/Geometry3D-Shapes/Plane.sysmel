@@ -5,6 +5,7 @@ namespace Geometry definition: {
 #**
  * I represent an implicit line plane equation of the form:
  * <N, P> = d.
+ * => Nx X1 + Ny X2 + Nz X3 - d = 0
  *#
 sealed template GenericPlane(ST: Type)
     := class superclass: GenericGeometricShape(ST); definition: {
@@ -25,7 +26,15 @@ sealed template GenericPlane(ST: Type)
         }.
     }.
 
-    
+    const inline method pointDistance: (point: Vector3 const ref) ::=> Scalar
+        := (normal dot: point) - distance.
+
+    const inline method isInFront: (point: Vector3 const ref) ::=> Boolean8
+        := (self pointDistance: point) > 0.
+
+    const inline method isBehind: (point: Vector3 const ref) ::=> Boolean8
+        := (self pointDistance: point) < 0.
+
 }.
 
 compileTime constant PlaneF32 := GenericPlane(Float32).
