@@ -125,16 +125,6 @@ GenericLinearAlgebra extend: {
 
         Matrix4x4 extend: {
             meta definition: {
-                static inline method shadowMapBias => Matrix4x4 := {
-                    <gpu>
-                    Matrix4x4 (
-                        0.5, 0, 0, 0,
-                        0, 0.5, 0, 0,
-                        0, 0, 0.5, 0,
-                        0.5, 0.5, 0.5, 1
-                    )
-                }.
-
                 static inline method frustumLeft: (left: Scalar) right: (right: Scalar)
                     bottom: (bottom: Scalar) top: (top: Scalar)
                     near: (near: Scalar) far: (far: Scalar)
