@@ -162,6 +162,31 @@ sealed template GenericBox(ST: Type)
 
             result
         }.
+
+        const inline method mappingToNDCCoordinates ::=> Matrix4x4
+            := self mappingToNDCCoordinatesInvertedY: false.
+
+        const inline method mappingToNDCCoordinatesInvertedY: (invertedY: Boolean8) ::=> Matrix4x4
+            := Matrix4x4 orthoLeft: min x right: max x
+            	bottom: min y top: max y
+            	near: max z negated far: min z negated
+                invertedY: invertedY.
+
+        const inline method mappingToNDCCoordinatesReverseDepth => Matrix4x4
+            := self mappingToNDCCoordinatesReverseDepthWithInvertedY: false.
+
+        const inline method mappingToNDCCoordinatesReverseDepthWithInvertedY: (invertedY: Boolean8) ::=> Matrix4x4
+            := Matrix4x4 reverseDepthOrthoLeft: min x right: max x
+            	bottom: min y top: max y
+            	near: max z negated far: min z negated
+                invertedY: invertedY.
+
+        const inline method asFrustum ::=> Frustum
+            := Frustum()
+                makeOrthoLeft: min x right: max x
+            	bottom: min y top: max y
+            	near: max z negated far: min z negated;
+                yourself.
     }.
 }.
 

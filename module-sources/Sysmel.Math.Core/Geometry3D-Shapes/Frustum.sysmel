@@ -98,6 +98,21 @@ sealed template GenericFrustum(ST: Type)
             yourself
     }.
 
+    const inline method splitAtNearLambda: (splitNearLambda: Scalar) farLambda: (splitFarLambda: Scalar) ::=> SelfType := {
+        SelfType()
+            leftBottomNear: (leftBottomNear interpolateTo: leftBottomFar at: splitNearLambda);
+            rightBottomNear: (rightBottomNear interpolateTo: rightBottomFar at: splitNearLambda);
+            leftTopNear: (leftTopNear interpolateTo: leftTopFar at: splitNearLambda);
+            rightTopNear: (rightTopNear interpolateTo: rightTopFar at: splitNearLambda);
+
+            leftBottomFar: (leftBottomNear interpolateTo: leftBottomFar at: splitFarLambda);
+            rightBottomFar: (rightBottomNear interpolateTo: rightBottomFar at: splitFarLambda);
+            leftTopFar: (leftTopNear interpolateTo: leftTopFar at: splitFarLambda);
+            rightTopFar: (rightTopNear interpolateTo: rightTopFar at: splitFarLambda);
+            computePlanes;
+            yourself
+    }.
+
     const inline method corners => (Vector3 array: 8)
         := Vector3 array(leftBottomNear, rightBottomNear, leftTopNear, rightTopNear,
         leftBottomFar, rightBottomFar, leftTopFar, rightTopFar).
@@ -113,6 +128,24 @@ sealed template GenericFrustum(ST: Type)
         result := result unionWith: leftTopFar.
         result unionWith: rightTopFar.
     }.
+
+    const inline method nearPlane => Plane const ref
+        := planes first.
+
+    const inline method farPlane => Plane const ref
+        := planes second.
+
+    const inline method leftPlane => Plane const ref
+        := planes third.
+
+    const inline method rightPlane => Plane const ref
+        := planes fourth.
+
+    const inline method bottomPlane => Plane const ref
+        := planes fifth.
+
+    const inline method topPlane => Plane const ref
+        := planes sixth.
 
     inline method computePlanes => Void := {
         planes := Plane array(
