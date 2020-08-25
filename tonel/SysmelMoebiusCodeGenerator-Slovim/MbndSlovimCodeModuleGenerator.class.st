@@ -2142,21 +2142,36 @@ MbndSlovimCodeModuleGenerator >> variantUnexpectedComponentRaiseFunction [
 { #category : #visiting }
 MbndSlovimCodeModuleGenerator >> visitAggregateBasicInitializeMethod: generatedMethod [
 	^ self translateCompilerGeneratedMethod: generatedMethod with: [ :ssaFunction :builder :functionCodeGenerator |
-		| receiver field |
+		| receiver receiverType field |
 		receiver := ssaFunction arguments first.
-		generatedMethod parent slotLayout slots do: [ :slot |
-			slot fields size = 1 ifTrue: [ 
-				field := slot fields first.
-				field isVTablePointerField ifTrue: [ 
-					builder store: (self translateLiteralValue: (field defaultValueAt: MbndSourcePosition empty) ofType: field valueType)
-						in: (builder getReference: receiver element: (builder constInt: field slotIndex)).
-				] ifFalse: [ 
-					field valueType hasTrivialBasicInitialization ifFalse: [ 
-						builder call: (self translateProgramEntity: field valueType basicInitializeMethod) ssaValue
-							arguments: { (builder getReference: receiver element: (builder constInt: field slotIndex)) }.
-					]
-				].
-			]
+		receiverType := generatedMethod parent.
+		receiverType isAggregateTypeWithFields ifTrue: [
+			receiverType slotLayout slots do: [ :slot |
+				slot fields size = 1 ifTrue: [ 
+					field := slot fields first.
+					field isVTablePointerField ifTrue: [ 
+						builder store: (self translateLiteralValue: (field defaultValueAt: MbndSourcePosition empty) ofType: field valueType)
+							in: (builder getReference: receiver element: (builder constInt: field slotIndex)).
+					] ifFalse: [ 
+						field valueType hasTrivialBasicInitialization ifFalse: [ 
+							builder call: (self translateProgramEntity: field valueType basicInitializeMethod) ssaValue
+								arguments: { (builder getReference: receiver element: (builder constInt: field slotIndex)) }.
+						]
+					].
+				]
+			].
+		].
+	
+		receiverType isArrayType ifTrue: [
+			| elementType indexType |
+			elementType := receiverType elementType.
+			indexType := self translateType: self compilationTarget uintPointerType.
+			elementType hasTrivialBasicInitialization ifFalse: [ 
+				1 to: receiverType elements do: [ :i |
+					builder call: (self translateProgramEntity: elementType basicInitializeMethod) ssaValue
+								arguments: { (builder getReference: receiver element: (SLVMConstant type: indexType value: i - 1)) }.
+				]
+			].
 		].
 	
 		builder returnVoid

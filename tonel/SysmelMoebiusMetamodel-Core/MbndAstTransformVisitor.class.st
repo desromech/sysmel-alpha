@@ -869,6 +869,16 @@ MbndAstTransformVisitor >> visitReturnStatementNode: node [
 ]
 
 { #category : #visiting }
+MbndAstTransformVisitor >> visitSampleTextureWithDepthReferenceNode: node [
+	^ node copy
+		sampler: (self visitNode: node sampler);
+		texture: (self visitNode: node texture);
+		texcoord: (self visitNode: node texcoord);
+		depthReference: (self visitNode: node depthReference);
+		yourself
+]
+
+{ #category : #visiting }
 MbndAstTransformVisitor >> visitSampleTextureWithExplicitDerivativesNode: node [
 	^ node copy
 		sampler: (self visitNode: node sampler);

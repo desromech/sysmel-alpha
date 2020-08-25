@@ -22,6 +22,10 @@ MbndSamplerType >> addInstanceMacros [
 			(builder sampleWith: node receiver texture: node arguments first atWithImplicitLod: node arguments second )
 				position: node
 		];
+		onMacroSelector: #sample:at:depth: do: [ :node :builder |
+			(builder sampleWith: node receiver texture: node arguments first at: node arguments second depth: node arguments third )
+				position: node
+		];
 		onMacroSelector: #sample:at:lod: do: [ :node :builder |
 			(builder sampleWith: node receiver texture: node arguments first at: node arguments second lod: node arguments third)
 				position: node

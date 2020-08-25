@@ -608,6 +608,11 @@ MbndAstDelegationVisitor >> visitReturnStatementNode: node [
 ]
 
 { #category : #visiting }
+MbndAstDelegationVisitor >> visitSampleTextureWithDepthReferenceNode: node [
+	^ self delegateNodeVisit: node
+]
+
+{ #category : #visiting }
 MbndAstDelegationVisitor >> visitSampleTextureWithExplicitDerivativesNode: node [
 	^ self delegateNodeVisit: node
 ]

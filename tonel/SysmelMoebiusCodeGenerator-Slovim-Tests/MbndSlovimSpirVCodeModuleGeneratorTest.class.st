@@ -285,6 +285,71 @@ function _ZN10TestModule15ShaderInterface6shader6__implERNS0_E12inputChannelINS_
 ]
 
 { #category : #tests }
+MbndSlovimSpirVCodeModuleGeneratorTest >> testFragmentShaderSampleTextureColorWithDepth [
+	| shaderImplementation |
+	self evaluateSysmelSource: '
+struct Input definition: {
+	public field texcoord type: Float32x2; location: 0.
+}.
+
+struct Output definition: {
+	public field color type: Float32x4; location: 0.
+}.
+
+class Samplers definition: {
+    public field sampler type: GPUSampler.
+}.
+
+class TexturingState definition: {
+    public field texture type: GPUDepthTexture2D.
+}.
+
+class ShaderInterface definition: {
+	field samplerState type: Samplers bindingSetPointer.
+	field texturingState type: TexturingState bindingSetPointer.
+
+	function shader fragmentShader externC(stageIn: Input inputChannel, stageOut: Output outputChannel) => Void := { 
+		let color := samplerState _ sampler
+							sample: texturingState _ texture at: stageIn receive texcoord depth: 0.0.
+		stageOut send: (Output newValue color: color)
+	}
+}.
+
+';
+	generateSSAModule;
+	validateSpirV.
+	
+	shaderImplementation := ssaModule globalNamed: #'_ZN10TestModule15ShaderInterface6shader6__implERNS0_E12inputChannelINS_5InputEE13outputChannelINS_6OutputEE'.
+	self assert: shaderImplementation asFullSExpressionForTesting equals: #(
+function _ZN10TestModule15ShaderInterface6shader6__implERNS0_E12inputChannelINS_5InputEE13outputChannelINS_6OutputEE cdecl void
+	arguments (
+		(self (pointer (struct 'class.TestModule::ShaderInterface') function) ())
+		(stageIn (pointer (struct 'struct.TestModule::Input') function) ())
+		(stageOut (pointer (struct 'struct.TestModule::Output') function) ())
+	)
+	literals (
+	)
+	blocks (
+		(()
+			(nil jump void () () (block 2 body))
+		)
+		(()
+			(nil load sampler () ((global 1 _ZN10TestModule8Samplers7sampler13set0_binding0E)))
+			(nil load depthTexture2D () ((global 2 _ZN10TestModule14TexturingState7texture13set1_binding0E)))
+			(nil load (struct 'struct.TestModule::Input') () ((local 1 stageIn)))
+			(nil extractValue (vector f32 2) () ((local 6 nil)) (0))
+			(nil combineSamplerWithTexture (sampledTexture depthTexture2D) () ((local 4 nil) (local 5 nil)))
+			(nil sampleDepthRefImplicitLOD f32 () ((local 8 nil) (local 7 nil) (const f32 0.0)))
+			(nil makeVector (vector f32 4) () ((local 9 nil) (local 9 nil) (local 9 nil) (local 9 nil)))
+			(nil insertValue (struct 'struct.TestModule::Output') () ((constStruct (struct 'struct.TestModule::Output') ((constVector (vector f32 4) ((const f32 0.0) (const f32 0.0) (const f32 0.0) (const f32 0.0))))) (local 10 nil)) (0))
+			(nil store void () ((local 11 nil) (local 2 stageOut)))
+			(nil returnVoid void () ())
+		)
+	)
+	)
+]
+
+{ #category : #tests }
 MbndSlovimSpirVCodeModuleGeneratorTest >> testFragmentShaderSampleTextureColorWithDerivatives [
 	| shaderImplementation |
 	self evaluateSysmelSource: '

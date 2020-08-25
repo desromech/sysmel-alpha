@@ -630,6 +630,11 @@ MbndAstVisitor >> visitReturnStatementNode: node [
 ]
 
 { #category : #visiting }
+MbndAstVisitor >> visitSampleTextureWithDepthReferenceNode: node [
+	self subclassResponsibility
+]
+
+{ #category : #visiting }
 MbndAstVisitor >> visitSampleTextureWithExplicitDerivativesNode: node [
 	self subclassResponsibility
 ]

@@ -762,6 +762,11 @@ MbndAstNode >> isReturnStatementNode [
 ]
 
 { #category : #testing }
+MbndAstNode >> isSampleTextureWithDepthReferenceNode [
+	^ false
+]
+
+{ #category : #testing }
 MbndAstNode >> isSampleTextureWithExplicitDerivativesNode [
 	^ false
 ]

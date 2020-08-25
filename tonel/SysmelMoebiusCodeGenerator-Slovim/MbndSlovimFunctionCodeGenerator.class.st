@@ -3068,6 +3068,21 @@ MbndSlovimFunctionCodeGenerator >> visitReturnStatementNode: node [
 ]
 
 { #category : #visiting }
+MbndSlovimFunctionCodeGenerator >> visitSampleTextureWithDepthReferenceNode: node [
+	| sampler texture texcoord depthReference combinedSampler |
+	sampler := self visitNode: node sampler.
+	texture := self visitNode: node texture.
+	texcoord := self visitNode: node texcoord.
+	depthReference := self visitNode: node depthReference.
+	self slvmCompilationTarget isGPU ifTrue: [ 
+		combinedSampler := slvmBuilder combineSampler: sampler with: texture.
+		^ slvmBuilder sample: combinedSampler implicitLodAtCoord: texcoord depthReference: depthReference
+	].
+
+	^ slvmBuilder constFloat: 1.0
+]
+
+{ #category : #visiting }
 MbndSlovimFunctionCodeGenerator >> visitSampleTextureWithExplicitDerivativesNode: node [
 	| sampler texture texcoord combinedSampler dtdx dtdy |
 	sampler := self visitNode: node sampler.

@@ -1263,6 +1263,19 @@ MbndAstBuilder >> return: expression [
 ]
 
 { #category : #'builder methods' }
+MbndAstBuilder >> sampleWith: sampler texture: texture at: texcoord depth: depthReference [
+	<compileTime>
+	<returnType: #_ASTNodeType>
+	^ MbndAstSampleTextureWithDepthReferenceNode new
+		position: defaultPosition;
+		sampler: sampler;
+		texture: texture;
+		texcoord: texcoord;
+		depthReference: depthReference;
+		yourself
+]
+
+{ #category : #'builder methods' }
 MbndAstBuilder >> sampleWith: sampler texture: texture at: texcoord dtdx: dtdx dtdy: dtdy [
 	<compileTime>
 	<returnType: #_ASTNodeType>

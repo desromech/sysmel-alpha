@@ -2668,6 +2668,15 @@ MbndAstSemanticAnalyzer >> visitReturnStatementNode: node [
 ]
 
 { #category : #visiting }
+MbndAstSemanticAnalyzer >> visitSampleTextureWithDepthReferenceNode: node [
+	| result |
+	result := self visitSampleTextureWithImplicitLodNode: node.
+	result
+		depthReference: (self addImplicitCastFor: result depthReference to: self compilationTarget float32Type).
+	^ result
+]
+
+{ #category : #visiting }
 MbndAstSemanticAnalyzer >> visitSampleTextureWithExplicitDerivativesNode: node [
 	| result derivativeType |
 	result := self visitSampleTextureWithImplicitLodNode: node.
@@ -2708,7 +2717,9 @@ MbndAstSemanticAnalyzer >> visitSampleTextureWithImplicitLodNode: node [
 
 	result
 		texcoord: (self addImplicitCastFor: result texcoord to: result texture type samplingCoordinateType);
-		type: self compilationTarget float32x4Type.
+		type: (result texture type depth
+			ifTrue: [ self compilationTarget float32Type ]
+			ifFalse: [ self compilationTarget float32x4Type ]).
 	^ result
 ]
 
