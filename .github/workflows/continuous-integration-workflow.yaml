@@ -35,8 +35,8 @@ jobs:
             - name: Upload artifacts
               uses: actions/upload-artifact@v1
               with:
-                  name: build-artifacts
-                  path: artifacts/dist
+                  name: build-${{ env.PLATFORM_NAME }}
+                  path: artifacts/dist/${{ env.PLATFORM_NAME }}
 
             - name: Run image tests
               continue-on-error: true
@@ -73,8 +73,8 @@ jobs:
             - name: Upload artifacts
               uses: actions/upload-artifact@v1
               with:
-                  name: build-artifacts
-                  path: artifacts/dist
+                  name: build-${{ env.PLATFORM_NAME }}
+                  path: artifacts/dist/${{ env.PLATFORM_NAME }}
 
             - name: Run image tests
               continue-on-error: true
