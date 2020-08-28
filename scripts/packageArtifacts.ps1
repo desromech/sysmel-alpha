@@ -1,6 +1,7 @@
 $ErrorActionPreference = "Stop"
 
-$DIST = "artifacts/dist"
+$DIST = "artifacts/dist/Win64/"
+
 New-Item -Path "$DIST/module-sources" -ItemType "directory"
 foreach($element in "pharo-vm",
     "docs", "samples", "tests",

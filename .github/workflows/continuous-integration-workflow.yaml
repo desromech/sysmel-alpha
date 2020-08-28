@@ -10,10 +10,13 @@ jobs:
                 variant:
                     - os: ubuntu-18.04
                       llc: llc-9
+                      platformName: linux64
                     - os: macos-latest
                       llc: llc
+                      platformName: osx
         env:
             LLC: ${{ matrix.variant.llc }}
+            PLATFORM_NAME: ${{ matrix.variant.platformName }}
             CC: clang
             CXX: clang++
         steps:
@@ -55,7 +58,9 @@ jobs:
                   path: artifacts/test-results
     build-windows:
         name: Build Windows
-        runs-on: windows-2016
+        runs-on: windows-latest
+        env:
+            PLATFORM_NAME: win64
         steps:
             - uses: actions/checkout@v1
 

@@ -1,7 +1,11 @@
 #!/usr/bin/env bash
 set -ex
 
-DIST=artifacts/dist
+if test "$PLATFORM_NAME" = ""; then
+    PLATFORM_NAME=`$(uname -s)`
+fi
+
+DIST=artifacts/dist/$PLATFORM_NAME
 
 mkdir -p $DIST/module-sources $DIST/third-party
 cp -R pharo-vm pharo pharo-ui $DIST
