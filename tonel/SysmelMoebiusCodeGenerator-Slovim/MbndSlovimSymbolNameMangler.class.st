@@ -156,6 +156,7 @@ MbndSlovimSymbolNameMangler >> emitTemplateInstanceArgument: argument [
 		] ifFalse: [
 			output print: argumentValue
 		].
+		output nextPut: $E.
 		^ self
 	].
 
@@ -165,6 +166,11 @@ MbndSlovimSymbolNameMangler >> emitTemplateInstanceArgument: argument [
 		escapedString := self escapeNameForMangling: argumentValue.
 		output nextPutAll: escapedString size asString; nextPutAll: escapedString.
 		output nextPut: $E.
+		^ self
+	].
+
+	argumentType isLiteralBooleanType ifTrue: [
+		output nextPut: $L; nextPut: $b; nextPutAll: argumentValue asBit asString; nextPut: $E.
 		^ self
 	].
 
