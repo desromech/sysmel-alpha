@@ -132,10 +132,23 @@ MbndSlovimCompilationTarget >> asCleanCompilationTarget [
 ]
 
 { #category : #converting }
+MbndSlovimCompilationTarget >> asMultiSpirVCompilationTarget [
+	| result |
+	result := self copy slvmCompilationTargetNamed: (self pointerSize = 4
+		ifTrue: [#multiSpirv_logical32]
+		ifFalse: [#multiSpirv_logical64]).
+	self isEmittingDebugInformation ifTrue: [ result withDebugInformation ].
+	^ result
+]
+
+{ #category : #converting }
 MbndSlovimCompilationTarget >> asSpirVCompilationTarget [
-	^ self copy slvmCompilationTargetNamed: (self pointerSize = 4
+	| result |
+	result := self copy slvmCompilationTargetNamed: (self pointerSize = 4
 		ifTrue: [#spirv_logical32]
-		ifFalse: [#spirv_logical64])
+		ifFalse: [#spirv_logical64]).
+	self isEmittingDebugInformation ifTrue: [ result withDebugInformation ].
+	^ result
 ]
 
 { #category : #accessing }
@@ -281,6 +294,11 @@ MbndSlovimCompilationTarget >> isBigEndian [
 { #category : #'platform testing' }
 MbndSlovimCompilationTarget >> isEmbeddedPAL [
 	^ slvmCompilationTarget isEmbeddedPAL
+]
+
+{ #category : #converting }
+MbndSlovimCompilationTarget >> isEmittingDebugInformation [
+	^ slvmCompilationTarget emittingDebugInformation
 ]
 
 { #category : #'platform testing' }

@@ -91,7 +91,7 @@ TMbndAbstractCompilationTarget >> dynamicObjectType [
 
 { #category : #'as yet unclassified' }
 TMbndAbstractCompilationTarget >> extensionForEmbeddedShaderCopy [
-	^ '.spv'
+	^ '.spv.zip'
 ]
 
 { #category : #'as yet unclassified' }

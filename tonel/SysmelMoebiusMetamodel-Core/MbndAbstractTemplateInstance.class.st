@@ -68,6 +68,11 @@ MbndAbstractTemplateInstance >> isTemplateInstance [
 	^ true
 ]
 
+{ #category : #'as yet unclassified' }
+MbndAbstractTemplateInstance >> mainAliasCompileTimeConstant [
+	^ nil
+]
+
 { #category : #accessing }
 MbndAbstractTemplateInstance >> mainChild [
 	^ mainChild

@@ -65,6 +65,11 @@ MbndTemplateInstance >> instanceArguments: aListWithInstanceArguments [
 	].
 ]
 
+{ #category : #'as yet unclassified' }
+MbndTemplateInstance >> mainAliasCompileTimeConstant [
+	^ mainAliasCompileTimeConstant
+]
+
 { #category : #serialization }
 MbndTemplateInstance >> materializeWithGraphDecoder: graphDecoder withFields: encodedFields [
 	super materializeWithGraphDecoder: graphDecoder withFields: encodedFields.

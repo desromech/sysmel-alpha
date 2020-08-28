@@ -352,7 +352,7 @@ MbndSlovimCodeModuleGenerator >> createModuleInfoStartupConstructors: moduleInfo
 { #category : #visiting }
 MbndSlovimCodeModuleGenerator >> createSpirVShaderControllerFor: functionMethod generatedAs: generatedSSAFunction [
 	| csymbol shaderFunction builder argumentTypes receiverType receiver invocationArguments inputChannels outputChannels boundArguments fetchedInputs computedOutputs |
-	csymbol := self unmangledNameForShaderEntryPoint: functionMethod.
+	csymbol := self unmangledNameForShaderEntity: functionMethod.
 	(functionMethod hasFlag: #externC) ifTrue: [
 		csymbol := functionMethod name.
 	].
@@ -743,26 +743,9 @@ MbndSlovimCodeModuleGenerator >> generateCodeModuleFor: aModule programEntities:
 ]
 
 { #category : #'code generation' }
-MbndSlovimCodeModuleGenerator >> generateEmbeddedShaderModule [
-	| shaderCompilationTarget shaderModuleCodeGenerator shaderSSAModule spirVModule spirVModuleBlobData spirVModuleBlob spirVModuleInfoGlobal shaderEntryPoints |
-	self compilationTarget isGPU ifTrue: [ ^ nil ].
-	self compilationTarget shaderModuleInfo ifNil: [ ^ nil ].
-	gpuUsableProgramEntitites ifEmpty: [ ^ nil ].
-	shaderCompilationTarget := self compilationTarget asSpirVCompilationTarget.
-	shaderModuleCodeGenerator := shaderCompilationTarget newCodeModuleGenerator.
-	shaderModuleCodeGenerator compilationTargetOverride: shaderCompilationTarget.
-	shaderSSAModule := MbndProfiler component: #shaderIRCodeGeneration with: [shaderModuleCodeGenerator generateCodeModuleFor: sourceModule programEntities: gpuUsableProgramEntitites name: #spirv].
-	shaderEntryPoints := gpuUsableProgramEntitites select: [ :each | each isConcreteMethod and: [ each specialSemantics isNotNil ] ].
-
-	shaderEntryPoints ifEmpty: [^ nil].
-	
-	shaderSSAModule disableSLVMOptimizations: MbndStandaloneModule disableSLVMOptimizations.
-	spirVModule := shaderSSAModule asLowLevelModuleWithOptimizationLevel: sourceModule optimizationLevel.
+MbndSlovimCodeModuleGenerator >> generateEmbeddedShaderModule: spirVModule withName: shaderEntryPointName for: entryPoint [
+	| spirVModuleBlobData spirVModuleBlob spirVModuleInfoGlobal |
 	spirVModuleBlobData := spirVModule bytes.
-	sourceModule embeddedShaderCopyOutputFile ifNotNil: [ :filename |
-		spirVModule saveTo: filename.
-	].
-	
 	spirVModuleBlob := SLVMGlobalVariable module: ssaModule name: nil valueType: (SLVMArrayType baseType: SLVMType ucharType elements: spirVModuleBlobData size) storage: SLVMType genericStorage.
 	spirVModuleBlob
 		readOnly: true;
@@ -772,11 +755,7 @@ MbndSlovimCodeModuleGenerator >> generateEmbeddedShaderModule [
 		valueType: (self translateType: self compilationTarget shaderModuleInfo)
 		storage: SLVMType genericStorage.
 	
-	shaderEntryPoints do: [ :entryPoint |
-		shaderSSAModule highLevelMapToSymbol at: entryPoint ifPresent: [:shaderEntryPointName |
-			self setEmbeddedShaderEntryPoint: entryPoint withName: shaderEntryPointName infoWithModuleInfo: spirVModuleInfoGlobal
-		].
-	].
+	self setEmbeddedShaderEntryPoint: entryPoint withName: shaderEntryPointName infoWithModuleInfo: spirVModuleInfoGlobal.
 
 	spirVModuleInfoGlobal initialValue: (
 		self translateLiteralValue: (
@@ -784,8 +763,36 @@ MbndSlovimCodeModuleGenerator >> generateEmbeddedShaderModule [
 				setField: #blobSize value: spirVModuleBlobData size;
 				setField: #blobStartPointer value: spirVModuleBlob)
 		ofType: self compilationTarget shaderModuleInfo).
+]
 
-	^ spirVModuleInfoGlobal
+{ #category : #'code generation' }
+MbndSlovimCodeModuleGenerator >> generateEmbeddedShaderModules [
+	| shaderCompilationTarget shaderModuleCodeGenerator shaderSSAModule multiSpirVModule shaderEntryPoints |
+	self compilationTarget isGPU ifTrue: [ ^ nil ].
+	self compilationTarget shaderModuleInfo ifNil: [ ^ nil ].
+	gpuUsableProgramEntitites ifEmpty: [ ^ nil ].
+	shaderCompilationTarget := self compilationTarget asMultiSpirVCompilationTarget.
+	shaderModuleCodeGenerator := shaderCompilationTarget newCodeModuleGenerator.
+	shaderModuleCodeGenerator compilationTargetOverride: shaderCompilationTarget.
+	shaderSSAModule := MbndProfiler component: #shaderIRCodeGeneration with: [shaderModuleCodeGenerator generateCodeModuleFor: sourceModule programEntities: gpuUsableProgramEntitites name: #spirv].
+	shaderEntryPoints := gpuUsableProgramEntitites select: [ :each | each isConcreteMethod and: [ each specialSemantics isNotNil ] ].
+
+	shaderEntryPoints ifEmpty: [^ nil].
+	
+	shaderSSAModule disableSLVMOptimizations: MbndStandaloneModule disableSLVMOptimizations.
+	multiSpirVModule := shaderSSAModule asLowLevelModuleWithOptimizationLevel: sourceModule optimizationLevel.
+	sourceModule embeddedShaderCopyOutputFile ifNotNil: [ :filename |
+		multiSpirVModule saveTo: filename.
+	].
+
+	shaderEntryPoints do: [ :entryPoint |
+		shaderSSAModule highLevelMapToSymbol at: entryPoint ifPresent: [:shaderEntryPointName |
+			| spirVModule |
+			spirVModule := multiSpirVModule moduleForEntryPointNamed: shaderEntryPointName.
+			self generateEmbeddedShaderModule: spirVModule withName: shaderEntryPointName for: entryPoint
+		].
+	].
+
 ]
 
 { #category : #'code generation' }
@@ -873,6 +880,7 @@ MbndSlovimCodeModuleGenerator >> generateGlobalField: field forDescriptorSet: se
 
 	ssaGlobal := SLVMGlobalVariable module: ssaModule name: globalName valueType: ssaValueType storage: globalStorage.
 	ssaGlobal
+		unmangledName: (self unmangledNameForShaderEntity: field) , ('[{1}:{2}]' format: {set asString . binding asString});
 		propertyAt: #set put: set;
 		propertyAt: #binding put: binding.
 	^ ssaGlobal
@@ -892,6 +900,7 @@ MbndSlovimCodeModuleGenerator >> generateGlobalField: field forShader: shaderSta
 	].
 
 	ssaGlobal := SLVMGlobalVariable module: ssaModule name: globalName valueType: ssaValueType storage: storage.
+	ssaGlobal unmangledName: (self unmangledNameForShaderEntity: field) , ('[{1}:{2}]' format: {shaderStage . storage , (location ifNil: [ '' ] ifNotNil: [':' , location asString])}).
 	location ifNotNil: [
 		ssaGlobal propertyAt: #location put: location.
 	].
@@ -908,6 +917,7 @@ MbndSlovimCodeModuleGenerator >> generateGlobalField: field forSharedStorageWith
 	ssaValueType := self translateType: valueType.
 
 	ssaGlobal := SLVMGlobalVariable module: ssaModule name: globalName valueType: ssaValueType storage: storageType.
+	ssaGlobal unmangledName: (self unmangledNameForShaderEntity: field) , '[' , storageType , ']'.
 	^ ssaGlobal
 ]
 
@@ -923,6 +933,7 @@ MbndSlovimCodeModuleGenerator >> generateGlobalFieldForPushConstants: field [
 	ssaValueType := self translateStructureType: valueType baseType withKind: structureKind.
 
 	ssaGlobal := SLVMGlobalVariable module: ssaModule name: globalName valueType: ssaValueType storage: globalStorage.
+	ssaGlobal unmangledName: (self unmangledNameForShaderEntity: field) , '[pushConstants]'.
 	^ ssaGlobal
 ]
 
@@ -2057,14 +2068,20 @@ MbndSlovimCodeModuleGenerator >> unmangledNameForProgramEntity: programEntity in
 ]
 
 { #category : #visiting }
-MbndSlovimCodeModuleGenerator >> unmangledNameForShaderEntryPoint: programEntity [
+MbndSlovimCodeModuleGenerator >> unmangledNameForShaderEntity: programEntity [
 	^ ByteString streamContents: [ :out |
-		self unmangledNameForShaderEntryPoint: programEntity into: out
+		self unmangledNameForShaderEntity: programEntity into: out
 	]
 ]
 
 { #category : #visiting }
-MbndSlovimCodeModuleGenerator >> unmangledNameForShaderEntryPoint: programEntity into: out [
+MbndSlovimCodeModuleGenerator >> unmangledNameForShaderEntity: programEntity into: out [
+	programEntity isTemplateInstance ifTrue: [
+		programEntity mainAliasCompileTimeConstant ifNotNil: [ :alias |
+			^ self unmangledNameForShaderEntity: alias into: out
+		]
+	].
+
 	programEntity isMbndType ifTrue: [ 
 		(programEntity isCoreBasicType or: [programEntity isSystemProvidedTypeTemplateInstanceMainChild]) ifTrue: [
 			^ out nextPutAll: programEntity asString
@@ -2074,7 +2091,7 @@ MbndSlovimCodeModuleGenerator >> unmangledNameForShaderEntryPoint: programEntity
 	programEntity parent ifNil: [
 		programEntity isNamespace ifTrue: [ ^ self ].
 	] ifNotNil: [
-		self unmangledNameForShaderEntryPoint: programEntity parent into: out.
+		self unmangledNameForShaderEntity: programEntity parent into: out.
 		(programEntity name isMbndAnonymousSymbol and: [ programEntity parent isTemplateInstance ]) ifTrue: [  ^ self ].
 			
 		programEntity parent parent ifNotNil: [ 
@@ -2766,9 +2783,7 @@ MbndSlovimCodeModuleGenerator >> visitModule: module [
 	].
 
 
-	self generateEmbeddedShaderModule ifNotNil: [ :embeddedShaderModule |
-		"TODO: Store the embedded shader module in the module object."
-	].
+	self generateEmbeddedShaderModules.
 
 	"Set the module info global data."
 	moduleInfoInstance ifNotNil: [
