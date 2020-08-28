@@ -366,7 +366,7 @@ MbndSlovimCodeModuleGenerator >> createSpirVShaderControllerFor: functionMethod 
 		{argumentType . index}
 	]) select: [:pair | pair first isOutputChannelType].
 
-	shaderFunction := SLVMFunction module: ssaModule name: csymbol functionType: (SLVMFunctionType arguments: #() returnType: SLVMType voidType).
+	shaderFunction := SLVMFunction module: ssaModule name: csymbol asSymbol functionType: (SLVMFunctionType arguments: #() returnType: SLVMType voidType).
 	shaderFunction propertyAt: functionMethod specialSemantics put: nil.
 	ssaModule addHighLevelEntity: functionMethod mapToGlobalValue: shaderFunction.
 	
@@ -718,13 +718,13 @@ MbndSlovimCodeModuleGenerator >> generateAnonCompilerGeneratedMethodWithType: fu
 ]
 
 { #category : #'code generation' }
-MbndSlovimCodeModuleGenerator >> generateCodeModuleFor: aModule [
-	^ self generateCodeModuleFor: aModule programEntities: { aModule }
+MbndSlovimCodeModuleGenerator >> generateCodeModuleFor: aModule name: codeModuleName [
+	^ self generateCodeModuleFor: aModule programEntities: { aModule } name: codeModuleName
 ]
 
 { #category : #'code generation' }
-MbndSlovimCodeModuleGenerator >> generateCodeModuleFor: aModule name: codeModuleName [
-	^ self generateCodeModuleFor: aModule programEntities: { aModule } name: codeModuleName
+MbndSlovimCodeModuleGenerator >> generateCodeModuleFor: aModule programEntities: programEntitities [
+	^ self generateCodeModuleFor: aModule programEntities: programEntitities name: #main
 ]
 
 { #category : #'code generation' }

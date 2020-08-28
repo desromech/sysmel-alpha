@@ -150,6 +150,11 @@ MbndCompilationEnvironment >> addModuleSourceLocation: location [
 	moduleSourceLocations add: location asFileReference
 ]
 
+{ #category : #evaluation }
+MbndCompilationEnvironment >> analyzeAndEvaluateParsedSource: parsedSource [
+	^ self validCurrentModule analyzeAndEvaluateParsedSource: parsedSource
+]
+
 { #category : #'semantic analysis' }
 MbndCompilationEnvironment >> analyzeReferenceNode: referenceNode with: analyzer [
 	^ (self asMoebiusLiteralValueNodeWithTarget: self compilationTarget)
@@ -253,12 +258,12 @@ MbndCompilationEnvironment >> endModule [
 	self popCurrentModule
 ]
 
-{ #category : #'module import' }
+{ #category : #evaluation }
 MbndCompilationEnvironment >> evaluateFileNamed: fileName [
 	^ self validCurrentModule evaluateFileNamed: fileName
 ]
 
-{ #category : #'module import' }
+{ #category : #evaluation }
 MbndCompilationEnvironment >> evaluateFileNamedOnce: fileName [
 	hasBeginModule ifFalse: [
 		self beginModule: fileName asFileReference basenameWithoutExtension asSymbol
@@ -267,12 +272,12 @@ MbndCompilationEnvironment >> evaluateFileNamedOnce: fileName [
 	^ self validCurrentModule evaluateFileNamedOnce: fileName
 ]
 
-{ #category : #'module import' }
+{ #category : #evaluation }
 MbndCompilationEnvironment >> evaluateLanguage: languageName source: sourceString [
 	^ self validCurrentModule evaluateLanguage: languageName source: sourceString
 ]
 
-{ #category : #'as yet unclassified' }
+{ #category : #evaluation }
 MbndCompilationEnvironment >> evaluateRuntimeCoreLibrary [
 	coreModule loadRuntimeCoreLibrary
 ]
@@ -364,6 +369,11 @@ MbndCompilationEnvironment >> freestanding [
 	^ self
 		noLibC;
 		noRTTI.
+]
+
+{ #category : #evaluation }
+MbndCompilationEnvironment >> getLanguageNamedFromCache: languageName [
+	^ self validCurrentModule getLanguageNamedFromCache: languageName
 ]
 
 { #category : #'module import' }
@@ -708,6 +718,11 @@ MbndCompilationEnvironment >> newCompilationEnvironmentForCleanModuleBuilding [
 		moduleSourceLocations: moduleSourceLocations copy.
 
 	^ result.
+]
+
+{ #category : #evaluation }
+MbndCompilationEnvironment >> newSourceEvaluationScopeForLanguageNamed: aLanguage [
+	^ self validCurrentModule newSourceEvaluationScopeForLanguageNamed: aLanguage
 ]
 
 { #category : #parameters }

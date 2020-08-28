@@ -2,11 +2,11 @@ Class {
 	#name : #SGPUCompilationEnvironment,
 	#superclass : #Object,
 	#instVars : [
-		'compilationModule',
 		'compiledBlockClosures',
 		'compiledShaderStages',
 		'mbndToSlvmTypeMapCache',
-		'compiledGenerators'
+		'compiledGenerators',
+		'compilationEnvironment'
 	],
 	#classVars : [
 		'Current'
@@ -35,13 +35,13 @@ SGPUCompilationEnvironment class >> uniqueInstance [
 ]
 
 { #category : #accessing }
-SGPUCompilationEnvironment >> compilationModule [
-	^ compilationModule
+SGPUCompilationEnvironment >> compilationEnvironment [
+	^ compilationEnvironment
 ]
 
 { #category : #accessing }
 SGPUCompilationEnvironment >> compilationTarget [
-	^ compilationModule compilationTarget
+	^ compilationEnvironment compilationTarget
 ]
 
 { #category : #compiling }
@@ -131,9 +131,9 @@ SGPUCompilationEnvironment >> evaluateTypeExpression: typeExpression [
 	].
 
 	result := (typeExpression isString and: [typeExpression isSymbol not]) ifTrue: [ 
-		compilationModule evaluateLanguage: #pharoEmbedded source: typeExpression
+		compilationEnvironment evaluateLanguage: #pharoEmbedded source: typeExpression
 	] ifFalse: [
-		compilationModule analyzeAndEvaluateParsedSource: (self wrapParsedSource: (self parseTypeExpression: typeExpression))
+		compilationEnvironment analyzeAndEvaluateParsedSource: (self wrapParsedSource: (self parseTypeExpression: typeExpression))
 	].
 
 	resultValue := result unwrapMbndValue.
@@ -146,7 +146,7 @@ SGPUCompilationEnvironment >> evaluateTypeExpression: typeExpression [
 { #category : #'as yet unclassified' }
 SGPUCompilationEnvironment >> getShaderTemplateNamed: templateName [
 	| blockConversionNamespace |
-	blockConversionNamespace := compilationModule globalNamespace lookupSymbol: #GPUBlockConversion.
+	blockConversionNamespace := compilationEnvironment validCurrentModule globalNamespace lookupSymbol: #GPUBlockConversion.
 	^ blockConversionNamespace lookupSymbol: templateName.
 
 ]
@@ -162,9 +162,11 @@ SGPUCompilationEnvironment >> getShaderTemplateNamed: templateName instanceWithA
 { #category : #initialization }
 SGPUCompilationEnvironment >> initialize [
 	super initialize.
-	compilationModule := MbndCompilationEnvironment spirv_vulkan
+	compilationEnvironment := MbndCompilationEnvironment spirv_vulkan
+		monolithic;
 		loadRuntimeCoreLibrary;
-		evaluateFileNamedOnce: MbndCoreAssets location / 'lib' / 'gpu' / 'blocks' / 'blocks.sysmel'.
+		importModuleNamed: #'Sysmel.GPU.Blocks';
+		beginModule: #SGPUCompilationEnvironment.
 		
 	compiledBlockClosures := WeakKeyDictionary new.
 	compiledShaderStages := WeakKeyDictionary new.
@@ -186,8 +188,8 @@ SGPUCompilationEnvironment >> intervalGenerationShaderStageCodeForValueType: val
 { #category : #compiling }
 SGPUCompilationEnvironment >> newSemanticAnalyzer [
 	^ MbndAstSemanticAnalyzer new
-		scope: (compilationModule newSourceEvaluationScopeForLanguageNamed: #pharoEmbedded);
-		module: compilationModule;
+		scope: (compilationEnvironment newSourceEvaluationScopeForLanguageNamed: #pharoEmbedded);
+		module: compilationEnvironment;
 		yourself
 ]
 
@@ -197,7 +199,7 @@ SGPUCompilationEnvironment >> parseBlockClosure: blockClosure withTypeExpression
 	blockAstNode := blockClosure sourceNode.
 	sourceCode := blockAstNode source asMoebiusBandCollectionWithContext.
 	convertedAST := MbndRBAstConverter new
-		convertAST: blockAstNode parsedFromSourceCollection: sourceCode withBuilder: (MbndAstBuilder forModule: compilationModule).
+		convertAST: blockAstNode parsedFromSourceCollection: sourceCode withBuilder: (MbndAstBuilder forModule: compilationEnvironment).
 	self assert: convertedAST isMbndAstNode.
 	self assert: convertedAST isBlockClosureNode.
 	
@@ -282,10 +284,10 @@ SGPUCompilationEnvironment >> shaderStageCodeFor: concreteMethod [
 	^ compiledShaderStages at: concreteMethod ifAbsentPut: [
 		shaderStageType := concreteMethod specialSemantics.
 		self assert: shaderStageType isNotNil.
-		compilationModule finishSemanticAnalysis.
+		compilationEnvironment finishSemanticAnalysis.
 	
 		targetSSACodeModule := concreteMethod generateTargetCodeModuleOnlyForMyself.
-		spirVModule := targetSSACodeModule asLowLevelModuleWithOptimizationLevel: compilationModule optimizationLevel.
+		spirVModule := targetSSACodeModule asLowLevelModuleWithOptimizationLevel: compilationEnvironment optimizationLevel.
 		shaderSymbol := targetSSACodeModule highLevelMapToSymbol at: concreteMethod.
 		shaderEntryPoint := spirVModule entryPoints at: shaderSymbol -> shaderStageType.
 		SGPUShaderStageCode new
@@ -298,8 +300,8 @@ SGPUCompilationEnvironment >> shaderStageCodeFor: concreteMethod [
 { #category : #'as yet unclassified' }
 SGPUCompilationEnvironment >> slvmTypeForMbndType: mbndType [
 	^ mbndToSlvmTypeMapCache at: mbndType ifAbsentPut: [
-		compilationModule compilationTarget newCodeModuleGenerator
-			generateCodeModuleFor: compilationModule programEntities: #();
+		compilationEnvironment compilationTarget newCodeModuleGenerator
+			generateCodeModuleFor: compilationEnvironment validCurrentModule programEntities: #();
 			translateType: mbndType
 	].
 
@@ -309,6 +311,6 @@ SGPUCompilationEnvironment >> slvmTypeForMbndType: mbndType [
 SGPUCompilationEnvironment >> wrapParsedSource: ast [
 	^ MbndLanguageParsedSource new
 		ast: ast;
-		language: (compilationModule getLanguageNamedFromCache: #pharoEmbedded);
+		language: (compilationEnvironment getLanguageNamedFromCache: #pharoEmbedded);
 		yourself
 ]

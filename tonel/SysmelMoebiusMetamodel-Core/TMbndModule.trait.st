@@ -18,6 +18,7 @@ Trait {
 		'addedClasses'
 	],
 	#traits : 'TMbndProgramEntity',
+	#classTraits : 'TMbndProgramEntity classTrait',
 	#category : #'SysmelMoebiusMetamodel-Core-Module'
 }
 
@@ -235,7 +236,7 @@ TMbndModule >> generateTargetCodeModule [
 TMbndModule >> generateTargetCodeModuleForProgramEntities: programEntitities [
 	| codeGenerator |
 	codeGenerator := self compilationTarget newCodeModuleGenerator.
-	^ codeGenerator generateCodeModuleFor: self programEntities: programEntitities
+	^ codeGenerator generateCodeModuleFor: self programEntities: programEntitities name: #main
 ]
 
 { #category : #parsing }
